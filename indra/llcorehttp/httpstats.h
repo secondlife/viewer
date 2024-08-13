@@ -35,12 +35,12 @@
 
 namespace LLCore
 {
-    class HTTPStats : public LLSingleton<HTTPStats>
+    class HTTPStats final : public LLSimpleton<HTTPStats>
     {
-        LLSINGLETON(HTTPStats);
-        virtual ~HTTPStats();
-
     public:
+        HTTPStats();
+        ~HTTPStats();
+
         void resetStats();
 
         typedef LLStatsAccumulator StatsAccumulator;

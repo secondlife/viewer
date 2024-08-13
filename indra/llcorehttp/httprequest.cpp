@@ -489,6 +489,7 @@ HttpStatus HttpRequest::createService()
         HttpRequestQueue::init();
         HttpRequestQueue * rq = HttpRequestQueue::instanceOf();
         HttpService::init(rq);
+        HTTPStats::createInstance();
         has_inited = true;
     }
 
@@ -502,6 +503,7 @@ HttpStatus HttpRequest::destroyService()
 
     if (has_inited)
     {
+        HTTPStats::deleteSingleton();
         HttpService::term();
         HttpRequestQueue::term();
         has_inited = false;
