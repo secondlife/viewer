@@ -1284,6 +1284,7 @@ bool LLAppViewer::init()
     //LLSimpleton creations
     LLEnvironment::createInstance();
     LLWorld::createInstance();
+    LLViewerStatsRecorder::createInstance();
     LLSelectMgr::createInstance();
     LLViewerCamera::createInstance();
     LL::GLTFSceneManager::createInstance();
@@ -2166,6 +2167,7 @@ bool LLAppViewer::cleanup()
     LL::GLTFSceneManager::deleteSingleton();
     LLEnvironment::deleteSingleton();
     LLSelectMgr::deleteSingleton();
+    LLViewerStatsRecorder::deleteSingleton();
     LLViewerEventRecorder::deleteSingleton();
     LLWorld::deleteSingleton();
     LLVoiceClient::deleteSingleton();
