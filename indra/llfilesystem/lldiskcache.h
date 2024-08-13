@@ -104,16 +104,9 @@ class LLDiskCache :
          * so many things had to be pushed back there to accomodate it, that I
          * decided to move it here.  Still not sure that's completely right.
          */
-        const std::string metaDataToFilepath(const std::string id,
-                                             LLAssetType::EType at,
-                                             const std::string extra_info);
+        static const std::string metaDataToFilepath(const std::string& id,
+                                             LLAssetType::EType at);
 
-        /**
-         * Update the "last write time" of a file to "now". This must be called whenever a
-         * file in the cache is read (not written) so that the last time the file was
-         * accessed is up to date (This is used in the mechanism for purging the cache)
-         */
-        void updateFileAccessTime(const std::string file_path);
 
         /**
          * Purge the oldest items in the cache so that the combined size of all files
@@ -170,17 +163,7 @@ class LLDiskCache :
          * setting could potentially point it at a non-cache directory (for example,
          * the Windows System dir) with disastrous results.
          */
-        std::string mCacheDir;
-
-        /**
-         * The prefix inserted at the start of a cache file filename to
-         * help identify it as a cache file. It's probably not required
-         * (just the presence in the cache folder is enough) but I am
-         * paranoid about the cache folder being set to something bad
-         * like the users' OS system dir by mistake or maliciously and
-         * this will help to offset any damage if that happens.
-         */
-        std::string mCacheFilenamePrefix;
+        static std::string sCacheDir;
 
         /**
          * When enabled, displays additional debugging information in
