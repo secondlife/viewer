@@ -354,6 +354,7 @@ jobs:
       BUGSPLAT_USER: ${{ secrets.BUGSPLAT_USER }}
       BUGSPLAT_PASS: ${{ secrets.BUGSPLAT_PASS }}
     needs: build
+    if: needs.build.outputs.configuration == 'Release'
     runs-on: ubuntu-latest
     steps:
       - name: Download viewer exe
