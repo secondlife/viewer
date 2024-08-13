@@ -82,6 +82,7 @@ public:
     /*virtual*/ void setVisible(BOOL visible);
     /*virtual*/ void setFocus(BOOL focus);
     /*virtual*/ void closeFloater(bool app_quitting = false);
+    /*virtual*/ void deleteAllChildren();
 
     // Handle the left hand participant list widgets
     void addConversationViewParticipant(LLConversationItem* item, bool update_view = true);
