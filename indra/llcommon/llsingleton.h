@@ -35,6 +35,8 @@
 #include "lockstatic.h"
 #include "llthread.h"               // on_main_thread()
 #include "llmainthreadtask.h"
+#include "llprofiler.h"
+#include "llerror.h"
 
 #ifdef LL_WINDOWS
 #pragma warning(push)
@@ -298,7 +300,7 @@ private:
         // Use a recursive_mutex in case of constructor circularity. With a
         // non-recursive mutex, that would result in deadlock.
         typedef std::recursive_mutex mutex_t;
-        mutex_t mMutex;             // LockStatic looks for mMutex
+        LL_PROFILE_MUTEX_NAMED(mutex_t, mMutex, "Singleton Data"); // LockStatic looks for mMutex
 
         EInitState      mInitState{UNINITIALIZED};
         DERIVED_TYPE*   mInstance{nullptr};
@@ -420,7 +422,7 @@ protected:
         // deleteSingleton() to defend against manual deletion. When we moved
         // cleanup to deleteSingleton(), we hit crashes due to dangling
         // pointers in the MasterList.
-        LockStatic lk;
+        LockStatic lk; LL_PROFILE_MUTEX_LOCK(lk->mMutex);
         lk->mInstance  = nullptr;
         lk->mInitState = DELETED;
 
@@ -448,7 +450,7 @@ public:
         // Hold the lock while we call cleanupSingleton() and the destructor.
         // Our destructor also instantiates LockStatic, requiring a recursive
         // mutex.
-        LockStatic lk;
+        LockStatic lk; LL_PROFILE_MUTEX_LOCK(lk->mMutex);
         // of course, only cleanup and delete if there's something there
         if (lk->mInstance)
         {
@@ -505,7 +507,7 @@ public:
         { // nested scope for 'lk'
             // In case racing threads call getInstance() at the same moment,
             // serialize the calls.
-            LockStatic lk;
+            LockStatic lk; LL_PROFILE_MUTEX_LOCK(lk->mMutex);
 
             switch (lk->mInitState)
             {
@@ -595,7 +597,7 @@ public:
     static bool instanceExists()
     {
         // defend any access to sData from racing threads
-        LockStatic lk;
+        LockStatic lk; LL_PROFILE_MUTEX_LOCK(lk->mMutex);
         return lk->mInitState == INITIALIZED;
     }
 
@@ -605,7 +607,7 @@ public:
     static bool wasDeleted()
     {
         // defend any access to sData from racing threads
-        LockStatic lk;
+        LockStatic lk; LL_PROFILE_MUTEX_LOCK(lk->mMutex);
         return lk->mInitState == DELETED;
     }
 };
@@ -644,7 +646,7 @@ private:
         // In case racing threads both call initParamSingleton() at the same
         // time, serialize them. One should initialize; the other should see
         // mInitState already set.
-        LockStatic lk;
+        LockStatic lk; LL_PROFILE_MUTEX_LOCK(lk->mMutex);
         // For organizational purposes this function shouldn't be called twice
         if (lk->mInitState != super::UNINITIALIZED)
         {
@@ -708,7 +710,7 @@ public:
     {
         // In case racing threads call getInstance() at the same moment as
         // initParamSingleton(), serialize the calls.
-        LockStatic lk;
+        LockStatic lk; LL_PROFILE_MUTEX_LOCK(lk->mMutex);
 
         switch (lk->mInitState)
         {
