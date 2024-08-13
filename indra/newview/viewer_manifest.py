@@ -586,6 +586,10 @@ class Windows_x86_64_Manifest(ViewerManifest):
                 self.path("BugSplat64.dll")
                 self.path("BugSplatRc64.dll")
 
+            if self.args['tracy'] == 'ON':
+                with self.prefix(src=os.path.join(pkgdir, 'bin')):
+                    self.path("tracy-profiler.exe")
+
         self.path(src="licenses-win32.txt", dst="licenses.txt")
         self.path("featuretable.txt")
         self.path("cube.dae")
@@ -1372,6 +1376,7 @@ if __name__ == "__main__":
         dict(name='bugsplat', description="""BugSplat database to which to post crashes,
              if BugSplat crash reporting is desired""", default=''),
         dict(name='openal', description="""Indication openal libraries are needed""", default='OFF'),
+        dict(name='tracy', description="""Indication tracy profiler is enabled""", default='OFF'),
         ]
     try:
         main(extra=extra_arguments)

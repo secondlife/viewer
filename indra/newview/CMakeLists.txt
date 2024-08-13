@@ -1776,6 +1776,7 @@ if (WINDOWS)
         --artwork=${ARTWORK_DIR}
         "--bugsplat=${BUGSPLAT_DB}"
         "--openal=${USE_OPENAL}"
+        "--tracy=${USE_TRACY}"
         --build=${CMAKE_CURRENT_BINARY_DIR}
         --buildtype=$<CONFIG>
         "--channel=${VIEWER_CHANNEL}"
@@ -1836,6 +1837,7 @@ if (WINDOWS)
               --artwork=${ARTWORK_DIR}
               "--bugsplat=${BUGSPLAT_DB}"
               "--openal=${USE_OPENAL}"
+              "--tracy=${USE_TRACY}"
               --build=${CMAKE_CURRENT_BINARY_DIR}
               --buildtype=$<CONFIG>
               "--channel=${VIEWER_CHANNEL}"
@@ -1985,6 +1987,7 @@ if (LINUX)
         --artwork=${ARTWORK_DIR}
         "--bugsplat=${BUGSPLAT_DB}"
         "--openal=${USE_OPENAL}"
+        "--tracy=${USE_TRACY}"
         --build=${CMAKE_CURRENT_BINARY_DIR}
         --buildtype=${CMAKE_BUILD_TYPE}
         "--channel=${VIEWER_CHANNEL}"
@@ -2012,6 +2015,7 @@ if (LINUX)
       --artwork=${ARTWORK_DIR}
       "--bugsplat=${BUGSPLAT_DB}"
       "--openal=${USE_OPENAL}"
+      "--tracy=${USE_TRACY}"
       --build=${CMAKE_CURRENT_BINARY_DIR}
       --buildtype=${CMAKE_BUILD_TYPE}
       "--channel=${VIEWER_CHANNEL}"
@@ -2087,6 +2091,7 @@ if (DARWIN)
       --artwork=${ARTWORK_DIR}
       "--bugsplat=${BUGSPLAT_DB}"
       "--openal=${USE_OPENAL}"
+      "--tracy=${USE_TRACY}"
       --build=${CMAKE_CURRENT_BINARY_DIR}
       --buildtype=$<CONFIG>
       --bundleid=${MACOSX_BUNDLE_GUI_IDENTIFIER}
@@ -2121,6 +2126,7 @@ if (DARWIN)
               --artwork=${ARTWORK_DIR}
               "--bugsplat=${BUGSPLAT_DB}"
               "--openal=${USE_OPENAL}"
+              "--tracy=${USE_TRACY}"
               --build=${CMAKE_CURRENT_BINARY_DIR}
               --buildtype=$<CONFIG>
               "--channel=${VIEWER_CHANNEL}"

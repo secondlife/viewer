@@ -78,12 +78,6 @@ extern thread_local bool gProfilerEnabled;
 
 #if defined(LL_PROFILER_CONFIGURATION) && (LL_PROFILER_CONFIGURATION > LL_PROFILER_CONFIG_NONE)
     #if LL_PROFILER_CONFIGURATION == LL_PROFILER_CONFIG_TRACY || LL_PROFILER_CONFIGURATION == LL_PROFILER_CONFIG_TRACY_FAST_TIMER
-        #define TRACY_ENABLE         1
-// Normally these would be enabled but we want to be able to build any viewer with Tracy enabled and run the Tracy server on another machine
-// They must be undefined in order to work across multiple machines
-//      #define TRACY_NO_BROADCAST   1
-//      #define TRACY_ONLY_LOCALHOST 1
-        #define TRACY_ONLY_IPV4      1
         #include "tracy/Tracy.hpp"
 
         // Enable OpenGL profiling
