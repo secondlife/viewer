@@ -30,6 +30,7 @@
 #define LL_LLGROUPCHATLISTENER_H
 
 #include "lleventapi.h"
+#include "throttle.h"
 
 class LLGroupChatListener: public LLEventAPI
 {
@@ -40,8 +41,9 @@ private:
     void startGroupChat(LLSD const &data);
     void leaveGroupChat(LLSD const &data);
     void sendGroupIM(LLSD const &data);
+    void sendGroupIM_(const LLUUID& group_id, const std::string& message);
 
-    F64 mLastThrottleTime {0.0};
+    LogThrottle<LLError::LEVEL_DEBUG, void(const LLUUID&, const std::string&)> mIMThrottle;
 };
 
 #endif /* ! defined(LL_LLGROUPCHATLISTENER_H) */

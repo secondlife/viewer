@@ -113,6 +113,7 @@ set(llcommon_SOURCE_FILES
     lua_function.cpp
     lualistener.cpp
     threadpool.cpp
+    throttle.cpp
     u64.cpp
     workqueue.cpp
     StackWalker.cpp
@@ -265,6 +266,7 @@ set(llcommon_HEADER_FILES
     threadpool.h
     threadpool_fwd.h
     threadsafeschedule.h
+    throttle.h
     timer.h
     tuple.h
     u64.h
