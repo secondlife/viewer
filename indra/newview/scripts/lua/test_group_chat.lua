@@ -1,5 +1,4 @@
 LLChat = require 'LLChat'
-inspect = require 'inspect'
 LLAgent = require 'LLAgent'
 popup = require 'popup'
 

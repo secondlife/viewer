@@ -38,7 +38,7 @@
 #include "llgroupactions.h"
 #include "llimview.h"
 
-static const F32 GROUP_CHAT_THROTTLE_PERIOD = 1.f;
+static const F64 GROUP_CHAT_THROTTLE_PERIOD = 1.f;
 
 LLGroupChatListener::LLGroupChatListener():
     LLEventAPI("GroupChat",

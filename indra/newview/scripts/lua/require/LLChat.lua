@@ -6,8 +6,9 @@ local LLChat = {}
 --  Nearby chat
 -- ***************************************************************************
 
-function LLChat.sendNearby(msg)
-    leap.send('LLChatBar', {op='sendChat', message=msg})
+-- 0 is public nearby channel, other channels are used to communicate with LSL scripts
+function LLChat.sendNearby(msg, channel)
+    leap.send('LLChatBar', {op='sendChat', message=msg, channel=channel})
 end
 
 function LLChat.sendWhisper(msg)
@@ -16,11 +17,6 @@ end
 
 function LLChat.sendShout(msg)
     leap.send('LLChatBar', {op='sendChat', type='shout', message=msg})
-end
-
--- 0 is public nearby channel, other channels are used to communicate with LSL scripts
-function LLChat.sendChannel(msg, channel)
-    leap.send('LLChatBar', {op='sendChat', channel=channel, message=msg})
 end
 
 -- ***************************************************************************
