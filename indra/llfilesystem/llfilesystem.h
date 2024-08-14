@@ -53,6 +53,13 @@ class LLFileSystem
         bool rename(const LLUUID& new_id, const LLAssetType::EType new_type);
         bool remove();
 
+        /**
+         * Update the "last write time" of a file to "now". This must be called whenever a
+         * file in the cache is read (not written) so that the last time the file was
+         * accessed is up to date (This is used in the mechanism for purging the cache)
+         */
+        void updateFileAccessTime(const std::string& file_path);
+
         static bool getExists(const LLUUID& file_id, const LLAssetType::EType file_type);
         static bool removeFile(const LLUUID& file_id, const LLAssetType::EType file_type, int suppress_error = 0);
         static bool renameFile(const LLUUID& old_file_id, const LLAssetType::EType old_file_type,
