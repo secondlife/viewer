@@ -14,7 +14,7 @@ if (USE_TRACY)
   use_prebuilt_binary(tracy)
 
   target_include_directories( ll::tracy SYSTEM INTERFACE ${LIBS_PREBUILT_DIR}/include/tracy)
-  
+
   target_compile_definitions(ll::tracy INTERFACE -DTRACY_ENABLE=1 -DTRACY_ONLY_IPV4=1)
 
   if (USE_TRACY_ON_DEMAND)
