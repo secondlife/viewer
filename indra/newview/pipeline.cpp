@@ -10668,6 +10668,7 @@ bool LLPipeline::hasAnyRenderType(U32 type, ...) const
     {
         if (mRenderTypeEnabled[type])
         {
+            va_end(args);
             return true;
         }
         type = va_arg(args, U32);
