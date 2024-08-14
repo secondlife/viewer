@@ -3032,6 +3032,15 @@ This is usually a temporary failure. Please customize and save the wearable agai
   </notification>
 
   <notification
+   icon="notifytip.tga"
+   name="OutOfDiskSpace"
+   type="notifytip">
+The system is out of disk space. You will need to free up some space on your computer or clear the cache.
+<tag>fail</tag>
+    <unique/>
+  </notification>
+
+  <notification
    icon="alertmodal.tga"
    name="YouHaveBeenLoggedOut"
    type="alertmodal">
@@ -4250,6 +4259,20 @@ Unable to add estate manager [AGENT] to banned list.
    name="CanNotChangeAppearanceUntilLoaded"
    type="alertmodal">
 Can&apos;t change appearance until clothing and shape are loaded.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="UsavedWearableChanges"
+   type="alertmodal">
+You have unsaved changes.
+      <tag>group</tag>
+    <tag>confirm</tag>
+    <usetemplate
+     ignoretext="Confirm before I discard unsaved wearable changes"
+     name="okcancelignore"
+     notext="Keep Editing"
+     yestext="Discard"/>
   </notification>
 
   <notification
@@ -8848,10 +8871,11 @@ New Voice Morphs are available!
     persist="true"
     type="alertmodal">
 Voice Morphs are not supported by this viewer.
+For more information about other voice morph tools, see [[FAQ_URL] this article].
     <usetemplate
-        notext="Cancel"
-        name="okcancelbuttons"
-        yestext="Disable Voice Morphing"/>
+        ignoretext="Warn me about voice morph not being supported"
+        name="okignore"
+        yestext="OK"/>
     <tag>voice</tag>
   </notification>
 

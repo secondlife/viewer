@@ -1285,7 +1285,6 @@ bool idle_startup()
         //
         // Initialize classes w/graphics stuff.
         //
-        LLViewerStatsRecorder::instance(); // Since textures work in threads
         LLSurface::initClasses();
         display_startup();
 

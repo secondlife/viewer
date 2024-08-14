@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater
+    legacy_header_height="18"
+    can_minimize="false"
+    height="360"
+    min_height="367"
+    layout="topleft"
+    name="settings_color"
+    help_topic="settings_color"
+    title="COLOR SETTINGS"
+    reuse_instance="true"
+    can_resize="true"
+    min_width="550"
+    width="570">
+    <filter_editor
+        follows="left|top|right"
+        height="23"
+        layout="topleft"
+        left="10"
+        right="-10"
+        label="Enter search text"
+        max_length_chars="300"
+        name="filter_input"
+        text_pad_left="10"
+        top="30" />
+    <scroll_list
+        column_padding="0"
+        draw_heading="true"
+        draw_stripes="false"
+        heading_height="23"
+        height="266"
+        layout="topleft"
+        search_column="1"
+        sort_column="1"
+        left="10"
+        follows="left|top|bottom"
+        name="setting_list"
+        top_pad="2"
+        width="300">
+        <scroll_list.columns
+            name="changed_color"
+            relative_width="0.05" />
+        <scroll_list.columns
+            label="Color"
+            name="color" />
+    </scroll_list>
+    <text
+        type="string"
+        length="1"
+        follows="left|top"
+        height="16"
+        layout="topleft"
+        name="color_name_txt"
+        font="SansSerifSmallBold"
+        top_delta="8"
+        left_pad="10"
+        visible="true"
+        use_ellipses="true"
+        text_color="White"
+        width="240">
+        Color name
+    </text>
+    <color_swatch
+        top_pad="0"
+        left_delta="0"
+        follows="top|left"
+        can_apply_immediately="true"
+        height="180"
+        name="color_swatch"
+        visible="true"
+        layout="topleft"
+        width="240">
+        <color_swatch.commit_callback
+            function="CommitSettings" />
+    </color_swatch>
+    <spinner
+        height="20"
+        label="Alpha"
+        layout="topleft"
+        follows="top|left"
+        left_delta="0"
+        min_val="0"
+        max_val="1"
+        decimal_digits="3"
+        name="alpha_spinner"
+        top_pad="5"
+        visible="true"
+        width="120">
+        <spinner.commit_callback
+            function="CommitSettings" />
+    </spinner>
+    <button
+        height="22"
+        label="Reset to default"
+        follows="left|top"
+        layout="topleft"
+        left_delta="0"
+        name="default_btn"
+        visible="true"
+        top_pad="15"
+        width="150">
+        <button.commit_callback
+            function="ClickDefault" />
+    </button>
+    <check_box
+        control_name="ColorSettingsHideDefault"
+        height="16"
+        initial_value="true"
+        label="Show changed colors only"
+        layout="topleft"
+        top_pad="10"
+        left="10"
+        follows="left|bottom"
+        name="hide_default"
+        width="330">
+    </check_box>
+</floater>

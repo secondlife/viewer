@@ -1051,7 +1051,8 @@ public:
         LLSpatialGroup* group = (LLSpatialGroup*)base_group;
         group->checkOcclusion();
 
-        if (group->getOctreeNode()->getParent() &&  //never occlusion cull the root node
+        if (group->getOctreeNode() &&
+            group->getOctreeNode()->getParent() &&  //never occlusion cull the root node
             LLPipeline::sUseOcclusion &&            //ignore occlusion if disabled
             group->isOcclusionState(LLSpatialGroup::OCCLUDED))
         {
@@ -3978,12 +3979,14 @@ void LLCullResult::clear()
 
     for (U32 i = 0; i < LLRenderPass::NUM_RENDER_TYPES; i++)
     {
-        for (U32 j = 0; j < mRenderMapSize[i]; j++)
+        drawinfo_list_t& render_map = mRenderMap[i];
+        U32 render_map_size = llmin((U32)render_map.size(), mRenderMapSize[i]);
+        for (U32 j = 0; j < render_map_size; j++)
         {
-            mRenderMap[i][j] = 0;
+            render_map[j] = 0;
         }
         mRenderMapSize[i] = 0;
-        mRenderMapEnd[i] = &(mRenderMap[i][0]);
+        mRenderMapEnd[i] = &render_map.front();
     }
 }
 

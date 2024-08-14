@@ -711,7 +711,7 @@ bool LLAppViewerWin32::init()
         }
         else
         {
-            boost::json::error_code ec;
+            boost::system::error_code ec;
             boost::json::value build_data = boost::json::parse(inf, ec);
             if(ec.failed())
             {

@@ -187,13 +187,13 @@ void LLVoiceChannel::handleError(EStatusType type)
     setState(STATE_ERROR);
 }
 
-bool LLVoiceChannel::isActive()
+bool LLVoiceChannel::isActive() const
 {
     // only considered active when currently bound channel matches what our channel
     return callStarted() && LLVoiceClient::getInstance()->isCurrentChannel(mChannelInfo);
 }
 
-bool LLVoiceChannel::callStarted()
+bool LLVoiceChannel::callStarted() const
 {
     return mState >= STATE_CALL_STARTED;
 }
@@ -662,7 +662,7 @@ LLVoiceChannelProximal::LLVoiceChannelProximal() :
 {
 }
 
-bool LLVoiceChannelProximal::isActive()
+bool LLVoiceChannelProximal::isActive() const
 {
     return callStarted() && LLVoiceClient::getInstance()->inProximalChannel();
 }
@@ -768,6 +768,7 @@ LLVoiceChannelP2P::LLVoiceChannelP2P(const LLUUID      &session_id,
     mReceivedCall(false),
     mOutgoingCallInterface(outgoing_call_interface)
 {
+    mChannelInfo = LLVoiceClient::getInstance()->getP2PChannelInfoTemplate(other_user_id);
 }
 
 void LLVoiceChannelP2P::handleStatusChange(EStatusType type)

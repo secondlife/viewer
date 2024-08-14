@@ -73,10 +73,20 @@ bool LLFocusableElement::wantsReturnKey() const
 // virtual
 LLFocusableElement::~LLFocusableElement()
 {
-    delete mFocusLostCallback;
-    delete mFocusReceivedCallback;
-    delete mFocusChangedCallback;
-    delete mTopLostCallback;
+    auto free_signal = [&](focus_signal_t*& signal)
+        {
+            if (signal)
+            {
+                signal->disconnect_all_slots();
+                delete signal;
+                signal = nullptr;
+            }
+        };
+
+    free_signal(mFocusLostCallback);
+    free_signal(mFocusReceivedCallback);
+    free_signal(mFocusChangedCallback);
+    free_signal(mTopLostCallback);
 }
 
 void LLFocusableElement::onFocusReceived()
@@ -183,7 +193,7 @@ void LLFocusMgr::releaseFocusIfNeeded( LLView* view )
         }
     }
 
-    LLUI::getInstance()->removePopup(view);
+    if(LLUI::instanceExists()) LLUI::getInstance()->removePopup(view);
 }
 
 void LLFocusMgr::setKeyboardFocus(LLFocusableElement* new_focus, bool lock, bool keystrokes_only)
@@ -481,7 +491,7 @@ void LLFocusMgr::setAppHasFocus(bool focus)
     // release focus from "top ctrl"s, which generally hides them
     if (!focus)
     {
-        LLUI::getInstance()->clearPopups();
+        if(LLUI::instanceExists()) LLUI::getInstance()->clearPopups();
     }
     mAppHasFocus = focus;
 }

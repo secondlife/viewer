@@ -1416,6 +1416,7 @@ void LLShaderMgr::initAttribsAndUniforms()
     mReservedUniforms.push_back("detail_3");
 
     mReservedUniforms.push_back("alpha_ramp");
+    mReservedUniforms.push_back("paint_map");
 
     mReservedUniforms.push_back("detail_0_base_color");
     mReservedUniforms.push_back("detail_1_base_color");
@@ -1439,6 +1440,8 @@ void LLShaderMgr::initAttribsAndUniforms()
     mReservedUniforms.push_back("roughnessFactors");
     mReservedUniforms.push_back("emissiveColors");
     mReservedUniforms.push_back("minimum_alphas");
+
+    mReservedUniforms.push_back("region_scale");
 
     mReservedUniforms.push_back("origin");
     mReservedUniforms.push_back("display_gamma");

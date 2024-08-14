@@ -42,6 +42,7 @@
 #include "llstl.h"
 #include "message.h"
 #include "lltimer.h"
+#include "v4coloru.h"
 
 // viewer includes
 #include "llimagegl.h"
@@ -539,9 +540,9 @@ void LLViewerTexture::updateClass()
         LL_WARNS() << "Low system memory detected, emergency downrezzing off screen textures" << LL_ENDL;
         sDesiredDiscardBias = llmax(sDesiredDiscardBias, 1.5f);
 
-        for (auto image : gTextureList)
+        for (auto& image : gTextureList)
         {
-            gTextureList.updateImageDecodePriority(image);
+            gTextureList.updateImageDecodePriority(image, false /*will modify gTextureList otherwise!*/);
         }
     }
 

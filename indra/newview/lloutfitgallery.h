@@ -135,7 +135,8 @@ private:
     void updateGalleryWidth();
 
     LLOutfitGalleryItem* buildGalleryItem(std::string name, LLUUID outfit_id);
-    LLOutfitGalleryItem* getSelectedItem();
+    LLOutfitGalleryItem* getSelectedItem() const;
+    LLOutfitGalleryItem* getItem(const LLUUID& id) const;
 
     void onTextureSelectionChanged(LLInventoryItem* itemp);
 
@@ -261,6 +262,7 @@ private:
     LLTextBox* mOutfitNameText;
     LLTextBox* mOutfitWornText;
     LLPanel* mTextBgPanel;
+    LLIconCtrl* mPreviewIcon = nullptr;
     bool     mSelected;
     bool     mWorn;
     bool     mDefaultImage;

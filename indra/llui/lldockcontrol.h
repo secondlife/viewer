@@ -84,6 +84,7 @@ private:
     bool mDockWidgetVisible;
     DocAt mDockAt;
     LLHandle<LLView> mDockWidgetHandle;
+    LLHandle<LLView> mNonToolbarPanelHandle;
     LLRect mPrevDockRect;
     LLRect mRootRect;
     LLRect mFloaterRect;

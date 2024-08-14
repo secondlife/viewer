@@ -28,8 +28,6 @@
 
 #include "llfloatereditenvironmentbase.h"
 
-#include <boost/make_shared.hpp>
-
 // libs
 #include "llnotifications.h"
 #include "llnotificationsutil.h"

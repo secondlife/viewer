@@ -561,14 +561,16 @@ class Windows_x86_64_Manifest(ViewerManifest):
             # For textures
             self.path("openjp2.dll")
 
-            # Uriparser
-            self.path("uriparser.dll")
-
             # These need to be installed as a SxS assembly, currently a 'private' assembly.
             # See http://msdn.microsoft.com/en-us/library/ms235291(VS.80).aspx
             self.path("msvcp140.dll")
+            self.path_optional("msvcp140_1.dll")
+            self.path_optional("msvcp140_2.dll")
+            self.path_optional("msvcp140_atomic_wait.dll")
+            self.path_optional("msvcp140_codecvt_ids.dll")
             self.path("vcruntime140.dll")
             self.path_optional("vcruntime140_1.dll")
+            self.path_optional("vcruntime140_threads.dll")
 
             # SLVoice executable
             with self.prefix(src=os.path.join(pkgdir, 'bin', 'release')):
@@ -578,21 +580,15 @@ class Windows_x86_64_Manifest(ViewerManifest):
             self.path("vivoxsdk_x64.dll")
             self.path("ortp_x64.dll")
 
-            # OpenSSL
-            self.path("libcrypto-1_1-x64.dll")
-            self.path("libssl-1_1-x64.dll")
-
-            # HTTP/2
-            self.path("nghttp2.dll")
-
-            # Hunspell
-            self.path("libhunspell.dll")
-
             # BugSplat
             if self.args.get('bugsplat'):
                 self.path("BsSndRpt64.exe")
                 self.path("BugSplat64.dll")
                 self.path("BugSplatRc64.dll")
+
+            if self.args['tracy'] == 'ON':
+                with self.prefix(src=os.path.join(pkgdir, 'bin')):
+                    self.path("tracy-profiler.exe")
 
         self.path(src="licenses-win32.txt", dst="licenses.txt")
         self.path("featuretable.txt")
@@ -928,7 +924,6 @@ class Darwin_x86_64_Manifest(ViewerManifest):
 
                 with self.prefix(src=relpkgdir, dst=""):
                     self.path("libndofdev.dylib")
-                    self.path("libhunspell-*.dylib")
 
                 with self.prefix(src_dst="cursors_mac"):
                     self.path("*.tif")
@@ -1009,18 +1004,6 @@ class Darwin_x86_64_Manifest(ViewerManifest):
                 # Need to get the llcommon dll from any of the build directories as well.
                 libfile_parent = self.get_dst_prefix()
                 dylibs=[]
-                for libfile in (
-                                "libapr-1.0.dylib",
-                                "libaprutil-1.0.dylib",
-                                "libexpat.1.dylib",
-                                # libnghttp2.dylib is a symlink to
-                                # libnghttp2.major.dylib, which is a symlink to
-                                # libnghttp2.version.dylib. Get all of them.
-                                "libnghttp2.*dylib",
-                                "liburiparser.*dylib",
-                                ):
-                    dylibs += path_optional(os.path.join(relpkgdir, libfile), libfile)
-
                 # SLVoice executable
                 with self.prefix(src=os.path.join(pkgdir, 'bin', 'release')):
                     self.path("SLVoice")
@@ -1318,14 +1301,7 @@ class Linux_i686_Manifest(LinuxManifest):
         debpkgdir = os.path.join(pkgdir, "lib", "debug")
 
         with self.prefix(src=relpkgdir, dst="lib"):
-            self.path("libapr-1.so")
-            self.path("libapr-1.so.0")
-            self.path("libapr-1.so.0.4.5")
-            self.path("libaprutil-1.so")
-            self.path("libaprutil-1.so.0")
-            self.path("libaprutil-1.so.0.4.1")
             self.path("libdb*.so")
-            self.path("libexpat.so.*")
             self.path("libuuid.so*")
             self.path("libSDL-1.2.so.*")
             self.path("libdirectfb-1.*.so.*")
@@ -1335,7 +1311,6 @@ class Linux_i686_Manifest(LinuxManifest):
             self.path("libdirectfb-1.4.so.5")
             self.path("libfusion-1.4.so.5")
             self.path("libdirect-1.4.so.5*")
-            self.path("libhunspell-1.3.so*")
             self.path("libalut.so*")
             self.path("libopenal.so*")
             self.path("libopenal.so", "libvivoxoal.so.1") # vivox's sdk expects this soname
@@ -1401,6 +1376,7 @@ if __name__ == "__main__":
         dict(name='bugsplat', description="""BugSplat database to which to post crashes,
              if BugSplat crash reporting is desired""", default=''),
         dict(name='openal', description="""Indication openal libraries are needed""", default='OFF'),
+        dict(name='tracy', description="""Indication tracy profiler is enabled""", default='OFF'),
         ]
     try:
         main(extra=extra_arguments)

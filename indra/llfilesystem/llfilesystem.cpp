@@ -34,6 +34,8 @@
 #include "llfasttimer.h"
 #include "lldiskcache.h"
 
+#include "boost/filesystem.hpp"
+
 const S32 LLFileSystem::READ        = 0x00000001;
 const S32 LLFileSystem::WRITE       = 0x00000002;
 const S32 LLFileSystem::READ_WRITE  = 0x00000003;  // LLFileSystem::READ & LLFileSystem::WRITE
@@ -56,9 +58,8 @@ LLFileSystem::LLFileSystem(const LLUUID& file_id, const LLAssetType::EType file_
     {
         // build the filename (TODO: we do this in a few places - perhaps we should factor into a single function)
         std::string id;
-        mFileID.toString(id);
-        const std::string extra_info = "";
-        const std::string filename = LLDiskCache::getInstance()->metaDataToFilepath(id, mFileType, extra_info);
+        mFileID.asString();
+        const std::string filename = LLDiskCache::metaDataToFilepath(id, mFileType);
 
         // update the last access time for the file if it exists - this is required
         // even though we are reading and not writing because this is the
@@ -67,7 +68,7 @@ LLFileSystem::LLFileSystem(const LLUUID& file_id, const LLAssetType::EType file_
         bool exists = gDirUtilp->fileExists(filename);
         if (exists)
         {
-            LLDiskCache::getInstance()->updateFileAccessTime(filename);
+            updateFileAccessTime(filename);
         }
     }
 }
@@ -82,8 +83,7 @@ bool LLFileSystem::getExists(const LLUUID& file_id, const LLAssetType::EType fil
     LL_PROFILE_ZONE_SCOPED;
     std::string id_str;
     file_id.toString(id_str);
-    const std::string extra_info = "";
-    const std::string filename = LLDiskCache::getInstance()->metaDataToFilepath(id_str, file_type, extra_info);
+    const std::string filename = LLDiskCache::metaDataToFilepath(id_str, file_type);
 
     llifstream file(filename, std::ios::binary);
     if (file.is_open())
@@ -99,8 +99,7 @@ bool LLFileSystem::removeFile(const LLUUID& file_id, const LLAssetType::EType fi
 {
     std::string id_str;
     file_id.toString(id_str);
-    const std::string extra_info = "";
-    const std::string filename =  LLDiskCache::getInstance()->metaDataToFilepath(id_str, file_type, extra_info);
+    const std::string filename =  LLDiskCache::metaDataToFilepath(id_str, file_type);
 
     LLFile::remove(filename.c_str(), suppress_error);
 
@@ -113,12 +112,11 @@ bool LLFileSystem::renameFile(const LLUUID& old_file_id, const LLAssetType::ETyp
 {
     std::string old_id_str;
     old_file_id.toString(old_id_str);
-    const std::string extra_info = "";
-    const std::string old_filename =  LLDiskCache::getInstance()->metaDataToFilepath(old_id_str, old_file_type, extra_info);
+    const std::string old_filename =  LLDiskCache::metaDataToFilepath(old_id_str, old_file_type);
 
     std::string new_id_str;
     new_file_id.toString(new_id_str);
-    const std::string new_filename =  LLDiskCache::getInstance()->metaDataToFilepath(new_id_str, new_file_type, extra_info);
+    const std::string new_filename =  LLDiskCache::metaDataToFilepath(new_id_str, new_file_type);
 
     // Rename needs the new file to not exist.
     LLFileSystem::removeFile(new_file_id, new_file_type, ENOENT);
@@ -140,8 +138,7 @@ S32 LLFileSystem::getFileSize(const LLUUID& file_id, const LLAssetType::EType fi
 {
     std::string id_str;
     file_id.toString(id_str);
-    const std::string extra_info = "";
-    const std::string filename =  LLDiskCache::getInstance()->metaDataToFilepath(id_str, file_type, extra_info);
+    const std::string filename =  LLDiskCache::metaDataToFilepath(id_str, file_type);
 
     S32 file_size = 0;
     llifstream file(filename, std::ios::binary);
@@ -160,8 +157,7 @@ bool LLFileSystem::read(U8* buffer, S32 bytes)
 
     std::string id;
     mFileID.toString(id);
-    const std::string extra_info = "";
-    const std::string filename =  LLDiskCache::getInstance()->metaDataToFilepath(id, mFileType, extra_info);
+    const std::string filename =  LLDiskCache::metaDataToFilepath(id, mFileType);
 
     llifstream file(filename, std::ios::binary);
     if (file.is_open())
@@ -205,8 +201,7 @@ bool LLFileSystem::write(const U8* buffer, S32 bytes)
 {
     std::string id_str;
     mFileID.toString(id_str);
-    const std::string extra_info = "";
-    const std::string filename =  LLDiskCache::getInstance()->metaDataToFilepath(id_str, mFileType, extra_info);
+    const std::string filename =  LLDiskCache::metaDataToFilepath(id_str, mFileType);
 
     bool success = false;
 
@@ -324,4 +319,65 @@ bool LLFileSystem::remove()
     LLFileSystem::removeFile(mFileID, mFileType);
 
     return true;
+}
+
+void LLFileSystem::updateFileAccessTime(const std::string& file_path)
+{
+    /**
+     * Threshold in time_t units that is used to decide if the last access time
+     * time of the file is updated or not. Added as a precaution for the concern
+     * outlined in SL-14582  about frequent writes on older SSDs reducing their
+     * lifespan. I think this is the right place for the threshold value - rather
+     * than it being a pref - do comment on that Jira if you disagree...
+     *
+     * Let's start with 1 hour in time_t units and see how that unfolds
+     */
+    const std::time_t time_threshold = 1 * 60 * 60;
+
+    // current time
+    const std::time_t cur_time = std::time(nullptr);
+
+    boost::system::error_code ec;
+#if LL_WINDOWS
+    // file last write time
+    const std::time_t last_write_time = boost::filesystem::last_write_time(utf8str_to_utf16str(file_path), ec);
+    if (ec.failed())
+    {
+        LL_WARNS() << "Failed to read last write time for cache file " << file_path << ": " << ec.message() << LL_ENDL;
+        return;
+    }
+
+    // delta between cur time and last time the file was written
+    const std::time_t delta_time = cur_time - last_write_time;
+
+    // we only write the new value if the time in time_threshold has elapsed
+    // before the last one
+    if (delta_time > time_threshold)
+    {
+        boost::filesystem::last_write_time(utf8str_to_utf16str(file_path), cur_time, ec);
+    }
+#else
+    // file last write time
+    const std::time_t last_write_time = boost::filesystem::last_write_time(file_path, ec);
+    if (ec.failed())
+    {
+        LL_WARNS() << "Failed to read last write time for cache file " << file_path << ": " << ec.message() << LL_ENDL;
+        return;
+    }
+
+    // delta between cur time and last time the file was written
+    const std::time_t delta_time = cur_time - last_write_time;
+
+    // we only write the new value if the time in time_threshold has elapsed
+    // before the last one
+    if (delta_time > time_threshold)
+    {
+        boost::filesystem::last_write_time(file_path, cur_time, ec);
+    }
+#endif
+
+    if (ec.failed())
+    {
+        LL_WARNS() << "Failed to update last write time for cache file " << file_path << ": " << ec.message() << LL_ENDL;
+    }
 }

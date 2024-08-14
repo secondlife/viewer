@@ -3147,16 +3147,24 @@ void LLViewerRegion::unpackRegionHandshake()
             compp->setParamsReady();
         }
 
-        LLPBRTerrainFeatures::queueQuery(*this, [](LLUUID region_id, bool success, const LLModifyRegion& composition_changes)
+        std::string cap = getCapability("ModifyRegion"); // needed for queueQuery
+        if (cap.empty())
         {
-            if (!success) { return; }
-            LLViewerRegion* region = LLWorld::getInstance()->getRegionFromID(region_id);
-            if (!region) { return; }
-            LLVLComposition* compp = region->getComposition();
-            if (!compp) { return; }
-            compp->apply(composition_changes);
-            LLFloaterRegionInfo::sRefreshFromRegion(region);
-        });
+            LLFloaterRegionInfo::sRefreshFromRegion(this);
+        }
+        else
+        {
+            LLPBRTerrainFeatures::queueQuery(*this, [](LLUUID region_id, bool success, const LLModifyRegion& composition_changes)
+            {
+                if (!success) { return; }
+                LLViewerRegion* region = LLWorld::getInstance()->getRegionFromID(region_id);
+                if (!region) { return; }
+                LLVLComposition* compp = region->getComposition();
+                if (!compp) { return; }
+                compp->apply(composition_changes);
+                LLFloaterRegionInfo::sRefreshFromRegion(region);
+            });
+        }
     }
 
 
@@ -3268,6 +3276,7 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
     capabilityNames.append("VoiceSignalingRequest");
     capabilityNames.append("ReadOfflineMsgs"); // Requires to respond reliably: AcceptFriendship, AcceptGroupInvite, DeclineFriendship, DeclineGroupInvite
     capabilityNames.append("RegionObjects");
+    capabilityNames.append("RegionSchedule");
     capabilityNames.append("RemoteParcelRequest");
     capabilityNames.append("RenderMaterials");
     capabilityNames.append("RequestTextureDownload");

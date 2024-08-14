@@ -231,8 +231,6 @@ void LLBadge::draw()
             // Calculate badge size based on label text
             //
 
-            LLWString badge_label_wstring = mLabel;
-
             S32 badge_label_begin_offset = 0;
             S32 badge_char_length = S32_MAX;
             S32 badge_pixel_length = S32_MAX;
@@ -240,7 +238,7 @@ void LLBadge::draw()
             bool do_not_use_ellipses = false;
 
             F32 badge_width = (2.0f * mPaddingHoriz) +
-                mGLFont->getWidthF32(badge_label_wstring.c_str(), badge_label_begin_offset, badge_char_length);
+                mGLFont->getWidthF32(mLabel.getWString().c_str(), badge_label_begin_offset, badge_char_length);
 
             F32 badge_height = (2.0f * mPaddingVert) + mGLFont->getLineHeight();
 
@@ -354,7 +352,7 @@ void LLBadge::draw()
             // Draw the label
             //
 
-            mGLFont->render(badge_label_wstring,
+            mGLFont->render(mLabel.getWString(),
                             badge_label_begin_offset,
                             badge_center_x + mLabelOffsetHoriz,
                             badge_center_y + mLabelOffsetVert,

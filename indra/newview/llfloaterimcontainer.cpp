@@ -988,11 +988,14 @@ void LLFloaterIMContainer::onAddButtonClicked()
 {
     LLView * button = findChild<LLView>("conversations_pane_buttons_expanded")->findChild<LLButton>("add_btn");
     LLFloater* root_floater = gFloaterView->getParentFloater(this);
-    LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(boost::bind(&LLFloaterIMContainer::onAvatarPicked, this, _1), true, true, true, root_floater->getName(), button);
-
-    if (picker && root_floater)
+    if (button && root_floater)
     {
-        root_floater->addDependentFloater(picker);
+        LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(boost::bind(&LLFloaterIMContainer::onAvatarPicked, this, _1), true, true, true, root_floater->getName(), button);
+
+        if (picker)
+        {
+            root_floater->addDependentFloater(picker);
+        }
     }
 }
 

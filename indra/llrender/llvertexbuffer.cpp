@@ -794,6 +794,18 @@ void LLVertexBuffer::setLabel(const char* label) {
 }
 #endif
 
+void LLVertexBuffer::clone(LLVertexBuffer& target) const
+{
+    target.mTypeMask = mTypeMask;
+    target.mIndicesType = mIndicesType;
+    target.mIndicesStride = mIndicesStride;
+    if (target.getNumVerts() != getNumVerts() ||
+        target.getNumIndices() != getNumIndices())
+    {
+        target.allocateBuffer(getNumVerts(), getNumIndices());
+    }
+}
+
 void LLVertexBuffer::drawRange(U32 mode, U32 start, U32 end, U32 count, U32 indices_offset) const
 {
     llassert(validateRange(start, end, count, indices_offset));

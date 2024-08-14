@@ -24,7 +24,8 @@ if (WINDOWS)
           libboost_program_options-mt${addrsfx}
           libboost_regex-mt${addrsfx}
           libboost_system-mt${addrsfx}
-          libboost_thread-mt${addrsfx})
+          libboost_thread-mt${addrsfx}
+          libboost_url-mt${addrsfx})
 elseif (LINUX)
   target_link_libraries( ll::boost INTERFACE
           boost_context-mt${addrsfx}
@@ -34,7 +35,8 @@ elseif (LINUX)
           boost_regex-mt${addrsfx}
           boost_signals-mt${addrsfx}
           boost_system-mt${addrsfx}
-          boost_thread-mt${addrsfx})
+          boost_thread-mt${addrsfx}
+          boost_url-mt${addrsfx})
 elseif (DARWIN)
   target_link_libraries( ll::boost INTERFACE
           boost_context-mt${addrsfx}
@@ -43,7 +45,8 @@ elseif (DARWIN)
           boost_program_options-mt${addrsfx}
           boost_regex-mt${addrsfx}
           boost_system-mt${addrsfx}
-          boost_thread-mt${addrsfx})
+          boost_thread-mt${addrsfx}
+          boost_url-mt${addrsfx})
 endif (WINDOWS)
 
 if (LINUX)

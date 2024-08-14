@@ -28,6 +28,7 @@
 
 #include "llfloaterreg.h"
 #include "llfloatersidepanelcontainer.h"
+#include "llnotificationsutil.h"
 #include "llpaneleditwearable.h"
 
 // newview includes
@@ -87,6 +88,46 @@ void LLFloaterSidePanelContainer::closeFloater(bool app_quitting)
     if (getInstanceName() == "inventory" && !getKey().isUndefined())
     {
         destroy();
+    }
+}
+
+void LLFloaterSidePanelContainer::onClickCloseBtn(bool app_quitting)
+{
+    if (!app_quitting)
+    {
+        LLPanelOutfitEdit* panel_outfit_edit =
+            dynamic_cast<LLPanelOutfitEdit*>(LLFloaterSidePanelContainer::findPanel("appearance", "panel_outfit_edit"));
+        if (panel_outfit_edit)
+        {
+            LLFloater* parent = gFloaterView->getParentFloater(panel_outfit_edit);
+            if (parent == this)
+            {
+                LLSidepanelAppearance* panel_appearance = dynamic_cast<LLSidepanelAppearance*>(getPanel("appearance"));
+                if (panel_appearance)
+                {
+                    LLPanelEditWearable* edit_wearable_ptr = panel_appearance->getWearable();
+                    if (edit_wearable_ptr && edit_wearable_ptr->getVisible() && edit_wearable_ptr->isDirty())
+                    {
+                        LLNotificationsUtil::add("UsavedWearableChanges", LLSD(), LLSD(), [this](const LLSD& notification, const LLSD& response)
+                        {
+                            onCloseMsgCallback(notification, response);
+                        });
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
+    closeFloater();
+}
+
+void LLFloaterSidePanelContainer::onCloseMsgCallback(const LLSD& notification, const LLSD& response)
+{
+    S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+    if (0 == option)
+    {
+        closeFloater();
     }
 }
 

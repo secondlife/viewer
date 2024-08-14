@@ -33,11 +33,12 @@
 
 class LLOfferInfo;
 
-const F32 UPDATE_MEMBERS_SECONDS_PER_FRAME = 0.005; // 5ms
+const F32 UPDATE_MEMBERS_SECONDS_PER_FRAME = 0.005f; // 5ms
 
 // Forward declares
 class LLPanelGroupTab;
 class LLTabContainer;
+class LLAccordionCtrl;
 class LLAgent;
 
 
@@ -98,7 +99,7 @@ protected:
     static void onBtnGroupCallClicked(void*);
     static void onBtnGroupChatClicked(void*);
 
-    void reposButton(const std::string& name);
+    void reposButton(LLButton* button);
     void reposButtons();
 
 
@@ -114,7 +115,14 @@ protected:
 
     std::vector<LLPanelGroupTab* > mTabs;
 
-    LLButton*       mButtonJoin;
+    LLAccordionCtrl* mGroupsAccordion = nullptr;
+
+    LLUICtrl*       mGroupNameCtrl = nullptr;
+    LLButton*       mButtonJoin = nullptr;
+    LLButton*       mButtonApply = nullptr;
+    LLButton*       mButtonCall = nullptr;
+    LLButton*       mButtonChat = nullptr;
+    LLButton*       mButtonRefresh = nullptr;
     LLUICtrl*       mJoinText;
 };
 

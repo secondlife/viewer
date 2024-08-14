@@ -904,7 +904,7 @@ void LLViewerTextureList::clearFetchingRequests()
 
 extern bool gCubeSnapshot;
 
-void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imagep)
+void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imagep, bool flush_images)
 {
     if (imagep->isInDebug() || imagep->isUnremovable())
     {
@@ -926,6 +926,7 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
     }
 
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
+    bool onFace = false;
     for (U32 i = 0; i < LLRender::NUM_TEXTURE_CHANNELS; ++i)
     {
         for (S32 fi = 0; fi < imagep->getNumFaces(i); ++fi)
@@ -934,11 +935,12 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
 
             if (face && face->getViewerObject())
             {
+                onFace = true;
                 F32 radius;
                 F32 cos_angle_to_view_dir;
-                bool in_frustum = face->calcPixelArea(cos_angle_to_view_dir, radius);
                 static LLCachedControl<F32> bias_unimportant_threshold(gSavedSettings, "TextureBiasUnimportantFactor", 0.25f);
                 F32 vsize = face->getPixelArea();
+                bool in_frustum = face->calcPixelArea(cos_angle_to_view_dir, radius);
 
                 // Scale desired texture resolution higher or lower depending on texture scale
                 //
@@ -946,7 +948,9 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
                 // shows one letter at a time
                 //
                 // Maximum usage examples: huge chunk of terrain repeats texture
-                const LLTextureEntry* te = face->getTextureEntry();
+                S32 te_offset = face->getTEOffset();  // offset is -1 if not inited
+                LLViewerObject* objp = face->getViewerObject();
+                const LLTextureEntry* te = (te_offset < 0 || te_offset >= objp->getNumTEs()) ? nullptr : objp->getTE(te_offset);
                 F32 min_scale = te ? llmin(fabsf(te->getScaleS()), fabsf(te->getScaleT())) : 1.f;
                 min_scale = llclamp(min_scale * min_scale, texture_scale_min(), texture_scale_max());
                 vsize /= min_scale;
@@ -989,7 +993,7 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
     // Flush formatted images using a lazy flush
     //
     S32 num_refs = imagep->getNumRefs();
-    if (num_refs == min_refs)
+    if (num_refs == min_refs && flush_images)
     {
         if (imagep->getLastReferencedTimer()->getElapsedTimeF32() > lazy_flush_timeout)
         {
@@ -1031,7 +1035,8 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
             imagep->getLastReferencedTimer()->reset();
 
             //reset texture state.
-            imagep->setInactive();
+            if(!onFace)
+                imagep->setInactive();
         }
     }
 

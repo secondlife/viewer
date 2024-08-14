@@ -263,12 +263,15 @@ static bool handleAnisotropicChanged(const LLSD& newvalue)
 static bool handleVSyncChanged(const LLSD& newvalue)
 {
     LLPerfStats::tunables.vsyncEnabled = newvalue.asBoolean();
-    gViewerWindow->getWindow()->toggleVSync(newvalue.asBoolean());
-
-    if (newvalue.asBoolean())
+    if (gViewerWindow && gViewerWindow->getWindow())
     {
-        U32 current_target = gSavedSettings.getU32("TargetFPS");
-        gSavedSettings.setU32("TargetFPS", std::min((U32)gViewerWindow->getWindow()->getRefreshRate(), current_target));
+        gViewerWindow->getWindow()->toggleVSync(newvalue.asBoolean());
+
+        if (newvalue.asBoolean())
+        {
+            U32 current_target = gSavedSettings.getU32("TargetFPS");
+            gSavedSettings.setU32("TargetFPS", std::min((U32)gViewerWindow->getWindow()->getRefreshRate(), current_target));
+        }
     }
 
     return true;
@@ -716,6 +719,8 @@ void handleLocalTerrainChanged(const LLSD& newValue)
         {
             gLocalTerrainMaterials.setMaterialOverride(i, mat_override);
         }
+        const bool paint_enabled = gSavedSettings.getBOOL("LocalTerrainPaintEnabled");
+        gLocalTerrainMaterials.setPaintType(paint_enabled ? TERRAIN_PAINT_TYPE_PBR_PAINTMAP : TERRAIN_PAINT_TYPE_HEIGHTMAP_WITH_NOISE);
     }
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -906,6 +911,7 @@ void settings_setup_listeners()
     setting_setup_signal_listener(gSavedSettings, "AutoTuneImpostorByDistEnabled", handleUserImpostorByDistEnabledChanged);
     setting_setup_signal_listener(gSavedSettings, "TuningFPSStrategy", handleFPSTuningStrategyChanged);
     {
+        setting_setup_signal_listener(gSavedSettings, "LocalTerrainPaintEnabled", handleLocalTerrainChanged);
         const char* transform_suffixes[] = {
             "ScaleU",
             "ScaleV",
@@ -924,6 +930,7 @@ void settings_setup_listeners()
             }
         }
     }
+    setting_setup_signal_listener(gSavedSettings, "TerrainPaintBitDepth", handleSetShaderChanged);
 
     setting_setup_signal_listener(gSavedPerAccountSettings, "AvatarHoverOffsetZ", handleAvatarHoverOffsetChanged);
 }

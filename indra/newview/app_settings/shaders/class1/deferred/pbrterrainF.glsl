@@ -30,6 +30,9 @@
 #define TERRAIN_PBR_DETAIL_NORMAL -2
 #define TERRAIN_PBR_DETAIL_METALLIC_ROUGHNESS -3
 
+#define TERRAIN_PAINT_TYPE_HEIGHTMAP_WITH_NOISE 0
+#define TERRAIN_PAINT_TYPE_PBR_PAINTMAP 1
+
 #if TERRAIN_PLANAR_TEXTURE_SAMPLE_COUNT == 3
 #define TerrainCoord vec4[3]
 #elif TERRAIN_PLANAR_TEXTURE_SAMPLE_COUNT == 1
@@ -48,6 +51,7 @@ struct TerrainMix
 };
 
 TerrainMix get_terrain_mix_weights(float alpha1, float alpha2, float alphaFinal);
+TerrainMix get_terrain_usage_from_weight3(vec3 weight3);
 
 struct PBRMix
 {
@@ -97,7 +101,11 @@ PBRMix mix_pbr(PBRMix mix1, PBRMix mix2, float mix2_weight);
 
 out vec4 frag_data[4];
 
+#if TERRAIN_PAINT_TYPE == TERRAIN_PAINT_TYPE_HEIGHTMAP_WITH_NOISE
 uniform sampler2D alpha_ramp;
+#elif TERRAIN_PAINT_TYPE == TERRAIN_PAINT_TYPE_PBR_PAINTMAP
+uniform sampler2D paint_map;
+#endif
 
 // https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#additional-textures
 uniform sampler2D detail_0_base_color;
@@ -133,19 +141,25 @@ uniform vec3[4] emissiveColors;
 #endif
 uniform vec4 minimum_alphas; // PBR alphaMode: MASK, See: mAlphaCutoff, setAlphaCutoff()
 
-#if TERRAIN_PLANAR_TEXTURE_SAMPLE_COUNT == 3
-in vec4[10] vary_coords;
-#elif TERRAIN_PLANAR_TEXTURE_SAMPLE_COUNT == 1
-in vec4[2] vary_coords;
-#endif
 in vec3 vary_position;
 in vec3 vary_normal;
 #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_NORMAL)
 in vec3 vary_tangents[4];
 flat in float vary_signs[4];
 #endif
+
+// vary_texcoord* are used for terrain composition, vary_coords are used for terrain UVs
+#if TERRAIN_PAINT_TYPE == TERRAIN_PAINT_TYPE_HEIGHTMAP_WITH_NOISE
 in vec4 vary_texcoord0;
 in vec4 vary_texcoord1;
+#elif TERRAIN_PAINT_TYPE == TERRAIN_PAINT_TYPE_PBR_PAINTMAP
+in vec2 vary_texcoord;
+#endif
+#if TERRAIN_PLANAR_TEXTURE_SAMPLE_COUNT == 3
+in vec4[10] vary_coords;
+#elif TERRAIN_PLANAR_TEXTURE_SAMPLE_COUNT == 1
+in vec4[2] vary_coords;
+#endif
 
 void mirrorClip(vec3 position);
 
@@ -171,11 +185,16 @@ void main()
     // Make sure we clip the terrain if we're in a mirror.
     mirrorClip(vary_position);
 
+    TerrainMix tm;
+#if TERRAIN_PAINT_TYPE == TERRAIN_PAINT_TYPE_HEIGHTMAP_WITH_NOISE
     float alpha1 = texture(alpha_ramp, vary_texcoord0.zw).a;
     float alpha2 = texture(alpha_ramp,vary_texcoord1.xy).a;
     float alphaFinal = texture(alpha_ramp, vary_texcoord1.zw).a;
 
-    TerrainMix tm = get_terrain_mix_weights(alpha1, alpha2, alphaFinal);
+    tm = get_terrain_mix_weights(alpha1, alpha2, alphaFinal);
+#elif TERRAIN_PAINT_TYPE == TERRAIN_PAINT_TYPE_PBR_PAINTMAP
+    tm = get_terrain_usage_from_weight3(texture(paint_map, vary_texcoord).xyz);
+#endif
 
 #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_OCCLUSION)
     // RGB = Occlusion, Roughness, Metal

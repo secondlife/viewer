@@ -38,16 +38,8 @@
 #include <vector>
 #include <deque>
 #include <functional>
-#if LL_WINDOWS
-    #pragma warning (push)
-    #pragma warning (disable : 4263) // boost::signals2::expired_slot::what() has const mismatch
-    #pragma warning (disable : 4264)
-#endif
-#include <boost/signals2.hpp>
-#if LL_WINDOWS
-    #pragma warning (pop)
-#endif
 
+#include <boost/signals2.hpp>
 #include <boost/bind.hpp>
 #include <boost/utility.hpp>        // noncopyable
 #include <boost/optional/optional.hpp>

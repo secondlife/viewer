@@ -187,6 +187,8 @@ DWORD   LLWindowWin32::sWinIMEConversionMode = IME_CMODE_NATIVE;
 DWORD   LLWindowWin32::sWinIMESentenceMode = IME_SMODE_AUTOMATIC;
 LLCoordWindow LLWindowWin32::sWinIMEWindowPosition(-1,-1);
 
+static HWND sWindowHandleForMessageBox = NULL;
+
 // The following class LLWinImm delegates Windows IMM APIs.
 // It was originally introduced to support US Windows XP, on which we needed
 // to dynamically load IMM32.DLL and use GetProcAddress to resolve its entry
@@ -803,8 +805,8 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
             size_t name_len = strlen(display_device.DeviceName  );
             size_t desc_len = strlen(display_device.DeviceString);
 
-            CHAR *name = name_len ? display_device.DeviceName   : "???";
-            CHAR *desc = desc_len ? display_device.DeviceString : "???";
+            const CHAR *name = name_len ? display_device.DeviceName   : "???";
+            const CHAR *desc = desc_len ? display_device.DeviceString : "???";
 
             sprintf(text, "Display Device %d: %s, %s", display_index, name, desc);
             LL_INFOS("Window") << text << LL_ENDL;
@@ -848,6 +850,11 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 
 LLWindowWin32::~LLWindowWin32()
 {
+    if (sWindowHandleForMessageBox == mWindowHandle)
+    {
+        sWindowHandleForMessageBox = NULL;
+    }
+
     delete mDragDrop;
 
     delete [] mWindowTitle;
@@ -969,6 +976,11 @@ void LLWindowWin32::close()
     restoreGamma();
 
     LL_DEBUGS("Window") << "Destroying Window" << LL_ENDL;
+
+    if (sWindowHandleForMessageBox == mWindowHandle)
+    {
+        sWindowHandleForMessageBox = NULL;
+    }
 
     mhDC = NULL;
     mWindowHandle = NULL;
@@ -1702,10 +1714,15 @@ void LLWindowWin32::recreateWindow(RECT window_rect, DWORD dw_ex_style, DWORD dw
     auto oldWindowHandle = mWindowHandle;
     auto oldDCHandle = mhDC;
 
+    if (sWindowHandleForMessageBox == mWindowHandle)
+    {
+        sWindowHandleForMessageBox = NULL;
+    }
+
     // zero out mWindowHandle and mhDC before destroying window so window
     // thread falls back to peekmessage
-    mWindowHandle = 0;
-    mhDC = 0;
+    mWindowHandle = NULL;
+    mhDC = NULL;
 
     std::promise<std::pair<HWND, HDC>> promise;
     // What follows must be done on the window thread.
@@ -1802,6 +1819,8 @@ void LLWindowWin32::recreateWindow(RECT window_rect, DWORD dw_ex_style, DWORD dw
     auto pair = future.get();
     mWindowHandle = pair.first;
     mhDC = pair.second;
+
+    sWindowHandleForMessageBox = mWindowHandle;
 }
 
 void* LLWindowWin32::createSharedContext()
@@ -3684,7 +3703,14 @@ S32 OSMessageBoxWin32(const std::string& text, const std::string& caption, U32 t
         break;
     }
 
-    int retval_win = MessageBoxW(NULL, // HWND
+    // AG: Of course, the using of the static global variable sWindowHandleForMessageBox
+    // instead of using the field mWindowHandle of the class LLWindowWin32 looks strange.
+    // But in fact, the function OSMessageBoxWin32() doesn't have access to gViewerWindow
+    // because the former is implemented in the library llwindow which is abstract enough.
+    //
+    // "This is why I'm doing it this way, instead of what you would think would be more obvious..."
+    // (C) Nat Goodspeed
+    int retval_win = MessageBoxW(sWindowHandleForMessageBox, // HWND
                                  ll_convert_string_to_wide(text).c_str(),
                                  ll_convert_string_to_wide(caption).c_str(),
                                  uType);

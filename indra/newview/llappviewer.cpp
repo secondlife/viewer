@@ -269,11 +269,6 @@ using namespace LL;
 #include "glib.h"
 #endif // (LL_LINUX) && LL_GTK
 
-#if LL_MSVC
-// disable boost::lexical_cast warning
-#pragma warning (disable:4702)
-#endif
-
 static LLAppViewerListener sAppViewerListener(LLAppViewer::instance);
 
 ////// Windows-specific includes to the bottom - nasty defines in these pollute the preprocessor
@@ -646,6 +641,7 @@ LLAppViewer::LLAppViewer()
     mSavedFinalSnapshot(false),
     mSavePerAccountSettings(false),     // don't save settings on logout unless login succeeded.
     mQuitRequested(false),
+    mClosingFloaters(false),
     mLogoutRequestSent(false),
     mLastAgentControlFlags(0),
     mLastAgentForceUpdate(0),
@@ -801,10 +797,24 @@ bool LLAppViewer::init()
     settings_map["floater"] = &gSavedSettings; // *TODO: New settings file
     settings_map["account"] = &gSavedPerAccountSettings;
 
-    LLUI::initParamSingleton(settings_map,
+    LLUI::createInstance(settings_map,
         LLUIImageList::getInstance(),
         ui_audio_callback,
         deferred_ui_audio_callback);
+
+    if (gSavedSettings.getBOOL("SpellCheck"))
+    {
+        std::list<std::string> dict_list;
+        std::string dict_setting = gSavedSettings.getString("SpellCheckDictionary");
+        boost::split(dict_list, dict_setting, boost::is_any_of(std::string(",")));
+        if (!dict_list.empty())
+        {
+            LLSpellChecker::setUseSpellCheck(dict_list.front());
+            dict_list.pop_front();
+            LLSpellChecker::instance().setSecondaryDictionaries(dict_list);
+        }
+    }
+
     LL_INFOS("InitInfo") << "UI initialized." << LL_ENDL ;
 
     // NOW LLUI::getLanguage() should work. gDirUtilp must know the language
@@ -1269,6 +1279,7 @@ bool LLAppViewer::init()
     //LLSimpleton creations
     LLEnvironment::createInstance();
     LLWorld::createInstance();
+    LLViewerStatsRecorder::createInstance();
     LLSelectMgr::createInstance();
     LLViewerCamera::createInstance();
     LL::GLTFSceneManager::createInstance();
@@ -1610,7 +1621,7 @@ bool LLAppViewer::doFrame()
 
             {
                 LL_PROFILE_ZONE_NAMED_CATEGORY_APP("df gMeshRepo");
-            gMeshRepo.update() ;
+                gMeshRepo.update() ;
             }
 
             if(!total_work_pending) //pause texture fetching threads if nothing to process.
@@ -2151,9 +2162,11 @@ bool LLAppViewer::cleanup()
     LL::GLTFSceneManager::deleteSingleton();
     LLEnvironment::deleteSingleton();
     LLSelectMgr::deleteSingleton();
+    LLViewerStatsRecorder::deleteSingleton();
     LLViewerEventRecorder::deleteSingleton();
     LLWorld::deleteSingleton();
     LLVoiceClient::deleteSingleton();
+    LLUI::deleteSingleton();
 
     // It's not at first obvious where, in this long sequence, a generic cleanup
     // call OUGHT to go. So let's say this: as we migrate cleanup from
@@ -2248,7 +2261,9 @@ void errorCallback(LLError::ELevel level, const std::string &error_string)
     if (level == LLError::LEVEL_ERROR)
     {
 #ifndef LL_RELEASE_FOR_DOWNLOAD
-        OSMessageBox(error_string, LLTrans::getString("MBFatalError"), OSMB_OK);
+        std::string message = error_string +
+            "\n\n\nThis is a developer-only notification!\nThis notification won't be present in Release for download build";
+        OSMessageBox(message, LLTrans::getString("MBFatalError"), OSMB_OK);
 #endif
 
         gDebugInfo["FatalMessage"] = error_string;
@@ -2795,19 +2810,6 @@ bool LLAppViewer::initConfiguration()
                                  gSavedSettings.getString("Language"));
     }
 
-    if (gSavedSettings.getBOOL("SpellCheck"))
-    {
-        std::list<std::string> dict_list;
-        std::string dict_setting = gSavedSettings.getString("SpellCheckDictionary");
-        boost::split(dict_list, dict_setting, boost::is_any_of(std::string(",")));
-        if (!dict_list.empty())
-        {
-            LLSpellChecker::setUseSpellCheck(dict_list.front());
-            dict_list.pop_front();
-            LLSpellChecker::instance().setSecondaryDictionaries(dict_list);
-        }
-    }
-
     if (gNonInteractive)
     {
         tempSetControl("AllowMultipleViewers", "true");
@@ -3065,6 +3067,13 @@ bool LLAppViewer::meetsRequirementsForMaximizedStart()
     bool maximizedOk = (gSysMemory.getPhysicalMemoryKB() >= U32Gigabytes(1));
 
     return maximizedOk;
+}
+
+// virtual
+void LLAppViewer::sendOutOfDiskSpaceNotification()
+{
+    LL_WARNS() << "Out of disk space notification requested" << LL_ENDL;
+    LLNotificationsUtil::add("OutOfDiskSpace");
 }
 
 bool LLAppViewer::initWindow()
@@ -4021,6 +4030,7 @@ void LLAppViewer::requestQuit()
     {
         // application is quitting
         gFloaterView->closeAllChildren(true);
+        mClosingFloaters = true;
     }
 
     // Send preferences once, when exiting
@@ -4084,6 +4094,7 @@ void LLAppViewer::abortQuit()
 {
     LL_INFOS() << "abortQuit()" << LL_ENDL;
     mQuitRequested = false;
+    mClosingFloaters = false;
 }
 
 void LLAppViewer::migrateCacheDirectory()
@@ -5033,10 +5044,19 @@ void LLAppViewer::idleShutdown()
     }
 
     // Wait for all floaters to get resolved
-    if (gFloaterView
-        && !gFloaterView->allChildrenClosed())
+    if (gFloaterView)
     {
-        return;
+        if (!mClosingFloaters)
+        {
+            // application is quitting
+            gFloaterView->closeAllChildren(true);
+            mClosingFloaters = true;
+            return;
+        }
+        if (!gFloaterView->allChildrenClosed())
+        {
+            return;
+        }
     }
 
     // ProductEngine: Try moving this code to where we shut down sTextureCache in cleanup()
@@ -5195,6 +5215,23 @@ void LLAppViewer::updateNameLookupUrl(const LLViewerRegion * regionp)
 void LLAppViewer::postToMainCoro(const LL::WorkQueue::Work& work)
 {
     gMainloopWork.post(work);
+}
+
+void LLAppViewer::outOfMemorySoftQuit()
+{
+    if (!mQuitRequested)
+    {
+        // Todo:
+        // Find a way to free at least some memory to make it safer
+        // Pause decoding and mesh repositorie
+        getTextureCache()->pause();
+        getTextureFetch()->pause();
+        LLLFSThread::sLocal->pause();
+        gLogoutTimer.reset();
+        mQuitRequested = true;
+
+        LLError::LLUserWarningMsg::showOutOfMemory();
+    }
 }
 
 void LLAppViewer::idleNameCache()

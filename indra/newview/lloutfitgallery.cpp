@@ -128,7 +128,7 @@ void LLOutfitGallery::onOpen(const LLSD& info)
         mScrollPanel->addChild(mGalleryPanel);
         for (int i = 0; i < n; i++)
         {
-            addToGallery(mOutfitMap[cats[i]]);
+            addToGallery(getItem(cats[i]));
         }
         reArrangeRows();
         mGalleryCreated = true;
@@ -377,7 +377,7 @@ void LLOutfitGallery::onOutfitsRemovalConfirmation(const LLSD& notification, con
 
 void LLOutfitGallery::scrollToShowItem(const LLUUID& item_id)
 {
-    LLOutfitGalleryItem* item = mOutfitMap[item_id];
+    LLOutfitGalleryItem* item = getItem(item_id);
     if (item)
     {
         const LLRect visible_content_rect = mScrollPanel->getVisibleContentRect();
@@ -416,7 +416,8 @@ void LLOutfitGallery::updateRowsIfNeeded()
 
 bool compareGalleryItem(LLOutfitGalleryItem* item1, LLOutfitGalleryItem* item2)
 {
-    if(gSavedSettings.getBOOL("OutfitGallerySortByName") ||
+    static LLCachedControl<bool> outfit_gallery_sort_by_name(gSavedSettings, "OutfitGallerySortByName");
+    if(outfit_gallery_sort_by_name ||
             ((item1->isDefaultImage() && item2->isDefaultImage()) || (!item1->isDefaultImage() && !item2->isDefaultImage())))
     {
         std::string name1 = item1->getItemName();
@@ -524,6 +525,10 @@ LLPanel* LLOutfitGallery::addToRow(LLPanel* row_stack, LLOutfitGalleryItem* item
 
 void LLOutfitGallery::addToGallery(LLOutfitGalleryItem* item)
 {
+    if (!item)
+    {
+        return;
+    }
     if(item->isHidden())
     {
         mHiddenItems.push_back(item);
@@ -631,9 +636,19 @@ LLOutfitGalleryItem* LLOutfitGallery::buildGalleryItem(std::string name, LLUUID 
     return gitem;
 }
 
-LLOutfitGalleryItem* LLOutfitGallery::getSelectedItem()
+LLOutfitGalleryItem* LLOutfitGallery::getSelectedItem() const
 {
-    return mOutfitMap[mSelectedOutfitUUID];
+    return getItem(mSelectedOutfitUUID);
+}
+
+LLOutfitGalleryItem* LLOutfitGallery::getItem(const LLUUID& id) const
+{
+    auto it = mOutfitMap.find(id);
+    if (it != mOutfitMap.end())
+    {
+        return it->second;
+    }
+    return nullptr;
 }
 
 void LLOutfitGallery::buildGalleryPanel(int row_count)
@@ -738,13 +753,16 @@ void LLOutfitGallery::onFilterSubStringChanged(const std::string& new_string, co
 
 void LLOutfitGallery::onHighlightBaseOutfit(LLUUID base_id, LLUUID prev_id)
 {
-    if (mOutfitMap[base_id])
+    auto base_it = mOutfitMap.find(base_id);
+    if (base_it != mOutfitMap.end())
     {
-        mOutfitMap[base_id]->setOutfitWorn(true);
+        base_it->second->setOutfitWorn(true);
     }
-    if (mOutfitMap[prev_id])
+
+    auto prev_it = mOutfitMap.find(prev_id);
+    if (prev_it != mOutfitMap.end())
     {
-        mOutfitMap[prev_id]->setOutfitWorn(false);
+        prev_it->second->setOutfitWorn(false);
     }
 }
 
@@ -858,13 +876,16 @@ void LLOutfitGallery::onChangeOutfitSelection(LLWearableItemsList* list, const L
 {
     if (mSelectedOutfitUUID == category_id)
         return;
-    if (mOutfitMap[mSelectedOutfitUUID])
+
+    auto selected_it = mOutfitMap.find(mSelectedOutfitUUID);
+    if (selected_it != mOutfitMap.end())
     {
-        mOutfitMap[mSelectedOutfitUUID]->setSelected(false);
+        selected_it->second->setSelected(false);
     }
-    if (mOutfitMap[category_id])
+    auto category_it = mOutfitMap.find(category_id);
+    if (category_it != mOutfitMap.end())
     {
-        mOutfitMap[category_id]->setSelected(true);
+        category_it->second->setSelected(true);
     }
     // mSelectedOutfitUUID will be set in LLOutfitListBase::ChangeOutfitSelection
 }
@@ -886,9 +907,10 @@ bool LLOutfitGallery::canWearSelected()
 
 bool LLOutfitGallery::hasDefaultImage(const LLUUID& outfit_cat_id)
 {
-    if (mOutfitMap[outfit_cat_id])
+    auto outfit_it = mOutfitMap.find(outfit_cat_id);
+    if (outfit_it != mOutfitMap.end())
     {
-        return mOutfitMap[outfit_cat_id]->isDefaultImage();
+        return outfit_it->second->isDefaultImage();
     }
     return false;
 }
@@ -936,6 +958,7 @@ LLOutfitGalleryItem::~LLOutfitGalleryItem()
 
 bool LLOutfitGalleryItem::postBuild()
 {
+    mPreviewIcon = getChild<LLIconCtrl>("preview_outfit");
     setDefaultImage();
 
     mOutfitNameText = getChild<LLTextBox>("outfit_name");
@@ -951,10 +974,12 @@ void LLOutfitGalleryItem::draw()
     LLPanel::draw();
 
     // Draw border
-    LLUIColor border_color = LLUIColorTable::instance().getColor(mSelected ? "OutfitGalleryItemSelected" : "OutfitGalleryItemUnselected", LLColor4::white);
-    LLRect border = getChildView("preview_outfit")->getRect();
+    static LLUIColor selected_color = LLUIColorTable::instance().getColor("OutfitGalleryItemSelected", LLColor4::white);
+    static LLUIColor unselected_color = LLUIColorTable::instance().getColor("OutfitGalleryItemUnselected", LLColor4::white);
+    const LLColor4& border_color = mSelected ? selected_color : unselected_color;
+    LLRect border = mPreviewIcon->getRect();
     border.mRight = border.mRight + 1;
-    gl_rect_2d(border, border_color.get(), false);
+    gl_rect_2d(border, border_color, false);
 
     // If the floater is focused, don't apply its alpha to the texture (STORM-677).
     const F32 alpha = getTransparencyType() == TT_ACTIVE ? 1.0f : getCurrentTransparency();
@@ -995,8 +1020,8 @@ void LLOutfitGalleryItem::setOutfitWorn(bool value)
     LLStringUtil::format_map_t worn_string_args;
     std::string worn_string = getString("worn_string", worn_string_args);
     LLUIColor text_color = LLUIColorTable::instance().getColor("White", LLColor4::white);
-    mOutfitWornText->setReadOnlyColor(text_color.get());
-    mOutfitNameText->setReadOnlyColor(text_color.get());
+    mOutfitWornText->setReadOnlyColor(text_color);
+    mOutfitNameText->setReadOnlyColor(text_color);
     mOutfitWornText->setFont(value ? LLFontGL::getFontSansSerifBold() : LLFontGL::getFontSansSerifSmall());
     mOutfitNameText->setFont(value ? LLFontGL::getFontSansSerifBold() : LLFontGL::getFontSansSerifSmall());
     mOutfitWornText->setValue(value ? worn_string : "");
@@ -1110,7 +1135,7 @@ bool LLOutfitGalleryItem::setImageAssetId(LLUUID image_asset_id)
     {
         mImageAssetId = image_asset_id;
         mTexturep = texture;
-        getChildView("preview_outfit")->setVisible(false);
+        mPreviewIcon->setVisible(false);
         mDefaultImage = false;
         mImageUpdatePending = (texture->getDiscardLevel() == -1);
         return true;
@@ -1127,7 +1152,7 @@ void LLOutfitGalleryItem::setDefaultImage()
 {
     mTexturep = NULL;
     mImageAssetId.setNull();
-    getChildView("preview_outfit")->setVisible(true);
+    mPreviewIcon->setVisible(true);
     mDefaultImage = true;
     mImageUpdatePending = false;
 }
@@ -1264,7 +1289,15 @@ void LLOutfitGallery::refreshOutfit(const LLUUID& category_id)
                 }
                 if (asset_id.notNull())
                 {
-                    photo_loaded |= mOutfitMap[category_id]->setImageAssetId(asset_id);
+                    LLOutfitGalleryItem* item = getItem(category_id);
+                    if (item)
+                    {
+                        photo_loaded |= item->setImageAssetId(asset_id);
+                    }
+                    else
+                    {
+                        photo_loaded = true;
+                    }
                     // Rename links
                     if (!mOutfitRenamePending.isNull() && mOutfitRenamePending.asString() == item_name)
                     {
@@ -1290,13 +1323,21 @@ void LLOutfitGallery::refreshOutfit(const LLUUID& category_id)
                 }
                 if (!photo_loaded)
                 {
-                    mOutfitMap[category_id]->setDefaultImage();
+                    LLOutfitGalleryItem* item = getItem(category_id);
+                    if (item)
+                    {
+                        item->setDefaultImage();
+                    }
                 }
             }
         }
         else
         {
-            mOutfitMap[category_id]->setImageAssetId(asset_id);
+            LLOutfitGalleryItem* item = getItem(category_id);
+            if (item)
+            {
+                item->setImageAssetId(asset_id);
+            }
         }
     }
 

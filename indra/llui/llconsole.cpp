@@ -183,7 +183,8 @@ void LLConsole::draw()
     static LLCachedControl<F32> console_bg_opacity(*LLUI::getInstance()->mSettingGroups["config"], "ConsoleBackgroundOpacity", 0.7f);
     F32 console_opacity = llclamp(console_bg_opacity(), 0.f, 1.f);
 
-    LLColor4 color = LLUIColorTable::instance().getColor("ConsoleBackground");
+    static LLUIColor console_color = LLUIColorTable::instance().getColor("ConsoleBackground");
+    LLColor4 color = console_color;
     color.mV[VALPHA] *= console_opacity;
 
     F32 line_height = (F32)mFont->getLineHeight();

@@ -148,7 +148,7 @@ public:
     // - updates decode priority
     // - updates desired discard level
     // - cleans up textures that haven't been referenced in awhile
-    void updateImageDecodePriority(LLViewerFetchedTexture* imagep);
+    void updateImageDecodePriority(LLViewerFetchedTexture* imagep, bool flush_images = true);
 
 private:
     F32  updateImagesCreateTextures(F32 max_time);

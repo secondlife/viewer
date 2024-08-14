@@ -37,6 +37,7 @@
 #include "llui.h"
 #include "llkeyboard.h"
 #include "llagent.h"
+#include "lltrans.h"
 #include "lluiusage.h"
 
 const F32 LLVoiceClient::OVERDRIVEN_POWER_LEVEL = 0.7f;
@@ -137,7 +138,7 @@ LLVoiceClient::LLVoiceClient(LLPumpIO *pump)
     mSpatialVoiceModule(NULL),
     mNonSpatialVoiceModule(NULL),
     m_servicePump(NULL),
-    mVoiceEffectEnabled(LLCachedControl<bool>(gSavedSettings, "VoiceMorphingEnabled", false)),
+    mVoiceEffectEnabled(LLCachedControl<bool>(gSavedSettings, "VoiceMorphingEnabled", true)),
     mVoiceEffectDefault(LLCachedControl<std::string>(gSavedPerAccountSettings, "VoiceEffectDefault", "00000000-0000-0000-0000-000000000000")),
     mVoiceEffectSupportNotified(false),
     mPTTDirty(true),
@@ -280,10 +281,8 @@ void LLVoiceClient::setNonSpatialVoiceModule(const std::string &voice_server_typ
 
 void LLVoiceClient::setHidden(bool hidden)
 {
-    if (mSpatialVoiceModule)
-    {
-        mSpatialVoiceModule->setHidden(hidden);
-    }
+    LLWebRTCVoiceClient::getInstance()->setHidden(hidden);
+    LLVivoxVoiceClient::getInstance()->setHidden(hidden);
 }
 
 void LLVoiceClient::terminate()
@@ -407,13 +406,13 @@ const LLVoiceDeviceList& LLVoiceClient::getRenderDevices()
 //--------------------------------------------------
 // participants
 
-void LLVoiceClient::getParticipantList(std::set<LLUUID> &participants)
+void LLVoiceClient::getParticipantList(std::set<LLUUID> &participants) const
 {
     LLWebRTCVoiceClient::getInstance()->getParticipantList(participants);
     LLVivoxVoiceClient::getInstance()->getParticipantList(participants);
 }
 
-bool LLVoiceClient::isParticipant(const LLUUID &speaker_id)
+bool LLVoiceClient::isParticipant(const LLUUID &speaker_id) const
 {
     return LLWebRTCVoiceClient::getInstance()->isParticipant(speaker_id) ||
            LLVivoxVoiceClient::getInstance()->isParticipant(speaker_id);
@@ -577,7 +576,7 @@ bool LLVoiceClient::onVoiceEffectsNotSupported(const LLSD &notification, const L
     switch (option)
     {
         case 0:  // "Okay"
-            gSavedSettings.setBOOL("VoiceMorphingEnabled", FALSE);
+            gSavedPerAccountSettings.setString("VoiceEffectDefault", LLUUID::null.asString());
             break;
 
         case 1:  // "Cancel"
@@ -597,7 +596,11 @@ bool LLVoiceClient::voiceEnabled()
     bool enabled = enable_voice_chat && !cmd_line_disable_voice && !gNonInteractive;
     if (enabled && !mVoiceEffectSupportNotified && getVoiceEffectEnabled() && !getVoiceEffectDefault().isNull())
     {
-        LLNotificationsUtil::add("VoiceEffectsNotSupported", LLSD(), LLSD(), &LLVoiceClient::onVoiceEffectsNotSupported);
+        static const LLSD args = llsd::map(
+            "FAQ_URL", LLTrans::getString("no_voice_morphing_faq_url")
+        );
+
+        LLNotificationsUtil::add("VoiceEffectsNotSupported", args, LLSD(), &LLVoiceClient::onVoiceEffectsNotSupported);
         mVoiceEffectSupportNotified = true;
     }
     return enabled;
@@ -713,12 +716,12 @@ void LLVoiceClient::toggleUserPTTState(void)
 //-------------------------------------------
 // nearby speaker accessors
 
-bool LLVoiceClient::getVoiceEnabled(const LLUUID& id)
+bool LLVoiceClient::getVoiceEnabled(const LLUUID& id) const
 {
     return isParticipant(id);
 }
 
-std::string LLVoiceClient::getDisplayName(const LLUUID& id)
+std::string LLVoiceClient::getDisplayName(const LLUUID& id) const
 {
     std::string result = LLWebRTCVoiceClient::getInstance()->getDisplayName(id);
     if (result.empty())
@@ -821,7 +824,7 @@ void LLVoiceClient::removeObserver(LLVoiceClientParticipantObserver* observer)
     LLWebRTCVoiceClient::getInstance()->removeObserver(observer);
 }
 
-std::string LLVoiceClient::sipURIFromID(const LLUUID &id)
+std::string LLVoiceClient::sipURIFromID(const LLUUID &id) const
 {
     if (mNonSpatialVoiceModule)
     {
@@ -834,6 +837,22 @@ std::string LLVoiceClient::sipURIFromID(const LLUUID &id)
     else
     {
         return std::string();
+    }
+}
+
+LLSD LLVoiceClient::getP2PChannelInfoTemplate(const LLUUID& id) const
+{
+    if (mNonSpatialVoiceModule)
+    {
+        return mNonSpatialVoiceModule->getP2PChannelInfoTemplate(id);
+    }
+    else if (mSpatialVoiceModule)
+    {
+        return mSpatialVoiceModule->getP2PChannelInfoTemplate(id);
+    }
+    else
+    {
+        return LLSD();
     }
 }
 

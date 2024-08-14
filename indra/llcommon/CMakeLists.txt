@@ -10,7 +10,6 @@ include(Boost)
 include(LLSharedLibs)
 include(Copy3rdPartyLibs)
 include(ZLIBNG)
-include(URIPARSER)
 include(Tracy)
 
 
@@ -268,6 +267,10 @@ if (DARWIN)
   list(APPEND llcommon_SOURCE_FILES llsys_objc.mm)
 endif (DARWIN)
 
+if (USE_TRACY)
+  list(APPEND llcommon_SOURCE_FILES llprofiler.cpp)
+endif ()
+
 list(APPEND llcommon_SOURCE_FILES ${llcommon_HEADER_FILES})
 
 add_library (llcommon ${llcommon_SOURCE_FILES})
@@ -278,7 +281,6 @@ target_link_libraries(
         ll::expat
         ll::zlib-ng
         ll::boost
-        ll::uriparser
         ll::oslibraries
         ll::tracy
     )

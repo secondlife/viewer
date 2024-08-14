@@ -30,12 +30,7 @@
 #include "llsdserialize.h"
 
 #include "llspellcheck.h"
-#if LL_WINDOWS
-    #include <hunspell/hunspelldll.h>
-    #pragma comment(lib, "libhunspell.lib")
-#else
-    #include <hunspell/hunspell.hxx>
-#endif
+#include <hunspell/hunspell.hxx>
 
 static const std::string DICT_DIR = "dictionaries";
 static const std::string DICT_FILE_CUSTOM = "user_custom.dic";
@@ -47,28 +42,22 @@ static const std::string DICT_FILE_USER = "user_dictionaries.xml";
 LLSpellChecker::settings_change_signal_t LLSpellChecker::sSettingsChangeSignal;
 
 LLSpellChecker::LLSpellChecker()
-    : mHunspell(NULL)
-{
-}
-
-LLSpellChecker::~LLSpellChecker()
-{
-    delete mHunspell;
-}
-
-void LLSpellChecker::initSingleton()
 {
     // Load initial dictionary information
     refreshDictionaryMap();
 }
 
+LLSpellChecker::~LLSpellChecker()
+{
+}
+
 bool LLSpellChecker::checkSpelling(const std::string& word) const
 {
-    if ( (!mHunspell) || (word.length() < 3) || (0 != mHunspell->spell(word.c_str())) )
+    if ( (!mHunspell) || (word.length() < 3) || (0 != mHunspell->spell(word)) )
     {
         return true;
     }
-    if (mIgnoreList.size() > 0)
+    if (!mIgnoreList.empty())
     {
         std::string word_lower(word);
         LLStringUtil::toLower(word_lower);
@@ -85,15 +74,8 @@ S32 LLSpellChecker::getSuggestions(const std::string& word, std::vector<std::str
         return 0;
     }
 
-    char** suggestion_list; int suggestion_cnt = 0;
-    if ( (suggestion_cnt = mHunspell->suggest(&suggestion_list, word.c_str())) != 0 )
-    {
-        for (int suggestion_index = 0; suggestion_index < suggestion_cnt; suggestion_index++)
-        {
-            suggestions.push_back(suggestion_list[suggestion_index]);
-        }
-        mHunspell->free_list(&suggestion_list, suggestion_cnt);
-    }
+    suggestions = mHunspell->suggest(word);
+
     return static_cast<S32>(suggestions.size());
 }
 
@@ -194,7 +176,7 @@ void LLSpellChecker::addToCustomDictionary(const std::string& word)
 {
     if (mHunspell)
     {
-        mHunspell->add(word.c_str());
+        mHunspell->add(word);
     }
     addToDictFile(getDictionaryUserPath() + DICT_FILE_CUSTOM, word);
     sSettingsChangeSignal();
@@ -312,8 +294,7 @@ void LLSpellChecker::initHunspell(const std::string& dict_language)
 {
     if (mHunspell)
     {
-        delete mHunspell;
-        mHunspell = NULL;
+        mHunspell.reset();
         mDictLanguage.clear();
         mDictFile.clear();
         mIgnoreList.clear();
@@ -334,11 +315,11 @@ void LLSpellChecker::initHunspell(const std::string& dict_language)
         const std::string filename_dic = dict_entry["name"].asString() + ".dic";
         if ( (gDirUtilp->fileExists(user_path + filename_aff)) && (gDirUtilp->fileExists(user_path + filename_dic)) )
         {
-            mHunspell = new Hunspell((user_path + filename_aff).c_str(), (user_path + filename_dic).c_str());
+            mHunspell = std::make_unique<Hunspell>((user_path + filename_aff).c_str(), (user_path + filename_dic).c_str());
         }
         else if ( (gDirUtilp->fileExists(app_path + filename_aff)) && (gDirUtilp->fileExists(app_path + filename_dic)) )
         {
-            mHunspell = new Hunspell((app_path + filename_aff).c_str(), (app_path + filename_dic).c_str());
+            mHunspell = std::make_unique<Hunspell>((app_path + filename_aff).c_str(), (app_path + filename_dic).c_str());
         }
         if (!mHunspell)
         {
@@ -422,7 +403,7 @@ bool LLSpellChecker::canRemoveDictionary(const std::string& dict_language)
     const LLSD dict_info = getDictionaryData(dict_language);
     return
         (dict_info["user_installed"].asBoolean()) &&
-        ( (!getUseSpellCheck()) || (!LLSpellChecker::instance().isActiveDictionary(dict_language)) );
+        ( (!getUseSpellCheck()) || (!isActiveDictionary(dict_language)) );
 }
 
 void LLSpellChecker::removeDictionary(const std::string& dict_language)

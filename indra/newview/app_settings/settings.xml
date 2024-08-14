@@ -1874,6 +1874,28 @@
     <key>Value</key>
     <real>64.0</real>
   </map>
+  <key>AvatarExtentRefreshPeriodBatch</key>
+  <map>
+    <key>Comment</key>
+    <string>how many frames do we spread over by default when refreshing extents (default is 4)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>S32</string>
+    <key>Value</key>
+    <integer>4</integer>
+  </map>
+  <key>AvatarExtentRefreshMaxPerBatch</key>
+  <map>
+    <key>Comment</key>
+    <string>how many avatars do we want to handle in total per batch (default is 5)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>S32</string>
+    <key>Value</key>
+    <integer>5</integer>
+  </map>
   <key>DebugAvatarAppearanceMessage</key>
   <map>
     <key>Comment</key>
@@ -12682,6 +12704,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>Use24HourClock</key>
+    <map>
+        <key>Comment</key>
+        <string>12 vs 24. At the moment only for region restart schedule floater</string>
+        <key>Persist</key>
+        <integer>0</integer>
+        <key>Type</key>
+        <string>Boolean</string>
+        <key>Value</key>
+        <integer>0</integer>
+    </map>
     <key>EnvironmentPersistAcrossLogin</key>
     <map>
       <key>Comment</key>
@@ -13122,7 +13155,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
     <key>AutoDisengageMic</key>
     <map>
@@ -14208,6 +14241,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>DisableLookAtAnimation</key>
+    <map>
+        <key>Comment</key>
+        <string>Avatar follows cursor with avatars eyes, when disabled, avatar will look forward</string>
+        <key>Persist</key>
+        <integer>0</integer>
+        <key>Type</key>
+        <string>Boolean</string>
+        <key>Value</key>
+        <integer>0</integer>
+    </map>
      <key>WebProfileFloaterRect</key>
     <map>
       <key>Comment</key>
@@ -14943,6 +14987,39 @@
       <string>F32</string>
       <key>Value</key>
       <real>0.0</real>
+    </map>
+    <key>LocalTerrainPaintEnabled</key>
+    <map>
+      <key>Comment</key>
+      <string>Enables local paintmap if LocalTerrainAsset1, etc are set</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>TerrainPaintBitDepth</key>
+    <map>
+      <key>Comment</key>
+      <string>Bit depth for future terrain paint map operations. Min: 1. Max: 8. Takes effect when the paint map is created or modified. Modifications to an existing paintmap of different bit depth will have lower precision.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>5</integer>
+    </map>
+    <key>TerrainPaintResolution</key>
+    <map>
+      <key>Comment</key>
+      <string>Resolution of the terrain paint map in pixels. Rounded to a power of two. Min: 16. Max: RenderMaxTextureResolution. Takes effect when the paint map is created.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>2048</integer>
     </map>
 	<key>PathfindingRetrieveNeighboringRegion</key>
     <map>
@@ -15748,6 +15825,17 @@
     <integer>1</integer>
     <key>Type</key>
     <string>U32</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>ColorSettingsHideDefault</key>
+  <map>
+    <key>Comment</key>
+    <string>Show non-default settings only in Color Settings list</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>Boolean</string>
     <key>Value</key>
     <integer>0</integer>
   </map>
