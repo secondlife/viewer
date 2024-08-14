@@ -2150,20 +2150,9 @@ LLVoiceWebRTCConnection::LLVoiceWebRTCConnection(const LLUUID &regionID, const s
     mOutstandingRequests(0),
     mChannelID(channelID),
     mRegionID(regionID),
-    mPrimary(false),
+    mPrimary(true),
     mRetryWaitPeriod(0)
 {
-    if (isSpatial())
-    {
-        if (gAgent.getRegion())
-        {
-            mPrimary = (regionID == gAgent.getRegion()->getRegionID());
-        }
-    }
-    else
-    {
-        mPrimary = true;
-    }
 
     // retries wait a short period...randomize it so
     // all clients don't try to reconnect at once.
@@ -3065,6 +3054,10 @@ LLVoiceWebRTCSpatialConnection::LLVoiceWebRTCSpatialConnection(const LLUUID &reg
     LLVoiceWebRTCConnection(regionID, channelID),
     mParcelLocalID(parcelLocalID)
 {
+    if (gAgent.getRegion())
+    {
+        mPrimary = (regionID == gAgent.getRegion()->getRegionID());
+    }
 }
 
 LLVoiceWebRTCSpatialConnection::~LLVoiceWebRTCSpatialConnection()
