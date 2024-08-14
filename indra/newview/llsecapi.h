@@ -35,6 +35,7 @@
 #include "llexception.h"
 
 #ifdef LL_WINDOWS
+#pragma warning (push)
 #pragma warning(disable:4250)
 #endif // LL_WINDOWS
 
@@ -549,5 +550,8 @@ void registerSecHandler(const std::string& handler_type,
 
 extern LLPointer<LLSecAPIHandler> gSecAPIHandler;
 
+#ifdef LL_WINDOWS
+#pragma warning (pop)
+#endif // LL_WINDOWS
 
 #endif // LL_SECAPI_H

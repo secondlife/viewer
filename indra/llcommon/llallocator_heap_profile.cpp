@@ -28,13 +28,6 @@
 #include "linden_common.h"
 #include "llallocator_heap_profile.h"
 
-#if LL_MSVC
-// disable warning about boost::lexical_cast returning uninitialized data
-// when it fails to parse the string
-#pragma warning (disable:4701)
-#pragma warning (disable:4702)
-#endif
-
 #include <boost/algorithm/string/split.hpp>
 #include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>

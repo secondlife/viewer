@@ -28,25 +28,11 @@
 #include "llcommandlineparser.h"
 #include "llexception.h"
 
-// *NOTE: The boost::lexical_cast generates
-// the warning C4701(local used with out assignment) in VC7.1.
-// Disable the warning for the boost includes.
-#if _MSC_VER
-#   pragma warning(push)
-#   pragma warning( disable : 4701 )
-#else
-// NOTE: For the other platforms?
-#endif
-
 #include <boost/program_options.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/bind.hpp>
 #include <boost/tokenizer.hpp>
 #include <boost/assign/list_of.hpp>
-
-#if _MSC_VER
-#   pragma warning(pop)
-#endif
 
 #include "llsdserialize.h"
 #include "llerror.h"

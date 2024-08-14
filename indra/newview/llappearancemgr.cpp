@@ -66,11 +66,6 @@
 
 #include "llavatarpropertiesprocessor.h"
 
-#if LL_MSVC
-// disable boost::lexical_cast warning
-#pragma warning (disable:4702)
-#endif
-
 namespace
 {
     const S32   BAKE_RETRY_MAX_COUNT = 5;

@@ -524,7 +524,7 @@ void LLViewerJoystick::initDevice(LLSD &guid)
 #endif
 }
 
-bool LLViewerJoystick::initDevice(void * preffered_device /*LPDIRECTINPUTDEVICE8*/, std::string &name, LLSD &guid)
+bool LLViewerJoystick::initDevice(void * preffered_device /*LPDIRECTINPUTDEVICE8*/, const std::string &name, const LLSD &guid)
 {
 #if LIB_NDOF
     mLastDeviceUUID = guid;

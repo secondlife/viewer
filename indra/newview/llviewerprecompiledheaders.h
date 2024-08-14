@@ -37,11 +37,6 @@
 
 #include "linden_common.h"
 
-// Work around stupid Microsoft STL warning
-#ifdef LL_WINDOWS
-#pragma warning (disable : 4702) // warning C4702: unreachable code
-#endif
-
 #include <algorithm>
 #include <deque>
 #include <functional>

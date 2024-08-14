@@ -900,6 +900,11 @@ void HeapFree_deleter(void* ptr)
 
 } // anonymous namespace
 
+unsigned long windows_get_last_error()
+{
+    return GetLastError();
+}
+
 template<>
 std::wstring windows_message<std::wstring>(DWORD error)
 {
