@@ -2,8 +2,7 @@
 <floater name="region_restarting" title="リージョンの再起動">
 	<string name="RegionName">
 		現在あなたがいるリージョン「[NAME]」は再起動しようとしています。
-		
-		このまま、この場所にいるとログアウトされます。
+このまま、この場所にいるとログアウトされます。
 	</string>
 	<string name="RestartSeconds">
 		再起動まであと
@@ -11,7 +10,7 @@
 	</string>
 	<panel name="layout_panel_1">
 		<text name="region_name">
-            現在あなたがいるリージョン「-最長リージョン名-」は再起動しようとしています。
+現在あなたがいるリージョン「-最長リージョン名-」は再起動しようとしています。
             
             このまま、この場所にいるとログアウトされます。
         </text>

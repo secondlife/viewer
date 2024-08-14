@@ -23,7 +23,7 @@
         翻訳する言語:
     </text>
 	<combo_box name="translate_language_combo">
-		<combo_box.item label="システム標準" name="System Default Language"/>
+		<combo_box.item label="システムデフォルト" name="System Default Language"/>
 		<combo_box.item label="英語" name="English"/>
 		<combo_box.item label="Dansk (デンマーク語)" name="Danish"/>
 		<combo_box.item label="Deutsch (ドイツ語)" name="German"/>
@@ -47,14 +47,14 @@
 		<radio_item label="Azure翻訳" name="azure"/>
 		<radio_item label="DeepL翻訳" name="deepl"/>
 	</radio_group>
-	<text name="google_links_text">
+<text name="google_links_text">
         [http://code.google.com/apis/language/translate/v2/pricing.html 価格] | [https://code.google.com/apis/console 統計]
     </text>
 	<text name="azure_api_endoint_label">
         エンドポイント:
     </text>
 	<text name="azure_api_key_label">
-        Azureキー:
+Azureキー:
     </text>
 	<line_editor default_text="翻訳キーを入力して「確認」ボタンをクリックしてください。" name="azure_api_key"/>
 	<text name="azure_api_region_label">
@@ -82,7 +82,7 @@
 	<line_editor default_text="DeepL APIのキーを入力して「認証」をクリックしてください。" name="deepl_api_key"/>
 	<button label="認証" name="verify_deepl_api_key_btn"/>
 	<text name="deepl_links_text">
-        [https://www.deepl.com/pro/select-country?cta=header-prices 価格]
+[https://www.deepl.com/pro/select-country?cta=header-prices 価格]
     </text>
 	<button label="キャンセル" name="cancel_btn"/>
 </floater>

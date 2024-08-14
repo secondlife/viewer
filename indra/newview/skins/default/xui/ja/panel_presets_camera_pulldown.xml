@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="presets_camera_pulldown">
 	<text name="Camera Presets">
-        カメラのプリセット
-    </text>
-	<button name="open_prefs_btn" label="カメラのフローターを表示" tool_tip="カメラのフローターを起動する"/>
+カメラのプリセット
+	</text>
+	<scroll_list name="preset_camera_list"/>
+	<view_border name="horiz_separator"/>
+	<button name="open_prefs_btn" label="カメラのフローターを表示" tool_tip="カメラのフローターを起動します。"/>
 </panel>

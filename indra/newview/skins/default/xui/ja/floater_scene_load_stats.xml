@@ -7,7 +7,7 @@
 				<stat_bar name="bandwidth" label="UDPデータの受信量"/>
 				<stat_bar name="packet_loss" label="パケットロス"/>
 			</stat_view>
-			<stat_view name="advanced" label="拡張">
+			<stat_view name="advanced" label="高度">
 				<stat_view name="render" label="描画">
 					<stat_bar name="objs" label="オブジェクト合計"/>
 					<stat_bar name="newobjs" label="新規オブジェクト"/>
@@ -17,21 +17,21 @@
 					<stat_bar name="texture_cache_hits" label="キャッシュのヒット率"/>
 					<stat_bar name="texture_cache_read_latency" label="キャッシュの読込の遅延量"/>
 					<stat_bar name="texture_decode_latency" label="キャッシュデコード遅延量" unit_label="秒"/>
-					<stat_bar name="texture_decode_latency" label="キャッシュ書込遅延量" unit_label="秒"/>
+<stat_bar name="texture_decode_latency" label="キャッシュ書込遅延量" unit_label="秒"/>
 					<stat_bar name="texture_fetch_latency" label="キャッシュ取得遅延量" unit_label="秒"/>
 					<stat_bar name="texture_fetch_time" label="キャッシュ取得時間" unit_label="秒"/>
 					<stat_bar name="numimagesstat" label="カウント"/>
 					<stat_bar name="numrawimagesstat" label="RAWカウント"/>
 				</stat_view>
 				<stat_view name="network" label="ネットワーク">
-					<stat_bar name="packetsinstat" label="受信パケット量"/>
-					<stat_bar name="packetsoutstat" label="送信パケット量"/>
-					<stat_bar name="objectdatareceived" label="オブジェクト"/>
-					<stat_bar name="texturedatareceived" label="テクスチャ"/>
-					<stat_bar name="assetudpdatareceived" label="アセット"/>
-					<stat_bar name="layersdatareceived" label="レイヤー"/>
-					<stat_bar name="messagedatain" label="実際の受信"/>
-					<stat_bar name="messagedataout" label="実際の送信"/>
+<stat_bar name="packetsinstat" label="受信パケット量" unit_label="／秒"/>
+					<stat_bar name="packetsoutstat" label="送信パケット量" unit_label="／秒"/>
+					<stat_bar name="objectdatareceived" label="オブジェクト" unit_label="kbps"/>
+					<stat_bar name="texturedatareceived" label="テクスチャ" unit_label="kbps"/>
+					<stat_bar name="assetudpdatareceived" label="アセット" unit_label="kbps"/>
+					<stat_bar name="layersdatareceived" label="レイヤー" unit_label="kbps"/>
+					<stat_bar name="messagedatain" label="実効受信量" unit_label="kbps"/>
+					<stat_bar name="messagedataout" label="実効送信量" unit_label="kbps"/>
 				</stat_view>
 			</stat_view>
 			<stat_view name="sim" label="シミュレーター">

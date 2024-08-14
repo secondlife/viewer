@@ -119,7 +119,7 @@
 	</scheme>
 	<mimetype name="blank">
 		<label name="blank_label">
-			- なし -
+- なし -
 		</label>
 		<widgettype>
 			NONE
@@ -130,7 +130,7 @@
 	</mimetype>
 	<mimetype name="none/none">
 		<label name="none/none_label">
-			- なし -
+- なし -
 		</label>
 		<widgettype>
 			NONE

@@ -12,7 +12,7 @@
 					</string>
 					<button label="受け取ったアイテム" name="inbox_btn"/>
 					<text name="inbox_fresh_new_count">
-                        [NUM]個の新アイテム
+[NUM]個の新アイテム
                     </text>
 					<panel name="inbox_inventory_placeholder_panel" tool_tip="アイテムを使用するには、そのアイテムをインベントリにドラッグアンドドロップ">
 						<text name="inbox_inventory_placeholder">

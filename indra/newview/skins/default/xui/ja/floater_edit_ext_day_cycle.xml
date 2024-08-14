@@ -13,7 +13,7 @@
 		自分で作成したデイサイクルを編集するには、希望の設定に調節して、「保存」をクリックします。
 	</string>
 	<string name="sky_track_label">
-		空[ALT]
+		スカイ[ALT]
 	</string>
 	<string name="sky_label">
 		空
@@ -25,20 +25,21 @@
 		区画に適用
 	</string>
 	<string name="commit_region">
-		地域(リージョン)に適用
+地域(リージョン)に適用
 	</string>
 	<layout_stack name="outer_stack">
 		<layout_panel name="name_and_import">
 			<text name="label">
-                デイサイクル名:
-            </text>
-			<button label="インポート" name="btn_import" tool_tip="ディスクから過去の設定をインポートする。"/>
+デイサイクル名：
+			</text>
+			<line_editor name="day_cycle_name"/>
+			<button label="インポート" name="btn_import" tool_tip="ディスクからレガシー設定をインポートする。"/>
 		</layout_panel>
 		<layout_panel name="content">
 			<layout_stack name="content_stack">
 				<layout_panel name="timeline_track_selection">
 					<panel name="timeline_layers">
-						<button label="空4" name="sky4_track"/>
+<button label="空4" name="sky4_track"/>
 						<button label="空3" name="sky3_track"/>
 						<button label="空2" name="sky2_track"/>
 						<button label="地表レベル" name="sky1_track"/>
@@ -58,7 +59,7 @@
 							<layout_panel name="track_progress_lp">
 								<layout_stack name="progress_control">
 									<layout_panel name="skip_back">
-										<button name="skip_back_btn" tool_tip="後に移動"/>
+<button name="skip_back_btn" tool_tip="後に移動"/>
 									</layout_panel>
 									<layout_panel name="skip_forward">
 										<button name="skip_forward_btn" tool_tip="次にステップ"/>
@@ -80,14 +81,14 @@
 				</layout_panel>
 				<layout_panel name="frame_settings_water">
 					<tab_container name="water_tabs">
-						<panel filename="panel_settings_water.xml" label="水面" name="water_panel"/>
+						<panel label="水面" name="water_panel"/>
 					</tab_container>
 				</layout_panel>
 				<layout_panel name="frame_settings_sky">
 					<tab_container name="sky_tabs">
-						<panel filename="panel_settings_sky_atmos.xml" label="大気 &amp; 光源" name="atmosphere_panel"/>
-						<panel filename="panel_settings_sky_clouds.xml" label="雲" name="clouds_panel"/>
-						<panel filename="panel_settings_sky_sunmoon.xml" label="太陽 &amp; 月" name="moon_panel"/>
+<panel label="大気＆光源" name="atmosphere_panel"/>
+						<panel label="雲" name="clouds_panel"/>
+						<panel label="太陽＆月" name="moon_panel"/>
 					</tab_container>
 				</layout_panel>
 			</layout_stack>

@@ -4,7 +4,10 @@
 		モデレート
 	</panel.string>
 	<panel.string name="type_pg">
-		一般コンテンツ
+「General」コンテンツ
+	</panel.string>
+	<panel.string name="l$_price">
+		L$ [PRICE]
 	</panel.string>
 	<panel.string name="click_through_text_fmt">
 		[TELEPORT]テレポート、[MAP]マップ、[PROFILE]プロフィール
@@ -31,7 +34,7 @@
 		<layout_panel name="scroll_layout_panel">
 			<scroll_container name="profile_scroll">
 				<panel name="info_scroll_content_panel">
-					<icon name="edit_icon" tool_tip="クリックして画像を選択"/>
+<icon name="edit_icon" tool_tip="クリックして画像を選択"/>
 					<layout_stack name="info_panel">
 						<layout_panel name="main_info_panel">
 							<text name="classified_location_label" value="場所:"/>
@@ -58,7 +61,7 @@
 					</layout_stack>
 					<panel name="edit_panel">
 						<text name="Name:">
-                            タイトル:
+タイトル:
                         </text>
 						<text name="description_label">
                             説明:
@@ -87,6 +90,7 @@
 		</layout_panel>
 		<layout_panel name="util_buttons_lp">
 			<layout_stack name="util_buttons_stack">
+<layout_panel name="util_resizer_left"/>
 				<layout_panel name="teleport_btn_lp">
 					<button name="teleport_btn" label="テレポート"/>
 				</layout_panel>
@@ -95,14 +99,22 @@
 				</layout_panel>
 				<layout_panel name="edit_btn_lp">
 					<button name="edit_btn" label="編集"/>
+</layout_panel>
+				<layout_panel name="util_resizer_right">
 				</layout_panel>
 			</layout_stack>
 		</layout_panel>
 		<layout_panel name="publish_layout_panel">
+<view_border name="publish_emphasis_border"/>
 			<layout_stack name="publish_stack">
-				<layout_panel name="cancel_btn_lp">
-					<button name="cancel_btn" label="オブジェクトへの支払いを取り消します。"/>
+				<layout_panel name="pbl_resizer_left"/>
+				<layout_panel name="save_btn_lp">
+					<button name="save_changes_btn" label="[LABEL]"/>
 				</layout_panel>
+				<layout_panel name="cancel_btn_lp">
+					<button label="キャンセル" name="cancel_btn"/>
+				</layout_panel>
+				<layout_panel name="pbl_resizer_right"/>
 			</layout_stack>
 		</layout_panel>
 	</layout_stack>

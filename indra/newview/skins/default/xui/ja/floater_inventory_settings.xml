@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="inventory_settings" title="インベントリ設定">
-	<text name="multi_folder_txt">
+<text name="multi_folder_txt">
         複数フォルダビューでフォルダをダブルクリック:
     </text>
 	<radio_group name="multi_double_click_setting">

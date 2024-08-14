@@ -2,5 +2,5 @@
 <panel name="conversation_log_list_item">
 	<icon name="voice_session_icon" tool_tip="ボイスチャット"/>
 	<icon name="unread_ims_icon" tool_tip="ログアウト時に表示されるメッセージ"/>
-	<button name="delete_btn" tool_tip="このエントリーを削除"/>
+<button name="delete_btn" tool_tip="このエントリーを削除"/>
 </panel>

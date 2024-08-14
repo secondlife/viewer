@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <toggleable_menu name="menu_group_plus">
-	<menu_item_check label="新しい順にソート" name="sort_most"/>
-	<menu_item_check label="名前でソート" name="sort_name"/>
-	<menu_item_check name="view_icons" label="人々のアイコン表示"/>
+<menu_item_check label="新着順で並べ替え" name="sort_most"/>
+	<menu_item_check label="名前で並べ替え" name="sort_name"/>
+	<menu_item_check label="人物アイコンを表示" name="view_icons"/>
 </toggleable_menu>

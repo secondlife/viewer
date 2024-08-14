@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <role_actions>
-	<action_set description="これらの能力にはグループメンバーを追加、排除し、招待状なしに新メンバーの参加を認める権限が含まれます。" name="Membership">
-		<action description="このグループに人を招待" longdescription="「役割 &amp; メンバー」セクションの「メンバー」タブ内にある「招待」ボタンを押して、このグループにメンバーを招待します。" name="member invite"/>
-		<action description="このグループから「全員(Everyone)」の役割に属するメンバーを追放します" longdescription="「役割 &amp; メンバー」セクションの「メンバー」タブ内にある「追放」ボタンを押して、このグループからメンバーを追放します。「所有者」は他の「所有者」以外は誰でも追放できます。「所有者」ではない人が「全員(Everyone)」にしか役割がない場合、メンバーはグループから追放されることがあります。「役割」からメンバーを削除するには、「役割からメンバーを削除」の能力が与えられている必要があります。" name="member eject"/>
-		<action description="バンリストの管理" longdescription="グループのメンバーに、このグループから住人をバン / バン解除できるようにします。" name="allow ban"/>
-		<action description="「自由参加」と「入会費」の切り替え" longdescription="「自由参加」に切り替えると、招待されなくても新しいメンバーが入会できます。「入会費」は「一般」セクションで変更します。" name="member options"/>
+<action_set description="これらの能力には、グループメンバーを追加、排除し、招待状なしに新メンバーの参加を認める権限が含まれます。" name="Membership">
+		<action description="このグループに人を招待" longdescription="「役割とメンバー」セクションの「メンバー」タブ内にある「招待」ボタンを押して、このグループにメンバーを招待します。" name="member invite" value="1"/>
+		<action description="このグループから「全員（Everyone）」の役割に属するメンバーを追放します" longdescription="「役割とメンバー」セクションの「メンバー」タブ内にある「追放」ボタンを押して、このグループからメンバーを追放します。「オーナー」は、他の「オーナー」以外は誰でも追放できます。「オーナー」ではない人が「全員（Everyone）」にしか役割がない場合、メンバーはグループから追放されることがあります。「役割」からメンバーを削除するには、「役割からメンバーを削除」の能力が与えられている必要があります。" name="member eject" value="2"/>
+		<action description="バンリストの管理" longdescription="グループのメンバーに、このグループから住人をバン／バン解除できるようにします。" name="allow ban" value="51"/>
+		<action description="「自由参加」と「入会費」の切り替え" longdescription="「自由参加」に切り替えると、招待されなくても新しいメンバーが入会できます。「入会費」は「一般」セクションで変更します。" name="member options" value="3"/>
 	</action_set>
 	<action_set description="これらの能力にはグループ内の役割を追加、削除、変更し、役割にメンバーを追加、削除し、さらに役割へ能力を割り当てる権限が含まれます。" name="Roles">
 		<action description="新しい役割を作成" longdescription="新しい「役割」は、「役割 &amp; メンバー」セクション&gt;「役割」タブで作成します。" name="role create"/>
@@ -15,7 +15,7 @@
 		<action description="役割からメンバーを解除" longdescription="「割り当てられた役割」(「役割とメンバー」セクション&gt;「メンバー」タブ)のリストで、メンバーを「役割」から削除します。「所有者」は削除できません。" name="role remove member"/>
 		<action description="役割の能力の割り当てと解除" longdescription="「許可された能力」(「役割とメンバー」セクション&gt;「役割」タブ)のリストで、各「役割」に対する「能力」を割り当てたり削除したりします。*警告* この「能力」がある「役割」を持つメンバーなら誰でも自分自身と、他の「所有者」以外のメンバーを全ての「能力」」に割り当てることができます。つまり、「所有者」以外の人が「所有者」に近い権限を持つよう設定できることになります。この「能力」を割り当てる前に、自分がしようとしていることをよく把握してください。" name="role change actions"/>
 	</action_set>
-	<action_set description="これらの能力にはグループの公開性や理念、記章の変更といった、グループのアイデンティティを修正する権限が含まれます。" name="Group Identity">
+<action_set description="これらの能力にはグループの公開性や理念、記章の変更といった、グループのアイデンティティを修正する権限が含まれます。" name="Group Identity">
 		<action description="理念、記章、「Web 上で公開」、およびグループ情報内で公開のメンバーを変更。" longdescription="理念、記章、「検索に表示」の変更をします。「一般」セクションで行えます。" name="group change identity"/>
 	</action_set>
 	<action_set description="これらの「能力」には、このグループの所有地の譲渡、修正、販売をする権限があります。「土地情報」ウィンドウを見るには、地面を右クリックして「土地情報」を選ぶか、ナビゲーションバーの「i」アイコンをクリックします。" name="Parcel Management">
@@ -29,7 +29,7 @@
 		<action description="区画名、説明、およびモデレートコンテンツ設定を変更" longdescription="区画名、説明、およびモデレートコンテンツ設定を変更します。「土地情報」&gt;「オプション」タブで行います。" name="land change identity"/>
 		<action description="着地点およびテレポートルートを設定" longdescription="この能力を持つ役割のメンバーはグループ所有の区画上で着地点を設定することにより外部からのテレポートの到着位置を指定できると共に、テレポートルートを設定して細かく制御できます。この操作は「土地情報」&gt;「オプション」タブで行います。" name="land set landing point"/>
 	</action_set>
-	<action_set description="これらの能力には「オブジェクトを作成」、「地形を編集」、音楽とメディアの設定など、区画のオプションに関連する権限が含まれます。" name="Parcel Settings">
+<action_set description="これらの能力には「オブジェクトを作成」、「地形を編集」、音楽とメディアの設定など、区画のオプションに関連する権限が含まれます。" name="Parcel Settings">
 		<action description="音楽とメディアの設定を変更" longdescription="ストリーミングミュージックと動画の設定を変更するには、「土地情報」&gt;「メディア」タブを使います。" name="land change media"/>
 		<action description="「地形を編集」に切り替え" longdescription="「地形を編集」に切り替えます。*警告* 「土地情報」&gt;「オプション」&gt;「地形を編集」の順で進むと、誰でもあなたの土地の形の整備や、リンデン製の樹木の設置、移動ができます。この能力を割り振る前に、このことをよく理解しておいてください。「土地情報」&gt;「オプション」タブから「地形を編集」に切り替えられます。" name="land edit"/>
 		<action description="「土地情報」&gt;「オプション」タブ内のさまざまな設定を切り替え" longdescription="「安全(ダメージなし)」、「飛行」を切り替え、住人に以下を許可します: グループ所有地の「土地情報」&gt;「オプション」タブ内の、「地形を編集」、「制作」、「ランドマークの作成」、「スクリプトの実行」。" name="land options"/>

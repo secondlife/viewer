@@ -10,16 +10,16 @@
 		Second Lifeサポートポータル
 	</string>
 	<string name="StartupDetectingHardware">
-		ハードウェアの検出中...
-	</string>
-	<string name="StartupLoading">
-		[APP_NAME] をインストール中...
+ハードウェアを検出しています…
 	</string>
 	<string name="StartupClearingCache">
-		キャッシュをクリア中...
+		キャッシュを消去しています…
+	</string>
+	<string name="StartupLoading">
+		[APP_NAME]をインストールしています…
 	</string>
 	<string name="StartupInitializingTextureCache">
-		テクスチャキャッシュを初期化中...
+		テクスチャキャッシュを初期化しています…
 	</string>
 	<string name="StartupRequireDriverUpdate">
 		グラフィックを初期化できませんでした。グラフィックドライバを更新してください。
@@ -32,7 +32,7 @@
 		ビルド構成 [BUILD_CONFIG]
 	</string>
 	<string name="AboutPosition">
-		現在地は、[POSITION_LOCAL_0,number,1]、[POSITION_LOCAL_1,number,1]、[POSITION_LOCAL_2,number,1] の [REGION] です。位置は &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; です。([HOSTIP])
+現在地は、[POSITION_LOCAL_0,number,1]、[POSITION_LOCAL_1,number,1]、[POSITION_LOCAL_2,number,1] の [REGION] です。位置は &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; です。([HOSTIP])
 		SLURL:&lt;nolink&gt;[SLURL]&lt;/nolink&gt;
 		(グローバル座標 [POSITION_0,number,1]、[POSITION_1,number,1]、[POSITION_2,number,1])
 		[SERVER_VERSION]
@@ -52,7 +52,7 @@
 		OpenGLバージョン: [OPENGL_VERSION]
 	</string>
 	<string name="AboutSettings">
-		ウィンドウサイズ: [WINDOW_WIDTH] x [WINDOW_HEIGHT]
+ウィンドウサイズ: [WINDOW_WIDTH] x [WINDOW_HEIGHT]
 		フォントサイズ調整: [FONT_SIZE_ADJUSTMENT]pt
 		UIスケーリング: [UI_SCALE]
 		描画距離: [DRAW_DISTANCE]m
@@ -78,6 +78,9 @@
 	<string name="AboutTime">
 		[year, datetime, slt]年[month, datetime, slt]月[day, datetime, slt]日 [hour, datetime, slt]:[min,datetime, slt]:[second,datetime,slt]
 	</string>
+	<string name="LocalTime">
+		[year, datetime, local]年[month, datetime, local]月[day, datetime, local]日　[hour, datetime, local]：[min, datetime, local]：[second,datetime, local]
+	</string>
 	<string name="ErrorFetchingServerReleaseNotesURL">
 		サーバーのリリースノートのURL取得時にエラーが発生しました。
 	</string>
@@ -94,10 +97,10 @@
 		明るさ全開(レガシー)
 	</string>
 	<string name="LoginInProgress">
-		ログイン中です。[APP_NAME]の表示がフリーズする場合があります。しばらくお待ちください。
+		ログインしています。[APP_NAME]の表示がフリーズする場合があります。しばらくお待ちください。
 	</string>
 	<string name="LoginInProgressNoFrozen">
-		ログイン中...
+ログイン中...
 	</string>
 	<string name="LoginAuthenticating">
 		認証しています...
@@ -106,7 +109,7 @@
 		アカウントのメンテナンスを実行しています...
 	</string>
 	<string name="LoginAttempt">
-		前回のログインに失敗しました。ログイン中です([NUMBER]回目)
+前回のログインに失敗しました。ログインしています（[NUMBER]回目）
 	</string>
 	<string name="LoginPrecaching">
 		ワールドを読込中...
@@ -118,7 +121,7 @@
 		マルチメディアを初期化しています...
 	</string>
 	<string name="LoginInitializingFonts">
-		フォントを読み込んでいます...
+フォントを読み込んでいます...
 	</string>
 	<string name="LoginVerifyingCache">
 		キャッシュファイルを検証しています(所要時間は60～90秒)...
@@ -130,7 +133,7 @@
 		ワールドを初期化中...
 	</string>
 	<string name="LoginDecodingImages">
-		画像をデコードしています...
+画像をデコードしています...
 	</string>
 	<string name="LoginInitializingQuicktime">
 		QuickTimeを初期化しています...
@@ -142,7 +145,7 @@
 		QuickTimeが正常に初期化されました。
 	</string>
 	<string name="LoginRequestSeedCapGrant">
-		地域(リージョン)の機能をリクエストしています...
+地域(リージョン)の機能をリクエストしています...
 	</string>
 	<string name="LoginRetrySeedCapGrant">
 		地域(リージョン)の機能をリクエストしています...(試行[NUMBER]回目)
@@ -160,7 +163,7 @@
 		証明書が無効または壊れています。グリッド管理者にご連絡ください。
 	</string>
 	<string name="CertInvalidHostname">
-		無効なホストネームがサーバーにアクセスしようとしています。SLURLかグリッドのホストネームをご確認ください。
+		無効なホストネームがサーバーにアクセスしようとしています。SLUrlかグリッドのホストネームをご確認ください。
 	</string>
 	<string name="CertExpired">
 		グリッドが返した証明書は有効期限が切れているようです。お使いのシステムクロックを確認するか、グリッドの管理者にお問い合わせください。
@@ -193,16 +196,16 @@
 		https://join.secondlife.com/?lang=ja&amp;sourceid=[sourceid]
 	</string>
 	<string name="AgniGridLabel">
-		Second Lifeメイングリッド (Agni)
+		Second Lifeメイングリッド（Agni）
 	</string>
 	<string name="AditiGridLabel">
-		Second Lifeベータテストグリッド (Aditi)
+		Second Lifeベータテストグリッド（Aditi）
 	</string>
 	<string name="ViewerDownloadURL">
-		https://secondlife.com/support/downloads/?lang=ja
+		https://www.alchemyviewer.org/downloads
 	</string>
 	<string name="LoginFailedViewerNotPermitted">
-		お使いの古いビュアではSecond Lifeにアクセスできません。以下のページから新しいビュアをダウンロードしてください:  https://secondlife.com/support/downloads/?lang=ja
+お使いの古いビュアではSecond Lifeにアクセスできません。以下のページから新しいビュアをダウンロードしてください:  https://secondlife.com/support/downloads/?lang=ja
 		
 		詳細についてはFAQ を参照してください:
 		https://secondlife.com/viewer-access-faq
@@ -210,6 +213,10 @@
 	<string name="LoginFailed">
 		"システムの問題によりログインプロセスが完了しませんでした。 数分後にもう一度お試しください。
 		これがエラーであると思われる場合は、https://support.secondlife.com でサポートにお問い合わせください。"
+	</string>
+	<string name="LoginFailed">
+		システムの問題により、ログイン処理が完了しませんでした。数分後にもう一度試してください。
+これがエラーであると思われる場合は、サポートにお問い合わせください。
 	</string>
 	<string name="LoginIntermediateOptionalUpdateAvailable">
 		ビュアの更新(オプション)があります: [VERSION]
@@ -221,7 +228,7 @@
 		このエージェントは既にログインしています。
 	</string>
 	<string name="LoginFailedAuthenticationFailed">
-		申し訳ございませんが、ログインできませんでした。
+申し訳ございませんが、ログインできませんでした。
 		以下の情報が正しく入力されたことを確認してください:
 		・ユーザ名(bobsmith12 または steller.sunshine など)
 		・パスワード
@@ -248,7 +255,7 @@
 		申し訳ございませんが、有料アカウントのユーザを優先するため、現在のところ無料アカウントのユーザには Second Lifeへのアクセスをご遠慮いただいています。
 	</string>
 	<string name="LoginFailedComputerProhibited">
-		お使いのパソコンからはSecond Lifeにアクセスできません。
+お使いのパソコンからはSecond Lifeにアクセスできません。
 		システムエラーだと思われる場合は、 support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="PacificTime">
@@ -268,7 +275,7 @@
 	</string>
 	<string name="LoginFailedAccountMaintenance">
 		現在アカウントのメンテナンスが行われています。
-		あなたのアカウントは、
+あなたのアカウントは、
 		太平洋時間の[TIME]までご利用いただけません。
 		システムのエラーだと思われる場合は、support@secondlife.com にお問い合わせください。
 	</string>
@@ -287,7 +294,7 @@
 	</string>
 	<string name="LoginFailedRestrictedHours">
 		あなたのSecond Lifeアカウントにアクセスできるのは、
-		太平洋時間の [START] ～ [END] の間に限られます。
+太平洋時間の [START] ～ [END] の間に限られます。
 		有効な時間帯に再度お試しください。
 		システムのエラーだと思われる場合は、support@secondlife.com にお問い合わせください。
 	</string>
@@ -311,6 +318,10 @@
 		エージェントがリージョンに不在です。
 		しばらくしてから再度お試しください。
 	</string>
+	<string name="LogoutFailedAgentNotInRegion">
+		エージェントはリージョンにいません。
+しばらくしてからもう一度ログインし直してください。
+	</string>
 	<string name="LogoutFailedPendingLogin">
 		このリージョンでは別のセッションでログインされていました。
 		しばらくしてから再度お試しください。
@@ -328,7 +339,7 @@
 		しばらくしてから再度お試しください。
 	</string>
 	<string name="LogoutFailedLogoutBegun">
-		このリージョンで、ログアウトプロセスが開始されました。
+このリージョンで、ログアウトプロセスが開始されました。
 		しばらくしてから再度お試しください。
 	</string>
 	<string name="LoginFailedLoggingOutSession">
@@ -339,17 +350,21 @@
 		ログインを続けるには、多要素認証アプリから新しいトークンを入力してください。
 		これがエラーだと思われる場合は、support@secondlife.comまでご連絡ください。
 	</string>
+	<string name="LoginFailedAuthenticationMFARequired">
+		ログインするには二段階認証アプリから新しいトークンを入力する必要があります。
+それでもこのエラーが発生する場合は、support@secondlife.comにお問い合わせください。
+	</string>
 	<string name="AgentLostConnection">
-		このリージョンに不都合が発生している可能性があります。ご使用のインターネット接続をご確認ください。
+		これは恥ずべきことだ。このリージョンではトラブルが発生している可能性があります。インターネットへの接続を確認してください。
 	</string>
 	<string name="SavingSettings">
-		設定を保存中...
+設定を保存しています…
 	</string>
 	<string name="LoggingOut">
-		ログアウト中...
+		ログアウトしています…
 	</string>
 	<string name="ShuttingDown">
-		シャットダウン中...
+		シャットダウンしています…
 	</string>
 	<string name="YouHaveBeenDisconnected">
 		あなたがいたリージョンへの接続が切れました。
@@ -358,7 +373,7 @@
 		無効なリージョンにテレポートされました。
 	</string>
 	<string name="TestingDisconnect">
-		ビュアの接続を切るテスト中
+ビュアの接続を切るテスト中
 	</string>
 	<string name="BlackAndWhite">
 		白黒
@@ -394,7 +409,7 @@
 		トイカメラ
 	</string>
 	<string name="TooltipPerson">
-		人
+		人物
 	</string>
 	<string name="TooltipNoName">
 		(名前なし)
@@ -415,7 +430,10 @@
 		グループ作成
 	</string>
 	<string name="TooltipFlagNoBuild">
-		作成禁止
+		ビルド禁止
+	</string>
+	<string name="TooltipFlagNoEdit">
+		編集禁止
 	</string>
 	<string name="TooltipFlagNoEdit">
 		編集なし
@@ -445,16 +463,16 @@
 		これは、SecondLife.com または LindenLab.com の公式ドメイン上のページにリンクします。
 	</string>
 	<string name="TooltipOutboxDragToWorld">
-		マーケットプレイスのリストフォルダから、直接アイテムをRezすることはできません
+		マーケットプレイスの出品リストフォルダから、直接アイテムをRezすることはできません。
 	</string>
 	<string name="TooltipOutboxWorn">
-		着用しているアイテムをマーケットプレイスのリストフォルダに置くことはできません。
+		着用しているアイテムをマーケットプレイスの出品リストフォルダに置くことはできません。
 	</string>
 	<string name="TooltipOutboxFolderLevels">
 		フォルダの階層の深さが、[AMOUNT]階層を超えています。必要に応じてアイテムをボックスに入れるなどをして、フォルダの階層数を減らしてください。
 	</string>
 	<string name="TooltipOutboxTooManyFolders">
-		サブフォルダ数が[AMOUNT]個を超えています。必要に応じてアイテムを箱に入れ、リストのフォルダ階層を減らしてください。
+サブフォルダ数が[AMOUNT]個を超えています。必要に応じてアイテムを箱に入れ、リストのフォルダ階層を減らしてください。
 	</string>
 	<string name="TooltipOutboxTooManyObjects">
 		アイテムの数が、[AMOUNT]個を超えています。1つのリスト内で[AMOUNT]個を超えるアイテムを販売するためには、いくつかのアイテムをボックスに入れる必要があります。
@@ -478,10 +496,10 @@
 		コーリングカードをマーケットプレイスに置くことはできません
 	</string>
 	<string name="TooltipOutboxDragActive">
-		表示されているリストを移動できません
+表示されている出品リストを移動できません。
 	</string>
 	<string name="TooltipOutboxCannotMoveRoot">
-		ルートフォルダをリストに表示するマーケットプレイスを移動できません。
+		ルートフォルダを出品リストに表示するマーケットプレイスを移動できません。
 	</string>
 	<string name="TooltipOutboxMixedStock">
 		在庫フォルダ内のアイテムは、全て同じ種類と権限でなければなりません。
@@ -491,6 +509,12 @@
 	</string>
 	<string name="TooltipCantCreateOutfit">
 		「アウトフィット」で使用できないアイテムが 1 つ以上あります
+	</string>
+	<string name="TooltipCantCreateOutfit">
+		１つ以上のアイテムが 「アウトフィット」内で使用できません。
+	</string>
+	<string name="TooltipOutfitNotInInventory">
+		「アウトフィット」に入れることができるのは、自分のインベントリにあるアイテムや衣装のみです。
 	</string>
 	<string name="TooltipDragOntoOwnChild">
 		フォルダをその子フォルダに移動することはできません
@@ -508,7 +532,7 @@
 		クリックしてこの住人のプロフィールを見る
 	</string>
 	<string name="TooltipAgentInspect">
-		この住人の詳細を参照
+		この住人の詳細を参照します。
 	</string>
 	<string name="TooltipAgentMute">
 		クリックしてこの住人に対して無視設定をします
@@ -517,7 +541,7 @@
 		クリックしてこの住人に対する無視設定を解除
 	</string>
 	<string name="TooltipAgentIM">
-		クリックしてこの住人にIMを送ります
+クリックしてこの住人にＩＭを送ります。
 	</string>
 	<string name="TooltipAgentPay">
 		クリックしてこの住人に支払います。
@@ -550,17 +574,18 @@
 		クリックしてこの場所をマップに表示
 	</string>
 	<string name="TooltipSLAPP">
-		クリックして secondlife:// コマンドを出します。
+		クリックしてsecondlife://コマンドを出します。
 	</string>
 	<string name="CurrentURL" value="現在のURL: [CurrentURL]"/>
 	<string name="TooltipEmail">
-		クリックして電子メールを作成
+クリックしてＥメールを作成します。
 	</string>
+	<!-- text for SLURL labels -->
 	<string name="SLurlLabelTeleport">
 		テレポート
 	</string>
 	<string name="SLurlLabelShowOnMap">
-		マップに表示
+		マップ上に表示
 	</string>
 	<string name="SLappAgentMute">
 		無視
@@ -590,10 +615,10 @@
 		閉じる
 	</string>
 	<string name="BUTTON_RESTORE">
-		復帰
+		復元
 	</string>
 	<string name="BUTTON_MINIMIZE">
-		元に戻す(縮小)
+最小化
 	</string>
 	<string name="BUTTON_TEAR_OFF">
 		別ウィンドウで開く
@@ -605,21 +630,27 @@
 		ヘルプを表示
 	</string>
 	<string name="TooltipNotecardNotAllowedTypeDrop">
-		このタイプのアイテムは、この地域(リージョン)のノートカードに添付できません。
+このタイプのアイテムは、この地域(リージョン)のノートカードに添付できません。
 	</string>
 	<string name="TooltipNotecardOwnerRestrictedDrop">
 		制限のない「次の所有者」の
 		許可のみノートカードに
 		添付できます。
 	</string>
+	<string name="TooltipTextureRestrictedDrop">
+		無制限のコピーおよび
+譲渡権限を持つテクスチャのみが
+許可されます。
+	</string>
+	<!-- searching - generic -->
 	<string name="Searching">
-		検索中...
+検索しています…
 	</string>
 	<string name="NoneFound">
 		見つかりませんでした。
 	</string>
 	<string name="RetrievingData">
-		取得中...
+取得中...
 	</string>
 	<string name="ReleaseNotes">
 		リリースノート
@@ -656,13 +687,13 @@
 		終了
 	</string>
 	<string name="AssetErrorCannotOpenFile">
-		ファイルを開けません
+		ファイルが開けません
 	</string>
 	<string name="AssetErrorFileNotFound">
 		ファイルが見つかりません
 	</string>
 	<string name="AssetErrorTCPTimeout">
-		ファイルの転送タイムアウト
+		ファイル転送がタイムアウトしました
 	</string>
 	<string name="AssetErrorCircuitGone">
 		サーキットエラー
@@ -729,10 +760,10 @@
 		ルート
 	</string>
 	<string name="lsl2 script">
-		LSL2スクリプト
+		ＬＳＬ２スクリプト
 	</string>
 	<string name="lsl bytecode">
-		LSLバイトコード
+		ＬＳＬバイトコード
 	</string>
 	<string name="tga texture">
 		tgaテクスチャ
@@ -774,19 +805,22 @@
 		フォルダのリンク
 	</string>
 	<string name="settings blob">
-		設定
+		自然環境の設定
+	</string>
+	<string name="render material">
+		マテリアル
 	</string>
 	<string name="mesh">
 		メッシュ
 	</string>
 	<string name="AvatarEditingAppearance">
-		(容姿の編集中)
+(容姿の編集中)
 	</string>
 	<string name="AvatarAway">
 		一時退席中
 	</string>
 	<string name="AvatarDoNotDisturb">
-		着信拒否
+		取り込み中
 	</string>
 	<string name="AvatarMuted">
 		ブロック中
@@ -1022,17 +1056,19 @@
 	<string name="worldmap_results_none_found">
 		何も見つかりませんでした。
 	</string>
+
 	<string name="Premature end of file">
 		不完全なファイル
 	</string>
 	<string name="ST_NO_JOINT">
-		ROOTまたはJOINTが見つかりません。
+ROOTまたはJOINTが見つかりません
 	</string>
+	<!-- Chat -->
 	<string name="NearbyChatTitle">
-		近隣チャット
+		近くのチャット
 	</string>
 	<string name="NearbyChatLabel">
-		(近隣チャット)
+(近隣チャット)
 	</string>
 	<string name="whisper">
 		ささやき:
@@ -1041,25 +1077,25 @@
 		の叫び:
 	</string>
 	<string name="ringing">
-		インワールドボイスチャットに接続中...
+インワールドボイスチャットに接続中...
 	</string>
 	<string name="connected">
 		接続しました
 	</string>
 	<string name="unavailable">
-		現在地では、ボイスを利用できません。
+		現在の場所では、ボイスを利用できません。
 	</string>
 	<string name="hang_up">
-		インワールドボイスチャットの通話が切断されました
+インワールドボイスチャットの通信が切断されました。
 	</string>
 	<string name="reconnect_nearby">
-		「近隣ボイスチャット」に再接続されます。
+		「近くのボイスチャット」に再接続されます。
 	</string>
 	<string name="ScriptQuestionCautionChatGranted">
-		地域(リージョン)「[REGIONNAME]」の「[REGIONPOS]」という場所にある、「[OWNERNAME]」が所有する「[OBJECTNAME]」というオブジェクトは、以下の権限を許可しました: [PERMISSIONS]
+リージョン「[REGIONNAME]」の「[REGIONPOS]」という場所にある、「[OWNERNAME]」が所有する「[OBJECTNAME]」というオブジェクトは、以下の権限を許可しました：[PERMISSIONS]
 	</string>
 	<string name="ScriptQuestionCautionChatDenied">
-		地域(リージョン)「[REGIONNAME]」の「[REGIONPOS]」という場所にある、「[OWNERNAME]」が所有する「[OBJECTNAME]」というオブジェクトは、以下の権限を拒否しました: [PERMISSIONS]
+		リージョン「[REGIONNAME]」の「[REGIONPOS]」という場所にある、「[OWNERNAME]」が所有する「[OBJECTNAME]」というオブジェクトは、以下の権限を拒否しました：[PERMISSIONS]
 	</string>
 	<string name="AdditionalPermissionsRequestHeader">
 		あなたのアカウントへのアクセスを許可すると、このオブジェクトには次の操作も許可されます:
@@ -1101,10 +1137,10 @@
 		あなたをテレポート
 	</string>
 	<string name="ManageEstateSilently">
-		不動産を暗黙的に管理
+不動産のサイレント管理
 	</string>
 	<string name="ChangeYourDefaultAnimations">
-		デフォルトのアニメーションを変更
+		デフォルトのアニメーション変更
 	</string>
 	<string name="ForceSitAvatar">
 		アバターを強制的に座らせる
@@ -1116,7 +1152,7 @@
 		接続されていません
 	</string>
 	<string name="AgentNameSubst">
-		(あなた)
+(あなた)
 	</string>
 	<string name="SilentlyManageEstateAccess">
 		土地のアクセスリストを管理するときにアラートを表示しない
@@ -1217,7 +1253,7 @@
 	<string name="dictionary_files">
 		辞書
 	</string>
-	<string name="LSLTipSleepTime" translate="false"/>
+<string name="LSLTipSleepTime" translate="false"/>
 	<string name="LSLTipText_llSin" translate="false"/>
 	<string name="LSLTipText_llCos" translate="false"/>
 	<string name="LSLTipText_llTan" translate="false"/>
@@ -1463,7 +1499,7 @@
 	<string name="LSLTipText_llSetVehicleFlags" translate="false"/>
 	<string name="LSLTipText_llRemoveVehicleFlags" translate="false">
 		llRemoveVehicleFlags(integer flags)
-		Removes the enabled bits in 「flags」
+Removes the enabled bits in 「flags」
 	</string>
 	<string name="LSLTipText_llSitTarget" translate="false"/>
 	<string name="LSLTipText_llAvatarOnSitTarget" translate="false"/>
@@ -1706,6 +1742,7 @@
 	<string name="underpants_not_worn">
 		下着パンツ未着用
 	</string>
+	<!-- Not Worn Wearable Types -->
 	<string name="skirt_not_worn">
 		スカート未着用
 	</string>
@@ -1724,6 +1761,7 @@
 	<string name="invalid_not_worn">
 		無効
 	</string>
+	<!-- Create new wearable of the specified type -->
 	<string name="create_new_shape">
 		新しいシェイプを作成
 	</string>
@@ -1784,6 +1822,7 @@
 	<string name="next">
 		次へ
 	</string>
+
 	<string name="GroupNotifyGroupNotice">
 		グループ通知
 	</string>
@@ -1806,7 +1845,7 @@
 		装着アイテムを保存
 	</string>
 	<string name="TeleportOffer">
-		テレポートを送る
+		テレポートのオファー
 	</string>
 	<string name="StartUpNotifications">
 		不在中に新しい通知が届きました。
@@ -1860,16 +1899,16 @@
 		ここにランドマークをドラッグしてお気に入りに追加します。
 	</string>
 	<string name="MarketplaceNoListing">
-		まだリストはありません。
+まだリストはありません。
 	</string>
 	<string name="MarketplaceNoMatchingItems">
 		アイテムが見つかりませんでした。検索文字列のスペルを確認して、もう一度やり直してください。
 	</string>
 	<string name="InventorySingleFolderEmpty">
-		フォルダーが空です。
+フォルダは空です。
 	</string>
 	<string name="InventorySingleFolderNoMatches">
-		見つかりませんでした。
+		一致するものはありませんでした。
 	</string>
 	<string name="InventoryNoTexture">
 		インベントリ内にこのテクスチャのコピーがありません
@@ -1893,13 +1932,13 @@
 		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/learn_more?lang=ja-JP
 	</string>
 	<string name="InventoryPlayAnimationTooltip">
-		[再生]オプションでウィンドウを開ける。
+		「再生」オプションでウィンドウを開きます。
 	</string>
 	<string name="InventoryPlayGestureTooltip">
-		インワールドで選択したジェスチャーを実行する。
+インワールドで選択済みのジェスチャーを実行します。
 	</string>
 	<string name="InventoryPlaySoundTooltip">
-		[再生]オプションでウィンドウを開ける。
+		「再生」オプションでウィンドウを開きます。
 	</string>
 	<string name="InventoryOutboxNotMerchantTitle">
 		マーケットプレイスでは誰でもアイテムを売ることができます。
@@ -1914,19 +1953,19 @@
 		[[MARKETPLACE_DASHBOARD_URL] マーケットプレイス]に販売するアイテムを一覧するにはフォルダをこのエリアにドラッグし「マーケットプレイスに送信」をクリックします。
 	</string>
 	<string name="InventoryOutboxInitializingTitle">
-		マーケットプレイスの初期化。
+		マーケットプレイスの出品リストを初期化しています。
 	</string>
 	<string name="InventoryOutboxInitializing">
-		[[MARKETPLACE_CREATE_STORE_URL] マーケットプレイス ストア] のアカウントにアクセスしています。
+[[MARKETPLACE_CREATE_STORE_URL] マーケットプレイスストア]のアカウントにアクセスしています。
 	</string>
 	<string name="InventoryOutboxErrorTitle">
-		マーケットプレイス エラー。
+		マーケットプレイスの出品時にエラーが発生しました。
 	</string>
 	<string name="InventoryOutboxError">
 		[[MARKETPLACE_CREATE_STORE_URL] マーケットプレイスストア] がエラーを返しています。
 	</string>
 	<string name="InventoryMarketplaceError">
-		マーケットプレイスのリストを開くときにエラーが発生しました。引き続きこのメッセージを受信するには、Second Lifeのサポート(http://support.secondlife.com)にお問い合わせください
+マーケットプレイスのリストを開くときにエラーが発生しました。引き続きこのメッセージを受信するには、Second Lifeのサポート(http://support.secondlife.com)にお問い合わせください
 	</string>
 	<string name="InventoryMarketplaceConnectionError">
 		マーケットプレイス出品に接続できませんでした。
@@ -1937,10 +1976,13 @@
 		このメッセージが引き続き表示される場合はSecond Lifeサポート http://support.secondlife.com にお問い合わせください。
 	</string>
 	<string name="InventoryMarketplaceListingsNoItemsTitle">
-		マーケットプレイスのリストフォルダが空です。
+		マーケットプレイスの出品リストフォルダが空です。
 	</string>
 	<string name="InventoryMarketplaceListingsNoItems">
-		[[MARKETPLACE_DASHBOARD_URL] マーケットプレイス]に販売するアイテムを一覧するにはフォルダをこのエリアにドラッグします。
+[[MARKETPLACE_DASHBOARD_URL] マーケットプレイス]に販売するアイテムを出品するには、フォルダをこのエリアにドラッグします。
+	</string>
+	<string name="InventoryFolderDebug">
+		（Ｆ：[FOLDER_COUNT]　Ｉ：[ITEMS_COUNT]　Ｖ：[VERSION]　ＤＣ：[VIEWER_DESCENDANT_COUNT]／[SERVER_DESCENDANT_COUNT]）
 	</string>
 	<string name="InventoryItemsCount">
 		([ITEMS_COUNT]個のアイテム)
@@ -1964,7 +2006,7 @@
 		:警告: バージョンフォルダを作成しています。
 	</string>
 	<string name="Marketplace Validation Warning Move">
-		:警告: アイテムを移動しています。
+:警告: アイテムを移動しています。
 	</string>
 	<string name="Marketplace Validation Warning Delete">
 		:警告: フォルダの中身が在庫フォルダに移されました。空のフォルダを削除します
@@ -2009,7 +2051,7 @@
 		Mkt ID なし
 	</string>
 	<string name="MarketplaceLive">
-		リスト掲載済み
+		出品リスト掲載済み
 	</string>
 	<string name="MarketplaceActive">
 		アクティブ
@@ -2030,28 +2072,28 @@
 		料金はサブスクリプションのレベルにより異なります。レベルが高いほど、料金が下がります。[https://accounts.secondlife.com/change_membership/?lang=ja-JP 詳細]
 	</string>
 	<string name="Open landmarks">
-		オープン ランドマーク
+		ランドマークを開く
 	</string>
 	<string name="Unconstrained">
 		アンコンストレインド(制約なし)
 	</string>
-	<string name="active" value="(アクティブ)"/>
-	<string name="no_transfer" value="(再販・譲渡不可)"/>
-	<string name="no_modify" value="(編集不可)"/>
-	<string name="no_copy" value="(コピー不可)"/>
-	<string name="worn" value="(着用中)"/>
-	<string name="link" value="リンク"/>
-	<string name="broken_link" value="BROKEN_LINK"/>
-	<string name="no_transfer_lbl" value="再販・譲渡不可"/>
-	<string name="no_modify_lbl" value="編集不可"/>
-	<string name="no_copy_lbl" value="コピー不可"/>
+<string name="active" value="（アクティブ）"/>
+	<string name="no_transfer" value=" （再販・譲渡不可）"/>
+	<string name="no_modify" value=" （編集不可）"/>
+	<string name="no_copy" value=" （コピー不可）"/>
+	<string name="worn" value=" （着用中）"/>
+	<string name="link" value=" 　リンク"/>
+	<string name="broken_link" value=" 　壊れたリンク"/>
+	<string name="no_transfer_lbl" value="　再販・譲渡不可"/>
+	<string name="no_modify_lbl" value="　編集不可"/>
+	<string name="no_copy_lbl" value="　コピー不可"/>
 	<string name="LoadingContents">
-		コンテンツをロード中...
+		コンテンツを読み込んでいます…
 	</string>
 	<string name="NoContents">
 		コンテンツなし
 	</string>
-	<string name="WornOnAttachmentPoint" value="([ATTACHMENT_POINT]に装着中)"/>
+<string name="WornOnAttachmentPoint" value="([ATTACHMENT_POINT]に装着中)"/>
 	<string name="ActiveGesture" value="[GESLABEL](アクティブ)"/>
 	<string name="PermYes">
 		はい
@@ -2059,27 +2101,28 @@
 	<string name="PermNo">
 		いいえ
 	</string>
-	<string name="Chat Message" value="チャット:"/>
-	<string name="Sound" value="サウンド:"/>
-	<string name="Wait" value="--- 待機 :"/>
-	<string name="AnimFlagStop" value="アニメーションを停止:"/>
-	<string name="AnimFlagStart" value="アニメーションを開始:"/>
-	<string name="Wave" value=" 手を振る"/>
+<string name="Chat Message" value="　チャット："/>
+	<string name="Sound" value="　サウンド："/>
+	<string name="Wait" value="‐　待機："/>
+	<string name="AnimFlagStop" value="　アニメーションを停止："/>
+	<string name="AnimFlagStart" value="　アニメーションを開始："/>
+	<string name="Wave" value="　手を振る"/>
 	<string name="GestureActionNone" value="なし"/>
-	<string name="HelloAvatar" value="やあ、アバター!"/>
-	<string name="ViewAllGestures" value="全て表示 ≫"/>
-	<string name="GetMoreGestures" value="ショッピング ≫"/>
+	<string name="HelloAvatar" value="　やあ、アバター！"/>
+	<string name="ViewAllGestures" value="　すべて表示　≫"/>
+	<string name="GetMoreGestures" value="　ショッピング　≫"/>
 	<string name="Animations" value="アニメーション、"/>
 	<string name="Calling Cards" value="コーリングカード、"/>
 	<string name="Clothing" value="服装、"/>
 	<string name="Gestures" value="ジェスチャー、"/>
 	<string name="Landmarks" value="ランドマーク、"/>
+	<string name="Materials" value=" マテリアル、"/>
 	<string name="Notecards" value="ノートカード、"/>
 	<string name="Objects" value="オブジェクト、"/>
 	<string name="Scripts" value="スクリプト、"/>
 	<string name="Sounds" value="サウンド、"/>
 	<string name="Textures" value="テクスチャ、"/>
-	<string name="Settings" value="設定,"/>
+<string name="Settings" value="設定,"/>
 	<string name="Snapshots" value="スナップショット、"/>
 	<string name="No Filters" value="いいえ"/>
 	<string name="Since Logoff" value="- ログオフ以降"/>
@@ -2176,6 +2219,18 @@
 	<string name="InvFolder Merchant Outbox">
 		販売品ボックス
 	</string>
+	<string name="InvFolder Settings">
+		自然環境の設定
+	</string>
+	<string name="InvFolder Material">
+		マテリアル
+	</string>
+	<string name="InvFolder Materials">
+		マテリアル
+	</string>
+	<string name="InvFolder Settings">
+		自然環境の設定
+	</string>
 	<string name="InvFolder Friends">
 		フレンド
 	</string>
@@ -2186,7 +2241,7 @@
 		着用している装着物はありません
 	</string>
 	<string name="Attachments remain">
-		装着物(残りのスロット数: [COUNT])
+装着物(残りのスロット数: [COUNT])
 	</string>
 	<string name="Buy">
 		購入
@@ -2207,7 +2262,7 @@
 		木
 	</string>
 	<string name="Flesh">
-		肌
+		肉
 	</string>
 	<string name="Plastic">
 		プラスチック
@@ -2369,7 +2424,7 @@
 		エラー: ベースアイテムが見つかりません。
 	</string>
 	<string name="ATTACHMENT_NOT_ATTACHED">
-		エラー: オブジェクトは現在のアウトフィットにありますが、添付されていません。
+エラー：オブジェクトは現在のアウトフィットにありますが、装着されていません。
 	</string>
 	<string name="YearsMonthsOld">
 		[AGEYEARS][AGEMONTHS]
@@ -2393,7 +2448,7 @@
 		あなたが全員に見えるようになりました。
 	</string>
 	<string name="av_render_not_everyone">
-		あなたは周囲にいる一部の人から、見えない可能性があります。
+あなたは周囲にいる一部の人から、見えない可能性があります。
 	</string>
 	<string name="av_render_over_half">
 		あなたは周囲にいる半分以上の人から、見えない可能性があります。
@@ -2501,26 +2556,27 @@
 		中央2
 	</string>
 	<string name="Top Right">
-		右上
+		右上　↗
 	</string>
 	<string name="Top">
-		上部
+		上部　↑
 	</string>
 	<string name="Top Left">
-		左上
+		左上　↖
 	</string>
 	<string name="Center">
 		中央
 	</string>
 	<string name="Bottom Left">
-		左下
+		左下　↙
 	</string>
 	<string name="Bottom">
-		下部
+		下部　↓
 	</string>
 	<string name="Bottom Right">
-		右下
+		右下　↘
 	</string>
+	<!-- compile queue-->
 	<string name="CompileQueueDownloadedCompiling">
 		ダウンロード完了、コンパイル中
 	</string>
@@ -2531,22 +2587,22 @@
 		サーバー上にスクリプトが見つかりません。
 	</string>
 	<string name="CompileQueueProblemDownloading">
-		ダウンロードに問題があります
+		ダウンロードに問題があります。
 	</string>
 	<string name="CompileQueueInsufficientPermDownload">
-		権限不足のためスクリプトをダウンロードできません。
+		権限が不足しているためスクリプトをダウンロードできません。
 	</string>
 	<string name="CompileQueueInsufficientPermFor">
-		権限不足:
+権限不足:
 	</string>
 	<string name="CompileQueueUnknownFailure">
-		原因不明の失敗によりダウンロードができません
+		ダウンロード時に不明なエラーが発生しました。
 	</string>
 	<string name="CompileNoExperiencePerm">
-		[EXPERIENCE] 体験による [SCRIPT] スクリプトのスキップ。
+[EXPERIENCE]体験による[SCRIPT]スクリプトをスキップします。
 	</string>
 	<string name="CompileQueueTitle">
-		再コンパイル進行
+		再コンパイルしています。
 	</string>
 	<string name="CompileQueueStart">
 		再コンパイル
@@ -2573,13 +2629,13 @@
 		コンパイルが完了しました!
 	</string>
 	<string name="CompileSuccessfulSaving">
-		コンパイル完了、保存中です...
+コンパイル完了、保存中です...
 	</string>
 	<string name="SaveComplete">
-		保存完了。
+		保存しました。
 	</string>
 	<string name="UploadFailed">
-		ファイルのアップロードが失敗しました:
+		ファイルのアップロードに失敗しました：
 	</string>
 	<string name="ObjectOutOfRange">
 		スクリプト(オブジェクトが範囲外にあります)
@@ -2602,8 +2658,8 @@
 	<string name="GroupPlanningDate">
 		[year,datetime,utc]年[mthnum,datetime,utc]月[day,datetime,utc]日
 	</string>
-	<string name="GroupIndividualShare" value="グループ 個人の割り当て"/>
-	<string name="GroupColumn" value="グループの設定"/>
+	<string name="GroupIndividualShare" value="　　　　　　　　　　　グループ　　　　個人の割り当て"/>
+	<string name="GroupColumn" value="　　　　　　　　　　　グループの設定"/>
 	<string name="Balance">
 		残高
 	</string>
@@ -2617,7 +2673,10 @@
 		合計
 	</string>
 	<string name="NoGroupDataFound">
-		グループのデータが見つかりませんでした。
+		グループのデータが見つかりませんでした：
+	</string>
+	<string name="AlreadyInGroup">
+		すでにグループに入っています：
 	</string>
 	<string name="AlreadyInGroup">
 		あなたは既にこのグループに属しています
@@ -2647,22 +2706,22 @@
 		あなたが[OWNER]のために管理する全ての不動産
 	</string>
 	<string name="RegionInfoAllowedResidents">
-		常に許可: ([ALLOWEDAGENTS]人、最大[MAXACCESS]人)
+常時許可：（全[MAXACCESS]人中[ALLOWEDAGENTS]人）
 	</string>
 	<string name="RegionInfoAllowedGroups">
-		グループを常に許可: ([ALLOWEDGROUPS]、最大[MAXACCESS])
+		グループを常に許可：（全[MAXACCESS]グループ中[ALLOWEDGROUPS]グループ）
 	</string>
 	<string name="RegionInfoEstateManagers">
-		不動産マネージャー: ([ESTATEMANAGERS]、最大[MAXMANAGERS])
+		不動産マネージャー数：（全[MAXMANAGERS]人中[ESTATEMANAGERS]人）
 	</string>
 	<string name="RegionInfoBannedResidents">
-		常に禁止: ([BANNEDAGENTS]人、最大[MAXBANNED]人)
+		常時バン：（全[MAXBANNED]人中[BANNEDAGENTS]人）
 	</string>
 	<string name="RegionInfoListTypeAllowedAgents">
-		常に許可
+		常時許可
 	</string>
 	<string name="RegionInfoListTypeBannedAgents">
-		常に禁止
+		常時バン
 	</string>
 	<string name="RegionInfoAllEstates">
 		全ての不動産
@@ -2674,7 +2733,7 @@
 		この不動産
 	</string>
 	<string name="AndNMore">
-		および[EXTRA_COUNT]つの不動産
+		および[EXTRA_COUNT]個の不動産
 	</string>
 	<string name="ScriptLimitsParcelScriptMemory">
 		区画スクリプトメモリ
@@ -2683,7 +2742,7 @@
 		区画一覧: [PARCELS]
 	</string>
 	<string name="ScriptLimitsMemoryUsed">
-		使用メモリ: [MAX]KB中 [COUNT]KB [AVAILABLE]KB利用可
+使用メモリ: [MAX]KB中 [COUNT]KB [AVAILABLE]KB利用可
 	</string>
 	<string name="ScriptLimitsMemoryUsedSimple">
 		使用メモリ: [COUNT]KB
@@ -2692,7 +2751,7 @@
 		区画のスクリプトURL
 	</string>
 	<string name="ScriptLimitsURLsUsed">
-		使用されたURL: [MAX]件中[COUNT]件 [AVAILABLE]件利用可
+使用されたＵＲＬ：全[MAX]件中[COUNT]件使用（残り[AVAILABLE]件利用可）
 	</string>
 	<string name="ScriptLimitsURLsUsedSimple">
 		使用されたURL: [COUNT]
@@ -2806,28 +2865,28 @@
 		右胸筋
 	</string>
 	<string name="ATTACH_HUD_CENTER_2">
-		HUD(中央 2)
+ＨＵＤ（中央２）
 	</string>
 	<string name="ATTACH_HUD_TOP_RIGHT">
-		HUD(右上)
+		ＨＵＤ（右上）↗
 	</string>
 	<string name="ATTACH_HUD_TOP_CENTER">
-		HUD(上・中央)
+		ＨＵＤ（上）↑
 	</string>
 	<string name="ATTACH_HUD_TOP_LEFT">
-		HUD(左上)
+		ＨＵＤ（左上）↖
 	</string>
 	<string name="ATTACH_HUD_CENTER_1">
-		HUD(中央 1)
+		ＨＵＤ（中央１）
 	</string>
 	<string name="ATTACH_HUD_BOTTOM_LEFT">
-		HUD(左下)
+		ＨＵＤ（左下）↙
 	</string>
 	<string name="ATTACH_HUD_BOTTOM">
-		HUD(下)
+		ＨＵＤ（下）↓
 	</string>
 	<string name="ATTACH_HUD_BOTTOM_RIGHT">
-		HUD(右下)
+		ＨＵＤ（右下）↘
 	</string>
 	<string name="ATTACH_NECK">
 		首
@@ -2893,10 +2952,10 @@
 		オブジェクトの中身
 	</string>
 	<string name="PanelContentsNewScript">
-		新規スクリプト
+		新しいスクリプト
 	</string>
 	<string name="DoNotDisturbModeResponseDefault">
-		この住民が「着信拒否」をオンにすると、あなたのメッセージが後で表示されるようになります。
+		この住民が「取り込み中」をオンにすると、あなたのメッセージが後で表示されるようになります。
 	</string>
 	<string name="MuteByName">
 		(名前で)
@@ -2932,10 +2991,10 @@
 		ローカル設定
 	</string>
 	<string name="RegionSettings">
-		地域(リージョン)の設定
+リージョンの設定
 	</string>
 	<string name="NoEnvironmentSettings">
-		この地域(リージョン)は景観設定をサポートしていません。
+		このリージョンは自然環境の設定をサポートしていません。
 	</string>
 	<string name="EnvironmentSun">
 		太陽
@@ -2950,25 +3009,25 @@
 		雲の音
 	</string>
 	<string name="EnvironmentNormalMap">
-		ノーマル・マップ
+		法線（ノーマル）マップ
 	</string>
 	<string name="EnvironmentTransparent">
 		透過
 	</string>
 	<string name="ClassifiedClicksTxt">
-		クリック数: [TELEPORT]テレポート、[MAP]マップ、[PROFILE]プロフィール
+クリック回数：[TELEPORT]テレポート、[MAP]マップ、[PROFILE]プロフィール
 	</string>
 	<string name="ClassifiedUpdateAfterPublish">
-		(掲載後更新)
+		（掲載後に更新）
 	</string>
 	<string name="NoPicksClassifiedsText">
 		ピックやクラシファイド広告を作成していません。作成するには、下にある「+」ボタンをクリックします。
 	</string>
 	<string name="NoPicksText">
-		ピックを作成していません。「新規」ボタンをクリックしてピックを作成する。
+		ピックを作成していません。「新規」ボタンをクリックしてピックを作成できます。
 	</string>
 	<string name="NoClassifiedsText">
-		クラシファイド広告を作成していません。「新規」ボタンをクリックしてクラシファイド広告を作成する。
+		クラシファイド広告を作成していません。「新規」ボタンをクリックしてクラシファイド広告を作成できます。
 	</string>
 	<string name="NoAvatarPicksClassifiedsText">
 		ピック、またはクラシファイド広告がありません
@@ -2992,7 +3051,7 @@
 		オブジェクト名
 	</string>
 	<string name="InvOfferOwnedByGroup">
-		所有グループ
+所有グループ
 	</string>
 	<string name="InvOfferOwnedByUnknownGroup">
 		不明なグループ所有
@@ -3039,7 +3098,7 @@
 	<string name="GroupMoneyDebits">
 		支出
 	</string>
-	<string name="GroupMoneyDate">
+<string name="GroupMoneyDate">
 		[year,datetime,utc]年[mth,datetime,utc]月[day,datetime,utc]日 [weekday,datetime,utc]
 	</string>
 	<string name="AcquiredItems">
@@ -3049,7 +3108,7 @@
 		キャンセル
 	</string>
 	<string name="UploadingCosts">
-		[NAME] のアップロード料金はL$[AMOUNT]です
+[NAME] のアップロード料金はL$[AMOUNT]です
 	</string>
 	<string name="UnknownFileExtension">
 		不明な拡張子:%s
@@ -3077,7 +3136,7 @@
 		ファイルが保存されました。
 	</string>
 	<string name="Receiving">
-		取得中
+		取得しています。
 	</string>
 	<string name="AM">
 		午前
@@ -3131,7 +3190,7 @@
 		土地のレンタル
 	</string>
 	<string name="Property Rental">
-		敷地レンタル
+敷地レンタル
 	</string>
 	<string name="Special Attraction">
 		特別なアトラクション
@@ -3274,8 +3333,8 @@
 		エラー
 	</string>
 	<string name="MBFullScreenErr">
-		[WIDTH] x [HEIGHT]では全画面で実行できません。
-		ウィンドウモードで実行中です。
+[WIDTH]×[HEIGHT]では全画面で実行することができません。
+ウィンドウモードで実行中です。
 	</string>
 	<string name="MBDestroyWinFailed">
 		シャットダウンエラー(DestroyWindow() 失敗)
@@ -3284,7 +3343,7 @@
 		シャットダウンエラー
 	</string>
 	<string name="MBDevContextErr">
-		GLデバイスコンテキストが作れません
+ＧＬデバイスのコンテキストが作れません
 	</string>
 	<string name="MBPixelFmtErr">
 		適切なピクセル形式が見つかりません
@@ -3292,7 +3351,7 @@
 	<string name="MBPixelFmtDescErr">
 		ピクセル形式情報が見つかりません
 	</string>
-	<string name="MBTrueColorWindow">
+<string name="MBTrueColorWindow">
 		[APP_NAME] を実行するには、True Color(32ビット)が必要です。
 		お使いのコンピューターの「コントロールパネル」&gt;「画面」&gt;「設定」に行き、「最高 (32ビット)」に設定してください。
 	</string>
@@ -3317,8 +3376,21 @@
 		
 		このメッセージが何度も出る場合は、[SUPPORT_SITE]へご連絡ください。
 	</string>
+	<string name="MBOutOfMemoryTitle">
+		メモリ超過
+	</string>
+	<string name="MBOutOfMemoryErr">
+		[APP_NAME]は、メモリの確保に失敗しました。実行に必要なメモリを確保できないため終了します。
+
+コンピュータのＲＡＭが少ない場合は、Second Lifeを実行する前に重いアプリケーションを終了し、ページファイルを割り当てるか、描画距離などのグラフィック設定を軽くしてください。
+	</string>
+	<string name="MBMissingFile">
+		[APP_NAME]は、実行に必要なファイルの一部にアクセスできないか、ファイルが見つからなかったため閉じられます。
+
+https://secondlife.com/support/downloads/ からビューアを再インストールてください。再インストール後も問題が解決しない場合は、https://support.secondlife.com に連絡してください。
+	</string>
 	<string name="5 O'Clock Shadow">
-		うっすらとしたヒゲ
+		不精ひげ
 	</string>
 	<string name="All White">
 		真っ白
@@ -3354,10 +3426,10 @@
 		お腹の大きさ
 	</string>
 	<string name="Big">
-		大
+		大きい
 	</string>
 	<string name="Big Butt">
-		大(尻)
+大(尻)
 	</string>
 	<string name="Big Hair Back">
 		髪の大部分: 後ろ
@@ -3369,10 +3441,10 @@
 		髪の大部分: 上部
 	</string>
 	<string name="Big Head">
-		大(頭)
+大きく
 	</string>
 	<string name="Big Pectorals">
-		大(筋肉)
+		大きく
 	</string>
 	<string name="Big Spikes">
 		とげあり
@@ -3387,19 +3459,19 @@
 		ブロンドの髪
 	</string>
 	<string name="Blush">
-		チーク
+		頬紅
 	</string>
 	<string name="Blush Color">
-		チークカラー
+		頬の色
 	</string>
 	<string name="Blush Opacity">
-		チークの濃さ
+		頬の濃さ
 	</string>
 	<string name="Body Definition">
 		体の精細度
 	</string>
 	<string name="Body Fat">
-		体脂肪
+		太った
 	</string>
 	<string name="Body Freckles">
 		しみ・そばかす
@@ -3411,13 +3483,13 @@
 		体の厚み
 	</string>
 	<string name="Body Thin">
-		細め
+		痩せた
 	</string>
 	<string name="Bow Legged">
 		股
 	</string>
 	<string name="Breast Buoyancy">
-		胸の重力
+		胸の弾み
 	</string>
 	<string name="Breast Cleavage">
 		胸の谷間
@@ -3429,10 +3501,13 @@
 		両目の間の幅
 	</string>
 	<string name="Broad">
-		広
+		広く
 	</string>
 	<string name="Brow Size">
 		眉毛上の隆起
+	</string>
+<string name="Bug Eyes">
+		丸い目
 	</string>
 	<string name="Bugged Eyes">
 		突き出た目
@@ -3444,16 +3519,16 @@
 		だんご鼻
 	</string>
 	<string name="Breast Physics Mass">
-		胸の豊かさ
+		胸の動きの大きさ
 	</string>
 	<string name="Breast Physics Smoothing">
-		胸の平滑化
+		胸の動きの滑らかさ
 	</string>
 	<string name="Breast Physics Gravity">
 		胸の垂れ具合
 	</string>
 	<string name="Breast Physics Drag">
-		胸の空気抵抗
+		胸の揺れ具合
 	</string>
 	<string name="Breast Physics InOut Max Effect">
 		最大エフェクト数
@@ -3480,7 +3555,7 @@
 		減衰
 	</string>
 	<string name="Breast Physics LeftRight Max Effect">
-		最大エフェクト数
+		最大効果数
 	</string>
 	<string name="Breast Physics LeftRight Spring">
 		振動速度
@@ -3492,19 +3567,19 @@
 		減衰
 	</string>
 	<string name="Belly Physics Mass">
-		お腹の豊かさ
+		腹部の動きの大きさ
 	</string>
 	<string name="Belly Physics Smoothing">
-		お腹の平滑化
+		腹部の動きの滑らかさ
 	</string>
 	<string name="Belly Physics Gravity">
-		お腹の垂れ具合
+		腹部の垂れ具合
 	</string>
 	<string name="Belly Physics Drag">
-		お腹の空気抵抗
+		腹部の揺れ具合
 	</string>
 	<string name="Belly Physics UpDown Max Effect">
-		最大エフェクト数
+		最大効果数
 	</string>
 	<string name="Belly Physics UpDown Spring">
 		振動速度
@@ -3516,52 +3591,52 @@
 		減衰
 	</string>
 	<string name="Butt Physics Mass">
-		お尻の豊かさ
+		尻の動きの大きさ
 	</string>
 	<string name="Butt Physics Smoothing">
-		お尻の平滑化
+		尻の動きの滑らかさ
 	</string>
 	<string name="Butt Physics Gravity">
-		お尻の垂れ具合
+		尻の垂れ具合
 	</string>
 	<string name="Butt Physics Drag">
-		お尻の空気抵抗
+		尻の揺れ具合
 	</string>
 	<string name="Butt Physics UpDown Max Effect">
-		最大エフェクト数
+		上下の最大効果数
 	</string>
 	<string name="Butt Physics UpDown Spring">
-		振動速度
+		上下の振動速度
 	</string>
 	<string name="Butt Physics UpDown Gain">
-		増加率
+		上下の増加率
 	</string>
 	<string name="Butt Physics UpDown Damping">
-		減衰
+		上下の減衰
 	</string>
 	<string name="Butt Physics LeftRight Max Effect">
-		最大エフェクト数
+		左右の最大効果数
 	</string>
 	<string name="Butt Physics LeftRight Spring">
-		振動速度
+		左右の振動速度
 	</string>
 	<string name="Butt Physics LeftRight Gain">
-		増加率
+		左右の増加率
 	</string>
 	<string name="Butt Physics LeftRight Damping">
-		減衰
+		左右の減衰
 	</string>
 	<string name="Bushy Eyebrows">
-		ゲジゲジ眉毛
+ゲジゲジ眉毛
 	</string>
 	<string name="Bushy Hair">
 		ぼさぼさヘア
 	</string>
 	<string name="Butt Size">
-		お尻の大きさ
+		尻の大きさ
 	</string>
 	<string name="Butt Gravity">
-		お尻の垂れ具合
+		尻の垂れ具合
 	</string>
 	<string name="bustle skirt">
 		後ろの膨らみ
@@ -3576,34 +3651,34 @@
 		チャップリン
 	</string>
 	<string name="Cheek Bones">
-		ほお骨
+		頬骨
 	</string>
 	<string name="Chest Size">
-		胸部の大きさ
+		胸の大きさ
 	</string>
 	<string name="Chin Angle">
-		あごの角度
+		顎の角度
 	</string>
 	<string name="Chin Cleft">
-		あごの先の割れ
+		顎先の割れ
 	</string>
 	<string name="Chin Curtains">
-		あごひげ
+あごひげ
 	</string>
 	<string name="Chin Depth">
-		あごの長さ
+		顎の長さ
 	</string>
 	<string name="Chin Heavy">
-		あごを強調
+		顎を強調
 	</string>
 	<string name="Chin In">
-		ひいたあご
+		ひいた顎
 	</string>
 	<string name="Chin Out">
-		突き出たあご
+		突き出た顎
 	</string>
 	<string name="Chin-Neck">
-		あごと首
+		顎と首
 	</string>
 	<string name="Clear">
 		クリア
@@ -3615,28 +3690,28 @@
 		顔の中心寄りの目
 	</string>
 	<string name="Closed">
-		クローズ
+		閉じた
 	</string>
 	<string name="Closed Back">
-		後ろとじ
+		後ろ閉じ
 	</string>
 	<string name="Closed Front">
-		前とじ
+		前閉じ
 	</string>
 	<string name="Closed Left">
-		左とじ
+		左閉じ
 	</string>
 	<string name="Closed Right">
-		右とじ
+		右閉じ
 	</string>
 	<string name="Coin Purse">
 		コイン入れ
 	</string>
 	<string name="Collar Back">
-		後ろえり
+		後ろ襟
 	</string>
 	<string name="Collar Front">
-		前えり
+		前襟
 	</string>
 	<string name="Corner Down">
 		ダウン
@@ -3651,7 +3726,7 @@
 		曲がった鼻
 	</string>
 	<string name="Cuff Flare">
-		袖口のフレア
+		袖の広がり
 	</string>
 	<string name="Dark">
 		ダーク
@@ -3666,10 +3741,10 @@
 		尖った
 	</string>
 	<string name="Default Heels">
-		デフォルトのかかと
+		デフォルトの踵
 	</string>
 	<string name="Dense">
-		濃
+		濃さ
 	</string>
 	<string name="Double Chin">
 		二重あご
@@ -3753,7 +3828,7 @@
 		離れた目
 	</string>
 	<string name="Fat Lips">
-		大(唇)
+厚く
 	</string>
 	<string name="Female">
 		女性
@@ -3768,28 +3843,28 @@
 		広がった袖口
 	</string>
 	<string name="Flat">
-		平ら
+		平坦
 	</string>
 	<string name="Flat Butt">
-		小(尻)
+小(尻)
 	</string>
 	<string name="Flat Head">
-		絶壁頭
+		平坦な頭
 	</string>
 	<string name="Flat Toe">
-		フラット
+		扁平足
 	</string>
 	<string name="Foot Size">
 		足の大きさ
 	</string>
 	<string name="Forehead Angle">
-		ひたいの角度
+		額の角度
 	</string>
 	<string name="Forehead Heavy">
-		ひたいを強調
+		額の重さ
 	</string>
 	<string name="Freckles">
-		しみ・そばかす
+		そばかす
 	</string>
 	<string name="Front Fringe">
 		前髪の毛先
@@ -3804,7 +3879,7 @@
 		刈られていない髪
 	</string>
 	<string name="Full Hair Sides">
-		サイドの髪
+		横髪
 	</string>
 	<string name="Full Sides">
 		生え揃ったサイド
@@ -3828,7 +3903,7 @@
 		髪: 前
 	</string>
 	<string name="Hair Sides">
-		髪: サイド
+髪: サイド
 	</string>
 	<string name="Hair Sweep">
 		流す
@@ -3879,13 +3954,13 @@
 		身長
 	</string>
 	<string name="High">
-		高
+		高く
 	</string>
 	<string name="High Heels">
 		ハイヒール
 	</string>
 	<string name="High Jaw">
-		高
+		長く
 	</string>
 	<string name="High Platforms">
 		厚底
@@ -3894,7 +3969,7 @@
 		高めでタイト
 	</string>
 	<string name="Higher">
-		高
+		高く
 	</string>
 	<string name="Hip Length">
 		腰の長さ
@@ -3924,19 +3999,19 @@
 		内側のシャドウ
 	</string>
 	<string name="Jacket Length">
-		ジャケット丈
+		ジャケットの丈
 	</string>
 	<string name="Jacket Wrinkles">
-		ジャケットのしわ
+		ジャケットの皺
 	</string>
 	<string name="Jaw Angle">
-		あごの角度
+		顎の角度
 	</string>
 	<string name="Jaw Jut">
-		あごの突出
+		顎の突出
 	</string>
 	<string name="Jaw Shape">
-		あごの形
+		顎の形
 	</string>
 	<string name="Join">
 		寄せた胸
@@ -3951,10 +4026,10 @@
 		内股
 	</string>
 	<string name="Large">
-		大
+		広く
 	</string>
 	<string name="Large Hands">
-		大(手)
+大(手)
 	</string>
 	<string name="Left Part">
 		左分け
@@ -3966,10 +4041,10 @@
 		脚の筋肉
 	</string>
 	<string name="Less">
-		小
+		少なく
 	</string>
 	<string name="Less Body Fat">
-		少(体脂肪)
+少(体脂肪)
 	</string>
 	<string name="Less Curtains">
 		少(あごひげ)
@@ -3978,19 +4053,19 @@
 		少(そばかす)
 	</string>
 	<string name="Less Full">
-		薄い
+		薄く
 	</string>
 	<string name="Less Gravity">
-		少(たれ具合)
+軽く
 	</string>
 	<string name="Less Love">
-		少(ウエスト)
+		愛らしくない
 	</string>
 	<string name="Less Muscles">
-		少(筋肉)
+		少なく
 	</string>
 	<string name="Less Muscular">
-		少(肉体)
+		少なく
 	</string>
 	<string name="Less Rosy">
 		少(チーク)
@@ -3999,7 +4074,7 @@
 		丸み少な目
 	</string>
 	<string name="Less Saddle">
-		小(腰)
+小(腰)
 	</string>
 	<string name="Less Square">
 		小(角張った)
@@ -4008,16 +4083,16 @@
 		ボリューム少な目
 	</string>
 	<string name="Less soul">
-		小(ソウルパッチ)
+小(ソウルパッチ)
 	</string>
 	<string name="Lighter">
-		ライト
+		軽く
 	</string>
 	<string name="Lip Cleft">
-		唇の山
+		唇の裂け目
 	</string>
 	<string name="Lip Cleft Depth">
-		唇の山の高さ
+		唇の裂け目の深さ
 	</string>
 	<string name="Lip Fullness">
 		唇の厚み
@@ -4032,7 +4107,7 @@
 		唇の前後幅
 	</string>
 	<string name="Lip Width">
-		口の大きさ
+		口の幅
 	</string>
 	<string name="Lipgloss">
 		リップグロス
@@ -4044,13 +4119,13 @@
 		口紅の色
 	</string>
 	<string name="Long">
-		ロング
+		長さ
 	</string>
 	<string name="Long Head">
 		前後幅が広い頭
 	</string>
 	<string name="Long Hips">
-		長いヒップ
+長いヒップ
 	</string>
 	<string name="Long Legs">
 		長い足
@@ -4071,40 +4146,40 @@
 		長い腕
 	</string>
 	<string name="Loose Pants">
-		ゆったり
+		ゆるく
 	</string>
 	<string name="Loose Shirt">
-		ルーズシャツ
+ゆるく
 	</string>
 	<string name="Loose Sleeves">
-		ゆったりした袖
+		ゆるく
 	</string>
 	<string name="Love Handles">
 		ウエスト周り
 	</string>
 	<string name="Low">
-		低
+		低く
 	</string>
 	<string name="Low Heels">
 		ローヒール
 	</string>
 	<string name="Low Jaw">
-		低
+		短く
 	</string>
 	<string name="Low Platforms">
-		低め
+		低く
 	</string>
 	<string name="Low and Loose">
 		低めでゆったり
 	</string>
 	<string name="Lower">
-		低
+		低く
 	</string>
 	<string name="Lower Bridge">
 		鼻筋
 	</string>
 	<string name="Lower Cheeks">
-		ほおの下部
+		下頬
 	</string>
 	<string name="Male">
 		男性
@@ -4113,34 +4188,34 @@
 		真ん中分け
 	</string>
 	<string name="More">
-		大
+		より多く
 	</string>
 	<string name="More Blush">
 		きつめ
 	</string>
 	<string name="More Body Fat">
-		多(体脂肪)
+太く
 	</string>
 	<string name="More Curtains">
-		多(あごひげ)
+		多く
 	</string>
 	<string name="More Eyeshadow">
-		大(アイシャドウ)
+		多く
 	</string>
 	<string name="More Freckles">
-		多(そばかす)
+		多く
 	</string>
 	<string name="More Full">
-		厚い
+		厚く
 	</string>
 	<string name="More Gravity">
-		大(たれ具合)
+大(たれ具合)
 	</string>
 	<string name="More Lipstick">
 		リップスティック
 	</string>
 	<string name="More Love">
-		大(ウエスト)
+大(ウエスト)
 	</string>
 	<string name="More Lower Lip">
 		大(下唇)
@@ -4155,28 +4230,28 @@
 		多(チーク)
 	</string>
 	<string name="More Round">
-		まる
+		丸顔
 	</string>
 	<string name="More Saddle">
-		大(腰)
+広く
 	</string>
 	<string name="More Sloped">
 		なだらか
 	</string>
 	<string name="More Square">
-		大(角張った)
+角顔
 	</string>
 	<string name="More Upper Lip">
-		大(上唇)
+		上唇
 	</string>
 	<string name="More Vertical">
-		垂直
+		垂直に
 	</string>
 	<string name="More Volume">
-		大
+		多く
 	</string>
 	<string name="More soul">
-		大(ソウルパッチ)
+大(ソウルパッチ)
 	</string>
 	<string name="Moustache">
 		口ひげ
@@ -4203,19 +4278,19 @@
 		マニキュアの色
 	</string>
 	<string name="Narrow">
-		狭
+		狭く
 	</string>
 	<string name="Narrow Back">
-		狭
+		狭く
 	</string>
 	<string name="Narrow Front">
-		狭
+		狭く
 	</string>
 	<string name="Narrow Lips">
 		おちょぼ口
 	</string>
 	<string name="Natural">
-		ナチュラル
+		自然に
 	</string>
 	<string name="Neck Length">
 		首の長さ
@@ -4284,7 +4359,7 @@
 		鼻の幅
 	</string>
 	<string name="Nostril Division">
-		鼻の穴の高さ
+		鼻の穴の位置
 	</string>
 	<string name="Nostril Width">
 		鼻の穴の幅
@@ -4296,16 +4371,16 @@
 		オープン
 	</string>
 	<string name="Open Back">
-		後ろあき
+		後開き
 	</string>
 	<string name="Open Front">
-		前あき
+		前開き
 	</string>
 	<string name="Open Left">
-		左あき
+		左開き
 	</string>
 	<string name="Open Right">
-		右あき
+		右開き
 	</string>
 	<string name="Orange">
 		オレンジ
@@ -4338,7 +4413,7 @@
 		ペディキュア
 	</string>
 	<string name="Pale">
-		悪い
+		血相
 	</string>
 	<string name="Pants Crotch">
 		ズボンの股
@@ -4353,7 +4428,7 @@
 		ウエスト
 	</string>
 	<string name="Pants Wrinkles">
-		ズボンのしわ
+		ズボンの皺
 	</string>
 	<string name="Part">
 		パート
@@ -4374,7 +4449,7 @@
 		ピンク
 	</string>
 	<string name="Pinker">
-		ピンク
+		ピンクに
 	</string>
 	<string name="Platform Height">
 		靴底の高さ
@@ -4386,7 +4461,7 @@
 		尖った
 	</string>
 	<string name="Pointy Heels">
-		幅狭
+		尖ったヒール
 	</string>
 	<string name="Ponytail">
 		ポニーテール
@@ -4425,10 +4500,10 @@
 		まるっこい
 	</string>
 	<string name="Ruddiness">
-		血色
+		血色の良さ
 	</string>
 	<string name="Ruddy">
-		良い
+		血色
 	</string>
 	<string name="Rumpled Hair">
 		くしゃくしゃヘア
@@ -4482,58 +4557,58 @@
 		シャツのフィット感
 	</string>
 	<string name="Shirt Wrinkles">
-		シャツのしわ
+		シャツの皺
 	</string>
 	<string name="Shoe Height">
-		靴の長さ
+		靴の高さ
 	</string>
 	<string name="Short">
-		ショート
+		短く
 	</string>
 	<string name="Short Arms">
-		短(腕)
+短く
 	</string>
 	<string name="Short Legs">
-		短(脚)
+		短く
 	</string>
 	<string name="Short Neck">
-		短(首)
+		短く
 	</string>
 	<string name="Short Pigtails">
-		短(おさげ髪)
+		短く
 	</string>
 	<string name="Short Ponytail">
-		短(ポニーテール)
+		短く
 	</string>
 	<string name="Short Sideburns">
-		短(もみあげ)
+		短く
 	</string>
 	<string name="Short Torso">
-		短
+		短く
 	</string>
 	<string name="Short hips">
-		短(ヒップ)
+短(ヒップ)
 	</string>
 	<string name="Shoulders">
-		肩
+		肩幅
 	</string>
 	<string name="Side Fringe">
-		サイドの毛先
+		横髪の毛先
 	</string>
 	<string name="Sideburns">
 		もみあげ
 	</string>
 	<string name="Sides Hair">
-		サイドの髪
+		横髪
 	</string>
 	<string name="Sides Hair Down">
-		サイドの髪をおろす
+サイドの髪をおろす
 	</string>
 	<string name="Sides Hair Up">
 		サイドヘアアップ
 	</string>
 	<string name="Skinny Neck">
-		細
+		細い首
 	</string>
 	<string name="Skirt Fit">
 		スカートのフィット感
@@ -4563,10 +4638,10 @@
 		スリット: 右
 	</string>
 	<string name="Small">
-		小
+		小さい
 	</string>
 	<string name="Small Hands">
-		小(手)
+小(手)
 	</string>
 	<string name="Small Head">
 		小(頭)
@@ -4584,7 +4659,7 @@
 		ソウルパッチ
 	</string>
 	<string name="Sparse">
-		薄
+		まばら
 	</string>
 	<string name="Spiked Hair">
 		とげとげヘア
@@ -4593,7 +4668,7 @@
 		角張った
 	</string>
 	<string name="Square Toe">
-		スクエアトゥ
+		つま先が四角い
 	</string>
 	<string name="Squash Head">
 		カボチャ型
@@ -4602,7 +4677,7 @@
 		縦長
 	</string>
 	<string name="Sunken">
-		こけた頬
+こけた頬
 	</string>
 	<string name="Sunken Chest">
 		小(胸)
@@ -4617,7 +4692,7 @@
 		前へ
 	</string>
 	<string name="Tall">
-		トール
+		高さ
 	</string>
 	<string name="Taper Back">
 		後ろに先細
@@ -4629,25 +4704,25 @@
 		幅広
 	</string>
 	<string name="Thick Neck">
-		太
+		太く
 	</string>
 	<string name="Thick Toe">
-		厚め
+		厚く
 	</string>
 	<string name="Thin">
 		薄い
 	</string>
 	<string name="Thin Eyebrows">
-		細
+		細く
 	</string>
 	<string name="Thin Lips">
-		小(唇)
+小(唇)
 	</string>
 	<string name="Thin Nose">
-		細い鼻
+		細く
 	</string>
 	<string name="Tight Chin">
-		ひきしまったあご
+		引き締まった顎
 	</string>
 	<string name="Tight Cuffs">
 		タイトカフ
@@ -4695,10 +4770,10 @@
 		両目のあいだ
 	</string>
 	<string name="Upper Cheeks">
-		ほおの上部
+		上頬
 	</string>
 	<string name="Upper Chin Cleft">
-		あご上部の割れ
+		上顎の割れ
 	</string>
 	<string name="Upper Eyelid Fold">
 		二重の幅
@@ -4713,28 +4788,28 @@
 		ウエストの高さ
 	</string>
 	<string name="Well-Fed">
-		つまったほお
+		太った
 	</string>
 	<string name="White Hair">
 		白髪
 	</string>
 	<string name="Wide">
-		広
+		広く
 	</string>
 	<string name="Wide Back">
-		広
+		背面を広く
 	</string>
 	<string name="Wide Front">
-		広
+		前面を広く
 	</string>
 	<string name="Wide Lips">
-		大きい口
+		広く
 	</string>
 	<string name="Wild">
 		ワイルド
 	</string>
 	<string name="Wrinkles">
-		しわ
+		皺
 	</string>
 	<string name="LocationCtrlAddLandmarkTooltip">
 		マイ ランドマークに追加
@@ -4749,7 +4824,7 @@
 		ロケーション履歴
 	</string>
 	<string name="LocationCtrlForSaleTooltip">
-		この土地を購入
+		この土地を購入する
 	</string>
 	<string name="LocationCtrlVoiceTooltip">
 		ここではボイスを利用できません。
@@ -4761,7 +4836,7 @@
 		プッシュ禁止
 	</string>
 	<string name="LocationCtrlBuildTooltip">
-		オブジェクトの制作 / ドロップは禁止されています
+オブジェクトの制作 / ドロップは禁止されています
 	</string>
 	<string name="LocationCtrlScriptsTooltip">
 		スクリプト不可
@@ -4782,7 +4857,7 @@
 		この区画内のアバターは、この区画の外にいるアバターからは見ることも聞くこともできません。
 	</string>
 	<string name="LocationCtrlPathfindingDirtyTooltip">
-		地域(リージョン)が再構築されるまで、移動するオブジェクトは正しく動作しない可能性があります。
+地域(リージョン)が再構築されるまで、移動するオブジェクトは正しく動作しない可能性があります。
 	</string>
 	<string name="LocationCtrlPathfindingDisabledTooltip">
 		この地域(リージョン)では動的経路探索が有効になっていません。
@@ -4791,16 +4866,16 @@
 		[APP_NAME] の更新
 	</string>
 	<string name="UpdaterNowUpdating">
-		只今 [APP_NAME] をアップデート中...
+只今[APP_NAME]を更新しています…
 	</string>
 	<string name="UpdaterNowInstalling">
-		[APP_NAME] をインストール中...
+		[APP_NAME]をインストールしています…
 	</string>
 	<string name="UpdaterUpdatingDescriptive">
 		お使いの[APP_NAME]ビュアを最新バージョンに更新しています。数分かかることがありますのでしばらくお待ちください。
 	</string>
 	<string name="UpdaterProgressBarTextWithEllipses">
-		アップデートをダウンロード中...
+アップデートをダウンロード中...
 	</string>
 	<string name="UpdaterProgressBarText">
 		更新をダウンロード中
@@ -4809,7 +4884,7 @@
 		更新のダウンロードに失敗しました。
 	</string>
 	<string name="UpdaterFailUpdateDescriptive">
-		[APP_NAME] の更新中にエラーが発生しました。www.secondlife.com から最新バージョンをダウンロードしてください。
+[APP_NAME]の更新時にエラーが発生しました。https://www.alchemyviewer.org から最新バージョンをダウンロードしてください。
 	</string>
 	<string name="UpdaterFailInstallTitle">
 		更新のインストールに失敗しました。
@@ -4824,7 +4899,7 @@
 		[APP_NAME]: アイテムが同時に多く読み込まれているため、自動プレビューが [TIME] 秒間無効となります。
 	</string>
 	<string name="IM_logging_string">
-		- インスタントメッセージの保存開始 -
+- インスタントメッセージの保存開始 -
 	</string>
 	<string name="IM_typing_start_string">
 		[NAME] は入力中...
@@ -4854,7 +4929,7 @@
 		(保存日時: [LONG_TIMESTAMP])
 	</string>
 	<string name="IM_unblock_only_groups_friends">
-		このメッセージを表示するには、「初期設定」の「プライバシー」で「フレンドとグループ以外からはコールとIMを受信しない」チェックボックスをオフにします。
+		このメッセージを表示するには、「初期設定」の「プライバシー」で「フレンドとグループ以外からはコールとＩＭを受信しない」チェックボックスをオフにします。
 	</string>
 	<string name="OnlineStatus">
 		オンライン
@@ -4863,7 +4938,7 @@
 		オフライン
 	</string>
 	<string name="not_online_msg">
-		ユーザがオンラインでありません - メッセージは保存され、後で配信されます。
+ユーザがオンラインでありません - メッセージは保存され、後で配信されます。
 	</string>
 	<string name="not_online_inventory">
 		ユーザがオンラインでありません - インベントリに保存されました。
@@ -4917,7 +4992,7 @@
 		このセッションにいるユーザはあなただけです。
 	</string>
 	<string name="offline_message">
-		[NAME] はオフライン中です。
+[NAME] はオフライン中です。
 	</string>
 	<string name="invite_message">
 		このボイスチャットに応答・接続する場合は、[BUTTON NAME] をクリックしてください。
@@ -4982,11 +5057,14 @@
 	<string name="teleport_preamble_compact_chat">
 		あなたは今、次の場所にいます
 	</string>
+	<string name="teleport_preamble_compact_chat">
+		現在地：
+	</string>
 	<string name="session_initialization_timed_out_error">
 		セッションの初期化がタイムアウトしました。
 	</string>
 	<string name="Home position set.">
-		家の配置の設定。
+		ホーム配置を設定しました。
 	</string>
 	<string name="lindenhomes_get_home_url">
 		https://secondlife.com/land/lindenhomes/member.php?lang=ja-JP
@@ -5046,7 +5124,7 @@
 		土地への入場許可
 	</string>
 	<string name="for deeding land">
-		土地を譲渡
+		土地を寄贈
 	</string>
 	<string name="to create a group">
 		グループ作成
@@ -5088,7 +5166,7 @@
 		オンライン
 	</string>
 	<string name="uploading_abuse_report">
-		アップロード中...
+アップロード中...
 		
 		嫌がらせの報告
 	</string>
@@ -5141,7 +5219,7 @@
 		新しいユニバーサル
 	</string>
 	<string name="New Physics">
-		新規の物理
+新しいの物理作用
 	</string>
 	<string name="Invalid Wearable">
 		無効な着用物
@@ -5149,14 +5227,17 @@
 	<string name="New Gesture">
 		ジェスチャー
 	</string>
+	<string name="New Material">
+		新しいマテリアル
+	</string>
 	<string name="New Script">
-		新規スクリプト
+		新しいスクリプト
 	</string>
 	<string name="New Note">
 		新規ノート
 	</string>
 	<string name="New Folder">
-		新規フォルダ
+		新しいフォルダ
 	</string>
 	<string name="Contents">
 		コンテンツ
@@ -5180,7 +5261,7 @@
 		一般的ジェスチャー
 	</string>
 	<string name="Male - Excuse me">
-		男性 - すみません
+男性 - すみません
 	</string>
 	<string name="Male - Get lost">
 		男性 - あっち行けよ
@@ -5359,11 +5440,14 @@
 	<string name="AvatarBirthDateFormatFull">
 		[year,datetime,slt]年[mthnum,datetime,slt]月[day,datetime,slt]日
 	</string>
+	<string name="AvatarBirthDateFormatShort">
+		[mthnum,datetime,slt]月[day,datetime,slt]日
+	</string>
 	<string name="DefaultMimeType">
 		なし/なし
 	</string>
 	<string name="texture_load_dimensions_error">
-		[WIDTH] x [HEIGHT]以上の画像は読み込めません。
+[WIDTH] x [HEIGHT]以上の画像は読み込めません。
 	</string>
 	<string name="outfit_photo_load_dimensions_error">
 		アウトフィット画像の最大サイズは、[WIDTH] x [HEIGHT]です。画像のサイズを調整するか、別の画像を使用してください。
@@ -5376,8 +5460,8 @@
 	</string>
 	<string name="words_separator" value="、"/>
 	<string name="server_is_down">
-		大変申し訳ございませんが、予期しない問題が発生しました。サービスに関する既知の問題については、 https://status.secondlifegrid.net/?lang=ja-JP をご覧ください。
-		問題が引き続き発生する場合は、お使いのネットワークやファイヤーウォールの設定を調べてください。
+大変申し訳ございませんが、予期しない問題が発生しました。サービスに関する既知の問題については、https://status.secondlifegrid.net/?lang=ja-JP をご覧ください。
+問題が引き続き発生する場合は、お使いのネットワークやファイアウォールの設定を調べてください。
 	</string>
 	<string name="dateTimeWeekdaysNames">
 		日曜日:月曜日:火曜日:水曜日:木曜日:金曜日:土曜日
@@ -5386,7 +5470,7 @@
 		日:月:火:水:木:金:土
 	</string>
 	<string name="dateTimeMonthNames">
-		1月:2月:3月:4月:5月:6月:7月:8月:9月:10月:11月:12月
+1月:2月:3月:4月:5月:6月:7月:8月:9月:10月:11月:12月
 	</string>
 	<string name="dateTimeMonthShortNames">
 		㋀:㋁:㋂:㋃:㋄:㋅:㋆:㋇:㋈:㋉:㋊:㋋
@@ -5449,7 +5533,7 @@
 		プレミアム
 	</string>
 	<string name="Premium_PlusMembership">
-		プレミアムプラス
+		プレミアム・プラス
 	</string>
 	<string name="MembershipUpgradeText">
 		メンバーシッププランの変更...
@@ -5599,6 +5683,8 @@
 	<string name="X">
 		x
 	</string>
+	<!-- Key names end -->
+	<!-- Mouse button names (short) begin -->
 	<string name="LMB">
 		左クリック
 	</string>
@@ -5618,31 +5704,31 @@
 		左ダブルクリック
 	</string>
 	<string name="BeaconParticle">
-		パーティクル源ビーコン(青)を表示中
+パーティクル源ビーコン（青）を表示しています。
 	</string>
 	<string name="BeaconPhysical">
-		物理的オブジェクトのビーコン(緑)を表示中
+		物理的オブジェクトのビーコン（緑）を表示しています。
 	</string>
 	<string name="BeaconScripted">
-		スクリプトのオブジェクトのビーコン(赤)を表示中
+		スクリプトのオブジェクトのビーコン（赤）を表示しています。
 	</string>
 	<string name="BeaconScriptedTouch">
-		タッチ機能のビーコンが付いたスクリプトのオブジェクト(赤)を表示中
+		タッチ機能のビーコンが付いたスクリプトのオブジェクト（赤）を表示しています。
 	</string>
 	<string name="BeaconSound">
-		サウンドビーコン(黄)を表示中
+		サウンドビーコン（黄）を表示しています。
 	</string>
 	<string name="BeaconMedia">
-		メディアビーコン(白)を表示中
+		メディアビーコン（白）を表示しています。
 	</string>
 	<string name="BeaconSun">
-		太陽の方角ビーコン(オレンジ)を表示中
+		太陽の方角ビーコン（橙）を表示しています。
 	</string>
 	<string name="BeaconMoon">
-		月の方角ビーコン(紫)を表示中
+		月の方角ビーコン（紫）を表示しています。
 	</string>
 	<string name="ParticleHiding">
-		パーティクルを非表示
+		パーティクルを非表示にします。
 	</string>
 	<string name="Command_360_Capture_Label">
 		360度スナップショット
@@ -5651,13 +5737,13 @@
 		土地情報
 	</string>
 	<string name="Command_Appearance_Label">
-		アウトフィット
+		容姿
 	</string>
 	<string name="Command_Avatar_Label">
 		アバター一式
 	</string>
 	<string name="Command_Build_Label">
-		制作
+		ビルド
 	</string>
 	<string name="Command_Chat_Label">
 		チャット
@@ -5672,7 +5758,7 @@
 		行き先
 	</string>
 	<string name="Command_Environments_Label">
-		自分の景観
+自分の景観
 	</string>
 	<string name="Command_Gestures_Label">
 		ジェスチャー
@@ -5693,7 +5779,7 @@
 		マーケットプレイス
 	</string>
 	<string name="Command_MarketplaceListings_Label">
-		マーケットプレイス
+		マーケットプレイスに出品
 	</string>
 	<string name="Command_MiniMap_Label">
 		ミニマップ
@@ -5707,6 +5793,9 @@
 	<string name="Command_Performance_Label">
 		グラフィック速度
 	</string>
+	<string name="Command_Performance_Label">
+		グラフィック最適化
+	</string>
 	<string name="Command_Picks_Label">
 		選択
 	</string>
@@ -5718,6 +5807,9 @@
 	</string>
 	<string name="Command_Profile_Label">
 		プロフィール
+	</string>
+	<string name="Command_Performance_Label">
+		グラフィック最適化
 	</string>
 	<string name="Command_Report_Abuse_Label">
 		嫌がらせの報告
@@ -5750,7 +5842,7 @@
 		アバター一式を選択します。
 	</string>
 	<string name="Command_Build_Tooltip">
-		オブジェクトの制作と地形の変形
+オブジェクトの制作と地形の変形
 	</string>
 	<string name="Command_Chat_Tooltip">
 		近隣の人々と文字チャットします。
@@ -5765,7 +5857,7 @@
 		行ってみたい場所
 	</string>
 	<string name="Command_Environments_Tooltip">
-		自分の環境
+自分の環境
 	</string>
 	<string name="Command_Gestures_Tooltip">
 		アバターのジェスチャーを表示します。
@@ -5783,22 +5875,22 @@
 		ワールドマップを表示します
 	</string>
 	<string name="Command_Marketplace_Tooltip">
-		ショッピングに出掛ける
+		ショッピングに出掛けます。
 	</string>
 	<string name="Command_MarketplaceListings_Tooltip">
-		創作アイテムを販売します。
+		あなたが制作したアイテムを販売します。
 	</string>
 	<string name="Command_MiniMap_Tooltip">
-		近くの人を表示
+近くの人を表示します。
 	</string>
 	<string name="Command_Move_Tooltip">
 		アバターの移動操作をします。
 	</string>
 	<string name="Command_People_Tooltip">
-		フレンド、グループ、近くの人
+フレンド、グループ、近くの人物を表示します。
 	</string>
 	<string name="Command_Performance_Tooltip">
-		グラフィックの最適化
+		グラフィック性能を向上させます。
 	</string>
 	<string name="Command_Picks_Tooltip">
 		プロフィールで紹介しているお気に入りの場所を表示します。
@@ -5825,19 +5917,19 @@
 		マイクを使って近くの人と話します。
 	</string>
 	<string name="Command_View_Tooltip">
-		カメラアングルの変更を表示します。
+		カメラアングルを調整します。
 	</string>
 	<string name="Command_Voice_Tooltip">
 		インワールドでのコールや近くにいる人の音量を調整
 	</string>
 	<string name="Toolbar_Bottom_Tooltip">
-		現在、下のツールバーにあります。
+		現在、下部のツールバー（↓）にあります。
 	</string>
 	<string name="Toolbar_Left_Tooltip">
-		現在、左のツールバーにあります。
+		現在、左部のツールバー（←）にあります。
 	</string>
 	<string name="Toolbar_Right_Tooltip">
-		現在、右のツールバーにあります。
+		現在、右部のツールバー（→）にあります。
 	</string>
 	<string name="Retain%">
 		維持率
@@ -5878,6 +5970,7 @@
 	<string name="Pathfinding_Object_Attr_MultiSelect">
 		(複数)
 	</string>
+	<!-- Snapshot image quality levels -->
 	<string name="snapshot_quality_very_low">
 		最低
 	</string>
@@ -5894,7 +5987,7 @@
 		最高
 	</string>
 	<string name="TeleportMaturityExceeded">
-		住人はこの地域(リージョン)を訪問できません。
+住人はこの地域(リージョン)を訪問できません。
 	</string>
 	<string name="experience_tools_experience">
 		体験
@@ -5915,7 +6008,7 @@
 		許可
 	</string>
 	<string name="Blocked_Experiences_Tab">
-		停止
+		ブロック
 	</string>
 	<string name="Contrib_Experiences_Tab">
 		貢献者
@@ -5930,7 +6023,7 @@
 		所有
 	</string>
 	<string name="ExperiencesCounter">
-		([EXPERIENCES]、最大[MAXEXPERIENCES])
+（全[MAXEXPERIENCES]件中[EXPERIENCES]件）
 	</string>
 	<string name="ExperiencePermission1">
 		コントロールを引き継ぐ
@@ -5987,7 +6080,7 @@
 		座る
 	</string>
 	<string name="ExperiencePermissionShort17">
-		景観
+景観
 	</string>
 	<string name="logging_calls_disabled_log_empty">
 		会話はログに記録されていません。ログの記録を開始するには、「初期設定」&gt;「チャット」で「保存: ログのみ」または「保存: ログと会話のテキスト」を選択します。
@@ -5999,13 +6092,13 @@
 		ログイン時の会話はありません。誰かと話した後や、誰かがあなたに話しかけた後に、そのときのログがここに記載されます。
 	</string>
 	<string name="loading_chat_logs">
-		読込中...
+読込中...
 	</string>
 	<string name="na">
 		該当なし
 	</string>
 	<string name="preset_combo_label">
-		-空のリスト-
+‐空のリスト‐
 	</string>
 	<string name="Default">
 		デフォルト
@@ -6023,16 +6116,15 @@
 		物理形状に不正な確認データがあります。物理モデルを修正してください。
 	</string>
 	<string name="Mav_Details_MAV_BLOCK_MISSING">
-		データがありません。高LODが存在し、有効であることを確認してください。設定されていない場合は物理モデルを設定します。
+データがありません。高ＬｏＤが存在し、有効であることを確認してください。設定されていない場合は、物理モデルを設定します。
 	</string>
 	<string name="Mav_Details_MAV_UNKNOWN_VERSION">
 		物理形状のバージョンが正しくありません。物理モデルに正しいバージョンを設定してください。
 	</string>
 	<string name="couldnt_resolve_host">
-		DNSがホスト名 ([HOSTNAME]) を解決できませんでした。
-		www.secondlife.com のウェブサイトに接続できるかご確認ください。
-		接続できても、このエラーが継続的に起こる場合は、
-		サポートセクションから問題を報告してください。
+ＤＮＳがホスト名 ([HOSTNAME]) を解決できませんでした。
+www.secondlife.com のウェブサイトに接続できるかご確認ください。
+接続できても、このエラーが継続的に起こる場合は、サポートセクションから問題を報告してください。
 	</string>
 	<string name="ssl_peer_certificate">
 		ログインサーバーがSSL経由で確認できませんでした。

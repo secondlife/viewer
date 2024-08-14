@@ -1,9 +1,21 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <toggleable_menu name="Gear Outfit">
-	<menu_item_call label="着る - このアウトフィットと置換" name="wear"/>
-	<menu_item_call label="着る - このアウトフィットに追加" name="wear_add"/>
-	<menu_item_call label="脱ぐ-このアウトフィットから取り外す" name="take_off"/>
-	<menu_item_call label="画像..." name="thumbnail"/>
+<menu_item_call label="現在アウトフィットと置き換え" name="wear"/>
+	<menu_item_call label="アウトフィットにアイテムを追加" name="wear_add"/>
+	<menu_item_call label="アウトフィットのアイテムを脱ぐ" name="take_off"/>
+	<menu_item_separator name="wear_separator"/>
+	<menu_item_call label="画像…" name="thumbnail"/>
+	<menu_item_call label="アウトフィットの名前変更" name="rename"/>
+	<menu_item_call label="このアウトフィットを保存" name="save"/>
+	<menu_item_separator/>
+	<menu_item_call label="アウトフィットを削除" name="delete_outfit"/>
+	<menu_item_separator/>
+	<menu_item_check label="名前順でフォルダを並べ替え" name="sort_folders_by_name"/>
+	<menu_item_call label="全てのフォルダを展開" name="expand"/>
+	<menu_item_call label="全てのフォルダを折り畳む" name="collapse"/>
+	<menu_item_separator/>
+	<!-- copied (with minor modifications) from menu_inventory_add.xml -->
+	<!-- *TODO: generate dynamically? -->
 	<menu label="新しい服装" name="New Clothes">
 		<menu_item_call label="新しいシャツ" name="New Shirt"/>
 		<menu_item_call label="新しいズボン" name="New Pants"/>
@@ -25,7 +37,7 @@
 		<menu_item_call label="新しい髪" name="New Hair"/>
 		<menu_item_call label="新しい眼" name="New Eyes"/>
 	</menu>
-	<menu_item_call label="全てのフォルダを開く" name="expand"/>
+<menu_item_call label="全てのフォルダを開く" name="expand"/>
 	<menu_item_call label="全てのフォルダを閉じる" name="collapse"/>
 	<menu_item_call label="アウトフィットの名前変更" name="rename"/>
 	<menu_item_call label="アウトフィットを削除" name="delete_outfit"/>

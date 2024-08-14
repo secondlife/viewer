@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="camera_floater" help_topic="camera_floater" title="カメラ操作">
+<floater name="camera_floater" title="カメラ操作">
 	<floater.string name="rotate_tooltip">
 		対象を中心にカメラを回す
 	</floater.string>
@@ -17,7 +17,7 @@
 	</string>
 	<panel name="controls">
 		<panel name="zoom">
-			<joystick_rotate name="cam_rotate_stick" tool_tip="対象にカメラを追尾"/>
+<joystick_rotate name="cam_rotate_stick" tool_tip="対象にカメラを追尾"/>
 			<slider_bar name="zoom_slider" tool_tip="向いている方向にカメラをズーム"/>
 			<joystick_track name="cam_track_stick" tool_tip="カメラを上下左右に移動"/>
 			<text name="precise_ctrs_label">
@@ -34,10 +34,12 @@
 		<panel_camera_item name="object_view" tool_tip="オブジェクト視点"/>
 		<panel_camera_item name="mouselook_view" tool_tip="マウスルックビュー"/>
 		<combo_box name="preset_combo">
-			<combo_list mouse_wheel_opaque="true"/>
+<combo_list mouse_wheel_opaque="true"/>
 			<combo_box.item label="プリセットを使用" name="Use preset" value="デフォルト"/>
 		</combo_box>
 		<button name="gear_btn" tool_tip="カメラのプリセット"/>
 		<button label="プリセットを保存..." name="save_preset_btn"/>
 	</panel>
+	<panel name="viewer_camera_info"/>
+	<panel name="agent_camera_info"/>
 </floater>

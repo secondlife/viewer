@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="表示" name="Display panel">
+<panel label="グラフィック" name="Display panel">
 	<text>
-        使用中のプリセット:
-    </text>
+		使用中のプリセット：
+	</text>
 	<text name="preset_text">
         (なし)
     </text>
@@ -25,7 +25,7 @@
         速度優先
     </text>
 	<text name="BetterText">
-        品質優先
+品質優先
     </text>
 	<slider control_name="RenderFarClip" label="描画距離:" name="DrawDistance"/>
 	<check_box label="周囲(大気)シェーダー" name="WindLightUseAtmosShaders"/>
@@ -39,10 +39,11 @@
         [https://community.secondlife.com/t5/Featured-News/Why-are-all-these-people-made-of-colored-jelly/ba-p/3031255 これは何ですか?]
     </text>
 	<check_box label="フレンドは常に描画" name="AlwaysRenderFriends"/>
-	<button label="例外..." name="RenderExceptionsButton"/>
-	<button label="設定をプリセットとして保存..." name="PrefSaveButton"/>
-	<button label="プリセットを読込..." name="PrefLoadButton"/>
-	<button label="プリセットを削除..." name="PrefDeleteButton"/>
+<button label="例外…" name="RenderExceptionsButton"/>
+	<slider label="ブライトネス（露光）:" name="RenderExposure"/>
+	<button label="設定をプリセットとして保存…" name="PrefSaveButton"/>
+	<button label="プリセットを読み込む…" name="PrefLoadButton"/>
+	<button label="プリセットを削除…" name="PrefDeleteButton"/>
 	<button label="推奨設定にリセット" name="Defaults"/>
-	<button label="拡張設定..." name="AdvancedSettings"/>
+	<button label="高度な設定…" name="AdvancedSettings"/>
 </panel>

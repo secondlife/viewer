@@ -1,8 +1,17 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="toast">
-	<panel name="wrapper_panel">
+<!-- All our XML is utf-8 encoded. -->
+<!-- Don't remove floater's height! It is needed for Overflow and Start-Up toasts!-->
+<!-- 
+This floater is invisible. To make toast look like a floater we render wrapper_panel
+like a floater(draw shadows and so on). This is done with one purpose - make close button
+look like it is positioned out of floater and able to accept mouse clicks (see EXT-4246)
+-->
+<floater name="toast" title="" height="47">
+	<panel label="ラッパーパネル" name="wrapper_panel">
+		<!-- Don't remove this wiget! It is needed for Overflow and Start-Up toasts!-->
 		<text name="toast_text">
-            トーストテキスト;
-        </text>
+			トーストのテキスト
+		</text>
 	</panel>
+	<button name="hide_btn" label=""/>
 </floater>

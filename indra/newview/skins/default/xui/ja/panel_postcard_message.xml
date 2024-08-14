@@ -7,7 +7,7 @@
         名前:
     </text>
 	<text name="subject_label">
-        件名:
+件名:
     </text>
 	<text_editor name="msg_form">
         メッセージをここに入力してください。

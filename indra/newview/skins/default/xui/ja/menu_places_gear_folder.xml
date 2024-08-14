@@ -8,6 +8,6 @@
 	<menu_item_call label="ペースト" name="paste"/>
 	<menu_item_call label="名前変更" name="rename"/>
 	<menu_item_call label="削除" name="delete"/>
-	<menu_item_call label="広げる" name="expand"/>
+<menu_item_call label="広げる" name="expand"/>
 	<menu_item_call label="閉じる" name="collapse"/>
 </toggleable_menu>

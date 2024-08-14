@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="simple_snapshot" title="アイテムのスナップショット">
-	<button label="画像を撮影" name="new_snapshot_btn"/>
+<button label="画像を撮影" name="new_snapshot_btn"/>
 	<button label="save" name="save_btn"/>
 	<button label="オブジェクトへの支払いを取り消します。" name="cancel_btn"/>
 </floater>

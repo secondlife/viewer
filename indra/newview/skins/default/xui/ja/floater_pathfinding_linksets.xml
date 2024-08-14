@@ -1,25 +1,25 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater_pathfinding_linksets" title="リージョンオブジェクト">
+<floater name="floater_pathfinding_linksets" title="リージョンのオブジェクト">
 	<floater.string name="messaging_get_inprogress">
-		経路探索リンクセットを照会中...
+経路探索リンクセットを照会中...
 	</floater.string>
 	<floater.string name="messaging_get_error">
-		経路探索リンクセットの照会中にエラーが発生しました。
+		経路探索リンクセットの照会時にエラーが発生しました。
 	</floater.string>
 	<floater.string name="messaging_set_inprogress">
-		選択した経路探索リンクセットを修正中...
+選択した経路探索リンクセットを修正しています…
 	</floater.string>
 	<floater.string name="messaging_set_error">
-		選択した経路探索リンクセットの修正中にエラーが発生しました。
+		選択した経路探索リンクセットの修正時にエラーが発生しました。
 	</floater.string>
 	<floater.string name="messaging_complete_none_found">
 		経路探索リンクセットがありません。
 	</floater.string>
 	<floater.string name="messaging_complete_available">
-		[NUM_TOTAL]個中[NUM_SELECTED]個が選択されました。
+		全[NUM_TOTAL]個中[NUM_SELECTED]個のリンクセットが選択されました。
 	</floater.string>
 	<floater.string name="messaging_not_enabled">
-		この地域(リージョン)はパスファインディングに対応していません。
+この地域(リージョン)はパスファインディングに対応していません。
 	</floater.string>
 	<floater.string name="linkset_is_scripted">
 		はい
@@ -56,21 +56,21 @@
             フィルタ:
         </text>
 		<text name="linksets_name_label">
-            名前
-        </text>
-		<search_editor label="名前別" name="filter_by_name"/>
+名前
+		</text>
+		<search_editor label="名前でオブジェクトを絞り込み" name="filter_by_name"/>
 		<text name="linksets_desc_label">
-            説明
-        </text>
-		<search_editor label="説明別" name="filter_by_description"/>
+			説明
+		</text>
+		<search_editor label="説明でオブジェクトを絞り込み" name="filter_by_description"/>
 		<combo_box name="filter_by_linkset_use">
-			<combo_box.item label="リンクセットの用途でフィルタ..." name="filter_by_linkset_use_none"/>
-			<combo_box.item label="歩行可能" name="filter_by_linkset_use_walkable"/>
+			<combo_box.item label="リンクセットの用途でフィルタ…" name="filter_by_linkset_use_none"/>
+			<combo_box.item label="歩行可能物" name="filter_by_linkset_use_walkable"/>
 			<combo_box.item label="静的障害物" name="filter_by_linkset_use_static_obstacle"/>
-			<combo_box.item label="可動障害物" name="filter_by_linkset_use_dynamic_obstacle"/>
-			<combo_box.item label="マテリアルボリューム" name="filter_by_linkset_use_material_volume"/>
+			<combo_box.item label="動的障害物" name="filter_by_linkset_use_dynamic_obstacle"/>
+			<combo_box.item label="素材ボリューム" name="filter_by_linkset_use_material_volume"/>
 			<combo_box.item label="除外ボリューム" name="filter_by_linkset_use_exclusion_volume"/>
-			<combo_box.item label="可動ボリューム" name="filter_by_linkset_use_dynamic_phantom"/>
+			<combo_box.item label="動的ボリューム" name="filter_by_linkset_use_dynamic_phantom"/>
 		</combo_box>
 		<button label="適用" name="apply_filters"/>
 		<button label="クリア" name="clear_filters"/>
@@ -81,11 +81,13 @@
 			<scroll_list.columns label="スクリプト" name="scripted"/>
 			<scroll_list.columns label="ランドインパクト" name="land_impact"/>
 			<scroll_list.columns label="距離" name="dist_from_you"/>
-			<scroll_list.columns label="経路探索で使用" name="linkset_use"/>
+<scroll_list.columns label="経路探索の用途" name="linkset_use"/>
+			<scroll_list.columns label="Ａ％" name="a_percent"/>
+			<scroll_list.columns label="Ｂ％" name="b_percent"/>
+			<scroll_list.columns label="Ｃ％" name="c_percent"/>
+			<scroll_list.columns label="Ｄ％" name="d_percent"/>
 		</scroll_list>
-		<text name="messaging_status">
-            リンクセット:
-        </text>
+		<text name="messaging_status">リンクセット：</text>
 		<button label="リスト更新" name="refresh_objects_list"/>
 		<button label="全て選択" name="select_all_objects"/>
 		<button label="何も選択しない" name="select_none_objects"/>

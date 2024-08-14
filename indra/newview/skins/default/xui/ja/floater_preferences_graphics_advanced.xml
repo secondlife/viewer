@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="prefs_graphics_advanced" title="拡張グラフィック設定">
+<floater name="prefs_graphics_advanced" title="高度なグラフィック設定">
 	<text name="GeneralText">
         一般
     </text>
@@ -30,26 +30,18 @@
         低
     </text>
 	<text name="HardwareText">
-        ハードウェア
-    </text>
-	<slider label="テクスチャメモリ(MB):" name="GraphicsCardTextureMemory" tool_tip="テクスチャに割り当てるメモリの量を指定します。デフォルトはビデオカードの搭載メモリの値です。この値を減らすとパフォーマンスが向上する可能性がありますが、テクスチャがぼやける可能性があります。"/>
-	<slider label="フォグの距離比率:" name="fog"/>
-	<slider label="ガンマ:" name="gamma"/>
-	<text name="(brightness, lower is brighter)">
-        (0がデフォルト、低いほど明るい)
-    </text>
-	<check_box label="異方性フィルタリング (有効にすると速度が低下)" name="ani"/>
-	<check_box control_name="RenderCompressTextures" label="テクスチャ圧縮の有効化(再起動が必要)" name="texture compression" tool_tip="ビデオメモリ内のテクスチャを圧縮し、色の品質をある程度犠牲にして、より高解像度のテクスチャを読み込むようにします。"/>
-	<check_box control_name="RenderHiDPI" label="HiDPIディスプレイのサポートを有効にする(再起動後に反映)" name="use HiDPI" tool_tip="高解像度の描画のためにOpenGLを有効にします。"/>
+ハードウェア
+	</text>
+	<check_box label="異方性フィルタリング（有効にすると遅くなります）" name="ani"/>
+	<check_box control_name="RenderCompressTextures" label="テクスチャ圧縮の有効化 (再起動後に反映)" name="texture compression" tool_tip="ビデオメモリ内のテクスチャを圧縮し、色の品質をある程度犠牲にして、より高解像度のテクスチャを読み込むようにします。"/>
+	<check_box label="HiDPIディスプレイのサポートを有効にする（再起動後に反映）" name="use HiDPI" tool_tip="ＯｐｅｎＧＬの高解像描画を有効化します。"/>
 	<text name="antialiasing label">
-        アンチエイリアシング:
-    </text>
+		アンチエイリアス：
+	</text>
 	<combo_box label="アンチエイリアシング" name="fsaa">
-		<combo_box.item label="無効" name="FSAADisabled"/>
+		<combo_box.item label="無効" name="FSAADisabled" value="0"/>
+		<combo_box.item label="ＦＸＡＡ" name="FXAA" value="2"/>
 	</combo_box>
-	<text name="antialiasing restart">
-        (再起動後に反映)
-    </text>
 	<text name="MeshText">
         メッシュ
     </text>
@@ -67,13 +59,13 @@
     </text>
 	<slider label="フレキシプリム:" name="FlexibleMeshDetail"/>
 	<text name="FlexibleMeshDetailText">
-        低
+低
     </text>
 	<text name="ShadersText">
         シェーダー
     </text>
 	<check_box label="透明な水" name="TransparentWater"/>
-	<check_box label="バンプマッピングと光沢" name="BumpShiny"/>
+<check_box label="バンプマッピングと光沢" name="BumpShiny"/>
 	<check_box label="近くの光源" name="LocalLights"/>
 	<slider label="地形詳細:" name="TerrainDetail"/>
 	<text name="TerrainDetailText">
@@ -108,6 +100,6 @@
 		<combo_box.item label="太陽 / 月" name="1"/>
 		<combo_box.item label="太陽 / 月・プロジェクター" name="2"/>
 	</combo_box>
-	<button label="推奨設定にリセット" name="Defaults"/>
+<button label="推奨設定にリセット" name="Defaults"/>
 	<button label="キャンセル" label_selected="キャンセル" name="Cancel"/>
 </floater>

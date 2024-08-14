@@ -1,29 +1,29 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Proxy Settings Floater" title="プロキシ設定">
-	<check_box label="ウェブページにHTTPプロキシを使う" name="web_proxy_enabled"/>
+<check_box initial_value="false" label="ウェブページにＨＴＴＰプロキシを使う" name="web_proxy_enabled"/>
 	<text name="http_proxy_label">
-        HTTPプロキシ:
-    </text>
-	<line_editor name="web_proxy_editor" tool_tip="使用するHTTPプロキシのDNS名またはIPアドレス。"/>
-	<spinner label="ポート番号:" name="web_proxy_port" tool_tip="使用するHTTPプロキシポート。"/>
-	<check_box label="UDPトラフィックに SOCKS 5プロキシを使用" name="socks_proxy_enabled"/>
+		ＨＴＴＰプロキシ：
+	</text>
+	<line_editor name="web_proxy_editor" tool_tip="使用するＨＴＴＰプロキシのＤＮＳ名または IP アドレス。"/>
+	<spinner label="ポート番号：" name="web_proxy_port" tool_tip="使用するＨＴＴＰプロキシポート。"/>
+	<check_box label="ＵＤＰトラフィックにＳＯＣＫＳ　５プロキシを使う" name="socks_proxy_enabled"/>
 	<text name="socks5_proxy_label">
-        SOCKS 5プロキシ:
-    </text>
-	<line_editor name="socks_proxy_editor" tool_tip="使用するSOCKS 5プロキシのDNS名またはIPアドレス。"/>
-	<spinner label="ポート番号:" name="socks_proxy_port" tool_tip="使用するSOCKS 5プロキシポート。"/>
+		ＳＯＣＫＳ　５プロキシ：
+	</text>
+	<line_editor name="socks_proxy_editor" tool_tip="使用するＳＯＣＫＳ　５プロキシのＤＮＳ名または IP アドレス。"/>
+	<spinner label="ポート番号：" name="socks_proxy_port" tool_tip="使用するＳＯＣＫＳ　５プロキシポート。"/>
 	<text name="socks_auth_label">
-        SOCKS認証:
-    </text>
+		ＳＯＣＫＳ認証：
+	</text>
 	<radio_group name="socks5_auth_type">
-		<radio_item label="認証なし" name="Socks5NoAuth" value="なし" tool_tip="Socks 5プロキシは認証の必要がありません。"/>
-		<radio_item label="ユーザ名 / パスワード" name="Socks5UserPass" value="パスワード" tool_tip="Socks 5プロキシはユーザ名とパスワードの認証が必要です。"/>
+		<radio_item label="認証なし" name="Socks5NoAuth" tool_tip="Socks 5 プロキシは認証の必要がありません。" value="なし"/>
+		<radio_item label="ユーザー名/パスワード" name="Socks5UserPass" tool_tip="ＳＯＣＫＳ　５プロキシはユーザー名／パスワードの認証が必要です。" value="UserPass"/>
 	</radio_group>
 	<text name="socks5_username_label">
         ユーザ名:
     </text>
 	<text name="socks5_password_label">
-        パスワード:
+パスワード:
     </text>
 	<line_editor name="socks5_username" tool_tip="SOCKS 5サーバーの認証に使用されたユーザ名"/>
 	<line_editor name="socks5_password" tool_tip="SOCKS 5サーバーの認証に使用されたパスワード"/>

@@ -16,10 +16,14 @@
         出力
     </text>
 	<text name="My volume label">
-        マイク音量:
-    </text>
-	<slider_bar name="mic_volume_slider" tool_tip="スライダーを使ってマイクレベルを調節します"/>
-	<text name="wait_text">
-        しばらくお待ちください。
-    </text>
+マイク音量：
+	</text>
+	<slider_bar name="mic_volume_slider" tool_tip="スライダーを使ってマイクレベルを調節します。"/>
+	<text name="wait_text" width="140">
+		しばらくお待ちください。
+	</text>
+	<text name="disabled_text">
+		無効
+	</text>
+	<button name="unmute_btn" label="ミュート解除"/>
 </panel>

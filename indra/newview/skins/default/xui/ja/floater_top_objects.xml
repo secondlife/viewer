@@ -13,7 +13,7 @@
 		上位コライダー
 	</floater.string>
 	<floater.string name="top_colliders_text">
-		上位[COUNT]個の物体は多くの衝突可能性があります。
+		上位[COUNT]個のオブジェクトは衝突する可能性が高いです。
 	</floater.string>
 	<floater.string name="colliders_score_label">
 		数
@@ -31,19 +31,19 @@
         読込中...
     </text>
 	<scroll_list name="objects_list">
-		<scroll_list.columns label="数" name="score"/>
+		<scroll_list.columns label="スコア" name="score"/>
 		<scroll_list.columns label="名前" name="name"/>
 		<scroll_list.columns label="所有者" name="owner"/>
-		<scroll_list.columns label="ロケーション" name="location"/>
+		<scroll_list.columns label="場所" name="location"/>
 		<scroll_list.columns label="区画" name="parcel"/>
 		<scroll_list.columns label="日付" name="time"/>
-		<scroll_list.columns label="URL" name="URLs"/>
-		<scroll_list.columns label="メモリ(KB)" name="memory"/>
+<scroll_list.columns label="ＵＲＬ" name="URLs"/>
+		<scroll_list.columns label="メモリ（㎅）" name="memory"/>
 	</scroll_list>
 	<text name="id_text">
-        物体ID:
-    </text>
-	<button label="ビーコンを表示" name="show_beacon_btn"/>
+		オブジェクトＩＤ：
+	</text>
+	<button label="標識を表示" name="show_beacon_btn"/>
 	<text name="obj_name_text">
         オブジェクト名:
     </text>
@@ -56,7 +56,8 @@
         区画:
     </text>
 	<button label="フィルタ" name="filter_parcel_btn"/>
+<button name="refresh_btn"/>
 	<button label="選択内容を返却" name="return_selected_btn"/>
-	<button label="全て返却" name="return_all_btn"/>
-	<button label="選択した場所にテレポート" name="teleport_btn"/>
+	<button label="すべて返却" name="return_all_btn"/>
+	<button label="選択の場所にテレポート" name="teleport_btn"/>
 </floater>

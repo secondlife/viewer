@@ -9,11 +9,11 @@
 	<check_box label="カスタムポート" name="connection_port_enabled"/>
 	<spinner label="ポート番号:" name="connection_port"/>
 	<radio_group name="preferred_browser_behavior">
-		<radio_item label="全てのリンクにデフォルトシステムのブラウザを使用する" name="internal" tool_tip="デフォルトのシステム Web ブラウザでヘルプや Web リンク先などを見ます。全画面で起動中にはおすすめしません。"/>
-		<radio_item label="Second Lifeリンクにのみ内蔵ブラウザを使用する" name="external" tool_tip="ヘルプ、Web リンクなどにはデフォルトシステムのブラウザを使用します内蔵ブラウザは LindenLab/Second Life リンクにのみ使用されます。"/>
-		<radio_item label="全てのリンクに内蔵ブラウザを使用する" name="external_all" tool_tip="内蔵ブラウザでヘルプや Web リンクなどを見ます。[APP_NAME] 内に新しいウィンドウでこのブラウザが開きます。"/>
+<radio_item label="すべてのリンクにデフォルトシステムのブラウザを使用します" name="internal" tool_tip="デフォルトのシステム Webブラウザでヘルプや Web リンク先などを見ます。全画面で起動中にはおすすめしません。" value="0"/>
+		<radio_item label="Second Life リンクにのみ内蔵ブラウザを使用します" name="external" tool_tip="ヘルプ、Webリンクなどにはデフォルトシステムのブラウザを使用します内蔵ブラウザは LindenLab／Second Lifeリンクにのみ使用されます。" value="1"/>
+		<radio_item label="すべてのリンクに内蔵ブラウザを使用します" name="external_all" tool_tip="内蔵ブラウザでヘルプや Webリンクなどを見ます。[APP_NAME]内に新しいウィンドウでこのブラウザが開きます。" value="2"/>
 	</radio_group>
-	<check_box label="Javascriptを有効にする" name="browser_javascript_enabled"/>
+	<check_box initial_value="true" label="Javascript を有効にする" name="browser_javascript_enabled"/>
 	<text name="Software updates:">
         ソフトウェアアップデート:
     </text>

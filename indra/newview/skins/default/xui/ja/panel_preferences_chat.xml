@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="チャット" name="chat">
-	<check_box label="近隣チャットでジェスチャーを自動補完する" name="auto_complete_gestures"/>
+<check_box initial_value="true" label="近くのチャットでジェスチャーを自動補完する" name="auto_complete_gestures"/>
 	<panel name="general_chat_settings">
-		<check_box label="チャット中にタイピング動作のアニメーションを再生" name="play_typing_animation"/>
-		<check_box label="フレンドとグループ以外からはコールと IM を受信しない" name="voice_call_friends_only_check"/>
+		<check_box initial_value="true" label="チャット中にタイピング動作のアニメーションを再生" name="play_typing_animation"/>
+		<check_box label="フレンドとグループ以外からのコールとＩＭは受信しない" name="voice_call_friends_only_check"/>
 		<text name="email_settings">
             [https://accounts.secondlife.com/change_email?lang=ja オフライン時のIMのメール送信先の設定]
         </text>
@@ -23,9 +23,9 @@
         </text>
 		<combo_box name="FriendIMOptions">
 			<item label="開いている会話ウィンドウ" name="OpenConversationsWindow"/>
-			<item label="メッセージをポップアップ表示" name="PopUpMessage" value="トースト"/>
-			<item label="ツールバー ボタンをフラッシュ " name="FlashToolbarButton" value="フラッシュ"/>
-			<item label="動作なし" name="NoAction"/>
+<item label="メッセージをポップアップ表示" name="PopUpMessage"/>
+			<item label="ツールバーのボタンをフラッシュ" name="FlashToolbarButton"/>
+			<item label="動作なし" name="NoAction" value="noaction"/>
 		</combo_box>
 		<check_box label="サウンドを再生" name="play_sound_friend_im"/>
 		<text name="non_friend_ims">
@@ -33,9 +33,9 @@
         </text>
 		<combo_box name="NonFriendIMOptions">
 			<item label="開いている会話ウィンドウ" name="OpenConversationsWindow"/>
-			<item label="メッセージをポップアップ表示" name="PopUpMessage" value="トースト"/>
-			<item label="ツールバー ボタンをフラッシュ " name="FlashToolbarButton" value="フラッシュ"/>
-			<item label="動作なし" name="NoAction"/>
+<item label="メッセージをポップアップ表示" name="PopUpMessage"/>
+			<item label="ツールバーのボタンをフラッシュ" name="FlashToolbarButton"/>
+			<item label="動作なし" name="NoAction" value="noaction"/>
 		</combo_box>
 		<check_box label="サウンドを再生" name="play_sound_non_friend_im"/>
 		<text name="conference_ims">
@@ -43,9 +43,9 @@
         </text>
 		<combo_box name="ConferenceIMOptions">
 			<item label="開いている会話ウィンドウ" name="OpenConversationsWindow"/>
-			<item label="メッセージをポップアップ表示" name="PopUpMessage" value="トースト"/>
-			<item label="ツールバー ボタンをフラッシュ " name="FlashToolbarButton" value="フラッシュ"/>
-			<item label="動作なし" name="NoAction"/>
+<item label="メッセージをポップアップ表示" name="PopUpMessage"/>
+			<item label="ツールバーのボタンをフラッシュ" name="FlashToolbarButton"/>
+			<item label="動作なし" name="NoAction" value="noaction"/>
 		</combo_box>
 		<check_box label="サウンドを再生" name="play_sound_conference_im"/>
 		<text name="group_chat">
@@ -53,9 +53,9 @@
         </text>
 		<combo_box name="GroupChatOptions">
 			<item label="開いている会話ウィンドウ" name="OpenConversationsWindow"/>
-			<item label="メッセージをポップアップ表示" name="PopUpMessage" value="トースト"/>
-			<item label="ツールバー ボタンをフラッシュ " name="FlashToolbarButton" value="フラッシュ"/>
-			<item label="動作なし" name="NoAction"/>
+<item label="メッセージをポップアップ表示" name="PopUpMessage"/>
+			<item label="ツールバーのボタンをフラッシュ" name="FlashToolbarButton"/>
+			<item label="動作なし" name="NoAction" value="noaction"/>
 		</combo_box>
 		<check_box label="サウンドを再生" name="play_sound_group_chat_im"/>
 		<text name="nearby_chat">
@@ -63,9 +63,9 @@
         </text>
 		<combo_box name="NearbyChatOptions">
 			<item label="開いている会話ウィンドウ" name="OpenConversationsWindow"/>
-			<item label="メッセージをポップアップ表示" name="PopUpMessage" value="トースト"/>
-			<item label="ツールバー ボタンをフラッシュ " name="FlashToolBarButton" value="フラッシュ"/>
-			<item label="動作なし" name="NoAction"/>
+<item label="メッセージをポップアップ表示" name="PopUpMessage"/>
+			<item label="ツールバーのボタンをフラッシュ" name="FlashToolBarButton"/>
+			<item label="動作なし" name="NoAction" value="noaction"/>
 		</combo_box>
 		<check_box label="サウンドを再生" name="play_sound_nearby_chat_im"/>
 		<text name="object_ims">
@@ -73,9 +73,9 @@
         </text>
 		<combo_box name="ObjectIMOptions">
 			<item label="開いている会話ウィンドウ" name="OpenConversationsWindow"/>
-			<item label="メッセージをポップアップ表示" name="PopUpMessage" value="トースト"/>
-			<item label="ツールバー ボタンをフラッシュ " name="FlashToolBarButton" value="フラッシュ"/>
-			<item label="動作なし" name="NoAction"/>
+<item label="メッセージをポップアップ表示" name="PopUpMessage"/>
+			<item label="ツールバーのボタンをフラッシュ" name="FlashToolBarButton"/>
+			<item label="動作なし" name="NoAction" value="noaction"/>
 		</combo_box>
 		<check_box label="サウンドを再生" name="play_sound_object_im"/>
 		<text name="notifications_alert">

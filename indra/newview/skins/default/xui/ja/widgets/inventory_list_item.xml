@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<inventory_list_item name="inventory_item">
+	<item_icon name="item_icon"/>
+	<item_name name="item_name" value="…"/>
+</inventory_list_item>

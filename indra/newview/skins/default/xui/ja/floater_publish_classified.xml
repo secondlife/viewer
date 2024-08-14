@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="publish_classified" title="クラシファイド広告掲載">
 	<text name="explanation_text">
-        あなたのクラシファイド広告は掲載された日から1週間有効です。
+あなたのクラシファイド広告は掲載された日から1週間有効です。
         
         クラシファイド広告は返金できませんのでご了承ください。
     </text>

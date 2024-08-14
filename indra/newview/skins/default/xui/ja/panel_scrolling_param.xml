@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="LLScrollingPanelParam">
+	<text name="min param text"/>
+	<text name="max param text"/>
 	<text name="Loading...">
         読込中...
     </text>
 	<text name="Loading...2">
-        読込中...
+読込中...
     </text>
 </panel>

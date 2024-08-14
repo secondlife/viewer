@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="Outfits" label="もの">
 	<panel.string name="wear_outfit_tooltip">
-		選択したアウトフィットに着替える
+		選択したアウトフィットに着替えます。
 	</panel.string>
 	<panel.string name="wear_items_tooltip">
-		選択したアイテムを着用
+		選択したアイテムを着用します。
 	</panel.string>
 	<tab_container name="appearance_tabs">
-		<panel name="outfit_gallery_tab" label="アウトフィットギャラリー"/>
+<panel name="outfit_gallery_tab" label="アウトフィットギャラリー"/>
 		<panel name="outfitslist_tab" label="自分のアウトフィット"/>
 		<panel label="着用中" name="cof_tab"/>
 	</tab_container>

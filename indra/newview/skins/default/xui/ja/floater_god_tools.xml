@@ -2,7 +2,7 @@
 <floater name="godtools floater" title="ゴッド・ツール">
 	<tab_container name="GodTools Tabs">
 		<panel label="グリッド" name="grid">
-			<button label="この地域(リージョン)のマップの表示キャッシュを消去" label_selected="この地域(リージョン)のマップの表示キャッシュを消去" name="Flush This Region's Map Visibility Caches"/>
+<button label="この地域(リージョン)のマップの表示キャッシュを消去" label_selected="この地域(リージョン)のマップの表示キャッシュを消去" name="Flush This Region's Map Visibility Caches"/>
 		</panel>
 		<panel label="地域(リージョン)" name="region">
 			<text name="Region Name:">
@@ -23,14 +23,14 @@
                 不動産ID:
             </text>
 			<text name="parent id">
-                親ID:
-            </text>
-			<line_editor name="parentestate" tool_tip="これは、この地域(リージョン)の親不動産です。"/>
+親ＩＤ：
+			</text>
+			<line_editor name="parentestate" tool_tip="これは、このリージョンの親不動産です。"/>
 			<text name="Grid Pos: ">
-                グリッド位置:
-            </text>
-			<line_editor name="gridposx" tool_tip="これは、この地域(リージョン)のグリッドX座標です。"/>
-			<line_editor name="gridposy" tool_tip="これは、この地域(リージョン)のグリッドY座標です。"/>
+				グリッド位置：
+			</text>
+			<line_editor name="gridposx" tool_tip="これは、このリージョンのグリッドＸ座標です。"/>
+			<line_editor name="gridposy" tool_tip="これは、このリージョンのグリッドＹ座標です。"/>
 			<text name="Redirect to Grid: ">
                 グリッドにリダイレクト:
             </text>
@@ -42,15 +42,15 @@
             </text>
 			<button label="更新" label_selected="更新" name="Refresh" tool_tip="上記の情報を更新するには、ここをクリックします。"/>
 			<button label="適用" label_selected="適用" name="Apply" tool_tip="上記の変更を適用するには、ここをクリックします。"/>
-			<button label="地域(リージョン)を選択" label_selected="地域を選択" name="Select Region" tool_tip="土地ツールで地域全体を選択してください"/>
-			<button label="直ちに自動保存する" label_selected="直ちに自動保存する" name="Autosave now" tool_tip="Gzipを自動保存ディレクトリに保存します"/>
+<button label="リージョンを選択" label_selected="リージョンを選択" name="Select Region" tool_tip="土地ツールでリージョン全体を選択してください。"/>
+			<button label="ただちに自動保存する" label_selected="ただちに自動保存する" name="Autosave now" tool_tip="Gzip状態を自動保存ディレクトリに保存します。"/>
 		</panel>
 		<panel label="オブジェクト" name="objects">
 			<panel.string name="no_target">
 				(ターゲットなし)
 			</panel.string>
 			<text name="Region Name:">
-                地域(リージョン)名:
+地域(リージョン)名:
             </text>
 			<text name="region name">
                 ウェルシュ
@@ -76,13 +76,13 @@
             </text>
 			<combo_box name="destination">
 				<combo_box.item label="選択" name="item1"/>
-				<combo_box.item label="エージェント地域" name="item2"/>
+				<combo_box.item label="エージェントリージョン" name="item2"/>
 			</combo_box>
 			<text name="Request:">
                 要求:
             </text>
 			<combo_box name="request">
-				<combo_box.item label="コライダー &lt;ステップ&gt;" name="item1"/>
+<combo_box.item label="コライダー &lt;ステップ&gt;" name="item1"/>
 				<combo_box.item label="スクリプト &lt;回数&gt;,&lt;オプション・パターン&gt;" name="item2"/>
 				<combo_box.item label="オブジェクト&lt;パターン&gt;" name="item3"/>
 			</combo_box>

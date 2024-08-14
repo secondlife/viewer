@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="material editor" title="[MATERIAL_NAME]">
+	<string name="no_upload_fee_string">
+		アップロード費用無し
+	</string>
+	<string name="upload_fee_string">
+		アップロード費用L$ [FEE]
+	</string>
+	<string name="material_selection_title">
+		マテリアル選択
+	</string>
+	<string name="material_selection_text">
+		マテリアルを選択：
+	</string>
+	<string name="material_batch_import_text">
+		‐一括アップロード‐
+	</string>
+	<string name="material_override_title">
+		マテリアルの編集
+	</string>
+	<scroll_container name="materials_scroll">
+		<panel name="panel_material"/>
+	</scroll_container>
+	<panel name="button_panel">
+		<text name="unsaved_changes">
+			保存されていない変更があります。
+		</text>
+		<button label="保存" name="save"/>
+		<button label="別名で保存…" name="save_as"/>
+		<text name="total_upload_fee">
+			アップロード費用：L$ [FEE]
+		</text>
+		<view_border name="button_border"/>
+		<button label="キャンセル" name="cancel"/>
+	</panel>
+</floater>

@@ -4,16 +4,16 @@
 		再販可能
 	</floater.string>
 	<floater.string name="can_not_resell">
-		再販不可能
+		再販不可
 	</floater.string>
 	<floater.string name="can_change">
 		統合・再分割可能
 	</floater.string>
 	<floater.string name="can_not_change">
-		統合・再分割不可能
+		統合・再分割不可
 	</floater.string>
 	<floater.string name="cant_buy_for_group">
-		あなたはアクティブなグループ用の土地購入を許可されていません。
+		現在アクティブになっているグループへの土地の購入は許可されていません。
 	</floater.string>
 	<floater.string name="no_land_selected">
 		土地が選択されていません。
@@ -23,7 +23,7 @@
 		これより小さな範囲を選択してください。
 	</floater.string>
 	<floater.string name="no_permission">
-		あなたはアクティブなグループ用の土地購入を許可されていません。
+		現在アクティブになっているグループの土地の購入は許可されていません。
 	</floater.string>
 	<floater.string name="parcel_not_for_sale">
 		選択された区画は販売対象外です。
@@ -38,18 +38,18 @@
 		選択された区画は他の人への販売が決まっています。
 	</floater.string>
 	<floater.string name="no_public_land">
-		選択された地域に、公共の土地はありません。
+		選択されたリージョンに、公共の土地はありません。
 	</floater.string>
 	<floater.string name="not_owned_by_you">
 		他の住人が所有する土地を選択しています。
 		もっと狭い範囲を選択してみてください。
 	</floater.string>
 	<floater.string name="processing">
-		購入処理中...
+購入処理中...
 		(数分かかることがあります)
 	</floater.string>
 	<floater.string name="fetching_error">
-		土地購入の情報入手中にエラーが起きました
+		土地購入の情報入手時にエラーが起きました。
 	</floater.string>
 	<floater.string name="buying_will">
 		この土地を買うと:
@@ -58,7 +58,7 @@
 		グループ用の土地の購入:
 	</floater.string>
 	<floater.string name="cannot_buy_now">
-		現在購入不可:
+現在購入不可:
 	</floater.string>
 	<floater.string name="not_for_sale">
 		販売対象外:
@@ -67,16 +67,16 @@
 		一切必要なし
 	</floater.string>
 	<floater.string name="must_upgrade">
-		アカウントをアップグレードしないと、土地を所有できません
+		アカウントをアップグレードしないと、土地を所有できません。
 	</floater.string>
 	<floater.string name="cant_own_land">
-		あなたのアカウントで土地を所有できます。
+		あなたのアカウントは土地を所有できます。
 	</floater.string>
 	<floater.string name="land_holdings">
-		あなたは[BUYER]m²の土地を所有しています。
+あなたは[BUYER]m²の土地を所有しています。
 	</floater.string>
 	<floater.string name="pay_to_for_land">
-		この土地の代金として、[SELLER]にL$[AMOUNT]を支払う。
+		この土地の代金として、[SELLER]にL$ [AMOUNT]を支払います。
 	</floater.string>
 	<floater.string name="buy_for_US">
 		L$[AMOUNT]を、約[LOCAL_AMOUNT]で購入します。
@@ -91,11 +91,11 @@
 		この土地はディスカウントされています。[AMOUNT]m²の料金がかかります。
 	</floater.string>
 	<floater.string name="meters_supports_object">
-		[AMOUNT]m²
+[AMOUNT]m²
 		オブジェクト [AMOUNT2]個サポート
 	</floater.string>
 	<floater.string name="sold_with_objects">
-		オブジェクト込みで販売
+		オブジェクト込みで販売されています。
 	</floater.string>
 	<floater.string name="sold_without_objects">
 		オブジェクトは含まれていません。
@@ -124,7 +124,7 @@
 		(区画が選定されていません)
 	</floater.string>
 	<text name="region_name_label">
-        地域(リージョン):
+地域(リージョン):
     </text>
 	<text name="region_name_text">
         (不明)
@@ -142,14 +142,14 @@
         (不明)
     </text>
 	<text name="estate_owner_label">
-        不動産所有者:
+不動産所有者:
     </text>
 	<text name="estate_owner_text">
         (不明)
     </text>
 	<text name="resellable_changeable_label">
-        この地域(リージョン)で購入した土地:
-    </text>
+このリージョンで購入した土地：
+	</text>
 	<text name="resellable_clause">
         再販できる場合と、できない場合があります。
     </text>
@@ -167,7 +167,7 @@
         区画:
     </text>
 	<text name="info_size_label">
-        サイズ:
+サイズ:
     </text>
 	<text height="32" name="info_size">
         1024m²
@@ -176,16 +176,16 @@
         価格:
     </text>
 	<text name="info_price">
-        L$1500
-        (L$ 1.1/m²)
-        オブジェクトも土地販売価格に含まれます
-    </text>
+L$ 1500
+（L$ 1.1／㎡）
+オブジェクトも土地販売価格に含まれます。
+	</text>
 	<text name="info_action">
         この土地を買うと:
     </text>
 	<text name="error_message">
-        何か変です。
-    </text>
+何か変です。
+	</text>
 	<button label="Webサイトに移動" name="error_web"/>
 	<text name="account_action">
         プレミアム会員にアップグレード
@@ -199,8 +199,8 @@
 		<combo_box.item label="月額6.00米ドル、年間一括払い" name="US$6.00/month,billedannually"/>
 	</combo_box>
 	<text name="land_use_action">
-        毎月の土地使用料をUS$40に引き上げます
-    </text>
+毎月の土地使用料をUS $40に引き上げます。
+	</text>
 	<text name="land_use_reason">
         あなたは1309m²の土地を所有しています。
         この区画の大きさは512 m²です。

@@ -5,6 +5,6 @@
 	<button label="プロフィールフィードで共有する" name="save_to_profile_btn"/>
 	<button label="メールで送信" name="save_to_email_btn"/>
 	<text name="fee_hint_lbl">
-        料金はサブスクリプションレベルに基づきます。レベルが高くなるほど、料金は安くなります。
-    </text>
+料金はサブスクリプションレベルに基づきます。レベルが高くなるほど料金は安くなります。
+	</text>
 </panel>

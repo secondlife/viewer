@@ -4,7 +4,7 @@
 		[AREA]m²
 	</floater.string>
 	<scroll_list name="parcel list">
-		<scroll_list.columns label="区画" name="name"/>
+<scroll_list.columns label="区画" name="name"/>
 		<scroll_list.columns label="地域(リージョン)" name="location"/>
 		<scroll_list.columns label="タイプ" name="type"/>
 		<scroll_list.columns label="エリア" name="area"/>
@@ -25,13 +25,13 @@
         [AREA]m²
     </text>
 	<text name="current_label">
-        現在の保有地:
-    </text>
+現在の保有面積：
+	</text>
 	<text name="current_text">
         [AREA]m²
     </text>
 	<text name="available_label">
-        購入可能な土地:
+購入可能な土地:
     </text>
 	<text name="available_text">
         [AREA]m²

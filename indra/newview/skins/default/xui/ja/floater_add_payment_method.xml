@@ -8,7 +8,7 @@
             支払い方法を追加してリンデンドルを購入し、Second Lifeをもっと楽しみましょう。
         </text>
 		<button label="始めましょう" name="continue_btn"/>
-		<button label="あとで" name="close_btn"/>
+<button label="あとで" name="close_btn"/>
 		<text name="image_left_desc">
             お気に入りのアバターを作成しましょう。ストアやSecond Lifeマーケットプレイスにある何百万ものアイテムからお選びください。あなただけのスタイルがここにあります。
         </text>

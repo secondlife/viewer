@@ -6,11 +6,18 @@
 	<floater.string name="pick title">
 		ピック:
 	</floater.string>
+	<floater.string name="pick_material">
+		ピック：マテリアル
+	</floater.string>
+	<floater.string name="pick_texture">
+		ピック：テクスチャ
+	</floater.string>
+	<view name="preview_widget"/>
 	<text name="Multiple">
         複数のテクスチャ
     </text>
 	<combo_box name="mode_selection">
-		<combo_box.item label="インベントリ" name="inventory"/>
+<combo_box.item label="インベントリ" name="inventory"/>
 		<combo_box.item label="ローカル" name="local"/>
 		<combo_box.item label="構築する" name="bake"/>
 	</combo_box>
@@ -27,12 +34,13 @@
 	<button label="削除" label_selected="削除" name="l_rem_btn"/>
 	<button label="アップロード" label_selected="アップロード" name="l_upl_btn"/>
 	<scroll_list name="l_name_list">
+
 		<column name="unit_name" label="名前"/>
 	</scroll_list>
 	<combo_box name="l_bake_use_texture_combo_box" tool_tip="構築(ベーク)するテクスチャを選択">
 		<combo_box.item label="なし" name="None"/>
 	</combo_box>
-	<check_box label="基本となるメッシュリージョンを隠す" name="hide_base_mesh_region"/>
+<button label="ＯＫ" label_selected="ＯＫ" name="Select"/>
 	<button label="キャンセル" label_selected="キャンセル" name="Cancel"/>
-	<check_box label="今すぐ適用" name="apply_immediate_check"/>
+	<check_box label="すぐ反映" name="apply_immediate_check"/>
 </floater>

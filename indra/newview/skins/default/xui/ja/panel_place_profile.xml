@@ -7,13 +7,15 @@
 	<string name="allocated" value="割り当て済"/>
 	<string name="title_place" value="場所のプロフィール"/>
 	<string name="title_teleport_history" value="テレポート履歴"/>
-	<string name="not_available" value="(該当なし)"/>
-	<string name="unknown" value="(不明)"/>
-	<string name="public" value="(公開)"/>
-	<string name="none_text" value="(なし)"/>
-	<string name="sale_pending_text" value="(販売処理中)"/>
-	<string name="group_owned_text" value="(グループ所有)"/>
-	<string name="all_residents_text" value="全ての住人"/>
+<string name="not_available" value="（該当なし）"/>
+	<string name="unknown" value="（不明）"/>
+	<string name="public" value="（公開）"/>
+	<string name="none_text" value="（なし）"/>
+	<string name="sale_pending_text" value="（販売処理中）"/>
+	<string name="group_owned_text" value="（グループ所有）"/>
+	<string name="price_text" value="L$"/>
+	<string name="area_text" value="㎡"/>
+	<string name="all_residents_text" value="すべての住人"/>
 	<string name="group_text" value="グループ"/>
 	<string name="can_resell">
 		このリージョンで購入した土地は、再販できます。
@@ -37,13 +39,13 @@
 		この場所の情報はアクセス制限のためご利用いただけません。許可については区画所有者にお問い合わせください。
 	</string>
 	<string name="acquired_date">
-		[year,datetime,local]年[mth,datetime,local]月[day,datetime,local]日([wkday,datetime,local]) [hour,datetime,local]:[min,datetime,local]:[second,datetime,local]
+[year,datetime,local]年[mth,datetime,local]月[day,datetime,local]日([wkday,datetime,local]) [hour,datetime,local]:[min,datetime,local]:[second,datetime,local]
 	</string>
 	<button name="back_btn" tool_tip="戻る"/>
 	<text name="title" value="場所のプロフィール"/>
 	<scroll_container name="place_scroll">
 		<panel name="scrolling_panel">
-			<text name="parcel_title" value="SampleParcel, Name Long (145, 228, 26)"/>
+<text name="parcel_title" value="SampleParcel, Name Long (145, 228, 26)"/>
 			<text name="region_title">
                 地域(リージョン): [REGIONAMEPOS]
             </text>
@@ -53,7 +55,7 @@
 			<accordion name="advanced_info_accordion">
 				<accordion_tab name="parcel_characteristics_tab" title="区画">
 					<panel name="parcel_characteristics_panel">
-						<text name="rating_label" value="レーティング:"/>
+<text name="rating_label" value="レーティング:"/>
 						<text name="rating_value" value="不明"/>
 						<text name="voice_label" value="ボイス:"/>
 						<text name="voice_value" value="オン"/>
@@ -72,7 +74,7 @@
 						<button label="土地情報" name="about_land_btn"/>
 					</panel>
 				</accordion_tab>
-				<accordion_tab name="region_information_tab" title="地域(リージョン)">
+<accordion_tab name="region_information_tab" title="地域(リージョン)">
 					<panel name="region_information_panel">
 						<text name="region_name_label" value="地域(リージョン):"/>
 						<text name="region_type_label" value="種類:"/>
@@ -94,15 +96,24 @@
 				</accordion_tab>
 				<accordion_tab name="sales_tab" title="販売中">
 					<panel name="sales_panel">
-						<text name="sales_price_label" value="価格:"/>
-						<text name="area_label" value="面積:"/>
-						<text name="traffic_label" value="トラフィック:"/>
-						<text name="primitives_label" value="プリム:"/>
-						<text name="parcel_scripts_label" value="スクリプト:"/>
-						<text name="terraform_limits_label" value="地形編集制限:"/>
-						<text name="subdivide_label" value="分割 / 統合許可:"/>
-						<text name="resale_label" value="再版許可:"/>
-						<text name="sale_to_label" value="販売先:"/>
+<text name="sales_price_label" value="価格："/>
+						<text name="sales_price"/>
+						<text name="area_label" value="面積："/>
+						<text name="area"/>
+						<text name="traffic_label" value="トラフィック："/>
+						<text name="traffic"/>
+						<text name="primitives_label" value="プリム数："/>
+						<text name="primitives"/>
+						<text name="parcel_scripts_label" value="スクリプト数："/>
+						<text name="parcel_scripts"/>
+						<text name="terraform_limits_label" value="地形編集制限："/>
+						<text name="terraform_limits"/>
+						<text name="subdivide_label" value="分割／統合可能："/>
+						<text_editor name="subdivide"/>
+						<text name="resale_label" value="再版可能："/>
+						<text_editor name="resale"/>
+						<text name="sale_to_label" value="販売先："/>
+						<text name="sale_to"/>
 					</panel>
 				</accordion_tab>
 			</accordion>

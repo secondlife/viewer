@@ -1,9 +1,16 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <context_menu name="Outfit">
-	<menu_item_call label="着る - このアウトフィットと置換" name="wear_replace"/>
-	<menu_item_call label="着る - このアウトフィットに追加" name="wear_add"/>
-	<menu_item_call label="脱ぐ-このアウトフィットから取り外す" name="take_off"/>
-	<menu_item_call label="画像..." name="thumbnail"/>
+<menu_item_call label="アウトフィットを置き換え" name="wear_replace"/>
+	<menu_item_call label="アウトフィットにアイテムを追加" name="wear_add"/>
+	<menu_item_call label="アウトフィットのアイテムを脱ぐ" name="take_off"/>
+	<menu_item_separator/>
+	<menu_item_call label="画像…" name="thumbnail"/>
+	<menu_item_call label="アウトフィットを編集" name="edit"/>
+	<menu_item_call label="アウトフィットの名前変更" name="rename"/>
+	<menu_item_call label="このアウトフィットを保存" name="save"/>
+	<menu_item_separator/>
+	<menu_item_call label="アウトフィットを削除" name="delete"/>
+	<menu_item_separator/>
 	<menu label="新しい服装" name="New Clothes">
 		<menu_item_call label="新しいシャツ" name="New Shirt"/>
 		<menu_item_call label="新しいズボン" name="New Pants"/>
@@ -24,7 +31,5 @@
 		<menu_item_call label="新しい髪" name="New Hair"/>
 		<menu_item_call label="新しい眼" name="New Eyes"/>
 	</menu>
-	<menu_item_call label="アウトフィットを編集" name="edit"/>
-	<menu_item_call label="アウトフィットの名前変更" name="rename"/>
-	<menu_item_call label="アウトフィットを削除" name="delete"/>
+
 </context_menu>

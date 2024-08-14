@@ -2,7 +2,7 @@
 <panel label="アウトフィット" name="appearance panel">
 	<string name="No Outfit" value="アウトフィットなし"/>
 	<string name="Unsaved Changes" value="保存されていない変更"/>
-	<string name="Now Wearing" value="着用しています..."/>
+<string name="Now Wearing" value="着用しています..."/>
 	<string name="Changing outfits" value="アウトフィットの変更"/>
 	<panel name="panel_currentlook">
 		<text name="currentlook_status">
@@ -13,5 +13,8 @@
         </text>
 		<button name="edit_outfit_btn" tool_tip="このアウトフィットを編集"/>
 	</panel>
-	<filter_editor label="アウトフィットをフィルタ" name="Filter"/>
+	<search_editor label="アウトフィットをフィルタ" name="Filter"/>
+	<panel name="panel_outfits_inventory"/>
+	<panel name="panel_outfit_edit"/>
+	<panel name="panel_edit_wearable"/>
 </panel>

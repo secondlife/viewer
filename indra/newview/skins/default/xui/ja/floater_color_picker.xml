@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="ColorPicker" title="カラーピッカー">
 	<text name="r_val_text">
-        赤:
+赤:
     </text>
 	<text name="g_val_text">
         緑:
@@ -16,14 +16,16 @@
         彩度:
     </text>
 	<text name="l_val_text">
-        輝度:
-    </text>
-	<check_box label="すぐ適用" name="apply_immediate"/>
+輝度：
+	</text>
+	<spinner name="lspin"/>
+	<check_box label="すぐに適用" name="apply_immediate"/>
+	<button label="ＯＫ" label_selected="ＯＫ" name="select_btn"/>
 	<button label="キャンセル" label_selected="キャンセル" name="cancel_btn"/>
 	<text name="Current color:">
-        現在の色:
-    </text>
+		現在の色：
+	</text>
 	<text name="(Drag below to save.)">
-        (下にドラッグして保存)
-    </text>
+		（下にドラッグして保存）
+	</text>
 </floater>

@@ -48,22 +48,23 @@
 		<panel label="グループ" name="groups_panel">
 			<panel name="groups_buttons_panel">
 				<filter_editor label="グループをフィルタ" name="groups_filter_input"/>
-				<menu_button name="groups_gear_btn" tool_tip="選択したグループに対するアクション"/>
-				<menu_button name="groups_view_btn" tool_tip="表示 / ソート オプション"/>
-				<menu_button name="plus_btn" tool_tip="グループに参加 / 新規グループを作成します"/>
-				<dnd_button name="minus_btn" tool_tip="選択したグループから脱退"/>
+<menu_button name="groups_gear_btn" tool_tip="選択したグループに対するアクションを表示します。"/>
+				<menu_button name="groups_view_btn" tool_tip="表示／並べ替えのオプションを表示します。"/>
+				<menu_button name="plus_btn" tool_tip="グループに参加／新規グループを作成します。"/>
+				<dnd_button name="minus_btn" tool_tip="選択したグループから脱退します。"/>
 			</panel>
 			<text name="groupcount">
-                あなたは現在、[COUNT]グループに属しています。あと[REMAINING]グループに参加できます。
-            </text>
+				現在、[COUNT]件のグループに属しています。あと[REMAINING]件のグループに参加できます。
+			</text>
+			<group_list name="group_list"/>
 		</panel>
 		<panel label="最新" name="recent_panel">
-			<panel name="recent_buttons_panel">
-				<filter_editor label="人々をフィルタ" name="recent_filter_input"/>
-				<button name="gear_btn" tool_tip="選択した人に対するアクション"/>
-				<menu_button name="recent_view_btn" tool_tip="表示 / ソート オプション"/>
-				<button name="add_friend_btn" tool_tip="フレンド登録を申し込む"/>
-				<dnd_button name="recent_del_btn" tool_tip="選択されているフレンドを削除"/>
+			<panel label="bottom_panel" name="recent_buttons_panel">
+				<filter_editor label="人物をフィルタ" name="recent_filter_input"/>
+				<button name="gear_btn" tool_tip="選択した人物に対するアクションを表示します。"/>
+				<menu_button name="recent_view_btn" tool_tip="表示／並べ替えのオプションを表示します。"/>
+				<button name="add_friend_btn" tool_tip="フレンド登録を申し込みます。"/>
+				<dnd_button name="recent_del_btn" tool_tip="選択されているフレンドを削除します。"/>
 			</panel>
 		</panel>
 		<panel label="ブロック" name="blocked_panel">

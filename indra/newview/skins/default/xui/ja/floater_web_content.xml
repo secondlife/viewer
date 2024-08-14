@@ -2,7 +2,7 @@
 <floater name="floater_web_content">
 	<layout_stack name="stack1">
 		<layout_panel name="nav_controls">
-			<button tool_tip="前へ" name="back"/>
+<button tool_tip="前へ" name="back"/>
 			<button tool_tip="次へ" name="forward"/>
 			<button tool_tip="ナビゲーションを停止" name="stop"/>
 			<button tool_tip="ページを再読込" name="reload"/>

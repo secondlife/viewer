@@ -19,7 +19,7 @@
 		所有者ができること:
 	</panel.string>
 	<panel.string name="acquiredDate">
-		[year,datetime,local]年[mth,datetime,local]月[day,datetime,local]日([wkday,datetime,local]) [hour,datetime,local]:[min,datetime,local]:[second,datetime,local]
+[year,datetime,local]年[mth,datetime,local]月[day,datetime,local]日([wkday,datetime,local]) [hour,datetime,local]:[min,datetime,local]:[second,datetime,local]
 	</panel.string>
 	<panel.string name="origin_inventory">
 		(インベントリ)
@@ -29,7 +29,7 @@
 	</panel.string>
 	<layout_stack name="main_stack">
 		<layout_panel name="layout_item_name">
-			<line_editor name="LabelItemName" tool_tip="使用できる名前の文字数は最大63文字までです。長いプリム名は短縮されます。名前に使用できる文字はASCII-7(非拡張)に含まれる印字可能な文字のみです(縦線「|」は例外)。"/>
+<line_editor name="LabelItemName" tool_tip="使用できる名前の文字数は最大63文字までです。長いプリム名は短縮されます。名前に使用できる文字はASCII-7(非拡張)に含まれる印字可能な文字のみです(縦線「|」は例外)。"/>
 		</layout_panel>
 		<layout_panel name="layout_item_details">
 			<text name="LabelOwnerTitle">
@@ -69,7 +69,7 @@
 			<check_box label="コピー" name="CheckOwnerCopy"/>
 			<check_box label="再販・譲渡" name="CheckOwnerTransfer"/>
 			<text name="AnyoneLabel">
-                全員:
+全員:
             </text>
 			<check_box label="コピー" name="CheckEveryoneCopy" tool_tip="オブジェクトのコピーは誰でも受け取ることができます。オブジェクトとそのオブジェクトの中身は全てコピーまたは譲渡できるように設定する必要があります。"/>
 			<text name="GroupLabel">

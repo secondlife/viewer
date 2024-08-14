@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <context_menu name="Gallery">
 	<menu_item_call label="共有" name="Share"/>
-	<menu_item_call label="ごみ箱を空に" name="Empty Trash"/>
+<menu_item_call label="ごみ箱を空に" name="Empty Trash"/>
 	<menu_item_call label="遺失物フォルダを空に" name="Empty Lost And Found"/>
 	<menu_item_call label="テレポート" name="Landmark Open"/>
 	<menu_item_call label="このアウトフィットを置換" name="Replace Outfit"/>
@@ -23,7 +23,7 @@
 	<menu_item_call label="コピー" name="Copy"/>
 	<menu_item_call label="ペースト" name="Paste"/>
 	<menu_item_call label="リンクとしてペースト" name="Paste As Link"/>
-	<menu_item_call label="リンクを置換" name="Replace Links"/>
+<menu_item_call label="リンクを置換" name="Replace Links"/>
 	<menu_item_call label="コピー" name="Delete"/>
 	<menu_item_call label="システムフォルダを削除" name="Delete System Folder"/>
 	<menu_item_call label="再生" name="Sound Play"/>

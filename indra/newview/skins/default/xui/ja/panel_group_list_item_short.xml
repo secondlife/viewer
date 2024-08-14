@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="group_list_item">
 	<text name="group_name" value="不明"/>
-	<button name="notices_btn" tool_tip="グループ通知"/>
-	<button name="visibility_hide_btn" tool_tip="プロフィールでグループを非表示にする"/>
-	<button name="visibility_show_btn" tool_tip="プロフィールでグループを表示"/>
-	<button name="info_btn" tool_tip="詳細情報"/>
-	<button name="profile_btn" tool_tip="プロフィールの表示"/>
+<button name="notices_btn" tool_tip="グループからの通知を表示します。"/>
+	<button name="visibility_hide_btn" tool_tip="プロフィールにグループを表示しないようにします。"/>
+	<button name="visibility_show_btn" tool_tip="プロフィールにグループを表示するようにします。"/>
+	<button name="info_btn" tool_tip="詳細情報を表示します。"/>
+	<button name="profile_btn" tool_tip="プロフィールを表示します。"/>
 </panel>

@@ -37,7 +37,7 @@
 		[NUMBER]人
 	</panel.string>
 	<text label="北" name="floater_map_north">
-        北
+北
     </text>
 	<text label="東" name="floater_map_east">
         東

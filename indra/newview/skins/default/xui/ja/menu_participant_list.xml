@@ -3,7 +3,7 @@
 	<menu_item_check label="名前でソート" name="SortByName"/>
 	<menu_item_check label="最近の発言者でソート" name="SortByRecentSpeakers"/>
 	<menu_item_call label="プロフィールの表示" name="View Profile"/>
-	<menu_item_call label="フレンド登録" name="Add Friend"/>
+<menu_item_call label="フレンド登録" name="Add Friend"/>
 	<menu_item_call label="呼び出し" name="Call"/>
 	<menu_item_call label="共有" name="Share"/>
 	<menu_item_call label="支払う" name="Pay"/>

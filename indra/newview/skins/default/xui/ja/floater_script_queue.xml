@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="queue" title="進行をリセット">
 	<floater.string name="Starting">
-		[COUNT]アイテムの [START] を開始します。
+[COUNT]件の項目の[START]を開始します。
 	</floater.string>
 	<floater.string name="Done">
 		完了。
 	</floater.string>
 	<floater.string name="Resetting">
-		リセット中
+		リセットしています…
 	</floater.string>
 	<floater.string name="Running">
 		実行中
@@ -19,7 +19,7 @@
 		タイムアウト: [OBJECT_NAME]
 	</floater.string>
 	<floater.string name="LoadingObjInv">
-		次のインベントリを読込中: [OBJECT_NAME]
+次のインベントリを読込中: [OBJECT_NAME]
 	</floater.string>
 	<button label="閉じる" label_selected="閉じる" name="close"/>
 </floater>

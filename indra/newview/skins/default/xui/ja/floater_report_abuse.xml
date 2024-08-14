@@ -4,23 +4,27 @@
 		スクリーンショット
 	</floater.string>
 	<floater.string name="chat_report_format">
-		時間: [MSG_TIME]
-		テキスト: [MSG_DESCRIPTION]
+時間：[MSG_TIME]
+説明：[MSG_DESCRIPTION]
 	</floater.string>
+	<texture_picker name="screenshot"/>
 	<text name="reporter_title">
-        報告者:
-    </text>
+		報告者：
+	</text>
+	<text name="reporter_field">
+		いろはにほへと　ちりぬるを　わかよたれそ　つねならむ
+	</text>
 	<text name="sim_title">
-        地域(リージョン):
-    </text>
+		リージョン：
+	</text>
 	<text name="sim_field">
-        地域(リージョン)名
-    </text>
+		リージョン名
+	</text>
 	<text name="pos_title">
         位置:
     </text>
 	<text name="select_object_label">
-        ボタンをクリックしてから、悪意のあるオブジェクトをクリック:
+ボタンをクリックしてから、悪意のあるオブジェクトをクリック:
     </text>
 	<button name="pick_btn" tool_tip="オブジェクトピッカー - 報告対象のオブジェクトを選択してください"/>
 	<text name="object_name_label">
@@ -63,8 +67,8 @@
         できるだけ具体的に詳しく記入してください。
     </text>
 	<text name="incomplete_title">
-        * 不完全な報告は調査対象になりません。
-    </text>
-	<button label="嫌がらせの報告" label_selected="嫌がらせの報告" name="send_btn"/>
+※不完全な報告は調査対象になりません。
+	</text>
+	<button label="嫌がらせを報告する" label_selected="嫌がらせを報告する" name="send_btn"/>
 	<button label="キャンセル" label_selected="キャンセル" name="cancel_btn"/>
 </floater>

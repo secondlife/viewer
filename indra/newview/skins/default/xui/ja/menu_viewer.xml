@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <menu_bar name="Main Menu">
-	<menu label="ミー" name="Me">
+<menu label="ミー" name="Me">
 		<menu_item_call label="プロフィール..." name="Profile"/>
 		<menu_item_check label="インベントリ..." name="Inventory"/>
 		<menu_item_call label="新規インベントリウィンドウ" name="NewInventoryWindow"/>
@@ -44,6 +44,7 @@
 			</menu>
 			<menu label="取り外す" name="Avatar Detach"/>
 			<menu_item_call label="全てを取り外す" name="Detach All"/>
+			<menu_item_call label="選択された装着物を取り外す" name="Remove Selected Attachments"/>
 		</menu>
 		<menu_item_call label="選択した装着物を削除" name="Remove Selected Attachments"/>
 		<menu_item_call label="アバターを選択..." name="Avatar Picker"/>
@@ -59,18 +60,20 @@
 		<menu_item_call label="アバターに関するヘルプ..." name="Help with avatars"/>
 	</menu>
 	<menu label="コミュニケーション" name="Communicate">
-		<menu_item_check label="会話..." name="Conversations"/>
-		<menu_item_check label="近隣チャット..." name="Nearby Chat"/>
+<menu_item_check label="会話…" name="Conversations"/>
+		<menu_item_check label="近くのチャット…" name="Nearby Chat"/>
 		<menu_item_check label="ボイスチャット" name="Speak"/>
-		<menu_item_check name="Conversation Log..." label="会話ログ…"/>
+		<menu_item_check label="会話ログ…" name="Conversation Log..."/>
 		<menu_item_separator/>
+
 		<menu_item_check label="ジェスチャー…" name="Gestures"/>
 		<menu_item_separator/>
 		<menu_item_check label="フレンド" name="My Friends"/>
 		<menu_item_check label="グループ" name="My Groups"/>
-		<menu_item_check label="近隣の人々" name="Active Speakers"/>
-		<menu_item_check label="リストをブロック" name="Block List"/>
-		<menu_item_check name="Do Not Disturb" label="着信拒否"/>
+<menu_item_check label="近くの人物" name="Active Speakers"/>
+		<menu_item_check label="ブロックリスト" name="Block List"/>
+		<menu_item_separator/>
+		<menu_item_check label="取り込み中" name="Do Not Disturb"/>
 	</menu>
 	<menu label="ワールド" name="World">
 		<menu_item_call label="現在地をランドマーク" name="Create Landmark Here"/>
@@ -82,33 +85,38 @@
 		<menu_item_call label="ホームにテレポート" name="Teleport Home"/>
 		<menu_item_call label="現在地をホームに設定" name="Set Home to Here"/>
 		<menu_item_call label="スナップショット" name="Take Snapshot"/>
-		<menu_item_call label="360度スナップショット" name="Capture 360"/>
+<menu_item_call label="360度スナップショット" name="Capture 360"/>
 		<menu label="ズームレベル" name="Zoom menu">
 			<menu_item_call label="ズームアウト" name="Zoom Out"/>
 			<menu_item_call label="デフォルト" name="Zoom Default"/>
 			<menu_item_call label="ズームイン" name="Zoom In"/>
 		</menu>
+<menu_item_separator/>
 		<menu_item_call label="場所のプロフィール" name="Place Profile"/>
 		<menu_item_call label="土地情報" name="About Land"/>
-		<menu_item_call label="地域(リージョン) / 不動産" name="RegionEstate"/>
-		<menu_item_call label="自分のLindenホーム..." name="Linden Home"/>
-		<menu_item_call label="自分の所有地..." name="My Land"/>
+		<menu_item_call label="リージョン／不動産" name="RegionEstate"/>
+		<menu_item_call label="自分のLindenホーム…" name="Linden Home"/>
+		<menu_item_call label="自分の所有地…" name="My Land"/>
 		<menu_item_call label="この土地を購入" name="Buy Land"/>
 		<menu label="表示" name="LandShow">
-			<menu_item_check label="バンラインを非表示" name="Hide Ban Lines"/>
-			<menu_item_check label="衝突時に禁止ラインを表示" name="Show Ban Lines On Collision"/>
-			<menu_item_check label="接近時に禁止ラインを表示" name="Show Ban Lines On Proximity"/>
+<menu_item_check label="バンラインを隠す" name="Hide Ban Lines"/>
+			<menu_item_check label="バンラインにぶつかったときに表示" name="Show Ban Lines On Collision"/>
+			<menu_item_check label="バンラインに近づいたときに表示" name="Show Ban Lines On Proximity"/>
+			<menu_item_separator/>
 			<menu_item_check label="ビーコン" name="beacons"/>
 			<menu_item_check label="敷地境界線" name="Property Lines"/>
 			<menu_item_check label="土地所有者" name="Land Owners"/>
 			<menu_item_check label="座標" name="Coordinates"/>
 			<menu_item_check label="区画のプロパティ" name="Parcel Properties"/>
-			<menu_item_check label="拡張メニュー" name="Show Advanced Menu"/>
+<menu_item_separator/>
+			<menu_item_check label="高度な操作メニュー" name="Show Advanced Menu"/>
 		</menu>
-		<menu_item_check label="グラフィック性能の最適化..." name="Performance"/>
-		<menu label="景観" name="Environment">
-			<menu_item_check label="日の出" name="Sunrise"/>
+		<menu_item_check label="グラフィック性能の最適化…" name="Performance"/>
+		<menu_item_separator/>
+		<menu label="自然環境" name="Environment">
+			<menu_item_check label="夜明け" name="Sunrise"/>
 			<menu_item_check label="正午" name="Noon"/>
+			<menu_item_check label="正午（レガシー）" name="legacy noon"/>
 			<menu_item_check label="夕方" name="Sunset"/>
 			<menu_item_check label="深夜" name="Midnight"/>
 			<menu_item_check label="共有された景観を使用" name="Use Shared Environment"/>
@@ -117,9 +125,9 @@
 			<menu_item_check label="雲の動きを一時停止" name="pause_clouds"/>
 		</menu>
 	</menu>
-	<menu label="制作" name="BuildTools">
-		<menu_item_check label="制作" name="Show Build Tools"/>
-		<menu label="制作ツールを選択する" name="Select Tool">
+	<menu label="ビルド" name="BuildTools">
+		<menu_item_check label="ビルド" name="Show Build Tools"/>
+		<menu label="ビルドツールを選択する" name="Select Tool">
 			<menu_item_call label="フォーカスツール" name="Focus"/>
 			<menu_item_call label="移動ツール" name="Move"/>
 			<menu_item_call label="編集ツール" name="Edit"/>
@@ -135,7 +143,7 @@
 			<menu_item_call label="次のパーツまたは面を含める" name="Include Next Part or Face"/>
 			<menu_item_call label="前のパーツまたは面を含める" name="Include Previous Part or Face"/>
 		</menu>
-		<menu_item_call label="地域(リージョン)オブジェクト" name="pathfinding_linkset_menu_item"/>
+<menu_item_call label="地域(リージョン)オブジェクト" name="pathfinding_linkset_menu_item"/>
 		<menu_item_call label="選択をフォーカス" name="Focus on Selection"/>
 		<menu_item_call label="選択をズーム" name="Zoom to Selection"/>
 		<menu label="オブジェクト" name="Object">
@@ -147,7 +155,7 @@
 			<menu_item_call label="複製" name="DuplicateObject"/>
 		</menu>
 		<menu label="スクリプト" name="Scripts">
-			<menu_item_check label="スクリプトの警告 / エラー..." name="Script debug"/>
+<menu_item_check label="スクリプトの警告 / エラー..." name="Script debug"/>
 			<menu_item_call label="スクリプトの再コンパイル(Mono)" name="Mono"/>
 			<menu_item_call label="スクリプトの再コンパイル(LSL)" name="LSL"/>
 			<menu_item_call label="スクリプトをリセット" name="Reset Scripts"/>
@@ -155,17 +163,20 @@
 			<menu_item_call label="スクリプトを実行停止にする" name="Set Scripts to Not Running"/>
 		</menu>
 		<menu label="経路探索" name="Pathfinding">
-			<menu_item_call label="地域(リージョン)のオブジェクト" name="pathfinding_linksets_menu_item"/>
-			<menu_item_call label="キャラクター..." name="pathfinding_characters_menu_item"/>
-			<menu_item_call label="表示 / テスト..." name="pathfinding_console_menu_item"/>
-			<menu_item_call label="地域(リージョン)の再構築" name="pathfinding_rebake_navmesh_item"/>
+<menu_item_call label="リージョンのオブジェクト" name="pathfinding_linksets_menu_item"/>
+			<menu_item_call label="キャラクター…" name="pathfinding_characters_menu_item"/>
+			<menu_item_call label="表示／テスト…" name="pathfinding_console_menu_item"/>
+			<menu_item_call label="リージョンの再構築" name="pathfinding_rebake_navmesh_item"/>
 		</menu>
 		<menu label="オプション" name="Options">
 			<menu_item_check label="権限の詳細を表示" name="DebugPermissions"/>
 			<menu_item_check label="自分のオブジェクトだけを選択する" name="Select Only My Objects"/>
 			<menu_item_check label="動的オブジェクトだけを選択する" name="Select Only Movable Objects"/>
+			<menu_item_check label="非表示のオブジェクトを選択する" name="Select Invisible Objects"/>
+			<menu_item_check label="反射プローブを選択する" name="Select Reflection Probes"/>
+			<menu_item_check label="プローブの更新" name="Probe Updates"/>
 			<menu_item_check label="範囲内を選択する" name="Select By Surrounding"/>
-			<menu_item_check label="選択外形を表示" name="Show Selection Outlines"/>
+<menu_item_check label="選択外形を表示" name="Show Selection Outlines"/>
 			<menu_item_check label="隠れた位置の選択も表示" name="Show Hidden Selection"/>
 			<menu_item_check label="選択した光の効果範囲を表示" name="Show Light Radius for Selection"/>
 			<menu_item_check label="選択ビームを表示" name="Show Selection Beam"/>
@@ -189,7 +200,7 @@
 		<menu_item_call label="ガイドブック" name="How To"/>
 		<menu_item_call label="ナレッジベース" name="Knowledge Base"/>
 		<menu_item_call label="コミュニティフォーラム" name="Community Forums"/>
-		<menu_item_call label="日本語サポートページ" name="Support portal"/>
+<menu_item_call label="日本語サポートページ" name="Support portal"/>
 		<menu_item_call label="[SECOND_LIFE] ニュース" name="Second Life News"/>
 		<menu_item_call label="[SECOND_LIFE] ブログ" name="Second Life Blogs"/>
 		<menu_item_call label="嫌がらせの報告" name="Report Abuse"/>
@@ -216,23 +227,28 @@
 			<menu_item_check label="パーティクルを非表示" name="Hide Particles"/>
 			<menu_item_check label="選択を非表示" name="Hide Selected"/>
 			<menu_item_check label="透明部分をハイライト" name="Highlight Transparent"/>
-			<menu_item_check label="一人称視点のときに十字線を表示" name="ShowCrosshairs"/>
+<menu_item_check label="一人称視点のときに十字線を表示" name="ShowCrosshairs"/>
 		</menu>
 		<menu label="レンダリング種別" name="Rendering Types">
 			<menu_item_check label="シンプル" name="Rendering Type Simple"/>
+			<menu_item_check label="マテリアル" name="Rendering Type Materials"/>
+			<menu_item_check label="アルファマスク" name="Rendering Type Alpha Mask"/>
+			<menu_item_check label="明るさ全開のアルファマスク" name="Rendering Type Fullbright Alpha Mask"/>
+			<menu_item_check label="グロー" name="Rendering Type Glow"/>
+			<menu_item_check label="明るさ全開" name="Rendering Type Glow"/>
 			<menu_item_check label="アルファ" name="Rendering Type Alpha"/>
-			<menu_item_check label="木" name="Rendering Type Tree"/>
+			<menu_item_check label="樹木" name="Rendering Type Tree"/>
 			<menu_item_check label="アバター" name="Rendering Type Character"/>
 			<menu_item_check label="アニメッシュ" name="Rendering Type Control Avatar"/>
 			<menu_item_check label="サーフェスパッチ" name="Rendering Type Surface Patch"/>
 			<menu_item_check label="空" name="Rendering Type Sky"/>
 			<menu_item_check label="水面" name="Rendering Type Water"/>
-			<menu_item_check label="地面" name="Rendering Type Ground"/>
 			<menu_item_check label="ボリューム" name="Rendering Type Volume"/>
 			<menu_item_check label="草" name="Rendering Type Grass"/>
 			<menu_item_check label="雲" name="Rendering Type Clouds"/>
 			<menu_item_check label="パーティクル" name="Rendering Type Particles"/>
 			<menu_item_check label="衝突" name="Rendering Type Bump"/>
+			<menu_item_check label="ＰＢＲ" name="Rendering Type PBR"/>
 		</menu>
 		<menu label="レンダリング機能" name="Rendering Features">
 			<menu_item_check label="選択済" name="Selected"/>
@@ -243,7 +259,7 @@
 			<menu_item_check label="FRInfoのテスト" name="Test FRInfo"/>
 			<menu_item_check label="フレキシブルオブジェクト" name="Flexible Objects"/>
 		</menu>
-		<menu_item_check label="プラグイン読み取りスレッドを使用" name="Use Plugin Read Thread"/>
+		<menu_item_check label="プラグイン読み取りスレッドの使用" name="Use Plugin Read Thread"/>
 		<menu_item_call label="グループキャッシュのクリア" name="ClearGroupCache"/>
 		<menu_item_check label="マウスの平滑化" name="Mouse Smoothing"/>
 		<menu_item_call label="リリースキー" name="Release Keys"/>
@@ -264,17 +280,18 @@
 			<menu_item_check label="テクスチャのコンソール" name="Texture Console"/>
 			<menu_item_check label="デバッグコンソール" name="Debug Console"/>
 			<menu_item_call label="通知コンソール" name="Notifications"/>
-			<menu_item_check label="地域(リージョン)デバッグコンソール" name="Region Debug Console"/>
+<menu_item_check label="リージョンのデバッグコンソール" name="Region Debug Console"/>
 			<menu_item_check label="ファーストタイマー" name="Fast Timers"/>
 			<menu_item_check label="メモリ" name="Memory"/>
 			<menu_item_check label="シーンの統計" name="Scene Statistics"/>
-			<menu_item_check label="シーンの読込モニター" name="Scene Loading Monitor"/>
-			<menu_item_call label="テクスチャ取得デバッグコンソール" name="Texture Fetch Debug Console"/>
+			<menu_item_check label="シーンの読み込みモニター" name="Scene Loading Monitor"/>
+			<menu_item_separator/>
 			<menu_item_call label="リージョン情報をデバッグコンソールへ" name="Region Info to Debug Console"/>
 			<menu_item_call label="グループ情報をデバッグコンソールへ" name="Group Info to Debug Console"/>
 			<menu_item_call label="性能情報をデバッグコンソールへ" name="Capabilities Info to Debug Console"/>
 			<menu_item_check label="カメラ" name="Camera"/>
 			<menu_item_check label="風" name="Wind"/>
+
 			<menu_item_check label="バッジ" name="Badge"/>
 		</menu>
 		<menu label="情報を表示" name="Display Info">
@@ -290,31 +307,34 @@
 		</menu>
 		<menu label="エラー実行" name="Force Errors">
 			<menu_item_call label="ブレークポイント" name="Force Breakpoint"/>
-			<menu_item_call label="LLErrorでクラッシュを発生させる" name="Force LLError And Crash"/>
+<menu_item_call label="LLErrorでクラッシュを発生させる" name="Force LLError And Crash"/>
 			<menu_item_call label="バッドメモリアクセスを実行する" name="Force Bad Memory Access"/>
 			<menu_item_call label="コルーチン内で不正なメモリアクセスを発生させる" name="Force Bad Memory Access in Coroutine"/>
-			<menu_item_call label="無限ループ" name="Force Infinite Loop"/>
+			<menu_item_call label="無限ループを発生させる" name="Force Infinite Loop"/>
 			<menu_item_call label="ドライバのクラッシュを発生させる" name="Force Driver Carsh"/>
 			<menu_item_call label="ソフトウェア例外エラーの発生させる" name="Force Software Exception"/>
+			<menu_item_call label="ＯＳの例外を発生させる" name="Force OS Exception"/>
 			<menu_item_call label="コルーチン内でクラッシュを発生させる" name="Force a Crash in a Coroutine"/>
 			<menu_item_call label="スレッド内でクラッシュを発生させる" name="Force a Crash in a Thread"/>
-			<menu_item_call label="ビュアの接続遮断を実行する" name="Force Disconnect Viewer"/>
-			<menu_item_call label="メモリリークのシミュレート" name="Memory Leaking Simulation"/>
+<menu_item_call label="ビューアの接続遮断を実行する" name="Force Disconnect Viewer"/>
+			<menu_item_call label="メモリリークをシミュレートする" name="Memory Leaking Simulation"/>
 		</menu>
 		<menu label="描画テスト" name="Render Tests">
 			<menu_item_check label="カメラのオフセット" name="Camera Offset"/>
 			<menu_item_check label="フレームレートをランダム化" name="Randomize Framerate"/>
 			<menu_item_check label="周期的な遅いフレーム" name="Periodic Slow Frame"/>
-			<menu_item_check label="フレームテスト" name="Frame Test"/>
-			<menu_item_call label="フレームプロフィール" name="Frame Profile"/>
+<menu_item_call label="フレームのプロフィール" name="Frame Profile"/>
 			<menu_item_call label="ベンチマーク" name="Benchmark"/>
+			<menu_item_call label="ＨＤＲＩプレビュー" name="HDRI Preview"/>
+			<menu_item_call label="ＧＬＴＦシーンプレビュー" name="GLTF Scene Preview"/>
 		</menu>
 		<menu label="メタデータの描画" name="Render Metadata">
 			<menu_item_check label="バウンディングボックス" name="Bounding Boxes"/>
 			<menu_item_check label="法線" name="Normals"/>
 			<menu_item_check label="八分木" name="Octree"/>
+			<menu_item_check label="ＧＬＴＦノード" name="GLTF Nodes"/>
 			<menu_item_check label="シャドウ円錐" name="Shadow Frusta"/>
-			<menu_item_check label="物理シェイプ" name="Physics Shapes"/>
+<menu_item_check label="物理シェイプ" name="Physics Shapes"/>
 			<menu_item_check label="オクルージョン" name="Occlusion"/>
 			<menu_item_check label="バッチの描画" name="Render Batches"/>
 			<menu_item_check label="タイプを更新" name="Update Type"/>
@@ -322,18 +342,19 @@
 			<menu_item_check label="テクスチャ優先度" name="Texture Priority"/>
 			<menu_item_check label="テクスチャの範囲" name="Texture Area"/>
 			<menu_item_check label="側面" name="Face Area"/>
-			<menu_item_check label="LOD情報" name="LOD Info"/>
+<menu_item_check label="ＬｏＤ情報" name="LOD Info"/>
 			<menu_item_check label="三角形の数" name="Triangle Count"/>
-			<menu_item_check label="制作キュー" name="Build Queue"/>
-			<menu_item_check label="光" name="Lights"/>
+			<menu_item_check label="光源" name="Lights"/>
+			<menu_item_check label="反射プローブ" name="Reflection Probes"/>
+			<menu_item_check label="プローブの更新" name="Probe Updates"/>
 			<menu_item_check label="パーティクル" name="Particles"/>
-			<menu_item_check label="骨組みの衝突判定" name="Collision Skeleton"/>
+			<menu_item_check label="スケルトンの衝突判定" name="Collision Skeleton"/>
 			<menu_item_check label="ジョイント" name="Joints"/>
 			<menu_item_check label="レイキャスト" name="Raycast"/>
 			<menu_item_check label="風のベクトル" name="Wind Vectors"/>
-			<menu_item_check label="彫刻" name="Sculpt"/>
+			<menu_item_check label="スカルプト" name="Sculpt"/>
 			<menu label="テクスチャの密度" name="Texture Density">
-				<menu_item_check label="なし" name="None"/>
+<menu_item_check label="なし" name="None"/>
 				<menu_item_check label="現在" name="Current"/>
 				<menu_item_check label="望ましい" name="Desired"/>
 				<menu_item_check label="フル" name="Full"/>
@@ -346,23 +367,25 @@
 			<menu_item_call label="選択したマテリアルの情報" name="Selected Material Info"/>
 			<menu_item_check label="ワイヤーフレーム" name="Wireframe"/>
 			<menu_item_check label="オブジェクト間のオクルージョン" name="Object-Object Occlusion"/>
-			<menu_item_check label="高度な光源モデル" name="Advanced Lighting Model"/>
-			<menu_item_check label="太陽 / 月 / プロジェクタからの影" name="Shadows from Sun/Moon/Projectors"/>
-			<menu_item_check label="SSAOと影の平滑化" name="SSAO and Shadow Smoothing"/>
-			<menu_item_check label="次回起動時にGLをデバッグ" name="Debug GL"/>
+<menu_item_separator/>
+			<menu_item_check label="　太陽・月・プロジェクタからの影" name="Shadows from Sun/Moon/Projectors"/>
+			<menu_item_check label="　ＳＳＡＯと影のスムージング" name="SSAO and Shadow Smoothing"/>
+			<menu_item_separator/>
+			<menu_item_check label="次回起動時にＧＬをデバッグ" name="Debug GL"/>
 			<menu_item_check label="パイプラインをデバッグ" name="Debug Pipeline"/>
 			<menu_item_check label="自動アルファマスク(遅延)" name="Automatic Alpha Masks (deferred)"/>
 			<menu_item_check label="自動アルファマスク(遅延なし)" name="Automatic Alpha Masks (non-deferred)"/>
 			<menu_item_check label="アニメーションテクスチャ" name="Animation Textures"/>
 			<menu_item_check label="テクスチャを無効にする" name="Disable Textures"/>
-			<menu_item_check label="アンビエントを無効にする" name="Disable Ambient"/>
-			<menu_item_check label="日の光を無効にする" name="Disable Sunlight"/>
-			<menu_item_check label="近くの光を無効にする" name="Disable Local Lights"/>
 			<menu_item_check label="フル解像度テクスチャ" name="Rull Res Textures"/>
-			<menu_item_check label="装着された光源を描画" name="Render Attached Lights"/>
-			<menu_item_check label="装着されたパーティクルを描画" name="Render Attached Particles"/>
-			<menu_item_check label="マウスオーバーで強調表示する" name="Hover Glow Objects"/>
-			<menu_item_call label="キャッシュをすぐにクリア" name="Cache Clear"/>
+<menu_item_check label="装着された光源を描画する" name="Render Attached Lights"/>
+			<menu_item_check label="取り付けられたパーティクルを描画する" name="Render Attached Particles"/>
+			<menu_item_separator/>
+			<menu_item_check label="シェーダーキャッシュを有効化" name="Enable Shader Cache"/>
+			<menu_item_call label="シェーダーキャッシュをクリア" name="Shader Cache Clear"/>
+			<menu_item_call label="地形を再構築" name="Rebuild Terrain"/>
+			<menu_item_separator/>
+			<menu_item_call label="キャッシュを直ちにクリア" name="Cache Clear"/>
 		</menu>
 		<menu label="ネットワーク" name="Network">
 			<menu_item_check label="エージェントを一時停止する" name="AgentPause"/>
@@ -390,21 +413,24 @@
 			<menu_item_check label="シムの太陽の設定を無視する" name="Sim Sun Override"/>
 			<menu_item_check label="固定された天気" name="Fixed Weather"/>
 			<menu_item_call label="リージョンオブジェクトのキャッシュをダンプ" name="Dump Region Object Cache"/>
-			<menu_item_check label="統計情報をファイルに記録" name="Stats Recorder File"/>
-			<menu_item_check label="インタレストリスト360度モード" name="Interest List: 360 Mode"/>
-			<menu_item_call label="インタレストリストをリセット" name="Reset Interest Lists"/>
+<menu_item_check label="レコード状況をファイルに保存" name="Stats Recorder File"/>
+			<menu_item_check label="関心リスト：３６０モード" name="Interest List: 360 Mode"/>
+			<menu_item_call label="関心リストをリセット" name="Reset Interest Lists"/>
 		</menu>
 		<menu name="UI">
 			<menu_item_call label="メディアブラウザ" name="Media Browser"/>
+
 			<menu_item_call label="SelectMgrをダンプ" name="Dump SelectMgr"/>
 			<menu_item_call label="インベントリの出力" name="Dump Inventory"/>
 			<menu_item_call label="タイマーをダンプ" name="Dump Timers"/>
-			<menu_item_call label="フォーカスホールダーをダンプ" name="Dump Focus Holder"/>
+			<menu_item_call label="フォーカスホルダーをダンプ" name="Dump Focus Holder"/>
 			<menu_item_call label="選択したオブジェクト情報をプリント" name="Print Selected Object Info"/>
 			<menu_item_call label="エージェント情報をプリント" name="Print Agent Info"/>
 			<menu_item_check label="SelectMgrのデバッグ" name="Debug SelectMgr"/>
 			<menu_item_check label="ダブルクリック" name="Debug Clicks"/>
 			<menu_item_check label="デバッグ表示" name="Debug Views"/>
+			<menu_item_check label="Unicodeのデバッグ" name="Debug Unicode"/>
+			<menu_item_check label="カメラ操作のデバッグ" name="Debug Camera Controls"/>
 			<menu_item_check label="デバッグ名ツールチップ" name="Debug Name Tooltips"/>
 			<menu_item_check label="マウスイベントのデバッグ" name="Debug Mouse Events"/>
 			<menu_item_check label="デバッグキー" name="Debug Keys"/>
@@ -425,36 +451,40 @@
 				<menu_item_call label="下半身" name="Grab Lower Body"/>
 				<menu_item_call label="スカート" name="Grab Skirt"/>
 			</menu>
-			<menu label="キャラクター・テスト" name="Character Tests">
+<menu label="キャラクター・テスト" name="Character Tests">
 				<menu_item_call label="容姿をXMLに保存する" name="Appearance To XML"/>
 				<menu_item_call label="キャラクタジオメトリの切り替え" name="Toggle Character Geometry"/>
 				<menu_item_call label="男性アバターのテスト" name="Test Male"/>
 				<menu_item_call label="女性アバターのテスト" name="Test Female"/>
-				<menu_item_check label="選択アバター許可" name="Allow Select Avatar"/>
+				<menu_item_check label="アバター選択を許可" name="Allow Select Avatar"/>
 			</menu>
 			<menu label="アニメーションの速度" name="Animation Speed">
-				<menu_item_call label="全てのアニメーションを10%速く" name="All Animations 10 Faster"/>
-				<menu_item_call label="全てのアニメーションを10%遅く" name="All Animations 10 Slower"/>
-				<menu_item_call label="全てのアニメーションの速度をリセット" name="Reset All Animation Speed"/>
-				<menu_item_check label="アニメーションをスローモーション" name="Slow Motion Animations"/>
+<menu_item_call label="すべてのアニメーションを１０％速く" name="All Animations 10 Faster"/>
+				<menu_item_call label="すべてのアニメーションを１０％遅く" name="All Animations 10 Slower"/>
+				<menu_item_call label="すべてのアニメーションの速度をリセット" name="Reset All Animation Speed"/>
+				<menu_item_check label="アニメーションをスローモーションにする" name="Slow Motion Animations"/>
 			</menu>
 			<menu_item_call label="パラメータを強制的にデフォルトにする" name="Force Params to Default"/>
 			<menu_item_check label="アニメーション情報" name="Animation Info"/>
-			<menu_item_check label="見ているものを表示" name="Show Look At"/>
-			<menu_item_check label="クリックした場所を表示" name="Show Point At"/>
-			<menu_item_check label="結合部のアップデートのデバッグ" name="Debug Joint Updates"/>
-			<menu_item_check label="LODを無効にする" name="Disable LOD"/>
+			<menu_item_check label="見えているものを表示する" name="Show Look At"/>
+			<menu_item_check label="クリックした場所を表示する" name="Show Point At"/>
+			<menu_item_check label="ジョイント部分の更新のデバッグ" name="Debug Joint Updates"/>
+			<menu_item_check label="ＬｏＤを無効にする" name="Disable LOD"/>
 			<menu_item_check label="キャラクターVisのデバッグ" name="Debug Character Vis"/>
 			<menu_item_check label="スケルトンの衝突判定を表示" name="Show Collision Skeleton"/>
 			<menu_item_check label="ボーンを表示" name="Show Bones"/>
 			<menu_item_check label="エージェントの目標を表示する" name="Display Agent Target"/>
 			<menu_item_check label="インポスターの範囲を表示" name="Show Impostor Extents"/>
+			<!-- Appears not to exist anymore
+			<menu_item_check label="回転をデバッグ" name="Debug Rotation"/>
+			-->
 			<menu_item_call label="装着物のダンプ" name="Dump Attachments"/>
 			<menu_item_call label="アバターのテクスチャをデバッグ" name="Debug Avatar Textures"/>
 			<menu_item_call label="ローカルテクスチャをダンプ" name="Dump Local Textures"/>
 		</menu>
-		<menu_item_check label="HTTPテスクチャ" name="HTTP Textures"/>
+<menu_item_check label="HTTPテスクチャ" name="HTTP Textures"/>
 		<menu_item_call label="圧縮画像" name="Compress Images"/>
+		<menu_item_check label="ＨＴＴＰテクスチャ" name="HTTP Textures" />
 		<menu_item_call label="圧縮ファイルテスト" name="Compress File Test"/>
 		<menu_item_call label="Visual Leak Detectorを有効にする" name="Enable Visual Leak Detector"/>
 		<menu_item_check label="デバッグ用のミニダンプを出力する" name="Output Debug Minidump"/>
@@ -484,7 +514,7 @@
 			<menu_item_call label="Lindenのコンテンツに設定する" name="Set to Linden Content"/>
 			<menu_item_call label="パブリックの土地を取得する" name="Claim Public Land"/>
 		</menu>
-		<menu label="地域(リージョン)" name="Region">
+<menu label="地域(リージョン)" name="Region">
 			<menu_item_call label="一時アセットデータのダンプ" name="Dump Temp Asset Data"/>
 			<menu_item_call label="リージョンの状態を保存する" name="Save Region State"/>
 		</menu>
@@ -510,7 +540,7 @@
 			<menu_item_call label="全ての服装" name="All Clothes"/>
 		</menu>
 		<menu label="ヘルプ" name="DeprecatedHelp">
-			<menu_item_call label="リンデン公式ブログ" name="Official Linden Blog"/>
+			<menu_item_call label="Linden公式ブログ" name="Official Linden Blog"/>
 			<menu_item_call label="スクリプトポータル" name="Scripting Portal"/>
 			<menu label="バグ報告" name="Bug Reporting">
 				<menu_item_call label="パブリック問題トラッカー" name="Public Issue Tracker"/>

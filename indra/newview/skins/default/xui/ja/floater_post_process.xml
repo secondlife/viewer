@@ -18,6 +18,7 @@
 			<slider label="赤" name="wmiColorFilterBaseR"/>
 			<slider label="緑" name="wmiColorFilterBaseG"/>
 			<slider label="青" name="wmiColorFilterBaseB"/>
+
 		</panel>
 		<panel label="暗視" name="wmiNightVisionPanel">
 			<check_box label="有効" name="wmiNightVisionToggle"/>
@@ -44,8 +45,8 @@
             </text>
 		</panel>
 		<panel label="その他" name="Extras">
-			<button label="効果読込" label_selected="効果読込" name="PPLoadEffect"/>
-			<button label="効果保存" label_selected="効果保存" name="PPSaveEffect"/>
+<button label="効果を読み込む" label_selected="効果を読み込む" name="PPLoadEffect"/>
+			<button label="効果を保存" label_selected="効果を保存" name="PPSaveEffect"/>
 			<line_editor label="効果名" name="PPEffectNameEditor"/>
 		</panel>
 	</tab_container>

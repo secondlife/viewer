@@ -12,7 +12,7 @@
 		</radio_item>
 	</radio_group>
 	<text name="hours_textbox">
-        時間。
+時間。
     </text>
 	<button label="OK" name="ok_btn"/>
 	<button label="キャンセル" name="cancel_btn"/>

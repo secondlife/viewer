@@ -6,7 +6,7 @@
 	<floater.string name="call_btn_stop">
 		Conv_toolbar_hang_up
 	</floater.string>
-	<floater.string name="participant_added" value="[NAME] に会話を招待されました。"/>
+<floater.string name="participant_added" value="[NAME] に会話を招待されました。"/>
 	<floater.string name="multiple_participants_added" value="[NAME] は会話に招待されました。"/>
 	<floater.string name="tooltip_to_separate_window" value="この会話を別のウィンドウへ移動する"/>
 	<floater.string name="tooltip_to_main_window" value="この会話をメインウィンドウへ戻す"/>
@@ -31,6 +31,15 @@
 						<button name="minz_btn" tool_tip="メッセージパネルの表示 / 非表示"/>
 					</layout_panel>
 				</layout_stack>
+			</layout_panel>
+			<layout_panel name="emoji_recent_layout_panel">
+				<text name="emoji_recent_empty_text">
+					最近使用した絵文字はここに表示されます。
+				</text>
+				<panel name="emoji_recent_container">
+					<emoji_complete name="emoji_recent_icons_ctrl"/>
+				</panel>
+				<button name="emoji_picker_show_btn" label="参照" tool_tip="絵文字ピッカーを表示／非表示します。"/>
 			</layout_panel>
 		</layout_stack>
 	</view>

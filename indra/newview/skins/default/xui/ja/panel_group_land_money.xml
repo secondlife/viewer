@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="土地 &amp; L$" name="land_money_tab">
 	<panel.string name="help_text">
-		「土地の総利用量」が「総貢献額」以下、または同じになるまで警告が表示されます。
+		「土地の総利用面積」が「総貢献面積」以下、または同じになるまで警告が表示されます。
 	</panel.string>
 	<panel.string name="cant_view_group_land_text">
 		グループ所有地を確認する権限がありません。
@@ -21,32 +21,32 @@
 	<panel name="layout_panel_landmoney">
 		<scroll_list name="group_parcel_list">
 			<scroll_list.columns label="区画" name="name"/>
-			<scroll_list.columns label="地域(リージョン)" name="location"/>
+<scroll_list.columns label="リージョン" name="location"/>
 			<scroll_list.columns label="種別" name="type"/>
 			<scroll_list.columns label="エリア" name="area"/>
 			<scroll_list.columns label="非表示" name="hidden"/>
 		</scroll_list>
 		<text name="total_contributed_land_label">
-            総貢献額:
-        </text>
+総貢献面積：
+		</text>
 		<text name="total_contributed_land_value">
-            [AREA]m²
-        </text>
-		<button label="マップ" name="map_button"/>
+			[AREA]㎡
+		</text>
+		<button label="マップ" label_selected="マップ" name="map_button"/>
 		<text name="total_land_in_use_label">
-            土地の総利用量:
-        </text>
+			土地の総利用面積：
+		</text>
 		<text name="total_land_in_use_value">
-            [AREA]m²
-        </text>
+			[AREA]㎡
+		</text>
 		<text name="land_available_label">
-            利用可能な土地:
-        </text>
+			利用可能な土地面積：
+		</text>
 		<text name="land_available_value">
             [AREA]m²
         </text>
 		<text name="your_contribution_label">
-            あなたの貢献:
+あなたの貢献:
         </text>
 		<text name="your_contribution_max_value">
             (最大[AMOUNT])
@@ -66,15 +66,15 @@
 		</panel>
 		<panel label="詳細情報" name="group_money_details_tab">
 			<text_editor name="group_money_details_text">
-                読込中...
-            </text_editor>
+読み込んでいます…
+			</text_editor>
 			<button name="earlier_details_button" tool_tip="前の週"/>
 			<button name="later_details_button" tool_tip="次の週"/>
 		</panel>
 		<panel label="販売中" name="group_money_sales_tab">
 			<text_editor name="group_money_sales_text">
-                読込中...
-            </text_editor>
+読み込んでいます…
+			</text_editor>
 			<button name="earlier_sales_button" tool_tip="前の週"/>
 			<button name="later_sales_button" tool_tip="次の週"/>
 		</panel>

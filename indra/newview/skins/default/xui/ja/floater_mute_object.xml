@@ -7,7 +7,7 @@
 		オブジェクト名
 	</line_editor>
 	<text name="note">
-        * ブロックされるのはオブジェクトの文字だけで、音はブロックされません。
+* ブロックされるのはオブジェクトの文字だけで、音はブロックされません。
     </text>
 	<button name="OK" top_pad="10"/>
 	<button label="キャンセル" name="Cancel"/>

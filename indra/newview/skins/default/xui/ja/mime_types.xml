@@ -119,7 +119,7 @@
 	</scheme>
 	<scheme name="example">
 		<label name="example_label">
-			例 プラグイン スキーム トリガー
+			プラグインスキームトリガーの例
 		</label>
 		<widgettype>
 			ムービー
@@ -130,7 +130,7 @@
 	</scheme>
 	<scheme name="libvlc">
 		<label name="libvlc_label">
-			LibVLC対応メディア
+			LibVLCがサポートしているメディア
 		</label>
 		<widgettype>
 			ムービー
@@ -141,7 +141,7 @@
 	</scheme>
 	<mimetype name="blank">
 		<label name="blank_label">
-			- なし -
+‐なし‐
 		</label>
 		<widgettype>
 			NONE
@@ -152,7 +152,7 @@
 	</mimetype>
 	<mimetype name="none/none">
 		<label name="none/none_label">
-			- なし -
+‐なし‐
 		</label>
 		<widgettype>
 			NONE
@@ -476,6 +476,11 @@
 		<impl>
 			media_plugin_libvlc
 		</impl>
+	</mimetype>
+	<mimetype name="video/x-flv">
+		<label name="video/x-flv_label">
+			ムービー（flv）
+		</label>
 	</mimetype>
 	<mimetype name="application/octet-stream">
 		<label name="video/octet-stream">

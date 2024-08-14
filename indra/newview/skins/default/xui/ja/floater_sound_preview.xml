@@ -8,4 +8,5 @@
     </text>
 	<button label="アップロード(L$[AMOUNT])" name="ok_btn"/>
 	<button label="キャンセル" label_selected="キャンセル" name="cancel_btn"/>
+
 </floater>

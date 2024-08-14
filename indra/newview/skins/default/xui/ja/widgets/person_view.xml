@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <person_view>
-	<permission_edit_theirs_icon name="permission_edit_theirs_icon" tool_tip="このフレンドのオブジェクトを編集できます"/>
-	<permission_edit_mine_icon name="permission_edit_mine_icon" tool_tip="このフレンドは、あなたのオブジェクトを編集・削除・取得できます"/>
-	<permission_map_icon tool_tip="このフレンドはマップ上であなたのいる場所を探すことができます。" name="permission_map_icon"/>
+<avatar_icon/>
+	<last_interaction_time_textbox name="last_interaction_time_textbox" value="0秒"/>
+	<permission_edit_theirs_icon name="permission_edit_theirs_icon" tool_tip="このフレンドのオブジェクトを編集することはできません。"/>
+	<permission_edit_mine_icon name="permission_edit_mine_icon" tool_tip="このフレンドは、あなたのオブジェクトの編集や、削除、取得することができます。"/>
+	<permission_map_icon tool_tip="このフレンドは、マップ上であなたのいる場所を探すことができます。" name="permission_map_icon"/>
 	<permission_online_icon name="permission_online_icon" tool_tip="このフレンドは、あなたがオンラインになったことがわかります。"/>
 	<info_btn name="info_btn" tool_tip="詳細情報"/>
 	<profile_btn name="profile_btn" tool_tip="プロフィールの表示"/>

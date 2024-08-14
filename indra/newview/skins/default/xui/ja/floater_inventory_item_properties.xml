@@ -1,54 +1,48 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="item properties" title="インベントリアイテムのプロパティ">
 	<floater.string name="unknown">
-		(不明)
+（不明）
 	</floater.string>
 	<floater.string name="public">
-		(公開)
+		（公共）
 	</floater.string>
 	<floater.string name="you_can">
-		できること:
+		できること：
 	</floater.string>
 	<floater.string name="owner_can">
-		所有者は次のことができます:
+		所有者ができること：
 	</floater.string>
 	<floater.string name="acquiredDate">
-		[year,datetime,local]年[mth,datetime,local]月[day,datetime,local]日([wkday,datetime,local]) [hour,datetime,local]:[min,datetime,local]:[second,datetime,local]
+		[year,datetime,local]年[mth,datetime,local]月[day,datetime,local]日（[wkday,datetime,local]）　[hour,datetime,local]：[min,datetime,local]：[second,datetime,local]
 	</floater.string>
 	<text name="LabelItemNameTitle">
-        名前:
-    </text>
+		名前：
+	</text>
 	<text name="LabelItemDescTitle">
-        説明:
-    </text>
+		説明：
+	</text>
 	<text name="LabelCreatorTitle">
-        作成者:
-    </text>
-	<text name="LabelCreatorName">
-        テスト文字列 無視してください
-    </text>
-	<button label="プロフィール..." name="BtnCreator"/>
+		制作者：
+	</text>
+	<button label="プロフィール…" name="BtnCreator"/>
 	<text name="LabelOwnerTitle">
-        所有者:
-    </text>
-	<text name="LabelOwnerName">
-        テスト文字列 無視してください
-    </text>
-	<button label="プロフィール..." name="BtnOwner"/>
+		所有者：
+	</text>
+	<button label="プロフィール…" name="BtnOwner"/>
 	<text name="LabelAcquiredTitle">
-        取得:
-    </text>
+		入手日時：
+	</text>
 	<text name="LabelAcquiredDate">
-        2006年5月24日水曜日 12:50:46
-    </text>
+		2006年5月24日（水）　12：50：46
+	</text>
 	<text name="OwnerLabel">
-        あなた:
-    </text>
+		あなた：
+	</text>
 	<check_box label="編集" name="CheckOwnerModify"/>
 	<check_box label="コピー" name="CheckOwnerCopy"/>
 	<check_box label="再販・譲渡" name="CheckOwnerTransfer"/>
 	<text name="AnyoneLabel">
-        全員:
+全員:
     </text>
 	<check_box label="コピー" name="CheckEveryoneCopy"/>
 	<text name="GroupLabel">

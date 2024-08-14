@@ -13,7 +13,7 @@
 		スナップショットツールを使用
 	</floater.string>
 	<floater.string name="tooltip_use_texture">
-		テクスチャを選択
+テクスチャを選択
 	</floater.string>
 	<floater.string name="tooltip_copy_to_clipboard">
 		クリップボードにコピー
@@ -22,7 +22,7 @@
 		クリップボードからペースト
 	</floater.string>
 	<floater.string name="tooltip_remove_image">
-		イメージを削除
+イメージを削除
 	</floater.string>
 	<text name="tooltip_text">
         ツールチップ

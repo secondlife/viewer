@@ -16,13 +16,13 @@
 		この位置の情報は、アクセス制限のためご利用いただけません。許可については区画所有者にお問い合わせください。
 	</string>
 	<string name="acquired_date">
-		[year,datetime,local]年[mth,datetime,local]月[day,datetime,local]日([wkday,datetime,local]) [hour,datetime,local]:[min,datetime,local]:[second,datetime,local]
+[year,datetime,local]年[mth,datetime,local]月[day,datetime,local]日([wkday,datetime,local]) [hour,datetime,local]:[min,datetime,local]:[second,datetime,local]
 	</string>
 	<button name="back_btn" tool_tip="戻る"/>
 	<text name="title" value="場所のプロフィール"/>
 	<scroll_container name="place_scroll">
 		<panel name="scrolling_panel">
-			<text name="region_title">
+<text name="region_title">
                 地域(リージョン): [REGIONAMEPOS]
             </text>
 			<text name="parcel_owner_label" value="所有者:"/>
@@ -38,7 +38,7 @@
 				<text name="created_label" value="作成日:"/>
 			</panel>
 			<panel name="landmark_edit_panel">
-				<text name="title_label" value="タイトル:"/>
+<text name="title_label" value="タイトル:"/>
 				<button name="edit_btn" tool_tip="ランドマーク情報を編集"/>
 				<text name="notes_label" value="ノート:"/>
 				<text name="folder_label" value="ランドマークの場所:"/>

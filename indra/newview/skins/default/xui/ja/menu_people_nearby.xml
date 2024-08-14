@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <context_menu name="Nearby People Context Menu">
-	<menu_item_call label="プロフィールの表示" name="view_profile"/>
+<menu_item_call label="プロフィールの表示" name="view_profile"/>
 	<menu_item_call label="テレポートのオファー" name="offer_teleport"/>
 	<menu_item_call label="テレポートをリクエスト" name="request_teleport"/>
 	<menu_item_call label="ボイスコール" name="voice_call"/>

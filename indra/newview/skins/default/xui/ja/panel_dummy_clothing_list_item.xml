@@ -3,4 +3,5 @@
 	<panel name="btn_add_panel">
 		<button name="btn_add" tool_tip="この種類のアイテムを追加する"/>
 	</panel>
+
 </panel>

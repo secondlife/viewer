@@ -3,33 +3,43 @@
 	<layout_stack name="main_ls">
 		<layout_panel name="left_lp">
 			<text name="cloud_color_label">
-                雲の色:
-            </text>
+雲の色：
+			</text>
+			<color_swatch name="cloud_color"/>
 			<text name="cloud_coverage_label">
-                雲の量:
-            </text>
+				雲の量：
+			</text>
+			<slider name="cloud_coverage"/>
 			<text name="cloud_scale_label">
-                雲のスケール:
-            </text>
+				雲のスケール：
+			</text>
+			<slider name="cloud_scale"/>
 			<text name="cloud_variance_label">
-                雲の分散:
-            </text>
+				雲の分散：
+			</text>
+			<slider name="cloud_variance"/>
 			<text name="cloud_scroll_label">
-                雲の移動:
-            </text>
+				雲の移動：
+			</text>
+			<xy_vector name="cloud_scroll_xy"/>
 			<text name="cloud_image_label">
-                雲の画像:
-            </text>
+				雲の画像：
+			</text>
+			<texture_picker name="cloud_map"/>
 		</layout_panel>
 		<layout_panel name="right_lp">
 			<text name="cloud_density_label">
-                雲の密度:
-            </text>
-			<slider label="x" name="cloud_density_x"/>
+				雲の密度：
+			</text>
+			<slider label="Ｘ" name="cloud_density_x"/>
+			<slider label="Ｙ" name="cloud_density_y"/>
+			<slider label="密度" name="cloud_density_d"/>
 			<text name="cloud_detail_label">
-                雲の詳細:
-            </text>
-			<slider label="x" name="cloud_detail_x"/>
+				雲の詳細：
+			</text>
+			<slider label="Ｘ" name="cloud_detail_x"/>
+			<slider label="Ｙ" name="cloud_detail_y"/>
+			<slider label="密度" name="cloud_detail_d"/>
 		</layout_panel>
 	</layout_stack>
 </panel>

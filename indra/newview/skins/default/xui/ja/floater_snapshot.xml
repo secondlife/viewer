@@ -52,6 +52,7 @@
 		<check_box label="HUD" name="hud_check"/>
 		<check_box label="フレームをフリーズ(全画面)" name="freeze_frame_check"/>
 		<check_box label="自動リフレッシュ" name="auto_snapshot_check"/>
+		<check_box label="ポストプロセッシングなし" name="no_post_check"/>
 		<text name="filter_list_label">
             フィルタ:
         </text>
@@ -60,7 +61,7 @@
 		</combo_box>
 	</panel>
 	<panel_container name="panel_container">
-		<panel filename="panel_snapshot_options.xml" name="panel_snapshot_options"/>
+<panel filename="panel_snapshot_options.xml" name="panel_snapshot_options"/>
 		<panel name="panel_snapshot_profile" filename="panel_snapshot_profile.xml"/>
 		<panel name="panel_snapshot_postcard" filename="panel_snapshot_postcard.xml"/>
 		<panel name="panel_snapshot_inventory" filename="panel_snapshot_inventory.xml"/>
@@ -77,14 +78,14 @@
         </text>
 	</panel>
 	<text name="working_lbl">
-        処理中
-    </text>
+処理中です
+	</text>
 	<text name="refresh_lbl">
         更新して保存
     </text>
 	<text name="image_res_text">
-        [WIDTH]px(幅) x [HEIGHT]px(高さ)
-    </text>
+[WIDTH]px（幅）×[HEIGHT]px（高さ）
+	</text>
 	<text name="file_size_label">
         [SIZE]KB
     </text>

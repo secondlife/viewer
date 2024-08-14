@@ -27,8 +27,8 @@
 	</panel>
 	<panel label="検索" name="InputPanel">
 		<text name="amount text">
-            その他の金額:
-        </text>
+その他の金額：
+		</text>
 		<button label="支払う" label_selected="オブジェクトに支払います。" name="pay btn"/>
 		<button label="キャンセル" label_selected="オブジェクトへの支払いを取り消します。" name="cancel btn"/>
 	</panel>

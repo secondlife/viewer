@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="水面" name="panel_settings_water">
-	<layout_stack name="water_stack1" follows="all" layout="topleft" left="5" top="5" right="-5" bottom="-5" orientation="vertical">
+<layout_stack name="water_stack1" follows="all" layout="topleft" left="5" top="5" right="-5" bottom="-5" orientation="vertical">
 		<layout_panel name="lp_top">
 			<text name="water_fog_label">
                 水中のフォグ:
@@ -25,31 +25,40 @@
 			<layout_stack name="water_stack2">
 				<layout_panel name="lp_left">
 					<text name="normal_map_label">
-                        ノーマル・マップ
-                    </text>
+ノーマル（法線）マップ
+					</text>
+					<texture_picker name="water_normal_map"/>
 					<text name="large_wave_speed_label">
-                        大波の速度
-                    </text>
+						大波の速度
+					</text>
+					<xy_vector name="water_wave1_xy"/>
 					<text name="small_wave_speed_label">
-                        小波の速度
-                    </text>
+						小波の速度
+					</text>
+					<xy_vector name="water_wave2_xy"/>
 					<text name="reflection_wavelet_scale_label">
-                        さざ波の反射係数
-                    </text>
+						さざ波の反射係数
+					</text>
+					<slider name="water_normal_scale_x" label="Ｘ："/>
+					<slider name="water_normal_scale_y" label="Ｙ："/>
+					<slider name="water_normal_scale_z" label="Ｚ："/>
 				</layout_panel>
 				<layout_panel name="lp_right">
 					<text name="refraction_and_blur_label">
-                        反射とブラー:
-                    </text>
+						反射とブラー：
+					</text>
 					<text name="refraction_scale_above_label">
-                        反射係数(上)
-                    </text>
+						反射係数（上）
+					</text>
+					<slider name="water_scale_above"/>
 					<text name="refraction_scale_below_label">
-                        反射係数(下)
-                    </text>
+						反射係数（下）
+					</text>
+					<slider name="water_scale_below"/>
 					<text name="blur_multiplier_label">
-                        ブラー乗数
-                    </text>
+						ブラー乗数
+					</text>
+					<slider name="water_blur_multip"/>
 				</layout_panel>
 			</layout_stack>
 		</layout_panel>

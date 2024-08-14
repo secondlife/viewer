@@ -2,11 +2,15 @@
 <fonts>
 	<font name="default" comment="default font files (global fallbacks)">
 		<file>
-			NotoSansCJKjp-Medium.otf
+			DejaVuSans.ttf
 		</file>
+
 		<os name="Windows">
 			<file>
 				YuGothM.ttc
+			</file>
+			<file>
+				Seguiemj.ttf
 			</file>
 			<file>
 				meiryo.TTC
@@ -38,6 +42,9 @@
 				YuGothic-Medium.otf
 			</file>
 			<file>
+				Apple Color Emoji.ttf
+			</file>
+			<file>
 				ヒラギノ角ゴシック W3.ttc
 			</file>
 			<file>
@@ -50,38 +57,66 @@
 	</font>
 	<font name="SansSerifBold" comment="Name of bold sans-serif font">
 		<file>
-			NotoSansCJKjp-Bold.otf
+NotoSansCJKjp-Bold.otf
 		</file>
 		<os name="Windows">
+			<file>
+				YuGothB.ttc
+			</file>
 			<file>
 				YuGothB.ttc
 			</file>
 		</os>
 		<os name="Mac">
 			<file>
-				YuGothic-Bold.otf
+				Helvetica.dfont
 			</file>
+
 		</os>
 	</font>
 	<font name="SansSerif" comment="Name of san-serif font (Truetype file name)">
 		<file>
-			NotoSansCJKjp-Bold.otf
+			DejaVuSans.ttf
 		</file>
+<file>
+			NotoSansCJK-Regular.ttc
+		</file>
+		<os name="Windows">
+			<file>
+				arial.ttf
+			</file>
+			<file>
+				YuGothM.ttc
+			</file>
+		</os>
+		<os name="Mac">
+			<file>
+				Helvetica.dfont
+			</file>
+			<file>
+				YuGothic-Medium.otf
+			</file>
+		</os>
 	</font>
 	<font name="SansSerif">
 		<file>
 			NotoSansCJKjp-Bold.otf
 		</file>
 	</font>
+	<font name="Emoji" comment="Name of emoji font">
+		<file>
+			TwemojiSVG.ttf
+		</file>
+	</font>
 	<font name="Monospace" comment="Name of monospace font">
 		<file>
-			NotoSansMonoCJKjp-Regular.otf
+			DejaVuSansMono.ttf
 		</file>
 	</font>
 	<font name="DejaVu" comment="Name of DejaVu font"/>
 	<font name="DejaVu">
 		<file>
-			NotoSansCJKjp-Bold.otf
+NotoSansMonoCJKjp-Regular.otf
 		</file>
 	</font>
 	<font name="Helvetica" comment="Name of Helvetica font"/>
@@ -106,4 +141,6 @@
 	<font_size name="Large" comment="Size of large font (points, or 1/72 of an inch)" size="10.6"/>
 	<font_size name="Medium" comment="Size of medium font (points, or 1/72 of an inch)" size="8.6"/>
 	<font_size name="Small" comment="Size of small font (points, or 1/72 of an inch)" size="7.6"/>
+	<font_size name="SmallLSL" comment="Size of small font for LSL editor (points, or 1/72 of an inch)" size="7"/>
+	<font_size name="HugeLSL" comment="Size of huge font for LSL editor (points, or 1/72 of an inch)" size="12"/>
 </fonts>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="move_floater" title="歩行 / 走行 / 飛行">
 	<string name="walk_forward_tooltip">
-		前に進む(上矢印か W を押す)
+前に進む(上矢印か W を押す)
 	</string>
 	<string name="walk_back_tooltip">
 		後ろに歩く(下矢印か S を押す)
@@ -58,7 +58,7 @@
 		飛ぶ
 	</string>
 	<panel name="panel_actions">
-		<button name="turn left btn" tool_tip="左を向く(左矢印か A を押す)"/>
+<button name="turn left btn" tool_tip="左を向く(左矢印か A を押す)"/>
 		<joystick_slide name="move left btn" tool_tip="左に歩く(Shift + 左矢印か A を押す)"/>
 		<button name="turn right btn" tool_tip="右を向く(右矢印か D を押す)"/>
 		<joystick_slide name="move right btn" tool_tip="右に歩く(Shift + 右矢印か D を押す)"/>

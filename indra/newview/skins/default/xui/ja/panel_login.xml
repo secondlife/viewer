@@ -22,7 +22,7 @@
 			<check_box label="パスワードを記憶" name="remember_password"/>
 			<combo_box label="グリッドを選択" name="server_combo"/>
 			<text name="forgot_password_text">
-                パスワードに関して
+パスワードに関して
             </text>
 		</layout_panel>
 	</layout_stack>

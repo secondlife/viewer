@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <context_menu name="Outfit">
-	<menu_item_call label="着る - このアウトフィットと置換" name="wear_replace"/>
+<menu_item_call label="着る - このアウトフィットと置換" name="wear_replace"/>
 	<menu_item_call label="着る - このアウトフィットに追加" name="wear_add"/>
 	<menu_item_call label="脱ぐ-このアウトフィットから取り外す" name="take_off"/>
 	<menu_item_call label="アウトフィットを編集" name="edit"/>

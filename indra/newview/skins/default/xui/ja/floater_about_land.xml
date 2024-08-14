@@ -63,7 +63,7 @@
 				区画が選択されていません。
 			</panel.string>
 			<panel.string name="time_stamp_template">
-				[year,datetime,local]年[mth,datetime,local]月[day,datetime,local]日([wkday,datetime,local]) [hour,datetime,local]:[min,datetime,local]:[second,datetime,local]
+[year,datetime,local]年[mth,datetime,local]月[day,datetime,local]日([wkday,datetime,local]) [hour,datetime,local]:[min,datetime,local]:[second,datetime,local]
 			</panel.string>
 			<text name="Name:">
                 名前:
@@ -90,7 +90,7 @@
                 テスト文字列 無視してください
             </text>
 			<text name="Group:">
-                グループ:
+グループ:
             </text>
 			<text name="GroupText">
                 テスト文字列 無視してください
@@ -106,8 +106,8 @@
                 販売対象外
             </text>
 			<text name="For Sale: Price L$[PRICE].">
-                価格: L$[PRICE] (L$[PRICE_PER_SQM]/m²)
-            </text>
+価格：L$ [PRICE]（L$ [PRICE_PER_SQM]／㎡）
+			</text>
 			<button label="土地を売る" name="Sell Land..."/>
 			<text name="For sale to">
                 販売先: [BUYER]
@@ -123,19 +123,19 @@
                 取得日時:
             </text>
 			<text name="DateClaimText">
-                2006年8月15日火曜日 13:47:25
-            </text>
+2006年8月15日（火）　13：47：25
+			</text>
 			<text name="PriceLabel">
                 面積:
             </text>
 			<text name="PriceText">
-                4048m²
-            </text>
+4048㎡
+			</text>
 			<text name="Traffic:">
                 トラフィック:
             </text>
 			<text name="DwellText">
-                読込中...
+読込中...
             </text>
 			<button label="土地を購入" name="Buy Land..."/>
 			<button label="リンデンセール" name="Linden Sale..." tool_tip="土地が所有されており、コンテンツが設定されている必要があります。オークションの対象になっていないことも必要条件です。"/>
@@ -147,20 +147,20 @@
 		</panel>
 		<panel label="約款" name="land_covenant_panel">
 			<panel.string name="can_resell">
-				この地域(リージョン)で購入した土地は再販できます。
+このリージョンで購入した土地は、再販することができます。
 			</panel.string>
 			<panel.string name="can_not_resell">
-				この地域(リージョン)で購入した土地は再販することができないことがあります。
+				このリージョンで購入した土地は、再販することができないことがあります。
 			</panel.string>
 			<panel.string name="can_change">
-				この地域(リージョン)で購入した土地は結合や再分割できます。
+				このリージョンで購入した土地は、結合や再分割することができます。
 			</panel.string>
 			<panel.string name="can_not_change">
-				この地域(リージョン)で購入した土地は結合や再分割できないことがあります。
+				このリージョンで購入した土地は、結合や再分割することができないことがあります。
 			</panel.string>
 			<text name="estate_section_lbl">
-                不動産:
-            </text>
+				不動産：
+			</text>
 			<text name="estate_name_text">
                 メインランド
             </text>
@@ -174,7 +174,7 @@
                 この不動産には約款がありません。
             </text_editor>
 			<text name="covenant_timestamp_text">
-                最後の更新1969年12月31日水曜日16: 00: 00
+最後の更新1969年12月31日水曜日16: 00: 00
             </text>
 			<text name="region_section_lbl">
                 地域(リージョン):
@@ -186,7 +186,7 @@
                 メインランド / ホームステッド
             </text>
 			<text name="region_maturity_lbl">
-                区分:
+区分:
             </text>
 			<text name="region_maturity_text">
                 アダルト
@@ -195,13 +195,13 @@
                 再販:
             </text>
 			<text name="resellable_clause">
-                この地域(リージョン)にある土地は再販できません。
+この地域(リージョン)にある土地は再販できません。
             </text>
 			<text name="changeable_lbl">
                 再分割:
             </text>
 			<text name="changeable_clause">
-                この地域(リージョン)にある土地は統合または分割ができないことがあります。
+この地域(リージョン)にある土地は統合または分割ができないことがあります。
             </text>
 		</panel>
 		<panel label="オブジェクト" name="land_objects_panel">
@@ -218,8 +218,8 @@
                 リージョン全体の最大プリム数:
             </text>
 			<text name="objects_available">
-                [MAX]の内[COUNT]([AVAILABLE] 利用可能)
-            </text>
+全[MAX]個中[COUNT]個（[AVAILABLE]個が利用可能）
+			</text>
 			<text name="Primitives parcel supports:">
                 区画で利用可能な最大プリム数:
             </text>
@@ -227,7 +227,7 @@
                 [COUNT]個
             </text>
 			<text name="Primitives on parcel:">
-                区画で使用中のプリム数:
+区画で使用中のプリム数:
             </text>
 			<text name="total_objects_text">
                 [COUNT]個
@@ -282,8 +282,8 @@
 				この区画を検索結果に表示する
 			</panel.string>
 			<panel.string name="search_disabled_small_tooltip">
-				区画面積が128m²以下のため、このオプションは無効です。
-				大きな区画のみ検索に表示させることが可能です。
+区画面積が１２８㎡未満のため、このオプションは無効です。
+より大きな区画のみ検索に表示させることが可能です。
 			</panel.string>
 			<panel.string name="search_disabled_permissions_tooltip">
 				あなたは、この区画の設定編集ができないため、このオプションは無効です。
@@ -307,20 +307,20 @@
 				プッシュ禁止
 			</panel.string>
 			<panel.string name="push_restrict_region_text">
-				プッシュ禁止 (リージョン設定優先)
+プッシュ禁止 （リージョンの設定が優先されます。）
 			</panel.string>
 			<text name="allow_label">
-                他の住人への許可:
-            </text>
+				他の住人への許可設定：
+			</text>
 			<text name="allow_label0">
-                飛行:
-            </text>
-			<check_box label="全員" name="check fly" tool_tip="チェックを入れると、この土地での飛行が可能となります。このチェックを外すと、土地に入る時や通過する時のみ飛行可能となります。"/>
+				飛行：
+			</text>
+			<check_box label="全員" name="check fly" tool_tip="ここにチェックを入れると、この土地での飛行が可能となります。このチェックを外すと、土地に入る時や通過する時のみ飛行可能となります。"/>
 			<text name="allow_label2">
-                制作:
-            </text>
-			<check_box label="全員" name="edit objects check" tool_tip="このオプションを選択すると、住人があなたの土地でオブジェクトの制作や、Rezできます。"/>
-			<check_box label="グループ" name="edit group objects check" tool_tip="このオプションを選択すると、区画のグループメンバーが、あなたの土地でオブジェクトの制作やRezができます。"/>
+				ビルド許可：
+			</text>
+			<check_box label="全員" name="edit objects check" tool_tip="このオプションを選択すると、住人があなたの土地でオブジェクトのビルドや、rezすることができるようになります。"/>
+			<check_box label="グループ" name="edit group objects check" tool_tip="このオプションを選択すると、区画のグループメンバーが、あなたの土地でオブジェクトのビルドやrezができるようになります。"/>
 			<text name="allow_label3">
                 オブジェクトの進入:
             </text>
@@ -351,12 +351,12 @@
 			</combo_box>
 			<check_box label="モデレートコンテンツ" name="MatureCheck"/>
 			<text name="Snapshot:">
-                スナップショット:
-            </text>
-			<texture_picker name="snapshot_ctrl" tool_tip="クリックして画像を選択"/>
+スナップショット：
+			</text>
+			<texture_picker name="snapshot_ctrl" tool_tip="画像をクリックして選択"/>
 			<text name="allow_see_label">
-                別の区画にいるアバターが、この区画にいるアバターとチャットできます。
-            </text>
+				別の区画にいるアバターが、この区画にいるアバターとチャットできるようになります。
+			</text>
 			<check_box name="SeeAvatarsCheck" tool_tip="別の区画のアバターが、この区画にいるアバターとチャットすることを許可し、あなたもそれらアバターに会ってチャットできるようにします。"/>
 			<text name="landing_point">
                 ランディング地点: [LANDING]
@@ -364,9 +364,9 @@
 			<button label="設定" label_selected="設定" name="Set" tool_tip="訪問者が最初に訪れる場所の設定を行います。この区画内に立って行ってください。"/>
 			<button label="クリア" label_selected="クリア" name="Clear" tool_tip="ランディング地点をクリアする。"/>
 			<text name="Teleport Routing: ">
-                テレポート経路:
-            </text>
-			<combo_box name="landing type" tool_tip="テレポート経路 -- あなたの土地へのテレポート経路を選択してください。">
+テレポート経路：
+			</text>
+			<combo_box name="landing type" tool_tip="テレポート経路‐あなたの土地へのテレポート経路を選択してください。">
 				<combo_box.item label="不可" name="Blocked"/>
 				<combo_box.item label="ランディング地点のみ" name="LandingPoint"/>
 				<combo_box.item label="どこでも可能" name="Anywhere"/>
@@ -386,9 +386,9 @@
             </text>
 			<line_editor name="url_description" tool_tip="「再生」「読込」ボタンの隣に表示されるテキストです。"/>
 			<text name="Media texture:">
-                テクスチャを置換:
-            </text>
-			<texture_picker name="media texture" tool_tip="クリックして画像を選択"/>
+テクスチャの差し替え：
+			</text>
+			<texture_picker name="media texture" tool_tip="クリックして画像を選択します。"/>
 			<text name="replace_texture_help">
                 このテクスチャを使用するオブジェクトの「再生」をクリックすると、動画やWebページを表示します。テクスチャを変更するにはサムネイルを選択してください。
             </text>
@@ -423,12 +423,12 @@
                 ボイス:
             </text>
 			<check_box label="ボイスチャットを有効にする" name="parcel_enable_voice_channel"/>
-			<check_box label="ボイスチャットを有効にする(不動産設定)" name="parcel_enable_voice_channel_is_estate_disabled"/>
-			<check_box label="ボイスチャットをこの区画内に限定" name="parcel_enable_voice_channel_local"/>
+<check_box label="ボイスチャットを有効にする（不動産設定）" name="parcel_enable_voice_channel_is_estate_disabled"/>
+			<check_box label="ボイスチャットをこの区画内に限定する" name="parcel_enable_voice_channel_local"/>
 			<text name="media">
-                メディア:
-            </text>
-			<check_box label="プリム上のメディアをこの区画に制限" name="obscure_moap" tool_tip="パーセルの外側にあるプリム上のメディアはこのパーセル内のエージェントに対して自動的に再生するべきではなく、その逆も同様です。"/>
+				メディア：
+			</text>
+			<check_box label="ＭＯＡＰを区画に制限する" name="obscure_moap" tool_tip="プリムに付けられたメディア（ＭＯＡＰ）が区画外にあるときに、区画内にいるエージェントに対して自動再生されないようにします。"/>
 		</panel>
 		<panel label="アクセス" name="land_access_panel">
 			<panel.string name="access_estate_defined">
@@ -449,7 +449,7 @@
 			<spinner label="価格(L$):" name="PriceSpin"/>
 			<spinner label="アクセス時間:" name="HoursSpin"/>
 			<text name="OwnerLimited">
-                (不動産所有者がこのオプションに制約を与えている場合があります)
+(不動産所有者がこのオプションに制約を与えている場合があります)
             </text>
 			<layout_stack name="access_stack">
 				<layout_panel name="Allowed_layout_panel">
@@ -461,11 +461,11 @@
 					<button label="削除" label_selected="削除" name="remove_allowed"/>
 				</layout_panel>
 				<layout_panel name="Banned_layout_panel">
-					<text label="禁止" name="BanCheck">
-                        バン([COUNT]、最大[MAX])
-                    </text>
-					<name_list name="BannedList" tool_tip="([LISTED]登録, [MAX] 最大)">
-						<columns label="NAME" name="name"/>
+<text label="Ban" name="BanCheck">
+						バンした人物（全[MAX]人中[COUNT]人）
+					</text>
+					<name_list name="BannedList" tool_tip="（全[MAX]人中[COUNT]人）">
+						<columns label="名前" name="name"/>
 						<columns label="期間" name="duration"/>
 					</name_list>
 					<button label="追加" name="add_banned"/>
@@ -474,6 +474,6 @@
 			</layout_stack>
 		</panel>
 		<panel label="体験" name="land_experiences_panel"/>
-		<panel label="景観" name="land_environment_panel"/>
+<panel label="自然環境" name="land_environment_panel"/>
 	</tab_container>
 </floater>

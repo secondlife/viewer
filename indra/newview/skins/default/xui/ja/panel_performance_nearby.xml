@@ -7,14 +7,14 @@
         近隣のアバター
     </text>
 	<text name="av_nearby_desc">
-        複雑度の高いアバターの表示を省略して速度を上げることができます。
-    </text>
-	<slider tool_tip="複雑度が高いアバターをレンダリングする際に時間がかかるとみなすタイミングを制御します。(単位: マイクロ秒)" name="RenderAvatarMaxART"/>
+複雑度の高いアバターの表示を省略して速度を上げることができます。
+	</text>
+	<slider label="最大レンダリング時間（μ秒）" name="RenderAvatarMaxART" tool_tip="複雑度が高いアバターをレンダリングする際に時間がかかるとみなすタイミングを制御します。（単位：マイクロ秒）"/>
 	<text name="RenderAvatarMaxARTText">
         無制限
     </text>
 	<text name="av_nearby_desc2">
-        インワールド内のアバターを右クリックして表示を制御できます。
+インワールド内のアバターを右クリックして表示を制御できます。
     </text>
 	<button label="例外..." name="exceptions_btn"/>
 	<check_box label="フレンドは常に詳細表示する" name="display_friends"/>

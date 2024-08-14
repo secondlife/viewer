@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <toggleable_menu name="menu_gear_default">
-	<menu_item_call label="新規インベントリウィンドウ" name="new_window"/>
+<menu_item_call label="新規インベントリウィンドウ" name="new_window"/>
 	<menu_item_call label="全てのフォルダを閉じる" name="close_folders"/>
 	<menu_item_call label="全てのウィンドウを閉じる" name="close_windows"/>
 	<menu_item_call label="フィルタを表示..." name="show_filters"/>
@@ -8,8 +8,8 @@
 	<menu_item_call label="別名でテクスチャを保存" name="Save Texture As"/>
 	<menu_item_call label="共有" name="Share"/>
 	<menu_item_call label="オリジナルを表示" name="Find Original"/>
-	<menu_item_call label="全てのリンクを表示" name="Find All Links"/>
-	<menu_item_call label="リンクを置換" name="Replace Links"/>
+<menu_item_call label="すべてのリンクを表示" name="Find All Links"/>
+	<menu_item_call label="リンクを置き換える" name="Replace Links"/>
 	<menu_item_call label="遺失物を空にする" name="empty_lostnfound"/>
-	<menu_item_call label="ゴミ箱を空にする" name="empty_trash"/>
+	<menu_item_call label="ごみ箱を空にする" name="empty_trash"/>
 </toggleable_menu>

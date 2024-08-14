@@ -4,7 +4,7 @@
 		既定の設定を使用
 	</string>
 	<string name="str_label_use_region">
-		地域(リージョン)の設定を使用
+地域(リージョン)の設定を使用
 	</string>
 	<string name="str_altitude_desription">
 		空 [INDEX]([ALTITUDE]m)
@@ -13,7 +13,7 @@
 		区画が選択されていません。景観設定が無効になっています。
 	</string>
 	<string name="str_cross_region">
-		地域(リージョン)の境界では景観設定ができません。
+地域(リージョン)の境界では景観設定ができません。
 	</string>
 	<string name="str_legacy">
 		この地域(リージョン)で景観設定はできません。
@@ -45,7 +45,7 @@
 					<layout_stack>
 						<layout_panel name="pnl_environment_current">
 							<text>
-                                景観を選択
+景観を選択
                             </text>
 							<button label="インベントリを使う" name="btn_select_inventory"/>
 							<button label="カスタマイズ" name="btn_edit"/>
@@ -73,7 +73,7 @@
 				<layout_panel name="pnl_environment_altitudes">
 					<panel name="pnl_alt1">
 						<text name="txt_alt1">
-                            空 [INDEX]
+空 [INDEX]
                             [ALTITUDE]m
                         </text>
 						<line_editor name="edt_invname_alt1">
@@ -83,7 +83,7 @@
 					</panel>
 					<panel name="pnl_alt2">
 						<text name="txt_alt2">
-                            空 [INDEX]
+空 [INDEX]
                             [ALTITUDE]m
                         </text>
 						<line_editor name="edt_invname_alt2">
@@ -92,7 +92,7 @@
 						<settings_drop_target name="sdt_alt2" tool_tip="インベントリから設定をこのターゲットボックスにドラッグし、現在の空として選択する。"/>
 					</panel>
 					<panel name="pnl_alt3">
-						<text name="txt_alt3">
+<text name="txt_alt3">
                             空 [INDEX]
                             [ALTITUDE]m
                         </text>
@@ -102,17 +102,22 @@
 						<settings_drop_target name="sdt_alt3" tool_tip="インベントリから設定をこのターゲットボックスにドラッグし、現在の空として選択する。"/>
 					</panel>
 					<text>
-                        空の高度
-                    </text>
-					<multi_slider initial_value="0" name="sld_altitudes"/>
+空の高度
+					</text>
+					<multi_slider name="sld_altitudes">
+						<slider name="sld1" value="1000"/>
+						<slider name="sld2" value="2000"/>
+						<slider name="sld3" value="3000"/>
+					</multi_slider>
 					<panel name="pnl_ground">
 						<text name="txt_ground">
-                            地面
-                        </text>
+							地表
+						</text>
+						<icon name="icon_ground"/>
 						<line_editor name="edt_invname_ground">
 							不明
 						</line_editor>
-						<settings_drop_target name="sdt_ground" tool_tip="インベントリから設定をこのターゲットボックスにドラッグし、地表レベルの空として選択する。"/>
+						<settings_drop_target name="sdt_ground" tool_tip="インベントリからターゲットボックスに設定をドラッグし、地表の空として選択します。"/>
 					</panel>
 					<panel name="pnl_water">
 						<text name="txt_water">
@@ -121,11 +126,12 @@
 						<line_editor name="edt_invname_water">
 							不明
 						</line_editor>
-						<settings_drop_target name="sdt_water" tool_tip="インベントリから設定をこのターゲットボックスにドラッグし、現在の水として選択する。"/>
+<settings_drop_target name="sdt_water" tool_tip="インベントリからターゲットボックスに設定をドラッグし、現在の水面として選択します。"/>
 					</panel>
-					<button label="リセット" tool_tip="デフォルトの高度にリセット" name="btn_rst_altitudes"/>
+					<button label="リセット" tool_tip="デフォルトの高度にリセットします。" name="btn_rst_altitudes"/>
 				</layout_panel>
 			</layout_stack>
 		</layout_panel>
 	</layout_stack>
+
 </panel>

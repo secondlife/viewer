@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="worldmap" title="ワールドマップ">
-	<string name="collapse_tooltip" value="マップ操作パネルを隠す"/>
+<string name="collapse_tooltip" value="マップ操作パネルを隠す"/>
 	<string name="expand_tooltip" value="マップ操作を表示"/>
 	<layout_stack name="floater_map_stack">
 		<layout_panel name="map_lp">
-			<panel filename="panel_world_map.xml" name="objects_mapview"/>
-			<panel name="expand_btn_panel" tool_tip="マップ操作パネルを隠す">
-				<icon name="expand_collapse_icon" tool_tip="マップ操作パネルを隠す"/>
+			<panel name="objects_mapview"/>
+			<panel name="expand_btn_panel" tool_tip="マップ操作パネルを隠します。">
+				<icon name="expand_collapse_icon" tool_tip="マップ操作パネルを隠します。"/>
 			</panel>
 		</layout_panel>
 		<layout_panel name="controls_lp">
@@ -16,7 +16,7 @@
                 </text>
 			</panel>
 			<panel name="layout_panel_2">
-				<button name="Show My Location" tool_tip="現在、自分のアバターがいる場所をマップの中心にする。"/>
+				<button name="Show My Location" tool_tip="現在、自分のアバターがいる場所をマップの中心にします。"/>
 				<text name="me_label">
                     ミー
                 </text>
@@ -28,7 +28,7 @@
                     情報ハブ
                 </text>
 				<text name="land_sale_label">
-                    販売中の土地
+販売中の土地
                 </text>
 				<text name="auction_label">
                     オークション中の土地
@@ -59,7 +59,7 @@
                 </text>
 			</panel>
 			<panel name="layout_panel_4">
-				<combo_box label="オンラインのフレンド" name="friend combo" tool_tip="マップにフレンドを表示">
+<combo_box label="オンラインのフレンド" name="friend combo" tool_tip="マップにフレンドを表示">
 					<combo_box.item label="オンラインのフレンド" name="item1" value="なし"/>
 					<combo_box.commit_callback function="WMap.AvatarCombo"/>
 				</combo_box>

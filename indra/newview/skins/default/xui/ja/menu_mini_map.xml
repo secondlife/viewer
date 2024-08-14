@@ -1,15 +1,20 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <menu name="Popup">
-	<menu_item_check label="超短焦点" name="Zoom very close"/>
-	<menu_item_check label="短焦点" name="Zoom close"/>
-	<menu_item_check label="中焦点" name="Zoom medium"/>
-	<menu_item_check label="長焦点" name="Zoom far"/>
+<menu_item_check label="ズーム（かなり近く）" name="Zoom very close"/>
+	<menu_item_check label="ズーム（近）" name="Zoom close"/>
+	<menu_item_check label="ズーム（中）" name="Zoom medium"/>
+	<menu_item_check label="ズーム（遠）" name="Zoom far"/>
+	<menu_item_separator/>
 	<menu_item_check label="北を上に" name="North at top"/>
-	<menu_item_check label="高位カメラ" name="Camera at top"/>
-	<menu_item_check label="区画境界を表示" name="Show parcel boundaries"/>
-	<menu_item_check label="自動センターマップ" name="Auto-center map"/>
-	<menu_item_call label="地図を中心に再配置" name="Re-center map"/>
-	<menu_item_call label="トラッキングを停止" name="Stop tracking"/>
-	<menu_item_call label="土地情報" name="About Land"/>
+	<menu_item_check label="カメラの向きを上に" name="Camera at top"/>
+	<menu_item_separator/>
+	<menu_item_check label="区画の境界線を表示" name="Show parcel boundaries"/>
+	<menu_item_separator/>
+	<menu_item_check label="マップの自動センター" name="Auto-center map"/>
+	<menu_item_separator/>
+	<menu_item_call label="マップの再センター" name="Re-center map"/>
+	<menu_item_call label="このリージョンの追跡を中止" name="Stop tracking"/>
+	<menu_item_separator/>
+	<menu_item_call label="この土地について" name="About Land"/>
 	<menu_item_call label="ワールドマップ" name="World Map"/>
 </menu>

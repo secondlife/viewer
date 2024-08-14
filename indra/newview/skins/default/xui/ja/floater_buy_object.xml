@@ -18,11 +18,14 @@
 	<floater.string name="mupliple_selected">
 		複数選択
 	</floater.string>
+	<floater.string name="mupliple_selected">
+		複数の選択
+	</floater.string>
 	<text name="contents_text">
         中身:
     </text>
 	<text name="buy_text">
-        次の売り手からL$[AMOUNT]で購入:
+次の売り手からL$[AMOUNT]で購入:
     </text>
 	<button label="購入" label_selected="購入" name="buy_btn"/>
 	<button label="キャンセル" label_selected="キャンセル" name="cancel_btn"/>

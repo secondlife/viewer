@@ -103,7 +103,7 @@
 		ロボット
 	</string>
 	<string name="effect_Roxanne">
-		ロクサン
+		ロクサーヌ
 	</string>
 	<string name="effect_Rumble">
 		ランブル
@@ -145,7 +145,7 @@
         プレビュー
     </text>
 	<text name="status_text">
-        声をテスト録音してからボイスエフェクトを1つクリックして聞いてみます。
+声をテスト録音してからボイスエフェクトを1つクリックして聞いてみます。
     </text>
 	<button label="録音" name="record_btn" tool_tip="あなたの声を録音します。"/>
 	<button label="停止" name="record_stop_btn"/>

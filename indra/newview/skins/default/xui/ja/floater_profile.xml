@@ -2,12 +2,12 @@
 <floater name="avatarinfo" title="プロフィール">
 	<panel name="panel_profile_view">
 		<tab_container name="panel_profile_tabs">
-			<panel name="panel_profile_secondlife" label="Second Life"/>
-			<panel name="panel_profile_web" label="Web"/>
-			<panel name="panel_profile_picks" label="選択"/>
-			<panel name="panel_profile_classifieds" label="クラシファイド広告"/>
-			<panel name="panel_profile_firstlife" label="リアルライフ(現実世界)"/>
-			<panel name="panel_profile_notes" label="メモ"/>
+<panel label="Second Life" name="panel_profile_secondlife"/>
+			<panel label="Web" name="panel_profile_web"/>
+			<panel label="ピック" name="panel_profile_picks"/>
+			<panel label="クラシファイド広告" name="panel_profile_classifieds"/>
+			<panel label="リアルライフ（現実世界）" name="panel_profile_firstlife"/>
+			<panel label="メモ" name="panel_profile_notes"/>
 		</tab_container>
 	</panel>
 </floater>

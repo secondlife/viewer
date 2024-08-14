@@ -21,7 +21,7 @@
 	<string name="FormatYears">
 		[COUNT]年
 	</string>
-	<text name="avatar_name" value="(読込中)"/>
+<text name="avatar_name" value="(読込中)"/>
 	<text name="last_interaction" value="0秒"/>
 	<icon name="permission_edit_theirs_icon" tool_tip="このフレンドのオブジェクトを編集できます"/>
 	<icon name="permission_edit_mine_icon" tool_tip="このフレンドは、あなたのオブジェクトを編集・削除・取得できます"/>
@@ -30,4 +30,7 @@
 	<button name="info_btn" tool_tip="詳細"/>
 	<button name="profile_btn" tool_tip="プロフィールを表示"/>
 	<output_monitor name="speaking_indicator" tool_tip="ボイスのボリューム"/>
+	<icon name="hovered_icon"/>
+	<icon name="selected_icon"/>
+	<avatar_icon/>
 </panel>

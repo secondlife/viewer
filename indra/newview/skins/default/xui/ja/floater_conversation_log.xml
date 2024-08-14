@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <floater name="floater_conversation_log" title="会話ログ">
 	<panel name="buttons_panel">
-		<filter_editor label="人々をフィルタ" name="people_filter_input"/>
-		<menu_button name="conversation_view_btn" tool_tip="表示 / ソート オプション"/>
-		<menu_button name="conversations_gear_btn" tool_tip="選択した住人・グループに対するアクション"/>
+<filter_editor label="人物をフィルタ" name="people_filter_input"/>
+		<menu_button name="conversation_view_btn" tool_tip="表示／並べ替えのオプションを表示します。"/>
+		<menu_button name="conversations_gear_btn" tool_tip="選択した住人・グループに対するアクションを表示します。"/>
 	</panel>
 </floater>

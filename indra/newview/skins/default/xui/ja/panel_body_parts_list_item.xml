@@ -2,6 +2,6 @@
 <panel name="wearable_item">
 	<panel name="btn_lock" tool_tip="編集権限がありません。"/>
 	<panel name="btn_edit_panel">
-		<button name="btn_edit" tool_tip="このシェイプを編集"/>
+		<button name="btn_edit" tool_tip="このシェイプを編集します。"/>
 	</panel>
 </panel>

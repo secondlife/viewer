@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<floater name="my_environments" title="自分の環境">
+<floater name="my_environments" title="私の環境" label="場所">
 	<layout_stack name="main_layout">
 		<layout_panel name="filter_panel" label="フィルタ">
-			<check_box label="日間" name="chk_days"/>
+			<icon name="icon_settingsdays"/>
+			<check_box label="デイサイクル" name="chk_days"/>
+			<icon name="icon_settingsskies"/>
 			<check_box label="空" name="chk_skies"/>
 			<check_box label="水面" name="chk_water"/>
 			<filter_editor label="景観の絞り込み" name="flt_search"/>

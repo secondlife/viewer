@@ -4,7 +4,7 @@
         非常に長いテスト オブジェクト名
     </text>
 	<text name="object_owner_label">
-        所有者:
+所有者:
     </text>
 	<button label="マップ" name="map_btn"/>
 	<button label="ブロック" name="block_btn"/>

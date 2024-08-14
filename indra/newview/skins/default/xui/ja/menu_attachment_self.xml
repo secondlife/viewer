@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <context_menu name="Attachment Pie">
-	<menu_item_call label="編集..." name="Edit..."/>
+<menu_item_call label="編集..." name="Edit..."/>
 	<menu_item_call label="アイテムを取り外す" name="Detach"/>
 	<menu_item_call label="触る" name="Attachment Object Touch"/>
 	<menu_item_call label="インベントリーに表示" name="Show original"/>
@@ -15,7 +15,7 @@
 			<menu_item_call label="ズボン" name="Pants"/>
 			<menu_item_call label="スカート" name="Skirt"/>
 			<menu_item_call label="靴" name="Shoes"/>
-			<menu_item_call label="ジャケット" name="Jacket"/>
+<menu_item_call label="ジャケット" name="Jacket"/>
 			<menu_item_call label="手袋" name="Gloves"/>
 			<menu_item_call label="下着パンツ" name="Self Undershirt"/>
 			<menu_item_call label="下着パンツ" name="Self Underpants"/>

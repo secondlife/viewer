@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floaterbulkperms" title="コンテンツ権限を調整">
 	<floater.string name="nothing_to_modify_text">
-		選択した中に編集できないものが含まれています。
+		選択したものに編集できないものが含まれています。
 	</floater.string>
 	<floater.string name="status_text">
 		[NAME] に権限を設定中です。
@@ -12,17 +12,29 @@
 	<floater.string name="done_text">
 		権限変更リクエストが完了しました。
 	</floater.string>
+<check_box name="check_animation"/>
 	<icon name="icon_animation" tool_tip="アニメーション"/>
-	<icon tool_tip="身体部位" name="icon_bodypart"/>
+	<check_box name="check_bodypart"/>
+	<icon name="icon_bodypart" tool_tip="身体部位"/>
+	<check_box name="check_clothing"/>
 	<icon name="icon_clothing" tool_tip="服装"/>
+	<check_box name="check_gesture"/>
 	<icon name="icon_gesture" tool_tip="ジェスチャー"/>
+	<check_box name="check_notecard"/>
 	<icon name="icon_notecard" tool_tip="ノートカード"/>
+	<check_box name="check_object"/>
 	<icon name="icon_object" tool_tip="オブジェクト"/>
+	<check_box name="check_script"/>
 	<icon name="icon_script" tool_tip="スクリプト"/>
+	<check_box name="check_sound"/>
 	<icon name="icon_sound" tool_tip="サウンド"/>
+	<check_box name="check_texture"/>
 	<icon name="icon_texture" tool_tip="テクスチャ"/>
-	<icon name="icon_setting" tool_tip="景観の設定"/>
-	<button name="check_all" label="全てに√"/>
+	<check_box name="check_settings"/>
+	<icon name="icon_setting" tool_tip="自然環境の設定"/>
+	<check_box name="check_materials"/>
+	<icon name="icon_materials" tool_tip="マテリアル"/>
+	<button label="すべてに✔" name="check_all"/>
 	<button label="クリア" label_selected="なし" name="check_none"/>
 	<text name="newperms">
         コンテンツ権限を以下に調整
@@ -36,7 +48,7 @@
     </text>
 	<check_box label="コピー" name="everyone_copy" tool_tip="オブジェクトのコピーは誰でも受け取ることができます。オブジェクトとそのオブジェクトの中身は全てコピーまたは譲渡できるように設定する必要があります"/>
 	<text name="NextOwnerLabel">
-        次の所有者:
+次の所有者:
     </text>
 	<check_box label="修正" name="next_owner_modify" tool_tip="次の所有者は、アイテム名などのプロパティ内容を編集したり、このオブジェクトのサイズを変更できます。"/>
 	<check_box label="コピー" name="next_owner_copy" tool_tip="次の所有者は、このオブジェクトを無制限にコピーできます。コピーには制作者の情報が含まれ、コピー元のアイテムと違って許可などに制限があります。"/>

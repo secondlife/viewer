@@ -4,7 +4,7 @@
 	<layout_stack name="main_stack">
 		<layout_panel name="buttons_header">
 			<text name="header_text">
-                Second Life のお気に入りの場所について皆に伝えましょう。
+Second Life のお気に入りの場所について皆に伝えましょう。
             </text>
 			<button name="new_btn" label="新規..." tool_tip="現在の場所に新しいピックを作成"/>
 			<button name="delete_btn" label="削除..." tool_tip="現在選択されているピックを削除します"/>

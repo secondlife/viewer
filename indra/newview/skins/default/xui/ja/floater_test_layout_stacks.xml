@@ -3,7 +3,7 @@
 	<layout_stack name="test_stack">
 		<layout_panel name="flex">
 			<text>
-                可変
+可変
             </text>
 		</layout_panel>
 		<layout_panel name="flex">

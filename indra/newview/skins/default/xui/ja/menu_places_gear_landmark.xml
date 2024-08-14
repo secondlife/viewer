@@ -2,10 +2,10 @@
 <toggleable_menu name="menu_ladmark_gear">
 	<menu_item_call label="テレポート" name="teleport"/>
 	<menu_item_call label="共有" name="share"/>
-	<menu_item_call label="ランドマークの表示 / 編集" name="more_info"/>
-	<menu_item_call label="ランドマークに移動" name="Move to Landmarks"/>
-	<menu_item_call label="お気に入りに移動" name="Move to Favorites"/>
-	<menu_item_call label="マップに表示" name="show_on_map"/>
+<menu_item_call label="ランドマークの表示／編集" name="more_info"/>
+	<menu_item_call label="ランドマークの場所に移動" name="Move to Landmarks"/>
+	<menu_item_call label="お気に入りへ移動する" name="Move to Favorites"/>
+	<menu_item_call label="マップ上に表示" name="show_on_map"/>
 	<menu_item_call label="SLurlをコピー" name="copy_slurl"/>
 	<menu_item_call label="ピックを作成" name="create_pick"/>
 	<menu_item_call label="アイテムを復元" name="restore_item"/>

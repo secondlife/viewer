@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!-- This file contains strings that used to be hardcoded in the source.-->
 <strings>
-	<string name="MicrosoftLocale">
+<string name="MicrosoftLocale">
 		japanese
 	</string>
 	<string name="MacLocale">

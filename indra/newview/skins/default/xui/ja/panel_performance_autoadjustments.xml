@@ -8,7 +8,7 @@
     </text>
 	<button label="推奨設定にリセット" name="defaults_btn"/>
 	<text name="targetfps_desc">
-        目標フレームレート
+目標フレームレート
     </text>
 	<spinner name="target_fps" tool_tip="ビュアはグラフィック設定を調整することでこれを実現しようとします。"/>
 	<text name="display_desc">
@@ -22,17 +22,18 @@
 		<combo_box.item label="アバターとワールド" name="av_and_scene"/>
 		<combo_box.item label="ワールドのみ" name="scene_only"/>
 	</combo_box>
-	<button label="今すぐ自動調整" name="start_autotune" tool_tip="ビュアは目標FPSを満たすように設定が調整されるまで停止します。"/>
+<button label="今すぐ自動調整" name="start_autotune" tool_tip="ビューアは、目標ＦＰＳを満たすように設定が調整されるまで停止します。"/>
 	<button label="キャンセル" name="stop_autotune" tool_tip="自動調整を中断します。"/>
 	<text name="wip_desc">
-        調整中です...
-    </text>
-	<check_box label="継続的に調整する" name="AutoTuneContinuous" tool_tip="ビュアは、このフローターが閉じていても停止するまで目標FPSを満たすように設定を継続的に調整します。"/>
+		調整しています…
+	</text>
+	<check_box label="継続的に調整する" name="AutoTuneContinuous" tool_tip="ビューアは、このフローターが閉じていても停止するまで、目標ＦＰＳを満たすように設定を継続的に調整します。"/>
 	<radio_group name="autotune_lock_type">
 		<radio_item label="このログインセッションのみ" name="one_session_lock"/>
 		<radio_item label="今後のログインセッションから" name="next_session_lock"/>
 	</radio_group>
-	<check_box label="垂直同期を有効化" name="vsync" tool_tip="垂直同期を有効にして、画面のティアリングや途切れを軽減します。"/>
+<view_border name="border_vsync"/>
+	<check_box name="vsync" label="VSyncを有効化" tool_tip="垂直同期を有効にして、画面のティアリングや途切れを軽減します。"/>
 	<text name="vsync_desc">
         モニターのリフレッシュレートをフレームレートと同期させます。
     </text>
@@ -40,7 +41,7 @@
         注意: VSyncをオンにするとフレームレートが[FPS_LIMIT]fpsに制限されます。
     </text>
 	<text name="simplify_dist_desc">
-        遠くにあるアバターの表示の詳細度を減らすとグラフィックスの速度が向上します。
+遠くにあるアバターの表示の詳細度を減らすとグラフィックスの速度が向上します。
     </text>
 	<check_box label="アバターをさらに単純化" name="AutoTuneImpostorByDistEnabled" tool_tip="有効にするとビュアはMaxNonImpostorsの設定を調整して完全にレンダリングされるアバターを指定された半径内のアバターに限定します。"/>
 	<text name="dist_meters">

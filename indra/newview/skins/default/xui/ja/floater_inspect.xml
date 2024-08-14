@@ -10,6 +10,6 @@
 		<scroll_list.columns label="制作日" name="creation_date"/>
 		<scroll_list.commit_callback function="Inspect.SelectObject"/>
 	</scroll_list>
-	<button label="所有者のプロフィール..." name="button owner" tool_tip="ハイライトされたオブジェクトの所有者のプロフィールを見る"/>
-	<button label="制作者のプロフィール..." name="button creator" tool_tip="ハイライトされたオブジェクトの元の作成者のプロフィールを見る"/>
+<button label="所有者のプロフィール…" name="button owner" tool_tip="ハイライトされたオブジェクトの所有者のプロフィールを見る。"/>
+	<button label="制作者のプロフィール…" name="button creator" tool_tip="ハイライトされたオブジェクトの作成者のプロフィールを見る。"/>
 </floater>

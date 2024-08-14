@@ -10,7 +10,7 @@
 				<stat_bar name="packet_loss" label="パケットロス"/>
 				<stat_bar name="ping" label="シムのPing"/>
 			</stat_view>
-			<stat_view name="advanced" label="拡張">
+<stat_view name="advanced" label="拡張">
 				<stat_view name="render" label="描画">
 					<stat_bar name="ktrisframe" label="フレームあたりのKTris" unit_label="ktris/フレーム"/>
 					<stat_bar name="ktrissec" label="秒あたりのKTris"/>

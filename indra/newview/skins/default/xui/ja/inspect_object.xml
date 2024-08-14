@@ -5,7 +5,7 @@
 	</string>
 	<string name="CreatorAndOwner">
 		[CREATOR]によるチェック
-		[OWNER]によるチェック
+[OWNER]によるチェック
 	</string>
 	<string name="PriceFree">
 		無料です!
@@ -16,7 +16,7 @@
 	<string name="Sit">
 		座る
 	</string>
-	<icon name="secure_browsing" tool_tip="セキュアブラウジング"/>
+<icon name="secure_browsing" tool_tip="セキュアブラウジング"/>
 	<button label="購入" name="buy_btn"/>
 	<button label="支払う" name="pay_btn"/>
 	<button label="コピーを取る" name="take_free_copy_btn"/>

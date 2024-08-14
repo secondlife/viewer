@@ -14,7 +14,7 @@
 	<spinner label="ロール・マッピング" name="JoystickAxis3"/>
 	<spinner label="ズーム・マッピング" name="JoystickAxis6"/>
 	<check_box label="直接ズーム" name="ZoomDirect"/>
-	<check_box label="3Dカーソル" name="Cursor3D"/>
+	<check_box label="３Ｄカーソル" name="Cursor3D"/>
 	<check_box label="自動レベル" name="AutoLeveling"/>
 	<text name="Control Modes:">
         制御モード:
@@ -22,6 +22,7 @@
 	<check_box label="アバター" name="JoystickAvatarEnabled"/>
 	<check_box label="造る" name="JoystickBuildEnabled"/>
 	<check_box label="フライ・カメラ" name="JoystickFlycamEnabled"/>
+
 	<stat_view label="ジョイスティック・モニター" name="axis_view">
 		<stat_bar label="軸0" name="axis0"/>
 		<stat_bar label="軸1" name="axis1"/>
@@ -30,51 +31,5 @@
 		<stat_bar label="軸4" name="axis4"/>
 		<stat_bar label="軸5" name="axis5"/>
 	</stat_view>
-	<text name="XScale">
-        Xスケール
-    </text>
-	<text name="YScale">
-        Yスケール
-    </text>
-	<text name="ZScale">
-        Zスケール
-    </text>
-	<text name="PitchScale">
-        ピッチ・スケール
-    </text>
-	<text name="YawScale">
-        ヨー・スケール
-    </text>
-	<text name="RollScale">
-        ロール・スケール
-    </text>
-	<text name="XDeadZone">
-        Xデッドゾーン
-    </text>
-	<text name="YDeadZone">
-        Yデッドゾーン
-    </text>
-	<text name="ZDeadZone">
-        Zデッドゾーン
-    </text>
-	<text name="PitchDeadZone">
-        ピッチ・デッド・ゾーン
-    </text>
-	<text name="YawDeadZone">
-        ヨー・デッドゾーン
-    </text>
-	<text name="RollDeadZone">
-        ロール・デッド・ゾーン
-    </text>
-	<text name="Feathering">
-        感度調整
-    </text>
-	<text name="ZoomScale2">
-        ズーム・スケール
-    </text>
-	<text name="ZoomDeadZone">
-        ズーム・デッド・ゾーン
-    </text>
-	<button label="SpaceNavigatorのデフォルト設定" name="SpaceNavigatorDefaults"/>
-	<button label="キャンセル" label_selected="キャンセル" name="cancel_btn"/>
+
 </floater>

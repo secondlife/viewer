@@ -2,7 +2,7 @@
 <panel name="edit_alpha_panel">
 	<scroll_container name="avatar_alpha_color_panel_scroll">
 		<panel name="avatar_alpha_color_panel">
-			<texture_picker label="アルファ(下半身)" name="Lower Alpha" tool_tip="クリックして画像を選択"/>
+<texture_picker label="アルファ(下半身)" name="Lower Alpha" tool_tip="クリックして画像を選択"/>
 			<texture_picker label="アルファ(上半身)" name="Upper Alpha" tool_tip="クリックして画像を選択"/>
 			<texture_picker label="頭部のアルファ" name="Head Alpha" tool_tip="クリックして画像を選択"/>
 			<texture_picker label="瞳のアルファ" name="Eye Alpha" tool_tip="クリックして画像を選択"/>

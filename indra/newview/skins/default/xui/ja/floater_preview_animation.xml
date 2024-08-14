@@ -3,7 +3,7 @@
 	<floater.string name="Title">
 		アニメーション: [NAME]
 	</floater.string>
-	<button label="インワールドで再生" label_selected="停止" name="Inworld" tool_tip="他人に見えるように再生"/>
+<button label="インワールドで再生" label_selected="停止" name="Inworld" tool_tip="他人に見えるように再生"/>
 	<text name="desc inworld">
         他人も見ることができます
     </text>

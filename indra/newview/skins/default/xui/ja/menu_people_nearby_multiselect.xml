@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <context_menu name="Multi-Selected People Context Menu">
-	<menu_item_call label="フレンド登録" name="add_friends"/>
+<menu_item_call label="フレンド登録" name="add_friends"/>
 	<menu_item_call label="フレンドを削除" name="remove_friends"/>
 	<menu_item_call label="呼び出し" name="call"/>
 	<menu_item_call label="共有" name="share"/>

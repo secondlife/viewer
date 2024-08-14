@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floaterpreferencesviewadvanced" title="カメラの位置">
+<floater name="floaterpreferencesviewadvanced" title="カメラ位置">
 	<text name="camera_offset_lbl">
-        カメラのオフセット:
+カメラのオフセット:
     </text>
 	<text name="focus_offset_lbl">
         焦点のオフセット:

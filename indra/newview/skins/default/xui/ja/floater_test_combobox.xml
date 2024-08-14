@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater_test_combobox">
-	<text type="string" length="1" height="16" layout="topleft" left="10" top="24" width="200">
+<text type="string" length="1" height="16" layout="topleft" left="10" top="24" width="200">
         現実の使い道(ログイン場所):
     </text>
 	<combo_box name="start_location_combo">
@@ -15,21 +15,21 @@
 		<combo_box.item label="最初の項目" name="item1"/>
 		<combo_box.item label="2つ目の項目" name="item2"/>
 	</combo_box>
-	<text type="string" length="1" height="16" layout="topleft" left_delta="0" top_pad="24" width="200">
-        テキスト入力を許可:
-    </text>
+<text>
+		テキスト入力を許可：
+	</text>
 	<combo_box name="text_entry_combo">
 		<combo_box.item label="最初の項目" name="item1"/>
 		<combo_box.item label="2つ目の項目" name="item2"/>
 	</combo_box>
-	<text type="string" length="1" height="16" layout="topleft" left_delta="0" top_pad="24" width="200">
-        テキスト入力を許可。デフォルトは2つ目の項目:
-    </text>
+<text>
+		テキスト入力を許可。デフォルトは２つ目の項目：
+	</text>
 	<combo_box name="text_entry_combo2">
 		<combo_box.item label="最初の項目" name="item1"/>
 		<combo_box.item label="2つ目の項目" name="item2"/>
 	</combo_box>
-	<text type="string" length="1" height="16" layout="topleft" left_delta="0" top_pad="24" width="200">
+<text type="string" length="1" height="16" layout="topleft" left_delta="0" top_pad="24" width="200">
         2文字まで入力可能:
     </text>
 	<combo_box name="state_combo">

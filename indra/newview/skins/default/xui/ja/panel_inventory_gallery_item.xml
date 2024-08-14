@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="gallery_item_panel">
+<thumbnail name="preview_thumbnail"/>
+	<icon name="item_type"/>
+	<icon name="link_overlay"/>
 	<panel name="text_bg_panel">
 		<text name="item_name">
-            アイテム名、フォルダー名。
-        </text>
+			アイテム名、フォルダ名。
+		</text>
 	</panel>
 </panel>

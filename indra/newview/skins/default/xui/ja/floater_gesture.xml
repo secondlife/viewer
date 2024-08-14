@@ -14,13 +14,13 @@
 		<scroll_list.columns label="チャット" name="trigger"/>
 		<scroll_list.columns label="キー" name="shortcut"/>
 	</scroll_list>
-	<panel label="ボトムパネル" name="bottom_panel">
-		<menu_button name="gear_btn" tool_tip="詳細オプション"/>
-		<button name="new_gesture_btn" tool_tip="新規ジェスチャーを作成"/>
-		<button name="activate_btn" tool_tip="選択したジェスチャーの有効化 / 無効化"/>
-		<button name="del_btn" tool_tip="このジェスチャーを削除"/>
+<panel label="bottom_panel" name="bottom_panel">
+		<menu_button name="gear_btn" tool_tip="詳細オプションを表示します。"/>
+		<button name="new_gesture_btn" tool_tip="新しいジェスチャーを作成します。"/>
+		<button name="activate_btn" tool_tip="選択したジェスチャーの有効化／無効化します。"/>
+		<button name="del_btn" tool_tip="このジェスチャーを削除します。"/>
 	</panel>
-	<button label="編集" tool_tip="選択したジェスチャーの編集ウィンドウを開く。" name="edit_btn"/>
-	<button label="再生" tool_tip="インワールドで選択したジェスチャーを実行する。" name="play_btn"/>
+	<button label="編集" name="edit_btn" tool_tip="選択したジェスチャーの編集ウィンドウを開きます。"/>
+	<button label="再生" name="play_btn" tool_tip="インワールドで選択したジェスチャーを実行します。"/>
 	<button label="停止" name="stop_btn"/>
 </floater>

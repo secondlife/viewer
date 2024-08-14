@@ -14,8 +14,9 @@
 						</layout_panel>
 						<layout_panel name="maturity panel">
 							<text name="ContentRating">
-                                レーティング:
-                            </text>
+レーティング：
+							</text>
+							<text name="ContentRatingText"/>
 						</layout_panel>
 						<layout_panel name="location panel">
 							<text name="Location">
@@ -24,7 +25,7 @@
 						</layout_panel>
 						<layout_panel name="marketplace panel">
 							<text name="Marketplace">
-                                マーケットプレイスストア:
+マーケットプレイスストア:
                             </text>
 						</layout_panel>
 						<layout_panel name="owner panel">
@@ -57,28 +58,20 @@
 					<text name="edit_experience_desc_label" value="説明:"/>
 					<button name="Group_btn" label="グループ"/>
 					<text name="edit_ContentRating">
-                        評価:
-                    </text>
-					<icons_combo_box label="モデレート" tool_tip="体験のレーティング区分を上げると、体験を許可した全ての住人の権限がリセットされます。" name="edit_ContentRatingText">
-						<icons_combo_box.item label="アダルト" name="Adult">
-							<item.columns value="Parcel_R_Light"/>
-						</icons_combo_box.item>
-						<icons_combo_box.item label="モデレート" name="Mature">
-							<item.columns value="Parcel_M_Light"/>
-						</icons_combo_box.item>
-						<icons_combo_box.item label="一般" name="PG">
-							<item.columns value="Parcel_PG_Light"/>
-						</icons_combo_box.item>
+レーティング：
+					</text>
+					<icons_combo_box label="Moderate" name="edit_ContentRatingText" tool_tip="体験のレーティング区分を上げると、体験を許可したすべての住人の権限がリセットされます。">
+						<icons_combo_box.item label="Adult" name="Adult" value="42"/>
+						<icons_combo_box.item label="Moderate" name="Mature" value="21"/>
+						<icons_combo_box.item label="General" name="PG" value="13"/>
 					</icons_combo_box>
 					<text name="edit_Location">
-                        場所:
-                    </text>
-					<button name="location_btn" label="現在に設定"/>
-					<button name="clear_btn" label="場所をクリア"/>
-					<text name="edit_marketplace">
-                        マーケットプレイスストア:
-                    </text>
-					<check_box label="体験を有効にする" name="edit_enable_btn"/>
+						場所：
+					</text>
+					<button label="現在に設定" name="location_btn"/>
+					<button label="場所をクリア" name="clear_btn"/>
+					<text name="edit_marketplace"/>
+					<check_box label="体験を有効にする" name="edit_enable_btn" tool_tip=""/>
 					<check_box label="検索で表示しない" name="edit_private_btn"/>
 					<text name="changes" value="体験が全てのリージョンに表示されるには数分かかる場合があります。"/>
 					<button label="戻る" name="cancel_btn"/>

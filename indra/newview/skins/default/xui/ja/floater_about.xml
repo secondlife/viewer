@@ -2,7 +2,7 @@
 <floater name="floater_about" title="[CAPITALIZED_APP_NAME]について">
 	<tab_container name="about_tab">
 		<panel label="情報" name="support_panel">
-			<button label="クリップボードにコピー" name="copy_btn"/>
+<button label="クリップボードにコピー" name="copy_btn"/>
 		</panel>
 		<panel label="クレジット" name="credits_panel">
 			<text name="linden_intro">

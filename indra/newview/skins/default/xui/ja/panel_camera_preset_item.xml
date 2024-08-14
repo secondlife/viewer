@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="camera_preset_item">
 	<text name="preset_name" value="デフォルト"/>
-	<button name="delete_btn" tool_tip="プリセットを削除"/>
+	<button name="delete_btn" tool_tip="プリセットを削除します。"/>
 	<button name="reset_btn" tool_tip="デフォルトのプリセットにリセットします。"/>
 </panel>

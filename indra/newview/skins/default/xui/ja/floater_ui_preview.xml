@@ -30,7 +30,7 @@
 		</scroll_list>
 		<panel name="editor_panel">
 			<text name="editor_path_label">
-                エディタのパス:
+エディタのパス:
             </text>
 			<line_editor name="executable_path_field" tool_tip="フローターXMLファイルを編集するためのエディター(実行可能ファイル)へのフルパス。(引用符は必要ありません)"/>
 			<button follows="left|bottom" label="参照..." label_selected="参照..." name="browse_for_executable" tool_tip="フローターXMLファイルを編集するためのエディター(実行可能ファイル)を参照します。"/>
@@ -41,14 +41,14 @@
 		</panel>
 		<panel name="vlt_panel">
 			<text name="diff_file_label">
-                差分ファイル:
-            </text>
-			<line_editor name="vlt_diff_path_field" tool_tip="Viewer Localization Toolkitによって生成されたXMLのD0、D1言語差分ファイルへのフルパス"/>
-			<button label="参照..." label_selected="参照..." name="browse_for_vlt_diffs" tool_tip="VLTで生成されたD0、D1差分ファイルを参照して、変更されたファイルと要素を強調表示します。"/>
+差分ファイル：
+			</text>
+			<line_editor name="vlt_diff_path_field" tool_tip="Viewer Localization Toolkitによって生成されたＸＭＬのD0、D1言語差分ファイルへのフルパス"/>
+			<button label="参照…" label_selected="参照…" name="browse_for_vlt_diffs" tool_tip="VLTで生成されたD0、D1差分ファイルを参照して、変更されたファイルと要素を強調表示します。"/>
 			<button label="差分をハイライト" label_selected="ハイライトを解除" name="toggle_vlt_diff_highlight" tool_tip="変更された言語データを含むファイルと要素の強調表示を切り替えます。"/>
 		</panel>
 	</panel>
-	<scroll_container follows="top|right|bottom" height="600" layout="topleft" name="overlap_scroll">
+	<scroll_container name="overlap_scroll">
 		<panel name="overlap_dummy_panel">
 			<overlap_panel label="オーバーラップパネル" name="overlap_panel" tool_tip="このパネルには、現在選択されている要素と、それに重なっている全ての要素が水平線で区切られて表示されます。"/>
 			<text name="overlap_panel_label">

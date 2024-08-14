@@ -16,34 +16,44 @@
 			<layout_stack name="atmosphere1">
 				<layout_panel name="left_lp">
 					<text name="haze_horizon_label">
-                        霞の地平線:
-                    </text>
+地平線の霞：
+					</text>
+					<slider name="haze_horizon"/>
 					<text name="haze_density_label">
-                        靄の濃度:
-                    </text>
+						霞の密度：
+					</text>
+					<slider name="haze_density"/>
 					<text name="moisture_level_label">
-                        水分レベル:
-                    </text>
+						湿度：
+					</text>
+					<slider name="moisture_level"/>
 					<text name="droplet_radius_label">
-                        液滴半径:
-                    </text>
+						液滴半径：
+					</text>
+					<slider name="droplet_radius"/>
 					<text name="ice_level_label">
-                        氷のレベル:
-                    </text>
-					<text name="scene_gamma_label">
-                        シーンのガンマ値:
-                    </text>
+						氷のレベル：
+					</text>
+					<slider name="ice_level"/>
 				</layout_panel>
 				<layout_panel name="right_lp">
 					<text name="density_multiplier_label">
-                        密度乗数:
-                    </text>
+						密度乗数：
+					</text>
+					<slider name="density_multip"/>
 					<text name="distance_multiplier_label">
-                        距離乗数:
-                    </text>
+						距離乗数：
+					</text>
+					<slider name="distance_multip"/>
 					<text name="maximum_altitude_label">
-                        最大高度:
-                    </text>
+						最大高度：
+					</text>
+					<slider name="max_alt"/>
+					<slider name="probe_ambiance" tool_tip="環境ベースの間接照明の強度を制御します。０の場合、ＨＤＲスケールは明るさになります。"/>
+					<text name="scene_gamma_label">
+						ブライトネス：
+					</text>
+					<slider name="scene_gamma"/>
 				</layout_panel>
 			</layout_stack>
 		</layout_panel>

@@ -12,7 +12,7 @@
 		</combo_item>
 	</combo_box>
 	<text name="owner_label">
-        所有者
+所有者
     </text>
 	<check_box label="ナビゲーションと相互作用力を有効にする" name="perms_owner_interact"/>
 	<check_box label="コントロールバーを表示" name="perms_owner_control"/>

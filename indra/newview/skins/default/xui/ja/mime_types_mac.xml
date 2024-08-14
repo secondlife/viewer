@@ -119,7 +119,7 @@
 	</scheme>
 	<mimetype name="blank">
 		<label name="blank_label">
-			- なし -
+- なし -
 		</label>
 		<widgettype>
 			NONE
@@ -130,7 +130,7 @@
 	</mimetype>
 	<mimetype name="none/none">
 		<label name="none/none_label">
-			- なし -
+- なし -
 		</label>
 		<widgettype>
 			NONE
@@ -454,6 +454,11 @@
 		<impl>
 			media_plugin_libvlc
 		</impl>
+	</mimetype>
+	<mimetype name="video/x-flv">
+		<label name="video/x-flv_label">
+			ムービー（flv）
+		</label>
 	</mimetype>
 	<mimetype name="video/quicktime">
 		<label name="video/quicktime_label">

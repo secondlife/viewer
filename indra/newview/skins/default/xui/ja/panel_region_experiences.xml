@@ -18,7 +18,7 @@
 		ブロックされた体験は、この不動産では実行できません。
 	</panel.string>
 	<panel.string name="estate_caption">
-		このタブの設定への変更は不動産内の全ての地域に影響されます。
+このタブの設定への変更は、不動産内のすべてのリージョンに影響されます。
 	</panel.string>
 	<panel.string name="allowed_parcel_text">
 		ランドスコープとなる体験のみ許可されます。

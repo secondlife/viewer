@@ -7,7 +7,7 @@
 		帯域幅
 	</panel.string>
 	<panel.string name="time">
-		[ampm, datetime, slt] [hour12, datetime, slt]:[min, datetime, slt] [timezone,datetime, slt]
+[ampm, datetime, slt] [hour12, datetime, slt]:[min, datetime, slt] [timezone,datetime, slt]
 	</panel.string>
 	<panel.string name="timeTooltip">
 		[year, datetime, slt]年[month, datetime, slt]月[day, datetime, slt]日([weekday, datetime, slt])
@@ -19,7 +19,7 @@
 		<search_editor label="メニューの検索" name="search_menu_edit" tool_tip="検索したい内容をここに入力してください。メニューに部分的に一致する結果が表示されます。"/>
 	</panel>
 	<panel name="balance_bg">
-		<text name="balance" tool_tip="クリックして L$ 残高を更新" value="L$ ??"/>
+<text name="balance" tool_tip="クリックして L$ 残高を更新" value="L$ ??"/>
 		<button label="L$を購入" name="buyL" tool_tip="クリックしてL$を購入します" width="80"/>
 		<button label="ショップ" name="goShop" tool_tip="Second Lifeのマーケットプレイスを開きます。" width="65"/>
 	</panel>

@@ -4,10 +4,10 @@
 		経路探索ライブラリの実装が見つかりません。
 	</floater.string>
 	<floater.string name="navmesh_viewer_status_region_not_enabled">
-		この地域(リージョン)はパスファインディングに対応していません。
+このリージョンは経路探索に対応していません。
 	</floater.string>
 	<floater.string name="navmesh_viewer_status_region_loading">
-		地域(リージョン)の読込を待機しています。
+		リージョンの読み込みを待機しています。
 	</floater.string>
 	<floater.string name="navmesh_viewer_status_checking_version">
 		ナビメッシュのステータスを確認しています。
@@ -31,13 +31,13 @@
 		ナビメッシュを作成しています。
 	</floater.string>
 	<floater.string name="navmesh_simulator_status_some_pending">
-		ナビメッシュの一部の地域(リージョン)に保留中の変更があります。
+ナビメッシュの一部のリージョンに保留中の変更があります。
 	</floater.string>
 	<floater.string name="navmesh_simulator_status_some_building">
-		一部のナビメッシュの地域(リージョン)を構築しています。
+		一部のナビメッシュのリージョンを構築しています。
 	</floater.string>
 	<floater.string name="navmesh_simulator_status_pending_and_building">
-		ナビメッシュの一部の地域(リージョン)に保留中の変更があり、その他の地域(リージョン)は構築中です。
+		ナビメッシュの一部のリージョンに保留中の変更があり、その他のリージョンは構築中です。
 	</floater.string>
 	<floater.string name="navmesh_simulator_status_complete">
 		ナビメッシュは最新です。
@@ -46,25 +46,25 @@
 		経路探索ライブラリの実装が見つかりません。
 	</floater.string>
 	<floater.string name="pathing_region_not_enabled">
-		この地域(リージョン)はパスファインディングに対応していません。
+この地域(リージョン)はパスファインディングに対応していません。
 	</floater.string>
 	<floater.string name="pathing_choose_start_and_end_points">
-		開始点と終了点を選択してください。
+		始点と終点を選択してください。
 	</floater.string>
 	<floater.string name="pathing_choose_start_point">
-		開始点を選択してください。
+		始点を選択してください。
 	</floater.string>
 	<floater.string name="pathing_choose_end_point">
-		終了点を選択してください。
+		終点を選択してください。
 	</floater.string>
 	<floater.string name="pathing_path_valid">
-		パスはオレンジ色で表示されています。
+		経路はオレンジ色で表示されています。
 	</floater.string>
 	<floater.string name="pathing_path_invalid">
-		選択した2点間のパスが見つかりません。
+選択した2点間のパスが見つかりません。
 	</floater.string>
 	<floater.string name="pathing_error">
-		パスの生成中にエラーが発生しました。
+		経路生成時にエラーが発生しました。
 	</floater.string>
 	<panel name="pathfinding_console_main">
 		<text name="viewer_status_label">
@@ -85,7 +85,7 @@
 			<check_box label="可動物のみ" name="show_world_movables_only"/>
 			<check_box label="ナビメッシュ" name="show_navmesh"/>
 			<text name="show_walkability_label">
-                歩行可能マップを表示:
+歩行可能マップを表示:
             </text>
 			<combo_box name="show_heatmap_mode">
 				<combo_box.item label="表示しない" name="show_heatmap_mode_none"/>
@@ -101,7 +101,7 @@
 			<check_box label="水上飛行機" name="show_water_plane"/>
 			<check_box label="X線表示機能つき" name="show_xray"/>
 		</panel>
-		<panel name="test_panel" label="パスをテスト">
+<panel name="test_panel" label="パスをテスト">
 			<text name="ctrl_click_label">
                 Ctrlキーを押しながらクリックして、開始点を選択します。
             </text>

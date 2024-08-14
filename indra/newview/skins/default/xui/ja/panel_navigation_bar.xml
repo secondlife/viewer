@@ -3,20 +3,21 @@
 	<layout_stack name="nvp_stack">
 		<layout_panel name="navigation_layout_panel">
 			<panel name="navigation_panel">
-				<pull_button name="back_btn" tool_tip="前の場所"/>
+<pull_button name="back_btn" tool_tip="前の場所"/>
 				<pull_button name="forward_btn" tool_tip="次の場所"/>
 				<button name="home_btn" tool_tip="「ホーム」にテレポート"/>
 				<location_input label="所在地" name="location_combo"/>
 			</panel>
 		</layout_panel>
 		<layout_panel name="favorites_layout_panel">
-			<button name="landmarks_btn" tool_tip="ランドマーク"/>
-			<favorites_bar name="favorite" tool_tip="ランドマークをここにドラッグして、Second Lifeのお気に入りの場所に素早くアクセス!">
-				<label name="favorites_bar_label" tool_tip="ランドマークをここにドラッグして、Second Lifeのお気に入りの場所に素早くアクセス!">
-					お気に入りバーに保存した場所がここに表示されます。
+<icon name="resize_handle"/>
+			<button name="landmarks_btn" tool_tip="ランドマークを開きます。"/>
+			<favorites_bar name="favorite" tool_tip="ランドマークをここにドラッグして、Second Lifeのお気に入りの場所に素早くアクセス！">
+				<label name="favorites_bar_label" tool_tip="ランドマークをここにドラッグして、Second Lifeのお気に入りの場所に素早くアクセス！">
+					お気に入りバー
 				</label>
-				<more_button name="&gt;&gt;" tool_tip="お気に入りをもっと表示">
-					詳細 ▼
+				<more_button name="&gt;&gt;" tool_tip="お気に入りをもっと表示します。">
+					詳細　▼
 				</more_button>
 			</favorites_bar>
 		</layout_panel>

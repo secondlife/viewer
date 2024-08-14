@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <toggleable_menu name="Avatar Icon Menu">
 	<menu_item_call label="プロフィールの表示" name="Show Profile"/>
-	<menu_item_call label="IMを送信" name="Send IM"/>
+<menu_item_call label="IMを送信" name="Send IM"/>
 	<menu_item_call label="テレポートのオファー" name="Offer Teleport"/>
 	<menu_item_call label="テレポートをリクエスト" name="Request Teleport"/>
 	<menu_item_call label="ボイスコール" name="Voice Call"/>
@@ -21,5 +21,6 @@
 		<menu_item_call label="この参加者をミュート" name="ModerateVoiceMuteSelected"/>
 		<menu_item_call label="この参加者のミュートを解除" name="ModerateVoiceUnMuteSelected"/>
 	</context_menu>
-	<menu_item_call label="メンバーをバンする" name="BanMember"/>
+<menu_item_separator name="Group Ban Separator"/>
+	<menu_item_call label="メンバーをバン" name="BanMember"/>
 </toggleable_menu>

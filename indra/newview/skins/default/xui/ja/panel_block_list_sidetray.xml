@@ -8,7 +8,7 @@
 		<button name="unblock_btn" tool_tip="ブロックリストから住人・オブジェクトを削除"/>
 	</panel>
 	<text name="block_limit">
-        [COUNT]件のエントリーがブロックリストにあり、上限は[LIMIT]です。
-    </text>
+全[LIMIT]件中、[COUNT]件のエントリーがブロックリストにあります。
+	</text>
 	<block_list name="blocked" tool_tip="現在ブロックされている住人一覧"/>
 </panel>
