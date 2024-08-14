@@ -111,6 +111,49 @@ namespace LL
             void serialize(boost::json::object& dst) const;
         };
 
+        class Light : public Extension
+        {
+          public:
+            enum class PunctualLightType
+            {
+                DIRECTIONAL = 0,
+                SPOT,
+                POINT
+            };
+
+            class Spot
+            {
+              public:
+                F32 innerConeAngle = 0;
+                F32 outerConeAngle = 0.7853981633974483f;
+            };
+
+            vec3                mColor     = vec3(1, 1, 1);
+            F32                 mRange     = 0;
+            F32                 mIntensity = 1.0;
+            PunctualLightType   mType;
+            Spot                mSpot;
+
+            bool        operator==(const Light &rhs) const;
+            bool        operator!=(const Light &rhs) const;
+            const Light &operator=(const Value &src);
+            void        serialize(boost::json::object &dst) const;
+        };
+
+        class LightVector : public Extension
+        {
+          public:
+            std::vector<Light> mLights;
+            
+            bool operator==(const LightVector &rhs) const;
+
+            bool operator!=(const LightVector &rhs) const;
+
+            const LightVector &operator=(const Value &src);
+
+            void serialize(boost::json::object &dst) const;
+        };
+
         class Material
         {
         public:
@@ -228,6 +271,17 @@ namespace LL
             bool prep(Asset& asset);
         };
 
+        class LightIndex : public Extension
+        {
+          public:
+            S32 mLight = INVALID_INDEX;
+
+            bool              operator==(const LightIndex &rhs) const;
+            bool              operator!=(const LightIndex &rhs) const;
+            const LightIndex &operator=(const Value &src);
+            void              serialize(boost::json::object &dst) const;
+        };
+
         class Node
         {
         public:
@@ -252,6 +306,8 @@ namespace LL
 
             S32 mMesh = INVALID_INDEX;
             S32 mSkin = INVALID_INDEX;
+
+            LightIndex mLight;
 
             std::string mName;
 
@@ -394,6 +450,12 @@ namespace LL
             std::vector<RenderBatch> mBatches[LLGLSLShader::NUM_GLTF_VARIANTS];
         };
 
+        class LightData : public Light
+        {
+          public:
+            Node mNode;
+            F32  mDistance = 0;
+        };
 
         // C++ representation of a GLTF Asset
         class Asset
@@ -413,6 +475,7 @@ namespace LL
             std::vector<Accessor> mAccessors;
             std::vector<Animation> mAnimations;
             std::vector<Skin> mSkins;
+            LightVector mLights;
             std::vector<std::string> mExtensionsUsed;
             std::vector<std::string> mExtensionsRequired;
 
@@ -506,5 +569,8 @@ namespace LL
 
         Material::AlphaMode gltf_alpha_mode_to_enum(const std::string& alpha_mode);
         std::string enum_to_gltf_alpha_mode(Material::AlphaMode alpha_mode);
+
+        Light::PunctualLightType gltf_light_type_to_enum(const std::string &light_type);
+        std::string enum_to_gltf_light_type(Light::PunctualLightType light_type);
     }
 }

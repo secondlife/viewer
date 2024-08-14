@@ -113,6 +113,7 @@
 #include "llprogressview.h"
 #include "llcleanup.h"
 #include "gltfscenemanager.h"
+#include "gltf/asset.h"
 
 #include "llenvironment.h"
 #include "llsettingsvo.h"
@@ -7884,6 +7885,8 @@ void LLPipeline::renderDeferredLighting()
         LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("deferred");
         LLViewerCamera *camera = LLViewerCamera::getInstance();
 
+        std::vector<LL::GLTF::LightData> gltf_lights = LL::GLTFSceneManager::instance().collectLights(camera);
+
         if (gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_HUD))
         {
             gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_HUD);
@@ -8263,6 +8266,49 @@ void LLPipeline::renderDeferredLighting()
                         mScreenTriangleVB->setBuffer();
                         mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
                         unbindDeferredShader(gDeferredMultiLightProgram[idx]);
+                    }
+                }
+
+                if (!gltf_lights.empty())
+                {
+                    LLVector4 light_data[256];
+                    LLVector4 light_color[256];
+                    int       light_type[256];
+                    LLVector2 light_cone[256];
+                    LLVector3 light_dir[256];
+
+                    far_z = 0.f;
+
+                    int count = 0;
+                    for (const LL::GLTF::LightData &light : gltf_lights)
+                    {
+                        light_data[count] =
+                            LLVector4(light.mNode.mTranslation.x, light.mNode.mTranslation.y, light.mNode.mTranslation.z, light.mRange);
+                        light_color[count] = LLVector4(light.mColor.r, light.mColor.g, light.mColor.b, light.mIntensity);
+                        light_type[count]  = (int)light.mType;
+                        light_cone[count]  = LLVector2(light.mSpot.outerConeAngle, light.mSpot.innerConeAngle);
+                        //light_dir[count]   = glm::vec3(light.mDirection);
+                        
+                        far_z = llmin(light_data[count].mV[2] - light_data[count].mV[3], far_z);
+
+                        count++;
+
+                        if (count + 1 == gltf_lights.size() || count + 1 == 256)
+                        {
+                            bindDeferredShader(gDeferredGLTFLightProgram);
+                            gDeferredGLTFLightProgram.uniform1i(LLShaderMgr::MULTI_LIGHT_COUNT, count);
+                            gDeferredGLTFLightProgram.uniform4fv(LLShaderMgr::MULTI_LIGHT, count, (GLfloat*)light_data);
+                            gDeferredGLTFLightProgram.uniform4fv(LLShaderMgr::MULTI_LIGHT_COL, count, (GLfloat *) light_color);
+                            gDeferredGLTFLightProgram.uniform1iv(LLShaderMgr::MULTI_LIGHT_TYPE, count, (GLint *) light_color);
+                            gDeferredGLTFLightProgram.uniform2fv(LLShaderMgr::MULTI_LIGHT_CONE, count, (GLfloat *) light_cone);
+                            gDeferredGLTFLightProgram.uniform3fv(LLShaderMgr::MULTI_LIGHT_DIR, count, (GLfloat *) light_dir);
+                            gDeferredGLTFLightProgram.uniform1f(LLShaderMgr::MULTI_LIGHT_FAR_Z, far_z);
+                            count = 0;
+                            far_z = 0.f;
+                            mScreenTriangleVB->setBuffer();
+                            mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
+                            unbindDeferredShader(gDeferredGLTFLightProgram);
+                        }
                     }
                 }
 

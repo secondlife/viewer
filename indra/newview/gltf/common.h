@@ -83,6 +83,7 @@ namespace LL
         class Accessor;
         class BufferView;
         class Buffer;
+        class LightData;
 
         enum class TextureType : U8
         {

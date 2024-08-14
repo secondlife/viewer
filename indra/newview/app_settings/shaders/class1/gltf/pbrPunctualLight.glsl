@@ -36,31 +36,7 @@ uniform vec3  env_mat[3];
 uniform float sun_wash;
 uniform int   light_count;
 uniform vec4  light[LIGHT_COUNT];     // .w = size; see C++ fullscreen_lights.push_back()
-uniform vec4  light_col[LIGHT_COUNT]; // .a = falloff; gets used as intensity for GLTF lights.
-
-#ifdef GLTF_LIGHTS
-uniform int   light_type[LIGHT_COUNT]; // 0 = directional, 1 = spot, 2 = point. Directional is not handled by this shader.
-uniform vec2  light_cone[LIGHT_COUNT]; // .x = cos(outer), .y = cos(inner)
-uniform vec3  light_dir[LIGHT_COUNT];
-
-struct Light
-{
-    vec3 direction;
-    float range;
-
-    vec3 color;
-    float intensity;
-
-    vec3 position;
-    float innerConeCos;
-
-    float outerConeCos;
-    int type;
-};
-
-vec3 getLighIntensity(Light light, vec3 pointToLight);
-
-#endif
+uniform vec4  light_col[LIGHT_COUNT]; // .a = falloff
 
 uniform vec2  screen_res;
 uniform float far_z;
@@ -123,7 +99,7 @@ void main()
         for (int light_idx = 0; light_idx < LIGHT_COUNT; ++light_idx)
         {
             vec3  lightColor = light_col[ light_idx ].rgb; // Already in linear, see pipeline.cpp: volume->getLightLinearColor();
-            float falloff    = light_col[ light_idx ].a; // Is treated as intensity for GLTF lights.
+            float falloff    = light_col[ light_idx ].a;
             float lightSize  = light[ light_idx ].w;
             vec3  lv         = light[ light_idx ].xyz - pos;
 
@@ -133,29 +109,10 @@ void main()
             if (dist <= 1.0)
             {
                 lv /= lightDist;
-                float dist_atten = 0;
-                vec3 intensity = vec3(0);
 
-                #ifndef GLTF_LIGHTS
+                float dist_atten = calcLegacyDistanceAttenuation(dist, falloff);
 
-                dist_atten = calcLegacyDistanceAttenuation(dist, falloff);
-                intensity = dist_atten * lightColor * 3.25;
-
-                #else
-
-                Light l;
-                l.direction = light_dir[light_idx];
-                l.range = lightSize;
-                l.color = lightColor;
-                l.intensity = falloff;
-                l.position = light[light_idx].xyz;
-                l.innerConeCos = light_cone[light_idx].y;
-                l.outerConeCos = light_cone[light_idx].x;
-                l.type = light_type[light_idx];
-
-                intensity = getLighIntensity(l, lv);
-
-                #endif
+                vec3 intensity = dist_atten * lightColor * 3.25;
 
                 final_color += intensity*pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, n.xyz, v, lv);
             }

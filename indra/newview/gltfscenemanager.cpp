@@ -46,6 +46,7 @@
 #include "llagentbenefits.h"
 #include "llfilesystem.h"
 #include "boost/json.hpp"
+#include "llviewercamera.h"
 
 #define GLTF_SIM_SUPPORT 1
 
@@ -727,6 +728,57 @@ void GLTFSceneManager::render(Asset& asset, U8 variant)
             }
         }
     }
+}
+
+std::vector<LL::GLTF::LightData> GLTFSceneManager::collectLights(LLViewerCamera *cam)
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_GLTF;
+
+    std::vector<LL::GLTF::LightData> lights;
+
+    LLVector3 cam_pos = cam->getOrigin();
+
+    vec3 cam_pos_vec = vec3(cam_pos.mV[0], cam_pos.mV[1], cam_pos.mV[2]);
+
+    // Build lists of point and spot lights for this frame.
+    for (U32 i = 0; i < mObjects.size(); ++i)
+    {
+        Asset* asset = mObjects[i]->mGLTFAsset.get();
+
+        for (auto n : asset->mNodes)
+        {
+            if (n.mLight.mPresent && n.mLight.mLight != INVALID_INDEX)
+            {
+                Light& light = asset->mLights.mLights[n.mLight.mLight];
+
+                LightData ld;
+
+                ld.mColor = light.mColor;
+                ld.mIntensity = light.mIntensity;
+                ld.mRange = light.mRange;
+                ld.mSpot = light.mSpot;
+                ld.mType = light.mType;
+                ld.mNode = n;
+
+                if (ld.mIntensity < 0.001f)
+                {
+                    ld.mDistance = LLPipeline::RenderFarClip;
+                }
+
+                ld.mDistance = glm::distance(cam_pos_vec, n.mTranslation);
+
+                ld.mDistance = llmax(ld.mDistance - ld.mRange, 0.f);
+
+                // Is this light within the camera's view frustum?
+                if (ld.mType != LL::GLTF::Light::PunctualLightType::DIRECTIONAL)
+                {
+                    lights.push_back(ld);
+                }
+            }
+        }
+    }
+
+    return lights;
 }
 
 void GLTFSceneManager::bindTexture(Asset& asset, TextureType texture_type, TextureInfo& info, LLViewerTexture* fallback)

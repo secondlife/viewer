@@ -47,7 +47,8 @@ namespace LL
     {
         static std::unordered_set<std::string> ExtensionsSupported = {
             "KHR_materials_unlit",
-            "KHR_texture_transform"
+            "KHR_texture_transform",
+            "KHR_lights_punctual"
         };
 
         Material::AlphaMode gltf_alpha_mode_to_enum(const std::string& alpha_mode)
@@ -82,6 +83,41 @@ namespace LL
                 return "BLEND";
             default:
                 return "OPAQUE";
+            }
+        }
+
+        Light::PunctualLightType gltf_light_type_to_enum(const std::string &light_type)
+        {
+            if (light_type == "directional")
+            {
+                return Light::PunctualLightType::DIRECTIONAL;
+            }
+            else if (light_type == "point")
+            {
+                return Light::PunctualLightType::POINT;
+            }
+            else if (light_type == "spot")
+            {
+                return Light::PunctualLightType::SPOT;
+            }
+            else
+            {
+                return Light::PunctualLightType::POINT;
+            }
+        }
+
+        std::string enum_to_gltf_light_type(Light::PunctualLightType light_type)
+        {
+            switch (light_type)
+            {
+                case Light::PunctualLightType::DIRECTIONAL:
+                    return "directional";
+                case Light::PunctualLightType::POINT:
+                    return "point";
+                case Light::PunctualLightType::SPOT:
+                    return "spot";
+                default:
+                    return "point"; // The spec does not define a default light type.  Assume point.
             }
         }
     }
@@ -395,6 +431,8 @@ void Node::serialize(object& dst) const
     write(mChildren, "children", dst);
     write(mMesh, "mesh", dst, INVALID_INDEX);
     write(mSkin, "skin", dst, INVALID_INDEX);
+
+    write_extensions(dst, &mLight, "KHR_lights_punctual");
 }
 
 const Node& Node::operator=(const Value& src)
@@ -407,6 +445,8 @@ const Node& Node::operator=(const Value& src)
     copy(src, "children", mChildren);
     copy(src, "mesh", mMesh);
     copy(src, "skin", mSkin);
+
+    copy_extensions(src, "KHR_lights_punctual", &mLight);
 
     if (!mMatrixValid)
     {
@@ -442,6 +482,112 @@ const Image& Image::operator=(const Value& src)
     copy(src, "pixelType", mPixelType);
 
     return *this;
+}
+
+bool LightVector::operator==(const LightVector& rhs) const
+{
+    return mLights == rhs.mLights;
+}
+
+bool LightVector::operator!=(const LightVector& rhs) const
+{
+    return !this->operator==(rhs);
+}
+
+const LightVector& LightVector::operator=(const Value &src)
+{
+    mPresent = true;
+    auto arr = src.at("lights");
+    if (arr.is_array())
+    {
+        mLights.resize(arr.as_array().size());
+
+        for (int i = 0; i < mLights.size(); i++)
+        {
+            mLights[i] = arr.at(i);
+        }
+    }
+
+    return *this;
+}
+
+void LightVector::serialize(boost::json::object& dst) const
+{
+    if (mPresent)
+    {
+        array lights;
+        for (auto& light : mLights)
+        {
+            object l;
+            light.serialize(l);
+            lights.push_back(l);
+        }
+
+        dst["lights"] = lights;
+    }
+}
+
+bool LightIndex::operator==(const LightIndex& rhs) const
+{
+    return mLight == rhs.mLight;
+}
+
+bool LightIndex::operator!=(const LightIndex& rhs) const
+{
+    return !this->operator==(rhs);
+}
+
+const LightIndex& LightIndex::operator=(const Value &src)
+{
+    mPresent = true;
+
+    if (src.is_object())
+    {
+        copy(src, "light", mLight);
+    }
+
+    return *this;
+}
+
+void LightIndex::serialize(boost::json::object& dst) const
+{
+    if (mPresent)
+    {
+        write(mLight, "light", dst);
+    }
+}
+
+const Light &Light::operator=(const Value &src)
+{
+    mPresent = true;
+
+    if (src.is_object())
+    {
+        copy(src, "color", mColor);
+        copy(src, "range", mRange);
+        copy(src, "intensity", mIntensity);
+        copy(src, "type", mType);
+    }
+
+    return *this;
+}
+
+void Light::serialize(boost::json::object &dst) const
+{
+    write(mColor, "color", dst, vec3(1, 1, 1));
+    write(mRange, "range", dst);
+    write(mIntensity, "intensity", dst);
+    write(mType, "type", dst);
+}
+
+bool Light::operator==(const Light &rhs) const
+{
+    return mColor == rhs.mColor && mRange == rhs.mRange && mIntensity == rhs.mIntensity && mType == rhs.mType;
+}
+
+bool Light::operator!=(const Light &rhs) const
+{
+    return !(*this == rhs);
 }
 
 void Asset::update()
@@ -667,6 +813,7 @@ bool Asset::prep()
             }
         }
     }
+
     return true;
 }
 
@@ -845,6 +992,9 @@ const Asset& Asset::operator=(const Value& src)
         copy(obj, "accessors", mAccessors);
         copy(obj, "animations", mAnimations);
         copy(obj, "skins", mSkins);
+
+        copy_extensions(obj, "KHR_lights_punctual", &mLights);
+
         copy(obj, "extensionsUsed", mExtensionsUsed);
         copy(obj, "extensionsRequired", mExtensionsRequired);
     }
@@ -875,6 +1025,7 @@ void Asset::serialize(object& dst) const
     write(mAccessors, "accessors", dst);
     write(mAnimations, "animations", dst);
     write(mSkins, "skins", dst);
+    write_extensions(dst, &mLights, "KHR_lights_punctual");
     write(mExtensionsUsed, "extensionsUsed", dst);
     write(mExtensionsRequired, "extensionsRequired", dst);
 }

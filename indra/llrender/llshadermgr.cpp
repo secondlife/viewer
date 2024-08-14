@@ -1205,6 +1205,9 @@ void LLShaderMgr::initAttribsAndUniforms()
     mReservedUniforms.push_back("light_count");
     mReservedUniforms.push_back("light");
     mReservedUniforms.push_back("light_col");
+    mReservedUniforms.push_back("light_type");
+    mReservedUniforms.push_back("light_cone");
+    mReservedUniforms.push_back("light_dir");
     mReservedUniforms.push_back("far_z");
 
     llassert(mReservedUniforms.size() == LLShaderMgr::MULTI_LIGHT_FAR_Z+1);

@@ -467,11 +467,13 @@ namespace LL
         }
 
         // to/from array
+        // This will get called if we have an array - e.g., the materials array, lights array, etc.
         template<typename T>
         inline bool copy(const Value& src, std::vector<T>& dst)
         {
             if (src.is_array())
             {
+                LL_INFOS("GLTF") << "copy(const Value& src, std::vector<T>& dst) called" << LL_ENDL;
                 const boost::json::array& arr = src.get_array();
                 dst.resize(arr.size());
                 for (size_t i = 0; i < arr.size(); ++i)
@@ -511,6 +513,8 @@ namespace LL
             auto it = src.find(member);
             if (it != src.end())
             {
+                LL_INFOS("GLTF") << "copy(const boost::json::object& src, string_view member, T& dst) called with member " << member
+                                 << LL_ENDL;
                 return copy(it->value(), dst);
             }
             return false;
@@ -1054,6 +1058,27 @@ namespace LL
         inline bool write(const Material::AlphaMode& src, Value& dst)
         {
             dst = enum_to_gltf_alpha_mode(src);
+            return true;
+        }
+
+        //
+        // ========================================================================================================
+
+        
+        // Light::PunctualLightType
+        template <> inline bool copy(const Value &src, Light::PunctualLightType &dst)
+        {
+            if (src.is_string())
+            {
+                dst = gltf_light_type_to_enum(src.get_string().c_str());
+                return true;
+            }
+            return true;
+        }
+
+        template <> inline bool write(const Light::PunctualLightType &src, Value &dst)
+        {
+            dst = enum_to_gltf_light_type(src);
             return true;
         }
 

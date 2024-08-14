@@ -32,6 +32,7 @@
 
 class LLVOVolume;
 class LLDrawable;
+class LLViewerCamera;
 
 namespace LL
 {
@@ -50,6 +51,10 @@ namespace LL
 
         void update();
         void render(bool opaque, bool rigged = false, bool unlit = false, bool transmissive = false);
+
+        // LLPipeline utilizes this to determine what lights it should use during rendering.
+        // It will also be used to determine what lights are available for rendering.
+        std::vector<LL::GLTF::LightData> collectLights(LLViewerCamera *cam_pos);
 
         // render the given variant of all assets
         // variant - bitmask according to LLGLSLShader::GLTFVariant flags
