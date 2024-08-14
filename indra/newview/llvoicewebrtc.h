@@ -622,7 +622,7 @@ class LLVoiceWebRTCConnection :
 
     bool connectionStateMachine();
 
-    virtual bool isSpatial() = 0;
+    virtual bool isSpatial() { return false; }
 
     LLUUID getRegionID() { return mRegionID; }
 
@@ -686,6 +686,7 @@ class LLVoiceWebRTCConnection :
     LLVoiceClientStatusObserver::EStatusType mCurrentStatus;
 
     LLUUID mRegionID;
+    bool   mPrimary;
     LLUUID mViewerSession;
     std::string mChannelID;
 

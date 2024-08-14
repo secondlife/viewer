@@ -2150,8 +2150,21 @@ LLVoiceWebRTCConnection::LLVoiceWebRTCConnection(const LLUUID &regionID, const s
     mOutstandingRequests(0),
     mChannelID(channelID),
     mRegionID(regionID),
+    mPrimary(false),
     mRetryWaitPeriod(0)
 {
+    if (isSpatial())
+    {
+        if (gAgent.getRegion())
+        {
+            mPrimary = (regionID == gAgent.getRegion()->getRegionID());
+        }
+    }
+    else
+    {
+        mPrimary = true;
+    }
+
     // retries wait a short period...randomize it so
     // all clients don't try to reconnect at once.
     mRetryWaitSecs = ((F32) rand() / (RAND_MAX)) + 0.5;
@@ -2755,6 +2768,17 @@ bool LLVoiceWebRTCConnection::connectionStateMachine()
         {
             mRetryWaitPeriod = 0;
             mRetryWaitSecs   = ((F32) rand() / (RAND_MAX)) + 0.5;
+            LLUUID agentRegionID;
+            if (isSpatial() && gAgent.getRegion())
+            {
+
+                bool primary = (mRegionID == gAgent.getRegion()->getRegionID());
+                if (primary != mPrimary)
+                {
+                    mPrimary = primary;
+                    sendJoin();
+                }
+            }
 
             // we'll stay here as long as the session remains up.
             if (mShutDown)
@@ -3023,7 +3047,7 @@ void LLVoiceWebRTCConnection::sendJoin()
     Json::Value      root     = Json::objectValue;
     Json::Value      join_obj = Json::objectValue;
     LLUUID           regionID = gAgent.getRegion()->getRegionID();
-    if ((regionID == mRegionID) || !isSpatial())
+    if (mPrimary)
     {
         join_obj["p"] = true;
     }
