@@ -272,6 +272,7 @@ jobs:
       # The other upload of nontrivial size is the symbol file. Use a distinct
       # artifact for that too.
       - name: Upload symbol file
+        if: steps.build.outputs.symbolfile
         uses: actions/upload-artifact@v4
         with:
           name: "${{ steps.build.outputs.artifact }}-symbols"
