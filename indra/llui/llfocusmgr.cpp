@@ -32,11 +32,19 @@
 
 const F32 FOCUS_FADE_TIME = 0.3f;
 
+static LLFocusableElement::focus_signal_t* const initial_signal = (LLFocusableElement::focus_signal_t*)123456789;
+static LLFocusableElement::focus_signal_t* const deleted_signal = (LLFocusableElement::focus_signal_t*)987654321;
+
+bool is_ok(LLFocusableElement::focus_signal_t* signal)
+{
+    return signal != nullptr && signal != initial_signal && signal != deleted_signal;
+}
+
 LLFocusableElement::LLFocusableElement()
-:   mFocusLostCallback(NULL),
-    mFocusReceivedCallback(NULL),
-    mFocusChangedCallback(NULL),
-    mTopLostCallback(NULL)
+:   mFocusLostCallback(initial_signal),
+    mFocusReceivedCallback(initial_signal),
+    mFocusChangedCallback(initial_signal),
+    mTopLostCallback(initial_signal)
 {
 }
 
@@ -73,27 +81,47 @@ bool LLFocusableElement::wantsReturnKey() const
 // virtual
 LLFocusableElement::~LLFocusableElement()
 {
-    delete mFocusLostCallback;
-    delete mFocusReceivedCallback;
-    delete mFocusChangedCallback;
-    delete mTopLostCallback;
+    auto free_signal = [&](focus_signal_t*& signal)
+        {
+            if (signal == nullptr)
+            {
+                llassert_msg(false, "The object is invalid or corrupted");
+                LL_WARNS() << "The object is invalid or corrupted" << LL_ENDL;
+            }
+            else if (signal == deleted_signal)
+            {
+                llassert_msg(false, "The object was already destroyed");
+                LL_WARNS() << "The object was already destroyed" << LL_ENDL;
+            }
+            else if (signal != initial_signal)
+            {
+                signal->disconnect_all_slots();
+                delete signal;
+                signal = deleted_signal;
+            }
+        };
+
+    free_signal(mFocusLostCallback);
+    free_signal(mFocusReceivedCallback);
+    free_signal(mFocusChangedCallback);
+    free_signal(mTopLostCallback);
 }
 
 void LLFocusableElement::onFocusReceived()
 {
-    if (mFocusReceivedCallback) (*mFocusReceivedCallback)(this);
-    if (mFocusChangedCallback) (*mFocusChangedCallback)(this);
+    if (is_ok(mFocusReceivedCallback)) (*mFocusReceivedCallback)(this);
+    if (is_ok(mFocusChangedCallback)) (*mFocusChangedCallback)(this);
 }
 
 void LLFocusableElement::onFocusLost()
 {
-    if (mFocusLostCallback) (*mFocusLostCallback)(this);
-    if (mFocusChangedCallback) (*mFocusChangedCallback)(this);
+    if (is_ok(mFocusLostCallback)) (*mFocusLostCallback)(this);
+    if (is_ok(mFocusChangedCallback)) (*mFocusChangedCallback)(this);
 }
 
 void LLFocusableElement::onTopLost()
 {
-    if (mTopLostCallback) (*mTopLostCallback)(this);
+    if (is_ok(mTopLostCallback)) (*mTopLostCallback)(this);
 }
 
 BOOL LLFocusableElement::hasFocus() const
@@ -107,25 +135,25 @@ void LLFocusableElement::setFocus(BOOL b)
 
 boost::signals2::connection LLFocusableElement::setFocusLostCallback( const focus_signal_t::slot_type& cb)
 {
-    if (!mFocusLostCallback) mFocusLostCallback = new focus_signal_t();
+    if (mFocusLostCallback == initial_signal) mFocusLostCallback = new focus_signal_t();
     return mFocusLostCallback->connect(cb);
 }
 
 boost::signals2::connection LLFocusableElement::setFocusReceivedCallback(const focus_signal_t::slot_type& cb)
 {
-    if (!mFocusReceivedCallback) mFocusReceivedCallback = new focus_signal_t();
+    if (mFocusReceivedCallback == initial_signal) mFocusReceivedCallback = new focus_signal_t();
     return mFocusReceivedCallback->connect(cb);
 }
 
 boost::signals2::connection LLFocusableElement::setFocusChangedCallback(const focus_signal_t::slot_type& cb)
 {
-    if (!mFocusChangedCallback) mFocusChangedCallback = new focus_signal_t();
+    if (mFocusChangedCallback == initial_signal) mFocusChangedCallback = new focus_signal_t();
     return mFocusChangedCallback->connect(cb);
 }
 
 boost::signals2::connection LLFocusableElement::setTopLostCallback(const focus_signal_t::slot_type& cb)
 {
-    if (!mTopLostCallback) mTopLostCallback = new focus_signal_t();
+    if (mTopLostCallback == initial_signal) mTopLostCallback = new focus_signal_t();
     return mTopLostCallback->connect(cb);
 }
 
