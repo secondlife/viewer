@@ -484,17 +484,17 @@ const Image& Image::operator=(const Value& src)
     return *this;
 }
 
-bool LightVector::operator==(const LightVector& rhs) const
+bool LightsPunctual::operator==(const LightsPunctual& rhs) const
 {
     return mLights == rhs.mLights;
 }
 
-bool LightVector::operator!=(const LightVector& rhs) const
+bool LightsPunctual::operator!=(const LightsPunctual& rhs) const
 {
     return !this->operator==(rhs);
 }
 
-const LightVector& LightVector::operator=(const Value &src)
+const LightsPunctual& LightsPunctual::operator=(const Value &src)
 {
     mPresent = true;
     auto arr = src.at("lights");
@@ -511,7 +511,7 @@ const LightVector& LightVector::operator=(const Value &src)
     return *this;
 }
 
-void LightVector::serialize(boost::json::object& dst) const
+void LightsPunctual::serialize(boost::json::object& dst) const
 {
     if (mPresent)
     {

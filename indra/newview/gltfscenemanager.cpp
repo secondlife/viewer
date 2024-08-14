@@ -745,14 +745,16 @@ std::vector<LL::GLTF::LightData> GLTFSceneManager::collectLights(LLViewerCamera 
     {
         Asset* asset = mObjects[i]->mGLTFAsset.get();
 
-        for (auto n : asset->mNodes)
+        for (int j = 0; j < asset->mNodes.size(); j++)
         {
+            Node &n = asset->mNodes[j];
             if (n.mLight.mPresent && n.mLight.mLight != INVALID_INDEX)
             {
                 Light& light = asset->mLights.mLights[n.mLight.mLight];
 
                 LightData ld;
 
+                ld.mPosition  = mObjects[i]->getGLTFNodePositionAgent(j);
                 ld.mColor = light.mColor;
                 ld.mIntensity = light.mIntensity;
                 ld.mRange = light.mRange;

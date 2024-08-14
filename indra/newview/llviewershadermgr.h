@@ -229,6 +229,7 @@ extern LLGLSLShader         gDeferredMultiLightProgram[LL_DEFERRED_MULTI_LIGHT_C
 extern LLGLSLShader         gDeferredSpotLightProgram;
 extern LLGLSLShader         gDeferredMultiSpotLightProgram;
 extern LLGLSLShader         gDeferredGLTFLightProgram;
+extern LLGLSLShader         gDeferredGLTFMultiLightProgram[LL_DEFERRED_MULTI_LIGHT_COUNT];
 extern LLGLSLShader         gDeferredSunProgram;
 extern LLGLSLShader         gHazeProgram;
 extern LLGLSLShader         gHazeWaterProgram;

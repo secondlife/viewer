@@ -140,16 +140,16 @@ namespace LL
             void        serialize(boost::json::object &dst) const;
         };
 
-        class LightVector : public Extension
+        class LightsPunctual : public Extension
         {
           public:
             std::vector<Light> mLights;
             
-            bool operator==(const LightVector &rhs) const;
+            bool operator==(const LightsPunctual &rhs) const;
 
-            bool operator!=(const LightVector &rhs) const;
+            bool operator!=(const LightsPunctual &rhs) const;
 
-            const LightVector &operator=(const Value &src);
+            const LightsPunctual &operator=(const Value &src);
 
             void serialize(boost::json::object &dst) const;
         };
@@ -454,6 +454,7 @@ namespace LL
         {
           public:
             Node mNode;
+            LLVector3 mPosition;
             F32  mDistance = 0;
         };
 
@@ -475,7 +476,7 @@ namespace LL
             std::vector<Accessor> mAccessors;
             std::vector<Animation> mAnimations;
             std::vector<Skin> mSkins;
-            LightVector mLights;
+            LightsPunctual mLights;
             std::vector<std::string> mExtensionsUsed;
             std::vector<std::string> mExtensionsRequired;
 

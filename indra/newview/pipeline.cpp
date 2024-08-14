@@ -8066,6 +8066,7 @@ void LLPipeline::renderDeferredLighting()
         {
             gGL.setSceneBlendType(LLRender::BT_ADD);
             std::list<LLVector4>        fullscreen_lights;
+            std::list<LL::GLTF::LightData> gltf_fullscreen_lights;
             LLDrawable::drawable_list_t spot_lights;
             LLDrawable::drawable_list_t fullscreen_spot_lights;
 
@@ -8231,6 +8232,50 @@ void LLPipeline::renderDeferredLighting()
                 unbindDeferredShader(gDeferredSpotLightProgram);
             }
 
+            if (!gltf_lights.empty())
+            {
+                bindDeferredShader(gDeferredGLTFLightProgram);
+
+                if (mCubeVB.isNull())
+                {
+                    mCubeVB = ll_create_cube_vb(LLVertexBuffer::MAP_VERTEX);
+                }
+
+                mCubeVB->setBuffer();
+
+                LLGLDepthTest depth(GL_TRUE, GL_FALSE);
+                for (auto &light : gltf_lights)
+                {
+                    LLVector4a center;
+                    center.load3(light.mPosition.mV);
+                    LLVector3 c   = light.mPosition;
+                    F32        s   = light.mRange;
+                    LLVector3 col = LLVector3(light.mColor.r, light.mColor.g, light.mColor.b);
+
+                    if (camera->getOrigin().mV[0] > c.mV[0] + s + 0.2f || camera->getOrigin().mV[0] < c.mV[0] - s - 0.2f ||
+                        camera->getOrigin().mV[1] > c.mV[1] + s + 0.2f || camera->getOrigin().mV[1] < c.mV[1] - s - 0.2f ||
+                        camera->getOrigin().mV[2] > c.mV[2] + s + 0.2f || camera->getOrigin().mV[2] < c.mV[2] - s - 0.2f)
+                    {
+                        gDeferredGLTFLightProgram.uniform3fv(LLShaderMgr::LIGHT_CENTER, 1, c.mV);
+                        gDeferredGLTFLightProgram.uniform1f(LLShaderMgr::LIGHT_SIZE, s);
+                        gDeferredGLTFLightProgram.uniform3fv(LLShaderMgr::DIFFUSE_COLOR, 1, col.mV);
+                        gDeferredGLTFLightProgram.uniform1f(LLShaderMgr::LIGHT_FALLOFF, light.mIntensity);
+                        gGL.syncMatrices();
+
+                        mCubeVB->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, get_box_fan_indices(camera, center));
+                    }
+                    else
+                    {
+                        glh::vec3f tc(c.mV[0], c.mV[1], c.mV[2]);
+                        mat.mult_matrix_vec(tc);
+
+                        light.mPosition = LLVector3(tc.v[0], tc.v[1], tc.v[2]);
+
+                        gltf_fullscreen_lights.push_back(light);
+                    }
+                }
+            }
+
             {
                 LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("renderDeferredLighting - fullscreen lights");
                 LLGLDepthTest depth(GL_FALSE);
@@ -8269,19 +8314,23 @@ void LLPipeline::renderDeferredLighting()
                     }
                 }
 
-                if (!gltf_lights.empty())
+                /*
+                if (!gltf_fullscreen_lights.empty())
                 {
-                    LLVector4 light_data[256];
-                    LLVector4 light_color[256];
-                    int       light_type[256];
-                    LLVector2 light_cone[256];
-                    LLVector3 light_dir[256];
+                    LLVector4 light_data[max_count];
+                    LLVector4 light_color[max_count];
+                    int       light_type[max_count];
+                    LLVector2 light_cone[max_count];
+                    LLVector3 light_dir[max_count];
 
                     far_z = 0.f;
 
                     int count = 0;
-                    for (const LL::GLTF::LightData &light : gltf_lights)
+                    while (!gltf_fullscreen_lights.empty())
                     {
+                        auto light = gltf_fullscreen_lights.front();
+                        gltf_fullscreen_lights.pop_front();
+
                         light_data[count] =
                             LLVector4(light.mNode.mTranslation.x, light.mNode.mTranslation.y, light.mNode.mTranslation.z, light.mRange);
                         light_color[count] = LLVector4(light.mColor.r, light.mColor.g, light.mColor.b, light.mIntensity);
@@ -8293,7 +8342,7 @@ void LLPipeline::renderDeferredLighting()
 
                         count++;
 
-                        if (count + 1 == gltf_lights.size() || count + 1 == 256)
+                        if (count == max_count || gltf_fullscreen_lights.empty())
                         {
                             bindDeferredShader(gDeferredGLTFLightProgram);
                             gDeferredGLTFLightProgram.uniform1i(LLShaderMgr::MULTI_LIGHT_COUNT, count);
@@ -8310,7 +8359,7 @@ void LLPipeline::renderDeferredLighting()
                             unbindDeferredShader(gDeferredGLTFLightProgram);
                         }
                     }
-                }
+                }*/
 
                 bindDeferredShader(gDeferredMultiSpotLightProgram);
 

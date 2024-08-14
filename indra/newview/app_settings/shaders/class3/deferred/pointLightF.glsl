@@ -37,8 +37,33 @@ uniform float sun_wash;
 
 // light params
 uniform vec3 color;
-uniform float falloff;
-uniform float size;
+uniform float falloff; // For GLTF lights, this is the intensity.
+uniform float size; // For GLTF lights, this is the range.
+
+#ifdef GLTF_LIGHTS
+
+uniform int light_type;
+uniform vec2 light_cone;
+uniform vec3 light_dir;
+
+struct Light
+{
+    vec3 direction;
+    float range;
+
+    vec3 color;
+    float intensity;
+
+    vec3 position;
+    float innerConeCos;
+
+    float outerConeCos;
+    int type;
+};
+
+vec3 getLighIntensity(Light light, vec3 pointToLight);
+
+#endif
 
 in vec4 vary_fragcoord;
 in vec3 trans_center;
@@ -103,7 +128,31 @@ void main()
 
         vec3 specularColor = mix(f0, baseColor.rgb, metallic);
 
-        vec3 intensity = dist_atten * color * 3.25; // Legacy attenuation, magic number to balance with legacy materials
+        vec3 intensity = vec3(0); // Legacy attenuation, magic number to balance with legacy materials
+
+
+        #ifndef GLTF_LIGHTS
+
+        intensity = dist_atten * color * 3.25;
+
+        #else
+
+        Light lgt;
+        lgt.direction = light_dir;
+        lgt.range = size;
+        lgt.color = color;
+        lgt.intensity = falloff;
+        lgt.position = lv;
+        lgt.innerConeCos = light_cone.x;
+        lgt.outerConeCos = light_cone.y;
+        lgt.type = light_type;
+
+        intensity = getLighIntensity(lgt, pos);
+
+        // For debugging.  Basically make this light blow out for testing.
+        // intensity = vec3(1000);
+        #endif
+
         final_color += intensity*pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, n.xyz, v, normalize(lv));
     }
     else

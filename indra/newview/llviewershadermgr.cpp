@@ -159,6 +159,7 @@ LLGLSLShader            gDeferredMultiLightProgram[16];
 LLGLSLShader            gDeferredSpotLightProgram;
 LLGLSLShader            gDeferredMultiSpotLightProgram;
 LLGLSLShader            gDeferredGLTFLightProgram;
+LLGLSLShader            gDeferredGLTFMultiLightProgram[LL_DEFERRED_MULTI_LIGHT_COUNT];
 LLGLSLShader            gDeferredSunProgram;
 LLGLSLShader            gHazeProgram;
 LLGLSLShader            gHazeWaterProgram;
@@ -1603,17 +1604,39 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         gDeferredGLTFLightProgram.mFeatures.hasSrgb    = true;
 
         gDeferredGLTFLightProgram.mShaderFiles.clear();
-        gDeferredGLTFLightProgram.mShaderFiles.push_back(make_pair("deferred/multiPointLightV.glsl", GL_VERTEX_SHADER));
-        gDeferredGLTFLightProgram.mShaderFiles.push_back(make_pair("deferred/multiPointLightF.glsl", GL_FRAGMENT_SHADER));
+        gDeferredGLTFLightProgram.mShaderFiles.push_back(make_pair("deferred/pointLightV.glsl", GL_VERTEX_SHADER));
+        gDeferredGLTFLightProgram.mShaderFiles.push_back(make_pair("deferred/pointLightF.glsl", GL_FRAGMENT_SHADER));
         gDeferredGLTFLightProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
 
         gDeferredGLTFLightProgram.clearPermutations();
 
-        gDeferredGLTFLightProgram.addPermutation("LIGHT_COUNT", "256");
         gDeferredGLTFLightProgram.addPermutation("GLTF_LIGHTS", "1");
 
         success = gDeferredGLTFLightProgram.createShader();
         llassert(success);
+    }
+
+    
+    for (U32 i = 0; i < LL_DEFERRED_MULTI_LIGHT_COUNT; i++)
+    {
+        if (success)
+        {
+            gDeferredGLTFMultiLightProgram[i].mName                 = llformat("Deferred GLTF MultiLight Shader %d", i);
+            gDeferredGLTFMultiLightProgram[i].mFeatures.isDeferred = true;
+            gDeferredGLTFMultiLightProgram[i].mFeatures.hasShadows  = true;
+            gDeferredGLTFMultiLightProgram[i].mFeatures.hasSrgb     = true;
+
+            gDeferredGLTFMultiLightProgram[i].clearPermutations();
+            gDeferredGLTFMultiLightProgram[i].mShaderFiles.clear();
+            gDeferredGLTFMultiLightProgram[i].mShaderFiles.push_back(make_pair("deferred/multiPointLightV.glsl", GL_VERTEX_SHADER));
+            gDeferredGLTFMultiLightProgram[i].mShaderFiles.push_back(make_pair("deferred/multiPointLightF.glsl", GL_FRAGMENT_SHADER));
+            gDeferredGLTFMultiLightProgram[i].mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+            gDeferredGLTFMultiLightProgram[i].addPermutation("LIGHT_COUNT", llformat("%d", i + 1));
+            gDeferredGLTFMultiLightProgram[i].addPermutation("GLTF_LIGHTS", "1");
+
+            success = gDeferredGLTFMultiLightProgram[i].createShader();
+            llassert(success);
+        }
     }
 
     if (success)
