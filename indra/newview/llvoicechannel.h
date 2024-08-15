@@ -72,7 +72,8 @@ public:
     virtual void handleError(EStatusType status);
     virtual void deactivate();
     virtual void activate();
-    virtual void setChannelInfo(const LLSD &channelInfo);
+    virtual void setChannelInfo(const LLSD& channelInfo);
+    virtual void resetChannelInfo();
     virtual void requestChannelInfo();
     virtual bool isActive() const;
     virtual bool callStarted() const;
@@ -189,6 +190,7 @@ class LLVoiceChannelP2P : public LLVoiceChannelGroup
     void requestChannelInfo() override;
     void deactivate() override;
     void setChannelInfo(const LLSD& channel_info) override;
+    void resetChannelInfo() override;
 
   protected:
     void setState(EState state) override;

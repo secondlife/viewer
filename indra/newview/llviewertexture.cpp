@@ -805,7 +805,7 @@ S32 LLViewerTexture::getTotalNumFaces() const
 S32 LLViewerTexture::getNumFaces(U32 ch) const
 {
     llassert(ch < LLRender::NUM_TEXTURE_CHANNELS);
-    return mNumFaces[ch];
+    return ch < LLRender::NUM_TEXTURE_CHANNELS ? mNumFaces[ch] : 0;
 }
 
 

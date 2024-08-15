@@ -703,10 +703,7 @@ LLPanelProfileSecondLife::~LLPanelProfileSecondLife()
         LLAvatarTracker::instance().removeParticularFriendObserver(getAvatarId(), this);
     }
 
-    if (LLVoiceClient::instanceExists())
-    {
-        LLVoiceClient::getInstance()->removeObserver((LLVoiceClientStatusObserver*)this);
-    }
+    LLVoiceClient::removeObserver((LLVoiceClientStatusObserver*)this);
 
     if (mAvatarNameCacheConnection.connected())
     {

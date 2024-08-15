@@ -775,7 +775,7 @@ bool LLVolumeImplFlexible::doUpdateGeometry(LLDrawable *drawable)
         }
     }
 
-    if (volume->mDrawable.isNull())
+    if (volume->mDrawable.isNull() || volume->mDrawable->isDead())
     {
         return true; // No update to complete
     }

@@ -81,10 +81,7 @@ LLVoiceChannel::~LLVoiceChannel()
     {
         sCurrentVoiceChannel = NULL;
         // Must check instance exists here, the singleton MAY have already been destroyed.
-        if(LLVoiceClient::instanceExists())
-        {
-            LLVoiceClient::getInstance()->removeObserver(this);
-        }
+        LLVoiceClient::removeObserver(this);
     }
 
     sVoiceChannelMap.erase(mSessionID);
@@ -116,6 +113,12 @@ void LLVoiceChannel::setChannelInfo(const LLSD &channelInfo)
             }
         }
     }
+}
+
+void LLVoiceChannel::resetChannelInfo()
+{
+    mChannelInfo = LLSD();
+    mState = STATE_NO_CHANNEL_INFO;
 }
 
 void LLVoiceChannel::onChange(EStatusType type, const LLSD& channelInfo, bool proximal)
@@ -219,7 +222,7 @@ void LLVoiceChannel::deactivate()
             LLVoiceClient::getInstance()->setUserPTTState(false);
         }
     }
-    LLVoiceClient::getInstance()->removeObserver(this);
+    LLVoiceClient::removeObserver(this);
 
     if (sCurrentVoiceChannel == this)
     {
@@ -259,7 +262,7 @@ void LLVoiceChannel::activate()
         setState(STATE_CALL_STARTED);
     }
 
-    LLVoiceClient::getInstance()->addObserver(this);
+    LLVoiceClient::addObserver(this);
 
     //do not send earlier, channel should be initialized, should not be in STATE_NO_CHANNEL_INFO state
     sCurrentVoiceChannelChangedSignal(this->mSessionID);
@@ -751,7 +754,7 @@ void LLVoiceChannelProximal::deactivate()
     {
         setState(STATE_HUNG_UP);
     }
-    LLVoiceClient::getInstance()->removeObserver(this);
+    LLVoiceClient::removeObserver(this);
     LLVoiceClient::getInstance()->activateSpatialChannel(false);
 }
 
@@ -916,6 +919,12 @@ void LLVoiceChannelP2P::setChannelInfo(const LLSD& channel_info)
     {
         activate();
     }
+}
+
+void LLVoiceChannelP2P::resetChannelInfo()
+{
+    mChannelInfo = LLVoiceClient::getInstance()->getP2PChannelInfoTemplate(mOtherUserID);
+    mState = STATE_NO_CHANNEL_INFO; // we have template, not full info
 }
 
 void LLVoiceChannelP2P::setState(EState state)

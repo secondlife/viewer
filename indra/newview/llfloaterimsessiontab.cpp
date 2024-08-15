@@ -546,6 +546,12 @@ void LLFloaterIMSessionTab::closeFloater(bool app_quitting)
     super::closeFloater(app_quitting);
 }
 
+void LLFloaterIMSessionTab::deleteAllChildren()
+{
+    super::deleteAllChildren();
+    mVoiceButton = NULL;
+}
+
 std::string LLFloaterIMSessionTab::appendTime()
 {
     std::string timeStr = "[" + LLTrans::getString("TimeHour") + "]:"
