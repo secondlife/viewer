@@ -18,6 +18,7 @@ include(Tracy)
 set(llcommon_SOURCE_FILES
     apply.cpp
     commoncontrol.cpp
+    coro_scheduler.cpp
     hbxxh.cpp
     indra_constants.cpp
     lazyeventapi.cpp
@@ -112,6 +113,7 @@ set(llcommon_SOURCE_FILES
     lua_function.cpp
     lualistener.cpp
     threadpool.cpp
+    throttle.cpp
     u64.cpp
     workqueue.cpp
     StackWalker.cpp
@@ -125,6 +127,7 @@ set(llcommon_HEADER_FILES
     chrono.h
     classic_callback.h
     commoncontrol.h
+    coro_scheduler.h
     ctype_workaround.h
     fix_macros.h
     fsyspath.h
@@ -263,6 +266,7 @@ set(llcommon_HEADER_FILES
     threadpool.h
     threadpool_fwd.h
     threadsafeschedule.h
+    throttle.h
     timer.h
     tuple.h
     u64.h
