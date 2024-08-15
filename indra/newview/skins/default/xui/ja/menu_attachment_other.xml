@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <context_menu name="Avatar Pie">
-	<menu_item_call label="プロフィールの表示" name="Profile..."/>
+<menu_item_call label="プロフィールの表示" name="Profile..."/>
 	<menu_item_call label="フレンド登録" name="Add Friend"/>
 	<menu_item_call label="呼び出し" name="Call"/>
 	<menu_item_call label="グループに招待..." name="Invite..."/>

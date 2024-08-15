@@ -4,7 +4,7 @@
 		検出なし
 	</floater.string>
 	<floater.string name="bump">
-		[TIME] [NAME] があなたに衝突しました
+[TIME] [NAME] があなたに衝突しました
 	</floater.string>
 	<floater.string name="llpushobject">
 		[TIME] [NAME] がスクリプトであなたを押しました

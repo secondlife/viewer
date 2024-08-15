@@ -6,6 +6,7 @@
 	<menu_item_separator name="separator_disconnect_from_voice"/>
 	<menu_item_call label="選択した項目を閉じる" name="close_selected_conversations"/>
 	<menu_item_call label="プロフィールを表示" name="view_profile"/>
+
 	<menu_item_call label="テレポートのオファー" name="offer_teleport"/>
 <menu_item_call label="テレポートのリクエスト" name="request_teleport"/>
 	<menu_item_call label="ボイスコール" name="voice_call"/>

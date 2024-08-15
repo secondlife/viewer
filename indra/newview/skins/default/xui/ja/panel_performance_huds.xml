@@ -7,9 +7,9 @@
         アクティブなHUD
     </text>
 	<text name="huds_desc1">
-        使用していないHUDを取り外すとメモリが節約されSecond Lifeの処理が高速化されます。
-    </text>
+使用していないHUDを取り外すとメモリが節約され、Second Lifeの処理が高速化されます。
+	</text>
 	<text name="huds_desc2">
-        注意: HUDの最小化ボタンを使用してもHUDを取り外したことにはなりません。
+		注意：HUDの最小化ボタンを使用しても、HUDを取り外したことにはなりません。
     </text>
 </panel>

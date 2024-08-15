@@ -29,7 +29,7 @@
 			<button name="up_btn" tool_tip="上の階層に移動します。"/>
 		</layout_panel>
 		<layout_panel name="filter_layout_panel">
-			<combo_box name="search_type" tool_tip="検索条件を選択します。">
+<combo_box name="search_type" tool_tip="検索条件を選択します。">
 				<item label="名前で" name="Name" value="search_by_name"/>
 				<item label="制作者名で" name="Creator" value="search_by_creator"/>
 				<item label="説明文で" name="Description" value="search_by_description"/>

@@ -25,7 +25,7 @@
 		グラフィックを初期化できませんでした。グラフィックドライバを更新してください。
 	</string>
 	<string name="AboutHeader">
-		[CHANNEL] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3]([ADDRESS_SIZE]bit)
+[CHANNEL] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3]([ADDRESS_SIZE]bit)
 		[[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]
 	</string>
 	<string name="BuildConfig">
@@ -39,7 +39,7 @@
 		[SERVER_RELEASE_NOTES_URL]
 	</string>
 	<string name="AboutSystem">
-		CPU: [CPU]
+CPU: [CPU]
 		メモリ: [MEMORY_MB]MB
 		OSのバージョン: [OS_VERSION]
 		グラフィックカード製造元: [GRAPHICS_CARD_VENDOR]
@@ -53,7 +53,7 @@
 	</string>
 	<string name="AboutSettings">
 ウィンドウサイズ: [WINDOW_WIDTH] x [WINDOW_HEIGHT]
-		フォントサイズ調整: [FONT_SIZE_ADJUSTMENT]pt
+フォントサイズ調整: [FONT_SIZE_ADJUSTMENT]pt
 		UIスケーリング: [UI_SCALE]
 		描画距離: [DRAW_DISTANCE]m
 		帯域幅: [NET_BANDWITH]kbit/s
@@ -77,7 +77,7 @@
 	</string>
 	<string name="AboutTime">
 		[year, datetime, slt]年[month, datetime, slt]月[day, datetime, slt]日 [hour, datetime, slt]:[min,datetime, slt]:[second,datetime,slt]
-	</string>
+</string>
 	<string name="LocalTime">
 		[year, datetime, local]年[month, datetime, local]月[day, datetime, local]日　[hour, datetime, local]：[min, datetime, local]：[second,datetime, local]
 	</string>
@@ -576,7 +576,7 @@
 	<string name="TooltipSLAPP">
 		クリックしてsecondlife://コマンドを出します。
 	</string>
-	<string name="CurrentURL" value="現在のURL: [CurrentURL]"/>
+<string name="CurrentURL" value="現在のURL: [CurrentURL]"/>
 	<string name="TooltipEmail">
 クリックしてＥメールを作成します。
 	</string>
@@ -593,6 +593,7 @@
 	<string name="SLappAgentUnmute">
 		ミュート解除
 	</string>
+
 	<string name="SLappAgentPay">
 		支払う
 	</string>
@@ -1051,7 +1052,7 @@
 		オフライン
 	</string>
 	<string name="worldmap_item_tooltip_format">
-		[AREA] m² L$[PRICE]([SQMPRICE]L$/m²)
+[AREA] m² L$[PRICE]([SQMPRICE]L$/m²)
 	</string>
 	<string name="worldmap_results_none_found">
 		何も見つかりませんでした。
@@ -1074,7 +1075,7 @@ ROOTまたはJOINTが見つかりません
 		ささやき:
 	</string>
 	<string name="shout">
-		の叫び:
+の叫び：
 	</string>
 	<string name="ringing">
 インワールドボイスチャットに接続中...
@@ -1188,7 +1189,7 @@ ROOTまたはJOINTが見つかりません
 		不動産/フルリージョン
 	</string>
 	<string name="Estate / Homestead">
-		不動産/入植地
+不動産 / ホームステッド
 	</string>
 	<string name="Mainland / Homestead">
 		メインランド / ホームステッド
@@ -2072,7 +2073,7 @@ Removes the enabled bits in 「flags」
 		料金はサブスクリプションのレベルにより異なります。レベルが高いほど、料金が下がります。[https://accounts.secondlife.com/change_membership/?lang=ja-JP 詳細]
 	</string>
 	<string name="Open landmarks">
-		ランドマークを開く
+ランドマークを開く
 	</string>
 	<string name="Unconstrained">
 		アンコンストレインド(制約なし)
@@ -2865,28 +2866,28 @@ Removes the enabled bits in 「flags」
 		右胸筋
 	</string>
 	<string name="ATTACH_HUD_CENTER_2">
-ＨＵＤ（中央２）
+HUD（中央 2）
 	</string>
 	<string name="ATTACH_HUD_TOP_RIGHT">
-		ＨＵＤ（右上）↗
+		HUD（右上）
 	</string>
 	<string name="ATTACH_HUD_TOP_CENTER">
-		ＨＵＤ（上）↑
+		HUD（上・中央）
 	</string>
 	<string name="ATTACH_HUD_TOP_LEFT">
-		ＨＵＤ（左上）↖
+		HUD（左上）
 	</string>
 	<string name="ATTACH_HUD_CENTER_1">
-		ＨＵＤ（中央１）
+		HUD（中央 1）
 	</string>
 	<string name="ATTACH_HUD_BOTTOM_LEFT">
-		ＨＵＤ（左下）↙
+		HUD（左下）
 	</string>
 	<string name="ATTACH_HUD_BOTTOM">
-		ＨＵＤ（下）↓
+		HUD（下）
 	</string>
 	<string name="ATTACH_HUD_BOTTOM_RIGHT">
-		ＨＵＤ（右下）↘
+		HUD（右下）
 	</string>
 	<string name="ATTACH_NECK">
 		首
@@ -2947,6 +2948,7 @@ Removes the enabled bits in 「flags」
 	</string>
 	<string name="PanelDirTimeStr">
 		[ampm,datetime,utc] [hour12,datetime,utc]:[min,datetime,utc]
+
 	</string>
 	<string name="PanelContentsTooltip">
 		オブジェクトの中身
@@ -4986,7 +4988,7 @@ https://secondlife.com/support/downloads/ からビューアを再インスト�
 		インベントリからここにアイテムをドラッグします。
 	</string>
 	<string name="no_session_message">
-		(IMセッションが存在しません)
+(IMセッションが存在しません)
 	</string>
 	<string name="only_user_message">
 		このセッションにいるユーザはあなただけです。
@@ -5458,6 +5460,7 @@ https://secondlife.com/support/downloads/ からビューアを再インスト�
 	<string name="outfit_photo_verify_dimensions_error">
 		画像の寸法を確認できません。画像サイズがピッカーに表示されるまでお待ちください。
 	</string>
+
 	<string name="words_separator" value="、"/>
 	<string name="server_is_down">
 大変申し訳ございませんが、予期しない問題が発生しました。サービスに関する既知の問題については、https://status.secondlifegrid.net/?lang=ja-JP をご覧ください。

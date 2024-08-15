@@ -2,51 +2,53 @@
 <floater name="Statistics" title="統計">
 	<scroll_container name="statistics_scroll">
 		<container_view name="statistics_view">
-			<stat_view name="basic" label="基本">
-				<stat_bar name="frame_mean" label="フレーム(平均)"/>
-				<stat_bar name="frame_median" label="フレーム(中央値)"/>
+<stat_view label="基本" name="basic">
+				<stat_bar label="FPS" name="fps" unit_label="／秒"/>
+				<stat_bar name="frame_mean" label="フレーム（平均）" unit_label="㎳"/>
+				<stat_bar name="frame_median" label="フレーム（中央値）" unit_label="㎳"/>
 				<stat_bar name="framet_jitter" label="ジッタ"/>
-				<stat_bar name="bandwidth" label="受信したUDPデータ"/>
-				<stat_bar name="packet_loss" label="パケットロス"/>
-				<stat_bar name="ping" label="シムのPing"/>
+				<stat_bar label="受信したUDPデータ" name="bandwidth"/>
+				<stat_bar label="パケットロス" name="packet_loss"/>
+				<stat_bar label="シムのPing" name="ping"/>
 			</stat_view>
-<stat_view name="advanced" label="拡張">
-				<stat_view name="render" label="描画">
-					<stat_bar name="ktrisframe" label="フレームあたりのKTris" unit_label="ktris/フレーム"/>
-					<stat_bar name="ktrissec" label="秒あたりのKTris"/>
-					<stat_bar name="totalobjs" label="オブジェクト合計"/>
-					<stat_bar name="cachedobjs" label="キャッシュされたオブジェクト"/>
-					<stat_bar name="newobjs" label="新規オブジェクト"/>
-					<stat_bar name="object_cache_hits" label="オブジェクトキャッシュヒット率"/>
-					<stat_bar name="occlusion_queries" label="実行されたオクルージョンクエリ"/>
-					<stat_bar name="occluded" label="閉鎖オブジェクト"/>
-					<stat_bar name="unoccluded" label="非閉鎖オブジェクト"/>
+			<stat_view label="詳細" name="advanced">
+				<stat_view label="描画" name="render">
+					<stat_bar label="フレームあたりのKTris" name="ktrisframe" unit_label="ktris／フレーム"/>
+					<stat_bar label="秒あたりのKTris" name="ktrissec"/>
+					<stat_bar label="オブジェクト合計" name="totalobjs"/>
+					<stat_bar label="キャッシュされたオブジェクト" name="cachedobjs"/>
+					<stat_bar label="新規オブジェクト" name="newobjs"/>
+					<stat_bar label="オブジェクトキャッシュヒット率" name="object_cache_hits"/>
+					<stat_bar label="閉鎖クエリ実行" name="occlusion_queries"/>
+					<stat_bar label="閉鎖オブジェクト" name="occluded"/>
+					<stat_bar label="非閉鎖オブジェクト" name="unoccluded"/>
 				</stat_view>
-				<stat_view name="texture" label="テクスチャ">
-					<stat_bar name="texture_cache_hits" label="キャッシュヒット率"/>
-					<stat_bar name="texture_cache_read_latency" label="キャッシュ読み取り遅延"/>
-					<stat_bar name="numimagesstat" label="カウント"/>
-					<stat_bar name="numrawimagesstat" label="RAWカウント"/>
-					<stat_bar name="gltexmemstat" label="GLメモリ"/>
-					<stat_bar name="formattedmemstat" label="フォーマット済メモリ"/>
-					<stat_bar name="rawmemstat" label="RAWメモリ"/>
-					<stat_bar name="glboundmemstat" label="統合メモリ"/>
+				<stat_view label="テクスチャ" name="texture">
+					<stat_bar label="キャッシュヒット率" name="texture_cache_hits"/>
+					<stat_bar label="キャッシュ読み取り遅延" name="texture_cache_read_latency"/>
+					<stat_bar label="カウント" name="numimagesstat"/>
+					<stat_bar label="Rawカウント" name="numrawimagesstat"/>
+					<stat_bar label="GLメモリ" name="gltexmemstat"/>
+					<stat_bar label="フォーマット済メモリ" name="formattedmemstat"/>
+					<stat_bar label="Rawメモリ" name="rawmemstat"/>
+					<stat_bar label="統合メモリ" name="glboundmemstat"/>
 				</stat_view>
-				<stat_view name="memory" label="メモリ使用量">
-					<stat_bar name="LLTrace" label="LLトレース"/>
-					<stat_bar name="LLFontFreetype" label="フォント"/>
-					<stat_bar name="LLInventoryObject" label="インベントリ"/>
-					<stat_bar name="LLViewerObject" label="ビュアオブジェクト"/>
-					<stat_bar name="LLViewerOctreeGroup" label="八分木グループデータ"/>
-					<stat_bar name="LLViewerOctreeEntry" label="八分木データ"/>
-					<stat_bar name="LLVOCacheEntry" label="ビュアのオブジェクトキャッシュ"/>
-					<stat_bar name="LLDrawable" label="描画可能オブジェクト"/>
-					<stat_bar name="LLFace" label="顔データ"/>
-					<stat_bar name="LLDrawInfo" label="描画情報"/>
-					<stat_bar name="LLTexture" label="テクスチャデータ"/>
-					<stat_bar name="LLImage" label="画像データ"/>
-					<stat_bar name="LLImageGL" label="GL画像データ"/>
-					<stat_bar name="LLVertexBuffer" label="頂点バッファ"/>
+				<stat_view label="メモリ使用量" name="memory">
+					<stat_bar label="LLトレース" name="LLTrace"/>
+					<stat_bar label="UI" name="LLView"/>
+					<stat_bar label="フォント" name="LLFontFreetype"/>
+					<stat_bar label="インベントリ" name="LLInventoryObject"/>
+					<stat_bar label="ビューアオブジェクト" name="LLViewerObject"/>
+					<stat_bar label="八分木グループデータ" name="LLViewerOctreeGroup"/>
+					<stat_bar label="八分木データ" name="LLViewerOctreeEntry"/>
+					<stat_bar label="ビューアのオブジェクトキャッシュ" name="LLVOCacheEntry"/>
+					<stat_bar label="描画可能オブジェクト" name="LLDrawable"/>
+					<stat_bar label="顔データ" name="LLFace"/>
+					<stat_bar label="描画情報" name="LLDrawInfo"/>
+					<stat_bar label="テクスチャデータ" name="LLTexture"/>
+					<stat_bar label="画像データ" name="LLImage"/>
+					<stat_bar label="GL画像データ" name="LLImageGL"/>
+					<stat_bar label="頂点バッファ" name="LLVertexBuffer"/>
 				</stat_view>
 				<stat_view name="network" label="ネットワーク">
 					<stat_bar name="packetsinstat" label="パケットイン"/>
@@ -59,7 +61,7 @@
 					<stat_bar name="messagedataout" label="実際の送信"/>
 				</stat_view>
 			</stat_view>
-			<stat_view name="sim" label="シミュレーター">
+<stat_view name="sim" label="シミュレーター">
 				<stat_bar name="simtimedilation" label="遅延時間"/>
 				<stat_bar name="simfps" label="シムのFPS"/>
 				<stat_bar name="simphysicsfps" label="物理 FPS"/>

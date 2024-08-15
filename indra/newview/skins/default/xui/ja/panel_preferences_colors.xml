@@ -29,7 +29,7 @@
         所有者
     </text>
 	<text name="text_box9">
-ＵＲＬ
+		URL
 	</text>
 	<text name="text_box10">
 		オブジェクト
@@ -37,7 +37,7 @@
 	<text name="bubble_chat">
 		名前の表示の背景色（吹き出しチャットにも適用）：
 	</text>
-	<color_swatch name="background" tool_tip="名前の背景色を選択します。"/>
+<color_swatch name="background" tool_tip="名前の背景色を選択します。"/>
 	<slider label="不透明度：" name="bubble_chat_opacity" tool_tip="名前の背景の不透明度を入力します。"/>
 	<text name="floater_opacity">
         フローターの透過度:

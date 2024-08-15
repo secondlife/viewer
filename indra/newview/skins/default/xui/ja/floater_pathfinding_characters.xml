@@ -23,6 +23,7 @@
 			<scroll_list.columns label="名前" name="name"/>
 			<scroll_list.columns label="説明" name="description"/>
 			<scroll_list.columns label="所有者" name="owner"/>
+
 			<scroll_list.columns label="高度" name="altitude"/>
 		</scroll_list>
 		<text name="messaging_status">

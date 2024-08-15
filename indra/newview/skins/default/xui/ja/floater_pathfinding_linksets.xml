@@ -81,11 +81,11 @@
 			<scroll_list.columns label="スクリプト" name="scripted"/>
 			<scroll_list.columns label="ランドインパクト" name="land_impact"/>
 			<scroll_list.columns label="距離" name="dist_from_you"/>
-<scroll_list.columns label="経路探索の用途" name="linkset_use"/>
-			<scroll_list.columns label="Ａ％" name="a_percent"/>
-			<scroll_list.columns label="Ｂ％" name="b_percent"/>
-			<scroll_list.columns label="Ｃ％" name="c_percent"/>
-			<scroll_list.columns label="Ｄ％" name="d_percent"/>
+<scroll_list.columns label="経路探索で使用" name="linkset_use"/>
+			<scroll_list.columns label="A %" name="a_percent"/>
+			<scroll_list.columns label="B %" name="b_percent"/>
+			<scroll_list.columns label="C %" name="c_percent"/>
+			<scroll_list.columns label="D %" name="d_percent"/>
 		</scroll_list>
 		<text name="messaging_status">リンクセット：</text>
 		<button label="リスト更新" name="refresh_objects_list"/>
@@ -110,7 +110,7 @@
 		<text name="walkability_coefficients_label">
             歩行可能性:
         </text>
-		<line_editor name="edit_a_value" tool_tip="タイプAのキャラクターの歩行可能性。キャラクタータイプの例はヒューマノイドです。"/>
+<line_editor name="edit_a_value" tool_tip="タイプAのキャラクターの歩行可能性。キャラクタータイプの例はヒューマノイドです。"/>
 		<line_editor name="edit_b_value" tool_tip="タイプBのキャラクターの歩行可能性。キャラクタータイプの例はクリーチャーです。"/>
 		<line_editor name="edit_c_value" tool_tip="タイプCのキャラクターの歩行可能性。キャラクタータイプの例はメカニカルです。"/>
 		<line_editor name="edit_d_value" tool_tip="タイプDのキャラクターの歩行可能性。キャラクタータイプの例はその他です。"/>

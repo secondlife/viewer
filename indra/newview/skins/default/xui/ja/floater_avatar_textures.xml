@@ -6,7 +6,7 @@
 	<scroll_container name="profile_scroll">
 		<panel name="scroll_content_panel">
 			<text name="label">
-                ベークド
+				ベイク済み
                 テクスチャ
             </text>
 			<text name="composite_label">
@@ -51,7 +51,7 @@
 				<texture_picker label="スカートのタトゥ" name="skirt_tattoo"/>
 				<texture_picker label="左腕" name="leftarm-baked"/>
 				<texture_picker label="左腕のタトゥ" name="leftarm_tattoo"/>
-				<texture_picker label="左脚" name="leftleg-baked"/>
+<texture_picker label="左脚" name="leftleg-baked"/>
 				<texture_picker label="左脚のタトゥ" name="leftleg_tattoo"/>
 				<texture_picker label="予備1" name="aux1-baked"/>
 				<texture_picker label="予備1タトゥ" name="aux1_tattoo"/>

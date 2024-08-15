@@ -7,7 +7,7 @@
 地域(リージョン)の設定を使用
 	</string>
 	<string name="str_altitude_desription">
-		空 [INDEX]([ALTITUDE]m)
+空 [INDEX]([ALTITUDE]m)
 	</string>
 	<string name="str_no_parcel">
 		区画が選択されていません。景観設定が無効になっています。
@@ -93,7 +93,7 @@
 					</panel>
 					<panel name="pnl_alt3">
 <text name="txt_alt3">
-                            空 [INDEX]
+空 [INDEX]
                             [ALTITUDE]m
                         </text>
 						<line_editor name="edt_invname_alt3">

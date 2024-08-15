@@ -3,12 +3,12 @@
 <check_box initial_value="true" label="近くのチャットでジェスチャーを自動補完する" name="auto_complete_gestures"/>
 	<panel name="general_chat_settings">
 		<check_box initial_value="true" label="チャット中にタイピング動作のアニメーションを再生" name="play_typing_animation"/>
-		<check_box label="フレンドとグループ以外からのコールとＩＭは受信しない" name="voice_call_friends_only_check"/>
+<check_box label="フレンドとグループ以外からのコールとＩＭは受信しない" name="voice_call_friends_only_check"/>
 		<text name="email_settings">
             [https://accounts.secondlife.com/change_email?lang=ja オフライン時のIMのメール送信先の設定]
         </text>
 		<text name="font_size">
-            文字の大きさ:
+文字の大きさ:
         </text>
 		<combo_box name="chat_font_size">
 			<item label="小" name="Small"/>
@@ -19,7 +19,7 @@
 	</panel>
 	<panel name="im_notification_settings">
 		<text name="friend_ims">
-            フレンドIM:
+フレンドからのIM：
         </text>
 		<combo_box name="FriendIMOptions">
 			<item label="開いている会話ウィンドウ" name="OpenConversationsWindow"/>
@@ -29,7 +29,7 @@
 		</combo_box>
 		<check_box label="サウンドを再生" name="play_sound_friend_im"/>
 		<text name="non_friend_ims">
-            フレンドのいないIM:
+フレンド以外からのIM：
         </text>
 		<combo_box name="NonFriendIMOptions">
 			<item label="開いている会話ウィンドウ" name="OpenConversationsWindow"/>
@@ -39,7 +39,7 @@
 		</combo_box>
 		<check_box label="サウンドを再生" name="play_sound_non_friend_im"/>
 		<text name="conference_ims">
-            会話IM:
+会議IM：
         </text>
 		<combo_box name="ConferenceIMOptions">
 			<item label="開いている会話ウィンドウ" name="OpenConversationsWindow"/>
@@ -69,7 +69,7 @@
 		</combo_box>
 		<check_box label="サウンドを再生" name="play_sound_nearby_chat_im"/>
 		<text name="object_ims">
-            オブジェクトによるIM:
+オブジェクトによるIM:
         </text>
 		<combo_box name="ObjectIMOptions">
 			<item label="開いている会話ウィンドウ" name="OpenConversationsWindow"/>

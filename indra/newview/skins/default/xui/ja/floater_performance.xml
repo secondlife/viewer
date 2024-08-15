@@ -37,7 +37,7 @@
 		</panel>
 		<panel name="nearby_subpanel">
 			<text name="avatars_nearby_lbl">
-近隣のアバター
+				近くのアバター
             </text>
 			<text name="avatars_nearby_desc">
                 近隣のアバターのうち、どのタイプのアバターを完全に表示するかを管理します。
@@ -56,7 +56,7 @@
                 アクティブなHUD
             </text>
 			<text name="huds_desc">
-                使用していないHUDを外すと速度が向上する可能性があります。
+使用していないHUDを外すと、速度が向上する可能性があります。
             </text>
 		</panel>
 	</panel>

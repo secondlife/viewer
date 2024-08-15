@@ -20,16 +20,16 @@
 			<button label="地形を元に戻す" label_selected="地形を元に戻す" name="Revert Terrain" tool_tip="現在の地形をデフォルトに置換"/>
 			<button label="地形を交換" label_selected="地形を交換" name="Swap Terrain" tool_tip="現在の地形をデフォルトに置換する"/>
 			<text name="estate id">
-                不動産ID:
+不動産ID:
             </text>
 			<text name="parent id">
-親ＩＤ：
+				親ID：
 			</text>
 			<line_editor name="parentestate" tool_tip="これは、このリージョンの親不動産です。"/>
 			<text name="Grid Pos: ">
 				グリッド位置：
 			</text>
-			<line_editor name="gridposx" tool_tip="これは、このリージョンのグリッドＸ座標です。"/>
+<line_editor name="gridposx" tool_tip="これは、このリージョンのグリッドＸ座標です。"/>
 			<line_editor name="gridposy" tool_tip="これは、このリージョンのグリッドＹ座標です。"/>
 			<text name="Redirect to Grid: ">
                 グリッドにリダイレクト:

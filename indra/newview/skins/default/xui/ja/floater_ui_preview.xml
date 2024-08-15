@@ -10,7 +10,7 @@
 		<combo_box name="language_select_combo">
 			<combo_box.item label="ja" name="item1" value="ja"/>
 		</combo_box>
-		<button label="表示" label_selected="表示" name="display_floater" tool_tip="選択したXMLファイルで定義されたXUIフローターを表示します。"/>
+<button label="表示" label_selected="表示" name="display_floater" tool_tip="選択したXMLファイルで定義されたXUIフローターを表示します。"/>
 		<button label="非表示" label_selected="非表示" name="close_displayed_floater" tool_tip="現在表示されているフローターが存在する場合は、それを閉じます。"/>
 		<button label="編集..." label_selected="編集..." name="edit_floater" tool_tip="選択したXMLファイルによって定義されたXUIフローターを編集します。(外部エディターを開きます)ローカライズされたバージョンが存在しない場合は、enバージョンを開きます。"/>
 		<button label="保存" label_selected="保存" name="save_floater" tool_tip="選択したXMLファイルで定義されたXUIフローターを保存します。"/>
@@ -19,7 +19,7 @@
 		<text name="select_language_label_2">
             第二言語:
         </text>
-		<button label="表示" name="display_floater_2" tool_tip="選択したXMLファイルで定義されたXUIフローターを表示します。"/>
+<button label="表示" name="display_floater_2" tool_tip="選択したXMLファイルで定義されたXUIフローターを表示します。"/>
 		<button enabled="false" label="非表示" name="close_displayed_floater_2" tool_tip="現在表示されているフローターが存在する場合は、それを閉じます。"/>
 		<button label="スキーマをエクスポート" name="export_schema"/>
 		<check_box label="四角形を表示" name="show_rectangles"/>
@@ -32,7 +32,7 @@
 			<text name="editor_path_label">
 エディタのパス:
             </text>
-			<line_editor name="executable_path_field" tool_tip="フローターXMLファイルを編集するためのエディター(実行可能ファイル)へのフルパス。(引用符は必要ありません)"/>
+<line_editor name="executable_path_field" tool_tip="フローターXMLファイルを編集するためのエディター(実行可能ファイル)へのフルパス。(引用符は必要ありません)"/>
 			<button follows="left|bottom" label="参照..." label_selected="参照..." name="browse_for_executable" tool_tip="フローターXMLファイルを編集するためのエディター(実行可能ファイル)を参照します。"/>
 			<text name="executable_args_label">
                 エディタの引数:
@@ -43,7 +43,7 @@
 			<text name="diff_file_label">
 差分ファイル：
 			</text>
-			<line_editor name="vlt_diff_path_field" tool_tip="Viewer Localization Toolkitによって生成されたＸＭＬのD0、D1言語差分ファイルへのフルパス"/>
+<line_editor name="vlt_diff_path_field" tool_tip="Viewer Localization Toolkitによって生成されたＸＭＬのD0、D1言語差分ファイルへのフルパス"/>
 			<button label="参照…" label_selected="参照…" name="browse_for_vlt_diffs" tool_tip="VLTで生成されたD0、D1差分ファイルを参照して、変更されたファイルと要素を強調表示します。"/>
 			<button label="差分をハイライト" label_selected="ハイライトを解除" name="toggle_vlt_diff_highlight" tool_tip="変更された言語データを含むファイルと要素の強調表示を切り替えます。"/>
 		</panel>

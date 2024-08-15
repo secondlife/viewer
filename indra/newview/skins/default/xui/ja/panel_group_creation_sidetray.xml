@@ -46,7 +46,7 @@
 				<layout_panel name="layout_crt2"/>
 			</layout_stack>
 			<text name="info_deletion">
-                注: 48時間メンバーが2人未満のグループは、自動的に解散されます
+注: 48時間メンバーが2人未満のグループは、自動的に解散されます
             </text>
 		</layout_panel>
 	</layout_stack>

@@ -41,7 +41,7 @@
 		<scroll_list.columns label="メモリ（㎅）" name="memory"/>
 	</scroll_list>
 	<text name="id_text">
-		オブジェクトＩＤ：
+物体ID:
 	</text>
 	<button label="標識を表示" name="show_beacon_btn"/>
 	<text name="obj_name_text">

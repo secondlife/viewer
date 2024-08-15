@@ -27,7 +27,7 @@
 	<text name="wip_desc">
 		調整しています…
 	</text>
-	<check_box label="継続的に調整する" name="AutoTuneContinuous" tool_tip="ビューアは、このフローターが閉じていても停止するまで、目標ＦＰＳを満たすように設定を継続的に調整します。"/>
+<check_box label="継続的に調整する" name="AutoTuneContinuous" tool_tip="ビューアは、このフローターが閉じていても停止するまで、目標ＦＰＳを満たすように設定を継続的に調整します。"/>
 	<radio_group name="autotune_lock_type">
 		<radio_item label="このログインセッションのみ" name="one_session_lock"/>
 		<radio_item label="今後のログインセッションから" name="next_session_lock"/>

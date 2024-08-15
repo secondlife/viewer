@@ -3,9 +3,11 @@
 	<text name="camera_offset_lbl">
 カメラのオフセット:
     </text>
+
 	<text name="focus_offset_lbl">
         焦点のオフセット:
     </text>
+
 	<text name="offset_scale_lbl">
         カメラのオフセット倍率:
     </text>

@@ -1069,7 +1069,7 @@ L$が不足しているので、このグループに参加できません。<ta
 			fail
 		</tag>
 	</notification>
-	<notification name="SoundFileInvalidChunkSize">WAVファイルのチャンクサイズが間違っています:
+<notification name="SoundFileInvalidChunkSize">WAVファイルのチャンクサイズが間違っています:
 [FILE]<tag>
 			fail
 		</tag>
@@ -1205,7 +1205,7 @@ L$が不足しているので、このグループに参加できません。<ta
 			fail
 		</tag>
 	</notification>
-	<notification name="invalid_region_handoff">
+<notification name="invalid_region_handoff">
 		リージョン間の移動時に問題が発生しました。ログインし直す必要があるかもしれません。
 このメッセージが何度も出る場合は、[SUPPORT_SITE]をご確認ください。
 		<tag>fail</tag>
@@ -1497,8 +1497,18 @@ L$が不足しているので、このグループに参加できません。<ta
 			fail
 		</tag>
 	</notification>
-	<notification name="OnlyOfficerCanBuyLand">グループ用の土地の購入ができません:
-あなたにはアクティブなグループのために土地を購入する権限がありません。<tag>
+<notification name="YouHaveBeenLoggedOut">しまった、[SECOND_LIFE]からログアウトされてしまいました。[MESSAGE]
+    <usetemplate name="okcancelbuttons" notext="終了" yestext="IM &amp; チャットを見る"/>
+	</notification>
+	<notification name="InventoryUnusable">インベントリの読み込み中に問題が発生しました。まず、ログアウトして再度ログインし直してみてください。
+このメッセージが再度表示される場合は、サポートに連絡して問題を解決してください。
+    <tag>
+			fail
+		</tag>
+	</notification>
+	<notification name="OnlyOfficerCanBuyLand">グループ用の土地の購入ができません：
+あなたにはアクティブなグループのために土地を購入する権限がありません。
+    <tag>
 			group
 		</tag>
 		<tag>
@@ -1849,8 +1859,7 @@ https://wiki.secondlife.com/wiki/Adding_Spelling_Dictionaries<tag>
 			<context>
 				HUDComplexityWarning
 			</context>
-		</unique>[HUD_REASON]
-このため、パフォーマンスに悪影響を与える恐れがあります。
+</unique>
     <usetemplate ignoretext="HUDが複雑すぎる場合の警告" name="notifyignore"/>
 	</notification>
 	<notification name="FirstRun">[APP_NAME] のインストールが完了しました。
@@ -1881,7 +1890,9 @@ https://wiki.secondlife.com/wiki/Adding_Spelling_Dictionaries<tag>
 			<button name="Teleport" text="テレポート"/>
 		</form>
 	</notification>
-<notification name="LoginPacketNeverReceivedNoTP">
+<notification name="WelcomeChooseSex">まもなく、あなたのアバターが表示されます。矢印キーを使用して歩きます。
+ヘルプが必要なときや、[SECOND_LIFE]について知りたいときは、F1キーを押してください。
+男性あるいは女性のアバターを選択してください。この設定は後で変更できます。
 		<tag>
 			FAIL
 		</tag>接続できません。 インターネット接続または [SECOND_LIFE_GRID] に問題がある可能性があります。
@@ -2001,7 +2012,7 @@ SHA1フィンガープリント: [MD5_DIGEST]
 		テクスチャは24ビットの512 x 512以下の画像を選択し「適用」ボタンを再度クリックしてください。
 	</notification>
 	<notification name="RawUploadStarted">
-		アップロードを開始しました。接続速度によっては最大2分間かかります。
+アップロードを開始しました。接続速度によっては最大2分間かかります。
 	</notification>
 <notification name="ConfirmBakeTerrain">
 		現在の地形を構築しようとしています。この操作を行うと現在の地形が、土地の隆起と沈降の制限範囲の基準となり、「復元」ツールのデフォルトになります。操作を続行しますか？
@@ -2306,6 +2317,7 @@ OKをクリックしてダウンロードとインストールを開始します
 			<input name="message">
 				もうフリーズしていません。
 			</input>
+
 			<button name="Cancel" text="キャンセル"/>
 		</form>
 	</notification>
@@ -2784,11 +2796,11 @@ https://community.secondlife.com/knowledgebase/%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%83
 			fail
 		</tag>
 	</notification>
-	<notification name="MissingNotecardAssetID">ノートカード用のアセットIDがデータベースに登録されていません。<tag>
+<notification name="MissingNotecardAssetID">ノートカード用のアセットIDがデータベースに登録されていません。<tag>
 			fail
 		</tag>
 	</notification>
-	<notification name="PublishClassified">注意:クラシファイド広告の掲載料金の払い戻しはできません。L$[AMOUNT]で、このクラシファイド広告を今すぐ公開しますか?<tag>
+<notification name="PublishClassified">注意:クラシファイド広告の掲載料金の払い戻しはできません。L$[AMOUNT]で、このクラシファイド広告を今すぐ公開しますか?<tag>
 			confirm
 		</tag>
 		<tag>
@@ -2809,7 +2821,7 @@ https://community.secondlife.com/knowledgebase/%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%83
 		</tag>
 		<usetemplate canceltext="キャンセル" name="yesnocancelbuttons" notext="いいえ" yestext="はい"/>
 	</notification>
-	<notification label="再起動を確認" name="ConfirmRestart">このリージョンを2分後に再起動しようとしています。このまま続けてもよろしいですか?<tag>
+<notification label="再起動を確認" name="ConfirmRestart">このリージョンを2分後に再起動しようとしています。このまま続けてもよろしいですか?<tag>
 			confirm
 		</tag>
 		<usetemplate name="okcancelbuttons" notext="キャンセル"/>
@@ -3122,7 +3134,7 @@ https://community.secondlife.com/knowledgebase/%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%83
 		
 		⑴嫌がらせの報告の手順。居住者が、[SECOND_LIFE]権限システムを悪用していると思われる場合(例えば、CopyBotまたは同様のコピーツールを使用して知的財産権を侵害していると思われる場合)は不正使用報告を提出できます。不正行為チームは[SECOND_LIFE][http://secondlife.com/corporate/tos.php 利用規約]や、[http://jp.secondlife.com/corporate/cs.php コミュニティ・スタンダード]に違反する行為を調査し、違反する行為に対する適切な処罰を下します。ただし、担当チームは[SECOND_LIFE]の世界からコンテンツを削除して欲しいというリクエストには応じません。
 		
-		⑵DMCA またはコンテンツ削除プロセス。[SECOND_LIFE]からコンテンツの削除をリクエストするには、[https://www.lindenlab.com/legal/intellectual-property-infringement-notification-policy DCMAポリシー]に規定されている有効な権利侵害通知を提出する必要があります。
+⑵DMCA またはコンテンツ削除プロセス。[SECOND_LIFE]からコンテンツの削除をリクエストするには、[https://www.lindenlab.com/legal/intellectual-property-infringement-notification-policy DCMAポリシー]に規定されている有効な権利侵害通知を提出する必要があります。
 		
 		このまま嫌がらせの報告を続けたい場合は、このウィンドウを閉じて報告の送信を完了してください。特定のカテゴリ「コピー Bot 及び権限の悪用」を選択する必要がある場合があります。
 		
@@ -3216,7 +3228,7 @@ https://community.secondlife.com/knowledgebase/%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%83
 		</tag>
 		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="はい"/>
 	</notification>
-	<notification name="ConfirmClearMediaUrlList">保存されたURLのリストを消去します。よろしいですか?<tag>
+<notification name="ConfirmClearMediaUrlList">保存されたURLのリストを消去します。よろしいですか?<tag>
 			confirm
 		</tag>
 		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="はい"/>
@@ -3301,7 +3313,7 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
 		</tag>
 		<usetemplate ignoretext="「容姿」を編集中に、作成する服装を装着するとき" name="okcancelignore" notext="いいえ" yestext="はい"/>
 	</notification>
-	<notification name="NotAgeVerified">訪問しようとしている場所は18歳以上の住人に制限されています。<tag>
+<notification name="NotAgeVerified">訪問しようとしている場所は18歳以上の住人に制限されています。<tag>
 			FAIL
 		</tag>
 		<usetemplate ignoretext="年齢制限付きのエリアを訪問する年齢に達していません。" name="okignore"/>
@@ -3411,7 +3423,7 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
 		<tag>fail</tag>
 	</notification>
 	<notification name="IMAcrossParentEstates">
-		親不動産間ではIMを送信できません。
+親不動産間ではIMを送信できません。
 	</notification>
 	<notification name="TransferInventoryAcrossParentEstates">
 		親不動産間でインベントリを移動することはできません。
@@ -3633,7 +3645,7 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
 		<unique/>
 		<usetemplate name="okbutton" yestext="リージョンの再構築"/>
 	</notification>
-	<notification name="DynamicPathfindingDisabled">
+<notification name="DynamicPathfindingDisabled">
 		このリージョンにおいて、動的経路探索が有効になっていません。経路探索ＬＳＬ呼び出しを使用するスクリプトの入ったオブジェクトは、このリージョンで期待どおりに動作しない可能性があります。
 		<unique/>
 	</notification>
@@ -3642,7 +3654,7 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
 		<unique/>
 		<usetemplate name="okbutton" yestext="ＯＫ"/>
 	</notification>
-	<notification name="SeeAvatars">
+<notification name="SeeAvatars">
 		この区画にいるアバターやこの区画内で行われる文字チャットは、他の区画から見えません。あなたには、この区画外にいる住人が見えず、外の住人にはあなたの姿が見えません。チャンネル０での通常の文字チャットもブロックされます。
 		<unique/>
 	</notification>
@@ -3714,7 +3726,47 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
 	<notification name="CouldntTPCloser">
 		<tag>
 			fail
-		</tag>これ以上目的地に近い場所にテレポートができませんでした。
+</tag>
+	</notification>
+	<notification name="ImproperPaymentStatus">このリージョン（地域）に入るための適切な支払い状況がありません。
+    <tag>
+			fail
+		</tag>
+	</notification>
+	<notification name="MustGetAgeRegion">このリージョン（地域）に入るには、18歳以上である必要があります。
+    <tag>
+			fail
+		</tag>
+	</notification>
+	<notification name="MustGetAgeParcel">この区画に入るには、18歳以上である必要があります。
+    <tag>
+			fail
+		</tag>
+	</notification>
+	<notification name="NoDestRegion">目的地のリージョン（地域）が見つかりませんでした。
+    <tag>
+			fail
+		</tag>
+	</notification>
+	<notification name="NotAllowedInDest">目的地に入る許可がありません。
+    <tag>
+			fail
+		</tag>
+	</notification>
+	<notification name="RegionParcelBan">立入禁止された区画を横断することはできません。別の方法をお試しください。
+    <tag>
+			fail
+		</tag>
+	</notification>
+	<notification name="TelehubRedirect">テレハブに転送されました。
+    <tag>
+			fail
+		</tag>
+	</notification>
+	<notification name="CouldntTPCloser">これ以上目的地に近い場所にテレポートができませんでした。
+    <tag>
+			fail
+		</tag>
     </notification>
 	<notification name="TPCancelled">
 		テレポートがキャンセルされました。
@@ -3909,8 +3961,22 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
 			friendship
 		</tag>フレンドの登録依頼を断りました。
     </notification>
-	<notification name="OfferCallingCard">[NAME] がコーリングカードを渡そうとしています。
-あなたのインベントリにブックマークが追加され、この住人に素早くIMを送ることができます。<form name="form">
+<notification name="FriendshipAcceptedByMe">フレンドの登録依頼を受け入れました。
+    <tag>
+			friendship
+		</tag>
+	</notification>
+	<notification name="FriendshipDeclinedByMe">フレンドの登録依頼を断りました。
+    <tag>
+			friendship
+		</tag>
+	</notification>
+	<notification name="OfferCallingCard">[NAME]が、コーリングカードを渡そうとしています。
+あなたのインベントリにブックマークが追加され、この住人に素早くIMを送ることができます。
+    <tag>
+			friendship
+		</tag>
+		<form name="form">
 			<button name="Accept" text="受け入れる"/>
 			<button name="Decline" text="辞退"/>
 		</form>
@@ -4289,7 +4355,7 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
 			<button name="respondbutton" text="返答"/>
 		</form>
 	</notification>
-	<notification name="ConfirmCloseAll">全てのIMを閉じますか?<tag>
+<notification name="ConfirmCloseAll">全てのIMを閉じますか?<tag>
 			confirm
 		</tag>
 		<usetemplate name="okcancelignore" notext="キャンセル" ignoretext="全てのIMを閉じる前の確認"/>
@@ -4748,7 +4814,7 @@ UDP: 3478, 3479, 5060, 5062, 6250, 12000-32000
 	<notification name="ConfirmHideUI">
 		<tag>
 			confirm
-		</tag>この操作により全てのメニュー項目とボタンが非表示になります。再び表示するには、[SHORTCUT]をもう一度クリックしてください。<usetemplate name="okcancelignore" notext="キャンセル" ignoretext="UIを非表示前に確認"/>
+</tag>この操作により全てのメニュー項目とボタンが非表示になります。再び表示するには、[SHORTCUT]をもう一度クリックしてください。<usetemplate name="okcancelignore" notext="キャンセル" ignoretext="UIを非表示前に確認"/>
 	</notification>
 	<notification name="PathfindingLinksets_WarnOnPhantom">選択された一部のリンクセットはファントムフラグが切り替えられます。
 
@@ -5613,8 +5679,9 @@ UDP: 3478, 3479, 5060, 5062, 6250, 12000-32000
 	<notification name="TenObjectsDisabledPlzRefresh">
 		<tag>
 			fail
-		</tag>選択された最初の10個のオブジェクトのみが無効にされました。必要に応じてリフレッシュして選択内容を追加してください。</notification>
-	<notification name="UpdateViewerBuyParcel">
+</tag>
+	</notification>
+	<notification name="TenObjectsDisabledPlzRefresh">選択された最初の10個のオブジェクトのみが無効にされました。必要に応じて、リフレッシュして選択内容を追加してください。
 		<tag>
 			fail
 		</tag>この区画を購入するには、ビュアを更新する必要があります。</notification>
@@ -6040,7 +6107,7 @@ UDP: 3478, 3479, 5060, 5062, 6250, 12000-32000
 			fail
 		</tag>
 	</notification>
-	<notification label="二段階認証トークンプロンプト" name="PromptMFAToken">
+<notification label="二段階認証トークンプロンプト" name="PromptMFAToken">
 	<tag>
 			confirm
 		</tag>
@@ -6077,7 +6144,7 @@ UDP: 3478, 3479, 5060, 5062, 6250, 12000-32000
 他の人にこのオブジェクトを見てもらいたい場合は、オブジェクトを削除して、アバターのアタッチメントポイントに再度アタッチします。<tag>
 			confirm
 		</tag>
-		<usetemplate ignoretext="リグメッシュがHUDポイントにアタッチされている場合に警告します。" name="okignore"/>
+<usetemplate ignoretext="リグメッシュがHUDポイントにアタッチされている場合に警告します。" name="okignore"/>
 	</notification>
 	<notification name="EnableAutoFPSWarning" type="alertmodal">自動FPSを有効にしようとしています。保存されていないグラフィック設定は全て失われます。
 

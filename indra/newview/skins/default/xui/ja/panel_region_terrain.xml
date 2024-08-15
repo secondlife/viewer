@@ -25,7 +25,7 @@
 	<texture_picker name="material_detail_2"/>
 	<texture_picker name="material_detail_3"/>
 	<text name="height_text_lbl">
-        1(低)
+1（低）
     </text>
 	<text name="height_text_lbl2">
         2
@@ -34,7 +34,7 @@
         3
     </text>
 	<text name="height_text_lbl4">
-        4(高)
+4（高）
     </text>
 	<text name="height_text_lbl5">
 地形の隆起範囲
@@ -49,7 +49,7 @@
 		数値は、上記のマテリアルのブレンド範囲を表します。
 	</text>
 	<text name="height_text_lbl11">
-		メートル単位で測定され、「低」の値は、１番目のテクスチャの高さの「最大値」です。「高」の値は、４番目のテクスチャの高さの「最低値」です。
+メートル単位で測定され、「低」の値は、１番目のテクスチャの高さの「最大値」です。「高」の値は、４番目のテクスチャの高さの「最低値」です。
 	</text>
 	<text name="height_text_lbl11_material">
 		メートル単位で測定され、「低」の値は、１番目のマテリアルの高さの「最大値」です。「高」の値は、４番目のマテリアルの高さの「最小値」です。

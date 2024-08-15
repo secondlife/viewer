@@ -6,7 +6,7 @@
 	<text name="settings_title">
 グラフィック設定
 	</text>
-	<button label="高度な設定を開く" name="advanced_btn"/>
+<button label="高度な設定を開く" name="advanced_btn"/>
 	<button label="推奨設定にリセット" name="defaults_btn"/>
 	<text name="quality_lbl">
         品質と速度
@@ -34,7 +34,7 @@
         距離
     </text>
 	<text name="faster_lbl">
-        速い
+速い
     </text>
 	<text name="farther_lbl">
 遠景
@@ -50,7 +50,7 @@
 		影により視覚的な品質は大幅に向上しますが、速度低下する可能性があります。
 	</text>
 	<text name="RenderShadowDetailText">
-		影の詳細：
+影の詳細：
 	</text>
 	<combo_box name="ShadowDetail" width="170">
 		<combo_box.item label="なし" name="0" value="0"/>

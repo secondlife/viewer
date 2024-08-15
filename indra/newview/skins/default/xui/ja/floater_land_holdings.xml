@@ -19,7 +19,7 @@
 		<scroll_list.columns label="エリア" name="area"/>
 	</scroll_list>
 	<text name="allowed_label">
-        現在の支払いプランで許可された保有地:
+現在の支払いプランで許可された保有地:
     </text>
 	<text name="allowed_text">
         [AREA]m²
