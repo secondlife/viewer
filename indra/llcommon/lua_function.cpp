@@ -34,7 +34,7 @@
 
 using namespace std::literals;      // e.g. std::string_view literals: "this"sv
 
-const S32 INTERRUPTS_MAX_LIMIT = 20000;
+const S32 INTERRUPTS_MAX_LIMIT = 100000;
 const S32 INTERRUPTS_SUSPEND_LIMIT = 100;
 
 #define lua_register(L, n, f) (lua_pushcfunction(L, (f), n), lua_setglobal(L, (n)))
