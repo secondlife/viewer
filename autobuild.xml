@@ -1932,24 +1932,24 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>1ebe715fc1096198e343c41d50654c11509cdbba</string>
+              <string>bc574ea89164387a6c12bb49e1bac091c1d4da27</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-nvapi/releases/download/v352.aac0e19/nvapi-352.aac0e19-windows64-aac0e19.tar.zst</string>
+              <string>https://github.com/secondlife/3p-nvapi/releases/download/v560-r1/nvapi-560.0.0-r1-windows64-10390321492.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>license</key>
-        <string>NVIDIA Corporation Software License Agreement – NVAPI SDK</string>
+        <string>MIT</string>
         <key>license_file</key>
-        <string>LICENSES/NVAPI_SDK_License_Agreement.pdf</string>
+        <string>LICENSES/nvapi.txt</string>
         <key>copyright</key>
-        <string>Copyright © 2012 NVIDIA Corporation.  All rights reserved.</string>
+        <string>Copyright (c) 2024 NVIDIA CORPORATION and AFFILIATES. All rights reserved.</string>
         <key>version</key>
-        <string>352.aac0e19</string>
+        <string>560.0.0-r1</string>
         <key>name</key>
         <string>nvapi</string>
         <key>description</key>
