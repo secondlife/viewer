@@ -218,7 +218,7 @@ F32 LLReflectionMap::getNearClip()
 
     F32 ret = 0.f;
 
-    if (mViewerObject && mViewerObject->getVolume())
+    if (mViewerObject && mViewerObject->getPCode() == LL_PCODE_VOLUME)
     {
         ret = ((LLVOVolume*)mViewerObject)->getReflectionProbeNearClip();
     }
