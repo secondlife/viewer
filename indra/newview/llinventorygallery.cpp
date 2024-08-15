@@ -147,8 +147,6 @@ const LLInventoryGallery::Params& LLInventoryGallery::getDefaultParams()
 bool LLInventoryGallery::postBuild()
 {
     mScrollPanel = getChild<LLScrollContainer>("gallery_scroll_panel");
-    LLPanel::Params params = LLPanel::getDefaultParams();
-    mGalleryPanel = LLUICtrlFactory::create<LLPanel>(params);
     mMessageTextBox = getChild<LLTextBox>("empty_txt");
     mInventoryGalleryMenu = new LLInventoryGalleryContextMenu(this);
     mRootGalleryMenu = new LLInventoryGalleryContextMenu(this);
