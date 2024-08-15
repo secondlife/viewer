@@ -65,6 +65,9 @@ namespace lluau
     void check_interrupts_counter(lua_State* L);
 } // namespace lluau
 
+// must be a macro because __FUNCTION__ is context-sensitive
+#define lluau_checkstack(L, n) luaL_checkstack((L), (n), __FUNCTION__)
+
 std::string lua_tostdstring(lua_State* L, int index);
 void lua_pushstdstring(lua_State* L, const std::string& str);
 LLSD lua_tollsd(lua_State* L, int index);
@@ -294,7 +297,7 @@ auto lua_to<void*>(lua_State* L, int index)
 template <typename T>
 auto lua_getfieldv(lua_State* L, int index, const char* k)
 {
-    luaL_checkstack(L, 1, nullptr);
+    lluau_checkstack(L, 1);
     lua_getfield(L, index, k);
     LuaPopper pop(L, 1);
     return lua_to<T>(L, -1);
@@ -304,7 +307,7 @@ auto lua_getfieldv(lua_State* L, int index, const char* k)
 template <typename T>
 auto lua_setfieldv(lua_State* L, int index, const char* k, const T& value)
 {
-    luaL_checkstack(L, 1, nullptr);
+    lluau_checkstack(L, 1);
     lua_push(L, value);
     lua_setfield(L, index, k);
 }
@@ -313,7 +316,7 @@ auto lua_setfieldv(lua_State* L, int index, const char* k, const T& value)
 template <typename T>
 auto lua_rawgetfield(lua_State* L, int index, const std::string_view& k)
 {
-    luaL_checkstack(L, 1, nullptr);
+    lluau_checkstack(L, 1);
     lua_pushlstring(L, k.data(), k.length());
     lua_rawget(L, index);
     LuaPopper pop(L, 1);
@@ -324,7 +327,7 @@ auto lua_rawgetfield(lua_State* L, int index, const std::string_view& k)
 template <typename T>
 void lua_rawsetfield(lua_State* L, int index, const std::string_view& k, const T& value)
 {
-    luaL_checkstack(L, 2, nullptr);
+    lluau_checkstack(L, 2);
     lua_pushlstring(L, k.data(), k.length());
     lua_push(L, value);
     lua_rawset(L, index);
@@ -430,7 +433,7 @@ DistinctInt TypeTag<T>::value;
 template <class T, typename... ARGS>
 void lua_emplace(lua_State* L, ARGS&&... args)
 {
-    luaL_checkstack(L, 1, nullptr);
+    lluau_checkstack(L, 1);
     int tag{ TypeTag<T>::value };
     if (! lua_getuserdatadtor(L, tag))
     {

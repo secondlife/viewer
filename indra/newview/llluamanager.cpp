@@ -66,7 +66,7 @@ std::string lua_print_msg(lua_State* L, const std::string_view& level)
 {
     // On top of existing Lua arguments, we're going to push tostring() and
     // duplicate each existing stack entry so we can stringize each one.
-    luaL_checkstack(L, 2, nullptr);
+    lluau_checkstack(L, 2);
     luaL_where(L, 1);
     // start with the 'where' info at the top of the stack
     std::ostringstream out;
@@ -139,7 +139,7 @@ lua_function(get_event_pumps,
              "Events posted to replypump are queued for get_event_next().\n"
              "post_on(commandpump, ...) to engage LLEventAPI operations (see helpleap()).")
 {
-    luaL_checkstack(L, 2, nullptr);
+    lluau_checkstack(L, 2);
     auto& listener{ LuaState::obtainListener(L) };
     // return the reply pump name and the command pump name on caller's lua_State
     lua_pushstdstring(L, listener.getReplyName());
@@ -153,7 +153,7 @@ lua_function(get_event_next,
              "is returned by get_event_pumps(). Blocks the calling chunk until an\n"
              "event becomes available.")
 {
-    luaL_checkstack(L, 2, nullptr);
+    lluau_checkstack(L, 2);
     auto& listener{ LuaState::obtainListener(L) };
     const auto& [pump, data]{ listener.getNext() };
     lua_pushstdstring(L, pump);

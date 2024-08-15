@@ -127,7 +127,7 @@ std::string lua_tostdstring(lua_State* L, int index)
 
 void lua_pushstdstring(lua_State* L, const std::string& str)
 {
-    luaL_checkstack(L, 1, nullptr);
+    lluau_checkstack(L, 1);
     lua_pushlstring(L, str.c_str(), str.length());
 }
 
@@ -240,10 +240,10 @@ LLSD lua_tollsd(lua_State* L, int index)
         //   undefined LLSD. Naturally, though, those won't survive a second
         //   round trip.
 
-        // This is the most important of the luaL_checkstack() calls because a
+        // This is the most important of the lluau_checkstack() calls because a
         // deeply nested Lua structure will enter this case at each level, and
         // we'll need another 2 stack slots to traverse each nested table.
-        luaL_checkstack(L, 2, nullptr);
+        lluau_checkstack(L, 2);
         // BEFORE we push nil to initialize the lua_next() traversal, convert
         // 'index' to absolute! Our caller might have passed a relative index;
         // we do, below: lua_tollsd(L, -1). If 'index' is -1, then when we
@@ -400,7 +400,7 @@ LLSD lua_tollsd(lua_State* L, int index)
 void lua_pushllsd(lua_State* L, const LLSD& data)
 {
     // might need 2 slots for array or map
-    luaL_checkstack(L, 2, nullptr);
+    lluau_checkstack(L, 2);
     switch (data.type())
     {
     case LLSD::TypeUndefined:
@@ -487,39 +487,54 @@ LuaState::LuaState(script_finished_fn cb):
 
 LuaState::~LuaState()
 {
-    // We're just about to destroy this lua_State mState. lua_close() doesn't
-    // implicitly garbage-collect everything, so (for instance) any lingering
-    // objects with __gc metadata methods aren't cleaned up. This is why we
-    // provide atexit().
-    luaL_checkstack(mState, 2, nullptr);
+    // We're just about to destroy this lua_State mState. Did this Lua chunk
+    // register any atexit() functions?
+    lluau_checkstack(mState, 3);
     // look up Registry.atexit
     lua_getfield(mState, LUA_REGISTRYINDEX, "atexit");
     // stack contains Registry.atexit
     if (lua_istable(mState, -1))
     {
+        // Push debug.traceback() onto the stack as lua_pcall()'s error
+        // handler function. On error, lua_pcall() calls the specified error
+        // handler function with the original error message; the message
+        // returned by the error handler is then returned by lua_pcall().
+        // Luau's debug.traceback() is called with a message to prepend to the
+        // returned traceback string. Almost as if they'd been designed to
+        // work together...
+        lua_getglobal(mState, "debug");
+        lua_getfield(mState, -1, "traceback");
+        // ditch "debug"
+        lua_remove(mState, -2);
+        // stack now contains atexit, debug.traceback()
+
         // We happen to know that Registry.atexit is built by appending array
         // entries using table.insert(). That's important because it means
         // there are no holes, and therefore lua_objlen() should be correct.
         // That's important because we walk the atexit table backwards, to
         // destroy last the things we created (passed to LL.atexit()) first.
-        for (int i(lua_objlen(mState, -1)); i >= 1; --i)
+        for (int i(lua_objlen(mState, -2)); i >= 1; --i)
         {
             lua_pushinteger(mState, i);
-            // stack contains Registry.atexit, i
-            lua_gettable(mState, -2);
-            // stack contains Registry.atexit, atexit[i]
+            // stack contains Registry.atexit, debug.traceback(), i
+            lua_gettable(mState, -3);
+            // stack contains Registry.atexit, debug.traceback(), atexit[i]
             // Call atexit[i](), no args, no return values.
             // Use lua_pcall() because errors in any one atexit() function
-            // shouldn't cancel the rest of them.
-            if (lua_pcall(mState, 0, 0, 0) != LUA_OK)
+            // shouldn't cancel the rest of them. Pass debug.traceback() as
+            // the error handler function.
+            if (lua_pcall(mState, 0, 0, -2) != LUA_OK)
             {
                 auto error{ lua_tostdstring(mState, -1) };
                 LL_WARNS("Lua") << "atexit() function error: " << error << LL_ENDL;
                 // pop error message
                 lua_pop(mState, 1);
             }
-            // lua_pcall() has already popped atexit[i]: stack contains atexit
+            // lua_pcall() has already popped atexit[i]:
+            // stack contains atexit, debug.traceback()
         }
+        // pop debug.traceback()
+        lua_pop(mState, 1);
     }
     // pop Registry.atexit (either table or nil)
     lua_pop(mState, 1);
@@ -625,7 +640,7 @@ std::pair<int, LLSD> LuaState::expr(const std::string& desc, const std::string& 
 
 LuaListener& LuaState::obtainListener(lua_State* L)
 {
-    luaL_checkstack(L, 2, nullptr);
+    lluau_checkstack(L, 2);
     lua_getfield(L, LUA_REGISTRYINDEX, "LuaListener");
     // compare lua_type() because lua_isuserdata() also accepts light userdata
     if (lua_type(L, -1) != LUA_TUSERDATA)
@@ -655,7 +670,7 @@ LuaListener& LuaState::obtainListener(lua_State* L)
 lua_function(atexit, "atexit(function): "
              "register Lua function to be called at script termination")
 {
-    luaL_checkstack(L, 4, nullptr);
+    lluau_checkstack(L, 4);
     // look up the global name "table"
     lua_getglobal(L, "table");
     // stack contains function, table
@@ -705,7 +720,7 @@ LuaFunction::LuaFunction(const std::string_view& name, lua_CFunction function,
 void LuaFunction::init(lua_State* L)
 {
     const auto& [registry, lookup] = getRState();
-    luaL_checkstack(L, 2, nullptr);
+    lluau_checkstack(L, 2);
     // create LL table --
     // it happens that we know exactly how many non-array members we want
     lua_createtable(L, 0, int(narrow(lookup.size())));
@@ -743,7 +758,7 @@ std::pair<LuaFunction::Registry&, LuaFunction::Lookup&> LuaFunction::getState()
 *****************************************************************************/
 lua_function(source_path, "source_path(): return the source path of the running Lua script")
 {
-    luaL_checkstack(L, 1, nullptr);
+    lluau_checkstack(L, 1);
     lua_pushstdstring(L, lluau::source_path(L).u8string());
     return 1;
 }
@@ -753,7 +768,7 @@ lua_function(source_path, "source_path(): return the source path of the running 
 *****************************************************************************/
 lua_function(source_dir, "source_dir(): return the source directory of the running Lua script")
 {
-    luaL_checkstack(L, 1, nullptr);
+    lluau_checkstack(L, 1);
     lua_pushstdstring(L, lluau::source_path(L).parent_path().u8string());
     return 1;
 }
