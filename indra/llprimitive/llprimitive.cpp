@@ -1435,8 +1435,7 @@ S32 LLPrimitive::parseTEMessage(LLMessageSystem* mesgsys, char const* block_name
             unpack_TEField<S16>(tec.image_rot, tec.face_count, cur_ptr, buffer_end, MVT_S16) &&
             unpack_TEField<U8>(tec.bump, tec.face_count, cur_ptr, buffer_end, MVT_U8) &&
             unpack_TEField<U8>(tec.media_flags, tec.face_count, cur_ptr, buffer_end, MVT_U8) &&
-            unpack_TEField<U8>(tec.glow, tec.face_count, cur_ptr, buffer_end, MVT_U8) &&
-            unpack_TEField<U8>(tec.alpha_gamma, tec.face_count, cur_ptr, buffer_end, MVT_U8)))
+            unpack_TEField<U8>(tec.glow, tec.face_count, cur_ptr, buffer_end, MVT_U8)))
     {
         LL_WARNS("TEXTUREENTRY") << "Failure parsing Texture Entry Message due to malformed TE Field! Dropping changes on the floor. " << LL_ENDL;
         return 0;
@@ -1450,6 +1449,14 @@ S32 LLPrimitive::parseTEMessage(LLMessageSystem* mesgsys, char const* block_name
     for (U32 i = 0; i < tec.face_count; i++)
     {
         tec.material_ids[i].set(&(material_data[i]));
+    }
+
+    if ((cur_ptr < buffer_end) && (*cur_ptr == 0x01))
+    {
+        if (!unpack_TEField<U8>(tec.alpha_gamma, tec.face_count, cur_ptr, buffer_end, MVT_U8))
+        {
+            LL_WARNS("TEXTUREENTRY") << "Baddly formed alphagamma unpacking texture entry." << LL_ENDL;
+        }
     }
 
     retval = 1;
