@@ -138,8 +138,14 @@ void LLFloaterIMSession::onTearOffClicked()
 }
 
 // virtual
-void LLFloaterIMSession::onClickCloseBtn(bool)
+void LLFloaterIMSession::onClickCloseBtn(bool app_qutting)
 {
+    if (app_qutting)
+    {
+        LLFloaterIMSessionTab::onClickCloseBtn();
+        return;
+    }
+
     LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(mSessionID);
 
     if (session != NULL)
