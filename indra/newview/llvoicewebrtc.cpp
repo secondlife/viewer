@@ -269,6 +269,7 @@ void LLWebRTCVoiceClient::init(LLPumpIO* pump)
     mWebRTCDeviceInterface = llwebrtc::getDeviceInterface();
     mWebRTCDeviceInterface->setDevicesObserver(this);
     mMainQueue = LL::WorkQueue::getInstance("mainloop");
+    refreshDeviceLists();
 }
 
 void LLWebRTCVoiceClient::terminate()
@@ -637,7 +638,7 @@ void LLWebRTCVoiceClient::clearCaptureDevices()
 
 void LLWebRTCVoiceClient::addCaptureDevice(const LLVoiceDevice& device)
 {
-    LL_DEBUGS("Voice") << "display: '" << device.display_name << "' device: '" << device.full_name << "'" << LL_ENDL;
+    LL_INFOS("Voice") << "Voice Capture Device: '" << device.display_name << "' (" << device.full_name << ")" << LL_ENDL;
     mCaptureDevices.push_back(device);
 }
 
@@ -706,7 +707,7 @@ void LLWebRTCVoiceClient::clearRenderDevices()
 
 void LLWebRTCVoiceClient::addRenderDevice(const LLVoiceDevice& device)
 {
-    LL_DEBUGS("Voice") << "display: '" << device.display_name << "' device: '" << device.full_name << "'" << LL_ENDL;
+    LL_INFOS("Voice") << "Voice Render Device: '" << device.display_name << "' (" << device.full_name << ")" << LL_ENDL;
     mRenderDevices.push_back(device);
 
 }
