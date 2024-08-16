@@ -220,20 +220,8 @@ jobs:
           [[ "$arch" == "MINGW6" ]] && arch=CYGWIN
           export AUTOBUILD="$(which autobuild)"
 
-          # determine the viewer channel from the branch name
-          branch=$AUTOBUILD_VCS_BRANCH
-          IFS='/' read -ra ba <<< "$branch"
-          prefix=${ba[0]}
-          if [ "$prefix" == "project" ]; then
-              IFS='_' read -ra prj <<< "${ba[1]}"
-              # uppercase first letter of each word
-              export viewer_channel="Second Life Project ${prj[*]^}"
-          elif  [[ "$prefix" == "release" || "$prefix" == "main" ]];
-          then
-              export viewer_channel="Second Life Release"
-          else
-              export viewer_channel="Second Life Test"
-          fi
+          # For the EDU viewer, the channel is hardcoded
+          export viewer_channel="Second Life Release edu"
           echo "viewer_channel=$viewer_channel" >> "$GITHUB_OUTPUT"
           # On windows we need to point the build to the correct python
           # as neither CMake's FindPython nor our custom Python.cmake module
