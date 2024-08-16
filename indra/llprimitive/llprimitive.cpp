@@ -385,6 +385,11 @@ S32  LLPrimitive::setTEBumpmap(const U8 index, const U8 bump)
     return mTextureList.setBumpMap(index, bump);
 }
 
+S32 LLPrimitive::setTEAlphaGamma(const U8 index, const U8 gamma)
+{
+    return mTextureList.setAlphaGamma(index, gamma);
+}
+
 S32  LLPrimitive::setTEBumpShiny(const U8 index, const U8 bump_shiny)
 {
     updateNumBumpmap(index, bump_shiny);
@@ -1213,6 +1218,7 @@ bool LLPrimitive::packTEMessage(LLMessageSystem *mesgsys) const
     S16    offset_t[MAX_TES];
     S16    image_rot[MAX_TES];
     U8     bump[MAX_TES];
+    U8     alpha_gamma[MAX_TES];
     U8     media_flags[MAX_TES];
     U8     glow[MAX_TES];
     U8     material_data[MAX_TES*16];
@@ -1251,6 +1257,7 @@ bool LLPrimitive::packTEMessage(LLMessageSystem *mesgsys) const
             offset_t[face_index] = (S16) ll_round((llclamp(te->mOffsetT,-1.0f,1.0f) * (F32)0x7FFF)) ;
             image_rot[face_index] = (S16) ll_round(((fmod(te->mRotation, F_TWO_PI)/F_TWO_PI) * TEXTURE_ROTATION_PACK_FACTOR));
             bump[face_index] = te->getBumpShinyFullbright();
+            alpha_gamma[face_index]  = te->getAlphaGamma();
             media_flags[face_index] = te->getMediaTexGen();
             glow[face_index] = (U8) ll_round((llclamp(te->getGlow(), 0.0f, 1.0f) * (F32)0xFF));
 
@@ -1278,7 +1285,10 @@ bool LLPrimitive::packTEMessage(LLMessageSystem *mesgsys) const
         *cur_ptr++ = 0;
         cur_ptr += packTEField(cur_ptr, (U8 *)glow, 1 ,last_face_index, MVT_U8);
         *cur_ptr++ = 0;
-        cur_ptr += packTEField(cur_ptr, (U8 *)material_data, 16, last_face_index, MVT_LLUUID);
+        cur_ptr += packTEField(cur_ptr, (U8 *) material_data, 16, last_face_index, MVT_LLUUID);
+        *cur_ptr++ = 0;
+        *cur_ptr++ = 0x01;
+        cur_ptr += packTEField(cur_ptr, (U8 *) alpha_gamma, 1, last_face_index, MVT_U8);
     }
     mesgsys->addBinaryDataFast(_PREHASH_TextureEntry, packed_buffer, (S32)(cur_ptr - packed_buffer));
 
@@ -1298,6 +1308,7 @@ bool LLPrimitive::packTEMessage(LLDataPacker &dp) const
     S16    offset_t[MAX_TES];
     S16    image_rot[MAX_TES];
     U8     bump[MAX_TES];
+    U8     alpha_gamma[MAX_TES];
     U8     media_flags[MAX_TES];
     U8     glow[MAX_TES];
     U8     material_data[MAX_TES*16];
@@ -1336,6 +1347,7 @@ bool LLPrimitive::packTEMessage(LLDataPacker &dp) const
             offset_t[face_index] = (S16) ll_round((llclamp(te->mOffsetT,-1.0f,1.0f) * (F32)0x7FFF)) ;
             image_rot[face_index] = (S16) ll_round(((fmod(te->mRotation, F_TWO_PI)/F_TWO_PI) * TEXTURE_ROTATION_PACK_FACTOR));
             bump[face_index] = te->getBumpShinyFullbright();
+            alpha_gamma[face_index]  = te->getAlphaGamma();
             media_flags[face_index] = te->getMediaTexGen();
             glow[face_index] = (U8) ll_round((llclamp(te->getGlow(), 0.0f, 1.0f) * (F32)0xFF));
 
@@ -1363,7 +1375,10 @@ bool LLPrimitive::packTEMessage(LLDataPacker &dp) const
         *cur_ptr++ = 0;
         cur_ptr += packTEField(cur_ptr, (U8 *)glow, 1 ,last_face_index, MVT_U8);
         *cur_ptr++ = 0;
-        cur_ptr += packTEField(cur_ptr, (U8 *)material_data, 16, last_face_index, MVT_LLUUID);
+        cur_ptr += packTEField(cur_ptr, (U8 *) material_data, 16, last_face_index, MVT_LLUUID);
+        *cur_ptr++ = 0;
+        *cur_ptr++ = 0x01;
+        cur_ptr += packTEField(cur_ptr, (U8 *) alpha_gamma, 1, last_face_index, MVT_U8);
     }
 
     dp.packBinaryData(packed_buffer, (S32)(cur_ptr - packed_buffer), "TextureEntry");
@@ -1420,7 +1435,8 @@ S32 LLPrimitive::parseTEMessage(LLMessageSystem* mesgsys, char const* block_name
             unpack_TEField<S16>(tec.image_rot, tec.face_count, cur_ptr, buffer_end, MVT_S16) &&
             unpack_TEField<U8>(tec.bump, tec.face_count, cur_ptr, buffer_end, MVT_U8) &&
             unpack_TEField<U8>(tec.media_flags, tec.face_count, cur_ptr, buffer_end, MVT_U8) &&
-            unpack_TEField<U8>(tec.glow, tec.face_count, cur_ptr, buffer_end, MVT_U8)))
+            unpack_TEField<U8>(tec.glow, tec.face_count, cur_ptr, buffer_end, MVT_U8) &&
+            unpack_TEField<U8>(tec.alpha_gamma, tec.face_count, cur_ptr, buffer_end, MVT_U8)))
     {
         LL_WARNS("TEXTUREENTRY") << "Failure parsing Texture Entry Message due to malformed TE Field! Dropping changes on the floor. " << LL_ENDL;
         return 0;
@@ -1456,6 +1472,7 @@ S32 LLPrimitive::applyParsedTEMessage(LLTEContents& tec)
         retval |= setTEMediaTexGen(i, tec.media_flags[i]);
         retval |= setTEGlow(i, (F32)tec.glow[i] / (F32)0xFF);
         retval |= setTEMaterialID(i, tec.material_ids[i]);
+        retval |= setTEAlphaGamma(i, tec.alpha_gamma[i]);
 
         // Note:  This is an optimization to send common colors (1.f, 1.f, 1.f, 1.f)
         // as all zeros.  However, the subtraction and addition must be done in unsigned

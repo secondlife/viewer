@@ -305,6 +305,15 @@ S32 LLPrimTextureList::setBumpMap(const U8 index, const U8 bump)
     return TEM_CHANGE_NONE;
 }
 
+S32 LLPrimTextureList::setAlphaGamma(const U8 index, const U8 gamma)
+{
+    if (index < mEntryList.size())
+    {
+        return mEntryList[index]->setAlphaGamma(gamma);
+    }
+    return TEM_CHANGE_NONE;
+}
+
 S32 LLPrimTextureList::setBumpShiny(const U8 index, const U8 bump_shiny)
 {
     if (index < mEntryList.size())

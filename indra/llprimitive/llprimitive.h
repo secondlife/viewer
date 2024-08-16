@@ -411,6 +411,7 @@ struct LLTEContents
     S16    offset_t[MAX_TES];
     S16    image_rot[MAX_TES];
     U8     bump[MAX_TES];
+    U8     alpha_gamma[MAX_TES];
     U8     media_flags[MAX_TES];
     U8     glow[MAX_TES];
     LLMaterialID material_ids[MAX_TES];
@@ -482,6 +483,7 @@ public:
     virtual S32 setTEBumpShiny(const U8 te, const U8 bump);
     virtual S32 setTEMediaTexGen(const U8 te, const U8 media);
     virtual S32 setTEBumpmap(const U8 te, const U8 bump);
+    virtual S32 setTEAlphaGamma(const U8 te, const U8 alphagamma);
     virtual S32 setTETexGen(const U8 te, const U8 texgen);
     virtual S32 setTEShiny(const U8 te, const U8 shiny);
     virtual S32 setTEFullbright(const U8 te, const U8 fullbright);

@@ -146,6 +146,7 @@ protected:
     void sendColor();              // applies and sends color
     void sendAlpha();              // applies and sends transparency
     void sendBump(U32 bumpiness);  // applies and sends bump map
+    void sendAlphaGamma();         // applies and sends bump map
     void sendTexGen();             // applies and sends bump map
     void sendShiny(U32 shininess); // applies and sends shininess
     void sendFullbright();         // applies and sends full bright
@@ -234,6 +235,7 @@ protected:
     void onClickBtnDeleteMedia();
     void onClickBtnAddMedia();
     void onCommitBump();
+    void onCommitAlphaGamma();
     void onCommitTexGen();
     void onCommitShiny();
     void onCommitAlphaMode();
@@ -303,6 +305,8 @@ private:
 
     LLTextBox* mLabelTexGen { nullptr };
     LLComboBox* mComboTexGen { nullptr };
+
+    LLComboBox *mComboAlphaGamma {nullptr};
 
     LLRadioGroup* mRadioMaterialType { nullptr };
     LLRadioGroup* mRadioPbrType { nullptr };

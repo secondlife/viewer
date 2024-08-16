@@ -660,6 +660,7 @@ public:
     bool selectionRevertTextures();
     void selectionRevertGLTFMaterials();
     void selectionSetBumpmap( U8 bumpmap, const LLUUID &image_id );
+    void selectionSetAlphaGamma( U8 gamma );
     void selectionSetTexGen( U8 texgen );
     void selectionSetShiny( U8 shiny, const LLUUID &image_id );
     void selectionSetFullbright( U8 fullbright );

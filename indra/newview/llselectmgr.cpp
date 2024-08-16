@@ -2330,6 +2330,28 @@ void LLSelectMgr::selectionSetBumpmap(U8 bumpmap, const LLUUID &image_id)
     getSelection()->applyToObjects(&sendfunc);
 }
 
+void LLSelectMgr::selectionSetAlphaGamma(U8 gamma)
+{
+    struct f : public LLSelectedTEFunctor
+    {
+        U8 mAlphaGamma;
+        f(const U8 &t) : mAlphaGamma(t) {}
+        bool apply(LLViewerObject *object, S32 te)
+        {
+            if (object->permModify())
+            {
+                // update viewer side color in anticipation of update from simulator
+                object->setTEAlphaGamma(te, mAlphaGamma);
+            }
+            return true;
+        }
+    } setfunc(gamma);
+    getSelection()->applyToTEs(&setfunc);
+
+    LLSelectMgrSendFunctor sendfunc;
+    getSelection()->applyToObjects(&sendfunc);
+}
+
 void LLSelectMgr::selectionSetTexGen(U8 texgen)
 {
     struct f : public LLSelectedTEFunctor

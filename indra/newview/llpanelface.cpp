@@ -421,6 +421,11 @@ bool LLPanelFace::postBuild()
 
     getChildSetCommitCallback(mCheckFullbright, "checkbox fullbright", [&](LLUICtrl*, const LLSD&) { onCommitFullbright(); });
 
+    
+    mLabelTexGen = getChild<LLTextBox>("alpha gamma");
+    getChildSetCommitCallback(mComboAlphaGamma, "combobox alpha gamma", [&](LLUICtrl *, const LLSD &) { onCommitAlphaGamma(); });
+    mComboAlphaGamma->setFollows(FOLLOWS_LEFT | FOLLOWS_TOP);
+
     mLabelTexGen = getChild<LLTextBox>("tex gen");
     getChildSetCommitCallback(mComboTexGen, "combobox texgen", [&](LLUICtrl*, const LLSD&) { onCommitTexGen(); });
     mComboTexGen->setFollows(FOLLOWS_LEFT | FOLLOWS_TOP);
@@ -551,6 +556,12 @@ void LLPanelFace::sendBump(U32 bumpiness)
     LLSelectedTEMaterial::setNormalID(this, current_normal_map);
 
     LLSelectMgr::getInstance()->selectionSetBumpmap( bump, mBumpyTextureCtrl->getImageItemID() );
+}
+
+void LLPanelFace::sendAlphaGamma()
+{
+    U8 alpha_gamma = (U8) mComboAlphaGamma->getCurrentIndex() << TEM_TEX_GEN_SHIFT;
+    LLSelectMgr::getInstance()->selectionSetAlphaGamma(alpha_gamma);
 }
 
 void LLPanelFace::sendTexGen()
@@ -2912,6 +2923,11 @@ void LLPanelFace::onCommitPbrType()
 void LLPanelFace::onCommitBump()
 {
     sendBump(mComboBumpiness->getCurrentIndex());
+}
+
+void LLPanelFace::onCommitAlphaGamma()
+{
+    sendAlphaGamma();
 }
 
 void LLPanelFace::onCommitTexGen()
