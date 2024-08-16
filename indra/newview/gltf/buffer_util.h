@@ -473,7 +473,6 @@ namespace LL
         {
             if (src.is_array())
             {
-                LL_INFOS("GLTF") << "copy(const Value& src, std::vector<T>& dst) called" << LL_ENDL;
                 const boost::json::array& arr = src.get_array();
                 dst.resize(arr.size());
                 for (size_t i = 0; i < arr.size(); ++i)
@@ -513,8 +512,6 @@ namespace LL
             auto it = src.find(member);
             if (it != src.end())
             {
-                LL_INFOS("GLTF") << "copy(const boost::json::object& src, string_view member, T& dst) called with member " << member
-                                 << LL_ENDL;
                 return copy(it->value(), dst);
             }
             return false;

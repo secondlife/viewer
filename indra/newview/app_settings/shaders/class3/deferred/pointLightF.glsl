@@ -150,7 +150,7 @@ void main()
         intensity = getLighIntensity(lgt, pos);
 
         // For debugging.  Basically make this light blow out for testing.
-        // intensity = vec3(1000);
+        intensity = vec3(1000);
         #endif
 
         final_color += intensity*pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, n.xyz, v, normalize(lv));

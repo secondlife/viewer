@@ -8234,6 +8234,7 @@ void LLPipeline::renderDeferredLighting()
 
             if (!gltf_lights.empty())
             {
+                LLGLDepthTest depth(GL_TRUE, GL_FALSE);
                 bindDeferredShader(gDeferredGLTFLightProgram);
 
                 if (mCubeVB.isNull())
@@ -8243,7 +8244,6 @@ void LLPipeline::renderDeferredLighting()
 
                 mCubeVB->setBuffer();
 
-                LLGLDepthTest depth(GL_TRUE, GL_FALSE);
                 for (auto &light : gltf_lights)
                 {
                     LLVector4a center;
@@ -8256,6 +8256,7 @@ void LLPipeline::renderDeferredLighting()
                         camera->getOrigin().mV[1] > c.mV[1] + s + 0.2f || camera->getOrigin().mV[1] < c.mV[1] - s - 0.2f ||
                         camera->getOrigin().mV[2] > c.mV[2] + s + 0.2f || camera->getOrigin().mV[2] < c.mV[2] - s - 0.2f)
                     {
+                        sVisibleLightCount++;
                         gDeferredGLTFLightProgram.uniform3fv(LLShaderMgr::LIGHT_CENTER, 1, c.mV);
                         gDeferredGLTFLightProgram.uniform1f(LLShaderMgr::LIGHT_SIZE, s);
                         gDeferredGLTFLightProgram.uniform3fv(LLShaderMgr::DIFFUSE_COLOR, 1, col.mV);
@@ -8314,9 +8315,10 @@ void LLPipeline::renderDeferredLighting()
                     }
                 }
 
-                /*
+                
                 if (!gltf_fullscreen_lights.empty())
                 {
+                    LLGLDepthTest depth(GL_FALSE);
                     LLVector4 light_data[max_count];
                     LLVector4 light_color[max_count];
                     int       light_type[max_count];
@@ -8344,22 +8346,23 @@ void LLPipeline::renderDeferredLighting()
 
                         if (count == max_count || gltf_fullscreen_lights.empty())
                         {
-                            bindDeferredShader(gDeferredGLTFLightProgram);
-                            gDeferredGLTFLightProgram.uniform1i(LLShaderMgr::MULTI_LIGHT_COUNT, count);
-                            gDeferredGLTFLightProgram.uniform4fv(LLShaderMgr::MULTI_LIGHT, count, (GLfloat*)light_data);
-                            gDeferredGLTFLightProgram.uniform4fv(LLShaderMgr::MULTI_LIGHT_COL, count, (GLfloat *) light_color);
-                            gDeferredGLTFLightProgram.uniform1iv(LLShaderMgr::MULTI_LIGHT_TYPE, count, (GLint *) light_color);
-                            gDeferredGLTFLightProgram.uniform2fv(LLShaderMgr::MULTI_LIGHT_CONE, count, (GLfloat *) light_cone);
-                            gDeferredGLTFLightProgram.uniform3fv(LLShaderMgr::MULTI_LIGHT_DIR, count, (GLfloat *) light_dir);
-                            gDeferredGLTFLightProgram.uniform1f(LLShaderMgr::MULTI_LIGHT_FAR_Z, far_z);
+                            U32 idx = count - 1;
+                            bindDeferredShader(gDeferredGLTFMultiLightProgram[idx]);
+                            gDeferredGLTFMultiLightProgram[idx].uniform1i(LLShaderMgr::MULTI_LIGHT_COUNT, count);
+                            gDeferredGLTFMultiLightProgram[idx].uniform4fv(LLShaderMgr::MULTI_LIGHT, count, (GLfloat *) light_data);
+                            gDeferredGLTFMultiLightProgram[idx].uniform4fv(LLShaderMgr::MULTI_LIGHT_COL, count, (GLfloat *) light_color);
+                            gDeferredGLTFMultiLightProgram[idx].uniform1iv(LLShaderMgr::MULTI_LIGHT_TYPE, count, (GLint *) light_color);
+                            gDeferredGLTFMultiLightProgram[idx].uniform2fv(LLShaderMgr::MULTI_LIGHT_CONE, count, (GLfloat *) light_cone);
+                            gDeferredGLTFMultiLightProgram[idx].uniform3fv(LLShaderMgr::MULTI_LIGHT_DIR, count, (GLfloat *) light_dir);
+                            gDeferredGLTFMultiLightProgram[idx].uniform1f(LLShaderMgr::MULTI_LIGHT_FAR_Z, far_z);
                             count = 0;
                             far_z = 0.f;
                             mScreenTriangleVB->setBuffer();
                             mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
-                            unbindDeferredShader(gDeferredGLTFLightProgram);
+                            unbindDeferredShader(gDeferredGLTFMultiLightProgram[idx]);
                         }
                     }
-                }*/
+                }
 
                 bindDeferredShader(gDeferredMultiSpotLightProgram);
 
