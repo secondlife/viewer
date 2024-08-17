@@ -251,8 +251,7 @@ void LLWebRTCImpl::init()
     apm_config.noise_suppression.level        = webrtc::AudioProcessing::Config::NoiseSuppression::kVeryHigh;
     apm_config.transient_suppression.enabled  = true;
     apm_config.pipeline.multi_channel_render  = true;
-    apm_config.pipeline.multi_channel_capture = true;
-    apm_config.pipeline.multi_channel_capture = true;
+    apm_config.pipeline.multi_channel_capture = false;
 
     webrtc::ProcessingConfig processing_config;
     processing_config.input_stream().set_num_channels(2);
@@ -279,7 +278,6 @@ void LLWebRTCImpl::init()
                                                                  nullptr /* audio_mixer */,
                                                                  mAudioProcessingModule);
 
-    mWorkerThread->BlockingCall([this]() { mPeerDeviceModule->StartPlayout(); });
 }
 
 void LLWebRTCImpl::terminate()
@@ -336,6 +334,22 @@ void LLWebRTCImpl::setRecording(bool recording)
             else
             {
                 mPeerDeviceModule->StopRecording();
+            }
+        });
+}
+
+void LLWebRTCImpl::setPlayout(bool playing)
+{
+    mWorkerThread->PostTask(
+        [this, playing]()
+        {
+            if (playing)
+            {
+                mPeerDeviceModule->StartPlayout();
+            }
+            else
+            {
+                mPeerDeviceModule->StopPlayout();
             }
         });
 }
@@ -402,7 +416,6 @@ void LLWebRTCImpl::unsetDevicesObserver(LLWebRTCDevicesObserver *observer)
 
 void ll_set_device_module_capture_device(rtc::scoped_refptr<webrtc::AudioDeviceModule> device_module, int16_t device)
 {
-    device_module->StopRecording();
 #if WEBRTC_WIN
     if (device < 0)
     {
@@ -420,7 +433,6 @@ void ll_set_device_module_capture_device(rtc::scoped_refptr<webrtc::AudioDeviceM
     device_module->InitMicrophone();
     device_module->InitRecording();
     device_module->SetStereoRecording(false);
-    device_module->StartRecording();
 }
 
 void LLWebRTCImpl::setCaptureDevice(const std::string &id)
@@ -444,18 +456,32 @@ void LLWebRTCImpl::setCaptureDevice(const std::string &id)
     mRecordingDevice = recordingDevice;
     if (mTuningMode)
     {
-        mWorkerThread->PostTask([this, recordingDevice]() { ll_set_device_module_capture_device(mTuningDeviceModule, recordingDevice); });
+        mWorkerThread->PostTask([this, recordingDevice]()
+            {
+                ll_set_device_module_capture_device(mTuningDeviceModule, recordingDevice);
+            });
     }
     else
     {
-        mWorkerThread->PostTask([this, recordingDevice]() { ll_set_device_module_capture_device(mPeerDeviceModule, recordingDevice); });
+        mWorkerThread->PostTask([this, recordingDevice]()
+            {
+                bool recording = mPeerDeviceModule->Recording();
+                if (recording)
+                {
+                    mPeerDeviceModule->StopRecording();
+                }
+                ll_set_device_module_capture_device(mPeerDeviceModule, recordingDevice);
+                if (recording)
+                {
+                    mPeerDeviceModule->StartRecording();
+                }
+            });
     }
 }
 
 
 void ll_set_device_module_render_device(rtc::scoped_refptr<webrtc::AudioDeviceModule> device_module, int16_t device)
 {
-    device_module->StopPlayout();
 #if WEBRTC_WIN
     if (device < 0)
     {
@@ -506,8 +532,16 @@ void LLWebRTCImpl::setRenderDevice(const std::string &id)
         mWorkerThread->PostTask(
             [this, playoutDevice]()
             {
+                bool playing = mPeerDeviceModule->Playing();
+                if (playing)
+                {
+                    mPeerDeviceModule->StopPlayout();
+                }
                 ll_set_device_module_render_device(mPeerDeviceModule, playoutDevice);
-                mPeerDeviceModule->StartPlayout();
+                if (playing)
+                {
+                    mPeerDeviceModule->StartPlayout();
+                }
             });
     }
 }
@@ -633,6 +667,11 @@ LLWebRTCPeerConnectionInterface *LLWebRTCImpl::newPeerConnection()
     rtc::scoped_refptr<LLWebRTCPeerConnectionImpl> peerConnection = rtc::scoped_refptr<LLWebRTCPeerConnectionImpl>(new rtc::RefCountedObject<LLWebRTCPeerConnectionImpl>());
     peerConnection->init(this);
 
+    if (mPeerConnections.empty())
+    {
+        setRecording(true);
+        setPlayout(true);
+    }
     mPeerConnections.emplace_back(peerConnection);
     peerConnection->enableSenderTracks(!mMute);
     return peerConnection.get();
@@ -649,6 +688,7 @@ void LLWebRTCImpl::freePeerConnection(LLWebRTCPeerConnectionInterface* peer_conn
     if (mPeerConnections.empty())
     {
         setRecording(false);
+        setPlayout(false);
     }
 }
 
