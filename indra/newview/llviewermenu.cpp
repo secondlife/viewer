@@ -1461,17 +1461,38 @@ class LLAdvancedTerrainEditLocalPaintMap : public view_listener_t
             return false;
         }
 
+        LLTerrainBrushQueue& brush_queue = gLocalTerrainMaterials.getBrushQueue();
         LLTerrainPaintQueue& paint_request_queue = gLocalTerrainMaterials.getPaintRequestQueue();
 
+        const LLViewerRegion* region = gAgent.getRegion();
+        if (!region)
+        {
+            LL_WARNS() << "No current region for calculating paint operations" << LL_ENDL;
+            return false;
+        }
+        // TODO: Create the brush
+        // Just a dab for now
+        LLTerrainBrush::ptr_t brush = std::make_shared<LLTerrainBrush>();
+        brush->mBrushSize = 16.0f;
+        brush->mPath.emplace_back(17.0f, 17.0f);
+        brush->mPathOffset = 0;
+        brush->mPathEnd = true;
+        brush_queue.enqueue(brush);
+        LLTerrainPaintQueue brush_as_paint_queue = LLTerrainPaintMap::convertBrushQueueToPaintRGB(*region, *tex, brush_queue);
+        //paint_send_queue.enqueue(brush_as_paint_queue); // TODO: What was this line for? (it might also be a leftover line from an unfinished edit)
+
+        // TODO: Keep this around for later testing (i.e. when reducing framebuffer size and the offsets that requires)
+#if 0
         // Enqueue a paint
-        // Overrides an entire region patch with the material in the last slot
+        // Modifies a subsection of the region paintmap with the material in
+        // the last slot.
         // It is currently the responsibility of the paint queue to convert
         // incoming bits to the right bit depth for the paintmap (this could
         // change in the future).
         LLTerrainPaint::ptr_t paint = std::make_shared<LLTerrainPaint>();
-        const U16 width = U16(tex->getWidth() / 16);
-        paint->mStartX = width - 1;
-        paint->mStartY = width - 1;
+        const U16 width = 33;
+        paint->mStartX = 1;
+        paint->mStartY = 1;
         paint->mWidthX = width;
         paint->mWidthY = width;
         constexpr U8 bit_depth = 5;
@@ -1488,12 +1509,19 @@ class LLAdvancedTerrainEditLocalPaintMap : public view_listener_t
                 const size_t pixel = (h * paint->mWidthX) + w;
                 // Solid blue color
                 paint->mData[(components*pixel) + components - 2] = max_value; // blue
-                // Alpha gradient from 0.0 to 1.0 along w
-                const U8 alpha = U8(F32(max_value) * F32(w+1) / F32(paint->mWidthX));
+                //// Alpha grid: 1.0 if odd for either dimension, 0.0 otherwise
+                //const U8 alpha = U8(F32(max_value) * F32(bool(w % 2) || bool(h % 2)));
+                //paint->mData[(components*pixel) + components - 1] = alpha; // alpha
+                // Alpha "frame"
+                const bool edge = w == 0 || h == 0 || w == (paint->mWidthX - 1) || h == (paint->mWidthY - 1);
+                const bool near_edge_frill = ((w == 1 || w == (paint->mWidthX - 2)) && (h % 2 == 0)) ||
+                                             ((h == 1 || h == (paint->mWidthY - 2)) && (w % 2 == 0));
+                const U8 alpha = U8(F32(max_value) * F32(edge || near_edge_frill));
                 paint->mData[(components*pixel) + components - 1] = alpha; // alpha
             }
         }
         paint_request_queue.enqueue(paint);
+#endif
 
         // Apply the paint queues ad-hoc right here for now.
         // *TODO: Eventually the paint queue(s) should be applied at a
