@@ -104,8 +104,6 @@ private:
     // used to generate mipmaps without doing a copy-to-texture
     LLRenderTarget mRenderTarget;
 
-    LLRenderTarget mHeroRenderTarget;
-
     std::vector<LLRenderTarget> mMipChain;
 
     // storage for reflection probe radiance maps (plus two scratch space cubemaps)
@@ -123,11 +121,6 @@ private:
 
     // list of active reflection maps
     std::vector<LLPointer<LLReflectionMap>> mProbes;
-
-    // list of maps being used for rendering
-    std::vector<LLReflectionMap*> mReflectionMaps;
-
-    LLReflectionMap* mUpdatingProbe = nullptr;
 
     LLPointer<LLReflectionMap> mDefaultProbe;  // default reflection probe to fall back to for pixels with no probe influences (should always be at cube index 0)
 

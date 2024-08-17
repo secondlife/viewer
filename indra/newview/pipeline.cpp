@@ -777,7 +777,7 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
     if (mRT == &mMainRT)
     { // hacky -- allocate auxillary buffer
 
-        gCubeSnapshot = TRUE;
+        gCubeSnapshot = true;
 
         if (sReflectionProbesEnabled)
         {
@@ -1116,6 +1116,8 @@ void LLPipeline::releaseGLBuffers()
     {
         mGlow[i].release();
     }
+
+    mHeroProbeManager.cleanup(); // release hero probes
 
     releaseScreenBuffers();
 
