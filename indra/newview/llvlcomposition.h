@@ -90,6 +90,10 @@ public:
     void setPaintType(U32 paint_type) { mPaintType = paint_type; }
     LLViewerTexture* getPaintMap();
     void setPaintMap(LLViewerTexture* paint_map);
+    // Queue of client-triggered brush operations that need to be converted
+    // into a form that can be sent to the server.
+    // TODO: Consider getting rid of mPaintRequestQueue, as it's not really needed (brushes go directly to RGB queue)
+    LLTerrainBrushQueue& getBrushQueue() { return mBrushQueue; }
     // Queue of client-triggered paint operations that need to be converted
     // into a form that can be sent to the server.
     // Paints in this queue are in RGBA format.
@@ -116,6 +120,7 @@ protected:
 
     U32 mPaintType = TERRAIN_PAINT_TYPE_HEIGHTMAP_WITH_NOISE;
     LLPointer<LLViewerTexture> mPaintMap;
+    LLTerrainBrushQueue mBrushQueue;
     LLTerrainPaintQueue mPaintRequestQueue{U8(4)};
     LLTerrainPaintQueue mPaintMapQueue{U8(3)};
 };
