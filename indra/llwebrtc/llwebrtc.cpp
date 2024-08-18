@@ -206,10 +206,10 @@ void LLWebRTCImpl::init()
             mTuningDeviceModule->SetAudioDeviceSink(this);
             mTuningDeviceModule->InitMicrophone();
             mTuningDeviceModule->InitSpeaker();
+            mTuningDeviceModule->SetStereoRecording(false);
+            mTuningDeviceModule->SetStereoPlayout(true);
             mTuningDeviceModule->InitRecording();
             mTuningDeviceModule->InitPlayout();
-            mTuningDeviceModule->SetStereoRecording(true);
-            mTuningDeviceModule->SetStereoPlayout(true);
             updateDevices();
         });
 
@@ -227,10 +227,6 @@ void LLWebRTCImpl::init()
             mPeerDeviceModule->EnableBuiltInAEC(false);
             mPeerDeviceModule->InitMicrophone();
             mPeerDeviceModule->InitSpeaker();
-            mPeerDeviceModule->InitRecording();
-            mPeerDeviceModule->InitPlayout();
-            mPeerDeviceModule->SetStereoRecording(true);
-            mPeerDeviceModule->SetStereoPlayout(true);
         });
 
     // The custom processor allows us to retrieve audio data (and levels)
@@ -253,6 +249,8 @@ void LLWebRTCImpl::init()
     apm_config.pipeline.multi_channel_render  = true;
     apm_config.pipeline.multi_channel_capture = false;
 
+    mAudioProcessingModule->ApplyConfig(apm_config);
+
     webrtc::ProcessingConfig processing_config;
     processing_config.input_stream().set_num_channels(2);
     processing_config.input_stream().set_sample_rate_hz(48000);
@@ -263,9 +261,7 @@ void LLWebRTCImpl::init()
     processing_config.reverse_output_stream().set_num_channels(2);
     processing_config.reverse_output_stream().set_sample_rate_hz(48000);
 
-    mAudioProcessingModule->ApplyConfig(apm_config);
     mAudioProcessingModule->Initialize(processing_config);
-
 
     mPeerConnectionFactory = webrtc::CreatePeerConnectionFactory(mNetworkThread.get(),
                                                                  mWorkerThread.get(),
@@ -329,6 +325,8 @@ void LLWebRTCImpl::setRecording(bool recording)
         {
             if (recording)
             {
+                mPeerDeviceModule->SetStereoRecording(false);
+                mPeerDeviceModule->InitRecording();
                 mPeerDeviceModule->StartRecording();
             }
             else
@@ -345,6 +343,8 @@ void LLWebRTCImpl::setPlayout(bool playing)
         {
             if (playing)
             {
+                mPeerDeviceModule->SetStereoPlayout(true);
+                mPeerDeviceModule->InitPlayout();
                 mPeerDeviceModule->StartPlayout();
             }
             else
@@ -430,9 +430,9 @@ void ll_set_device_module_capture_device(rtc::scoped_refptr<webrtc::AudioDeviceM
     // has it at 0
     device_module->SetRecordingDevice(device + 1);
 #endif
+    device_module->SetStereoRecording(false);
     device_module->InitMicrophone();
     device_module->InitRecording();
-    device_module->SetStereoRecording(false);
 }
 
 void LLWebRTCImpl::setCaptureDevice(const std::string &id)
@@ -494,9 +494,9 @@ void ll_set_device_module_render_device(rtc::scoped_refptr<webrtc::AudioDeviceMo
 #else
     device_module->SetPlayoutDevice(device + 1);
 #endif
+    device_module->SetStereoPlayout(true);
     device_module->InitSpeaker();
     device_module->InitPlayout();
-    device_module->SetStereoPlayout(true);
 }
 
 void LLWebRTCImpl::setRenderDevice(const std::string &id)
@@ -626,6 +626,8 @@ void LLWebRTCImpl::setTuningMode(bool enable)
                 //mTuningDeviceModule->StopPlayout();
                 ll_set_device_module_render_device(mPeerDeviceModule, mPlayoutDevice);
                 ll_set_device_module_capture_device(mPeerDeviceModule, mRecordingDevice);
+                mPeerDeviceModule->SetStereoPlayout(true);
+                mPeerDeviceModule->SetStereoRecording(false);
                 mPeerDeviceModule->InitPlayout();
                 mPeerDeviceModule->InitRecording();
                 mPeerDeviceModule->StartPlayout();
@@ -667,13 +669,13 @@ LLWebRTCPeerConnectionInterface *LLWebRTCImpl::newPeerConnection()
     rtc::scoped_refptr<LLWebRTCPeerConnectionImpl> peerConnection = rtc::scoped_refptr<LLWebRTCPeerConnectionImpl>(new rtc::RefCountedObject<LLWebRTCPeerConnectionImpl>());
     peerConnection->init(this);
 
+    mPeerConnections.emplace_back(peerConnection);
+    peerConnection->enableSenderTracks(!mMute);
     if (mPeerConnections.empty())
     {
         setRecording(true);
         setPlayout(true);
     }
-    mPeerConnections.emplace_back(peerConnection);
-    peerConnection->enableSenderTracks(!mMute);
     return peerConnection.get();
 }
 
@@ -702,7 +704,7 @@ void LLWebRTCImpl::freePeerConnection(LLWebRTCPeerConnectionInterface* peer_conn
 LLWebRTCPeerConnectionImpl::LLWebRTCPeerConnectionImpl() :
     mWebRTCImpl(nullptr),
     mPeerConnection(nullptr),
-    mMute(false),
+    mMute(true),
     mAnswerReceived(false)
 {
 }
@@ -724,8 +726,8 @@ void LLWebRTCPeerConnectionImpl::init(LLWebRTCImpl * webrtc_impl)
 }
 void LLWebRTCPeerConnectionImpl::terminate()
 {
-    mWebRTCImpl->PostSignalingTask(
-        [=]()
+    mWebRTCImpl->SignalingBlockingCall(
+        [this]()
         {
             if (mPeerConnection)
             {
@@ -847,7 +849,7 @@ bool LLWebRTCPeerConnectionImpl::initializeConnection(const LLWebRTCPeerConnecti
                 codecparam.clock_rate                 = 48000;
                 codecparam.num_channels               = 2;
                 codecparam.parameters["stereo"]       = "1";
-                codecparam.parameters["sprop-stereo"] = "1";
+                codecparam.parameters["sprop-stereo"] = "0";
                 params.codecs.push_back(codecparam);
                 sender->SetParameters(params);
             }
@@ -862,7 +864,7 @@ bool LLWebRTCPeerConnectionImpl::initializeConnection(const LLWebRTCPeerConnecti
                 codecparam.clock_rate                 = 48000;
                 codecparam.num_channels               = 2;
                 codecparam.parameters["stereo"]       = "1";
-                codecparam.parameters["sprop-stereo"] = "1";
+                codecparam.parameters["sprop-stereo"] = "0";
                 params.codecs.push_back(codecparam);
                 receiver->SetParameters(params);
             }
@@ -1009,7 +1011,7 @@ void LLWebRTCPeerConnectionImpl::OnAddTrack(rtc::scoped_refptr<webrtc::RtpReceiv
     codecparam.clock_rate                 = 48000;
     codecparam.num_channels               = 2;
     codecparam.parameters["stereo"]       = "1";
-    codecparam.parameters["sprop-stereo"] = "1";
+    codecparam.parameters["sprop-stereo"] = "0";
     params.codecs.push_back(codecparam);
     receiver->SetParameters(params);
 }
@@ -1200,7 +1202,7 @@ void LLWebRTCPeerConnectionImpl::OnSuccess(webrtc::SessionDescriptionInterface *
         else if (sdp_line.find("a=fmtp:" + opus_payload) == 0)
         {
             sdp_mangled_stream << sdp_line << "a=fmtp:" << opus_payload
-            << " minptime=10;useinbandfec=1;stereo=1;sprop-stereo=1;maxplaybackrate=48000;sprop-maxplaybackrate=48000;sprop-maxcapturerate=48000\n";
+            << " minptime=10;useinbandfec=1;stereo=1;sprop-stereo=0;maxplaybackrate=48000;sprop-maxplaybackrate=48000;sprop-maxcapturerate=48000\n";
         }
         else
         {
