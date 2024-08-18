@@ -7790,7 +7790,7 @@ void LLObjectSelection::moveNodeToFront(LLSelectNode *nodep)
 void LLObjectSelection::removeNode(LLSelectNode *nodep)
 {
     mSelectNodeMap.erase(nodep->getObject());
-    if (nodep->getObject() == mPrimaryObject)
+    if (mPrimaryObject == nodep->getObject())
     {
         mPrimaryObject = NULL;
     }

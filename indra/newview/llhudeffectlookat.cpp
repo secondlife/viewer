@@ -412,7 +412,7 @@ bool LLHUDEffectLookAt::setLookAt(ELookAtType target_type, LLViewerObject *objec
     F32 current_time  = mTimer.getElapsedTimeF32();
 
     // type of lookat behavior or target object has changed
-    bool lookAtChanged = (target_type != mTargetType) || (object != mTargetObject);
+    bool lookAtChanged = (mTargetType != target_type) || (mTargetObject != object);
 
     // lookat position has moved a certain amount and we haven't just sent an update
     lookAtChanged = lookAtChanged || ((dist_vec_squared(position, mLastSentOffsetGlobal) > MIN_DELTAPOS_FOR_UPDATE_SQUARED) &&

@@ -241,8 +241,7 @@ bool LLHUDEffectPointAt::setPointAt(EPointAtType target_type, LLViewerObject *ob
     F32 current_time  = mTimer.getElapsedTimeF32();
 
     // type of pointat behavior or target object has changed
-    bool targetTypeChanged = (target_type != mTargetType) ||
-        (object != mTargetObject);
+    bool targetTypeChanged = (mTargetType != target_type) || (mTargetObject != object);
 
     bool targetPosChanged = (dist_vec_squared(position, mLastSentOffsetGlobal) > MIN_DELTAPOS_FOR_UPDATE_SQUARED) &&
         ((current_time - mLastSendTime) > (1.f / MAX_SENDS_PER_SEC));

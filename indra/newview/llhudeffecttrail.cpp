@@ -252,7 +252,7 @@ void LLHUDEffectSpiral::triggerLocal()
 
 void LLHUDEffectSpiral::setTargetObject(LLViewerObject *objp)
 {
-    if (objp == mTargetObject)
+    if (mTargetObject == objp)
     {
         return;
     }

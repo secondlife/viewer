@@ -1013,7 +1013,7 @@ bool LLWindowWin32::maximize()
     bool success = false;
     if (!mWindowHandle) return success;
 
-    mWindowThread->post([=]
+    mWindowThread->post([=, this]
         {
             WINDOWPLACEMENT placement;
             placement.length = sizeof(WINDOWPLACEMENT);
@@ -1077,7 +1077,7 @@ bool LLWindowWin32::setSizeImpl(const LLCoordScreen size)
         return false;
     }
 
-    mWindowThread->post([=]()
+    mWindowThread->post([=, this]()
         {
             WINDOWPLACEMENT placement;
             placement.length = sizeof(WINDOWPLACEMENT);
@@ -1691,7 +1691,7 @@ const   S32   max_format  = (S32)num_formats - 1;
 
     // *HACK: Attempt to prevent startup crashes by deferring memory accounting
     // until after some graphics setup. See SL-20177. -Cosmic,2023-09-18
-    mWindowThread->post([=]()
+    mWindowThread->post([=, this]()
     {
         mWindowThread->glReady();
     });
@@ -1926,7 +1926,7 @@ void LLWindowWin32::moveWindow( const LLCoordScreen& position, const LLCoordScre
     // THIS CAUSES DEV-15484 and DEV-15949
     //ShowWindow(mWindowHandle, SW_RESTORE);
     // NOW we can call MoveWindow
-    mWindowThread->post([=]()
+    mWindowThread->post([=, this]()
         {
             MoveWindow(mWindowHandle, position.mX, position.mY, size.mX, size.mY, TRUE);
         });
@@ -1936,7 +1936,7 @@ void LLWindowWin32::setTitle(const std::string title)
 {
     // TODO: Do we need to use the wide string version of this call
     // to support non-ascii usernames (and region names?)
-    mWindowThread->post([=]()
+    mWindowThread->post([=, this]()
         {
             SetWindowTextA(mWindowHandle, title.c_str());
         });
@@ -1962,7 +1962,7 @@ bool LLWindowWin32::setCursorPosition(const LLCoordWindow position)
     mCallbacks->handleMouseMove(this, position.convert(), (MASK)0);
 
     // actually set the cursor position on the window thread
-    mWindowThread->post([=]()
+    mWindowThread->post([=, this]()
         {
             // actually set the OS cursor position
             SetCursorPos(screen_pos.mX, screen_pos.mY);
@@ -1999,7 +1999,7 @@ void LLWindowWin32::hideCursor()
 {
     ASSERT_MAIN_THREAD();
 
-    mWindowThread->post([=]()
+    mWindowThread->post([=, this]()
         {
             while (ShowCursor(FALSE) >= 0)
             {
@@ -2017,7 +2017,7 @@ void LLWindowWin32::showCursor()
 
     ASSERT_MAIN_THREAD();
 
-    mWindowThread->post([=]()
+    mWindowThread->post([=, this]()
         {
             // makes sure the cursor shows up
             while (ShowCursor(TRUE) < 0)
@@ -2141,7 +2141,7 @@ void LLWindowWin32::updateCursor()
     {
         mCurrentCursor = mNextCursor;
         auto nextCursor = mCursor[mNextCursor];
-        mWindowThread->post([=]()
+        mWindowThread->post([=, this]()
             {
                 SetCursor(nextCursor);
             });
@@ -3358,9 +3358,9 @@ bool LLWindowWin32::getClientRectInScreenSpace( RECT* rectp )
 
 void LLWindowWin32::flashIcon(F32 seconds)
 {
-    mWindowThread->post([=]()
+    mWindowThread->post([=, this]()
         {
-            FLASHWINFO flash_info;
+            FLASHWINFO flash_info {};
 
             flash_info.cbSize = sizeof(FLASHWINFO);
             flash_info.hwnd = mWindowHandle;
@@ -3838,7 +3838,7 @@ void *LLWindowWin32::getPlatformWindow()
 
 void LLWindowWin32::bringToFront()
 {
-    mWindowThread->post([=]()
+    mWindowThread->post([=, this]()
         {
             BringWindowToTop(mWindowHandle);
         });
@@ -3847,7 +3847,7 @@ void LLWindowWin32::bringToFront()
 // set (OS) window focus back to the client
 void LLWindowWin32::focusClient()
 {
-    mWindowThread->post([=]()
+    mWindowThread->post([=, this]()
         {
             SetFocus(mWindowHandle);
         });
@@ -3885,7 +3885,7 @@ void LLWindowWin32::allowLanguageTextInput(LLPreeditor *preeditor, bool b)
 
     if (sLanguageTextInputAllowed)
     {
-        mWindowThread->post([=]()
+        mWindowThread->post([=, this]()
         {
             // Allowing: Restore the previous IME status, so that the user has a feeling that the previous
             // text input continues naturally.  Be careful, however, the IME status is meaningful only during the user keeps
@@ -3901,7 +3901,7 @@ void LLWindowWin32::allowLanguageTextInput(LLPreeditor *preeditor, bool b)
     }
     else
     {
-        mWindowThread->post([=]()
+        mWindowThread->post([=, this]()
         {
             // Disallowing: Turn off the IME so that succeeding key events bypass IME and come to us directly.
             // However, do it after saving the current IME  status.  We need to restore the status when
@@ -4920,7 +4920,7 @@ void LLWindowWin32::updateWindowRect()
     if (GetWindowRect(mWindowHandle, &rect) &&
         GetClientRect(mWindowHandle, &client_rect))
     {
-        post([=]
+        post([=, this]
             {
                 mRect = rect;
                 mClientRect = client_rect;

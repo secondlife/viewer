@@ -340,7 +340,7 @@ void LLReflectionMapManager::update()
             continue;
         }
 
-        if (probe != mDefaultProbe &&
+        if (mDefaultProbe != probe &&
             (!probe->isRelevant() || mPaused))
         { // skip irrelevant probes (or all non-default probes if paused)
             continue;
@@ -348,7 +348,7 @@ void LLReflectionMapManager::update()
 
         LLVector4a d;
 
-        if (probe != mDefaultProbe)
+        if (mDefaultProbe != probe)
         {
             if (probe->mViewerObject) //make sure probes track the viewer objects they are attached to
             {
@@ -684,7 +684,7 @@ void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face)
         mLightScale = max_local_light_ambiance / probe->getAmbiance();
     }
 
-    if (probe == mDefaultProbe)
+    if (mDefaultProbe == probe)
     {
         touch_default_probe(probe);
 
@@ -1071,7 +1071,7 @@ void LLReflectionMapManager::updateUniforms()
             break;
         }
 
-        if (refmap != mDefaultProbe)
+        if (mDefaultProbe != refmap)
         {
             // bucket search data
             // theory of operation:

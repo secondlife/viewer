@@ -85,7 +85,7 @@ struct index_of<idx, sought, candidate>
  * // ClassicCallback already used it to locate the lambda instance.)
  * auto ccb{
  *     makeClassicCallback<callback_t>(
- *         [=](int n, const char* s, void*, double f){ ... }) };
+ *         [=, this](int n, const char* s, void*, double f){ ... }) };
  * oldAPI(ccb.get_callback(), ccb.get_userdata());
  * // If the passed callback is called before oldAPI() returns, we can now
  * // safely destroy ccb. If the callback might be called later, consider

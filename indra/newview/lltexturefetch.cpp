@@ -2832,7 +2832,7 @@ bool LLTextureFetch::getRequestFinished(const LLUUID& id, S32& discard_level,
 bool LLTextureFetch::updateRequestPriority(const LLUUID& id, F32 priority)
 {
     LL_PROFILE_ZONE_SCOPED;
-    mRequestQueue.tryPost([=]()
+    mRequestQueue.tryPost([=, this]()
         {
             LLTextureFetchWorker* worker = getWorker(id);
             if (worker)

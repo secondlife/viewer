@@ -438,7 +438,7 @@ void LLPanelEmojiComplete::updateConstraints()
 {
     mRenderRect = getLocalRect();
 
-    mEmojiWidth = (U16)(mIconFont->getWidthF32(u8"\U0001F431") + mPadding * 2);
+    mEmojiWidth = (U16)(mIconFont->getWidthF32(reinterpret_cast<const char*>(u8"\U0001F431")) + mPadding * 2);
     if (mVertical)
     {
         mEmojiHeight = mIconFont->getLineHeight() + mPadding * 2;
