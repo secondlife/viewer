@@ -849,7 +849,7 @@ bool LLWebRTCPeerConnectionImpl::initializeConnection(const LLWebRTCPeerConnecti
                 codecparam.clock_rate                 = 48000;
                 codecparam.num_channels               = 2;
                 codecparam.parameters["stereo"]       = "1";
-                codecparam.parameters["sprop-stereo"] = "0";
+                codecparam.parameters["sprop-stereo"] = "1";
                 params.codecs.push_back(codecparam);
                 sender->SetParameters(params);
             }
@@ -864,7 +864,7 @@ bool LLWebRTCPeerConnectionImpl::initializeConnection(const LLWebRTCPeerConnecti
                 codecparam.clock_rate                 = 48000;
                 codecparam.num_channels               = 2;
                 codecparam.parameters["stereo"]       = "1";
-                codecparam.parameters["sprop-stereo"] = "0";
+                codecparam.parameters["sprop-stereo"] = "1";
                 params.codecs.push_back(codecparam);
                 receiver->SetParameters(params);
             }
@@ -1011,7 +1011,7 @@ void LLWebRTCPeerConnectionImpl::OnAddTrack(rtc::scoped_refptr<webrtc::RtpReceiv
     codecparam.clock_rate                 = 48000;
     codecparam.num_channels               = 2;
     codecparam.parameters["stereo"]       = "1";
-    codecparam.parameters["sprop-stereo"] = "0";
+    codecparam.parameters["sprop-stereo"] = "1";
     params.codecs.push_back(codecparam);
     receiver->SetParameters(params);
 }
@@ -1202,7 +1202,7 @@ void LLWebRTCPeerConnectionImpl::OnSuccess(webrtc::SessionDescriptionInterface *
         else if (sdp_line.find("a=fmtp:" + opus_payload) == 0)
         {
             sdp_mangled_stream << sdp_line << "a=fmtp:" << opus_payload
-            << " minptime=10;useinbandfec=1;stereo=1;sprop-stereo=0;maxplaybackrate=48000;sprop-maxplaybackrate=48000;sprop-maxcapturerate=48000\n";
+            << " minptime=10;useinbandfec=1;stereo=1;sprop-stereo=1;maxplaybackrate=48000;sprop-maxplaybackrate=48000;sprop-maxcapturerate=48000\n";
         }
         else
         {
