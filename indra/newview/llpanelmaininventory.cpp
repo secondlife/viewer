@@ -239,6 +239,11 @@ bool LLPanelMainInventory::postBuild()
         }
 
     }
+    mParentSidepanel = getParentSidepanelInventory();
+    if (mParentSidepanel)
+    {
+        mInboxPanel = mParentSidepanel->getChild<LLPanelMarketplaceInbox>("marketplace_inbox");
+    }
 
     mFilterEditor = getChild<LLFilterEditor>("inventory search editor");
     if (mFilterEditor)
@@ -761,14 +766,9 @@ void LLPanelMainInventory::onClearSearch()
     }
     mFilterSubString = "";
 
-    LLSidepanelInventory * sidepanel_inventory = getParentSidepanelInventory();
-    if (sidepanel_inventory)
+    if (mInboxPanel)
     {
-        LLPanelMarketplaceInbox* inbox_panel = sidepanel_inventory->getChild<LLPanelMarketplaceInbox>("marketplace_inbox");
-        if (inbox_panel)
-        {
-            inbox_panel->onClearSearch();
-        }
+        mInboxPanel->onClearSearch();
     }
 }
 
@@ -818,14 +818,9 @@ void LLPanelMainInventory::onFilterEdit(const std::string& search_string )
     // set new filter string
     setFilterSubString(mFilterSubString);
 
-    LLSidepanelInventory * sidepanel_inventory = getParentSidepanelInventory();
-    if (sidepanel_inventory)
+    if (mInboxPanel)
     {
-        LLPanelMarketplaceInbox* inbox_panel = sidepanel_inventory->getChild<LLPanelMarketplaceInbox>("marketplace_inbox");
-        if (inbox_panel)
-        {
-            inbox_panel->onFilterEdit(search_string);
-        }
+        mInboxPanel->onFilterEdit(search_string);
     }
 }
 
@@ -1578,16 +1573,15 @@ void LLPanelMainInventory::toggleViewMode()
     updateTitle();
     onFilterSelected();
 
-    LLSidepanelInventory* sidepanel_inventory = getParentSidepanelInventory();
-    if (sidepanel_inventory)
+    if (mParentSidepanel)
     {
         if(mSingleFolderMode)
         {
-            sidepanel_inventory->hideInbox();
+            mParentSidepanel->hideInbox();
         }
         else
         {
-            sidepanel_inventory->toggleInbox();
+            mParentSidepanel->toggleInbox();
         }
     }
 }
