@@ -55,12 +55,12 @@ LLRect LLScreenChannelBase::getChannelRect()
 
     if (mFloaterSnapRegion == NULL)
     {
-        mFloaterSnapRegion = gViewerWindow->getRootView()->getChildView("floater_snap_region");
+        mFloaterSnapRegion = gViewerWindow->getFloaterSnapRegion();
     }
 
     if (mChicletRegion == NULL)
     {
-        mChicletRegion = gViewerWindow->getRootView()->getChildView("chiclet_container");
+        mChicletRegion = gViewerWindow->getChicletContainer();
     }
 
     LLRect channel_rect;
@@ -103,12 +103,12 @@ bool LLScreenChannelBase::postBuild()
 {
     if (mFloaterSnapRegion == NULL)
     {
-        mFloaterSnapRegion = gViewerWindow->getRootView()->getChildView("floater_snap_region");
+        mFloaterSnapRegion = gViewerWindow->getFloaterSnapRegion();
     }
 
     if (mChicletRegion == NULL)
     {
-        mChicletRegion = gViewerWindow->getRootView()->getChildView("chiclet_container");
+        mChicletRegion = gViewerWindow->getChicletContainer();
     }
 
     return true;
