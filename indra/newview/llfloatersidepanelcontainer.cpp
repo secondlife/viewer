@@ -53,9 +53,15 @@ LLFloaterSidePanelContainer::~LLFloaterSidePanelContainer()
     LLTransientFloaterMgr::getInstance()->removeControlView(LLTransientFloaterMgr::GLOBAL, this);
 }
 
+bool LLFloaterSidePanelContainer::postBuild()
+{
+    mMainPanel = getChild<LLPanel>(sMainPanelName);
+    return TRUE;
+}
+
 void LLFloaterSidePanelContainer::onOpen(const LLSD& key)
 {
-    getChild<LLPanel>(sMainPanelName)->onOpen(key);
+    mMainPanel->onOpen(key);
 }
 
 void LLFloaterSidePanelContainer::closeFloater(bool app_quitting)
@@ -206,10 +212,16 @@ void LLFloaterSidePanelContainer::showPanel(std::string_view floater_name, std::
 LLPanel* LLFloaterSidePanelContainer::getPanel(std::string_view floater_name, std::string_view panel_name)
 {
     LLFloaterSidePanelContainer* floaterp = LLFloaterReg::getTypedInstance<LLFloaterSidePanelContainer>(floater_name);
-
     if (floaterp)
     {
-        return floaterp->findChild<LLPanel>(panel_name, true);
+        if (panel_name == sMainPanelName)
+        {
+            return floaterp->mMainPanel;
+        }
+        else
+        {
+            return floaterp->findChild<LLPanel>(panel_name, true);
+        }
     }
 
     return NULL;
@@ -218,10 +230,16 @@ LLPanel* LLFloaterSidePanelContainer::getPanel(std::string_view floater_name, st
 LLPanel* LLFloaterSidePanelContainer::findPanel(std::string_view floater_name, std::string_view panel_name)
 {
     LLFloaterSidePanelContainer* floaterp = LLFloaterReg::findTypedInstance<LLFloaterSidePanelContainer>(floater_name);
-
     if (floaterp)
     {
-        return floaterp->findChild<LLPanel>(panel_name, true);
+        if (panel_name == sMainPanelName)
+        {
+            return floaterp->mMainPanel;
+        }
+        else
+        {
+            return floaterp->findChild<LLPanel>(panel_name, true);
+        }
     }
 
     return NULL;
