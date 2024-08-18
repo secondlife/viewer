@@ -2064,6 +2064,9 @@ void LLViewerWindow::initBase()
     mPopupView = main_view->getChild<LLPopupView>("popup_holder");
     mHintHolder = main_view->getChild<LLView>("hint_holder")->getHandle();
     mLoginPanelHolder = main_view->getChild<LLView>("login_panel_holder")->getHandle();
+    mStatusBarContainer = main_view->getChild<LLPanel>("status_bar_container");
+    mNavBarContainer = mStatusBarContainer->getChild<LLView>("nav_bar_container");
+    mTopInfoContainer = main_view->getChild<LLPanel>("topinfo_bar_container");
 
     // Create the toolbar view
     // Get a pointer to the toolbar view holder
@@ -2157,12 +2160,11 @@ void LLViewerWindow::initWorldUI()
 
     if (!gNonInteractive)
     {
-        LLPanel* chiclet_container = getRootView()->getChild<LLPanel>("chiclet_container");
         LLChicletBar* chiclet_bar = LLChicletBar::getInstance();
-        chiclet_bar->setShape(chiclet_container->getLocalRect());
+        chiclet_bar->setShape(mChicletContainer->getLocalRect());
         chiclet_bar->setFollowsAll();
-        chiclet_container->addChild(chiclet_bar);
-        chiclet_container->setVisible(true);
+        mChicletContainer->addChild(chiclet_bar);
+        mChicletContainer->setVisible(true);
     }
 
     LLRect morph_view_rect = full_window;
@@ -2187,30 +2189,25 @@ void LLViewerWindow::initWorldUI()
     if (!gStatusBar)
     {
         // Status bar
-        LLPanel* status_bar_container = getRootView()->getChild<LLPanel>("status_bar_container");
-        gStatusBar = new LLStatusBar(status_bar_container->getLocalRect());
+        gStatusBar = new LLStatusBar(mStatusBarContainer->getLocalRect());
         gStatusBar->setFollows(FOLLOWS_LEFT | FOLLOWS_TOP | FOLLOWS_RIGHT);
-        gStatusBar->setShape(status_bar_container->getLocalRect());
+        gStatusBar->setShape(mStatusBarContainer->getLocalRect());
         // sync bg color with menu bar
         gStatusBar->setBackgroundColor(gMenuBarView->getBackgroundColor());
         // add InBack so that gStatusBar won't be drawn over menu
-        status_bar_container->addChildInBack(gStatusBar, 2/*tab order, after menu*/);
-        status_bar_container->setVisible(true);
+        mStatusBarContainer->addChildInBack(gStatusBar, 2/*tab order, after menu*/);
+        mStatusBarContainer->setVisible(true);
 
         // Navigation bar
-        LLView* nav_bar_container = getRootView()->getChild<LLView>("nav_bar_container");
-
-        navbar->setShape(nav_bar_container->getLocalRect());
+        navbar->setShape(mNavBarContainer->getLocalRect());
         navbar->setBackgroundColor(gMenuBarView->getBackgroundColor());
-        nav_bar_container->addChild(navbar);
-        nav_bar_container->setVisible(true);
+        mNavBarContainer->addChild(navbar);
+        mNavBarContainer->setVisible(true);
     }
     else
     {
-        LLPanel* status_bar_container = getRootView()->getChild<LLPanel>("status_bar_container");
-        LLView* nav_bar_container = getRootView()->getChild<LLView>("nav_bar_container");
-        status_bar_container->setVisible(true);
-        nav_bar_container->setVisible(true);
+        mStatusBarContainer->setVisible(true);
+        mNavBarContainer->setVisible(true);
     }
 
     if (!gSavedSettings.getBOOL("ShowNavbarNavigationPanel"))
@@ -2224,13 +2221,11 @@ void LLViewerWindow::initWorldUI()
 
 
     // Top Info bar
-    LLPanel* topinfo_bar_container = getRootView()->getChild<LLPanel>("topinfo_bar_container");
     LLPanelTopInfoBar* topinfo_bar = LLPanelTopInfoBar::getInstance();
+    topinfo_bar->setShape(mTopInfoContainer->getLocalRect());
 
-    topinfo_bar->setShape(topinfo_bar_container->getLocalRect());
-
-    topinfo_bar_container->addChild(topinfo_bar);
-    topinfo_bar_container->setVisible(true);
+    mTopInfoContainer->addChild(topinfo_bar);
+    mTopInfoContainer->setVisible(true);
 
     if (!gSavedSettings.getBOOL("ShowMiniLocationPanel"))
     {
@@ -2250,7 +2245,7 @@ void LLViewerWindow::initWorldUI()
         getRootView()->sendChildToBack(gHUDView);
     }
 
-    LLPanel* panel_ssf_container = getRootView()->getChild<LLPanel>("state_management_buttons_container");
+    LLPanel* panel_ssf_container = gToolBarView->getChild<LLPanel>("state_management_buttons_container");
 
     LLPanelStandStopFlying* panel_stand_stop_flying = LLPanelStandStopFlying::getInstance();
     panel_ssf_container->addChild(panel_stand_stop_flying);
@@ -2573,12 +2568,11 @@ void LLViewerWindow::setNormalControlsVisible( bool visible )
         gStatusBar->setEnabled( visible );
     }
 
-    LLNavigationBar* navbarp = LLUI::getInstance()->getRootView()->findChild<LLNavigationBar>("navigation_bar");
-    if (navbarp)
+    if (mNavBarContainer)
     {
         // when it's time to show navigation bar we need to ensure that the user wants to see it
         // i.e. ShowNavbarNavigationPanel option is true
-        navbarp->setVisible( visible && gSavedSettings.getBOOL("ShowNavbarNavigationPanel") );
+        mNavBarContainer->setVisible( visible && gSavedSettings.getBOOL("ShowNavbarNavigationPanel") );
     }
 }
 
@@ -5956,23 +5950,20 @@ LLRect LLViewerWindow::getChatConsoleRect()
 
 void LLViewerWindow::reshapeStatusBarContainer()
 {
-    LLPanel* status_bar_container = getRootView()->getChild<LLPanel>("status_bar_container");
-    LLView* nav_bar_container = getRootView()->getChild<LLView>("nav_bar_container");
-
-    S32 new_height = status_bar_container->getRect().getHeight();
-    S32 new_width = status_bar_container->getRect().getWidth();
+    S32 new_height = mStatusBarContainer->getRect().getHeight();
+    S32 new_width = mStatusBarContainer->getRect().getWidth();
 
     if (gSavedSettings.getBOOL("ShowNavbarNavigationPanel"))
     {
         // Navigation bar is outside visible area, expand status_bar_container to show it
-        new_height += nav_bar_container->getRect().getHeight();
+        new_height += mNavBarContainer->getRect().getHeight();
     }
     else
     {
         // collapse status_bar_container
-        new_height -= nav_bar_container->getRect().getHeight();
+        new_height -= mNavBarContainer->getRect().getHeight();
     }
-    status_bar_container->reshape(new_width, new_height, true);
+    mStatusBarContainer->reshape(new_width, new_height, true);
 }
 
 void LLViewerWindow::resetStatusBarContainer()
@@ -5981,12 +5972,10 @@ void LLViewerWindow::resetStatusBarContainer()
     if (gSavedSettings.getBOOL("ShowNavbarNavigationPanel") || navbar->getVisible())
     {
         // was previously showing navigation bar
-        LLView* nav_bar_container = getRootView()->getChild<LLView>("nav_bar_container");
-        LLPanel* status_bar_container = getRootView()->getChild<LLPanel>("status_bar_container");
-        S32 new_height = status_bar_container->getRect().getHeight();
-        S32 new_width = status_bar_container->getRect().getWidth();
-        new_height -= nav_bar_container->getRect().getHeight();
-        status_bar_container->reshape(new_width, new_height, true);
+        S32 new_height = mStatusBarContainer->getRect().getHeight();
+        S32 new_width = mStatusBarContainer->getRect().getWidth();
+        new_height -= mNavBarContainer->getRect().getHeight();
+        mStatusBarContainer->reshape(new_width, new_height, true);
     }
 }
 //----------------------------------------------------------------------------
@@ -6013,7 +6002,7 @@ void LLViewerWindow::setUIVisibility(bool visible)
 
     LLNavigationBar::getInstance()->setVisible(visible ? gSavedSettings.getBOOL("ShowNavbarNavigationPanel") : false);
     LLPanelTopInfoBar::getInstance()->setVisible(visible? gSavedSettings.getBOOL("ShowMiniLocationPanel") : false);
-    mRootView->getChildView("status_bar_container")->setVisible(visible);
+    mStatusBarContainer->setVisible(visible);
 }
 
 bool LLViewerWindow::getUIVisibility()
