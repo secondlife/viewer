@@ -49,7 +49,7 @@
 #include "llprocesstexture.h"
 
 static const S32 MAX_SIZE_LLSD_HEADER = 1024 * 1024;
-static const BOOL USE_MIP_MAPS = TRUE;
+static const bool USE_MIP_MAPS = TRUE;
 
 static const S32 EYES_SLOT_DIMENSIONS=512;
 
@@ -167,7 +167,7 @@ void LLProcessTexture::init()
     }
     else
     {
-        // optimization: maybe we could use maxTextureDecodedWidth and 
+        // optimization: maybe we could use maxTextureDecodedWidth and
         //   maxTextureDecodedHeight for new LLBakingWindow below?
         if ((maxTextureDecodedWidth > 1024) || (maxTextureDecodedHeight > 1024))
         {
@@ -198,7 +198,7 @@ void LLProcessTexture::init()
 
 }
 
-LLPointer<LLGLTexture> LLProcessTexture::getLocalTexture(BOOL usemipmaps, BOOL generate_gl_tex)
+LLPointer<LLGLTexture> LLProcessTexture::getLocalTexture(bool usemipmaps, bool generate_gl_tex)
 {
     LLPointer<LLBakingTexture> tex = new LLBakingTexture(usemipmaps);
     if(generate_gl_tex)
@@ -209,7 +209,7 @@ LLPointer<LLGLTexture> LLProcessTexture::getLocalTexture(BOOL usemipmaps, BOOL g
     return tex ;
 }
 
-LLPointer<LLGLTexture> LLProcessTexture::getLocalTexture(const U32 width, const U32 height, const U8 components, BOOL usemipmaps, BOOL generate_gl_tex)
+LLPointer<LLGLTexture> LLProcessTexture::getLocalTexture(const U32 width, const U32 height, const U8 components, bool usemipmaps, bool generate_gl_tex)
 {
     LLPointer<LLBakingTexture> tex = new LLBakingTexture(width, height, components, usemipmaps) ;
     if(generate_gl_tex)

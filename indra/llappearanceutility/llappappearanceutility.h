@@ -83,7 +83,7 @@ private:
     void initializeIO();
 public:
     void usage(std::ostream& ostr);
-    BOOL isDebugMode() const { return mDebugMode; }
+    bool isDebugMode() const { return mDebugMode; }
     S32 bakeTextureSize() const { return mBakeTextureSize; }
 
 private:
@@ -97,7 +97,7 @@ private:
     std::string mOutputFilename;
     LLUUID mAgentID;
     S32 mBakeTextureSize;
-    BOOL mDebugMode;
+    bool mDebugMode;
     LLTrace::Recording mRecording;
     S32 mTreeMapThreshold;
     std::string mTreeMapFilename;

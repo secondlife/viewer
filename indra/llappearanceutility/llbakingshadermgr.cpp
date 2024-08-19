@@ -51,7 +51,7 @@ using std::pair;
 using std::make_pair;
 using std::string;
 
-BOOL                LLBakingShaderMgr::sInitialized = FALSE;
+bool                LLBakingShaderMgr::sInitialized = FALSE;
 bool                LLBakingShaderMgr::sSkipReload = false;
 
 //utility shaders
@@ -137,7 +137,7 @@ void LLBakingShaderMgr::setShaders()
     mMaxAvatarShaderLevel = 0;
 
     LLVertexBuffer::unbind();
-    BOOL loaded = FALSE;
+    bool loaded = FALSE;
     if (gGLManager.mGLSLVersionMajor > 1 || gGLManager.mGLSLVersionMinor >= 10)
     {
         S32 light_class = 2;
@@ -213,7 +213,7 @@ void LLBakingShaderMgr::unloadShaders()
     //gPipeline.mVertexShadersLoaded = 0;
 }
 
-BOOL LLBakingShaderMgr::loadShadersInterface()
+bool LLBakingShaderMgr::loadShadersInterface()
 {
     gAlphaMaskProgram.mName = "Alpha Mask Shader";
     gAlphaMaskProgram.mShaderFiles.clear();
@@ -221,7 +221,7 @@ BOOL LLBakingShaderMgr::loadShadersInterface()
     gAlphaMaskProgram.mShaderFiles.push_back(make_pair("interface/alphamaskF.glsl", GL_FRAGMENT_SHADER_ARB));
     gAlphaMaskProgram.mShaderLevel = mVertexShaderLevel[SHADER_INTERFACE];
 
-    if( !gAlphaMaskProgram.createShader(NULL, NULL) )
+    if( !gAlphaMaskProgram.createShader() )
     {
         mVertexShaderLevel[SHADER_INTERFACE] = 0;
         return FALSE;

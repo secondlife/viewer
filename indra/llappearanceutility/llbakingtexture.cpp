@@ -32,7 +32,7 @@
 #include "llgltexture.h"
 #include "llimage.h"
 
-static const BOOL USE_MIP_MAPS = TRUE;
+static const bool USE_MIP_MAPS = TRUE;
 
 LLBakingTexture::LLBakingTexture(const LLUUID& id, const LLImageRaw* raw)
     : LLGLTexture(raw, USE_MIP_MAPS),
@@ -40,13 +40,13 @@ LLBakingTexture::LLBakingTexture(const LLUUID& id, const LLImageRaw* raw)
 {
 }
 
-LLBakingTexture::LLBakingTexture(BOOL usemipmaps)
+LLBakingTexture::LLBakingTexture(bool usemipmaps)
     : LLGLTexture(usemipmaps),
       mID(LLUUID::null)
 {
 }
 
-LLBakingTexture::LLBakingTexture(const U32 width, const U32 height, const U8 components, BOOL usemipmaps)
+LLBakingTexture::LLBakingTexture(const U32 width, const U32 height, const U8 components, bool usemipmaps)
     : LLGLTexture(width, height, components, USE_MIP_MAPS),
       mID(LLUUID::null)
 {

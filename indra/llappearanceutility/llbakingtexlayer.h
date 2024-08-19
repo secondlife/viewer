@@ -43,7 +43,7 @@ public:
 
     LLImageJ2C* getCompressedImage() { return mCompressedImage; }
 
-    BOOL                   render();
+    bool                   render();
     /*virtual*/ bool       bindDebugImage(const S32 stage = 0) { return false; }
     /*virtual*/ bool       isActiveFetching() { return false; };
 
@@ -52,7 +52,7 @@ private:
     /*virtual*/ S32         getCompositeOriginY() const { return 0; }
     /*virtual*/ S32         getCompositeWidth() const { return getFullWidth(); }
     /*virtual*/ S32         getCompositeHeight() const { return getFullHeight(); }
-    /*virtual*/ void        midRenderTexLayerSet(BOOL success);
+    /*virtual*/ void        midRenderTexLayerSet(bool success);
 
     LLPointer<LLImageJ2C> mCompressedImage;
 };

@@ -42,8 +42,8 @@ public:
         INVALID_TEXTURE_TYPE
     };
     LLBakingTexture(const LLUUID& id, const LLImageRaw* raw);
-    LLBakingTexture(BOOL usemipmaps);
-    LLBakingTexture(const U32 width, const U32 height, const U8 components, BOOL usemipmaps = TRUE);
+    LLBakingTexture(bool usemipmaps);
+    LLBakingTexture(const U32 width, const U32 height, const U8 components, bool usemipmaps = TRUE);
     /*virtual*/ const LLUUID& getID() const { return mID; }
     virtual S8 getType() const { return BAKING_TEXTURE; }
 

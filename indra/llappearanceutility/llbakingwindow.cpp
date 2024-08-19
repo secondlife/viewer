@@ -40,11 +40,11 @@ LLBakingWindow::LLBakingWindow(S32 width, S32 height)
     const S32 WINDOW_ORIGIN_X = 0;
     const S32 WINDOW_ORIGIN_Y = 0;
     const U32 FLAGS = 32; // *TODO: Why did mapserver use this?  mFlags looks unused.
-    const BOOL NO_FULLSCREEN = FALSE;
-    const BOOL NO_CLEAR_BG = FALSE;
-    const BOOL NO_DISABLE_VSYNC = FALSE;
-    const BOOL NO_IGNORE_PIXEL_DEPTH = FALSE;
-    const BOOL USE_GL = TRUE;
+    const bool NO_FULLSCREEN = FALSE;
+    const bool NO_CLEAR_BG = FALSE;
+    const bool NO_DISABLE_VSYNC = FALSE;
+    const bool NO_IGNORE_PIXEL_DEPTH = FALSE;
+    const bool USE_GL = TRUE;
     mWindow = LLWindowManager::createWindow(this,
         "appearanceutility", "Appearance Utility",
         WINDOW_ORIGIN_X, WINDOW_ORIGIN_Y,

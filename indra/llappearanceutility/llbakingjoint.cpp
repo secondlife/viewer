@@ -46,7 +46,7 @@ LLBakingJoint::~LLBakingJoint()
 }
 
 // virtual
-U32 LLBakingJoint::render( F32 pixelArea, BOOL first_pass, BOOL is_dummy)
+U32 LLBakingJoint::render( F32 pixelArea, bool first_pass, bool is_dummy)
 {
     LL_ERRS() << "LLBakingJoint::render() should never be called!" << LL_ENDL;
     return 0;

@@ -55,9 +55,9 @@ LLBakingTexLayerSetBuffer::~LLBakingTexLayerSetBuffer()
     destroyGLTexture();
 }
 
-BOOL LLBakingTexLayerSetBuffer::render()
+bool LLBakingTexLayerSetBuffer::render()
 {
-    BOOL result = FALSE;
+    bool result = FALSE;
 
     preRenderTexLayerSet();
     result = renderTexLayerSet(nullptr);
@@ -68,7 +68,7 @@ BOOL LLBakingTexLayerSetBuffer::render()
 
 static LLFastTimer::DeclareTimer FTM_MID_RENDER("midRenderTexLayerSet");
 static LLFastTimer::DeclareTimer FTM_CREATE_J2C("Encode J2C image.");
-void LLBakingTexLayerSetBuffer::midRenderTexLayerSet(BOOL success)
+void LLBakingTexLayerSetBuffer::midRenderTexLayerSet(bool success)
 {
     LL_RECORD_BLOCK_TIME(FTM_MID_RENDER);
     if (!mTexLayerSet->isVisible())
