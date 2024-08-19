@@ -1814,7 +1814,7 @@ bool LLViewerFetchedTexture::updateFetch()
     }
     if (mGLTexturep.isNull())
     { // fix for crash inside getCurrentDiscardLevelForFetching (shouldn't happen but appears to be happening)
-        //llassert(false);
+        llassert(false);
         return false;
     }
 
