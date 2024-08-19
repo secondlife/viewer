@@ -97,7 +97,7 @@ public:
 protected:
     void onCloseMsgCallback(const LLSD& notification, const LLSD& response);
 
-	LLPanel* mMainPanel = nullptr;
+    LLPanel* mMainPanel = nullptr;
 };
 
 #endif // LL_LLFLOATERSIDEPANELCONTAINER_H
