@@ -32,7 +32,7 @@
 class LLBakingShaderMgr: public LLShaderMgr
 {
 public:
-    static BOOL sInitialized;
+    static bool sInitialized;
     static bool sSkipReload;
 
     LLBakingShaderMgr();
@@ -45,7 +45,7 @@ public:
     void setShaders();
     void unloadShaders();
     S32 getVertexShaderLevel(S32 type);
-    BOOL loadShadersInterface();
+    bool loadShadersInterface();
 
     std::vector<S32> mVertexShaderLevel;
     S32 mMaxAvatarShaderLevel;

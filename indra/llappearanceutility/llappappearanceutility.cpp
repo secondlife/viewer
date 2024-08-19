@@ -471,10 +471,10 @@ bool LLAppAppearanceUtility::init()
 
     // Initialize classes.
     // Values taken from settings.xml.
-    const BOOL USE_TEXTURE_NEW_BYTE_RANGE=TRUE;
+    const bool USE_TEXTURE_NEW_BYTE_RANGE=TRUE;
     const S32 TEXTURE_REVERSE_BYTE_RANGE=50;
     LLImage::initClass(USE_TEXTURE_NEW_BYTE_RANGE, TEXTURE_REVERSE_BYTE_RANGE);
-    const BOOL SKIP_ANALYZE_ALPHA=TRUE;
+    const bool SKIP_ANALYZE_ALPHA=TRUE;
 
     LLTranslationBridge::ptr_t trans = std::make_shared<LLPassthroughTranslationBridge>();
     LLWearableType::initParamSingleton(trans);

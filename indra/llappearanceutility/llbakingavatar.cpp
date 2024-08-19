@@ -92,7 +92,7 @@ void LLBakingAvatar::bakedTextureDatasAsLLSD(LLSD& sd) const
 //-----------------------------------------------------------------------------
 
 void LLBakingAvatar::bodySizeChanged() {}
-void LLBakingAvatar::applyMorphMask(U8* tex_data, S32 width, S32 height, S32 num_components,
+void LLBakingAvatar::applyMorphMask(const U8* tex_data, S32 width, S32 height, S32 num_components,
         LLAvatarAppearanceDefines::EBakedTextureIndex index) {}
 void LLBakingAvatar::invalidateComposite(LLTexLayerSet* layerset) {}
 void LLBakingAvatar::updateMeshTextures() {}
@@ -100,7 +100,7 @@ void LLBakingAvatar::dirtyMesh() {}
 void LLBakingAvatar::dirtyMesh(S32 priority) {}
 void LLBakingAvatar::onGlobalColorChanged(const LLTexGlobalColor* global_color) {}
 
-BOOL LLBakingAvatar::isTextureDefined(LLAvatarAppearanceDefines::ETextureIndex type, U32 index) const
+bool LLBakingAvatar::isTextureDefined(LLAvatarAppearanceDefines::ETextureIndex type, U32 index) const
 {
     return TRUE;
 }

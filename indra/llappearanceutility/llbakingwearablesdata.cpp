@@ -90,7 +90,7 @@ void LLBakingWearablesData::setWearableOutfit(LLSD& sd)
     for (; wearable_iter != wearable_end; ++wearable_iter)
     {
         LLBakingWearable* wearable = (*wearable_iter);
-        const BOOL removed = FALSE;
+        const bool removed = FALSE;
         wearableUpdated(wearable, removed);
     }
 
