@@ -36,8 +36,8 @@
 #include "lliconctrl.h"
 #include <ranges>
 
-static const F32 MIN_FRACTIONAL_SIZE = 0.00001f;
-static const F32 MAX_FRACTIONAL_SIZE = 1.f;
+static constexpr F32 MIN_FRACTIONAL_SIZE = 0.00001f;
+static constexpr F32 MAX_FRACTIONAL_SIZE = 1.f;
 
 static LLDefaultChildRegistry::Register<LLLayoutStack> register_layout_stack("layout_stack");
 static LLLayoutStack::LayoutStackRegistry::Register<LLLayoutPanel> register_layout_panel("layout_panel");
@@ -831,12 +831,11 @@ void LLLayoutStack::updatePanelRect( LLLayoutPanel* resized_panel, const LLRect&
     F32 delta_auto_resize_headroom = 0.f;
     F32 old_auto_resize_headroom = 0.f;
 
-    LLLayoutPanel* other_resize_panel = NULL;
-    LLLayoutPanel* following_panel = NULL;
+    LLLayoutPanel* other_resize_panel = nullptr;
+    LLLayoutPanel* following_panel = nullptr;
 
-    for (auto it = mPanels.rbegin(); it != mPanels.rend(); ++it)
+    for (auto panelp : mPanels | std::views::reverse)
     {
-        auto* panelp = *it;
         if (panelp->mAutoResize)
         {
             old_auto_resize_headroom += (F32)(panelp->mTargetDim - panelp->getRelevantMinDim());
@@ -993,9 +992,8 @@ void LLLayoutStack::reshape(S32 width, S32 height, bool called_from_parent)
 void LLLayoutStack::updateResizeBarLimits()
 {
     LLLayoutPanel* previous_visible_panelp{ nullptr };
-    for (auto it = mPanels.rbegin(); it != mPanels.rend(); ++it)
+    for (auto visible_panelp : mPanels | std::views::reverse)
     {
-        auto* visible_panelp = *it;
         if (!visible_panelp->getVisible() || visible_panelp->mCollapsed)
         {
             visible_panelp->mResizeBar->setVisible(false);
