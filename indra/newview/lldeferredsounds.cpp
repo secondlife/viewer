@@ -29,8 +29,6 @@
 
 #include "lldeferredsounds.h"
 
-#include "llaudioengine.h"
-
 void LLDeferredSounds::deferSound(SoundData& sound)
 {
     soundVector.push_back(sound);

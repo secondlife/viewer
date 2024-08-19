@@ -2451,7 +2451,7 @@ void LLViewerRegion::setSimulatorFeatures(const LLSD& sim_features)
     // copy features to lambda in case the region is deleted before the lambda is executed
     LLSD features = mSimulatorFeatures;
 
-    auto work = [=, this]()
+    auto work = [=/*, this*/]()
         {
             // if region has MaxTextureResolution, set max_texture_dimension settings, otherwise use default
             if (features.has("MaxTextureResolution"))

@@ -834,8 +834,9 @@ void LLLayoutStack::updatePanelRect( LLLayoutPanel* resized_panel, const LLRect&
     LLLayoutPanel* other_resize_panel = NULL;
     LLLayoutPanel* following_panel = NULL;
 
-    for (auto panelp : mPanels | std::views::reverse)
+    for (auto it = mPanels.rbegin(); it != mPanels.rend(); ++it)
     {
+        auto* panelp = *it;
         if (panelp->mAutoResize)
         {
             old_auto_resize_headroom += (F32)(panelp->mTargetDim - panelp->getRelevantMinDim());
@@ -992,8 +993,9 @@ void LLLayoutStack::reshape(S32 width, S32 height, bool called_from_parent)
 void LLLayoutStack::updateResizeBarLimits()
 {
     LLLayoutPanel* previous_visible_panelp{ nullptr };
-    for (auto visible_panelp : mPanels | std::views::reverse)
+    for (auto it = mPanels.rbegin(); it != mPanels.rend(); ++it)
     {
+        auto* visible_panelp = *it;
         if (!visible_panelp->getVisible() || visible_panelp->mCollapsed)
         {
             visible_panelp->mResizeBar->setVisible(false);

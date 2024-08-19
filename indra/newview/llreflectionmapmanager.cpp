@@ -606,7 +606,7 @@ void LLReflectionMapManager::deleteProbe(U32 i)
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
     LLReflectionMap* probe = mProbes[i];
 
-    llassert(probe != mDefaultProbe);
+    llassert(probe != mDefaultProbe.get());
 
     if (probe->mCubeIndex != -1)
     { // mark the cube index used by this probe as being free

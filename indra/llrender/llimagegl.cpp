@@ -1667,7 +1667,7 @@ void LLImageGL::syncToMainThread(LLGLuint new_tex_name)
             glFlush();
             LL::WorkQueue::postMaybe(
                 mMainQueue,
-                [=, this]()
+                [=/*, this*/]()
                 {
                     LL_PROFILE_ZONE_NAMED("cglt - wait sync");
                     {

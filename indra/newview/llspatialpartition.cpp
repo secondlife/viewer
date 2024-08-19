@@ -301,7 +301,7 @@ bool LLSpatialGroup::addObject(LLDrawable *drawablep)
     }
     {
         drawablep->setGroup(this);
-        setState(OBJECT_DIRTY | GEOM_DIRTY);
+        setState(static_cast<U32>(OBJECT_DIRTY) | static_cast<U32>(GEOM_DIRTY));
         setOcclusionState(LLSpatialGroup::DISCARD_QUERY, LLSpatialGroup::STATE_MODE_ALL_CAMERAS);
         gPipeline.markRebuild(this);
         if (drawablep->isSpatialBridge())
@@ -731,7 +731,7 @@ bool LLSpatialGroup::changeLOD()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SPATIAL;
 
-    if (hasState(ALPHA_DIRTY | OBJECT_DIRTY))
+    if (hasState(static_cast<U32>(ALPHA_DIRTY) | static_cast<U32>(OBJECT_DIRTY)))
     {
         //a rebuild is going to happen, update distance and LoD
         return true;

@@ -3524,7 +3524,7 @@ TFReqSendMetrics::doWork(LLTextureFetch * fetcher)
     //  return true;
 
     static volatile bool reporting_started(false);
-    static volatile S32 report_sequence(0);
+    static S32 report_sequence(0);
 
     // In mStatsSD, we have a copy we own of the LLSD representation
     // of the asset stats. Add some additional fields and ship it off.

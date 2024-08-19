@@ -47,7 +47,7 @@
 #include <unordered_map>
 
 #define SG_STATE_INHERIT_MASK (OCCLUDED)
-#define SG_INITIAL_STATE_MASK (DIRTY | GEOM_DIRTY)
+#define SG_INITIAL_STATE_MASK (static_cast<U32>(DIRTY) | static_cast<U32>(GEOM_DIRTY))
 
 class LLViewerOctreePartition;
 class LLSpatialPartition;
