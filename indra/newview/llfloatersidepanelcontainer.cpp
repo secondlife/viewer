@@ -56,7 +56,7 @@ LLFloaterSidePanelContainer::~LLFloaterSidePanelContainer()
 bool LLFloaterSidePanelContainer::postBuild()
 {
     mMainPanel = getChild<LLPanel>(sMainPanelName);
-    return TRUE;
+    return true;
 }
 
 void LLFloaterSidePanelContainer::onOpen(const LLSD& key)
