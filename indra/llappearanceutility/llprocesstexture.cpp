@@ -167,7 +167,13 @@ void LLProcessTexture::init()
     }
     else
     {
-        if ((maxTextureDecodedWidth > 512) || (maxTextureDecodedHeight > 512))
+        // optimization: maybe we could use maxTextureDecodedWidth and 
+        //   maxTextureDecodedHeight for new LLBakingWindow below?
+        if ((maxTextureDecodedWidth > 1024) || (maxTextureDecodedHeight > 1024))
+        {
+            mBakeSize = 2048;
+        }
+        else if ((maxTextureDecodedWidth > 512) || (maxTextureDecodedHeight > 512))
         {
             mBakeSize = 1024;
         }
