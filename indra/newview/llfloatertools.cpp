@@ -622,7 +622,7 @@ void LLFloaterTools::updatePopup(LLCoordGL center, MASK mask)
     mBtnFocus   ->setToggleState( focus_visible );
 
     mRadioGroupFocus->setVisible( focus_visible );
-    
+
     mSliderZoom->setVisible( focus_visible);
     mSliderZoom->setEnabled(gCameraBtnZoom);
 
