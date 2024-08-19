@@ -398,7 +398,7 @@ void LLAppAppearanceUtility::initializeIO()
     {
         // Make sure we can open the input file.
         std::ifstream* input_file = new std::ifstream();
-        input_file->open( mInputFilename.c_str(), std::fstream::in );
+        input_file->open( mInputFilename.c_str(), std::fstream::in | std::fstream::binary );
         if ( input_file->fail())
         {
             std::cerr << "Couldn't open input file '" << mInputFilename << "'." << std::endl;
@@ -454,7 +454,7 @@ bool LLAppAppearanceUtility::init()
     parseArguments();
 
     bool log_to_stderr = true;
-    LLError::initForApplication("", log_to_stderr);
+    LLError::initForApplication(".", ".", true);
     if (mDebugMode)
     {
         mRecording.start();
@@ -475,8 +475,9 @@ bool LLAppAppearanceUtility::init()
     const S32 TEXTURE_REVERSE_BYTE_RANGE=50;
     LLImage::initClass(USE_TEXTURE_NEW_BYTE_RANGE, TEXTURE_REVERSE_BYTE_RANGE);
     const BOOL SKIP_ANALYZE_ALPHA=TRUE;
-    LLImageGL::initClass(LLGLTexture::MAX_GL_IMAGE_CATEGORY, SKIP_ANALYZE_ALPHA);
-    LLWearableType::initClass(new LLPassthroughTranslationBridge());
+
+    LLTranslationBridge::ptr_t trans = std::make_shared<LLPassthroughTranslationBridge>();
+    LLWearableType::initParamSingleton(trans);
 
     // *TODO: Create a texture bridge?
     LLAvatarAppearance::initClass();
@@ -648,7 +649,6 @@ bool LLAppAppearanceUtility::cleanup()
     }
 
     LLAvatarAppearance::cleanupClass();
-    LLWearableType::cleanupClass();
     LLImageGL::cleanupClass();
     LLImage::cleanupClass();
 

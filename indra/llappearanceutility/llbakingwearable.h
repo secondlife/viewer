@@ -28,6 +28,7 @@
 #define LL_LLBAKINGWEARABLE_H
 
 #include "llwearable.h"
+#include "llmd5.h"
 
 class LLBakingWearable : public LLWearable
 {

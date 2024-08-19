@@ -60,7 +60,7 @@ BOOL LLBakingTexLayerSetBuffer::render()
     BOOL result = FALSE;
 
     preRenderTexLayerSet();
-    result = renderTexLayerSet();
+    result = renderTexLayerSet(nullptr);
     postRenderTexLayerSet(result);
 
     return result;
@@ -101,7 +101,7 @@ void LLBakingTexLayerSetBuffer::midRenderTexLayerSet(BOOL success)
     LL_DEBUGS() << "Gathering Morph Mask Alpha..." << LL_ENDL;
     mTexLayerSet->gatherMorphMaskAlpha(baked_mask_data,
             getCompositeOriginX(), getCompositeOriginY(),
-            getCompositeWidth(), getCompositeHeight());
+            getCompositeWidth(), getCompositeHeight(), nullptr);
 
     // Create the baked image from our color and mask information
     const S32 baked_image_components = 5; // red green blue [bump] clothing
@@ -127,8 +127,9 @@ void LLBakingTexLayerSetBuffer::midRenderTexLayerSet(BOOL success)
         LL_RECORD_BLOCK_TIME(FTM_CREATE_J2C);
         LL_DEBUGS() << "Creating J2C..." << LL_ENDL;
         mCompressedImage = new LLImageJ2C;
+        mCompressedImage->setReversible(TRUE);
         const char* comment_text = LINDEN_J2C_COMMENT_PREFIX "RGBHM"; // writes into baked_color_data. 5 channels (rgb, heightfield/alpha, mask)
-        if (!mCompressedImage->encode(baked_image, comment_text))
+        if (!mCompressedImage->encode(baked_image, comment_text, 0.0f))
         {
             throw LLAppException(RV_UNABLE_TO_ENCODE);
         }
@@ -169,11 +170,11 @@ void LLBakingTexLayerSet::createComposite()
 LLSD LLBakingTexLayerSet::computeTextureIDs() const
 {
     const LLAvatarAppearanceDictionary::BakedEntry *baked_dict =
-            LLAvatarAppearanceDictionary::getInstance()->getBakedTexture(getBakedTexIndex());
+            LLAvatarAppearance::getDictionary()->getBakedTexture(getBakedTexIndex());
 #ifdef DEBUG_TEXTURE_IDS
-    const std::string& slot_name = LLAvatarAppearanceDictionary::getInstance()->getTexture(
-        LLAvatarAppearanceDictionary::bakedToLocalTextureIndex(slot_name()))->mDefaultImageName;
-    const LLAvatarAppearanceDictionary::TextureEntry* entry = LLAvatarAppearanceDictionary::getInstance()->getTexture(baked_dict->mTextureIndex);
+    const std::string& slot_name = LLAvatarAppearance::getDictionary()->getTexture(
+        LLAvatarAppearance::getDictionary()->bakedToLocalTextureIndex(getBakedTexIndex()) )->mDefaultImageName;
+    const LLAvatarAppearanceDictionary::TextureEntry* entry = LLAvatarAppearance::getDictionary()->getTexture(baked_dict->mTextureIndex);
     LL_DEBUGS() << "-----------------------------------------------------------------" << LL_ENDL;
     LL_DEBUGS() << "BakedTexIndex = " << (S32) getBakedTexIndex() << " (" << slot_name << ") "
             << "BakedEntry::mTextureIndex = " << (S32) baked_dict->mTextureIndex
@@ -186,9 +187,9 @@ LLSD LLBakingTexLayerSet::computeTextureIDs() const
     std::ostringstream idx_str;
     for (; idx_iter != idx_end; ++idx_iter)
     {
-        entry = LLAvatarAppearanceDictionary::getInstance()->getTexture((*idx_iter));
+        entry = LLAvatarAppearance::getDictionary()->getTexture((*idx_iter));
         idx_str << (*idx_iter) << " (" << entry->mDefaultImageName
-                << ";" << LLWearableType::getTypeName( entry->mWearableType )
+                << ";" << LLWearableType::getInstance()->getTypeName( entry->mWearableType )
                 << "), ";
     }
     LL_DEBUGS() << "BakedEntry::mLocalTextures: " << idx_str.str() << LL_ENDL;
@@ -198,7 +199,7 @@ LLSD LLBakingTexLayerSet::computeTextureIDs() const
     for (; type_iter != type_end; ++type_iter)
     {
         type_str << (S32) (*type_iter)  << " ("
-                << LLWearableType::getTypeName( (*type_iter) )
+                << LLWearableType::getInstance()->getTypeName( (*type_iter) )
                 << "), ";
     }
     LL_DEBUGS() << "BakedEntry::mWearables: " << type_str.str() << LL_ENDL;
@@ -278,21 +279,21 @@ bool LLBakingTexLayerSet::computeLayerListTextureIDs(LLMD5& hash,
         ETextureIndex te = layer_template->getLocalTextureIndex();
         U32 num_wearables = getAvatarAppearance()->getWearableData()->getWearableCount(wearable_type);
 #ifdef DEBUG_TEXTURE_IDS
-        const LLAvatarAppearanceDictionary::TextureEntry* entry = LLAvatarAppearanceDictionary::getInstance()->getTexture(te);
+        const LLAvatarAppearanceDictionary::TextureEntry* entry = LLAvatarAppearance::getDictionary()->getTexture(te);
         if (entry)
         {
             LL_DEBUGS() << "LLTexLayerInterface(" << layer_template->getName() << ") type = "
                     << (S32) wearable_type << " ("
-                    << LLWearableType::getTypeName( wearable_type ) << ") te = "
+                    << LLWearableType::getInstance()->getTypeName( wearable_type ) << ") te = "
                     << (S32) te << " ("<< entry->mDefaultImageName
-                    << ";" << LLWearableType::getTypeName( entry->mWearableType )
+                    << ";" << LLWearableType::getInstance()->getTypeName( entry->mWearableType )
                     << ") wearable_count = " << num_wearables << LL_ENDL;
         }
         else
         {
             LL_DEBUGS() << "LLTexLayerInterface(" << layer_template->getName() << ") type = "
                     << (S32) wearable_type << " ("
-                    << LLWearableType::getTypeName( wearable_type )
+                    << LLWearableType::getInstance()->getTypeName( wearable_type )
                     << ") wearable_count = " << num_wearables << LL_ENDL;
         }
 #endif

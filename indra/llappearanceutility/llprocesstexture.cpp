@@ -75,17 +75,17 @@ static LLPointer<LLImageRaw> create_texture_from_stream(std::istream& input,
 {
     LL_RECORD_BLOCK_TIME(FTM_CREATE_TEXTURE_FROM_STREAM);
     // Read compressed j2c texture data from the input stream.
-    U8* buffer = (U8*)ALLOCATE_MEM(LLImageBase::getPrivatePool(), texture_size);
+    U8* buffer = (U8*) ll_aligned_malloc_16(texture_size);
     input.read((char*) buffer, texture_size);
 
     if (input.gcount() < texture_size)
     {
-        FREE_MEM(LLImageBase::getPrivatePool(), buffer);
+        ll_aligned_free_16(buffer);
         throw LLAppException(RV_UNABLE_TO_DECODE, " Early EOF in input stream.");
     }
     if (input.gcount() > texture_size)
     {
-        FREE_MEM(LLImageBase::getPrivatePool(), buffer);
+        ll_aligned_free_16(buffer);
         throw LLAppException(RV_UNABLE_TO_DECODE, " Read too much data from input stream: Programming Error.");
     }
 
@@ -96,7 +96,7 @@ static LLPointer<LLImageRaw> create_texture_from_stream(std::istream& input,
     // This gives memory ownership of buffer to LLImageJ2C
     if (!j2c->validate(buffer, texture_size))
     {
-        throw LLAppException(RV_UNABLE_TO_DECODE, " Unable to validate J2C: " + LLImage::getLastError());
+        throw LLAppException(RV_UNABLE_TO_DECODE, " Unable to validate J2C: " + LLImage::getLastThreadError());
     }
     if (!(j2c->getWidth() * j2c->getHeight() * j2c->getComponents()))
     {
@@ -134,7 +134,7 @@ void LLProcessTexture::parseInput(std::istream& input)
     if (!mInputData.has("wearables")) throw LLAppException(RV_UNABLE_TO_PARSE, " Missing wearables");
 
     // Verify the slot_id is valid.
-    if (BAKED_NUM_INDICES == LLAvatarAppearanceDictionary::findBakedByImageName(mInputData["slot_id"].asString()))
+    if (BAKED_NUM_INDICES == LLAvatarAppearance::getDictionary()->findBakedByImageName(mInputData["slot_id"].asString()))
     {
         throw LLAppException(RV_UNABLE_TO_PARSE, " Invalid slot id");
     }
@@ -250,10 +250,9 @@ void LLProcessTexture::process(std::ostream& output)
     LLGLEnable color_mat(GL_COLOR_MATERIAL);
     gGL.setSceneBlendType(LLRender::BT_ALPHA);
 
-    EBakedTextureIndex bake_type = LLAvatarAppearanceDictionary::findBakedByImageName(mInputData["slot_id"].asString());
+    EBakedTextureIndex bake_type = LLAvatarAppearance::getDictionary()->findBakedByImageName(mInputData["slot_id"].asString());
     LLTexLayerSet* layer_set = avatar.getAvatarLayerSet(bake_type);
     LLBakingTexLayerSetBuffer* composite = dynamic_cast<LLBakingTexLayerSetBuffer*> (layer_set->getComposite());
-
     if (!composite)
     {
         throw LLAppException(RV_UNABLE_TO_BAKE, " Could not build composite.");
@@ -264,6 +263,8 @@ void LLProcessTexture::process(std::ostream& output)
     {
         throw LLAppException(RV_UNABLE_TO_BAKE, " Failed to render composite.");
     }
+
+    mWindow->swapBuffers();
 
     LL_DEBUGS() << "Compressing..." << LL_ENDL;
     LLImageJ2C* j2c = composite->getCompressedImage();
@@ -276,4 +277,3 @@ void LLProcessTexture::process(std::ostream& output)
     output.write((char*)j2c->getData(), j2c->getDataSize());
     LL_DEBUGS() << "Done." << LL_ENDL;
 }
-

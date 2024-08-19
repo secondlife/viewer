@@ -83,7 +83,7 @@ void LLBakingAvatar::bakedTextureDatasAsLLSD(LLSD& sd) const
         LLBakingTexLayerSet* layer_set = dynamic_cast<LLBakingTexLayerSet*>(baked_iter->mTexLayerSet);
         LLSD layer_sd;
         layer_set->asLLSD(layer_sd);
-        sd[LLAvatarAppearanceDictionary::getInstance()->getTexture(baked_iter->mTextureIndex)->mName] = layer_sd;
+        sd[LLAvatarAppearance::getDictionary()->getTexture(baked_iter->mTextureIndex)->mName] = layer_sd;
     }
 }
 

@@ -31,6 +31,9 @@
 #include "llappappearanceutility.h"
 #include "llbakingshadermgr.h"
 #include "llbakingwindow.h"
+#include "llgl.h"
+#include "llgltexture.h"
+#include "llvertexbuffer.h"
 
 LLBakingWindow::LLBakingWindow(S32 width, S32 height)
 {
@@ -53,20 +56,27 @@ LLBakingWindow::LLBakingWindow(S32 width, S32 height)
         USE_GL, // not headless
         NO_IGNORE_PIXEL_DEPTH); //gIgnorePixelDepth = FALSE
 
+    if (NULL == mWindow)
+    {
+        throw LLAppException(RV_UNABLE_TO_INIT_GL);
+    }
+
+    LLVertexBuffer::initClass(mWindow);
+
+    gGL.init(true);
+
     if (!LLBakingShaderMgr::sInitialized)
     { //immediately initialize shaders
         LLBakingShaderMgr::sInitialized = TRUE;
         LLBakingShaderMgr::instance()->setShaders();
     }
 
-    if (NULL == mWindow)
-    {
-        throw LLAppException(RV_UNABLE_TO_INIT_GL);
-    }
+    LLImageGL::initClass(mWindow, LLGLTexture::MAX_GL_IMAGE_CATEGORY, TRUE, FALSE);
 
-    gGL.init() ;
-
-    mWindow->show();
+    // mWindow->show();
+    // mWindow->bringToFront();
+    // mWindow->focusClient();
+    // mWindow->gatherInput();
 }
 
 LLBakingWindow::~LLBakingWindow()
@@ -78,3 +88,7 @@ LLBakingWindow::~LLBakingWindow()
     mWindow = NULL;
 }
 
+void LLBakingWindow::swapBuffers()
+{
+    mWindow->swapBuffers();
+}

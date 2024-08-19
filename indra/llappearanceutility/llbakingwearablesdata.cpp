@@ -72,7 +72,7 @@ void LLBakingWearablesData::setWearableOutfit(LLSD& sd)
                 mWearables.push_back(wearable);
 
                 const LLWearableType::EType type = wearable->getType();
-                if (LLWearableType::getAssetType(type) == LLAssetType::AT_BODYPART)
+                if (wearable->getAssetType() == LLAssetType::AT_BODYPART)
                 {
                     // exactly one wearable per body part
                     setWearable(type,0,wearable);
@@ -123,7 +123,7 @@ void LLBakingWearablesData::asLLSD(LLSD& sd) const
             wearable->asLLSD(wearable_sd);
             wearable_type_sd.append(wearable_sd);
         }
-        sd[LLWearableType::getTypeName(wearable_type)] = wearable_type_sd;
+        sd[LLWearableType::getInstance()->getTypeName(wearable_type)] = wearable_type_sd;
     }
 }
 

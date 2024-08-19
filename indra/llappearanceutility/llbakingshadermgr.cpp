@@ -124,12 +124,6 @@ void LLBakingShaderMgr::setShaders()
 
     reentrance = true;
 
-    //setup preprocessor definitions
-    LLShaderMgr::instance()->mDefinitions["NUM_TEX_UNITS"] = llformat("%d", gGLManager.mNumTextureImageUnits);
-
-    // Make sure the compiled shader map is cleared before we recompile shaders.
-    mShaderObjects.clear();
-
     initAttribsAndUniforms();
 
     // Shaders
@@ -142,14 +136,10 @@ void LLBakingShaderMgr::setShaders()
     }
     mMaxAvatarShaderLevel = 0;
 
-    LLGLSLShader::sNoFixedFunction = false;
     LLVertexBuffer::unbind();
     BOOL loaded = FALSE;
     if (gGLManager.mGLSLVersionMajor > 1 || gGLManager.mGLSLVersionMinor >= 10)
     {
-        //using shaders, disable fixed function
-        LLGLSLShader::sNoFixedFunction = true;
-
         S32 light_class = 2;
         mVertexShaderLevel[SHADER_INTERFACE] = light_class;
 
@@ -160,12 +150,30 @@ void LLBakingShaderMgr::setShaders()
             shaders.push_back( make_pair( "objects/indexedTextureV.glsl",           1 ) );
         }
         shaders.push_back( make_pair( "objects/nonindexedTextureV.glsl",        1 ) );
+        shaders.push_back( make_pair( "deferred/textureUtilV.glsl",             1 ) );
         loaded = TRUE;
         for (U32 i = 0; i < shaders.size(); i++)
         {
             // Note usage of GL_VERTEX_SHADER_ARB
             if (loadShaderFile(shaders[i].first, shaders[i].second, GL_VERTEX_SHADER_ARB) == 0)
             {
+                LL_WARNS("Shader") << "Failed to load vertex shader " << shaders[i].first << LL_ENDL;
+                loaded = FALSE;
+                break;
+            }
+        }
+
+        shaders.clear();
+
+        // fragment shaders
+        shaders.push_back( make_pair( "deferred/globalF.glsl",             1 ) );
+
+        for (U32 i = 0; i < shaders.size(); i++)
+        {
+            // Note usage of GL_FRAGMENT_SHADER
+            if (loadShaderFile(shaders[i].first, shaders[i].second, GL_FRAGMENT_SHADER_ARB) == 0)
+            {
+                LL_WARNS("Shader") << "Failed to load fragment shader " << shaders[i].first << LL_ENDL;
                 loaded = FALSE;
                 break;
             }
@@ -179,7 +187,6 @@ void LLBakingShaderMgr::setShaders()
 
     if (!loaded)
     {
-        LLGLSLShader::sNoFixedFunction = false;
         //gPipeline.mVertexShadersEnabled = FALSE;
         //gPipeline.mVertexShadersLoaded = 0;
         mVertexShaderLevel[SHADER_LIGHTING] = 0;
