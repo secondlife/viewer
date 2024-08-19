@@ -34,33 +34,33 @@
 
 int main(int argc, char** argv)
 {
-	// Create an application instance.
-	ll_init_apr();
-	LLAppAppearanceUtility* app = new LLAppAppearanceUtility(argc, argv);
+    // Create an application instance.
+    ll_init_apr();
+    LLAppAppearanceUtility* app = new LLAppAppearanceUtility(argc, argv);
 
-	// Assume success, unless exception is thrown.
-	EResult rv = RV_SUCCESS;
-	try
-	{
-		// Process command line and initialize system.
-		if (app->init())
-		{
-			// Run process.
-			app->frame();
-		}
-	}
-	catch (LLAppException& e)
-	{
-		// Deal with errors.
-		rv = e.getStatusCode();
-	}
+    // Assume success, unless exception is thrown.
+    EResult rv = RV_SUCCESS;
+    try
+    {
+        // Process command line and initialize system.
+        if (app->init())
+        {
+            // Run process.
+            app->frame();
+        }
+    }
+    catch (LLAppException& e)
+    {
+        // Deal with errors.
+        rv = e.getStatusCode();
+    }
 
-	// Clean up application instance.
-	app->cleanup();
-	delete app;
-	ll_cleanup_apr();
+    // Clean up application instance.
+    app->cleanup();
+    delete app;
+    ll_cleanup_apr();
 
-	return (int) rv;
+    return (int) rv;
 }
 
 

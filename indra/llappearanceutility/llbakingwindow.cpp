@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llbakingwindow.cpp
  * @brief Implementation of LLBakingWindow class.
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2012, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -34,47 +34,47 @@
 
 LLBakingWindow::LLBakingWindow(S32 width, S32 height)
 {
-	const S32 WINDOW_ORIGIN_X = 0;
-	const S32 WINDOW_ORIGIN_Y = 0;
-	const U32 FLAGS = 32; // *TODO: Why did mapserver use this?  mFlags looks unused.
-	const BOOL NO_FULLSCREEN = FALSE;
-	const BOOL NO_CLEAR_BG = FALSE;
-	const BOOL NO_DISABLE_VSYNC = FALSE;
-	const BOOL NO_IGNORE_PIXEL_DEPTH = FALSE;
-	const BOOL USE_GL = TRUE;
-	mWindow = LLWindowManager::createWindow(this,
-		"appearanceutility", "Appearance Utility",
-		WINDOW_ORIGIN_X, WINDOW_ORIGIN_Y,
-		width, height,
-		FLAGS,
-		NO_FULLSCREEN, 
-		NO_CLEAR_BG,
-		NO_DISABLE_VSYNC, //gSavedSettings.getBOOL("DisableVerticalSync"),
-		USE_GL, // not headless
-		NO_IGNORE_PIXEL_DEPTH); //gIgnorePixelDepth = FALSE
+    const S32 WINDOW_ORIGIN_X = 0;
+    const S32 WINDOW_ORIGIN_Y = 0;
+    const U32 FLAGS = 32; // *TODO: Why did mapserver use this?  mFlags looks unused.
+    const BOOL NO_FULLSCREEN = FALSE;
+    const BOOL NO_CLEAR_BG = FALSE;
+    const BOOL NO_DISABLE_VSYNC = FALSE;
+    const BOOL NO_IGNORE_PIXEL_DEPTH = FALSE;
+    const BOOL USE_GL = TRUE;
+    mWindow = LLWindowManager::createWindow(this,
+        "appearanceutility", "Appearance Utility",
+        WINDOW_ORIGIN_X, WINDOW_ORIGIN_Y,
+        width, height,
+        FLAGS,
+        NO_FULLSCREEN,
+        NO_CLEAR_BG,
+        NO_DISABLE_VSYNC, //gSavedSettings.getBOOL("DisableVerticalSync"),
+        USE_GL, // not headless
+        NO_IGNORE_PIXEL_DEPTH); //gIgnorePixelDepth = FALSE
 
-	if (!LLBakingShaderMgr::sInitialized)
-	{ //immediately initialize shaders
-		LLBakingShaderMgr::sInitialized = TRUE;
-		LLBakingShaderMgr::instance()->setShaders();
-	}
+    if (!LLBakingShaderMgr::sInitialized)
+    { //immediately initialize shaders
+        LLBakingShaderMgr::sInitialized = TRUE;
+        LLBakingShaderMgr::instance()->setShaders();
+    }
 
-	if (NULL == mWindow)
-	{
-		throw LLAppException(RV_UNABLE_TO_INIT_GL);
-	}
+    if (NULL == mWindow)
+    {
+        throw LLAppException(RV_UNABLE_TO_INIT_GL);
+    }
 
-	gGL.init() ;
+    gGL.init() ;
 
-	mWindow->show();
+    mWindow->show();
 }
 
 LLBakingWindow::~LLBakingWindow()
 {
-	if (mWindow)
-	{
-		LLWindowManager::destroyWindow(mWindow);
-	}
-	mWindow = NULL;
+    if (mWindow)
+    {
+        LLWindowManager::destroyWindow(mWindow);
+    }
+    mWindow = NULL;
 }
 
