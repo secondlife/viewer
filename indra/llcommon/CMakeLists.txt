@@ -18,8 +18,6 @@ set(llcommon_SOURCE_FILES
     commoncontrol.cpp
     indra_constants.cpp
     lazyeventapi.cpp
-    llallocator.cpp
-    llallocator_heap_profile.cpp
     llapp.cpp
     llapr.cpp
     llassettype.cpp
@@ -127,8 +125,6 @@ set(llcommon_HEADER_FILES
     lazyeventapi.h
     linden_common.h
     llalignedarray.h
-    llallocator.h
-    llallocator_heap_profile.h
     llapp.h
     llapr.h
     llassettype.h
