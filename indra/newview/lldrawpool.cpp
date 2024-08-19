@@ -651,6 +651,10 @@ void LLRenderPass::pushUntexturedBatch(LLDrawInfo& params)
         return;
     }
 
+    llassert(params.mVertexBuffer);
+    if (!params.mVertexBuffer)
+        return;
+
     applyModelMatrix(params);
 
     params.mVertexBuffer->setBuffer();
