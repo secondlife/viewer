@@ -57,6 +57,8 @@ public:
     static void setAuthCookie(const std::string& cookie);
     static void setImageUploadResultCallback(status_callback_t cb) { mStatusCallback = cb; }
 
+    static constexpr S32 MAX_WEB_DATASIZE = 8 * 1024 * 1024; // 8MB
+
 private:
     static LLCore::HttpHeaders::ptr_t buildDefaultHeaders();
 
