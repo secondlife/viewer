@@ -139,6 +139,9 @@ public:
 
     LLInventoryFilter& getCurrentFilter();
 
+    void setParentSidepanel(LLSidepanelInventory* parent_sidepanel) { mParentSidepanel = parent_sidepanel; }
+    void setInboxPanel(LLPanelMarketplaceInbox* inbox_panel) { mInboxPanel = inbox_panel; }
+
 protected:
     //
     // Misc functions
