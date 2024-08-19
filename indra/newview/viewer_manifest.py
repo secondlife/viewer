@@ -1231,6 +1231,11 @@ class LinuxManifest(ViewerManifest):
             #with self.prefix(src="../viewer_components/manager", dst=""):
             #    self.path("*.py")
 
+        app_util = os.path.join(self.args['build'], '../llappearanceutility')
+        if os.path.isdir(app_util):
+            with self.prefix(app_util):
+                self.path("appearance-utility-bin", "appearance-utility-bin")
+
         # recurses, packaged again
         self.path("res-sdl")
 
