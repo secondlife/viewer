@@ -220,7 +220,7 @@ public:
 
     static bool                 sHasCaches;
 
-    virtual void				asLLSD(LLSD& sd) const;
+    virtual void                asLLSD(LLSD& sd) const;
 
 protected:
     typedef std::vector<LLTexLayerInterface *> layer_list_t;
