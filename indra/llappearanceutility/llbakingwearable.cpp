@@ -27,8 +27,10 @@
 
 #include "linden_common.h"
 
+#include "llavatarappearance.h"
 #include "llavatarappearancedefines.h"
 #include "llbakingwearable.h"
+#include "llmd5.h"
 #include "indra_constants.h"
 
 using namespace LLAvatarAppearanceDefines;
@@ -55,7 +57,7 @@ void LLBakingWearable::addToBakedTextureHash(LLMD5& hash) const
 // virtual
 LLUUID LLBakingWearable::getDefaultTextureImageID(ETextureIndex index) const
 {
-    const LLAvatarAppearanceDictionary::TextureEntry *texture_dict = LLAvatarAppearanceDictionary::getInstance()->getTexture(index);
+    const LLAvatarAppearanceDictionary::TextureEntry *texture_dict = LLAvatarAppearance::getDictionary()->getTexture(index);
     const std::string &default_image_name = texture_dict->mDefaultImageName;
     if (default_image_name == "")
     {

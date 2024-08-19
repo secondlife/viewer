@@ -43,7 +43,7 @@ public:
 
     LLImageJ2C* getCompressedImage() { return mCompressedImage; }
 
-    BOOL render();
+    BOOL                   render();
     /*virtual*/ bool       bindDebugImage(const S32 stage = 0) { return false; }
     /*virtual*/ bool       isActiveFetching() { return false; };
 

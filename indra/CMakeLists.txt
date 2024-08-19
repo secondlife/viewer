@@ -83,10 +83,8 @@ add_subdirectory(${LIBS_OPEN_PREFIX}media_plugins)
 endif (ENABLE_MEDIA_PLUGINS)
 
 if (LINUX)
-  if (INSTALL_PROPRIETARY)
-      include(LLAppearanceUtility)
-      add_subdirectory(${LLAPPEARANCEUTILITY_SRC_DIR} ${LLAPPEARANCEUTILITY_BIN_DIR})
-  endif (INSTALL_PROPRIETARY)
+  # need to put this behind a special llappearanceutility flag
+  add_subdirectory(${VIEWER_PREFIX}llappearanceutility)
 elseif (WINDOWS)
   # cmake EXISTS requires an absolute path, see indra/cmake/Variables.cmake
   if (EXISTS ${VIEWER_DIR}win_setup)

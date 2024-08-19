@@ -25,12 +25,13 @@
  */
 
 #ifndef LL_LLPROCESSTEXTURE_H
-#define LL_LLPROCESSTEXTIRE_H
+#define LL_LLPROCESSTEXTURE_H
 
 #include "llbakingprocess.h"
 #include "llbakingtexture.h"
 #include "llpointer.h"
 #include "lltexturemanagerbridge.h"
+#include "llbakingwindow.h"
 
 class LLBakingWindow;
 

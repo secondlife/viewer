@@ -35,6 +35,8 @@ class LLBakingWindow : public LLWindowCallbacks
 public:
     LLBakingWindow(S32 width, S32 height);
     ~LLBakingWindow();
+
+    void swapBuffers();
 private:
     LLWindow*       mWindow;
 };

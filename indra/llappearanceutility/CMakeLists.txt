@@ -5,30 +5,13 @@ project(appearance_utility)
 include(00-Common)
 include(Boost)
 include(LLAppearance)
-include(LLCharacter)
 include(LLCommon)
 include(LLImage)
-include(LLInventory)
 include(LLMath)
-include(LLRender)
-include(LLVFS)
 include(LLWindow)
-include(LLXML)
 include(Linking)
 #include(GooglePerfTools)
 
-include_directories(
-    ${LLCOMMON_INCLUDE_DIRS}
-    ${LLVFS_INCLUDE_DIRS}
-    ${LLWINDOW_INCLUDE_DIRS}
-    ${LLXML_INCLUDE_DIRS}
-    ${LLCHARACTER_INCLUDE_DIRS}
-    ${LLIMAGE_INCLUDE_DIRS}
-    ${LLMATH_INCLUDE_DIRS}
-    ${LLINVENTORY_INCLUDE_DIRS}
-    ${LLRENDER_INCLUDE_DIRS}
-    ${LLAPPEARANCE_INCLUDE_DIRS}
-    )
 
 set(appearance_utility_SOURCE_FILES
     appearance_utility.cpp
@@ -74,12 +57,12 @@ list(APPEND appearance_utility_SOURCE_FILES ${appearance_utility_HEADER_FILES})
 add_executable(appearance-utility-bin ${appearance_utility_SOURCE_FILES})
 
 target_link_libraries(appearance-utility-bin
-    ${LLAPPEARANCE_LIBRARIES}
-    ${LLWINDOW_LIBRARIES}
-    ${BOOST_COROUTINE_LIBRARY}
-    ${BOOST_CONTEXT_LIBRARY}
-    ${BOOST_SYSTEM_LIBRARY}
-    ${TCMALLOC_LIBRARIES}
+    llcharacter
+    llinventory
+    llappearance
+    llwindow
+    llrender
+    llxml
     )
 
 add_custom_target(appearance-utility-bin-target ALL

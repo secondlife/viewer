@@ -143,8 +143,8 @@ void LLProcessParams::process(std::ostream& output)
     {
         EBakedTextureIndex bake_type = (EBakedTextureIndex) baked_index;
         LLBakingTexLayerSet* layer_set = dynamic_cast<LLBakingTexLayerSet*>(avatar.getAvatarLayerSet(bake_type));
-        const std::string& slot_name = LLAvatarAppearanceDictionary::getInstance()->getTexture(
-                            LLAvatarAppearanceDictionary::bakedToLocalTextureIndex(bake_type) )->mDefaultImageName;
+        const std::string& slot_name = LLAvatarAppearance::getDictionary()->getTexture(
+                            LLAvatarAppearance::getDictionary()->bakedToLocalTextureIndex(bake_type) )->mDefaultImageName;
         texture_ids[slot_name] = layer_set->computeTextureIDs();
     }
 
