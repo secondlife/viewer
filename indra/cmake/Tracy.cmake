@@ -4,7 +4,13 @@ include(Prebuilt)
 include_guard()
 add_library( ll::tracy INTERFACE IMPORTED )
 
-option(USE_TRACY "Use Tracy profiler." OFF)
+# default Tracy profiling on for test builds, but off for all others
+string(TOLOWER ${VIEWER_CHANNEL} channel_lower)
+if(channel_lower MATCHES "^second life test")
+  option(USE_TRACY "Use Tracy profiler." ON)
+else()
+    option(USE_TRACY "Use Tracy profiler." OFF)
+endif()
 
 if (USE_TRACY)
   option(USE_TRACY_ON_DEMAND "Use Tracy profiler." ON)
