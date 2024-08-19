@@ -413,8 +413,6 @@ extern LLVector3 gRelativeWindVec;
 extern U32  gPacketsIn;
 extern bool gPrintMessagesThisFrame;
 
-extern LLUUID gBlackSquareID;
-
 extern bool gRandomizeFramerate;
 extern bool gPeriodicSlowFrame;
 

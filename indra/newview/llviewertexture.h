@@ -339,11 +339,6 @@ public:
 
     void setBoostLevel(S32 level) override;
     bool updateFetch();
-    bool setDebugFetching(S32 debug_level);
-    bool isInDebug() const { return mInDebug; }
-
-    void setUnremovable(bool value) { mUnremovable = value; }
-    bool isUnremovable() const { return mUnremovable; }
 
     void clearFetchedResults(); //clear all fetched results, for debug use.
 
@@ -378,10 +373,6 @@ public:
     const std::string& getUrl() const {return mUrl;}
     //---------------
     bool isDeleted() ;
-    bool isInactive() ;
-    bool isDeletionCandidate();
-    void setDeletionCandidate() ;
-    void setInactive() ;
     bool getUseDiscard() const { return mUseMipMaps && !mDontDiscard; }
     //---------------
 
@@ -434,8 +425,6 @@ private:
 
 private:
     bool  mFullyLoaded;
-    bool  mInDebug;
-    bool  mUnremovable;
     bool  mInFastCacheList;
     bool  mForceCallbackFetch;
 

@@ -1083,8 +1083,6 @@ void LLViewerFetchedTexture::init(bool firstinit)
     mKeptSavedRawImageTime = 0.f;
     mLastCallBackActiveTime = 0.f;
     mForceCallbackFetch = false;
-    mInDebug = false;
-    mUnremovable = false;
 
     mFTType = FTT_UNKNOWN;
 }
@@ -1234,32 +1232,6 @@ bool LLViewerFetchedTexture::isDeleted()
     return mTextureState == DELETED;
 }
 
-bool LLViewerFetchedTexture::isInactive()
-{
-    return mTextureState == INACTIVE;
-}
-
-bool LLViewerFetchedTexture::isDeletionCandidate()
-{
-    return mTextureState == DELETION_CANDIDATE;
-}
-
-void LLViewerFetchedTexture::setDeletionCandidate()
-{
-    if(mGLTexturep.notNull() && mGLTexturep->getTexName() && (mTextureState == INACTIVE))
-    {
-        mTextureState = DELETION_CANDIDATE;
-    }
-}
-
-//set the texture inactive
-void LLViewerFetchedTexture::setInactive()
-{
-    if(mTextureState == ACTIVE && mGLTexturep.notNull() && mGLTexturep->getTexName() && !mGLTexturep->getBoundRecently())
-    {
-        mTextureState = INACTIVE;
-    }
-}
 
 bool LLViewerFetchedTexture::isFullyLoaded() const
 {
@@ -1778,20 +1750,6 @@ S32 LLViewerFetchedTexture::getCurrentDiscardLevelForFetching()
     return current_discard;
 }
 
-bool LLViewerFetchedTexture::setDebugFetching(S32 debug_level)
-{
-    if(debug_level < 0)
-    {
-        mInDebug = false;
-        return false;
-    }
-    mInDebug = true;
-
-    mDesiredDiscardLevel = debug_level;
-
-    return true;
-}
-
 bool LLViewerFetchedTexture::isActiveFetching()
 {
     static LLCachedControl<bool> monitor_enabled(gSavedSettings,"DebugShowTextureInfo");
@@ -1856,7 +1814,7 @@ bool LLViewerFetchedTexture::updateFetch()
     }
     if (mGLTexturep.isNull())
     { // fix for crash inside getCurrentDiscardLevelForFetching (shouldn't happen but appears to be happening)
-        llassert(false);
+        //llassert(false);
         return false;
     }
 
