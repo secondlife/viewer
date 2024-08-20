@@ -2375,7 +2375,7 @@ bool LLImageGL::scaleDown(S32 desired_discard)
         gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, temp_texname, true);
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_TEXTURE("scaleDown - glTexImage2D");
-            glTexImage2D(mTarget, 0, mFormatPrimary, desired_width, desired_height, 0, mFormatPrimary, mFormatType, NULL);
+            glTexImage2D(mTarget, 0, mFormatInternal, desired_width, desired_height, 0, mFormatPrimary, mFormatType, NULL);
         }
 
         // account for new texture getting created
@@ -2433,7 +2433,7 @@ bool LLImageGL::scaleDown(S32 desired_discard)
         glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
 
         glBindBuffer(GL_PIXEL_UNPACK_BUFFER, sScratchPBO);
-        glTexImage2D(mTarget, 0, mFormatPrimary, desired_width, desired_height, 0, mFormatPrimary, mFormatType, nullptr);
+        glTexImage2D(mTarget, 0, mFormatInternal, desired_width, desired_height, 0, mFormatPrimary, mFormatType, nullptr);
         glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 
         alloc_tex_image(desired_width, desired_height, mFormatInternal, 1);
