@@ -2631,6 +2631,29 @@ void LLVOAvatar::idleUpdate(LLAgent &agent, const F64 &time)
     }
 
     // Update should be happening max once per frame.
+    static LLCachedControl<S32> refreshPeriod(gSavedSettings, "AvatarExtentRefreshPeriodBatch");
+    static LLCachedControl<S32> refreshMaxPerPeriod(gSavedSettings, "AvatarExtentRefreshMaxPerBatch");
+    static S32 upd_freq = refreshPeriod; // initialise to a reasonable default of 1 batch
+    static S32 lastRecalibrationFrame{ 0 };
+
+    const S32 thisFrame = LLDrawable::getCurrentFrame();
+    if (thisFrame - lastRecalibrationFrame >= upd_freq)
+    {
+        // Only update at the start of a cycle. .
+        // update frequency = ((Num_Avatars -1 / NumberPerPeriod) + 1 ) * Periodicity
+        // Given NumberPerPeriod = 5 and Periodicity = 4
+        // | NumAvatars  | frequency |
+        // +-------------+-----------+
+        // |      1      |     4     |
+        // |      2      |     4     |
+        // |      5      |     4     |
+        // |     10      |     8     |
+        // |     25      |     20    |
+
+        upd_freq = (((gObjectList.getAvatarCount() - 1) / refreshMaxPerPeriod) + 1)*refreshPeriod;
+        lastRecalibrationFrame = thisFrame;
+    }
+
     if ((mLastAnimExtents[0]==LLVector3())||
         (mLastAnimExtents[1])==LLVector3())
     {
@@ -2638,8 +2661,9 @@ void LLVOAvatar::idleUpdate(LLAgent &agent, const F64 &time)
     }
     else
     {
-        const S32 upd_freq = 4; // force update every upd_freq frames.
-        mNeedsExtentUpdate = ((LLDrawable::getCurrentFrame()+mID.mData[0])%upd_freq==0);
+        // Update extent if necessary.
+        // if the frame counnter + the first byte of the UUID % upd_freq = 0 then update the extent.
+        mNeedsExtentUpdate = ((thisFrame + mID.mData[0]) % upd_freq == 0);
     }
 
     LLScopedContextString str("avatar_idle_update " + getFullname());
@@ -3057,30 +3081,15 @@ void LLVOAvatar::idleUpdateAppearanceAnimation()
         }
         else
         {
-            F32 morph_amt = calcMorphAmount();
-            LLVisualParam *param;
-
             if (!isSelf())
             {
+                F32 morph_amt = calcMorphAmount();
                 // animate only top level params for non-self avatars
-                for (param = getFirstVisualParam();
-                     param;
-                     param = getNextVisualParam())
-                {
-                    if (param->isTweakable())
-                    {
-                        param->animate(morph_amt);
-                    }
-                }
+                animateTweakableVisualParams(morph_amt);
             }
 
             // apply all params
-            for (param = getFirstVisualParam();
-                 param;
-                 param = getNextVisualParam())
-            {
-                param->apply(avatar_sex);
-            }
+            applyAllVisualParams(avatar_sex);
 
             mLastAppearanceBlendTime = appearance_anim_time;
         }
@@ -3088,7 +3097,7 @@ void LLVOAvatar::idleUpdateAppearanceAnimation()
     }
 }
 
-F32 LLVOAvatar::calcMorphAmount()
+F32 LLVOAvatar::calcMorphAmount() const
 {
     F32 appearance_anim_time = mAppearanceMorphTimer.getElapsedTimeF32();
     F32 blend_frac = calc_bouncy_animation(appearance_anim_time / APPEARANCE_MORPH_TIME);
@@ -10625,18 +10634,19 @@ void showRigInfoTabExtents(LLVOAvatar *avatar, LLJointRiggingInfoTab& tab, S32& 
 void LLVOAvatar::getAssociatedVolumes(std::vector<LLVOVolume*>& volumes)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
-    for ( LLVOAvatar::attachment_map_t::iterator iter = mAttachmentPoints.begin(); iter != mAttachmentPoints.end(); ++iter )
+    for (const auto& iter : mAttachmentPoints)
     {
-        LLViewerJointAttachment* attachment = iter->second;
+        LLViewerJointAttachment* attachment = iter.second;
         LLViewerJointAttachment::attachedobjs_vec_t::iterator attach_end = attachment->mAttachedObjects.end();
 
-        for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attach_iter = attachment->mAttachedObjects.begin();
-             attach_iter != attach_end; ++attach_iter)
+        for (LLViewerObject* attached_object : attachment->mAttachedObjects)
         {
-            LLViewerObject* attached_object =  attach_iter->get();
-            LLVOVolume *volume = dynamic_cast<LLVOVolume*>(attached_object);
-            if (volume)
+            if (attached_object->isDead())
+                continue;
+
+            if (attached_object->getPCode() == LL_PCODE_VOLUME)
             {
+                LLVOVolume* volume = (LLVOVolume*)attached_object;
                 volumes.push_back(volume);
                 if (volume->isAnimatedObject())
                 {
@@ -10646,15 +10656,12 @@ void LLVOAvatar::getAssociatedVolumes(std::vector<LLVOVolume*>& volumes)
                     continue;
                 }
             }
-            LLViewerObject::const_child_list_t& children = attached_object->getChildren();
-            for (LLViewerObject::const_child_list_t::const_iterator it = children.begin();
-                 it != children.end(); ++it)
+
+            for (LLViewerObject* childp : attached_object->getChildren())
             {
-                LLViewerObject *childp = *it;
-                LLVOVolume *volume = dynamic_cast<LLVOVolume*>(childp);
-                if (volume)
+                if (!childp->isDead() &&  childp->getPCode() == LL_PCODE_VOLUME)
                 {
-                    volumes.push_back(volume);
+                    volumes.push_back((LLVOVolume*)childp);
                 }
             }
         }
@@ -10693,42 +10700,40 @@ void LLVOAvatar::updateRiggingInfo()
 
     getAssociatedVolumes(volumes);
 
-    std::map<LLUUID,S32> curr_rigging_info_key;
-    {
-        // Get current rigging info key
-        for (std::vector<LLVOVolume*>::iterator it = volumes.begin(); it != volumes.end(); ++it)
-        {
-            LLVOVolume *vol = *it;
-            if (vol->isMesh() && vol->getVolume())
-            {
-                const LLUUID& mesh_id = vol->getVolume()->getParams().getSculptID();
-                S32 max_lod = llmax(vol->getLOD(), vol->mLastRiggingInfoLOD);
-                curr_rigging_info_key[mesh_id] = max_lod;
-            }
-        }
+    std::map<LLUUID, S32> curr_rigging_info_key;
 
-        // Check for key change, which indicates some change in volume composition or LOD.
-        if (curr_rigging_info_key == mLastRiggingInfoKey)
+    // Get current rigging info key
+    for (LLVOVolume* vol : volumes)
+    {
+        if (vol->isMesh() && vol->getVolume())
         {
-            return;
+            const LLUUID& mesh_id = vol->getVolume()->getParams().getSculptID();
+            S32 max_lod = llmax(vol->getLOD(), vol->mLastRiggingInfoLOD);
+            curr_rigging_info_key[mesh_id] = max_lod;
         }
+    }
+
+    // Check for key change, which indicates some change in volume composition or LOD.
+    if (curr_rigging_info_key == mLastRiggingInfoKey)
+    {
+        return;
     }
 
     // Something changed. Update.
     mLastRiggingInfoKey = curr_rigging_info_key;
     mJointRiggingInfoTab.clear();
-    for (std::vector<LLVOVolume*>::iterator it = volumes.begin(); it != volumes.end(); ++it)
+    for (LLVOVolume* vol : volumes)
     {
-        LLVOVolume *vol = *it;
         vol->updateRiggingInfo();
         mJointRiggingInfoTab.merge(vol->mJointRiggingInfoTab);
     }
 
     //LL_INFOS() << "done update rig count is " << countRigInfoTab(mJointRiggingInfoTab) << LL_ENDL;
-    LL_DEBUGS("RigSpammish") << getFullname() << " after update rig tab:" << LL_ENDL;
-    S32 joint_count, box_count;
-    showRigInfoTabExtents(this, mJointRiggingInfoTab, joint_count, box_count);
-    LL_DEBUGS("RigSpammish") << "uses " << joint_count << " joints " << " nonzero boxes: " << box_count << LL_ENDL;
+    // Remove debug only stuff on hot path
+    // LL_DEBUGS("RigSpammish") << getFullname() << " after update rig tab:" << LL_ENDL;
+    // S32 joint_count, box_count;
+    // showRigInfoTabExtents(this, mJointRiggingInfoTab, joint_count, box_count);
+    // LL_DEBUGS("RigSpammish") << "uses " << joint_count << " joints " << " nonzero boxes: " << box_count << LL_ENDL;
 }
 
 // virtual

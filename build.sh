@@ -195,7 +195,7 @@ pre_build()
         # This name is consumed by indra/newview/CMakeLists.txt. Make it
         # absolute because we've had troubles with relative pathnames.
         abs_build_dir="$(cd "$build_dir"; pwd)"
-        VIEWER_SYMBOL_FILE="$(native_path "$abs_build_dir/newview/$variant/secondlife-symbols-$symplat-${AUTOBUILD_ADDRSIZE}.tar.xz")"
+        VIEWER_SYMBOL_FILE="$(native_path "$abs_build_dir/symbols/$variant/${viewer_channel}.sym.tar.xz")"
     fi
 
     # honor autobuild_configure_parameters same as sling-buildscripts
@@ -560,9 +560,8 @@ then
     # nat 2016-12-22: without RELEASE_CRASH_REPORTING, we have no symbol file.
     if [ "${RELEASE_CRASH_REPORTING:-}" != "OFF" ]
     then
-        # BugSplat wants to see xcarchive.zip
-        # e.g. build-darwin-x86_64/newview/Release/Second Life Test.xcarchive.zip
-        symbol_file="${build_dir}/newview/${variant}/${viewer_channel}.xcarchive.zip"
+        # e.g. build-darwin-x86_64/symbols/Release/Second Life Test.xarchive.zip
+        symbol_file="${build_dir}/symbols/${variant}/${viewer_channel}.xcarchive.zip"
         if [[ ! -f "$symbol_file" ]]
         then
             # symbol tarball we prep for (e.g.) Breakpad

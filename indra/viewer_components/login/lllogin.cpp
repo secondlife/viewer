@@ -28,13 +28,6 @@
 #include "llsd.h"
 #include "llsdutil.h"
 
-/*==========================================================================*|
-#ifdef LL_WINDOWS
-    // non-virtual destructor warning, boost::statechart does this intentionally.
-    #pragma warning (disable : 4265)
-#endif
-|*==========================================================================*/
-
 #include "lllogin.h"
 
 #include <boost/bind.hpp>

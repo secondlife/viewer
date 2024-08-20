@@ -1,10 +1,10 @@
 /**
- * @file llallocator.h
- * @brief Declaration of the LLAllocator class.
+ * @file llterrainpaintmap.h
+ * @brief Utilities for managing terrain paint maps
  *
- * $LicenseInfo:firstyear=2009&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2024, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -24,28 +24,19 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLALLOCATOR_H
-#define LL_LLALLOCATOR_H
+#pragma once
 
-#include <string>
+class LLViewerRegion;
+class LLViewerTexture;
 
-#include "llallocator_heap_profile.h"
-
-class LL_COMMON_API LLAllocator {
-    friend class LLMemoryView;
-
+class LLTerrainPaintMap
+{
 public:
-    void setProfilingEnabled(bool should_enable);
 
-    static bool isProfiling();
-
-    LLAllocatorHeapProfile const & getProfile();
-
-private:
-    std::string getRawProfile();
-
-private:
-    LLAllocatorHeapProfile mProf;
+    // Convert a region's heightmap and composition into a paint map texture which
+    // approximates how the terrain would be rendered with the heightmap.
+    // In effect, this allows converting terrain of type TERRAIN_PAINT_TYPE_HEIGHTMAP_WITH_NOISE
+    // to type TERRAIN_PAINT_TYPE_PBR_PAINTMAP.
+    // Returns true if successful
+    static bool bakeHeightNoiseIntoPBRPaintMapRGB(const LLViewerRegion& region, LLViewerTexture& tex);
 };
-
-#endif // LL_LLALLOCATOR_H

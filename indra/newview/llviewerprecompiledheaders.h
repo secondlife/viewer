@@ -37,11 +37,6 @@
 
 #include "linden_common.h"
 
-// Work around stupid Microsoft STL warning
-#ifdef LL_WINDOWS
-#pragma warning (disable : 4702) // warning C4702: unreachable code
-#endif
-
 #include <algorithm>
 #include <deque>
 #include <functional>
@@ -55,7 +50,6 @@
 // Library headers from llcommon project:
 #include "indra_constants.h"
 #include "llinitparam.h"
-#include "llallocator.h"
 #include "llapp.h"
 #include "llcriticaldamp.h"
 #include "lldefs.h"

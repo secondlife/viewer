@@ -342,6 +342,7 @@ public:
     void renderHighlight(const LLViewerObject* obj, F32 fade);
 
     void renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera& camera, LLCullResult& result, bool depth_clamp);
+    void renderSelectedFaces(const LLColor4& color);
     void renderHighlights();
     void renderDebug();
     void renderPhysicsDisplay();
@@ -686,10 +687,7 @@ public:
 
         //screen texture
         LLRenderTarget          screen;
-        LLRenderTarget          uiScreen;
         LLRenderTarget          deferredScreen;
-        LLRenderTarget          fxaaBuffer;
-        LLRenderTarget          edgeMap;
         LLRenderTarget          deferredLight;
 
         //sun shadow map
@@ -724,6 +722,12 @@ public:
 
     // tonemapped and gamma corrected render ready for post
     LLRenderTarget          mPostMap;
+
+    // FXAA helper target
+    LLRenderTarget          mFXAAMap;
+
+    // render ui to buffer target
+    LLRenderTarget          mUIScreen;
 
     // downres scratch space for GPU downscaling of textures
     LLRenderTarget          mDownResMap;

@@ -42,6 +42,7 @@
 #include "llstl.h"
 #include "message.h"
 #include "lltimer.h"
+#include "v4coloru.h"
 
 // viewer includes
 #include "llimagegl.h"

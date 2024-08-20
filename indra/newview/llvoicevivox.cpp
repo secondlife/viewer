@@ -2152,7 +2152,6 @@ bool LLVivoxVoiceClient::runSession(const sessionStatePtr_t &session)
 
     mIsInChannel = true;
     mMuteMicDirty = true;
-    mSessionTerminateRequested = false;
 
     while (!sShuttingDown
            && mVoiceEnabled
@@ -4977,7 +4976,7 @@ void LLVivoxVoiceClient::hangup() { leaveChannel(); }
 
 LLVoiceP2PIncomingCallInterfacePtr LLVivoxVoiceClient::getIncomingCallInterface(const LLSD &voice_call_info)
 {
-    return boost::make_shared<LLVivoxVoiceP2PIncomingCall>(voice_call_info);
+    return std::make_shared<LLVivoxVoiceP2PIncomingCall>(voice_call_info);
 }
 
 bool LLVivoxVoiceClient::answerInvite(const std::string &sessionHandle)
@@ -5101,7 +5100,9 @@ void LLVivoxVoiceClient::processChannels(bool process)
 
 bool LLVivoxVoiceClient::isCurrentChannel(const LLSD &channelInfo)
 {
-    if (!mProcessChannels || (channelInfo.has("voice_server_type") && channelInfo["voice_server_type"].asString() != VIVOX_VOICE_SERVER_TYPE))
+    if (!mProcessChannels
+        || (channelInfo.has("voice_server_type") && channelInfo["voice_server_type"].asString() != VIVOX_VOICE_SERVER_TYPE)
+        || mSessionTerminateRequested)
     {
         return false;
     }
@@ -5438,8 +5439,8 @@ void LLVivoxVoiceClient::leaveChannel(void)
     {
         LL_DEBUGS("Voice") << "leaving channel for teleport/logout" << LL_ENDL;
         mChannelName.clear();
-        sessionTerminate();
     }
+    sessionTerminate();
 }
 
 void LLVivoxVoiceClient::setMuteMic(bool muted)

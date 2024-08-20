@@ -119,7 +119,7 @@ void LLDebugView::draw()
 {
     if (mFloaterSnapRegion == NULL)
     {
-        mFloaterSnapRegion = getRootView()->getChildView("floater_snap_region");
+        mFloaterSnapRegion = gViewerWindow->getFloaterSnapRegion();
     }
 
     LLRect debug_rect;

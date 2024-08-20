@@ -1,10 +1,9 @@
 /**
- * @file llallocator.cpp
- * @brief Implementation of the LLAllocator class.
+ * @file pbrTerrainBakeV.glsl
  *
- * $LicenseInfo:firstyear=2009&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2024, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -24,35 +23,20 @@
  * $/LicenseInfo$
  */
 
-#include "linden_common.h"
-#include "llallocator.h"
+uniform mat4 modelview_projection_matrix;
 
-//
-// stub implementations for when tcmalloc is disabled
-//
+in vec3 position;
+in vec2 texcoord1;
 
-void LLAllocator::setProfilingEnabled(bool should_enable)
+out vec4 vary_texcoord0;
+out vec4 vary_texcoord1;
+
+void main()
 {
+    gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0);
+    vec2 tc = texcoord1.xy;
+    vary_texcoord0.zw = tc.xy;
+    vary_texcoord1.xy = tc.xy-vec2(2.0, 0.0);
+    vary_texcoord1.zw = tc.xy-vec2(1.0, 0.0);
 }
 
-// static
-bool LLAllocator::isProfiling()
-{
-    return false;
-}
-
-std::string LLAllocator::getRawProfile()
-{
-    return std::string();
-}
-
-LLAllocatorHeapProfile const & LLAllocator::getProfile()
-{
-    mProf.mLines.clear();
-
-    // *TODO - avoid making all these extra copies of things...
-    std::string prof_text = getRawProfile();
-    //std::cout << prof_text << std::endl;
-    mProf.parse(prof_text);
-    return mProf;
-}

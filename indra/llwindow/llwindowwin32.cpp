@@ -794,8 +794,8 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
             size_t name_len = strlen(display_device.DeviceName  );
             size_t desc_len = strlen(display_device.DeviceString);
 
-            CHAR *name = name_len ? display_device.DeviceName   : "???";
-            CHAR *desc = desc_len ? display_device.DeviceString : "???";
+            const CHAR *name = name_len ? display_device.DeviceName   : "???";
+            const CHAR *desc = desc_len ? display_device.DeviceString : "???";
 
             sprintf(text, "Display Device %d: %s, %s", display_index, name, desc);
             LL_INFOS("Window") << text << LL_ENDL;

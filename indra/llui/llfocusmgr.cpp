@@ -73,10 +73,20 @@ bool LLFocusableElement::wantsReturnKey() const
 // virtual
 LLFocusableElement::~LLFocusableElement()
 {
-    delete mFocusLostCallback;
-    delete mFocusReceivedCallback;
-    delete mFocusChangedCallback;
-    delete mTopLostCallback;
+    auto free_signal = [&](focus_signal_t*& signal)
+        {
+            if (signal)
+            {
+                signal->disconnect_all_slots();
+                delete signal;
+                signal = nullptr;
+            }
+        };
+
+    free_signal(mFocusLostCallback);
+    free_signal(mFocusReceivedCallback);
+    free_signal(mFocusChangedCallback);
+    free_signal(mTopLostCallback);
 }
 
 void LLFocusableElement::onFocusReceived()

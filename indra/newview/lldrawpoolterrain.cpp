@@ -219,7 +219,9 @@ void LLDrawPoolTerrain::renderFullShader()
     else
     {
         // Use materials
-        sShader = &gDeferredPBRTerrainProgram;
+        U32 paint_type = use_local_materials ? gLocalTerrainMaterials.getPaintType() : compp->getPaintType();
+        paint_type = llclamp(paint_type, 0, TERRAIN_PAINT_TYPE_COUNT);
+        sShader = &gDeferredPBRTerrainProgram[paint_type];
         sShader->bind();
         renderFullShaderPBR(use_local_materials);
     }
@@ -326,7 +328,7 @@ void LLDrawPoolTerrain::renderFullShaderTextures()
 }
 
 // *TODO: Investigate use of bindFast for PBR terrain textures
-void LLDrawPoolTerrain::renderFullShaderPBR(bool local_materials)
+void LLDrawPoolTerrain::renderFullShaderPBR(bool use_local_materials)
 {
     // Hack! Get the region that this draw pool is rendering from!
     LLViewerRegion *regionp = mDrawFace[0]->getDrawable()->getVObj()->getRegion();
@@ -339,7 +341,7 @@ void LLDrawPoolTerrain::renderFullShaderPBR(bool local_materials)
     llassert(shader_material_count == terrain_material_count);
 #endif
 
-    if (local_materials)
+    if (use_local_materials)
     {
         // Override region terrain with the global local override terrain
         fetched_materials = &gLocalTerrainMaterials.mDetailRenderMaterials;
@@ -350,6 +352,9 @@ void LLDrawPoolTerrain::renderFullShaderPBR(bool local_materials)
         materials[i] = (*fetched_materials)[i].get();
         if (!materials[i]) { materials[i] = &LLGLTFMaterial::sDefault; }
     }
+
+    U32 paint_type = use_local_materials ? gLocalTerrainMaterials.getPaintType() : compp->getPaintType();
+    paint_type = llclamp(paint_type, 0, TERRAIN_PAINT_TYPE_COUNT);
 
     S32 detail_basecolor[terrain_material_count];
     S32 detail_normal[terrain_material_count];
@@ -481,11 +486,31 @@ void LLDrawPoolTerrain::renderFullShaderPBR(bool local_materials)
     LLSettingsWater::ptr_t pwater = LLEnvironment::instance().getCurrentWater();
 
     //
-    // Alpha Ramp
+    // Alpha Ramp or paint map
     //
-    S32 alpha_ramp = sShader->enableTexture(LLViewerShaderMgr::TERRAIN_ALPHARAMP);
-    gGL.getTexUnit(alpha_ramp)->bind(m2DAlphaRampImagep);
-    gGL.getTexUnit(alpha_ramp)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
+    S32 alpha_ramp = -1;
+    S32 paint_map = -1;
+    if (paint_type == TERRAIN_PAINT_TYPE_HEIGHTMAP_WITH_NOISE)
+    {
+        alpha_ramp = sShader->enableTexture(LLViewerShaderMgr::TERRAIN_ALPHARAMP);
+        gGL.getTexUnit(alpha_ramp)->bind(m2DAlphaRampImagep);
+        gGL.getTexUnit(alpha_ramp)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
+    }
+    else if (paint_type == TERRAIN_PAINT_TYPE_PBR_PAINTMAP)
+    {
+        paint_map = sShader->enableTexture(LLViewerShaderMgr::TERRAIN_PAINTMAP);
+        LLViewerTexture* tex_paint_map = use_local_materials ? gLocalTerrainMaterials.getPaintMap() : compp->getPaintMap();
+        // If no paintmap is available, fall back to rendering just material slot 1 (by binding the appropriate image)
+        if (!tex_paint_map) { tex_paint_map = LLViewerTexture::sBlackImagep.get(); }
+        // This is a paint map for four materials, but we save a channel by
+        // storing the paintmap as the "difference" between slot 1 and the
+        // other 3 slots.
+        llassert(tex_paint_map->getComponents() == 3);
+        gGL.getTexUnit(paint_map)->bind(tex_paint_map);
+        gGL.getTexUnit(paint_map)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
+
+        shader->uniform1f(LLShaderMgr::REGION_SCALE, regionp->getWidth());
+    }
 
     //
     // GLTF uniforms
@@ -534,11 +559,22 @@ void LLDrawPoolTerrain::renderFullShaderPBR(bool local_materials)
 
     // Disable multitexture
 
-    sShader->disableTexture(LLViewerShaderMgr::TERRAIN_ALPHARAMP);
+    if (paint_type == TERRAIN_PAINT_TYPE_HEIGHTMAP_WITH_NOISE)
+    {
+        sShader->disableTexture(LLViewerShaderMgr::TERRAIN_ALPHARAMP);
 
-    gGL.getTexUnit(alpha_ramp)->unbind(LLTexUnit::TT_TEXTURE);
-    gGL.getTexUnit(alpha_ramp)->disable();
-    gGL.getTexUnit(alpha_ramp)->activate();
+        gGL.getTexUnit(alpha_ramp)->unbind(LLTexUnit::TT_TEXTURE);
+        gGL.getTexUnit(alpha_ramp)->disable();
+        gGL.getTexUnit(alpha_ramp)->activate();
+    }
+    else if (paint_type == TERRAIN_PAINT_TYPE_PBR_PAINTMAP)
+    {
+        sShader->disableTexture(LLViewerShaderMgr::TERRAIN_PAINTMAP);
+
+        gGL.getTexUnit(paint_map)->unbind(LLTexUnit::TT_TEXTURE);
+        gGL.getTexUnit(paint_map)->disable();
+        gGL.getTexUnit(paint_map)->activate();
+    }
 
     for (U32 i = 0; i < terrain_material_count; ++i)
     {

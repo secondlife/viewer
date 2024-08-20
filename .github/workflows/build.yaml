@@ -224,23 +224,32 @@ jobs:
           [[ "$arch" == "MINGW6" ]] && arch=CYGWIN
           export AUTOBUILD="$(which autobuild)"
 
-          # determine the viewer channel from the branch name
-          branch=$AUTOBUILD_VCS_BRANCH
-          IFS='/' read -ra ba <<< "$branch"
-          prefix=${ba[0]}
-          if [ "$prefix" == "project" ]; then
-              IFS='_' read -ra prj <<< "${ba[1]}"
-              # uppercase first letter of each word
-              export viewer_channel="Second Life Project ${prj[*]^}"
-          elif  [[ "$prefix" == "release" || "$prefix" == "main" ]];
+          # determine the viewer channel from the branch or tag name
+          # trigger an EDU build by including "edu" in the tag
+          edu=${{ github.ref_type == 'tag' && contains(github.ref_name, 'edu') }}
+          echo "ref_type=${{ github.ref_type }}, ref_name=${{ github.ref_name }}, edu='$edu'"
+          if [[ "$edu" == "true" ]]
           then
-              export viewer_channel="Second Life Release"
+              export viewer_channel="Second Life Release edu"
           elif  [[ "$branch" == "develop" ]];
           then
               export viewer_channel="Second Life Develop"
           else
-              export viewer_channel="Second Life Test"
+              branch=$AUTOBUILD_VCS_BRANCH
+              IFS='/' read -ra ba <<< "$branch"
+              prefix=${ba[0]}
+              if [ "$prefix" == "project" ]; then
+                  IFS='_' read -ra prj <<< "${ba[1]}"
+                  # uppercase first letter of each word
+                  export viewer_channel="Second Life Project ${prj[*]^}"
+              elif  [[ "$prefix" == "release" || "$prefix" == "main" ]];
+              then
+                  export viewer_channel="Second Life Release"
+              else
+                  export viewer_channel="Second Life Test"
+              fi
           fi
+          echo "viewer_channel=$viewer_channel"
           echo "viewer_channel=$viewer_channel" >> "$GITHUB_OUTPUT"
           # On windows we need to point the build to the correct python
           # as neither CMake's FindPython nor our custom Python.cmake module
@@ -282,7 +291,7 @@ jobs:
           echo "artifact=$RUNNER_OS$cfg_suffix" >> $GITHUB_OUTPUT
 
       - name: Upload executable
-        if: matrix.configuration == 'Release' && steps.build.outputs.viewer_app
+        if: steps.build.outputs.viewer_app
         uses: actions/upload-artifact@v4
         with:
           name: "${{ steps.build.outputs.artifact }}-app"
@@ -293,8 +302,8 @@ jobs:
       # The other upload of nontrivial size is the symbol file. Use a distinct
       # artifact for that too.
       - name: Upload symbol file
+        if: steps.build.outputs.symbolfile
         uses: actions/upload-artifact@v4
-        if: matrix.configuration == 'Release'
         with:
           name: "${{ steps.build.outputs.artifact }}-symbols"
           path: ${{ steps.build.outputs.symbolfile }}
@@ -384,17 +393,35 @@ jobs:
       BUGSPLAT_USER: ${{ secrets.BUGSPLAT_USER }}
       BUGSPLAT_PASS: ${{ secrets.BUGSPLAT_PASS }}
     needs: build
+    if: needs.build.outputs.configuration == 'Release'
     runs-on: ubuntu-latest
     steps:
+      - name: Download viewer exe
+        uses: actions/download-artifact@v4
+        with:
+          name: Windows-app
+          path: _artifacts
+      - name: Download Windows Symbols
+        if: env.BUGSPLAT_USER && env.BUGSPLAT_PASS
+        uses: actions/download-artifact@v4
+        with:
+          name: Windows-symbols
+      - name: Extract viewer pdb
+        if: env.BUGSPLAT_USER && env.BUGSPLAT_PASS
+        shell: bash
+        run: |
+          tar -xJf "${{ needs.build.outputs.viewer_channel }}.sym.tar.xz" -C _artifacts
       - name: Post Windows symbols
         if: env.BUGSPLAT_USER && env.BUGSPLAT_PASS
-        uses: secondlife/viewer-build-util/post-bugsplat-windows@v2
+        uses: secondlife-3p/symbol-upload@v10
         with:
           username: ${{ env.BUGSPLAT_USER }}
           password: ${{ env.BUGSPLAT_PASS }}
           database: "SecondLife_Viewer_2018"
-          channel: ${{ needs.build.outputs.viewer_channel }}
+          application: ${{ needs.build.outputs.viewer_channel }}
           version: ${{ needs.build.outputs.viewer_version }}
+          directory: _artifacts
+          files: "**/{SecondLifeViewer.exe,llwebrtc.dll,*.pdb}"
 
   post-mac-symbols:
     env:
@@ -404,15 +431,22 @@ jobs:
     if: needs.build.outputs.configuration == 'Release'
     runs-on: ubuntu-latest
     steps:
+      - name: Download Mac Symbols
+        if: env.BUGSPLAT_USER && env.BUGSPLAT_PASS
+        uses: actions/download-artifact@v4
+        with:
+          name: macOS-symbols
       - name: Post Mac symbols
         if: env.BUGSPLAT_USER && env.BUGSPLAT_PASS
-        uses: secondlife/viewer-build-util/post-bugsplat-mac@v2
+        uses: secondlife-3p/symbol-upload@v10
         with:
           username: ${{ env.BUGSPLAT_USER }}
           password: ${{ env.BUGSPLAT_PASS }}
           database: "SecondLife_Viewer_2018"
-          channel: ${{ needs.build.outputs.viewer_channel }}
+          application: ${{ needs.build.outputs.viewer_channel }}
           version: ${{ needs.build.outputs.viewer_version }} (${{ needs.build.outputs.viewer_version }})
+          directory: .
+          files: "**/*.xcarchive.zip"
 
   release:
     needs: [setup, build, sign-and-package-windows, sign-and-package-mac]

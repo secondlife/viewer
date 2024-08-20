@@ -36,32 +36,8 @@
 
 #include <vector>
 
-// *NOTE: boost::visit_each<> generates warning 4675 on .net 2003
-// Disable the warning for the boost includes.
-#if LL_WINDOWS
-# if (_MSC_VER >= 1300 && _MSC_VER < 1400)
-#   pragma warning(push)
-#   pragma warning( disable : 4675 )
-# endif
-#endif
-
 #include <boost/bind.hpp>
-
-#if LL_WINDOWS
-    #pragma warning (push)
-    #pragma warning (disable : 4263) // boost::signals2::expired_slot::what() has const mismatch
-    #pragma warning (disable : 4264)
-#endif
 #include <boost/signals2.hpp>
-#if LL_WINDOWS
-    #pragma warning (pop)
-#endif
-
-#if LL_WINDOWS
-# if (_MSC_VER >= 1300 && _MSC_VER < 1400)
-#   pragma warning(pop)
-# endif
-#endif
 
 class LLVector3;
 class LLVector3d;

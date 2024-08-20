@@ -38,20 +38,27 @@ class LLFileSystem
 {
     public:
         LLFileSystem(const LLUUID& file_id, const LLAssetType::EType file_type, S32 mode = LLFileSystem::READ);
-        ~LLFileSystem();
+        ~LLFileSystem() = default;
 
         bool read(U8* buffer, S32 bytes);
-        S32  getLastBytesRead();
-        bool eof();
+        S32  getLastBytesRead() const;
+        bool eof() const;
 
         bool write(const U8* buffer, S32 bytes);
         bool seek(S32 offset, S32 origin = -1);
         S32  tell() const;
 
-        S32 getSize();
-        S32 getMaxSize();
+        S32 getSize() const;
+        S32 getMaxSize() const;
         bool rename(const LLUUID& new_id, const LLAssetType::EType new_type);
-        bool remove();
+        bool remove() const;
+
+        /**
+         * Update the "last write time" of a file to "now". This must be called whenever a
+         * file in the cache is read (not written) so that the last time the file was
+         * accessed is up to date (This is used in the mechanism for purging the cache)
+         */
+        void updateFileAccessTime(const std::string& file_path);
 
         static bool getExists(const LLUUID& file_id, const LLAssetType::EType file_type);
         static bool removeFile(const LLUUID& file_id, const LLAssetType::EType file_type, int suppress_error = 0);
@@ -71,8 +78,6 @@ class LLFileSystem
         S32     mPosition;
         S32     mMode;
         S32     mBytesRead;
-//private:
-//    static const std::string idToFilepath(const std::string id, LLAssetType::EType at);
 };
 
 #endif  // LL_FILESYSTEM_H

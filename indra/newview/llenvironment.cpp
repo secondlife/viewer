@@ -54,8 +54,6 @@
 
 #include "llregioninfomodel.h"
 
-#include <boost/make_shared.hpp>
-
 #include "llatmosphere.h"
 #include "llagent.h"
 #include "roles_constants.h"
@@ -2125,8 +2123,11 @@ void LLEnvironment::coroRequestEnvironment(S32 parcel_id, LLEnvironment::environ
         LLSD environment = result[KEY_ENVIRONMENT];
         if (environment.isDefined() && apply)
         {
-            EnvironmentInfo::ptr_t envinfo = LLEnvironment::EnvironmentInfo::extract(environment);
-            apply(parcel_id, envinfo);
+            LLAppViewer::instance()->postToMainCoro([=]()
+                {
+                    EnvironmentInfo::ptr_t envinfo = LLEnvironment::EnvironmentInfo::extract(environment);
+                    apply(parcel_id, envinfo);
+                });
         }
     }
 

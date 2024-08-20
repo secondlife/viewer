@@ -1603,7 +1603,7 @@ void render_ui_2d()
             LLView::sIsRectDirty = false;
             LLRect t_rect;
 
-            gPipeline.mRT->uiScreen.bindTarget();
+            gPipeline.mUIScreen.bindTarget();
             gGL.setColorMask(true, true);
             {
                 static const S32 pad = 8;
@@ -1635,7 +1635,7 @@ void render_ui_2d()
                 gViewerWindow->draw();
             }
 
-            gPipeline.mRT->uiScreen.flush();
+            gPipeline.mUIScreen.flush();
             gGL.setColorMask(true, false);
 
             LLView::sDirtyRect = t_rect;
@@ -1645,7 +1645,7 @@ void render_ui_2d()
         LLGLDisable blend(GL_BLEND);
         S32 width = gViewerWindow->getWindowWidthScaled();
         S32 height = gViewerWindow->getWindowHeightScaled();
-        gGL.getTexUnit(0)->bind(&gPipeline.mRT->uiScreen);
+        gGL.getTexUnit(0)->bind(&gPipeline.mUIScreen);
         gGL.begin(LLRender::TRIANGLE_STRIP);
         gGL.color4f(1.f,1.f,1.f,1.f);
         gGL.texCoord2f(0.f, 0.f);                 gGL.vertex2i(0, 0);

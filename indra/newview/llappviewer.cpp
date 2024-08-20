@@ -62,7 +62,6 @@
 #include "llfocusmgr.h"
 #include "llurlfloaterdispatchhandler.h"
 #include "llviewerjoystick.h"
-#include "llallocator.h"
 #include "llcalc.h"
 #include "llconversationlog.h"
 #if LL_WINDOWS
@@ -265,10 +264,9 @@ using namespace LL;
 // define a self-registering event API object
 #include "llappviewerlistener.h"
 
-#if LL_MSVC
-// disable boost::lexical_cast warning
-#pragma warning (disable:4702)
-#endif
+#if LL_LINUX && LL_GTK
+#include "glib.h"
+#endif // (LL_LINUX) && LL_GTK
 
 static LLAppViewerListener sAppViewerListener(LLAppViewer::instance);
 
@@ -770,8 +768,6 @@ bool LLAppViewer::init()
         LLError::setFatalFunction([rc](const std::string&){ _exit(rc); });
     }
 
-    mAlloc.setProfilingEnabled(gSavedSettings.getBOOL("MemProfiling"));
-
     // Initialize the non-LLCurl libcurl library.  Should be called
     // before consumers (LLTextureFetch).
     mAppCoreHttp.init();
@@ -802,6 +798,20 @@ bool LLAppViewer::init()
         LLUIImageList::getInstance(),
         ui_audio_callback,
         deferred_ui_audio_callback);
+
+    if (gSavedSettings.getBOOL("SpellCheck"))
+    {
+        std::list<std::string> dict_list;
+        std::string dict_setting = gSavedSettings.getString("SpellCheckDictionary");
+        boost::split(dict_list, dict_setting, boost::is_any_of(std::string(",")));
+        if (!dict_list.empty())
+        {
+            LLSpellChecker::setUseSpellCheck(dict_list.front());
+            dict_list.pop_front();
+            LLSpellChecker::instance().setSecondaryDictionaries(dict_list);
+        }
+    }
+
     LL_INFOS("InitInfo") << "UI initialized." << LL_ENDL ;
 
     // NOW LLUI::getLanguage() should work. gDirUtilp must know the language
@@ -1266,6 +1276,7 @@ bool LLAppViewer::init()
     //LLSimpleton creations
     LLEnvironment::createInstance();
     LLWorld::createInstance();
+    LLViewerStatsRecorder::createInstance();
     LLSelectMgr::createInstance();
     LLViewerCamera::createInstance();
     LL::GLTFSceneManager::createInstance();
@@ -1607,7 +1618,7 @@ bool LLAppViewer::doFrame()
 
             {
                 LL_PROFILE_ZONE_NAMED_CATEGORY_APP("df gMeshRepo");
-            gMeshRepo.update() ;
+                gMeshRepo.update() ;
             }
 
             if(!total_work_pending) //pause texture fetching threads if nothing to process.
@@ -2148,6 +2159,7 @@ bool LLAppViewer::cleanup()
     LL::GLTFSceneManager::deleteSingleton();
     LLEnvironment::deleteSingleton();
     LLSelectMgr::deleteSingleton();
+    LLViewerStatsRecorder::deleteSingleton();
     LLViewerEventRecorder::deleteSingleton();
     LLWorld::deleteSingleton();
     LLVoiceClient::deleteSingleton();
@@ -2801,19 +2813,6 @@ bool LLAppViewer::initConfiguration()
         // good because we haven't yet called LLUI::initClass().
         gDirUtilp->setSkinFolder(skinfolder->getValue().asString(),
                                  gSavedSettings.getString("Language"));
-    }
-
-    if (gSavedSettings.getBOOL("SpellCheck"))
-    {
-        std::list<std::string> dict_list;
-        std::string dict_setting = gSavedSettings.getString("SpellCheckDictionary");
-        boost::split(dict_list, dict_setting, boost::is_any_of(std::string(",")));
-        if (!dict_list.empty())
-        {
-            LLSpellChecker::setUseSpellCheck(dict_list.front());
-            dict_list.pop_front();
-            LLSpellChecker::instance().setSecondaryDictionaries(dict_list);
-        }
     }
 
     if (gNonInteractive)

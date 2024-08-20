@@ -441,7 +441,7 @@ std::string LLDXHardware::getDriverVersionWMI(EGPUVendor vendor)
     return mDriverVersion;
 }
 
-void get_wstring(IDxDiagContainer* containerp, WCHAR* wszPropName, WCHAR* wszPropValue, int outputSize)
+void get_wstring(IDxDiagContainer* containerp, const WCHAR* wszPropName, WCHAR* wszPropValue, int outputSize)
 {
     HRESULT hr;
     VARIANT var;
@@ -472,7 +472,7 @@ void get_wstring(IDxDiagContainer* containerp, WCHAR* wszPropName, WCHAR* wszPro
     VariantClear( &var );
 }
 
-std::string get_string(IDxDiagContainer *containerp, WCHAR *wszPropName)
+std::string get_string(IDxDiagContainer *containerp, const WCHAR *wszPropName)
 {
     WCHAR wszPropValue[256];
     get_wstring(containerp, wszPropName, wszPropValue, 256);
@@ -1059,7 +1059,7 @@ LLSD LLDXHardware::getDisplayInfo()
 
         // Dump the string as an int into the structure
         char *stopstring;
-        ret["VRAM"] = strtol(ram_str.c_str(), &stopstring, 10);
+        ret["VRAM"] = LLSD::Integer(strtol(ram_str.c_str(), &stopstring, 10));
         std::string device_name = get_string(device_containerp, L"szDescription");
         ret["DeviceName"] = device_name;
         std::string device_driver=  get_string(device_containerp, L"szDriverVersion");

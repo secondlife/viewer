@@ -163,13 +163,13 @@ public:
 
     // set for rendering
     // assumes (and will assert on) the following:
-    //      - this buffer has no pending unampBuffer call
+    //      - this buffer has no pending unmapBuffer call
     //      - a shader is currently bound
     //      - This buffer has sufficient attributes within it to satisfy the needs of the currently bound shader
     void    setBuffer();
 
     // Only call each getVertexPointer, etc, once before calling unmapBuffer()
-    // call unmapBuffer() after calls to getXXXStrider() before any cals to setBuffer()
+    // call unmapBuffer() after calls to getXXXStrider() before any calls to setBuffer()
     // example:
     //   vb->getVertexBuffer(verts);
     //   vb->getNormalStrider(norms);
@@ -218,12 +218,12 @@ public:
     U32 getNumIndices() const               { return mNumIndices; }
 
     U32 getTypeMask() const                 { return mTypeMask; }
-    bool hasDataType(AttributeType type) const      { return ((1 << type) & getTypeMask()); }
+    bool hasDataType(AttributeType type) const { return ((1 << type) & getTypeMask()); }
     U32 getSize() const                     { return mSize; }
     U32 getIndicesSize() const              { return mIndicesSize; }
     U8* getMappedData() const               { return mMappedData; }
     U8* getMappedIndices() const            { return mMappedIndexData; }
-    U32 getOffset(AttributeType type) const         { return mOffsets[type]; }
+    U32 getOffset(AttributeType type) const { return mOffsets[type]; }
 
     // these functions assume (and assert on) the current VBO being bound
     // Detailed error checking can be enabled by setting gDebugGL to true
@@ -242,6 +242,7 @@ public:
     void setLabel(const char* label);
     #endif
 
+    void clone(LLVertexBuffer& target) const;
 
 protected:
     U32     mGLBuffer = 0;      // GL VBO handle
