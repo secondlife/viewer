@@ -438,6 +438,7 @@ void LLPanelEmojiComplete::updateConstraints()
 {
     mRenderRect = getLocalRect();
 
+    // Use cat face emoji as template to calculate width
     mEmojiWidth = (U16)(mIconFont->getWidthF32(reinterpret_cast<const char*>(u8"\U0001F431")) + mPadding * 2);
     if (mVertical)
     {
