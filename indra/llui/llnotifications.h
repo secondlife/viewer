@@ -87,6 +87,7 @@
 #include <boost/type_traits.hpp>
 #include <boost/signals2.hpp>
 #include <boost/range.hpp>
+#include <boost/intrusive_ptr.hpp>
 
 #include "llevents.h"
 #include "llfunctorregistry.h"

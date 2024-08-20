@@ -38,7 +38,6 @@ class LLVOAvatar;
 #include "llcallingcard.h"   // for LLFriendObserver
 #include "llsecapi.h"
 #include "llcontrol.h"
-#include <boost/shared_ptr.hpp>
 
 // devices
 
