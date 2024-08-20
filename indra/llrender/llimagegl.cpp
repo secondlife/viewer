@@ -67,11 +67,12 @@ static U64 sTextureBytes = 0;
 
 // track a texture alloc on the currently bound texture.
 // asserts that no currently tracked alloc exists
-void LLImageGLMemory::alloc_tex_image(U32 width, U32 height, U32 pixformat)
+void LLImageGLMemory::alloc_tex_image(U32 width, U32 height, U32 intformat, U32 count)
 {
     U32 texUnit = gGL.getCurrentTexUnitIndex();
     U32 texName = gGL.getTexUnit(texUnit)->getCurrTexture();
-    U64 size = LLImageGL::dataFormatBytes(pixformat, width, height);
+    U64 size = LLImageGL::dataFormatBytes(intformat, width, height);
+    size *= count;
 
     llassert(size >= 0);
 
@@ -291,9 +292,13 @@ S32 LLImageGL::dataFormatBits(S32 dataformat)
     case GL_SRGB:                                   return 24;
     case GL_RGB8:                                   return 24;
     case GL_RGBA:                                   return 32;
+    case GL_RGBA8:                                  return 32;
     case GL_SRGB_ALPHA:                             return 32;
     case GL_BGRA:                                   return 32;      // Used for QuickTime media textures on the Mac
     case GL_DEPTH_COMPONENT:                        return 24;
+    case GL_DEPTH_COMPONENT24:                      return 24;
+    case GL_R16F:                                   return 16;
+    case GL_RG16F:                                  return 32;
     case GL_RGB16F:                                 return 48;
     case GL_RGBA16F:                                return 64;
     default:
@@ -1384,7 +1389,7 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
                 sub_image_lines(target, miplevel, 0, 0, width, height, pixformat, pixtype, src, width);
             }
         }
-        alloc_tex_image(width, height, pixformat);
+        alloc_tex_image(width, height, intformat, 1);
     }
     stop_glerror();
 
@@ -2374,7 +2379,7 @@ bool LLImageGL::scaleDown(S32 desired_discard)
         }
 
         // account for new texture getting created
-        alloc_tex_image(desired_width, desired_height, mFormatPrimary);
+        alloc_tex_image(desired_width, desired_height, mFormatInternal, 1);
 
         // Use render-to-texture to scale down the texture
         {
@@ -2431,7 +2436,7 @@ bool LLImageGL::scaleDown(S32 desired_discard)
         glTexImage2D(mTarget, 0, mFormatPrimary, desired_width, desired_height, 0, mFormatPrimary, mFormatType, nullptr);
         glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 
-        alloc_tex_image(desired_width, desired_height, mFormatPrimary);
+        alloc_tex_image(desired_width, desired_height, mFormatInternal, 1);
 
         if (mHasMipMaps)
         {

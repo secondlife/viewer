@@ -50,7 +50,7 @@ class LLWindow;
 
 namespace LLImageGLMemory
 {
-    void alloc_tex_image(U32 width, U32 height, U32 pixformat);
+    void alloc_tex_image(U32 width, U32 height, U32 intformat, U32 count);
     void free_tex_image(U32 texName);
     void free_tex_images(U32 count, const U32* texNames);
     void free_cur_tex_image();
