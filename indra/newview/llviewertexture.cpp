@@ -497,11 +497,10 @@ void LLViewerTexture::updateClass()
 
     F64 texture_bytes_alloc = LLImageGL::getTextureBytesAllocated() / 1024.0 / 512.0;
     F64 vertex_bytes_alloc = LLVertexBuffer::getBytesAllocated() / 1024.0 / 512.0;
-    F64 render_bytes_alloc = LLRenderTarget::sBytesAllocated / 1024.0 / 512.0;
 
     // get an estimate of how much video memory we're using
     // NOTE: our metrics miss about half the vram we use, so this biases high but turns out to typically be within 5% of the real number
-    F32 used = (F32)ll_round(texture_bytes_alloc + vertex_bytes_alloc + render_bytes_alloc);
+    F32 used = (F32)ll_round(texture_bytes_alloc + vertex_bytes_alloc);
 
     F32 budget = max_vram_budget == 0 ? (F32)gGLManager.mVRAM : (F32)max_vram_budget;
 
