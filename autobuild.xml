@@ -749,18 +749,6 @@
       </map>
       <key>glm</key>
       <map>
-        <key>canonical_repo</key>
-        <string>https://github.com/secondlife/3p-glm</string>
-        <key>copyright</key>
-        <string>Copyright (c) 2005 - G-Truc Creation</string>
-        <key>description</key>
-        <string>OpenGL Mathematics</string>
-        <key>license</key>
-        <string>MIT</string>
-        <key>license_file</key>
-        <string>LICENSES/glm_license.txt</string>
-        <key>name</key>
-        <string>glm</string>
         <key>platforms</key>
         <map>
           <key>common</key>
@@ -778,16 +766,28 @@
             <string>common</string>
           </map>
         </map>
-        <key>source_type</key>
-        <string>git</string>
+        <key>license</key>
+        <string>MIT</string>
+        <key>license_file</key>
+        <string>LICENSES/glm_license.txt</string>
+        <key>copyright</key>
+        <string>Copyright (c) 2005 - G-Truc Creation</string>
+        <key>version</key>
+        <string>v1.0.1</string>
+        <key>name</key>
+        <string>glm</string>
         <key>vcs_branch</key>
         <string>refs/tags/v1.0.1-r1</string>
         <key>vcs_revision</key>
         <string>399cd5ba57a9267a560ce07e50a0f8c5fe3dc66f</string>
         <key>vcs_url</key>
         <string>git://github.com/secondlife/3p-glm.git</string>
-        <key>version</key>
-        <string>v1.0.1</string>
+        <key>canonical_repo</key>
+        <string>https://github.com/secondlife/3p-glm</string>
+        <key>description</key>
+        <string>OpenGL Mathematics</string>
+        <key>source_type</key>
+        <string>git</string>
       </map>
       <key>gstreamer</key>
       <map>
@@ -1426,14 +1426,6 @@
       </map>
       <key>llphysicsextensions_source</key>
       <map>
-        <key>copyright</key>
-        <string>Copyright (c) 2010, Linden Research, Inc.</string>
-        <key>license</key>
-        <string>internal</string>
-        <key>license_file</key>
-        <string>LICENSES/llphysicsextensions.txt</string>
-        <key>name</key>
-        <string>llphysicsextensions_source</string>
         <key>platforms</key>
         <map>
           <key>darwin64</key>
@@ -1485,8 +1477,16 @@
             <string>windows64</string>
           </map>
         </map>
+        <key>license</key>
+        <string>internal</string>
+        <key>license_file</key>
+        <string>LICENSES/llphysicsextensions.txt</string>
+        <key>copyright</key>
+        <string>Copyright (c) 2010, Linden Research, Inc.</string>
         <key>version</key>
         <string>1.0.66e6919</string>
+        <key>name</key>
+        <string>llphysicsextensions_source</string>
       </map>
       <key>llphysicsextensions_stub</key>
       <map>
@@ -2032,16 +2032,6 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
       </map>
       <key>openal</key>
       <map>
-        <key>copyright</key>
-        <string>Copyright (C) 1999-2007 by authors.</string>
-        <key>description</key>
-        <string>OpenAL Soft is a software implementation of the OpenAL 3D audio API.</string>
-        <key>license</key>
-        <string>LGPL2</string>
-        <key>license_file</key>
-        <string>LICENSES/openal-soft.txt</string>
-        <key>name</key>
-        <string>openal</string>
         <key>platforms</key>
         <map>
           <key>darwin64</key>
@@ -2087,8 +2077,18 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <string>windows64</string>
           </map>
         </map>
+        <key>license</key>
+        <string>LGPL2</string>
+        <key>license_file</key>
+        <string>LICENSES/openal-soft.txt</string>
+        <key>copyright</key>
+        <string>Copyright (C) 1999-2007 by authors.</string>
         <key>version</key>
         <string>1.23.1</string>
+        <key>name</key>
+        <string>openal</string>
+        <key>description</key>
+        <string>OpenAL Soft is a software implementation of the OpenAL 3D audio API.</string>
       </map>
       <key>openjpeg</key>
       <map>
@@ -2643,11 +2643,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>baabb11f324be350253b1fb58cf262c1aa19fa70</string>
+              <string>3570b6442d472cd97bad8622c2ec2571d72218a0</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-webrtc-build/releases/download/m114.5735.08.67-debug/webrtc-m114.5735.08.67-debug.10190042668-darwin64-10190042668.tar.zst</string>
+              <string>https://github.com/secondlife/3p-webrtc-build/releases/download/m114.5735.08.72-test/webrtc-m114.5735.08.72-test.10444682919-darwin64-10444682919.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2657,11 +2657,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a13776c8f99f8975665be66ff8b51a80ba46c718</string>
+              <string>eadf6aa99313940ded11801d42c11375669f1628</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-webrtc-build/releases/download/m114.5735.08.67-debug/webrtc-m114.5735.08.67-debug.10190042668-linux64-10190042668.tar.zst</string>
+              <string>https://github.com/secondlife/3p-webrtc-build/releases/download/m114.5735.08.72-test/webrtc-m114.5735.08.72-test.10444682919-linux64-10444682919.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -2671,11 +2671,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>965ef5d65a14191a52ee9ec6a9a8a1d2ce3f2ffb</string>
+              <string>0081fd35290adbc8e66dd366535fb6cd8a966f1e</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-webrtc-build/releases/download/m114.5735.08.67-debug/webrtc-m114.5735.08.67-debug.10190042668-windows64-10190042668.tar.zst</string>
+              <string>https://github.com/secondlife/3p-webrtc-build/releases/download/m114.5735.08.72-test/webrtc-m114.5735.08.72-test.10444682919-windows64-10444682919.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -2688,7 +2688,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>copyright</key>
         <string>Copyright (c) 2011, The WebRTC project authors. All rights reserved.</string>
         <key>version</key>
-        <string>m114.5735.08.67-debug.10190042668</string>
+        <string>m114.5735.08.72-test.10444682919</string>
         <key>name</key>
         <string>webrtc</string>
         <key>vcs_branch</key>

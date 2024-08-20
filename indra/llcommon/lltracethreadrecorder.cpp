@@ -159,7 +159,8 @@ AccumulatorBufferGroup* ThreadRecorder::activate( AccumulatorBufferGroup* record
 ThreadRecorder::active_recording_list_t::iterator ThreadRecorder::bringUpToDate( AccumulatorBufferGroup* recording )
 {
 #if LL_TRACE_ENABLED
-    if (mActiveRecordings.empty()) return mActiveRecordings.end();
+    if (mActiveRecordings.empty())
+        return mActiveRecordings.end();
 
     mActiveRecordings.back()->mPartialRecording.sync();
     BlockTimer::updateTimes();
@@ -202,7 +203,7 @@ ThreadRecorder::active_recording_list_t::iterator ThreadRecorder::bringUpToDate(
 #endif
 }
 
-void ThreadRecorder::deactivate( AccumulatorBufferGroup* recording )
+void ThreadRecorder::deactivate(AccumulatorBufferGroup* recording)
 {
 #if LL_TRACE_ENABLED
     active_recording_list_t::iterator recording_it = bringUpToDate(recording);
@@ -228,9 +229,10 @@ void ThreadRecorder::deactivate( AccumulatorBufferGroup* recording )
 #endif
 }
 
-ThreadRecorder::ActiveRecording::ActiveRecording( AccumulatorBufferGroup* target )
+ThreadRecorder::ActiveRecording::ActiveRecording(AccumulatorBufferGroup* target)
 :   mTargetRecording(target)
-{}
+{
+}
 
 void ThreadRecorder::ActiveRecording::movePartialToTarget()
 {
@@ -243,30 +245,30 @@ void ThreadRecorder::ActiveRecording::movePartialToTarget()
 
 
 // called by child thread
-void ThreadRecorder::addChildRecorder( class ThreadRecorder* child )
+void ThreadRecorder::addChildRecorder(ThreadRecorder* child)
 {
 #if LL_TRACE_ENABLED
-    { LLMutexLock lock(&mChildListMutex);
-        mChildThreadRecorders.push_back(child);
-    }
+    LLMutexLock lock(&mChildListMutex);
+    mChildThreadRecorders.push_back(child);
 #endif
 }
 
 // called by child thread
-void ThreadRecorder::removeChildRecorder( class ThreadRecorder* child )
+void ThreadRecorder::removeChildRecorder(ThreadRecorder* child)
 {
 #if LL_TRACE_ENABLED
-    { LLMutexLock lock(&mChildListMutex);
-        mChildThreadRecorders.remove(child);
-    }
+    LLMutexLock lock(&mChildListMutex);
+    mChildThreadRecorders.remove(child);
 #endif
 }
 
 void ThreadRecorder::pushToParent()
 {
 #if LL_TRACE_ENABLED
-    { LLMutexLock lock(&mSharedRecordingMutex);
-        LLTrace::get_thread_recorder()->bringUpToDate(&mThreadRecordingBuffers);
+    if (ThreadRecorder* recorder = LLTrace::get_thread_recorder())
+    {
+        LLMutexLock lock(&mSharedRecordingMutex);
+        recorder->bringUpToDate(&mThreadRecordingBuffers);
         mSharedRecordingBuffers.append(mThreadRecordingBuffers);
         mThreadRecordingBuffers.reset();
     }
@@ -278,15 +280,14 @@ void ThreadRecorder::pullFromChildren()
 {
 #if LL_TRACE_ENABLED
     LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
-    if (mActiveRecordings.empty()) return;
-
-    { LLMutexLock lock(&mChildListMutex);
-
+    if (!mActiveRecordings.empty())
+    {
+        LLMutexLock lock(&mChildListMutex);
         AccumulatorBufferGroup& target_recording_buffers = mActiveRecordings.back()->mPartialRecording;
         target_recording_buffers.sync();
         for (LLTrace::ThreadRecorder* rec : mChildThreadRecorders)
-        { LLMutexLock lock(&(rec->mSharedRecordingMutex));
-
+        {
+            LLMutexLock lock(&(rec->mSharedRecordingMutex));
             target_recording_buffers.merge(rec->mSharedRecordingBuffers);
             rec->mSharedRecordingBuffers.reset();
         }
@@ -294,12 +295,10 @@ void ThreadRecorder::pullFromChildren()
 #endif
 }
 
-
-void set_master_thread_recorder( ThreadRecorder* recorder )
+void set_master_thread_recorder(ThreadRecorder* recorder)
 {
     sMasterThreadRecorder = recorder;
 }
-
 
 ThreadRecorder* get_master_thread_recorder()
 {

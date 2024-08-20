@@ -481,12 +481,12 @@ public:
 
     void onRegionChanged();
 
-    void addObserver(LLVoiceClientStatusObserver* observer);
-    void removeObserver(LLVoiceClientStatusObserver* observer);
-    void addObserver(LLFriendObserver* observer);
-    void removeObserver(LLFriendObserver* observer);
-    void addObserver(LLVoiceClientParticipantObserver* observer);
-    void removeObserver(LLVoiceClientParticipantObserver* observer);
+    static void addObserver(LLVoiceClientStatusObserver* observer);
+    static void removeObserver(LLVoiceClientStatusObserver* observer);
+    static void addObserver(LLFriendObserver* observer);
+    static void removeObserver(LLFriendObserver* observer);
+    static void addObserver(LLVoiceClientParticipantObserver* observer);
+    static void removeObserver(LLVoiceClientParticipantObserver* observer);
 
     std::string sipURIFromID(const LLUUID &id) const;
     LLSD getP2PChannelInfoTemplate(const LLUUID& id) const;
