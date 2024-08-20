@@ -31,7 +31,6 @@
 #include "llmath.h"
 #include "llmemory.h"
 #include "llsd.h"
-#include <boost/scoped_ptr.hpp>
 
 // Declare the prototype for this factory function here. It is implemented in
 // other files which define a LLImageJ2CImpl subclass, but only ONE static

@@ -42,10 +42,7 @@
 #include <functional>
 #include <map>
 #include <set>
-
-#ifdef LL_WINDOWS
-#pragma warning (3 : 4702) // we like level 3, not 4
-#endif
+#include <vector>
 
 // Library headers from llcommon project:
 #include "indra_constants.h"

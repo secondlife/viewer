@@ -64,7 +64,6 @@
 
 // Boost (for linux/unix command-line execv)
 #include <boost/tokenizer.hpp>
-#include <boost/shared_ptr.hpp>
 
 // External utility
 #include <string>

@@ -57,7 +57,6 @@
 #include "llsdserialize.h"
 #include "lltrans.h"
 
-#include <boost/scoped_ptr.hpp>
 #include <boost/regex.hpp>
 #include <sstream>
 
