@@ -625,6 +625,16 @@
       </map>
       <key>freetype</key>
       <map>
+        <key>copyright</key>
+        <string>Copyright 2006, 2007, 2008, 2009, 2010 by David Turner, Robert Wilhelm, and Werner Lemberg.</string>
+        <key>description</key>
+        <string>Font rendering library</string>
+        <key>license</key>
+        <string>FreeType</string>
+        <key>license_file</key>
+        <string>LICENSES/freetype.txt</string>
+        <key>name</key>
+        <string>freetype</string>
         <key>platforms</key>
         <map>
           <key>darwin64</key>
@@ -632,11 +642,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>df465ce3048add93f76d1f13e0f04d21b3875b74</string>
+              <string>51ad743c8943602913eedd2b6e2309abf46849d8</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-freetype/releases/download/v2.13.2-r1/freetype-2.13.2-r1-darwin64-10342925957.tar.zst</string>
+              <string>https://github.com/secondlife/3p-freetype/releases/download/v2.13.3-cb2e120/freetype-2.13.3-cb2e120-darwin64-10475886095.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -646,11 +656,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7cdc4f27dfa6424400863c746b487199b765794e</string>
+              <string>bc27e272e004dc2fc573550e8c1cd8b4ad07f5b2</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-freetype/releases/download/v2.13.2-r1/freetype-2.13.2-r1-linux64-10342925957.tar.zst</string>
+              <string>https://github.com/secondlife/3p-freetype/releases/download/v2.13.3-cb2e120/freetype-2.13.3-cb2e120-linux64-10475886095.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -660,28 +670,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>44788d645b3bcf9a7aaf7c3a92d609fbb2b36413</string>
+              <string>01971b998122a17c97e3616c428cc77077a0c39a</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-freetype/releases/download/v2.13.2-r1/freetype-2.13.2-r1-windows64-10342925957.tar.zst</string>
+              <string>https://github.com/secondlife/3p-freetype/releases/download/v2.13.3-cb2e120/freetype-2.13.3-cb2e120-windows64-10475886095.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
-        <key>license</key>
-        <string>FreeType</string>
-        <key>license_file</key>
-        <string>LICENSES/freetype.txt</string>
-        <key>copyright</key>
-        <string>Copyright 2006, 2007, 2008, 2009, 2010 by David Turner, Robert Wilhelm, and Werner Lemberg.</string>
         <key>version</key>
-        <string>2.13.2-r1</string>
-        <key>name</key>
-        <string>freetype</string>
-        <key>description</key>
-        <string>Font rendering library</string>
+        <string>2.13.3-cb2e120</string>
       </map>
       <key>glext</key>
       <map>
