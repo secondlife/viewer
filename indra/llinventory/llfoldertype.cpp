@@ -230,6 +230,7 @@ LLSD LLFolderType::getTypeNames()
         if (lookupIsEnsembleType((LLFolderType::EType)type)) continue;
 
         const FolderEntry *entry = LLFolderDictionary::getInstance()->lookup((LLFolderType::EType)type);
+        //skip llfoldertype_bad_lookup
         if (entry)
         {
             type_names.append(entry->mName);

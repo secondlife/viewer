@@ -28,6 +28,7 @@
 #define LL_LLINVENTORYLISTENER_H
 
 #include "lleventapi.h"
+#include "llinventoryfunctions.h"
 
 class LLInventoryListener : public LLEventAPI
 {
@@ -37,8 +38,34 @@ public:
 private:
     void getItemsInfo(LLSD const &data);
     void getFolderTypeNames(LLSD const &data);
+    void getAssetTypeNames(LLSD const &data);
     void getBasicFolderID(LLSD const &data);
     void getDirectDescendents(LLSD const &data);
+    void collectDescendentsIf(LLSD const &data);
+};
+
+struct LLFilteredCollector : public LLInventoryCollectFunctor
+{
+    enum EFilterLink
+    {
+        INCLUDE_LINKS,  // show links too
+        EXCLUDE_LINKS,  // don't show links
+        ONLY_LINKS      // only show links
+    };
+
+    LLFilteredCollector(LLSD const &data);
+    virtual ~LLFilteredCollector() {}
+    virtual bool operator()(LLInventoryCategory *cat, LLInventoryItem *item);
+
+  protected:
+    bool checkagainstType(LLInventoryCategory *cat, LLInventoryItem *item);
+    bool checkagainstNameDesc(LLInventoryCategory *cat, LLInventoryItem *item);
+    bool checkagainstLinks(LLInventoryCategory *cat, LLInventoryItem *item);
+
+    LLAssetType::EType mType;
+    std::string mName;
+    std::string mDesc;
+    EFilterLink mLinkFilter;
 };
 
 #endif // LL_LLINVENTORYLISTENER_H
