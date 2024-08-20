@@ -804,7 +804,7 @@ bool LLPrimitive::setVolume(const LLVolumeParams &volume_params, const S32 detai
         }
 
         volumep = sVolumeManager->refVolume(volume_params, detail);
-        if (volumep == mVolumep)
+        if (mVolumep == volumep)
         {
             sVolumeManager->unrefVolume( volumep );  // LLVolumeMgr::refVolume() creates a reference, but we don't need a second one.
             return true;

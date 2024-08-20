@@ -702,7 +702,7 @@ U32 LLVOPartGroup::getPartitionType() const
 }
 
 LLParticlePartition::LLParticlePartition(LLViewerRegion* regionp)
-: LLSpatialPartition(LLDrawPoolAlpha::VERTEX_DATA_MASK | LLVertexBuffer::MAP_TEXTURE_INDEX, true, regionp)
+: LLSpatialPartition(static_cast<U32>(LLDrawPoolAlpha::VERTEX_DATA_MASK) | static_cast<U32>(LLVertexBuffer::MAP_TEXTURE_INDEX), true, regionp)
 {
     mRenderPass = LLRenderPass::PASS_ALPHA;
     mDrawableType = LLPipeline::RENDER_TYPE_PARTICLES;

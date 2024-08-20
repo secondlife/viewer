@@ -496,7 +496,7 @@ void GLTFSceneManager::update()
             LLNewBufferedResourceUploadInfo::uploadFinish_f finish = [this, buffer](LLUUID assetId, LLSD response)
             {
                 LLAppViewer::instance()->postToMainCoro(
-                    [=]()
+                    [=, this]()
                     {
                         if (mUploadingAsset)
                         {

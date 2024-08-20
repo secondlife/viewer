@@ -29,6 +29,11 @@ else()
   set( USE_AUTOBUILD_3P ON )
 endif()
 
+# Override C++ standard version defined in build-variables here until all branches
+# and 3rd party libraries can build with C++20
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 include(Variables)
 include(BuildVersion)
 

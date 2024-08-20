@@ -255,8 +255,8 @@ class LLMeshRepoThread : public LLThread
 {
 public:
 
-    volatile static S32 sActiveHeaderRequests;
-    volatile static S32 sActiveLODRequests;
+    static S32 sActiveHeaderRequests;
+    static S32 sActiveLODRequests;
     static U32 sMaxConcurrentRequests;
     static S32 sRequestLowWater;
     static S32 sRequestHighWater;

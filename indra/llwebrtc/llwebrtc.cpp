@@ -685,7 +685,7 @@ void LLWebRTCPeerConnectionImpl::init(LLWebRTCImpl * webrtc_impl)
 void LLWebRTCPeerConnectionImpl::terminate()
 {
     mWebRTCImpl->PostSignalingTask(
-        [=]()
+        [=, this]()
         {
             if (mPeerConnection)
             {

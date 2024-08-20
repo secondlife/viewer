@@ -562,7 +562,7 @@ void LLTextureEntry::setGLTFMaterial(LLGLTFMaterial* material, bool local_origin
 S32 LLTextureEntry::setGLTFMaterialOverride(LLGLTFMaterial* mat)
 {
     llassert(mat == nullptr || getGLTFMaterial() != nullptr); // if override is not null, base material must not be null
-    if (mat == mGLTFMaterialOverrides)
+    if (mGLTFMaterialOverrides == mat)
     {
         return TEM_CHANGE_NONE;
     }

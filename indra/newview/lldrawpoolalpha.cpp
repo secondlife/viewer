@@ -351,8 +351,8 @@ void LLDrawPoolAlpha::renderAlphaHighlight()
 
                     if (rigged)
                     {
-                        if (lastAvatar != params.mAvatar ||
-                            lastMeshId != params.mSkinInfo->mHash)
+                        if (params.mAvatar != lastAvatar ||
+                            params.mSkinInfo->mHash != lastMeshId)
                         {
                             if (!uploadMatrixPalette(params))
                             {
@@ -534,7 +534,7 @@ void LLDrawPoolAlpha::renderRiggedEmissives(std::vector<LLDrawInfo*>& emissives)
         LL_PROFILE_ZONE_NAMED_CATEGORY_DRAWPOOL("Emissives");
 
         bool tex_setup = TexSetup(draw, false);
-        if (lastAvatar != draw->mAvatar || lastMeshId != draw->mSkinInfo->mHash)
+        if (draw->mAvatar != lastAvatar || draw->mSkinInfo->mHash != lastMeshId)
         {
             if (!uploadMatrixPalette(*draw))
             { // failed to upload matrix palette, skip rendering
@@ -558,7 +558,7 @@ void LLDrawPoolAlpha::renderRiggedPbrEmissives(std::vector<LLDrawInfo*>& emissiv
 
     for (LLDrawInfo* draw : emissives)
     {
-        if (lastAvatar != draw->mAvatar || lastMeshId != draw->mSkinInfo->mHash)
+        if (draw->mAvatar != lastAvatar || draw->mSkinInfo->mHash != lastMeshId)
         {
             if (!uploadMatrixPalette(*draw))
             { // failed to upload matrix palette, skip rendering
@@ -770,7 +770,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
 
                     if (current_shader)
                     {
-                        current_shader->uniform4f(LLShaderMgr::SPECULAR_COLOR, spec_color.mV[0], spec_color.mV[1], spec_color.mV[2], spec_color.mV[3]);
+                        current_shader->uniform4f(LLShaderMgr::SPECULAR_COLOR, spec_color.mV[VRED], spec_color.mV[VGREEN], spec_color.mV[VBLUE], spec_color.mV[VALPHA]);
                         current_shader->uniform1f(LLShaderMgr::ENVIRONMENT_INTENSITY, env_intensity);
                         current_shader->uniform1f(LLShaderMgr::EMISSIVE_BRIGHTNESS, brightness);
                     }
@@ -778,8 +778,8 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
 
                 if (params.mAvatar != nullptr)
                 {
-                    if (lastAvatar != params.mAvatar ||
-                        lastMeshId != params.mSkinInfo->mHash ||
+                    if (params.mAvatar != lastAvatar ||
+                        params.mSkinInfo->mHash != lastMeshId||
                         lastAvatarShader != LLGLSLShader::sCurBoundShaderPtr)
                     {
                         if (!uploadMatrixPalette(params))

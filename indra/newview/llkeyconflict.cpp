@@ -165,7 +165,7 @@ bool LLKeyConflictHandler::registerControl(const std::string &control_name, U32 
         return false;
     }
     LLKeyData data(mouse, key, mask, ignore_mask);
-    if (type_data.mKeyBind.getKeyData(index) == data)
+    if (type_data.mKeyBind.getKeyData(index).operator==(data))
     {
         return true;
     }
@@ -650,7 +650,7 @@ void LLKeyConflictHandler::resetToDefault(const std::string &control_name, U32 i
     }
     LLKeyData data = getDefaultControl(control_name, index);
 
-    if (data != type_data.getKeyData(index))
+    if (data.operator!=(type_data.getKeyData(index)))
     {
         // reset controls that might have been switched to our current control
         removeConflicts(data, mControlsMap[control_name].mConflictMask);

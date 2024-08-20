@@ -34,10 +34,10 @@
 #include "llpanel.h"
 #include "llcriticaldamp.h"
 #include "lliconctrl.h"
-#include "boost/foreach.hpp"
+#include <ranges>
 
-static const F32 MIN_FRACTIONAL_SIZE = 0.00001f;
-static const F32 MAX_FRACTIONAL_SIZE = 1.f;
+static constexpr F32 MIN_FRACTIONAL_SIZE = 0.00001f;
+static constexpr F32 MAX_FRACTIONAL_SIZE = 1.f;
 
 static LLDefaultChildRegistry::Register<LLLayoutStack> register_layout_stack("layout_stack");
 static LLLayoutStack::LayoutStackRegistry::Register<LLLayoutPanel> register_layout_panel("layout_panel");
@@ -849,10 +849,10 @@ void LLLayoutStack::updatePanelRect( LLLayoutPanel* resized_panel, const LLRect&
     F32 delta_auto_resize_headroom = 0.f;
     F32 old_auto_resize_headroom = 0.f;
 
-    LLLayoutPanel* other_resize_panel = NULL;
-    LLLayoutPanel* following_panel = NULL;
+    LLLayoutPanel* other_resize_panel = nullptr;
+    LLLayoutPanel* following_panel = nullptr;
 
-    BOOST_REVERSE_FOREACH(LLLayoutPanel* panelp, mPanels) // Should replace this when C++20 reverse view adaptor becomes available...
+    for (auto panelp : mPanels | std::views::reverse)
     {
         if (panelp->mAutoResize)
         {
@@ -1011,7 +1011,7 @@ void LLLayoutStack::reshape(S32 width, S32 height, bool called_from_parent)
 void LLLayoutStack::updateResizeBarLimits()
 {
     LLLayoutPanel* previous_visible_panelp{ nullptr };
-    BOOST_REVERSE_FOREACH(LLLayoutPanel* visible_panelp, mPanels) // Should replace this when C++20 reverse view adaptor becomes available...
+    for (auto visible_panelp : mPanels | std::views::reverse)
     {
         if (!visible_panelp->getVisible() || visible_panelp->mCollapsed)
         {

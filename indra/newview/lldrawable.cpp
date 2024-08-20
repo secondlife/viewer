@@ -140,7 +140,7 @@ void LLDrawable::init(bool new_entry)
         llassert(!vo_entry->getGroup()); //not in the object cache octree.
     }
 
-    llassert(!vo_entry || vo_entry->getEntry() == mEntry);
+    llassert(!vo_entry || LLPointer<LLViewerOctreeEntry>(vo_entry->getEntry()) == mEntry);
 
     initVisible(sCurVisible - 2);//invisible for the current frame and the last frame.
 }
