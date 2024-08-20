@@ -18,9 +18,6 @@
 #include <iomanip>
 #include <sstream>
 #include <typeinfo>
-#if LL_WINDOWS
-#include <excpt.h>
-#endif // LL_WINDOWS
 // external library headers
 #include <boost/exception/diagnostic_information.hpp>
 #include <boost/exception/error_info.hpp>
