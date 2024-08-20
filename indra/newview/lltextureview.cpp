@@ -836,7 +836,7 @@ void LLTextureView::draw()
         for (LLViewerTextureList::image_list_t::iterator iter = gTextureList.mImageList.begin();
              iter != gTextureList.mImageList.end(); )
         {
-            LLPointer<LLViewerFetchedTexture> imagep = *iter++;
+            LLViewerFetchedTexture* imagep = *iter++;
             if(!imagep->hasFetcher())
             {
                 continue ;

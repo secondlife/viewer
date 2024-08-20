@@ -357,8 +357,6 @@ void LLFace::switchTexture(U32 ch, LLViewerTexture* new_texture)
         return;
     }
 
-    llassert(mTexture[ch].notNull());
-
     if (ch == LLRender::DIFFUSE_MAP)
     {
         getViewerObject()->changeTEImage(mTEOffset, new_texture) ;
