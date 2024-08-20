@@ -99,6 +99,16 @@
       </map>
       <key>boost</key>
       <map>
+        <key>copyright</key>
+        <string>(see individual source files)</string>
+        <key>description</key>
+        <string>Boost C++ Libraries</string>
+        <key>license</key>
+        <string>boost 1.0</string>
+        <key>license_file</key>
+        <string>LICENSES/boost.txt</string>
+        <key>name</key>
+        <string>boost</string>
         <key>platforms</key>
         <map>
           <key>darwin64</key>
@@ -106,11 +116,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e86c0dba9fe7ede25fe00a1435421bce62077dc1</string>
+              <string>6bf5f4afddf87d48c069d781b5ef2d44d6ddf2d5</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-boost/releases/download/v1.85.0-r3/boost-1.85-darwin64-10333387089.tar.zst</string>
+              <string>https://github.com/secondlife/3p-boost/releases/download/v1.86.0-e2bee1e/boost-1.86-darwin64-10475904468.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -120,11 +130,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>30e1096fede786e5553a7c65b9d55dea9555bef3</string>
+              <string>3c0ba2a87e78d76c81da95fa87579bf4964242e1</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-boost/releases/download/v1.85.0-r3/boost-1.85-linux64-10333387089.tar.zst</string>
+              <string>https://github.com/secondlife/3p-boost/releases/download/v1.86.0-e2bee1e/boost-1.86-linux64-10475904468.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -134,28 +144,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e640611a7e4b245c8900048b995e243fb68b90c9</string>
+              <string>d1dd5d629b254d1b361c5a0fa210b5f3283e8a20</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-boost/releases/download/v1.85.0-r3/boost-1.85-windows64-10333387089.tar.zst</string>
+              <string>https://github.com/secondlife/3p-boost/releases/download/v1.86.0-e2bee1e/boost-1.86-windows64-10475904468.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
-        <key>license</key>
-        <string>boost 1.0</string>
-        <key>license_file</key>
-        <string>LICENSES/boost.txt</string>
-        <key>copyright</key>
-        <string>(see individual source files)</string>
         <key>version</key>
-        <string>1.85</string>
-        <key>name</key>
-        <string>boost</string>
-        <key>description</key>
-        <string>Boost C++ Libraries</string>
+        <string>1.86</string>
       </map>
       <key>bugsplat</key>
       <map>
