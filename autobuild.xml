@@ -2796,6 +2796,16 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
       </map>
       <key>tinyexr</key>
       <map>
+        <key>copyright</key>
+        <string>Copyright (c) 2014 - 2021, Syoyo Fujita and many contributors.</string>
+        <key>description</key>
+        <string>tinyexr import library</string>
+        <key>license</key>
+        <string>3-clause BSD</string>
+        <key>license_file</key>
+        <string>LICENSES/tinyexr_license.txt</string>
+        <key>name</key>
+        <string>tinyexr</string>
         <key>platforms</key>
         <map>
           <key>common</key>
@@ -2803,36 +2813,26 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>8278a2368136cb12319ca00e7aceb2829bf3ebd8</string>
+              <string>a9649f85e20c0b83acfd7b02ca19c1dcdd15f01e</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-tinyexr/releases/download/v1.0.8-ba4bc64/tinyexr-v1.0.8-common-9373975608.tar.zst</string>
+              <string>https://github.com/secondlife/3p-tinyexr/releases/download/v1.0.9-5e8947c/tinyexr-1.0.9-5e8947c-common-10475846787.tar.zst</string>
             </map>
             <key>name</key>
             <string>common</string>
           </map>
         </map>
-        <key>license</key>
-        <string>3-clause BSD</string>
-        <key>license_file</key>
-        <string>LICENSES/tinyexr_license.txt</string>
-        <key>copyright</key>
-        <string>Copyright (c) 2014 - 2021, Syoyo Fujita and many contributors.</string>
-        <key>version</key>
-        <string>v1.0.8</string>
-        <key>name</key>
-        <string>tinyexr</string>
+        <key>source_type</key>
+        <string>git</string>
         <key>vcs_branch</key>
         <string>dependabot/github_actions/secondlife/action-autobuild-4</string>
         <key>vcs_revision</key>
         <string>4dc4d1d90d82a22843e2adf5130f9ecb5ee5769e</string>
         <key>vcs_url</key>
         <string>https://github.com/secondlife/3p-tinyexr</string>
-        <key>description</key>
-        <string>tinyexr import library</string>
-        <key>source_type</key>
-        <string>git</string>
+        <key>version</key>
+        <string>1.0.9-5e8947c</string>
       </map>
     </map>
     <key>package_description</key>
