@@ -205,6 +205,14 @@
       </map>
       <key>colladadom</key>
       <map>
+        <key>copyright</key>
+        <string>Copyright 2006 Sony Computer Entertainment Inc.</string>
+        <key>license</key>
+        <string>SCEA</string>
+        <key>license_file</key>
+        <string>LICENSES/collada.txt</string>
+        <key>name</key>
+        <string>colladadom</string>
         <key>platforms</key>
         <map>
           <key>darwin64</key>
@@ -212,11 +220,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ebe9defd8911b1e6d8783aebd692674845095630</string>
+              <string>18b46ce8ebb5ae6ef6527b4e95408433e29ad3f4</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-colladadom/releases/download/v2.3-r7/colladadom-2.3.0-r7-darwin64-10342904699.tar.zst</string>
+              <string>https://github.com/secondlife/3p-colladadom/releases/download/v2.3-r8/colladadom-2.3.0-r8-darwin64-10476582237.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -226,11 +234,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>083f93911f6b6501fdc5a5985b2e379f3b9803cd</string>
+              <string>c088fe0be9ce7e42983c3c7708abe4ac8bd5a894</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-colladadom/releases/download/v2.3-r7/colladadom-2.3.0-r7-linux64-10342904699.tar.zst</string>
+              <string>https://github.com/secondlife/3p-colladadom/releases/download/v2.3-r8/colladadom-2.3.0-r8-linux64-10476582237.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -240,26 +248,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>6ba23076b439a62bb346ebaeb1656a645bf71177</string>
+              <string>8bfa9f1a78d077f3bd422f14ae360150b98c82f9</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-colladadom/releases/download/v2.3-r7/colladadom-2.3.0-r7-windows64-10342904699.tar.zst</string>
+              <string>https://github.com/secondlife/3p-colladadom/releases/download/v2.3-r8/colladadom-2.3.0-r8-windows64-10476582237.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
-        <key>license</key>
-        <string>SCEA</string>
-        <key>license_file</key>
-        <string>LICENSES/collada.txt</string>
-        <key>copyright</key>
-        <string>Copyright 2006 Sony Computer Entertainment Inc.</string>
         <key>version</key>
-        <string>2.3.0-r7</string>
-        <key>name</key>
-        <string>colladadom</string>
+        <string>2.3.0-r8</string>
       </map>
       <key>cubemaptoequirectangular</key>
       <map>
