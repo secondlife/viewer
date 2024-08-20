@@ -38,6 +38,7 @@
 #include <algorithm>
 #include <vector>
 #include <map>
+#include <memory>
 #include "llformat.h"
 
 #if LL_LINUX
