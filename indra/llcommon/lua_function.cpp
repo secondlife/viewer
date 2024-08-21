@@ -1056,7 +1056,10 @@ LuaStackDelta::LuaStackDelta(lua_State* L, const std::string& where, int delta):
 LuaStackDelta::~LuaStackDelta()
 {
     auto depth{ lua_gettop(L) };
-    if (mDepth + mDelta != depth)
+    // If we're unwinding the stack due to an exception, then of course we
+    // can't expect the logic in the block containing this LuaStackDelta
+    // instance to keep its contract wrt the Lua data stack.
+    if (std::uncaught_exceptions() == 0 && mDepth + mDelta != depth)
     {
         LL_ERRS("Lua") << mWhere << ": Lua stack went from " << mDepth << " to " << depth;
         if (mDelta)
