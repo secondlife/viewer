@@ -1409,7 +1409,6 @@ class Linux_x86_64_Manifest(LinuxManifest):
         with self.prefix(src=relpkgdir, dst="lib"):
             self.path("libapr-1.so*")
             self.path("libaprutil-1.so*")
-            self.path("libexpat.so.*")
             self.path_optional("libSDL*.so.*")
 
             self.path_optional("libjemalloc*.so")
