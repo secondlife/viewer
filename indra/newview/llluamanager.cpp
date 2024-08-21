@@ -53,10 +53,11 @@ std::map<std::string, std::string> LLLUAmanager::sScriptNames;
 
 lua_function(sleep, "sleep(seconds): pause the running coroutine")
 {
+    lua_checkdelta(L, -1);
     F32 seconds = lua_tonumber(L, -1);
     lua_pop(L, 1);
     llcoro::suspendUntilTimeout(seconds);
-    lluau::set_interrupts_counter(L, 0);
+    LuaState::getParent(L).set_interrupts_counter(0);
     return 0;
 };
 
@@ -66,7 +67,7 @@ std::string lua_print_msg(lua_State* L, const std::string_view& level)
 {
     // On top of existing Lua arguments, we're going to push tostring() and
     // duplicate each existing stack entry so we can stringize each one.
-    luaL_checkstack(L, 2, nullptr);
+    lluau_checkstack(L, 2);
     luaL_where(L, 1);
     // start with the 'where' info at the top of the stack
     std::ostringstream out;
@@ -125,6 +126,7 @@ lua_function(print_warning, "print_warning(args...): WARNING level logging")
 
 lua_function(post_on, "post_on(pumpname, data): post specified data to specified LLEventPump")
 {
+    lua_checkdelta(L, -2);
     std::string pumpname{ lua_tostdstring(L, 1) };
     LLSD data{ lua_tollsd(L, 2) };
     lua_pop(L, 2);
@@ -139,7 +141,8 @@ lua_function(get_event_pumps,
              "Events posted to replypump are queued for get_event_next().\n"
              "post_on(commandpump, ...) to engage LLEventAPI operations (see helpleap()).")
 {
-    luaL_checkstack(L, 2, nullptr);
+    lua_checkdelta(L, 2);
+    lluau_checkstack(L, 2);
     auto& listener{ LuaState::obtainListener(L) };
     // return the reply pump name and the command pump name on caller's lua_State
     lua_pushstdstring(L, listener.getReplyName());
@@ -153,12 +156,13 @@ lua_function(get_event_next,
              "is returned by get_event_pumps(). Blocks the calling chunk until an\n"
              "event becomes available.")
 {
-    luaL_checkstack(L, 2, nullptr);
+    lua_checkdelta(L, 2);
+    lluau_checkstack(L, 2);
     auto& listener{ LuaState::obtainListener(L) };
     const auto& [pump, data]{ listener.getNext() };
     lua_pushstdstring(L, pump);
     lua_pushllsd(L, data);
-    lluau::set_interrupts_counter(L, 0);
+    LuaState::getParent(L).set_interrupts_counter(0);
     return 2;
 }
 
@@ -271,6 +275,7 @@ std::string read_file(const std::string &name)
 
 lua_function(require, "require(module_name) : load module_name.lua from known places")
 {
+    lua_checkdelta(L);
     std::string name = lua_tostdstring(L, 1);
     lua_pop(L, 1);
 
