@@ -32,7 +32,6 @@
 #include "llpointer.h"
 #include "llrefcount.h"
 #include "boost/function.hpp"
-#include "boost/shared_ptr.hpp"
 #include <string>
 
 class LLSD;

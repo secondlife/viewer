@@ -43,7 +43,6 @@
 #include "stringize.h"
 #include <typeinfo>
 #include <map>
-#include <boost/scoped_ptr.hpp>
 #include <boost/bind.hpp>
 
 LLWindowListener::LLWindowListener(LLViewerWindow *window, const KeyboardGetter& kbgetter)

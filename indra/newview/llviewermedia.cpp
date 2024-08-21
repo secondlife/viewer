@@ -1755,9 +1755,7 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
             bool javascript_enabled = gSavedSettings.getBOOL("BrowserJavascriptEnabled");
             media_source->setJavascriptEnabled(javascript_enabled || clean_browser);
 
-            // collect 'web security disabled' (see Chrome --web-security-disabled) setting from prefs and send to embedded browser
-            bool web_security_disabled = gSavedSettings.getBOOL("BrowserWebSecurityDisabled");
-            media_source->setWebSecurityDisabled(web_security_disabled || clean_browser);
+            media_source->setWebSecurityDisabled(clean_browser);
 
             // collect setting indicates if local file access from file URLs is allowed from prefs and send to embedded browser
             bool file_access_from_file_urls = gSavedSettings.getBOOL("BrowserFileAccessFromFileUrls");

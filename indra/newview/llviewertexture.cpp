@@ -497,11 +497,10 @@ void LLViewerTexture::updateClass()
 
     F64 texture_bytes_alloc = LLImageGL::getTextureBytesAllocated() / 1024.0 / 512.0;
     F64 vertex_bytes_alloc = LLVertexBuffer::getBytesAllocated() / 1024.0 / 512.0;
-    F64 render_bytes_alloc = LLRenderTarget::sBytesAllocated / 1024.0 / 512.0;
 
     // get an estimate of how much video memory we're using
     // NOTE: our metrics miss about half the vram we use, so this biases high but turns out to typically be within 5% of the real number
-    F32 used = (F32)ll_round(texture_bytes_alloc + vertex_bytes_alloc + render_bytes_alloc);
+    F32 used = (F32)ll_round(texture_bytes_alloc + vertex_bytes_alloc);
 
     F32 budget = max_vram_budget == 0 ? (F32)gGLManager.mVRAM : (F32)max_vram_budget;
 
@@ -846,7 +845,7 @@ S32 LLViewerTexture::getTotalNumFaces() const
 S32 LLViewerTexture::getNumFaces(U32 ch) const
 {
     llassert(ch < LLRender::NUM_TEXTURE_CHANNELS);
-    return mNumFaces[ch];
+    return ch < LLRender::NUM_TEXTURE_CHANNELS ? mNumFaces[ch] : 0;
 }
 
 
@@ -1083,8 +1082,6 @@ void LLViewerFetchedTexture::init(bool firstinit)
     mKeptSavedRawImageTime = 0.f;
     mLastCallBackActiveTime = 0.f;
     mForceCallbackFetch = false;
-    mInDebug = false;
-    mUnremovable = false;
 
     mFTType = FTT_UNKNOWN;
 }
@@ -1234,32 +1231,6 @@ bool LLViewerFetchedTexture::isDeleted()
     return mTextureState == DELETED;
 }
 
-bool LLViewerFetchedTexture::isInactive()
-{
-    return mTextureState == INACTIVE;
-}
-
-bool LLViewerFetchedTexture::isDeletionCandidate()
-{
-    return mTextureState == DELETION_CANDIDATE;
-}
-
-void LLViewerFetchedTexture::setDeletionCandidate()
-{
-    if(mGLTexturep.notNull() && mGLTexturep->getTexName() && (mTextureState == INACTIVE))
-    {
-        mTextureState = DELETION_CANDIDATE;
-    }
-}
-
-//set the texture inactive
-void LLViewerFetchedTexture::setInactive()
-{
-    if(mTextureState == ACTIVE && mGLTexturep.notNull() && mGLTexturep->getTexName() && !mGLTexturep->getBoundRecently())
-    {
-        mTextureState = INACTIVE;
-    }
-}
 
 bool LLViewerFetchedTexture::isFullyLoaded() const
 {
@@ -1776,20 +1747,6 @@ S32 LLViewerFetchedTexture::getCurrentDiscardLevelForFetching()
     }
 
     return current_discard;
-}
-
-bool LLViewerFetchedTexture::setDebugFetching(S32 debug_level)
-{
-    if(debug_level < 0)
-    {
-        mInDebug = false;
-        return false;
-    }
-    mInDebug = true;
-
-    mDesiredDiscardLevel = debug_level;
-
-    return true;
 }
 
 bool LLViewerFetchedTexture::isActiveFetching()

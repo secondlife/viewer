@@ -122,8 +122,6 @@ public:
     LLViewerFetchedTexture *findImage(const LLUUID &image_id, ETexListType tex_type);
     LLViewerFetchedTexture *findImage(const LLTextureKey &search_key);
 
-    void dirtyImage(LLViewerFetchedTexture *image);
-
     // Using image stats, determine what images are necessary, and perform image updates.
     void updateImages(F32 max_time);
     void forceImmediateUpdate(LLViewerFetchedTexture* imagep) ;
@@ -142,7 +140,6 @@ public:
     void doPrefetchImages();
 
     void clearFetchingRequests();
-    void setDebugFetching(LLViewerFetchedTexture* tex, S32 debug_level);
 
     // do some book keeping on the specified texture
     // - updates decode priority
@@ -222,9 +219,6 @@ public:
 
     image_list_t mCallbackList;
     image_list_t mFastCacheList;
-
-    // Note: just raw pointers because they are never referenced, just compared against
-    std::set<LLViewerFetchedTexture*> mDirtyTextureList;
 
     bool mForceResetTextureStats;
 

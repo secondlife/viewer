@@ -85,8 +85,6 @@
 
 #include "llenvironment.h"
 
-#include <boost/shared_ptr.hpp>
-
 void copy_slurl_to_clipboard_callback_inv(const std::string& slurl);
 
 const F32 SOUND_GAIN = 1.0f;

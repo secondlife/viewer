@@ -30,8 +30,6 @@
 #include <string>
 #include <map>
 
-#include <boost/shared_ptr.hpp>
-
 #include "llpathfindingobject.h"
 
 class LLPathfindingObjectList;

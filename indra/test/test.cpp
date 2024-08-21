@@ -56,10 +56,6 @@
 
 #include <boost/iostreams/tee.hpp>
 #include <boost/iostreams/stream.hpp>
-#include <boost/scoped_ptr.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/make_shared.hpp>
-#include <boost/foreach.hpp>
 
 #include <fstream>
 

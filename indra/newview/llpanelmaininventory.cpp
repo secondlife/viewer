@@ -239,11 +239,6 @@ bool LLPanelMainInventory::postBuild()
         }
 
     }
-    mParentSidepanel = getParentSidepanelInventory();
-    if (mParentSidepanel)
-    {
-        mInboxPanel = mParentSidepanel->getChild<LLPanelMarketplaceInbox>("marketplace_inbox");
-    }
 
     mFilterEditor = getChild<LLFilterEditor>("inventory search editor");
     if (mFilterEditor)
