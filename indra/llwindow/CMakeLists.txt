@@ -58,6 +58,7 @@ set(llwindow_LINK_LIBRARIES
         ll::glext
         ll::uilibraries
         ll::SDL
+        ll::zlib-ng
         )
 
 # Libraries on which this library depends, needed for Linux builds
