@@ -44,16 +44,16 @@ public:
     LLBakingTexture(const LLUUID& id, const LLImageRaw* raw);
     LLBakingTexture(bool usemipmaps);
     LLBakingTexture(const U32 width, const U32 height, const U8 components, bool usemipmaps = TRUE);
-    /*virtual*/ const LLUUID& getID() const { return mID; }
+    const LLUUID& getID() const override { return mID; }
     virtual S8 getType() const { return BAKING_TEXTURE; }
 
     // Not implemented.
-    /*virtual*/ void setKnownDrawSize(S32 width, S32 height);
-    /*virtual*/ bool bindDefaultImage(const S32 stage = 0) ;
-    /*virtual*/ void forceImmediateUpdate();
-    /*virtual*/ void updateBindStatsForTester() ;
-    /*virtual*/ bool bindDebugImage(const S32 stage = 0) { return false; }
-    /*virtual*/ bool isActiveFetching() { return false; }
+    void setKnownDrawSize(S32 width, S32 height) override;
+    bool bindDefaultImage(const S32 stage = 0) override ;
+    void forceImmediateUpdate() override;
+    void updateBindStatsForTester() override ;
+    bool bindDebugImage(const S32 stage = 0) override { return false; }
+    bool isActiveFetching() override { return false; }
 
 protected:
     virtual ~LLBakingTexture();

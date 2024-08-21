@@ -66,43 +66,41 @@ public:
     // LLCharacter interface
     //--------------------------------------------------------------------
 public:
-    /*virtual*/ LLVector3       getCharacterPosition();
-    /*virtual*/ LLQuaternion    getCharacterRotation();
-    /*virtual*/ LLVector3       getCharacterVelocity();
-    /*virtual*/ LLVector3       getCharacterAngularVelocity();
+    LLVector3       getCharacterPosition() override;
+    LLQuaternion    getCharacterRotation() override;
+    LLVector3       getCharacterVelocity() override;
+    LLVector3       getCharacterAngularVelocity() override;
 
-    /*virtual*/ const LLUUID&   getID() const;
-    /*virtual*/ void            addDebugText(const std::string& text);
-    /*virtual*/ F32             getTimeDilation();
-    /*virtual*/ void            getGround(const LLVector3 &inPos, LLVector3 &outPos, LLVector3 &outNorm);
-    /*virtual*/ F32             getPixelArea() const;
-    /*virtual*/ LLVector3d      getPosGlobalFromAgent(const LLVector3 &position);
-    /*virtual*/ LLVector3       getPosAgentFromGlobal(const LLVector3d &position);
+    const LLUUID&   getID() const override;
+    void            addDebugText(const std::string& text) override;
+    F32             getTimeDilation() override;
+    void            getGround(const LLVector3 &inPos, LLVector3 &outPos, LLVector3 &outNorm) override;
+    F32             getPixelArea() const override;
+    LLVector3d      getPosGlobalFromAgent(const LLVector3 &position) override;
+    LLVector3       getPosAgentFromGlobal(const LLVector3d &position) override;
 
     //--------------------------------------------------------------------
     // LLAvatarAppearance interface
     //--------------------------------------------------------------------
 public:
-    /*virtual*/ void    bodySizeChanged();
-    /*virtual*/ void    applyMorphMask(const U8* tex_data, S32 width, S32 height, S32 num_components,
-                            LLAvatarAppearanceDefines::EBakedTextureIndex index);
-    /*virtual*/ void    invalidateComposite(LLTexLayerSet* layerset);
-    /*virtual*/ void    updateMeshTextures();
-    /*virtual*/ void    dirtyMesh(); // Dirty the avatar mesh
-    /*virtual*/ void    onGlobalColorChanged(const LLTexGlobalColor* global_color);
-    /*virtual*/ bool    isTextureDefined(LLAvatarAppearanceDefines::ETextureIndex type, U32 index = 0) const;
-    /*virtual*/ bool    isUsingLocalAppearance() const { return FALSE; }
-    /*virtual*/ bool    isUsingServerBakes() const { return FALSE; }
-    /*virtual*/ bool    isEditingAppearance() const { return FALSE; }
+    void    applyMorphMask(const U8* tex_data, S32 width, S32 height, S32 num_components,
+                            LLAvatarAppearanceDefines::EBakedTextureIndex index) override;
+    void    invalidateComposite(LLTexLayerSet* layerset) override;
+    void    updateMeshTextures() override;
+    void    dirtyMesh() override; // Dirty the avatar mesh
+    void    onGlobalColorChanged(const LLTexGlobalColor* global_color) override;
+    bool    isTextureDefined(LLAvatarAppearanceDefines::ETextureIndex type, U32 index = 0) const override;
+    bool    isUsingLocalAppearance() const override { return FALSE; }
+    bool    isEditingAppearance() const override { return FALSE; }
 private:
-    /*virtual*/ void    dirtyMesh(S32 priority); // Dirty the avatar mesh, with priority
+    void    dirtyMesh(S32 priority) override; // Dirty the avatar mesh, with priority
 
     // LLAvatarAppearance instance factories:
 protected:
-    /*virtual*/ LLAvatarJoint*  createAvatarJoint();
-    /*virtual*/ LLAvatarJoint*  createAvatarJoint(S32 joint_num);
-    /*virtual*/ LLAvatarJointMesh*  createAvatarJointMesh();
-    /*virtual*/ LLTexLayerSet*  createTexLayerSet();
+    LLAvatarJoint*  createAvatarJoint() override;
+    LLAvatarJoint*  createAvatarJoint(S32 joint_num) override;
+    LLAvatarJointMesh*  createAvatarJointMesh() override;
+    LLTexLayerSet*  createTexLayerSet() override;
 
 
 /**                    Inherited
@@ -114,9 +112,8 @@ protected:
  **                    STATE
  **/
 public:
-    /*virtual*/ bool    isSelf() const { return true; }
-    /*virtual*/ bool    isValid() const { return TRUE; }
-    /*virtual*/ bool    isUsingBakedTextures() const { return TRUE; }
+    bool    isSelf() const override { return true; }
+    bool    isValid() const override { return TRUE; }
 
 /**                    State
  **                                                                            **
