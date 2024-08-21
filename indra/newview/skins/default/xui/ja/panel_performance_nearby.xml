@@ -14,16 +14,19 @@
 	<text name="RenderAvatarMaxARTText">
 		制限なし
 	</text>
+	<text name="AvatarComplexityModeLabel">
+		アバターの表示：
+	</text>
 	<name_list name="nearby_list">
-		<name_list.columns label="" name="complex_visual"/>
-		<name_list.columns label="" name="complex_value"/>
-		<name_list.columns label="" name="name"/>
+		<combo_box.item label="複雑度で制限" name="0" value="0"/>
+		<combo_box.item label="フレンドは常に描画" name="1" value="1"/>
+		<combo_box.item label="フレンドのみ描画" name="2" value="2"/>
 	</name_list>
 	<text name="av_nearby_desc2">
 		インワールド内のアバターを右クリックして表示を制御することもできます。
 	</text>
-	<button label="例外…" name="exceptions_btn"/>
-	<check_box label="フレンドは常に詳細表示する" name="display_friends"/>
+	<button label="例外…" name="exceptions_btn">
+	</button>
 	<view_border name="border"/>
 	<check_box label="アバターを完全に非表示にする（風景写真に適しています）" name="hide_avatars"/>
 	<text name="name_tags_textbox">

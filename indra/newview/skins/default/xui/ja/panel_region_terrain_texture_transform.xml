@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="地形" name="Terrain">
+	<text name="region_text_lbl">
+		リージョン：
+	</text>
+	<text name="region_text">
+		不明
+	</text>
+	<text name="detail_texture_text">
+		地形のテクスチャ
+	</text>
+	<text name="detail_material_text">
+		地形のマテリアル
+	</text>
+	<check_box label="ＰＢＲメタリック粗さ" name="terrain_material_type" tool_tip="チェックされている場合、地形にＰＢＲメタリック粗さマテリアルを使用します。チェックされていない場合は、テクスチャを使用します。"/>
+	<texture_picker name="texture_detail_0"/>
+	<texture_picker name="texture_detail_1"/>
+	<texture_picker name="texture_detail_2"/>
+	<texture_picker name="texture_detail_3"/>
+	<texture_picker name="material_detail_0"/>
+	<texture_picker name="material_detail_1"/>
+	<texture_picker name="material_detail_2"/>
+	<texture_picker name="material_detail_3"/>
+	<text name="height_text_lbl">
+		１（最低）
+	</text>
+	<text name="height_text_lbl2">
+		２
+	</text>
+	<text name="height_text_lbl3">
+		３
+	</text>
+	<text name="height_text_lbl4">
+		４（最高）
+	</text>
+	<layout_stack name="terrain_features_stack">
+		<layout_panel name="frame_settings_terrain">
+			<tab_container name="terrain_tabs">
+				<panel label="標高" name="terrain_elevation_panel"/>
+				<panel label="変形" name="terrain_transform_panel"/>
+			</tab_container>
+		</layout_panel>
+	</layout_stack>
+	<button label="適用" name="apply_btn"/>
+</panel>

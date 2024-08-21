@@ -38,8 +38,7 @@
 		</layout_panel>
 		<layout_panel name="layout_panel_required">
 			<text name="required_label">
-				必要最低金額
-			</text>
+				必要最低金額</text>
 			<text name="required_amount">
 				L$ [AMT]
 			</text>
@@ -78,14 +77,14 @@
 			</text>
 			<text name="purchase_warning_repurchase">
 				L$ を受け取ったら、
-もう一度購入してください。
+				もう一度購入してください。
 			</text>
 		</layout_panel>
 		<layout_panel name="layout_panel_buttons">
 			<text name="contacting">
 				LindeXに接続しています…
 			</text>
-			<button label="今すぐL$を購入" name="buy_btn"/>
+			<button label="今すぐL$を購入" name="buy_btn" left="141" width="100"/>
 			<button label="キャンセル" name="cancel_btn"/>
 		</layout_panel>
 	</layout_stack>

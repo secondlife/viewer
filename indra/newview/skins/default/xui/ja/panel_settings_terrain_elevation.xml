@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="標高" name="panel_settings_terrain_elevation">
+	<spinner label="水面の高さ" name="water_height_spin"/>
+	<spinner label="地形の最大標高" name="terrain_raise_spin"/>
+	<spinner label="地形の最低標高" name="terrain_lower_spin"/>
+	<view_border/>
+	<text name="height_text_lbl5">
+		テクスチャの標高範囲
+	</text>
+	<text name="height_text_lbl5_material">
+		マテリアルの標高範囲
+	</text>
+	<text name="height_text_lbl10">
+		これらの値は、上記のテクスチャのブレンド範囲を表します。
+	</text>
+	<text name="height_text_lbl10_material">
+		これらの値は、上記のマテリアルのブレンド範囲を表します。
+	</text>
+	<text name="height_text_lbl11">
+		メートル単位で測定すると、最低の値はテクスチャ＃１の最大の高さ、最高の値はテクスチャ＃４の最小の高さになります。
+	</text>
+	<text name="height_text_lbl11_material">
+		メートル単位で測定すると、最低の値はマテリアル＃１の最大の高さ、最高の値はマテリアル＃４の最小の高さになります。
+	</text>
+	<text name="height_text_lbl6">
+		北東
+	</text>
+	<text name="height_text_lbl7">
+		北東
+	</text>
+	<!--  northwest low-->
+	<spinner label="最低" name="height_start_spin_1"/>
+	<!--    northeast low-->
+	<spinner label="最低" name="height_start_spin_3"/>
+	<!--  northwest high-->
+	<spinner label="最高" name="height_range_spin_1"/>
+	<!--  northeast high-->
+	<spinner label="最高" name="height_range_spin_3"/>
+	<text name="height_text_lbl8">
+		南西
+	</text>
+	<text name="height_text_lbl9">
+		南西
+	</text>
+	<!--  southwest low-->
+	<spinner label="最低" name="height_start_spin_0"/>
+	<!--  southeast low-->
+	<spinner label="最低" name="height_start_spin_2"/>
+	<!--southwest high-->
+	<spinner label="最高" name="height_range_spin_0"/>
+	<!--  southeast high-->
+	<spinner label="最高" name="height_range_spin_2"/>
+	<!-- Terrain Download/Upload/Bake buttons -->
+	<button label="ＲＡＷ地形のダウンロード…" name="download_raw_btn" tool_tip="不動産所有者のみが利用可能であり、マネージャーは利用できません。"/>
+	<button label="ＲＡＷ地形のアップロード…" name="upload_raw_btn" tool_tip="不動産所有者のみが利用可能であり、マネージャーは利用できません。"/>
+	<button label="地形のベイク" name="bake_terrain_btn" tool_tip="現在の地形を上限／下限の中間点として設定します。"/>
+</panel>

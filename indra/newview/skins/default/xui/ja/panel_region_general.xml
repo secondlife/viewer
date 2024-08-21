@@ -41,4 +41,5 @@
 	<button label="住人全員をホームにテレポート…" name="kick_all_btn"/>
 	<button label="メッセージをリージョンに送信…" name="im_btn"/>
 	<button label="テレハブの管理…" name="manage_telehub_btn"/>
+	<button label="再起動スケジュールを管理…" name="manage_restart_btn"/>
 </panel>

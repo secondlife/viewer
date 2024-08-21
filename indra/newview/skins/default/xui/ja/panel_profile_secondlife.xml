@@ -1,13 +1,18 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_profile" label="プロフィール">
-	<string name="date_format_full" value="ＳＬの誕生日：[year,datetime,utc]年[mth,datetime,utc]月[day,datetime,utc]日"/>
-	<string name="date_format_short" value="ＳＬの誕生日：[mth,datetime,utc]月[day,datetime,utc]日" />
+	<!--
+	Date from server comes already converted to stl timezone,
+	so display it as an UTC+0
+	-->
+	<string name="date_format_full" value="ＳＬ誕生日：[year,datetime,utc]年[mth,datetime,utc]月[day,datetime,utc]日"/>
+	<string name="date_format_short" value="ＳＬ誕生日：[mth,datetime,utc]月[day,datetime,utc]日"/>
 	<string name="age_format" value="[AGE]経過"/>
 	<string name="partner_text" value="パートナー：[LINK]"/>
 	<string name="CaptionTextAcctInfo">
 		アカウント：[ACCTTYPE]
 [PAYMENTINFO]
 	</string>
+	<!--Badges-->
 	<string name="BadgeBeta" value="オリジナルβテスター"/>
 	<string name="BadgeBetaLifetime" value="β会員"/>
 	<string name="BadgeLifetime" value="会員"/>
@@ -49,18 +54,19 @@
 		<layout_panel name="indicator_stack">
 			<loading_indicator name="progress_indicator"/>
 		</layout_panel>
-		<layout_panel name="menu_panel">
-			<menu_button label="操作" name="agent_actions_menu"/>
-		</layout_panel>
 		<layout_panel name="settings_panel">
+			<!-- only for self -->
 			<combo_box name="show_in_search" tool_tip="検索結果から、あなたを見つけてもらいましょう。">
-				<combo_box.item name="Hide" label="検索結果に表示しない" value="0"/>
-				<combo_box.item name="Show" label="検索結果に表示する" value="1"/>
+				<combo_box.item name="Hide" label="表示しない" value="0"/>
+				<combo_box.item name="Show" label="表示する" value="1"/>
 			</combo_box>
-			<combo_box name="hide_age" tool_tip="あなたのＳＬ年齢を見てもらいましょう。">
-				<combo_box.item name="Show" label="ＳＬの誕生日と年を表示" value="0"/>
-				<combo_box.item name="Hide" label="月日のみを表示" value="1"/>
+			<combo_box name="hide_age" tool_tip="他の人から、あなたのＳＬ年齢をどのように表示するかを決めましょう。">
+				<combo_box.item name="Show" label="ＳＬ誕生日と年齢を表示" value="0"/>
+				<combo_box.item name="Hide" label="月日のみ" value="1"/>
 			</combo_box>
+		</layout_panel>
+		<layout_panel name="menu_panel">
+			<menu_button label="アクション" name="agent_actions_menu"/>
 		</layout_panel>
 	</layout_stack>
 	<layout_stack name="main_stack">

@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="worldmap" title="ワールドマップ">
+	<string name="UnnamedParcel">
+		（名前のない区画）
+	</string>
 	<string name="collapse_icon" value="map_ui_collapse_icon.png"/>
 	<string name="expand_icon" value="map_ui_expand_icon.png"/>
 	<string name="collapse_tooltip" value="マップ操作パネルを隠します。"/>

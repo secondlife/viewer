@@ -64,6 +64,39 @@
 	<menu_item_call label="自分のみに反映" name="Settings Apply Local"/>
 	<menu_item_call label="区画に反映" name="Settings Apply Parcel"/>
 	<menu_item_separator name="Subfolder Separator"/>
+	<menu label="新規作成" name="create_new">
+		<menu_item_call label="新しいフォルダ" name="New Folder"/>
+		<menu_item_call label="新しいスクリプト" name="New Script"/>
+		<menu_item_call label="新しいノートカード" name="New Note"/>
+		<menu_item_call label="新しいジェスチャー" name="New Gesture"/>
+		<menu_item_call label="新しいマテリアル" name="New Material"/>
+		<menu label="新しい服装" name="New Clothes">
+			<menu_item_call label="新しいシャツ" name="New Shirt"/>
+			<menu_item_call label="新しいズボン" name="New Pants"/>
+			<menu_item_call label="新しい靴" name="New Shoes"/>
+			<menu_item_call label="新しい靴下" name="New Socks"/>
+			<menu_item_call label="新しいジャケット" name="New Jacket"/>
+			<menu_item_call label="新しいスカート" name="New Skirt"/>
+			<menu_item_call label="新しい手袋" name="New Gloves"/>
+			<menu_item_call label="新しい下着（上半身）" name="New Undershirt"/>
+			<menu_item_call label="新しい下着（下半身）" name="New Underpants"/>
+			<menu_item_call label="新しいアルファ" name="New Alpha Mask"/>
+			<menu_item_call label="新しいタトゥ" name="New Tattoo"/>
+			<menu_item_call label="新しいユニバーサル" name="New Universal"/>
+			<menu_item_call label="新しい物理作用" name="New Physics"/>
+		</menu>
+		<menu label="新しい身体部位" name="New Body Parts">
+			<menu_item_call label="新しいシェイプ（体型）" name="New Shape"/>
+			<menu_item_call label="新しいスキン" name="New Skin"/>
+			<menu_item_call label="新しい髪" name="New Hair"/>
+			<menu_item_call label="新しい目" name="New Eyes"/>
+		</menu>
+		<menu label="新しい自然環境の設定" name="New Settings">
+			<menu_item_call label="新しい空" name="New Sky"/>
+			<menu_item_call label="新しい水面" name="New Water"/>
+			<menu_item_call label="新しいデイサイクル" name="New Day Cycle"/>
+		</menu>
+	</menu>
 	<menu_item_call label="新しいフォルダを選択から作成" name="New folder from selected"/>
 	<menu_item_call label="フォルダのアイテムのグループ解除" name="Ungroup folder items"/>
 	<menu label="デフォルトのアップロード先" name="upload_def">

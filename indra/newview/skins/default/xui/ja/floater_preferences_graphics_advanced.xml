@@ -8,7 +8,8 @@
 		ｍ
 	</text>
 	<slider label="最大パーティクル数：" name="MaxParticleCount"/>
-	<slider label="ポストプロセス品質：" name="RenderPostProcess"/>
+	<slider label="ポストプロセスの品質：" name="RenderPostProcess"/>
+	<slider label="近くの最大光源数：" name="MaxLights"/>
 	<text name="PostProcessText">
 		低
 	</text>
@@ -16,6 +17,14 @@
 	<text name="AvatarText">
 		アバター
 	</text>
+	<text name="AvatarComplexityModeLabel">
+		アバターの表示：
+	</text>
+	<combo_box name="AvatarComplexityMode">
+		<combo_box.item label="複雑度で制限" name="0" value="0"/>
+		<combo_box.item label="フレンドは常に描画" name="1" value="1"/>
+		<combo_box.item label="フレンドのみ描画" name="2" value="2"/>
+	</combo_box>
 	<slider tool_tip="複雑なアバターがどの時点でJellyDollとして描画されるかを制御します。" label="最大複雑度：" name="IndirectMaxComplexity"/>
 	<text name="IndirectMaxComplexityText">
 		0
@@ -45,9 +54,11 @@
 		<combo_box.item label="無効" name="FSAADisabled" value="0"/>
 		<combo_box.item label="ＦＸＡＡ" name="FXAA" value="2"/>
 	</combo_box>
-	<text name="MeshText">
-		メッシュ
+	<text name="antialiasing restart">
+		（再起動後に反映）
 	</text>
+	<view_border name="vert_border"/>
+	<text name="MeshText">メッシュ</text>
 	<slider label="地形のメッシュの詳細：" name="TerrainMeshDetail"/>
 	<text name="TerrainMeshDetailText">
 		低
@@ -64,10 +75,6 @@
 	<text name="FlexibleMeshDetailText">
 		低
 	</text>
-	<text name="antialiasing restart">
-		（再起動後に反映）
-	</text>
-	<view_border name="vert_border"/>
 	<text name="ShadersText">
 		シェーダー
 	</text>
@@ -86,7 +93,7 @@
 		<combo_box.item label="太陽／月" name="1"/>
 		<combo_box.item label="太陽／月＋プロジェクタ" name="2"/>
 	</combo_box>
-	<check_box label="スクリーンスペースの反射" name="ScreenSpaceReflections"/>
+	<check_box label="スクリーンスペースリフレクション" name="ScreenSpaceReflections"/>
 	<text name="ReflectionDetailText">
 		反射の詳細：
 	</text>
@@ -119,11 +126,11 @@
 		ミラーの更新頻度：
 	</text>
 	<combo_box name="HeroProbeUpdateRate">
-		<combo_box.item label="毎フレーム" name="0" value="1"/>
-		<combo_box.item label="毎２フレーム" name="1" value="2"/>
-		<combo_box.item label="毎３フレーム" name="2" value="3"/>
-		<combo_box.item label="毎４フレーム" name="3" value="4"/>
-	</combo_box>	
+		<combo_box.item label="低" name="6" value="6"/>
+		<combo_box.item label="中" name="3" value="3"/>
+		<combo_box.item label="高" name="1" value="2"/>
+		<combo_box.item label="ウルトラ" name="0" value="1"/>
+	</combo_box>
 	<view_border name="horiz_border"/>
 	<button label="推奨設定値にリセット" name="Defaults"/>
 	<button label="ＯＫ" label_selected="ＯＫ" name="OK"/>

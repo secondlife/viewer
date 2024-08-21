@@ -35,23 +35,29 @@
 	<icon name="HighUltraGraphicsDivet"/>
 	<icon name="UltraGraphicsDivet"/>
 	<slider name="QualityPerformanceSelection"/>
+	<!-- This block shows Basic Settings -->
 	<slider control_name="RenderFarClip" label="描画距離：" name="DrawDistance"/>
 	<text name="DrawDistanceMeterText2">
 		ｍ
 	</text>
-	<button label="自動調整" name="AutoAdjustmentsButton"/>
+	<button label="自動調整設定" name="AutoAdjustmentsButton"/>
+	<text name="AvatarComplexityModeLabel">
+		アバターの描画設定：
+	</text>
+	<combo_box name="AvatarComplexityMode">
+		<combo_box.item label="複雑度で制限" name="0" value="0"/>
+		<combo_box.item label="常にフレンドを描画" name="1" value="1"/>
+		<combo_box.item label="フレンドのみ描画" name="2" value="2"/>
+	</combo_box>
 	<slider label="アバターの最大複雑度：" name="IndirectMaxComplexity" tool_tip="どの程度の複雑度で他のアバターをJellyDollとして描画するを設定します。"/>
 	<text name="IndirectMaxComplexityText">
 		0
 	</text>
-	<text name="IndirectMaxComplexityLink">
-		[https://community.secondlife.com/t5/Featured-News/Why-are-all-these-people-made-of-colored-jelly/ba-p/3031255 これはなんですか？]
-	</text>
-	<check_box label="フレンドは常に描画" name="AlwaysRenderFriends"/>
 	<button label="例外…" name="RenderExceptionsButton"/>
 	<slider label="ブライトネス（露光）:" name="RenderExposure"/>
+	<!-- End of Basic Settings block -->
 	<button label="設定をプリセットとして保存…" name="PrefSaveButton"/>
-	<button label="プリセットを読み込む…" name="PrefLoadButton"/>
+	<button label="プリセットを読み込む…" name="PrefLoadButton" width="140"/>
 	<button label="プリセットを削除…" name="PrefDeleteButton"/>
 	<button label="推奨設定にリセット" name="Defaults"/>
 	<button label="高度な設定…" name="AdvancedSettings"/>

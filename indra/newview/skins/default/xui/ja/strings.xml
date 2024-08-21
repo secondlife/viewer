@@ -93,15 +93,19 @@ LibVLCバージョン：[LIBVLC_VERSION]
 	<string name="BuildConfiguration">
 		ビルド構成
 	</string>
+	<!--  progress -->
 	<string name="ProgressRestoring">
 		修復しています…
 	</string>
 	<string name="ProgressChangingResolution">
 		解像度を変更しています…
 	</string>
+	<!-- Legacy strings, almost never used -->
 	<string name="Fullbright">
 		明るさ全開（レガシー）
 	</string>
+	<!-- used in the Build > materials dropdown-->
+	<!-- Login -->
 	<string name="LoginInProgress">
 		ログインしています。[APP_NAME]の表示がフリーズする場合があります。しばらくお待ちください。
 	</string>
@@ -249,23 +253,24 @@ https://secondlife.com/viewer-access-faq
 	</string>
 	<string name="LoginFailedEmployeesOnly">
 		Second Lifeは、メンテナンス中につき一時的にご利用いただけません。
-従業員以外にはログインをご遠慮いただいています。
+従業員以外、ログインをご遠慮いただいています。
 最新の状況については www.secondlife.com/status でお確かめください。
 	</string>
 	<string name="LoginFailedPremiumOnly">
-		既にログインしているユーザーに最上のインワールド体験を提供するため、Second Lifeへのログインは一時的に制限されています。
-申し訳ございませんが、有料アカウントのユーザーを優先するため、現在のところ無料アカウントのユーザーには Second Lifeへのアクセスをご遠慮いただいています。
+		Second Lifeへのログインは、インワールドの人々が可能な限り最高の体験をできるようにするため、一時的に制限されています。
 	</string>
 	<string name="LoginFailedComputerProhibited">
 		このコンピュータからSecond Lifeにアクセスできません。
 エラーと思われる場合は、サポートまでご連絡ください。
 	</string>
 	<string name="LoginFailedAcountSuspended">
-		あなたのアカウントは、太平洋時間の[TIME]までご利用いただけません。
+		あなたのアカウントは、下記時間までアクセスできません：
+[TIME]
+エラーと思われる場合は、[CURRENT_GRID]のサポートにお問い合わせください。
 	</string>
 	<string name="LoginFailedAccountDisabled">
 		現在リクエストを完了することができません。
-Second Life のサポート（ https://support.secondlife.com/ ）にお問い合わせください。
+Second Lifeのサポート（ https://support.secondlife.com/ ）にお問い合わせください。
 	</string>
 	<string name="LoginFailedTransformError">
 		ログイン時にデータの不一致が見つかりました。
@@ -624,8 +629,8 @@ support@secondlife.com にお問い合わせください。
 		このタイプのアイテムは、このリージョンのノートカードに添付することができません。
 	</string>
 	<string name="TooltipNotecardOwnerRestrictedDrop">
-		制限のない「次の所有者」の
-許可のみノートカードに
+		「次の所有者」に制限のない
+権限のノートカードのみが
 添付できます。
 	</string>
 	<string name="TooltipTextureRestrictedDrop">
@@ -3527,6 +3532,7 @@ https://support.secondlife.com よりSecond Lifeのサポートまでお問い�
 	<string name="Light">
 		ライト
 	</string>
+	<!-- keyboard -->
 	<string name="KBShift">
 		Shift
 	</string>
@@ -3966,7 +3972,7 @@ https://support.secondlife.com よりSecond Lifeのサポートまでお問い�
 		常時許可：（全[MAXACCESS]人中[ALLOWEDAGENTS]人）
 	</string>
 	<string name="RegionInfoAllowedGroups">
-		グループを常に許可：（全[MAXACCESS]グループ中[ALLOWEDGROUPS]グループ）
+		常に許可するグループ：（全[MAXACCESS]グループ中[ALLOWEDGROUPS]グループ）
 	</string>
 	<string name="RegionInfoEstateManagers">
 		不動産マネージャー数：（全[MAXMANAGERS]人中[ESTATEMANAGERS]人）
@@ -4359,8 +4365,9 @@ https://support.secondlife.com よりSecond Lifeのサポートまでお問い�
 		支出
 	</string>
 	<string name="GroupMoneyStartDate">
-		[year,datetime,utc]年[mth,datetime,utc]月[day,datetime,utc]日（[weekday,datetime,utc]）から取引開始
+		[year,datetime,utc]年[mth,datetime,utc]月[day,datetime,utc]日　[weekday,datetime,utc]から取引開始
 	</string>
+	<!-- Viewer menu -->
 	<string name="AcquiredItems">
 		取得アイテム
 	</string>
@@ -4372,7 +4379,7 @@ https://support.secondlife.com よりSecond Lifeのサポートまでお問い�
 	</string>
 	<string name="UnknownFileExtension">
 		不明な拡張子：%s
-使用可能な拡張子：.wav，.tga，.bmp，.jpg，.jpeg，.bvh
+		使用可能な拡張子：.wav，.tga，.bmp，.jpg，.jpeg，.bvh
 	</string>
 	<string name="MuteObject2">
 		オブジェクトのブロック
@@ -4669,7 +4676,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 このメッセージが何度も出る場合は、[SUPPORT_SITE]へご連絡ください。
 	</string>
 	<string name="MBOutOfMemoryTitle">
-		メモリ超過
+		メモリが超過
 	</string>
 	<string name="MBOutOfMemoryErr">
 		[APP_NAME]は、メモリの確保に失敗しました。実行に必要なメモリを確保できないため終了します。
@@ -6361,6 +6368,9 @@ https://secondlife.com/support/downloads/ からビューアを再インスト�
 	<string name="premium_voice_morphing_url">
 		https://secondlife.com/destination/voice-morphing-premium
 	</string>
+	<string name="no_voice_morphing_faq_url">
+		https://lindenlab.freshdesk.com/support/solutions/articles/31000173560-webrtc-update-for-voice-chat-faq/
+	</string>
 	<string name="lindenhomes_get_home_url">
 		https://secondlife.com/land/lindenhomes/member.php?lang=ja-JP
 	</string>
@@ -7252,7 +7262,7 @@ https://secondlife.com/support/downloads/ からビューアを再インスト�
 		土地情報
 	</string>
 	<string name="Command_Appearance_Label">
-		容姿
+		アウトフィット
 	</string>
 	<string name="Command_Avatar_Label">
 		アバター一式
@@ -7348,7 +7358,7 @@ https://secondlife.com/support/downloads/ からビューアを再インスト�
 		訪問先に関する情報を表示します。
 	</string>
 	<string name="Command_Appearance_Tooltip">
-		アバターの外観を変更します。
+		アバターの容姿を変更します。
 	</string>
 	<string name="Command_Avatar_Tooltip">
 		アバター一式を選択します。

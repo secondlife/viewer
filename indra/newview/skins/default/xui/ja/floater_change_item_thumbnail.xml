@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="change_item_thumbnail" title="アイテム画像の変更">
+	<floater.string name="multiple_item_names">
+		複数の項目を選択
+	</floater.string>
 	<floater.string name="title_item_thumbnail">
 		アイテム画像の変更
 	</floater.string>
@@ -27,6 +30,9 @@
 	<icon name="item_type_icon"/>
 	<text name="item_name"/>
 	<thumbnail name="item_thumbnail"/>
+	<text name="multiple_lbl">
+		複数のサムネイル
+	</text>
 	<button name="upload_local"/>
 	<button name="upload_snapshot"/>
 	<button name="use_texture"/>

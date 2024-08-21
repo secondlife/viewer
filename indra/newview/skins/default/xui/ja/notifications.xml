@@ -86,7 +86,7 @@
 		<usetemplate name="okbutton" yestext="ＯＫ"/>
 	</notification>
 	<notification name="BadInstallation">
-		[APP_NAME]のアップデート時にエラーが発生しました。[http://get.secondlife.com 最新バージョンのビューアをダウンロード]してください。
+		[APP_NAME]のアップデート時にエラーが発生しました。[https://get.secondlife.com 最新バージョンのビューアをダウンロード]してください。
 		<usetemplate name="okbutton" yestext="ＯＫ"/>
 	</notification>
 	<notification name="LoginFailedNoNetwork">
@@ -184,7 +184,7 @@
 		無効なキーストロークが入力されました：
 [REASON]
 有効なテキストを入力してください。
-  </notification>
+	</notification>
 	<notification name="MerchantForceValidateListing">
 		出品リストを作成するために、出品リストするコンテンツの階層を固定しました。
 		<tag>confirm</tag>
@@ -965,7 +965,7 @@ L$が不足しているので、このグループに参加することができ
 	<notification name="EjectAvatarFullnameNoBan">
 		[AVATAR_NAMES]をあなたの土地から追放しますか？
 		<tag>confirm</tag>
-		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="追放する"/>
+		<usetemplate name="okcancelbuttons" notext="Cancel" yestext="Eject"/>
 	</notification>
 	<notification name="EjectAvatarFromGroup">
 		&lt;nolink&gt;[GROUP_NAME]&lt;/nolink&gt;から[AVATAR_NAME]を追放しました。
@@ -1126,6 +1126,23 @@ L$が不足しているので、このグループに参加することができ
 [REASON]
 
 お手数ですがもう一度やり直してください。
+		<tag>fail</tag>
+	</notification>
+	<notification  name="CannotUploadReason">
+		以下の理由で[FILE]をアップロードできませんでした：[REASON]
+お手数ですがもう一度やり直してください。
+		<tag>fail</tag>
+	</notification>
+	<notification name="CannotUploadSnapshotEmailTooBig">
+		以下の理由でスナップショット[FILE]をアップロードできませんでした：[REASON]
+
+ファイルが大きすぎるようです。お手数ですが、解像度や品質を落としてもう一度やり直してください。
+		<tag>fail</tag>
+	</notification>
+	<notification name="CannotUploadSnapshotWebTooBig">
+		スナップショットをアップロードできませんでした。
+
+ファイルが大きすぎるようです。お手数ですが、解像度や品質を落としてもう一度やり直してください。
 		<tag>fail</tag>
 	</notification>
 	<notification name="LandmarkCreated">
@@ -1470,6 +1487,11 @@ L$が不足しているので、このグループに参加することができ
 		「[NAME]」を服装のファイルに保存できません。
 コンピューターのディスクスペースを少し増やしてから、もう一度保存してみてください。
 		<tag>fail</tag>
+	</notification>
+	<notification name="OutOfDiskSpace">
+		システムのディスク容量が不足しています。コンピューターの空き容量を増やすか、キャッシュをクリアする必要があります。
+		<tag>fail</tag>
+		<unique/>
 	</notification>
 	<notification name="CannotSaveToAssetStore">
 		「[NAME]」を保存できません。
@@ -2059,6 +2081,12 @@ https://wiki.secondlife.com/wiki/Adding_Spelling_Dictionaries
 	<notification name="CanNotChangeAppearanceUntilLoaded">
 		服装およびシェイプが読み込まれるまでは、容姿の変更はできません。
 	</notification>
+	<notification name="UsavedWearableChanges">
+		保存されていない変更があります。
+		<tag>group</tag>
+		<tag>confirm</tag>
+		<usetemplate ignoretext="保存されていない衣装の変更を破棄する前の確認" name="okcancelignore" notext="変更を保持" yestext="破棄"/>
+	</notification>
 	<notification name="ClassifiedMustBeAlphanumeric">
 		クラシファイド広告の名前は、英数字から始めてください。句読点から始めることはできません。
 	</notification>
@@ -2070,7 +2098,8 @@ https://wiki.secondlife.com/wiki/Adding_Spelling_Dictionaries
 		未加工の地形ファイルをダウンロードしました：[DOWNLOAD_PATH]
 	</notification>
 	<notification name="RequiredUpdate">
-		ログインするには、バージョン[VERSION]が必要です。以下からダウンロードしてください。
+		ログインするには、バージョン[VERSION]が必要です。
+下記アドレスから最新バージョンをダウンロードしてください。
 https://secondlife.com/support/downloads/
 		<tag>confirm</tag>
 		<usetemplate name="okbutton" yestext="ＯＫ"/>
@@ -2168,10 +2197,10 @@ OKをクリックして、ダウンロードとインストールを開始しま
 	<notification name="GroupLeaveConfirmMemberNoFee">
 		グループ「&lt;nolink&gt;[GROUP]&lt;/nolink&gt;」から脱退しますか？
 現在、このグループに参加するのに料金はかかりません。
-    <tag>group</tag>
-    <tag>confirm</tag>
-    <usetemplate name="okcancelbuttons" notext="キャンセル" yestext="脱退する"/>
-  </notification>
+		<tag>group</tag>
+		<tag>confirm</tag>
+		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="脱退する"/>
+	</notification>
 	<notification name="OwnerCannotLeaveGroup">
 		グループを抜けることができません。グループの最後のオーナーであるため、グループを抜けることができません。最初に、別のメンバーをオーナーの役割に割り当ててください。
 		<usetemplate name="okbutton" yestext="ＯＫ"/>
@@ -4101,7 +4130,14 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
 		<tag>fail</tag>
 		<tag>voice</tag>
 	</notification>
-	<notification name="VoiceEffectsNew">新しいボイスモーフィング効果が登場！
+	<notification name="VoiceEffectsNew">
+		新しいボイスモーフィング効果が登場！
+		<tag>voice</tag>
+	</notification>
+	<notification name="VoiceEffectsNotSupported">
+		このビューアではボイスモーフィングはサポートされていません。
+その他のボイスモーフィングツールについての詳細は、[[FAQ_URL] この記事]を参照してください。
+		<usetemplate ignoretext="ボイスモーフィングがサポートされていないときの警告" name="okignore" yestext="ＯＫ"/>
 		<tag>voice</tag>
 	</notification>
 	<notification name="Cannot enter parcel: not a group member">
@@ -4209,12 +4245,6 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
 		残念ながら、このセッションで特典情報を得ることができませんでした。これは通常の本番環境で起こるものではありません。
 恐れ入りますがサポートまでご連絡ください。このセッションが通常通り作動することはありません。再起動することをお勧めします。
 		<usetemplate name="okbutton" yestext="ＯＫ"/>
-	</notification>
-	<notification name="BulkUploadCostConfirmation">
-		[COUNT]個アイテムを一括アップロードします。総費用はL$ [COST]です。アップロードを続けてもよろしいですか？
-
-[FILES]
-		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="アップロード"/>
 	</notification>
 	<notification name="BulkUploadNoCompatibleFiles">
 		選択されたファイルは一括アップロードできません。
@@ -5889,8 +5919,33 @@ Intelドライバーのウェブサイトを確認しますか？
 		編集中の非ＨＤＲの空の設定は自動的にＨＤＲの設定に変換されます。ＨＤＲとトーンマッピングを削除する場合は、反射プローブ環境の値を０にしてください。
 		<usetemplate ignoretext="ＨＤＲの空の調整時の警告" name="okignore" yestext="ＯＫ"/>
 	</notification>
-	<notification name="GLTFPreviewSelection">
+	<notification name="GLTFOpenSelection">
 		プレビューしているＧＬＴＦアセットへのハンドルとして機能するオブジェクトを選択する必要があります。
+		<tag>fail</tag>
+		<usetemplate name="okbutton" yestext="ＯＫ"/>
+	</notification>
+	<notification name="GLTFLoadFailed">
+		ＧＬＴＦファイルを読み込めませんでした。詳細についてはログを参照してください。
+    <tag>fail</tag>
+    <usetemplate name="okbutton" yestext="ＯＫ"/>
+	</notification>
+	<notification name="GLTFSaveFailed">
+		ＧＬＴＦファイルを保存できませんでした。詳細についてはログを参照してください。
+	<tag>fail</tag>
+	<usetemplate name="okbutton" yestext="ＯＫ"/>
+	</notification>
+	<notification name="GLTFSaveSelection">
+		ＧＬＴＦアセットが関連付けられているオブジェクトを選択する必要があります。
+		<tag>fail</tag>
+		<usetemplate name="okbutton" yestext="ＯＫ"/>
+	</notification>
+	<notification name="GLTFUploadSelection">
+		ローカル専用のＧＬＴＦアセットが、関連付けられているオブジェクトを選択する必要があります。
+		<tag>fail</tag>
+		<usetemplate name="okbutton" yestext="ＯＫ"/>
+	</notification>
+	<notification name="GLTFUploadInProgress">
+		現在アップロード中です。お手数ですが。もう一度やり直してください。
 		<tag>fail</tag>
 		<usetemplate name="okbutton" yestext="ＯＫ"/>
 	</notification>

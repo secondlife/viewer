@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="incoming call">
 	<floater.string name="lifetime">
-		5
+		30
 	</floater.string>
 	<floater.string name="localchat">
 		近くのボイスチャット
@@ -16,7 +16,7 @@
 		が会話チャットで、ボイスチャットに参加しました。
 	</floater.string>
 	<floater.string name="VoiceInviteGroup">
-		「[GROUP]」のボイスチャネルに参加なさいました。
+		が「[GROUP]」のボイスチャネルに参加しました。
 	</floater.string>
 	<floater.string name="VoiceInviteQuestionGroup">
 		[CURRENT_CHAT]を退席して、「[GROUP]」とのチャットに参加しますか？
@@ -27,7 +27,7 @@
 	<text name="question">
 		コールに応答すると、現在のボイスチャットから切断されます。
 	</text>
-	<button label="取る" label_selected="取る" name="Accept"/>
-	<button label="無視" label_selected="無視" name="Reject"/>
+	<button label="通話する" label_selected="通話する" name="Accept"/>
+	<button label="無視する" label_selected="無視する" name="Reject"/>
 	<button label="代わりにＩＭを開く" name="Start IM"/>
 </floater>
