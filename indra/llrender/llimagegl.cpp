@@ -428,29 +428,29 @@ bool LLImageGL::create(LLPointer<LLImageGL>& dest, const LLImageRaw* imageraw, b
 
 //----------------------------------------------------------------------------
 
-LLImageGL::LLImageGL(bool usemipmaps)
+LLImageGL::LLImageGL(bool usemipmaps/* = true*/, bool allow_compression/* = true*/)
 :   mSaveData(0), mExternalTexture(false)
 {
-    init(usemipmaps);
+    init(usemipmaps, allow_compression);
     setSize(0, 0, 0);
     sImageList.insert(this);
     sCount++;
 }
 
-LLImageGL::LLImageGL(U32 width, U32 height, U8 components, bool usemipmaps)
+LLImageGL::LLImageGL(U32 width, U32 height, U8 components, bool usemipmaps/* = true*/, bool allow_compression/* = true*/)
 :   mSaveData(0), mExternalTexture(false)
 {
     llassert( components <= 4 );
-    init(usemipmaps);
+    init(usemipmaps, allow_compression);
     setSize(width, height, components);
     sImageList.insert(this);
     sCount++;
 }
 
-LLImageGL::LLImageGL(const LLImageRaw* imageraw, bool usemipmaps)
+LLImageGL::LLImageGL(const LLImageRaw* imageraw, bool usemipmaps/* = true*/, bool allow_compression/* = true*/)
 :   mSaveData(0), mExternalTexture(false)
 {
-    init(usemipmaps);
+    init(usemipmaps, allow_compression);
     setSize(0, 0, 0);
     sImageList.insert(this);
     sCount++;
@@ -467,7 +467,7 @@ LLImageGL::LLImageGL(
     LLGLenum formatType,
     LLTexUnit::eTextureAddressMode addressMode)
 {
-    init(false);
+    init(false, true);
     mTexName = texName;
     mTarget = target;
     mComponents = components;
@@ -489,7 +489,7 @@ LLImageGL::~LLImageGL()
     }
 }
 
-void LLImageGL::init(bool usemipmaps)
+void LLImageGL::init(bool usemipmaps, bool allow_compression)
 {
 #if LL_IMAGEGL_THREAD_CHECK
     mActiveThread = LLThread::currentID();
@@ -519,7 +519,7 @@ void LLImageGL::init(bool usemipmaps)
     mHeight = 0;
     mCurrentDiscardLevel = -1;
 
-    mAllowCompression = true;
+    mAllowCompression = allow_compression;
 
     mTarget = GL_TEXTURE_2D;
     mBindTarget = LLTexUnit::TT_TEXTURE;
