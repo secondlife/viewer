@@ -60,13 +60,10 @@ namespace lluau
     int loadstring(lua_State* L, const std::string& desc, const std::string& text);
 
     fsyspath source_path(lua_State* L);
-
-    void set_interrupts_counter(lua_State *L, S32 counter);
-    void check_interrupts_counter(lua_State* L);
 } // namespace lluau
 
-// must be a macro because __FUNCTION__ is context-sensitive
-#define lluau_checkstack(L, n) luaL_checkstack((L), (n), __FUNCTION__)
+// must be a macro because LL_PRETTY_FUNCTION is context-sensitive
+#define lluau_checkstack(L, n) luaL_checkstack((L), (n), LL_PRETTY_FUNCTION)
 
 std::string lua_tostdstring(lua_State* L, int index);
 void lua_pushstdstring(lua_State* L, const std::string& str);
@@ -110,10 +107,18 @@ public:
     // Find or create LuaListener for passed lua_State.
     static LuaListener& obtainListener(lua_State* L);
 
+    // Given lua_State* L, return the LuaState object managing (the main Lua
+    // thread for) L.
+    static LuaState& getParent(lua_State* L);
+
+    void set_interrupts_counter(S32 counter);
+    void check_interrupts_counter();
+
 private:
     script_finished_fn mCallback;
     lua_State* mState;
     std::string mError;
+    S32 mInterrupts{ 0 };
 };
 
 /*****************************************************************************
@@ -171,6 +176,32 @@ private:
     lua_State* mState;
     int mIndex;
 };
+
+/*****************************************************************************
+*   LuaStackDelta
+*****************************************************************************/
+/**
+ * Instantiate LuaStackDelta in a block to compare the Lua data stack depth on
+ * entry (LuaStackDelta construction) and exit. Optionally, pass the expected
+ * depth increment. (But be aware that LuaStackDelta cannot observe the effect
+ * of a LuaPopper or LuaRemover declared previously in the same block.)
+ */
+class LuaStackDelta
+{
+public:
+    LuaStackDelta(lua_State* L, const std::string& where, int delta=0);
+    LuaStackDelta(const LuaStackDelta&) = delete;
+    LuaStackDelta& operator=(const LuaStackDelta&) = delete;
+
+    ~LuaStackDelta();
+
+private:
+    lua_State* L;
+    std::string mWhere;
+    int mDepth, mDelta;
+};
+
+#define lua_checkdelta(L, ...) LuaStackDelta delta(L, LL_PRETTY_FUNCTION, ##__VA_ARGS__)
 
 /*****************************************************************************
 *   lua_push() wrappers for generic code
@@ -297,6 +328,7 @@ auto lua_to<void*>(lua_State* L, int index)
 template <typename T>
 auto lua_getfieldv(lua_State* L, int index, const char* k)
 {
+    lua_checkdelta(L);
     lluau_checkstack(L, 1);
     lua_getfield(L, index, k);
     LuaPopper pop(L, 1);
@@ -307,6 +339,7 @@ auto lua_getfieldv(lua_State* L, int index, const char* k)
 template <typename T>
 auto lua_setfieldv(lua_State* L, int index, const char* k, const T& value)
 {
+    lua_checkdelta(L);
     lluau_checkstack(L, 1);
     lua_push(L, value);
     lua_setfield(L, index, k);
@@ -316,6 +349,7 @@ auto lua_setfieldv(lua_State* L, int index, const char* k, const T& value)
 template <typename T>
 auto lua_rawgetfield(lua_State* L, int index, const std::string_view& k)
 {
+    lua_checkdelta(L);
     lluau_checkstack(L, 1);
     lua_pushlstring(L, k.data(), k.length());
     lua_rawget(L, index);
@@ -327,6 +361,7 @@ auto lua_rawgetfield(lua_State* L, int index, const std::string_view& k)
 template <typename T>
 void lua_rawsetfield(lua_State* L, int index, const std::string_view& k, const T& value)
 {
+    lua_checkdelta(L);
     lluau_checkstack(L, 2);
     lua_pushlstring(L, k.data(), k.length());
     lua_push(L, value);
@@ -433,6 +468,7 @@ DistinctInt TypeTag<T>::value;
 template <class T, typename... ARGS>
 void lua_emplace(lua_State* L, ARGS&&... args)
 {
+    lua_checkdelta(L, 1);
     lluau_checkstack(L, 1);
     int tag{ TypeTag<T>::value };
     if (! lua_getuserdatadtor(L, tag))
@@ -467,6 +503,7 @@ void lua_emplace(lua_State* L, ARGS&&... args)
 template <class T>
 T* lua_toclass(lua_State* L, int index)
 {
+    lua_checkdelta(L);
     // get void* pointer to userdata (if that's what it is)
     void* ptr{ lua_touserdatatagged(L, index, TypeTag<T>::value) };
     // Derive the T* from ptr. If in future lua_emplace() must manually

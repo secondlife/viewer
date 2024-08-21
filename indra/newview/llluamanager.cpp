@@ -53,6 +53,7 @@ std::map<std::string, std::string> LLLUAmanager::sScriptNames;
 
 lua_function(sleep, "sleep(seconds): pause the running coroutine")
 {
+    lua_checkdelta(L, -1);
     F32 seconds = lua_tonumber(L, -1);
     lua_pop(L, 1);
     llcoro::suspendUntilTimeout(seconds);
@@ -125,6 +126,7 @@ lua_function(print_warning, "print_warning(args...): WARNING level logging")
 
 lua_function(post_on, "post_on(pumpname, data): post specified data to specified LLEventPump")
 {
+    lua_checkdelta(L, -2);
     std::string pumpname{ lua_tostdstring(L, 1) };
     LLSD data{ lua_tollsd(L, 2) };
     lua_pop(L, 2);
@@ -139,6 +141,7 @@ lua_function(get_event_pumps,
              "Events posted to replypump are queued for get_event_next().\n"
              "post_on(commandpump, ...) to engage LLEventAPI operations (see helpleap()).")
 {
+    lua_checkdelta(L, 2);
     lluau_checkstack(L, 2);
     auto& listener{ LuaState::obtainListener(L) };
     // return the reply pump name and the command pump name on caller's lua_State
@@ -153,6 +156,7 @@ lua_function(get_event_next,
              "is returned by get_event_pumps(). Blocks the calling chunk until an\n"
              "event becomes available.")
 {
+    lua_checkdelta(L, 2);
     lluau_checkstack(L, 2);
     auto& listener{ LuaState::obtainListener(L) };
     const auto& [pump, data]{ listener.getNext() };
@@ -271,6 +275,7 @@ std::string read_file(const std::string &name)
 
 lua_function(require, "require(module_name) : load module_name.lua from known places")
 {
+    lua_checkdelta(L);
     std::string name = lua_tostdstring(L, 1);
     lua_pop(L, 1);
 
