@@ -182,11 +182,11 @@ LLFilteredCollector::LLFilteredCollector(LLSD const &data) :
 {
     if (data.has("name"))
     {
-        mName = data["name"];
+        mName = data["name"].asString();
     }
     if (data.has("desc"))
     {
-        mDesc = data["desc"];
+        mDesc = data["desc"].asString();
     }
     if (data.has("type"))
     {
