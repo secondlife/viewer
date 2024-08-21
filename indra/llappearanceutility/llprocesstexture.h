@@ -47,8 +47,8 @@ public:
     void cleanup() override;
 
     /////// LLTextureManagerBridge interface. ////////
-    LLPointer<LLGLTexture> getLocalTexture(bool usemipmaps = TRUE, bool generate_gl_tex = TRUE) override;
-    LLPointer<LLGLTexture> getLocalTexture(const U32 width, const U32 height, const U8 components, bool usemipmaps, bool generate_gl_tex = TRUE) override;
+    LLPointer<LLGLTexture> getLocalTexture(bool usemipmaps = true, bool generate_gl_tex = true) override;
+    LLPointer<LLGLTexture> getLocalTexture(const U32 width, const U32 height, const U8 components, bool usemipmaps, bool generate_gl_tex = true) override;
     LLGLTexture* getFetchedTexture(const LLUUID &image_id) override;
 
 private:

@@ -90,8 +90,8 @@ public:
     void    dirtyMesh() override; // Dirty the avatar mesh
     void    onGlobalColorChanged(const LLTexGlobalColor* global_color) override;
     bool    isTextureDefined(LLAvatarAppearanceDefines::ETextureIndex type, U32 index = 0) const override;
-    bool    isUsingLocalAppearance() const override { return FALSE; }
-    bool    isEditingAppearance() const override { return FALSE; }
+    bool    isUsingLocalAppearance() const override { return false; }
+    bool    isEditingAppearance() const override { return false; }
 private:
     void    dirtyMesh(S32 priority) override; // Dirty the avatar mesh, with priority
 
@@ -113,7 +113,7 @@ protected:
  **/
 public:
     bool    isSelf() const override { return true; }
-    bool    isValid() const override { return TRUE; }
+    bool    isValid() const override { return true; }
 
 /**                    State
  **                                                                            **
