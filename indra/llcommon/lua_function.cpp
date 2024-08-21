@@ -496,6 +496,14 @@ LuaState::~LuaState()
     // stack contains Registry.atexit
     if (lua_istable(mState, -1))
     {
+        // We happen to know that Registry.atexit is built by appending array
+        // entries using table.insert(). That's important because it means
+        // there are no holes, and therefore lua_objlen() should be correct.
+        // That's important because we walk the atexit table backwards, to
+        // destroy last the things we created (passed to LL.atexit()) first.
+        int len(lua_objlen(mState, -1));
+        LL_DEBUGS("Lua") << "Registry.atexit is a table with " << len << " entries" << LL_ENDL;
+
         // Push debug.traceback() onto the stack as lua_pcall()'s error
         // handler function. On error, lua_pcall() calls the specified error
         // handler function with the original error message; the message
@@ -509,12 +517,7 @@ LuaState::~LuaState()
         lua_remove(mState, -2);
         // stack now contains atexit, debug.traceback()
 
-        // We happen to know that Registry.atexit is built by appending array
-        // entries using table.insert(). That's important because it means
-        // there are no holes, and therefore lua_objlen() should be correct.
-        // That's important because we walk the atexit table backwards, to
-        // destroy last the things we created (passed to LL.atexit()) first.
-        for (int i(lua_objlen(mState, -2)); i >= 1; --i)
+        for (int i(len); i >= 1; --i)
         {
             lua_pushinteger(mState, i);
             // stack contains Registry.atexit, debug.traceback(), i
@@ -524,13 +527,15 @@ LuaState::~LuaState()
             // Use lua_pcall() because errors in any one atexit() function
             // shouldn't cancel the rest of them. Pass debug.traceback() as
             // the error handler function.
+            LL_DEBUGS("Lua") << "Calling atexit(" << i << ")" << LL_ENDL;
             if (lua_pcall(mState, 0, 0, -2) != LUA_OK)
             {
                 auto error{ lua_tostdstring(mState, -1) };
-                LL_WARNS("Lua") << "atexit() function error: " << error << LL_ENDL;
+                LL_WARNS("Lua") << "atexit(" << i << ") error: " << error << LL_ENDL;
                 // pop error message
                 lua_pop(mState, 1);
             }
+            LL_DEBUGS("Lua") << "atexit(" << i << ") done" << LL_ENDL;
             // lua_pcall() has already popped atexit[i]:
             // stack contains atexit, debug.traceback()
         }
