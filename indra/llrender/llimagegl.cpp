@@ -284,10 +284,13 @@ S32 LLImageGL::dataFormatBits(S32 dataformat)
     case GL_COMPRESSED_RGBA_S3TC_DXT5_EXT:          return 8;
     case GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT:    return 8;
     case GL_LUMINANCE:                              return 8;
+    case GL_LUMINANCE8:                             return 8;
     case GL_ALPHA:                                  return 8;
+    case GL_ALPHA8:                                 return 8;
     case GL_RED:                                    return 8;
     case GL_COLOR_INDEX:                            return 8;
     case GL_LUMINANCE_ALPHA:                        return 16;
+    case GL_LUMINANCE8_ALPHA8:                      return 16;
     case GL_RGB:                                    return 24;
     case GL_SRGB:                                   return 24;
     case GL_RGB8:                                   return 24;
