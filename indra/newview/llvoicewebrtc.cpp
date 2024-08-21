@@ -556,7 +556,6 @@ void LLWebRTCVoiceClient::voiceConnectionCoro()
                         return;
                     }
                     sessionState::processSessionStates();
-                    //sessionState::processSessionStates();
                     if (mProcessChannels && voiceEnabled && !mHidden)
                     {
                         sendPositionUpdate(false);
