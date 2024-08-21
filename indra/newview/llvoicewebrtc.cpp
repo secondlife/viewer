@@ -2750,7 +2750,7 @@ bool LLVoiceWebRTCConnection::connectionStateMachine()
         case VOICE_STATE_SESSION_UP:
         {
             mRetryWaitPeriod = 0;
-            mRetryWaitSecs   = (F32)((F32) rand() / (RAND_MAX)) + 0.5f;
+            mRetryWaitSecs   = (F32)((F32)rand() / (F32)RAND_MAX) + 0.5f;
             LLUUID agentRegionID;
             if (isSpatial() && gAgent.getRegion())
             {
