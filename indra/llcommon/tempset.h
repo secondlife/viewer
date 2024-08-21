@@ -35,7 +35,7 @@ public:
 
 private:
     VAR& mVar;
-    VALUE mOldValue;
+    VAR mOldValue;
 };
 
 #endif /* ! defined(LL_TEMPSET_H) */
