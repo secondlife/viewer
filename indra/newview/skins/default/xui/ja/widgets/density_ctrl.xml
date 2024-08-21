@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<densityctrl abel="密度" name="density_ctrl">
-	<text follows="left|top" height="11" layout="topleft" left="15" top_pad="-5" width="120">
+<densityctrl label="密度" name="density_ctrl">
+	<text name="exponential_term_label">
 		指数項
 	</text>
-	<slider dname="level_exponential"/>
-	<view left_pad="15" top="15" name="preview_image" height="140" width="140" follows="left|top"/>
-	<text follows="left|top" height="11" layout="topleft" left="15" top_pad="-5" width="120">
+	<slider name="level_exponential"/>
+	<view name="preview_image"/>
+	<text name="exponential_scale_factor_label">
 		指数尺度係数
 	</text>
-	<slider dname="exponential_scale"/>
-	<text follows="left|top" height="11" layout="topleft" left="15" top_pad="-5" width="120">
+	<slider name="exponential_scale"/>
+	<text name="linear_term_label">
 		線形項
 	</text>
-	<slider dname="level_linear"/>
-	<text follows="left|top" height="11" layout="topleft" left="15" top_pad="-5" width="120">
+	<slider name="level_linear"/>
+	<text name="constant_term_label">
 		定数項
 	</text>
-	<slider dname="level_constant"/>
-	<text follows="left|top" height="11" layout="topleft" left="15" top_pad="15" width="80">
+	<slider name="level_constant"/>
+	<text name="max_altitude_label">
 		最大高度
 	</text>
 	<slider name="max_altitude"/>
-	<text follows="left|top" height="11" layout="topleft" name="aniso_factor_label" left="15" top_pad="15" width="80">
+	<text name="aniso_factor_label">
 		異方性係数
 	</text>
 	<slider name="aniso_factor"/>

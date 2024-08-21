@@ -1,13 +1,53 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_pick_info">
 	<panel.string name="location_notice">
-		（掲載後更新）
+		（保存後に更新されます）
 	</panel.string>
-	<line_editor name="pick_location">
-		（読み込んでいます…）
-	</line_editor>
-	<button label="テレポート" name="teleport_btn"/>
-	<button label="マップに表示" name="show_on_map_btn"/>
-	<button label="場所を設定" name="set_to_curr_location_btn" tool_tip="現在地に設定"/>
-	<button label="ピックを保存" name="save_changes_btn"/>
+	<layout_stack name="main_pick_stack">
+		<layout_panel name="main_pick_lp">
+			<texture_picker name="pick_snapshot"/>
+			<text name="title_label">
+				タイトル：
+			</text>
+			<line_editor name="pick_name"/>
+			<text name="description_label">
+				説明：
+			</text>
+			<text_editor name="pick_desc"/>
+			<text name="location_label">
+				場所：
+			</text>
+			<line_editor name="pick_location">
+				読み込んでいます…
+			</line_editor>
+		</layout_panel>
+		<layout_panel name="util_buttons_lp">
+			<layout_stack name="util_buttons_stack">
+				<layout_panel name="util_resizer_left"/>
+				<layout_panel name="map_btn_lp">
+					<button name="show_on_map_btn" label="マップ上に表示"/>
+				</layout_panel>
+				<layout_panel name="tp_btn_lp">
+					<button name="teleport_btn" label="テレポート"/>
+				</layout_panel>
+				<layout_panel name="util_resizer_right"/>
+			</layout_stack>
+		</layout_panel>
+		<layout_panel name="save_changes_lp">
+			<view_border name="save_emphasis_border"/>
+			<layout_stack name="save_changes_stack">
+				<layout_panel name="save_resizer_left"/>
+				<layout_panel name="create_btn_lp">
+					<button name="create_changes_btn" label="ピック作成"/>
+				</layout_panel>
+				<layout_panel name="save_btn_lp">
+					<button name="save_changes_btn" label="ピックを保存"/>
+				</layout_panel>
+				<layout_panel name="cancel_btn_lp">
+					<button name="cancel_changes_btn" label="キャンセル"/>
+				</layout_panel>
+				<layout_panel name="save_resizer_right"/>
+			</layout_stack>
+		</layout_panel>
+	</layout_stack>
 </panel>

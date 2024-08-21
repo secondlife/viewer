@@ -4,8 +4,10 @@
 		着用している装着物はありません。
 	</panel.string>
 	<accordion name="wearables_accordion">
-		<accordion_tab name="tab_wearables" title="着用物"/>
-		<accordion_tab name="cof_items_list" title="一時的な装着物">
+		<accordion_tab name="tab_wearables" title="着用物">
+			<wearable_items_list name="cof_items_list"/>
+		</accordion_tab>
+		<accordion_tab name="tab_temp_attachments" title="一時的な装着物">
 			<scroll_list name="temp_attachments_list">
 				<scroll_list.columns name="icon"/>
 				<scroll_list.columns name="text"/>

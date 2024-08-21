@@ -32,7 +32,7 @@
 				<texture_picker label="上半身の下着" name="upper_undershirt"/>
 				<texture_picker label="手袋" name="upper_gloves"/>
 				<texture_picker label="シャツ" name="upper_shirt"/>
-				<texture_picker label="上着" name="upper_jacket"/>
+				<texture_picker label="ジャケット" name="upper_jacket"/>
 				<texture_picker label="上半身のアルファ" name="upper_alpha"/>
 				<texture_picker label="上半身のタトゥ" name="upper_tattoo"/>
 				<texture_picker label="上半身全般のタトゥ" name="upper_universal_tattoo"/>

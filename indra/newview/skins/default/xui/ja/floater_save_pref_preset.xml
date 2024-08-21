@@ -1,11 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="save_pref_preset" title="グラフィックプリセットの保存">
-	<string name="title_graphic">
-		グラフィックのプリセットを保存
-	</string>
-	<string name="title_camera">
-		カメラのプリセットを保存
-	</string>
 	<text name="Preset">
 		プリセットの名前を入力するか、既存のプリセットを選択します。
 	</text>

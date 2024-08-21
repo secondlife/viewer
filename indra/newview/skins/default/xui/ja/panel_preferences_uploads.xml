@@ -6,17 +6,25 @@
 	<text name="title_models">
 		画像
 	</text>
+	<text name="upload_textures"/>
 	<text name="title_sounds">
 		サウンド
 	</text>
+	<text name="upload_sounds"/>
 	<text name="title_animation">
 		アニメーション
 	</text>
+	<text name="upload_animation"/>
 	<text name="title_model">
 		モデル
 	</text>
+	<text name="upload_models"/>
+	<text name="title_pbr">
+		ＰＢＲマテリアル
+	</text>
+	<text name="upload_pbr"/>
 	<text name="upload_help">
-		宛先フォルダを変更するには、インベントリでそのフォルダを右クリックして、
-「デフォルトとして使用」を選択します。
+		アップロード先のフォルダを変更したい場合は、インベントリで対象のフォルダを右クリックして、
+「デフォルトとして使用」を選択してください。
 	</text>
 </panel>

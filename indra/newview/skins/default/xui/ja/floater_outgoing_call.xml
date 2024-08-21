@@ -4,7 +4,7 @@
 		5
 	</floater.string>
 	<floater.string name="localchat">
-		近隣のボイスチャット
+		近くのボイスチャット
 	</floater.string>
 	<floater.string name="anonymous">
 		匿名ユーザー
@@ -16,10 +16,10 @@
 		が会話チャットで、ボイスチャットに参加しました。
 	</floater.string>
 	<text name="connecting">
-		[CALLEE_NAME]に接続中
+		[CALLEE_NAME]に接続しています。
 	</text>
 	<text name="calling">
-		[CALLEE_NAME]をコール中
+		[CALLEE_NAME]にコールしています。
 	</text>
 	<text name="noanswer">
 		繋がりませんでした。あとでもう一度お試しください。

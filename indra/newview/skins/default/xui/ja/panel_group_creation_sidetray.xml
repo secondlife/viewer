@@ -15,21 +15,21 @@
 				</text_editor>
 			</panel>
 			<panel name="preferences_container">
-				<check_box label="誰でも加入可能" name="open_enrollement" tool_tip="このグループが招待なしで、新しいメンバーに参加できるようにするかどうかを設定します。"/>
-				<check_box label="入会費" name="check_enrollment_fee" tool_tip="グループへへの加入に入会費が必要かどうかを設定します。"/>
-				<spinner name="spin_enrollment_fee" tool_tip="登録料がチェックされている場合、新しいメンバーはグループに参加するためにこの料金を支払う必要があります。"/>
-				<combo_box name="group_mature_check" tool_tip="レーティングは、グループで許可されるコンテンツと行動のタイプを指定します。">
+				<check_box label="誰でも入会可能" name="open_enrollement" tool_tip="このグループが招待なしで、新しいメンバーに入ることができるようにするかどうかを設定します。"/>
+				<check_box label="入会費" name="check_enrollment_fee" tool_tip="グループに入るのに入会費が必要かどうかを設定します。"/>
+				<spinner name="spin_enrollment_fee" label="L$" tool_tip="入会費にチェックされている場合、新しいメンバーはグループに加入するためにこの料金を支払う必要があります。"/>
+				<combo_box name="group_mature_check" tool_tip="レーティングは、グループで許可されるコンテンツと活動内容の種類を指定します。">
 					<combo_item name="select_mature" value="Select">
-						－レーティングの選択－
+						‐レーティングの選択‐
 					</combo_item>
-					<combo_box.item label="Moderateコンテンツ" name="mature" value="Mature"/>
-					<combo_box.item label="Generalコンテンツ" name="pg" value="Not Mature"/>
+					<combo_box.item label="「Moderate」コンテンツ" name="mature"/>
+					<combo_box.item label="「General」コンテンツ" name="pg"/>
 				</combo_box>
 			</panel>
 		</layout_panel>
 		<layout_panel name="create_info">
 			<text name="fee_information">
-				グループを作成するための料金は、メンバーシップレベルに基づいています。[https://secondlife.com/my/account/membership.php 詳細]
+				グループを作成するための料金は、メンバーシップレベルに基づいています。[https://accounts.secondlife.com/change_membership/?lang=ja-JP 詳細]
 			</text>
 			<scroll_list name="membership_list">
 				<scroll_list.columns name="clmn_name"/>
@@ -39,18 +39,14 @@
 				<scroll_list.rows name="premium" value="プレミアム（プレースホルダ）"/>
 			</scroll_list>
 		</layout_panel>
-		<layout_panel name="create_actions">
+		<layout_panel name="create_actions1">
 			<layout_stack name="button_row_ls">
-				<layout_panel name="layout_crt">
-          
-        </layout_panel>
-				<layout_panel name="layout_crt">
-					<button label="グループ作成：L$[COST]" name="btn_create" tool_tip="新しいグループを作成"/>
+				<layout_panel name="layout_crt"/>
+				<layout_panel name="layout_crt1">
+					<button label="グループ作成：L$ [COST]" name="btn_create" tool_tip="新しいグループを作成します。"/>
 					<button name="back" label="キャンセル" tool_tip="グループ一覧に戻ります。"/>
 				</layout_panel>
-				<layout_panel name="layout_crt">
-          
-        </layout_panel>
+				<layout_panel name="layout_crt2"/>
 			</layout_stack>
 			<text name="info_deletion">
 				注：４８時間メンバーが２人未満のグループは、自動的に解散されます。

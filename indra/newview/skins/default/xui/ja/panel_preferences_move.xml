@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="移動" name="move_panel">
 	<icon name="camera_icon"/>
-	<slider label="視界角" name="camera_fov"/>
+	<slider label="視界角（ＦｏＶ）" name="camera_fov"/>
 	<slider label="距離" name="camera_offset_scale"/>
 	<text name="heading2">
 		自動ポジション：
 	</text>
-	<check_box label="制作・編集" name="edit_camera_movement" tool_tip="編集モードのオン・オフの切り替えに、自動カメラポジションを使います"/>
+	<check_box label="ビルド・編集" name="edit_camera_movement" tool_tip="編集モードのオン・オフの切り替えに、自動カメラポジションを使います"/>
 	<check_box label="容姿" name="appearance_camera_movement" tool_tip="編集モードに入ったときに、自動カメラポジションを使います"/>
 	<icon name="avatar_icon"/>
 	<text name="keyboard_lbl">
@@ -28,15 +28,15 @@
 	</text>
 	<combo_box name="single_click_action_combo">
 		<combo_box.item label="動作なし" name="0" value="0"/>
-		<combo_box.item label="クリックされた地点に移動" name="1" value="1"/>
+		<combo_box.item label="クリックした地点に移動" name="1" value="1"/>
 	</combo_box>
 	<text name="double_click_action_lbl">
 		土地をダブルクリック：
 	</text>
 	<combo_box name="double_click_action_combo">
 		<combo_box.item label="動作なし" name="0" value="0"/>
-		<combo_box.item label="クリックされた地点に移動" name="1" value="1"/>
-		<combo_box.item label="クリックされた地点にテレポート" name="2" value="2"/>
+		<combo_box.item label="クリックした地点に移動" name="1" value="1"/>
+		<combo_box.item label="クリックした地点にテレポート" name="2" value="2"/>
 	</combo_box>
 	<check_box control_name="EnableCollisionSounds" label="ぶつかったときにサウンドを鳴らす" name="sound_on_collisions"/>
 	<button label="その他のデバイス" name="joystick_setup_button"/>

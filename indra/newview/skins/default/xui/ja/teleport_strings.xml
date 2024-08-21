@@ -2,15 +2,15 @@
 <teleport_messages>
 	<message_set name="errors">
 		<message name="invalid_tport">
-			テレポート処理中に問題が発生しました。ログインし直す必要があるかもしれません。
+			テレポート処理時に問題が発生しました。ログインし直す必要があるかもしれません。
 このメッセージが何度も出る場合は、[SUPPORT_SITE]をご確認ください。
 		</message>
 		<message name="invalid_region_handoff">
-			リージョン横断の処理中に問題が発生しました。リージョン（地域）を越える前に、再度ログインする必要がある場合があります。
+			リージョン横断の処理時に問題が発生しました。リージョンを越える前に、再度ログインする必要がある場合があります。
 このメッセージが何度も出る場合は、[SUPPORT_SITE]をご確認ください。
 		</message>
 		<message name="blocked_tport">
-			申し訳ありませんが、テレポートは現在ブロックされています。しばらくしてから、もう一度やりなおしてください。
+			申し訳ありませんが、現在テレポートはブロックされています。しばらくしてから、もう一度やりなおしてください。
 やり直してもテレポートできない場合は、いったんログアウトし、再度ログインして問題を解決してください。
 		</message>
 		<message name="nolandmark_tport">
@@ -27,18 +27,21 @@
 			残念ながら、そのテレポート目的地へのアクセスがありません。
 		</message>
 		<message name="missing_attach_tport">
-			添付物は、まだ到着していません。あと数秒間お待ちいただくか、いったんログアウトしてから再度ログインし、テレポートし直してださい。
+			添付アイテムはまだ到着していません。あと数秒間お待ちいただくか、いったんログアウトしてから再度ログインし、テレポートし直してださい。
 		</message>
 		<message name="too_many_uploads_tport">
-			このリージョン（地域）のアセットのキューが現在混み合っているため、要求されたテレポートを処理することが難しい状況です。
+			このリージョンのアセットのキューが現在混み合っているため、要求されたテレポートを処理することが難しい状況です。
 数分後にやり直すか、混雑していない他のリージョンをお試しください。
 		</message>
 		<message name="expired_tport">
 			申し訳ございませんが、システムは要求されたテレポートを完了できませんでした。お手数ですが、数分程度時間をおいてからやり直してください。
 		</message>
 		<message name="expired_region_handoff">
-			申し訳ございませんが、システムは地域間の移動を時間どおりに完了できませんでした。
+			申し訳ございませんが、システムはリージョン間の移動を時間どおりに完了できませんでした。
 お手数ですが、数分程度時間をおいてからやり直してください。
+		</message>
+		<message name="preexisting_tport">
+			申し訳ありませんが、システムはテレポートを開始できませんでした。お手数ですが、しばらく経ってからもう一度やりなおしてください。
 		</message>
 		<message name="no_host">
 			テレポートの目的地を見つけられません。目的地が一時的に利用できない状態か、すでに消滅している可能性があります。お手数ですが、数分程度時間をおいてからやり直してください。
@@ -47,12 +50,12 @@
 			インベントリシステムは現在利用できません。
 		</message>
 		<message name="MustGetAgeRegion">
-			このリージョン（地域）に入るには、１８歳以上である必要があります。
+			このリージョンに入るには、１８歳以上である必要があります。
 		</message>
 		<message name="RegionTPSpecialUsageBlocked">
 			リージョンに入ることができません。
 「[REGION_NAME]」はスキルゲーミングリージョンであり、あなたはこのリージョンに入るための特定の基準を満たす必要があります。
-詳しくは、[http://wiki.secondlife.com/wiki/Linden_Lab_Official:Skill_Gaming_in_Second_Life スキルゲーミングのよくある質問]を参照してください。
+詳しくは、[https://wiki.secondlife.com/wiki/Linden_Lab_Official:Second_Life_Skill_Gaming_FAQ スキルゲーミングのよくある質問]を参照してください。
 		</message>
 	</message_set>
 	<message_set name="progress">
@@ -81,16 +84,16 @@
 			目的地を解決しています。
 		</message>
 		<message name="contacting">
-			新しい地域にコンタクトしています。
+			新しいリージョンにコンタクトしています。
 		</message>
 		<message name="arriving">
-			到着中…
+			到着しています…
 		</message>
 		<message name="requesting">
-			テレポートをリクエスト…
+			テレポートをリクエストしています…
 		</message>
 		<message name="pending">
-			テレポートを保留中…
+			テレポートを保留しています…
 		</message>
 	</message_set>
 </teleport_messages>

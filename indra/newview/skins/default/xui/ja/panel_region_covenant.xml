@@ -1,6 +1,18 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="約款" name="Covenant">
-	<text font="SansSerifLarge" name="estate_section_lbl">
+	<panel.string name="can_resell">
+		このリージョンで購入した土地は再販できます。
+	</panel.string>
+	<panel.string name="can_not_resell">
+		このリージョンで購入した土地は、再販できないことがあります。
+	</panel.string>
+	<panel.string name="can_change">
+		このリージョンで購入した土地は、結合／分割できます。
+	</panel.string>
+	<panel.string name="can_not_change">
+		このリージョンで購入した土地は、結合／分割できないことがあります。
+	</panel.string>
+	<text name="estate_section_lbl">
 		不動産
 	</text>
 	<text name="estate_name_lbl">
@@ -21,8 +33,7 @@
 	<text name="covenant_timestamp_text">
 		最終更新日：1969年12月31日（水）16:00:00
 	</text>
-	<button label="?" name="covenant_help"/>
-	<text_editor bottom="-263" height="178" name="covenant_editor">
+	<text_editor name="covenant_editor">
 		この不動産には約款がありません。
 	</text_editor>
 	<button label="リセット" name="reset_covenant"/>
@@ -32,7 +43,7 @@
 	<text name="covenant_instructions">
 		この不動産約款を変更する際は、ノートカードをドラッグ＆ドロップしてください。
 	</text>
-	<text bottom_delta="-34" font="SansSerifLarge" name="region_section_lbl">
+	<text name="region_section_lbl">
 		リージョン
 	</text>
 	<text name="region_name_lbl">
@@ -51,30 +62,18 @@
 		区分：
 	</text>
 	<text name="region_maturity_text">
-		アダルト
+		Adult
 	</text>
 	<text name="resellable_lbl">
 		再販：
 	</text>
 	<text name="resellable_clause">
-		このリージョン（地域）にある土地は再販できません。
+		このリージョンにある土地は再販できません。
 	</text>
 	<text name="changeable_lbl">
-		再分割：
+		分割：
 	</text>
 	<text name="changeable_clause">
-		このリージョン（地域）にある土地は統合または分割ができません。
+		このリージョンにある土地は結合／分割ができません。
 	</text>
-	<string name="can_resell">
-		このリージョン（地域）で購入した土地は、再販できます。
-	</string>
-	<string name="can_not_resell">
-		このリージョン（地域）の購入地は再販できないことがあります。
-	</string>
-	<string name="can_change">
-		このリージョン（地域）の購入地は統合または再分割できます。
-	</string>
-	<string name="can_not_change">
-		このリージョン（地域）の購入地は統合／再分割できないことがあります。
-	</string>
 </panel>

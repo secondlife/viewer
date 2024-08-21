@@ -1,20 +1,29 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="グループインベントリ" name="GroupInfo">
 	<panel.string name="default_needs_apply_text">
-		保存していない変更があります。
+		保存されていない変更があります。
 	</panel.string>
 	<panel.string name="want_apply_text">
-		変更を保存しますか？
+		変更を保存してもよろしいですか？
 	</panel.string>
 	<panel.string name="group_join_btn">
 		入会費（L$ [AMOUNT]）
 	</panel.string>
 	<panel.string name="group_join_free">
-		無料
+		入会費はかかりません
+	</panel.string>
+	<panel.string name="group_member">
+		あなたはメンバーです。
+	</panel.string>
+	<panel.string name="join_txt">
+		グループに加入
+	</panel.string>
+	<panel.string name="leave_txt">
+		脱退
 	</panel.string>
 	<panel name="group_info_top">
 		<text_editor name="group_name" value="（読み込んでいます…）"/>
-		<line_editor label="新しいグループの名前を入力してください" name="group_name_editor"/>
+		<line_editor label="新しいグループ名を入力してください" name="group_name_editor"/>
 	</panel>
 	<layout_stack name="layout">
 		<layout_panel name="group_accordions">
@@ -32,11 +41,10 @@
 			<button label="チャット" name="btn_chat"/>
 		</layout_panel>
 		<layout_panel name="call_btn_lp">
-			<button label="グループコール" name="btn_call" tool_tip="このグループにコールする"/>
+			<button label="グループコール" name="btn_call" tool_tip="このグループへコールします。"/>
 		</layout_panel>
 		<layout_panel name="btn_apply_lp">
 			<button label="保存" label_selected="保存" name="btn_apply"/>
-			<button label="グループを作成" name="btn_create" tool_tip="新しいグループを作成"/>
 		</layout_panel>
 	</layout_stack>
 </panel>

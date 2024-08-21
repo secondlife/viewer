@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_combo" title="フローターのコンボ">
+	<text name="combo_text">
+		オブションを選択：
+	</text>
+	<combo_box name="combo_options"/>
+	<button label="ＯＫ" name="combo_ok"/>
+	<button label="キャンセル" name="combo_cancel"/>
+</floater>

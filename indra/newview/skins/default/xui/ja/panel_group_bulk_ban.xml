@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="住人をバン" name="bulk_ban_panel">
+<panel label="住人のバン" name="bulk_ban_panel">
 	<panel.string name="loading">
 		（読み込んでいます…）
 	</panel.string>
 	<panel.string name="ban_selection_too_large">
-		グループのバンが送信されていません：選択した住人が多すぎます。グループへの立入禁止の数は１リクエスト当たり１００人に制限されています。
+		グループのバンが送信されていません：選択した住人の数が多すぎます。グループへのバン人数は１リクエスト当たり１００人までに制限されています。
 	</panel.string>
 	<panel.string name="ban_not_permitted">
-		グループのバンが送信されていません：「立入禁止リストの管理」の能力がありません。
+		グループのバンが送信されていません：「バンリストの管理」の能力がありません。
 	</panel.string>
 	<panel.string name="ban_limit_fail">
-		グループのバンが送信されていません：グループへの立入禁止の登録許容数に達しました。
+		グループのバンが送信されていません：グループのバン人数が上限に達しました。
 	</panel.string>
 	<panel.string name="partial_ban">
 		グループのバンが送信されていません：[REASONS]
@@ -22,7 +22,7 @@
 		・次の住民は既にバンされています：[RESIDENTS]
 	</panel.string>
 	<panel.string name="ban_limit_reached">
-		・バンの上限人数に達しました。次のエージェントは立入禁止にされません：[RESIDENTS]
+		・バンの上限人数に達しました。以下のエージェントはバンできません：[RESIDENTS]
 	</panel.string>
 	<panel.string name="cant_ban_yourself">
 		・グループから自分自身をバンにすることはできません。

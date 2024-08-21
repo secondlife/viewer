@@ -14,7 +14,7 @@
 	<spinner label="ロール・マッピング" name="JoystickAxis3"/>
 	<spinner label="ズーム・マッピング" name="JoystickAxis6"/>
 	<check_box label="直接ズーム" name="ZoomDirect"/>
-	<check_box label="3Dカーソル" name="Cursor3D"/>
+	<check_box label="３Ｄカーソル" name="Cursor3D"/>
 	<check_box label="自動レベル" name="AutoLeveling"/>
 	<text name="Control Modes:">
 		制御モード：
@@ -95,17 +95,17 @@
 	<text name="Feathering">
 		感度調整
 	</text>
-	<slider label="" name="AvatarFeathering"/>
-	<slider label="" name="BuildFeathering"/>
-	<slider label="" name="FlycamFeathering"/>
+	<slider name="AvatarFeathering"/>
+	<slider name="BuildFeathering"/>
+	<slider name="FlycamFeathering"/>
 	<text name="ZoomScale2">
 		ズーム・スケール
 	</text>
-	<spinner label="" name="FlycamAxisScale6"/>
+	<spinner name="FlycamAxisScale6"/>
 	<text name="ZoomDeadZone">
 		ズーム・デッド・ゾーン
 	</text>
-	<spinner label="" name="FlycamAxisDeadZone6"/>
+	<spinner name="FlycamAxisDeadZone6"/>
 	<button label="SpaceNavigatorのデフォルト設定" name="SpaceNavigatorDefaults"/>
 	<button label="ＯＫ" label_selected="ＯＫ" name="ok_btn"/>
 	<button label="キャンセル" label_selected="キャンセル" name="cancel_btn"/>
@@ -117,7 +117,4 @@
 		<stat_bar label="軸４" name="axis4"/>
 		<stat_bar label="軸５" name="axis5"/>
 	</stat_view>
-	<string name="NoDevice">
-		デバイスは検出されませんでした。
-	</string>
 </floater>

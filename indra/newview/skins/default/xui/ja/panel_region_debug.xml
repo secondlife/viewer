@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="デバッグ" name="Debug">
 	<text name="region_text_lbl">
-		リージョン（地域）：
+		リージョン：
 	</text>
 	<text name="region_text">
 		未知
 	</text>
-	<check_box label="スクリプト無効化" name="disable_scripts_check" tool_tip="このリージョン（地域）のスクリプトをすべて無効にします"/>
-	<check_box label="衝突を無効化" name="disable_collisions_check" tool_tip="このリージョン（地域）の非アバター衝突を無効にします"/>
-	<check_box label="物理作用を無効化" name="disable_physics_check" tool_tip="このリージョン（地域）の物理作用をすべて無効にします"/>
+	<check_box label="スクリプト無効化" name="disable_scripts_check" tool_tip="このリージョンのスクリプトをすべて無効にします。"/>
+	<check_box label="衝突を無効化" name="disable_collisions_check" tool_tip="このリージョンの非アバター衝突を無効にします。"/>
+	<check_box label="物理作用を無効化" name="disable_physics_check" tool_tip="このリージョンの物理作用をすべて無効にします。"/>
 	<button label="適用" name="apply_btn"/>
 	<text name="objret_text_lbl">
 		オブジェクトの返却
@@ -23,13 +23,13 @@
 	<text name="options_text_lbl">
 		オプション：
 	</text>
-	<check_box label="スクリプト付きのもの" name="return_scripts" tool_tip="スクリプトのオブジェクトだけ返却します"/>
-	<check_box label="他人の土地にあるもの" name="return_other_land" tool_tip="他人に属する土地にあるオブジェクトのみを返却します"/>
-	<check_box label="この不動産に属するすべてのリージョンのもの" name="return_estate_wide" tool_tip="この不動産に含まれているすべてのリージョン（地域）のオブジェクトを返却します"/>
+	<check_box label="スクリプト付きのもの" name="return_scripts" tool_tip="スクリプトのオブジェクトだけ返却します。"/>
+	<check_box label="他人の土地にあるもの" name="return_other_land" tool_tip="他人に属する土地にあるオブジェクトのみを返却します。"/>
+	<check_box label="この不動産に属するすべてのリージョンのもの" name="return_estate_wide" tool_tip="この不動産に含まれているすべてのリージョンのオブジェクトを返却します。"/>
 	<button label="返却" name="return_btn"/>
-	<button label="上部コライダー取得" name="top_colliders_btn" tool_tip="衝突する可能性が最も高いオブジェクトのリスト"/>
-	<button label="リージョン（地域）再起動" name="restart_btn" tool_tip="２分間のカウントダウン後、リージョン（地域）を再起動します"/>
-	<button label="上部スクリプト取得" name="top_scripts_btn" tool_tip="スクリプトの実行に最も時間を費やしているオブジェクトのリスト"/>
-	<button label="再起動をキャンセル" name="cancel_restart_btn" tool_tip="リージョンの再起動をキャンセル"/>
-	<button label="リージョン（地域）デバッグコンソール" name="region_debug_console_btn" tool_tip="リージョン（地域）デバッグコンソールを開く"/>
+	<button label="高コライダー取得" name="top_colliders_btn" tool_tip="衝突する可能性が最も高いオブジェクトのリストを表示します。"/>
+	<button label="リージョン再起動" name="restart_btn" tool_tip="２分間のカウントダウン後、リージョンを再起動します。"/>
+	<button label="高負荷スクリプト取得" name="top_scripts_btn" tool_tip="スクリプトの実行に最も時間を費やしているオブジェクトのリストを表示します。"/>
+	<button label="再起動をキャンセル" name="cancel_restart_btn" tool_tip="リージョンの再起動を取り消します。"/>
+	<button label="デバッグコンソール" name="region_debug_console_btn" tool_tip="リージョンデバッグコンソールを開きます。"/>
 </panel>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater name="contents" title="インベントリのサムネイルヘルパー">
+	<scroll_list name="inventory_thumbnails_list" tool_tip="インベントリにアイテムをペーストします。">
+		<scroll_list.columns label="インベントリのアイテム" name="item_name"/>
+		<scroll_list.columns label="存在するテクスチャ" name="existing_texture"/>
+		<scroll_list.columns label="新しいテクスチャ" name="new_texture"/>
+	</scroll_list>
+	<text_editor name="output_log"/>
+	<button label="インベントリからアイテムをペースト" name="paste_items_btn"/>
+	<button label="インベントリからテクスチャをペースト" name="paste_textures_btn"/>
+	<button label="サムネイルを書く" name="write_thumbnails_btn"/>
+	<button label="サムネイルがないアイテムをログに出力" name="log_missing_thumbnails_btn"/>
+	<button label="ペースとしたアイテムのサムネイルをクリア" name="clear_thumbnails_btn"/>
+</floater>

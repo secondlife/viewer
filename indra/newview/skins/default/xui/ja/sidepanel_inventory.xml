@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="オブジェクト" name="objects panel">
+<panel label="モノ" name="objects panel">
 	<panel label="" name="sidepanel_inventory_panel">
 		<layout_stack name="inventory_layout_stack">
 			<layout_panel name="inbox_layout_panel">
-				<panel label="" name="marketplace_inbox">
+				<panel name="marketplace_inbox">
 					<string name="InboxLabelWithArg">
 						受け取ったアイテム（[NUM]個）
 					</string>
@@ -12,9 +12,9 @@
 					</string>
 					<button label="受け取ったアイテム" name="inbox_btn"/>
 					<text name="inbox_fresh_new_count">
-						[NUM]個の新アイテム
+						新着[NUM]個
 					</text>
-					<panel name="inbox_inventory_placeholder_panel" tool_tip="アイテムを使用するには、そのアイテムをインベントリにドラッグアンドドロップ">
+					<panel name="inbox_inventory_placeholder_panel" tool_tip="アイテムを使用するには、そのアイテムをインベントリにドラッグ＆ドロップしてください。">
 						<text name="inbox_inventory_placeholder">
 							マーケットプレイスから購入した商品はここに配達されます。
 						</text>
@@ -22,21 +22,5 @@
 				</panel>
 			</layout_panel>
 		</layout_stack>
-		<panel name="button_panel">
-			<layout_stack name="button_panel_ls">
-				<layout_panel name="info_btn_lp">
-					<button label="プロフィール" name="info_btn" tool_tip="オブジェクトのプロフィールを表示する"/>
-				</layout_panel>
-				<layout_panel name="share_btn_lp">
-					<button label="共有" name="share_btn" tool_tip="インベントリ内のアイテムを共有する。"/>
-				</layout_panel>
-				<layout_panel name="shop_btn_lp">
-					<button label="ショッピング" name="shop_btn" tool_tip="マーケットプレイスのサイトを開く"/>
-					<button label="装着" name="wear_btn" tool_tip="選択したアウトフィットを着用す。る"/>
-					<button label="再生" name="play_btn"/>
-					<button label="テレポート" name="teleport_btn" tool_tip="該当するエリアにテレポートする。"/>
-				</layout_panel>
-			</layout_stack>
-		</panel>
 	</panel>
 </panel>

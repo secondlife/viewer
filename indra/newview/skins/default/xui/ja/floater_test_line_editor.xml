@@ -3,8 +3,8 @@
 	<line_editor name="enabled_line_editor" tool_tip="有効なラインエディタ">
 		ラインエディタを有効化
 	</line_editor>
-	<line_editor name="ascii_line_editor" prevalidate_callback="ascii" tool_tip="asciiラインエディタ">
-		ASCIIのみのラインエディタ
+	<line_editor name="ascii_line_editor" tool_tip="アスキー文字のみ使用可能なラインエディタです。">
+		アスキー文字のみのラインエディタ
 	</line_editor>
 	<line_editor name="disabled_line_editor" tool_tip="無効なラインエディタ">
 		ラインエディタを無効化

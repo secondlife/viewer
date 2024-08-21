@@ -3,17 +3,22 @@
 	<string name="No Outfit" value="アウトフィットなし"/>
 	<string name="Unsaved Changes" value="保存されていない変更"/>
 	<string name="Now Wearing" value="着用しています…"/>
-	<string name="Changing outfits" value="アウトフィットの変更"/>
+	<string name="Changing outfits" value="アウトフィット変更中"/>
 	<panel name="panel_currentlook">
-		<button label="E" name="editappearance_btn"/>
-		<button label="O" name="openoutfit_btn"/>
+		<button label="Ｅ" name="editappearance_btn"/>
+		<button label="Ｏ" name="openoutfit_btn"/>
+		<icon name="outfit_icon"/>
 		<text name="currentlook_status">
-			（状態）
+			（ステータス）
 		</text>
 		<text name="currentlook_name">
 			MOOSEみたいな長い名前の私のアウトフィット
 		</text>
 		<button label="" name="edit_outfit_btn" tool_tip="このアウトフィットを編集"/>
+		<loading_indicator name="wearables_loading_indicator"/>
 	</panel>
-	<filter_editor label="アウトフィットをフィルタ" name="Filter"/>
+	<search_editor label="アウトフィットをフィルタ" name="Filter"/>
+	<panel name="panel_outfits_inventory"/>
+	<panel name="panel_outfit_edit"/>
+	<panel name="panel_edit_wearable"/>
 </panel>

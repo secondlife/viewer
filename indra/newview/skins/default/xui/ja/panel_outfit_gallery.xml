@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="Outfit Gallery">
 	<string name="outfit_photo_string">
-		"[OUTFIT_NAME]"のアウトフィットの画像
+		「[OUTFIT_NAME]」のアウトフィットの画像
 	</string>
 	<string name="no_outfits_msg">
 		あなたは、まだアウトフィットを持っていません。[secondlife:///app/search/all/ 検索]してみてください。
@@ -10,22 +10,12 @@
 		お探しのものが見つかりませんでしたか？[secondlife:///app/search/all/[SEARCH_TERM] 検索]してみてください。
 	</string>
 	<text name="no_outfits_txt">
-		検索中…
+		検索しています…
 	</text>
-	<scroll_container name="gallery_scroll_panel">
-    
-    
-    
-  </scroll_container>
+	<scroll_container name="gallery_scroll_panel"/>
 	<panel name="bottom_panel">
 		<menu_button tool_tip="追加オプションを表示" name="options_gear_btn"/>
 		<icon name="dummy_icon"/>
-		<text name="OutfitcountText">
-			[COUNT]個
-		</text>
-		<text name="avatar_complexity_label">
-			複雑度：[WEIGHT]
-		</text>
-		<button name="trash_btn" tool_tip="選択されたアウトフィットを削除"/>
+		<button name="trash_btn" tool_tip="選択されたアウトフィットを削除する。"/>
 	</panel>
 </panel>

@@ -2,6 +2,6 @@
 <toggleable_menu name="menu_conversation_view">
 	<menu_item_check label="名前で並べ替え" name="sort_by_name"/>
 	<menu_item_check label="日付で並べ替え" name="sort_by_date"/>
-	<menu_item_check label="上位のフレンドを並べ替え" name="sort_by_friends"/>
-	<menu_item_call label="近隣チャットの履歴を表示…" name="view_nearby_chat_history"/>
+	<menu_item_check label="上位のフレンドで並べ替え" name="sort_by_friends"/>
+	<menu_item_call label="近くのチャットの履歴を表示…" name="view_nearby_chat_history"/>
 </toggleable_menu>

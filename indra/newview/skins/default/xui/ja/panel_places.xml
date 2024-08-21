@@ -3,7 +3,7 @@
 	<string name="landmarks_tab_title" value="ランドマーク"/>
 	<string name="teleport_history_tab_title" value="訪問した場所"/>
 	<string name="favorites_tab_title" value="お気に入り"/>
-	<string name="tooltip_trash_items" value="選択されたランドマークかフォルダを削除"/>
+	<string name="tooltip_trash_items" value="選択したランドマークかフォルダを削除"/>
 	<string name="tooltip_trash_history" value="訪問した場所一覧を削除"/>
 	<layout_stack name="places_layout_panel">
 		<layout_panel name="main_panel">
@@ -12,13 +12,13 @@
 					<filter_editor label="場所をフィルタ" name="Filter"/>
 				</layout_panel>
 				<layout_panel name="options_gear_btn_panel">
-					<menu_button tool_tip="オプションを表示" name="options_gear_btn"/>
+					<menu_button tool_tip="オプションを表示します。" name="options_gear_btn"/>
 				</layout_panel>
 				<layout_panel name="options_sort_btn_panel">
-					<menu_button tool_tip="ソートオプションを表示" name="sorting_menu_btn"/>
+					<menu_button tool_tip="並べ替えオプションを表示します。" name="sorting_menu_btn"/>
 				</layout_panel>
 				<layout_panel name="add_btn_panel">
-					<menu_button name="add_menu_btn" tool_tip="新しいランドマークかフォルダを追加"/>
+					<menu_button name="add_menu_btn" tool_tip="新しいランドマークかフォルダを追加します。"/>
 				</layout_panel>
 				<layout_panel name="trash_btn_panel">
 					<dnd_button name="trash_btn"/>
@@ -28,21 +28,21 @@
 			<panel name="panel_place_profile"/>
 			<panel name="panel_landmark_info"/>
 		</layout_panel>
-		<layout_panel auto_resize="false" layout="topleft" height="25" name="button_layout_panel">
+		<layout_panel name="button_layout_panel">
 			<panel name="button_panel">
 				<layout_stack name="bottom_bar_ls0">
 					<layout_panel name="lp1">
 						<layout_stack name="bottom_bar_ls1">
 							<layout_panel name="teleport_btn_lp">
-								<button label="テレポート" name="teleport_btn" tool_tip="該当するエリアにテレポートする"/>
+								<button label="テレポート" name="teleport_btn" tool_tip="該当するエリアにテレポートします。"/>
 							</layout_panel>
 							<layout_panel name="chat_btn_lp">
-								<button label="マップ" name="map_btn" tool_tip="ワールドマップに該当するエリアを表示"/>
+								<button label="マップ" name="map_btn" tool_tip="ワールドマップに該当するエリアを表示します。"/>
 							</layout_panel>
 						</layout_stack>
 					</layout_panel>
 					<layout_panel name="lp_options">
-						<menu_button name="overflow_btn" tool_tip="追加オプションを表示"/>
+						<menu_button name="overflow_btn" tool_tip="追加オプションを表示します。"/>
 					</layout_panel>
 					<layout_panel name="lp2">
 						<layout_stack name="bottom_bar_close_ls3">

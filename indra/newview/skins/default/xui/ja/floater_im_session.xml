@@ -12,45 +12,55 @@
 	<floater.string name="expand_icon" value="Conv_toolbar_expand"/>
 	<floater.string name="tear_off_icon" value="Conv_toolbar_arrow_ne"/>
 	<floater.string name="return_icon" value="Conv_toolbar_arrow_sw"/>
-	<floater.string name="participant_added" value="[NAME]に会話を招待されました。"/>
-	<floater.string name="multiple_participants_added" value="[NAME]は会話に招待されました。"/>
-	<floater.string name="tooltip_to_separate_window" value="この会話を別のウィンドウへ移動する"/>
-	<floater.string name="tooltip_to_main_window" value="この会話をメインウィンドウへ戻す"/>
-	<floater.string name="start_call_button_tooltip" value="会話の接続を開く"/>
-	<floater.string name="end_call_button_tooltip" value="会話の接続を閉じる"/>
-	<floater.string name="expcol_button_not_tearoff_tooltip" value="このペインを閉じる"/>
-	<floater.string name="expcol_button_tearoff_and_expanded_tooltip" value="参加者リストを閉じる"/>
-	<floater.string name="expcol_button_tearoff_and_collapsed_tooltip" value="参加者リストを開く"/>
+	<floater.string name="participant_added" value="[NAME]から会話への参加を招待されました。"/>
+	<floater.string name="multiple_participants_added" value="[NAME]が会話に招待されました。"/>
+	<floater.string name="tooltip_to_separate_window" value="この会話を別のウィンドウへ移動させます。"/>
+	<floater.string name="tooltip_to_main_window" value="この会話をメインウィンドウへ戻します。"/>
+	<floater.string name="start_call_button_tooltip" value="ボイスチャット接続を開きます。"/>
+	<floater.string name="end_call_button_tooltip" value="ボイスチャット接続を閉じます。"/>
+	<floater.string name="expcol_button_not_tearoff_tooltip" value="このペインを閉じます。"/>
+	<floater.string name="expcol_button_tearoff_and_expanded_tooltip" value="参加者リストを閉じます。"/>
+	<floater.string name="expcol_button_tearoff_and_collapsed_tooltip" value="参加者リストを開きます。"/>
 	<view name="contents_view">
 		<layout_stack name="main_stack">
 			<layout_panel name="toolbar_panel">
-				<menu_button name="view_options_btn" tool_tip="表示／並べ替えのオプション"/>
-				<menu_button name="gear_btn" tool_tip="選択した人に対するアクション"/>
-				<button name="add_btn" tool_tip="この会話に他の人を追加する"/>
-				<button name="voice_call_btn" tool_tip="会話の接続を開く"/>
-				<button name="close_btn" tool_tip="この会話を終了する"/>
-				<button name="expand_collapse_btn" tool_tip="このペインを閉じる／開く"/>
+				<menu_button name="view_options_btn" tool_tip="表示／並べ替えのオプションを表示します。"/>
+				<menu_button name="gear_btn" tool_tip="選択した人物に対する操作を表示します。"/>
+				<button name="add_btn" tool_tip="この会話に他の人物を追加します。"/>
+				<button name="voice_call_btn" tool_tip="ボイスチャット接続を開きます。"/>
+				<button name="close_btn" tool_tip="この会話を終了します。"/>
+				<button name="expand_collapse_btn" tool_tip="このペインを開閉します。"/>
+				<button name="tear_off_btn"/>
 			</layout_panel>
 			<layout_panel name="body_panel">
 				<layout_stack name="im_panels">
 					<layout_panel name="right_part_holder">
-						<layout_stack name="translate_and_chat_stack">
-							<layout_panel name="translate_chat_checkbox_lp">
-								<check_box label="チャットを翻訳" name="translate_chat_checkbox"/>
-							</layout_panel>
-						</layout_stack>
+						<layout_stack name="translate_and_chat_stack"/>
 					</layout_panel>
 				</layout_stack>
 			</layout_panel>
 			<layout_panel name="chat_layout_panel">
 				<layout_stack name="input_panels">
 					<layout_panel name="input_editor_layout_panel">
-						<chat_editor label="送信先" name="chat_editor"/>
+						<avatar_icon name="avatar_icon"/>
+						<group_icon name="group_chat_icon"/>
+						<icon name="nearby_chat_icon"/>
+						<chat_editor name="chat_editor"/>
+						<button name="emoji_recent_panel_toggle_btn" tool_tip="最近利用した絵文字を表示／非表示します。" />
 					</layout_panel>
 					<layout_panel name="input_button_layout_panel">
-						<button name="minz_btn" tool_tip="メッセージパネルの表示／非表示"/>
+						<button name="minz_btn" tool_tip="メッセージパネルの表示／非表示の切り替えを行います。"/>
 					</layout_panel>
 				</layout_stack>
+			</layout_panel>
+			<layout_panel name="emoji_recent_layout_panel">
+				<text name="emoji_recent_empty_text">
+					最近使用した絵文字はここに表示されます。
+				</text>
+				<panel name="emoji_recent_container">
+					<emoji_complete name="emoji_recent_icons_ctrl"/>
+				</panel>
+				<button name="emoji_picker_show_btn" label="参照" tool_tip="絵文字ピッカーを表示／非表示します。"/>
 			</layout_panel>
 		</layout_stack>
 	</view>

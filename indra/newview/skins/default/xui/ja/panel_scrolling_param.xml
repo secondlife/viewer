@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="LLScrollingPanelParam">
+	<text name="min param text"/>
+	<text name="max param text"/>
 	<text name="Loading...">
 		読み込んでいます…
 	</text>
 	<text name="Loading...2">
 		読み込んでいます…
 	</text>
-	<button label="" label_selected="" name="less"/>
-	<button label="" label_selected="" name="more"/>
+	<view_border name="left_border"/>
+	<view_border name="right_border"/>
+	<button name="less"/>
+	<button name="more"/>
 	<slider label="[DESC]" name="param slider"/>
 </panel>

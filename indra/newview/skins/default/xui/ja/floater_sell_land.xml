@@ -9,7 +9,7 @@
 				区画名
 			</text>
 			<text name="info_size_label">
-				サイズ：
+				広さ：
 			</text>
 			<text name="info_size">
 				[AREA]㎡
@@ -39,7 +39,7 @@
 				販売先を特定の人物に限定するか、しないかを選択してください。
 			</text>
 			<combo_box name="sell_to">
-				<combo_box.item label="─１つ選択─" name="--selectone--"/>
+				<combo_box.item label="‐１つ選択‐" name="--selectone--"/>
 				<combo_box.item label="指定なし・誰にでも販売" name="Anyone"/>
 				<combo_box.item label="特定の人物：" name="Specificuser:"/>
 			</combo_box>

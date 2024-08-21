@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater_people" title="人物">
 	<panel_container name="main_panel">
-		<panel label="グループのプロフィール" name="panel_group_info_sidetray"/>
-		<panel label="ブロックされた住人とオブジェクト" name="panel_block_list_sidetray"/>
+		<panel name="panel_people"/>
+		<panel name="panel_group_info_sidetray" label="グループのプロフィール"/>
+		<panel name="panel_group_creation_sidetray" label="グループ作成"/>
 	</panel_container>
 </floater>

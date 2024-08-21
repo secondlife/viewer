@@ -2,7 +2,7 @@
 <toggleable_menu name="Gear Wearing">
 	<menu_item_call label="触る" name="touch"/>
 	<menu_item_call label="編集" name="edit_item"/>
-	<menu_item_call label="アウトフィットの編集" name="edit_outfit"/>
 	<menu_item_call label="脱ぐ" name="takeoff"/>
+	<menu_item_call label="アウトフィットの編集" name="edit_outfit"/>
 	<menu_item_call label="アウトフィットのリストをクリップボードにコピー" name="copy"/>
 </toggleable_menu>

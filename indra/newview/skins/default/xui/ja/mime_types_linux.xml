@@ -65,12 +65,12 @@
 	</scheme>
 	<mimetype name="blank">
 		<label name="blank_label">
-			─なし─
+			‐なし‐
 		</label>
 	</mimetype>
 	<mimetype name="none/none">
 		<label name="none/none_label">
-			─なし─
+			‐なし‐
 		</label>
 	</mimetype>
 	<mimetype name="audio/*">

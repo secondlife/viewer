@@ -3,4 +3,5 @@
 	<text name="title">
 		鱒にご用心！鱒！に！ご用心！
 	</text>
+	<button name="close_btn"/>
 </panel>

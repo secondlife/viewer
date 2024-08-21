@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Animation Preview">
 	<floater.string name="failed_to_initialize">
-		動きを初期化できませんでした
+		動きを初期化できませんでした。
 	</floater.string>
 	<floater.string name="anim_too_long">
 		このアニメーションファイルの長さは[LENGTH]秒です。
@@ -171,9 +171,9 @@
 	</combo_box>
 	<spinner label="イーズ・イン（秒）" name="ease_in_time" tool_tip="アニメーションのブレンドイン時間（秒）"/>
 	<spinner label="イーズ・アウト（秒）" name="ease_out_time" tool_tip="アニメーションのブレンドアウト時間（秒）"/>
-	<button name="play_btn" tool_tip="アニメーションを再生する。"/>
-	<button name="pause_btn" tool_tip="アニメーションを一時停止する。"/>
-	<button name="stop_btn" tool_tip="アニメーションの再生を停止する。"/>
+	<button name="play_btn" tool_tip="アニメーションを再生します。"/>
+	<button name="pause_btn" tool_tip="アニメーションを一時停止します。"/>
+	<button name="stop_btn" tool_tip="アニメーションの再生を停止します。"/>
 	<text name="bad_animation_text">
 		アニメーションファイルを読み取れません。Poser 4からエクスポートしたBVHファイルをお勧めします。
 	</text>

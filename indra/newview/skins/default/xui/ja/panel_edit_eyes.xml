@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="edit_eyes_panel">
 	<panel name="avatar_eye_color_panel">
-		<texture_picker label="瞳" name="Iris" tool_tip="クリックして画像を選択します"/>
+		<texture_picker label="瞳" name="Iris" tool_tip="クリックで画像を選択します。"/>
 	</panel>
 	<panel name="accordion_panel">
 		<accordion name="wearable_accordion">

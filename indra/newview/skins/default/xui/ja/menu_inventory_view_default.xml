@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu name="menu_view_default">
+	<menu_item_check label="名前順で並べ替える" name="sort_by_name"/>
+	<menu_item_check label="新着順で並べ替える" name="sort_by_recent"/>
+	<menu_item_check label="フォルダは常に名前順にして並べ替える" name="sort_folders_by_name"/>
+	<menu_item_check label="システムフォルダを上にして並べ替える" name="sort_system_folders_to_top"/>
+	<menu_item_separator/>
+	<menu_item_check label="リスト表示" name="list_view"/>
+	<menu_item_check label="ギャラリー表示" name="gallery_view"/>
+	<menu_item_check label="複合表示" name="combination_view"/>
+	<menu_item_separator/>
+	<menu_item_check label="インベントリの設定…" name="inv_settings"/>
+</toggleable_menu>

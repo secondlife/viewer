@@ -6,21 +6,21 @@
 		<layout_panel name="conversations_layout_panel">
 			<layout_stack name="conversations_pane_buttons_stack">
 				<layout_panel name="conversations_pane_buttons_expanded">
-					<menu_button name="sort_btn" tool_tip="オプションの表示／並べ替え"/>
+					<menu_button name="sort_btn" tool_tip="表示／並べ替えのオプションを表示します。"/>
 					<button name="add_btn" tool_tip="新しい会話を開始"/>
 					<button name="speak_btn" tool_tip="マイクを使って人と話す"/>
 				</layout_panel>
 				<layout_panel name="conversations_pane_buttons_collapsed">
-					<button name="expand_collapse_btn" tool_tip="このリストを閉じる／開く"/>
+					<button name="expand_collapse_btn" tool_tip="このリストを最大化／最小化します。"/>
 				</layout_panel>
 			</layout_stack>
 		</layout_panel>
 		<layout_panel name="messages_layout_panel">
 			<panel_container name="im_box_tab_container">
 				<panel name="stub_panel">
-					<button name="stub_collapse_btn" tool_tip="このペインを閉じる"/>
+					<button name="stub_collapse_btn" tool_tip="このペインを最小化します。"/>
 					<text name="stub_textbox">
-						この会話は、別のウィンドウに表示されます。[secondlife:/// 戻る.]
+						この会話は別ウィンドウで表示されます。[secondlife:/// 戻る]
 					</text>
 				</panel>
 			</panel_container>

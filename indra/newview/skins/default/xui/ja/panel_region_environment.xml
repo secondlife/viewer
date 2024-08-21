@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="環境" name="panel_env_info">
+<panel label="自然環境の設定" name="panel_env_info">
 	<string name="str_label_use_default">
 		既定の設定を使用
 	</string>
 	<string name="str_label_use_region">
-		リージョン（地域）の設定を使用
+		リージョンの設定を使用
 	</string>
 	<string name="str_altitude_desription">
 		空 [INDEX]（[ALTITUDE]ｍ）
@@ -13,13 +13,13 @@
 		区画が選択されていません。環境の設定は無効になっています。
 	</string>
 	<string name="str_cross_region">
-		リージョン（地域）の境界では環境の設定ができません。
+		リージョンの境界では環境の設定ができません。
 	</string>
 	<string name="str_legacy">
-		このリージョン（地域）で環境の設定ができません。
+		このリージョンで環境の設定ができません。
 	</string>
 	<string name="str_disallowed">
-		このリージョン（地域）の不動産マネージャーは、区画ごとの環境の変更を許可していません。
+		このリージョンの不動産マネージャーは、区画ごとの環境の変更を許可していません。
 	</string>
 	<string name="str_too_small">
 		環境を変更するには、最低でも128㎡の区画が必要です。
@@ -41,13 +41,30 @@
 				<layout_panel name="pnl_environment_config">
 					<layout_stack>
 						<layout_panel name="pnl_environment_current">
+							<text>
+								自然環境の設定を選択
+							</text>
 							<button label="[USEDEFAULT]" name="btn_usedefault"/>
-							<button label="インベントリを使う" name="btn_select_inventory"/>
+							<button label="インベントリを使用" name="btn_select_inventory"/>
 							<button label="カスタマイズ" name="btn_edit"/>
-							<check_box label="区画所有者による環境を上書きを許可" name="chk_allow_override"/>
+							<check_box label="区画所有者による自然環境の設定を上書きを許可" name="chk_allow_override"/>
 						</layout_panel>
 						<layout_panel name="pnl_environment_length">
-							<text name="lbl_apparent_time">
+							<text>
+								一日の設定
+							</text>
+							<text>
+								一日の長さ（時間）
+							</text>
+							<slider name="sld_day_length"/>
+							<text>
+								日中のオフセット（時間）
+							</text>
+							<slider name="sld_day_offset"/>
+							<text>
+								見かけ上の時刻：
+							</text>
+							<text>
 								[AP]　[HH]：[MM]（[PRC]％）
 							</text>
 						</layout_panel>
@@ -57,7 +74,8 @@
 				<layout_panel name="pnl_environment_altitudes">
 					<panel name="pnl_alt1">
 						<text name="txt_alt1">
-							空[INDEX]　[ALTITUDE]ｍ
+							空[INDEX]
+[ALTITUDE]ｍ
 						</text>
 						<line_editor name="edt_invname_alt1">
 							不明
@@ -66,7 +84,8 @@
 					</panel>
 					<panel name="pnl_alt2">
 						<text name="txt_alt2">
-							空[INDEX]　[ALTITUDE]ｍ
+							空[INDEX]
+[ALTITUDE]ｍ
 						</text>
 						<line_editor name="edt_invname_alt2">
 							不明
@@ -74,27 +93,31 @@
 						<settings_drop_target name="sdt_alt2" tool_tip="インベントリからターゲットボックスに設定をドラッグし、現在の空として選択します。"/>
 					</panel>
 					<panel name="pnl_alt3">
-						<text name="txt_alt3">
-							空[INDEX]　[ALTITUDE]ｍ
+						<text name="txt_alt3">空[INDEX]
+[ALTITUDE]ｍ
 						</text>
 						<line_editor name="edt_invname_alt3">
 							不明
 						</line_editor>
 						<settings_drop_target name="sdt_alt3" tool_tip="インベントリからターゲットボックスに設定をドラッグし、現在の空として選択します。"/>
 					</panel>
-					<multi_slider initial_value="0" name="sld_altitudes">
+					<text>
+						空の高度
+					</text>
+					<multi_slider name="sld_altitudes">
 						<slider name="sld1" value="1000"/>
 						<slider name="sld2" value="2000"/>
 						<slider name="sld3" value="3000"/>
 					</multi_slider>
 					<panel name="pnl_ground">
 						<text name="txt_ground">
-							地面
+							地表
 						</text>
+						<icon name="icon_ground"/>
 						<line_editor name="edt_invname_ground">
 							不明
 						</line_editor>
-						<settings_drop_target name="sdt_ground" tool_tip="インベントリからターゲットボックスに設定をドラッグし、地面レベルの空として選択します。"/>
+						<settings_drop_target name="sdt_ground" tool_tip="インベントリからターゲットボックスに設定をドラッグし、地表の空として選択します。"/>
 					</panel>
 					<panel name="pnl_water">
 						<text name="txt_water">
@@ -103,16 +126,16 @@
 						<line_editor name="edt_invname_water">
 							不明
 						</line_editor>
-						<settings_drop_target name="sdt_water" tool_tip="インベントリからターゲットボックスに設定をドラッグし、現在の水面として選択する"/>
+						<settings_drop_target name="sdt_water" tool_tip="インベントリからターゲットボックスに設定をドラッグし、現在の水面として選択します。"/>
 					</panel>
-					<button label="リセット" name="btn_rst_altitudes" tool_tip="デフォルトの高度にリセット"/>
+					<button label="リセット" tool_tip="デフォルトの高度にリセットします。" name="btn_rst_altitudes"/>
 				</layout_panel>
 			</layout_stack>
 		</layout_panel>
 	</layout_stack>
 	<layout_panel name="pnl_environment_region_msg">
 		<text name="region_text_lbl">
-			リージョン（地域）：
+			リージョン：
 		</text>
 		<text name="region_text">
 			不明

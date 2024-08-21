@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="modal container">
 	<button label="続行" label_selected="続行" name="Continue"/>
-	<button label="キャンセル" label_selected="キャンセル" name="Cancel"/>
-	<text name="tos_title">
-		重要なメッセージ
-	</text>
 	<text name="tos_heading">
 		次のメッセージを注意してよくお読みください。
 	</text>

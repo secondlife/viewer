@@ -6,26 +6,40 @@
 	<floater.string name="pick title">
 		ピック：
 	</floater.string>
+	<floater.string name="pick_material">
+		ピック：マテリアル
+	</floater.string>
+	<floater.string name="pick_texture">
+		ピック：テクスチャ
+	</floater.string>
+	<view name="preview_widget"/>
 	<text name="Multiple">
 		複数のテクスチャ
 	</text>
 	<combo_box name="mode_selection">
 		<combo_box.item label="インベントリ" name="inventory" value="0"/>
 		<combo_box.item label="ローカル" name="local" value="1"/>
+		<combo_box.item label="ベイク" name="bake" value="2"/>
 	</combo_box>
+	<text name="size_lbl">
+		[DIMENSIONS]
+	</text>
+	<text name="over_limit_lbl">
+		選択されているテクスチャは[TEXDIM]です。インベントリ画像は[MINTEXDIM]以上の正方形である必要があります。
+	</text>
 	<button label="デフォルト" label_selected="デフォルト" name="Default"/>
 	<button label="ブランク" label_selected="ブランク" name="Blank"/>
 	<button label="なし" label_selected="なし" name="None"/>
-	<button label="" label_selected="" name="Pipette"/>
+	<button name="Pipette"/>
 	<text name="preview_disabled" value="プレビュー無効"/>
 	<filter_editor label="テクスチャをフィルタ" name="inventory search editor"/>
-	<check_box initial_value="false" label="フォルダを表示" name="show_folders_check"/>
+	<asset_filtered_inv_panel name="inventory panel"/>
 	<button label="追加" label_selected="追加" name="l_add_btn"/>
 	<button label="削除" label_selected="削除" name="l_rem_btn"/>
 	<button label="アップロード" label_selected="アップロード" name="l_upl_btn"/>
 	<scroll_list name="l_name_list">
-		<column label="名前" name="unit_name"/>
-		<column label="ＩＤ" name="unit_id_HIDDEN"/>
+		<column name="icon" label=""/>
+		<column name="unit_name" label="名前"/>
 	</scroll_list>
 	<combo_box name="l_bake_use_texture_combo_box" tool_tip="構築（ベーク）するテクスチャを選択">
 		<combo_box.item label="なし" name="None"/>
@@ -41,8 +55,7 @@
 		<combo_box.item label="BAKED_AUX2" name="BAKED_AUX2"/>
 		<combo_box.item label="BAKED_AUX3" name="BAKED_AUX3"/>
 	</combo_box>
-	<check_box initial_value="false" label="基本となるメッシュリージョンを隠す" name="hide_base_mesh_region"/>
 	<button label="ＯＫ" label_selected="ＯＫ" name="Select"/>
 	<button label="キャンセル" label_selected="キャンセル" name="Cancel"/>
-	<check_box initial_value="true" label="今すぐ適用" name="apply_immediate_check"/>
+	<check_box label="すぐ反映" name="apply_immediate_check"/>
 </floater>

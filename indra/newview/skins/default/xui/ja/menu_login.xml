@@ -8,7 +8,6 @@
 	</menu>
 	<menu label="ヘルプ" name="Help">
 		<menu_item_call label="ハウツー…" name="How To"/>
-		<menu_item_call label="クイックスタート" name="Quickstart"/>
 		<menu_item_call label="ナレッジベース" name="Knowledge Base"/>
 		<menu_item_call label="Wiki" name="Wiki"/>
 		<menu_item_call label="コミュニティ フォーラム" name="Community Forums"/>
@@ -21,8 +20,20 @@
 	<menu_item_check label="デバッグメニューを表示する" name="Show Debug Menu"/>
 	<menu label="デバッグ" name="Debug">
 		<menu_item_call label="デバッグ設定を表示" name="Debug Settings"/>
-		<menu_item_call label="XUIプレビューツール" name="UI Preview Tool"/>
-		<menu label="UI テスト" name="UI Tests"/>
+		<menu_item_call label="ＸＵＩプレビューツール" name="UI Preview Tool"/>
+		<menu_item_separator />
+		<menu label="フォント" name="Fonts">
+			<menu_item_call label="フォントテストを表示" name="Show Font Test"/>
+			<menu_item_separator />
+			<menu_item_call label="フォントをダンプ" name="Dump Fonts"/>
+			<menu_item_call label="フォントをテクスチャにダンプ" name="Dump Font Textures"/>
+		</menu>
+		<menu label="ＵＩテスト" name="UI Tests">
+			<menu_item_call label="テキストボックス" name="Textbox"/>
+			<menu_item_call label="テキストエディタ" name="Text Editor"/>
+			<menu_item_call label="ウィジェット" name="Widgets"/>
+			<menu_item_call label="インスペクタ" name="Inspectors"/>
+		</menu>
 		<menu_item_call label="ウィンドウのサイズを設定…" name="Set Window Size..."/>
 		<menu_item_call label="利用規約を表示" name="TOS"/>
 		<menu_item_call label="クリティカルメッセージを表示" name="Critical"/>
