@@ -34,6 +34,7 @@
 
 class LLComboBox;
 class LLImageRaw;
+class LLLayoutPanel;
 
 class LLPreviewTexture : public LLPreview
 {
@@ -105,5 +106,9 @@ private:
 
     LLLoadedCallbackEntry::source_callback_list_t mCallbackTextureList ;
     std::vector<std::string>        mRatiosList;
+
+    LLLayoutPanel* mButtonsPanel = nullptr;
+    LLUICtrl* mDimensionsText = nullptr;
+    LLUICtrl* mAspectRatioText = nullptr;
 };
 #endif  // LL_LLPREVIEWTEXTURE_H

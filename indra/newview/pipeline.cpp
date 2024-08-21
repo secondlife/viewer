@@ -777,7 +777,7 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
     if (mRT == &mMainRT)
     { // hacky -- allocate auxillary buffer
 
-        gCubeSnapshot = TRUE;
+        gCubeSnapshot = true;
 
         if (sReflectionProbesEnabled)
         {
@@ -812,17 +812,6 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
         resY /= res_mod;
     }
 
-    //water reflection texture (always needed as scratch space whether or not transparent water is enabled)
-    mWaterDis.allocate(resX, resY, GL_RGBA16F, true);
-
-    if (RenderUIBuffer)
-    {
-        if (!mRT->uiScreen.allocate(resX,resY, GL_RGBA))
-        {
-            return false;
-        }
-    }
-
     S32 shadow_detail = RenderShadowDetail;
     bool ssao = RenderDeferredSSAO;
 
@@ -836,15 +825,6 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 
     mRT->deferredScreen.shareDepthBuffer(mRT->screen);
 
-    if (samples > 0)
-    {
-        if (!mRT->fxaaBuffer.allocate(resX, resY, GL_RGBA)) return false;
-    }
-    else
-    {
-        mRT->fxaaBuffer.release();
-    }
-
     if (shadow_detail > 0 || ssao || RenderDepthOfField || samples > 0)
     { //only need mRT->deferredLight for shadows OR ssao OR dof OR fxaa
         if (!mRT->deferredLight.allocate(resX, resY, GL_RGBA16F)) return false;
@@ -856,19 +836,45 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 
     allocateShadowBuffer(resX, resY);
 
-    if (!gCubeSnapshot && RenderScreenSpaceReflections) // hack to not allocate mSceneMap for cube snapshots
+    if (!gCubeSnapshot) // hack to not re-allocate various targets for cube snapshots
     {
-        mSceneMap.allocate(resX, resY, GL_RGB, true);
+        if (RenderUIBuffer)
+        {
+            if (!mUIScreen.allocate(resX, resY, GL_RGBA))
+            {
+                return false;
+            }
+        }
+
+        if (samples > 0)
+        {
+            if (!mFXAAMap.allocate(resX, resY, GL_RGBA)) return false;
+        }
+        else
+        {
+            mFXAAMap.release();
+        }
+
+        //water reflection texture (always needed as scratch space whether or not transparent water is enabled)
+        mWaterDis.allocate(resX, resY, GL_RGBA16F, true);
+
+        if(RenderScreenSpaceReflections)
+        {
+            mSceneMap.allocate(resX, resY, GL_RGB, true);
+        }
+        else
+        {
+            mSceneMap.release();
+        }
+
+        const bool post_hdr = gSavedSettings.getBOOL("RenderPostProcessingHDR");
+        const U32 post_color_fmt = post_hdr ? GL_RGBA16F : GL_RGBA;
+        mPostMap.allocate(resX, resY, post_color_fmt);
+
+        // used to scale down textures
+        // See LLViwerTextureList::updateImagesCreateTextures and LLImageGL::scaleDown
+        mDownResMap.allocate(4, 4, GL_RGBA);
     }
-
-    const bool post_hdr = gSavedSettings.getBOOL("RenderPostProcessingHDR");
-    const U32 post_color_fmt = post_hdr ? GL_RGBA16F : GL_RGBA;
-    mPostMap.allocate(resX, resY, post_color_fmt);
-
-    // used to scale down textures
-    // See LLViwerTextureList::updateImagesCreateTextures and LLImageGL::scaleDown
-    mDownResMap.allocate(4, 4, GL_RGBA);
-
     //HACK make screenbuffer allocations start failing after 30 seconds
     if (gSavedSettings.getBOOL("SimulateFBOFailure"))
     {
@@ -890,7 +896,7 @@ bool LLPipeline::allocateShadowBuffer(U32 resX, U32 resY)
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
     S32 shadow_detail = RenderShadowDetail;
 
-    F32 scale = llmax(0.f, RenderShadowResolutionScale);
+    F32 scale = gCubeSnapshot ? 1.0f : llmax(0.f, RenderShadowResolutionScale); // Don't scale probe shadow maps
     U32 sun_shadow_map_width = BlurHappySize(resX, scale);
     U32 sun_shadow_map_height = BlurHappySize(resY, scale);
 
@@ -1110,12 +1116,18 @@ void LLPipeline::releaseGLBuffers()
 
     mPostMap.release();
 
+    mFXAAMap.release();
+
+    mUIScreen.release();
+
     mDownResMap.release();
 
     for (U32 i = 0; i < 3; i++)
     {
         mGlow[i].release();
     }
+
+    mHeroProbeManager.cleanup(); // release hero probes
 
     releaseScreenBuffers();
 
@@ -1147,15 +1159,15 @@ void LLPipeline::releaseShadowBuffers()
 
 void LLPipeline::releaseScreenBuffers()
 {
-    mRT->uiScreen.release();
     mRT->screen.release();
-    mRT->fxaaBuffer.release();
     mRT->deferredScreen.release();
     mRT->deferredLight.release();
 
-    mHeroProbeRT.uiScreen.release();
+    mAuxillaryRT.screen.release();
+    mAuxillaryRT.deferredScreen.release();
+    mAuxillaryRT.deferredLight.release();
+
     mHeroProbeRT.screen.release();
-    mHeroProbeRT.fxaaBuffer.release();
     mHeroProbeRT.deferredScreen.release();
     mHeroProbeRT.deferredLight.release();
 }
@@ -7123,7 +7135,7 @@ void LLPipeline::applyFXAA(LLRenderTarget* src, LLRenderTarget* dst)
 {
     {
         llassert(!gCubeSnapshot);
-        bool multisample = RenderFSAASamples > 1 && mRT->fxaaBuffer.isComplete();
+        bool multisample = RenderFSAASamples > 1 && mFXAAMap.isComplete();
         LLGLSLShader* shader = &gGlowCombineProgram;
 
         S32 width = dst->getWidth();
@@ -7134,7 +7146,7 @@ void LLPipeline::applyFXAA(LLRenderTarget* src, LLRenderTarget* dst)
         {
             LL_PROFILE_GPU_ZONE("aa");
             // bake out texture2D with RGBL for FXAA shader
-            mRT->fxaaBuffer.bindTarget();
+            mFXAAMap.bindTarget();
 
             shader = &gGlowCombineFXAAProgram;
             shader->bind();
@@ -7154,16 +7166,16 @@ void LLPipeline::applyFXAA(LLRenderTarget* src, LLRenderTarget* dst)
             shader->disableTexture(LLShaderMgr::DEFERRED_DIFFUSE, src->getUsage());
             shader->unbind();
 
-            mRT->fxaaBuffer.flush();
+            mFXAAMap.flush();
 
             dst->bindTarget();
             shader = &gFXAAProgram;
             shader->bind();
 
-            channel = shader->enableTexture(LLShaderMgr::DIFFUSE_MAP, mRT->fxaaBuffer.getUsage());
+            channel = shader->enableTexture(LLShaderMgr::DIFFUSE_MAP, mFXAAMap.getUsage());
             if (channel > -1)
             {
-                mRT->fxaaBuffer.bindTexture(0, channel, LLTexUnit::TFO_BILINEAR);
+                mFXAAMap.bindTexture(0, channel, LLTexUnit::TFO_BILINEAR);
             }
 
             gGLViewport[0] = gViewerWindow->getWorldViewRectRaw().mLeft;
@@ -7173,8 +7185,8 @@ void LLPipeline::applyFXAA(LLRenderTarget* src, LLRenderTarget* dst)
 
             glViewport(gGLViewport[0], gGLViewport[1], gGLViewport[2], gGLViewport[3]);
 
-            F32 scale_x = (F32)width / mRT->fxaaBuffer.getWidth();
-            F32 scale_y = (F32)height / mRT->fxaaBuffer.getHeight();
+            F32 scale_x = (F32)width / mFXAAMap.getWidth();
+            F32 scale_y = (F32)height / mFXAAMap.getHeight();
             shader->uniform2f(LLShaderMgr::FXAA_TC_SCALE, scale_x, scale_y);
             shader->uniform2f(LLShaderMgr::FXAA_RCP_SCREEN_RES, 1.f / width * scale_x, 1.f / height * scale_y);
             shader->uniform4f(LLShaderMgr::FXAA_RCP_FRAME_OPT, -0.5f / width * scale_x, -0.5f / height * scale_y,
@@ -7408,7 +7420,7 @@ void LLPipeline::renderDoF(LLRenderTarget* src, LLRenderTarget* dst)
             { // combine result based on alpha
 
                 dst->bindTarget();
-                if (RenderFSAASamples > 1 && mRT->fxaaBuffer.isComplete())
+                if (RenderFSAASamples > 1 && mFXAAMap.isComplete())
                 {
                     glViewport(0, 0, dst->getWidth(), dst->getHeight());
                 }

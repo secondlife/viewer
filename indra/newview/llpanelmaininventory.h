@@ -49,6 +49,8 @@ class LLSidepanelInventory;
 class LLToggleableMenu;
 class LLFloater;
 class LLFloaterSidePanelContainer;
+class LLSidepanelInventory;
+class LLPanelMarketplaceInbox;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLPanelMainInventory
@@ -244,6 +246,9 @@ protected:
     void setUploadCostIfNeeded();
     void disableAddIfNeeded();
 private:
+    LLSidepanelInventory*       mParentSidepanel = nullptr;
+    LLPanelMarketplaceInbox*    mInboxPanel = nullptr;
+
     LLToggleableMenu*           mMenuGearDefault;
     LLToggleableMenu*           mMenuViewDefault;
     LLToggleableMenu*           mMenuVisibility;

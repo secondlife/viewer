@@ -10125,7 +10125,6 @@ void initialize_menus()
 
     commit.add("Object.Buy", boost::bind(&handle_buy));
     commit.add("Object.Edit", boost::bind(&handle_object_edit));
-    commit.add("Object.Edit", boost::bind(&handle_object_edit));
     commit.add("Object.EditGLTFMaterial", boost::bind(&handle_object_edit_gltf_material));
     commit.add("Object.Inspect", boost::bind(&handle_object_inspect));
     commit.add("Object.Open", boost::bind(&handle_object_open));

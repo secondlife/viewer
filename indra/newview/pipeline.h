@@ -687,10 +687,7 @@ public:
 
         //screen texture
         LLRenderTarget          screen;
-        LLRenderTarget          uiScreen;
         LLRenderTarget          deferredScreen;
-        LLRenderTarget          fxaaBuffer;
-        LLRenderTarget          edgeMap;
         LLRenderTarget          deferredLight;
 
         //sun shadow map
@@ -725,6 +722,12 @@ public:
 
     // tonemapped and gamma corrected render ready for post
     LLRenderTarget          mPostMap;
+
+    // FXAA helper target
+    LLRenderTarget          mFXAAMap;
+
+    // render ui to buffer target
+    LLRenderTarget          mUIScreen;
 
     // downres scratch space for GPU downscaling of textures
     LLRenderTarget          mDownResMap;
