@@ -21,6 +21,7 @@
 #include <map>
 #include <memory>                   // std::unique_ptr
 #include <typeinfo>
+#include <unordered_map>
 // external library headers
 // other Linden headers
 #include "fsyspath.h"
@@ -54,7 +55,10 @@ namespace
     };
 } // anonymous namespace
 
-int lluau::dostring(lua_State* L, const std::string& desc, const std::string& text)
+namespace lluau
+{
+
+int dostring(lua_State* L, const std::string& desc, const std::string& text)
 {
     auto r = loadstring(L, desc, text);
     if (r != LUA_OK)
@@ -66,7 +70,7 @@ int lluau::dostring(lua_State* L, const std::string& desc, const std::string& te
     return lua_pcall(L, 0, LUA_MULTRET, 0);
 }
 
-int lluau::loadstring(lua_State *L, const std::string &desc, const std::string &text)
+int loadstring(lua_State *L, const std::string &desc, const std::string &text)
 {
     size_t bytecodeSize = 0;
     // The char* returned by luau_compile() must be freed by calling free().
@@ -76,7 +80,7 @@ int lluau::loadstring(lua_State *L, const std::string &desc, const std::string &
     return luau_load(L, desc.data(), bytecode.get(), bytecodeSize, 0);
 }
 
-fsyspath lluau::source_path(lua_State* L)
+fsyspath source_path(lua_State* L)
 {
     //Luau lua_Debug and lua_getinfo() are different compared to default Lua:
     //see https://github.com/luau-lang/luau/blob/80928acb92d1e4b6db16bada6d21b1fb6fa66265/VM/include/lua.h
@@ -93,33 +97,14 @@ fsyspath lluau::source_path(lua_State* L)
     return ar.source;
 }
 
-void lluau::set_interrupts_counter(lua_State *L, S32 counter)
-{
-    lua_rawsetfield(L, LUA_REGISTRYINDEX, "_INTERRUPTS"sv, lua_Integer(counter));
-}
-
-void lluau::check_interrupts_counter(lua_State* L)
-{
-    auto counter = lua_rawgetfield<lua_Integer>(L, LUA_REGISTRYINDEX, "_INTERRUPTS"sv);
-
-    set_interrupts_counter(L, ++counter);
-    if (counter > INTERRUPTS_MAX_LIMIT) 
-    {
-        lluau::error(L, "Possible infinite loop, terminated.");
-    }
-    else if (counter % INTERRUPTS_SUSPEND_LIMIT == 0) 
-    {
-        LL_DEBUGS("Lua") << LLCoros::getName() << " suspending at " << counter << " interrupts"
-                         << LL_ENDL;
-        llcoro::suspend();
-    }
-}
+} // namespace lluau
 
 /*****************************************************************************
 *   Lua <=> C++ conversions
 *****************************************************************************/
 std::string lua_tostdstring(lua_State* L, int index)
 {
+    lua_checkdelta(L);
     size_t len;
     const char* strval{ lua_tolstring(L, index, &len) };
     return { strval, len };
@@ -127,7 +112,8 @@ std::string lua_tostdstring(lua_State* L, int index)
 
 void lua_pushstdstring(lua_State* L, const std::string& str)
 {
-    luaL_checkstack(L, 1, nullptr);
+    lua_checkdelta(L, 1);
+    lluau_checkstack(L, 1);
     lua_pushlstring(L, str.c_str(), str.length());
 }
 
@@ -148,6 +134,7 @@ void lua_pushstdstring(lua_State* L, const std::string& str)
 // reached by that block raises a Lua error.
 LLSD lua_tollsd(lua_State* L, int index)
 {
+    lua_checkdelta(L);
     switch (lua_type(L, index))
     {
     case LUA_TNONE:
@@ -240,10 +227,10 @@ LLSD lua_tollsd(lua_State* L, int index)
         //   undefined LLSD. Naturally, though, those won't survive a second
         //   round trip.
 
-        // This is the most important of the luaL_checkstack() calls because a
+        // This is the most important of the lluau_checkstack() calls because a
         // deeply nested Lua structure will enter this case at each level, and
         // we'll need another 2 stack slots to traverse each nested table.
-        luaL_checkstack(L, 2, nullptr);
+        lluau_checkstack(L, 2);
         // BEFORE we push nil to initialize the lua_next() traversal, convert
         // 'index' to absolute! Our caller might have passed a relative index;
         // we do, below: lua_tollsd(L, -1). If 'index' is -1, then when we
@@ -399,8 +386,9 @@ LLSD lua_tollsd(lua_State* L, int index)
 // stack a Lua object corresponding to the passed LLSD object.
 void lua_pushllsd(lua_State* L, const LLSD& data)
 {
+    lua_checkdelta(L, 1);
     // might need 2 slots for array or map
-    luaL_checkstack(L, 2, nullptr);
+    lluau_checkstack(L, 2);
     switch (data.type())
     {
     case LLSD::TypeUndefined:
@@ -471,10 +459,23 @@ void lua_pushllsd(lua_State* L, const LLSD& data)
 /*****************************************************************************
 *   LuaState class
 *****************************************************************************/
+namespace
+{
+
+// If we find we're running Lua scripts from more than one thread, sLuaStateMap
+// should be thread_local. Until then, avoid the overhead.
+using LuaStateMap = std::unordered_map<lua_State*, LuaState*>;
+static LuaStateMap sLuaStateMap;
+
+} // anonymous namespace
+
 LuaState::LuaState(script_finished_fn cb):
     mCallback(cb),
     mState(luaL_newstate())
 {
+    // Ensure that we can always find this LuaState instance, given the
+    // lua_State we just created or any of its coroutines.
+    sLuaStateMap.emplace(mState, this);
     luaL_openlibs(mState);
     // publish to this new lua_State all the LL entry points we defined using
     // the lua_function() macro
@@ -487,11 +488,9 @@ LuaState::LuaState(script_finished_fn cb):
 
 LuaState::~LuaState()
 {
-    // We're just about to destroy this lua_State mState. lua_close() doesn't
-    // implicitly garbage-collect everything, so (for instance) any lingering
-    // objects with __gc metadata methods aren't cleaned up. This is why we
-    // provide atexit().
-    luaL_checkstack(mState, 2, nullptr);
+    // We're just about to destroy this lua_State mState. Did this Lua chunk
+    // register any atexit() functions?
+    lluau_checkstack(mState, 3);
     // look up Registry.atexit
     lua_getfield(mState, LUA_REGISTRYINDEX, "atexit");
     // stack contains Registry.atexit
@@ -502,24 +501,46 @@ LuaState::~LuaState()
         // there are no holes, and therefore lua_objlen() should be correct.
         // That's important because we walk the atexit table backwards, to
         // destroy last the things we created (passed to LL.atexit()) first.
-        for (int i(lua_objlen(mState, -1)); i >= 1; --i)
+        int len(lua_objlen(mState, -1));
+        LL_DEBUGS("Lua") << "Registry.atexit is a table with " << len << " entries" << LL_ENDL;
+
+        // Push debug.traceback() onto the stack as lua_pcall()'s error
+        // handler function. On error, lua_pcall() calls the specified error
+        // handler function with the original error message; the message
+        // returned by the error handler is then returned by lua_pcall().
+        // Luau's debug.traceback() is called with a message to prepend to the
+        // returned traceback string. Almost as if they'd been designed to
+        // work together...
+        lua_getglobal(mState, "debug");
+        lua_getfield(mState, -1, "traceback");
+        // ditch "debug"
+        lua_remove(mState, -2);
+        // stack now contains atexit, debug.traceback()
+
+        for (int i(len); i >= 1; --i)
         {
             lua_pushinteger(mState, i);
-            // stack contains Registry.atexit, i
-            lua_gettable(mState, -2);
-            // stack contains Registry.atexit, atexit[i]
+            // stack contains Registry.atexit, debug.traceback(), i
+            lua_gettable(mState, -3);
+            // stack contains Registry.atexit, debug.traceback(), atexit[i]
             // Call atexit[i](), no args, no return values.
             // Use lua_pcall() because errors in any one atexit() function
-            // shouldn't cancel the rest of them.
-            if (lua_pcall(mState, 0, 0, 0) != LUA_OK)
+            // shouldn't cancel the rest of them. Pass debug.traceback() as
+            // the error handler function.
+            LL_DEBUGS("Lua") << "Calling atexit(" << i << ")" << LL_ENDL;
+            if (lua_pcall(mState, 0, 0, -2) != LUA_OK)
             {
                 auto error{ lua_tostdstring(mState, -1) };
-                LL_WARNS("Lua") << "atexit() function error: " << error << LL_ENDL;
+                LL_WARNS("Lua") << "atexit(" << i << ") error: " << error << LL_ENDL;
                 // pop error message
                 lua_pop(mState, 1);
             }
-            // lua_pcall() has already popped atexit[i]: stack contains atexit
+            LL_DEBUGS("Lua") << "atexit(" << i << ") done" << LL_ENDL;
+            // lua_pcall() has already popped atexit[i]:
+            // stack contains atexit, debug.traceback()
         }
+        // pop debug.traceback()
+        lua_pop(mState, 1);
     }
     // pop Registry.atexit (either table or nil)
     lua_pop(mState, 1);
@@ -530,7 +551,9 @@ LuaState::~LuaState()
     {
         // mError potentially set by previous checkLua() call(s)
         mCallback(mError);
-    }    
+    }
+    // with the demise of this LuaState, remove sLuaStateMap entry
+    sLuaStateMap.erase(mState);
 }
 
 bool LuaState::checkLua(const std::string& desc, int r)
@@ -548,7 +571,7 @@ bool LuaState::checkLua(const std::string& desc, int r)
 
 std::pair<int, LLSD> LuaState::expr(const std::string& desc, const std::string& text)
 {
-    lluau::set_interrupts_counter(mState, 0);
+    set_interrupts_counter(0);
 
     lua_callbacks(mState)->interrupt = [](lua_State *L, int gc)
     {
@@ -557,7 +580,7 @@ std::pair<int, LLSD> LuaState::expr(const std::string& desc, const std::string& 
             return;
 
         LLCoros::checkStop();
-        lluau::check_interrupts_counter(L);
+        LuaState::getParent(L).check_interrupts_counter();
     };
 
     LL_INFOS("Lua") << desc << " run" << LL_ENDL;
@@ -625,7 +648,7 @@ std::pair<int, LLSD> LuaState::expr(const std::string& desc, const std::string& 
 
 LuaListener& LuaState::obtainListener(lua_State* L)
 {
-    luaL_checkstack(L, 2, nullptr);
+    lluau_checkstack(L, 2);
     lua_getfield(L, LUA_REGISTRYINDEX, "LuaListener");
     // compare lua_type() because lua_isuserdata() also accepts light userdata
     if (lua_type(L, -1) != LUA_TUSERDATA)
@@ -649,13 +672,54 @@ LuaListener& LuaState::obtainListener(lua_State* L)
     return *listener;
 }
 
+LuaState& LuaState::getParent(lua_State* L)
+{
+    // Look up the LuaState instance associated with the *script*, not the
+    // specific Lua *coroutine*. In other words, first find this lua_State's
+    // main thread.
+    auto found{ sLuaStateMap.find(lua_mainthread(L)) };
+    // Our constructor creates the map entry, our destructor deletes it. As
+    // long as the LuaState exists, we should be able to find it. And we
+    // SHOULD only be talking to a lua_State managed by a LuaState instance.
+    llassert(found != sLuaStateMap.end());
+    return *found->second;
+}
+
+void LuaState::set_interrupts_counter(S32 counter)
+{
+    mInterrupts = counter;
+}
+
+void LuaState::check_interrupts_counter()
+{
+    // The official way to manage data associated with a lua_State is to store
+    // it *as* Lua data within the lua_State. But this method is called by the
+    // Lua engine via lua_callbacks(L)->interrupt, and empirically we've hit
+    // mysterious Lua data stack overflows trying to use stack-based Lua data
+    // access functions in that situation. It seems the Lua engine is capable
+    // of interrupting itself at a moment when re-entry is not valid. So only
+    // touch data in this LuaState.
+    ++mInterrupts;
+    if (mInterrupts > INTERRUPTS_MAX_LIMIT) 
+    {
+        lluau::error(mState, "Possible infinite loop, terminated.");
+    }
+    else if (mInterrupts % INTERRUPTS_SUSPEND_LIMIT == 0) 
+    {
+        LL_DEBUGS("Lua") << LLCoros::getName() << " suspending at " << mInterrupts
+                         << " interrupts" << LL_ENDL;
+        llcoro::suspend();
+    }
+}
+
 /*****************************************************************************
 *   atexit()
 *****************************************************************************/
 lua_function(atexit, "atexit(function): "
              "register Lua function to be called at script termination")
 {
-    luaL_checkstack(L, 4, nullptr);
+    lua_checkdelta(L, -1);
+    lluau_checkstack(L, 4);
     // look up the global name "table"
     lua_getglobal(L, "table");
     // stack contains function, table
@@ -705,7 +769,7 @@ LuaFunction::LuaFunction(const std::string_view& name, lua_CFunction function,
 void LuaFunction::init(lua_State* L)
 {
     const auto& [registry, lookup] = getRState();
-    luaL_checkstack(L, 2, nullptr);
+    lluau_checkstack(L, 2);
     // create LL table --
     // it happens that we know exactly how many non-array members we want
     lua_createtable(L, 0, int(narrow(lookup.size())));
@@ -743,7 +807,8 @@ std::pair<LuaFunction::Registry&, LuaFunction::Lookup&> LuaFunction::getState()
 *****************************************************************************/
 lua_function(source_path, "source_path(): return the source path of the running Lua script")
 {
-    luaL_checkstack(L, 1, nullptr);
+    lua_checkdelta(L, 1);
+    lluau_checkstack(L, 1);
     lua_pushstdstring(L, lluau::source_path(L).u8string());
     return 1;
 }
@@ -753,7 +818,8 @@ lua_function(source_path, "source_path(): return the source path of the running 
 *****************************************************************************/
 lua_function(source_dir, "source_dir(): return the source directory of the running Lua script")
 {
-    luaL_checkstack(L, 1, nullptr);
+    lua_checkdelta(L, 1);
+    lluau_checkstack(L, 1);
     lua_pushstdstring(L, lluau::source_path(L).parent_path().u8string());
     return 1;
 }
@@ -764,6 +830,7 @@ lua_function(source_dir, "source_dir(): return the source directory of the runni
 lua_function(abspath, "abspath(path): "
              "for given filesystem path relative to running script, return absolute path")
 {
+    lua_checkdelta(L);
     auto path{ lua_tostdstring(L, 1) };
     lua_pop(L, 1);
     lua_pushstdstring(L, (lluau::source_path(L).parent_path() / path).u8string());
@@ -775,6 +842,7 @@ lua_function(abspath, "abspath(path): "
 *****************************************************************************/
 lua_function(check_stop, "check_stop(): ensure that a Lua script responds to viewer shutdown")
 {
+    lua_checkdelta(L);
     LLCoros::checkStop();
     return 0;
 }
@@ -978,4 +1046,31 @@ std::ostream& operator<<(std::ostream& out, const lua_stack& self)
     }
     out << ']';
     return out;
+}
+
+/*****************************************************************************
+*   LuaStackDelta
+*****************************************************************************/
+LuaStackDelta::LuaStackDelta(lua_State* L, const std::string& where, int delta):
+    L(L),
+    mWhere(where),
+    mDepth(lua_gettop(L)),
+    mDelta(delta)
+{}
+
+LuaStackDelta::~LuaStackDelta()
+{
+    auto depth{ lua_gettop(L) };
+    // If we're unwinding the stack due to an exception, then of course we
+    // can't expect the logic in the block containing this LuaStackDelta
+    // instance to keep its contract wrt the Lua data stack.
+    if (std::uncaught_exceptions() == 0 && mDepth + mDelta != depth)
+    {
+        LL_ERRS("Lua") << mWhere << ": Lua stack went from " << mDepth << " to " << depth;
+        if (mDelta)
+        {
+            LL_CONT << ", rather than expected " << (mDepth + mDelta) << " (" << mDelta << ")";
+        }
+        LL_ENDL;
+    }
 }
