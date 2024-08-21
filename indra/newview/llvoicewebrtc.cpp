@@ -549,13 +549,19 @@ void LLWebRTCVoiceClient::voiceConnectionCoro()
                     updatePosition();
                 }
             }
-
-            sessionState::processSessionStates();
-            if (mProcessChannels && voiceEnabled && !mHidden)
-            {
-                sendPositionUpdate(false);
-                updateOwnVolume();
-            }
+            LL::WorkQueue::postMaybe(mMainQueue,
+                [=] {
+                    if  (sShuttingDown)
+                    {
+                        return;
+                    }
+                    sessionState::processSessionStates();
+                    if (mProcessChannels && voiceEnabled && !mHidden)
+                    {
+                        sendPositionUpdate(false);
+                        updateOwnVolume();
+                    }
+            });
         }
     }
     catch (const LLCoros::Stop&)
@@ -2221,6 +2227,7 @@ void LLVoiceWebRTCConnection::OnIceCandidate(const llwebrtc::LLWebRTCIceCandidat
 void LLVoiceWebRTCConnection::processIceUpdates()
 {
     mOutstandingRequests++;
+
     LLCoros::getInstance()->launch("LLVoiceWebRTCConnection::processIceUpdatesCoro",
                                    boost::bind(&LLVoiceWebRTCConnection::processIceUpdatesCoro, this->shared_from_this()));
 }
