@@ -6624,8 +6624,14 @@ void LLPipeline::renderAlphaObjects(bool rigged)
     S32 sun_up = LLEnvironment::instance().getIsSunUp() ? 1 : 0;
     U32 target_width = LLRenderTarget::sCurResX;
     U32 type = LLRenderPass::PASS_ALPHA;
-    LLVOAvatar* lastAvatar = nullptr;
+    // for gDeferredShadowAlphaMaskProgram
+    const LLVOAvatar* lastAvatar = nullptr;
     U64 lastMeshId = 0;
+    bool skipLastSkin;
+    // for gDeferredShadowGLTFAlphaBlendProgram
+    const LLVOAvatar* lastAvatarGLTF = nullptr;
+    U64 lastMeshIdGLTF = 0;
+    bool skipLastSkinGLTF;
     auto* begin = gPipeline.beginRenderMap(type);
     auto* end = gPipeline.endRenderMap(type);
 
@@ -6649,7 +6655,7 @@ void LLPipeline::renderAlphaObjects(bool rigged)
                 LLGLSLShader::sCurBoundShaderPtr->uniform1i(LLShaderMgr::SUN_UP_FACTOR, sun_up);
                 LLGLSLShader::sCurBoundShaderPtr->uniform1f(LLShaderMgr::DEFERRED_SHADOW_TARGET_WIDTH, (float)target_width);
                 LLGLSLShader::sCurBoundShaderPtr->setMinimumAlpha(ALPHA_BLEND_CUTOFF);
-                LLRenderPass::pushRiggedGLTFBatch(*pparams, lastAvatar, lastMeshId);
+                LLRenderPass::pushRiggedGLTFBatch(*pparams, lastAvatarGLTF, lastMeshIdGLTF, skipLastSkinGLTF);
             }
             else
             {
@@ -6657,14 +6663,10 @@ void LLPipeline::renderAlphaObjects(bool rigged)
                 LLGLSLShader::sCurBoundShaderPtr->uniform1i(LLShaderMgr::SUN_UP_FACTOR, sun_up);
                 LLGLSLShader::sCurBoundShaderPtr->uniform1f(LLShaderMgr::DEFERRED_SHADOW_TARGET_WIDTH, (float)target_width);
                 LLGLSLShader::sCurBoundShaderPtr->setMinimumAlpha(ALPHA_BLEND_CUTOFF);
-                if (lastAvatar != pparams->mAvatar || lastMeshId != pparams->mSkinInfo->mHash)
+                if (mSimplePool->uploadMatrixPalette(pparams->mAvatar, pparams->mSkinInfo, lastAvatar, lastMeshId, skipLastSkin))
                 {
-                    mSimplePool->uploadMatrixPalette(*pparams);
-                    lastAvatar = pparams->mAvatar;
-                    lastMeshId = pparams->mSkinInfo->mHash;
+                    mSimplePool->pushBatch(*pparams, true, true);
                 }
-
-                mSimplePool->pushBatch(*pparams, true, true);
             }
         }
         else

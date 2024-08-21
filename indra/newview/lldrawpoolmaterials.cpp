@@ -184,7 +184,7 @@ void LLDrawPoolMaterials::renderDeferred(S32 pass)
     }
 
     const LLVOAvatar* lastAvatar = nullptr;
-    U64 lastSkinHash = 0;
+    U64 lastMeshId = 0;
     bool skipLastSkin = false;
 
     for (LLCullResult::drawinfo_iterator i = begin; i != end; )
@@ -247,29 +247,10 @@ void LLDrawPoolMaterials::renderDeferred(S32 pass)
         }
 
         // upload matrix palette to shader
-        if (rigged && params.mAvatar.notNull())
+        if (rigged)
         {
-            if (params.mAvatar != lastAvatar || params.mSkinInfo->mHash != lastSkinHash)
+            if (!uploadMatrixPalette(params.mAvatar, params.mSkinInfo, lastAvatar, lastMeshId, skipLastSkin))
             {
-                llassert(params.mSkinInfo);
-                const LLVOAvatar::MatrixPaletteCache& mpc = params.mAvatar->updateSkinInfoMatrixPalette(params.mSkinInfo);
-                U32 count = static_cast<U32>(mpc.mMatrixPalette.size());
-                skipLastSkin = !bool(count);
-                lastAvatar = params.mAvatar;
-                lastSkinHash = params.mSkinInfo->mHash;
-
-                if (!skipLastSkin)
-                {
-                    mShader->uniformMatrix3x4fv(LLViewerShaderMgr::AVATAR_MATRIX,
-                        count,
-                        false,
-                        (GLfloat*)&(mpc.mGLMp[0]));
-                }
-            }
-
-            if (skipLastSkin)
-            {
-                //skin info not loaded yet, don't render
                 continue;
             }
         }
