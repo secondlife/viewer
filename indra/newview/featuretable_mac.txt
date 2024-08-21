@@ -1,4 +1,4 @@
-version 58
+version 59
 // The version number above should be incremented IF AND ONLY IF some
 // change has been made that is sufficiently important to justify
 // resetting the graphics preferences of all users to the recommended
@@ -250,7 +250,7 @@ RenderReflectionsEnabled    1   1
 RenderReflectionProbeDetail	1	1
 RenderScreenSpaceReflections 1  0
 RenderReflectionProbeLevel  1   1
-RenderMirrors				1	1
+RenderMirrors				1	0
 RenderHeroProbeResolution	1	512
 RenderHeroProbeDistance		1	8
 RenderHeroProbeUpdateRate	1	2
