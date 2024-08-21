@@ -36,7 +36,7 @@ public:
     LLProcessParams(LLAppAppearanceUtility* app) :
         LLBakingProcess(app) {}
 
-    /*virtual*/ void process(std::ostream& output);
+    void process(std::ostream& output) override;
 private:
 
     bool processInputDataForJointInfo( LLBakingAvatar& avatar );

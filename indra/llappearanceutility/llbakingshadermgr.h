@@ -36,7 +36,7 @@ public:
     static bool sSkipReload;
 
     LLBakingShaderMgr();
-    /* virtual */ ~LLBakingShaderMgr();
+    ~LLBakingShaderMgr();
 
     // singleton pattern implementation
     static LLBakingShaderMgr * instance();
@@ -111,9 +111,9 @@ public:
     shader_iter beginShaders() const;
     shader_iter endShaders() const;
 
-    /* virtual */ std::string getShaderDirPrefix(void);
+    std::string getShaderDirPrefix(void) override;
 
-    /* virtual */ void updateShaderUniforms(LLGLSLShader * shader);
+    void updateShaderUniforms(LLGLSLShader * shader) override;
 
 private:
 

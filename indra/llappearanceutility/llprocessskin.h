@@ -33,7 +33,7 @@ class LLProcessSkin : public LLBakingProcess
 public:
     LLProcessSkin(LLAppAppearanceUtility* app) :
     LLBakingProcess(app) {}
-    /*virtual*/ void process(std::ostream& output);
+    void process(std::ostream& output) override;
 
 private:
 

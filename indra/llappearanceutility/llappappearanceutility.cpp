@@ -137,7 +137,7 @@ class LLProcessUsage : public LLBakingProcess
 public:
     LLProcessUsage(LLAppAppearanceUtility* app) :
         LLBakingProcess(app) {}
-    /*virtual*/ void process(std::ostream& output)
+    void process(std::ostream& output) override
     {
         mApp->usage(output);
     }
