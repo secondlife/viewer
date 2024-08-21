@@ -57,7 +57,7 @@ lua_function(sleep, "sleep(seconds): pause the running coroutine")
     F32 seconds = lua_tonumber(L, -1);
     lua_pop(L, 1);
     llcoro::suspendUntilTimeout(seconds);
-    lluau::set_interrupts_counter(L, 0);
+    LuaState::getParent(L).set_interrupts_counter(0);
     return 0;
 };
 
@@ -162,7 +162,7 @@ lua_function(get_event_next,
     const auto& [pump, data]{ listener.getNext() };
     lua_pushstdstring(L, pump);
     lua_pushllsd(L, data);
-    lluau::set_interrupts_counter(L, 0);
+    LuaState::getParent(L).set_interrupts_counter(0);
     return 2;
 }
 
