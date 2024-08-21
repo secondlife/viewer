@@ -88,4 +88,3 @@ char* LLMessageStringTable::getString(const char *str)
     }
     return mString[hash_value];
 }
-
