@@ -40,11 +40,11 @@ LLBakingWindow::LLBakingWindow(S32 width, S32 height)
     const S32 WINDOW_ORIGIN_X = 0;
     const S32 WINDOW_ORIGIN_Y = 0;
     const U32 FLAGS = 32; // *TODO: Why did mapserver use this?  mFlags looks unused.
-    const bool NO_FULLSCREEN = FALSE;
-    const bool NO_CLEAR_BG = FALSE;
-    const bool NO_DISABLE_VSYNC = FALSE;
-    const bool NO_IGNORE_PIXEL_DEPTH = FALSE;
-    const bool USE_GL = TRUE;
+    const bool NO_FULLSCREEN = false;
+    const bool NO_CLEAR_BG = false;
+    const bool NO_DISABLE_VSYNC = false;
+    const bool NO_IGNORE_PIXEL_DEPTH = false;
+    const bool USE_GL = true;
     mWindow = LLWindowManager::createWindow(this,
         "appearanceutility", "Appearance Utility",
         WINDOW_ORIGIN_X, WINDOW_ORIGIN_Y,
@@ -54,9 +54,9 @@ LLBakingWindow::LLBakingWindow(S32 width, S32 height)
         NO_CLEAR_BG,
         NO_DISABLE_VSYNC, //gSavedSettings.getBOOL("DisableVerticalSync"),
         USE_GL, // not headless
-        NO_IGNORE_PIXEL_DEPTH); //gIgnorePixelDepth = FALSE
+        NO_IGNORE_PIXEL_DEPTH); //gIgnorePixelDepth = false
 
-    if (NULL == mWindow)
+    if (nullptr == mWindow)
     {
         throw LLAppException(RV_UNABLE_TO_INIT_GL);
     }
@@ -67,11 +67,11 @@ LLBakingWindow::LLBakingWindow(S32 width, S32 height)
 
     if (!LLBakingShaderMgr::sInitialized)
     { //immediately initialize shaders
-        LLBakingShaderMgr::sInitialized = TRUE;
+        LLBakingShaderMgr::sInitialized = true;
         LLBakingShaderMgr::instance()->setShaders();
     }
 
-    LLImageGL::initClass(mWindow, LLGLTexture::MAX_GL_IMAGE_CATEGORY, TRUE, FALSE);
+    LLImageGL::initClass(mWindow, LLGLTexture::MAX_GL_IMAGE_CATEGORY, true, false);
 
     // mWindow->show();
     // mWindow->bringToFront();
@@ -85,7 +85,7 @@ LLBakingWindow::~LLBakingWindow()
     {
         LLWindowManager::destroyWindow(mWindow);
     }
-    mWindow = NULL;
+    mWindow = nullptr;
 }
 
 void LLBakingWindow::swapBuffers()

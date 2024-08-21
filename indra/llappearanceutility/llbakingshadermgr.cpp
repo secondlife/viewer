@@ -51,7 +51,7 @@ using std::pair;
 using std::make_pair;
 using std::string;
 
-bool                LLBakingShaderMgr::sInitialized = FALSE;
+bool                LLBakingShaderMgr::sInitialized = false;
 bool                LLBakingShaderMgr::sSkipReload = false;
 
 //utility shaders
@@ -73,7 +73,7 @@ LLBakingShaderMgr::~LLBakingShaderMgr()
 // static
 LLBakingShaderMgr * LLBakingShaderMgr::instance()
 {
-    if(NULL == sInstance)
+    if(nullptr == sInstance)
     {
         sInstance = new LLBakingShaderMgr();
     }
@@ -137,7 +137,7 @@ void LLBakingShaderMgr::setShaders()
     mMaxAvatarShaderLevel = 0;
 
     LLVertexBuffer::unbind();
-    bool loaded = FALSE;
+    bool loaded = false;
     if (gGLManager.mGLSLVersionMajor > 1 || gGLManager.mGLSLVersionMinor >= 10)
     {
         S32 light_class = 2;
@@ -151,14 +151,14 @@ void LLBakingShaderMgr::setShaders()
         }
         shaders.push_back( make_pair( "objects/nonindexedTextureV.glsl",        1 ) );
         shaders.push_back( make_pair( "deferred/textureUtilV.glsl",             1 ) );
-        loaded = TRUE;
+        loaded = true;
         for (U32 i = 0; i < shaders.size(); i++)
         {
             // Note usage of GL_VERTEX_SHADER_ARB
             if (loadShaderFile(shaders[i].first, shaders[i].second, GL_VERTEX_SHADER_ARB) == 0)
             {
                 LL_WARNS("Shader") << "Failed to load vertex shader " << shaders[i].first << LL_ENDL;
-                loaded = FALSE;
+                loaded = false;
                 break;
             }
         }
@@ -174,7 +174,7 @@ void LLBakingShaderMgr::setShaders()
             if (loadShaderFile(shaders[i].first, shaders[i].second, GL_FRAGMENT_SHADER_ARB) == 0)
             {
                 LL_WARNS("Shader") << "Failed to load fragment shader " << shaders[i].first << LL_ENDL;
-                loaded = FALSE;
+                loaded = false;
                 break;
             }
         }
@@ -187,7 +187,7 @@ void LLBakingShaderMgr::setShaders()
 
     if (!loaded)
     {
-        //gPipeline.mVertexShadersEnabled = FALSE;
+        //gPipeline.mVertexShadersEnabled = false;
         //gPipeline.mVertexShadersLoaded = 0;
         mVertexShaderLevel[SHADER_LIGHTING] = 0;
         mVertexShaderLevel[SHADER_INTERFACE] = 0;
@@ -224,10 +224,10 @@ bool LLBakingShaderMgr::loadShadersInterface()
     if( !gAlphaMaskProgram.createShader() )
     {
         mVertexShaderLevel[SHADER_INTERFACE] = 0;
-        return FALSE;
+        return false;
     }
 
-    return TRUE;
+    return true;
 }
 
 std::string LLBakingShaderMgr::getShaderDirPrefix(void)

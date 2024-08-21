@@ -57,7 +57,7 @@ LLBakingTexLayerSetBuffer::~LLBakingTexLayerSetBuffer()
 
 bool LLBakingTexLayerSetBuffer::render()
 {
-    bool result = FALSE;
+    bool result = false;
 
     preRenderTexLayerSet();
     result = renderTexLayerSet(nullptr);
@@ -127,7 +127,7 @@ void LLBakingTexLayerSetBuffer::midRenderTexLayerSet(bool success)
         LL_RECORD_BLOCK_TIME(FTM_CREATE_J2C);
         LL_DEBUGS() << "Creating J2C..." << LL_ENDL;
         mCompressedImage = new LLImageJ2C;
-        mCompressedImage->setReversible(TRUE);
+        mCompressedImage->setReversible(true);
         const char* comment_text = LINDEN_J2C_COMMENT_PREFIX "RGBHM"; // writes into baked_color_data. 5 channels (rgb, heightfield/alpha, mask)
         if (!mCompressedImage->encode(baked_image, comment_text, 0.0f))
         {

@@ -43,7 +43,7 @@ public:
     };
     LLBakingTexture(const LLUUID& id, const LLImageRaw* raw);
     LLBakingTexture(bool usemipmaps);
-    LLBakingTexture(const U32 width, const U32 height, const U8 components, bool usemipmaps = TRUE);
+    LLBakingTexture(const U32 width, const U32 height, const U8 components, bool usemipmaps = true);
     const LLUUID& getID() const override { return mID; }
     virtual S8 getType() const { return BAKING_TEXTURE; }
 

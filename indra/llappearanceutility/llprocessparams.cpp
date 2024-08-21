@@ -58,12 +58,12 @@ using namespace LLAvatarAppearanceDefines;
 class LLNullTextureManagerBridge : public LLTextureManagerBridge
 {
 public:
-    LLPointer<LLGLTexture> getLocalTexture(bool usemipmaps = TRUE, bool generate_gl_tex = TRUE) override
+    LLPointer<LLGLTexture> getLocalTexture(bool usemipmaps = true, bool generate_gl_tex = true) override
     {
         return nullptr;
     }
 
-    LLPointer<LLGLTexture> getLocalTexture(const U32 width, const U32 height, const U8 components, bool usemipmaps, bool generate_gl_tex = TRUE) override
+    LLPointer<LLGLTexture> getLocalTexture(const U32 width, const U32 height, const U8 components, bool usemipmaps, bool generate_gl_tex = true) override
     {
         return nullptr;
     }

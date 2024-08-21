@@ -201,11 +201,11 @@ LLAppAppearanceUtility::LLAppAppearanceUtility(int argc, char** argv) :
     LLApp(),
     mArgc(argc),
     mArgv(argv),
-    mProcess(NULL),
-    mInput(NULL),
-    mOutput(NULL),
+    mProcess(nullptr),
+    mInput(nullptr),
+    mOutput(nullptr),
     mAppName(argv[0]),
-    mDebugMode(FALSE),
+    mDebugMode(false),
     mTreeMapThreshold(1),
     mBakeTextureSize(512)
 {
@@ -237,9 +237,9 @@ void LLAppAppearanceUtility::parseArguments()
     }
 
     apr_status_t apr_err;
-    const char* opt_arg = NULL;
+    const char* opt_arg = nullptr;
     int opt_id = 0;
-    apr_getopt_t* os = NULL;
+    apr_getopt_t* os = nullptr;
     if(APR_SUCCESS != apr_getopt_init(&os, gAPRPoolp, mArgc, mArgv))
     {
         std::cerr << "Unable to initialize apr" << std::endl;
@@ -297,7 +297,7 @@ void LLAppAppearanceUtility::parseArguments()
         //  grid = opt_arg;
         //  break;
         case 'd':
-            mDebugMode = TRUE;
+            mDebugMode = true;
             break;
         case 'm':
             mTreeMapFilename.assign(opt_arg);
@@ -471,10 +471,10 @@ bool LLAppAppearanceUtility::init()
 
     // Initialize classes.
     // Values taken from settings.xml.
-    const bool USE_TEXTURE_NEW_BYTE_RANGE=TRUE;
+    const bool USE_TEXTURE_NEW_BYTE_RANGE=true;
     const S32 TEXTURE_REVERSE_BYTE_RANGE=50;
     LLImage::initClass(USE_TEXTURE_NEW_BYTE_RANGE, TEXTURE_REVERSE_BYTE_RANGE);
-    const bool SKIP_ANALYZE_ALPHA=TRUE;
+    const bool SKIP_ANALYZE_ALPHA=true;
 
     LLTranslationBridge::ptr_t trans = std::make_shared<LLPassthroughTranslationBridge>();
     LLWearableType::initParamSingleton(trans);
@@ -655,7 +655,7 @@ bool LLAppAppearanceUtility::cleanup()
     if (mProcess)
     {
         delete mProcess;
-        mProcess = NULL;
+        mProcess = nullptr;
     }
     if ("-" != mInputFilename && mInput)
     {
@@ -665,10 +665,10 @@ bool LLAppAppearanceUtility::cleanup()
     {
         static_cast<std::ofstream*>(mOutput)->close();
         delete mOutput;
-        mOutput = NULL;
+        mOutput = nullptr;
     }
     delete mInput;
-    mInput = NULL;
+    mInput = nullptr;
     return true;
 }
 

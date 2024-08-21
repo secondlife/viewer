@@ -101,7 +101,7 @@ void LLBakingAvatar::onGlobalColorChanged(const LLTexGlobalColor* global_color) 
 
 bool LLBakingAvatar::isTextureDefined(LLAvatarAppearanceDefines::ETextureIndex type, U32 index) const
 {
-    return TRUE;
+    return true;
 }
 
 
