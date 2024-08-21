@@ -45,7 +45,7 @@ public:
     LLBakingTexture(bool usemipmaps);
     LLBakingTexture(const U32 width, const U32 height, const U8 components, bool usemipmaps = true);
     const LLUUID& getID() const override { return mID; }
-    virtual S8 getType() const { return BAKING_TEXTURE; }
+    S8 getType() const override { return BAKING_TEXTURE; }
 
     // Not implemented.
     void setKnownDrawSize(S32 width, S32 height) override;
