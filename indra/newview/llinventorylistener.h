@@ -56,6 +56,7 @@ struct LLFilteredCollector : public LLInventoryCollectFunctor
     LLFilteredCollector(LLSD const &data);
     virtual ~LLFilteredCollector() {}
     virtual bool operator()(LLInventoryCategory *cat, LLInventoryItem *item);
+    virtual bool exceedsLimit();
 
   protected:
     bool checkagainstType(LLInventoryCategory *cat, LLInventoryItem *item);
@@ -66,6 +67,9 @@ struct LLFilteredCollector : public LLInventoryCollectFunctor
     std::string mName;
     std::string mDesc;
     EFilterLink mLinkFilter;
+
+    S32 mItemLimit;
+    S32 mItemCount;
 };
 
 #endif // LL_LLINVENTORYLISTENER_H

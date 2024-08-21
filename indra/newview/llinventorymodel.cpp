@@ -1289,6 +1289,10 @@ void LLInventoryModel::collectDescendentsIf(const LLUUID& id,
         S32 count = cat_array->size();
         for(S32 i = 0; i < count; ++i)
         {
+            if (add.exceedsLimit())
+            {
+                break;
+            }
             LLViewerInventoryCategory* cat = cat_array->at(i);
             if(add(cat,NULL))
             {
@@ -1307,6 +1311,10 @@ void LLInventoryModel::collectDescendentsIf(const LLUUID& id,
         S32 count = item_array->size();
         for(S32 i = 0; i < count; ++i)
         {
+            if (add.exceedsLimit())
+            {
+                break;
+            }
             item = item_array->at(i);
             if(add(NULL, item))
             {

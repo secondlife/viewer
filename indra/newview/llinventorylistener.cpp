@@ -33,6 +33,8 @@
 #include "llwearableitemslist.h"
 #include "stringize.h"
 
+static const F32 MAX_ITEM_LIMIT = 100;
+
 LLInventoryListener::LLInventoryListener()
   : LLEventAPI("LLInventory",
                "API for interactions with viewer Inventory items")
@@ -68,7 +70,8 @@ LLInventoryListener::LLInventoryListener()
         "Return the descendents(both items and folders) of the [\"folder_id\"], if it passes specified filters:\n"
         "[\"name\"] is a substring of object's name,\n"
         "[\"desc\"] is a substring of object's description,\n"
-        "asset [\"type\"] corresponds to the object's asset type\n" 
+        "asset [\"type\"] corresponds to the object's asset type\n"
+        "[\"item_limit\"] sets item count limit in reply, maximum and default is 100\n"
         "[\"filter_links\"]: EXCLUDE_LINKS - don't show links, ONLY_LINKS - only show links, INCLUDE_LINKS - show links too (default)",
         &LLInventoryListener::collectDescendentsIf,
         llsd::map("folder_id", LLSD(), "reply", LLSD()));
@@ -171,9 +174,11 @@ void LLInventoryListener::collectDescendentsIf(LLSD const &data)
     }
 }
 
-LLFilteredCollector::LLFilteredCollector(LLSD const &data)
-    : mType(LLAssetType::EType::AT_UNKNOWN),
-      mLinkFilter(INCLUDE_LINKS)
+LLFilteredCollector::LLFilteredCollector(LLSD const &data) :
+    mType(LLAssetType::EType::AT_UNKNOWN),
+    mLinkFilter(INCLUDE_LINKS),
+    mItemLimit(MAX_ITEM_LIMIT),
+    mItemCount(0)
 {
     if (data.has("name"))
     {
@@ -198,6 +203,10 @@ LLFilteredCollector::LLFilteredCollector(LLSD const &data)
             mLinkFilter = ONLY_LINKS;
         }
     }
+    if (data.has("item_limit"))
+    {
+        mItemLimit = llclamp(data["item_limit"].asInteger(), 1, MAX_ITEM_LIMIT);
+    }
 }
 
 bool LLFilteredCollector::operator()(LLInventoryCategory *cat, LLInventoryItem *item)
@@ -206,7 +215,16 @@ bool LLFilteredCollector::operator()(LLInventoryCategory *cat, LLInventoryItem *
     passed = passed && checkagainstNameDesc(cat, item);
     passed = passed && checkagainstLinks(cat, item);
 
+    if (passed)
+    {
+        ++mItemCount;
+    }
     return passed;
+}
+
+bool LLFilteredCollector::exceedsLimit()
+{
+    return (mItemLimit <= mItemCount);
 }
 
 bool LLFilteredCollector::checkagainstNameDesc(LLInventoryCategory *cat, LLInventoryItem *item)

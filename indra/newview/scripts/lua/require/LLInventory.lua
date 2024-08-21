@@ -36,9 +36,10 @@ end
 -- [, name]              -- name (substring)
 -- [, desc]              -- description (substring)
 -- [, type]              -- asset type
+-- [, item_limit]        -- item count limit in reply, maximum and default is 100
 -- [, filter_links]}     -- EXCLUDE_LINKS - don't show links, ONLY_LINKS - only show links, INCLUDE_LINKS - show links too (default)
 function LLInventory.collectDescendentsIf(...)
-    local args = mapargs('folder_id,name,desc,type,filter_links', ...)
+    local args = mapargs('folder_id,name,desc,type,filter_links,item_limit', ...)
     args.op = 'collectDescendentsIf'
     return leap.request('LLInventory', args)
 end
