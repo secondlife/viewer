@@ -85,7 +85,6 @@
 #include "llanimationstates.h"
 #include "llinventorytype.h"
 #include "llviewerinventory.h"
-#include "llcallstack.h"
 #include "llsculptidsize.h"
 #include "llavatarappearancedefines.h"
 #include "llgltfmateriallist.h"
@@ -357,7 +356,6 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
         sculpt_type = sculpt_params->getSculptType();
 
         LL_DEBUGS("ObjectUpdate") << "uuid " << mID << " set sculpt_id " << sculpt_id << LL_ENDL;
-        dumpStack("ObjectUpdateStack");
     }
 
     if (!dp)
