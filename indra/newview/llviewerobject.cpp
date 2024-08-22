@@ -103,7 +103,6 @@
 #include "llfloaterperms.h"
 #include "llvocache.h"
 #include "llcleanup.h"
-#include "llcallstack.h"
 #include "llmeshrepository.h"
 #include "llgltfmateriallist.h"
 #include "llgl.h"
@@ -151,7 +150,6 @@ LLViewerObject *LLViewerObject::createObject(const LLUUID &id, const LLPCode pco
 {
     LL_PROFILE_ZONE_SCOPED;
     LL_DEBUGS("ObjectUpdate") << "creating " << id << LL_ENDL;
-    dumpStack("ObjectUpdateStack");
 
     LLViewerObject *res = NULL;
 
@@ -1165,7 +1163,6 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
     LL_DEBUGS_ONCE("SceneLoadTiming") << "Received viewer object data" << LL_ENDL;
 
     LL_DEBUGS("ObjectUpdate") << " mesgsys " << mesgsys << " dp " << dp << " id " << getID() << " update_type " << (S32) update_type << LL_ENDL;
-    dumpStack("ObjectUpdateStack");
 
     // The new OBJECTDATA_FIELD_SIZE_124, OBJECTDATA_FIELD_SIZE_140, OBJECTDATA_FIELD_SIZE_80
     // and OBJECTDATA_FIELD_SIZE_64 lengths should be supported in the existing cases below.
