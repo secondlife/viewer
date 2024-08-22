@@ -28,7 +28,6 @@
 
 #include "llappviewer.h"
 #include "llstartup.h"
-#include "llcallstack.h"
 
 #if LL_WINDOWS
 #   include <process.h>     // _spawnl()

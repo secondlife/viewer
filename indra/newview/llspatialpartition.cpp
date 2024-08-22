@@ -29,7 +29,6 @@
 #include "llspatialpartition.h"
 
 #include "llappviewer.h"
-#include "llcallstack.h"
 #include "lltexturecache.h"
 #include "lltexturefetch.h"
 #include "llimageworker.h"
