@@ -4521,33 +4521,53 @@ void LLPipeline::renderDebug()
     }
 
     // Debug stuff.
-    for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin();
-            iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
+    if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_OCTREE |
+        LLPipeline::RENDER_DEBUG_OCCLUSION |
+        LLPipeline::RENDER_DEBUG_LIGHTS |
+        LLPipeline::RENDER_DEBUG_BATCH_SIZE |
+        LLPipeline::RENDER_DEBUG_UPDATE_TYPE |
+        LLPipeline::RENDER_DEBUG_BBOXES |
+        LLPipeline::RENDER_DEBUG_NORMALS |
+        LLPipeline::RENDER_DEBUG_POINTS |
+        LLPipeline::RENDER_DEBUG_TEXTURE_AREA |
+        LLPipeline::RENDER_DEBUG_TEXTURE_ANIM |
+        LLPipeline::RENDER_DEBUG_RAYCAST |
+        LLPipeline::RENDER_DEBUG_AVATAR_VOLUME |
+        LLPipeline::RENDER_DEBUG_AVATAR_JOINTS |
+        LLPipeline::RENDER_DEBUG_AGENT_TARGET |
+        LLPipeline::RENDER_DEBUG_SHADOW_FRUSTA |
+        LLPipeline::RENDER_DEBUG_TEXEL_DENSITY))
     {
-        LLViewerRegion* region = *iter;
-        for (U32 i = 0; i < LLViewerRegion::NUM_PARTITIONS; i++)
+        LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("partitions");
+
+        for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin();
+            iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
         {
-            LLSpatialPartition* part = region->getSpatialPartition(i);
-            if (part)
+            LLViewerRegion* region = *iter;
+            for (U32 i = 0; i < LLViewerRegion::NUM_PARTITIONS; i++)
             {
-                if ( (hud_only && (part->mDrawableType == RENDER_TYPE_HUD || part->mDrawableType == RENDER_TYPE_HUD_PARTICLES)) ||
-                     (!hud_only && hasRenderType(part->mDrawableType)) )
+                LLSpatialPartition* part = region->getSpatialPartition(i);
+                if (part)
                 {
-                    part->renderDebug();
+                    if ((hud_only && (part->mDrawableType == RENDER_TYPE_HUD || part->mDrawableType == RENDER_TYPE_HUD_PARTICLES)) ||
+                        (!hud_only && hasRenderType(part->mDrawableType)))
+                    {
+                        part->renderDebug();
+                    }
                 }
             }
         }
-    }
 
-    for (LLCullResult::bridge_iterator i = sCull->beginVisibleBridge(); i != sCull->endVisibleBridge(); ++i)
-    {
-        LLSpatialBridge* bridge = *i;
-        if (!bridge->isDead() && hasRenderType(bridge->mDrawableType))
+        for (LLCullResult::bridge_iterator i = sCull->beginVisibleBridge(); i != sCull->endVisibleBridge(); ++i)
         {
-            gGL.pushMatrix();
-            gGL.multMatrix((F32*)bridge->mDrawable->getRenderMatrix().mMatrix);
-            bridge->renderDebug();
-            gGL.popMatrix();
+            LLSpatialBridge* bridge = *i;
+            if (!bridge->isDead() && hasRenderType(bridge->mDrawableType))
+            {
+                gGL.pushMatrix();
+                gGL.multMatrix((F32*)bridge->mDrawable->getRenderMatrix().mMatrix);
+                bridge->renderDebug();
+                gGL.popMatrix();
+            }
         }
     }
 
