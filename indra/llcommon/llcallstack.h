@@ -79,9 +79,13 @@ struct LLContextStatus
 
 LL_COMMON_API std::ostream& operator<<(std::ostream& s, const LLContextStatus& context_status);
 
+#ifndef LL_RELEASE_FOR_DOWNLOAD
 #define dumpStack(tag)                          \
     LL_DEBUGS(tag) << "STACK:\n"                \
                    << "====================\n"  \
                    << LLCallStack()             \
                    << "===================="    \
                    << LL_ENDL;
+#else
+#define dumpStack(tag)
+#endif
