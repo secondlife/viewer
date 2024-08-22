@@ -183,7 +183,9 @@ void LLDrawPoolMaterials::renderDeferred(S32 pass)
         glUniform4fv(specular, 1, lastSpecular.mV);
     }
 
-    LLVOAvatar* lastAvatar = nullptr;
+    const LLVOAvatar* lastAvatar = nullptr;
+    U64 lastMeshId = 0;
+    bool skipLastSkin = false;
 
     for (LLCullResult::drawinfo_iterator i = begin; i != end; )
     {
@@ -245,23 +247,11 @@ void LLDrawPoolMaterials::renderDeferred(S32 pass)
         }
 
         // upload matrix palette to shader
-        if (rigged && params.mAvatar.notNull())
+        if (rigged)
         {
-            if (params.mAvatar != lastAvatar)
+            if (!uploadMatrixPalette(params.mAvatar, params.mSkinInfo, lastAvatar, lastMeshId, skipLastSkin))
             {
-                const LLVOAvatar::MatrixPaletteCache& mpc = params.mAvatar->updateSkinInfoMatrixPalette(params.mSkinInfo);
-                U32 count = static_cast<U32>(mpc.mMatrixPalette.size());
-
-                if (count == 0)
-                {
-                    //skin info not loaded yet, don't render
-                    return;
-                }
-
-                mShader->uniformMatrix3x4fv(LLViewerShaderMgr::AVATAR_MATRIX,
-                    count,
-                    false,
-                    (GLfloat*)&(mpc.mGLMp[0]));
+                continue;
             }
         }
 
