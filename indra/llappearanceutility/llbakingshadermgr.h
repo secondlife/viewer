@@ -41,7 +41,7 @@ public:
     // singleton pattern implementation
     static LLBakingShaderMgr * instance();
 
-    void initAttribsAndUniforms(void);
+    void initAttribsAndUniforms(void) override;
     void setShaders();
     void unloadShaders();
     S32 getVertexShaderLevel(S32 type);
