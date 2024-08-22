@@ -124,6 +124,9 @@ void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, ou
     amblit = tmpAmbient;
 
     additive *= vec3(1.0 - combined_haze);
+
+    // sanity clamp haze contribution
+    additive = min(additive, vec3(10));
 }
 
 vec3 srgb_to_linear(vec3 col);
