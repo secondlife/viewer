@@ -505,10 +505,6 @@ LLPanelFace::~LLPanelFace()
 
 void LLPanelFace::onVisibilityChange(BOOL new_visibility)
 {
-    if (new_visibility)
-    {
-        gAgent.showLatestFeatureNotification("gltf");
-    }
     LLPanel::onVisibilityChange(new_visibility);
 }
 

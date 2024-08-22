@@ -413,10 +413,10 @@ void LLViewerJoystick::init(bool autoenable)
                 {
                     LL_INFOS("Joystick") << "Failed to gather input devices. Falling back to ndof's init" << LL_ENDL;
                     // Failed to gather devices, init first suitable one
-                    mLastDeviceUUID = LLSD();
-                    void *preffered_device = NULL;
-                    initDevice(preffered_device);
-                }
+                mLastDeviceUUID = LLSD();
+                void *preffered_device = NULL;
+                initDevice(preffered_device);
+            }
             }
 
             if (mDriverState == JDS_INITIALIZING)
@@ -510,10 +510,10 @@ void LLViewerJoystick::initDevice(LLSD &guid)
         {
             LL_INFOS("Joystick") << "Failed to gather input devices. Falling back to ndof's init" << LL_ENDL;
             // Failed to gather devices from window, init first suitable one
-            void *preffered_device = NULL;
-            mLastDeviceUUID = LLSD();
-            initDevice(preffered_device);
-        }
+        void *preffered_device = NULL;
+        mLastDeviceUUID = LLSD();
+        initDevice(preffered_device);
+    }
     }
 
     if (mDriverState == JDS_INITIALIZING)
@@ -881,6 +881,10 @@ void LLViewerJoystick::moveObjects(bool reset)
         {
             gAgent.clearAFK();
         }
+        else
+        {
+            gAwayTriggerTimer.reset();
+        }
 
         if (sDelta[0] || sDelta[1] || sDelta[2])
         {
@@ -1054,6 +1058,10 @@ void LLViewerJoystick::moveAvatar(bool reset)
         if (gAwayTimer.getElapsedTimeF32() > LLAgent::MIN_AFK_TIME)
         {
             gAgent.clearAFK();
+        }
+        else
+        {
+            gAwayTriggerTimer.reset();
         }
 
         setCameraNeedsUpdate(true);
@@ -1267,9 +1275,16 @@ void LLViewerJoystick::moveFlycam(bool reset)
     }
 
     // Clear AFK state if moved beyond the deadzone
-    if (!is_zero && gAwayTimer.getElapsedTimeF32() > LLAgent::MIN_AFK_TIME)
+    if (!is_zero)
     {
-        gAgent.clearAFK();
+        if (gAwayTimer.getElapsedTimeF32() > LLAgent::MIN_AFK_TIME)
+        {
+            gAgent.clearAFK();
+        }
+        else
+        {
+            gAwayTriggerTimer.reset();
+        }
     }
 
     sFlycamPosition += LLVector3(sDelta) * sFlycamRotation;
@@ -1330,6 +1345,10 @@ bool LLViewerJoystick::toggleFlycam()
     if (gAwayTimer.getElapsedTimeF32() > LLAgent::MIN_AFK_TIME)
     {
         gAgent.clearAFK();
+    }
+    else
+    {
+        gAwayTriggerTimer.reset();
     }
 
     mOverrideCamera = !mOverrideCamera;

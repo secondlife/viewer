@@ -46,6 +46,7 @@ class LLObjectInventoryObserver;
 class LLViewerObject;
 class LLPermissions;
 class LLTextBox;
+class LLTextEditor;
 
 class LLSidepanelItemInfo : public LLPanel, public LLInventoryObserver
 {
@@ -105,6 +106,7 @@ private:
     LLIconCtrl* mItemTypeIcon;
     LLTextBox* mLabelOwnerName;
     LLTextBox* mLabelCreatorName;
+    LLTextEditor* mLabelItemDesc;
 
     //
     // UI Elements

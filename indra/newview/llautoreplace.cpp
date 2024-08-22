@@ -536,11 +536,12 @@ LLAutoReplaceSettings::AddListResult LLAutoReplaceSettings::replaceList(const LL
         S32 search_index;
         LLSD targetList;
         // The following is working around the fact that LLSD arrays containing maps also seem to have undefined entries... see LLSD-30
-        for ( search_index = 0, targetList = mLists[0];
+        for ( search_index = 0;
               !listFound && search_index < mLists.size();
-              search_index += 1, targetList = mLists[search_index]
+              search_index += 1
              )
         {
+            targetList = mLists[search_index];
             if ( targetList.isMap() )
             {
                 if ( listNameMatches( targetList, listName) )

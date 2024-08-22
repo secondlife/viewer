@@ -111,7 +111,9 @@ void LLThumbnailCtrl::draw()
 
         gl_draw_scaled_image( draw_rect.mLeft, draw_rect.mBottom, draw_rect.getWidth(), draw_rect.getHeight(), mTexturep, UI_VERTEX_COLOR % alpha);
 
-        mTexturep->setKnownDrawSize(draw_rect.getWidth(), draw_rect.getHeight());
+        // Thumbnails are usually 256x256 or smaller, either report that or
+        // some high value to get image with higher priority
+        mTexturep->setKnownDrawSize(MAX_IMAGE_SIZE, MAX_IMAGE_SIZE);
     }
     else if( mImagep.notNull() )
     {
@@ -238,12 +240,8 @@ void LLThumbnailCtrl::initImage()
         {
             // Should it support baked textures?
             mTexturep = LLViewerTextureManager::getFetchedTexture(mImageAssetID, FTT_DEFAULT, MIPMAP_YES, LLGLTexture::BOOST_THUMBNAIL);
-
             mTexturep->forceToSaveRawImage(0);
-
-            S32 desired_draw_width = MAX_IMAGE_SIZE;
-            S32 desired_draw_height = MAX_IMAGE_SIZE;
-            mTexturep->setKnownDrawSize(desired_draw_width, desired_draw_height);
+            mTexturep->setKnownDrawSize(MAX_IMAGE_SIZE, MAX_IMAGE_SIZE);
         }
     }
     else if (tvalue.isString())
