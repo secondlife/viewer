@@ -755,14 +755,6 @@ bool LLSpatialGroup::changeLOD()
 
         if (fabsf(ratio) >= getSpatialPartition()->mSlopRatio)
         {
-            LL_DEBUGS("RiggedBox") << "changeLOD true because of ratio compare "
-                                   << fabsf(ratio) << " " << getSpatialPartition()->mSlopRatio << LL_ENDL;
-            LL_DEBUGS("RiggedBox") << "sg " << this << "\nmDistance " << mDistance
-                                   << " mLastUpdateDistance " << mLastUpdateDistance
-                                   << " mRadius " << mRadius
-                                   << " fab ratio " << fabsf(ratio)
-                                   << " slop " << getSpatialPartition()->mSlopRatio << LL_ENDL;
-
             return true;
         }
     }
