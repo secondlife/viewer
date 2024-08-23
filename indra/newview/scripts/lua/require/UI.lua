@@ -1,10 +1,26 @@
 -- Engage the viewer's UI
 
 local leap = require 'leap'
-local Timer = (require 'timers').Timer
 local mapargs = require 'mapargs'
+local Timer = (require 'timers').Timer
+local util = require 'util'
 
-local UI = {}
+-- Allow lazily accessing certain other modules on demand, e.g. a reference to
+-- UI.Floater lazily loads the Floater module. Use of UI's __index metamethod
+-- theoretically permits any other module you can require() to appear as a
+-- submodule of UI, but it doesn't make sense to support (e.g.) UI.Queue.
+local submods = { 'Floater', 'popup' }
+local UI = util.setmetamethods{
+    __index=function(t, key)
+        if not table.find(submods, key) then
+            error(`Invalid UI submodule {key}`, 2)
+        end
+        local mod = require(key)
+        -- cache the submodule
+        t[key] = mod
+        return mod
+    end
+}                               
 
 -- ***************************************************************************
 --  registered menu actions

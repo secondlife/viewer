@@ -15,16 +15,9 @@ local util = {}
 -- util.classctor(MyClass, MyClass.construct)
 -- return MyClass
 function util.classctor(class, ctor)
-    -- get the metatable for the passed class
-    local mt = getmetatable(class)
-    if mt == nil then
-        -- if it doesn't already have a metatable, then create one
-        mt = {}
-        setmetatable(class, mt)
-    end
-    -- now that class has a metatable, set its __call method to the specified
-    -- constructor method (class.new if not specified)
-    mt.__call = ctor or class.new
+    -- set class's __call metamethod to the specified constructor function
+    -- (class.new if not specified)
+    util.setmetamethods{class, __call=(ctor or class.new)}
 end
 
 -- check if array-like table contains certain value
@@ -64,6 +57,39 @@ function util.equal(t1, t2)
     end
     -- All keys in t1 have equal values in t2; t2 == t1 if there are no extra keys in t2
     return util.empty(temp)
+end
+
+-- Find or create the metatable for a specified table (a new empty table if
+-- omitted), and to that metatable assign the specified keys.
+-- Setting multiple keys at once is more efficient than a function to set only
+-- one at a time, e.g. setametamethod().
+-- t = util.setmetamethods{__index=readfunc, __len=lenfunc}
+-- returns a new table with specified metamethods __index, __len
+-- util.setmetamethods{t, __call=action}
+-- finds or creates the metatable for existing table t and sets __call
+-- util.setmetamethods{table=t, __call=action}
+-- same as util.setmetamethods{t, __call=action}
+function util.setmetamethods(specs)
+    -- first determine the target table
+    assert(not (specs.table and specs[1]),
+           "Pass setmetamethods table either as positional or table=, not both")
+    local t = specs.table or specs[1] or {}
+    -- remove both ways of specifying table, leaving only the metamethods
+    specs.table = nil
+    specs[1] = nil
+    local mt = getmetatable(t)
+    if not mt then
+        -- t doesn't already have a metatable: just set specs
+        setmetatable(t, specs)
+    else
+        -- t already has a metatable: copy specs into it
+        local key, value
+        for key, value in pairs(specs) do
+            mt[key] = value
+        end
+    end
+    -- having set or enriched t's metatable, return t
+    return t
 end
 
 return util

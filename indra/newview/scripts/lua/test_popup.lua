@@ -1,4 +1,5 @@
-popup = require 'popup'
+UI = require 'UI'
+popup = UI.popup
 
 response = popup:alert('This just has a Close button')
 response = popup:alertOK(string.format('You said "%s", is that OK?', next(response)))
