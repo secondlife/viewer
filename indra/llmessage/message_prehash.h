@@ -1409,5 +1409,6 @@ extern char const *const _PREHASH_OnDeath;
 extern char const *const _PREHASH_DamageThrottle;
 extern char const *const _PREHASH_RegenerationRate;
 extern char const *const _PREHASH_InvulnerabilyTime;
+extern char const *const _PREHASH_DamageLimit;
 
 #endif

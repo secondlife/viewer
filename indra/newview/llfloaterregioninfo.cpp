@@ -493,9 +493,10 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
 
     U32 combat_flags = (REGION_COMBAT_FLAG_DAMAGE_ADJUST | REGION_COMBAT_FLAG_RESTORE_HEALTH);
     U8  on_death = 0;
-    F32 damage_throttle = 0;
+    F32 damage_throttle = 0.0f;
     F32 regeneration_rate = 0.1666;
-    F32 invulnerability_time = 0;
+    F32 invulnerability_time = 0.0f;
+    F32  damage_limit = 0.0f;
     bool supports_combat2 = false;
 
     if (msg->has(_PREHASH_CombatSettings))
@@ -507,10 +508,11 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
         msg->getF32Fast(_PREHASH_CombatSettings, _PREHASH_DamageThrottle, damage_throttle);
         msg->getF32Fast(_PREHASH_CombatSettings, _PREHASH_RegenerationRate, regeneration_rate);
         msg->getF32Fast(_PREHASH_CombatSettings, _PREHASH_InvulnerabilyTime, invulnerability_time);
+        msg->getF32Fast(_PREHASH_CombatSettings, _PREHASH_DamageLimit, damage_limit);
 
         LL_INFOS() << "Combat flags: " << std::hex << combat_flags << std::dec << " on death: " << on_death
                     << " damage throttle: " << damage_throttle << " regeneration rate: " << regeneration_rate
-                    << " invulnerability time: " << invulnerability_time << LL_ENDL;
+                    << " invulnerability time: " << invulnerability_time << " damage limit: " << damage_limit << LL_ENDL;
     }
 
     // GENERAL PANEL
@@ -549,6 +551,7 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
     panel->getChild<LLUICtrl>("combat_dps_spin")->setValue(damage_throttle);
     panel->getChild<LLUICtrl>("combat_hps_spin")->setValue(regeneration_rate);
     panel->getChild<LLUICtrl>("combat_invuln_spin")->setValue(invulnerability_time);
+    panel->getChild<LLUICtrl>("combat_damage_limit")->setValue(damage_limit);
 
     BOOL combat2_enabled = ((region_flags & REGION_FLAGS_ALLOW_DAMAGE) && supports_combat2) ? TRUE : FALSE;
 
@@ -559,6 +562,7 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
     panel->getChild<LLUICtrl>("combat_dps_spin")->setEnabled(combat2_enabled);
     panel->getChild<LLUICtrl>("combat_hps_spin")->setEnabled(combat2_enabled);
     panel->getChild<LLUICtrl>("combat_invuln_spin")->setEnabled(combat2_enabled);
+    panel->getChild<LLUICtrl>("combat_damage_limit")->setEnabled(combat2_enabled);
 
     // detect teen grid for maturity
 
@@ -917,6 +921,7 @@ bool LLPanelRegionGeneralInfo::postBuild()
     initCtrl("combat_dps_spin");
     initCtrl("combat_hps_spin");
     initCtrl("combat_invuln_spin");
+    initCtrl("combat_damage_limit");
 
     childSetAction("kick_btn", boost::bind(&LLPanelRegionGeneralInfo::onClickKick, this));
     childSetAction("kick_all_btn", onClickKickAll, this);
@@ -977,6 +982,7 @@ void LLPanelRegionGeneralInfo::onChangeCombatEnabled()
     getChild<LLUICtrl>("combat_dps_spin")->setEnabled(combat2_enabled);
     getChild<LLUICtrl>("combat_hps_spin")->setEnabled(combat2_enabled);
     getChild<LLUICtrl>("combat_invuln_spin")->setEnabled(combat2_enabled);
+    getChild<LLUICtrl>("combat_damage_limit")->setEnabled(combat2_enabled);
 
     onChangeAnything();
 }
@@ -1138,6 +1144,7 @@ bool LLPanelRegionGeneralInfo::sendUpdate()
             body["combat_dps_throttle"] = getChild<LLUICtrl>("combat_dps_spin")->getValue();
             body["combat_hps_rate"] = getChild<LLUICtrl>("combat_hps_spin")->getValue();
             body["combat_invuln_time"] = getChild<LLUICtrl>("combat_invuln_spin")->getValue();
+            body["combat_damage_limit"] = getChild<LLUICtrl>("combat_damage_limit")->getValue();
         }
 
         LLCoreHttpUtil::HttpCoroutineAdapter::messageHttpPost(url, body,

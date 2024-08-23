@@ -3016,6 +3016,7 @@ version 2.0
         {   DamageThrottle      F32         }
         {   RegenerationRate    F32         }
         {   InvulnerabilyTime   F32         }
+        {   DamageLimit         F32         }
     }
 }
 

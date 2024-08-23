@@ -271,7 +271,7 @@
     <panel
      border="true"
      follows="top|left"
-     height="218"
+     height="243"
      help_topic="panel_region_combat"
      label="Combat"
      layout="topleft"
@@ -367,6 +367,19 @@
             follows="left|top"
             height="25"
             increment="0.5"
+            label="Damage Limit:"
+            label_width="145"
+            layout="topleft"
+            left="5"
+            max_val="10000"
+            min_val="0"
+            name="combat_damage_limit"
+            top="163"
+            width="210" />
+        <spinner
+            follows="left|top"
+            height="25"
+            increment="0.5"
             label="Health Regen (HPS):"
             label_width="145"
             layout="topleft"
@@ -374,7 +387,7 @@
             max_val="100"
             min_val="0"
             name="combat_hps_spin"
-            top="163"
+            top="188"
             width="210" />
         <spinner
             follows="left|top"
@@ -387,7 +400,7 @@
             max_val="30"
             min_val="0"
             name="combat_invuln_spin"
-            top="188"
+            top="213"
             width="210" />
      
     </panel>
