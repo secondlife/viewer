@@ -1602,10 +1602,7 @@ bool LLViewerShaderMgr::loadShadersDeferred()
     if (success)
     {
         std::string fragment;
-        std::string vertex = "deferred/sunLightV.glsl";
-
         bool use_ao = gSavedSettings.getBOOL("RenderDeferredSSAO");
-
         if (use_ao)
         {
             fragment = "deferred/sunLightSSAOF.glsl";
@@ -1613,10 +1610,6 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         else
         {
             fragment = "deferred/sunLightF.glsl";
-            if (mShaderLevel[SHADER_DEFERRED] == 1)
-            { //no shadows, no SSAO, no frag coord
-                vertex = "deferred/sunLightNoFragCoordV.glsl";
-            }
         }
 
         gDeferredSunProgram.mName = "Deferred Sun Shader";
@@ -1625,7 +1618,7 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         gDeferredSunProgram.mFeatures.hasAmbientOcclusion = use_ao;
 
         gDeferredSunProgram.mShaderFiles.clear();
-        gDeferredSunProgram.mShaderFiles.push_back(make_pair(vertex, GL_VERTEX_SHADER));
+        gDeferredSunProgram.mShaderFiles.push_back(make_pair("deferred/sunLightV.glsl", GL_VERTEX_SHADER));
         gDeferredSunProgram.mShaderFiles.push_back(make_pair(fragment, GL_FRAGMENT_SHADER));
         gDeferredSunProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
 
@@ -1635,20 +1628,13 @@ bool LLViewerShaderMgr::loadShadersDeferred()
 
     if (success)
     {
-        std::string fragment = "deferred/sunLightF.glsl";
-        std::string vertex = "deferred/sunLightV.glsl";
-        if (mShaderLevel[SHADER_DEFERRED] == 1)
-        { //no shadows, no SSAO, no frag coord
-            vertex = "deferred/sunLightNoFragCoordV.glsl";
-        }
-
         gDeferredSunProbeProgram.mName = "Deferred Sun Probe Shader";
         gDeferredSunProbeProgram.mFeatures.isDeferred = true;
         gDeferredSunProbeProgram.mFeatures.hasShadows = true;
 
         gDeferredSunProbeProgram.mShaderFiles.clear();
-        gDeferredSunProbeProgram.mShaderFiles.push_back(make_pair(vertex, GL_VERTEX_SHADER));
-        gDeferredSunProbeProgram.mShaderFiles.push_back(make_pair(fragment, GL_FRAGMENT_SHADER));
+        gDeferredSunProbeProgram.mShaderFiles.push_back(make_pair("deferred/sunLightV.glsl", GL_VERTEX_SHADER));
+        gDeferredSunProbeProgram.mShaderFiles.push_back(make_pair("deferred/sunLightF.glsl", GL_FRAGMENT_SHADER));
         gDeferredSunProbeProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
 
         success = gDeferredSunProbeProgram.createShader();
