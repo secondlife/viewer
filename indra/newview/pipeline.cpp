@@ -7930,13 +7930,15 @@ void LLPipeline::renderDeferredLighting()
         mat.mult_matrix_vec(tc_moon);
         mTransformedMoonDir.set(tc_moon.v);
 
-        if (RenderDeferredSSAO || RenderShadowDetail > 0)
+        if ((RenderDeferredSSAO && !gCubeSnapshot) || RenderShadowDetail > 0)
         {
             LL_PROFILE_GPU_ZONE("sun program");
             deferred_light_target->bindTarget();
             {  // paint shadow/SSAO light map (direct lighting lightmap)
                 LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("renderDeferredLighting - sun shadow");
-                bindDeferredShader(gDeferredSunProgram, deferred_light_target);
+
+                LLGLSLShader& sun_shader = gCubeSnapshot ? gDeferredSunProbeProgram : gDeferredSunProgram;
+                bindDeferredShader(sun_shader, deferred_light_target);
                 mScreenTriangleVB->setBuffer();
                 glClearColor(1, 1, 1, 1);
                 deferred_light_target->clear(GL_COLOR_BUFFER_BIT);
@@ -7961,8 +7963,8 @@ void LLPipeline::renderDeferredLighting()
                     }
                 }
 
-                gDeferredSunProgram.uniform3fv(sOffset, slice, offset);
-                gDeferredSunProgram.uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES,
+                sun_shader.uniform3fv(sOffset, slice, offset);
+                sun_shader.uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES,
                                               (GLfloat)deferred_light_target->getWidth(),
                                               (GLfloat)deferred_light_target->getHeight());
 
@@ -7972,12 +7974,12 @@ void LLPipeline::renderDeferredLighting()
                     mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
                 }
 
-                unbindDeferredShader(gDeferredSunProgram);
+                unbindDeferredShader(sun_shader);
             }
             deferred_light_target->flush();
         }
 
-        if (RenderDeferredSSAO)
+        if (RenderDeferredSSAO && !gCubeSnapshot)
         {
             // soften direct lighting lightmap
             LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("renderDeferredLighting - soften shadow");
