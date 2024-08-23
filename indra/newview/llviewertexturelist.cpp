@@ -889,12 +889,9 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
     static LLCachedControl<F32> texture_scale_min(gSavedSettings, "TextureScaleMinAreaFactor", 0.04f);
     static LLCachedControl<F32> texture_scale_max(gSavedSettings, "TextureScaleMaxAreaFactor", 25.f);
 
-    if (imagep->getType() == LLViewerTexture::LOD_TEXTURE && imagep->getBoostLevel() == LLViewerTexture::BOOST_NONE)
-    { // reset max virtual size for unboosted LOD_TEXTURES
-        // this is an alternative to decaying mMaxVirtualSize over time
-        // that keeps textures from continously downrezzing and uprezzing in the background
-        imagep->mMaxVirtualSize = 0.f;
-    }
+
+    F32 max_vsize = 0.f;
+    bool on_screen = false;
 
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
     for (U32 i = 0; i < LLRender::NUM_TEXTURE_CHANNELS; ++i)
@@ -910,6 +907,8 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
                 static LLCachedControl<F32> bias_unimportant_threshold(gSavedSettings, "TextureBiasUnimportantFactor", 0.25f);
                 F32 vsize = face->getPixelArea();
                 bool in_frustum = face->calcPixelArea(cos_angle_to_view_dir, radius);
+
+                on_screen = in_frustum;
 
                 // Scale desired texture resolution higher or lower depending on texture scale
                 //
@@ -936,14 +935,39 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
                 if (apply_bias)
                 {
                     F32 bias = powf(4, LLViewerTexture::sDesiredDiscardBias - 1.f);
-                    bias = (F32)llround(bias);
+                    bias = (F32) llround(bias);
                     vsize /= bias;
                 }
 
-                imagep->addTextureStats(vsize);
+                max_vsize = llmax(max_vsize, vsize);
             }
         }
     }
+
+    if (imagep->getType() == LLViewerTexture::LOD_TEXTURE && imagep->getBoostLevel() == LLViewerTexture::BOOST_NONE)
+    { // conditionally reset max virtual size for unboosted LOD_TEXTURES
+      // this is an alternative to decaying mMaxVirtualSize over time
+      // that keeps textures from continously downrezzing and uprezzing in the background
+
+        if (LLViewerTexture::sDesiredDiscardBias > 2.f ||
+            (!on_screen && LLViewerTexture::sDesiredDiscardBias > 1.f))
+        {
+            imagep->mMaxVirtualSize = 0.f;
+        }
+    }
+
+
+    imagep->addTextureStats(max_vsize);
+
+#if 0
+    imagep->setDebugText(llformat("%d/%d - %d/%d -- %d/%d",
+        (S32)sqrtf(max_vsize),
+        (S32)sqrtf(imagep->mMaxVirtualSize),
+        imagep->getDiscardLevel(),
+        imagep->getDesiredDiscardLevel(),
+        imagep->getWidth(),
+        imagep->getFullWidth()));
+#endif
 
     // make sure to addTextureStats for any spotlights that are using this texture
     for (S32 vi = 0; vi < imagep->getNumVolumes(LLRender::LIGHT_TEX); ++vi)
@@ -955,18 +979,26 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
     F32 max_inactive_time = 20.f; // inactive time before deleting saved raw image
     S32 min_refs = 3; // 1 for mImageList, 1 for mUUIDMap, and 1 for "entries" in updateImagesFetchTextures
 
+    F32 lazy_flush_timeout = 30.f; // delete unused images after 30 seconds
+
     //
     // Flush formatted images using a lazy flush
     //
     S32 num_refs = imagep->getNumRefs();
     if (num_refs <= min_refs && flush_images)
     {
-        // Remove the unused image from the image list
-        deleteImage(imagep);
-        return;
+        if (imagep->getLastReferencedTimer()->getElapsedTimeF32() > lazy_flush_timeout)
+        {
+            // Remove the unused image from the image list
+            deleteImage(imagep);
+            return;
+        }
     }
     else
     {
+        // still referenced outside of image list, reset timer
+        imagep->getLastReferencedTimer()->reset();
+
         if (imagep->hasSavedRawImage())
         {
             if (imagep->getElapsedLastReferencedSavedRawImageTime() > max_inactive_time)
