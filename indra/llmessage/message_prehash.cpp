@@ -1412,3 +1412,4 @@ char const* const _PREHASH_OnDeath = LLMessageStringTable::getInstance()->getStr
 char const* const _PREHASH_DamageThrottle = LLMessageStringTable::getInstance()->getString("DamageThrottle");
 char const* const _PREHASH_RegenerationRate = LLMessageStringTable::getInstance()->getString("RegenerationRate");
 char const* const _PREHASH_InvulnerabilyTime = LLMessageStringTable::getInstance()->getString("InvulnerabilyTime");
+char const* const _PREHASH_DamageLimit = LLMessageStringTable::getInstance()->getString("DamageLimit");
