@@ -158,6 +158,7 @@ LLGLSLShader            gDeferredMultiLightProgram[16];
 LLGLSLShader            gDeferredSpotLightProgram;
 LLGLSLShader            gDeferredMultiSpotLightProgram;
 LLGLSLShader            gDeferredSunProgram;
+LLGLSLShader            gDeferredSunProbeProgram;
 LLGLSLShader            gHazeProgram;
 LLGLSLShader            gHazeWaterProgram;
 LLGLSLShader            gDeferredBlurLightProgram;
@@ -400,6 +401,7 @@ void LLViewerShaderMgr::finalizeShaderList()
     mShaderList.push_back(&gObjectAlphaMaskNoColorProgram);
     mShaderList.push_back(&gUnderWaterProgram);
     mShaderList.push_back(&gDeferredSunProgram);
+    mShaderList.push_back(&gDeferredSunProbeProgram);
     mShaderList.push_back(&gHazeProgram);
     mShaderList.push_back(&gHazeWaterProgram);
     mShaderList.push_back(&gDeferredSoftenProgram);
@@ -1628,6 +1630,28 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         gDeferredSunProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
 
         success = gDeferredSunProgram.createShader();
+        llassert(success);
+    }
+
+    if (success)
+    {
+        std::string fragment = "deferred/sunLightF.glsl";
+        std::string vertex = "deferred/sunLightV.glsl";
+        if (mShaderLevel[SHADER_DEFERRED] == 1)
+        { //no shadows, no SSAO, no frag coord
+            vertex = "deferred/sunLightNoFragCoordV.glsl";
+        }
+
+        gDeferredSunProbeProgram.mName = "Deferred Sun Probe Shader";
+        gDeferredSunProbeProgram.mFeatures.isDeferred = true;
+        gDeferredSunProbeProgram.mFeatures.hasShadows = true;
+
+        gDeferredSunProbeProgram.mShaderFiles.clear();
+        gDeferredSunProbeProgram.mShaderFiles.push_back(make_pair(vertex, GL_VERTEX_SHADER));
+        gDeferredSunProbeProgram.mShaderFiles.push_back(make_pair(fragment, GL_FRAGMENT_SHADER));
+        gDeferredSunProbeProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+
+        success = gDeferredSunProbeProgram.createShader();
         llassert(success);
     }
 
