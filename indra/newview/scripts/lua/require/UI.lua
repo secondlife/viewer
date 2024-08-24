@@ -7,14 +7,7 @@ local util = require 'util'
 
 -- Allow lazily accessing UI submodules on demand, e.g. a reference to
 -- UI.Floater lazily loads the UI/Floater module.
-local UI = util.setmetamethods{
-    __index=function(t, key)
-        local mod = require('UI/' .. key)
-        -- cache the submodule
-        t[key] = mod
-        return mod
-    end
-}                               
+local UI = util.submoduledir({}, 'UI')
 
 -- ***************************************************************************
 --  registered menu actions

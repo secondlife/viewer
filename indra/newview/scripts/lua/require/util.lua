@@ -92,4 +92,23 @@ function util.setmetamethods(specs)
     return t
 end
 
+-- On the passed module (i.e. table), set an __index metamethod such that
+-- referencing module.submodule lazily requires(path/submodule).
+-- The loaded submodule is cached in the module table so it need not be passed
+-- to require() again.
+-- 'path', like any require() string, can be relative to LuaRequirePath.
+-- Returns the enriched module, permitting e.g.
+-- mymod = util.submoduledir({}, 'mymod')
+function util.submoduledir(module, path)
+    return util.setmetamethods{
+        module,
+        __index=function(t, key)
+            local mod = require(`{path}/{key}`)
+            -- cache the submodule
+            t[key] = mod
+            return mod
+        end
+    }
+end
+
 return util
