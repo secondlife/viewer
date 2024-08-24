@@ -1,8 +1,8 @@
-local Floater = require 'Floater'
 local leap = require 'leap'
 local startup = require 'startup'
+local UI = require 'UI'
 
-local flt = Floater(
+local flt = UI.Floater(
     'luafloater_demo.xml',
     {show_time_lbl = {"right_mouse_down", "double_click"}})
 
@@ -10,7 +10,7 @@ local flt = Floater(
 function flt:handleEvents(event_data)
     self:post({action="add_text", ctrl_name="events_editor", value = event_data})
     -- forward the call to base-class handleEvents()
-    return Floater.handleEvents(self, event_data)
+    return UI.Floater.handleEvents(self, event_data)
 end
 
 function flt:commit_disable_ctrl(event_data)

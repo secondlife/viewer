@@ -1,8 +1,8 @@
-local Floater = require 'Floater'
 local LLAgent = require 'LLAgent'
 local startup = require 'startup'
+local UI = require 'UI'
 
-local flt = Floater('luafloater_camera_control.xml')
+local flt = UI.Floater('luafloater_camera_control.xml')
 
 function getValue(ctrl_name)
     return flt:request({action="get_value", ctrl_name=ctrl_name}).value

@@ -1,11 +1,10 @@
-local Floater = require 'Floater'
 local leap = require 'leap'
 local startup = require 'startup'
 local Timer = (require 'timers').Timer
 local UI = require 'UI'
 local popup = UI.popup
 local max_speed = 0
-local flt = Floater("luafloater_speedometer.xml")
+local flt = UI.Floater("luafloater_speedometer.xml")
 startup.wait('STATE_STARTED')
 
 local timer
