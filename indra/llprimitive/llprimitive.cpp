@@ -1208,26 +1208,23 @@ namespace
 // Includes information about image ID, color, scale S,T, offset S,T and rotation
 bool LLPrimitive::packTEMessage(LLMessageSystem *mesgsys) const
 {
-    const U32 MAX_TES = 45;
+    U8     image_ids[LLTEContents::MAX_TES * 16];
+    U8     colors[LLTEContents::MAX_TES * 4];
+    F32    scale_s[LLTEContents::MAX_TES];
+    F32    scale_t[LLTEContents::MAX_TES];
+    S16    offset_s[LLTEContents::MAX_TES];
+    S16    offset_t[LLTEContents::MAX_TES];
+    S16    image_rot[LLTEContents::MAX_TES];
+    U8     bump[LLTEContents::MAX_TES];
+    U8     alpha_gamma[LLTEContents::MAX_TES];
+    U8     media_flags[LLTEContents::MAX_TES];
+    U8     glow[LLTEContents::MAX_TES];
+    U8     material_data[LLTEContents::MAX_TES * 16];
 
-    U8     image_ids[MAX_TES*16];
-    U8     colors[MAX_TES*4];
-    F32    scale_s[MAX_TES];
-    F32    scale_t[MAX_TES];
-    S16    offset_s[MAX_TES];
-    S16    offset_t[MAX_TES];
-    S16    image_rot[MAX_TES];
-    U8     bump[MAX_TES];
-    U8     alpha_gamma[MAX_TES];
-    U8     media_flags[MAX_TES];
-    U8     glow[MAX_TES];
-    U8     material_data[MAX_TES*16];
-
-    const U32 MAX_TE_BUFFER = 4096;
-    U8 packed_buffer[MAX_TE_BUFFER];
+    U8  packed_buffer[LLTEContents::MAX_TE_BUFFER];
     U8 *cur_ptr = packed_buffer;
 
-    S32 last_face_index = llmin((U32) getNumTEs(), MAX_TES) - 1;
+    S32 last_face_index = llmin((U32) getNumTEs(), LLTEContents::MAX_TES) - 1;
 
     if (last_face_index > -1)
     {
@@ -1298,23 +1295,20 @@ bool LLPrimitive::packTEMessage(LLMessageSystem *mesgsys) const
 
 bool LLPrimitive::packTEMessage(LLDataPacker &dp) const
 {
-    const U32 MAX_TES = 45;
+    U8     image_ids[LLTEContents::MAX_TES * 16];
+    U8     colors[LLTEContents::MAX_TES * 4];
+    F32    scale_s[LLTEContents::MAX_TES];
+    F32    scale_t[LLTEContents::MAX_TES];
+    S16    offset_s[LLTEContents::MAX_TES];
+    S16    offset_t[LLTEContents::MAX_TES];
+    S16    image_rot[LLTEContents::MAX_TES];
+    U8     bump[LLTEContents::MAX_TES];
+    U8     alpha_gamma[LLTEContents::MAX_TES];
+    U8     media_flags[LLTEContents::MAX_TES];
+    U8     glow[LLTEContents::MAX_TES];
+    U8     material_data[LLTEContents::MAX_TES * 16];
 
-    U8     image_ids[MAX_TES*16];
-    U8     colors[MAX_TES*4];
-    F32    scale_s[MAX_TES];
-    F32    scale_t[MAX_TES];
-    S16    offset_s[MAX_TES];
-    S16    offset_t[MAX_TES];
-    S16    image_rot[MAX_TES];
-    U8     bump[MAX_TES];
-    U8     alpha_gamma[MAX_TES];
-    U8     media_flags[MAX_TES];
-    U8     glow[MAX_TES];
-    U8     material_data[MAX_TES*16];
-
-    const U32 MAX_TE_BUFFER = 4096;
-    U8 packed_buffer[MAX_TE_BUFFER];
+    U8  packed_buffer[LLTEContents::MAX_TE_BUFFER];
     U8 *cur_ptr = packed_buffer;
 
     S32 last_face_index = getNumTEs() - 1;

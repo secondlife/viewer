@@ -2343,6 +2343,10 @@ void LLSelectMgr::selectionSetAlphaGamma(U8 gamma)
                 // update viewer side color in anticipation of update from simulator
                 object->setTEAlphaGamma(te, mAlphaGamma);
             }
+            else
+            {
+                packAlphaGammaOverride(object);
+            }
             return true;
         }
     } setfunc(gamma);
@@ -5802,6 +5806,40 @@ void LLSelectMgr::sendListToRegions(LLObjectSelectionHandle selected_handle,
     // LL_INFOS() << "sendListToRegions " << message_name << " obj " << objects_sent << " pkt " << packets_sent << LL_ENDL;
 }
 
+void LLSelectMgr::packAlphaGammaOverride(LLViewerObject* object)
+{
+    gMessageSystem->newMessageFast(_PRHASH_ObjectBypassModUpdate);
+    gMessageSystem->nextBlockFast(_PREHASH_AgentData);
+    gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+    gMessageSystem->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+    gMessageSystem->nextBlockFast(_PREHASH_ObjectData);
+    gMessageSystem->addU32Fast(_PREHASH_ObjectLocalID, object->getLocalID());
+    gMessageSystem->addU8Fast(_PREHASH_PropertyID, 0x01);
+
+    U8 alpha_gamma[LLTEContents::MAX_TES];
+
+    U8  packed_buffer[LLTEContents::MAX_TE_BUFFER];
+    U8*       cur_ptr = packed_buffer;
+
+    S32 last_face_index = llmin((U32) object->getNumTEs(), LLTEContents::MAX_TES) - 1;
+
+    if (last_face_index > -1)
+    {
+        // ...if we hit the front, send one image id
+        S8        face_index;
+        for (face_index = 0; face_index <= last_face_index; face_index++)
+        {
+            const LLTextureEntry* te = object->getTE(face_index);
+            alpha_gamma[face_index]  = te->getAlphaGamma();
+        }
+
+        cur_ptr += object->packTEField(cur_ptr, (U8*) alpha_gamma, 1, last_face_index, MVT_U8);
+    }
+
+    gMessageSystem->addBinaryDataFast(_PREHASH_Value, packed_buffer, cur_ptr - packed_buffer);
+
+    gMessageSystem->sendMessage(gAgent.getRegion()->getHost());
+}
 
 //
 // Network communications
