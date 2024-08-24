@@ -157,6 +157,7 @@ public:
     void generateExposure(LLRenderTarget* src, LLRenderTarget* dst, bool use_history = true);
     void gammaCorrect(LLRenderTarget* src, LLRenderTarget* dst);
     void generateGlow(LLRenderTarget* src);
+    void applyCAS(LLRenderTarget* src, LLRenderTarget* dst);
     void applyFXAA(LLRenderTarget* src, LLRenderTarget* dst);
     void renderDoF(LLRenderTarget* src, LLRenderTarget* dst);
     void copyRenderTarget(LLRenderTarget* src, LLRenderTarget* dst);
@@ -1067,6 +1068,7 @@ public:
     static bool RenderMirrors;
     static S32 RenderHeroProbeUpdateRate;
     static S32 RenderHeroProbeConservativeUpdateMultiplier;
+    static F32 RenderCASSharpness;
 };
 
 void render_bbox(const LLVector3 &min, const LLVector3 &max);
