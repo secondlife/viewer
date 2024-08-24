@@ -278,7 +278,7 @@ S32 LLImageJ2C::calcDataSizeJ2C(S32 w, S32 h, S32 comp, S32 discard_level, F32 r
     constexpr S32 max_components = 4; // assumed the file has four components; three color and alpha
     // Use MAX_IMAGE_SIZE_DEFAULT (currently 2048) if either dimension is unknown (zero)
     S32 width  = (w > 0) ? w : 2048;
-    S32 height = (h > 0) ? h : 2048; 
+    S32 height = (h > 0) ? h : 2048;
     S32 max_dimension = llmax(width, height); // Find largest dimension
     S32 block_area = MAX_BLOCK_SIZE * MAX_BLOCK_SIZE; // Calculated initial block area from established max block size (currently 64)
     block_area *= (max_dimension / MAX_BLOCK_SIZE / max_components); // Adjust initial block area by ratio of largest dimension to block size per component
