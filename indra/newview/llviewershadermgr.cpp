@@ -2345,6 +2345,16 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         gFXAAProgram.mShaderFiles.clear();
         gFXAAProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredV.glsl", GL_VERTEX_SHADER));
         gFXAAProgram.mShaderFiles.push_back(make_pair("deferred/fxaaF.glsl", GL_FRAGMENT_SHADER));
+
+        if (gGLManager.mGLVersion > 3.9)
+        {
+            gFXAAProgram.addPermutation("FXAA_GLSL_400", "1");
+        }
+        else
+        {
+            gFXAAProgram.addPermutation("FXAA_GLSL_130", "1");
+        }
+
         gFXAAProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
         success = gFXAAProgram.createShader();
         llassert(success);
