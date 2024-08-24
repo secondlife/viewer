@@ -1,13 +1,11 @@
-popup = require 'popup'
 UI = require 'UI'
 
-local OK = 'OK_okcancelbuttons'
 local BUTTONS = UI.getToolbarBtnNames()
 local TOOLBARS = {'left','right','bottom'}
 
 -- Clear the toolbars and then add the toolbar buttons to the random toolbar
-response = popup:alertYesCancel('Toolbars will be randomly reshuffled. Proceed?')
-if next(response) == OK then
+response = UI.popup:alertYesCancel('Toolbars will be randomly reshuffled. Proceed?')
+if response == 'OK' then
     UI.clearAllToolbars()
     math.randomseed(os.time())
 
