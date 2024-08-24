@@ -5,17 +5,11 @@ local mapargs = require 'mapargs'
 local Timer = (require 'timers').Timer
 local util = require 'util'
 
--- Allow lazily accessing certain other modules on demand, e.g. a reference to
--- UI.Floater lazily loads the Floater module. Use of UI's __index metamethod
--- theoretically permits any other module you can require() to appear as a
--- submodule of UI, but it doesn't make sense to support (e.g.) UI.Queue.
-local submods = { 'Floater', 'popup' }
+-- Allow lazily accessing UI submodules on demand, e.g. a reference to
+-- UI.Floater lazily loads the UI/Floater module.
 local UI = util.setmetamethods{
     __index=function(t, key)
-        if not table.find(submods, key) then
-            error(`Invalid UI submodule {key}`, 2)
-        end
-        local mod = require(key)
+        local mod = require('UI/' .. key)
         -- cache the submodule
         t[key] = mod
         return mod
