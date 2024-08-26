@@ -2646,15 +2646,19 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
         else
         {
             chat.mText = "";
-            std::string chat_text(mesg);
             auto [msg_without_prefix, is_lua] = LLStringUtil::withoutPrefix(mesg, LUA_PREFIX);
+            std::string prefix;
+            if (is_lua)
+            {
+                prefix = LUA_PREFIX;
+            }
             switch(chat.mChatType)
             {
             case CHAT_TYPE_WHISPER:
+                prefix += LLTrans::getString("whisper") + " ";
+                break;
             case CHAT_TYPE_SHOUT:
-                chat_text = LLTrans::getString(chat.mChatType == CHAT_TYPE_WHISPER ? "whisper" : "shout") + " " + msg_without_prefix;
-                if(is_lua)
-                    chat_text = LUA_PREFIX + chat_text;
+                prefix += LLTrans::getString("shout") + " ";
                 break;
             case CHAT_TYPE_DEBUG_MSG:
             case CHAT_TYPE_OWNER:
@@ -2670,7 +2674,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
                 break;
             }
 
-            chat.mText += chat_text;
+            chat.mText = prefix + msg_without_prefix;
         }
 
         // We have a real utterance now, so can stop showing "..." and proceed.
