@@ -201,6 +201,7 @@ LLGLSLShader            gExposureProgram;
 LLGLSLShader            gExposureProgramNoFade;
 LLGLSLShader            gLuminanceProgram;
 LLGLSLShader            gFXAAProgram;
+LLGLSLShader            gCASProgram;
 LLGLSLShader            gDeferredPostNoDoFProgram;
 LLGLSLShader            gDeferredWLSkyProgram;
 LLGLSLShader            gEnvironmentMapProgram;
@@ -2344,9 +2345,30 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         gFXAAProgram.mShaderFiles.clear();
         gFXAAProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredV.glsl", GL_VERTEX_SHADER));
         gFXAAProgram.mShaderFiles.push_back(make_pair("deferred/fxaaF.glsl", GL_FRAGMENT_SHADER));
+
+        if (gGLManager.mGLVersion > 3.9)
+        {
+            gFXAAProgram.addPermutation("FXAA_GLSL_400", "1");
+        }
+        else
+        {
+            gFXAAProgram.addPermutation("FXAA_GLSL_130", "1");
+        }
+
         gFXAAProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
         success = gFXAAProgram.createShader();
         llassert(success);
+    }
+
+    if (success)
+    {
+        gCASProgram.mName = "Contrast Adaptive Sharpening Shader";
+        gCASProgram.mFeatures.hasSrgb = true;
+        gCASProgram.mShaderFiles.clear();
+        gCASProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredNoTCV.glsl", GL_VERTEX_SHADER));
+        gCASProgram.mShaderFiles.push_back(make_pair("deferred/CASF.glsl", GL_FRAGMENT_SHADER));
+        gCASProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+        gCASProgram.createShader();
     }
 
     if (success)

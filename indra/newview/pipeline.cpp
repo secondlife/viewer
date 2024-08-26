@@ -117,6 +117,17 @@
 #include "llenvironment.h"
 #include "llsettingsvo.h"
 
+#ifndef LL_WINDOWS
+#define A_GCC 1
+#pragma GCC diagnostic ignored "-Wunused-function"
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#if LL_LINUX
+#pragma GCC diagnostic ignored "-Wrestrict"
+#endif
+#endif
+#define A_CPU 1
+#include "app_settings/shaders/class1/deferred/CASF.glsl" // This is also C++
+
 extern bool gSnapshot;
 bool gShiftFrame = false;
 
@@ -7133,6 +7144,51 @@ void LLPipeline::generateGlow(LLRenderTarget* src)
     }
 }
 
+void LLPipeline::applyCAS(LLRenderTarget* src, LLRenderTarget* dst)
+{
+    static LLCachedControl<F32> cas_sharpness(gSavedSettings, "RenderCASSharpness", 0.4f);
+    if (cas_sharpness == 0.0f)
+    {
+        gPipeline.copyRenderTarget(src, dst);
+        return;
+    }
+
+    LLGLSLShader* sharpen_shader = &gCASProgram;
+
+    // Bind setup:
+    dst->bindTarget();
+
+    sharpen_shader->bind();
+
+    {
+        static LLStaticHashedString cas_param_0("cas_param_0");
+        static LLStaticHashedString cas_param_1("cas_param_1");
+        static LLStaticHashedString out_screen_res("out_screen_res");
+
+        varAU4(const0);
+        varAU4(const1);
+        CasSetup(const0, const1,
+            cas_sharpness(),             // Sharpness tuning knob (0.0 to 1.0).
+            (AF1)src->getWidth(), (AF1)src->getHeight(),  // Input size.
+            (AF1)dst->getWidth(), (AF1)dst->getHeight()); // Output size.
+
+        sharpen_shader->uniform4uiv(cas_param_0, 1, const0);
+        sharpen_shader->uniform4uiv(cas_param_1, 1, const1);
+
+        sharpen_shader->uniform2f(out_screen_res, (AF1)dst->getWidth(), (AF1)dst->getHeight());
+    }
+
+    sharpen_shader->bindTexture(LLShaderMgr::DEFERRED_DIFFUSE, src, false, LLTexUnit::TFO_POINT);
+
+    // Draw
+    gPipeline.mScreenTriangleVB->setBuffer();
+    gPipeline.mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
+
+    sharpen_shader->unbind();
+
+    dst->flush();
+}
+
 void LLPipeline::applyFXAA(LLRenderTarget* src, LLRenderTarget* dst)
 {
     {
@@ -7502,13 +7558,15 @@ void LLPipeline::renderFinalize()
     gGLViewport[3] = gViewerWindow->getWorldViewRectRaw().getHeight();
     glViewport(gGLViewport[0], gGLViewport[1], gGLViewport[2], gGLViewport[3]);
 
-    renderDoF(&mRT->screen, &mPostMap);
+    applyCAS(&mRT->screen, &mPostMap);
 
-    applyFXAA(&mPostMap, &mRT->screen);
-    LLRenderTarget* finalBuffer = &mRT->screen;
+    renderDoF(&mPostMap, &mRT->screen);
+
+    applyFXAA(&mRT->screen, &mPostMap);
+    LLRenderTarget* finalBuffer = &mPostMap;
     if (RenderBufferVisualization > -1)
     {
-        finalBuffer = &mPostMap;
+        finalBuffer = &mRT->screen;
         switch (RenderBufferVisualization)
         {
         case 0:

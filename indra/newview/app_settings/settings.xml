@@ -9810,6 +9810,17 @@
       <key>Value</key>
       <string>00000000-0000-0000-0000-000000000000</string>
     </map>
+    <key>RenderCASSharpness</key>
+    <map>
+        <key>Comment</key>
+        <string>Level of sharpening to apply via Contrast Adaptive Sharpening (0.0(off) - 1.0)</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>F32</string>
+        <key>Value</key>
+        <real>0.4</real>
+    </map>
     <key>ReplaySession</key>
     <map>
       <key>Comment</key>

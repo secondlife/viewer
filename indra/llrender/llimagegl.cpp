@@ -316,8 +316,12 @@ S32 LLImageGL::dataFormatBits(S32 dataformat)
     case GL_RG16F:                                  return 32;
     case GL_RGB16F:                                 return 48;
     case GL_RGBA16F:                                return 64;
+    case GL_R32F:                                   return 32;
+    case GL_RG32F:                                  return 64;
+    case GL_RGB32F:                                 return 96;
+    case GL_RGBA32F:                                return 128;
     default:
-        LL_ERRS() << "LLImageGL::Unknown format: " << dataformat << LL_ENDL;
+        LL_ERRS() << "LLImageGL::Unknown format: " << std::hex << dataformat << std::dec << LL_ENDL;
         return 0;
     }
 }
@@ -367,7 +371,7 @@ S32 LLImageGL::dataFormatComponents(S32 dataformat)
       case GL_SRGB_ALPHA:                       return 4;
       case GL_BGRA:                             return 4;       // Used for QuickTime media textures on the Mac
       default:
-        LL_ERRS() << "LLImageGL::Unknown format: " << dataformat << LL_ENDL;
+        LL_ERRS() << "LLImageGL::Unknown format: " << std::hex << dataformat << std::dec << LL_ENDL;
         return 0;
     }
 }
