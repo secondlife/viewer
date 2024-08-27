@@ -577,8 +577,11 @@ void LLFace::renderSelected(LLViewerTexture *imagep, const LLColor4& color)
                 }
             }
             // Draw the selection marker using the correctly chosen vertex buffer
-            vertex_buffer->setBuffer();
-            vertex_buffer->draw(LLRender::TRIANGLES, mIndicesCount, mIndicesIndex);
+            if (vertex_buffer)
+            {
+                vertex_buffer->setBuffer();
+                vertex_buffer->draw(LLRender::TRIANGLES, mIndicesCount, mIndicesIndex);
+            }
         }
 
         gGL.popMatrix();
