@@ -47,6 +47,7 @@
 #include "llagentwearables.h"
 #include "lldirpicker.h"
 #include "llfloaterimcontainer.h"
+#include "llfloaterpreference.h"
 #include "llimprocessing.h"
 #include "llwindow.h"
 #include "llviewerstats.h"
@@ -1141,7 +1142,8 @@ bool LLAppViewer::init()
         [&](const std::string& name) -> std::string { return gSavedSettings.getString(name); },
         [&](const std::string& name, const std::string& value) { gSavedSettings.setString(name, value); },
         [&](const std::string& name) -> LLSD { return gSavedSettings.getLLSD(name); },
-        [&](const std::string& name, const LLSD& value) { gSavedSettings.setLLSD(name, value); });
+        [&](const std::string& name, const LLSD& value) { gSavedSettings.setLLSD(name, value); },
+        [&]() { LLPanelPreferenceGameControl::updateDeviceList(); });
 
     try
     {

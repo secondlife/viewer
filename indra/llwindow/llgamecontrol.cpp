@@ -356,6 +356,7 @@ public:
     void resetDeviceOptionsToDefaults();
     void loadDeviceOptionsFromSettings();
     void saveDeviceOptionsToSettings() const;
+    void setDeviceOptions(const std::string& guid, const LLGameControl::Options& options);
 
     void addController(SDL_JoystickID id, const std::string& guid, const std::string& name);
     void removeController(SDL_JoystickID id);
@@ -457,6 +458,7 @@ namespace
     std::function<void(const std::string&, const std::string&)> s_saveString;
     std::function<LLSD(const std::string&)> s_loadObject;
     std::function<void(const std::string&, LLSD&)> s_saveObject;
+    std::function<void()> s_updateUI;
 
     std::string SETTING_ENABLE("EnableGameControl");
     std::string SETTING_SENDTOSERVER("GameControlToServer");
@@ -549,7 +551,6 @@ LLGameControl::Options::Options()
     mAxisOptions.resize(NUM_AXES);
     mAxisMap.resize(NUM_AXES);
     mButtonMap.resize(NUM_BUTTONS);
-
     resetToDefaults();
 }
 
@@ -560,7 +561,6 @@ void LLGameControl::Options::resetToDefaults()
         mAxisOptions[i].resetToDefaults();
         mAxisMap[i] = (U8)i;
     }
-
     for (size_t i = 0; i < NUM_BUTTONS; ++i)
     {
         mButtonMap[i] = (U8)i;
@@ -595,18 +595,7 @@ S16 LLGameControl::Options::fixAxisValue(U8 axis, S16 value) const
     }
     else
     {
-        const AxisOptions& options = mAxisOptions[axis];
-        S32 new_value = (S32)value + (S32)options.mOffset;
-        value = (S16)std::clamp(new_value , -32768, 32767);
-        if ((value > 0 && value < (S16)options.mDeadZone) ||
-            (value < 0 && value > -(S16)options.mDeadZone))
-        {
-            value = 0;
-        }
-        else if (options.mInvert)
-        {
-            value = -value;
-        }
+        value = mAxisOptions[axis].computeModifiedValue(value);
     }
     return value;
 }
@@ -615,7 +604,7 @@ std::string LLGameControl::Options::AxisOptions::saveToString() const
 {
     std::list<std::string> options;
 
-    if (mInvert)
+    if (mMultiplier == -1)
     {
         options.push_back("invert:1");
     }
@@ -715,16 +704,17 @@ void LLGameControl::Options::AxisOptions::loadFromString(std::string options)
         LL_WARNS("SDL2") << "Invalid axis options: '" << options << "'" << LL_ENDL;
     }
 
+    mMultiplier = 1;
     std::string invert = pairs["invert"];
     if (!invert.empty())
     {
-        if (invert != "1")
+        if (invert == "1")
         {
-            LL_WARNS("SDL2") << "Invalid invert value: '" << invert << "'" << LL_ENDL;
+            mMultiplier = -1;
         }
         else
         {
-            mInvert = true;
+            LL_WARNS("SDL2") << "Invalid invert value: '" << invert << "'" << LL_ENDL;
         }
     }
 
@@ -732,13 +722,13 @@ void LLGameControl::Options::AxisOptions::loadFromString(std::string options)
     if (!dead_zone.empty())
     {
         size_t number = std::stoull(dead_zone);
-        if (number > MAX_AXIS_DEAD_ZONE || std::to_string(number) != dead_zone)
+        if (number <= MAX_AXIS_DEAD_ZONE && std::to_string(number) == dead_zone)
         {
-            LL_WARNS("SDL2") << "Invalid dead_zone value: '" << dead_zone << "'" << LL_ENDL;
+            mDeadZone = (U16)number;
         }
         else
         {
-            mDeadZone = (U16)number;
+            LL_WARNS("SDL2") << "Invalid dead_zone value: '" << dead_zone << "'" << LL_ENDL;
         }
     }
 
@@ -764,11 +754,13 @@ std::string LLGameControl::Options::saveToString(const std::string& name, bool f
 
 bool LLGameControl::Options::loadFromString(std::string& name, std::string options)
 {
+    resetToDefaults();
     return LLGameControl::parseDeviceOptions(options, name, mAxisOptions, mAxisMap, mButtonMap);
 }
 
 bool LLGameControl::Options::loadFromString(std::string options)
 {
+    resetToDefaults();
     std::string dummy_name;
     return LLGameControl::parseDeviceOptions(options, dummy_name, mAxisOptions, mAxisMap, mButtonMap);
 }
@@ -912,6 +904,19 @@ void LLGameControllerManager::saveDeviceOptionsToSettings() const
         else
         {
             g_deviceOptions[device.getGUID()] = options;
+        }
+    }
+}
+
+void LLGameControllerManager::setDeviceOptions(const std::string& guid, const LLGameControl::Options& options)
+{
+    // find Device by name
+    for (LLGameControl::Device& device : mDevices)
+    {
+        if (device.getGUID() == guid)
+        {
+            device.mOptions = options;
+            return;
         }
     }
 }
@@ -1468,6 +1473,10 @@ void onControllerDeviceAdded(const SDL_Event& event)
     }
 
     g_manager.addController(id, guid, name);
+
+    // this event could happen while the preferences UI is open
+    // in which case we need to force it to update
+    s_updateUI();
 }
 
 void onControllerDeviceRemoved(const SDL_Event& event)
@@ -1476,6 +1485,10 @@ void onControllerDeviceRemoved(const SDL_Event& event)
 
     SDL_JoystickID id = event.cdevice.which;
     g_manager.removeController(id);
+
+    // this event could happen while the preferences UI is open
+    // in which case we need to force it to update
+    s_updateUI();
 }
 
 void onControllerButton(const SDL_Event& event)
@@ -1524,7 +1537,8 @@ void LLGameControl::init(const std::string& gamecontrollerdb_path,
     std::function<std::string(const std::string&)> loadString,
     std::function<void(const std::string&, const std::string&)> saveString,
     std::function<LLSD(const std::string&)> loadObject,
-    std::function<void(const std::string&, const LLSD&)> saveObject)
+    std::function<void(const std::string&, const LLSD&)> saveObject,
+    std::function<void()> updateUI)
 {
     if (g_gameControl)
         return;
@@ -1535,6 +1549,7 @@ void LLGameControl::init(const std::string& gamecontrollerdb_path,
     llassert(saveString);
     llassert(loadObject);
     llassert(saveObject);
+    llassert(updateUI);
 
     int result = SDL_InitSubSystem(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER);
     if (result < 0)
@@ -1572,6 +1587,7 @@ void LLGameControl::init(const std::string& gamecontrollerdb_path,
     s_saveString = saveString;
     s_loadObject = loadObject;
     s_saveObject = saveObject;
+    s_updateUI = updateUI;
 
     loadFromSettings();
 }
@@ -1692,7 +1708,7 @@ LLGameControl::InputChannel LLGameControl::getActiveInputChannel()
     else
     {
         // scan axes
-        S16 threshold = std::numeric_limits<S16>::max() / 2;
+        constexpr S16 threshold = std::numeric_limits<S16>::max() / 2;
         for (U8 i = 0; i < 6; ++i)
         {
             if (abs(state.mAxes[i]) > threshold)
@@ -2098,4 +2114,10 @@ void LLGameControl::saveToSettings()
     g_manager.saveDeviceOptionsToSettings();
     LLSD deviceOptions(g_deviceOptions, true);
     s_saveObject(SETTING_KNOWNCONTROLLERS, deviceOptions);
+}
+
+// static
+void LLGameControl::setDeviceOptions(const std::string& guid, const Options& options)
+{
+    g_manager.setDeviceOptions(guid, options);
 }

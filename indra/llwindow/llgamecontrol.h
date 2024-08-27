@@ -178,15 +178,21 @@ public:
     public:
         struct AxisOptions
         {
-            bool mInvert { false };
+            S32 mMultiplier = 1;
             U16 mDeadZone { 0 };
             S16 mOffset { 0 };
 
             void resetToDefaults()
             {
-                mInvert = false;
+                mMultiplier = 1;
                 mDeadZone = 0;
                 mOffset = 0;
+            }
+
+            S16 computeModifiedValue(S16 raw_value) const
+            {
+                S32 new_value = ((S32)raw_value + S32(mOffset)) * mMultiplier;
+                return (S16)(std::clamp(new_value, -32768, 32767));
             }
 
             std::string saveToString() const;
@@ -265,7 +271,8 @@ public:
         std::function<std::string(const std::string&)> loadString,
         std::function<void(const std::string&, const std::string&)> saveString,
         std::function<LLSD(const std::string&)> loadObject,
-        std::function<void(const std::string&, const LLSD&)> saveObject);
+        std::function<void(const std::string&, const LLSD&)> saveObject,
+        std::function<void()> updateUI);
     static void terminate();
 
     static const std::list<LLGameControl::Device>& getDevices();
@@ -333,5 +340,6 @@ public:
     static void initByDefault();
     static void loadFromSettings();
     static void saveToSettings();
+    static void setDeviceOptions(const std::string& guid, const Options& options);
 };
 

@@ -1001,7 +1001,8 @@ void LLFloaterPreference::onBtnOK(const LLSD& userdata)
         LLUIColorTable::instance().saveUserSettings();
         gSavedSettings.saveToFile(gSavedSettings.getString("ClientSettingsFile"), true);
 
-        LLGameControl::loadFromSettings();
+        // save current config to settings
+        LLGameControl::saveToSettings();
 
         // Only save once logged in and loaded per account settings
         if (mGotPersonalInfo)
@@ -1048,6 +1049,9 @@ void LLFloaterPreference::onBtnCancel(const LLSD& userdata)
         cancel();
         closeFloater();
     }
+
+    // restore config from settings
+    LLGameControl::loadFromSettings();
 }
 
 //static
@@ -2261,12 +2265,12 @@ void LLPanelPreference::cancel(const std::vector<std::string> settings_to_skip)
 {
     for (control_values_map_t::iterator iter =  mSavedValues.begin();
          iter !=  mSavedValues.end(); ++iter)
-{
+    {
         LLControlVariable* control = iter->first;
         LLSD ctrl_value = iter->second;
 
         if((control->getName() == "InstantMessageLogPath") && (ctrl_value.asString() == ""))
-    {
+        {
             continue;
         }
 
@@ -3176,6 +3180,15 @@ static LLScrollListCtrl* gSelectedGrid { nullptr };
 static LLScrollListItem* gSelectedItem { nullptr };
 static LLScrollListCell* gSelectedCell { nullptr };
 
+// static
+void LLPanelPreferenceGameControl::updateDeviceList()
+{
+    if (gGameControlPanel)
+    {
+        gGameControlPanel->updateDeviceListInternal();
+    }
+}
+
 LLPanelPreferenceGameControl::LLPanelPreferenceGameControl()
 {
     gGameControlPanel = this;
@@ -3424,34 +3437,39 @@ void LLPanelPreferenceGameControl::onAxisOptionsSelect()
 
     if (LLScrollListItem* row = mAxisOptions->getFirstSelected())
     {
-        LLGameControl::Options& deviceOptions = getSelectedDeviceOptions();
+        LLGameControl::Options& options = getSelectedDeviceOptions();
         S32 row_index = mAxisOptions->getItemIndex(row);
-        S32 column_index = row->getSelectedCell();
-        if (column_index == 1)
+
         {
-            LLGameControl::Options& deviceOptions = getSelectedDeviceOptions();
-            deviceOptions.getAxisOptions()[row_index].mInvert =
-                row->getColumn(column_index)->getValue().asBoolean();
+            // always update invert checkbox value because even though it may have been clicked
+            // the row does not know its cell has been selected
+            constexpr S32 invert_checkbox_column = 1;
+            bool invert = row->getColumn(invert_checkbox_column)->getValue().asBoolean();
+            options.getAxisOptions()[row_index].mMultiplier = invert ? -1 : 1;
         }
-        else if (column_index == 2 || column_index == 3)
+
+        S32 column_index = row->getSelectedCell();
+        if (column_index == 2 || column_index == 3)
         {
             fitInRect(mNumericValueEditor, mAxisOptions, row_index, column_index);
             if (column_index == 2)
             {
                 mNumericValueEditor->setMinValue(0);
                 mNumericValueEditor->setMaxValue(LLGameControl::MAX_AXIS_DEAD_ZONE);
-                mNumericValueEditor->setValue(deviceOptions.getAxisOptions()[row_index].mDeadZone);
+                mNumericValueEditor->setValue(options.getAxisOptions()[row_index].mDeadZone);
             }
             else // column_index == 3
             {
                 mNumericValueEditor->setMinValue(-LLGameControl::MAX_AXIS_OFFSET);
                 mNumericValueEditor->setMaxValue(LLGameControl::MAX_AXIS_OFFSET);
-                mNumericValueEditor->setValue(deviceOptions.getAxisOptions()[row_index].mOffset);
+                mNumericValueEditor->setValue(options.getAxisOptions()[row_index].mOffset);
             }
             mNumericValueEditor->setVisible(true);
         }
 
         initCombobox(row, mAxisOptions);
+
+        LLGameControl::setDeviceOptions(mSelectedDeviceGUID, options);
     }
 }
 
@@ -3464,7 +3482,7 @@ void LLPanelPreferenceGameControl::onCommitNumericValue()
         S32 row_index = mAxisOptions->getItemIndex(row);
         S32 column_index = row->getSelectedCell();
         llassert(column_index == 2 || column_index == 3);
-        if (column_index != 2 && column_index != 3)
+        if (column_index < 2 || column_index > 3)
             return;
 
         if (column_index == 2)
@@ -3574,6 +3592,12 @@ void LLPanelPreferenceGameControl::onOpen(const LLSD& key)
     populateActionTableCells();
     updateActionTableState();
 
+    updateDeviceListInternal();
+    updateEnable();
+}
+
+void LLPanelPreferenceGameControl::updateDeviceListInternal()
+{
     // Setup the 2nd tab
     mDeviceOptions.clear();
     for (const auto& pair : LLGameControl::getDeviceOptions())
@@ -3590,11 +3614,8 @@ void LLPanelPreferenceGameControl::onOpen(const LLSD& key)
             mDeviceOptions[device.getGUID()] = { device.getName(), device.saveOptionsToString(true), device.getOptions() };
         }
     }
-
     mCheckShowAllDevices->setValue(false);
     populateDeviceTitle();
-
-    updateEnable();
 }
 
 void LLPanelPreferenceGameControl::populateActionTableRows(const std::string& filename)
@@ -3791,7 +3812,7 @@ void LLPanelPreferenceGameControl::populateOptionsTableCells()
     {
         LLScrollListItem* row = rows[i];
         const LLGameControl::Options::AxisOptions& axis_options = all_axis_options[i];
-        row->getColumn(1)->setValue(axis_options.mInvert);
+        row->getColumn(1)->setValue(axis_options.mMultiplier == -1 ? true : false);
         setNumericLabel(row->getColumn(2), axis_options.mDeadZone);
         setNumericLabel(row->getColumn(3), axis_options.mOffset);
     }

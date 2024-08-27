@@ -389,11 +389,18 @@ public:
         TYPE_NONE
     };
 
+    static void updateDeviceList();
+
     LLPanelPreferenceGameControl();
     ~LLPanelPreferenceGameControl();
 
     void onOpen(const LLSD& key) override;
+
+    // This function squirrels away the current values of the controls so that
+    // cancel() can restore them.
     void saveSettings() override;
+
+    void updateDeviceListInternal();
 
     void onGridSelect(LLUICtrl* ctrl);
     void onCommitInputChannel(LLUICtrl* ctrl);
