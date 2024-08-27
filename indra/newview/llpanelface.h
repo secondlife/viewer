@@ -704,7 +704,8 @@ public:
         DEF_GET_TE_STATE(F32,F32,getScaleT,1.0f, true, 0.001f)
         DEF_GET_TE_STATE(F32,F32,getGlow,0.0f, true, 0.001f)
         DEF_GET_TE_STATE(LLTextureEntry::e_texgen,LLTextureEntry::e_texgen,getTexGen,LLTextureEntry::TEX_GEN_DEFAULT, false, LLTextureEntry::TEX_GEN_DEFAULT)
-        DEF_GET_TE_STATE(LLColor4,const LLColor4&,getColor,LLColor4::white, false, LLColor4::black);
+        DEF_GET_TE_STATE(LLColor4,const LLColor4&,getColor,LLColor4::white, false, LLColor4::black)
+        DEF_GET_TE_STATE(U8, U8, getAlphaGamma, 100, false, 0);
     };
 
     friend struct LLPanelFaceSetTEFunctor;

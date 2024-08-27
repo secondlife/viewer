@@ -5836,7 +5836,7 @@ void LLSelectMgr::packAlphaGammaOverride(LLViewerObject* object)
         cur_ptr += object->packTEField(cur_ptr, (U8*) alpha_gamma, 1, last_face_index, MVT_U8);
     }
 
-    gMessageSystem->addBinaryDataFast(_PREHASH_Value, packed_buffer, cur_ptr - packed_buffer);
+    gMessageSystem->addBinaryDataFast(_PREHASH_Value, packed_buffer, (S32)(cur_ptr - packed_buffer));
 
     gMessageSystem->sendMessage(gAgent.getRegion()->getHost());
 }
