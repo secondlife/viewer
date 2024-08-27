@@ -189,6 +189,8 @@ public:
     virtual ~LLInventoryCollectFunctor(){};
     virtual bool operator()(LLInventoryCategory* cat, LLInventoryItem* item) = 0;
 
+    virtual bool exceedsLimit() { return false; }
+
     static bool itemTransferCommonlyAllowed(const LLInventoryItem* item);
 };
 

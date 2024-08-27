@@ -29,6 +29,7 @@
 #include "llfoldertype.h"
 #include "lldictionary.h"
 #include "llmemory.h"
+#include "llsd.h"
 #include "llsingleton.h"
 
 ///----------------------------------------------------------------------------
@@ -219,4 +220,22 @@ const std::string &LLFolderType::badLookup()
 {
     static const std::string sBadLookup = "llfoldertype_bad_lookup";
     return sBadLookup;
+}
+
+LLSD LLFolderType::getTypeNames()
+{
+    LLSD type_names;
+    const LLFolderDictionary *dict = LLFolderDictionary::getInstance();
+    for (S32 type = 0; type < FT_COUNT; ++type)
+    {
+        if (lookupIsEnsembleType(LLFolderType::EType(type))) continue;
+
+        const FolderEntry *entry = dict->lookup(LLFolderType::EType(type));
+        //skip llfoldertype_bad_lookup
+        if (entry)
+        {
+            type_names.append(entry->mName);
+        }
+    }
+    return type_names;
 }
