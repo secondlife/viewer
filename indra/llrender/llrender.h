@@ -448,7 +448,7 @@ public:
 
     void vertexBatchPreTransformed(LLVector3* verts, S32 vert_count);
     void vertexBatchPreTransformed(LLVector3* verts, LLVector2* uvs, S32 vert_count);
-    void vertexBatchPreTransformed(LLVector3* verts, LLVector2* uvs, LLColor4U*, S32 vert_count);
+    void vertexBatchPreTransformed(LLVector3* verts, LLVector2* uvs, LLColor4U*, S32 vert_count, bool for_flush = false);
 
     void setColorMask(bool writeColor, bool writeAlpha);
     void setColorMask(bool writeColorR, bool writeColorG, bool writeColorB, bool writeAlpha);

@@ -1928,9 +1928,10 @@ void LLRender::vertexBatchPreTransformed(LLVector3* verts, LLVector2* uvs, S32 v
     }
 }
 
-void LLRender::vertexBatchPreTransformed(LLVector3* verts, LLVector2* uvs, LLColor4U* colors, S32 vert_count)
+void LLRender::vertexBatchPreTransformed(LLVector3* verts, LLVector2* uvs, LLColor4U* colors, S32 vert_count, bool for_flush)
 {
-    if (mCount + vert_count > 4094)
+    if (!for_flush // LLRender::flush() allocates dynaically
+        && mCount + vert_count > 4094) // preallocated 4096 in mBuffer
     {
         //  LL_WARNS() << "GL immediate mode overflow.  Some geometry not drawn." << LL_ENDL;
         return;

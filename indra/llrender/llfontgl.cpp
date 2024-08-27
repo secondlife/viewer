@@ -270,10 +270,11 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 
     const LLFontGlyphInfo* next_glyph = NULL;
 
-    const S32 GLYPH_BATCH_SIZE = 30;
-    LLVector3 vertices[GLYPH_BATCH_SIZE * 4];
-    LLVector2 uvs[GLYPH_BATCH_SIZE * 4];
-    LLColor4U colors[GLYPH_BATCH_SIZE * 4];
+    static constexpr S32 GLYPH_BATCH_SIZE = 512;
+    // probably doesn't need to be thread_local, but gGL is so better to be safe and consistent.
+    static thread_local LLVector3 vertices[GLYPH_BATCH_SIZE * 4];
+    static thread_local LLVector2 uvs[GLYPH_BATCH_SIZE * 4];
+    static thread_local LLColor4U colors[GLYPH_BATCH_SIZE * 4];
 
     LLColor4U text_color(color);
     // Preserve the transparency to render fading emojis in fading text (e.g.
@@ -307,7 +308,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
             {
                 gGL.begin(LLRender::QUADS);
                 {
-                    gGL.vertexBatchPreTransformed(vertices, uvs, colors, glyph_count * 4);
+                    gGL.vertexBatchPreTransformed(vertices, uvs, colors, glyph_count * 4, true);
                 }
                 gGL.end();
                 glyph_count = 0;
@@ -340,7 +341,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
         {
             gGL.begin(LLRender::QUADS);
             {
-                gGL.vertexBatchPreTransformed(vertices, uvs, colors, glyph_count * 4);
+                gGL.vertexBatchPreTransformed(vertices, uvs, colors, glyph_count * 4, true);
             }
             gGL.end();
 
@@ -378,7 +379,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 
     gGL.begin(LLRender::QUADS);
     {
-        gGL.vertexBatchPreTransformed(vertices, uvs, colors, glyph_count * 4);
+        gGL.vertexBatchPreTransformed(vertices, uvs, colors, glyph_count * 4, true);
     }
     gGL.end();
 
