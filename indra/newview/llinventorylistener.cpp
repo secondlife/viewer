@@ -40,18 +40,18 @@ LLInventoryListener::LLInventoryListener()
                "API for interactions with viewer Inventory items")
 {
     add("getItemsInfo",
-        "Return information about items or folders defined in [\"items_id\"]:\n"
+        "Return information about items or folders defined in [\"item_ids\"]:\n"
         "reply will contain [\"items\"] and [\"categories\"] tables accordingly",
         &LLInventoryListener::getItemsInfo,
-        llsd::map("items_id", LLSD(), "reply", LLSD()));
+        llsd::map("item_ids", LLSD(), "reply", LLSD()));
 
     add("getFolderTypeNames",
-        "Return the table of folder type names, contained in [\"type_names\"]\n",
+        "Return the table of folder type names, contained in [\"names\"]\n",
         &LLInventoryListener::getFolderTypeNames,
         llsd::map("reply", LLSD()));
 
     add("getAssetTypeNames",
-        "Return the table of asset type names, contained in [\"type_names\"]\n",
+        "Return the table of asset type names, contained in [\"names\"]\n",
         &LLInventoryListener::getAssetTypeNames,
         llsd::map("reply", LLSD()));
 
@@ -70,8 +70,8 @@ LLInventoryListener::LLInventoryListener()
         "Return the descendents(both items and folders) of the [\"folder_id\"], if it passes specified filters:\n"
         "[\"name\"] is a substring of object's name,\n"
         "[\"desc\"] is a substring of object's description,\n"
-        "asset [\"type\"] corresponds to the object's asset type\n"
-        "[\"item_limit\"] sets item count limit in reply, maximum and default is 100\n"
+        "asset [\"type\"] corresponds to the string name of the object's asset type\n"
+        "[\"limit\"] sets item count limit in reply, maximum and default is 100\n"
         "[\"filter_links\"]: EXCLUDE_LINKS - don't show links, ONLY_LINKS - only show links, INCLUDE_LINKS - show links too (default)",
         &LLInventoryListener::collectDescendentsIf,
         llsd::map("folder_id", LLSD(), "reply", LLSD()));
@@ -81,23 +81,42 @@ LLInventoryListener::LLInventoryListener()
 void add_item_info(LLEventAPI::Response& response, LLViewerInventoryItem* item)
 {
     response["items"].insert(item->getUUID().asString(),
-                             llsd::map("name", item->getName(), "parent_id", item->getParentUUID(), "desc", item->getDescription(),
-                                       "inv_type", LLInventoryType::lookup(item->getInventoryType()), "asset_type", LLAssetType::lookup(item->getType()),
-                                       "creation_date", (S32) item->getCreationDate(), "asset_id", item->getAssetUUID(), 
-                                       "is_link", item->getIsLinkType(), "linked_id", item->getLinkedUUID()));
+                             llsd::map("name", item->getName(),
+                                       "parent_id", item->getParentUUID(),
+                                       "desc", item->getDescription(),
+                                       "inv_type", LLInventoryType::lookup(item->getInventoryType()),
+                                       "asset_type", LLAssetType::lookup(item->getType()),
+                                       "creation_date", (S32) item->getCreationDate(),
+                                       "asset_id", item->getAssetUUID(),
+                                       "is_link", item->getIsLinkType(),
+                                       "linked_id", item->getLinkedUUID()));
 }
 
 void add_cat_info(LLEventAPI::Response &response, LLViewerInventoryCategory *cat)
 {
     response["categories"].insert(cat->getUUID().asString(),
-                                  llsd::map("name", cat->getName(), "parent_id", cat->getParentUUID(), "type", LLFolderType::lookup(cat->getPreferredType())));
+                                  llsd::map("name", cat->getName(),
+                                            "parent_id", cat->getParentUUID(),
+                                            "type", LLFolderType::lookup(cat->getPreferredType())));
+}
+
+void add_objects_info(LLEventAPI::Response& response, LLInventoryModel::cat_array_t cat_array, LLInventoryModel::item_array_t item_array)
+{
+    for (auto &p : item_array)
+    {
+        add_item_info(response, p);
+    }
+    for (auto &p : cat_array)
+    {
+        add_cat_info(response, p);
+    }
 }
 
 void LLInventoryListener::getItemsInfo(LLSD const &data)
 {
     Response response(LLSD(), data);
 
-    uuid_vec_t ids = LLSDParam<uuid_vec_t>(data["items_id"]);
+    uuid_vec_t ids = LLSDParam<uuid_vec_t>(data["item_ids"]);
     for (auto &it : ids)
     {
         LLViewerInventoryItem* item = gInventory.getItem(it);
@@ -105,22 +124,25 @@ void LLInventoryListener::getItemsInfo(LLSD const &data)
         {
             add_item_info(response, item);
         }
-        LLViewerInventoryCategory* cat = gInventory.getCategory(it);
-        if (cat)
+        else
         {
-            add_cat_info(response, cat);
+            LLViewerInventoryCategory *cat = gInventory.getCategory(it);
+            if (cat)
+            {
+                add_cat_info(response, cat);
+            }
         }
     }
 }
 
 void LLInventoryListener::getFolderTypeNames(LLSD const &data)
 {
-    Response response(llsd::map("type_names", LLFolderType::getTypeNames()), data);
+    Response response(llsd::map("names", LLFolderType::getTypeNames()), data);
 }
 
 void LLInventoryListener::getAssetTypeNames(LLSD const &data)
 {
-    Response response(llsd::map("type_names", LLAssetType::getTypeNames()), data);
+    Response response(llsd::map("names", LLAssetType::getTypeNames()), data);
 }
 
 void LLInventoryListener::getBasicFolderID(LLSD const &data)
@@ -136,17 +158,36 @@ void LLInventoryListener::getDirectDescendents(LLSD const &data)
     LLInventoryModel::item_array_t* items;
     gInventory.getDirectDescendentsOf(data["folder_id"], cats, items);
 
-    LLInventoryModel::item_array_t items_copy = *items;
-    for (LLInventoryModel::item_array_t::iterator iter = items_copy.begin(); iter != items_copy.end(); iter++)
-    {
-        add_item_info(response, *iter);
-    }
-    LLInventoryModel::cat_array_t cats_copy = *cats;
-    for (LLInventoryModel::cat_array_t::iterator iter = cats_copy.begin(); iter != cats_copy.end(); iter++)
-    {
-        add_cat_info(response, *iter);
-    }
+    add_objects_info(response, *cats, *items);
 }
+
+struct LLFilteredCollector : public LLInventoryCollectFunctor
+{
+    enum EFilterLink
+    {
+        INCLUDE_LINKS,  // show links too
+        EXCLUDE_LINKS,  // don't show links
+        ONLY_LINKS      // only show links
+    };
+
+    LLFilteredCollector(LLSD const &data);
+    virtual ~LLFilteredCollector() {}
+    virtual bool operator()(LLInventoryCategory *cat, LLInventoryItem *item) override;
+    virtual bool exceedsLimit() override { return (mItemLimit <= mItemCount); };
+
+  protected:
+    bool checkagainstType(LLInventoryCategory *cat, LLInventoryItem *item);
+    bool checkagainstNameDesc(LLInventoryCategory *cat, LLInventoryItem *item);
+    bool checkagainstLinks(LLInventoryCategory *cat, LLInventoryItem *item);
+
+    LLAssetType::EType mType;
+    std::string mName;
+    std::string mDesc;
+    EFilterLink mLinkFilter;
+
+    S32 mItemLimit;
+    S32 mItemCount;
+};
 
 void LLInventoryListener::collectDescendentsIf(LLSD const &data)
 {
@@ -164,14 +205,7 @@ void LLInventoryListener::collectDescendentsIf(LLSD const &data)
 
     gInventory.collectDescendentsIf(folder_id, cat_array, item_array, LLInventoryModel::EXCLUDE_TRASH, collector);
 
-    for (LLInventoryModel::item_array_t::iterator iter = item_array.begin(); iter != item_array.end(); iter++)
-    {
-        add_item_info(response, *iter);
-    }
-    for (LLInventoryModel::cat_array_t::iterator iter = cat_array.begin(); iter != cat_array.end(); iter++)
-    {
-        add_cat_info(response, *iter);
-    }
+    add_objects_info(response, cat_array, item_array);
 }
 
 LLFilteredCollector::LLFilteredCollector(LLSD const &data) :
@@ -180,14 +214,10 @@ LLFilteredCollector::LLFilteredCollector(LLSD const &data) :
     mItemLimit(MAX_ITEM_LIMIT),
     mItemCount(0)
 {
-    if (data.has("name"))
-    {
-        mName = data["name"].asString();
-    }
-    if (data.has("desc"))
-    {
-        mDesc = data["desc"].asString();
-    }
+
+    mName = data["name"].asString();
+    mDesc = data["desc"].asString();
+
     if (data.has("type"))
     {
         mType = LLAssetType::lookup(data["type"]);
@@ -203,9 +233,9 @@ LLFilteredCollector::LLFilteredCollector(LLSD const &data) :
             mLinkFilter = ONLY_LINKS;
         }
     }
-    if (data.has("item_limit"))
+    if (data["limit"].isInteger())
     {
-        mItemLimit = llclamp(data["item_limit"].asInteger(), 1, MAX_ITEM_LIMIT);
+        mItemLimit = llclamp(data["limit"].asInteger(), 1, MAX_ITEM_LIMIT);
     }
 }
 
@@ -222,11 +252,6 @@ bool LLFilteredCollector::operator()(LLInventoryCategory *cat, LLInventoryItem *
     return passed;
 }
 
-bool LLFilteredCollector::exceedsLimit()
-{
-    return (mItemLimit <= mItemCount);
-}
-
 bool LLFilteredCollector::checkagainstNameDesc(LLInventoryCategory *cat, LLInventoryItem *item)
 {
     std::string name, desc;
@@ -239,10 +264,10 @@ bool LLFilteredCollector::checkagainstNameDesc(LLInventoryCategory *cat, LLInven
     if (item)
     {
         name = item->getName();
-        passed = (mDesc.size() ? item->getDescription().find(mDesc) != std::string::npos : true);
+        passed = (mDesc.empty() || (item->getDescription().find(mDesc) != std::string::npos));
     }
 
-    return passed && (mName.size() ? name.find(mName) != std::string::npos : true);
+    return passed && (mName.empty() || name.find(mName) != std::string::npos);
 }
 
 bool LLFilteredCollector::checkagainstType(LLInventoryCategory *cat, LLInventoryItem *item)
@@ -251,12 +276,9 @@ bool LLFilteredCollector::checkagainstType(LLInventoryCategory *cat, LLInventory
     {
         return true;
     }
-    if (mType == LLAssetType::AT_CATEGORY)
+    if (cat && (mType == LLAssetType::AT_CATEGORY))
     {
-        if (cat)
-        {
-            return true;
-        }
+        return true;
     }
     if (item && item->getType() == mType)
     {

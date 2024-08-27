@@ -250,9 +250,9 @@ LLSD LLAssetType::getTypeNames()
 {
     LLSD type_names;
     const LLAssetDictionary *dict = LLAssetDictionary::getInstance();
-    for (S32 type = AT_TEXTURE; type < AT_COUNT; ++type)
+    for (S32 type = 0; type < AT_COUNT; ++type)
     {
-        const AssetEntry *entry = dict->lookup((LLAssetType::EType) type);
+        const AssetEntry *entry = dict->lookup(LLAssetType::EType(type));
         // skip llassettype_bad_lookup
         if (entry)
         {

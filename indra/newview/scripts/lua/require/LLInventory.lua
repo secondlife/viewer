@@ -5,13 +5,13 @@ local LLInventory = {}
 
 -- Get the items/folders info by provided IDs,
 -- reply will contain "items" and "categories" tables accordingly
-function LLInventory.getItemsInfo(items_id)
-    return leap.request('LLInventory', {op = 'getItemsInfo', items_id=items_id})
+function LLInventory.getItemsInfo(item_ids)
+    return leap.request('LLInventory', {op = 'getItemsInfo', item_ids=item_ids})
 end
 
 -- Get the table of folder type names, which can be later used to get the ID of the basic folders
 function LLInventory.getFolderTypeNames()
-    return leap.request('LLInventory', {op = 'getFolderTypeNames'}).type_names
+    return leap.request('LLInventory', {op = 'getFolderTypeNames'}).names
 end
 
 -- Get the UUID of the basic folder("Textures", "My outfits", "Sounds" etc.) by specified folder type name
@@ -21,7 +21,7 @@ end
 
 -- Get the table of asset type names, which can be later used to get the specific items via LLInventory.collectDescendentsIf(...)
 function LLInventory.getAssetTypeNames()
-    return leap.request('LLInventory', {op = 'getAssetTypeNames'}).type_names
+    return leap.request('LLInventory', {op = 'getAssetTypeNames'}).names
 end
 
 -- Get the direct descendents of the 'folder_id' provided,
@@ -36,10 +36,10 @@ end
 -- [, name]              -- name (substring)
 -- [, desc]              -- description (substring)
 -- [, type]              -- asset type
--- [, item_limit]        -- item count limit in reply, maximum and default is 100
+-- [, limit]             -- item count limit in reply, maximum and default is 100
 -- [, filter_links]}     -- EXCLUDE_LINKS - don't show links, ONLY_LINKS - only show links, INCLUDE_LINKS - show links too (default)
 function LLInventory.collectDescendentsIf(...)
-    local args = mapargs('folder_id,name,desc,type,filter_links,item_limit', ...)
+    local args = mapargs('folder_id,name,desc,type,filter_links,limit', ...)
     args.op = 'collectDescendentsIf'
     return leap.request('LLInventory', args)
 end

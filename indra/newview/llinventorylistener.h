@@ -44,33 +44,5 @@ private:
     void collectDescendentsIf(LLSD const &data);
 };
 
-struct LLFilteredCollector : public LLInventoryCollectFunctor
-{
-    enum EFilterLink
-    {
-        INCLUDE_LINKS,  // show links too
-        EXCLUDE_LINKS,  // don't show links
-        ONLY_LINKS      // only show links
-    };
-
-    LLFilteredCollector(LLSD const &data);
-    virtual ~LLFilteredCollector() {}
-    virtual bool operator()(LLInventoryCategory *cat, LLInventoryItem *item);
-    virtual bool exceedsLimit();
-
-  protected:
-    bool checkagainstType(LLInventoryCategory *cat, LLInventoryItem *item);
-    bool checkagainstNameDesc(LLInventoryCategory *cat, LLInventoryItem *item);
-    bool checkagainstLinks(LLInventoryCategory *cat, LLInventoryItem *item);
-
-    LLAssetType::EType mType;
-    std::string mName;
-    std::string mDesc;
-    EFilterLink mLinkFilter;
-
-    S32 mItemLimit;
-    S32 mItemCount;
-};
-
 #endif // LL_LLINVENTORYLISTENER_H
 
