@@ -3184,27 +3184,6 @@ void send_agent_update(bool force_send, bool send_reliable)
     F64 now =  LLFrameTimer::getTotalSeconds();
     F64 sec_since_last_send = now - last_send_time;
 
-    if (! force_send && sec_since_last_send < MIN_AGENT_UPDATE_PERIOD)
-    {
-        // too soon
-        return;
-    }
-
-    LLVector3 camera_pos_agent = gAgentCamera.getCameraPositionAgent(); // local to avatar's region
-    LLVector3 camera_at = LLViewerCamera::getInstance()->getAtAxis();
-    LLQuaternion body_rotation = gAgent.getFrameAgent().getQuaternion();
-    LLQuaternion head_rotation = gAgent.getHeadRotation();
-
-    U8 flags = AU_FLAGS_NONE;
-    if (gAgent.isGroupTitleHidden())
-    {
-        flags |= AU_FLAGS_HIDETITLE;
-    }
-    if (gAgent.getAutoPilot())
-    {
-        flags |= AU_FLAGS_CLIENT_AUTOPILOT;
-    }
-
     // If a modifier key is held down, turn off
     // LBUTTON and ML_LBUTTON so that using the camera (alt-key) doesn't
     // trigger a control event.
@@ -3218,15 +3197,34 @@ void send_agent_update(bool force_send, bool send_reliable)
                             AGENT_CONTROL_ML_LBUTTON_UP ;
     }
 
+    // any change in control_flags should be sent ASAP, so we fold that into force_send
+    force_send = force_send || (control_flags != last_control_flags);
+
+    if (! force_send && sec_since_last_send < MIN_AGENT_UPDATE_PERIOD)
+    {
+        // throttle less-important AgentUpdates
+        return;
+    }
+
+    bool send_update = force_send || sec_since_last_send > MAX_AGENT_UPDATE_PERIOD;
+
+    LLVector3 camera_pos_agent = gAgentCamera.getCameraPositionAgent(); // local to avatar's region
+    LLVector3 camera_at = LLViewerCamera::getInstance()->getAtAxis();
+    LLQuaternion body_rotation = gAgent.getFrameAgent().getQuaternion();
+    LLQuaternion head_rotation = gAgent.getHeadRotation();
     U8 render_state = gAgent.getRenderState();
 
-    bool send_update = false;
-    if (force_send || sec_since_last_send > MAX_AGENT_UPDATE_PERIOD)
+    U8 flags = AU_FLAGS_NONE;
+    if (gAgent.isGroupTitleHidden())
     {
-        // send a "keep alive" message
-        send_update = true;
+        flags |= AU_FLAGS_HIDETITLE;
     }
-    else
+    if (gAgent.getAutoPilot())
+    {
+        flags |= AU_FLAGS_CLIENT_AUTOPILOT;
+    }
+
+    if (!send_update)
     {
         // check to see if anything changed
         // use a do-while-false to provide easy way to break out as soon as we find something changed
@@ -3242,7 +3240,7 @@ void send_agent_update(bool force_send, bool send_reliable)
             }
 
             // check flags
-            if (last_flags != flags || last_control_flags != control_flags)
+            if (last_flags != flags)
             {
                 send_update = true;
                 break;
