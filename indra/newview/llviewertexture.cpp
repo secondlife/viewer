@@ -547,7 +547,37 @@ void LLViewerTexture::updateClass()
 
     was_low = is_low;
 
-    sDesiredDiscardBias = llclamp(sDesiredDiscardBias, 1.f, 3.f);
+
+    // set to max discard bias if the window has been backgrounded for a while
+    static bool was_backgrounded = false;
+    static LLFrameTimer backgrounded_timer;
+
+    bool in_background = (gViewerWindow && !gViewerWindow->getWindow()->getVisible()) || !gFocusMgr.getAppHasFocus();
+
+    if (in_background)
+    {
+        if (backgrounded_timer.getElapsedTimeF32() > 10.f)
+        {
+            if (!was_backgrounded)
+            {
+                LL_INFOS() << "Viewer is backgrounded, freeing up video memory." << LL_ENDL;
+            }
+            was_backgrounded = true;
+            sDesiredDiscardBias = 4.f;
+        }
+    }
+    else
+    {
+        backgrounded_timer.reset();
+        if (was_backgrounded)
+        { // if the viewer was backgrounded
+            LL_INFOS() << "Viewer is no longer backgrounded, resuming normal texture usage." << LL_ENDL;
+            was_backgrounded = false;
+            sDesiredDiscardBias = 1.f;
+        }
+    }
+
+    sDesiredDiscardBias = llclamp(sDesiredDiscardBias, 1.f, 4.f);
 
     LLViewerTexture::sFreezeImageUpdates = false;
 }
