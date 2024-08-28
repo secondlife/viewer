@@ -328,7 +328,7 @@ void LLHUDNameTag::renderText()
             }
 
             LLColor4 label_color(0.f, 0.f, 0.f, alpha_factor);
-            hud_render_text(segment_iter->getText(), render_position, *fontp, segment_iter->mStyle, LLFontGL::NO_SHADOW, x_offset, y_offset, label_color, false);
+            hud_render_text(segment_iter->getText(), render_position, &segment_iter->mFontBufferLabel, *fontp, segment_iter->mStyle, LLFontGL::NO_SHADOW, x_offset, y_offset, label_color, false);
         }
     }
 
@@ -373,7 +373,7 @@ void LLHUDNameTag::renderText()
             text_color = segment_iter->mColor;
             text_color.mV[VALPHA] *= alpha_factor;
 
-            hud_render_text(segment_iter->getText(), render_position, *fontp, style, shadow, x_offset, y_offset, text_color, false);
+            hud_render_text(segment_iter->getText(), render_position, &segment_iter->mFontBufferText, *fontp, style, shadow, x_offset, y_offset, text_color, false);
         }
     }
     /// Reset the default color to white.  The renderer expects this to be the default.

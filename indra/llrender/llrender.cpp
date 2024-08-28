@@ -1570,6 +1570,51 @@ void LLRender::end()
         flush();
     }
 }
+
+LLVertexBuffer* LLRender::beginNoCache(const GLuint& mode, S32& count)
+{
+    if (mode != mMode)
+    {
+        if (mode == LLRender::QUADS)
+        {
+            mQuadCycle = 1;
+        }
+
+        if (mMode == LLRender::QUADS ||
+            mMode == LLRender::LINES ||
+            mMode == LLRender::TRIANGLES ||
+            mMode == LLRender::POINTS)
+        {
+            return getBuffer(count);
+        }
+        else if (mCount != 0)
+        {
+            LL_ERRS() << "gGL.begin() called redundantly." << LL_ENDL;
+        }
+        mMode = mode;
+    }
+    return nullptr;
+}
+
+LLVertexBuffer* LLRender::endNoCache(S32& count)
+{
+    if (mCount == 0)
+    {
+        return nullptr;
+        //IMM_ERRS << "GL begin and end called with no vertices specified." << LL_ENDL;
+    }
+
+    if ((mMode != LLRender::QUADS &&
+        mMode != LLRender::LINES &&
+        mMode != LLRender::TRIANGLES &&
+        mMode != LLRender::POINTS) ||
+        mCount > 2048)
+    {
+        return getBuffer(count);
+    }
+    return nullptr;
+}
+
 void LLRender::flush()
 {
     STOP_GLERROR;
@@ -1664,27 +1709,7 @@ void LLRender::flush()
             else
             {
                 LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("vb cache miss");
-                vb = new LLVertexBuffer(attribute_mask);
-                vb->allocateBuffer(count, 0);
-
-                vb->setBuffer();
-
-                vb->setPositionData((LLVector4a*) mVerticesp.get());
-
-                if (attribute_mask & LLVertexBuffer::MAP_TEXCOORD0)
-                {
-                    vb->setTexCoord0Data(mTexcoordsp.get());
-                }
-
-                if (attribute_mask & LLVertexBuffer::MAP_COLOR)
-                {
-                    vb->setColorData(mColorsp.get());
-                }
-
-#if LL_DARWIN
-                vb->unmapBuffer();
-#endif
-                vb->unbind();
+                vb = genBuffer(attribute_mask, count);
 
                 sVBCache[vhash] = { vb , std::chrono::steady_clock::now() };
 
@@ -1712,17 +1737,7 @@ void LLRender::flush()
                 }
             }
 
-            vb->setBuffer();
-
-            if (mMode == LLRender::QUADS && sGLCoreProfile)
-            {
-                vb->drawArrays(LLRender::TRIANGLES, 0, count);
-                mQuadCycle = 1;
-            }
-            else
-            {
-                vb->drawArrays(mMode, 0, count);
-            }
+            drawBuffer(vb, mMode, count);
         }
         else
         {
@@ -1730,13 +1745,129 @@ void LLRender::flush()
             LL_ERRS() << "A flush call from outside main rendering thread" << LL_ENDL;
         }
 
+        resetStriders(count);
+    }
+}
 
-        mVerticesp[0] = mVerticesp[count];
-        mTexcoordsp[0] = mTexcoordsp[count];
-        mColorsp[0] = mColorsp[count];
+LLVertexBuffer* LLRender::genBuffer(U32 attribute_mask, S32 count)
+{
+    LLVertexBuffer * vb = new LLVertexBuffer(attribute_mask);
+    vb->allocateBuffer(count, 0);
+
+    vb->setBuffer();
+
+    vb->setPositionData((LLVector4a*)mVerticesp.get());
+
+    if (attribute_mask & LLVertexBuffer::MAP_TEXCOORD0)
+    {
+        vb->setTexCoord0Data(mTexcoordsp.get());
+    }
+
+    if (attribute_mask & LLVertexBuffer::MAP_COLOR)
+    {
+        vb->setColorData(mColorsp.get());
+    }
+
+#if LL_DARWIN
+    vb->unmapBuffer();
+#endif
+    vb->unbind();
+
+    return vb;
+}
+
+void LLRender::drawBuffer(LLVertexBuffer* vb, U32 mode, S32 count)
+{
+    vb->setBuffer();
+
+    if (mode == LLRender::QUADS && sGLCoreProfile)
+    {
+        vb->drawArrays(LLRender::TRIANGLES, 0, count);
+        mQuadCycle = 1;
+    }
+    else
+    {
+        vb->drawArrays(mode, 0, count);
+    }
+}
+
+void LLRender::resetStriders(S32 count)
+{
+    mVerticesp[0] = mVerticesp[count];
+    mTexcoordsp[0] = mTexcoordsp[count];
+    mColorsp[0] = mColorsp[count];
+
+    mCount = 0;
+}
+
+LLVertexBuffer* LLRender::getBuffer(S32 & count)
+{
+    STOP_GLERROR;
+    LLVertexBuffer *vb;
+    if (mCount > 0)
+    {
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
+        llassert(LLGLSLShader::sCurBoundShaderPtr != nullptr);
+        if (!mUIOffset.empty())
+        {
+            sUICalls++;
+            sUIVerts += mCount;
+        }
+
+        //store mCount in a local variable to avoid re-entrance (drawArrays may call flush)
+        count = mCount;
+
+        if (mMode == LLRender::QUADS && !sGLCoreProfile)
+        {
+            if (mCount % 4 != 0)
+            {
+                count -= (mCount % 4);
+                LL_WARNS() << "Incomplete quad requested." << LL_ENDL;
+            }
+        }
+
+        if (mMode == LLRender::TRIANGLES)
+        {
+            if (mCount % 3 != 0)
+            {
+                count -= (mCount % 3);
+                LL_WARNS() << "Incomplete triangle requested." << LL_ENDL;
+            }
+        }
+
+        if (mMode == LLRender::LINES)
+        {
+            if (mCount % 2 != 0)
+            {
+                count -= (mCount % 2);
+                LL_WARNS() << "Incomplete line requested." << LL_ENDL;
+            }
+        }
 
         mCount = 0;
+
+        if (mBuffer)
+        {
+            LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("vb cache miss");
+
+            U32 attribute_mask = LLGLSLShader::sCurBoundShaderPtr->mAttributeMask;
+            vb = genBuffer(attribute_mask, count);
+            drawBuffer(vb, mMode, count);
+        }
+        else
+        {
+            // mBuffer is present in main thread and not present in an image thread
+            LL_ERRS() << "A flush call from outside main rendering thread" << LL_ENDL;
+        }
+
+        resetStriders(count);
     }
+    else
+    {
+        count = 0;
+    }
+
+    return vb;
 }
 
 void LLRender::vertex3f(const GLfloat& x, const GLfloat& y, const GLfloat& z)
