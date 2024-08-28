@@ -135,7 +135,6 @@ extern LLTrace::CountStatHandle<>           FPS,
                                             UPLOAD_TEXTURE,
                                             EDIT_TEXTURE,
                                             KILLED,
-                                            FRAMETIME_DOUBLED,
                                             TEX_BAKES,
                                             TEX_REBAKES,
                                             NUM_NEW_OBJECTS;
@@ -149,10 +148,6 @@ extern LLTrace::CountStatHandle<F64Kilobytes >  ACTIVE_MESSAGE_DATA_RECEIVED,
                                                                     TEXTURE_NETWORK_DATA_RECEIVED,
                                                                     MESSAGE_SYSTEM_DATA_IN,
                                                                     MESSAGE_SYSTEM_DATA_OUT;
-
-extern LLTrace::CountStatHandle<F64Seconds >        SIM_20_FPS_TIME,
-                                                                    SIM_PHYSICS_20_FPS_TIME,
-                                                                    LOSS_5_PERCENT_TIME;
 
 extern SimMeasurement<>                     SIM_TIME_DILATION,
                                             SIM_FPS,
@@ -194,8 +189,6 @@ extern LLTrace::SampleStatHandle<LLUnit<F32, LLUnits::Percent> > PACKETS_LOST_PE
 
 extern LLTrace::SampleStatHandle<F64Megabytes > FORMATTED_MEM;
 
-extern LLTrace::SampleStatHandle<F64Kilobytes > DELTA_BANDWIDTH,
-                                                                    MAX_BANDWIDTH;
 extern SimMeasurement<F64Milliseconds > SIM_FRAME_TIME,
                                                             SIM_NET_TIME,
                                                             SIM_OTHER_TIME,
@@ -216,7 +209,6 @@ extern SimMeasurement<F64Megabytes >    SIM_PHYSICS_MEM;
 
 
 extern LLTrace::SampleStatHandle<F64Milliseconds >  FRAMETIME_JITTER,
-                                                    FRAMETIME_SLEW,
                                                     SIM_PING;
 
 extern LLTrace::EventStatHandle<LLUnit<F64, LLUnits::Meters> > AGENT_POSITION_SNAP;
@@ -233,10 +225,7 @@ extern LLTrace::EventStatHandle<F64Milliseconds >   REGION_CROSSING_TIME,
 
 extern LLTrace::EventStatHandle<F64Seconds >    AVATAR_EDIT_TIME,
                                                                 TOOLBOX_TIME,
-                                                                MOUSELOOK_TIME,
-                                                                FPS_10_TIME,
-                                                                FPS_8_TIME,
-                                                                FPS_2_TIME;
+                                                                MOUSELOOK_TIME;
 
 extern LLTrace::EventStatHandle<LLUnit<F32, LLUnits::Percent> > OBJECT_CACHE_HIT_RATE;
 
