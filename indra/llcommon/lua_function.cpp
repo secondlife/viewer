@@ -100,6 +100,34 @@ fsyspath source_path(lua_State* L)
 } // namespace lluau
 
 /*****************************************************************************
+*   lua_destroyuserdata(), lua_destroybounduserdata() (see lua_emplace<T>())
+*****************************************************************************/
+int lua_destroyuserdata(lua_State* L)
+{
+    // stack: lua_emplace() userdata to be destroyed
+    if (int tag;
+        lua_isuserdata(L, -1) &&
+        (tag = lua_userdatatag(L, -1)) != 0)
+    {
+        auto dtor = lua_getuserdatadtor(L, tag);
+        // detach this userdata from the destructor with tag 'tag'
+        lua_setuserdatatag(L, -1, 0);
+        // now run the real destructor
+        dtor(L, lua_touserdata(L, -1));
+    }
+    lua_settop(L, 0);
+    return 0;
+}
+
+int lua_destroybounduserdata(lua_State *L)
+{
+    // called with no arguments -- push bound upvalue
+    lluau_checkstack(L, 1);
+    lua_pushvalue(L, lua_upvalueindex(1));
+    return lua_destroyuserdata(L);
+}
+
+/*****************************************************************************
 *   Lua <=> C++ conversions
 *****************************************************************************/
 std::string lua_tostdstring(lua_State* L, int index)
@@ -664,10 +692,10 @@ LuaListener& LuaState::obtainListener(lua_State* L)
     // At this point, one way or the other, the stack top should be (a Lua
     // userdata containing) our LuaListener.
     LuaListener* listener{ lua_toclass<LuaListener>(L, -1) };
-    // userdata objects created by lua_emplace<T>() are bound on the atexit()
-    // queue, and are thus never garbage collected: they're destroyed only
-    // when ~LuaState() walks that queue. That's why we dare pop the userdata
-    // value off the stack while still depending on a pointer into its data.
+    // Since our LuaListener instance is stored in the Registry, it won't be
+    // garbage collected: it will be destroyed only when lua_close() clears
+    // out the Registry. That's why we dare pop the userdata value off the
+    // stack while still depending on a pointer into its data.
     lua_pop(L, 1);
     return *listener;
 }
@@ -851,8 +879,8 @@ lua_function(check_stop, "check_stop(): ensure that a Lua script responds to vie
 *   help()
 *****************************************************************************/
 lua_function(help,
-             "help(): list viewer's Lua functions\n"
-             "help(function): show help string for specific function")
+             "LL.help(): list viewer's Lua functions\n"
+             "LL.help(function): show help string for specific function")
 {
     auto& luapump{ LLEventPumps::instance().obtain("lua output") };
     const auto& [registry, lookup]{ LuaFunction::getRState() };
@@ -911,8 +939,8 @@ lua_function(help,
 *****************************************************************************/
 lua_function(
     leaphelp,
-    "leaphelp(): list viewer's LEAP APIs\n"
-    "leaphelp(api): show help for specific api string name")
+    "LL.leaphelp(): list viewer's LEAP APIs\n"
+    "LL.leaphelp(api): show help for specific api string name")
 {
     LLSD request;
     int top{ lua_gettop(L) };
@@ -973,6 +1001,287 @@ lua_function(
     }
     return 0;                       // void return
 }
+
+/*****************************************************************************
+*   setdtor
+*****************************************************************************/
+namespace {
+
+// proxy userdata object returned by setdtor()
+struct setdtor_refs
+{
+    lua_State* L;
+    std::string desc;
+    // You can't directly store a Lua object in a C++ object, but you can
+    // create a Lua "reference" by storing the object in the Lua Registry and
+    // capturing its Registry index.
+    int objref;
+    int dtorref;
+
+    setdtor_refs(lua_State* L, const std::string& desc, int objref, int dtorref):
+        L(L),
+        desc(desc),
+        objref(objref),
+        dtorref(dtorref)
+    {}
+    setdtor_refs(const setdtor_refs&) = delete;
+    setdtor_refs& operator=(const setdtor_refs&) = delete;
+    ~setdtor_refs();
+
+    static void push_metatable(lua_State* L);
+    static std::string binop(const std::string& name, const std::string& op);
+    static int meta__index(lua_State* L);
+};
+
+} // anonymous namespace
+
+lua_function(
+    setdtor,
+    "setdtor(desc, obj, dtorfunc) => proxy object referencing obj and dtorfunc.\n"
+    "When the returned proxy object is garbage-collected, or when the script\n"
+    "ends, call dtorfunc(obj). String desc is logged in the error message, if any.\n"
+    "Use the returned proxy object (or proxy._target) like obj.\n"
+    "obj won't be destroyed as long as the proxy exists; it's the proxy object's\n"
+    "lifespan that determines when dtorfunc(obj) will be called.")
+{
+    if (lua_gettop(L) != 3)
+    {
+        return lluau::error(L, "setdtor(desc, obj, dtor) requires exactly 3 arguments");
+    }
+    // called with (desc, obj, dtor), returns proxy object
+    lua_checkdelta(L, -2);
+    lluau_checkstack(L, 3);         // might get up to 6 stack entries
+    auto desc{ lua_tostdstring(L, 1) };
+    // Get Lua "references" for each of the object and the dtor function.
+    int objref = lua_ref(L, 2);
+    int dtorref = lua_ref(L, 3);
+    // Having captured each of our parameters, discard them.
+    lua_settop(L, 0);
+    // Push our setdtor_refs userdata. Not only do we want to push it on L's
+    // stack, but setdtor_refs's constructor itself requires L.
+    lua_emplace<setdtor_refs>(L, L, desc, objref, dtorref);
+    // stack: proxy (i.e. setdtor_refs userdata)
+    // have to set its metatable
+    lua_getfield(L, LUA_REGISTRYINDEX, "setdtor_meta");
+    // stack: proxy, setdtor_meta (which might be nil)
+    if (lua_isnil(L, -1))
+    {
+        // discard nil
+        lua_pop(L, 1);
+        // compile and push our forwarding metatable
+        setdtor_refs::push_metatable(L);
+        // stack: proxy, metatable
+        // duplicate metatable to save it
+        lua_pushvalue(L, -1);
+        // stack: proxy, metatable, metable
+        // save metatable for future calls
+        lua_setfield(L, LUA_REGISTRYINDEX, "setdtor_meta");
+        // stack: proxy, metatable
+    }
+    // stack: proxy, metatable
+    lua_setmetatable(L, -2);
+    // stack: proxy
+    // Because ~setdtor_refs() necessarily uses the Lua stack, the Registry et
+    // al., we can't let a setdtor_refs instance be destroyed by lua_close():
+    // the Lua environment will already be partially shut down. To destroy
+    // this new setdtor_refs instance BEFORE lua_close(), bind it with
+    // lua_destroybounduserdata() and register it with LL.atexit().
+    // push (the entry point for) LL.atexit()
+    lua_pushcfunction(L, atexit_luasub::call, "LL.atexit()");
+    // stack: proxy, atexit()
+    lua_pushvalue(L, -2);
+    // stack: proxy, atexit(), proxy
+    int tag = lua_userdatatag(L, -1);
+    // We don't have a lookup table to get from an int Lua userdata tag to the
+    // corresponding C++ typeinfo name string. We'll introduce one if we need
+    // it for debugging. But for this particular call, we happen to know it's
+    // always a setdtor_refs object.
+    lua_pushcclosure(L, lua_destroybounduserdata,
+                     stringize("lua_destroybounduserdata<", tag, ">()").c_str(),
+                     1);
+    // stack: proxy, atexit(), lua_destroybounduserdata
+    // call atexit(): one argument, no results, let error propagate
+    lua_call(L, 1, 0);
+    // stack: proxy
+    return 1;
+}
+
+namespace {
+
+void setdtor_refs::push_metatable(lua_State* L)
+{
+    lua_checkdelta(L, 1);
+    lluau_checkstack(L, 1);
+    // Ideally we want a metatable that forwards every operation on our
+    // setdtor_refs userdata proxy object to the original object. But the
+    // published C API doesn't include (e.g.) arithmetic operations on Lua
+    // objects, so in fact it's easier to express the desired metatable in Lua
+    // than in C++. We could make setdtor() depend on an external Lua module,
+    // but it seems less fragile to embed the Lua source code right here.
+    static const std::string setdtor_meta = stringize(R"-(
+    -- This metatable literal doesn't define __index() because that's
+    -- implemented in C++. We cannot, in Lua, peek into the setdtor_refs
+    -- userdata object to obtain objref, nor can we fetch Registry[objref].
+    -- So our C++ __index() metamethod recognizes access to '_target' as a
+    -- reference to Registry[objref].
+    -- The rest are defined per https://www.lua.org/manual/5.1/manual.html#2.8.
+    -- Luau supports destructors instead of __gc metamethod -- we rely on that!
+    -- We don't set __mode because our proxy is not a table. Real references
+    -- are stored in the wrapped table, so ITS __mode is what counts.
+    -- Initial definition of meta omits binary metamethods so they can bind the
+    -- metatable itself, as explained for binop() below.
+    local meta = {
+        __unm = function(arg)
+            return -arg._target
+        end,
+        __len = function(arg)
+            return #arg._target
+        end,
+        -- Comparison metamethods __eq(), __lt() and __le() are only called
+        -- when both operands have the same metamethod. For our purposes, that
+        -- means both operands are setdtor_refs userdata objects.
+        __eq = function(lhs, rhs)
+            return (lhs._target == rhs._target)
+        end,
+        __lt = function(lhs, rhs)
+            return (lhs._target < rhs._target)
+        end,
+        __le = function(lhs, rhs)
+            return (lhs._target <= rhs._target)
+        end,
+        __newindex = function(t, key, value)
+            t._target[key] = value
+        end,
+        __call = function(func, ...)
+            return func._target(...)
+        end,
+        __tostring = function(arg)
+            -- don't fret about arg._target's __tostring metamethod,
+            -- if any, because built-in tostring() deals with that
+            return tostring(arg._target)
+        end
+    }
+)-",
+    binop("add", "+"),
+    binop("sub", "-"),
+    binop("mul", "*"),
+    binop("div", "/"),
+    binop("mod", "%"),
+    binop("pow", "^"),
+    binop("concat", ".."),
+R"-(
+    return meta
+)-");
+    // only needed for debugging binop()
+//  LL_DEBUGS("Lua") << setdtor_meta << LL_ENDL;
+
+    if (lluau::dostring(L, LL_PRETTY_FUNCTION, setdtor_meta) != LUA_OK)
+    {
+        // stack: error message string
+        lua_error(L);
+    }
+    llassert(lua_gettop(L) > 0);
+    llassert(lua_type(L, -1) == LUA_TTABLE);
+    // stack: Lua metatable compiled from setdtor_meta source
+    // Inject our C++ __index metamethod.
+    lua_rawsetfield(L, -1, "__index"sv, &setdtor_refs::meta__index);
+}
+
+// In the definition of setdtor_meta above, binary arithmethic and
+// concatenation metamethods are a little funny in that we don't know a
+// priori which operand is the userdata with our metatable: the metamethod
+// can be invoked either way. So every such metamethod must check, which
+// leads to lots of redundancy. Hence this helper function. Call it a Lua
+// macro.
+std::string setdtor_refs::binop(const std::string& name, const std::string& op)
+{
+    return stringize(
+        "    meta.__", name, " = function(lhs, rhs)\n"
+        "        if getmetatable(lhs) == meta then\n"
+        "            return lhs._target ", op, " rhs\n"
+        "        else\n"
+        "            return lhs ", op, " rhs._target\n"
+        "        end\n"
+        "    end\n");
+}
+
+// setdtor_refs __index() metamethod
+int setdtor_refs::meta__index(lua_State* L)
+{
+    // called with (setdtor_refs userdata, key), returns retrieved object
+    lua_checkdelta(L, -1);
+    lluau_checkstack(L, 2);
+    // stack: proxy, key
+    // get ptr to the C++ struct data
+    auto ptr = lua_toclass<setdtor_refs>(L, -2);
+    // meta__index() should NEVER be called with anything but setdtor_refs!
+    llassert(ptr);
+    // push the wrapped object
+    lua_getref(L, ptr->objref);
+    // stack: proxy, key, _target
+    // replace userdata with _target
+    lua_replace(L, -3);
+    // stack: _target, key
+    // Duplicate key because lua_tostring() converts number to string:
+    // if the key is (e.g.) 1, don't try to retrieve _target["1"]!
+    lua_pushvalue(L, -1);
+    // stack: _target, key, key
+    // recognize the special _target field
+    if (lua_tostdstring(L, -1) == "_target")
+    {
+        // okay, ditch both copies of "_target" string key
+        lua_pop(L, 2);
+        // stack: _target
+    }
+    else                            // any key but _target
+    {
+        // ditch stringized key
+        lua_pop(L, 1);
+        // stack: _target, key
+        // replace key with _target[key], invoking metamethod if any
+        lua_gettable(L, -2);
+        // stack: _target, _target[key]
+        // discard _target
+        lua_remove(L, -2);
+        // stack: _target[key]
+    }
+    return 1;
+}
+
+// When Lua destroys a setdtor_refs userdata object, either from garbage
+// collection or from LL.atexit(lua_destroybounduserdata), it's time to keep
+// its promise to call the specified Lua destructor function with the
+// specified Lua object. Of course we must also delete the captured
+// "references" to both objects.
+setdtor_refs::~setdtor_refs()
+{
+    lua_checkdelta(L);
+    lluau_checkstack(L, 2);
+    // push Registry[dtorref]
+    lua_getref(L, dtorref);
+    // push Registry[objref]
+    lua_getref(L, objref);
+    // free Registry[dtorref]
+    lua_unref(L, dtorref);
+    // free Registry[objref]
+    lua_unref(L, objref);
+    // call dtor(obj): one arg, no result, no error function
+    int rc = lua_pcall(L, 1, 0, 0);
+    if (rc != LUA_OK)
+    {
+        // TODO: we don't really want to propagate the error here.
+        // If this setdtor_refs instance is being destroyed by
+        // LL.atexit(), we want to continue cleanup. If it's being
+        // garbage-collected, the call is completely unpredictable from
+        // the consuming script's point of view. But what to do about this
+        // error?? For now, just log it.
+        LL_WARNS("Lua") << "setdtor(" << std::quoted(desc) << ") error: "
+                        << lua_tostring(L, -1) << LL_ENDL;
+        lua_pop(L, 1);
+    }
+}
+
+} // anonymous namespace
 
 /*****************************************************************************
 *   lua_what
