@@ -1050,7 +1050,7 @@ lua_function(
     }
     // called with (desc, obj, dtor), returns proxy object
     lua_checkdelta(L, -2);
-    lluau_checkstack(L, 3);         // might get up to 6 stack entries
+//  lluau_checkstack(L, 0);         // might get up to 3 stack entries
     auto desc{ lua_tostdstring(L, 1) };
     // Get Lua "references" for each of the object and the dtor function.
     int objref = lua_ref(L, 2);
@@ -1150,6 +1150,8 @@ void setdtor_refs::push_metatable(lua_State* L)
             return (lhs._target <= rhs._target)
         end,
         __newindex = function(t, key, value)
+            assert(key ~= '_target',
+                   "Don't try to replace a setdtor() proxy's _target")
             t._target[key] = value
         end,
         __call = function(func, ...)
