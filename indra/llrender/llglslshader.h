@@ -241,6 +241,10 @@ public:
 
     void clearPermutations();
     void addPermutation(std::string name, std::string value);
+    void addPermutations(const std::map<std::string, std::string>& defines)
+    {
+        mDefines.insert(defines.begin(), defines.end());
+    }
     void removePermutation(std::string name);
 
     void addConstant(const LLGLSLShader::eShaderConsts shader_const);

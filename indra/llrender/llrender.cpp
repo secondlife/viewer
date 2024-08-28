@@ -1619,7 +1619,6 @@ void LLRender::flush()
         {
 
             HBXXH64 hash;
-
             U32 attribute_mask = LLGLSLShader::sCurBoundShaderPtr->mAttributeMask;
 
             {
