@@ -3219,6 +3219,7 @@ void LLVOVolume::updateSpotLightPriority()
     {
         return;
     }
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
 
     F32 r = getLightRadius();
     LLVector3 pos = mDrawable->getPositionAgent();
