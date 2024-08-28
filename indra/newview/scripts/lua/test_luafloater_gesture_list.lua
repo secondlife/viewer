@@ -1,8 +1,8 @@
-local Floater = require 'Floater'
 local LLGesture = require 'LLGesture'
 local startup = require 'startup'
+local UI = require 'UI'
 
-local flt = Floater(
+local flt = UI.Floater(
     "luafloater_gesture_list.xml",
     {gesture_list = {"double_click"}})
 

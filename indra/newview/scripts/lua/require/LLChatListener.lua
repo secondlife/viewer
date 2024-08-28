@@ -23,7 +23,7 @@ function LLChatListener:handleMessages(event_data)
 end
 
 function LLChatListener:start()
-    waitfor = leap.WaitFor:new(-1, self.name)
+    waitfor = leap.WaitFor(-1, self.name)
     function waitfor:filter(pump, data)
         if pump == "LLNearbyChat" then
           return data

@@ -1,7 +1,7 @@
-local Floater = require 'Floater'
 local LLAppearance = require 'LLAppearance'
 local startup = require 'startup'
 local inspect = require 'inspect'
+local UI = require 'UI'
 
 local SHOW_OUTFITS = true
 local SELECTED_OUTFIT_ID = {}
@@ -15,7 +15,7 @@ local outfits_title = 'Outfits'
 local wear_lbl = 'Wear item'
 local detach_lbl = 'Detach item'
 
-local flt = Floater:new(
+local flt = UI.Floater(
     "luafloater_outfits_list.xml",
     {outfits_list = {"double_click"}})
 

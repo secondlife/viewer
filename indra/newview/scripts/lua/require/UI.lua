@@ -1,10 +1,13 @@
 -- Engage the viewer's UI
 
 local leap = require 'leap'
-local Timer = (require 'timers').Timer
 local mapargs = require 'mapargs'
+local Timer = (require 'timers').Timer
+local util = require 'util'
 
-local UI = {}
+-- Allow lazily accessing UI submodules on demand, e.g. a reference to
+-- UI.Floater lazily loads the UI/Floater module.
+local UI = util.submoduledir({}, 'UI')
 
 -- ***************************************************************************
 --  registered menu actions
