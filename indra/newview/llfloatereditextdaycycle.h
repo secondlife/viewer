@@ -110,7 +110,7 @@ private:
     F32 getCurrentFrame() const;
 
     // flyout response/click
-    void                        onButtonApply(LLUICtrl *ctrl, const LLSD &data);
+    void                        onButtonApply(LLUICtrl *ctrl);
     //virtual void                onClickCloseBtn(bool app_quitting = false) override;
     //void                        onButtonImport();
     void                        onButtonLoadFrame();
@@ -119,7 +119,7 @@ private:
     void                        onCloneTrack();
     void                        onLoadTrack();
     void                        onClearTrack();
-    void                        onCommitName(class LLLineEditor* caller, void* user_data);
+    void                        onNameKeystroke();
     void                        onTrackSelectionCallback(const LLSD& user_data);
     void                        onPlayActionCallback(const LLSD& user_data);
     // time slider clicked
@@ -196,6 +196,8 @@ private:
     std::string                 mLastFrameSlider;
     bool                        mShiftCopyEnabled;
 
+    LLLineEditor*               mNameEditor;
+    LLButton*                   mCancelButton;
     LLButton*                   mAddFrameButton;
     LLButton*                   mDeleteFrameButton;
     LLButton*                   mImportButton;

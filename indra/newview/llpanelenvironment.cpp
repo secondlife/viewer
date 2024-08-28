@@ -58,14 +58,6 @@ namespace
     const std::string FLOATER_DAY_CYCLE_EDIT("env_edit_extdaycycle");
     const std::string STRING_REGION_ENV("str_region_env");
     const std::string STRING_EMPTY_NAME("str_empty");
-
-    inline bool ends_with(std::string const & value, std::string const & ending)
-    {
-        if (ending.size() > value.size())
-            return false;
-        return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
-    }
-
 }
 
 //=========================================================================
@@ -876,16 +868,16 @@ void LLPanelEnvironmentInfo::onBtnEdit()
             (LLFloaterEditExtDayCycle::KEY_CANMOD,      LLSD::Boolean(true)));
 
     dayeditor->openFloater(params);
+
     if (mCurrentEnvironment && mCurrentEnvironment->mDayCycle)
     {
         dayeditor->setEditDayCycle(mCurrentEnvironment->mDayCycle);
-        if (!ends_with(mCurrentEnvironment->mDayCycle->getName(), "(customized)"))
-        {
-            dayeditor->setEditName(mCurrentEnvironment->mDayCycle->getName() + "(customized)");
-        }
+        dayeditor->setEditName(mCurrentEnvironment->mDayCycleName);
     }
     else
+    {
         dayeditor->setEditDefaultDayCycle();
+    }
 }
 
 void LLPanelEnvironmentInfo::onBtnSelect()
