@@ -417,6 +417,12 @@ public:
 
     void begin(const GLuint& mode);
     void end();
+
+    LLVertexBuffer* beginNoCache(const GLuint& mode, S32& count);
+    LLVertexBuffer* endNoCache(S32& count);
+    LLVertexBuffer* getBuffer(S32& count);
+    U8 getMode() const { return mMode; }
+
     void vertex2i(const GLint& x, const GLint& y);
     void vertex2f(const GLfloat& x, const GLfloat& y);
     void vertex3f(const GLfloat& x, const GLfloat& y, const GLfloat& z);
@@ -484,6 +490,10 @@ public:
 
 private:
     friend class LLLightState;
+
+    LLVertexBuffer* genBuffer(U32 attribute_mask, S32 count);
+    void drawBuffer(LLVertexBuffer* vb, U32 mode, S32 count);
+    void resetStriders(S32 count);
 
     eMatrixMode mMatrixMode;
     U32 mMatIdx[NUM_MATRIX_MODES];

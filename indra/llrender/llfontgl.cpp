@@ -34,6 +34,7 @@
 #include "llfontbitmapcache.h"
 #include "llfontregistry.h"
 #include "llgl.h"
+#include "llglslshader.h"
 #include "llimagegl.h"
 #include "llrender.h"
 #include "llstl.h"
@@ -41,6 +42,7 @@
 #include "lltexture.h"
 #include "lldir.h"
 #include "llstring.h"
+#include "llvertexbuffer.h"
 
 // Third party library includes
 #include <boost/tokenizer.hpp>
@@ -143,7 +145,8 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, const LLRectf& rec
 
 
 S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, const LLColor4 &color, HAlign halign, VAlign valign, U8 style,
-                     ShadowType shadow, S32 max_chars, S32 max_pixels, F32* right_x, bool use_ellipses, bool use_color) const
+                     ShadowType shadow, S32 max_chars, S32 max_pixels, F32* right_x, bool use_ellipses, bool use_color,
+                     std::list<LLVertexBufferData> *buffer_list) const
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
 
@@ -157,6 +160,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
         return 0;
     }
 
+    gGL.flush(); // deliberately empty pending verts
     gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
 
     S32 scaled_max_pixels = max_pixels == S32_MAX ? S32_MAX : llceil((F32)max_pixels * sScaleX);
@@ -270,10 +274,10 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 
     const LLFontGlyphInfo* next_glyph = NULL;
 
-    const S32 GLYPH_BATCH_SIZE = 30;
-    LLVector3 vertices[GLYPH_BATCH_SIZE * 4];
-    LLVector2 uvs[GLYPH_BATCH_SIZE * 4];
-    LLColor4U colors[GLYPH_BATCH_SIZE * 4];
+    static constexpr S32 GLYPH_BATCH_SIZE = 30;
+    static thread_local LLVector3 vertices[GLYPH_BATCH_SIZE * 4];
+    static thread_local LLVector2 uvs[GLYPH_BATCH_SIZE * 4];
+    static thread_local LLColor4U colors[GLYPH_BATCH_SIZE * 4];
 
     LLColor4U text_color(color);
     // Preserve the transparency to render fading emojis in fading text (e.g.
@@ -282,6 +286,9 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 
     std::pair<EFontGlyphType, S32> bitmap_entry = std::make_pair(EFontGlyphType::Grayscale, -1);
     S32 glyph_count = 0;
+    S32 buffer_count = 0;
+    LLVertexBuffer* vb;
+    LLImageGL* font_image = nullptr;
     for (i = begin_offset; i < begin_offset + length; i++)
     {
         llwchar wch = wstr[i];
@@ -305,16 +312,35 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
             // otherwise the queued glyphs will be taken from wrong textures.
             if (glyph_count > 0)
             {
-                gGL.begin(LLRender::QUADS);
+                if (buffer_list)
                 {
+                    vb = gGL.beginNoCache(LLRender::QUADS, buffer_count);
+                    if (vb)
+                    {
+                        buffer_list->emplace_back(vb, font_image, LLRender::QUADS, buffer_count);
+                    }
+
                     gGL.vertexBatchPreTransformed(vertices, uvs, colors, glyph_count * 4);
+
+                    vb = gGL.getBuffer(buffer_count); // instead of endNoCache to draw now
+                    if (vb)
+                    {
+                        buffer_list->emplace_back(vb, font_image, LLRender::QUADS, buffer_count);
+                    }
                 }
-                gGL.end();
+                else
+                {
+                    gGL.begin(LLRender::QUADS);
+                    {
+                        gGL.vertexBatchPreTransformed(vertices, uvs, colors, glyph_count * 4);
+                    }
+                    gGL.end();
+                }
                 glyph_count = 0;
             }
 
             bitmap_entry = next_bitmap_entry;
-            LLImageGL* font_image = font_bitmap_cache->getImageGL(bitmap_entry.first, bitmap_entry.second);
+            font_image = font_bitmap_cache->getImageGL(bitmap_entry.first, bitmap_entry.second);
             gGL.getTexUnit(0)->bind(font_image);
         }
 
@@ -338,11 +364,28 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 
         if (glyph_count >= GLYPH_BATCH_SIZE)
         {
-            gGL.begin(LLRender::QUADS);
+            if (buffer_list)
             {
+                vb = gGL.beginNoCache(LLRender::QUADS, buffer_count);
+                if (vb)
+                {
+                    buffer_list->emplace_back(vb, font_image, LLRender::QUADS, buffer_count);
+                }
                 gGL.vertexBatchPreTransformed(vertices, uvs, colors, glyph_count * 4);
+                vb = gGL.endNoCache(buffer_count);
+                if (vb)
+                {
+                    buffer_list->emplace_back(vb, font_image, LLRender::QUADS, buffer_count);
+                }
             }
-            gGL.end();
+            else
+            {
+                gGL.begin(LLRender::QUADS);
+                {
+                    gGL.vertexBatchPreTransformed(vertices, uvs, colors, glyph_count * 4);
+                }
+                gGL.end();
+            }
 
             glyph_count = 0;
         }
@@ -376,11 +419,28 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
         cur_render_y = cur_y;
     }
 
-    gGL.begin(LLRender::QUADS);
+    if (buffer_list)
     {
+        vb = gGL.beginNoCache(LLRender::QUADS, buffer_count);
+        if (vb)
+        {
+            buffer_list->emplace_back(vb, font_image, LLRender::QUADS, buffer_count);
+        }
         gGL.vertexBatchPreTransformed(vertices, uvs, colors, glyph_count * 4);
+        vb = gGL.endNoCache(buffer_count);
+        if (vb)
+        {
+            buffer_list->emplace_back(vb, font_image, LLRender::QUADS, buffer_count);
+        }
     }
-    gGL.end();
+    else
+    {
+        gGL.begin(LLRender::QUADS);
+        {
+            gGL.vertexBatchPreTransformed(vertices, uvs, colors, glyph_count * 4);
+        }
+        gGL.end();
+    }
 
 
     if (right_x)
@@ -394,15 +454,42 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
         F32 descender = (F32)llfloor(mFontFreetype->getDescenderHeight());
 
         gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-        gGL.begin(LLRender::LINES);
-        gGL.vertex2f(start_x, cur_y - descender);
-        gGL.vertex2f(cur_x, cur_y - descender);
-        gGL.end();
+        if (buffer_list)
+        {
+            vb = gGL.beginNoCache(LLRender::LINES, buffer_count);
+            if (vb)
+            {
+                buffer_list->emplace_back(vb, nullptr, LLRender::QUADS, buffer_count);
+            }
+
+            gGL.vertex2f(start_x, cur_y - descender);
+            gGL.vertex2f(cur_x, cur_y - descender);
+
+            vb = gGL.getBuffer(buffer_count);
+            if (vb)
+            {
+                buffer_list->emplace_back(vb, nullptr, LLRender::LINES, buffer_count);
+            }
+        }
+        else
+        {
+            gGL.begin(LLRender::LINES);
+            gGL.vertex2f(start_x, cur_y - descender);
+            gGL.vertex2f(cur_x, cur_y - descender);
+            gGL.end();
+        }
+    }
+    else if (buffer_list)
+    {
+        vb = gGL.getBuffer(buffer_count);
+        if (vb)
+        {
+            buffer_list->emplace_back(vb, font_image, gGL.getMode(), buffer_count);
+        }
     }
 
     if (draw_ellipses)
     {
-
         // recursively render ellipses at end of string
         // we've already reserved enough room
         gGL.pushUIMatrix();
@@ -417,7 +504,8 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
                 S32_MAX, max_pixels,
                 right_x,
                 false,
-                use_color);
+                use_color,
+                buffer_list);
         gGL.popUIMatrix();
     }
 

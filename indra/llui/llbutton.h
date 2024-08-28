@@ -35,6 +35,7 @@
 #include "v4color.h"
 #include "llframetimer.h"
 #include "llfontgl.h"
+#include "llfontvertexbuffer.h"
 #include "lluiimage.h"
 #include "lluistring.h"
 
@@ -167,15 +168,17 @@ public:
     virtual void    draw();
     /*virtual*/ bool postBuild();
 
+    /*virtual*/ void onVisibilityChange(bool visible);
+
     virtual void    onMouseLeave(S32 x, S32 y, MASK mask);
     virtual void    onMouseCaptureLost();
 
     virtual void    onCommit();
 
-    void            setUnselectedLabelColor( const LLUIColor& c )        { mUnselectedLabelColor = c; }
-    void            setSelectedLabelColor( const LLUIColor& c )          { mSelectedLabelColor = c; }
-    void            setUseEllipses( bool use_ellipses )                 { mUseEllipses = use_ellipses; }
-    void            setUseFontColor( bool use_font_color)               { mUseFontColor = use_font_color; }
+    void            setUnselectedLabelColor(const LLUIColor& c);
+    void            setSelectedLabelColor(const LLUIColor& c);
+    void            setUseEllipses(bool use_ellipses);
+    void            setUseFontColor(bool use_font_color);
 
 
     boost::signals2::connection setClickedCallback(const CommitCallbackParam& cb);
@@ -223,7 +226,6 @@ public:
     const std::string   getLabelUnselected() const { return wstring_to_utf8str(mUnselectedLabel); }
     const std::string   getLabelSelected() const { return wstring_to_utf8str(mSelectedLabel); }
 
-    void            setImageColor(const std::string& color_control);
     void            setImageColor(const LLUIColor& c);
     /*virtual*/ void    setColor(const LLUIColor& c);
 
@@ -278,7 +280,6 @@ public:
     void            setCommitOnReturn(bool commit) { mCommitOnReturn = commit; }
     bool            getCommitOnReturn() const { return mCommitOnReturn; }
 
-    static void     onHeldDown(void *userdata);  // to be called by gIdleCallbacks
     static void     toggleFloaterAndSetToggleState(LLUICtrl* ctrl, const LLSD& sdname);
     static void     setFloaterToggle(LLUICtrl* ctrl, const LLSD& sdname);
     static void     setDockableFloaterToggle(LLUICtrl* ctrl, const LLSD& sdname);
@@ -306,6 +307,7 @@ protected:
     commit_signal_t*            mHeldDownSignal;
 
     const LLFontGL*             mGLFont;
+    LLFontVertexBuffer          mFontBuffer;
 
     S32                         mMouseDownFrame;
     S32                         mMouseHeldDownCount;    // Counter for parameter passed to held-down callback
