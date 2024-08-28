@@ -2143,7 +2143,7 @@ F32 LLFace::getTextureVirtualSize()
         face_area =  mPixelArea / llclamp(texel_area, 0.015625f, 128.f);
     }
 
-    face_area = LLFace::adjustPixelArea(mImportanceToCamera, face_area) ;
+    face_area = LLFace::adjustPixelArea(mImportanceToCamera, face_area);
     if(face_area > LLViewerTexture::sMinLargeImageSize) //if is large image, shrink face_area by considering the partial overlapping.
     {
         if(mImportanceToCamera > LEAST_IMPORTANCE_FOR_LARGE_IMAGE && mTexture[LLRender::DIFFUSE_MAP].notNull() && mTexture[LLRender::DIFFUSE_MAP]->isLargeImage())
@@ -2161,7 +2161,6 @@ bool LLFace::calcPixelArea(F32& cos_angle_to_view_dir, F32& radius)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_FACE;
 
-    //VECTORIZE THIS
     //get area of circle around face
 
     LLVector4a center;
@@ -2286,6 +2285,7 @@ const F32 FACE_IMPORTANCE_TO_CAMERA_OVER_ANGLE[FACE_IMPORTANCE_LEVEL][2] =    //
 //static
 F32 LLFace::calcImportanceToCamera(F32 cos_angle_to_view_dir, F32 dist)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_FACE;
     F32 importance = 0.f ;
 
     if(cos_angle_to_view_dir > LLViewerCamera::getInstance()->getCosHalfFov() &&
