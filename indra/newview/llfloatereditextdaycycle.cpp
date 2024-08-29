@@ -132,7 +132,6 @@ namespace {
 //=========================================================================
 const std::string LLFloaterEditExtDayCycle::KEY_EDIT_CONTEXT("edit_context");
 const std::string LLFloaterEditExtDayCycle::KEY_DAY_LENGTH("day_length");
-const std::string LLFloaterEditExtDayCycle::KEY_CANMOD("canmod");
 
 const std::string LLFloaterEditExtDayCycle::VALUE_CONTEXT_INVENTORY("inventory");
 const std::string LLFloaterEditExtDayCycle::VALUE_CONTEXT_PARCEL("parcel");
@@ -286,11 +285,6 @@ void LLFloaterEditExtDayCycle::onOpen(const LLSD& key)
             mEditContext = CONTEXT_REGION;
     }
 
-    if (key.has(KEY_CANMOD))
-    {
-        mCanMod = key[KEY_CANMOD].asBoolean();
-    }
-
     if (mEditContext == CONTEXT_UNKNOWN)
     {
         LL_WARNS("ENVDAYEDIT") << "Unknown editing context!" << LL_ENDL;
@@ -298,6 +292,7 @@ void LLFloaterEditExtDayCycle::onOpen(const LLSD& key)
 
     if (key.has(KEY_INVENTORY_ID))
     {
+        // mCanMod is initialized inside this call
         loadInventoryItem(key[KEY_INVENTORY_ID].asUUID());
     }
     else
@@ -519,14 +514,20 @@ void LLFloaterEditExtDayCycle::setEditDefaultDayCycle()
 std::string LLFloaterEditExtDayCycle::getEditName() const
 {
     if (mEditDay)
+    {
         return mEditDay->getName();
+    }
+
     return "new";
 }
 
 void LLFloaterEditExtDayCycle::setEditName(const std::string &name)
 {
     if (mEditDay)
+    {
         mEditDay->setName(name);
+    }
+
     getChild<LLLineEditor>(TXT_DAY_NAME)->setText(name);
 }
 
@@ -548,13 +549,13 @@ bool LLFloaterEditExtDayCycle::handleKeyUp(KEY key, MASK mask, bool called_from_
             keymap_t::iterator it = mSliderKeyMap.find(curslider);
             if (it != mSliderKeyMap.end())
             {
-                if (mEditDay->moveTrackKeyframe(mCurrentTrack, (*it).second.mFrame, sliderpos))
+                if (mEditDay->moveTrackKeyframe(mCurrentTrack, it->second.mFrame, sliderpos))
                 {
-                    (*it).second.mFrame = sliderpos;
+                    it->second.mFrame = sliderpos;
                 }
                 else
                 {
-                    mFramesSlider->setCurSliderValue((*it).second.mFrame);
+                    mFramesSlider->setCurSliderValue(it->second.mFrame);
                 }
             }
             else
