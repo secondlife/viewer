@@ -573,12 +573,14 @@ void LLFace::renderSelected(LLViewerTexture *imagep, const LLColor4& color)
                 if (LLGLTFMaterial* gltf_mat = te->getGLTFRenderMaterial())
                 {
                     vertex_buffer = mVertexBufferGLTF.get();
-                    vertex_buffer->unmapBuffer();
                 }
             }
             // Draw the selection marker using the correctly chosen vertex buffer
-            vertex_buffer->setBuffer();
-            vertex_buffer->draw(LLRender::TRIANGLES, mIndicesCount, mIndicesIndex);
+            if (vertex_buffer)
+            {
+                vertex_buffer->setBuffer();
+                vertex_buffer->draw(LLRender::TRIANGLES, mIndicesCount, mIndicesIndex);
+            }
         }
 
         gGL.popMatrix();
@@ -1217,7 +1219,8 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
             mVertexBufferGLTF = new LLVertexBuffer(mVertexBuffer->getTypeMask());
         }
 
-        // Clone the existing vertex buffer into the temporary one
+        // Clone the existing vertex buffer into the temporary   one
+        // TODO: factor out the need for mVertexBufferGLTF and make selection highlight shader work with the existing vertex buffer
         mVertexBuffer->clone(*mVertexBufferGLTF);
 
         // Recursive call the same function with the argument rebuild_for_gltf set to true
@@ -1225,6 +1228,7 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
         mVertexBufferGLTF.swap(mVertexBufferGLTF, mVertexBuffer);
         getGeometryVolume(volume, face_index, mat_vert_in, mat_norm_in, index_offset, force_rebuild, no_debug_assert, true);
         mVertexBufferGLTF.swap(mVertexBufferGLTF, mVertexBuffer);
+        mVertexBufferGLTF->unmapBuffer();
     }
     else if (!tep->isSelected() && mVertexBufferGLTF.notNull())
     {

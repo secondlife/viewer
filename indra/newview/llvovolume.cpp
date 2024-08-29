@@ -5766,9 +5766,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
                     continue;
                 }
 
-                if (facep->hasGeometry() &&
-                    (rigged ||  // <-- HACK FIXME -- getPixelArea might be incorrect for rigged objects
-                        facep->getPixelArea() > FORCE_CULL_AREA)) // <-- don't render tiny faces
+                if (facep->hasGeometry())
                 {
                     cur_total += facep->getGeomCount();
 
