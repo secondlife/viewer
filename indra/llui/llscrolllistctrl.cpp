@@ -889,13 +889,13 @@ bool LLScrollListCtrl::selectFirstItem()
 
 // Deselects all other items
 // virtual
-bool LLScrollListCtrl::selectNthItem( S32 target_index )
+bool LLScrollListCtrl::selectNthItem(S32 target_index)
 {
     return selectItemRange(target_index, target_index);
 }
 
 // virtual
-bool LLScrollListCtrl::selectItemRange( S32 first_index, S32 last_index )
+bool LLScrollListCtrl::selectItemRange(S32 first_index, S32 last_index)
 {
     if (mItemList.empty())
     {
@@ -905,28 +905,24 @@ bool LLScrollListCtrl::selectItemRange( S32 first_index, S32 last_index )
     // make sure sort is up to date
     updateSort();
 
-    S32 listlen = (S32)mItemList.size();
-    first_index = llclamp(first_index, 0, listlen-1);
-
-    if (last_index < 0)
-        last_index = listlen-1;
-    else
-        last_index = llclamp(last_index, first_index, listlen-1);
+    S32 bottom = (S32)mItemList.size() - 1;
+    first_index = llclamp(first_index, 0, bottom);
+    last_index = last_index < 0 ? bottom : llclamp(last_index, first_index, bottom);
 
     bool success = false;
     S32 index = 0;
     for (item_list::iterator iter = mItemList.begin(); iter != mItemList.end(); )
     {
         LLScrollListItem *itemp = *iter;
-        if(!itemp)
+        if (!itemp)
         {
             iter = mItemList.erase(iter);
-            continue ;
+            continue;
         }
 
-        if( index >= first_index && index <= last_index )
+        if (index >= first_index && index <= last_index)
         {
-            if( itemp->getEnabled() )
+            if (itemp->getEnabled())
             {
                 // TODO: support range selection for cells
                 selectItem(itemp, -1, false);
