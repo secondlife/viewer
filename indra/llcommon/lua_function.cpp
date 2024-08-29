@@ -26,6 +26,7 @@
 // other Linden headers
 #include "fsyspath.h"
 #include "hexdump.h"
+#include "llcoros.h"
 #include "lleventcoro.h"
 #include "llsd.h"
 #include "llsdutil.h"
@@ -530,7 +531,8 @@ LuaState::~LuaState()
         // That's important because we walk the atexit table backwards, to
         // destroy last the things we created (passed to LL.atexit()) first.
         int len(lua_objlen(mState, -1));
-        LL_DEBUGS("Lua") << "Registry.atexit is a table with " << len << " entries" << LL_ENDL;
+        LL_DEBUGS("Lua") << LLCoros::getName() << ": Registry.atexit is a table with "
+                         << len << " entries" << LL_ENDL;
 
         // Push debug.traceback() onto the stack as lua_pcall()'s error
         // handler function. On error, lua_pcall() calls the specified error
@@ -555,15 +557,17 @@ LuaState::~LuaState()
             // Use lua_pcall() because errors in any one atexit() function
             // shouldn't cancel the rest of them. Pass debug.traceback() as
             // the error handler function.
-            LL_DEBUGS("Lua") << "Calling atexit(" << i << ")" << LL_ENDL;
+            LL_DEBUGS("Lua") << LLCoros::getName()
+                             << ": calling atexit(" << i << ")" << LL_ENDL;
             if (lua_pcall(mState, 0, 0, -2) != LUA_OK)
             {
                 auto error{ lua_tostdstring(mState, -1) };
-                LL_WARNS("Lua") << "atexit(" << i << ") error: " << error << LL_ENDL;
+                LL_WARNS("Lua") << LLCoros::getName()
+                                << ": atexit(" << i << ") error: " << error << LL_ENDL;
                 // pop error message
                 lua_pop(mState, 1);
             }
-            LL_DEBUGS("Lua") << "atexit(" << i << ") done" << LL_ENDL;
+            LL_DEBUGS("Lua") << LLCoros::getName() << ": atexit(" << i << ") done" << LL_ENDL;
             // lua_pcall() has already popped atexit[i]:
             // stack contains atexit, debug.traceback()
         }
@@ -1277,7 +1281,8 @@ setdtor_refs::~setdtor_refs()
         // garbage-collected, the call is completely unpredictable from
         // the consuming script's point of view. But what to do about this
         // error?? For now, just log it.
-        LL_WARNS("Lua") << "setdtor(" << std::quoted(desc) << ") error: "
+        LL_WARNS("Lua") << LLCoros::getName()
+                        << ": setdtor(" << std::quoted(desc) << ") error: "
                         << lua_tostring(L, -1) << LL_ENDL;
         lua_pop(L, 1);
     }
@@ -1377,7 +1382,8 @@ LuaStackDelta::~LuaStackDelta()
     // instance to keep its contract wrt the Lua data stack.
     if (std::uncaught_exceptions() == 0 && mDepth + mDelta != depth)
     {
-        LL_ERRS("Lua") << mWhere << ": Lua stack went from " << mDepth << " to " << depth;
+        LL_ERRS("Lua") << LLCoros::getName() << ": " << mWhere
+                       << ": Lua stack went from " << mDepth << " to " << depth;
         if (mDelta)
         {
             LL_CONT << ", rather than expected " << (mDepth + mDelta) << " (" << mDelta << ")";
