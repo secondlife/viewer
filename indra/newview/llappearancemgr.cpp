@@ -2541,6 +2541,23 @@ void LLAppearanceMgr::updateAppearanceFromCOF(bool enforce_item_restrictions,
     // Update attachments to match those requested.
     if (isAgentAvatarValid())
     {
+        // Include attachments which should be in COF but don't have their link created yet
+        std::set<LLUUID> pendingAttachments;
+        LLAttachmentsMgr::instance().getPendingAttachments(pendingAttachments);
+        for (const LLUUID& idAttachItem : pendingAttachments)
+        {
+            if ( !gAgentAvatarp->isWearingAttachment(idAttachItem) || isLinkedInCOF(idAttachItem) )
+            {
+                LLAttachmentsMgr::instance().clearPendingAttachmentLink(idAttachItem);
+                continue;
+            }
+
+            if (LLViewerInventoryItem* pAttachItem = gInventory.getItem(idAttachItem))
+            {
+                obj_items.push_back(pAttachItem);
+            }
+        }
+
         LL_DEBUGS("Avatar") << self_av_string() << "Updating " << obj_items.size() << " attachments" << LL_ENDL;
         LLAgentWearables::llvo_vec_t objects_to_remove;
         LLAgentWearables::llvo_vec_t objects_to_retain;
@@ -2567,7 +2584,11 @@ void LLAppearanceMgr::updateAppearanceFromCOF(bool enforce_item_restrictions,
         }
 
         // Take off the attachments that will no longer be in the outfit.
-        LLAgentWearables::userRemoveMultipleAttachments(objects_to_remove);
+        // (don't remove attachments until avatar is fully loaded - reduces random attaching/detaching/reattaching at log-on)
+        if (gAgentAvatarp->isFullyLoaded())
+        {
+            LLAgentWearables::userRemoveMultipleAttachments(objects_to_remove);
+        }
 
         // Restore attachment pos overrides for the attachments that
         // are remaining in the outfit.
@@ -4140,6 +4161,7 @@ void LLAppearanceMgr::removeItemsFromAvatar(const uuid_vec_t& ids_to_remove, nul
             continue;
         }
         removeCOFItemLinks(linked_item_id, cb);
+        LLAttachmentsMgr::instance().clearPendingAttachmentLink(linked_item_id);
         addDoomedTempAttachment(linked_item_id);
     }
 }
