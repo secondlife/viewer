@@ -700,6 +700,7 @@ public:
     void onFetchCompletion();
     bool isFetchCompleted();
     bool isTimedOut();
+    bool pollStopped();
 
     void checkMissingWearables();
     bool pollMissingWearables();
@@ -944,6 +945,10 @@ bool LLWearableHoldingPattern::pollFetchCompletion()
     {
         // runway skip here?
         LL_WARNS() << self_av_string() << "skipping because LLWearableHolding pattern is invalid (superceded by later outfit request)" << LL_ENDL;
+
+        // If we were signalled to stop then we shouldn't do anything else except poll for when it's safe to delete ourselves
+        doOnIdleRepeating(boost::bind(&LLWearableHoldingPattern::pollStopped, this));
+        return true;
     }
 
     bool completed = isFetchCompleted();
@@ -1014,6 +1019,9 @@ void recovered_item_cb(const LLUUID& item_id, LLWearableType::EType type, LLView
     {
         // runway skip here?
         LL_WARNS() << self_av_string() << "skipping because LLWearableHolding pattern is invalid (superceded by later outfit request)" << LL_ENDL;
+
+        // If we were signalled to stop then we shouldn't do anything else except poll for when it's safe to delete ourselves
+        return;
     }
 
     LL_DEBUGS("Avatar") << self_av_string() << "Recovered item for type " << type << LL_ENDL;
@@ -1064,12 +1072,27 @@ bool LLWearableHoldingPattern::isMissingCompleted()
     return mTypesToLink.size()==0 && mTypesToRecover.size()==0;
 }
 
+bool LLWearableHoldingPattern::pollStopped()
+{
+    // We have to keep on polling until we're sure that all callbacks have completed or they'll cause a crash
+    if (isFetchCompleted() && isMissingCompleted())
+    {
+        delete this;
+        return true;
+    }
+    return false;
+}
+
 bool LLWearableHoldingPattern::pollMissingWearables()
 {
     if (!isMostRecent())
     {
         // runway skip here?
         LL_WARNS() << self_av_string() << "skipping because LLWearableHolding pattern is invalid (superceded by later outfit request)" << LL_ENDL;
+
+        // If we were signalled to stop then we shouldn't do anything else except poll for when it's safe to delete ourselves
+        doOnIdleRepeating(boost::bind(&LLWearableHoldingPattern::pollStopped, this));
+        return true;
     }
 
     bool timed_out = isTimedOut();
