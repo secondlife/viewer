@@ -125,7 +125,6 @@ LLButton::LLButton(const LLButton::Params& p)
     mFontBuffer(false),
     mMouseDownFrame(0),
     mMouseHeldDownCount(0),
-    mBorderEnabled( false ),
     mFlashing( false ),
     mCurGlowStrength(0.f),
     mNeedsHighlight(false),
@@ -423,11 +422,38 @@ bool LLButton::postBuild()
 
 void LLButton::onVisibilityChange(bool new_visibility)
 {
-    if (!new_visibility)
+    mFontBuffer.reset();
+    return LLUICtrl::onVisibilityChange(new_visibility);
+}
+
+void LLButton::reshape(S32 width, S32 height, bool called_from_parent)
+{
+    S32 delta_width = width - getRect().getWidth();
+    S32 delta_height = height - getRect().getHeight();
+
+    if (delta_width || delta_height || sForceReshape)
     {
+        LLUICtrl::reshape(width, height, called_from_parent);
         mFontBuffer.reset();
     }
-    return LLUICtrl::onVisibilityChange(new_visibility);
+}
+
+void LLButton::translate(S32 x, S32 y)
+{
+    LLUICtrl::translate(x, y);
+    mFontBuffer.reset();
+}
+
+void LLButton::setRect(const LLRect& rect)
+{
+    LLUICtrl::setRect(rect);
+    mFontBuffer.reset();
+}
+
+void LLButton::dirtyRect()
+{
+    LLUICtrl::dirtyRect();
+    mFontBuffer.reset();
 }
 
 bool LLButton::handleUnicodeCharHere(llwchar uni_char)
@@ -616,19 +642,25 @@ void LLButton::onMouseLeave(S32 x, S32 y, MASK mask)
 {
     LLUICtrl::onMouseLeave(x, y, mask);
 
-    mNeedsHighlight = false;
+    setHighlight(false);
 }
 
 void LLButton::setHighlight(bool b)
 {
-    mNeedsHighlight = b;
+    if (mNeedsHighlight != b)
+    {
+        mNeedsHighlight = b;
+        mFontBuffer.reset();
+    }
 }
 
 bool LLButton::handleHover(S32 x, S32 y, MASK mask)
 {
     if (isInEnabledChain()
         && (!gFocusMgr.getMouseCapture() || gFocusMgr.getMouseCapture() == this))
-        mNeedsHighlight = true;
+    {
+        setHighlight(true);
+    }
 
     if (!childrenHandleHover(x, y, mask))
     {
@@ -1096,6 +1128,18 @@ void LLButton::setLabelSelected( const LLStringExplicit& label )
     mFontBuffer.reset();
 }
 
+void LLButton::setDisabledLabelColor(const LLUIColor& c)
+{
+    mDisabledLabelColor = c;
+    mFontBuffer.reset();
+}
+
+void LLButton::setFont(const LLFontGL* font)
+{
+    mGLFont = (font ? font : LLFontGL::getFontSansSerif());
+    mFontBuffer.reset();
+}
+
 bool LLButton::labelIsTruncated() const
 {
     return getCurrentLabel().getString().size() > mLastDrawCharsCount;
@@ -1104,6 +1148,12 @@ bool LLButton::labelIsTruncated() const
 const LLUIString& LLButton::getCurrentLabel() const
 {
     return getToggleState() ? mSelectedLabel : mUnselectedLabel;
+}
+
+void LLButton::setDropShadowedText(bool b)
+{
+    mDropShadowedText = b;
+    mFontBuffer.reset();
 }
 
 void LLButton::setImageUnselected(LLPointer<LLUIImage> image)
@@ -1153,7 +1203,6 @@ void LLButton::resize(const LLUIString& label)
         if (btn_width < min_width)
         {
             reshape(min_width, getRect().getHeight());
-            mFontBuffer.reset();
         }
     }
 }
@@ -1190,6 +1239,7 @@ void LLButton::setImageDisabledSelected(LLPointer<LLUIImage> image)
     mImageDisabledSelected = image;
     mDisabledImageColor = mImageColor;
     mFadeWhenDisabled = true;
+    mFontBuffer.reset();
 }
 
 void LLButton::setImagePressed(LLPointer<LLUIImage> image)
