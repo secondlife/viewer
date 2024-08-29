@@ -11784,7 +11784,7 @@ class LLVOAvatarListener : public LLEventAPI
     }
     void isInAir(const LLSD &request) const
     {
-        Response response(llsd::map("value", gAgentAvatarp->mInAir, 
+        Response response(llsd::map("value", gAgentAvatarp->mInAir,
                                     "duration", gAgentAvatarp->mInAir ? gAgentAvatarp->mTimeInAir.getElapsedTimeF32() : 0), request);
     }
 };

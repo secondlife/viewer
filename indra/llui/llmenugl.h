@@ -953,7 +953,7 @@ public:
     typedef LLUICtrl::CommitCallbackInfo cb_info;
     static void addCommit(view_listener_t *listener, const std::string &name, cb_info::EUntrustedCall handle_untrusted = cb_info::UNTRUSTED_ALLOW)
     {
-        LLUICtrl::CommitCallbackRegistry::currentRegistrar().add(name, 
+        LLUICtrl::CommitCallbackRegistry::currentRegistrar().add(name,
             cb_info([listener](LLUICtrl*, const LLSD& param){ return listener->handleEvent(param); }, handle_untrusted));
     }
 

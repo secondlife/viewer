@@ -1,24 +1,24 @@
-/** 
+/**
  * @file llluafloater.cpp
  *
  * $LicenseInfo:firstyear=2024&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2024, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  *
@@ -68,25 +68,25 @@ LLLuaFloater::LLLuaFloater(const LLSD &key) :
     };
 
     LLSD requiredParams = llsd::map("ctrl_name", LLSD(), "value", LLSD());
-    mDispatchListener.add("set_enabled", "", [ctrl_lookup](const LLSD &event) 
-    { 
+    mDispatchListener.add("set_enabled", "", [ctrl_lookup](const LLSD &event)
+    {
         return ctrl_lookup(event, [](LLUICtrl *ctrl, const LLSD &event) { ctrl->setEnabled(event["value"].asBoolean()); return LLSD(); });
     }, requiredParams);
-    mDispatchListener.add("set_visible", "", [ctrl_lookup](const LLSD &event) 
-    { 
+    mDispatchListener.add("set_visible", "", [ctrl_lookup](const LLSD &event)
+    {
         return ctrl_lookup(event, [](LLUICtrl *ctrl, const LLSD &event) { ctrl->setVisible(event["value"].asBoolean()); return LLSD(); });
     }, requiredParams);
-    mDispatchListener.add("set_value", "", [ctrl_lookup](const LLSD &event) 
-    { 
+    mDispatchListener.add("set_value", "", [ctrl_lookup](const LLSD &event)
+    {
         return ctrl_lookup(event, [](LLUICtrl *ctrl, const LLSD &event) { ctrl->setValue(event["value"]); return LLSD(); });
     }, requiredParams);
 
-    mDispatchListener.add("add_list_element", "", [this](const LLSD &event) 
-    { 
+    mDispatchListener.add("add_list_element", "", [this](const LLSD &event)
+    {
         LLScrollListCtrl *ctrl = getChild<LLScrollListCtrl>(event["ctrl_name"].asString());
-        if(ctrl) 
+        if(ctrl)
         {
-            LLSD element_data = event["value"]; 
+            LLSD element_data = event["value"];
             if (element_data.isArray())
             {
                 for (const auto &row : llsd::inArray(element_data))
@@ -94,34 +94,34 @@ LLLuaFloater::LLLuaFloater(const LLSD &key) :
                     ctrl->addElement(row);
                 }
             }
-            else 
+            else
             {
                 ctrl->addElement(element_data);
             }
         }
     }, requiredParams);
 
-    mDispatchListener.add("clear_list", "", [this](const LLSD &event) 
-    { 
+    mDispatchListener.add("clear_list", "", [this](const LLSD &event)
+    {
         LLScrollListCtrl *ctrl = getChild<LLScrollListCtrl>(event["ctrl_name"].asString());
-        if(ctrl) 
+        if(ctrl)
         {
             ctrl->deleteAllItems();
         }
     }, llsd::map("ctrl_name", LLSD()));
 
-    mDispatchListener.add("add_text", "", [this](const LLSD &event) 
-    { 
+    mDispatchListener.add("add_text", "", [this](const LLSD &event)
+    {
         LLTextEditor *editor = getChild<LLTextEditor>(event["ctrl_name"].asString());
-        if (editor) 
+        if (editor)
         {
             editor->pasteTextWithLinebreaks(stringize(event["value"]));
             editor->addLineBreakChar(true);
         }
     }, requiredParams);
 
-    mDispatchListener.add("set_label", "", [this](const LLSD &event) 
-    { 
+    mDispatchListener.add("set_label", "", [this](const LLSD &event)
+    {
         LLButton *btn = getChild<LLButton>(event["ctrl_name"].asString());
         if (btn)
         {
@@ -129,17 +129,17 @@ LLLuaFloater::LLLuaFloater(const LLSD &key) :
         }
     }, requiredParams);
 
-    mDispatchListener.add("set_title", "", [this](const LLSD &event) 
-    { 
+    mDispatchListener.add("set_title", "", [this](const LLSD &event)
+    {
         setTitle(event["value"].asString());
     }, llsd::map("value", LLSD()));
-    
-    mDispatchListener.add("get_value", "", [ctrl_lookup](const LLSD &event) 
-    { 
+
+    mDispatchListener.add("get_value", "", [ctrl_lookup](const LLSD &event)
+    {
         return ctrl_lookup(event, [](LLUICtrl *ctrl, const LLSD &event) { return llsd::map("value", ctrl->getValue()); });
     }, llsd::map("ctrl_name", LLSD(), "reqid", LLSD()));
 
-    mDispatchListener.add("get_selected_id", "", [this](const LLSD &event) 
+    mDispatchListener.add("get_selected_id", "", [this](const LLSD &event)
     {
         LLScrollListCtrl *ctrl = getChild<LLScrollListCtrl>(event["ctrl_name"].asString());
         if (!ctrl)
@@ -157,7 +157,7 @@ LLLuaFloater::~LLLuaFloater()
     post(LLSD());
 }
 
-BOOL LLLuaFloater::postBuild() 
+BOOL LLLuaFloater::postBuild()
 {
     for (LLView *view : *getChildList())
     {
@@ -217,10 +217,10 @@ void LLLuaFloater::registerCallback(const std::string &ctrl_name, const std::str
 
     auto mouse_event_cb = [this, data](LLUICtrl *ctrl, const LLSD &param) { post(data); };
 
-    auto mouse_event_coords_cb = [this, data](LLUICtrl *ctrl, S32 x, S32 y, MASK mask) 
-    { 
+    auto mouse_event_coords_cb = [this, data](LLUICtrl *ctrl, S32 x, S32 y, MASK mask)
+    {
         LLSD event(data);
-        post(event.with("x", x).with("y", y)); 
+        post(event.with("x", x).with("y", y));
     };
 
     auto post_with_value = [this, data](LLSD value)
@@ -260,12 +260,12 @@ void LLLuaFloater::registerCallback(const std::string &ctrl_name, const std::str
         {
             list->setDoubleClickCallback( [post_with_value, list](){ post_with_value(LLSD(list->getCurrentID())); });
         }
-        else 
+        else
         {
             ctrl->setDoubleClickCallback(mouse_event_coords_cb);
         }
     }
-    else if (event_is(event, "keystroke")) 
+    else if (event_is(event, "keystroke"))
     {
         LLTextEditor* text_editor = dynamic_cast<LLTextEditor*>(ctrl);
         if (text_editor)
@@ -278,7 +278,7 @@ void LLLuaFloater::registerCallback(const std::string &ctrl_name, const std::str
             line_editor->setKeystrokeCallback([post_with_value](LLLineEditor *editor, void* userdata) { post_with_value(editor->getValue()); }, NULL);
         }
     }
-    else 
+    else
     {
         LL_WARNS("LuaFloater") << "Can't register callback for unknown event: " << event << " , control: " << ctrl_name << LL_ENDL;
     }
@@ -292,7 +292,7 @@ void LLLuaFloater::post(const LLSD &data)
     LLEventPumps::instance().obtain(mReplyPumpName).post(stamped_data);
 }
 
-void LLLuaFloater::postEvent(LLSD data, const std::string &event_name) 
+void LLLuaFloater::postEvent(LLSD data, const std::string &event_name)
 {
     llassert(EVENT_LIST.find(event_name) != EVENT_LIST.end());
     post(data.with("event", event_name));
@@ -302,12 +302,12 @@ void LLLuaFloater::showLuaFloater(const LLSD &data)
 {
     fsyspath fs_path(data["xml_path"].asString());
     std::string path = fs_path.lexically_normal().u8string();
-    if (!fs_path.is_absolute()) 
+    if (!fs_path.is_absolute())
     {
         std::string lib_path = gDirUtilp->getExpandedFilename(LL_PATH_SCRIPTS, "lua");
         path = (fsyspath(lib_path) / path).u8string();
     }
-    
+
     LLLuaFloater *floater = new LLLuaFloater(data);
     floater->buildFromFile(path);
     floater->openFloater(floater->getKey());

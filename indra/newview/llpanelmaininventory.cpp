@@ -127,7 +127,7 @@ LLPanelMainInventory::LLPanelMainInventory(const LLPanel::Params& p)
     // Menu Callbacks (non contex menus)
     mCommitCallbackRegistrar.add("Inventory.DoToSelected", { boost::bind(&LLPanelMainInventory::doToSelected, this, _2), LLUICtrl::cb_info::UNTRUSTED_BLOCK });
     mCommitCallbackRegistrar.add("Inventory.CloseAllFolders", { boost::bind(&LLPanelMainInventory::closeAllFolders, this) });
-    mCommitCallbackRegistrar.add("Inventory.EmptyTrash", { boost::bind(&LLInventoryModel::emptyFolderType, &gInventory, 
+    mCommitCallbackRegistrar.add("Inventory.EmptyTrash", { boost::bind(&LLInventoryModel::emptyFolderType, &gInventory,
                                 "ConfirmEmptyTrash", LLFolderType::FT_TRASH), LLUICtrl::cb_info::UNTRUSTED_BLOCK });
     mCommitCallbackRegistrar.add("Inventory.EmptyLostAndFound", { boost::bind(&LLInventoryModel::emptyFolderType, &gInventory,
                                 "ConfirmEmptyLostAndFound", LLFolderType::FT_LOST_AND_FOUND), LLUICtrl::cb_info::UNTRUSTED_BLOCK });

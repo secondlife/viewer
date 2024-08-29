@@ -3,7 +3,7 @@
  * @author Nat Goodspeed
  * @date   2024-04-03
  * @brief  Adapt our UTF-8 std::strings for std::filesystem::path
- * 
+ *
  * $LicenseInfo:firstyear=2024&license=viewerlgpl$
  * Copyright (c) 2024, Linden Research, Inc.
  * $/LicenseInfo$
@@ -20,7 +20,7 @@
 
 // ... the method of conversion to the native character set depends on the
 // character type used by source.
-// 
+//
 // * If the source character type is char, the encoding of the source is
 //   assumed to be the native narrow encoding (so no conversion takes place on
 //   POSIX systems).

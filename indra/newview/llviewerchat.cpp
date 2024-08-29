@@ -227,7 +227,7 @@ void LLViewerChat::formatChatMsg(const LLChat& chat, std::string& formated_msg)
         formated_msg = tmpmsg;
     }
 
-    if (chat.mIsScript) 
+    if (chat.mIsScript)
     {
         formated_msg = LLTrans::getString("ScriptStr") + formated_msg;
     }

@@ -854,7 +854,7 @@ void LLPanelRegionTools::onSelectRegion()
 LLPanelGridTools::LLPanelGridTools() :
     LLPanel()
 {
-    mCommitCallbackRegistrar.add("GridTools.FlushMapVisibilityCaches", 
+    mCommitCallbackRegistrar.add("GridTools.FlushMapVisibilityCaches",
         { boost::bind(&LLPanelGridTools::onClickFlushMapVisibilityCaches, this), cb_info::UNTRUSTED_BLOCK });
 }
 

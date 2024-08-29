@@ -284,7 +284,7 @@ LLUICtrl::commit_signal_t::slot_type LLUICtrl::initCommitCallback(const CommitCa
         std::string function_name = cb.function_name;
         setFunctionName(function_name);
         LLUICtrl::CommitCallbackInfo *info = (CommitCallbackRegistry::getValue(function_name));
-        if (info && info->callback_func) 
+        if (info && info->callback_func)
         {
             if (cb.parameter.isProvided())
                 return boost::bind((info->callback_func), _1, cb.parameter);

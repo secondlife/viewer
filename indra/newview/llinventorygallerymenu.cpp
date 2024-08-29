@@ -92,9 +92,9 @@ LLContextMenu* LLInventoryGalleryContextMenu::createMenu()
 
     registrar.add("Inventory.DoToSelected", boost::bind(&LLInventoryGalleryContextMenu::doToSelected, this, _2), LLUICtrl::cb_info::UNTRUSTED_BLOCK);
     registrar.add("Inventory.FileUploadLocation", boost::bind(&LLInventoryGalleryContextMenu::fileUploadLocation, this, _2), LLUICtrl::cb_info::UNTRUSTED_BLOCK);
-    registrar.add("Inventory.EmptyTrash", 
+    registrar.add("Inventory.EmptyTrash",
         boost::bind(&LLInventoryModel::emptyFolderType, &gInventory, "ConfirmEmptyTrash", LLFolderType::FT_TRASH), LLUICtrl::cb_info::UNTRUSTED_BLOCK);
-    registrar.add("Inventory.EmptyLostAndFound", 
+    registrar.add("Inventory.EmptyLostAndFound",
         boost::bind(&LLInventoryModel::emptyFolderType, &gInventory, "ConfirmEmptyLostAndFound", LLFolderType::FT_LOST_AND_FOUND), LLUICtrl::cb_info::UNTRUSTED_BLOCK);
     registrar.add("Inventory.DoCreate", [this](LLUICtrl*, const LLSD& data)
                           {

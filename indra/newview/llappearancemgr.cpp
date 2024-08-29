@@ -2957,7 +2957,7 @@ bool LLAppearanceMgr::wearOutfit(const LLUUID &cat_id, std::string &error_msg, b
     return wearOutfit(stringize(cat_id), cat, error_msg, false, append);
 }
 
-bool LLAppearanceMgr::wearOutfit(const std::string &desc, LLInventoryCategory* cat, 
+bool LLAppearanceMgr::wearOutfit(const std::string &desc, LLInventoryCategory* cat,
                                  std::string &error_msg, bool copy_items, bool append)
 {
     if (!cat)

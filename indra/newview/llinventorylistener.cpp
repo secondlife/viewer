@@ -154,7 +154,7 @@ void LLInventoryListener::getBasicFolderID(LLSD const &data)
 void LLInventoryListener::getDirectDescendents(LLSD const &data)
 {
     Response response(LLSD(), data);
-    LLInventoryModel::cat_array_t* cats; 
+    LLInventoryModel::cat_array_t* cats;
     LLInventoryModel::item_array_t* items;
     gInventory.getDirectDescendentsOf(data["folder_id"], cats, items);
 

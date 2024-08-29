@@ -3,7 +3,7 @@
  * @author Nat Goodspeed
  * @date   2024-05-21
  * @brief  writestr() function for when iostream isn't set up
- * 
+ *
  * $LicenseInfo:firstyear=2024&license=viewerlgpl$
  * Copyright (c) 2024, Linden Research, Inc.
  * $/LicenseInfo$

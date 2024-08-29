@@ -3,7 +3,7 @@
  * @author Nat Goodspeed
  * @date   2023-09-28
  * @brief  Test for llluamanager.
- * 
+ *
  * $LicenseInfo:firstyear=2023&license=viewerlgpl$
  * Copyright (c) 2023, Linden Research, Inc.
  * $/LicenseInfo$
