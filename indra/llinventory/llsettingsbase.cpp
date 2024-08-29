@@ -355,10 +355,11 @@ LLSD LLSettingsBase::getSettings() const
 
 LLSD LLSettingsBase::cloneSettings() const
 {
-    U32 flags = getFlags();
-    LLSD settings (combineSDMaps(getSettings(), LLSD()));
-    if (flags)
+    LLSD settings(combineSDMaps(getSettings(), LLSD()));
+    if (U32 flags = getFlags())
+    {
         settings[SETTING_FLAGS] = LLSD::Integer(flags);
+    }
     return settings;
 }
 

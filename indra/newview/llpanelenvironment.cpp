@@ -392,8 +392,10 @@ std::string LLPanelEnvironmentInfo::getNameForTrackIndex(U32 index)
     if (invname.empty())
     {
         invname = getNameForTrackIndex(index - 1);
-        if (invname[0] != '(')
+        if (!invname.empty() && invname.front() != '(')
+        {
             invname = "(" + invname + ")";
+        }
     }
 
     return invname;
@@ -764,7 +766,7 @@ void LLPanelEnvironmentInfo::commitDayLenOffsetChanges(bool need_callback)
                                                    (S32)mCurrentEnvironment->mDayLength.value(),
                                                    (S32)mCurrentEnvironment->mDayOffset.value(),
                                                    LLEnvironment::altitudes_vect_t(),
-                                                   [that_h](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) { _onEnvironmentReceived(that_h, parcel_id, envifo); });
+                                                   [that_h](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) { onEnvironmentReceived(that_h, parcel_id, envifo); });
         }
         else
         {
@@ -852,7 +854,7 @@ void LLPanelEnvironmentInfo::onBtnDefault()
         if (opt == 0)
         {
             LLEnvironment::instance().resetParcel(parcel_id,
-                [that_h](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) { _onEnvironmentReceived(that_h, parcel_id, envifo); });
+                [that_h](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) { onEnvironmentReceived(that_h, parcel_id, envifo); });
         }
     });
 }
@@ -864,8 +866,7 @@ void LLPanelEnvironmentInfo::onBtnEdit()
     LLFloaterEditExtDayCycle *dayeditor = getEditFloater();
 
     LLSD params(LLSDMap(LLFloaterEditExtDayCycle::KEY_EDIT_CONTEXT, isRegion() ? LLFloaterEditExtDayCycle::VALUE_CONTEXT_REGION : LLFloaterEditExtDayCycle::VALUE_CONTEXT_PARCEL)
-            (LLFloaterEditExtDayCycle::KEY_DAY_LENGTH,  mCurrentEnvironment ? (S32)(mCurrentEnvironment->mDayLength.value()) : FOURHOURS)
-            (LLFloaterEditExtDayCycle::KEY_CANMOD,      LLSD::Boolean(true)));
+            (LLFloaterEditExtDayCycle::KEY_DAY_LENGTH, mCurrentEnvironment ? (S32)(mCurrentEnvironment->mDayLength.value()) : FOURHOURS));
 
     dayeditor->openFloater(params);
 
@@ -882,13 +883,13 @@ void LLPanelEnvironmentInfo::onBtnEdit()
 
 void LLPanelEnvironmentInfo::onBtnSelect()
 {
-    LLFloaterSettingsPicker *picker = getSettingsPicker();
-    if (picker)
+    if (LLFloaterSettingsPicker* picker = getSettingsPicker())
     {
         LLUUID item_id;
         if (mCurrentEnvironment && mCurrentEnvironment->mDayCycle)
         {
-            item_id = LLFloaterSettingsPicker::findItemID(mCurrentEnvironment->mDayCycle->getAssetId(), false, false);
+            LLUUID asset_id = mCurrentEnvironment->mDayCycle->getAssetId();
+            item_id = LLFloaterSettingsPicker::findItemID(asset_id, false);
         }
         picker->setSettingsFilter(LLSettingsType::ST_NONE);
         picker->setSettingsItemId(item_id);
@@ -919,7 +920,7 @@ void LLPanelEnvironmentInfo::onBtnRstAltitudes()
                                                mCurrentEnvironment ? (S32)mCurrentEnvironment->mDayLength.value() : -1,
                                                mCurrentEnvironment ? (S32)mCurrentEnvironment->mDayOffset.value() : -1,
                                                alts,
-            [that_h](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) { _onEnvironmentReceived(that_h, parcel_id, envifo); });
+            [that_h](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) { onEnvironmentReceived(that_h, parcel_id, envifo); });
     }
 }
 
@@ -985,32 +986,41 @@ void LLPanelEnvironmentInfo::onPickerCommitted(LLUUID item_id, std::string sourc
 
 void LLPanelEnvironmentInfo::onPickerCommitted(LLUUID item_id, S32 track_num)
 {
-    LLInventoryItem *itemp = gInventory.getItem(item_id);
-    if (itemp)
+    if (LLInventoryItem* itemp = gInventory.getItem(item_id))
     {
+        LL_INFOS("ENVPANEL") << "item '" << item_id << "' : '" << itemp->getDescription() << "'" << LL_ENDL;
+
         LLHandle<LLPanel> that_h = getHandle();
         clearDirtyFlag(DIRTY_FLAG_DAYLENGTH);
         clearDirtyFlag(DIRTY_FLAG_DAYOFFSET);
 
         U32 flags(0);
 
-        if (itemp)
+        if (!itemp->getPermissions().allowOperationBy(PERM_MODIFY, gAgent.getID()))
         {
-            if (!itemp->getPermissions().allowOperationBy(PERM_MODIFY, gAgent.getID()))
-                flags |= LLSettingsBase::FLAG_NOMOD;
-            if (!itemp->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID()))
-                flags |= LLSettingsBase::FLAG_NOTRANS;
+            flags |= LLSettingsBase::FLAG_NOMOD;
         }
 
-        LLEnvironment::instance().updateParcel(getParcelId(),
-                                               itemp->getAssetUUID(),
-                                               itemp->getName(),
-                                               track_num,
-                                               mCurrentEnvironment ? (S32)mCurrentEnvironment->mDayLength.value() : -1,
-                                               mCurrentEnvironment ? (S32)mCurrentEnvironment->mDayOffset.value() : -1,
-                                               flags,
-                                               LLEnvironment::altitudes_vect_t(),
-            [that_h](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) { _onEnvironmentReceived(that_h, parcel_id, envifo); });
+        if (!itemp->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID()))
+        {
+            flags |= LLSettingsBase::FLAG_NOTRANS;
+        }
+
+        LLEnvironment::instance().updateParcel
+        (
+            getParcelId(),
+            itemp->getAssetUUID(),
+            itemp->getName(),
+            track_num,
+            mCurrentEnvironment ? (S32)mCurrentEnvironment->mDayLength.value() : -1,
+            mCurrentEnvironment ? (S32)mCurrentEnvironment->mDayOffset.value() : -1,
+            flags,
+            LLEnvironment::altitudes_vect_t(),
+            [that_h](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo)
+            {
+                onEnvironmentReceived(that_h, parcel_id, envifo);
+            }
+        );
     }
 }
 
@@ -1018,17 +1028,20 @@ void LLPanelEnvironmentInfo::onEditCommitted(LLSettingsDay::ptr_t newday)
 {
     LLEnvironment::instance().clearEnvironment(LLEnvironment::ENV_EDIT);
     LLEnvironment::instance().updateEnvironment();
+
     if (!newday)
     {
         LL_WARNS("ENVPANEL") << "Editor committed an empty day. Do nothing." << LL_ENDL;
         return;
     }
+
     if (!mCurrentEnvironment)
     {
         // Attempting to save mid update?
         LL_WARNS("ENVPANEL") << "Failed to apply changes from editor! Dirty state: " << mDirtyFlag << " env version: " << mCurEnvVersion << LL_ENDL;
         return;
     }
+
     size_t newhash(newday->getHash());
     size_t oldhash((mCurrentEnvironment->mDayCycle) ? mCurrentEnvironment->mDayCycle->getHash() : 0);
 
@@ -1043,7 +1056,7 @@ void LLPanelEnvironmentInfo::onEditCommitted(LLSettingsDay::ptr_t newday)
                                                mCurrentEnvironment ? (S32)mCurrentEnvironment->mDayLength.value() : -1,
                                                mCurrentEnvironment ? (S32)mCurrentEnvironment->mDayOffset.value() : -1,
                                                LLEnvironment::altitudes_vect_t(),
-            [that_h](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) { _onEnvironmentReceived(that_h, parcel_id, envifo); });
+            [that_h](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) { onEnvironmentReceived(that_h, parcel_id, envifo); });
     }
 }
 
@@ -1080,8 +1093,7 @@ void LLPanelEnvironmentInfo::onEnvironmentChanged(LLEnvironment::EnvSelection_t 
     else if ((env == LLEnvironment::ENV_PARCEL)
              && (getParcelId() == LLViewerParcelMgr::instance().getAgentParcelId()))
     {
-        LLParcel *parcel = getParcel();
-        if (parcel)
+        if (LLParcel* parcel = getParcel())
         {
             // first for parcel own settings, second is for case when parcel uses region settings
             if (mCurEnvVersion < new_version
@@ -1143,17 +1155,21 @@ void LLPanelEnvironmentInfo::onEnvironmentReceived(S32 parcel_id, LLEnvironment:
     // todo: we have envifo and parcel env version, should we just setEnvironment() and parcel's property to prevent dupplicate requests?
 }
 
-void LLPanelEnvironmentInfo::_onEnvironmentReceived(LLHandle<LLPanel> that_h, S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo)
+// static
+void LLPanelEnvironmentInfo::onEnvironmentReceived(LLHandle<LLPanel> that_h, S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo)
 {
-    LLPanelEnvironmentInfo *that = (LLPanelEnvironmentInfo *)that_h.get();
-    if (!that)
-        return;
-    that->onEnvironmentReceived(parcel_id, envifo);
+    if (LLPanelEnvironmentInfo* that = (LLPanelEnvironmentInfo*)that_h.get())
+    {
+        that->onEnvironmentReceived(parcel_id, envifo);
+    }
 }
 
 LLSettingsDropTarget::LLSettingsDropTarget(const LLSettingsDropTarget::Params& p)
-    : LLView(p), mEnvironmentInfoPanel(NULL), mDndEnabled(false)
-{}
+    : LLView(p)
+    , mEnvironmentInfoPanel(NULL)
+    , mDndEnabled(false)
+{
+}
 
 bool LLSettingsDropTarget::handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
     EDragAndDropType cargo_type,
@@ -1170,11 +1186,9 @@ bool LLSettingsDropTarget::handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
         switch (cargo_type)
         {
         case DAD_SETTINGS:
-        {
-            LLViewerInventoryItem* inv_item = (LLViewerInventoryItem*)cargo_data;
-            if (inv_item && mEnvironmentInfoPanel)
+            if (cargo_data && mEnvironmentInfoPanel)
             {
-                LLUUID item_id = inv_item->getUUID();
+                LLUUID item_id = ((LLViewerInventoryItem*)cargo_data)->getUUID();
                 if (gInventory.getItem(item_id))
                 {
                     *accept = ACCEPT_YES_COPY_SINGLE;
@@ -1190,11 +1204,11 @@ bool LLSettingsDropTarget::handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
                 *accept = ACCEPT_NO;
             }
             break;
-        }
         default:
             *accept = ACCEPT_NO;
             break;
         }
     }
+
     return handled;
 }

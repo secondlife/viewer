@@ -60,7 +60,6 @@ class LLFloaterEditExtDayCycle : public LLFloaterEditEnvironmentBase
 public:
     static const std::string    KEY_EDIT_CONTEXT;
     static const std::string    KEY_DAY_LENGTH;
-    static const std::string    KEY_CANMOD;
 
     static const std::string    VALUE_CONTEXT_INVENTORY;
     static const std::string    VALUE_CONTEXT_PARCEL;
