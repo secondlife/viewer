@@ -3414,7 +3414,9 @@ bool enable_os_exception()
 bool enable_gltf()
 {
     static LLCachedControl<bool> enablegltf(gSavedSettings, "GLTFEnabled", false);
-    return enablegltf;
+    static LLCachedControl<bool> can_use(gSavedSettings, "RenderCanUseGLTFPBROpaqueShaders", true);
+
+    return enablegltf && can_use;
 }
 
 bool enable_gltf_save_as()
@@ -8207,7 +8209,16 @@ class LLAdvancedClickGLTFOpen: public view_listener_t
 {
     bool handleEvent(const LLSD& userdata)
     {
-        LL::GLTFSceneManager::instance().load();
+        static LLCachedControl<bool> can_use_shaders(gSavedSettings, "RenderCanUseGLTFPBROpaqueShaders", true);
+        if (can_use_shaders)
+        {
+            LL::GLTFSceneManager::instance().load();
+        }
+        else
+        {
+            LLNotificationsUtil::add("NoSupportGLTFShader");
+        }
+
         return true;
     }
 };

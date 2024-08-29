@@ -1336,7 +1336,14 @@ bool LLViewerShaderMgr::loadShadersDeferred()
 
         success = make_gltf_variants(gGLTFPBRMetallicRoughnessProgram, use_sun_shadow);
 
-        llassert(success);
+        //llassert(success);
+        if (!success)
+        {
+            LL_WARNS() << "Failed to create GLTF PBR Metallic Roughness Shader, disabling!" << LL_ENDL;
+            gSavedSettings.setBOOL("RenderCanUseGLTFPBROpaqueShaders", false);
+            // continue as if this shader never happened
+            success = true;
+        }
     }
 
     if (success)
