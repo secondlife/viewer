@@ -871,7 +871,7 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 
         if(RenderScreenSpaceReflections)
         {
-            mSceneMap.allocate(resX, resY, GL_RGB, true);
+            mSceneMap.allocate(resX, resY, GL_RGBA16F, true);
         }
         else
         {
