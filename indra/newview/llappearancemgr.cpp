@@ -713,7 +713,6 @@ public:
     found_list_t& getFoundList();
     void eraseTypeToLink(LLWearableType::EType type);
     void eraseTypeToRecover(LLWearableType::EType type);
-    void setObjItems(const LLInventoryModel::item_array_t& items);
     void setGestItems(const LLInventoryModel::item_array_t& items);
     bool isMostRecent();
     void handleLateArrivals();
@@ -723,7 +722,6 @@ public:
 
 private:
     found_list_t mFoundList;
-    LLInventoryModel::item_array_t mObjItems;
     LLInventoryModel::item_array_t mGestItems;
     typedef std::set<S32> type_set_t;
     type_set_t mTypesToRecover;
@@ -798,11 +796,6 @@ void LLWearableHoldingPattern::eraseTypeToLink(LLWearableType::EType type)
 void LLWearableHoldingPattern::eraseTypeToRecover(LLWearableType::EType type)
 {
     mTypesToRecover.erase(type);
-}
-
-void LLWearableHoldingPattern::setObjItems(const LLInventoryModel::item_array_t& items)
-{
-    mObjItems = items;
 }
 
 void LLWearableHoldingPattern::setGestItems(const LLInventoryModel::item_array_t& items)
@@ -910,55 +903,10 @@ void LLWearableHoldingPattern::onAllComplete()
 
     if (isAgentAvatarValid())
     {
-        LL_DEBUGS("Avatar") << self_av_string() << "Updating " << mObjItems.size() << " attachments" << LL_ENDL;
-        LLAgentWearables::llvo_vec_t objects_to_remove;
-        LLAgentWearables::llvo_vec_t objects_to_retain;
-        LLInventoryModel::item_array_t items_to_add;
-
-        LLAgentWearables::findAttachmentsAddRemoveInfo(mObjItems,
-                                                       objects_to_remove,
-                                                       objects_to_retain,
-                                                       items_to_add);
-
-        LL_DEBUGS("Avatar") << self_av_string() << "Removing " << objects_to_remove.size()
-                            << " attachments" << LL_ENDL;
-
-        // Here we remove the attachment pos overrides for *all*
-        // attachments, even those that are not being removed. This is
-        // needed to get joint positions all slammed down to their
-        // pre-attachment states.
-        gAgentAvatarp->clearAttachmentOverrides();
-
-        if (objects_to_remove.size() || items_to_add.size())
-        {
-            LL_DEBUGS("Avatar") << "ATT will remove " << objects_to_remove.size()
-                                << " and add " << items_to_add.size() << " items" << LL_ENDL;
-        }
-
-        // Take off the attachments that will no longer be in the outfit.
-        LLAgentWearables::userRemoveMultipleAttachments(objects_to_remove);
-
         // Update wearables.
         LL_INFOS("Avatar") << self_av_string() << "HP " << index() << " updating agent wearables with "
                            << mResolved << " wearable items " << LL_ENDL;
         LLAppearanceMgr::instance().updateAgentWearables(this);
-
-        // Restore attachment pos overrides for the attachments that
-        // are remaining in the outfit.
-        for (LLAgentWearables::llvo_vec_t::iterator it = objects_to_retain.begin();
-             it != objects_to_retain.end();
-             ++it)
-        {
-            LLViewerObject *objectp = *it;
-            if (!objectp->isAnimatedObject())
-            {
-                gAgentAvatarp->addAttachmentOverridesForObject(objectp);
-            }
-        }
-
-        // Add new attachments to match those requested.
-        LL_DEBUGS("Avatar") << self_av_string() << "Adding " << items_to_add.size() << " attachments" << LL_ENDL;
-        LLAgentWearables::userAttachMultipleAttachments(items_to_add);
     }
 
     if (isFetchCompleted() && isMissingCompleted())
@@ -2589,6 +2537,56 @@ void LLAppearanceMgr::updateAppearanceFromCOF(bool enforce_item_restrictions,
                 << " descendent_count " << cof->getDescendentCount()
                 << " viewer desc count " << cof->getViewerDescendentCount() << LL_ENDL;
     }
+
+    // Update attachments to match those requested.
+    if (isAgentAvatarValid())
+    {
+        LL_DEBUGS("Avatar") << self_av_string() << "Updating " << obj_items.size() << " attachments" << LL_ENDL;
+        LLAgentWearables::llvo_vec_t objects_to_remove;
+        LLAgentWearables::llvo_vec_t objects_to_retain;
+        LLInventoryModel::item_array_t items_to_add;
+
+        LLAgentWearables::findAttachmentsAddRemoveInfo(obj_items,
+                                                       objects_to_remove,
+                                                       objects_to_retain,
+                                                       items_to_add);
+
+        LL_DEBUGS("Avatar") << self_av_string() << "Removing " << objects_to_remove.size()
+                            << " attachments" << LL_ENDL;
+
+        // Here we remove the attachment pos overrides for *all*
+        // attachments, even those that are not being removed. This is
+        // needed to get joint positions all slammed down to their
+        // pre-attachment states.
+        gAgentAvatarp->clearAttachmentOverrides();
+
+        if (objects_to_remove.size() || items_to_add.size())
+        {
+            LL_DEBUGS("Avatar") << "ATT will remove " << objects_to_remove.size()
+                                << " and add " << items_to_add.size() << " items" << LL_ENDL;
+        }
+
+        // Take off the attachments that will no longer be in the outfit.
+        LLAgentWearables::userRemoveMultipleAttachments(objects_to_remove);
+
+        // Restore attachment pos overrides for the attachments that
+        // are remaining in the outfit.
+        for (LLAgentWearables::llvo_vec_t::iterator it = objects_to_retain.begin();
+             it != objects_to_retain.end();
+             ++it)
+        {
+            LLViewerObject *objectp = *it;
+            if (!objectp->isAnimatedObject())
+            {
+                gAgentAvatarp->addAttachmentOverridesForObject(objectp);
+            }
+        }
+
+        // Add new attachments to match those requested.
+        LL_DEBUGS("Avatar") << self_av_string() << "Adding " << items_to_add.size() << " attachments" << LL_ENDL;
+        LLAgentWearables::userAttachMultipleAttachments(items_to_add);
+    }
+
     if(!wear_items.size())
     {
         LLNotificationsUtil::add("CouldNotPutOnOutfit");
@@ -2603,7 +2601,6 @@ void LLAppearanceMgr::updateAppearanceFromCOF(bool enforce_item_restrictions,
     LLTimer hp_block_timer;
     LLWearableHoldingPattern* holder = new LLWearableHoldingPattern;
 
-    holder->setObjItems(obj_items);
     holder->setGestItems(gest_items);
 
     // Note: can't do normal iteration, because if all the
