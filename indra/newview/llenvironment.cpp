@@ -54,8 +54,6 @@
 
 #include "llregioninfomodel.h"
 
-#include <boost/make_shared.hpp>
-
 #include "llatmosphere.h"
 #include "llagent.h"
 #include "roles_constants.h"
@@ -757,7 +755,7 @@ namespace
         LLEnvironment::DayInstance::ptr_t   getBaseDayInstance() const  { return mBaseDayInstance; }
         void                                setBaseDayInstance(const LLEnvironment::DayInstance::ptr_t &baseday);
 
-        S32                                 countExperiencesActive() const { return mActiveExperiences.size(); }
+        S32                                 countExperiencesActive() const { return static_cast<S32>(mActiveExperiences.size()); }
 
         bool                                isOverriddenSky() const { return !mSkyExperience.isNull(); }
         bool                                isOverriddenWater() const { return !mWaterExperience.isNull(); }
@@ -1647,7 +1645,7 @@ LLVector4 LLEnvironment::getRotatedLightNorm() const
     return toLightNorm(light_direction);
 }
 
-extern BOOL gCubeSnapshot;
+extern bool gCubeSnapshot;
 
 //-------------------------------------------------------------------------
 void LLEnvironment::update(const LLViewerCamera * cam)
@@ -1680,15 +1678,15 @@ void LLEnvironment::update(const LLViewerCamera * cam)
         end_shaders = LLViewerShaderMgr::instance()->endShaders();
         for (shaders_iter = LLViewerShaderMgr::instance()->beginShaders(); shaders_iter != end_shaders; ++shaders_iter)
         {
-            if ((shaders_iter->mProgramObject != 0)
-                && (gPipeline.canUseWindLightShaders()
-                || shaders_iter->mShaderGroup == LLGLSLShader::SG_WATER))
+            shaders_iter->mUniformsDirty = true;
+            if (shaders_iter->mRiggedVariant)
             {
-                shaders_iter->mUniformsDirty = TRUE;
-                if (shaders_iter->mRiggedVariant)
-                {
-                    shaders_iter->mRiggedVariant->mUniformsDirty = TRUE;
-                }
+                shaders_iter->mRiggedVariant->mUniformsDirty = true;
+            }
+
+            for (auto& variant : shaders_iter->mGLTFVariants)
+            {
+                variant.mUniformsDirty = true;
             }
         }
     }
@@ -2512,7 +2510,7 @@ LLSettingsDay::ptr_t LLEnvironment::createDayCycleFromEnvironment(EnvSelection_t
 
     if (type == "sky")
     {
-        for (S32 idx = 1; idx < LLSettingsDay::TRACK_MAX; ++idx)
+        for (U32 idx = 1; idx < LLSettingsDay::TRACK_MAX; ++idx)
             day->clearCycleTrack(idx);
         day->setSettingsAtKeyframe(settings, 0.0f, 1);
     }

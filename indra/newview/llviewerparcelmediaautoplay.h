@@ -45,7 +45,7 @@ public:
  private:
     S32 mLastParcelID;
     LLUUID mLastRegionID;
-    BOOL mPlayed;
+    bool mPlayed;
     F32 mTimeInParcel;
 };
 

@@ -45,10 +45,10 @@ LLFloaterDestinations::~LLFloaterDestinations()
 {
 }
 
-BOOL LLFloaterDestinations::postBuild()
+bool LLFloaterDestinations::postBuild()
 {
     enableResizeCtrls(true, true, false);
-    return TRUE;
+    return true;
 }
 
 

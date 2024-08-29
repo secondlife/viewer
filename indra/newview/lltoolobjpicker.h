@@ -38,9 +38,9 @@ class LLToolObjPicker : public LLTool, public LLSingleton<LLToolObjPicker>
     LLSINGLETON(LLToolObjPicker);
 public:
 
-    virtual BOOL        handleMouseDown(S32 x, S32 y, MASK mask) override;
-    virtual BOOL        handleMouseUp(S32 x, S32 y, MASK mask) override;
-    virtual BOOL        handleHover(S32 x, S32 y, MASK mask) override;
+    virtual bool        handleMouseDown(S32 x, S32 y, MASK mask) override;
+    virtual bool        handleMouseUp(S32 x, S32 y, MASK mask) override;
+    virtual bool        handleHover(S32 x, S32 y, MASK mask) override;
 
     virtual void        handleSelect() override;
     virtual void        handleDeselect() override;
@@ -54,7 +54,7 @@ public:
     static void         pickCallback(const LLPickInfo& pick_info);
 
 protected:
-    BOOL                mPicked;
+    bool                mPicked;
     LLUUID              mHitObjectID;
     void                (*mExitCallback)(void *callback_data);
     void                *mExitCallbackData;

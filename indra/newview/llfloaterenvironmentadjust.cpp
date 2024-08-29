@@ -84,7 +84,7 @@ LLFloaterEnvironmentAdjust::~LLFloaterEnvironmentAdjust()
 {}
 
 //-------------------------------------------------------------------------
-BOOL LLFloaterEnvironmentAdjust::postBuild()
+bool LLFloaterEnvironmentAdjust::postBuild()
 {
     getChild<LLUICtrl>(FIELD_SKY_AMBIENT_LIGHT)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onAmbientLightChanged(); });
     getChild<LLUICtrl>(FIELD_SKY_BLUE_HORIZON)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onBlueHorizonChanged(); });
@@ -113,7 +113,7 @@ BOOL LLFloaterEnvironmentAdjust::postBuild()
 
     getChild<LLTextureCtrl>(FIELD_SKY_CLOUD_MAP)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onCloudMapChanged(); });
     getChild<LLTextureCtrl>(FIELD_SKY_CLOUD_MAP)->setDefaultImageAssetID(LLSettingsSky::GetDefaultCloudNoiseTextureId());
-    getChild<LLTextureCtrl>(FIELD_SKY_CLOUD_MAP)->setAllowNoTexture(TRUE);
+    getChild<LLTextureCtrl>(FIELD_SKY_CLOUD_MAP)->setAllowNoTexture(true);
 
     getChild<LLTextureCtrl>(FIELD_WATER_NORMAL_MAP)->setDefaultImageAssetID(LLSettingsWater::GetDefaultWaterNormalAssetId());
     getChild<LLTextureCtrl>(FIELD_WATER_NORMAL_MAP)->setBlankImageAssetID(BLANK_OBJECT_NORMAL);
@@ -122,7 +122,7 @@ BOOL LLFloaterEnvironmentAdjust::postBuild()
     getChild<LLUICtrl>(FIELD_REFLECTION_PROBE_AMBIANCE)->setCommitCallback([this](LLUICtrl*, const LLSD&) { onReflectionProbeAmbianceChanged(); });
 
     refresh();
-    return TRUE;
+    return true;
 }
 
 void LLFloaterEnvironmentAdjust::onOpen(const LLSD& key)
@@ -157,12 +157,12 @@ void LLFloaterEnvironmentAdjust::refresh()
 {
     if (!mLiveSky || !mLiveWater)
     {
-        setAllChildrenEnabled(FALSE);
+        setAllChildrenEnabled(false);
         return;
     }
 
-    setEnabled(TRUE);
-    setAllChildrenEnabled(TRUE);
+    setEnabled(true);
+    setAllChildrenEnabled(true);
 
     getChild<LLColorSwatchCtrl>(FIELD_SKY_AMBIENT_LIGHT)->set(mLiveSky->getAmbientColor() / SLIDER_SCALE_SUN_AMBIENT);
     getChild<LLColorSwatchCtrl>(FIELD_SKY_BLUE_HORIZON)->set(mLiveSky->getBlueHorizon() / SLIDER_SCALE_BLUE_HORIZON_DENSITY);

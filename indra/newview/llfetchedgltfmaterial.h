@@ -70,7 +70,7 @@ public:
     static LLFetchedGLTFMaterial sDefault;
 protected:
     // Lifetime management
-    
+
     void materialBegin();
     void materialComplete(bool success);
 

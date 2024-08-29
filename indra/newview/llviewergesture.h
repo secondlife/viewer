@@ -46,12 +46,12 @@ public:
     LLViewerGesture(const LLViewerGesture &gesture);
 
     // Triggers if a key/mask matches it
-    virtual BOOL trigger(KEY key, MASK mask);
+    virtual bool trigger(KEY key, MASK mask);
 
     // Triggers if case-insensitive substring matches (assumes string is lowercase)
-    virtual BOOL trigger(const std::string &string);
+    virtual bool trigger(const std::string &string);
 
-    void doTrigger( BOOL send_chat );
+    void doTrigger( bool send_chat );
 
 protected:
     static const F32    SOUND_VOLUME;
@@ -63,14 +63,14 @@ public:
     LLViewerGestureList();
 
     //void requestFromServer();
-    BOOL getIsLoaded() { return mIsLoaded; }
+    bool getIsLoaded() { return mIsLoaded; }
 
-    //void requestResetFromServer( BOOL is_male );
+    //void requestResetFromServer( bool is_male );
 
-    // See if the prefix matches any gesture.  If so, return TRUE
+    // See if the prefix matches any gesture.  If so, return true
     // and place the full text of the gesture trigger into
     // output_str
-    BOOL matchPrefix(const std::string& in_str, std::string* out_str);
+    bool matchPrefix(const std::string& in_str, std::string* out_str);
 
     static void xferCallback(void *data, S32 size, void** /*user_data*/, S32 status);
 
@@ -78,7 +78,7 @@ protected:
     LLGesture *create_gesture(U8 **buffer, S32 max_size);
 
 protected:
-    BOOL mIsLoaded;
+    bool mIsLoaded;
 };
 
 extern LLViewerGestureList gGestureList;

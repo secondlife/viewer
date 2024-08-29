@@ -1,6 +1,6 @@
 /**
  * @file mac_volume_catcher.cpp
- * @brief A Mac OS X specific hack to control the volume level of all audio channels opened by a process.
+ * @brief A macOS specific hack to control the volume level of all audio channels opened by a process.
  *
  * @cond
  * $LicenseInfo:firstyear=2010&license=viewerlgpl$

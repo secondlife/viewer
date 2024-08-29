@@ -72,7 +72,7 @@ LLUndoBuffer::~LLUndoBuffer()
 //-----------------------------------------------------------------------------
 // getNextAction()
 //-----------------------------------------------------------------------------
-LLUndoBuffer::LLUndoAction* LLUndoBuffer::getNextAction(BOOL setClusterBegin)
+LLUndoBuffer::LLUndoAction* LLUndoBuffer::getNextAction(bool setClusterBegin)
 {
     LLUndoAction *nextAction = mActions[mNextAction];
 
@@ -97,11 +97,11 @@ LLUndoBuffer::LLUndoAction* LLUndoBuffer::getNextAction(BOOL setClusterBegin)
 //-----------------------------------------------------------------------------
 // undoAction()
 //-----------------------------------------------------------------------------
-BOOL LLUndoBuffer::undoAction()
+bool LLUndoBuffer::undoAction()
 {
     if (!canUndo())
     {
-        return FALSE;
+        return false;
     }
 
     S32 prevAction = (mNextAction + mNumActions - 1) % mNumActions;
@@ -118,7 +118,7 @@ BOOL LLUndoBuffer::undoAction()
         if (mNextAction == mFirstAction)
         {
             mOperationID--;
-            return FALSE;
+            return false;
         }
 
         // do wrap-around of index, but avoid negative numbers for modulo operator
@@ -127,17 +127,17 @@ BOOL LLUndoBuffer::undoAction()
 
     mOperationID--;
 
-    return TRUE;
+    return true;
 }
 
 //-----------------------------------------------------------------------------
 // redoAction()
 //-----------------------------------------------------------------------------
-BOOL LLUndoBuffer::redoAction()
+bool LLUndoBuffer::redoAction()
 {
     if (!canRedo())
     {
-        return FALSE;
+        return false;
     }
 
     mOperationID++;
@@ -146,7 +146,7 @@ BOOL LLUndoBuffer::redoAction()
     {
         if (mNextAction == mLastAction)
         {
-            return FALSE;
+            return false;
         }
 
         mActions[mNextAction]->redo();
@@ -155,7 +155,7 @@ BOOL LLUndoBuffer::redoAction()
         mNextAction = (mNextAction + 1) % mNumActions;
     }
 
-    return TRUE;
+    return true;
 }
 
 //-----------------------------------------------------------------------------

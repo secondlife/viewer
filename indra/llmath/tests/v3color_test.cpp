@@ -209,7 +209,7 @@ namespace tut
         ensure("1:operator!= failed",(llcolor3 != llcolor3a));
         llcolor3.setToBlack();
         llcolor3a.setVec(llcolor3);
-        ensure("2:operator!= failed", ( FALSE == (llcolor3a != llcolor3)));
+        ensure("2:operator!= failed", ( false == (llcolor3a != llcolor3)));
     }
 
     template<> template<>

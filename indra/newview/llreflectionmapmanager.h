@@ -67,7 +67,7 @@ public:
 
     // add a probe for the given spatial group
     LLReflectionMap* addProbe(LLSpatialGroup* group = nullptr);
-    
+
     // Populate "maps" with the N most relevant Reflection Maps where N is no more than maps.size()
     // If less than maps.size() ReflectionMaps are available, will assign trailing elements to nullptr.
     //  maps -- presized array of Reflection Map pointers
@@ -160,7 +160,7 @@ private:
 
     // update the specified face of the specified probe
     void updateProbeFace(LLReflectionMap* probe, U32 face);
-    
+
     // list of active reflection maps
     std::vector<LLPointer<LLReflectionMap> > mProbes;
 

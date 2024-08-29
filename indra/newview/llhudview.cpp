@@ -62,11 +62,11 @@ void LLHUDView::draw()
 }
 
 /*virtual*/
-BOOL LLHUDView::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLHUDView::handleMouseDown(S32 x, S32 y, MASK mask)
 {
     if (LLTracker::handleMouseDown(x, y))
     {
-        return TRUE;
+        return true;
     }
     return LLView::handleMouseDown(x, y, mask);
 }

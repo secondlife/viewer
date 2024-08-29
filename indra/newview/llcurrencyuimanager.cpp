@@ -413,8 +413,8 @@ void LLCurrencyUIManager::Impl::currencyKey(S32 value)
         //cannot just simply refresh the whole UI, as the edit field will
         // get reset and the cursor will change...
 
-        mPanel.getChildView("currency_est")->setVisible(FALSE);
-        mPanel.getChildView("getting_data")->setVisible(TRUE);
+        mPanel.getChildView("currency_est")->setVisible(false);
+        mPanel.getChildView("getting_data")->setVisible(true);
     }
 
     mCurrencyChanged = true;
@@ -443,13 +443,13 @@ void LLCurrencyUIManager::Impl::updateUI()
 {
     if (mHidden)
     {
-        mPanel.getChildView("currency_action")->setVisible(FALSE);
-        mPanel.getChildView("currency_amt")->setVisible(FALSE);
-        mPanel.getChildView("currency_est")->setVisible(FALSE);
+        mPanel.getChildView("currency_action")->setVisible(false);
+        mPanel.getChildView("currency_amt")->setVisible(false);
+        mPanel.getChildView("currency_est")->setVisible(false);
         return;
     }
 
-    mPanel.getChildView("currency_action")->setVisible(TRUE);
+    mPanel.getChildView("currency_action")->setVisible(true);
 
     LLLineEditor* lindenAmount = mPanel.getChild<LLLineEditor>("currency_amt");
     if (lindenAmount)
@@ -483,7 +483,7 @@ void LLCurrencyUIManager::Impl::updateUI()
         ||mPanel.getChildView("currency_est")->getVisible()
         || mPanel.getChildView("error_web")->getVisible())
     {
-        mPanel.getChildView("getting_data")->setVisible(FALSE);
+        mPanel.getChildView("getting_data")->setVisible(false);
     }
 }
 

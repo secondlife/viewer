@@ -1,5 +1,5 @@
 #!/bin/bash
-# just run this script each time after you change the installer's name to fix the icon misalignment 
+# just run this script each time after you change the installer's name to fix the icon misalignment
 mydir="$(dirname "$0")"
 # If there's more than one DMG in more than one build directory, pick the most
 # recent one.

@@ -110,7 +110,7 @@ LLIconDictionary::LLIconDictionary()
 LLUIImagePtr LLInventoryIcon::getIcon(LLAssetType::EType asset_type,
                                       LLInventoryType::EType inventory_type,
                                       U32 misc_flag,
-                                      BOOL item_is_multi)
+                                      bool item_is_multi)
 {
     const std::string& icon_name = getIconName(asset_type, inventory_type, misc_flag, item_is_multi);
     return LLUI::getUIImage(icon_name);
@@ -124,7 +124,7 @@ LLUIImagePtr LLInventoryIcon::getIcon(LLInventoryType::EIconName idx)
 const std::string& LLInventoryIcon::getIconName(LLAssetType::EType asset_type,
                                                 LLInventoryType::EType inventory_type,
                                                 U32 misc_flag,
-                                                BOOL item_is_multi)
+                                                bool item_is_multi)
 {
     LLInventoryType::EIconName idx = LLInventoryType::ICONNAME_OBJECT;
     if (item_is_multi)

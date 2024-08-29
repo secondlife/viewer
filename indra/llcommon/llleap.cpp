@@ -230,7 +230,7 @@ public:
 
         LL_DEBUGS("EventHost") << "Sending: "
                                << static_cast<U64>(buffer.tellp()) << ':';
-        std::string::size_type truncate(80);
+        llssize truncate(80);
         if (buffer.tellp() <= truncate)
         {
             LL_CONT << buffer.str();

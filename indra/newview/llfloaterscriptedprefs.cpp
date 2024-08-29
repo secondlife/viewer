@@ -40,7 +40,7 @@ LLFloaterScriptEdPrefs::LLFloaterScriptEdPrefs(const LLSD& key)
     mCommitCallbackRegistrar.add("ScriptPref.getUIColor",   { boost::bind(&LLFloaterScriptEdPrefs::getUIColor, this ,_1, _2) });
 }
 
-BOOL LLFloaterScriptEdPrefs::postBuild()
+bool LLFloaterScriptEdPrefs::postBuild()
 {
     mEditor = getChild<LLScriptEditor>("Script Preview");
     if (mEditor)
@@ -48,7 +48,7 @@ BOOL LLFloaterScriptEdPrefs::postBuild()
         mEditor->initKeywords();
         mEditor->loadKeywords();
     }
-    return TRUE;
+    return true;
 }
 
 void LLFloaterScriptEdPrefs::applyUIColor(LLUICtrl* ctrl, const LLSD& param)

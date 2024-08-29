@@ -180,7 +180,7 @@ LLAtmospherics::LLAtmospherics()
     mWorldScale(1.f)
 {
     /// WL PARAMS
-    mInitialized = FALSE;
+    mInitialized = false;
     mAmbientScale = gSavedSettings.getF32("SkyAmbientScale");
     mNightColorShift = gSavedSettings.getColor3("SkyNightColorShift");
     mFogColor.mV[VRED] = mFogColor.mV[VGREEN] = mFogColor.mV[VBLUE] = 0.5f;
@@ -505,7 +505,7 @@ void LLAtmospherics::updateFog(const F32 distance, const LLVector3& tosun_in)
 }
 
 // Functions used a lot.
-F32 color_norm_pow(LLColor3& col, F32 e, BOOL postmultiply)
+F32 color_norm_pow(LLColor3& col, F32 e, bool postmultiply)
 {
     F32 mv = color_max(col);
     if (0 == mv)

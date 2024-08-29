@@ -215,7 +215,7 @@ private:
 
 private:
     U64                     mStartTime;
-    BlockTimerStackRecord   mParentTimerData;
+    BlockTimerStackRecord   mParentTimerData{};
 
 public:
     // statics

@@ -36,7 +36,7 @@ class LLPanelVolumePulldown : public LLPanelPulldown
 {
  public:
     LLPanelVolumePulldown();
-    /*virtual*/ BOOL postBuild();
+    bool postBuild() override;
 
  private:
     void setControlFalse(const LLSD& user_data);

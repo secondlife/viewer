@@ -216,7 +216,7 @@ HRESULT GetVideoMemoryViaWMI(WCHAR* strInputDeviceID, DWORD* pdwAdapterRam)
 }
 
 //static
-S32 LLDXHardware::getMBVideoMemoryViaWMI()
+U32 LLDXHardware::getMBVideoMemoryViaWMI()
 {
     DWORD vram = 0;
     if (SUCCEEDED(GetVideoMemoryViaWMI(NULL, &vram)))
@@ -454,10 +454,10 @@ void get_wstring(IDxDiagContainer* containerp, WCHAR* wszPropName, WCHAR* wszPro
         switch( var.vt )
         {
             case VT_UI4:
-                swprintf( wszPropValue, L"%d", var.ulVal ); /* Flawfinder: ignore */
+                swprintf( wszPropValue, outputSize, L"%d", var.ulVal ); /* Flawfinder: ignore */
                 break;
             case VT_I4:
-                swprintf( wszPropValue, L"%d", var.lVal );  /* Flawfinder: ignore */
+                swprintf( wszPropValue, outputSize, L"%d", var.lVal );  /* Flawfinder: ignore */
                 break;
             case VT_BOOL:
                 wcscpy( wszPropValue, (var.boolVal) ? L"true" : L"false" ); /* Flawfinder: ignore */
@@ -483,7 +483,7 @@ std::string get_string(IDxDiagContainer *containerp, WCHAR *wszPropName)
 
 LLVersion::LLVersion()
 {
-    mValid = FALSE;
+    mValid = false;
     S32 i;
     for (i = 0; i < 4; i++)
     {
@@ -491,7 +491,7 @@ LLVersion::LLVersion()
     }
 }
 
-BOOL LLVersion::set(const std::string &version_string)
+bool LLVersion::set(const std::string &version_string)
 {
     S32 i;
     for (i = 0; i < 4; i++)
@@ -518,11 +518,11 @@ BOOL LLVersion::set(const std::string &version_string)
         {
             mFields[i] = 0;
         }
-        mValid = FALSE;
+        mValid = false;
     }
     else
     {
-        mValid = TRUE;
+        mValid = true;
     }
     return mValid;
 }
@@ -678,10 +678,10 @@ LLDXDevice *LLDXHardware::findDevice(const std::string &vendor, const std::strin
 }
 */
 
-BOOL LLDXHardware::getInfo(BOOL vram_only)
+bool LLDXHardware::getInfo(bool vram_only)
 {
     LLTimer hw_timer;
-    BOOL ok = FALSE;
+    bool ok = false;
     HRESULT       hr;
 
     // CLSID_DxDiagProvider does not work with Multithreaded?
@@ -809,7 +809,7 @@ BOOL LLDXHardware::getInfo(BOOL vram_only)
 
         if (vram_only)
         {
-            ok = TRUE;
+            ok = true;
             goto LCleanup;
         }
 
@@ -869,7 +869,7 @@ BOOL LLDXHardware::getInfo(BOOL vram_only)
 
             tokenizer::iterator iter = tokens.begin();
             S32 count = 0;
-            BOOL valid = TRUE;
+            bool valid = true;
             for (;(iter != tokens.end()) && (count < 3);++iter)
             {
                 switch (count)
@@ -877,7 +877,7 @@ BOOL LLDXHardware::getInfo(BOOL vram_only)
                 case 0:
                     if (strcmp(iter->c_str(), "PCI"))
                     {
-                        valid = FALSE;
+                        valid = false;
                     }
                     break;
                 case 1:
@@ -948,7 +948,7 @@ BOOL LLDXHardware::getInfo(BOOL vram_only)
     }
 
     // dumpDevices();
-    ok = TRUE;
+    ok = true;
 
 LCleanup:
     if (!ok)

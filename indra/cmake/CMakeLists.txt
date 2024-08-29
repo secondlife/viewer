@@ -23,14 +23,11 @@ set(cmake_SOURCE_FILES
         DragDrop.cmake
         EXPAT.cmake
         FindAutobuild.cmake
-        FMODSTUDIO.cmake
         FreeType.cmake
         GLEXT.cmake
         GLH.cmake
-        GoogleMock.cmake
         Havok.cmake
         Hunspell.cmake
-        JsonCpp.cmake
         LLAddBuildTest.cmake
         LLAppearance.cmake
         LLAudio.cmake
@@ -66,6 +63,7 @@ set(cmake_SOURCE_FILES
         ViewerMiscLibs.cmake
         VisualLeakDetector.cmake
         LibVLCPlugin.cmake
+        WebRTC.cmake
         XmlRpcEpi.cmake
         xxHash.cmake
         ZLIBNG.cmake

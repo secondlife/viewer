@@ -105,6 +105,10 @@ void LL::ThreadPoolBase::start()
 LL::ThreadPoolBase::~ThreadPoolBase()
 {
     close();
+    if (!LLEventPumps::wasDeleted())
+    {
+        LLEventPumps::instance().obtain("LLApp").stopListening(mName);
+    }
 }
 
 void LL::ThreadPoolBase::close()

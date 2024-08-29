@@ -47,15 +47,15 @@ void LLMessageSystem::clearReceiveState(void)
 
 char gUdpDispatchedData[MAX_BUFFER_SIZE];
 bool gUdpDispatchWasCalled = false;
-BOOL LLTemplateMessageReader::readMessage(const U8* data,class LLHost const &)
+bool LLTemplateMessageReader::readMessage(const U8* data,class LLHost const &)
 {
     gUdpDispatchWasCalled = true;
     strcpy(gUdpDispatchedData, reinterpret_cast<const char*>(data));
     return  true;
 }
 
-BOOL gValidateMessage = FALSE;
-BOOL LLTemplateMessageReader::validateMessage(const U8*, S32 buffer_size, LLHost const &sender, bool trusted)
+bool gValidateMessage = false;
+bool LLTemplateMessageReader::validateMessage(const U8*, S32 buffer_size, LLHost const &sender, bool trusted)
 {
     return gValidateMessage;
 }
@@ -84,7 +84,7 @@ namespace tut
                 mMessageName = "MessageName";
                 gUdpDispatchWasCalled = false;
                 gClearRecvWasCalled = false;
-                gValidateMessage = FALSE;
+                gValidateMessage = false;
                 mMessage["body"]["binary-template-data"] = std::vector<U8>();
             }
 
@@ -121,7 +121,7 @@ namespace tut
     {
         LLTemplateMessageReader* pReader = NULL;
         LLTemplateMessageDispatcher t(*pReader);
-        gValidateMessage = TRUE;
+        gValidateMessage = true;
         std::vector<U8> vector_data;
         fillVector(vector_data, gBinaryTemplateData);
         mMessage["body"]["binary-template-data"] = vector_data;
@@ -138,7 +138,7 @@ namespace tut
         std::vector<U8> vector_data;
         fillVector(vector_data, gBinaryTemplateData);
         mMessage["body"]["binary-template-data"] = vector_data;
-        gValidateMessage = FALSE;
+        gValidateMessage = false;
         t.dispatch(mMessageName, mMessage, mResponsePtr);
         ensure("clear received message was called", gClearRecvWasCalled);
     }
@@ -149,7 +149,7 @@ namespace tut
     {
         LLTemplateMessageReader* pReader = NULL;
         LLTemplateMessageDispatcher t(*pReader);
-        gValidateMessage = TRUE;
+        gValidateMessage = true;
         std::vector<U8> vector_data;
         fillVector(vector_data, gBinaryTemplateData);
         mMessage["body"]["binary-template-data"] = vector_data;

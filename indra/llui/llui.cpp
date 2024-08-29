@@ -171,7 +171,7 @@ mHelpImpl(NULL)
     // Callbacks for associating controls with floater visibility:
     reg.add("Floater.Toggle", boost::bind(&LLFloaterReg::toggleInstance, _2, LLSD()));
     reg.add("Floater.ToggleOrBringToFront", boost::bind(&LLFloaterReg::toggleInstanceOrBringToFront, _2, LLSD()));
-    reg.add("Floater.Show", boost::bind(&LLFloaterReg::showInstance, _2, LLSD(), FALSE));
+    reg.add("Floater.Show", boost::bind(&LLFloaterReg::showInstance, _2, LLSD(), false));
     reg.add("Floater.ShowOrBringToFront", boost::bind(&LLFloaterReg::showInstanceOrBringToFront, _2, LLSD()));
     reg.add("Floater.Hide", boost::bind(&LLFloaterReg::hideInstance, _2, LLSD()));
 

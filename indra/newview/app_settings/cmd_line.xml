@@ -235,12 +235,6 @@
       <string>NoAudio</string>
     </map>
 
-    <key>nofmod</key>
-    <map>
-      <key>map-to</key>
-      <string>UseMediaPluginsForStreamingAudio</string>
-    </map>
-
     <key>noninteractive</key>
     <map>
       <key>desc</key>

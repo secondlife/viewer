@@ -80,7 +80,7 @@ void LLTextureInfo::addRequest(const LLUUID& id)
 
 U32 LLTextureInfo::getTextureInfoMapSize()
 {
-    return mTextures.size();
+    return static_cast<U32>(mTextures.size());
 }
 
 bool LLTextureInfo::has(const LLUUID& id)

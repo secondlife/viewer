@@ -51,7 +51,7 @@ public:
 
     virtual ~LLNameBox();
 
-    void setNameID(const LLUUID& name_id, BOOL is_group);
+    void setNameID(const LLUUID& name_id, bool is_group);
 
     void refresh(const LLUUID& id, const std::string& full_name, bool is_group);
 
@@ -62,13 +62,13 @@ protected:
 
     friend class LLUICtrlFactory;
 private:
-    void setName(const std::string& name, BOOL is_group);
+    void setName(const std::string& name, bool is_group);
 
     static std::set<LLNameBox*> sInstances;
 
 private:
     LLUUID mNameID;
-    BOOL mLink;
+    bool mLink;
     std::string mInitialValue;
 
 };

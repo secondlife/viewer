@@ -73,7 +73,7 @@ bool LLClipboard::addToClipboard(const LLUUID& src, const LLAssetType::EType typ
         if (LLAssetType::lookupIsAssetIDKnowable(type))
         {
             LLWString source = utf8str_to_wstring(src.asString());
-            res = addToClipboard(source, 0, source.size());
+            res = addToClipboard(source, 0, static_cast<S32>(source.size()));
         }
         if (res)
         {
@@ -87,13 +87,13 @@ bool LLClipboard::addToClipboard(const LLUUID& src, const LLAssetType::EType typ
 bool LLClipboard::pasteFromClipboard(std::vector<LLUUID>& inv_objects) const
 {
     bool res = false;
-    S32 count = mObjects.size();
+    auto count = mObjects.size();
     inv_objects.reserve(inv_objects.size() + count);
     if (count > 0)
     {
         res = true;
         inv_objects.clear();
-        for (S32 i = 0; i < count; i++)
+        for (size_t i = 0; i < count; i++)
         {
             inv_objects.push_back(mObjects[i]);
         }

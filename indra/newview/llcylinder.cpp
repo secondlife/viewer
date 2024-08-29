@@ -48,7 +48,7 @@ void LLCone::render(S32 sides)
     gGL.begin(LLRender::TRIANGLE_FAN);
     gGL.vertex3f(0,0,0);
 
-    for (U32 i = 0; i < sides; i++)
+    for (S32 i = 0; i < sides; i++)
     {
         F32 a = (F32) i/sides * F_PI*2.f;
         F32 x = cosf(a)*0.5f;
@@ -61,7 +61,7 @@ void LLCone::render(S32 sides)
 
     gGL.begin(LLRender::TRIANGLE_FAN);
     gGL.vertex3f(0.f, 0.f, 0.5f);
-    for (U32 i = 0; i < sides; i++)
+    for (S32 i = 0; i < sides; i++)
     {
         F32 a = (F32) i/sides * F_PI*2.f;
         F32 x = cosf(a)*0.5f;

@@ -40,7 +40,7 @@ public:
         LLFloaterGotoLine(LLScriptEdCore* editor_core);
         ~LLFloaterGotoLine();
 
-        /*virtual*/     BOOL    postBuild();
+        bool postBuild() override;
         static void show(LLScriptEdCore* editor_core);
 
         static void onBtnGoto(void* userdata);
@@ -49,8 +49,8 @@ public:
         LLScriptEdCore* getEditorCore() { return mEditorCore; }
         static LLFloaterGotoLine* getInstance() { return sInstance; }
 
-        virtual bool hasAccelerators() const;
-        virtual BOOL handleKeyHere(KEY key, MASK mask);
+        bool hasAccelerators() const override;
+        bool handleKeyHere(KEY key, MASK mask) override;
 
 private:
 

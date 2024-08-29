@@ -113,7 +113,7 @@ public:
     };
 
     // disable traversal when finding widget to hand focus off to
-    /*virtual*/ BOOL canFocusChildren() const { return FALSE; }
+    /*virtual*/ bool canFocusChildren() const { return false; }
 
     /**
      * Connects callback to signal called when Return key is pressed.
@@ -121,7 +121,7 @@ public:
     boost::signals2::connection setReturnCallback( const commit_signal_t::slot_type& cb ) { return mOnReturnSignal.connect(cb); }
 
     /** Overridden LLPanel's reshape, height is ignored, the list sets its height to accommodate all items */
-    virtual void reshape(S32 width, S32 height, BOOL called_from_parent  = TRUE);
+    virtual void reshape(S32 width, S32 height, bool called_from_parent  = true);
 
     /** Returns full rect of child panel */
     const LLRect& getItemsRect() const;
@@ -264,7 +264,7 @@ public:
     void setCommitOnSelectionChange(bool b)     { mCommitOnSelectionChange = b; }
 
     /** Get number of selected items in the list */
-    U32 numSelected() const {return mSelectedItemPairs.size(); }
+    U32 numSelected() const {return static_cast<U32>(mSelectedItemPairs.size()); }
 
     /** Get number of (visible) items in the list */
     U32 size(const bool only_visible_items = true) const;
@@ -346,7 +346,7 @@ protected:
 
     virtual bool selectNextItemPair(bool is_up_direction, bool reset_selection);
 
-    virtual BOOL canSelectAll() const;
+    virtual bool canSelectAll() const;
     virtual void selectAll();
 
     virtual bool isSelected(item_pair_t* item_pair) const;
@@ -364,9 +364,9 @@ protected:
      */
     void notifyParentItemsRectChanged();
 
-    virtual BOOL handleKeyHere(KEY key, MASK mask);
+    virtual bool handleKeyHere(KEY key, MASK mask);
 
-    virtual BOOL postBuild();
+    virtual bool postBuild();
 
     virtual void onFocusReceived();
 

@@ -522,9 +522,9 @@ namespace LLTrace
 
     struct BlockTimerStackRecord
     {
-        class BlockTimer*   mActiveTimer;
-        class BlockTimerStatHandle* mTimeBlock;
-        U64                 mChildTime;
+        class BlockTimer*   mActiveTimer{ nullptr };
+        class BlockTimerStatHandle* mTimeBlock{ nullptr };
+        U64                 mChildTime{ 0 };
     };
 
     struct AccumulatorBufferGroup : public LLRefCount

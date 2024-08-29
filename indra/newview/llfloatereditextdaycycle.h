@@ -79,12 +79,12 @@ public:
                                 LLFloaterEditExtDayCycle(const LLSD &key);
     virtual                     ~LLFloaterEditExtDayCycle();
 
-    virtual BOOL                postBuild() override;
+    virtual bool                postBuild() override;
     virtual void                onOpen(const LLSD& key) override;
     virtual void                onClose(bool app_quitting) override;
     //virtual void                onFocusReceived() override;
     //virtual void                onFocusLost() override;
-    virtual void                onVisibilityChange(BOOL new_visibility) override;
+    virtual void                onVisibilityChange(bool new_visibility) override;
 
     connection_t                setEditCommitSignal(edit_commit_signal_t::slot_type cb);
 
@@ -100,7 +100,7 @@ public:
     virtual LLSettingsBase::ptr_t getEditSettings()   const override { return mEditDay; }
 
 
-    BOOL                        handleKeyUp(KEY key, MASK mask, BOOL called_from_parent) override;
+    bool                        handleKeyUp(KEY key, MASK mask, bool called_from_parent) override;
 
 protected:
     virtual void                setEditSettingsAndUpdate(const LLSettingsBase::ptr_t &settings) override;

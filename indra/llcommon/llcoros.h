@@ -95,6 +95,16 @@ class LL_COMMON_API LLCoros: public LLSingleton<LLCoros>
 
     void cleanupSingleton() override;
 public:
+    // For debugging, return true if on the main coroutine for the current thread
+    // Code that should not be executed from a coroutine should be protected by
+    // llassert(LLCoros::on_main_coro())
+    static bool on_main_coro();
+
+    // For debugging, return true if on the main thread and not in a coroutine
+    // Non-thread-safe code in the main loop should be protected by
+    // llassert(LLCoros::on_main_thread_main_coro())
+    static bool on_main_thread_main_coro();
+
     /// The viewer's use of the term "coroutine" became deeply embedded before
     /// the industry term "fiber" emerged to distinguish userland threads from
     /// simpler, more transient kinds of coroutines. Semantically they've

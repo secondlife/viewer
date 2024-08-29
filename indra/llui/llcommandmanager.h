@@ -200,7 +200,7 @@ protected:
     void addCommand(LLCommand * command);
 
 private:
-    typedef std::map<LLUUID, U32>       CommandIndexMap;
+    typedef std::map<LLUUID, size_t>    CommandIndexMap;
     typedef std::vector<LLCommand *>    CommandVector;
 
     CommandVector   mCommands;

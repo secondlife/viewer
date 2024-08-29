@@ -98,7 +98,7 @@ HttpPolicy::~HttpPolicy()
 
 HttpRequest::policy_t HttpPolicy::createPolicyClass()
 {
-    const HttpRequest::policy_t policy_class(mClasses.size());
+    const HttpRequest::policy_t policy_class(static_cast<HttpRequest::policy_t>(mClasses.size()));
     if (policy_class >= HTTP_POLICY_CLASS_LIMIT)
     {
         return HttpRequest::INVALID_POLICY_ID;
@@ -432,8 +432,8 @@ int HttpPolicy::getReadyCount(HttpRequest::policy_t policy_class) const
 {
     if (policy_class < mClasses.size())
     {
-        return (mClasses[policy_class]->mReadyQueue.size()
-                + mClasses[policy_class]->mRetryQueue.size());
+        return static_cast<int>((mClasses[policy_class]->mReadyQueue.size()
+            + mClasses[policy_class]->mRetryQueue.size()));
     }
     return 0;
 }

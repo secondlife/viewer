@@ -173,7 +173,7 @@ namespace
         bool tick() override
         {
             mLiveFile.checkAndReload();
-            return FALSE;
+            return false;
         }
 
     private:

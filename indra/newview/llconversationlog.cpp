@@ -215,7 +215,7 @@ void LLConversationLog::enableLogging(S32 log_mode)
     notifyObservers();
 }
 
-void LLConversationLog::logConversation(const LLUUID& session_id, BOOL has_offline_msg)
+void LLConversationLog::logConversation(const LLUUID& session_id, bool has_offline_msg)
 {
     const LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(session_id);
     LLConversation* conversation = findConversation(session);
@@ -272,7 +272,7 @@ void LLConversationLog::updateConversationName(const LLIMModel::LLIMSession* ses
     }
 }
 
-void LLConversationLog::updateOfflineIMs(const LLIMModel::LLIMSession* session, BOOL new_messages)
+void LLConversationLog::updateOfflineIMs(const LLIMModel::LLIMSession* session, bool new_messages)
 {
     if (!session)
     {
@@ -354,7 +354,7 @@ void LLConversationLog::removeObserver(LLConversationLogObserver* observer)
     mObservers.erase(observer);
 }
 
-void LLConversationLog::sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id, BOOL has_offline_msg)
+void LLConversationLog::sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id, bool has_offline_msg)
 {
     logConversation(session_id, has_offline_msg);
 }

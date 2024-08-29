@@ -301,7 +301,7 @@ public:
             return false;
         }
         LLUUID inventory_id;
-        if (!inventory_id.set(params[0], FALSE))
+        if (!inventory_id.set(params[0], false))
         {
             return false;
         }
@@ -409,7 +409,7 @@ void LLViewerInventoryItem::cloneViewerItem(LLPointer<LLViewerInventoryItem>& ne
     }
 }
 
-void LLViewerInventoryItem::updateServer(BOOL is_new) const
+void LLViewerInventoryItem::updateServer(bool is_new) const
 {
     if(!mIsComplete)
     {
@@ -497,24 +497,24 @@ void LLViewerInventoryItem::fetchFromServer(void) const
 }
 
 // virtual
-BOOL LLViewerInventoryItem::unpackMessage(const LLSD& item)
+bool LLViewerInventoryItem::unpackMessage(const LLSD& item)
 {
-    BOOL rv = LLInventoryItem::fromLLSD(item);
+    bool rv = LLInventoryItem::fromLLSD(item);
 
     LLLocalizedInventoryItemsDictionary::getInstance()->localizeInventoryObjectName(mName);
 
-    mIsComplete = TRUE;
+    mIsComplete = true;
     return rv;
 }
 
 // virtual
-BOOL LLViewerInventoryItem::unpackMessage(LLMessageSystem* msg, const char* block, S32 block_num)
+bool LLViewerInventoryItem::unpackMessage(LLMessageSystem* msg, const char* block, S32 block_num)
 {
-    BOOL rv = LLInventoryItem::unpackMessage(msg, block, block_num);
+    bool rv = LLInventoryItem::unpackMessage(msg, block, block_num);
 
     LLLocalizedInventoryItemsDictionary::getInstance()->localizeInventoryObjectName(mName);
 
-    mIsComplete = TRUE;
+    mIsComplete = true;
     return rv;
 }
 
@@ -543,14 +543,14 @@ void LLViewerInventoryItem::packMessage(LLMessageSystem* msg) const
 }
 
 // virtual
-BOOL LLViewerInventoryItem::importLegacyStream(std::istream& input_stream)
+bool LLViewerInventoryItem::importLegacyStream(std::istream& input_stream)
 {
-    BOOL rv = LLInventoryItem::importLegacyStream(input_stream);
-    mIsComplete = TRUE;
+    bool rv = LLInventoryItem::importLegacyStream(input_stream);
+    mIsComplete = true;
     return rv;
 }
 
-void LLViewerInventoryItem::updateParentOnServer(BOOL restamp) const
+void LLViewerInventoryItem::updateParentOnServer(bool restamp) const
 {
     LLMessageSystem* msg = gMessageSystem;
     msg->newMessageFast(_PREHASH_MoveInventoryItem);
@@ -631,7 +631,7 @@ void LLViewerInventoryCategory::packMessage(LLMessageSystem* msg) const
     msg->addStringFast(_PREHASH_Name, mName);
 }
 
-void LLViewerInventoryCategory::updateParentOnServer(BOOL restamp) const
+void LLViewerInventoryCategory::updateParentOnServer(bool restamp) const
 {
     LLMessageSystem* msg = gMessageSystem;
     msg->newMessageFast(_PREHASH_MoveInventoryFolder);
@@ -646,7 +646,7 @@ void LLViewerInventoryCategory::updateParentOnServer(BOOL restamp) const
     gAgent.sendReliableMessage();
 }
 
-void LLViewerInventoryCategory::updateServer(BOOL is_new) const
+void LLViewerInventoryCategory::updateServer(bool is_new) const
 {
     // communicate that change with the server.
 
@@ -749,7 +749,7 @@ S32 LLViewerInventoryCategory::getViewerDescendentCount() const
     S32 descendents_actual = 0;
     if(cats && items)
     {
-        descendents_actual = cats->size() + items->size();
+        descendents_actual = static_cast<S32>(cats->size() + items->size());
     }
     return descendents_actual;
 }
@@ -810,7 +810,7 @@ bool LLViewerInventoryCategory::acceptItem(LLInventoryItem* inv_item)
 void LLViewerInventoryCategory::determineFolderType()
 {
     /* Do NOT uncomment this code.  This is for future 2.1 support of ensembles.
-    llassert(FALSE);
+    llassert(false);
     LLFolderType::EType original_type = getPreferredType();
     if (LLFolderType::lookupIsProtectedType(original_type))
         return;
@@ -819,7 +819,7 @@ void LLViewerInventoryCategory::determineFolderType()
     U64 folder_invalid = 0;
     LLInventoryModel::cat_array_t category_array;
     LLInventoryModel::item_array_t item_array;
-    gInventory.collectDescendents(getUUID(),category_array,item_array,FALSE);
+    gInventory.collectDescendents(getUUID(),category_array,item_array,false);
 
     // For ensembles
     if (category_array.empty())
@@ -854,7 +854,7 @@ void LLViewerInventoryCategory::determineFolderType()
     {
         changeType(LLFolderType::FT_NONE);
     }
-    llassert(FALSE);
+    llassert(false);
     */
 }
 
@@ -885,9 +885,9 @@ void LLViewerInventoryCategory::localizeName()
 }
 
 // virtual
-BOOL LLViewerInventoryCategory::unpackMessage(const LLSD& category)
+bool LLViewerInventoryCategory::unpackMessage(const LLSD& category)
 {
-    BOOL rv = LLInventoryCategory::fromLLSD(category);
+    bool rv = LLInventoryCategory::fromLLSD(category);
     localizeName();
     return rv;
 }
@@ -1006,7 +1006,7 @@ void set_default_permissions(LLViewerInventoryItem* item, std::string perm_type)
 
         item->setPermissions(perm);
 
-        item->updateServer(FALSE);
+        item->updateServer(false);
     }
 }
 
@@ -1042,7 +1042,7 @@ void create_gesture_cb(const LLUUID& inv_item)
 
             LLPreviewGesture* preview = LLPreviewGesture::show(inv_item,  LLUUID::null);
             // Force to be entirely onscreen.
-            gFloaterView->adjustToFitScreen(preview, FALSE);
+            gFloaterView->adjustToFitScreen(preview, false);
         }
     }
 }
@@ -1378,7 +1378,7 @@ void move_inventory_item(
     msg->nextBlockFast(_PREHASH_AgentData);
     msg->addUUIDFast(_PREHASH_AgentID, agent_id);
     msg->addUUIDFast(_PREHASH_SessionID, session_id);
-    msg->addBOOLFast(_PREHASH_Stamp, FALSE);
+    msg->addBOOLFast(_PREHASH_Stamp, false);
     msg->nextBlockFast(_PREHASH_InventoryData);
     msg->addUUIDFast(_PREHASH_ItemID, item_id);
     msg->addUUIDFast(_PREHASH_FolderID, parent_id);
@@ -1597,7 +1597,7 @@ void purge_descendents_of(const LLUUID& id, LLPointer<LLInventoryCallback> cb)
             // Remove items from clipboard or it will remain active even if there is nothing to paste/copy
             LLInventoryModel::cat_array_t categories;
             LLInventoryModel::item_array_t items;
-            gInventory.collectDescendents(id, categories, items, TRUE);
+            gInventory.collectDescendents(id, categories, items, true);
 
             for (LLInventoryModel::cat_array_t::const_iterator it = categories.begin(); it != categories.end(); ++it)
             {
@@ -1840,7 +1840,7 @@ void menu_create_inventory_item(LLInventoryPanel* panel, LLUUID dest_id, const L
                 LLInventoryPanel* panel = static_cast<LLInventoryPanel*>(handle.get());
                 if (panel)
                 {
-                    panel->setSelectionByID(new_category_id, TRUE);
+                    panel->setSelectionByID(new_category_id, true);
                 }
                 LL_DEBUGS(LOG_INV) << "Done creating inventory: " << new_category_id << LL_ENDL;
             };
@@ -1937,7 +1937,7 @@ void menu_create_inventory_item(LLInventoryPanel* panel, LLUUID dest_id, const L
     }
     if(panel)
     {
-        panel->getRootFolder()->setNeedsAutoRename(TRUE);
+        panel->getRootFolder()->setNeedsAutoRename(true);
     }
 }
 
@@ -2149,7 +2149,7 @@ U32 LLViewerInventoryItem::getCRC32() const
 
 // *TODO: mantipov: should be removed with LMSortPrefix patch in llinventorymodel.cpp, EXT-3985
 static char getSeparator() { return '@'; }
-BOOL LLViewerInventoryItem::extractSortFieldAndDisplayName(const std::string& name, S32* sortField, std::string* displayName)
+bool LLViewerInventoryItem::extractSortFieldAndDisplayName(const std::string& name, S32* sortField, std::string* displayName)
 {
     using std::string;
     using std::stringstream;
@@ -2157,7 +2157,7 @@ BOOL LLViewerInventoryItem::extractSortFieldAndDisplayName(const std::string& na
     const char separator = getSeparator();
     const string::size_type separatorPos = name.find(separator, 0);
 
-    BOOL result = FALSE;
+    bool result = false;
 
     if (separatorPos < string::npos)
     {
@@ -2178,7 +2178,7 @@ BOOL LLViewerInventoryItem::extractSortFieldAndDisplayName(const std::string& na
             *displayName = name.substr(separatorPos + 1, string::npos);
         }
 
-        result = TRUE;
+        result = true;
     }
 
     return result;
@@ -2243,9 +2243,9 @@ PermissionMask LLViewerInventoryItem::getPermissionMask() const
 {
     const LLPermissions& permissions = getPermissions();
 
-    BOOL copy = permissions.allowCopyBy(gAgent.getID());
-    BOOL mod = permissions.allowModifyBy(gAgent.getID());
-    BOOL xfer = permissions.allowOperationBy(PERM_TRANSFER, gAgent.getID());
+    bool copy = permissions.allowCopyBy(gAgent.getID());
+    bool mod = permissions.allowModifyBy(gAgent.getID());
+    bool xfer = permissions.allowOperationBy(PERM_TRANSFER, gAgent.getID());
     PermissionMask perm_mask = 0;
     if (copy) perm_mask |= PERM_COPY;
     if (mod)  perm_mask |= PERM_MODIFY;
@@ -2308,11 +2308,11 @@ LLUUID find_possible_item_for_regeneration(const LLViewerInventoryItem *target_i
 
 // This currently dosen't work, because the sim does not allow us
 // to change an item's assetID.
-BOOL LLViewerInventoryItem::regenerateLink()
+bool LLViewerInventoryItem::regenerateLink()
 {
     const LLUUID target_item_id = find_possible_item_for_regeneration(this);
     if (target_item_id.isNull())
-        return FALSE;
+        return false;
     LLViewerInventoryCategory::cat_array_t cats;
     LLViewerInventoryItem::item_array_t items;
     LLAssetIDMatches asset_id_matches(getAssetUUID());
@@ -2327,9 +2327,9 @@ BOOL LLViewerInventoryItem::regenerateLink()
     {
         LLViewerInventoryItem *item = (*item_iter);
         item->setAssetUUID(target_item_id);
-        item->updateServer(FALSE);
+        item->updateServer(false);
         gInventory.addChangedMask(LLInventoryObserver::REBUILD, item->getUUID());
     }
     gInventory.notifyObservers();
-    return TRUE;
+    return true;
 }

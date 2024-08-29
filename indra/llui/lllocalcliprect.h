@@ -38,7 +38,7 @@
 class LLScreenClipRect
 {
 public:
-    LLScreenClipRect(const LLRect& rect, BOOL enabled = TRUE);
+    LLScreenClipRect(const LLRect& rect, bool enabled = true);
     virtual ~LLScreenClipRect();
 
 private:
@@ -48,7 +48,7 @@ private:
 
 private:
     LLGLState       mScissorState;
-    BOOL            mEnabled;
+    bool            mEnabled;
 
     static std::stack<LLRect> sClipRectStack;
 };
@@ -56,7 +56,7 @@ private:
 class LLLocalClipRect : public LLScreenClipRect
 {
 public:
-    LLLocalClipRect(const LLRect& rect, BOOL enabled = TRUE);
+    LLLocalClipRect(const LLRect& rect, bool enabled = true);
     ~LLLocalClipRect();
 };
 

@@ -40,7 +40,7 @@ namespace LLAvatarAppearanceDefines
 extern const S32 SCRATCH_TEX_WIDTH;
 extern const S32 SCRATCH_TEX_HEIGHT;
 
-static const U32 AVATAR_HOVER = 11001;
+static constexpr U32 AVATAR_HOVER = 11001;
 
 //--------------------------------------------------------------------
 // Enums
@@ -167,10 +167,10 @@ public:
         const std::string   mDefaultImageName;
         const LLWearableType::EType mWearableType;
         // It's either a local texture xor baked
-        BOOL                mIsLocalTexture;
-        BOOL                mIsBakedTexture;
+        bool                mIsLocalTexture;
+        bool                mIsBakedTexture;
         // If it's a local texture, it may be used by a baked texture
-        BOOL                mIsUsedByBakedTexture;
+        bool                mIsUsedByBakedTexture;
         EBakedTextureIndex  mBakedTextureIndex;
     };
 
@@ -244,7 +244,7 @@ public:
     // Given a texture entry, determine which wearable type owns it.
     LLWearableType::EType       getTEWearableType(ETextureIndex index) const;
 
-    static BOOL                         isBakedImageId(const LLUUID& id);
+    static bool                         isBakedImageId(const LLUUID& id);
     static EBakedTextureIndex           assetIdToBakedTextureIndex(const LLUUID& id);
     static LLUUID                       localTextureIndexToMagicId(ETextureIndex t);
 

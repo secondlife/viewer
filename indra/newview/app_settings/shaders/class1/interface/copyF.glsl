@@ -25,7 +25,10 @@
 
 in vec2 tc;
 
+#if defined(COPY_DEPTH)
 uniform sampler2D depthMap;
+#endif
+
 uniform sampler2D diffuseMap;
 
 out vec4 frag_color;

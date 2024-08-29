@@ -36,7 +36,7 @@ class LLFloaterBeacons : public LLFloater
 
 public:
 
-    /*virtual*/ BOOL postBuild();
+    bool postBuild() override;
 
     // Needed to make the floater visibility toggle the beacons.
     // Too bad we can't just add control_name="BeaconAlwaysOn" to the XML.

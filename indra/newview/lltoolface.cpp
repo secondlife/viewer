@@ -53,28 +53,28 @@ LLToolFace::~LLToolFace()
 { }
 
 
-BOOL LLToolFace::handleDoubleClick(S32 x, S32 y, MASK mask)
+bool LLToolFace::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
     if (!LLSelectMgr::getInstance()->getSelection()->isEmpty())
     {
         // You should already have an object selected from the mousedown.
         // If so, show its properties
         LLFloaterReg::showInstance("build", "Texture");
-        return TRUE;
+        return true;
     }
     else
     {
         // Nothing selected means the first mouse click was probably
         // bad, so try again.
-        return FALSE;
+        return false;
     }
 }
 
 
-BOOL LLToolFace::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLToolFace::handleMouseDown(S32 x, S32 y, MASK mask)
 {
     gViewerWindow->pickAsync(x, y, mask, pickCallback);
-    return TRUE;
+    return true;
 }
 
 void LLToolFace::pickCallback(const LLPickInfo& pick_info)
@@ -134,14 +134,14 @@ void LLToolFace::pickCallback(const LLPickInfo& pick_info)
 void LLToolFace::handleSelect()
 {
     // From now on, draw faces
-    LLSelectMgr::getInstance()->setTEMode(TRUE);
+    LLSelectMgr::getInstance()->setTEMode(true);
 }
 
 
 void LLToolFace::handleDeselect()
 {
     // Stop drawing faces
-    LLSelectMgr::getInstance()->setTEMode(FALSE);
+    LLSelectMgr::getInstance()->setTEMode(false);
 }
 
 

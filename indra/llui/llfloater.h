@@ -46,20 +46,20 @@ class LLMultiFloater;
 class LLFloater;
 
 
-const BOOL RESIZE_YES = TRUE;
-const BOOL RESIZE_NO = FALSE;
+const bool RESIZE_YES = true;
+const bool RESIZE_NO = false;
 
-const BOOL DRAG_ON_TOP = FALSE;
-const BOOL DRAG_ON_LEFT = TRUE;
+const bool DRAG_ON_TOP = false;
+const bool DRAG_ON_LEFT = true;
 
-const BOOL MINIMIZE_YES = TRUE;
-const BOOL MINIMIZE_NO = FALSE;
+const bool MINIMIZE_YES = true;
+const bool MINIMIZE_NO = false;
 
-const BOOL CLOSE_YES = TRUE;
-const BOOL CLOSE_NO = FALSE;
+const bool CLOSE_YES = true;
+const bool CLOSE_NO = false;
 
-const BOOL ADJUST_VERTICAL_YES = TRUE;
-const BOOL ADJUST_VERTICAL_NO = FALSE;
+const bool ADJUST_VERTICAL_YES = true;
+const bool ADJUST_VERTICAL_NO = false;
 
 const F32 CONTEXT_CONE_IN_ALPHA = 0.f;
 const F32 CONTEXT_CONE_OUT_ALPHA = 1.f;
@@ -222,13 +222,13 @@ public:
     bool initFloaterXML(LLXMLNodePtr node, LLView *parent, const std::string& filename, LLXMLNodePtr output_node = NULL);
 
     /*virtual*/ void handleReshape(const LLRect& new_rect, bool by_user = false);
-    /*virtual*/ BOOL canSnapTo(const LLView* other_view);
+    /*virtual*/ bool canSnapTo(const LLView* other_view);
     /*virtual*/ void setSnappedTo(const LLView* snap_view);
-    /*virtual*/ void setFocus( BOOL b );
-    /*virtual*/ void setIsChrome(BOOL is_chrome);
+    /*virtual*/ void setFocus( bool b );
+    /*virtual*/ void setIsChrome(bool is_chrome);
     /*virtual*/ void setRect(const LLRect &rect);
-                void setIsSingleInstance(BOOL is_single_instance);
-                BOOL getIsSingleInstance() { return mSingleInstance; }
+                void setIsSingleInstance(bool is_single_instance);
+                bool getIsSingleInstance() { return mSingleInstance; }
 
     void            initFloater(const Params& p);
 
@@ -240,7 +240,7 @@ public:
     // Close the floater or its host. Use when hidding or toggling a floater instance.
     virtual void    closeHostedFloater();
 
-    /*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
+    /*virtual*/ void reshape(S32 width, S32 height, bool called_from_parent = true);
     /*virtual*/ void translate(S32 x, S32 y);
 
     // Release keyboard and mouse focus
@@ -258,14 +258,14 @@ public:
     std::string     getTitle() const;
     void            setShortTitle( const std::string& short_title );
     std::string     getShortTitle() const;
-    virtual void    setMinimized(BOOL b);
+    virtual void    setMinimized(bool b);
     void            moveResizeHandlesToFront();
-    void            addDependentFloater(LLFloater* dependent, BOOL reposition = TRUE, BOOL resize = FALSE);
-    void            addDependentFloater(LLHandle<LLFloater> dependent_handle, BOOL reposition = TRUE, BOOL resize = FALSE);
+    void            addDependentFloater(LLFloater* dependent, bool reposition = true, bool resize = false);
+    void            addDependentFloater(LLHandle<LLFloater> dependent_handle, bool reposition = true, bool resize = false);
     LLFloater*      getDependee() { return (LLFloater*)mDependeeHandle.get(); }
     void            removeDependentFloater(LLFloater* dependent);
     void            fitWithDependentsOnScreen(const LLRect& left, const LLRect& bottom, const LLRect& right, const LLRect& constraint, S32 min_overlap_pixels);
-    BOOL            isMinimized() const             { return mMinimized; }
+    bool            isMinimized() const             { return mMinimized; }
     /// isShown() differs from getVisible() in that isShown() also considers
     /// isMinimized(). isShown() is true only if visible and not minimized.
     bool            isShown() const;
@@ -274,17 +274,17 @@ public:
     static bool     isShown(const LLFloater* floater);
     static bool     isVisible(const LLFloater* floater);
     static bool     isMinimized(const LLFloater* floater);
-    BOOL            isFirstLook() { return mFirstLook; } // EXT-2653: This function is necessary to prevent overlapping for secondary showed toasts
-    virtual BOOL    isFrontmost();
-    BOOL            isDependent()                   { return !mDependeeHandle.isDead(); }
-    void            setCanMinimize(BOOL can_minimize);
-    void            setCanClose(BOOL can_close);
-    void            setCanTearOff(BOOL can_tear_off);
-    virtual void    setCanResize(BOOL can_resize);
-    void            setCanDrag(BOOL can_drag);
+    bool            isFirstLook() { return mFirstLook; } // EXT-2653: This function is necessary to prevent overlapping for secondary showed toasts
+    virtual bool    isFrontmost();
+    bool            isDependent()                   { return !mDependeeHandle.isDead(); }
+    void            setCanMinimize(bool can_minimize);
+    void            setCanClose(bool can_close);
+    void            setCanTearOff(bool can_tear_off);
+    virtual void    setCanResize(bool can_resize);
+    void            setCanDrag(bool can_drag);
     bool            getCanDrag();
     void            setHost(LLMultiFloater* host);
-    BOOL            isResizable() const             { return mResizable; }
+    bool            isResizable() const             { return mResizable; }
     void            setResizeLimits( S32 min_width, S32 min_height );
     void            getResizeLimits( S32* min_width, S32* min_height ) { *min_width = mMinWidth; *min_height = mMinHeight; }
 
@@ -298,13 +298,13 @@ public:
     S32             getMinHeight() const{ return mMinHeight; }
     S32             getHeaderHeight() const { return mHeaderHeight; }
 
-    virtual BOOL    handleMouseDown(S32 x, S32 y, MASK mask);
-    virtual BOOL    handleMouseUp(S32 x, S32 y, MASK mask);
-    virtual BOOL    handleRightMouseDown(S32 x, S32 y, MASK mask);
-    virtual BOOL    handleDoubleClick(S32 x, S32 y, MASK mask);
-    virtual BOOL    handleMiddleMouseDown(S32 x, S32 y, MASK mask);
+    virtual bool    handleMouseDown(S32 x, S32 y, MASK mask);
+    virtual bool    handleMouseUp(S32 x, S32 y, MASK mask);
+    virtual bool    handleRightMouseDown(S32 x, S32 y, MASK mask);
+    virtual bool    handleDoubleClick(S32 x, S32 y, MASK mask);
+    virtual bool    handleMiddleMouseDown(S32 x, S32 y, MASK mask);
 
-    virtual BOOL    handleScrollWheel(S32 x, S32 y, S32 mask);
+    virtual bool    handleScrollWheel(S32 x, S32 y, S32 mask);
 
     virtual void    draw();
     virtual void    drawShadow(LLPanel* panel);
@@ -314,19 +314,19 @@ public:
 
     // This cannot be "const" until all derived floater canClose()
     // methods are const as well.  JC
-    virtual BOOL    canClose() { return TRUE; }
+    virtual bool    canClose() { return true; }
 
-    /*virtual*/ void setVisible(BOOL visible); // do not override
-    /*virtual*/ void onVisibilityChange ( BOOL new_visibility ); // do not override
+    /*virtual*/ void setVisible(bool visible); // do not override
+    /*virtual*/ void onVisibilityChange ( bool new_visibility ); // do not override
 
     bool            canFocusStealFrontmost() const { return mFocusStealsFrontmost; }
     void            setFocusStealsFrontmost(bool wants_frontmost) { mFocusStealsFrontmost = wants_frontmost; }
 
-    void            setFrontmost(BOOL take_focus = TRUE, BOOL restore = TRUE);
-     virtual void   setVisibleAndFrontmost(BOOL take_focus=TRUE, const LLSD& key = LLSD());
+    void            setFrontmost(bool take_focus = true, bool restore = true);
+     virtual void   setVisibleAndFrontmost(bool take_focus = true, const LLSD& key = LLSD());
 
     // Defaults to false.
-    virtual BOOL    canSaveAs() const { return FALSE; }
+    virtual bool    canSaveAs() const { return false; }
 
     virtual void    saveAs() {}
 
@@ -363,6 +363,7 @@ public:
 //  }
 
     static void     onClickClose(LLFloater* floater);
+    static void     onClickClose(LLFloater* floater, bool app_quitting);
     static void     onClickMinimize(LLFloater* floater);
     static void     onClickTearOff(LLFloater* floater);
     static void     onClickDock(LLFloater* floater);
@@ -400,8 +401,8 @@ protected:
     void            setExpandedRect(const LLRect& rect) { mExpandedRect = rect; } // size when not minimized
     const LLRect&   getExpandedRect() const { return mExpandedRect; }
 
-    void            setAutoFocus(BOOL focus) { mAutoFocus = focus; } // whether to automatically take focus when opened
-    BOOL            getAutoFocus() const { return mAutoFocus; }
+    void            setAutoFocus(bool focus) { mAutoFocus = focus; } // whether to automatically take focus when opened
+    bool            getAutoFocus() const { return mAutoFocus; }
     LLDragHandle*   getDragHandle() const { return mDragHandle; }
 
     void            destroy(); // Don't call this directly.  You probably want to call closeFloater()
@@ -420,7 +421,7 @@ protected:
                                     F32 contex_cone_out_alpha = CONTEXT_CONE_OUT_ALPHA);
 
 private:
-    void            setForeground(BOOL b);  // called only by floaterview
+    void            setForeground(bool b);  // called only by floaterview
     void            cleanupHandles(); // remove handles to dead floaters
     void            createMinimizeButton();
     void            buildButtons(const Params& p);
@@ -437,7 +438,7 @@ private:
      */
     static std::string  getButtonTooltip(const Params& p, EFloaterButton e, bool is_chrome);
 
-    BOOL            offerClickToButton(S32 x, S32 y, MASK mask, EFloaterButton index);
+    bool            offerClickToButton(S32 x, S32 y, MASK mask, EFloaterButton index);
     void            addResizeCtrls();
     void            layoutResizeCtrls();
     void            addDragHandle();
@@ -483,18 +484,18 @@ private:
     LLUIString      mTitle;
     LLUIString      mShortTitle;
 
-    BOOL            mSingleInstance;      // TRUE if there is only ever one instance of the floater
+    bool            mSingleInstance;      // true if there is only ever one instance of the floater
     bool            mReuseInstance;       // true if we want to hide the floater when we close it instead of destroying it
     bool            mIsReuseInitialized;  // true if mReuseInstance already set from parameters
     std::string     mInstanceName;        // Store the instance name so we can remove ourselves from the list
 
-    BOOL            mCanTearOff;
-    BOOL            mCanMinimize;
-    BOOL            mCanClose;
-    bool            mFocusStealsFrontmost = true;   // FALSE if we don't want the currently focused floater to cover this floater without user interaction
-    BOOL            mDragOnLeft;
-    BOOL            mResizable;
-    BOOL            mAutoClose;
+    bool            mCanTearOff;
+    bool            mCanMinimize;
+    bool            mCanClose;
+    bool            mFocusStealsFrontmost = true;   // false if we don't want the currently focused floater to cover this floater without user interaction
+    bool            mDragOnLeft;
+    bool            mResizable;
+    bool            mAutoClose;
 
     LLFloaterEnums::EOpenPositioning    mPositioning;
     LLCoordFloater  mPosition;
@@ -504,12 +505,12 @@ private:
     S32             mHeaderHeight;      // height in pixels of header for title, drag bar
     S32             mLegacyHeaderHeight;// HACK see initFloaterXML()
 
-    BOOL            mMinimized;
-    BOOL            mForeground;
+    bool            mMinimized;
+    bool            mForeground;
     LLHandle<LLFloater> mDependeeHandle;
 
 
-    BOOL            mFirstLook;         // TRUE if the _next_ time this floater is visible will be the first time in the session that it is visible.
+    bool            mFirstLook;         // true if the _next_ time this floater is visible will be the first time in the session that it is visible.
 
     typedef std::set<LLHandle<LLFloater> > handle_set_t;
     typedef std::set<LLHandle<LLFloater> >::iterator handle_set_iter_t;
@@ -518,7 +519,7 @@ private:
 
     bool            mButtonsEnabled[BUTTON_COUNT];
     F32             mButtonScale;
-    BOOL            mAutoFocus;
+    bool            mAutoFocus;
     LLHandle<LLFloater> mSnappedTo;
 
     LLHandle<LLFloater> mHostHandle;
@@ -529,7 +530,7 @@ private:
     bool            mTornOff;
 
     static LLMultiFloater* sHostp;
-    static BOOL     sQuitting;
+    static bool     sQuitting;
     static std::string  sButtonNames[BUTTON_COUNT];
     static std::string  sButtonToolTips[BUTTON_COUNT];
     static std::string  sButtonToolTipsIndex[BUTTON_COUNT];
@@ -537,7 +538,7 @@ private:
     typedef void(*click_callback)(LLFloater*);
     static click_callback sButtonCallbacks[BUTTON_COUNT];
 
-    BOOL            mHasBeenDraggedWhileMinimized;
+    bool            mHasBeenDraggedWhileMinimized;
     S32             mPreviousMinimizedBottom;
     S32             mPreviousMinimizedLeft;
 
@@ -563,7 +564,7 @@ protected:
 
 public:
 
-    /*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
+    /*virtual*/ void reshape(S32 width, S32 height, bool called_from_parent = true);
     /*virtual*/ void draw();
     /*virtual*/ LLRect getSnapRect() const;
     /*virtual*/ void refresh();
@@ -571,25 +572,25 @@ public:
     LLRect          findNeighboringPosition( LLFloater* reference_floater, LLFloater* neighbor );
 
     // Given a child of gFloaterView, make sure this view can fit entirely onscreen.
-    void            adjustToFitScreen(LLFloater* floater, BOOL allow_partial_outside, BOOL snap_in_toolbars = false);
+    void            adjustToFitScreen(LLFloater* floater, bool allow_partial_outside, bool snap_in_toolbars = false);
 
     void            setMinimizePositionVerticalOffset(S32 offset) { mMinimizePositionVOffset = offset; }
     void            getMinimizePosition( S32 *left, S32 *bottom);
     void            restoreAll();       // un-minimize all floaters
     typedef std::set<LLView*> skip_list_t;
-    void pushVisibleAll(BOOL visible, const skip_list_t& skip_list = skip_list_t());
+    void pushVisibleAll(bool visible, const skip_list_t& skip_list = skip_list_t());
     void popVisibleAll(const skip_list_t& skip_list = skip_list_t());
 
-    void            setCycleMode(BOOL mode) { mFocusCycleMode = mode; }
-    BOOL            getCycleMode() const { return mFocusCycleMode; }
-    void            bringToFront( LLFloater* child, BOOL give_focus = TRUE, BOOL restore = TRUE );
+    void            setCycleMode(bool mode) { mFocusCycleMode = mode; }
+    bool            getCycleMode() const { return mFocusCycleMode; }
+    void            bringToFront( LLFloater* child, bool give_focus = true, bool restore = true );
     void            highlightFocusedFloater();
     void            unhighlightFocusedFloater();
     void            focusFrontFloater();
     void            destroyAllChildren();
     // attempt to close all floaters
     void            closeAllChildren(bool app_quitting);
-    BOOL            allChildrenClosed();
+    bool            allChildrenClosed();
     void            shiftFloaters(S32 x_offset, S32 y_offset);
 
     void            hideAllFloaters();
@@ -620,7 +621,7 @@ private:
     LLRect              mToolbarBottomRect;
     LLRect              mToolbarRightRect;
     LLHandle<LLView>    mSnapView;
-    BOOL            mFocusCycleMode;
+    bool            mFocusCycleMode;
     S32             mSnapOffsetBottom;
     S32             mSnapOffsetRight;
     S32             mMinimizePositionVOffset;

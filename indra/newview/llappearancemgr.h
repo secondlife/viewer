@@ -89,7 +89,7 @@ public:
                              LLPointer<LLInventoryCallback> cb);
 
     // Return whether this folder contains minimal contents suitable for making a full outfit.
-    BOOL getCanMakeFolderIntoOutfit(const LLUUID& folder_id);
+    bool getCanMakeFolderIntoOutfit(const LLUUID& folder_id);
 
     // Determine whether a given outfit can be removed.
     bool getCanRemoveOutfit(const LLUUID& outfit_cat_id);
@@ -298,7 +298,7 @@ private:
     // Item-specific convenience functions
 public:
     // Is this in the COF?
-    BOOL getIsInCOF(const LLUUID& obj_id) const;
+    bool getIsInCOF(const LLUUID& obj_id) const;
     bool getIsInCOF(const LLInventoryObject* obj) const;
     // Is this in the COF and can the user delete it from the COF?
     bool getIsProtectedCOFItem(const LLUUID& obj_id) const;

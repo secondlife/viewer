@@ -107,7 +107,7 @@ public:
 
     bool isWikiLinkCorrect(const std::string &url) const;
 
-    virtual bool isSLURLvalid(const std::string &url) const { return TRUE; };
+    virtual bool isSLURLvalid(const std::string &url) const { return true; };
 
 protected:
     std::string getIDStringFromUrl(const std::string &url) const;

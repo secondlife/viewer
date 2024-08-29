@@ -176,9 +176,9 @@ void LLChatEntry::onFocusLost()
     LLUICtrl::onFocusLost();
 }
 
-BOOL LLChatEntry::handleSpecialKey(const KEY key, const MASK mask)
+bool LLChatEntry::handleSpecialKey(const KEY key, const MASK mask)
 {
-    BOOL handled = FALSE;
+    bool handled = false;
 
     LLTextEditor::handleSpecialKey(key, mask);
 
@@ -203,7 +203,7 @@ BOOL LLChatEntry::handleSpecialKey(const KEY key, const MASK mask)
             {
                 LLUI::getInstance()->reportBadKeystroke();
             }
-            handled = TRUE;
+            handled = true;
         }
         break;
 
@@ -227,7 +227,7 @@ BOOL LLChatEntry::handleSpecialKey(const KEY key, const MASK mask)
             {
                 LLUI::getInstance()->reportBadKeystroke();
             }
-            handled = TRUE;
+            handled = true;
         }
         break;
 

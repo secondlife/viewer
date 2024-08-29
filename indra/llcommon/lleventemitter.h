@@ -57,14 +57,14 @@ class eventEmitter
 
         ///////////////////////////////////////////////////////////////////////////////
         //
-        BOOL addObserver ( T* observerIn )
+        bool addObserver ( T* observerIn )
         {
             if ( ! observerIn )
-                return FALSE;
+                return false;
 
             // check if observer already exists
             if ( std::find ( observers.begin (), observers.end (), observerIn ) != observers.end () )
-                return FALSE;
+                return false;
 
             // save it
             observers.push_back ( observerIn );
@@ -74,14 +74,14 @@ class eventEmitter
 
         ///////////////////////////////////////////////////////////////////////////////
         //
-        BOOL remObserver ( T* observerIn )
+        bool remObserver ( T* observerIn )
         {
             if ( ! observerIn )
-                return FALSE;
+                return false;
 
             observers.remove ( observerIn );
 
-            return TRUE;
+            return true;
         };
 
         ///////////////////////////////////////////////////////////////////////////////

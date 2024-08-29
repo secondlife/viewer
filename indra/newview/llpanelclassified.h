@@ -49,7 +49,7 @@ public:
 
     /*virtual*/ void onOpen(const LLSD& key);
 
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
 
     /*virtual*/ void processProperties(void* data, EAvatarProcessorType type);
 
@@ -112,7 +112,7 @@ public:
             const LLVector3d& global_pos,
             const std::string& sim_name);
 
-    /*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
+    /*virtual*/ void reshape(S32 width, S32 height, bool called_from_parent = true);
 
     /*virtual*/ void draw();
 

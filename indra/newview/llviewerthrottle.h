@@ -58,7 +58,7 @@ class LLViewerThrottle
 public:
     LLViewerThrottle();
 
-    void setMaxBandwidth(F32 kbits_per_second, BOOL from_event = FALSE);
+    void setMaxBandwidth(F32 kbits_per_second, bool from_event = false);
 
     void load();
     void save() const;

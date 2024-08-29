@@ -77,7 +77,7 @@ protected:
     static void ssl_locking_callback(int mode, int type, const char * file, int line);
 
     S32 mCrashBehavior;
-    BOOL mCrashInPreviousExec;
+    bool mCrashInPreviousExec;
     std::map<std::string, std::string> mFileMap;
     std::string mGridName;
     LLControlGroup mCrashSettings;
