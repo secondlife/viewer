@@ -595,8 +595,6 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
                 extra_code_text[extra_code_count++] = strdup("precision highp float;\n");
             }
         }
-
-        extra_code_text[extra_code_count++] = strdup("#define FXAA_GLSL_130 1\n");
     }
 
     // Use alpha float to store bit flags

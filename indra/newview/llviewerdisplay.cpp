@@ -1502,6 +1502,7 @@ void draw_axes()
 
 void render_ui_3d()
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
     LLGLSPipeline gls_pipeline;
 
     //////////////////////////////////////
@@ -1550,6 +1551,7 @@ void render_ui_3d()
 
 void render_ui_2d()
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
     LLGLSUIDefault gls_ui;
 
     /////////////////////////////////////////////////////////////

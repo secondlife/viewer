@@ -228,6 +228,7 @@ jobs:
           # trigger an EDU build by including "edu" in the tag
           edu=${{ github.ref_type == 'tag' && contains(github.ref_name, 'edu') }}
           echo "ref_type=${{ github.ref_type }}, ref_name=${{ github.ref_name }}, edu='$edu'"
+          branch=$AUTOBUILD_VCS_BRANCH
           if [[ "$edu" == "true" ]]
           then
               export viewer_channel="Second Life Release edu"
@@ -235,7 +236,6 @@ jobs:
           then
               export viewer_channel="Second Life Develop"
           else
-              branch=$AUTOBUILD_VCS_BRANCH
               IFS='/' read -ra ba <<< "$branch"
               prefix=${ba[0]}
               if [ "$prefix" == "project" ]; then

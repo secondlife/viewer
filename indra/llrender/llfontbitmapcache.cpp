@@ -117,7 +117,7 @@ bool LLFontBitmapCache::nextOpenPos(S32 width, S32& pos_x, S32& pos_y, EFontGlyp
             }
 
             // Make corresponding GL image.
-            mImageGLVec[bitmap_idx].push_back(new LLImageGL(image_raw, false));
+            mImageGLVec[bitmap_idx].push_back(new LLImageGL(image_raw, false, false));
             LLImageGL* image_gl = getImageGL(bitmap_type, bitmap_num);
 
             // Start at beginning of the new image.

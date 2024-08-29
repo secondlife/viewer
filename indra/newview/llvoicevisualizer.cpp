@@ -342,6 +342,8 @@ void LLVoiceVisualizer::render()
         return;
     }
 
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
+
     if ( mSoundSymbol.mActive )
     {
         mPreviousTime = mCurrentTime;

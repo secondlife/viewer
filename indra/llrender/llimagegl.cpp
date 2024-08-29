@@ -277,6 +277,15 @@ S32 LLImageGL::dataFormatBits(S32 dataformat)
 {
     switch (dataformat)
     {
+    case GL_COMPRESSED_RED:                         return 8;
+    case GL_COMPRESSED_RG:                          return 16;
+    case GL_COMPRESSED_RGB:                         return 24;
+    case GL_COMPRESSED_SRGB:                        return 32;
+    case GL_COMPRESSED_RGBA:                        return 32;
+    case GL_COMPRESSED_SRGB_ALPHA:                  return 32;
+    case GL_COMPRESSED_LUMINANCE:                   return 8;
+    case GL_COMPRESSED_LUMINANCE_ALPHA:             return 16;
+    case GL_COMPRESSED_ALPHA:                       return 8;
     case GL_COMPRESSED_RGBA_S3TC_DXT1_EXT:          return 4;
     case GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT:    return 4;
     case GL_COMPRESSED_RGBA_S3TC_DXT3_EXT:          return 8;
@@ -284,10 +293,16 @@ S32 LLImageGL::dataFormatBits(S32 dataformat)
     case GL_COMPRESSED_RGBA_S3TC_DXT5_EXT:          return 8;
     case GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT:    return 8;
     case GL_LUMINANCE:                              return 8;
+    case GL_LUMINANCE8:                             return 8;
     case GL_ALPHA:                                  return 8;
+    case GL_ALPHA8:                                 return 8;
     case GL_RED:                                    return 8;
+    case GL_R8:                                     return 8;
     case GL_COLOR_INDEX:                            return 8;
     case GL_LUMINANCE_ALPHA:                        return 16;
+    case GL_LUMINANCE8_ALPHA8:                      return 16;
+    case GL_RG:                                     return 16;
+    case GL_RG8:                                    return 16;
     case GL_RGB:                                    return 24;
     case GL_SRGB:                                   return 24;
     case GL_RGB8:                                   return 24;
@@ -301,8 +316,12 @@ S32 LLImageGL::dataFormatBits(S32 dataformat)
     case GL_RG16F:                                  return 32;
     case GL_RGB16F:                                 return 48;
     case GL_RGBA16F:                                return 64;
+    case GL_R32F:                                   return 32;
+    case GL_RG32F:                                  return 64;
+    case GL_RGB32F:                                 return 96;
+    case GL_RGBA32F:                                return 128;
     default:
-        LL_ERRS() << "LLImageGL::Unknown format: " << dataformat << LL_ENDL;
+        LL_ERRS() << "LLImageGL::Unknown format: " << std::hex << dataformat << std::dec << LL_ENDL;
         return 0;
     }
 }
@@ -345,13 +364,14 @@ S32 LLImageGL::dataFormatComponents(S32 dataformat)
       case GL_RED:                              return 1;
       case GL_COLOR_INDEX:                      return 1;
       case GL_LUMINANCE_ALPHA:                  return 2;
+      case GL_RG:                               return 2;
       case GL_RGB:                              return 3;
       case GL_SRGB:                             return 3;
       case GL_RGBA:                             return 4;
       case GL_SRGB_ALPHA:                       return 4;
       case GL_BGRA:                             return 4;       // Used for QuickTime media textures on the Mac
       default:
-        LL_ERRS() << "LLImageGL::Unknown format: " << dataformat << LL_ENDL;
+        LL_ERRS() << "LLImageGL::Unknown format: " << std::hex << dataformat << std::dec << LL_ENDL;
         return 0;
     }
 }
@@ -412,29 +432,29 @@ bool LLImageGL::create(LLPointer<LLImageGL>& dest, const LLImageRaw* imageraw, b
 
 //----------------------------------------------------------------------------
 
-LLImageGL::LLImageGL(bool usemipmaps)
+LLImageGL::LLImageGL(bool usemipmaps/* = true*/, bool allow_compression/* = true*/)
 :   mSaveData(0), mExternalTexture(false)
 {
-    init(usemipmaps);
+    init(usemipmaps, allow_compression);
     setSize(0, 0, 0);
     sImageList.insert(this);
     sCount++;
 }
 
-LLImageGL::LLImageGL(U32 width, U32 height, U8 components, bool usemipmaps)
+LLImageGL::LLImageGL(U32 width, U32 height, U8 components, bool usemipmaps/* = true*/, bool allow_compression/* = true*/)
 :   mSaveData(0), mExternalTexture(false)
 {
     llassert( components <= 4 );
-    init(usemipmaps);
+    init(usemipmaps, allow_compression);
     setSize(width, height, components);
     sImageList.insert(this);
     sCount++;
 }
 
-LLImageGL::LLImageGL(const LLImageRaw* imageraw, bool usemipmaps)
+LLImageGL::LLImageGL(const LLImageRaw* imageraw, bool usemipmaps/* = true*/, bool allow_compression/* = true*/)
 :   mSaveData(0), mExternalTexture(false)
 {
-    init(usemipmaps);
+    init(usemipmaps, allow_compression);
     setSize(0, 0, 0);
     sImageList.insert(this);
     sCount++;
@@ -451,7 +471,7 @@ LLImageGL::LLImageGL(
     LLGLenum formatType,
     LLTexUnit::eTextureAddressMode addressMode)
 {
-    init(false);
+    init(false, true);
     mTexName = texName;
     mTarget = target;
     mComponents = components;
@@ -473,7 +493,7 @@ LLImageGL::~LLImageGL()
     }
 }
 
-void LLImageGL::init(bool usemipmaps)
+void LLImageGL::init(bool usemipmaps, bool allow_compression)
 {
 #if LL_IMAGEGL_THREAD_CHECK
     mActiveThread = LLThread::currentID();
@@ -503,7 +523,7 @@ void LLImageGL::init(bool usemipmaps)
     mHeight = 0;
     mCurrentDiscardLevel = -1;
 
-    mAllowCompression = true;
+    mAllowCompression = allow_compression;
 
     mTarget = GL_TEXTURE_2D;
     mBindTarget = LLTexUnit::TT_TEXTURE;
@@ -1231,90 +1251,122 @@ void LLImageGL::deleteTextures(S32 numTextures, const U32 *textures)
 void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 width, S32 height, U32 pixformat, U32 pixtype, const void* pixels, bool allow_compression)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
-    bool use_scratch = false;
-    U32* scratch = NULL;
+    std::unique_ptr<U32[]> scratch;
     if (LLRender::sGLCoreProfile)
     {
-        if (pixformat == GL_ALPHA && pixtype == GL_UNSIGNED_BYTE)
-        { //GL_ALPHA is deprecated, convert to RGBA
-            if (pixels != nullptr)
-            {
-                use_scratch = true;
-                scratch = new(std::nothrow) U32[width * height];
-                if (!scratch)
-                {
-                    LLError::LLUserWarningMsg::showOutOfMemory();
-                    LL_ERRS() << "Failed to allocate " << (U32)(width * height * sizeof(U32))
-                              << " bytes for a manual image W" << width << " H" << height << LL_ENDL;
-                }
-
-                U32 pixel_count = (U32)(width * height);
-                for (U32 i = 0; i < pixel_count; i++)
-                {
-                    U8* pix = (U8*)&scratch[i];
-                    pix[0] = pix[1] = pix[2] = 0;
-                    pix[3] = ((U8*)pixels)[i];
-                }
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
+        if (gGLManager.mGLVersion >= 3.29f)
+        {
+            if (pixformat == GL_ALPHA)
+            { //GL_ALPHA is deprecated, convert to RGBA
+                const GLint mask[] = { GL_ZERO, GL_ZERO, GL_ZERO, GL_RED };
+                glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, mask);
+                pixformat = GL_RED;
+                intformat = GL_R8;
             }
 
-            pixformat = GL_RGBA;
-            intformat = GL_RGBA8;
+            if (pixformat == GL_LUMINANCE)
+            { //GL_LUMINANCE is deprecated, convert to GL_RGBA
+                const GLint mask[] = { GL_RED, GL_RED, GL_RED, GL_ONE };
+                glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, mask);
+                pixformat = GL_RED;
+                intformat = GL_R8;
+            }
+
+            if (pixformat == GL_LUMINANCE_ALPHA)
+            { //GL_LUMINANCE_ALPHA is deprecated, convert to RGBA
+                const GLint mask[] = { GL_RED, GL_RED, GL_RED, GL_GREEN };
+                glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, mask);
+                pixformat = GL_RG;
+                intformat = GL_RG8;
+            }
         }
-
-        if (pixformat == GL_LUMINANCE_ALPHA && pixtype == GL_UNSIGNED_BYTE)
-        { //GL_LUMINANCE_ALPHA is deprecated, convert to RGBA
-            if (pixels != nullptr)
-            {
-                use_scratch = true;
-                scratch = new(std::nothrow) U32[width * height];
-                if (!scratch)
+        else
+        {
+            if (pixformat == GL_ALPHA && pixtype == GL_UNSIGNED_BYTE)
+            { //GL_ALPHA is deprecated, convert to RGBA
+                if (pixels != nullptr)
                 {
-                    LLError::LLUserWarningMsg::showOutOfMemory();
-                    LL_ERRS() << "Failed to allocate " << (U32)(width * height * sizeof(U32))
-                        << " bytes for a manual image W" << width << " H" << height << LL_ENDL;
+                    scratch.reset(new(std::nothrow) U32[width * height]);
+                    if (!scratch)
+                    {
+                        LLError::LLUserWarningMsg::showOutOfMemory();
+                        LL_ERRS() << "Failed to allocate " << (U32)(width * height * sizeof(U32))
+                            << " bytes for a manual image W" << width << " H" << height << LL_ENDL;
+                    }
+
+                    U32 pixel_count = (U32)(width * height);
+                    for (U32 i = 0; i < pixel_count; i++)
+                    {
+                        U8* pix = (U8*)&scratch[i];
+                        pix[0] = pix[1] = pix[2] = 0;
+                        pix[3] = ((U8*)pixels)[i];
+                    }
+
+                    pixels = scratch.get();
                 }
 
-                U32 pixel_count = (U32)(width * height);
-                for (U32 i = 0; i < pixel_count; i++)
-                {
-                    U8 lum = ((U8*)pixels)[i * 2 + 0];
-                    U8 alpha = ((U8*)pixels)[i * 2 + 1];
-
-                    U8* pix = (U8*)&scratch[i];
-                    pix[0] = pix[1] = pix[2] = lum;
-                    pix[3] = alpha;
-                }
+                pixformat = GL_RGBA;
+                intformat = GL_RGBA8;
             }
 
-            pixformat = GL_RGBA;
-            intformat = GL_RGBA8;
-        }
-
-        if (pixformat == GL_LUMINANCE && pixtype == GL_UNSIGNED_BYTE)
-        { //GL_LUMINANCE_ALPHA is deprecated, convert to RGB
-            if (pixels != nullptr)
-            {
-                use_scratch = true;
-                scratch = new(std::nothrow) U32[width * height];
-                if (!scratch)
+            if (pixformat == GL_LUMINANCE_ALPHA && pixtype == GL_UNSIGNED_BYTE)
+            { //GL_LUMINANCE_ALPHA is deprecated, convert to RGBA
+                if (pixels != nullptr)
                 {
-                    LLError::LLUserWarningMsg::showOutOfMemory();
-                    LL_ERRS() << "Failed to allocate " << (U32)(width * height * sizeof(U32))
-                        << " bytes for a manual image W" << width << " H" << height << LL_ENDL;
+                    scratch.reset(new(std::nothrow) U32[width * height]);
+                    if (!scratch)
+                    {
+                        LLError::LLUserWarningMsg::showOutOfMemory();
+                        LL_ERRS() << "Failed to allocate " << (U32)(width * height * sizeof(U32))
+                            << " bytes for a manual image W" << width << " H" << height << LL_ENDL;
+                    }
+
+                    U32 pixel_count = (U32)(width * height);
+                    for (U32 i = 0; i < pixel_count; i++)
+                    {
+                        U8 lum = ((U8*)pixels)[i * 2 + 0];
+                        U8 alpha = ((U8*)pixels)[i * 2 + 1];
+
+                        U8* pix = (U8*)&scratch[i];
+                        pix[0] = pix[1] = pix[2] = lum;
+                        pix[3] = alpha;
+                    }
+
+                    pixels = scratch.get();
                 }
 
-                U32 pixel_count = (U32)(width * height);
-                for (U32 i = 0; i < pixel_count; i++)
-                {
-                    U8 lum = ((U8*)pixels)[i];
-
-                    U8* pix = (U8*)&scratch[i];
-                    pix[0] = pix[1] = pix[2] = lum;
-                    pix[3] = 255;
-                }
+                pixformat = GL_RGBA;
+                intformat = GL_RGBA8;
             }
-            pixformat = GL_RGBA;
-            intformat = GL_RGB8;
+
+            if (pixformat == GL_LUMINANCE && pixtype == GL_UNSIGNED_BYTE)
+            { //GL_LUMINANCE_ALPHA is deprecated, convert to RGB
+                if (pixels != nullptr)
+                {
+                    scratch.reset(new(std::nothrow) U32[width * height]);
+                    if (!scratch)
+                    {
+                        LLError::LLUserWarningMsg::showOutOfMemory();
+                        LL_ERRS() << "Failed to allocate " << (U32)(width * height * sizeof(U32))
+                            << " bytes for a manual image W" << width << " H" << height << LL_ENDL;
+                    }
+
+                    U32 pixel_count = (U32)(width * height);
+                    for (U32 i = 0; i < pixel_count; i++)
+                    {
+                        U8 lum = ((U8*)pixels)[i];
+
+                        U8* pix = (U8*)&scratch[i];
+                        pix[0] = pix[1] = pix[2] = lum;
+                        pix[3] = 255;
+                    }
+
+                    pixels = scratch.get();
+                }
+                pixformat = GL_RGBA;
+                intformat = GL_RGB8;
+            }
         }
     }
 
@@ -1323,6 +1375,14 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
     {
         switch (intformat)
         {
+        case GL_RED:
+        case GL_R8:
+            intformat = GL_COMPRESSED_RED;
+            break;
+        case GL_RG:
+        case GL_RG8:
+            intformat = GL_COMPRESSED_RG;
+            break;
         case GL_RGB:
         case GL_RGB8:
             intformat = GL_COMPRESSED_RGB;
@@ -1351,12 +1411,8 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
         case GL_ALPHA8:
             intformat = GL_COMPRESSED_ALPHA;
             break;
-        case GL_RED:
-        case GL_R8:
-            intformat = GL_COMPRESSED_RED;
-            break;
         default:
-            LL_WARNS() << "Could not compress format: " << std::hex << intformat << LL_ENDL;
+            LL_WARNS() << "Could not compress format: " << std::hex << intformat << std::dec << LL_ENDL;
             break;
         }
     }
@@ -1372,7 +1428,7 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
         if (!use_sub_image)
         {
             LL_PROFILE_ZONE_NAMED("glTexImage2D alloc + copy");
-            glTexImage2D(target, miplevel, intformat, width, height, 0, pixformat, pixtype, use_scratch ? scratch : pixels);
+            glTexImage2D(target, miplevel, intformat, width, height, 0, pixformat, pixtype, pixels);
         }
         else
         {
@@ -1382,7 +1438,7 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
                 glTexImage2D(target, miplevel, intformat, width, height, 0, pixformat, pixtype, nullptr);
             }
 
-            U8* src = (U8*)(use_scratch ? scratch : pixels);
+            U8* src = (U8*)(pixels);
             if (src)
             {
                 LL_PROFILE_ZONE_NAMED("glTexImage2D copy");
@@ -1392,11 +1448,6 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
         alloc_tex_image(width, height, intformat, 1);
     }
     stop_glerror();
-
-    if (use_scratch)
-    {
-        delete[] scratch;
-    }
 }
 
 //create an empty GL texture: just create a texture name

@@ -881,7 +881,26 @@
       value="1"/>
   </combo_box>
   <!-- End of mirror settings -->
-
+  <!-- Sharpening Settings -->
+  <slider
+    control_name="RenderCASSharpness"
+    decimal_digits="1"
+    follows="left|top"
+    height="16"
+    increment="0.1"
+    initial_value="160"
+    label="Sharpening:"
+    label_width="145"
+    layout="topleft"
+    left="420"
+    min_val="0.0"
+    max_val="1.0"
+    name="RenderSharpness"
+    show_text="true"
+    top_delta="24"
+    width="260">
+  </slider>
+  <!-- End of Sharpening Settings-->
   <!-- End of Advanced Settings block -->
 	<view_border
       bevel_style="in"

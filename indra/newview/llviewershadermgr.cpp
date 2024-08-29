@@ -158,6 +158,7 @@ LLGLSLShader            gDeferredMultiLightProgram[16];
 LLGLSLShader            gDeferredSpotLightProgram;
 LLGLSLShader            gDeferredMultiSpotLightProgram;
 LLGLSLShader            gDeferredSunProgram;
+LLGLSLShader            gDeferredSunProbeProgram;
 LLGLSLShader            gHazeProgram;
 LLGLSLShader            gHazeWaterProgram;
 LLGLSLShader            gDeferredBlurLightProgram;
@@ -200,6 +201,7 @@ LLGLSLShader            gExposureProgram;
 LLGLSLShader            gExposureProgramNoFade;
 LLGLSLShader            gLuminanceProgram;
 LLGLSLShader            gFXAAProgram;
+LLGLSLShader            gCASProgram;
 LLGLSLShader            gDeferredPostNoDoFProgram;
 LLGLSLShader            gDeferredWLSkyProgram;
 LLGLSLShader            gEnvironmentMapProgram;
@@ -400,6 +402,7 @@ void LLViewerShaderMgr::finalizeShaderList()
     mShaderList.push_back(&gObjectAlphaMaskNoColorProgram);
     mShaderList.push_back(&gUnderWaterProgram);
     mShaderList.push_back(&gDeferredSunProgram);
+    mShaderList.push_back(&gDeferredSunProbeProgram);
     mShaderList.push_back(&gHazeProgram);
     mShaderList.push_back(&gHazeWaterProgram);
     mShaderList.push_back(&gDeferredSoftenProgram);
@@ -1600,10 +1603,7 @@ bool LLViewerShaderMgr::loadShadersDeferred()
     if (success)
     {
         std::string fragment;
-        std::string vertex = "deferred/sunLightV.glsl";
-
         bool use_ao = gSavedSettings.getBOOL("RenderDeferredSSAO");
-
         if (use_ao)
         {
             fragment = "deferred/sunLightSSAOF.glsl";
@@ -1611,10 +1611,6 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         else
         {
             fragment = "deferred/sunLightF.glsl";
-            if (mShaderLevel[SHADER_DEFERRED] == 1)
-            { //no shadows, no SSAO, no frag coord
-                vertex = "deferred/sunLightNoFragCoordV.glsl";
-            }
         }
 
         gDeferredSunProgram.mName = "Deferred Sun Shader";
@@ -1623,11 +1619,26 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         gDeferredSunProgram.mFeatures.hasAmbientOcclusion = use_ao;
 
         gDeferredSunProgram.mShaderFiles.clear();
-        gDeferredSunProgram.mShaderFiles.push_back(make_pair(vertex, GL_VERTEX_SHADER));
+        gDeferredSunProgram.mShaderFiles.push_back(make_pair("deferred/sunLightV.glsl", GL_VERTEX_SHADER));
         gDeferredSunProgram.mShaderFiles.push_back(make_pair(fragment, GL_FRAGMENT_SHADER));
         gDeferredSunProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
 
         success = gDeferredSunProgram.createShader();
+        llassert(success);
+    }
+
+    if (success)
+    {
+        gDeferredSunProbeProgram.mName = "Deferred Sun Probe Shader";
+        gDeferredSunProbeProgram.mFeatures.isDeferred = true;
+        gDeferredSunProbeProgram.mFeatures.hasShadows = true;
+
+        gDeferredSunProbeProgram.mShaderFiles.clear();
+        gDeferredSunProbeProgram.mShaderFiles.push_back(make_pair("deferred/sunLightV.glsl", GL_VERTEX_SHADER));
+        gDeferredSunProbeProgram.mShaderFiles.push_back(make_pair("deferred/sunLightF.glsl", GL_FRAGMENT_SHADER));
+        gDeferredSunProbeProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+
+        success = gDeferredSunProbeProgram.createShader();
         llassert(success);
     }
 
@@ -2334,9 +2345,30 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         gFXAAProgram.mShaderFiles.clear();
         gFXAAProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredV.glsl", GL_VERTEX_SHADER));
         gFXAAProgram.mShaderFiles.push_back(make_pair("deferred/fxaaF.glsl", GL_FRAGMENT_SHADER));
+
+        if (gGLManager.mGLVersion > 3.9)
+        {
+            gFXAAProgram.addPermutation("FXAA_GLSL_400", "1");
+        }
+        else
+        {
+            gFXAAProgram.addPermutation("FXAA_GLSL_130", "1");
+        }
+
         gFXAAProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
         success = gFXAAProgram.createShader();
         llassert(success);
+    }
+
+    if (success)
+    {
+        gCASProgram.mName = "Contrast Adaptive Sharpening Shader";
+        gCASProgram.mFeatures.hasSrgb = true;
+        gCASProgram.mShaderFiles.clear();
+        gCASProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredNoTCV.glsl", GL_VERTEX_SHADER));
+        gCASProgram.mShaderFiles.push_back(make_pair("deferred/CASF.glsl", GL_FRAGMENT_SHADER));
+        gCASProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+        gCASProgram.createShader();
     }
 
     if (success)

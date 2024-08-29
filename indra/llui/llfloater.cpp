@@ -1983,6 +1983,9 @@ void LLFloater::onClickCloseBtn(bool app_quitting)
 // virtual
 void LLFloater::draw()
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
+    LL_PROFILE_ZONE_TEXT(getTitle().c_str(), getTitle().length());
+
     const F32 alpha = getCurrentTransparency();
 
     // draw background

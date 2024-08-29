@@ -117,6 +117,17 @@
 #include "llenvironment.h"
 #include "llsettingsvo.h"
 
+#ifndef LL_WINDOWS
+#define A_GCC 1
+#pragma GCC diagnostic ignored "-Wunused-function"
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#if LL_LINUX
+#pragma GCC diagnostic ignored "-Wrestrict"
+#endif
+#endif
+#define A_CPU 1
+#include "app_settings/shaders/class1/deferred/CASF.glsl" // This is also C++
+
 extern bool gSnapshot;
 bool gShiftFrame = false;
 
@@ -6624,8 +6635,14 @@ void LLPipeline::renderAlphaObjects(bool rigged)
     S32 sun_up = LLEnvironment::instance().getIsSunUp() ? 1 : 0;
     U32 target_width = LLRenderTarget::sCurResX;
     U32 type = LLRenderPass::PASS_ALPHA;
-    LLVOAvatar* lastAvatar = nullptr;
+    // for gDeferredShadowAlphaMaskProgram
+    const LLVOAvatar* lastAvatar = nullptr;
     U64 lastMeshId = 0;
+    bool skipLastSkin;
+    // for gDeferredShadowGLTFAlphaBlendProgram
+    const LLVOAvatar* lastAvatarGLTF = nullptr;
+    U64 lastMeshIdGLTF = 0;
+    bool skipLastSkinGLTF;
     auto* begin = gPipeline.beginRenderMap(type);
     auto* end = gPipeline.endRenderMap(type);
 
@@ -6649,7 +6666,7 @@ void LLPipeline::renderAlphaObjects(bool rigged)
                 LLGLSLShader::sCurBoundShaderPtr->uniform1i(LLShaderMgr::SUN_UP_FACTOR, sun_up);
                 LLGLSLShader::sCurBoundShaderPtr->uniform1f(LLShaderMgr::DEFERRED_SHADOW_TARGET_WIDTH, (float)target_width);
                 LLGLSLShader::sCurBoundShaderPtr->setMinimumAlpha(ALPHA_BLEND_CUTOFF);
-                LLRenderPass::pushRiggedGLTFBatch(*pparams, lastAvatar, lastMeshId);
+                LLRenderPass::pushRiggedGLTFBatch(*pparams, lastAvatarGLTF, lastMeshIdGLTF, skipLastSkinGLTF);
             }
             else
             {
@@ -6657,14 +6674,10 @@ void LLPipeline::renderAlphaObjects(bool rigged)
                 LLGLSLShader::sCurBoundShaderPtr->uniform1i(LLShaderMgr::SUN_UP_FACTOR, sun_up);
                 LLGLSLShader::sCurBoundShaderPtr->uniform1f(LLShaderMgr::DEFERRED_SHADOW_TARGET_WIDTH, (float)target_width);
                 LLGLSLShader::sCurBoundShaderPtr->setMinimumAlpha(ALPHA_BLEND_CUTOFF);
-                if (lastAvatar != pparams->mAvatar || lastMeshId != pparams->mSkinInfo->mHash)
+                if (mSimplePool->uploadMatrixPalette(pparams->mAvatar, pparams->mSkinInfo, lastAvatar, lastMeshId, skipLastSkin))
                 {
-                    mSimplePool->uploadMatrixPalette(*pparams);
-                    lastAvatar = pparams->mAvatar;
-                    lastMeshId = pparams->mSkinInfo->mHash;
+                    mSimplePool->pushBatch(*pparams, true, true);
                 }
-
-                mSimplePool->pushBatch(*pparams, true, true);
             }
         }
         else
@@ -7131,6 +7144,51 @@ void LLPipeline::generateGlow(LLRenderTarget* src)
     }
 }
 
+void LLPipeline::applyCAS(LLRenderTarget* src, LLRenderTarget* dst)
+{
+    static LLCachedControl<F32> cas_sharpness(gSavedSettings, "RenderCASSharpness", 0.4f);
+    if (cas_sharpness == 0.0f)
+    {
+        gPipeline.copyRenderTarget(src, dst);
+        return;
+    }
+
+    LLGLSLShader* sharpen_shader = &gCASProgram;
+
+    // Bind setup:
+    dst->bindTarget();
+
+    sharpen_shader->bind();
+
+    {
+        static LLStaticHashedString cas_param_0("cas_param_0");
+        static LLStaticHashedString cas_param_1("cas_param_1");
+        static LLStaticHashedString out_screen_res("out_screen_res");
+
+        varAU4(const0);
+        varAU4(const1);
+        CasSetup(const0, const1,
+            cas_sharpness(),             // Sharpness tuning knob (0.0 to 1.0).
+            (AF1)src->getWidth(), (AF1)src->getHeight(),  // Input size.
+            (AF1)dst->getWidth(), (AF1)dst->getHeight()); // Output size.
+
+        sharpen_shader->uniform4uiv(cas_param_0, 1, const0);
+        sharpen_shader->uniform4uiv(cas_param_1, 1, const1);
+
+        sharpen_shader->uniform2f(out_screen_res, (AF1)dst->getWidth(), (AF1)dst->getHeight());
+    }
+
+    sharpen_shader->bindTexture(LLShaderMgr::DEFERRED_DIFFUSE, src, false, LLTexUnit::TFO_POINT);
+
+    // Draw
+    gPipeline.mScreenTriangleVB->setBuffer();
+    gPipeline.mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
+
+    sharpen_shader->unbind();
+
+    dst->flush();
+}
+
 void LLPipeline::applyFXAA(LLRenderTarget* src, LLRenderTarget* dst)
 {
     {
@@ -7500,13 +7558,15 @@ void LLPipeline::renderFinalize()
     gGLViewport[3] = gViewerWindow->getWorldViewRectRaw().getHeight();
     glViewport(gGLViewport[0], gGLViewport[1], gGLViewport[2], gGLViewport[3]);
 
-    renderDoF(&mRT->screen, &mPostMap);
+    applyCAS(&mRT->screen, &mPostMap);
 
-    applyFXAA(&mPostMap, &mRT->screen);
-    LLRenderTarget* finalBuffer = &mRT->screen;
+    renderDoF(&mPostMap, &mRT->screen);
+
+    applyFXAA(&mRT->screen, &mPostMap);
+    LLRenderTarget* finalBuffer = &mPostMap;
     if (RenderBufferVisualization > -1)
     {
-        finalBuffer = &mPostMap;
+        finalBuffer = &mRT->screen;
         switch (RenderBufferVisualization)
         {
         case 0:
@@ -7928,13 +7988,15 @@ void LLPipeline::renderDeferredLighting()
         mat.mult_matrix_vec(tc_moon);
         mTransformedMoonDir.set(tc_moon.v);
 
-        if (RenderDeferredSSAO || RenderShadowDetail > 0)
+        if ((RenderDeferredSSAO && !gCubeSnapshot) || RenderShadowDetail > 0)
         {
             LL_PROFILE_GPU_ZONE("sun program");
             deferred_light_target->bindTarget();
             {  // paint shadow/SSAO light map (direct lighting lightmap)
                 LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("renderDeferredLighting - sun shadow");
-                bindDeferredShader(gDeferredSunProgram, deferred_light_target);
+
+                LLGLSLShader& sun_shader = gCubeSnapshot ? gDeferredSunProbeProgram : gDeferredSunProgram;
+                bindDeferredShader(sun_shader, deferred_light_target);
                 mScreenTriangleVB->setBuffer();
                 glClearColor(1, 1, 1, 1);
                 deferred_light_target->clear(GL_COLOR_BUFFER_BIT);
@@ -7959,8 +8021,8 @@ void LLPipeline::renderDeferredLighting()
                     }
                 }
 
-                gDeferredSunProgram.uniform3fv(sOffset, slice, offset);
-                gDeferredSunProgram.uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES,
+                sun_shader.uniform3fv(sOffset, slice, offset);
+                sun_shader.uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES,
                                               (GLfloat)deferred_light_target->getWidth(),
                                               (GLfloat)deferred_light_target->getHeight());
 
@@ -7970,12 +8032,12 @@ void LLPipeline::renderDeferredLighting()
                     mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
                 }
 
-                unbindDeferredShader(gDeferredSunProgram);
+                unbindDeferredShader(sun_shader);
             }
             deferred_light_target->flush();
         }
 
-        if (RenderDeferredSSAO)
+        if (RenderDeferredSSAO && !gCubeSnapshot)
         {
             // soften direct lighting lightmap
             LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("renderDeferredLighting - soften shadow");

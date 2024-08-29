@@ -1552,6 +1552,34 @@ void LLGLSLShader::uniform4fv(U32 index, U32 count, const GLfloat* v)
     }
 }
 
+void LLGLSLShader::uniform4uiv(U32 index, U32 count, const GLuint* v)
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
+    llassert(sCurBoundShaderPtr == this);
+
+    if (mProgramObject)
+    {
+        if (mUniform.size() <= index)
+        {
+            LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << index << LL_ENDL;
+            llassert(false);
+            return;
+        }
+
+        if (mUniform[index] >= 0)
+        {
+            const auto& iter = mValue.find(mUniform[index]);
+            LLVector4 vec((F32)v[0], (F32)v[1], (F32)v[2], (F32)v[3]);
+            if (iter == mValue.end() || shouldChange(iter->second, vec) || count != 1)
+            {
+                LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
+                glUniform4uiv(mUniform[index], count, v);
+                mValue[mUniform[index]] = vec;
+            }
+        }
+    }
+}
+
 void LLGLSLShader::uniformMatrix2fv(U32 index, U32 count, GLboolean transpose, const GLfloat* v)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
@@ -1881,6 +1909,24 @@ void LLGLSLShader::uniform4fv(const LLStaticHashedString& uniform, U32 count, co
         {
             LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
             glUniform4fv(location, count, v);
+            mValue[location] = vec;
+        }
+    }
+}
+
+void LLGLSLShader::uniform4uiv(const LLStaticHashedString& uniform, U32 count, const GLuint* v)
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
+    GLint location = getUniformLocation(uniform);
+
+    if (location >= 0)
+    {
+        LLVector4 vec((F32)v[0], (F32)v[1], (F32)v[2], (F32)v[3]);
+        const auto& iter = mValue.find(location);
+        if (iter == mValue.end() || shouldChange(iter->second, vec) || count != 1)
+        {
+            LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
+            glUniform4uiv(location, count, v);
             mValue[location] = vec;
         }
     }
