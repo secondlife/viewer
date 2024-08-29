@@ -12571,5 +12571,16 @@ are wearing now.
       name="okbutton"
       yestext="OK"/>
   </notification>
+    
+  <notification
+   icon="alertmodal.tga"
+   name="NoSupportGLTFShader"
+   type="notify">
+     GLTF scenes are not yet supported on your graphics hardware.
+     <tag>fail</tag>
+     <usetemplate
+       name="okbutton"
+       yestext="OK"/>
+  </notification>
 
 </notifications>

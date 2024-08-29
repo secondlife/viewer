@@ -17,7 +17,9 @@
 	<string name="StartupLoading">Loading [APP_NAME]...</string>
 	<string name="StartupClearingCache">Clearing cache...</string>
 	<string name="StartupInitializingTextureCache">Initializing texture cache...</string>
-	<string name="StartupRequireDriverUpdate">Graphics initialization failed. Please update your graphics driver!</string>
+    <string name="StartupInitializingRenderPipeline">Starting up render pipeline and compiling shaders...</string>
+    <string name="StartupInitializingRenderPipelineDone">Compiling shaders done...</string>
+    <string name="StartupRequireDriverUpdate">Graphics initialization failed. Please update your graphics driver!</string>
 
 	<!-- about dialog/support string-->
 	<string name="AboutHeader">

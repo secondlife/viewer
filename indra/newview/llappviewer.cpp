@@ -3146,6 +3146,7 @@ bool LLAppViewer::initWindow()
     //
     // Initialize GL stuff
     //
+    LLSplashScreen::update(LLTrans::getString("StartupInitializingRenderPipeline"));
 
     if (mForceGraphicsLevel && (LLFeatureManager::instance().isValidGraphicsLevel(*mForceGraphicsLevel)))
     {
@@ -3199,6 +3200,7 @@ bool LLAppViewer::initWindow()
     //gViewerWindow->getWindow()->show();
 
     LL_INFOS("AppInit") << "Window initialization done." << LL_ENDL;
+    LLSplashScreen::update(LLTrans::getString("StartupInitializingRenderPipelineDone"));
 
     return true;
 }
