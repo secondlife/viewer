@@ -46,12 +46,14 @@ public:
         F32 x, F32 y,
         const LLColor4& color,
         LLFontGL::HAlign halign = LLFontGL::LEFT, LLFontGL::VAlign valign = LLFontGL::BASELINE,
-        U8 style = LLFontGL::NORMAL, LLFontGL::ShadowType shadow = LLFontGL::NO_SHADOW,
+        U8 style = LLFontGL::NORMAL,
+        LLFontGL::ShadowType shadow = LLFontGL::NO_SHADOW,
         S32 max_chars = S32_MAX, S32 max_pixels = S32_MAX,
         F32* right_x = NULL,
         bool use_ellipses = false,
         bool use_color = true);
 
+    typedef std::list<LLFontGL::LLVertexBufferData> buffer_list_t;
 private:
 
     void genBuffers(const LLFontGL* fontp,
@@ -60,15 +62,18 @@ private:
          F32 x, F32 y,
          const LLColor4& color,
          LLFontGL::HAlign halign, LLFontGL::VAlign valign,
-         U8 style, LLFontGL::ShadowType shadow,
+         U8 style,
+        LLFontGL::ShadowType shadow,
          S32 max_chars, S32 max_pixels,
          F32* right_x,
          bool use_ellipses,
          bool use_color);
 
+    void renderBuffers();
 
-    std::list<LLFontGL::LLVertexBufferData> mBufferList;
+    buffer_list_t mBufferList;
     S32 mChars = 0;
+    const LLFontGL *mLastFont = nullptr;
     S32 mLastOffset = 0;
     S32 mLastMaxChars = 0;
     S32 mLastMaxPixels = 0;
@@ -76,6 +81,10 @@ private:
     F32 mLastX = 0.f;
     F32 mLastY = 0.f;
     LLColor4 mLastColor;
+    LLFontGL::HAlign mLastHalign = LLFontGL::LEFT;
+    LLFontGL::VAlign mLastValign = LLFontGL::BASELINE;
+    U8 mLastStyle = LLFontGL::NORMAL;
+    LLFontGL::ShadowType mLastShadow = LLFontGL::NO_SHADOW;
     F32 mLastRightX = 0.f;
     bool mTrackStringChanges = true;
 

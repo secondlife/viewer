@@ -490,6 +490,9 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 
     if (draw_ellipses)
     {
+        // signal a separate context
+        buffer_list->emplace_back(nullptr, nullptr, 0, 0);
+
         // recursively render ellipses at end of string
         // we've already reserved enough room
         gGL.pushUIMatrix();

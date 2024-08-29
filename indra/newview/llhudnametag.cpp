@@ -290,6 +290,15 @@ void LLHUDNameTag::renderText()
     LLVector3 render_position = mPositionAgent
             + (x_pixel_vec * screen_offset.mV[VX])
             + (y_pixel_vec * screen_offset.mV[VY]);
+    bool reset_buffers = false;
+    const F32 treshold = 0.000001f;
+    if (abs(mLastRenderPosition.mV[VX] - render_position.mV[VX]) > treshold
+        || abs(mLastRenderPosition.mV[VY] - render_position.mV[VY]) > treshold
+        || abs(mLastRenderPosition.mV[VZ] - render_position.mV[VZ]) > treshold)
+    {
+        reset_buffers = true;
+        mLastRenderPosition = render_position;
+    }
 
     LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
     LLRect screen_rect;
@@ -313,6 +322,11 @@ void LLHUDNameTag::renderText()
         for(std::vector<LLHUDTextSegment>::iterator segment_iter = mLabelSegments.begin();
             segment_iter != mLabelSegments.end(); ++segment_iter )
         {
+            if (reset_buffers)
+            {
+                segment_iter->mFontBufferLabel.reset();
+            }
+
             // Label segments use default font
             const LLFontGL* fontp = (segment_iter->mStyle == LLFontGL::BOLD) ? mBoldFontp : mFontp;
             y_offset -= fontp->getLineHeight();
@@ -350,6 +364,11 @@ void LLHUDNameTag::renderText()
         for (std::vector<LLHUDTextSegment>::iterator segment_iter = mTextSegments.begin() + start_segment;
              segment_iter != mTextSegments.end(); ++segment_iter )
         {
+            if (reset_buffers)
+            {
+                segment_iter->mFontBufferText.reset();
+            }
+
             const LLFontGL* fontp = segment_iter->mFont;
             y_offset -= fontp->getLineHeight();
             y_offset -= LINE_PADDING;

@@ -157,23 +157,27 @@ public:
 
     void            addImageAttributeToXML(LLXMLNodePtr node, const std::string& imageName,
                                         const LLUUID&   imageID,const std::string&  xmlTagName) const;
-    virtual bool    handleUnicodeCharHere(llwchar uni_char);
-    virtual bool    handleKeyHere(KEY key, MASK mask);
-    virtual bool    handleMouseDown(S32 x, S32 y, MASK mask);
-    virtual bool    handleMouseUp(S32 x, S32 y, MASK mask);
-    virtual bool    handleHover(S32 x, S32 y, MASK mask);
-    virtual bool    handleRightMouseDown(S32 x, S32 y, MASK mask);
-    virtual bool    handleRightMouseUp(S32 x, S32 y, MASK mask);
-    virtual bool    handleDoubleClick(S32 x, S32 y, MASK mask);
-    virtual void    draw();
-    /*virtual*/ bool postBuild();
+    virtual bool    handleUnicodeCharHere(llwchar uni_char) override;
+    virtual bool    handleKeyHere(KEY key, MASK mask) override;
+    virtual bool    handleMouseDown(S32 x, S32 y, MASK mask) override;
+    virtual bool    handleMouseUp(S32 x, S32 y, MASK mask) override;
+    virtual bool    handleHover(S32 x, S32 y, MASK mask) override;
+    virtual bool    handleRightMouseDown(S32 x, S32 y, MASK mask) override;
+    virtual bool    handleRightMouseUp(S32 x, S32 y, MASK mask) override;
+    virtual bool    handleDoubleClick(S32 x, S32 y, MASK mask) override;
+    virtual void    draw() override;
+    /*virtual*/ bool postBuild()  override;
 
-    /*virtual*/ void onVisibilityChange(bool visible);
+    void onVisibilityChange(bool visible) override;
+    void reshape(S32 width, S32 height, bool called_from_parent = true) override;
+    void translate(S32 x, S32 y) override;
+    void setRect(const LLRect& rect) override;
+    void dirtyRect() override;
 
-    virtual void    onMouseLeave(S32 x, S32 y, MASK mask);
-    virtual void    onMouseCaptureLost();
+    virtual void    onMouseLeave(S32 x, S32 y, MASK mask) override;
+    virtual void    onMouseCaptureLost() override;
 
-    virtual void    onCommit();
+    virtual void    onCommit() override;
 
     void            setUnselectedLabelColor(const LLUIColor& c);
     void            setSelectedLabelColor(const LLUIColor& c);
@@ -227,7 +231,7 @@ public:
     const std::string   getLabelSelected() const { return wstring_to_utf8str(mSelectedLabel); }
 
     void            setImageColor(const LLUIColor& c);
-    /*virtual*/ void    setColor(const LLUIColor& c);
+    /*virtual*/ void    setColor(const LLUIColor& c) override;
 
     void            setImages(const std::string &image_name, const std::string &selected_name);
 
@@ -245,13 +249,12 @@ public:
     void            setLabel(const std::string& label);
     void            setLabel(const LLUIString& label);
     void            setLabel( const LLStringExplicit& label);
-    virtual bool    setLabelArg( const std::string& key, const LLStringExplicit& text );
+    virtual bool    setLabelArg( const std::string& key, const LLStringExplicit& text ) override;
     void            setLabelUnselected(const LLStringExplicit& label);
     void            setLabelSelected(const LLStringExplicit& label);
-    void            setDisabledLabelColor( const LLUIColor& c )      { mDisabledLabelColor = c; }
+    void            setDisabledLabelColor(const LLUIColor& c);
 
-    void            setFont(const LLFontGL *font)
-        { mGLFont = ( font ? font : LLFontGL::getFontSansSerif()); }
+    void            setFont(const LLFontGL* font);
     const LLFontGL* getFont() const { return mGLFont; }
     const std::string& getText() const { return getCurrentLabel().getString(); }
 
@@ -262,7 +265,7 @@ public:
     void            setScaleImage(bool scale)           { mScaleImage = scale; }
     bool            getScaleImage() const               { return mScaleImage; }
 
-    void            setDropShadowedText(bool b)         { mDropShadowedText = b; }
+    void            setDropShadowedText(bool b);
 
     void            setHoverGlowStrength(F32 strength) { mHoverGlowStrength = strength; }
 
