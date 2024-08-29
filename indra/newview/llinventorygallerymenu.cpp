@@ -106,7 +106,8 @@ LLContextMenu* LLInventoryGalleryContextMenu::createMenu()
                               {
                                   mGallery->doCreate(mUUIDs.front(), data);
                               }
-                          });
+                          },
+        LLUICtrl::cb_info::UNTRUSTED_BLOCK);
 
     std::set<LLUUID> uuids(mUUIDs.begin(), mUUIDs.end());
     registrar.add("Inventory.Share", boost::bind(&LLAvatarActions::shareWithAvatars, uuids, gFloaterView->getParentFloater(mGallery)), LLUICtrl::cb_info::UNTRUSTED_BLOCK);
