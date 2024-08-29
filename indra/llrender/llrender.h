@@ -219,17 +219,12 @@ public:
 
     void setHasMipMaps(bool hasMips) { mHasMipMaps = hasMips; }
 
-    void setTextureColorSpace(eTextureColorSpace space);
-
-    eTextureColorSpace getCurrColorSpace() { return mTexColorSpace; }
-
 protected:
     friend class LLRender;
 
     S32                 mIndex;
     U32                 mCurrTexture;
     eTextureType        mCurrTexType;
-    eTextureColorSpace  mTexColorSpace;
     S32                 mCurrColorScale;
     S32                 mCurrAlphaScale;
     bool                mHasMipMaps;
