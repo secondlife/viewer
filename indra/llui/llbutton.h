@@ -264,8 +264,6 @@ public:
 
     void            setDropShadowedText(bool b)         { mDropShadowedText = b; }
 
-    void            setBorderEnabled(bool b)                    { mBorderEnabled = b; }
-
     void            setHoverGlowStrength(F32 strength) { mHoverGlowStrength = strength; }
 
     void            setImageUnselected(LLPointer<LLUIImage> image);
@@ -360,7 +358,6 @@ protected:
     bool                        mAutoResize;
     bool                        mUseEllipses;
     bool                        mUseFontColor;
-    bool                        mBorderEnabled;
     bool                        mFlashing;
 
     LLFontGL::HAlign            mHAlign;
