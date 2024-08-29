@@ -58,7 +58,7 @@ public:
     // same semantics as script_result_fn parameters
     typedef std::pair<int, LLSD> script_result;
 
-    static void runScriptFile(const std::string &filename, script_result_fn result_cb = {},
+    static void runScriptFile(const std::string &filename, bool autorun = false, script_result_fn result_cb = {},
                               script_finished_fn finished_cb = {});
     // Start running a Lua script file, returning an LLCoros::Future whose
     // get() method will pause the calling coroutine until it can deliver the
@@ -83,6 +83,9 @@ public:
     static script_result waitScriptLine(const std::string& chunk);
 
     static const std::map<std::string, std::string> getScriptNames() { return sScriptNames; }
+
+    static S32 sAutorunScriptCount;
+    static S32 sScriptCount;
 
  private:
    static std::map<std::string, std::string> sScriptNames;
