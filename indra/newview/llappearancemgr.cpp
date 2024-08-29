@@ -2573,6 +2573,11 @@ void LLAppearanceMgr::updateAppearanceFromCOF(bool enforce_item_restrictions,
     remove_non_link_items(wear_items);
     remove_non_link_items(obj_items);
     remove_non_link_items(gest_items);
+    // Since we're following folder links we might have picked up new duplicates, or exceeded MAX_CLOTHING_LAYERS
+    removeDuplicateItems(wear_items);
+    removeDuplicateItems(obj_items);
+    removeDuplicateItems(gest_items);
+    filterWearableItems(wear_items, 0, LLAgentWearables::MAX_CLOTHING_LAYERS);
 
     dumpItemArray(wear_items,"asset_dump: wear_item");
     dumpItemArray(obj_items,"asset_dump: obj_item");
