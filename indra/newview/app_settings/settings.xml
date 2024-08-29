@@ -7311,7 +7311,7 @@
   <key>RenderBufferVisualization</key>
   <map>
     <key>Comment</key>
-    <string>Outputs a selected buffer to the screen.  -1 = final render buffer.  0 = Albedo, 1 = Specular/ORM, 2 = Normal, 3 = Emissive, 4 = Eye luminance</string>
+    <string>Outputs a selected buffer to the screen.  -1 = final render buffer.  0 = Albedo, 1 = Specular/ORM, 2 = Normal, 3 = Emissive, 4 = Eye luminance, 5 = FXAA Luminance/SMAA Edge Tex, 6 = SMAA Blend Weights</string>
     <key>Persist</key>
     <integer>0</integer>
     <key>Type</key>
@@ -7690,17 +7690,6 @@
     <string>Disable tone mapping and exposure correction when build floater is open (for artists developing materials)</string>
     <key>Persist</key>
     <integer>0</integer>
-    <key>Type</key>
-    <string>Boolean</string>
-    <key>Value</key>
-    <integer>0</integer>
-  </map>
-  <key>RenderPostProcessingHDR</key>
-  <map>
-    <key>Comment</key>
-    <string>Enable HDR for post processing buffer</string>
-    <key>Persist</key>
-    <integer>1</integer>
     <key>Type</key>
     <string>Boolean</string>
     <key>Value</key>
@@ -8410,7 +8399,18 @@
     <key>RenderFSAASamples</key>
     <map>
       <key>Comment</key>
-      <string>Number of samples to use for FSAA (0 = no AA).</string>
+      <string>Quality of antialiasing: 0 = Low, 1 = Medium, 2 = High, 3 = Ultra</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>RenderFSAAType</key>
+    <map>
+      <key>Comment</key>
+      <string>Type of Antialiasing to use: 0 = None, 1 = FXAA, 2 = SMAA</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>

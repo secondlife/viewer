@@ -597,6 +597,15 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
         }
     }
 
+    if (type == GL_FRAGMENT_SHADER)
+    {
+        extra_code_text[extra_code_count++] = strdup("#define FRAGMENT_SHADER 1\n");
+    }
+    else
+    {
+        extra_code_text[extra_code_count++] = strdup("#define VERTEX_SHADER 1\n");
+    }
+
     // Use alpha float to store bit flags
     // See: C++: addDeferredAttachment(), shader: frag_data[2]
     extra_code_text[extra_code_count++] = strdup("#define GBUFFER_FLAG_SKIP_ATMOS   0.0 \n"); // atmo kill
@@ -1467,6 +1476,11 @@ void LLShaderMgr::initAttribsAndUniforms()
     mReservedUniforms.push_back("moonlight_color");
 
     mReservedUniforms.push_back("debug_normal_draw_length");
+
+    mReservedUniforms.push_back("edgesTex");
+    mReservedUniforms.push_back("areaTex");
+    mReservedUniforms.push_back("searchTex");
+    mReservedUniforms.push_back("blendTex");
 
     llassert(mReservedUniforms.size() == END_RESERVED_UNIFORMS);
 

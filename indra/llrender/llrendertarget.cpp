@@ -509,7 +509,6 @@ void LLRenderTarget::bindTexture(U32 index, S32 channel, LLTexUnit::eTextureFilt
     }
 
     gGL.getTexUnit(channel)->setTextureFilteringOption(filter_options);
-    gGL.getTexUnit(channel)->setTextureColorSpace(isSRGB ? LLTexUnit::TCS_SRGB : LLTexUnit::TCS_LINEAR);
 }
 
 void LLRenderTarget::flush()

@@ -434,7 +434,7 @@ bool LLGLTFPreviewTexture::render()
     SetTemporarily<bool> no_dof(&LLPipeline::RenderDepthOfField, false);
     SetTemporarily<bool> no_glow(&LLPipeline::sRenderGlow, false);
     SetTemporarily<bool> no_ssr(&LLPipeline::RenderScreenSpaceReflections, false);
-    SetTemporarily<U32> no_fxaa(&LLPipeline::RenderFSAASamples, U32(0));
+    SetTemporarily<U32> no_aa(&LLPipeline::RenderFSAAType, U32(0));
     SetTemporarily<LLPipeline::RenderTargetPack*> use_auxiliary_render_target(&gPipeline.mRT, &gPipeline.mAuxillaryRT);
 
     LLVector3 light_dir3(1.0f, 1.0f, 1.0f);
