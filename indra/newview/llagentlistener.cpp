@@ -34,12 +34,14 @@
 #include "llagentcamera.h"
 #include "llvoavatar.h"
 #include "llcommandhandler.h"
+#include "llinventorymodel.h"
 #include "llslurl.h"
 #include "llurldispatcher.h"
 #include "llviewernetwork.h"
 #include "llviewerobject.h"
 #include "llviewerobjectlist.h"
 #include "llviewerregion.h"
+#include "llvoavatarself.h"
 #include "llsdutil.h"
 #include "llsdutil_math.h"
 #include "lltoolgrab.h"
@@ -47,9 +49,12 @@
 #include "llagentcamera.h"
 #include <functional>
 
+static const F64 PLAY_ANIM_THROTTLE_PERIOD = 1.f;
+
 LLAgentListener::LLAgentListener(LLAgent &agent)
   : LLEventAPI("LLAgent",
                "LLAgent listener to (e.g.) teleport, sit, stand, etc."),
+    mPlayAnimThrottle("playAnimation", &LLAgentListener::playAnimation_, this, PLAY_ANIM_THROTTLE_PERIOD),
     mAgent(agent)
 {
     add("requestTeleport",
@@ -157,6 +162,19 @@ LLAgentListener::LLAgentListener(LLAgent &agent)
     add("removeCameraParams",
         "Reset Follow camera params",
         &LLAgentListener::removeFollowCamParams);
+    
+    add("playAnimation",
+        "Play [\"item_id\"] animation locally (by default) or [\"inworld\"] (when set to true)",
+        &LLAgentListener::playAnimation,
+        llsd::map("item_id", LLSD(), "reply", LLSD()));
+    add("stopAnimation",
+        "Stop playing [\"item_id\"] animation",
+        &LLAgentListener::stopAnimation,
+        llsd::map("item_id", LLSD(), "reply", LLSD()));
+    add("getAnimationInfo",
+        "Return information about [\"item_id\"] animation",
+        &LLAgentListener::getAnimationInfo,
+        llsd::map("item_id", LLSD(), "reply", LLSD()));
 }
 
 void LLAgentListener::requestTeleport(LLSD const & event_data) const
@@ -590,4 +608,61 @@ void LLAgentListener::setFollowCamActive(LLSD const & event) const
 void LLAgentListener::removeFollowCamParams(LLSD const & event) const
 {
     LLFollowCamMgr::getInstance()->removeFollowCamParams(gAgentID);
+}
+
+LLViewerInventoryItem* get_anim_item(LLEventAPI::Response &response, const LLSD &event_data)
+{
+    LLViewerInventoryItem* item = gInventory.getItem(event_data["item_id"].asUUID());
+    if (!item || (item->getInventoryType() != LLInventoryType::IT_ANIMATION))
+    {
+        response.error(stringize("Animation item ", std::quoted(event_data["item_id"].asString()), " was not found"));
+        return NULL;
+    }
+    return item;
+}
+
+void LLAgentListener::playAnimation(LLSD const &event_data)
+{
+    Response response(LLSD(), event_data);
+    if (LLViewerInventoryItem* item = get_anim_item(response, event_data))
+    {
+        mPlayAnimThrottle(item->getAssetUUID(), event_data["inworld"].asBoolean());
+    }
+}
+
+void LLAgentListener::playAnimation_(const LLUUID& asset_id, const bool inworld)
+{
+    if (inworld)
+    {
+        mAgent.sendAnimationRequest(asset_id, ANIM_REQUEST_START);
+    }
+    else
+    {
+        gAgentAvatarp->startMotion(asset_id);
+    }
+}
+
+void LLAgentListener::stopAnimation(LLSD const &event_data)
+{
+    Response response(LLSD(), event_data);
+    if (LLViewerInventoryItem* item = get_anim_item(response, event_data))
+    {
+        gAgentAvatarp->stopMotion(item->getAssetUUID());
+        mAgent.sendAnimationRequest(item->getAssetUUID(), ANIM_REQUEST_STOP);
+    }
+}
+
+void LLAgentListener::getAnimationInfo(LLSD const &event_data)
+{
+    Response response(LLSD(), event_data);
+    if (LLViewerInventoryItem* item = get_anim_item(response, event_data))
+    {
+        // if motion exists, will return existing one
+        LLMotion* motion = gAgentAvatarp->createMotion(item->getAssetUUID());
+        response["anim_info"] = llsd::map("duration", motion->getDuration(),
+                                               "is_loop", motion->getLoop(),
+                                               "num_joints", motion->getNumJointMotions(),
+                                               "asset_id", item->getAssetUUID(),
+                                               "priority", motion->getPriority());
+    }
 }
