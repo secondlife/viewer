@@ -30,7 +30,7 @@
 
 #include "llfontgl.h"
 
-class LLVertexBuffer;
+class LLVertexBufferData;
 
 class LLFontVertexBuffer
 {
@@ -52,8 +52,6 @@ public:
         F32* right_x = NULL,
         bool use_ellipses = false,
         bool use_color = true);
-
-    typedef std::list<LLFontGL::LLVertexBufferData> buffer_list_t;
 private:
 
     void genBuffers(const LLFontGL* fontp,
@@ -71,7 +69,7 @@ private:
 
     void renderBuffers();
 
-    buffer_list_t mBufferList;
+    std::list<LLVertexBufferData> mBufferList;
     S32 mChars = 0;
     const LLFontGL *mLastFont = nullptr;
     S32 mLastOffset = 0;
@@ -86,6 +84,12 @@ private:
     U8 mLastStyle = LLFontGL::NORMAL;
     LLFontGL::ShadowType mLastShadow = LLFontGL::NO_SHADOW;
     F32 mLastRightX = 0.f;
+
+    // LLFontGL's statics
+    F32 mLastScaleX = 1.f;
+    F32 mLastScaleY = 1.f;
+    LLCoordGL mLastOrigin;
+
     bool mTrackStringChanges = true;
 
     static std::hash<LLWString> sStringHasher;

@@ -53,6 +53,37 @@
 //============================================================================
 // base class
 class LLPrivateMemoryPool;
+class LLVertexBuffer;
+
+class LLVertexBufferData
+{
+public:
+    LLVertexBufferData()
+        : mVB(nullptr)
+        , mMode(0)
+        , mCount(0)
+        , mTexName(0)
+    {}
+    LLVertexBufferData(LLVertexBuffer* buffer, U8 mode, U32 count, U32 tex_name, glh::matrix4f model_view, glh::matrix4f projection, glh::matrix4f texture0)
+        : mVB(buffer)
+        , mMode(mode)
+        , mCount(count)
+        , mTexName(tex_name)
+        , mProjection(model_view)
+        , mModelView(projection)
+        , mTexture0(texture0)
+    {}
+    void draw();
+    LLPointer<LLVertexBuffer> mVB;
+    U8 mMode;
+    U32 mCount;
+    U32 mTexName;
+    glh::matrix4f mProjection;
+    glh::matrix4f mModelView;
+    glh::matrix4f mTexture0;
+};
+typedef std::list<LLVertexBufferData> buffer_data_list_t;
+
 class LLVertexBuffer final : public LLRefCount
 {
 public:

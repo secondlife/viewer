@@ -50,7 +50,8 @@ class LLVertexBuffer;
 class LLCubeMap;
 class LLImageGL;
 class LLRenderTarget;
-class LLTexture ;
+class LLTexture;
+class LLVertexBufferData;
 
 #define LL_MATRIX_STACK_DEPTH 32
 
@@ -415,6 +416,10 @@ public:
 
     void flush();
 
+    // if list is set, will store buffers in list for later use, if list isn't set, will use cache
+    void beginList(std::list<LLVertexBufferData> *list);
+    void endList();
+
     void begin(const GLuint& mode);
     void end();
 
@@ -491,6 +496,7 @@ public:
 private:
     friend class LLLightState;
 
+    LLVertexBuffer* bufferfromCache(U32 attribute_mask, U32 count);
     LLVertexBuffer* genBuffer(U32 attribute_mask, S32 count);
     void drawBuffer(LLVertexBuffer* vb, U32 mode, S32 count);
     void resetStriders(S32 count);
@@ -525,7 +531,6 @@ private:
 
     std::vector<LLVector3> mUIOffset;
     std::vector<LLVector3> mUIScale;
-
 };
 
 extern F32 gGLModelView[16];
