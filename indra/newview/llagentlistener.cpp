@@ -49,9 +49,12 @@
 #include "llagentcamera.h"
 #include <functional>
 
+static const F64 PLAY_ANIM_THROTTLE_PERIOD = 1.f;
+
 LLAgentListener::LLAgentListener(LLAgent &agent)
   : LLEventAPI("LLAgent",
                "LLAgent listener to (e.g.) teleport, sit, stand, etc."),
+    mPlayAnimThrottle("playAnimation", &LLAgentListener::playAnimation_, this, PLAY_ANIM_THROTTLE_PERIOD),
     mAgent(agent)
 {
     add("requestTeleport",
@@ -607,53 +610,59 @@ void LLAgentListener::removeFollowCamParams(LLSD const & event) const
     LLFollowCamMgr::getInstance()->removeFollowCamParams(gAgentID);
 }
 
-void LLAgentListener::playAnimation(LLSD const &event_data)
+LLViewerInventoryItem* get_anim_item(LLEventAPI::Response &response, const LLSD &event_data)
 {
-    Response response(LLSD(), event_data);
     LLViewerInventoryItem* item = gInventory.getItem(event_data["item_id"].asUUID());
     if (!item || (item->getInventoryType() != LLInventoryType::IT_ANIMATION))
     {
-        return response.error(stringize("Item ", std::quoted(event_data["item_id"].asString()), " was not found"));
+        response.error(stringize("Animation item ", std::quoted(event_data["item_id"].asString()), " was not found"));
+        return NULL;
     }
-    LLUUID assset_id = item->getAssetUUID();
-    if(event_data["inworld"].asBoolean())
+    return item;
+}
+
+void LLAgentListener::playAnimation(LLSD const &event_data)
+{
+    Response response(LLSD(), event_data);
+    if (LLViewerInventoryItem* item = get_anim_item(response, event_data))
     {
-        gAgent.sendAnimationRequest(assset_id, ANIM_REQUEST_START);
+        mPlayAnimThrottle(item->getAssetUUID(), event_data["inworld"].asBoolean());
+    }
+}
+
+void LLAgentListener::playAnimation_(const LLUUID& asset_id, const bool inworld)
+{
+    if (inworld)
+    {
+        mAgent.sendAnimationRequest(asset_id, ANIM_REQUEST_START);
     }
     else
     {
-        gAgentAvatarp->startMotion(assset_id);
+        gAgentAvatarp->startMotion(asset_id);
     }
 }
 
 void LLAgentListener::stopAnimation(LLSD const &event_data)
 {
     Response response(LLSD(), event_data);
-    LLViewerInventoryItem* item = gInventory.getItem(event_data["item_id"].asUUID());
-    if (!item || (item->getInventoryType() != LLInventoryType::IT_ANIMATION))
+    if (LLViewerInventoryItem* item = get_anim_item(response, event_data))
     {
-        return response.error(stringize("Item ", std::quoted(event_data["item_id"].asString()), " was not found"));
+        gAgentAvatarp->stopMotion(item->getAssetUUID());
+        mAgent.sendAnimationRequest(item->getAssetUUID(), ANIM_REQUEST_STOP);
     }
-    LLUUID assset_id = item->getAssetUUID();
-    gAgentAvatarp->stopMotion(assset_id);
-    gAgent.sendAnimationRequest(assset_id, ANIM_REQUEST_STOP);
 }
 
 void LLAgentListener::getAnimationInfo(LLSD const &event_data)
 {
     Response response(LLSD(), event_data);
-    LLUUID item_id(event_data["item_id"].asUUID());
-    LLViewerInventoryItem* item = gInventory.getItem(item_id);
-    if (!item || (item->getInventoryType() != LLInventoryType::IT_ANIMATION))
+    if (LLViewerInventoryItem* item = get_anim_item(response, event_data))
     {
-        return response.error(stringize("Item ", std::quoted(item_id.asString()), " was not found"));
+        // if motion exists, will return existing one
+        LLMotion* motion = gAgentAvatarp->createMotion(item->getAssetUUID());
+        response["anim_info"] = llsd::map("duration", motion->getDuration(),
+                                               "is_loop", motion->getLoop(),
+                                               "num_joints", motion->getNumJointMotions(),
+                                               "asset_id", item->getAssetUUID(),
+                                               "priority", motion->getPriority());
     }
-    // if motion exists, will return existing one
-    LLMotion* motion = gAgentAvatarp->createMotion(item->getAssetUUID());
-    response["anim_info"].insert(item_id.asString(),
-                                 llsd::map("duration", motion->getDuration(),
-                                           "is_loop", motion->getLoop(),
-                                           "num_joints", motion->getNumJointMotions(),
-                                           "asset_id", item->getAssetUUID(),
-                                           "priority", motion->getPriority()));
 }
