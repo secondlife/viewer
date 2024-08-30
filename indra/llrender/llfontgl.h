@@ -33,7 +33,6 @@
 #include "llimagegl.h"
 #include "llpointer.h"
 #include "llrect.h"
-#include "llvertexbuffer.h"
 #include "v2math.h"
 
 class LLColor4;
@@ -43,7 +42,6 @@ class LLFontFreetype;
 
 // Structure used to store previously requested fonts.
 class LLFontRegistry;
-class LLVertexBuffer;
 
 class LLFontGL
 {
@@ -79,16 +77,6 @@ public:
         NO_SHADOW,
         DROP_SHADOW,
         DROP_SHADOW_SOFT
-    };
-
-    struct LLVertexBufferData
-    {
-        LLVertexBufferData() : mBuffer(nullptr), mImage(nullptr), mMode(0), mCount(0) {}
-        LLVertexBufferData(LLVertexBuffer* buffer, LLImageGL* image, U8 mode, U32 count) : mBuffer(buffer), mImage(image), mMode(mode), mCount(count) {}
-        LLPointer<LLVertexBuffer> mBuffer;
-        LLPointer <LLImageGL> mImage; // might be a better idea to store
-        U8 mMode;
-        U32 mCount;
     };
 
     LLFontGL();
@@ -131,8 +119,7 @@ public:
                 S32 max_chars = S32_MAX, S32 max_pixels = S32_MAX,
                 F32* right_x=NULL,
                 bool use_ellipses = false,
-                bool use_color = true,
-                std::list<LLVertexBufferData>* buffer_list = nullptr) const;
+                bool use_color = true) const;
 
     S32 render(const LLWString &text, S32 begin_offset, F32 x, F32 y, const LLColor4 &color) const;
 

@@ -60,12 +60,17 @@ S32 LLFontVertexBuffer::render(
     bool use_ellipses,
     bool use_color )
 {
+    if (!LLFontGL::sDisplayFont) //do not display texts
+    {
+        return static_cast<S32>(text.length());
+    }
     if (mBufferList.empty())
     {
         genBuffers(fontp, text, begin_offset, x, y, color, halign, valign,
             style, shadow, max_chars, max_pixels, right_x, use_ellipses, use_color);
     }
-    else if (mLastX != x || mLastY != y
+    else if (mLastX != x
+             || mLastY != y
              || mLastFont != fontp
              || mLastColor != color // alphas change often
              || mLastHalign != halign
@@ -74,7 +79,10 @@ S32 LLFontVertexBuffer::render(
              || mLastMaxChars != max_chars
              || mLastMaxPixels != max_pixels
              || mLastStyle != style
-             || mLastShadow != shadow) // ex: buttons change shadow state
+             || mLastShadow != shadow // ex: buttons change shadow state
+             || mLastScaleX != LLFontGL::sScaleX
+             || mLastScaleY != LLFontGL::sScaleY
+             || mLastOrigin != LLFontGL::sCurOrigin)
     {
         genBuffers(fontp, text, begin_offset, x, y, color, halign, valign,
             style, shadow, max_chars, max_pixels, right_x, use_ellipses, use_color);
@@ -110,8 +118,11 @@ void LLFontVertexBuffer::genBuffers(
     bool use_color)
 {
     mBufferList.clear();
+
+    gGL.beginList(&mBufferList);
     mChars = fontp->render(text, begin_offset, x, y, color, halign, valign,
-        style, shadow, max_chars, max_pixels, right_x, use_ellipses, use_color, &mBufferList);
+        style, shadow, max_chars, max_pixels, right_x, use_ellipses, use_color);
+    gGL.endList();
 
     mLastFont = fontp;
     mLastOffset = begin_offset;
@@ -126,67 +137,25 @@ void LLFontVertexBuffer::genBuffers(
     mLastStyle = style;
     mLastShadow = shadow;
 
+    mLastScaleX = LLFontGL::sScaleX;
+    mLastScaleY = LLFontGL::sScaleY;
+    mLastOrigin = LLFontGL::sCurOrigin;
+
     if (right_x)
     {
         mLastRightX = *right_x;
     }
 }
 
-void render_buffers(LLFontVertexBuffer::buffer_list_t::iterator iter, LLFontVertexBuffer::buffer_list_t::iterator end)
-{
-    gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
-    gGL.pushUIMatrix();
-
-    gGL.loadUIIdentity();
-
-    // Depth translation, so that floating text appears 'in-world'
-    // and is correctly occluded.
-    gGL.translatef(0.f, 0.f, LLFontGL::sCurDepth);
-
-    gGL.setSceneBlendType(LLRender::BT_ALPHA);
-
-    while (iter != end)
-    {
-        if (iter->mBuffer == nullptr)
-        {
-            // elipses indicator
-            iter++;
-            break;
-        }
-        if (iter->mImage)
-        {
-            gGL.getTexUnit(0)->bind(iter->mImage);
-        }
-        else
-        {
-            gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-        }
-        iter->mBuffer->setBuffer();
-
-        if (LLRender::sGLCoreProfile && iter->mMode == LLRender::QUADS)
-        {
-            iter->mBuffer->drawArrays(LLRender::TRIANGLES, 0, iter->mCount);
-        }
-        else
-        {
-            iter->mBuffer->drawArrays(iter->mMode, 0, iter->mCount);
-        }
-        iter++;
-    }
-
-    if (iter != end)
-    {
-        gGL.pushUIMatrix();
-        render_buffers(iter, end);
-        gGL.popUIMatrix();
-    }
-
-    gGL.popUIMatrix();
-}
-
 void LLFontVertexBuffer::renderBuffers()
 {
     gGL.flush(); // deliberately empty pending verts
-    render_buffers(mBufferList.begin(), mBufferList.end());
+    gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
+    gGL.pushUIMatrix();
+    for (LLVertexBufferData& buffer : mBufferList)
+    {
+        buffer.draw();
+    }
+    gGL.popUIMatrix();
 }
 
