@@ -34,12 +34,14 @@
 #include "llagentcamera.h"
 #include "llvoavatar.h"
 #include "llcommandhandler.h"
+#include "llinventorymodel.h"
 #include "llslurl.h"
 #include "llurldispatcher.h"
 #include "llviewernetwork.h"
 #include "llviewerobject.h"
 #include "llviewerobjectlist.h"
 #include "llviewerregion.h"
+#include "llvoavatarself.h"
 #include "llsdutil.h"
 #include "llsdutil_math.h"
 #include "lltoolgrab.h"
@@ -157,6 +159,19 @@ LLAgentListener::LLAgentListener(LLAgent &agent)
     add("removeCameraParams",
         "Reset Follow camera params",
         &LLAgentListener::removeFollowCamParams);
+    
+    add("playAnimation",
+        "Play [\"item_id\"] animation locally (by default) or [\"inworld\"] (when set to true)",
+        &LLAgentListener::playAnimation,
+        llsd::map("item_id", LLSD(), "reply", LLSD()));
+    add("stopAnimation",
+        "Stop playing [\"item_id\"] animation",
+        &LLAgentListener::stopAnimation,
+        llsd::map("item_id", LLSD(), "reply", LLSD()));
+    add("getAnimationInfo",
+        "Return information about [\"item_id\"] animation",
+        &LLAgentListener::getAnimationInfo,
+        llsd::map("item_id", LLSD(), "reply", LLSD()));
 }
 
 void LLAgentListener::requestTeleport(LLSD const & event_data) const
@@ -590,4 +605,55 @@ void LLAgentListener::setFollowCamActive(LLSD const & event) const
 void LLAgentListener::removeFollowCamParams(LLSD const & event) const
 {
     LLFollowCamMgr::getInstance()->removeFollowCamParams(gAgentID);
+}
+
+void LLAgentListener::playAnimation(LLSD const &event_data)
+{
+    Response response(LLSD(), event_data);
+    LLViewerInventoryItem* item = gInventory.getItem(event_data["item_id"].asUUID());
+    if (!item || (item->getInventoryType() != LLInventoryType::IT_ANIMATION))
+    {
+        return response.error(stringize("Item ", std::quoted(event_data["item_id"].asString()), " was not found"));
+    }
+    LLUUID assset_id = item->getAssetUUID();
+    if(event_data["inworld"].asBoolean())
+    {
+        gAgent.sendAnimationRequest(assset_id, ANIM_REQUEST_START);
+    }
+    else
+    {
+        gAgentAvatarp->startMotion(assset_id);
+    }
+}
+
+void LLAgentListener::stopAnimation(LLSD const &event_data)
+{
+    Response response(LLSD(), event_data);
+    LLViewerInventoryItem* item = gInventory.getItem(event_data["item_id"].asUUID());
+    if (!item || (item->getInventoryType() != LLInventoryType::IT_ANIMATION))
+    {
+        return response.error(stringize("Item ", std::quoted(event_data["item_id"].asString()), " was not found"));
+    }
+    LLUUID assset_id = item->getAssetUUID();
+    gAgentAvatarp->stopMotion(assset_id);
+    gAgent.sendAnimationRequest(assset_id, ANIM_REQUEST_STOP);
+}
+
+void LLAgentListener::getAnimationInfo(LLSD const &event_data)
+{
+    Response response(LLSD(), event_data);
+    LLUUID item_id(event_data["item_id"].asUUID());
+    LLViewerInventoryItem* item = gInventory.getItem(item_id);
+    if (!item || (item->getInventoryType() != LLInventoryType::IT_ANIMATION))
+    {
+        return response.error(stringize("Item ", std::quoted(item_id.asString()), " was not found"));
+    }
+    // if motion exists, will return existing one
+    LLMotion* motion = gAgentAvatarp->createMotion(item->getAssetUUID());
+    response["anim_info"].insert(item_id.asString(),
+                                 llsd::map("duration", motion->getDuration(),
+                                           "is_loop", motion->getLoop(),
+                                           "num_joints", motion->getNumJointMotions(),
+                                           "asset_id", item->getAssetUUID(),
+                                           "priority", motion->getPriority()));
 }

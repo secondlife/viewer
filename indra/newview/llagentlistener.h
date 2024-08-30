@@ -60,6 +60,10 @@ private:
     void setFollowCamParams(LLSD const & event_data) const;
     void setFollowCamActive(LLSD const & event_data) const;
     void removeFollowCamParams(LLSD const & event_data) const;
+    
+    void playAnimation(LLSD const &event_data);
+    void stopAnimation(LLSD const &event_data);
+    void getAnimationInfo(LLSD const &event_data);
 
     LLViewerObject * findObjectClosestTo( const LLVector3 & position ) const;
 

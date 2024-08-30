@@ -53,4 +53,18 @@ function LLAgent.removeCamParams()
     leap.send('LLAgent', {op = 'removeCameraParams'})
 end
 
+function LLAgent.playAnimation(...)
+    local args = mapargs('item_id,inworld', ...)
+    args.op = 'playAnimation'
+    return leap.request('LLAgent', args)
+end
+
+function LLAgent.stopAnimation(item_id)
+    return leap.request('LLAgent', {op = 'stopAnimation', item_id=item_id})
+end
+
+function LLAgent.getAnimationInfo(item_id)
+    return leap.request('LLAgent', {op = 'getAnimationInfo', item_id=item_id}).anim_info
+end
+
 return LLAgent
