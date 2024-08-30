@@ -496,6 +496,9 @@ namespace
 using LuaStateMap = std::unordered_map<lua_State*, LuaState*>;
 static LuaStateMap sLuaStateMap;
 
+// replacement next(), pairs(), ipairs() that understand setdtor() proxy args
+int lua_proxydrill(lua_State* L);
+
 } // anonymous namespace
 
 LuaState::LuaState(script_finished_fn cb):
@@ -513,6 +516,28 @@ LuaState::LuaState(script_finished_fn cb):
     lua_register(mState, "print", LuaFunction::get("print_info"));
     // We don't want to have to prefix require().
     lua_register(mState, "require", LuaFunction::get("require"));
+
+    // Replace certain key global functions so they understand our
+    // LL.setdtor() proxy objects.
+    // (We could also do this for selected library functions as well,
+    // e.g. the table, string, math libraries... let's see if needed.)
+    for (const auto& func : { "next", "pairs", "ipairs" })
+    {
+        // push the function's name string twice
+        lua_pushstring(mState, func);
+        lua_pushvalue(mState, -1);
+        // stack: name, name
+        // look up the existing global
+        lua_rawget(mState, LUA_GLOBALSINDEX);
+        // stack: name, global function
+        // bind original function as the upvalue for lua_proxydrill()
+        lua_pushcclosure(mState, lua_proxydrill,
+                         stringize("lua_proxydrill(", func, ')').c_str(),
+                         1);
+        // stack: name, lua_proxydrill(func)
+        // global name = lua_proxydrill(func)
+        lua_rawset(mState, LUA_GLOBALSINDEX);
+    }
 }
 
 LuaState::~LuaState()
@@ -1165,6 +1190,14 @@ void setdtor_refs::push_metatable(lua_State* L)
             -- don't fret about arg._target's __tostring metamethod,
             -- if any, because built-in tostring() deals with that
             return tostring(arg._target)
+        end,
+        __iter = function(arg)
+            local iter = (getmetatable(arg._target) or {}).__iter
+            if iter then
+                return iter(arg._target)
+            else
+                return next, arg._target
+            end
         end
     }
 )-",
@@ -1172,6 +1205,7 @@ void setdtor_refs::push_metatable(lua_State* L)
     binop("sub", "-"),
     binop("mul", "*"),
     binop("div", "/"),
+    binop("idiv", "//"),
     binop("mod", "%"),
     binop("pow", "^"),
     binop("concat", ".."),
@@ -1252,6 +1286,34 @@ int setdtor_refs::meta__index(lua_State* L)
         // stack: _target[key]
     }
     return 1;
+}
+
+// replacement for global next(), pairs(), ipairs():
+// its lua_upvalueindex(1) is the original function it's replacing
+int lua_proxydrill(lua_State* L)
+{
+    // Accept however many arguments the original function normally accepts.
+    // If our first arg is a userdata, check if it's a setdtor_refs proxy.
+    // Drill through as many levels of proxy wrapper as needed.
+    while (const setdtor_refs* ptr = lua_toclass<setdtor_refs>(L, 1))
+    {
+        // push original object
+        lua_getref(L, ptr->objref);
+        // replace first argument with that
+        lua_replace(L, 1);
+    }
+    // We've reached a first argument that's not a setdtor() proxy.
+    // How many arguments were we passed, anyway?
+    int args = lua_gettop(L);
+    // Push the original function, captured as our upvalue.
+    lua_pushvalue(L, lua_upvalueindex(1));
+    // Shift the stack so the original function is first.
+    lua_insert(L, 1);
+    // Call the original function with all original args, no error checking.
+    // Don't truncate however many values that function returns.
+    lua_call(L, args, LUA_MULTRET);
+    // Return as many values as the original function returned.
+    return lua_gettop(L);
 }
 
 // When Lua destroys a setdtor_refs userdata object, either from garbage

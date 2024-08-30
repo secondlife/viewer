@@ -30,6 +30,8 @@ print(`n * {i} =`, n * i)
 print(`{i} * n =`, i * n)
 print(`n / {i} =`, n / i)
 print(`{i} / n =`, i / n)
+print(`n // {i} =`, n // i)
+print(`{i} // n =`, i // n)
 print(`n % {i} =`, n % i)
 print(`{i} % n =`, i % n)
 print(`n ^ {i} =`, n ^ i)
@@ -48,10 +50,37 @@ t = LL.setdtor('table', {'[1]', '[2]', abc='.abc', def='.def'},
 print('t =', inspect(t))
 print('t._target =', inspect(t._target))
 print('#t =', #t)
+print('next(t) =', next(t))
+print('next(t, 1) =', next(t, 1))
 print('t[2] =', t[2])
 print('t.def =', t.def)
 t[1] = 'new [1]'
 print('t[1] =', t[1])
+print('for k, v in pairs(t) do')
+for k, v in pairs(t) do
+    print(`{k}: {v}`)
+end
+print('for k, v in ipairs(t) do')
+for k, v in ipairs(t) do
+    print(`{k}: {v}`)
+end
+print('for k, v in t do')
+for k, v in t do
+    print(`{k}: {v}`)
+end
+-- and now for something completely different
+setmetatable(
+    t._target,
+    {
+        __iter = function(arg)
+            return next, {'alternate', '__iter'}
+        end
+    }
+)
+print('for k, v in t with __iter() metamethod do')
+for k, v in t do
+    print(`{k}: {v}`)
+end
 
 print('function')
 f = LL.setdtor('function', function(a, b) return (a .. b) end, print)
