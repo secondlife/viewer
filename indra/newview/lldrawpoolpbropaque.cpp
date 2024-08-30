@@ -62,8 +62,9 @@ void LLDrawPoolGLTFPBR::renderDeferred(S32 pass)
     gDeferredPBROpaqueProgram.bind();
     pushGLTFBatches(mRenderType);
 
-    gDeferredPBROpaqueProgram.bind(true);
     LL::GLTFSceneManager::instance().render(true, true);
+
+    gDeferredPBROpaqueProgram.bind(true);
     pushRiggedGLTFBatches(mRenderType + 1);
 }
 
