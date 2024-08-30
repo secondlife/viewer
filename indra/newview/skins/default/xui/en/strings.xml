@@ -60,6 +60,7 @@ Disk cache: [DISK_CACHE_INFO]
 HiDPI display mode: [HIDPI]
 	</string>
 	<string name="AboutLibs">
+RestrainedLove API: [RLV_VERSION]
 J2C Decoder Version: [J2C_VERSION]
 Audio Driver Version: [AUDIO_DRIVER_VERSION]
 [LIBCEF_VERSION]

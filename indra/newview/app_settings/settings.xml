@@ -9843,6 +9843,17 @@
 			<key>Value</key>
 			<string>https://feedback.secondlife.com/</string>
 		</map>
+    <key>RestrainedLove</key>
+    <map>
+      <key>Comment</key>
+      <string>Toggles RLVa features (requires restart)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <boolean>1</boolean>
+    </map>
 	<key>RevokePermsOnStopAnimation</key>
     <map>
       <key>Comment</key>
