@@ -560,7 +560,8 @@ void LLPanelFace::sendBump(U32 bumpiness)
 
 void LLPanelFace::sendAlphaGamma()
 {
-    U8 alpha_gamma = (U8) mComboAlphaGamma->getCurrentIndex() << TEM_TEX_GEN_SHIFT;
+    U8 alpha_gamma = (U8) mComboAlphaGamma->getValue().asInteger();
+
     LLSelectMgr::getInstance()->selectionSetAlphaGamma(alpha_gamma);
 }
 
