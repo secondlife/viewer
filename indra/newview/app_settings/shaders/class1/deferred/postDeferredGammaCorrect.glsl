@@ -29,9 +29,7 @@ out vec4 frag_color;
 
 uniform sampler2D diffuseRect;
 
-uniform float exposure;
 uniform float gamma;
-uniform float aces_mix;
 uniform vec2 screen_res;
 in vec2 vary_fragcoord;
 

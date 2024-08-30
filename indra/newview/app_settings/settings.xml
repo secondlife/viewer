@@ -9832,6 +9832,28 @@
         <key>Value</key>
         <real>0.4</real>
     </map>
+    <key>RenderTonemapMix</key>
+    <map>
+        <key>Comment</key>
+        <string>Mix between linear and tonemapped colors (0.0(Linear) - 1.0(Tonemapped)</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>F32</string>
+        <key>Value</key>
+        <real>1.0</real>
+    </map>
+    <key>RenderTonemapType</key>
+    <map>
+        <key>Comment</key>
+        <string>What tonemapper to use: 0 = Khronos Neutral, 1 = ACES</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>U32</string>
+        <key>Value</key>
+        <integer>0</integer>
+    </map>
     <key>ReplaySession</key>
     <map>
       <key>Comment</key>
