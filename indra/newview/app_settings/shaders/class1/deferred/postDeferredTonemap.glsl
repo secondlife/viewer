@@ -95,9 +95,33 @@ vec3 toneMapACES_Hill(vec3 color)
     return color;
 }
 
+// Khronos Neutral tonemapping
+// https://github.com/KhronosGroup/ToneMapping/tree/main
+// Input color is non-negative and resides in the Linear Rec. 709 color space.
+// Output color is also Linear Rec. 709, but in the [0, 1] range.
+vec3 PBRNeutralToneMapping( vec3 color )
+{
+  const float startCompression = 0.8 - 0.04;
+  const float desaturation = 0.15;
+
+  float x = min(color.r, min(color.g, color.b));
+  float offset = x < 0.08 ? x - 6.25 * x * x : 0.04;
+  color -= offset;
+
+  float peak = max(color.r, max(color.g, color.b));
+  if (peak < startCompression) return color;
+
+  const float d = 1. - startCompression;
+  float newPeak = 1. - d * d / (peak + d - startCompression);
+  color *= newPeak / peak;
+
+  float g = 1. - 1. / (desaturation * (peak - newPeak) + 1.);
+  return mix(color, newPeak * vec3(1, 1, 1), g);
+}
+
 uniform float exposure;
-uniform float gamma;
-uniform float aces_mix;
+uniform float tonemap_mix;
+uniform int tonemap_type;
 
 vec3 toneMap(vec3 color)
 {
@@ -106,8 +130,20 @@ vec3 toneMap(vec3 color)
 
     color *= exposure * exp_scale;
 
-    // mix ACES and Linear here as a compromise to avoid over-darkening legacy content
-    color = mix(toneMapACES_Hill(color), color, aces_mix);
+    vec3 clamped_color = clamp(color.rgb, vec3(0.0), vec3(1.0));
+
+    switch(tonemap_type)
+    {
+    case 0:
+        color = PBRNeutralToneMapping(color);
+        break;
+    case 1:
+        color = toneMapACES_Hill(color);
+        break;
+    }
+
+    // mix tonemapped and linear here to provide adjustment
+    color = mix(clamped_color, color, tonemap_mix);
 #endif
 
     return color;
@@ -123,14 +159,6 @@ void debugExposure(inout vec3 color)
     {
         color = vec3(1,0,0);
     }
-}
-
-vec3 legacyGamma(vec3 color)
-{
-    vec3 c = 1. - clamp(color, vec3(0.), vec3(1.));
-    c = 1. - pow(c, vec3(gamma)); // s/b inverted already CPU-side
-
-    return c;
 }
 
 void main()

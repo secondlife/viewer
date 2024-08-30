@@ -7087,10 +7087,16 @@ void LLPipeline::tonemap(LLRenderTarget* src, LLRenderTarget* dst)
         F32 e = llclamp(exposure(), 0.5f, 4.f);
 
         static LLStaticHashedString s_exposure("exposure");
-        static LLStaticHashedString aces_mix("aces_mix");
+        static LLStaticHashedString tonemap_mix("tonemap_mix");
+        static LLStaticHashedString tonemap_type("tonemap_type");
 
         shader.uniform1f(s_exposure, e);
-        shader.uniform1f(aces_mix, gEXRImage.notNull() ? 0.f : 0.3f);
+
+        static LLCachedControl<U32> tonemap_type_setting(gSavedSettings, "RenderTonemapType", 0U);
+        shader.uniform1i(tonemap_type, tonemap_type_setting);
+
+        static LLCachedControl<F32> tonemap_mix_setting(gSavedSettings, "RenderTonemapMix", 1.f);
+        shader.uniform1f(tonemap_mix, tonemap_mix_setting);
 
         mScreenTriangleVB->setBuffer();
         mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
