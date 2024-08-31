@@ -40,8 +40,13 @@ private:
     void getFolderTypeNames(LLSD const &data);
     void getAssetTypeNames(LLSD const &data);
     void getBasicFolderID(LLSD const &data);
-    void getDirectDescendents(LLSD const &data);
-    void collectDescendentsIf(LLSD const &data);
+    void getDirectDescendants(LLSD const &data);
+    void collectDescendantsIf(LLSD const &data);
+/*==========================================================================*|
+    void getSingle(LLSD const& data);
+|*==========================================================================*/
+    void getSlice(LLSD const& data);
+    void closeResult(LLSD const& data);
 };
 
 #endif // LL_LLINVENTORYLISTENER_H
