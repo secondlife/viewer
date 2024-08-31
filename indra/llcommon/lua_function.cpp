@@ -496,8 +496,19 @@ namespace
 using LuaStateMap = std::unordered_map<lua_State*, LuaState*>;
 static LuaStateMap sLuaStateMap;
 
-// replacement next(), pairs(), ipairs() that understand setdtor() proxy args
+// replace table-at-index[name] with passed func,
+// binding the original table-at-index[name] as func's upvalue
+void replace_entry(lua_State* L, int index,
+                   const std::string& name, lua_CFunction func);
+
+// replacement next() function that understands setdtor() proxy args
 int lua_proxydrill(lua_State* L);
+// replacement pairs() function that supports __iter() metamethod
+int lua_metapairs(lua_State* L);
+// replacement ipairs() function that supports __index() metamethod
+int lua_metaipairs(lua_State* L);
+// helper for lua_metaipairs() (actual generator function)
+int lua_metaipair(lua_State* L);
 
 } // anonymous namespace
 
@@ -521,24 +532,113 @@ LuaState::LuaState(script_finished_fn cb):
     // LL.setdtor() proxy objects.
     // (We could also do this for selected library functions as well,
     // e.g. the table, string, math libraries... let's see if needed.)
-    for (const auto& func : { "next", "pairs", "ipairs" })
-    {
-        // push the function's name string twice
-        lua_pushstring(mState, func);
-        lua_pushvalue(mState, -1);
-        // stack: name, name
-        // look up the existing global
-        lua_rawget(mState, LUA_GLOBALSINDEX);
-        // stack: name, global function
-        // bind original function as the upvalue for lua_proxydrill()
-        lua_pushcclosure(mState, lua_proxydrill,
-                         stringize("lua_proxydrill(", func, ')').c_str(),
-                         1);
-        // stack: name, lua_proxydrill(func)
-        // global name = lua_proxydrill(func)
-        lua_rawset(mState, LUA_GLOBALSINDEX);
-    }
+    replace_entry(mState, LUA_GLOBALSINDEX, "next", lua_proxydrill);
+    // Replacing pairs() with lua_metapairs() makes global pairs() honor
+    // objects with __iter() metamethods.
+    replace_entry(mState, LUA_GLOBALSINDEX, "pairs", lua_metapairs);
+    // Replacing ipairs() with lua_metaipairs() makes global ipairs() honor
+    // objects with __index() metamethods -- as long as the object in question
+    // has no array entries (int keys) of its own. (If it does, object[i] will
+    // retrieve table[i] instead of calling __index(table, i).)
+    replace_entry(mState, LUA_GLOBALSINDEX, "ipairs", lua_metaipairs);
 }
+
+namespace
+{
+
+void replace_entry(lua_State* L, int index,
+                   const std::string& name, lua_CFunction func)
+{
+    index = lua_absindex(L, index);
+    lua_checkdelta(L);
+    // push the function's name string twice
+    lua_pushlstring(L, name.data(), name.length());
+    lua_pushvalue(L, -1);
+    // stack: name, name
+    // look up the existing table entry
+    lua_rawget(L, index);
+    // stack: name, original function
+    // bind original function as the upvalue for func()
+    lua_pushcclosure(L, func, (name + "()").c_str(), 1);
+    // stack: name, func-with-bound-original
+    // table[name] = func-with-bound-original
+    lua_rawset(L, index);
+}
+
+int lua_metapairs(lua_State* L)
+{
+    // pairs(obj): object is at index 1
+    // discard any erroneous surplus parameters
+    lua_settop(L, 1);
+    // stack: obj
+    if (luaL_getmetafield(L, 1, "__iter"))
+    {
+        // stack: obj, getmetatable(obj).__iter
+        lua_insert(L, 1);
+        // stack: __iter, obj
+        // We don't use the even nicer shorthand luaL_callmeta() because
+        // luaL_callmeta() only permits the metamethod to return a single
+        // value, and __iter() returns up to 3. Use lua_call() instead.
+        lua_call(L, 1, LUA_MULTRET);
+        // return as many values as __iter(obj) returned
+        return lua_gettop(L);
+    }
+    // otherwise, just return (next, obj)
+    lluau_checkstack(L, 1);
+    // stack: obj
+    lua_getglobal(L, "next");
+    // stack: obj, next
+    lua_insert(L, 1);
+    // stack: next, obj
+    return 2;
+}
+
+int lua_metaipairs(lua_State* L)
+{
+    lua_checkdelta(L, 2);
+    // ipairs(obj): object is at index 1
+    // discard any erroneous surplus parameters
+    lua_settop(L, 1);
+    // stack: obj
+    lua_pushcfunction(L, lua_metaipair, "lua_metaipair");
+    // stack: obj, lua_metaipair
+    lua_insert(L, 1);
+    // stack: lua_metaipair, obj
+    // push explicit 0 so lua_metaipair need not special-case nil
+    lua_pushinteger(L, 0);
+    // stack: lua_metaipair, obj, 0
+    return 3;
+}
+
+int lua_metaipair(lua_State* L)
+{
+    // called with (obj, previous-index)
+    // increment previous-index for this call
+    lua_Integer i = luaL_checkinteger(L, 2) + 1;
+    lua_pop(L, 1);
+    // stack: obj
+    lua_pushinteger(L, i);
+    // stack: obj, i
+    lua_pushvalue(L, -1);
+    // stack: obj, i, i
+    lua_insert(L, 1);
+    // stack: i, obj, i
+    lua_gettable(L, -2);
+    // stack: i, obj, obj[i]
+    lua_remove(L, -2);
+    // stack: i, obj[i]
+    if (! lua_isnil(L, -1))
+    {
+        // great, obj[i] isn't nil: return (i, obj[i])
+        return 2;
+    }
+    // obj[i] is nil. ipairs() is documented to stop at the first hole,
+    // regardless of #obj. Clear the stack, i.e. return nil.
+    lua_settop(L, 0);
+    return 0;
+}
+
+} // anonymous namespace
 
 LuaState::~LuaState()
 {
