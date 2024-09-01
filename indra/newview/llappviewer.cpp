@@ -3340,7 +3340,7 @@ LLSD LLAppViewer::getViewerInfo() const
     }
 #endif
 
-    info["RLV_VERSION"] = RlvActions::isRlvEnabled() ? RlvStrings::getVersionAbout() : "(disabled)";
+    info["RLV_VERSION"] = RlvActions::isRlvEnabled() ? Rlv::Strings::getVersionAbout() : "(disabled)";
     info["OPENGL_VERSION"] = ll_safe_string((const char*)(glGetString(GL_VERSION)));
 
     // Settings
