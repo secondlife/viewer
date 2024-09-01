@@ -9,6 +9,8 @@
 #include "rlvdefines.h"
 #include "rlvcommon.h"
 
+#include <boost/algorithm/string.hpp>
+
 using namespace Rlv;
 
 // ============================================================================
@@ -45,6 +47,13 @@ std::string Strings::getVersionImplNum()
 // ============================================================================
 // RlvUtil
 //
+
+bool Util::parseStringList(const std::string& strInput, std::vector<std::string>& optionList, std::string_view strSeparator)
+{
+    if (!strInput.empty())
+        boost::split(optionList, strInput, boost::is_any_of(strSeparator));
+    return !optionList.empty();
+}
 
 bool Util::sendChatReply(S32 nChannel, const std::string& strUTF8Text)
 {

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "rlvdefines.h"
+
 namespace Rlv
 {
     // ============================================================================
@@ -22,6 +24,7 @@ namespace Rlv
     namespace Util
     {
         bool isValidReplyChannel(S32 nChannel, bool isLoopback = false);
+        bool parseStringList(const std::string& strInput, std::vector<std::string>& optionList, std::string_view strSeparator = Constants::OptionSeparator);
         bool sendChatReply(S32 nChannel, const std::string& strUTF8Text);
         bool sendChatReply(const std::string& strChannel, const std::string& strUTF8Text);
     };

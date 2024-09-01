@@ -52,6 +52,7 @@ namespace Rlv
     namespace Constants
     {
         constexpr char CmdPrefix = '@';
+        constexpr std::string_view OptionSeparator = ";";
     }
 }
 
@@ -65,6 +66,7 @@ namespace Rlv
         Version = 0,
         VersionNew,
         VersionNum,
+        GetCommand,
 
         Count,
         Unknown,

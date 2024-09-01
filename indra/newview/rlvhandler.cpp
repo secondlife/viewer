@@ -9,6 +9,8 @@
 #include "rlvhandler.h"
 #include "rlvhelper.h"
 
+#include <boost/algorithm/string.hpp>
+
 using namespace Rlv;
 
 // ============================================================================
@@ -141,6 +143,35 @@ ECmdRet CommandHandlerBaseImpl<EParamType::Reply>::processCommand(const RlvComma
     }
 
     return eRet;
+}
+
+// Handles: @getcommand[:<behaviour>[;<type>[;<separator>]]]=<channel>
+template<> template<>
+ECmdRet ReplyHandler<EBehaviour::GetCommand>::onCommand(const RlvCommand& rlvCmd, std::string& strReply)
+{
+    std::vector<std::string> optionList;
+    Util::parseStringList(rlvCmd.getOption(), optionList);
+
+    // If a second parameter is present it'll specify the command type
+    EParamType eType = EParamType::Unknown;
+    if (optionList.size() >= 2)
+    {
+        if (optionList[1] == "any" || optionList[1].empty())
+            eType = EParamType::Unknown;
+        else if (optionList[1] == "add")
+            eType = EParamType::AddRem;
+        else if (optionList[1] == "force")
+            eType = EParamType::Force;
+        else if (optionList[1] == "reply")
+            eType = EParamType::Reply;
+        else
+            return ECmdRet::FailedOption;
+    }
+
+    std::list<std::string> cmdList;
+    if (BehaviourDictionary::instance().getCommands(!optionList.empty() ? optionList[0] : LLStringUtil::null, eType, cmdList))
+        strReply = boost::algorithm::join(cmdList, optionList.size() >= 3 ? optionList[2] : Constants::OptionSeparator);
+    return ECmdRet::Success;
 }
 
 // Handles: @version=<chnannel> and @versionnew=<channel>

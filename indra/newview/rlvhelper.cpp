@@ -22,6 +22,7 @@ BehaviourDictionary::BehaviourDictionary()
     //
     // Reply-only
     //
+    addEntry(new ReplyProcessor<EBehaviour::GetCommand>("getcommand"));
     addEntry(new ReplyProcessor<EBehaviour::Version, VersionReplyHandler>("version"));
     addEntry(new ReplyProcessor<EBehaviour::VersionNew, VersionReplyHandler>("versionnew"));
     addEntry(new ReplyProcessor<EBehaviour::VersionNum>("versionnum"));
