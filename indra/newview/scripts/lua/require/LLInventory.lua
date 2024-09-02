@@ -1,12 +1,14 @@
 local leap = require 'leap'
 local mapargs = require 'mapargs'
+local result_view = require 'result_view'
 
 local function result(keys)
     return LL.setdtor(
         'LLInventory result',
         setmetatable(
             -- the basic table wrapped by setmetatable just captures the int
-            -- result-set keys from 'keys', but with underscore prefixes
+            -- result-set {key, length} pairs from 'keys', but with underscore
+            -- prefixes
             {
                 _categories=keys.categories,
                 _items=keys.items,
@@ -15,7 +17,7 @@ local function result(keys)
                 close = function(self)
                     leap.send('LLInventory',
                               {op='closeResult',
-                               result={self._categories, self._items}})
+                               result={self._categories[1], self._items[1]}})
                 end
             },
             -- The caller of one of our methods that returns a result set
@@ -24,25 +26,25 @@ local function result(keys)
             -- either 'categories' or 'items', the __index() metamethod
             -- populates that field.
             {
-                __index = function(t, key)
+                __index = function(t, field)
                     -- we really don't care about references to any other field
-                    if not table.find({'categories', 'items'}, key) then
+                    if not table.find({'categories', 'items'}, field) then
                         return nil
                     end
-                    -- We cleverly saved the int result set key in a field
-                    -- with the same name but an underscore prefix.
-                    local resultkey = t['_' .. key]
-                    -- TODO: This only ever fetches the FIRST slice. What we
-                    -- really want is to return a table with metamethods that
-                    -- manage indexed access and table iteration.
-                    -- Remember our C++ entry point uses 0-relative indexing.
-                    local slice = leap.request(
-                        'LLInventory',
-                        {op='getSlice', result=resultkey, index=0}).slice
-                    print(`getSlice({resultkey}, 0) => {slice} ({#slice} entries)`)
-                    -- cache this slice for future reference
-                    t[key] = slice
-                    return slice
+                    local view = result_view(
+                        -- We cleverly saved the result set {key, length} pair in
+                        -- a field with the same name but an underscore prefix.
+                        t['_' .. field],
+                        function(key, start)
+                            local fetched = leap.request(
+                                'LLInventory',
+                                {op='getSlice', result=key, index=start})
+                            return fetched.slice, fetched.start
+                        end
+                    )
+                    -- cache that view for future reference
+                    t[field] = view
+                    return view
                 end
             }
         ),
