@@ -568,46 +568,67 @@ void replace_entry(lua_State* L, int index,
 int lua_metapairs(lua_State* L)
 {
     // pairs(obj): object is at index 1
-    // discard any erroneous surplus parameters
-    lua_settop(L, 1);
-    // stack: obj
+    // How many args were we passed?
+    int args = lua_gettop(L);
+    // stack: obj, ...
     if (luaL_getmetafield(L, 1, "__iter"))
     {
-        // stack: obj, getmetatable(obj).__iter
-        lua_insert(L, 1);
-        // stack: __iter, obj
-        // We don't use the even nicer shorthand luaL_callmeta() because
-        // luaL_callmeta() only permits the metamethod to return a single
-        // value, and __iter() returns up to 3. Use lua_call() instead.
-        lua_call(L, 1, LUA_MULTRET);
-        // return as many values as __iter(obj) returned
-        return lua_gettop(L);
+        // stack: obj, ..., getmetatable(obj).__iter
     }
-    // otherwise, just return (next, obj)
-    lluau_checkstack(L, 1);
-    // stack: obj
-    lua_getglobal(L, "next");
-    // stack: obj, next
+    else
+    {
+        // Push the original pairs() function, captured as our upvalue.
+        lua_pushvalue(L, lua_upvalueindex(1));
+        // stack: obj, ..., original pairs()
+    }
     lua_insert(L, 1);
-    // stack: next, obj
-    return 2;
+    // stack: (__iter() or pairs()), obj, ...
+    // call whichever function(obj, ...) (args args, up to 3 return values)
+    lua_call(L, args, LUA_MULTRET);
+    // return as many values as the selected function returned
+    return lua_gettop(L);
 }
 
 int lua_metaipairs(lua_State* L)
 {
-    lua_checkdelta(L, 2);
     // ipairs(obj): object is at index 1
-    // discard any erroneous surplus parameters
-    lua_settop(L, 1);
-    // stack: obj
-    lua_pushcfunction(L, lua_metaipair, "lua_metaipair");
-    // stack: obj, lua_metaipair
-    lua_insert(L, 1);
-    // stack: lua_metaipair, obj
-    // push explicit 0 so lua_metaipair need not special-case nil
-    lua_pushinteger(L, 0);
-    // stack: lua_metaipair, obj, 0
-    return 3;
+    // How many args were we passed?
+    int args = lua_gettop(L);
+    // stack: obj, ...
+    if (luaL_getmetafield(L, 1, "__index"))
+    {
+        // stack: obj, ..., getmetatable(obj).__index
+        // discard __index and everything but obj:
+        // we don't want to call __index(), just check its presence
+        lua_settop(L, 1);
+        // stack: obj
+        lua_pushcfunction(L, lua_metaipair, "lua_metaipair");
+        // stack: obj, lua_metaipair
+        lua_insert(L, 1);
+        // stack: lua_metaipair, obj
+        // push explicit 0 so lua_metaipair need not special-case nil
+        lua_pushinteger(L, 0);
+        // stack: lua_metaipair, obj, 0
+        return 3;
+    }
+    else                            // no __index() metamethod
+    {
+        // Although our lua_metaipair() function demonstrably works whether or
+        // not our object has an __index() metamethod, the code below assumes
+        // that the Lua engine may have a more efficient implementation for
+        // built-in ipairs() than our lua_metaipair().
+        // Push the original ipairs() function, captured as our upvalue.
+        lua_pushvalue(L, lua_upvalueindex(1));
+        // stack: obj, ..., original ipairs()
+        // Shift the stack so the original function is first.
+        lua_insert(L, 1);
+        // stack: original ipairs(), obj, ...
+        // Call original ipairs() with all original args, no error checking.
+        // Don't truncate however many values that function returns.
+        lua_call(L, args, LUA_MULTRET);
+        // Return as many values as the original function returned.
+        return lua_gettop(L);
+    }
 }
 
 int lua_metaipair(lua_State* L)
@@ -624,7 +645,7 @@ int lua_metaipair(lua_State* L)
     lua_insert(L, 1);
     // stack: i, obj, i
     lua_gettable(L, -2);
-    // stack: i, obj, obj[i]
+    // stack: i, obj, obj[i] (honoring __index())
     lua_remove(L, -2);
     // stack: i, obj[i]
     if (! lua_isnil(L, -1))
@@ -1388,7 +1409,7 @@ int setdtor_refs::meta__index(lua_State* L)
     return 1;
 }
 
-// replacement for global next(), pairs(), ipairs():
+// replacement for global next():
 // its lua_upvalueindex(1) is the original function it's replacing
 int lua_proxydrill(lua_State* L)
 {
