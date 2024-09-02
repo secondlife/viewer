@@ -574,8 +574,9 @@ void LLVertexBufferData::draw()
 {
     if (!mVB)
     {
-        // signal for pushUIMatrix
-        return; // todo: find a better way?
+        llassert(false);
+        // Not supposed to happen, check buffer generation
+        return;
     }
 
     if (mTexName)

@@ -50,6 +50,60 @@ S32 LLFontVertexBuffer::render(
     const LLFontGL* fontp,
     const LLWString& text,
     S32 begin_offset,
+    LLRect rect,
+    const LLColor4& color,
+    LLFontGL::HAlign halign, LLFontGL::VAlign valign,
+    U8 style,
+    LLFontGL::ShadowType shadow,
+    S32 max_chars, S32 max_pixels,
+    F32* right_x,
+    bool use_ellipses,
+    bool use_color)
+{
+    LLRectf rect_float((F32)rect.mLeft, (F32)rect.mTop, (F32)rect.mRight, (F32)rect.mBottom);
+    return render(fontp, text, begin_offset, rect_float, color, halign, valign, style, shadow, max_chars, right_x, use_ellipses, use_color);
+}
+
+S32 LLFontVertexBuffer::render(
+    const LLFontGL* fontp,
+    const LLWString& text,
+    S32 begin_offset,
+    LLRectf rect,
+    const LLColor4& color,
+    LLFontGL::HAlign halign, LLFontGL::VAlign valign,
+    U8 style,
+    LLFontGL::ShadowType shadow,
+    S32 max_chars,
+    F32* right_x,
+    bool use_ellipses,
+    bool use_color)
+{
+    F32 x = rect.mLeft;
+    F32 y = 0.f;
+
+    switch (valign)
+    {
+    case LLFontGL::TOP:
+        y = rect.mTop;
+        break;
+    case LLFontGL::VCENTER:
+        y = rect.getCenterY();
+        break;
+    case LLFontGL::BASELINE:
+    case LLFontGL::BOTTOM:
+        y = rect.mBottom;
+        break;
+    default:
+        y = rect.mBottom;
+        break;
+    }
+    return render(fontp, text, begin_offset, x, y, color, halign, valign, style, shadow, max_chars, (S32)rect.getWidth(), right_x, use_ellipses, use_color);
+}
+
+S32 LLFontVertexBuffer::render(
+    const LLFontGL* fontp,
+    const LLWString& text,
+    S32 begin_offset,
     F32 x, F32 y,
     const LLColor4& color,
     LLFontGL::HAlign halign, LLFontGL::VAlign valign,
@@ -117,6 +171,7 @@ void LLFontVertexBuffer::genBuffers(
     bool use_ellipses,
     bool use_color)
 {
+    // todo: add a debug build assert if this triggers too often for to long?
     mBufferList.clear();
 
     gGL.beginList(&mBufferList);

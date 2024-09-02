@@ -43,6 +43,8 @@
 #include "llfloater.h"
 #include "llfloaterreg.h"
 #include "llfocusmgr.h"
+#include "llfontgl.h"
+#include "llfontvertexbuffer.h"
 #include "llwindow.h"
 #include "llnotificationsutil.h"
 #include "llrender.h"
@@ -436,18 +438,6 @@ void LLButton::reshape(S32 width, S32 height, bool called_from_parent)
         LLUICtrl::reshape(width, height, called_from_parent);
         mFontBuffer.reset();
     }
-}
-
-void LLButton::translate(S32 x, S32 y)
-{
-    LLUICtrl::translate(x, y);
-    mFontBuffer.reset();
-}
-
-void LLButton::setRect(const LLRect& rect)
-{
-    LLUICtrl::setRect(rect);
-    mFontBuffer.reset();
 }
 
 void LLButton::dirtyRect()

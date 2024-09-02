@@ -34,7 +34,6 @@
 #include "llfontbitmapcache.h"
 #include "llfontregistry.h"
 #include "llgl.h"
-#include "llglslshader.h"
 #include "llimagegl.h"
 #include "llrender.h"
 #include "llstl.h"
@@ -376,6 +375,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
         cur_render_x = cur_x;
         cur_render_y = cur_y;
     }
+
     gGL.begin(LLRender::QUADS);
     {
         gGL.vertexBatchPreTransformed(vertices, uvs, colors, glyph_count * 4);
@@ -503,6 +503,7 @@ F32 LLFontGL::getWidthF32(const std::string& utf8text, S32 begin_offset, S32 max
 
 F32 LLFontGL::getWidthF32(const llwchar* wchars, S32 begin_offset, S32 max_chars, bool no_padding) const
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
     const S32 LAST_CHARACTER = LLFontFreetype::LAST_CHAR_FULL;
 
     F32 cur_x = 0;
