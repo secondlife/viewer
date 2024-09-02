@@ -483,7 +483,7 @@
        layout="topleft"
        name="Reset Skeleton">
         <menu_item_call.on_click
-         function="Avatar.ResetSkeleton" />
+         function="Avatar.ResetSelfSkeleton" />
       </menu_item_call>
       <menu_item_call 
        label="Reset skeleton and animations"
