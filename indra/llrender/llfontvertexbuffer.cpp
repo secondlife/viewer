@@ -31,8 +31,7 @@
 #include "llvertexbuffer.h"
 
 
-LLFontVertexBuffer::LLFontVertexBuffer(bool track_changes)
-: mTrackStringChanges(track_changes)
+LLFontVertexBuffer::LLFontVertexBuffer()
 {
 }
 
@@ -141,11 +140,6 @@ S32 LLFontVertexBuffer::render(
         genBuffers(fontp, text, begin_offset, x, y, color, halign, valign,
             style, shadow, max_chars, max_pixels, right_x, use_ellipses, use_color);
     }
-    else if (mTrackStringChanges && mLastStringHash != sStringHasher._Do_hash(text))
-    {
-        genBuffers(fontp, text, begin_offset, x, y, color, halign, valign,
-            style, shadow, max_chars, max_pixels, right_x, use_ellipses, use_color);
-    }
     else
     {
         renderBuffers();
@@ -183,7 +177,6 @@ void LLFontVertexBuffer::genBuffers(
     mLastOffset = begin_offset;
     mLastMaxChars = max_chars;
     mLastMaxPixels = max_pixels;
-    mLastStringHash = sStringHasher._Do_hash(text);
     mLastX = x;
     mLastY = y;
     mLastColor = color;

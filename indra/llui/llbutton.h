@@ -253,8 +253,8 @@ public:
     void            setDisabledLabelColor(const LLUIColor& c);
 
     void            setFont(const LLFontGL* font);
-    const LLFontGL* getFont() const { return mGLFont; }
-    const std::string& getText() const { return getCurrentLabel().getString(); }
+    const LLFontGL* getFont() const override { return mGLFont; }
+    const std::string& getText() const override { return getCurrentLabel().getString(); }
 
     S32             getLastDrawCharsCount() const { return mLastDrawCharsCount; }
     bool            labelIsTruncated() const;
@@ -392,7 +392,7 @@ private:
     LLFontVertexBuffer          mFontBuffer;
 
 protected:
-    virtual std::string _getSearchText() const
+    virtual std::string _getSearchText() const override
     {
         return getLabelUnselected() + getToolTip();
     }

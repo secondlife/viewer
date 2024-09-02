@@ -45,6 +45,7 @@
 #include "glh/glh_linear.h"
 
 #include <array>
+#include <list>
 
 class LLVertexBuffer;
 class LLCubeMap;
@@ -423,9 +424,6 @@ public:
     void begin(const GLuint& mode);
     void end();
 
-    LLVertexBuffer* beginNoCache(const GLuint& mode, S32& count);
-    LLVertexBuffer* endNoCache(S32& count);
-    LLVertexBuffer* getBuffer(S32& count);
     U8 getMode() const { return mMode; }
 
     void vertex2i(const GLint& x, const GLint& y);
