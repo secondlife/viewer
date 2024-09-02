@@ -34,8 +34,6 @@
 #include "lluictrl.h"
 #include "v4color.h"
 #include "llframetimer.h"
-#include "llfontgl.h"
-#include "llfontvertexbuffer.h"
 #include "lluiimage.h"
 #include "lluistring.h"
 
@@ -56,6 +54,8 @@ S32 round_up(S32 grid, S32 value);
 
 
 class LLUICtrlFactory;
+class LLFontGL;
+class LLFontVertexBuffer;
 
 //
 // Classes
@@ -170,8 +170,6 @@ public:
 
     void onVisibilityChange(bool visible) override;
     void reshape(S32 width, S32 height, bool called_from_parent = true) override;
-    void translate(S32 x, S32 y) override;
-    void setRect(const LLRect& rect) override;
     void dirtyRect() override;
 
     virtual void    onMouseLeave(S32 x, S32 y, MASK mask) override;
@@ -307,9 +305,6 @@ protected:
     commit_signal_t*            mMouseUpSignal;
     commit_signal_t*            mHeldDownSignal;
 
-    const LLFontGL*             mGLFont;
-    LLFontVertexBuffer          mFontBuffer;
-
     S32                         mMouseDownFrame;
     S32                         mMouseHeldDownCount;    // Counter for parameter passed to held-down callback
     F32                         mHeldDownDelay;         // seconds, after which held-down callbacks get called
@@ -391,6 +386,10 @@ protected:
     LLFlashTimer *              mFlashingTimer;
     bool                        mForceFlashing; // Stick flashing color even if button is pressed
     bool                        mHandleRightMouse;
+
+private:
+    const LLFontGL* mGLFont;
+    LLFontVertexBuffer          mFontBuffer;
 
 protected:
     virtual std::string _getSearchText() const

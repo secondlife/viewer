@@ -1531,6 +1531,7 @@ void LLRender::clearErrors()
 
 void LLRender::beginList(std::list<LLVertexBufferData> *list)
 {
+    llassert(LLGLSLShader::sCurBoundShaderPtr == &gUIProgram);
     flush();
     sBufferDataList = list;
 }
