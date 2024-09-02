@@ -105,7 +105,6 @@ LLBadge::LLBadge(const LLBadge::Params& p)
     , mPaddingVert(p.padding_vert)
     , mParentScroller(NULL)
     , mDrawAtParentTop(false)
-    , mFontBuffer(false)
 {
     if (mImage.isNull())
     {

@@ -124,7 +124,6 @@ LLButton::Params::Params()
 LLButton::LLButton(const LLButton::Params& p)
     : LLUICtrl(p),
     LLBadgeOwner(getHandle()),
-    mFontBuffer(false),
     mMouseDownFrame(0),
     mMouseHeldDownCount(0),
     mFlashing( false ),

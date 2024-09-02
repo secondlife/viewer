@@ -59,9 +59,7 @@ protected:
         :   mColor(color),
             mStyle(style),
             mText(text),
-            mFont(font),
-            mFontBufferLabel(false),
-            mFontBufferText(false)
+            mFont(font)
         {}
         F32 getWidth(const LLFontGL* font);
         const LLWString& getText() const { return mText; }

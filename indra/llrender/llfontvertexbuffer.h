@@ -35,7 +35,7 @@ class LLVertexBufferData;
 class LLFontVertexBuffer
 {
 public:
-    LLFontVertexBuffer(bool track_changes = true);
+    LLFontVertexBuffer();
     ~LLFontVertexBuffer();
 
     void reset();
@@ -101,7 +101,6 @@ private:
     S32 mLastOffset = 0;
     S32 mLastMaxChars = 0;
     S32 mLastMaxPixels = 0;
-    size_t mLastStringHash = 0;
     F32 mLastX = 0.f;
     F32 mLastY = 0.f;
     LLColor4 mLastColor;
@@ -115,10 +114,6 @@ private:
     F32 mLastScaleX = 1.f;
     F32 mLastScaleY = 1.f;
     LLCoordGL mLastOrigin;
-
-    bool mTrackStringChanges = true;
-
-    static std::hash<LLWString> sStringHasher;
 };
 
 #endif

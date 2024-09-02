@@ -256,7 +256,6 @@ LLScrollListText::LLScrollListText(const LLScrollListCell::Params& p)
     mText(p.label.isProvided() ? p.label() : p.value().asString()),
     mAltText(p.alt_value().asString()),
     mFont(p.font),
-    mFontBuffer(false),
     mColor(p.color),
     mUseColor(p.color.isProvided()),
     mFontAlignment(p.font_halign),
