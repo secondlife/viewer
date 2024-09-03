@@ -141,7 +141,7 @@ namespace Rlv
     template<EBehaviour templBhvr> using ForceHandler = CommandHandler<EParamType::Force, templBhvr>;
     template<EBehaviour templBhvr> using ReplyHandler = CommandHandler<EParamType::Reply, templBhvr>;
 
-	// List of shared handlers
+    // List of shared handlers
     using VersionReplyHandler = ReplyHandler<EBehaviour::Version>;				// Shared between @version and @versionnew
 
     //
@@ -192,7 +192,7 @@ namespace Rlv
 
     struct CommandDbgOut
     {
-        CommandDbgOut(const std::string& orig_cmd) : mOrigCmd(orig_cmd) {}
+        CommandDbgOut(const std::string& orig_cmd, bool for_console) : mOrigCmd(orig_cmd), mForConsole(for_console) {}
         void add(std::string strCmd, ECmdRet eRet);
         std::string get() const;
         static std::string getDebugVerbFromReturnCode(ECmdRet eRet);
@@ -200,6 +200,7 @@ namespace Rlv
     private:
         std::string mOrigCmd;
         std::map<ECmdRet, std::string> mCommandResults;
+        bool mForConsole = false;
     };
 }
 

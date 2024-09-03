@@ -250,21 +250,13 @@ namespace Rlv
 
     void CommandDbgOut::add(std::string strCmd, ECmdRet eRet)
     {
-        ECmdRet resultBucket;
+        const std::string strSuffix = getReturnCodeString(eRet);
+        if (!strSuffix.empty())
+            strCmd.append(llformat(" (%s)", strSuffix.c_str()));
+        else if (mForConsole)
+            return; // Only show console feedback on successful commands when there's an informational notice
 
-        // Successful and retained commands are added as-is
-        if (isReturnCodeSuccess(eRet))
-            resultBucket = ECmdRet::Success;
-        else if (ECmdRet::Retained == eRet)
-            resultBucket = ECmdRet::Retained;
-        else
-        {
-            // Failed commands get the failure reason appended to help troubleshooting
-            resultBucket = ECmdRet::Failed;
-            strCmd.append(llformat(" (%s)", getReturnCodeString(eRet).c_str()));
-        }
-
-        std::string& strResult = mCommandResults[resultBucket];
+        std::string& strResult = mCommandResults[isReturnCodeSuccess(eRet) ? ECmdRet::Success : (ECmdRet::Retained == eRet ? ECmdRet::Retained : ECmdRet::Failed)];
         if (!strResult.empty())
             strResult.append(", ");
         strResult.append(strCmd);
@@ -273,23 +265,25 @@ namespace Rlv
     std::string CommandDbgOut::get() const {
         std::ostringstream result;
 
-        if (1 == mCommandResults.size())
+        if (1 == mCommandResults.size() && !mForConsole)
         {
             auto it = mCommandResults.begin();
-            result << " " << getDebugVerbFromReturnCode(it->first) << ": @" << it->second;;
+            result << " " << getDebugVerbFromReturnCode(it->first) << ": @" << it->second;
         }
-        else if (mCommandResults.size() > 1)
+        else if (!mCommandResults.empty())
         {
             auto appendResult = [&](ECmdRet eRet, const std::string& name)
                 {
                     auto it = mCommandResults.find(eRet);
                     if (it == mCommandResults.end()) return;
-                    result << "\n    - " << LLTrans::getString(name) << ": @" << it->second;
+                    if (!mForConsole) result << "\n    - ";
+                    result << LLTrans::getString(name) << ": @" << it->second;
                 };
-            result << ": @" << mOrigCmd;
-            appendResult(ECmdRet::Success, "RlvDebugExecuted");
-            appendResult(ECmdRet::Failed, "RlvDebugFailed");
-            appendResult(ECmdRet::Retained, "RlvDebugRetained");
+            if (!mForConsole)
+                result << ": @" << mOrigCmd;
+            appendResult(ECmdRet::Success, !mForConsole ? "RlvDebugExecuted" : "RlvConsoleExecuted");
+            appendResult(ECmdRet::Failed, !mForConsole ? "RlvDebugFailed" : "RlvConsoleFailed");
+            appendResult(ECmdRet::Retained, !mForConsole ? "RlvDebugRetained" : "RlvConsoleRetained");
         }
 
         return result.str();

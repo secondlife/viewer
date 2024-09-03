@@ -52,6 +52,7 @@ namespace Rlv
     namespace Constants
     {
         constexpr char CmdPrefix = '@';
+        constexpr char ConsolePrompt[] = "> ";
         constexpr std::string_view OptionSeparator = ";";
     }
 }

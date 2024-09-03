@@ -1,6 +1,5 @@
 #include "llviewerprecompiledheaders.h"
 #include "llagent.h"
-#include "llappviewer.h"
 #include "llstartup.h"
 #include "llviewercontrol.h"
 #include "llviewerobject.h"
@@ -38,7 +37,7 @@ bool RlvHandler::handleSimulatorChat(std::string& message, const LLChat& chat, c
 
     message.erase(0, 1);
     LLStringUtil::toLower(message);
-    CommandDbgOut cmdDbgOut(message);
+    CommandDbgOut cmdDbgOut(message, chatObj->getID() == gAgentID);
 
     boost_tokenizer tokens(message, boost::char_separator<char>(",", "", boost::drop_empty_tokens));
     for (const std::string& strCmd : tokens)
@@ -128,7 +127,7 @@ ECmdRet CommandHandlerBaseImpl<EParamType::Reply>::processCommand(const RlvComma
 {
     // Sanity check - <param> should specify a - valid - reply channel
     S32 nChannel;
-    if (!LLStringUtil::convertToS32(rlvCmd.getParam(), nChannel) || !Util::isValidReplyChannel(nChannel, rlvCmd.getObjectID() == gAgent.getID()))
+    if (!LLStringUtil::convertToS32(rlvCmd.getParam(), nChannel) || !Util::isValidReplyChannel(nChannel, rlvCmd.getObjectID() == gAgentID))
         return ECmdRet::FailedParam;
 
     std::string strReply;
@@ -141,6 +140,7 @@ ECmdRet CommandHandlerBaseImpl<EParamType::Reply>::processCommand(const RlvComma
     {
         Util::sendChatReply(nChannel, strReply);
     }
+    RlvHandler::instance().mOnCommandOutput(rlvCmd, nChannel, strReply);
 
     return eRet;
 }
