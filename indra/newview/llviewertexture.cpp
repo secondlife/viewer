@@ -511,33 +511,20 @@ void LLViewerTexture::updateClass()
 
     F32 over_pct = (used - target) / target;
 
-    bool is_low = over_pct > 0.f;
+    bool is_sys_low = isSystemMemoryLow();
+    bool is_low = is_sys_low || over_pct > 0.f;
 
     if (isSystemMemoryLow())
     {
-        is_low = true;
-        // System RAM is low -> ramp up discard bias over time to free memory
-        if (sEvaluationTimer.getElapsedTimeF32() > MEMORY_CHECK_WAIT_TIME)
-        {
-            static LLCachedControl<F32> low_mem_min_discard_increment(gSavedSettings, "RenderLowMemMinDiscardIncrement", .1f);
-            sDesiredDiscardBias += (F32) low_mem_min_discard_increment * (F32) gFrameIntervalSeconds;
-            sEvaluationTimer.reset();
-        }
-    }
-    else
-    {
-        sDesiredDiscardBias = llmax(sDesiredDiscardBias, 1.f + over_pct);
-
-        if (sDesiredDiscardBias > 1.f && over_pct < 0.f)
-        {
-            sDesiredDiscardBias -= gFrameIntervalSeconds * 0.01f;
-        }
+        is_sys_low = true;
     }
 
     static bool was_low = false;
+    static bool was_sys_low = false;
+
     if (is_low && !was_low)
     {
-        LL_WARNS() << "Low system memory detected, emergency downrezzing off screen textures" << LL_ENDL;
+        // slam to 1.5 bias the moment we hit low memory (discards off screen textures immediately
         sDesiredDiscardBias = llmax(sDesiredDiscardBias, 1.5f);
 
         for (auto& image : gTextureList)
@@ -547,7 +534,29 @@ void LLViewerTexture::updateClass()
     }
 
     was_low = is_low;
+    was_sys_low = is_sys_low;
 
+    if (is_low)
+    {
+        // ramp up discard bias over time to free memory
+        if (sEvaluationTimer.getElapsedTimeF32() > MEMORY_CHECK_WAIT_TIME)
+        {
+            static LLCachedControl<F32> low_mem_min_discard_increment(gSavedSettings, "RenderLowMemMinDiscardIncrement", .1f);
+            sDesiredDiscardBias += (F32)low_mem_min_discard_increment * (F32)gFrameIntervalSeconds;
+            sEvaluationTimer.reset();
+        }
+    }
+    else
+    {
+        // don't execute above until the slam to 1.5 has a chance to take effect
+        sEvaluationTimer.reset();
+
+        // lower discard bias over time when free memory is available
+        if (sDesiredDiscardBias > 1.f && over_pct < 0.f)
+        {
+            sDesiredDiscardBias -= gFrameIntervalSeconds * 0.01f;
+        }
+    }
 
     // set to max discard bias if the window has been backgrounded for a while
     static bool was_backgrounded = false;
