@@ -2112,7 +2112,18 @@ void LLGameControl::saveToSettings()
     s_saveString(SETTING_FLYCAMMAPPINGS, g_manager.getFlycamMappings());
 
     g_manager.saveDeviceOptionsToSettings();
-    LLSD deviceOptions(g_deviceOptions, true);
+
+    // construct LLSD version of g_deviceOptions but only include non-empty values
+    LLSD deviceOptions = LLSD::emptyMap();
+    for (const std::pair<std::string, std::string>& pair : g_deviceOptions)
+    {
+        if (!pair.second.empty())
+        {
+            LLSD value(pair.second);
+            deviceOptions.insert(pair.first, value);
+        }
+    }
+
     s_saveObject(SETTING_KNOWNCONTROLLERS, deviceOptions);
 }
 
