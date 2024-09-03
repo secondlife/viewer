@@ -7871,7 +7871,6 @@ void LLPipeline::renderFinalize()
     renderDoF(&mPostMap, &mRT->screen);
 
     LLRenderTarget* finalBuffer = &mRT->screen;
-    static LLCachedControl<U32> aa_type(gSavedSettings, "RenderFSAAType", 2U);
     if (RenderFSAAType == 1)
     {
         applyFXAA(&mRT->screen, &mPostMap);
@@ -7880,7 +7879,6 @@ void LLPipeline::renderFinalize()
 
     if (RenderBufferVisualization > -1)
     {
-        finalBuffer = &mPostMap;
         switch (RenderBufferVisualization)
         {
         case 0:
@@ -7891,6 +7889,7 @@ void LLPipeline::renderFinalize()
             break;
         case 4:
             visualizeBuffers(&mLuminanceMap, finalBuffer, 0);
+            break;
         case 5:
         {
             if (RenderFSAAType > 0)
