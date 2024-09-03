@@ -777,8 +777,9 @@ void LLFolderViewItem::drawOpenFolderArrow(const Params& default_params, const L
     return mIsItemCut;
 }
 
-void LLFolderViewItem::drawHighlight(const bool showContent, const bool hasKeyboardFocus, const LLUIColor &selectColor, const LLUIColor &flashColor,
-                                                        const LLUIColor &focusOutlineColor, const LLUIColor &mouseOverColor)
+void LLFolderViewItem::drawHighlight(bool showContent, bool hasKeyboardFocus,
+    const LLUIColor& selectColor, const LLUIColor& flashColor,
+    const LLUIColor& focusOutlineColor, const LLUIColor& mouseOverColor)
 {
     const S32 focus_top = getRect().getHeight();
     const S32 focus_bottom = getRect().getHeight() - mItemHeight;
@@ -786,7 +787,7 @@ void LLFolderViewItem::drawHighlight(const bool showContent, const bool hasKeybo
     const S32 FOCUS_LEFT = 1;
 
     // Determine which background color to use for highlighting
-    const LLUIColor& bgColor = (isFlashing() ? flashColor : selectColor);
+    const LLUIColor& bgColor = isFlashing() ? flashColor : selectColor;
 
     //--------------------------------------------------------------------------------//
     // Draw highlight for selected items
@@ -794,7 +795,6 @@ void LLFolderViewItem::drawHighlight(const bool showContent, const bool hasKeybo
     // items if mShowSingleSelection is false.
     //
     if (isHighlightAllowed())
-
     {
         gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
@@ -803,7 +803,7 @@ void LLFolderViewItem::drawHighlight(const bool showContent, const bool hasKeybo
         {
             LLColor4 bg_color = bgColor;
             // do time-based fade of extra objects
-            F32 fade_time = (getRoot() ? getRoot()->getSelectionFadeElapsedTime() : 0.0f);
+            F32 fade_time = getRoot() ? getRoot()->getSelectionFadeElapsedTime() : 0.f;
             if (getRoot() && getRoot()->getShowSingleSelection())
             {
                 // fading out
@@ -909,7 +909,7 @@ void LLFolderViewItem::draw()
 
     getViewModelItem()->update();
 
-    if(!mSingleFolderMode)
+    if (!mSingleFolderMode)
     {
         drawOpenFolderArrow(default_params, sFgColor);
     }
@@ -942,7 +942,7 @@ void LLFolderViewItem::draw()
         return;
     }
 
-    auto filter_string_length = mViewModelItem->hasFilterStringMatch() ? static_cast<S32>(mViewModelItem->getFilterStringSize()) : 0;
+    S32 filter_string_length = mViewModelItem->hasFilterStringMatch() ? (S32)mViewModelItem->getFilterStringSize() : 0;
     F32 right_x  = 0;
     F32 y = (F32)getRect().getHeight() - font->getLineHeight() - (F32)mTextPad - (F32)TOP_PAD;
     F32 text_left = (F32)getLabelXPos();
