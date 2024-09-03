@@ -498,7 +498,7 @@ private:
     // mControlFlags is a bitmask of behavior instructions for compact
     // transmission to the server.  It does NOT represent "input", rather
     // the consequences of it, which will sometimes depend on "state".
-    U32             mControlFlags;                  // Replacement for the mFooKey's
+    U32             mControlFlags;
 
     //--------------------------------------------------------------------
     // GameControls

@@ -1,8 +1,8 @@
 /**
- * @file llkeyboardheadless.h
- * @brief Handler for assignable key bindings
+ * @file llsdl.h
+ * @brief SDL2 initialization
  *
- * $LicenseInfo:firstyear=2004&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
  *
@@ -24,25 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLKEYBOARDHEADLESS_H
-#define LL_LLKEYBOARDHEADLESS_H
+#pragma once
 
-#include "llkeyboard.h"
-
-class LLKeyboardHeadless : public LLKeyboard
-{
-public:
-    LLKeyboardHeadless();
-    ~LLKeyboardHeadless() {};
-
-    bool    handleKeyUp(const LLKeyboard::NATIVE_KEY_TYPE key, MASK mask) override;
-    bool    handleKeyDown(const LLKeyboard::NATIVE_KEY_TYPE key, MASK mask) override;
-    void    resetMaskKeys() override;
-    MASK    currentMask(bool for_mouse_event) override;
-    void    scanKeyboard() override;
-#ifdef LL_DARWIN
-    void    handleModifier(MASK mask) override;
-#endif
-};
-
-#endif
+void init_sdl();
+void quit_sdl();

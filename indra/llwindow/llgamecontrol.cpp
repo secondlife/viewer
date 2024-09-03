@@ -156,10 +156,6 @@ namespace std
         {
             ss << ",version:" << version;
         }
-        if (U16 firmware = SDL_JoystickGetFirmwareVersion(joystick))
-        {
-            ss << ",firmware:" << firmware;
-        }
         if (const char* serial = SDL_JoystickGetSerial(joystick))
         {
             ss << ",serial:'" << serial << "'";
@@ -189,10 +185,6 @@ namespace std
         if (U16 version = SDL_GameControllerGetProductVersion(controller))
         {
             ss << ",version:" << version;
-        }
-        if (U16 firmware = SDL_GameControllerGetFirmwareVersion(controller))
-        {
-            ss << ",firmware:" << firmware;
         }
         if (const char* serial = SDL_GameControllerGetSerial(controller))
         {
@@ -1420,13 +1412,11 @@ void onJoystickDeviceAdded(const SDL_Event& event)
     SDL_JoystickGUID guid(SDL_JoystickGetDeviceGUID(event.cdevice.which));
     SDL_JoystickType type(SDL_JoystickGetDeviceType(event.cdevice.which));
     std::string name(std::to_string(SDL_JoystickNameForIndex(event.cdevice.which)));
-    std::string path(std::to_string(SDL_JoystickPathForIndex(event.cdevice.which)));
 
     LL_INFOS("SDL2") << "joystick {id:" << event.cdevice.which
         << ",guid:'" << guid << "'"
         << ",type:'" << type << "'"
         << ",name:'" << name << "'"
-        << ",path:'" << path << "'"
         << "}" << LL_ENDL;
 
     if (SDL_Joystick* joystick = SDL_JoystickOpen(event.cdevice.which))
@@ -1449,13 +1439,11 @@ void onControllerDeviceAdded(const SDL_Event& event)
     std::string guid(std::to_string(SDL_JoystickGetDeviceGUID(event.cdevice.which)));
     SDL_GameControllerType type(SDL_GameControllerTypeForIndex(event.cdevice.which));
     std::string name(std::to_string(SDL_GameControllerNameForIndex(event.cdevice.which)));
-    std::string path(std::to_string(SDL_GameControllerPathForIndex(event.cdevice.which)));
 
     LL_INFOS("SDL2") << "controller {id:" << event.cdevice.which
         << ",guid:'" << guid << "'"
         << ",type:'" << type << "'"
         << ",name:'" << name << "'"
-        << ",path:'" << path << "'"
         << "}" << LL_ENDL;
 
     SDL_JoystickID id = SDL_JoystickGetDeviceInstanceID(event.cdevice.which);
@@ -1525,11 +1513,6 @@ bool LLGameControl::isInitialized()
     return g_gameControl != nullptr;
 }
 
-void sdl_logger(void *userdata, int category, SDL_LogPriority priority, const char *message)
-{
-    LL_DEBUGS("SDL2") << "log='" << message << "'" << LL_ENDL;
-}
-
 // static
 void LLGameControl::init(const std::string& gamecontrollerdb_path,
     std::function<bool(const std::string&)> loadBoolean,
@@ -1551,15 +1534,13 @@ void LLGameControl::init(const std::string& gamecontrollerdb_path,
     llassert(saveObject);
     llassert(updateUI);
 
-    int result = SDL_InitSubSystem(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER);
+    int result = SDL_InitSubSystem(SDL_INIT_GAMECONTROLLER | SDL_INIT_SENSOR);
     if (result < 0)
     {
         // This error is critical, we stop working with SDL and return
-        LL_WARNS("SDL2") << "Error initializing the subsystems : " << SDL_GetError() << LL_ENDL;
+        LL_WARNS("SDL2") << "Error initializing GameController subsystems : " << SDL_GetError() << LL_ENDL;
         return;
     }
-
-    SDL_LogSetOutputFunction(&sdl_logger, nullptr);
 
     // The inability to read this file is not critical, we can continue working
     if (!LLFile::isfile(gamecontrollerdb_path.c_str()))
@@ -1596,7 +1577,6 @@ void LLGameControl::init(const std::string& gamecontrollerdb_path,
 void LLGameControl::terminate()
 {
     g_manager.clear();
-    SDL_Quit();
 }
 
 // static
@@ -1638,6 +1618,7 @@ void LLGameControl::clearAllStates()
 // static
 void LLGameControl::processEvents(bool app_has_focus)
 {
+    // This method used by non-linux platforms which only use SDL for GameController input
     SDL_Event event;
     if (!app_has_focus)
     {
@@ -1652,31 +1633,42 @@ void LLGameControl::processEvents(bool app_has_focus)
 
     while (g_gameControl && SDL_PollEvent(&event))
     {
-        switch (event.type)
-        {
-            case SDL_JOYDEVICEADDED:
-                onJoystickDeviceAdded(event);
-                break;
-            case SDL_JOYDEVICEREMOVED:
-                onJoystickDeviceRemoved(event);
-                break;
-            case SDL_CONTROLLERDEVICEADDED:
-                onControllerDeviceAdded(event);
-                break;
-            case SDL_CONTROLLERDEVICEREMOVED:
-                onControllerDeviceRemoved(event);
-                break;
-            case SDL_CONTROLLERBUTTONDOWN:
-                /* FALLTHROUGH */
-            case SDL_CONTROLLERBUTTONUP:
+        handleEvent(event, app_has_focus);
+    }
+}
+
+void LLGameControl::handleEvent(const SDL_Event& event, bool app_has_focus)
+{
+    switch (event.type)
+    {
+        case SDL_JOYDEVICEADDED:
+            onJoystickDeviceAdded(event);
+            break;
+        case SDL_JOYDEVICEREMOVED:
+            onJoystickDeviceRemoved(event);
+            break;
+        case SDL_CONTROLLERDEVICEADDED:
+            onControllerDeviceAdded(event);
+            break;
+        case SDL_CONTROLLERDEVICEREMOVED:
+            onControllerDeviceRemoved(event);
+            break;
+        case SDL_CONTROLLERBUTTONDOWN:
+            /* FALLTHROUGH */
+        case SDL_CONTROLLERBUTTONUP:
+            if (app_has_focus)
+            {
                 onControllerButton(event);
-                break;
-            case SDL_CONTROLLERAXISMOTION:
+            }
+            break;
+        case SDL_CONTROLLERAXISMOTION:
+            if (app_has_focus)
+            {
                 onControllerAxis(event);
-                break;
-            default:
-                break;
-        }
+            }
+            break;
+        default:
+            break;
     }
 }
 
@@ -2112,7 +2104,18 @@ void LLGameControl::saveToSettings()
     s_saveString(SETTING_FLYCAMMAPPINGS, g_manager.getFlycamMappings());
 
     g_manager.saveDeviceOptionsToSettings();
-    LLSD deviceOptions(g_deviceOptions, true);
+
+    // construct LLSD version of g_deviceOptions but only include non-empty values
+    LLSD deviceOptions = LLSD::emptyMap();
+    for (const auto& data_pair : g_deviceOptions)
+    {
+        if (!data_pair.second.empty())
+        {
+            LLSD value(data_pair.second);
+            deviceOptions.insert(data_pair.first, value);
+        }
+    }
+
     s_saveObject(SETTING_KNOWNCONTROLLERS, deviceOptions);
 }
 

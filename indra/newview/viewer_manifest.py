@@ -1420,15 +1420,6 @@ class Linux_x86_64_Manifest(LinuxManifest):
 
             self.path_optional("libjemalloc*.so")
 
-            self.path("libdb*.so")
-            self.path("libuuid.so*")
-            self.path("libdirectfb-1.*.so.*")
-            self.path("libfusion-1.*.so.*")
-            self.path("libdirect-1.*.so.*")
-            self.path("libopenjp2.so*")
-            self.path("libdirectfb-1.4.so.5")
-            self.path("libfusion-1.4.so.5")
-            self.path("libdirect-1.4.so.5*")
             self.path("libalut.so*")
             self.path("libopenal.so*")
             self.path("libopenal.so", "libvivoxoal.so.1") # vivox's sdk expects this soname

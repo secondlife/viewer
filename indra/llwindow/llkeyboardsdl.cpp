@@ -26,7 +26,7 @@
 #include "linden_common.h"
 #include "llkeyboardsdl.h"
 #include "llwindowcallbacks.h"
-#include "SDL2/SDL.h"
+
 #include "SDL2/SDL_keycode.h"
 
 LLKeyboardSDL::LLKeyboardSDL()
@@ -42,7 +42,7 @@ LLKeyboardSDL::LLKeyboardSDL()
     // <FS:ND> Looks like we need to map those despite of SDL_TEXTINPUT handling most of this, but without
     // the translation lower->upper here accelerators will not work.
 
-    U16 cur_char;
+    LLKeyboard::NATIVE_KEY_TYPE cur_char;
     for (cur_char = 'A'; cur_char <= 'Z'; cur_char++)
     {
         mTranslateKeyMap[cur_char] = cur_char;
@@ -201,7 +201,7 @@ MASK LLKeyboardSDL::updateModifiers(const MASK mask)
 }
 
 
-static U32 adjustNativekeyFromUnhandledMask(const U16 key, const MASK mask)
+U32 adjustNativekeyFromUnhandledMask(const LLKeyboard::NATIVE_KEY_TYPE key, const MASK mask)
 {
     // SDL doesn't automatically adjust the keysym according to
     // whether NUMLOCK is engaged, so we massage the keysym manually.
@@ -226,11 +226,11 @@ static U32 adjustNativekeyFromUnhandledMask(const U16 key, const MASK mask)
 }
 
 
-bool LLKeyboardSDL::handleKeyDown(const U32 key, const MASK mask)
+bool LLKeyboardSDL::handleKeyDown(const LLKeyboard::NATIVE_KEY_TYPE key, const MASK mask)
 {
     U32 adjusted_nativekey;
     KEY translated_key = 0;
-    U32 translated_mask = MASK_NONE;
+    MASK translated_mask = MASK_NONE;
     bool handled = false;
 
     adjusted_nativekey = adjustNativekeyFromUnhandledMask(key, mask);
@@ -246,7 +246,7 @@ bool LLKeyboardSDL::handleKeyDown(const U32 key, const MASK mask)
 }
 
 
-bool LLKeyboardSDL::handleKeyUp(const U32 key, const MASK mask)
+bool LLKeyboardSDL::handleKeyUp(const LLKeyboard::NATIVE_KEY_TYPE key, const MASK mask)
 {
     U32 adjusted_nativekey;
     KEY translated_key = 0;
@@ -315,12 +315,12 @@ void LLKeyboardSDL::scanKeyboard()
 }
 
 
-bool LLKeyboardSDL::translateNumpadKey( const U32 os_key, KEY *translated_key)
+bool LLKeyboardSDL::translateNumpadKey( const LLKeyboard::NATIVE_KEY_TYPE os_key, KEY *translated_key)
 {
     return translateKey(os_key, translated_key);
 }
 
-U16 LLKeyboardSDL::inverseTranslateNumpadKey(const KEY translated_key)
+LLKeyboard::NATIVE_KEY_TYPE LLKeyboardSDL::inverseTranslateNumpadKey(const KEY translated_key)
 {
     return inverseTranslateKey(translated_key);
 }
@@ -498,7 +498,6 @@ enum class WindowsVK : U32
 };
 
 std::map< U32, U32 > mSDL2_to_Win;
-std::set< U32 > mIgnoreSDL2Keys;
 
 U32 LLKeyboardSDL::mapSDL2toWin( U32 aSymbol )
 {

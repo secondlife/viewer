@@ -32,6 +32,7 @@
 #include "llerror.h"
 #include "llsingleton.h"
 #include "stdtypes.h"
+#include "SDL2/SDL_events.h"
 
 // For reference, here are the RAW indices of the various input channels
 // of a standard XBox controller.  Button (N) is numbered in parentheses,
@@ -287,6 +288,7 @@ public:
     static void clearAllStates();
 
     static void processEvents(bool app_has_focus = true);
+    static void handleEvent(const SDL_Event& event, bool app_has_focus);
     static const State& getState();
     static InputChannel getActiveInputChannel();
     static void getFlycamInputs(std::vector<F32>& inputs_out);

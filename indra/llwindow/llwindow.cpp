@@ -39,6 +39,7 @@
 
 #include "llerror.h"
 #include "llkeyboard.h"
+#include "llsdl.h"
 #include "llwindowcallbacks.h"
 
 
@@ -415,6 +416,7 @@ LLWindow* LLWindowManager::createWindow(
 
     if (use_gl)
     {
+        init_sdl();
 #if LL_WINDOWS
         new_window = new LLWindowWin32(callbacks,
             title, name, x, y, width, height, flags,
@@ -462,6 +464,7 @@ bool LLWindowManager::destroyWindow(LLWindow* window)
     window->close();
 
     sWindowList.erase(window);
+    quit_sdl();
 
     delete window;
 

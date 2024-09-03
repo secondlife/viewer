@@ -31,6 +31,16 @@
 LLKeyboardHeadless::LLKeyboardHeadless()
 { }
 
+bool LLKeyboardHeadless::handleKeyUp(const LLKeyboard::NATIVE_KEY_TYPE key, MASK mask)
+{
+    return false;
+}
+
+bool LLKeyboardHeadless::handleKeyDown(const LLKeyboard::NATIVE_KEY_TYPE key, MASK mask)
+{
+    return false;
+}
+
 void LLKeyboardHeadless::resetMaskKeys()
 { }
 

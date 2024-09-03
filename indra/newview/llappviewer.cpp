@@ -1531,7 +1531,7 @@ bool LLAppViewer::doFrame()
                     LL_WARNS() << " Someone took over my signal/exception handler (post messagehandling)!" << LL_ENDL;
                 }
 
-                gViewerWindow->getWindow()->gatherInput();
+                gViewerWindow->getWindow()->gatherInput(gFocusMgr.getAppHasFocus());
             }
 
             //memory leaking simulation
@@ -4811,11 +4811,6 @@ void LLAppViewer::idle()
             gAgent.autoPilot(&yaw);
         }
 
-        // Some GameControl logic needs to run even when the feature is not enabled
-        // Note: we process game_control before sending AgentUpdate
-        // because it may translate to control flags that control avatar motion.
-        LLGameControl::processEvents(gFocusMgr.getAppHasFocus());
-
         // get control flags from each side
         U32 control_flags = gAgent.getControlFlags();
         U32 game_control_action_flags = LLGameControl::computeInternalActionFlags();
@@ -4841,6 +4836,12 @@ void LLAppViewer::idle()
         }
 
         send_agent_update(false);
+
+        // After calling send_agent_update() in the mainloop we always clear
+        // the agent's ephemeral ControlFlags (whether an AgentUpdate was
+        // actually sent or not) because these will be recomputed based on
+        // real-time key/controller input and resubmitted next frame.
+        gAgent.resetControlFlags();
     }
 
     //////////////////////////////////////

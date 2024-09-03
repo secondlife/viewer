@@ -55,11 +55,11 @@ public:
 
     void close() override;
 
-    bool getVisible() override;
+    bool getVisible() const override;
 
-    bool getMinimized() override;
+    bool getMinimized() const override;
 
-    bool getMaximized() override;
+    bool getMaximized() const override;
 
     bool maximize() override;
 
@@ -67,13 +67,11 @@ public:
 
     void restore() override;
 
-    bool getFullscreen();
+    bool getPosition(LLCoordScreen *position) const override;
 
-    bool getPosition(LLCoordScreen *position) override;
+    bool getSize(LLCoordScreen *size) const override;
 
-    bool getSize(LLCoordScreen *size) override;
-
-    bool getSize(LLCoordWindow *size) override;
+    bool getSize(LLCoordWindow *size) const override;
 
     bool setPosition(LLCoordScreen position) override;
 
@@ -122,19 +120,19 @@ public:
 
     void flashIcon(F32 seconds) override;
 
-    F32 getGamma() override;
+    F32 getGamma() const override;
 
     bool setGamma(const F32 gamma) override; // Set the gamma
-    U32 getFSAASamples() override;
+
+    U32 getFSAASamples() const override;
 
     void setFSAASamples(const U32 samples) override;
 
     bool restoreGamma() override;            // Restore original gamma table (before updating gamma)
-    ESwapMethod getSwapMethod()  override { return mSwapMethod; }
 
     void processMiscNativeEvents() override;
 
-    void gatherInput() override;
+    void gatherInput(bool app_has_focus) override;
 
     void swapBuffers() override;
 
@@ -143,17 +141,17 @@ public:
     void delayInputProcessing()  override {};
 
     // handy coordinate space conversion routines
-    bool convertCoords(LLCoordScreen from, LLCoordWindow *to) override;
+    bool convertCoords(LLCoordScreen from, LLCoordWindow *to) const override;
 
-    bool convertCoords(LLCoordWindow from, LLCoordScreen *to) override;
+    bool convertCoords(LLCoordWindow from, LLCoordScreen *to) const override;
 
-    bool convertCoords(LLCoordWindow from, LLCoordGL *to) override;
+    bool convertCoords(LLCoordWindow from, LLCoordGL *to) const override;
 
-    bool convertCoords(LLCoordGL from, LLCoordWindow *to) override;
+    bool convertCoords(LLCoordGL from, LLCoordWindow *to) const override;
 
-    bool convertCoords(LLCoordScreen from, LLCoordGL *to) override;
+    bool convertCoords(LLCoordScreen from, LLCoordGL *to) const override;
 
-    bool convertCoords(LLCoordGL from, LLCoordScreen *to) override;
+    bool convertCoords(LLCoordGL from, LLCoordScreen *to) const override;
 
     LLWindowResolution *getSupportedResolutions(S32 &num_resolutions) override;
 
@@ -218,7 +216,7 @@ protected:
 
     bool isValid() override;
 
-    LLSD getNativeKeyData() override;
+    LLSD getNativeKeyData() const override;
 
     void initCursors();
 

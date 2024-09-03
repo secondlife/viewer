@@ -3506,8 +3506,21 @@ bool LLPanelPreferenceGameControl::postBuild()
     mCheckGameControlToAgent = getChild<LLCheckBoxCtrl>("game_control_to_agent");
     mCheckAgentToGameControl = getChild<LLCheckBoxCtrl>("agent_to_game_control");
 
-    mCheckGameControlToAgent->setCommitCallback([this](LLUICtrl*, const LLSD&) { updateActionTableState(); });
-    mCheckAgentToGameControl->setCommitCallback([this](LLUICtrl*, const LLSD&) { updateActionTableState(); });
+    mCheckGameControlToServer->setCommitCallback([this](LLUICtrl*, const LLSD&)
+        {
+            LLGameControl::setSendToServer(mCheckGameControlToServer->getValue());
+            updateActionTableState();
+        });
+    mCheckGameControlToAgent->setCommitCallback([this](LLUICtrl*, const LLSD&)
+        {
+            LLGameControl::setControlAgent(mCheckGameControlToAgent->getValue());
+            updateActionTableState();
+        });
+    mCheckAgentToGameControl->setCommitCallback([this](LLUICtrl*, const LLSD&)
+        {
+            LLGameControl::setTranslateAgentActions(mCheckAgentToGameControl->getValue());
+            updateActionTableState();
+        });
 
     getChild<LLTabContainer>("game_control_tabs")->setCommitCallback([this](LLUICtrl*, const LLSD&) { clearSelectionState(); });
     getChild<LLTabContainer>("device_settings_tabs")->setCommitCallback([this](LLUICtrl*, const LLSD&) { clearSelectionState(); });
