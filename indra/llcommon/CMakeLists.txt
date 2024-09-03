@@ -112,6 +112,7 @@ set(llcommon_SOURCE_FILES
     lockstatic.cpp
     lua_function.cpp
     lualistener.cpp
+    resultset.cpp
     threadpool.cpp
     throttle.cpp
     u64.cpp
@@ -261,6 +262,7 @@ set(llcommon_HEADER_FILES
     lockstatic.h
     lua_function.h
     lualistener.h
+    resultset.h
     stdtypes.h
     stringize.h
     tempset.h

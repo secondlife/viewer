@@ -28,13 +28,14 @@
 #include "llinventorylistener.h"
 
 #include "llappearancemgr.h"
-#include "llinttracker.h"
 #include "llinventoryfunctions.h"
 #include "lltransutil.h"
 #include "llwearableitemslist.h"
+#include "resultset.h"
 #include "stringize.h"
+#include <algorithm>                // std::min()
 
-constexpr U32 MAX_ITEM_LIMIT = 100;
+constexpr S32 MAX_ITEM_LIMIT = 100;
 
 LLInventoryListener::LLInventoryListener()
   : LLEventAPI("LLInventory",
@@ -104,87 +105,11 @@ LLInventoryListener::LLInventoryListener()
         llsd::map("result", LLSD()));
 }
 
-// This abstract base class defines the interface for CatResultSet and
-// ItemResultSet. It isa LLIntTracker so we can pass its unique int key to a
-// consuming script via LLSD.
-struct InvResultSet: public LLIntTracker<InvResultSet>
-{
-    // Get the length of the result set. Indexes are 0-relative.
-    virtual int getLength() const = 0;
-/*==========================================================================*|
-    // Retrieve LLSD corresponding to a single entry from the result set,
-    // with index validation.
-    LLSD getSingle(int index) const
-    {
-        if (0 <= index && index < getLength())
-        {
-            return getSingle_(index);
-        }
-        else
-        {
-            return {};
-        }
-    }
-|*==========================================================================*/
-    // Retrieve LLSD corresponding to a single entry from the result set,
-    // once we're sure the index is valid.
-    virtual LLSD getSingle(int index) const = 0;
-    // Retrieve LLSD corresponding to a "slice" of the result set: a
-    // contiguous sub-array starting at index. The returned LLSD array might
-    // be shorter than count entries if count > MAX_ITEM_LIMIT, or if the
-    // specified slice contains the end of the result set.
-    LLSD getSlice(int index, int count) const
-    {
-        // only call getLength() once
-        auto length = getLength();
-        // Adjust bounds [start, end) to overlap the actual result set from
-        // [0, getLength()). Permit negative index; e.g. with a result set
-        // containing 5 entries, getSlice(-2, 5) will adjust start to 0 and
-        // end to 3.
-        int start = llclamp(index, 0, length);
-        // Constrain count to MAX_ITEM_LIMIT even before clamping end.
-        int end = llclamp(index + llclamp(count, 0, MAX_ITEM_LIMIT), 0, length);
-        LLSD result{ LLSD::emptyArray() };
-        // beware of count == 0, or an [index, count) range that doesn't even
-        // overlap [0, length) at all
-        if (end > start)
-        {
-            // right away expand the result array to the size we'll need
-            result[end - 1] = LLSD();
-            for (int i = start; i < end; ++i)
-            {
-                result[i] = getSingle(i);
-            }
-        }
-        return result;
-    }
-
-    /*---------------- the rest is solely for debug logging ----------------*/
-    std::string mName;
-
-    friend std::ostream& operator<<(std::ostream& out, const InvResultSet& self)
-    {
-        return out << "InvResultSet(" << self.mName << ", " << self.getKey() << ")";
-    }
-
-    InvResultSet(const std::string& name):
-        mName(name)
-    {
-        LL_DEBUGS("Lua") << *this << LL_ENDL;
-    }
-    virtual ~InvResultSet()
-    {
-        // We want to be able to observe that the consuming script uses
-        // LL.setdtor() to eventually destroy each of these InvResultSets.
-        LL_DEBUGS("Lua") << "~" << *this << LL_ENDL;
-    }
-};
-
 // This struct captures (possibly large) category results from
 // getDirectDescendants() and collectDescendantsIf().
-struct CatResultSet: public InvResultSet
+struct CatResultSet: public LL::ResultSet
 {
-    CatResultSet(): InvResultSet("categories") {}
+    CatResultSet(): LL::ResultSet("categories") {}
     LLInventoryModel::cat_array_t mCategories;
 
     int getLength() const override { return narrow(mCategories.size()); }
@@ -199,9 +124,9 @@ struct CatResultSet: public InvResultSet
 
 // This struct captures (possibly large) item results from
 // getDirectDescendants() and collectDescendantsIf().
-struct ItemResultSet: public InvResultSet
+struct ItemResultSet: public LL::ResultSet
 {
-    ItemResultSet(): InvResultSet("items") {}
+    ItemResultSet(): LL::ResultSet("items") {}
     LLInventoryModel::item_array_t mItems;
 
     int getLength() const override { return narrow(mItems.size()); }
@@ -244,8 +169,9 @@ void LLInventoryListener::getItemsInfo(LLSD const &data)
             }
         }
     }
-    response["categories"] = catresult->getKey();
-    response["items"] = itemresult->getKey();
+    // Each of categories and items is a { result set key, total length } pair.
+    response["categories"] = catresult->getKeyLength();
+    response["items"] = itemresult->getKeyLength();
 }
 
 void LLInventoryListener::getFolderTypeNames(LLSD const &data)
@@ -277,8 +203,8 @@ void LLInventoryListener::getDirectDescendants(LLSD const &data)
     catresult->mCategories = *cats;
     itemresult->mItems = *items;
 
-    response["categories"] = catresult->getKey();
-    response["items"] = itemresult->getKey();
+    response["categories"] = catresult->getKeyLength();
+    response["items"] = itemresult->getKeyLength();
 }
 
 struct LLFilteredCollector : public LLInventoryCollectFunctor
@@ -337,25 +263,26 @@ void LLInventoryListener::collectDescendantsIf(LLSD const &data)
         LLInventoryModel::EXCLUDE_TRASH,
         collector);
 
-    response["categories"] = catresult->getKey();
-    response["items"] = itemresult->getKey();
+    response["categories"] = catresult->getKeyLength();
+    response["items"] = itemresult->getKeyLength();
 }
 
 /*==========================================================================*|
 void LLInventoryListener::getSingle(LLSD const& data)
 {
-    auto result = InvResultSet::getInstance(data["result"]);
+    auto result = LL::ResultSet::getInstance(data["result"]);
     sendReply(llsd::map("single", result->getSingle(data["index"])), data);
 }
 |*==========================================================================*/
 
 void LLInventoryListener::getSlice(LLSD const& data)
 {
-    auto result = InvResultSet::getInstance(data["result"]);
+    auto result = LL::ResultSet::getInstance(data["result"]);
     int count = data.has("count")? data["count"].asInteger() : MAX_ITEM_LIMIT;
     LL_DEBUGS("Lua") << *result << ".getSlice(" << data["index"].asInteger()
                      << ", " << count << ')' << LL_ENDL;
-    sendReply(llsd::map("slice", result->getSlice(data["index"], count)), data);
+    auto pair{ result->getSliceStart(data["index"], std::min(count, MAX_ITEM_LIMIT)) };
+    sendReply(llsd::map("slice", pair.first, "start", pair.second), data);
 }
 
 void LLInventoryListener::closeResult(LLSD const& data)
@@ -367,7 +294,7 @@ void LLInventoryListener::closeResult(LLSD const& data)
     }
     for (const auto& result : llsd::inArray(results))
     {
-        auto ptr = InvResultSet::getInstance(result);
+        auto ptr = LL::ResultSet::getInstance(result);
         if (ptr)
         {
             delete ptr.get();
