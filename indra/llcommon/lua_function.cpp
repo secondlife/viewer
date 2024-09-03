@@ -567,6 +567,7 @@ void replace_entry(lua_State* L, int index,
 
 int lua_metapairs(lua_State* L)
 {
+//  LuaLog debug(L, "lua_metapairs()");
     // pairs(obj): object is at index 1
     // How many args were we passed?
     int args = lua_gettop(L);
@@ -591,6 +592,7 @@ int lua_metapairs(lua_State* L)
 
 int lua_metaipairs(lua_State* L)
 {
+//  LuaLog debug(L, "lua_metaipairs()");
     // ipairs(obj): object is at index 1
     // How many args were we passed?
     int args = lua_gettop(L);
@@ -633,9 +635,10 @@ int lua_metaipairs(lua_State* L)
 
 int lua_metaipair(lua_State* L)
 {
+//  LuaLog debug(L, "lua_metaipair()");
     // called with (obj, previous-index)
     // increment previous-index for this call
-    lua_Integer i = luaL_checkinteger(L, 2) + 1;
+    lua_Integer i = luaL_optinteger(L, 2, 0) + 1;
     lua_pop(L, 1);
     // stack: obj
     lua_pushinteger(L, i);
@@ -1522,6 +1525,31 @@ std::ostream& operator<<(std::ostream& out, const lua_what& self)
     case LUA_TLIGHTUSERDATA:
         out << lua_touserdata(self.L, self.index);
         break;
+
+    case LUA_TFUNCTION:
+    {
+        // Try for the function's name, at the cost of a few more stack
+        // entries.
+        lua_checkdelta(self.L);
+        lluau_checkstack(self.L, 3);
+        lua_getglobal(self.L, "debug");
+        // stack: ..., debug
+        lua_getfield(self.L, -1, "info");
+        // stack: ..., debug, debug.info
+        lua_remove(self.L, -2);
+        // stack: ..., debug.info
+        lua_pushvalue(self.L, self.index);
+        // stack: ..., debug.info, this function
+        lua_pushstring(self.L, "n");
+        // stack: ..., debug.info, this function, "n"
+        // 2 arguments, 1 return value (or error message), no error handler
+        lua_pcall(self.L, 2, 1, 0);
+        // stack: ..., function name (or error) from debug.info()
+        out << "function " << lua_tostdstring(self.L, -1);
+        lua_pop(self.L, 1);
+        // stack: ...
+        break;
+    }
 
     default:
         // anything else, don't bother trying to report value, just type
