@@ -23,7 +23,8 @@ local function result_view(key_length, fetch)
                 -- can we find this index within the current slice?
                 local reli = i - this.start
                 if 0 <= reli and reli < #this.slice then
-                    return this.slice[reli]
+                    -- Lua 1-relative indexing
+                    return this.slice[reli + 1]
                 end
                 -- is this index outside the overall result set?
                 if not (0 <= i and i < this.length) then
@@ -31,16 +32,17 @@ local function result_view(key_length, fetch)
                 end
                 -- fetch a new slice starting at i, using provided fetch()
                 local start
-                this.slice, start = fetch(key, i)
+                this.slice, start = fetch(this.key, i)
                 -- It's possible that caller-provided fetch() function forgot
                 -- to return the adjusted start index of the new slice. In
                 -- Lua, 0 tests as true, so if fetch() returned (slice, 0),
-                -- we'll duly reset this.start to 0.
-                if start then
-                    this.start = start
-                end
-                -- hopefully this slice contains the desired i
-                return this.slice[i - this.start]
+                -- we'll duly reset this.start to 0. Otherwise, assume the
+                -- requested index was not adjusted: that the returned slice
+                -- really does start at i.
+                this.start = start or i
+                -- Hopefully this slice contains the desired i.
+                -- Back to 1-relative indexing.
+                return this.slice[i - this.start + 1]
             end,
             -- We purposely avoid putting any array entries (int keys) into
             -- our table so that access to any int key will always call our
