@@ -65,10 +65,26 @@ int dostring(lua_State* L, const std::string& desc, const std::string& text)
     if (r != LUA_OK)
         return r;
 
+    // Push debug.traceback() onto the stack as lua_pcall()'s error
+    // handler function. On error, lua_pcall() calls the specified error
+    // handler function with the original error message; the message
+    // returned by the error handler is then returned by lua_pcall().
+    // Luau's debug.traceback() is called with a message to prepend to the
+    // returned traceback string. Almost as if they'd been designed to
+    // work together...
+    lua_getglobal(L, "debug");
+    lua_getfield(L, -1, "traceback");
+    // ditch "debug"
+    lua_remove(L, -2);
+    // stack: compiled chunk, debug.traceback()
+    lua_insert(L, -2);
+    // stack: debug.traceback(), compiled chunk
+    LuaRemover cleanup(L, -2);
+
     // It's important to pass LUA_MULTRET as the expected number of return
     // values: if we pass any fixed number, we discard any returned values
     // beyond that number.
-    return lua_pcall(L, 0, LUA_MULTRET, 0);
+    return lua_pcall(L, 0, LUA_MULTRET, -2);
 }
 
 int loadstring(lua_State *L, const std::string &desc, const std::string &text)
