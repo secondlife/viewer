@@ -43,11 +43,14 @@ std::pair<LLSD, int> ResultSet::getSliceStart(int index, int count) const
     // overlap [0, length) at all
     if (end > start)
     {
-        // right away expand the result array to the size we'll need
-        result[end - 1] = LLSD();
-        for (int i = start; i < end; ++i)
+        // Right away expand the result array to the size we'll need.
+        // (end - start) is that size; (end - start - 1) is the index of the
+        // last entry in result.
+        result[end - start - 1] = LLSD();
+        for (int i = 0; (start + i) < end; ++i)
         {
-            result[i] = getSingle(i);
+            // For this to be a slice, set result[0] = getSingle(start), etc.
+            result[i] = getSingle(start + i);
         }
     }
     return { result, start };
