@@ -427,18 +427,6 @@ void LLButton::onVisibilityChange(bool new_visibility)
     return LLUICtrl::onVisibilityChange(new_visibility);
 }
 
-void LLButton::reshape(S32 width, S32 height, bool called_from_parent)
-{
-    S32 delta_width = width - getRect().getWidth();
-    S32 delta_height = height - getRect().getHeight();
-
-    if (delta_width || delta_height || sForceReshape)
-    {
-        LLUICtrl::reshape(width, height, called_from_parent);
-        mFontBuffer.reset();
-    }
-}
-
 void LLButton::dirtyRect()
 {
     LLUICtrl::dirtyRect();
