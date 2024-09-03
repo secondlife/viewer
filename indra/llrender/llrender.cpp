@@ -1531,6 +1531,10 @@ void LLRender::clearErrors()
 
 void LLRender::beginList(std::list<LLVertexBufferData> *list)
 {
+    if (sBufferDataList)
+    {
+        LL_ERRS() << "beginList called while another list is open." << LL_ENDL;
+    }
     llassert(LLGLSLShader::sCurBoundShaderPtr == &gUIProgram);
     flush();
     sBufferDataList = list;
@@ -1545,7 +1549,7 @@ void LLRender::endList()
     }
     else
     {
-        llassert(false); // something failed to provide a list or closed it twice
+        llassert(false); // endList called without an open list
     }
 }
 

@@ -169,7 +169,6 @@ public:
     /*virtual*/ bool postBuild()  override;
 
     void onVisibilityChange(bool visible) override;
-    void reshape(S32 width, S32 height, bool called_from_parent = true) override;
     void dirtyRect() override;
 
     virtual void    onMouseLeave(S32 x, S32 y, MASK mask) override;
