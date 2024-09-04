@@ -15,9 +15,7 @@ local function result(keys)
                 -- call result:close() to release result sets before garbage
                 -- collection or script completion
                 close = function(self)
-                    leap.send('LLInventory',
-                              {op='closeResult',
-                               result={self._categories[1], self._items[1]}})
+                    result_view.close(self._categories[1], self._items[1])
                 end
             },
             -- The caller of one of our methods that returns a result set
@@ -31,17 +29,9 @@ local function result(keys)
                     if not table.find({'categories', 'items'}, field) then
                         return nil
                     end
-                    local view = result_view(
-                        -- We cleverly saved the result set {key, length} pair in
-                        -- a field with the same name but an underscore prefix.
-                        t['_' .. field],
-                        function(key, start)
-                            local fetched = leap.request(
-                                'LLInventory',
-                                {op='getSlice', result=key, index=start})
-                            return fetched.slice, fetched.start
-                        end
-                    )
+                    -- We cleverly saved the result set {key, length} pair in
+                    -- a field with the same name but an underscore prefix.
+                    local view = result_view(t['_' .. field])
                     -- cache that view for future reference
                     t[field] = view
                     return view
@@ -51,8 +41,8 @@ local function result(keys)
         -- When the table-with-metatable above is destroyed, tell LLInventory
         -- we're done with its result sets -- whether or not we ever fetched
         -- either of them.
-        function(keys)
-            keys:close()
+        function(res)
+            res:close()
         end
     )
 end
