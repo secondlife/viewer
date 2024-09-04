@@ -1075,6 +1075,9 @@ F32 gpu_benchmark()
             return -1.f;
         }
         LLImageGL::setManualImage(GL_TEXTURE_2D, 0, GL_RGBA, res,res,GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+        // disable mipmaps and use point filtering to cause cache misses
+        gGL.getTexUnit(0)->setHasMipMaps(false);
+        gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
 
         if (alloc_timer.getElapsedTimeF32() > time_limit)
         {
@@ -1191,7 +1194,8 @@ F32 gpu_benchmark()
     F32 seconds = ms/1000.f;
 
     F64 samples_drawn = (F64)gBenchmarkProgram.mSamplesDrawn;
-    F32 samples_sec = (F32)((samples_drawn/1000000000.0)/seconds);
+    F64 gpixels_drawn = samples_drawn / 1000000000.0;
+    F32 samples_sec = (F32)(gpixels_drawn/seconds);
     gbps = samples_sec*4;  // 4 bytes per sample
 
     LL_INFOS("Benchmark") << "Memory bandwidth is " << llformat("%.3f", gbps) << " GB/sec according to ARB_timer_query, total time " << seconds << " seconds" << LL_ENDL;

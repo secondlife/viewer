@@ -208,7 +208,7 @@ RenderFlexTimeFactor		1	1.0
 RenderGlowResolutionPow		1	9
 RenderMaxPartCount			1	4096
 RenderLocalLightCount		1	1024
-RenderTransparentWater      1   1
+RenderTransparentWater      1   0
 RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	2.0
 RenderTerrainPBRDetail      1   0

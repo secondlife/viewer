@@ -7183,6 +7183,17 @@
         <key>Value</key>
         <integer>1</integer>
     </map>
+    <key>RenderCanUseTerrainBakeShaders</key>
+    <map>
+        <key>Comment</key>
+        <string>Hardware has support for Terrain Bake shaders</string>
+        <key>Persist</key>
+        <integer>0</integer>
+        <key>Type</key>
+        <string>Boolean</string>
+        <key>Value</key>
+        <integer>1</integer>
+    </map>
   <key>RenderClass1MemoryBandwidth</key>
   <map>
     <key>Comment</key>
