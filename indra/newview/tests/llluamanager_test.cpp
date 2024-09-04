@@ -287,7 +287,7 @@ namespace tut
         while (expect_array.size() > 0 &&
                send_array[expect_array.size() - 1].isUndefined())
         {
-            expect_array.erase(expect_array.size() - 1);
+            expect_array.erase(LLSD::Integer(expect_array.size() - 1));
         }
         round_trip("array", send_array, expect_array);
 

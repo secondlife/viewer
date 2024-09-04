@@ -418,7 +418,7 @@ void lua_pushllsd(lua_State* L, const LLSD& data)
     case LLSD::TypeMap:
     {
         // push a new table with space for our non-array keys
-        lua_createtable(L, 0, data.size());
+        lua_createtable(L, 0, narrow(data.size()));
         for (const auto& pair: llsd::inMap(data))
         {
             // push value -- so now table is at -2, value at -1
@@ -432,7 +432,7 @@ void lua_pushllsd(lua_State* L, const LLSD& data)
     case LLSD::TypeArray:
     {
         // push a new table with space for array entries
-        lua_createtable(L, data.size(), 0);
+        lua_createtable(L, narrow(data.size()), 0);
         lua_Integer key{ 0 };
         for (const auto& item: llsd::inArray(data))
         {
