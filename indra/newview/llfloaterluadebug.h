@@ -48,7 +48,7 @@ class LLFloaterLUADebug :
     LLFloaterLUADebug(const LLSD& key);
     virtual ~LLFloaterLUADebug();
 
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
 
     void onExecuteClicked();
     void onBtnBrowse();

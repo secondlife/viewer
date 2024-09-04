@@ -157,7 +157,7 @@ LLLuaFloater::~LLLuaFloater()
     post(LLSD());
 }
 
-BOOL LLLuaFloater::postBuild()
+bool LLLuaFloater::postBuild()
 {
     for (LLView *view : *getChildList())
     {

@@ -34,7 +34,7 @@ class LLLuaFloater : public LLFloater
 {
 public:
     LLLuaFloater(const LLSD &key);
-    BOOL postBuild();
+    bool postBuild();
     virtual ~LLLuaFloater();
 
     void registerCallback(const std::string &ctrl_name, const std::string &event);

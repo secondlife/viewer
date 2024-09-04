@@ -37,7 +37,7 @@ class LLFloaterLUAScripts :
     LLFloaterLUAScripts(const LLSD &key);
     virtual ~LLFloaterLUAScripts();
 
-    BOOL postBuild();
+    bool postBuild();
     void draw();
 
 private:

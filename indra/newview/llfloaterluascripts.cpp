@@ -60,7 +60,7 @@ LLFloaterLUAScripts::LLFloaterLUAScripts(const LLSD &key)
 }
 
 
-BOOL LLFloaterLUAScripts::postBuild()
+bool LLFloaterLUAScripts::postBuild()
 {
     mScriptList = getChild<LLScrollListCtrl>("scripts_list");
     mScriptList->setRightMouseDownCallback([this](LLUICtrl *ctrl, S32 x, S32 y, MASK mask) { onScrollListRightClicked(ctrl, x, y);});
