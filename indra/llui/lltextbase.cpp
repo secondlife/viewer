@@ -3342,6 +3342,7 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
 
     const LLWString& text = getWText();
     S32 text_gen = mEditor.getTextGeneration();
+    bool is_text_read_only = mEditor.getReadOnly();
 
     if (text_gen != mLastGeneration)
     {
@@ -3354,7 +3355,7 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
 
     const LLFontGL* font = mStyle->getFont();
 
-    LLColor4 color = (mEditor.getReadOnly() ? mStyle->getReadOnlyColor() : mStyle->getColor())  % (alpha * mStyle->getAlpha());
+    LLColor4 color = (is_text_read_only ? mStyle->getReadOnlyColor() : mStyle->getColor())  % (alpha * mStyle->getAlpha());
 
     if( selection_start > seg_start )
     {
@@ -3362,17 +3363,40 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
         S32 start = seg_start;
         S32 end = llmin( selection_start, seg_end );
         S32 length =  end - start;
-        mFontBufferPreSelection.render(font,
-                 text, start,
-                 rect,
-                 color,
-                 LLFontGL::LEFT, mEditor.mTextVAlign,
-                 LLFontGL::NORMAL,
-                 mStyle->getShadowType(),
-                 length,
-                 &right_x,
-                 mEditor.getUseEllipses(),
-                 mEditor.getUseColor());
+        if (is_text_read_only)
+        {
+            mFontBufferPreSelection.render(
+                font,
+                text, start,
+                rect,
+                color,
+                LLFontGL::LEFT, mEditor.mTextVAlign,
+                LLFontGL::NORMAL,
+                mStyle->getShadowType(),
+                length,
+                &right_x,
+                mEditor.getUseEllipses(),
+                mEditor.getUseColor());
+        }
+        else
+        {
+            // Font buffer doesn't do well with changes and huge notecard with a bunch
+            // of segments will see a lot of buffer updates, so instead use derect
+            // rendering to cache.
+            // Todo: instead of mLastGeneration make buffer invalidation more fine grained
+            // like string hash of a given segment.
+            font->render(
+                text, start,
+                rect,
+                color,
+                LLFontGL::LEFT, mEditor.mTextVAlign,
+                LLFontGL::NORMAL,
+                mStyle->getShadowType(),
+                length,
+                &right_x,
+                mEditor.getUseEllipses(),
+                mEditor.getUseColor());
+        }
     }
     rect.mLeft = right_x;
 
@@ -3383,17 +3407,35 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
         S32 end = llmin( selection_end, seg_end );
         S32 length = end - start;
 
-        mFontBufferSelection.render(font,
-                 text, start,
-                 rect,
-                 mStyle->getSelectedColor().get(),
-                 LLFontGL::LEFT, mEditor.mTextVAlign,
-                 LLFontGL::NORMAL,
-                 LLFontGL::NO_SHADOW,
-                 length,
-                 &right_x,
-                 mEditor.getUseEllipses(),
-                 mEditor.getUseColor());
+        if (is_text_read_only)
+        {
+            mFontBufferSelection.render(
+                font,
+                text, start,
+                rect,
+                mStyle->getSelectedColor().get(),
+                LLFontGL::LEFT, mEditor.mTextVAlign,
+                LLFontGL::NORMAL,
+                LLFontGL::NO_SHADOW,
+                length,
+                &right_x,
+                mEditor.getUseEllipses(),
+                mEditor.getUseColor());
+        }
+        else
+        {
+            font->render(
+                text, start,
+                rect,
+                mStyle->getSelectedColor().get(),
+                LLFontGL::LEFT, mEditor.mTextVAlign,
+                LLFontGL::NORMAL,
+                LLFontGL::NO_SHADOW,
+                length,
+                &right_x,
+                mEditor.getUseEllipses(),
+                mEditor.getUseColor());
+        }
     }
     rect.mLeft = right_x;
     if( selection_end < seg_end )
@@ -3402,17 +3444,36 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
         S32 start = llmax( selection_end, seg_start );
         S32 end = seg_end;
         S32 length = end - start;
-        mFontBufferPostSelection.render(font,
-                 text, start,
-                 rect,
-                 color,
-                 LLFontGL::LEFT, mEditor.mTextVAlign,
-                 LLFontGL::NORMAL,
-                 mStyle->getShadowType(),
-                 length,
-                 &right_x,
-                 mEditor.getUseEllipses(),
-                 mEditor.getUseColor());
+        if (is_text_read_only)
+        {
+            mFontBufferPostSelection.render(
+                font,
+                text, start,
+                rect,
+                color,
+                LLFontGL::LEFT, mEditor.mTextVAlign,
+                LLFontGL::NORMAL,
+                mStyle->getShadowType(),
+                length,
+                &right_x,
+                mEditor.getUseEllipses(),
+                mEditor.getUseColor());
+        }
+        else
+        {
+            font->render(
+                text, start,
+                rect,
+                color,
+                LLFontGL::LEFT, mEditor.mTextVAlign,
+                LLFontGL::NORMAL,
+                mStyle->getShadowType(),
+                length,
+                &right_x,
+                mEditor.getUseEllipses(),
+                mEditor.getUseColor());
+
+        }
     }
     return right_x;
 }
