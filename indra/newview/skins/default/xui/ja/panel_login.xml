@@ -16,14 +16,14 @@
 			</combo_box>
 			<button label="ログイン" name="connect_btn"/>
 			<text name="sign_up_text">
-                サインアップ
-            </text>
+				サインアップ
+			</text>
 			<check_box label="名前を記憶" name="remember_name" tool_tip="既に記憶されているユーザは「ミー」&gt;「初期設定」&gt;「詳細設定」&gt;「記憶されたユーザ名」から削除できます。"/>
 			<check_box label="パスワードを記憶" name="remember_password"/>
 			<combo_box label="グリッドを選択" name="server_combo"/>
 			<text name="forgot_password_text">
-                パスワードに関して
-            </text>
+				パスワードに関して
+			</text>
 		</layout_panel>
 	</layout_stack>
 </panel>

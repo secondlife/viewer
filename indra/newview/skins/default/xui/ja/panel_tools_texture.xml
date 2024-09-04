@@ -14,22 +14,22 @@
 	</panel.string>
 	<menu_button name="clipboard_color_params_btn" tool_tip="オプションをペースト"/>
 	<text name="color label">
-        色
-    </text>
+		色
+	</text>
 	<color_swatch name="colorswatch" tool_tip="クリックしてカラーピッカーを開く"/>
 	<text name="color trans">
-        透過度(%)
-    </text>
+		透過度(%)
+	</text>
 	<text name="glow label">
-        グロー
-    </text>
+		グロー
+	</text>
 	<check_box label="明るさ全開" name="checkbox fullbright"/>
 	<combo_box name="combobox matmedia">
 		<combo_box.item label="マテリアル" name="Materials"/>
 		<combo_box.item label="メディア" name="Media"/>
 	</combo_box>
 	<radio_group name="radio_material_type">
-<radio_item label="テクスチャ(拡散)" name="Texture (diffuse)"/>
+		<radio_item label="テクスチャ(拡散)" name="Texture (diffuse)"/>
 		<radio_item label="凹凸 (法線)" name="Bumpiness (normal)"/>
 		<radio_item label="輝き(スペキュラ)" name="Shininess (specular)"/>
 	</radio_group>
@@ -37,8 +37,8 @@
 	<check_box label="繰り返しをロックする" name="checkbox_sync_settings" tool_tip="全てのマップの繰り返しを調整する"/>
 	<texture_picker label="テクスチャ" name="texture control" tool_tip="クリックして画像を選択"/>
 	<text name="label alphamode">
-        アルファモード
-    </text>
+		アルファモード
+	</text>
 	<combo_box name="combobox alphamode">
 		<combo_box.item label="なし" name="None"/>
 		<combo_box.item label="アルファブレンディング" name="Alpha blending"/>
@@ -46,12 +46,12 @@
 		<combo_box.item label="発光マスク" name="Emissive mask"/>
 	</combo_box>
 	<text name="label maskcutoff">
-        マスクカットオフ
-    </text>
+		マスクカットオフ
+	</text>
 	<texture_picker label="テクスチャ" name="bumpytexture control" tool_tip="クリックして画像を選択"/>
 	<text name="label bumpiness">
-        凹凸
-    </text>
+		凹凸
+	</text>
 	<combo_box name="combobox bumpiness">
 		<combo_box.item label="なし" name="None"/>
 		<combo_box.item label="明るさ" name="Brightness"/>
@@ -74,8 +74,8 @@
 	</combo_box>
 	<texture_picker label="テクスチャ" name="shinytexture control" tool_tip="クリックして画像を選択"/>
 	<text name="label shininess">
-        輝き
-    </text>
+		輝き
+	</text>
 	<combo_box name="combobox shininess">
 		<combo_box.item label="なし" name="None"/>
 		<combo_box.item label="低" name="Low"/>
@@ -83,24 +83,24 @@
 		<combo_box.item label="高" name="High"/>
 	</combo_box>
 	<text name="label glossiness">
-        光沢度
-    </text>
+		光沢度
+	</text>
 	<text name="label environment">
-        景観
-    </text>
+		景観
+	</text>
 	<text name="label shinycolor">
-        色
-    </text>
+		色
+	</text>
 	<color_swatch name="shinycolorswatch" tool_tip="クリックしてカラーピッカーを開く"/>
 	<text name="media_info">
-選択したメディアの URLがあれば、ここに入ります
-    </text>
+		選択したメディアの URLがあれば、ここに入ります
+	</text>
 	<button name="add_media" tool_tip="メディアを追加します" label="選択..."/>
 	<button name="delete_media" tool_tip="このメディアテクスチャを削除" label="削除"/>
 	<button label="揃える" label_selected="メディアを一列に揃えます" name="button align" tool_tip="メディアテクスチャを一列に揃える(最初に読み込む必要があります)"/>
 	<text name="tex gen">
-        マッピング
-    </text>
+		マッピング
+	</text>
 	<combo_box name="combobox texgen">
 		<combo_box.item label="デフォルト" name="Default"/>
 		<combo_box.item label="平面" name="Planar"/>

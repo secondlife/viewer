@@ -3,8 +3,8 @@
 	<layout_stack name="adjuster">
 		<layout_panel name="pnl_desc">
 			<text name="select_description">
-                空のソースを選択:
-            </text>
+				空のソースを選択:
+			</text>
 		</layout_panel>
 		<layout_panel name="pnl_traks">
 			<radio_group name="track_selection">

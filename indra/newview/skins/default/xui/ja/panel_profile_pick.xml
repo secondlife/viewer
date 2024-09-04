@@ -6,14 +6,14 @@
 	<layout_stack name="main_pick_stack">
 		<layout_panel name="main_pick_lp">
 			<text name="title_label">
-                タイトル:
-            </text>
+				タイトル:
+			</text>
 			<text name="description_label">
-                説明:
-            </text>
+				説明:
+			</text>
 			<text name="location_label">
-                場所:
-            </text>
+				場所:
+			</text>
 			<line_editor name="pick_location">
 				読込中...
 			</line_editor>

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="セットアップ" name="Input panel">
 	<text name="Network:">
-        ネットワーク:
-    </text>
+		ネットワーク:
+	</text>
 	<text name="Maximum bandwidth">
-        最大帯域幅
-    </text>
+		最大帯域幅
+	</text>
 	<check_box label="カスタムポート" name="connection_port_enabled"/>
 	<spinner label="ポート番号:" name="connection_port"/>
 	<radio_group name="preferred_browser_behavior">
@@ -15,8 +15,8 @@
 	</radio_group>
 	<check_box label="Javascriptを有効にする" name="browser_javascript_enabled"/>
 	<text name="Software updates:">
-        ソフトウェアアップデート:
-    </text>
+		ソフトウェアアップデート:
+	</text>
 	<combo_box name="updater_service_combobox">
 		<combo_box.item label="各アップデートを自動的にインストールする" name="Install_automatically"/>
 		<combo_box.item label="オプションのアップデートのインストール準備ができたら通知する" name="Install_ask"/>
@@ -25,7 +25,7 @@
 	<check_box label="release candidateにアップグレードする" name="update_willing_to_test"/>
 	<check_box label="更新後にリリースノートを表示" name="update_show_release_notes"/>
 	<text name="Proxy Settings:">
-        プロキシ設定:
-    </text>
+		プロキシ設定:
+	</text>
 	<button label="プロキシ設定を調整" label_selected="参照" name="set_proxy"/>
 </panel>

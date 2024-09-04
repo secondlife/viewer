@@ -4,21 +4,21 @@
 		[NUM]:[DEN]
 	</panel.string>
 	<text name="Cache:">
-        キャッシュ:
-    </text>
+		キャッシュ:
+	</text>
 	<spinner label="キャッシュ(256～9984MB)" name="cachesizespinner"/>
 	<button label="キャッシュをクリア" label_selected="キャッシュをクリア" name="clear_cache"/>
 	<text name="Cache location">
-        キャッシュ保存先:
-    </text>
+		キャッシュ保存先:
+	</text>
 	<button label="参照" label_selected="参照" name="set_cache"/>
 	<button label="デフォルトの場所" label_selected="デフォルトの場所" name="default_cache_location"/>
 	<text name="UI Size:">
-UIサイズ:
-    </text>
+		UIサイズ:
+	</text>
 	<text name="HUD Size:">
-        HUDのスケール:
-    </text>
+		HUDのスケール:
+	</text>
 	<check_box label="スクリプトのエラーを表示:" name="show_script_errors"/>
 	<radio_group name="show_location">
 		<radio_item label="近隣チャット" name="0"/>

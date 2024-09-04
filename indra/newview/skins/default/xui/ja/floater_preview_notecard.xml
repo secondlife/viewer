@@ -10,11 +10,11 @@
 		ノートカード: [NAME]
 	</floater.string>
 	<text name="desc txt">
-        説明:
-    </text>
+		説明:
+	</text>
 	<text_editor name="Notecard Editor">
-        読込中...
-    </text_editor>
+		読込中...
+	</text_editor>
 	<button label="編集..." label_selected="編集" name="Edit"/>
 	<button label="保存" label_selected="保存" name="Save"/>
 	<button label="削除" label_selected="削除" name="Delete"/>

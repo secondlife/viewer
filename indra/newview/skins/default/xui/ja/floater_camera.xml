@@ -21,8 +21,8 @@
 			<slider_bar name="zoom_slider" tool_tip="向いている方向にカメラをズーム"/>
 			<joystick_track name="cam_track_stick" tool_tip="カメラを上下左右に移動"/>
 			<text name="precise_ctrs_label">
-                数値で角度方位を指定
-            </text>
+				数値で角度方位を指定
+			</text>
 		</panel>
 	</panel>
 	<panel name="buttons_panel">

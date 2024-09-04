@@ -2,7 +2,7 @@
 <floater name="toast">
 	<panel name="wrapper_panel">
 		<text name="toast_text">
-            トーストテキスト;
-        </text>
+			トーストテキスト;
+		</text>
 	</panel>
 </floater>

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater title="L$を購入" name="buy currency">
 	<floater.string name="buy_currency">
 		約[LOCALAMOUNT]でL$[LINDENS]を購入
@@ -12,72 +12,72 @@
 	<layout_stack name="outer_stack">
 		<layout_panel name="layout_panel_title">
 			<text name="info_need_more">
-                L$が足りません
-            </text>
+				L$が足りません
+			</text>
 			<text name="info_buying">
-                L$を購入
-            </text>
+				L$を購入
+			</text>
 		</layout_panel>
 		<layout_panel name="layout_panel_price">
 			<text name="target_price_label">
-                必要金額
-            </text>
+				必要金額
+			</text>
 			<text name="target_price">
-                L$[AMT]
-            </text>
+				L$[AMT]
+			</text>
 		</layout_panel>
 		<layout_panel name="layout_panel_balance">
 			<text name="balance_label">
-                所持金
-            </text>
+				所持金
+			</text>
 			<text name="balance_amount">
-                L$[AMT]
-            </text>
+				L$[AMT]
+			</text>
 		</layout_panel>
 		<layout_panel name="layout_panel_required">
 			<text name="required_label">
-                必要最低金額
-            </text>
+				必要最低金額
+			</text>
 			<text name="required_amount">
-                L$[AMT]
-            </text>
+				L$[AMT]
+			</text>
 		</layout_panel>
 		<layout_panel name="layout_panel_action">
 			<text name="currency_action">
-                購入金額を選択
-            </text>
+				購入金額を選択
+			</text>
 			<line_editor name="currency_amt">
 				1234
 			</line_editor>
 			<text name="currency_est">
-                平均 [LOCALAMOUNT]
-            </text>
+				平均 [LOCALAMOUNT]
+			</text>
 			<text name="getting_data">
-                見積もり中...
-            </text>
+				見積もり中...
+			</text>
 			<text name="total_label">
-                購入後の残高
-            </text>
+				購入後の残高
+			</text>
 			<text name="total_amount">
-                L$[AMT]
-            </text>
+				L$[AMT]
+			</text>
 		</layout_panel>
 		<layout_panel name="layout_panel_msg">
 			<text name="currency_links">
-                [https://accounts.secondlife.com/billing_information/ 支払い方法] | [https://www.secondlife.com/my/lindex/buy.php L$の購入]
-            </text>
+				[https://accounts.secondlife.com/billing_information/ 支払い方法] | [https://www.secondlife.com/my/lindex/buy.php L$の購入]
+			</text>
 			<text name="exchange_rate_note">
-                金額を再入力して、最新の為替レートを確認してください。
-            </text>
+				金額を再入力して、最新の為替レートを確認してください。
+			</text>
 			<text name="purchase_warning_repurchase">
-                L$を受け取ったら、
+				L$を受け取ったら、
                 もう一度購入してください。
-            </text>
+			</text>
 		</layout_panel>
 		<layout_panel name="layout_panel_buttons">
 			<text name="contacting">
-                LindeXに接続中...
-            </text>
+				LindeXに接続中...
+			</text>
 			<button label="今すぐL$を購入" name="buy_btn"/>
 			<button label="キャンセル" name="cancel_btn"/>
 		</layout_panel>

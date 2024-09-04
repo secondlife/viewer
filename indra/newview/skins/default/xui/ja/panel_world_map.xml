@@ -37,27 +37,27 @@
 		[NUMBER]人
 	</panel.string>
 	<text label="北" name="floater_map_north">
-        北
-    </text>
+		北
+	</text>
 	<text label="東" name="floater_map_east">
-        東
-    </text>
+		東
+	</text>
 	<text label="西" name="floater_map_west">
-        西
-    </text>
+		西
+	</text>
 	<text label="南" name="floater_map_south">
-        南
-    </text>
+		南
+	</text>
 	<text label="南東" name="floater_map_southeast">
-        南東
-    </text>
+		南東
+	</text>
 	<text label="北東" name="floater_map_northeast">
-        北東
-    </text>
+		北東
+	</text>
 	<text label="南西" name="floater_map_southwest">
-        南西
-    </text>
+		南西
+	</text>
 	<text label="北西" name="floater_map_northwest">
-        北西
-    </text>
+		北西
+	</text>
 </panel>

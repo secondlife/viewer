@@ -1,48 +1,48 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="表示" name="Display panel">
 	<text>
-        使用中のプリセット:
-    </text>
+		使用中のプリセット:
+	</text>
 	<text name="preset_text">
-        (なし)
-    </text>
+		(なし)
+	</text>
 	<text name="QualitySpeed">
-        品質と速度:
-    </text>
+		品質と速度:
+	</text>
 	<text name="ShadersPrefText">
-        低
-    </text>
+		低
+	</text>
 	<text name="ShadersPrefText2">
-        中
-    </text>
+		中
+	</text>
 	<text name="ShadersPrefText3">
-        高
-    </text>
+		高
+	</text>
 	<text name="ShadersPrefText4">
-        最高
-    </text>
+		最高
+	</text>
 	<text name="FasterText">
-        速度優先
-    </text>
+		速度優先
+	</text>
 	<text name="BetterText">
-        品質優先
-    </text>
-<slider control_name="RenderFarClip" label="描画距離:" name="DrawDistance"/>
+		品質優先
+	</text>
+	<slider control_name="RenderFarClip" label="描画距離:" name="DrawDistance"/>
 	<check_box label="周囲(大気)シェーダー" name="WindLightUseAtmosShaders"/>
 	<check_box label="高度な光源モデル" name="UseLightShaders"/>
 	<button label="自動調整" name="AutoAdjustmentsButton"/>
 	<slider tool_tip="複雑なアバターがどの時点でJellyDollとして描画されるかを制御します。" label="アバターの最大複雑度:" name="IndirectMaxComplexity"/>
 	<text name="IndirectMaxComplexityText">
-        0
-    </text>
+		0
+	</text>
 	<text name="IndirectMaxComplexityLink">
-        [https://community.secondlife.com/t5/Featured-News/Why-are-all-these-people-made-of-colored-jelly/ba-p/3031255 これは何ですか?]
-    </text>
+		[https://community.secondlife.com/t5/Featured-News/Why-are-all-these-people-made-of-colored-jelly/ba-p/3031255 これは何ですか?]
+	</text>
 	<check_box label="フレンドは常に描画" name="AlwaysRenderFriends"/>
 	<button label="例外..." name="RenderExceptionsButton"/>
 	<button label="設定をプリセットとして保存..." name="PrefSaveButton"/>
 	<button label="プリセットを読込..." name="PrefLoadButton"/>
 	<button label="プリセットを削除..." name="PrefDeleteButton"/>
 	<button label="推奨設定にリセット" name="Defaults"/>
-<button label="詳細設定…" name="AdvancedSettings"/>
+	<button label="詳細設定…" name="AdvancedSettings"/>
 </panel>

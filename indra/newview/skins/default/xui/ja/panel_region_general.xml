@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="地域(リージョン)" name="General">
 	<text name="region_text_lbl">
-        地域(リージョン):
-    </text>
+		地域(リージョン):
+	</text>
 	<text left_delta="50" name="region_text">
-        未知
-    </text>
+		未知
+	</text>
 	<text name="version_channel_text_lbl">
-        バージョン:
-    </text>
+		バージョン:
+	</text>
 	<text left_delta="50" name="version_channel_text">
-        不明
-    </text>
+		不明
+	</text>
 	<text name="region_type_lbl">
-        種類:
-    </text>
+		種類:
+	</text>
 	<text left_delta="50" name="region_type">
-        不明
-    </text>
+		不明
+	</text>
 	<check_box label="地形編集をブロック" name="block_terraform_check"/>
 	<check_box label="飛行をブロック" name="block_fly_check"/>
 	<check_box label="区画の飛行をブロック" name="block_fly_over_check" tool_tip="アクセス チェックを上方向に拡大し、区画を超える飛行を防ぎます"/>
@@ -29,8 +29,8 @@
 	<spinner label="アバター数上限" name="agent_limit_spin"/>
 	<spinner label="物体ボーナス" name="object_bonus_spin"/>
 	<text label="成人指定" name="access_text">
-        区分:
-    </text>
+		区分:
+	</text>
 	<icons_combo_box label="モデレート" name="access_combo">
 		<icons_combo_box.item label="アダルト" name="Adult">
 			<item.columns value="Parcel_R_Light"/>

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_snapshot_local">
 	<text name="title">
-        ディスクに保存
-    </text>
+		ディスクに保存
+	</text>
 	<combo_box label="解像度" name="local_size_combo">
 		<combo_box.item label="現在のウィンドウ" name="CurrentWindow"/>
 		<combo_box.item label="320 x 240" name="320x240"/>
@@ -16,8 +16,8 @@
 	<spinner label="横幅 x 高さ" name="local_snapshot_width"/>
 	<check_box label="縦横比の固定" name="local_keep_aspect_check"/>
 	<text name="local_format_label">
-        形式:
-    </text>
+		形式:
+	</text>
 	<combo_box label="ファイル形式" name="local_format_combo">
 		<combo_box.item label="PNG(可逆圧縮)" name="PNG"/>
 		<combo_box.item label="BMP(可逆圧縮)" name="BMP"/>

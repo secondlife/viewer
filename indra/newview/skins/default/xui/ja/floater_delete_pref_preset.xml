@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="delete_pref_preset" title="プリセットの削除">
 	<string name="title_graphic">
 		グラフィックのプリセットを削除
@@ -7,8 +7,8 @@
 		カメラのプリセットを削除
 	</string>
 	<text name="Preset">
-        プリセットを選択
-    </text>
+		プリセットを選択
+	</text>
 	<button label="削除" name="delete"/>
 	<button label="キャンセル" name="cancel"/>
 </floater>

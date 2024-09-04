@@ -3,7 +3,7 @@
 	<scroll_container name="statistics_scroll">
 		<container_view name="statistics_view">
 			<stat_view name="basic" label="基本">
-<stat_bar name="frame difference" label="フレームごとのピクセル差"/>
+				<stat_bar name="frame difference" label="フレームごとのピクセル差"/>
 				<stat_bar name="bandwidth" label="UDPデータの受信量"/>
 				<stat_bar name="packet_loss" label="パケットロス"/>
 			</stat_view>
@@ -42,7 +42,7 @@
 				<stat_bar name="simoutpps" label="送信パケット"/>
 				<stat_bar name="simpendingdownloads" label="保留中のダウンロード"/>
 				<stat_bar name="simpendinguploads" label="保留中のアップロード"/>
-<stat_bar name="simtotalunackedbytes" label="未確認バイトの合計" unit_label="㎅"/>
+				<stat_bar name="simtotalunackedbytes" label="未確認バイトの合計" unit_label="㎅"/>
 				<stat_view name="simperf" label="時間（㎳）">
 					<stat_bar name="simframemsec" label="合計フレーム時間" unit_label="㎳"/>
 					<stat_bar name="simnetmsec" label="ネット時間" unit_label="㎳"/>
@@ -62,7 +62,7 @@
 				</stat_view>
 			</stat_view>
 			<stat_view name="frame_stats" label="フレームの内訳">
-<stat_bar name="scenery_frame_pct" label="景色" unit_label="％"/>
+				<stat_bar name="scenery_frame_pct" label="景色" unit_label="％"/>
 				<stat_bar name="avatar_frame_pct" label="アバター" unit_label="％"/>
 				<stat_bar name="ui_frame_pct" label="UI" unit_label="％"/>
 				<stat_bar name="huds_frame_pct" label="HUD" unit_label="％"/>

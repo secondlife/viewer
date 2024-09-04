@@ -25,6 +25,6 @@
 		イメージを削除
 	</floater.string>
 	<text name="tooltip_text">
-        ツールチップ
-    </text>
+		ツールチップ
+	</text>
 </floater>

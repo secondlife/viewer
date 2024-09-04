@@ -13,15 +13,15 @@
 		あなたはメンバーです。
 	</string>
 	<text name="group_name">
-        テスト文字列 無視してください
-    </text>
+		テスト文字列 無視してください
+	</text>
 	<text name="group_subtitle">
-        123メートル
-    </text>
+		123メートル
+	</text>
 	<text name="group_details">
-        ヘラジカがいる部屋を作る任務を負った人々のグループ。
+		ヘラジカがいる部屋を作る任務を負った人々のグループ。
         ヘラジカを恐れてください!恐れよ!そしてマングースも!
-    </text>
+	</text>
 	<button label="参加" name="join_btn"/>
 	<button label="脱退" name="leave_btn"/>
 	<button label="プロフィールの表示" name="view_profile_btn"/>

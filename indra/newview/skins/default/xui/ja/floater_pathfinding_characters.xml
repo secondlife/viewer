@@ -23,20 +23,20 @@
 			<scroll_list.columns label="名前" name="name"/>
 			<scroll_list.columns label="説明" name="description"/>
 			<scroll_list.columns label="所有者" name="owner"/>
-<scroll_list.columns label="CPU" name="cpu_time"/>
+			<scroll_list.columns label="CPU" name="cpu_time"/>
 			<scroll_list.columns label="高度" name="altitude"/>
 		</scroll_list>
 		<text name="messaging_status">
-            キャラクター:
-        </text>
+			キャラクター:
+		</text>
 		<button label="リスト更新" name="refresh_objects_list"/>
 		<button label="全て選択" name="select_all_objects"/>
 		<button label="何も選択しない" name="select_none_objects"/>
 	</panel>
 	<panel name="pathfinding_chars_actions">
 		<text name="actions_label">
-            選択したキャラクターに対するアクション:
-        </text>
+			選択したキャラクターに対するアクション:
+		</text>
 		<check_box label="ビーコンを表示" name="show_beacon"/>
 		<check_box label="物理カプセルを表示" name="show_physics_capsule"/>
 		<button label="取る" name="take_objects"/>

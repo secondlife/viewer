@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="associate listing" title="リストを関連付け">
 	<text name="message">
-        一覧ID:
-    </text>
+		一覧ID:
+	</text>
 	<line_editor name="listing_id">
 		ここにIDを入力
 	</line_editor>

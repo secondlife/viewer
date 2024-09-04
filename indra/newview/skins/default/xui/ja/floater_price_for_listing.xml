@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="price_for_listing" title="クラシファイド広告の掲載">
 	<text name="explanation_text">
-        あなたのクラシファイド広告は公開された日から1週間有効です。
+		あなたのクラシファイド広告は公開された日から1週間有効です。
         クラシファイドリストのあなたの広告の位置は広告費をいくら支払うかで決まります。
         
         最高金額を支払った広告がリストのトップに載り検索で上位に表示されます。
-    </text>
+	</text>
 	<text name="price_text">
-        広告掲載費:
-    </text>
+		広告掲載費:
+	</text>
 	<button label="キャンセル" name="cancel_btn"/>
 </floater>

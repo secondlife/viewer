@@ -1,59 +1,59 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater_test_textbox">
 	<text name="title">
-        このテキストにはword_wrapがtrueに設定され、use_ellipsesがtrueに設定され、clip_partialがtrue に設定されているため、折り返して最後の行まではみ出し、最後の部分行をクリップして、さらにテキストがあることを示す省略記号が表示されます。
-    </text>
+		このテキストにはword_wrapがtrueに設定され、use_ellipsesがtrueに設定され、clip_partialがtrue に設定されているため、折り返して最後の行まではみ出し、最後の部分行をクリップして、さらにテキストがあることを示す省略記号が表示されます。
+	</text>
 	<text name="right_aligned_text">
-        右寄せのテキスト
-    </text>
+		右寄せのテキスト
+	</text>
 	<text name="centered_text">
-        中央揃えのテキスト
-    </text>
+		中央揃えのテキスト
+	</text>
 	<text name="left_aligned_text">
-        左揃えテキスト
-    </text>
+		左揃えテキスト
+	</text>
 	<text name="test_text10" tool_tip="テキスト"/>
 	<text name="test_text11" tool_tip="テキスト"/>
 	<text name="test_text12" tool_tip="テキスト"/>
 	<text name="test_text13" tool_tip="テキスト"/>
 	<text_editor name="test_text_editor" tool_tip="テキストエディタ">
-        テキストエディタ
-    </text_editor>
+		テキストエディタ
+	</text_editor>
 	<text_editor name="long_text_editor" tool_tip="テキストエディタ">
-        複数行の
+		複数行の
         テキストと
         スクロールバーを
         備えた
         テキストエディター
-    </text_editor>
+	</text_editor>
 	<text_editor name="blob_text_editor" tool_tip="テキストエディタ"/>
 	<text_editor name="monospace_text_editor" tool_tip="テキストエディタ">
-        複数行の
+		複数行の
         テキストと
         スクロールバーを
         備えた
         テキストエディター
-    </text_editor>
+	</text_editor>
 	<text_editor name="monospace_text_editor" tool_tip="テキストエディタ">
-        複数行の
+		複数行の
         テキストと
         スクロールバーを
         備えた
         テキストエディター
-    </text_editor>
+	</text_editor>
 	<text_editor name="sansserif_text_editor" tool_tip="テキストエディタ">
-        複数行の
+		複数行の
         テキストと
         スクロールバーを
         備えた
         テキストエディター
-    </text_editor>
+	</text_editor>
 	<text name="test_text_box" tool_tip="テキストBOX">
-        複数行の
+		複数行の
         テキスト ボックス。
         行数が
         多すぎて
         実際に
         収まりません。
-    </text>
+	</text>
 </floater>

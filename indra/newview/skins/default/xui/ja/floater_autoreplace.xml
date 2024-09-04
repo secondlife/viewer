@@ -14,11 +14,11 @@
 	<button name="autoreplace_add_entry" label="追加..."/>
 	<button name="autoreplace_delete_entry" label="削除"/>
 	<text name="autoreplace_keyword_txt">
-        キーワード:
-    </text>
+		キーワード:
+	</text>
 	<text name="autoreplace_replacement_txt">
-        置換:
-    </text>
+		置換:
+	</text>
 	<button name="autoreplace_save_entry" label="エントリを保存" tool_tip="このエントリを保存します。"/>
 	<button name="autoreplace_save_changes" label="変更を保存" tool_tip="変更を全て保存します。"/>
 	<button name="autoreplace_cancel" label="キャンセル" tool_tip="変更を全て破棄します。"/>

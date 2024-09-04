@@ -19,17 +19,17 @@
 	<check_box label="他のユーザ作成" name="check_created_by_others"/>
 	<check_box label="ログオフ以降" name="check_since_logoff"/>
 	<text name="- OR -">
-        - または -
-    </text>
+		- または -
+	</text>
 	<radio_group name="date_search_direction">
 		<radio_item label="より新しい" name="newer"/>
 		<radio_item label="より古い" name="older"/>
 	</radio_group>
 	<text name="label_hours">
-        時間
-    </text>
+		時間
+	</text>
 	<text name="label_days">
-        日間
-    </text>
+		日間
+	</text>
 	<button label="閉じる" label_selected="閉じる" name="Close"/>
 </floater>

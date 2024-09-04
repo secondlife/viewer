@@ -1,88 +1,88 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="prefs_graphics_advanced" title="グラフィック詳細設定">
 	<text name="GeneralText">
-        一般
-    </text>
-<slider label="描画距離:" name="DrawDistance"/>
+		一般
+	</text>
+	<slider label="描画距離:" name="DrawDistance"/>
 	<slider label="最大パーティクル数:" name="MaxParticleCount"/>
 	<slider label="ポストプロセス品質:" name="RenderPostProcess"/>
 	<text name="PostProcessText">
-        低
-    </text>
+		低
+	</text>
 	<check_box label="垂直同期を有効化" name="vsync" tool_tip="フレームレートをモニターのリフレッシュレートに同期させ、スムーズなパフォーマンスを実現します。"/>
 	<text name="AvatarText">
-        アバター
-    </text>
+		アバター
+	</text>
 	<slider tool_tip="複雑なアバターがどの時点でJellyDollとして描画されるかを制御します。" label="最大の複雑度:" name="IndirectMaxComplexity"/>
 	<text name="IndirectMaxComplexityText">
-        0
-    </text>
+		0
+	</text>
 	<slider label="簡略化せずに描画する最大数:" name="IndirectMaxNonImpostors"/>
 	<text name="IndirectMaxNonImpostorsText">
-        0
-    </text>
+		0
+	</text>
 	<slider label="詳細:" name="AvatarMeshDetail"/>
 	<text name="AvatarMeshDetailText">
-        低
-    </text>
+		低
+	</text>
 	<slider label="物理演算:" name="AvatarPhysicsDetail"/>
 	<text name="AvatarPhysicsDetailText">
-        低
-    </text>
+		低
+	</text>
 	<text name="HardwareText">
-        ハードウェア
-    </text>
+		ハードウェア
+	</text>
 	<slider label="テクスチャメモリ(MB):" name="GraphicsCardTextureMemory" tool_tip="テクスチャに割り当てるメモリの量を指定します。デフォルトはビデオカードの搭載メモリの値です。この値を減らすとパフォーマンスが向上する可能性がありますが、テクスチャがぼやける可能性があります。"/>
 	<slider label="フォグの距離比率:" name="fog"/>
 	<slider label="ガンマ:" name="gamma"/>
 	<text name="(brightness, lower is brighter)">
-        (0がデフォルト、低いほど明るい)
-    </text>
+		(0がデフォルト、低いほど明るい)
+	</text>
 	<check_box label="異方性フィルタリング (有効にすると速度が低下)" name="ani"/>
 	<check_box control_name="RenderCompressTextures" label="テクスチャ圧縮の有効化(再起動が必要)" name="texture compression" tool_tip="ビデオメモリ内のテクスチャを圧縮し、色の品質をある程度犠牲にして、より高解像度のテクスチャを読み込むようにします。"/>
 	<check_box control_name="RenderHiDPI" label="HiDPIディスプレイのサポートを有効にする(再起動後に反映)" name="use HiDPI" tool_tip="高解像度の描画のためにOpenGLを有効にします。"/>
 	<text name="antialiasing label">
-        アンチエイリアシング:
-    </text>
+		アンチエイリアシング:
+	</text>
 	<combo_box label="アンチエイリアシング" name="fsaa">
 		<combo_box.item label="無効" name="FSAADisabled"/>
 	</combo_box>
 	<text name="antialiasing restart">
-        (再起動後に反映)
-    </text>
+		(再起動後に反映)
+	</text>
 	<text name="MeshText">
-        メッシュ
-    </text>
+		メッシュ
+	</text>
 	<slider label="地形のメッシュの詳細:" name="TerrainMeshDetail"/>
 	<text name="TerrainMeshDetailText">
-        低
-    </text>
+		低
+	</text>
 	<slider label="木:" name="TreeMeshDetail"/>
 	<text name="TreeMeshDetailText">
-        低
-    </text>
+		低
+	</text>
 	<slider label="オブジェクト:" name="ObjectMeshDetail"/>
 	<text name="ObjectMeshDetailText">
-        低
-    </text>
+		低
+	</text>
 	<slider label="フレキシプリム:" name="FlexibleMeshDetail"/>
 	<text name="FlexibleMeshDetailText">
-        低
-    </text>
+		低
+	</text>
 	<text name="ShadersText">
-        シェーダー
-    </text>
+		シェーダー
+	</text>
 	<check_box label="透明な水" name="TransparentWater"/>
 	<check_box label="バンプマッピングと光沢" name="BumpShiny"/>
 	<check_box label="近くの光源" name="LocalLights"/>
 	<slider label="地形詳細:" name="TerrainDetail"/>
 	<text name="TerrainDetailText">
-        低
-    </text>
+		低
+	</text>
 	<check_box label="アバターの服装" name="AvatarCloth"/>
 	<text name="ReflectionsText">
-        水面の反射:
-    </text>
+		水面の反射:
+	</text>
 	<combo_box name="Reflections">
 		<combo_box.item label="なし; 不透明" name="0"/>
 		<combo_box.item label="なし; 透明" name="0"/>
@@ -95,14 +95,14 @@
 	<check_box label="周囲(大気)シェーダー" name="WindLightUseAtmosShaders"/>
 	<slider label="空:" name="SkyMeshDetail"/>
 	<text name="SkyMeshDetailText">
-        低
-    </text>
+		低
+	</text>
 	<check_box label="高度な光源モデル" name="UseLightShaders"/>
 	<check_box label="アンビエントオクルージョン" name="UseSSAO"/>
 	<check_box label="被写界深度(DOF)" name="UseDoF"/>
 	<text name="RenderShadowDetailText">
-        影:
-    </text>
+		影:
+	</text>
 	<combo_box name="ShadowDetail">
 		<combo_box.item label="なし" name="0"/>
 		<combo_box.item label="太陽 / 月" name="1"/>

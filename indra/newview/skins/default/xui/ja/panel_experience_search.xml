@@ -14,12 +14,12 @@
 	</string>
 	<panel name="search_panel">
 		<text name="lbl name part">
-            名前の一部を入力してください:
-        </text>
+			名前の一部を入力してください:
+		</text>
 		<button label="進む" name="find"/>
 		<text name="lbl max content rating">
-            コンテンツの最大レーティング:
-        </text>
+			コンテンツの最大レーティング:
+		</text>
 		<icons_combo_box label="モデレート" name="maturity">
 			<icons_combo_box.item label="アダルト" name="Adult">
 				<item.columns value="Parcel_R_Light"/>

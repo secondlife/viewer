@@ -1,11 +1,11 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater title="マーケットプレイス一覧" name="floater_marketplace_listings">
 	<panel name="marketplace_listings_panel">
 		<panel>
 			<panel name="marketplace_listings_inventory_placeholder_panel">
 				<text name="marketplace_listings_inventory_placeholder_title">
-                    読込中...
-                </text>
+					読込中...
+				</text>
 			</panel>
 			<panel name="panel_marketplace_listing" filename="panel_marketplace_listings.xml" class="llpanelmarketplacelistings" top="0" follows="all"/>
 		</panel>

@@ -28,8 +28,8 @@
 		メモリ(KB)
 	</floater.string>
 	<text name="title_text">
-        読込中...
-    </text>
+		読込中...
+	</text>
 	<scroll_list name="objects_list">
 		<scroll_list.columns label="数" name="score"/>
 		<scroll_list.columns label="名前" name="name"/>
@@ -41,20 +41,20 @@
 		<scroll_list.columns label="メモリ(KB)" name="memory"/>
 	</scroll_list>
 	<text name="id_text">
-        物体ID:
-    </text>
+		物体ID:
+	</text>
 	<button label="ビーコンを表示" name="show_beacon_btn"/>
 	<text name="obj_name_text">
-        オブジェクト名:
-    </text>
+		オブジェクト名:
+	</text>
 	<button label="フィルタ" name="filter_object_btn"/>
 	<text name="owner_name_text">
-        所有者:
-    </text>
+		所有者:
+	</text>
 	<button label="フィルタ" name="filter_owner_btn"/>
 	<text name="parcel_name_text">
-        区画:
-    </text>
+		区画:
+	</text>
 	<button label="フィルタ" name="filter_parcel_btn"/>
 	<button label="選択内容を返却" name="return_selected_btn"/>
 	<button label="全て返却" name="return_all_btn"/>

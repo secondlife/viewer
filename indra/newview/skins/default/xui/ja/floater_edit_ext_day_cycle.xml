@@ -30,8 +30,8 @@
 	<layout_stack name="outer_stack">
 		<layout_panel name="name_and_import">
 			<text name="label">
-                デイサイクル名:
-            </text>
+				デイサイクル名:
+			</text>
 			<button label="インポート" name="btn_import" tool_tip="ディスクから過去の設定をインポートする。"/>
 		</layout_panel>
 		<layout_panel name="content">
@@ -41,7 +41,7 @@
 						<button label="空4" name="sky4_track"/>
 						<button label="空3" name="sky3_track"/>
 						<button label="空2" name="sky2_track"/>
-<button label="地表レベル" name="sky1_track"/>
+						<button label="地表レベル" name="sky1_track"/>
 						<button label="水面" name="water_track"/>
 					</panel>
 					<panel name="timeline">
@@ -75,8 +75,8 @@
 				</layout_panel>
 				<layout_panel name="frame_edit_controls">
 					<text name="icn_lock_edit">
-                        上部のタイムラインからキーフレームを選択し、設定を編集します。
-                    </text>
+						上部のタイムラインからキーフレームを選択し、設定を編集します。
+					</text>
 				</layout_panel>
 				<layout_panel name="frame_settings_water">
 					<tab_container name="water_tabs">

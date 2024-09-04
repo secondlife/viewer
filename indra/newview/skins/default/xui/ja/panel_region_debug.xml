@@ -1,28 +1,28 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="デバッグ" name="Debug">
 	<text name="region_text_lbl">
-        地域(リージョン):
-    </text>
+		地域(リージョン):
+	</text>
 	<text name="region_text">
-        未知
-    </text>
+		未知
+	</text>
 	<check_box label="スクリプトを無効化" name="disable_scripts_check" tool_tip="この地域(リージョン)のスクリプトを全て無効にします"/>
 	<check_box label="衝突を無効化" name="disable_collisions_check" tool_tip="この地域(リージョン)の非アバター衝突を無効にします"/>
 	<check_box label="物理を無効化" name="disable_physics_check" tool_tip="この地域(リージョン)の物理を全て無効にします"/>
 	<button label="適用" name="apply_btn"/>
 	<text name="objret_text_lbl">
-        オブジェクトの返却
-    </text>
+		オブジェクトの返却
+	</text>
 	<text name="resident_text_lbl">
-        住人:
-    </text>
+		住人:
+	</text>
 	<line_editor name="target_avatar_name">
 		(なし)
 	</line_editor>
 	<button label="選択" name="choose_avatar_btn"/>
 	<text name="options_text_lbl">
-        オプション:
-    </text>
+		オプション:
+	</text>
 	<check_box label="スクリプトつきのもの" name="return_scripts" tool_tip="スクリプトのオブジェクトだけ返却します"/>
 	<check_box label="他人の土地にあるもの" name="return_other_land" tool_tip="他人に属する土地にあるオブジェクトのみを返却します"/>
 	<check_box label="この不動産に属する全ての地域(リージョン)のもの" name="return_estate_wide" tool_tip="この不動産に含まれている全ての地域(リージョン)のオブジェクトを返却します"/>

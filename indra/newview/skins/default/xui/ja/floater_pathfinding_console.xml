@@ -68,28 +68,28 @@
 	</floater.string>
 	<panel name="pathfinding_console_main">
 		<text name="viewer_status_label">
-            ビュアのステータス
-        </text>
+			ビュアのステータス
+		</text>
 	</panel>
 	<panel name="pathfinding_console_simulator">
 		<text name="simulator_status_label">
-            シミュレータのステータス
-        </text>
+			シミュレータのステータス
+		</text>
 	</panel>
 	<tab_container name="view_test_tab_container">
 		<panel name="view_panel" label="表示">
 			<text name="show_label">
-                表示:
-            </text>
+				表示:
+			</text>
 			<check_box label="ワールド" name="show_world"/>
 			<check_box label="可動物のみ" name="show_world_movables_only"/>
 			<check_box label="ナビメッシュ" name="show_navmesh"/>
 			<text name="show_walkability_label">
-                歩行可能マップを表示:
-            </text>
+				歩行可能マップを表示:
+			</text>
 			<combo_box name="show_heatmap_mode">
 				<combo_box.item label="表示しない" name="show_heatmap_mode_none"/>
-<combo_box.item label="キャラクター・タイプA" name="show_heatmap_mode_a"/>
+				<combo_box.item label="キャラクター・タイプA" name="show_heatmap_mode_a"/>
 				<combo_box.item label="キャラクター・タイプB" name="show_heatmap_mode_b"/>
 				<combo_box.item label="キャラクター・タイプC" name="show_heatmap_mode_c"/>
 				<combo_box.item label="キャラクター・タイプD" name="show_heatmap_mode_d"/>
@@ -99,25 +99,25 @@
 			<check_box label="静的障害物" name="show_static_obstacles"/>
 			<check_box label="除外ボリューム" name="show_exclusion_volumes"/>
 			<check_box label="水上飛行機" name="show_water_plane"/>
-<check_box label="X線表示機能つき" name="show_xray"/>
+			<check_box label="X線表示機能つき" name="show_xray"/>
 		</panel>
 		<panel name="test_panel" label="パスをテスト">
 			<text name="ctrl_click_label">
-                Ctrlキーを押しながらクリックして、開始点を選択します。
-            </text>
-			<text name="shift_click_label">
-                Shift キーを押しながらクリックして、終了点を選択します。
-            </text>
-			<text name="character_width_label">
-			<text name="character_width_unit_label">
-				m
+				Ctrlキーを押しながらクリックして、開始点を選択します。
 			</text>
+			<text name="shift_click_label">
+				Shift キーを押しながらクリックして、終了点を選択します。
+			</text>
+			<text name="character_width_label">
+				<text name="character_width_unit_label">
+					m
+				</text>
                 キャラクターの幅
             </text>
-<slider name="character_width" value="1"/>
+			<slider name="character_width" value="1"/>
 			<text name="character_type_label">
-                キャラクター・タイプ
-            </text>
+				キャラクター・タイプ
+			</text>
 			<combo_box name="path_character_type">
 				<combo_box.item label="なし" name="path_character_type_none"/>
 			</combo_box>

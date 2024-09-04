@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="一般" name="general_panel">
 	<text name="language_textbox">
-        言語:
-    </text>
+		言語:
+	</text>
 	<combo_box name="language_combobox">
 		<combo_box.item label="English (英語)" name="English"/>
 		<combo_box.item label="Dansk (デンマーク語) - ベータ" name="Danish"/>
@@ -18,11 +18,11 @@
 		<combo_box.item label="正體中文 (簡体字中国語) - ベータ" name="Traditional Chinese"/>
 	</combo_box>
 	<text name="language_textbox2">
-        (再起動後に反映)
-    </text>
+		(再起動後に反映)
+	</text>
 	<text name="maturity_desired_prompt">
-        アクセスしたいコンテンツ:
-    </text>
+		アクセスしたいコンテンツ:
+	</text>
 	<combo_box name="maturity_desired_combobox">
 		<combo_box.item label="一般、モデレート、アダルト" name="Desired_Adult"/>
 		<combo_box.item label="GeneralとModerate" name="Desired_Mature"/>
@@ -30,11 +30,11 @@
 	</combo_box>
 	<check_box label="ログイン画面にお気に入りの場所を表示" name="favorites_on_login_check"/>
 	<text name="favorites_check_extra_text">
-        (このコンピュータを使用する他の人にも表示されます)
-    </text>
+		(このコンピュータを使用する他の人にも表示されます)
+	</text>
 	<text name="name_tags_textbox">
-        名前タグ:
-    </text>
+		名前タグ:
+	</text>
 	<radio_group name="Name_Tag_Preference">
 		<radio_item label="オフ" name="radio"/>
 		<radio_item label="オン" name="radio2"/>
@@ -46,16 +46,16 @@
 	<check_box label="フレンドをハイライト表示" name="show_friends" tool_tip="フレンドの名前をハイライト表示"/>
 	<check_box label="表示名を表示" name="display_names_check" tool_tip="これを選択すると、チャット、IMなどで表示名が表示されます。"/>
 	<text name="inworld_typing_rg_label">
-        特定キーを押したときの動作:
-    </text>
+		特定キーを押したときの動作:
+	</text>
 	<radio_group name="inworld_typing_preference">
 		<radio_item label="チャットを始める" name="radio_start_chat"/>
 		<radio_item label="移動する(WSADなど)" name="radio_move"/>
 	</radio_group>
 	<text name="title_afk_text">
-        「離席」とするまでの時間:
-    </text>
-<combo_box label="「離席」とするまでの時間:" name="afk">
+		「離席」とするまでの時間:
+	</text>
+	<combo_box label="「離席」とするまでの時間:" name="afk">
 		<combo_box.item label="2分" name="item0"/>
 		<combo_box.item label="5分" name="item1"/>
 		<combo_box.item label="10分" name="item2"/>
@@ -63,9 +63,9 @@
 		<combo_box.item label="離席設定なし" name="item4"/>
 	</combo_box>
 	<text name="text_box3">
-        「着信拒否」時の応答:
-    </text>
+		「着信拒否」時の応答:
+	</text>
 	<text_editor name="do_not_disturb_response">
-        log_in_to_change
-    </text_editor>
+		log_in_to_change
+	</text_editor>
 </panel>

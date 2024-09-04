@@ -5,26 +5,26 @@
 	<layout_stack name="xp_details">
 		<layout_panel name="xp_layout_panel">
 			<text name="lbl_script">
-                スクリプト:
-            </text>
+				スクリプト:
+			</text>
 			<text name="lbl_associated">
-                以下に関連しています:
-            </text>
+				以下に関連しています:
+			</text>
 			<text name="lbl_contribute">
-                以下に貢献できます:
-            </text>
+				以下に貢献できます:
+			</text>
 			<text name="lbl_associate">
-                関連付ける:
-            </text>
+				関連付ける:
+			</text>
 		</layout_panel>
 		<layout_panel name="xp_choose_panel">
 			<text>
-                はい
-            </text>
+				はい
+			</text>
 			<combo_box label="体験を選択..." name="Experiences..."/>
 		</layout_panel>
 	</layout_stack>
 	<text name="No Experiences">
-        体験の貢献者ではありません。
-    </text>
+		体験の貢献者ではありません。
+	</text>
 </panel>

@@ -10,11 +10,11 @@
 		(再販・譲渡不可)
 	</floater.string>
 	<text name="contains_text">
-        &lt;nolink&gt;[NAME]&lt;/nolink&gt; に含まれるもの:
-    </text>
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; に含まれるもの:
+	</text>
 	<text name="buy_text">
-        [NAME] から、L$[AMOUNT]で購入しますか?
-    </text>
+		[NAME] から、L$[AMOUNT]で購入しますか?
+	</text>
 	<check_box label="今すぐ着る" name="wear_check"/>
 	<button label="購入" label_selected="購入" name="buy_btn"/>
 	<button label="キャンセル" label_selected="キャンセル" name="cancel_btn"/>

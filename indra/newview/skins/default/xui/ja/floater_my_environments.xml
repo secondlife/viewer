@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="my_environments" title="自分の環境">
 	<layout_stack name="main_layout">
 		<layout_panel name="filter_panel" label="フィルタ">

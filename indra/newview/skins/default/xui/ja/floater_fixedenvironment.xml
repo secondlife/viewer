@@ -9,8 +9,8 @@
 	<layout_stack name="floater_stack">
 		<layout_panel name="info_panel">
 			<text name="info_panel_label">
-                名前:
-            </text>
+				名前:
+			</text>
 			<button label="読込" name="btn_load" tool_tip="インベントリから設定を読込みます。"/>
 			<button label="インポート" name="btn_import" tool_tip="ディスクから過去の設定をインポートする。"/>
 		</layout_panel>

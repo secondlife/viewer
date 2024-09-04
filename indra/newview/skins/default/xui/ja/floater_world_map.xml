@@ -12,51 +12,51 @@
 		<layout_panel name="controls_lp">
 			<panel name="layout_panel_1">
 				<text name="events_label">
-                    凡例
-                </text>
+					凡例
+				</text>
 			</panel>
 			<panel name="layout_panel_2">
 				<button name="Show My Location" tool_tip="現在、自分のアバターがいる場所をマップの中心にする。"/>
 				<text name="me_label">
-                    ミー
-                </text>
+					ミー
+				</text>
 				<check_box control_name="MapShowPeople" name="people_chk"/>
 				<text name="person_label">
-                    人
-                </text>
+					人
+				</text>
 				<text name="infohub_label">
-                    情報ハブ
-                </text>
+					情報ハブ
+				</text>
 				<text name="land_sale_label">
-                    販売中の土地
-                </text>
+					販売中の土地
+				</text>
 				<text name="auction_label">
-                    オークション中の土地
-                </text>
+					オークション中の土地
+				</text>
 				<text name="by_owner_label">
-                    所有者で
-                </text>
+					所有者で
+				</text>
 				<button name="Go Home" tool_tip="「ホーム」にテレポート"/>
 				<text name="Home_label">
-                    ﾏｲﾎｰﾑ
-                </text>
+					ﾏｲﾎｰﾑ
+				</text>
 				<text name="events_label">
-                    イベント:
-                </text>
+					イベント:
+				</text>
 				<text name="pg_label">
-                    一般
-                </text>
+					一般
+				</text>
 				<text name="events_mature_label">
-                    モデレート
-                </text>
+					モデレート
+				</text>
 				<text name="events_adult_label">
-                    アダルト
-                </text>
+					アダルト
+				</text>
 			</panel>
 			<panel name="layout_panel_3">
 				<text name="find_on_map_label">
-                    マップから探す
-                </text>
+					マップから探す
+				</text>
 			</panel>
 			<panel name="layout_panel_4">
 				<combo_box label="オンラインのフレンド" name="friend combo" tool_tip="マップにフレンドを表示">
@@ -74,16 +74,16 @@
 					<scroll_list.commit_callback function="WMap.SearchResult"/>
 				</scroll_list>
 				<text name="events_label">
-                    場所:
-                </text>
+					場所:
+				</text>
 				<button label="テレポート" name="Teleport" tool_tip="選択した場所にテレポート"/>
 				<button label="SLurlをコピー" layout="topleft" name="copy_slurl" tool_tip="現在の場所をWebで使えるSLurlにしてコピーする。"/>
 				<button label="選択を表示" name="Show Destination" tool_tip="選択した場所をマップの中心にする"/>
 			</panel>
 			<panel name="layout_panel_5">
 				<text name="zoom_label">
-                    縮尺
-                </text>
+					縮尺
+				</text>
 			</panel>
 		</layout_panel>
 	</layout_stack>

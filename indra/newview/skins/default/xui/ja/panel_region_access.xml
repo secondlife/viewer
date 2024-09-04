@@ -3,8 +3,8 @@
 	<tab_container name="tabs">
 		<panel label="不動産マネージャー" name="estate_managers_panel">
 			<text name="estate_manager_label">
-                不動産マネージャー:
-            </text>
+				不動産マネージャー:
+			</text>
 			<name_list name="estate_manager_name_list">
 				<columns label="名前" name="name"/>
 			</name_list>
@@ -17,8 +17,8 @@
 				<button label="コピー" name="copy_allowed_list_btn"/>
 			</panel>
 			<text name="allow_resident_label">
-                常に許可:
-            </text>
+				常に許可:
+			</text>
 			<name_list name="allowed_avatar_name_list">
 				<columns label="名前" name="name"/>
 			</name_list>
@@ -31,8 +31,8 @@
 				<button label="コピー" name="copy_allowed_group_list_btn"/>
 			</panel>
 			<text name="allow_group_label">
-                常に許可されたグループ:
-            </text>
+				常に許可されたグループ:
+			</text>
 			<name_list name="allowed_group_name_list">
 				<columns label="名前" name="name"/>
 			</name_list>
@@ -45,8 +45,8 @@
 				<button label="コピー" name="copy_banned_list_btn"/>
 			</panel>
 			<text name="ban_resident_label">
-                常に禁止:
-            </text>
+				常に禁止:
+			</text>
 			<name_list name="banned_avatar_name_list">
 				<columns label="名前" name="name"/>
 				<columns label="最後にログインした日" name="last_login_date"/>

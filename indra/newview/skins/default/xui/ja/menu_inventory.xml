@@ -123,7 +123,7 @@
 		<menu_item_call label="アニメーションのアップロード" name="Animation uploads"/>
 		<menu_item_call label="モデルのアップロード" name="Model uploads"/>
 	</menu>
-<menu label="種類を変更" name="Change Type">
+	<menu label="種類を変更" name="Change Type">
 		<menu_item_call label="デフォルト" name="Default"/>
 		<menu_item_call label="手袋" name="Gloves"/>
 		<menu_item_call label="上着" name="Jacket"/>

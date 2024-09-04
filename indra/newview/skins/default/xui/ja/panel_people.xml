@@ -23,7 +23,7 @@
 	<string name="AltMiniMapToolTipMsg" value="[地域](ダブルクリックでテレポート。Shift‐ドラッグで水平・垂直移動)"/>
 	<string name="GroupCountWithInfo" value="あなたは現在、[COUNT]グループに属しています。あと[REMAINING]グループに参加できます。[secondlife:/// 上限を増やす]"/>
 	<tab_container name="tabs">
-<panel label="近隣" name="nearby_panel">
+		<panel label="近隣" name="nearby_panel">
 			<panel name="nearby_buttons_panel">
 				<filter_editor label="人々をフィルタ" name="nearby_filter_input"/>
 				<button name="gear_btn" tool_tip="選択した人に対するアクション"/>
@@ -54,8 +54,8 @@
 				<dnd_button name="minus_btn" tool_tip="選択したグループから脱退"/>
 			</panel>
 			<text name="groupcount">
-                あなたは現在、[COUNT]グループに属しています。あと[REMAINING]グループに参加できます。
-            </text>
+				あなたは現在、[COUNT]グループに属しています。あと[REMAINING]グループに参加できます。
+			</text>
 		</panel>
 		<panel label="最新" name="recent_panel">
 			<panel name="recent_buttons_panel">

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_snapshot_profile">
 	<text name="title">
-        プロフィール
-    </text>
+		プロフィール
+	</text>
 	<combo_box label="解像度" name="profile_size_combo">
 		<combo_box.item label="現在のウィンドウ" name="CurrentWindow"/>
 		<combo_box.item label="640 x 480" name="640x480"/>
@@ -13,8 +13,8 @@
 	<spinner label="横幅 x 高さ" name="profile_snapshot_width"/>
 	<check_box label="縦横比の固定" name="profile_keep_aspect_check"/>
 	<text name="caption_label">
-        キャプション:
-    </text>
+		キャプション:
+	</text>
 	<check_box label="場所を含む" name="add_location_cb"/>
 	<button label="キャンセル" name="cancel_btn"/>
 	<button label="投稿" name="post_btn"/>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <toggleable_menu name="Avatar Profile Menu">
-<menu_item_call label="IM" name="im"/>
+	<menu_item_call label="IM" name="im"/>
 	<menu_item_call label="テレポートのオファー" name="offer_teleport"/>
 	<menu_item_call label="テレポートをリクエスト" name="request_teleport"/>
 	<menu_item_call label="ボイスコール" name="voice_call"/>

@@ -8,27 +8,27 @@
 		テキスト: [MSG_DESCRIPTION]
 	</floater.string>
 	<text name="reporter_title">
-        報告者:
-    </text>
+		報告者:
+	</text>
 	<text name="sim_title">
-        地域(リージョン):
-    </text>
+		地域(リージョン):
+	</text>
 	<text name="sim_field">
-        地域(リージョン)名
-    </text>
+		地域(リージョン)名
+	</text>
 	<text name="pos_title">
-        位置:
-    </text>
+		位置:
+	</text>
 	<text name="select_object_label">
-        ボタンをクリックしてから、悪意のあるオブジェクトをクリック:
-    </text>
+		ボタンをクリックしてから、悪意のあるオブジェクトをクリック:
+	</text>
 	<button name="pick_btn" tool_tip="オブジェクトピッカー - 報告対象のオブジェクトを選択してください"/>
 	<text name="object_name_label">
-        オブジェクト:
-    </text>
+		オブジェクト:
+	</text>
 	<text name="owner_name_label">
-        所有者:
-    </text>
+		所有者:
+	</text>
 	<combo_box name="category_combo" tool_tip="カテゴリ -- この報告に最も適したカテゴリを選択してください">
 		<combo_box.item label="カテゴリを選択" name="Select_category"/>
 		<combo_box.item label="年齢&gt;年齢偽証" name="Age__Age_play"/>
@@ -47,24 +47,24 @@
 		<combo_box.item label="スキルゲーミング ポリシー違反" name="Wagering_gambling"/>
 	</combo_box>
 	<text name="abuser_name_title">
-        迷惑ユーザの名前:
-    </text>
+		迷惑ユーザの名前:
+	</text>
 	<button label="選択" name="select_abuser" tool_tip="嫌がらせをした人の名前をリストから選択してください"/>
 	<text name="abuser_name_title2">
-        嫌がらせを受けた場所:
-    </text>
+		嫌がらせを受けた場所:
+	</text>
 	<text name="sum_title">
-        概要:
-    </text>
+		概要:
+	</text>
 	<text name="dscr_title">
-        詳細:
-    </text>
+		詳細:
+	</text>
 	<text name="bug_aviso">
-        できるだけ具体的に詳しく記入してください。
-    </text>
+		できるだけ具体的に詳しく記入してください。
+	</text>
 	<text name="incomplete_title">
-        * 不完全な報告は調査対象になりません。
-    </text>
+		* 不完全な報告は調査対象になりません。
+	</text>
 	<button label="嫌がらせの報告" label_selected="嫌がらせの報告" name="send_btn"/>
 	<button label="キャンセル" label_selected="キャンセル" name="cancel_btn"/>
 </floater>

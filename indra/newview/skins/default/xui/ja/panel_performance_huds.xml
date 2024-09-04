@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_performance_huds">
 	<text name="back_lbl">
-        戻る
-    </text>
+		戻る
+	</text>
 	<text name="huds_title">
-        アクティブなHUD
-    </text>
+		アクティブなHUD
+	</text>
 	<text name="huds_desc1">
-使用していないHUDを取り外すとメモリが節約されSecond Lifeの処理が高速化されます。
-    </text>
+		使用していないHUDを取り外すとメモリが節約されSecond Lifeの処理が高速化されます。
+	</text>
 	<text name="huds_desc2">
-        注意: HUDの最小化ボタンを使用してもHUDを取り外したことにはなりません。
-    </text>
+		注意: HUDの最小化ボタンを使用してもHUDを取り外したことにはなりません。
+	</text>
 </panel>

@@ -4,7 +4,7 @@
 		(読込中...)
 	</panel.string>
 	<panel.string name="ban_selection_too_large">
-グループのバンが送信されていません: 選択した住人が多すぎます。グループへのバンの数は1リクエスト当たり100人に制限されています。
+		グループのバンが送信されていません: 選択した住人が多すぎます。グループへのバンの数は1リクエスト当たり100人に制限されています。
 	</panel.string>
 	<panel.string name="ban_not_permitted">
 		グループのバンが送信されていません: 「バンリストの管理」の能力がありません。
@@ -30,8 +30,8 @@
 		- グループから自分自身をバンすることはできません。
 	</panel.string>
 	<text name="help_text">
-        グループから複数の住人を一括でバンできます。「リストから住人を選択」をクリックしてください。
-    </text>
+		グループから複数の住人を一括でバンできます。「リストから住人を選択」をクリックしてください。
+	</text>
 	<button label="リストから住人を選択" name="add_button"/>
 	<name_list name="banned_agent_list" tool_tip="Ctrlキーを押しながらクリックすることで複数の住人を選択できます。"/>
 	<button label="選択した住人をリストから削除" name="remove_button" tool_tip="バンリストから、選択した住人を削除します。"/>

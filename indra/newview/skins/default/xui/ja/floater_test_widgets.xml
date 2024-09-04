@@ -9,8 +9,8 @@
 		</menu>
 	</menu_bar>
 	<text>
-        ウィジェットのリストについては、http://wiki.secondlife.com/wiki/XUI_Reference を参照してください。
-    </text>
+		ウィジェットのリストについては、http://wiki.secondlife.com/wiki/XUI_Reference を参照してください。
+	</text>
 	<button label="ボタン" name="test_button" tool_tip="ボタン"/>
 	<flyout_button label="フライアウト" name="fly_btn" tool_tip="フライアウトボタン">
 		<flyout_button.item label="アイテム1" value="叫ぶ"/>
@@ -59,29 +59,29 @@
 	<slider label="スライダー" name="test_slider" tool_tip="スライダー"/>
 	<spinner label="スピナー" name="test_spinner" tool_tip="スピナー"/>
 	<text name="test_text" tool_tip="テキスト">
-        テキスト(下線)
-    </text>
+		テキスト(下線)
+	</text>
 	<text name="test_text" tool_tip="テキスト">
-        ここに短縮されたテキストが表示されます
-    </text>
+		ここに短縮されたテキストが表示されます
+	</text>
 	<text_editor name="test_text_editor" tool_tip="テキストエディタ">
-        テキストエディタ
-    </text_editor>
+		テキストエディタ
+	</text_editor>
 	<text name="test_text_box" tool_tip="テキストBOX">
-        複数行の
+		複数行の
         テキスト ボックス。
         行数が
         多すぎて
         実際に
         収まりません。
-    </text>
+	</text>
 	<tab_container name="group_tab_container" tool_tip="tab container">
 		<panel label="Tab 1 - 色" name="panel2">
 			<color_swatch label="色見本1" name="swatch1" tool_tip="色見本: クリックしてカラーピッカーを開く"/>
 			<color_swatch label="色見本2" name="swatch2" tool_tip="色見本: クリックしてカラーピッカーを開く"/>
 			<text name="test_text10" tool_tip="テキスト">
-                等幅ボタン フライアウトチェックボックス
-            </text>
+				等幅ボタン フライアウトチェックボックス
+			</text>
 			<text name="test_text10" tool_tip="テキスト"/>
 			<text name="test_text11" tool_tip="テキスト"/>
 			<text name="test_text12" tool_tip="テキスト"/>

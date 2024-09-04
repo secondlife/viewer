@@ -3,114 +3,114 @@
 	<layout_stack name="test_stack">
 		<layout_panel name="flex">
 			<text>
-                可変
-            </text>
+				可変
+			</text>
 		</layout_panel>
 		<layout_panel name="flex">
 			<text>
-                可変
-            </text>
+				可変
+			</text>
 		</layout_panel>
 		<layout_panel name="flex">
 			<text>
-                可変
-            </text>
+				可変
+			</text>
 		</layout_panel>
 		<layout_panel name="flex">
 			<text>
-                可変
-            </text>
+				可変
+			</text>
 		</layout_panel>
 	</layout_stack>
 	<layout_stack name="test_stack">
 		<layout_panel name="flex">
 			<text>
-                可変
-            </text>
+				可変
+			</text>
 		</layout_panel>
 		<layout_panel name="flex">
 			<text>
-                可変
-            </text>
+				可変
+			</text>
 		</layout_panel>
 		<layout_panel name="fixed">
 			<text>
-                固定
-            </text>
+				固定
+			</text>
 		</layout_panel>
 		<layout_panel name="fixed">
 			<text>
-                固定
-            </text>
+				固定
+			</text>
 		</layout_panel>
 		<layout_panel name="flex">
 			<text>
-                可変
-            </text>
+				可変
+			</text>
 		</layout_panel>
 		<layout_panel name="flex">
 			<text>
-                可変
-            </text>
+				可変
+			</text>
 		</layout_panel>
 		<layout_panel name="flex">
 			<text>
-                可変
-            </text>
+				可変
+			</text>
 		</layout_panel>
 		<layout_panel name="flex">
 			<text>
-                可変
-            </text>
+				可変
+			</text>
 		</layout_panel>
 	</layout_stack>
 	<layout_stack name="test_stack">
 		<layout_panel name="flex">
 			<text>
-                可変
-            </text>
+				可変
+			</text>
 		</layout_panel>
 		<layout_panel name="fixed">
 			<text>
-                固定
-            </text>
+				固定
+			</text>
 		</layout_panel>
 		<layout_panel name="flex">
 			<text>
-                可変
-            </text>
+				可変
+			</text>
 		</layout_panel>
 	</layout_stack>
 	<layout_stack name="test_stack">
 		<layout_panel name="fixed">
 			<text>
-                固定
-            </text>
+				固定
+			</text>
 		</layout_panel>
 		<layout_panel name="fixed">
 			<text>
-                固定
-            </text>
+				固定
+			</text>
 		</layout_panel>
 		<layout_panel name="fixed">
 			<text>
-                固定
-            </text>
+				固定
+			</text>
 		</layout_panel>
 		<layout_panel name="flex">
 			<text>
-                可変
-            </text>
+				可変
+			</text>
 		</layout_panel>
 		<layout_panel name="flex">
 			<text>
-                可変
-            </text>
+				可変
+			</text>
 		</layout_panel>
 		<layout_panel name="flex">
 			<text>
-                可変
-            </text>
+				可変
+			</text>
 		</layout_panel>
 	</layout_stack>
 </floater>

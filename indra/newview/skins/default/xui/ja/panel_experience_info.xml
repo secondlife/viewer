@@ -9,35 +9,35 @@
 				</layout_panel>
 				<layout_panel name="location panel">
 					<text name="Location">
-                        場所:
-                    </text>
+						場所:
+					</text>
 					<text name="LocationTextText">
-                        どこか
-                    </text>
+						どこか
+					</text>
 					<button label="テレポート" name="teleport_btn"/>
 					<button label="マップ" name="map_btn"/>
 				</layout_panel>
 				<layout_panel name="marketplace panel">
 					<text name="Location">
-                        マーケットプレイスストア:
-                    </text>
+						マーケットプレイスストア:
+					</text>
 					<text name="LocationTextText">
-                        どこか
-                    </text>
+						どこか
+					</text>
 				</layout_panel>
 				<layout_panel name="details panel">
 					<text name="ContentRating">
-                        レーティング:
-                    </text>
+						レーティング:
+					</text>
 					<text name="ContentRatingText">
-                        アダルト
-                    </text>
+						アダルト
+					</text>
 					<text name="Owner">
-                        所有者:
-                    </text>
+						所有者:
+					</text>
 					<text name="OwnerText">
-                        カイル
-                    </text>
+						カイル
+					</text>
 					<button label="編集" name="edit_btn"/>
 				</layout_panel>
 			</layout_stack>

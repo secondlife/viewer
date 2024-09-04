@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater_lagmeter" title="ラグメーター">
 	<floater.string name="max_title_msg">
-遅延メーター
+		遅延メーター
 	</floater.string>
 	<floater.string name="max_width_px">
 		360
@@ -128,24 +128,24 @@
 	</floater.string>
 	<button name="client_lagmeter" tool_tip="クライアントの遅延ステータス"/>
 	<text name="client">
-        クライアント
-    </text>
+		クライアント
+	</text>
 	<text name="client_text">
-        標準
-    </text>
+		標準
+	</text>
 	<button name="network_lagmeter" tool_tip="ネットワークの遅延ステータス"/>
 	<text name="network">
-        ネットワーク
-    </text>
+		ネットワーク
+	</text>
 	<text name="network_text">
-        標準
-    </text>
+		標準
+	</text>
 	<button name="server_lagmeter" tool_tip="サーバーの遅延ステータス"/>
 	<text name="server">
-        サーバー
-    </text>
+		サーバー
+	</text>
 	<text name="server_text">
-        標準
-    </text>
+		標準
+	</text>
 	<button label="》" name="minimize" tool_tip="フローターのサイズをトグル"/>
 </floater>

@@ -16,8 +16,8 @@
 		(空)
 	</panel.string>
 	<text name="text_name">
-        体験リスト
-    </text>
+		体験リスト
+	</text>
 	<name_list name="experience_list">
 		<name_list.columns name="experience_name" label="NAME"/>
 	</name_list>

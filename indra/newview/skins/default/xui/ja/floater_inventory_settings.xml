@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="inventory_settings" title="インベントリ設定">
 	<text name="multi_folder_txt">
-        複数フォルダビューでフォルダをダブルクリック:
-    </text>
+		複数フォルダビューでフォルダをダブルクリック:
+	</text>
 	<radio_group name="multi_double_click_setting">
 		<radio_item label="フォルダー展開と折り畳み" name="0"/>
 		<radio_item label="新規ウィンドウを開く" name="1"/>
 		<radio_item label="ビューの切替" name="2"/>
 	</radio_group>
 	<text name="single_folder_txt">
-        単一フォルダビューでフォルダをダブルクリック:
-    </text>
+		単一フォルダビューでフォルダをダブルクリック:
+	</text>
 	<radio_group name="single_double_click_setting">
 		<radio_item label="現在のウィンドウに留まる" name="false"/>
 		<radio_item label="新規ウィンドウを開く" name="true"/>
 	</radio_group>
 	<text name="find_original_txt">
-        「インベントリを表示」または「オリジナルを検索」をクリックします
-    </text>
+		「インベントリを表示」または「オリジナルを検索」をクリックします
+	</text>
 	<radio_group name="find_original_settings">
 		<radio_item label="メインインベントリウィンドウにアイテムを表示" name="false"/>
 		<radio_item label="新規単一フォルダー ウィンドウを開く" name="true"/>

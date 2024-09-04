@@ -7,7 +7,7 @@
 		地域(リージョン)の設定を使用
 	</string>
 	<string name="str_altitude_desription">
-空 [INDEX]([ALTITUDE]m)
+		空 [INDEX]([ALTITUDE]m)
 	</string>
 	<string name="str_no_parcel">
 		区画が選択されていません。景観設定が無効になっています。
@@ -33,11 +33,11 @@
 	<layout_stack>
 		<layout_panel name="pnl_environment_region_msg">
 			<text name="region_text_lbl">
-                地域(リージョン):
-            </text>
+				地域(リージョン):
+			</text>
 			<text name="region_text">
-                不明
-            </text>
+				不明
+			</text>
 		</layout_panel>
 		<layout_panel name="pnl_environment_config">
 			<layout_stack>
@@ -45,37 +45,37 @@
 					<layout_stack>
 						<layout_panel name="pnl_environment_current">
 							<text>
-                                景観を選択
-                            </text>
+								景観を選択
+							</text>
 							<button label="インベントリを使う" name="btn_select_inventory"/>
 							<button label="カスタマイズ" name="btn_edit"/>
 							<check_box label="区画所有者による景観を上書きを許可" name="chk_allow_override"/>
 						</layout_panel>
 						<layout_panel name="pnl_environment_length">
 							<text>
-                                一日の設定
-                            </text>
+								一日の設定
+							</text>
 							<text>
-                                一日の長さ(時間)
-                            </text>
+								一日の長さ(時間)
+							</text>
 							<text>
-                                一日のずれ(時間)
-                            </text>
+								一日のずれ(時間)
+							</text>
 							<text>
-                                見かけの時刻:
-                            </text>
+								見かけの時刻:
+							</text>
 							<text name="lbl_apparent_time">
-                                [AP] [HH]:[MM]([PRC]%)
-                            </text>
+								[AP] [HH]:[MM]([PRC]%)
+							</text>
 						</layout_panel>
 					</layout_stack>
 				</layout_panel>
 				<layout_panel name="pnl_environment_altitudes">
 					<panel name="pnl_alt1">
 						<text name="txt_alt1">
-空 [INDEX]
+							空 [INDEX]
                             [ALTITUDE]m
-                        </text>
+						</text>
 						<line_editor name="edt_invname_alt1">
 							不明
 						</line_editor>
@@ -83,9 +83,9 @@
 					</panel>
 					<panel name="pnl_alt2">
 						<text name="txt_alt2">
-空 [INDEX]
+							空 [INDEX]
                             [ALTITUDE]m
-                        </text>
+						</text>
 						<line_editor name="edt_invname_alt2">
 							不明
 						</line_editor>
@@ -93,22 +93,22 @@
 					</panel>
 					<panel name="pnl_alt3">
 						<text name="txt_alt3">
-空 [INDEX]
+							空 [INDEX]
                             [ALTITUDE]m
-                        </text>
+						</text>
 						<line_editor name="edt_invname_alt3">
 							不明
 						</line_editor>
 						<settings_drop_target name="sdt_alt3" tool_tip="インベントリから設定をこのターゲットボックスにドラッグし、現在の空として選択する。"/>
 					</panel>
 					<text>
-                        空の高度
-                    </text>
+						空の高度
+					</text>
 					<multi_slider initial_value="0" name="sld_altitudes"/>
 					<panel name="pnl_ground">
 						<text name="txt_ground">
-                            地面
-                        </text>
+							地面
+						</text>
 						<line_editor name="edt_invname_ground">
 							不明
 						</line_editor>
@@ -116,8 +116,8 @@
 					</panel>
 					<panel name="pnl_water">
 						<text name="txt_water">
-                            水面
-                        </text>
+							水面
+						</text>
 						<line_editor name="edt_invname_water">
 							不明
 						</line_editor>

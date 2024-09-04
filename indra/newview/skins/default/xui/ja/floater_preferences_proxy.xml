@@ -2,34 +2,34 @@
 <floater name="Proxy Settings Floater" title="プロキシ設定">
 	<check_box label="ウェブページにHTTPプロキシを使う" name="web_proxy_enabled"/>
 	<text name="http_proxy_label">
-        HTTPプロキシ:
-    </text>
+		HTTPプロキシ:
+	</text>
 	<line_editor name="web_proxy_editor" tool_tip="使用するHTTPプロキシのDNS名またはIPアドレス。"/>
 	<spinner label="ポート番号:" name="web_proxy_port" tool_tip="使用するHTTPプロキシポート。"/>
 	<check_box label="UDPトラフィックに SOCKS 5プロキシを使用" name="socks_proxy_enabled"/>
 	<text name="socks5_proxy_label">
-        SOCKS 5プロキシ:
-    </text>
+		SOCKS 5プロキシ:
+	</text>
 	<line_editor name="socks_proxy_editor" tool_tip="使用するSOCKS 5プロキシのDNS名またはIPアドレス。"/>
 	<spinner label="ポート番号:" name="socks_proxy_port" tool_tip="使用するSOCKS 5プロキシポート。"/>
 	<text name="socks_auth_label">
-        SOCKS認証:
-    </text>
+		SOCKS認証:
+	</text>
 	<radio_group name="socks5_auth_type">
 		<radio_item label="認証なし" name="Socks5NoAuth" value="なし" tool_tip="Socks 5プロキシは認証の必要がありません。"/>
 		<radio_item label="ユーザ名 / パスワード" name="Socks5UserPass" value="パスワード" tool_tip="Socks 5プロキシはユーザ名とパスワードの認証が必要です。"/>
 	</radio_group>
 	<text name="socks5_username_label">
-        ユーザ名:
-    </text>
+		ユーザ名:
+	</text>
 	<text name="socks5_password_label">
-        パスワード:
-    </text>
+		パスワード:
+	</text>
 	<line_editor name="socks5_username" tool_tip="SOCKS 5サーバーの認証に使用されたユーザ名"/>
 	<line_editor name="socks5_password" tool_tip="SOCKS 5サーバーの認証に使用されたパスワード"/>
 	<text name="other_proxy_label">
-        他の HTTP トラフィックプロキシ:
-    </text>
+		他の HTTP トラフィックプロキシ:
+	</text>
 	<radio_group name="other_http_proxy_type">
 		<radio_item label="プロキシを使用しない" name="OtherNoProxy" value="なし" tool_tip="ウェブ以外のHTTPトラフィックはいずれのプロキシにもルーティングされません。"/>
 		<radio_item label="HTTPプロキシを使う" name="OtherHTTPProxy" tool_tip="ウェブ以外のHTTPは設定済みウェブプロキシを通してルーティングされます。"/>

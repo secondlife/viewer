@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Sound Preview">
 	<text name="name_label">
-        名前:
-    </text>
+		名前:
+	</text>
 	<text name="description_label">
-        説明:
-    </text>
+		説明:
+	</text>
 	<button label="アップロード(L$[AMOUNT])" name="ok_btn"/>
 	<button label="キャンセル" label_selected="キャンセル" name="cancel_btn"/>
 </floater>

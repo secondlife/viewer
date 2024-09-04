@@ -4,8 +4,8 @@
 		サウンド: [NAME]
 	</floater.string>
 	<text name="desc txt">
-        説明:
-    </text>
+		説明:
+	</text>
 	<button label="インワールドで再生" label_selected="インワールドで再生" name="Sound play btn" tool_tip="他人に聞こえるように再生"/>
 	<button label="ローカル再生" label_selected="ローカル再生" name="Sound audition btn" tool_tip="自分のみ聞こえるように再生します。"/>
 </floater>

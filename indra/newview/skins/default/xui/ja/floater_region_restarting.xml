@@ -11,13 +11,13 @@
 	</string>
 	<panel name="layout_panel_1">
 		<text name="region_name">
-            現在あなたがいるリージョン「-最長リージョン名-」は再起動しようとしています。
+			現在あなたがいるリージョン「-最長リージョン名-」は再起動しようとしています。
             
             このまま、この場所にいるとログアウトされます。
-        </text>
+		</text>
 		<text name="restart_seconds">
-            再起動まであと
+			再起動まであと
             32767秒
-        </text>
+		</text>
 	</panel>
 </floater>

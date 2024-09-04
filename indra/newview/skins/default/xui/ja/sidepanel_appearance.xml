@@ -6,11 +6,11 @@
 	<string name="Changing outfits" value="アウトフィットの変更"/>
 	<panel name="panel_currentlook">
 		<text name="currentlook_status">
-            (状態)
-        </text>
+			(状態)
+		</text>
 		<text name="currentlook_name">
-            長い名前のアウトフィット
-        </text>
+			長い名前のアウトフィット
+		</text>
 		<button name="edit_outfit_btn" tool_tip="このアウトフィットを編集"/>
 	</panel>
 	<filter_editor label="アウトフィットをフィルタ" name="Filter"/>

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="リージョンメモリ" name="script_limits_region_memory_panel">
 	<text name="script_memory">
-        区画スクリプトメモリ
-    </text>
+		区画スクリプトメモリ
+	</text>
 	<text name="loading_text">
-        読込中...
-    </text>
+		読込中...
+	</text>
 	<scroll_list name="scripts_list">
-<scroll_list.columns label="サイズ (KB)" name="size"/>
+		<scroll_list.columns label="サイズ (KB)" name="size"/>
 		<scroll_list.columns label="URL" name="urls"/>
 		<scroll_list.columns label="オブジェクト名" name="name"/>
 		<scroll_list.columns label="オブジェクトの所有者" name="owner"/>

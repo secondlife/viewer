@@ -13,67 +13,67 @@
 		この地域(リージョン)で購入した土地は結合や再分割できないことがあります。
 	</panel.string>
 	<text font="SansSerif" name="estate_section_lbl">
-        不動産
-    </text>
+		不動産
+	</text>
 	<text name="estate_name_lbl">
-        名前:
-    </text>
+		名前:
+	</text>
 	<text name="estate_name_text">
-        メインランド
-    </text>
+		メインランド
+	</text>
 	<text name="estate_owner_lbl">
-        所有者:
-    </text>
+		所有者:
+	</text>
 	<text name="estate_owner_text">
-        (無)
-    </text>
+		(無)
+	</text>
 	<text name="estate_cov_lbl">
-        約款:
-    </text>
+		約款:
+	</text>
 	<text name="covenant_timestamp_text">
-        最後の更新1969年12月31日水曜日16: 00: 00
-    </text>
+		最後の更新1969年12月31日水曜日16: 00: 00
+	</text>
 	<text_editor height="180" name="covenant_editor">
-        この不動産には約款がありません。
-    </text_editor>
+		この不動産には約款がありません。
+	</text_editor>
 	<button label="リセット" name="reset_covenant"/>
 	<text name="covenant_help_text">
-        約款の変更は不動産全区画に適用となります。
-    </text>
+		約款の変更は不動産全区画に適用となります。
+	</text>
 	<text name="covenant_instructions">
-        この不動産約款を変更する際は、ノートカードをドラッグ &amp; ドロップしてください。
-    </text>
+		この不動産約款を変更する際は、ノートカードをドラッグ &amp; ドロップしてください。
+	</text>
 	<text font="SansSerif" name="region_section_lbl">
-        地域(リージョン)
-    </text>
+		地域(リージョン)
+	</text>
 	<text name="region_name_lbl">
-        名前:
-    </text>
+		名前:
+	</text>
 	<text name="region_name_text">
-        エリカ
-    </text>
+		エリカ
+	</text>
 	<text name="region_landtype_lbl">
-        種類:
-    </text>
+		種類:
+	</text>
 	<text name="region_landtype_text">
-        メインランド / ホームステッド
-    </text>
+		メインランド / ホームステッド
+	</text>
 	<text name="region_maturity_lbl">
-        区分:
-    </text>
+		区分:
+	</text>
 	<text name="region_maturity_text">
-        アダルト
-    </text>
+		アダルト
+	</text>
 	<text name="resellable_lbl">
-        再販:
-    </text>
+		再販:
+	</text>
 	<text name="resellable_clause">
-        この地域(リージョン)にある土地は再販できません。
-    </text>
+		この地域(リージョン)にある土地は再販できません。
+	</text>
 	<text name="changeable_lbl">
-        再分割:
-    </text>
+		再分割:
+	</text>
 	<text name="changeable_clause">
-        この地域(リージョン)にある土地は統合または分割ができません。
-    </text>
+		この地域(リージョン)にある土地は統合または分割ができません。
+	</text>
 </panel>

@@ -124,105 +124,105 @@
 		(区画が選定されていません)
 	</floater.string>
 	<text name="region_name_label">
-        地域(リージョン):
-    </text>
+		地域(リージョン):
+	</text>
 	<text name="region_name_text">
-        (不明)
-    </text>
+		(不明)
+	</text>
 	<text name="region_type_label">
-        種類:
-    </text>
+		種類:
+	</text>
 	<text name="region_type_text">
-        (不明)
-    </text>
+		(不明)
+	</text>
 	<text name="estate_name_label">
-        不動産:
-    </text>
+		不動産:
+	</text>
 	<text name="estate_name_text">
-        (不明)
-    </text>
+		(不明)
+	</text>
 	<text name="estate_owner_label">
-        不動産所有者:
-    </text>
+		不動産所有者:
+	</text>
 	<text name="estate_owner_text">
-        (不明)
-    </text>
+		(不明)
+	</text>
 	<text name="resellable_changeable_label">
-        この地域(リージョン)で購入した土地:
-    </text>
+		この地域(リージョン)で購入した土地:
+	</text>
 	<text name="resellable_clause">
-        再販できる場合と、できない場合があります。
-    </text>
+		再販できる場合と、できない場合があります。
+	</text>
 	<text name="changeable_clause">
-        統合または再分割できる場合とできない場合があります。
-    </text>
+		統合または再分割できる場合とできない場合があります。
+	</text>
 	<text name="covenant_text">
-        不動産約款に同意してください:
-    </text>
+		不動産約款に同意してください:
+	</text>
 	<text_editor name="covenant_editor">
-        読込中...
-    </text_editor>
+		読込中...
+	</text_editor>
 	<check_box label="上記の約款に同意します" name="agree_covenant"/>
 	<text name="info_parcel_label">
-        区画:
-    </text>
+		区画:
+	</text>
 	<text name="info_size_label">
-        サイズ:
-    </text>
+		サイズ:
+	</text>
 	<text height="32" name="info_size">
-        1024m²
-    </text>
+		1024m²
+	</text>
 	<text name="info_price_label">
-        価格:
-    </text>
+		価格:
+	</text>
 	<text name="info_price">
-        L$1500
+		L$1500
         (L$ 1.1/m²)
         オブジェクトも土地販売価格に含まれます
-    </text>
+	</text>
 	<text name="info_action">
-        この土地を買うと:
-    </text>
+		この土地を買うと:
+	</text>
 	<text name="error_message">
-        何か変です。
-    </text>
+		何か変です。
+	</text>
 	<button label="Webサイトに移動" name="error_web"/>
 	<text name="account_action">
-        プレミアム会員にアップグレード
-    </text>
+		プレミアム会員にアップグレード
+	</text>
 	<text name="account_reason">
-        土地を保有できるのはプレミアム会員だけです。
-    </text>
+		土地を保有できるのはプレミアム会員だけです。
+	</text>
 	<combo_box name="account_level">
 		<combo_box.item label="月額9.95米ドル、月払い" name="US$9.95/month,billedmonthly"/>
 		<combo_box.item label="月額7.50米ドル、四半期払い" name="US$7.50/month,billedquarterly"/>
 		<combo_box.item label="月額6.00米ドル、年間一括払い" name="US$6.00/month,billedannually"/>
 	</combo_box>
 	<text name="land_use_action">
-        毎月の土地使用料をUS$40に引き上げます
-    </text>
+		毎月の土地使用料をUS$40に引き上げます
+	</text>
 	<text name="land_use_reason">
-        あなたは1309m²の土地を所有しています。
+		あなたは1309m²の土地を所有しています。
         この区画の大きさは512 m²です。
-    </text>
+	</text>
 	<text name="purchase_action">
-        Joe ResidentにL$4000支払って土地を購入
-    </text>
+		Joe ResidentにL$4000支払って土地を購入
+	</text>
 	<text name="currency_reason">
-        所持金はL$2,100です。
-    </text>
+		所持金はL$2,100です。
+	</text>
 	<text name="currency_action">
-        追加でL$の購入
-    </text>
+		追加でL$の購入
+	</text>
 	<line_editor name="currency_amt">
 		1000
 	</line_editor>
 	<text name="currency_est">
-        約[LOCAL_AMOUNT]
-    </text>
+		約[LOCAL_AMOUNT]
+	</text>
 	<text name="currency_balance">
-        所持金はL$2,100です。
-    </text>
+		所持金はL$2,100です。
+	</text>
 	<button label="購入" name="buy_btn"/>
 	<check_box label="グループから[AMOUNT]m²の貢献を取り除きます。" name="remove_contribution"/>
 	<button label="キャンセル" name="cancel_btn"/>

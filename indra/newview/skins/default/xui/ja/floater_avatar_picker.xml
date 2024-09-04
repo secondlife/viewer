@@ -24,8 +24,8 @@
 	<tab_container name="ResidentChooserTabs">
 		<panel label="検索" name="SearchPanel">
 			<text name="InstructSearchResidentName">
-                名前の一部を入力:
-            </text>
+				名前の一部を入力:
+			</text>
 			<button label="実行" label_selected="実行" name="Find"/>
 			<scroll_list name="SearchResults">
 				<columns label="名前" name="name"/>
@@ -34,17 +34,17 @@
 		</panel>
 		<panel label="フレンド" name="FriendsPanel">
 			<text name="InstructSelectFriend">
-                人を選択:
-            </text>
+				人を選択:
+			</text>
 		</panel>
 		<panel label="近隣の人" name="NearMePanel">
 			<text name="InstructSelectResident">
-                近隣の人を選択:
-            </text>
+				近隣の人を選択:
+			</text>
 			<slider label="範囲" name="near_me_range"/>
 			<text name="meters">
-                メートル
-            </text>
+				メートル
+			</text>
 			<scroll_list name="NearMe">
 				<columns label="名前" name="name"/>
 				<columns label="ユーザ名" name="username"/>

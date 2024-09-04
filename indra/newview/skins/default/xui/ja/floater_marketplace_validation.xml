@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater title="マーケットプレイスのリストの監査" name="floater_marketplace_validation">
 	<text_editor name="validation_text">
-        MARKETPLACE_VALIDATION_TEXT
-    </text_editor>
+		MARKETPLACE_VALIDATION_TEXT
+	</text_editor>
 </floater>

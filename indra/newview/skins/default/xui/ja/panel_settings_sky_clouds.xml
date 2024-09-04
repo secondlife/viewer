@@ -3,32 +3,32 @@
 	<layout_stack name="main_ls">
 		<layout_panel name="left_lp">
 			<text name="cloud_color_label">
-                雲の色:
-            </text>
+				雲の色:
+			</text>
 			<text name="cloud_coverage_label">
-                雲の量:
-            </text>
+				雲の量:
+			</text>
 			<text name="cloud_scale_label">
-                雲のスケール:
-            </text>
+				雲のスケール:
+			</text>
 			<text name="cloud_variance_label">
-                雲の分散:
-            </text>
+				雲の分散:
+			</text>
 			<text name="cloud_scroll_label">
-                雲の移動:
-            </text>
+				雲の移動:
+			</text>
 			<text name="cloud_image_label">
-                雲の画像:
-            </text>
+				雲の画像:
+			</text>
 		</layout_panel>
 		<layout_panel name="right_lp">
 			<text name="cloud_density_label">
-                雲の密度:
-            </text>
+				雲の密度:
+			</text>
 			<slider label="x" name="cloud_density_x"/>
 			<text name="cloud_detail_label">
-                雲の詳細:
-            </text>
+				雲の詳細:
+			</text>
 			<slider label="x" name="cloud_detail_x"/>
 		</layout_panel>
 	</layout_stack>

@@ -14,29 +14,29 @@
 	<panel name="group_info_top">
 		<texture_picker name="insignia" tool_tip="クリックして画像を選択"/>
 		<text name="prepend_founded_by">
-            創設者:
-        </text>
+			創設者:
+		</text>
 		<text name="join_cost_text">
-            無料
-        </text>
+			無料
+		</text>
 		<button label="グループに参加" name="btn_join"/>
 	</panel>
 	<text_editor name="charter">
-        グループの理念、指針を記入してください
-    </text_editor>
+		グループの理念、指針を記入してください
+	</text_editor>
 	<text name="my_group_settngs_label">
-        個人の設定
-    </text>
+		個人の設定
+	</text>
 	<text name="active_title_label">
-        私の肩書:
-    </text>
+		私の肩書:
+	</text>
 	<combo_box name="active_title" tool_tip="このグループをアクティブにしたときに、アバター名の上に表示されるタイトルを設定します。"/>
 	<check_box label="グループ通知を受信" name="receive_notices" tool_tip="このグループからの通知を受信するかどうかの設定を行います。グループからスパムが送られてくる場合は、このボックスのチェックを外してください。"/>
 	<check_box label="プロフィールに表示" name="list_groups_in_profile" tool_tip="あなたのプロフィールにこのグループを表示するかどうかの設定を行います。"/>
 	<panel name="preferences_container">
 		<text name="group_settngs_label">
-            グループの設定
-        </text>
+			グループの設定
+		</text>
 		<check_box label="誰でも加入可能" name="open_enrollement" tool_tip="招待されなくても新規メンバーが加入できるかどうかを設定します。"/>
 		<check_box label="入会費がかかります" name="check_enrollment_fee" tool_tip="入会費が必要かどうかを設定します。"/>
 		<spinner name="spin_enrollment_fee" tool_tip="「入会費」にチェックが入っている場合、新規メンバーは指定された入会費を支払わなければグループに入れません。"/>

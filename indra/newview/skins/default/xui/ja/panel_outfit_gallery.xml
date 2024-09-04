@@ -10,8 +10,8 @@
 		お探しのものは見つかりましたか? [secondlife:///app/search/all/[SEARCH_TERM] 検索]をお試しください。
 	</string>
 	<text name="no_outfits_txt">
-        検索中...
-    </text>
+		検索中...
+	</text>
 	<panel name="bottom_panel">
 		<menu_button tool_tip="追加オプションを表示" name="options_gear_btn"/>
 		<button name="trash_btn" tool_tip="選択されたアウトフィットを削除"/>

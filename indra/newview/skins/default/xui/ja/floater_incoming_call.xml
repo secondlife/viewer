@@ -4,7 +4,7 @@
 		5
 	</floater.string>
 	<floater.string name="localchat">
-近くのボイスチャット
+		近くのボイスチャット
 	</floater.string>
 	<floater.string name="anonymous">
 		匿名ユーザ
@@ -28,6 +28,6 @@
 	<button label="無視" label_selected="無視" name="Reject"/>
 	<button label="代わりにIMを開く" name="Start IM"/>
 	<text name="question">
-        コールに応答すると現在のボイスチャットから切断されます。
-    </text>
+		コールに応答すると現在のボイスチャットから切断されます。
+	</text>
 </floater>

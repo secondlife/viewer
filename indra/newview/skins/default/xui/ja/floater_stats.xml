@@ -2,7 +2,7 @@
 <floater name="Statistics" title="統計">
 	<scroll_container name="statistics_scroll">
 		<container_view name="statistics_view">
-<stat_view name="basic" label="基本">
+			<stat_view name="basic" label="基本">
 				<stat_bar name="frame_mean" label="フレーム(平均)"/>
 				<stat_bar name="frame_median" label="フレーム(中央値)"/>
 				<stat_bar name="framet_jitter" label="ジッタ"/>
@@ -59,7 +59,7 @@
 					<stat_bar name="messagedataout" label="実際の送信"/>
 				</stat_view>
 			</stat_view>
-<stat_view label="シミュレーター" name="sim">
+			<stat_view label="シミュレーター" name="sim">
 				<stat_bar label="遅延時間" name="simtimedilation"/>
 				<stat_bar label="シムのFPS" name="simfps"/>
 				<stat_bar label="物理作用のFPS" name="simphysicsfps"/>

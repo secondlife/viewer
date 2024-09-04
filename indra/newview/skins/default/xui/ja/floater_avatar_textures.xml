@@ -8,10 +8,10 @@
 			<text name="label">
 				ベイク済み
                 テクスチャ
-            </text>
+			</text>
 			<text name="composite_label">
-                合成テクスチャ
-            </text>
+				合成テクスチャ
+			</text>
 			<button label="IDをコンソールにダンプ" label_selected="ダンプ" name="Dump"/>
 			<panel name="scroll_content_panel">
 				<texture_picker label="髪" name="hair-baked"/>
@@ -51,7 +51,7 @@
 				<texture_picker label="スカートのタトゥ" name="skirt_tattoo"/>
 				<texture_picker label="左腕" name="leftarm-baked"/>
 				<texture_picker label="左腕のタトゥ" name="leftarm_tattoo"/>
-<texture_picker label="左足" name="leftleg-baked"/>
+				<texture_picker label="左足" name="leftleg-baked"/>
 				<texture_picker label="左足のタトゥ" name="leftleg_tattoo"/>
 				<texture_picker label="予備1" name="aux1-baked"/>
 				<texture_picker label="予備1タトゥ" name="aux1_tattoo"/>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <toggleable_menu name="Conversation Context Menu">
-<menu_item_call label="ボイスコール..." name="Call"/>
+	<menu_item_call label="ボイスコール..." name="Call"/>
 	<menu_item_call label="チャットの履歴を開く..." name="Chat history"/>
 	<menu_item_call label="プロフィールを表示" name="View Profile"/>
 	<menu_item_call label="テレポートのオファー" name="teleport"/>

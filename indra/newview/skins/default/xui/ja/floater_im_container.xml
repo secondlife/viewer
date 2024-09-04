@@ -18,8 +18,8 @@
 				<panel name="stub_panel">
 					<button name="stub_collapse_btn" tool_tip="このペインを閉じる"/>
 					<text name="stub_textbox">
-                        この会話は、別のウィンドウに表示されます。[secondlife:/// 戻る.]
-                    </text>
+						この会話は、別のウィンドウに表示されます。[secondlife:/// 戻る.]
+					</text>
 				</panel>
 			</panel_container>
 		</layout_panel>

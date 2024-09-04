@@ -9,11 +9,11 @@
 	<layout_stack name="preview_stack">
 		<layout_panel name="texture_panel">
 			<text name="desc txt">
-                説明:
-            </text>
+				説明:
+			</text>
 			<text name="aspect_ratio">
-                縦横比のプレビュー
-            </text>
+				縦横比のプレビュー
+			</text>
 			<combo_box name="combo_aspect_ratio" tool_tip="固定した縦横比のプレビュー"/>
 		</layout_panel>
 		<layout_panel name="buttons_panel">

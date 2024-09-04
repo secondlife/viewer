@@ -12,28 +12,28 @@
 	<button label="テレポート" label_selected="テレポート" name="Teleport" tool_tip="この土地の中心にテレポート。"/>
 	<button label="マップ" label_selected="マップ" name="Show on Map" tool_tip="この土地をワールドマップに表示"/>
 	<text name="contrib_label">
-        所属グループへの貢献:
-    </text>
+		所属グループへの貢献:
+	</text>
 	<scroll_list name="grant list">
 		<scroll_list.columns label="confirm" name="group"/>
 		<scroll_list.columns label="エリア" name="area"/>
 	</scroll_list>
 	<text name="allowed_label">
-現在の支払いプランで許可された保有地:
-    </text>
+		現在の支払いプランで許可された保有地:
+	</text>
 	<text name="allowed_text">
-        [AREA]m²
-    </text>
+		[AREA]m²
+	</text>
 	<text name="current_label">
-現在の保有地:
-    </text>
+		現在の保有地:
+	</text>
 	<text name="current_text">
-        [AREA]m²
-    </text>
+		[AREA]m²
+	</text>
 	<text name="available_label">
-        購入可能な土地:
-    </text>
+		購入可能な土地:
+	</text>
 	<text name="available_text">
-        [AREA]m²
-    </text>
+		[AREA]m²
+	</text>
 </floater>

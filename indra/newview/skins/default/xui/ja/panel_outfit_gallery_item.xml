@@ -5,10 +5,10 @@
 	</string>
 	<panel name="text_bg_panel">
 		<text name="outfit_name">
-            夏のヒップスター、ピアス、ピアス、ピアス、ピアス
-        </text>
+			夏のヒップスター、ピアス、ピアス、ピアス、ピアス
+		</text>
 		<text name="outfit_worn_text">
-            (着用中)
-        </text>
+			(着用中)
+		</text>
 	</panel>
 </panel>

@@ -32,7 +32,7 @@
 		</tag>
 	</notification>
 	<notification name="GenericAlertYesCancel">
-	<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="はい"/>
+		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="はい"/>
 	</notification>
 	<notification name="BadInstallation">[APP_NAME] のアップデート中にエラーが発生しました。[http://get.secondlife.com 最新バージョンのビュアをダウンロード]してください。<tag>
 			FAIL
@@ -254,7 +254,7 @@
 		</tag>
 	</notification>
 	<notification name="PanelGroupApply">
-	<tag>
+		<tag>
 			confirm
 		</tag>
 		<tag>
@@ -617,7 +617,7 @@ L$が不足しているので、このグループに参加できません。<ta
 			fail
 		</tag>[SECOND_LIFE] へのログインを続けるには、Second Lifeの利用規約、プライバシーポリシー、サービス規約に同意する必要があります。</notification>
 	<notification name="CouldNotBuyCurrency">
-	<tag>
+		<tag>
 			FAIL
 		</tag>
 	</notification>
@@ -1100,7 +1100,7 @@ L$が不足しているので、このグループに参加できません。<ta
 			fail
 		</tag>
 	</notification>
-<notification name="SoundFileInvalidChunkSize">WAVファイルのチャンクサイズが間違っています:
+	<notification name="SoundFileInvalidChunkSize">WAVファイルのチャンクサイズが間違っています:
 [FILE]<tag>
 			fail
 		</tag>
@@ -1242,7 +1242,7 @@ L$が不足しているので、このグループに参加できません。<ta
 			fail
 		</tag>
 	</notification>
-<notification name="invalid_tport">テレポートの試行は1分間に6回までと制限されています。1分待ってからもう一度テレポートしてみてください。問題が解決しない場合は、ログインし直してください。<tag>
+	<notification name="invalid_tport">テレポートの試行は1分間に6回までと制限されています。1分待ってからもう一度テレポートしてみてください。問題が解決しない場合は、ログインし直してください。<tag>
 			fail
 		</tag>
 	</notification>
@@ -1535,7 +1535,7 @@ L$が不足しているので、このグループに参加できません。<ta
 			fail
 		</tag>
 	</notification>
-<notification name="YouHaveBeenLoggedOut">しまった、[SECOND_LIFE] からログアウトされてしまいました。
+	<notification name="YouHaveBeenLoggedOut">しまった、[SECOND_LIFE] からログアウトされてしまいました。
 
 [MESSAGE]<usetemplate name="okcancelbuttons" notext="終了" yestext="IMでチャット"/>
 	</notification>
@@ -1904,7 +1904,7 @@ https://wiki.secondlife.com/wiki/Adding_Spelling_Dictionaries<tag>
 			<context>
 				HUDComplexityWarning
 			</context>
-</unique>[HUD_REASON]
+		</unique>[HUD_REASON]
 このため、パフォーマンスに悪影響を与える恐れがあります。
     <usetemplate ignoretext="HUDが複雑すぎる場合の警告" name="notifyignore"/>
 	</notification>
@@ -1936,7 +1936,7 @@ https://wiki.secondlife.com/wiki/Adding_Spelling_Dictionaries<tag>
 			<button name="Teleport" text="テレポート"/>
 		</form>
 	</notification>
-<notification name="WelcomeChooseSex">まもなく、あなたのアバターが表示されます。矢印キーを使用して歩きます。
+	<notification name="WelcomeChooseSex">まもなく、あなたのアバターが表示されます。矢印キーを使用して歩きます。
 ヘルプが必要なときや、[SECOND_LIFE]について知りたいときは、F1キーを押してください。
 男性あるいは女性のアバターを選択してください。この設定は後で変更できます。
 		<tag>
@@ -2056,7 +2056,7 @@ SHA1フィンガープリント: [MD5_DIGEST]
 		テクスチャは24ビットの512 x 512以下の画像を選択し「適用」ボタンを再度クリックしてください。
 	</notification>
 	<notification name="RawUploadStarted">
-アップロードを開始しました。接続速度によっては最大2分間かかります。
+		アップロードを開始しました。接続速度によっては最大2分間かかります。
 	</notification>
 	<notification name="ConfirmBakeTerrain">現在の地形を構築しようとしています。この操作を行うと現在の地形が、土地の隆起と沈降の制限範囲の基準となり、「復元」ツールのデフォルトになります。操作を続行しますか?<tag>
 			confirm
@@ -2851,15 +2851,15 @@ https://community.secondlife.com/knowledgebase/%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%83
 			fail
 		</tag>
 	</notification>
-<notification name="UnableToLoadNotecardAsset">現在ノートカードのアセットIDを読み込むことができません。<tag>
+	<notification name="UnableToLoadNotecardAsset">現在ノートカードのアセットIDを読み込むことができません。<tag>
 			fail
 		</tag>
 	</notification>
-<notification name="NotAllowedToViewNotecard">要求したアセットIDに関するノートカードを閲覧するには、権限が不十分です。<tag>
+	<notification name="NotAllowedToViewNotecard">要求したアセットIDに関するノートカードを閲覧するには、権限が不十分です。<tag>
 			fail
 		</tag>
 	</notification>
-<notification name="MissingNotecardAssetID">ノートカード用のアセットIDがデータベースに登録されていません。<tag>
+	<notification name="MissingNotecardAssetID">ノートカード用のアセットIDがデータベースに登録されていません。<tag>
 			fail
 		</tag>
 	</notification>
@@ -2884,7 +2884,7 @@ https://community.secondlife.com/knowledgebase/%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%83
 		</tag>
 		<usetemplate canceltext="キャンセル" name="yesnocancelbuttons" notext="いいえ" yestext="はい"/>
 	</notification>
-<notification label="再起動を確認" name="ConfirmRestart">このリージョンを2分後に再起動しようとしています。このまま続けてもよろしいですか?<tag>
+	<notification label="再起動を確認" name="ConfirmRestart">このリージョンを2分後に再起動しようとしています。このまま続けてもよろしいですか?<tag>
 			confirm
 		</tag>
 		<usetemplate name="okcancelbuttons" notext="キャンセル"/>
@@ -3082,7 +3082,7 @@ https://community.secondlife.com/knowledgebase/%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%83
 この操作は元に戻せません。<usetemplate name="okcancelbuttons" notext="キャンセル"/>
 	</notification>
 	<notification name="DeleteItems">
-	<tag>
+		<tag>
 			confirm
 		</tag>
 		<form name="form">
@@ -3265,7 +3265,7 @@ https://community.secondlife.com/knowledgebase/%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%83
 		</tag>
 		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="はい"/>
 	</notification>
-<notification name="ConfirmClearMediaUrlList">保存されたURLのリストを消去します。よろしいですか?<tag>
+	<notification name="ConfirmClearMediaUrlList">保存されたURLのリストを消去します。よろしいですか?<tag>
 			confirm
 		</tag>
 		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="はい"/>
@@ -3331,7 +3331,7 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
 		</tag>
 	</notification>
 	<notification name="ChatterBoxSessionEventError">
-	<tag>
+		<tag>
 			fail
 		</tag>
 	</notification>
@@ -3353,7 +3353,7 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
 		</tag>
 		<usetemplate ignoretext="「容姿」を編集中に、作成する服装を装着するとき" name="okcancelignore" notext="いいえ" yestext="はい"/>
 	</notification>
-<notification name="NotAgeVerified">訪問しようとしている場所は18歳以上の住人に制限されています。<tag>
+	<notification name="NotAgeVerified">訪問しようとしている場所は18歳以上の住人に制限されています。<tag>
 			FAIL
 		</tag>
 		<usetemplate ignoretext="年齢制限付きのエリアを訪問する年齢に達していません。" name="okignore"/>
@@ -3386,7 +3386,7 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
 	<notification name="ReplacedMissingWearable">
 		欠落している服装や身体部位をデフォルトに置換します。
 	</notification>
-<notification name="GroupNotice">件名: [SUBJECT]、メッセージ: [MESSAGE]<tag>
+	<notification name="GroupNotice">件名: [SUBJECT]、メッセージ: [MESSAGE]<tag>
 			group
 		</tag>
 	</notification>
@@ -3409,7 +3409,7 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
 		あなた自身をレンダリングの例外リストに加えることはできません。
 	</notification>
 	<notification name="UploadingAuctionSnapshot">
-インワールドとWebサイトのスナップショットをアップロード中...
+		インワールドとWebサイトのスナップショットをアップロード中...
 		(所要時間:約5分)
 	</notification>
 	<notification name="UploadPayment">アップロードにL$[AMOUNT]支払いました。<tag>
@@ -3467,7 +3467,7 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
 		</tag>
 	</notification>
 	<notification name="IMAcrossParentEstates">
-親不動産間ではIMを送信できません。
+		親不動産間ではIMを送信できません。
 	</notification>
 	<notification name="TransferInventoryAcrossParentEstates">
 		親不動産間でインベントリを移動することはできません。
@@ -3545,7 +3545,7 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
 		[NAME] は、あなたが渡したアイテムを受け取りました。
 	</notification>
 	<notification name="InventoryDeclined">
-[NAME] はインベントリの提供を断りました。
+		[NAME] はインベントリの提供を断りました。
 	</notification>
 	<notification name="CallingCardAccepted">
 		コーリングカードが受理されました。
@@ -3581,17 +3581,17 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
 		<tag>
 			funds
 		</tag>
-		</notification>
+	</notification>
 	<notification name="PaymentSent">
 		<tag>
 			funds
 		</tag>
-		</notification>
+	</notification>
 	<notification name="PaymentFailure">
 		<tag>
 			funds
 		</tag>
-		</notification>
+	</notification>
 	<notification name="EventNotification">イベント通知:
 
 [NAME]
@@ -3685,13 +3685,13 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
 	</notification>
 	<notification name="PathfindingDirtyRebake">この地域(リージョン)において、保留中の経路探索の変更があります。制作できる権限がある場合は、「リージョンの再構築」ボタンをクリックして、リージョンを再構築できます。<usetemplate name="okbutton" yestext="リージョンの再構築"/>
 	</notification>
-<notification name="DynamicPathfindingDisabled">
+	<notification name="DynamicPathfindingDisabled">
 		この地域(リージョン)において、動的経路探索が有効になっていません。経路探索LSL呼び出しを使用するスクリプトの入ったオブジェクトは、このリージョンで期待どおりに動作しない可能性があります。
 	</notification>
 	<notification name="PathfindingCannotRebakeNavmesh">
 		エラーが発生しました。ネットワークまたはサーバーに問題があるか、制作する権限がない可能性があります。この問題は一度ログアウトしてからログインし直すと解決される場合があります。
 	</notification>
-<notification name="SeeAvatars">この区画にいるアバターやこの区画内で行われる文字チャットは、他の区画から見えません。あなたには、この区画外にいる住人が見えず、外の住人にはあなたの姿が見えません。チャンネル0での通常の文字チャットもブロックされます。
+	<notification name="SeeAvatars">この区画にいるアバターやこの区画内で行われる文字チャットは、他の区画から見えません。あなたには、この区画外にいる住人が見えず、外の住人にはあなたの姿が見えません。チャンネル0での通常の文字チャットもブロックされます。
     <unique/>
 	</notification>
 	<notification name="ScriptsStopped">
@@ -3762,7 +3762,7 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
 	<notification name="CouldntTPCloser">
 		<tag>
 			fail
-</tag>
+		</tag>
 	</notification>
 	<notification name="ImproperPaymentStatus">このリージョン（地域）に入るための適切な支払い状況がありません。
     <tag>
@@ -3803,7 +3803,7 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
     <tag>
 			fail
 		</tag>
-    </notification>
+	</notification>
 	<notification name="TPCancelled">
 		テレポートがキャンセルされました。
 	</notification>
@@ -3943,7 +3943,7 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
 		</form>
 	</notification>
 	<notification name="GotoURL">
-	<form name="form">
+		<form name="form">
 			<button name="Later" text="あとで"/>
 			<button name="GoNow..." text="今すぐ行く..."/>
 		</form>
@@ -3993,7 +3993,7 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
 			friendship
 		</tag>フレンドの登録依頼を断りました。
     </notification>
-<notification name="FriendshipAcceptedByMe">フレンドの登録依頼を受け入れました。
+	<notification name="FriendshipAcceptedByMe">フレンドの登録依頼を受け入れました。
     <tag>
 			friendship
 		</tag>
@@ -4151,7 +4151,7 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
 			<button name="Client_Side_Ignore" text="無視"/>
 		</form>
 	</notification>
-<notification name="BuyLindenDollarSuccess">お支払ありがとうございます。
+	<notification name="BuyLindenDollarSuccess">お支払ありがとうございます。
 
 あなたのL$残高は、処理が完了するとアップデートされます。処理に20分以上かかった場合、お取り引きがキャンセルされることがあります。その場合は、購入金額はあなたの US$残高に追加されます。 [https://secondlife.com/my/account/?lang=ja-JP マイアカウント]の取引履歴ページで、支払状況を確認できます。
 		<tag>
@@ -4419,11 +4419,11 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
 		</tag>短期間に、信用できないブラウザから複数のSLurlが送られてきました。
 安全のために数秒間ブロックされます。</notification>
 	<notification name="IMToast">
-	<form name="form">
+		<form name="form">
 			<button name="respondbutton" text="返答"/>
 		</form>
 	</notification>
-<notification name="ConfirmCloseAll">全てのIMを閉じますか?<tag>
+	<notification name="ConfirmCloseAll">全てのIMを閉じますか?<tag>
 			confirm
 		</tag>
 		<usetemplate name="okcancelignore" notext="キャンセル" ignoretext="全てのIMを閉じる前の確認"/>
@@ -4885,7 +4885,7 @@ UDP: 3478, 3479, 5060, 5062, 6250, 12000-32000
 	<notification name="ConfirmHideUI">
 		<tag>
 			confirm
-</tag>この操作により全てのメニュー項目とボタンが非表示になります。再び表示するには、[SHORTCUT]をもう一度クリックしてください。<usetemplate name="okcancelignore" notext="キャンセル" ignoretext="UIを非表示前に確認"/>
+		</tag>この操作により全てのメニュー項目とボタンが非表示になります。再び表示するには、[SHORTCUT]をもう一度クリックしてください。<usetemplate name="okcancelignore" notext="キャンセル" ignoretext="UIを非表示前に確認"/>
 	</notification>
 	<notification name="PathfindingLinksets_WarnOnPhantom">選択された一部のリンクセットはファントムフラグが切り替えられます。
 
@@ -5750,7 +5750,7 @@ UDP: 3478, 3479, 5060, 5062, 6250, 12000-32000
 	<notification name="TenObjectsDisabledPlzRefresh">
 		<tag>
 			fail
-</tag>選択された最初の10個のオブジェクトのみが無効にされました。必要に応じてリフレッシュして選択内容を追加してください。</notification>
+		</tag>選択された最初の10個のオブジェクトのみが無効にされました。必要に応じてリフレッシュして選択内容を追加してください。</notification>
 	<notification name="UpdateViewerBuyParcel">
 		<tag>
 			fail
@@ -6050,7 +6050,7 @@ UDP: 3478, 3479, 5060, 5062, 6250, 12000-32000
 		</form>
 	</notification>
 	<notification name="OutfitPhotoLoadError">
-	<tag>
+		<tag>
 			fail
 		</tag>
 	</notification>
@@ -6143,14 +6143,14 @@ UDP: 3478, 3479, 5060, 5062, 6250, 12000-32000
 			fail
 		</tag>
 	</notification>
-<notification name="CompressionTestResults">サイズ[SIZE]㎅のファイル[FILE]をgzipのレベル6で圧縮したテスト結果:
+	<notification name="CompressionTestResults">サイズ[SIZE]㎅のファイル[FILE]をgzipのレベル6で圧縮したテスト結果:
 圧縮: [PACK_TIME]秒 [PSIZE]KB
 解凍: [UNPACK_TIME]秒 [USIZE]KB<tag>
 			fail
 		</tag>
 	</notification>
 	<notification label="二段階認証トークンプロンプト" name="PromptMFAToken">
-	<tag>
+		<tag>
 			confirm
 		</tag>
 		<form name="form">
@@ -6159,7 +6159,7 @@ UDP: 3478, 3479, 5060, 5062, 6250, 12000-32000
 		</form>
 	</notification>
 	<notification label="二段階認証トークンプロンプト" name="PromptMFATokenWithSave">
-	<tag>
+		<tag>
 			CONFIRM
 		</tag>
 		<form name="form">
@@ -6186,7 +6186,7 @@ UDP: 3478, 3479, 5060, 5062, 6250, 12000-32000
 他の人にこのオブジェクトを見てもらいたい場合は、オブジェクトを削除して、アバターのアタッチメントポイントに再度アタッチします。<tag>
 			confirm
 		</tag>
-<usetemplate ignoretext="リグメッシュがHUDポイントにアタッチされている場合に警告します。" name="okignore"/>
+		<usetemplate ignoretext="リグメッシュがHUDポイントにアタッチされている場合に警告します。" name="okignore"/>
 	</notification>
 	<notification name="EnableAutoFPSWarning" type="alertmodal">自動FPSを有効にしようとしています。保存されていないグラフィック設定は全て失われます。
 

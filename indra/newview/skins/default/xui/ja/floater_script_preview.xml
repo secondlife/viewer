@@ -4,6 +4,6 @@
 		スクリプト: [NAME]
 	</floater.string>
 	<text name="desc txt">
-        説明:
-    </text>
+		説明:
+	</text>
 </floater>

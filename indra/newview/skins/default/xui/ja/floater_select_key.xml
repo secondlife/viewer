@@ -14,9 +14,9 @@
 		その組み合わせ([KEYSTR])は、メニューで予約されています。
 	</floater.string>
 	<text name="description">
-        キーを押してトリガーを設定します。
+		キーを押してトリガーを設定します。
         許可される入力: [INPUT]
-    </text>
+	</text>
 	<check_box label="全てに適用" name="apply_all" tool_tip="ビュアは、世界で何をしているかに応じてさまざまなコントロールの組み合わせを使用します。これを設定すると、変更が全ての組み合わせに適用されます。"/>
 	<button label="空欄にする" name="SetEmpty"/>
 	<button label="デフォルト" name="Default"/>

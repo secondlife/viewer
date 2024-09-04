@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater_conversation_log" title="会話ログ">
 	<panel name="buttons_panel">
 		<filter_editor label="人々をフィルタ" name="people_filter_input"/>

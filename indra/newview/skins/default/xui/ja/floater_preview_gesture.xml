@@ -25,23 +25,23 @@
 		ジェスチャー: [NAME]
 	</floater.string>
 	<text name="desc_label">
-        説明:
-    </text>
+		説明:
+	</text>
 	<text name="trigger_label">
-        トリガー:
-    </text>
+		トリガー:
+	</text>
 	<text name="replace_text" tool_tip="トリガーワードをこれらの単語に置換します。例えばトリガー「hello」を「Howdy」に置換すると、「I wanted to say hello」というチャット文が「I wanted to say howdy」に変わり、ジェスチャーにも置換が反映されます。">
-        置換:
-    </text>
+		置換:
+	</text>
 	<line_editor name="replace_editor" tool_tip="トリガーワードをこれらの単語に置換します。例えばトリガー「hello」を「Howdy」に置換すると、「I wanted to say hello」というチャット文が「I wanted to say howdy」に変わり、ジェスチャーにも置換が反映されます。"/>
 	<text name="key_label">
-        ショートカット:
-    </text>
+		ショートカット:
+	</text>
 	<combo_box label="なし" name="modifier_combo"/>
 	<combo_box label="なし" name="key_combo"/>
 	<text name="library_label">
-        ライブラリ:
-    </text>
+		ライブラリ:
+	</text>
 	<scroll_list name="library_list">
 		<scroll_list.rows name="action_animation" value="アニメーション"/>
 		<scroll_list.rows name="action_sound" value="サウンド"/>
@@ -50,14 +50,14 @@
 	</scroll_list>
 	<button label="追加 ≫" name="add_btn"/>
 	<text name="steps_label">
-        手順:
-    </text>
+		手順:
+	</text>
 	<button label="上" name="up_btn"/>
 	<button label="下" name="down_btn"/>
 	<button label="削除" name="delete_btn"/>
 	<text name="options_text">
-        (オプション)
-    </text>
+		(オプション)
+	</text>
 	<radio_group name="animation_trigger_type">
 		<radio_item label="開始" name="start"/>
 		<radio_item label="停止" name="stop"/>
@@ -66,8 +66,8 @@
 	<check_box label="アニメーションが完了するまで" name="wait_anim_check"/>
 	<check_box label="時間(秒):" name="wait_time_check"/>
 	<text name="help_label">
-        待機ステップを入れない限りは全てのステップが同時に起こります。
-    </text>
+		待機ステップを入れない限りは全てのステップが同時に起こります。
+	</text>
 	<check_box label="アクティブ" name="active_check" tool_tip="アクティブなジェスチャーは、トリガーフレーズを使うか、ホットキーを押すと切り替わります。1つのショートカットキーに2つ以上のジェスチャーが割り当てられた場合、そのジェスチャーは両方ともアクティブではなくなります。"/>
 	<button label="プレビュー" name="preview_btn"/>
 	<button label="保存" name="save_btn"/>

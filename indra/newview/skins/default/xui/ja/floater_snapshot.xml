@@ -42,19 +42,19 @@
 	<button label="更新" name="new_snapshot_btn"/>
 	<panel name="advanced_options_panel">
 		<text name="layer_type_label">
-            キャプチャーオプション:
-        </text>
+			キャプチャーオプション:
+		</text>
 		<combo_box label="画像レイヤー" name="layer_types">
 			<combo_box.item label="カラー" name="Colors" value="カラー"/>
 			<combo_box.item label="色深度" name="Depth"/>
 		</combo_box>
 		<check_box label="インターフェース" name="ui_check"/>
 		<check_box label="HUD" name="hud_check"/>
-<check_box label="フレームをフリーズ(全画面)" name="freeze_frame_check"/>
+		<check_box label="フレームをフリーズ(全画面)" name="freeze_frame_check"/>
 		<check_box label="自動リフレッシュ" name="auto_snapshot_check"/>
 		<text name="filter_list_label">
-            フィルタ:
-        </text>
+			フィルタ:
+		</text>
 		<combo_box name="filters_combobox" tool_tip="画像フィルタ">
 			<combo_box.item label="フィルタなし" name="NoFilter"/>
 		</combo_box>
@@ -68,27 +68,27 @@
 	</panel_container>
 	<panel name="succeeded_panel">
 		<text name="succeeded_lbl">
-            成功
-        </text>
+			成功
+		</text>
 	</panel>
 	<panel name="failed_panel">
 		<text name="failed_lbl">
-            失敗
-        </text>
+			失敗
+		</text>
 	</panel>
 	<text name="working_lbl">
-        処理中
-    </text>
+		処理中
+	</text>
 	<text name="refresh_lbl">
-        更新して保存
-    </text>
+		更新して保存
+	</text>
 	<text name="image_res_text">
-        [WIDTH]px(幅) x [HEIGHT]px(高さ)
-    </text>
+		[WIDTH]px(幅) x [HEIGHT]px(高さ)
+	</text>
 	<text name="file_size_label">
-        [SIZE]KB
-    </text>
+		[SIZE]KB
+	</text>
 	<text name="360_label">
-360度スナップショットを撮影
-    </text>
+		360度スナップショットを撮影
+	</text>
 </floater>

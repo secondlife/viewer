@@ -5,18 +5,18 @@
 	</floater.string>
 	<panel name="wrapper_panel">
 		<text name="title_txt">
-            支払い方法を追加してリンデンドルを購入し、Second Lifeをもっと楽しみましょう。
-        </text>
+			支払い方法を追加してリンデンドルを購入し、Second Lifeをもっと楽しみましょう。
+		</text>
 		<button label="始めましょう" name="continue_btn"/>
 		<button label="あとで" name="close_btn"/>
 		<text name="image_left_desc">
-            お気に入りのアバターを作成しましょう。ストアやSecond Lifeマーケットプレイスにある何百万ものアイテムからお選びください。あなただけのスタイルがここにあります。
-        </text>
+			お気に入りのアバターを作成しましょう。ストアやSecond Lifeマーケットプレイスにある何百万ものアイテムからお選びください。あなただけのスタイルがここにあります。
+		</text>
 		<text name="image_center_desc">
-            お気に入りのパフォーマーやホストに寄付をしましょう。あなたのサポートは、彼らが素晴らしい体験を生み出すのに役立ちます。
-        </text>
+			お気に入りのパフォーマーやホストに寄付をしましょう。あなたのサポートは、彼らが素晴らしい体験を生み出すのに役立ちます。
+		</text>
 		<text name="image_right_desc">
-            あなたの夢の家を作りましょう。何百万ものアイテムを購入できるので、あなただけの住まいを作ることができます。
-        </text>
+			あなたの夢の家を作りましょう。何百万ものアイテムを購入できるので、あなただけの住まいを作ることができます。
+		</text>
 	</panel>
 </floater>

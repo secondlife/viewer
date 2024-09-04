@@ -5,9 +5,9 @@
 	<button label="置換" label_selected="置換" name="replace_btn"/>
 	<button label="全て置換" label_selected="全て置換" name="replace_all_btn"/>
 	<text name="txt">
-        検索
-    </text>
+		検索
+	</text>
 	<text name="txt2">
-        置換
-    </text>
+		置換
+	</text>
 </floater>
