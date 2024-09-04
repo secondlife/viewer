@@ -1252,7 +1252,7 @@ bool LLAppViewer::init()
             while (scripts.next(script))
             {
                 LL_DEBUGS("InitInfo") << "LuaAutorunPath: " << absdir << ": " << script << LL_ENDL;
-                LLLUAmanager::runScriptFile((abspath / script).string());
+                LLLUAmanager::runScriptFile((abspath / script).string(), true);
             }
         });
 

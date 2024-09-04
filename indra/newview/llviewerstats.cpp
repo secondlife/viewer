@@ -66,6 +66,7 @@
 #include "llinventorymodel.h"
 #include "lluiusage.h"
 #include "lltranslate.h"
+#include "llluamanager.h"
 
 // "Minimal Vulkan" to get max API Version
 
@@ -672,6 +673,10 @@ void send_viewer_stats(bool include_preferences)
 
 
     system["shader_level"] = shader_level;
+
+    LLSD &scripts = body["scripts"];
+    scripts["lua_scripts"] = LLLUAmanager::sScriptCount;
+    scripts["lua_auto_scripts"] = LLLUAmanager::sAutorunScriptCount;
 
     LLSD &download = body["downloads"];
 

@@ -53,4 +53,22 @@ function LLAgent.removeCamParams()
     leap.send('LLAgent', {op = 'removeCameraParams'})
 end
 
+-- Play specified animation by "item_id" locally
+-- if "inworld" is specified as true, animation will be played inworld instead
+function LLAgent.playAnimation(...)
+    local args = mapargs('item_id,inworld', ...)
+    args.op = 'playAnimation'
+    return leap.request('LLAgent', args)
+end
+
+function LLAgent.stopAnimation(item_id)
+    return leap.request('LLAgent', {op = 'stopAnimation', item_id=item_id})
+end
+
+-- Get animation info by "item_id"
+-- reply contains "duration", "is_loop", "num_joints", "asset_id", "priority"
+function LLAgent.getAnimationInfo(item_id)
+    return leap.request('LLAgent', {op = 'getAnimationInfo', item_id=item_id}).anim_info
+end
+
 return LLAgent

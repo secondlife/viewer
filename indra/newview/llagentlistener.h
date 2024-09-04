@@ -31,6 +31,7 @@
 #define LL_LLAGENTLISTENER_H
 
 #include "lleventapi.h"
+#include "throttle.h"
 
 class LLAgent;
 class LLSD;
@@ -60,12 +61,19 @@ private:
     void setFollowCamParams(LLSD const & event_data) const;
     void setFollowCamActive(LLSD const & event_data) const;
     void removeFollowCamParams(LLSD const & event_data) const;
+    
+    void playAnimation(LLSD const &event_data);
+    void playAnimation_(const LLUUID& asset_id, const bool inworld);
+    void stopAnimation(LLSD const &event_data);
+    void getAnimationInfo(LLSD const &event_data);
 
     LLViewerObject * findObjectClosestTo( const LLVector3 & position ) const;
 
 private:
     LLAgent &   mAgent;
     LLUUID      mFollowTarget;
+
+    LogThrottle<LLError::LEVEL_DEBUG, void(const LLUUID &, const bool)> mPlayAnimThrottle;
 };
 
 #endif // LL_LLAGENTLISTENER_H
