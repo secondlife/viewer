@@ -162,7 +162,7 @@ LLAgentListener::LLAgentListener(LLAgent &agent)
     add("removeCameraParams",
         "Reset Follow camera params",
         &LLAgentListener::removeFollowCamParams);
-    
+
     add("playAnimation",
         "Play [\"item_id\"] animation locally (by default) or [\"inworld\"] (when set to true)",
         &LLAgentListener::playAnimation,
