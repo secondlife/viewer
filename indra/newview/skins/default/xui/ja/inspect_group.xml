@@ -7,21 +7,21 @@
 		参加費無料
 	</string>
 	<string name="CostToJoin">
-		参加費L$ [AMOUNT]
+		参加費L$[AMOUNT]
 	</string>
 	<string name="YouAreMember">
 		あなたはメンバーです。
 	</string>
+	<text name="group_name">
+        テスト文字列 無視してください
+    </text>
 	<text name="group_subtitle">
-		123メートル
-	</text>
+        123メートル
+    </text>
 	<text name="group_details">
-		ヘラジカがいる部屋を作る任務を負った人々のグループ。
-ヘラジカを恐れてください！恐れよ！そしてマングースも！
-	</text>
-	<text name="group_cost">
-		L$123 to join
-	</text>
+        ヘラジカがいる部屋を作る任務を負った人々のグループ。
+        ヘラジカを恐れてください!恐れよ!そしてマングースも!
+    </text>
 	<button label="参加" name="join_btn"/>
 	<button label="脱退" name="leave_btn"/>
 	<button label="プロフィールの表示" name="view_profile_btn"/>

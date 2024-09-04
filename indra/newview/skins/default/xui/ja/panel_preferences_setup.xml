@@ -1,39 +1,31 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="セットアップ" name="Input panel">
 	<text name="Network:">
-		ネットワーク：
-	</text>
+        ネットワーク:
+    </text>
 	<text name="Maximum bandwidth">
-		最大帯域幅
-	</text>
-	<text name="text_box2">
-		kbps
-	</text>
+        最大帯域幅
+    </text>
 	<check_box label="カスタムポート" name="connection_port_enabled"/>
-	<spinner label="ポート番号：" name="connection_port"/>
-	<text name="Web:">
-		Web：
-	</text>
+	<spinner label="ポート番号:" name="connection_port"/>
 	<radio_group name="preferred_browser_behavior">
-		<radio_item label="すべてのリンクにデフォルトシステムのブラウザを使用します" name="internal" tool_tip="デフォルトのシステム Web ブラウザでヘルプや Web リンク先などを見ます。全画面で起動中にはおすすめしません。" value="0"/>
-		<radio_item label="Second Life リンクにのみ内蔵ブラウザを使用します" name="external" tool_tip="ヘルプ、Web リンクなどにはデフォルトシステムのブラウザを使用します内蔵ブラウザは LindenLab/Second Life リンクにのみ使用されます。" value="1"/>
-		<radio_item label="すべてのリンクに内蔵ブラウザを使用します" name="external_all" tool_tip="内蔵ブラウザでヘルプや Web リンクなどを見ます。[APP_NAME]内に新しいウィンドウでこのブラウザが開きます。" value="2"/>
+		<radio_item label="全てのリンクにデフォルトシステムのブラウザを使用する" name="internal" tool_tip="デフォルトのシステム Web ブラウザでヘルプや Web リンク先などを見ます。全画面で起動中にはおすすめしません。"/>
+		<radio_item label="Second Lifeリンクにのみ内蔵ブラウザを使用する" name="external" tool_tip="ヘルプ、Web リンクなどにはデフォルトシステムのブラウザを使用します内蔵ブラウザは LindenLab/Second Life リンクにのみ使用されます。"/>
+		<radio_item label="全てのリンクに内蔵ブラウザを使用する" name="external_all" tool_tip="内蔵ブラウザでヘルプや Web リンクなどを見ます。[APP_NAME] 内に新しいウィンドウでこのブラウザが開きます。"/>
 	</radio_group>
-	<check_box initial_value="true" label="プラグインを有効にする" name="browser_plugins_enabled"/>
-	<check_box initial_value="true" label="Cookie を受け入れる" name="cookies_enabled"/>
-	<check_box initial_value="true" label="Javascript を有効にする" name="browser_javascript_enabled"/>
+	<check_box label="Javascriptを有効にする" name="browser_javascript_enabled"/>
 	<text name="Software updates:">
-		ソフトウェアの更新：
-	</text>
+        ソフトウェアアップデート:
+    </text>
 	<combo_box name="updater_service_combobox">
 		<combo_box.item label="各アップデートを自動的にインストールする" name="Install_automatically"/>
 		<combo_box.item label="オプションのアップデートのインストール準備ができたら通知する" name="Install_ask"/>
 		<combo_box.item label="必須アップデートのみインストールする" name="Install_manual"/>
 	</combo_box>
-	<check_box label="release candidate にアップグレードします" name="update_willing_to_test"/>
-	<check_box label="更新後にリリースノートを表示する" name="update_show_release_notes"/>
+	<check_box label="release candidateにアップグレードする" name="update_willing_to_test"/>
+	<check_box label="更新後にリリースノートを表示" name="update_show_release_notes"/>
 	<text name="Proxy Settings:">
-		プロキシ設定：
-	</text>
+        プロキシ設定:
+    </text>
 	<button label="プロキシ設定を調整" label_selected="参照" name="set_proxy"/>
 </panel>

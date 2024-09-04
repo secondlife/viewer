@@ -2,107 +2,105 @@
 <floater name="Statistics" title="統計">
 	<scroll_container name="statistics_scroll">
 		<container_view name="statistics_view">
-			<stat_view label="基本" name="basic">
-				<stat_bar label="ＦＰＳ" name="fps" unit_label="／秒"/>
-				<stat_bar name="frame_mean" label="フレーム（平均）" unit_label="㎳"/>
-				<stat_bar name="frame_median" label="フレーム（中央値）" unit_label="㎳"/>
+			<stat_view name="basic" label="基本">
+				<stat_bar name="frame_mean" label="フレーム(平均)"/>
+				<stat_bar name="frame_median" label="フレーム(中央値)"/>
 				<stat_bar name="framet_jitter" label="ジッタ"/>
-				<stat_bar label="受信したＵＤＰデータ" name="bandwidth"/>
-				<stat_bar label="パケットロス" name="packet_loss"/>
-				<stat_bar label="シムのPing" name="ping"/>
+				<stat_bar name="bandwidth" label="受信したUDPデータ"/>
+				<stat_bar name="packet_loss" label="パケットロス"/>
+				<stat_bar name="ping" label="シムのPing"/>
 			</stat_view>
-			<stat_view label="拡張" name="advanced">
-				<stat_view label="描画" name="render">
-					<stat_bar label="フレームあたりのKTris" name="ktrisframe" unit_label="ktris／フレーム"/>
-					<stat_bar label="秒あたりのKTris" name="ktrissec"/>
-					<stat_bar label="オブジェクト合計" name="totalobjs"/>
-					<stat_bar label="キャッシュされたオブジェクト" name="cachedobjs"/>
-					<stat_bar label="新規オブジェクト" name="newobjs"/>
-					<stat_bar label="オブジェクトキャッシュヒット率" name="object_cache_hits"/>
-					<stat_bar label="閉鎖クエリ実行" name="occlusion_queries"/>
-					<stat_bar label="閉鎖オブジェクト" name="occluded"/>
-					<stat_bar label="非閉鎖オブジェクト" name="unoccluded"/>
+			<stat_view name="advanced" label="拡張">
+				<stat_view name="render" label="描画">
+					<stat_bar name="ktrisframe" label="フレームあたりのKTris" unit_label="ktris/フレーム"/>
+					<stat_bar name="ktrissec" label="秒あたりのKTris"/>
+					<stat_bar name="totalobjs" label="オブジェクト合計"/>
+					<stat_bar name="cachedobjs" label="キャッシュされたオブジェクト"/>
+					<stat_bar name="newobjs" label="新規オブジェクト"/>
+					<stat_bar name="object_cache_hits" label="オブジェクトキャッシュヒット率"/>
+					<stat_bar name="occlusion_queries" label="実行されたオクルージョンクエリ"/>
+					<stat_bar name="occluded" label="閉鎖オブジェクト"/>
+					<stat_bar name="unoccluded" label="非閉鎖オブジェクト"/>
 				</stat_view>
-				<stat_view label="テクスチャ" name="texture">
-					<stat_bar label="キャッシュヒット率" name="texture_cache_hits"/>
-					<stat_bar label="キャッシュ読み取り遅延" name="texture_cache_read_latency"/>
-					<stat_bar label="カウント" name="numimagesstat"/>
-					<stat_bar label="ＲＡＷカウント" name="numrawimagesstat"/>
-					<stat_bar label="ＧＬメモリ" name="gltexmemstat"/>
-					<stat_bar label="フォーマット済メモリ" name="formattedmemstat"/>
-					<stat_bar label="ＲＡＷメモリ" name="rawmemstat"/>
-					<stat_bar label="統合メモリ" name="glboundmemstat"/>
+				<stat_view name="texture" label="テクスチャ">
+					<stat_bar name="texture_cache_hits" label="キャッシュヒット率"/>
+					<stat_bar name="texture_cache_read_latency" label="キャッシュ読み取り遅延"/>
+					<stat_bar name="numimagesstat" label="カウント"/>
+					<stat_bar name="numrawimagesstat" label="RAWカウント"/>
+					<stat_bar name="gltexmemstat" label="GLメモリ"/>
+					<stat_bar name="formattedmemstat" label="フォーマット済メモリ"/>
+					<stat_bar name="rawmemstat" label="RAWメモリ"/>
+					<stat_bar name="glboundmemstat" label="統合メモリ"/>
 				</stat_view>
-				<stat_view label="メモリ使用量" name="memory">
-					<stat_bar label="ＬＬトレース" name="LLTrace"/>
-					<stat_bar label="ＵＩ" name="LLView"/>
-					<stat_bar label="フォント" name="LLFontFreetype"/>
-					<stat_bar label="インベントリ" name="LLInventoryObject"/>
-					<stat_bar label="ビューアオブジェクト" name="LLViewerObject"/>
-					<stat_bar label="八分木グループデータ" name="LLViewerOctreeGroup"/>
-					<stat_bar label="八分木データ" name="LLViewerOctreeEntry"/>
-					<stat_bar label="ビューアのオブジェクトキャッシュ" name="LLVOCacheEntry"/>
-					<stat_bar label="描画可能オブジェクト" name="LLDrawable"/>
-					<stat_bar label="顔データ" name="LLFace"/>
-					<stat_bar label="描画情報" name="LLDrawInfo"/>
-					<stat_bar label="テクスチャデータ" name="LLTexture"/>
-					<stat_bar label="画像データ" name="LLImage"/>
-					<stat_bar label="ＧＬ画像データ" name="LLImageGL"/>
-					<stat_bar label="頂点バッファ" name="LLVertexBuffer"/>
+				<stat_view name="memory" label="メモリ使用量">
+					<stat_bar name="LLTrace" label="LLトレース"/>
+					<stat_bar name="LLFontFreetype" label="フォント"/>
+					<stat_bar name="LLInventoryObject" label="インベントリ"/>
+					<stat_bar name="LLViewerObject" label="ビュアオブジェクト"/>
+					<stat_bar name="LLViewerOctreeGroup" label="八分木グループデータ"/>
+					<stat_bar name="LLViewerOctreeEntry" label="八分木データ"/>
+					<stat_bar name="LLVOCacheEntry" label="ビュアのオブジェクトキャッシュ"/>
+					<stat_bar name="LLDrawable" label="描画可能オブジェクト"/>
+					<stat_bar name="LLFace" label="顔データ"/>
+					<stat_bar name="LLDrawInfo" label="描画情報"/>
+					<stat_bar name="LLTexture" label="テクスチャデータ"/>
+					<stat_bar name="LLImage" label="画像データ"/>
+					<stat_bar name="LLImageGL" label="GL画像データ"/>
+					<stat_bar name="LLVertexBuffer" label="頂点バッファ"/>
 				</stat_view>
-				<stat_view label="ネットワーク" name="network">
-					<stat_bar label="パケットイン" name="packetsinstat"/>
-					<stat_bar label="パケットアウト" name="packetsoutstat"/>
-					<stat_bar label="オブジェクト" name="objectdatareceived"/>
-					<stat_bar label="テクスチャ" name="texturedatareceived"/>
-					<stat_bar label="アセット" name="assetudpdatareceived"/>
-					<stat_bar label="レイヤー" name="layersdatareceived"/>
-					<stat_bar label="実際の受信" name="messagedatain"/>
-					<stat_bar label="実際の送信" name="messagedataout"/>
+				<stat_view name="network" label="ネットワーク">
+					<stat_bar name="packetsinstat" label="パケットイン"/>
+					<stat_bar name="packetsoutstat" label="パケットアウト"/>
+					<stat_bar name="objectdatareceived" label="オブジェクト"/>
+					<stat_bar name="texturedatareceived" label="テクスチャ"/>
+					<stat_bar name="assetudpdatareceived" label="アセット"/>
+					<stat_bar name="layersdatareceived" label="レイヤー"/>
+					<stat_bar name="messagedatain" label="実際の受信"/>
+					<stat_bar name="messagedataout" label="実際の送信"/>
 				</stat_view>
 			</stat_view>
-			<stat_view label="シミュレーター" name="sim">
-				<stat_bar label="遅延時間" name="simtimedilation"/>
-				<stat_bar label="シムのＦＰＳ" name="simfps"/>
-				<stat_bar label="物理作用のＦＰＳ" name="simphysicsfps"/>
-				<stat_view label="物理作用の詳細" name="physicsdetail">
-					<stat_bar label="ピン留めオブジェクト" name="physicspinnedtasks"/>
-					<stat_bar label="低ＬＯＤオブジェクト" name="physicslodtasks"/>
-					<stat_bar label="メモリ配分" name="physicsmemoryallocated"/>
+			<stat_view name="sim" label="シミュレーター">
+				<stat_bar name="simtimedilation" label="遅延時間"/>
+				<stat_bar name="simfps" label="シムのFPS"/>
+				<stat_bar name="simphysicsfps" label="物理 FPS"/>
+				<stat_view name="physicsdetail" label="物理の詳細">
+					<stat_bar name="physicspinnedtasks" label="ピン留めオブジェクト"/>
+					<stat_bar name="physicslodtasks" label="低LODオブジェクト"/>
+					<stat_bar name="physicsmemoryallocated" label="メモリ配分"/>
 				</stat_view>
-				<stat_bar label="エージェントの更新／秒" name="simagentups"/>
-				<stat_bar label="メインエージェント" name="simmainagents"/>
-				<stat_bar label="チャイルドエージェント" name="simchildagents"/>
-				<stat_bar label="オブジェクト" name="simobjects"/>
-				<stat_bar label="アクティブなオブジェクト" name="simactiveobjects"/>
-				<stat_bar label="アクティブなスクリプト" name="simactivescripts"/>
-				<stat_bar label="スクリプト実行" name="simpctscriptsrun"/>
-				<stat_bar label="スクリプトイベント" name="simscripteps" unit_label="eps"/>
-				<stat_view label="経路探索" name="simpathfinding">
-					<stat_bar label="ＡＩステップ時間" name="simsimaistepmsec"/>
-					<stat_bar label="スキップされたシルエットステップ" name="simsimskippedsilhouettesteps" unit_label="／秒"/>
-					<stat_bar label="更新されたキャラクター" name="simsimpctsteppedcharacters" unit_label="％"/>
+				<stat_bar name="simagentups" label="エージェントの更新毎秒"/>
+				<stat_bar name="simmainagents" label="メインエージェント"/>
+				<stat_bar name="simchildagents" label="チャイルドエージェント"/>
+				<stat_bar name="simobjects" label="オブジェクト"/>
+				<stat_bar name="simactiveobjects" label="アクティブなオブジェクト"/>
+				<stat_bar name="simactivescripts" label="アクティブなスクリプト"/>
+				<stat_bar name="simpctscriptsrun" label="スクリプト実行"/>
+				<stat_bar name="simscripteps" label="スクリプトイベント"/>
+				<stat_view name="simpathfinding" label="経路探索">
+					<stat_bar name="simsimaistepmsec" label="AIステップ時間"/>
+					<stat_bar name="simsimskippedsilhouettesteps" label="スキップされたシルエットステップ" unit_label="毎秒"/>
+					<stat_bar name="simsimpctsteppedcharacters" label="更新されたキャラクター"/>
 				</stat_view>
-				<stat_bar label="入力パケット" name="siminpps" unit_label="パケット／秒"/>
-				<stat_bar label="出力パケット" name="simoutpps" unit_label="パケット／秒"/>
-				<stat_bar label="保留中のダウンロード" name="simpendingdownloads"/>
-				<stat_bar label="保留中のアップロード" name="simpendinguploads"/>
-				<stat_bar label="未承認の合計データ" name="simtotalunackedbytes"/>
-				<stat_view label="時間" name="simperf">
-					<stat_bar label="フレーム時間合計" name="simframemsec"/>
-					<stat_bar label="総時間数" name="simnetmsec"/>
-					<stat_bar label="物理的作用時間" name="simsimphysicsmsec"/>
-					<stat_bar label="シミュレーション時間" name="simsimothermsec"/>
-					<stat_bar label="エージェント時間" name="simagentmsec"/>
-					<stat_bar label="イメージ時間" name="simimagesmsec"/>
-					<stat_bar label="スクリプト時間" name="simscriptmsec"/>
-					<stat_bar label="スペア時間" name="simsparemsec"/>
-					<stat_view label="時間の詳細" name="timedetails">
-						<stat_bar label="物理効果の単位" name="simsimphysicsstepmsec"/>
-						<stat_bar label="物理形状を更新" name="simsimphysicsshapeupdatemsec"/>
-						<stat_bar label="他の物理効果" name="simsimphysicsothermsec"/>
-						<stat_bar label="スリープ時間" name="simsleepmsec"/>
-						<stat_bar label="ポンプ入出力" name="simpumpiomsec"/>
+				<stat_bar name="siminpps" label="入力パケット" unit_label="パケット毎秒"/>
+				<stat_bar name="simoutpps" label="出力パケット" unit_label="パケット毎秒"/>
+				<stat_bar name="simpendingdownloads" label="保留中のダウンロード"/>
+				<stat_bar name="simpendinguploads" label="保留中のアップロード"/>
+				<stat_bar name="simtotalunackedbytes" label="未承認の合計データ"/>
+				<stat_view name="simperf" label="時間">
+					<stat_bar name="simframemsec" label="フレーム時間合計"/>
+					<stat_bar name="simnetmsec" label="総時間数"/>
+					<stat_bar name="simsimphysicsmsec" label="物理時間"/>
+					<stat_bar name="simsimothermsec" label="シミュレーション時間"/>
+					<stat_bar name="simagentmsec" label="エージェント時間"/>
+					<stat_bar name="simimagesmsec" label="イメージ時間"/>
+					<stat_bar name="simscriptmsec" label="スクリプト時間"/>
+					<stat_bar name="simsparemsec" label="スペア時間"/>
+					<stat_view name="timedetails" label="時間の詳細">
+						<stat_bar name="simsimphysicsstepmsec" label="物理の単位"/>
+						<stat_bar name="simsimphysicsshapeupdatemsec" label="物理形状を更新"/>
+						<stat_bar name="simsimphysicsothermsec" label="他の物理"/>
+						<stat_bar name="simsleepmsec" label="スリープ時間"/>
+						<stat_bar name="simpumpiomsec" label="ポンプ入出力"/>
 					</stat_view>
 				</stat_view>
 			</stat_view>

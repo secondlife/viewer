@@ -1,7 +1,4 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <dummy_clothing_list_item name="dummy_clothing_item">
-	<item_icon name="item_icon"/>
-	<item_name name="item_name" value="…"/>
-	<add_panel name="btn_add_panel"/>
 	<add_btn name="btn_add" tool_tip="この種類のアイテムを更に追加します。"/>
 </dummy_clothing_list_item>

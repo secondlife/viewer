@@ -3,7 +3,7 @@
 	<floater.string name="already for sale">
 		販売中の区画をオークションに出品することはできません。
 	</floater.string>
-	<check_box initial_value="true" label="黄色のセレクションフェンスを含める" name="fence_check"/>
+	<check_box label="黄色のセレクションフェンスを含める" name="fence_check"/>
 	<button label="スナップショット" label_selected="スナップショット" name="snapshot_btn"/>
 	<button label="誰にでも販売" label_selected="誰にでも販売" name="sell_to_anyone_btn"/>
 	<button label="設定をクリア" label_selected="設定をクリア" name="reset_parcel_btn"/>

@@ -1,44 +1,44 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="色" name="colors_panel">
 	<text name="effects_color_textbox">
-		自分のエフェクト（選択ビーム）：
-	</text>
-	<color_swatch name="effect_color_swatch" tool_tip="クリックしてカラーピッカーを開きます"/>
+        自分のエフェクト(選択ビーム):
+    </text>
+	<color_swatch name="effect_color_swatch" tool_tip="クリックしてカラーピッカーを開く"/>
 	<text name="font_colors">
-		チャットの文字の色
-	</text>
+        チャットの文字の色
+    </text>
 	<text name="text_box1">
-		自分
-	</text>
+        ミー
+    </text>
 	<text name="text_box2">
-		他人
-	</text>
+        他人
+    </text>
 	<text name="text_box3">
-		オブジェクト
-	</text>
+        オブジェクト
+    </text>
 	<text name="text_box4">
-		システム
-	</text>
+        システム
+    </text>
 	<text name="text_box5">
-		エラー
-	</text>
+        エラー
+    </text>
 	<text name="text_box10">
-		ダイレクト
-	</text>
+        ダイレクト
+    </text>
 	<text name="text_box7">
-		所有者
-	</text>
+        所有者
+    </text>
 	<text name="text_box9">
-		ＵＲＬ
-	</text>
+        URL
+    </text>
 	<text name="bubble_chat">
-		名前の表示の背景色（吹き出しチャットにも適用）：
-	</text>
+        名前の表示の背景色(吹き出しチャットにも適用):
+    </text>
 	<color_swatch name="background" tool_tip="名前の表示色を選択"/>
-	<slider label="不透明度：" name="bubble_chat_opacity" tool_tip="名前の表示の不透明度を選択"/>
+	<slider label="不透明度:" name="bubble_chat_opacity" tool_tip="名前の表示の不透明度を選択"/>
 	<text name="floater_opacity">
-		フローターの透過度：
-	</text>
-	<slider label="アクティブなフローター：" name="active"/>
-	<slider label="非アクティブなフローター：" name="inactive"/>
+        フローターの透過度:
+    </text>
+	<slider label="アクティブなフローター:" name="active"/>
+	<slider label="非アクティブフローター:" name="inactive"/>
 </panel>

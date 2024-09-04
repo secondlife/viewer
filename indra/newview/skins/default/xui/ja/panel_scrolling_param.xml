@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="LLScrollingPanelParam">
 	<text name="Loading...">
-		読み込んでいます…
-	</text>
+        読込中...
+    </text>
 	<text name="Loading...2">
-		読み込んでいます…
-	</text>
-	<button label="" label_selected="" name="less"/>
-	<button label="" label_selected="" name="more"/>
-	<slider label="[DESC]" name="param slider"/>
+        読込中...
+    </text>
 </panel>

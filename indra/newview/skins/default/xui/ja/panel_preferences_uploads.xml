@@ -1,22 +1,22 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <panel label="アップロード" name="uploads">
 	<text name="title">
-		アップロード先のフォルダ
-	</text>
+        アップロード先のフォルダ
+    </text>
 	<text name="title_models">
-		画像
-	</text>
+        画像
+    </text>
 	<text name="title_sounds">
-		サウンド
-	</text>
+        サウンド
+    </text>
 	<text name="title_animation">
-		アニメーション
-	</text>
+        アニメーション
+    </text>
 	<text name="title_model">
-		モデル
-	</text>
+        モデル
+    </text>
 	<text name="upload_help">
-		宛先フォルダを変更するには、インベントリでそのフォルダを右クリックして、
-「デフォルトとして使用」を選択します。
-	</text>
+        宛先フォルダを変更するには、インベントリでそのフォルダを右クリックして、
+        「デフォルトとして使用」を選択します。
+    </text>
 </panel>

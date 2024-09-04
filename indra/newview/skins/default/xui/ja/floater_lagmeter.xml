@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater_lagmeter" title="ラグメーター">
 	<floater.string name="max_title_msg">
-		遅延計測器
+		遅延メーター
 	</floater.string>
 	<floater.string name="max_width_px">
 		360
@@ -34,16 +34,16 @@
 		標準
 	</floater.string>
 	<floater.string name="client_draw_distance_cause_msg">
-		考えられる原因：描画距離の設定が高すぎる
+		考えられる原因: 描画距離の設定が高すぎる
 	</floater.string>
 	<floater.string name="client_texture_loading_cause_msg">
-		考えられる原因：画像のロード中
+		考えられる原因: 画像の読込中
 	</floater.string>
 	<floater.string name="client_texture_memory_cause_msg">
-		考えられる原因：メモリ内に画像が多すぎる
+		考えられる原因: メモリ内に画像が多すぎる
 	</floater.string>
 	<floater.string name="client_complex_objects_cause_msg">
-		考えられる原因：シーンに複雑なオブジェクトが多すぎる
+		考えられる原因: シーンに複雑なオブジェクトが多すぎる
 	</floater.string>
 	<floater.string name="network_text_msg">
 		ネットワーク
@@ -55,10 +55,10 @@
 		5
 	</floater.string>
 	<floater.string name="network_packet_loss_critical_msg">
-		接続で[NETWORK_PACKET_LOSS_CRITICAL]％を超えるパケットが脱落しています。
+		接続で[NETWORK_PACKET_LOSS_CRITICAL]%を超えるパケットが脱落しています。
 	</floater.string>
 	<floater.string name="network_packet_loss_warning_msg">
-		接続で[NETWORK_PACKET_LOSS_WARNING]％～[NETWORK_PACKET_LOSS_CRITICAL]％のパケットが脱落しています。
+		接続で[NETWORK_PACKET_LOSS_WARNING]%～[NETWORK_PACKET_LOSS_CRITICAL]%のパケットが脱落しています。
 	</floater.string>
 	<floater.string name="network_performance_normal_msg">
 		標準
@@ -76,10 +76,10 @@
 		接続のping時間が、[NETWORK_PING_WARNING]～[NETWORK_PING_CRITICAL]msです。
 	</floater.string>
 	<floater.string name="network_packet_loss_cause_msg">
-		接続不良または、'帯域幅'の設定が高すぎる可能性があります。
+		接続不良または「帯域幅」の設定が高すぎる可能性があります
 	</floater.string>
 	<floater.string name="network_ping_cause_msg">
-		接続不良または、ファイル共有アプリの可能性があります。
+		接続不良またはファイル共有アプリの可能性があります。
 	</floater.string>
 	<floater.string name="server_text_msg">
 		サーバー
@@ -94,31 +94,31 @@
 		20
 	</floater.string>
 	<floater.string name="server_frame_time_critical_msg">
-		シミュレータのフレームレートが、[SERVER_FRAME_RATE_CRITICAL]以下
+		シミュレータのフレームレートが[SERVER_FRAME_RATE_CRITICAL]以下
 	</floater.string>
 	<floater.string name="server_frame_time_warning_msg">
-		シミュレータのフレームレートが、[SERVER_FRAME_RATE_CRITICAL]～[SERVER_FRAME_RATE_WARNING]の間
+		シミュレータのフレームレートが[SERVER_FRAME_RATE_CRITICAL]～[SERVER_FRAME_RATE_WARNING]の間
 	</floater.string>
 	<floater.string name="server_frame_time_normal_msg">
 		標準
 	</floater.string>
 	<floater.string name="server_physics_cause_msg">
-		考えられる原因：物理オブジェクトが多すぎる
+		考えられる原因: 物理オブジェクトが多すぎる
 	</floater.string>
 	<floater.string name="server_scripts_cause_msg">
-		考えられる原因：スクリプトオブジェクトが多すぎる
+		考えられる原因: スクリプトオブジェクトが多すぎる
 	</floater.string>
 	<floater.string name="server_net_cause_msg">
-		考えられる原因：ネットワークトラフィックが多すぎる
+		考えられる原因: ネットワークトラフィックが多すぎる
 	</floater.string>
 	<floater.string name="server_agent_cause_msg">
-		考えられる原因：リージョン内の人の移動が多すぎる
+		考えられる原因: リージョン内の人の移動が多すぎる
 	</floater.string>
 	<floater.string name="server_images_cause_msg">
-		考えられる原因：画像計算が多すぎる
+		考えられる原因: 画像計算が多すぎる
 	</floater.string>
 	<floater.string name="server_generic_cause_msg">
-		考えられる原因：シミュレータのロードが重すぎる
+		考えられる原因: シミュレータのロードが重すぎる
 	</floater.string>
 	<floater.string name="smaller_label">
 		》
@@ -128,24 +128,24 @@
 	</floater.string>
 	<button name="client_lagmeter" tool_tip="クライアントの遅延ステータス"/>
 	<text name="client">
-		クライアント
-	</text>
+        クライアント
+    </text>
 	<text name="client_text">
-		標準
-	</text>
+        標準
+    </text>
 	<button name="network_lagmeter" tool_tip="ネットワークの遅延ステータス"/>
 	<text name="network">
-		ネットワーク
-	</text>
+        ネットワーク
+    </text>
 	<text name="network_text">
-		標準
-	</text>
+        標準
+    </text>
 	<button name="server_lagmeter" tool_tip="サーバーの遅延ステータス"/>
 	<text name="server">
-		サーバー
-	</text>
+        サーバー
+    </text>
 	<text name="server_text">
-		標準
-	</text>
+        標準
+    </text>
 	<button label="》" name="minimize" tool_tip="フローターのサイズをトグル"/>
 </floater>

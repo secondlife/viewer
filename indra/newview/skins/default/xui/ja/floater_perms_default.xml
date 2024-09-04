@@ -2,46 +2,44 @@
 <floater name="perms default" title="デフォルトの作成権限">
 	<panel label="デフォルト権限" name="default permissions">
 		<text name="label_1">
-			次の所有者：
-		</text>
+            次の所有者:
+        </text>
 		<text name="label_2">
-			コピー
-		</text>
+            コピー
+        </text>
 		<text name="label_3">
-			修正
-		</text>
+            修正
+        </text>
 		<text name="label_4">
-			再販・譲渡
-		</text>
+            再販・譲渡
+        </text>
 		<text name="label_5">
-			グループで共同管理
-		</text>
+            グループで共同管理
+        </text>
 		<text name="label_6">
-			誰に対してもコピーを許可
-		</text>
-		<text name="label_7" tool_tip="オブジェクトを作成するときに、デフォルトの権限を設定する。">
-			オブジェクト
-		</text>
-		<text name="label_8" tool_tip="アップロードしたアイテムに、デフォルトの権限を設定する。">
-			アップロード
-		</text>
-		<text name="label_9" tool_tip="スクリプトを作成するときに、デフォルトの権限を設定する。">
-			スクリプト
-		</text>
-		<text name="label_10" tool_tip="ノートカードを作成するときに、デフォルトの権限を設定する。">
-			ノートカード
-		</text>
-		<text name="label_11" tool_tip="ジェスチャーを作成するときに、デフォルトの権限を設定する。">
-			ジェスチャー
-		</text>
-		<text name="label_12" tool_tip="衣服装またはボディパーツを作成するときに、デフォルトの権限を設定する。">
-			装着するもの
-		</text>
-		<text name="label_13" tool_tip="自然環境の設定を作成するときに、デフォルトの権限を設定する。">
-			設定
-		</text>
-		<check_box name="env_settings_c" value="true"/>
+            誰に対してもコピーを許可
+        </text>
+		<text name="label_7" tool_tip="オブジェクトを作成するときにデフォルトの権限を設定">
+            オブジェクト
+        </text>
+		<text name="label_8" tool_tip="アップロードしたアイテムにデフォルトの権限を設定">
+            アップロード
+        </text>
+		<text name="label_9" tool_tip="スクリプトを作成するときにデフォルトの権限を設定">
+            スクリプト
+        </text>
+		<text name="label_10" tool_tip="ノートカードを作成するときにデフォルトの権限を設定">
+            ノートカード
+        </text>
+		<text name="label_11" tool_tip="ジェスチャーを作成するときに、デフォルトの権限を設定">
+            ジェスチャー
+        </text>
+		<text name="label_12" tool_tip="服装またはボディパーツを作成するときにデフォルトの権限を設定">
+            着用物
+        </text>
+		<text name="label_13" tool_tip="景観の設定を作成するときにデフォルトの権限を設定">
+            設定
+        </text>
 	</panel>
-	<button label="ＯＫ" label_selected="ＯＫ" name="ok"/>
 	<button label="キャンセル" label_selected="キャンセル" name="cancel"/>
 </floater>

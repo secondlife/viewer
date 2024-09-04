@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="グループ作成" name="GroupCreation">
 	<panel.string name="current_membership">
-		（あなたのメンバーシップ）
+		(あなたのメンバーシップ)
 	</panel.string>
 	<panel name="group_info_top">
 		<line_editor label="グループ名をここに入力してください。" name="group_name_editor"/>
@@ -9,52 +9,43 @@
 	<layout_stack name="layout">
 		<layout_panel name="group_info">
 			<panel name="group_info_top">
-				<texture_picker name="insignia" tool_tip="クリックして写真を選択"/>
+				<texture_picker name="insignia" tool_tip="画像をクリックして選択"/>
 				<text_editor name="charter">
-					グループ憲章
-				</text_editor>
+                    グループ理念
+                </text_editor>
 			</panel>
 			<panel name="preferences_container">
-				<check_box label="誰でも加入可能" name="open_enrollement" tool_tip="このグループが招待なしで、新しいメンバーに参加できるようにするかどうかを設定します。"/>
+				<check_box label="誰でも加入可能" name="open_enrollement" tool_tip="このグループが招待なしで新しいメンバーに参加できるようにするかどうかを設定します。"/>
 				<check_box label="入会費" name="check_enrollment_fee" tool_tip="グループへへの加入に入会費が必要かどうかを設定します。"/>
 				<spinner name="spin_enrollment_fee" tool_tip="登録料がチェックされている場合、新しいメンバーはグループに参加するためにこの料金を支払う必要があります。"/>
 				<combo_box name="group_mature_check" tool_tip="レーティングは、グループで許可されるコンテンツと行動のタイプを指定します。">
-					<combo_item name="select_mature" value="Select">
-						－レーティングの選択－
+					<combo_item name="select_mature" value="選択">
+						-レーティングの選択-
 					</combo_item>
-					<combo_box.item label="Moderateコンテンツ" name="mature" value="Mature"/>
-					<combo_box.item label="Generalコンテンツ" name="pg" value="Not Mature"/>
+					<combo_box.item label="モデレートコンテンツ" name="mature"/>
+					<combo_box.item label="Generalコンテンツ" name="pg"/>
 				</combo_box>
 			</panel>
 		</layout_panel>
 		<layout_panel name="create_info">
 			<text name="fee_information">
-				グループを作成するための料金は、メンバーシップレベルに基づいています。[https://secondlife.com/my/account/membership.php 詳細]
-			</text>
+                グループを作成するための料金は、メンバーシップレベルに基づいています。[https://secondlife.com/my/account/membership.php 詳細]
+            </text>
 			<scroll_list name="membership_list">
-				<scroll_list.columns name="clmn_name"/>
-				<scroll_list.columns name="clmn_price"/>
-				<scroll_list.rows name="basic" value="基本（プレースホルダ）"/>
-				<scroll_list.rows name="plc2" value=""/>
-				<scroll_list.rows name="premium" value="プレミアム（プレースホルダ）"/>
+				<scroll_list.rows name="basic" value="基本(プレースホルダ)"/>
+				<scroll_list.rows name="premium" value="プレミアム(プレースホルダ)"/>
 			</scroll_list>
 		</layout_panel>
 		<layout_panel name="create_actions">
 			<layout_stack name="button_row_ls">
 				<layout_panel name="layout_crt">
-          
-        </layout_panel>
-				<layout_panel name="layout_crt">
-					<button label="グループ作成：L$[COST]" name="btn_create" tool_tip="新しいグループを作成"/>
-					<button name="back" label="キャンセル" tool_tip="グループ一覧に戻ります。"/>
+					<button label="グループを作成: L$[COST]" name="btn_create" tool_tip="新しいグループを作成"/>
+					<button name="back" label="オブジェクトへの支払いを取り消します。" tool_tip="グループ一覧に戻ります"/>
 				</layout_panel>
-				<layout_panel name="layout_crt">
-          
-        </layout_panel>
 			</layout_stack>
 			<text name="info_deletion">
-				注：４８時間メンバーが２人未満のグループは、自動的に解散されます。
-			</text>
+                注: 48時間メンバーが2人未満のグループは、自動的に解散されます
+            </text>
 		</layout_panel>
 	</layout_stack>
 </panel>

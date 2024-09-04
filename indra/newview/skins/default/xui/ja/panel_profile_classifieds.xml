@@ -1,9 +1,15 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="クラシファイド広告" name="panel_profile_classifieds">
+<panel name="panel_profile_classifieds" label="クラシファイド広告">
 	<string name="no_classifieds" value="クラシファイド広告なし"/>
-	<button label="新規…" name="new_btn"/>
-	<button label="削除…" name="delete_btn"/>
-	<text name="classifieds_panel_text">
-		読み込んでいます…
-	</text>
+	<layout_stack name="main_stack">
+		<layout_panel name="buttons_header">
+			<button name="new_btn" label="新規..." tool_tip="現在の場所に新しい広告を作成"/>
+			<button name="delete_btn" label="削除..." tool_tip="現在選択されている広告を削除します"/>
+		</layout_panel>
+		<layout_panel name="main_body">
+			<text name="classifieds_panel_text">
+                読込中...
+            </text>
+		</layout_panel>
+	</layout_stack>
 </panel>

@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_snapshot_postcard">
 	<string name="default_subject">
-		[SECOND_LIFE]からのポストカードです。
+		[SECOND_LIFE] からのポストカードです。
 	</string>
 	<string name="default_message">
-		ぜひご覧ください！
+		ぜひご覧ください!
 	</string>
 	<string name="upload_message">
-		送信中…
+		送信中...
 	</string>
 	<text name="title">
-		Ｅメール
-	</text>
+        Eメール
+    </text>
 	<tab_container name="postcard_tabs">
 		<panel label="メッセージ" name="panel_postcard_message"/>
 		<panel label="設定" name="panel_postcard_settings"/>

@@ -1,22 +1,20 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="リージョンメモリ" name="script_limits_region_memory_panel">
 	<text name="script_memory">
-		区画スクリプトメモリ
-	</text>
-	<text name="parcels_listed"/>
-	<text name="memory_used"/>
+        区画スクリプトメモリ
+    </text>
 	<text name="loading_text">
-		読み込んでいます…
-	</text>
+        読込中...
+    </text>
 	<scroll_list name="scripts_list">
-		<scroll_list.columns label="サイズ （㎅）" name="size"/>
-		<scroll_list.columns label="ＵＲＬ" name="urls"/>
+		<scroll_list.columns label="サイズ (KB)" name="size"/>
+		<scroll_list.columns label="URL" name="urls"/>
 		<scroll_list.columns label="オブジェクト名" name="name"/>
 		<scroll_list.columns label="オブジェクトの所有者" name="owner"/>
 		<scroll_list.columns label="区画" name="parcel"/>
 		<scroll_list.columns label="場所" name="location"/>
 	</scroll_list>
 	<button label="リスト更新" name="refresh_list_btn"/>
-	<button label="ハイライト" name="highlight_btn"/>
 	<button label="返却" name="return_btn"/>
+	<button label="ハイライト" name="highlight_btn"/>
 </panel>

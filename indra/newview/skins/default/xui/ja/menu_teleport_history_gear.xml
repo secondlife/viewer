@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<menu name="Teleport History Gear Context Menu">
-	<menu_item_separator name="Landmark Separator"/>
-	<menu_item_call label="フォルダをすべて展開" name="Expand all folders"/>
-	<menu_item_call label="フォルダをすべて縮小" name="Collapse all folders"/>
-	<menu_item_call label="テレポートの履歴をクリア" name="Clear Teleport History"/>
-</menu>
+<toggleable_menu name="Teleport History Gear Context Menu">
+	<menu_item_call label="全てのフォルダを開く" name="Expand all folders"/>
+	<menu_item_call label="全てのフォルダを閉じる" name="Collapse all folders"/>
+</toggleable_menu>

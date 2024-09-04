@@ -3,76 +3,61 @@
 	<layout_stack name="main_ls">
 		<layout_panel name="sun_layout">
 			<text name="sun_stars_label">
-				太陽＆星
-			</text>
+                太陽 &amp; 星
+            </text>
 			<text name="position_label">
-				位置：
-			</text>
-			<sun_moon_trackball name="sun_rotation"/>
+                位置:
+            </text>
 			<text name="image_label">
-				画像：
-			</text>
-			<texture_picker name="sun_image"/>
+                画像:
+            </text>
 			<text name="scale_label">
-				スケール：
-			</text>
-			<slider name="sun_scale"/>
+                スケール:
+            </text>
 			<text name="color_label">
-				色：
-			</text>
-			<color_swatch name="sun_moon_color"/>
+                色:
+            </text>
 			<text name="sun_azimuth_label">
-				方位角：
-			</text>
-			<slider name="sun_azimuth"/>
+                方位角:
+            </text>
 			<text name="sun_elevation_label">
-				標高：
-			</text>
-			<slider name="sun_elevation"/>
+                標高:
+            </text>
 			<text name="glow_focus_label">
-				グローフォーカス：
-			</text>
-			<slider name="glow_focus"/>
+                グローフォーカス:
+            </text>
 			<text name="glow_size_label">
-				グローサイズ：
-			</text>
-			<slider name="glow_size"/>
+                グローサイズ:
+            </text>
 			<text name="star_brightness_label">
-				星の輝度：
-			</text>
-			<slider name="star_brightness"/>
+                星の輝度:
+            </text>
 			<check_box label="ビーコンを表示" name="sunbeacon"/>
 		</layout_panel>
 		<layout_panel name="moon_layout">
 			<layout_stack name="moon_stack">
 				<layout_panel name="moon_layout">
 					<text name="moon_label">
-						月
-					</text>
+                        月
+                    </text>
 					<text name="position_label">
-						位置：
-					</text>
-					<sun_moon_trackball name="moon_rotation"/>
+                        位置:
+                    </text>
 					<text name="moon_image_label">
-						画像：
-					</text>
-					<texture_picker name="moon_image"/>
+                        画像:
+                    </text>
 					<text name="scale_label">
-						スケール：
-					</text>
-					<slider name="moon_scale"/>
+                        スケール:
+                    </text>
 					<text name="moon_azimuth_label">
-						方位角：
-					</text>
-					<slider name="moon_azimuth"/>
+                        方位角:
+                    </text>
 					<text name="moon_elevation_label">
-						標高：
-					</text>
-					<slider name="moon_elevation"/>
+                        標高:
+                    </text>
 					<text name="brightness_label">
-						輝度：
-					</text>
-					<slider name="moon_brightness"/>
+                        輝度:
+                    </text>
 					<check_box label="ビーコンを表示" name="moonbeacon"/>
 				</layout_panel>
 			</layout_stack>

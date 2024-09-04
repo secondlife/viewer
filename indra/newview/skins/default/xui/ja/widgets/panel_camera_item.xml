@@ -1,9 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel_camera_item>
-	<panel_camera_item.icon_over name="hovered_icon"/>
-	<panel_camera_item.icon_selected name="selected_icon"/>
-	<panel_camera_item.picture name="picture"/>
-	<panel_camera_item.selected_picture fname="selected_picture"/>
 	<panel_camera_item.text name="picture_name">
 		テキスト
 	</panel_camera_item.text>

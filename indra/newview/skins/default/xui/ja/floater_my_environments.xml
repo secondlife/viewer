@@ -1,20 +1,13 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="my_environments" title="私の環境">
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<floater name="my_environments" title="自分の環境">
 	<layout_stack name="main_layout">
 		<layout_panel name="filter_panel" label="フィルタ">
-			<icon name="icon_settingsdays"/>
 			<check_box label="日間" name="chk_days"/>
-			<icon name="icon_settingsskies"/>
 			<check_box label="空" name="chk_skies"/>
-			<icon name="icon_settingswater"/>
 			<check_box label="水面" name="chk_water"/>
-			<filter_editor label="環境の絞り込み" name="flt_search"/>
+			<filter_editor label="景観の絞り込み" name="flt_search"/>
 		</layout_panel>
-		<layout_panel name="list_panel" label="環境">
-			<panel name="pnl_inv_wrap" label="pnl_inv_wrap">
-				<asset_filtered_inv_panel name="pnl_settings"/>
-			</panel>
-		</layout_panel>
+		<layout_panel name="list_panel" label="環境"/>
 		<layout_panel name="lp_showfolders">
 			<check_box label="全てのフォルダを開く" name="chk_showfolders"/>
 		</layout_panel>

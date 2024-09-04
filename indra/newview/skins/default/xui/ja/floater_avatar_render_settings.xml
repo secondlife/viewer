@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <floater name="floater_avatar_render_settings" title="アバターの描画設定">
 	<string name="av_never_render" value="使用しない"/>
 	<string name="av_always_render" value="常に使用する"/>
@@ -7,6 +7,6 @@
 		<name_list.columns label="描画設定" name="setting"/>
 	</name_list>
 	<panel name="add_subpanel">
-		<menu_button label="何かを追加…" name="plus_btn" tool_tip="選択した人物に対するアクション"/>
+		<menu_button label="何かを追加..." name="plus_btn" tool_tip="選択した人に対するアクション"/>
 	</panel>
 </floater>

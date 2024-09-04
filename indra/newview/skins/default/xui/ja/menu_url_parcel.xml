@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <context_menu name="Url Popup">
 	<menu_item_call label="区画情報を表示" name="show_parcel"/>
-	<menu_item_separator/>
 	<menu_item_call label="マップに表示" name="show_on_map"/>
-	<menu_item_separator/>
 	<menu_item_call label="SLurlをクリップボードにコピー" name="url_copy"/>
 </context_menu>

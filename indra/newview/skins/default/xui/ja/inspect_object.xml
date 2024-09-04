@@ -1,17 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="inspect_object">
 	<string name="Creator">
-		制作者：[CREATOR]
+		制作者: [CREATOR]
 	</string>
 	<string name="CreatorAndOwner">
 		[CREATOR]によるチェック
-[OWNER]によるチェック
-	</string>
-	<string name="Price">
-		L$[AMOUNT]
+		[OWNER]によるチェック
 	</string>
 	<string name="PriceFree">
-		無料です！
+		無料です!
 	</string>
 	<string name="Touch">
 		触る
@@ -19,27 +16,12 @@
 	<string name="Sit">
 		座る
 	</string>
-	<text name="object_name" value="二行にわたる長いオブジェクト名をテスト"/>
-	<text name="object_creator">
-		by secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about
-owner secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about
-	</text>
-	<text name="price_text">
-		L$30,000
-	</text>
-	<text name="object_description">
-		これは、オブジェクトがどのようなものであるかについての非常に長い説明であり、少なくとも８０文字は含まれます。
-長さなどですが、この時点ではおそらく１２０くらいです。本当のところは、誰にも分かりません。
-	</text>
-	<text name="object_media_url">
-		http://www.superdupertest.com
-	</text>
-	<button label="買う" name="buy_btn"/>
+	<icon name="secure_browsing" tool_tip="セキュアブラウジング"/>
+	<button label="購入" name="buy_btn"/>
 	<button label="支払う" name="pay_btn"/>
 	<button label="コピーを取る" name="take_free_copy_btn"/>
 	<button label="触る" name="touch_btn"/>
 	<button label="座る" name="sit_btn"/>
 	<button label="開く" name="open_btn"/>
-	<icon name="secure_browsing" tool_tip="セキュアブラウジング"/>
 	<button label="詳細" name="more_info_btn"/>
 </floater>

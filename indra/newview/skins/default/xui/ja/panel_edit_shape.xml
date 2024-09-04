@@ -7,38 +7,22 @@
 		フィート
 	</string>
 	<string name="height">
-		高さ：
+		高さ:
 	</string>
-	<text name="avatar_height"/>
+	<string name="heigth_value_label_color">
+		白
+	</string>
 	<panel label="シャツ" name="accordion_panel">
 		<accordion name="wearable_accordion">
-			<accordion_tab name="shape_body_tab" title="身体">
-				<scrolling_panel_list name="shape_body_param_list"/>
-			</accordion_tab>
-			<accordion_tab name="shape_head_tab" title="頭">
-				<scrolling_panel_list name="shape_head_param_list"/>
-			</accordion_tab>
-			<accordion_tab name="shape_eyes_tab" title="目">
-				<scrolling_panel_list name="shape_eyes_param_list"/>
-			</accordion_tab>
-			<accordion_tab name="shape_ears_tab" title="耳">
-				<scrolling_panel_list name="shape_ears_param_list"/>
-			</accordion_tab>
-			<accordion_tab name="shape_nose_tab" title="鼻">
-				<scrolling_panel_list name="shape_nose_param_list"/>
-			</accordion_tab>
-			<accordion_tab name="shape_mouth_tab" title="口">
-				<scrolling_panel_list name="shape_mouth_param_list"/>
-			</accordion_tab>
-			<accordion_tab name="shape_chin_tab" title="あご">
-				<scrolling_panel_list name="shape_chin_param_list"/>
-			</accordion_tab>
-			<accordion_tab name="shape_torso_tab" title="上半身">
-				<scrolling_panel_list name="shape_torso_param_list"/>
-			</accordion_tab>
-			<accordion_tab name="shape_legs_tab" title="脚">
-				<scrolling_panel_list name="shape_legs_param_list"/>
-			</accordion_tab>
+			<accordion_tab name="shape_body_tab" title="身体"/>
+			<accordion_tab name="shape_head_tab" title="頭"/>
+			<accordion_tab name="shape_eyes_tab" title="目"/>
+			<accordion_tab name="shape_ears_tab" title="耳"/>
+			<accordion_tab name="shape_nose_tab" title="鼻"/>
+			<accordion_tab name="shape_mouth_tab" title="口"/>
+			<accordion_tab name="shape_chin_tab" title="あご"/>
+			<accordion_tab name="shape_torso_tab" title="上半身"/>
+			<accordion_tab name="shape_legs_tab" title="脚"/>
 		</accordion>
 	</panel>
 </panel>

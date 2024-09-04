@@ -3,67 +3,51 @@
 	<string name="No Outfit" value="アウトフィットなし"/>
 	<string name="unsaved_changes" value="保存されていない変更"/>
 	<string name="now_editing" value="編集中"/>
-	<string name="folder_view_off" value="Hierarchy_View_Disabled" translate="false"/>
-	<string name="folder_view_on" value="Hierarchy_View_On" translate="false"/>
-	<string name="list_view_off" value="List_View_Disabled" translate="false"/>
-	<string name="list_view_on" value="List_View_On" translate="false"/>
+	<string name="folder_view_off" translate="false"/>
+	<string name="folder_view_on" translate="false"/>
+	<string name="list_view_off" translate="false"/>
+	<string name="list_view_on" translate="false"/>
 	<panel.string name="not_available">
-		（無し）
+		(無し)
 	</panel.string>
 	<panel.string name="unknown">
-		（不明）
+		(不明)
 	</panel.string>
 	<string name="Filter.All" value="全て"/>
-	<string name="Filter.Clothes/Body" value="服装／身体"/>
+	<string name="Filter.Clothes/Body" value="服装 / 身体"/>
 	<string name="Filter.Objects" value="オブジェクト"/>
 	<string name="Filter.Clothing" value="服装"/>
 	<string name="Filter.Bodyparts" value="身体部位"/>
-	<string name="replace_body_part" value="クリックして既存のシェイプと置き換える"/>
-	<button name="back_btn"/>
-	<text name="title" value="アウトフィットのパーツを編集"/>
+	<string name="replace_body_part" value="クリックして既存のシェイプと置換"/>
+	<text name="title" value="アウトフィットを編集"/>
 	<panel name="header_panel">
 		<icon name="outfit_icon" top="2"/>
 		<panel name="outfit_name_and_status">
-			<text name="status" value="編集中…"/>
+			<text name="status" value="編集中..."/>
 			<text name="curr_outfit_name" value="[現在のアウトフィット]"/>
-			<loading_indicator name="edit_outfit_loading_indicator"/>
 		</panel>
 	</panel>
 	<layout_stack name="im_panels">
-		<layout_panel lname="outfit_wearables_panel">
+		<layout_panel name="outfit_wearables_panel">
 			<layout_stack name="filter_panels">
 				<layout_panel name="add_button_and_combobox">
-					<panel name="cof_wearables_list"/>
-					<button name="show_add_wearables_btn" label="更に追加…" tool_tip="開く／閉じる"/>
-					<combo_box name="list_view_filter_combobox"/>
-					<combo_box name="folder_view_filter_combobox"/>
-					<button name="filter_button"/>
+					<button label="さらに追加..." name="show_add_wearables_btn" tool_tip="開く / 閉じる"/>
 				</layout_panel>
 				<layout_panel name="filter_panel">
-					<filter_editor label="インベントリを着用可能物でフィルタ" name="look_item_filter"/>
+					<filter_editor label="インベントリの着用物をフィルタ" name="look_item_filter"/>
 				</layout_panel>
 			</layout_stack>
 		</layout_panel>
 		<layout_panel name="add_wearables_panel">
 			<icon follows="left|top|right" height="10" image_name="Dragbar" left="0" top_pad="-9" width="313"/>
-			<inventory_panel name="folder_view"/>
-			<panel name="filtered_wearables_panel">
-				<wearable_items_list name="list_view"/>
-			</panel>
 			<button label="アイテムを着用" name="plus_btn"/>
 		</layout_panel>
 	</layout_stack>
 	<panel name="no_add_wearables_button_bar">
-		<menu_button name="gear_menu_btn"/>
-		<icon name="dummy_right_icon"/>
-		<button name="shop_btn_1" tool_tip="SLマーケットプレイスをご覧ください。また、いま着用しているアイテムを選択してここをクリックすると、それに似たアイテムが表示されます。"/>
+		<button name="shop_btn_1" tool_tip="「SL マーケットプレイス」ページをご覧ください。また、いま着用しているアイテムを選択してここをクリックすると、それに似たアイテムが表示されます。"/>
 	</panel>
 	<panel name="add_wearables_button_bar">
-		<menu_button name="wearables_gear_menu_btn"/>
-		<button name="folder_view_btn"/>
-		<button name="list_view_btn"/>
-		<icon name="dummy_right_icon"/>
-		<button name="shop_btn_2" tool_tip="SLマーケットプレイスをご覧ください。また、いま着用しているアイテムを選択してここをクリックすると、それに似たアイテムが表示されます。"/>
+		<button name="shop_btn_2" tool_tip="「SL マーケットプレイス」ページをご覧ください。また、いま着用しているアイテムを選択してここをクリックすると、それに似たアイテムが表示されます。"/>
 	</panel>
 	<panel name="save_revert_button_bar">
 		<layout_stack name="button_bar_ls">
@@ -71,10 +55,10 @@
 				<button label="変更を保存" name="save_btn"/>
 			</layout_panel>
 			<layout_panel name="save_as_btn_lp">
-				<button label="別名で保存…" name="save_as_btn"/>
+				<button label="名前をつけて保存..." name="save_as_btn"/>
 			</layout_panel>
 			<layout_panel name="revert_btn_lp">
-				<button label="変更を元に戻す" name="revert_btn" tool_tip="最後に保存されたバージョンに復元します。"/>
+				<button label="変更を元に戻す" name="revert_btn" tool_tip="最後に保存されたバージョンに戻す"/>
 			</layout_panel>
 		</layout_stack>
 	</panel>

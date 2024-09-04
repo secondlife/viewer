@@ -3,13 +3,11 @@
 	<menu_item_call label="ランドマークを追加" name="add_landmark"/>
 	<menu_item_call label="フォルダを追加" name="add_folder"/>
 	<menu_item_call label="アイテムを復元" name="restore_item"/>
-	<menu_item_separator/>
 	<menu_item_call label="カット" name="cut"/>
 	<menu_item_call label="コピー" name="copy_folder"/>
 	<menu_item_call label="ペースト" name="paste"/>
-	<menu_item_call label="名前の変更" name="rename"/>
+	<menu_item_call label="名前変更" name="rename"/>
 	<menu_item_call label="削除" name="delete"/>
-	<menu_item_separator/>
 	<menu_item_call label="広げる" name="expand"/>
 	<menu_item_call label="閉じる" name="collapse"/>
 </toggleable_menu>

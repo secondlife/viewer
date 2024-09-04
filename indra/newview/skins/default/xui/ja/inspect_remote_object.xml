@@ -1,20 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="inspect_remote_object">
 	<text name="object_name">
-		非常に長いテスト オブジェクト名
-	</text>
+        非常に長いテスト オブジェクト名
+    </text>
 	<text name="object_owner_label">
-		所有者：
-	</text>
-	<text name="object_owner">
-		Longavatarname Johnsonlongstonnammer
-	</text>
-	<text name="object_slurl_label">
-		位置：
-	</text>
-	<text name="object_slurl">
-		http://slurl.com/Ahern/50/50/50
-	</text>
+        所有者:
+    </text>
 	<button label="マップ" name="map_btn"/>
 	<button label="ブロック" name="block_btn"/>
 	<button label="閉じる" name="close_btn"/>

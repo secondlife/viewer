@@ -1,37 +1,51 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="もの" name="main inventory panel">
 	<panel.string name="ItemcountFetching">
-		[ITEM_COUNT]個のアイテムと[CATEGORY_COUNT]個のフォルダーを取得中です…。[FILTER]
+		[ITEM_COUNT]個のアイテムと[CATEGORY_COUNT]個のフォルダを取得中... [FILTER]
 	</panel.string>
 	<panel.string name="ItemcountCompleted">
-		[ITEM_COUNT]個のアイテムと[CATEGORY_COUNT]個のフォルダーの取得が完了しました。[FILTER]
+		[ITEM_COUNT]個のアイテムと[CATEGORY_COUNT]個のフォルダ [FILTER]
 	</panel.string>
 	<panel.string name="ItemcountUnknown">
-		[ITEM_COUNT]個のアイテムと[CATEGORY_COUNT]個のフォルダーを取得しました。[FILTER]
+		[ITEM_COUNT]個のアイテムと[CATEGORY_COUNT]個のフォルダを取得しました[FILTER]
 	</panel.string>
-    <panel.string name="inventory_title">インベントリ</panel.string>
+	<panel.string name="inventory_title">
+		インベントリ
+	</panel.string>
+	<panel.string name="default_mode_btn">
+		Multi_Folder_Mode
+	</panel.string>
+	<panel.string name="single_folder_mode_btn">
+		Single_Folder_Mode
+	</panel.string>
 	<text name="ItemcountText">
-		アイテム：
-	</text>
-    <layout_stack name="top_stack">
-        <layout_panel name="filter_layout_panel">
-            <combo_box name="search_type">
-                <item label="名前" name="Name" value="search_by_name"/>
-                <item label="制作者" name="Creator" value="search_by_creator"/>
-                <item label="説明" name="Description" value="search_by_description"/>
-                <item label="ＵＵＩＤ" name="UUID" value="search_by_UUID"/>
-            </combo_box>
-            <menu_button tool_tip="検索表示オプションを表示" name="options_visibility_btn"/>
-            <filter_editor label="検索用語を入力する" name="inventory search editor"/>
-            <menu_button name="options_gear_btn" tool_tip="オプションを表示します。"/>
-            <button name="add_btn" tool_tip="新しいアイテムを追加します。"/>
-        </layout_panel>
-    </layout_stack>
-    <panel name="default_inventory_panel">
-        <tab_container name="inventory filter tabs">
-            <inventory_panel label="インベントリ" name="All Items"/>
-            <recent_inventory_panel label="最新" name="Recent Items"/>
-            <inventory_panel label="着用中" name="Worn Items"/>
-        </tab_container>
-    </panel>
+        アイテム:
+    </text>
+	<layout_stack>
+		<layout_panel name="nav_buttons">
+			<button name="back_btn" tool_tip="戻る"/>
+			<button name="forward_btn" tool_tip="進む"/>
+			<button name="up_btn" tool_tip="上のレベルへ"/>
+		</layout_panel>
+		<layout_panel>
+			<combo_box name="search_type" tool_tip="検索用語を入力する">
+				<item label="NAME" name="Name"/>
+				<item label="制作者" name="Creator"/>
+				<item label="説明" name="Description"/>
+			</combo_box>
+			<menu_button tool_tip="検索表示オプションを表示" name="options_visibility_btn"/>
+			<filter_editor label="検索語句を入力" name="inventory search editor"/>
+			<menu_button tool_tip="アクション" name="options_gear_btn"/>
+			<menu_button tool_tip="表示 &amp; ソートオプション" name="view_btn"/>
+			<button name="add_btn" tool_tip="新しいアイテムを追加"/>
+			<button tool_tip="ビューを切替" name="view_mode_btn"/>
+		</layout_panel>
+	</layout_stack>
+	<panel name="default_inventory_panel">
+		<tab_container name="inventory filter tabs">
+			<inventory_panel label="インベントリ" name="All Items"/>
+			<recent_inventory_panel label="最新" name="Recent Items"/>
+			<inventory_panel name="Worn Items" label="着用中"/>
+		</tab_container>
+	</panel>
 </panel>

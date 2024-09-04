@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="自分のアバター" name="script_limits_my_avatar_panel">
 	<text name="script_memory">
-		アバターのスクリプト使用
-	</text>
+        アバターのスクリプト使用
+    </text>
 	<text name="loading_text">
-		読み込んでいます…
-	</text>
+        読込中...
+    </text>
 	<scroll_list name="scripts_list">
-		<scroll_list.columns label="サイズ （㎅）" name="size"/>
-		<scroll_list.columns label="ＵＲＬ" name="urls"/>
+		<scroll_list.columns label="サイズ (KB)" name="size"/>
+		<scroll_list.columns label="URL" name="urls"/>
 		<scroll_list.columns label="オブジェクト名" name="name"/>
 		<scroll_list.columns label="場所" name="location"/>
 	</scroll_list>

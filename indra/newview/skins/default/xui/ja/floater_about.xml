@@ -2,50 +2,50 @@
 <floater name="floater_about" title="[CAPITALIZED_APP_NAME]について">
 	<tab_container name="about_tab">
 		<panel label="情報" name="support_panel">
-			<button label="コピー" name="copy_btn"/>
-			<button label="更新の確認" name="update_btn"/>
+			<button label="クリップボードにコピー" name="copy_btn"/>
 		</panel>
 		<panel label="クレジット" name="credits_panel">
 			<text name="linden_intro">
-				Second Life は Lindens によって開発され、以下のオープンソースの貢献があります：
-			</text>
+                Second LifeはLindensによって開発され、以下のオープンソースの貢献があります:
+            </text>
 			<text_editor name="contrib_names">
-				Dummy Nameは実行時間に置き換えられます。
-			</text_editor>
+                Dummy Nameは実行時間に置換されます
+            </text_editor>
 		</panel>
 		<panel label="ライセンス" name="licenses_panel">
 			<text_editor name="licenses_editor">
-				3Dconnexion SDK Copyright (C) 1992-2009 3Dconnexion
-APR Copyright (C) 2011 The Apache Software Foundation
-Collada DOM Copyright 2006 Sony Computer Entertainment Inc.
-cURL Copyright (C) 1996-2010, Daniel Stenberg, (daniel@haxx.se)
-DBus/dbus-glib Copyright (C) 2002, 2003  CodeFactory AB / Copyright (C) 2003, 2004 Red Hat, Inc.
-expat Copyright (C) 1998, 1999, 2000 Thai Open Source Software Center Ltd.
-FreeType Copyright (C) 1996-2002, 2006 David Turner, Robert Wilhelm, and Werner Lemberg.
-GL Copyright (C) 1999-2004 Brian Paul.
-google-perftools Copyright (c) 2005, Google Inc.
-Havok.com(TM) Copyright (C) 1999-2001, Telekinesys Research Limited.
-jpeg2000 Copyright (C) 2001, David Taubman, The University of New South Wales (UNSW)
-jpeglib Copyright (C) 1991-1998, Thomas G. Lane.
-meshoptimizer Copyright (c) 2016-2021 Arseny Kapoulkine
-ogg/vorbis Copyright (C) 2002, Xiphophorus
-OpenSSL Copyright (C) 1998-2008 The OpenSSL Project.
-PCRE Copyright (c) 1997-2012 University of Cambridge
-SDL Copyright (C) 1997, 1998, 1999, 2000, 2001, 2002 Sam Lantinga
-SSLeay Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
-xxHash Copyright (C) 2012-2020 Yann Collet.
-zlib Copyright (C) 1995-2012 Jean-loup Gailly and Mark Adler.
-
-Second Life ビューアでは Havok (TM) Physics が使用されています。
-(c)Copyright 1999-2010 Havok.com Inc. (and its Licensors).
-無断複写・複製・転載を禁じます。詳細については www.havok.com をご参照ください。
-
-このソフトウェアには、NVIDIA Corporationによるソースコードが含まれます。
-
-無断複写・複製・転載を禁じます。詳細については licenses.txt をご参照ください。
-
-ボイスチャットのオーディオコーディング：Polycom(R) Siren14(TM) (ITU-T Rec.G.722.1 Annex C)
-			</text_editor>
+                3Dconnexion SDK Copyright (C) 1992-2009 3Dconnexion
+                APR Copyright (C) 2011 The Apache Software Foundation
+                Collada DOM Copyright 2006 Sony Computer Entertainment Inc.
+                cURL Copyright (C) 1996-2010, Daniel Stenberg, (daniel@haxx.se)
+                DBus/dbus-glib Copyright (C) 2002, 2003 CodeFactory AB / Copyright (C) 2003, 2004 Red Hat, Inc.
+                expat Copyright (C) 1998, 1999, 2000 Thai Open Source Software Center Ltd.
+                FreeType Copyright (C) 1996-2002, 2006 David Turner, Robert Wilhelm, and Werner Lemberg.
+                GL Copyright (C) 1999-2004 Brian Paul.
+                google-perftools Copyright (c) 2005, Google Inc.
+                Havok.com(TM) Copyright (C) 1999-2001, Telekinesys Research Limited.
+                jpeg2000 Copyright (C) 2001, David Taubman, The University of New South Wales (UNSW)
+                jpeglib Copyright (C) 1991-1998, Thomas G. Lane.
+                meshoptimizer Copyright (c) 2016-2021 Arseny Kapoulkine
+                ogg/vorbis Copyright (C) 2002, Xiphophorus
+                OpenSSL Copyright (C) 1998-2008 The OpenSSL Project.
+                PCRE Copyright (c) 1997-2012 University of Cambridge
+                SDL Copyright (C) 1997, 1998, 1999, 2000, 2001, 2002 Sam Lantinga
+                SSLeay Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
+                xmlrpc-epi Copyright (C) 2000 Epinions, Inc.
+                xxHash Copyright (C) 2012-2020 Yann Collet.
+                zlib Copyright (C) 1995-2012 Jean-loup Gailly and Mark Adler.
+                
+                Second Life ビュアでは Havok (TM) Physics が使用されています。
+                (c)Copyright 1999-2010 Havok.com Inc. (and its Licensors).
+                無断複写・複製・転載を禁じます。詳細については www.havok.com をご参照ください。
+                
+                このソフトウェアには、NVIDIA Corporationによるソースコードが含まれます。
+                
+                無断複写・複製・転載を禁じます。詳細については licenses.txt をご参照ください。
+                
+                ボイスチャットのオーディオコーディング: Polycom(R) Siren14(TM) (ITU-T Rec.G.722.1 Annex C)
+            </text_editor>
 		</panel>
 	</tab_container>
 </floater>

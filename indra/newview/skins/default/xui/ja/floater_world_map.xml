@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="worldmap" title="ワールドマップ">
-	<string name="collapse_icon" value="map_ui_collapse_icon.png"/>
-	<string name="expand_icon" value="map_ui_expand_icon.png"/>
 	<string name="collapse_tooltip" value="マップ操作パネルを隠す"/>
 	<string name="expand_tooltip" value="マップ操作を表示"/>
 	<layout_stack name="floater_map_stack">
@@ -14,103 +12,78 @@
 		<layout_panel name="controls_lp">
 			<panel name="layout_panel_1">
 				<text name="events_label">
-					凡例
-				</text>
+                    凡例
+                </text>
 			</panel>
 			<panel name="layout_panel_2">
 				<button name="Show My Location" tool_tip="現在、自分のアバターがいる場所をマップの中心にする。"/>
 				<text name="me_label">
-					自分
-				</text>
+                    ミー
+                </text>
 				<check_box control_name="MapShowPeople" name="people_chk"/>
-				<icon name="person"/>
 				<text name="person_label">
-					人物
-				</text>
-				<check_box name="infohub_chk"/>
-				<icon name="infohub"/>
+                    人
+                </text>
 				<text name="infohub_label">
-					情報ハブ
-				</text>
-				<check_box name="land_for_sale_chk"/>
-				<icon name="landforsale"/>
+                    情報ハブ
+                </text>
 				<text name="land_sale_label">
-					販売中の土地
-				</text>
-				<icon name="square2"/>
+                    販売中の土地
+                </text>
 				<text name="auction_label">
-					オークション中の土地
-				</text>
-				<icon name="square2"/>
+                    オークション中の土地
+                </text>
 				<text name="by_owner_label">
-					所有者で
-				</text>
-				<button name="Go Home" tool_tip="自分のホームの場所にテレポート"/>
+                    所有者で
+                </text>
+				<button name="Go Home" tool_tip="「ホーム」にテレポート"/>
 				<text name="Home_label">
-					ホーム
-				</text>
+                    ﾏｲﾎｰﾑ
+                </text>
 				<text name="events_label">
-					イベント：
-				</text>
-				<check_box name="event_chk"/>
-				<icon name="event"/>
+                    イベント:
+                </text>
 				<text name="pg_label">
-					General
-				</text>
-				<check_box name="events_mature_chk"/>
-				<icon name="events_mature_icon"/>
+                    一般
+                </text>
 				<text name="events_mature_label">
-					Moderate
-				</text>
-				<check_box name="events_adult_chk"/>
-				<icon name="events_adult_icon"/>
+                    モデレート
+                </text>
 				<text name="events_adult_label">
-					Adult
-				</text>
+                    アダルト
+                </text>
 			</panel>
 			<panel name="layout_panel_3">
 				<text name="find_on_map_label">
-					マップから探す
-				</text>
+                    マップから探す
+                </text>
 			</panel>
 			<panel name="layout_panel_4">
-				<icon name="friends_icon"/>
-				<combo_box label="オンラインのフレンド" name="friend combo" tool_tip="マップにフレンドを表示する。">
-					<combo_box.item label="オンラインのフレンド" name="item1" value="None"/>
+				<combo_box label="オンラインのフレンド" name="friend combo" tool_tip="マップにフレンドを表示">
+					<combo_box.item label="オンラインのフレンド" name="item1" value="なし"/>
 					<combo_box.commit_callback function="WMap.AvatarCombo"/>
 				</combo_box>
-				<icon name="landmark_icon"/>
 				<combo_box label="ランドマーク" name="landmark combo" tool_tip="マップにランドマークを表示する。">
-					<combo_box.item label="ランドマーク" name="item1" value="None"/>
+					<combo_box.item label="ランドマーク" name="item1" value="なし"/>
 					<combo_box.commit_callback function="WMap.Landmark"/>
 				</combo_box>
-				<icon name="location_icon"/>
-				<search_editor label="リージョン（地域）名で" tool_tip="リージョン（地域）名を入力してください"/>
-				<button label="探す" name="DoSearch" tool_tip="リージョン（地域）を検索する。"/>
-				<button name="Clear" tool_tip="追跡ラインをクリアしてマップをリセットする。"/>
+				<search_editor label="地域(リージョン)名で" name="location" tool_tip="地域(リージョン)名を入力してください"/>
+				<button label="探す" name="DoSearch" tool_tip="地域(リージョン)を検索する。"/>
+				<button name="Clear" tool_tip="追跡ラインをクリアしてマップをリセットする"/>
 				<scroll_list name="search_results">
-					<scroll_list.columns label="" name="icon"/>
-					<scroll_list.columns label="" name="sim_name"/>
 					<scroll_list.commit_callback function="WMap.SearchResult"/>
 				</scroll_list>
 				<text name="events_label">
-					場所：
-				</text>
-				<spinner name="teleport_coordinate_x"/>
-				<spinner name="teleport_coordinate_y"/>
-				<spinner name="teleport_coordinate_z"/>
-				<button label="テレポート" name="Teleport" tool_tip="選択した場所にテレポートする。"/>
+                    場所:
+                </text>
+				<button label="テレポート" name="Teleport" tool_tip="選択した場所にテレポート"/>
 				<button label="SLurlをコピー" layout="topleft" name="copy_slurl" tool_tip="現在の場所をWebで使えるSLurlにしてコピーする。"/>
-				<button label="選択を表示" name="Show Destination" tool_tip="選択した場所をマップの中心にする。"/>
+				<button label="選択を表示" name="Show Destination" tool_tip="選択した場所をマップの中心にする"/>
 			</panel>
 			<panel name="layout_panel_5">
 				<text name="zoom_label">
-					縮尺
-				</text>
-			</panel>
-			<panel name="layout_panel_6">
-				<icon name="zoom_icon"/>
-				<slider name="zoom slider"/>
+                    縮尺
+                </text>
 			</panel>
 		</layout_panel>
 	</layout_stack>

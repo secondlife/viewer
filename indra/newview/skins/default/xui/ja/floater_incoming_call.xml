@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="incoming call" title="着信">
+<floater name="incoming call">
 	<floater.string name="lifetime">
 		5
 	</floater.string>
 	<floater.string name="localchat">
-		近隣のボイスチャット
+		近隣ボイスチャット
 	</floater.string>
 	<floater.string name="anonymous">
-		匿名ユーザー
+		匿名ユーザ
 	</floater.string>
 	<floater.string name="VoiceInviteP2P">
 		からコールを受けています。
@@ -16,18 +16,18 @@
 		が会話チャットで、ボイスチャットに参加しました。
 	</floater.string>
 	<floater.string name="VoiceInviteGroup">
-		「[GROUP]」のボイスチャネルに参加なさいました。
+		「[GROUP]」のボイスチャネルに参加しました。
 	</floater.string>
 	<floater.string name="VoiceInviteQuestionGroup">
-		[CURRENT_CHAT]を退席して、「[GROUP]」とのチャットに参加しますか？
+		[CURRENT_CHAT]を退席して、「[GROUP]」とのチャットに参加しますか?
 	</floater.string>
 	<floater.string name="VoiceInviteQuestionDefault">
-		[CURRENT_CHAT]を退席して、このボイスチャットに参加しますか？
+		[CURRENT_CHAT]を退席して、このボイスチャットに参加しますか?
 	</floater.string>
-	<text name="question">
-		コールに応答すると、現在のボイスチャットから切断されます。
-	</text>
 	<button label="取る" label_selected="取る" name="Accept"/>
 	<button label="無視" label_selected="無視" name="Reject"/>
 	<button label="代わりにIMを開く" name="Start IM"/>
+	<text name="question">
+        コールに応答すると現在のボイスチャットから切断されます。
+    </text>
 </floater>

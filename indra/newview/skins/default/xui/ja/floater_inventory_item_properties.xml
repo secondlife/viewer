@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="item properties" title="インベントリアイテムのプロパティ">
+	<floater.string name="unknown">
+		(不明)
+	</floater.string>
+	<floater.string name="public">
+		(公開)
+	</floater.string>
+	<floater.string name="you_can">
+		できること:
+	</floater.string>
+	<floater.string name="owner_can">
+		所有者は次のことができます:
+	</floater.string>
+	<floater.string name="acquiredDate">
+		[year,datetime,local]年[mth,datetime,local]月[day,datetime,local]日([wkday,datetime,local]) [hour,datetime,local]:[min,datetime,local]:[second,datetime,local]
+	</floater.string>
+	<text name="LabelItemNameTitle">
+        名前:
+    </text>
+	<text name="LabelItemDescTitle">
+        説明:
+    </text>
+	<text name="LabelCreatorTitle">
+        作成者:
+    </text>
+	<text name="LabelCreatorName">
+        テスト文字列 無視してください
+    </text>
+	<button label="プロフィール..." name="BtnCreator"/>
+	<text name="LabelOwnerTitle">
+        所有者:
+    </text>
+	<text name="LabelOwnerName">
+        テスト文字列 無視してください
+    </text>
+	<button label="プロフィール..." name="BtnOwner"/>
+	<text name="LabelAcquiredTitle">
+        取得:
+    </text>
+	<text name="LabelAcquiredDate">
+        2006年5月24日水曜日 12:50:46
+    </text>
+	<text name="OwnerLabel">
+        あなた:
+    </text>
+	<check_box label="編集" name="CheckOwnerModify"/>
+	<check_box label="コピー" name="CheckOwnerCopy"/>
+	<check_box label="再販・譲渡" name="CheckOwnerTransfer"/>
+	<text name="AnyoneLabel">
+        全員:
+    </text>
+	<check_box label="コピー" name="CheckEveryoneCopy"/>
+	<text name="GroupLabel">
+        グループ:
+    </text>
+	<check_box label="共有" name="CheckShareWithGroup"/>
+	<text name="NextOwnerLabel">
+        次の所有者:
+    </text>
+	<check_box label="編集" name="CheckNextOwnerModify"/>
+	<check_box label="コピー" name="CheckNextOwnerCopy"/>
+	<check_box label="再販・譲渡" name="CheckNextOwnerTransfer"/>
+	<check_box label="販売中" name="CheckPurchase"/>
+	<combo_box name="ComboBoxSaleType">
+		<combo_box.item name="Copy" label="コピー"/>
+		<combo_box.item name="Contents" label="コンテンツ"/>
+		<combo_box.item name="Original" label="オブジェクトそのもの"/>
+	</combo_box>
+	<spinner name="Edit Cost" label="価格:"/>
+</floater>
