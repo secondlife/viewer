@@ -529,20 +529,6 @@
             <key>name</key>
             <string>windows64</string>
           </map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>08491c609b5f77835977fa459e386fddbad00064</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
-              <key>url</key>
-              <string>https://github.com/secondlife/dullahan/releases/download/v1.14.0-r2/dullahan-1.14.0.202404051708_118.4.1_g3dd6078_chromium-118.0.5993.54-linux64-8573290624.tar.zst</string>
-            </map>
-            <key>name</key>
-            <string>linux64</string>
-          </map>
         </map>
         <key>version</key>
         <string>1.14.0.202408091639_118.4.1_g3dd6078_chromium-118.0.5993.54</string>
@@ -640,72 +626,6 @@
         <string>expat</string>
         <key>description</key>
         <string>Expat is an XML parser library written in C</string>
-      </map>
-      <key>fmodstudio</key>
-      <map>
-        <key>platforms</key>
-        <map>
-          <key>darwin64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>creds</key>
-              <string>github</string>
-              <key>hash</key>
-              <string>a2074b67de7ad4c04b5ca8f8f161506add9697b2</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
-              <key>url</key>
-              <string>https://api.github.com/repos/secondlife/3p-fmodstudio/releases/assets/149207589</string>
-            </map>
-            <key>name</key>
-            <string>darwin64</string>
-          </map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>creds</key>
-              <string>github</string>
-              <key>hash</key>
-              <string>8c1b701648c077220dbc576c3d9aefbef47f8324</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
-              <key>url</key>
-              <string>https://api.github.com/repos/secondlife/3p-fmodstudio/releases/assets/149207592</string>
-            </map>
-            <key>name</key>
-            <string>linux64</string>
-          </map>
-          <key>windows64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>creds</key>
-              <string>github</string>
-              <key>hash</key>
-              <string>7e0c3d50e8b99d8735c6c9596a72ded9ee2bc1c8</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
-              <key>url</key>
-              <string>https://api.github.com/repos/secondlife/3p-fmodstudio/releases/assets/149207594</string>
-            </map>
-            <key>name</key>
-            <string>windows64</string>
-          </map>
-        </map>
-        <key>license</key>
-        <string>fmod</string>
-        <key>license_file</key>
-        <string>LICENSES/fmodstudio.txt</string>
-        <key>copyright</key>
-        <string>FMOD Studio by Firelight Technologies Pty Ltd.</string>
-        <key>version</key>
-        <string>2.02.20.c78ef55</string>
-        <key>name</key>
-        <string>fmodstudio</string>
-        <key>description</key>
-        <string>FMOD Studio API</string>
       </map>
       <key>fontconfig</key>
       <map>
@@ -1026,6 +946,8 @@
               <key>url</key>
               <string>https://github.com/secondlife/3p-jpeg_encoder_js/releases/download/v1.0-790015a/jpegencoderbasic-1.0-linux64-790015a.tar.zst</string>
             </map>
+            <key>name</key>
+            <string>linux64</string>
           </map>
           <key>windows64</key>
           <map>
@@ -1166,22 +1088,6 @@
             </map>
             <key>name</key>
             <string>windows64</string>
-          </map>
-          <key>linux</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>creds</key>
-              <string>github</string>
-              <key>hash</key>
-              <string>711b82f9f588d3a125af7dcd8c81f93d9c343a7d</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
-              <key>url</key>
-              <string>https://api.github.com/repos/secondlife/3p-kdu/releases/assets/136774121</string>
-            </map>
-            <key>name</key>
-            <string>linux</string>
           </map>
         </map>
         <key>license</key>
@@ -1731,11 +1637,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>6f4509dca9e32e3b4f9c4b13d875ce0e24340efc</string>
+              <string>c947107c0aca46e94e22f66328a3cbbd01d99b36</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-meshoptimizer/releases/download/v160-4f905dd/meshoptimizer-160-linux64-4f905dd.tar.zst</string>
+              <string>https://github.com/secondlife/3p-meshoptimizer/releases/download/v210-r2/meshoptimizer-210.0.0-r2-linux64-10341021290.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -1753,20 +1659,6 @@
             </map>
             <key>name</key>
             <string>windows64</string>
-          </map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>c947107c0aca46e94e22f66328a3cbbd01d99b36</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
-              <key>url</key>
-              <string>https://github.com/secondlife/3p-meshoptimizer/releases/download/v210-r2/meshoptimizer-210.0.0-r2-linux64-10341021290.tar.zst</string>
-            </map>
-            <key>name</key>
-            <string>linux64</string>
           </map>
         </map>
         <key>license</key>
@@ -2418,6 +2310,8 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
               <key>url</key>
               <string>https://github.com/secondlife/3p-three_js/releases/download/v0.132.2-5da28d9/threejs-0.132.2-common-8454371083.tar.zst</string>
             </map>
+            <key>name</key>
+            <string>linux64</string>
           </map>
           <key>windows64</key>
           <map>
