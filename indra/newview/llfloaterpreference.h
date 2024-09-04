@@ -443,9 +443,9 @@ private:
     void resetButtonMappingsToDefaults();
 
     // Above the tab container
-    LLCheckBoxCtrl  *mCheckGameControlToServer; // send game_control data to server
-    LLCheckBoxCtrl  *mCheckGameControlToAgent; // use game_control data to move avatar
-    LLCheckBoxCtrl  *mCheckAgentToGameControl; // translate external avatar actions to game_control data
+    LLCheckBoxCtrl* mCheckGameControlToServer; // send game_control data to server
+    LLCheckBoxCtrl* mCheckGameControlToAgent;  // use game_control data to move avatar
+    LLCheckBoxCtrl* mCheckAgentToGameControl;  // translate external avatar actions to game_control data
 
     // 1st tab "Channel mappings"
     LLPanel* mTabChannelMappings;
