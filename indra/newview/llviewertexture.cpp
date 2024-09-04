@@ -514,22 +514,21 @@ void LLViewerTexture::updateClass()
     bool is_sys_low = isSystemMemoryLow();
     bool is_low = is_sys_low || over_pct > 0.f;
 
-    if (isSystemMemoryLow())
-    {
-        is_sys_low = true;
-    }
-
     static bool was_low = false;
     static bool was_sys_low = false;
 
     if (is_low && !was_low)
     {
-        // slam to 1.5 bias the moment we hit low memory (discards off screen textures immediately
+        // slam to 1.5 bias the moment we hit low memory (discards off screen textures immediately)
         sDesiredDiscardBias = llmax(sDesiredDiscardBias, 1.5f);
 
-        for (auto& image : gTextureList)
-        {
-            gTextureList.updateImageDecodePriority(image, false /*will modify gTextureList otherwise!*/);
+        if (is_sys_low)
+        { // if we're low on system memory, emergency purge off screen textures to avoid a death spiral
+            LL_WARNS() << "Low system memory detected, emergency downrezzing off screen textures" << LL_ENDL;
+            for (auto& image : gTextureList)
+            {
+                gTextureList.updateImageDecodePriority(image, false /*will modify gTextureList otherwise!*/);
+            }
         }
     }
 
