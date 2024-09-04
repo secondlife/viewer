@@ -631,6 +631,11 @@ class LLVoiceWebRTCConnection :
         mShutDown = true;
     }
 
+    bool isShuttingDown()
+    {
+        return mShutDown;
+    }
+
     void OnVoiceConnectionRequestSuccess(const LLSD &body);
 
   protected:
