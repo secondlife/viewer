@@ -852,7 +852,7 @@ void LLImagePreviewSculpted::setPreviewTarget(LLImageRaw* imagep, F32 distance)
     }
 
     // build indices
-    for (U16 i = 0; i < num_indices; i++)
+    for (U32 i = 0; i < num_indices; i++)
     {
         *(index_strider++) = vf.mIndices[i];
     }
