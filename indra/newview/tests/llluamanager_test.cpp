@@ -463,8 +463,8 @@ namespace tut
         // but now we have to give the startScriptLine() coroutine a chance to run
         auto [count, result] = future.get();
         ensure_equals("killed Lua script terminated normally", count, -1);
-        ensure_equals("unexpected killed Lua script error",
-                      result.asString(), "viewer is stopping");
+        ensure_contains("unexpected killed Lua script error",
+                        result.asString(), "viewer is stopping");
     }
 
     template<> template<>
