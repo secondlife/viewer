@@ -3,48 +3,18 @@ local mapargs = require 'mapargs'
 local result_view = require 'result_view'
 
 local function result(keys)
-    return LL.setdtor(
-        'LLInventory result',
-        setmetatable(
-            -- the basic table wrapped by setmetatable just captures the int
-            -- result-set {key, length} pairs from 'keys', but with underscore
-            -- prefixes
-            {
-                _categories=keys.categories,
-                _items=keys.items,
-                -- call result:close() to release result sets before garbage
-                -- collection or script completion
-                close = function(self)
-                    result_view.close(self._categories[1], self._items[1])
-                end
-            },
-            -- The caller of one of our methods that returns a result set
-            -- isn't necessarily interested in both categories and items, so
-            -- don't proactively populate both. Instead, when caller references
-            -- either 'categories' or 'items', the __index() metamethod
-            -- populates that field.
-            {
-                __index = function(t, field)
-                    -- we really don't care about references to any other field
-                    if not table.find({'categories', 'items'}, field) then
-                        return nil
-                    end
-                    -- We cleverly saved the result set {key, length} pair in
-                    -- a field with the same name but an underscore prefix.
-                    local view = result_view(t['_' .. field])
-                    -- cache that view for future reference
-                    t[field] = view
-                    return view
-                end
-            }
-        ),
-        -- When the table-with-metatable above is destroyed, tell LLInventory
-        -- we're done with its result sets -- whether or not we ever fetched
-        -- either of them.
-        function(res)
-            res:close()
+    -- capture result_view() instances for both categories and items
+    local result_table = {
+        categories=result_view(keys.categories),
+        items=result_view(keys.items),
+        -- call result_table:close() to release result sets before garbage
+        -- collection or script completion
+        close = function(self)
+            result_view.close(keys.categories[1], keys.items[1])
         end
-    )
+    }
+    -- When the result_table is destroyed, close its result_views.
+    return LL.setdtor('LLInventory result', result_table, result_table.close)
 end
 
 local LLInventory = {}

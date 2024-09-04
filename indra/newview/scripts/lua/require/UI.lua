@@ -237,10 +237,7 @@ end
 function UI.getFloaterNames()
     local key_length = leap.request("LLFloaterReg", {op = "getFloaterNames"}).floaters
     local view = result_view(key_length)
-    return LL.setdtor(
-        'registered floater names',
-        view,
-        function(self) view:close() end)
+    return LL.setdtor('registered floater names', view, view.close)
 end
 
 return UI
