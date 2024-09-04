@@ -3672,9 +3672,10 @@ function="World.EnvPreset"
             <menu_item_separator/>
 
             <menu_item_call
-              enabled="true"
               label="Create Local Paintmap"
               name="Create Local Paintmap">
+              <menu_item_call.on_enable
+               function="EnableTerrainLocalPaintMap"/>
               <menu_item_call.on_click
                function="Advanced.TerrainCreateLocalPaintMap" />
             </menu_item_call>
