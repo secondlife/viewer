@@ -50,7 +50,7 @@
 #endif
 
 #include <boost/optional/optional.hpp>
-#include "llcoros.h"
+#include "llcoromutex.h"
 #include "lldependencies.h"
 #include "llexception.h"
 #include "llsd.h"
@@ -557,7 +557,7 @@ private:
 
 private:
     std::string mName;
-    LLCoros::Mutex mConnectionListMutex;
+    llcoro::Mutex mConnectionListMutex;
 
 protected:
     template <typename LISTENER>

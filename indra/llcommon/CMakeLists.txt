@@ -153,6 +153,7 @@ set(llcommon_HEADER_FILES
     llcommonutils.h
     llcond.h
     llcoros.h
+    llcoromutex.h
     llcrc.h
     llcriticaldamp.h
     lldate.h

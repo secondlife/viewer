@@ -29,30 +29,16 @@
 #if ! defined(LL_LLCOROS_H)
 #define LL_LLCOROS_H
 
+#include "llcoromutex.h"
 #include "llevents.h"
 #include "llexception.h"
 #include "llinstancetracker.h"
 #include "llsingleton.h"
-#include "mutex.h"
 #include <boost/fiber/fss.hpp>
-#include <boost/fiber/future/promise.hpp>
-#include <boost/fiber/future/future.hpp>
 #include <exception>
 #include <functional>
 #include <queue>
 #include <string>
-
-// e.g. #include LLCOROS_MUTEX_HEADER
-#define LLCOROS_MUTEX_HEADER   <boost/fiber/mutex.hpp>
-#define LLCOROS_CONDVAR_HEADER <boost/fiber/condition_variable.hpp>
-
-namespace boost {
-    namespace fibers {
-        class mutex;
-        enum class cv_status;
-        class condition_variable;
-    }
-}
 
 /**
  * Registry of named Boost.Coroutine instances
@@ -322,23 +308,21 @@ public:
                                            LLVoidListener cleanup);
 
     /**
-     * Aliases for promise and future. An older underlying future implementation
-     * required us to wrap future; that's no longer needed. However -- if it's
-     * important to restore kill() functionality, we might need to provide a
-     * proxy, so continue using the aliases.
+     * LLCoros aliases for promise and future, for backwards compatibility.
+     * These have been hoisted out to the llcoro namespace.
      */
     template <typename T>
-    using Promise = boost::fibers::promise<T>;
+    using Promise = llcoro::Promise<T>;
     template <typename T>
-    using Future = boost::fibers::future<T>;
+    using Future = llcoro::Future<T>;
     template <typename T>
     static Future<T> getFuture(Promise<T>& promise) { return promise.get_future(); }
 
     // use mutex, lock, condition_variable suitable for coroutines
-    using Mutex = boost::fibers::mutex;
-    using LockType = std::unique_lock<Mutex>;
-    using cv_status = boost::fibers::cv_status;
-    using ConditionVariable = boost::fibers::condition_variable;
+    using Mutex = llcoro::Mutex;
+    using LockType = llcoro::LockType;
+    using cv_status = llcoro::cv_status;
+    using ConditionVariable = llcoro::ConditionVariable;
 
     /// for data local to each running coroutine
     template <typename T>
