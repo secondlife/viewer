@@ -42,6 +42,8 @@ LLFontVertexBuffer::~LLFontVertexBuffer()
 
 void LLFontVertexBuffer::reset()
 {
+    // Todo: some form of debug only frequecy check&assert to see if this is happening too often.
+    // Regenerating this list is expensive
     mBufferList.clear();
 }
 

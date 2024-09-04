@@ -948,7 +948,6 @@ S32 LLTextBase::insertStringNoUndo(S32 pos, const LLWString &wstr, LLTextBase::s
 
 S32 LLTextBase::removeStringNoUndo(S32 pos, S32 length)
 {
-
     beforeValueChange();
     segment_set_t::iterator seg_iter = getSegIterContaining(pos);
     while(seg_iter != mSegments.end())
@@ -1325,6 +1324,7 @@ void LLTextBase::reshape(S32 width, S32 height, bool called_from_parent)
 //virtual
 void LLTextBase::draw()
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
     // reflow if needed, on demand
     reflow();
 
@@ -2586,6 +2586,11 @@ const LLWString& LLTextBase::getWText() const
     return getViewModel()->getDisplay();
 }
 
+S32 LLTextBase::getTextGeneration() const
+{
+    return getViewModel()->getDisplayGeneration();
+}
+
 // If round is true, if the position is on the right half of a character, the cursor
 // will be put to its right.  If round is false, the cursor will always be put to the
 // character's left.
@@ -3280,7 +3285,8 @@ LLNormalTextSegment::LLNormalTextSegment( LLStyleConstSP style, S32 start, S32 e
 :   LLTextSegment(start, end),
     mStyle( style ),
     mToken(NULL),
-    mEditor(editor)
+    mEditor(editor),
+    mLastGeneration(-1)
 {
     mFontHeight = mStyle->getFont()->getLineHeight();
 
@@ -3294,7 +3300,8 @@ LLNormalTextSegment::LLNormalTextSegment( LLStyleConstSP style, S32 start, S32 e
 LLNormalTextSegment::LLNormalTextSegment( const LLUIColor& color, S32 start, S32 end, LLTextBase& editor, bool is_visible)
 :   LLTextSegment(start, end),
     mToken(NULL),
-    mEditor(editor)
+    mEditor(editor),
+    mLastGeneration(-1)
 {
     mStyle = new LLStyle(LLStyle::Params().visible(is_visible).color(color));
 
@@ -3313,20 +3320,36 @@ F32 LLNormalTextSegment::draw(S32 start, S32 end, S32 selection_start, S32 selec
     {
         return drawClippedSegment( getStart() + start, getStart() + end, selection_start, selection_end, draw_rect);
     }
+    else
+    {
+        mFontBufferPreSelection.reset();
+        mFontBufferSelection.reset();
+        mFontBufferPostSelection.reset();
+    }
     return draw_rect.mLeft;
 }
 
 // Draws a single text segment, reversing the color for selection if needed.
 F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 selection_start, S32 selection_end, LLRectf rect)
 {
-    F32 alpha = LLViewDrawContext::getCurrentContext().mAlpha;
-
-    const LLWString &text = getWText();
-
     F32 right_x = rect.mLeft;
     if (!mStyle->isVisible())
     {
         return right_x;
+    }
+
+    F32 alpha = LLViewDrawContext::getCurrentContext().mAlpha;
+
+    const LLWString& text = getWText();
+    S32 text_gen = mEditor.getTextGeneration();
+
+    if (text_gen != mLastGeneration)
+    {
+        mLastGeneration = text_gen;
+
+        mFontBufferPreSelection.reset();
+        mFontBufferSelection.reset();
+        mFontBufferPostSelection.reset();
     }
 
     const LLFontGL* font = mStyle->getFont();
@@ -3339,7 +3362,8 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
         S32 start = seg_start;
         S32 end = llmin( selection_start, seg_end );
         S32 length =  end - start;
-        font->render(text, start,
+        mFontBufferPreSelection.render(font,
+                 text, start,
                  rect,
                  color,
                  LLFontGL::LEFT, mEditor.mTextVAlign,
@@ -3359,7 +3383,8 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
         S32 end = llmin( selection_end, seg_end );
         S32 length = end - start;
 
-        font->render(text, start,
+        mFontBufferSelection.render(font,
+                 text, start,
                  rect,
                  mStyle->getSelectedColor().get(),
                  LLFontGL::LEFT, mEditor.mTextVAlign,
@@ -3377,7 +3402,8 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
         S32 start = llmax( selection_end, seg_start );
         S32 end = seg_end;
         S32 length = end - start;
-        font->render(text, start,
+        mFontBufferPostSelection.render(font,
+                 text, start,
                  rect,
                  color,
                  LLFontGL::LEFT, mEditor.mTextVAlign,
@@ -3571,6 +3597,15 @@ S32 LLNormalTextSegment::getNumChars(S32 num_pixels, S32 segment_offset, S32 lin
         num_chars++;
     }
     return num_chars;
+}
+
+void LLNormalTextSegment::updateLayout(const class LLTextBase& editor)
+{
+    LLTextSegment::updateLayout(editor);
+
+    mFontBufferPreSelection.reset();
+    mFontBufferSelection.reset();
+    mFontBufferPostSelection.reset();
 }
 
 void LLNormalTextSegment::dump() const

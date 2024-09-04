@@ -963,59 +963,87 @@ void LLPanelMainInventory::draw()
 
 void LLPanelMainInventory::updateItemcountText()
 {
-    if(mItemCount != gInventory.getItemCount())
+    bool update = false;
+    if (mSingleFolderMode)
     {
-        mItemCount = gInventory.getItemCount();
-        mItemCountString = "";
-        LLLocale locale(LLLocale::USER_LOCALE);
-        LLResMgr::getInstance()->getIntegerString(mItemCountString, mItemCount);
-    }
+        LLInventoryModel::cat_array_t* cats;
+        LLInventoryModel::item_array_t* items;
 
-    if(mCategoryCount != gInventory.getCategoryCount())
-    {
-        mCategoryCount = gInventory.getCategoryCount();
-        mCategoryCountString = "";
-        LLLocale locale(LLLocale::USER_LOCALE);
-        LLResMgr::getInstance()->getIntegerString(mCategoryCountString, mCategoryCount);
-    }
+        gInventory.getDirectDescendentsOf(getCurrentSFVRoot(), cats, items);
+        S32 item_count = items ? (S32)items->size() : 0;
+        S32 cat_count = cats ? (S32)cats->size() : 0;
 
-    LLStringUtil::format_map_t string_args;
-    string_args["[ITEM_COUNT]"] = mItemCountString;
-    string_args["[CATEGORY_COUNT]"] = mCategoryCountString;
-    string_args["[FILTER]"] = getFilterText();
-
-    std::string text = "";
-
-    if (LLInventoryModelBackgroundFetch::instance().folderFetchActive())
-    {
-        text = getString("ItemcountFetching", string_args);
-    }
-    else if (LLInventoryModelBackgroundFetch::instance().isEverythingFetched())
-    {
-        text = getString("ItemcountCompleted", string_args);
+        if (mItemCount != item_count)
+        {
+            mItemCount = item_count;
+            update = true;
+        }
+        if (mCategoryCount != cat_count)
+        {
+            mCategoryCount = cat_count;
+            update = true;
+        }
     }
     else
     {
-        text = getString("ItemcountUnknown", string_args);
-    }
-
-    if (mSingleFolderMode)
-    {
-        LLInventoryModel::cat_array_t *cats;
-        LLInventoryModel::item_array_t *items;
-
-        gInventory.getDirectDescendentsOf(getCurrentSFVRoot(), cats, items);
-
-        if (items && cats)
+        if (mItemCount != gInventory.getItemCount())
         {
-            string_args["[ITEM_COUNT]"] = llformat("%d", items->size());
-            string_args["[CATEGORY_COUNT]"] = llformat("%d", cats->size());
-            text = getString("ItemcountCompleted", string_args);
+            mItemCount = gInventory.getItemCount();
+            update = true;
+        }
+
+        if (mCategoryCount != gInventory.getCategoryCount())
+        {
+            mCategoryCount = gInventory.getCategoryCount();
+            update = true;
         }
     }
 
-    mCounterCtrl->setValue(text);
-    mCounterCtrl->setToolTip(text);
+    if (mLastFilterText != getFilterText())
+    {
+        mLastFilterText = getFilterText();
+        update = true;
+    }
+
+    if (update)
+    {
+        mItemCountString = "";
+        LLLocale locale(LLLocale::USER_LOCALE);
+        LLResMgr::getInstance()->getIntegerString(mItemCountString, mItemCount);
+
+        mCategoryCountString = "";
+        LLResMgr::getInstance()->getIntegerString(mCategoryCountString, mCategoryCount);
+
+        LLStringUtil::format_map_t string_args;
+        string_args["[ITEM_COUNT]"] = mItemCountString;
+        string_args["[CATEGORY_COUNT]"] = mCategoryCountString;
+        string_args["[FILTER]"] = mLastFilterText;
+
+        std::string text = "";
+
+        if (mSingleFolderMode)
+        {
+            text = getString("ItemcountCompleted", string_args);
+        }
+        else
+        {
+            if (LLInventoryModelBackgroundFetch::instance().folderFetchActive())
+            {
+                text = getString("ItemcountFetching", string_args);
+            }
+            else if (LLInventoryModelBackgroundFetch::instance().isEverythingFetched())
+            {
+                text = getString("ItemcountCompleted", string_args);
+            }
+            else
+            {
+                text = getString("ItemcountUnknown", string_args);
+            }
+        }
+
+        mCounterCtrl->setValue(text);
+        mCounterCtrl->setToolTip(text);
+    }
 }
 
 void LLPanelMainInventory::onFocusReceived()
