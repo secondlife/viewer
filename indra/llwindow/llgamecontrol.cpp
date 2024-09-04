@@ -2115,12 +2115,12 @@ void LLGameControl::saveToSettings()
 
     // construct LLSD version of g_deviceOptions but only include non-empty values
     LLSD deviceOptions = LLSD::emptyMap();
-    for (const std::pair<std::string, std::string>& pair : g_deviceOptions)
+    for (const auto& data_pair : g_deviceOptions)
     {
-        if (!pair.second.empty())
+        if (!data_pair.second.empty())
         {
-            LLSD value(pair.second);
-            deviceOptions.insert(pair.first, value);
+            LLSD value(data_pair.second);
+            deviceOptions.insert(data_pair.first, value);
         }
     }
 
