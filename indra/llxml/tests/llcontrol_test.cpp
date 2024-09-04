@@ -134,16 +134,8 @@ namespace tut
         LLControlGroup test_cg("foo3");
         std::string temp_test_file = (mTestConfigDir + "setting_llsd_persist_temp.xml");
         mCleanups.push_back(temp_test_file);
-<<<<<<< variant A
-        mCG->saveToFile(temp_test_file.c_str(), TRUE);
-        results = test_cg.loadFromFile(temp_test_file);
->>>>>>> variant B
         mCG->saveToFile(temp_test_file.c_str(), true);
-        results = test_cg.loadFromFile(temp_test_file.c_str());
-####### Ancestor
-        mCG->saveToFile(temp_test_file.c_str(), TRUE);
-        results = test_cg.loadFromFile(temp_test_file.c_str());
-======= end
+        results = test_cg.loadFromFile(temp_test_file);
         //If we haven't changed any settings, then we shouldn't have any settings to load
         ensure("number of non-persisted changed settings loaded", (results == 0));
     }

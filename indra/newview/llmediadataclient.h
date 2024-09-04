@@ -286,13 +286,7 @@ private:
     {
     public:
         QueueTimer(F32 time, LLMediaDataClient *mdc);
-<<<<<<< variant A
         bool tick() override;
->>>>>>> variant B
-        virtual bool tick();
-####### Ancestor
-        virtual BOOL tick();
-======= end
     private:
         // back-pointer
         LLPointer<LLMediaDataClient> mMDC;

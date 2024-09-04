@@ -562,6 +562,8 @@ public:
     // add a context menu branch
     bool appendContextSubMenu(LLMenuGL *menu);
 
+    void createSpilloverBranch();
+    void cleanupSpilloverBranch();
     // Add the menu item to this menu.
     virtual bool append( LLMenuItemGL* item );
 
@@ -806,15 +808,9 @@ public:
     void resetMenuTrigger() { mAltKeyTrigger = false; }
 
     // add a menu - this will create a drop down menu.
-<<<<<<< variant A
-    virtual BOOL appendMenu(LLMenuGL *menu);
+    virtual bool appendMenu(LLMenuGL *menu);
 
 private:
->>>>>>> variant B
-    virtual bool appendMenu( LLMenuGL* menu );
-####### Ancestor
-    virtual BOOL appendMenu( LLMenuGL* menu );
-======= end
     // rearrange the child rects so they fit the shape of the menu
     // bar.
     virtual void arrange( void );

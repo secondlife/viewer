@@ -364,13 +364,7 @@ public:
     }
 
 
-<<<<<<< variant A
     bool tick() override
->>>>>>> variant B
-    /*virtual*/ bool tick()
-####### Ancestor
-    /*virtual*/ BOOL tick()
-======= end
     {
         if (!mIsActive) return false;
 
@@ -510,13 +504,7 @@ public:
         }
     }
 
-<<<<<<< variant A
     bool tick() override
->>>>>>> variant B
-    /*virtual*/ bool tick()
-####### Ancestor
-    /*virtual*/ BOOL tick()
-======= end
     {
         update();
         return false;
