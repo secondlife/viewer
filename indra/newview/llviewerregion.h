@@ -43,6 +43,7 @@
 #include "m4math.h"                 // LLMatrix4
 #include "llframetimer.h"
 #include "llreflectionmap.h"
+#include "llpointer.h"
 
 // Surface id's
 #define LAND  1
@@ -51,6 +52,11 @@ const U32   MAX_OBJECT_CACHE_ENTRIES = 50000;
 
 // Region handshake flags
 const U32 REGION_HANDSHAKE_SUPPORTS_SELF_APPEARANCE = 1U << 2;
+
+// Interest list mode,
+// in use by agent and region classes so must exist before region classes
+const std::string IL_MODE_DEFAULT = "default";
+const std::string IL_MODE_360 = "360";
 
 class LLEventPoll;
 class LLVLComposition;
@@ -117,34 +123,34 @@ public:
     //void setAgentOffset(const LLVector3d &offset);
     void updateRenderMatrix();
 
-    void setAllowDamage(BOOL b) { setRegionFlag(REGION_FLAGS_ALLOW_DAMAGE, b); }
-    void setAllowLandmark(BOOL b) { setRegionFlag(REGION_FLAGS_ALLOW_LANDMARK, b); }
-    void setAllowSetHome(BOOL b) { setRegionFlag(REGION_FLAGS_ALLOW_SET_HOME, b); }
-    void setResetHomeOnTeleport(BOOL b) { setRegionFlag(REGION_FLAGS_RESET_HOME_ON_TELEPORT, b); }
-    void setSunFixed(BOOL b) { setRegionFlag(REGION_FLAGS_SUN_FIXED, b); }
-    //void setBlockFly(BOOL b) { setRegionFlag(REGION_FLAGS_BLOCK_FLY, b); }        Never used
-    void setAllowDirectTeleport(BOOL b) { setRegionFlag(REGION_FLAGS_ALLOW_DIRECT_TELEPORT, b); }
+    void setAllowDamage(bool b) { setRegionFlag(REGION_FLAGS_ALLOW_DAMAGE, b); }
+    void setAllowLandmark(bool b) { setRegionFlag(REGION_FLAGS_ALLOW_LANDMARK, b); }
+    void setAllowSetHome(bool b) { setRegionFlag(REGION_FLAGS_ALLOW_SET_HOME, b); }
+    void setResetHomeOnTeleport(bool b) { setRegionFlag(REGION_FLAGS_RESET_HOME_ON_TELEPORT, b); }
+    void setSunFixed(bool b) { setRegionFlag(REGION_FLAGS_SUN_FIXED, b); }
+    //void setBlockFly(bool b) { setRegionFlag(REGION_FLAGS_BLOCK_FLY, b); }        Never used
+    void setAllowDirectTeleport(bool b) { setRegionFlag(REGION_FLAGS_ALLOW_DIRECT_TELEPORT, b); }
 
 
-    inline BOOL getAllowDamage()            const;
-    inline BOOL getAllowLandmark()          const;
-    inline BOOL getAllowSetHome()           const;
-    inline BOOL getResetHomeOnTeleport()    const;
-    inline BOOL getSunFixed()               const;
-    inline BOOL getBlockFly()               const;
-    inline BOOL getAllowDirectTeleport()    const;
-    inline BOOL isPrelude()                 const;
-    inline BOOL getAllowTerraform()         const;
-    inline BOOL getRestrictPushObject()     const;
-    inline BOOL getAllowEnvironmentOverride()   const;
-    inline BOOL getReleaseNotesRequested()      const;
+    inline bool getAllowDamage()            const;
+    inline bool getAllowLandmark()          const;
+    inline bool getAllowSetHome()           const;
+    inline bool getResetHomeOnTeleport()    const;
+    inline bool getSunFixed()               const;
+    inline bool getBlockFly()               const;
+    inline bool getAllowDirectTeleport()    const;
+    inline bool isPrelude()                 const;
+    inline bool getAllowTerraform()         const;
+    inline bool getRestrictPushObject()     const;
+    inline bool getAllowEnvironmentOverride()   const;
+    inline bool getReleaseNotesRequested()      const;
 
     bool isAlive(); // can become false if circuit disconnects
 
     void setWaterHeight(F32 water_level);
     F32 getWaterHeight() const;
 
-    BOOL isVoiceEnabled() const;
+    bool isVoiceEnabled() const;
 
     void setBillableFactor(F32 billable_factor) { mBillableFactor = billable_factor; }
     F32 getBillableFactor()         const   { return mBillableFactor; }
@@ -170,13 +176,13 @@ public:
     LLViewerParcelOverlay *getParcelOverlay() const
             { return mParcelOverlay; }
 
-    inline void setRegionFlag(U64 flag, BOOL on);
-    inline BOOL getRegionFlag(U64 flag) const;
+    inline void setRegionFlag(U64 flag, bool on);
+    inline bool getRegionFlag(U64 flag) const;
     void setRegionFlags(U64 flags);
     U64 getRegionFlags() const                  { return mRegionFlags; }
 
-    inline void setRegionProtocol(U64 protocol, BOOL on);
-    BOOL getRegionProtocol(U64 protocol) const;
+    inline void setRegionProtocol(U64 protocol, bool on);
+    bool getRegionProtocol(U64 protocol) const;
     void setRegionProtocols(U64 protocols)          { mRegionProtocols = protocols; }
     U64 getRegionProtocols() const                  { return mRegionProtocols; }
 
@@ -199,9 +205,9 @@ public:
     const LLUUID& getOwner() const;
 
     // Is the current agent on the estate manager list for this region?
-    void setIsEstateManager(BOOL b) { mIsEstateManager = b; }
-    BOOL isEstateManager() const { return mIsEstateManager; }
-    BOOL canManageEstate() const;
+    void setIsEstateManager(bool b) { mIsEstateManager = b; }
+    bool isEstateManager() const { return mIsEstateManager; }
+    bool canManageEstate() const;
 
     void setSimAccess(U8 sim_access)            { mSimAccess = sim_access; }
     U8 getSimAccess() const                     { return mSimAccess; }
@@ -233,7 +239,7 @@ public:
     static void processRegionInfo(LLMessageSystem* msg, void**);
 
     //check if the viewer camera is static
-    static BOOL isViewerCameraStatic();
+    static bool isViewerCameraStatic();
     static void calcNewObjectCreationThrottle();
 
     void setCacheID(const LLUUID& id);
@@ -304,7 +310,7 @@ public:
     const LLUUID& getRegionID() const;
     void setRegionID(const LLUUID& region_id);
 
-    BOOL pointInRegionGlobal(const LLVector3d &point_global) const;
+    bool pointInRegionGlobal(const LLVector3d &point_global) const;
     LLVector3   getPosRegionFromGlobal(const LLVector3d &point_global) const;
     LLVector3   getPosRegionFromAgent(const LLVector3 &agent_pos) const;
     LLVector3   getPosAgentFromRegion(const LLVector3 &region_pos) const;
@@ -313,10 +319,10 @@ public:
     LLVLComposition *getComposition() const;
     F32 getCompositionXY(const S32 x, const S32 y) const;
 
-    BOOL isOwnedSelf(const LLVector3& pos);
+    bool isOwnedSelf(const LLVector3& pos);
 
     // Owned by a group you belong to?  (officer OR member)
-    BOOL isOwnedGroup(const LLVector3& pos);
+    bool isOwnedGroup(const LLVector3& pos);
 
     // deal with map object updates in the world.
     void updateCoarseLocations(LLMessageSystem* msg);
@@ -414,15 +420,15 @@ public:
     void removeFromCreatedList(U32 local_id);
     void addToCreatedList(U32 local_id);
 
-    BOOL isPaused() const {return mPaused;}
+    bool isPaused() const {return mPaused;}
     S32  getLastUpdate() const {return mLastUpdate;}
 
     std::string getSimHostName();
 
-    static BOOL isNewObjectCreationThrottleDisabled() {return sNewObjectCreationThrottle < 0;}
+    static bool isNewObjectCreationThrottleDisabled() {return sNewObjectCreationThrottle < 0;}
 
     // rebuild reflection probe list
-    void updateReflectionProbes();
+    void updateReflectionProbes(bool full_update);
 
 private:
     void addToVOCacheTree(LLVOCacheEntry* entry);
@@ -472,7 +478,7 @@ public:
     std::vector<U32> mMapAvatars;
     std::vector<LLUUID> mMapAvatarIDs;
 
-    static BOOL sVOCacheCullingEnabled; //vo cache culling enabled or not.
+    static bool sVOCacheCullingEnabled; //vo cache culling enabled or not.
     static S32  sLastCameraUpdated;
 
     LLFrameTimer &  getRenderInfoRequestTimer() { return mRenderInfoRequestTimer; };
@@ -507,9 +513,6 @@ public:
 
     void resetInterestList();
 
-    static const std::string IL_MODE_DEFAULT;
-    static const std::string IL_MODE_360;
-
   private:
     static S32  sNewObjectCreationThrottle;
     LLViewerRegionImpl * mImpl;
@@ -525,7 +528,7 @@ public:
     std::string mZoning;
 
     // Is this agent on the estate managers list for this region?
-    BOOL mIsEstateManager;
+    bool mIsEstateManager;
 
     U32     mPacketsIn;
     U32Bits mBitsIn,
@@ -561,13 +564,13 @@ public:
     // Maps local ids to cache entries.
     // Regions can have order 10,000 objects, so assume
     // a structure of size 2^14 = 16,000
-    BOOL                                    mCacheLoaded;
-    BOOL                                    mCacheDirty;
-    BOOL    mAlive;                 // can become false if circuit disconnects
-    BOOL    mSimulatorFeaturesReceived;
-    BOOL    mReleaseNotesRequested;
-    BOOL    mDead;  //if true, this region is in the process of deleting.
-    BOOL    mPaused; //pause processing the objects in the region
+    bool                                    mCacheLoaded;
+    bool                                    mCacheDirty;
+    bool    mAlive;                 // can become false if circuit disconnects
+    bool    mSimulatorFeaturesReceived;
+    bool    mReleaseNotesRequested;
+    bool    mDead;  //if true, this region is in the process of deleting.
+    bool    mPaused; //pause processing the objects in the region
 
     typedef enum
     {
@@ -616,12 +619,12 @@ public:
 
 };
 
-inline BOOL LLViewerRegion::getRegionProtocol(U64 protocol) const
+inline bool LLViewerRegion::getRegionProtocol(U64 protocol) const
 {
     return ((mRegionProtocols & protocol) != 0);
 }
 
-inline void LLViewerRegion::setRegionProtocol(U64 protocol, BOOL on)
+inline void LLViewerRegion::setRegionProtocol(U64 protocol, bool on)
 {
     if (on)
     {
@@ -633,12 +636,12 @@ inline void LLViewerRegion::setRegionProtocol(U64 protocol, BOOL on)
     }
 }
 
-inline BOOL LLViewerRegion::getRegionFlag(U64 flag) const
+inline bool LLViewerRegion::getRegionFlag(U64 flag) const
 {
     return ((mRegionFlags & flag) != 0);
 }
 
-inline void LLViewerRegion::setRegionFlag(U64 flag, BOOL on)
+inline void LLViewerRegion::setRegionFlag(U64 flag, bool on)
 {
     if (on)
     {
@@ -650,62 +653,62 @@ inline void LLViewerRegion::setRegionFlag(U64 flag, BOOL on)
     }
 }
 
-inline BOOL LLViewerRegion::getAllowDamage() const
+inline bool LLViewerRegion::getAllowDamage() const
 {
     return ((mRegionFlags & REGION_FLAGS_ALLOW_DAMAGE) !=0);
 }
 
-inline BOOL LLViewerRegion::getAllowLandmark() const
+inline bool LLViewerRegion::getAllowLandmark() const
 {
     return ((mRegionFlags & REGION_FLAGS_ALLOW_LANDMARK) !=0);
 }
 
-inline BOOL LLViewerRegion::getAllowSetHome() const
+inline bool LLViewerRegion::getAllowSetHome() const
 {
     return ((mRegionFlags & REGION_FLAGS_ALLOW_SET_HOME) != 0);
 }
 
-inline BOOL LLViewerRegion::getResetHomeOnTeleport() const
+inline bool LLViewerRegion::getResetHomeOnTeleport() const
 {
     return ((mRegionFlags & REGION_FLAGS_RESET_HOME_ON_TELEPORT) !=0);
 }
 
-inline BOOL LLViewerRegion::getSunFixed() const
+inline bool LLViewerRegion::getSunFixed() const
 {
     return ((mRegionFlags & REGION_FLAGS_SUN_FIXED) !=0);
 }
 
-inline BOOL LLViewerRegion::getBlockFly() const
+inline bool LLViewerRegion::getBlockFly() const
 {
     return ((mRegionFlags & REGION_FLAGS_BLOCK_FLY) !=0);
 }
 
-inline BOOL LLViewerRegion::getAllowDirectTeleport() const
+inline bool LLViewerRegion::getAllowDirectTeleport() const
 {
     return ((mRegionFlags & REGION_FLAGS_ALLOW_DIRECT_TELEPORT) !=0);
 }
 
-inline BOOL LLViewerRegion::isPrelude() const
+inline bool LLViewerRegion::isPrelude() const
 {
     return is_prelude( mRegionFlags );
 }
 
-inline BOOL LLViewerRegion::getAllowTerraform() const
+inline bool LLViewerRegion::getAllowTerraform() const
 {
     return ((mRegionFlags & REGION_FLAGS_BLOCK_TERRAFORM) == 0);
 }
 
-inline BOOL LLViewerRegion::getRestrictPushObject() const
+inline bool LLViewerRegion::getRestrictPushObject() const
 {
     return ((mRegionFlags & REGION_FLAGS_RESTRICT_PUSHOBJECT) != 0);
 }
 
-inline BOOL LLViewerRegion::getAllowEnvironmentOverride() const
+inline bool LLViewerRegion::getAllowEnvironmentOverride() const
 {
     return ((mRegionFlags & REGION_FLAGS_ALLOW_ENVIRONMENT_OVERRIDE) != 0);
 }
 
-inline BOOL LLViewerRegion::getReleaseNotesRequested() const
+inline bool LLViewerRegion::getReleaseNotesRequested() const
 {
     return mReleaseNotesRequested;
 }

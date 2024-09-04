@@ -297,7 +297,7 @@ bool font_desc_init_from_xml(LLXMLNodePtr node, LLFontDescriptor& desc)
 
             if (child->hasAttribute("load_collection"))
             {
-                BOOL col = FALSE;
+                bool col = false;
                 child->getAttributeBOOL("load_collection", col);
                 if (col)
                 {
@@ -475,7 +475,7 @@ LLFontGL *LLFontRegistry::createFont(const LLFontDescriptor& desc)
 
     // The first font will get pulled will be the "head" font, set to non-fallback.
     // Rest will consitute the fallback list.
-    BOOL is_first_found = TRUE;
+    bool is_first_found = true;
 
     string_vec_t font_search_paths;
     font_search_paths.push_back(LLFontGL::getFontPathLocal());
@@ -499,8 +499,8 @@ LLFontGL *LLFontRegistry::createFont(const LLFontDescriptor& desc)
 
         // *HACK: Fallback fonts don't render, so we can use that to suppress
         // creation of OpenGL textures for test apps. JC
-        BOOL is_fallback = !is_first_found || !mCreateGLTextures;
-        F32 extra_scale = (is_fallback)?fallback_scale:1.0;
+        bool is_fallback = !is_first_found || !mCreateGLTextures;
+        F32 extra_scale = (is_fallback) ? fallback_scale : 1.0f;
         F32 point_size_scale = extra_scale * point_size;
         bool is_font_loaded = false;
         for(string_vec_t::iterator font_search_path_it = font_search_paths.begin();

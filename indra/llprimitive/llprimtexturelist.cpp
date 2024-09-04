@@ -83,13 +83,13 @@ void LLPrimTextureList::clear()
 void LLPrimTextureList::copy(const LLPrimTextureList& other_list)
 {
     // compare the sizes
-    S32 this_size = mEntryList.size();
-    S32 other_size = other_list.mEntryList.size();
+    auto this_size = mEntryList.size();
+    auto other_size = other_list.mEntryList.size();
 
     if (this_size > other_size)
     {
         // remove the extra entries
-        for (S32 index = this_size; index > other_size; --index)
+        for (size_t index = this_size; index > other_size; --index)
         {
             delete mEntryList[index-1];
         }
@@ -97,18 +97,18 @@ void LLPrimTextureList::copy(const LLPrimTextureList& other_list)
         this_size = other_size;
     }
 
-    S32 index = 0;
+    size_t index = 0;
     // copy for the entries that already exist
     for ( ; index < this_size; ++index)
     {
         delete mEntryList[index];
-        mEntryList[index] = other_list.getTexture(index)->newCopy();
+        mEntryList[index] = other_list.getTexture(static_cast<U8>(index))->newCopy();
     }
 
     // add new entires if needed
     for ( ; index < other_size; ++index)
     {
-        mEntryList.push_back( other_list.getTexture(index)->newCopy() );
+        mEntryList.push_back( other_list.getTexture(static_cast<U8>(index))->newCopy());
     }
 }
 
@@ -127,9 +127,9 @@ void LLPrimTextureList::take(LLPrimTextureList& other_list)
 // returns TEM_CHANGE_TEXTURE if successful, otherwise TEM_CHANGE_NONE
 S32 LLPrimTextureList::copyTexture(const U8 index, const LLTextureEntry& te)
 {
-    if (S32(index) >= mEntryList.size())
+    if (size_t(index) >= mEntryList.size())
     {
-        S32 current_size = mEntryList.size();
+        auto current_size = mEntryList.size();
         LL_WARNS() << "ignore copy of index = " << S32(index) << " into texture entry list of size = " << current_size << LL_ENDL;
         return TEM_CHANGE_NONE;
     }
@@ -382,7 +382,7 @@ LLMaterialPtr LLPrimTextureList::getMaterialParams(const U8 index)
 
 S32 LLPrimTextureList::size() const
 {
-    return mEntryList.size();
+    return static_cast<S32>(mEntryList.size());
 }
 
 // sets the size of the mEntryList container
@@ -393,12 +393,12 @@ void LLPrimTextureList::setSize(S32 new_size)
         new_size = 0;
     }
 
-    S32 current_size = mEntryList.size();
+    auto current_size = mEntryList.size();
 
     if (new_size > current_size)
     {
         mEntryList.resize(new_size);
-        for (S32 index = current_size; index < new_size; ++index)
+        for (size_t index = current_size; index < new_size; ++index)
         {
             if (current_size > 0
                 && mEntryList[current_size - 1])
@@ -416,7 +416,7 @@ void LLPrimTextureList::setSize(S32 new_size)
     }
     else if (new_size < current_size)
     {
-        for (S32 index = current_size-1; index >= new_size; --index)
+        for (size_t index = current_size-1; index >= new_size; --index)
         {
             delete mEntryList[index];
         }

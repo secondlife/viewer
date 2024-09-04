@@ -25,11 +25,6 @@
  * $/LicenseInfo$
  */
 
-/**
- * Floater that appears when buying an object, giving a preview
- * of its contents and their permissions.
- */
-
 #include "llviewerprecompiledheaders.h"
 
 #include "llfloateravatar.h"
@@ -52,7 +47,7 @@ LLFloaterAvatar::~LLFloaterAvatar()
     }
 }
 
-BOOL LLFloaterAvatar::postBuild()
+bool LLFloaterAvatar::postBuild()
 {
     mAvatarPicker = findChild<LLMediaCtrl>("avatar_picker_contents");
     if (mAvatarPicker)
@@ -60,7 +55,7 @@ BOOL LLFloaterAvatar::postBuild()
         mAvatarPicker->clearCache();
     }
     enableResizeCtrls(true, true, false);
-    return TRUE;
+    return true;
 }
 
 

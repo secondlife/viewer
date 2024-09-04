@@ -67,7 +67,7 @@ void LLSplitButton::onFocusLost()
     LLUICtrl::onFocusLost();
 }
 
-void LLSplitButton::setFocus(BOOL b)
+void LLSplitButton::setFocus(bool b)
 {
     LLUICtrl::setFocus(b);
 
@@ -75,12 +75,12 @@ void LLSplitButton::setFocus(BOOL b)
     {
         if (mItemsPanel && mItemsPanel->getVisible())
         {
-            mItemsPanel->setFocus(TRUE);
+            mItemsPanel->setFocus(true);
         }
     }
 }
 
-void LLSplitButton::setEnabled(BOOL enabled)
+void LLSplitButton::setEnabled(bool enabled)
 {
     LLView::setEnabled(enabled);
     mArrowBtn->setEnabled(enabled);
@@ -93,7 +93,7 @@ void LLSplitButton::onArrowBtnDown()
     {
         showButtons();
 
-        setFocus(TRUE);
+        setFocus(true);
 
         if (mArrowBtn->hasMouseCapture() || mShownItem->hasMouseCapture())
         {
@@ -126,14 +126,14 @@ void LLSplitButton::onItemSelected(LLUICtrl* ctrl)
     gFocusMgr.setKeyboardFocus(NULL);
 }
 
-BOOL LLSplitButton::handleMouseUp(S32 x, S32 y, MASK mask)
+bool LLSplitButton::handleMouseUp(S32 x, S32 y, MASK mask)
 {
     gFocusMgr.setMouseCapture(NULL);
 
     if (mShownItem->parentPointInView(x, y))
     {
         onItemSelected(mShownItem);
-        return TRUE;
+        return true;
     }
 
     for (std::list<LLButton*>::const_iterator it = mHidenItems.begin(); it != mHidenItems.end(); ++it)
@@ -147,10 +147,10 @@ BOOL LLSplitButton::handleMouseUp(S32 x, S32 y, MASK mask)
         if (item->parentPointInView(panel_x, panel_y))
         {
             onItemSelected(item);
-            return TRUE;
+            return true;
         }
     }
-    return TRUE;
+    return true;
 }
 
 void LLSplitButton::showButtons()
@@ -161,21 +161,21 @@ void LLSplitButton::showButtons()
     // effectively putting us into a special draw layer
     gViewerWindow->addPopup(this);
 
-    mItemsPanel->setFocus(TRUE);
+    mItemsPanel->setFocus(true);
 
     //push arrow button down and show the item buttons
-    mArrowBtn->setToggleState(TRUE);
-    mItemsPanel->setVisible(TRUE);
+    mArrowBtn->setToggleState(true);
+    mItemsPanel->setVisible(true);
 
-    setUseBoundingRect(TRUE);
+    setUseBoundingRect(true);
 }
 
 void LLSplitButton::hideButtons()
 {
-    mItemsPanel->setVisible(FALSE);
-    mArrowBtn->setToggleState(FALSE);
+    mItemsPanel->setVisible(false);
+    mArrowBtn->setToggleState(false);
 
-    setUseBoundingRect(FALSE);
+    setUseBoundingRect(false);
     gViewerWindow->removePopup(this);
 }
 
@@ -216,7 +216,7 @@ LLSplitButton::LLSplitButton(const LLSplitButton::Params& p)
 
     //a panel for hidden item buttons
     LLPanel::Params panel_params = p.items_panel;
-    mItemsPanel= prepareItemsPanel(panel_params, p.items.numValidElements());
+    mItemsPanel= prepareItemsPanel(panel_params, static_cast<S32>(p.items.numValidElements()));
     addChild(mItemsPanel);
 
 

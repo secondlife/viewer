@@ -48,7 +48,7 @@
 
 LLToolGun::LLToolGun( LLToolComposite* composite )
 :   LLTool( std::string("gun"), composite ),
-        mIsSelected(FALSE)
+        mIsSelected(false)
 {
 }
 
@@ -56,19 +56,19 @@ void LLToolGun::handleSelect()
 {
     gViewerWindow->hideCursor();
     gViewerWindow->moveCursorToCenter();
-    gViewerWindow->getWindow()->setMouseClipping(TRUE);
-    mIsSelected = TRUE;
+    gViewerWindow->getWindow()->setMouseClipping(true);
+    mIsSelected = true;
 }
 
 void LLToolGun::handleDeselect()
 {
     gViewerWindow->moveCursorToCenter();
     gViewerWindow->showCursor();
-    gViewerWindow->getWindow()->setMouseClipping(FALSE);
-    mIsSelected = FALSE;
+    gViewerWindow->getWindow()->setMouseClipping(false);
+    mIsSelected = false;
 }
 
-BOOL LLToolGun::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLToolGun::handleMouseDown(S32 x, S32 y, MASK mask)
 {
     gGrabTransientTool = this;
     LLToolMgr::getInstance()->getCurrentToolset()->selectTool( LLToolGrab::getInstance() );
@@ -76,7 +76,7 @@ BOOL LLToolGun::handleMouseDown(S32 x, S32 y, MASK mask)
     return LLToolGrab::getInstance()->handleMouseDown(x, y, mask);
 }
 
-BOOL LLToolGun::handleHover(S32 x, S32 y, MASK mask)
+bool LLToolGun::handleHover(S32 x, S32 y, MASK mask)
 {
     if( gAgentCamera.cameraMouselook() && mIsSelected )
     {
@@ -133,7 +133,7 @@ BOOL LLToolGun::handleHover(S32 x, S32 y, MASK mask)
     // HACK to avoid assert: error checking system makes sure that the cursor is set during every handleHover.  This is actually a no-op since the cursor is hidden.
     gViewerWindow->setCursor(UI_CURSOR_ARROW);
 
-    return TRUE;
+    return true;
 }
 
 void LLToolGun::draw()

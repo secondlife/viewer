@@ -46,7 +46,7 @@ public:
     LLPanelOutfitsInventory();
     virtual ~LLPanelOutfitsInventory();
 
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
     /*virtual*/ void onOpen(const LLSD& key);
 
     void onSearchEdit(const std::string& string);
@@ -101,6 +101,7 @@ protected:
 private:
     LLPanel*                    mListCommands;
     LLMenuGL*                   mMenuAdd;
+    LLButton*                   mWearBtn = nullptr;
     // List Commands                                                                //
     //////////////////////////////////////////////////////////////////////////////////
 

@@ -33,11 +33,12 @@
 
 class LLOfferInfo;
 
-const F32 UPDATE_MEMBERS_SECONDS_PER_FRAME = 0.005; // 5ms
+const F32 UPDATE_MEMBERS_SECONDS_PER_FRAME = 0.005f; // 5ms
 
 // Forward declares
 class LLPanelGroupTab;
 class LLTabContainer;
+class LLAccordionCtrl;
 class LLAgent;
 
 
@@ -49,7 +50,7 @@ public:
     LLPanelGroup();
     virtual ~LLPanelGroup();
 
-    virtual BOOL postBuild();
+    virtual bool postBuild();
 
     void setGroupID(const LLUUID& group_id);
 
@@ -62,7 +63,7 @@ public:
 
     // Implements LLVoiceClientStatusObserver::onChange() to enable the call
     // button when voice is available
-    /*virtual*/ void onChange(EStatusType status, const std::string &channelURI, bool proximal);
+    /*virtual*/ void onChange(EStatusType status, const LLSD& channelInfo, bool proximal);
 
     void showNotice(const std::string& subject,
                     const std::string& message,
@@ -77,7 +78,7 @@ public:
     void callGroup();
     void chatGroup();
 
-    virtual void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
+    virtual void reshape(S32 width, S32 height, bool called_from_parent = true);
 
     static void showNotice(const std::string& subject,
                            const std::string& message,
@@ -98,7 +99,7 @@ protected:
     static void onBtnGroupCallClicked(void*);
     static void onBtnGroupChatClicked(void*);
 
-    void reposButton(const std::string& name);
+    void reposButton(LLButton* button);
     void reposButtons();
 
 
@@ -107,14 +108,21 @@ protected:
 
     LLTimer mRefreshTimer;
 
-    BOOL mSkipRefresh;
+    bool mSkipRefresh;
 
     std::string mDefaultNeedsApplyMesg;
     std::string mWantApplyMesg;
 
     std::vector<LLPanelGroupTab* > mTabs;
 
-    LLButton*       mButtonJoin;
+    LLAccordionCtrl* mGroupsAccordion = nullptr;
+
+    LLUICtrl*       mGroupNameCtrl = nullptr;
+    LLButton*       mButtonJoin = nullptr;
+    LLButton*       mButtonApply = nullptr;
+    LLButton*       mButtonCall = nullptr;
+    LLButton*       mButtonChat = nullptr;
+    LLButton*       mButtonRefresh = nullptr;
     LLUICtrl*       mJoinText;
 };
 
@@ -135,7 +143,7 @@ public:
     virtual bool needsApply(std::string& mesg) { return false; }
 
     // Asks if there is currently a modal dialog being shown.
-    virtual BOOL hasModal() { return mHasModal; }
+    virtual bool hasModal() { return mHasModal; }
 
     // Request to apply current data.
     // If returning fail, this function should modify the message to the user.
@@ -148,9 +156,9 @@ public:
     virtual void update(LLGroupChange gc) { }
 
     // This just connects the help button callback.
-    virtual BOOL postBuild();
+    virtual bool postBuild();
 
-    virtual BOOL isVisibleByAgent(LLAgent* agentp);
+    virtual bool isVisibleByAgent(LLAgent* agentp);
 
     virtual void setGroupID(const LLUUID& id) {mGroupID = id;};
 
@@ -164,8 +172,8 @@ public:
 
 protected:
     LLUUID  mGroupID;
-    BOOL mAllowEdit;
-    BOOL mHasModal;
+    bool mAllowEdit;
+    bool mHasModal;
 };
 
 #endif // LL_LLPANELGROUP_H

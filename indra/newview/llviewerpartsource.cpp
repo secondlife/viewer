@@ -66,8 +66,8 @@ LLViewerPartSource::LLViewerPartSource(const U32 type) :
 {
     mLastUpdateTime = 0.f;
     mLastPartTime = 0.f;
-    mIsDead = FALSE;
-    mIsSuspended = FALSE;
+    mIsDead = false;
+    mIsSuspended = false;
     static U32 id_seed = 0;
     mID = ++id_seed;
 
@@ -78,7 +78,7 @@ LLViewerPartSource::LLViewerPartSource(const U32 type) :
 
 void LLViewerPartSource::setDead()
 {
-    mIsDead = TRUE;
+    mIsDead = true;
 }
 
 
@@ -114,7 +114,7 @@ LLViewerPartSourceScript::LLViewerPartSourceScript(LLViewerObject *source_objp) 
     llassert(source_objp);
     mSourceObjectp = source_objp;
     mPosAgent = mSourceObjectp->getPositionAgent();
-    mImagep = LLViewerTextureManager::getFetchedTextureFromFile("pixiesmall.j2c");
+    mImagep = LLViewerFetchedTexture::sDefaultParticleImagep;
 
     mImagep->setAddressMode(LLTexUnit::TAM_CLAMP);
 }
@@ -122,7 +122,7 @@ LLViewerPartSourceScript::LLViewerPartSourceScript(LLViewerObject *source_objp) 
 
 void LLViewerPartSourceScript::setDead()
 {
-    mIsDead = TRUE;
+    mIsDead = true;
     mSourceObjectp = NULL;
     mTargetObjectp = NULL;
 }
@@ -207,17 +207,17 @@ void LLViewerPartSourceScript::update(const F32 dt)
         }
     }
 
-    BOOL first_run = FALSE;
+    bool first_run = false;
     if (old_update_time <= 0.f)
     {
-        first_run = TRUE;
+        first_run = true;
     }
 
     F32 max_time = llmax(1.f, 10.f*mPartSysData.mBurstRate);
     dt_update = llmin(max_time, dt_update);
     while ((dt_update > mPartSysData.mBurstRate) || first_run)
     {
-        first_run = FALSE;
+        first_run = false;
 
         // Update the rotation of the particle source by the angular velocity
         // First check to see if there is still an angular velocity.
@@ -586,7 +586,7 @@ LLViewerPartSourceSpiral::LLViewerPartSourceSpiral(const LLVector3 &pos) :
 
 void LLViewerPartSourceSpiral::setDead()
 {
-    mIsDead = TRUE;
+    mIsDead = true;
     mSourceObjectp = NULL;
 }
 
@@ -619,7 +619,7 @@ void LLViewerPartSourceSpiral::update(const F32 dt)
 {
     if (!mImagep)
     {
-        mImagep = LLViewerTextureManager::getFetchedTextureFromFile("pixiesmall.j2c");
+        mImagep = LLViewerFetchedTexture::sDefaultParticleImagep;
     }
 
     const F32 RATE = 0.025f;
@@ -690,7 +690,7 @@ LLViewerPartSourceBeam::~LLViewerPartSourceBeam()
 
 void LLViewerPartSourceBeam::setDead()
 {
-    mIsDead = TRUE;
+    mIsDead = true;
     mSourceObjectp = NULL;
     mTargetObjectp = NULL;
 }
@@ -789,7 +789,7 @@ void LLViewerPartSourceBeam::update(const F32 dt)
 
         if (!mImagep)
         {
-            mImagep = LLViewerTextureManager::getFetchedTextureFromFile("pixiesmall.j2c");
+            mImagep = LLViewerFetchedTexture::sDefaultParticleImagep;
         }
 
         LLViewerPart* part = new LLViewerPart();
@@ -843,7 +843,7 @@ LLViewerPartSourceChat::LLViewerPartSourceChat(const LLVector3 &pos) :
 
 void LLViewerPartSourceChat::setDead()
 {
-    mIsDead = TRUE;
+    mIsDead = true;
     mSourceObjectp = NULL;
 }
 
@@ -876,7 +876,7 @@ void LLViewerPartSourceChat::update(const F32 dt)
 {
     if (!mImagep)
     {
-        mImagep = LLViewerTextureManager::getFetchedTextureFromFile("pixiesmall.j2c");
+        mImagep = LLViewerFetchedTexture::sDefaultParticleImagep;
     }
 
 

@@ -47,7 +47,7 @@
 LLPathfindingCharacter::LLPathfindingCharacter(const std::string &pUUID, const LLSD& pCharacterData)
     : LLPathfindingObject(pUUID, pCharacterData),
     mCPUTime(0U),
-    mIsHorizontal(FALSE),
+    mIsHorizontal(false),
     mLength(0.0f),
     mRadius(0.0f)
 {
@@ -83,7 +83,7 @@ void LLPathfindingCharacter::parseCharacterData(const LLSD &pCharacterData)
 {
     llassert(pCharacterData.has(CHARACTER_CPU_TIME_FIELD));
     llassert(pCharacterData.get(CHARACTER_CPU_TIME_FIELD).isReal());
-    mCPUTime = pCharacterData.get(CHARACTER_CPU_TIME_FIELD).asReal();
+    mCPUTime = (F32)pCharacterData.get(CHARACTER_CPU_TIME_FIELD).asReal();
 
     llassert(pCharacterData.has(CHARACTER_HORIZONTAL_FIELD));
     llassert(pCharacterData.get(CHARACTER_HORIZONTAL_FIELD).isBoolean());
@@ -91,9 +91,9 @@ void LLPathfindingCharacter::parseCharacterData(const LLSD &pCharacterData)
 
     llassert(pCharacterData.has(CHARACTER_LENGTH_FIELD));
     llassert(pCharacterData.get(CHARACTER_LENGTH_FIELD).isReal());
-    mLength = pCharacterData.get(CHARACTER_LENGTH_FIELD).asReal();
+    mLength = (F32)pCharacterData.get(CHARACTER_LENGTH_FIELD).asReal();
 
     llassert(pCharacterData.has(CHARACTER_RADIUS_FIELD));
     llassert(pCharacterData.get(CHARACTER_RADIUS_FIELD).isReal());
-    mRadius = pCharacterData.get(CHARACTER_RADIUS_FIELD).asReal();
+    mRadius = (F32)pCharacterData.get(CHARACTER_RADIUS_FIELD).asReal();
 }

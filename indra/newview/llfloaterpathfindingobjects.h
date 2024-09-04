@@ -73,7 +73,7 @@ protected:
     LLFloaterPathfindingObjects(const LLSD &pSeed);
     virtual ~LLFloaterPathfindingObjects();
 
-    virtual BOOL                       postBuild();
+    virtual bool                       postBuild();
 
     virtual void                       requestGetObjects();
     LLPathfindingManager::request_id_t getNewRequestId();
@@ -96,7 +96,7 @@ protected:
 
     void                               showFloaterWithSelectionObjects();
 
-    BOOL                               isShowBeacons() const;
+    bool                               isShowBeacons() const;
     void                               clearAllObjects();
     void                               selectAllObjects();
     void                               selectNoneObjects();

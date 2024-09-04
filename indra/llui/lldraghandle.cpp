@@ -57,7 +57,7 @@ LLDragHandle::LLDragHandle(const LLDragHandle::Params& p)
     mLastMouseScreenY( 0 ),
     mTitleBox( NULL ),
     mMaxTitleWidth( 0 ),
-    mForeground( TRUE ),
+    mForeground( true ),
     mDragHighlightColor(p.drag_highlight_color()),
     mDragShadowColor(p.drag_shadow_color())
 
@@ -79,7 +79,7 @@ void LLDragHandle::initFromParams(const LLDragHandle::Params& p)
     setTitle( p.label );
 }
 
-void LLDragHandle::setTitleVisible(BOOL visible)
+void LLDragHandle::setTitleVisible(bool visible)
 {
     if(mTitleBox)
     {
@@ -160,7 +160,7 @@ void LLDragHandleTop::draw()
 
         LLRect title_rect = mTitleBox->getRect();
         S32 title_right = title_rect.mLeft + mTitleWidth;
-        BOOL show_right_side = title_right < getRect().getWidth();
+        bool show_right_side = title_right < getRect().getWidth();
 
         for( S32 i=0; i<4; i++ )
         {
@@ -211,7 +211,7 @@ void LLDragHandleLeft::draw()
         // no titles yet
         //LLRect title_rect = mTitleBox->getRect();
         //S32 title_right = title_rect.mLeft + mTitleWidth;
-        //BOOL show_right_side = title_right < getRect().getWidth();
+        //bool show_right_side = title_right < getRect().getWidth();
 
         S32 line = left;
         for( S32 i=0; i<4; i++ )
@@ -256,13 +256,13 @@ void LLDragHandleTop::reshapeTitleBox()
     mTitleBox->setShape( title_rect );
 }
 
-void LLDragHandleTop::reshape(S32 width, S32 height, BOOL called_from_parent)
+void LLDragHandleTop::reshape(S32 width, S32 height, bool called_from_parent)
 {
     LLView::reshape(width, height, called_from_parent);
     reshapeTitleBox();
 }
 
-void LLDragHandleLeft::reshape(S32 width, S32 height, BOOL called_from_parent)
+void LLDragHandleLeft::reshape(S32 width, S32 height, bool called_from_parent)
 {
     LLView::reshape(width, height, called_from_parent);
 }
@@ -271,7 +271,7 @@ void LLDragHandleLeft::reshape(S32 width, S32 height, BOOL called_from_parent)
 // UI event handling
 //-------------------------------------------------------------
 
-BOOL LLDragHandle::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLDragHandle::handleMouseDown(S32 x, S32 y, MASK mask)
 {
     // Route future Mouse messages here preemptively.  (Release on mouse up.)
     // No handler needed for focus lost since this clas has no state that depends on it.
@@ -282,11 +282,11 @@ BOOL LLDragHandle::handleMouseDown(S32 x, S32 y, MASK mask)
     mLastMouseScreenY = mDragLastScreenY;
 
     // Note: don't pass on to children
-    return TRUE;
+    return true;
 }
 
 
-BOOL LLDragHandle::handleMouseUp(S32 x, S32 y, MASK mask)
+bool LLDragHandle::handleMouseUp(S32 x, S32 y, MASK mask)
 {
     if( hasMouseCapture() )
     {
@@ -295,13 +295,13 @@ BOOL LLDragHandle::handleMouseUp(S32 x, S32 y, MASK mask)
     }
 
     // Note: don't pass on to children
-    return TRUE;
+    return true;
 }
 
 
-BOOL LLDragHandle::handleHover(S32 x, S32 y, MASK mask)
+bool LLDragHandle::handleHover(S32 x, S32 y, MASK mask)
 {
-    BOOL    handled = FALSE;
+    bool    handled = false;
 
     // We only handle the click if the click both started and ended within us
     if( hasMouseCapture() )
@@ -324,11 +324,11 @@ BOOL LLDragHandle::handleHover(S32 x, S32 y, MASK mask)
                 delta_y >= SLOP)
             {
                 parent->setDocked(false, false);
-                return TRUE;
+                return true;
             }
             else
             {
-                return FALSE;
+                return false;
             }
         }
 
@@ -367,13 +367,13 @@ BOOL LLDragHandle::handleHover(S32 x, S32 y, MASK mask)
 
         getWindow()->setCursor(UI_CURSOR_ARROW);
         LL_DEBUGS("UserInput") << "hover handled by " << getName() << " (active)" <<LL_ENDL;
-        handled = TRUE;
+        handled = true;
     }
     else
     {
         getWindow()->setCursor(UI_CURSOR_ARROW);
         LL_DEBUGS("UserInput") << "hover handled by " << getName() << " (inactive)" << LL_ENDL;
-        handled = TRUE;
+        handled = true;
     }
 
     // Note: don't pass on to children

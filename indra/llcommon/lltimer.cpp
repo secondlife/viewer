@@ -91,17 +91,17 @@ U32 micro_sleep(U64 us, U32 max_yields)
 
 U32 micro_sleep(U64 us, U32 max_yields)
 {
-    LL_PROFILE_ZONE_SCOPED
+    LL_PROFILE_ZONE_SCOPED;
 #if 0
     LARGE_INTEGER ft;
     ft.QuadPart = -static_cast<S64>(us * 10);  // '-' using relative time
 
-    HANDLE timer = CreateWaitableTimer(NULL, TRUE, NULL);
+    HANDLE timer = CreateWaitableTimer(NULL, true, NULL);
     SetWaitableTimer(timer, &ft, 0, NULL, NULL, 0);
     WaitForSingleObject(timer, INFINITE);
     CloseHandle(timer);
 #else
-    Sleep(us / 1000);
+    Sleep((DWORD)(us / 1000));
 #endif
 
     return 0;
@@ -109,7 +109,7 @@ U32 micro_sleep(U64 us, U32 max_yields)
 
 void ms_sleep(U32 ms)
 {
-    LL_PROFILE_ZONE_SCOPED
+    LL_PROFILE_ZONE_SCOPED;
     micro_sleep(ms * 1000, 0);
 }
 
@@ -324,7 +324,7 @@ LLTimer::LLTimer()
         get_timer_info().update();
     }
 
-    mStarted = TRUE;
+    mStarted = true;
     reset();
 }
 
@@ -424,7 +424,7 @@ F32SecondsImplicit LLTimer::getElapsedTimeAndResetF32()
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void  LLTimer::setTimerExpirySec(F32SecondsImplicit expiration)
+void LLTimer::setTimerExpirySec(F32SecondsImplicit expiration)
 {
     mExpirationTicks = get_clock_count()
         + (U64)((F32)(expiration * get_timer_info().mClockFrequency.value()));
@@ -441,31 +441,30 @@ F32SecondsImplicit LLTimer::getRemainingTimeF32() const
 }
 
 
-BOOL  LLTimer::checkExpirationAndReset(F32 expiration)
+bool LLTimer::checkExpirationAndReset(F32 expiration)
 {
     U64 cur_ticks = get_clock_count();
     if (cur_ticks < mExpirationTicks)
     {
-        return FALSE;
+        return false;
     }
 
     mExpirationTicks = cur_ticks
         + (U64)((F32)(expiration * get_timer_info().mClockFrequency));
-    return TRUE;
+    return true;
 }
 
 
-BOOL  LLTimer::hasExpired() const
+bool LLTimer::hasExpired() const
 {
-    return (get_clock_count() >= mExpirationTicks)
-        ? TRUE : FALSE;
+    return get_clock_count() >= mExpirationTicks;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-BOOL LLTimer::knownBadTimer()
+bool LLTimer::knownBadTimer()
 {
-    BOOL failed = FALSE;
+    bool failed = false;
 
 #if LL_WINDOWS
     WCHAR bad_pci_list[][10] = {L"1039:0530",
@@ -507,7 +506,7 @@ BOOL LLTimer::knownBadTimer()
                 if (!wcscmp(pci_id, bad_pci_list[check]))
                 {
 //                  LL_WARNS() << "unreliable PCI chipset found!! " << pci_id << endl;
-                    failed = TRUE;
+                    failed = true;
                     break;
                 }
             }
@@ -533,7 +532,7 @@ time_t time_corrected()
 
 // Is the current computer (in its current time zone)
 // observing daylight savings time?
-BOOL is_daylight_savings()
+bool is_daylight_savings()
 {
     time_t now = time(NULL);
 
@@ -547,7 +546,7 @@ BOOL is_daylight_savings()
 }
 
 
-struct tm* utc_to_pacific_time(time_t utc_time, BOOL pacific_daylight_time)
+struct tm* utc_to_pacific_time(time_t utc_time, bool pacific_daylight_time)
 {
     S32Hours pacific_offset_hours;
     if (pacific_daylight_time)

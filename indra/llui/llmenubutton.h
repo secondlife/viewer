@@ -65,8 +65,8 @@ public:
 
     boost::signals2::connection setMouseDownCallback( const mouse_signal_t::slot_type& cb );
 
-    /*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
-    /*virtual*/ BOOL handleKeyHere(KEY key, MASK mask );
+    /*virtual*/ bool handleMouseDown(S32 x, S32 y, MASK mask);
+    /*virtual*/ bool handleKeyHere(KEY key, MASK mask );
 
     void hideMenu();
 

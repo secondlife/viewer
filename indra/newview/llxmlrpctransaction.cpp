@@ -42,21 +42,10 @@
 #include "bufferarray.h"
 #include "llversioninfo.h"
 #include "llviewercontrol.h"
+#include "llxmlnode.h"
 #include "stringize.h"
 
 // Have to include these last to avoid queue redefinition!
-
-#ifdef LL_USESYSTEMLIBS
-#include <xmlrpc.h>
-#else
-#include <xmlrpc-epi/xmlrpc.h>
-#endif
-// <xmlrpc-epi/queue.h> contains a harmful #define queue xmlrpc_queue. This
-// breaks any use of std::queue. Ditch that #define: if any of our code wants
-// to reference xmlrpc_queue, let it reference it directly.
-#if defined(queue)
-#undef queue
-#endif
 
 #include "llappviewer.h"
 #include "lltrans.h"
@@ -75,123 +64,17 @@ namespace boost
 // nothing.
 static LLXMLRPCListener listener("LLXMLRPCTransaction");
 
-LLXMLRPCValue LLXMLRPCValue::operator[](const char* id) const
-{
-    return LLXMLRPCValue(XMLRPC_VectorGetValueWithID(mV, id));
-}
-
-std::string LLXMLRPCValue::asString() const
-{
-    const char* s = XMLRPC_GetValueString(mV);
-    return s ? s : "";
-}
-
-int     LLXMLRPCValue::asInt() const    { return XMLRPC_GetValueInt(mV); }
-bool    LLXMLRPCValue::asBool() const   { return XMLRPC_GetValueBoolean(mV) != 0; }
-double  LLXMLRPCValue::asDouble() const { return XMLRPC_GetValueDouble(mV); }
-
-LLXMLRPCValue LLXMLRPCValue::rewind()
-{
-    return LLXMLRPCValue(XMLRPC_VectorRewind(mV));
-}
-
-LLXMLRPCValue LLXMLRPCValue::next()
-{
-    return LLXMLRPCValue(XMLRPC_VectorNext(mV));
-}
-
-bool LLXMLRPCValue::isValid() const
-{
-    return mV != NULL;
-}
-
-LLXMLRPCValue LLXMLRPCValue::createArray()
-{
-    return LLXMLRPCValue(XMLRPC_CreateVector(NULL, xmlrpc_vector_array));
-}
-
-LLXMLRPCValue LLXMLRPCValue::createStruct()
-{
-    return LLXMLRPCValue(XMLRPC_CreateVector(NULL, xmlrpc_vector_struct));
-}
-
-
-void LLXMLRPCValue::append(LLXMLRPCValue& v)
-{
-    XMLRPC_AddValueToVector(mV, v.mV);
-}
-
-void LLXMLRPCValue::appendString(const std::string& v)
-{
-    XMLRPC_AddValueToVector(mV, XMLRPC_CreateValueString(NULL, v.c_str(), 0));
-}
-
-void LLXMLRPCValue::appendInt(int v)
-{
-    XMLRPC_AddValueToVector(mV, XMLRPC_CreateValueInt(NULL, v));
-}
-
-void LLXMLRPCValue::appendBool(bool v)
-{
-    XMLRPC_AddValueToVector(mV, XMLRPC_CreateValueBoolean(NULL, v));
-}
-
-void LLXMLRPCValue::appendDouble(double v)
-{
-    XMLRPC_AddValueToVector(mV, XMLRPC_CreateValueDouble(NULL, v));
-}
-
-
-void LLXMLRPCValue::append(const char* id, LLXMLRPCValue& v)
-{
-    XMLRPC_SetValueID(v.mV, id, 0);
-    XMLRPC_AddValueToVector(mV, v.mV);
-}
-
-void LLXMLRPCValue::appendString(const char* id, const std::string& v)
-{
-    XMLRPC_AddValueToVector(mV, XMLRPC_CreateValueString(id, v.c_str(), 0));
-}
-
-void LLXMLRPCValue::appendInt(const char* id, int v)
-{
-    XMLRPC_AddValueToVector(mV, XMLRPC_CreateValueInt(id, v));
-}
-
-void LLXMLRPCValue::appendBool(const char* id, bool v)
-{
-    XMLRPC_AddValueToVector(mV, XMLRPC_CreateValueBoolean(id, v));
-}
-
-void LLXMLRPCValue::appendDouble(const char* id, double v)
-{
-    XMLRPC_AddValueToVector(mV, XMLRPC_CreateValueDouble(id, v));
-}
-
-void LLXMLRPCValue::cleanup()
-{
-    XMLRPC_CleanupValue(mV);
-    mV = NULL;
-}
-
-XMLRPC_VALUE LLXMLRPCValue::getValue() const
-{
-    return mV;
-}
-
-
 class LLXMLRPCTransaction::Handler : public LLCore::HttpHandler
 {
 public:
     Handler(LLCore::HttpRequest::ptr_t &request, LLXMLRPCTransaction::Impl *impl);
-    virtual ~Handler();
 
-    virtual void onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response);
+    void onCompleted(LLCore::HttpHandle handle,
+                     LLCore::HttpResponse* response) override;
 
     typedef std::shared_ptr<LLXMLRPCTransaction::Handler> ptr_t;
 
 private:
-
     LLXMLRPCTransaction::Impl *mImpl;
     LLCore::HttpRequest::ptr_t mRequest;
 };
@@ -213,18 +96,23 @@ public:
     LLCore::HttpHandle  mPostH;
 
     std::string         mURI;
-
     std::string         mProxyAddress;
 
     std::string         mResponseText;
-    XMLRPC_REQUEST      mResponse;
-    std::string         mCertStore;
-    LLSD mErrorCertData;
+    LLSD                mResponseData;
+    bool                mHasResponse;
+    bool                mResponseParsed;
 
-    Impl(const std::string& uri, XMLRPC_REQUEST request, bool useGzip, const LLSD& httpParams);
-    Impl(const std::string& uri,
-        const std::string& method, LLXMLRPCValue params, bool useGzip);
-    ~Impl();
+    std::string         mCertStore;
+    LLSD                mErrorCertData;
+
+    Impl
+    (
+        const std::string& uri,
+        const std::string& method,
+        const LLSD& params,
+        const LLSD& httpParams
+    );
 
     bool process();
 
@@ -232,17 +120,14 @@ public:
     void setHttpStatus(const LLCore::HttpStatus &status);
 
 private:
-    void init(XMLRPC_REQUEST request, bool useGzip, const LLSD& httpParams);
+    bool parseResponse(LLXMLNodePtr root);
+    bool parseValue(LLSD& target, LLXMLNodePtr source);
 };
 
 LLXMLRPCTransaction::Handler::Handler(LLCore::HttpRequest::ptr_t &request,
         LLXMLRPCTransaction::Impl *impl) :
     mImpl(impl),
     mRequest(request)
-{
-}
-
-LLXMLRPCTransaction::Handler::~Handler()
 {
 }
 
@@ -272,91 +157,40 @@ void LLXMLRPCTransaction::Handler::onCompleted(LLCore::HttpHandle handle,
         return;
     }
 
-    mImpl->setStatus(LLXMLRPCTransaction::StatusComplete);
     mImpl->mTransferStats = response->getTransferStats();
 
-    // the contents of a buffer array are potentially noncontiguous, so we
+    // The contents of a buffer array are potentially noncontiguous, so we
     // will need to copy them into an contiguous block of memory for XMLRPC.
     LLCore::BufferArray *body = response->getBody();
-    char * bodydata = new char[body->size()];
+    mImpl->mResponseText.resize(body->size());
 
-    body->read(0, bodydata, body->size());
+    body->read(0, mImpl->mResponseText.data(), body->size());
 
-    mImpl->mResponse = XMLRPC_REQUEST_FromXML(bodydata, body->size(), 0);
-
-    delete[] bodydata;
-
-    bool        hasError = false;
-    bool        hasFault = false;
-    int         faultCode = 0;
-    std::string faultString;
-
-    LLXMLRPCValue error(XMLRPC_RequestGetError(mImpl->mResponse));
-    if (error.isValid())
-    {
-        hasError = true;
-        faultCode = error["faultCode"].asInt();
-        faultString = error["faultString"].asString();
-    }
-    else if (XMLRPC_ResponseIsFault(mImpl->mResponse))
-    {
-        hasFault = true;
-        faultCode = XMLRPC_GetResponseFaultCode(mImpl->mResponse);
-        faultString = XMLRPC_GetResponseFaultString(mImpl->mResponse);
-    }
-
-    if (hasError || hasFault)
-    {
-        mImpl->setStatus(LLXMLRPCTransaction::StatusXMLRPCError);
-
-        LL_WARNS() << "LLXMLRPCTransaction XMLRPC "
-            << (hasError ? "error " : "fault ")
-            << faultCode << ": "
-            << faultString << LL_ENDL;
-        LL_WARNS() << "LLXMLRPCTransaction request URI: "
-            << mImpl->mURI << LL_ENDL;
-    }
-
+    // We do not do the parsing in the HTTP coroutine, since it could exhaust
+    // the coroutine stack in extreme cases. Instead, we flag the data buffer
+    // as ready, and let mImpl decode it in its process() method, on the main
+    // coroutine. HB
+    mImpl->mHasResponse = true;
+    mImpl->setStatus(LLXMLRPCTransaction::StatusComplete);
 }
 
 //=========================================================================
 
-LLXMLRPCTransaction::Impl::Impl(const std::string& uri,
-        XMLRPC_REQUEST request, bool useGzip, const LLSD& httpParams)
-    : mHttpRequest(),
-      mStatus(LLXMLRPCTransaction::StatusNotStarted),
-      mURI(uri),
-      mResponse(0)
-{
-    init(request, useGzip, httpParams);
-}
-
-
-LLXMLRPCTransaction::Impl::Impl(const std::string& uri,
-        const std::string& method, LLXMLRPCValue params, bool useGzip)
-    : mHttpRequest(),
-      mStatus(LLXMLRPCTransaction::StatusNotStarted),
-      mURI(uri),
-      mResponse(0)
-{
-    XMLRPC_REQUEST request = XMLRPC_RequestNew();
-    XMLRPC_RequestSetMethodName(request, method.c_str());
-    XMLRPC_RequestSetRequestType(request, xmlrpc_request_call);
-    XMLRPC_RequestSetData(request, params.getValue());
-
-    init(request, useGzip, LLSD());
-    // DEV-28398: without this XMLRPC_RequestFree() call, it looks as though
-    // the 'request' object is simply leaked. It's less clear to me whether we
-    // should also ask to free request value data (second param 1), since the
-    // data come from 'params'.
-    XMLRPC_RequestFree(request, 1);
-}
-
-void LLXMLRPCTransaction::Impl::init(XMLRPC_REQUEST request, bool useGzip, const LLSD& httpParams)
+LLXMLRPCTransaction::Impl::Impl
+(
+    const std::string& uri,
+    const std::string& method,
+    const LLSD& params,
+    const LLSD& http_params
+)
+    : mHttpRequest()
+    , mStatus(LLXMLRPCTransaction::StatusNotStarted)
+    , mURI(uri)
+    , mHasResponse(false)
+    , mResponseParsed(false)
 {
     LLCore::HttpOptions::ptr_t httpOpts;
     LLCore::HttpHeaders::ptr_t httpHeaders;
-
 
     if (!mHttpRequest)
     {
@@ -366,37 +200,34 @@ void LLXMLRPCTransaction::Impl::init(XMLRPC_REQUEST request, bool useGzip, const
     // LLRefCounted starts with a 1 ref, so don't add a ref in the smart pointer
     httpOpts = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions());
 
-    // delay between repeats will start from 5 sec and grow to 20 sec with each repeat
-    httpOpts->setMinBackoff(5E6L);
-    httpOpts->setMaxBackoff(20E6L);
+    // Delay between repeats will start from 5 sec and grow to 20 sec with each repeat
+    httpOpts->setMinBackoff((LLCore::HttpTime)5E6L);
+    httpOpts->setMaxBackoff((LLCore::HttpTime)20E6L);
 
-    httpOpts->setTimeout(httpParams.has("timeout") ? httpParams["timeout"].asInteger() : 40L);
-    if (httpParams.has("retries"))
+    httpOpts->setTimeout(http_params.has("timeout") ? http_params["timeout"].asInteger() : 40L);
+    if (http_params.has("retries"))
     {
-        httpOpts->setRetries(httpParams["retries"].asInteger());
+        httpOpts->setRetries(http_params["retries"].asInteger());
     }
-    if (httpParams.has("DNSCacheTimeout"))
+    if (http_params.has("DNSCacheTimeout"))
     {
-        httpOpts->setDNSCacheTimeout(httpParams["DNSCacheTimeout"].asInteger());
+        httpOpts->setDNSCacheTimeout(http_params["DNSCacheTimeout"].asInteger());
     }
 
     bool vefifySSLCert = !gSavedSettings.getBOOL("NoVerifySSLCert");
     mCertStore = gSavedSettings.getString("CertStore");
 
-    httpOpts->setSSLVerifyPeer( vefifySSLCert );
-    httpOpts->setSSLVerifyHost( vefifySSLCert );
+    httpOpts->setSSLVerifyPeer(vefifySSLCert);
+    httpOpts->setSSLVerifyHost(vefifySSLCert ? 2 : 0);
 
     // LLRefCounted starts with a 1 ref, so don't add a ref in the smart pointer
     httpHeaders = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders());
 
     httpHeaders->append(HTTP_OUT_HEADER_CONTENT_TYPE, HTTP_CONTENT_TEXT_XML);
 
-    std::string user_agent = stringize(
-        LLVersionInfo::instance().getChannel(), ' ',
-        LLVersionInfo::instance().getMajor(), '.',
-        LLVersionInfo::instance().getMinor(), '.',
-        LLVersionInfo::instance().getPatch(), " (",
-        LLVersionInfo::instance().getBuild(), ')');
+    const LLVersionInfo& vi(LLVersionInfo::instance());
+    std::string user_agent = vi.getChannel() + llformat(" %d.%d.%d (%llu)",
+        vi.getMajor(), vi.getMinor(), vi.getPatch(), vi.getBuild());
 
     httpHeaders->append(HTTP_OUT_HEADER_USER_AGENT, user_agent);
 
@@ -404,31 +235,70 @@ void LLXMLRPCTransaction::Impl::init(XMLRPC_REQUEST request, bool useGzip, const
     //This might help with bug #503 */
     //httpOpts->setDNSCacheTimeout(-1);
 
+    std::string request =
+        "<?xml version=\"1.0\"?><methodCall><methodName>" + method +
+        "</methodName><params><param>" + params.asXMLRPCValue() +
+        "</param></params></methodCall>";
+
     LLCore::BufferArray::ptr_t body = LLCore::BufferArray::ptr_t(new LLCore::BufferArray());
 
-    // TODO: See if there is a way to serialize to a preallocated buffer I'm
-    // not fond of the copy here.
-    int requestSize(0);
-    char * requestText = XMLRPC_REQUEST_ToXML(request, &requestSize);
+    body->append(request.c_str(), request.size());
 
-    body->append(requestText, requestSize);
-
-    XMLRPC_Free(requestText);
-
-    mHandler = LLXMLRPCTransaction::Handler::ptr_t(new Handler( mHttpRequest, this ));
+    mHandler = LLXMLRPCTransaction::Handler::ptr_t(new Handler(mHttpRequest, this));
 
     mPostH = mHttpRequest->requestPost(LLCore::HttpRequest::DEFAULT_POLICY_ID,
         mURI, body.get(), httpOpts, httpHeaders, mHandler);
-
 }
 
-
-LLXMLRPCTransaction::Impl::~Impl()
+bool LLXMLRPCTransaction::Impl::parseResponse(LLXMLNodePtr root)
 {
-    if (mResponse)
+    // We have already checked in LLXMLNode::parseBuffer() that root contains
+    // exactly one child.
+    if (!root->hasName("methodResponse"))
     {
-        XMLRPC_RequestFree(mResponse, 1);
+        LL_WARNS() << "Invalid root element in XML response; request URI: "
+                   << mURI << LL_ENDL;
+        return false;
     }
+
+    LLXMLNodePtr first = root->getFirstChild();
+    LLXMLNodePtr second = first->getFirstChild();
+    if (first && !first->getNextSibling() && second &&
+        !second->getNextSibling())
+    {
+        if (first->hasName("fault"))
+        {
+            LLSD fault;
+            if (parseValue(fault, second) && fault.isMap() &&
+                fault.has("faultCode") && fault.has("faultString"))
+            {
+                LL_WARNS() << "Request failed. faultCode: '"
+                        << fault.get("faultCode").asString()
+                        << "', faultString: '"
+                        << fault.get("faultString").asString()
+                        << "', request URI: " << mURI << LL_ENDL;
+                return false;
+            }
+        }
+        else if (first->hasName("params") &&
+                 second->hasName("param") && !second->getNextSibling())
+        {
+            LLXMLNodePtr third = second->getFirstChild();
+            if (third && !third->getNextSibling() &&
+                parseValue(mResponseData, third))
+            {
+                return true;
+            }
+        }
+    }
+
+    LL_WARNS() << "Invalid response format; request URI: " << mURI << LL_ENDL;
+    return false;
+}
+
+bool LLXMLRPCTransaction::Impl::parseValue(LLSD& target, LLXMLNodePtr src)
+{
+    return src->fromXMLRPCValue(target);
 }
 
 bool LLXMLRPCTransaction::Impl::process()
@@ -437,6 +307,29 @@ bool LLXMLRPCTransaction::Impl::process()
     {
         LL_WARNS() << "transaction failed." << LL_ENDL;
         return true; //failed, quit.
+    }
+
+    // Parse the response when we have one and it has not yet been parsed. HB
+    if (mHasResponse && !mResponseParsed)
+    {
+        LLXMLNodePtr root;
+        if (!LLXMLNode::parseBuffer(mResponseText.data(), mResponseText.size(),
+                                    root, nullptr))
+        {
+            LL_WARNS() << "Failed parsing XML in response; request URI: "
+                       << mURI << LL_ENDL;
+        }
+        else if (parseResponse(root))
+        {
+            LL_INFOS() << "XMLRPC response parsed successfully; request URI: "
+                       << mURI << LL_ENDL;
+        }
+        else
+        {
+            LL_WARNS() << "XMLRPC response parsing failed; request URI: "
+                       << mURI << LL_ENDL;
+        }
+        mResponseParsed = true;
     }
 
     switch (mStatus)
@@ -539,18 +432,16 @@ void LLXMLRPCTransaction::Impl::setHttpStatus(const LLCore::HttpStatus &status)
 
 }
 
-
-LLXMLRPCTransaction::LLXMLRPCTransaction(
-    const std::string& uri, XMLRPC_REQUEST request, bool useGzip, const LLSD& httpParams)
-: impl(* new Impl(uri, request, useGzip, httpParams))
-{ }
-
-
-LLXMLRPCTransaction::LLXMLRPCTransaction(
+LLXMLRPCTransaction::LLXMLRPCTransaction
+(
     const std::string& uri,
-    const std::string& method, LLXMLRPCValue params, bool useGzip)
-: impl(* new Impl(uri, method, params, useGzip))
-{ }
+    const std::string& method,
+    const LLSD& params,
+    const LLSD& http_params
+)
+: impl(*new Impl(uri, method, params, http_params))
+{
+}
 
 LLXMLRPCTransaction::~LLXMLRPCTransaction()
 {
@@ -590,14 +481,9 @@ std::string LLXMLRPCTransaction::statusURI()
     return impl.mStatusURI;
 }
 
-XMLRPC_REQUEST LLXMLRPCTransaction::response()
+const LLSD& LLXMLRPCTransaction::response()
 {
-    return impl.mResponse;
-}
-
-LLXMLRPCValue LLXMLRPCTransaction::responseValue()
-{
-    return LLXMLRPCValue(XMLRPC_RequestGetData(impl.mResponse));
+    return impl.mResponseData;
 }
 
 

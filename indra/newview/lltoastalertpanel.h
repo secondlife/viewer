@@ -56,14 +56,14 @@ public:
     // User's responsibility to call show() after creating these.
     LLToastAlertPanel( LLNotificationPtr notep, bool is_modal );
 
-    virtual BOOL    handleKeyHere(KEY key, MASK mask );
+    virtual bool    handleKeyHere(KEY key, MASK mask );
 
     virtual void    draw();
-    virtual void    setVisible( BOOL visible );
+    virtual void    setVisible( bool visible );
 
-    void            setCaution(BOOL val = TRUE) { mCaution = val; }
-    // If mUnique==TRUE only one copy of this message should exist
-    void            setUnique(BOOL val = TRUE) { mUnique = val; }
+    void            setCaution(bool val = true) { mCaution = val; }
+    // If mUnique==true only one copy of this message should exist
+    void            setUnique(bool val = true) { mUnique = val; }
     void            setEditTextArgs(const LLSD& edit_args);
 
     void onButtonPressed(const LLSD& data, S32 button);
@@ -75,7 +75,7 @@ private:
     // No you can't kill it.  It can only kill itself.
 
     // Does it have a readable title label, or minimize or close buttons?
-    BOOL hasTitleBar() const;
+    bool hasTitleBar() const;
 
 private:
     static LLControlGroup* sSettings;
@@ -90,8 +90,8 @@ private:
     std::vector<ButtonData> mButtonData;
 
     S32             mDefaultOption;
-    BOOL            mCaution;
-    BOOL            mUnique;
+    bool            mCaution;
+    bool            mUnique;
     LLUIString      mLabel;
     LLFrameTimer    mDefaultBtnTimer;
     // For Dialogs that take a line as text as input:

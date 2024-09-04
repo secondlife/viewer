@@ -111,35 +111,35 @@ public:
     virtual void closeItem() {}
     virtual void navigateToFolder(bool new_window = false, bool change_mode = false);
     virtual void showProperties();
-    virtual BOOL isItemRenameable() const { return TRUE; }
-    virtual BOOL isMultiPreviewAllowed() { return TRUE; }
-    //virtual BOOL renameItem(const std::string& new_name) {}
-    virtual BOOL isItemRemovable(bool check_worn = true) const;
-    virtual BOOL isItemMovable() const;
-    virtual BOOL isItemInTrash() const;
+    virtual bool isItemRenameable() const { return true; }
+    virtual bool isMultiPreviewAllowed() { return true; }
+    //virtual bool renameItem(const std::string& new_name) {}
+    virtual bool isItemRemovable(bool check_worn = true) const;
+    virtual bool isItemMovable() const;
+    virtual bool isItemInTrash() const;
     virtual bool isItemInOutfits() const;
-    virtual BOOL isLink() const;
-    virtual BOOL isLibraryItem() const;
-    //virtual BOOL removeItem() = 0;
+    virtual bool isLink() const;
+    virtual bool isLibraryItem() const;
+    //virtual bool removeItem() = 0;
     virtual void removeBatch(std::vector<LLFolderViewModelItem*>& batch);
     virtual void move(LLFolderViewModelItem* new_parent_bridge) {}
     virtual bool isItemCopyable(bool can_copy_as_link = true) const { return false; }
-    virtual BOOL copyToClipboard() const;
-    virtual BOOL cutToClipboard();
+    virtual bool copyToClipboard() const;
+    virtual bool cutToClipboard();
     virtual bool isCutToClipboard();
-    virtual BOOL isClipboardPasteable() const;
-    virtual BOOL isClipboardPasteableAsLink() const;
+    virtual bool isClipboardPasteable() const;
+    virtual bool isClipboardPasteableAsLink() const;
     virtual void pasteFromClipboard() {}
     virtual void pasteLinkFromClipboard() {}
     void getClipboardEntries(bool show_asset_id, menuentry_vec_t &items,
                              menuentry_vec_t &disabled_items, U32 flags);
     virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
     virtual LLToolDragAndDrop::ESource getDragSource() const;
-    virtual BOOL startDrag(EDragAndDropType* type, LLUUID* id) const;
-    virtual BOOL dragOrDrop(MASK mask, BOOL drop,
+    virtual bool startDrag(EDragAndDropType* type, LLUUID* id) const;
+    virtual bool dragOrDrop(MASK mask, bool drop,
                             EDragAndDropType cargo_type,
                             void* cargo_data,
-                            std::string& tooltip_msg) { return FALSE; }
+                            std::string& tooltip_msg) { return false; }
     virtual LLInventoryType::EType getInventoryType() const { return mInvType; }
     virtual LLWearableType::EType getWearableType() const { return LLWearableType::WT_NONE; }
     virtual LLSettingsType::type_e getSettingsType() const { return LLSettingsType::ST_NONE; }
@@ -171,28 +171,28 @@ protected:
     LLInventoryModel* getInventoryModel() const;
     LLInventoryFilter* getInventoryFilter() const;
 
-    BOOL isLinkedObjectInTrash() const; // Is this obj or its baseobj in the trash?
-    BOOL isLinkedObjectMissing() const; // Is this a linked obj whose baseobj is not in inventory?
+    bool isLinkedObjectInTrash() const; // Is this obj or its baseobj in the trash?
+    bool isLinkedObjectMissing() const; // Is this a linked obj whose baseobj is not in inventory?
 
-    BOOL isAgentInventory() const; // false if lost or in the inventory library
-    BOOL isCOFFolder() const;       // true if COF or descendant of
-    BOOL isInboxFolder() const;     // true if COF or descendant of   marketplace inbox
+    bool isAgentInventory() const; // false if lost or in the inventory library
+    bool isCOFFolder() const;       // true if COF or descendant of
+    bool isInboxFolder() const;     // true if COF or descendant of   marketplace inbox
 
-    BOOL isMarketplaceListingsFolder() const;     // true if descendant of Marketplace listings folder
+    bool isMarketplaceListingsFolder() const;     // true if descendant of Marketplace listings folder
 
-    virtual BOOL isItemPermissive() const;
+    virtual bool isItemPermissive() const;
     static void changeItemParent(LLInventoryModel* model,
                                  LLViewerInventoryItem* item,
                                  const LLUUID& new_parent,
-                                 BOOL restamp);
+                                 bool restamp);
     static void changeCategoryParent(LLInventoryModel* model,
                                      LLViewerInventoryCategory* item,
                                      const LLUUID& new_parent,
-                                     BOOL restamp);
+                                     bool restamp);
     void removeBatchNoCheck(std::vector<LLFolderViewModelItem*>& batch);
 
-    BOOL callback_cutToClipboard(const LLSD& notification, const LLSD& response);
-    BOOL perform_cutToClipboard();
+    bool callback_cutToClipboard(const LLSD& notification, const LLSD& response);
+    bool perform_cutToClipboard();
 
     LLHandle<LLInventoryPanel> mInventoryPanel;
     LLFolderView* mRoot;
@@ -249,20 +249,20 @@ public:
     virtual LLFontGL::StyleFlags getLabelStyle() const;
     virtual PermissionMask getPermissionMask() const;
     virtual time_t getCreationDate() const;
-    virtual BOOL isItemRenameable() const;
-    virtual BOOL renameItem(const std::string& new_name);
-    virtual BOOL removeItem();
+    virtual bool isItemRenameable() const;
+    virtual bool renameItem(const std::string& new_name);
+    virtual bool removeItem();
     virtual bool isItemCopyable(bool can_copy_as_link = true) const;
-    virtual bool hasChildren() const { return FALSE; }
-    virtual BOOL isUpToDate() const { return TRUE; }
+    virtual bool hasChildren() const { return false; }
+    virtual bool isUpToDate() const { return true; }
     virtual LLUIImagePtr getIconOverlay() const;
 
     LLViewerInventoryItem* getItem() const;
     virtual const LLUUID& getThumbnailUUID() const;
 
 protected:
-    BOOL confirmRemoveItem(const LLSD& notification, const LLSD& response);
-    virtual BOOL isItemPermissive() const;
+    bool confirmRemoveItem(const LLSD& notification, const LLSD& response);
+    virtual bool isItemPermissive() const;
     virtual void buildDisplayName() const;
     void doActionOnCurSelectedLandmark(LLLandmarkList::loaded_callback_t cb);
 
@@ -279,8 +279,8 @@ public:
 
     ~LLFolderBridge();
 
-    BOOL dragItemIntoFolder(LLInventoryItem* inv_item, BOOL drop, std::string& tooltip_msg, BOOL user_confirm = TRUE, LLPointer<LLInventoryCallback> cb = NULL);
-    BOOL dragCategoryIntoFolder(LLInventoryCategory* inv_category, BOOL drop, std::string& tooltip_msg, BOOL is_link = FALSE, BOOL user_confirm = TRUE, LLPointer<LLInventoryCallback> cb = NULL);
+    bool dragItemIntoFolder(LLInventoryItem* inv_item, bool drop, std::string& tooltip_msg, bool user_confirm = true, LLPointer<LLInventoryCallback> cb = NULL);
+    bool dragCategoryIntoFolder(LLInventoryCategory* inv_category, bool drop, std::string& tooltip_msg, bool is_link = false, bool user_confirm = true, LLPointer<LLInventoryCallback> cb = NULL);
     void callback_dropItemIntoFolder(const LLSD& notification, const LLSD& response, LLInventoryItem* inv_item);
     void callback_dropCategoryIntoFolder(const LLSD& notification, const LLSD& response, LLInventoryCategory* inv_category);
 
@@ -289,7 +289,7 @@ public:
     virtual void performAction(LLInventoryModel* model, std::string action);
     virtual void openItem();
     virtual void closeItem();
-    virtual BOOL isItemRenameable() const;
+    virtual bool isItemRenameable() const;
     virtual void selectItem();
     virtual void restoreItem();
 
@@ -304,10 +304,10 @@ public:
 
     void setShowDescendantsCount(bool show_count) {mShowDescendantsCount = show_count;}
 
-    virtual BOOL renameItem(const std::string& new_name);
+    virtual bool renameItem(const std::string& new_name);
 
-    virtual BOOL removeItem();
-    BOOL removeSystemFolder();
+    virtual bool removeItem();
+    bool removeSystemFolder();
     bool removeItemResponse(const LLSD& notification, const LLSD& response);
     void updateHierarchyCreationDate(time_t date);
 
@@ -315,17 +315,17 @@ public:
     virtual void pasteLinkFromClipboard();
     virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
     virtual bool hasChildren() const;
-    virtual BOOL dragOrDrop(MASK mask, BOOL drop,
+    virtual bool dragOrDrop(MASK mask, bool drop,
                             EDragAndDropType cargo_type,
                             void* cargo_data,
                             std::string& tooltip_msg);
 
-    virtual BOOL isItemRemovable(bool check_worn = true) const;
-    virtual BOOL isItemMovable() const ;
-    virtual BOOL isUpToDate() const;
+    virtual bool isItemRemovable(bool check_worn = true) const;
+    virtual bool isItemMovable() const ;
+    virtual bool isUpToDate() const;
     virtual bool isItemCopyable(bool can_copy_as_link = true) const;
-    virtual BOOL isClipboardPasteable() const;
-    virtual BOOL isClipboardPasteableAsLink() const;
+    virtual bool isClipboardPasteable() const;
+    virtual bool isClipboardPasteableAsLink() const;
 
     EInventorySortGroup getSortGroup()  const;
     virtual void update();
@@ -360,14 +360,14 @@ protected:
     static void createNewHair(void* user_data);
     static void createNewEyes(void* user_data);
 
-    BOOL checkFolderForContentsOfType(LLInventoryModel* model, LLInventoryCollectFunctor& typeToCheck);
+    bool checkFolderForContentsOfType(LLInventoryModel* model, LLInventoryCollectFunctor& typeToCheck);
 
-    void modifyOutfit(BOOL append);
+    void modifyOutfit(bool append);
     void copyOutfitToClipboard();
     void determineFolderType();
 
     void dropToFavorites(LLInventoryItem* inv_item, LLPointer<LLInventoryCallback> cb = NULL);
-    void dropToOutfit(LLInventoryItem* inv_item, BOOL move_is_into_current_outfit, LLPointer<LLInventoryCallback> cb = NULL);
+    void dropToOutfit(LLInventoryItem* inv_item, bool move_is_into_current_outfit, LLPointer<LLInventoryCallback> cb = NULL);
     void dropToMyOutfits(LLInventoryCategory* inv_cat, LLPointer<LLInventoryCallback> cb = NULL);
 
     //--------------------------------------------------------------------
@@ -385,7 +385,7 @@ protected:
     void callback_pasteFromClipboard(const LLSD& notification, const LLSD& response);
     void perform_pasteFromClipboard();
     void gatherMessage(std::string& message, S32 depth, LLError::ELevel log_level);
-    LLUIImagePtr getFolderIcon(BOOL is_open) const;
+    LLUIImagePtr getFolderIcon(bool is_open) const;
 
     bool                            mCallingCards;
     bool                            mWearables;
@@ -467,7 +467,7 @@ public:
     virtual LLUIImagePtr getIcon() const;
     virtual void openItem();
 protected:
-    BOOL mVisited;
+    bool mVisited;
 };
 
 class LLCallingCardBridge : public LLItemBridge
@@ -483,7 +483,7 @@ public:
     virtual void performAction(LLInventoryModel* model, std::string action);
     virtual void openItem();
     virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
-    virtual BOOL dragOrDrop(MASK mask, BOOL drop,
+    virtual bool dragOrDrop(MASK mask, bool drop,
                             EDragAndDropType cargo_type,
                             void* cargo_data,
                             std::string& tooltip_msg);
@@ -518,7 +518,7 @@ public:
     virtual std::string getLabelSuffix() const;
     virtual void performAction(LLInventoryModel* model, std::string action);
     virtual void openItem();
-    virtual BOOL removeItem();
+    virtual bool removeItem();
     virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
     static void playGesture(const LLUUID& item_id);
 };
@@ -546,17 +546,17 @@ public:
     virtual LLUIImagePtr    getIcon() const;
     virtual void            performAction(LLInventoryModel* model, std::string action);
     virtual void            openItem();
-    virtual BOOL isItemWearable() const { return TRUE; }
+    virtual bool isItemWearable() const { return true; }
     virtual std::string getLabelSuffix() const;
     virtual void            buildContextMenu(LLMenuGL& menu, U32 flags);
-    virtual BOOL renameItem(const std::string& new_name);
+    virtual bool renameItem(const std::string& new_name);
     LLInventoryObject* getObject() const;
     LLViewerInventoryItem* getItem() const;
     LLViewerInventoryCategory* getCategory() const;
 protected:
     static LLUUID sContextMenuItemID;  // Only valid while the context menu is open.
     U32 mAttachPt;
-    BOOL mIsMultiObject;
+    bool mIsMultiObject;
 };
 
 class LLLSLTextBridge : public LLItemBridge
@@ -581,26 +581,25 @@ public:
     virtual LLUIImagePtr getIcon() const;
     virtual void    performAction(LLInventoryModel* model, std::string action);
     virtual void    openItem();
-    virtual BOOL isItemWearable() const { return TRUE; }
+    virtual bool isItemWearable() const { return true; }
     virtual void    buildContextMenu(LLMenuGL& menu, U32 flags);
     virtual std::string getLabelSuffix() const;
-    virtual BOOL renameItem(const std::string& new_name);
+    virtual bool renameItem(const std::string& new_name);
     virtual LLWearableType::EType getWearableType() const { return mWearableType; }
 
     static void     onWearOnAvatar( void* userdata );   // Access to wearOnAvatar() from menu
-    static BOOL     canWearOnAvatar( void* userdata );
+    static bool     canWearOnAvatar( void* userdata );
     static void     onWearOnAvatarArrived( LLViewerWearable* wearable, void* userdata );
     void            wearOnAvatar();
 
     static void     onWearAddOnAvatarArrived( LLViewerWearable* wearable, void* userdata );
     void            wearAddOnAvatar();
 
-    static BOOL     canEditOnAvatar( void* userdata );  // Access to editOnAvatar() from menu
+    static bool     canEditOnAvatar( void* userdata );  // Access to editOnAvatar() from menu
     static void     onEditOnAvatar( void* userdata );
     void            editOnAvatar();
 
-    static BOOL     canRemoveFromAvatar( void* userdata );
-    static void     removeAllClothesFromAvatar();
+    static bool     canRemoveFromAvatar( void* userdata );
     void            removeFromAvatar();
 protected:
     LLAssetType::EType mAssetType;
@@ -659,10 +658,10 @@ public:
     virtual LLUIImagePtr getIcon() const;
     virtual void    performAction(LLInventoryModel* model, std::string action);
     virtual void    openItem();
-    virtual BOOL    isMultiPreviewAllowed() { return FALSE; }
+    virtual bool    isMultiPreviewAllowed() { return false; }
     virtual void    buildContextMenu(LLMenuGL& menu, U32 flags);
-    virtual BOOL    renameItem(const std::string& new_name);
-    virtual BOOL    isItemRenameable() const;
+    virtual bool    renameItem(const std::string& new_name);
+    virtual bool    isItemRenameable() const;
     virtual LLSettingsType::type_e getSettingsType() const { return mSettingsType; }
 
 protected:
@@ -772,7 +771,7 @@ public:
     virtual LLFontGL::StyleFlags getLabelStyle() const;
 
 private:
-    LLUIImagePtr getMarketplaceFolderIcon(BOOL is_open) const;
+    LLUIImagePtr getMarketplaceFolderIcon(bool is_open) const;
     // Those members are mutable because they are cached variablse to speed up display, not a state variables
     mutable S32 m_depth;
     mutable S32 m_stockCountCache;
@@ -785,9 +784,9 @@ void rez_attachment(LLViewerInventoryItem* item,
 
 // Move items from an in-world object's "Contents" folder to a specified
 // folder in agent inventory.
-BOOL move_inv_category_world_to_agent(const LLUUID& object_id,
+bool move_inv_category_world_to_agent(const LLUUID& object_id,
                                       const LLUUID& category_id,
-                                      BOOL drop,
+                                      bool drop,
                                       std::function<void(S32, void*, const LLMoveInv *)> callback = NULL,
                                       void* user_data = NULL,
                                       LLInventoryFilter* filter = NULL);

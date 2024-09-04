@@ -51,7 +51,7 @@ class LLSessionTimeoutTimer : public LLEventTimer
 public:
     LLSessionTimeoutTimer(const LLUUID& session_id, F32 period) : LLEventTimer(period), mSessionId(session_id) {}
     virtual ~LLSessionTimeoutTimer() {};
-    /* virtual */ BOOL tick();
+    /* virtual */ bool tick();
 
 private:
     LLUUID mSessionId;
@@ -80,8 +80,10 @@ public:
         } SType;
 
         LLIMSession(const LLUUID& session_id, const std::string& name,
-            const EInstantMessage& type, const LLUUID& other_participant_id, const uuid_vec_t& ids, bool voice, bool has_offline_msg);
+            const EInstantMessage& type, const LLUUID& other_participant_id, const LLSD& voiceChannelInfo, const uuid_vec_t& ids, bool has_offline_msg);
         virtual ~LLIMSession();
+
+        void initVoiceChannel(const LLSD &voiceChannelInfo = LLSD());
 
         void sessionInitReplyReceived(const LLUUID& new_session_id);
         void addMessagesFromHistoryCache(const std::list<LLSD>& history);        // From local file
@@ -141,6 +143,7 @@ public:
 
         LLVoiceChannel* mVoiceChannel;
         LLIMSpeakerMgr* mSpeakers;
+        bool            mP2PAsAdhocCall;
 
         bool mSessionInitialized;
 
@@ -199,10 +202,10 @@ public:
      * @param name session name should not be empty, will return false if empty
      */
     bool newSession(const LLUUID& session_id, const std::string& name, const EInstantMessage& type, const LLUUID& other_participant_id,
-        const uuid_vec_t& ids, bool voice = false, bool has_offline_msg = false);
+        const uuid_vec_t& ids, const LLSD& voiceChannelInfo = LLSD(), bool has_offline_msg = false);
 
-    bool newSession(const LLUUID& session_id, const std::string& name, const EInstantMessage& type,
-        const LLUUID& other_participant_id, bool voice = false, bool has_offline_msg = false);
+    bool newSession(const LLUUID& session_id, const std::string& name, const EInstantMessage& type, const LLUUID &other_participant_id,
+                    const LLSD &voiceChannelInfo = LLSD(), bool has_offline_msg = false);
 
     /**
      * Remove all session data associated with a session specified by session_id
@@ -296,8 +299,8 @@ public:
 
     static void sendLeaveSession(const LLUUID& session_id, const LLUUID& other_participant_id);
     static bool sendStartSession(const LLUUID& temp_session_id, const LLUUID& other_participant_id,
-                          const uuid_vec_t& ids, EInstantMessage dialog);
-    static void sendTypingState(LLUUID session_id, LLUUID other_participant_id, BOOL typing);
+                          const uuid_vec_t& ids, EInstantMessage dialog, bool p2p_as_adhoc_call);
+    static void sendTypingState(LLUUID session_id, LLUUID other_participant_id, bool typing);
     static void sendMessage(const std::string& utf8_text, const LLUUID& im_session_id,
                                 const LLUUID& other_participant_id, EInstantMessage dialog);
 
@@ -330,7 +333,7 @@ class LLIMSessionObserver
 {
 public:
     virtual ~LLIMSessionObserver() {}
-    virtual void sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id, BOOL has_offline_msg) = 0;
+    virtual void sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id, bool has_offline_msg) = 0;
     virtual void sessionActivated(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id) = 0;
     virtual void sessionVoiceOrIMStarted(const LLUUID& session_id) = 0;
     virtual void sessionRemoved(const LLUUID& session_id) = 0;
@@ -379,7 +382,8 @@ public:
     // session.
     LLUUID addSession(const std::string& name,
                       EInstantMessage dialog,
-                      const LLUUID& other_participant_id, bool voice = false);
+                      const LLUUID& other_participant_id,
+                      const LLSD& voiceChannelInfo = LLSD());
 
     // Adds a session using a specific group of starting agents
     // the dialog type is assumed correct. Returns the uuid of the session.
@@ -387,7 +391,8 @@ public:
     LLUUID addSession(const std::string& name,
                       EInstantMessage dialog,
                       const LLUUID& other_participant_id,
-                      const std::vector<LLUUID>& ids, bool voice = false,
+                      const std::vector<LLUUID> &ids,
+                      const LLSD& voiceChannelInfo = LLSD(),
                       const LLUUID& floater_id = LLUUID::null);
 
     /**
@@ -397,10 +402,7 @@ public:
      * @param caller_uri - sip URI of caller. It should be always be passed into the method to avoid
      * incorrect working of LLVoiceChannel instances. See EXT-2985.
      */
-    LLUUID addP2PSession(const std::string& name,
-                      const LLUUID& other_participant_id,
-                      const std::string& voice_session_handle,
-                      const std::string& caller_uri);
+    LLUUID addP2PSession(const std::string &name, const LLUUID &other_participant_id, const LLSD &voice_call_info);
 
     /**
      * Leave the session with session id. Send leave session notification
@@ -416,8 +418,8 @@ public:
         const std::string& caller_name,
         EInstantMessage type,
         EInvitationType inv_type,
-        const std::string& session_handle = LLStringUtil::null,
-        const std::string& session_uri = LLStringUtil::null);
+        const LLSD &voice_channel_info = LLSD()
+    );
 
     void processIMTypingStart(const LLUUID& from_id, const EInstantMessage im_type);
     void processIMTypingStop(const LLUUID& from_id, const EInstantMessage im_type);
@@ -439,7 +441,7 @@ public:
     // good connection.
     void disconnectAllSessions();
 
-    BOOL hasSession(const LLUUID& session_id);
+    bool hasSession(const LLUUID& session_id);
 
     static LLUUID computeSessionID(EInstantMessage dialog, const LLUUID& other_participant_id);
 
@@ -465,7 +467,7 @@ public:
      * Start call in a session
      * @return false if voice channel doesn't exist
      **/
-    bool startCall(const LLUUID& session_id, LLVoiceChannel::EDirection direction = LLVoiceChannel::OUTGOING_CALL);
+    bool startCall(const LLUUID& session_id, LLVoiceChannel::EDirection direction = LLVoiceChannel::OUTGOING_CALL, const LLSD& voice_channel_info = LLSD());
 
     /**
      * End call in a session
@@ -499,7 +501,7 @@ private:
     void noteOfflineUsers(const LLUUID& session_id, const std::vector<LLUUID>& ids);
     void noteMutedUsers(const LLUUID& session_id, const std::vector<LLUUID>& ids);
 
-    void processIMTypingCore(const LLUUID& from_id, const EInstantMessage im_type, BOOL typing);
+    void processIMTypingCore(const LLUUID& from_id, const EInstantMessage im_type, bool typing);
 
     static void onInviteNameLookup(LLSD payload, const LLUUID& id, const LLAvatarName& name);
 
@@ -554,7 +556,7 @@ public:
     LLCallDialog(const LLSD& payload);
     virtual ~LLCallDialog();
 
-    virtual BOOL postBuild();
+    virtual bool postBuild();
 
     void dockToToolbarButton(const std::string& toolbarButtonName);
 
@@ -599,7 +601,7 @@ public:
         }
     }
 
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
     /*virtual*/ void onOpen(const LLSD& key);
 
     static void onAccept(void* user_data);
@@ -625,7 +627,7 @@ class LLOutgoingCallDialog : public LLCallDialog
 public:
     LLOutgoingCallDialog(const LLSD& payload);
 
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
     void show(const LLSD& key);
 
     static void onCancel(void* user_data);

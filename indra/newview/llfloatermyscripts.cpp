@@ -36,7 +36,7 @@
 #include "lltrans.h"
 #include "llviewerregion.h"
 
-const S32 SIZE_OF_ONE_KB = 1024;
+constexpr S32 SIZE_OF_ONE_KB = 1024;
 
 LLFloaterMyScripts::LLFloaterMyScripts(const LLSD& seed)
     : LLFloater(seed),
@@ -50,14 +50,14 @@ LLFloaterMyScripts::LLFloaterMyScripts(const LLSD& seed)
 {
 }
 
-BOOL LLFloaterMyScripts::postBuild()
+bool LLFloaterMyScripts::postBuild()
 {
     childSetAction("refresh_list_btn", onClickRefresh, this);
 
     std::string msg_waiting = LLTrans::getString("ScriptLimitsRequestWaiting");
     getChild<LLUICtrl>("loading_text")->setValue(LLSD(msg_waiting));
     mAttachmentDetailsRequested = requestAttachmentDetails();
-    return TRUE;
+    return true;
 }
 
 // virtual
@@ -137,7 +137,7 @@ void LLFloaterMyScripts::setAttachmentDetails(LLSD content)
         return;
     }
 
-    S32 number_attachments = content["attachments"].size();
+    S32 number_attachments = static_cast<S32>(content["attachments"].size());
 
     for(int i = 0; i < number_attachments; i++)
     {
@@ -148,7 +148,7 @@ void LLFloaterMyScripts::setAttachmentDetails(LLSD content)
             humanReadableLocation = LLTrans::getString(actualLocation.c_str());
         }
 
-        S32 number_objects = content["attachments"][i]["objects"].size();
+        S32 number_objects = static_cast<S32>(content["attachments"][i]["objects"].size());
         for(int j = 0; j < number_objects; j++)
         {
             LLUUID task_id = content["attachments"][i]["objects"][j]["id"].asUUID();

@@ -73,7 +73,7 @@ LLVOGrass::LLVOGrass(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regi
     mLastPatchUpdateTime = 0;
     mGrassVel.clearVec();
     mGrassBend.clearVec();
-    mbCanSelect          = TRUE;
+    mbCanSelect          = true;
 
     mBladeWindAngle      = 35.f;
     mBWAOverlap          = 2.f;
@@ -99,7 +99,7 @@ void LLVOGrass::updateSpecies()
         SpeciesMap::const_iterator it = sSpeciesTable.begin();
         mSpecies = (*it).first;
     }
-    setTEImage(0, LLViewerTextureManager::getFetchedTexture(sSpeciesTable[mSpecies]->mTextureID, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE));
+    setTEImage(0, LLViewerTextureManager::getFetchedTexture(sSpeciesTable[mSpecies]->mTextureID, FTT_DEFAULT, true, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE));
 }
 
 
@@ -135,7 +135,7 @@ void LLVOGrass::initClass()
         F32 F32_val;
         LLUUID id;
 
-        BOOL success = TRUE;
+        bool success{ true };
 
         S32 species;
         static LLStdStringHandle species_id_string = LLXmlTree::addAttributeString("species_id");
@@ -188,7 +188,7 @@ void LLVOGrass::initClass()
         }
     }
 
-    BOOL have_all_grass = TRUE;
+    bool have_all_grass{ true };
     std::string err;
 
     for (S32 i=0;i<sMaxGrassSpecies;++i)
@@ -196,7 +196,7 @@ void LLVOGrass::initClass()
         if (!sSpeciesTable.count(i))
         {
             err.append(llformat(" %d",i));
-            have_all_grass = FALSE;
+            have_all_grass = false;
         }
     }
 
@@ -270,9 +270,9 @@ U32 LLVOGrass::processUpdateMessage(LLMessageSystem *mesgsys,
     return retval;
 }
 
-BOOL LLVOGrass::isActive() const
+bool LLVOGrass::isActive() const
 {
-    return TRUE;
+    return true;
 }
 
 void LLVOGrass::idleUpdate(LLAgent &agent, const F64 &time)
@@ -333,11 +333,11 @@ void LLVOGrass::updateTextures()
     }
 }
 
-BOOL LLVOGrass::updateLOD()
+bool LLVOGrass::updateLOD()
 {
     if (mDrawable->getNumFaces() <= 0)
     {
-        return FALSE;
+        return false;
     }
 
     LLFace* face = mDrawable->getFace(0);
@@ -350,7 +350,7 @@ BOOL LLVOGrass::updateLOD()
             face->setSize(0, 0);
             gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL);
         }
-        return TRUE ;
+        return true ;
     }
     if(!mNumBlades)
     {
@@ -387,10 +387,10 @@ BOOL LLVOGrass::updateLOD()
             face->setSize(mNumBlades*8, mNumBlades*12);
         }
         gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL);
-        return TRUE;
+        return true;
     }
 
-    return FALSE;
+    return false;
 }
 
 LLDrawable* LLVOGrass::createDrawable(LLPipeline *pipeline)
@@ -403,7 +403,7 @@ LLDrawable* LLVOGrass::createDrawable(LLPipeline *pipeline)
 
 static LLTrace::BlockTimerStatHandle FTM_UPDATE_GRASS("Update Grass");
 
-BOOL LLVOGrass::updateGeometry(LLDrawable *drawable)
+bool LLVOGrass::updateGeometry(LLDrawable *drawable)
 {
     LL_RECORD_BLOCK_TIME(FTM_UPDATE_GRASS);
 
@@ -424,7 +424,7 @@ BOOL LLVOGrass::updateGeometry(LLDrawable *drawable)
     {
         plantBlades();
     }
-    return TRUE;
+    return true;
 }
 
 void LLVOGrass::plantBlades()
@@ -451,6 +451,9 @@ void LLVOGrass::plantBlades()
         face->setVertexBuffer(NULL);
         face->setTEOffset(0);
         face->mCenterLocal = mPosition + mRegionp->getOriginAgent();
+        const LLVector4a* ext = mDrawable->getSpatialExtents();
+        face->mExtents[0] = ext[0];
+        face->mExtents[1] = ext[1];
     }
 
     mDepth = (face->mCenterLocal - LLViewerCamera::getInstance()->getOrigin())*LLViewerCamera::getInstance()->getAtAxis();
@@ -593,12 +596,12 @@ U32 LLVOGrass::getPartitionType() const
 }
 
 LLGrassPartition::LLGrassPartition(LLViewerRegion* regionp)
-: LLSpatialPartition(LLDrawPoolAlpha::VERTEX_DATA_MASK | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, regionp)
+: LLSpatialPartition(LLDrawPoolAlpha::VERTEX_DATA_MASK | LLVertexBuffer::MAP_TEXTURE_INDEX, true, regionp)
 {
     mDrawableType = LLPipeline::RENDER_TYPE_GRASS;
     mPartitionType = LLViewerRegion::PARTITION_GRASS;
     mLODPeriod = 16;
-    mDepthMask = TRUE;
+    mDepthMask = true;
     mSlopRatio = 0.1f;
     mRenderPass = LLRenderPass::PASS_GRASS;
 }
@@ -696,7 +699,7 @@ void LLGrassPartition::getGeometry(LLSpatialGroup* group)
         vertex_count += facep->getGeomCount();
         index_count += facep->getIndicesCount();
 
-        S32 idx = draw_vec.size()-1;
+        S32 idx = static_cast<S32>(draw_vec.size()) - 1;
 
         bool fullbright = facep->isState(LLFace::FULLBRIGHT);
 
@@ -731,28 +734,28 @@ void LLGrassPartition::getGeometry(LLSpatialGroup* group)
 }
 
 // virtual
-void LLVOGrass::updateDrawable(BOOL force_damped)
+void LLVOGrass::updateDrawable(bool force_damped)
 {
     // Force an immediate rebuild on any update
     if (mDrawable.notNull())
     {
-        mDrawable->updateXform(TRUE);
+        mDrawable->updateXform(true);
         gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL);
     }
     clearChanged(SHIFTED);
 }
 
 // virtual
-BOOL LLVOGrass::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end, S32 face, BOOL pick_transparent, BOOL pick_rigged, BOOL pick_unselectable, S32 *face_hitp,
+bool LLVOGrass::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end, S32 face, bool pick_transparent, bool pick_rigged, bool pick_unselectable, S32 *face_hitp,
                                       LLVector4a* intersection,LLVector2* tex_coord, LLVector4a* normal, LLVector4a* tangent)
 
 {
-    BOOL ret = FALSE;
+    bool ret = false;
     if (!mbCanSelect ||
         mDrawable->isDead() ||
         !gPipeline.hasRenderType(mDrawable->getRenderType()))
     {
-        return FALSE;
+        return false;
     }
 
     LLVector4a dir;
@@ -819,7 +822,7 @@ BOOL LLVOGrass::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& 
 
         F32 a,b,t;
 
-        BOOL hit = FALSE;
+        bool hit = false;
 
 
         U32 idx0 = 0,idx1 = 0,idx2 = 0;
@@ -834,24 +837,24 @@ BOOL LLVOGrass::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& 
 
         if (LLTriangleRayIntersect(v0a, v1a, v2a, start, dir, a, b, t))
         {
-            hit = TRUE;
+            hit = true;
             idx0 = 0; idx1 = 1; idx2 = 2;
         }
         else if (LLTriangleRayIntersect(v1a, v3a, v2a, start, dir, a, b, t))
         {
-            hit = TRUE;
+            hit = true;
             idx0 = 1; idx1 = 3; idx2 = 2;
         }
         else if (LLTriangleRayIntersect(v2a, v1a, v0a, start, dir, a, b, t))
         {
             normal1 = -normal1;
-            hit = TRUE;
+            hit = true;
             idx0 = 2; idx1 = 1; idx2 = 0;
         }
         else if (LLTriangleRayIntersect(v2a, v3a, v1a, start, dir, a, b, t))
         {
             normal1 = -normal1;
-            hit = TRUE;
+            hit = true;
             idx0 = 2; idx1 = 3; idx2 = 1;
         }
 
@@ -884,7 +887,7 @@ BOOL LLVOGrass::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& 
                     {
                         normal->load3(normal1.mV);
                     }
-                    ret = TRUE;
+                    ret = true;
                 }
             }
         }

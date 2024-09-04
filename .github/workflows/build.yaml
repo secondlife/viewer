@@ -1,28 +1,20 @@
 name: Build
 
 on:
-  workflow_dispatch:
-    inputs:
-      release_run:
-        type: boolean
-        description: Do a release of this build
-        default: false
   pull_request:
   push:
     branches: ["main", "release/*", "project/*"]
     tags: ["Second_Life*"]
 
 jobs:
-  # The whole point of the setvar job is that we want to set a variable once
-  # that will be consumed by multiple subsequent jobs. We tried setting it in
-  # the global env, but a job.env can't directly reference the global env
-  # context.
-  setvar:
+  # The whole point of the setup job is that we want to set variables once
+  # that will be consumed by multiple subsequent jobs.
+  setup:
     runs-on: ubuntu-latest
     outputs:
       release_run: ${{ steps.setvar.outputs.release_run }}
-      branch:   ${{ steps.which-branch.outputs.branch }}
-      relnotes: ${{ steps.which-branch.outputs.relnotes }}
+      configurations: ${{ steps.setvar.outputs.configurations }}
+      bugsplat_db: ${{ steps.setvar.outputs.bugsplat_db }}
     env:
       # Build with a tag like "Second_Life#abcdef0" to generate a release page
       # (used for builds we are planning to deploy).
@@ -32,43 +24,41 @@ jobs:
       # it always evaluates as true because it's a non-empty string either way.
       # When you want to use a string variable as a workflow YAML boolean, it's
       # important to ensure it's the empty string when false. If you omit || '',
-      # its value when false is "false", which (again) is interpreted as true.
-      RELEASE_RUN: ${{ (github.event.inputs.release_run != 'false' || (github.ref_type == 'tag' && startsWith(github.ref_name, 'Second_Life'))) && 'Y' || '' }}
+      # its value when false is "false", which is interpreted as true.
+      RELEASE_RUN: ${{ (github.event.inputs.release_run || github.ref_type == 'tag' && startsWith(github.ref_name, 'Second_Life')) && 'Y' || '' }}
+      FROM_FORK: ${{ github.event.pull_request.head.repo.fork }}
     steps:
-      - name: Set Variable
+      - name: Set Variables
         id: setvar
         shell: bash
         run: |
           echo "release_run=$RELEASE_RUN" >> "$GITHUB_OUTPUT"
 
-      - name: Determine source branch
-        id: which-branch
-        uses: secondlife/viewer-build-util/which-branch@v2
-        with:
-          token: ${{ github.token }}
-
+          if [[ "$FROM_FORK" == "true" ]]; then
+            # PR from fork; don't build with Bugsplat, proprietary libs
+            echo 'configurations=["ReleaseOS"]' >> $GITHUB_OUTPUT
+            echo "bugsplat_db=" >> $GITHUB_OUTPUT
+          else
+            echo 'configurations=["Release"]' >> $GITHUB_OUTPUT
+            echo "bugsplat_db=SecondLife_Viewer_2018" >> $GITHUB_OUTPUT
+          fi
   build:
-    needs: setvar
+    needs: setup
     strategy:
       matrix:
-        runner: [windows-large, macos-12-xl, linux-large]
-        configuration: [Release, ReleaseOS]
-        Linden: [true]
+        runner: [windows-large, macos-12-xl]
+        configuration: ${{ fromJSON(needs.setup.outputs.configurations) }}
         include:
-          - runner: macos-12-xl
-            developer_dir: "/Applications/Xcode_14.0.1.app/Contents/Developer"
-        exclude:
-          - runner: windows-large
-            configuration: ReleaseOS
-          - runner: macos-12-xl
-            configuration: ReleaseOS
-          - runner: linux-large
-            configuration: Release
+        - runner: linux-large
+          configuration: ReleaseOS
     runs-on: ${{ matrix.runner }}
     outputs:
       viewer_channel: ${{ steps.build.outputs.viewer_channel }}
       viewer_version: ${{ steps.build.outputs.viewer_version }}
-      imagename: ${{ steps.build.outputs.imagename }}
+      viewer_branch:  ${{ steps.which-branch.outputs.branch }}
+      relnotes:       ${{ steps.which-branch.outputs.relnotes }}
+      imagename:      ${{ steps.build.outputs.imagename }}
+      configuration:  ${{ matrix.configuration }}
     env:
       AUTOBUILD_ADDRSIZE: 64
       AUTOBUILD_BUILD_ID: ${{ github.run_id }}
@@ -81,12 +71,9 @@ jobs:
       # autobuild-package.xml.
       AUTOBUILD_VCS_INFO: "true"
       AUTOBUILD_VSVER: "170"
-      DEVELOPER_DIR: ${{ matrix.developer_dir }}
+      DEVELOPER_DIR: "/Applications/Xcode_14.0.1.app/Contents/Developer"
       # Ensure that Linden viewer builds engage Bugsplat.
-      BUGSPLAT_DB: ${{ matrix.Linden && 'SecondLife_Viewer_2018' || '' }}
-      # Run BUILD steps for Release configuration.
-      # Run BUILD steps for ReleaseOS configuration only for release runs.
-      BUILD: ${{ (matrix.Linden || needs.setvar.outputs.release_run) && 'Y' || '' }}
+      BUGSPLAT_DB: ${{ needs.setup.outputs.bugsplat_db }}
       build_coverity: false
       build_log_dir: ${{ github.workspace }}/.logs
       build_viewer: true
@@ -105,19 +92,16 @@ jobs:
       variants: ${{ matrix.configuration }}
     steps:
       - name: Checkout code
-        if: env.BUILD
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Setup python
-        if: env.BUILD
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
       - name: Checkout build variables
-        if: env.BUILD
         uses: actions/checkout@v4
         with:
           repository: secondlife/build-variables
@@ -125,19 +109,16 @@ jobs:
           path: .build-variables
 
       - name: Checkout master-message-template
-        if: env.BUILD
         uses: actions/checkout@v4
         with:
           repository: secondlife/master-message-template
           path: .master-message-template
 
       - name: Install autobuild and python dependencies
-        if: env.BUILD
         run: pip3 install autobuild llsd
 
       - name: Cache autobuild packages
         id: cache-installables
-        if: env.BUILD
         uses: actions/cache@v4
         with:
           path: .autobuild-installables
@@ -158,12 +139,17 @@ jobs:
             llvm mold libpipewire-0.3-dev
 
       - name: Install windows dependencies
-        if: env.BUILD && runner.os == 'Windows'
+        if: runner.os == 'Windows'
         run: choco install nsis-unicode
+
+      - name: Determine source branch
+        id: which-branch
+        uses: secondlife/viewer-build-util/which-branch@v2
+        with:
+          token: ${{ github.token }}
 
       - name: Build
         id: build
-        if: env.BUILD
         shell: bash
         env:
           AUTOBUILD_VCS_BRANCH: ${{ needs.setvar.outputs.branch }}
@@ -238,20 +224,32 @@ jobs:
           [[ "$arch" == "MINGW6" ]] && arch=CYGWIN
           export AUTOBUILD="$(which autobuild)"
 
-          # determine the viewer channel from the branch name
+          # determine the viewer channel from the branch or tag name
+          # trigger an EDU build by including "edu" in the tag
+          edu=${{ github.ref_type == 'tag' && contains(github.ref_name, 'edu') }}
+          echo "ref_type=${{ github.ref_type }}, ref_name=${{ github.ref_name }}, edu='$edu'"
           branch=$AUTOBUILD_VCS_BRANCH
-          IFS='/' read -ra ba <<< "$branch"
-          prefix=${ba[0]}
-          if [ "$prefix" == "project" ]; then
-              IFS='_' read -ra prj <<< "${ba[1]}"
-              # uppercase first letter of each word
-              export viewer_channel="Second Life Project ${prj[*]^}"
-          elif  [[ "$prefix" == "release" || "$prefix" == "main" ]];
+          if [[ "$edu" == "true" ]]
           then
-              export viewer_channel="Second Life Release"
+              export viewer_channel="Second Life Release edu"
+          elif  [[ "$branch" == "develop" ]];
+          then
+              export viewer_channel="Second Life Develop"
           else
-              export viewer_channel="Second Life Test"
+              IFS='/' read -ra ba <<< "$branch"
+              prefix=${ba[0]}
+              if [ "$prefix" == "project" ]; then
+                  IFS='_' read -ra prj <<< "${ba[1]}"
+                  # uppercase first letter of each word
+                  export viewer_channel="Second Life Project ${prj[*]^}"
+              elif  [[ "$prefix" == "release" || "$prefix" == "main" ]];
+              then
+                  export viewer_channel="Second Life Release"
+              else
+                  export viewer_channel="Second Life Test"
+              fi
           fi
+          echo "viewer_channel=$viewer_channel"
           echo "viewer_channel=$viewer_channel" >> "$GITHUB_OUTPUT"
           # On windows we need to point the build to the correct python
           # as neither CMake's FindPython nor our custom Python.cmake module
@@ -293,7 +291,7 @@ jobs:
           echo "artifact=$RUNNER_OS$cfg_suffix" >> $GITHUB_OUTPUT
 
       - name: Upload executable
-        if: (matrix.Linden && steps.build.outputs.viewer_app) || runner.os == 'Linux'
+        if: steps.build.outputs.viewer_app
         uses: actions/upload-artifact@v4
         with:
           name: "${{ steps.build.outputs.artifact }}-app"
@@ -304,15 +302,13 @@ jobs:
       # The other upload of nontrivial size is the symbol file. Use a distinct
       # artifact for that too.
       - name: Upload symbol file
-        if: matrix.Linden
+        if: steps.build.outputs.symbolfile
         uses: actions/upload-artifact@v4
         with:
           name: "${{ steps.build.outputs.artifact }}-symbols"
-          path: |
-            ${{ steps.build.outputs.symbolfile }}
+          path: ${{ steps.build.outputs.symbolfile }}
 
       - name: Upload metadata
-        if: matrix.Linden
         uses: actions/upload-artifact@v4
         with:
           name: "${{ steps.build.outputs.artifact }}-metadata"
@@ -323,7 +319,7 @@ jobs:
       - name: Upload physics package
         uses: actions/upload-artifact@v4
         # should only be set for viewer-private
-        if: matrix.Linden && steps.build.outputs.physicstpv
+        if: matrix.configuration == 'Release' && steps.build.outputs.physicstpv
         with:
           name: "${{ steps.build.outputs.artifact }}-physics"
           # emitted by build.sh, zero or one lines
@@ -397,43 +393,65 @@ jobs:
       BUGSPLAT_USER: ${{ secrets.BUGSPLAT_USER }}
       BUGSPLAT_PASS: ${{ secrets.BUGSPLAT_PASS }}
     needs: build
+    if: needs.build.outputs.configuration == 'Release'
     runs-on: ubuntu-latest
     steps:
+      - name: Download viewer exe
+        uses: actions/download-artifact@v4
+        with:
+          name: Windows-app
+          path: _artifacts
+      - name: Download Windows Symbols
+        if: env.BUGSPLAT_USER && env.BUGSPLAT_PASS
+        uses: actions/download-artifact@v4
+        with:
+          name: Windows-symbols
+      - name: Extract viewer pdb
+        if: env.BUGSPLAT_USER && env.BUGSPLAT_PASS
+        shell: bash
+        run: |
+          tar -xJf "${{ needs.build.outputs.viewer_channel }}.sym.tar.xz" -C _artifacts
       - name: Post Windows symbols
         if: env.BUGSPLAT_USER && env.BUGSPLAT_PASS
-        uses: secondlife/viewer-build-util/post-bugsplat-windows@v2
+        uses: secondlife-3p/symbol-upload@v10
         with:
           username: ${{ env.BUGSPLAT_USER }}
           password: ${{ env.BUGSPLAT_PASS }}
           database: "SecondLife_Viewer_2018"
-          channel: ${{ needs.build.outputs.viewer_channel }}
+          application: ${{ needs.build.outputs.viewer_channel }}
           version: ${{ needs.build.outputs.viewer_version }}
+          directory: _artifacts
+          files: "**/{SecondLifeViewer.exe,llwebrtc.dll,*.pdb}"
 
   post-mac-symbols:
     env:
       BUGSPLAT_USER: ${{ secrets.BUGSPLAT_USER }}
       BUGSPLAT_PASS: ${{ secrets.BUGSPLAT_PASS }}
     needs: build
+    if: needs.build.outputs.configuration == 'Release'
     runs-on: ubuntu-latest
     steps:
+      - name: Download Mac Symbols
+        if: env.BUGSPLAT_USER && env.BUGSPLAT_PASS
+        uses: actions/download-artifact@v4
+        with:
+          name: macOS-symbols
       - name: Post Mac symbols
         if: env.BUGSPLAT_USER && env.BUGSPLAT_PASS
-        uses: secondlife/viewer-build-util/post-bugsplat-mac@v2
+        uses: secondlife-3p/symbol-upload@v10
         with:
           username: ${{ env.BUGSPLAT_USER }}
           password: ${{ env.BUGSPLAT_PASS }}
           database: "SecondLife_Viewer_2018"
-          channel: ${{ needs.build.outputs.viewer_channel }}
-          version: ${{ needs.build.outputs.viewer_version }}
+          application: ${{ needs.build.outputs.viewer_channel }}
+          version: ${{ needs.build.outputs.viewer_version }} (${{ needs.build.outputs.viewer_version }})
+          directory: .
+          files: "**/*.xcarchive.zip"
 
   release:
-    needs: [setvar, build, sign-and-package-windows, sign-and-package-mac]
+    needs: [setup, build, sign-and-package-windows, sign-and-package-mac]
     runs-on: ubuntu-latest
-    # action-gh-release requires a tag (presumably for automatic generation of
-    # release notes). Possible TODO: if we arrive here but do not have a
-    # suitable tag for github.sha, create one? If we do that, of course remove
-    # this == 'tag' condition.
-    if: needs.setvar.outputs.release_run && github.ref_type == 'tag'
+    if: needs.setup.outputs.release_run
     steps:
       - uses: actions/download-artifact@v4
         with:

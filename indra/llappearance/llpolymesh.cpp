@@ -72,8 +72,8 @@ LLPolyMeshSharedData::LLPolyMeshSharedData()
         mTexCoords = NULL;
         mDetailTexCoords = NULL;
         mWeights = NULL;
-        mHasWeights = FALSE;
-        mHasDetailTexCoords = FALSE;
+        mHasWeights = false;
+        mHasDetailTexCoords = false;
 
         mNumFaces = 0;
         mFaces = NULL;
@@ -225,7 +225,7 @@ U32 LLPolyMeshSharedData::getNumKB()
 //-----------------------------------------------------------------------------
 // LLPolyMeshSharedData::allocateVertexData()
 //-----------------------------------------------------------------------------
-BOOL LLPolyMeshSharedData::allocateVertexData( U32 numVertices )
+bool LLPolyMeshSharedData::allocateVertexData( U32 numVertices )
 {
         U32 i;
         mBaseCoords = (LLVector4a*) ll_aligned_malloc_16(numVertices*sizeof(LLVector4a));
@@ -243,34 +243,34 @@ BOOL LLPolyMeshSharedData::allocateVertexData( U32 numVertices )
             mWeights[i] = 0.f;
         }
         mNumVertices = numVertices;
-        return TRUE;
+        return true;
 }
 
 //-----------------------------------------------------------------------------
 // LLPolyMeshSharedData::allocateFaceData()
 //-----------------------------------------------------------------------------
-BOOL LLPolyMeshSharedData::allocateFaceData( U32 numFaces )
+bool LLPolyMeshSharedData::allocateFaceData( U32 numFaces )
 {
         mFaces = new LLPolyFace[ numFaces ];
         mNumFaces = numFaces;
         mNumTriangleIndices = mNumFaces * 3;
-        return TRUE;
+        return true;
 }
 
 //-----------------------------------------------------------------------------
 // LLPolyMeshSharedData::allocateJointNames()
 //-----------------------------------------------------------------------------
-BOOL LLPolyMeshSharedData::allocateJointNames( U32 numJointNames )
+bool LLPolyMeshSharedData::allocateJointNames( U32 numJointNames )
 {
         mJointNames = new std::string[ numJointNames ];
         mNumJointNames = numJointNames;
-        return TRUE;
+        return true;
 }
 
 //--------------------------------------------------------------------
 // LLPolyMeshSharedData::loadMesh()
 //--------------------------------------------------------------------
-BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
+bool LLPolyMeshSharedData::loadMesh( const std::string& fileName )
 {
         //-------------------------------------------------------------------------
         // Open the file
@@ -278,13 +278,13 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
         if(fileName.empty())
         {
                 LL_ERRS() << "Filename is Empty!" << LL_ENDL;
-                return FALSE;
+                return false;
         }
         LLFILE* fp = LLFile::fopen(fileName, "rb");                     /*Flawfinder: ignore*/
         if (!fp)
         {
                 LL_ERRS() << "can't open: " << fileName << LL_ENDL;
-                return FALSE;
+                return false;
         }
 
         //-------------------------------------------------------------------------
@@ -299,7 +299,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
         //-------------------------------------------------------------------------
         // Check for proper binary header
         //-------------------------------------------------------------------------
-        BOOL status = FALSE;
+        bool status = false;
         if ( strncmp(header, HEADER_BINARY, strlen(HEADER_BINARY)) == 0 )       /*Flawfinder: ignore*/
         {
                 LL_DEBUGS() << "Loading " << fileName << LL_ENDL;
@@ -317,11 +317,11 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
                 if (numRead != 1)
                 {
                         LL_ERRS() << "can't read HasWeights flag from " << fileName << LL_ENDL;
-                        return FALSE;
+                        return false;
                 }
                 if (!isLOD())
                 {
-                        mHasWeights = (hasWeights==0) ? FALSE : TRUE;
+                        mHasWeights = hasWeights > 0;
                 }
 
                 //----------------------------------------------------------------
@@ -332,7 +332,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
                 if (numRead != 1)
                 {
                         LL_ERRS() << "can't read HasDetailTexCoords flag from " << fileName << LL_ENDL;
-                        return FALSE;
+                        return false;
                 }
 
                 //----------------------------------------------------------------
@@ -344,7 +344,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
                 if (numRead != 3)
                 {
                         LL_ERRS() << "can't read Position from " << fileName << LL_ENDL;
-                        return FALSE;
+                        return false;
                 }
                 setPosition( position );
 
@@ -357,7 +357,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
                 if (numRead != 3)
                 {
                         LL_ERRS() << "can't read RotationAngles from " << fileName << LL_ENDL;
-                        return FALSE;
+                        return false;
                 }
 
                 U8 rotationOrder;
@@ -366,7 +366,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
                 if (numRead != 1)
                 {
                         LL_ERRS() << "can't read RotationOrder from " << fileName << LL_ENDL;
-                        return FALSE;
+                        return false;
                 }
 
                 rotationOrder = 0;
@@ -385,7 +385,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
                 if (numRead != 3)
                 {
                         LL_ERRS() << "can't read Scale from " << fileName << LL_ENDL;
-                        return FALSE;
+                        return false;
                 }
                 setScale( scale );
 
@@ -406,7 +406,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
                         if (numRead != 1)
                         {
                                 LL_ERRS() << "can't read NumVertices from " << fileName << LL_ENDL;
-                                return FALSE;
+                                return false;
                         }
 
                         allocateVertexData( numVertices );
@@ -421,7 +421,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
                             if (numRead != 3)
                             {
                                     LL_ERRS() << "can't read Coordinates from " << fileName << LL_ENDL;
-                                    return FALSE;
+                                    return false;
                             }
                         }
 
@@ -435,7 +435,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
                             if (numRead != 3)
                             {
                                     LL_ERRS() << " can't read Normals from " << fileName << LL_ENDL;
-                                    return FALSE;
+                                    return false;
                             }
                         }
 
@@ -449,7 +449,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
                             if (numRead != 3)
                             {
                                     LL_ERRS() << " can't read Binormals from " << fileName << LL_ENDL;
-                                    return FALSE;
+                                    return false;
                             }
                         }
 
@@ -461,7 +461,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
                         if (numRead != numVertices)
                         {
                                 LL_ERRS() << "can't read TexCoords from " << fileName << LL_ENDL;
-                                return FALSE;
+                                return false;
                         }
 
                         //----------------------------------------------------------------
@@ -474,7 +474,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
                                 if (numRead != numVertices)
                                 {
                                         LL_ERRS() << "can't read DetailTexCoords from " << fileName << LL_ENDL;
-                                        return FALSE;
+                                        return false;
                                 }
                         }
 
@@ -488,7 +488,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
                                 if (numRead != numVertices)
                                 {
                                         LL_ERRS() << "can't read Weights from " << fileName << LL_ENDL;
-                                        return FALSE;
+                                        return false;
                                 }
                         }
                 }
@@ -502,7 +502,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
                 if (numRead != 1)
                 {
                         LL_ERRS() << "can't read NumFaces from " << fileName << LL_ENDL;
-                        return FALSE;
+                        return false;
                 }
                 allocateFaceData( numFaces );
 
@@ -520,7 +520,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
                         if (numRead != 3)
                         {
                                 LL_ERRS() << "can't read Face[" << i << "] from " << fileName << LL_ENDL;
-                                return FALSE;
+                                return false;
                         }
                         if (mReferenceData)
                         {
@@ -577,7 +577,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
                                 if (numRead != 1)
                                 {
                                         LL_ERRS() << "can't read NumSkinJoints from " << fileName << LL_ENDL;
-                                        return FALSE;
+                                        return false;
                                 }
                                 allocateJointNames( numSkinJoints );
                         }
@@ -593,7 +593,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
                                 if (numRead != 1)
                                 {
                                         LL_ERRS() << "can't read Skin[" << i << "].Name from " << fileName << LL_ENDL;
-                                        return FALSE;
+                                        return false;
                                 }
 
                                 std::string *jn = &mJointNames[i];
@@ -615,7 +615,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
                                 std::string morph_name(morphName);
                                 LLPolyMorphData* morph_data = new LLPolyMorphData(morph_name);
 
-                                BOOL result = morph_data->loadBinary(fp, this);
+                                bool result = morph_data->loadBinary(fp, this);
 
                                 if (!result)
                                 {
@@ -705,12 +705,12 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
                         }
                 }
 
-                status = TRUE;
+                status = true;
         }
         else
         {
                 LL_ERRS() << "invalid mesh file header: " << fileName << LL_ENDL;
-                status = FALSE;
+                status = false;
         }
 
         if (0 == mNumJointNames)
@@ -983,7 +983,7 @@ void LLPolyMesh::initializeForMorph()
     LLVector4a::memcpyNonAliased16((F32*) mScaledBinormals, (F32*) mSharedData->mBaseNormals, sizeof(LLVector4a) * mSharedData->mNumVertices);
     memcpy((F32*) mTexCoords, (F32*) mSharedData->mTexCoords, sizeof(LLVector2) * (mSharedData->mNumVertices)); // allocated in LLPolyMeshSharedData::allocateVertexData
 
-    for (U32 i = 0; i < mSharedData->mNumVertices; ++i)
+    for (S32 i = 0; i < mSharedData->mNumVertices; ++i)
     {
         mClothingWeights[i].clear();
     }

@@ -76,12 +76,12 @@ LLResizeHandle::~LLResizeHandle()
 }
 
 
-BOOL LLResizeHandle::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLResizeHandle::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-    BOOL handled = FALSE;
+    bool handled = false;
     if( pointInHandle(x, y) )
     {
-        handled = TRUE;
+        handled = true;
         // Route future Mouse messages here preemptively.  (Release on mouse up.)
         // No handler needed for focus lost since this clas has no state that depends on it.
         gFocusMgr.setMouseCapture( this );
@@ -95,28 +95,28 @@ BOOL LLResizeHandle::handleMouseDown(S32 x, S32 y, MASK mask)
 }
 
 
-BOOL LLResizeHandle::handleMouseUp(S32 x, S32 y, MASK mask)
+bool LLResizeHandle::handleMouseUp(S32 x, S32 y, MASK mask)
 {
-    BOOL    handled = FALSE;
+    bool    handled = false;
 
     if( hasMouseCapture() )
     {
         // Release the mouse
         gFocusMgr.setMouseCapture( NULL );
-        handled = TRUE;
+        handled = true;
     }
     else if( pointInHandle(x, y) )
     {
-        handled = TRUE;
+        handled = true;
     }
 
     return handled;
 }
 
 
-BOOL LLResizeHandle::handleHover(S32 x, S32 y, MASK mask)
+bool LLResizeHandle::handleHover(S32 x, S32 y, MASK mask)
 {
-    BOOL    handled = FALSE;
+    bool    handled = false;
 
     // We only handle the click if the click both started and ended within us
     if( hasMouseCapture() )
@@ -327,13 +327,13 @@ BOOL LLResizeHandle::handleHover(S32 x, S32 y, MASK mask)
             }
         }
 
-        handled = TRUE;
+        handled = true;
     }
     else // don't have mouse capture
     {
         if( pointInHandle( x, y ) )
         {
-            handled = TRUE;
+            handled = true;
         }
     }
 
@@ -366,7 +366,7 @@ void LLResizeHandle::draw()
 }
 
 
-BOOL LLResizeHandle::pointInHandle( S32 x, S32 y )
+bool LLResizeHandle::pointInHandle( S32 x, S32 y )
 {
     if( pointInView(x, y) )
     {
@@ -378,8 +378,8 @@ BOOL LLResizeHandle::pointInHandle( S32 x, S32 y )
         case LEFT_TOP:      return (x <= RESIZE_BORDER_WIDTH) || (y >= TOP_BORDER);
         case LEFT_BOTTOM:   return (x <= RESIZE_BORDER_WIDTH) || (y <= RESIZE_BORDER_WIDTH);
         case RIGHT_TOP:     return (x >= RIGHT_BORDER) || (y >= TOP_BORDER);
-        case RIGHT_BOTTOM:  return TRUE;
+        case RIGHT_BOTTOM:  return true;
         }
     }
-    return FALSE;
+    return false;
 }

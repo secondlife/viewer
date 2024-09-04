@@ -476,8 +476,8 @@ void LLKeyConflictHandler::saveToSettings(bool temporary)
                 // so make sure to cleanup.
                 // Also this helps in keeping file small.
                 iter->second.mKeyBind.trimEmpty();
-                U32 size = iter->second.mKeyBind.getDataCount();
-                for (U32 i = 0; i < size; ++i)
+                auto size = iter->second.mKeyBind.getDataCount();
+                for (size_t i = 0; i < size; ++i)
                 {
                     if (iter->first.empty())
                     {
@@ -491,7 +491,7 @@ void LLKeyConflictHandler::saveToSettings(bool temporary)
                         continue;
                     }
 
-                    LLKeyData data = key.mKeyBind.getKeyData(i);
+                    LLKeyData data = key.mKeyBind.getKeyData(static_cast<U32>(i));
                     // Still write empty LLKeyData to make sure we will maintain UI position
                     if (data.mKey == KEY_NONE)
                     {

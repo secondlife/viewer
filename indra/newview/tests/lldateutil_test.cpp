@@ -38,18 +38,23 @@
 
 
 // Baked-in return values for getString()
-std::map< std::string, std::string > gString;
+std::map< std::string, std::string, std::less<>> gString;
 
 // Baked-in return values for getCountString()
 // map of pairs of input xml_desc and integer count
 typedef std::pair< std::string, int > count_string_t;
 std::map< count_string_t, std::string > gCountString;
 
-std::string LLTrans::getString(const std::string &xml_desc, const LLStringUtil::format_map_t& args, bool def_string)
+std::string LLTrans::getString(const std::string_view xml_desc, const LLStringUtil::format_map_t& args, bool def_string)
 {
-    std::string text = gString[xml_desc];
-    LLStringUtil::format(text, args);
-    return text;
+    auto it = gString.find(xml_desc);
+    if (it != gString.end())
+    {
+        std::string text = it->second;
+        LLStringUtil::format(text, args);
+        return text;
+    }
+    return {};
 }
 
 std::string LLTrans::getCountString(const std::string& language, const std::string& xml_desc, S32 count)

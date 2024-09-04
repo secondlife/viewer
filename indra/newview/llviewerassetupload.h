@@ -161,13 +161,15 @@ public:
 
     std::string         getFileName() const { return mFileName; };
 
+    void setMaxImageSize(U32 maxUploadSize) { mMaxImageSize = maxUploadSize; }
+
 protected:
 
     virtual LLSD        exportTempFile();
 
 private:
     std::string         mFileName;
-
+    S32                 mMaxImageSize;
 };
 
 //-------------------------------------------------------------------------

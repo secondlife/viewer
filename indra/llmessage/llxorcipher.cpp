@@ -109,7 +109,7 @@ void LLXORCipher::init(const U8* pad, U32 pad_len)
 
 #ifdef _DEBUG
 // static
-BOOL LLXORCipher::testHarness()
+bool LLXORCipher::testHarness()
 {
     const U32 PAD_LEN = 3;
     const U8 PAD[] = "abc";
@@ -122,7 +122,7 @@ BOOL LLXORCipher::testHarness()
     cipher.encrypt((U8*)MESSAGE, MSG_LENGTH, encrypted, MSG_LENGTH);
     cipher.decrypt(encrypted, MSG_LENGTH, decrypted, MSG_LENGTH);
 
-    if(0 != memcmp((void*)MESSAGE, decrypted, MSG_LENGTH)) return FALSE;
-    return TRUE;
+    if(0 != memcmp((void*)MESSAGE, decrypted, MSG_LENGTH)) return false;
+    return true;
 }
 #endif

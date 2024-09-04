@@ -70,7 +70,7 @@ LLPngWrapper::~LLPngWrapper()
 }
 
 // Checks the src for a valid PNG header
-BOOL LLPngWrapper::isValidPng(U8* src)
+bool LLPngWrapper::isValidPng(U8* src)
 {
     const int PNG_BYTES_TO_CHECK = 8;
 
@@ -78,10 +78,10 @@ BOOL LLPngWrapper::isValidPng(U8* src)
     if (sig != 0)
     {
         mErrorMessage = "Invalid or corrupt PNG file";
-        return FALSE;
+        return false;
     }
 
-    return TRUE;
+    return true;
 }
 
 // Called by the libpng library when a fatal encoding or decoding error
@@ -134,7 +134,7 @@ void LLPngWrapper::writeFlush(png_structp png_ptr)
 // The scanline also begins at the bottom of
 // the image (per SecondLife conventions) instead of at the top, so we
 // must assign row-pointers in "reverse" order.
-BOOL LLPngWrapper::readPng(U8* src, S32 dataSize, LLImageRaw* rawImage, ImageInfo *infop)
+bool LLPngWrapper::readPng(U8* src, S32 dataSize, LLImageRaw* rawImage, ImageInfo *infop)
 {
     try
     {
@@ -173,6 +173,8 @@ BOOL LLPngWrapper::readPng(U8* src, S32 dataSize, LLImageRaw* rawImage, ImageInf
         // data space
         if (rawImage != NULL)
         {
+            LLImageDataLock lock(rawImage);
+
             if (!rawImage->resize(static_cast<U16>(mWidth),
                 static_cast<U16>(mHeight), mChannels))
             {
@@ -208,25 +210,25 @@ BOOL LLPngWrapper::readPng(U8* src, S32 dataSize, LLImageRaw* rawImage, ImageInf
     {
         mErrorMessage = msg.what();
         releaseResources();
-        return (FALSE);
+        return (false);
     }
     catch (std::bad_alloc&)
     {
         mErrorMessage = "LLPngWrapper";
         releaseResources();
-        return (FALSE);
+        return (false);
     }
     catch (...)
     {
         mErrorMessage = "LLPngWrapper";
         releaseResources();
         LOG_UNHANDLED_EXCEPTION("");
-        return (FALSE);
+        return (false);
     }
 
     // Clean up and return
     releaseResources();
-    return (TRUE);
+    return (true);
 }
 
 // Do transformations to normalize the input to 8-bpp RGBA
@@ -288,7 +290,7 @@ void LLPngWrapper::updateMetaData()
 
 // Method to write raw image into PNG at dest. The raw scanline begins
 // at the bottom of the image per SecondLife conventions.
-BOOL LLPngWrapper::writePng(const LLImageRaw* rawImage, U8* dest, size_t destSize)
+bool LLPngWrapper::writePng(const LLImageRaw* rawImage, U8* dest, size_t destSize)
 {
     try
     {
@@ -326,10 +328,10 @@ BOOL LLPngWrapper::writePng(const LLImageRaw* rawImage, U8* dest, size_t destSiz
         mWriteInfoPtr = png_create_info_struct(mWritePngPtr);
 
         // Setup write function
-        PngDataInfo dataPtr;
+        PngDataInfo dataPtr{};
         dataPtr.mData = dest;
         dataPtr.mOffset = 0;
-        dataPtr.mDataSize = destSize;
+        dataPtr.mDataSize = static_cast<S32>(destSize);
         png_set_write_fn(mWritePngPtr, &dataPtr, &writeDataCallback, &writeFlush);
 
         // Setup image params
@@ -369,11 +371,11 @@ BOOL LLPngWrapper::writePng(const LLImageRaw* rawImage, U8* dest, size_t destSiz
     {
         mErrorMessage = msg.what();
         releaseResources();
-        return (FALSE);
+        return (false);
     }
 
     releaseResources();
-    return TRUE;
+    return true;
 }
 
 // Cleanup various internal structures

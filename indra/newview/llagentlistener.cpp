@@ -156,9 +156,9 @@ void LLAgentListener::requestTeleport(LLSD const & event_data) const
     else
     {
         std::string url = LLSLURL(event_data["regionname"],
-                                  LLVector3(event_data["x"].asReal(),
-                                            event_data["y"].asReal(),
-                                            event_data["z"].asReal())).getSLURLString();
+                                  LLVector3((F32)event_data["x"].asReal(),
+                                            (F32)event_data["y"].asReal(),
+                                            (F32)event_data["z"].asReal())).getSLURLString();
         LLURLDispatcher::dispatch(url, LLCommandHandler::NAV_TYPE_CLICKED, NULL, false);
     }
 }
@@ -344,20 +344,20 @@ void LLAgentListener::startAutoPilot(LLSD const & event_data)
     F32 rotation_threshold = 0.03f;
     if (event_data.has("rotation_threshold"))
     {
-        rotation_threshold = event_data["rotation_threshold"].asReal();
+        rotation_threshold = (F32)event_data["rotation_threshold"].asReal();
     }
 
-    BOOL allow_flying = TRUE;
+    bool allow_flying = true;
     if (event_data.has("allow_flying"))
     {
-        allow_flying = (BOOL) event_data["allow_flying"].asBoolean();
+        allow_flying = (bool) event_data["allow_flying"].asBoolean();
         mAgent.setFlying(allow_flying);
     }
 
     F32 stop_distance = 0.f;
     if (event_data.has("stop_distance"))
     {
-        stop_distance = event_data["stop_distance"].asReal();
+        stop_distance = (F32)event_data["stop_distance"].asReal();
     }
 
     // Clear follow target, this is doing a path
@@ -411,10 +411,10 @@ void LLAgentListener::startFollowPilot(LLSD const & event_data)
 {
     LLUUID target_id;
 
-    BOOL allow_flying = TRUE;
+    bool allow_flying = true;
     if (event_data.has("allow_flying"))
     {
-        allow_flying = (BOOL) event_data["allow_flying"].asBoolean();
+        allow_flying = (bool) event_data["allow_flying"].asBoolean();
     }
 
     if (event_data.has("leader_id"))
@@ -446,7 +446,7 @@ void LLAgentListener::startFollowPilot(LLSD const & event_data)
     F32 stop_distance = 0.f;
     if (event_data.has("stop_distance"))
     {
-        stop_distance = event_data["stop_distance"].asReal();
+        stop_distance = (F32)event_data["stop_distance"].asReal();
     }
 
     if (target_id.notNull())
@@ -469,7 +469,7 @@ void LLAgentListener::setAutoPilotTarget(LLSD const & event_data) const
 
 void LLAgentListener::stopAutoPilot(LLSD const & event_data) const
 {
-    BOOL user_cancel = FALSE;
+    bool user_cancel = false;
     if (event_data.has("user_cancel"))
     {
         user_cancel = event_data["user_cancel"].asBoolean();

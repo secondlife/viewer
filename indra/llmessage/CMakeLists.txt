@@ -8,7 +8,8 @@ include(LLCommon)
 include(LLCoreHttp)
 include(LLAddBuildTest)
 include(Python)
-include(JsonCpp)
+include(Tut)
+include(Python)
 
 set(llmessage_SOURCE_FILES
     llassetstorage.cpp
@@ -26,7 +27,6 @@ set(llmessage_SOURCE_FILES
     lldatapacker.cpp
     lldispatcher.cpp
     llexperiencecache.cpp
-    llfiltersd2xmlrpc.cpp
     llgenericstreamingmessage.cpp
     llhost.cpp
     llhttpnode.cpp
@@ -110,7 +110,6 @@ set(llmessage_HEADER_FILES
     lleventflags.h
     llexperiencecache.h
     llextendedstatus.h
-    llfiltersd2xmlrpc.h
     llfollowcamparams.h
     llgenericstreamingmessage.h
     llhost.h
@@ -192,7 +191,6 @@ target_link_libraries(
         llfilesystem
         llmath
         llcorehttp
-        ll::xmlrpc-epi
 )
 target_include_directories( llmessage  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
 

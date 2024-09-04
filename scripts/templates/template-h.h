@@ -1,4 +1,4 @@
-/** 
+/**
 * @file   #filename#.h
 * @brief  Header file for #filename#
 * @author #getpass.getuser()#@lindenlab.com

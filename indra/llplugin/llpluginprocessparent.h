@@ -69,11 +69,6 @@ public:
               const std::string &plugin_filename,
               bool debug);
 
-    // Creates a process
-    // returns true if process already exists or if created,
-    // false if failed to create
-    bool createPluginProcess();
-
     void idle(void);
 
     // returns true if the plugin is on its way to steady state
@@ -168,15 +163,13 @@ private:
 
     bool accept();
 
-    void clearProcessCreationThread();
-
     LLSocket::ptr_t mListenSocket;
     LLSocket::ptr_t mSocket;
     U32 mBoundPort;
 
     LLProcess::Params mProcessParams;
     LLProcessPtr mProcess;
-    LLThread *pProcessCreationThread;
+    bool mProcessCreationRequested = false;
 
     std::string mPluginFile;
     std::string mPluginDir;
@@ -207,7 +200,7 @@ private:
     apr_pollfd_t mPollFD;
     static apr_pollset_t *sPollSet;
     static bool sPollsetNeedsRebuild;
-    static LLMutex *sInstancesMutex;
+    static LLCoros::Mutex *sInstancesMutex;
     static mapInstances_t sInstances;
     static void dirtyPollSet();
     static void updatePollset();

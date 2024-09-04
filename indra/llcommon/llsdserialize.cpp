@@ -231,7 +231,7 @@ bool LLSDSerialize::deserialize(LLSD& sd, std::istream& str, llssize max_bytes)
         }
         // Since we've already read 'inbuf' bytes into 'hdr_buf', prepend that
         // data to whatever remains in 'str'.
-        LLMemoryStreamBuf already(reinterpret_cast<const U8*>(hdr_buf), inbuf);
+        LLMemoryStreamBuf already(reinterpret_cast<const U8*>(hdr_buf), (S32)inbuf);
         cat_streambuf prebuff(&already, str.rdbuf());
         std::istream  prepend(&prebuff);
 #if 1
@@ -389,7 +389,7 @@ LLSDParser::~LLSDParser()
 
 S32 LLSDParser::parse(std::istream& istr, LLSD& data, llssize max_bytes, S32 max_depth)
 {
-    mCheckLimits = (LLSDSerialize::SIZE_UNLIMITED == max_bytes) ? false : true;
+    mCheckLimits = LLSDSerialize::SIZE_UNLIMITED != max_bytes;
     mMaxBytesLeft = max_bytes;
     return doParse(istr, data, max_depth);
 }
@@ -475,7 +475,7 @@ LLSDNotationParser::~LLSDNotationParser()
 // virtual
 S32 LLSDNotationParser::doParse(std::istream& istr, LLSD& data, S32 max_depth) const
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_LLSD
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_LLSD;
     // map: { string:object, string:object }
     // array: [ object, object, object ]
     // undef: !
@@ -566,7 +566,7 @@ S32 LLSDNotationParser::doParse(std::istream& istr, LLSD& data, S32 max_depth) c
                 data,
                 NOTATION_FALSE_SERIAL,
                 false);
-            if(PARSE_FAILURE == cnt) parse_count = cnt;
+            if(PARSE_FAILURE == cnt) parse_count = (S32)cnt;
             else account(cnt);
         }
         else
@@ -592,7 +592,7 @@ S32 LLSDNotationParser::doParse(std::istream& istr, LLSD& data, S32 max_depth) c
         if(isalpha(c))
         {
             auto cnt = deserialize_boolean(istr,data,NOTATION_TRUE_SERIAL,true);
-            if(PARSE_FAILURE == cnt) parse_count = cnt;
+            if(PARSE_FAILURE == cnt) parse_count = (S32)cnt;
             else account(cnt);
         }
         else
@@ -735,7 +735,7 @@ S32 LLSDNotationParser::doParse(std::istream& istr, LLSD& data, S32 max_depth) c
 
 S32 LLSDNotationParser::parseMap(std::istream& istr, LLSD& map, S32 max_depth) const
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_LLSD
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_LLSD;
     // map: { string:object, string:object }
     map = LLSD::emptyMap();
     S32 parse_count = 0;
@@ -796,7 +796,7 @@ S32 LLSDNotationParser::parseMap(std::istream& istr, LLSD& map, S32 max_depth) c
 
 S32 LLSDNotationParser::parseArray(std::istream& istr, LLSD& array, S32 max_depth) const
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_LLSD
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_LLSD;
     // array: [ object, object, object ]
     array = LLSD::emptyArray();
     S32 parse_count = 0;
@@ -836,7 +836,7 @@ S32 LLSDNotationParser::parseArray(std::istream& istr, LLSD& array, S32 max_dept
 
 bool LLSDNotationParser::parseString(std::istream& istr, LLSD& data) const
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_LLSD
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_LLSD;
     std::string value;
     auto count = deserialize_string(istr, value, mMaxBytesLeft);
     if(PARSE_FAILURE == count) return false;
@@ -847,7 +847,7 @@ bool LLSDNotationParser::parseString(std::istream& istr, LLSD& data) const
 
 bool LLSDNotationParser::parseBinary(std::istream& istr, LLSD& data) const
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_LLSD
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_LLSD;
     // binary: b##"ff3120ab1"
     // or: b(len)"..."
 
@@ -950,7 +950,7 @@ LLSDBinaryParser::~LLSDBinaryParser()
 // virtual
 S32 LLSDBinaryParser::doParse(std::istream& istr, LLSD& data, S32 max_depth) const
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_LLSD
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_LLSD;
 /**
  * Undefined: '!'<br>
  * Boolean: '1' for true '0' for false<br>
@@ -1546,7 +1546,7 @@ S32 LLSDBinaryFormatter::format_impl(const LLSD& data, std::ostream& ostr,
     case LLSD::TypeMap:
     {
         ostr.put('{');
-        U32 size_nbo = htonl(data.size());
+        U32 size_nbo = htonl(static_cast<u_long>(data.size()));
         ostr.write((const char*)(&size_nbo), sizeof(U32));
         LLSD::map_const_iterator iter = data.beginMap();
         LLSD::map_const_iterator end = data.endMap();
@@ -1563,7 +1563,7 @@ S32 LLSDBinaryFormatter::format_impl(const LLSD& data, std::ostream& ostr,
     case LLSD::TypeArray:
     {
         ostr.put('[');
-        U32 size_nbo = htonl(data.size());
+        U32 size_nbo = htonl(static_cast<u_long>(data.size()));
         ostr.write((const char*)(&size_nbo), sizeof(U32));
         LLSD::array_const_iterator iter = data.beginArray();
         LLSD::array_const_iterator end = data.endArray();
@@ -1630,7 +1630,7 @@ S32 LLSDBinaryFormatter::format_impl(const LLSD& data, std::ostream& ostr,
     {
         ostr.put('b');
         const std::vector<U8>& buffer = data.asBinary();
-        U32 size_nbo = htonl(buffer.size());
+        U32 size_nbo = htonl(static_cast<u_long>(buffer.size()));
         ostr.write((const char*)(&size_nbo), sizeof(U32));
         if(buffer.size()) ostr.write((const char*)&buffer[0], buffer.size());
         break;
@@ -1648,7 +1648,7 @@ void LLSDBinaryFormatter::formatString(
     const std::string& string,
     std::ostream& ostr) const
 {
-    U32 size_nbo = htonl(string.size());
+    U32 size_nbo = htonl(static_cast<u_long>(string.size()));
     ostr.write((const char*)(&size_nbo), sizeof(U32));
     ostr.write(string.c_str(), string.size());
 }

@@ -5,7 +5,7 @@
 #
 # Platform variables:
 #
-#   DARWIN  - Mac OS X
+#   DARWIN  - macOS
 #   LINUX   - Linux
 #   WINDOWS - Windows
 
@@ -117,7 +117,7 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     set(FIND_LIBRARY_USE_LIB64_PATHS ON)
   endif (ADDRESS_SIZE EQUAL 32)
 
-  execute_process(COMMAND dpkg-architecture -a${DEB_ARCHITECTURE} -qDEB_HOST_MULTIARCH 
+  execute_process(COMMAND dpkg-architecture -a${DEB_ARCHITECTURE} -qDEB_HOST_MULTIARCH
       RESULT_VARIABLE DPKG_RESULT
       OUTPUT_VARIABLE DPKG_ARCH
       OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET)

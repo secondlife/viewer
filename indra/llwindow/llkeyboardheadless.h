@@ -36,14 +36,14 @@ public:
     /*virtual*/ ~LLKeyboardHeadless() {};
 
 #ifndef LL_SDL
-    /*virtual*/ BOOL    handleKeyUp(const U16 key, MASK mask) { return FALSE; }
-    /*virtual*/ BOOL    handleKeyDown(const U16 key, MASK mask) { return FALSE; }
+    /*virtual*/ bool    handleKeyUp(const U16 key, MASK mask) { return false; }
+    /*virtual*/ bool    handleKeyDown(const U16 key, MASK mask) { return false; }
 #else
-    /*virtual*/ BOOL    handleKeyUp(const U32 key, MASK mask) { return FALSE; }
-    /*virtual*/ BOOL    handleKeyDown(const U32 key, MASK mask) { return FALSE; }
+    /*virtual*/ bool    handleKeyUp(const U32 key, MASK mask) { return false; }
+    /*virtual*/ bool    handleKeyDown(const U32 key, MASK mask) { return false; }
 #endif
     /*virtual*/ void    resetMaskKeys();
-    /*virtual*/ MASK    currentMask(BOOL for_mouse_event);
+    /*virtual*/ MASK    currentMask(bool for_mouse_event);
     /*virtual*/ void    scanKeyboard();
 #ifdef LL_DARWIN
     /*virtual*/ void    handleModifier(MASK mask);

@@ -111,7 +111,7 @@ LLFloaterPathfindingLinksets::~LLFloaterPathfindingLinksets()
 {
 }
 
-BOOL LLFloaterPathfindingLinksets::postBuild()
+bool LLFloaterPathfindingLinksets::postBuild()
 {
     mBeaconColor = LLUIColorTable::getInstance()->getColor("PathfindingLinksetBeaconColor");
 
@@ -577,12 +577,12 @@ void LLFloaterPathfindingLinksets::updateStateOnEditFields()
 
 void LLFloaterPathfindingLinksets::updateStateOnEditLinksetUse()
 {
-    BOOL useWalkable = FALSE;
-    BOOL useStaticObstacle = FALSE;
-    BOOL useDynamicObstacle = FALSE;
-    BOOL useMaterialVolume = FALSE;
-    BOOL useExclusionVolume = FALSE;
-    BOOL useDynamicPhantom = FALSE;
+    bool useWalkable = false;
+    bool useStaticObstacle = false;
+    bool useDynamicObstacle = false;
+    bool useMaterialVolume = false;
+    bool useExclusionVolume = false;
+    bool useDynamicPhantom = false;
 
     LLPathfindingObjectListPtr selectedObjects = getSelectedObjects();
     if ((selectedObjects != NULL) && !selectedObjects->isEmpty())

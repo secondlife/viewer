@@ -40,7 +40,7 @@ public:
 
     static LLPanelExperienceLog* create();
 
-    /*virtual*/ BOOL postBuild(void);
+    /*virtual*/ bool postBuild();
 
     void refresh();
 protected:

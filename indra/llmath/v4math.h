@@ -67,14 +67,14 @@ class LLVector4
 
         void setValue(const LLSD& sd)
         {
-            mV[0] = sd[0].asReal();
-            mV[1] = sd[1].asReal();
-            mV[2] = sd[2].asReal();
-            mV[3] = sd[3].asReal();
+            mV[0] = (F32)sd[0].asReal();
+            mV[1] = (F32)sd[1].asReal();
+            mV[2] = (F32)sd[2].asReal();
+            mV[3] = (F32)sd[3].asReal();
         }
 
 
-        inline BOOL isFinite() const;                                   // checks to see if all values of LLVector3 are finite
+        inline bool isFinite() const;                                   // checks to see if all values of LLVector3 are finite
 
         inline void clear();        // Clears LLVector4 to (0, 0, 0, 1)
         inline void clearVec();     // deprecated
@@ -101,14 +101,12 @@ class LLVector4
         F32         normVec();                  // deprecated
 
         // Sets all values to absolute value of their original values
-        // Returns TRUE if data changed
-        BOOL abs();
+        // Returns true if data changed
+        bool abs();
 
-        BOOL isExactlyClear() const     { return (mV[VW] == 1.0f) && !mV[VX] && !mV[VY] && !mV[VZ]; }
-        BOOL isExactlyZero() const      { return !mV[VW] && !mV[VX] && !mV[VY] && !mV[VZ]; }
+        bool isExactlyClear() const     { return (mV[VW] == 1.0f) && !mV[VX] && !mV[VY] && !mV[VZ]; }
+        bool isExactlyZero() const      { return !mV[VW] && !mV[VX] && !mV[VY] && !mV[VZ]; }
 
-        const LLVector4&    rotVec(F32 angle, const LLVector4 &vec);    // Rotates about vec by angle radians
-        const LLVector4&    rotVec(F32 angle, F32 x, F32 y, F32 z);     // Rotates about x,y,z by angle radians
         const LLVector4&    rotVec(const LLMatrix4 &mat);               // Rotates by MAT4 mat
         const LLVector4&    rotVec(const LLQuaternion &q);              // Rotates by QUAT q
 
@@ -139,7 +137,7 @@ class LLVector4
 
 // Non-member functions
 F32 angle_between(const LLVector4 &a, const LLVector4 &b);      // Returns angle (radians) between a and b
-BOOL are_parallel(const LLVector4 &a, const LLVector4 &b, F32 epsilon=F_APPROXIMATELY_ZERO);        // Returns TRUE if a and b are very close to parallel
+bool are_parallel(const LLVector4 &a, const LLVector4 &b, F32 epsilon = F_APPROXIMATELY_ZERO);      // Returns true if a and b are very close to parallel
 F32 dist_vec(const LLVector4 &a, const LLVector4 &b);           // Returns distance between a and b
 F32 dist_vec_squared(const LLVector4 &a, const LLVector4 &b);   // Returns distance squared between a and b
 LLVector3   vec4to3(const LLVector4 &vec);
@@ -226,7 +224,7 @@ inline LLVector4::LLVector4(const LLSD &sd)
 }
 
 
-inline BOOL LLVector4::isFinite() const
+inline bool LLVector4::isFinite() const
 {
     return (llfinite(mV[VX]) && llfinite(mV[VY]) && llfinite(mV[VZ]) && llfinite(mV[VW]));
 }

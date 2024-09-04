@@ -28,25 +28,11 @@
 #include "llcommandlineparser.h"
 #include "llexception.h"
 
-// *NOTE: The boost::lexical_cast generates
-// the warning C4701(local used with out assignment) in VC7.1.
-// Disable the warning for the boost includes.
-#if _MSC_VER
-#   pragma warning(push)
-#   pragma warning( disable : 4701 )
-#else
-// NOTE: For the other platforms?
-#endif
-
 #include <boost/program_options.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/bind.hpp>
 #include <boost/tokenizer.hpp>
 #include <boost/assign/list_of.hpp>
-
-#if _MSC_VER
-#   pragma warning(pop)
-#endif
 
 #include "llsdserialize.h"
 #include "llerror.h"
@@ -378,8 +364,8 @@ bool LLCommandLineParser::parseCommandLineString(const std::string& str)
     if (!str.empty())
     {
         bool add_last_c = true;
-        S32 last_c_pos = str.size() - 1; //don't get out of bounds on pos+1, last char will be processed separately
-        for (S32 pos = 0; pos < last_c_pos; ++pos)
+        auto last_c_pos = str.size() - 1; //don't get out of bounds on pos+1, last char will be processed separately
+        for (size_t pos = 0; pos < last_c_pos; ++pos)
         {
             cmd_line_string.append(&str[pos], 1);
             if (str[pos] == '\\')
@@ -571,8 +557,8 @@ void setControlValueCB(const LLCommandLineParser::token_vector_t& value,
                 std::string token(onevalue(option, value));
 
                 // There's a token. check the string for true/false/1/0 etc.
-                BOOL result = false;
-                BOOL gotSet = LLStringUtil::convertToBOOL(token, result);
+                bool result = false;
+                bool gotSet = LLStringUtil::convertToBOOL(token, result);
                 if (gotSet)
                 {
                     ctrl->setValue(LLSD(result), false);

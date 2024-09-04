@@ -43,9 +43,9 @@
 
 #include "llslurl.h"
 
-static const S32 msg_left_offset = 10;
-static const S32 msg_right_offset = 10;
-static const S32 msg_height_pad = 5;
+static constexpr S32 msg_left_offset = 10;
+static constexpr S32 msg_right_offset = 10;
+static constexpr S32 msg_height_pad = 5;
 
 //*******************************************************************************************************************
 // LLObjectHandler
@@ -62,7 +62,7 @@ public:
         if (params.size() < 2) return false;
 
         LLUUID object_id;
-        if (!object_id.set(params[0], FALSE))
+        if (!object_id.set(params[0], false))
         {
             return false;
         }
@@ -93,7 +93,7 @@ LLFloaterIMNearbyChatToastPanel* LLFloaterIMNearbyChatToastPanel::createInstance
     return item;
 }
 
-void    LLFloaterIMNearbyChatToastPanel::reshape        (S32 width, S32 height, BOOL called_from_parent )
+void    LLFloaterIMNearbyChatToastPanel::reshape        (S32 width, S32 height, bool called_from_parent )
 {
     LLPanel::reshape(width, height,called_from_parent);
 
@@ -122,7 +122,7 @@ void    LLFloaterIMNearbyChatToastPanel::reshape        (S32 width, S32 height, 
     msg_text->setRect(msg_text_rect);
 }
 
-BOOL LLFloaterIMNearbyChatToastPanel::postBuild()
+bool LLFloaterIMNearbyChatToastPanel::postBuild()
 {
     return LLPanel::postBuild();
 }
@@ -134,8 +134,8 @@ void LLFloaterIMNearbyChatToastPanel::addMessage(LLSD& notification)
 
     std::string color_name = notification["text_color"].asString();
 
-    LLColor4 textColor = LLUIColorTable::instance().getColor(color_name);
-    textColor.mV[VALPHA] =notification["color_alpha"].asReal();
+    LLUIColor textColor = LLUIColorTable::instance().getColor(color_name);
+    F32 textAlpha = (F32)notification["color_alpha"].asReal();
 
     S32 font_size = notification["font_size"].asInteger();
 
@@ -152,6 +152,7 @@ void LLFloaterIMNearbyChatToastPanel::addMessage(LLSD& notification)
     {
         LLStyle::Params style_params;
         style_params.color(textColor);
+        style_params.alpha(textAlpha);
         std::string font_name = LLFontGL::nameFromFont(messageFont);
         std::string font_style_size = LLFontGL::sizeFromFont(messageFont);
         style_params.font.name(font_name);
@@ -171,7 +172,7 @@ void LLFloaterIMNearbyChatToastPanel::addMessage(LLSD& notification)
         {
             style_params.font.style = "ITALIC";
         }
-        mMsgText->appendText(messageText, TRUE, style_params);
+        mMsgText->appendText(messageText, true, style_params);
     }
 
     snapToMessageHeight();
@@ -190,8 +191,8 @@ void LLFloaterIMNearbyChatToastPanel::init(LLSD& notification)
 
     std::string color_name = notification["text_color"].asString();
 
-    LLColor4 textColor = LLUIColorTable::instance().getColor(color_name);
-    textColor.mV[VALPHA] =notification["color_alpha"].asReal();
+    LLUIColor textColor = LLUIColorTable::instance().getColor(color_name);
+    F32 textAlpha = (F32)notification["color_alpha"].asReal();
 
     S32 font_size = notification["font_size"].asInteger();
 
@@ -222,19 +223,14 @@ void LLFloaterIMNearbyChatToastPanel::init(LLSD& notification)
         if (mSourceType == CHAT_SOURCE_AGENT || mSourceType == CHAT_SOURCE_OBJECT)
         {
             LLStyle::Params style_params_name;
-
-            LLColor4 user_name_color = LLUIColorTable::instance().getColor("HTMLLinkColor");
-            style_params_name.color(user_name_color);
-
-            std::string font_name = LLFontGL::nameFromFont(messageFont);
-            std::string font_style_size = LLFontGL::sizeFromFont(messageFont);
-            style_params_name.font.name(font_name);
-            style_params_name.font.size(font_style_size);
+            style_params_name.color = LLUIColorTable::instance().getColor("HTMLLinkColor");
+            style_params_name.font.name = LLFontGL::nameFromFont(messageFont);
+            style_params_name.font.size = LLFontGL::sizeFromFont(messageFont);
 
             style_params_name.link_href = notification["sender_slurl"].asString();
             style_params_name.is_link = true;
 
-            mMsgText->appendText(str_sender, FALSE, style_params_name);
+            mMsgText->appendText(str_sender, false, style_params_name);
 
         }
         else
@@ -274,6 +270,7 @@ void LLFloaterIMNearbyChatToastPanel::init(LLSD& notification)
     {
         LLStyle::Params style_params;
         style_params.color(textColor);
+        style_params.alpha(textAlpha);
         std::string font_name = LLFontGL::nameFromFont(messageFont);
         std::string font_style_size = LLFontGL::sizeFromFont(messageFont);
         style_params.font.name(font_name);
@@ -293,7 +290,7 @@ void LLFloaterIMNearbyChatToastPanel::init(LLSD& notification)
         {
             style_params.font.style = "ITALIC";
         }
-        mMsgText->appendText(messageText, FALSE, style_params);
+        mMsgText->appendText(messageText, false, style_params);
     }
 
 
@@ -326,12 +323,12 @@ void LLFloaterIMNearbyChatToastPanel::onMouseEnter              (S32 x, S32 y, M
         return;
 }
 
-BOOL    LLFloaterIMNearbyChatToastPanel::handleMouseDown    (S32 x, S32 y, MASK mask)
+bool    LLFloaterIMNearbyChatToastPanel::handleMouseDown    (S32 x, S32 y, MASK mask)
 {
     return LLPanel::handleMouseDown(x,y,mask);
 }
 
-BOOL    LLFloaterIMNearbyChatToastPanel::handleMouseUp  (S32 x, S32 y, MASK mask)
+bool    LLFloaterIMNearbyChatToastPanel::handleMouseUp  (S32 x, S32 y, MASK mask)
 {
     /*
     fix for request  EXT-4780
@@ -344,18 +341,17 @@ BOOL    LLFloaterIMNearbyChatToastPanel::handleMouseUp  (S32 x, S32 y, MASK mask
     S32 local_y = y - mMsgText->getRect().mBottom;
 
     //if text_box process mouse up (ussually this is click on url) - we didn't show nearby_chat.
-    if (mMsgText->pointInView(local_x, local_y) )
+    if (mMsgText->pointInView(local_x, local_y))
     {
-        if (mMsgText->handleMouseUp(local_x,local_y,mask) == TRUE)
-            return TRUE;
-        else
-        {
-            LLFloaterReg::getTypedInstance<LLFloaterIMNearbyChat>("nearby_chat")->showHistory();
-            return FALSE;
-        }
+        if (mMsgText->handleMouseUp(local_x, local_y, mask))
+            return true;
+
+        LLFloaterReg::getTypedInstance<LLFloaterIMNearbyChat>("nearby_chat")->showHistory();
+        return false;
     }
+
     LLFloaterReg::getTypedInstance<LLFloaterIMNearbyChat>("nearby_chat")->showHistory();
-    return LLPanel::handleMouseUp(x,y,mask);
+    return LLPanel::handleMouseUp(x, y, mask);
 }
 
 void    LLFloaterIMNearbyChatToastPanel::setHeaderVisibility(EShowItemHeader e)
@@ -374,7 +370,7 @@ bool    LLFloaterIMNearbyChatToastPanel::canAddText ()
     return msg_text->getLineCount()<10;
 }
 
-BOOL    LLFloaterIMNearbyChatToastPanel::handleRightMouseDown(S32 x, S32 y, MASK mask)
+bool    LLFloaterIMNearbyChatToastPanel::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
     LLUICtrl* avatar_icon = getChild<LLUICtrl>("avatar_icon", false);
 
@@ -383,7 +379,7 @@ BOOL    LLFloaterIMNearbyChatToastPanel::handleRightMouseDown(S32 x, S32 y, MASK
 
     //eat message for avatar icon if msg was from object
     if(avatar_icon->pointInView(local_x, local_y) && mSourceType != CHAT_SOURCE_AGENT)
-        return TRUE;
+        return true;
     return LLPanel::handleRightMouseDown(x,y,mask);
 }
 void LLFloaterIMNearbyChatToastPanel::draw()

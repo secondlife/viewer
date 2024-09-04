@@ -36,6 +36,7 @@ class LLImageRaw;
 class LLButton;
 class LLProgressBar;
 class LLViewerTexture;
+class LLTextBox;
 
 class LLProgressView :
     public LLPanel,
@@ -48,15 +49,15 @@ public:
     LLProgressView();
     virtual ~LLProgressView();
 
-    BOOL postBuild();
+    bool postBuild();
 
     /*virtual*/ void draw();
     void drawStartTexture(F32 alpha);
     void drawLogos(F32 alpha);
 
-    /*virtual*/ BOOL handleHover(S32 x, S32 y, MASK mask);
-    /*virtual*/ BOOL handleKeyHere(KEY key, MASK mask);
-    /*virtual*/ void setVisible(BOOL visible);
+    /*virtual*/ bool handleHover(S32 x, S32 y, MASK mask);
+    /*virtual*/ bool handleKeyHere(KEY key, MASK mask);
+    /*virtual*/ void setVisible(bool visible);
 
     // inherited from LLViewerMediaObserver
     /*virtual*/ void handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event);
@@ -76,7 +77,7 @@ public:
     void initTextures(S32 location_id, bool is_in_production);
     void releaseTextures();
 
-    void setCancelButtonVisible(BOOL b, const std::string& label);
+    void setCancelButtonVisible(bool b, const std::string& label);
 
     static void onCancelButtonClicked( void* );
     static void onClickMessage(void*);
@@ -85,6 +86,9 @@ public:
 protected:
     LLProgressBar* mProgressBar;
     LLMediaCtrl* mMediaCtrl;
+    LLTextBox* mLogosLabel = nullptr;
+    LLTextBox* mProgressText = nullptr;
+    LLTextBox* mMessageText = nullptr;
     F32 mPercentDone;
     std::string mMessage;
     LLButton*   mCancelBtn;

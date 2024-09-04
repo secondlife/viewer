@@ -77,6 +77,7 @@ struct LLVBCache
 };
 
 static std::unordered_map<U64, LLVBCache> sVBCache;
+static thread_local std::list<LLVertexBufferData> *sBufferDataList = nullptr;
 
 static const GLenum sGLTextureType[] =
 {
@@ -115,7 +116,7 @@ static const GLenum sGLBlendFactor[] =
 
 LLTexUnit::LLTexUnit(S32 index)
     : mCurrTexType(TT_NONE),
-    mCurrColorScale(1), mCurrAlphaScale(1), mCurrTexture(0), mTexColorSpace(TCS_LINEAR),
+    mCurrColorScale(1), mCurrAlphaScale(1), mCurrTexture(0),
     mHasMipMaps(false),
     mIndex(index)
 {
@@ -145,8 +146,6 @@ void LLTexUnit::refreshState(void)
     {
         glBindTexture(GL_TEXTURE_2D, 0);
     }
-
-    setTextureColorSpace(mTexColorSpace);
 }
 
 void LLTexUnit::activate(void)
@@ -241,7 +240,6 @@ bool LLTexUnit::bind(LLTexture* texture, bool for_rendering, bool forceBind)
                         setTextureAddressMode(gl_tex->mAddressMode);
                         setTextureFilteringOption(gl_tex->mFilterOption);
                     }
-                    setTextureColorSpace(mTexColorSpace);
                 }
             }
             else
@@ -318,7 +316,6 @@ bool LLTexUnit::bind(LLImageGL* texture, bool for_rendering, bool forceBind, S32
             setTextureFilteringOption(texture->mFilterOption);
             stop_glerror();
         }
-        setTextureColorSpace(mTexColorSpace);
     }
 
     stop_glerror();
@@ -354,7 +351,6 @@ bool LLTexUnit::bind(LLCubeMap* cubeMap)
                 setTextureAddressMode(cubeMap->mImages[0]->mAddressMode);
                 setTextureFilteringOption(cubeMap->mImages[0]->mFilterOption);
             }
-            setTextureColorSpace(mTexColorSpace);
             return true;
         }
         else
@@ -403,7 +399,6 @@ bool LLTexUnit::bindManual(eTextureType type, U32 texture, bool hasMips)
         mCurrTexture = texture;
         glBindTexture(sGLTextureType[type], texture);
         mHasMipMaps = hasMips;
-        setTextureColorSpace(mTexColorSpace);
     }
     return true;
 }
@@ -424,8 +419,6 @@ void LLTexUnit::unbind(eTextureType type)
     {
         mCurrTexture = 0;
 
-        // Always make sure our texture color space is reset to linear.  SRGB sampling should be opt-in in the vast majority of cases.  Also prevents color space "popping".
-        mTexColorSpace = TCS_LINEAR;
         if (type == LLTexUnit::TT_TEXTURE)
         {
             glBindTexture(sGLTextureType[type], sWhiteTexture);
@@ -447,8 +440,6 @@ void LLTexUnit::unbindFast(eTextureType type)
     {
         mCurrTexture = 0;
 
-        // Always make sure our texture color space is reset to linear.  SRGB sampling should be opt-in in the vast majority of cases.  Also prevents color space "popping".
-        mTexColorSpace = TCS_LINEAR;
         if (type == LLTexUnit::TT_TEXTURE)
         {
             glBindTexture(sGLTextureType[type], sWhiteTexture);
@@ -640,11 +631,6 @@ void LLTexUnit::debugTextureUnit(void)
         U32 set_unit = (activeTexture - GL_TEXTURE0);
         LL_WARNS() << "Incorrect Texture Unit!  Expected: " << set_unit << " Actual: " << mIndex << LL_ENDL;
     }
-}
-
-void LLTexUnit::setTextureColorSpace(eTextureColorSpace space)
-{
-    mTexColorSpace = space;
 }
 
 LLLightState::LLLightState(S32 index)
@@ -990,6 +976,9 @@ void LLRender::syncLightState()
 
 void LLRender::syncMatrices()
 {
+    STOP_GLERROR;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
+
     static const U32 name[] =
     {
         LLShaderMgr::MODELVIEW_MATRIX,
@@ -1012,8 +1001,6 @@ void LLRender::syncMatrices()
 
     if (shader)
     {
-        //llassert(shader);
-
         bool mvp_done = false;
 
         U32 i = MM_MODELVIEW;
@@ -1087,7 +1074,7 @@ void LLRender::syncMatrices()
             if (shader->getUniformLocation(LLShaderMgr::INVERSE_PROJECTION_MATRIX))
             {
                 glh::matrix4f inv_proj = mat.inverse();
-                shader->uniformMatrix4fv(LLShaderMgr::INVERSE_PROJECTION_MATRIX, 1, FALSE, inv_proj.m);
+                shader->uniformMatrix4fv(LLShaderMgr::INVERSE_PROJECTION_MATRIX, 1, false, inv_proj.m);
             }
 
             // Used by some full screen effects - such as full screen lights, glow, etc.
@@ -1134,6 +1121,7 @@ void LLRender::syncMatrices()
             syncLightState();
         }
     }
+    STOP_GLERROR;
 }
 
 void LLRender::translatef(const GLfloat& x, const GLfloat& y, const GLfloat& z)
@@ -1512,7 +1500,7 @@ LLLightState* LLRender::getLight(U32 index)
 
 void LLRender::setAmbientLightColor(const LLColor4& color)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
     if (color != mAmbientLightColor)
     {
         ++mLightHash;
@@ -1538,6 +1526,30 @@ void LLRender::clearErrors()
     while (glGetError())
     {
         //loop until no more error flags left
+    }
+}
+
+void LLRender::beginList(std::list<LLVertexBufferData> *list)
+{
+    if (sBufferDataList)
+    {
+        LL_ERRS() << "beginList called while another list is open." << LL_ENDL;
+    }
+    llassert(LLGLSLShader::sCurBoundShaderPtr == &gUIProgram);
+    flush();
+    sBufferDataList = list;
+}
+
+void LLRender::endList()
+{
+    if (sBufferDataList)
+    {
+        flush();
+        sBufferDataList = nullptr;
+    }
+    else
+    {
+        llassert(false); // endList called without an open list
     }
 }
 
@@ -1583,8 +1595,10 @@ void LLRender::end()
         flush();
     }
 }
+
 void LLRender::flush()
 {
+    STOP_GLERROR;
     if (mCount > 0)
     {
         LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
@@ -1630,108 +1644,29 @@ void LLRender::flush()
         if (mBuffer)
         {
 
-            HBXXH64 hash;
+            LLVertexBuffer *vb;
+
             U32 attribute_mask = LLGLSLShader::sCurBoundShaderPtr->mAttributeMask;
 
+            if (sBufferDataList)
             {
-                LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("vb cache hash");
-
-                hash.update((U8*)mVerticesp.get(), count * sizeof(LLVector4a));
-                if (attribute_mask & LLVertexBuffer::MAP_TEXCOORD0)
-                {
-                    hash.update((U8*)mTexcoordsp.get(), count * sizeof(LLVector2));
-                }
-
-                if (attribute_mask & LLVertexBuffer::MAP_COLOR)
-                {
-                    hash.update((U8*)mColorsp.get(), count * sizeof(LLColor4U));
-                }
-
-                hash.finalize();
-            }
-
-
-            U64 vhash = hash.digest();
-
-            // check the VB cache before making a new vertex buffer
-            // This is a giant hack to deal with (mostly) our terrible UI rendering code
-            // that was built on top of OpenGL immediate mode.  Huge performance wins
-            // can be had by not uploading geometry to VRAM unless absolutely necessary.
-            // Most of our usage of the "immediate mode" style draw calls is actually
-            // sending the same geometry over and over again.
-            // To leverage this, we maintain a running hash of the vertex stream being
-            // built up before a flush, and then check that hash against a VB
-            // cache just before creating a vertex buffer in VRAM
-            std::unordered_map<U64, LLVBCache>::iterator cache = sVBCache.find(vhash);
-
-            LLPointer<LLVertexBuffer> vb;
-
-            if (cache != sVBCache.end())
-            {
-                LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("vb cache hit");
-                // cache hit, just use the cached buffer
-                vb = cache->second.vb;
-                cache->second.touched = std::chrono::steady_clock::now();
+                vb = genBuffer(attribute_mask, count);
+                sBufferDataList->emplace_back(
+                    vb,
+                    mMode,
+                    count,
+                    gGL.getTexUnit(0)->mCurrTexture,
+                    mMatrix[MM_MODELVIEW][mMatIdx[MM_MODELVIEW]],
+                    mMatrix[MM_PROJECTION][mMatIdx[MM_PROJECTION]],
+                    mMatrix[MM_TEXTURE0][mMatIdx[MM_TEXTURE0]]
+                    );
             }
             else
             {
-                LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("vb cache miss");
-                vb = new LLVertexBuffer(attribute_mask);
-                vb->allocateBuffer(count, 0);
-
-                vb->setBuffer();
-
-                vb->setPositionData((LLVector4a*) mVerticesp.get());
-
-                if (attribute_mask & LLVertexBuffer::MAP_TEXCOORD0)
-                {
-                    vb->setTexCoordData(mTexcoordsp.get());
-                }
-
-                if (attribute_mask & LLVertexBuffer::MAP_COLOR)
-                {
-                    vb->setColorData(mColorsp.get());
-                }
-
-                vb->unbind();
-
-                sVBCache[vhash] = { vb , std::chrono::steady_clock::now() };
-
-                static U32 miss_count = 0;
-                miss_count++;
-                if (miss_count > 1024)
-                {
-                    LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("vb cache clean");
-                    miss_count = 0;
-                    auto now = std::chrono::steady_clock::now();
-
-                    using namespace std::chrono_literals;
-                    // every 1024 misses, clean the cache of any VBs that haven't been touched in the last second
-                    for (std::unordered_map<U64, LLVBCache>::iterator iter = sVBCache.begin(); iter != sVBCache.end(); )
-                    {
-                        if (now - iter->second.touched > 1s)
-                        {
-                            iter = sVBCache.erase(iter);
-                        }
-                        else
-                        {
-                            ++iter;
-                        }
-                    }
-                }
+                vb = bufferfromCache(attribute_mask, count);
             }
 
-            vb->setBuffer();
-
-            if (mMode == LLRender::QUADS && sGLCoreProfile)
-            {
-                vb->drawArrays(LLRender::TRIANGLES, 0, count);
-                mQuadCycle = 1;
-            }
-            else
-            {
-                vb->drawArrays(mMode, 0, count);
-            }
+            drawBuffer(vb, mMode, count);
         }
         else
         {
@@ -1739,13 +1674,134 @@ void LLRender::flush()
             LL_ERRS() << "A flush call from outside main rendering thread" << LL_ENDL;
         }
 
-
-        mVerticesp[0] = mVerticesp[count];
-        mTexcoordsp[0] = mTexcoordsp[count];
-        mColorsp[0] = mColorsp[count];
-
-        mCount = 0;
+        resetStriders(count);
     }
+}
+
+LLVertexBuffer* LLRender::bufferfromCache(U32 attribute_mask, U32 count)
+{
+    LLVertexBuffer *vb = nullptr;
+    HBXXH64 hash;
+
+    {
+        LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("vb cache hash");
+
+        hash.update((U8*)mVerticesp.get(), count * sizeof(LLVector4a));
+        if (attribute_mask & LLVertexBuffer::MAP_TEXCOORD0)
+        {
+            hash.update((U8*)mTexcoordsp.get(), count * sizeof(LLVector2));
+        }
+
+        if (attribute_mask & LLVertexBuffer::MAP_COLOR)
+        {
+            hash.update((U8*)mColorsp.get(), count * sizeof(LLColor4U));
+        }
+
+        hash.finalize();
+    }
+
+    U64 vhash = hash.digest();
+
+    // check the VB cache before making a new vertex buffer
+    // This is a giant hack to deal with (mostly) our terrible UI rendering code
+    // that was built on top of OpenGL immediate mode.  Huge performance wins
+    // can be had by not uploading geometry to VRAM unless absolutely necessary.
+    // Most of our usage of the "immediate mode" style draw calls is actually
+    // sending the same geometry over and over again.
+    // To leverage this, we maintain a running hash of the vertex stream being
+    // built up before a flush, and then check that hash against a VB
+    // cache just before creating a vertex buffer in VRAM
+    std::unordered_map<U64, LLVBCache>::iterator cache = sVBCache.find(vhash);
+
+    if (cache != sVBCache.end())
+    {
+        LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("vb cache hit");
+        // cache hit, just use the cached buffer
+        vb = cache->second.vb;
+        cache->second.touched = std::chrono::steady_clock::now();
+    }
+    else
+    {
+        LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("vb cache miss");
+        vb = genBuffer(attribute_mask, count);
+
+        sVBCache[vhash] = { vb , std::chrono::steady_clock::now() };
+
+        static U32 miss_count = 0;
+        miss_count++;
+        if (miss_count > 1024)
+        {
+            LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("vb cache clean");
+            miss_count = 0;
+            auto now = std::chrono::steady_clock::now();
+
+            using namespace std::chrono_literals;
+            // every 1024 misses, clean the cache of any VBs that haven't been touched in the last second
+            for (std::unordered_map<U64, LLVBCache>::iterator iter = sVBCache.begin(); iter != sVBCache.end(); )
+            {
+                if (now - iter->second.touched > 1s)
+                {
+                    iter = sVBCache.erase(iter);
+                }
+                else
+                {
+                    ++iter;
+                }
+            }
+        }
+    }
+    return vb;
+}
+
+LLVertexBuffer* LLRender::genBuffer(U32 attribute_mask, S32 count)
+{
+    LLVertexBuffer * vb = new LLVertexBuffer(attribute_mask);
+    vb->allocateBuffer(count, 0);
+
+    vb->setBuffer();
+
+    vb->setPositionData((LLVector4a*)mVerticesp.get());
+
+    if (attribute_mask & LLVertexBuffer::MAP_TEXCOORD0)
+    {
+        vb->setTexCoord0Data(mTexcoordsp.get());
+    }
+
+    if (attribute_mask & LLVertexBuffer::MAP_COLOR)
+    {
+        vb->setColorData(mColorsp.get());
+    }
+
+#if LL_DARWIN
+    vb->unmapBuffer();
+#endif
+    vb->unbind();
+
+    return vb;
+}
+
+void LLRender::drawBuffer(LLVertexBuffer* vb, U32 mode, S32 count)
+{
+    vb->setBuffer();
+
+    if (mode == LLRender::QUADS && sGLCoreProfile)
+    {
+        vb->drawArrays(LLRender::TRIANGLES, 0, count);
+        mQuadCycle = 1;
+    }
+    else
+    {
+        vb->drawArrays(mode, 0, count);
+    }
+}
+
+void LLRender::resetStriders(S32 count)
+{
+    mVerticesp[0] = mVerticesp[count];
+    mTexcoordsp[0] = mTexcoordsp[count];
+    mColorsp[0] = mColorsp[count];
+
+    mCount = 0;
 }
 
 void LLRender::vertex3f(const GLfloat& x, const GLfloat& y, const GLfloat& z)

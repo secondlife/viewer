@@ -41,19 +41,10 @@
 #include "llstring.h"
 #include "llfasttimer.h"
 
-static const F64 DATE_EPOCH = 0.0;
-
 static const F64 LL_APR_USEC_PER_SEC = 1000000.0;
     // should be APR_USEC_PER_SEC, but that relies on INT64_C which
     // isn't defined in glib under our build set up for some reason
 
-
-LLDate::LLDate() : mSecondsSinceEpoch(DATE_EPOCH)
-{}
-
-LLDate::LLDate(const LLDate& date) :
-    mSecondsSinceEpoch(date.mSecondsSinceEpoch)
-{}
 
 LLDate::LLDate(F64SecondsImplicit seconds_since_epoch) :
     mSecondsSinceEpoch(seconds_since_epoch.value())

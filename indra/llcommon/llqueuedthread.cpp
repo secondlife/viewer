@@ -37,9 +37,9 @@
 // MAIN THREAD
 LLQueuedThread::LLQueuedThread(const std::string& name, bool threaded, bool should_pause) :
     LLThread(name),
-    mIdleThread(TRUE),
+    mIdleThread(true),
     mNextHandle(0),
-    mStarted(FALSE),
+    mStarted(false),
     mThreaded(threaded),
     mRequestQueue(name, 1024 * 1024)
 {
@@ -131,7 +131,7 @@ size_t LLQueuedThread::update(F32 max_time_ms)
         if (!mThreaded)
         {
             startThread();
-            mStarted = TRUE;
+            mStarted = true;
         }
     }
     return updateQueue(max_time_ms);
@@ -149,9 +149,9 @@ size_t LLQueuedThread::updateQueue(F32 max_time_ms)
             mRequestQueue.post([=]()
                 {
                     LL_PROFILE_ZONE_NAMED_CATEGORY_THREAD("qt - update");
-                    mIdleThread = FALSE;
+                    mIdleThread = false;
                     threadedUpdate();
-                    mIdleThread = TRUE;
+                    mIdleThread = true;
                 }
             );
         }
@@ -210,7 +210,7 @@ void LLQueuedThread::waitOnPending()
 // MAIN thread
 void LLQueuedThread::printQueueStats()
 {
-    U32 size = mRequestQueue.size();
+    auto size = mRequestQueue.size();
     if (size > 0)
     {
         LL_INFOS() << llformat("Pending Requests:%d ", mRequestQueue.size()) << LL_ENDL;
@@ -392,7 +392,7 @@ void LLQueuedThread::processRequest(LLQueuedThread::QueuedRequest* req)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
 
-    mIdleThread = FALSE;
+    mIdleThread = false;
     //threadedUpdate();
 
     // Get next request from pool
@@ -483,7 +483,7 @@ void LLQueuedThread::processRequest(LLQueuedThread::QueuedRequest* req)
 
                             if (sleep_time.count() > 0)
                             {
-                                ms_sleep(sleep_time.count());
+                                ms_sleep((U32)sleep_time.count());
                             }
                         }
                         processRequest(req);
@@ -494,7 +494,7 @@ void LLQueuedThread::processRequest(LLQueuedThread::QueuedRequest* req)
         }
     }
 
-    mIdleThread = TRUE;
+    mIdleThread = true;
 }
 
 // virtual
@@ -513,7 +513,7 @@ void LLQueuedThread::run()
     // call checPause() immediately so we don't try to do anything before the class is fully constructed
     checkPause();
     startThread();
-    mStarted = TRUE;
+    mStarted = true;
 
 
     /*while (1)
@@ -522,7 +522,7 @@ void LLQueuedThread::run()
         // this will block on the condition until runCondition() returns true, the thread is unpaused, or the thread leaves the RUNNING state.
         checkPause();
 
-        mIdleThread = FALSE;
+        mIdleThread = false;
 
         threadedUpdate();
 
@@ -531,7 +531,7 @@ void LLQueuedThread::run()
         if (pending_work == 0)
         {
             //LL_PROFILE_ZONE_NAMED("LLQueuedThread - sleep");
-            mIdleThread = TRUE;
+            mIdleThread = true;
             //ms_sleep(1);
         }
         //LLThread::yield(); // thread should yield after each request

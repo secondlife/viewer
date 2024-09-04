@@ -50,7 +50,6 @@
 
 #include <boost/function.hpp>
 #include <boost/signals2.hpp>
-#include <boost/scoped_ptr.hpp>
 
 class LLView;
 class LLViewerObject;
@@ -91,12 +90,12 @@ public:
     LLPickInfo();
     LLPickInfo(const LLCoordGL& mouse_pos,
         MASK keyboard_mask,
-        BOOL pick_transparent,
-        BOOL pick_rigged,
-        BOOL pick_particle,
-        BOOL pick_reflection_probe,
-        BOOL pick_surface_info,
-        BOOL pick_unselectable,
+        bool pick_transparent,
+        bool pick_rigged,
+        bool pick_particle,
+        bool pick_reflection_probe,
+        bool pick_surface_info,
+        bool pick_unselectable,
         void (*pick_callback)(const LLPickInfo& pick_info));
 
     void fetchResults();
@@ -129,17 +128,17 @@ public:
     LLVector3       mNormal;
     LLVector4       mTangent;
     LLVector3       mBinormal;
-    BOOL            mPickTransparent;
-    BOOL            mPickRigged;
-    BOOL            mPickParticle;
-    BOOL            mPickUnselectable;
-    BOOL            mPickReflectionProbe = FALSE;
+    bool            mPickTransparent;
+    bool            mPickRigged;
+    bool            mPickParticle;
+    bool            mPickUnselectable;
+    bool            mPickReflectionProbe = false;
     void            getSurfaceInfo();
 
 private:
     void            updateXYCoords();
 
-    BOOL            mWantSurfaceInfo;   // do we populate mUVCoord, mNormal, mBinormal?
+    bool            mWantSurfaceInfo;   // do we populate mUVCoord, mNormal, mBinormal?
 
 };
 
@@ -184,27 +183,28 @@ public:
     void            handlePieMenu(S32 x, S32 y, MASK mask);
 
     void            reshapeStatusBarContainer();
+    void            resetStatusBarContainer(); // undo changes done by resetStatusBarContainer on initWorldUI()
 
-    BOOL handleAnyMouseClick(LLWindow *window, LLCoordGL pos, MASK mask, EMouseClickType clicktype, BOOL down, bool &is_toolmgr_action);
+    bool handleAnyMouseClick(LLWindow *window, LLCoordGL pos, MASK mask, EMouseClickType clicktype, bool down, bool &is_toolmgr_action);
 
     //
     // LLWindowCallback interface implementation
     //
-    /*virtual*/ BOOL handleTranslatedKeyDown(KEY key,  MASK mask, BOOL repeated);
-    /*virtual*/ BOOL handleTranslatedKeyUp(KEY key,  MASK mask);
-    /*virtual*/ void handleScanKey(KEY key, BOOL key_down, BOOL key_up, BOOL key_level);
-    /*virtual*/ BOOL handleUnicodeChar(llwchar uni_char, MASK mask);    // NOT going to handle extended
-    /*virtual*/ BOOL handleMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask);
-    /*virtual*/ BOOL handleMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask);
-    /*virtual*/ BOOL handleCloseRequest(LLWindow *window);
+    /*virtual*/ bool handleTranslatedKeyDown(KEY key,  MASK mask, bool repeated);
+    /*virtual*/ bool handleTranslatedKeyUp(KEY key,  MASK mask);
+    /*virtual*/ void handleScanKey(KEY key, bool key_down, bool key_up, bool key_level);
+    /*virtual*/ bool handleUnicodeChar(llwchar uni_char, MASK mask);    // NOT going to handle extended
+    /*virtual*/ bool handleMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask);
+    /*virtual*/ bool handleMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask);
+    /*virtual*/ bool handleCloseRequest(LLWindow *window);
     /*virtual*/ void handleQuit(LLWindow *window);
-    /*virtual*/ BOOL handleRightMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask);
-    /*virtual*/ BOOL handleRightMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask);
-    /*virtual*/ BOOL handleMiddleMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask);
-    /*virtual*/ BOOL handleMiddleMouseUp(LLWindow *window, LLCoordGL pos, MASK mask);
-    /*virtual*/ BOOL handleOtherMouseDown(LLWindow *window, LLCoordGL pos, MASK mask, S32 button);
-    /*virtual*/ BOOL handleOtherMouseUp(LLWindow *window, LLCoordGL pos, MASK mask, S32 button);
-    BOOL handleOtherMouse(LLWindow *window, LLCoordGL pos, MASK mask, S32 button, bool down);
+    /*virtual*/ bool handleRightMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask);
+    /*virtual*/ bool handleRightMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask);
+    /*virtual*/ bool handleMiddleMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask);
+    /*virtual*/ bool handleMiddleMouseUp(LLWindow *window, LLCoordGL pos, MASK mask);
+    /*virtual*/ bool handleOtherMouseDown(LLWindow *window, LLCoordGL pos, MASK mask, S32 button);
+    /*virtual*/ bool handleOtherMouseUp(LLWindow *window, LLCoordGL pos, MASK mask, S32 button);
+    bool handleOtherMouse(LLWindow *window, LLCoordGL pos, MASK mask, S32 button, bool down);
     /*virtual*/ LLWindowCallbacks::DragNDropResult handleDragNDrop(LLWindow *window, LLCoordGL pos, MASK mask, LLWindowCallbacks::DragNDropAction action, std::string data);
                 void handleMouseMove(LLWindow *window,  LLCoordGL pos, MASK mask);
                 void handleMouseDragged(LLWindow *window,  LLCoordGL pos, MASK mask);
@@ -212,20 +212,20 @@ public:
     /*virtual*/ void handleResize(LLWindow *window,  S32 x,  S32 y);
     /*virtual*/ void handleFocus(LLWindow *window);
     /*virtual*/ void handleFocusLost(LLWindow *window);
-    /*virtual*/ BOOL handleActivate(LLWindow *window, BOOL activated);
-    /*virtual*/ BOOL handleActivateApp(LLWindow *window, BOOL activating);
+    /*virtual*/ bool handleActivate(LLWindow *window, bool activated);
+    /*virtual*/ bool handleActivateApp(LLWindow *window, bool activating);
     /*virtual*/ void handleMenuSelect(LLWindow *window,  S32 menu_item);
-    /*virtual*/ BOOL handlePaint(LLWindow *window,  S32 x,  S32 y,  S32 width,  S32 height);
+    /*virtual*/ bool handlePaint(LLWindow *window,  S32 x,  S32 y,  S32 width,  S32 height);
     /*virtual*/ void handleScrollWheel(LLWindow *window,  S32 clicks);
     /*virtual*/ void handleScrollHWheel(LLWindow *window,  S32 clicks);
-    /*virtual*/ BOOL handleDoubleClick(LLWindow *window,  LLCoordGL pos, MASK mask);
+    /*virtual*/ bool handleDoubleClick(LLWindow *window,  LLCoordGL pos, MASK mask);
     /*virtual*/ void handleWindowBlock(LLWindow *window);
     /*virtual*/ void handleWindowUnblock(LLWindow *window);
     /*virtual*/ void handleDataCopy(LLWindow *window, S32 data_type, void *data);
-    /*virtual*/ BOOL handleTimerEvent(LLWindow *window);
-    /*virtual*/ BOOL handleDeviceChange(LLWindow *window);
-    /*virtual*/ BOOL handleDPIChanged(LLWindow *window, F32 ui_scale_factor, S32 window_width, S32 window_height);
-    /*virtual*/ BOOL handleWindowDidChangeScreen(LLWindow *window);
+    /*virtual*/ bool handleTimerEvent(LLWindow *window);
+    /*virtual*/ bool handleDeviceChange(LLWindow *window);
+    /*virtual*/ bool handleDPIChanged(LLWindow *window, F32 ui_scale_factor, S32 window_width, S32 window_height);
+    /*virtual*/ bool handleWindowDidChangeScreen(LLWindow *window);
 
     /*virtual*/ void handlePingWatchdog(LLWindow *window, const char * msg);
     /*virtual*/ void handlePauseWatchdog(LLWindow *window);
@@ -280,9 +280,9 @@ public:
     S32             getCurrentMouseDY()     const   { return mCurrentMouseDelta.mY; }
     LLCoordGL       getCurrentMouseDelta()  const   { return mCurrentMouseDelta; }
     static LLTrace::SampleStatHandle<>* getMouseVelocityStat()      { return &sMouseVelocityStat; }
-    BOOL            getLeftMouseDown()  const   { return mLeftMouseDown; }
-    BOOL            getMiddleMouseDown()    const   { return mMiddleMouseDown; }
-    BOOL            getRightMouseDown() const   { return mRightMouseDown; }
+    bool            getLeftMouseDown()  const   { return mLeftMouseDown; }
+    bool            getMiddleMouseDown()    const   { return mMiddleMouseDown; }
+    bool            getRightMouseDown() const   { return mRightMouseDown; }
 
     const LLPickInfo&   getLastPick() const { return mLastPick; }
 
@@ -297,7 +297,7 @@ public:
 
 
     // Is window of our application frontmost?
-    BOOL            getActive() const           { return mActive; }
+    bool            getActive() const           { return mActive; }
 
     const std::string&  getInitAlert() { return mInitAlert; }
 
@@ -309,16 +309,16 @@ public:
     void            setCursor( ECursorType c );
     void            showCursor();
     void            hideCursor();
-    BOOL            getCursorHidden() { return mCursorHidden; }
+    bool            getCursorHidden() { return mCursorHidden; }
     void            moveCursorToCenter();                               // move to center of window
 
     void            initTextures(S32 location_id);
-    void            setShowProgress(const BOOL show);
-    BOOL            getShowProgress() const;
+    void            setShowProgress(const bool show);
+    bool            getShowProgress() const;
     void            setProgressString(const std::string& string);
     void            setProgressPercent(const F32 percent);
     void            setProgressMessage(const std::string& msg);
-    void            setProgressCancelButtonVisible( BOOL b, const std::string& label = LLStringUtil::null );
+    void            setProgressCancelButtonVisible( bool b, const std::string& label = LLStringUtil::null );
     LLProgressView *getProgressView() const;
     void            revealIntroPanel();
     void            setStartupComplete();
@@ -334,8 +334,8 @@ public:
     LLView*         getToolBarHolder() { return mToolBarHolder.get(); }
     LLView*         getHintHolder() { return mHintHolder.get(); }
     LLView*         getLoginPanelHolder() { return mLoginPanelHolder.get(); }
-    BOOL            handleKey(KEY key, MASK mask);
-    BOOL            handleKeyUp(KEY key, MASK mask);
+    bool            handleKey(KEY key, MASK mask);
+    bool            handleKeyUp(KEY key, MASK mask);
     void            handleScrollWheel   (S32 clicks);
     void            handleScrollHWheel  (S32 clicks);
 
@@ -345,7 +345,7 @@ public:
     void            clearPopups();
 
     // Hide normal UI when a logon fails, re-show everything when logon is attempted again
-    void            setNormalControlsVisible( BOOL visible );
+    void            setNormalControlsVisible( bool visible );
     void            setMenuBackgroundColor(bool god_mode = false, bool dev_grid = false);
 
     void            reshape(S32 width, S32 height);
@@ -362,11 +362,11 @@ public:
     // snapshot functionality.
     // perhaps some of this should move to llfloatershapshot?  -MG
 
-    BOOL            saveSnapshot(const std::string&  filename, S32 image_width, S32 image_height, BOOL show_ui = TRUE, BOOL show_hud = TRUE, BOOL do_rebuild = FALSE, LLSnapshotModel::ESnapshotLayerType type = LLSnapshotModel::SNAPSHOT_TYPE_COLOR, LLSnapshotModel::ESnapshotFormat format = LLSnapshotModel::SNAPSHOT_FORMAT_BMP);
-    BOOL            rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_height, BOOL keep_window_aspect = TRUE, BOOL is_texture = FALSE,
-        BOOL show_ui = TRUE, BOOL show_hud = TRUE, BOOL do_rebuild = FALSE, BOOL no_post = FALSE, LLSnapshotModel::ESnapshotLayerType type = LLSnapshotModel::SNAPSHOT_TYPE_COLOR, S32 max_size = MAX_SNAPSHOT_IMAGE_SIZE);
+    bool            saveSnapshot(const std::string&  filename, S32 image_width, S32 image_height, bool show_ui = true, bool show_hud = true, bool do_rebuild = false, LLSnapshotModel::ESnapshotLayerType type = LLSnapshotModel::SNAPSHOT_TYPE_COLOR, LLSnapshotModel::ESnapshotFormat format = LLSnapshotModel::SNAPSHOT_FORMAT_BMP);
+    bool            rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_height, bool keep_window_aspect = true, bool is_texture = false,
+        bool show_ui = true, bool show_hud = true, bool do_rebuild = false, bool no_post = false, LLSnapshotModel::ESnapshotLayerType type = LLSnapshotModel::SNAPSHOT_TYPE_COLOR, S32 max_size = MAX_SNAPSHOT_IMAGE_SIZE);
 
-    BOOL            simpleSnapshot(LLImageRaw *raw, S32 image_width, S32 image_height, const int num_render_passes);
+    bool            simpleSnapshot(LLImageRaw *raw, S32 image_width, S32 image_height, const int num_render_passes);
 
 
 
@@ -376,20 +376,20 @@ public:
     // index - cube index in the array to use (cube index, not face-layer)
     // face - which cube face to update
     // near_clip - near clip setting to use
-    BOOL cubeSnapshot(const LLVector3 &origin, LLCubeMapArray *cubearray, S32 index, S32 face, F32 near_clip, bool render_avatars,
+    bool cubeSnapshot(const LLVector3 &origin, LLCubeMapArray *cubearray, S32 index, S32 face, F32 near_clip, bool render_avatars,
                       bool customCullingPlane = false, LLPlane cullingPlane = LLPlane(LLVector3(0, 0, 0), LLVector3(0, 0, 1)));
 
 
     // special implementation of simpleSnapshot for reflection maps
-    BOOL            reflectionSnapshot(LLImageRaw* raw, S32 image_width, S32 image_height, const int num_render_passes);
+    bool            reflectionSnapshot(LLImageRaw* raw, S32 image_width, S32 image_height, const int num_render_passes);
 
-    BOOL            thumbnailSnapshot(LLImageRaw *raw, S32 preview_width, S32 preview_height, BOOL show_ui, BOOL show_hud, BOOL do_rebuild, BOOL no_post, LLSnapshotModel::ESnapshotLayerType type);
-    BOOL            isSnapshotLocSet() const;
+    bool            thumbnailSnapshot(LLImageRaw *raw, S32 preview_width, S32 preview_height, bool show_ui, bool show_hud, bool do_rebuild, bool no_post, LLSnapshotModel::ESnapshotLayerType type);
+    bool            isSnapshotLocSet() const;
     void            resetSnapshotLoc() const;
 
     typedef boost::signals2::signal<void(void)> snapshot_saved_signal_t;
 
-    void            saveImageNumbered(LLImageFormatted *image, BOOL force_picker, const snapshot_saved_signal_t::slot_type& success_cb, const snapshot_saved_signal_t::slot_type& failure_cb);
+    void            saveImageNumbered(LLImageFormatted *image, bool force_picker, const snapshot_saved_signal_t::slot_type& success_cb, const snapshot_saved_signal_t::slot_type& failure_cb);
     void            onDirectorySelected(const std::vector<std::string>& filenames, LLImageFormatted *image, const snapshot_saved_signal_t::slot_type& success_cb, const snapshot_saved_signal_t::slot_type& failure_cb);
     void            saveImageLocal(LLImageFormatted *image, const snapshot_saved_signal_t::slot_type& success_cb, const snapshot_saved_signal_t::slot_type& failure_cb);
     void            onSelectionFailure(const snapshot_saved_signal_t::slot_type& failure_cb);
@@ -401,7 +401,7 @@ public:
     void            playSnapshotAnimAndSound();
 
     // draws selection boxes around selected objects, must call displayObjects first
-    void            renderSelections( BOOL for_gl_pick, BOOL pick_parcel_walls, BOOL for_hud );
+    void            renderSelections( bool for_gl_pick, bool pick_parcel_walls, bool for_hud );
     void            performPick();
     void            returnEmptyPicks();
 
@@ -409,21 +409,21 @@ public:
                                 S32 y_from_bot,
                                 MASK mask,
                                 void (*callback)(const LLPickInfo& pick_info),
-                                BOOL pick_transparent = FALSE,
-                                BOOL pick_rigged = FALSE,
-                                BOOL pick_unselectable = FALSE,
-                                BOOL pick_reflection_probes = FALSE);
-    LLPickInfo      pickImmediate(S32 x, S32 y, BOOL pick_transparent, BOOL pick_rigged = FALSE, BOOL pick_particle = FALSE, BOOL pick_unselectable = TRUE, BOOL pick_reflection_probe = FALSE);
+                                bool pick_transparent = false,
+                                bool pick_rigged = false,
+                                bool pick_unselectable = false,
+                                bool pick_reflection_probes = false);
+    LLPickInfo      pickImmediate(S32 x, S32 y, bool pick_transparent, bool pick_rigged = false, bool pick_particle = false, bool pick_unselectable = true, bool pick_reflection_probe = false);
     LLHUDIcon* cursorIntersectIcon(S32 mouse_x, S32 mouse_y, F32 depth,
                                            LLVector4a* intersection);
 
     LLViewerObject* cursorIntersect(S32 mouse_x = -1, S32 mouse_y = -1, F32 depth = 512.f,
                                     LLViewerObject *this_object = NULL,
                                     S32 this_face = -1,
-                                    BOOL pick_transparent = FALSE,
-                                    BOOL pick_rigged = FALSE,
-                                    BOOL pick_unselectable = TRUE,
-                                    BOOL pick_reflection_probe = TRUE,
+                                    bool pick_transparent = false,
+                                    bool pick_rigged = false,
+                                    bool pick_unselectable = true,
+                                    bool pick_reflection_probe = true,
                                     S32* face_hit = NULL,
                                     S32* gltf_node_hit = nullptr,
                                     S32* gltf_primitive_hit = nullptr,
@@ -443,10 +443,10 @@ public:
     //const LLVector3d& lastNonFloraObjectHitOffset();
 
     // mousePointOnLand() returns true if found point
-    BOOL            mousePointOnLandGlobal(const S32 x, const S32 y, LLVector3d *land_pos_global, BOOL ignore_distance = FALSE);
-    BOOL            mousePointOnPlaneGlobal(LLVector3d& point, const S32 x, const S32 y, const LLVector3d &plane_point, const LLVector3 &plane_normal);
+    bool            mousePointOnLandGlobal(const S32 x, const S32 y, LLVector3d *land_pos_global, bool ignore_distance = false);
+    bool            mousePointOnPlaneGlobal(LLVector3d& point, const S32 x, const S32 y, const LLVector3d &plane_point, const LLVector3 &plane_normal);
     LLVector3d      clickPointInWorldGlobal(const S32 x, const S32 y_from_bot, LLViewerObject* clicked_object) const;
-    BOOL            clickPointOnSurfaceGlobal(const S32 x, const S32 y, LLViewerObject *objectp, LLVector3d &point_global) const;
+    bool            clickPointOnSurfaceGlobal(const S32 x, const S32 y, LLViewerObject *objectp, LLVector3d &point_global) const;
 
     // Prints window implementation details
     void            dumpState();
@@ -454,9 +454,7 @@ public:
     // handle shutting down GL and bringing it back up
     void            requestResolutionUpdate();
     void            checkSettings();
-    void            restartDisplay(BOOL show_progress_bar);
-    BOOL            changeDisplaySettings(LLCoordScreen size, BOOL enable_vsync, BOOL show_progress_bar);
-    BOOL            getIgnoreDestroyWindow() { return mIgnoreActivate; }
+
     F32             getWorldViewAspectRatio() const;
     const LLVector2& getDisplayScale() const { return mDisplayScale; }
     void            calcDisplayScale();
@@ -464,13 +462,16 @@ public:
 
     static std::string getLastSnapshotDir();
 
+    LLView* getFloaterSnapRegion() { return mFloaterSnapRegion; }
+    LLPanel* getChicletContainer() { return mChicletContainer; }
+
 private:
     bool                    shouldShowToolTipFor(LLMouseHandler *mh);
 
     void            switchToolByMask(MASK mask);
     void            destroyWindow();
     void            drawMouselookInstructions();
-    void            stopGL(BOOL save_state = TRUE);
+    void            stopGL();
     void            restoreGL(const std::string& progress_message = LLStringUtil::null);
     void            initFonts(F32 zoom_factor = 1.f);
     void            schedulePick(LLPickInfo& pick_info);
@@ -492,14 +493,19 @@ private:
     LLRect          mWorldViewRectRaw;          // area of screen for 3D world
     LLRect          mWorldViewRectScaled;       // area of screen for 3D world scaled by UI size
     LLRootView*     mRootView;                  // a view of size mWindowRectRaw, containing all child views
+    LLView*         mFloaterSnapRegion = nullptr;
+    LLView*         mNavBarContainer = nullptr;
+    LLPanel*        mStatusBarContainer = nullptr;
+    LLPanel*        mChicletContainer = nullptr;
+    LLPanel*        mTopInfoContainer = nullptr;
     LLVector2       mDisplayScale;
 
     LLCoordGL       mCurrentMousePoint;         // last mouse position in GL coords
     LLCoordGL       mLastMousePoint;        // Mouse point at last frame.
     LLCoordGL       mCurrentMouseDelta;     //amount mouse moved this frame
-    BOOL            mLeftMouseDown;
-    BOOL            mMiddleMouseDown;
-    BOOL            mRightMouseDown;
+    bool            mLeftMouseDown;
+    bool            mMiddleMouseDown;
+    bool            mRightMouseDown;
 
     LLProgressView  *mProgressView;
 
@@ -508,9 +514,9 @@ private:
     std::string     mLastToolTipMessage;
     LLRect          mToolTipStickyRect;         // Once a tool tip is shown, it will stay visible until the mouse leaves this rect.
 
-    BOOL            mMouseInWindow;             // True if the mouse is over our window or if we have captured the mouse.
-    BOOL            mFocusCycleMode;
-    BOOL            mAllowMouseDragging;
+    bool            mMouseInWindow;             // True if the mouse is over our window or if we have captured the mouse.
+    bool            mFocusCycleMode;
+    bool            mAllowMouseDragging;
     LLFrameTimer    mMouseDownTimer;
     typedef std::set<LLHandle<LLView> > view_handle_set_t;
     view_handle_set_t mMouseHoverViews;
@@ -518,16 +524,14 @@ private:
     // Variables used for tool override switching based on modifier keys.  JC
     MASK            mLastMask;          // used to detect changes in modifier mask
     LLTool*         mToolStored;        // the tool we're overriding
-    BOOL            mHideCursorPermanent;   // true during drags, mouselook
-    BOOL            mCursorHidden;
+    bool            mHideCursorPermanent;   // true during drags, mouselook
+    bool            mCursorHidden;
     LLPickInfo      mLastPick;
     std::vector<LLPickInfo> mPicks;
     LLRect          mPickScreenRegion; // area of frame buffer for rendering pick frames (generally follows mouse to avoid going offscreen)
     LLTimer         mPickTimer;        // timer for scheduling n picks per second
 
     std::string     mOverlayTitle;      // Used for special titles such as "Second Life - Special E3 2003 Beta"
-
-    BOOL            mIgnoreActivate;
 
     std::string     mInitAlert;         // Window / GL initialization requires an alert
 
@@ -541,7 +545,6 @@ private:
 
     bool            mResDirty;
     bool            mStatesDirty;
-    U32         mCurrResolutionIndex;
 
     std::unique_ptr<LLWindowListener> mWindowListener;
     std::unique_ptr<LLViewerWindowListener> mViewerWindowListener;
@@ -572,9 +575,9 @@ extern S32              gDebugRaycastFaceHit;
 extern LLVector4a       gDebugRaycastStart;
 extern LLVector4a       gDebugRaycastEnd;
 
-extern BOOL         gDisplayCameraPos;
-extern BOOL         gDisplayWindInfo;
-extern BOOL         gDisplayFOV;
-extern BOOL         gDisplayBadge;
+extern bool         gDisplayCameraPos;
+extern bool         gDisplayWindInfo;
+extern bool         gDisplayFOV;
+extern bool         gDisplayBadge;
 
 #endif

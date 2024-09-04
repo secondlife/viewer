@@ -59,9 +59,8 @@ private:
     // it's safe to log -- which involves querying a different LLSingleton --
     // which requires accessing the master list.
     typedef std::recursive_mutex mutex_t;
-    typedef std::unique_lock<mutex_t> lock_t;
-
-    mutex_t mMutex;
+    LL_PROFILE_MUTEX_NAMED(mutex_t, mMutex, "Singleton MasterList");
+    typedef std::unique_lock<decltype(mMutex)> lock_t;
 
 public:
     // Instantiate this to both obtain a reference to MasterList::instance()

@@ -43,7 +43,7 @@ namespace LLStatViewer
     LLTrace::SampleStatHandle<>     FPS_SAMPLE("fpssample");
 }
 
-void LLVOAvatar::getNearbyRezzedStats(std::vector<S32>& counts)
+void LLVOAvatar::getNearbyRezzedStats(std::vector<S32>& counts, F32& avg_cloud_time, S32& cloud_avatars)
 {
     counts.resize(3);
     counts[0] = 0;

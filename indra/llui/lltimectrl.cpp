@@ -161,7 +161,7 @@ LLTimeCtrl::LLTimeCtrl(const LLTimeCtrl::Params& p)
     mDownBtn = LLUICtrlFactory::create<LLButton>(down_button_params);
     addChild(mDownBtn);
 
-    setUseBoundingRect( TRUE );
+    setUseBoundingRect( true );
 }
 
 F32 LLTimeCtrl::getTime24() const
@@ -188,27 +188,27 @@ void LLTimeCtrl::setTime24(F32 time)
     updateText();
 }
 
-BOOL LLTimeCtrl::handleKeyHere(KEY key, MASK mask)
+bool LLTimeCtrl::handleKeyHere(KEY key, MASK mask)
 {
     if (mEditor->hasFocus())
     {
         if(key == KEY_UP)
         {
             onUpBtn();
-            return TRUE;
+            return true;
         }
         if(key == KEY_DOWN)
         {
             onDownBtn();
-            return TRUE;
+            return true;
         }
         if (key == KEY_RETURN)
         {
             onCommit();
-            return TRUE;
+            return true;
         }
     }
-    return FALSE;
+    return false;
 }
 
 void LLTimeCtrl::onUpBtn()
@@ -343,7 +343,7 @@ LLTimeCtrl::EEditingPart LLTimeCtrl::getEditingPart()
     S32 cur_pos = mEditor->getCursor();
     std::string time_str = mEditor->getText();
 
-    S32 colon_index = time_str.find_first_of(':');
+    auto colon_index = time_str.find_first_of(':');
 
     if (cur_pos <= colon_index)
     {
@@ -376,7 +376,7 @@ std::string LLTimeCtrl::getMinutesString(const std::string& str)
     size_t colon_index = str.find_first_of(':');
     ++colon_index;
 
-    int minutes_len = str.length() - colon_index - AMPM_LEN;
+    auto minutes_len = str.length() - colon_index - AMPM_LEN;
     std::string minutes_str = str.substr(colon_index, minutes_len);
 
     return minutes_str;
@@ -411,7 +411,7 @@ bool LLTimeCtrl::isMinutesStringValid(const std::string& str)
 // static
 bool LLTimeCtrl::isPMAMStringValid(const std::string& str)
 {
-    S32 len = str.length();
+    auto len = str.length();
 
     bool valid = (str[--len] == 'M') && (str[--len] == 'P' || str[len] == 'A');
 

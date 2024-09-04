@@ -43,10 +43,10 @@ class LLViewerFetchedTexture;
 class LLDrawPoolBump : public LLRenderPass
 {
 protected :
-    LLDrawPoolBump(const U32 type):LLRenderPass(type) { mShiny = FALSE; }
+    LLDrawPoolBump(const U32 type):LLRenderPass(type) { mShiny = false; }
 public:
     static U32 sVertexMask;
-    BOOL mShiny;
+    bool mShiny;
 
     virtual U32 getVertexDataMask() override { return sVertexMask; }
 
@@ -76,11 +76,11 @@ public:
     virtual S32 getNumPostDeferredPasses() override { return 1; }
     /*virtual*/ void renderPostDeferred(S32 pass) override;
 
-    static BOOL bindBumpMap(LLDrawInfo& params, S32 channel = -2);
-    static BOOL bindBumpMap(LLFace* face, S32 channel = -2);
+    static bool bindBumpMap(LLDrawInfo& params, S32 channel = -2);
+    static bool bindBumpMap(LLFace* face, S32 channel = -2);
 
 private:
-    static BOOL bindBumpMap(U8 bump_code, LLViewerTexture* tex, S32 channel);
+    static bool bindBumpMap(U8 bump_code, LLViewerTexture* tex, S32 channel);
     bool mRigged = false; // if true, doing a rigged pass
 
 };
@@ -140,14 +140,13 @@ public:
     LLViewerTexture*    getBrightnessDarknessImage(LLViewerFetchedTexture* src_image, U8 bump_code);
     void        addTextureStats(U8 bump, const LLUUID& base_image_id, F32 virtual_size);
 
-    static void onSourceBrightnessLoaded( BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata );
-    static void onSourceDarknessLoaded( BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata );
-    static void onSourceStandardLoaded( BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata );
+    static void onSourceStandardLoaded( bool success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, bool final, void* userdata );
     static void generateNormalMapFromAlpha(LLImageRaw* src, LLImageRaw* nrm_image);
 
 
 private:
-    static void onSourceLoaded( BOOL success, LLViewerTexture *src_vi, LLImageRaw* src, LLUUID& source_asset_id, EBumpEffect bump );
+    // should be called whenever resolution of src_vi changes compared to the current entry
+    static void onSourceUpdated( LLViewerTexture *src_vi, EBumpEffect bump );
 
 private:
     typedef std::unordered_map<LLUUID, LLPointer<LLViewerTexture> > bump_image_map_t;

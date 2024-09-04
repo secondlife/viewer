@@ -63,146 +63,148 @@ class LLVolumeOctree;
 
 //============================================================================
 
-const S32 MIN_DETAIL_FACES = 6;
-const S32 MIN_LOD = 0;
-const S32 MAX_LOD = 3;
+constexpr S32 MIN_DETAIL_FACES = 6;
+constexpr S32 MIN_LOD = 0;
+constexpr S32 MAX_LOD = 3;
 
 // These are defined here but are not enforced at this level,
 // rather they are here for the convenience of code that uses
 // the LLVolume class.
-const F32 MIN_VOLUME_PROFILE_WIDTH  = 0.05f;
-const F32 MIN_VOLUME_PATH_WIDTH     = 0.05f;
+constexpr F32 MIN_VOLUME_PROFILE_WIDTH  = 0.05f;
+constexpr F32 MIN_VOLUME_PATH_WIDTH     = 0.05f;
 
-const F32 CUT_QUANTA    = 0.00002f;
-const F32 SCALE_QUANTA  = 0.01f;
-const F32 SHEAR_QUANTA  = 0.01f;
-const F32 TAPER_QUANTA  = 0.01f;
-const F32 REV_QUANTA    = 0.015f;
-const F32 HOLLOW_QUANTA = 0.00002f;
+constexpr F32 CUT_QUANTA    = 0.00002f;
+constexpr F32 SCALE_QUANTA  = 0.01f;
+constexpr F32 SHEAR_QUANTA  = 0.01f;
+constexpr F32 TAPER_QUANTA  = 0.01f;
+constexpr F32 REV_QUANTA    = 0.015f;
+constexpr F32 HOLLOW_QUANTA = 0.00002f;
 
-const S32 MAX_VOLUME_TRIANGLE_INDICES = 10000;
+constexpr S32 MAX_VOLUME_TRIANGLE_INDICES = 10000;
 
 //============================================================================
 
 // useful masks
-const LLPCode LL_PCODE_HOLLOW_MASK  = 0x80;     // has a thickness
-const LLPCode LL_PCODE_SEGMENT_MASK = 0x40;     // segments (1 angle)
-const LLPCode LL_PCODE_PATCH_MASK   = 0x20;     // segmented segments (2 angles)
-const LLPCode LL_PCODE_HEMI_MASK    = 0x10;     // half-primitives get their own type per PR's dictum
-const LLPCode LL_PCODE_BASE_MASK    = 0x0F;
+constexpr LLPCode LL_PCODE_HOLLOW_MASK  = 0x80;     // has a thickness
+constexpr LLPCode LL_PCODE_SEGMENT_MASK = 0x40;     // segments (1 angle)
+constexpr LLPCode LL_PCODE_PATCH_MASK   = 0x20;     // segmented segments (2 angles)
+constexpr LLPCode LL_PCODE_HEMI_MASK    = 0x10;     // half-primitives get their own type per PR's dictum
+constexpr LLPCode LL_PCODE_BASE_MASK    = 0x0F;
 
     // primitive shapes
-const LLPCode   LL_PCODE_CUBE           = 1;
-const LLPCode   LL_PCODE_PRISM          = 2;
-const LLPCode   LL_PCODE_TETRAHEDRON    = 3;
-const LLPCode   LL_PCODE_PYRAMID        = 4;
-const LLPCode   LL_PCODE_CYLINDER       = 5;
-const LLPCode   LL_PCODE_CONE           = 6;
-const LLPCode   LL_PCODE_SPHERE         = 7;
-const LLPCode   LL_PCODE_TORUS          = 8;
-const LLPCode   LL_PCODE_VOLUME         = 9;
+constexpr LLPCode   LL_PCODE_CUBE           = 1;
+constexpr LLPCode   LL_PCODE_PRISM          = 2;
+constexpr LLPCode   LL_PCODE_TETRAHEDRON    = 3;
+constexpr LLPCode   LL_PCODE_PYRAMID        = 4;
+constexpr LLPCode   LL_PCODE_CYLINDER       = 5;
+constexpr LLPCode   LL_PCODE_CONE           = 6;
+constexpr LLPCode   LL_PCODE_SPHERE         = 7;
+constexpr LLPCode   LL_PCODE_TORUS          = 8;
+constexpr LLPCode   LL_PCODE_VOLUME         = 9;
 
     // surfaces
-//const LLPCode LL_PCODE_SURFACE_TRIANGLE   = 10;
-//const LLPCode LL_PCODE_SURFACE_SQUARE     = 11;
-//const LLPCode LL_PCODE_SURFACE_DISC       = 12;
+//constexpr LLPCode LL_PCODE_SURFACE_TRIANGLE   = 10;
+//constexpr LLPCode LL_PCODE_SURFACE_SQUARE     = 11;
+//constexpr LLPCode LL_PCODE_SURFACE_DISC       = 12;
 
-const LLPCode   LL_PCODE_APP                = 14; // App specific pcode (for viewer/sim side only objects)
-const LLPCode   LL_PCODE_LEGACY             = 15;
+constexpr LLPCode   LL_PCODE_APP                = 14; // App specific pcode (for viewer/sim side only objects)
+constexpr LLPCode   LL_PCODE_LEGACY             = 15;
 
 // Pcodes for legacy objects
-//const LLPCode LL_PCODE_LEGACY_ATOR =              0x10 | LL_PCODE_LEGACY; // ATOR
-const LLPCode   LL_PCODE_LEGACY_AVATAR =            0x20 | LL_PCODE_LEGACY; // PLAYER
-//const LLPCode LL_PCODE_LEGACY_BIRD =              0x30 | LL_PCODE_LEGACY; // BIRD
-//const LLPCode LL_PCODE_LEGACY_DEMON =             0x40 | LL_PCODE_LEGACY; // DEMON
-const LLPCode   LL_PCODE_LEGACY_GRASS =             0x50 | LL_PCODE_LEGACY; // GRASS
-const LLPCode   LL_PCODE_TREE_NEW =                 0x60 | LL_PCODE_LEGACY; // new trees
-//const LLPCode LL_PCODE_LEGACY_ORACLE =            0x70 | LL_PCODE_LEGACY; // ORACLE
-const LLPCode   LL_PCODE_LEGACY_PART_SYS =          0x80 | LL_PCODE_LEGACY; // PART_SYS
-const LLPCode   LL_PCODE_LEGACY_ROCK =              0x90 | LL_PCODE_LEGACY; // ROCK
-//const LLPCode LL_PCODE_LEGACY_SHOT =              0xA0 | LL_PCODE_LEGACY; // BASIC_SHOT
-//const LLPCode LL_PCODE_LEGACY_SHOT_BIG =          0xB0 | LL_PCODE_LEGACY;
-//const LLPCode LL_PCODE_LEGACY_SMOKE =             0xC0 | LL_PCODE_LEGACY; // SMOKE
-//const LLPCode LL_PCODE_LEGACY_SPARK =             0xD0 | LL_PCODE_LEGACY;// SPARK
-const LLPCode   LL_PCODE_LEGACY_TEXT_BUBBLE =       0xE0 | LL_PCODE_LEGACY; // TEXTBUBBLE
-const LLPCode   LL_PCODE_LEGACY_TREE =              0xF0 | LL_PCODE_LEGACY; // TREE
+//constexpr LLPCode LL_PCODE_LEGACY_ATOR =              0x10 | LL_PCODE_LEGACY; // ATOR
+constexpr LLPCode   LL_PCODE_LEGACY_AVATAR =            0x20 | LL_PCODE_LEGACY; // PLAYER
+//constexpr LLPCode LL_PCODE_LEGACY_BIRD =              0x30 | LL_PCODE_LEGACY; // BIRD
+//constexpr LLPCode LL_PCODE_LEGACY_DEMON =             0x40 | LL_PCODE_LEGACY; // DEMON
+constexpr LLPCode   LL_PCODE_LEGACY_GRASS =             0x50 | LL_PCODE_LEGACY; // GRASS
+constexpr LLPCode   LL_PCODE_TREE_NEW =                 0x60 | LL_PCODE_LEGACY; // new trees
+//constexpr LLPCode LL_PCODE_LEGACY_ORACLE =            0x70 | LL_PCODE_LEGACY; // ORACLE
+constexpr LLPCode   LL_PCODE_LEGACY_PART_SYS =          0x80 | LL_PCODE_LEGACY; // PART_SYS
+constexpr LLPCode   LL_PCODE_LEGACY_ROCK =              0x90 | LL_PCODE_LEGACY; // ROCK
+//constexpr LLPCode LL_PCODE_LEGACY_SHOT =              0xA0 | LL_PCODE_LEGACY; // BASIC_SHOT
+//constexpr LLPCode LL_PCODE_LEGACY_SHOT_BIG =          0xB0 | LL_PCODE_LEGACY;
+//constexpr LLPCode LL_PCODE_LEGACY_SMOKE =             0xC0 | LL_PCODE_LEGACY; // SMOKE
+//constexpr LLPCode LL_PCODE_LEGACY_SPARK =             0xD0 | LL_PCODE_LEGACY;// SPARK
+constexpr LLPCode   LL_PCODE_LEGACY_TEXT_BUBBLE =       0xE0 | LL_PCODE_LEGACY; // TEXTBUBBLE
+constexpr LLPCode   LL_PCODE_LEGACY_TREE =              0xF0 | LL_PCODE_LEGACY; // TREE
 
     // hemis
-const LLPCode   LL_PCODE_CYLINDER_HEMI =        LL_PCODE_CYLINDER   | LL_PCODE_HEMI_MASK;
-const LLPCode   LL_PCODE_CONE_HEMI =            LL_PCODE_CONE       | LL_PCODE_HEMI_MASK;
-const LLPCode   LL_PCODE_SPHERE_HEMI =          LL_PCODE_SPHERE     | LL_PCODE_HEMI_MASK;
-const LLPCode   LL_PCODE_TORUS_HEMI =           LL_PCODE_TORUS      | LL_PCODE_HEMI_MASK;
+constexpr LLPCode   LL_PCODE_CYLINDER_HEMI =        LL_PCODE_CYLINDER   | LL_PCODE_HEMI_MASK;
+constexpr LLPCode   LL_PCODE_CONE_HEMI =            LL_PCODE_CONE       | LL_PCODE_HEMI_MASK;
+constexpr LLPCode   LL_PCODE_SPHERE_HEMI =          LL_PCODE_SPHERE     | LL_PCODE_HEMI_MASK;
+constexpr LLPCode   LL_PCODE_TORUS_HEMI =           LL_PCODE_TORUS      | LL_PCODE_HEMI_MASK;
 
 
 // Volumes consist of a profile at the base that is swept around
 // a path to make a volume.
 // The profile code
-const U8    LL_PCODE_PROFILE_MASK       = 0x0f;
-const U8    LL_PCODE_PROFILE_MIN        = 0x00;
-const U8    LL_PCODE_PROFILE_CIRCLE     = 0x00;
-const U8    LL_PCODE_PROFILE_SQUARE     = 0x01;
-const U8    LL_PCODE_PROFILE_ISOTRI     = 0x02;
-const U8    LL_PCODE_PROFILE_EQUALTRI   = 0x03;
-const U8    LL_PCODE_PROFILE_RIGHTTRI   = 0x04;
-const U8    LL_PCODE_PROFILE_CIRCLE_HALF = 0x05;
-const U8    LL_PCODE_PROFILE_MAX        = 0x05;
+constexpr U8    LL_PCODE_PROFILE_MASK       = 0x0f;
+constexpr U8    LL_PCODE_PROFILE_MIN        = 0x00;
+constexpr U8    LL_PCODE_PROFILE_CIRCLE     = 0x00;
+constexpr U8    LL_PCODE_PROFILE_SQUARE     = 0x01;
+constexpr U8    LL_PCODE_PROFILE_ISOTRI     = 0x02;
+constexpr U8    LL_PCODE_PROFILE_EQUALTRI   = 0x03;
+constexpr U8    LL_PCODE_PROFILE_RIGHTTRI   = 0x04;
+constexpr U8    LL_PCODE_PROFILE_CIRCLE_HALF = 0x05;
+constexpr U8    LL_PCODE_PROFILE_MAX        = 0x05;
 
 // Stored in the profile byte
-const U8    LL_PCODE_HOLE_MASK      = 0xf0;
-const U8    LL_PCODE_HOLE_MIN       = 0x00;
-const U8    LL_PCODE_HOLE_SAME      = 0x00;     // same as outside profile
-const U8    LL_PCODE_HOLE_CIRCLE    = 0x10;
-const U8    LL_PCODE_HOLE_SQUARE    = 0x20;
-const U8    LL_PCODE_HOLE_TRIANGLE  = 0x30;
-const U8    LL_PCODE_HOLE_MAX       = 0x03;     // min/max needs to be >> 4 of real min/max
+constexpr U8    LL_PCODE_HOLE_MASK      = 0xf0;
+constexpr U8    LL_PCODE_HOLE_MIN       = 0x00;
+constexpr U8    LL_PCODE_HOLE_SAME      = 0x00;     // same as outside profile
+constexpr U8    LL_PCODE_HOLE_CIRCLE    = 0x10;
+constexpr U8    LL_PCODE_HOLE_SQUARE    = 0x20;
+constexpr U8    LL_PCODE_HOLE_TRIANGLE  = 0x30;
+constexpr U8    LL_PCODE_HOLE_MAX       = 0x03;     // min/max needs to be >> 4 of real min/max
 
-const U8    LL_PCODE_PATH_IGNORE    = 0x00;
-const U8    LL_PCODE_PATH_MIN       = 0x01;     // min/max needs to be >> 4 of real min/max
-const U8    LL_PCODE_PATH_LINE      = 0x10;
-const U8    LL_PCODE_PATH_CIRCLE    = 0x20;
-const U8    LL_PCODE_PATH_CIRCLE2   = 0x30;
-const U8    LL_PCODE_PATH_TEST      = 0x40;
-const U8    LL_PCODE_PATH_FLEXIBLE  = 0x80;
-const U8    LL_PCODE_PATH_MAX       = 0x08;
+constexpr U8    LL_PCODE_PATH_IGNORE    = 0x00;
+constexpr U8    LL_PCODE_PATH_MIN       = 0x01;     // min/max needs to be >> 4 of real min/max
+constexpr U8    LL_PCODE_PATH_LINE      = 0x10;
+constexpr U8    LL_PCODE_PATH_CIRCLE    = 0x20;
+constexpr U8    LL_PCODE_PATH_CIRCLE2   = 0x30;
+constexpr U8    LL_PCODE_PATH_TEST      = 0x40;
+constexpr U8    LL_PCODE_PATH_FLEXIBLE  = 0x80;
+constexpr U8    LL_PCODE_PATH_MAX       = 0x08;
 
 //============================================================================
 
 // face identifiers
 typedef U16 LLFaceID;
 
-const LLFaceID  LL_FACE_PATH_BEGIN      = 0x1 << 0;
-const LLFaceID  LL_FACE_PATH_END        = 0x1 << 1;
-const LLFaceID  LL_FACE_INNER_SIDE      = 0x1 << 2;
-const LLFaceID  LL_FACE_PROFILE_BEGIN   = 0x1 << 3;
-const LLFaceID  LL_FACE_PROFILE_END     = 0x1 << 4;
-const LLFaceID  LL_FACE_OUTER_SIDE_0    = 0x1 << 5;
-const LLFaceID  LL_FACE_OUTER_SIDE_1    = 0x1 << 6;
-const LLFaceID  LL_FACE_OUTER_SIDE_2    = 0x1 << 7;
-const LLFaceID  LL_FACE_OUTER_SIDE_3    = 0x1 << 8;
+constexpr LLFaceID  LL_FACE_PATH_BEGIN      = 0x1 << 0;
+constexpr LLFaceID  LL_FACE_PATH_END        = 0x1 << 1;
+constexpr LLFaceID  LL_FACE_INNER_SIDE      = 0x1 << 2;
+constexpr LLFaceID  LL_FACE_PROFILE_BEGIN   = 0x1 << 3;
+constexpr LLFaceID  LL_FACE_PROFILE_END     = 0x1 << 4;
+constexpr LLFaceID  LL_FACE_OUTER_SIDE_0    = 0x1 << 5;
+constexpr LLFaceID  LL_FACE_OUTER_SIDE_1    = 0x1 << 6;
+constexpr LLFaceID  LL_FACE_OUTER_SIDE_2    = 0x1 << 7;
+constexpr LLFaceID  LL_FACE_OUTER_SIDE_3    = 0x1 << 8;
 
 //============================================================================
 
 // sculpt types + flags
 
-const U8 LL_SCULPT_TYPE_NONE      = 0;
-const U8 LL_SCULPT_TYPE_SPHERE    = 1;
-const U8 LL_SCULPT_TYPE_TORUS     = 2;
-const U8 LL_SCULPT_TYPE_PLANE     = 3;
-const U8 LL_SCULPT_TYPE_CYLINDER  = 4;
-const U8 LL_SCULPT_TYPE_MESH      = 5;
-const U8 LL_SCULPT_TYPE_MASK      = LL_SCULPT_TYPE_SPHERE | LL_SCULPT_TYPE_TORUS | LL_SCULPT_TYPE_PLANE |
-    LL_SCULPT_TYPE_CYLINDER | LL_SCULPT_TYPE_MESH;
+constexpr U8 LL_SCULPT_TYPE_NONE      = 0;
+constexpr U8 LL_SCULPT_TYPE_SPHERE    = 1;
+constexpr U8 LL_SCULPT_TYPE_TORUS     = 2;
+constexpr U8 LL_SCULPT_TYPE_PLANE     = 3;
+constexpr U8 LL_SCULPT_TYPE_CYLINDER  = 4;
+constexpr U8 LL_SCULPT_TYPE_MESH      = 5;
+constexpr U8 LL_SCULPT_TYPE_GLTF      = 6;
+constexpr U8 LL_SCULPT_TYPE_MAX       = LL_SCULPT_TYPE_GLTF;
+
+constexpr U8 LL_SCULPT_TYPE_MASK      = LL_SCULPT_TYPE_SPHERE | LL_SCULPT_TYPE_TORUS | LL_SCULPT_TYPE_PLANE |
+    LL_SCULPT_TYPE_CYLINDER | LL_SCULPT_TYPE_MESH | LL_SCULPT_TYPE_GLTF;
 
 // for value checks, assign new value after adding new types
-const U8 LL_SCULPT_TYPE_MAX = LL_SCULPT_TYPE_MESH;
 
-const U8 LL_SCULPT_FLAG_INVERT    = 64;
-const U8 LL_SCULPT_FLAG_MIRROR    = 128;
-const U8 LL_SCULPT_FLAG_MASK = LL_SCULPT_FLAG_INVERT | LL_SCULPT_FLAG_MIRROR;
+constexpr U8 LL_SCULPT_FLAG_INVERT    = 64;
+constexpr U8 LL_SCULPT_FLAG_MIRROR    = 128;
+constexpr U8 LL_SCULPT_FLAG_MASK = LL_SCULPT_FLAG_INVERT | LL_SCULPT_FLAG_MIRROR;
 
-const S32 LL_SCULPT_MESH_MAX_FACES = 8;
+constexpr S32 LL_SCULPT_MESH_MAX_FACES = 8;
 
-extern BOOL gDebugGL;
+extern bool gDebugGL;
 
 class LLProfileParams
 {
@@ -255,11 +257,11 @@ public:
 
     void copyParams(const LLProfileParams &params);
 
-    BOOL importFile(LLFILE *fp);
-    BOOL exportFile(LLFILE *fp) const;
+    bool importFile(LLFILE *fp);
+    bool exportFile(LLFILE *fp) const;
 
-    BOOL importLegacyStream(std::istream& input_stream);
-    BOOL exportLegacyStream(std::ostream& output_stream) const;
+    bool importLegacyStream(std::istream& input_stream);
+    bool exportLegacyStream(std::ostream& output_stream) const;
 
     LLSD asLLSD() const;
     operator LLSD() const { return asLLSD(); }
@@ -391,11 +393,11 @@ public:
 
     void copyParams(const LLPathParams &params);
 
-    BOOL importFile(LLFILE *fp);
-    BOOL exportFile(LLFILE *fp) const;
+    bool importFile(LLFILE *fp);
+    bool exportFile(LLFILE *fp) const;
 
-    BOOL importLegacyStream(std::istream& input_stream);
-    BOOL exportLegacyStream(std::ostream& output_stream) const;
+    bool importLegacyStream(std::istream& input_stream);
+    bool exportLegacyStream(std::ostream& output_stream) const;
 
     LLSD asLLSD() const;
     operator LLSD() const { return asLLSD(); }
@@ -583,11 +585,11 @@ public:
     const LLPathParams &getPathParams() const {return mPathParams;}
     LLPathParams &getPathParams() {return mPathParams;}
 
-    BOOL importFile(LLFILE *fp);
-    BOOL exportFile(LLFILE *fp) const;
+    bool importFile(LLFILE *fp);
+    bool exportFile(LLFILE *fp) const;
 
-    BOOL importLegacyStream(std::istream& input_stream);
-    BOOL exportLegacyStream(std::ostream& output_stream) const;
+    bool importLegacyStream(std::istream& input_stream);
+    bool exportLegacyStream(std::ostream& output_stream) const;
 
     LLSD sculptAsLLSD() const;
     bool sculptFromLLSD(LLSD& sd);
@@ -621,7 +623,7 @@ public:
     bool setRevolutions(const F32 revolutions); // 1 to 4
     bool setRadiusOffset(const F32 radius_offset);
     bool setSkew(const F32 skew);
-    bool setSculptID(const LLUUID sculpt_id, U8 sculpt_type);
+    bool setSculptID(const LLUUID& sculpt_id, U8 sculpt_type);
 
     static bool validate(U8 prof_curve, F32 prof_begin, F32 prof_end, F32 hollow,
         U8 path_curve, F32 path_begin, F32 path_end,
@@ -653,7 +655,7 @@ public:
     const U8& getSculptType() const     { return mSculptType;                   }
     bool isSculpt() const;
     bool isMeshSculpt() const;
-    BOOL isConvex() const;
+    bool isConvex() const;
 
     // 'begin' and 'end' should be in range [0, 1] (they will be clamped)
     // (begin, end) = (0, 1) will not change the volume
@@ -688,9 +690,9 @@ class LLProfile
 
 public:
     LLProfile()
-        : mOpen(FALSE),
-          mConcave(FALSE),
-          mDirty(TRUE),
+        : mOpen(false),
+          mConcave(false),
+          mDirty(true),
           mTotalOut(0),
           mTotal(2)
     {
@@ -698,23 +700,23 @@ public:
 
     S32  getTotal() const                               { return mTotal; }
     S32  getTotalOut() const                            { return mTotalOut; }   // Total number of outside points
-    BOOL isFlat(S32 face) const                         { return (mFaces[face].mCount == 2); }
-    BOOL isOpen() const                                 { return mOpen; }
-    void setDirty()                                     { mDirty     = TRUE; }
+    bool isFlat(S32 face) const                         { return (mFaces[face].mCount == 2); }
+    bool isOpen() const                                 { return mOpen; }
+    void setDirty()                                     { mDirty = true; }
 
-    static S32 getNumPoints(const LLProfileParams& params, BOOL path_open, F32 detail = 1.0f, S32 split = 0,
-                  BOOL is_sculpted = FALSE, S32 sculpt_size = 0);
-    BOOL generate(const LLProfileParams& params, BOOL path_open, F32 detail = 1.0f, S32 split = 0,
-                  BOOL is_sculpted = FALSE, S32 sculpt_size = 0);
-    BOOL isConcave() const                              { return mConcave; }
+    static S32 getNumPoints(const LLProfileParams& params, bool path_open, F32 detail = 1.0f, S32 split = 0,
+                  bool is_sculpted = false, S32 sculpt_size = 0);
+    bool generate(const LLProfileParams& params, bool path_open, F32 detail = 1.0f, S32 split = 0,
+                  bool is_sculpted = false, S32 sculpt_size = 0);
+    bool isConcave() const                              { return mConcave; }
 public:
     struct Face
     {
         S32       mIndex;
         S32       mCount;
         F32       mScaleU;
-        BOOL      mCap;
-        BOOL      mFlat;
+        bool      mCap;
+        bool      mFlat;
         LLFaceID  mFaceID;
     };
 
@@ -733,14 +735,14 @@ protected:
     static S32 getNumNGonPoints(const LLProfileParams& params, S32 sides, F32 offset=0.0f, F32 bevel = 0.0f, F32 ang_scale = 1.f, S32 split = 0);
     void genNGon(const LLProfileParams& params, S32 sides, F32 offset=0.0f, F32 bevel = 0.0f, F32 ang_scale = 1.f, S32 split = 0);
 
-    Face* addHole(const LLProfileParams& params, BOOL flat, F32 sides, F32 offset, F32 box_hollow, F32 ang_scale, S32 split = 0);
+    Face* addHole(const LLProfileParams& params, bool flat, F32 sides, F32 offset, F32 box_hollow, F32 ang_scale, S32 split = 0);
     Face* addCap (S16 faceID);
-    Face* addFace(S32 index, S32 count, F32 scaleU, S16 faceID, BOOL flat);
+    Face* addFace(S32 index, S32 count, F32 scaleU, S16 faceID, bool flat);
 
 protected:
-    BOOL          mOpen;
-    BOOL          mConcave;
-    BOOL          mDirty;
+    bool          mOpen;
+    bool          mConcave;
+    bool          mDirty;
 
     S32           mTotalOut;
     S32           mTotal;
@@ -780,9 +782,9 @@ public:
 
 public:
     LLPath()
-        : mOpen(FALSE),
+        : mOpen(false),
           mTotal(0),
-          mDirty(TRUE),
+          mDirty(true),
           mStep(1)
     {
     }
@@ -793,12 +795,12 @@ public:
     static S32 getNumNGonPoints(const LLPathParams& params, S32 sides, F32 offset=0.0f, F32 end_scale = 1.f, F32 twist_scale = 1.f);
 
     void genNGon(const LLPathParams& params, S32 sides, F32 offset=0.0f, F32 end_scale = 1.f, F32 twist_scale = 1.f);
-    virtual BOOL generate(const LLPathParams& params, F32 detail=1.0f, S32 split = 0,
-                          BOOL is_sculpted = FALSE, S32 sculpt_size = 0);
+    virtual bool generate(const LLPathParams& params, F32 detail=1.0f, S32 split = 0,
+                          bool is_sculpted = false, S32 sculpt_size = 0);
 
-    BOOL isOpen() const                     { return mOpen; }
+    bool isOpen() const                     { return mOpen; }
     F32 getStep() const                     { return mStep; }
-    void setDirty()                         { mDirty     = TRUE; }
+    void setDirty()                         { mDirty = true; }
 
     S32 getPathLength() const               { return (S32)mPath.size(); }
 
@@ -810,9 +812,9 @@ public:
     LLAlignedArray<PathPt, 64> mPath;
 
 protected:
-    BOOL          mOpen;
+    bool          mOpen;
     S32           mTotal;
-    BOOL          mDirty;
+    bool          mDirty;
     F32           mStep;
 };
 
@@ -820,8 +822,8 @@ class LLDynamicPath : public LLPath
 {
 public:
     LLDynamicPath() : LLPath() { }
-    /*virtual*/ BOOL generate(const LLPathParams& params, F32 detail=1.0f, S32 split = 0,
-                              BOOL is_sculpted = FALSE, S32 sculpt_size = 0);
+    /*virtual*/ bool generate(const LLPathParams& params, F32 detail=1.0f, S32 split = 0,
+                              bool is_sculpted = false, S32 sculpt_size = 0);
 };
 
 // Yet another "face" class - caches volume-specific, but not instance-specific data for faces)
@@ -871,7 +873,7 @@ private:
     void freeData();
 public:
 
-    BOOL create(LLVolume* volume, BOOL partial_build = FALSE);
+    bool create(LLVolume* volume, bool partial_build = false);
     void createTangents();
 
     void resizeVertices(S32 num_verts);
@@ -915,6 +917,15 @@ public:
     void destroyOctree();
     // Get a reference to the octree, which may be null
     const LLVolumeOctree* getOctree() const;
+
+    // Part of silhouette generation (used by selection outlines)
+    // Populates the provided edge array with numbers corresponding to
+    // *partial* logic of whether a particular index should be rendered
+    // as a silhouette edge. -1 indicates the index should be rendered as a
+    // silhouette edge. See generateSilhouetteVertices for the full logic.
+    // Silhouette edges can only be generated for some types of prims. If a
+    // silhouette edge cannot be generated, the edge array will be left empty.
+    void generateSilhouetteEdge(const LLVolume* volume, std::vector<S32>& edge) const;
 
     enum
     {
@@ -961,8 +972,6 @@ public:
     // indexes for mPositions/mNormals/mTexCoords
     U16* mIndices;
 
-    std::vector<S32>    mEdge;
-
     //list of skin weights for rigged volumes
     // format is mWeights[vertex_index].mV[influence] = <joint_index>.<weight>
     // mWeights.size() should be empty or match mVertices.size()
@@ -973,14 +982,14 @@ public:
     U8* mJointIndices;
 #endif
 
-    mutable BOOL mWeightsScrubbed;
+    mutable bool mWeightsScrubbed;
 
     // Which joints are rigged to, and the bounding box of any rigged
     // vertices per joint.
     LLJointRiggingInfoTab mJointRiggingInfoTab;
 
     //whether or not face has been cache optimized
-    BOOL mOptimized;
+    bool mOptimized;
 
     // if this is a mesh asset, scale and translation that were applied
     // when encoding the source mesh into a unit cube
@@ -991,9 +1000,9 @@ private:
     LLVolumeOctree* mOctree;
     LLVolumeTriangle* mOctreeTriangles;
 
-    BOOL createUnCutCubeCap(LLVolume* volume, BOOL partial_build = FALSE);
-    BOOL createCap(LLVolume* volume, BOOL partial_build = FALSE);
-    BOOL createSide(LLVolume* volume, BOOL partial_build = FALSE);
+    bool createUnCutCubeCap(LLVolume* volume, bool partial_build = false);
+    bool createCap(LLVolume* volume, bool partial_build = false);
+    bool createSide(LLVolume* volume, bool partial_build = false);
 };
 
 class LLVolume : public LLRefCount
@@ -1015,12 +1024,12 @@ public:
         S32 mCountT;
     };
 
-    LLVolume(const LLVolumeParams &params, const F32 detail, const BOOL generate_single_face = FALSE, const BOOL is_unique = FALSE);
+    LLVolume(const LLVolumeParams &params, const F32 detail, const bool generate_single_face = false, const bool is_unique = false);
 
     U8 getProfileType() const                               { return mParams.getProfileParams().getCurveType(); }
     U8 getPathType() const                                  { return mParams.getPathParams().getCurveType(); }
     S32 getNumFaces() const;
-    S32 getNumVolumeFaces() const                           { return mVolumeFaces.size(); }
+    S32 getNumVolumeFaces() const                           { return static_cast<S32>(mVolumeFaces.size()); }
     F32 getDetail() const                                   { return mDetail; }
     F32 getSurfaceArea() const                              { return mSurfaceArea; }
     const LLVolumeParams& getParams() const                 { return mParams; }
@@ -1037,10 +1046,10 @@ public:
     void regen();
     void genTangents(S32 face);
 
-    BOOL isConvex() const;
-    BOOL isCap(S32 face);
-    BOOL isFlat(S32 face);
-    BOOL isUnique() const                                   { return mUnique; }
+    bool isConvex() const;
+    bool isCap(S32 face);
+    bool isFlat(S32 face);
+    bool isUnique() const                                   { return mUnique; }
 
     S32 getSculptLevel() const                              { return mSculptLevel; }
     void setSculptLevel(S32 level)                          { mSculptLevel = level; }
@@ -1048,7 +1057,7 @@ public:
 
     static void getLoDTriangleCounts(const LLVolumeParams& params, S32* counts);
 
-    S32 getNumTriangles(S32* vcount = NULL) const;
+    S32 getNumTriangles(S32* vcount = nullptr) const;
 
     void generateSilhouetteVertices(std::vector<LLVector3> &vertices,
                                     std::vector<LLVector3> &normals,
@@ -1062,15 +1071,15 @@ public:
     //Line segment must be in volume space.
     S32 lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
                              S32 face = -1,                          // which face to check, -1 = ALL_SIDES
-                             LLVector4a* intersection = NULL,         // return the intersection point
-                             LLVector2* tex_coord = NULL,            // return the texture coordinates of the intersection point
-                             LLVector4a* normal = NULL,               // return the surface normal at the intersection point
-                             LLVector4a* tangent = NULL             // return the surface tangent at the intersection point
+                             LLVector4a* intersection = nullptr,     // return the intersection point
+                             LLVector2* tex_coord = nullptr,         // return the texture coordinates of the intersection point
+                             LLVector4a* normal = nullptr,           // return the surface normal at the intersection point
+                             LLVector4a* tangent = nullptr           // return the surface tangent at the intersection point
         );
 
     LLFaceID generateFaceMask();
 
-    BOOL isFaceMaskValid(LLFaceID face_mask);
+    bool isFaceMaskValid(LLFaceID face_mask);
     static S32 sNumMeshPoints;
 
     friend std::ostream& operator<<(std::ostream &s, const LLVolume &volume);
@@ -1099,11 +1108,9 @@ private:
     F32 sculptGetSurfaceArea();
     void sculptGenerateEmptyPlaceholder();
     void sculptGenerateSpherePlaceholder();
-    void sculptCalcMeshResolution(U16 width, U16 height, U8 type, S32& s, S32& t);
-
 
 protected:
-    BOOL generate();
+    bool generate();
     void createVolumeFaces();
 public:
     bool unpackVolumeFaces(std::istream& is, S32 size);
@@ -1113,12 +1120,12 @@ private:
 
 public:
     virtual void setMeshAssetLoaded(bool loaded);
-    virtual bool isMeshAssetLoaded();
+    virtual bool isMeshAssetLoaded() const;
     virtual void setMeshAssetUnavaliable(bool unavaliable);
-    virtual bool isMeshAssetUnavaliable();
+    virtual bool isMeshAssetUnavaliable() const;
 
  protected:
-    BOOL mUnique;
+    bool mUnique;
     F32 mDetail;
     S32 mSculptLevel;
     F32 mSurfaceArea; //unscaled surface area
@@ -1131,7 +1138,7 @@ public:
     LLAlignedArray<LLVector4a,64> mMesh;
 
 
-    BOOL mGenerateSingleFace;
+    bool mGenerateSingleFace;
     face_list_t mVolumeFaces;
 
 public:
@@ -1145,18 +1152,13 @@ std::ostream& operator<<(std::ostream &s, const LLVolumeParams &volume_params);
 
 void LLCalculateTangentArray(U32 vertexCount, const LLVector4a *vertex, const LLVector4a *normal, const LLVector2 *texcoord, U32 triangleCount, const U16* index_array, LLVector4a *tangent);
 
-BOOL LLLineSegmentBoxIntersect(const F32* start, const F32* end, const F32* center, const F32* size);
-BOOL LLLineSegmentBoxIntersect(const LLVector3& start, const LLVector3& end, const LLVector3& center, const LLVector3& size);
-BOOL LLLineSegmentBoxIntersect(const LLVector4a& start, const LLVector4a& end, const LLVector4a& center, const LLVector4a& size);
+bool LLLineSegmentBoxIntersect(const F32* start, const F32* end, const F32* center, const F32* size);
+bool LLLineSegmentBoxIntersect(const LLVector3& start, const LLVector3& end, const LLVector3& center, const LLVector3& size);
+bool LLLineSegmentBoxIntersect(const LLVector4a& start, const LLVector4a& end, const LLVector4a& center, const LLVector4a& size);
 
-//BOOL LLTriangleRayIntersect(const LLVector3& vert0, const LLVector3& vert1, const LLVector3& vert2, const LLVector3& orig, const LLVector3& dir,
-//                          F32& intersection_a, F32& intersection_b, F32& intersection_t, BOOL two_sided);
-
-BOOL LLTriangleRayIntersect(const LLVector4a& vert0, const LLVector4a& vert1, const LLVector4a& vert2, const LLVector4a& orig, const LLVector4a& dir,
+bool LLTriangleRayIntersect(const LLVector4a& vert0, const LLVector4a& vert1, const LLVector4a& vert2, const LLVector4a& orig, const LLVector4a& dir,
                             F32& intersection_a, F32& intersection_b, F32& intersection_t);
-BOOL LLTriangleRayIntersectTwoSided(const LLVector4a& vert0, const LLVector4a& vert1, const LLVector4a& vert2, const LLVector4a& orig, const LLVector4a& dir,
+bool LLTriangleRayIntersectTwoSided(const LLVector4a& vert0, const LLVector4a& vert1, const LLVector4a& vert2, const LLVector4a& orig, const LLVector4a& dir,
                             F32& intersection_a, F32& intersection_b, F32& intersection_t);
-
-
 
 #endif

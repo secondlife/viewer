@@ -1,4 +1,4 @@
-version 57
+version 60
 // The version number above should be incremented IF AND ONLY IF some
 // change has been made that is sufficiently important to justify
 // resetting the graphics preferences of all users to the recommended
@@ -28,7 +28,6 @@ version 57
 //
 list all
 RenderAnisotropic				1	0
-RenderAvatarCloth				0	0
 RenderAvatarLODFactor			1	1.0
 RenderAvatarPhysicsLODFactor 1	1.0
 RenderAvatarMaxNonImpostors     1   16
@@ -62,10 +61,10 @@ RenderCompressTextures		1	1
 RenderShaderLightingMaxLevel	1	3
 RenderDeferred				1	1
 RenderDeferredSSAO			1	1
-RenderUseAdvancedAtmospherics 1 0
 RenderShadowDetail			1	2
 RenderUseStreamVBO			1	1
-RenderFSAASamples			1	16
+RenderFSAAType			    1	2
+RenderFSAASamples			1	3
 RenderMaxTextureIndex		1	16
 RenderGLContextCoreProfile         1   1
 RenderGLMultiThreadedTextures      1   0
@@ -75,6 +74,11 @@ RenderReflectionProbeDetail	1	2
 RenderScreenSpaceReflections 1  1
 RenderReflectionProbeLevel  1   3
 RenderMirrors				1	1
+RenderHeroProbeResolution	1	2048
+RenderHeroProbeDistance		1	16
+RenderHeroProbeUpdateRate	1	4
+RenderHeroProbeConservativeUpdateMultiplier 1 16
+RenderCASSharpness          1   1
 
 //
 // Low Graphics Settings
@@ -98,9 +102,9 @@ RenderTransparentWater		1	0
 RenderTreeLODFactor			1	0
 RenderVolumeLODFactor		1	1.125
 RenderDeferredSSAO			1	0
-RenderUseAdvancedAtmospherics 1 0
 RenderShadowDetail			1	0
 WLSkyDetail					1	96
+RenderFSAAType			    1	0
 RenderFSAASamples			1	0
 RenderReflectionsEnabled    1   1
 RenderReflectionProbeDetail	1	0
@@ -109,8 +113,9 @@ RenderReflectionProbeLevel  1   0
 RenderMirrors				1	0
 RenderHeroProbeResolution	1	256
 RenderHeroProbeDistance		1	4
-RenderHeroProbeUpdateRate	1	4
+RenderHeroProbeUpdateRate	1   6
 RenderHeroProbeConservativeUpdateMultiplier 1 16
+RenderCASSharpness          1   0
 
 //
 // Medium Low Graphics Settings
@@ -134,9 +139,9 @@ RenderTransparentWater		1	1
 RenderTreeLODFactor			1	0.5
 RenderVolumeLODFactor		1	1.125
 RenderDeferredSSAO			1	0
-RenderUseAdvancedAtmospherics 1 0
 RenderShadowDetail			1	0
 WLSkyDetail					1	96
+RenderFSAAType			    1	0
 RenderFSAASamples			1	0
 RenderReflectionsEnabled    1   1
 RenderReflectionProbeDetail	1	0
@@ -147,6 +152,7 @@ RenderHeroProbeResolution	1	256
 RenderHeroProbeDistance		1	6
 RenderHeroProbeUpdateRate	1	3
 RenderHeroProbeConservativeUpdateMultiplier 1 16
+RenderCASSharpness          1   0
 
 //
 // Medium Graphics Settings (standard)
@@ -170,10 +176,10 @@ RenderTransparentWater		1	1
 RenderTreeLODFactor			1	0.5
 RenderVolumeLODFactor		1	1.25
 RenderDeferredSSAO			1	0
-RenderUseAdvancedAtmospherics 1 0
 RenderShadowDetail			1	0
 WLSkyDetail					1	96
-RenderFSAASamples			1	2
+RenderFSAAType			    1	1
+RenderFSAASamples			1	0
 RenderReflectionsEnabled    1   1
 RenderReflectionProbeDetail	1	0
 RenderScreenSpaceReflections 1  0
@@ -183,6 +189,7 @@ RenderHeroProbeResolution	1	512
 RenderHeroProbeDistance		1	6
 RenderHeroProbeUpdateRate	1	3
 RenderHeroProbeConservativeUpdateMultiplier 1 16
+RenderCASSharpness          1   0
 
 //
 // Medium High Graphics Settings
@@ -206,10 +213,10 @@ RenderTransparentWater		1	1
 RenderTreeLODFactor			1	0.5
 RenderVolumeLODFactor		1	1.375
 RenderDeferredSSAO			1	0
-RenderUseAdvancedAtmospherics 1 0
 RenderShadowDetail			1	0
 WLSkyDetail					1	96
-RenderFSAASamples			1	2
+RenderFSAAType			    1	1
+RenderFSAASamples			1	1
 RenderReflectionsEnabled    1   1
 RenderReflectionProbeDetail	1	0
 RenderScreenSpaceReflections 1  0
@@ -219,6 +226,7 @@ RenderHeroProbeResolution	1	512
 RenderHeroProbeDistance		1	6
 RenderHeroProbeUpdateRate	1	2
 RenderHeroProbeConservativeUpdateMultiplier 1 8
+RenderCASSharpness          1   0
 
 //
 // High Graphics Settings (SSAO + sun shadows)
@@ -242,19 +250,20 @@ RenderTransparentWater		1	1
 RenderTreeLODFactor			1	0.5
 RenderVolumeLODFactor		1	1.5
 RenderDeferredSSAO			1	1
-RenderUseAdvancedAtmospherics 1 0
 RenderShadowDetail			1	1
 WLSkyDetail					1	96
+RenderFSAAType			    1	1
 RenderFSAASamples			1	2
 RenderReflectionsEnabled    1   1
 RenderReflectionProbeDetail	1	1
 RenderScreenSpaceReflections 1  0
 RenderReflectionProbeLevel  1   1
-RenderMirrors				1	1
+RenderMirrors				1	0
 RenderHeroProbeResolution	1	512
 RenderHeroProbeDistance		1	8
 RenderHeroProbeUpdateRate	1	2
 RenderHeroProbeConservativeUpdateMultiplier 1 8
+RenderCASSharpness          1   0
 
 //
 // High Ultra Graphics Settings (SSAO + all shadows)
@@ -279,18 +288,19 @@ RenderTreeLODFactor			1	0.5
 RenderVolumeLODFactor		1	1.75
 RenderDeferredSSAO			1	1
 RenderShadowDetail			1	2
-RenderUseAdvancedAtmospherics 1 0
 WLSkyDetail					1	96
+RenderFSAAType			    1	2
 RenderFSAASamples			1	2
 RenderReflectionsEnabled    1   1
 RenderReflectionProbeDetail	1	1
 RenderScreenSpaceReflections 1  0
 RenderReflectionProbeLevel  1   2
-RenderMirrors				1	1
+RenderMirrors				1	0
 RenderHeroProbeResolution	1	512
 RenderHeroProbeDistance		1	16
 RenderHeroProbeUpdateRate	1	1
 RenderHeroProbeConservativeUpdateMultiplier 1 4
+RenderCASSharpness          1   0.4
 
 //
 // Ultra graphics (REALLY PURTY!)
@@ -315,18 +325,19 @@ RenderVolumeLODFactor		1	2.0
 WindLightUseAtmosShaders	1	1
 WLSkyDetail					1	128
 RenderDeferredSSAO			1	1
-RenderUseAdvancedAtmospherics 1 0
 RenderShadowDetail			1	2
-RenderFSAASamples			1	2
+RenderFSAAType			    1	2
+RenderFSAASamples			1	3
 RenderReflectionsEnabled    1   1
 RenderReflectionProbeDetail	1	1
 RenderScreenSpaceReflections 1  0
 RenderReflectionProbeLevel  1   3
-RenderMirrors				1	1
+RenderMirrors				1	0
 RenderHeroProbeResolution	1	1024
 RenderHeroProbeDistance		1	16
 RenderHeroProbeUpdateRate	1	1
 RenderHeroProbeConservativeUpdateMultiplier 1 4
+RenderCASSharpness          1   0.4
 
 //
 // Class Unknown Hardware (unknown)
@@ -334,7 +345,6 @@ RenderHeroProbeConservativeUpdateMultiplier 1 4
 list Unknown
 RenderShadowDetail			1	0
 RenderDeferredSSAO			1	0
-RenderUseAdvancedAtmospherics 1 0
 RenderMirrors				1	0
 
 
@@ -355,7 +365,6 @@ RenderLocalLightCount		1	0
 RenderMaxPartCount			1	1024
 RenderTerrainDetail 		1	0
 RenderDeferredSSAO			0	0
-RenderUseAdvancedAtmospherics 0 0
 RenderShadowDetail			0	0
 RenderMirrors				0	0
 

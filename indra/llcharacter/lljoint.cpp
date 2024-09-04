@@ -32,7 +32,6 @@
 #include "lljoint.h"
 
 #include "llmath.h"
-#include "llcallstack.h"
 #include <boost/algorithm/string.hpp>
 
 S32 LLJoint::sNumUpdates = 0;
@@ -76,7 +75,7 @@ void LLVector3OverrideMap::showJointVector3Overrides( std::ostringstream& os ) c
 
 U32 LLVector3OverrideMap::count() const
 {
-    return m_map.size();
+    return static_cast<U32>(m_map.size());
 }
 
 void LLVector3OverrideMap::add(const LLUUID& mesh_id, const LLVector3& pos)
@@ -86,7 +85,7 @@ void LLVector3OverrideMap::add(const LLUUID& mesh_id, const LLVector3& pos)
 
 bool LLVector3OverrideMap::remove(const LLUUID& mesh_id)
 {
-    U32 remove_count = m_map.erase(mesh_id);
+    auto remove_count = m_map.erase(mesh_id);
     return (remove_count > 0);
 }
 
@@ -105,10 +104,10 @@ void LLJoint::init()
 {
     mName = "unnamed";
     mParent = NULL;
-    mXform.setScaleChildOffset(TRUE);
+    mXform.setScaleChildOffset(true);
     mXform.setScale(LLVector3(1.0f, 1.0f, 1.0f));
     mDirtyFlags = MATRIX_DIRTY | ROTATION_DIRTY | POSITION_DIRTY;
-    mUpdateXform = TRUE;
+    mUpdateXform = true;
     mSupport = SUPPORT_BASE;
     mEnd = LLVector3(0.0f, 0.0f, 0.0f);
 }
@@ -135,7 +134,7 @@ LLJoint::LLJoint(const std::string &name, LLJoint *parent) :
     mJointNum(-2)
 {
     init();
-    mUpdateXform = FALSE;
+    mUpdateXform = false;
 
     setName(name);
     if (parent)
@@ -342,7 +341,6 @@ void LLJoint::setPosition( const LLVector3& requested_pos, bool apply_attachment
     {
         if (pos != active_override && do_debug_joint(getName()))
         {
-            LLScopedContextString str("setPosition");
             LL_DEBUGS("Avatar") << " joint " << getName() << " requested_pos " << requested_pos
                                 << " overriden by attachment " << active_override << LL_ENDL;
         }
@@ -350,12 +348,7 @@ void LLJoint::setPosition( const LLVector3& requested_pos, bool apply_attachment
     }
     if ((pos != getPosition()) && do_debug_joint(getName()))
     {
-        LLScopedContextString str("setPosition");
-        LLCallStack cs;
-        LLContextStatus con_status;
         LL_DEBUGS("Avatar") << " joint " << getName() << " set pos " << pos << LL_ENDL;
-        LL_DEBUGS("Avatar") << "CONTEXT:\n" << "====================\n" << con_status << "====================" << LL_ENDL;
-        LL_DEBUGS("Avatar") << "STACK:\n" << "====================\n" << cs << "====================" << LL_ENDL;
     }
     if (pos != getPosition())
     {
@@ -879,7 +872,6 @@ void LLJoint::setScale( const LLVector3& requested_scale, bool apply_attachment_
     {
         if (scale != active_override && do_debug_joint(getName()))
         {
-            LLScopedContextString str("setScale");
             LL_DEBUGS("Avatar") << " joint " << getName() << " requested_scale " << requested_scale
                                 << " overriden by attachment " << active_override << LL_ENDL;
         }
@@ -887,12 +879,7 @@ void LLJoint::setScale( const LLVector3& requested_scale, bool apply_attachment_
     }
     if ((mXform.getScale() != scale) && do_debug_joint(getName()))
     {
-        LLScopedContextString str("setScale");
-        LLCallStack cs;
-        LLContextStatus con_status;
         LL_DEBUGS("Avatar") << " joint " << getName() << " set scale " << scale << LL_ENDL;
-        LL_DEBUGS("Avatar") << "CONTEXT:\n" << "====================\n" << con_status << LL_ENDL;
-        LL_DEBUGS("Avatar") << "STACK:\n" << "====================\n" << cs << "====================" << LL_ENDL;
     }
     mXform.setScale(scale);
     touch();
@@ -996,7 +983,7 @@ void LLJoint::updateWorldMatrix()
     if (mDirtyFlags & MATRIX_DIRTY)
     {
         sNumUpdates++;
-        mXform.updateMatrix(FALSE);
+        mXform.updateMatrix(false);
         mWorldMatrix.loadu(mXform.getWorldMatrix());
         mDirtyFlags = 0x0;
     }

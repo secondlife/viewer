@@ -43,11 +43,11 @@ class LLChicletBar
 
 public:
 
-    BOOL postBuild() override;
+    bool postBuild() override;
 
     LLChicletPanel* getChicletPanel() { return mChicletPanel; }
 
-    /*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent) override;
+    void reshape(S32 width, S32 height, bool called_from_parent) override;
 
 
     /**

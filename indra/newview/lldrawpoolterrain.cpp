@@ -107,7 +107,8 @@ U32 LLDrawPoolTerrain::getVertexDataMask()
 
 void LLDrawPoolTerrain::prerender()
 {
-    sPBRDetailMode = gSavedSettings.getS32("RenderTerrainPBRDetail");
+    static LLCachedControl<S32> render_terrain_pbr_detail(gSavedSettings, "RenderTerrainPBRDetail");
+    sPBRDetailMode = render_terrain_pbr_detail;
 }
 
 void LLDrawPoolTerrain::boostTerrainDetailTextures()
@@ -202,11 +203,11 @@ void LLDrawPoolTerrain::drawLoop()
 
 void LLDrawPoolTerrain::renderFullShader()
 {
-    const BOOL use_local_materials = gLocalTerrainMaterials.materialsReady(true, false);
+    const bool use_local_materials = gLocalTerrainMaterials.makeMaterialsReady(true, false);
     // Hack! Get the region that this draw pool is rendering from!
     LLViewerRegion *regionp = mDrawFace[0]->getDrawable()->getVObj()->getRegion();
     LLVLComposition *compp = regionp->getComposition();
-    const BOOL use_textures = !use_local_materials && (compp->getMaterialType() == LLTerrainMaterials::Type::TEXTURE);
+    const bool use_textures = !use_local_materials && (compp->getMaterialType() == LLTerrainMaterials::Type::TEXTURE);
 
     if (use_textures)
     {
@@ -218,7 +219,9 @@ void LLDrawPoolTerrain::renderFullShader()
     else
     {
         // Use materials
-        sShader = &gDeferredPBRTerrainProgram;
+        U32 paint_type = use_local_materials ? gLocalTerrainMaterials.getPaintType() : compp->getPaintType();
+        paint_type = llclamp(paint_type, 0, TERRAIN_PAINT_TYPE_COUNT);
+        sShader = &gDeferredPBRTerrainProgram[paint_type];
         sShader->bind();
         renderFullShaderPBR(use_local_materials);
     }
@@ -325,12 +328,12 @@ void LLDrawPoolTerrain::renderFullShaderTextures()
 }
 
 // *TODO: Investigate use of bindFast for PBR terrain textures
-void LLDrawPoolTerrain::renderFullShaderPBR(BOOL local_materials)
+void LLDrawPoolTerrain::renderFullShaderPBR(bool use_local_materials)
 {
     // Hack! Get the region that this draw pool is rendering from!
     LLViewerRegion *regionp = mDrawFace[0]->getDrawable()->getVObj()->getRegion();
     LLVLComposition *compp = regionp->getComposition();
-    LLPointer<LLFetchedGLTFMaterial> (*fetched_materials)[LLVLComposition::ASSET_COUNT] = &compp->mDetailMaterials;
+    LLPointer<LLFetchedGLTFMaterial> (*fetched_materials)[LLVLComposition::ASSET_COUNT] = &compp->mDetailRenderMaterials;
 
     constexpr U32 terrain_material_count = LLVLComposition::ASSET_COUNT;
 #ifdef SHOW_ASSERT
@@ -338,10 +341,10 @@ void LLDrawPoolTerrain::renderFullShaderPBR(BOOL local_materials)
     llassert(shader_material_count == terrain_material_count);
 #endif
 
-    if (local_materials)
+    if (use_local_materials)
     {
         // Override region terrain with the global local override terrain
-        fetched_materials = &gLocalTerrainMaterials.mDetailMaterials;
+        fetched_materials = &gLocalTerrainMaterials.mDetailRenderMaterials;
     }
     const LLGLTFMaterial* materials[terrain_material_count];
     for (U32 i = 0; i < terrain_material_count; ++i)
@@ -349,6 +352,9 @@ void LLDrawPoolTerrain::renderFullShaderPBR(BOOL local_materials)
         materials[i] = (*fetched_materials)[i].get();
         if (!materials[i]) { materials[i] = &LLGLTFMaterial::sDefault; }
     }
+
+    U32 paint_type = use_local_materials ? gLocalTerrainMaterials.getPaintType() : compp->getPaintType();
+    paint_type = llclamp(paint_type, 0, TERRAIN_PAINT_TYPE_COUNT);
 
     S32 detail_basecolor[terrain_material_count];
     S32 detail_normal[terrain_material_count];
@@ -432,23 +438,79 @@ void LLDrawPoolTerrain::renderFullShaderPBR(BOOL local_materials)
     LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
     llassert(shader);
 
-    LLGLTFMaterial::TextureTransform base_color_transform;
-    base_color_transform.mScale = LLVector2(sPBRDetailScale, sPBRDetailScale);
-    // *TODO: mOffset and mRotation left at defaults for now. (per-material texture transforms are implemented in another branch)
-    F32 base_color_packed[8];
-    base_color_transform.getPacked(base_color_packed);
-    // *HACK: Use the same texture repeats for all PBR terrain textures for now
-    // (not compliant with KHR texture transform spec)
-    shader->uniform4fv(LLShaderMgr::TEXTURE_BASE_COLOR_TRANSFORM, 2, (F32*)base_color_packed);
+    // Like for PBR materials, PBR terrain texture transforms are defined by
+    // the KHR_texture_transform spec, but with the following notable
+    // differences:
+    //   1) The PBR UV origin is defined as the Southwest corner of the region,
+    //      with positive U facing East and positive V facing South.
+    //   2) There is an additional scaling factor RenderTerrainPBRScale. If
+    //      we've done our math right, RenderTerrainPBRScale should not affect the
+    //      overall behavior of KHR_texture_transform
+    //   3) There is only one texture transform per material, whereas
+    //      KHR_texture_transform supports one texture transform per texture info.
+    //      i.e. this isn't fully compliant with KHR_texture_transform, but is
+    //      compliant when all texture infos used by a material have the same
+    //      texture transform.
+    LLGLTFMaterial::TextureTransform::PackTight transforms_packed[terrain_material_count];
+    for (U32 i = 0; i < terrain_material_count; ++i)
+    {
+        const LLFetchedGLTFMaterial* fetched_material = (*fetched_materials)[i].get();
+        LLGLTFMaterial::TextureTransform transform;
+        if (fetched_material)
+        {
+            transform = fetched_material->mTextureTransform[LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR];
+#ifdef SHOW_ASSERT
+            // Assert condition where the contents of the texture transforms
+            // differ per texture info - we currently don't support this case.
+            for (U32 ti = 1; ti < LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT; ++ti)
+            {
+                llassert(fetched_material->mTextureTransform[0] == fetched_material->mTextureTransform[ti]);
+            }
+#endif
+        }
+        // *NOTE: Notice here we are combining the scale from
+        // RenderTerrainPBRScale into the KHR_texture_transform. This only
+        // works if the scale is uniform and no other transforms are
+        // applied to the terrain UVs.
+        transform.mScale.mV[VX] *= sPBRDetailScale;
+        transform.mScale.mV[VY] *= sPBRDetailScale;
+
+        transform.getPackedTight(transforms_packed[i]);
+    }
+    const U32 transform_param_count = LLGLTFMaterial::TextureTransform::PACK_TIGHT_SIZE * terrain_material_count;
+    constexpr U32 vec4_size = 4;
+    const U32 transform_vec4_count = (transform_param_count + (vec4_size - 1)) / vec4_size;
+    llassert(transform_vec4_count == 5); // If false, need to update shader
+    shader->uniform4fv(LLShaderMgr::TERRAIN_TEXTURE_TRANSFORMS, transform_vec4_count, (F32*)transforms_packed);
 
     LLSettingsWater::ptr_t pwater = LLEnvironment::instance().getCurrentWater();
 
     //
-    // Alpha Ramp
+    // Alpha Ramp or paint map
     //
-    S32 alpha_ramp = sShader->enableTexture(LLViewerShaderMgr::TERRAIN_ALPHARAMP);
-    gGL.getTexUnit(alpha_ramp)->bind(m2DAlphaRampImagep);
-    gGL.getTexUnit(alpha_ramp)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
+    S32 alpha_ramp = -1;
+    S32 paint_map = -1;
+    if (paint_type == TERRAIN_PAINT_TYPE_HEIGHTMAP_WITH_NOISE)
+    {
+        alpha_ramp = sShader->enableTexture(LLViewerShaderMgr::TERRAIN_ALPHARAMP);
+        gGL.getTexUnit(alpha_ramp)->bind(m2DAlphaRampImagep);
+        gGL.getTexUnit(alpha_ramp)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
+    }
+    else if (paint_type == TERRAIN_PAINT_TYPE_PBR_PAINTMAP)
+    {
+        paint_map = sShader->enableTexture(LLViewerShaderMgr::TERRAIN_PAINTMAP);
+        LLViewerTexture* tex_paint_map = use_local_materials ? gLocalTerrainMaterials.getPaintMap() : compp->getPaintMap();
+        // If no paintmap is available, fall back to rendering just material slot 1 (by binding the appropriate image)
+        if (!tex_paint_map) { tex_paint_map = LLViewerTexture::sBlackImagep.get(); }
+        // This is a paint map for four materials, but we save a channel by
+        // storing the paintmap as the "difference" between slot 1 and the
+        // other 3 slots.
+        llassert(tex_paint_map->getComponents() == 3);
+        gGL.getTexUnit(paint_map)->bind(tex_paint_map);
+        gGL.getTexUnit(paint_map)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
+
+        shader->uniform1f(LLShaderMgr::REGION_SCALE, regionp->getWidth());
+    }
 
     //
     // GLTF uniforms
@@ -497,11 +559,22 @@ void LLDrawPoolTerrain::renderFullShaderPBR(BOOL local_materials)
 
     // Disable multitexture
 
-    sShader->disableTexture(LLViewerShaderMgr::TERRAIN_ALPHARAMP);
+    if (paint_type == TERRAIN_PAINT_TYPE_HEIGHTMAP_WITH_NOISE)
+    {
+        sShader->disableTexture(LLViewerShaderMgr::TERRAIN_ALPHARAMP);
 
-    gGL.getTexUnit(alpha_ramp)->unbind(LLTexUnit::TT_TEXTURE);
-    gGL.getTexUnit(alpha_ramp)->disable();
-    gGL.getTexUnit(alpha_ramp)->activate();
+        gGL.getTexUnit(alpha_ramp)->unbind(LLTexUnit::TT_TEXTURE);
+        gGL.getTexUnit(alpha_ramp)->disable();
+        gGL.getTexUnit(alpha_ramp)->activate();
+    }
+    else if (paint_type == TERRAIN_PAINT_TYPE_PBR_PAINTMAP)
+    {
+        sShader->disableTexture(LLViewerShaderMgr::TERRAIN_PAINTMAP);
+
+        gGL.getTexUnit(paint_map)->unbind(LLTexUnit::TT_TEXTURE);
+        gGL.getTexUnit(paint_map)->disable();
+        gGL.getTexUnit(paint_map)->activate();
+    }
 
     for (U32 i = 0; i < terrain_material_count; ++i)
     {

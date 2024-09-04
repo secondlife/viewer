@@ -53,7 +53,7 @@
 
 #include "llenvironment.h"
 
-BOOL LLDrawPoolAlpha::sShowDebugAlpha = FALSE;
+bool LLDrawPoolAlpha::sShowDebugAlpha = false;
 
 #define current_shader (LLGLSLShader::sCurBoundShaderPtr)
 
@@ -81,10 +81,6 @@ LLDrawPoolAlpha::~LLDrawPoolAlpha()
 void LLDrawPoolAlpha::prerender()
 {
     mShaderLevel = LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_OBJECT);
-
-    // TODO: is this even necessay?  These are probably set to never discard
-    LLViewerFetchedTexture::sFlatNormalImagep->addTextureStats(1024.f*1024.f);
-    LLViewerFetchedTexture::sWhiteImagep->addTextureStats(1024.f * 1024.f);
 }
 
 S32 LLDrawPoolAlpha::getNumPostDeferredPasses()
@@ -93,7 +89,7 @@ S32 LLDrawPoolAlpha::getNumPostDeferredPasses()
 }
 
 // set some common parameters on the given shader to prepare for alpha rendering
-static void prepare_alpha_shader(LLGLSLShader* shader, bool textureGamma, bool deferredEnvironment, F32 water_sign)
+static void prepare_alpha_shader(LLGLSLShader* shader, bool deferredEnvironment, F32 water_sign)
 {
     static LLCachedControl<F32> displayGamma(gSavedSettings, "RenderDeferredDisplayGamma");
     F32 gamma = displayGamma;
@@ -132,19 +128,15 @@ static void prepare_alpha_shader(LLGLSLShader* shader, bool textureGamma, bool d
     {
         shader->setMinimumAlpha(MINIMUM_ALPHA);
     }
-    if (textureGamma)
-    {
-        shader->uniform1f(LLShaderMgr::TEXTURE_GAMMA, 2.2f);
-    }
 
     //also prepare rigged variant
     if (shader->mRiggedVariant && shader->mRiggedVariant != shader)
     {
-        prepare_alpha_shader(shader->mRiggedVariant, textureGamma, deferredEnvironment, water_sign);
+        prepare_alpha_shader(shader->mRiggedVariant, deferredEnvironment, water_sign);
     }
 }
 
-extern BOOL gCubeSnapshot;
+extern bool gCubeSnapshot;
 
 void LLDrawPoolAlpha::renderPostDeferred(S32 pass)
 {
@@ -171,36 +163,36 @@ void LLDrawPoolAlpha::renderPostDeferred(S32 pass)
     llassert(LLPipeline::sRenderDeferred);
 
     emissive_shader = &gDeferredEmissiveProgram;
-    prepare_alpha_shader(emissive_shader, true, false, water_sign);
+    prepare_alpha_shader(emissive_shader, false, water_sign);
 
     pbr_emissive_shader = &gPBRGlowProgram;
-    prepare_alpha_shader(pbr_emissive_shader, true, false, water_sign);
+    prepare_alpha_shader(pbr_emissive_shader, false, water_sign);
 
 
     fullbright_shader   =
         (LLPipeline::sImpostorRender) ? &gDeferredFullbrightAlphaMaskProgram :
         (LLPipeline::sRenderingHUDs) ? &gHUDFullbrightAlphaMaskAlphaProgram :
         &gDeferredFullbrightAlphaMaskAlphaProgram;
-    prepare_alpha_shader(fullbright_shader, true, true, water_sign);
+    prepare_alpha_shader(fullbright_shader, true, water_sign);
 
     simple_shader   =
         (LLPipeline::sImpostorRender) ? &gDeferredAlphaImpostorProgram :
         (LLPipeline::sRenderingHUDs) ? &gHUDAlphaProgram :
         &gDeferredAlphaProgram;
 
-    prepare_alpha_shader(simple_shader, false, true, water_sign); //prime simple shader (loads shadow relevant uniforms)
+    prepare_alpha_shader(simple_shader, true, water_sign); //prime simple shader (loads shadow relevant uniforms)
 
     LLGLSLShader* materialShader = gDeferredMaterialProgram;
     for (int i = 0; i < LLMaterial::SHADER_COUNT*2; ++i)
     {
-        prepare_alpha_shader(&materialShader[i], false, true, water_sign);
+        prepare_alpha_shader(&materialShader[i], true, water_sign);
     }
 
     pbr_shader =
         (LLPipeline::sRenderingHUDs) ? &gHUDPBRAlphaProgram :
         &gDeferredPBRAlphaProgram;
 
-    prepare_alpha_shader(pbr_shader, false, true, water_sign);
+    prepare_alpha_shader(pbr_shader, true, water_sign);
 
     // explicitly unbind here so render loop doesn't make assumptions about the last shader
     // already being setup for rendering
@@ -216,7 +208,7 @@ void LLDrawPoolAlpha::renderPostDeferred(S32 pass)
     forwardRender();
 
     // final pass, render to depth for depth of field effects
-    if (!LLPipeline::sImpostorRender && gSavedSettings.getBOOL("RenderDepthOfField") && !gCubeSnapshot && !LLPipeline::sRenderingHUDs && getType() == LLDrawPool::POOL_ALPHA_POST_WATER)
+    if (!LLPipeline::sImpostorRender && LLPipeline::RenderDepthOfField && !gCubeSnapshot && !LLPipeline::sRenderingHUDs && getType() == LLDrawPool::POOL_ALPHA_POST_WATER)
     {
         //update depth buffer sampler
         simple_shader = fullbright_shader = &gDeferredFullbrightAlphaMaskProgram;
@@ -261,13 +253,12 @@ void LLDrawPoolAlpha::forwardRender(bool rigged)
     mAlphaDFactor = LLRender::BF_ONE_MINUS_SOURCE_ALPHA;       // }
     gGL.blendFunc(mColorSFactor, mColorDFactor, mAlphaSFactor, mAlphaDFactor);
 
-    if (rigged)
+    if (rigged && mType == LLDrawPool::POOL_ALPHA_POST_WATER)
     { // draw GLTF scene to depth buffer before rigged alpha
-        gPipeline.bindDeferredShader(gDeferredPBRAlphaProgram);
         LL::GLTFSceneManager::instance().render(false, false);
-
-        gPipeline.bindDeferredShader(*gDeferredPBRAlphaProgram.mRiggedVariant);
         LL::GLTFSceneManager::instance().render(false, true);
+        LL::GLTFSceneManager::instance().render(false, false, true);
+        LL::GLTFSceneManager::instance().render(false, true, true);
     }
 
     // If the face is more than 90% transparent, then don't update the Depth buffer for Dof
@@ -336,8 +327,9 @@ void LLDrawPoolAlpha::renderAlphaHighlight()
 {
     for (int pass = 0; pass < 2; ++pass)
     { //two passes, one rigged and one not
-        LLVOAvatar* lastAvatar = nullptr;
+        const LLVOAvatar* lastAvatar = nullptr;
         U64 lastMeshId = 0;
+        bool skipLastSkin = false;
 
         LLCullResult::sg_iterator begin = pass == 0 ? gPipeline.beginAlphaGroups() : gPipeline.beginRiggedAlphaGroups();
         LLCullResult::sg_iterator end = pass == 0 ? gPipeline.endAlphaGroups() : gPipeline.endRiggedAlphaGroups();
@@ -356,22 +348,16 @@ void LLDrawPoolAlpha::renderAlphaHighlight()
 
                     bool rigged = (params.mAvatar != nullptr);
                     gHighlightProgram.bind(rigged);
-                    gGL.diffuseColor4f(1, 0, 0, 1);
 
                     if (rigged)
                     {
-                        if (lastAvatar != params.mAvatar ||
-                            lastMeshId != params.mSkinInfo->mHash)
-                        {
-                            if (!uploadMatrixPalette(params))
-                            {
-                                continue;
-                            }
-                            lastAvatar = params.mAvatar;
-                            lastMeshId = params.mSkinInfo->mHash;
+                        if (!uploadMatrixPalette(params.mAvatar, params.mSkinInfo, lastAvatar, lastMeshId, skipLastSkin))
+                        { // failed to upload matrix palette, skip rendering
+                            continue;
                         }
                     }
 
+                    gGL.diffuseColor4f(1, 0, 0, 1);
                     LLRenderPass::applyModelMatrix(params);
                     params.mVertexBuffer->setBuffer();
                     params.mVertexBuffer->drawRange(LLRender::TRIANGLES, params.mStart, params.mEnd, params.mCount, params.mOffset);
@@ -535,25 +521,20 @@ void LLDrawPoolAlpha::renderRiggedEmissives(std::vector<LLDrawInfo*>& emissives)
     shader->bind();
     shader->uniform1f(LLShaderMgr::EMISSIVE_BRIGHTNESS, 1.f);
 
-    LLVOAvatar* lastAvatar = nullptr;
+    const LLVOAvatar* lastAvatar = nullptr;
     U64 lastMeshId = 0;
+    bool skipLastSkin = false;
 
     for (LLDrawInfo* draw : emissives)
     {
         LL_PROFILE_ZONE_NAMED_CATEGORY_DRAWPOOL("Emissives");
 
-        bool tex_setup = TexSetup(draw, false);
-        if (lastAvatar != draw->mAvatar || lastMeshId != draw->mSkinInfo->mHash)
+        if (uploadMatrixPalette(draw->mAvatar, draw->mSkinInfo, lastAvatar, lastMeshId, skipLastSkin))
         {
-            if (!uploadMatrixPalette(*draw))
-            { // failed to upload matrix palette, skip rendering
-                continue;
-            }
-            lastAvatar = draw->mAvatar;
-            lastMeshId = draw->mSkinInfo->mHash;
+            bool tex_setup = TexSetup(draw, false);
+            drawEmissive(draw);
+            RestoreTexSetup(tex_setup);
         }
-        drawEmissive(draw);
-        RestoreTexSetup(tex_setup);
     }
 }
 
@@ -562,19 +543,15 @@ void LLDrawPoolAlpha::renderRiggedPbrEmissives(std::vector<LLDrawInfo*>& emissiv
     LLGLDepthTest depth(GL_TRUE, GL_FALSE); //disable depth writes since "emissive" is additive so sorting doesn't matter
     pbr_emissive_shader->bind(true);
 
-    LLVOAvatar* lastAvatar = nullptr;
+    const LLVOAvatar* lastAvatar = nullptr;
     U64 lastMeshId = 0;
+    bool skipLastSkin = false;
 
     for (LLDrawInfo* draw : emissives)
     {
-        if (lastAvatar != draw->mAvatar || lastMeshId != draw->mSkinInfo->mHash)
-        {
-            if (!uploadMatrixPalette(*draw))
-            { // failed to upload matrix palette, skip rendering
-                continue;
-            }
-            lastAvatar = draw->mAvatar;
-            lastMeshId = draw->mSkinInfo->mHash;
+        if (!uploadMatrixPalette(draw->mAvatar, draw->mSkinInfo, lastAvatar, lastMeshId, skipLastSkin))
+        { // failed to upload matrix palette, skip rendering
+            continue;
         }
 
         LLGLDisable cull_face(draw->mGLTFMaterial->mDoubleSided ? GL_CULL_FACE : 0);
@@ -587,12 +564,13 @@ void LLDrawPoolAlpha::renderRiggedPbrEmissives(std::vector<LLDrawInfo*>& emissiv
 void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
-    BOOL initialized_lighting = FALSE;
-    BOOL light_enabled = TRUE;
+    bool initialized_lighting = false;
+    bool light_enabled = true;
 
-    LLVOAvatar* lastAvatar = nullptr;
+    const LLVOAvatar* lastAvatar = nullptr;
     U64 lastMeshId = 0;
-    LLGLSLShader* lastAvatarShader = nullptr;
+    const LLGLSLShader* lastAvatarShader = nullptr;
+    bool skipLastSkin = false;
 
     LLCullResult::sg_iterator begin;
     LLCullResult::sg_iterator end;
@@ -710,18 +688,18 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
                         // Turn off lighting if it hasn't already been so.
                         if (light_enabled || !initialized_lighting)
                         {
-                            initialized_lighting = TRUE;
+                            initialized_lighting = true;
                             target_shader = fullbright_shader;
 
-                            light_enabled = FALSE;
+                            light_enabled = false;
                         }
                     }
                     // Turn on lighting if it isn't already.
                     else if (!light_enabled || !initialized_lighting)
                     {
-                        initialized_lighting = TRUE;
+                        initialized_lighting = true;
                         target_shader = simple_shader;
-                        light_enabled = TRUE;
+                        light_enabled = true;
                     }
 
                     if (LLPipeline::sRenderingHUDs)
@@ -785,20 +763,9 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
                     }
                 }
 
-                if (params.mAvatar != nullptr)
+                if (params.mAvatar && !uploadMatrixPalette(params.mAvatar, params.mSkinInfo, lastAvatar, lastMeshId, lastAvatarShader, skipLastSkin))
                 {
-                    if (lastAvatar != params.mAvatar ||
-                        lastMeshId != params.mSkinInfo->mHash ||
-                        lastAvatarShader != LLGLSLShader::sCurBoundShaderPtr)
-                    {
-                        if (!uploadMatrixPalette(params))
-                        {
-                            continue;
-                        }
-                        lastAvatar = params.mAvatar;
-                        lastMeshId = params.mSkinInfo->mHash;
-                        lastAvatarShader = LLGLSLShader::sCurBoundShaderPtr;
-                    }
+                    continue;
                 }
 
                 bool tex_setup = TexSetup(&params, (mat != nullptr));
@@ -920,27 +887,4 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
     {
         gPipeline.enableLightsDynamic();
     }
-}
-
-bool LLDrawPoolAlpha::uploadMatrixPalette(const LLDrawInfo& params)
-{
-    if (params.mAvatar.isNull())
-    {
-        return false;
-    }
-    const LLVOAvatar::MatrixPaletteCache& mpc = params.mAvatar.get()->updateSkinInfoMatrixPalette(params.mSkinInfo);
-    U32 count = mpc.mMatrixPalette.size();
-
-    if (count == 0)
-    {
-        //skin info not loaded yet, don't render
-        return false;
-    }
-
-    LLGLSLShader::sCurBoundShaderPtr->uniformMatrix3x4fv(LLViewerShaderMgr::AVATAR_MATRIX,
-        count,
-        FALSE,
-        (GLfloat*)&(mpc.mGLMp[0]));
-
-    return true;
 }

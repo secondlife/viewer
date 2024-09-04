@@ -62,7 +62,7 @@ public:
 
     // adds motion classes to the registry
     // returns true if successfull
-    BOOL registerMotion( const LLUUID& id, LLMotionConstructor create);
+    bool registerMotion( const LLUUID& id, LLMotionConstructor create);
 
     // creates a new instance of a named motion
     // returns NULL motion is not registered
@@ -85,7 +85,7 @@ class LLMotionController
 public:
     typedef std::list<LLMotion*> motion_list_t;
     typedef std::set<LLMotion*> motion_set_t;
-    BOOL mIsSelf;
+    bool mIsSelf;
 
 public:
     // Constructor
@@ -102,7 +102,7 @@ public:
     // registers a motion with the controller
     // (actually just forwards call to motion registry)
     // returns true if successfull
-    BOOL registerMotion( const LLUUID& id, LLMotionConstructor create );
+    bool registerMotion( const LLUUID& id, LLMotionConstructor create );
 
     // creates a motion from the registry
     LLMotion *createMotion( const LLUUID &id );
@@ -115,13 +115,13 @@ public:
     // start motion
     // begins playing the specified motion
     // returns true if successful
-    BOOL startMotion( const LLUUID &id, F32 start_offset );
+    bool startMotion( const LLUUID &id, F32 start_offset );
 
     // stop motion
     // stops a playing motion
     // in reality, it begins the ease out transition phase
     // returns true if successful
-    BOOL stopMotionLocally( const LLUUID &id, BOOL stop_immediate );
+    bool stopMotionLocally( const LLUUID &id, bool stop_immediate );
 
     // Move motions from loading to loaded
     void updateLoadingMotions();
@@ -147,7 +147,7 @@ public:
     // pause and continue all motions
     void pauseAllMotions();
     void unpauseAllMotions();
-    BOOL isPaused() const { return mPaused; }
+    bool isPaused() const { return mPaused; }
     S32 getPausedFrame() const { return mPausedFrame; }
 
     void setTimeStep(F32 step);
@@ -178,10 +178,10 @@ protected:
     // internal operations act on motion instances directly
     // as there can be duplicate motions per id during blending overlap
     void deleteAllMotions();
-    BOOL activateMotionInstance(LLMotion *motion, F32 time);
-    BOOL deactivateMotionInstance(LLMotion *motion);
+    bool activateMotionInstance(LLMotion *motion, F32 time);
+    bool deactivateMotionInstance(LLMotion *motion);
     void deprecateMotionInstance(LLMotion* motion);
-    BOOL stopMotionInstance(LLMotion *motion, BOOL stop_imemdiate);
+    bool stopMotionInstance(LLMotion *motion, bool stop_imemdiate);
     void removeMotionInstance(LLMotion* motion);
     void updateRegularMotions();
     void updateAdditiveMotions();
@@ -220,8 +220,8 @@ protected:
     F32                 mPrevTimerElapsed;
     F32                 mAnimTime;
     F32                 mLastTime;
-    BOOL                mHasRunOnce;
-    BOOL                mPaused;
+    bool                mHasRunOnce;
+    bool                mPaused;
     S32                 mPausedFrame;
     F32                 mTimeStep;
     S32                 mTimeStepCount;

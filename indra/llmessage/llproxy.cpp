@@ -123,7 +123,7 @@ S32 LLProxy::proxyHandshake(LLHost proxy)
         // The server has requested a username/password combination
         std::string socks_username(getSocksUser());
         std::string socks_password(getSocksPwd());
-        U32 request_size = socks_username.size() + socks_password.size() + 3;
+        U32 request_size = static_cast<S32>(socks_username.size() + socks_password.size() + 3);
         char * password_auth = new char[request_size];
         password_auth[0] = 0x01;
         password_auth[1] = (char)(socks_username.size());

@@ -117,7 +117,7 @@ LLFloaterCreateLandmark::~LLFloaterCreateLandmark()
     removeObserver();
 }
 
-BOOL LLFloaterCreateLandmark::postBuild()
+bool LLFloaterCreateLandmark::postBuild()
 {
     mFolderCombo = getChild<LLComboBox>("folder_combo");
     mLandmarkTitleEditor = getChild<LLLineEditor>("title_editor");
@@ -132,7 +132,7 @@ BOOL LLFloaterCreateLandmark::postBuild()
 
     mLandmarksID = gInventory.findCategoryUUIDForType(LLFolderType::FT_LANDMARK);
 
-    return TRUE;
+    return true;
 }
 
 void LLFloaterCreateLandmark::removeObserver()
@@ -349,7 +349,7 @@ void LLFloaterCreateLandmark::onSaveClicked()
         gInventory.accountForUpdate(update);
 
         new_item->setParent(folder_id);
-        new_item->updateParentOnServer(FALSE);
+        new_item->updateParentOnServer(false);
     }
 
     removeObserver();

@@ -1,0 +1,47 @@
+name: Tag a Build
+
+on:
+  # schedule event triggers always run on the default branch
+  # https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#schedule
+  schedule:
+    # run "nightly" builds on default branch every mon/wed/fri
+    - cron: "21 2 * * 2,4,6"     # 2:21am UTC tues/thurs/sat == 7:21pm PDT mon/wed/fri -- see https://crontab.guru/#21_01_*_*_2,4,6
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: "Channel to configure the build"
+        required: true
+        type: choice
+        default: "Test"
+        options:
+        - "Test"
+        - "Develop"
+        - "Project"
+        - "Release"
+      project:
+        description: "Project Name (used for channel name in project builds, and tag name for all builds)"
+        default: "hippo"
+      # TODO - add an input for selecting another sha to build other than head of branch
+
+jobs:
+  tag-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Env Vars
+        run: |
+          CHANNEL="${{ inputs.channel }}"
+          echo VIEWER_CHANNEL="Second_Life_${CHANNEL:-Develop}" >> ${GITHUB_ENV}
+          NIGHTLY_DATE=$(date --rfc-3339=date)
+          echo NIGHTLY_DATE=${NIGHTLY_DATE} >> ${GITHUB_ENV}
+          echo TAG_ID="$(echo ${{ github.sha }} | cut -c1-8)-${{ inputs.project || '${NIGHTLY_DATE}' }}" >> ${GITHUB_ENV}
+      - name: Update Tag
+        uses: actions/github-script@v7.0.1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.rest.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: "refs/tags/${{ env.VIEWER_CHANNEL }}#${{ env.TAG_ID }}",
+              sha: context.sha
+            })

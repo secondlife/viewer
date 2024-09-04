@@ -53,7 +53,7 @@ public:
 
     virtual void setValue(const LLSD& value);
 
-    virtual BOOL postBuild();
+    virtual bool postBuild();
 
     void onIMFloaterShown(const LLUUID& session_id);
     void onRemoveBtnClicked();

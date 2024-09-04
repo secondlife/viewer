@@ -133,57 +133,57 @@ LLColor4::operator LLColor4U() const
 
 LLColor4::LLColor4(const LLColor3 &vec, F32 a)
 {
-    mV[VX] = vec.mV[VX];
-    mV[VY] = vec.mV[VY];
-    mV[VZ] = vec.mV[VZ];
-    mV[VW] = a;
+    mV[VRED] = vec.mV[VRED];
+    mV[VGREEN] = vec.mV[VGREEN];
+    mV[VBLUE] = vec.mV[VBLUE];
+    mV[VALPHA] = a;
 }
 
 LLColor4::LLColor4(const LLColor4U& color4u)
 {
     const F32 SCALE = 1.f/255.f;
-    mV[VX] = color4u.mV[VX] * SCALE;
-    mV[VY] = color4u.mV[VY] * SCALE;
-    mV[VZ] = color4u.mV[VZ] * SCALE;
-    mV[VW] = color4u.mV[VW] * SCALE;
+    mV[VRED] = color4u.mV[VRED] * SCALE;
+    mV[VGREEN] = color4u.mV[VGREEN] * SCALE;
+    mV[VBLUE] = color4u.mV[VBLUE] * SCALE;
+    mV[VALPHA] = color4u.mV[VALPHA] * SCALE;
 }
 
 LLColor4::LLColor4(const LLVector4& vector4)
 {
-    mV[VX] = vector4.mV[VX];
-    mV[VY] = vector4.mV[VY];
-    mV[VZ] = vector4.mV[VZ];
-    mV[VW] = vector4.mV[VW];
+    mV[VRED] = vector4.mV[VRED];
+    mV[VGREEN] = vector4.mV[VGREEN];
+    mV[VBLUE] = vector4.mV[VBLUE];
+    mV[VALPHA] = vector4.mV[VALPHA];
 }
 
 const LLColor4& LLColor4::set(const LLColor4U& color4u)
 {
     const F32 SCALE = 1.f/255.f;
-    mV[VX] = color4u.mV[VX] * SCALE;
-    mV[VY] = color4u.mV[VY] * SCALE;
-    mV[VZ] = color4u.mV[VZ] * SCALE;
-    mV[VW] = color4u.mV[VW] * SCALE;
+    mV[VRED] = color4u.mV[VRED] * SCALE;
+    mV[VGREEN] = color4u.mV[VGREEN] * SCALE;
+    mV[VBLUE] = color4u.mV[VBLUE] * SCALE;
+    mV[VALPHA] = color4u.mV[VALPHA] * SCALE;
     return (*this);
 }
 
 const LLColor4& LLColor4::set(const LLColor3 &vec)
 {
-    mV[VX] = vec.mV[VX];
-    mV[VY] = vec.mV[VY];
-    mV[VZ] = vec.mV[VZ];
+    mV[VRED] = vec.mV[VRED];
+    mV[VGREEN] = vec.mV[VGREEN];
+    mV[VBLUE] = vec.mV[VBLUE];
 
 //  no change to alpha!
-//  mV[VW] = 1.f;
+//  mV[VALPHA] = 1.f;
 
     return (*this);
 }
 
 const LLColor4& LLColor4::set(const LLColor3 &vec, F32 a)
 {
-    mV[VX] = vec.mV[VX];
-    mV[VY] = vec.mV[VY];
-    mV[VZ] = vec.mV[VZ];
-    mV[VW] = a;
+    mV[VRED] = vec.mV[VRED];
+    mV[VGREEN] = vec.mV[VGREEN];
+    mV[VBLUE] = vec.mV[VBLUE];
+    mV[VALPHA] = a;
     return (*this);
 }
 
@@ -191,22 +191,22 @@ const LLColor4& LLColor4::set(const LLColor3 &vec, F32 a)
 const LLColor4& LLColor4::setVec(const LLColor4U& color4u)
 {
     const F32 SCALE = 1.f/255.f;
-    mV[VX] = color4u.mV[VX] * SCALE;
-    mV[VY] = color4u.mV[VY] * SCALE;
-    mV[VZ] = color4u.mV[VZ] * SCALE;
-    mV[VW] = color4u.mV[VW] * SCALE;
+    mV[VRED] = color4u.mV[VRED] * SCALE;
+    mV[VGREEN] = color4u.mV[VGREEN] * SCALE;
+    mV[VBLUE] = color4u.mV[VBLUE] * SCALE;
+    mV[VALPHA] = color4u.mV[VALPHA] * SCALE;
     return (*this);
 }
 
 // deprecated -- use set()
 const LLColor4& LLColor4::setVec(const LLColor3 &vec)
 {
-    mV[VX] = vec.mV[VX];
-    mV[VY] = vec.mV[VY];
-    mV[VZ] = vec.mV[VZ];
+    mV[VRED] = vec.mV[VRED];
+    mV[VGREEN] = vec.mV[VGREEN];
+    mV[VBLUE] = vec.mV[VBLUE];
 
 //  no change to alpha!
-//  mV[VW] = 1.f;
+//  mV[VALPHA] = 1.f;
 
     return (*this);
 }
@@ -214,10 +214,10 @@ const LLColor4& LLColor4::setVec(const LLColor3 &vec)
 // deprecated -- use set()
 const LLColor4& LLColor4::setVec(const LLColor3 &vec, F32 a)
 {
-    mV[VX] = vec.mV[VX];
-    mV[VY] = vec.mV[VY];
-    mV[VZ] = vec.mV[VZ];
-    mV[VW] = a;
+    mV[VRED] = vec.mV[VRED];
+    mV[VGREEN] = vec.mV[VGREEN];
+    mV[VBLUE] = vec.mV[VBLUE];
+    mV[VALPHA] = a;
     return (*this);
 }
 
@@ -257,45 +257,45 @@ void LLColor4::setValue(const LLSD& sd)
 
 const LLColor4& LLColor4::operator=(const LLColor3 &a)
 {
-    mV[VX] = a.mV[VX];
-    mV[VY] = a.mV[VY];
-    mV[VZ] = a.mV[VZ];
+    mV[VRED] = a.mV[VRED];
+    mV[VGREEN] = a.mV[VGREEN];
+    mV[VBLUE] = a.mV[VBLUE];
 
 // converting from an rgb sets a=1 (opaque)
-    mV[VW] = 1.f;
+    mV[VALPHA] = 1.f;
     return (*this);
 }
 
 
 std::ostream& operator<<(std::ostream& s, const LLColor4 &a)
 {
-    s << "{ " << a.mV[VX] << ", " << a.mV[VY] << ", " << a.mV[VZ] << ", " << a.mV[VW] << " }";
+    s << "{ " << a.mV[VRED] << ", " << a.mV[VGREEN] << ", " << a.mV[VBLUE] << ", " << a.mV[VALPHA] << " }";
     return s;
 }
 
 bool operator==(const LLColor4 &a, const LLColor3 &b)
 {
-    return (  (a.mV[VX] == b.mV[VX])
-            &&(a.mV[VY] == b.mV[VY])
-            &&(a.mV[VZ] == b.mV[VZ]));
+    return (  (a.mV[VRED] == b.mV[VRED])
+            &&(a.mV[VGREEN] == b.mV[VGREEN])
+            &&(a.mV[VBLUE] == b.mV[VBLUE]));
 }
 
 bool operator!=(const LLColor4 &a, const LLColor3 &b)
 {
-    return (  (a.mV[VX] != b.mV[VX])
-            ||(a.mV[VY] != b.mV[VY])
-            ||(a.mV[VZ] != b.mV[VZ]));
+    return (  (a.mV[VRED] != b.mV[VRED])
+            ||(a.mV[VGREEN] != b.mV[VGREEN])
+            ||(a.mV[VBLUE] != b.mV[VBLUE]));
 }
 
 LLColor3    vec4to3(const LLColor4 &vec)
 {
-    LLColor3    temp(vec.mV[VX], vec.mV[VY], vec.mV[VZ]);
+    LLColor3    temp(vec.mV[VRED], vec.mV[VGREEN], vec.mV[VBLUE]);
     return temp;
 }
 
 LLColor4    vec3to4(const LLColor3 &vec)
 {
-    LLColor3    temp(vec.mV[VX], vec.mV[VY], vec.mV[VZ]);
+    LLColor3    temp(vec.mV[VRED], vec.mV[VGREEN], vec.mV[VBLUE]);
     return temp;
 }
 
@@ -385,18 +385,18 @@ void LLColor4::calcHSL(F32* hue, F32* saturation, F32* luminance) const
 }
 
 // static
-BOOL LLColor4::parseColor(const std::string& buf, LLColor4* color)
+bool LLColor4::parseColor(const std::string& buf, LLColor4* color)
 {
-    if( buf.empty() || color == NULL)
+    if( buf.empty() || color == nullptr)
     {
-        return FALSE;
+        return false;
     }
 
     boost_tokenizer tokens(buf, boost::char_separator<char>(", "));
     boost_tokenizer::iterator token_iter = tokens.begin();
     if (token_iter == tokens.end())
     {
-        return FALSE;
+        return false;
     }
 
     // Grab the first token into a string, since we don't know
@@ -408,10 +408,10 @@ BOOL LLColor4::parseColor(const std::string& buf, LLColor4* color)
     {
         // There are more tokens to read.  This must be a vector.
         LLColor4 v;
-        LLStringUtil::convertToF32( color_name,  v.mV[VX] );
-        LLStringUtil::convertToF32( *token_iter, v.mV[VY] );
-        v.mV[VZ] = 0.0f;
-        v.mV[VW] = 1.0f;
+        LLStringUtil::convertToF32( color_name,  v.mV[VRED] );
+        LLStringUtil::convertToF32( *token_iter, v.mV[VGREEN] );
+        v.mV[VBLUE] = 0.0f;
+        v.mV[VALPHA] = 1.0f;
 
         ++token_iter;
         if (token_iter == tokens.end())
@@ -422,18 +422,18 @@ BOOL LLColor4::parseColor(const std::string& buf, LLColor4* color)
         else
         {
             // There is a z-component.
-            LLStringUtil::convertToF32( *token_iter, v.mV[VZ] );
+            LLStringUtil::convertToF32( *token_iter, v.mV[VBLUE] );
 
             ++token_iter;
             if (token_iter != tokens.end())
             {
                 // There is an alpha component.
-                LLStringUtil::convertToF32( *token_iter, v.mV[VW] );
+                LLStringUtil::convertToF32( *token_iter, v.mV[VALPHA] );
             }
         }
 
         //  Make sure all values are between 0 and 1.
-        if (v.mV[VX] > 1.f || v.mV[VY] > 1.f || v.mV[VZ] > 1.f || v.mV[VW] > 1.f)
+        if (v.mV[VRED] > 1.f || v.mV[VGREEN] > 1.f || v.mV[VBLUE] > 1.f || v.mV[VALPHA] > 1.f)
         {
             v = v * (1.f / 255.f);
         }
@@ -708,15 +708,15 @@ BOOL LLColor4::parseColor(const std::string& buf, LLColor4* color)
         }
     }
 
-    return TRUE;
+    return true;
 }
 
 // static
-BOOL LLColor4::parseColor4(const std::string& buf, LLColor4* value)
+bool LLColor4::parseColor4(const std::string& buf, LLColor4* value)
 {
-    if( buf.empty() || value == NULL)
+    if( buf.empty() || value == nullptr)
     {
-        return FALSE;
+        return false;
     }
 
     LLColor4 v;
@@ -729,10 +729,10 @@ BOOL LLColor4::parseColor4(const std::string& buf, LLColor4* value)
     if( 4 == count )
     {
         value->setVec( v );
-        return TRUE;
+        return true;
     }
 
-    return FALSE;
+    return false;
 }
 
 // EOF

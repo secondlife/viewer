@@ -30,7 +30,6 @@
 #include "lltoast.h"
 
 #include <map>
-#include <boost/shared_ptr.hpp>
 
 namespace LLNotificationsUI
 {
@@ -76,9 +75,9 @@ public:
 
     LLScreenChannelBase(const Params&);
 
-    BOOL postBuild();
+    bool postBuild();
 
-    void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
+    void reshape(S32 width, S32 height, bool called_from_parent = true);
 
     // Channel's outfit-functions
     // update channel's size and position in the World View

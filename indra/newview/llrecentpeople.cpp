@@ -114,8 +114,8 @@ F32 LLRecentPeople::getArrivalTimeByID(const LLUUID& id)
 
     if (it != mAvatarsArrivalTime.end())
     {
-        return it->second;
+        return (F32)(it->second);
     }
-    return LLDate::now().secondsSinceEpoch();
+    return (F32)LLDate::now().secondsSinceEpoch();
 }
 

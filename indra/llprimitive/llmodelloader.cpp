@@ -471,7 +471,7 @@ bool LLModelLoader::isRigSuitableForJointPositionUpload( const std::vector<std::
 //called in the main thread
 void LLModelLoader::loadTextures()
 {
-    BOOL is_paused = isPaused() ;
+    bool is_paused = isPaused() ;
     pause() ; //pause the loader
 
     for(scene::iterator iter = mScene.begin(); iter != mScene.end(); ++iter)

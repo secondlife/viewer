@@ -65,7 +65,7 @@ bool LLTrans::parseStrings(LLXMLNodePtr &root, const std::set<std::string>& defa
     if (!root->hasName("strings"))
     {
         LL_ERRS() << "Invalid root node name in " << xml_filename
-            << ": was " << root->getName() << ", expected \"strings\"" << LL_ENDL;
+            << ": was " << root->getName()->mString << ", expected \"strings\"" << LL_ENDL;
     }
 
     StringTable string_table;
@@ -113,7 +113,7 @@ bool LLTrans::parseLanguageStrings(LLXMLNodePtr &root)
     if (!root->hasName("strings"))
     {
         LL_ERRS() << "Invalid root node name in " << xml_filename
-        << ": was " << root->getName() << ", expected \"strings\"" << LL_ENDL;
+        << ": was " << root->getName()->mString << ", expected \"strings\"" << LL_ENDL;
     }
 
     StringTable string_table;
@@ -143,7 +143,7 @@ bool LLTrans::parseLanguageStrings(LLXMLNodePtr &root)
 static LLTrace::BlockTimerStatHandle FTM_GET_TRANS("Translate string");
 
 //static
-std::string LLTrans::getString(const std::string &xml_desc, const LLStringUtil::format_map_t& msg_args, bool def_string)
+std::string LLTrans::getString(std::string_view xml_desc, const LLStringUtil::format_map_t& msg_args, bool def_string)
 {
     // Don't care about time as much as call count.  Make sure we're not
     // calling LLTrans::getString() in an inner loop. JC
@@ -167,12 +167,12 @@ std::string LLTrans::getString(const std::string &xml_desc, const LLStringUtil::
     else
     {
         LL_WARNS_ONCE("configuration") << "Missing String in strings.xml: [" << xml_desc << "]" << LL_ENDL;
-        return "MissingString("+xml_desc+")";
+        return "MissingString(" + std::string(xml_desc) + ")";
     }
 }
 
 //static
-std::string LLTrans::getDefString(const std::string &xml_desc, const LLStringUtil::format_map_t& msg_args)
+std::string LLTrans::getDefString(std::string_view xml_desc, const LLStringUtil::format_map_t& msg_args)
 {
     template_map_t::iterator iter = sDefaultStringTemplates.find(xml_desc);
     if (iter != sDefaultStringTemplates.end())
@@ -187,12 +187,12 @@ std::string LLTrans::getDefString(const std::string &xml_desc, const LLStringUti
     else
     {
         LL_WARNS_ONCE("configuration") << "Missing String in strings.xml: [" << xml_desc << "]" << LL_ENDL;
-        return "MissingString(" + xml_desc + ")";
+        return "MissingString(" + std::string(xml_desc) + ")";
     }
 }
 
 //static
-std::string LLTrans::getString(const std::string &xml_desc, const LLSD& msg_args, bool def_string)
+std::string LLTrans::getString(std::string_view xml_desc, const LLSD& msg_args, bool def_string)
 {
     // Don't care about time as much as call count.  Make sure we're not
     // calling LLTrans::getString() in an inner loop. JC
@@ -213,12 +213,12 @@ std::string LLTrans::getString(const std::string &xml_desc, const LLSD& msg_args
     else
     {
         LL_WARNS_ONCE("configuration") << "Missing String in strings.xml: [" << xml_desc << "]" << LL_ENDL;
-        return "MissingString("+xml_desc+")";
+        return "MissingString(" + std::string(xml_desc) + ")";
     }
 }
 
 //static
-std::string LLTrans::getDefString(const std::string &xml_desc, const LLSD& msg_args)
+std::string LLTrans::getDefString(std::string_view xml_desc, const LLSD& msg_args)
 {
     template_map_t::iterator iter = sDefaultStringTemplates.find(xml_desc);
     if (iter != sDefaultStringTemplates.end())
@@ -230,12 +230,12 @@ std::string LLTrans::getDefString(const std::string &xml_desc, const LLSD& msg_a
     else
     {
         LL_WARNS_ONCE("configuration") << "Missing String in strings.xml: [" << xml_desc << "]" << LL_ENDL;
-        return "MissingString(" + xml_desc + ")";
+        return "MissingString(" + std::string(xml_desc) + ")";
     }
 }
 
 //static
-bool LLTrans::findString(std::string &result, const std::string &xml_desc, const LLStringUtil::format_map_t& msg_args)
+bool LLTrans::findString(std::string &result, std::string_view xml_desc, const LLStringUtil::format_map_t& msg_args)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
 
@@ -257,7 +257,7 @@ bool LLTrans::findString(std::string &result, const std::string &xml_desc, const
 }
 
 //static
-bool LLTrans::findString(std::string &result, const std::string &xml_desc, const LLSD& msg_args)
+bool LLTrans::findString(std::string &result, std::string_view xml_desc, const LLSD& msg_args)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
 

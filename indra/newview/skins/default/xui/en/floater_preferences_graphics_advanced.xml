@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
-  height="400"
+  height="430"
   layout="topleft"
   name="prefs_graphics_advanced"
   help_topic="Preferences_Graphics_Advanced"
@@ -102,6 +102,22 @@
     width="65">
        Low
   </text>
+  <slider
+    control_name="RenderLocalLightCount"
+    decimal_digits="0"
+    follows="left|top"
+    height="16"
+    increment="1"
+    initial_value="256"
+    label="Max. nearby lights:"
+    label_width="185"
+    layout="topleft"
+    left="30"
+    min_val="0"
+    max_val="8192"
+    name="MaxLights"
+    top_delta="16"
+    width="336" />
 
   <check_box
     control_name="RenderVSyncEnable"
@@ -127,6 +143,42 @@
     width="128">
      Avatar
   </text>
+
+    <text
+      type="string"
+      length="1"
+      follows="left|top"
+      height="16"
+      layout="topleft"
+      left="30"
+      top_delta="16"
+      width="128"
+      name="AvatarComplexityModeLabel"
+      text_readonly_color="LabelDisabledColor">
+        Avatar display:
+    </text>
+
+    <combo_box
+     control_name="RenderAvatarComplexityMode"
+     height="18"
+     layout="topleft"
+     left_delta="130"
+     top_delta="0"
+     name="AvatarComplexityMode"
+     width="150">
+        <combo_box.item
+          label="Limit by complexity"
+          name="0"
+          value="0"/>
+        <combo_box.item
+          label="Always show friends"
+          name="1"
+          value="1"/>
+        <combo_box.item
+          label="Only show friends"
+          name="2"
+          value="2"/>
+    </combo_box>
 
   <slider
     control_name="IndirectMaxComplexity"
@@ -307,7 +359,41 @@
     name="use HiDPI"
     tool_tip="Enable OpenGL for High-Resolution Drawing."
     width="315" />
-
+    <text
+      type="string"
+      length="1"
+      follows="left|top"
+      height="20"
+      layout="topleft"
+      left="30"
+      name="antialiasing label"
+      top_delta="20"
+      width="120">
+        Antialiasing:
+    </text>
+    <combo_box
+      control_name="RenderFSAAType"
+      height="20"
+      initial_value="false"
+      label="Antialiasing"
+      layout="topleft"
+      left_pad="40"
+      name="fsaa"
+      top_delta="0"
+      width="90">
+        <combo_box.item
+          label="Disabled"
+          name="FSAADisabled"
+          value="0" />
+        <combo_box.item
+          label="FXAA"
+          name="FXAA"
+          value="1" />
+        <combo_box.item
+          label="SMAA"
+          name="SMAA"
+          value="2" />
+    </combo_box>
   <text
     type="string"
     length="1"
@@ -315,10 +401,10 @@
     height="20"
     layout="topleft"
     left="30"
-    name="antialiasing label"
+    name="antialiasing quality label"
     top_delta="20"
-    width="100">
-      Antialiasing:
+    width="120">
+      Antialiasing Quality:
   </text>
   <combo_box
     control_name="RenderFSAASamples"
@@ -327,17 +413,25 @@
     label="Antialiasing"
     layout="topleft"
     left_pad="40"
-    name="fsaa"
+    name="fsaa quality"
     top_delta="0"
     width="90">
     <combo_box.item
-      label="Disabled"
-      name="FSAADisabled"
+      label="Low"
+      name="Low"
       value="0" />
     <combo_box.item
-      label="FXAA"
-      name="FXAA"
+      label="Medium"
+      name="Medium"
+      value="1" />
+    <combo_box.item
+      label="High"
+      name="High"
       value="2" />
+    <combo_box.item
+      label="Ultra"
+      name="Ultra"
+      value="3" />
   </combo_box>
   <text
     type="string"
@@ -493,7 +587,7 @@
   </text>
    <view_border
       bevel_style="in"
-      height="322"
+      height="377"
       layout="topleft"
       left="385"
       name="vert_border"
@@ -812,24 +906,43 @@
    name="HeroProbeUpdateRate"
    width="150">
     <combo_box.item
-      label="Every Frame"
-      name="0"
-      value="1"/>
+      label="Low"
+      name="6"
+      value="6"/>
     <combo_box.item
-      label="Every 2nd Frame"
+      label="Medium"
+      name="3"
+      value="3"/>
+    <combo_box.item
+      label="High"
       name="1"
       value="2"/>
     <combo_box.item
-      label="Every 3rd Frame"
-      name="2"
-      value="3"/>
-    <combo_box.item
-      label="Every 4th Frame"
-      name="3"
-      value="4"/>
+      label="Ultra"
+      name="0"
+      value="1"/>
   </combo_box>
   <!-- End of mirror settings -->
-
+  <!-- Sharpening Settings -->
+  <slider
+    control_name="RenderCASSharpness"
+    decimal_digits="1"
+    follows="left|top"
+    height="16"
+    increment="0.1"
+    initial_value="160"
+    label="Sharpening:"
+    label_width="145"
+    layout="topleft"
+    left="420"
+    min_val="0.0"
+    max_val="1.0"
+    name="RenderSharpness"
+    show_text="true"
+    top_delta="24"
+    width="260">
+  </slider>
+  <!-- End of Sharpening Settings-->
   <!-- End of Advanced Settings block -->
 	<view_border
       bevel_style="in"
@@ -837,7 +950,7 @@
       layout="topleft"
       left="13"
       name="horiz_border"
-      top="338"
+      top="393"
       top_delta="5"
       width="774"/>
   <button
@@ -847,7 +960,7 @@
     layout="topleft"
     left="20"
     name="Defaults"
-    top_delta="20"
+    top_delta="7"
     width="210">
     <button.commit_callback
       function="Pref.HardwareDefaults" />

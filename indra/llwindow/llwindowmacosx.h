@@ -47,71 +47,68 @@ public:
     void show() override;
     void hide() override;
     void close() override;
-    BOOL getVisible() override;
-    BOOL getMinimized() override;
-    BOOL getMaximized() override;
-    BOOL maximize() override;
+    bool getVisible() override;
+    bool getMinimized() override;
+    bool getMaximized() override;
+    bool maximize() override;
     void minimize() override;
     void restore() override;
-    BOOL getFullscreen();
-    BOOL getPosition(LLCoordScreen *position) override;
-    BOOL getSize(LLCoordScreen *size) override;
-    BOOL getSize(LLCoordWindow *size) override;
-    BOOL setPosition(LLCoordScreen position) override;
-    BOOL setSizeImpl(LLCoordScreen size) override;
-    BOOL setSizeImpl(LLCoordWindow size) override;
-    BOOL switchContext(BOOL fullscreen, const LLCoordScreen &size, BOOL enable_vsync, const LLCoordScreen * const posp = NULL) override;
-    BOOL setCursorPosition(LLCoordWindow position) override;
-    BOOL getCursorPosition(LLCoordWindow *position) override;
+    bool getFullscreen();
+    bool getPosition(LLCoordScreen *position) override;
+    bool getSize(LLCoordScreen *size) override;
+    bool getSize(LLCoordWindow *size) override;
+    bool setPosition(LLCoordScreen position) override;
+    bool setSizeImpl(LLCoordScreen size) override;
+    bool setSizeImpl(LLCoordWindow size) override;
+    bool switchContext(bool fullscreen, const LLCoordScreen &size, bool enable_vsync, const LLCoordScreen * const posp = NULL) override;
+    bool setCursorPosition(LLCoordWindow position) override;
+    bool getCursorPosition(LLCoordWindow *position) override;
     void showCursor() override;
     void hideCursor() override;
     void showCursorFromMouseMove() override;
     void hideCursorUntilMouseMove() override;
-    BOOL isCursorHidden() override;
+    bool isCursorHidden() override;
     void updateCursor() override;
     ECursorType getCursor() const override;
     void captureMouse() override;
     void releaseMouse() override;
-    void setMouseClipping( BOOL b ) override;
-    BOOL isClipboardTextAvailable() override;
-    BOOL pasteTextFromClipboard(LLWString &dst) override;
-    BOOL copyTextToClipboard(const LLWString & src) override;
+    void setMouseClipping( bool b ) override;
+    bool isClipboardTextAvailable() override;
+    bool pasteTextFromClipboard(LLWString &dst) override;
+    bool copyTextToClipboard(const LLWString & src) override;
     void flashIcon(F32 seconds) override;
     F32 getGamma() override;
-    BOOL setGamma(const F32 gamma) override; // Set the gamma
+    bool setGamma(const F32 gamma) override; // Set the gamma
     U32 getFSAASamples() override;
     void setFSAASamples(const U32 fsaa_samples) override;
-    BOOL restoreGamma() override;           // Restore original gamma table (before updating gamma)
+    bool restoreGamma() override;           // Restore original gamma table (before updating gamma)
     ESwapMethod getSwapMethod() override { return mSwapMethod; }
     void gatherInput() override;
     void delayInputProcessing() override {};
     void swapBuffers() override;
 
     // handy coordinate space conversion routines
-    BOOL convertCoords(LLCoordScreen from, LLCoordWindow *to) override;
-    BOOL convertCoords(LLCoordWindow from, LLCoordScreen *to) override;
-    BOOL convertCoords(LLCoordWindow from, LLCoordGL *to) override;
-    BOOL convertCoords(LLCoordGL from, LLCoordWindow *to) override;
-    BOOL convertCoords(LLCoordScreen from, LLCoordGL *to) override;
-    BOOL convertCoords(LLCoordGL from, LLCoordScreen *to) override;
+    bool convertCoords(LLCoordScreen from, LLCoordWindow *to) override;
+    bool convertCoords(LLCoordWindow from, LLCoordScreen *to) override;
+    bool convertCoords(LLCoordWindow from, LLCoordGL *to) override;
+    bool convertCoords(LLCoordGL from, LLCoordWindow *to) override;
+    bool convertCoords(LLCoordScreen from, LLCoordGL *to) override;
+    bool convertCoords(LLCoordGL from, LLCoordScreen *to) override;
 
     LLWindowResolution* getSupportedResolutions(S32 &num_resolutions) override;
     F32 getNativeAspectRatio() override;
     F32 getPixelAspectRatio() override;
     void setNativeAspectRatio(F32 ratio) override { mOverrideAspectRatio = ratio; }
 
-    // query VRAM usage
-    /*virtual*/ U32 getAvailableVRAMMegabytes() override;
-
     void beforeDialog() override;
     void afterDialog() override;
 
-    BOOL dialogColorPicker(F32 *r, F32 *g, F32 *b) override;
+    bool dialogColorPicker(F32 *r, F32 *g, F32 *b) override;
 
     void *getPlatformWindow() override;
     void bringToFront() override {};
 
-    void allowLanguageTextInput(LLPreeditor *preeditor, BOOL b) override;
+    void allowLanguageTextInput(LLPreeditor *preeditor, bool b) override;
     void interruptLanguageTextInput() override;
     void spawnWebBrowser(const std::string& escaped_url, bool async) override;
     F32 getSystemUISize() override;
@@ -153,26 +150,26 @@ public:
 protected:
     LLWindowMacOSX(LLWindowCallbacks* callbacks,
         const std::string& title, const std::string& name, int x, int y, int width, int height, U32 flags,
-        BOOL fullscreen, BOOL clearBg, BOOL enable_vsync, BOOL use_gl,
-        BOOL ignore_pixel_depth,
+        bool fullscreen, bool clearBg, bool enable_vsync, bool use_gl,
+        bool ignore_pixel_depth,
         U32 fsaa_samples);
         ~LLWindowMacOSX();
 
     void    initCursors();
-    BOOL    isValid() override;
+    bool    isValid() override;
     void    moveWindow(const LLCoordScreen& position,const LLCoordScreen& size);
 
 
     // Changes display resolution. Returns true if successful
-    BOOL    setDisplayResolution(S32 width, S32 height, S32 bits, S32 refresh);
+    bool    setDisplayResolution(S32 width, S32 height, S32 bits, S32 refresh);
 
     // Go back to last fullscreen display resolution.
-    BOOL    setFullscreenResolution();
+    bool    setFullscreenResolution();
 
     // Restore the display resolution to its value before we ran the app.
-    BOOL    resetDisplayResolution();
+    bool    resetDisplayResolution();
 
-    BOOL    shouldPostQuit() { return mPostQuit; }
+    bool    shouldPostQuit() { return mPostQuit; }
 
     //Satisfy MAINT-3135 and MAINT-3288 with a flag.
     /*virtual */ void setOldResize(bool oldresize) override {setResizeMode(oldresize, mGLView); }
@@ -186,7 +183,7 @@ protected:
     //
 
     // create or re-create the GL context/window.  Called from the constructor and switchContext().
-    BOOL createContext(int x, int y, int width, int height, int bits, BOOL fullscreen, BOOL enable_vsync);
+    bool createContext(int x, int y, int width, int height, int bits, bool fullscreen, bool enable_vsync);
     void destroyContext();
     void setupFailure(const std::string& text, const std::string& caption, U32 type);
     void adjustCursorDecouple(bool warpingMouse = false);
@@ -214,30 +211,30 @@ protected:
     LLRect      mOldMouseClip;  // Screen rect to which the mouse cursor was globally constrained before we changed it in clipMouse()
     std::string mWindowTitle;
     double      mOriginalAspectRatio;
-    BOOL        mSimulatedRightClick;
+    bool        mSimulatedRightClick;
     U32         mLastModifiers;
-    BOOL        mHandsOffEvents;    // When true, temporarially disable CarbonEvent processing.
+    bool        mHandsOffEvents;    // When true, temporarially disable CarbonEvent processing.
     // Used to allow event processing when putting up dialogs in fullscreen mode.
-    BOOL        mCursorDecoupled;
+    bool        mCursorDecoupled;
     S32         mCursorLastEventDeltaX;
     S32         mCursorLastEventDeltaY;
-    BOOL        mCursorIgnoreNextDelta;
-    BOOL        mNeedsResize;       // Constructor figured out the window is too big, it needs a resize.
+    bool        mCursorIgnoreNextDelta;
+    bool        mNeedsResize;       // Constructor figured out the window is too big, it needs a resize.
     LLCoordScreen   mNeedsResizeSize;
     F32         mOverrideAspectRatio;
-    BOOL        mMaximized;
-    BOOL        mMinimized;
+    bool        mMaximized;
+    bool        mMinimized;
     U32         mFSAASamples;
-    BOOL        mForceRebuild;
+    bool        mForceRebuild;
 
     S32 mDragOverrideCursor;
 
     // Input method management through Text Service Manager.
-    BOOL        mLanguageTextInputAllowed;
+    bool        mLanguageTextInputAllowed;
     LLPreeditor*    mPreeditor;
 
 public:
-    static BOOL sUseMultGL;
+    static bool sUseMultGL;
 
     friend class LLWindowManager;
 

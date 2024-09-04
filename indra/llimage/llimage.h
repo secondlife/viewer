@@ -32,37 +32,37 @@
 #include "llpointer.h"
 #include "lltrace.h"
 
-const S32 MIN_IMAGE_MIP =  2; // 4x4, only used for expand/contract power of 2
-const S32 MAX_IMAGE_MIP = 12; // 4096x4096
+constexpr S32 MIN_IMAGE_MIP =  2; // 4x4, only used for expand/contract power of 2
+constexpr S32 MAX_IMAGE_MIP = 12; // 4096x4096
 
 // *TODO : Use MAX_IMAGE_MIP as max discard level and modify j2c management so that the number
 // of levels is read from the header's file, not inferred from its size.
-const S32 MAX_DISCARD_LEVEL = 5;
+constexpr S32 MAX_DISCARD_LEVEL = 5;
 
 // JPEG2000 size constraints
 // Those are declared here as they are germane to other image constraints used in the viewer
 // and declared right here. Some come from the JPEG2000 spec, some conventions specific to SL.
-const S32 MAX_DECOMPOSITION_LEVELS = 32;    // Number of decomposition levels cannot exceed 32 according to jpeg2000 spec
-const S32 MIN_DECOMPOSITION_LEVELS = 5;     // the SL viewer will *crash* trying to decode images with fewer than 5 decomposition levels (unless image is small that is)
-const S32 MAX_PRECINCT_SIZE = 4096;         // No reason to be bigger than MAX_IMAGE_SIZE
-const S32 MIN_PRECINCT_SIZE = 4;            // Can't be smaller than MIN_BLOCK_SIZE
-const S32 MAX_BLOCK_SIZE = 64;              // Max total block size is 4096, hence 64x64 when using square blocks
-const S32 MIN_BLOCK_SIZE = 4;               // Min block dim is 4 according to jpeg2000 spec
-const S32 MIN_LAYER_SIZE = 2000;            // Size of the first quality layer (after header). Must be > to FIRST_PACKET_SIZE!!
-const S32 MAX_NB_LAYERS = 64;               // Max number of layers we'll entertain in SL (practical limit)
+constexpr S32 MAX_DECOMPOSITION_LEVELS = 32;    // Number of decomposition levels cannot exceed 32 according to jpeg2000 spec
+constexpr S32 MIN_DECOMPOSITION_LEVELS = 5;     // the SL viewer will *crash* trying to decode images with fewer than 5 decomposition levels (unless image is small that is)
+constexpr S32 MAX_PRECINCT_SIZE = 4096;         // No reason to be bigger than MAX_IMAGE_SIZE
+constexpr S32 MIN_PRECINCT_SIZE = 4;            // Can't be smaller than MIN_BLOCK_SIZE
+constexpr S32 MAX_BLOCK_SIZE = 64;              // Max total block size is 4096, hence 64x64 when using square blocks
+constexpr S32 MIN_BLOCK_SIZE = 4;               // Min block dim is 4 according to jpeg2000 spec
+constexpr S32 MIN_LAYER_SIZE = 2000;            // Size of the first quality layer (after header). Must be > to FIRST_PACKET_SIZE!!
+constexpr S32 MAX_NB_LAYERS = 64;               // Max number of layers we'll entertain in SL (practical limit)
 
-const S32 MIN_IMAGE_SIZE = (1<<MIN_IMAGE_MIP); // 4, only used for expand/contract power of 2
-const S32 MAX_IMAGE_SIZE = (1<<MAX_IMAGE_MIP); // 4096
-const S32 MIN_IMAGE_AREA = MIN_IMAGE_SIZE * MIN_IMAGE_SIZE;
-const S32 MAX_IMAGE_AREA = MAX_IMAGE_SIZE * MAX_IMAGE_SIZE;
-const S32 MAX_IMAGE_COMPONENTS = 8;
-const S32 MAX_IMAGE_DATA_SIZE = MAX_IMAGE_AREA * MAX_IMAGE_COMPONENTS; //4096 * 4096 * 8 = 128 MB
+constexpr S32 MIN_IMAGE_SIZE = (1<<MIN_IMAGE_MIP); // 4, only used for expand/contract power of 2
+constexpr S32 MAX_IMAGE_SIZE = (1<<MAX_IMAGE_MIP); // 4096
+constexpr S32 MIN_IMAGE_AREA = MIN_IMAGE_SIZE * MIN_IMAGE_SIZE;
+constexpr S32 MAX_IMAGE_AREA = MAX_IMAGE_SIZE * MAX_IMAGE_SIZE;
+constexpr S32 MAX_IMAGE_COMPONENTS = 8;
+constexpr S32 MAX_IMAGE_DATA_SIZE = MAX_IMAGE_AREA * MAX_IMAGE_COMPONENTS; //4096 * 4096 * 8 = 128 MB
 
 // Note!  These CANNOT be changed without modifying simulator code
 // *TODO: change both to 1024 when SIM texture fetching is deprecated
-const S32 FIRST_PACKET_SIZE = 600;
-const S32 MAX_IMG_PACKET_SIZE = 1000;
-const S32 HTTP_PACKET_SIZE = 1496;
+constexpr S32 FIRST_PACKET_SIZE = 600;
+constexpr S32 MAX_IMG_PACKET_SIZE = 1000;
+constexpr S32 HTTP_PACKET_SIZE = 1496;
 
 // Base classes for images.
 // There are two major parts for the image:
@@ -117,6 +117,10 @@ class LLImageBase
 protected:
     virtual ~LLImageBase();
 
+    virtual void deleteData();
+    virtual U8* allocateData(S32 size = -1);
+    virtual U8* reallocateData(S32 size = -1);
+
 public:
     LLImageBase();
 
@@ -125,10 +129,6 @@ public:
         TYPE_NORMAL = 0,
         TYPE_AVATAR_BAKE = 1,
     };
-
-    virtual void deleteData();
-    virtual U8* allocateData(S32 size = -1);
-    virtual U8* reallocateData(S32 size = -1);
 
     virtual void dump();
     virtual void sanityCheck();
@@ -171,9 +171,26 @@ private:
 
     S8 mComponents;
 
-    bool mBadBufferAllocation ;
-    bool mAllowOverSize ;
+    bool mBadBufferAllocation;
+    bool mAllowOverSize;
+
+private:
+    mutable LLSharedMutex mDataMutex;
+
+public:
+    template<bool SHARED>
+    class DataLock : LLSharedMutexLockTemplate<SHARED>
+    {
+    public:
+        DataLock(const LLImageBase* image)
+        : LLSharedMutexLockTemplate<SHARED>(image ? &image->mDataMutex : nullptr)
+        {
+        }
+    };
 };
+
+using LLImageDataLock = LLImageBase::DataLock<false>;
+using LLImageDataSharedLock = LLImageBase::DataLock<true>;
 
 // Raw representation of an image (used for textures, and other uncompressed formats
 class LLImageRaw : public LLImageBase
@@ -238,42 +255,30 @@ public:
     LLPointer<LLImageRaw> duplicate();
 
     // Src and dst can be any size.  Src and dst can each have 3 or 4 components.
-    void copy( LLImageRaw* src );
+    void copy( const LLImageRaw* src );
 
     // Src and dst are same size.  Src and dst have same number of components.
-    void copyUnscaled( LLImageRaw* src );
+    void copyUnscaled( const LLImageRaw* src );
 
     // Src and dst are same size.  Src has 4 components.  Dst has 3 components.
-    void copyUnscaled4onto3( LLImageRaw* src );
+    void copyUnscaled4onto3( const LLImageRaw* src );
 
     // Src and dst are same size.  Src has 3 components.  Dst has 4 components.
-    void copyUnscaled3onto4( LLImageRaw* src );
+    void copyUnscaled3onto4( const LLImageRaw* src );
 
     // Src and dst are same size.  Src has 1 component.  Dst has 4 components.
     // Alpha component is set to source alpha mask component.
     // RGB components are set to fill color.
-    void copyUnscaledAlphaMask( LLImageRaw* src, const LLColor4U& fill);
+    void copyUnscaledAlphaMask( const LLImageRaw* src, const LLColor4U& fill);
 
     // Src and dst can be any size.  Src and dst have same number of components.
-    void copyScaled( LLImageRaw* src );
-
-    // Src and dst can be any size.  Src has 3 components.  Dst has 4 components.
-    void copyScaled3onto4( LLImageRaw* src );
-
-    // Src and dst can be any size.  Src has 4 components.  Dst has 3 components.
-    void copyScaled4onto3( LLImageRaw* src );
+    void copyScaled( const LLImageRaw* src );
 
 
     // Composite operations
 
     // Src and dst can be any size.  Src and dst can each have 3 or 4 components.
-    void composite( LLImageRaw* src );
-
-    // Src and dst can be any size.  Src has 4 components.  Dst has 3 components.
-    void compositeScaled4onto3( LLImageRaw* src );
-
-    // Src and dst are same size.  Src has 4 components.  Dst has 3 components.
-    void compositeUnscaled4onto3( LLImageRaw* src );
+    void composite( const LLImageRaw* src );
 
     // Emissive operations used by minimap
     // Roughly emulates GLTF emissive texture, but is not GLTF-compliant
@@ -282,13 +287,25 @@ public:
     void addEmissiveScaled(LLImageRaw* src);
     void addEmissiveUnscaled(LLImageRaw* src);
 protected:
+    // Src and dst can be any size.  Src has 4 components.  Dst has 3 components.
+    void compositeScaled4onto3( const LLImageRaw* src );
+
+    // Src and dst are same size.  Src has 4 components.  Dst has 3 components.
+    void compositeUnscaled4onto3( const LLImageRaw* src );
+
+    // Src and dst can be any size.  Src has 3 components.  Dst has 4 components.
+    void copyScaled3onto4( const LLImageRaw* src );
+
+    // Src and dst can be any size.  Src has 4 components.  Dst has 3 components.
+    void copyScaled4onto3( const LLImageRaw* src );
+
     // Create an image from a local file (generally used in tools)
     //bool createFromFile(const std::string& filename, bool j2c_lowest_mip_only = false);
 
-    void copyLineScaled( U8* in, U8* out, S32 in_pixel_len, S32 out_pixel_len, S32 in_pixel_step, S32 out_pixel_step );
-    void compositeRowScaled4onto3( U8* in, U8* out, S32 in_pixel_len, S32 out_pixel_len );
+    void copyLineScaled( const U8* in, U8* out, S32 in_pixel_len, S32 out_pixel_len, S32 in_pixel_step, S32 out_pixel_step );
+    void compositeRowScaled4onto3( const U8* in, U8* out, S32 in_pixel_len, S32 out_pixel_len );
 
-    U8  fastFractionalMult(U8 a,U8 b);
+    static U8 fastFractionalMult(U8 a, U8 b);
 
     void setDataAndSize(U8 *data, S32 width, S32 height, S8 components) ;
 
@@ -296,7 +313,7 @@ public:
     static S32 sRawImageCount;
 
 private:
-    bool validateSrcAndDst(std::string func, LLImageRaw* src, LLImageRaw* dst);
+    static bool validateSrcAndDst(std::string func, const LLImageRaw* src, const LLImageRaw* dst);
 };
 
 // Compressed representation of image.
@@ -305,7 +322,10 @@ class LLImageFormatted : public LLImageBase
 {
 public:
     static LLImageFormatted* createFromType(S8 codec);
+    static LLImageFormatted* loadFromMemory(const U8* data, U32 size, std::string_view mimetype);
     static LLImageFormatted* createFromExtension(const std::string& instring);
+    static LLImageFormatted* createFromMimeType(std::string_view mimetype);
+    static S8 getCodecFromMimeType(std::string_view mimetype);
 
 protected:
     /*virtual*/ ~LLImageFormatted();

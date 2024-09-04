@@ -144,7 +144,7 @@ public:
     // Add a user to the list by name.  It will be added, the name
     // requested from the cache, and updated as necessary.
     LLScrollListItem* addNameItem(const LLUUID& agent_id, EAddPosition pos = ADD_BOTTOM,
-                     BOOL enabled = TRUE, const std::string& suffix = LLStringUtil::null, const std::string& prefix = LLStringUtil::null);
+                     bool enabled = true, const std::string& suffix = LLStringUtil::null, const std::string& prefix = LLStringUtil::null);
     LLScrollListItem* addNameItem(NameItem& item, EAddPosition pos = ADD_BOTTOM);
 
     /*virtual*/ LLScrollListItem* addElement(const LLSD& element, EAddPosition pos = ADD_BOTTOM, void* userdata = NULL);
@@ -154,7 +154,7 @@ public:
     // Add a user to the list by name.  It will be added, the name
     // requested from the cache, and updated as necessary.
     void addGroupNameItem(const LLUUID& group_id, EAddPosition pos = ADD_BOTTOM,
-                          BOOL enabled = TRUE);
+                          bool enabled = true);
     void addGroupNameItem(NameItem& item, EAddPosition pos = ADD_BOTTOM);
 
 
@@ -166,21 +166,21 @@ public:
     LLUUID getSelectedSpecialId();
 
     // LLView interface
-    /*virtual*/ BOOL    handleDragAndDrop(S32 x, S32 y, MASK mask,
-                                      BOOL drop, EDragAndDropType cargo_type, void *cargo_data,
+    /*virtual*/ bool    handleDragAndDrop(S32 x, S32 y, MASK mask,
+                                      bool drop, EDragAndDropType cargo_type, void *cargo_data,
                                       EAcceptance *accept,
                                       std::string& tooltip_msg);
-    /*virtual*/ BOOL handleToolTip(S32 x, S32 y, MASK mask);
+    /*virtual*/ bool handleToolTip(S32 x, S32 y, MASK mask);
 
-    void setAllowCallingCardDrop(BOOL b) { mAllowCallingCardDrop = b; }
+    void setAllowCallingCardDrop(bool b) { mAllowCallingCardDrop = b; }
 
-    void sortByName(BOOL ascending);
+    void sortByName(bool ascending);
 
     /*virtual*/ void updateColumns(bool force_update);
 
     /*virtual*/ void mouseOverHighlightNthItem( S32 index );
 
-    /*virtual*/ BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
+    /*virtual*/ bool handleRightMouseDown(S32 x, S32 y, MASK mask);
 
     bool isSpecialType() { return (mNameListType == SPECIAL); }
 
@@ -195,7 +195,7 @@ private:
 private:
     S32             mNameColumnIndex;
     std::string     mNameColumn;
-    BOOL            mAllowCallingCardDrop;
+    bool            mAllowCallingCardDrop;
     bool            mShortNames;  // display name only, no SLID
     typedef std::map<LLUUID, boost::signals2::connection> avatar_name_cache_connection_map_t;
     avatar_name_cache_connection_map_t mAvatarNameCacheConnections;

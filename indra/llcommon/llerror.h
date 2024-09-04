@@ -415,9 +415,11 @@ typedef LLError::NoClassInfo _LL_CLASS_TO_LOG;
 // Use this only in LL_ERRS or in a place that LL_ERRS may not be used
 
 #ifndef LL_LINUX
-#define LLERROR_CRASH                                   \
-{                                                       \
-    crashdriver([](int* ptr){ *ptr = 0; exit(*ptr); }); \
+#define LLERROR_CRASH                                \
+{                                                    \
+    int* make_me_crash = (int*)0xDEADBEEFDEADBEEFUL; \
+    *make_me_crash = 0;                              \
+    exit(*make_me_crash);                            \
 }
 #else
 // For Linux we just call raise and be done with it. No fighting the compiler to create a crashing code snippet.
@@ -522,8 +524,5 @@ LL_ENDL;
 LL_DEBUGS("SomeTag") performs the locking and map-searching ONCE, then caches
 the result in a static variable.
 */
-
-// used by LLERROR_CRASH
-void crashdriver(void (*)(int*));
 
 #endif // LL_LLERROR_H

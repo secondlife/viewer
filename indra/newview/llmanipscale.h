@@ -76,22 +76,22 @@ public:
     LLManipScale( LLToolComposite* composite );
     ~LLManipScale();
 
-    virtual BOOL    handleMouseDown( S32 x, S32 y, MASK mask );
-    virtual BOOL    handleMouseUp( S32 x, S32 y, MASK mask );
-    virtual BOOL    handleHover( S32 x, S32 y, MASK mask );
+    virtual bool    handleMouseDown( S32 x, S32 y, MASK mask );
+    virtual bool    handleMouseUp( S32 x, S32 y, MASK mask );
+    virtual bool    handleHover( S32 x, S32 y, MASK mask );
     virtual void    render();
     virtual void    handleSelect();
 
-    virtual BOOL    handleMouseDownOnPart(S32 x, S32 y, MASK mask);
+    virtual bool    handleMouseDownOnPart(S32 x, S32 y, MASK mask);
     virtual void    highlightManipulators(S32 x, S32 y);    // decided which manipulator, if any, should be highlighted by mouse hover
-    virtual BOOL    canAffectSelection();
+    virtual bool    canAffectSelection();
 
-    static void     setUniform( BOOL b );
-    static BOOL     getUniform();
-    static void     setStretchTextures( BOOL b );
-    static BOOL     getStretchTextures();
-    static void     setShowAxes( BOOL b );
-    static BOOL     getShowAxes();
+    static void     setUniform( bool b );
+    static bool     getUniform();
+    static void     setStretchTextures( bool b );
+    static bool     getStretchTextures();
+    static void     setShowAxes( bool b );
+    static bool     getShowAxes();
 
 private:
     void            renderCorners( const LLBBox& local_bbox );
@@ -109,7 +109,7 @@ private:
     void            dragFace( S32 x, S32 y );
     void            dragCorner( S32 x, S32 y );
 
-    void            sendUpdates( BOOL send_position_update, BOOL send_scale_update, BOOL corner = FALSE);
+    void            sendUpdates( bool send_position_update, bool send_scale_update, bool corner = false);
 
     LLVector3       faceToUnitVector( S32 part ) const;
     LLVector3       cornerToUnitVector( S32 part ) const;
@@ -148,7 +148,7 @@ private:
     LLVector3d      mDragFarHitGlobal;
     S32             mLastMouseX;
     S32             mLastMouseY;
-    BOOL            mSendUpdateOnMouseUp;
+    bool            mSendUpdateOnMouseUp;
     U32             mLastUpdateFlags;
     typedef std::set<ManipulatorHandle*, compare_manipulators> manipulator_list_t;
     manipulator_list_t mProjectedManipulators;

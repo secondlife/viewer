@@ -78,11 +78,11 @@ LLImageGL *LLFontBitmapCache::getImageGL(EFontGlyphType bitmap_type, U32 bitmap_
 }
 
 
-BOOL LLFontBitmapCache::nextOpenPos(S32 width, S32& pos_x, S32& pos_y, EFontGlyphType bitmap_type, U32& bitmap_num)
+bool LLFontBitmapCache::nextOpenPos(S32 width, S32& pos_x, S32& pos_y, EFontGlyphType bitmap_type, U32& bitmap_num)
 {
     if (bitmap_type >= EFontGlyphType::Count)
     {
-        return FALSE;
+        return false;
     }
 
     const U32 bitmap_idx = static_cast<U32>(bitmap_type);
@@ -108,7 +108,7 @@ BOOL LLFontBitmapCache::nextOpenPos(S32 width, S32& pos_x, S32& pos_y, EFontGlyp
 
             S32 num_components = getNumComponents(bitmap_type);
             mImageRawVec[bitmap_idx].push_back(new LLImageRaw(mBitmapWidth, mBitmapHeight, num_components));
-            bitmap_num = mImageRawVec[bitmap_idx].size() - 1;
+            bitmap_num = static_cast<U32>(mImageRawVec[bitmap_idx].size()) - 1;
 
             LLImageRaw* image_raw = getImageRaw(bitmap_type, bitmap_num);
             if (EFontGlyphType::Grayscale == bitmap_type)
@@ -117,7 +117,7 @@ BOOL LLFontBitmapCache::nextOpenPos(S32 width, S32& pos_x, S32& pos_y, EFontGlyp
             }
 
             // Make corresponding GL image.
-            mImageGLVec[bitmap_idx].push_back(new LLImageGL(image_raw, false));
+            mImageGLVec[bitmap_idx].push_back(new LLImageGL(image_raw, false, false));
             LLImageGL* image_gl = getImageGL(bitmap_type, bitmap_num);
 
             // Start at beginning of the new image.
@@ -126,7 +126,7 @@ BOOL LLFontBitmapCache::nextOpenPos(S32 width, S32& pos_x, S32& pos_y, EFontGlyp
 
             // Attach corresponding GL texture. (*TODO: is this needed?)
             gGL.getTexUnit(0)->bind(image_gl);
-            image_gl->setFilteringOption(LLTexUnit::TFO_POINT); // was setMipFilterNearest(TRUE, TRUE);
+            image_gl->setFilteringOption(LLTexUnit::TFO_POINT); // was setMipFilterNearest(true, true);
         }
         else
         {
@@ -142,7 +142,7 @@ BOOL LLFontBitmapCache::nextOpenPos(S32 width, S32& pos_x, S32& pos_y, EFontGlyp
 
     mCurrentOffsetX[bitmap_idx] += width + 1;
 
-    return TRUE;
+    return true;
 }
 
 void LLFontBitmapCache::destroyGL()
