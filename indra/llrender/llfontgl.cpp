@@ -270,10 +270,10 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 
     const LLFontGlyphInfo* next_glyph = NULL;
 
-    const S32 GLYPH_BATCH_SIZE = 30;
-    LLVector3 vertices[GLYPH_BATCH_SIZE * 4];
-    LLVector2 uvs[GLYPH_BATCH_SIZE * 4];
-    LLColor4U colors[GLYPH_BATCH_SIZE * 4];
+    static constexpr S32 GLYPH_BATCH_SIZE = 30;
+    static thread_local LLVector3 vertices[GLYPH_BATCH_SIZE * 4];
+    static thread_local LLVector2 uvs[GLYPH_BATCH_SIZE * 4];
+    static thread_local LLColor4U colors[GLYPH_BATCH_SIZE * 4];
 
     LLColor4U text_color(color);
     // Preserve the transparency to render fading emojis in fading text (e.g.
@@ -402,7 +402,6 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 
     if (draw_ellipses)
     {
-
         // recursively render ellipses at end of string
         // we've already reserved enough room
         gGL.pushUIMatrix();
@@ -504,6 +503,7 @@ F32 LLFontGL::getWidthF32(const std::string& utf8text, S32 begin_offset, S32 max
 
 F32 LLFontGL::getWidthF32(const llwchar* wchars, S32 begin_offset, S32 max_chars, bool no_padding) const
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
     const S32 LAST_CHARACTER = LLFontFreetype::LAST_CHAR_FULL;
 
     F32 cur_x = 0;

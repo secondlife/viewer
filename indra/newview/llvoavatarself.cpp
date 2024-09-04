@@ -775,6 +775,7 @@ void LLVOAvatarSelf::updateVisualParams()
 
 void LLVOAvatarSelf::writeWearablesToAvatar()
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
     for (U32 type = 0; type < LLWearableType::WT_COUNT; type++)
     {
         LLWearable *wearable = gAgentWearables.getTopWearable((LLWearableType::EType)type);

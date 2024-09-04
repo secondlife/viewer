@@ -570,6 +570,54 @@ public:
 
 static LLVBOPool* sVBOPool = nullptr;
 
+void LLVertexBufferData::draw()
+{
+    if (!mVB)
+    {
+        llassert(false);
+        // Not supposed to happen, check buffer generation
+        return;
+    }
+
+    if (mTexName)
+    {
+        gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, mTexName);
+    }
+    else
+    {
+        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+    }
+
+    gGL.matrixMode(LLRender::MM_MODELVIEW);
+    gGL.pushMatrix();
+    gGL.loadMatrix(mModelView.m);
+    gGL.matrixMode(LLRender::MM_PROJECTION);
+    gGL.pushMatrix();
+    gGL.loadMatrix(mProjection.m);
+    gGL.matrixMode(LLRender::MM_TEXTURE0);
+    gGL.pushMatrix();
+    gGL.loadMatrix(mTexture0.m);
+
+    mVB->setBuffer();
+
+    if (mMode == LLRender::QUADS && LLRender::sGLCoreProfile)
+    {
+        mVB->drawArrays(LLRender::TRIANGLES, 0, mCount);
+    }
+    else
+    {
+        mVB->drawArrays(mMode, 0, mCount);
+    }
+
+    gGL.popMatrix();
+    gGL.matrixMode(LLRender::MM_PROJECTION);
+    gGL.popMatrix();
+    gGL.matrixMode(LLRender::MM_MODELVIEW);
+    gGL.popMatrix();
+}
+
+//============================================================================
+
 //static
 U64 LLVertexBuffer::getBytesAllocated()
 {

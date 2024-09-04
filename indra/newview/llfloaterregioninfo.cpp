@@ -4291,7 +4291,7 @@ void LLPanelRegionEnvironment::refreshFromSource()
     }
 
     LLEnvironment::instance().requestRegion(
-        [that_h](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) { _onEnvironmentReceived(that_h, parcel_id, envifo); });
+        [that_h](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) { onEnvironmentReceived(that_h, parcel_id, envifo); });
 
     setControlsEnabled(false);
 }

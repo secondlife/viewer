@@ -107,7 +107,7 @@ LLComboBox::LLComboBox(const LLComboBox::Params& p)
     button_params.follows.flags(FOLLOWS_LEFT|FOLLOWS_BOTTOM|FOLLOWS_RIGHT);
     button_params.rect(p.rect);
 
-    if(mAllowTextEntry)
+    if (mAllowTextEntry)
     {
         button_params.pad_right(2);
     }
@@ -121,7 +121,7 @@ LLComboBox::LLComboBox(const LLComboBox::Params& p)
     mButton = LLUICtrlFactory::create<LLButton>(button_params);
 
 
-    if(mAllowTextEntry)
+    if (mAllowTextEntry)
     {
         //redo to compensate for button hack that leaves space for a character
         //unless it is a "minimal combobox"(drop down)
@@ -207,14 +207,27 @@ void LLComboBox::clear()
 
 void LLComboBox::onCommit()
 {
-    if (mAllowTextEntry && getCurrentIndex() != -1)
+    if (LLScrollListItem* item = mList->getFirstSelected())
     {
-        // we have selected an existing item, blitz the manual text entry with
-        // the properly capitalized item
-        mTextEntry->setValue(getSimple());
-        mTextEntry->setTentative(false);
+        if (mAllowTextEntry && mTextEntry)
+        {
+            // we have selected an existing item, blitz the manual text entry with
+            // the properly capitalized item
+            LLSD label = item->getColumn(0)->getValue();
+            mTextEntry->setValue(label);
+            mTextEntry->setTentative(false);
+        }
+        setControlValue(item->getValue());
     }
-    setControlValue(getValue());
+    else if (mAllowTextEntry)
+    {
+        setControlValue(mTextEntry->getValue());
+    }
+    else
+    {
+        setControlValue(LLSD());
+    }
+
     LLUICtrl::onCommit();
 }
 
@@ -349,6 +362,13 @@ bool LLComboBox::setSimple(const LLStringExplicit& name)
 // virtual
 void LLComboBox::setValue(const LLSD& value)
 {
+    if (LLScrollListItem* item = mList->getFirstSelected())
+    {
+        LLSD item_value = item->getValue();
+        if (item_value.asStringRef() == value.asStringRef())
+            return;
+    }
+
     bool found = mList->selectByValue(value);
     if (found)
     {
@@ -372,10 +392,8 @@ const std::string LLComboBox::getSimple() const
     {
         return mTextEntry->getText();
     }
-    else
-    {
-        return res;
-    }
+
+    return res;
 }
 
 const std::string LLComboBox::getSelectedItemLabel(S32 column) const
@@ -386,24 +404,22 @@ const std::string LLComboBox::getSelectedItemLabel(S32 column) const
 // virtual
 LLSD LLComboBox::getValue() const
 {
-    LLScrollListItem* item = mList->getFirstSelected();
-    if( item )
+    if (LLScrollListItem* item = mList->getFirstSelected())
     {
         return item->getValue();
     }
-    else if (mAllowTextEntry)
+
+    if (mAllowTextEntry)
     {
         return mTextEntry->getValue();
     }
-    else
-    {
-        return LLSD();
-    }
+
+    return LLSD();
 }
 
 void LLComboBox::setLabel(const LLStringExplicit& name)
 {
-    if ( mTextEntry )
+    if (mTextEntry)
     {
         mTextEntry->setText(name);
         if (mList->selectItemByLabel(name, false))
@@ -498,25 +514,74 @@ void LLComboBox::setButtonVisible(bool visible)
     }
 }
 
-bool LLComboBox::setCurrentByIndex( S32 index )
+bool LLComboBox::setCurrentByIndex(S32 index)
 {
-    bool found = mList->selectNthItem( index );
-    if (found)
+    if (LLScrollListItem* item = mList->getItemByIndex(index))
     {
-        setLabel(getSelectedItemLabel());
-        mLastSelectedIndex = index;
+        if (item->getEnabled())
+        {
+            mList->selectItem(item, -1, true);
+            if (mTextEntry)
+            {
+                LLSD::String label = item->getColumn(0)->getValue().asString();
+                mTextEntry->setText(label);
+                mTextEntry->setTentative(false);
+            }
+            mLastSelectedIndex = index;
+            return true;
+        }
     }
-    return found;
+
+    return false;
 }
 
 S32 LLComboBox::getCurrentIndex() const
 {
-    LLScrollListItem* item = mList->getFirstSelected();
-    if( item )
+    if (LLScrollListItem* item = mList->getFirstSelected())
     {
-        return mList->getItemIndex( item );
+        return mList->getItemIndex(item);
     }
     return -1;
+}
+
+bool LLComboBox::selectNextItem()
+{
+    S32 last_index = getItemCount() - 1;
+    if (last_index < 0)
+        return false;
+
+    S32 current_index = getCurrentIndex();
+    if (current_index >= last_index)
+        return false;
+
+    S32 new_index = llmax(current_index, -1);
+    while (++new_index <= last_index)
+    {
+        if (setCurrentByIndex(new_index))
+            return true;
+    }
+
+    return false;
+}
+
+bool LLComboBox::selectPrevItem()
+{
+    S32 last_index = getItemCount() - 1;
+    if (last_index < 0)
+        return false;
+
+    S32 current_index = getCurrentIndex();
+    if (!current_index)
+        return false;
+
+    S32 new_index = current_index > 0 ? current_index : last_index + 1;
+    while (--new_index >= 0)
+    {
+        if (setCurrentByIndex(new_index))
+            return true;
+    }
+
+    return false;
 }
 
 void LLComboBox::setEnabledByValue(const LLSD& value, bool enabled)
@@ -878,15 +943,46 @@ bool LLComboBox::handleUnicodeCharHere(llwchar uni_char)
 // virtual
 bool LLComboBox::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
-    if (mList->getVisible()) return mList->handleScrollWheel(x, y, clicks);
-    if (mAllowTextEntry) // We might be editable
-        if (!mList->getFirstSelected()) // We aren't in the list, don't kill their text
-            return false;
+    if (mList->getVisible())
+    {
+        return mList->handleScrollWheel(x, y, clicks);
+    }
 
-    setCurrentByIndex(llclamp(getCurrentIndex() + clicks, 0, getItemCount() - 1));
-    prearrangeList();
-    onCommit();
-    return true;
+    if (mAllowTextEntry) // We might be editable
+    {
+        if (!mList->getFirstSelected()) // We aren't in the list, don't kill their text
+        {
+            return false;
+        }
+    }
+
+    S32 current_index = getCurrentIndex();
+    if (clicks > 0)
+    {
+        for (S32 i = 0; i < clicks; ++i)
+        {
+            if (!selectNextItem())
+                break;
+        }
+    }
+    else
+    {
+        for (S32 i = 0; i < -clicks; ++i)
+        {
+            if (!selectPrevItem())
+                break;
+        }
+    }
+    S32 new_index = getCurrentIndex();
+
+    if (new_index != current_index)
+    {
+        prearrangeList();
+        onCommit();
+        return true;
+    }
+
+    return false;
 }
 
 void LLComboBox::setTextEntry(const LLStringExplicit& text)

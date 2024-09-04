@@ -2220,11 +2220,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c16deaf773cb2a5d001732122ee3ec74db1dceeb</string>
+              <string>76444e37be0cfccdbb5921370ba150ded2bf3c59</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-openjpeg/releases/download/v2.5.0.ea12248/openjpeg-2.5.0.ea12248-darwin64-ea12248.tar.zst</string>
+              <string>https://github.com/secondlife/3p-openjpeg/releases/download/v2.5.2-r1/openjpeg-2.5.2.10604495243-darwin64-10604495243.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2234,11 +2234,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>8c277dde6076fb682cb07264dd70f6f2298b633f</string>
+              <string>6bd289a9c4564b80369ce40ecbb24a213c2732ff</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-openjpeg/releases/download/v2.5.0.ea12248/openjpeg-2.5.0.ea12248-linux64-ea12248.tar.zst</string>
+              <string>https://github.com/secondlife/3p-openjpeg/releases/download/v2.5.2-r1/openjpeg-2.5.2.10604495243-linux64-10604495243.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -2248,11 +2248,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2abf9535adf21ebdf2295f8a680300432abe6280</string>
+              <string>5e6e0180adc01e07438cb98daec96543b5d85019</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-openjpeg/releases/download/v2.5.0.ea12248/openjpeg-2.5.0.ea12248-windows64-ea12248.tar.zst</string>
+              <string>https://github.com/secondlife/3p-openjpeg/releases/download/v2.5.2-r1/openjpeg-2.5.2.10604495243-windows64-10604495243.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>

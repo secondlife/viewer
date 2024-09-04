@@ -45,12 +45,14 @@
 #include "glh/glh_linear.h"
 
 #include <array>
+#include <list>
 
 class LLVertexBuffer;
 class LLCubeMap;
 class LLImageGL;
 class LLRenderTarget;
-class LLTexture ;
+class LLTexture;
+class LLVertexBufferData;
 
 #define LL_MATRIX_STACK_DEPTH 32
 
@@ -219,17 +221,12 @@ public:
 
     void setHasMipMaps(bool hasMips) { mHasMipMaps = hasMips; }
 
-    void setTextureColorSpace(eTextureColorSpace space);
-
-    eTextureColorSpace getCurrColorSpace() { return mTexColorSpace; }
-
 protected:
     friend class LLRender;
 
     S32                 mIndex;
     U32                 mCurrTexture;
     eTextureType        mCurrTexType;
-    eTextureColorSpace  mTexColorSpace;
     S32                 mCurrColorScale;
     S32                 mCurrAlphaScale;
     bool                mHasMipMaps;
@@ -420,8 +417,15 @@ public:
 
     void flush();
 
+    // if list is set, will store buffers in list for later use, if list isn't set, will use cache
+    void beginList(std::list<LLVertexBufferData> *list);
+    void endList();
+
     void begin(const GLuint& mode);
     void end();
+
+    U8 getMode() const { return mMode; }
+
     void vertex2i(const GLint& x, const GLint& y);
     void vertex2f(const GLfloat& x, const GLfloat& y);
     void vertex3f(const GLfloat& x, const GLfloat& y, const GLfloat& z);
@@ -490,6 +494,11 @@ public:
 private:
     friend class LLLightState;
 
+    LLVertexBuffer* bufferfromCache(U32 attribute_mask, U32 count);
+    LLVertexBuffer* genBuffer(U32 attribute_mask, S32 count);
+    void drawBuffer(LLVertexBuffer* vb, U32 mode, S32 count);
+    void resetStriders(S32 count);
+
     eMatrixMode mMatrixMode;
     U32 mMatIdx[NUM_MATRIX_MODES];
     U32 mMatHash[NUM_MATRIX_MODES];
@@ -520,7 +529,6 @@ private:
 
     std::vector<LLVector3> mUIOffset;
     std::vector<LLVector3> mUIScale;
-
 };
 
 extern F32 gGLModelView[16];

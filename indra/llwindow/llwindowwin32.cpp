@@ -3699,6 +3699,10 @@ S32 OSMessageBoxWin32(const std::string& text, const std::string& caption, U32 t
     //
     // "This is why I'm doing it this way, instead of what you would think would be more obvious..."
     // (C) Nat Goodspeed
+    if (!IsWindow(sWindowHandleForMessageBox))
+    {
+        sWindowHandleForMessageBox = NULL;
+    }
     int retval_win = MessageBoxW(sWindowHandleForMessageBox, // HWND
                                  ll_convert_string_to_wide(text).c_str(),
                                  ll_convert_string_to_wide(caption).c_str(),

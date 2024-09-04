@@ -70,6 +70,7 @@ static U64 sTextureBytes = 0;
 void LLImageGLMemory::alloc_tex_image(U32 width, U32 height, U32 intformat, U32 count)
 {
     U32 texUnit = gGL.getCurrentTexUnitIndex();
+    llassert(texUnit == 0); // allocations should always be done on tex unit 0
     U32 texName = gGL.getTexUnit(texUnit)->getCurrTexture();
     U64 size = LLImageGL::dataFormatBytes(intformat, width, height);
     size *= count;
@@ -77,6 +78,8 @@ void LLImageGLMemory::alloc_tex_image(U32 width, U32 height, U32 intformat, U32 
     llassert(size >= 0);
 
     sTexMemMutex.lock();
+
+    // it is a precondition that no existing allocation exists for this texture
     llassert(sTextureAllocs.find(texName) == sTextureAllocs.end());
 
     sTextureAllocs[texName] = size;
@@ -90,7 +93,7 @@ void LLImageGLMemory::free_tex_image(U32 texName)
 {
     sTexMemMutex.lock();
     auto iter = sTextureAllocs.find(texName);
-    if (iter != sTextureAllocs.end())
+    if (iter != sTextureAllocs.end()) // sometimes a texName will be "freed" before allocated (e.g. first call to setManualImage for a given texName)
     {
         llassert(iter->second <= sTextureBytes); // sTextureBytes MUST NOT go below zero
 
@@ -115,6 +118,7 @@ void LLImageGLMemory::free_tex_images(U32 count, const U32* texNames)
 void LLImageGLMemory::free_cur_tex_image()
 {
     U32 texUnit = gGL.getCurrentTexUnitIndex();
+    llassert(texUnit == 0); // frees should always be done on tex unit 0
     U32 texName = gGL.getTexUnit(texUnit)->getCurrTexture();
     free_tex_image(texName);
 }
@@ -1240,8 +1244,8 @@ void LLImageGL::deleteTextures(S32 numTextures, const U32 *textures)
 
         if (!sFreeList[idx].empty())
         {
-            glDeleteTextures((GLsizei) sFreeList[idx].size(), sFreeList[idx].data());
             free_tex_images((GLsizei) sFreeList[idx].size(), sFreeList[idx].data());
+            glDeleteTextures((GLsizei)sFreeList[idx].size(), sFreeList[idx].data());
             sFreeList[idx].resize(0);
         }
     }
@@ -2461,7 +2465,7 @@ bool LLImageGL::scaleDown(S32 desired_discard)
     { // use a PBO to downscale the texture
         U64 size = getBytes(desired_discard);
         llassert(size <= 2048 * 2048 * 4); // we shouldn't be using this method to downscale huge textures, but it'll work
-        gGL.getTexUnit(0)->bind(this);
+        gGL.getTexUnit(0)->bind(this, false, true);
 
         if (sScratchPBO == 0)
         {

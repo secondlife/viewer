@@ -129,7 +129,7 @@ public:
 
     //attempt to allocate screen buffers at resX, resY
     //returns true if allocation successful, false otherwise
-    bool allocateScreenBuffer(U32 resX, U32 resY, U32 samples);
+    bool allocateScreenBufferInternal(U32 resX, U32 resY);
     bool allocateShadowBuffer(U32 resX, U32 resY);
 
     // rebuild all LLVOVolume render batches
@@ -155,10 +155,13 @@ public:
     void copyScreenSpaceReflections(LLRenderTarget* src, LLRenderTarget* dst);
     void generateLuminance(LLRenderTarget* src, LLRenderTarget* dst);
     void generateExposure(LLRenderTarget* src, LLRenderTarget* dst, bool use_history = true);
+    void tonemap(LLRenderTarget* src, LLRenderTarget* dst);
     void gammaCorrect(LLRenderTarget* src, LLRenderTarget* dst);
     void generateGlow(LLRenderTarget* src);
     void applyCAS(LLRenderTarget* src, LLRenderTarget* dst);
     void applyFXAA(LLRenderTarget* src, LLRenderTarget* dst);
+    void generateSMAABuffers(LLRenderTarget* src);
+    void applySMAA(LLRenderTarget* src, LLRenderTarget* dst);
     void renderDoF(LLRenderTarget* src, LLRenderTarget* dst);
     void copyRenderTarget(LLRenderTarget* src, LLRenderTarget* dst);
     void combineGlow(LLRenderTarget* src, LLRenderTarget* dst);
@@ -726,6 +729,7 @@ public:
 
     // FXAA helper target
     LLRenderTarget          mFXAAMap;
+    LLRenderTarget          mSMAABlendBuffer;
 
     // render ui to buffer target
     LLRenderTarget          mUIScreen;
@@ -781,6 +785,11 @@ public:
     U32                 mNoiseMap;
     U32                 mTrueNoiseMap;
     U32                 mLightFunc;
+
+    //smaa
+    U32                 mSMAAAreaMap = 0;
+    U32                 mSMAASearchMap = 0;
+    U32                 mSMAASampleMap = 0;
 
     LLColor4            mSunDiffuse;
     LLColor4            mMoonDiffuse;
@@ -989,7 +998,7 @@ public:
     static bool WindLightUseAtmosShaders;
     static bool RenderDeferred;
     static F32 RenderDeferredSunWash;
-    static U32 RenderFSAASamples;
+    static U32 RenderFSAAType;
     static U32 RenderResolutionDivisor;
     static bool RenderUIBuffer;
     static S32 RenderShadowDetail;

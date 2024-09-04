@@ -1,9 +1,9 @@
 /**
- * @file postDeferredGammaCorrect.glsl
+ * @file SMAABlendWeightsV.glsl
  *
- * $LicenseInfo:firstyear=2007&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2024&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2007, Linden Research, Inc.
+ * Copyright (C) 2024, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -25,34 +25,27 @@
 
 /*[EXTRA_CODE_HERE]*/
 
-out vec4 frag_color;
+uniform mat4 modelview_projection_matrix;
 
-uniform sampler2D diffuseRect;
+in vec3 position;
 
-uniform float gamma;
-uniform vec2 screen_res;
-in vec2 vary_fragcoord;
+out vec2 vary_texcoord0;
+out vec2 vary_pixcoord;
+out vec4 vary_offset[3];
 
-vec3 linear_to_srgb(vec3 cl);
-
-vec3 legacyGamma(vec3 color)
-{
-    vec3 c = 1. - clamp(color, vec3(0.), vec3(1.));
-    c = 1. - pow(c, vec3(gamma)); // s/b inverted already CPU-side
-
-    return c;
-}
+#define float4 vec4
+#define float2 vec2
+void SMAABlendingWeightCalculationVS(float2 texcoord,
+                                     out float2 pixcoord,
+                                     out float4 offset[3]);
 
 void main()
 {
-    //this is the one of the rare spots where diffuseRect contains linear color values (not sRGB)
-    vec4 diff = texture(diffuseRect, vary_fragcoord);
-    diff.rgb = linear_to_srgb(diff.rgb);
+    gl_Position = vec4(position.xyz, 1.0);
+    vary_texcoord0 = (gl_Position.xy*0.5+0.5);
 
-#ifdef LEGACY_GAMMA
-    diff.rgb = legacyGamma(diff.rgb);
-#endif
-
-    frag_color = max(diff, vec4(0));
+    SMAABlendingWeightCalculationVS(vary_texcoord0,
+                                    vary_pixcoord,
+                                    vary_offset);
 }
 
