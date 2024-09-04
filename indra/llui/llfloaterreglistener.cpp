@@ -38,6 +38,7 @@
 #include "llfloater.h"
 #include "llbutton.h"
 #include "llluafloater.h"
+#include "resultset.h"
 
 LLFloaterRegListener::LLFloaterRegListener():
     LLEventAPI("LLFloaterReg",
@@ -82,9 +83,9 @@ LLFloaterRegListener::LLFloaterRegListener():
         &LLFloaterRegListener::getLuaFloaterEvents);
 
     add("getFloaterNames",
-        "Return the table of all registered floaters",
+        "Return result set key [\"floaters\"] for names of all registered floaters",
         &LLFloaterRegListener::getFloaterNames,
-        llsd::map("reply", LLSD()));
+        llsd::map("reply", LLSD::String()));
 }
 
 void LLFloaterRegListener::getBuildMap(const LLSD& event) const
@@ -126,10 +127,22 @@ void LLFloaterRegListener::instanceVisible(const LLSD& event) const
               event);
 }
 
+struct NameResultSet: public LL::ResultSet
+{
+    NameResultSet():
+        LL::ResultSet("floaters"),
+        mNames(LLFloaterReg::getFloaterNames())
+    {}
+    LLSD mNames;
+
+    int getLength() const override { return narrow(mNames.size()); }
+    LLSD getSingle(int index) const override { return mNames[index]; }
+};
 
 void LLFloaterRegListener::getFloaterNames(const LLSD &event) const
 {
-    Response response(llsd::map("floaters", LLFloaterReg::getFloaterNames()), event);
+    auto nameresult = new NameResultSet;
+    sendReply(llsd::map("floaters", nameresult->getKeyLength()), event);
 }
 
 void LLFloaterRegListener::clickButton(const LLSD& event) const
@@ -178,4 +191,3 @@ void LLFloaterRegListener::getLuaFloaterEvents(const LLSD &event) const
 {
     Response response(llsd::map("events", LLLuaFloater::getEventsData()), event);
 }
-
