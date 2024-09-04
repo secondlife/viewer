@@ -949,7 +949,7 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
       // this is an alternative to decaying mMaxVirtualSize over time
       // that keeps textures from continously downrezzing and uprezzing in the background
 
-        if (LLViewerTexture::sDesiredDiscardBias > 2.f ||
+        if (LLViewerTexture::sDesiredDiscardBias > 1.5f ||
             (!on_screen && LLViewerTexture::sDesiredDiscardBias > 1.f))
         {
             imagep->mMaxVirtualSize = 0.f;
