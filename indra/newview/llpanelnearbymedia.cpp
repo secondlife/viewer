@@ -103,10 +103,10 @@ LLPanelNearByMedia::LLPanelNearByMedia()
 
     // Context menu handler.
     mCommitCallbackRegistrar.add("SelectedMediaCtrl.Action",
-                                 [this](LLUICtrl* ctrl, const LLSD& data)
+                                 {[this](LLUICtrl* ctrl, const LLSD& data)
                                  {
                                      onMenuAction(data);
-                                 });
+                                 }});
     mEnableCallbackRegistrar.add("SelectedMediaCtrl.Visible",
                                  [this](LLUICtrl* ctrl, const LLSD& data)
                                  {
