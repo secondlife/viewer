@@ -30,6 +30,7 @@
 
 #include "v4color.h"
 #include "lleditmenuhandler.h"
+#include "llfontvertexbuffer.h"
 #include "llspellcheckmenuhandler.h"
 #include "llstyle.h"
 #include "llkeywords.h"
@@ -131,6 +132,7 @@ public:
     /*virtual*/ bool                getDimensionsF32(S32 first_char, S32 num_chars, F32& width, S32& height) const;
     /*virtual*/ S32                 getOffset(S32 segment_local_x_coord, S32 start_offset, S32 num_chars, bool round) const;
     /*virtual*/ S32                 getNumChars(S32 num_pixels, S32 segment_offset, S32 line_offset, S32 max_chars, S32 line_ind) const;
+    /*virtual*/ void                updateLayout(const class LLTextBase& editor);
     /*virtual*/ F32                 draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRectf& draw_rect);
     /*virtual*/ bool                canEdit() const { return true; }
     /*virtual*/ const LLUIColor&     getColor() const                    { return mStyle->getColor(); }
@@ -161,6 +163,12 @@ protected:
     LLKeywordToken*     mToken;
     std::string         mTooltip;
     boost::signals2::connection mImageLoadedConnection;
+
+    // font rendering
+    LLFontVertexBuffer  mFontBufferPreSelection;
+    LLFontVertexBuffer  mFontBufferSelection;
+    LLFontVertexBuffer  mFontBufferPostSelection;
+    S32                 mLastGeneration = -1;
 };
 
 // This text segment is the same as LLNormalTextSegment, the only difference
@@ -432,6 +440,7 @@ public:
     // wide-char versions
     void                    setWText(const LLWString& text);
     const LLWString&        getWText() const;
+    S32                     getTextGeneration() const;
 
     void                    appendText(const std::string &new_text, bool prepend_newline, const LLStyle::Params& input_params = LLStyle::Params());
 
