@@ -660,5 +660,5 @@ void LLFloaterSettingsDebug::hideUIControls()
 void LLFloaterSettingsDebug::onClickCopy()
 {
     std::string setting_name = mSettingName->getText();
-    LLClipboard::instance().copyToClipboard(utf8str_to_wstring(setting_name), 0, setting_name.size());
+    LLClipboard::instance().copyToClipboard(utf8str_to_wstring(setting_name), 0, narrow(setting_name.size()));
 }
