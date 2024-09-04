@@ -1,5 +1,8 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<panel label="拡張" name="advanced">
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="アドバンス" name="advanced">
+	<panel.string name="aspect_ratio_text">
+		[NUM]:[DEN]
+	</panel.string>
 	<text name="Cache:">
         キャッシュ:
     </text>
@@ -11,7 +14,7 @@
 	<button label="参照" label_selected="参照" name="set_cache"/>
 	<button label="デフォルトの場所" label_selected="デフォルトの場所" name="default_cache_location"/>
 	<text name="UI Size:">
-        UIサイズ:
+UIサイズ:
     </text>
 	<text name="HUD Size:">
         HUDのスケール:
@@ -23,7 +26,7 @@
 	</radio_group>
 	<check_box label="複数のビュアを許可" name="allow_multiple_viewer_check"/>
 	<check_box label="ログイン時にグリッド選択を表示" name="show_grid_selection_check"/>
-	<check_box label="拡張メニューを表示" name="show_advanced_menu_check"/>
+	<check_box label="アドバンスメニューを表示" name="show_advanced_menu_check"/>
 	<check_box label="開発メニューを表示" name="show_develop_menu_check"/>
 	<button label="記憶済のユーザ名" name="remembered_usernames"/>
 	<button label="デフォルトの作成権限" name="default_creation_permissions"/>

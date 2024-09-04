@@ -11,7 +11,7 @@
 		<menu_item_call label="通知..." name="Notifications"/>
 		<menu_item_check name="Away" label="一時退席中"/>
 		<menu_item_check name="Do Not Disturb" label="着信拒否"/>
-		<menu_item_call label="L$の購入..." name="Buy and Sell L$"/>
+<menu_item_call label="L$の購入..." name="Buy and Sell L$"/>
 		<menu_item_call label="マーケットプレイスのリスト..." name="MarketplaceListings"/>
 		<menu_item_call label="アカウントのダッシュボード..." name="Manage My Account"/>
 		<menu_item_call label="初期設定..." name="Preferences"/>
@@ -42,6 +42,7 @@
 				<menu_item_call label="アルファ" name="Self Alpha"/>
 				<menu_item_call label="全ての服装" name="All Clothes"/>
 			</menu>
+<menu label="HUD" name="Avatar Detach HUD"/>
 			<menu label="取り外す" name="Avatar Detach"/>
 			<menu_item_call label="全てを取り外す" name="Detach All"/>
 		</menu>
@@ -59,7 +60,7 @@
 		<menu_item_call label="アバターに関するヘルプ..." name="Help with avatars"/>
 	</menu>
 	<menu label="コミュニケーション" name="Communicate">
-		<menu_item_check label="会話..." name="Conversations"/>
+<menu_item_check label="会話..." name="Conversations"/>
 		<menu_item_check label="近隣チャット..." name="Nearby Chat"/>
 		<menu_item_check label="ボイスチャット" name="Speak"/>
 		<menu_item_check name="Conversation Log..." label="会話ログ…"/>
@@ -83,7 +84,7 @@
 		<menu_item_call label="現在地をホームに設定" name="Set Home to Here"/>
 		<menu_item_call label="スナップショット" name="Take Snapshot"/>
 		<menu_item_call label="360度スナップショット" name="Capture 360"/>
-		<menu label="ズームレベル" name="Zoom menu">
+<menu label="ズームレベル" name="Zoom menu">
 			<menu_item_call label="ズームアウト" name="Zoom Out"/>
 			<menu_item_call label="デフォルト" name="Zoom Default"/>
 			<menu_item_call label="ズームイン" name="Zoom In"/>
@@ -103,13 +104,13 @@
 			<menu_item_check label="土地所有者" name="Land Owners"/>
 			<menu_item_check label="座標" name="Coordinates"/>
 			<menu_item_check label="区画のプロパティ" name="Parcel Properties"/>
-			<menu_item_check label="拡張メニュー" name="Show Advanced Menu"/>
+<menu_item_check label="拡張メニュー" name="Show Advanced Menu"/>
 		</menu>
 		<menu_item_check label="グラフィック性能の最適化..." name="Performance"/>
 		<menu label="景観" name="Environment">
 			<menu_item_check label="日の出" name="Sunrise"/>
 			<menu_item_check label="正午" name="Noon"/>
-			<menu_item_check label="夕方" name="Sunset"/>
+			<menu_item_check label="日没" name="Sunset"/>
 			<menu_item_check label="深夜" name="Midnight"/>
 			<menu_item_check label="共有された景観を使用" name="Use Shared Environment"/>
 			<menu_item_call label="自分の景観..." name="my_environs"/>
@@ -171,7 +172,7 @@
 			<menu_item_check label="選択ビームを表示" name="Show Selection Beam"/>
 			<menu_item_check label="グリッド吸着" name="Snap to Grid"/>
 			<menu_item_call label="オブジェクトのXY軸をグリッドに吸着" name="Snap Object XY to Grid"/>
-			<menu_item_call label="選択をグリッドに使用" name="Use Selection for Grid"/>
+<menu_item_call label="選択をグリッドに使用" name="Use Selection for Grid"/>
 			<menu_item_call label="グリッドオプション..." name="Grid Options"/>
 			<menu_item_call label="デフォルト権限の設定..." name="Set default permissions"/>
 		</menu>
@@ -197,7 +198,7 @@
 		<menu_item_call label="衝突・プッシュ &amp; 打撃" name="Bumps, Pushes &amp;amp; Hits"/>
 		<menu_item_call label="[APP_NAME] について" name="About Second Life"/>
 	</menu>
-	<menu label="拡張" name="Advanced">
+<menu label="拡張" name="Advanced">
 		<menu_item_call label="テクスチャをリベイクする" name="Rebake Texture"/>
 		<menu_item_call label="UIサイズをデフォルトにする" name="Set UI Size to Default"/>
 		<menu_item_call label="ウィンドウサイズ設定..." name="Set Window Size..."/>
@@ -206,7 +207,7 @@
 		<menu_item_check label="高解像度スナップショット" name="HighResSnapshot"/>
 		<menu_item_check label="シャッター音とアニメーションなしでスナップショットをディスクに保存" name="QuietSnapshotsToDisk"/>
 		<menu label="パフォーマンスツール" name="Performance Tools">
-			<menu_item_call label="遅延メーター" name="Lag Meter"/>
+			<menu_item_call label="ラグメーター" name="Lag Meter"/>
 			<menu_item_check label="統計バー" name="Statistics Bar"/>
 			<menu_item_call label="シーン負荷の統計情報" name="Scene Load Statistics"/>
 			<menu_item_check label="アバターの複雑度情報を表示" name="Avatar Draw Info"/>
@@ -331,7 +332,7 @@
 			<menu_item_check label="ジョイント" name="Joints"/>
 			<menu_item_check label="レイキャスト" name="Raycast"/>
 			<menu_item_check label="風のベクトル" name="Wind Vectors"/>
-			<menu_item_check label="彫刻" name="Sculpt"/>
+			<menu_item_check label="スカルプト" name="Sculpt"/>
 			<menu label="テクスチャの密度" name="Texture Density">
 				<menu_item_check label="なし" name="None"/>
 				<menu_item_check label="現在" name="Current"/>
@@ -347,7 +348,7 @@
 			<menu_item_check label="ワイヤーフレーム" name="Wireframe"/>
 			<menu_item_check label="オブジェクト間のオクルージョン" name="Object-Object Occlusion"/>
 			<menu_item_check label="高度な光源モデル" name="Advanced Lighting Model"/>
-			<menu_item_check label="太陽 / 月 / プロジェクタからの影" name="Shadows from Sun/Moon/Projectors"/>
+<menu_item_check label="太陽 / 月 / プロジェクタからの影" name="Shadows from Sun/Moon/Projectors"/>
 			<menu_item_check label="SSAOと影の平滑化" name="SSAO and Shadow Smoothing"/>
 			<menu_item_check label="次回起動時にGLをデバッグ" name="Debug GL"/>
 			<menu_item_check label="パイプラインをデバッグ" name="Debug Pipeline"/>
@@ -394,7 +395,7 @@
 			<menu_item_check label="インタレストリスト360度モード" name="Interest List: 360 Mode"/>
 			<menu_item_call label="インタレストリストをリセット" name="Reset Interest Lists"/>
 		</menu>
-		<menu name="UI">
+<menu name="UI">
 			<menu_item_call label="メディアブラウザ" name="Media Browser"/>
 			<menu_item_call label="SelectMgrをダンプ" name="Dump SelectMgr"/>
 			<menu_item_call label="インベントリの出力" name="Dump Inventory"/>
@@ -410,15 +411,15 @@
 			<menu_item_check label="デバッグキー" name="Debug Keys"/>
 			<menu_item_check label="WindowProcのデバッグ" name="Debug WindowProc"/>
 		</menu>
-		<menu name="XUI">
+<menu name="XUI">
 			<menu_item_call label="色の設定を再読込" name="Reload Color Settings"/>
 			<menu_item_call label="フォントテストを表示" name="Show Font Test"/>
 			<menu_item_check label="XUI名を表示" name="Show XUI Names"/>
 			<menu_item_call label="テストIMを送信" name="Send Test IMs"/>
 			<menu_item_call label="名前キャッシュをフラッシュ" name="Flush Names Caches"/>
 		</menu>
-		<menu label="アバター" name="Character">
-			<menu label="ベークドテクスチャを取得する" name="Grab Baked Texture">
+		<menu label="キャラクター" name="Character">
+			<menu label="ベイク済みテクスチャを取得する" name="Grab Baked Texture">
 				<menu_item_call label="瞳" name="Grab Iris"/>
 				<menu_item_call label="頭" name="Grab Head"/>
 				<menu_item_call label="上半身" name="Grab Upper Body"/>
@@ -470,7 +471,7 @@
 		<menu_item_call label="管理者ステータス解除" name="Leave Admin Options"/>
 		<menu_item_check label="管理者メニューを表示" name="View Admin Options"/>
 	</menu>
-	<menu label="管理" name="Admin">
+	<menu label="管理者" name="Admin">
 		<menu label="オブジェクト" name="AdminObject">
 			<menu_item_call label="コピーを取る" name="Admin Take Copy"/>
 			<menu_item_call label="自分を所有者にする" name="Force Owner To Me"/>

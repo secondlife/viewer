@@ -27,7 +27,7 @@
 	<text name="BetterText">
         品質優先
     </text>
-	<slider control_name="RenderFarClip" label="描画距離:" name="DrawDistance"/>
+<slider control_name="RenderFarClip" label="描画距離:" name="DrawDistance"/>
 	<check_box label="周囲(大気)シェーダー" name="WindLightUseAtmosShaders"/>
 	<check_box label="高度な光源モデル" name="UseLightShaders"/>
 	<button label="自動調整" name="AutoAdjustmentsButton"/>
@@ -44,5 +44,5 @@
 	<button label="プリセットを読込..." name="PrefLoadButton"/>
 	<button label="プリセットを削除..." name="PrefDeleteButton"/>
 	<button label="推奨設定にリセット" name="Defaults"/>
-	<button label="拡張設定..." name="AdvancedSettings"/>
+<button label="詳細設定…" name="AdvancedSettings"/>
 </panel>

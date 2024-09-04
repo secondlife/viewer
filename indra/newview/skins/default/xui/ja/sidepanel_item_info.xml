@@ -19,7 +19,7 @@
 		所有者ができること:
 	</panel.string>
 	<panel.string name="acquiredDate">
-		[year,datetime,local]年[mth,datetime,local]月[day,datetime,local]日([wkday,datetime,local]) [hour,datetime,local]:[min,datetime,local]:[second,datetime,local]
+[year,datetime,local]年[mth,datetime,local]月[day,datetime,local]日([wkday,datetime,local]) [hour,datetime,local]:[min,datetime,local]:[second,datetime,local]
 	</panel.string>
 	<panel.string name="origin_inventory">
 		(インベントリ)

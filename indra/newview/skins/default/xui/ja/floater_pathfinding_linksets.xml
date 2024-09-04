@@ -82,6 +82,10 @@
 			<scroll_list.columns label="ランドインパクト" name="land_impact"/>
 			<scroll_list.columns label="距離" name="dist_from_you"/>
 			<scroll_list.columns label="経路探索で使用" name="linkset_use"/>
+<scroll_list.columns label="A %" name="a_percent"/>
+			<scroll_list.columns label="B %" name="b_percent"/>
+			<scroll_list.columns label="C %" name="c_percent"/>
+			<scroll_list.columns label="D %" name="d_percent"/>
 		</scroll_list>
 		<text name="messaging_status">
             リンクセット:
@@ -108,9 +112,21 @@
 		<text name="walkability_coefficients_label">
             歩行可能性:
         </text>
+<text name="edit_a_label">
+			A
+		</text>
 		<line_editor name="edit_a_value" tool_tip="タイプAのキャラクターの歩行可能性。キャラクタータイプの例はヒューマノイドです。"/>
+		<text name="edit_b_label">
+			B
+		</text>
 		<line_editor name="edit_b_value" tool_tip="タイプBのキャラクターの歩行可能性。キャラクタータイプの例はクリーチャーです。"/>
+		<text name="edit_c_label">
+			C
+		</text>
 		<line_editor name="edit_c_value" tool_tip="タイプCのキャラクターの歩行可能性。キャラクタータイプの例はメカニカルです。"/>
+		<text name="edit_d_label">
+			D
+		</text>
 		<line_editor name="edit_d_value" tool_tip="タイプDのキャラクターの歩行可能性。キャラクタータイプの例はその他です。"/>
 		<button label="変更を適用" name="apply_edit_values"/>
 		<text name="suggested_use_a_label">

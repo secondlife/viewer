@@ -13,7 +13,7 @@
 		地形テクスチャ
 	</text>
 	<text name="height_text_lbl">
-        1(低)
+1（低）
     </text>
 	<text name="height_text_lbl2">
         2
@@ -22,7 +22,7 @@
         3
     </text>
 	<text name="height_text_lbl4">
-        4(高)
+4（高）
     </text>
 	<text name="height_text_lbl5">
         地形の隆起範囲

@@ -122,7 +122,7 @@
 	<text name="selection_empty">
         何も選択されていません。
     </text>
-	<text name="selection_faces">
+<text name="selection_faces">
         選択したフェース: [FACES_STRING]
     </text>
 	<tab_container name="Object Info Tabs">
@@ -227,7 +227,7 @@
 				<check_box label="移動" name="checkbox allow everyone move" tool_tip="オブジェクトは誰でも動かすことができます。"/>
 				<check_box label="コピー" name="checkbox allow everyone copy" tool_tip="オブジェクトのコピーは誰でも受け取ることができます。オブジェクトとそのオブジェクトの中身は全てコピーまたは譲渡できるように設定する必要があります。"/>
 				<text name="Next owner can:">
-                    次の所有者:
+次の所有者:
                 </text>
 				<check_box label="修正" name="checkbox next owner can modify" tool_tip="次の所有者はアイテム名などのプロパティ内容を編集したり、このオブジェクトのサイズを変更できます。"/>
 				<check_box label="コピー" name="checkbox next owner can copy" tool_tip="次の所有者は、このオブジェクトを無制限にコピーできます。コピーには制作者の情報が含まれ、コピー元のアイテムと違って許可などに関し制約があります。"/>
@@ -248,17 +248,17 @@
 			<text name="label position">
                 位置(m)
             </text>
-			<spinner label="x" name="Pos X"/>
+<spinner label="x" name="Pos X"/>
 			<menu_button name="clipboard_size_btn" tool_tip="オプションをペースト"/>
 			<text name="label size">
                 サイズ(m)
             </text>
-			<spinner label="x" name="Scale X"/>
+<spinner label="x" name="Scale X"/>
 			<menu_button name="clipboard_rot_btn" tool_tip="オプションをペースト"/>
 			<text name="label rotation">
                 回転(度)
             </text>
-			<spinner label="x" name="Rot X"/>
+<spinner label="x" name="Rot X"/>
 			<combo_box name="comboBaseType">
 				<combo_box.item label="ボックス" name="Box"/>
 				<combo_box.item label="シリンダー" name="Cylinder"/>
@@ -301,7 +301,7 @@
 			<text name="scale_hole">
                 穴寸法
             </text>
-			<spinner label="x" name="Taper Scale X"/>
+<spinner label="x" name="Taper Scale X"/>
 			<text name="text topshear">
                 上部層
             </text>
@@ -320,14 +320,14 @@
 			<text name="text taper2">
                 テーパー
             </text>
-			<spinner label="x" name="Taper X"/>
+<spinner label="x" name="Taper X"/>
 			<text name="text radius delta">
                 半径
             </text>
 			<text name="text revolutions">
                 回転体
             </text>
-			<texture_picker label="スカルプトテクスチャ" name="sculpt texture control" tool_tip="クリックして画像を選択"/>
+<texture_picker label="スカルプトテクスチャ" name="sculpt texture control" tool_tip="クリックして画像を選択"/>
 			<check_box label="ミラー" name="sculpt mirror control" tool_tip="スカルプトプリムをX軸上で反転させます"/>
 			<check_box label="裏返し" name="sculpt invert control" tool_tip="スカルプトプリムを反転させて裏返します"/>
 			<text name="label sculpt type">
@@ -358,7 +358,7 @@
                 オブジェクトの特徴を編集:
             </text>
 			<check_box label="アニメーションメッシュ" name="Animated Mesh Checkbox Ctrl" tool_tip="リグ入りメッシュオブジェクトを、それぞれアニメーションさせることができるようになります。"/>
-			<check_box label="フレキシブルパス" name="Flexible1D Checkbox Ctrl" tool_tip="Z軸を中心に、オブジェクトの屈曲を有効にします。(クライアント側のみ)"/>
+<check_box label="フレキシブルパス" name="Flexible1D Checkbox Ctrl" tool_tip="Z軸を中心に、オブジェクトの屈曲を有効にします。(クライアント側のみ)"/>
 			<spinner label="柔軟性" name="FlexNumSections"/>
 			<spinner label="重力" name="FlexGravity"/>
 			<spinner label="ドラッグ" name="FlexFriction"/>
@@ -391,7 +391,7 @@
 			</combo_box>
 			<spinner label="重力" name="Physics Gravity"/>
 			<spinner label="摩擦" name="Physics Friction"/>
-			<spinner label="密度(100kg/㎥)" name="Physics Density"/>
+<spinner label="密度(100kg/㎥)" name="Physics Density"/>
 			<spinner label="復元" name="Physics Restitution"/>
 		</panel>
 		<panel label="テクスチャ" name="Texture"/>
@@ -405,13 +405,13 @@
             区画情報
         </text>
 		<text name="label_area_price">
-            価格: [AREA]m² L$[PRICE]
+価格: [AREA]m² L$[PRICE]
         </text>
 		<text name="label_area">
             面積: [AREA]m²
         </text>
 		<button label="土地情報" label_selected="土地情報" name="button about land"/>
-		<check_box label="所有者を表示" name="checkbox show owners" tool_tip="所有者の種類別に区画を色づけます: 緑色=あなたの土地 水色=あなたのグループ所有地 赤色=他人が所有する土地 黄色 = 売り出し中 紫色=オークション 灰色=公共領域"/>
+<check_box label="所有者を表示" name="checkbox show owners" tool_tip="所有者の種類別に区画を色づけます: 緑色=あなたの土地 水色=あなたのグループ所有地 赤色=他人が所有する土地 黄色 = 売り出し中 紫色=オークション 灰色=公共領域"/>
 		<text name="label_parcel_modify">
             区画の編集
         </text>

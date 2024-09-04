@@ -48,7 +48,7 @@
 		<text name="Name:">
             名前:
         </text>
-		<line_editor name="Object Name" tool_tip="使用できる名前の文字数は最大63文字までです。長いプリム名は短縮されます。名前に使用できる文字はASCII-7(非拡張)に含まれる印字可能な文字のみです(縦線「|」は例外)。"/>
+<line_editor name="Object Name" tool_tip="使用できる名前の文字数は最大63文字までです。長いプリム名は短縮されます。名前に使用できる文字はASCII-7(非拡張)に含まれる印字可能な文字のみです(縦線「|」は例外)。"/>
 		<text name="Description:">
             説明:
         </text>
@@ -72,7 +72,7 @@
             クリックで:
         </text>
 		<combo_box name="clickaction" tool_tip="マウスで1回左クリックすると、オブジェクトに対してアクションを起こせるようになります。各クリックアクションには、何ができるかを示す特別なカーソルがあります。クリックアクションによっては、動作要件が必要なものもあります。例えば、「触る」や「支払い」にはスクリプトが必要になります。">
-			<combo_box.item label="触る(デフォルト)" name="Touch/grab(default)"/>
+<combo_box.item label="触る(デフォルト)" name="Touch/grab(default)"/>
 			<combo_box.item label="オブジェクトに座る" name="Sitonobject"/>
 			<combo_box.item label="オブジェクトを購入" name="Buyobject"/>
 			<combo_box.item label="オブジェクトに支払う" name="Payobject"/>

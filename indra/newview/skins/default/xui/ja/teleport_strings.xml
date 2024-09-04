@@ -50,7 +50,7 @@
 			インベントリシステムは現在利用できません。
 		</message>
 		<message name="MustGetAgeRegion">
-			この地域(リージョン)に入るには18才以上である必要があります。
+この地域(リージョン)に入るには18才以上である必要があります。
 		</message>
 		<message name="RegionTPSpecialUsageBlocked">
 			リージョンに入ることができません。

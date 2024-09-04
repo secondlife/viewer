@@ -41,7 +41,7 @@
 						<button label="空4" name="sky4_track"/>
 						<button label="空3" name="sky3_track"/>
 						<button label="空2" name="sky2_track"/>
-						<button label="地表レベル" name="sky1_track"/>
+<button label="地表レベル" name="sky1_track"/>
 						<button label="水面" name="water_track"/>
 					</panel>
 					<panel name="timeline">

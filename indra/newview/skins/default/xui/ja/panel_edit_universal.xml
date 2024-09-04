@@ -2,7 +2,7 @@
 <panel name="edit_universal_panel">
 	<scroll_container name="avatar_universal_scroll">
 		<panel name="avatar_universal_color_panel">
-			<texture_picker label="頭部のタトゥ" name="Head Universal Tattoo" tool_tip="クリックして画像を選択"/>
+<texture_picker label="頭部のタトゥ" name="Head Universal Tattoo" tool_tip="クリックして画像を選択"/>
 			<texture_picker label="上半身のタトゥ" name="Upper Universal Tattoo" tool_tip="クリックして画像を選択"/>
 			<texture_picker label="下部のタトゥ" name="Lower Universal Tattoo" tool_tip="クリックして画像を選択"/>
 			<texture_picker label="スカートのタトゥ" name="Skirt Tattoo" tool_tip="クリックして画像を選択"/>

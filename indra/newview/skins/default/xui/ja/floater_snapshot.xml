@@ -50,7 +50,7 @@
 		</combo_box>
 		<check_box label="インターフェース" name="ui_check"/>
 		<check_box label="HUD" name="hud_check"/>
-		<check_box label="フレームをフリーズ(全画面)" name="freeze_frame_check"/>
+<check_box label="フレームをフリーズ(全画面)" name="freeze_frame_check"/>
 		<check_box label="自動リフレッシュ" name="auto_snapshot_check"/>
 		<text name="filter_list_label">
             フィルタ:
@@ -89,6 +89,6 @@
         [SIZE]KB
     </text>
 	<text name="360_label">
-        360度スナップショット撮影
+360度スナップショットを撮影
     </text>
 </floater>

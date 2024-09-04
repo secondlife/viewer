@@ -7,7 +7,7 @@
         読込中...
     </text>
 	<scroll_list name="scripts_list">
-		<scroll_list.columns label="サイズ (KB)" name="size"/>
+<scroll_list.columns label="サイズ (KB)" name="size"/>
 		<scroll_list.columns label="URL" name="urls"/>
 		<scroll_list.columns label="オブジェクト名" name="name"/>
 		<scroll_list.columns label="オブジェクトの所有者" name="owner"/>

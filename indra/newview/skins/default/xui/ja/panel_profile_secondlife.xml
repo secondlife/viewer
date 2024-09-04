@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_profile" label="プロフィール">
-	<string name="date_format_full" value="SLでの誕生日: [year,datetime,utc]年[mth,datetime,utc]月[day,datetime,utc]日"/>
+<string name="date_format_full" value="SLでの誕生日: [year,datetime,utc]年[mth,datetime,utc]月[day,datetime,utc]日"/>
 	<string name="date_format_short" value="SL誕生日: [mth,datetime,utc] [day,datetime,utc]"/>
 	<string name="age_format" value="[AGE]歳"/>
 	<string name="partner_text" value="パートナー: [LINK]"/>

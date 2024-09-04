@@ -55,7 +55,7 @@
 	<text name="title_afk_text">
         「離席」とするまでの時間:
     </text>
-	<combo_box label="「離席」とするまでの時間:" name="afk">
+<combo_box label="「離席」とするまでの時間:" name="afk">
 		<combo_box.item label="2分" name="item0"/>
 		<combo_box.item label="5分" name="item1"/>
 		<combo_box.item label="10分" name="item2"/>

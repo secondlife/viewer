@@ -29,7 +29,7 @@
 		<combo_box.item label="メディア" name="Media"/>
 	</combo_box>
 	<radio_group name="radio_material_type">
-		<radio_item label="テクスチャ(拡散)" name="Texture (diffuse)"/>
+<radio_item label="テクスチャ(拡散)" name="Texture (diffuse)"/>
 		<radio_item label="凹凸 (法線)" name="Bumpiness (normal)"/>
 		<radio_item label="輝き(スペキュラ)" name="Shininess (specular)"/>
 	</radio_group>
@@ -93,7 +93,7 @@
     </text>
 	<color_swatch name="shinycolorswatch" tool_tip="クリックしてカラーピッカーを開く"/>
 	<text name="media_info">
-        選択したメディアの URLがあれば、ここに入ります
+選択したメディアの URLがあれば、ここに入ります
     </text>
 	<button name="add_media" tool_tip="メディアを追加します" label="選択..."/>
 	<button name="delete_media" tool_tip="このメディアテクスチャを削除" label="削除"/>

@@ -38,8 +38,8 @@
 		<panel label="役割" name="roles_sub_tab">
 			<panel.string name="help_text">
 				役割には、タイトルと許可された能力が割り当てられています。
-				メンバーは1つ以上の役割を持つことができます。
-				グループで使える役割は10個までで、「全員(Everyone)」と「所有者(Owner)」がそれに含まれています。
+メンバーは１つ以上の役割を持つことができます。
+グループで使える役割は10個までで、「全員（Everyone）」と「所有者（Owner）」がそれに含まれています。
 			</panel.string>
 			<panel.string name="cant_delete_role">
 				「全員(Everyone)」と「所有者(Owner)」の役割は削除できません。

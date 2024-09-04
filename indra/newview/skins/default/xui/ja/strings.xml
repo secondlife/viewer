@@ -25,7 +25,7 @@
 		グラフィックを初期化できませんでした。グラフィックドライバを更新してください。
 	</string>
 	<string name="AboutHeader">
-		[CHANNEL] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3]([ADDRESS_SIZE]bit)
+[CHANNEL] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3]（[ADDRESS_SIZE]bit）
 		[[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]
 	</string>
 	<string name="BuildConfig">
@@ -39,7 +39,7 @@
 		[SERVER_RELEASE_NOTES_URL]
 	</string>
 	<string name="AboutSystem">
-		CPU: [CPU]
+CPU: [CPU]
 		メモリ: [MEMORY_MB]MB
 		OSのバージョン: [OS_VERSION]
 		グラフィックカード製造元: [GRAPHICS_CARD_VENDOR]
@@ -53,7 +53,7 @@
 	</string>
 	<string name="AboutSettings">
 		ウィンドウサイズ: [WINDOW_WIDTH] x [WINDOW_HEIGHT]
-		フォントサイズ調整: [FONT_SIZE_ADJUSTMENT]pt
+フォントサイズ調整: [FONT_SIZE_ADJUSTMENT]pt
 		UIスケーリング: [UI_SCALE]
 		描画距離: [DRAW_DISTANCE]m
 		帯域幅: [NET_BANDWITH]kbit/s
@@ -552,7 +552,7 @@
 	<string name="TooltipSLAPP">
 		クリックして secondlife:// コマンドを出します。
 	</string>
-	<string name="CurrentURL" value="現在のURL: [CurrentURL]"/>
+<string name="CurrentURL" value="現在のURL: [CurrentURL]"/>
 	<string name="TooltipEmail">
 		クリックして電子メールを作成
 	</string>
@@ -1017,7 +1017,7 @@
 		オフライン
 	</string>
 	<string name="worldmap_item_tooltip_format">
-		[AREA] m² L$[PRICE]([SQMPRICE]L$/m²)
+[AREA] m² L$[PRICE]([SQMPRICE]L$/m²)
 	</string>
 	<string name="worldmap_results_none_found">
 		何も見つかりませんでした。
@@ -1038,7 +1038,7 @@
 		ささやき:
 	</string>
 	<string name="shout">
-		の叫び:
+の叫び：
 	</string>
 	<string name="ringing">
 		インワールドボイスチャットに接続中...
@@ -1152,7 +1152,7 @@
 		不動産/フルリージョン
 	</string>
 	<string name="Estate / Homestead">
-		不動産/入植地
+不動産 / ホームステッド
 	</string>
 	<string name="Mainland / Homestead">
 		メインランド / ホームステッド
@@ -2030,7 +2030,7 @@
 		料金はサブスクリプションのレベルにより異なります。レベルが高いほど、料金が下がります。[https://accounts.secondlife.com/change_membership/?lang=ja-JP 詳細]
 	</string>
 	<string name="Open landmarks">
-		オープン ランドマーク
+		ランドマーク一覧を開く
 	</string>
 	<string name="Unconstrained">
 		アンコンストレインド(制約なし)
@@ -2683,7 +2683,7 @@
 		区画一覧: [PARCELS]
 	</string>
 	<string name="ScriptLimitsMemoryUsed">
-		使用メモリ: [MAX]KB中 [COUNT]KB [AVAILABLE]KB利用可
+使用メモリ: [MAX]KB中 [COUNT]KB [AVAILABLE]KB利用可
 	</string>
 	<string name="ScriptLimitsMemoryUsedSimple">
 		使用メモリ: [COUNT]KB
@@ -2692,7 +2692,7 @@
 		区画のスクリプトURL
 	</string>
 	<string name="ScriptLimitsURLsUsed">
-		使用されたURL: [MAX]件中[COUNT]件 [AVAILABLE]件利用可
+使用されたURL: [MAX]件中[COUNT]件 [AVAILABLE]件利用可
 	</string>
 	<string name="ScriptLimitsURLsUsedSimple">
 		使用されたURL: [COUNT]
@@ -2806,7 +2806,7 @@
 		右胸筋
 	</string>
 	<string name="ATTACH_HUD_CENTER_2">
-		HUD(中央 2)
+HUD(中央 2)
 	</string>
 	<string name="ATTACH_HUD_TOP_RIGHT">
 		HUD(右上)
@@ -2888,6 +2888,9 @@
 	</string>
 	<string name="PanelDirTimeStr">
 		[ampm,datetime,utc] [hour12,datetime,utc]:[min,datetime,utc]
+	</string>
+	<string name="PanelDirEventsDateText">
+		[mthnum,datetime,slt]/[day,datetime,slt]
 	</string>
 	<string name="PanelContentsTooltip">
 		オブジェクトの中身
@@ -4911,7 +4914,7 @@
 		インベントリからここにアイテムをドラッグします。
 	</string>
 	<string name="no_session_message">
-		(IMセッションが存在しません)
+(IMセッションが存在しません)
 	</string>
 	<string name="only_user_message">
 		このセッションにいるユーザはあなただけです。
@@ -5374,6 +5377,7 @@
 	<string name="outfit_photo_verify_dimensions_error">
 		画像の寸法を確認できません。画像サイズがピッカーに表示されるまでお待ちください。
 	</string>
+	<string name="sentences_separator" value=" "/>
 	<string name="words_separator" value="、"/>
 	<string name="server_is_down">
 		大変申し訳ございませんが、予期しない問題が発生しました。サービスに関する既知の問題については、 https://status.secondlifegrid.net/?lang=ja-JP をご覧ください。
@@ -6023,7 +6027,7 @@
 		物理形状に不正な確認データがあります。物理モデルを修正してください。
 	</string>
 	<string name="Mav_Details_MAV_BLOCK_MISSING">
-		データがありません。高LODが存在し、有効であることを確認してください。設定されていない場合は物理モデルを設定します。
+データがありません。高LODが存在し、有効であることを確認してください。設定されていない場合は物理モデルを設定します。
 	</string>
 	<string name="Mav_Details_MAV_UNKNOWN_VERSION">
 		物理形状のバージョンが正しくありません。物理モデルに正しいバージョンを設定してください。

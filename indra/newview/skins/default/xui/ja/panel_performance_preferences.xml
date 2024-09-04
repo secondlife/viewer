@@ -6,7 +6,7 @@
 	<text name="settings_title">
         グラフィック設定
     </text>
-	<button label="拡張設定を開く" name="advanced_btn"/>
+	<button label="詳細設定を開く" name="advanced_btn"/>
 	<button label="推奨設定にリセット" name="defaults_btn"/>
 	<text name="quality_lbl">
         品質と速度
@@ -24,7 +24,7 @@
         距離
     </text>
 	<text name="faster_lbl">
-        速い
+速い
     </text>
 	<text name="farther_lbl">
         遠景
@@ -41,7 +41,7 @@
 	<check_box label="周囲(大気)シェーダー" name="atmospheric_shaders"/>
 	<check_box label="高度な光源モデル" name="advanced_lighting_model"/>
 	<text name="RenderShadowDetailText">
-        影:
+影
     </text>
 	<combo_box name="ShadowDetail">
 		<combo_box.item label="なし" name="0"/>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="url_entry">
 	<text name="media_label">
-        メディアURL:
+メディアURL：
     </text>
 	<button label="キャンセル" name="cancel_btn"/>
 	<button label="クリア" name="clear_btn"/>

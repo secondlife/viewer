@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater_lagmeter" title="ラグメーター">
 	<floater.string name="max_title_msg">
-		遅延メーター
+遅延メーター
 	</floater.string>
 	<floater.string name="max_width_px">
 		360

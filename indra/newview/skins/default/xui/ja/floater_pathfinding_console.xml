@@ -89,7 +89,7 @@
             </text>
 			<combo_box name="show_heatmap_mode">
 				<combo_box.item label="表示しない" name="show_heatmap_mode_none"/>
-				<combo_box.item label="キャラクター・タイプA" name="show_heatmap_mode_a"/>
+<combo_box.item label="キャラクター・タイプA" name="show_heatmap_mode_a"/>
 				<combo_box.item label="キャラクター・タイプB" name="show_heatmap_mode_b"/>
 				<combo_box.item label="キャラクター・タイプC" name="show_heatmap_mode_c"/>
 				<combo_box.item label="キャラクター・タイプD" name="show_heatmap_mode_d"/>
@@ -99,7 +99,7 @@
 			<check_box label="静的障害物" name="show_static_obstacles"/>
 			<check_box label="除外ボリューム" name="show_exclusion_volumes"/>
 			<check_box label="水上飛行機" name="show_water_plane"/>
-			<check_box label="X線表示機能つき" name="show_xray"/>
+<check_box label="X線表示機能つき" name="show_xray"/>
 		</panel>
 		<panel name="test_panel" label="パスをテスト">
 			<text name="ctrl_click_label">
@@ -109,8 +109,12 @@
                 Shift キーを押しながらクリックして、終了点を選択します。
             </text>
 			<text name="character_width_label">
+			<text name="character_width_unit_label">
+				m
+			</text>
                 キャラクターの幅
             </text>
+<slider name="character_width" value="1"/>
 			<text name="character_type_label">
                 キャラクター・タイプ
             </text>

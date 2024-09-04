@@ -3,7 +3,7 @@
 	<scroll_container name="statistics_scroll">
 		<container_view name="statistics_view">
 			<stat_view name="basic" label="基本">
-				<stat_bar name="frame difference" label="フレームごとのピクセル差"/>
+<stat_bar name="frame difference" label="フレームごとのピクセル差"/>
 				<stat_bar name="bandwidth" label="UDPデータの受信量"/>
 				<stat_bar name="packet_loss" label="パケットロス"/>
 			</stat_view>
@@ -42,31 +42,32 @@
 				<stat_bar name="simoutpps" label="送信パケット"/>
 				<stat_bar name="simpendingdownloads" label="保留中のダウンロード"/>
 				<stat_bar name="simpendinguploads" label="保留中のアップロード"/>
-				<stat_bar name="simtotalunackedbytes" label="未送信バイト合計"/>
-				<stat_view name="simperf" label="時間(ms)">
-					<stat_bar name="simframemsec" label="フレーム時間合計"/>
-					<stat_bar name="simnetmsec" label="総時間数"/>
-					<stat_bar name="simsimphysicsmsec" label="物理時間"/>
-					<stat_bar name="simsimothermsec" label="シミュレーション時間"/>
-					<stat_bar name="simagentmsec" label="エージェント時間"/>
-					<stat_bar name="simimagesmsec" label="イメージ時間"/>
-					<stat_bar name="simscriptmsec" label="スクリプト時間"/>
-					<stat_bar name="simsparemsec" label="スペア時間"/>
-					<stat_view name="timedetails" label="時間の詳細(ms)">
-						<stat_bar name="simsimphysicsstepmsec" label="物理の単位"/>
-						<stat_bar name="simsimphysicsshapeupdatemsec" label="物理形状を更新"/>
-						<stat_bar name="simsimphysicsothermsec" label="他の物理"/>
-						<stat_bar name="simsleepmsec" label="スリープ時間"/>
-						<stat_bar name="simpumpiomsec" label="ポンプ I/O"/>
+<stat_bar name="simtotalunackedbytes" label="未確認バイトの合計" unit_label="㎅"/>
+				<stat_view name="simperf" label="時間（㎳）">
+					<stat_bar name="simframemsec" label="合計フレーム時間" unit_label="㎳"/>
+					<stat_bar name="simnetmsec" label="ネット時間" unit_label="㎳"/>
+					<stat_bar name="simsimphysicsmsec" label="物理作用時間" unit_label="㎳"/>
+					<stat_bar name="simsimothermsec" label="シミュレーション時間" unit_label="㎳"/>
+					<stat_bar name="simagentmsec" label="エージェント時間" unit_label="㎳"/>
+					<stat_bar name="simimagesmsec" label="イメージ時間" unit_label="㎳"/>
+					<stat_bar name="simscriptmsec" label="スクリプト時間" unit_label="㎳"/>
+					<stat_bar name="simsparemsec" label="スペア時間" unit_label="㎳"/>
+					<stat_view name="timedetails" label="時間詳細（㎳）">
+						<stat_bar name="simsimphysicsstepmsec" label="　物理作用単位" unit_label="㎳"/>
+						<stat_bar name="simsimphysicsshapeupdatemsec" label="　物理形状更新" unit_label="㎳"/>
+						<stat_bar name="simsimphysicsothermsec" label="　他の物理作用" unit_label="㎳"/>
+						<stat_bar name="simsleepmsec" label="　スリープ時間" unit_label="㎳"/>
+						<stat_bar name="simpumpiomsec" label="　ポンプIO" unit_label="㎳"/>
 					</stat_view>
 				</stat_view>
 			</stat_view>
 			<stat_view name="frame_stats" label="フレームの内訳">
-				<stat_bar name="scenery_frame_pct" label="景色"/>
-				<stat_bar name="avatar_frame_pct" label="アバター"/>
-				<stat_bar name="huds_frame_pct" label="HUD"/>
-				<stat_bar name="swap_frame_pct" label="スワップ"/>
-				<stat_bar name="idle_frame_pct" label="タスク"/>
+<stat_bar name="scenery_frame_pct" label="景色" unit_label="％"/>
+				<stat_bar name="avatar_frame_pct" label="アバター" unit_label="％"/>
+				<stat_bar name="ui_frame_pct" label="UI" unit_label="％"/>
+				<stat_bar name="huds_frame_pct" label="HUD" unit_label="％"/>
+				<stat_bar name="swap_frame_pct" label="スワップ" unit_label="％"/>
+				<stat_bar name="idle_frame_pct" label="タスク" unit_label="％"/>
 			</stat_view>
 		</container_view>
 	</scroll_container>

@@ -49,13 +49,13 @@
         ロール・スケール
     </text>
 	<text name="XDeadZone">
-        Xデッドゾーン
+Xデッド・ゾーン
     </text>
 	<text name="YDeadZone">
-        Yデッドゾーン
+Yデッド・ゾーン
     </text>
 	<text name="ZDeadZone">
-        Zデッドゾーン
+Zデッドゾーン
     </text>
 	<text name="PitchDeadZone">
         ピッチ・デッド・ゾーン
@@ -77,4 +77,15 @@
     </text>
 	<button label="SpaceNavigatorのデフォルト設定" name="SpaceNavigatorDefaults"/>
 	<button label="キャンセル" label_selected="キャンセル" name="cancel_btn"/>
+	<stat_view label="ジョイスティック・モニター" name="axis_view">
+		<stat_bar label="軸0" name="axis0"/>
+		<stat_bar label="軸1" name="axis1"/>
+		<stat_bar label="軸2" name="axis2"/>
+		<stat_bar label="軸3" name="axis3"/>
+		<stat_bar label="軸4" name="axis4"/>
+		<stat_bar label="軸5" name="axis5"/>
+	</stat_view>
+	<string name="NoDevice">
+		デバイスは検出されませんでした。
+	</string>
 </floater>

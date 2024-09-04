@@ -277,7 +277,7 @@
 			</panel>
 			<panel label="アップロードのオプション" name="modifiers_panel">
 				<text name="scale_label">
-                    スケール(1=増減なし):
+スケール(1=増減なし):
                 </text>
 				<text name="dimensions_label">
                     サイズ:
@@ -292,7 +292,7 @@
 				<check_box label="ジョイント位置を含む" name="upload_joints"/>
 				<check_box label="ジョイント位置が定義されている場合はスケールを固定" name="lock_scale_if_joint_position"/>
 				<text name="pelvis_offset_label">
-                    Zオフセット(アバターの上げ下げ):
+Zオフセット（アバターを上下調整）：
                 </text>
 				<text name="skin_too_many_joints">
                     スキンジョイントが多すぎます

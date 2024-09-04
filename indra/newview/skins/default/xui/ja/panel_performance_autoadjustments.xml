@@ -22,12 +22,13 @@
 		<combo_box.item label="アバターとワールド" name="av_and_scene"/>
 		<combo_box.item label="ワールドのみ" name="scene_only"/>
 	</combo_box>
-	<button label="今すぐ自動調整" name="start_autotune" tool_tip="ビュアは目標FPSを満たすように設定が調整されるまで停止します。"/>
+<button label="今すぐ自動調整" name="start_autotune" tool_tip="ビュアは目標FPSを満たすように設定が調整されるまで停止します。"/>
 	<button label="キャンセル" name="stop_autotune" tool_tip="自動調整を中断します。"/>
 	<text name="wip_desc">
         調整中です...
     </text>
-	<check_box label="継続的に調整する" name="AutoTuneContinuous" tool_tip="ビュアは、このフローターが閉じていても停止するまで目標FPSを満たすように設定を継続的に調整します。"/>
+<check_box label="継続的に調整する" name="AutoTuneContinuous" tool_tip="ビューアーは、このフローターが閉じていても停止するまで、目標FPSを満たすように設定を継続的に調整します。">
+  </check_box>
 	<radio_group name="autotune_lock_type">
 		<radio_item label="このログインセッションのみ" name="one_session_lock"/>
 		<radio_item label="今後のログインセッションから" name="next_session_lock"/>

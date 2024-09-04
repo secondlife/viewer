@@ -10,7 +10,7 @@
 			<radio_item label="高" name="high_quality" tool_tip="高品質"/>
 			<radio_item label="最高品位" name="maximum_quality" tool_tip="最高品質"/>
 		</radio_group>
-		<check_box label="アバターを全て隠す" name="360_hide_avatar"/>
+<check_box label="アバターを全て隠す" name="360_hide_avatar"/>
 		<button label="360度画像を作成" name="capture_button"/>
 		<button label="名前をつけて保存..." name="save_local_button"/>
 	</panel>

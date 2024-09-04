@@ -21,7 +21,7 @@
 	<text name="ItemcountText">
         アイテム:
     </text>
-	<layout_stack>
+<layout_stack>
 		<layout_panel name="nav_buttons">
 			<button name="back_btn" tool_tip="戻る"/>
 			<button name="forward_btn" tool_tip="進む"/>

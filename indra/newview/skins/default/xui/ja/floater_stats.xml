@@ -2,7 +2,7 @@
 <floater name="Statistics" title="統計">
 	<scroll_container name="statistics_scroll">
 		<container_view name="statistics_view">
-			<stat_view name="basic" label="基本">
+<stat_view name="basic" label="基本">
 				<stat_bar name="frame_mean" label="フレーム(平均)"/>
 				<stat_bar name="frame_median" label="フレーム(中央値)"/>
 				<stat_bar name="framet_jitter" label="ジッタ"/>
@@ -59,27 +59,27 @@
 					<stat_bar name="messagedataout" label="実際の送信"/>
 				</stat_view>
 			</stat_view>
-			<stat_view name="sim" label="シミュレーター">
-				<stat_bar name="simtimedilation" label="遅延時間"/>
-				<stat_bar name="simfps" label="シムのFPS"/>
-				<stat_bar name="simphysicsfps" label="物理 FPS"/>
-				<stat_view name="physicsdetail" label="物理の詳細">
-					<stat_bar name="physicspinnedtasks" label="ピン留めオブジェクト"/>
-					<stat_bar name="physicslodtasks" label="低LODオブジェクト"/>
-					<stat_bar name="physicsmemoryallocated" label="メモリ配分"/>
+<stat_view label="シミュレーター" name="sim">
+				<stat_bar label="遅延時間" name="simtimedilation"/>
+				<stat_bar label="シムのFPS" name="simfps"/>
+				<stat_bar label="物理作用のFPS" name="simphysicsfps"/>
+				<stat_view label="物理作用の詳細" name="physicsdetail">
+					<stat_bar label="ピン留めオブジェクト" name="physicspinnedtasks"/>
+					<stat_bar label="低LODオブジェクト" name="physicslodtasks"/>
+					<stat_bar label="メモリ配分" name="physicsmemoryallocated"/>
 				</stat_view>
-				<stat_bar name="simagentups" label="エージェントの更新毎秒"/>
-				<stat_bar name="simmainagents" label="メインエージェント"/>
-				<stat_bar name="simchildagents" label="チャイルドエージェント"/>
-				<stat_bar name="simobjects" label="オブジェクト"/>
-				<stat_bar name="simactiveobjects" label="アクティブなオブジェクト"/>
-				<stat_bar name="simactivescripts" label="アクティブなスクリプト"/>
-				<stat_bar name="simpctscriptsrun" label="スクリプト実行"/>
-				<stat_bar name="simscripteps" label="スクリプトイベント"/>
-				<stat_view name="simpathfinding" label="経路探索">
-					<stat_bar name="simsimaistepmsec" label="AIステップ時間"/>
-					<stat_bar name="simsimskippedsilhouettesteps" label="スキップされたシルエットステップ" unit_label="毎秒"/>
-					<stat_bar name="simsimpctsteppedcharacters" label="更新されたキャラクター"/>
+				<stat_bar label="エージェントの更新／秒" name="simagentups"/>
+				<stat_bar label="メインエージェント" name="simmainagents"/>
+				<stat_bar label="チャイルドエージェント" name="simchildagents"/>
+				<stat_bar label="オブジェクト" name="simobjects"/>
+				<stat_bar label="アクティブなオブジェクト" name="simactiveobjects"/>
+				<stat_bar label="アクティブなスクリプト" name="simactivescripts"/>
+				<stat_bar label="スクリプト実行" name="simpctscriptsrun"/>
+				<stat_bar label="スクリプトイベント" name="simscripteps" unit_label="eps"/>
+				<stat_view label="経路探索" name="simpathfinding">
+					<stat_bar label="AIステップ時間" name="simsimaistepmsec"/>
+					<stat_bar label="スキップされたシルエットステップ" name="simsimskippedsilhouettesteps" unit_label="／秒"/>
+					<stat_bar label="更新されたキャラクター" name="simsimpctsteppedcharacters" unit_label="％"/>
 				</stat_view>
 				<stat_bar name="siminpps" label="入力パケット" unit_label="パケット毎秒"/>
 				<stat_bar name="simoutpps" label="出力パケット" unit_label="パケット毎秒"/>

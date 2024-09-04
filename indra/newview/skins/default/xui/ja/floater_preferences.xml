@@ -14,7 +14,7 @@
 		<panel label="色" name="colors"/>
 		<panel label="プライバシー" name="im"/>
 		<panel label="セットアップ" name="input"/>
-		<panel label="拡張" name="advanced1"/>
+		<panel label="アドバンス" name="advanced1"/>
 		<panel label="アップロード" name="uploads"/>
 		<panel label="操作" name="controls"/>
 	</tab_container>
