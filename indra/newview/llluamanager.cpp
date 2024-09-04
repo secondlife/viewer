@@ -49,6 +49,8 @@
 #include <string_view>
 #include <vector>
 
+S32 LLLUAmanager::sAutorunScriptCount = 0;
+S32 LLLUAmanager::sScriptCount = 0;
 std::map<std::string, std::string> LLLUAmanager::sScriptNames;
 
 lua_function(sleep, "sleep(seconds): pause the running coroutine")
@@ -172,7 +174,7 @@ LLLUAmanager::startScriptFile(const std::string& filename)
     // Despite returning from startScriptFile(), we need this Promise to
     // remain alive until the callback has fired.
     auto promise{ std::make_shared<LLCoros::Promise<script_result>>() };
-    runScriptFile(filename,
+    runScriptFile(filename, false,
                   [promise](int count, LLSD result)
                   { promise->set_value({ count, result }); });
     return LLCoros::getFuture(*promise);
@@ -183,11 +185,11 @@ LLLUAmanager::script_result LLLUAmanager::waitScriptFile(const std::string& file
     return startScriptFile(filename).get();
 }
 
-void LLLUAmanager::runScriptFile(const std::string &filename, script_result_fn result_cb,
-                                 script_finished_fn finished_cb)
+void LLLUAmanager::runScriptFile(const std::string &filename, bool autorun,
+                                 script_result_fn result_cb, script_finished_fn finished_cb)
 {
     // A script_result_fn will be called when LuaState::expr() completes.
-    LLCoros::instance().launch(filename, [filename, result_cb, finished_cb]()
+    LLCoros::instance().launch(filename, [filename, autorun, result_cb, finished_cb]()
     {
         ScriptObserver observer(LLCoros::getName(), filename);
         llifstream in_file;
@@ -195,6 +197,12 @@ void LLLUAmanager::runScriptFile(const std::string &filename, script_result_fn r
 
         if (in_file.is_open()) 
         {
+            if (autorun)
+            {
+                sAutorunScriptCount++;
+            }
+            sScriptCount++;
+
             // A script_finished_fn is used to initialize the LuaState.
             // It will be called when the LuaState is destroyed.
             LuaState L(finished_cb);
