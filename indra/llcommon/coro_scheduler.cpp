@@ -26,7 +26,7 @@
 namespace llcoro
 {
 
-const F32 scheduler::DEFAULT_TIMESLICE{ LL::Timers::DEFAULT_TIMESLICE };
+const F64 scheduler::DEFAULT_TIMESLICE{ LL::Timers::DEFAULT_TIMESLICE };
 
 const std::string qname("General");
 
@@ -72,7 +72,7 @@ boost::fibers::context* scheduler::pick_next() noexcept
 
     // When the main fiber is ready, and it's been more than mTimeslice since
     // the main fiber last ran, it's time to intervene.
-    F32 elapsed(now - mMainLast);
+    F64 elapsed(now - mMainLast);
     if (mMainCtx && elapsed > mTimeslice)
     {
         // We claim that the main fiber is not only stored in mMainCtx, but is

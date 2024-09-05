@@ -33,7 +33,7 @@
 #include "llwearableitemslist.h"
 #include "stringize.h"
 
-static const F32 MAX_ITEM_LIMIT = 100;
+constexpr S32 MAX_ITEM_LIMIT = 100;
 
 LLInventoryListener::LLInventoryListener()
   : LLEventAPI("LLInventory",

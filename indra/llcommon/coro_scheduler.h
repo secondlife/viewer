@@ -38,7 +38,7 @@ class scheduler: public boost::fibers::algo::round_robin
 public:
     // If the main fiber is ready, and it's been at least this long since the
     // main fiber last ran, jump the main fiber to the head of the queue.
-    static const F32 DEFAULT_TIMESLICE;
+    static const F64 DEFAULT_TIMESLICE;
 
     scheduler();
     void awakened( boost::fibers::context*) noexcept override;
@@ -57,11 +57,11 @@ private:
     bool mMainRunning{ false };
     // If it's been at least this long since the last time the main fiber got
     // control, jump it to the head of the queue.
-    F32 mTimeslice{ DEFAULT_TIMESLICE };
+    F64 mTimeslice{ DEFAULT_TIMESLICE };
     // Timestamp as of the last time we suspended the main fiber.
-    F32 mMainLast{ 0 };
+    F64 mMainLast{ 0 };
     // Timestamp of start time
-    F32 mStart{ 0 };
+    F64 mStart{ 0 };
     // count context switches
     U64 mSwitches{ 0 };
     // WorkQueue for deferred logging
