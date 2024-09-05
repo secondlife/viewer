@@ -31,9 +31,11 @@
 #include "llinventoryfunctions.h"
 #include "lltransutil.h"
 #include "llwearableitemslist.h"
+#include "resultset.h"
 #include "stringize.h"
+#include <algorithm>                // std::min()
 
-static const F32 MAX_ITEM_LIMIT = 100;
+constexpr S32 MAX_ITEM_LIMIT = 100;
 
 LLInventoryListener::LLInventoryListener()
   : LLEventAPI("LLInventory",
@@ -41,7 +43,7 @@ LLInventoryListener::LLInventoryListener()
 {
     add("getItemsInfo",
         "Return information about items or folders defined in [\"item_ids\"]:\n"
-        "reply will contain [\"items\"] and [\"categories\"] tables accordingly",
+        "reply will contain [\"items\"] and [\"categories\"] result set keys",
         &LLInventoryListener::getItemsInfo,
         llsd::map("item_ids", LLSD(), "reply", LLSD()));
 
@@ -61,60 +63,94 @@ LLInventoryListener::LLInventoryListener()
         &LLInventoryListener::getBasicFolderID,
         llsd::map("ft_name", LLSD(), "reply", LLSD()));
 
-    add("getDirectDescendents",
-        "Return the direct descendents(both items and folders) of the [\"folder_id\"]",
-        &LLInventoryListener::getDirectDescendents,
+    add("getDirectDescendants",
+        "Return result set keys [\"categories\"] and [\"items\"] for the direct\n"
+        "descendants of the [\"folder_id\"]",
+        &LLInventoryListener::getDirectDescendants,
         llsd::map("folder_id", LLSD(), "reply", LLSD()));
 
-    add("collectDescendentsIf",
-        "Return the descendents(both items and folders) of the [\"folder_id\"], if it passes specified filters:\n"
+    add("collectDescendantsIf",
+        "Return result set keys [\"categories\"] and [\"items\"] for the descendants\n"
+        "of the [\"folder_id\"], if it passes specified filters:\n"
         "[\"name\"] is a substring of object's name,\n"
         "[\"desc\"] is a substring of object's description,\n"
         "asset [\"type\"] corresponds to the string name of the object's asset type\n"
-        "[\"limit\"] sets item count limit in reply, maximum and default is 100\n"
+        "[\"limit\"] sets item count limit in result set (default unlimited)\n"
         "[\"filter_links\"]: EXCLUDE_LINKS - don't show links, ONLY_LINKS - only show links, INCLUDE_LINKS - show links too (default)",
-        &LLInventoryListener::collectDescendentsIf,
+        &LLInventoryListener::collectDescendantsIf,
         llsd::map("folder_id", LLSD(), "reply", LLSD()));
- }
 
+/*==========================================================================*|
+    add("getSingle",
+        "Return LLSD [\"single\"] for a single folder or item from the specified\n"
+        "[\"result\"] key at the specified 0-relative [\"index\"].",
+        &LLInventoryListener::getSingle,
+        llsd::map("result", LLSD::Integer(), "index", LLSD::Integer(),
+                  "reply", LLSD::String()));
+|*==========================================================================*/
 
-void add_item_info(LLEventAPI::Response& response, LLViewerInventoryItem* item)
-{
-    response["items"].insert(item->getUUID().asString(),
-                             llsd::map("name", item->getName(),
-                                       "parent_id", item->getParentUUID(),
-                                       "desc", item->getDescription(),
-                                       "inv_type", LLInventoryType::lookup(item->getInventoryType()),
-                                       "asset_type", LLAssetType::lookup(item->getType()),
-                                       "creation_date", (S32) item->getCreationDate(),
-                                       "asset_id", item->getAssetUUID(),
-                                       "is_link", item->getIsLinkType(),
-                                       "linked_id", item->getLinkedUUID()));
+    add("getSlice",
+        stringize(
+        "Return an LLSD array [\"slice\"] from the specified [\"result\"] key\n"
+        "starting at 0-relative [\"index\"] with (up to) [\"count\"] entries.\n"
+        "count is limited to ", MAX_ITEM_LIMIT, " (default and max)."),
+        &LLInventoryListener::getSlice,
+        llsd::map("result", LLSD::Integer(), "index", LLSD::Integer(),
+                  "reply", LLSD::String()));
+
+    add("closeResult",
+        "Release resources associated with specified [\"result\"] key,\n"
+        "or keys if [\"result\"] is an array.",
+        &LLInventoryListener::closeResult,
+        llsd::map("result", LLSD()));
 }
 
-void add_cat_info(LLEventAPI::Response &response, LLViewerInventoryCategory *cat)
+// This struct captures (possibly large) category results from
+// getDirectDescendants() and collectDescendantsIf().
+struct CatResultSet: public LL::ResultSet
 {
-    response["categories"].insert(cat->getUUID().asString(),
-                                  llsd::map("name", cat->getName(),
-                                            "parent_id", cat->getParentUUID(),
-                                            "type", LLFolderType::lookup(cat->getPreferredType())));
-}
+    CatResultSet(): LL::ResultSet("categories") {}
+    LLInventoryModel::cat_array_t mCategories;
 
-void add_objects_info(LLEventAPI::Response& response, LLInventoryModel::cat_array_t cat_array, LLInventoryModel::item_array_t item_array)
-{
-    for (auto &p : item_array)
+    int getLength() const override { return narrow(mCategories.size()); }
+    LLSD getSingle(int index) const override
     {
-        add_item_info(response, p);
+        auto cat = mCategories[index];
+        return llsd::map("name", cat->getName(),
+                         "parent_id", cat->getParentUUID(),
+                         "type", LLFolderType::lookup(cat->getPreferredType()));
     }
-    for (auto &p : cat_array)
+};
+
+// This struct captures (possibly large) item results from
+// getDirectDescendants() and collectDescendantsIf().
+struct ItemResultSet: public LL::ResultSet
+{
+    ItemResultSet(): LL::ResultSet("items") {}
+    LLInventoryModel::item_array_t mItems;
+
+    int getLength() const override { return narrow(mItems.size()); }
+    LLSD getSingle(int index) const override
     {
-        add_cat_info(response, p);
+        auto item = mItems[index];
+        return llsd::map("name", item->getName(),
+                         "parent_id", item->getParentUUID(),
+                         "desc", item->getDescription(),
+                         "inv_type", LLInventoryType::lookup(item->getInventoryType()),
+                         "asset_type", LLAssetType::lookup(item->getType()),
+                         "creation_date", LLSD::Integer(item->getCreationDate()),
+                         "asset_id", item->getAssetUUID(),
+                         "is_link", item->getIsLinkType(),
+                         "linked_id", item->getLinkedUUID());
     }
-}
+};
 
 void LLInventoryListener::getItemsInfo(LLSD const &data)
 {
     Response response(LLSD(), data);
+
+    auto catresult = new CatResultSet;
+    auto itemresult = new ItemResultSet;
 
     uuid_vec_t ids = LLSDParam<uuid_vec_t>(data["item_ids"]);
     for (auto &it : ids)
@@ -122,17 +158,20 @@ void LLInventoryListener::getItemsInfo(LLSD const &data)
         LLViewerInventoryItem* item = gInventory.getItem(it);
         if (item)
         {
-            add_item_info(response, item);
+            itemresult->mItems.push_back(item);
         }
         else
         {
             LLViewerInventoryCategory *cat = gInventory.getCategory(it);
             if (cat)
             {
-                add_cat_info(response, cat);
+                catresult->mCategories.push_back(cat);
             }
         }
     }
+    // Each of categories and items is a { result set key, total length } pair.
+    response["categories"] = catresult->getKeyLength();
+    response["items"] = itemresult->getKeyLength();
 }
 
 void LLInventoryListener::getFolderTypeNames(LLSD const &data)
@@ -151,14 +190,21 @@ void LLInventoryListener::getBasicFolderID(LLSD const &data)
 }
 
 
-void LLInventoryListener::getDirectDescendents(LLSD const &data)
+void LLInventoryListener::getDirectDescendants(LLSD const &data)
 {
     Response response(LLSD(), data);
     LLInventoryModel::cat_array_t* cats;
     LLInventoryModel::item_array_t* items;
     gInventory.getDirectDescendentsOf(data["folder_id"], cats, items);
 
-    add_objects_info(response, *cats, *items);
+    auto catresult = new CatResultSet;
+    auto itemresult = new ItemResultSet;
+
+    catresult->mCategories = *cats;
+    itemresult->mItems = *items;
+
+    response["categories"] = catresult->getKeyLength();
+    response["items"] = itemresult->getKeyLength();
 }
 
 struct LLFilteredCollector : public LLInventoryCollectFunctor
@@ -173,7 +219,11 @@ struct LLFilteredCollector : public LLInventoryCollectFunctor
     LLFilteredCollector(LLSD const &data);
     virtual ~LLFilteredCollector() {}
     virtual bool operator()(LLInventoryCategory *cat, LLInventoryItem *item) override;
-    virtual bool exceedsLimit() override { return (mItemLimit <= mItemCount); };
+    virtual bool exceedsLimit() override
+    {
+        // mItemLimit == 0 means unlimited
+        return (mItemLimit && mItemLimit <= mItemCount);
+    }
 
   protected:
     bool checkagainstType(LLInventoryCategory *cat, LLInventoryItem *item);
@@ -189,7 +239,7 @@ struct LLFilteredCollector : public LLInventoryCollectFunctor
     S32 mItemCount;
 };
 
-void LLInventoryListener::collectDescendentsIf(LLSD const &data)
+void LLInventoryListener::collectDescendantsIf(LLSD const &data)
 {
     Response response(LLSD(), data);
     LLUUID folder_id(data["folder_id"].asUUID());
@@ -198,20 +248,64 @@ void LLInventoryListener::collectDescendentsIf(LLSD const &data)
     {
         return response.error(stringize("Folder ", std::quoted(data["folder_id"].asString()), " was not found"));
     }
-    LLInventoryModel::cat_array_t  cat_array;
-    LLInventoryModel::item_array_t item_array;
+    auto catresult = new CatResultSet;
+    auto itemresult = new ItemResultSet;
 
     LLFilteredCollector collector = LLFilteredCollector(data);
 
-    gInventory.collectDescendentsIf(folder_id, cat_array, item_array, LLInventoryModel::EXCLUDE_TRASH, collector);
+    // Populate results directly into the catresult and itemresult arrays.
+    // TODO: sprinkle count-based coroutine yields into the real
+    // collectDescendentsIf() method so it doesn't steal too many cycles.
+    gInventory.collectDescendentsIf(
+        folder_id,
+        catresult->mCategories,
+        itemresult->mItems,
+        LLInventoryModel::EXCLUDE_TRASH,
+        collector);
 
-    add_objects_info(response, cat_array, item_array);
+    response["categories"] = catresult->getKeyLength();
+    response["items"] = itemresult->getKeyLength();
+}
+
+/*==========================================================================*|
+void LLInventoryListener::getSingle(LLSD const& data)
+{
+    auto result = LL::ResultSet::getInstance(data["result"]);
+    sendReply(llsd::map("single", result->getSingle(data["index"])), data);
+}
+|*==========================================================================*/
+
+void LLInventoryListener::getSlice(LLSD const& data)
+{
+    auto result = LL::ResultSet::getInstance(data["result"]);
+    int count = data.has("count")? data["count"].asInteger() : MAX_ITEM_LIMIT;
+    LL_DEBUGS("Lua") << *result << ".getSlice(" << data["index"].asInteger()
+                     << ", " << count << ')' << LL_ENDL;
+    auto pair{ result->getSliceStart(data["index"], std::min(count, MAX_ITEM_LIMIT)) };
+    sendReply(llsd::map("slice", pair.first, "start", pair.second), data);
+}
+
+void LLInventoryListener::closeResult(LLSD const& data)
+{
+    LLSD results = data["result"];
+    if (results.isInteger())
+    {
+        results = llsd::array(results);
+    }
+    for (const auto& result : llsd::inArray(results))
+    {
+        auto ptr = LL::ResultSet::getInstance(result);
+        if (ptr)
+        {
+            delete ptr.get();
+        }
+    }
 }
 
 LLFilteredCollector::LLFilteredCollector(LLSD const &data) :
     mType(LLAssetType::EType::AT_UNKNOWN),
     mLinkFilter(INCLUDE_LINKS),
-    mItemLimit(MAX_ITEM_LIMIT),
+    mItemLimit(0),
     mItemCount(0)
 {
 
@@ -235,7 +329,7 @@ LLFilteredCollector::LLFilteredCollector(LLSD const &data) :
     }
     if (data["limit"].isInteger())
     {
-        mItemLimit = llclamp(data["limit"].asInteger(), 1, MAX_ITEM_LIMIT);
+        mItemLimit = std::max(data["limit"].asInteger(), 1);
     }
 }
 

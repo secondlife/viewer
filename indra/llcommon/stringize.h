@@ -190,16 +190,4 @@ void destringize_f(std::basic_string<CHARTYPE> const & str, Functor const & f)
     f(in);
 }
 
-/**
- * DESTRINGIZE(str, item1 >> item2 >> item3 ...) effectively expands to the
- * following:
- * @code
- * std::istringstream in(str);
- * in >> item1 >> item2 >> item3 ... ;
- * @endcode
- */
-#define DESTRINGIZE(STR, EXPRESSION) (destringize_f((STR), [&](auto& in){in >> EXPRESSION;}))
-// legacy name, just use DESTRINGIZE() going forward
-#define DEWSTRINGIZE(STR, EXPRESSION) DESTRINGIZE(STR, EXPRESSION)
-
 #endif /* ! defined(LL_STRINGIZE_H) */

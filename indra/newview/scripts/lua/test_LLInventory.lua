@@ -5,7 +5,9 @@ LLInventory = require 'LLInventory'
 my_landmarks_id = LLInventory.getBasicFolderID('landmark')
 -- Get 3 landmarks from the 'My Landmarks' folder (you can see all folder types via LLInventory.getAssetTypeNames())
 landmarks = LLInventory.collectDescendentsIf{folder_id=my_landmarks_id, type="landmark", limit=3}
-print(inspect(landmarks))
+for _, landmark in pairs(landmarks.items) do
+    print(landmark.name)
+end
 
 -- Get 'Calling Cards' folder id
 calling_cards_id = LLInventory.getBasicFolderID('callcard')
@@ -13,9 +15,10 @@ calling_cards_id = LLInventory.getBasicFolderID('callcard')
 calling_cards = LLInventory.getDirectDescendents(calling_cards_id).items
 
 -- Print a random calling card name from 'Calling Cards' folder
-local card_names = {}
-for _, value in pairs(calling_cards) do
-    table.insert(card_names, value.name)
-end
+-- (because getDirectDescendents().items is a Lua result set, selecting
+-- a random entry only fetches one slice containing that entry)
 math.randomseed(os.time())
-print("Random calling card: " .. inspect(card_names[math.random(#card_names)]))
+for i = 1, 5 do
+    pick = math.random(#calling_cards)
+    print(`Random calling card (#{pick} of {#calling_cards}): {calling_cards[pick].name}`)
+end

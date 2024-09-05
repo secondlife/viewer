@@ -339,6 +339,7 @@ auto lua_getfieldv(lua_State* L, int index, const char* k)
 template <typename T>
 auto lua_setfieldv(lua_State* L, int index, const char* k, const T& value)
 {
+    index = lua_absindex(L, index);
     lua_checkdelta(L);
     lluau_checkstack(L, 1);
     lua_push(L, value);
@@ -349,6 +350,7 @@ auto lua_setfieldv(lua_State* L, int index, const char* k, const T& value)
 template <typename T>
 auto lua_rawgetfield(lua_State* L, int index, const std::string_view& k)
 {
+    index = lua_absindex(L, index);
     lua_checkdelta(L);
     lluau_checkstack(L, 1);
     lua_pushlstring(L, k.data(), k.length());
@@ -361,6 +363,7 @@ auto lua_rawgetfield(lua_State* L, int index, const std::string_view& k)
 template <typename T>
 void lua_rawsetfield(lua_State* L, int index, const std::string_view& k, const T& value)
 {
+    index = lua_absindex(L, index);
     lua_checkdelta(L);
     lluau_checkstack(L, 2);
     lua_pushlstring(L, k.data(), k.length());
@@ -459,7 +462,7 @@ DistinctInt TypeTag<T>::value;
  * containing a newly-constructed C++ object T(args...). The userdata has a
  * Luau destructor guaranteeing that the new T instance is destroyed when the
  * userdata is garbage-collected, no later than when the LuaState is
- * destroyed.
+ * destroyed. It may be destroyed explicitly by calling lua_destroyuserdata().
  *
  * Usage:
  * lua_emplace<T>(L, T constructor args...);
@@ -510,6 +513,19 @@ T* lua_toclass(lua_State* L, int index)
     // align our T* within the Lua-provided void*, adjust accordingly.
     return static_cast<T*>(ptr);
 }
+
+/**
+ * Call lua_destroyuserdata() with the doomed userdata on the stack top.
+ * It must have been created by lua_emplace().
+ */
+int lua_destroyuserdata(lua_State* L);
+
+/**
+ * Call lua_pushcclosure(L, lua_destroybounduserdata, 1) with the target
+ * userdata on the stack top. When the resulting C closure is called with no
+ * arguments, the bound userdata is destroyed by lua_destroyuserdata().
+ */
+int lua_destroybounduserdata(lua_State *L);
 
 /*****************************************************************************
 *   lua_what()
