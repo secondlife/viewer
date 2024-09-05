@@ -69,7 +69,7 @@ bool LLFloaterLUADebug::postBuild()
     mLineInput->setCommitCallback(boost::bind(&LLFloaterLUADebug::onExecuteClicked, this));
     mLineInput->setSelectAllonCommit(false);
 
-    return TRUE;
+    return true;
 }
 
 LLFloaterLUADebug::~LLFloaterLUADebug()
