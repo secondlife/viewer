@@ -242,10 +242,7 @@ static void on_avatar_name_cache_start_call(const LLUUID& agent_id,
 {
     std::string name = av_name.getDisplayName();
     LLUUID session_id = gIMMgr->addSession(name, IM_NOTHING_SPECIAL, agent_id, LLSD());
-    if (session_id != LLUUID::null)
-    {
-        gIMMgr->startCall(session_id);
-    }
+    gIMMgr->autoStartCallOnStartup(session_id);
     make_ui_sound("UISndStartIM");
 }
 
