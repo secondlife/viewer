@@ -54,11 +54,6 @@
 #   include "ctype_workaround.h"
 #endif
 
-#ifndef LL_WINDOWS
-#include <gmock/gmock.h>
-#include <gtest/gtest.h>
-#endif
-
 #if LL_MSVC
 #pragma warning (push)
 #pragma warning (disable : 4702) // warning C4702: unreachable code
@@ -523,12 +518,6 @@ static LLTrace::ThreadRecorder* sMasterThreadRecorder = NULL;
 
 int main(int argc, char **argv)
 {
-    // The following line must be executed to initialize Google Mock
-    // (and Google Test) before running the tests.
-#ifndef LL_WINDOWS
-    ::testing::InitGoogleMock(&argc, argv);
-#endif
-
     ll_init_apr();
     apr_getopt_t* os = NULL;
     if(APR_SUCCESS != apr_getopt_init(&os, gAPRPoolp, argc, argv))

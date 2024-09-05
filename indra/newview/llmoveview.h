@@ -48,14 +48,14 @@ private:
     ~LLFloaterMove();
 public:
 
-    /*virtual*/ BOOL    postBuild();
-    /*virtual*/ void    setVisible(BOOL visible);
+    /*virtual*/ bool    postBuild();
+    /*virtual*/ void    setVisible(bool visible);
     static F32  getYawRate(F32 time);
-    static void setFlyingMode(BOOL fly);
-    void setFlyingModeImpl(BOOL fly);
+    static void setFlyingMode(bool fly);
+    void setFlyingModeImpl(bool fly);
     static void setAlwaysRunMode(bool run);
     void setAlwaysRunModeImpl(bool run);
-    static void setSittingMode(BOOL bSitting);
+    static void setSittingMode(bool bSitting);
     static void enableInstance();
     /*virtual*/ void onOpen(const LLSD& key);
 
@@ -86,7 +86,7 @@ private:
     void initModeButtonMap();
     void setModeButtonToggleState(const EMovementMode mode);
     void updateButtonsWithMovementMode(const EMovementMode newMode);
-    void showModeButtons(BOOL bShow);
+    void showModeButtons(bool bShow);
 
 public:
 
@@ -141,13 +141,13 @@ public:
     static LLPanelStandStopFlying* getInstance();
     static void setStandStopFlyingMode(EStandStopFlyingMode mode);
     static void clearStandStopFlyingMode(EStandStopFlyingMode mode);
-    /*virtual*/ BOOL postBuild();
-    /*virtual*/ void setVisible(BOOL visible);
+    /*virtual*/ bool postBuild();
+    /*virtual*/ void setVisible(bool visible);
 
     // *HACK: due to hard enough to have this control aligned with "Move" button while resizing
     // let update its position in each frame
     /*virtual*/ void draw(){updatePosition(); LLPanel::draw();}
-    /*virtual*/ BOOL handleToolTip(S32 x, S32 y, MASK mask);
+    /*virtual*/ bool handleToolTip(S32 x, S32 y, MASK mask);
 
 
 protected:

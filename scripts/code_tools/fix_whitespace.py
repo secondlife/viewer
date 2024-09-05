@@ -55,7 +55,7 @@ def convert_tabs_to_spaces(file_path, tab_stop):
 
         new_lines.append(new_line + '\n')
 
-    with open(file_path, 'w') as file:
+    with open(file_path, 'w', newline='\n') as file:
         file.writelines(new_lines)
 
 def process_directory(directory, extensions, tab_stop):

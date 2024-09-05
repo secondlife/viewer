@@ -3,7 +3,7 @@
  * @author Nat Goodspeed
  * @date   2024-08-12
  * @brief  Throttle class
- * 
+ *
  * $LicenseInfo:firstyear=2024&license=viewerlgpl$
  * Copyright (c) 2024, Linden Research, Inc.
  * $/LicenseInfo$

@@ -40,21 +40,21 @@
 #include "xform.h"
 #include "llmatrix4a.h"
 
-const S32 LL_CHARACTER_MAX_JOINTS_PER_MESH = 15;
+constexpr S32 LL_CHARACTER_MAX_JOINTS_PER_MESH = 15;
 // Need to set this to count of animate-able joints,
 // currently = #bones + #collision_volumes + #attachments + 2,
 // rounded to next multiple of 4.
-const U32 LL_CHARACTER_MAX_ANIMATED_JOINTS = 216; // must be divisible by 4!
-const U32 LL_MAX_JOINTS_PER_MESH_OBJECT = 110;
+constexpr U32 LL_CHARACTER_MAX_ANIMATED_JOINTS = 216; // must be divisible by 4!
+constexpr U32 LL_MAX_JOINTS_PER_MESH_OBJECT = 110;
 
 // These should be higher than the joint_num of any
 // other joint, to avoid conflicts in updateMotionsByType()
-const U32 LL_HAND_JOINT_NUM = (LL_CHARACTER_MAX_ANIMATED_JOINTS-1);
-const U32 LL_FACE_JOINT_NUM = (LL_CHARACTER_MAX_ANIMATED_JOINTS-2);
-const S32 LL_CHARACTER_MAX_PRIORITY = 7;
-const F32 LL_MAX_PELVIS_OFFSET = 5.f;
+constexpr U32 LL_HAND_JOINT_NUM = (LL_CHARACTER_MAX_ANIMATED_JOINTS-1);
+constexpr U32 LL_FACE_JOINT_NUM = (LL_CHARACTER_MAX_ANIMATED_JOINTS-2);
+constexpr S32 LL_CHARACTER_MAX_PRIORITY = 7;
+constexpr F32 LL_MAX_PELVIS_OFFSET = 5.f;
 
-const F32 LL_JOINT_TRESHOLD_POS_OFFSET = 0.0001f; //0.1 mm
+constexpr F32 LL_JOINT_TRESHOLD_POS_OFFSET = 0.0001f; //0.1 mm
 
 class LLVector3OverrideMap
 {
@@ -133,7 +133,7 @@ protected:
 
 public:
     U32             mDirtyFlags;
-    BOOL            mUpdateXform;
+    bool            mUpdateXform;
 
     // describes the skin binding pose
     LLVector3       mSkinOffset;
@@ -280,7 +280,7 @@ public:
 
     void clampRotation(LLQuaternion old_rot, LLQuaternion new_rot);
 
-    virtual BOOL isAnimatable() const { return TRUE; }
+    virtual bool isAnimatable() const { return true; }
 
     void addAttachmentPosOverride( const LLVector3& pos, const LLUUID& mesh_id, const std::string& av_info, bool& active_override_changed );
     void removeAttachmentPosOverride( const LLUUID& mesh_id, const std::string& av_info, bool& active_override_changed );

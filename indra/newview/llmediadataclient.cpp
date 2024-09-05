@@ -420,7 +420,7 @@ LLMediaDataClient::QueueTimer::QueueTimer(F32 time, LLMediaDataClient *mdc)
 // virtual
 bool LLMediaDataClient::QueueTimer::tick()
 {
-    bool result = TRUE;
+    bool result = true;
 
     if (!mMDC.isNull())
     {
@@ -692,7 +692,7 @@ void LLObjectMediaDataClient::sortQueue()
         mQueue.sort(compareRequestScores);
 
         // ...then cull items over the max
-        U32 size = mQueue.size();
+        U32 size = static_cast<U32>(mQueue.size());
         if (size > mMaxSortedQueueSize)
         {
             U32 num_to_cull = (size - mMaxSortedQueueSize);

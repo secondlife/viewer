@@ -52,18 +52,18 @@ public:
 
     // LLView
     /*virtual*/ void draw();
-    /*virtual*/ BOOL handleKeyHere(KEY key, MASK mask);
-    /*virtual*/ BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+    /*virtual*/ bool handleKeyHere(KEY key, MASK mask);
+    /*virtual*/ bool handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
                                      EDragAndDropType cargo_type,
                                      void* cargo_data,
                                      EAcceptance* accept,
                                      std::string& tooltip_msg);
 
     // LLPanel
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
 
     // LLFloater
-    /*virtual*/ BOOL canClose();
+    /*virtual*/ bool canClose();
     /*virtual*/ void onClose(bool app_quitting);
     /*virtual*/ void onUpdateSucceeded();
     /*virtual*/ void refresh();
@@ -164,7 +164,7 @@ private:
     LLButton*           mPreviewBtn;
 
     LLMultiGesture*     mPreviewGesture;
-    BOOL mDirty;
+    bool mDirty;
 };
 
 #endif // LL_LLPREVIEWGESTURE_H

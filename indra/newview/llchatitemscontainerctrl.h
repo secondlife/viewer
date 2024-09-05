@@ -69,15 +69,15 @@ public:
 
     void    onMouseLeave    (S32 x, S32 y, MASK mask);
     void    onMouseEnter    (S32 x, S32 y, MASK mask);
-    BOOL    handleMouseDown (S32 x, S32 y, MASK mask);
-    BOOL    handleMouseUp   (S32 x, S32 y, MASK mask);
+    bool    handleMouseDown (S32 x, S32 y, MASK mask);
+    bool    handleMouseUp   (S32 x, S32 y, MASK mask);
 
-    virtual BOOL postBuild();
+    virtual bool postBuild();
 
-    void    reshape     (S32 width, S32 height, BOOL called_from_parent = TRUE);
+    void    reshape     (S32 width, S32 height, bool called_from_parent = true);
 
     void    setHeaderVisibility(EShowItemHeader e);
-    BOOL    handleRightMouseDown(S32 x, S32 y, MASK mask);
+    bool    handleRightMouseDown(S32 x, S32 y, MASK mask);
 
     virtual void init(LLSD& data);
     virtual void addMessage(LLSD& data);

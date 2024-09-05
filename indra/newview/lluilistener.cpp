@@ -3,25 +3,25 @@
  * @author Nat Goodspeed
  * @date   2009-08-18
  * @brief  Implementation for lluilistener.
- * 
+ *
  * $LicenseInfo:firstyear=2009&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -93,7 +93,7 @@ LLUIListener::LLUIListener():
         "to the [\"parent_menu\"] within the Top menu.",
         &LLUIListener::addMenuItem,
         required_args.with("func", LLSD()));
-    
+
     add("addMenuSeparator",
         "Add menu separator to the [\"parent_menu\"] within the Top menu.",
         &LLUIListener::addMenuSeparator,
@@ -147,7 +147,7 @@ void LLUIListener::call(const LLSD& event)
     {
         return response.error(stringize("Function ", std::quoted(event["function"].asString()), " was not found"));
     }
-    if (info->handle_untrusted == cb_info::UNTRUSTED_BLOCK) 
+    if (info->handle_untrusted == cb_info::UNTRUSTED_BLOCK)
     {
         return response.error(stringize("Function ", std::quoted(event["function"].asString()), " may not be called from the script"));
     }
@@ -226,7 +226,7 @@ void LLUIListener::getValue(const LLSD& event) const
     const LLView* view = LLUI::getInstance()->resolvePath(root, event["path"].asString());
     const LLUICtrl* ctrl(dynamic_cast<const LLUICtrl*>(view));
 
-    if (ctrl) 
+    if (ctrl)
     {
         response["value"] = ctrl->getValue();
     }

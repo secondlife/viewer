@@ -73,10 +73,10 @@ LLCircuitData::LLCircuitData(const LLHost &host, TPACKETID in_id,
     mHighestPacketID(in_id),
     mTimeoutCallback(NULL),
     mTimeoutUserData(NULL),
-    mTrusted(FALSE),
-    mbAllowTimeout(TRUE),
-    mbAlive(TRUE),
-    mBlocked(FALSE),
+    mTrusted(false),
+    mbAllowTimeout(true),
+    mbAlive(true),
+    mBlocked(false),
     mPingTime(0.0),
     mLastPingSendTime(0.0),
     mLastPingReceivedTime(0.0),
@@ -111,7 +111,7 @@ LLCircuitData::LLCircuitData(const LLHost &host, TPACKETID in_id,
 {
     // Need to guarantee that this time is up to date, we may be creating a circuit even though we haven't been
     //  running a message system loop.
-    F64Seconds mt_sec = LLMessageSystem::getMessageTimeSeconds(TRUE);
+    F64Seconds mt_sec = LLMessageSystem::getMessageTimeSeconds(true);
     F32 distribution_offset = ll_frand();
 
     mPingTime = mt_sec;
@@ -282,7 +282,7 @@ S32 LLCircuitData::resendUnackedPackets(const F64Seconds now)
     //
 
     reliable_iter iter;
-    BOOL have_resend_overflow = FALSE;
+    bool have_resend_overflow = false;
     for (iter = mUnackedPackets.begin(); iter != mUnackedPackets.end();)
     {
         packetp = iter->second;
@@ -488,7 +488,7 @@ void LLCircuit::removeCircuitData(const LLHost &host)
     mLastCircuit = NULL;
 }
 
-void LLCircuitData::setAlive(BOOL b_alive)
+void LLCircuitData::setAlive(bool b_alive)
 {
     if (mbAlive != b_alive)
     {
@@ -500,12 +500,12 @@ void LLCircuitData::setAlive(BOOL b_alive)
     {
         mLastPingReceivedTime = LLMessageSystem::getMessageTimeSeconds();
         mPingsInTransit = 0;
-        mBlocked = FALSE;
+        mBlocked = false;
     }
 }
 
 
-void LLCircuitData::setAllowTimeout(BOOL allow)
+void LLCircuitData::setAllowTimeout(bool allow)
 {
     mbAllowTimeout = allow;
 
@@ -513,7 +513,7 @@ void LLCircuitData::setAllowTimeout(BOOL allow)
     {
         // resuming circuit
         // make sure it's alive
-        setAlive(TRUE);
+        setAlive(true);
     }
 }
 
@@ -599,7 +599,7 @@ void LLCircuit::resendUnackedPackets(S32& unacked_list_length, S32& unacked_list
 }
 
 
-BOOL LLCircuitData::isDuplicateResend(TPACKETID packetnum)
+bool LLCircuitData::isDuplicateResend(TPACKETID packetnum)
 {
     return (mRecentlyReceivedReliablePackets.find(packetnum) != mRecentlyReceivedReliablePackets.end());
 }
@@ -632,7 +632,7 @@ LLCircuitData* LLCircuit::findCircuit(const LLHost& host) const
 }
 
 
-BOOL LLCircuit::isCircuitAlive(const LLHost& host) const
+bool LLCircuit::isCircuitAlive(const LLHost& host) const
 {
     LLCircuitData *cdp = findCircuit(host);
     if(cdp)
@@ -640,7 +640,7 @@ BOOL LLCircuit::isCircuitAlive(const LLHost& host) const
         return cdp->mbAlive;
     }
 
-    return FALSE;
+    return false;
 }
 
 void LLCircuitData::setTimeoutCallback(void (*callback_func)(const LLHost &host, void *user_data), void *user_data)
@@ -649,7 +649,7 @@ void LLCircuitData::setTimeoutCallback(void (*callback_func)(const LLHost &host,
     mTimeoutUserData = user_data;
 }
 
-void LLCircuitData::checkPacketInID(TPACKETID id, BOOL receive_resent)
+void LLCircuitData::checkPacketInID(TPACKETID id, bool receive_resent)
 {
     // Done as floats so we don't have to worry about running out of room
     // with U32 getting poked into an S32.
@@ -781,8 +781,8 @@ void LLCircuitData::checkPacketInID(TPACKETID id, BOOL receive_resent)
 void LLCircuit::updateWatchDogTimers(LLMessageSystem *msgsys)
 {
     F64Seconds cur_time = LLMessageSystem::getMessageTimeSeconds();
-    S32 count = mPingSet.size();
-    S32 cur = 0;
+    size_t count = mPingSet.size();
+    size_t cur = 0;
 
     // Only process each circuit once at most, stop processing if no circuits
     while((cur < count) && !mPingSet.empty())
@@ -844,7 +844,7 @@ void LLCircuit::updateWatchDogTimers(LLMessageSystem *msgsys)
 }
 
 
-BOOL LLCircuitData::updateWatchDogTimers(LLMessageSystem *msgsys)
+bool LLCircuitData::updateWatchDogTimers(LLMessageSystem *msgsys)
 {
     F64Seconds cur_time = LLMessageSystem::getMessageTimeSeconds();
     mLastPingSendTime = cur_time;
@@ -852,7 +852,7 @@ BOOL LLCircuitData::updateWatchDogTimers(LLMessageSystem *msgsys)
     if (!checkCircuitTimeout())
     {
         // Pass this back to the calling LLCircuit, this circuit needs to be cleaned up.
-        return FALSE;
+        return false;
     }
 
     // WARNING!
@@ -866,7 +866,7 @@ BOOL LLCircuitData::updateWatchDogTimers(LLMessageSystem *msgsys)
     // This is to handle the case if we actually manage to wrap our
     // packet IDs - the oldest will actually have a higher packet ID
     // than the current.
-    BOOL wrapped = FALSE;
+    bool wrapped = false;
     reliable_iter iter;
     iter = mUnackedPackets.upper_bound(getPacketOutID());
     if (iter == mUnackedPackets.end())
@@ -874,19 +874,19 @@ BOOL LLCircuitData::updateWatchDogTimers(LLMessageSystem *msgsys)
         // Nothing AFTER this one, so we want the lowest packet ID
         // then.
         iter = mUnackedPackets.begin();
-        wrapped = TRUE;
+        wrapped = true;
     }
 
     TPACKETID packet_id = 0;
 
     // Check against the "final" packets
-    BOOL wrapped_final = FALSE;
+    bool wrapped_final = false;
     reliable_iter iter_final;
     iter_final = mFinalRetryPackets.upper_bound(getPacketOutID());
     if (iter_final == mFinalRetryPackets.end())
     {
         iter_final = mFinalRetryPackets.begin();
-        wrapped_final = TRUE;
+        wrapped_final = true;
     }
 
     //LL_INFOS() << mHost << " - unacked count " << mUnackedPackets.size() << LL_ENDL;
@@ -922,12 +922,12 @@ BOOL LLCircuitData::updateWatchDogTimers(LLMessageSystem *msgsys)
         }
         else
         {
-            BOOL had_unacked = FALSE;
+            bool had_unacked = false;
             if (iter != mUnackedPackets.end())
             {
                 // Unacked list has the lowest so far
                 packet_id = iter->first;
-                had_unacked = TRUE;
+                had_unacked = true;
                 //LL_INFOS() << mHost << ": Unacked" << LL_ENDL;
             }
 
@@ -989,7 +989,7 @@ BOOL LLCircuitData::updateWatchDogTimers(LLMessageSystem *msgsys)
         }
     }
 
-    return TRUE;
+    return true;
 }
 
 
@@ -1041,7 +1041,7 @@ void LLCircuitData::clearDuplicateList(TPACKETID oldest_id)
     //LL_INFOS() << "Recent list after: " << mRecentlyReceivedReliablePackets.size() << LL_ENDL;
 }
 
-BOOL LLCircuitData::checkCircuitTimeout()
+bool LLCircuitData::checkCircuitTimeout()
 {
     F64Seconds time_since_last_ping = LLMessageSystem::getMessageTimeSeconds() - mLastPingReceivedTime;
 
@@ -1049,7 +1049,7 @@ BOOL LLCircuitData::checkCircuitTimeout()
     if (time_since_last_ping > mHeartbeatTimeout)
     {
         LL_WARNS() << "LLCircuitData::checkCircuitTimeout for " << mHost << " last ping " << time_since_last_ping << " seconds ago." <<LL_ENDL;
-        setAlive(FALSE);
+        setAlive(false);
         if (mTimeoutCallback)
         {
             LL_WARNS() << "LLCircuitData::checkCircuitTimeout for " << mHost << " calling callback." << LL_ENDL;
@@ -1059,16 +1059,16 @@ BOOL LLCircuitData::checkCircuitTimeout()
         {
             // The callback didn't try and resurrect the circuit.  We should kill it.
             LL_WARNS() << "LLCircuitData::checkCircuitTimeout for " << mHost << " still dead, dropping." << LL_ENDL;
-            return FALSE;
+            return false;
         }
     }
 
-    return TRUE;
+    return true;
 }
 
 // Call this method when a reliable message comes in - this will
 // correctly place the packet in the correct list to be acked later.
-BOOL LLCircuitData::collectRAck(TPACKETID packet_num)
+bool LLCircuitData::collectRAck(TPACKETID packet_num)
 {
     if (mAcks.empty())
     {
@@ -1081,7 +1081,7 @@ BOOL LLCircuitData::collectRAck(TPACKETID packet_num)
     {
         mAckCreationTime = getAgeInSeconds();
     }
-    return TRUE;
+    return true;
 }
 
 // this method is called during the message system processAcks() to
@@ -1273,7 +1273,7 @@ void LLCircuitData::pingTimerStop(const U8 ping_id)
     {
         // Ack, we got our ping response on the same frame! Sigh, let's get a real time otherwise
         // all of our ping calculations will be skewed.
-        mt_secs = LLMessageSystem::getMessageTimeSeconds(TRUE);
+        mt_secs = LLMessageSystem::getMessageTimeSeconds(true);
     }
     mLastPingReceivedTime = mt_secs;
 
@@ -1291,7 +1291,7 @@ void LLCircuitData::pingTimerStop(const U8 ping_id)
     mPingsInTransit = delta_ping;
     if (mBlocked && (mPingsInTransit <= PING_RELEASE_BLOCK))
     {
-        mBlocked = FALSE;
+        mBlocked = false;
     }
 }
 
@@ -1303,7 +1303,7 @@ void LLCircuitData::pingTimerStart()
 
     if (!mBlocked && (mPingsInTransit > PING_START_BLOCK))
     {
-        mBlocked = TRUE;
+        mBlocked = true;
     }
 }
 
@@ -1344,19 +1344,19 @@ U32 LLCircuitData::getPacketsLost() const
 }
 
 
-BOOL LLCircuitData::isAlive() const
+bool LLCircuitData::isAlive() const
 {
     return mbAlive;
 }
 
 
-BOOL LLCircuitData::isBlocked() const
+bool LLCircuitData::isBlocked() const
 {
     return mBlocked;
 }
 
 
-BOOL LLCircuitData::getAllowTimeout() const
+bool LLCircuitData::getAllowTimeout() const
 {
     return mbAllowTimeout;
 }
@@ -1402,13 +1402,13 @@ F32Milliseconds LLCircuitData::getPingDelayAveraged()
 }
 
 
-BOOL LLCircuitData::getTrusted() const
+bool LLCircuitData::getTrusted() const
 {
     return mTrusted;
 }
 
 
-void LLCircuitData::setTrusted(BOOL t)
+void LLCircuitData::setTrusted(bool t)
 {
     mTrusted = t;
 }

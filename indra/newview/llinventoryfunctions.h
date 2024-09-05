@@ -43,14 +43,14 @@ const S32 COMPUTE_STOCK_NOT_EVALUATED = -2;
  **/
 
 // Is this a parent folder to a worn item
-BOOL get_is_parent_to_worn_item(const LLUUID& id);
+bool get_is_parent_to_worn_item(const LLUUID& id);
 
 // Is this item or its baseitem is worn, attached, etc...
-BOOL get_is_item_worn(const LLUUID& id);
-BOOL get_is_item_worn(const LLViewerInventoryItem* item);
+bool get_is_item_worn(const LLUUID& id);
+bool get_is_item_worn(const LLViewerInventoryItem* item);
 
 // Could this item be worn (correct type + not already being worn)
-BOOL get_can_item_be_worn(const LLUUID& id);
+bool get_can_item_be_worn(const LLUUID& id);
 
 bool get_is_item_removable(const LLInventoryModel* model, const LLUUID& id, bool check_worn);
 
@@ -58,10 +58,10 @@ bool get_is_item_removable(const LLInventoryModel* model, const LLUUID& id, bool
 bool get_is_item_editable(const LLUUID& inv_item_id);
 void handle_item_edit(const LLUUID& inv_item_id);
 
-BOOL get_is_category_removable(const LLInventoryModel* model, const LLUUID& id);
+bool get_is_category_removable(const LLInventoryModel* model, const LLUUID& id);
 bool get_is_category_and_children_removable(LLInventoryModel* model, const LLUUID& folder_id, bool check_worn);
 
-BOOL get_is_category_renameable(const LLInventoryModel* model, const LLUUID& id);
+bool get_is_category_renameable(const LLInventoryModel* model, const LLUUID& id);
 
 void show_item_profile(const LLUUID& item_uuid);
 void show_task_item_profile(const LLUUID& item_uuid, const LLUUID& object_id);
@@ -110,7 +110,7 @@ bool is_only_cats_selected(const uuid_vec_t& selected_uuids);
 bool is_only_items_selected(const uuid_vec_t& selected_uuids);
 std::string get_category_path(LLUUID cat_id);
 
-bool can_move_to_outfit(LLInventoryItem* inv_item, BOOL move_is_into_current_outfit);
+bool can_move_to_outfit(LLInventoryItem* inv_item, bool move_is_into_current_outfit);
 bool can_move_to_landmarks(LLInventoryItem* inv_item);
 bool can_move_to_my_outfits(LLInventoryModel* model, LLInventoryCategory* inv_cat, U32 wear_limit);
 std::string get_localized_folder_name(LLUUID cat_uuid);
@@ -180,7 +180,7 @@ private:
 // Base class for LLInventoryModel::collectDescendentsIf() method
 // which accepts an instance of one of these objects to use as the
 // function to determine if it should be added. Derive from this class
-// and override the () operator to return TRUE if you want to collect
+// and override the () operator to return true if you want to collect
 // the category or item passed in.
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 class LLInventoryCollectFunctor
@@ -232,7 +232,7 @@ protected:
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLIsType
 //
-// Implementation of a LLInventoryCollectFunctor which returns TRUE if
+// Implementation of a LLInventoryCollectFunctor which returns true if
 // the type is the type passed in during construction.
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -250,7 +250,7 @@ protected:
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLIsNotType
 //
-// Implementation of a LLInventoryCollectFunctor which returns FALSE if the
+// Implementation of a LLInventoryCollectFunctor which returns false if the
 // type is the type passed in during construction, otherwise false.
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 class LLIsNotType : public LLInventoryCollectFunctor
@@ -267,7 +267,7 @@ protected:
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLIsOfAssetType
 //
-// Implementation of a LLInventoryCollectFunctor which returns TRUE if
+// Implementation of a LLInventoryCollectFunctor which returns true if
 // the item or category is of asset type passed in during construction.
 // Link types are treated as links, not as the types they point to.
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -286,7 +286,7 @@ protected:
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLAssetIDAndTypeMatches
 //
-// Implementation of a LLInventoryCollectFunctor which returns TRUE if
+// Implementation of a LLInventoryCollectFunctor which returns true if
 // the item matches both asset type and asset id.
 // This is needed in case you are looking for a specific type with default id
 // (since null is default for multiple asset types)
@@ -590,13 +590,13 @@ class LLInventoryState
 {
 public:
     // HACK: Until we can route this info through the instant message hierarchy
-    static BOOL sWearNewClothing;
+    static bool sWearNewClothing;
     static LLUUID sWearNewClothingTransactionID;    // wear all clothing in this transaction
 };
 
 struct LLInventoryAction
 {
-    static void doToSelected(LLInventoryModel* model, LLFolderView* root, const std::string& action, BOOL user_confirm = TRUE);
+    static void doToSelected(LLInventoryModel* model, LLFolderView* root, const std::string& action, bool user_confirm = true);
     static void callback_doToSelected(const LLSD& notification, const LLSD& response, class LLInventoryModel* model, class LLFolderView* root, const std::string& action);
     static void callback_copySelected(const LLSD& notification, const LLSD& response, class LLInventoryModel* model, class LLFolderView* root, const std::string& action);
     static void onItemsRemovalConfirmation(const LLSD& notification, const LLSD& response, LLHandle<LLFolderView> root);

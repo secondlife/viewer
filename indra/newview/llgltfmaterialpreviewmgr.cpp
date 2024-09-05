@@ -118,7 +118,7 @@ namespace
             }
             else
             {
-                img = LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+                img = LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, true, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
             }
         }
         if (img)
@@ -185,7 +185,7 @@ namespace
 };  // namespace
 
 LLGLTFPreviewTexture::LLGLTFPreviewTexture(LLPointer<LLFetchedGLTFMaterial> material, S32 width)
-    : LLViewerDynamicTexture(width, width, 4, EOrder::ORDER_MIDDLE, FALSE)
+    : LLViewerDynamicTexture(width, width, 4, EOrder::ORDER_MIDDLE, false)
     , mGLTFMaterial(material)
 {
 }
@@ -196,7 +196,7 @@ LLPointer<LLGLTFPreviewTexture> LLGLTFPreviewTexture::create(LLPointer<LLFetched
     return new LLGLTFPreviewTexture(material, LLPipeline::MAX_BAKE_WIDTH);
 }
 
-BOOL LLGLTFPreviewTexture::needsRender()
+bool LLGLTFPreviewTexture::needsRender()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
 
@@ -211,7 +211,7 @@ BOOL LLGLTFPreviewTexture::needsRender()
     return false;
 }
 
-void LLGLTFPreviewTexture::preRender(BOOL clear_depth)
+void LLGLTFPreviewTexture::preRender(bool clear_depth)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
 
@@ -393,7 +393,7 @@ void fixup_shader_constants(LLGLSLShader& shader)
         const S32 channel = shader.getTextureChannel(LLShaderMgr::DEFERRED_SHADOW0+i);
         if (channel != -1)
         {
-            gGL.getTexUnit(channel)->bind(LLViewerFetchedTexture::sWhiteImagep, TRUE);
+            gGL.getTexUnit(channel)->bind(LLViewerFetchedTexture::sWhiteImagep, true);
         }
     }
 }
@@ -419,11 +419,11 @@ struct SetTemporarily
 
 }; // namespace
 
-BOOL LLGLTFPreviewTexture::render()
+bool LLGLTFPreviewTexture::render()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
 
-    if (!mShouldRender) { return FALSE; }
+    if (!mShouldRender) { return false; }
 
     glClearColor(0, 0, 0, 0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -464,7 +464,7 @@ BOOL LLGLTFPreviewTexture::render()
     camera.lookAt(origin, object_position);
     camera.setAspect(mFullHeight / mFullWidth);
     const LLRect texture_rect(0, mFullHeight, mFullWidth, 0);
-    camera.setPerspective(NOT_FOR_SELECTION, texture_rect.mLeft, texture_rect.mBottom, texture_rect.getWidth(), texture_rect.getHeight(), FALSE, camera.getNear(), MAX_FAR_CLIP*2.f);
+    camera.setPerspective(NOT_FOR_SELECTION, texture_rect.mLeft, texture_rect.mBottom, texture_rect.getWidth(), texture_rect.getHeight(), false, camera.getNear(), MAX_FAR_CLIP*2.f);
 
     // Generate sphere object on-the-fly. Discard afterwards. (Vertex buffer is
     // discarded, but the sphere should be cached in LLVolumeMgr.)
@@ -554,10 +554,10 @@ BOOL LLGLTFPreviewTexture::render()
     gPipeline.mReflectionMapManager.forceDefaultProbeAndUpdateUniforms(false);
     gSavedSettings.set<S32>("RenderLocalLightCount", old_local_light_count);
 
-    return TRUE;
+    return true;
 }
 
-void LLGLTFPreviewTexture::postRender(BOOL success)
+void LLGLTFPreviewTexture::postRender(bool success)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
 

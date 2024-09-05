@@ -193,15 +193,15 @@ protected:
 
     void updateMenuItemsVisibility(LLContextMenu* menu)
     {
-        menu->setItemVisible("touch_attach", TRUE);
+        menu->setItemVisible("touch_attach", true);
         menu->setItemEnabled("touch_attach", 1 == mUUIDs.size());
-        menu->setItemVisible("edit_item", TRUE);
+        menu->setItemVisible("edit_item", true);
         menu->setItemEnabled("edit_item", 1 == mUUIDs.size());
-        menu->setItemVisible("take_off", FALSE);
-        menu->setItemVisible("detach", TRUE);
-        menu->setItemVisible("edit_outfit_separator", FALSE);
-        menu->setItemVisible("show_original", FALSE);
-        menu->setItemVisible("edit_outfit", FALSE);
+        menu->setItemVisible("take_off", false);
+        menu->setItemVisible("detach", true);
+        menu->setItemVisible("edit_outfit_separator", false);
+        menu->setItemVisible("show_original", false);
+        menu->setItemVisible("edit_outfit", false);
     }
 
     LLPanelWearing*         mPanelWearing;
@@ -234,7 +234,7 @@ LLPanelWearing::~LLPanelWearing()
     }
 }
 
-BOOL LLPanelWearing::postBuild()
+bool LLPanelWearing::postBuild()
 {
     mAccordionCtrl = getChild<LLAccordionCtrl>("wearables_accordion");
     mWearablesTab = getChild<LLAccordionCtrlTab>("tab_wearables");
@@ -253,7 +253,7 @@ BOOL LLPanelWearing::postBuild()
 
     menu_gear_btn->setMenu(mGearMenu->getMenu());
 
-    return TRUE;
+    return true;
 }
 
 //virtual
@@ -478,11 +478,11 @@ void LLPanelWearing::getAttachmentLimitsCoro(std::string url)
 void LLPanelWearing::setAttachmentDetails(LLSD content)
 {
     mObjectNames.clear();
-    S32 number_attachments = content["attachments"].size();
-    for(int i = 0; i < number_attachments; i++)
+    auto number_attachments = content["attachments"].size();
+    for(size_t i = 0; i < number_attachments; i++)
     {
-        S32 number_objects = content["attachments"][i]["objects"].size();
-        for(int j = 0; j < number_objects; j++)
+        auto number_objects = content["attachments"][i]["objects"].size();
+        for(size_t j = 0; j < number_objects; j++)
         {
             LLUUID task_id = content["attachments"][i]["objects"][j]["id"].asUUID();
             std::string name = content["attachments"][i]["objects"][j]["name"].asString();
@@ -594,6 +594,6 @@ void LLPanelWearing::copyToClipboard()
         }
     }
 
-    LLClipboard::instance().copyToClipboard(utf8str_to_wstring(text),0,text.size());
+    LLClipboard::instance().copyToClipboard(utf8str_to_wstring(text), 0, static_cast<S32>(text.size()));
 }
 // EOF

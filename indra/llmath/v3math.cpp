@@ -53,27 +53,27 @@ const LLVector3 LLVector3::all_one(1.f,1.f,1.f);
 
 
 // Clamps each values to range (min,max).
-// Returns TRUE if data changed.
-BOOL LLVector3::clamp(F32 min, F32 max)
+// Returns true if data changed.
+bool LLVector3::clamp(F32 min, F32 max)
 {
-    BOOL ret = FALSE;
+    bool ret{ false };
 
-    if (mV[0] < min) { mV[0] = min; ret = TRUE; }
-    if (mV[1] < min) { mV[1] = min; ret = TRUE; }
-    if (mV[2] < min) { mV[2] = min; ret = TRUE; }
+    if (mV[0] < min) { mV[0] = min; ret = true; }
+    if (mV[1] < min) { mV[1] = min; ret = true; }
+    if (mV[2] < min) { mV[2] = min; ret = true; }
 
-    if (mV[0] > max) { mV[0] = max; ret = TRUE; }
-    if (mV[1] > max) { mV[1] = max; ret = TRUE; }
-    if (mV[2] > max) { mV[2] = max; ret = TRUE; }
+    if (mV[0] > max) { mV[0] = max; ret = true; }
+    if (mV[1] > max) { mV[1] = max; ret = true; }
+    if (mV[2] > max) { mV[2] = max; ret = true; }
 
     return ret;
 }
 
 // Clamps length to an upper limit.
-// Returns TRUE if the data changed
-BOOL LLVector3::clampLength( F32 length_limit )
+// Returns true if the data changed
+bool LLVector3::clampLength( F32 length_limit )
 {
-    BOOL changed = FALSE;
+    bool changed{ false };
 
     F32 len = length();
     if (llfinite(len))
@@ -88,7 +88,7 @@ BOOL LLVector3::clampLength( F32 length_limit )
             mV[0] *= length_limit;
             mV[1] *= length_limit;
             mV[2] *= length_limit;
-            changed = TRUE;
+            changed = true;
         }
     }
     else
@@ -108,7 +108,7 @@ BOOL LLVector3::clampLength( F32 length_limit )
             {
                 // no it can't be salvaged --> clear it
                 clear();
-                changed = TRUE;
+                changed = true;
                 break;
             }
         }
@@ -134,31 +134,31 @@ BOOL LLVector3::clampLength( F32 length_limit )
     return changed;
 }
 
-BOOL LLVector3::clamp(const LLVector3 &min_vec, const LLVector3 &max_vec)
+bool LLVector3::clamp(const LLVector3 &min_vec, const LLVector3 &max_vec)
 {
-    BOOL ret = FALSE;
+    bool ret{ false };
 
-    if (mV[0] < min_vec[0]) { mV[0] = min_vec[0]; ret = TRUE; }
-    if (mV[1] < min_vec[1]) { mV[1] = min_vec[1]; ret = TRUE; }
-    if (mV[2] < min_vec[2]) { mV[2] = min_vec[2]; ret = TRUE; }
+    if (mV[0] < min_vec[0]) { mV[0] = min_vec[0]; ret = true; }
+    if (mV[1] < min_vec[1]) { mV[1] = min_vec[1]; ret = true; }
+    if (mV[2] < min_vec[2]) { mV[2] = min_vec[2]; ret = true; }
 
-    if (mV[0] > max_vec[0]) { mV[0] = max_vec[0]; ret = TRUE; }
-    if (mV[1] > max_vec[1]) { mV[1] = max_vec[1]; ret = TRUE; }
-    if (mV[2] > max_vec[2]) { mV[2] = max_vec[2]; ret = TRUE; }
+    if (mV[0] > max_vec[0]) { mV[0] = max_vec[0]; ret = true; }
+    if (mV[1] > max_vec[1]) { mV[1] = max_vec[1]; ret = true; }
+    if (mV[2] > max_vec[2]) { mV[2] = max_vec[2]; ret = true; }
 
     return ret;
 }
 
 
 // Sets all values to absolute value of their original values
-// Returns TRUE if data changed
-BOOL LLVector3::abs()
+// Returns true if data changed
+bool LLVector3::abs()
 {
-    BOOL ret = FALSE;
+    bool ret{ false };
 
-    if (mV[0] < 0.f) { mV[0] = -mV[0]; ret = TRUE; }
-    if (mV[1] < 0.f) { mV[1] = -mV[1]; ret = TRUE; }
-    if (mV[2] < 0.f) { mV[2] = -mV[2]; ret = TRUE; }
+    if (mV[0] < 0.f) { mV[0] = -mV[0]; ret = true; }
+    if (mV[1] < 0.f) { mV[1] = -mV[1]; ret = true; }
+    if (mV[2] < 0.f) { mV[2] = -mV[2]; ret = true; }
 
     return ret;
 }
@@ -358,11 +358,11 @@ const LLVector3& operator*=(LLVector3 &a, const LLQuaternion &rot)
 }
 
 // static
-BOOL LLVector3::parseVector3(const std::string& buf, LLVector3* value)
+bool LLVector3::parseVector3(const std::string& buf, LLVector3* value)
 {
-    if( buf.empty() || value == NULL)
+    if( buf.empty() || value == nullptr)
     {
-        return FALSE;
+        return false;
     }
 
     LLVector3 v;
@@ -370,10 +370,10 @@ BOOL LLVector3::parseVector3(const std::string& buf, LLVector3* value)
     if( 3 == count )
     {
         value->setVec( v );
-        return TRUE;
+        return true;
     }
 
-    return FALSE;
+    return false;
 }
 
 // Displacement from query point to nearest neighbor point on bounding box.

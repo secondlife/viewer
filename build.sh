@@ -170,7 +170,7 @@ pre_build()
         # This name is consumed by indra/newview/CMakeLists.txt. Make it
         # absolute because we've had troubles with relative pathnames.
         abs_build_dir="$(cd "$build_dir"; pwd)"
-        VIEWER_SYMBOL_FILE="$(native_path "$abs_build_dir/newview/$variant/secondlife-symbols-$symplat-${AUTOBUILD_ADDRSIZE}.tar.xz")"
+        VIEWER_SYMBOL_FILE="$(native_path "$abs_build_dir/symbols/$variant/${viewer_channel}.sym.tar.xz")"
     fi
 
     # honor autobuild_configure_parameters same as sling-buildscripts
@@ -199,14 +199,14 @@ package_llphysicsextensions_tpv()
   tpv_status=0
   # nat 2016-12-21: without HAVOK, can't build PhysicsExtensions_TPV.
   if [ "$variant" = "Release" -a "${HAVOK:-}" != "OFF" ]
-  then 
+  then
       tpvconfig="$build_dir/packages/llphysicsextensions/autobuild-tpv.xml"
       test -r "$tpvconfig" || fatal "No llphysicsextensions_tpv autobuild configuration found"
       # SL-19942: autobuild ignores -c switch if AUTOBUILD_CONFIGURATION set
       unset AUTOBUILD_CONFIGURATION
       "$autobuild" build --quiet --config-file "$(native_path "$tpvconfig")" -c Tpv \
           || fatal "failed to build llphysicsextensions_tpv"
-      
+
       # capture the package file name for use in upload later...
       PKGTMP=`mktemp -t pgktpv.XXXXXX`
       cleanup="$cleanup ; rm $PKGTMP* 2>/dev/null"
@@ -239,7 +239,7 @@ build()
     || fatal "failed building $variant"
     echo true >"$build_dir"/build_ok
     end_section "autobuild $variant"
-    
+
     begin_section "extensions $variant"
     # Run build extensions
     if [ -d ${build_dir}/packages/build-extensions ]
@@ -312,7 +312,7 @@ begin_section "select viewer channel"
 # Look for a branch-specific viewer_channel setting
 #    changeset_branch is set in the sling-buildscripts
 viewer_build_branch=$(echo -n "${changeset_branch:-$(repo_branch ${BUILDSCRIPTS_SRC:-$(pwd)})}" | tr -Cs 'A-Za-z0-9_' '_' | sed -E 's/^_+//; s/_+$//')
-if [ -n "$viewer_build_branch" ] 
+if [ -n "$viewer_build_branch" ]
 then
     branch_viewer_channel_var="${viewer_build_branch}_viewer_channel"
     if [ -n "${!branch_viewer_channel_var}" ]
@@ -434,7 +434,7 @@ do
       record_event "configure for $variant failed: build skipped"
   fi
 
-  if ! $succeeded 
+  if ! $succeeded
   then
       record_event "remaining variants skipped due to $variant failure"
       break
@@ -499,7 +499,7 @@ then
         fi
       done
       end_section "Upload Debian Repository"
-      
+
     else
       record_event "debian build not enabled"
     fi
@@ -526,9 +526,8 @@ then
     # nat 2016-12-22: without RELEASE_CRASH_REPORTING, we have no symbol file.
     if [ "${RELEASE_CRASH_REPORTING:-}" != "OFF" ]
     then
-        # BugSplat wants to see xcarchive.zip
-        # e.g. build-darwin-x86_64/newview/Release/Second Life Test.xcarchive.zip
-        symbol_file="${build_dir}/newview/${variant}/${viewer_channel}.xcarchive.zip"
+        # e.g. build-darwin-x86_64/symbols/Release/Second Life Test.xarchive.zip
+        symbol_file="${build_dir}/symbols/${variant}/${viewer_channel}.xcarchive.zip"
         if [[ ! -f "$symbol_file" ]]
         then
             # symbol tarball we prep for (e.g.) Breakpad

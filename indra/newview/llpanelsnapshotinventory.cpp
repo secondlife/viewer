@@ -50,7 +50,7 @@ class LLPanelSnapshotInventoryBase
 public:
     LLPanelSnapshotInventoryBase();
 
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
 protected:
     void onSend();
     /*virtual*/ LLSnapshotModel::ESnapshotType getSnapshotType();
@@ -63,7 +63,7 @@ class LLPanelSnapshotInventory
 
 public:
     LLPanelSnapshotInventory();
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
     /*virtual*/ void onOpen(const LLSD& key);
 
     void onResolutionCommit(LLUICtrl* ctrl);
@@ -85,7 +85,7 @@ class LLPanelOutfitSnapshotInventory
 
 public:
     LLPanelOutfitSnapshotInventory();
-        /*virtual*/ BOOL postBuild();
+        /*virtual*/ bool postBuild();
         /*virtual*/ void onOpen(const LLSD& key);
 
 private:
@@ -107,7 +107,7 @@ LLPanelSnapshotInventoryBase::LLPanelSnapshotInventoryBase()
 {
 }
 
-BOOL LLPanelSnapshotInventoryBase::postBuild()
+bool LLPanelSnapshotInventoryBase::postBuild()
 {
     return LLPanelSnapshot::postBuild();
 }
@@ -124,10 +124,10 @@ LLPanelSnapshotInventory::LLPanelSnapshotInventory()
 }
 
 // virtual
-BOOL LLPanelSnapshotInventory::postBuild()
+bool LLPanelSnapshotInventory::postBuild()
 {
-    getChild<LLSpinCtrl>(getWidthSpinnerName())->setAllowEdit(FALSE);
-    getChild<LLSpinCtrl>(getHeightSpinnerName())->setAllowEdit(FALSE);
+    getChild<LLSpinCtrl>(getWidthSpinnerName())->setAllowEdit(false);
+    getChild<LLSpinCtrl>(getHeightSpinnerName())->setAllowEdit(false);
 
     getChild<LLUICtrl>(getImageSizeComboName())->setCommitCallback(boost::bind(&LLPanelSnapshotInventory::onResolutionCommit, this, _1));
     return LLPanelSnapshotInventoryBase::postBuild();
@@ -148,7 +148,7 @@ void LLPanelSnapshotInventory::updateControls(const LLSD& info)
 
 void LLPanelSnapshotInventory::onResolutionCommit(LLUICtrl* ctrl)
 {
-    BOOL current_window_selected = (getChild<LLComboBox>(getImageSizeComboName())->getCurrentIndex() == 3);
+    bool current_window_selected = (getChild<LLComboBox>(getImageSizeComboName())->getCurrentIndex() == 3);
     getChild<LLSpinCtrl>(getWidthSpinnerName())->setVisible(!current_window_selected);
     getChild<LLSpinCtrl>(getHeightSpinnerName())->setVisible(!current_window_selected);
 }
@@ -183,7 +183,7 @@ LLPanelOutfitSnapshotInventory::LLPanelOutfitSnapshotInventory()
 }
 
 // virtual
-BOOL LLPanelOutfitSnapshotInventory::postBuild()
+bool LLPanelOutfitSnapshotInventory::postBuild()
 {
     return LLPanelSnapshotInventoryBase::postBuild();
 }

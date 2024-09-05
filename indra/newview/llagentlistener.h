@@ -61,7 +61,7 @@ private:
     void setFollowCamParams(LLSD const & event_data) const;
     void setFollowCamActive(LLSD const & event_data) const;
     void removeFollowCamParams(LLSD const & event_data) const;
-    
+
     void playAnimation(LLSD const &event_data);
     void playAnimation_(const LLUUID& asset_id, const bool inworld);
     void stopAnimation(LLSD const &event_data);

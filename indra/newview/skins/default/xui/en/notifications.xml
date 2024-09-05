@@ -6267,7 +6267,7 @@ Are you sure you want to delete them?
      notext="Cancel"
      yestext="OK"/>
   </notification>
-    
+
   <notification
    icon="alertmodal.tga"
    name="DeleteWornItems"
@@ -6341,6 +6341,17 @@ You must replace those layers before deleting them.
      name="okbutton"
      yestext="OK"/>
   </notification>
+
+    <notification
+     icon="alertmodal.tga"
+     name="ThumbnailSelectionTooLarge"
+     type="alertmodal">
+        <unique/>
+        You can only modify up to 50 thumbnails at a time.
+        <usetemplate
+         name="okbutton"
+         yestext="OK"/>
+    </notification>
 
   <notification
      icon="alertmodal.tga"
@@ -8828,6 +8839,21 @@ If you are a Premium Member, [[PREMIUM_URL] click here] to receive your voice mo
     <unique/>    
 New Voice Morphs are available!
    <tag>voice</tag>
+  </notification>
+
+  <notification
+    icon="alertmodal.tga"
+    name="VoiceEffectsNotSupported"
+    sound="UISndAlert"
+    persist="true"
+    type="alertmodal">
+Voice Morphs are not supported by this viewer.
+For more information about other voice morph tools, see [[FAQ_URL] this article].
+    <usetemplate
+        ignoretext="Warn me about voice morph not being supported"
+        name="okignore"
+        yestext="OK"/>
+    <tag>voice</tag>
   </notification>
 
   <notification
@@ -12450,9 +12476,64 @@ are wearing now.
 
   <notification
    icon="alertmodal.tga"
-   name="GLTFPreviewSelection"
+   name="GLTFOpenSelection"
    type="alert">
     You must select an object to act as a handle to the GLTF asset you are previewing.
+    <tag>fail</tag>
+    <usetemplate
+      name="okbutton"
+      yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="GLTFLoadFailed"
+   type="alert">
+    Failed to load GLTF file.  See log for details.
+    <tag>fail</tag>
+    <usetemplate
+      name="okbutton"
+      yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="GLTFSaveFailed"
+   type="alert">
+    Failed to save GLTF file.  See log for details.
+    <tag>fail</tag>
+    <usetemplate
+      name="okbutton"
+      yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="GLTFSaveSelection"
+   type="alert">
+    You must select an object that has a GLTF asset associated with it.
+    <tag>fail</tag>
+    <usetemplate
+      name="okbutton"
+      yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="GLTFUploadSelection"
+   type="alert">
+    You must select an object that has local-only GLTF asset associated with it.
+    <tag>fail</tag>
+    <usetemplate
+      name="okbutton"
+      yestext="OK"/>
+  </notification>
+
+  <notification
+ icon="alertmodal.tga"
+ name="GLTFUploadInProgress"
+ type="alert">
+    Upload is currently in progress.  Please try again later.
     <tag>fail</tag>
     <usetemplate
       name="okbutton"

@@ -161,7 +161,7 @@ void LLChannelManager::onStartUpToastClose()
 {
     if(mStartUpChannel)
     {
-        mStartUpChannel->setVisible(FALSE);
+        mStartUpChannel->setVisible(false);
         mStartUpChannel->closeStartUpToast();
         removeChannelByID(STARTUP_CHANNEL_UUID);
         mStartUpChannel = NULL;
@@ -261,8 +261,8 @@ LLNotificationsUI::LLScreenChannel* LLChannelManager::getNotificationScreenChann
 
     if (channel == NULL)
     {
-        LL_WARNS() << "Can't find screen channel by Notification Channel UUID" << LL_ENDL;
-        llassert(!"Can't find screen channel by Notification Channel UUID");
+        LL_WARNS() << "Can't find screen channel by NotificationChannelUUID" << LL_ENDL;
+        llassert(!"Can't find screen channel by NotificationChannelUUID");
     }
 
     return channel;

@@ -60,7 +60,7 @@ public:
     inline operator bool() const { return static_cast<const bool&>(m_bool); }
 
 private:
-    int m_bool;
+    int m_bool{ 0 };
 };
 
 #if LL_WINDOWS
@@ -118,7 +118,7 @@ public:
     }
 
 private:
-    LLQuad mQ;
+    LLQuad mQ{};
 };
 
 #endif //LL_SIMD_TYPES_H

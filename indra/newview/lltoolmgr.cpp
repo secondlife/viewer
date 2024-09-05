@@ -102,12 +102,12 @@ LLToolMgr::LLToolMgr()
 
 void LLToolMgr::initTools()
 {
-    static BOOL initialized = FALSE;
+    static bool initialized = false;
     if(initialized)
     {
         return;
     }
-    initialized = TRUE;
+    initialized = true;
     gBasicToolset->addTool( LLToolPie::getInstance() );
     gBasicToolset->addTool( LLToolCamera::getInstance() );
     gCameraToolset->addTool( LLToolCamera::getInstance() );
@@ -143,14 +143,15 @@ LLToolMgr::~LLToolMgr()
     gToolNull = NULL;
 }
 
-BOOL LLToolMgr::usingTransientTool()
+bool LLToolMgr::usingTransientTool()
 {
-    return mTransientTool ? TRUE : FALSE;
+    return mTransientTool != nullptr;
 }
 
 void LLToolMgr::setCurrentToolset(LLToolset* current)
 {
-    if (!current) return;
+    if (!current)
+        return;
 
     // switching toolsets?
     if (current != mCurrentToolset)
@@ -164,6 +165,7 @@ void LLToolMgr::setCurrentToolset(LLToolset* current)
         // select first tool of new toolset only if toolset changed
         mCurrentToolset->selectFirstTool();
     }
+
     // update current tool based on new toolset
     setCurrentTool( mCurrentToolset->getSelectedTool() );
 }
@@ -188,7 +190,7 @@ void LLToolMgr::setCurrentTool( LLTool* tool )
 
 LLTool* LLToolMgr::getCurrentTool()
 {
-    MASK override_mask = gKeyboard ? gKeyboard->currentMask(TRUE) : 0;
+    MASK override_mask = gKeyboard ? gKeyboard->currentMask(true) : 0;
 
     LLTool* cur_tool = NULL;
     // always use transient tools if available
@@ -301,7 +303,7 @@ void LLToolMgr::toggleBuildMode(const LLSD& sdname)
             if (gAgentCamera.getFocusOnAvatar())
             {
                 // zoom in if we're looking at the avatar
-                gAgentCamera.setFocusOnAvatar(FALSE, ANIMATE);
+                gAgentCamera.setFocusOnAvatar(false, ANIMATE);
                 gAgentCamera.setFocusGlobal(gAgent.getPositionGlobal() + 2.0 * LLVector3d(gAgent.getAtAxis()));
                 gAgentCamera.cameraZoomIn(0.666f);
                 gAgentCamera.cameraOrbitOver( 30.f * DEG_TO_RAD );
@@ -459,7 +461,7 @@ void LLToolset::selectToolByIndex( S32 index )
     }
 }
 
-BOOL LLToolset::isToolSelected( S32 index )
+bool LLToolset::isToolSelected( S32 index )
 {
     LLTool *tool = (index >= 0 && index < (S32)mToolList.size()) ? mToolList[index] : NULL;
     return (tool == mSelectedTool);

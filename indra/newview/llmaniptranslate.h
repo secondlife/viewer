@@ -53,15 +53,15 @@ public:
     static  U32     getGridTexName() ;
     static  void    destroyGL();
     static  void    restoreGL();
-    virtual BOOL    handleMouseDown(S32 x, S32 y, MASK mask);
-    virtual BOOL    handleMouseUp(S32 x, S32 y, MASK mask);
-    virtual BOOL    handleHover(S32 x, S32 y, MASK mask);
+    virtual bool    handleMouseDown(S32 x, S32 y, MASK mask);
+    virtual bool    handleMouseUp(S32 x, S32 y, MASK mask);
+    virtual bool    handleHover(S32 x, S32 y, MASK mask);
     virtual void    render();
     virtual void    handleSelect();
 
     virtual void    highlightManipulators(S32 x, S32 y);
-    virtual BOOL    handleMouseDownOnPart(S32 x, S32 y, MASK mask);
-    virtual BOOL    canAffectSelection();
+    virtual bool    handleMouseDownOnPart(S32 x, S32 y, MASK mask);
+    virtual bool    canAffectSelection();
 
 protected:
     enum EHandleType {
@@ -70,7 +70,7 @@ protected:
         HANDLE_SPHERE
     };
 
-    void        renderArrow(S32 which_arrow, S32 selected_arrow, F32 box_size, F32 arrow_size, F32 handle_size, BOOL reverse_direction);
+    void        renderArrow(S32 which_arrow, S32 selected_arrow, F32 box_size, F32 arrow_size, F32 handle_size, bool reverse_direction);
     void        renderTranslationHandles();
     void        renderText();
     void        renderSnapGuides();
@@ -85,8 +85,8 @@ protected:
 private:
     S32         mLastHoverMouseX;
     S32         mLastHoverMouseY;
-    BOOL        mMouseOutsideSlop;      // true after mouse goes outside slop region
-    BOOL        mCopyMadeThisDrag;
+    bool        mMouseOutsideSlop;      // true after mouse goes outside slop region
+    bool        mCopyMadeThisDrag;
     S32         mMouseDownX;
     S32         mMouseDownY;
     F32         mAxisArrowLength;       // pixels
@@ -105,7 +105,7 @@ private:
     LLVector3   mGridOrigin;
     LLVector3   mGridScale;
     F32         mSubdivisions;
-    BOOL        mInSnapRegime;
+    bool        mInSnapRegime;
     LLVector3   mArrowScales;
     LLVector3   mPlaneScales;
     LLVector4   mPlaneManipPositions;

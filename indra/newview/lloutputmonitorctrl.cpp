@@ -126,29 +126,31 @@ void LLOutputMonitorCtrl::draw()
     const F32 LEVEL_1 = LLVoiceClient::OVERDRIVEN_POWER_LEVEL * 2.f / 3.f;
     const F32 LEVEL_2 = LLVoiceClient::OVERDRIVEN_POWER_LEVEL;
 
+    LLVoiceClient* vocie_client = LLVoiceClient::getInstance();
+
     if (getVisible() && mAutoUpdate && !getIsMuted() && mSpeakerId.notNull())
     {
-        setPower(LLVoiceClient::getInstance()->getCurrentPower(mSpeakerId));
+        setPower(vocie_client->getCurrentPower(mSpeakerId));
         if(mIsAgentControl)
         {
-            setIsTalking(LLVoiceClient::getInstance()->getUserPTTState());
+            setIsTalking(vocie_client->getUserPTTState());
         }
         else
         {
-            setIsTalking(LLVoiceClient::getInstance()->getIsSpeaking(mSpeakerId));
+            setIsTalking(vocie_client->getIsSpeaking(mSpeakerId));
         }
     }
 
     if ((mPower == 0.f && !mIsTalking) && mShowParticipantsSpeaking)
     {
         std::set<LLUUID> participant_uuids;
-        LLVoiceClient::instance().getParticipantList(participant_uuids);
+        vocie_client->getParticipantList(participant_uuids);
         std::set<LLUUID>::const_iterator part_it = participant_uuids.begin();
 
         F32 power = 0;
         for (; part_it != participant_uuids.end(); ++part_it)
         {
-            power = LLVoiceClient::instance().getCurrentPower(*part_it);
+            power = vocie_client->getCurrentPower(*part_it);
             if (power)
             {
                 mPower = power;
@@ -231,7 +233,7 @@ void LLOutputMonitorCtrl::draw()
     //  }
 
     //  // Draw rectangle filled with the color.
-    //  gl_rect_2d(xpos, recttop, xpos+rectw, rectbtm, rect_color, TRUE);
+    //  gl_rect_2d(xpos, recttop, xpos+rectw, rectbtm, rect_color, true);
     //  xpos += period;
     //}
 
@@ -239,11 +241,11 @@ void LLOutputMonitorCtrl::draw()
     // Draw bounding box.
     //
     if(mBorder)
-        gl_rect_2d(0, monh, monw, 0, sColorBound, FALSE);
+        gl_rect_2d(0, monh, monw, 0, sColorBound, false);
 }
 
 // virtual
-BOOL LLOutputMonitorCtrl::handleMouseUp(S32 x, S32 y, MASK mask)
+bool LLOutputMonitorCtrl::handleMouseUp(S32 x, S32 y, MASK mask)
 {
     if (mSpeakerId != gAgentID)
     {
@@ -254,7 +256,7 @@ BOOL LLOutputMonitorCtrl::handleMouseUp(S32 x, S32 y, MASK mask)
         LLFloaterReg::showInstance("chat_voice", LLSD());
     }
 
-    return TRUE;
+    return true;
 }
 
 void LLOutputMonitorCtrl::setIsActiveChannel(bool val)
@@ -267,8 +269,8 @@ void LLOutputMonitorCtrl::setChannelState(EChannelState state)
     mChannelState = state;
     if (state == INACTIVE_CHANNEL)
     {
-        // switchIndicator will set it to TRUE when channel becomes active
-        setVisible(FALSE);
+        // switchIndicator will set it to true when channel becomes active
+        setVisible(false);
     }
 }
 
@@ -325,7 +327,7 @@ void LLOutputMonitorCtrl::onChangeDetailed(const LLMute& mute)
 // virtual
 void LLOutputMonitorCtrl::switchIndicator(bool switch_on)
 {
-    if ((mChannelState != INACTIVE_CHANNEL) && (getVisible() != (BOOL)switch_on))
+    if ((mChannelState != INACTIVE_CHANNEL) && (getVisible() != (bool)switch_on))
     {
         setVisible(switch_on);
 

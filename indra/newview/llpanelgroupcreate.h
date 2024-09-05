@@ -46,9 +46,9 @@ public:
     LLPanelGroupCreate();
     virtual ~LLPanelGroupCreate();
 
-    virtual BOOL postBuild();
+    bool postBuild() override;
 
-    void onOpen(const LLSD& key);
+    void onOpen(const LLSD& key) override;
 
     static void refreshCreatedGroup(const LLUUID& group_id);
 

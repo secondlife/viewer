@@ -50,7 +50,7 @@ LLPanelGroupExperiences::~LLPanelGroupExperiences()
 {
 }
 
-BOOL LLPanelGroupExperiences::postBuild()
+bool LLPanelGroupExperiences::postBuild()
 {
     mExperiencesList = getChild<LLFlatListView>("experiences_list");
     if (hasString("loading_experiences"))

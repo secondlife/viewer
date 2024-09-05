@@ -35,15 +35,24 @@
 class LLSurface;
 
 class LLViewerFetchedTexture;
+class LLGLTFMaterial;
 class LLFetchedGLTFMaterial;
 
-class LLTerrainMaterials
+class LLModifyRegion
+{
+public:
+    virtual const LLGLTFMaterial* getMaterialOverride(S32 asset) const = 0;
+};
+
+class LLTerrainMaterials : public LLModifyRegion
 {
 public:
     friend class LLDrawPoolTerrain;
 
     LLTerrainMaterials();
     virtual ~LLTerrainMaterials();
+
+    void apply(const LLModifyRegion& other);
 
     // Heights map into textures (or materials) as 0-1 = first, 1-2 = second, etc.
     // So we need to compress heights into this range.
@@ -56,26 +65,33 @@ public:
         COUNT
     };
 
-    BOOL generateMaterials();
+    bool generateMaterials();
 
     void boost();
 
     virtual LLUUID getDetailAssetID(S32 asset);
     virtual void setDetailAssetID(S32 asset, const LLUUID& id);
+    const LLGLTFMaterial* getMaterialOverride(S32 asset) const override;
+    virtual void setMaterialOverride(S32 asset, LLGLTFMaterial* mat_override);
     Type getMaterialType();
-    bool texturesReady(bool boost, bool strict);
+    bool makeTexturesReady(bool boost, bool strict);
     // strict = true -> all materials must be sufficiently loaded
     // strict = false -> at least one material must be loaded
-    bool materialsReady(bool boost, bool strict);
+    bool makeMaterialsReady(bool boost, bool strict);
 
 protected:
     void unboost();
-    static bool textureReady(LLPointer<LLViewerFetchedTexture>& tex, bool boost);
+    static bool makeTextureReady(LLPointer<LLViewerFetchedTexture>& tex, bool boost);
     // strict = true -> all materials must be sufficiently loaded
     // strict = false -> at least one material must be loaded
-    static bool materialReady(LLPointer<LLFetchedGLTFMaterial>& mat, bool& textures_set, bool boost, bool strict);
+    static bool makeMaterialReady(LLPointer<LLFetchedGLTFMaterial>& mat, bool& textures_set, bool boost, bool strict);
+    // *NOTE: Prefer calling makeMaterialReady if mat is known to be LLFetchedGLTFMaterial
+    static bool materialTexturesReady(LLPointer<LLFetchedGLTFMaterial>& mat, bool& textures_set, bool boost, bool strict);
+
     LLPointer<LLViewerFetchedTexture> mDetailTextures[ASSET_COUNT];
     LLPointer<LLFetchedGLTFMaterial> mDetailMaterials[ASSET_COUNT];
+    LLPointer<LLGLTFMaterial> mDetailMaterialOverrides[ASSET_COUNT];
+    LLPointer<LLFetchedGLTFMaterial> mDetailRenderMaterials[ASSET_COUNT];
     bool mMaterialTexturesSet[ASSET_COUNT];
 };
 
@@ -96,10 +112,10 @@ public:
     void setSurface(LLSurface *surfacep);
 
     // Viewer side hack to generate composition values
-    BOOL generateHeights(const F32 x, const F32 y, const F32 width, const F32 height);
-    BOOL generateComposition();
+    bool generateHeights(const F32 x, const F32 y, const F32 width, const F32 height);
+    bool generateComposition();
     // Generate texture from composition values.
-    BOOL generateMinimapTileLand(const F32 x, const F32 y, const F32 width, const F32 height);
+    bool generateMinimapTileLand(const F32 x, const F32 y, const F32 width, const F32 height);
 
     // Use these as indeces ito the get/setters below that use 'corner'
     enum ECorner
@@ -120,14 +136,11 @@ public:
 
     friend class LLVOSurfacePatch;
     friend class LLDrawPoolTerrain;
-    void setParamsReady()       { mParamsReady = TRUE; }
-    BOOL getParamsReady() const { return mParamsReady; }
+    void setParamsReady()       { mParamsReady = true; }
+    bool getParamsReady() const { return mParamsReady; }
 
 protected:
-    static bool textureReady(LLPointer<LLViewerFetchedTexture>& tex, bool boost = false);
-    static bool materialReady(LLPointer<LLFetchedGLTFMaterial>& mat, bool& textures_set, bool boost = false);
-
-    BOOL mParamsReady = FALSE;
+    bool mParamsReady = false;
     LLSurface *mSurfacep;
 
     // Final minimap raw images

@@ -38,8 +38,8 @@
 //---------------------------------------------------------------------------
 
 LLScrollListItem::LLScrollListItem( const Params& p )
-:   mSelected(FALSE),
-    mHighlighted(FALSE),
+:   mSelected(false),
+    mHighlighted(false),
     mHoverIndex(-1),
     mSelectedIndex(-1),
     mEnabled(p.enabled),
@@ -56,13 +56,13 @@ LLScrollListItem::~LLScrollListItem()
     mColumns.clear();
 }
 
-void LLScrollListItem::setSelected(BOOL b)
+void LLScrollListItem::setSelected(bool b)
 {
     mSelected = b;
     mSelectedIndex = -1;
 }
 
-void LLScrollListItem::setHighlighted(BOOL b)
+void LLScrollListItem::setHighlighted(bool b)
 {
     mHighlighted = b;
     mHoverIndex = -1;
@@ -85,7 +85,7 @@ void LLScrollListItem::addColumn(const LLScrollListCell::Params& p)
 
 void LLScrollListItem::setNumColumns(S32 columns)
 {
-    S32 prev_columns = mColumns.size();
+    auto prev_columns = mColumns.size();
     if (columns < prev_columns)
     {
         std::for_each(mColumns.begin()+columns, mColumns.end(), DeletePointer());
@@ -93,7 +93,7 @@ void LLScrollListItem::setNumColumns(S32 columns)
 
     mColumns.resize(columns);
 
-    for (S32 col = prev_columns; col < columns; ++col)
+    for (auto col = prev_columns; col < columns; ++col)
     {
         mColumns[col] = NULL;
     }
@@ -115,7 +115,7 @@ void LLScrollListItem::setColumn( S32 column, LLScrollListCell *cell )
 
 S32 LLScrollListItem::getNumColumns() const
 {
-    return mColumns.size();
+    return static_cast<S32>(mColumns.size());
 }
 
 LLScrollListCell* LLScrollListItem::getColumn(const S32 i) const

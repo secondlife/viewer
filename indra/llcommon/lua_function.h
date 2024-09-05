@@ -3,7 +3,7 @@
  * @author Nat Goodspeed
  * @date   2024-02-05
  * @brief  Definitions useful for coding a new Luau entry point into C++
- * 
+ *
  * $LicenseInfo:firstyear=2024&license=viewerlgpl$
  * Copyright (c) 2024, Linden Research, Inc.
  * $/LicenseInfo$

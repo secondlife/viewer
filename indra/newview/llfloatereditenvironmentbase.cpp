@@ -28,8 +28,6 @@
 
 #include "llfloatereditenvironmentbase.h"
 
-#include <boost/make_shared.hpp>
-
 // libs
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
@@ -443,7 +441,7 @@ void LLFloaterEditEnvironmentBase::onInventoryCreated(LLUUID asset_id, LLUUID in
     }
 
     clearDirtyFlag();
-    setFocus(TRUE);                 // Call back the focus...
+    setFocus(true);                 // Call back the focus...
     loadInventoryItem(inventory_id, can_trans);
 }
 

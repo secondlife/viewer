@@ -52,7 +52,7 @@ public:
     virtual void    draw();
     virtual void    clearCtrls();
 
-    virtual BOOL    postBuild();
+    virtual bool    postBuild();
 
     void            refresh();
 

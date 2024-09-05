@@ -104,7 +104,7 @@ public:
     S32 mLod;
 
     LLMatrix4 mTransform;
-    BOOL mFirstTransform;
+    bool mFirstTransform;
     LLVector3 mExtents[2];
 
     bool mTrySLM;
@@ -215,7 +215,7 @@ protected:
     static bool isAlive(LLModelLoader* loader) ;
 };
 class LLMatrix4a;
-void stretch_extents(LLModel* model, LLMatrix4a& mat, LLVector4a& min, LLVector4a& max, BOOL& first_transform);
-void stretch_extents(LLModel* model, LLMatrix4& mat, LLVector3& min, LLVector3& max, BOOL& first_transform);
+void stretch_extents(LLModel* model, LLMatrix4a& mat, LLVector4a& min, LLVector4a& max, bool& first_transform);
+void stretch_extents(LLModel* model, LLMatrix4& mat, LLVector3& min, LLVector3& max, bool& first_transform);
 
 #endif  // LL_LLMODELLOADER_H

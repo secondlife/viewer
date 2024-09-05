@@ -97,7 +97,7 @@ LLFloaterMyEnvironment::~LLFloaterMyEnvironment()
 }
 
 
-BOOL LLFloaterMyEnvironment::postBuild()
+bool LLFloaterMyEnvironment::postBuild()
 {
     mInventoryList = getChild<LLInventoryPanel>(PANEL_SETTINGS);
 
@@ -108,7 +108,7 @@ BOOL LLFloaterMyEnvironment::postBuild()
 
         mInventoryList->setFilterTypes(filter_types);
 
-        mInventoryList->setSelectCallback([this](const std::deque<LLFolderViewItem*>&, BOOL) { onSelectionChange(); });
+        mInventoryList->setSelectCallback([this](const std::deque<LLFolderViewItem*>&, bool) { onSelectionChange(); });
         mInventoryList->setShowFolderState(mShowFolders);
         mInventoryList->setFilterSettingsTypes(mTypeFilter);
     }
@@ -122,8 +122,8 @@ BOOL LLFloaterMyEnvironment::postBuild()
     mFilterEdit->setCommitCallback([this](LLUICtrl*, const LLSD& param){ onFilterEdit(param.asString()); });
 
     childSetCommitCallback(BUTTON_DELETE, [this](LLUICtrl *, void*) { onDeleteSelected(); }, nullptr);
-    mSavedFolderState.setApply(FALSE);
-    return TRUE;
+    mSavedFolderState.setApply(false);
+    return true;
 }
 
 void LLFloaterMyEnvironment::refresh()
@@ -205,7 +205,7 @@ void LLFloaterMyEnvironment::onFilterEdit(const std::string& search_string)
             return;
         }
 
-        mSavedFolderState.setApply(TRUE);
+        mSavedFolderState.setApply(true);
         mInventoryList->getRootFolder()->applyFunctorRecursively(mSavedFolderState);
         // add folder with current item to list of previously opened folders
         LLOpenFoldersWithSelection opener;
@@ -216,7 +216,7 @@ void LLFloaterMyEnvironment::onFilterEdit(const std::string& search_string)
     else if (mInventoryList->getFilterSubString().empty())
     {
         // first letter in search term, save existing folder open state
-        mSavedFolderState.setApply(FALSE);
+        mSavedFolderState.setApply(false);
         mInventoryList->getRootFolder()->applyFunctorRecursively(mSavedFolderState);
     }
 
@@ -247,7 +247,7 @@ void LLFloaterMyEnvironment::onDeleteSelected()
 
             LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(inv_item);
             new_item->setParent(trash_id);
-            new_item->updateParentOnServer(FALSE);
+            new_item->updateParentOnServer(false);
             gInventory.updateItem(new_item);
         }
     }

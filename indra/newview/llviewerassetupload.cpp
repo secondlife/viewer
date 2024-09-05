@@ -299,9 +299,17 @@ void LLResourceUploadInfo::assignDefaults()
         mDescription = "(No Description)";
     }
 
+    if (mAssetType == LLAssetType::AT_GLTF ||
+        mAssetType == LLAssetType::AT_GLTF_BIN)
+    {
+        mFolderId = LLUUID::null;
+    }
+    else
+    {
     mFolderId = gInventory.findUserDefinedCategoryUUIDForType(
         (mDestinationFolderType == LLFolderType::FT_NONE) ?
         (LLFolderType::EType)mAssetType : mDestinationFolderType);
+}
 }
 
 std::string LLResourceUploadInfo::getDisplayName() const
@@ -409,7 +417,7 @@ LLSD LLNewFileResourceUploadInfo::exportTempFile()
         // Unknown extension
         errorMessage = llformat(LLTrans::getString("UnknownFileExtension").c_str(), exten.c_str());
         errorLabel = "ErrorMessage";
-        error = TRUE;;
+        error = true;;
     }
     else if (assetType == LLAssetType::AT_TEXTURE)
     {
@@ -508,7 +516,7 @@ LLSD LLNewFileResourceUploadInfo::exportTempFile()
         // Unknown extension
         errorMessage = llformat(LLTrans::getString("UnknownFileExtension").c_str(), exten.c_str());
         errorLabel = "ErrorMessage";
-        error = TRUE;;
+        error = true;;
     }
 
     if (error)
@@ -598,7 +606,7 @@ LLSD LLNewBufferedResourceUploadInfo::exportTempFile()
 
     // copy buffer to the cache for upload
     LLFileSystem file(getAssetId(), getAssetType(), LLFileSystem::APPEND);
-    file.write((U8*) mBuffer.c_str(), mBuffer.size());
+    file.write((U8*) mBuffer.c_str(), static_cast<S32>(mBuffer.size()));
 
     return LLSD();
 }
@@ -654,6 +662,8 @@ LLBufferedAssetUploadInfo::LLBufferedAssetUploadInfo(LLUUID itemId, LLPointer<LL
 {
     setItemId(itemId);
 
+    LLImageDataSharedLock lock(image);
+
     EImageCodec codec = static_cast<EImageCodec>(image->getCodec());
 
     switch (codec)
@@ -698,7 +708,7 @@ LLSD LLBufferedAssetUploadInfo::prepareUpload()
 
     LLFileSystem file(getAssetId(), getAssetType(), LLFileSystem::APPEND);
 
-    S32 size = mContents.length() + 1;
+    S32 size = static_cast<S32>(mContents.length()) + 1;
     file.write((U8*)mContents.c_str(), size);
 
     mStoredToCache = true;
@@ -930,7 +940,7 @@ void LLViewerAssetUpload::AssetInventoryUploadCoproc(LLCoreHttpUtil::HttpCorouti
 
             // Show the preview panel for textures and sounds to let
             // user know that the image (or snapshot) arrived intact.
-            LLInventoryPanel* panel = LLInventoryPanel::getActiveInventoryPanel(FALSE);
+            LLInventoryPanel* panel = LLInventoryPanel::getActiveInventoryPanel(false);
             LLInventoryPanel::openInventoryPanelAndSetSelection(true, serverInventoryItem, false, false, !panel);
 
             // restore keyboard focus

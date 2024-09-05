@@ -47,20 +47,20 @@ public:
     // constructor for inline chat-bars (e.g. hosted in chat history window)
     LLChatBar();
     ~LLChatBar();
-    virtual BOOL postBuild();
+    virtual bool postBuild();
 
-    virtual BOOL handleKeyHere(KEY key, MASK mask);
+    virtual bool handleKeyHere(KEY key, MASK mask);
 
     void        refresh();
     void        refreshGestures();
 
     // Move cursor into chat input field.
-    void        setKeyboardFocus(BOOL b);
+    void        setKeyboardFocus(bool b);
 
     // Ignore arrow keys for chat bar
-    void        setIgnoreArrowKeys(BOOL b);
+    void        setIgnoreArrowKeys(bool b);
 
-    BOOL        inputEditorHasFocus();
+    bool        inputEditorHasFocus();
     std::string getCurrentChat();
 
     // since chat bar logic is reused for chat history
@@ -69,8 +69,8 @@ public:
 
     // Send a chat (after stripping /20foo channel chats).
     // "Animate" means the nodding animation for regular text.
-    void        sendChatFromViewer(const LLWString &wtext, EChatType type, BOOL animate);
-    void        sendChatFromViewer(const std::string &utf8text, EChatType type, BOOL animate);
+    void        sendChatFromViewer(const LLWString &wtext, EChatType type, bool animate);
+    void        sendChatFromViewer(const std::string &utf8text, EChatType type, bool animate);
 
     // If input of the form "/20foo" or "/20 foo", returns "foo" and channel 20.
     // Otherwise returns input and channel 0.
@@ -101,7 +101,7 @@ protected:
     // Which non-zero channel did we last chat on?
     S32             mLastSpecialChatChannel;
 
-    BOOL            mIsBuilt;
+    bool            mIsBuilt;
     LLComboBox*     mGestureCombo;
 
     LLChatBarGestureObserver* mObserver;

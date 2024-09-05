@@ -33,7 +33,6 @@
 
 #include <algorithm>
 #include <cstdio>
-#include <boost/make_shared.hpp>
 #include "lltrace.h"
 #include "llfasttimer.h"
 #include "v3colorutil.h"
@@ -69,7 +68,7 @@
 
 #undef  VERIFY_LEGACY_CONVERSION
 
-extern BOOL gCubeSnapshot;
+extern bool gCubeSnapshot;
 
 //=========================================================================
 namespace
@@ -181,7 +180,7 @@ void LLSettingsVOBase::onInventoryItemCreated(const LLUUID &inventoryId, LLSetti
         {
             perm.setMaskEveryone(PERM_COPY);
             pitem->setPermissions(perm);
-            pitem->updateServer(FALSE);
+            pitem->updateServer(false);
         }
     }
     if (!settings)
@@ -227,8 +226,8 @@ void LLSettingsVOBase::updateInventoryItem(const LLSettingsBase::ptr_t &settings
         if (settings->getFlag(LLSettingsBase::FLAG_NOTRANS) && new_item->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID()))
         {
             LLPermissions perm(inv_item->getPermissions());
-            perm.setBaseBits(LLUUID::null, FALSE, PERM_TRANSFER);
-            perm.setOwnerBits(LLUUID::null, FALSE, PERM_TRANSFER);
+            perm.setBaseBits(LLUUID::null, false, PERM_TRANSFER);
+            perm.setOwnerBits(LLUUID::null, false, PERM_TRANSFER);
             new_item->setPermissions(perm);
             need_update |= true;
         }
@@ -240,7 +239,7 @@ void LLSettingsVOBase::updateInventoryItem(const LLSettingsBase::ptr_t &settings
         }
         if (need_update)
         {
-            new_item->updateServer(FALSE);
+            new_item->updateServer(false);
             gInventory.updateItem(new_item);
             gInventory.notifyObservers();
         }
@@ -1404,7 +1403,7 @@ LLSettingsDay::ptr_t LLSettingsVODay::buildDeepCloneAndUncompress() const
     U32 flags = getFlags();
     LLSettingsDay::ptr_t day_clone = std::make_shared<LLSettingsVODay>(settings);
 
-    for (S32 i = 0; i < LLSettingsDay::TRACK_MAX; ++i)
+    for (U32 i = 0; i < LLSettingsDay::TRACK_MAX; ++i)
     {
         const LLSettingsDay::CycleTrack_t& track = getCycleTrackConst(i);
         LLSettingsDay::CycleTrack_t::const_iterator iter = track.begin();

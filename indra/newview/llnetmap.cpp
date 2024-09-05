@@ -69,20 +69,20 @@
 
 static LLDefaultChildRegistry::Register<LLNetMap> r1("net_map");
 
-const F32 LLNetMap::MAP_SCALE_MIN = 32;
-const F32 LLNetMap::MAP_SCALE_FAR = 32;
-const F32 LLNetMap::MAP_SCALE_MEDIUM = 128;
-const F32 LLNetMap::MAP_SCALE_CLOSE = 256;
-const F32 LLNetMap::MAP_SCALE_VERY_CLOSE = 1024;
-const F32 LLNetMap::MAP_SCALE_MAX = 4096;
+constexpr F32 LLNetMap::MAP_SCALE_MIN = 32;
+constexpr F32 LLNetMap::MAP_SCALE_FAR = 32;
+constexpr F32 LLNetMap::MAP_SCALE_MEDIUM = 128;
+constexpr F32 LLNetMap::MAP_SCALE_CLOSE = 256;
+constexpr F32 LLNetMap::MAP_SCALE_VERY_CLOSE = 1024;
+constexpr F32 LLNetMap::MAP_SCALE_MAX = 4096;
 
-const F32 MAP_SCALE_ZOOM_FACTOR = 1.04f; // Zoom in factor per click of scroll wheel (4%)
-const F32 MIN_DOT_RADIUS = 3.5f;
-const F32 DOT_SCALE = 0.75f;
-const F32 MIN_PICK_SCALE = 2.f;
-const S32 MOUSE_DRAG_SLOP = 2;      // How far the mouse needs to move before we think it's a drag
+constexpr F32 MAP_SCALE_ZOOM_FACTOR = 1.04f; // Zoom in factor per click of scroll wheel (4%)
+constexpr F32 MIN_DOT_RADIUS = 3.5f;
+constexpr F32 DOT_SCALE = 0.75f;
+constexpr F32 MIN_PICK_SCALE = 2.f;
+constexpr S32 MOUSE_DRAG_SLOP = 2;      // How far the mouse needs to move before we think it's a drag
 
-const F64 COARSEUPDATE_MAX_Z = 1020.0f;
+constexpr F64 COARSEUPDATE_MAX_Z = 1020.0f;
 
 LLNetMap::LLNetMap (const Params & p)
 :   LLUICtrl (p),
@@ -126,7 +126,7 @@ LLNetMap::~LLNetMap()
     }
 }
 
-BOOL LLNetMap::postBuild()
+bool LLNetMap::postBuild()
 {
     LLUICtrl::ScopedRegistrarHelper commitRegistrar;
     LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enableRegistrar;
@@ -142,7 +142,7 @@ BOOL LLNetMap::postBuild()
     LLMenuGL* menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_mini_map.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
     mPopupMenuHandle = menu->getHandle();
     menu->setItemEnabled("Re-center map", false);
-    return TRUE;
+    return true;
 }
 
 void LLNetMap::setScale( F32 scale )
@@ -345,6 +345,7 @@ void LLNetMap::draw()
             mObjectImageCenterGlobal = viewPosToGlobal(llfloor(new_center.mV[VX]), llfloor(new_center.mV[VY]));
 
             // Create the base texture.
+            LLImageDataLock lock(mObjectRawImagep);
             U8 *default_texture = mObjectRawImagep->getData();
             memset( default_texture, 0, mObjectImagep->getWidth() * mObjectImagep->getHeight() * mObjectImagep->getComponents() );
 
@@ -543,7 +544,7 @@ void LLNetMap::draw()
     LLUICtrl::draw();
 }
 
-void LLNetMap::reshape(S32 width, S32 height, BOOL called_from_parent)
+void LLNetMap::reshape(S32 width, S32 height, bool called_from_parent)
 {
     LLUICtrl::reshape(width, height, called_from_parent);
     createObjectImage();
@@ -576,7 +577,7 @@ LLVector3 LLNetMap::globalPosToView(const LLVector3d& global_pos)
 }
 
 void LLNetMap::drawTracking(const LLVector3d& pos_global, const LLColor4& color,
-                            BOOL draw_arrow )
+                            bool draw_arrow )
 {
     LLVector3 pos_local = globalPosToView(pos_global);
     if( (pos_local.mV[VX] < 0) ||
@@ -687,7 +688,7 @@ LLVector3d LLNetMap::viewPosToGlobal( S32 x, S32 y )
     return pos_global;
 }
 
-BOOL LLNetMap::handleScrollWheel(S32 x, S32 y, S32 clicks)
+bool LLNetMap::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
     // note that clicks are reversed from what you'd think: i.e. > 0  means zoom out, < 0 means zoom in
     F32 new_scale = mScale * pow(MAP_SCALE_ZOOM_FACTOR, -clicks);
@@ -708,7 +709,7 @@ BOOL LLNetMap::handleScrollWheel(S32 x, S32 y, S32 clicks)
     return true;
 }
 
-BOOL LLNetMap::handleToolTip(S32 x, S32 y, MASK mask)
+bool LLNetMap::handleToolTip(S32 x, S32 y, MASK mask)
 {
     if (gDisconnected)
     {
@@ -837,12 +838,12 @@ BOOL LLNetMap::handleToolTip(S32 x, S32 y, MASK mask)
     return true;
 }
 
-BOOL LLNetMap::handleToolTipAgent(const LLUUID& avatar_id)
+bool LLNetMap::handleToolTipAgent(const LLUUID& avatar_id)
 {
     LLAvatarName av_name;
     if (avatar_id.isNull() || !LLAvatarNameCache::get(avatar_id, &av_name))
     {
-        return FALSE;
+        return false;
     }
 
     // only show tooltip if same inspector not already open
@@ -863,7 +864,7 @@ BOOL LLNetMap::handleToolTipAgent(const LLUUID& avatar_id)
 
         LLToolTipMgr::instance().show(p);
     }
-    return TRUE;
+    return true;
 }
 
 // static
@@ -915,6 +916,7 @@ void LLNetMap::renderPoint(const LLVector3 &pos_local, const LLColor4U &color,
         return;
     }
 
+    LLImageDataLock lock(mObjectRawImagep);
     U8 *datap = mObjectRawImagep->getData();
 
     S32 neg_radius = diameter / 2;
@@ -1001,13 +1003,13 @@ void LLNetMap::createObjectImage()
         mObjectRawImagep = new LLImageRaw(img_size, img_size, 4);
         U8* data = mObjectRawImagep->getData();
         memset( data, 0, img_size * img_size * 4 );
-        mObjectImagep = LLViewerTextureManager::getLocalTexture( mObjectRawImagep.get(), FALSE);
+        mObjectImagep = LLViewerTextureManager::getLocalTexture( mObjectRawImagep.get(), false);
     }
     setScale(mScale);
     mUpdateNow = true;
 }
 
-BOOL LLNetMap::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLNetMap::handleMouseDown(S32 x, S32 y, MASK mask)
 {
     // Start panning
     gFocusMgr.setMouseCapture(this);
@@ -1018,7 +1020,7 @@ BOOL LLNetMap::handleMouseDown(S32 x, S32 y, MASK mask)
     return true;
 }
 
-BOOL LLNetMap::handleMouseUp(S32 x, S32 y, MASK mask)
+bool LLNetMap::handleMouseUp(S32 x, S32 y, MASK mask)
 {
     if (abs(mMouseDown.mX - x) < 3 && abs(mMouseDown.mY - y) < 3)
     {
@@ -1051,7 +1053,7 @@ BOOL LLNetMap::handleMouseUp(S32 x, S32 y, MASK mask)
     return false;
 }
 
-BOOL LLNetMap::handleRightMouseDown(S32 x, S32 y, MASK mask)
+bool LLNetMap::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
     auto menu = static_cast<LLMenuGL*>(mPopupMenuHandle.get());
     if (menu)
@@ -1062,20 +1064,20 @@ BOOL LLNetMap::handleRightMouseDown(S32 x, S32 y, MASK mask)
         menu->setItemEnabled("Stop Tracking", LLTracker::isTracking(0));
         LLMenuGL::showPopup(this, menu, x, y);
     }
-    return TRUE;
+    return true;
 }
 
-BOOL LLNetMap::handleClick(S32 x, S32 y, MASK mask)
+bool LLNetMap::handleClick(S32 x, S32 y, MASK mask)
 {
     // TODO: allow clicking an avatar on minimap to select avatar in the nearby avatar list
     // if(mClosestAgentToCursor.notNull())
     //     mNearbyList->selectUser(mClosestAgentToCursor);
     // Needs a registered observer i guess to accomplish this without using
     // globals to tell the mNearbyList in llpeoplepanel to select the user
-    return TRUE;
+    return true;
 }
 
-BOOL LLNetMap::handleDoubleClick(S32 x, S32 y, MASK mask)
+bool LLNetMap::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
     LLVector3d pos_global = viewPosToGlobal(x, y);
 
@@ -1104,7 +1106,7 @@ BOOL LLNetMap::handleDoubleClick(S32 x, S32 y, MASK mask)
     {
         LLFloaterReg::showInstance("world_map");
     }
-    return TRUE;
+    return true;
 }
 
 F32 LLNetMap::getScaleForName(std::string scale_name)
@@ -1137,7 +1139,7 @@ bool LLNetMap::outsideSlop( S32 x, S32 y, S32 start_x, S32 start_y, S32 slop )
     return (dx <= -slop || slop <= dx || dy <= -slop || slop <= dy);
 }
 
-BOOL LLNetMap::handleHover( S32 x, S32 y, MASK mask )
+bool LLNetMap::handleHover( S32 x, S32 y, MASK mask )
 {
     if (hasMouseCapture())
     {
@@ -1171,7 +1173,7 @@ BOOL LLNetMap::handleHover( S32 x, S32 y, MASK mask )
         gViewerWindow->setCursor( UI_CURSOR_CROSS );
     }
 
-    return TRUE;
+    return true;
 }
 
 bool LLNetMap::isZoomChecked(const LLSD &userdata)

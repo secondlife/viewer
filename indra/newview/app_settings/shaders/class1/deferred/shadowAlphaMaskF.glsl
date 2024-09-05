@@ -27,8 +27,6 @@
 
 out vec4 frag_color;
 
-uniform sampler2D diffuseMap;
-
 in vec4 post_pos;
 in float target_pos_x;
 in vec4 vertex_color;

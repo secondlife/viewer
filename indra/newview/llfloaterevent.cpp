@@ -71,7 +71,7 @@ LLFloaterEvent::~LLFloaterEvent()
 }
 
 
-BOOL LLFloaterEvent::postBuild()
+bool LLFloaterEvent::postBuild()
 {
     mBrowser = getChild<LLMediaCtrl>("browser");
     if (mBrowser)
@@ -79,7 +79,7 @@ BOOL LLFloaterEvent::postBuild()
         mBrowser->addObserver(this);
     }
 
-    return TRUE;
+    return true;
 }
 
 void LLFloaterEvent::handleMediaEvent(LLPluginClassMedia *self, EMediaEvent event)

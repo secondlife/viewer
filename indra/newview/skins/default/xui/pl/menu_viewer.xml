@@ -35,11 +35,6 @@
 		<menu_item_check label="Czat lokalny..." name="Nearby Chat" />
 		<menu_item_check label="Mowa" name="Speak" />
 		<menu_item_check name="Conversation Log..." label="Dziennik rozmów..." />
-		<menu label="Przekształcanie głosu" name="VoiceMorphing">
-			<menu_item_check label="Bez przekształcania" name="NoVoiceMorphing" />
-			<menu_item_check label="Podgląd..." name="Preview" />
-			<menu_item_call label="Subskrybuj..." name="Subscribe" />
-		</menu>
 		<menu_item_check label="Gesty..." name="Gestures" />
 		<menu_item_check label="Znajomi" name="My Friends" />
 		<menu_item_check label="Grupy" name="My Groups" />

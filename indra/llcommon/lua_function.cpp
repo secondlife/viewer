@@ -3,7 +3,7 @@
  * @author Nat Goodspeed
  * @date   2024-02-05
  * @brief  Implementation for lua_function.
- * 
+ *
  * $LicenseInfo:firstyear=2024&license=viewerlgpl$
  * Copyright (c) 2024, Linden Research, Inc.
  * $/LicenseInfo$
@@ -463,7 +463,7 @@ void lua_pushllsd(lua_State* L, const LLSD& data)
     case LLSD::TypeMap:
     {
         // push a new table with space for our non-array keys
-        lua_createtable(L, 0, data.size());
+        lua_createtable(L, 0, narrow(data.size()));
         for (const auto& pair: llsd::inMap(data))
         {
             // push value -- so now table is at -2, value at -1
@@ -477,7 +477,7 @@ void lua_pushllsd(lua_State* L, const LLSD& data)
     case LLSD::TypeArray:
     {
         // push a new table with space for array entries
-        lua_createtable(L, data.size(), 0);
+        lua_createtable(L, narrow(data.size()), 0);
         lua_Integer key{ 0 };
         for (const auto& item: llsd::inArray(data))
         {
@@ -897,11 +897,11 @@ void LuaState::check_interrupts_counter()
     // of interrupting itself at a moment when re-entry is not valid. So only
     // touch data in this LuaState.
     ++mInterrupts;
-    if (mInterrupts > INTERRUPTS_MAX_LIMIT) 
+    if (mInterrupts > INTERRUPTS_MAX_LIMIT)
     {
         lluau::error(mState, "Possible infinite loop, terminated.");
     }
-    else if (mInterrupts % INTERRUPTS_SUSPEND_LIMIT == 0) 
+    else if (mInterrupts % INTERRUPTS_SUSPEND_LIMIT == 0)
     {
         LL_DEBUGS("Lua") << LLCoros::getName() << " suspending at " << mInterrupts
                          << " interrupts" << LL_ENDL;

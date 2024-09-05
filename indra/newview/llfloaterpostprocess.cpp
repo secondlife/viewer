@@ -49,7 +49,7 @@ LLFloaterPostProcess::~LLFloaterPostProcess()
 
 
 }
-BOOL LLFloaterPostProcess::postBuild()
+bool LLFloaterPostProcess::postBuild()
 {
     /// Color Filter Callbacks
     childSetCommitCallback("ColorFilterToggle", &LLFloaterPostProcess::onBoolToggle, (char*)"enable_color_filter");
@@ -84,7 +84,7 @@ BOOL LLFloaterPostProcess::postBuild()
     getChild<LLComboBox>("PPSaveEffect")->setCommitCallback(boost::bind(&LLFloaterPostProcess::onSaveEffect, this, editBox));
 
     syncMenu();
-    return TRUE;
+    return true;
 }
 
 // Bool Toggle

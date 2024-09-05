@@ -33,26 +33,26 @@ class LLWindowCallbacks
 {
 public:
     virtual ~LLWindowCallbacks() {}
-    virtual BOOL handleTranslatedKeyDown(KEY key,  MASK mask, BOOL repeated);
-    virtual BOOL handleTranslatedKeyUp(KEY key,  MASK mask);
-    virtual void handleScanKey(KEY key, BOOL key_down, BOOL key_up, BOOL key_level);
-    virtual BOOL handleUnicodeChar(llwchar uni_char, MASK mask);
+    virtual bool handleTranslatedKeyDown(KEY key,  MASK mask, bool repeated);
+    virtual bool handleTranslatedKeyUp(KEY key,  MASK mask);
+    virtual void handleScanKey(KEY key, bool key_down, bool key_up, bool key_level);
+    virtual bool handleUnicodeChar(llwchar uni_char, MASK mask);
 
-    virtual BOOL handleMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask);
-    virtual BOOL handleMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask);
+    virtual bool handleMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask);
+    virtual bool handleMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask);
     virtual void handleMouseLeave(LLWindow *window);
-    // return TRUE to allow window to close, which will then cause handleQuit to be called
-    virtual BOOL handleCloseRequest(LLWindow *window);
+    // return true to allow window to close, which will then cause handleQuit to be called
+    virtual bool handleCloseRequest(LLWindow *window);
     // window is about to be destroyed, clean up your business
     virtual void handleQuit(LLWindow *window);
-    virtual BOOL handleRightMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask);
-    virtual BOOL handleRightMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask);
-    virtual BOOL handleMiddleMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask);
-    virtual BOOL handleMiddleMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask);
-    virtual BOOL handleOtherMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask, S32 button);
-    virtual BOOL handleOtherMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask, S32 button);
-    virtual BOOL handleActivate(LLWindow *window, BOOL activated);
-    virtual BOOL handleActivateApp(LLWindow *window, BOOL activating);
+    virtual bool handleRightMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask);
+    virtual bool handleRightMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask);
+    virtual bool handleMiddleMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask);
+    virtual bool handleMiddleMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask);
+    virtual bool handleOtherMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask, S32 button);
+    virtual bool handleOtherMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask, S32 button);
+    virtual bool handleActivate(LLWindow *window, bool activated);
+    virtual bool handleActivateApp(LLWindow *window, bool activating);
     virtual void handleMouseMove(LLWindow *window,  LLCoordGL pos, MASK mask);
     virtual void handleMouseDragged(LLWindow *window,  LLCoordGL pos, MASK mask);
     virtual void handleScrollWheel(LLWindow *window,  S32 clicks);
@@ -61,15 +61,15 @@ public:
     virtual void handleFocus(LLWindow *window);
     virtual void handleFocusLost(LLWindow *window);
     virtual void handleMenuSelect(LLWindow *window,  S32 menu_item);
-    virtual BOOL handlePaint(LLWindow *window,  S32 x,  S32 y,  S32 width,  S32 height);
-    virtual BOOL handleDoubleClick(LLWindow *window,  LLCoordGL pos, MASK mask);            // double-click of left mouse button
+    virtual bool handlePaint(LLWindow *window,  S32 x,  S32 y,  S32 width,  S32 height);
+    virtual bool handleDoubleClick(LLWindow *window,  LLCoordGL pos, MASK mask);            // double-click of left mouse button
     virtual void handleWindowBlock(LLWindow *window);                           // window is taking over CPU for a while
     virtual void handleWindowUnblock(LLWindow *window);                         // window coming back after taking over CPU for a while
     virtual void handleDataCopy(LLWindow *window, S32 data_type, void *data);
-    virtual BOOL handleTimerEvent(LLWindow *window);
-    virtual BOOL handleDeviceChange(LLWindow *window);
-    virtual BOOL handleDPIChanged(LLWindow *window, F32 ui_scale_factor, S32 window_width, S32 window_height);
-    virtual BOOL handleWindowDidChangeScreen(LLWindow *window);
+    virtual bool handleTimerEvent(LLWindow *window);
+    virtual bool handleDeviceChange(LLWindow *window);
+    virtual bool handleDPIChanged(LLWindow *window, F32 ui_scale_factor, S32 window_width, S32 window_height);
+    virtual bool handleWindowDidChangeScreen(LLWindow *window);
 
     enum DragNDropAction {
         DNDA_START_TRACKING = 0,// Start tracking an incoming drag

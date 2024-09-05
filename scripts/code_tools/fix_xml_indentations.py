@@ -72,7 +72,7 @@ def save_xml(tree, file_path, xml_decl, indent_text=False, indent_tab=False, rm_
         if rm_space:
             xml_string = xml_string.replace(' />', '/>')
 
-        xml_decl = (xml_decl if (xml_decl and not rewrite_decl) 
+        xml_decl = (xml_decl if (xml_decl and not rewrite_decl)
                     else '<?xml version="1.0" encoding="utf-8" standalone="yes" ?>')
 
         try:

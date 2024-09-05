@@ -101,11 +101,11 @@ LLToast::LLToast(const LLToast::Params& p)
 
     buildFromFile("panel_toast.xml");
 
-    setCanDrag(FALSE);
+    setCanDrag(false);
 
     mWrapperPanel = getChild<LLPanel>("wrapper_panel");
 
-    setBackgroundOpaque(TRUE); // *TODO: obsolete
+    setBackgroundOpaque(true); // *TODO: obsolete
     updateTransparency();
 
     if(p.panel())
@@ -131,7 +131,7 @@ LLToast::LLToast(const LLToast::Params& p)
     }
 }
 
-void LLToast::reshape(S32 width, S32 height, BOOL called_from_parent)
+void LLToast::reshape(S32 width, S32 height, bool called_from_parent)
 {
     // We shouldn't  use reshape from LLModalDialog since it changes toasts position.
     // Toasts position should be controlled only by toast screen channel, see LLScreenChannelBase.
@@ -140,14 +140,14 @@ void LLToast::reshape(S32 width, S32 height, BOOL called_from_parent)
 }
 
 //--------------------------------------------------------------------------
-BOOL LLToast::postBuild()
+bool LLToast::postBuild()
 {
     if(!mCanFade)
     {
         mTimer->stop();
     }
 
-    return TRUE;
+    return true;
 }
 
 //--------------------------------------------------------------------------
@@ -189,7 +189,7 @@ void LLToast::hide()
 {
     if (!mIsHidden)
     {
-        setVisible(FALSE);
+        setVisible(false);
         setFading(false);
         mTimer->stop();
         mIsHidden = true;
@@ -198,7 +198,7 @@ void LLToast::hide()
 }
 
 /*virtual*/
-void LLToast::setFocus(BOOL b)
+void LLToast::setFocus(bool b)
 {
     if (b
         && !hasFocus()
@@ -206,9 +206,9 @@ void LLToast::setFocus(BOOL b)
         && mWrapperPanel
         && !mWrapperPanel->getChildList()->empty())
     {
-        LLModalDialog::setFocus(TRUE);
+        LLModalDialog::setFocus(true);
         // mostly for buttons
-        mPanel->setFocus(TRUE);
+        mPanel->setFocus(true);
     }
     else
     {
@@ -371,7 +371,7 @@ void LLToast::draw()
 }
 
 //--------------------------------------------------------------------------
-void LLToast::setVisible(BOOL show)
+void LLToast::setVisible(bool show)
 {
     if(mIsHidden)
     {
@@ -475,7 +475,7 @@ void LLToast::updateHoveredState()
             sendChildToFront(mHideBtn);
             if(mHideBtn && mHideBtn->getEnabled())
             {
-                mHideBtn->setVisible(TRUE);
+                mHideBtn->setVisible(true);
             }
 
             mToastMouseEnterSignal(this, getValue());
@@ -498,7 +498,7 @@ void LLToast::updateHoveredState()
                     mHideBtnPressed = false;
                     return;
                 }
-                mHideBtn->setVisible(FALSE);
+                mHideBtn->setVisible(false);
             }
 
             mToastMouseLeaveSignal(this, getValue());
@@ -506,7 +506,7 @@ void LLToast::updateHoveredState()
     }
 }
 
-void LLToast::setBackgroundOpaque(BOOL b)
+void LLToast::setBackgroundOpaque(bool b)
 {
     if(mWrapperPanel && !isBackgroundVisible())
     {
@@ -563,7 +563,7 @@ void LLNotificationsUI::LLToast::startTimer()
 
 //--------------------------------------------------------------------------
 
-BOOL LLToast::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLToast::handleMouseDown(S32 x, S32 y, MASK mask)
 {
     if(mHideBtn && mHideBtn->getEnabled())
     {

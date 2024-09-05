@@ -74,8 +74,8 @@
 #include "llsdserialize.h"
 
 LLPanelLogin *LLPanelLogin::sInstance = NULL;
-BOOL LLPanelLogin::sCapslockDidNotification = FALSE;
-BOOL LLPanelLogin::sCredentialSet = FALSE;
+bool LLPanelLogin::sCapslockDidNotification = false;
+bool LLPanelLogin::sCredentialSet = false;
 
 // Helper functions
 
@@ -191,10 +191,10 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
     mLocationLength(0),
     mShowFavorites(false)
 {
-    setBackgroundVisible(FALSE);
-    setBackgroundOpaque(TRUE);
+    setBackgroundVisible(false);
+    setBackgroundOpaque(true);
 
-    mPasswordModified = FALSE;
+    mPasswordModified = false;
 
     sInstance = this;
 
@@ -323,7 +323,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
     // STEAM-14: When user presses Enter with this field in focus, initiate login
     username_combo->setCommitCallback(boost::bind(&LLPanelLogin::onUserListCommit, this));
     username_combo->setReturnCallback(boost::bind(&LLPanelLogin::onClickConnect, this));
-    username_combo->setKeystrokeOnEsc(TRUE);
+    username_combo->setKeystrokeOnEsc(true);
 
 
     LLCheckBoxCtrl* remember_name = getChild<LLCheckBoxCtrl>("remember_name");
@@ -337,7 +337,7 @@ void LLPanelLogin::addFavoritesToStartLocation()
     {
         // first login panel has no favorites, just update name length and buttons
         std::string user_defined_name = getChild<LLComboBox>("username_combo")->getSimple();
-        mUsernameLength = user_defined_name.length();
+        mUsernameLength = static_cast<unsigned int>(user_defined_name.length());
         updateLoginButtons();
         return;
     }
@@ -357,7 +357,7 @@ void LLPanelLogin::addFavoritesToStartLocation()
     LLStringUtil::toLower(user_defined_name);
     std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "stored_favorites_" + LLGridManager::getInstance()->getGrid() + ".xml");
     std::string old_filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "stored_favorites.xml");
-    mUsernameLength = user_defined_name.length();
+    mUsernameLength = static_cast<unsigned int>(user_defined_name.length());
     updateLoginButtons();
 
     std::string::size_type index = user_defined_name.find_first_of(" ._");
@@ -430,7 +430,7 @@ void LLPanelLogin::addFavoritesToStartLocation()
         }
         if (update_password_setting)
         {
-            gSavedSettings.setBOOL("UpdateRememberPasswordSetting", TRUE);
+            gSavedSettings.setBOOL("UpdateRememberPasswordSetting", true);
         }
         break;
     }
@@ -453,7 +453,7 @@ LLPanelLogin::~LLPanelLogin()
 }
 
 // virtual
-void LLPanelLogin::setFocus(BOOL b)
+void LLPanelLogin::setFocus(bool b)
 {
     if(b != hasFocus())
     {
@@ -477,8 +477,8 @@ void LLPanelLogin::giveFocus()
         std::string username = sInstance->getChild<LLUICtrl>("username_combo")->getValue().asString();
         std::string pass = sInstance->getChild<LLUICtrl>("password_edit")->getValue().asString();
 
-        BOOL have_username = !username.empty();
-        BOOL have_pass = !pass.empty();
+        bool have_username = !username.empty();
+        bool have_pass = !pass.empty();
 
         LLLineEditor* edit = NULL;
         LLComboBox* combo = NULL;
@@ -496,12 +496,12 @@ void LLPanelLogin::giveFocus()
 
         if (edit)
         {
-            edit->setFocus(TRUE);
+            edit->setFocus(true);
             edit->selectAll();
         }
         else if (combo)
         {
-            combo->setFocus(TRUE);
+            combo->setFocus(true);
         }
     }
 }
@@ -519,7 +519,7 @@ void LLPanelLogin::show(const LLRect &rect,
     if( !gFocusMgr.getKeyboardFocus() )
     {
         // Grab focus and move cursor to first enabled control
-        sInstance->setFocus(TRUE);
+        sInstance->setFocus(true);
     }
 
     // Make sure that focus always goes here (and use the latest sInstance that was just created)
@@ -581,7 +581,7 @@ void LLPanelLogin::setFields(LLPointer<LLCredential> credential)
         LL_WARNS() << "Attempted fillFields with no login view shown" << LL_ENDL;
         return;
     }
-    sCredentialSet = TRUE;
+    sCredentialSet = true;
     LL_INFOS("Credentials") << "Setting login fields to " << *credential << LL_ENDL;
 
     LLSD identifier = credential.notNull() ? credential->getIdentifier() : LLSD();
@@ -599,13 +599,13 @@ void LLPanelLogin::setFields(LLPointer<LLCredential> credential)
             login_id += lastname;
         }
         sInstance->getChild<LLComboBox>("username_combo")->setLabel(login_id);
-        sInstance->mUsernameLength = login_id.length();
+        sInstance->mUsernameLength = static_cast<unsigned int>(login_id.length());
     }
     else if(identifier.has("type") && (std::string)identifier["type"] == "account")
     {
         std::string login_id = identifier["account_name"].asString();
         sInstance->getChild<LLComboBox>("username_combo")->setLabel(login_id);
-        sInstance->mUsernameLength = login_id.length();
+        sInstance->mUsernameLength = static_cast<unsigned int>(login_id.length());
     }
     else
     {
@@ -629,7 +629,7 @@ void LLPanelLogin::setFields(LLPointer<LLCredential> credential)
         // nice row of asterisks.
         const std::string filler("123456789!123456");
         sInstance->getChild<LLUICtrl>("password_edit")->setValue(filler);
-        sInstance->mPasswordLength = filler.length();
+        sInstance->mPasswordLength = static_cast<unsigned int>(filler.length());
         sInstance->updateLoginButtons();
     }
     else
@@ -717,7 +717,7 @@ void LLPanelLogin::getFields(LLPointer<LLCredential>& credential,
 
 
 // static
-BOOL LLPanelLogin::areCredentialFieldsDirty()
+bool LLPanelLogin::areCredentialFieldsDirty()
 {
     if (!sInstance)
     {
@@ -745,7 +745,7 @@ void LLPanelLogin::updateLocationSelectorsVisibility()
 {
     if (sInstance)
     {
-        BOOL show_server = gSavedSettings.getBOOL("ForceShowGrid");
+        bool show_server = gSavedSettings.getBOOL("ForceShowGrid");
         LLComboBox* server_combo = sInstance->getChild<LLComboBox>("server_combo");
         if ( server_combo )
         {
@@ -796,7 +796,7 @@ void LLPanelLogin::onUpdateStartSLURL(const LLSLURL& new_start_slurl)
             {
 
                 location_combo->setLabel(new_start_slurl.getLocationString());
-                sInstance->mLocationLength = new_start_slurl.getLocationString().length();
+                sInstance->mLocationLength = static_cast<unsigned int>(new_start_slurl.getLocationString().length());
                 sInstance->updateLoginButtons();
             }
         }
@@ -893,7 +893,7 @@ void LLPanelLogin::loadLoginPage()
     // First Login?
     if (gSavedSettings.getBOOL("FirstLoginThisInstall"))
     {
-        params["firstlogin"] = "TRUE"; // not bool: server expects string TRUE
+        params["firstlogin"] = "true"; // not bool: server expects string true
     }
 
     // Channel and Version
@@ -944,7 +944,7 @@ void LLPanelLogin::onClickConnect(bool commit_fields)
         if (commit_fields)
         {
             // JC - Make sure the fields all get committed.
-            sInstance->setFocus(FALSE);
+            sInstance->setFocus(false);
         }
 
         LLComboBox* combo = sInstance->getChild<LLComboBox>("server_combo");
@@ -981,7 +981,7 @@ void LLPanelLogin::onClickConnect(bool commit_fields)
         }
         else
         {
-            sCredentialSet = FALSE;
+            sCredentialSet = false;
             LLPointer<LLCredential> cred;
             bool remember_1, remember_2;
             getFields(cred, remember_1, remember_2);
@@ -1105,7 +1105,7 @@ void LLPanelLogin::onRememberPasswordCheck(void*)
 {
     if (sInstance)
     {
-        gSavedSettings.setBOOL("UpdateRememberPasswordSetting", TRUE);
+        gSavedSettings.setBOOL("UpdateRememberPasswordSetting", true);
 
         LLPointer<LLCredential> cred;
         bool remember_user, remember_password;
@@ -1120,15 +1120,15 @@ void LLPanelLogin::onRememberPasswordCheck(void*)
 void LLPanelLogin::onPassKey(LLLineEditor* caller, void* user_data)
 {
     LLPanelLogin *self = (LLPanelLogin *)user_data;
-    self->mPasswordModified = TRUE;
-    if (gKeyboard->getKeyDown(KEY_CAPSLOCK) && sCapslockDidNotification == FALSE)
+    self->mPasswordModified = true;
+    if (gKeyboard->getKeyDown(KEY_CAPSLOCK) && !sCapslockDidNotification)
     {
         // *TODO: use another way to notify user about enabled caps lock, see EXT-6858
-        sCapslockDidNotification = TRUE;
+        sCapslockDidNotification = true;
     }
 
     LLLineEditor* password_edit(self->getChild<LLLineEditor>("password_edit"));
-    self->mPasswordLength = password_edit->getText().length();
+    self->mPasswordLength = static_cast<unsigned int>(password_edit->getText().length());
     self->updateLoginButtons();
 }
 
@@ -1163,8 +1163,8 @@ void LLPanelLogin::updateServer()
                 // restore creds
                 user_combo->setTextEntry(username);
                 pswd_edit->setValue(password);
-                sInstance->mUsernameLength = username.length();
-                sInstance->mPasswordLength = password.length();
+                sInstance->mUsernameLength = static_cast<unsigned int>(username.length());
+                sInstance->mPasswordLength = static_cast<unsigned int>(password.length());
             }
             else
             {
@@ -1210,7 +1210,7 @@ void LLPanelLogin::updateLoginButtons()
         {
             remember_name->setValue(true);
             LLCheckBoxCtrl* remember_pass = getChild<LLCheckBoxCtrl>("remember_password");
-            remember_pass->setEnabled(TRUE);
+            remember_pass->setEnabled(true);
         } // Note: might be good idea to do "else remember_name->setValue(mRememberedState)" but it might behave 'weird' to user
     }
 }
@@ -1238,7 +1238,7 @@ void LLPanelLogin::populateUserList(LLPointer<LLCredential> credential)
             if (cr_iter->second.notNull()) // basic safety in case of future changes
             {
                 // cr_iter->first == user_id , to be able to be find it in case we select it
-                user_combo->add(LLPanelLogin::getUserName(cr_iter->second), cr_iter->first, ADD_BOTTOM, TRUE);
+                user_combo->add(LLPanelLogin::getUserName(cr_iter->second), cr_iter->first, ADD_BOTTOM, true);
             }
             cr_iter++;
         }

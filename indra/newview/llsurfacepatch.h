@@ -44,13 +44,13 @@ class LLPatchVisibilityInfo
 {
 public:
     LLPatchVisibilityInfo() :
-        mbIsVisible(FALSE),
+        mbIsVisible(false),
         mDistance(0.f),
         mRenderLevel(0),
         mRenderStride(0) { };
     ~LLPatchVisibilityInfo() { };
 
-    BOOL mbIsVisible;
+    bool mbIsVisible;
     F32 mDistance;          // Distance from camera
     S32 mRenderLevel;
     U32 mRenderStride;
@@ -73,7 +73,7 @@ public:
 
     void colorPatch(const U8 r, const U8 g, const U8 b);
 
-    BOOL updateTexture();
+    bool updateTexture();
 
     void updateVerticalStats();
     void updateCompositionStats();
@@ -89,7 +89,7 @@ public:
 
     void dirtyZ(); // Dirty the z values of this patch
     void setHasReceivedData();
-    BOOL getHasReceivedData() const;
+    bool getHasReceivedData() const;
 
     F32 getDistance() const;
     F32 getMaxZ() const;
@@ -134,7 +134,7 @@ public:
     // +---+---+---+
 
 
-    BOOL getVisible() const;
+    bool getVisible() const;
     U32 getRenderStride() const;
     S32 getRenderLevel() const;
 
@@ -144,21 +144,21 @@ public:
     F32 *getDataZ() const                       { return mDataZ; }
 
     void dirty();           // Mark this surface patch as dirty...
-    void clearDirty()                           { mDirty = FALSE; }
+    void clearDirty()                           { mDirty = false; }
 
     void clearVObj();
 
 public:
-    BOOL mHasReceivedData;  // has the patch EVER received height data?
-    BOOL mSTexUpdate;       // Does the surface texture need to be updated?
+    bool mHasReceivedData;  // has the patch EVER received height data?
+    bool mSTexUpdate;       // Does the surface texture need to be updated?
 
 protected:
     LLSurfacePatch *mNeighborPatches[8]; // Adjacent patches
-    BOOL mNormalsInvalid[9];  // Which normals are invalid
+    bool mNormalsInvalid[9];  // Which normals are invalid
 
-    BOOL mDirty;
-    BOOL mDirtyZStats;
-    BOOL mHeightsGenerated;
+    bool mDirty;
+    bool mDirtyZStats;
+    bool mHeightsGenerated;
 
     U32 mDataOffset;
     F32 *mDataZ;

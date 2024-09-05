@@ -3,7 +3,7 @@
  * @author Nat Goodspeed
  * @date   2023-10-03
  * @brief  iostream manipulators to stream hex, or string with nonprinting chars
- * 
+ *
  * $LicenseInfo:firstyear=2023&license=viewerlgpl$
  * Copyright (c) 2023, Linden Research, Inc.
  * $/LicenseInfo$

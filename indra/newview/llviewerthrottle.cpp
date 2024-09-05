@@ -207,7 +207,7 @@ LLViewerThrottle::LLViewerThrottle() :
 }
 
 
-void LLViewerThrottle::setMaxBandwidth(F32 kbits_per_second, BOOL from_event)
+void LLViewerThrottle::setMaxBandwidth(F32 kbits_per_second, bool from_event)
 {
     if (!from_event)
     {
@@ -246,9 +246,9 @@ LLViewerThrottleGroup LLViewerThrottle::getThrottleGroup(const F32 bandwidth_kbp
     //Clamp the bandwidth users can set.
     F32 set_bandwidth = llclamp(bandwidth_kbps, MIN_BANDWIDTH, MAX_BANDWIDTH);
 
-    S32 count = mPresets.size();
+    auto count = mPresets.size();
 
-    S32 i;
+    size_t i;
     for (i = 0; i < count; i++)
     {
         if (mPresets[i].getTotal() > set_bandwidth)

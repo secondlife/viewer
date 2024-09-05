@@ -179,7 +179,7 @@ class LLDir
     static std::string getDumpLogsDirPath(const std::string &file_name = "");
 
     // For producing safe download file names from potentially unsafe ones
-    static std::string getScrubbedFileName(const std::string uncleanFileName);
+    static std::string getScrubbedFileName(std::string_view uncleanFileName);
     static std::string getForbiddenFileChars();
     void setDumpDir( const std::string& path );
 

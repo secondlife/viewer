@@ -494,7 +494,7 @@ LLIOPipe::EStatus LLHTTPResponseHeader::process_impl(
         LLChangeChannel change(channels.in(), channels.out());
         std::for_each(buffer->beginSegment(), buffer->endSegment(), change);
         std::string header = ostr.str();
-        buffer->prepend(channels.out(), (U8*)header.c_str(), header.size());
+        buffer->prepend(channels.out(), (U8*)header.c_str(), static_cast<S32>(header.size()));
         PUMP_DEBUG;
         return STATUS_DONE;
     }

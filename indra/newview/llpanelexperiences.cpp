@@ -51,7 +51,7 @@ LLPanelExperiences::LLPanelExperiences(  )
     buildFromFile("panel_experiences.xml");
 }
 
-BOOL LLPanelExperiences::postBuild( void )
+bool LLPanelExperiences::postBuild( void )
 {
     mExperiencesList = getChild<LLFlatListView>("experiences_list");
     if (hasString("loading_experiences"))
@@ -64,7 +64,7 @@ BOOL LLPanelExperiences::postBuild( void )
     }
     mExperiencesList->setComparator(&NAME_COMPARATOR);
 
-    return TRUE;
+    return true;
 }
 
 
@@ -212,10 +212,10 @@ LLPanelSearchExperiences* LLPanelSearchExperiences::create( const std::string& n
     return panel;
 }
 
-BOOL LLPanelSearchExperiences::postBuild( void )
+bool LLPanelSearchExperiences::postBuild( void )
 {
     childSetAction("search_button", boost::bind(&LLPanelSearchExperiences::doSearch, this));
-    return TRUE;
+    return true;
 }
 
 bool LLExperienceItemComparator::compare(const LLPanel* item1, const LLPanel* item2) const

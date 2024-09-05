@@ -36,8 +36,8 @@
 // Constants
 //
 
-const BOOL  RADIO_STYLE = TRUE;
-const BOOL  CHECK_STYLE = FALSE;
+const bool  RADIO_STYLE = true;
+const bool  CHECK_STYLE = false;
 
 //
 // Classes
@@ -87,28 +87,28 @@ protected:
 public:
     // LLView interface
 
-    virtual void        setEnabled( BOOL b );
+    virtual void        setEnabled( bool b );
 
-    virtual void        reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
+    virtual void        reshape(S32 width, S32 height, bool called_from_parent = true);
 
     // LLUICtrl interface
     virtual void        setValue(const LLSD& value );
     virtual LLSD        getValue() const;
-            BOOL        get() { return (BOOL)getValue().asBoolean(); }
-            void        set(BOOL value) { setValue(value); }
+            bool        get() { return (bool)getValue().asBoolean(); }
+            void        set(bool value) { setValue(value); }
 
-    virtual void        setTentative(BOOL b);
-    virtual BOOL        getTentative() const;
+    virtual void        setTentative(bool b);
+    virtual bool        getTentative() const;
 
-    virtual BOOL        setLabelArg( const std::string& key, const LLStringExplicit& text );
+    virtual bool        setLabelArg( const std::string& key, const LLStringExplicit& text );
 
     virtual void        clear();
     virtual void        onCommit();
 
     // LLCheckBoxCtrl interface
-    virtual BOOL        toggle()                { return mButton->toggleState(); }      // returns new state
+    virtual bool        toggle()                { return mButton->toggleState(); }      // returns new state
 
-    void                setBtnFocus() { mButton->setFocus(TRUE); }
+    void                setBtnFocus() { mButton->setFocus(true); }
 
     void                setEnabledColor( const LLColor4 &color ) { mTextEnabledColor = color; }
     void                setDisabledColor( const LLColor4 &color ) { mTextDisabledColor = color; }
@@ -121,7 +121,7 @@ public:
 
     virtual void        setControlName(const std::string& control_name, LLView* context);
 
-    virtual BOOL        isDirty()   const;      // Returns TRUE if the user has modified this control.
+    virtual bool        isDirty()   const;      // Returns true if the user has modified this control.
     virtual void        resetDirty();           // Clear dirty state
 
 protected:
@@ -151,7 +151,7 @@ protected:
 // Build time optimization, generate once in .cpp file
 #ifndef LLCHECKBOXCTRL_CPP
 extern template class LLCheckBoxCtrl* LLView::getChild<class LLCheckBoxCtrl>(
-    const std::string& name, BOOL recurse) const;
+    const std::string& name, bool recurse) const;
 #endif
 
 #endif  // LL_LLCHECKBOXCTRL_H

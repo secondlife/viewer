@@ -119,13 +119,13 @@ public:
     virtual EStatus getStatus() const { return mStatus; }
     virtual void setNeedRefresh(bool need);
 
-    static BOOL updatePreviewList(bool initialized);
+    static bool updatePreviewList(bool initialized);
 
     void setAdvanced(bool advanced) { mAdvanced = advanced; }
     void setSkipReshaping(bool skip) { mSkipReshaping = skip; }
 
     virtual LLSnapshotModel::ESnapshotLayerType getLayerType(LLFloaterSnapshotBase* floater) = 0;
-    virtual void checkAutoSnapshot(LLSnapshotLivePreview* floater, BOOL update_thumbnail = FALSE);
+    virtual void checkAutoSnapshot(LLSnapshotLivePreview* floater, bool update_thumbnail = false);
     void setWorking(bool working);
     virtual void setFinished(bool finished, bool ok = true, const std::string& msg = LLStringUtil::null) = 0;
 
@@ -150,7 +150,7 @@ public:
     LLFloaterSnapshot(const LLSD& key);
     /*virtual*/ ~LLFloaterSnapshot();
 
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
     /*virtual*/ void onOpen(const LLSD& key);
     /*virtual*/ S32 notify(const LLSD& info);
 
@@ -167,7 +167,7 @@ public:
     void saveLocal(const snapshot_saved_signal_t::slot_type& success_cb, const snapshot_saved_signal_t::slot_type& failure_cb);
     static void setAgentEmail(const std::string& email);
 
-    BOOL isWaitingState();
+    bool isWaitingState();
 
     class Impl;
     friend class Impl;
@@ -187,24 +187,24 @@ public:
     ~Impl()
     {}
 
-    void applyKeepAspectCheck(LLFloaterSnapshotBase* view, BOOL checked);
-    void updateResolution(LLUICtrl* ctrl, void* data, BOOL do_update = TRUE);
+    void applyKeepAspectCheck(LLFloaterSnapshotBase* view, bool checked);
+    void updateResolution(LLUICtrl* ctrl, void* data, bool do_update = true);
     static void onCommitLayerTypes(LLUICtrl* ctrl, void*data);
     void onImageQualityChange(LLFloaterSnapshotBase* view, S32 quality_val);
     void onImageFormatChange(LLFloaterSnapshotBase* view);
     void applyCustomResolution(LLFloaterSnapshotBase* view, S32 w, S32 h);
     static void onSendingPostcardFinished(LLFloaterSnapshotBase* floater, bool status);
-    BOOL checkImageSize(LLSnapshotLivePreview* previewp, S32& width, S32& height, BOOL isWidthChanged, S32 max_value);
+    bool checkImageSize(LLSnapshotLivePreview* previewp, S32& width, S32& height, bool isWidthChanged, S32 max_value);
     void setImageSizeSpinnersValues(LLFloaterSnapshotBase *view, S32 width, S32 height);
-    void updateSpinners(LLFloaterSnapshotBase* view, LLSnapshotLivePreview* previewp, S32& width, S32& height, BOOL is_width_changed);
+    void updateSpinners(LLFloaterSnapshotBase* view, LLSnapshotLivePreview* previewp, S32& width, S32& height, bool is_width_changed);
     static void onSnapshotUploadFinished(LLFloaterSnapshotBase* floater, bool status);
 
     /*virtual*/ LLPanelSnapshot* getActivePanel(LLFloaterSnapshotBase* floater, bool ok_if_not_found = true);
     /*virtual*/ LLSnapshotModel::ESnapshotFormat getImageFormat(LLFloaterSnapshotBase* floater);
     LLSpinCtrl* getWidthSpinner(LLFloaterSnapshotBase* floater);
     LLSpinCtrl* getHeightSpinner(LLFloaterSnapshotBase* floater);
-    void enableAspectRatioCheckbox(LLFloaterSnapshotBase* floater, BOOL enable);
-    void setAspectRatioCheckboxValue(LLFloaterSnapshotBase* floater, BOOL checked);
+    void enableAspectRatioCheckbox(LLFloaterSnapshotBase* floater, bool enable);
+    void setAspectRatioCheckboxValue(LLFloaterSnapshotBase* floater, bool checked);
     /*virtual*/ std::string getSnapshotPanelPrefix();
 
     void setResolution(LLFloaterSnapshotBase* floater, const std::string& comboname);
@@ -232,10 +232,10 @@ protected:
 public:
     virtual ~LLSnapshotFloaterView();
 
-    /*virtual*/ BOOL handleKey(KEY key, MASK mask, BOOL called_from_parent);
-    /*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
-    /*virtual*/ BOOL handleMouseUp(S32 x, S32 y, MASK mask);
-    /*virtual*/ BOOL handleHover(S32 x, S32 y, MASK mask);
+    /*virtual*/ bool handleKey(KEY key, MASK mask, bool called_from_parent);
+    /*virtual*/ bool handleMouseDown(S32 x, S32 y, MASK mask);
+    /*virtual*/ bool handleMouseUp(S32 x, S32 y, MASK mask);
+    /*virtual*/ bool handleHover(S32 x, S32 y, MASK mask);
 };
 
 extern LLSnapshotFloaterView* gSnapshotFloaterView;

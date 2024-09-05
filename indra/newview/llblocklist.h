@@ -54,7 +54,7 @@ public:
     LLBlockList(const Params& p);
     virtual ~LLBlockList();
 
-    virtual BOOL        handleRightMouseDown(S32 x, S32 y, MASK mask);
+    virtual bool        handleRightMouseDown(S32 x, S32 y, MASK mask);
     LLToggleableMenu*   getContextMenu() const { return mContextMenu.get(); }
     LLBlockedListItem*  getBlockedItem() const;
 

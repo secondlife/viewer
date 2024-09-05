@@ -48,7 +48,7 @@ public:
      * @param to_address The email recipient address
      * @param subject The subject of the email
      * @param headers optional X-Foo headers in an llsd map.
-     * @return Returns TRUE if the call succeeds, FALSE otherwise.
+     * @return Returns true if the call succeeds, false otherwise.
      *
      * Results in:
      * From: "from_name" <from_address>
@@ -57,7 +57,7 @@ public:
      *
      * message
      */
-    static BOOL send(
+    static bool send(
         const char* from_name,
         const char* from_address,
         const char* to_name,

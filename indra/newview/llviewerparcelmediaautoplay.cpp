@@ -49,7 +49,7 @@ LLViewerParcelMediaAutoPlay::LLViewerParcelMediaAutoPlay() :
     LLEventTimer(1),
 
     mLastParcelID(-1),
-    mPlayed(FALSE),
+    mPlayed(false),
     mTimeInParcel(0)
 {
 }
@@ -57,7 +57,7 @@ LLViewerParcelMediaAutoPlay::LLViewerParcelMediaAutoPlay() :
 // static
 void LLViewerParcelMediaAutoPlay::playStarted()
 {
-    LLSingleton<LLViewerParcelMediaAutoPlay>::getInstance()->mPlayed = TRUE;
+    LLSingleton<LLViewerParcelMediaAutoPlay>::getInstance()->mPlayed = true;
 }
 
 bool LLViewerParcelMediaAutoPlay::tick()
@@ -94,7 +94,7 @@ bool LLViewerParcelMediaAutoPlay::tick()
         this_region_id != mLastRegionID)
     {
         // we've entered a new parcel
-        mPlayed    = FALSE;                   // we haven't autoplayed yet
+        mPlayed    = false;                   // we haven't autoplayed yet
         mTimeInParcel = 0;                    // reset our timer
         mLastParcelID = this_parcel_id;
         mLastRegionID = this_region_id;
@@ -110,7 +110,7 @@ bool LLViewerParcelMediaAutoPlay::tick()
     {
         if (this_media_texture_id.notNull())    // and if the media texture is good
         {
-            LLViewerMediaTexture *image = LLViewerTextureManager::getMediaTexture(this_media_texture_id, FALSE) ;
+            LLViewerMediaTexture *image = LLViewerTextureManager::getMediaTexture(this_media_texture_id, false) ;
 
             F32 image_size = 0;
 
@@ -149,7 +149,7 @@ bool LLViewerParcelMediaAutoPlay::tick()
                         }
                     }
 
-                    mPlayed = TRUE;
+                    mPlayed = true;
                 }
             }
         }

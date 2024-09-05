@@ -61,7 +61,7 @@ namespace tut
                                        1,
                                        0,
                                        0,
-                                       FALSE,
+                                       false,
                                        "notasharedsecret",
                                        NULL,
                                        false,
@@ -135,16 +135,16 @@ namespace tut
 
     template<> template<>
     void LLTemplateMessageBuilderTestObject::test<2>()
-         // BOOL
+         // bool
     {
         LLMessageTemplate messageTemplate = defaultTemplate();
         messageTemplate.addBlock(defaultBlock(MVT_BOOL, 1));
-        BOOL outValue, inValue = TRUE;
+        bool outValue, inValue = true;
         LLTemplateMessageBuilder* builder = defaultBuilder(messageTemplate);
         builder->addBOOL(_PREHASH_Test0, inValue);
         LLTemplateMessageReader* reader = setReader(messageTemplate, builder);
         reader->getBOOL(_PREHASH_Test0, _PREHASH_Test0, outValue);
-        ensure_equals("Ensure BOOL", inValue, outValue);
+        ensure_equals("Ensure bool", inValue, outValue);
         delete reader;
     }
 
@@ -591,17 +591,17 @@ namespace tut
 
     template<> template<>
     void LLTemplateMessageBuilderTestObject::test<26>()
-         // non-zero offset with BOOL
+         // non-zero offset with bool
     {
         LLMessageTemplate messageTemplate = defaultTemplate();
         messageTemplate.addBlock(defaultBlock(MVT_BOOL, 1));
-        BOOL outValue, inValue = TRUE;
+        bool outValue, inValue = true;
         LLTemplateMessageBuilder* builder = defaultBuilder(messageTemplate);
         builder->addBOOL(_PREHASH_Test0, inValue);
         LLTemplateMessageReader* reader = setReader(
             messageTemplate, builder, 1);
         reader->getBOOL(_PREHASH_Test0, _PREHASH_Test0, outValue);
-        ensure_equals("Ensure BOOL", inValue, outValue);
+        ensure_equals("Ensure bool", inValue, outValue);
         delete reader;
     }
 

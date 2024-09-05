@@ -76,26 +76,26 @@ public:
     /*virtual*/ LLSD getValue() const { return mColor.getValue(); }
     const LLColor4& get()                           { return mColor; }
 
-    void            set(const LLColor4& color, BOOL update_picker = FALSE, BOOL from_event = FALSE);
+    void            set(const LLColor4& color, bool update_picker = false, bool from_event = false);
     void            setOriginal(const LLColor4& color);
-    void            setValid(BOOL valid);
+    void            setValid(bool valid);
     void            setLabel(const std::string& label);
     void            setLabelWidth(S32 label_width) {mLabelWidth =label_width;}
-    void            setCanApplyImmediately(BOOL apply) { mCanApplyImmediately = apply; }
+    void            setCanApplyImmediately(bool apply) { mCanApplyImmediately = apply; }
     void            setOnCancelCallback(commit_callback_t cb) { mOnCancelCallback = cb; }
     void            setOnSelectCallback(commit_callback_t cb) { mOnSelectCallback = cb; }
     void            setPreviewCallback(commit_callback_t cb) { mPreviewCallback = cb; }
     void            setFallbackImage(LLPointer<LLUIImage> image) { mFallbackImage = image; }
 
-    void            showPicker(BOOL take_focus);
+    void            showPicker(bool take_focus);
 
-    /*virtual*/ BOOL    handleMouseDown(S32 x, S32 y, MASK mask);
-    /*virtual*/ BOOL    handleMouseUp(S32 x, S32 y, MASK mask);
-    /*virtual*/ BOOL    handleDoubleClick(S32 x,S32 y,MASK mask);
-    /*virtual*/ BOOL    handleHover(S32 x, S32 y, MASK mask);
-    /*virtual*/ BOOL    handleUnicodeCharHere(llwchar uni_char);
+    /*virtual*/ bool    handleMouseDown(S32 x, S32 y, MASK mask);
+    /*virtual*/ bool    handleMouseUp(S32 x, S32 y, MASK mask);
+    /*virtual*/ bool    handleDoubleClick(S32 x,S32 y,MASK mask);
+    /*virtual*/ bool    handleHover(S32 x, S32 y, MASK mask);
+    /*virtual*/ bool    handleUnicodeCharHere(llwchar uni_char);
     /*virtual*/ void    draw();
-    /*virtual*/ void    setEnabled( BOOL enabled );
+    /*virtual*/ void    setEnabled( bool enabled );
 
     static void     onColorChanged ( void* data, EColorPickOp pick_op = COLOR_CHANGE );
     void            closeFloaterColorPicker();

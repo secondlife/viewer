@@ -47,7 +47,7 @@ class LLPanelSnapshotLocal
 
 public:
     LLPanelSnapshotLocal();
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
     /*virtual*/ void onOpen(const LLSD& key);
 
 private:
@@ -79,7 +79,7 @@ LLPanelSnapshotLocal::LLPanelSnapshotLocal()
 }
 
 // virtual
-BOOL LLPanelSnapshotLocal::postBuild()
+bool LLPanelSnapshotLocal::postBuild()
 {
     getChild<LLUICtrl>("image_quality_slider")->setCommitCallback(boost::bind(&LLPanelSnapshotLocal::onQualitySliderCommit, this, _1));
     getChild<LLUICtrl>("local_format_combo")->setCommitCallback(boost::bind(&LLPanelSnapshotLocal::onFormatComboCommit, this, _1));

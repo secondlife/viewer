@@ -51,8 +51,6 @@ uniform vec4[2] texture_emissive_transform;
 
 out vec3 vary_fragcoord;
 
-uniform float near_clip;
-
 in vec3 position;
 in vec4 diffuse_color;
 in vec3 normal;
@@ -88,7 +86,7 @@ void main()
 #endif
     gl_Position = vert;
 
-    vary_fragcoord.xyz = vert.xyz + vec3(0,0,near_clip);
+    vary_fragcoord.xyz = vert.xyz;
 
     base_color_texcoord = texture_transform(texcoord0, texture_base_color_transform, texture_matrix0);
     normal_texcoord = texture_transform(texcoord0, texture_normal_transform, texture_matrix0);

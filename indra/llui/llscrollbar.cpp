@@ -73,7 +73,7 @@ LLScrollbar::LLScrollbar(const Params & p)
         mDocPos( p.doc_pos ),
         mPageSize( p.page_size ),
         mStepSize( p.step_size ),
-        mDocChanged(FALSE),
+        mDocChanged(false),
         mDragStartX( 0 ),
         mDragStartY( 0 ),
         mHoverGlowStrength(0.15f),
@@ -136,19 +136,19 @@ void LLScrollbar::setDocParams( S32 size, S32 pos )
 {
     mDocSize = size;
     setDocPos(pos);
-    mDocChanged = TRUE;
+    mDocChanged = true;
 
     updateThumbRect();
 }
 
 // returns true if document position really changed
-bool LLScrollbar::setDocPos(S32 pos, BOOL update_thumb)
+bool LLScrollbar::setDocPos(S32 pos, bool update_thumb)
 {
     pos = llclamp(pos, 0, getDocPosMax());
     if (pos != mDocPos)
     {
         mDocPos = pos;
-        mDocChanged = TRUE;
+        mDocChanged = true;
 
         if( mChangeCallback )
         {
@@ -170,7 +170,7 @@ void LLScrollbar::setDocSize(S32 size)
     {
         mDocSize = size;
         setDocPos(mDocPos);
-        mDocChanged = TRUE;
+        mDocChanged = true;
 
         updateThumbRect();
     }
@@ -182,7 +182,7 @@ void LLScrollbar::setPageSize( S32 page_size )
     {
         mPageSize = page_size;
         setDocPos(mDocPos);
-        mDocChanged = TRUE;
+        mDocChanged = true;
 
         updateThumbRect();
     }
@@ -238,10 +238,10 @@ void LLScrollbar::updateThumbRect()
     }
 }
 
-BOOL LLScrollbar::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLScrollbar::handleMouseDown(S32 x, S32 y, MASK mask)
 {
     // Check children first
-    BOOL handled_by_child = LLView::childrenHandleMouseDown(x, y, mask) != NULL;
+    bool handled_by_child = LLView::childrenHandleMouseDown(x, y, mask) != NULL;
     if( !handled_by_child )
     {
         if( mThumbRect.pointInRect(x,y) )
@@ -279,16 +279,16 @@ BOOL LLScrollbar::handleMouseDown(S32 x, S32 y, MASK mask)
         }
     }
 
-    return TRUE;
+    return true;
 }
 
 
-BOOL LLScrollbar::handleHover(S32 x, S32 y, MASK mask)
+bool LLScrollbar::handleHover(S32 x, S32 y, MASK mask)
 {
     // Note: we don't bother sending the event to the children (the arrow buttons)
     // because they'll capture the mouse whenever they need hover events.
 
-    BOOL handled = FALSE;
+    bool handled = false;
     if( hasMouseCapture() )
     {
         S32 height = getRect().getHeight();
@@ -329,7 +329,7 @@ BOOL LLScrollbar::handleHover(S32 x, S32 y, MASK mask)
                     S32 new_pos = llclamp( S32(variable_lines - ratio * variable_lines + 0.5f), 0, variable_lines );
                     // Note: we do not call updateThumbRect() here.  Instead we let the thumb and the document go slightly
                     // out of sync (less than a line's worth) to make the thumb feel responsive.
-                    changeLine( new_pos - mDocPos, FALSE );
+                    changeLine( new_pos - mDocPos, false );
                 }
             }
 
@@ -373,7 +373,7 @@ BOOL LLScrollbar::handleHover(S32 x, S32 y, MASK mask)
 
                     // Note: we do not call updateThumbRect() here.  Instead we let the thumb and the document go slightly
                     // out of sync (less than a line's worth) to make the thumb feel responsive.
-                    changeLine( new_pos - mDocPos, FALSE );
+                    changeLine( new_pos - mDocPos, false );
                 }
             }
 
@@ -382,7 +382,7 @@ BOOL LLScrollbar::handleHover(S32 x, S32 y, MASK mask)
 
         getWindow()->setCursor(UI_CURSOR_ARROW);
         LL_DEBUGS("UserInput") << "hover handled by " << getName() << " (active)" << LL_ENDL;
-        handled = TRUE;
+        handled = true;
     }
     else
     {
@@ -394,31 +394,31 @@ BOOL LLScrollbar::handleHover(S32 x, S32 y, MASK mask)
     {
         getWindow()->setCursor(UI_CURSOR_ARROW);
         LL_DEBUGS("UserInput") << "hover handled by " << getName() << " (inactive)"  << LL_ENDL;
-        handled = TRUE;
+        handled = true;
     }
 
-    mDocChanged = FALSE;
+    mDocChanged = false;
     return handled;
 } // end handleHover
 
 
-BOOL LLScrollbar::handleScrollWheel(S32 x, S32 y, S32 clicks)
+bool LLScrollbar::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
-    BOOL handled = changeLine( clicks * mStepSize, TRUE );
+    bool handled = changeLine( clicks * mStepSize, true );
     return handled;
 }
 
-BOOL LLScrollbar::handleScrollHWheel(S32 x, S32 y, S32 clicks)
+bool LLScrollbar::handleScrollHWheel(S32 x, S32 y, S32 clicks)
 {
-    BOOL handled = FALSE;
+    bool handled = false;
     if (LLScrollbar::HORIZONTAL == mOrientation)
     {
-        handled = changeLine(clicks * mStepSize, TRUE);
+        handled = changeLine(clicks * mStepSize, true);
     }
     return handled;
 }
 
-BOOL LLScrollbar::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+bool LLScrollbar::handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
                                     EDragAndDropType cargo_type, void *cargo_data, EAcceptance *accept, std::string &tooltip_msg)
 {
     // enable this to get drag and drop to control scrollbars
@@ -434,19 +434,19 @@ BOOL LLScrollbar::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
     //      : F32(pos - SCROLLBAR_SIZE) / usable_track_length;
     //  S32 new_pos = (VERTICAL == mOrientation) ? llclamp( S32(variable_lines - ratio * variable_lines + 0.5f), 0, variable_lines )
     //      : llclamp( S32(ratio * variable_lines + 0.5f), 0, variable_lines );
-    //  changeLine( new_pos - mDocPos, TRUE );
+    //  changeLine( new_pos - mDocPos, true );
     //}
-    //return TRUE;
-    return FALSE;
+    //return true;
+    return false;
 }
 
-BOOL LLScrollbar::handleMouseUp(S32 x, S32 y, MASK mask)
+bool LLScrollbar::handleMouseUp(S32 x, S32 y, MASK mask)
 {
-    BOOL handled = FALSE;
+    bool handled = false;
     if( hasMouseCapture() )
     {
         gFocusMgr.setMouseCapture( NULL );
-        handled = TRUE;
+        handled = true;
     }
     else
     {
@@ -457,14 +457,14 @@ BOOL LLScrollbar::handleMouseUp(S32 x, S32 y, MASK mask)
     return handled;
 }
 
-BOOL LLScrollbar::handleDoubleClick(S32 x, S32 y, MASK mask)
+bool LLScrollbar::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
     // just treat a double click as a second click
     return handleMouseDown(x, y, mask);
 }
 
 
-void LLScrollbar::reshape(S32 width, S32 height, BOOL called_from_parent)
+void LLScrollbar::reshape(S32 width, S32 height, bool called_from_parent)
 {
     if (width == getRect().getWidth() && height == getRect().getHeight()) return;
     LLView::reshape( width, height, called_from_parent );
@@ -495,14 +495,14 @@ void LLScrollbar::draw()
 
     if(mBGVisible)
     {
-        gl_rect_2d(getLocalRect(), mBGColor.get(), TRUE);
+        gl_rect_2d(getLocalRect(), mBGColor.get(), true);
     }
 
     S32 local_mouse_x;
     S32 local_mouse_y;
     LLUI::getInstance()->getMousePositionLocal(this, &local_mouse_x, &local_mouse_y);
-    BOOL other_captor = gFocusMgr.getMouseCapture() && gFocusMgr.getMouseCapture() != this;
-    BOOL hovered = getEnabled() && !other_captor && (hasMouseCapture() || mThumbRect.pointInRect(local_mouse_x, local_mouse_y));
+    bool other_captor = gFocusMgr.getMouseCapture() && gFocusMgr.getMouseCapture() != this;
+    bool hovered = getEnabled() && !other_captor && (hasMouseCapture() || mThumbRect.pointInRect(local_mouse_x, local_mouse_y));
     if (hovered)
     {
         mCurGlowStrength = lerp(mCurGlowStrength, mHoverGlowStrength, LLSmoothInterpolation::getInterpolant(0.05f));
@@ -519,9 +519,9 @@ void LLScrollbar::draw()
         gl_rect_2d(mOrientation == HORIZONTAL ? mThickness : 0,
         mOrientation == VERTICAL ? getRect().getHeight() - 2 * mThickness : getRect().getHeight(),
         mOrientation == HORIZONTAL ? getRect().getWidth() - 2 * mThickness : getRect().getWidth(),
-        mOrientation == VERTICAL ? mThickness : 0, mTrackColor.get(), TRUE);
+        mOrientation == VERTICAL ? mThickness : 0, mTrackColor.get(), true);
 
-        gl_rect_2d(mThumbRect, mThumbColor.get(), TRUE);
+        gl_rect_2d(mThumbRect, mThumbColor.get(), true);
 
     }
     else
@@ -580,7 +580,7 @@ void LLScrollbar::draw()
 } // end draw
 
 
-bool LLScrollbar::changeLine( S32 delta, BOOL update_thumb )
+bool LLScrollbar::changeLine( S32 delta, bool update_thumb )
 {
     return setDocPos(mDocPos + delta, update_thumb);
 }
@@ -591,35 +591,35 @@ void LLScrollbar::setValue(const LLSD& value)
 }
 
 
-BOOL LLScrollbar::handleKeyHere(KEY key, MASK mask)
+bool LLScrollbar::handleKeyHere(KEY key, MASK mask)
 {
     if (getDocPosMax() == 0 && !getVisible())
     {
-        return FALSE;
+        return false;
     }
 
-    BOOL handled = FALSE;
+    bool handled = false;
 
     switch( key )
     {
     case KEY_HOME:
         setDocPos( 0 );
-        handled = TRUE;
+        handled = true;
         break;
 
     case KEY_END:
         setDocPos( getDocPosMax() );
-        handled = TRUE;
+        handled = true;
         break;
 
     case KEY_DOWN:
         setDocPos( getDocPos() + mStepSize );
-        handled = TRUE;
+        handled = true;
         break;
 
     case KEY_UP:
         setDocPos( getDocPos() - mStepSize );
-        handled = TRUE;
+        handled = true;
         break;
 
     case KEY_PAGE_DOWN:
@@ -638,7 +638,7 @@ void LLScrollbar::pageUp(S32 overlap)
 {
     if (mDocSize > mPageSize)
     {
-        changeLine( -(mPageSize - overlap), TRUE );
+        changeLine( -(mPageSize - overlap), true );
     }
 }
 
@@ -646,18 +646,18 @@ void LLScrollbar::pageDown(S32 overlap)
 {
     if (mDocSize > mPageSize)
     {
-        changeLine( mPageSize - overlap, TRUE );
+        changeLine( mPageSize - overlap, true );
     }
 }
 
 void LLScrollbar::onLineUpBtnPressed( const LLSD& data )
 {
-    changeLine( -mStepSize, TRUE );
+    changeLine( -mStepSize, true );
 }
 
 void LLScrollbar::onLineDownBtnPressed( const LLSD& data )
 {
-    changeLine( mStepSize, TRUE );
+    changeLine( mStepSize, true );
 }
 
 void LLScrollbar::setThickness(S32 thickness)

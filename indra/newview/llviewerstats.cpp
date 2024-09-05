@@ -338,7 +338,7 @@ void LLViewerStats::addToMessage(LLSD &body)
 {
     LLSD &misc = body["misc"];
 
-    misc["Version"] = TRUE;
+    misc["Version"] = true;
     //TODO RN: get last value, not mean
     misc["Vertex Buffers Enabled"] = getRecording().getMean(LLStatViewer::ENABLE_VBO);
 

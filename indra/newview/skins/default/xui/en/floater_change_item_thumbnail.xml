@@ -9,6 +9,10 @@
  width="319">
 
   <floater.string
+    name="multiple_item_names">
+      Multiple items selected
+  </floater.string>
+  <floater.string
     name="title_item_thumbnail">
     CHANGE ITEM IMAGE
   </floater.string>
@@ -72,6 +76,22 @@
     height="256"
     width="256"
         />
+  <text
+   name="multiple_lbl"
+   font="SansSerifBig"
+   text_color="White"
+   halign="center"
+   valign="center"
+   use_ellipses="true"
+   follows="top|left"
+   layout="topleft"
+   height="256"
+   width="256"
+   top_delta="0"
+   left_delta="0"
+   visible =" false">
+      Multiple thumbnails
+  </text>
 
   <button
     follows="right|bottom"

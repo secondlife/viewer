@@ -3,7 +3,7 @@
  * @author Nat Goodspeed
  * @date   2024-08-05
  * @brief  Custom scheduler for viewer's Boost.Fibers (aka coroutines)
- * 
+ *
  * $LicenseInfo:firstyear=2024&license=viewerlgpl$
  * Copyright (c) 2024, Linden Research, Inc.
  * $/LicenseInfo$

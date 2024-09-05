@@ -73,7 +73,7 @@ void LLFloaterTopObjects::show()
 */
 LLFloaterTopObjects::LLFloaterTopObjects(const LLSD& key)
 :   LLFloater(key),
-    mInitialized(FALSE),
+    mInitialized(false),
     mtotalScore(0.f)
 {
     mCommitCallbackRegistrar.add("TopObjects.ShowBeacon",       { boost::bind(&LLFloaterTopObjects::onClickShowBeacon, this) });
@@ -93,12 +93,12 @@ LLFloaterTopObjects::~LLFloaterTopObjects()
 }
 
 // virtual
-BOOL LLFloaterTopObjects::postBuild()
+bool LLFloaterTopObjects::postBuild()
 {
     mObjectsScrollList = getChild<LLScrollListCtrl>("objects_list");
-    mObjectsScrollList->setFocus(TRUE);
+    mObjectsScrollList->setFocus(true);
     mObjectsScrollList->setDoubleClickCallback(onDoubleClickObjectsList, this);
-    mObjectsScrollList->setCommitOnSelectionChange(TRUE);
+    mObjectsScrollList->setCommitOnSelectionChange(true);
     mObjectsScrollList->setCommitCallback(boost::bind(&LLFloaterTopObjects::onSelectionChanged, this));
 
     setDefaultBtn("show_beacon_btn");
@@ -107,7 +107,7 @@ BOOL LLFloaterTopObjects::postBuild()
     mFlags = 0;
     mFilter.clear();
 
-    return TRUE;
+    return true;
 }
 // static
 void LLFloaterTopObjects::setMode(U32 mode)
@@ -129,7 +129,7 @@ void LLFloaterTopObjects::handle_land_reply(LLMessageSystem* msg, void** data)
         if (!instance->mObjectListIDs.size() && !instance->mInitialized)
         {
             instance->onRefresh();
-            instance->mInitialized = TRUE;
+            instance->mInitialized = true;
         }
     }
     else

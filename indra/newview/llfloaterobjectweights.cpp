@@ -84,7 +84,7 @@ LLFloaterObjectWeights::~LLFloaterObjectWeights()
 }
 
 // virtual
-BOOL LLFloaterObjectWeights::postBuild()
+bool LLFloaterObjectWeights::postBuild()
 {
     mSelectedObjects = getChild<LLTextBox>("objects");
     mSelectedPrims = getChild<LLTextBox>("prims");
@@ -99,7 +99,7 @@ BOOL LLFloaterObjectWeights::postBuild()
     mRemainingCapacity = getChild<LLTextBox>("remaining_capacity");
     mTotalCapacity = getChild<LLTextBox>("total_capacity");
 
-    return TRUE;
+    return true;
 }
 
 // virtual

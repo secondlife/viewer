@@ -64,14 +64,14 @@ LLControlVariable* LLControlGroup::declareString(const std::string& name,
                                    const std::string& initial_val,
                                    const std::string& comment,
                                    LLControlVariable::ePersist persist) {return NULL;}
-void LLControlGroup::setString(const std::string& name, const std::string& val){}
+void LLControlGroup::setString(std::string_view name, const std::string& val){}
 
 std::string gCmdLineLoginURI;
 std::string gCmdLineGridChoice;
 std::string gCmdLineHelperURI;
 std::string gLoginPage;
 std::string gCurrentGrid;
-std::string LLControlGroup::getString(const std::string& name)
+std::string LLControlGroup::getString(std::string_view name)
 {
     if (name == "CmdLineGridChoice")
         return gCmdLineGridChoice;
@@ -84,7 +84,7 @@ std::string LLControlGroup::getString(const std::string& name)
     return "";
 }
 
-LLSD LLControlGroup::getLLSD(const std::string& name)
+LLSD LLControlGroup::getLLSD(std::string_view name)
 {
     if (name == "CmdLineLoginURI")
     {
@@ -96,9 +96,9 @@ LLSD LLControlGroup::getLLSD(const std::string& name)
     return LLSD();
 }
 
-LLPointer<LLControlVariable> LLControlGroup::getControl(const std::string& name)
+LLPointer<LLControlVariable> LLControlGroup::getControl(std::string_view name)
 {
-    ctrl_name_table_t::iterator iter = mNameTable.find(name);
+    ctrl_name_table_t::iterator iter = mNameTable.find(name.data());
     return iter == mNameTable.end() ? LLPointer<LLControlVariable>() : iter->second;
 }
 

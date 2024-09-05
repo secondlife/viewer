@@ -96,7 +96,7 @@ void LLTransientFloaterMgr::hideTransientFloaters(S32 x, S32 y)
             bool hide = isControlClicked(group, mGroupControls.find(group)->second, x, y);
             if (hide)
             {
-                floater->setTransientVisible(FALSE);
+                floater->setTransientVisible(false);
             }
         }
     }

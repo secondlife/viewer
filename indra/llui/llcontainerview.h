@@ -49,8 +49,8 @@ public:
         Optional<bool> display_children;
         Params()
             : label("label"),
-              show_label("show_label", FALSE),
-              display_children("display_children", TRUE)
+              show_label("show_label", false),
+              display_children("display_children", true)
         {
             changeDefault(mouse_opaque, false);
         }
@@ -65,30 +65,30 @@ protected:
 public:
     ~LLContainerView();
 
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
     /*virtual*/ bool addChild(LLView* view, S32 tab_group = 0);
 
-    /*virtual*/ BOOL handleDoubleClick(S32 x, S32 y, MASK mask);
-    /*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
-    /*virtual*/ BOOL handleMouseUp(S32 x, S32 y, MASK mask);
+    /*virtual*/ bool handleDoubleClick(S32 x, S32 y, MASK mask);
+    /*virtual*/ bool handleMouseDown(S32 x, S32 y, MASK mask);
+    /*virtual*/ bool handleMouseUp(S32 x, S32 y, MASK mask);
 
     /*virtual*/ void draw();
-    /*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
+    /*virtual*/ void reshape(S32 width, S32 height, bool called_from_parent = true);
     /*virtual*/ LLRect getRequiredRect();   // Return the height of this object, given the set options.
 
     void setLabel(const std::string& label);
-    void showLabel(BOOL show) { mShowLabel = show; }
-    void setDisplayChildren(BOOL displayChildren);
-    BOOL getDisplayChildren() { return mDisplayChildren; }
+    void showLabel(bool show) { mShowLabel = show; }
+    void setDisplayChildren(bool displayChildren);
+    bool getDisplayChildren() { return mDisplayChildren; }
     void setScrollContainer(LLScrollContainer* scroll) {mScrollContainer = scroll;}
 
  private:
     LLScrollContainer* mScrollContainer;
-    void arrange(S32 width, S32 height, BOOL called_from_parent = TRUE);
-    BOOL mShowLabel;
+    void arrange(S32 width, S32 height, bool called_from_parent = true);
+    bool mShowLabel;
 
 protected:
-    BOOL mDisplayChildren;
+    bool mDisplayChildren;
     std::string mLabel;
 };
 #endif // LL_CONTAINERVIEW_
