@@ -55,7 +55,7 @@ public:
     LLUUID getID() { return mID; }
 
     // handlers
-    virtual BOOL handleMouseDown(S32 x, S32 y, MASK mask);
+    virtual bool handleMouseDown(S32 x, S32 y, MASK mask);
     virtual void onMouseEnter(S32 x, S32 y, MASK mask);
     virtual void onMouseLeave(S32 x, S32 y, MASK mask);
 

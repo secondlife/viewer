@@ -48,19 +48,19 @@ F32 LLVOSurfacePatch::sLODFactor = 1.f;
 
 LLVOSurfacePatch::LLVOSurfacePatch(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
     :   LLStaticViewerObject(id, pcode, regionp),
-        mDirtiedPatch(FALSE),
+        mDirtiedPatch(false),
         mPool(NULL),
         mBaseComp(0),
         mPatchp(NULL),
-        mDirtyTexture(FALSE),
-        mDirtyTerrain(FALSE),
+        mDirtyTexture(false),
+        mDirtyTerrain(false),
         mLastNorthStride(0),
         mLastEastStride(0),
         mLastStride(0),
         mLastLength(0)
 {
     // Terrain must draw during selection passes so it can block objects behind it.
-    mbCanSelect = TRUE;
+    mbCanSelect = true;
     setScale(LLVector3(16.f, 16.f, 16.f)); // Hack for setting scale for bounding boxes/visibility.
 }
 
@@ -82,9 +82,9 @@ void LLVOSurfacePatch::markDead()
 }
 
 
-BOOL LLVOSurfacePatch::isActive() const
+bool LLVOSurfacePatch::isActive() const
 {
-    return FALSE;
+    return false;
 }
 
 
@@ -147,7 +147,7 @@ void LLVOSurfacePatch::updateGL()
     }
 }
 
-BOOL LLVOSurfacePatch::updateGeometry(LLDrawable *drawable)
+bool LLVOSurfacePatch::updateGeometry(LLDrawable *drawable)
 {
     LL_PROFILE_ZONE_SCOPED;
 
@@ -209,7 +209,7 @@ BOOL LLVOSurfacePatch::updateGeometry(LLDrawable *drawable)
     mLastNorthStride = north_stride;
     mLastEastStride = east_stride;
 
-    return TRUE;
+    return true;
 }
 
 void LLVOSurfacePatch::updateFaceSize(S32 idx)
@@ -238,9 +238,9 @@ void LLVOSurfacePatch::updateFaceSize(S32 idx)
     }
 }
 
-BOOL LLVOSurfacePatch::updateLOD()
+bool LLVOSurfacePatch::updateLOD()
 {
-    return TRUE;
+    return true;
 }
 
 void LLVOSurfacePatch::getTerrainGeometry(LLStrider<LLVector3> &verticesp,
@@ -766,9 +766,9 @@ void LLVOSurfacePatch::setPatch(LLSurfacePatch *patchp)
 
 void LLVOSurfacePatch::dirtyPatch()
 {
-    mDirtiedPatch = TRUE;
+    mDirtiedPatch = true;
     dirtyGeom();
-    mDirtyTerrain = TRUE;
+    mDirtyTerrain = true;
     LLVector3 center = mPatchp->getCenterRegion();
     LLSurface *surfacep = mPatchp->getSurface();
 
@@ -857,14 +857,14 @@ void LLVOSurfacePatch::getGeomSizesEast(const S32 stride, const S32 east_stride,
     }
 }
 
-BOOL LLVOSurfacePatch::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end, S32 face, BOOL pick_transparent, BOOL pick_rigged, BOOL pick_unselectable, S32 *face_hitp,
+bool LLVOSurfacePatch::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end, S32 face, bool pick_transparent, bool pick_rigged, bool pick_unselectable, S32 *face_hitp,
                                       LLVector4a* intersection,LLVector2* tex_coord, LLVector4a* normal, LLVector4a* tangent)
 
 {
 
     if (!lineSegmentBoundingBox(start, end))
     {
-        return FALSE;
+        return false;
     }
 
     LLVector4a da;
@@ -885,7 +885,7 @@ BOOL LLVOSurfacePatch::lineSegmentIntersect(const LLVector4a& start, const LLVec
     if (mRegionp->getLandHeightRegion(origin) > origin.mV[2])
     {
         //origin is under ground, treat as no intersection
-        return FALSE;
+        return false;
     }
 
     //step one meter at a time until intersection point found
@@ -943,7 +943,7 @@ BOOL LLVOSurfacePatch::lineSegmentIntersect(const LLVector4a& start, const LLVec
                     normal->load3((mRegionp->getLand().resolveNormalGlobal(mRegionp->getPosGlobalFromRegion(sample))).mV);
                 }
 
-                return TRUE;
+                return true;
             }
         }
 
@@ -955,7 +955,7 @@ BOOL LLVOSurfacePatch::lineSegmentIntersect(const LLVector4a& start, const LLVec
     }
 
 
-    return FALSE;
+    return false;
 }
 
 void LLVOSurfacePatch::updateSpatialExtents(LLVector4a& newMin, LLVector4a &newMax)
@@ -978,10 +978,10 @@ U32 LLVOSurfacePatch::getPartitionType() const
 }
 
 LLTerrainPartition::LLTerrainPartition(LLViewerRegion* regionp)
-: LLSpatialPartition(LLDrawPoolTerrain::VERTEX_DATA_MASK, FALSE, regionp)
+: LLSpatialPartition(LLDrawPoolTerrain::VERTEX_DATA_MASK, false, regionp)
 {
-    mOcclusionEnabled = FALSE;
-    mInfiniteFarClip = TRUE;
+    mOcclusionEnabled = false;
+    mInfiniteFarClip = true;
     mDrawableType = LLPipeline::RENDER_TYPE_TERRAIN;
     mPartitionType = LLViewerRegion::PARTITION_TERRAIN;
 }

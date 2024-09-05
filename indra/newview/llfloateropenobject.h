@@ -55,7 +55,7 @@ public:
 
 protected:
 
-    /*virtual*/ BOOL    postBuild();
+    /*virtual*/ bool    postBuild();
     void refresh();
     void draw();
     virtual void onOpen(const LLSD& key);
@@ -76,7 +76,7 @@ protected:
 
     LLPanelObjectInventory* mPanelInventoryObject;
     LLSafeHandle<LLObjectSelection> mObjectSelection;
-    BOOL mDirty;
+    bool mDirty;
 };
 
 #endif

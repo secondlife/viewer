@@ -80,7 +80,7 @@ protected:
     LLButton*       mAnimateButton;
     LLTextBox*      mText;
     std::string     mTitle;
-    BOOL            mAnimate;
+    bool            mAnimate;
 
     static std::map<std::string, LLDebugVarMessageBox*> sInstances;
 };

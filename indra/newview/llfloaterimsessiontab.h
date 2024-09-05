@@ -77,11 +77,12 @@ public:
 
     // LLFloater overrides
     /*virtual*/ void onOpen(const LLSD& key);
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
     /*virtual*/ void draw();
-    /*virtual*/ void setVisible(BOOL visible);
-    /*virtual*/ void setFocus(BOOL focus);
+    /*virtual*/ void setVisible(bool visible);
+    /*virtual*/ void setFocus(bool focus);
     /*virtual*/ void closeFloater(bool app_quitting = false);
+    /*virtual*/ void deleteAllChildren();
 
     // Handle the left hand participant list widgets
     void addConversationViewParticipant(LLConversationItem* item, bool update_view = true);
@@ -97,7 +98,7 @@ public:
     virtual void updateMessages() {}
     LLConversationItem* getCurSelectedViewModelItem();
     void forceReshape();
-    virtual BOOL handleKeyHere( KEY key, MASK mask );
+    virtual bool handleKeyHere( KEY key, MASK mask );
     bool isMessagePaneExpanded(){return mMessagePaneExpanded;}
     void setMessagePaneExpanded(bool expanded){mMessagePaneExpanded = expanded;}
     void restoreFloater();
@@ -147,7 +148,7 @@ protected:
     std::string appendTime();
     void assignResizeLimits();
 
-    void updateUsedEmojis(LLWString text);
+    void updateUsedEmojis(LLWStringView text);
 
     S32  mFloaterExtraWidth;
 

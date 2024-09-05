@@ -52,8 +52,8 @@ class LLPanelMarketplaceListings : public LLPanel
 {
 public:
     LLPanelMarketplaceListings();
-    BOOL postBuild();
-    BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+    bool postBuild();
+    bool handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
                            EDragAndDropType cargo_type,
                            void* cargo_data,
                            EAcceptance* accept,
@@ -72,7 +72,7 @@ private:
     bool onViewSortMenuItemCheck(const LLSD& userdata);
     void onAddButtonClicked();
     void onAuditButtonClicked();
-    void onSelectionChange(LLInventoryPanel *panel, const std::deque<LLFolderViewItem*>& items, BOOL user_action);
+    void onSelectionChange(LLInventoryPanel *panel, const std::deque<LLFolderViewItem*>& items, bool user_action);
     void onTabChange();
     void onFilterEdit(const std::string& search_string);
 
@@ -99,8 +99,8 @@ public:
     void initializeMarketPlace();
 
     // virtuals
-    BOOL postBuild();
-    BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+    bool postBuild();
+    bool handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
                            EDragAndDropType cargo_type,
                            void* cargo_data,
                            EAcceptance* accept,
@@ -108,7 +108,7 @@ public:
 
     void showNotification(const LLNotificationPtr& notification);
 
-    BOOL handleHover(S32 x, S32 y, MASK mask);
+    bool handleHover(S32 x, S32 y, MASK mask);
     void onMouseLeave(S32 x, S32 y, MASK mask);
 
 protected:
@@ -152,8 +152,8 @@ class LLFloaterAssociateListing : public LLFloater
 {
     friend class LLFloaterReg;
 public:
-    virtual BOOL postBuild();
-    virtual BOOL handleKeyHere(KEY key, MASK mask);
+    virtual bool postBuild();
+    virtual bool handleKeyHere(KEY key, MASK mask);
 
     static LLFloaterAssociateListing* show(const LLUUID& folder_id);
 
@@ -162,7 +162,7 @@ private:
     virtual ~LLFloaterAssociateListing();
 
     // UI Callbacks
-    void apply(BOOL user_confirm = TRUE);
+    void apply(bool user_confirm = true);
     void cancel();
     void callback_apply(const LLSD& notification, const LLSD& response);
 
@@ -184,7 +184,7 @@ public:
     LLFloaterMarketplaceValidation(const LLSD& key);
     virtual ~LLFloaterMarketplaceValidation();
 
-    virtual BOOL postBuild();
+    virtual bool postBuild();
     virtual void draw();
     virtual void onOpen(const LLSD& key);
 
@@ -219,7 +219,7 @@ public:
     LLFloaterItemProperties(const LLSD& key);
     virtual ~LLFloaterItemProperties();
 
-    BOOL postBuild();
+    bool postBuild();
     virtual void onOpen(const LLSD& key);
 
 private:

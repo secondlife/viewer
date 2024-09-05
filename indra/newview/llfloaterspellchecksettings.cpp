@@ -61,7 +61,7 @@ void LLFloaterSpellCheckerSettings::draw()
     getChild<LLUICtrl>("spellcheck_remove_btn")->setEnabled(enable_remove);
 }
 
-BOOL LLFloaterSpellCheckerSettings::postBuild(void)
+bool LLFloaterSpellCheckerSettings::postBuild(void)
 {
     gSavedSettings.getControl("SpellCheck")->getSignal()->connect(boost::bind(&LLFloaterSpellCheckerSettings::refreshDictionaries, this, false));
     LLSpellChecker::setSettingsChangeCallback(boost::bind(&LLFloaterSpellCheckerSettings::onSpellCheckSettingsChange, this));
@@ -248,7 +248,7 @@ LLFloaterSpellCheckerImport::LLFloaterSpellCheckerImport(const LLSD& key)
 {
 }
 
-BOOL LLFloaterSpellCheckerImport::postBuild(void)
+bool LLFloaterSpellCheckerImport::postBuild()
 {
     getChild<LLUICtrl>("dictionary_path_browse")->setCommitCallback(boost::bind(&LLFloaterSpellCheckerImport::onBtnBrowse, this));
     getChild<LLUICtrl>("ok_btn")->setCommitCallback(boost::bind(&LLFloaterSpellCheckerImport::onBtnOK, this));

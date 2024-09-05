@@ -36,7 +36,7 @@ class ImageRequest
 public:
     ImageRequest(const LLPointer<LLImageFormatted>& image,
                  S32 discard,
-                 BOOL needs_aux,
+                 bool needs_aux,
                  const LLPointer<LLImageDecodeThread::Responder>& responder,
                  U32 request_id);
     virtual ~ImageRequest();
@@ -51,15 +51,14 @@ private:
     LLPointer<LLImageFormatted> mFormattedImage;
     S32 mDiscardLevel;
     U32 mRequestId;
-    BOOL mNeedsAux;
+    bool mNeedsAux;
     // output
     LLPointer<LLImageRaw> mDecodedImageRaw;
     LLPointer<LLImageRaw> mDecodedImageAux;
-    BOOL mDecodedRaw;
-    BOOL mDecodedAux;
+    bool mDecodedRaw;
+    bool mDecodedAux;
     LLPointer<LLImageDecodeThread::Responder> mResponder;
-    std::string mErrorString;
-};
+    std::string mErrorString;};
 
 
 //----------------------------------------------------------------------------
@@ -92,12 +91,15 @@ size_t LLImageDecodeThread::getPending()
 LLImageDecodeThread::handle_t LLImageDecodeThread::decodeImage(
     const LLPointer<LLImageFormatted>& image,
     S32 discard,
-    BOOL needs_aux,
+    bool needs_aux,
     const LLPointer<LLImageDecodeThread::Responder>& responder)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 
     U32 decode_id = ++mDecodeCount;
+    if (decode_id == 0)
+        decode_id = ++mDecodeCount;
+
     // Instantiate the ImageRequest right in the lambda, why not?
     bool posted = mThreadPool->getQueue().post(
         [req = ImageRequest(image, discard, needs_aux, responder, decode_id)]
@@ -128,14 +130,14 @@ LLImageDecodeThread::Responder::~Responder()
 
 ImageRequest::ImageRequest(const LLPointer<LLImageFormatted>& image,
                            S32 discard,
-                           BOOL needs_aux,
+                           bool needs_aux,
                            const LLPointer<LLImageDecodeThread::Responder>& responder,
                            U32 request_id)
     : mFormattedImage(image),
       mDiscardLevel(discard),
       mNeedsAux(needs_aux),
-      mDecodedRaw(FALSE),
-      mDecodedAux(FALSE),
+      mDecodedRaw(false),
+      mDecodedAux(false),
       mResponder(responder),
       mRequestId(request_id)
 {
@@ -155,10 +157,18 @@ ImageRequest::~ImageRequest()
 bool ImageRequest::processRequest()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
+
+    if (mFormattedImage.isNull())
+        return true;
+
     const F32 decode_time_slice = 0.f; //disable time slicing
     bool done = true;
-    mErrorString.clear();
-    if (!mDecodedRaw && mFormattedImage.notNull())
+
+    LLImageDataLock lockFormatted(mFormattedImage);
+    LLImageDataLock lockDecodedRaw(mDecodedImageRaw);
+    LLImageDataLock lockDecodedAux(mDecodedImageAux);
+
+    if (!mDecodedRaw)
     {
         // Decode primary channels
         if (mDecodedImageRaw.isNull())
@@ -166,13 +176,10 @@ bool ImageRequest::processRequest()
             // parse formatted header
             if (!mFormattedImage->updateData())
             {
-                // Pick up errors from updateData
-                mErrorString = LLImage::getLastThreadError();
                 return true; // done (failed)
             }
-            if (!(mFormattedImage->getWidth() * mFormattedImage->getHeight() * mFormattedImage->getComponents()))
+            if ((mFormattedImage->getWidth() * mFormattedImage->getHeight() * mFormattedImage->getComponents()) == 0)
             {
-                mErrorString = "Invalid image size";
                 return true; // done (failed)
             }
             if (mDiscardLevel >= 0)

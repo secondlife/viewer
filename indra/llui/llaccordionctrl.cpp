@@ -103,7 +103,7 @@ void LLAccordionCtrl::draw()
 }
 
 //---------------------------------------------------------------------------------
-BOOL LLAccordionCtrl::postBuild()
+bool LLAccordionCtrl::postBuild()
 {
     static LLUICachedControl<S32> scrollbar_size("UIScrollbarSize", 0);
 
@@ -127,7 +127,7 @@ BOOL LLAccordionCtrl::postBuild()
 
     mScrollbar = LLUICtrlFactory::create<LLScrollbar>(sbparams);
     LLView::addChild(mScrollbar);
-    mScrollbar->setVisible(FALSE);
+    mScrollbar->setVisible(false);
     mScrollbar->setFollowsRight();
     mScrollbar->setFollowsTop();
     mScrollbar->setFollowsBottom();
@@ -167,7 +167,7 @@ BOOL LLAccordionCtrl::postBuild()
 
     updateNoTabsHelpTextVisibility();
 
-    return TRUE;
+    return true;
 }
 
 
@@ -179,7 +179,7 @@ LLAccordionCtrl::~LLAccordionCtrl()
 
 //---------------------------------------------------------------------------------
 
-void LLAccordionCtrl::reshape(S32 width, S32 height, BOOL called_from_parent)
+void LLAccordionCtrl::reshape(S32 width, S32 height, bool called_from_parent)
 {
     // adjust our rectangle
     LLRect rcLocal = getRect();
@@ -199,7 +199,7 @@ void LLAccordionCtrl::reshape(S32 width, S32 height, BOOL called_from_parent)
 }
 
 //---------------------------------------------------------------------------------
-BOOL LLAccordionCtrl::handleRightMouseDown(S32 x, S32 y, MASK mask)
+bool LLAccordionCtrl::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
     return LLPanel::handleRightMouseDown(x, y, mask);
 }
@@ -243,7 +243,7 @@ void LLAccordionCtrl::showScrollbar(S32 width, S32 height)
 {
     bool was_visible = mScrollbar->getVisible();
 
-    mScrollbar->setVisible(TRUE);
+    mScrollbar->setVisible(true);
 
     static LLUICachedControl<S32> scrollbar_size ("UIScrollbarSize", 0);
 
@@ -265,9 +265,9 @@ void LLAccordionCtrl::showScrollbar(S32 width, S32 height)
 
 void LLAccordionCtrl::hideScrollbar(S32 width, S32 height)
 {
-    if (mScrollbar->getVisible() == FALSE)
+    if (!mScrollbar->getVisible())
         return;
-    mScrollbar->setVisible(FALSE);
+    mScrollbar->setVisible(false);
 
     static LLUICachedControl<S32> scrollbar_size ("UIScrollbarSize", 0);
 
@@ -391,7 +391,7 @@ void LLAccordionCtrl::updateNoTabsHelpTextVisibility()
         }
     }
 
-    mNoVisibleTabsHelpText->setVisible(visible_exists ? FALSE : TRUE);
+    mNoVisibleTabsHelpText->setVisible(!visible_exists);
 }
 
 void LLAccordionCtrl::arrangeSingle()
@@ -407,7 +407,7 @@ void LLAccordionCtrl::arrangeSingle()
     {
         LLAccordionCtrlTab* accordion_tab = dynamic_cast<LLAccordionCtrlTab*>(mAccordionTabs[i]);
 
-        if (accordion_tab->getVisible() == FALSE) // Skip hidden accordion tabs
+        if (!accordion_tab->getVisible()) // Skip hidden accordion tabs
             continue;
         if (!accordion_tab->isExpanded() )
         {
@@ -421,7 +421,7 @@ void LLAccordionCtrl::arrangeSingle()
     {
         LLAccordionCtrlTab* accordion_tab = dynamic_cast<LLAccordionCtrlTab*>(mAccordionTabs[i]);
 
-        if (accordion_tab->getVisible() == FALSE) // Skip hidden accordion tabs
+        if (!accordion_tab->getVisible()) // Skip hidden accordion tabs
             continue;
         if (!accordion_tab->isExpanded() )
         {
@@ -469,7 +469,7 @@ void LLAccordionCtrl::arrangeMultiple()
     {
         LLAccordionCtrlTab* accordion_tab = dynamic_cast<LLAccordionCtrlTab*>(mAccordionTabs[i]);
 
-        if (accordion_tab->getVisible() == FALSE) // Skip hidden accordion tabs
+        if (!accordion_tab->getVisible()) // Skip hidden accordion tabs
             continue;
 
         if (!accordion_tab->isExpanded() )
@@ -484,7 +484,7 @@ void LLAccordionCtrl::arrangeMultiple()
             if (mFitParent)
             {
                 // All expanded tabs will have equal height
-                panel_height = calcExpandedTabHeight(i, panel_top);
+                panel_height = calcExpandedTabHeight(static_cast<S32>(i), panel_top);
                 ctrlSetLeftTopAndSize(accordion_tab, panel_left, panel_top, panel_width, panel_height);
 
                 // Try to make accordion tab fit accordion view height.
@@ -552,24 +552,24 @@ void LLAccordionCtrl::arrange()
 
 //---------------------------------------------------------------------------------
 
-BOOL LLAccordionCtrl::handleScrollWheel(S32 x, S32 y, S32 clicks)
+bool LLAccordionCtrl::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
     if (LLPanel::handleScrollWheel(x, y, clicks))
-        return TRUE;
+        return true;
     if (mScrollbar->getVisible() && mScrollbar->handleScrollWheel(0, 0, clicks))
-        return TRUE;
-    return FALSE;
+        return true;
+    return false;
 }
 
-BOOL LLAccordionCtrl::handleKeyHere(KEY key, MASK mask)
+bool LLAccordionCtrl::handleKeyHere(KEY key, MASK mask)
 {
     if (mScrollbar->getVisible() && mScrollbar->handleKeyHere(key, mask))
-        return TRUE;
+        return true;
     return LLPanel::handleKeyHere(key, mask);
 }
 
-BOOL LLAccordionCtrl::handleDragAndDrop(S32 x, S32 y, MASK mask,
-                                        BOOL drop,
+bool LLAccordionCtrl::handleDragAndDrop(S32 x, S32 y, MASK mask,
+                                        bool drop,
                                         EDragAndDropType cargo_type,
                                         void* cargo_data,
                                         EAcceptance* accept,
@@ -577,17 +577,17 @@ BOOL LLAccordionCtrl::handleDragAndDrop(S32 x, S32 y, MASK mask,
 {
     // Scroll folder view if needed.  Never accepts a drag or drop.
     *accept = ACCEPT_NO;
-    BOOL handled = autoScroll(x, y);
+    bool handled = autoScroll(x, y);
 
     if (!handled)
     {
         handled = childrenHandleDragAndDrop(x, y, mask, drop, cargo_type,
                                             cargo_data, accept, tooltip_msg) != NULL;
     }
-    return TRUE;
+    return true;
 }
 
-BOOL LLAccordionCtrl::autoScroll(S32 x, S32 y)
+bool LLAccordionCtrl::autoScroll(S32 x, S32 y)
 {
     static LLUICachedControl<S32> scrollbar_size ("UIScrollbarSize", 0);
 
@@ -624,7 +624,7 @@ BOOL LLAccordionCtrl::autoScroll(S32 x, S32 y)
         }
     }
 
-    return scrolling ? TRUE : FALSE;
+    return scrolling;
 }
 
 void LLAccordionCtrl::updateLayout(S32 width, S32 height)
@@ -819,11 +819,11 @@ S32 LLAccordionCtrl::notifyParent(const LLSD& info)
     }
     else if (info.has("child_visibility_change"))
     {
-        BOOL new_visibility = info["child_visibility_change"];
+        bool new_visibility = info["child_visibility_change"];
         if (new_visibility)
         {
             // there is at least one visible tab
-            mNoVisibleTabsHelpText->setVisible(FALSE);
+            mNoVisibleTabsHelpText->setVisible(false);
         }
         else
         {

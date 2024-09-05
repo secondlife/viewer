@@ -56,8 +56,8 @@
 static U32 sShaderLevel = 0;
 
 LLGLSLShader* LLDrawPoolAvatar::sVertexProgram = NULL;
-BOOL    LLDrawPoolAvatar::sSkipOpaque = FALSE;
-BOOL    LLDrawPoolAvatar::sSkipTransparent = FALSE;
+bool    LLDrawPoolAvatar::sSkipOpaque = false;
+bool    LLDrawPoolAvatar::sSkipTransparent = false;
 S32     LLDrawPoolAvatar::sShadowPass = -1;
 S32 LLDrawPoolAvatar::sDiffuseChannel = 0;
 F32 LLDrawPoolAvatar::sMinimumAlpha = 0.2f;
@@ -67,7 +67,7 @@ LLUUID gBlackSquareID;
 static bool is_deferred_render = false;
 static bool is_post_deferred_render = false;
 
-extern BOOL gUseGLPick;
+extern bool gUseGLPick;
 
 F32 CLOTHING_GRAVITY_EFFECT = 0.7f;
 F32 CLOTHING_ACCEL_FORCE_FACTOR = 0.2f;
@@ -95,8 +95,8 @@ S32 AVATAR_OFFSET_TEX0 = 32;
 S32 AVATAR_OFFSET_TEX1 = 40;
 S32 AVATAR_VERTEX_BYTES = 48;
 
-BOOL gAvatarEmbossBumpMap = FALSE;
-static BOOL sRenderingSkinned = FALSE;
+bool gAvatarEmbossBumpMap = false;
+static bool sRenderingSkinned = false;
 S32 normal_channel = -1;
 S32 specular_channel = -1;
 S32 cube_channel = -1;
@@ -115,16 +115,16 @@ LLDrawPoolAvatar::~LLDrawPoolAvatar()
 }
 
 // virtual
-BOOL LLDrawPoolAvatar::isDead()
+bool LLDrawPoolAvatar::isDead()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR
 
     if (!LLFacePool::isDead())
     {
-        return FALSE;
+        return false;
     }
 
-    return TRUE;
+    return true;
 }
 
 S32 LLDrawPoolAvatar::getShaderLevel() const
@@ -167,7 +167,7 @@ void LLDrawPoolAvatar::beginDeferredPass(S32 pass)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
 
-    sSkipTransparent = TRUE;
+    sSkipTransparent = true;
     is_deferred_render = true;
 
     if (LLPipeline::sImpostorRender)
@@ -193,7 +193,7 @@ void LLDrawPoolAvatar::endDeferredPass(S32 pass)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
 
-    sSkipTransparent = FALSE;
+    sSkipTransparent = false;
     is_deferred_render = false;
 
     if (LLPipeline::sImpostorRender)
@@ -231,10 +231,10 @@ void LLDrawPoolAvatar::beginPostDeferredPass(S32 pass)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR
 
-    sSkipOpaque = TRUE;
+    sSkipOpaque = true;
     sShaderLevel = mShaderLevel;
     sVertexProgram = &gDeferredAvatarAlphaProgram;
-    sRenderingSkinned = TRUE;
+    sRenderingSkinned = true;
 
     gPipeline.bindDeferredShader(*sVertexProgram);
 
@@ -247,8 +247,8 @@ void LLDrawPoolAvatar::endPostDeferredPass(S32 pass)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR
     // if we're in software-blending, remember to set the fence _after_ we draw so we wait till this rendering is done
-    sRenderingSkinned = FALSE;
-    sSkipOpaque = FALSE;
+    sRenderingSkinned = false;
+    sSkipOpaque = false;
 
     gPipeline.unbindDeferredShader(*sVertexProgram);
     sDiffuseChannel = 0;
@@ -288,7 +288,7 @@ void LLDrawPoolAvatar::beginShadowPass(S32 pass)
 
         if ((sShaderLevel > 0))  // for hardware blending
         {
-            sRenderingSkinned = TRUE;
+            sRenderingSkinned = true;
             sVertexProgram->bind();
         }
 
@@ -308,7 +308,7 @@ void LLDrawPoolAvatar::beginShadowPass(S32 pass)
 
         if ((sShaderLevel > 0))  // for hardware blending
         {
-            sRenderingSkinned = TRUE;
+            sRenderingSkinned = true;
             sVertexProgram->bind();
         }
 
@@ -328,7 +328,7 @@ void LLDrawPoolAvatar::beginShadowPass(S32 pass)
 
         if ((sShaderLevel > 0))  // for hardware blending
         {
-            sRenderingSkinned = TRUE;
+            sRenderingSkinned = true;
             sVertexProgram->bind();
         }
 
@@ -345,7 +345,7 @@ void LLDrawPoolAvatar::endShadowPass(S32 pass)
         sVertexProgram->unbind();
     }
     sVertexProgram = NULL;
-    sRenderingSkinned = FALSE;
+    sRenderingSkinned = false;
     LLDrawPoolAvatar::sShadowPass = -1;
 }
 
@@ -370,8 +370,17 @@ void LLDrawPoolAvatar::renderShadow(S32 pass)
         return;
     }
 
+    static LLCachedControl<bool> friends_only(gSavedSettings, "RenderAvatarFriendsOnly", false);
+    if (friends_only()
+        && !avatarp->isControlAvatar()
+        && !avatarp->isSelf()
+        && !avatarp->isBuddy())
+    {
+        return;
+    }
+
     LLVOAvatar::AvatarOverallAppearance oa = avatarp->getOverallAppearance();
-    BOOL impostor = !LLPipeline::sImpostorRender && avatarp->isImpostor();
+    bool impostor = !LLPipeline::sImpostorRender && avatarp->isImpostor();
     // no shadows if the shadows are causing this avatar to breach the limit.
     if (avatarp->isTooSlow() || impostor || (oa == LLVOAvatar::AOA_INVISIBLE))
     {
@@ -546,7 +555,7 @@ void LLDrawPoolAvatar::beginDeferredImpostor()
 
     sVertexProgram = &gDeferredImpostorProgram;
     specular_channel = sVertexProgram->enableTexture(LLViewerShaderMgr::SPECULAR_MAP);
-    normal_channel = sVertexProgram->enableTexture(LLViewerShaderMgr::DEFERRED_NORMAL);
+    normal_channel = sVertexProgram->enableTexture(LLViewerShaderMgr::NORMAL_MAP);
     sDiffuseChannel = sVertexProgram->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
     sVertexProgram->bind();
     sVertexProgram->setMinimumAlpha(0.01f);
@@ -557,7 +566,7 @@ void LLDrawPoolAvatar::endDeferredImpostor()
     LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR
 
     sShaderLevel = mShaderLevel;
-    sVertexProgram->disableTexture(LLViewerShaderMgr::DEFERRED_NORMAL);
+    sVertexProgram->disableTexture(LLViewerShaderMgr::NORMAL_MAP);
     sVertexProgram->disableTexture(LLViewerShaderMgr::SPECULAR_MAP);
     sVertexProgram->disableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
     gPipeline.unbindDeferredShader(*sVertexProgram);
@@ -594,7 +603,7 @@ void LLDrawPoolAvatar::beginSkinned()
 
     sVertexProgram = &gAvatarProgram;
 
-    sRenderingSkinned = TRUE;
+    sRenderingSkinned = true;
 
     sVertexProgram->bind();
     sVertexProgram->setMinimumAlpha(LLDrawPoolAvatar::sMinimumAlpha);
@@ -607,7 +616,7 @@ void LLDrawPoolAvatar::endSkinned()
     // if we're in software-blending, remember to set the fence _after_ we draw so we wait till this rendering is done
     if (sShaderLevel > 0)
     {
-        sRenderingSkinned = FALSE;
+        sRenderingSkinned = false;
         sVertexProgram->disableTexture(LLViewerShaderMgr::BUMP_MAP);
         gGL.getTexUnit(0)->activate();
         sVertexProgram->unbind();
@@ -632,7 +641,7 @@ void LLDrawPoolAvatar::beginDeferredSkinned()
 
     sShaderLevel = mShaderLevel;
     sVertexProgram = &gDeferredAvatarProgram;
-    sRenderingSkinned = TRUE;
+    sRenderingSkinned = true;
 
     sVertexProgram->bind();
     sVertexProgram->setMinimumAlpha(LLDrawPoolAvatar::sMinimumAlpha);
@@ -645,7 +654,7 @@ void LLDrawPoolAvatar::endDeferredSkinned()
     LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR
 
     // if we're in software-blending, remember to set the fence _after_ we draw so we wait till this rendering is done
-    sRenderingSkinned = FALSE;
+    sRenderingSkinned = false;
     sVertexProgram->unbind();
 
     sVertexProgram->disableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
@@ -723,7 +732,18 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
         return;
     }
 
-    BOOL impostor = !LLPipeline::sImpostorRender && avatarp->isImpostor() && !single_avatar;
+    static LLCachedControl<bool> friends_only(gSavedSettings, "RenderAvatarFriendsOnly", false);
+    if (!single_avatar
+        && friends_only()
+        && !avatarp->isUIAvatar()
+        && !avatarp->isControlAvatar()
+        && !avatarp->isSelf()
+        && !avatarp->isBuddy())
+    {
+        return;
+    }
+
+    bool impostor = !LLPipeline::sImpostorRender && avatarp->isImpostor() && !single_avatar;
 
     if (( avatarp->isInMuteList()
           || impostor

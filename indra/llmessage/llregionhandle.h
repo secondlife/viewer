@@ -63,13 +63,13 @@ inline U64 to_region_handle_global(const F32 x_global, const F32 y_global)
     return region_handle;
 }
 
-inline BOOL to_region_handle(const F32 x_pos, const F32 y_pos, U64 *region_handle)
+inline bool to_region_handle(const F32 x_pos, const F32 y_pos, U64 *region_handle)
 {
     U32 x_int, y_int;
     if (x_pos < 0.f)
     {
 //      LL_WARNS() << "to_region_handle:Clamping negative x position " << x_pos << " to zero!" << LL_ENDL;
-        return FALSE;
+        return false;
     }
     else
     {
@@ -78,14 +78,14 @@ inline BOOL to_region_handle(const F32 x_pos, const F32 y_pos, U64 *region_handl
     if (y_pos < 0.f)
     {
 //      LL_WARNS() << "to_region_handle:Clamping negative y position " << y_pos << " to zero!" << LL_ENDL;
-        return FALSE;
+        return false;
     }
     else
     {
         y_int = (U32)ll_round(y_pos);
     }
     *region_handle = to_region_handle(x_int, y_int);
-    return TRUE;
+    return true;
 }
 
 // stuff the word-frame XY location of sim's SouthWest corner in x_pos, y_pos

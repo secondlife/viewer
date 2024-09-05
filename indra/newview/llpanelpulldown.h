@@ -37,16 +37,16 @@ class LLPanelPulldown : public LLPanel
 {
 public:
     LLPanelPulldown();
-    /*virtual*/ void onMouseEnter(S32 x, S32 y, MASK mask);
-    /*virtual*/ void onMouseLeave(S32 x, S32 y, MASK mask);
-    /*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
-    /*virtual*/ BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
-    /*virtual*/ BOOL handleDoubleClick(S32 x, S32 y, MASK mask);
-    /*virtual*/ BOOL handleScrollWheel(S32 x, S32 y, S32 clicks);
-    /*virtual*/ void onTopLost();
-    /*virtual*/ void onVisibilityChange(BOOL new_visibility);
+    void onMouseEnter(S32 x, S32 y, MASK mask) override;
+    void onMouseLeave(S32 x, S32 y, MASK mask) override;
+    bool handleMouseDown(S32 x, S32 y, MASK mask) override;
+    bool handleRightMouseDown(S32 x, S32 y, MASK mask) override;
+    bool handleDoubleClick(S32 x, S32 y, MASK mask) override;
+    bool handleScrollWheel(S32 x, S32 y, S32 clicks) override;
+    void onTopLost() override;
+    void onVisibilityChange(bool new_visibility) override;
 
-    /*virtual*/ void draw();
+    void draw() override;
 
 protected:
     LLFrameTimer mHoverTimer;

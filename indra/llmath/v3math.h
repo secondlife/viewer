@@ -71,16 +71,16 @@ class LLVector3
 
         void setValue(const LLSD& sd);
 
-        inline BOOL isFinite() const;                                   // checks to see if all values of LLVector3 are finite
-        BOOL        clamp(F32 min, F32 max);        // Clamps all values to (min,max), returns TRUE if data changed
-        BOOL        clamp(const LLVector3 &min_vec, const LLVector3 &max_vec); // Scales vector by another vector
-        BOOL        clampLength( F32 length_limit );                    // Scales vector to limit length to a value
+        inline bool isFinite() const;                                   // checks to see if all values of LLVector3 are finite
+        bool        clamp(F32 min, F32 max);        // Clamps all values to (min,max), returns true if data changed
+        bool        clamp(const LLVector3 &min_vec, const LLVector3 &max_vec); // Scales vector by another vector
+        bool        clampLength( F32 length_limit );                    // Scales vector to limit length to a value
 
         void        quantize16(F32 lowerxy, F32 upperxy, F32 lowerz, F32 upperz);   // changes the vector to reflect quatization
         void        quantize8(F32 lowerxy, F32 upperxy, F32 lowerz, F32 upperz);    // changes the vector to reflect quatization
         void        snap(S32 sig_digits);                                           // snaps x,y,z to sig_digits decimal places
 
-        BOOL        abs();                      // sets all values to absolute value of original value (first octant), returns TRUE if changed
+        bool        abs();                      // sets all values to absolute value of original value (first octant), returns true if changed
 
         inline void clear();                        // Clears LLVector3 to (0, 0, 0)
         inline void setZero();                      // Clears LLVector3 to (0, 0, 0)
@@ -108,7 +108,7 @@ class LLVector3
         inline F32      normalize();    // Normalizes and returns the magnitude of LLVector3
         inline F32      normVec();      // deprecated
 
-        inline BOOL inRange( F32 min, F32 max ) const; // Returns true if all values of the vector are between min and max
+        inline bool inRange( F32 min, F32 max ) const; // Returns true if all values of the vector are between min and max
 
         const LLVector3&    rotVec(F32 angle, const LLVector3 &vec);    // Rotates about vec by angle radians
         const LLVector3&    rotVec(F32 angle, F32 x, F32 y, F32 z);     // Rotates about x,y,z by angle radians
@@ -119,8 +119,8 @@ class LLVector3
         const LLVector3&    scaleVec(const LLVector3& vec);             // scales per component by vec
         LLVector3           scaledVec(const LLVector3& vec) const;          // get a copy of this vector scaled by vec
 
-        BOOL isNull() const;            // Returns TRUE if vector has a _very_small_ length
-        BOOL isExactlyZero() const      { return !mV[VX] && !mV[VY] && !mV[VZ]; }
+        bool isNull() const;            // Returns true if vector has a _very_small_ length
+        bool isExactlyZero() const      { return !mV[VX] && !mV[VY] && !mV[VZ]; }
 
         F32 operator[](int idx) const { return mV[idx]; }
         F32 &operator[](int idx) { return mV[idx]; }
@@ -149,7 +149,7 @@ class LLVector3
 
         friend std::ostream&     operator<<(std::ostream& s, const LLVector3 &a);       // Stream a
 
-        static BOOL parseVector3(const std::string& buf, LLVector3* value);
+        static bool parseVector3(const std::string& buf, LLVector3* value);
 };
 
 typedef LLVector3 LLSimLocalVec;
@@ -157,7 +157,7 @@ typedef LLVector3 LLSimLocalVec;
 // Non-member functions
 
 F32 angle_between(const LLVector3 &a, const LLVector3 &b);  // Returns angle (radians) between a and b
-BOOL are_parallel(const LLVector3 &a, const LLVector3 &b, F32 epsilon=F_APPROXIMATELY_ZERO);    // Returns TRUE if a and b are very close to parallel
+bool are_parallel(const LLVector3 &a, const LLVector3 &b, F32 epsilon=F_APPROXIMATELY_ZERO);    // Returns true if a and b are very close to parallel
 F32 dist_vec(const LLVector3 &a, const LLVector3 &b);       // Returns distance between a and b
 F32 dist_vec_squared(const LLVector3 &a, const LLVector3 &b);// Returns distance squared between a and b
 F32 dist_vec_squared2D(const LLVector3 &a, const LLVector3 &b);// Returns distance squared between a and b ignoring Z component
@@ -202,7 +202,7 @@ inline LLVector3::LLVector3(const LLVector3 &copy)
 // Destructors
 
 // checker
-inline BOOL LLVector3::isFinite() const
+inline bool LLVector3::isFinite() const
 {
     return (llfinite(mV[VX]) && llfinite(mV[VY]) && llfinite(mV[VZ]));
 }
@@ -350,7 +350,7 @@ inline F32  LLVector3::magVecSquared(void) const
     return mV[0]*mV[0] + mV[1]*mV[1] + mV[2]*mV[2];
 }
 
-inline BOOL LLVector3::inRange( F32 min, F32 max ) const
+inline bool LLVector3::inRange( F32 min, F32 max ) const
 {
     return mV[0] >= min && mV[0] <= max &&
            mV[1] >= min && mV[1] <= max &&
@@ -539,13 +539,13 @@ inline LLVector3 lerp(const LLVector3 &a, const LLVector3 &b, F32 u)
 }
 
 
-inline BOOL LLVector3::isNull() const
+inline bool LLVector3::isNull() const
 {
     if ( F_APPROXIMATELY_ZERO > mV[VX]*mV[VX] + mV[VY]*mV[VY] + mV[VZ]*mV[VZ] )
     {
-        return TRUE;
+        return true;
     }
-    return FALSE;
+    return false;
 }
 
 inline void update_min_max(LLVector3& min, LLVector3& max, const LLVector3& pos)
@@ -589,7 +589,7 @@ inline F32 angle_between(const LLVector3& a, const LLVector3& b)
     return atan2f(sqrtf(c * c), ab); // return the angle
 }
 
-inline BOOL are_parallel(const LLVector3 &a, const LLVector3 &b, F32 epsilon)
+inline bool are_parallel(const LLVector3 &a, const LLVector3 &b, F32 epsilon)
 {
     LLVector3 an = a;
     LLVector3 bn = b;
@@ -598,9 +598,9 @@ inline BOOL are_parallel(const LLVector3 &a, const LLVector3 &b, F32 epsilon)
     F32 dot = an * bn;
     if ( (1.0f - fabs(dot)) < epsilon)
     {
-        return TRUE;
+        return true;
     }
-    return FALSE;
+    return false;
 }
 
 inline std::ostream& operator<<(std::ostream& s, const LLVector3 &a)

@@ -45,7 +45,7 @@ void LLLFSThread::initClass(bool local_is_threaded)
 //static
 S32 LLLFSThread::updateClass(U32 ms_elapsed)
 {
-    return sLocal->update((F32)ms_elapsed);
+    return static_cast<S32>(sLocal->update((F32)ms_elapsed));
 }
 
 //static

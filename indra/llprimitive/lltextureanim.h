@@ -44,7 +44,7 @@ public:
     void packTAMessage(LLDataPacker &dp) const;
     void unpackTAMessage(LLMessageSystem *mesgsys, const S32 block_num);
     void unpackTAMessage(LLDataPacker &dp);
-    BOOL equals(const LLTextureAnim &other) const;
+    bool equals(const LLTextureAnim &other) const;
     LLSD asLLSD() const;
     operator LLSD() const { return asLLSD(); }
     bool fromLLSD(LLSD& sd);

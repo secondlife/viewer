@@ -83,7 +83,7 @@ public:
     void godLevelChanged(U8 godlevel);
 
 private:
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
 
     std::set<std::string> mSearchType;
     std::set<std::string> mCollectionType;

@@ -61,27 +61,27 @@ void handle_deselect(void*);
 void handle_delete_object();
 void handle_duplicate(void*);
 void handle_duplicate_in_place(void*);
-BOOL enable_not_have_card(void *userdata);
+bool enable_not_have_card(void *userdata);
 void process_grant_godlike_powers(LLMessageSystem* msg, void**);
 
-BOOL enable_cut(void*);
-BOOL enable_copy(void*);
-BOOL enable_paste(void*);
-BOOL enable_select_all(void*);
-BOOL enable_deselect(void*);
-BOOL enable_undo(void*);
-BOOL enable_redo(void*);
+bool enable_cut(void*);
+bool enable_copy(void*);
+bool enable_paste(void*);
+bool enable_select_all(void*);
+bool enable_deselect(void*);
+bool enable_undo(void*);
+bool enable_redo(void*);
 
-BOOL is_agent_mappable(const LLUUID& agent_id);
+bool is_agent_mappable(const LLUUID& agent_id);
 
 void confirm_replace_attachment(S32 option, void* user_data);
 void handle_detach_from_avatar(const LLSD& user_data);
 void attach_label(std::string& label, const LLSD&);
 void detach_label(std::string& label, const LLSD&);
 void handle_detach(void*);
-BOOL enable_god_full(void* user_data);
-BOOL enable_god_liaison(void* user_data);
-BOOL enable_god_basic(void* user_data);
+bool enable_god_full(void* user_data);
+bool enable_god_liaison(void* user_data);
+bool enable_god_basic(void* user_data);
 void check_merchant_status(bool force = false);
 
 void exchange_callingcard(const LLUUID& dest_id);
@@ -103,7 +103,7 @@ bool enable_object_delete();
 
 // Buy either contents or object itself
 void handle_buy();
-void handle_take();
+void handle_take(bool take_separate = false);
 void handle_take_copy();
 void handle_look_at_selection(const LLSD& param);
 void handle_zoom_to_object(LLUUID object_id);
@@ -161,7 +161,7 @@ public:
 
     LLViewerMenuHolderGL(const Params& p);
 
-    virtual BOOL hideMenus();
+    virtual bool hideMenus();
 
     void setParcelSelection(LLSafeHandle<LLParcelSelection> selection);
     void setObjectSelection(LLSafeHandle<LLObjectSelection> selection);

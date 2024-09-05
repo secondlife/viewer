@@ -79,7 +79,7 @@ public:
     operator LLWString() const { return getUpdatedWResult(); }
 
     bool empty() const { return getUpdatedResult().empty(); }
-    S32 length() const { return getUpdatedWResult().size(); }
+    S32 length() const { return static_cast<S32>(getUpdatedWResult().size()); }
 
     void clear();
     void clearArgs() { if (mArgs) mArgs->clear(); }

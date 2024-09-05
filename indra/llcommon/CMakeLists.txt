@@ -8,7 +8,6 @@ include(bugsplat)
 include(Linking)
 include(Boost)
 include(LLSharedLibs)
-include(JsonCpp)
 include(Copy3rdPartyLibs)
 include(ZLIBNG)
 include(URIPARSER)
@@ -154,6 +153,7 @@ set(llcommon_HEADER_FILES
     llcommonutils.h
     llcond.h
     llcoros.h
+    llcoromutex.h
     llcrc.h
     llcriticaldamp.h
     lldate.h
@@ -202,6 +202,7 @@ set(llcommon_HEADER_FILES
     llmetricperformancetester.h
     llmetrics.h
     llmortician.h
+    llmutex.h
     llnametable.h
     llpointer.h
     llpounceable.h
@@ -287,7 +288,6 @@ target_link_libraries(
         llcommon
         ll::apr
         ll::expat
-        ll::jsoncpp
         ll::zlib-ng
         ll::boost
         ll::uriparser

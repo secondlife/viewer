@@ -70,16 +70,16 @@ public:
     F32             mLastSpokeTime;     // timestamp when this speaker last spoke
     F32             mSpeechVolume;      // current speech amplitude (timea average rms amplitude?)
     std::string     mDisplayName;       // cache user name for this speaker
-    BOOL            mHasSpoken;         // has this speaker said anything this session?
-    BOOL            mHasLeftCurrentCall;    // has this speaker left the current voice call?
+    bool            mHasSpoken;         // has this speaker said anything this session?
+    bool            mHasLeftCurrentCall;    // has this speaker left the current voice call?
     LLColor4        mDotColor;
     LLUUID          mID;
-    BOOL            mTyping;
+    bool            mTyping;
     S32             mSortIndex;
     ESpeakerType    mType;
-    BOOL            mIsModerator;
-    BOOL            mModeratorMutedVoice;
-    BOOL            mModeratorMutedText;
+    bool            mIsModerator;
+    bool            mModeratorMutedVoice;
+    bool            mModeratorMutedText;
 };
 
 class LLSpeakerUpdateSpeakerEvent : public LLOldEvents::LLEvent
@@ -98,7 +98,7 @@ public:
     /*virtual*/ LLSD getValue();
 private:
     const LLUUID& mSpeakerID;
-    BOOL mIsModerator;
+    bool mIsModerator;
 };
 
 class LLSpeakerTextModerationEvent : public LLOldEvents::LLEvent
@@ -228,19 +228,20 @@ public:
     virtual ~LLSpeakerMgr();
 
     LLPointer<LLSpeaker> findSpeaker(const LLUUID& avatar_id);
-    void update(BOOL resort_ok);
-    void setSpeakerTyping(const LLUUID& speaker_id, BOOL typing);
+    void update(bool resort_ok);
+    void setSpeakerTyping(const LLUUID& speaker_id, bool typing);
     void speakerChatted(const LLUUID& speaker_id);
     LLPointer<LLSpeaker> setSpeaker(const LLUUID& id,
                     const std::string& name = LLStringUtil::null,
                     LLSpeaker::ESpeakerStatus status = LLSpeaker::STATUS_TEXT_ONLY,
                     LLSpeaker::ESpeakerType = LLSpeaker::SPEAKER_AGENT);
 
-    BOOL isVoiceActive();
+    bool isVoiceActive();
 
     typedef std::vector<LLPointer<LLSpeaker> > speaker_list_t;
-    void getSpeakerList(speaker_list_t* speaker_list, BOOL include_text);
+    void getSpeakerList(speaker_list_t* speaker_list, bool include_text);
     LLVoiceChannel* getVoiceChannel() { return mVoiceChannel; }
+    void setVoiceChannel(LLVoiceChannel *voiceChannel) { mVoiceChannel = voiceChannel;  }
     const LLUUID getSessionID();
     bool isSpeakerToBeRemoved(const LLUUID& speaker_id);
 

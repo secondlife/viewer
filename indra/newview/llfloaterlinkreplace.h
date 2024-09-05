@@ -56,13 +56,13 @@ public:
         return mDADSignal.connect(cb);
     }
 
-    virtual BOOL postBuild()
+    virtual bool postBuild()
     {
-        setEnabled(FALSE);
+        setEnabled(false);
         return LLLineEditor::postBuild();
     }
 
-    virtual BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+    virtual bool handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
                                    EDragAndDropType cargo_type,
                                    void* cargo_data,
                                    EAcceptance* accept,
@@ -86,7 +86,7 @@ public:
     LLFloaterLinkReplace(const LLSD& key);
     virtual ~LLFloaterLinkReplace();
 
-    BOOL postBuild() override;
+    bool postBuild() override;
     void onOpen(const LLSD& key) override;
 
     bool tick() override;

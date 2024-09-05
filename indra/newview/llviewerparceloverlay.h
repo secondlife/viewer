@@ -50,10 +50,10 @@ public:
     // ACCESS
     LLViewerTexture*        getTexture() const      { return mTexture; }
 
-    BOOL            isOwned(const LLVector3& pos) const;
-    BOOL            isOwnedSelf(const LLVector3& pos) const;
-    BOOL            isOwnedGroup(const LLVector3& pos) const;
-    BOOL            isOwnedOther(const LLVector3& pos) const;
+    bool            isOwned(const LLVector3& pos) const;
+    bool            isOwnedSelf(const LLVector3& pos) const;
+    bool            isOwnedGroup(const LLVector3& pos) const;
+    bool            isOwnedOther(const LLVector3& pos) const;
 
     // "encroaches" means the prim hangs over the parcel, but its center
     // might be in another parcel. for now, we simply test axis aligned
@@ -62,9 +62,9 @@ public:
     bool encroachesOnUnowned(const std::vector<LLBBox>& boxes) const;
     bool encroachesOnNearbyParcel(const std::vector<LLBBox>& boxes) const;
 
-    BOOL            isSoundLocal(const LLVector3& pos) const;
+    bool            isSoundLocal(const LLVector3& pos) const;
 
-    BOOL            isBuildCameraAllowed(const LLVector3& pos) const;
+    bool            isBuildCameraAllowed(const LLVector3& pos) const;
     F32             getOwnedRatio() const;
 
     // Returns the number of vertices drawn
@@ -112,7 +112,7 @@ private:
     U8              *mOwnership;
 
     // Update propery lines and overlay texture
-    BOOL            mDirty;
+    bool            mDirty;
     LLFrameTimer    mTimeSinceLastUpdate;
     S32             mOverlayTextureIdx;
 

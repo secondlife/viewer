@@ -84,8 +84,8 @@ bool LLCallbackList::deleteFunction( callback_t func, void *data)
     auto found = mLookup.find(callback_pair_t(func, data));
     if (found != mLookup.end())
     {
-        mLookup.erase(found);
         deleteFunction(found->second);
+        mLookup.erase(found);
         return true;
     }
     else

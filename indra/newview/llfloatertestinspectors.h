@@ -40,7 +40,7 @@ private:
     LLFloaterTestInspectors(const LLSD& seed);
     ~LLFloaterTestInspectors();
 
-    /*virtual*/ BOOL postBuild();
+    bool postBuild() override;
 
     // Button callback to show
     void showAvatarInspector(LLUICtrl*, const LLSD& avatar_id);

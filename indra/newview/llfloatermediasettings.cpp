@@ -80,7 +80,7 @@ LLFloaterMediaSettings::~LLFloaterMediaSettings()
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-BOOL LLFloaterMediaSettings::postBuild()
+bool LLFloaterMediaSettings::postBuild()
 {
     mApplyBtn = getChild<LLButton>("Apply");
     mApplyBtn->setClickedCallback(onBtnApply, this);
@@ -121,7 +121,7 @@ BOOL LLFloaterMediaSettings::postBuild()
 
     sInstance = this;
 
-    return TRUE;
+    return true;
 }
 
 //static

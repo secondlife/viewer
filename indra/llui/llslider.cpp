@@ -93,7 +93,7 @@ LLSlider::~LLSlider()
     delete mMouseUpSignal;
 }
 
-void LLSlider::setValue(F32 value, BOOL from_event)
+void LLSlider::setValue(F32 value, bool from_event)
 {
     value = llclamp( value, mMinValue, mMaxValue );
 
@@ -157,7 +157,7 @@ void LLSlider::setValueAndCommit(F32 value)
 }
 
 
-BOOL LLSlider::handleHover(S32 x, S32 y, MASK mask)
+bool LLSlider::handleHover(S32 x, S32 y, MASK mask)
 {
     if( hasMouseCapture() )
     {
@@ -193,12 +193,12 @@ BOOL LLSlider::handleHover(S32 x, S32 y, MASK mask)
         getWindow()->setCursor(UI_CURSOR_ARROW);
         LL_DEBUGS("UserInput") << "hover handled by " << getName() << " (inactive)" << LL_ENDL;
     }
-    return TRUE;
+    return true;
 }
 
-BOOL LLSlider::handleMouseUp(S32 x, S32 y, MASK mask)
+bool LLSlider::handleMouseUp(S32 x, S32 y, MASK mask)
 {
-    BOOL handled = FALSE;
+    bool handled = false;
 
     if( hasMouseCapture() )
     {
@@ -207,23 +207,23 @@ BOOL LLSlider::handleMouseUp(S32 x, S32 y, MASK mask)
         if (mMouseUpSignal)
             (*mMouseUpSignal)( this, getValueF32() );
 
-        handled = TRUE;
+        handled = true;
         make_ui_sound("UISndClickRelease");
     }
     else
     {
-        handled = TRUE;
+        handled = true;
     }
 
     return handled;
 }
 
-BOOL LLSlider::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLSlider::handleMouseDown(S32 x, S32 y, MASK mask)
 {
     // only do sticky-focus on non-chrome widgets
     if (!getIsChrome())
     {
-        setFocus(TRUE);
+        setFocus(true);
     }
     if (mMouseDownSignal)
         (*mMouseDownSignal)( this, getValueF32() );
@@ -253,23 +253,23 @@ BOOL LLSlider::handleMouseDown(S32 x, S32 y, MASK mask)
     }
     make_ui_sound("UISndClick");
 
-    return TRUE;
+    return true;
 }
 
-BOOL LLSlider::handleKeyHere(KEY key, MASK mask)
+bool LLSlider::handleKeyHere(KEY key, MASK mask)
 {
-    BOOL handled = FALSE;
+    bool handled = false;
     switch(key)
     {
     case KEY_DOWN:
     case KEY_LEFT:
         setValueAndCommit(getValueF32() - getIncrement());
-        handled = TRUE;
+        handled = true;
         break;
     case KEY_UP:
     case KEY_RIGHT:
         setValueAndCommit(getValueF32() + getIncrement());
-        handled = TRUE;
+        handled = true;
         break;
     default:
         break;
@@ -277,13 +277,13 @@ BOOL LLSlider::handleKeyHere(KEY key, MASK mask)
     return handled;
 }
 
-BOOL LLSlider::handleScrollWheel(S32 x, S32 y, S32 clicks)
+bool LLSlider::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
     if ( mOrientation == VERTICAL )
     {
         F32 new_val = getValueF32() - clicks * getIncrement();
         setValueAndCommit(new_val);
-        return TRUE;
+        return true;
     }
     return LLF32UICtrl::handleScrollWheel(x,y,clicks);
 }

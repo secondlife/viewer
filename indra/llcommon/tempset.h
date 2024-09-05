@@ -3,7 +3,7 @@
  * @author Nat Goodspeed
  * @date   2024-06-12
  * @brief  Temporarily override a variable for scope duration, then restore
- * 
+ *
  * $LicenseInfo:firstyear=2024&license=viewerlgpl$
  * Copyright (c) 2024, Linden Research, Inc.
  * $/LicenseInfo$

@@ -53,27 +53,27 @@ public:
 
     LLManipRotate( LLToolComposite* composite );
 
-    virtual BOOL    handleMouseDown( S32 x, S32 y, MASK mask );
-    virtual BOOL    handleMouseUp( S32 x, S32 y, MASK mask );
-    virtual BOOL    handleHover( S32 x, S32 y, MASK mask );
+    virtual bool    handleMouseDown( S32 x, S32 y, MASK mask );
+    virtual bool    handleMouseUp( S32 x, S32 y, MASK mask );
+    virtual bool    handleHover( S32 x, S32 y, MASK mask );
     virtual void    render();
 
     virtual void    handleSelect();
 
-    virtual BOOL    handleMouseDownOnPart(S32 x, S32 y, MASK mask);
+    virtual bool    handleMouseDownOnPart(S32 x, S32 y, MASK mask);
     virtual void    highlightManipulators(S32 x, S32 y);
-    virtual BOOL    canAffectSelection();
+    virtual bool    canAffectSelection();
 
 private:
     void            updateHoverView();
 
     void            drag( S32 x, S32 y );
-    LLVector3       projectToSphere( F32 x, F32 y, BOOL* on_sphere );
+    LLVector3       projectToSphere( F32 x, F32 y, bool* on_sphere );
 
     void            renderSnapGuides();
     void            renderActiveRing(F32 radius, F32 width, const LLColor4& center_color, const LLColor4& side_color);
 
-    BOOL            updateVisiblity();
+    bool            updateVisiblity();
     LLVector3       findNearestPointOnRing( S32 x, S32 y, const LLVector3& center, const LLVector3& axis );
 
     LLQuaternion    dragUnconstrained( S32 x, S32 y );
@@ -104,10 +104,10 @@ private:
     LLVector3           mCenterToProfilePlane;
     F32                 mCenterToProfilePlaneMag;
 
-    BOOL                mSendUpdateOnMouseUp;
+    bool                mSendUpdateOnMouseUp;
 
-    BOOL                mSmoothRotate;
-    BOOL                mCamEdgeOn;
+    bool                mSmoothRotate;
+    bool                mCamEdgeOn;
 
     LLVector4           mManipulatorVertices[6];
     LLVector4           mManipulatorScales;

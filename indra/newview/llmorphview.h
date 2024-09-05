@@ -49,7 +49,7 @@ public:
     void        shutdown();
 
     // inherited methods
-    /*virtual*/ void    setVisible(BOOL visible);
+    void        setVisible(bool visible) override;
 
     void        setCameraTargetJoint(LLJoint *joint)        {mCameraTargetJoint = joint;}
     LLJoint*    getCameraTargetJoint()                      {return mCameraTargetJoint;}
@@ -58,7 +58,7 @@ public:
     void        setCameraTargetOffset(const LLVector3d& camera_target_offset) {mCameraTargetOffset = camera_target_offset;}
 
     void        updateCamera();
-    void        setCameraDrivenByKeys( BOOL b );
+    void        setCameraDrivenByKeys( bool b );
 
 protected:
     void        initialize();
@@ -75,7 +75,7 @@ protected:
     F32         mCameraPitch;
     F32         mCameraYaw;
 
-    BOOL        mCameraDrivenByKeys;
+    bool        mCameraDrivenByKeys;
 };
 
 //

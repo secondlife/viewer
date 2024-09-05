@@ -52,7 +52,7 @@ LLFloaterLinkReplace::~LLFloaterLinkReplace()
 {
 }
 
-BOOL LLFloaterLinkReplace::postBuild()
+bool LLFloaterLinkReplace::postBuild()
 {
     mStartBtn = getChild<LLButton>("btn_start");
     mStartBtn->setCommitCallback(boost::bind(&LLFloaterLinkReplace::onStartClicked, this));
@@ -68,7 +68,7 @@ BOOL LLFloaterLinkReplace::postBuild()
 
     mStatusText = getChild<LLTextBox>("status_text");
 
-    return TRUE;
+    return true;
 }
 
 void LLFloaterLinkReplace::onOpen(const LLSD& key)
@@ -199,8 +199,8 @@ void LLFloaterLinkReplace::onStartClickedResponse(const LLSD& notification, cons
                 args["NUM"] = llformat("%d", mRemainingItems);
                 mStatusText->setText(getString("ItemsRemaining", args));
 
-                mStartBtn->setEnabled(FALSE);
-                mRefreshBtn->setEnabled(FALSE);
+                mStartBtn->setEnabled(false);
+                mRefreshBtn->setEnabled(false);
 
                 start();
                 tick();
@@ -296,8 +296,8 @@ void LLFloaterLinkReplace::decreaseOpenItemCount()
     if (mRemainingItems == 0)
     {
         mStatusText->setText(getString("ReplaceFinished"));
-        mStartBtn->setEnabled(TRUE);
-        mRefreshBtn->setEnabled(TRUE);
+        mStartBtn->setEnabled(true);
+        mRefreshBtn->setEnabled(true);
         stop();
         LL_INFOS() << "Inventory link replace finished." << LL_ENDL;
     }
@@ -329,7 +329,7 @@ bool LLFloaterLinkReplace::tick()
     }
     processBatch(current_batch);
 
-    return FALSE;
+    return false;
 }
 
 void LLFloaterLinkReplace::processBatch(LLInventoryModel::item_array_t items)
@@ -378,7 +378,7 @@ void LLFloaterLinkReplace::processBatch(LLInventoryModel::item_array_t items)
 
 static LLDefaultChildRegistry::Register<LLInventoryLinkReplaceDropTarget> r("inventory_link_replace_drop_target");
 
-BOOL LLInventoryLinkReplaceDropTarget::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+bool LLInventoryLinkReplaceDropTarget::handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
                                                            EDragAndDropType cargo_type,
                                                            void* cargo_data,
                                                            EAcceptance* accept,
@@ -411,7 +411,7 @@ BOOL LLInventoryLinkReplaceDropTarget::handleDragAndDrop(S32 x, S32 y, MASK mask
         *accept = ACCEPT_NO;
     }
 
-    return TRUE;
+    return true;
 }
 
 void LLInventoryLinkReplaceDropTarget::setItem(LLInventoryItem* item)

@@ -3,7 +3,7 @@
  * @author Nat Goodspeed
  * @date   2012-02-20
  * @brief  Implementation for llleap.
- * 
+ *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Copyright (c) 2012, Linden Research, Inc.
  * $/LicenseInfo$
@@ -230,7 +230,7 @@ public:
 
         LL_DEBUGS("EventHost") << "Sending: "
                                << static_cast<U64>(buffer.tellp()) << ':';
-        std::string::size_type truncate(80);
+        llssize truncate(80);
         if (buffer.tellp() <= truncate)
         {
             LL_CONT << buffer.str();

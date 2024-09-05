@@ -40,10 +40,10 @@ public:
     LLFloaterAvatarTextures(const LLSD& id);
     virtual ~LLFloaterAvatarTextures();
 
-    /*virtual*/ BOOL postBuild();
-    /*virtual*/ void draw();
+    bool postBuild() override;
+    void draw() override;
 
-    void refresh();
+    void refresh() override;
 
 private:
     static void onClickDump(void*);

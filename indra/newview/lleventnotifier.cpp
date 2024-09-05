@@ -259,13 +259,13 @@ void LLEventNotifier::load(const LLSD& event_options)
 }
 
 
-BOOL LLEventNotifier::hasNotification(const U32 event_id)
+bool LLEventNotifier::hasNotification(const U32 event_id)
 {
     if (mEventNotifications.find(event_id) != mEventNotifications.end())
     {
-        return TRUE;
+        return true;
     }
-    return FALSE;
+    return false;
 }
 
 void LLEventNotifier::remove(const U32 event_id)

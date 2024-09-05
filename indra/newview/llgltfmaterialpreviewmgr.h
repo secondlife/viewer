@@ -40,10 +40,10 @@ public:
     // Width scales with size of material's textures
     static LLPointer<LLGLTFPreviewTexture> create(LLPointer<LLFetchedGLTFMaterial> material);
 
-    BOOL needsRender() override;
-    void preRender(BOOL clear_depth = TRUE) override;
-    BOOL render() override;
-    void postRender(BOOL success) override;
+    bool needsRender() override;
+    void preRender(bool clear_depth = true) override;
+    bool render() override;
+    void postRender(bool success) override;
 
     struct MaterialLoadLevels
     {

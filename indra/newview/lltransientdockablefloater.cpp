@@ -52,7 +52,7 @@ LLTransientDockableFloater::~LLTransientDockableFloater()
     }
 }
 
-void LLTransientDockableFloater::setVisible(BOOL visible)
+void LLTransientDockableFloater::setVisible(bool visible)
 {
     LLView* dock = getDockWidget();
     if(visible && isDocked())

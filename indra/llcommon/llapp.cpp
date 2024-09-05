@@ -52,15 +52,7 @@
 
 //
 // Signal handling
-//
-// Windows uses structured exceptions, so it's handled a bit differently.
-//
-#if LL_WINDOWS
-#include "windows.h"
-
-LONG WINAPI default_windows_exception_handler(struct _EXCEPTION_POINTERS *exception_infop);
-BOOL ConsoleCtrlHandler(DWORD fdwCtrlType);
-#else
+#ifndef LL_WINDOWS
 # include <signal.h>
 # include <unistd.h> // for fork()
 void setup_signals();
@@ -87,18 +79,18 @@ S32 LL_HEARTBEAT_SIGNAL = SIGUSR2;
 S32 LL_SMACKDOWN_SIGNAL = (SIGRTMAX >= 0) ? (SIGRTMAX-1) : SIGUSR1;
 S32 LL_HEARTBEAT_SIGNAL = (SIGRTMAX >= 0) ? (SIGRTMAX-0) : SIGUSR2;
 # endif // LL_DARWIN
-#endif // LL_WINDOWS
+#endif // !LL_WINDOWS
 
 // the static application instance
 LLApp* LLApp::sApplication = NULL;
 
 // Allows the generation of core files for post mortem under gdb
 // and disables crashlogger
-BOOL LLApp::sDisableCrashlogger = FALSE;
+bool LLApp::sDisableCrashlogger = false;
 
 // Local flag for whether or not to do logging in signal handlers.
 //static
-BOOL LLApp::sLogInSignal = FALSE;
+bool LLApp::sLogInSignal = false;
 
 // static
 // Keeps track of application status
@@ -207,9 +199,9 @@ bool LLApp::parseCommandOptions(int argc, char** argv)
 
 #if LL_WINDOWS
         //Windows changed command line parsing.  Deal with it.
-        S32 slen = value.length() - 1;
-        S32 start = 0;
-        S32 end = slen;
+        size_t slen = value.length() - 1;
+        size_t start = 0;
+        size_t end = slen;
         if (argv[ii][start]=='"')start++;
         if (argv[ii][end]=='"')end--;
         if (start!=0 || end!=slen)
@@ -272,9 +264,9 @@ bool LLApp::parseCommandOptions(int argc, wchar_t** wargv)
 
 #if LL_WINDOWS
         //Windows changed command line parsing.  Deal with it.
-        S32 slen = value.length() - 1;
-        S32 start = 0;
-        S32 end = slen;
+        size_t slen = value.length() - 1;
+        size_t start = 0;
+        size_t end = slen;
         if (wargv[ii][start]=='"')start++;
         if (wargv[ii][end]=='"')end--;
         if (start!=0 || end!=slen)
@@ -325,33 +317,6 @@ void LLApp::stepFrame()
     LLCallbackList::instance().callFunctions();
     mRunner.run();
 }
-
-#if LL_WINDOWS
-//The following code is needed for 32-bit apps on 64-bit windows to keep it from eating
-//crashes.   It is a lovely undocumented 'feature' in SP1 of Windows 7. An excellent
-//in-depth article on the issue may be found here:  http://randomascii.wordpress.com/2012/07/05/when-even-crashing-doesn-work/
-void EnableCrashingOnCrashes()
-{
-    typedef BOOL (WINAPI *tGetPolicy)(LPDWORD lpFlags);
-    typedef BOOL (WINAPI *tSetPolicy)(DWORD dwFlags);
-    const DWORD EXCEPTION_SWALLOWING = 0x1;
-
-    HMODULE kernel32 = LoadLibraryA("kernel32.dll");
-    tGetPolicy pGetPolicy = (tGetPolicy)GetProcAddress(kernel32,
-        "GetProcessUserModeExceptionPolicy");
-    tSetPolicy pSetPolicy = (tSetPolicy)GetProcAddress(kernel32,
-        "SetProcessUserModeExceptionPolicy");
-    if (pGetPolicy && pSetPolicy)
-    {
-        DWORD dwFlags;
-        if (pGetPolicy(&dwFlags))
-        {
-            // Turn off the filter
-            pSetPolicy(dwFlags & ~EXCEPTION_SWALLOWING);
-        }
-    }
-}
-#endif
 
 void LLApp::setupErrorHandling(bool second_instance)
 {
@@ -503,13 +468,13 @@ bool LLApp::isExiting()
 
 void LLApp::disableCrashlogger()
 {
-    sDisableCrashlogger = TRUE;
+    sDisableCrashlogger = true;
 }
 
 // static
 bool LLApp::isCrashloggerDisabled()
 {
-    return (sDisableCrashlogger == TRUE);
+    return sDisableCrashlogger;
 }
 
 // static
@@ -522,77 +487,7 @@ int LLApp::getPid()
 #endif
 }
 
-#if LL_WINDOWS
-LONG WINAPI default_windows_exception_handler(struct _EXCEPTION_POINTERS *exception_infop)
-{
-    // Translate the signals/exceptions into cross-platform stuff
-    // Windows implementation
-
-    // Make sure the user sees something to indicate that the app crashed.
-    LONG retval;
-
-    if (LLApp::isError())
-    {
-        LL_WARNS() << "Got another fatal signal while in the error handler, die now!" << LL_ENDL;
-        retval = EXCEPTION_EXECUTE_HANDLER;
-        return retval;
-    }
-
-    // Flag status to error, so thread_error starts its work
-    LLApp::setError();
-
-    // Block in the exception handler until the app has stopped
-    // This is pretty sketchy, but appears to work just fine
-    while (!LLApp::isStopped())
-    {
-        ms_sleep(10);
-    }
-
-    //
-    // Generate a minidump if we can.
-    //
-    // TODO: This needs to be ported over form the viewer-specific
-    // LLWinDebug class
-
-    //
-    // At this point, we always want to exit the app.  There's no graceful
-    // recovery for an unhandled exception.
-    //
-    // Just kill the process.
-    retval = EXCEPTION_EXECUTE_HANDLER;
-    return retval;
-}
-
-// Win32 doesn't support signals. This is used instead.
-BOOL ConsoleCtrlHandler(DWORD fdwCtrlType)
-{
-    switch (fdwCtrlType)
-    {
-        case CTRL_BREAK_EVENT:
-        case CTRL_LOGOFF_EVENT:
-        case CTRL_SHUTDOWN_EVENT:
-        case CTRL_CLOSE_EVENT: // From end task or the window close button.
-        case CTRL_C_EVENT:  // from CTRL-C on the keyboard
-            // Just set our state to quitting, not error
-            if (LLApp::isQuitting() || LLApp::isError())
-            {
-                // We're already trying to die, just ignore this signal
-                if (LLApp::sLogInSignal)
-                {
-                    LL_INFOS() << "Signal handler - Already trying to quit, ignoring signal!" << LL_ENDL;
-                }
-                return TRUE;
-            }
-            LLApp::setQuitting();
-            return TRUE;
-
-        default:
-            return FALSE;
-    }
-}
-
-#else //!LL_WINDOWS
-
+#ifndef LL_WINDOWS
 void setup_signals()
 {
     //
@@ -691,9 +586,10 @@ void default_unix_signal_handler(int signum, siginfo_t *info, void *)
     switch (signum)
     {
     case SIGCHLD:
+    case SIGHUP:
         if (LLApp::sLogInSignal)
         {
-            LL_INFOS() << "Signal handler - Got SIGCHLD from " << info->si_pid << LL_ENDL;
+            LL_INFOS() << "Signal handler - Got SIGCHLD or SIGHUP from " << info->si_pid << LL_ENDL;
         }
 
         return;
@@ -708,11 +604,10 @@ void default_unix_signal_handler(int signum, siginfo_t *info, void *)
         raise(signum);
         return;
     case SIGINT:
-    case SIGHUP:
     case SIGTERM:
         if (LLApp::sLogInSignal)
         {
-            LL_WARNS() << "Signal handler - Got SIGINT, HUP, or TERM, exiting gracefully" << LL_ENDL;
+            LL_WARNS() << "Signal handler - Got SIGINT, or TERM, exiting gracefully" << LL_ENDL;
         }
         // Graceful exit
         // Just set our state to quitting, not error
@@ -804,9 +699,6 @@ void default_unix_signal_handler(int signum, siginfo_t *info, void *)
         }
     }
 }
-
-#if LL_LINUX
-#endif
 
 bool unix_post_minidump_callback(const char *dump_dir,
                       const char *minidump_id,

@@ -43,7 +43,7 @@ class LLSpinCtrl;
 class LLPanelContents : public LLPanel
 {
 public:
-    virtual BOOL postBuild();
+    virtual bool postBuild();
     LLPanelContents();
     virtual ~LLPanelContents();
 

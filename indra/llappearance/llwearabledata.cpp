@@ -86,7 +86,7 @@ void LLWearableData::setWearable(const LLWearableType::EType type, U32 index, LL
     {
         wearable_vec[index] = wearable;
         old_wearable->setUpdated();
-        const BOOL removed = FALSE;
+        const bool removed = false;
         wearableUpdated(wearable, removed);
     }
 }
@@ -105,14 +105,14 @@ void LLWearableData::pushWearable(const LLWearableType::EType type,
         mWearableDatas[type].push_back(wearable);
         if (trigger_updated)
         {
-            const BOOL removed = FALSE;
+            const bool removed = false;
             wearableUpdated(wearable, removed);
         }
     }
 }
 
 // virtual
-void LLWearableData::wearableUpdated(LLWearable *wearable, BOOL removed)
+void LLWearableData::wearableUpdated(LLWearable *wearable, bool removed)
 {
     wearable->setUpdated();
     if (!removed)
@@ -144,7 +144,7 @@ void LLWearableData::eraseWearable(const LLWearableType::EType type, U32 index)
     if (wearable)
     {
         mWearableDatas[type].erase(mWearableDatas[type].begin() + index);
-        const BOOL removed = TRUE;
+        const bool removed = true;
         wearableUpdated(wearable, removed);
     }
 }
@@ -200,11 +200,11 @@ void LLWearableData::pullCrossWearableValues(const LLWearableType::EType type)
 }
 
 
-BOOL LLWearableData::getWearableIndex(const LLWearable *wearable, U32& index_found) const
+bool LLWearableData::getWearableIndex(const LLWearable *wearable, U32& index_found) const
 {
     if (wearable == NULL)
     {
-        return FALSE;
+        return false;
     }
 
     const LLWearableType::EType type = wearable->getType();
@@ -212,7 +212,7 @@ BOOL LLWearableData::getWearableIndex(const LLWearable *wearable, U32& index_fou
     if (wearable_iter == mWearableDatas.end())
     {
         LL_WARNS() << "tried to get wearable index with an invalid type!" << LL_ENDL;
-        return FALSE;
+        return false;
     }
     const wearableentry_vec_t& wearable_vec = wearable_iter->second;
     for(U32 index = 0; index < wearable_vec.size(); index++)
@@ -220,11 +220,11 @@ BOOL LLWearableData::getWearableIndex(const LLWearable *wearable, U32& index_fou
         if (wearable_vec[index] == wearable)
         {
             index_found = index;
-            return TRUE;
+            return true;
         }
     }
 
-    return FALSE;
+    return false;
 }
 
 U32 LLWearableData::getClothingLayerCount() const
@@ -242,7 +242,7 @@ U32 LLWearableData::getClothingLayerCount() const
     return count;
 }
 
-BOOL LLWearableData::canAddWearable(const LLWearableType::EType type) const
+bool LLWearableData::canAddWearable(const LLWearableType::EType type) const
 {
     LLAssetType::EType a_type = LLWearableType::getInstance()->getAssetType(type);
     if (a_type==LLAssetType::AT_CLOTHING)
@@ -255,13 +255,13 @@ BOOL LLWearableData::canAddWearable(const LLWearableType::EType type) const
     }
     else
     {
-        return FALSE;
+        return false;
     }
 }
 
-BOOL LLWearableData::isOnTop(LLWearable* wearable) const
+bool LLWearableData::isOnTop(LLWearable* wearable) const
 {
-    if (!wearable) return FALSE;
+    if (!wearable) return false;
     const LLWearableType::EType type = wearable->getType();
     return ( getTopWearable(type) == wearable );
 }
@@ -334,7 +334,7 @@ U32 LLWearableData::getWearableCount(const LLWearableType::EType type) const
         return 0;
     }
     const wearableentry_vec_t& wearable_vec = wearable_iter->second;
-    return wearable_vec.size();
+    return static_cast<U32>(wearable_vec.size());
 }
 
 U32 LLWearableData::getWearableCount(const U32 tex_index) const

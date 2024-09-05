@@ -63,7 +63,7 @@ void LLWorldMapMessage::sendItemRequest(U32 type, U64 handle)
     msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
     msg->addU32Fast(_PREHASH_Flags, LAYER_FLAG);
     msg->addU32Fast(_PREHASH_EstateID, 0); // Filled in on sim
-    msg->addBOOLFast(_PREHASH_Godlike, FALSE); // Filled in on sim
+    msg->addBOOLFast(_PREHASH_Godlike, false); // Filled in on sim
 
     msg->nextBlockFast(_PREHASH_RequestData);
     msg->addU32Fast(_PREHASH_ItemType, type);
@@ -84,7 +84,7 @@ void LLWorldMapMessage::sendNamedRegionRequest(std::string region_name)
     msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
     msg->addU32Fast(_PREHASH_Flags, LAYER_FLAG);
     msg->addU32Fast(_PREHASH_EstateID, 0); // Filled in on sim
-    msg->addBOOLFast(_PREHASH_Godlike, FALSE); // Filled in on sim
+    msg->addBOOLFast(_PREHASH_Godlike, false); // Filled in on sim
     msg->nextBlockFast(_PREHASH_NameData);
     msg->addStringFast(_PREHASH_Name, region_name);
     gAgent.sendReliableMessage();
@@ -138,7 +138,7 @@ void LLWorldMapMessage::sendMapBlockRequest(U16 min_x, U16 min_y, U16 max_x, U16
     flags |= (return_nonexistent ? 0x10000 : 0);
     msg->addU32Fast(_PREHASH_Flags, flags);
     msg->addU32Fast(_PREHASH_EstateID, 0); // Filled in on sim
-    msg->addBOOLFast(_PREHASH_Godlike, FALSE); // Filled in on sim
+    msg->addBOOLFast(_PREHASH_Godlike, false); // Filled in on sim
     msg->nextBlockFast(_PREHASH_PositionData);
     msg->addU16Fast(_PREHASH_MinX, min_x);
     msg->addU16Fast(_PREHASH_MinY, min_y);

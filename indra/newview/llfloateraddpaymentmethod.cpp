@@ -41,12 +41,12 @@ LLFloaterAddPaymentMethod::~LLFloaterAddPaymentMethod()
 {
 }
 
-BOOL LLFloaterAddPaymentMethod::postBuild()
+bool LLFloaterAddPaymentMethod::postBuild()
 {
-    setCanDrag(FALSE);
+    setCanDrag(false);
     getChild<LLButton>("continue_btn")->setCommitCallback(boost::bind(&LLFloaterAddPaymentMethod::onContinueBtn, this));
     getChild<LLButton>("close_btn")->setCommitCallback(boost::bind(&LLFloaterAddPaymentMethod::onCloseBtn, this));
-    return TRUE;
+    return true;
 }
 
 void LLFloaterAddPaymentMethod::onOpen(const LLSD& key)

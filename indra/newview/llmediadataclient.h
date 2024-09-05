@@ -219,7 +219,7 @@ protected:
     {
     public:
         RetryTimer(F32 time, Request::ptr_t);
-        virtual bool tick() override;
+        bool tick() override;
     private:
         // back-pointer
         Request::ptr_t mRequest;

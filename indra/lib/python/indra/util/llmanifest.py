@@ -116,7 +116,7 @@ BASE_ARGUMENTS=[
     dict(name='build', description='Build directory.', default=DEFAULT_SRCTREE),
     dict(name='buildtype', description='Build type (i.e. Debug, Release, RelWithDebInfo).', default=None),
     dict(name='bundleid',
-         description="""The Mac OS X Bundle identifier.""",
+         description="""The macOS Bundle identifier.""",
          default="com.secondlife.indra.viewer"),
     dict(name='channel',
          description="""The channel to use for updates, packaging, settings name, etc.""",
@@ -146,7 +146,7 @@ BASE_ARGUMENTS=[
     dict(name='signature',
          description="""This specifies an identity to sign the viewer with, if any.
         If no value is supplied, the default signature will be used, if any. Currently
-        only used on Mac OS X.""",
+        only used on macOS.""",
          default=None),
     dict(name='source',
          description='Source directory.',

@@ -53,14 +53,14 @@ public:
 
     // llview
     void draw() override;
-    BOOL handleKeyHere(KEY key, MASK mask) override;
-    void setEnabled( BOOL enabled ) override;
+    bool handleKeyHere(KEY key, MASK mask) override;
+    void setEnabled(bool enabled) override;
 
     // llfloater
-    BOOL canClose() override;
+    bool canClose() override;
 
     // llpanel
-    BOOL postBuild() override;
+    bool postBuild() override;
 
     // reach into the text editor, and grab the drag item
     const LLInventoryItem* getDragItem();

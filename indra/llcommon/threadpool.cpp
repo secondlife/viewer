@@ -3,7 +3,7 @@
  * @author Nat Goodspeed
  * @date   2021-10-21
  * @brief  Implementation for threadpool.
- * 
+ *
  * $LicenseInfo:firstyear=2021&license=viewerlgpl$
  * Copyright (c) 2021, Linden Research, Inc.
  * $/LicenseInfo$
@@ -105,6 +105,10 @@ void LL::ThreadPoolBase::start()
 LL::ThreadPoolBase::~ThreadPoolBase()
 {
     close();
+    if (!LLEventPumps::wasDeleted())
+    {
+        LLEventPumps::instance().obtain("LLApp").stopListening(mName);
+    }
 }
 
 void LL::ThreadPoolBase::close()

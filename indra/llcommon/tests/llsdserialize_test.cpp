@@ -699,7 +699,7 @@ namespace tut
                 "<key>cam</key><real>1.23</real>"
             "</map></llsd>",
             v,
-            v.size() + 1);
+            static_cast<S32>(v.size()) + 1);
     }
 
     template<> template<>
@@ -719,7 +719,7 @@ namespace tut
                 "<key>cam</key><real>1.23</real>"
             "</map></llsd>",
             v,
-            v.size() + 1);
+            static_cast<S32>(v.size()) + 1);
 
         v.clear();
         v["amy"] = 23;
@@ -732,7 +732,7 @@ namespace tut
                 "<key>cam</key><real>1.23</real>"
             "</map></llsd>",
             v,
-            v.size() + 1);
+            static_cast<S32>(v.size()) + 1);
 
         v.clear();
         v["amy"] = 23;
@@ -749,7 +749,7 @@ namespace tut
                 "<key>cam</key><real>1.23</real>"
             "</map></llsd>",
             v,
-            v.size() + 1);
+            static_cast<S32>(v.size()) + 1);
 
         v.clear();
         v[0] = 23;
@@ -764,7 +764,7 @@ namespace tut
                 "<real>1.23</real>"
             "</array></llsd>",
             v,
-            v.size() + 1);
+            static_cast<S32>(v.size()) + 1);
 
         v.clear();
         v[0] = 23;
@@ -780,7 +780,7 @@ namespace tut
                 "<real>1.23</real>"
             "</array></llsd>",
             v,
-            v.size() + 1);
+            static_cast<S32>(v.size()) + 1);
     }
 
     template<> template<>
@@ -1403,13 +1403,13 @@ namespace tut
         uint32_t size = htonl(1);
         memcpy(&vec[1], &size, sizeof(uint32_t));
         vec.push_back('k');
-        int key_size_loc = vec.size();
+        auto key_size_loc = vec.size();
         size = htonl(1); // 1 too short
         vec.resize(vec.size() + 4);
         memcpy(&vec[key_size_loc], &size, sizeof(uint32_t));
         vec.push_back('a'); vec.push_back('m'); vec.push_back('y');
         vec.push_back('i');
-        int integer_loc = vec.size();
+        auto integer_loc = vec.size();
         vec.resize(vec.size() + 4);
         uint32_t val_int = htonl(23);
         memcpy(&vec[integer_loc], &val_int, sizeof(uint32_t));
@@ -1471,7 +1471,7 @@ namespace tut
         memcpy(&vec[1], &size, sizeof(uint32_t));
         vec.push_back('"'); vec.push_back('a'); vec.push_back('m');
         vec.push_back('y'); vec.push_back('"'); vec.push_back('i');
-        int integer_loc = vec.size();
+        auto integer_loc = vec.size();
         vec.resize(vec.size() + 4);
         uint32_t val_int = htonl(23);
         memcpy(&vec[integer_loc], &val_int, sizeof(uint32_t));

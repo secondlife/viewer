@@ -36,16 +36,16 @@ class LLToolSelectRect
 public:
     LLToolSelectRect( LLToolComposite* composite );
 
-    virtual BOOL    handleMouseDown(S32 x, S32 y, MASK mask);
-    virtual BOOL    handleMouseUp(S32 x, S32 y, MASK mask);
-    virtual BOOL    handleHover(S32 x, S32 y, MASK mask);
+    virtual bool    handleMouseDown(S32 x, S32 y, MASK mask);
+    virtual bool    handleMouseUp(S32 x, S32 y, MASK mask);
+    virtual bool    handleHover(S32 x, S32 y, MASK mask);
     virtual void    draw();                         // draw the select rectangle
 
     void handlePick(const LLPickInfo& pick);
 
 protected:
     void            handleRectangleSelection(S32 x, S32 y, MASK mask);  // true if you selected one
-    BOOL            outsideSlop(S32 x, S32 y, S32 start_x, S32 start_y);
+    bool            outsideSlop(S32 x, S32 y, S32 start_x, S32 start_y);
 
 protected:
     S32             mDragStartX;                    // screen coords, from left
@@ -57,7 +57,7 @@ protected:
     S32             mDragLastWidth;
     S32             mDragLastHeight;
 
-    BOOL            mMouseOutsideSlop;      // has mouse ever gone outside slop region?
+    bool            mMouseOutsideSlop;      // has mouse ever gone outside slop region?
 };
 
 

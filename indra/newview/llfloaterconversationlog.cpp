@@ -39,7 +39,7 @@ LLFloaterConversationLog::LLFloaterConversationLog(const LLSD& key)
     mEnableCallbackRegistrar.add("CallLog.Check",   boost::bind(&LLFloaterConversationLog::isActionChecked, this, _2));
 }
 
-BOOL LLFloaterConversationLog::postBuild()
+bool LLFloaterConversationLog::postBuild()
 {
     mConversationLogList = getChild<LLConversationLogList>("conversation_log_list");
 

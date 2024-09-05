@@ -88,6 +88,8 @@ void LLImageFilter::executeFilter(LLPointer<LLImageRaw> raw_image)
 {
     mImage = raw_image;
 
+    LLImageDataLock lock(mImage);
+
     //std::cout << "Filter : size = " << mFilterData.size() << std::endl;
     for (S32 i = 0; i < mFilterData.size(); ++i)
     {
@@ -779,9 +781,9 @@ void LLImageFilter::filterLinearize(F32 tail, const LLColor3& alpha)
 
     // Compute min and max counts minus tail
     tail = llclampf(tail);
-    S32 total = cumulated_histo[255];
-    S32 min_c = (S32)((F32)(total) * tail);
-    S32 max_c = (S32)((F32)(total) * (1.0 - tail));
+    U32 total = cumulated_histo[255];
+    U32 min_c = (U32)((F32)(total) * tail);
+    U32 max_c = (U32)((F32)(total) * (1.0 - tail));
 
     // Find min and max values
     S32 min_v = 0;
@@ -796,9 +798,9 @@ void LLImageFilter::filterLinearize(F32 tail, const LLColor3& alpha)
     }
 
     // Compute linear lookup table
-    U8 linear_red_lut[256];
-    U8 linear_green_lut[256];
-    U8 linear_blue_lut[256];
+    U8 linear_red_lut[256]{};
+    U8 linear_green_lut[256]{};
+    U8 linear_blue_lut[256]{};
     if (max_v == min_v)
     {
         // Degenerated binary split case
@@ -848,16 +850,16 @@ void LLImageFilter::filterEqualize(S32 nb_classes, const LLColor3& alpha)
     }
 
     // Compute deltas
-    S32 total = cumulated_histo[255];
-    S32 delta_count = total / nb_classes;
-    S32 current_count = delta_count;
-    S32 delta_value = 256 / (nb_classes - 1);
-    S32 current_value = 0;
+    U32 total = cumulated_histo[255];
+    U32 delta_count = total / nb_classes;
+    U32 current_count = delta_count;
+    U32 delta_value = 256 / (nb_classes - 1);
+    U32 current_value = 0;
 
     // Compute equalized lookup table
-    U8 equalize_red_lut[256];
-    U8 equalize_green_lut[256];
-    U8 equalize_blue_lut[256];
+    U8 equalize_red_lut[256]{};
+    U8 equalize_green_lut[256]{};
+    U8 equalize_blue_lut[256]{};
     for (S32 i = 0; i < 256; i++)
     {
         // Blend in current_value with alpha values

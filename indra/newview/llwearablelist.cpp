@@ -90,14 +90,14 @@ void LLWearableList::getAsset(const LLAssetID& assetID, const std::string& weara
             asset_type,
             LLWearableList::processGetAssetReply,
             (void*)new LLWearableArrivedData( asset_type, wearable_name, avatarp, asset_arrived_callback, userdata ),
-            TRUE);
+            true);
     }
 }
 
 // static
 void LLWearableList::processGetAssetReply( const char* filename, const LLAssetID& uuid, void* userdata, S32 status, LLExtStat ext_status )
 {
-    BOOL isNewWearable = FALSE;
+    bool isNewWearable = false;
     LLWearableArrivedData* data = (LLWearableArrivedData*) userdata;
     LLViewerWearable* wearable = NULL; // NULL indicates failure
     LLAvatarAppearance *avatarp = data->mAvatarp;
@@ -127,7 +127,7 @@ void LLWearableList::processGetAssetReply( const char* filename, const LLAssetID
             {
                 if (wearable->getType() == LLWearableType::WT_COUNT)
                 {
-                    isNewWearable = TRUE;
+                    isNewWearable = true;
                 }
                 delete wearable;
                 wearable = NULL;

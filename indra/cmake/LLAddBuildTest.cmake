@@ -1,7 +1,6 @@
 # -*- cmake -*-
 include(00-Common)
 include(LLTestCommand)
-include(GoogleMock)
 include(bugsplat)
 include(Tut)
 
@@ -18,10 +17,6 @@ MACRO(LL_ADD_PROJECT_UNIT_TESTS project sources)
   # * properties for each sourcefile passed in indicate what libs to link that file with (MAKE NO ASSUMPTIONS ASIDE FROM TUT)
   #
   # More info and examples at: https://wiki.secondlife.com/wiki/How_to_add_unit_tests_to_indra_code
-
-  # This here looks weird, but is needed. It will inject GoogleMock into projects that forgot to include `this` (LLAddBuildTest.cmake)
-  # But through some other means have access to this macro
-  include(GoogleMock)
 
   if(LL_TEST_VERBOSE)
     message("LL_ADD_PROJECT_UNIT_TESTS UNITTEST_PROJECT_${project} sources: ${sources}")
@@ -41,7 +36,6 @@ MACRO(LL_ADD_PROJECT_UNIT_TESTS project sources)
 
   set(alltest_LIBRARIES
           llcommon
-          ll::googlemock
           )
   if(NOT "${project}" STREQUAL "llmath")
     # add llmath as a dep unless the tested module *is* llmath!
@@ -204,7 +198,6 @@ FUNCTION(LL_ADD_INTEGRATION_TEST
 
   set(libraries
           ${library_dependencies}
-          ll::googlemock
           )
 
   # Add test executable build target

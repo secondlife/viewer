@@ -91,9 +91,9 @@ template< class T >
 class LLKeyThrottle
 {
 public:
-    // @param realtime = FALSE for frame-based throttle, TRUE for usec
+    // @param realtime = false for frame-based throttle, true for usec
     // real-time throttle
-    LLKeyThrottle(U32 limit, F32 interval, BOOL realtime = TRUE)
+    LLKeyThrottle(U32 limit, F32 interval, bool realtime = true)
         : m(* new LLKeyThrottleImpl<T>)
     {
         setParameters( limit, interval, realtime );
@@ -287,7 +287,7 @@ public:
     }
 
     // Get the throttling parameters
-    void getParameters( U32 & out_limit, F32 & out_interval, BOOL & out_realtime )
+    void getParameters( U32 & out_limit, F32 & out_interval, bool & out_realtime )
     {
         out_limit = m.countLimit;
         out_interval = m.intervalLength;
@@ -295,7 +295,7 @@ public:
     }
 
     // Set the throttling behavior
-    void setParameters( U32 limit, F32 interval, BOOL realtime = TRUE )
+    void setParameters( U32 limit, F32 interval, bool realtime = true )
     {
         // limit is the maximum number of keys
         // allowed per interval (in seconds or frames)
@@ -325,7 +325,7 @@ public:
 
 protected:
     LLKeyThrottleImpl<T>& m;
-    BOOL    mIsRealtime;    // TRUE to be time based (default), FALSE for frame based
+    bool    mIsRealtime;    // true to be time based (default), false for frame based
 };
 
 #endif

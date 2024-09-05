@@ -57,9 +57,9 @@ class LLAudioEngine_OpenAL : public LLAudioEngine
         /*virtual*/ void updateWind(LLVector3 direction, F32 camera_altitude);
 
     private:
-        typedef S16 WIND_SAMPLE_T;
+        typedef F32 WIND_SAMPLE_T;
         LLWindGen<WIND_SAMPLE_T> *mWindGen;
-        S16 *mWindBuf;
+        F32 *mWindBuf;
         U32 mWindBufFreq;
         U32 mWindBufSamples;
         U32 mWindBufBytes;

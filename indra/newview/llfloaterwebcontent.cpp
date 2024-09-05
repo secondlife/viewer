@@ -84,7 +84,7 @@ LLFloaterWebContent::LLFloaterWebContent( const Params& params )
     mCommitCallbackRegistrar.add( "WebContent.TestURL", { boost::bind(&LLFloaterWebContent::onTestURL, this, _2), cb_info::UNTRUSTED_BLOCK });
 }
 
-BOOL LLFloaterWebContent::postBuild()
+bool LLFloaterWebContent::postBuild()
 {
     // these are used in a bunch of places so cache them
     mWebBrowser        = getChild< LLMediaCtrl >( "webbrowser" );
@@ -111,7 +111,7 @@ BOOL LLFloaterWebContent::postBuild()
     // initialize the URL history using the system URL History manager
     initializeURLHistory();
 
-    return TRUE;
+    return true;
 }
 
 void LLFloaterWebContent::initializeURLHistory()

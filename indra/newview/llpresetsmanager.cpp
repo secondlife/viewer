@@ -424,7 +424,7 @@ bool LLPresetsManager::setPresetNamesInComboBox(const std::string& subdirectory,
     bool sts = true;
 
     combo->clearRows();
-    combo->setEnabled(TRUE);
+    combo->setEnabled(true);
 
     std::list<std::string> preset_names;
     loadPresetNamesFromDir(subdirectory, preset_names, default_option);

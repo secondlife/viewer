@@ -1,4 +1,4 @@
-version 28
+version 29
 // The version number above should be incremented IF AND ONLY IF some
 // change has been made that is sufficiently important to justify
 // resetting the graphics preferences of all users to the recommended
@@ -67,6 +67,7 @@ RenderUseAdvancedAtmospherics 1 0
 RenderShadowDetail			1	2
 RenderFSAASamples			1	16
 RenderMaxTextureIndex		1	16
+RenderMirrors				1	1
 
 //
 // Low Graphics Settings (fixed function)
@@ -97,6 +98,12 @@ RenderUseAdvancedAtmospherics 1 0
 RenderShadowDetail			1	0
 WLSkyDetail					1	48
 RenderFSAASamples			1	0
+RenderMirrors				1	0
+RenderHeroProbeResolution	1	256
+RenderHeroProbeDistance		1	4
+RenderHeroProbeUpdateRate	1   6
+RenderHeroProbeConservativeUpdateMultiplier 1 16
+
 
 //
 // Low Graphics Settings
@@ -127,6 +134,11 @@ RenderUseAdvancedAtmospherics 1 0
 RenderShadowDetail			1	0
 WLSkyDetail					1	48
 RenderFSAASamples			1	0
+RenderMirrors				1	0
+RenderHeroProbeResolution	1	256
+RenderHeroProbeDistance		1	4
+RenderHeroProbeUpdateRate	1   6
+RenderHeroProbeConservativeUpdateMultiplier 1 16
 
 //
 // Medium Low Graphics Settings
@@ -156,6 +168,11 @@ RenderUseAdvancedAtmospherics 1 0
 RenderShadowDetail			1	0
 WLSkyDetail					1	48
 RenderFSAASamples			1	0
+RenderMirrors				1	0
+RenderHeroProbeResolution	1	256
+RenderHeroProbeDistance		1	6
+RenderHeroProbeUpdateRate	1	3
+RenderHeroProbeConservativeUpdateMultiplier 1 16
 
 //
 // Medium Graphics Settings (standard)
@@ -185,6 +202,11 @@ RenderUseAdvancedAtmospherics 1 0
 RenderShadowDetail			1	0
 WLSkyDetail					1	48
 RenderFSAASamples			1	2
+RenderMirrors				1	0
+RenderHeroProbeResolution	1	512
+RenderHeroProbeDistance		1	6
+RenderHeroProbeUpdateRate	1	3
+RenderHeroProbeConservativeUpdateMultiplier 1 16
 
 //
 // Medium High Graphics Settings (deferred enabled)
@@ -214,6 +236,11 @@ RenderDeferredSSAO			1	0
 RenderShadowDetail			1	0
 WLSkyDetail					1	48
 RenderFSAASamples			1	2
+RenderMirrors				1	0
+RenderHeroProbeResolution	1	512
+RenderHeroProbeDistance		1	6
+RenderHeroProbeUpdateRate	1	2
+RenderHeroProbeConservativeUpdateMultiplier 1 8
 
 //
 // High Graphics Settings (deferred + SSAO)
@@ -243,6 +270,11 @@ RenderUseAdvancedAtmospherics 1 0
 RenderShadowDetail			1	0
 WLSkyDetail					1	48
 RenderFSAASamples			1	2
+RenderMirrors				1	0
+RenderHeroProbeResolution	1	512
+RenderHeroProbeDistance		1	8
+RenderHeroProbeUpdateRate	1	2
+RenderHeroProbeConservativeUpdateMultiplier 1 8
 
 //
 // High Ultra Graphics Settings (deferred + SSAO + shadows)
@@ -272,6 +304,11 @@ RenderUseAdvancedAtmospherics 1 0
 RenderShadowDetail			1	2
 WLSkyDetail					1	48
 RenderFSAASamples			1	2
+RenderMirrors				1	0
+RenderHeroProbeResolution	1	512
+RenderHeroProbeDistance		1	16
+RenderHeroProbeUpdateRate	1	1
+RenderHeroProbeConservativeUpdateMultiplier 1 4
 
 //
 // Ultra graphics (REALLY PURTY!)
@@ -300,6 +337,11 @@ RenderDeferredSSAO			1	1
 RenderUseAdvancedAtmospherics 1 0
 RenderShadowDetail			1	2
 RenderFSAASamples			1	2
+RenderMirrors				1	0
+RenderHeroProbeResolution	1	1024
+RenderHeroProbeDistance		1	16
+RenderHeroProbeUpdateRate	1	1
+RenderHeroProbeConservativeUpdateMultiplier 1 4
 
 //
 // Class Unknown Hardware (unknown)

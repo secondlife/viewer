@@ -49,7 +49,7 @@ LLFloaterLUADebug::LLFloaterLUADebug(const LLSD &key)
 }
 
 
-BOOL LLFloaterLUADebug::postBuild()
+bool LLFloaterLUADebug::postBuild()
 {
     mResultOutput = getChild<LLTextEditor>("result_text");
     mLineInput = getChild<LLLineEditor>("lua_cmd");

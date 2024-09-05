@@ -43,8 +43,8 @@
 // Class Constructor
 //-----------------------------------------------------------------------------
 LLMotion::LLMotion( const LLUUID &id ) :
-    mStopped(TRUE),
-    mActive(FALSE),
+    mStopped(true),
+    mActive(false),
     mID(id),
     mActivationTimestamp(0.f),
     mStopTimestamp(0.f),
@@ -132,10 +132,10 @@ void LLMotion::setDeactivateCallback( void (*cb)(void *), void* userdata )
 void LLMotion::setStopTime(F32 time)
 {
     mStopTimestamp = time;
-    mStopped = TRUE;
+    mStopped = true;
 }
 
-BOOL LLMotion::isBlending()
+bool LLMotion::isBlending()
 {
     return mPose.getWeight() < 1.f;
 }
@@ -146,8 +146,8 @@ BOOL LLMotion::isBlending()
 void LLMotion::activate(F32 time)
 {
     mActivationTimestamp = time;
-    mStopped = FALSE;
-    mActive = TRUE;
+    mStopped = false;
+    mActive = true;
     onActivate();
 }
 
@@ -156,7 +156,7 @@ void LLMotion::activate(F32 time)
 //-----------------------------------------------------------------------------
 void LLMotion::deactivate()
 {
-    mActive = FALSE;
+    mActive = false;
     mPose.setWeight(0.f);
 
     if (mDeactivateCallback)
@@ -169,9 +169,9 @@ void LLMotion::deactivate()
     onDeactivate();
 }
 
-BOOL LLMotion::canDeprecate()
+bool LLMotion::canDeprecate()
 {
-    return TRUE;
+    return true;
 }
 
 // End

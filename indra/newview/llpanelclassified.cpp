@@ -111,7 +111,7 @@ LLPanelClassifiedInfo::~LLPanelClassifiedInfo()
     }
 }
 
-BOOL LLPanelClassifiedInfo::postBuild()
+bool LLPanelClassifiedInfo::postBuild()
 {
     childSetAction("show_on_map_btn", boost::bind(&LLPanelClassifiedInfo::onMapClick, this));
     childSetAction("teleport_btn", boost::bind(&LLPanelClassifiedInfo::onTeleportClick, this));
@@ -125,10 +125,10 @@ BOOL LLPanelClassifiedInfo::postBuild()
     mSnapshotCtrl = getChild<LLTextureCtrl>("classified_snapshot");
     mSnapshotRect = getDefaultSnapshotRect();
 
-    return TRUE;
+    return true;
 }
 
-void LLPanelClassifiedInfo::reshape(S32 width, S32 height, BOOL called_from_parent /* = TRUE */)
+void LLPanelClassifiedInfo::reshape(S32 width, S32 height, bool called_from_parent /* = true */)
 {
     LLPanel::reshape(width, height, called_from_parent);
 
@@ -293,8 +293,8 @@ void LLPanelClassifiedInfo::resetData()
     getChild<LLUICtrl>("auto_renew")->setValue(LLStringUtil::null);
     getChild<LLUICtrl>("creation_date")->setValue(LLStringUtil::null);
     getChild<LLUICtrl>("click_through_text")->setValue(LLStringUtil::null);
-    getChild<LLIconCtrl>("content_type_moderate")->setVisible(FALSE);
-    getChild<LLIconCtrl>("content_type_general")->setVisible(FALSE);
+    getChild<LLIconCtrl>("content_type_moderate")->setVisible(false);
+    getChild<LLIconCtrl>("content_type_general")->setVisible(false);
 }
 
 void LLPanelClassifiedInfo::resetControls()
