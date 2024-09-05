@@ -3,7 +3,7 @@
  * @author Nat Goodspeed
  * @date   2024-08-30
  * @brief  LLIntTracker isa LLInstanceTracker with generated int keys.
- * 
+ *
  * $LicenseInfo:firstyear=2024&license=viewerlgpl$
  * Copyright (c) 2024, Linden Research, Inc.
  * $/LicenseInfo$

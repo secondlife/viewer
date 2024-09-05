@@ -4,7 +4,7 @@
  * @date   2024-09-03
  * @brief  ResultSet is an abstract base class to allow scripted access to
  *         potentially large collections representable as LLSD arrays.
- * 
+ *
  * $LicenseInfo:firstyear=2024&license=viewerlgpl$
  * Copyright (c) 2024, Linden Research, Inc.
  * $/LicenseInfo$
