@@ -242,7 +242,7 @@ void LLDrawPoolWLSky::renderStarsDeferred(const LLVector3& camPosLocal) const
     LLViewerTexture* tex_a = gSky.mVOSkyp->getBloomTex();
     LLViewerTexture* tex_b = gSky.mVOSkyp->getBloomTexNext();
 
-    F32 blend_factor = LLEnvironment::instance().getCurrentSky()->getBlendFactor();
+    F32 blend_factor = (F32)LLEnvironment::instance().getCurrentSky()->getBlendFactor();
 
     if (tex_a && (!tex_b || (tex_a == tex_b)))
     {
@@ -309,8 +309,8 @@ void LLDrawPoolWLSky::renderSkyCloudsDeferred(const LLVector3& camPosLocal, F32 
         gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
         gGL.getTexUnit(1)->unbind(LLTexUnit::TT_TEXTURE);
 
-        F32 cloud_variance = psky ? psky->getCloudVariance() : 0.0f;
-        F32 blend_factor   = psky ? psky->getBlendFactor() : 0.0f;
+        F32 cloud_variance = psky ? (F32)psky->getCloudVariance() : 0.0f;
+        F32 blend_factor   = psky ? (F32)psky->getBlendFactor() : 0.0f;
 
         if (psky->getCloudScrollRate().isExactlyZero())
         {
@@ -364,7 +364,7 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
 
     LLFace * face = gSky.mVOSkyp->mFace[LLVOSky::FACE_SUN];
 
-    F32 blend_factor = LLEnvironment::instance().getCurrentSky()->getBlendFactor();
+    F32 blend_factor = (F32)LLEnvironment::instance().getCurrentSky()->getBlendFactor();
     bool can_use_vertex_shaders = gPipeline.shadersLoaded();
     bool can_use_windlight_shaders = gPipeline.canUseWindLightShaders();
 

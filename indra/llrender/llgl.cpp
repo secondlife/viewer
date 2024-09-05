@@ -1038,6 +1038,7 @@ void LLGLManager::initWGL()
         GLH_EXT_NAME(wglGetGPUIDsAMD) = (PFNWGLGETGPUIDSAMDPROC)GLH_EXT_GET_PROC_ADDRESS("wglGetGPUIDsAMD");
         GLH_EXT_NAME(wglGetGPUInfoAMD) = (PFNWGLGETGPUINFOAMDPROC)GLH_EXT_GET_PROC_ADDRESS("wglGetGPUInfoAMD");
     }
+    mHasNVXGpuMemoryInfo = ExtensionExists("GL_NVX_gpu_memory_info", gGLHExts.mSysExts);
 
     if (ExtensionExists("WGL_EXT_swap_control", gGLHExts.mSysExts))
     {
@@ -1203,6 +1204,17 @@ bool LLGLManager::initGL()
         if (mVRAM != 0)
         {
             LL_WARNS("RenderInit") << "VRAM Detected (AMDAssociations):" << mVRAM << LL_ENDL;
+        }
+    }
+    else if (mHasNVXGpuMemoryInfo)
+    {
+        GLint mem_kb = 0;
+        glGetIntegerv(GL_GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX, &mem_kb);
+        mVRAM = mem_kb / 1024;
+
+        if (mVRAM != 0)
+        {
+            LL_WARNS("RenderInit") << "VRAM Detected (NVXGpuMemoryInfo):" << mVRAM << LL_ENDL;
         }
     }
 #endif
@@ -2742,7 +2754,7 @@ LLGLDepthTest::LLGLDepthTest(GLboolean depth_enabled, GLboolean write_enabled, G
 : mPrevDepthEnabled(sDepthEnabled), mPrevDepthFunc(sDepthFunc), mPrevWriteEnabled(sWriteEnabled)
 {
     stop_glerror();
-
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
     checkState();
 
     if (!depth_enabled)
@@ -2775,6 +2787,7 @@ LLGLDepthTest::LLGLDepthTest(GLboolean depth_enabled, GLboolean write_enabled, G
 
 LLGLDepthTest::~LLGLDepthTest()
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
     checkState();
     if (sDepthEnabled != mPrevDepthEnabled )
     {

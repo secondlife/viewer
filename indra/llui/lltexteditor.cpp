@@ -71,7 +71,7 @@ static LLDefaultChildRegistry::Register<LLTextEditor> r("simple_text_editor");
 
 // Compiler optimization, generate extern template
 template class LLTextEditor* LLView::getChild<class LLTextEditor>(
-    const std::string& name, bool recurse) const;
+    std::string_view name, bool recurse) const;
 
 //
 // Constants
@@ -2316,17 +2316,17 @@ void LLTextEditor::drawPreeditMarker()
                 if (mPreeditStandouts[i])
                 {
                     gl_rect_2d(preedit_left + preedit_standout_gap,
-                               text_rect.mBottom + mFont->getDescenderHeight() - 1,
+                               text_rect.mBottom + (S32)mFont->getDescenderHeight() - 1,
                                preedit_right - preedit_standout_gap - 1,
-                               text_rect.mBottom + mFont->getDescenderHeight() - 1 - preedit_standout_thickness,
+                               text_rect.mBottom + (S32)mFont->getDescenderHeight() - 1 - preedit_standout_thickness,
                                (mCursorColor.get() * preedit_standout_brightness + mWriteableBgColor.get() * (1 - preedit_standout_brightness)).setAlpha(1.0f));
                 }
                 else
                 {
                     gl_rect_2d(preedit_left + preedit_marker_gap,
-                               text_rect.mBottom + mFont->getDescenderHeight() - 1,
+                               text_rect.mBottom + (S32)mFont->getDescenderHeight() - 1,
                                preedit_right - preedit_marker_gap - 1,
-                               text_rect.mBottom + mFont->getDescenderHeight() - 1 - preedit_marker_thickness,
+                               text_rect.mBottom + (S32)mFont->getDescenderHeight() - 1 - preedit_marker_thickness,
                                (mCursorColor.get() * preedit_marker_brightness + mWriteableBgColor.get() * (1 - preedit_marker_brightness)).setAlpha(1.0f));
                 }
             }

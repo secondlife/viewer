@@ -545,8 +545,8 @@ void LLMenuItemGL::draw( void )
         std::string::size_type offset = upper_case_label.find(mJumpKey);
         if (offset != std::string::npos)
         {
-            S32 x_begin = LEFT_PLAIN_PIXELS + mFont->getWidth(mLabel, 0, static_cast<S32>(offset));
-            S32 x_end = LEFT_PLAIN_PIXELS + mFont->getWidth(mLabel, 0, static_cast<S32>(offset) + 1);
+            S32 x_begin = LEFT_PLAIN_PIXELS + mFont->getWidth(mLabel.getWString().c_str(), 0, static_cast<S32>(offset));
+            S32 x_end = LEFT_PLAIN_PIXELS + mFont->getWidth(mLabel.getWString().c_str(), 0, static_cast<S32>(offset) + 1);
             gl_line_2d(x_begin, (MENU_ITEM_PADDING / 2) + 1, x_end, (MENU_ITEM_PADDING / 2) + 1);
         }
     }
@@ -988,7 +988,7 @@ LLMenuItemBranchGL::~LLMenuItemBranchGL()
 
 
 // virtual
-LLView* LLMenuItemBranchGL::getChildView(const std::string& name, bool recurse) const
+LLView* LLMenuItemBranchGL::getChildView(std::string_view name, bool recurse) const
 {
     LLMenuGL* branch = getBranch();
     if (branch)
@@ -1005,7 +1005,7 @@ LLView* LLMenuItemBranchGL::getChildView(const std::string& name, bool recurse) 
     return LLView::getChildView(name, recurse);
 }
 
-LLView* LLMenuItemBranchGL::findChildView(const std::string& name, bool recurse) const
+LLView* LLMenuItemBranchGL::findChildView(std::string_view name, bool recurse) const
 {
     LLMenuGL* branch = getBranch();
     if (branch)
@@ -1648,9 +1648,9 @@ void LLMenuItemBranchDownGL::draw( void )
         std::string::size_type offset = upper_case_label.find(getJumpKey());
         if (offset != std::string::npos)
         {
-            S32 x_offset = ll_round((F32)getRect().getWidth() / 2.f - getFont()->getWidthF32(mLabel.getString(), 0, S32_MAX) / 2.f);
-            S32 x_begin = x_offset + getFont()->getWidth(mLabel, 0, static_cast<S32>(offset));
-            S32 x_end = x_offset + getFont()->getWidth(mLabel, 0, static_cast<S32>(offset) + 1);
+            S32 x_offset = ll_round((F32)getRect().getWidth() / 2.f - getFont()->getWidthF32(mLabel.getWString().c_str(), 0, S32_MAX) / 2.f);
+            S32 x_begin = x_offset + getFont()->getWidth(mLabel.getWString().c_str(), 0, static_cast<S32>(offset));
+            S32 x_end = x_offset + getFont()->getWidth(mLabel.getWString().c_str(), 0, static_cast<S32>(offset) + 1);
             gl_line_2d(x_begin, LABEL_BOTTOM_PAD_PIXELS, x_end, LABEL_BOTTOM_PAD_PIXELS);
         }
     }
@@ -2752,7 +2752,7 @@ void LLMenuGL::setEnabledSubMenus(bool enable)
 
 // setItemEnabled() - pass the label and the enable flag for a menu
 // item. true will make sure it's enabled, false will disable it.
-void LLMenuGL::setItemEnabled( const std::string& name, bool enable )
+void LLMenuGL::setItemEnabled(std::string_view name, bool enable )
 {
     item_list_t::iterator item_iter;
     for (item_iter = mItems.begin(); item_iter != mItems.end(); ++item_iter)
@@ -2766,7 +2766,7 @@ void LLMenuGL::setItemEnabled( const std::string& name, bool enable )
     }
 }
 
-void LLMenuGL::setItemVisible( const std::string& name, bool visible )
+void LLMenuGL::setItemVisible(std::string_view name, bool visible )
 {
     item_list_t::iterator item_iter;
     for (item_iter = mItems.begin(); item_iter != mItems.end(); ++item_iter)
@@ -3277,7 +3277,7 @@ void LLMenuGL::setVisible(bool visible)
     }
 }
 
-LLMenuGL* LLMenuGL::findChildMenuByName(const std::string& name, bool recurse) const
+LLMenuGL* LLMenuGL::findChildMenuByName(std::string_view name, bool recurse) const
 {
     LLView* view = findChildView(name, recurse);
     if (view)

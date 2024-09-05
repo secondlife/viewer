@@ -1268,7 +1268,7 @@ void LLParcel::setExperienceKeyType( const LLUUID& experience_key, U32 type )
 
 U32 LLParcel::countExperienceKeyType( U32 type )
 {
-    return std::count_if(
+    return (U32)std::count_if(
         boost::begin(mExperienceKeys | boost::adaptors::map_values),
         boost::end(mExperienceKeys | boost::adaptors::map_values),
         [type](U32 key){ return (key == type); });

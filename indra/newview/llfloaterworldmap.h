@@ -34,8 +34,9 @@
 
 #include "llfloater.h"
 #include "llmapimagetype.h"
-#include "lltracker.h"
+#include "llremoteparcelrequest.h"
 #include "llslurl.h"
+#include "lltracker.h"
 
 class LLCtrlListInterface;
 class LLFriendObserver;
@@ -45,6 +46,26 @@ class LLItemInfo;
 class LLLineEditor;
 class LLTabContainer;
 class LLWorldMapView;
+class LLButton;
+class LLCheckBoxCtrl;
+class LLSliderCtrl;
+class LLSpinCtrl;
+class LLSearchEditor;
+
+class LLWorldMapParcelInfoObserver : public LLRemoteParcelInfoObserver
+{
+public:
+    LLWorldMapParcelInfoObserver(const LLVector3d& pos_global);
+    ~LLWorldMapParcelInfoObserver();
+
+    void processParcelInfo(const LLParcelData& parcel_data);
+    void setParcelID(const LLUUID& parcel_id);
+    void setErrorStatus(S32 status, const std::string& reason);
+
+protected:
+    LLVector3d  mPosGlobal;
+    LLUUID      mParcelID;
+};
 
 class LLFloaterWorldMap : public LLFloater
 {
@@ -114,6 +135,8 @@ public:
     //Slapp instigated avatar tracking
     void            avatarTrackFromSlapp( const LLUUID& id );
 
+    void            processParcelInfo(const LLParcelData& parcel_data, const LLVector3d& pos_global) const;
+
 protected:
     void            onGoHome();
 
@@ -142,7 +165,6 @@ protected:
     void            buildLandmarkIDLists();
     void            flyToLandmark();
     void            teleportToLandmark();
-    void            setLandmarkVisited();
 
     void            buildAvatarIDList();
     void            flyToAvatar();
@@ -165,8 +187,13 @@ private:
     // enable/disable teleport destination coordinates
     void enableTeleportCoordsDisplay( bool enabled );
 
-    std::vector<LLUUID> mLandmarkAssetIDList;
-    std::vector<LLUUID> mLandmarkItemIDList;
+    void            requestParcelInfo(const LLVector3d& pos_global, const LLVector3d& region_origin);
+    LLVector3d      mRequestedGlobalPos;
+    bool            mShowParcelInfo;
+    LLWorldMapParcelInfoObserver* mParcelInfoObserver;
+
+    uuid_vec_t      mLandmarkAssetIDList;
+    uuid_vec_t      mLandmarkItemIDList;
 
     static const LLUUID sHomeID;
 
@@ -194,6 +221,29 @@ private:
     LLCtrlListInterface *   mListFriendCombo;
     LLCtrlListInterface *   mListLandmarkCombo;
     LLCtrlListInterface *   mListSearchResults;
+
+    LLButton*               mTeleportButton = nullptr;
+    LLButton*               mShowDestinationButton = nullptr;
+    LLButton*               mCopySlurlButton = nullptr;
+    LLButton*               mGoHomeButton = nullptr;
+
+    LLCheckBoxCtrl*         mPeopleCheck = nullptr;
+    LLCheckBoxCtrl*         mInfohubCheck = nullptr;
+    LLCheckBoxCtrl*         mLandSaleCheck = nullptr;
+    LLCheckBoxCtrl*         mEventsCheck = nullptr;
+    LLCheckBoxCtrl*         mEventsMatureCheck = nullptr;
+    LLCheckBoxCtrl*         mEventsAdultCheck = nullptr;
+
+    LLUICtrl*               mAvatarIcon = nullptr;
+    LLUICtrl*               mLandmarkIcon = nullptr;
+    LLUICtrl*               mLocationIcon = nullptr;
+
+    LLSearchEditor*         mLocationEditor = nullptr;
+    LLUICtrl*               mTeleportCoordSpinX = nullptr;
+    LLUICtrl*               mTeleportCoordSpinY = nullptr;
+    LLUICtrl*               mTeleportCoordSpinZ = nullptr;
+
+    LLSliderCtrl*           mZoomSlider = nullptr;
 
     boost::signals2::connection mTeleportFinishConnection;
 };

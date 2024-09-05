@@ -260,11 +260,12 @@ public:
     // one of which can be selected at a time.
     virtual LLScrollListItem* addSimpleElement(const std::string& value, EAddPosition pos = ADD_BOTTOM, const LLSD& id = LLSD());
 
-    bool            selectItemByLabel( const std::string& item, bool case_sensitive = true, S32 column = 0 );       // false if item not found
+    bool            selectItemByLabel(const std::string& item, bool case_sensitive = true, S32 column = 0);       // false if item not found
     bool            selectItemByPrefix(const std::string& target, bool case_sensitive = true, S32 column = -1);
     bool            selectItemByPrefix(const LLWString& target, bool case_sensitive = true, S32 column = -1);
-    LLScrollListItem*   getItemByLabel( const std::string& item, bool case_sensitive = true, S32 column = 0 );
-    const std::string   getSelectedItemLabel(S32 column = 0) const;
+    LLScrollListItem* getItemByLabel(const std::string& item, bool case_sensitive = true, S32 column = 0);
+    LLScrollListItem* getItemByIndex(S32 index);
+    std::string     getSelectedItemLabel(S32 column = 0) const;
     LLSD            getSelectedValue();
 
     // If multi select is on, select all element that include substring,
@@ -530,7 +531,7 @@ private:
     class LLViewBorder* mBorder;
     LLHandle<LLContextMenu> mPopupMenuHandle;
 
-    LLView          *mCommentTextView;
+    LLTextBox*      mCommentText = nullptr;
 
     LLWString       mSearchString;
     LLFrameTimer    mSearchTimer;
@@ -559,6 +560,8 @@ private:
     sort_signal_t*  mSortCallback;
 
     is_friend_signal_t* mIsFriendSignal;
+
+    friend class LLComboBox;
 }; // end class LLScrollListCtrl
 
 #endif  // LL_SCROLLLISTCTRL_H

@@ -94,15 +94,20 @@ bool LLPanelBlockedList::postBuild()
         break;
     }
 
+    mBlockedGearBtn = getChild<LLMenuButton>("blocked_gear_btn");
+
     // Use the context menu of the Block list for the Block tab gear menu.
     LLToggleableMenu* blocked_gear_menu = mBlockedList->getContextMenu();
     if (blocked_gear_menu)
     {
-        getChild<LLMenuButton>("blocked_gear_btn")->setMenu(blocked_gear_menu, LLMenuButton::MP_BOTTOM_LEFT);
+        mBlockedGearBtn->setMenu(blocked_gear_menu, LLMenuButton::MP_BOTTOM_LEFT);
     }
+    mUnblockBtn = getChild<LLButton>("unblock_btn");
+    mUnblockBtn->setCommitCallback(boost::bind(&LLPanelBlockedList::unblockItem, this));
 
-    getChild<LLButton>("unblock_btn")->setCommitCallback(boost::bind(&LLPanelBlockedList::unblockItem, this));
     getChild<LLFilterEditor>("blocked_filter_input")->setCommitCallback(boost::bind(&LLPanelBlockedList::onFilterEdit, this, _2));
+
+    mBlockLimitText = getChild<LLUICtrl>("block_limit");
 
     return LLPanel::postBuild();
 }
@@ -140,11 +145,12 @@ void LLPanelBlockedList::showPanelAndSelect(const LLUUID& idToSelect)
 void LLPanelBlockedList::updateButtons()
 {
     bool hasSelected = NULL != mBlockedList->getSelectedItem();
-    getChildView("unblock_btn")->setEnabled(hasSelected);
-    getChildView("blocked_gear_btn")->setEnabled(hasSelected);
+    mUnblockBtn->setEnabled(hasSelected);
+    mBlockedGearBtn->setEnabled(hasSelected);
 
-    getChild<LLUICtrl>("block_limit")->setTextArg("[COUNT]", llformat("%d", mBlockedList->getMuteListSize()));
-    getChild<LLUICtrl>("block_limit")->setTextArg("[LIMIT]", llformat("%d", gSavedSettings.getS32("MuteListLimit")));
+    static LLCachedControl<S32> mute_list_limit(gSavedSettings, "MuteListLimit");
+    mBlockLimitText->setTextArg("[COUNT]", llformat("%d", mBlockedList->getMuteListSize()));
+    mBlockLimitText->setTextArg("[LIMIT]", llformat("%d", mute_list_limit()));
 }
 
 void LLPanelBlockedList::unblockItem()

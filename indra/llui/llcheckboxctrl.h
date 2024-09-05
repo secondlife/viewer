@@ -110,8 +110,8 @@ public:
 
     void                setBtnFocus() { mButton->setFocus(true); }
 
-    void                setEnabledColor( const LLColor4 &color ) { mTextEnabledColor = color; }
-    void                setDisabledColor( const LLColor4 &color ) { mTextDisabledColor = color; }
+    void                setEnabledColor( const LLUIColor&color ) { mTextEnabledColor = color; }
+    void                setDisabledColor( const LLUIColor&color ) { mTextDisabledColor = color; }
 
     void                setLabel( const LLStringExplicit& label );
     std::string         getLabel() const;
@@ -151,7 +151,7 @@ protected:
 // Build time optimization, generate once in .cpp file
 #ifndef LLCHECKBOXCTRL_CPP
 extern template class LLCheckBoxCtrl* LLView::getChild<class LLCheckBoxCtrl>(
-    const std::string& name, bool recurse) const;
+    std::string_view name, bool recurse) const;
 #endif
 
 #endif  // LL_LLCHECKBOXCTRL_H

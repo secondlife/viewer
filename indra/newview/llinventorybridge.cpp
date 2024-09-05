@@ -85,8 +85,6 @@
 
 #include "llenvironment.h"
 
-#include <boost/shared_ptr.hpp>
-
 void copy_slurl_to_clipboard_callback_inv(const std::string& slurl);
 
 const F32 SOUND_GAIN = 1.0f;
@@ -1190,6 +1188,7 @@ void LLInvFVBridge::addMarketplaceContextMenuOptions(U32 flags,
             || (U32)depth > (max_depth + 1))
         {
             disabled_items.push_back(std::string("New Folder"));
+            disabled_items.push_back(std::string("New Listing Folder"));
         }
     }
 
@@ -4268,6 +4267,7 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
         if (LLMarketplaceData::instance().isUpdating(mUUID))
         {
             disabled_items.push_back(std::string("New Folder"));
+            disabled_items.push_back(std::string("New Listing Folder"));
             disabled_items.push_back(std::string("Rename"));
             disabled_items.push_back(std::string("Cut"));
             disabled_items.push_back(std::string("Copy"));
@@ -4278,12 +4278,14 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
     if (getPreferredType() == LLFolderType::FT_MARKETPLACE_STOCK)
     {
         disabled_items.push_back(std::string("New Folder"));
+        disabled_items.push_back(std::string("New Listing Folder"));
         disabled_items.push_back(std::string("upload_def"));
         disabled_items.push_back(std::string("create_new"));
     }
     if (marketplace_listings_id == mUUID)
     {
         disabled_items.push_back(std::string("New Folder"));
+        disabled_items.push_back(std::string("New Listing Folder"));
         disabled_items.push_back(std::string("Rename"));
         disabled_items.push_back(std::string("Cut"));
         disabled_items.push_back(std::string("Delete"));

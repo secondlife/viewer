@@ -36,6 +36,7 @@ class LLImageRaw;
 class LLButton;
 class LLProgressBar;
 class LLViewerTexture;
+class LLTextBox;
 
 class LLProgressView :
     public LLPanel,
@@ -85,6 +86,9 @@ public:
 protected:
     LLProgressBar* mProgressBar;
     LLMediaCtrl* mMediaCtrl;
+    LLTextBox* mLogosLabel = nullptr;
+    LLTextBox* mProgressText = nullptr;
+    LLTextBox* mMessageText = nullptr;
     F32 mPercentDone;
     std::string mMessage;
     LLButton*   mCancelBtn;

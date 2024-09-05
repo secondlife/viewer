@@ -320,9 +320,11 @@ public:
 
     // use mutex, lock, condition_variable suitable for coroutines
     using Mutex = llcoro::Mutex;
+    using RMutex = llcoro::RMutex;
+    // LockType is deprecated; see llcoromutex.h
     using LockType = llcoro::LockType;
     using cv_status = llcoro::cv_status;
-    using ConditionVariable = llcoro::ConditionVariable;
+    using ConditionVariable = llcoro::condition_variable;
 
     /// for data local to each running coroutine
     template <typename T>

@@ -421,7 +421,7 @@ void LLPanelPrimMediaControls::updateShape()
             if(mUpdateSlider && mMovieDuration!= 0)
             {
                 F64 current_time =  media_plugin->getCurrentTime();
-                F32 percent = current_time / mMovieDuration;
+                F32 percent = (F32)(current_time / mMovieDuration);
                 mMediaPlaySliderCtrl->setValue(percent);
                 mMediaPlaySliderCtrl->setEnabled(true);
             }
@@ -1309,7 +1309,7 @@ void LLPanelPrimMediaControls::onMediaPlaySliderCtrlMouseUp()
             }
             else
             {
-                media_impl->seek(cur_value * mMovieDuration);
+                media_impl->seek((F32)(cur_value * mMovieDuration));
             }
         }
 

@@ -211,7 +211,7 @@ LLFolderView::LLFolderView(const Params& p)
     //clear label
     // go ahead and render root folder as usual
     // just make sure the label ("Inventory Folder") never shows up
-    mLabel = LLStringUtil::null;
+    mLabel.clear();
 
     // Escape is handled by reverting the rename, not commiting it (default behavior)
     LLLineEditor::Params params;

@@ -60,7 +60,7 @@ LLFloaterMemLeak::LLFloaterMemLeak(const LLSD& key)
 bool LLFloaterMemLeak::postBuild(void)
 {
     F32 a, b ;
-    a = getChild<LLUICtrl>("leak_speed")->getValue().asReal();
+    a = (F32)getChild<LLUICtrl>("leak_speed")->getValue().asReal();
     if(a > (F32)(0xFFFFFFFF))
     {
         sMemLeakingSpeed = 0xFFFFFFFF ;
@@ -69,7 +69,7 @@ bool LLFloaterMemLeak::postBuild(void)
     {
         sMemLeakingSpeed = (U32)a ;
     }
-    b = getChild<LLUICtrl>("max_leak")->getValue().asReal();
+    b = (F32)getChild<LLUICtrl>("max_leak")->getValue().asReal();
     if(b > (F32)0xFFF)
     {
         sMaxLeakedMem = 0xFFFFFFFF ;
@@ -150,8 +150,7 @@ void LLFloaterMemLeak::idle()
 //----------------------
 void LLFloaterMemLeak::onChangeLeakingSpeed()
 {
-    F32 tmp ;
-    tmp =getChild<LLUICtrl>("leak_speed")->getValue().asReal();
+    F32 tmp = (F32)getChild<LLUICtrl>("leak_speed")->getValue().asReal();
 
     if(tmp > (F32)0xFFFFFFFF)
     {
@@ -161,14 +160,11 @@ void LLFloaterMemLeak::onChangeLeakingSpeed()
     {
         sMemLeakingSpeed = (U32)tmp ;
     }
-
 }
 
 void LLFloaterMemLeak::onChangeMaxMemLeaking()
 {
-
-    F32 tmp ;
-    tmp =getChild<LLUICtrl>("max_leak")->getValue().asReal();
+    F32 tmp = (F32)getChild<LLUICtrl>("max_leak")->getValue().asReal();
     if(tmp > (F32)0xFFF)
     {
         sMaxLeakedMem = 0xFFFFFFFF ;
@@ -177,7 +173,6 @@ void LLFloaterMemLeak::onChangeMaxMemLeaking()
     {
         sMaxLeakedMem = ((U32)tmp) << 20 ;
     }
-
 }
 
 void LLFloaterMemLeak::onClickStart()

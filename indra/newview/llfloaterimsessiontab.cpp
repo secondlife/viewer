@@ -262,6 +262,7 @@ bool LLFloaterIMSessionTab::postBuild()
 {
     bool result;
 
+    mContentsView = getChild<LLView>("contents_view");
     mBodyStack = getChild<LLLayoutStack>("main_stack");
     mParticipantListAndHistoryStack = getChild<LLLayoutStack>("im_panels");
 
@@ -301,6 +302,7 @@ bool LLFloaterIMSessionTab::postBuild()
     mGearBtn = getChild<LLButton>("gear_btn");
     mAddBtn = getChild<LLButton>("add_btn");
     mVoiceButton = getChild<LLButton>("voice_call_btn");
+    mVoiceButton->setClickedCallback([this](LLUICtrl*, const LLSD&) { onCallButtonClicked(); });
 
     mParticipantListPanel = getChild<LLLayoutPanel>("speakers_list_panel");
     mRightPartPanel = getChild<LLLayoutPanel>("right_part_holder");
@@ -433,16 +435,34 @@ void LLFloaterIMSessionTab::draw()
 
 void LLFloaterIMSessionTab::enableDisableCallBtn()
 {
-    if (LLVoiceClient::instanceExists() && mVoiceButton)
+    if (!mVoiceButton)
+        return;
+
+    bool enable = false;
+
+    if (mSessionID.notNull() && mSession && mSession->mSessionInitialized && mSession->mCallBackEnabled)
     {
-        mVoiceButton->setEnabled(
-            mSessionID.notNull()
-            && mSession
-            && mSession->mSessionInitialized
-            && LLVoiceClient::getInstance()->voiceEnabled()
-            && LLVoiceClient::getInstance()->isVoiceWorking()
-            && mSession->mCallBackEnabled);
+        if (mVoiceButtonHangUpMode)
+        {
+            // We allow to hang up from any state
+            enable = true;
+        }
+        else
+        {
+            // We allow to start call from this state only
+            if (mSession->mVoiceChannel->getState() == LLVoiceChannel::STATE_NO_CHANNEL_INFO &&
+                LLVoiceClient::instanceExists())
+            {
+                LLVoiceClient* client = LLVoiceClient::getInstance();
+                if (client->voiceEnabled() && client->isVoiceWorking())
+                {
+                    enable = true;
+                }
+            }
+        }
     }
+
+    mVoiceButton->setEnabled(enable);
 }
 
 // virtual
@@ -463,6 +483,25 @@ void LLFloaterIMSessionTab::onFocusLost()
 {
     setBackgroundOpaque(false);
     super::onFocusLost();
+}
+
+void LLFloaterIMSessionTab::onCallButtonClicked()
+{
+    if (mVoiceButtonHangUpMode)
+    {
+        // We allow to hang up from any state
+        gIMMgr->endCall(mSessionID);
+    }
+    else
+    {
+        LLVoiceChannel::EState channel_state = mSession && mSession->mVoiceChannel ?
+            mSession->mVoiceChannel->getState() : LLVoiceChannel::STATE_NO_CHANNEL_INFO;
+        // We allow to start call from this state only
+        if (channel_state == LLVoiceChannel::STATE_NO_CHANNEL_INFO)
+        {
+            gIMMgr->startCall(mSessionID);
+        }
+    }
 }
 
 void LLFloaterIMSessionTab::onInputEditorClicked()
@@ -867,7 +906,6 @@ void LLFloaterIMSessionTab::hideOrShowTitle()
 {
     const LLFloater::Params& default_params = LLFloater::getDefaultParams();
     S32 floater_header_size = default_params.header_height;
-    LLView* floater_contents = getChild<LLView>("contents_view");
 
     LLRect floater_rect = getLocalRect();
     S32 top_border_of_contents = floater_rect.mTop - (isTornOff()? floater_header_size : 0);
@@ -875,7 +913,7 @@ void LLFloaterIMSessionTab::hideOrShowTitle()
     LLRect contents_rect (0, top_border_of_contents, floater_rect.mRight, floater_rect.mBottom);
     mDragHandle->setShape(handle_rect);
     mDragHandle->setVisible(isTornOff());
-    floater_contents->setShape(contents_rect);
+    mContentsView->setShape(contents_rect);
 }
 
 void LLFloaterIMSessionTab::updateSessionName(const std::string& name)
@@ -1040,6 +1078,7 @@ void LLFloaterIMSessionTab::updateCallBtnState(bool callIsActive)
 {
     mVoiceButton->setImageOverlay(callIsActive? getString("call_btn_stop") : getString("call_btn_start"));
     mVoiceButton->setToolTip(callIsActive? getString("end_call_button_tooltip") : getString("start_call_button_tooltip"));
+    mVoiceButtonHangUpMode = callIsActive;
 
     enableDisableCallBtn();
 }

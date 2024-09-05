@@ -140,14 +140,13 @@ public:
     LLViewerTexture*    getBrightnessDarknessImage(LLViewerFetchedTexture* src_image, U8 bump_code);
     void        addTextureStats(U8 bump, const LLUUID& base_image_id, F32 virtual_size);
 
-    static void onSourceBrightnessLoaded( bool success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, bool final, void* userdata );
-    static void onSourceDarknessLoaded( bool success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, bool final, void* userdata );
     static void onSourceStandardLoaded( bool success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, bool final, void* userdata );
     static void generateNormalMapFromAlpha(LLImageRaw* src, LLImageRaw* nrm_image);
 
 
 private:
-    static void onSourceLoaded( bool success, LLViewerTexture *src_vi, LLImageRaw* src, LLUUID& source_asset_id, EBumpEffect bump );
+    // should be called whenever resolution of src_vi changes compared to the current entry
+    static void onSourceUpdated( LLViewerTexture *src_vi, EBumpEffect bump );
 
 private:
     typedef std::unordered_map<LLUUID, LLPointer<LLViewerTexture> > bump_image_map_t;

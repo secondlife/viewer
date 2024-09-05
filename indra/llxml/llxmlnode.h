@@ -50,6 +50,7 @@ class LLVector3d;
 class LLQuaternion;
 class LLColor4;
 class LLColor4U;
+class LLSD;
 
 
 struct CompareAttributes
@@ -129,20 +130,20 @@ public:
     void addChild(LLXMLNodePtr& new_child);
     void setParent(LLXMLNodePtr& new_parent); // reparent if necessary
 
-    // Serialization
+    // Deserialization
     static bool parseFile(
         const std::string& filename,
         LLXMLNodePtr& node,
-        LLXMLNode* defaults_tree);
+        LLXMLNode* defaults = nullptr);
     static bool parseBuffer(
-        U8* buffer,
-        U32 length,
+        const char* buffer,
+        U64 length,
         LLXMLNodePtr& node,
-        LLXMLNode* defaults);
+        LLXMLNode* defaults = nullptr);
     static bool parseStream(
         std::istream& str,
         LLXMLNodePtr& node,
-        LLXMLNode* defaults);
+        LLXMLNode* defaults = nullptr);
     static bool updateNode(
         LLXMLNodePtr& node,
         LLXMLNodePtr& update_node);
@@ -284,12 +285,18 @@ public:
     void setAttributes(ValueType type, U32 precision, Encoding encoding, U32 length);
 //  void appendValue(const std::string& value); // Unused
 
+    bool fromXMLRPCValue(LLSD& target);
+
     // Unit Testing
     void createUnitTest(S32 max_num_children);
     bool performUnitTest(std::string &error_buffer);
 
 protected:
     bool removeChild(LLXMLNode* child);
+    bool isFullyDefault();
+
+    bool parseXmlRpcArrayValue(LLSD& target);
+    bool parseXmlRpcStructValue(LLSD& target);
 
 public:
     std::string mID;                // The ID attribute of this node
@@ -328,8 +335,6 @@ protected:
     static const char *skipNonWhitespace(const char *str);
     static const char *parseInteger(const char *str, U64 *dest, bool *is_negative, U32 precision, Encoding encoding);
     static const char *parseFloat(const char *str, F64 *dest, U32 precision, Encoding encoding);
-
-    bool isFullyDefault();
 };
 
 #endif // LL_LLXMLNODE

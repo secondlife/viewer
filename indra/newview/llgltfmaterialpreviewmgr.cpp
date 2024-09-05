@@ -434,7 +434,7 @@ bool LLGLTFPreviewTexture::render()
     SetTemporarily<bool> no_dof(&LLPipeline::RenderDepthOfField, false);
     SetTemporarily<bool> no_glow(&LLPipeline::sRenderGlow, false);
     SetTemporarily<bool> no_ssr(&LLPipeline::RenderScreenSpaceReflections, false);
-    SetTemporarily<U32> no_fxaa(&LLPipeline::RenderFSAASamples, U32(0));
+    SetTemporarily<U32> no_aa(&LLPipeline::RenderFSAAType, U32(0));
     SetTemporarily<LLPipeline::RenderTargetPack*> use_auxiliary_render_target(&gPipeline.mRT, &gPipeline.mAuxillaryRT);
 
     LLVector3 light_dir3(1.0f, 1.0f, 1.0f);
@@ -462,7 +462,7 @@ bool LLGLTFPreviewTexture::render()
     // Set up camera and viewport
     const LLVector3 origin(0.0, 0.0, 0.0);
     camera.lookAt(origin, object_position);
-    camera.setAspect(mFullHeight / mFullWidth);
+    camera.setAspect((F32)(mFullHeight / mFullWidth));
     const LLRect texture_rect(0, mFullHeight, mFullWidth, 0);
     camera.setPerspective(NOT_FOR_SELECTION, texture_rect.mLeft, texture_rect.mBottom, texture_rect.getWidth(), texture_rect.getHeight(), false, camera.getNear(), MAX_FAR_CLIP*2.f);
 

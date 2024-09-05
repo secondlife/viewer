@@ -111,16 +111,17 @@ public:
     bool hasEstimate() const;
     std::string getLocalEstimate() const;
 
-    void startTransaction(TransactionType type,
-        const char* method, LLXMLRPCValue params);
+    void startTransaction(TransactionType type, const char* method, const LLSD& params);
+
+    // return true if update needed
     bool checkTransaction();
-        // return true if update needed
 
     void setError(const std::string& message, const std::string& uri);
     void clearError();
 
+    // return true if update needed
     bool considerUpdateCurrency();
-        // return true if update needed
+
     void currencyKey(S32);
     static void onCurrencyKey(LLLineEditor* caller, void* data);
 
@@ -160,32 +161,29 @@ void LLCurrencyUIManager::Impl::updateCurrencyInfo()
         return;
     }
 
-    LLXMLRPCValue keywordArgs = LLXMLRPCValue::createStruct();
-    keywordArgs.appendString("agentId", gAgent.getID().asString());
-    keywordArgs.appendString(
-        "secureSessionId",
-        gAgent.getSecureSessionID().asString());
-    keywordArgs.appendString("language", LLUI::getLanguage());
-    keywordArgs.appendInt("currencyBuy", mUserCurrencyBuy);
-    keywordArgs.appendString("viewerChannel", LLVersionInfo::instance().getChannel());
-    keywordArgs.appendInt("viewerMajorVersion", LLVersionInfo::instance().getMajor());
-    keywordArgs.appendInt("viewerMinorVersion", LLVersionInfo::instance().getMinor());
-    keywordArgs.appendInt("viewerPatchVersion", LLVersionInfo::instance().getPatch());
-    // With GitHub builds, the build number is too big to fit in a 32-bit int,
-    // and XMLRPC_VALUE doesn't deal with integers wider than int. Use string.
-    keywordArgs.appendString("viewerBuildVersion", stringize(LLVersionInfo::instance().getBuild()));
+    const LLVersionInfo& vi(LLVersionInfo::instance());
 
-    LLXMLRPCValue params = LLXMLRPCValue::createArray();
-    params.append(keywordArgs);
+    LLSD params = LLSD::emptyMap();
+    params["agentId"] = gAgent.getID().asString();
+    params["secureSessionId"] = gAgent.getSecureSessionID().asString();
+    params["language"] = LLUI::getLanguage();
+    params["currencyBuy"] = mUserCurrencyBuy;
+    params["viewerChannel"] = vi.getChannel();
+    params["viewerMajorVersion"] = vi.getMajor();
+    params["viewerMinorVersion"] = vi.getMinor();
+    params["viewerPatchVersion"] = vi.getPatch();
+    // With GitHub builds, the build number is too big to fit in a 32-bit int,
+    // and XMLRPC value doesn't deal with integers wider than int. Use string.
+    params["viewerBuildVersion"] = std::to_string(vi.getBuild());
 
     startTransaction(TransactionCurrency, "getCurrencyQuote", params);
 }
 
 void LLCurrencyUIManager::Impl::finishCurrencyInfo()
 {
-    LLXMLRPCValue result = mTransaction->responseValue();
+    const LLSD& result = mTransaction->response();
 
-    bool success = result["success"].asBool();
+    bool success = result["success"].asBoolean();
     if (!success)
     {
         setError(
@@ -195,24 +193,24 @@ void LLCurrencyUIManager::Impl::finishCurrencyInfo()
         return;
     }
 
-    LLXMLRPCValue currency = result["currency"];
+    const LLSD& currency = result["currency"];
 
     // old XML-RPC server: estimatedCost = value in US cents
-    mUSDCurrencyEstimated = currency["estimatedCost"].isValid();
+    mUSDCurrencyEstimated = currency.has("estimatedCost");
     if (mUSDCurrencyEstimated)
     {
-        mUSDCurrencyEstimatedCost = currency["estimatedCost"].asInt();
+        mUSDCurrencyEstimatedCost = currency["estimatedCost"].asInteger();
     }
 
     // newer XML-RPC server: estimatedLocalCost = local currency string
-    mLocalCurrencyEstimated = currency["estimatedLocalCost"].isValid();
+    mLocalCurrencyEstimated = currency.has("estimatedLocalCost");
     if (mLocalCurrencyEstimated)
     {
         mLocalCurrencyEstimatedCost = currency["estimatedLocalCost"].asString();
         mSupportsInternationalBilling = true;
     }
 
-    S32 newCurrencyBuy = currency["currencyBuy"].asInt();
+    S32 newCurrencyBuy = currency["currencyBuy"].asInteger();
     if (newCurrencyBuy != mUserCurrencyBuy)
     {
         mUserCurrencyBuy = newCurrencyBuy;
@@ -224,36 +222,36 @@ void LLCurrencyUIManager::Impl::finishCurrencyInfo()
 
 void LLCurrencyUIManager::Impl::startCurrencyBuy(const std::string& password)
 {
-    LLXMLRPCValue keywordArgs = LLXMLRPCValue::createStruct();
-    keywordArgs.appendString("agentId", gAgent.getID().asString());
-    keywordArgs.appendString(
-        "secureSessionId",
-        gAgent.getSecureSessionID().asString());
-    keywordArgs.appendString("language", LLUI::getLanguage());
-    keywordArgs.appendInt("currencyBuy", mUserCurrencyBuy);
+    const LLVersionInfo& vi(LLVersionInfo::instance());
+
+    LLSD params = LLSD::emptyMap();
+    params["agentId"] = gAgent.getID().asString();
+    params["secureSessionId"] = gAgent.getSecureSessionID().asString();
+    params["language"] = LLUI::getLanguage();
+    params["currencyBuy"] = mUserCurrencyBuy;
+    params["confirm"] = mSiteConfirm;
+    params["viewerChannel"] = vi.getChannel();
+    params["viewerMajorVersion"] = vi.getMajor();
+    params["viewerMinorVersion"] = vi.getMinor();
+    params["viewerPatchVersion"] = vi.getPatch();
+    // With GitHub builds, the build number is too big to fit in a 32-bit int,
+    // and XMLRPC value doesn't deal with integers wider than int. Use string.
+    params["viewerBuildVersion"] = std::to_string(vi.getBuild());
+
     if (mUSDCurrencyEstimated)
     {
-        keywordArgs.appendInt("estimatedCost", mUSDCurrencyEstimatedCost);
+        params["estimatedCost"] = mUSDCurrencyEstimatedCost;
     }
+
     if (mLocalCurrencyEstimated)
     {
-        keywordArgs.appendString("estimatedLocalCost", mLocalCurrencyEstimatedCost);
+        params["estimatedLocalCost"] = mLocalCurrencyEstimatedCost;
     }
-    keywordArgs.appendString("confirm", mSiteConfirm);
+
     if (!password.empty())
     {
-        keywordArgs.appendString("password", password);
+        params["password"] = password;
     }
-    keywordArgs.appendString("viewerChannel", LLVersionInfo::instance().getChannel());
-    keywordArgs.appendInt("viewerMajorVersion", LLVersionInfo::instance().getMajor());
-    keywordArgs.appendInt("viewerMinorVersion", LLVersionInfo::instance().getMinor());
-    keywordArgs.appendInt("viewerPatchVersion", LLVersionInfo::instance().getPatch());
-    // With GitHub builds, the build number is too big to fit in a 32-bit int,
-    // and XMLRPC_VALUE doesn't deal with integers wider than int. Use string.
-    keywordArgs.appendString("viewerBuildVersion", stringize(LLVersionInfo::instance().getBuild()));
-
-    LLXMLRPCValue params = LLXMLRPCValue::createArray();
-    params.append(keywordArgs);
 
     startTransaction(TransactionBuy, "buyCurrency", params);
 
@@ -263,9 +261,9 @@ void LLCurrencyUIManager::Impl::startCurrencyBuy(const std::string& password)
 
 void LLCurrencyUIManager::Impl::finishCurrencyBuy()
 {
-    LLXMLRPCValue result = mTransaction->responseValue();
+    const LLSD& result = mTransaction->response();
 
-    bool success = result["success"].asBool();
+    bool success = result["success"].asBoolean();
     if (!success)
     {
         setError(
@@ -282,7 +280,7 @@ void LLCurrencyUIManager::Impl::finishCurrencyBuy()
 }
 
 void LLCurrencyUIManager::Impl::startTransaction(TransactionType type,
-        const char* method, LLXMLRPCValue params)
+        const char* method, const LLSD& params)
 {
     static std::string transactionURI;
     if (transactionURI.empty())
@@ -293,12 +291,7 @@ void LLCurrencyUIManager::Impl::startTransaction(TransactionType type,
     delete mTransaction;
 
     mTransactionType = type;
-    mTransaction = new LLXMLRPCTransaction(
-        transactionURI,
-        method,
-        params,
-        false /* don't use gzip */
-        );
+    mTransaction = new LLXMLRPCTransaction(transactionURI, method, params);
 
     clearError();
 }
@@ -352,12 +345,17 @@ bool LLCurrencyUIManager::Impl::checkTransaction()
     {
         setError(mTransaction->statusMessage(), mTransaction->statusURI());
     }
-    else {
+    else
+    {
         switch (mTransactionType)
         {
-            case TransactionCurrency:   finishCurrencyInfo();   break;
-            case TransactionBuy:        finishCurrencyBuy();    break;
-            default: ;
+        case TransactionCurrency:
+            finishCurrencyInfo();
+            break;
+        case TransactionBuy:
+            finishCurrencyBuy();
+            break;
+        default:;
         }
     }
 
@@ -385,9 +383,8 @@ void LLCurrencyUIManager::Impl::clearError()
 
 bool LLCurrencyUIManager::Impl::considerUpdateCurrency()
 {
-    if (mCurrencyChanged
-    &&  !mTransaction
-    &&  mCurrencyKeyTimer.getElapsedTimeF32() >= CURRENCY_ESTIMATE_FREQUENCY)
+    if (mCurrencyChanged && !mTransaction &&
+        mCurrencyKeyTimer.getElapsedTimeF32() >= CURRENCY_ESTIMATE_FREQUENCY)
     {
         updateCurrencyInfo();
         return true;
@@ -408,7 +405,8 @@ void LLCurrencyUIManager::Impl::currencyKey(S32 value)
 
     mUserCurrencyBuy = value;
 
-    if (hasEstimate()) {
+    if (hasEstimate())
+    {
         clearEstimate();
         //cannot just simply refresh the whole UI, as the edit field will
         // get reset and the cursor will change...
@@ -421,8 +419,7 @@ void LLCurrencyUIManager::Impl::currencyKey(S32 value)
 }
 
 // static
-void LLCurrencyUIManager::Impl::onCurrencyKey(
-        LLLineEditor* caller, void* data)
+void LLCurrencyUIManager::Impl::onCurrencyKey(LLLineEditor* caller, void* data)
 {
     S32 value = atoi(caller->getText().c_str());
     LLCurrencyUIManager::Impl* self = (LLCurrencyUIManager::Impl*)data;
@@ -589,14 +586,12 @@ bool LLCurrencyUIManager::inProcess()
 
 bool LLCurrencyUIManager::canCancel()
 {
-    return impl.mTransactionType != Impl::TransactionBuy;
+    return !buying();
 }
 
 bool LLCurrencyUIManager::canBuy()
 {
-    return impl.mTransactionType == Impl::TransactionNone
-        && impl.hasEstimate()
-        && impl.mUserCurrencyBuy > 0;
+    return !inProcess() && impl.hasEstimate() && impl.mUserCurrencyBuy > 0;
 }
 
 bool LLCurrencyUIManager::buying()

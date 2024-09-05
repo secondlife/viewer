@@ -114,6 +114,7 @@ public:
     virtual bool    handleToolTip(S32 x, S32 y, MASK mask);
     virtual bool    handleKeyHere(KEY key, MASK mask);
     virtual bool    handleUnicodeCharHere(llwchar uni_char);
+    virtual bool    handleScrollWheel(S32 x, S32 y, S32 clicks);
 
     // LLUICtrl interface
     virtual void    clear();                    // select nothing
@@ -162,8 +163,11 @@ public:
 
     bool            remove(const std::string& name);    // remove item "name", return true if found and removed
 
-    bool            setCurrentByIndex( S32 index );
+    bool            setCurrentByIndex(S32 index);
     S32             getCurrentIndex() const;
+
+    bool            selectNextItem();
+    bool            selectPrevItem();
 
     void            setEnabledByValue(const LLSD& value, bool enabled);
 

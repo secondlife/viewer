@@ -3686,7 +3686,7 @@ void process_time_synch(LLMessageSystem *mesgsys, void **user_data)
 
     LLWorld::getInstance()->setSpaceTimeUSec(space_time_usec);
 
-    LL_DEBUGS("WindlightSync") << "Sun phase: " << phase << " rad = " << fmodf(phase / F_TWO_PI + 0.25, 1.f) * 24.f << " h" << LL_ENDL;
+    LL_DEBUGS("WindlightSync") << "Sun phase: " << phase << " rad = " << fmodf(phase / F_TWO_PI + 0.25f, 1.f) * 24.f << " h" << LL_ENDL;
 
     /* LAPRAS
         We decode these parts of the message but ignore them
@@ -3705,7 +3705,7 @@ void process_sound_trigger(LLMessageSystem *msg, void **)
     }
 
     U64     region_handle = 0;
-    F32     gain = 0;
+    F32     gain = 0.f;
     LLUUID  sound_id;
     LLUUID  owner_id;
     LLUUID  object_id;

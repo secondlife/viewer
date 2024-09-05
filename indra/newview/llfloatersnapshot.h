@@ -72,6 +72,7 @@ protected:
     LLUICtrl* mThumbnailPlaceholder;
     LLUICtrl *mRefreshBtn, *mRefreshLabel;
     LLUICtrl *mSucceessLblPanel, *mFailureLblPanel;
+    LLUICtrl* mFreezeFrameCheck = nullptr;
 };
 
 class LLFloaterSnapshotBase::ImplBase

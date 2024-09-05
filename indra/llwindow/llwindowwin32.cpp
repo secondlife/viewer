@@ -187,6 +187,8 @@ DWORD   LLWindowWin32::sWinIMEConversionMode = IME_CMODE_NATIVE;
 DWORD   LLWindowWin32::sWinIMESentenceMode = IME_SMODE_AUTOMATIC;
 LLCoordWindow LLWindowWin32::sWinIMEWindowPosition(-1,-1);
 
+static HWND sWindowHandleForMessageBox = NULL;
+
 // The following class LLWinImm delegates Windows IMM APIs.
 // It was originally introduced to support US Windows XP, on which we needed
 // to dynamically load IMM32.DLL and use GetProcAddress to resolve its entry
@@ -803,8 +805,8 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
             size_t name_len = strlen(display_device.DeviceName  );
             size_t desc_len = strlen(display_device.DeviceString);
 
-            CHAR *name = name_len ? display_device.DeviceName   : "???";
-            CHAR *desc = desc_len ? display_device.DeviceString : "???";
+            const CHAR *name = name_len ? display_device.DeviceName   : "???";
+            const CHAR *desc = desc_len ? display_device.DeviceString : "???";
 
             sprintf(text, "Display Device %d: %s, %s", display_index, name, desc);
             LL_INFOS("Window") << text << LL_ENDL;
@@ -848,6 +850,11 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 
 LLWindowWin32::~LLWindowWin32()
 {
+    if (sWindowHandleForMessageBox == mWindowHandle)
+    {
+        sWindowHandleForMessageBox = NULL;
+    }
+
     delete mDragDrop;
 
     delete [] mWindowTitle;
@@ -969,6 +976,11 @@ void LLWindowWin32::close()
     restoreGamma();
 
     LL_DEBUGS("Window") << "Destroying Window" << LL_ENDL;
+
+    if (sWindowHandleForMessageBox == mWindowHandle)
+    {
+        sWindowHandleForMessageBox = NULL;
+    }
 
     mhDC = NULL;
     mWindowHandle = NULL;
@@ -1383,7 +1395,7 @@ bool LLWindowWin32::switchContext(bool fullscreen, const LLCoordScreen& size, bo
 
     gGLManager.initWGL();
 
-    if (wglChoosePixelFormatARB)
+    if (wglChoosePixelFormatARB && wglGetPixelFormatAttribivARB)
     {
         // OK, at this point, use the ARB wglChoosePixelFormatsARB function to see if we
         // can get exactly what we want.
@@ -1702,10 +1714,15 @@ void LLWindowWin32::recreateWindow(RECT window_rect, DWORD dw_ex_style, DWORD dw
     auto oldWindowHandle = mWindowHandle;
     auto oldDCHandle = mhDC;
 
+    if (sWindowHandleForMessageBox == mWindowHandle)
+    {
+        sWindowHandleForMessageBox = NULL;
+    }
+
     // zero out mWindowHandle and mhDC before destroying window so window
     // thread falls back to peekmessage
-    mWindowHandle = 0;
-    mhDC = 0;
+    mWindowHandle = NULL;
+    mhDC = NULL;
 
     std::promise<std::pair<HWND, HDC>> promise;
     // What follows must be done on the window thread.
@@ -1802,6 +1819,8 @@ void LLWindowWin32::recreateWindow(RECT window_rect, DWORD dw_ex_style, DWORD dw
     auto pair = future.get();
     mWindowHandle = pair.first;
     mhDC = pair.second;
+
+    sWindowHandleForMessageBox = mWindowHandle;
 }
 
 void* LLWindowWin32::createSharedContext()
@@ -1809,7 +1828,7 @@ void* LLWindowWin32::createSharedContext()
     mMaxGLVersion = llclamp(mMaxGLVersion, 3.f, 4.6f);
 
     S32 version_major = llfloor(mMaxGLVersion);
-    S32 version_minor = llround((mMaxGLVersion-version_major)*10);
+    S32 version_minor = (S32)llround((mMaxGLVersion-version_major)*10);
 
     S32 attribs[] =
     {
@@ -2111,7 +2130,7 @@ void LLWindowWin32::initCursors()
 void LLWindowWin32::updateCursor()
 {
     ASSERT_MAIN_THREAD();
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_WIN32
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_WIN32;
     if (mNextCursor == UI_CURSOR_ARROW
         && mBusyCount > 0)
     {
@@ -2155,7 +2174,7 @@ void LLWindowWin32::delayInputProcessing()
 void LLWindowWin32::gatherInput()
 {
     ASSERT_MAIN_THREAD();
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_WIN32
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_WIN32;
     MSG msg;
 
     {
@@ -2464,12 +2483,12 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
                 {
                     window_imp->mKeyCharCode = 0; // don't know until wm_char comes in next
                     window_imp->mKeyScanCode = (l_param >> 16) & 0xff;
-                    window_imp->mKeyVirtualKey = w_param;
+                    window_imp->mKeyVirtualKey = (U32)w_param;
                     window_imp->mRawMsg = u_msg;
-                    window_imp->mRawWParam = w_param;
-                    window_imp->mRawLParam = l_param;
+                    window_imp->mRawWParam = (U32)w_param;
+                    window_imp->mRawLParam = (U32)l_param;
 
-                    gKeyboard->handleKeyDown(w_param, mask);
+                    gKeyboard->handleKeyDown((U16)w_param, mask);
                 });
             if (eat_keystroke) return 0;    // skip DefWindowProc() handling if we're consuming the keypress
             break;
@@ -2484,14 +2503,14 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
             window_imp->post([=]()
             {
                 window_imp->mKeyScanCode = (l_param >> 16) & 0xff;
-                window_imp->mKeyVirtualKey = w_param;
+                window_imp->mKeyVirtualKey = (U32)w_param;
                 window_imp->mRawMsg = u_msg;
-                window_imp->mRawWParam = w_param;
-                window_imp->mRawLParam = l_param;
+                window_imp->mRawWParam = (U32)w_param;
+                window_imp->mRawLParam = (U32)l_param;
 
                 {
                     LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_KEYUP");
-                    gKeyboard->handleKeyUp(w_param, mask);
+                    gKeyboard->handleKeyUp((U16)w_param, mask);
                 }
             });
             if (eat_keystroke) return 0;    // skip DefWindowProc() handling if we're consuming the keypress
@@ -2531,7 +2550,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_IME_COMPOSITION");
             if (LLWinImm::isAvailable() && window_imp->mPreeditor)
             {
-                WINDOW_IMP_POST(window_imp->handleCompositionMessage(l_param));
+                WINDOW_IMP_POST(window_imp->handleCompositionMessage((U32)l_param));
                 return 0;
             }
             break;
@@ -2552,10 +2571,10 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_CHAR");
             window_imp->post([=]()
                 {
-                    window_imp->mKeyCharCode = w_param;
+                    window_imp->mKeyCharCode = (U32)w_param;
                     window_imp->mRawMsg = u_msg;
-                    window_imp->mRawWParam = w_param;
-                    window_imp->mRawLParam = l_param;
+                    window_imp->mRawWParam = (U32)w_param;
+                    window_imp->mRawLParam = (U32)l_param;
 
                     // Should really use WM_UNICHAR eventually, but it requires a specific Windows version and I need
                     // to figure out how that works. - Doug
@@ -2979,7 +2998,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 
                 window_imp->post([=]()
                     {
-                       window_imp->mCallbacks->handleDataCopy(window_imp, myType, data);
+                       window_imp->mCallbacks->handleDataCopy(window_imp, (S32)myType, data);
                        delete[] data;
                     });
             };
@@ -3039,8 +3058,8 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
                             S32 width = GetSystemMetrics(v_desktop ? SM_CXVIRTUALSCREEN : SM_CXSCREEN);
                             S32 height = GetSystemMetrics(v_desktop ? SM_CYVIRTUALSCREEN : SM_CYSCREEN);
 
-                            absolute_x = (raw->data.mouse.lLastX / 65535.0f) * width;
-                            absolute_y = (raw->data.mouse.lLastY / 65535.0f) * height;
+                            absolute_x = (S32)((raw->data.mouse.lLastX / 65535.0f) * width);
+                            absolute_y = (S32)((raw->data.mouse.lLastY / 65535.0f) * height);
                         }
 
                         window_imp->mRawMouseDelta.mX += absolute_x - prev_absolute_x;
@@ -3061,8 +3080,8 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
                         }
                         else
                         {
-                            window_imp->mRawMouseDelta.mX += round((F32)raw->data.mouse.lLastX * (F32)speed / DEFAULT_SPEED);
-                            window_imp->mRawMouseDelta.mY -= round((F32)raw->data.mouse.lLastY * (F32)speed / DEFAULT_SPEED);
+                            window_imp->mRawMouseDelta.mX += (S32)round((F32)raw->data.mouse.lLastX * (F32)speed / DEFAULT_SPEED);
+                            window_imp->mRawMouseDelta.mY -= (S32)round((F32)raw->data.mouse.lLastY * (F32)speed / DEFAULT_SPEED);
                         }
                     }
                 }
@@ -3684,7 +3703,18 @@ S32 OSMessageBoxWin32(const std::string& text, const std::string& caption, U32 t
         break;
     }
 
-    int retval_win = MessageBoxW(NULL, // HWND
+    // AG: Of course, the using of the static global variable sWindowHandleForMessageBox
+    // instead of using the field mWindowHandle of the class LLWindowWin32 looks strange.
+    // But in fact, the function OSMessageBoxWin32() doesn't have access to gViewerWindow
+    // because the former is implemented in the library llwindow which is abstract enough.
+    //
+    // "This is why I'm doing it this way, instead of what you would think would be more obvious..."
+    // (C) Nat Goodspeed
+    if (!IsWindow(sWindowHandleForMessageBox))
+    {
+        sWindowHandleForMessageBox = NULL;
+    }
+    int retval_win = MessageBoxW(sWindowHandleForMessageBox, // HWND
                                  ll_convert_string_to_wide(text).c_str(),
                                  ll_convert_string_to_wide(caption).c_str(),
                                  uType);
@@ -4665,7 +4695,7 @@ void LLWindowWin32::LLWindowWin32Thread::checkDXMem()
                 DXGI_ADAPTER_DESC desc;
                 p_dxgi_adapter->GetDesc(&desc);
                 std::wstring description_w((wchar_t*)desc.Description);
-                std::string description(description_w.begin(), description_w.end());
+                std::string description = ll_convert_wide_to_string(description_w);
                 LL_INFOS("Window") << "Graphics adapter index: " << graphics_adapter_index << ", "
                     << "Description: " << description << ", "
                     << "DeviceId: " << desc.DeviceId << ", "

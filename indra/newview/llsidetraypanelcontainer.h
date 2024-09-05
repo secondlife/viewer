@@ -59,7 +59,7 @@ public:
     /**
      * Opens given subpanel.
      */
-    void openPanel(const std::string& panel_name, const LLSD& key = LLSD::emptyMap());
+    void openPanel(std::string_view panel_name, const LLSD& key = LLSD::emptyMap());
 
     /**
     * Opens previous panel from panel navigation history.

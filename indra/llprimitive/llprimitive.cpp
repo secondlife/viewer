@@ -1126,8 +1126,6 @@ namespace
     {
         const size_t size(sizeof(T));
 
-        LL_DEBUGS("TEXTUREENTRY") << "Request to read items of size " << size << " with swizzle " << type << " froum buffer sized " << (source_end - source) << LL_ENDL;
-
         if ((source + size + 1) > source_end)
         {
             // we add 1 above to take into account the byte that we know must follow the value.

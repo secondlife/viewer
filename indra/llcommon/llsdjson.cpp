@@ -35,16 +35,7 @@
 #include "llerror.h"
 #include "../llmath/llmath.h"
 
-#if LL_WINDOWS
-#pragma warning (push)
-#pragma warning (disable : 4702) // compiler thinks unreachable code
-#endif
 #include <boost/json/src.hpp>
-#if LL_WINDOWS
-#pragma warning (pop)
-#endif
-
-
 
 //=========================================================================
 LLSD LlsdFromJson(const boost::json::value& val)

@@ -55,12 +55,12 @@ LLRect LLScreenChannelBase::getChannelRect()
 
     if (mFloaterSnapRegion == NULL)
     {
-        mFloaterSnapRegion = gViewerWindow->getRootView()->getChildView("floater_snap_region");
+        mFloaterSnapRegion = gViewerWindow->getFloaterSnapRegion();
     }
 
     if (mChicletRegion == NULL)
     {
-        mChicletRegion = gViewerWindow->getRootView()->getChildView("chiclet_container");
+        mChicletRegion = gViewerWindow->getChicletContainer();
     }
 
     LLRect channel_rect;
@@ -103,12 +103,12 @@ bool LLScreenChannelBase::postBuild()
 {
     if (mFloaterSnapRegion == NULL)
     {
-        mFloaterSnapRegion = gViewerWindow->getRootView()->getChildView("floater_snap_region");
+        mFloaterSnapRegion = gViewerWindow->getFloaterSnapRegion();
     }
 
     if (mChicletRegion == NULL)
     {
-        mChicletRegion = gViewerWindow->getRootView()->getChildView("chiclet_container");
+        mChicletRegion = gViewerWindow->getChicletContainer();
     }
 
     return true;
@@ -259,7 +259,7 @@ void LLScreenChannel::updatePositionAndSize(LLRect new_world_rect)
 //--------------------------------------------------------------------------
 void LLScreenChannel::addToast(const LLToast::Params& p)
 {
-    LL_PROFILE_ZONE_SCOPED
+    LL_PROFILE_ZONE_SCOPED;
     bool store_toast = false, show_toast = false;
 
     if (mDisplayToastsAlways)

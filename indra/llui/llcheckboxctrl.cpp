@@ -45,7 +45,7 @@ static LLDefaultChildRegistry::Register<LLCheckBoxCtrl> r("check_box");
 
 // Compiler optimization, generate extern template
 template class LLCheckBoxCtrl* LLView::getChild<class LLCheckBoxCtrl>(
-    const std::string& name, bool recurse) const;
+    std::string_view name, bool recurse) const;
 
 void LLCheckBoxCtrl::WordWrap::declareValues()
 {
@@ -172,11 +172,11 @@ void LLCheckBoxCtrl::setEnabled(bool b)
 
     if (b)
     {
-        mLabel->setColor( mTextEnabledColor.get() );
+        mLabel->setColor( mTextEnabledColor );
     }
     else
     {
-        mLabel->setColor( mTextDisabledColor.get() );
+        mLabel->setColor( mTextDisabledColor );
     }
 }
 

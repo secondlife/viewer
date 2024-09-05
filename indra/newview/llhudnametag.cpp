@@ -229,35 +229,20 @@ void LLHUDNameTag::render()
     if (sDisplayText)
     {
         LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
-        //LLGLDisable gls_stencil(GL_STENCIL_TEST);
-        renderText(false);
+        renderText();
     }
 }
 
-void LLHUDNameTag::renderText(bool for_select)
+void LLHUDNameTag::renderText()
 {
     if (!mVisible || mHidden)
     {
         return;
     }
 
-    // don't pick text that isn't bound to a viewerobject
-    if (for_select &&
-        (!mSourceObject || mSourceObject->mDrawable.isNull()))
-    {
-        return;
-    }
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
 
-    if (for_select)
-    {
-        gGL.getTexUnit(0)->disable();
-    }
-    else
-    {
-        gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
-    }
-
-    LLGLState gls_blend(GL_BLEND, !for_select);
+    gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
 
     LLColor4 shadow_color(0.f, 0.f, 0.f, 1.f);
     F32 alpha_factor = 1.f;
@@ -279,8 +264,10 @@ void LLHUDNameTag::renderText(bool for_select)
     mOffsetY = lltrunc(mHeight * ((mVertAlignment == ALIGN_VERT_CENTER) ? 0.5f : 1.f));
 
     // *TODO: make this a per-text setting
-    LLColor4 bg_color = LLUIColorTable::instance().getColor("NameTagBackground");
-    bg_color.setAlpha(gSavedSettings.getF32("ChatBubbleOpacity") * alpha_factor);
+    static LLCachedControl<F32> bubble_opacity(gSavedSettings, "ChatBubbleOpacity");
+    static LLUIColor nametag_bg_color = LLUIColorTable::instance().getColor("NameTagBackground");
+    LLColor4 bg_color = nametag_bg_color;
+    bg_color.setAlpha(bubble_opacity * alpha_factor);
 
     // scale screen size of borders down
     //RN: for now, text on hud objects is never occluded
@@ -303,6 +290,15 @@ void LLHUDNameTag::renderText(bool for_select)
     LLVector3 render_position = mPositionAgent
             + (x_pixel_vec * screen_offset.mV[VX])
             + (y_pixel_vec * screen_offset.mV[VY]);
+    bool reset_buffers = false;
+    const F32 treshold = 0.000001f;
+    if (abs(mLastRenderPosition.mV[VX] - render_position.mV[VX]) > treshold
+        || abs(mLastRenderPosition.mV[VY] - render_position.mV[VY]) > treshold
+        || abs(mLastRenderPosition.mV[VZ] - render_position.mV[VZ]) > treshold)
+    {
+        reset_buffers = true;
+        mLastRenderPosition = render_position;
+    }
 
     LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
     LLRect screen_rect;
@@ -326,6 +322,11 @@ void LLHUDNameTag::renderText(bool for_select)
         for(std::vector<LLHUDTextSegment>::iterator segment_iter = mLabelSegments.begin();
             segment_iter != mLabelSegments.end(); ++segment_iter )
         {
+            if (reset_buffers)
+            {
+                segment_iter->mFontBufferLabel.reset();
+            }
+
             // Label segments use default font
             const LLFontGL* fontp = (segment_iter->mStyle == LLFontGL::BOLD) ? mBoldFontp : mFontp;
             y_offset -= fontp->getLineHeight();
@@ -340,9 +341,8 @@ void LLHUDNameTag::renderText(bool for_select)
                 x_offset = -0.5f * mWidth + (HORIZONTAL_PADDING / 2.f);
             }
 
-            LLColor4 label_color(0.f, 0.f, 0.f, 1.f);
-            label_color.mV[VALPHA] = alpha_factor;
-            hud_render_text(segment_iter->getText(), render_position, *fontp, segment_iter->mStyle, LLFontGL::NO_SHADOW, x_offset, y_offset, label_color, false);
+            LLColor4 label_color(0.f, 0.f, 0.f, alpha_factor);
+            hud_render_text(segment_iter->getText(), render_position, &segment_iter->mFontBufferLabel, *fontp, segment_iter->mStyle, LLFontGL::NO_SHADOW, x_offset, y_offset, label_color, false);
         }
     }
 
@@ -364,6 +364,11 @@ void LLHUDNameTag::renderText(bool for_select)
         for (std::vector<LLHUDTextSegment>::iterator segment_iter = mTextSegments.begin() + start_segment;
              segment_iter != mTextSegments.end(); ++segment_iter )
         {
+            if (reset_buffers)
+            {
+                segment_iter->mFontBufferText.reset();
+            }
+
             const LLFontGL* fontp = segment_iter->mFont;
             y_offset -= fontp->getLineHeight();
             y_offset -= LINE_PADDING;
@@ -387,15 +392,11 @@ void LLHUDNameTag::renderText(bool for_select)
             text_color = segment_iter->mColor;
             text_color.mV[VALPHA] *= alpha_factor;
 
-            hud_render_text(segment_iter->getText(), render_position, *fontp, style, shadow, x_offset, y_offset, text_color, false);
+            hud_render_text(segment_iter->getText(), render_position, &segment_iter->mFontBufferText, *fontp, style, shadow, x_offset, y_offset, text_color, false);
         }
     }
     /// Reset the default color to white.  The renderer expects this to be the default.
     gGL.color4f(1.0f, 1.0f, 1.0f, 1.0f);
-    if (for_select)
-    {
-        gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
-    }
 }
 
 void LLHUDNameTag::setString(const std::string &text_utf8)
@@ -449,7 +450,7 @@ void LLHUDNameTag::addLine(const std::string &text_utf8,
                         // token does does not fit into signle line, need to draw "...".
                         // Use four dots for ellipsis width to generate padding
                         const LLWString dots_pad(utf8str_to_wstring(std::string("....")));
-                        S32 elipses_width = font->getWidthF32(dots_pad.c_str());
+                        S32 elipses_width = (S32)font->getWidthF32(dots_pad.c_str());
                         // truncated string length
                         segment_length = font->maxDrawableChars(iter->substr(line_length).c_str(), max_pixels - elipses_width, static_cast<S32>(wline.length()), LLFontGL::ANYWHERE);
                         const LLWString dots(utf8str_to_wstring(std::string("...")));
@@ -780,7 +781,7 @@ void LLHUDNameTag::updateAll()
     }
 
     LLTrace::CountStatHandle<>* camera_vel_stat = LLViewerCamera::getVelocityStat();
-    F32 camera_vel = LLTrace::get_frame_recording().getLastRecording().getPerSec(*camera_vel_stat);
+    F32 camera_vel = (F32)LLTrace::get_frame_recording().getLastRecording().getPerSec(*camera_vel_stat);
     if (camera_vel > MAX_STABLE_CAMERA_VELOCITY)
     {
         return;

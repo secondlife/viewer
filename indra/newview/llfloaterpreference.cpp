@@ -430,6 +430,13 @@ void LLFloaterPreference::saveAvatarPropertiesCoro(const std::string cap_url, bo
 
 bool LLFloaterPreference::postBuild()
 {
+    mDeleteTranscriptsBtn = getChild<LLButton>("delete_transcripts");
+
+    mEnabledPopups = getChild<LLScrollListCtrl>("enabled_popups");
+    mDisabledPopups = getChild<LLScrollListCtrl>("disabled_popups");
+    mEnablePopupBtn = getChild<LLButton>("enable_this_popup");
+    mDisablePopupBtn = getChild<LLButton>("disable_this_popup");
+
     gSavedSettings.getControl("ChatFontSize")->getSignal()->connect(boost::bind(&LLFloaterIMSessionTab::processChatHistoryStyleUpdate, false));
 
     gSavedSettings.getControl("ChatFontSize")->getSignal()->connect(boost::bind(&LLViewerChat::signalChatFontChanged));
@@ -519,7 +526,7 @@ bool LLFloaterPreference::postBuild()
 
 void LLFloaterPreference::updateDeleteTranscriptsButton()
 {
-    getChild<LLButton>("delete_transcripts")->setEnabled(LLLogChat::transcriptFilesExist());
+    mDeleteTranscriptsBtn->setEnabled(LLLogChat::transcriptFilesExist());
 }
 
 void LLFloaterPreference::onDoNotDisturbResponseChanged()
@@ -540,11 +547,11 @@ LLFloaterPreference::~LLFloaterPreference()
 
 void LLFloaterPreference::draw()
 {
-    bool has_first_selected = (getChildRef<LLScrollListCtrl>("disabled_popups").getFirstSelected()!=NULL);
-    gSavedSettings.setBOOL("FirstSelectedDisabledPopups", has_first_selected);
+    bool has_first_selected = (mDisabledPopups->getFirstSelected()!=NULL);
+    mEnablePopupBtn->setEnabled(has_first_selected);
 
-    has_first_selected = (getChildRef<LLScrollListCtrl>("enabled_popups").getFirstSelected()!=NULL);
-    gSavedSettings.setBOOL("FirstSelectedEnabledPopups", has_first_selected);
+    has_first_selected = (mEnabledPopups->getFirstSelected()!=NULL);
+    mDisablePopupBtn->setEnabled(has_first_selected);
 
     LLFloater::draw();
 }
@@ -1101,7 +1108,7 @@ void LLFloaterPreference::onNameTagOpacityChange(const LLSD& newvalue)
     if (color_swatch)
     {
         LLColor4 new_color = color_swatch->get();
-        color_swatch->set( new_color.setAlpha(newvalue.asReal()) );
+        color_swatch->set(new_color.setAlpha((F32)newvalue.asReal()));
     }
 }
 
@@ -1171,13 +1178,8 @@ void LLFloaterPreference::refreshSkin(void* data)
 
 void LLFloaterPreference::buildPopupLists()
 {
-    LLScrollListCtrl& disabled_popups =
-        getChildRef<LLScrollListCtrl>("disabled_popups");
-    LLScrollListCtrl& enabled_popups =
-        getChildRef<LLScrollListCtrl>("enabled_popups");
-
-    disabled_popups.deleteAllItems();
-    enabled_popups.deleteAllItems();
+    mDisabledPopups->deleteAllItems();
+    mEnabledPopups->deleteAllItems();
 
     for (LLNotifications::TemplateMap::const_iterator iter = LLNotifications::instance().templatesBegin();
          iter != LLNotifications::instance().templatesEnd();
@@ -1219,11 +1221,11 @@ void LLFloaterPreference::buildPopupLists()
                     }
                 }
             }
-            item = disabled_popups.addElement(row);
+            item = mDisabledPopups->addElement(row);
         }
         else
         {
-            item = enabled_popups.addElement(row);
+            item = mEnabledPopups->addElement(row);
         }
 
         if (item)
@@ -1235,11 +1237,6 @@ void LLFloaterPreference::buildPopupLists()
 
 void LLFloaterPreference::refreshEnabledState()
 {
-    LLCheckBoxCtrl* ctrl_pbr = getChild<LLCheckBoxCtrl>("UsePBRShaders");
-
-    //PBR
-    ctrl_pbr->setEnabled(true);
-
     // Cannot have floater active until caps have been received
     getChild<LLButton>("default_creation_permissions")->setEnabled(LLStartUp::getStartupState() >= STATE_STARTED);
 
@@ -1324,9 +1321,7 @@ void LLFloaterPreference::onClickSetSounds()
 
 void LLFloaterPreference::onClickEnablePopup()
 {
-    LLScrollListCtrl& disabled_popups = getChildRef<LLScrollListCtrl>("disabled_popups");
-
-    std::vector<LLScrollListItem*> items = disabled_popups.getAllSelected();
+    std::vector<LLScrollListItem*> items = mDisabledPopups->getAllSelected();
     std::vector<LLScrollListItem*>::iterator itor;
     for (itor = items.begin(); itor != items.end(); ++itor)
     {
@@ -1345,9 +1340,7 @@ void LLFloaterPreference::onClickEnablePopup()
 
 void LLFloaterPreference::onClickDisablePopup()
 {
-    LLScrollListCtrl& enabled_popups = getChildRef<LLScrollListCtrl>("enabled_popups");
-
-    std::vector<LLScrollListItem*> items = enabled_popups.getAllSelected();
+    std::vector<LLScrollListItem*> items = mEnabledPopups->getAllSelected();
     std::vector<LLScrollListItem*>::iterator itor;
     for (itor = items.begin(); itor != items.end(); ++itor)
     {
@@ -1796,11 +1789,9 @@ void LLFloaterPreference::onDeleteTranscriptsResponse(const LLSD& notification, 
 
 void LLFloaterPreference::onLogChatHistorySaved()
 {
-    LLButton * delete_transcripts_buttonp = getChild<LLButton>("delete_transcripts");
-
-    if (!delete_transcripts_buttonp->getEnabled())
+    if (!mDeleteTranscriptsBtn->getEnabled())
     {
-        delete_transcripts_buttonp->setEnabled(true);
+        mDeleteTranscriptsBtn->setEnabled(true);
     }
 }
 
@@ -1910,7 +1901,7 @@ void LLFloaterPreference::setCacheLocation(const LLStringExplicit& location)
 void LLFloaterPreference::selectPanel(const LLSD& name)
 {
     LLTabContainer * tab_containerp = getChild<LLTabContainer>("pref core");
-    LLPanel * panel = tab_containerp->getPanelByName(name);
+    LLPanel * panel = tab_containerp->getPanelByName(name.asStringRef());
     if (NULL != panel)
     {
         tab_containerp->selectTabPanel(panel);
@@ -2334,7 +2325,6 @@ bool LLPanelPreferenceGraphics::postBuild()
 
 void LLPanelPreferenceGraphics::draw()
 {
-    setPresetText();
     LLPanelPreference::draw();
 }
 
@@ -3315,8 +3305,8 @@ void LLFloaterPreference::onUpdateFilterTerm(bool force)
 
 void LLFloaterPreference::filterIgnorableNotifications()
 {
-    bool visible = getChildRef<LLScrollListCtrl>("enabled_popups").highlightMatchingItems(mFilterEdit->getValue());
-    visible |= getChildRef<LLScrollListCtrl>("disabled_popups").highlightMatchingItems(mFilterEdit->getValue());
+    bool visible = mEnabledPopups->highlightMatchingItems(mFilterEdit->getValue());
+    visible |= mDisabledPopups->highlightMatchingItems(mFilterEdit->getValue());
 
     if (visible)
     {

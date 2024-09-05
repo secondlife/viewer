@@ -161,6 +161,9 @@ private:
     LLUIImagePtr        mTrackImageH;
 
     S32                 mThickness;
+
+    LLButton*           mLineUpBtn = nullptr;
+    LLButton*           mLineDownBtn = nullptr;
 };
 
 

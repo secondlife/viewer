@@ -34,12 +34,14 @@
 #include "llstring.h"
 #include "lluiimage.h"
 #include "llview.h"
+#include "llfontvertexbuffer.h"
 
 //
 // Declarations
 //
 
 class LLFontGL;
+class LLFontVertexBuffer;
 class LLScrollContainer;
 class LLUICtrlFactory;
 
@@ -144,6 +146,7 @@ private:
     LLUIColor               mBorderColor;
 
     const LLFontGL*         mGLFont;
+    LLFontVertexBuffer      mFontBuffer;
 
     LLPointer< LLUIImage >  mImage;
     LLUIColor               mImageColor;
@@ -171,7 +174,7 @@ private:
 
 // Build time optimization, generate once in .cpp file
 #ifndef LLBADGE_CPP
-extern template class LLBadge* LLView::getChild<class LLBadge>(const std::string& name, bool recurse) const;
+extern template class LLBadge* LLView::getChild<class LLBadge>(std::string_view name, bool recurse) const;
 #endif
 
 #endif  // LL_LLBADGE_H

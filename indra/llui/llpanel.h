@@ -134,22 +134,22 @@ public:
     bool            hasBorder() const { return mBorder != NULL; }
     void            setBorderVisible( bool b );
 
-    void            setBackgroundColor( const LLColor4& color ) { mBgOpaqueColor = color; }
+    void            setBackgroundColor( const LLUIColor& color ) { mBgOpaqueColor = color; }
     const LLColor4& getBackgroundColor() const { return mBgOpaqueColor; }
-    void            setTransparentColor(const LLColor4& color) { mBgAlphaColor = color; }
+    void            setTransparentColor(const LLUIColor& color) { mBgAlphaColor = color; }
     const LLColor4& getTransparentColor() const { return mBgAlphaColor; }
     void            setBackgroundImage(LLUIImage* image) { mBgOpaqueImage = image; }
     void            setTransparentImage(LLUIImage* image) { mBgAlphaImage = image; }
     LLPointer<LLUIImage> getBackgroundImage() const { return mBgOpaqueImage; }
     LLPointer<LLUIImage> getTransparentImage() const { return mBgAlphaImage; }
-    LLColor4        getBackgroundImageOverlay() { return mBgOpaqueImageOverlay; }
-    LLColor4        getTransparentImageOverlay() { return mBgAlphaImageOverlay; }
+    const LLColor4&        getBackgroundImageOverlay() { return mBgOpaqueImageOverlay; }
+    const LLColor4&        getTransparentImageOverlay() { return mBgAlphaImageOverlay; }
     void            setBackgroundVisible( bool b )  { mBgVisible = b; }
     bool            isBackgroundVisible() const { return mBgVisible; }
     void            setBackgroundOpaque(bool b)     { mBgOpaque = b; }
     bool            isBackgroundOpaque() const { return mBgOpaque; }
     void            setDefaultBtn(LLButton* btn = NULL);
-    void            setDefaultBtn(const std::string& id);
+    void            setDefaultBtn(std::string_view id);
     void            updateDefaultBtn();
     void            setLabel(const LLStringExplicit& label) { mLabel = label; }
     std::string     getLabel() const { return mLabel; }
@@ -169,47 +169,47 @@ public:
     void initFromParams(const Params& p);
     bool initPanelXML(  LLXMLNodePtr node, LLView *parent, LLXMLNodePtr output_node, const LLPanel::Params& default_params);
 
-    bool hasString(const std::string& name);
-    std::string getString(const std::string& name, const LLStringUtil::format_map_t& args) const;
-    std::string getString(const std::string& name) const;
+    bool hasString(std::string_view name);
+    std::string getString(std::string_view name, const LLStringUtil::format_map_t& args) const;
+    std::string getString(std::string_view name) const;
 
     // ** Wrappers for setting child properties by name ** -TomY
     // WARNING: These are deprecated, please use getChild<T>("name")->doStuff() idiom instead
 
     // LLView
-    void childSetVisible(const std::string& name, bool visible);
+    void childSetVisible(std::string_view name, bool visible);
 
-    void childSetEnabled(const std::string& name, bool enabled);
-    void childEnable(const std::string& name)   { childSetEnabled(name, true); }
-    void childDisable(const std::string& name) { childSetEnabled(name, false); };
+    void childSetEnabled(std::string_view name, bool enabled);
+    void childEnable(std::string_view name)   { childSetEnabled(name, true); }
+    void childDisable(std::string_view name) { childSetEnabled(name, false); };
 
     // LLUICtrl
-    void childSetFocus(const std::string& id, bool focus = true);
-    bool childHasFocus(const std::string& id);
+    void childSetFocus(std::string_view id, bool focus = true);
+    bool childHasFocus(std::string_view id);
 
     // *TODO: Deprecate; for backwards compatability only:
     // Prefer getChild<LLUICtrl>("foo")->setCommitCallback(boost:bind(...)),
     // which takes a generic slot.  Or use mCommitCallbackRegistrar.add() with
     // a named callback and reference it in XML.
-    void childSetCommitCallback(const std::string& id, boost::function<void (LLUICtrl*,void*)> cb, void* data);
-    void childSetColor(const std::string& id, const LLColor4& color);
+    void childSetCommitCallback(std::string_view id, boost::function<void (LLUICtrl*,void*)> cb, void* data);
+    void childSetColor(std::string_view id, const LLUIColor& color);
 
-    LLCtrlSelectionInterface* childGetSelectionInterface(const std::string& id) const;
-    LLCtrlListInterface* childGetListInterface(const std::string& id) const;
-    LLCtrlScrollInterface* childGetScrollInterface(const std::string& id) const;
+    LLCtrlSelectionInterface* childGetSelectionInterface(std::string_view id) const;
+    LLCtrlListInterface* childGetListInterface(std::string_view id) const;
+    LLCtrlScrollInterface* childGetScrollInterface(std::string_view id) const;
 
     // This is the magic bullet for data-driven UI
-    void childSetValue(const std::string& id, LLSD value);
-    LLSD childGetValue(const std::string& id) const;
+    void childSetValue(std::string_view id, LLSD value);
+    LLSD childGetValue(std::string_view id) const;
 
     // For setting text / label replacement params, e.g. "Hello [NAME]"
     // Not implemented for all types, defaults to noop, returns false if not applicaple
-    bool childSetTextArg(const std::string& id, const std::string& key, const LLStringExplicit& text);
-    bool childSetLabelArg(const std::string& id, const std::string& key, const LLStringExplicit& text);
+    bool childSetTextArg(std::string_view id, const std::string& key, const LLStringExplicit& text);
+    bool childSetLabelArg(std::string_view id, const std::string& key, const LLStringExplicit& text);
 
     // LLButton
-    void childSetAction(const std::string& id, boost::function<void(void*)> function, void* value);
-    void childSetAction(const std::string& id, const commit_signal_t::slot_type& function);
+    void childSetAction(std::string_view id, boost::function<void(void*)> function, void* value);
+    void childSetAction(std::string_view id, const commit_signal_t::slot_type& function);
 
     static LLView*  fromXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr output_node = NULL);
 
@@ -250,7 +250,7 @@ private:
     LLButton*       mDefaultBtn;
     LLUIString      mLabel;
 
-    typedef std::map<std::string, std::string> ui_string_map_t;
+    typedef std::map<std::string, std::string, std::less<>> ui_string_map_t;
     ui_string_map_t mUIStrings;
 
 
@@ -259,7 +259,7 @@ private:
 // Build time optimization, generate once in .cpp file
 #ifndef LLPANEL_CPP
 extern template class LLPanel* LLView::getChild<class LLPanel>(
-    const std::string& name, bool recurse) const;
+    std::string_view name, bool recurse) const;
 #endif
 
 typedef boost::function<LLPanel* (void)> LLPanelClassCreatorFunc;
@@ -277,7 +277,7 @@ public:
         mPanelClassesNames[tag] = func;
     }
 
-    LLPanel* createPanelClass(const std::string& tag)
+    LLPanel* createPanelClass(std::string_view tag)
     {
         param_name_map_t::iterator iT =  mPanelClassesNames.find(tag);
         if(iT == mPanelClassesNames.end())
@@ -292,7 +292,7 @@ public:
     }
 
 private:
-    typedef std::map< std::string, LLPanelClassCreatorFunc> param_name_map_t;
+    typedef std::map< std::string, LLPanelClassCreatorFunc, std::less<>> param_name_map_t;
 
     param_name_map_t mPanelClassesNames;
 };

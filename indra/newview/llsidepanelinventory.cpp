@@ -161,6 +161,8 @@ bool LLSidepanelInventory::postBuild()
 
         mPanelMainInventory = mInventoryPanel->getChild<LLPanelMainInventory>("panel_main_inventory");
         mPanelMainInventory->setSelectCallback(boost::bind(&LLSidepanelInventory::onSelectionChange, this, _1, _2));
+        mPanelMainInventory->setParentSidepanel(this);
+        mPanelMainInventory->setInboxPanel(getChild<LLPanelMarketplaceInbox>("marketplace_inbox"));
         //LLTabContainer* tabs = mPanelMainInventory->getChild<LLTabContainer>("inventory filter tabs");
         //tabs->setCommitCallback(boost::bind(&LLSidepanelInventory::updateVerbs, this));
 
@@ -372,7 +374,7 @@ void LLSidepanelInventory::onToggleInboxBtn()
         mInboxLayoutPanel->setTargetDim(gSavedPerAccountSettings.getS32("InventoryInboxHeight"));
         if (mInboxLayoutPanel->isInVisibleChain())
     {
-        gSavedPerAccountSettings.setU32("LastInventoryInboxActivity", time_corrected());
+        gSavedPerAccountSettings.setU32("LastInventoryInboxActivity", (U32)time_corrected());
     }
 }
     else
@@ -397,7 +399,7 @@ void LLSidepanelInventory::onOpen(const LLSD& key)
 #else
     if (mInboxEnabled && getChild<LLButton>(INBOX_BUTTON_NAME)->getToggleState())
     {
-        gSavedPerAccountSettings.setU32("LastInventoryInboxActivity", time_corrected());
+        gSavedPerAccountSettings.setU32("LastInventoryInboxActivity", (U32)time_corrected());
     }
 #endif
 

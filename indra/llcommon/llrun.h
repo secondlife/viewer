@@ -30,7 +30,6 @@
 #define LL_LLRUN_H
 
 #include <vector>
-#include <boost/shared_ptr.hpp>
 
 class LLRunnable;
 

@@ -248,6 +248,24 @@ int LLFile::close(LLFILE * file)
     return ret_value;
 }
 
+std::string LLFile::getContents(const std::string& filename)
+{
+    LLFILE* fp = fopen(filename, "rb"); /* Flawfinder: ignore */
+    if (fp)
+    {
+        fseek(fp, 0, SEEK_END);
+        U32 length = ftell(fp);
+        fseek(fp, 0, SEEK_SET);
+
+        std::vector<char> buffer(length);
+        size_t nread = fread(buffer.data(), 1, length, fp);
+        fclose(fp);
+
+        return std::string(buffer.data(), nread);
+    }
+
+    return LLStringUtil::null;
+}
 
 int LLFile::remove(const std::string& filename, int supress_error)
 {
@@ -275,7 +293,7 @@ int LLFile::rename(const std::string& filename, const std::string& newname, int 
     return warnif(STRINGIZE("rename to '" << newname << "' from"), filename, rc, supress_error);
 }
 
-bool LLFile::copy(const std::string from, const std::string to)
+bool LLFile::copy(const std::string& from, const std::string& to)
 {
     bool copied = false;
     LLFILE* in = LLFile::fopen(from, "rb");     /* Flawfinder: ignore */
@@ -406,7 +424,7 @@ LLFILE *    LLFile::_Fiopen(const std::string& filename,
 
     if (valid[n] == 0)
         return (0); // no valid mode
-    else if (norepflag && mode & (ios_base::out || ios_base::app)
+    else if (norepflag && mode & (ios_base::out | ios_base::app)
         && (fp = LLFile::fopen(filename, "r")) != 0)    /* Flawfinder: ignore */
         {   // file must not exist, close and fail
         fclose(fp);

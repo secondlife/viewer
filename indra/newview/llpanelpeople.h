@@ -40,6 +40,8 @@ class LLGroupList;
 class LLMenuButton;
 class LLTabContainer;
 class LLNetMap;
+class LLAccordionCtrl;
+class LLAccordionCtrlTab;
 
 class LLPanelPeople
     : public LLPanel
@@ -84,7 +86,7 @@ private:
     bool                    isItemsFreeOfFriends(const uuid_vec_t& uuids);
 
     void                    updateButtons();
-    std::string             getActiveTabName() const;
+    const std::string&      getActiveTabName() const;
     LLUUID                  getCurrentItemID() const;
     void                    getCurrentItemIDs(uuid_vec_t& selected_uuids) const;
     void                    setSortOrder(LLAvatarList* list, ESortOrder order, bool save = true);
@@ -120,7 +122,7 @@ private:
 
     void                    onFriendsAccordionExpandedCollapsed(LLUICtrl* ctrl, const LLSD& param, LLAvatarList* avatar_list);
 
-    void                    showAccordion(const std::string name, bool show);
+    void                    showAccordion(LLAccordionCtrlTab* tab, bool show);
 
     void                    showFriendsAccordionsIfNeeded();
 
@@ -138,6 +140,21 @@ private:
     LLAvatarList*           mRecentList;
     LLGroupList*            mGroupList;
     LLNetMap*               mMiniMap;
+
+    LLAccordionCtrl* mFriendsAccordion = nullptr;
+    LLAccordionCtrlTab*     mFriendsAllTab = nullptr;
+    LLAccordionCtrlTab*     mFriendsOnlineTab = nullptr;
+
+    LLButton*               mNearbyGearBtn = nullptr;
+    LLButton*               mFriendsGearBtn = nullptr;
+    LLButton*               mRecentGearBtn = nullptr;
+    LLButton*               mGroupDelBtn = nullptr;
+
+    LLButton*               mNearbyAddFriendBtn = nullptr;
+    LLButton*               mRecentAddFriendBtn = nullptr;
+    LLUICtrl*               mFriendsDelFriendBtn = nullptr;
+
+    LLTextBox*              mGroupCountText = nullptr;
 
     std::vector<std::string> mSavedOriginalFilters;
     std::vector<std::string> mSavedFilters;

@@ -329,7 +329,7 @@ LLViewerJoystick::LLViewerJoystick()
     memset(mBtn, 0, sizeof(mBtn));
 
     // factor in bandwidth? bandwidth = gViewerStats->mKBitStat
-    mPerfScale = 4000.f / gSysCPU.getMHz(); // hmm.  why?
+    mPerfScale = 4000.f / (F32)gSysCPU.getMHz(); // hmm.  why?
 
     mLastDeviceUUID = LLSD::Integer(1);
 }
@@ -524,7 +524,7 @@ void LLViewerJoystick::initDevice(LLSD &guid)
 #endif
 }
 
-bool LLViewerJoystick::initDevice(void * preffered_device /*LPDIRECTINPUTDEVICE8*/, std::string &name, LLSD &guid)
+bool LLViewerJoystick::initDevice(void * preffered_device /*LPDIRECTINPUTDEVICE8*/, const std::string &name, const LLSD &guid)
 {
 #if LIB_NDOF
     mLastDeviceUUID = guid;

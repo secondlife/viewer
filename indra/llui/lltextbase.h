@@ -30,6 +30,7 @@
 
 #include "v4color.h"
 #include "lleditmenuhandler.h"
+#include "llfontvertexbuffer.h"
 #include "llspellcheckmenuhandler.h"
 #include "llstyle.h"
 #include "llkeywords.h"
@@ -84,8 +85,8 @@ public:
     virtual void                unlinkFromDocument(class LLTextBase* editor);
     virtual void                linkToDocument(class LLTextBase* editor);
 
-    virtual const LLColor4&     getColor() const;
-    //virtual void              setColor(const LLColor4 &color);
+    virtual const LLUIColor&     getColor() const;
+    //virtual void              setColor(const LLUIColor &color);
     virtual LLStyleConstSP      getStyle() const;
     virtual void                setStyle(LLStyleConstSP style);
     virtual void                setToken( LLKeywordToken* token );
@@ -125,15 +126,16 @@ class LLNormalTextSegment : public LLTextSegment
 {
 public:
     LLNormalTextSegment( LLStyleConstSP style, S32 start, S32 end, LLTextBase& editor );
-    LLNormalTextSegment( const LLColor4& color, S32 start, S32 end, LLTextBase& editor, bool is_visible = true);
+    LLNormalTextSegment( const LLUIColor& color, S32 start, S32 end, LLTextBase& editor, bool is_visible = true);
     virtual ~LLNormalTextSegment();
 
     /*virtual*/ bool                getDimensionsF32(S32 first_char, S32 num_chars, F32& width, S32& height) const;
     /*virtual*/ S32                 getOffset(S32 segment_local_x_coord, S32 start_offset, S32 num_chars, bool round) const;
     /*virtual*/ S32                 getNumChars(S32 num_pixels, S32 segment_offset, S32 line_offset, S32 max_chars, S32 line_ind) const;
+    /*virtual*/ void                updateLayout(const class LLTextBase& editor);
     /*virtual*/ F32                 draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRectf& draw_rect);
     /*virtual*/ bool                canEdit() const { return true; }
-    /*virtual*/ const LLColor4&     getColor() const                    { return mStyle->getColor(); }
+    /*virtual*/ const LLUIColor&     getColor() const                    { return mStyle->getColor(); }
     /*virtual*/ LLStyleConstSP      getStyle() const                    { return mStyle; }
     /*virtual*/ void                setStyle(LLStyleConstSP style)  { mStyle = style; }
     /*virtual*/ void                setToken( LLKeywordToken* token )   { mToken = token; }
@@ -161,6 +163,12 @@ protected:
     LLKeywordToken*     mToken;
     std::string         mTooltip;
     boost::signals2::connection mImageLoadedConnection;
+
+    // font rendering
+    LLFontVertexBuffer  mFontBufferPreSelection;
+    LLFontVertexBuffer  mFontBufferSelection;
+    LLFontVertexBuffer  mFontBufferPostSelection;
+    S32                 mLastGeneration = -1;
 };
 
 // This text segment is the same as LLNormalTextSegment, the only difference
@@ -170,7 +178,7 @@ class LLLabelTextSegment : public LLNormalTextSegment
 {
 public:
     LLLabelTextSegment( LLStyleConstSP style, S32 start, S32 end, LLTextBase& editor );
-    LLLabelTextSegment( const LLColor4& color, S32 start, S32 end, LLTextBase& editor, bool is_visible = true);
+    LLLabelTextSegment( const LLUIColor& color, S32 start, S32 end, LLTextBase& editor, bool is_visible = true);
 
 protected:
 
@@ -184,7 +192,7 @@ class LLEmojiTextSegment : public LLNormalTextSegment
 {
 public:
     LLEmojiTextSegment(LLStyleConstSP style, S32 start, S32 end, LLTextBase& editor);
-    LLEmojiTextSegment(const LLColor4& color, S32 start, S32 end, LLTextBase& editor, bool is_visible = true);
+    LLEmojiTextSegment(const LLUIColor& color, S32 start, S32 end, LLTextBase& editor, bool is_visible = true);
 
     bool canEdit() const override { return false; }
     bool handleToolTip(S32 x, S32 y, MASK mask) override;
@@ -372,8 +380,8 @@ public:
 
     // LLUICtrl interface
     /*virtual*/ bool        acceptsTextInput() const override { return !mReadOnly; }
-    /*virtual*/ void        setColor(const LLColor4& c) override;
-    virtual     void        setReadOnlyColor(const LLColor4 &c);
+    /*virtual*/ void        setColor(const LLUIColor& c) override;
+    virtual     void        setReadOnlyColor(const LLUIColor& c);
     /*virtual*/ void        onVisibilityChange(bool new_visibility) override;
 
     /*virtual*/ void        setValue(const LLSD& value) override;
@@ -432,6 +440,7 @@ public:
     // wide-char versions
     void                    setWText(const LLWString& text);
     const LLWString&        getWText() const;
+    S32                     getTextGeneration() const;
 
     void                    appendText(const std::string &new_text, bool prepend_newline, const LLStyle::Params& input_params = LLStyle::Params());
 

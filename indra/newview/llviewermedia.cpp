@@ -1253,40 +1253,45 @@ void LLViewerMedia::getOpenIDCookieCoro(std::string url)
         hostEnd = authority.size();
     }
 
-    LLViewerMedia* inst = getInstance();
     if (url.length())
     {
-        LLMediaCtrl* media_instance = LLFloaterReg::getInstance("destinations")->getChild<LLMediaCtrl>("destination_guide_contents");
-        if (media_instance)
-        {
-            std::string cookie_host = authority.substr(hostStart, hostEnd - hostStart);
-            std::string cookie_name = "";
-            std::string cookie_value = "";
-            std::string cookie_path = "";
-            bool httponly = true;
-            bool secure = true;
-            if (inst->parseRawCookie(inst->mOpenIDCookie, cookie_name, cookie_value, cookie_path, httponly, secure) &&
-                media_instance->getMediaPlugin())
+        LLAppViewer::instance()->postToMainCoro([=]()
             {
-                // MAINT-5711 - inexplicably, the CEF setCookie function will no longer set the cookie if the
-                // url and domain are not the same. This used to be my.sl.com and id.sl.com respectively and worked.
-                // For now, we use the URL for the OpenID POST request since it will have the same authority
-                // as the domain field.
-                // (Feels like there must be a less dirty way to construct a URL from component LLURL parts)
-                // MAINT-6392 - Rider: Do not change, however, the original URI requested, since it is used further
-                // down.
-                std::string cefUrl(std::string(inst->mOpenIDURL.mURI) + "://" + std::string(inst->mOpenIDURL.mAuthority));
+                LLMediaCtrl* media_instance = LLFloaterReg::getInstance("destinations")->getChild<LLMediaCtrl>("destination_guide_contents");
+                if (media_instance)
+                {
+                    LLViewerMedia* inst = getInstance();
+                    std::string cookie_host = authority.substr(hostStart, hostEnd - hostStart);
+                    std::string cookie_name = "";
+                    std::string cookie_value = "";
+                    std::string cookie_path = "";
+                    bool httponly = true;
+                    bool secure = true;
+                    if (inst->parseRawCookie(inst->mOpenIDCookie, cookie_name, cookie_value, cookie_path, httponly, secure) &&
+                        media_instance->getMediaPlugin())
+                    {
+                        // MAINT-5711 - inexplicably, the CEF setCookie function will no longer set the cookie if the
+                        // url and domain are not the same. This used to be my.sl.com and id.sl.com respectively and worked.
+                        // For now, we use the URL for the OpenID POST request since it will have the same authority
+                        // as the domain field.
+                        // (Feels like there must be a less dirty way to construct a URL from component LLURL parts)
+                        // MAINT-6392 - Rider: Do not change, however, the original URI requested, since it is used further
+                        // down.
+                        std::string cefUrl(std::string(inst->mOpenIDURL.mURI) + "://" + std::string(inst->mOpenIDURL.mAuthority));
 
-                media_instance->getMediaPlugin()->setCookie(cefUrl, cookie_name, cookie_value, cookie_host,
-                    cookie_path, httponly, secure);
+                        media_instance->getMediaPlugin()->setCookie(cefUrl, cookie_name, cookie_value, cookie_host,
+                            cookie_path, httponly, secure);
 
-                // Now that we have parsed the raw cookie, we must store it so that each new media instance
-                // can also get a copy and faciliate logging into internal SL sites.
-                media_instance->getMediaPlugin()->storeOpenIDCookie(cefUrl, cookie_name, cookie_value,
-                    cookie_host, cookie_path, httponly, secure);
-            }
-        }
+                        // Now that we have parsed the raw cookie, we must store it so that each new media instance
+                        // can also get a copy and faciliate logging into internal SL sites.
+                        media_instance->getMediaPlugin()->storeOpenIDCookie(cefUrl, cookie_name, cookie_value,
+                            cookie_host, cookie_path, httponly, secure);
+                    }
+                }
+            });
     }
+
+    LLViewerMedia* inst = getInstance();
 
     // Note: Rider: MAINT-6392 - Some viewer code requires access to the my.sl.com openid cookie for such
     // actions as posting snapshots to the feed.  This is handled through HTTPCore rather than CEF and so
@@ -1899,7 +1904,7 @@ void LLViewerMediaImpl::loadURI()
         // or a seek happened before the media loaded.  In either case, seek to the saved time.
         if(mPreviousMediaTime != 0.0f)
         {
-            seek(mPreviousMediaTime);
+            seek((F32)mPreviousMediaTime);
         }
 
         if(mPreviousMediaState == MEDIA_PLAYING)
@@ -2034,7 +2039,7 @@ void LLViewerMediaImpl::skipBack(F32 step_scale)
             {
                 back_step = 0.0;
             }
-            mMediaSource->seek(back_step);
+            mMediaSource->seek((F32)back_step);
         }
     }
 }
@@ -2051,7 +2056,7 @@ void LLViewerMediaImpl::skipForward(F32 step_scale)
             {
                 forward_step = mMediaSource->getDuration();
             }
-            mMediaSource->seek(forward_step);
+            mMediaSource->seek((F32)forward_step);
         }
     }
 }
@@ -2100,7 +2105,7 @@ void LLViewerMediaImpl::updateVolume()
                 F64 attenuation = 1.0 + (gSavedSettings.getF32("MediaRollOffRate") * adjusted_distance);
                 attenuation = 1.0 / (attenuation * attenuation);
                 // the attenuation multiplier should never be more than one since that would increase volume
-                volume = volume * llmin(1.0, attenuation);
+                volume = volume * (F32)llmin(1.0, attenuation);
             }
         }
 
@@ -2230,11 +2235,11 @@ void LLViewerMediaImpl::scaleTextureCoords(const LLVector2& texture_coords, S32 
     // Deal with repeating textures by wrapping the coordinates into the range [0, 1.0)
     texture_x = fmodf(texture_x, 1.0f);
     if(texture_x < 0.0f)
-        texture_x = 1.0 + texture_x;
+        texture_x = 1.0f + texture_x;
 
     texture_y = fmodf(texture_y, 1.0f);
     if(texture_y < 0.0f)
-        texture_y = 1.0 + texture_y;
+        texture_y = 1.0f + texture_y;
 
     // scale x and y to texel units.
     *x = ll_round(texture_x * mMediaSource->getTextureWidth());

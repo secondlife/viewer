@@ -41,14 +41,6 @@ class LLVOSurfacePatch : public LLStaticViewerObject
 public:
     static F32 sLODFactor;
 
-    enum
-    {
-        VERTEX_DATA_MASK =  (1 << LLVertexBuffer::TYPE_VERTEX) |
-                            (1 << LLVertexBuffer::TYPE_NORMAL) |
-                            (1 << LLVertexBuffer::TYPE_TEXCOORD0) |
-                            (1 << LLVertexBuffer::TYPE_TEXCOORD1)
-    };
-
     LLVOSurfacePatch(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp);
 
     /*virtual*/ void markDead();
@@ -65,7 +57,6 @@ public:
     /*virtual*/ void        updateFaceSize(S32 idx);
     void getTerrainGeometry(LLStrider<LLVector3> &verticesp,
                                 LLStrider<LLVector3> &normalsp,
-                                LLStrider<LLVector2> &texCoords0p,
                                 LLStrider<LLVector2> &texCoords1p,
                                 LLStrider<U16> &indicesp);
 
@@ -118,21 +109,18 @@ protected:
     void updateMainGeometry(LLFace *facep,
                        LLStrider<LLVector3> &verticesp,
                        LLStrider<LLVector3> &normalsp,
-                       LLStrider<LLVector2> &texCoords0p,
                        LLStrider<LLVector2> &texCoords1p,
                        LLStrider<U16> &indicesp,
                        U32 &index_offset);
     void updateNorthGeometry(LLFace *facep,
                        LLStrider<LLVector3> &verticesp,
                        LLStrider<LLVector3> &normalsp,
-                       LLStrider<LLVector2> &texCoords0p,
                        LLStrider<LLVector2> &texCoords1p,
                        LLStrider<U16> &indicesp,
                        U32 &index_offset);
     void updateEastGeometry(LLFace *facep,
                        LLStrider<LLVector3> &verticesp,
                        LLStrider<LLVector3> &normalsp,
-                       LLStrider<LLVector2> &texCoords0p,
                        LLStrider<LLVector2> &texCoords1p,
                        LLStrider<U16> &indicesp,
                        U32 &index_offset);

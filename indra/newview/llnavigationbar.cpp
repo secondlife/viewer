@@ -705,7 +705,7 @@ void LLNavigationBar::resizeLayoutPanel()
 {
     LLRect nav_bar_rect = mNavigationPanel->getRect();
 
-    S32 nav_panel_width = (nav_bar_rect.getWidth() + mFavoritePanel->getRect().getWidth()) * gSavedPerAccountSettings.getF32("NavigationBarRatio");
+    S32 nav_panel_width = (S32)((nav_bar_rect.getWidth() + mFavoritePanel->getRect().getWidth()) * gSavedPerAccountSettings.getF32("NavigationBarRatio"));
 
     nav_bar_rect.setLeftTopAndSize(nav_bar_rect.mLeft, nav_bar_rect.mTop, nav_panel_width, nav_bar_rect.getHeight());
     mNavigationPanel->handleReshape(nav_bar_rect,true);

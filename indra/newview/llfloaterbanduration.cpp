@@ -82,7 +82,7 @@ void LLFloaterBanDuration::onClickBan()
             LLSpinCtrl* hours_spin = getChild<LLSpinCtrl>("ban_hours");
             if (hours_spin)
             {
-                time = LLDate::now().secondsSinceEpoch() + (hours_spin->getValue().asInteger() * 3600);
+                time = (S32)(LLDate::now().secondsSinceEpoch() + (hours_spin->getValue().asInteger() * 3600));
             }
         }
         mSelectionCallback(mAvatar_ids, time);

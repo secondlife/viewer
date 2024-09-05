@@ -2662,9 +2662,9 @@ void LLAgent::setStartPositionSuccess(const LLSD &result)
                 (!result["HomeLocation"]["LocationPos"].has("Z")))
             break;
 
-        agent_pos.mV[VX] = result["HomeLocation"]["LocationPos"]["X"].asInteger();
-        agent_pos.mV[VY] = result["HomeLocation"]["LocationPos"]["Y"].asInteger();
-        agent_pos.mV[VZ] = result["HomeLocation"]["LocationPos"]["Z"].asInteger();
+        agent_pos.mV[VX] = (F32)result["HomeLocation"]["LocationPos"]["X"].asInteger();
+        agent_pos.mV[VY] = (F32)result["HomeLocation"]["LocationPos"]["Y"].asInteger();
+        agent_pos.mV[VZ] = (F32)result["HomeLocation"]["LocationPos"]["Z"].asInteger();
 
         error = false;
 
@@ -2778,7 +2778,7 @@ bool LLAgent::canAccessMaturityInRegion( U64 region_handle ) const
 
 bool LLAgent::canAccessMaturityAtGlobal( LLVector3d pos_global ) const
 {
-    U64 region_handle = to_region_handle_global( pos_global.mdV[0], pos_global.mdV[1] );
+    U64 region_handle = to_region_handle_global((F32)pos_global.mdV[0], (F32)pos_global.mdV[1]);
     return canAccessMaturityInRegion( region_handle );
 }
 

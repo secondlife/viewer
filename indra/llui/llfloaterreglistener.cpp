@@ -107,22 +107,22 @@ void LLFloaterRegListener::getBuildMap(const LLSD& event) const
 
 void LLFloaterRegListener::showInstance(const LLSD& event) const
 {
-    LLFloaterReg::showInstance(event["name"], event["key"], event["focus"]);
+    LLFloaterReg::showInstance(event["name"].asString(), event["key"], event["focus"]);
 }
 
 void LLFloaterRegListener::hideInstance(const LLSD& event) const
 {
-    LLFloaterReg::hideInstance(event["name"], event["key"]);
+    LLFloaterReg::hideInstance(event["name"].asString(), event["key"]);
 }
 
 void LLFloaterRegListener::toggleInstance(const LLSD& event) const
 {
-    LLFloaterReg::toggleInstance(event["name"], event["key"]);
+    LLFloaterReg::toggleInstance(event["name"].asString(), event["key"]);
 }
 
 void LLFloaterRegListener::instanceVisible(const LLSD& event) const
 {
-    sendReply(LLSDMap("visible", LLFloaterReg::instanceVisible(event["name"], event["key"])),
+    sendReply(LLSDMap("visible", LLFloaterReg::instanceVisible(event["name"].asString(), event["key"])),
               event);
 }
 
@@ -138,7 +138,7 @@ void LLFloaterRegListener::clickButton(const LLSD& event) const
     LLReqID reqID(event);
     LLSD reply(reqID.makeResponse());
 
-    LLFloater* floater = LLFloaterReg::findInstance(event["name"], event["key"]);
+    LLFloater* floater = LLFloaterReg::findInstance(event["name"].asString(), event["key"]);
     if (! LLFloater::isShown(floater))
     {
         reply["type"]  = "LLFloater";
@@ -150,7 +150,7 @@ void LLFloaterRegListener::clickButton(const LLSD& event) const
     {
         // Here 'floater' points to an LLFloater instance with the specified
         // name and key which isShown().
-        LLButton* button = floater->findChild<LLButton>(event["button"]);
+        LLButton* button = floater->findChild<LLButton>(event["button"].asString());
         if (! LLButton::isAvailable(button))
         {
             reply["type"]  = "LLButton";

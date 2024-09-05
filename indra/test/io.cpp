@@ -294,7 +294,7 @@ namespace tut
             len = BUFFER_LEN;
             last = mBuffer.readAfter(ch.in(), last, (U8*)buf, len);
             char* newline = strchr((char*)buf, '\n');
-            S32 offset = -((len - 1) - (newline - buf));
+            S32 offset = -((len - 1) - (S32)(newline - buf));
             ++newline;
             *newline = '\0';
             last_line.assign(buf);

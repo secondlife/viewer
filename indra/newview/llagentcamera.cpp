@@ -1931,7 +1931,7 @@ LLVector3d LLAgentCamera::calcCameraPositionTargetGlobal(bool *hit_limit)
                     }
                     else
                     {
-                        LLCachedControl<F32> dynamic_camera_strength(gSavedSettings, "DynamicCameraStrength");
+                        static LLCachedControl<F32> dynamic_camera_strength(gSavedSettings, "DynamicCameraStrength");
                         target_lag = vel * dynamic_camera_strength / 30.f;
                     }
 
@@ -2114,14 +2114,14 @@ void LLAgentCamera::handleScrollWheel(S32 clicks)
             F32 camera_offset_initial_mag = getCameraOffsetInitial().magVec();
 
             F32 current_zoom_fraction = mTargetCameraDistance / (camera_offset_initial_mag * gSavedSettings.getF32("CameraOffsetScale"));
-            current_zoom_fraction *= 1.f - pow(ROOT_ROOT_TWO, clicks);
+            current_zoom_fraction *= 1.f - (F32)pow(ROOT_ROOT_TWO, clicks);
 
             cameraOrbitIn(current_zoom_fraction * camera_offset_initial_mag * gSavedSettings.getF32("CameraOffsetScale"));
         }
         else
         {
             F32 current_zoom_fraction = (F32)mCameraFocusOffsetTarget.magVec();
-            cameraOrbitIn(current_zoom_fraction * (1.f - pow(ROOT_ROOT_TWO, clicks)));
+            cameraOrbitIn(current_zoom_fraction * (1.f - (F32)pow(ROOT_ROOT_TWO, clicks)));
         }
     }
 }

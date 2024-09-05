@@ -44,6 +44,7 @@
 #include "llcontrol.h"
 #include "llviewerobject.h" // LLObjectSelection::getSelectedTEValue template
 #include "llmaterial.h"
+#include "lluicolor.h"
 
 #include <deque>
 #include <boost/iterator/filter_iterator.hpp>
@@ -238,6 +239,7 @@ public:
     uuid_vec_t      mSavedGLTFMaterialIds;
     gltf_materials_vec_t mSavedGLTFOverrideMaterials;
     std::vector<LLVector3>  mTextureScaleRatios;
+    std::vector< std::vector<LLVector3> >  mGLTFScaleRatios;
     std::vector<LLVector3>  mSilhouetteVertices;    // array of vertices to render silhouette of object
     std::vector<LLVector3>  mSilhouetteNormals; // array of normals to render silhouette of object
     bool                    mSilhouetteExists;  // need to generate silhouette?
@@ -448,12 +450,12 @@ public:
     static F32                  sHighlightAlphaTest;
     static F32                  sHighlightUAnim;
     static F32                  sHighlightVAnim;
-    static LLColor4             sSilhouetteParentColor;
-    static LLColor4             sSilhouetteChildColor;
-    static LLColor4             sHighlightParentColor;
-    static LLColor4             sHighlightChildColor;
-    static LLColor4             sHighlightInspectColor;
-    static LLColor4             sContextSilhouetteColor;
+    static LLUIColor            sSilhouetteParentColor;
+    static LLUIColor            sSilhouetteChildColor;
+    static LLUIColor            sHighlightParentColor;
+    static LLUIColor            sHighlightChildColor;
+    static LLUIColor            sHighlightInspectColor;
+    static LLUIColor            sContextSilhouetteColor;
 
     LLCachedControl<bool>                   mHideSelectedObjects;
     LLCachedControl<bool>                   mRenderHighlightSelections;

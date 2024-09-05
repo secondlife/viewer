@@ -190,7 +190,7 @@ void LLGLSLShader::dumpStats()
         tris_sec /= seconds;
 
         F32 pct_samples = (F32)((F64)mSamplesDrawn / (F64)sTotalSamplesDrawn) * 100.f;
-        F32 samples_sec = (F32)mSamplesDrawn / 1000000000.0;
+        F32 samples_sec = (F32)(mSamplesDrawn / 1000000000.0);
         samples_sec /= seconds;
 
         F32 pct_binds = (F32)mBinds / (F32)sTotalBinds * 100.f;
@@ -1087,17 +1087,17 @@ void LLGLSLShader::unbind(void)
     sCurBoundShaderPtr = NULL;
 }
 
-S32 LLGLSLShader::bindTexture(const std::string& uniform, LLTexture* texture, LLTexUnit::eTextureType mode, LLTexUnit::eTextureColorSpace colorspace)
+S32 LLGLSLShader::bindTexture(const std::string& uniform, LLTexture* texture, LLTexUnit::eTextureType mode)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
 
     S32 channel = 0;
     channel = getUniformLocation(uniform);
 
-    return bindTexture(channel, texture, mode, colorspace);
+    return bindTexture(channel, texture, mode);
 }
 
-S32 LLGLSLShader::bindTexture(S32 uniform, LLTexture* texture, LLTexUnit::eTextureType mode, LLTexUnit::eTextureColorSpace colorspace)
+S32 LLGLSLShader::bindTexture(S32 uniform, LLTexture* texture, LLTexUnit::eTextureType mode)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
 
@@ -1113,7 +1113,6 @@ S32 LLGLSLShader::bindTexture(S32 uniform, LLTexture* texture, LLTexUnit::eTextu
     if (uniform > -1)
     {
         gGL.getTexUnit(uniform)->bindFast(texture);
-        gGL.getTexUnit(uniform)->setTextureColorSpace(colorspace);
     }
 
     return uniform;
@@ -1194,7 +1193,7 @@ S32 LLGLSLShader::getTextureChannel(S32 uniform) const
     return mTexture[uniform];
 }
 
-S32 LLGLSLShader::enableTexture(S32 uniform, LLTexUnit::eTextureType mode, LLTexUnit::eTextureColorSpace space)
+S32 LLGLSLShader::enableTexture(S32 uniform, LLTexUnit::eTextureType mode)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
 
@@ -1211,12 +1210,11 @@ S32 LLGLSLShader::enableTexture(S32 uniform, LLTexUnit::eTextureType mode, LLTex
     {
         gGL.getTexUnit(index)->activate();
         gGL.getTexUnit(index)->enable(mode);
-        gGL.getTexUnit(index)->setTextureColorSpace(space);
     }
     return index;
 }
 
-S32 LLGLSLShader::disableTexture(S32 uniform, LLTexUnit::eTextureType mode, LLTexUnit::eTextureColorSpace space)
+S32 LLGLSLShader::disableTexture(S32 uniform, LLTexUnit::eTextureType mode)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
 
@@ -1229,7 +1227,7 @@ S32 LLGLSLShader::disableTexture(S32 uniform, LLTexUnit::eTextureType mode, LLTe
     S32 index = mTexture[uniform];
     if (index != -1 && gGL.getTexUnit(index)->getCurrType() != LLTexUnit::TT_NONE)
     {
-        if (gDebugGL && gGL.getTexUnit(index)->getCurrType() != mode && gGL.getTexUnit(index)->getCurrColorSpace() != space)
+        if (gDebugGL && gGL.getTexUnit(index)->getCurrType() != mode)
         {
             if (gDebugSession)
             {
@@ -1265,7 +1263,7 @@ void LLGLSLShader::uniform1i(U32 index, GLint x)
             if (iter == mValue.end() || iter->second.mV[0] != x)
             {
                 glUniform1i(mUniform[index], x);
-                mValue[mUniform[index]] = LLVector4(x, 0.f, 0.f, 0.f);
+                mValue[mUniform[index]] = LLVector4((F32)x, 0.f, 0.f, 0.f);
             }
         }
     }
@@ -1405,7 +1403,7 @@ void LLGLSLShader::uniform1iv(U32 index, U32 count, const GLint* v)
         if (mUniform[index] >= 0)
         {
             const auto& iter = mValue.find(mUniform[index]);
-            LLVector4 vec(v[0], 0.f, 0.f, 0.f);
+            LLVector4 vec((F32)v[0], 0.f, 0.f, 0.f);
             if (iter == mValue.end() || shouldChange(iter->second, vec) || count != 1)
             {
                 glUniform1iv(mUniform[index], count, v);
@@ -1432,7 +1430,7 @@ void LLGLSLShader::uniform4iv(U32 index, U32 count, const GLint* v)
         if (mUniform[index] >= 0)
         {
             const auto& iter = mValue.find(mUniform[index]);
-            LLVector4 vec(v[0], v[1], v[2], v[3]);
+            LLVector4 vec((F32)v[0], (F32)v[1], (F32)v[2], (F32)v[3]);
             if (iter == mValue.end() || shouldChange(iter->second, vec) || count != 1)
             {
                 glUniform1iv(mUniform[index], count, v);
@@ -1546,6 +1544,34 @@ void LLGLSLShader::uniform4fv(U32 index, U32 count, const GLfloat* v)
             {
                 LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
                 glUniform4fv(mUniform[index], count, v);
+                mValue[mUniform[index]] = vec;
+            }
+        }
+    }
+}
+
+void LLGLSLShader::uniform4uiv(U32 index, U32 count, const GLuint* v)
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
+    llassert(sCurBoundShaderPtr == this);
+
+    if (mProgramObject)
+    {
+        if (mUniform.size() <= index)
+        {
+            LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << index << LL_ENDL;
+            llassert(false);
+            return;
+        }
+
+        if (mUniform[index] >= 0)
+        {
+            const auto& iter = mValue.find(mUniform[index]);
+            LLVector4 vec((F32)v[0], (F32)v[1], (F32)v[2], (F32)v[3]);
+            if (iter == mValue.end() || shouldChange(iter->second, vec) || count != 1)
+            {
+                LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
+                glUniform4uiv(mUniform[index], count, v);
                 mValue[mUniform[index]] = vec;
             }
         }
@@ -1702,7 +1728,7 @@ void LLGLSLShader::uniform1i(const LLStaticHashedString& uniform, GLint v)
     if (location >= 0)
     {
         const auto& iter = mValue.find(location);
-        LLVector4 vec(v, 0.f, 0.f, 0.f);
+        LLVector4 vec((F32)v, 0.f, 0.f, 0.f);
         if (iter == mValue.end() || shouldChange(iter->second, vec))
         {
             glUniform1i(location, v);
@@ -1718,7 +1744,7 @@ void LLGLSLShader::uniform1iv(const LLStaticHashedString& uniform, U32 count, co
 
     if (location >= 0)
     {
-        LLVector4 vec(v[0], 0, 0, 0);
+        LLVector4 vec((F32)v[0], 0.f, 0.f, 0.f);
         const auto& iter = mValue.find(location);
         if (iter == mValue.end() || shouldChange(iter->second, vec) || count != 1)
         {
@@ -1736,7 +1762,7 @@ void LLGLSLShader::uniform4iv(const LLStaticHashedString& uniform, U32 count, co
 
     if (location >= 0)
     {
-        LLVector4 vec(v[0], v[1], v[2], v[3]);
+        LLVector4 vec((F32)v[0], (F32)v[1], (F32)v[2], (F32)v[3]);
         const auto& iter = mValue.find(location);
         if (iter == mValue.end() || shouldChange(iter->second, vec) || count != 1)
         {
@@ -1755,7 +1781,7 @@ void LLGLSLShader::uniform2i(const LLStaticHashedString& uniform, GLint i, GLint
     if (location >= 0)
     {
         const auto& iter = mValue.find(location);
-        LLVector4 vec(i, j, 0.f, 0.f);
+        LLVector4 vec((F32)i, (F32)j, 0.f, 0.f);
         if (iter == mValue.end() || shouldChange(iter->second, vec))
         {
             glUniform2i(location, i, j);
@@ -1881,6 +1907,24 @@ void LLGLSLShader::uniform4fv(const LLStaticHashedString& uniform, U32 count, co
         {
             LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
             glUniform4fv(location, count, v);
+            mValue[location] = vec;
+        }
+    }
+}
+
+void LLGLSLShader::uniform4uiv(const LLStaticHashedString& uniform, U32 count, const GLuint* v)
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
+    GLint location = getUniformLocation(uniform);
+
+    if (location >= 0)
+    {
+        LLVector4 vec((F32)v[0], (F32)v[1], (F32)v[2], (F32)v[3]);
+        const auto& iter = mValue.find(location);
+        if (iter == mValue.end() || shouldChange(iter->second, vec) || count != 1)
+        {
+            LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
+            glUniform4uiv(location, count, v);
             mValue[location] = vec;
         }
     }

@@ -30,20 +30,9 @@
 
 #include "llpathfindingnavmeshzone.h"
 
-#include <vector>
-
-#include <boost/bind.hpp>
-#include <boost/function.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/signals2.hpp>
-
 #include "llagent.h"
 #include "llpathfindingmanager.h"
-#include "llpathfindingnavmesh.h"
-#include "llpathfindingnavmeshstatus.h"
 #include "llpathinglib.h"
-#include "llsd.h"
-#include "lluuid.h"
 #include "llviewercontrol.h"
 #include "llviewerregion.h"
 

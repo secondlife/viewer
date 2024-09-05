@@ -42,19 +42,7 @@
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/regex.hpp>
-
-#if LL_MSVC
-#pragma warning(push)
-// disable warning about boost::lexical_cast unreachable code
-// when it fails to parse the string
-#pragma warning (disable:4702)
-#endif
-
 #include <boost/date_time/gregorian/gregorian.hpp>
-#if LL_MSVC
-#pragma warning(pop)   // Restore all warnings to the previous state
-#endif
-
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/date_time/local_time_adjustor.hpp>
 

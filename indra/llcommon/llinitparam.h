@@ -31,7 +31,6 @@
 #include <vector>
 #include <list>
 #include <boost/function.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/type_traits/is_convertible.hpp>
 #include <boost/type_traits/is_enum.hpp>
 #include <boost/unordered_map.hpp>

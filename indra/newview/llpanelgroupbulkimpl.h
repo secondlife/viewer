@@ -50,9 +50,10 @@ public:
     static void callbackClickCancel(void* userdata);
 
     static void callbackSelect(LLUICtrl* ctrl, void* userdata);
-    static void callbackAddUsers(const uuid_vec_t& agent_ids, void* user_data);
 
-    static void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name, void* user_data);
+    void addUsers(const uuid_vec_t& agent_ids);
+
+    void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name);
 
     void handleRemove();
     void handleSelection();

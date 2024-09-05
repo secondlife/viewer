@@ -3650,11 +3650,11 @@ void LLInventoryAction::onItemsRemovalConfirmation(const LLSD& notification, con
                                                               {
                                                                   for (const LLUUID& id : item_deletion_list)
                                                                   {
-                                                                      remove_inventory_item(id, NULL);
+                                                                      gInventory.removeItem(id);
                                                                   }
                                                                   for (const LLUUID& id : cat_deletion_list)
                                                                   {
-                                                                      remove_inventory_category(id, NULL);
+                                                                      gInventory.removeCategory(id);
                                                                   }
                                                               });
         }

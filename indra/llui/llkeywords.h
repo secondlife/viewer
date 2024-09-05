@@ -72,7 +72,7 @@ public:
         TT_TYPE                             // WORD
     } ETokenType;
 
-    LLKeywordToken( ETokenType type, const LLColor4& color, const LLWString& token, const LLWString& tool_tip, const LLWString& delimiter  )
+    LLKeywordToken( ETokenType type, const LLUIColor& color, const LLWString& token, const LLWString& tool_tip, const LLWString& delimiter  )
         :
         mType( type ),
         mToken( token ),
@@ -87,7 +87,7 @@ public:
     bool                isHead(const llwchar* s) const;
     bool                isTail(const llwchar* s) const;
     const LLWString&    getToken() const        { return mToken; }
-    const LLColor4&     getColor() const        { return mColor; }
+    const LLUIColor&     getColor() const        { return mColor; }
     ETokenType          getType()  const        { return mType; }
     const LLWString&    getToolTip() const      { return mToolTip; }
     const LLWString&    getDelimiter() const    { return mDelimiter; }
@@ -99,7 +99,7 @@ public:
 private:
     ETokenType  mType;
     LLWString   mToken;
-    LLColor4    mColor;
+    LLUIColor    mColor;
     LLWString   mToolTip;
     LLWString   mDelimiter;
 };
@@ -111,7 +111,7 @@ public:
     ~LLKeywords();
 
     void        clearLoaded() { mLoaded = false; }
-    LLColor4    getColorGroup(const std::string& key_in);
+    LLUIColor    getColorGroup(std::string_view key_in);
     bool        isLoaded() const    { return mLoaded; }
 
     void        findSegments(std::vector<LLTextSegmentPtr> *seg_list,
@@ -124,7 +124,7 @@ public:
     // Add the token as described
     void addToken(LLKeywordToken::ETokenType type,
                     const std::string& key,
-                    const LLColor4& color,
+                    const LLUIColor& color,
                     const std::string& tool_tip = LLStringUtil::null,
                     const std::string& delimiter = LLStringUtil::null);
 
@@ -153,7 +153,7 @@ public:
         bool mOwner;
 
 
-        LLColor4            mColor;
+        LLUIColor            mColor;
     };
 
     typedef std::map<WStringMapIndex, LLKeywordToken*> word_token_map_t;
@@ -161,7 +161,7 @@ public:
     keyword_iterator_t begin() const { return mWordTokenMap.begin(); }
     keyword_iterator_t end() const { return mWordTokenMap.end(); }
 
-    typedef std::map<WStringMapIndex, LLColor4> group_color_map_t;
+    typedef std::map<WStringMapIndex, LLUIColor> group_color_map_t;
     typedef group_color_map_t::const_iterator color_iterator_t;
     group_color_map_t   mColorGroupMap;
 
@@ -170,11 +170,11 @@ public:
 #endif
 
 protected:
-    void        processTokensGroup(const LLSD& Tokens, const std::string& Group);
+    void        processTokensGroup(const LLSD& Tokens, std::string_view Group);
     void        insertSegment(std::vector<LLTextSegmentPtr>& seg_list,
                               LLTextSegmentPtr new_segment,
                               S32 text_len,
-                              const LLColor4 &defaultColor,
+                              const LLUIColor &defaultColor,
                               class LLTextEditor& editor);
     void        insertSegments(const LLWString& wtext,
                                std::vector<LLTextSegmentPtr>& seg_list,
@@ -194,10 +194,10 @@ protected:
     token_list_t mLineTokenList;
     token_list_t mDelimiterTokenList;
 
-    typedef  std::map<std::string, std::string> element_attributes_t;
+    typedef  std::map<std::string, std::string, std::less<>> element_attributes_t;
     typedef element_attributes_t::const_iterator attribute_iterator_t;
     element_attributes_t mAttributes;
-    std::string getAttribute(const std::string& key);
+    std::string getAttribute(std::string_view key);
 
     std::string getArguments(LLSD& arguments);
 };

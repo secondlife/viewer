@@ -1210,6 +1210,7 @@ PanteraPolnocy
 	SL-18937
 	SL-19207
 	SL-19681
+    secondlife/viewer#2483
 Parvati Silverweb
 Patric Mills
 	VWR-2645
@@ -1436,6 +1437,30 @@ Sovereign Engineer
     SL-18534
     SL-19690
     SL-19336
+    secondlife/viewer/pull/1283
+    secondlife/viewer/pull/1287
+    secondlife/viewer/pull/1906
+    secondlife/viewer/pull/1930
+    secondlife/viewer/pull/1941
+    secondlife/viewer/pull/1946
+    secondlife/viewer/pull/1948
+    secondlife/viewer/pull/1950
+    secondlife/viewer/pull/1951
+    secondlife/viewer/pull/2066
+    secondlife/viewer/pull/2077
+    secondlife/viewer/pull/2078
+    secondlife/viewer/pull/2080
+    secondlife/viewer/pull/2085
+    secondlife/viewer/pull/2098
+    secondlife/viewer/pull/2099
+    secondlife/viewer/pull/2105
+    secondlife/viewer/pull/2115
+    secondlife/viewer/pull/2116
+    secondlife/viewer/pull/2124
+    secondlife/viewer/pull/2125
+    secondlife/viewer/pull/2135
+    secondlife/viewer/pull/2136
+    secondlife/viewer/pull/2149
 SpacedOut Frye
 	VWR-34
 	VWR-45

@@ -42,7 +42,7 @@ enum EKeystate
 };
 
 typedef boost::function<bool(EKeystate keystate)> LLKeyFunc;
-typedef std::string (LLKeyStringTranslatorFunc)(const char *label);
+typedef std::string (LLKeyStringTranslatorFunc)(std::string_view);
 
 enum EKeyboardInsertMode
 {
