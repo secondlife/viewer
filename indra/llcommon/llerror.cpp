@@ -64,6 +64,8 @@
 #define BOOST_STACKTRACE_GNU_SOURCE_NOT_REQUIRED
 #include <boost/stacktrace.hpp>
 
+#include LLCOROS_RMUTEX_HEADER
+
 namespace {
 #if LL_WINDOWS
     void debugger_print(const std::string& s)

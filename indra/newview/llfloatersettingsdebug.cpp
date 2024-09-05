@@ -66,7 +66,6 @@ bool LLFloaterSettingsDebug::postBuild()
     mSettingNameText = getChild<LLTextBox>("setting_name_txt");
 
     mComment = getChild<LLTextEditor>("comment_text");
-    mSettingName = getChild<LLTextBox>("setting_name_txt");
     mLLSDVal = getChild<LLTextEditor>("llsd_text");
     mCopyBtn = getChild<LLButton>("copy_btn");
 
@@ -658,6 +657,6 @@ void LLFloaterSettingsDebug::hideUIControls()
 
 void LLFloaterSettingsDebug::onClickCopy()
 {
-    std::string setting_name = mSettingName->getText();
+    std::string setting_name = mSettingNameText->getText();
     LLClipboard::instance().copyToClipboard(utf8str_to_wstring(setting_name), 0, narrow(setting_name.size()));
 }
