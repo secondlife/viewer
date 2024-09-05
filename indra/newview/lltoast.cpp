@@ -74,8 +74,8 @@ LLToast::Params::Params()
     enable_hide_btn("enable_hide_btn", true),
     force_show("force_show", false),
     force_store("force_store", false),
-    fading_time_secs("fading_time_secs", gSavedSettings.getS32("ToastFadingTime")),
-    lifetime_secs("lifetime_secs", gSavedSettings.getS32("NotificationToastLifeTime"))
+    fading_time_secs("fading_time_secs", (F32)gSavedSettings.getS32("ToastFadingTime")),
+    lifetime_secs("lifetime_secs", (F32)gSavedSettings.getS32("NotificationToastLifeTime"))
 {};
 
 LLToast::LLToast(const LLToast::Params& p)
@@ -236,12 +236,12 @@ void LLToast::onFocusReceived()
 
 void LLToast::setLifetime(S32 seconds)
 {
-    mToastLifetime = seconds;
+    mToastLifetime = (F32)seconds;
 }
 
 void LLToast::setFadingTime(S32 seconds)
 {
-    mToastFadingTime = seconds;
+    mToastFadingTime = (F32)seconds;
 }
 
 void LLToast::closeToast()

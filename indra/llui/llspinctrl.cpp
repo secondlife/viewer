@@ -310,7 +310,7 @@ void LLSpinCtrl::updateLabelColor()
 {
     if( mLabelBox )
     {
-        mLabelBox->setColor( getEnabled() ? mTextEnabledColor.get() : mTextDisabledColor.get() );
+        mLabelBox->setColor( getEnabled() ? mTextEnabledColor : mTextDisabledColor );
     }
 }
 

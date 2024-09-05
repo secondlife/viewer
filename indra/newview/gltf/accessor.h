@@ -36,8 +36,6 @@ namespace LL
 {
     namespace GLTF
     {
-        constexpr S32 INVALID_INDEX = -1;
-
         class Buffer
         {
         public:

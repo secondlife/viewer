@@ -201,15 +201,15 @@ U32 LLDir::deleteDirAndContents(const std::string& dir_name)
         boost::filesystem::path dir_path(dir_name);
 #endif
 
-       if (boost::filesystem::exists (dir_path))
+       if (boost::filesystem::exists(dir_path))
        {
-          if (!boost::filesystem::is_empty (dir_path))
+          if (!boost::filesystem::is_empty(dir_path))
           {   // Directory has content
-             num_deleted = boost::filesystem::remove_all (dir_path);
+             num_deleted = (U32)boost::filesystem::remove_all(dir_path);
           }
           else
           {   // Directory is empty
-             boost::filesystem::remove (dir_path);
+             boost::filesystem::remove(dir_path);
           }
        }
     }
@@ -726,6 +726,8 @@ std::vector<std::string> LLDir::findSkinnedFilenames(const std::string& subdir,
                                                      const std::string& filename,
                                                      ESkinConstraint constraint) const
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
+
     // Recognize subdirs that have no localization.
     static const std::set<std::string> sUnlocalized = list_of
         ("")                        // top-level directory not localized

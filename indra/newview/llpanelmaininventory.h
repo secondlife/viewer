@@ -49,6 +49,8 @@ class LLSidepanelInventory;
 class LLToggleableMenu;
 class LLFloater;
 class LLFloaterSidePanelContainer;
+class LLSidepanelInventory;
+class LLPanelMarketplaceInbox;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLPanelMainInventory
@@ -137,6 +139,9 @@ public:
 
     LLInventoryFilter& getCurrentFilter();
 
+    void setParentSidepanel(LLSidepanelInventory* parent_sidepanel) { mParentSidepanel = parent_sidepanel; }
+    void setInboxPanel(LLPanelMarketplaceInbox* inbox_panel) { mInboxPanel = inbox_panel; }
+
 protected:
     //
     // Misc functions
@@ -184,14 +189,17 @@ private:
     LLUICtrl*                   mCounterCtrl;
     LLHandle<LLFloater>         mFinderHandle;
     LLInventoryPanel*           mActivePanel;
-    LLInventoryPanel*           mWornItemsPanel;
+    LLInventoryPanel*           mAllItemsPanel = nullptr;
+    LLInventoryPanel*           mRecentPanel = nullptr;
+    LLInventoryPanel*           mWornItemsPanel = nullptr;
     bool                        mResortActivePanel;
     LLSaveFolderState*          mSavedFolderState;
     std::string                 mFilterText;
     std::string                 mFilterSubString;
-    S32                         mItemCount;
+    S32                         mItemCount = 0;
+    std::string                 mLastFilterText;
     std::string                 mItemCountString;
-    S32                         mCategoryCount;
+    S32                         mCategoryCount = 0;
     std::string                 mCategoryCountString;
     LLComboBox*                 mSearchTypeCombo;
 
@@ -242,6 +250,9 @@ protected:
     void setUploadCostIfNeeded();
     void disableAddIfNeeded();
 private:
+    LLSidepanelInventory*       mParentSidepanel = nullptr;
+    LLPanelMarketplaceInbox*    mInboxPanel = nullptr;
+
     LLToggleableMenu*           mMenuGearDefault;
     LLToggleableMenu*           mMenuViewDefault;
     LLToggleableMenu*           mMenuVisibility;

@@ -54,8 +54,6 @@ bool LLFloaterScriptEdPrefs::postBuild()
 void LLFloaterScriptEdPrefs::applyUIColor(LLUICtrl* ctrl, const LLSD& param)
 {
     LLUIColorTable::instance().setColor(param.asString(), LLColor4(ctrl->getValue()));
-    mEditor->initKeywords();
-    mEditor->loadKeywords();
 }
 
 void LLFloaterScriptEdPrefs::getUIColor(LLUICtrl* ctrl, const LLSD& param)

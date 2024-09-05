@@ -205,7 +205,7 @@ F32 Timers::timeUntilCall(handle_t timer) const
     }
     else
     {
-        return found->second.mTime - now();
+        return narrow(found->second.mTime - now());
     }
 }
 
@@ -436,7 +436,7 @@ void TimersListener::scheduleAfter(const LLSD& params)
                 // ditch mHandles entry
                 mHandles.erase(key);
             },
-            after));
+            narrow(after)));
 }
 
 void TimersListener::scheduleEvery(const LLSD& params)
@@ -461,7 +461,7 @@ void TimersListener::scheduleEvery(const LLSD& params)
                 // we can't use a handshake -- always keep the ball rolling
                 return false;
             },
-            every));
+            narrow(every)));
 }
 
 LLSD TimersListener::cancel(const LLSD& params)

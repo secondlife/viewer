@@ -357,7 +357,7 @@ private:
 // Build time optimization, generate once in .cpp file
 #ifndef LLTEXTEDITOR_CPP
 extern template class LLTextEditor* LLView::getChild<class LLTextEditor>(
-    const std::string& name, bool recurse) const;
+    std::string_view name, bool recurse) const;
 #endif
 
 #endif  // LL_TEXTEDITOR_H

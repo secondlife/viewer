@@ -293,7 +293,7 @@ bool LLWMIMethods::getGenericSerialNumber(const BSTR &select, const LPCWSTR &var
         if (validate_as_uuid)
         {
             std::wstring ws(serialNumber, serial_size);
-            std::string str(ws.begin(), ws.end());
+            std::string str = ll_convert_wide_to_string(ws);
 
             if (!LLUUID::validate(str))
             {

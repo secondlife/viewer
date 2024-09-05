@@ -111,6 +111,7 @@ private:
     bool                    handleKeyHere(KEY key, MASK mask) override;
     void                    onFocusLost() override;
 
+    void applySelectedItemAndCloseFloater();
 
     LLHandle<LLView>        mOwnerHandle;
     LLUUID                  mSettingItemID;

@@ -180,7 +180,7 @@ bool LLAdaptiveRetryPolicy::getSecondsUntilRetryAfter(const std::string& retry_a
     time_t date = curl_getdate(retry_after.c_str(), NULL);
     if (-1 == date) return false;
 
-    seconds_to_wait = (F64)date - LLTimer::getTotalSeconds();
+    seconds_to_wait = (F32)((F64)date - LLTimer::getTotalSeconds());
 
     return true;
 }

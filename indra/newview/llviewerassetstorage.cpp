@@ -376,6 +376,7 @@ void LLViewerAssetStorage::queueRequestHttp(
     bool duplicate,
     bool is_priority)
 {
+    LL_PROFILE_ZONE_SCOPED;
     LL_DEBUGS("ViewerAsset") << "Request asset via HTTP " << uuid << " type " << LLAssetType::lookup(atype) << LL_ENDL;
 
     bool with_http = true;

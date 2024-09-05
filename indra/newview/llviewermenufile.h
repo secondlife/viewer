@@ -64,13 +64,15 @@ void upload_new_resource(
     LLAssetStorage::LLStoreAssetCallback callback = LLAssetStorage::LLStoreAssetCallback(),
     void *userdata = NULL);
 
+bool get_bulk_upload_expected_cost(
+    const std::vector<std::string>& filenames,
+    bool allow_2k,
+    S32& total_cost,
+    S32& file_count,
+    S32& bvh_count,
+    S32& textures_2k_count);
 
-void assign_defaults_and_show_upload_message(
-    LLAssetType::EType asset_type,
-    LLInventoryType::EType& inventory_type,
-    std::string& name,
-    const std::string& display_name,
-    std::string& description);
+void do_bulk_upload(std::vector<std::string> filenames, bool allow_2k);
 
 void close_all_windows();
 

@@ -72,7 +72,7 @@ public:
     //---------------------------------------------------------------------
     F32 getBlurMultiplier() const
     {
-        return mSettings[SETTING_BLUR_MULTIPLIER].asReal();
+        return (F32)mSettings[SETTING_BLUR_MULTIPLIER].asReal();
     }
 
     void setBlurMultiplier(F32 val)
@@ -92,7 +92,7 @@ public:
 
     F32 getWaterFogDensity() const
     {
-        return mSettings[SETTING_FOG_DENSITY].asReal();
+        return (F32)mSettings[SETTING_FOG_DENSITY].asReal();
     }
 
     F32 getModifiedWaterFogDensity(bool underwater) const;
@@ -104,7 +104,7 @@ public:
 
     F32 getFogMod() const
     {
-        return mSettings[SETTING_FOG_MOD].asReal();
+        return (F32)mSettings[SETTING_FOG_MOD].asReal();
     }
 
     void setFogMod(F32 val)
@@ -114,7 +114,7 @@ public:
 
     F32 getFresnelOffset() const
     {
-        return mSettings[SETTING_FRESNEL_OFFSET].asReal();
+        return (F32)mSettings[SETTING_FRESNEL_OFFSET].asReal();
     }
 
     void setFresnelOffset(F32 val)
@@ -124,7 +124,7 @@ public:
 
     F32 getFresnelScale() const
     {
-        return mSettings[SETTING_FRESNEL_SCALE].asReal();
+        return (F32)mSettings[SETTING_FRESNEL_SCALE].asReal();
     }
 
     void setFresnelScale(F32 val)
@@ -164,7 +164,7 @@ public:
 
     F32 getScaleAbove() const
     {
-        return mSettings[SETTING_SCALE_ABOVE].asReal();
+        return (F32)mSettings[SETTING_SCALE_ABOVE].asReal();
     }
 
     void setScaleAbove(F32 val)
@@ -174,7 +174,7 @@ public:
 
     F32 getScaleBelow() const
     {
-        return mSettings[SETTING_SCALE_BELOW].asReal();
+        return (F32)mSettings[SETTING_SCALE_BELOW].asReal();
     }
 
     void setScaleBelow(F32 val)

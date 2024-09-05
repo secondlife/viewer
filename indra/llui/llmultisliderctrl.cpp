@@ -245,7 +245,7 @@ bool LLMultiSliderCtrl::setLabelArg( const std::string& key, const LLStringExpli
         res = mLabelBox->setTextArg(key, text);
         if (res && mLabelWidth == 0)
         {
-            S32 label_width = mFont->getWidth(mLabelBox->getText());
+            S32 label_width = mFont->getWidth(mLabelBox->getWText().c_str());
             LLRect rect = mLabelBox->getRect();
             S32 prev_right = rect.mRight;
             rect.mRight = rect.mLeft + label_width;
@@ -440,7 +440,7 @@ void LLMultiSliderCtrl::setEnabled(bool b)
 
     if( mLabelBox )
     {
-        mLabelBox->setColor( b ? mTextEnabledColor.get() : mTextDisabledColor.get() );
+        mLabelBox->setColor( b ? mTextEnabledColor : mTextDisabledColor );
     }
 
     mMultiSlider->setEnabled( b );
@@ -452,7 +452,7 @@ void LLMultiSliderCtrl::setEnabled(bool b)
 
     if( mTextBox )
     {
-        mTextBox->setColor( b ? mTextEnabledColor.get() : mTextDisabledColor.get() );
+        mTextBox->setColor( b ? mTextEnabledColor : mTextDisabledColor );
     }
 }
 

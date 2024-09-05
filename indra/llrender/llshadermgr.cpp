@@ -44,7 +44,6 @@ using std::make_pair;
 using std::string;
 
 LLShaderMgr * LLShaderMgr::sInstance = NULL;
-bool LLShaderMgr::sMirrorsEnabled = false;
 
 LLShaderMgr::LLShaderMgr()
 {
@@ -596,13 +595,15 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
                 extra_code_text[extra_code_count++] = strdup("precision highp float;\n");
             }
         }
-
-        extra_code_text[extra_code_count++] = strdup("#define FXAA_GLSL_130 1\n");
     }
 
-    if (sMirrorsEnabled)
+    if (type == GL_FRAGMENT_SHADER)
     {
-        extra_code_text[extra_code_count++] = strdup("#define HERO_PROBES 1\n");
+        extra_code_text[extra_code_count++] = strdup("#define FRAGMENT_SHADER 1\n");
+    }
+    else
+    {
+        extra_code_text[extra_code_count++] = strdup("#define VERTEX_SHADER 1\n");
     }
 
     // Use alpha float to store bit flags
@@ -1003,7 +1004,7 @@ void LLShaderMgr::initShaderCache(bool enabled, const LLUUID& old_cache_version,
                     ProgramBinaryData binary_info = ProgramBinaryData();
                     binary_info.mBinaryFormat = data_pair.second["binary_format"].asInteger();
                     binary_info.mBinaryLength = data_pair.second["binary_size"].asInteger();
-                    binary_info.mLastUsedTime = data_pair.second["last_used"].asReal();
+                    binary_info.mLastUsedTime = (F32)data_pair.second["last_used"].asReal();
                     mShaderBinaryCache.insert_or_assign(LLUUID(data_pair.first), binary_info);
                 }
             }
@@ -1034,7 +1035,7 @@ void LLShaderMgr::persistShaderCacheMetadata()
     LLSD out = LLSD::emptyMap();
 
     static const F32 LRU_TIME = (60.f * 60.f) * 24.f * 7.f; // 14 days
-    const F32 current_time = LLTimer::getTotalSeconds();
+    const F32 current_time = (F32)LLTimer::getTotalSeconds();
     for (auto it = mShaderBinaryCache.begin(); it != mShaderBinaryCache.end();)
     {
         const ProgramBinaryData& shader_metadata = it->second;
@@ -1093,7 +1094,7 @@ bool LLShaderMgr::loadCachedProgramBinary(LLGLSLShader* shader)
                     glGetProgramiv(shader->mProgramObject, GL_LINK_STATUS, &success);
                     if (error == GL_NO_ERROR && success == GL_TRUE)
                     {
-                        binary_iter->second.mLastUsedTime = LLTimer::getTotalSeconds();
+                        binary_iter->second.mLastUsedTime = (F32)LLTimer::getTotalSeconds();
                         LL_INFOS() << "Loaded cached binary for shader: " << shader->mName << LL_ENDL;
                         return true;
                     }
@@ -1131,7 +1132,7 @@ bool LLShaderMgr::saveCachedProgramBinary(LLGLSLShader* shader)
                 fwrite(program_binary.data(), sizeof(U8), program_binary.size(), outfile);
                 outfile.close();
 
-                binary_info.mLastUsedTime = LLTimer::getTotalSeconds();
+                binary_info.mLastUsedTime = (F32)LLTimer::getTotalSeconds();
 
                 mShaderBinaryCache.insert_or_assign(shader->mShaderHash, binary_info);
                 return true;
@@ -1415,6 +1416,7 @@ void LLShaderMgr::initAttribsAndUniforms()
     mReservedUniforms.push_back("detail_3");
 
     mReservedUniforms.push_back("alpha_ramp");
+    mReservedUniforms.push_back("paint_map");
 
     mReservedUniforms.push_back("detail_0_base_color");
     mReservedUniforms.push_back("detail_1_base_color");
@@ -1438,6 +1440,8 @@ void LLShaderMgr::initAttribsAndUniforms()
     mReservedUniforms.push_back("roughnessFactors");
     mReservedUniforms.push_back("emissiveColors");
     mReservedUniforms.push_back("minimum_alphas");
+
+    mReservedUniforms.push_back("region_scale");
 
     mReservedUniforms.push_back("origin");
     mReservedUniforms.push_back("display_gamma");
@@ -1472,6 +1476,11 @@ void LLShaderMgr::initAttribsAndUniforms()
     mReservedUniforms.push_back("moonlight_color");
 
     mReservedUniforms.push_back("debug_normal_draw_length");
+
+    mReservedUniforms.push_back("edgesTex");
+    mReservedUniforms.push_back("areaTex");
+    mReservedUniforms.push_back("searchTex");
+    mReservedUniforms.push_back("blendTex");
 
     llassert(mReservedUniforms.size() == END_RESERVED_UNIFORMS);
 

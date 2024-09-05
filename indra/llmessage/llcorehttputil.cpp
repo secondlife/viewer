@@ -523,7 +523,7 @@ LLSD HttpCoroRawHandler::handleSuccess(LLCore::HttpResponse * response, LLCore::
     bas >> std::noskipws;
     data.assign(std::istream_iterator<U8>(bas), std::istream_iterator<U8>());
 
-    result[HttpCoroutineAdapter::HTTP_RESULTS_RAW] = data;
+    result[HttpCoroutineAdapter::HTTP_RESULTS_RAW] = std::move(data);
 
 #else
     // This is disabled because it's dangerous.  See the other case for an
@@ -585,7 +585,7 @@ LLSD HttpCoroJSONHandler::handleSuccess(LLCore::HttpResponse * response, LLCore:
 
     LLCore::BufferArrayStream bas(body);
 
-    boost::json::error_code ec;
+    boost::system::error_code ec;
     boost::json::value jsonRoot = boost::json::parse(bas, ec);
     if(ec.failed())
     {   // deserialization failed.  Record the reason and pass back an empty map for markup.
@@ -610,7 +610,7 @@ LLSD HttpCoroJSONHandler::parseBody(LLCore::HttpResponse *response, bool &succes
 
     LLCore::BufferArrayStream bas(body);
 
-    boost::json::error_code ec;
+    boost::system::error_code ec;
     boost::json::value jsonRoot = boost::json::parse(bas, ec);
     if (ec.failed())
     {

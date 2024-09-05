@@ -127,8 +127,8 @@ void Animation::apply(Asset& asset, float time)
 bool Animation::Sampler::prep(Asset& asset)
 {
     Accessor& accessor = asset.mAccessors[mInput];
-    mMinTime = accessor.mMin[0];
-    mMaxTime = accessor.mMax[0];
+    mMinTime = (F32)accessor.mMin[0];
+    mMaxTime = (F32)accessor.mMax[0];
 
     mFrameTimes.resize(accessor.mCount);
 

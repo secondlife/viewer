@@ -32,7 +32,6 @@
 #include "llwin32headerslean.h"
 #include "llexception.h"
 #include "apr_thread_proc.h"
-#include <boost/shared_ptr.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/optional.hpp>
 #include <boost/noncopyable.hpp>

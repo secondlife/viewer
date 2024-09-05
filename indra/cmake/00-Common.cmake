@@ -32,6 +32,10 @@ add_compile_definitions( ADDRESS_SIZE=${ADDRESS_SIZE})
 # -- which we do. Without one or the other, we get a ton of Boost warnings.
 add_compile_definitions(BOOST_BIND_GLOBAL_PLACEHOLDERS)
 
+# Force enable SSE2 instructions in GLM per the manual
+# https://github.com/g-truc/glm/blob/master/manual.md#section2_10
+add_compile_definitions(GLM_FORCE_DEFAULT_ALIGNED_GENTYPES=1 GLM_FORCE_SSE2=1)
+
 # Configure crash reporting
 set(RELEASE_CRASH_REPORTING OFF CACHE BOOL "Enable use of crash reporting in release builds")
 set(NON_RELEASE_CRASH_REPORTING OFF CACHE BOOL "Enable use of crash reporting in developer builds")
@@ -60,9 +64,7 @@ if (WINDOWS)
   # http://www.cmake.org/pipermail/cmake/2009-September/032143.html
   string(REPLACE "/Zm1000" " " CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
 
-  # zlib has assembly-language object files incompatible with SAFESEH
   add_link_options(/LARGEADDRESSAWARE
-          /SAFESEH:NO
           /NODEFAULTLIB:LIBCMT
           /IGNORE:4099)
 
@@ -81,6 +83,7 @@ if (WINDOWS)
           /Oy-
           /fp:fast
           /MP
+          /permissive-
       )
 
   # Nicky: x64 implies SSE2
@@ -103,11 +106,6 @@ if (WINDOWS)
     string(REPLACE "/Zi" "/Z7" CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO}")
     string(REPLACE "/Zi" "/Z7" CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
   endif()
-
-  # workaround for github runner image breakage:
-  # https://github.com/actions/runner-images/issues/10004#issuecomment-2153445161
-  # can be removed after the above issue is resolved and deployed across GHA
-  add_compile_definitions(_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR)
 
   # Allow use of sprintf etc
   add_compile_definitions(_CRT_SECURE_NO_WARNINGS)

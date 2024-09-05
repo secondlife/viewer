@@ -161,7 +161,8 @@ public:
                             const LLMatrix3& mat_normal,
                             U16 index_offset,
                             bool force_rebuild = false,
-                            bool no_debug_assert = false);
+                            bool no_debug_assert = false,
+                            bool rebuild_for_gltf = false);
 
     // For avatar
     U16          getGeometryAvatar(
@@ -208,7 +209,6 @@ public:
     void        setDrawInfo(LLDrawInfo* draw_info);
 
     F32         getTextureVirtualSize() ;
-    F32         getImportanceToCamera()const {return mImportanceToCamera ;}
     void        resetVirtualSize();
 
     void        setHasMedia(bool has_media)  { mHasMedia = has_media ;}
@@ -264,8 +264,14 @@ public:
     // return mSkinInfo->mHash or 0 if mSkinInfo is null
     U64 getSkinHash();
 
+    // true if face was recently in the main camera frustum according to LLViewerTextureList updates
+    bool mInFrustum = false;
+    // value of gFrameCount the last time the face was touched by LLViewerTextureList::updateImageDecodePriority
+    U32 mLastTextureUpdate = 0;
+
 private:
     LLPointer<LLVertexBuffer> mVertexBuffer;
+    LLPointer<LLVertexBuffer> mVertexBufferGLTF;
 
     U32         mState;
     LLFacePool* mDrawPoolp;

@@ -123,7 +123,7 @@ bool LLRenderTarget::allocate(U32 resx, U32 resy, U32 color_fmt, bool depth, LLT
 
     if (mGenerateMipMaps != LLTexUnit::TMG_NONE) {
         // Calculate the number of mip levels based upon resolution that we should have.
-        mMipLevels = 1 + floor(log10((float)llmax(mResX, mResY))/log10(2.0));
+        mMipLevels = 1 + (U32)floor(log10((float)llmax(mResX, mResY)) / log10(2.0));
     }
 
     if (depth)
@@ -426,14 +426,17 @@ void LLRenderTarget::bindTarget()
                             GL_COLOR_ATTACHMENT1,
                             GL_COLOR_ATTACHMENT2,
                             GL_COLOR_ATTACHMENT3};
-    glDrawBuffers(static_cast<GLsizei>(mTex.size()), drawbuffers);
 
     if (mTex.empty())
     { //no color buffer to draw to
         glDrawBuffer(GL_NONE);
         glReadBuffer(GL_NONE);
     }
-
+    else
+    {
+        glDrawBuffers(static_cast<GLsizei>(mTex.size()), drawbuffers);
+        glReadBuffer(GL_COLOR_ATTACHMENT0);
+    }
     check_framebuffer_status();
 
     glViewport(0, 0, mResX, mResY);
@@ -472,12 +475,10 @@ void LLRenderTarget::clear(U32 mask_in)
 
 U32 LLRenderTarget::getTexture(U32 attachment) const
 {
-    if (attachment > mTex.size()-1)
+    if (attachment >= mTex.size())
     {
-        LL_ERRS() << "Invalid attachment index." << LL_ENDL;
-    }
-    if (mTex.empty())
-    {
+        LL_WARNS() << "Invalid attachment index " << attachment << " for size " << mTex.size() << LL_ENDL;
+        llassert(false);
         return 0;
     }
     return mTex[attachment];
@@ -508,7 +509,6 @@ void LLRenderTarget::bindTexture(U32 index, S32 channel, LLTexUnit::eTextureFilt
     }
 
     gGL.getTexUnit(channel)->setTextureFilteringOption(filter_options);
-    gGL.getTexUnit(channel)->setTextureColorSpace(isSRGB ? LLTexUnit::TCS_SRGB : LLTexUnit::TCS_LINEAR);
 }
 
 void LLRenderTarget::flush()
@@ -519,7 +519,8 @@ void LLRenderTarget::flush()
     llassert(sCurFBO == mFBO);
     llassert(sBoundTarget == this);
 
-    if (mGenerateMipMaps == LLTexUnit::TMG_AUTO) {
+    if (mGenerateMipMaps == LLTexUnit::TMG_AUTO)
+    {
         LL_PROFILE_GPU_ZONE("rt generate mipmaps");
         bindTexture(0, 0, LLTexUnit::TFO_TRILINEAR);
         glGenerateMipmap(GL_TEXTURE_2D);
@@ -540,6 +541,8 @@ void LLRenderTarget::flush()
         glViewport(gGLViewport[0], gGLViewport[1], gGLViewport[2], gGLViewport[3]);
         sCurResX = gGLViewport[2];
         sCurResY = gGLViewport[3];
+        glReadBuffer(GL_BACK);
+        glDrawBuffer(GL_BACK);
     }
 }
 

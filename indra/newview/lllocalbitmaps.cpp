@@ -215,7 +215,6 @@ bool LLLocalBitmap::updateSelf(EUpdateType optional_firstupdate)
                         ("file://"+mFilename, FTT_LOCAL_FILE, mWorldID, LL_LOCAL_USE_MIPMAPS);
 
                     texture->createGLTexture(LL_LOCAL_DISCARD_LEVEL, raw_image);
-                    texture->setCachedRawImage(LL_LOCAL_DISCARD_LEVEL, raw_image);
                     texture->ref();
 
                     gTextureList.addImage(texture, TEX_LIST_STANDARD);
@@ -674,7 +673,7 @@ void LLLocalBitmap::updateGLTFMaterials(LLUUID old_id, LLUUID new_id)
                     LLFetchedGLTFMaterial* render_mat = dynamic_cast<LLFetchedGLTFMaterial*>(entry->getGLTFRenderMaterial());
                     if (render_mat)
                     {
-                        *render_mat = *fetched_mat;
+                            *render_mat = *fetched_mat;
                         render_mat->applyOverride(*override_mat);
                     }
                     else

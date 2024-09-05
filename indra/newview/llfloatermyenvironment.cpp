@@ -335,6 +335,8 @@ bool LLFloaterMyEnvironment::canAction(const std::string &context)
     {
         if (!LLClipboard::instance().hasContents())
             return false;
+        if (gInventory.isObjectDescendentOf(selected.front(), gInventory.getLibraryRootFolderID()))
+            return false;
 
         std::vector<LLUUID> ids;
         LLClipboard::instance().pasteFromClipboard(ids);

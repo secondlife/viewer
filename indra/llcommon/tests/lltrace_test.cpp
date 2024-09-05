@@ -32,6 +32,10 @@
 #include "lltracerecording.h"
 #include "../test/lltut.h"
 
+#ifdef LL_WINDOWS
+#pragma warning(disable : 4244) // possible loss of data on conversions
+#endif
+
 namespace LLUnits
 {
     // using powers of 2 to allow strict floating point equality

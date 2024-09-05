@@ -55,10 +55,11 @@ bool LLFloaterConversationLog::postBuild()
     }
 
     // Use the context menu of the Conversation list for the Conversation tab gear menu.
+    mConversationsGearBtn = getChild<LLMenuButton>("conversations_gear_btn");
     LLToggleableMenu* conversations_gear_menu = mConversationLogList->getContextMenu();
     if (conversations_gear_menu)
     {
-        getChild<LLMenuButton>("conversations_gear_btn")->setMenu(conversations_gear_menu, LLMenuButton::MP_BOTTOM_LEFT);
+        mConversationsGearBtn->setMenu(conversations_gear_menu, LLMenuButton::MP_BOTTOM_LEFT);
     }
 
     getChild<LLFilterEditor>("people_filter_input")->setCommitCallback(boost::bind(&LLFloaterConversationLog::onFilterEdit, this, _2));
@@ -68,7 +69,7 @@ bool LLFloaterConversationLog::postBuild()
 
 void LLFloaterConversationLog::draw()
 {
-    getChild<LLMenuButton>("conversations_gear_btn")->setEnabled(mConversationLogList->getSelectedItem() != NULL);
+    mConversationsGearBtn->setEnabled(mConversationLogList->getSelectedItem() != NULL);
     LLFloater::draw();
 }
 

@@ -56,9 +56,9 @@ std::map<std::string, std::string> LLLUAmanager::sScriptNames;
 lua_function(sleep, "sleep(seconds): pause the running coroutine")
 {
     lua_checkdelta(L, -1);
-    F32 seconds = lua_tonumber(L, -1);
+    lua_Number seconds = lua_tonumber(L, -1);
     lua_pop(L, 1);
-    llcoro::suspendUntilTimeout(seconds);
+    llcoro::suspendUntilTimeout(narrow(seconds));
     LuaState::getParent(L).set_interrupts_counter(0);
     return 0;
 };

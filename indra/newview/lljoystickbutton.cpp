@@ -732,8 +732,8 @@ LLJoystickQuaternion::LLJoystickQuaternion(const LLJoystickQuaternion::Params &p
 {
     for (int i = 0; i < 3; ++i)
     {
-        mLfRtAxis.mV[i] = (mXAxisIndex == i) ? 1.0 : 0.0;
-        mUpDnAxis.mV[i] = (mYAxisIndex == i) ? 1.0 : 0.0;
+        mLfRtAxis.mV[i] = (mXAxisIndex == i) ? 1.0f : 0.0f;
+        mUpDnAxis.mV[i] = (mYAxisIndex == i) ? 1.0f : 0.0f;
     }
 }
 
@@ -864,8 +864,8 @@ void LLJoystickQuaternion::draw()
     LLVector3 draw_point = mVectorZero * mRotation;
     S32 halfwidth = getRect().getWidth() / 2;
     S32 halfheight = getRect().getHeight() / 2;
-    draw_point.mV[mXAxisIndex] = (draw_point.mV[mXAxisIndex] + 1.0) * halfwidth;
-    draw_point.mV[mYAxisIndex] = (draw_point.mV[mYAxisIndex] + 1.0) * halfheight;
+    draw_point.mV[mXAxisIndex] = (draw_point.mV[mXAxisIndex] + 1.0f) * halfwidth;
+    draw_point.mV[mYAxisIndex] = (draw_point.mV[mYAxisIndex] + 1.0f) * halfheight;
 
     gl_circle_2d(draw_point.mV[mXAxisIndex], draw_point.mV[mYAxisIndex], 4, 8,
         draw_point.mV[mZAxisIndex] >= 0.f);

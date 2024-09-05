@@ -106,7 +106,7 @@ void LLTexLayerSetBuffer::pushProjection() const
     gGL.matrixMode(LLRender::MM_PROJECTION);
     gGL.pushMatrix();
     gGL.loadIdentity();
-    gGL.ortho(0.0f, getCompositeWidth(), 0.0f, getCompositeHeight(), -1.0f, 1.0f);
+    gGL.ortho(0.0f, (F32)getCompositeWidth(), 0.0f, (F32)getCompositeHeight(), -1.0f, 1.0f);
 
     gGL.matrixMode(LLRender::MM_MODELVIEW);
     gGL.pushMatrix();

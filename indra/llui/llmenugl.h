@@ -456,7 +456,7 @@ public:
     virtual bool hasAccelerator(const KEY &key, const MASK &mask) const;
     virtual bool handleAcceleratorKey(KEY key, MASK mask);
 
-    LLMenuGL* findChildMenuByName(const std::string& name, bool recurse) const;
+    LLMenuGL* findChildMenuByName(std::string_view name, bool recurse) const;
 
     bool clearHoverItem();
 
@@ -479,12 +479,12 @@ public:
     // setItemEnabled() - pass the name and the enable flag for a
     // menu item. true will make sure it's enabled, false will disable
     // it.
-    void setItemEnabled( const std::string& name, bool enable );
+    void setItemEnabled(std::string_view name, bool enable );
 
     // propagate message to submenus
     void setEnabledSubMenus(bool enable);
 
-    void setItemVisible( const std::string& name, bool visible);
+    void setItemVisible(std::string_view name, bool visible);
 
     void setItemLabel(const std::string &name, const std::string &label);
 
@@ -684,8 +684,8 @@ public:
 
     virtual void openMenu();
 
-    virtual LLView* getChildView(const std::string& name, bool recurse = true) const;
-    virtual LLView* findChildView(const std::string& name, bool recurse = true) const;
+    virtual LLView* getChildView(std::string_view name, bool recurse = true) const;
+    virtual LLView* findChildView(std::string_view name, bool recurse = true) const;
 
 private:
     LLHandle<LLView> mBranchHandle;

@@ -14,7 +14,7 @@
  reuse_instance="true"
  title="CONVERSATIONS"
  bottom="-50"
- right="-5"
+ left="5"
  width="450"
  min_width="38">
     <string

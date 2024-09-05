@@ -285,7 +285,12 @@ bool LLFloaterBvhPreview::postBuild()
 
         // create data buffer for keyframe initialization
         S32 buffer_size = loaderp->getOutputSize();
-        U8* buffer = new U8[buffer_size];
+        U8* buffer = new(std::nothrow) U8[buffer_size];
+        if (!buffer)
+        {
+            LLError::LLUserWarningMsg::showOutOfMemory();
+            LL_ERRS() << "Bad memory allocation for buffer, size: " << buffer_size << LL_ENDL;
+        }
 
         LLDataPackerBinaryBuffer dp(buffer, buffer_size);
 
@@ -992,7 +997,12 @@ void LLFloaterBvhPreview::onBtnOK(void* userdata)
         LLKeyframeMotion* motionp = (LLKeyframeMotion*)floaterp->mAnimPreview->getDummyAvatar()->findMotion(floaterp->mMotionID);
 
         S32 file_size = motionp->getFileSize();
-        U8* buffer = new U8[file_size];
+        U8* buffer = new(std::nothrow) U8[file_size];
+        if (!buffer)
+        {
+            LLError::LLUserWarningMsg::showOutOfMemory();
+            LL_ERRS() << "Bad memory allocation for buffer, size: " << file_size << LL_ENDL;
+        }
 
         LLDataPackerBinaryBuffer dp(buffer, file_size);
         if (motionp->serialize(dp))
@@ -1086,7 +1096,7 @@ bool    LLPreviewAnimation::render()
     gGL.matrixMode(LLRender::MM_PROJECTION);
     gGL.pushMatrix();
     gGL.loadIdentity();
-    gGL.ortho(0.0f, mFullWidth, 0.0f, mFullHeight, -1.0f, 1.0f);
+    gGL.ortho(0.0f, (F32)mFullWidth, 0.0f, (F32)mFullHeight, -1.0f, 1.0f);
 
     gGL.matrixMode(LLRender::MM_MODELVIEW);
     gGL.pushMatrix();

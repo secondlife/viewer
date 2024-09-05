@@ -255,10 +255,11 @@ LLMenuGL::Params get_params(const LLSD&event)
 
 LLMenuGL* get_parent_menu(LLEventAPI::Response& response, const LLSD&event)
 {
-    LLMenuGL* parent_menu = gMenuBarView->findChildMenuByName(event["parent_menu"], true);
+    auto parent_menu_name{ event["parent_menu"].asString() };
+    LLMenuGL* parent_menu = gMenuBarView->findChildMenuByName(parent_menu_name, true);
     if(!parent_menu)
     {
-        response.error(stringize("Parent menu ", std::quoted(event["parent_menu"].asString()), " was not found"));
+        response.error(stringize("Parent menu ", std::quoted(parent_menu_name), " was not found"));
     }
     return parent_menu;
 }

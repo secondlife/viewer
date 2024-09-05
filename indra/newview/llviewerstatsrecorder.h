@@ -38,13 +38,12 @@
 class LLMutex;
 class LLViewerObject;
 
-class LLViewerStatsRecorder : public LLSingleton<LLViewerStatsRecorder>
+class LLViewerStatsRecorder : public LLSimpleton<LLViewerStatsRecorder>
 {
-    LLSINGLETON(LLViewerStatsRecorder);
+public:
+    LLViewerStatsRecorder();
     LOG_CLASS(LLViewerStatsRecorder);
     ~LLViewerStatsRecorder();
-
- public:
     // Enable/disable stats recording.  This is broken down into two
     // flags so we can record stats without writing them to the log
     // file.  This is useful to analyzing updates for scene loading.
@@ -139,8 +138,6 @@ private:
     void writeToLog(F32 interval);
     void closeStatsFile();
     void makeStatsFileName();
-
-    static LLViewerStatsRecorder* sInstance;
 
     LLFILE *    mStatsFile;         // File to write data into
     std::string mStatsFileName;

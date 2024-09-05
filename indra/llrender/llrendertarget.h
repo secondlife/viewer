@@ -61,7 +61,7 @@
 class LLRenderTarget
 {
 public:
-    //whether or not to use FBO implementation
+    // Whether or not to use FBO implementation
     static bool sUseFBO;
     static U32 sBytesAllocated;
     static U32 sCurFBO;
@@ -172,6 +172,8 @@ public:
     // *HACK
     void swapFBORefs(LLRenderTarget& other);
 
+    static LLRenderTarget* sBoundTarget;
+
 protected:
     U32 mResX;
     U32 mResY;
@@ -186,8 +188,6 @@ protected:
     U32 mMipLevels;
 
     LLTexUnit::eTextureType mUsage;
-
-    static LLRenderTarget* sBoundTarget;
 };
 
 #endif

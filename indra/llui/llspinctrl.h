@@ -77,8 +77,8 @@ public:
     virtual void    setPrecision(S32 precision);
 
     void            setLabel(const LLStringExplicit& label);
-    void            setLabelColor(const LLColor4& c)            { mTextEnabledColor = c; updateLabelColor(); }
-    void            setDisabledLabelColor(const LLColor4& c)    { mTextDisabledColor = c; updateLabelColor();}
+    void            setLabelColor(const LLUIColor& c)            { mTextEnabledColor = c; updateLabelColor(); }
+    void            setDisabledLabelColor(const LLUIColor& c)    { mTextDisabledColor = c; updateLabelColor();}
     void            setAllowEdit(bool allow_edit);
 
     virtual void    onTabInto();

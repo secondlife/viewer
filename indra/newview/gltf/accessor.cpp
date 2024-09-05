@@ -104,7 +104,7 @@ namespace LL
 
 void Buffer::erase(Asset& asset, S32 offset, S32 length)
 {
-    S32 idx = this - &asset.mBuffers[0];
+    S32 idx = (S32)(this - &asset.mBuffers[0]);
 
     mData.erase(mData.begin() + offset, mData.begin() + offset + length);
 
@@ -197,7 +197,7 @@ bool Buffer::save(Asset& asset, const std::string& folder)
     {
         if (mName.empty())
         {
-            S32 idx = this - &asset.mBuffers[0];
+            S32 idx = (S32)(this - &asset.mBuffers[0]);
             mUri = llformat("buffer_%d.bin", idx);
         }
         else

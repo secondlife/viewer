@@ -103,7 +103,6 @@
 #include "llfloaterperms.h"
 #include "llvocache.h"
 #include "llcleanup.h"
-#include "llcallstack.h"
 #include "llmeshrepository.h"
 #include "llgltfmateriallist.h"
 #include "llgl.h"
@@ -151,7 +150,6 @@ LLViewerObject *LLViewerObject::createObject(const LLUUID &id, const LLPCode pco
 {
     LL_PROFILE_ZONE_SCOPED;
     LL_DEBUGS("ObjectUpdate") << "creating " << id << LL_ENDL;
-    dumpStack("ObjectUpdateStack");
 
     LLViewerObject *res = NULL;
 
@@ -1165,7 +1163,6 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
     LL_DEBUGS_ONCE("SceneLoadTiming") << "Received viewer object data" << LL_ENDL;
 
     LL_DEBUGS("ObjectUpdate") << " mesgsys " << mesgsys << " dp " << dp << " id " << getID() << " update_type " << (S32) update_type << LL_ENDL;
-    dumpStack("ObjectUpdateStack");
 
     // The new OBJECTDATA_FIELD_SIZE_124, OBJECTDATA_FIELD_SIZE_140, OBJECTDATA_FIELD_SIZE_80
     // and OBJECTDATA_FIELD_SIZE_64 lengths should be supported in the existing cases below.
@@ -1521,7 +1518,12 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
                 S32 size = mesgsys->getSizeFast(_PREHASH_ObjectData, block_num, _PREHASH_ExtraParams);
                 if (size > 0)
                 {
-                    U8 *buffer = new U8[size];
+                    U8 *buffer = new(std::nothrow) U8[size];
+                    if (!buffer)
+                    {
+                        LLError::LLUserWarningMsg::showOutOfMemory();
+                        LL_ERRS() << "Bad memory allocation for buffer, size: " << size << LL_ENDL;
+                    }
                     mesgsys->getBinaryDataFast(_PREHASH_ObjectData, _PREHASH_ExtraParams, buffer, size, block_num);
                     LLDataPackerBinaryBuffer dp(buffer, size);
 
@@ -2451,7 +2453,7 @@ void LLViewerObject::idleUpdate(LLAgent &agent, const F64 &frame_time)
         {
             // calculate dt from last update
             F32 time_dilation = mRegionp ? mRegionp->getTimeDilation() : 1.0f;
-            F32 dt_raw = ((F64Seconds)frame_time - mLastInterpUpdateSecs).value();
+            F32 dt_raw = (F32)((F64Seconds)frame_time - mLastInterpUpdateSecs).value();
             F32 dt = time_dilation * dt_raw;
 
             applyAngularVelocity(dt);
@@ -2950,7 +2952,7 @@ void LLViewerObject::fetchInventoryDelayed(const F64 &time_seconds)
 //static
 void LLViewerObject::fetchInventoryDelayedCoro(const LLUUID task_inv, const F64 time_seconds)
 {
-    llcoro::suspendUntilTimeout(time_seconds);
+    llcoro::suspendUntilTimeout((float)time_seconds);
     LLViewerObject *obj = gObjectList.findObject(task_inv);
     if (obj)
     {
@@ -3676,6 +3678,8 @@ bool LLViewerObject::updateLOD()
 
 bool LLViewerObject::updateGeometry(LLDrawable *drawable)
 {
+    // return true means "update complete", return false means "try again next frame"
+    // default should be return true
     return true;
 }
 
@@ -4416,6 +4420,7 @@ void LLViewerObject::moveGLTFNode(S32 node_index, const LLVector3& offset)
         matMul(trans, mat, mat);
 
         node.mMatrix = glm::make_mat4(mat.getF32ptr());
+        node.mTRSValid = false;
 
         // TODO -- only update transforms for this node and its children (or use a dirty flag)
         mGLTFAsset->updateTransforms();
@@ -5745,7 +5750,8 @@ LLBBox LLViewerObject::getBoundingBoxAgent() const
     }
 
     if (avatar_parent && avatar_parent->isAvatar() &&
-        root_edit && root_edit->mDrawable.notNull() && root_edit->mDrawable->getXform()->getParent())
+        root_edit && root_edit->mDrawable.notNull() && !root_edit->mDrawable->isDead() &&
+        root_edit->mDrawable->getXform()->getParent())
     {
         LLXform* parent_xform = root_edit->mDrawable->getXform()->getParent();
         position_agent = (getPositionEdit() * parent_xform->getWorldRotation()) + parent_xform->getWorldPosition();
@@ -6014,6 +6020,7 @@ bool LLViewerObject::isParticleSource() const
 
 void LLViewerObject::setParticleSource(const LLPartSysData& particle_parameters, const LLUUID& owner_id)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VIEWER;
     if (mPartSourcep)
     {
         deleteParticleSource();
@@ -6045,6 +6052,7 @@ void LLViewerObject::setParticleSource(const LLPartSysData& particle_parameters,
 
 void LLViewerObject::unpackParticleSource(const S32 block_num, const LLUUID& owner_id)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VIEWER;
     if (!mPartSourcep.isNull() && mPartSourcep->isDead())
     {
         mPartSourcep = NULL;
@@ -6080,7 +6088,7 @@ void LLViewerObject::unpackParticleSource(const S32 block_num, const LLUUID& own
             LLViewerTexture* image;
             if (mPartSourcep->mPartSysData.mPartImageID == LLUUID::null)
             {
-                image = LLViewerTextureManager::getFetchedTextureFromFile("pixiesmall.j2c");
+                image = LLViewerFetchedTexture::sDefaultParticleImagep;
             }
             else
             {
@@ -6093,6 +6101,7 @@ void LLViewerObject::unpackParticleSource(const S32 block_num, const LLUUID& own
 
 void LLViewerObject::unpackParticleSource(LLDataPacker &dp, const LLUUID& owner_id, bool legacy)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VIEWER;
     if (!mPartSourcep.isNull() && mPartSourcep->isDead())
     {
         mPartSourcep = NULL;
@@ -6127,7 +6136,7 @@ void LLViewerObject::unpackParticleSource(LLDataPacker &dp, const LLUUID& owner_
             LLViewerTexture* image;
             if (mPartSourcep->mPartSysData.mPartImageID == LLUUID::null)
             {
-                image = LLViewerTextureManager::getFetchedTextureFromFile("pixiesmall.j2c");
+                image = LLViewerFetchedTexture::sDefaultParticleImagep;
             }
             else
             {

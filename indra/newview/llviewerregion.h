@@ -428,7 +428,7 @@ public:
     static bool isNewObjectCreationThrottleDisabled() {return sNewObjectCreationThrottle < 0;}
 
     // rebuild reflection probe list
-    void updateReflectionProbes();
+    void updateReflectionProbes(bool full_update);
 
 private:
     void addToVOCacheTree(LLVOCacheEntry* entry);

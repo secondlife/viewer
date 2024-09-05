@@ -1,10 +1,10 @@
 /**
- * @file llallocator.cpp
- * @brief Implementation of the LLAllocator class.
+ * @file llterrainpaintmap.h
+ * @brief Utilities for managing terrain paint maps
  *
- * $LicenseInfo:firstyear=2009&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2024, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -24,35 +24,19 @@
  * $/LicenseInfo$
  */
 
-#include "linden_common.h"
-#include "llallocator.h"
+#pragma once
 
-//
-// stub implementations for when tcmalloc is disabled
-//
+class LLViewerRegion;
+class LLViewerTexture;
 
-void LLAllocator::setProfilingEnabled(bool should_enable)
+class LLTerrainPaintMap
 {
-}
+public:
 
-// static
-bool LLAllocator::isProfiling()
-{
-    return false;
-}
-
-std::string LLAllocator::getRawProfile()
-{
-    return std::string();
-}
-
-LLAllocatorHeapProfile const & LLAllocator::getProfile()
-{
-    mProf.mLines.clear();
-
-    // *TODO - avoid making all these extra copies of things...
-    std::string prof_text = getRawProfile();
-    //std::cout << prof_text << std::endl;
-    mProf.parse(prof_text);
-    return mProf;
-}
+    // Convert a region's heightmap and composition into a paint map texture which
+    // approximates how the terrain would be rendered with the heightmap.
+    // In effect, this allows converting terrain of type TERRAIN_PAINT_TYPE_HEIGHTMAP_WITH_NOISE
+    // to type TERRAIN_PAINT_TYPE_PBR_PAINTMAP.
+    // Returns true if successful
+    static bool bakeHeightNoiseIntoPBRPaintMapRGB(const LLViewerRegion& region, LLViewerTexture& tex);
+};

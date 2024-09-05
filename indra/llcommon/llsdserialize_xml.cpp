@@ -554,7 +554,7 @@ void LLSDXMLParser::Impl::parsePart(const char* buf, llssize len)
     if ( buf != NULL
         && len > 0 )
     {
-        XML_Status status = XML_Parse(mParser, buf, len, false);
+        XML_Status status = XML_Parse(mParser, buf, (int)len, 0);
         if (status == XML_STATUS_ERROR)
         {
             LL_INFOS() << "Unexpected XML parsing error at start" << LL_ENDL;
@@ -930,7 +930,7 @@ void LLSDXMLParser::parsePart(const char *buf, llssize len)
 // virtual
 S32 LLSDXMLParser::doParse(std::istream& input, LLSD& data, S32 max_depth) const
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_LLSD
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_LLSD;
 
     #ifdef XML_PARSER_PERFORMANCE_TESTS
     XML_Timer timer( &parseTime );

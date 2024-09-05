@@ -41,6 +41,7 @@
 #include "llfloater.h"
 #include "llfloaterreg.h"
 #include "llfloatereditextdaycycle.h"
+#include "lliconctrl.h"
 #include "llmultisliderctrl.h"
 #include "llnotificationsutil.h"
 #include "llsettingsvo.h"
@@ -57,14 +58,6 @@ namespace
     const std::string FLOATER_DAY_CYCLE_EDIT("env_edit_extdaycycle");
     const std::string STRING_REGION_ENV("str_region_env");
     const std::string STRING_EMPTY_NAME("str_empty");
-
-    inline bool ends_with(std::string const & value, std::string const & ending)
-    {
-        if (ending.size() > value.size())
-            return false;
-        return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
-    }
-
 }
 
 //=========================================================================
@@ -109,10 +102,7 @@ const U32 LLPanelEnvironmentInfo::DIRTY_FLAG_MASK(
         LLPanelEnvironmentInfo::DIRTY_FLAG_DAYOFFSET |
         LLPanelEnvironmentInfo::DIRTY_FLAG_ALTITUDES);
 
-const U32 ALTITUDE_SLIDER_COUNT = 3;
 const F32 ALTITUDE_DEFAULT_HEIGHT_STEP = 1000;
-const U32 ALTITUDE_MARKERS_COUNT = 3;
-const U32 ALTITUDE_PREFIXERS_COUNT = 5;
 
 const std::string slider_marker_base = "mark";
 
@@ -167,23 +157,60 @@ LLPanelEnvironmentInfo::~LLPanelEnvironmentInfo()
 
 bool LLPanelEnvironmentInfo::postBuild()
 {
+    mIconGround = getChild<LLIconCtrl>(ICN_GROUND);
+    mIconWater = getChild<LLIconCtrl>(ICN_WATER);
 
-    getChild<LLUICtrl>(BTN_USEDEFAULT)->setCommitCallback([this](LLUICtrl *, const LLSD &){ onBtnDefault(); });
-    getChild<LLUICtrl>(BTN_SELECTINV)->setCommitCallback([this](LLUICtrl *, const LLSD &){ onBtnSelect(); });
-    getChild<LLUICtrl>(BTN_EDIT)->setCommitCallback([this](LLUICtrl *, const LLSD &){ onBtnEdit(); });
-    getChild<LLUICtrl>(BTN_RST_ALTITUDES)->setCommitCallback([this](LLUICtrl *, const LLSD &){ onBtnRstAltitudes(); });
+    mPanelEnvAltitudes = getChild<LLUICtrl>(PNL_ENVIRONMENT_ALTITUDES);
+    mPanelEnvConfig = getChild<LLUICtrl>(PNL_SETTINGS);
+    mPanelEnvButtons = getChild <LLUICtrl>(PNL_BUTTONS);
+    mPanelEnvDisabled = getChild<LLUICtrl>(PNL_DISABLED);
+    mPanelEnvRegionMsg = getChild<LLUICtrl>(PNL_REGION_MSG);
 
-    getChild<LLUICtrl>(SLD_DAYLENGTH)->setCommitCallback([this](LLUICtrl *, const LLSD &value) { onSldDayLengthChanged(value.asReal()); });
-    getChild<LLSliderCtrl>(SLD_DAYLENGTH)->setSliderMouseUpCallback([this](LLUICtrl *, const LLSD &) { onDayLenOffsetMouseUp(); });
-    getChild<LLSliderCtrl>(SLD_DAYLENGTH)->setSliderEditorCommitCallback([this](LLUICtrl *, const LLSD &) { onDayLenOffsetMouseUp(); });
-    getChild<LLUICtrl>(SLD_DAYOFFSET)->setCommitCallback([this](LLUICtrl *, const LLSD &value) { onSldDayOffsetChanged(value.asReal()); });
-    getChild<LLSliderCtrl>(SLD_DAYOFFSET)->setSliderMouseUpCallback([this](LLUICtrl *, const LLSD &) { onDayLenOffsetMouseUp(); });
-    getChild<LLSliderCtrl>(SLD_DAYOFFSET)->setSliderEditorCommitCallback([this](LLUICtrl *, const LLSD &) { onDayLenOffsetMouseUp(); });
+    mEnvironmentDisabledText = getChild<LLTextBox>(TXT_DISABLED);
+    mLabelApparentTime = getChild<LLTextBox>(LBL_TIMEOFDAY);
 
-    getChild<LLMultiSliderCtrl>(SLD_ALTITUDES)->setCommitCallback([this](LLUICtrl *cntrl, const LLSD &value) { onAltSliderCallback(cntrl, value); });
-    getChild<LLMultiSliderCtrl>(SLD_ALTITUDES)->setSliderMouseUpCallback([this](LLUICtrl *, const LLSD &) { onAltSliderMouseUp(); });
+    mBtnUseDefault = getChild<LLButton>(BTN_USEDEFAULT);
+    mBtnUseDefault->setCommitCallback([this](LLUICtrl *, const LLSD &){ onBtnDefault(); });
+
+    mBtnSelectInv = getChild<LLButton>(BTN_SELECTINV);
+    mBtnSelectInv->setCommitCallback([this](LLUICtrl *, const LLSD &){ onBtnSelect(); });
+
+    mBtnEdit = getChild<LLButton>(BTN_EDIT);
+    mBtnEdit->setCommitCallback([this](LLUICtrl *, const LLSD &){ onBtnEdit(); });
+
+    mBtnResetAltitudes = getChild<LLButton>(BTN_RST_ALTITUDES);
+    mBtnResetAltitudes->setCommitCallback([this](LLUICtrl *, const LLSD &){ onBtnRstAltitudes(); });
+
+    mCheckAllowOverride = getChild<LLCheckBoxCtrl>(CHK_ALLOWOVERRIDE);
+
+    mSliderDayLength = getChild<LLSliderCtrl>(SLD_DAYLENGTH);
+    mSliderDayLength->setCommitCallback([this](LLUICtrl *, const LLSD &value) { onSldDayLengthChanged((F32)value.asReal()); });
+    mSliderDayLength->setSliderMouseUpCallback([this](LLUICtrl *, const LLSD &) { onDayLenOffsetMouseUp(); });
+    mSliderDayLength->setSliderEditorCommitCallback([this](LLUICtrl *, const LLSD &) { onDayLenOffsetMouseUp(); });
+
+    mSliderDayOffset = getChild<LLSliderCtrl>(SLD_DAYOFFSET);
+    mSliderDayOffset->setCommitCallback([this](LLUICtrl *, const LLSD &value) { onSldDayOffsetChanged((F32)value.asReal()); });
+    mSliderDayOffset->setSliderMouseUpCallback([this](LLUICtrl *, const LLSD &) { onDayLenOffsetMouseUp(); });
+    mSliderDayOffset->setSliderEditorCommitCallback([this](LLUICtrl *, const LLSD &) { onDayLenOffsetMouseUp(); });
+
+    mMultiSliderAltitudes = getChild<LLMultiSliderCtrl>(SLD_ALTITUDES);
+    mMultiSliderAltitudes->setCommitCallback([this](LLUICtrl *cntrl, const LLSD &value) { onAltSliderCallback(cntrl, value); });
+    mMultiSliderAltitudes->setSliderMouseUpCallback([this](LLUICtrl *, const LLSD &) { onAltSliderMouseUp(); });
 
     mChangeMonitor = LLEnvironment::instance().setEnvironmentChanged([this](LLEnvironment::EnvSelection_t env, S32 version) { onEnvironmentChanged(env, version); });
+
+    for (U32 idx = 0; idx < ALTITUDE_MARKERS_COUNT; idx++)
+    {
+        mAltitudeMarkers[idx] = findChild<LLUICtrl>(slider_marker_base + llformat("%u", idx));
+    }
+
+    for (U32 idx = 0; idx < ALTITUDE_PREFIXERS_COUNT; idx++)
+    {
+        mAltitudeDropTarget[idx] = findChild<LLSettingsDropTarget>("sdt_" + alt_prefixes[idx]);
+        mAltitudeLabels[idx] = findChild<LLTextBox>("txt_" + alt_prefixes[idx]);
+        mAltitudeEditor[idx] = findChild<LLLineEditor>("edt_invname_" + alt_prefixes[idx]);
+        mAltitudePanels[idx] = findChild<LLView>("pnl_" + alt_prefixes[idx]);
+    }
 
     for (U32 idx = 0; idx < ALTITUDE_SLIDER_COUNT; idx++)
     {
@@ -192,11 +219,12 @@ bool LLPanelEnvironmentInfo::postBuild()
         {
             drop_target->setPanel(this, alt_sliders[idx]);
         }
+
         // set initial values to prevent [ALTITUDE] from displaying
-        updateAltLabel(alt_prefixes[idx], idx + 2, idx * 1000);
+        updateAltLabel(idx, idx + 2, (F32)(idx * 1000));
     }
-    getChild<LLSettingsDropTarget>("sdt_" + alt_prefixes[3])->setPanel(this, alt_prefixes[3]);
-    getChild<LLSettingsDropTarget>("sdt_" + alt_prefixes[4])->setPanel(this, alt_prefixes[4]);
+    mAltitudeDropTarget[3]->setPanel(this, alt_prefixes[3]);
+    mAltitudeDropTarget[4]->setPanel(this, alt_prefixes[4]);
 
     return true;
 }
@@ -260,10 +288,10 @@ void LLPanelEnvironmentInfo::refresh()
     F32Hours dayoffset(mCurrentEnvironment->mDayOffset);
 
     if (dayoffset.value() > 12.0f)
-        dayoffset -= F32Hours(24.0);
+        dayoffset -= daylength;
 
-    getChild<LLSliderCtrl>(SLD_DAYLENGTH)->setValue(daylength.value());
-    getChild<LLSliderCtrl>(SLD_DAYOFFSET)->setValue(dayoffset.value());
+    mSliderDayLength->setValue(daylength.value());
+    mSliderDayOffset->setValue(dayoffset.value());
 
     udpateApparentTimeOfDay();
 
@@ -273,59 +301,58 @@ void LLPanelEnvironmentInfo::refresh()
 
     if (altitudes.size() > 0)
     {
-        LLMultiSliderCtrl *sld = getChild<LLMultiSliderCtrl>(SLD_ALTITUDES);
-        sld->clear();
+        mMultiSliderAltitudes->clear();
 
         for (S32 idx = 0; idx < ALTITUDE_SLIDER_COUNT; ++idx)
         {
             // make sure values are in range, server is supposed to validate them,
             // but issues happen, try to fix values in such case
-            F32 altitude = llclamp(altitudes[idx + 1], sld->getMinValue(), sld->getMaxValue());
-            bool res = sld->addSlider(altitude, alt_sliders[idx]);
+            F32 altitude = llclamp(altitudes[idx + 1], mMultiSliderAltitudes->getMinValue(), mMultiSliderAltitudes->getMaxValue());
+            bool res = mMultiSliderAltitudes->addSlider(altitude, alt_sliders[idx]);
             if (!res)
             {
                 LL_WARNS_ONCE("ENVPANEL") << "Failed to validate altitude from server for parcel id" << getParcelId() << LL_ENDL;
                 // Find a spot to insert altitude.
                 // Assuming everything alright with slider, we should find new place in 11 steps top (step 25m, no overlap 100m)
-                F32 alt_step = (altitude > (sld->getMaxValue() / 2)) ? -sld->getIncrement() : sld->getIncrement();
+                F32 alt_step = (altitude > (mMultiSliderAltitudes->getMaxValue() / 2)) ? -mMultiSliderAltitudes->getIncrement() : mMultiSliderAltitudes->getIncrement();
                 for (U32 i = 0; i < 30; i++)
                 {
                     altitude += alt_step;
-                    if (altitude > sld->getMaxValue())
+                    if (altitude > mMultiSliderAltitudes->getMaxValue())
                     {
-                        altitude = sld->getMinValue();
+                        altitude = mMultiSliderAltitudes->getMinValue();
                     }
-                    else if (altitude < sld->getMinValue())
+                    else if (altitude < mMultiSliderAltitudes->getMinValue())
                     {
-                        altitude = sld->getMaxValue();
+                        altitude = mMultiSliderAltitudes->getMaxValue();
                     }
-                    res = sld->addSlider(altitude, alt_sliders[idx]);
+                    res = mMultiSliderAltitudes->addSlider(altitude, alt_sliders[idx]);
                     if (res) break;
                 }
             }
             if (res)
             {
                 // slider has some auto correction that might have kicked in
-                altitude = sld->getSliderValue(alt_sliders[idx]);
+                altitude = mMultiSliderAltitudes->getSliderValue(alt_sliders[idx]);
             }
             else
             {
                 // Something is very very wrong
                 LL_WARNS_ONCE("ENVPANEL") << "Failed to set up altitudes for parcel id " << getParcelId() << LL_ENDL;
             }
-            updateAltLabel(alt_prefixes[idx], idx + 2, altitude);
+            updateAltLabel(idx, idx + 2, altitude);
             mAltitudes[alt_sliders[idx]] = AltitudeData(idx + 2, idx, altitude);
         }
-        if (sld->getCurNumSliders() != ALTITUDE_SLIDER_COUNT)
+        if (mMultiSliderAltitudes->getCurNumSliders() != ALTITUDE_SLIDER_COUNT)
         {
             LL_WARNS("ENVPANEL") << "Failed to add altitude sliders!" << LL_ENDL;
         }
         readjustAltLabels();
-        sld->resetCurSlider();
+        mMultiSliderAltitudes->resetCurSlider();
     }
 
-    updateAltLabel(alt_prefixes[3], 1, 0); // ground
-    updateAltLabel(alt_prefixes[4], 0, 0); // water
+    updateAltLabel(3, 1, 0); // ground
+    updateAltLabel(4, 0, 0); // water
 
 }
 
@@ -365,8 +392,10 @@ std::string LLPanelEnvironmentInfo::getNameForTrackIndex(U32 index)
     if (invname.empty())
     {
         invname = getNameForTrackIndex(index - 1);
-        if (invname[0] != '(')
+        if (!invname.empty() && invname.front() != '(')
+        {
             invname = "(" + invname + ")";
+        }
     }
 
     return invname;
@@ -455,77 +484,75 @@ bool LLPanelEnvironmentInfo::setControlsEnabled(bool enabled)
     if (mNoEnvironment || (!LLEnvironment::instance().isExtendedEnvironmentEnabled() && !isRegion()))
     {
         is_unavailable = true;
-        getChild<LLTextBox>(TXT_DISABLED)->setText(getString(STR_LEGACY));
+        mEnvironmentDisabledText->setText(getString(STR_LEGACY));
     }
     else if (mNoSelection)
     {
         is_unavailable = true;
-        getChild<LLTextBox>(TXT_DISABLED)->setText(getString(STR_NO_PARCEL));
+        mEnvironmentDisabledText->setText(getString(STR_NO_PARCEL));
     }
     else if (mCrossRegion)
     {
         is_unavailable = true;
-        getChild<LLTextBox>(TXT_DISABLED)->setText(getString(STR_CROSS_REGION));
+        mEnvironmentDisabledText->setText(getString(STR_CROSS_REGION));
     }
     else if (!isRegion() && !mAllowOverride)
     {
         is_unavailable = true;
-        getChild<LLTextBox>(TXT_DISABLED)->setText(getString(STR_DISALLOWED));
+        mEnvironmentDisabledText->setText(getString(STR_DISALLOWED));
     }
     else if (!is_bigenough)
     {
         is_unavailable = true;
-        getChild<LLTextBox>(TXT_DISABLED)->setText(getString(STR_TOO_SMALL));
+        mEnvironmentDisabledText->setText(getString(STR_TOO_SMALL));
     }
 
     if (is_unavailable)
     {
-        getChild<LLUICtrl>(PNL_SETTINGS)->setVisible(false);
-        getChild<LLUICtrl>(PNL_BUTTONS)->setVisible(false);
-        getChild<LLUICtrl>(PNL_DISABLED)->setVisible(true);
-        getChild<LLUICtrl>(PNL_ENVIRONMENT_ALTITUDES)->setVisible(false);
-        getChild<LLUICtrl>(PNL_REGION_MSG)->setVisible(false);
+        mPanelEnvConfig->setVisible(false);
+        mPanelEnvButtons->setVisible(false);
+        mPanelEnvDisabled->setVisible(true);
+        mPanelEnvAltitudes->setVisible(false);
+        mPanelEnvRegionMsg->setVisible(false);
         updateEditFloater(mCurrentEnvironment, false);
 
         return false;
     }
-    getChild<LLUICtrl>(PNL_SETTINGS)->setVisible(true);
-    getChild<LLUICtrl>(PNL_BUTTONS)->setVisible(true);
-    getChild<LLUICtrl>(PNL_DISABLED)->setVisible(false);
-    getChild<LLUICtrl>(PNL_REGION_MSG)->setVisible(isRegion());
+    mPanelEnvConfig->setVisible(true);
+    mPanelEnvButtons->setVisible(true);
+    mPanelEnvDisabled->setVisible(false);
+    mPanelEnvRegionMsg->setVisible(isRegion());
 
-    getChild<LLUICtrl>(PNL_ENVIRONMENT_ALTITUDES)->setVisible(LLEnvironment::instance().isExtendedEnvironmentEnabled());
-    getChild<LLUICtrl>(BTN_RST_ALTITUDES)->setVisible(isRegion());
+    mPanelEnvAltitudes->setVisible(LLEnvironment::instance().isExtendedEnvironmentEnabled());
+    mBtnResetAltitudes->setVisible(isRegion());
 
     bool can_enable = enabled && !is_legacy && mCurrentEnvironment && (mCurEnvVersion != INVALID_PARCEL_ENVIRONMENT_VERSION);
-    getChild<LLUICtrl>(BTN_SELECTINV)->setEnabled(can_enable);
-    getChild<LLUICtrl>(BTN_USEDEFAULT)->setEnabled(can_enable);
-    getChild<LLUICtrl>(BTN_EDIT)->setEnabled(can_enable);
-    getChild<LLUICtrl>(SLD_DAYLENGTH)->setEnabled(can_enable);
-    getChild<LLUICtrl>(SLD_DAYOFFSET)->setEnabled(can_enable);
-    getChild<LLUICtrl>(SLD_ALTITUDES)->setEnabled(can_enable && isRegion());
-    getChild<LLUICtrl>(ICN_GROUND)->setColor((can_enable && isRegion()) ? LLColor4::white : LLColor4::grey % 0.8f);
-    getChild<LLUICtrl>(ICN_WATER)->setColor((can_enable && isRegion()) ? LLColor4::white : LLColor4::grey % 0.8f);
-    getChild<LLUICtrl>(BTN_RST_ALTITUDES)->setEnabled(can_enable && isRegion());
-    getChild<LLUICtrl>(PNL_ENVIRONMENT_ALTITUDES)->setEnabled(can_enable);
-    getChild<LLUICtrl>(CHK_ALLOWOVERRIDE)->setEnabled(can_enable && isRegion());
+    mBtnSelectInv->setEnabled(can_enable);
+    mBtnUseDefault->setEnabled(can_enable);
+    mBtnEdit->setEnabled(can_enable);
+    mSliderDayLength->setEnabled(can_enable);
+    mSliderDayOffset->setEnabled(can_enable);
+    mMultiSliderAltitudes->setEnabled(can_enable && isRegion());
+    mIconGround->setColor((can_enable && isRegion()) ? LLColor4::white : LLColor4::grey % 0.8f);
+    mIconWater->setColor((can_enable && isRegion()) ? LLColor4::white : LLColor4::grey % 0.8f);
+    mBtnResetAltitudes->setEnabled(can_enable && isRegion());
+    mPanelEnvAltitudes->setEnabled(can_enable);
+    mCheckAllowOverride->setEnabled(can_enable && isRegion());
 
     for (U32 idx = 0; idx < ALTITUDE_MARKERS_COUNT; idx++)
     {
-        LLUICtrl* marker = findChild<LLUICtrl>(slider_marker_base + llformat("%u", idx));
-        if (marker)
+        if (mAltitudeMarkers[idx])
         {
             static LLColor4 marker_color(0.75f, 0.75f, 0.75f, 1.f);
-            marker->setColor((can_enable && isRegion()) ? marker_color : marker_color % 0.3f);
+            mAltitudeMarkers[idx]->setColor((can_enable && isRegion()) ? marker_color : marker_color % 0.3f);
         }
     }
 
     for (U32 idx = 0; idx < ALTITUDE_PREFIXERS_COUNT; idx++)
     {
-        LLSettingsDropTarget* drop_target = findChild<LLSettingsDropTarget>("sdt_" + alt_prefixes[idx]);
-        if (drop_target)
+        if (mAltitudeDropTarget[idx])
         {
-            drop_target->setDndEnabled(can_enable);
+            mAltitudeDropTarget[idx]->setDndEnabled(can_enable);
         }
     }
 
@@ -542,24 +569,18 @@ void LLPanelEnvironmentInfo::clearDirtyFlag(U32 flag)
     mDirtyFlag &= ~flag;
 }
 
-void LLPanelEnvironmentInfo::updateAltLabel(const std::string &alt_prefix, U32 sky_index, F32 alt_value)
+void LLPanelEnvironmentInfo::updateAltLabel(U32 alt_index, U32 sky_index, F32 alt_value)
 {
-    LLMultiSliderCtrl *sld = findChild<LLMultiSliderCtrl>(SLD_ALTITUDES);
-    if (!sld)
-    {
-        LL_WARNS() << "Failed to find slider " << SLD_ALTITUDES << LL_ENDL;
-        return;
-    }
-    LLRect sld_rect = sld->getRect();
+    LLRect sld_rect = mMultiSliderAltitudes->getRect();
     S32 sld_range = sld_rect.getHeight();
     S32 sld_bottom = sld_rect.mBottom;
     S32 sld_offset = sld_rect.getWidth(); // Roughly identical to thumb's width in slider.
-    S32 pos = (sld_range - sld_offset) * ((alt_value - 100) / (4000 - 100));
+    S32 pos = (S32)((sld_range - sld_offset) * ((alt_value - 100) / (4000 - 100)));
 
     // get related views
-    LLTextBox* text = findChild<LLTextBox>("txt_" + alt_prefix);
-    LLLineEditor *field = findChild<LLLineEditor>("edt_invname_" + alt_prefix);
-    LLView *alt_panel = findChild<LLView>("pnl_" + alt_prefix);
+    LLTextBox* text = mAltitudeLabels[alt_index];
+    LLLineEditor* field = mAltitudeEditor[alt_index];
+    LLView* alt_panel = mAltitudePanels[alt_index];
 
     if (text && (sky_index > 1))
     {
@@ -596,19 +617,16 @@ void LLPanelEnvironmentInfo::readjustAltLabels()
     // Very simple "adjust after the fact" method
     // Note: labels can be in any order
 
-    LLMultiSliderCtrl *sld = findChild<LLMultiSliderCtrl>(SLD_ALTITUDES);
-    if (!sld) return;
-
     LLView* view_midle = NULL;
     U32 midle_ind = 0;
     S32 shift_up = 0;
     S32 shift_down = 0;
-    LLRect sld_rect = sld->getRect();
+    LLRect sld_rect = mMultiSliderAltitudes->getRect();
 
     // Find the middle one
     for (U32 i = 0; i < ALTITUDE_SLIDER_COUNT; i++)
     {
-        LLView* cmp_view = findChild<LLView>(alt_panels[i], true);
+        LLView* cmp_view = mAltitudePanels[i];
         if (!cmp_view) return;
         LLRect cmp_rect = cmp_view->getRect();
         S32 pos = 0;
@@ -619,7 +637,7 @@ void LLPanelEnvironmentInfo::readjustAltLabels()
         {
             if (i != j)
             {
-                LLView* intr_view = findChild<LLView>(alt_panels[j], true);
+                LLView* intr_view = mAltitudePanels[j];
                 if (!intr_view) return;
                 LLRect intr_rect = intr_view->getRect();
                 if (cmp_rect.mBottom >= intr_rect.mBottom)
@@ -647,15 +665,15 @@ void LLPanelEnvironmentInfo::readjustAltLabels()
     // Account for edges
     LLRect midle_rect = view_midle->getRect();
     F32 factor = 0.5f;
-    S32 edge_zone_height = midle_rect.getHeight() * 1.5f;
+    S32 edge_zone_height = (S32)(midle_rect.getHeight() * 1.5f);
 
     if (midle_rect.mBottom - sld_rect.mBottom < edge_zone_height)
     {
-        factor = 1 - ((midle_rect.mBottom - sld_rect.mBottom) / (edge_zone_height * 2));
+        factor = 1.f - (F32)((midle_rect.mBottom - sld_rect.mBottom) / (edge_zone_height * 2));
     }
     else if (sld_rect.mTop - midle_rect.mTop < edge_zone_height )
     {
-        factor = ((sld_rect.mTop - midle_rect.mTop) / (edge_zone_height * 2));
+        factor = (F32)((sld_rect.mTop - midle_rect.mTop) / (edge_zone_height * 2));
     }
 
     S32 shift_middle = (S32)(((F32)shift_down * factor) + ((F32)shift_up * (1.f - factor)));
@@ -667,7 +685,7 @@ void LLPanelEnvironmentInfo::readjustAltLabels()
     {
         if (i != midle_ind)
         {
-            LLView* trn_view = findChild<LLView>(alt_panels[i], true);
+            LLView* trn_view = mAltitudePanels[i];
             LLRect trn_rect = trn_view->getRect();
 
             if (trn_rect.mBottom <= midle_rect.mTop && trn_rect.mBottom >= midle_rect.mBottom)
@@ -699,6 +717,11 @@ void LLPanelEnvironmentInfo::onSldDayLengthChanged(F32 value)
         F32Hours daylength(value);
 
         mCurrentEnvironment->mDayLength = daylength;
+        F32 offset = (F32)mSliderDayOffset->getValue().asReal();
+        if (offset <= 0.0f)
+        {
+            onSldDayOffsetChanged(offset);
+        }
         setDirtyFlag(DIRTY_FLAG_DAYLENGTH);
 
         udpateApparentTimeOfDay();
@@ -712,7 +735,8 @@ void LLPanelEnvironmentInfo::onSldDayOffsetChanged(F32 value)
         F32Hours dayoffset(value);
 
         if (dayoffset.value() <= 0.0f)
-            dayoffset += F32Hours(24.0);
+            // if day cycle is 5 hours long, we want -1h offset to result in 4h
+            dayoffset += mCurrentEnvironment->mDayLength;
 
         mCurrentEnvironment->mDayOffset = dayoffset;
         setDirtyFlag(DIRTY_FLAG_DAYOFFSET);
@@ -739,17 +763,17 @@ void LLPanelEnvironmentInfo::commitDayLenOffsetChanges(bool need_callback)
         {
             LLEnvironment::instance().updateParcel(getParcelId(),
                                                    LLSettingsDay::ptr_t(),
-                                                   mCurrentEnvironment->mDayLength.value(),
-                                                   mCurrentEnvironment->mDayOffset.value(),
+                                                   (S32)mCurrentEnvironment->mDayLength.value(),
+                                                   (S32)mCurrentEnvironment->mDayOffset.value(),
                                                    LLEnvironment::altitudes_vect_t(),
-                                                   [that_h](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) { _onEnvironmentReceived(that_h, parcel_id, envifo); });
+                                                   [that_h](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) { onEnvironmentReceived(that_h, parcel_id, envifo); });
         }
         else
         {
             LLEnvironment::instance().updateParcel(getParcelId(),
                                                    LLSettingsDay::ptr_t(),
-                                                   mCurrentEnvironment->mDayLength.value(),
-                                                   mCurrentEnvironment->mDayOffset.value(),
+                                                   (S32)mCurrentEnvironment->mDayLength.value(),
+                                                   (S32)mCurrentEnvironment->mDayOffset.value(),
                                                    LLEnvironment::altitudes_vect_t());
         }
 
@@ -787,7 +811,7 @@ void LLPanelEnvironmentInfo::onAltSliderCallback(LLUICtrl *cntrl, const LLSD &da
         }
         iter->second.mTrackIndex = new_index;
 
-        updateAltLabel(alt_prefixes[iter->second.mLabelIndex], iter->second.mTrackIndex, iter->second.mAltitude);
+        updateAltLabel(iter->second.mLabelIndex, iter->second.mTrackIndex, iter->second.mAltitude);
         iter++;
     }
 
@@ -813,8 +837,8 @@ void LLPanelEnvironmentInfo::onAltSliderMouseUp()
         setControlsEnabled(false);
         LLEnvironment::instance().updateParcel(getParcelId(),
                                                LLSettingsDay::ptr_t(),
-                                               mCurrentEnvironment ? mCurrentEnvironment->mDayLength.value() : -1,
-                                               mCurrentEnvironment ? mCurrentEnvironment->mDayOffset.value() : -1,
+                                               mCurrentEnvironment ? (S32)mCurrentEnvironment->mDayLength.value() : -1,
+                                               mCurrentEnvironment ? (S32)mCurrentEnvironment->mDayOffset.value() : -1,
                                                alts);
     }
 }
@@ -830,7 +854,7 @@ void LLPanelEnvironmentInfo::onBtnDefault()
         if (opt == 0)
         {
             LLEnvironment::instance().resetParcel(parcel_id,
-                [that_h](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) { _onEnvironmentReceived(that_h, parcel_id, envifo); });
+                [that_h](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) { onEnvironmentReceived(that_h, parcel_id, envifo); });
         }
     });
 }
@@ -842,31 +866,30 @@ void LLPanelEnvironmentInfo::onBtnEdit()
     LLFloaterEditExtDayCycle *dayeditor = getEditFloater();
 
     LLSD params(LLSDMap(LLFloaterEditExtDayCycle::KEY_EDIT_CONTEXT, isRegion() ? LLFloaterEditExtDayCycle::VALUE_CONTEXT_REGION : LLFloaterEditExtDayCycle::VALUE_CONTEXT_PARCEL)
-            (LLFloaterEditExtDayCycle::KEY_DAY_LENGTH,  mCurrentEnvironment ? (S32)(mCurrentEnvironment->mDayLength.value()) : FOURHOURS)
-            (LLFloaterEditExtDayCycle::KEY_CANMOD,      LLSD::Boolean(true)));
+            (LLFloaterEditExtDayCycle::KEY_DAY_LENGTH, mCurrentEnvironment ? (S32)(mCurrentEnvironment->mDayLength.value()) : FOURHOURS));
 
     dayeditor->openFloater(params);
+
     if (mCurrentEnvironment && mCurrentEnvironment->mDayCycle)
     {
         dayeditor->setEditDayCycle(mCurrentEnvironment->mDayCycle);
-        if (!ends_with(mCurrentEnvironment->mDayCycle->getName(), "(customized)"))
-        {
-            dayeditor->setEditName(mCurrentEnvironment->mDayCycle->getName() + "(customized)");
-        }
+        dayeditor->setEditName(mCurrentEnvironment->mDayCycleName);
     }
     else
+    {
         dayeditor->setEditDefaultDayCycle();
+    }
 }
 
 void LLPanelEnvironmentInfo::onBtnSelect()
 {
-    LLFloaterSettingsPicker *picker = getSettingsPicker();
-    if (picker)
+    if (LLFloaterSettingsPicker* picker = getSettingsPicker())
     {
         LLUUID item_id;
         if (mCurrentEnvironment && mCurrentEnvironment->mDayCycle)
         {
-            item_id = LLFloaterSettingsPicker::findItemID(mCurrentEnvironment->mDayCycle->getAssetId(), false, false);
+            LLUUID asset_id = mCurrentEnvironment->mDayCycle->getAssetId();
+            item_id = LLFloaterSettingsPicker::findItemID(asset_id, false);
         }
         picker->setSettingsFilter(LLSettingsType::ST_NONE);
         picker->setSettingsItemId(item_id);
@@ -894,10 +917,10 @@ void LLPanelEnvironmentInfo::onBtnRstAltitudes()
 
         LLEnvironment::instance().updateParcel(getParcelId(),
                                                LLSettingsDay::ptr_t(),
-                                               mCurrentEnvironment ? mCurrentEnvironment->mDayLength.value() : -1,
-                                               mCurrentEnvironment ? mCurrentEnvironment->mDayOffset.value() : -1,
+                                               mCurrentEnvironment ? (S32)mCurrentEnvironment->mDayLength.value() : -1,
+                                               mCurrentEnvironment ? (S32)mCurrentEnvironment->mDayOffset.value() : -1,
                                                alts,
-            [that_h](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) { _onEnvironmentReceived(that_h, parcel_id, envifo); });
+            [that_h](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) { onEnvironmentReceived(that_h, parcel_id, envifo); });
     }
 }
 
@@ -905,14 +928,14 @@ void LLPanelEnvironmentInfo::udpateApparentTimeOfDay()
 {
     static const F32 SECONDSINDAY(24.0 * 60.0 * 60.0);
 
-    if ((!mCurrentEnvironment) || (mCurrentEnvironment->mDayLength.value() < 1.0) || (mCurrentEnvironment->mDayOffset.value() < 1.0))
+    if ((!mCurrentEnvironment) || (mCurrentEnvironment->mDayLength.value() < 1.0))
     {
-        getChild<LLUICtrl>(LBL_TIMEOFDAY)->setVisible(false);
+        mLabelApparentTime->setVisible(false);
         return;
     }
-    getChild<LLUICtrl>(LBL_TIMEOFDAY)->setVisible(true);
+    mLabelApparentTime->setVisible(true);
 
-    S32Seconds  now(LLDate::now().secondsSinceEpoch());
+    S32Seconds now((S32)LLDate::now().secondsSinceEpoch());
 
     now += mCurrentEnvironment->mDayOffset;
 
@@ -932,10 +955,10 @@ void LLPanelEnvironmentInfo::udpateApparentTimeOfDay()
     std::string lblminute(((minutesofhour.value() < 10) ? "0" : "") + LLSD(minutesofhour.value()).asString());
 
 
-    getChild<LLUICtrl>(LBL_TIMEOFDAY)->setTextArg("[HH]", LLSD(hourofday.value()).asString());
-    getChild<LLUICtrl>(LBL_TIMEOFDAY)->setTextArg("[MM]", lblminute);
-    getChild<LLUICtrl>(LBL_TIMEOFDAY)->setTextArg("[AP]", std::string(am_pm ? "PM" : "AM"));
-    getChild<LLUICtrl>(LBL_TIMEOFDAY)->setTextArg("[PRC]", LLSD((S32)(100 * perc)).asString());
+    mLabelApparentTime->setTextArg("[HH]", LLSD(hourofday.value()).asString());
+    mLabelApparentTime->setTextArg("[MM]", lblminute);
+    mLabelApparentTime->setTextArg("[AP]", std::string(am_pm ? "PM" : "AM"));
+    mLabelApparentTime->setTextArg("[PRC]", LLSD((S32)(100 * perc)).asString());
 
 }
 
@@ -963,32 +986,41 @@ void LLPanelEnvironmentInfo::onPickerCommitted(LLUUID item_id, std::string sourc
 
 void LLPanelEnvironmentInfo::onPickerCommitted(LLUUID item_id, S32 track_num)
 {
-    LLInventoryItem *itemp = gInventory.getItem(item_id);
-    if (itemp)
+    if (LLInventoryItem* itemp = gInventory.getItem(item_id))
     {
+        LL_INFOS("ENVPANEL") << "item '" << item_id << "' : '" << itemp->getDescription() << "'" << LL_ENDL;
+
         LLHandle<LLPanel> that_h = getHandle();
         clearDirtyFlag(DIRTY_FLAG_DAYLENGTH);
         clearDirtyFlag(DIRTY_FLAG_DAYOFFSET);
 
         U32 flags(0);
 
-        if (itemp)
+        if (!itemp->getPermissions().allowOperationBy(PERM_MODIFY, gAgent.getID()))
         {
-            if (!itemp->getPermissions().allowOperationBy(PERM_MODIFY, gAgent.getID()))
-                flags |= LLSettingsBase::FLAG_NOMOD;
-            if (!itemp->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID()))
-                flags |= LLSettingsBase::FLAG_NOTRANS;
+            flags |= LLSettingsBase::FLAG_NOMOD;
         }
 
-        LLEnvironment::instance().updateParcel(getParcelId(),
-                                               itemp->getAssetUUID(),
-                                               itemp->getName(),
-                                               track_num,
-                                               mCurrentEnvironment ? mCurrentEnvironment->mDayLength.value() : -1,
-                                               mCurrentEnvironment ? mCurrentEnvironment->mDayOffset.value() : -1,
-                                               flags,
-                                               LLEnvironment::altitudes_vect_t(),
-            [that_h](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) { _onEnvironmentReceived(that_h, parcel_id, envifo); });
+        if (!itemp->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID()))
+        {
+            flags |= LLSettingsBase::FLAG_NOTRANS;
+        }
+
+        LLEnvironment::instance().updateParcel
+        (
+            getParcelId(),
+            itemp->getAssetUUID(),
+            itemp->getName(),
+            track_num,
+            mCurrentEnvironment ? (S32)mCurrentEnvironment->mDayLength.value() : -1,
+            mCurrentEnvironment ? (S32)mCurrentEnvironment->mDayOffset.value() : -1,
+            flags,
+            LLEnvironment::altitudes_vect_t(),
+            [that_h](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo)
+            {
+                onEnvironmentReceived(that_h, parcel_id, envifo);
+            }
+        );
     }
 }
 
@@ -996,17 +1028,20 @@ void LLPanelEnvironmentInfo::onEditCommitted(LLSettingsDay::ptr_t newday)
 {
     LLEnvironment::instance().clearEnvironment(LLEnvironment::ENV_EDIT);
     LLEnvironment::instance().updateEnvironment();
+
     if (!newday)
     {
         LL_WARNS("ENVPANEL") << "Editor committed an empty day. Do nothing." << LL_ENDL;
         return;
     }
+
     if (!mCurrentEnvironment)
     {
         // Attempting to save mid update?
         LL_WARNS("ENVPANEL") << "Failed to apply changes from editor! Dirty state: " << mDirtyFlag << " env version: " << mCurEnvVersion << LL_ENDL;
         return;
     }
+
     size_t newhash(newday->getHash());
     size_t oldhash((mCurrentEnvironment->mDayCycle) ? mCurrentEnvironment->mDayCycle->getHash() : 0);
 
@@ -1018,10 +1053,10 @@ void LLPanelEnvironmentInfo::onEditCommitted(LLSettingsDay::ptr_t newday)
 
         LLEnvironment::instance().updateParcel(getParcelId(),
                                                newday,
-                                               mCurrentEnvironment ? mCurrentEnvironment->mDayLength.value() : -1,
-                                               mCurrentEnvironment ? mCurrentEnvironment->mDayOffset.value() : -1,
+                                               mCurrentEnvironment ? (S32)mCurrentEnvironment->mDayLength.value() : -1,
+                                               mCurrentEnvironment ? (S32)mCurrentEnvironment->mDayOffset.value() : -1,
                                                LLEnvironment::altitudes_vect_t(),
-            [that_h](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) { _onEnvironmentReceived(that_h, parcel_id, envifo); });
+            [that_h](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) { onEnvironmentReceived(that_h, parcel_id, envifo); });
     }
 }
 
@@ -1058,8 +1093,7 @@ void LLPanelEnvironmentInfo::onEnvironmentChanged(LLEnvironment::EnvSelection_t 
     else if ((env == LLEnvironment::ENV_PARCEL)
              && (getParcelId() == LLViewerParcelMgr::instance().getAgentParcelId()))
     {
-        LLParcel *parcel = getParcel();
-        if (parcel)
+        if (LLParcel* parcel = getParcel())
         {
             // first for parcel own settings, second is for case when parcel uses region settings
             if (mCurEnvVersion < new_version
@@ -1121,17 +1155,21 @@ void LLPanelEnvironmentInfo::onEnvironmentReceived(S32 parcel_id, LLEnvironment:
     // todo: we have envifo and parcel env version, should we just setEnvironment() and parcel's property to prevent dupplicate requests?
 }
 
-void LLPanelEnvironmentInfo::_onEnvironmentReceived(LLHandle<LLPanel> that_h, S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo)
+// static
+void LLPanelEnvironmentInfo::onEnvironmentReceived(LLHandle<LLPanel> that_h, S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo)
 {
-    LLPanelEnvironmentInfo *that = (LLPanelEnvironmentInfo *)that_h.get();
-    if (!that)
-        return;
-    that->onEnvironmentReceived(parcel_id, envifo);
+    if (LLPanelEnvironmentInfo* that = (LLPanelEnvironmentInfo*)that_h.get())
+    {
+        that->onEnvironmentReceived(parcel_id, envifo);
+    }
 }
 
 LLSettingsDropTarget::LLSettingsDropTarget(const LLSettingsDropTarget::Params& p)
-    : LLView(p), mEnvironmentInfoPanel(NULL), mDndEnabled(false)
-{}
+    : LLView(p)
+    , mEnvironmentInfoPanel(NULL)
+    , mDndEnabled(false)
+{
+}
 
 bool LLSettingsDropTarget::handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
     EDragAndDropType cargo_type,
@@ -1148,11 +1186,9 @@ bool LLSettingsDropTarget::handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
         switch (cargo_type)
         {
         case DAD_SETTINGS:
-        {
-            LLViewerInventoryItem* inv_item = (LLViewerInventoryItem*)cargo_data;
-            if (inv_item && mEnvironmentInfoPanel)
+            if (cargo_data && mEnvironmentInfoPanel)
             {
-                LLUUID item_id = inv_item->getUUID();
+                LLUUID item_id = ((LLViewerInventoryItem*)cargo_data)->getUUID();
                 if (gInventory.getItem(item_id))
                 {
                     *accept = ACCEPT_YES_COPY_SINGLE;
@@ -1168,11 +1204,11 @@ bool LLSettingsDropTarget::handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
                 *accept = ACCEPT_NO;
             }
             break;
-        }
         default:
             *accept = ACCEPT_NO;
             break;
         }
     }
+
     return handled;
 }

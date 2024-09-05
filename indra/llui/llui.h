@@ -112,18 +112,18 @@ class LLImageProviderInterface;
 
 typedef void (*LLUIAudioCallback)(const LLUUID& uuid);
 
-class LLUI : public LLParamSingleton<LLUI>
+class LLUI : public LLSimpleton<LLUI>
 {
+    LOG_CLASS(LLUI);
 public:
-    typedef std::map<std::string, LLControlGroup*> settings_map_t;
+    typedef std::map<std::string, LLControlGroup*, std::less<> > settings_map_t;
 
-private:
-    LLSINGLETON(LLUI , const settings_map_t &settings,
+    LLUI(const settings_map_t &settings,
                            LLImageProviderInterface* image_provider,
                            LLUIAudioCallback audio_callback,
                            LLUIAudioCallback deferred_audio_callback);
-    LOG_CLASS(LLUI);
-public:
+    ~LLUI();
+
     //
     // Classes
     //
@@ -295,7 +295,7 @@ public:
     void screenRectToGL(const LLRect& screen, LLRect *gl);
     void glRectToScreen(const LLRect& gl, LLRect *screen);
     // Returns the control group containing the control name, or the default group
-    LLControlGroup& getControlControlGroup (const std::string& controlname);
+    LLControlGroup& getControlControlGroup (std::string_view controlname);
     F32 getMouseIdleTime() { return mMouseIdleTimer.getElapsedTimeF32(); }
     void resetMouseIdleTimer() { mMouseIdleTimer.reset(); }
     LLWindow* getWindow() { return mWindow; }

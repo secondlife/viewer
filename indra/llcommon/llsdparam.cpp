@@ -149,7 +149,7 @@ bool LLParamSDParser::readF32(Parser& parser, void* val_ptr)
 {
     LLParamSDParser& self = static_cast<LLParamSDParser&>(parser);
 
-    *((F32*)val_ptr) = self.mCurReadSD->asReal();
+    *((F32*)val_ptr) = (F32)self.mCurReadSD->asReal();
     return true;
 }
 

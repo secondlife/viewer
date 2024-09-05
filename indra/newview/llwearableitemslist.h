@@ -105,6 +105,8 @@ protected:
                               bool worn_indication_enabled, const Params& params, bool show_widgets = false);
 
 private:
+    LLButton* mAddWearableBtn = nullptr;
+    LLButton* mRemoveWearableBtn = nullptr;
     bool    mWornIndicationEnabled;
     bool mShowWidgets;
 };

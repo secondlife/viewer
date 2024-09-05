@@ -450,10 +450,10 @@ void LLManip::renderXYZ(const LLVector3 &vec)
         gGL.color4f(0.f, 0.f, 0.f, 0.7f);
 
         imagep->draw(
-            (window_center_x - 115) * display_scale.mV[VX],
-            (window_center_y + vertical_offset - PAD) * display_scale.mV[VY],
-            235 * display_scale.mV[VX],
-            (PAD * 2 + 10) * display_scale.mV[VY],
+            (S32)((window_center_x - 115) * display_scale.mV[VX]),
+            (S32)((window_center_y + vertical_offset - PAD) * display_scale.mV[VY]),
+            (S32)(235 * display_scale.mV[VX]),
+            (S32)((PAD * 2 + 10) * display_scale.mV[VY]),
             LLColor4(0.f, 0.f, 0.f, 0.7f) );
 
         LLFontGL* font = LLFontGL::getFontSansSerif();
@@ -463,33 +463,33 @@ void LLManip::renderXYZ(const LLVector3 &vec)
         // render drop shadowed text (manually because of bigger 'distance')
         F32 right_x;
         feedback_string = llformat("X: %.3f", vec.mV[VX]);
-        font->render(utf8str_to_wstring(feedback_string), 0, window_center_x - 102.f + 1.f, window_center_y + vertical_offset - 2.f, LLColor4::black,
+        font->render(utf8str_to_wstring(feedback_string), 0, window_center_x - 102.f + 1.f, (F32)(window_center_y + vertical_offset) - 2.f, LLColor4::black,
             LLFontGL::LEFT, LLFontGL::BASELINE,
             LLFontGL::NORMAL, LLFontGL::NO_SHADOW, S32_MAX, 1000, &right_x);
 
         feedback_string = llformat("Y: %.3f", vec.mV[VY]);
-        font->render(utf8str_to_wstring(feedback_string), 0, window_center_x - 27.f + 1.f, window_center_y + vertical_offset - 2.f, LLColor4::black,
+        font->render(utf8str_to_wstring(feedback_string), 0, window_center_x - 27.f + 1.f, (F32)(window_center_y + vertical_offset) - 2.f, LLColor4::black,
             LLFontGL::LEFT, LLFontGL::BASELINE,
             LLFontGL::NORMAL, LLFontGL::NO_SHADOW, S32_MAX, 1000, &right_x);
 
         feedback_string = llformat("Z: %.3f", vec.mV[VZ]);
-        font->render(utf8str_to_wstring(feedback_string), 0, window_center_x + 48.f + 1.f, window_center_y + vertical_offset - 2.f, LLColor4::black,
+        font->render(utf8str_to_wstring(feedback_string), 0, window_center_x + 48.f + 1.f, (F32)(window_center_y + vertical_offset) - 2.f, LLColor4::black,
             LLFontGL::LEFT, LLFontGL::BASELINE,
             LLFontGL::NORMAL, LLFontGL::NO_SHADOW, S32_MAX, 1000, &right_x);
 
         // render text on top
         feedback_string = llformat("X: %.3f", vec.mV[VX]);
-        font->render(utf8str_to_wstring(feedback_string), 0, window_center_x - 102.f, window_center_y + vertical_offset, LLColor4(1.f, 0.5f, 0.5f, 1.f),
+        font->render(utf8str_to_wstring(feedback_string), 0, window_center_x - 102.f, (F32)(window_center_y + vertical_offset), LLColor4(1.f, 0.5f, 0.5f, 1.f),
             LLFontGL::LEFT, LLFontGL::BASELINE,
             LLFontGL::NORMAL, LLFontGL::NO_SHADOW, S32_MAX, 1000, &right_x);
 
         feedback_string = llformat("Y: %.3f", vec.mV[VY]);
-        font->render(utf8str_to_wstring(feedback_string), 0, window_center_x - 27.f, window_center_y + vertical_offset, LLColor4(0.5f, 1.f, 0.5f, 1.f),
+        font->render(utf8str_to_wstring(feedback_string), 0, window_center_x - 27.f, (F32)(window_center_y + vertical_offset), LLColor4(0.5f, 1.f, 0.5f, 1.f),
             LLFontGL::LEFT, LLFontGL::BASELINE,
             LLFontGL::NORMAL, LLFontGL::NO_SHADOW, S32_MAX, 1000, &right_x);
 
         feedback_string = llformat("Z: %.3f", vec.mV[VZ]);
-        font->render(utf8str_to_wstring(feedback_string), 0, window_center_x + 48.f, window_center_y + vertical_offset, LLColor4(0.5f, 0.5f, 1.f, 1.f),
+        font->render(utf8str_to_wstring(feedback_string), 0, window_center_x + 48.f, (F32)(window_center_y + vertical_offset), LLColor4(0.5f, 0.5f, 1.f, 1.f),
             LLFontGL::LEFT, LLFontGL::BASELINE,
             LLFontGL::NORMAL, LLFontGL::NO_SHADOW, S32_MAX, 1000, &right_x);
     }
@@ -519,9 +519,9 @@ void LLManip::renderTickText(const LLVector3& pos, const std::string& text, cons
     LLColor4 shadow_color = LLColor4::black;
     shadow_color.mV[VALPHA] = color.mV[VALPHA] * 0.5f;
     gViewerWindow->setup3DViewport(1, -1);
-    hud_render_utf8text(text, render_pos, *big_fontp, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,  -0.5f * big_fontp->getWidthF32(text), 3.f, shadow_color, mObjectSelection->getSelectType() == SELECT_TYPE_HUD);
+    hud_render_utf8text(text, render_pos, nullptr, *big_fontp, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,  -0.5f * big_fontp->getWidthF32(text), 3.f, shadow_color, mObjectSelection->getSelectType() == SELECT_TYPE_HUD);
     gViewerWindow->setup3DViewport();
-    hud_render_utf8text(text, render_pos, *big_fontp, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, -0.5f * big_fontp->getWidthF32(text), 3.f, color, mObjectSelection->getSelectType() == SELECT_TYPE_HUD);
+    hud_render_utf8text(text, render_pos, nullptr, *big_fontp, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, -0.5f * big_fontp->getWidthF32(text), 3.f, color, mObjectSelection->getSelectType() == SELECT_TYPE_HUD);
 
     gGL.popMatrix();
 }
@@ -581,12 +581,12 @@ void LLManip::renderTickValue(const LLVector3& pos, F32 value, const std::string
         {
             fraction_string = llformat("%c%02d%s", LLResMgr::getInstance()->getDecimalPoint(), fractional_portion, suffix.c_str());
 
-            hud_render_utf8text(val_string, render_pos, *big_fontp, LLFontGL::NORMAL, LLFontGL::DROP_SHADOW, -1.f * big_fontp->getWidthF32(val_string), 3.f, color, hud_selection);
-            hud_render_utf8text(fraction_string, render_pos, *small_fontp, LLFontGL::NORMAL, LLFontGL::DROP_SHADOW, 1.f, 3.f, color, hud_selection);
+            hud_render_utf8text(val_string, render_pos, nullptr, *big_fontp, LLFontGL::NORMAL, LLFontGL::DROP_SHADOW, -1.f * big_fontp->getWidthF32(val_string), 3.f, color, hud_selection);
+            hud_render_utf8text(fraction_string, render_pos, nullptr, *small_fontp, LLFontGL::NORMAL, LLFontGL::DROP_SHADOW, 1.f, 3.f, color, hud_selection);
         }
         else
         {
-            hud_render_utf8text(val_string, render_pos, *big_fontp, LLFontGL::NORMAL, LLFontGL::DROP_SHADOW, -0.5f * big_fontp->getWidthF32(val_string), 3.f, color, hud_selection);
+            hud_render_utf8text(val_string, render_pos, nullptr, *big_fontp, LLFontGL::NORMAL, LLFontGL::DROP_SHADOW, -0.5f * big_fontp->getWidthF32(val_string), 3.f, color, hud_selection);
         }
     }
     gGL.popMatrix();
@@ -594,9 +594,9 @@ void LLManip::renderTickValue(const LLVector3& pos, F32 value, const std::string
 
 LLColor4 LLManip::setupSnapGuideRenderPass(S32 pass)
 {
-    static LLColor4 grid_color_fg = LLUIColorTable::instance().getColor("GridlineColor");
-    static LLColor4 grid_color_bg = LLUIColorTable::instance().getColor("GridlineBGColor");
-    static LLColor4 grid_color_shadow = LLUIColorTable::instance().getColor("GridlineShadowColor");
+    static LLUIColor grid_color_fg = LLUIColorTable::instance().getColor("GridlineColor");
+    static LLUIColor grid_color_bg = LLUIColorTable::instance().getColor("GridlineBGColor");
+    static LLUIColor grid_color_shadow = LLUIColorTable::instance().getColor("GridlineShadowColor");
 
     LLColor4 line_color;
     F32 line_alpha = gSavedSettings.getF32("GridOpacity");

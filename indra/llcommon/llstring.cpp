@@ -250,7 +250,7 @@ LLWString utf16str_to_wstring(const U16* utf16str, size_t len)
     while (i < len)
     {
         llwchar cur_char;
-        i += utf16chars_to_wchar(chars16+i, &cur_char);
+        i += (S32)utf16chars_to_wchar(chars16+i, &cur_char);
         wout += cur_char;
     }
     return wout;
@@ -900,6 +900,11 @@ void HeapFree_deleter(void* ptr)
 
 } // anonymous namespace
 
+unsigned long windows_get_last_error()
+{
+    return GetLastError();
+}
+
 template<>
 std::wstring windows_message<std::wstring>(DWORD error)
 {
@@ -1206,6 +1211,75 @@ namespace LLStringFn
             ++it;
         }
         return output;
+    }
+
+    using literals_t = std::map<char, std::string>;
+    static const literals_t xml_elem_literals =
+    {
+        { '<', "&lt;" },
+        { '>', "&gt;" },
+        { '&', "&amp;" }
+    };
+    static const literals_t xml_attr_literals =
+    {
+        { '"', "&quot;" },
+        { '\'', "&apos;" }
+    };
+
+    static void literals_encode(std::string& text, const literals_t& literals)
+    {
+        for (const std::pair<char, std::string> it : literals)
+        {
+            std::string::size_type pos = 0;
+            while ((pos = text.find(it.first, pos)) != std::string::npos)
+            {
+                text.replace(pos, 1, it.second);
+                pos += it.second.size();
+            }
+        }
+    }
+
+    static void literals_decode(std::string& text, const literals_t& literals)
+    {
+        for (const std::pair<char, std::string> it : literals)
+        {
+            std::string::size_type pos = 0;
+            while ((pos = text.find(it.second, pos)) != std::string::npos)
+            {
+                text[pos++] = it.first;
+                text.erase(pos, it.second.size() - 1);
+            }
+        }
+    }
+
+    /**
+     * @brief Replace all characters that are not allowed in XML 1.0
+     * with corresponding literals: [ < > & ] => [ &lt; &gt; &amp; ]
+     */
+    std::string xml_encode(const std::string& input, bool for_attribute)
+    {
+        std::string result(input);
+        literals_encode(result, xml_elem_literals);
+        if (for_attribute)
+        {
+            literals_encode(result, xml_attr_literals);
+        }
+        return result;
+    }
+
+    /**
+     * @brief Replace some of XML literals that are defined in XML 1.0
+     * with corresponding characters: [ &lt; &gt; &amp; ] => [ < > & ]
+     */
+    std::string xml_decode(const std::string& input, bool for_attribute)
+    {
+        std::string result(input);
+        literals_decode(result, xml_elem_literals);
+        if (for_attribute)
+        {
+            literals_decode(result, xml_attr_literals);
+        }
+        return result;
     }
 
     /**

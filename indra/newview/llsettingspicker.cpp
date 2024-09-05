@@ -349,6 +349,11 @@ void LLFloaterSettingsPicker::onButtonCancel()
 
 void LLFloaterSettingsPicker::onButtonSelect()
 {
+    applySelectedItemAndCloseFloater();
+}
+
+void LLFloaterSettingsPicker::applySelectedItemAndCloseFloater()
+{
     if (mCommitSignal)
     {
         LLSD res;
@@ -378,14 +383,7 @@ bool LLFloaterSettingsPicker::handleDoubleClick(S32 x, S32 y, MASK mask)
                 if (target_rect.pointInRect(x, y))
                 {
                     // Quick-apply
-                    if (mCommitSignal)
-                    {
-                        LLSD res;
-                        res["ItemId"] = mSettingItemID;
-                        res["Track"] = getChild<LLComboBox>(CMB_TRACK_SELECTION)->getValue();
-                        (*mCommitSignal)(this, res);
-                    }
-                    closeFloater();
+                    applySelectedItemAndCloseFloater();
                     // hit inside panel on selected item, double click should do nothing
                     result = true;
                 }
@@ -408,14 +406,7 @@ bool LLFloaterSettingsPicker::handleKeyHere(KEY key, MASK mask)
         if (item_viewp && item_viewp->getIsCurSelection() && item_viewp->getVisible())
         {
             // Quick-apply
-            if (mCommitSignal)
-            {
-                LLSD res;
-                res["ItemId"] = mSettingItemID;
-                res["Track"] = getChild<LLComboBox>(CMB_TRACK_SELECTION)->getValue();
-                (*mCommitSignal)(this, res);
-            }
-            closeFloater();
+            applySelectedItemAndCloseFloater();
             return true;
         }
     }
@@ -466,6 +457,9 @@ void LLFloaterSettingsPicker::setSettingsItemId(const LLUUID &settings_id, bool 
 
 LLInventoryItem* LLFloaterSettingsPicker::findItem(const LLUUID& asset_id, bool copyable_only, bool ignore_library)
 {
+    if (asset_id.isNull())
+        return nullptr;
+
     LLViewerInventoryCategory::cat_array_t cats;
     LLViewerInventoryItem::item_array_t items;
     LLAssetIDMatches asset_id_matches(asset_id);

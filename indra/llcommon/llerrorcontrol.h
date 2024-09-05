@@ -32,7 +32,6 @@
 #include "llpointer.h"
 #include "llrefcount.h"
 #include "boost/function.hpp"
-#include "boost/shared_ptr.hpp"
 #include <string>
 
 class LLSD;
@@ -190,7 +189,7 @@ namespace LLError
         {}
         void recordMessage(LLError::ELevel level, const std::string& message) override
         {
-            LL_PROFILE_ZONE_SCOPED
+            LL_PROFILE_ZONE_SCOPED;
             mCallable(level, message);
         }
     private:

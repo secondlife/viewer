@@ -28,31 +28,47 @@
 #define TERRAIN_PBR_DETAIL_NORMAL -2
 #define TERRAIN_PBR_DETAIL_METALLIC_ROUGHNESS -3
 
+#define TERRAIN_PAINT_TYPE_HEIGHTMAP_WITH_NOISE 0
+#define TERRAIN_PAINT_TYPE_PBR_PAINTMAP 1
+
 uniform mat3 normal_matrix;
 uniform mat4 texture_matrix0;
 uniform mat4 modelview_matrix;
 uniform mat4 modelview_projection_matrix;
+#if TERRAIN_PAINT_TYPE == TERRAIN_PAINT_TYPE_PBR_PAINTMAP
+uniform float region_scale;
+#endif
 
 in vec3 position;
 in vec3 normal;
 in vec4 tangent;
 in vec4 diffuse_color;
+#if TERRAIN_PAINT_TYPE == TERRAIN_PAINT_TYPE_HEIGHTMAP_WITH_NOISE
 in vec2 texcoord1;
+#endif
 
-out vec3 vary_vertex_normal; // Used by pbrterrainUtilF.glsl
+out vec3 vary_position;
 out vec3 vary_normal;
+#if TERRAIN_PLANAR_TEXTURE_SAMPLE_COUNT == 3
+out vec3 vary_vertex_normal; // Used by pbrterrainUtilF.glsl
+#endif
 #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_NORMAL)
 out vec3 vary_tangents[4];
-flat out float vary_sign;
+flat out float vary_signs[4];
 #endif
+
+// vary_texcoord* are used for terrain composition, vary_coords are used for terrain UVs
+#if TERRAIN_PAINT_TYPE == TERRAIN_PAINT_TYPE_HEIGHTMAP_WITH_NOISE
 out vec4 vary_texcoord0;
 out vec4 vary_texcoord1;
+#elif TERRAIN_PAINT_TYPE == TERRAIN_PAINT_TYPE_PBR_PAINTMAP
+out vec2 vary_texcoord;
+#endif
 #if TERRAIN_PLANAR_TEXTURE_SAMPLE_COUNT == 3
 out vec4[10] vary_coords;
 #elif TERRAIN_PLANAR_TEXTURE_SAMPLE_COUNT == 1
 out vec4[2] vary_coords;
 #endif
-out vec3 vary_position;
 
 // *HACK: Each material uses only one texture transform, but the KHR texture
 // transform spec allows handling texture transforms separately for each
@@ -60,7 +76,7 @@ out vec3 vary_position;
 uniform vec4[5] terrain_texture_transforms;
 
 vec2 terrain_texture_transform(vec2 vertex_texcoord, vec4[2] khr_gltf_transform);
-vec3 terrain_tangent_space_transform(vec4 vertex_tangent, vec3 vertex_normal, vec4[2] khr_gltf_transform);
+vec4 terrain_tangent_space_transform(vec4 vertex_tangent, vec3 vertex_normal, vec4[2] khr_gltf_transform);
 
 void main()
 {
@@ -69,43 +85,52 @@ void main()
     vary_position = (modelview_matrix*vec4(position.xyz, 1.0)).xyz;
 
     vec3 n = normal_matrix * normal;
+#if TERRAIN_PLANAR_TEXTURE_SAMPLE_COUNT == 3
     vary_vertex_normal = normal;
+#endif
     vec3 t = normal_matrix * tangent.xyz;
 
 #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_NORMAL)
     {
         vec4[2] ttt;
+        vec4 transformed_tangent;
         // material 1
         ttt[0].xyz = terrain_texture_transforms[0].xyz;
         ttt[1].x = terrain_texture_transforms[0].w;
         ttt[1].y = terrain_texture_transforms[1].x;
-        vary_tangents[0] = normalize(terrain_tangent_space_transform(vec4(t, tangent.w), n, ttt));
+        transformed_tangent = terrain_tangent_space_transform(vec4(t, tangent.w), n, ttt);
+        vary_tangents[0] = normalize(transformed_tangent.xyz);
+        vary_signs[0] = transformed_tangent.w;
         // material 2
         ttt[0].xyz = terrain_texture_transforms[1].yzw;
         ttt[1].xy = terrain_texture_transforms[2].xy;
-        vary_tangents[1] = normalize(terrain_tangent_space_transform(vec4(t, tangent.w), n, ttt));
+        transformed_tangent = terrain_tangent_space_transform(vec4(t, tangent.w), n, ttt);
+        vary_tangents[1] = normalize(transformed_tangent.xyz);
+        vary_signs[1] = transformed_tangent.w;
         // material 3
         ttt[0].xy = terrain_texture_transforms[2].zw;
         ttt[0].z = terrain_texture_transforms[3].x;
         ttt[1].xy = terrain_texture_transforms[3].yz;
-        vary_tangents[2] = normalize(terrain_tangent_space_transform(vec4(t, tangent.w), n, ttt));
+        transformed_tangent = terrain_tangent_space_transform(vec4(t, tangent.w), n, ttt);
+        vary_tangents[2] = normalize(transformed_tangent.xyz);
+        vary_signs[2] = transformed_tangent.w;
         // material 4
         ttt[0].x = terrain_texture_transforms[3].w;
         ttt[0].yz = terrain_texture_transforms[4].xy;
         ttt[1].xy = terrain_texture_transforms[4].zw;
-        vary_tangents[3] = normalize(terrain_tangent_space_transform(vec4(t, tangent.w), n, ttt));
+        transformed_tangent = terrain_tangent_space_transform(vec4(t, tangent.w), n, ttt);
+        vary_tangents[3] = normalize(transformed_tangent.xyz);
+        vary_signs[3] = transformed_tangent.w;
     }
-
-    vary_sign = tangent.w;
 #endif
     vary_normal = normalize(n);
 
     // Transform and pass tex coords
     {
         vec4[2] ttt;
+#define transform_xy()             terrain_texture_transform(position.xy,               ttt)
 #if TERRAIN_PLANAR_TEXTURE_SAMPLE_COUNT == 3
 // Don't care about upside-down (transform_xy_flipped())
-#define transform_xy()             terrain_texture_transform(position.xy,               ttt)
 #define transform_yz()             terrain_texture_transform(position.yz,               ttt)
 #define transform_negx_z()         terrain_texture_transform(position.xz * vec2(-1, 1), ttt)
 #define transform_yz_flipped()     terrain_texture_transform(position.yz * vec2(-1, 1), ttt)
@@ -150,26 +175,30 @@ void main()
         ttt[0].xyz = terrain_texture_transforms[0].xyz;
         ttt[1].x = terrain_texture_transforms[0].w;
         ttt[1].y = terrain_texture_transforms[1].x;
-        vary_coords[0].xy = terrain_texture_transform(position.xy, ttt);
+        vary_coords[0].xy = transform_xy();
         // material 2
         ttt[0].xyz = terrain_texture_transforms[1].yzw;
         ttt[1].xy = terrain_texture_transforms[2].xy;
-        vary_coords[0].zw = terrain_texture_transform(position.xy, ttt);
+        vary_coords[0].zw = transform_xy();
         // material 3
         ttt[0].xy = terrain_texture_transforms[2].zw;
         ttt[0].z = terrain_texture_transforms[3].x;
         ttt[1].xy = terrain_texture_transforms[3].yz;
-        vary_coords[1].xy = terrain_texture_transform(position.xy, ttt);
+        vary_coords[1].xy = transform_xy();
         // material 4
         ttt[0].x = terrain_texture_transforms[3].w;
         ttt[0].yz = terrain_texture_transforms[4].xy;
         ttt[1].xy = terrain_texture_transforms[4].zw;
-        vary_coords[1].zw = terrain_texture_transform(position.xy, ttt);
+        vary_coords[1].zw = transform_xy();
 #endif
     }
 
-    vec4 tc = vec4(texcoord1,0,1);
+#if TERRAIN_PAINT_TYPE == TERRAIN_PAINT_TYPE_HEIGHTMAP_WITH_NOISE
+    vec2 tc = texcoord1.xy;
     vary_texcoord0.zw = tc.xy;
     vary_texcoord1.xy = tc.xy-vec2(2.0, 0.0);
     vary_texcoord1.zw = tc.xy-vec2(1.0, 0.0);
+#elif TERRAIN_PAINT_TYPE == TERRAIN_PAINT_TYPE_PBR_PAINTMAP
+    vary_texcoord = position.xy / region_scale;
+#endif
 }

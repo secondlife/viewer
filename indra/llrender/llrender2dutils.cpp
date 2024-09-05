@@ -364,7 +364,7 @@ void gl_draw_scaled_image_with_border(S32 x, S32 y, S32 width, S32 height, LLTex
     {
         // add in offset of current image to current UI translation
         const LLVector3 ui_scale = gGL.getUIScale();
-        const LLVector3 ui_translation = (gGL.getUITranslation() + LLVector3(x, y, 0.f)).scaledVec(ui_scale);
+        const LLVector3 ui_translation = (gGL.getUITranslation() + LLVector3((F32)x, (F32)y, 0.f)).scaledVec(ui_scale);
 
         F32 uv_width = uv_outer_rect.getWidth();
         F32 uv_height = uv_outer_rect.getHeight();
@@ -375,8 +375,8 @@ void gl_draw_scaled_image_with_border(S32 x, S32 y, S32 width, S32 height, LLTex
                                 uv_outer_rect.mLeft + (center_rect.mRight * uv_width),
                                 uv_outer_rect.mBottom + (center_rect.mBottom * uv_height));
 
-        F32 image_width = image->getWidth(0);
-        F32 image_height = image->getHeight(0);
+        F32 image_width = (F32)image->getWidth(0);
+        F32 image_height = (F32)image->getHeight(0);
 
         S32 image_natural_width = ll_round(image_width * uv_width);
         S32 image_natural_height = ll_round(image_height * uv_height);
@@ -413,10 +413,10 @@ void gl_draw_scaled_image_with_border(S32 x, S32 y, S32 width, S32 height, LLTex
             draw_center_rect.setCenterAndSize(uv_center_rect.getCenterX() * width, uv_center_rect.getCenterY() * height, scaled_width, scaled_height);
         }
 
-        draw_center_rect.mLeft   = ll_round(ui_translation.mV[VX] + (F32)draw_center_rect.mLeft * ui_scale.mV[VX]);
-        draw_center_rect.mTop    = ll_round(ui_translation.mV[VY] + (F32)draw_center_rect.mTop * ui_scale.mV[VY]);
-        draw_center_rect.mRight  = ll_round(ui_translation.mV[VX] + (F32)draw_center_rect.mRight * ui_scale.mV[VX]);
-        draw_center_rect.mBottom = ll_round(ui_translation.mV[VY] + (F32)draw_center_rect.mBottom * ui_scale.mV[VY]);
+        draw_center_rect.mLeft   = (F32)ll_round(ui_translation.mV[VX] + (F32)draw_center_rect.mLeft * ui_scale.mV[VX]);
+        draw_center_rect.mTop    = (F32)ll_round(ui_translation.mV[VY] + (F32)draw_center_rect.mTop * ui_scale.mV[VY]);
+        draw_center_rect.mRight  = (F32)ll_round(ui_translation.mV[VX] + (F32)draw_center_rect.mRight * ui_scale.mV[VX]);
+        draw_center_rect.mBottom = (F32)ll_round(ui_translation.mV[VY] + (F32)draw_center_rect.mBottom * ui_scale.mV[VY]);
 
         LLRectf draw_outer_rect(ui_translation.mV[VX],
                                 ui_translation.mV[VY] + height * ui_scale.mV[VY],
@@ -726,7 +726,7 @@ void gl_line_3d( const LLVector3& start, const LLVector3& end, const LLColor4& c
     }
     gGL.end();
 
-    LLRender2D::getInstance()->setLineWidth(1.f);
+    LLRender2D::setLineWidth(1.f);
 }
 
 void gl_arc_2d(F32 center_x, F32 center_y, F32 radius, S32 steps, bool filled, F32 start_angle, F32 end_angle)

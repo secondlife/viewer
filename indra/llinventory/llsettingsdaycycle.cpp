@@ -499,7 +499,7 @@ namespace
                     continue;
                 }
 
-                LLSettingsBase::TrackPosition frame = elem[LLSettingsDay::SETTING_KEYKFRAME].asReal();
+                LLSettingsBase::TrackPosition frame = (F32)elem[LLSettingsDay::SETTING_KEYKFRAME].asReal();
                 if ((frame < 0.0) || (frame > 1.0))
                 {
                     frame = llclamp(frame, 0.0f, 1.0f);

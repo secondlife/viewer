@@ -54,20 +54,8 @@
 #   include "ctype_workaround.h"
 #endif
 
-#if LL_MSVC
-#pragma warning (push)
-#pragma warning (disable : 4702) // warning C4702: unreachable code
-#endif
 #include <boost/iostreams/tee.hpp>
 #include <boost/iostreams/stream.hpp>
-#if LL_MSVC
-#pragma warning (pop)
-#endif
-
-#include <boost/scoped_ptr.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/make_shared.hpp>
-#include <boost/foreach.hpp>
 
 #include <fstream>
 
@@ -108,7 +96,7 @@ public:
 
     virtual void recordMessage(LLError::ELevel level, const std::string& message)
     {
-        LL_PROFILE_ZONE_SCOPED
+        LL_PROFILE_ZONE_SCOPED;
         mFile << message << std::endl;
     }
 

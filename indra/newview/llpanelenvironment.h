@@ -39,6 +39,8 @@
 #include "llestateinfomodel.h"
 
 class LLViewerRegion;
+class LLIconCtrl;
+class LLSettingsDropTarget;
 
 class LLPanelEnvironmentInfo : public LLPanel
 {
@@ -62,6 +64,10 @@ public:
 
 protected:
     LOG_CLASS(LLPanelEnvironmentInfo);
+
+    static constexpr U32 ALTITUDE_SLIDER_COUNT = 3;
+    static constexpr U32 ALTITUDE_MARKERS_COUNT = 3;
+    static constexpr U32 ALTITUDE_PREFIXERS_COUNT = 5;
 
     static const std::string    BTN_SELECTINV;
     static const std::string    BTN_EDIT;
@@ -108,7 +114,7 @@ protected:
     bool                        getIsDirty() const                  { return (mDirtyFlag != 0); }
     bool                        getIsDirtyFlag(U32 flag) const      { return ((mDirtyFlag & flag) != 0); }
     U32                         getDirtyFlag() const                { return mDirtyFlag; }
-    void                        updateAltLabel(const std::string &alt_prefix, U32 sky_index, F32 alt_value);
+    void                        updateAltLabel(U32 alt_index, U32 sky_index, F32 alt_value);
     void                        readjustAltLabels();
 
     void                        onSldDayLengthChanged(F32 value);
@@ -131,7 +137,7 @@ protected:
 
     void                        onPickerAssetDownloaded(LLSettingsBase::ptr_t settings);
     void                        onEnvironmentReceived(S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo);
-    static void                 _onEnvironmentReceived(LLHandle<LLPanel> that_h, S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo);
+    static void                 onEnvironmentReceived(LLHandle<LLPanel> that_h, S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo);
 
     virtual bool                isLargeEnough() = 0;
     virtual void                refreshFromSource() = 0;
@@ -167,6 +173,37 @@ protected:
     typedef std::map<std::string, AltitudeData>      altitudes_data_t;
     altitudes_data_t                mAltitudes;
     S32                             mCurEnvVersion; // used to filter duplicate callbacks/refreshes
+
+    LLUICtrl* mPanelEnvAltitudes = nullptr;
+    LLUICtrl* mPanelEnvConfig = nullptr;
+    LLUICtrl* mPanelEnvButtons = nullptr;
+    LLUICtrl* mPanelEnvDisabled = nullptr;
+    LLUICtrl* mPanelEnvRegionMsg = nullptr;
+
+    LLButton* mBtnSelectInv = nullptr;
+    LLButton* mBtnEdit = nullptr;
+    LLButton* mBtnUseDefault = nullptr;
+    LLButton* mBtnResetAltitudes = nullptr;
+
+    LLMultiSliderCtrl* mMultiSliderAltitudes = nullptr;
+
+    LLSliderCtrl* mSliderDayLength = nullptr;
+    LLSliderCtrl* mSliderDayOffset = nullptr;
+
+    LLTextBox* mEnvironmentDisabledText = nullptr;
+    LLTextBox* mLabelApparentTime = nullptr;
+
+    LLCheckBoxCtrl* mCheckAllowOverride = nullptr;
+
+    LLIconCtrl* mIconGround = nullptr;
+    LLIconCtrl* mIconWater = nullptr;
+
+    std::array<LLUICtrl*, ALTITUDE_MARKERS_COUNT> mAltitudeMarkers;
+    std::array<LLSettingsDropTarget*, ALTITUDE_PREFIXERS_COUNT> mAltitudeDropTarget;
+
+    std::array<LLTextBox*, ALTITUDE_PREFIXERS_COUNT> mAltitudeLabels;
+    std::array<LLLineEditor*, ALTITUDE_PREFIXERS_COUNT> mAltitudeEditor;
+    std::array<LLView*, ALTITUDE_PREFIXERS_COUNT> mAltitudePanels;
 
 protected:
     typedef boost::signals2::connection connection_t;

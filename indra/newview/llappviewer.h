@@ -44,7 +44,6 @@
 #define LL_LLAPPVIEWER_H
 
 #include "llapp.h"
-#include "llallocator.h"
 #include "llapr.h"
 #include "llcontrol.h"
 #include "llsys.h"          // for LLOSInfo
@@ -194,8 +193,6 @@ public:
     // *NOTE:Mani Fix this for login abstraction!!
     void handleLoginComplete();
 
-    LLAllocator & getAllocator() { return mAlloc; }
-
     // On LoginCompleted callback
     typedef boost::signals2::signal<void (void)> login_completed_signal_t;
     login_completed_signal_t mOnLoginCompleted;
@@ -230,6 +227,12 @@ public:
     // post given work to the "mainloop" work queue for handling on the main thread
     void postToMainCoro(const LL::WorkQueue::Work& work);
 
+    // Attempt a 'soft' quit with disconnect and saving of settings/cache.
+    // Intended to be thread safe.
+    // Good chance of viewer crashing either way, but better than alternatives.
+    // Note: mQuitRequested can be aborted by user.
+    void outOfMemorySoftQuit();
+
 protected:
     virtual bool initWindow(); // Initialize the viewer's window.
     virtual void initLoggingAndGetLastDuration(); // Initialize log files, logging system
@@ -244,6 +247,8 @@ protected:
     virtual std::string generateSerialNumber() = 0; // Platforms specific classes generate this.
 
     virtual bool meetsRequirementsForMaximizedStart(); // Used on first login to decide to launch maximized
+
+    virtual void sendOutOfDiskSpaceNotification();
 
 private:
 
@@ -315,6 +320,7 @@ private:
     boost::optional<U32> mForceGraphicsLevel;
 
     bool mQuitRequested;                // User wants to quit, may have modified documents open.
+    bool mClosingFloaters;
     bool mLogoutRequestSent;            // Disconnect message sent to simulator, no longer safe to send messages to the sim.
     U32 mLastAgentControlFlags;
     F32 mLastAgentForceUpdate;
@@ -329,8 +335,6 @@ private:
     bool mAgentRegionLastAlive;
     LLUUID mAgentRegionLastID;
 
-    LLAllocator mAlloc;
-
     // llcorehttp library init/shutdown helper
     LLAppCoreHttp mAppCoreHttp;
 
@@ -338,7 +342,7 @@ private:
 };
 
 // consts from viewer.h
-const S32 AGENT_UPDATES_PER_SECOND  = 10;
+const S32 AGENT_UPDATES_PER_SECOND  = 125; // Value derived experimentally to avoid Input Delays with latest PBR-Capable Viewers when viewer FPS is highly volatile.
 const S32 AGENT_FORCE_UPDATES_PER_SECOND  = 1;
 
 // Globals with external linkage. From viewer.h
@@ -403,8 +407,6 @@ extern LLVector3 gWindVec;
 extern LLVector3 gRelativeWindVec;
 extern U32  gPacketsIn;
 extern bool gPrintMessagesThisFrame;
-
-extern LLUUID gBlackSquareID;
 
 extern bool gRandomizeFramerate;
 extern bool gPeriodicSlowFrame;

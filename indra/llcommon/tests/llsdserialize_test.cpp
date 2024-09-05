@@ -1807,7 +1807,7 @@ namespace tut
         std::string q("\"");
         std::string qPYTHON(q + PYTHON + q);
         std::string qscript(q + scriptfile.getName() + q);
-        int rc = _spawnl(_P_WAIT, PYTHON.c_str(), qPYTHON.c_str(), qscript.c_str(),
+        int rc = (int)_spawnl(_P_WAIT, PYTHON.c_str(), qPYTHON.c_str(), qscript.c_str(),
                          std::forward<ARGS>(args)..., NULL);
         if (rc == -1)
         {

@@ -608,8 +608,8 @@ LLSD LLSettingsVOSky::convertToLegacy(const LLSettingsSky::ptr_t &psky, bool isA
     legacy[SETTING_CLOUD_POS_DENSITY2] = ensure_array_4(settings[SETTING_CLOUD_POS_DENSITY2], 1.0);
     legacy[SETTING_CLOUD_SCALE] = llsd::array(settings[SETTING_CLOUD_SCALE], LLSD::Real(0.0), LLSD::Real(0.0), LLSD::Real(1.0));
     legacy[SETTING_CLOUD_SCROLL_RATE] = settings[SETTING_CLOUD_SCROLL_RATE];
-    legacy[SETTING_LEGACY_ENABLE_CLOUD_SCROLL] = llsd::array(LLSD::Boolean(!is_approx_zero(settings[SETTING_CLOUD_SCROLL_RATE][0].asReal())),
-        LLSD::Boolean(!is_approx_zero(settings[SETTING_CLOUD_SCROLL_RATE][1].asReal())));
+    legacy[SETTING_LEGACY_ENABLE_CLOUD_SCROLL] = llsd::array(LLSD::Boolean(!is_approx_zero((F32)settings[SETTING_CLOUD_SCROLL_RATE][0].asReal())),
+        LLSD::Boolean(!is_approx_zero((F32)settings[SETTING_CLOUD_SCROLL_RATE][1].asReal())));
     legacy[SETTING_CLOUD_SHADOW] = llsd::array(settings[SETTING_CLOUD_SHADOW].asReal(), 0.0f, 0.0f, 1.0f);
     legacy[SETTING_GAMMA] = llsd::array(settings[SETTING_GAMMA], 0.0f, 0.0f, 1.0f);
     legacy[SETTING_GLOW] = ensure_array_4(settings[SETTING_GLOW], 1.0);
@@ -755,7 +755,7 @@ void LLSettingsVOSky::applySpecial(void *ptarget, bool force)
         if (psky->getReflectionProbeAmbiance() != 0.f)
         {
             shader->uniform3fv(LLShaderMgr::AMBIENT, LLVector3(ambient.mV));
-            shader->uniform1f(LLShaderMgr::SKY_HDR_SCALE, sqrtf(g)*2.0); // use a modifier here so 1.0 maps to the "most desirable" default and the maximum value doesn't go off the rails
+            shader->uniform1f(LLShaderMgr::SKY_HDR_SCALE, sqrtf(g)*2.0f); // use a modifier here so 1.0 maps to the "most desirable" default and the maximum value doesn't go off the rails
         }
         else if (psky->canAutoAdjust() && should_auto_adjust)
         { // auto-adjust legacy sky to take advantage of probe ambiance
@@ -1054,7 +1054,7 @@ void LLSettingsVOWater::applySpecial(void *ptarget, bool force)
 
         shader->uniform3fv(LLShaderMgr::WATER_FOGCOLOR_LINEAR, linearColor3(fog_color).mV);
 
-        F32 blend_factor = env.getCurrentWater()->getBlendFactor();
+        F32 blend_factor = (F32)env.getCurrentWater()->getBlendFactor();
         shader->uniform1f(LLShaderMgr::BLEND_FACTOR, blend_factor);
 
         // update to normal lightnorm, water shader itself will use rotated lightnorm as necessary
@@ -1387,9 +1387,12 @@ LLSettingsDay::ptr_t LLSettingsVODay::buildClone() const
 
     LLSettingsDay::ptr_t dayp = std::make_shared<LLSettingsVODay>(settings);
 
-    U32 flags = getFlags();
-    if (flags)
+    dayp->setName(getName());
+
+    if (U32 flags = getFlags())
+    {
         dayp->setFlags(flags);
+    }
 
     dayp->initialize();
     return dayp;

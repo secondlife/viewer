@@ -68,11 +68,6 @@
 
 #include "llavatarpropertiesprocessor.h"
 
-#if LL_MSVC
-// disable boost::lexical_cast warning
-#pragma warning (disable:4702)
-#endif
-
 LLAppearanceListener sAppearanceListener;
 
 namespace
@@ -3960,7 +3955,7 @@ void LLAppearanceMgr::serverAppearanceUpdateCoro(LLCoreHttpUtil::HttpCoroutineAd
                     LL_WARNS("Avatar") << "Bake retry count exceeded!" << LL_ENDL;
                     break;
                 }
-                F32 timeout = pow(BAKE_RETRY_TIMEOUT, static_cast<float>(retryCount)) - 1.0;
+                F32 timeout = pow(BAKE_RETRY_TIMEOUT, static_cast<float>(retryCount)) - 1.0f;
 
                 LL_WARNS("Avatar") << "Bake retry #" << retryCount << " in " << timeout << " seconds." << LL_ENDL;
 
@@ -4355,7 +4350,7 @@ LLAppearanceMgr::LLAppearanceMgr():
     outfit_observer.addCOFSavedCallback(boost::bind(
             &LLAppearanceMgr::setOutfitLocked, this, false));
 
-    mUnlockOutfitTimer.reset(new LLOutfitUnLockTimer(gSavedSettings.getS32(
+    mUnlockOutfitTimer.reset(new LLOutfitUnLockTimer((F32)gSavedSettings.getS32(
             "OutfitOperationsTimeout")));
 
     gIdleCallbacks.addFunction(&LLAttachmentsMgr::onIdle, NULL);

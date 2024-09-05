@@ -424,7 +424,7 @@ public:
             if (mTime > 0) // have frame time
             {
                 time_t current_time = time_corrected();
-                time_t message_time = current_time - LLFrameTimer::getElapsedSeconds() + mTime;
+                time_t message_time = (time_t)(current_time - LLFrameTimer::getElapsedSeconds() + mTime);
 
                 time_string = "[" + LLTrans::getString("TimeMonth") + "]/["
                     + LLTrans::getString("TimeDay") + "]/["
@@ -696,7 +696,7 @@ public:
             mNeedsTimeBox = false;
             user_name->setValue(mFrom);
             updateMinUserNameWidth();
-            LLColor4 sep_color = LLUIColorTable::instance().getColor("ChatTeleportSeparatorColor");
+            LLUIColor sep_color = LLUIColorTable::instance().getColor("ChatTeleportSeparatorColor");
             setTransparentColor(sep_color);
             mTimeBoxTextBox->setVisible(false);
         }
@@ -742,7 +742,7 @@ public:
                     std::string username = chat.mFromName.substr(username_start + 2);
                     username = username.substr(0, username.length() - 1);
                     LLStyle::Params style_params_name;
-                    LLColor4 userNameColor = LLUIColorTable::instance().getColor("EmphasisColor");
+                    LLUIColor userNameColor = LLUIColorTable::instance().getColor("EmphasisColor");
                     style_params_name.color(userNameColor);
                     style_params_name.font.name("SansSerifSmall");
                     style_params_name.font.style("NORMAL");
@@ -1040,7 +1040,7 @@ private:
             !av_name.isDisplayNameDefault())
         {
             LLStyle::Params style_params_name;
-            LLColor4 userNameColor = LLUIColorTable::instance().getColor("EmphasisColor");
+            LLUIColor userNameColor = LLUIColorTable::instance().getColor("EmphasisColor");
             style_params_name.color(userNameColor);
             style_params_name.font.name("SansSerifSmall");
             style_params_name.font.style("NORMAL");
@@ -1246,10 +1246,11 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
         mMoreChatPanel->reshape(mMoreChatPanel->getRect().getWidth(), height);
     }
 
-    LLColor4 txt_color = LLUIColorTable::instance().getColor("White");
-    LLColor4 name_color(txt_color);
+    F32 alpha = 1.f;
+    LLUIColor txt_color = LLUIColorTable::instance().getColor("White");
+    LLUIColor name_color(txt_color);
+    LLViewerChat::getChatColor(chat, txt_color, alpha);
 
-    LLViewerChat::getChatColor(chat,txt_color);
     LLFontGL* fontp = LLViewerChat::getChatFont();
     std::string font_name = LLFontGL::nameFromFont(fontp);
     std::string font_size = LLFontGL::sizeFromFont(fontp);
@@ -1257,6 +1258,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
     LLStyle::Params body_message_params;
     body_message_params.color(txt_color);
     body_message_params.readonly_color(txt_color);
+    body_message_params.alpha(alpha);
     body_message_params.font.name(font_name);
     body_message_params.font.size(font_size);
     body_message_params.font.style(input_append_params.font.style);
@@ -1324,7 +1326,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
         {
             if (!message_from_log)
             {
-                LLColor4 timestamp_color = LLUIColorTable::instance().getColor("ChatTimestampColor");
+                LLUIColor timestamp_color = LLUIColorTable::instance().getColor("ChatTimestampColor");
                 timestamp_style.color(timestamp_color);
                 timestamp_style.readonly_color(timestamp_color);
             }
@@ -1352,7 +1354,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
                 // set the link for the object name to be the objectim SLapp
                 // (don't let object names with hyperlinks override our objectim Url)
                 LLStyle::Params link_params(body_message_params);
-                LLColor4 link_color = LLUIColorTable::instance().getColor("HTMLLinkColor");
+                LLUIColor link_color = LLUIColorTable::instance().getColor("HTMLLinkColor");
                 link_params.color = link_color;
                 link_params.readonly_color = link_color;
                 link_params.is_link = true;

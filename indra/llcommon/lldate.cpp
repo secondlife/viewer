@@ -48,13 +48,6 @@ static const LLDate::timestamp LL_APR_USEC_PER_SEC = 1000000.0;
     // isn't defined in glib under our build set up for some reason
 
 
-LLDate::LLDate() : mSecondsSinceEpoch(DATE_EPOCH)
-{}
-
-LLDate::LLDate(const LLDate& date) :
-    mSecondsSinceEpoch(date.mSecondsSinceEpoch)
-{}
-
 LLDate::LLDate(F64SecondsImplicit seconds_since_epoch) :
     mSecondsSinceEpoch(seconds_since_epoch.value())
 {}

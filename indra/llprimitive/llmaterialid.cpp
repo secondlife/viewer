@@ -136,7 +136,7 @@ LLSD LLMaterialID::asLLSD() const
     materialIDBinary.resize(MATERIAL_ID_SIZE * sizeof(U8));
     memcpy(materialIDBinary.data(), mID, MATERIAL_ID_SIZE * sizeof(U8));
 
-    LLSD materialID = materialIDBinary;
+    LLSD materialID = std::move(materialIDBinary);
     return materialID;
 }
 

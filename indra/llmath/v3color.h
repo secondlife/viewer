@@ -209,10 +209,6 @@ inline LLColor3::LLColor3(const F32 *vec)
     mV[VBLUE] = vec[VBLUE];
 }
 
-#if LL_WINDOWS
-# pragma warning( disable : 4996 ) // strncpy teh sux0r
-#endif
-
 inline LLColor3::LLColor3(const char* color_string) // takes a string of format "RRGGBB" where RR is hex 00..FF
 {
     if (strlen(color_string) <  6)      /* Flawfinder: ignore */
@@ -517,9 +513,9 @@ inline const LLVector3 linearColor3v(const T& a) {
 template<typename T>
 const LLColor3& LLColor3::set(const std::vector<T>& v)
 {
-    for (S32 i = 0; i < llmin((S32)v.size(), 3); ++i)
+    for (size_t i = 0; i < llmin(v.size(), 3); ++i)
     {
-        mV[i] = v[i];
+        mV[i] = (F32)v[i];
     }
 
     return *this;
@@ -530,9 +526,9 @@ const LLColor3& LLColor3::set(const std::vector<T>& v)
 template<typename T>
 void LLColor3::write(std::vector<T>& v) const
 {
-    for (int i = 0; i < llmin((S32)v.size(), 3); ++i)
+    for (size_t i = 0; i < llmin(v.size(), 3); ++i)
     {
-        v[i] = mV[i];
+        v[i] = (T)mV[i];
     }
 }
 

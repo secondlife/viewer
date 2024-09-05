@@ -395,9 +395,9 @@ void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
     mPosRegion.setVec((F32)fmod(pos_global.mdV[VX], (F64)REGION_WIDTH_METERS),
                       (F32)fmod(pos_global.mdV[VY], (F64)REGION_WIDTH_METERS),
                       (F32)pos_global.mdV[VZ]);
-    parcel_data.global_x = pos_global.mdV[VX];
-    parcel_data.global_y = pos_global.mdV[VY];
-    parcel_data.global_z = pos_global.mdV[VZ];
+    parcel_data.global_x = (F32)pos_global.mdV[VX];
+    parcel_data.global_y = (F32)pos_global.mdV[VY];
+    parcel_data.global_z = (F32)pos_global.mdV[VZ];
     parcel_data.owner_id = parcel->getOwnerID();
 
     std::string on = getString("on");
