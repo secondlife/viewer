@@ -18,11 +18,13 @@
 
 // e.g. #include LLCOROS_MUTEX_HEADER
 #define LLCOROS_MUTEX_HEADER   <boost/fiber/mutex.hpp>
+#define LLCOROS_RMUTEX_HEADER  <boost/fiber/recursive_mutex.hpp>
 #define LLCOROS_CONDVAR_HEADER <boost/fiber/condition_variable.hpp>
 
 namespace boost {
     namespace fibers {
         class mutex;
+        class recursive_mutex;
         enum class cv_status;
         class condition_variable;
     }
@@ -47,6 +49,12 @@ static Future<T> getFuture(Promise<T>& promise) { return promise.get_future(); }
 
 // use mutex, lock, condition_variable suitable for coroutines
 using Mutex = boost::fibers::mutex;
+using RMutex = boost::fibers::recursive_mutex;
+// With C++17, LockType is deprecated: at this point we can directly
+// declare 'std::unique_lock lk(some_mutex)' without explicitly stating
+// the mutex type. Sadly, making LockType an alias template for
+// std::unique_lock doesn't work the same way: Class Template Argument
+// Deduction only works for class templates, not alias templates.
 using LockType = std::unique_lock<Mutex>;
 using cv_status = boost::fibers::cv_status;
 using ConditionVariable = boost::fibers::condition_variable;
