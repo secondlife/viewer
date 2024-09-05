@@ -477,7 +477,6 @@ public:
     void            setControlFlags(U32 mask);      // Performs bitwise mControlFlags |= mask
     void            clearControlFlags(U32 mask);    // Performs bitwise mControlFlags &= ~mask
     bool            controlFlagsDirty() const;
-    void            enableControlFlagReset();
     void            resetControlFlags();
     bool            anyControlGrabbed() const;      // True iff a script has taken over a control
     bool            isControlGrabbed(S32 control_index) const;
@@ -492,8 +491,7 @@ private:
     // mControlFlags is a bitmask of behavior instructions for compact
     // transmission to the server.  It does NOT represent "input", rather
     // the consequences of it, which will sometimes depend on "state".
-    U32             mControlFlags;                  // Replacement for the mFooKey's
-    bool            mbFlagsNeedReset;               // ! HACK ! For preventing incorrect flags sent when crossing region boundaries
+    U32             mControlFlags;
 
     //--------------------------------------------------------------------
     // GameControls

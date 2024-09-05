@@ -425,7 +425,6 @@ LLAgent::LLAgent() :
     mIsDoNotDisturb(false),
 
     mControlFlags(0x00000000),
-    mbFlagsNeedReset(false),
 
     mAutoPilot(false),
     mAutoPilotFlyOnStop(false),
@@ -1542,16 +1541,7 @@ void LLAgent::setControlFlags(U32 mask)
 //-----------------------------------------------------------------------------
 void LLAgent::clearControlFlags(U32 mask)
 {
-    U32 old_flags = mControlFlags;
     mControlFlags &= ~mask;
-}
-
-//-----------------------------------------------------------------------------
-// enableControlFlagReset()
-//-----------------------------------------------------------------------------
-void LLAgent::enableControlFlagReset()
-{
-    mbFlagsNeedReset = true;
 }
 
 //-----------------------------------------------------------------------------
@@ -1559,13 +1549,9 @@ void LLAgent::enableControlFlagReset()
 //-----------------------------------------------------------------------------
 void LLAgent::resetControlFlags()
 {
-    if (mbFlagsNeedReset)
-    {
-        mbFlagsNeedReset = false;
-        // reset all of the ephemeral flags
-        // some flags are managed elsewhere
-        mControlFlags &= AGENT_CONTROL_AWAY | AGENT_CONTROL_FLY | AGENT_CONTROL_MOUSELOOK;
-    }
+    // reset all of the ephemeral flags
+    // some flags are managed elsewhere
+    mControlFlags &= AGENT_CONTROL_AWAY | AGENT_CONTROL_FLY | AGENT_CONTROL_MOUSELOOK;
 }
 
 //-----------------------------------------------------------------------------

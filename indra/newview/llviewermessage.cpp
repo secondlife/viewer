@@ -3339,8 +3339,6 @@ void send_agent_update(bool force_send, bool send_reliable)
         }
     }
 
-    gAgent.enableControlFlagReset();
-
     if (send_reliable)
     {
         gAgent.sendReliableMessage();
