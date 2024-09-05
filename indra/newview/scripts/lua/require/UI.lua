@@ -2,6 +2,7 @@
 
 local leap = require 'leap'
 local mapargs = require 'mapargs'
+local result_view = require 'result_view'
 local Timer = (require 'timers').Timer
 local util = require 'util'
 
@@ -234,7 +235,9 @@ function UI.closeAllFloaters()
 end
 
 function UI.getFloaterNames()
-    return leap.request("LLFloaterReg", {op = "getFloaterNames"}).floaters
+    local key_length = leap.request("LLFloaterReg", {op = "getFloaterNames"}).floaters
+    local view = result_view(key_length)
+    return LL.setdtor('registered floater names', view, view.close)
 end
 
 return UI
