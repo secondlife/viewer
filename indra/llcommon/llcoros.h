@@ -324,7 +324,7 @@ public:
     // LockType is deprecated; see llcoromutex.h
     using LockType = llcoro::LockType;
     using cv_status = llcoro::cv_status;
-    using ConditionVariable = llcoro::condition_variable;
+    using ConditionVariable = llcoro::ConditionVariable;
 
     /// for data local to each running coroutine
     template <typename T>
