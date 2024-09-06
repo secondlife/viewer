@@ -355,6 +355,20 @@ bool LLAgent::isMicrophoneOn(const LLSD& sdname)
     return LLVoiceClient::getInstance()->getUserPTTState();
 }
 
+//static
+void LLAgent::toggleHearMediaSoundFromAvatar()
+{
+    const S32 mediaSoundsEarLocation = gSavedSettings.getS32("MediaSoundsEarLocation");
+    gSavedSettings.setS32("MediaSoundsEarLocation", !mediaSoundsEarLocation);
+}
+
+//static
+void LLAgent::toggleHearVoiceFromAvatar()
+{
+    const S32 voiceEarLocation = gSavedSettings.getS32("VoiceEarLocation");
+    gSavedSettings.setS32("VoiceEarLocation", !voiceEarLocation);
+}
+
 // ************************************************************
 // Enabled this definition to compile a 'hacked' viewer that
 // locally believes the end user has godlike powers.
