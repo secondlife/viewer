@@ -1553,6 +1553,17 @@ void LLViewerFetchedTexture::postCreateTexture()
 
     setActive();
 
+    // rebuild any volumes that are using this texture for sculpts in case their LoD has changed
+    for (U32 i = 0; i < mNumVolumes[LLRender::SCULPT_TEX]; ++i)
+    {
+        LLVOVolume* volume = mVolumeList[LLRender::SCULPT_TEX][i];
+        if (volume)
+        {
+            volume->mSculptChanged = true;
+            gPipeline.markRebuild(volume->mDrawable);
+        }
+    }
+
     if (!needsToSaveRawImage())
     {
         mNeedsAux = false;
@@ -2647,7 +2658,7 @@ void LLViewerFetchedTexture::destroyRawImage()
     if (mAuxRawImage.notNull() && !needsToSaveRawImage())
     {
         sAuxCount--;
-        mAuxRawImage = NULL;
+        mAuxRawImage = nullptr;
     }
 
     if (mRawImage.notNull())
@@ -2662,7 +2673,7 @@ void LLViewerFetchedTexture::destroyRawImage()
             }
         }
 
-        mRawImage = NULL;
+        mRawImage = nullptr;
 
         mIsRawImageValid = false;
         mRawDiscardLevel = INVALID_DISCARD_LEVEL;
@@ -2774,7 +2785,9 @@ void LLViewerFetchedTexture::readbackRawImage()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 
-    if (mGLTexturep.notNull() && mGLTexturep->getTexName() != 0 && mRawImage.isNull())
+    // readback the raw image from vram if the current raw image is null or smaller than the texture
+    if (mGLTexturep.notNull() && mGLTexturep->getTexName() != 0 &&
+        (mRawImage.isNull() || mRawImage->getWidth() < mGLTexturep->getWidth() || mRawImage->getHeight() < mGLTexturep->getHeight() ))
     {
         mRawImage = new LLImageRaw();
         if (!mGLTexturep->readBackRaw(-1, mRawImage, false))
