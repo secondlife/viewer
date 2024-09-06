@@ -182,6 +182,13 @@ protected:
     LLSidepanelInventory* getParentSidepanelInventory();
 
 private:
+    enum class EFetchState
+    {
+        Unknown,
+        Fetching,
+        Complete
+    };
+
     LLFloaterInventoryFinder* getFinder();
 
     LLFilterEditor*             mFilterEditor;
@@ -202,6 +209,7 @@ private:
     S32                         mCategoryCount = 0;
     std::string                 mCategoryCountString;
     LLComboBox*                 mSearchTypeCombo;
+    EFetchState                 mLastFetchState{ EFetchState::Unknown };
 
     LLButton* mBackBtn;
     LLButton* mForwardBtn;

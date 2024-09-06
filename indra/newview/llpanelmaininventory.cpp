@@ -997,6 +997,22 @@ void LLPanelMainInventory::updateItemcountText()
             mCategoryCount = gInventory.getCategoryCount();
             update = true;
         }
+
+        EFetchState currentFetchState{ EFetchState::Unknown };
+        if (LLInventoryModelBackgroundFetch::instance().folderFetchActive())
+        {
+            currentFetchState = EFetchState::Fetching;
+        }
+        else if (LLInventoryModelBackgroundFetch::instance().isEverythingFetched())
+        {
+            currentFetchState = EFetchState::Complete;
+        }
+
+        if (mLastFetchState != currentFetchState)
+        {
+            mLastFetchState = currentFetchState;
+            update = true;
+        }
     }
 
     if (mLastFilterText != getFilterText())
@@ -1027,17 +1043,17 @@ void LLPanelMainInventory::updateItemcountText()
         }
         else
         {
-            if (LLInventoryModelBackgroundFetch::instance().folderFetchActive())
+            switch (mLastFetchState)
             {
+            case EFetchState::Fetching:
                 text = getString("ItemcountFetching", string_args);
-            }
-            else if (LLInventoryModelBackgroundFetch::instance().isEverythingFetched())
-            {
+                break;
+            case EFetchState::Complete:
                 text = getString("ItemcountCompleted", string_args);
-            }
-            else
-            {
+                break;
+            default:
                 text = getString("ItemcountUnknown", string_args);
+                break;
             }
         }
 
