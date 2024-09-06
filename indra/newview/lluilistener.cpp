@@ -90,12 +90,14 @@ LLUIListener::LLUIListener():
     add("addMenuItem",
         "Add new menu item [\"name\"] with displayed [\"label\"]\n"
         "and call-on-click UI function [\"func\"] with optional [\"param\"]\n"
-        "to the [\"parent_menu\"] within the Top menu.",
+        "to the [\"parent_menu\"] within the Top menu.\n"
+        "If [\"pos\"] is present, insert at specified 0-relative position.",
         &LLUIListener::addMenuItem,
         required_args.with("func", LLSD()));
 
     add("addMenuSeparator",
-        "Add menu separator to the [\"parent_menu\"] within the Top menu.",
+        "Add menu separator to the [\"parent_menu\"] within the Top menu.\n"
+        "If [\"pos\"] is present, insert at specified 0-relative position.",
         &LLUIListener::addMenuSeparator,
         llsd::map("parent_menu", LLSD(), "reply", LLSD()));
 
@@ -264,6 +266,13 @@ LLMenuGL* get_parent_menu(LLEventAPI::Response& response, const LLSD&event)
     return parent_menu;
 }
 
+// Return event["pos"].asInteger() if passed, but clamp (0 <= pos <= size).
+// Reserve -1 return to mean event has no "pos" key.
+S32 get_pos(const LLSD& event, U32 size)
+{
+    return event["pos"].isInteger()? llclamp(event["pos"].asInteger(), 0, size) : -1;
+}
+
 void LLUIListener::addMenu(const LLSD&event) const
 {
     Response response(LLSD(), event);
@@ -302,9 +311,19 @@ void LLUIListener::addMenuItem(const LLSD&event) const
     item_params.on_click = item_func;
     if(LLMenuGL* parent_menu = get_parent_menu(response, event))
     {
-        if(!parent_menu->append(LLUICtrlFactory::create<LLMenuItemCallGL>(item_params)))
+        auto item = LLUICtrlFactory::create<LLMenuItemCallGL>(item_params);
+        // Clamp pos to getItemCount(), meaning append. If pos exceeds that,
+        // insert() will silently ignore the request.
+        auto pos = get_pos(event, parent_menu->getItemCount());
+        if (pos >= 0)
         {
-            response.error(stringize("Menu item ", std::quoted(event["name"].asString()), " was not added"));
+            // insert() returns void: we just have to assume it worked.
+            parent_menu->insert(pos, item);
+        }
+        else if (! parent_menu->append(item))
+        {
+            response.error(stringize("Menu item ", std::quoted(event["name"].asString()),
+                                     " was not added"));
         }
     }
 }
@@ -314,7 +333,19 @@ void LLUIListener::addMenuSeparator(const LLSD&event) const
     Response response(LLSD(), event);
     if(LLMenuGL* parent_menu = get_parent_menu(response, event))
     {
-        if(!parent_menu->addSeparator())
+        // Clamp pos to getItemCount(), meaning append. If pos exceeds that,
+        // insert() will silently ignore the request.
+        auto pos = get_pos(event, parent_menu->getItemCount());
+        if (pos >= 0)
+        {
+            // Even though addSeparator() does not accept a position,
+            // LLMenuItemSeparatorGL isa LLMenuItemGL, so we can use insert().
+            LLMenuItemSeparatorGL::Params p;
+            LLMenuItemGL* separator = LLUICtrlFactory::create<LLMenuItemSeparatorGL>(p);
+            // insert() returns void: we just have to assume it worked.
+            parent_menu->insert(pos, separator);
+        }
+        else if (! parent_menu->addSeparator())
         {
             response.error("Separator was not added");
         }
