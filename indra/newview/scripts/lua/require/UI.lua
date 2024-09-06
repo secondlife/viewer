@@ -170,13 +170,13 @@ end
 
 -- see UI.callables() for valid values of 'func'
 function UI.addMenuItem(...)
-    local args = mapargs('name,label,parent_menu,func,param', ...)
+    local args = mapargs('name,label,parent_menu,func,param,pos', ...)
     args.op = 'addMenuItem'
     return leap.request('UI', args)
 end
 
 function UI.addMenuSeparator(...)
-    local args = mapargs('parent_menu', ...)
+    local args = mapargs('parent_menu,pos', ...)
     args.op = 'addMenuSeparator'
     return leap.request('UI', args)
 end
