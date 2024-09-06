@@ -271,6 +271,8 @@ protected:
     virtual bool    getPreeditLocation(S32 query_offset, LLCoordGL *coord, LLRect *bounds, LLRect *control) const;
     virtual S32     getPreeditFontSize() const;
     virtual LLWString getPreeditString() const { return getWText(); }
+
+    virtual bool    useFontBuffers() const { return getReadOnly(); }
     //
     // Protected data
     //
