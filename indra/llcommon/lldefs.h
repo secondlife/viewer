@@ -183,16 +183,23 @@ inline bool llless(T0 d0, T1 d1)
         // T0 signed, T1 unsigned: negative d0 is less than any unsigned d1
         if (d0 < 0)
             return true;
+        // both are non-negative: explicitly cast to avoid C4018
+        return std::make_unsigned_t<T0>(d0) < d1;
     }
     else if constexpr (! std::is_signed_v<T0> && std::is_signed_v<T1>)
     {
         // T0 unsigned, T1 signed: any unsigned d0 is greater than negative d1
         if (d1 < 0)
             return false;
+        // both are non-negative: explicitly cast to avoid C4018
+        return d0 < std::make_unsigned_t<T1>(d1);
     }
-    // both T0 and T1 are signed, or both are unsigned, or both non-negative:
-    // straightforward comparison works
-    return d0 < d1;
+    else
+    {
+        // both T0 and T1 are signed, or both are unsigned:
+        // straightforward comparison works
+        return d0 < d1;
+    }
 }
 
 // recursion tail
