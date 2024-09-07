@@ -307,6 +307,7 @@ void LLFolderViewItem::refresh()
     LLFolderViewModelItem& vmi = *getViewModelItem();
 
     mLabel = utf8str_to_wstring(vmi.getDisplayName());
+    mLabelFontBuffer.reset();
     setToolTip(vmi.getName());
     // icons are slightly expensive to get, can be optimized
     // see LLInventoryIcon::getIcon()
@@ -320,6 +321,7 @@ void LLFolderViewItem::refresh()
         // Can do a number of expensive checks, like checking active motions, wearables or friend list
         mLabelStyle = vmi.getLabelStyle();
         mLabelSuffix = utf8str_to_wstring(vmi.getLabelSuffix());
+        mSuffixFontBuffer.reset();
     }
 
     // Dirty the filter flag of the model from the view (CHUI-849)
@@ -890,7 +892,7 @@ void LLFolderViewItem::drawLabel(const LLFontGL * font, const F32 x, const F32 y
     //--------------------------------------------------------------------------------//
     // Draw the actual label text
     //
-    font->render(mLabel, 0, x, y, color,
+    mLabelFontBuffer.render(font, mLabel, 0, x, y, color,
         LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
         S32_MAX, getRect().getWidth() - (S32) x - mLabelPaddingRight, &right_x, /*use_ellipses*/true);
 }
@@ -999,9 +1001,9 @@ void LLFolderViewItem::draw()
     //
     if (!mLabelSuffix.empty())
     {
-        suffix_font->render( mLabelSuffix, 0, right_x, y, isFadeItem() ? color : sSuffixColor.get(),
-                          LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
-                          S32_MAX, S32_MAX, &right_x);
+        mSuffixFontBuffer.render(suffix_font, mLabelSuffix, 0, right_x, y, isFadeItem() ? color : sSuffixColor.get(),
+            LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
+            S32_MAX, S32_MAX, &right_x);
     }
 
     //--------------------------------------------------------------------------------//

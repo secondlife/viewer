@@ -29,6 +29,7 @@
 #include "llflashtimer.h"
 #include "llview.h"
 #include "lluiimage.h"
+#include "llfontvertexbuffer.h"
 
 class LLFolderView;
 class LLFolderViewModelItem;
@@ -307,6 +308,9 @@ public:
 
 private:
     static std::map<U8, LLFontGL*> sFonts; // map of styles to fonts
+
+    LLFontVertexBuffer mLabelFontBuffer;
+    LLFontVertexBuffer mSuffixFontBuffer;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

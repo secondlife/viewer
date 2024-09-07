@@ -3342,7 +3342,6 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
 
     const LLWString& text = getWText();
     S32 text_gen = mEditor.getTextGeneration();
-    bool is_text_read_only = mEditor.getReadOnly();
 
     if (text_gen != mLastGeneration)
     {
@@ -3354,8 +3353,8 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
     }
 
     const LLFontGL* font = mStyle->getFont();
-
-    LLColor4 color = (is_text_read_only ? mStyle->getReadOnlyColor() : mStyle->getColor())  % (alpha * mStyle->getAlpha());
+    LLColor4 color = (mEditor.getReadOnly() ? mStyle->getReadOnlyColor() : mStyle->getColor())  % (alpha * mStyle->getAlpha());
+    bool use_font_buffers = useFontBuffers();
 
     if( selection_start > seg_start )
     {
@@ -3363,7 +3362,7 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
         S32 start = seg_start;
         S32 end = llmin( selection_start, seg_end );
         S32 length =  end - start;
-        if (is_text_read_only)
+        if (use_font_buffers)
         {
             mFontBufferPreSelection.render(
                 font,
@@ -3407,7 +3406,7 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
         S32 end = llmin( selection_end, seg_end );
         S32 length = end - start;
 
-        if (is_text_read_only)
+        if (use_font_buffers)
         {
             mFontBufferSelection.render(
                 font,
@@ -3444,7 +3443,7 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
         S32 start = llmax( selection_end, seg_start );
         S32 end = seg_end;
         S32 length = end - start;
-        if (is_text_read_only)
+        if (use_font_buffers)
         {
             mFontBufferPostSelection.render(
                 font,

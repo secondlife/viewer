@@ -151,6 +151,7 @@ public:
     /*virtual*/ bool                handleToolTip(S32 x, S32 y, MASK mask);
 
 protected:
+    virtual bool        useFontBuffers() const { return true; }
     F32                 drawClippedSegment(S32 seg_start, S32 seg_end, S32 selection_start, S32 selection_end, LLRectf rect);
 
     virtual     const LLWString&    getWText()  const;
@@ -484,7 +485,7 @@ public:
     LLRect                  getDocRectFromDocIndex(S32 pos) const;
 
     void                    setReadOnly(bool read_only) { mReadOnly = read_only; }
-    bool                    getReadOnly() { return mReadOnly; }
+    bool                    getReadOnly() const { return mReadOnly; }
 
     void                    setSkipLinkUnderline(bool skip_link_underline) { mSkipLinkUnderline = skip_link_underline; }
     bool                    getSkipLinkUnderline() { return mSkipLinkUnderline;  }
