@@ -58,19 +58,19 @@ using namespace LLAvatarAppearanceDefines;
 class LLNullTextureManagerBridge : public LLTextureManagerBridge
 {
 public:
-    /*virtual*/ LLPointer<LLGLTexture> getLocalTexture(bool usemipmaps = TRUE, bool generate_gl_tex = TRUE)
+    LLPointer<LLGLTexture> getLocalTexture(bool usemipmaps = true, bool generate_gl_tex = true) override
     {
-        return NULL;
+        return nullptr;
     }
 
-    /*virtual*/ LLPointer<LLGLTexture> getLocalTexture(const U32 width, const U32 height, const U8 components, bool usemipmaps, bool generate_gl_tex = TRUE)
+    LLPointer<LLGLTexture> getLocalTexture(const U32 width, const U32 height, const U8 components, bool usemipmaps, bool generate_gl_tex = true) override
     {
-        return NULL;
+        return nullptr;
     }
 
-    /*virtual*/ LLGLTexture* getFetchedTexture(const LLUUID &image_id)
+    LLGLTexture* getFetchedTexture(const LLUUID &image_id) override
     {
-        return NULL;
+        return nullptr;
     }
 };
 

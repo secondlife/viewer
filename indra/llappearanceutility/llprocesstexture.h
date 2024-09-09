@@ -41,15 +41,15 @@ public:
     LLProcessTexture(LLAppAppearanceUtility* app);
 
     /////// LLBakingProcess interface. /////////
-    /*virtual*/ void parseInput(std::istream& input);
-    /*virtual*/ void process(std::ostream& output);
-    /*virtual*/ void init();
-    /*virtual*/ void cleanup();
+    void parseInput(std::istream& input) override;
+    void process(std::ostream& output) override;
+    void init() override;
+    void cleanup() override;
 
     /////// LLTextureManagerBridge interface. ////////
-    /*virtual*/ LLPointer<LLGLTexture> getLocalTexture(bool usemipmaps = TRUE, bool generate_gl_tex = TRUE);
-    /*virtual*/ LLPointer<LLGLTexture> getLocalTexture(const U32 width, const U32 height, const U8 components, bool usemipmaps, bool generate_gl_tex = TRUE);
-    /*virtual*/ LLGLTexture* getFetchedTexture(const LLUUID &image_id);
+    LLPointer<LLGLTexture> getLocalTexture(bool usemipmaps = true, bool generate_gl_tex = true) override;
+    LLPointer<LLGLTexture> getLocalTexture(const U32 width, const U32 height, const U8 components, bool usemipmaps, bool generate_gl_tex = true) override;
+    LLGLTexture* getFetchedTexture(const LLUUID &image_id) override;
 
 private:
     typedef std::map< LLUUID, LLPointer<LLBakingTexture> > texture_map_t;

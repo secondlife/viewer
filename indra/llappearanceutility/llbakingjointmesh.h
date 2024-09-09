@@ -37,7 +37,7 @@ public:
     LLBakingJointMesh(S32 joint_num);
     virtual ~LLBakingJointMesh();
 
-    U32 render( F32 pixelArea, bool first_pass = TRUE, bool is_dummy = FALSE )
+    U32 render( F32 pixelArea, bool first_pass = true, bool is_dummy = false )
     { return LLBakingJoint::render(pixelArea,first_pass,is_dummy); }
 };
 

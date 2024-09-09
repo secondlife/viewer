@@ -71,9 +71,9 @@ public:
     virtual ~LLAppAppearanceUtility();
 
     // LLApp interface.
-    /*virtual*/ bool init();
-    /*virtual*/ bool cleanup();
-    /*virtual*/ bool frame();
+    bool init() override;
+    bool cleanup() override;
+    bool frame() override;
 
 private:
     // Option parsing.

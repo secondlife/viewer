@@ -49,7 +49,7 @@
 #include "llprocesstexture.h"
 
 static const S32 MAX_SIZE_LLSD_HEADER = 1024 * 1024;
-static const bool USE_MIP_MAPS = TRUE;
+static const bool USE_MIP_MAPS = true;
 
 static const S32 EYES_SLOT_DIMENSIONS=512;
 
@@ -57,8 +57,8 @@ using namespace LLAvatarAppearanceDefines;
 
 LLProcessTexture::LLProcessTexture(LLAppAppearanceUtility* app)
     : LLBakingProcess(app),
-      mWindow(NULL),
-      mInputRaw(NULL),
+      mWindow(nullptr),
+      mInputRaw(nullptr),
       mBakeSize(512)
 {
 }
@@ -142,7 +142,7 @@ void LLProcessTexture::parseInput(std::istream& input)
 
 void LLProcessTexture::init()
 {
-    if (mApp->isDebugMode()) gDebugGL = TRUE;
+    if (mApp->isDebugMode()) gDebugGL = true;
 
     S32 maxTextureDecodedWidth = 0;
     S32 maxTextureDecodedHeight = 0;
@@ -226,7 +226,7 @@ LLGLTexture* LLProcessTexture::getFetchedTexture(const LLUUID &image_id)
     if (mTextureData.end() == texture_iter)
     {
         LL_DEBUGS() << "Ignoring unused texture id: " << image_id << LL_ENDL;
-        return NULL;
+        return nullptr;
     }
 
     return texture_iter->second;

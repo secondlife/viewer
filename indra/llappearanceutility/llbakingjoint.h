@@ -37,7 +37,7 @@ public:
     virtual ~LLBakingJoint();
 
     // LLViewerJoint interface
-    virtual U32 render( F32 pixelArea, bool first_pass = TRUE, bool is_dummy = FALSE );
+    U32 render( F32 pixelArea, bool first_pass = true, bool is_dummy = false ) override;
 };
 
 #endif /* LL_LLBAKINGJOINT_H */

@@ -44,15 +44,15 @@ public:
     LLImageJ2C* getCompressedImage() { return mCompressedImage; }
 
     bool                   render();
-    /*virtual*/ bool       bindDebugImage(const S32 stage = 0) { return false; }
-    /*virtual*/ bool       isActiveFetching() { return false; };
+    bool       bindDebugImage(const S32 stage = 0) override { return false; }
+    bool       isActiveFetching() override { return false; };
 
 private:
-    /*virtual*/ S32         getCompositeOriginX() const { return 0; }
-    /*virtual*/ S32         getCompositeOriginY() const { return 0; }
-    /*virtual*/ S32         getCompositeWidth() const { return getFullWidth(); }
-    /*virtual*/ S32         getCompositeHeight() const { return getFullHeight(); }
-    /*virtual*/ void        midRenderTexLayerSet(bool success);
+    S32         getCompositeOriginX() const override { return 0; }
+    S32         getCompositeOriginY() const override { return 0; }
+    S32         getCompositeWidth() const override { return getFullWidth(); }
+    S32         getCompositeHeight() const override { return getFullHeight(); }
+    void        midRenderTexLayerSet(bool success) override;
 
     LLPointer<LLImageJ2C> mCompressedImage;
 };
@@ -69,8 +69,8 @@ public:
             const layer_list_t& layer_list,
             bool& is_visible) const;
 
-    /*virtual*/void             requestUpdate();
-    /*virtual*/void             createComposite();
+    void             requestUpdate() override;
+    void             createComposite() override;
 };
 
 #endif /* LL_LLBAKINGTEXLAYER_H */
