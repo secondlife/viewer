@@ -390,10 +390,10 @@ void notify_of_message(const LLSD& msg, bool is_dnd_msg)
                 }
                 else
                 {
-            LLAvatarNameCache::get(participant_id, boost::bind(&on_avatar_name_cache_toast, _1, _2, msg));
+                    LLAvatarNameCache::get(participant_id, boost::bind(&on_avatar_name_cache_toast, _1, _2, msg));
+                }
+            }
         }
-    }
-}
     }
     if (store_dnd_message)
     {
@@ -4178,11 +4178,16 @@ public:
         }
         if (input["body"]["info"].has("voice_channel_info"))
         {
+            // new voice channel info incoming, update and re-activate call
+            // if currently in a call.
             LLIMModel::LLIMSession* session = LLIMModel::getInstance()->findIMSession(session_id);
             if (session)
             {
-                session->initVoiceChannel(input["body"]["info"]["voice_channel_info"]);
-                session->mVoiceChannel->activate();
+                if (session->mVoiceChannel && session->mVoiceChannel->callStarted())
+                {
+                    session->initVoiceChannel(input["body"]["info"]["voice_channel_info"]);
+                    session->mVoiceChannel->activate();
+                }
             }
         }
     }

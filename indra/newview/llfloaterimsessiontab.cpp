@@ -450,7 +450,8 @@ void LLFloaterIMSessionTab::enableDisableCallBtn()
         else
         {
             // We allow to start call from this state only
-            if (mSession->mVoiceChannel->getState() == LLVoiceChannel::STATE_NO_CHANNEL_INFO &&
+            if (mSession->mVoiceChannel  &&
+                !mSession->mVoiceChannel->callStarted() &&
                 LLVoiceClient::instanceExists())
             {
                 LLVoiceClient* client = LLVoiceClient::getInstance();
@@ -494,10 +495,7 @@ void LLFloaterIMSessionTab::onCallButtonClicked()
     }
     else
     {
-        LLVoiceChannel::EState channel_state = mSession && mSession->mVoiceChannel ?
-            mSession->mVoiceChannel->getState() : LLVoiceChannel::STATE_NO_CHANNEL_INFO;
-        // We allow to start call from this state only
-        if (channel_state == LLVoiceChannel::STATE_NO_CHANNEL_INFO)
+        if (mSession->mVoiceChannel && !mSession->mVoiceChannel->callStarted())
         {
             gIMMgr->startCall(mSessionID);
         }
