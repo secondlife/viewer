@@ -2983,7 +2983,9 @@ void LLVoiceWebRTCConnection::OnDataReceivedImpl(const std::string &data, bool b
                     // we got a 'power' update.
                     if (participant_obj.contains("p") && participant_obj["p"].is_number())
                     {
-                        participant->mLevel = (F32)participant_obj["p"].as_int64();
+                        // server sends up power as an integer which is level * 128 to save
+                        // character count.
+                        participant->mLevel = (F32)participant_obj["p"].as_int64()/128.0f;
                     }
 
                     if (participant_obj.contains("v") && participant_obj["v"].is_bool())
