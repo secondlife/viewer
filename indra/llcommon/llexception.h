@@ -17,6 +17,9 @@
 #include <boost/exception/exception.hpp>
 #include <boost/throw_exception.hpp>
 #include <boost/current_function.hpp>
+#if LL_WINDOWS
+#include <excpt.h>
+#endif // LL_WINDOWS
 
 // "Found someone who can comfort me
 //  But there are always exceptions..."
@@ -180,14 +183,14 @@ auto catcher(TRYCODE&& trycode, HANDLER&& handler)
                    std::forward<HANDLER>(handler));
 }
 
+[[noreturn]] void rethrow(U32 code, const std::string& stacktrace);
+
 // monadic variant specifies try(), assumes default filter and handler
 template <typename TRYCODE>
 auto catcher(TRYCODE&& trycode)
 {
     return catcher(std::forward<TRYCODE>(trycode), rethrow);
 }
-
-[[noreturn]] void rethrow(U32 code, const std::string& stacktrace);
 
 #else  // not LL_WINDOWS -----------------------------------------------------
 

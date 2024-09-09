@@ -201,13 +201,13 @@ LLVector2 LLSurfacePatch::getTexCoords(const U32 x, const U32 y) const
 
 
 void LLSurfacePatch::eval(const U32 x, const U32 y, const U32 stride, LLVector3 *vertex, LLVector3 *normal,
-                          LLVector2 *tex0, LLVector2 *tex1)
+                          LLVector2 *tex1) const
 {
     if (!mSurfacep || !mSurfacep->getRegion() || !mSurfacep->getGridsPerEdge() || !mVObjp)
     {
         return; // failsafe
     }
-    llassert_always(vertex && normal && tex0 && tex1);
+    llassert_always(vertex && normal && tex1);
 
     U32 surface_stride = mSurfacep->getGridsPerEdge();
     U32 point_offset = x + y*surface_stride;
@@ -220,12 +220,6 @@ void LLSurfacePatch::eval(const U32 x, const U32 y, const U32 stride, LLVector3 
     pos_agent.mV[VZ]  = *(mDataZ + point_offset);
     *vertex     = pos_agent-mVObjp->getRegion()->getOriginAgent();
 
-    LLVector3 rel_pos = pos_agent - mSurfacep->getOriginAgent();
-    // *NOTE: Only PBR terrain uses the UVs right now. Texture terrain just ignores it.
-    // *NOTE: In the future, UVs and horizontal position will no longer have a 1:1 relationship for PBR terrain
-    LLVector3 tex_pos = rel_pos;
-    tex0->mV[0]  = tex_pos.mV[0];
-    tex0->mV[1]  = tex_pos.mV[1];
     tex1->mV[0] = mSurfacep->getRegion()->getCompositionXY(llfloor(mOriginRegion.mV[0])+x, llfloor(mOriginRegion.mV[1])+y);
 
     const F32 xyScale = 4.9215f*7.f; //0.93284f;

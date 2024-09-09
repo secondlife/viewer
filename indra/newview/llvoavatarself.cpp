@@ -24,12 +24,6 @@
  * $/LicenseInfo$
  */
 
-#if LL_MSVC
-// disable warning about boost::lexical_cast returning uninitialized data
-// when it fails to parse the string
-#pragma warning (disable:4701)
-#endif
-
 #include "llviewerprecompiledheaders.h"
 
 #include "llvoavatarself.h"
@@ -65,14 +59,8 @@
 #include "llsdutil.h"
 #include "llstartup.h"
 #include "llsdserialize.h"
-#include "llcallstack.h"
 #include "llcorehttputil.h"
 #include "lluiusage.h"
-
-#if LL_MSVC
-// disable boost::lexical_cast warning
-#pragma warning (disable:4702)
-#endif
 
 #include <boost/lexical_cast.hpp>
 
@@ -787,6 +775,7 @@ void LLVOAvatarSelf::updateVisualParams()
 
 void LLVOAvatarSelf::writeWearablesToAvatar()
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
     for (U32 type = 0; type < LLWearableType::WT_COUNT; type++)
     {
         LLWearable *wearable = gAgentWearables.getTopWearable((LLWearableType::EType)type);

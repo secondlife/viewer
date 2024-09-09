@@ -228,7 +228,12 @@ private:
     std::string mSavedGraphicsPreset;
     LOG_CLASS(LLFloaterPreference);
 
-    LLSearchEditor *mFilterEdit;
+    LLSearchEditor* mFilterEdit = nullptr;
+    LLScrollListCtrl* mEnabledPopups = nullptr;
+    LLScrollListCtrl* mDisabledPopups = nullptr;
+    LLButton*       mDeleteTranscriptsBtn = nullptr;
+    LLButton*       mEnablePopupBtn = nullptr;
+    LLButton*       mDisablePopupBtn = nullptr;
     std::unique_ptr< ll::prefs::SearchData > mSearchData;
     bool mSearchDataDirty;
 

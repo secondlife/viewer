@@ -483,7 +483,7 @@
        layout="topleft"
        name="Reset Skeleton">
         <menu_item_call.on_click
-         function="Avatar.ResetSkeleton" />
+         function="Avatar.ResetSelfSkeleton" />
       </menu_item_call>
       <menu_item_call 
        label="Reset skeleton and animations"
@@ -3435,13 +3435,6 @@ function="World.EnvPreset"
             <menu_item_call.on_click
              function="Advanced.ClearShaderCache" />
           </menu_item_call>
-          <menu_item_call
-            enabled="true"
-            label="Rebuild Terrain"
-            name="Rebuild Terrain">
-            <menu_item_call.on_click
-             function="Advanced.RebuildTerrain" />
-          </menu_item_call>
           <menu_item_separator />
           <menu_item_call
             enabled="true"
@@ -3661,6 +3654,37 @@ function="World.EnvPreset"
 				<menu_item_call.on_click
                  function="Advanced.ResetInterestLists" />
 			</menu_item_call>
+		</menu>
+        <!-- terrain -->
+        <menu
+         create_jump_keys="true"
+         label="Terrain"
+         name="DevelopTerrain"
+         tear_off="true">
+            <menu_item_call
+              enabled="true"
+              label="Rebuild Terrain"
+              name="Rebuild Terrain">
+              <menu_item_call.on_click
+               function="Advanced.RebuildTerrain" />
+            </menu_item_call>
+
+            <menu_item_separator/>
+
+            <menu_item_call
+              enabled="true"
+              label="Create Local Paintmap"
+              name="Create Local Paintmap">
+              <menu_item_call.on_click
+               function="Advanced.TerrainCreateLocalPaintMap" />
+            </menu_item_call>
+            <menu_item_call
+              enabled="true"
+              label="Delete Local Paintmap"
+              name="Delete Local Paintmap">
+              <menu_item_call.on_click
+               function="Advanced.TerrainDeleteLocalPaintMap" />
+            </menu_item_call>
 		</menu>
         <menu
          create_jump_keys="true"

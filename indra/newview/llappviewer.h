@@ -44,7 +44,6 @@
 #define LL_LLAPPVIEWER_H
 
 #include "llapp.h"
-#include "llallocator.h"
 #include "llapr.h"
 #include "llcontrol.h"
 #include "llsys.h"          // for LLOSInfo
@@ -194,8 +193,6 @@ public:
     // *NOTE:Mani Fix this for login abstraction!!
     void handleLoginComplete();
 
-    LLAllocator & getAllocator() { return mAlloc; }
-
     // On LoginCompleted callback
     typedef boost::signals2::signal<void (void)> login_completed_signal_t;
     login_completed_signal_t mOnLoginCompleted;
@@ -338,8 +335,6 @@ private:
     bool mAgentRegionLastAlive;
     LLUUID mAgentRegionLastID;
 
-    LLAllocator mAlloc;
-
     // llcorehttp library init/shutdown helper
     LLAppCoreHttp mAppCoreHttp;
 
@@ -412,8 +407,6 @@ extern LLVector3 gWindVec;
 extern LLVector3 gRelativeWindVec;
 extern U32  gPacketsIn;
 extern bool gPrintMessagesThisFrame;
-
-extern LLUUID gBlackSquareID;
 
 extern bool gRandomizeFramerate;
 extern bool gPeriodicSlowFrame;

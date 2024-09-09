@@ -55,6 +55,7 @@
 #include "llsingleton.h"
 #include "llstl.h"
 #include "lltimer.h"
+#include "llprofiler.h"
 
 // On Mac, got:
 // #error "Boost.Stacktrace requires `_Unwind_Backtrace` function. Define
@@ -506,7 +507,7 @@ namespace
         LLError::TimeFunction               mTimeFunction;
 
         Recorders                           mRecorders;
-        LLCoros::RMutex                     mRecorderMutex;
+        LL_PROFILE_MUTEX_NAMED(LLCoros::RMutex, mRecorderMutex, "Log Recorders");
 
         int                                 mShouldLogCallCounter;
 
@@ -529,7 +530,6 @@ namespace
         mCrashFunction(NULL),
         mTimeFunction(NULL),
         mRecorders(),
-        mRecorderMutex(),
         mShouldLogCallCounter(0)
     {
     }
@@ -1044,7 +1044,7 @@ namespace LLError
             return;
         }
         SettingsConfigPtr s = Globals::getInstance()->getSettingsConfig();
-        std::unique_lock lock(s->mRecorderMutex);
+        std::unique_lock lock(s->mRecorderMutex); LL_PROFILE_MUTEX_LOCK(s->mRecorderMutex);
         s->mRecorders.push_back(recorder);
     }
 
@@ -1055,7 +1055,7 @@ namespace LLError
             return;
         }
         SettingsConfigPtr s = Globals::getInstance()->getSettingsConfig();
-        std::unique_lock lock(s->mRecorderMutex);
+        std::unique_lock lock(s->mRecorderMutex); LL_PROFILE_MUTEX_LOCK(s->mRecorderMutex);
         s->mRecorders.erase(std::remove(s->mRecorders.begin(), s->mRecorders.end(), recorder),
                             s->mRecorders.end());
     }
@@ -1104,7 +1104,7 @@ namespace LLError
     std::shared_ptr<RECORDER> findRecorder()
     {
         SettingsConfigPtr s = Globals::getInstance()->getSettingsConfig();
-        std::unique_lock lock(s->mRecorderMutex);
+        std::unique_lock lock(s->mRecorderMutex); LL_PROFILE_MUTEX_LOCK(s->mRecorderMutex);
         return findRecorderPos<RECORDER>(s).first;
     }
 
@@ -1115,7 +1115,7 @@ namespace LLError
     bool removeRecorder()
     {
         SettingsConfigPtr s = Globals::getInstance()->getSettingsConfig();
-        std::unique_lock lock(s->mRecorderMutex);
+        std::unique_lock lock(s->mRecorderMutex); LL_PROFILE_MUTEX_LOCK(s->mRecorderMutex);
         auto found = findRecorderPos<RECORDER>(s);
         if (found.first)
         {
@@ -1221,7 +1221,7 @@ namespace
 
         std::string escaped_message;
 
-        std::unique_lock lock(s->mRecorderMutex);
+        std::unique_lock lock(s->mRecorderMutex); LL_PROFILE_MUTEX_LOCK(s->mRecorderMutex);
         for (LLError::RecorderPtr& r : s->mRecorders)
         {
             if (!r->enabled())
@@ -1280,24 +1280,21 @@ namespace
 }
 
 namespace {
-    // We need a couple different mutexes, but we want to use the same mechanism
-    // for both. Make getMutex() a template function with different instances
-    // for different MutexDiscriminator values.
-    enum MutexDiscriminator
-    {
-        LOG_MUTEX,
-        STACKS_MUTEX
-    };
     // Some logging calls happen very early in processing -- so early that our
     // module-static variables aren't yet initialized. getMutex() wraps a
     // function-static LLMutex so that early calls can still have a valid
     // LLMutex instance.
-    template <MutexDiscriminator MTX>
-    LLMutex* getMutex()
+    auto getLogMutex()
     {
         // guaranteed to be initialized the first time control reaches here
-        static LLMutex sMutex;
-        return &sMutex;
+        static LL_PROFILE_MUTEX_NAMED(std::recursive_mutex, sLogMutex, "Log Mutex");
+        return &sLogMutex;
+    }
+    auto getStacksMutex()
+    {
+        // guaranteed to be initialized the first time control reaches here
+        static LL_PROFILE_MUTEX_NAMED(std::recursive_mutex, sStacksMutex, "Stacks Mutex");
+        return &sStacksMutex;
     }
 
     bool checkLevelMap(const LevelMap& map, const std::string& key,
@@ -1347,8 +1344,8 @@ namespace LLError
     bool Log::shouldLog(CallSite& site)
     {
         LL_PROFILE_ZONE_SCOPED_CATEGORY_LOGGING;
-        LLMutexTrylock lock(getMutex<LOG_MUTEX>(), 5);
-        if (!lock.isLocked())
+        std::unique_lock lock(*getLogMutex(), std::try_to_lock); LL_PROFILE_MUTEX_LOCK(*getLogMutex());
+        if (!lock)
         {
             return false;
         }
@@ -1392,8 +1389,8 @@ namespace LLError
     void Log::flush(const std::ostringstream& out, const CallSite& site)
     {
         LL_PROFILE_ZONE_SCOPED_CATEGORY_LOGGING;
-        LLMutexTrylock lock(getMutex<LOG_MUTEX>(),5);
-        if (!lock.isLocked())
+        std::unique_lock lock(*getLogMutex(), std::try_to_lock); LL_PROFILE_MUTEX_LOCK(*getLogMutex());
+        if (!lock)
         {
             return;
         }
@@ -1523,8 +1520,8 @@ namespace LLError
     //static
     void LLCallStacks::push(const char* function, const int line)
     {
-        LLMutexTrylock lock(getMutex<STACKS_MUTEX>(), 5);
-        if (!lock.isLocked())
+        std::unique_lock lock(*getStacksMutex(), std::try_to_lock); LL_PROFILE_MUTEX_LOCK(*getStacksMutex());
+        if (!lock)
         {
             return;
         }
@@ -1548,8 +1545,8 @@ namespace LLError
     //static
     void LLCallStacks::end(const std::ostringstream& out)
     {
-        LLMutexTrylock lock(getMutex<STACKS_MUTEX>(), 5);
-        if (!lock.isLocked())
+        std::unique_lock lock(*getStacksMutex(), std::try_to_lock); LL_PROFILE_MUTEX_LOCK(*getStacksMutex());
+        if (!lock)
         {
             return;
         }
@@ -1565,8 +1562,8 @@ namespace LLError
     //static
     void LLCallStacks::print()
     {
-        LLMutexTrylock lock(getMutex<STACKS_MUTEX>(), 5);
-        if (!lock.isLocked())
+        std::unique_lock lock(*getStacksMutex(), std::try_to_lock); LL_PROFILE_MUTEX_LOCK(*getStacksMutex());
+        if (!lock)
         {
             return;
         }
@@ -1643,20 +1640,4 @@ namespace LLError
         sLocalizedOutOfMemoryTitle = title;
         sLocalizedOutOfMemoryWarning = message;
     }
-}
-
-void crashdriver(void (*callback)(int*))
-{
-    // The LLERROR_CRASH macro used to have inline code of the form:
-    //int* make_me_crash = NULL;
-    //*make_me_crash = 0;
-
-    // But compilers are getting smart enough to recognize that, so we must
-    // assign to an address supplied by a separate source file. We could do
-    // the assignment here in crashdriver() -- but then BugSplat would group
-    // all LL_ERRS() crashes as the fault of this one function, instead of
-    // identifying the specific LL_ERRS() source line. So instead, do the
-    // assignment in a lambda in the caller's source. We just provide the
-    // nullptr target.
-    callback(nullptr);
 }

@@ -29,7 +29,6 @@
 
 #include "linden_common.h"
 #include "llsd.h"
-#include <boost/shared_ptr.hpp>
 #include <string>
 
 

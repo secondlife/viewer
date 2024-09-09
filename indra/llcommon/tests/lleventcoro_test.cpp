@@ -30,8 +30,6 @@
 #include <boost/bind.hpp>
 #include <boost/range.hpp>
 #include <boost/utility.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/make_shared.hpp>
 
 #include "linden_common.h"
 

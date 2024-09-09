@@ -45,6 +45,7 @@
 #include "llfloaterreg.h"
 #include "llagentbenefits.h"
 #include "llfilesystem.h"
+#include "llviewercontrol.h"
 #include "boost/json.hpp"
 
 #define GLTF_SIM_SUPPORT 1
@@ -357,7 +358,9 @@ void GLTFSceneManager::addGLTFObject(LLViewerObject* obj, LLUUID gltf_id)
 
     if (obj->mGLTFAsset)
     { // object already has a GLTF asset, don't reload it
-        llassert(std::find(mObjects.begin(), mObjects.end(), obj) != mObjects.end());
+
+        // TODO: below assertion fails on dupliate requests for assets -- possibly need to touch up asset loading state machine
+        // llassert(std::find(mObjects.begin(), mObjects.end(), obj) != mObjects.end());
         return;
     }
 
@@ -615,6 +618,13 @@ void GLTFSceneManager::render(U8 variant)
 void GLTFSceneManager::render(Asset& asset, U8 variant)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_GLTF;
+
+    static LLCachedControl<bool> can_use_shaders(gSavedSettings, "RenderCanUseGLTFPBROpaqueShaders", true);
+    if (!can_use_shaders)
+    {
+        // user should already have been notified of unsupported hardware
+        return;
+    }
 
     for (U32 ds = 0; ds < 2; ++ds)
     {

@@ -32,7 +32,6 @@
 #include "llpointer.h"
 #include "llrefcount.h"
 #include "boost/function.hpp"
-#include "boost/shared_ptr.hpp"
 #include <string>
 
 class LLSD;
@@ -198,7 +197,7 @@ namespace LLError
     };
 
     /**
-     * @NOTE: addRecorder() and removeRecorder() uses the boost::shared_ptr to allow for shared ownership
+     * @NOTE: addRecorder() and removeRecorder() uses the std::shared_ptr to allow for shared ownership
      * while still ensuring that the allocated memory is eventually freed
      */
     LL_COMMON_API void addRecorder(RecorderPtr);

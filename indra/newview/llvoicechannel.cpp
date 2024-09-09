@@ -81,10 +81,7 @@ LLVoiceChannel::~LLVoiceChannel()
     {
         sCurrentVoiceChannel = NULL;
         // Must check instance exists here, the singleton MAY have already been destroyed.
-        if(LLVoiceClient::instanceExists())
-        {
-            LLVoiceClient::getInstance()->removeObserver(this);
-        }
+        LLVoiceClient::removeObserver(this);
     }
 
     sVoiceChannelMap.erase(mSessionID);
@@ -116,6 +113,12 @@ void LLVoiceChannel::setChannelInfo(const LLSD &channelInfo)
             }
         }
     }
+}
+
+void LLVoiceChannel::resetChannelInfo()
+{
+    mChannelInfo = LLSD();
+    mState = STATE_NO_CHANNEL_INFO;
 }
 
 void LLVoiceChannel::onChange(EStatusType type, const LLSD& channelInfo, bool proximal)
@@ -187,13 +190,13 @@ void LLVoiceChannel::handleError(EStatusType type)
     setState(STATE_ERROR);
 }
 
-bool LLVoiceChannel::isActive()
+bool LLVoiceChannel::isActive() const
 {
     // only considered active when currently bound channel matches what our channel
     return callStarted() && LLVoiceClient::getInstance()->isCurrentChannel(mChannelInfo);
 }
 
-bool LLVoiceChannel::callStarted()
+bool LLVoiceChannel::callStarted() const
 {
     return mState >= STATE_CALL_STARTED;
 }
@@ -219,7 +222,7 @@ void LLVoiceChannel::deactivate()
             LLVoiceClient::getInstance()->setUserPTTState(false);
         }
     }
-    LLVoiceClient::getInstance()->removeObserver(this);
+    LLVoiceClient::removeObserver(this);
 
     if (sCurrentVoiceChannel == this)
     {
@@ -259,7 +262,7 @@ void LLVoiceChannel::activate()
         setState(STATE_CALL_STARTED);
     }
 
-    LLVoiceClient::getInstance()->addObserver(this);
+    LLVoiceClient::addObserver(this);
 
     //do not send earlier, channel should be initialized, should not be in STATE_NO_CHANNEL_INFO state
     sCurrentVoiceChannelChangedSignal(this->mSessionID);
@@ -325,6 +328,16 @@ void LLVoiceChannel::setState(EState state)
 
 void LLVoiceChannel::doSetState(const EState& new_state)
 {
+    LL_DEBUGS("Voice") << "session '" << mSessionName << "' state " << mState << ", new_state " << new_state << ": "
+        << (new_state == STATE_ERROR ? "ERROR" :
+            new_state == STATE_HUNG_UP ? "HUNG_UP" :
+            new_state == STATE_READY ? "READY" :
+            new_state == STATE_CALL_STARTED ? "CALL_STARTED" :
+            new_state == STATE_RINGING ? "RINGING" :
+            new_state == STATE_CONNECTED ? "CONNECTED" :
+            "NO_INFO")
+        << LL_ENDL;
+
     EState old_state = mState;
     mState = new_state;
 
@@ -662,7 +675,7 @@ LLVoiceChannelProximal::LLVoiceChannelProximal() :
 {
 }
 
-bool LLVoiceChannelProximal::isActive()
+bool LLVoiceChannelProximal::isActive() const
 {
     return callStarted() && LLVoiceClient::getInstance()->inProximalChannel();
 }
@@ -751,7 +764,7 @@ void LLVoiceChannelProximal::deactivate()
     {
         setState(STATE_HUNG_UP);
     }
-    LLVoiceClient::getInstance()->removeObserver(this);
+    LLVoiceClient::removeObserver(this);
     LLVoiceClient::getInstance()->activateSpatialChannel(false);
 }
 
@@ -916,6 +929,12 @@ void LLVoiceChannelP2P::setChannelInfo(const LLSD& channel_info)
     {
         activate();
     }
+}
+
+void LLVoiceChannelP2P::resetChannelInfo()
+{
+    mChannelInfo = LLVoiceClient::getInstance()->getP2PChannelInfoTemplate(mOtherUserID);
+    mState = STATE_NO_CHANNEL_INFO; // we have template, not full info
 }
 
 void LLVoiceChannelP2P::setState(EState state)

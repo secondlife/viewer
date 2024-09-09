@@ -28,13 +28,6 @@
 #include "llsd.h"
 #include "llsdutil.h"
 
-/*==========================================================================*|
-#ifdef LL_WINDOWS
-    // non-virtual destructor warning, boost::statechart does this intentionally.
-    #pragma warning (disable : 4265)
-#endif
-|*==========================================================================*/
-
 #include "lllogin.h"
 
 #include <boost/bind.hpp>
@@ -135,7 +128,7 @@ void LLLogin::Impl::connect(const std::string& uri, const LLSD& login_params)
     // Launch a coroutine with our login_() method. Run the coroutine until
     // its first wait; at that point, return here.
     std::string coroname =
-        LLCoros::instance().launch("LLLogin::Impl::login_", [&]() { loginCoro(uri, login_params); });
+        LLCoros::instance().launch("LLLogin::Impl::login_", [=]() { loginCoro(uri, login_params); });
 
     LL_DEBUGS("LLLogin") << " connected with uri '" << uri << "', login_params " << login_params << LL_ENDL;
 }

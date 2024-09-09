@@ -30,9 +30,12 @@
 #include "llcontrol.h"
 #include "llfloater.h"
 
+class LLColorSwatchCtrl;
 class LLScrollListCtrl;
+class LLSpinCtrl;
+class LLTextBox;
 
-class LLFloaterSettingsDebug
+class LLFloaterSettingsDebug final
 :   public LLFloater
 {
     friend class LLFloaterReg;
@@ -67,6 +70,16 @@ private:
 
 protected:
     class LLTextEditor* mComment;
+    LLSpinCtrl*         mValSpinner1 = nullptr;
+    LLSpinCtrl*         mValSpinner2 = nullptr;
+    LLSpinCtrl*         mValSpinner3 = nullptr;
+    LLSpinCtrl*         mValSpinner4 = nullptr;
+    LLUICtrl*           mBooleanCombo = nullptr;
+    LLUICtrl*           mValText = nullptr;
+    LLUICtrl*           mDefaultButton = nullptr;
+    LLTextBox*          mSettingNameText = nullptr;
+
+    LLColorSwatchCtrl* mColorSwatch = nullptr;
 
     std::string mSearchFilter;
 };

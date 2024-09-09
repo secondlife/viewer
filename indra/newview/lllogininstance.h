@@ -29,7 +29,6 @@
 
 #include "lleventdispatcher.h"
 #include "lleventapi.h"
-#include <boost/scoped_ptr.hpp>
 #include <boost/function.hpp>
 #include <memory>                   // std::shared_ptr
 #include "llsecapi.h"

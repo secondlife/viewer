@@ -27,6 +27,8 @@
 #define LLBADGE_CPP
 #include "llbadge.h"
 
+#include "llfontgl.h"
+#include "llfontvertexbuffer.h"
 #include "llscrollcontainer.h"
 #include "lluictrlfactory.h"
 
@@ -351,17 +353,17 @@ void LLBadge::draw()
             //
             // Draw the label
             //
-
-            mGLFont->render(mLabel.getWString(),
-                            badge_label_begin_offset,
-                            badge_center_x + mLabelOffsetHoriz,
-                            badge_center_y + mLabelOffsetVert,
-                            mLabelColor % alpha,
-                            LLFontGL::HCENTER, LLFontGL::VCENTER, // centered around the position
-                            LLFontGL::NORMAL, // normal text (not bold, italics, etc.)
-                            LLFontGL::DROP_SHADOW_SOFT,
-                            badge_char_length, badge_pixel_length,
-                            right_position_out, do_not_use_ellipses);
+            mFontBuffer.render(mGLFont,
+                               mLabel.getWString(),
+                               badge_label_begin_offset,
+                               badge_center_x + mLabelOffsetHoriz,
+                               badge_center_y + mLabelOffsetVert,
+                               mLabelColor % alpha,
+                               LLFontGL::HCENTER, LLFontGL::VCENTER, // centered around the position
+                               LLFontGL::NORMAL, // normal text (not bold, italics, etc.)
+                               LLFontGL::DROP_SHADOW_SOFT,
+                               badge_char_length, badge_pixel_length,
+                               right_position_out, do_not_use_ellipses);
         }
     }
 }

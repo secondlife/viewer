@@ -42,19 +42,13 @@ static const std::string DICT_FILE_USER = "user_dictionaries.xml";
 LLSpellChecker::settings_change_signal_t LLSpellChecker::sSettingsChangeSignal;
 
 LLSpellChecker::LLSpellChecker()
-    : mHunspell(NULL)
 {
+    // Load initial dictionary information
+    refreshDictionaryMap();
 }
 
 LLSpellChecker::~LLSpellChecker()
 {
-    delete mHunspell;
-}
-
-void LLSpellChecker::initSingleton()
-{
-    // Load initial dictionary information
-    refreshDictionaryMap();
 }
 
 bool LLSpellChecker::checkSpelling(const std::string& word) const
@@ -300,8 +294,7 @@ void LLSpellChecker::initHunspell(const std::string& dict_language)
 {
     if (mHunspell)
     {
-        delete mHunspell;
-        mHunspell = NULL;
+        mHunspell.reset();
         mDictLanguage.clear();
         mDictFile.clear();
         mIgnoreList.clear();
@@ -322,11 +315,11 @@ void LLSpellChecker::initHunspell(const std::string& dict_language)
         const std::string filename_dic = dict_entry["name"].asString() + ".dic";
         if ( (gDirUtilp->fileExists(user_path + filename_aff)) && (gDirUtilp->fileExists(user_path + filename_dic)) )
         {
-            mHunspell = new Hunspell((user_path + filename_aff).c_str(), (user_path + filename_dic).c_str());
+            mHunspell = std::make_unique<Hunspell>((user_path + filename_aff).c_str(), (user_path + filename_dic).c_str());
         }
         else if ( (gDirUtilp->fileExists(app_path + filename_aff)) && (gDirUtilp->fileExists(app_path + filename_dic)) )
         {
-            mHunspell = new Hunspell((app_path + filename_aff).c_str(), (app_path + filename_dic).c_str());
+            mHunspell = std::make_unique<Hunspell>((app_path + filename_aff).c_str(), (app_path + filename_dic).c_str());
         }
         if (!mHunspell)
         {

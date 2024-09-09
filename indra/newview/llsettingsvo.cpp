@@ -33,7 +33,6 @@
 
 #include <algorithm>
 #include <cstdio>
-#include <boost/make_shared.hpp>
 #include "lltrace.h"
 #include "llfasttimer.h"
 #include "v3colorutil.h"
@@ -1388,9 +1387,12 @@ LLSettingsDay::ptr_t LLSettingsVODay::buildClone() const
 
     LLSettingsDay::ptr_t dayp = std::make_shared<LLSettingsVODay>(settings);
 
-    U32 flags = getFlags();
-    if (flags)
+    dayp->setName(getName());
+
+    if (U32 flags = getFlags())
+    {
         dayp->setFlags(flags);
+    }
 
     dayp->initialize();
     return dayp;

@@ -721,6 +721,8 @@ std::vector<std::string> LLDir::findSkinnedFilenames(const std::string& subdir,
                                                      const std::string& filename,
                                                      ESkinConstraint constraint) const
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
+
     // Recognize subdirs that have no localization.
     static const std::set<std::string> sUnlocalized = list_of
         ("")                        // top-level directory not localized

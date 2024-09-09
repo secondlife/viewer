@@ -81,7 +81,6 @@
 #include "llcoros.h"
 #include "lleventcoro.h"
 #include "llcorehttputil.h"
-#include "llcallstack.h"
 #include "llsettingsdaycycle.h"
 
 #include <boost/regex.hpp>
@@ -2716,7 +2715,6 @@ LLViewerRegion::eCacheUpdateResult LLViewerRegion::cacheFullUpdate(LLDataPackerB
         if (entry->getCRC() == crc)
         {
             LL_DEBUGS("AnimatedObjects") << " got dupe for local_id " << local_id << LL_ENDL;
-            dumpStack("AnimatedObjectsStack");
 
             // Record a hit
             entry->recordDupe();
@@ -2725,7 +2723,6 @@ LLViewerRegion::eCacheUpdateResult LLViewerRegion::cacheFullUpdate(LLDataPackerB
         else //CRC changed
         {
             LL_DEBUGS("AnimatedObjects") << " got update for local_id " << local_id << LL_ENDL;
-            dumpStack("AnimatedObjectsStack");
 
             // Update the cache entry
             entry->updateEntry(crc, dp);
@@ -2738,7 +2735,6 @@ LLViewerRegion::eCacheUpdateResult LLViewerRegion::cacheFullUpdate(LLDataPackerB
     else
     {
         LL_DEBUGS("AnimatedObjects") << " got first notification for local_id " << local_id << LL_ENDL;
-        dumpStack("AnimatedObjectsStack");
 
         // we haven't seen this object before
         // Create new entry and add to map

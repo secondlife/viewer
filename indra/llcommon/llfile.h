@@ -77,7 +77,7 @@ public:
     static  int     rmdir(const std::string& filename);
     static  int     remove(const std::string& filename, int supress_error = 0);
     static  int     rename(const std::string& filename,const std::string& newname, int supress_error = 0);
-    static  bool    copy(const std::string from, const std::string to);
+    static  bool    copy(const std::string& from, const std::string& to);
 
     static  int     stat(const std::string& filename,llstat*    file_status);
     static  bool    isdir(const std::string&    filename);
@@ -160,7 +160,7 @@ private:
  *  Does The Right Thing when passed a non-ASCII pathname. Sadly, that isn't
  *  true of Microsoft's std::ifstream.
  */
-class LL_COMMON_API llifstream  :   public  std::ifstream
+class LL_COMMON_API llifstream : public std::ifstream
 {
     // input stream associated with a C stream
   public:
@@ -205,7 +205,7 @@ class LL_COMMON_API llifstream  :   public  std::ifstream
  *  Right Thing when passed a non-ASCII pathname. Sadly, that isn't true of
  *  Microsoft's std::ofstream.
 */
-class LL_COMMON_API llofstream  :   public  std::ofstream
+class LL_COMMON_API llofstream : public std::ofstream
 {
   public:
     // Constructors:
@@ -241,7 +241,7 @@ class LL_COMMON_API llofstream  :   public  std::ofstream
 
 
 /**
- * @breif filesize helpers.
+ * @brief filesize helpers.
  *
  * The file size helpers are not considered particularly efficient,
  * and should only be used for config files and the like -- not in a

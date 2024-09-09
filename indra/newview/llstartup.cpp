@@ -28,7 +28,6 @@
 
 #include "llappviewer.h"
 #include "llstartup.h"
-#include "llcallstack.h"
 
 #if LL_WINDOWS
 #   include <process.h>     // _spawnl()
@@ -1285,7 +1284,6 @@ bool idle_startup()
         //
         // Initialize classes w/graphics stuff.
         //
-        LLViewerStatsRecorder::instance(); // Since textures work in threads
         LLSurface::initClasses();
         display_startup();
 

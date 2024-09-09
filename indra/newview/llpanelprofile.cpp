@@ -703,10 +703,7 @@ LLPanelProfileSecondLife::~LLPanelProfileSecondLife()
         LLAvatarTracker::instance().removeParticularFriendObserver(getAvatarId(), this);
     }
 
-    if (LLVoiceClient::instanceExists())
-    {
-        LLVoiceClient::getInstance()->removeObserver((LLVoiceClientStatusObserver*)this);
-    }
+    LLVoiceClient::removeObserver((LLVoiceClientStatusObserver*)this);
 
     if (mAvatarNameCacheConnection.connected())
     {
@@ -1055,7 +1052,7 @@ void LLPanelProfileSecondLife::fillAccountStatus(const LLAvatarData* avatar_data
     std::string caption_text = getString("CaptionTextAcctInfo", args);
     getChild<LLUICtrl>("account_info")->setValue(caption_text);
 
-    const S32 LINDEN_EMPLOYEE_INDEX = 3;
+    constexpr S32 LINDEN_EMPLOYEE_INDEX = 3;
     LLDate sl_release;
     sl_release.fromYMDHMS(2003, 6, 23, 0, 0, 0);
     std::string customer_lower = avatar_data->customer_type;
@@ -1120,7 +1117,7 @@ void LLPanelProfileSecondLife::fillRightsData()
     // If true - we are viewing friend's profile, enable check boxes and set values.
     if (relation)
     {
-        S32 rights = relation->getRightsGrantedTo();
+        const S32 rights = relation->getRightsGrantedTo();
         bool can_see_online = LLRelationship::GRANT_ONLINE_STATUS & rights;
         bool can_see_on_map = LLRelationship::GRANT_MAP_LOCATION & rights;
         bool can_edit_objects = LLRelationship::GRANT_MODIFY_OBJECTS & rights;
@@ -1250,7 +1247,7 @@ void LLPanelProfileSecondLife::setAvatarId(const LLUUID& avatar_id)
 void LLPanelProfileSecondLife::updateOnlineStatus()
 {
     const LLRelationship* relationship = LLAvatarTracker::instance().getBuddyInfo(getAvatarId());
-    if (relationship != NULL)
+    if (relationship)
     {
         // For friend let check if he allowed me to see his status
         bool online = relationship->isOnline();
@@ -1331,7 +1328,7 @@ void LLProfileImagePicker::notify(const std::vector<std::string>& filenames)
     // generate a temp texture file for coroutine
     std::string temp_file = gDirUtilp->getTempFilename();
     U32 codec = LLImageBase::getCodecFromExtension(gDirUtilp->getExtension(file_path));
-    const S32 MAX_DIM = 256;
+    constexpr S32 MAX_DIM = 256;
     if (!LLViewerTextureList::createUploadFile(file_path, temp_file, codec, MAX_DIM))
     {
         LLSD notif_args;
@@ -1645,7 +1642,7 @@ void LLPanelProfileSecondLife::onDiscardDescriptionChanges()
 
 void LLPanelProfileSecondLife::onShowAgentPermissionsDialog()
 {
-    LLFloater *floater = mFloaterPermissionsHandle.get();
+    LLFloater* floater = mFloaterPermissionsHandle.get();
     if (!floater)
     {
         LLFloater* parent_floater = gFloaterView->getParentFloater(this);
@@ -1673,7 +1670,7 @@ void LLPanelProfileSecondLife::onShowAgentProfileTexture()
         return;
     }
 
-    LLFloater *floater = mFloaterProfileTextureHandle.get();
+    LLFloater* floater = mFloaterProfileTextureHandle.get();
     if (!floater)
     {
         LLFloater* parent_floater = gFloaterView->getParentFloater(this);
@@ -1783,17 +1780,20 @@ void LLPanelProfileSecondLife::onCommitProfileImage(const LLUUID& id)
 
     mSecondLifePic->setValue(id);
 
-    LLFloater *floater = mFloaterProfileTextureHandle.get();
+    LLFloater* floater = mFloaterProfileTextureHandle.get();
     if (floater)
     {
-        LLFloaterProfileTexture * texture_view = dynamic_cast<LLFloaterProfileTexture*>(floater);
-        if (id == LLUUID::null)
+        LLFloaterProfileTexture* texture_view = dynamic_cast<LLFloaterProfileTexture*>(floater);
+        if (texture_view)
         {
-            texture_view->resetAsset();
-        }
-        else
-        {
-            texture_view->loadAsset(id);
+            if (id.isNull())
+            {
+                texture_view->resetAsset();
+            }
+            else
+            {
+                texture_view->loadAsset(id);
+            }
         }
     }
 }
@@ -1803,8 +1803,9 @@ void LLPanelProfileSecondLife::onCommitProfileImage(const LLUUID& id)
 
 LLPanelProfileWeb::LLPanelProfileWeb()
  : LLPanelProfileTab()
- , mWebBrowser(NULL)
+ , mWebBrowser(nullptr)
  , mAvatarNameCacheConnection()
+ , mFirstNavigate(false)
 {
 }
 

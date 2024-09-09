@@ -137,7 +137,6 @@ LLTrace::CountStatHandle<>  FPS("FPS", "Frames rendered"),
                             UPLOAD_TEXTURE("uploadtexture", "Textures uploaded"),
                             EDIT_TEXTURE("edittexture", "Changes to textures on objects"),
                             KILLED("killed", "Number of times killed"),
-                            FRAMETIME_DOUBLED("frametimedoubled", "Ratio of frames 2x longer than previous"),
                             TEX_BAKES("texbakes", "Number of times avatar textures have been baked"),
                             TEX_REBAKES("texrebakes", "Number of times avatar textures have been forced to rebake"),
                             NUM_NEW_OBJECTS("numnewobjectsstat", "Number of objects in scene that were not previously in cache");
@@ -156,11 +155,6 @@ LLTrace::CountStatHandle<F64Kilobytes >
                             TEXTURE_NETWORK_DATA_RECEIVED("texturedatareceived", "Network data received for textures"),
                             MESSAGE_SYSTEM_DATA_IN("messagedatain", "Incoming message system network data"),
                             MESSAGE_SYSTEM_DATA_OUT("messagedataout", "Outgoing message system network data");
-
-LLTrace::CountStatHandle<F64Seconds >
-                            SIM_20_FPS_TIME("sim20fpstime", "Seconds with sim FPS below 20"),
-                            SIM_PHYSICS_20_FPS_TIME("simphysics20fpstime", "Seconds with physics FPS below 20"),
-                            LOSS_5_PERCENT_TIME("loss5percenttime", "Seconds with packet loss > 5%");
 
 SimMeasurement<>            SIM_TIME_DILATION("simtimedilation", "Simulator time scale", LL_SIM_STAT_TIME_DILATION),
                             SIM_FPS("simfps", "Simulator framerate", LL_SIM_STAT_FPS),
@@ -205,9 +199,6 @@ static LLTrace::SampleStatHandle<bool>
                             CHAT_BUBBLES("chatbubbles", "Chat Bubbles Enabled");
 
 LLTrace::SampleStatHandle<F64Megabytes > FORMATTED_MEM("formattedmemstat");
-LLTrace::SampleStatHandle<F64Kilobytes >    DELTA_BANDWIDTH("deltabandwidth", "Increase/Decrease in bandwidth based on packet loss"),
-                                                            MAX_BANDWIDTH("maxbandwidth", "Max bandwidth setting");
-
 
 SimMeasurement<F64Milliseconds >    SIM_FRAME_TIME("simframemsec", "", LL_SIM_STAT_FRAMEMS),
                                                     SIM_NET_TIME("simnetmsec", "", LL_SIM_STAT_NETMS),
@@ -228,7 +219,6 @@ SimMeasurement<F64Kilobytes >   SIM_UNACKED_BYTES("simtotalunackedbytes", "", LL
 SimMeasurement<F64Megabytes >   SIM_PHYSICS_MEM("physicsmemoryallocated", "", LL_SIM_STAT_SIMPHYSICSMEMORY);
 
 LLTrace::SampleStatHandle<F64Milliseconds > FRAMETIME_JITTER("frametimejitter", "Average delta between successive frame times"),
-                                            FRAMETIME_SLEW("frametimeslew", "Average delta between frame time and mean"),
                                             FRAMETIME("frametime", "Measured frame time"),
                                             SIM_PING("simpingstat");
 
@@ -246,10 +236,7 @@ LLTrace::EventStatHandle<F64Milliseconds >  REGION_CROSSING_TIME("regioncrossing
 
 LLTrace::EventStatHandle<F64Seconds >   AVATAR_EDIT_TIME("avataredittime", "Seconds in Edit Appearance"),
                                                             TOOLBOX_TIME("toolboxtime", "Seconds using Toolbox"),
-                                                            MOUSELOOK_TIME("mouselooktime", "Seconds in Mouselook"),
-                                                            FPS_10_TIME("fps10time", "Seconds below 10 FPS"),
-                                                            FPS_8_TIME("fps8time", "Seconds below 8 FPS"),
-                                                            FPS_2_TIME("fps2time", "Seconds below 2 FPS");
+                                                            MOUSELOOK_TIME("mouselooktime", "Seconds in Mouselook");
 
 LLTrace::EventStatHandle<LLUnit<F32, LLUnits::Percent> > OBJECT_CACHE_HIT_RATE("object_cache_hits");
 
@@ -279,55 +266,12 @@ void LLViewerStats::resetStats()
 
 void LLViewerStats::updateFrameStats(const F64Seconds time_diff)
 {
-    if (getRecording().getLastValue(LLStatViewer::PACKETS_LOST_PERCENT) > F32Percent(5.0))
-    {
-        add(LLStatViewer::LOSS_5_PERCENT_TIME, time_diff);
-    }
-
-    F32 sim_fps = (F32)getRecording().getLastValue(LLStatViewer::SIM_FPS);
-    if (0.f < sim_fps && sim_fps < 20.f)
-    {
-        add(LLStatViewer::SIM_20_FPS_TIME, time_diff);
-    }
-
-    F32 sim_physics_fps = (F32)getRecording().getLastValue(LLStatViewer::SIM_PHYSICS_FPS);
-
-    if (0.f < sim_physics_fps && sim_physics_fps < 20.f)
-    {
-        add(LLStatViewer::SIM_PHYSICS_20_FPS_TIME, time_diff);
-    }
-
-    if (time_diff >= (F64Seconds)0.5)
-    {
-        record(LLStatViewer::FPS_2_TIME, time_diff);
-    }
-    if (time_diff >= (F64Seconds)0.125)
-    {
-        record(LLStatViewer::FPS_8_TIME, time_diff);
-    }
-    if (time_diff >= (F64Seconds)0.1)
-    {
-        record(LLStatViewer::FPS_10_TIME, time_diff);
-    }
-
     if (gFrameCount && mLastTimeDiff > (F64Seconds)0.0)
     {
-        // new "stutter" meter
-        add(LLStatViewer::FRAMETIME_DOUBLED, time_diff >= 2.0 * mLastTimeDiff ? 1 : 0);
-
         sample(LLStatViewer::FRAMETIME, time_diff);
-
         // old stats that were never really used
-        F64Seconds jit = (F64Seconds) std::fabs((mLastTimeDiff - time_diff));
+        F64Seconds jit = (F64Seconds)std::fabs((mLastTimeDiff - time_diff));
         sample(LLStatViewer::FRAMETIME_JITTER, jit);
-
-        F32Seconds average_frametime = gRenderStartTime.getElapsedTimeF32() / (F32)gFrameCount;
-        sample(LLStatViewer::FRAMETIME_SLEW, F64Milliseconds (average_frametime - time_diff));
-
-        F32 max_bandwidth = gViewerThrottle.getMaxBandwidth();
-        F32 delta_bandwidth = gViewerThrottle.getCurrentBandwidth() - max_bandwidth;
-        sample(LLStatViewer::DELTA_BANDWIDTH, F64Bits(delta_bandwidth));
-        sample(LLStatViewer::MAX_BANDWIDTH, F64Bits(max_bandwidth));
     }
 
     mLastTimeDiff = time_diff;

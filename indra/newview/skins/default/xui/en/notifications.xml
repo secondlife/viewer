@@ -2388,6 +2388,26 @@ Unable to upload [FILE] due to the following reason: [REASON]
 Please try again later.
   <tag>fail</tag>
   </notification>
+    
+  <notification
+   icon="alertmodal.tga"
+   name="CannotUploadSnapshotEmailTooBig"
+   type="alertmodal">
+Unable to upload snapshot [FILE] due to the following reason: [REASON]
+
+File might be too big, try reducing resolution, quality or try again later.
+  <tag>fail</tag>
+  </notification>
+    
+  <notification
+   icon="alertmodal.tga"
+   name="CannotUploadSnapshotWebTooBig"
+   type="alertmodal">
+Unable to upload snapshot.
+
+File might be too big, try reducing resolution or try again later.
+  <tag>fail</tag>
+  </notification>
 
   <notification
    icon="notifytip.tga"
@@ -8840,21 +8860,6 @@ If you are a Premium Member, [[PREMIUM_URL] click here] to receive your voice mo
 
   <notification
    icon="notify.tga"
-   name="VoiceEffectsWillExpire"
-   sound="UISndAlert"
-   persist="true"
-   type="notify">
-    <unique/>    
-One or more of your Voice Morphs will expire in less than [INTERVAL] days.
-[[URL] Click here] to renew your subscription.
-
-If you are a Premium Member, [[PREMIUM_URL] click here] to receive your voice morphing perk.
-  <tag>fail</tag>
-    <tag>voice</tag>
-  </notification>
-
-  <notification
-   icon="notify.tga"
    name="VoiceEffectsNew"
    sound="UISndAlert"
    persist="true"
@@ -8873,6 +8878,7 @@ New Voice Morphs are available!
 Voice Morphs are not supported by this viewer.
 For more information about other voice morph tools, see [[FAQ_URL] this article].
     <usetemplate
+        ignoretext="Warn me about voice morph not being supported"
         name="okignore"
         yestext="OK"/>
     <tag>voice</tag>
@@ -12549,6 +12555,17 @@ are wearing now.
     <usetemplate
       name="okbutton"
       yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="NoSupportGLTFShader"
+   type="notify">
+     GLTF scenes are not yet supported on your graphics hardware.
+     <tag>fail</tag>
+     <usetemplate
+       name="okbutton"
+       yestext="OK"/>
   </notification>
 
 </notifications>

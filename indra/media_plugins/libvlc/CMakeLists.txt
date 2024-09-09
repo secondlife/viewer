@@ -32,7 +32,7 @@ if (WINDOWS)
   set_target_properties(
     media_plugin_libvlc
     PROPERTIES
-    LINK_FLAGS "/MANIFEST:NO /SAFESEH:NO /NODEFAULTLIB:LIBCMT"
+    LINK_FLAGS "/MANIFEST:NO /NODEFAULTLIB:LIBCMT"
     )
 endif (WINDOWS)
 

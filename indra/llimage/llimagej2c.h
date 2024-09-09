@@ -30,7 +30,6 @@
 #include "llimage.h"
 #include "llassettype.h"
 #include "llmetricperformancetester.h"
-#include <boost/scoped_ptr.hpp>
 
 // JPEG2000 : compression rate used in j2c conversion.
 const F32 DEFAULT_COMPRESSION_RATE = 1.f/8.f;

@@ -34,12 +34,12 @@
 
 class Hunspell;
 
-class LLSpellChecker : public LLSingleton<LLSpellChecker>
+class LLSpellChecker : public LLSimpleton<LLSpellChecker>
 {
-    LLSINGLETON(LLSpellChecker);
+public:
+    LLSpellChecker();
     ~LLSpellChecker();
 
-public:
     void addToCustomDictionary(const std::string& word);
     void addToIgnoreList(const std::string& word);
     bool checkSpelling(const std::string& word) const;
@@ -47,7 +47,6 @@ public:
 protected:
     void addToDictFile(const std::string& dict_path, const std::string& word);
     void initHunspell(const std::string& dict_language);
-    void initSingleton() override;
 
 public:
     typedef std::list<std::string> dict_list_t;
@@ -77,7 +76,7 @@ public:
     static boost::signals2::connection setSettingsChangeCallback(const settings_change_signal_t::slot_type& cb);
 
 protected:
-    Hunspell*   mHunspell;
+    std::unique_ptr<Hunspell>   mHunspell;
     std::string mDictLanguage;
     std::string mDictFile;
     dict_list_t mDictSecondary;

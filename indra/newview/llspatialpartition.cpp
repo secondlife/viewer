@@ -29,7 +29,6 @@
 #include "llspatialpartition.h"
 
 #include "llappviewer.h"
-#include "llcallstack.h"
 #include "lltexturecache.h"
 #include "lltexturefetch.h"
 #include "llimageworker.h"
@@ -755,14 +754,6 @@ bool LLSpatialGroup::changeLOD()
 
         if (fabsf(ratio) >= getSpatialPartition()->mSlopRatio)
         {
-            LL_DEBUGS("RiggedBox") << "changeLOD true because of ratio compare "
-                                   << fabsf(ratio) << " " << getSpatialPartition()->mSlopRatio << LL_ENDL;
-            LL_DEBUGS("RiggedBox") << "sg " << this << "\nmDistance " << mDistance
-                                   << " mLastUpdateDistance " << mLastUpdateDistance
-                                   << " mRadius " << mRadius
-                                   << " fab ratio " << fabsf(ratio)
-                                   << " slop " << getSpatialPartition()->mSlopRatio << LL_ENDL;
-
             return true;
         }
     }
@@ -1051,7 +1042,8 @@ public:
         LLSpatialGroup* group = (LLSpatialGroup*)base_group;
         group->checkOcclusion();
 
-        if (group->getOctreeNode()->getParent() &&  //never occlusion cull the root node
+        if (group->getOctreeNode() &&
+            group->getOctreeNode()->getParent() &&  //never occlusion cull the root node
             LLPipeline::sUseOcclusion &&            //ignore occlusion if disabled
             group->isOcclusionState(LLSpatialGroup::OCCLUDED))
         {
@@ -1675,8 +1667,9 @@ void renderOctree(LLSpatialGroup* group)
             glLineWidth(1.f);
             gGL.flush();
 
-            LLVOAvatar* lastAvatar = nullptr;
+            const LLVOAvatar* lastAvatar = nullptr;
             U64 lastMeshId = 0;
+            bool skipLastSkin = false;
 
             for (LLSpatialGroup::element_iter i = group->getDataBegin(); i != group->getDataEnd(); ++i)
             {
@@ -1705,15 +1698,9 @@ void renderOctree(LLSpatialGroup* group)
                 {
                     gGL.pushMatrix();
                     gGL.loadMatrix(gGLModelView);
-                    if (lastAvatar != face->mAvatar ||
-                        lastMeshId != face->mSkinInfo->mHash)
+                    if (!LLRenderPass::uploadMatrixPalette(face->mAvatar, face->mSkinInfo, lastAvatar, lastMeshId, skipLastSkin))
                     {
-                        if (!LLRenderPass::uploadMatrixPalette(face->mAvatar, face->mSkinInfo))
-                        {
-                            continue;
-                        }
-                        lastAvatar = face->mAvatar;
-                        lastMeshId = face->mSkinInfo->mHash;
+                        continue;
                     }
                 }
                 for (S32 j = 0; j < drawable->getNumFaces(); j++)

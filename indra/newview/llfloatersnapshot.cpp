@@ -324,7 +324,6 @@ void LLFloaterSnapshot::Impl::updateControls(LLFloaterSnapshotBase* floater)
     bool got_bytes = previewp && previewp->getDataSize() > 0;
     bool got_snap = previewp && previewp->getSnapshotUpToDate();
 
-    // *TODO: Separate maximum size for Web images from postcards
     LL_DEBUGS() << "Is snapshot up-to-date? " << got_snap << LL_ENDL;
 
     LLLocale locale(LLLocale::USER_LOCALE);
@@ -343,11 +342,25 @@ void LLFloaterSnapshot::Impl::updateControls(LLFloaterSnapshotBase* floater)
         image_res_tb->setTextArg("[HEIGHT]", llformat("%d", previewp->getEncodedImageHeight()));
     }
 
-    floater->getChild<LLUICtrl>("file_size_label")->setTextArg("[SIZE]", got_snap ? bytes_string : floater->getString("unknown"));
-    floater->getChild<LLUICtrl>("file_size_label")->setColor(
-            shot_type == LLSnapshotModel::SNAPSHOT_POSTCARD
-            && got_bytes
-            && previewp->getDataSize() > MAX_POSTCARD_DATASIZE ? LLUIColor(LLColor4::red) : LLUIColorTable::instance().getColor( "LabelTextColor" ));
+    LLTextBox* file_size_label = floater->getChild<LLTextBox>("file_size_label");
+    file_size_label->setTextArg("[SIZE]", got_snap ? bytes_string : floater->getString("unknown"));
+
+    LLUIColor color = LLUIColorTable::instance().getColor( "LabelTextColor" );
+    if (shot_type == LLSnapshotModel::SNAPSHOT_POSTCARD
+        && got_bytes
+        && previewp->getDataSize() > MAX_POSTCARD_DATASIZE)
+    {
+        color = LLUIColor(LLColor4::red);
+    }
+    if (shot_type == LLSnapshotModel::SNAPSHOT_WEB
+        && got_bytes
+        && previewp->getDataSize() > LLWebProfile::MAX_WEB_DATASIZE)
+    {
+        color = LLUIColor(LLColor4::red);
+    }
+
+    file_size_label->setColor(color);
+    file_size_label->setReadOnlyColor(color); // field gets disabled during upload
 
     // Update the width and height spinners based on the corresponding resolution combos. (?)
     switch(shot_type)
