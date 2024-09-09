@@ -307,6 +307,7 @@ void LLFolderViewItem::refresh()
     LLFolderViewModelItem& vmi = *getViewModelItem();
 
     mLabel = utf8str_to_wstring(vmi.getDisplayName());
+    mLabelFontBuffer.reset();
     setToolTip(vmi.getName());
     // icons are slightly expensive to get, can be optimized
     // see LLInventoryIcon::getIcon()
@@ -320,6 +321,7 @@ void LLFolderViewItem::refresh()
         // Can do a number of expensive checks, like checking active motions, wearables or friend list
         mLabelStyle = vmi.getLabelStyle();
         mLabelSuffix = utf8str_to_wstring(vmi.getLabelSuffix());
+        mSuffixFontBuffer.reset();
     }
 
     // Dirty the filter flag of the model from the view (CHUI-849)
@@ -775,8 +777,9 @@ void LLFolderViewItem::drawOpenFolderArrow(const Params& default_params, const L
     return mIsItemCut;
 }
 
-void LLFolderViewItem::drawHighlight(const bool showContent, const bool hasKeyboardFocus, const LLUIColor &selectColor, const LLUIColor &flashColor,
-                                                        const LLUIColor &focusOutlineColor, const LLUIColor &mouseOverColor)
+void LLFolderViewItem::drawHighlight(bool showContent, bool hasKeyboardFocus,
+    const LLUIColor& selectColor, const LLUIColor& flashColor,
+    const LLUIColor& focusOutlineColor, const LLUIColor& mouseOverColor)
 {
     const S32 focus_top = getRect().getHeight();
     const S32 focus_bottom = getRect().getHeight() - mItemHeight;
@@ -784,7 +787,7 @@ void LLFolderViewItem::drawHighlight(const bool showContent, const bool hasKeybo
     const S32 FOCUS_LEFT = 1;
 
     // Determine which background color to use for highlighting
-    const LLUIColor& bgColor = (isFlashing() ? flashColor : selectColor);
+    const LLUIColor& bgColor = isFlashing() ? flashColor : selectColor;
 
     //--------------------------------------------------------------------------------//
     // Draw highlight for selected items
@@ -792,7 +795,6 @@ void LLFolderViewItem::drawHighlight(const bool showContent, const bool hasKeybo
     // items if mShowSingleSelection is false.
     //
     if (isHighlightAllowed())
-
     {
         gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
@@ -801,7 +803,7 @@ void LLFolderViewItem::drawHighlight(const bool showContent, const bool hasKeybo
         {
             LLColor4 bg_color = bgColor;
             // do time-based fade of extra objects
-            F32 fade_time = (getRoot() ? getRoot()->getSelectionFadeElapsedTime() : 0.0f);
+            F32 fade_time = getRoot() ? getRoot()->getSelectionFadeElapsedTime() : 0.f;
             if (getRoot() && getRoot()->getShowSingleSelection())
             {
                 // fading out
@@ -890,7 +892,7 @@ void LLFolderViewItem::drawLabel(const LLFontGL * font, const F32 x, const F32 y
     //--------------------------------------------------------------------------------//
     // Draw the actual label text
     //
-    font->render(mLabel, 0, x, y, color,
+    mLabelFontBuffer.render(font, mLabel, 0, x, y, color,
         LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
         S32_MAX, getRect().getWidth() - (S32) x - mLabelPaddingRight, &right_x, /*use_ellipses*/true);
 }
@@ -907,7 +909,7 @@ void LLFolderViewItem::draw()
 
     getViewModelItem()->update();
 
-    if(!mSingleFolderMode)
+    if (!mSingleFolderMode)
     {
         drawOpenFolderArrow(default_params, sFgColor);
     }
@@ -940,7 +942,7 @@ void LLFolderViewItem::draw()
         return;
     }
 
-    auto filter_string_length = mViewModelItem->hasFilterStringMatch() ? static_cast<S32>(mViewModelItem->getFilterStringSize()) : 0;
+    S32 filter_string_length = mViewModelItem->hasFilterStringMatch() ? (S32)mViewModelItem->getFilterStringSize() : 0;
     F32 right_x  = 0;
     F32 y = (F32)getRect().getHeight() - font->getLineHeight() - (F32)mTextPad - (F32)TOP_PAD;
     F32 text_left = (F32)getLabelXPos();
@@ -999,9 +1001,9 @@ void LLFolderViewItem::draw()
     //
     if (!mLabelSuffix.empty())
     {
-        suffix_font->render( mLabelSuffix, 0, right_x, y, isFadeItem() ? color : sSuffixColor.get(),
-                          LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
-                          S32_MAX, S32_MAX, &right_x);
+        mSuffixFontBuffer.render(suffix_font, mLabelSuffix, 0, right_x, y, isFadeItem() ? color : sSuffixColor.get(),
+            LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
+            S32_MAX, S32_MAX, &right_x);
     }
 
     //--------------------------------------------------------------------------------//

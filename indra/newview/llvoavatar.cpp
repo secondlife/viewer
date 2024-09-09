@@ -8445,14 +8445,14 @@ bool LLVOAvatar::isFullyLoaded() const
 bool LLVOAvatar::isTooComplex() const
 {
     bool too_complex;
-    static LLCachedControl<S32> compelxity_render_mode(gSavedSettings, "RenderAvatarComplexityMode");
-    bool render_friend =  (isBuddy() && compelxity_render_mode > AV_RENDER_LIMIT_BY_COMPLEXITY);
+    static LLCachedControl<S32> complexity_render_mode(gSavedSettings, "RenderAvatarComplexityMode");
+    bool render_friend =  (isBuddy() && complexity_render_mode > AV_RENDER_LIMIT_BY_COMPLEXITY);
 
     if (isSelf() || render_friend || mVisuallyMuteSetting == AV_ALWAYS_RENDER)
     {
         too_complex = false;
     }
-    else if (compelxity_render_mode == AV_RENDER_ONLY_SHOW_FRIENDS && !mIsControlAvatar)
+    else if (complexity_render_mode == AV_RENDER_ONLY_SHOW_FRIENDS && !mIsControlAvatar)
     {
         too_complex = true;
     }
@@ -8480,16 +8480,16 @@ bool LLVOAvatar::isTooSlow() const
         return mTooSlow;
     }
 
-    static LLCachedControl<S32> compelxity_render_mode(gSavedSettings, "RenderAvatarComplexityMode");
+    static LLCachedControl<S32> complexity_render_mode(gSavedSettings, "RenderAvatarComplexityMode");
     static LLCachedControl<bool> friends_only(gSavedSettings, "RenderAvatarFriendsOnly", false);
     bool is_friend = isBuddy();
-    bool render_friend = is_friend && compelxity_render_mode > AV_RENDER_LIMIT_BY_COMPLEXITY;
+    bool render_friend = is_friend && complexity_render_mode > AV_RENDER_LIMIT_BY_COMPLEXITY;
 
     if (render_friend || mVisuallyMuteSetting == AV_ALWAYS_RENDER)
     {
         return false;
     }
-    else if (compelxity_render_mode == AV_RENDER_ONLY_SHOW_FRIENDS)
+    else if (complexity_render_mode == AV_RENDER_ONLY_SHOW_FRIENDS)
     {
         return true;
     }
@@ -8505,7 +8505,7 @@ bool LLVOAvatar::isTooSlow() const
 void LLVOAvatar::updateTooSlow()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
-    static LLCachedControl<S32> compelxity_render_mode(gSavedSettings, "RenderAvatarComplexityMode");
+    static LLCachedControl<S32> complexity_render_mode(gSavedSettings, "RenderAvatarComplexityMode");
     static LLCachedControl<bool> allowSelfImpostor(gSavedSettings, "AllowSelfImpostor");
     const auto id = getID();
 
@@ -8538,14 +8538,14 @@ void LLVOAvatar::updateTooSlow()
 
         if(!mTooSlowWithoutShadows) // if we were not previously above the full impostor cap
         {
-            bool always_render_friends = compelxity_render_mode > AV_RENDER_LIMIT_BY_COMPLEXITY;
+            bool always_render_friends = complexity_render_mode > AV_RENDER_LIMIT_BY_COMPLEXITY;
             bool render_friend_or_exception =   (always_render_friends && isBuddy()) ||
                 ( getVisualMuteSettings() == LLVOAvatar::AV_ALWAYS_RENDER );
             if( (!isSelf() || allowSelfImpostor) && !render_friend_or_exception)
             {
                 // Note: slow rendering Friends still get their shadows zapped.
                 mTooSlowWithoutShadows = (getGPURenderTime()*2.f >= max_art_ms)  // NOTE: assumes shadow rendering doubles render time
-                    || (compelxity_render_mode == AV_RENDER_ONLY_SHOW_FRIENDS && !mIsControlAvatar);
+                    || (complexity_render_mode == AV_RENDER_ONLY_SHOW_FRIENDS && !mIsControlAvatar);
             }
         }
     }

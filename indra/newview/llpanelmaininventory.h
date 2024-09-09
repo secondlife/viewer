@@ -103,7 +103,7 @@ public:
 
     void onFilterEdit(const std::string& search_string );
 
-    void setFocusFilterEditor();
+    void setFocusOnFilterEditor();
 
     static LLFloaterSidePanelContainer* newWindow();
     static void newFolderWindow(LLUUID folder_id = LLUUID(), LLUUID item_to_select = LLUUID());
@@ -182,6 +182,13 @@ protected:
     LLSidepanelInventory* getParentSidepanelInventory();
 
 private:
+    enum class EFetchState
+    {
+        Unknown,
+        Fetching,
+        Complete
+    };
+
     LLFloaterInventoryFinder* getFinder();
 
     LLFilterEditor*             mFilterEditor;
@@ -202,6 +209,7 @@ private:
     S32                         mCategoryCount = 0;
     std::string                 mCategoryCountString;
     LLComboBox*                 mSearchTypeCombo;
+    EFetchState                 mLastFetchState{ EFetchState::Unknown };
 
     LLButton* mBackBtn;
     LLButton* mForwardBtn;

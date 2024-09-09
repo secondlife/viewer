@@ -226,7 +226,7 @@ bool LLApp::parseCommandOptions(int argc, wchar_t** wargv)
         if(wargv[ii][0] != '-')
         {
             LL_INFOS() << "Did not find option identifier while parsing token: "
-                << wargv[ii] << LL_ENDL;
+                << (intptr_t)wargv[ii] << LL_ENDL;
             return false;
         }
         int offset = 1;
