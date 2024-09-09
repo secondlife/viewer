@@ -115,8 +115,11 @@ public:
     void check_interrupts_counter();
 
 private:
+    /*---------------------------- feature flag ----------------------------*/
+    bool mFeature{ false };
+    /*---------------------------- feature flag ----------------------------*/
     script_finished_fn mCallback;
-    lua_State* mState;
+    lua_State* mState{ nullptr };
     std::string mError;
     S32 mInterrupts{ 0 };
 };
