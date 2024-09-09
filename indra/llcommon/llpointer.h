@@ -418,6 +418,17 @@ private:
     bool mStayUnique;
 };
 
+template<typename Type>
+bool operator!=(Type* lhs, const LLPointer<Type>& rhs)
+{
+    return (lhs != rhs.get());
+}
+
+template<typename Type>
+bool operator==(Type* lhs, const LLPointer<Type>& rhs)
+{
+    return (lhs == rhs.get());
+}
 
 // boost hash adapter
 template <class Type>
