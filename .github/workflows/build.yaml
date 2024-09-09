@@ -152,7 +152,7 @@ jobs:
         id: build
         shell: bash
         env:
-          AUTOBUILD_VCS_BRANCH: ${{ needs.setvar.outputs.branch }}
+          AUTOBUILD_VCS_BRANCH: ${{ steps.which-branch.outputs.branch }}
           RUNNER_OS: ${{ runner.os }}
         run: |
           # set up things the viewer's build.sh script expects
