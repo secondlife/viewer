@@ -2491,7 +2491,7 @@ void LLViewerRegion::setSimulatorFeatures(const LLSD& sim_features)
 
                 // call setShaders the first time GLTFEnabled is received as true (causes GLTF specific shaders to be loaded)
                 if (enabled != gSavedSettings.getBOOL("GLTFEnabled"))
-                {  
+                {
                     gSavedSettings.setBOOL("GLTFEnabled", enabled);
                     if (enabled)
                     {
