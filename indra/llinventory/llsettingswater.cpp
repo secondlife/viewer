@@ -109,6 +109,53 @@ LLSD LLSettingsWater::defaults(const LLSettingsBase::TrackPosition& position)
     return dfltsetting;
 }
 
+void LLSettingsWater::loadValuesFromLLSD()
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_ENVIRONMENT;
+
+    LLSettingsBase::loadValuesFromLLSD();
+
+    LLSD& settings = getSettings();
+
+    mBlurMultiplier = (F32)settings[SETTING_BLUR_MULTIPLIER].asReal();
+    mWaterFogColor = LLColor3(settings[SETTING_FOG_COLOR]);
+    mWaterFogDensity = (F32)settings[SETTING_FOG_DENSITY].asReal();
+    mFogMod = (F32)settings[SETTING_FOG_MOD].asReal();
+    mFresnelOffset = (F32)settings[SETTING_FRESNEL_OFFSET].asReal();
+    mFresnelScale = (F32)settings[SETTING_FRESNEL_SCALE].asReal();
+    mNormalScale = LLVector3(settings[SETTING_NORMAL_SCALE]);
+    mScaleAbove = (F32)settings[SETTING_SCALE_ABOVE].asReal();
+    mScaleBelow = (F32)settings[SETTING_SCALE_BELOW].asReal();
+    mWave1Dir = LLVector2(settings[SETTING_WAVE1_DIR]);
+    mWave2Dir = LLVector2(settings[SETTING_WAVE2_DIR]);
+
+    mNormalMapID = getNormalMapID();
+    mTransparentTextureID = getTransparentTextureID();
+}
+
+void LLSettingsWater::saveValuesToLLSD()
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_ENVIRONMENT;
+
+    LLSettingsBase::saveValuesToLLSD();
+
+    LLSD & settings = getSettings();
+    settings[SETTING_BLUR_MULTIPLIER] = LLSD::Real(mBlurMultiplier);
+    settings[SETTING_FOG_COLOR] = mWaterFogColor.getValue();
+    settings[SETTING_FOG_DENSITY] = LLSD::Real(mWaterFogDensity);
+    settings[SETTING_FOG_MOD] = LLSD::Real(mFogMod);
+    settings[SETTING_FRESNEL_OFFSET] = LLSD::Real(mFresnelOffset);
+    settings[SETTING_FRESNEL_SCALE] = LLSD::Real(mFresnelScale);
+    settings[SETTING_NORMAL_SCALE] = mNormalScale.getValue();
+    settings[SETTING_SCALE_ABOVE] = LLSD::Real(mScaleAbove);
+    settings[SETTING_SCALE_BELOW] = LLSD::Real(mScaleBelow);
+    settings[SETTING_WAVE1_DIR] = mWave1Dir.getValue();
+    settings[SETTING_WAVE2_DIR] = mWave2Dir.getValue();
+
+    settings[SETTING_NORMAL_MAP] = mNormalMapID;
+    settings[SETTING_TRANSPARENT_TEXTURE] = mTransparentTextureID;
+}
+
 LLSD LLSettingsWater::translateLegacySettings(LLSD legacy)
 {
     bool converted_something(false);
@@ -180,12 +227,14 @@ LLSD LLSettingsWater::translateLegacySettings(LLSD legacy)
     return newsettings;
 }
 
-void LLSettingsWater::blend(const LLSettingsBase::ptr_t &end, F64 blendf)
+void LLSettingsWater::blend(LLSettingsBase::ptr_t &end, F64 blendf)
 {
     LLSettingsWater::ptr_t other = PTR_NAMESPACE::static_pointer_cast<LLSettingsWater>(end);
     if (other)
     {
-        LLSD blenddata = interpolateSDMap(mSettings, other->mSettings, other->getParameterMap(), blendf);
+        stringset_t skip = getSkipInterpolateKeys();
+        stringset_t slerps = getSlerpKeys();
+        LLSD blenddata = interpolateSDMap(getSettings(), other->getSettings(), other->getParameterMap(), blendf, skip, slerps);
         replaceSettings(blenddata);
         mNextNormalMapID = other->getNormalMapID();
         mNextTransparentTextureID = other->getTransparentTextureID();

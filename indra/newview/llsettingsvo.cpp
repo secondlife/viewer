@@ -549,7 +549,7 @@ LLSettingsSky::ptr_t LLSettingsVOSky::buildDefaultSky()
     return skyp;
 }
 
-LLSettingsSky::ptr_t LLSettingsVOSky::buildClone() const
+LLSettingsSky::ptr_t LLSettingsVOSky::buildClone()
 {
     LLSD settings = cloneSettings();
     U32 flags = getFlags();
@@ -684,6 +684,68 @@ void LLSettingsVOSky::updateSettings()
     gSky.setMoonScale(getMoonScale());
 }
 
+void draw_color(LLShaderUniforms* shader, const LLColor3& col, S32 shader_key)
+{
+    // always identify as a radiance pass if desaturating irradiance is disabled
+    static LLCachedControl<bool> desaturate_irradiance(gSavedSettings, "RenderDesaturateIrradiance", true);
+
+    LLVector4 vect4(col.mV[0], col.mV[1], col.mV[2]);
+
+    if (desaturate_irradiance && gCubeSnapshot && !gPipeline.mReflectionMapManager.isRadiancePass())
+    { // maximize and remove tinting if this is an irradiance map render pass and the parameter feeds into the sky background color
+        auto max_vec = [](LLVector4 col)
+        {
+            LLColor3 color(col);
+            F32 h, s, l;
+            color.calcHSL(&h, &s, &l);
+
+            col.mV[0] = col.mV[1] = col.mV[2] = l;
+            return col;
+        };
+
+        switch (shader_key)
+        {
+        case LLShaderMgr::BLUE_HORIZON:
+        case LLShaderMgr::BLUE_DENSITY:
+            vect4 = max_vec(vect4);
+            break;
+        }
+    }
+
+    //_WARNS("RIDER") << "pushing '" << (*it).first << "' as " << vect4 << LL_ENDL;
+    shader->uniform3fv(shader_key, LLVector3(vect4.mV));
+}
+
+inline void draw_real(LLShaderUniforms* shader, F32 value, S32 shader_key)
+{
+    shader->uniform1f(shader_key, value);
+}
+
+void LLSettingsVOSky::applyToUniforms(void* ptarget)
+{
+    LLShaderUniforms* shader = &((LLShaderUniforms*)ptarget)[LLGLSLShader::SG_ANY];
+    LLSD &settings = getSettings();
+
+    draw_color(shader, getAmbientColor(), LLShaderMgr::AMBIENT);
+    draw_color(shader, getBlueDensity(), LLShaderMgr::BLUE_DENSITY);
+    draw_color(shader, getBlueHorizon(), LLShaderMgr::BLUE_HORIZON);
+    draw_real(shader, getHazeDensity(), LLShaderMgr::HAZE_DENSITY);
+    draw_real(shader, getHazeHorizon(), LLShaderMgr::HAZE_HORIZON);
+    draw_real(shader, getDensityMultiplier(), LLShaderMgr::DENSITY_MULTIPLIER);
+    draw_real(shader, getDistanceMultiplier(), LLShaderMgr::DISTANCE_MULTIPLIER);
+    draw_color(shader, getCloudPosDensity2(), LLShaderMgr::CLOUD_POS_DENSITY2);
+    draw_real(shader, getCloudScale(), LLShaderMgr::CLOUD_SCALE);
+    draw_real(shader, getCloudShadow(), LLShaderMgr::CLOUD_SHADOW);
+    draw_real(shader, getCloudVariance(), LLShaderMgr::CLOUD_VARIANCE);
+    draw_color(shader, getGlow(), LLShaderMgr::GLOW);
+    draw_real(shader, getMaxY(), LLShaderMgr::MAX_Y);
+    draw_real(shader, getMoonBrightness(), LLShaderMgr::MOON_BRIGHTNESS);
+    draw_real(shader, getSkyMoistureLevel(), LLShaderMgr::MOISTURE_LEVEL);
+    draw_real(shader, getSkyDropletRadius(), LLShaderMgr::DROPLET_RADIUS);
+    draw_real(shader, getSkyIceLevel(), LLShaderMgr::ICE_LEVEL);
+    draw_real(shader, getReflectionProbeAmbiance(), LLShaderMgr::REFLECTION_PROBE_AMBIANCE);
+}
+
 void LLSettingsVOSky::applySpecial(void *ptarget, bool force)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
@@ -702,7 +764,7 @@ void LLSettingsVOSky::applySpecial(void *ptarget, bool force)
     shader->uniform3fv(LLViewerShaderMgr::LIGHTNORM, light_direction);
 
     // Legacy? SETTING_CLOUD_SCROLL_RATE("cloud_scroll_rate")
-    LLVector4 vect_c_p_d1(mSettings[SETTING_CLOUD_POS_DENSITY1]);
+    LLVector4 vect_c_p_d1(mCloudPosDensity1.mV[0], mCloudPosDensity1.mV[1], mCloudPosDensity1.mV[2]);
     LLVector4 cloud_scroll( LLEnvironment::instance().getCloudScrollDelta() );
 
     // SL-13084 EEP added support for custom cloud textures -- flip them horizontally to match the preview of Clouds > Cloud Scroll
@@ -935,7 +997,7 @@ LLSettingsWater::ptr_t LLSettingsVOWater::buildDefaultWater()
     return waterp;
 }
 
-LLSettingsWater::ptr_t LLSettingsVOWater::buildClone() const
+LLSettingsWater::ptr_t LLSettingsVOWater::buildClone()
 {
     LLSD settings = cloneSettings();
     U32 flags = getFlags();
@@ -974,6 +1036,12 @@ LLSD LLSettingsVOWater::convertToLegacy(const LLSettingsWater::ptr_t &pwater)
 }
 //-------------------------------------------------------------------------
 //-------------------------------------------------------------------------
+
+void LLSettingsVOWater::applyToUniforms(void*)
+{
+
+}
+
 void LLSettingsVOWater::applySpecial(void *ptarget, bool force)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
@@ -1373,7 +1441,7 @@ void LLSettingsVODay::combineIntoDayCycle(LLSettingsDay::ptr_t pday, LLSettingsB
 }
 
 
-LLSettingsDay::ptr_t LLSettingsVODay::buildClone() const
+LLSettingsDay::ptr_t LLSettingsVODay::buildClone()
 {
     LLSD settings = cloneSettings();
 
@@ -1398,10 +1466,10 @@ LLSettingsDay::ptr_t LLSettingsVODay::buildClone() const
     return dayp;
 }
 
-LLSettingsDay::ptr_t LLSettingsVODay::buildDeepCloneAndUncompress() const
+LLSettingsDay::ptr_t LLSettingsVODay::buildDeepCloneAndUncompress()
 {
     // no need for SETTING_TRACKS or SETTING_FRAMES, so take base LLSD
-    LLSD settings = llsd_clone(mSettings);
+    LLSD settings = llsd_clone(getSettings());
 
     U32 flags = getFlags();
     LLSettingsDay::ptr_t day_clone = std::make_shared<LLSettingsVODay>(settings);
