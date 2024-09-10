@@ -1736,6 +1736,18 @@ struct LLSelectMgrSendFunctor : public LLSelectedObjectFunctor
     }
 };
 
+struct LLSelectMgrAlphaGammaBypassFunctor : public LLSelectedObjectFunctor
+{
+    virtual bool apply(LLViewerObject* object)
+    {
+        if (object->permYouOwner())
+        {
+            LLSelectMgr::packAlphaGammaBypass(object);
+        }
+        return true;
+    }
+};
+
 void LLObjectSelection::applyNoCopyTextureToTEs(LLViewerInventoryItem* item)
 {
     if (!item)
@@ -2338,21 +2350,20 @@ void LLSelectMgr::selectionSetAlphaGamma(U8 gamma)
         f(const U8 &t) : mAlphaGamma(t) {}
         bool apply(LLViewerObject *object, S32 te)
         {
-            if (object->permModify())
+            bool can_modify = object->permModify();
+            if (can_modify || object->permYouOwner())
             {
                 // update viewer side color in anticipation of update from simulator
                 object->setTEAlphaGamma(te, mAlphaGamma);
-            }
-            else
-            {
-                packAlphaGammaOverride(object);
             }
             return true;
         }
     } setfunc(gamma);
     getSelection()->applyToTEs(&setfunc);
 
-    LLSelectMgrSendFunctor sendfunc;
+    // TODO: remove LLSelectMgrAlphaGammaBypassFunctor and instead
+    // use the normal LLSelectMgrSendFunctor and enhance the server to know when to allow bypass
+    LLSelectMgrAlphaGammaBypassFunctor sendfunc;
     getSelection()->applyToObjects(&sendfunc);
 }
 
@@ -5806,7 +5817,8 @@ void LLSelectMgr::sendListToRegions(LLObjectSelectionHandle selected_handle,
     // LL_INFOS() << "sendListToRegions " << message_name << " obj " << objects_sent << " pkt " << packets_sent << LL_ENDL;
 }
 
-void LLSelectMgr::packAlphaGammaOverride(LLViewerObject* object)
+// static
+void LLSelectMgr::packAlphaGammaBypass(LLViewerObject* object)
 {
     gMessageSystem->newMessageFast(_PRHASH_ObjectBypassModUpdate);
     gMessageSystem->nextBlockFast(_PREHASH_AgentData);

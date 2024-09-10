@@ -32,6 +32,8 @@
 
 #include "../../llmath/llvolumemgr.h"
 
+#include "llprimtexturelist_stub.cpp"
+
 class DummyVolumeMgr : public LLVolumeMgr
 {
 public:

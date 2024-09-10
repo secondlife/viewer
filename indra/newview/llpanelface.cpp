@@ -421,7 +421,6 @@ bool LLPanelFace::postBuild()
 
     getChildSetCommitCallback(mCheckFullbright, "checkbox fullbright", [&](LLUICtrl*, const LLSD&) { onCommitFullbright(); });
 
-    
     mLabelTexGen = getChild<LLTextBox>("alpha gamma");
     getChildSetCommitCallback(mComboAlphaGamma, "combobox alpha gamma", [&](LLUICtrl *, const LLSD &) { onCommitAlphaGamma(); });
     mComboAlphaGamma->setFollows(FOLLOWS_LEFT | FOLLOWS_TOP);

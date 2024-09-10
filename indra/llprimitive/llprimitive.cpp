@@ -125,6 +125,8 @@ const LLUUID SCULPT_DEFAULT_TEXTURE("be293869-d0d9-0a69-5989-ad27f1946fd4"); // 
 // can't be divided by 2.   See DEV-19108
 const F32   TEXTURE_ROTATION_PACK_FACTOR = ((F32) 0x08000);
 
+constexpr U8 EXTRA_PROPERTY_ALPHA_GAMMA = 0x01;
+
 struct material_id_type // originally from llrendermaterialtable
 {
     material_id_type()
@@ -1262,6 +1264,7 @@ bool LLPrimitive::packTEMessage(LLMessageSystem *mesgsys) const
             memcpy(&material_data[face_index*16],getTE(face_index)->getMaterialID().get(),16);  /* Flawfinder: ignore */
         }
 
+        // pack required properties
         cur_ptr += packTEField(cur_ptr, (U8 *)image_ids, sizeof(LLUUID),last_face_index, MVT_LLUUID);
         *cur_ptr++ = 0;
         cur_ptr += packTEField(cur_ptr, (U8 *)colors, 4 ,last_face_index, MVT_U8);
@@ -1284,8 +1287,12 @@ bool LLPrimitive::packTEMessage(LLMessageSystem *mesgsys) const
         *cur_ptr++ = 0;
         cur_ptr += packTEField(cur_ptr, (U8 *) material_data, 16, last_face_index, MVT_LLUUID);
         *cur_ptr++ = 0;
-        *cur_ptr++ = 0x01;
+        // end of required properties
+
+        // pack extra properties
+        *cur_ptr++ = EXTRA_PROPERTY_ALPHA_GAMMA; // indicator alpha_gamma is present
         cur_ptr += packTEField(cur_ptr, (U8 *) alpha_gamma, 1, last_face_index, MVT_U8);
+        *cur_ptr++ = 0; // always null-terminate each propery
     }
     mesgsys->addBinaryDataFast(_PREHASH_TextureEntry, packed_buffer, (S32)(cur_ptr - packed_buffer));
 
@@ -1349,6 +1356,7 @@ bool LLPrimitive::packTEMessage(LLDataPacker &dp) const
             memcpy(&material_data[face_index*16],getTE(face_index)->getMaterialID().get(),16);  /* Flawfinder: ignore */
         }
 
+        // pack required properties
         cur_ptr += packTEField(cur_ptr, (U8 *)image_ids, sizeof(LLUUID),last_face_index, MVT_LLUUID);
         *cur_ptr++ = 0;
         cur_ptr += packTEField(cur_ptr, (U8 *)colors, 4 ,last_face_index, MVT_U8);
@@ -1371,8 +1379,12 @@ bool LLPrimitive::packTEMessage(LLDataPacker &dp) const
         *cur_ptr++ = 0;
         cur_ptr += packTEField(cur_ptr, (U8 *) material_data, 16, last_face_index, MVT_LLUUID);
         *cur_ptr++ = 0;
-        *cur_ptr++ = 0x01;
+        // end of required properties
+
+        // pack extra properties
+        *cur_ptr++ = EXTRA_PROPERTY_ALPHA_GAMMA; // indicator alpha_gamma is present
         cur_ptr += packTEField(cur_ptr, (U8 *) alpha_gamma, 1, last_face_index, MVT_U8);
+        *cur_ptr++ = 0; // always null-terminate each propery
     }
 
     dp.packBinaryData(packed_buffer, (S32)(cur_ptr - packed_buffer), "TextureEntry");
@@ -1445,17 +1457,18 @@ S32 LLPrimitive::parseTEMessage(LLMessageSystem* mesgsys, char const* block_name
         tec.material_ids[i].set(&(material_data[i]));
     }
 
-    if ((cur_ptr < buffer_end) && (*cur_ptr == 0x01))
+    if ((cur_ptr < buffer_end) && (*cur_ptr == EXTRA_PROPERTY_ALPHA_GAMMA))
     {
+        ++cur_ptr; // skip the indicator
         if (!unpack_TEField<U8>(tec.alpha_gamma, tec.face_count, cur_ptr, buffer_end, MVT_U8))
         {
-            LL_WARNS("TEXTUREENTRY") << "Baddly formed alphagamma unpacking texture entry." << LL_ENDL;
+            LL_WARNS("TEXTUREENTRY") << "Malformed alphagamma unpacking texture entry." << LL_ENDL;
         }
     }
 
     retval = 1;
     return retval;
-    }
+}
 
 S32 LLPrimitive::applyParsedTEMessage(LLTEContents& tec)
 {
@@ -1521,6 +1534,7 @@ S32 LLPrimitive::unpackTEMessage(LLDataPacker &dp)
     U8          bump[MAX_TES];
     U8          media_flags[MAX_TES];
     U8          glow[MAX_TES];
+    U8          alpha_gamma[MAX_TES];
     material_id_type material_data[MAX_TES];
 
     memset((void*)scale_s, 0, sizeof(scale_s));
@@ -1531,6 +1545,9 @@ S32 LLPrimitive::unpackTEMessage(LLDataPacker &dp)
     memset((void*)bump, 0, sizeof(bump));
     memset((void*)media_flags, 0, sizeof(media_flags));
     memset((void*)glow, 0, sizeof(glow));
+
+    constexpr U8 DEFAULT_ALPHA_GAMMA = 100;
+    memset((void*)alpha_gamma, DEFAULT_ALPHA_GAMMA, sizeof(alpha_gamma));
 
     S32 size;
     U32 face_count = 0;
@@ -1588,6 +1605,15 @@ S32 LLPrimitive::unpackTEMessage(LLDataPacker &dp)
         material_ids[i].set(&(material_data[i]));
     }
 
+    if ((cur_ptr < buffer_end) && (*cur_ptr == EXTRA_PROPERTY_ALPHA_GAMMA))
+    {
+        ++cur_ptr; // skip the indicator
+        if (!unpack_TEField<U8>(alpha_gamma, face_count, cur_ptr, buffer_end, MVT_U8))
+        {
+            LL_WARNS("TEXTUREENTRY") << "Malformed alphagamma unpacking texture entry." << LL_ENDL;
+        }
+    }
+
     LLColor4 color;
     for (i = 0; i < face_count; i++)
     {
@@ -1599,6 +1625,7 @@ S32 LLPrimitive::unpackTEMessage(LLDataPacker &dp)
         retval |= setTEMediaTexGen(i, media_flags[i]);
         retval |= setTEGlow(i, (F32)glow[i] / (F32)0xFF);
         retval |= setTEMaterialID(i, material_ids[i]);
+        retval |= setTEAlphaGamma(i, alpha_gamma[i]);
 
         // Note:  This is an optimization to send common colors (1.f, 1.f, 1.f, 1.f)
         // as all zeros.  However, the subtraction and addition must be done in unsigned
