@@ -999,8 +999,8 @@ LuaPopper::~LuaPopper()
 /*****************************************************************************
 *   LuaFunction class
 *****************************************************************************/
-LuaFunction::LuaFunction(const std::string_view& name, lua_CFunction function,
-                         const std::string_view& helptext)
+LuaFunction::LuaFunction(std::string_view name, lua_CFunction function,
+                         std::string_view helptext)
 {
     const auto& [registry, lookup] = getState();
     registry.emplace(name, Registry::mapped_type{ function, helptext });

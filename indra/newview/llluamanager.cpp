@@ -65,7 +65,7 @@ lua_function(sleep, "sleep(seconds): pause the running coroutine")
 
 // This function consumes ALL Lua stack arguments and returns concatenated
 // message string
-std::string lua_print_msg(lua_State* L, const std::string_view& level)
+std::string lua_print_msg(lua_State* L, std::string_view level)
 {
     // On top of existing Lua arguments, we're going to push tostring() and
     // duplicate each existing stack entry so we can stringize each one.
