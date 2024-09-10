@@ -4936,27 +4936,22 @@ void LLVOAvatar::updateVisibility()
         {
             visible = true;
         }
-        else
-        {
-            visible = false;
-        }
 
-        if(isSelf())
+        if (isSelf())
         {
             if (!gAgentWearables.areWearablesLoaded())
             {
                 visible = false;
             }
         }
-        else if( !mFirstAppearanceMessageReceived )
+        else if (!mFirstAppearanceMessageReceived)
         {
             visible = false;
         }
 
         if (sDebugInvisible)
         {
-            LLNameValue* firstname = getNVPair("FirstName");
-            if (firstname)
+            if (LLNameValue* firstname = getNVPair("FirstName"))
             {
                 LL_DEBUGS("Avatar") << avString() << " updating visibility" << LL_ENDL;
             }
@@ -5045,10 +5040,11 @@ void LLVOAvatar::updateVisibility()
         }
     }
 
-    if ( visible != mVisible )
+    if (visible != mVisible)
     {
         LL_DEBUGS("AvatarRender") << "visible was " << mVisible << " now " << visible << LL_ENDL;
     }
+
     mVisible = visible;
 
     mVisibilityPreference = visible ? getPixelArea() : 0;
@@ -9796,7 +9792,7 @@ void LLVOAvatar::applyParsedAppearanceMessage(LLAppearanceMessageContents& conte
     setCompositeUpdatesEnabled( true );
 
     // If all of the avatars are completely baked, release the global image caches to conserve memory.
-    LLVOAvatar::cullAvatarsByPixelArea();
+    cullAvatarsByPixelArea();
 
     if (isSelf())
     {
@@ -10428,12 +10424,10 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
 
 void LLVOAvatar::setVisibilityRank(U32 rank)
 {
-    if (mDrawable.isNull() || mDrawable->isDead())
+    if (mDrawable.notNull() && !mDrawable->isDead())
     {
-        // do nothing
-        return;
+        mVisibilityRank = rank;
     }
-    mVisibilityRank = rank;
 }
 
 // Assumes LLVOAvatar::sInstances has already been sorted.
@@ -10468,28 +10462,30 @@ void LLVOAvatar::cullAvatarsByPixelArea()
         });
 
     // Update the avatars that have changed status
+    U32 rank = 2; // Rank 1 is reserved for self.
+    for (LLCharacter* character : LLCharacter::sInstances)
     {
-        U32 rank = 2; //1 is reserved for self.
-        for (LLCharacter* character : LLCharacter::sInstances)
+        LLVOAvatar* inst = (LLVOAvatar*)character;
+        bool culled = !inst->isSelf() && !inst->isFullyBaked();
+
+        if (inst->mCulled != culled)
         {
-            LLVOAvatar* inst = (LLVOAvatar*)character;
-            bool culled = !inst->isSelf() && !inst->isFullyBaked();
+            inst->mCulled = culled;
+            LL_DEBUGS() << "avatar " << inst->getID() << (culled ? " start culled" : " start not culled" ) << LL_ENDL;
+            inst->updateMeshTextures();
+        }
 
-            if (inst->mCulled != culled)
-            {
-                inst->mCulled = culled;
-                LL_DEBUGS() << "avatar " << inst->getID() << (culled ? " start culled" : " start not culled" ) << LL_ENDL;
-                inst->updateMeshTextures();
-            }
-
-            if (inst->isSelf())
-            {
-                inst->setVisibilityRank(1);
-            }
-            else if (inst->mDrawable.notNull() && inst->mDrawable->isVisible())
-            {
-                inst->setVisibilityRank(rank++);
-            }
+        if (inst->isSelf())
+        {
+            inst->setVisibilityRank(1);
+        }
+        else if (inst->mDrawable.notNull() && inst->mDrawable->isVisible())
+        {
+            inst->setVisibilityRank(rank++);
+        }
+        else
+        {
+            inst->setVisibilityRank(sMaxNonImpostors * 5);
         }
     }
 
