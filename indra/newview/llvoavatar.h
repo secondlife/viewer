@@ -136,6 +136,7 @@ public:
     /*virtual*/ bool            updateLOD();
     bool                    updateJointLODs();
     void                    updateLODRiggedAttachments( void );
+    void                        setCorrectedPixelArea(F32 area);
     /*virtual*/ bool            isActive() const; // Whether this object needs to do an idleUpdate.
     S32Bytes                totalTextureMemForUUIDS(std::set<LLUUID>& ids);
     bool                        allTexturesCompletelyDownloaded(std::set<LLUUID>& ids) const;
@@ -620,6 +621,7 @@ public:
 protected:
     void        updateVisibility();
 private:
+    F32         mVisibilityPreference;
     U32         mVisibilityRank;
     bool        mVisible;
 
