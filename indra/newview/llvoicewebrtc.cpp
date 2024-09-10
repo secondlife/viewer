@@ -2993,10 +2993,9 @@ void LLVoiceWebRTCConnection::OnDataReceivedImpl(const std::string &data, bool b
                         participant->mIsSpeaking = participant_obj["v"].as_bool();
                     }
 
-                    if (participant_obj.contains("v") && participant_obj["m"].is_bool())
+                    if (participant_obj.contains("m") && participant_obj["m"].is_bool())
                     {
                         participant->mIsModeratorMuted = participant_obj["m"].as_bool();
-                        ;
                     }
                 }
             }
