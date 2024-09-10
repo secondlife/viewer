@@ -214,7 +214,8 @@ auto utf16chars_to_wchar(const U16* inchars, llwchar* outchar)
 
 llutf16string wstring_to_utf16str(const llwchar* utf32str, size_t len)
 {
-    llutf16string out;
+    // ostringstream for llutf16string
+    std::basic_ostringstream<U16> out;
 
     S32 i = 0;
     while (i < len)
@@ -222,16 +223,16 @@ llutf16string wstring_to_utf16str(const llwchar* utf32str, size_t len)
         U32 cur_char = utf32str[i];
         if (cur_char > 0xFFFF)
         {
-            out += (0xD7C0 + (cur_char >> 10));
-            out += (0xDC00 | (cur_char & 0x3FF));
+            out.put(U16(0xD7C0 + (cur_char >> 10)));
+            out.put(U16(0xDC00 | (cur_char & 0x3FF)));
         }
         else
         {
-            out += cur_char;
+            out.put(U16(cur_char));
         }
         i++;
     }
-    return out;
+    return out.str();
 }
 
 llutf16string utf8str_to_utf16str( const char* utf8str, size_t len )
@@ -242,8 +243,10 @@ llutf16string utf8str_to_utf16str( const char* utf8str, size_t len )
 
 LLWString utf16str_to_wstring(const U16* utf16str, size_t len)
 {
-    LLWString wout;
-    if (len == 0) return wout;
+    if (len == 0) return {};
+
+    // ostringstream for LLWString
+    std::basic_ostringstream<llwchar> wout;
 
     S32 i = 0;
     const U16* chars16 = utf16str;
@@ -251,9 +254,9 @@ LLWString utf16str_to_wstring(const U16* utf16str, size_t len)
     {
         llwchar cur_char;
         i += (S32)utf16chars_to_wchar(chars16+i, &cur_char);
-        wout += cur_char;
+        wout << cur_char;
     }
-    return wout;
+    return wout.str();
 }
 
 // Length in llwchar (UTF-32) of the first len units (16 bits) of the given UTF-16 string.
@@ -398,7 +401,8 @@ S32 wstring_utf8_length(const LLWString& wstr)
 
 LLWString utf8str_to_wstring(const char* utf8str, size_t len)
 {
-    LLWString wout;
+    // ostringstream for LLWString
+    std::basic_ostringstream<llwchar> wout;
 
     S32 i = 0;
     while (i < len)
@@ -441,7 +445,7 @@ LLWString utf8str_to_wstring(const char* utf8str, size_t len)
             }
             else
             {
-                wout += LL_UNKNOWN_CHAR;
+                wout << LL_UNKNOWN_CHAR;
                 ++i;
                 continue;
             }
@@ -478,23 +482,21 @@ LLWString utf8str_to_wstring(const char* utf8str, size_t len)
             }
         }
 
-        wout += unichar;
+        wout << unichar;
         ++i;
     }
-    return wout;
+    return wout.str();
 }
 
 std::string wstring_to_utf8str(const llwchar* utf32str, size_t len)
 {
-    std::string out;
+    std::ostringstream out;
 
-    S32 i = 0;
-    while (i < len)
+    for (size_t i = 0; i < len; ++i)
     {
-        out += wchar_to_utf8chars(utf32str[i]);
-        i++;
+        out << wchar_to_utf8chars(utf32str[i]);
     }
-    return out;
+    return out.str();
 }
 
 std::string utf16str_to_utf8str(const U16* utf16str, size_t len)
@@ -682,7 +684,21 @@ llwchar utf8str_to_wchar(const std::string& utf8str, size_t offset, size_t lengt
 
 std::string utf8str_showBytesUTF8(const std::string& utf8str)
 {
-    std::string result;
+    std::ostringstream result;
+    char lastchar = '\0';
+    auto append = [&result, &lastchar](char c)
+    {
+        lastchar = c;
+        result << c;
+    };
+    auto appends = [&result, &lastchar](const std::string& s)
+    {
+        if (! s.empty())
+        {
+            lastchar = s.back();
+            result << s;
+        }
+    };
 
     bool in_sequence = false;
     size_t sequence_size = 0;
@@ -691,9 +707,9 @@ std::string utf8str_showBytesUTF8(const std::string& utf8str)
 
     auto open_sequence = [&]()
         {
-            if (!result.empty() && result.back() != '\n')
-                result += '\n'; // Use LF as a separator before new UTF-8 sequence
-            result += '[';
+            if (lastchar != '\0' && lastchar != '\n')
+                append('\n'); // Use LF as a separator before new UTF-8 sequence
+            append('[');
             in_sequence = true;
         };
 
@@ -702,9 +718,9 @@ std::string utf8str_showBytesUTF8(const std::string& utf8str)
             llwchar unicode = utf8str_to_wchar(utf8str, byte_index - sequence_size, sequence_size);
             if (unicode != LL_UNKNOWN_CHAR)
             {
-                result += llformat("+%04X", unicode);
+                appends(llformat("+%04X", unicode));
             }
-            result += ']';
+            append(']');
             in_sequence = false;
             sequence_size = 0;
         };
@@ -725,9 +741,9 @@ std::string utf8str_showBytesUTF8(const std::string& utf8str)
             }
             else // Continue the same UTF-8 sequence
             {
-                result += '.';
+                append('.');
             }
-            result += llformat("%02X", byte); // The byte is represented in hexadecimal form
+            appends(llformat("%02X", byte)); // The byte is represented in hexadecimal form
             ++sequence_size;
         }
         else // ASCII symbol is represented as a character
@@ -737,10 +753,10 @@ std::string utf8str_showBytesUTF8(const std::string& utf8str)
                 close_sequence();
                 if (byte != '\n')
                 {
-                    result += '\n'; // Use LF as a separator between UTF-8 and ASCII
+                    append('\n'); // Use LF as a separator between UTF-8 and ASCII
                 }
             }
-            result += byte;
+            append(byte);
         }
         ++byte_index;
     }
@@ -750,7 +766,7 @@ std::string utf8str_showBytesUTF8(const std::string& utf8str)
         close_sequence();
     }
 
-    return result;
+    return result.str();
 }
 
 // Search for any emoji symbol, return true if found
@@ -1583,7 +1599,7 @@ S32 LLStringUtil::format(std::string& s, const format_map_t& substitutions)
     LL_PROFILE_ZONE_SCOPED_CATEGORY_STRING;
     S32 res = 0;
 
-    std::string output;
+    std::ostringstream output;
     std::vector<std::string> tokens;
 
     std::string::size_type start = 0;
@@ -1591,7 +1607,7 @@ S32 LLStringUtil::format(std::string& s, const format_map_t& substitutions)
     std::string::size_type key_start = 0;
     while ((key_start = getSubstitution(s, start, tokens)) != std::string::npos)
     {
-        output += std::string(s, prev_start, key_start-prev_start);
+        output << std::string(s, prev_start, key_start-prev_start);
         prev_start = start;
 
         bool found_replacement = false;
@@ -1632,20 +1648,20 @@ S32 LLStringUtil::format(std::string& s, const format_map_t& substitutions)
 
         if (found_replacement)
         {
-            output += replacement;
+            output << replacement;
             res++;
         }
         else
         {
             // we had no replacement, use the string as is
             // e.g. "hello [MISSING_REPLACEMENT]" or "-=[Stylized Name]=-"
-            output += std::string(s, key_start, start-key_start);
+            output << std::string(s, key_start, start-key_start);
         }
         tokens.clear();
     }
     // send the remainder of the string (with no further matches for bracketed names)
-    output += std::string(s, start);
-    s = output;
+    output << std::string(s, start);
+    s = output.str();
     return res;
 }
 
@@ -1661,7 +1677,7 @@ S32 LLStringUtil::format(std::string& s, const LLSD& substitutions)
         return res;
     }
 
-    std::string output;
+    std::ostringstream output;
     std::vector<std::string> tokens;
 
     std::string::size_type start = 0;
@@ -1669,7 +1685,7 @@ S32 LLStringUtil::format(std::string& s, const LLSD& substitutions)
     std::string::size_type key_start = 0;
     while ((key_start = getSubstitution(s, start, tokens)) != std::string::npos)
     {
-        output += std::string(s, prev_start, key_start-prev_start);
+        output << std::string(s, prev_start, key_start-prev_start);
         prev_start = start;
 
         bool found_replacement = false;
@@ -1702,20 +1718,20 @@ S32 LLStringUtil::format(std::string& s, const LLSD& substitutions)
 
         if (found_replacement)
         {
-            output += replacement;
+            output << replacement;
             res++;
         }
         else
         {
             // we had no replacement, use the string as is
             // e.g. "hello [MISSING_REPLACEMENT]" or "-=[Stylized Name]=-"
-            output += std::string(s, key_start, start-key_start);
+            output << std::string(s, key_start, start-key_start);
         }
         tokens.clear();
     }
     // send the remainder of the string (with no further matches for bracketed names)
-    output += std::string(s, start);
-    s = output;
+    output << std::string(s, start);
+    s = output.str();
     return res;
 }
 
