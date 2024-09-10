@@ -141,10 +141,10 @@ std::string rawstr_to_utf8(const std::string& raw)
     return wstring_to_utf8str(wstr);
 }
 
-std::ptrdiff_t wchar_to_utf8chars(llwchar in_char, char* outchars)
+std::string wchar_to_utf8chars(llwchar in_char)
 {
-    U32 cur_char = (U32)in_char;
-    char* base = outchars;
+    U32 cur_char(in_char);
+    char buff[8], *outchars = buff;
     if (cur_char < 0x80)
     {
         *outchars++ = (U8)cur_char;
@@ -189,7 +189,7 @@ std::ptrdiff_t wchar_to_utf8chars(llwchar in_char, char* outchars)
         LL_WARNS() << "Invalid Unicode character " << cur_char << "!" << LL_ENDL;
         *outchars++ = LL_UNKNOWN_CHAR;
     }
-    return outchars - base;
+    return { buff, std::string::size_type(outchars - buff) };
 }
 
 auto utf16chars_to_wchar(const U16* inchars, llwchar* outchar)
@@ -367,13 +367,12 @@ std::string wchar_utf8_preview(const llwchar wc)
     std::ostringstream oss;
     oss << std::hex << std::uppercase << (U32)wc;
 
-    U8 out_bytes[8];
-    U32 size = (U32)wchar_to_utf8chars(wc, (char*)out_bytes);
+    auto out_bytes = wchar_to_utf8chars(wc);
 
-    if (size > 1)
+    if (out_bytes.length() > 1)
     {
         oss << " [";
-        for (U32 i = 0; i < size; ++i)
+        for (U32 i = 0; i < out_bytes.length(); ++i)
         {
             if (i)
             {
@@ -492,10 +491,7 @@ std::string wstring_to_utf8str(const llwchar* utf32str, size_t len)
     S32 i = 0;
     while (i < len)
     {
-        char tchars[8];     /* Flawfinder: ignore */
-        auto n = wchar_to_utf8chars(utf32str[i], tchars);
-        tchars[n] = 0;
-        out += tchars;
+        out += wchar_to_utf8chars(utf32str[i]);
         i++;
     }
     return out;
