@@ -120,6 +120,9 @@ public:
     // indexed by the following enum
     static U32 calcOffsets(const U32& typemask, U32* offsets, U32 num_vertices);
 
+    // flush any pending mapped buffers
+    static void flushBuffers();
+
     //WARNING -- when updating these enums you MUST
     // 1 - update LLVertexBuffer::sTypeSize
     // 2 - update LLVertexBuffer::vb_type_name
@@ -190,6 +193,8 @@ public:
     // map for data access (see also getFooStrider below)
     U8*     mapVertexBuffer(AttributeType type, U32 index, S32 count = -1);
     U8*     mapIndexBuffer(U32 index, S32 count = -1);
+
+    // synonym for flushBuffers
     void    unmapBuffer();
 
     // set for rendering
@@ -311,6 +316,13 @@ private:
     {}
 
     bool    allocateBuffer(S32 nverts, S32 nindices, bool create) { return allocateBuffer(nverts, nindices); }
+
+    // actually unmap buffer
+    void _unmapBuffer();
+
+    // add to set of mapped buffers
+    void _mapBuffer();
+    bool mMapped = false;
 
 public:
 
