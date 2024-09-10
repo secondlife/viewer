@@ -228,7 +228,6 @@ const F32 DEFERRED_LIGHT_FALLOFF = 0.5f;
 const U32 DEFERRED_VB_MASK = LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0 | LLVertexBuffer::MAP_TEXCOORD1;
 
 extern S32 gBoxFrame;
-//extern bool gHideSelectedObjects;
 extern bool gDisplaySwapBuffers;
 extern bool gDebugGL;
 extern bool gCubeSnapshot;
