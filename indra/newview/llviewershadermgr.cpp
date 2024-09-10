@@ -439,12 +439,9 @@ void LLViewerShaderMgr::finalizeShaderList()
     mShaderList.push_back(&gDeferredAvatarProgram);
     mShaderList.push_back(&gDeferredTerrainProgram);
 
-    if (gSavedSettings.getBOOL("LocalTerrainPaintEnabled"))
+    for (U32 paint_type = 0; paint_type < TERRAIN_PAINT_TYPE_COUNT; ++paint_type)
     {
-        for (U32 paint_type = 0; paint_type < TERRAIN_PAINT_TYPE_COUNT; ++paint_type)
-        {
-            mShaderList.push_back(&gDeferredPBRTerrainProgram[paint_type]);
-        }
+        mShaderList.push_back(&gDeferredPBRTerrainProgram[paint_type]);
     }
 
     mShaderList.push_back(&gDeferredDiffuseAlphaMaskProgram);
