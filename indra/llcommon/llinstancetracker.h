@@ -41,6 +41,7 @@
 #include <boost/iterator/indirect_iterator.hpp>
 #include <boost/iterator/filter_iterator.hpp>
 
+#include "llprofiler.h"
 #include "lockstatic.h"
 #include "stringize.h"
 
