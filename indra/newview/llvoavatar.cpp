@@ -2881,7 +2881,7 @@ static void override_bbox(LLDrawable* drawable, LLVector4a* extents)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SPATIAL;
     drawable->setSpatialExtents(extents[0], extents[1]);
-    drawable->setPositionGroup(LLVector4a(0, 0, 0));
+    drawable->setPositionGroup(LLVector4a(0.f, 0.f, 0.f));
     drawable->movePartition();
 }
 
@@ -2902,19 +2902,12 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
     if (detailed_update)
     {
         U32 draw_order = 0;
-        S32 attachment_selected = LLSelectMgr::getInstance()->getSelection()->getObjectCount() && LLSelectMgr::getInstance()->getSelection()->isAttachment();
-        for (attachment_map_t::iterator iter = mAttachmentPoints.begin();
-             iter != mAttachmentPoints.end();
-             ++iter)
+        bool attachment_selected = LLSelectMgr::getInstance()->getSelection()->getObjectCount() > 0 && LLSelectMgr::getInstance()->getSelection()->isAttachment();
+        for (const auto& [attachment_point_id, attachment] : mAttachmentPoints)
         {
-            LLViewerJointAttachment* attachment = iter->second;
-
-            for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
-                 attachment_iter != attachment->mAttachedObjects.end();
-                 ++attachment_iter)
+            for (auto& attached_object : attachment->mAttachedObjects)
             {
-                LLViewerObject* attached_object = attachment_iter->get();
-                if (!attached_object
+                if (attached_object.isNull()
                     || attached_object->isDead()
                     || !attachment->getValid()
                     || attached_object->mDrawable.isNull())
@@ -8615,60 +8608,53 @@ void LLVOAvatar::updateMeshVisibility()
 
     if (getOverallAppearance() == AOA_NORMAL)
     {
-        for (attachment_map_t::iterator iter = mAttachmentPoints.begin();
-             iter != mAttachmentPoints.end();
-             ++iter)
+        for (const auto& [attachment_point_id, attachment] : mAttachmentPoints)
         {
-            LLViewerJointAttachment* attachment = iter->second;
-            if (attachment)
-            {
-                for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
-                     attachment_iter != attachment->mAttachedObjects.end();
-                     ++attachment_iter)
-                {
-                    LLViewerObject *objectp = attachment_iter->get();
-                    if (objectp)
-                    {
-                        for (int face_index = 0; face_index < objectp->getNumTEs(); face_index++)
-                        {
-                            LLTextureEntry* tex_entry = objectp->getTE(face_index);
-                            bake_flag[BAKED_HEAD] |= (tex_entry->getID() == IMG_USE_BAKED_HEAD);
-                            bake_flag[BAKED_EYES] |= (tex_entry->getID() == IMG_USE_BAKED_EYES);
-                            bake_flag[BAKED_HAIR] |= (tex_entry->getID() == IMG_USE_BAKED_HAIR);
-                            bake_flag[BAKED_LOWER] |= (tex_entry->getID() == IMG_USE_BAKED_LOWER);
-                            bake_flag[BAKED_UPPER] |= (tex_entry->getID() == IMG_USE_BAKED_UPPER);
-                            bake_flag[BAKED_SKIRT] |= (tex_entry->getID() == IMG_USE_BAKED_SKIRT);
-                            bake_flag[BAKED_LEFT_ARM] |= (tex_entry->getID() == IMG_USE_BAKED_LEFTARM);
-                            bake_flag[BAKED_LEFT_LEG] |= (tex_entry->getID() == IMG_USE_BAKED_LEFTLEG);
-                            bake_flag[BAKED_AUX1] |= (tex_entry->getID() == IMG_USE_BAKED_AUX1);
-                            bake_flag[BAKED_AUX2] |= (tex_entry->getID() == IMG_USE_BAKED_AUX2);
-                            bake_flag[BAKED_AUX3] |= (tex_entry->getID() == IMG_USE_BAKED_AUX3);
-                        }
-                    }
+            if (!attachment)
+                continue;
 
-                    LLViewerObject::const_child_list_t& child_list = objectp->getChildren();
-                    for (LLViewerObject::child_list_t::const_iterator iter1 = child_list.begin();
-                         iter1 != child_list.end(); ++iter1)
+            for (const auto& objectp : attachment->mAttachedObjects)
+            {
+                if (objectp.isNull())
+                    continue;
+
+                for (int face_index = 0; face_index < objectp->getNumTEs(); face_index++)
+                {
+                    LLTextureEntry* tex_entry = objectp->getTE(face_index);
+                    const auto& tex_id = tex_entry->getID();
+                    bake_flag[BAKED_HEAD] |= (tex_id == IMG_USE_BAKED_HEAD);
+                    bake_flag[BAKED_EYES] |= (tex_id == IMG_USE_BAKED_EYES);
+                    bake_flag[BAKED_HAIR] |= (tex_id == IMG_USE_BAKED_HAIR);
+                    bake_flag[BAKED_LOWER] |= (tex_id == IMG_USE_BAKED_LOWER);
+                    bake_flag[BAKED_UPPER] |= (tex_id == IMG_USE_BAKED_UPPER);
+                    bake_flag[BAKED_SKIRT] |= (tex_id == IMG_USE_BAKED_SKIRT);
+                    bake_flag[BAKED_LEFT_ARM] |= (tex_id == IMG_USE_BAKED_LEFTARM);
+                    bake_flag[BAKED_LEFT_LEG] |= (tex_id == IMG_USE_BAKED_LEFTLEG);
+                    bake_flag[BAKED_AUX1] |= (tex_id == IMG_USE_BAKED_AUX1);
+                    bake_flag[BAKED_AUX2] |= (tex_id == IMG_USE_BAKED_AUX2);
+                    bake_flag[BAKED_AUX3] |= (tex_id == IMG_USE_BAKED_AUX3);
+                }
+
+                for (const auto& objectchild : objectp->getChildren())
+                {
+                    if (objectchild.isNull())
+                        continue;
+
+                    for (int face_index = 0; face_index < objectchild->getNumTEs(); face_index++)
                     {
-                        LLViewerObject* objectchild = *iter1;
-                        if (objectchild)
-                        {
-                            for (int face_index = 0; face_index < objectchild->getNumTEs(); face_index++)
-                            {
-                                LLTextureEntry* tex_entry = objectchild->getTE(face_index);
-                                bake_flag[BAKED_HEAD] |= (tex_entry->getID() == IMG_USE_BAKED_HEAD);
-                                bake_flag[BAKED_EYES] |= (tex_entry->getID() == IMG_USE_BAKED_EYES);
-                                bake_flag[BAKED_HAIR] |= (tex_entry->getID() == IMG_USE_BAKED_HAIR);
-                                bake_flag[BAKED_LOWER] |= (tex_entry->getID() == IMG_USE_BAKED_LOWER);
-                                bake_flag[BAKED_UPPER] |= (tex_entry->getID() == IMG_USE_BAKED_UPPER);
-                                bake_flag[BAKED_SKIRT] |= (tex_entry->getID() == IMG_USE_BAKED_SKIRT);
-                                bake_flag[BAKED_LEFT_ARM] |= (tex_entry->getID() == IMG_USE_BAKED_LEFTARM);
-                                bake_flag[BAKED_LEFT_LEG] |= (tex_entry->getID() == IMG_USE_BAKED_LEFTLEG);
-                                bake_flag[BAKED_AUX1] |= (tex_entry->getID() == IMG_USE_BAKED_AUX1);
-                                bake_flag[BAKED_AUX2] |= (tex_entry->getID() == IMG_USE_BAKED_AUX2);
-                                bake_flag[BAKED_AUX3] |= (tex_entry->getID() == IMG_USE_BAKED_AUX3);
-                            }
-                        }
+                        LLTextureEntry* tex_entry = objectchild->getTE(face_index);
+                        const auto& tex_id = tex_entry->getID();
+                        bake_flag[BAKED_HEAD] |= (tex_id == IMG_USE_BAKED_HEAD);
+                        bake_flag[BAKED_EYES] |= (tex_id == IMG_USE_BAKED_EYES);
+                        bake_flag[BAKED_HAIR] |= (tex_id == IMG_USE_BAKED_HAIR);
+                        bake_flag[BAKED_LOWER] |= (tex_id == IMG_USE_BAKED_LOWER);
+                        bake_flag[BAKED_UPPER] |= (tex_id == IMG_USE_BAKED_UPPER);
+                        bake_flag[BAKED_SKIRT] |= (tex_id == IMG_USE_BAKED_SKIRT);
+                        bake_flag[BAKED_LEFT_ARM] |= (tex_id == IMG_USE_BAKED_LEFTARM);
+                        bake_flag[BAKED_LEFT_LEG] |= (tex_id == IMG_USE_BAKED_LEFTLEG);
+                        bake_flag[BAKED_AUX1] |= (tex_id == IMG_USE_BAKED_AUX1);
+                        bake_flag[BAKED_AUX2] |= (tex_id == IMG_USE_BAKED_AUX2);
+                        bake_flag[BAKED_AUX3] |= (tex_id == IMG_USE_BAKED_AUX3);
                     }
                 }
             }
