@@ -1361,51 +1361,6 @@ void LLViewerFetchedTexture::addToCreateTexture()
     }
     else
     {
-        LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
-#if 1
-        //
-        //if mRequestedDiscardLevel > mDesiredDiscardLevel, we assume the required image res keep going up,
-        //so do not scale down the over qualified image.
-        //Note: scaling down image is expensensive. Do it only when very necessary.
-        //
-        if(mRequestedDiscardLevel <= mDesiredDiscardLevel && !mForceToSaveRawImage)
-        {
-            U32 w = mFullWidth >> mRawDiscardLevel;
-            U32 h = mFullHeight >> mRawDiscardLevel;
-
-            //if big image, do not load extra data
-            //scale it down to size >= LLViewerTexture::sMinLargeImageSize
-            if(w * h > LLViewerTexture::sMinLargeImageSize)
-            {
-                S32 d_level = llmin(mRequestedDiscardLevel, (S32)mDesiredDiscardLevel) - mRawDiscardLevel;
-
-                if(d_level > 0)
-                {
-                    S32 i = 0;
-                    while((d_level > 0) && ((w >> i) * (h >> i) > LLViewerTexture::sMinLargeImageSize))
-                    {
-                        i++;
-                        d_level--;
-                    }
-                    if(i > 0)
-                    {
-                        mRawDiscardLevel += i;
-                        if(mRawDiscardLevel >= getDiscardLevel() && getDiscardLevel() > 0)
-                        {
-                            mNeedsCreateTexture = false;
-                            destroyRawImage();
-                            return;
-                        }
-
-                        {
-                            //make a duplicate in case somebody else is using this raw image
-                            mRawImage = mRawImage->scaled(w >> i, h >> i);
-                        }
-                    }
-                }
-            }
-        }
-#endif
         scheduleCreateTexture();
     }
     return;

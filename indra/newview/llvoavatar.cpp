@@ -10689,14 +10689,18 @@ void LLVOAvatar::updateRiggingInfo()
 
     std::map<LLUUID, S32> curr_rigging_info_key;
 
-    // Get current rigging info key
-    for (LLVOVolume* vol : volumes)
     {
-        if (vol->isMesh() && vol->getVolume())
+        LL_PROFILE_ZONE_NAMED_CATEGORY_AVATAR("update rig info - get key")
+
+        // Get current rigging info key
+        for (LLVOVolume* vol : volumes)
         {
-            const LLUUID& mesh_id = vol->getVolume()->getParams().getSculptID();
-            S32 max_lod = llmax(vol->getLOD(), vol->mLastRiggingInfoLOD);
-            curr_rigging_info_key[mesh_id] = max_lod;
+            if (vol->isMesh() && vol->getVolume())
+            {
+                const LLUUID& mesh_id = vol->getVolume()->getParams().getSculptID();
+                S32 max_lod = llmax(vol->getLOD(), vol->mLastRiggingInfoLOD);
+                curr_rigging_info_key[mesh_id] = max_lod;
+            }
         }
     }
 

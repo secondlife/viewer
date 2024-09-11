@@ -1741,7 +1741,7 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
             { //bump mapped or has material, just do the whole expensive loop
                 LL_PROFILE_ZONE_NAMED_CATEGORY_FACE("getGeometryVolume - texgen default");
 
-                std::vector<LLVector2> bump_tc;
+                LLStrider<LLVector2> bump_tc;
 
                 if (mat && !mat->getNormalID().isNull())
                 { //writing out normal and specular texture coordinates, not bump offsets
@@ -1803,49 +1803,70 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
                     }
                     const bool do_xform = (xforms & xform_channel) != XFORM_NONE;
 
+                    // hold onto strider to front of TC array for use later
+                    bump_tc = dst;
 
-                    for (S32 i = 0; i < num_vertices; i++)
                     {
-                        LLVector2 tc(vf.mTexCoords[i]);
-
-                        LLVector4a& norm = vf.mNormals[i];
-
-                        LLVector4a& center = *(vf.mCenter);
-
-                        if (texgen != LLTextureEntry::TEX_GEN_DEFAULT)
+                        // NOTE: split TEX_GEN_PLANAR implementation to reduce branchiness of inner loop
+                        // These are per-vertex operations and every little bit counts
+                        if (texgen == LLTextureEntry::TEX_GEN_PLANAR)
                         {
-                            LLVector4a vec = vf.mPositions[i];
-
-                            vec.mul(scalea);
-
-                            if (texgen == LLTextureEntry::TEX_GEN_PLANAR)
+                            LL_PROFILE_ZONE_NAMED_CATEGORY_FACE("tgd - planar");
+                            for (S32 i = 0; i < num_vertices; i++)
                             {
+                                LLVector2 tc(vf.mTexCoords[i]);
+                                LLVector4a& norm = vf.mNormals[i];
+                                LLVector4a& center = *(vf.mCenter);
+                                LLVector4a vec = vf.mPositions[i];
+
+                                vec.mul(scalea);
+
                                 planarProjection(tc, norm, center, vec);
+
+                                if (tex_mode && mTextureMatrix)
+                                {
+                                    LLVector3 tmp(tc.mV[0], tc.mV[1], 0.f);
+                                    tmp = tmp * *mTextureMatrix;
+                                    tc.mV[0] = tmp.mV[0];
+                                    tc.mV[1] = tmp.mV[1];
+                                }
+                                else if (do_xform)
+                                {
+                                    xform(tc, cos_ang, sin_ang, os, ot, ms, mt);
+                                }
+
+                                *dst++ = tc;
                             }
                         }
+                        else
+                        {
+                            LL_PROFILE_ZONE_NAMED_CATEGORY_FACE("tgd - transform");
 
-                        if (tex_mode && mTextureMatrix)
-                        {
-                            LLVector3 tmp(tc.mV[0], tc.mV[1], 0.f);
-                            tmp = tmp * *mTextureMatrix;
-                            tc.mV[0] = tmp.mV[0];
-                            tc.mV[1] = tmp.mV[1];
-                        }
-                        else if (do_xform)
-                        {
-                            xform(tc, cos_ang, sin_ang, os, ot, ms, mt);
-                        }
+                            for (S32 i = 0; i < num_vertices; i++)
+                            {
+                                LLVector2 tc(vf.mTexCoords[i]);
 
-                        *dst++ = tc;
-                        if (do_bump)
-                        {
-                            bump_tc.push_back(tc);
+                                if (tex_mode && mTextureMatrix)
+                                {
+                                    LLVector3 tmp(tc.mV[0], tc.mV[1], 0.f);
+                                    tmp = tmp * *mTextureMatrix;
+                                    tc.mV[0] = tmp.mV[0];
+                                    tc.mV[1] = tmp.mV[1];
+                                }
+                                else if (do_xform)
+                                {
+                                    xform(tc, cos_ang, sin_ang, os, ot, ms, mt);
+                                }
+
+                                *dst++ = tc;
+                            }
                         }
                     }
                 }
 
                 if ((!mat && !gltf_mat) && do_bump)
                 {
+                    LL_PROFILE_ZONE_NAMED_CATEGORY_FACE("tgd - do bump");
                     mVertexBuffer->getTexCoord1Strider(tex_coords1, mGeomIndex, mGeomCount);
 
                     mVObjp->getVolume()->genTangents(face_index);

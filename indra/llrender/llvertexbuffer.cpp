@@ -954,6 +954,25 @@ LLVertexBuffer::LLVertexBuffer(U32 typemask)
     }
 }
 
+// list of mapped buffers
+// NOTE: must not be LLPointer<LLVertexBuffer> to avoid breaking non-ref-counted LLVertexBuffer instances
+static std::vector<LLVertexBuffer*> sMappedBuffers;
+
+//static
+void LLVertexBuffer::flushBuffers()
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VERTEX;
+    // must only be called from main thread
+    llassert(LLCoros::on_main_thread_main_coro());
+    for (auto& buffer : sMappedBuffers)
+    {
+        buffer->_unmapBuffer();
+        buffer->mMapped = false;
+    }
+
+    sMappedBuffers.resize(0);
+}
+
 //static
 U32 LLVertexBuffer::calcOffsets(const U32& typemask, U32* offsets, U32 num_vertices)
 {
@@ -997,6 +1016,12 @@ U32 LLVertexBuffer::calcVertexSize(const U32& typemask)
 //virtual
 LLVertexBuffer::~LLVertexBuffer()
 {
+    if (mMapped)
+    { // is on the mapped buffer list but doesn't need to be flushed
+        mMapped = false;
+        unmapBuffer();
+    }
+
     destroyGLBuffer();
     destroyGLIndices();
 
@@ -1198,6 +1223,7 @@ bool expand_region(LLVertexBuffer::MappedRegion& region, U32 start, U32 end)
 U8* LLVertexBuffer::mapVertexBuffer(LLVertexBuffer::AttributeType type, U32 index, S32 count)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VERTEX;
+    _mapBuffer();
 
     if (count == -1)
     {
@@ -1233,6 +1259,7 @@ U8* LLVertexBuffer::mapVertexBuffer(LLVertexBuffer::AttributeType type, U32 inde
 U8* LLVertexBuffer::mapIndexBuffer(U32 index, S32 count)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VERTEX;
+    _mapBuffer();
 
     if (count == -1)
     {
@@ -1289,11 +1316,11 @@ void LLVertexBuffer::flush_vbo(GLenum target, U32 start, U32 end, void* data, U8
         LL_PROFILE_ZONE_NUM(end);
         LL_PROFILE_ZONE_NUM(end-start);
 
-        constexpr U32 block_size = 8192;
+        constexpr U32 block_size = 65536;
 
         for (U32 i = start; i <= end; i += block_size)
         {
-            LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("glBufferSubData block");
+            //LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("glBufferSubData block");
             //LL_PROFILE_GPU_ZONE("glBufferSubData");
             U32 tend = llmin(i + block_size, end);
             U32 size = tend - i + 1;
@@ -1305,7 +1332,28 @@ void LLVertexBuffer::flush_vbo(GLenum target, U32 start, U32 end, void* data, U8
 
 void LLVertexBuffer::unmapBuffer()
 {
+    flushBuffers();
+}
+
+void LLVertexBuffer::_mapBuffer()
+{
+    // must only be called from main thread
+    llassert(LLCoros::on_main_thread_main_coro());
+    if (!mMapped)
+    {
+        mMapped = true;
+        sMappedBuffers.push_back(this);
+    }
+}
+
+void LLVertexBuffer::_unmapBuffer()
+{
     STOP_GLERROR;
+    if (!mMapped)
+    {
+        return;
+    }
+
     struct SortMappedRegion
     {
         bool operator()(const MappedRegion& lhs, const MappedRegion& rhs)
@@ -1549,6 +1597,13 @@ void LLVertexBuffer::setBuffer()
         return;
     }
 #endif
+
+    if (mMapped)
+    {
+        LL_WARNS() << "Missing call to unmapBuffer or flushBuffers" << LL_ENDL;
+        _unmapBuffer();
+    }
+
     // no data may be pending
     llassert(mMappedVertexRegions.empty());
     llassert(mMappedIndexRegions.empty());

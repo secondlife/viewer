@@ -315,11 +315,9 @@ void LLSkinningUtil::initJointNums(LLMeshSkinInfo* skin, LLVOAvatar *avatar)
     }
 }
 
-static LLTrace::BlockTimerStatHandle FTM_FACE_RIGGING_INFO("Face Rigging Info");
-
 void LLSkinningUtil::updateRiggingInfo(const LLMeshSkinInfo* skin, LLVOAvatar *avatar, LLVolumeFace& vol_face)
 {
-    LL_RECORD_BLOCK_TIME(FTM_FACE_RIGGING_INFO);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
 
     if (vol_face.mJointRiggingInfoTab.needsUpdate())
     {

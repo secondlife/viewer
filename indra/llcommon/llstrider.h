@@ -41,6 +41,13 @@ public:
     LLStrider(Object* first) { mObjectp = first; mSkip = sizeof(Object); }
     ~LLStrider() { }
 
+    const LLStrider<Object>& operator=(const LLStrider<Object>& rhs)
+    {
+        mBytep = rhs.mBytep;
+        mSkip = rhs.mSkip;
+        return *this;
+    }
+
     const LLStrider<Object>& operator =  (Object *first)    { mObjectp = first; return *this;}
     void setStride (S32 skipBytes)  { mSkip = (skipBytes ? skipBytes : sizeof(Object));}
 
