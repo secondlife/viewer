@@ -30,6 +30,7 @@
 #include "llgl.h"
 #include "llrender.h"
 #include "llstaticstringtable.h"
+#include <boost/json.hpp>
 #include <unordered_map>
 
 class LLShaderFeatures
@@ -169,14 +170,14 @@ public:
     static U32 sMaxGLTFNodes;
 
     static void initProfile();
-    static void finishProfile(bool emit_report = true);
+    static void finishProfile(const std::string& report_name={});
 
     static void startProfile();
     static void stopProfile();
 
     void unload();
     void clearStats();
-    void dumpStats();
+    void dumpStats(boost::json::object& stats);
 
     // place query objects for profiling if profiling is enabled
     // if for_runtime is true, will place timer query only whether or not profiling is enabled
