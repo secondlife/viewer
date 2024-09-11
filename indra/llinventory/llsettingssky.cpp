@@ -407,6 +407,7 @@ LLSettingsSky::LLSettingsSky(const LLSD &data) :
     mNextRainbowTextureId(),
     mNextHaloTextureId()
 {
+    loadValuesFromLLSD();
 }
 
 LLSettingsSky::LLSettingsSky():
@@ -418,6 +419,7 @@ LLSettingsSky::LLSettingsSky():
     mNextRainbowTextureId(),
     mNextHaloTextureId()
 {
+    replaceSettings(defaults());
 }
 
 void LLSettingsSky::replaceSettings(LLSD settings)
@@ -460,7 +462,6 @@ void LLSettingsSky::blend(LLSettingsBase::ptr_t &end, F64 blendf)
                 // Special case since SETTING_AMBIENT is both in outer and legacy maps, we prioritize legacy one
                 // see getColor(), we are about to replaceSettings(), so we are free to set it
                 LLColor3 ambient = getColor(SETTING_AMBIENT, LLColor3(0.25f, 0.25f, 0.25f));
-                setAmbientColor(ambient);
                 settings[SETTING_LEGACY_HAZE][SETTING_AMBIENT] = ambient.getValue();
             }
         }
@@ -974,6 +975,7 @@ F32 get_float(bool &use_legacy, LLSD& settings, std::string key, F32 default_val
     {
         return (F32)settings[key].asReal();
     }
+    use_legacy = true;
     return default_value;
 }
 
@@ -989,6 +991,7 @@ LLColor3 get_color(bool& use_legacy, LLSD& settings, const std::string& key, con
     {
         return LLColor3(settings[key]);
     }
+    use_legacy = true;
     return default_value;
 }
 
@@ -1046,6 +1049,7 @@ void LLSettingsSky::loadValuesFromLLSD()
     mPlanetRadius = (F32)settings[SETTING_PLANET_RADIUS].asReal();
 
     // special case for legacy handling
+    mHasLegacyHaze = settings.has(LLSettingsSky::SETTING_LEGACY_HAZE);
     mDistanceMultiplier = get_float(mLegacyDistanceMultiplier, settings, SETTING_DISTANCE_MULTIPLIER, 0.8f);
     mDensityMultiplier = get_float(mLegacyDensityMultiplier, settings, SETTING_DENSITY_MULTIPLIER, 0.0001f);
     mHazeHorizon = get_float(mLegacyHazeHorizon, settings, SETTING_HAZE_HORIZON, 0.19f);
@@ -1053,6 +1057,14 @@ void LLSettingsSky::loadValuesFromLLSD()
     mBlueHorizon = get_color(mLegacyBlueHorizon, settings, SETTING_BLUE_HORIZON, LLColor3(0.4954f, 0.4954f, 0.6399f));
     mBlueDensity = get_color(mLegacyBlueDensity, settings, SETTING_BLUE_DENSITY, LLColor3(0.2447f, 0.4487f, 0.7599f));
     mAmbientColor = get_color(mLegacyAmbientColor, settings, SETTING_AMBIENT, LLColor3(0.25f, 0.25f, 0.25f));
+    // one of these values might be true despite not having SETTING_LEGACY_HAZE if defaults were used
+    mHasLegacyHaze |= mLegacyDistanceMultiplier
+                      || mLegacyDensityMultiplier
+                      || mLegacyHazeHorizon
+                      || mLegacyHazeDensity
+                      || mLegacyBlueHorizon
+                      || mLegacyBlueDensity
+                      || mLegacyAmbientColor;
 }
 
 void LLSettingsSky::saveValuesToLLSD()
@@ -1344,6 +1356,7 @@ void LLSettingsSky::setAmbientColor(const LLColor3 &val)
     mAmbientColor = val;
     mLegacyAmbientColor = true;
     setDirtyFlag(true);
+    setLLSDDirty();
 }
 
 void LLSettingsSky::setBlueDensity(const LLColor3 &val)
@@ -1351,6 +1364,7 @@ void LLSettingsSky::setBlueDensity(const LLColor3 &val)
     mBlueDensity = val;
     mLegacyBlueDensity = true;
     setDirtyFlag(true);
+    setLLSDDirty();
 }
 
 void LLSettingsSky::setBlueHorizon(const LLColor3 &val)
@@ -1358,6 +1372,7 @@ void LLSettingsSky::setBlueHorizon(const LLColor3 &val)
     mBlueHorizon = val;
     mLegacyBlueHorizon = true;
     setDirtyFlag(true);
+    setLLSDDirty();
 }
 
 void LLSettingsSky::setDensityMultiplier(F32 val)
@@ -1365,6 +1380,7 @@ void LLSettingsSky::setDensityMultiplier(F32 val)
     mDensityMultiplier = val;
     mLegacyDensityMultiplier = true;
     setDirtyFlag(true);
+    setLLSDDirty();
 }
 
 void LLSettingsSky::setDistanceMultiplier(F32 val)
@@ -1372,6 +1388,7 @@ void LLSettingsSky::setDistanceMultiplier(F32 val)
     mDistanceMultiplier = val;
     mLegacyDistanceMultiplier = true;
     setDirtyFlag(true);
+    setLLSDDirty();
 }
 
 void LLSettingsSky::setHazeDensity(F32 val)
@@ -1379,6 +1396,7 @@ void LLSettingsSky::setHazeDensity(F32 val)
     mHazeDensity = val;
     mLegacyHazeDensity = true;
     setDirtyFlag(true);
+    setLLSDDirty();
 }
 
 void LLSettingsSky::setHazeHorizon(F32 val)
@@ -1386,6 +1404,7 @@ void LLSettingsSky::setHazeHorizon(F32 val)
     mHazeHorizon = val;
     mLegacyHazeHorizon = true;
     setDirtyFlag(true);
+    setLLSDDirty();
 }
 
 // Get total from rayleigh and mie density values for normalization
@@ -1800,12 +1819,14 @@ void LLSettingsSky::setCloudScrollRate(const LLVector2 &val)
 void LLSettingsSky::setCloudScrollRateX(F32 val)
 {
     mScrollRate.mV[0] = val;
+    setDirtyFlag(true);
     setLLSDDirty();
 }
 
 void LLSettingsSky::setCloudScrollRateY(F32 val)
 {
     mScrollRate.mV[1] = val;
+    setDirtyFlag(true);
     setLLSDDirty();
 }
 
@@ -1851,6 +1872,7 @@ F32 LLSettingsSky::getGamma() const
 void LLSettingsSky::setGamma(F32 val)
 {
     mGamma = val;
+    setDirtyFlag(true);
     setLLSDDirty();
 }
 LLColor3 LLSettingsSky::getGlow() const

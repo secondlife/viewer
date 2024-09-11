@@ -70,12 +70,14 @@ LLSettingsWater::LLSettingsWater(const LLSD &data) :
     LLSettingsBase(data),
     mNextNormalMapID()
 {
+    loadValuesFromLLSD();
 }
 
 LLSettingsWater::LLSettingsWater() :
     LLSettingsBase(),
     mNextNormalMapID()
 {
+    replaceSettings(defaults());
 }
 
 //=========================================================================
@@ -229,6 +231,7 @@ LLSD LLSettingsWater::translateLegacySettings(LLSD legacy)
 
 void LLSettingsWater::blend(LLSettingsBase::ptr_t &end, F64 blendf)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_ENVIRONMENT;
     LLSettingsWater::ptr_t other = PTR_NAMESPACE::static_pointer_cast<LLSettingsWater>(end);
     if (other)
     {

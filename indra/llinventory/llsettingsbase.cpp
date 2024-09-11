@@ -69,23 +69,21 @@ const U32 LLSettingsBase::Validator::VALIDATION_PARTIAL(0x01 << 0);
 LLSettingsBase::LLSettingsBase():
     mSettings(LLSD::emptyMap()),
     mDirty(true),
-    mLLSDDirty(false),
+    mLLSDDirty(true),
     mReplaced(false),
     mBlendedFactor(0.0),
     mSettingFlags(0)
 {
-    loadValuesFromLLSD();
 }
 
 LLSettingsBase::LLSettingsBase(const LLSD setting) :
     mSettings(setting),
-    mLLSDDirty(false),
+    mLLSDDirty(true),
     mDirty(true),
     mReplaced(false),
     mBlendedFactor(0.0),
     mSettingFlags(0)
 {
-    loadValuesFromLLSD();
 }
 
 //virtual
@@ -134,6 +132,7 @@ void LLSettingsBase::saveValuesIfNeeded()
 //=========================================================================
 void LLSettingsBase::lerpSettings(LLSettingsBase &other, F64 mix)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_ENVIRONMENT;
     saveValuesIfNeeded();
     stringset_t skip = getSkipInterpolateKeys();
     stringset_t slerps = getSlerpKeys();
@@ -437,6 +436,7 @@ bool LLSettingsBase::validate()
 
     saveValuesIfNeeded();
     LLSD result = LLSettingsBase::settingValidation(mSettings, validations);
+    loadValuesFromLLSD();
 
     if (result["errors"].size() > 0)
     {

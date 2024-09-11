@@ -125,6 +125,7 @@ public:
     inline void setName(std::string val)
     {
         mSettingName = val;
+        setDirtyFlag(true);
         setLLSDDirty();
     }
 
@@ -141,6 +142,7 @@ public:
     inline void setFlags(U32 value)
     {
         mSettingFlags = value;
+        setDirtyFlag(true);
         setLLSDDirty();
     }
 
@@ -183,8 +185,6 @@ public:
     virtual void setLLSDDirty()
     {
         mLLSDDirty = true;
-        mDirty = true;
-        clearAssetId();
     }
 
     //---------------------------------------------------------------------

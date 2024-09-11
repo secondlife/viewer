@@ -81,6 +81,7 @@ public:
     void setBlurMultiplier(F32 val)
     {
         mBlurMultiplier = val;
+        setDirtyFlag(true);
         setLLSDDirty();
     }
 
@@ -92,6 +93,7 @@ public:
     void setWaterFogColor(LLColor3 val)
     {
         mWaterFogColor = val;
+        setDirtyFlag(true);
         setLLSDDirty();
     }
 
@@ -105,6 +107,7 @@ public:
     void setWaterFogDensity(F32 val)
     {
         mWaterFogDensity = val;
+        setDirtyFlag(true);
         setLLSDDirty();
     }
 
@@ -116,6 +119,7 @@ public:
     void setFogMod(F32 val)
     {
         mFogMod = val;
+        setDirtyFlag(true);
         setLLSDDirty();
     }
 
@@ -127,6 +131,7 @@ public:
     void setFresnelOffset(F32 val)
     {
         mFresnelOffset = val;
+        setDirtyFlag(true);
         setLLSDDirty();
     }
 
@@ -138,6 +143,7 @@ public:
     void setFresnelScale(F32 val)
     {
         mFresnelScale = val;
+        setDirtyFlag(true);
         setLLSDDirty();
     }
 
@@ -149,6 +155,7 @@ public:
     void setTransparentTextureID(LLUUID val)
     {
         mTransparentTextureID = val;
+        setDirtyFlag(true);
         setLLSDDirty();
     }
 
@@ -160,6 +167,7 @@ public:
     void setNormalMapID(LLUUID val)
     {
         mNormalMapID = val;
+        setDirtyFlag(true);
         setLLSDDirty();
     }
 
@@ -171,6 +179,7 @@ public:
     void setNormalScale(LLVector3 val)
     {
         mNormalScale = val;
+        setDirtyFlag(true);
         setLLSDDirty();
     }
 
@@ -182,6 +191,7 @@ public:
     void setScaleAbove(F32 val)
     {
         mScaleAbove = val;
+        setDirtyFlag(true);
         setLLSDDirty();
     }
 
@@ -193,6 +203,7 @@ public:
     void setScaleBelow(F32 val)
     {
         mScaleBelow = val;
+        setDirtyFlag(true);
         setLLSDDirty();
     }
 
@@ -204,6 +215,7 @@ public:
     void setWave1Dir(LLVector2 val)
     {
         mWave1Dir = val;
+        setDirtyFlag(true);
         setLLSDDirty();
     }
 
@@ -215,6 +227,7 @@ public:
     void setWave2Dir(LLVector2 val)
     {
         mWave2Dir = val;
+        setDirtyFlag(true);
         setLLSDDirty();
     }
 

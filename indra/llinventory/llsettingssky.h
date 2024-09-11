@@ -402,6 +402,7 @@ protected:
     LLColor3 mBlueDensity;
     LLColor3 mAmbientColor;
 
+    bool mHasLegacyHaze;
     bool mLegacyHazeHorizon;
     bool mLegacyHazeDensity;
     bool mLegacyDistanceMultiplier;

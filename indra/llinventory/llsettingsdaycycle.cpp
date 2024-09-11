@@ -128,6 +128,7 @@ LLSettingsDay::LLSettingsDay(const LLSD &data) :
     mDaySettings(LLSD::emptyMap())
 {
     mDayTracks.resize(TRACK_MAX);
+    loadValuesFromLLSD();
 }
 
 LLSettingsDay::LLSettingsDay() :
@@ -136,6 +137,7 @@ LLSettingsDay::LLSettingsDay() :
     mDaySettings(LLSD::emptyMap())
 {
     mDayTracks.resize(TRACK_MAX);
+    replaceSettings(defaults());
 }
 
 //=========================================================================
