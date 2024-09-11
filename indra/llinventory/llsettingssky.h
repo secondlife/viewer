@@ -365,21 +365,21 @@ protected:
     LLUUID      mNextHaloTextureId;
 
     bool mCanAutoAdjust;
+    LLQuaternion mSunRotation;
+    LLQuaternion mMoonRotation;
+    LLColor3 mSunlightColor;
+    LLColor3 mGlow;
     F32 mReflectionProbeAmbiance;
     F32 mSunScale;
-    LLQuaternion mSunRotation;
-    LLColor3 mSunlightColor;
     F32 mStarBrightness;
     F32 mMoonBrightness;
     F32 mMoonScale;
-    LLQuaternion mMoonRotation;
     F32 mMaxY;
-    LLColor3 mGlow;
     F32 mGamma;
     F32 mCloudVariance;
     F32 mCloudShadow;
-    LLVector2 mScrollRate;
     F32 mCloudScale;
+    LLVector2 mScrollRate;
     LLColor3 mCloudPosDensity1;
     LLColor3 mCloudPosDensity2;
     LLColor3 mCloudColor;

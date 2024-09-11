@@ -109,6 +109,7 @@ public:
     virtual bool isDirty() const { return mDirty; }
     virtual bool isVeryDirty() const { return mReplaced; }
     inline void setDirtyFlag(bool dirty) { mDirty = dirty; clearAssetId(); }
+    inline void setReplaced() { mReplaced = true; }
 
     size_t getHash(); // Hash will not include Name, ID or a previously stored Hash
 
