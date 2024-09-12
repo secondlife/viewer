@@ -1600,7 +1600,7 @@ void LLVertexBuffer::setBuffer()
 
     if (mMapped)
     {
-        LL_WARNS() << "Missing call to unmapBuffer or flushBuffers" << LL_ENDL;
+        LL_WARNS_ONCE() << "Missing call to unmapBuffer or flushBuffers" << LL_ENDL;
         _unmapBuffer();
     }
 
