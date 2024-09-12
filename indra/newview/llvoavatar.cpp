@@ -3689,21 +3689,22 @@ LLVector3 LLVOAvatar::idleCalcNameTagPosition(const LLVector3 &root_pos_last)
     name_position += (local_camera_up * root_rot) - (projected_vec(local_camera_at * root_rot, camera_to_av));
     name_position += pixel_up_vec * NAMETAG_VERTICAL_SCREEN_OFFSET;
 
-    const F32 water_height = getRegion()->getWaterHeight();
-    static const F32 WATER_HEIGHT_DELTA = 0.25f;
-    if (name_position[VZ] < water_height + WATER_HEIGHT_DELTA)
+    // Avoid of crossing the name tag by the water surface
+    if (mNameText)
     {
-        if (LLViewerCamera::getInstance()->getOrigin()[VZ] >= water_height)
+        F32 water_height = getRegion()->getWaterHeight();
+        static const F32 WATER_HEIGHT_ABOVE_DELTA = 0.25;
+        if (name_position[VZ] < water_height + WATER_HEIGHT_ABOVE_DELTA)
         {
-            name_position[VZ] = water_height;
-        }
-        else if (mNameText) // both camera and HUD are below watermark
-        {
-            F32 name_world_height = mNameText->getWorldHeight();
-            F32 max_z_position = water_height - name_world_height;
-            if (name_position[VZ] > max_z_position)
+            F32 camera_height = LLViewerCamera::getInstance()->getOrigin()[VZ];
+            if (camera_height >= water_height)
             {
-                name_position[VZ] = max_z_position;
+                F32 name_world_height = mNameText->getWorldHeight();
+                static const F32 WATER_HEIGHT_BELOW_DELTA = 0.5;
+                if (name_position[VZ] + name_world_height > water_height - WATER_HEIGHT_BELOW_DELTA)
+                {
+                    name_position[VZ] = water_height + WATER_HEIGHT_ABOVE_DELTA;
+                }
             }
         }
     }
