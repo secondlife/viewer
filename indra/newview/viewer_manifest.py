@@ -169,8 +169,9 @@ class ViewerManifest(LLManifest):
             with self.prefix(src_dst="scripts/lua"):
                 self.path("*.lua")
                 self.path("*.xml")
-                with self.prefix(src_dst='require'):
-                    self.path("*.lua")
+                for subdir in 'require', 'auto':
+                    with self.prefix(src_dst=subdir):
+                        self.path("*.lua")
 
             #build_data.json.  Standard with exception handling is fine.  If we can't open a new file for writing, we have worse problems
             #platform is computed above with other arg parsing
