@@ -65,6 +65,7 @@ U64 LLGLSLShader::sTotalTimeElapsed = 0;
 U32 LLGLSLShader::sTotalTrianglesDrawn = 0;
 U64 LLGLSLShader::sTotalSamplesDrawn = 0;
 U32 LLGLSLShader::sTotalBinds = 0;
+std::string LLGLSLShader::sDefaultReportName;
 
 //UI shader -- declared here so llui_libtest will link properly
 LLGLSLShader    gUIProgram;
