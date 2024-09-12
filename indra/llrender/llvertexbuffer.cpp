@@ -1301,6 +1301,9 @@ U8* LLVertexBuffer::mapIndexBuffer(U32 index, S32 count)
 void LLVertexBuffer::flush_vbo(GLenum target, U32 start, U32 end, void* data, U8* dst)
 {
 #if LL_DARWIN
+    // on OS X, flush_vbo doesn't actually write to the GL buffer, so be sure to call
+    // _mapBuffer to tag the buffer for flushing to GL
+    _mapBuffer();
     LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("vb memcpy");
     STOP_GLERROR;
     // copy into mapped buffer
@@ -1591,12 +1594,6 @@ bool LLVertexBuffer::getClothWeightStrider(LLStrider<LLVector4>& strider, U32 in
 void LLVertexBuffer::setBuffer()
 {
     STOP_GLERROR;
-#if LL_DARWIN
-    if (!mGLBuffer)
-    { // OS X doesn't allocate a buffer until we call unmapBuffer
-        return;
-    }
-#endif
 
     if (mMapped)
     {
