@@ -65,7 +65,8 @@ public:
     virtual void blend(LLSettingsBase::ptr_t &end, F64 blendf) SETTINGS_OVERRIDE;
 
     virtual void replaceSettings(LLSD settings) SETTINGS_OVERRIDE;
-    void replaceWithWater(LLSettingsWater::ptr_t other);
+    virtual void replaceSettings(const LLSettingsBase::ptr_t& other_water) override;
+    void replaceWithWater(const LLSettingsWater::ptr_t& other);
 
     static LLSD defaults(const LLSettingsBase::TrackPosition& position = 0.0f);
 

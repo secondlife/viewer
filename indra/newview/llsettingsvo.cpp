@@ -724,7 +724,6 @@ inline void draw_real(LLShaderUniforms* shader, F32 value, S32 shader_key)
 void LLSettingsVOSky::applyToUniforms(void* ptarget)
 {
     LLShaderUniforms* shader = &((LLShaderUniforms*)ptarget)[LLGLSLShader::SG_ANY];
-    LLSD &settings = getSettings();
 
     draw_color(shader, getAmbientColor(), LLShaderMgr::AMBIENT);
     draw_color(shader, getBlueDensity(), LLShaderMgr::BLUE_DENSITY);

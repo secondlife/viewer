@@ -141,6 +141,26 @@ void LLSettingsBase::lerpSettings(LLSettingsBase &other, F64 mix)
     loadValuesFromLLSD();
 }
 
+void LLSettingsBase::lerpVector2(LLVector2& a, const LLVector2& b, F32 mix)
+{
+    a.mV[0] = lerp(a.mV[0], b.mV[0], mix);
+    a.mV[1] = lerp(a.mV[1], b.mV[1], mix);
+}
+
+void LLSettingsBase::lerpVector3(LLVector3& a, const LLVector3& b, F32 mix)
+{
+    a.mV[0] = lerp(a.mV[0], b.mV[0], mix);
+    a.mV[1] = lerp(a.mV[1], b.mV[1], mix);
+    a.mV[2] = lerp(a.mV[2], b.mV[2], mix);
+}
+
+void LLSettingsBase::lerpColor(LLColor3& a, const LLColor3& b, F32 mix)
+{
+    a.mV[0] = lerp(a.mV[0], b.mV[0], mix);
+    a.mV[1] = lerp(a.mV[1], b.mV[1], mix);
+    a.mV[2] = lerp(a.mV[2], b.mV[2], mix);
+}
+
 LLSD LLSettingsBase::combineSDMaps(const LLSD &settings, const LLSD &other)
 {
     LLSD newSettings;
@@ -759,7 +779,7 @@ F64 LLSettingsBlender::setBlendFactor(const LLSettingsBase::BlendFactor& blendf_
 
     if (mTarget)
     {
-        mTarget->replaceSettings(mInitial->getSettings());
+        mTarget->replaceSettings(mInitial);
         mTarget->blend(mFinal, blendf);
     }
     else
@@ -774,7 +794,7 @@ void LLSettingsBlender::triggerComplete()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_ENVIRONMENT;
     if (mTarget)
-        mTarget->replaceSettings(mFinal->getSettings());
+        mTarget->replaceSettings(mFinal);
     LLSettingsBlender::ptr_t hold = shared_from_this();   // prevents this from deleting too soon
     mTarget->update();
     mOnFinished(shared_from_this());

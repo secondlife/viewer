@@ -173,6 +173,18 @@ public:
         loadValuesFromLLSD();
     }
 
+    virtual void replaceSettings(const ptr_t& other)
+    {
+        mBlendedFactor = 0.0;
+        setDirtyFlag(true);
+        mReplaced = true;
+        mSettingFlags = other->getFlags();
+        mSettingName = other->getName();
+        mSettingId = other->getId();
+        mAssetId = other->getAssetId();
+        setLLSDDirty();
+    }
+
     void setSettings(LLSD settings)
     {
         setDirtyFlag(true);
@@ -327,6 +339,10 @@ public:
     virtual void updateSettings() { mDirty = false; mReplaced = false; }
     LLSD         cloneSettings();
 
+    static void lerpVector2(LLVector2& a, const LLVector2& b, F32 mix);
+    static void lerpVector3(LLVector3& a, const LLVector3& b, F32 mix);
+    static void lerpColor(LLColor3& a, const LLColor3& b, F32 mix);
+
 protected:
 
     LLSettingsBase();
@@ -370,9 +386,9 @@ protected:
         mBlendedFactor = blendfactor;
     }
 
-    virtual void replaceWith(LLSettingsBase::ptr_t other)
+    virtual void replaceWith(const LLSettingsBase::ptr_t other)
     {
-        replaceSettings(other->cloneSettings());
+        replaceSettings(other);
         setBlendFactor(other->getBlendFactor());
     }
 

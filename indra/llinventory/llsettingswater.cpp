@@ -68,14 +68,16 @@ static const LLUUID DEFAULT_OPAQUE_WATER_TEXTURE("43c32285-d658-1793-c123-bf8631
 //=========================================================================
 LLSettingsWater::LLSettingsWater(const LLSD &data) :
     LLSettingsBase(data),
-    mNextNormalMapID()
+    mNextNormalMapID(),
+    mNextTransparentTextureID()
 {
     loadValuesFromLLSD();
 }
 
 LLSettingsWater::LLSettingsWater() :
     LLSettingsBase(),
-    mNextNormalMapID()
+    mNextNormalMapID(),
+    mNextTransparentTextureID()
 {
     replaceSettings(defaults());
 }
@@ -235,10 +237,24 @@ void LLSettingsWater::blend(LLSettingsBase::ptr_t &end, F64 blendf)
     LLSettingsWater::ptr_t other = PTR_NAMESPACE::static_pointer_cast<LLSettingsWater>(end);
     if (other)
     {
-        stringset_t skip = getSkipInterpolateKeys();
-        stringset_t slerps = getSlerpKeys();
-        LLSD blenddata = interpolateSDMap(getSettings(), other->getSettings(), other->getParameterMap(), blendf, skip, slerps);
-        replaceSettings(blenddata);
+        mSettingFlags |= other->mSettingFlags;
+
+        mBlurMultiplier = lerp((F32)blendf, mBlurMultiplier, other->mBlurMultiplier);
+        lerpColor(mWaterFogColor, other->mWaterFogColor, (F32)blendf);
+        mWaterFogDensity = lerp((F32)blendf, mWaterFogDensity, other->mWaterFogDensity);
+        mFogMod = lerp((F32)blendf, mFogMod, other->mFogMod);
+        mFresnelOffset = lerp((F32)blendf, mFresnelOffset, other->mFresnelOffset);
+        mFresnelScale = lerp((F32)blendf, mFresnelScale, other->mFresnelScale);
+        lerpVector3(mNormalScale, other->mNormalScale, (F32)blendf);
+        mScaleAbove = lerp((F32)blendf, mScaleAbove, other->mScaleAbove);
+        mScaleBelow = lerp((F32)blendf, mScaleBelow, other->mScaleBelow);
+        lerpVector2(mWave1Dir, other->mWave1Dir, (F32)blendf);
+        lerpVector2(mWave2Dir, other->mWave2Dir, (F32)blendf);
+
+        setDirtyFlag(true);
+        setReplaced();
+        setLLSDDirty();
+
         mNextNormalMapID = other->getNormalMapID();
         mNextTransparentTextureID = other->getTransparentTextureID();
     }
@@ -256,7 +272,34 @@ void LLSettingsWater::replaceSettings(LLSD settings)
     mNextTransparentTextureID.setNull();
 }
 
-void LLSettingsWater::replaceWithWater(LLSettingsWater::ptr_t other)
+void LLSettingsWater::replaceSettings(const LLSettingsBase::ptr_t& other_water)
+{
+    LLSettingsBase::replaceSettings(other_water);
+
+    llassert(getSettingsType() == other_water->getSettingsType());
+
+    LLSettingsWater::ptr_t other = PTR_NAMESPACE::dynamic_pointer_cast<LLSettingsWater>(other_water);
+
+    mBlurMultiplier = other->mBlurMultiplier;
+    mWaterFogColor = other->mWaterFogColor;
+    mWaterFogDensity = other->mWaterFogDensity;
+    mFogMod = other->mFogMod;
+    mFresnelOffset = other->mFresnelOffset;
+    mFresnelScale = other->mFresnelScale;
+    mNormalScale = other->mNormalScale;
+    mScaleAbove = other->mScaleAbove;
+    mScaleBelow = other->mScaleBelow;
+    mWave1Dir = other->mWave1Dir;
+    mWave2Dir = other->mWave2Dir;
+
+    mNormalMapID = other->mNormalMapID;
+    mTransparentTextureID = other->mTransparentTextureID;
+
+    mNextNormalMapID.setNull();
+    mNextTransparentTextureID.setNull();
+}
+
+void LLSettingsWater::replaceWithWater(const LLSettingsWater::ptr_t& other)
 {
     replaceWith(other);
 

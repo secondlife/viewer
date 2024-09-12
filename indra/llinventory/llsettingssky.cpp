@@ -433,7 +433,80 @@ void LLSettingsSky::replaceSettings(LLSD settings)
     mNextHaloTextureId.setNull();
 }
 
-void LLSettingsSky::replaceWithSky(LLSettingsSky::ptr_t pother)
+void LLSettingsSky::replaceSettings(const LLSettingsBase::ptr_t& other_sky)
+{
+    LLSettingsBase::replaceSettings(other_sky);
+
+    llassert(getSettingsType() == other_sky->getSettingsType());
+
+    LLSettingsSky::ptr_t other = PTR_NAMESPACE::dynamic_pointer_cast<LLSettingsSky>(other_sky);
+
+    mCanAutoAdjust = other->mCanAutoAdjust;
+    mReflectionProbeAmbiance = other->mReflectionProbeAmbiance;
+
+    mSunScale = other->mSunScale;
+    mSunRotation = other->mSunRotation;
+    mSunlightColor = other->mSunlightColor;
+    mStarBrightness = other->mStarBrightness;
+    mMoonBrightness = other->mMoonBrightness;
+    mMoonScale = other->mMoonScale;
+    mMoonRotation = other->mMoonRotation;
+    mMaxY = other->mMaxY;
+    mGlow = other->mGlow;
+    mGamma = other->mGamma;
+    mCloudVariance = other->mCloudVariance;
+    mCloudShadow = other->mCloudShadow;
+    mScrollRate = other->mScrollRate;
+    mCloudScale = other->mCloudScale;
+    mCloudPosDensity1 = other->mCloudPosDensity1;
+    mCloudPosDensity2 = other->mCloudPosDensity2;
+    mCloudColor = other->mCloudColor;
+
+    mAbsorptionConfigs = other->mAbsorptionConfigs;
+    mMieConfigs = other->mMieConfigs;
+    mRayleighConfigs = other->mRayleighConfigs;
+
+    mSunArcRadians = other->mSunArcRadians;
+    mSkyTopRadius = other->mSkyTopRadius;
+    mSkyBottomRadius = other->mSkyBottomRadius;
+    mSkyMoistureLevel = other->mSkyMoistureLevel;
+    mSkyDropletRadius = other->mSkyDropletRadius;
+    mSkyIceLevel = other->mSkyIceLevel;
+    mPlanetRadius = other->mPlanetRadius;
+
+    mHasLegacyHaze = other->mHasLegacyHaze;
+    mDistanceMultiplier = other->mDistanceMultiplier;
+    mDensityMultiplier = other->mDensityMultiplier;
+    mHazeHorizon = other->mHazeHorizon;
+    mHazeDensity = other->mHazeDensity;
+    mBlueHorizon = other->mBlueHorizon;
+    mBlueDensity = other->mBlueDensity;
+    mAmbientColor = other->mAmbientColor;
+
+    mLegacyDistanceMultiplier = other->mLegacyDistanceMultiplier;
+    mLegacyDensityMultiplier = other->mLegacyDensityMultiplier;
+    mLegacyHazeHorizon = other->mLegacyHazeHorizon;
+    mLegacyHazeDensity = other->mLegacyHazeDensity;
+    mLegacyBlueHorizon = other->mLegacyBlueHorizon;
+    mLegacyBlueDensity = other->mLegacyBlueDensity;
+    mLegacyAmbientColor = other->mLegacyAmbientColor;
+
+    mSunTextureId = other->mSunTextureId;
+    mMoonTextureId = other->mMoonTextureId;
+    mCloudTextureId = other->mCloudTextureId;
+    mHaloTextureId = other->mHaloTextureId;
+    mRainbowTextureId = other->mRainbowTextureId;
+    mBloomTextureId = other->mBloomTextureId;
+
+    mNextSunTextureId.setNull();
+    mNextMoonTextureId.setNull();
+    mNextCloudTextureId.setNull();
+    mNextBloomTextureId.setNull();
+    mNextRainbowTextureId.setNull();
+    mNextHaloTextureId.setNull();
+}
+
+void LLSettingsSky::replaceWithSky(const LLSettingsSky::ptr_t& pother)
 {
     replaceWith(pother);
 
@@ -445,41 +518,28 @@ void LLSettingsSky::replaceWithSky(LLSettingsSky::ptr_t pother)
     mNextHaloTextureId = pother->mNextHaloTextureId;
 }
 
-void lerp_vector2(LLVector2& a, const LLVector2& b, F32 mix)
-{
-    a.mV[0] = lerp(a.mV[0], b.mV[0], mix);
-    a.mV[1] = lerp(a.mV[1], b.mV[1], mix);
-}
-
-void lerp_color(LLColor3 &a, const LLColor3 &b, F32 mix)
-{
-    a.mV[0] = lerp(a.mV[0], b.mV[0], mix);
-    a.mV[1] = lerp(a.mV[1], b.mV[1], mix);
-    a.mV[2] = lerp(a.mV[2], b.mV[2], mix);
-}
-
 bool lerp_legacy_color(LLColor3& a, bool& a_has_legacy, const LLColor3& b, bool b_has_legacy, const LLColor3& def, F32 mix)
 {
     if (b_has_legacy)
     {
         if (a_has_legacy)
         {
-            lerp_color(a, b, mix);
+            LLSettingsBase::lerpColor(a, b, mix);
         }
         else
         {
             a = def;
-            lerp_color(a, b, mix);
+            LLSettingsBase::lerpColor(a, b, mix);
             a_has_legacy = true;
         }
     }
     else if (a_has_legacy)
     {
-        lerp_color(a, def, mix);
+        LLSettingsBase::lerpColor(a, def, mix);
     }
     else
     {
-        lerp_color(a, b, mix);
+        LLSettingsBase::lerpColor(a, b, mix);
     }
     return a_has_legacy;
 }
@@ -517,26 +577,6 @@ void LLSettingsSky::blend(LLSettingsBase::ptr_t &end, F64 blendf)
     LLSettingsSky::ptr_t other = PTR_NAMESPACE::dynamic_pointer_cast<LLSettingsSky>(end);
     if (other)
     {
-        if (other->mHasLegacyHaze)
-        {
-            if (!mHasLegacyHaze || !mLegacyAmbientColor)
-            {
-                // Special case since SETTING_AMBIENT is both in outer and legacy maps,
-                // we prioritize legacy one
-                setAmbientColor(other->getAmbientColor());
-                mLegacyAmbientColor = true;
-                mHasLegacyHaze = true;
-            }
-        }
-        else
-        {
-            if (mLegacyAmbientColor)
-            {
-                // Special case due to ambient's duality
-                mLegacyAmbientColor = false;
-            }
-        }
-
         LLUUID cloud_noise_id = getCloudNoiseTextureId();
         LLUUID cloud_noise_id_next = other->getCloudNoiseTextureId();
         if (!cloud_noise_id.isNull() && cloud_noise_id_next.isNull())
@@ -565,8 +605,8 @@ void LLSettingsSky::blend(LLSettingsBase::ptr_t &end, F64 blendf)
 
         mSunRotation = slerp((F32)blendf, mSunRotation, other->mSunRotation);
         mMoonRotation = slerp((F32)blendf, mMoonRotation, other->mMoonRotation);
-        lerp_color(mSunlightColor, other->mSunlightColor, (F32)blendf);
-        lerp_color(mGlow, other->mGlow, (F32)blendf);
+        lerpColor(mSunlightColor, other->mSunlightColor, (F32)blendf);
+        lerpColor(mGlow, other->mGlow, (F32)blendf);
         mReflectionProbeAmbiance = lerp(mReflectionProbeAmbiance, other->mReflectionProbeAmbiance, (F32)blendf);
         mSunScale = lerp(mSunScale, other->mSunScale, (F32)blendf);
         mStarBrightness = lerp(mStarBrightness, other->mStarBrightness, (F32)blendf);
@@ -577,17 +617,10 @@ void LLSettingsSky::blend(LLSettingsBase::ptr_t &end, F64 blendf)
         mCloudVariance = lerp(mCloudVariance, other->mCloudVariance, (F32)blendf);
         mCloudShadow = lerp(mCloudShadow, other->mCloudShadow, (F32)blendf);
         mCloudScale = lerp(mCloudScale, other->mCloudScale, (F32)blendf);
-        lerp_vector2(mScrollRate, other->mScrollRate, (F32)blendf);
-        lerp_color(mCloudPosDensity1, other->mCloudPosDensity1, (F32)blendf);
-        lerp_color(mCloudPosDensity2, other->mCloudPosDensity2, (F32)blendf);
-        lerp_color(mCloudColor, other->mCloudColor, (F32)blendf);
-
-        parammapping_t defaults = other->getParameterMap();
-        stringset_t skip = getSkipInterpolateKeys();
-        stringset_t slerps = getSlerpKeys();
-        mAbsorptionConfigs = interpolateSDMap(mAbsorptionConfigs, other->mAbsorptionConfigs, defaults, blendf, skip, slerps);
-        mMieConfigs = interpolateSDMap(mMieConfigs, other->mMieConfigs, defaults, blendf, skip, slerps);
-        mRayleighConfigs = interpolateSDMap(mRayleighConfigs, other->mRayleighConfigs, defaults, blendf, skip, slerps);
+        lerpVector2(mScrollRate, other->mScrollRate, (F32)blendf);
+        lerpColor(mCloudPosDensity1, other->mCloudPosDensity1, (F32)blendf);
+        lerpColor(mCloudPosDensity2, other->mCloudPosDensity2, (F32)blendf);
+        lerpColor(mCloudColor, other->mCloudColor, (F32)blendf);
 
         mSunArcRadians = lerp(mSunArcRadians, other->mSunArcRadians, (F32)blendf);
         mSkyTopRadius = lerp(mSkyTopRadius, other->mSkyTopRadius, (F32)blendf);
@@ -597,6 +630,28 @@ void LLSettingsSky::blend(LLSettingsBase::ptr_t &end, F64 blendf)
         mSkyIceLevel = lerp(mSkyIceLevel, other->mSkyIceLevel, (F32)blendf);
         mPlanetRadius = lerp(mPlanetRadius, other->mPlanetRadius, (F32)blendf);
 
+        // Legacy settings
+
+        if (other->mHasLegacyHaze)
+        {
+            if (!mHasLegacyHaze || !mLegacyAmbientColor)
+            {
+                // Special case since SETTING_AMBIENT is both in outer and legacy maps,
+                // we prioritize legacy one
+                setAmbientColor(other->getAmbientColor());
+                mLegacyAmbientColor = true;
+                mHasLegacyHaze = true;
+            }
+        }
+        else
+        {
+            if (mLegacyAmbientColor)
+            {
+                // Special case due to ambient's duality
+                mLegacyAmbientColor = false;
+            }
+        }
+
         mHasLegacyHaze |= lerp_legacy_float(mHazeHorizon, mLegacyHazeHorizon, other->mHazeHorizon, other->mLegacyHazeHorizon, 0.19f, (F32)blendf);
         mHasLegacyHaze |= lerp_legacy_float(mHazeDensity, mLegacyHazeDensity, other->mHazeDensity, other->mLegacyHazeDensity, 0.7f, (F32)blendf);
         mHasLegacyHaze |= lerp_legacy_float(mDistanceMultiplier, mLegacyDistanceMultiplier, other->mDistanceMultiplier, other->mLegacyDistanceMultiplier, 0.8f, (F32)blendf);
@@ -604,60 +659,16 @@ void LLSettingsSky::blend(LLSettingsBase::ptr_t &end, F64 blendf)
         mHasLegacyHaze |= lerp_legacy_color(mBlueHorizon, mLegacyBlueHorizon, other->mBlueHorizon, other->mLegacyBlueHorizon, LLColor3(0.4954f, 0.4954f, 0.6399f), (F32)blendf);
         mHasLegacyHaze |= lerp_legacy_color(mBlueDensity, mLegacyBlueDensity, other->mBlueDensity, other->mLegacyBlueDensity, LLColor3(0.2447f, 0.4487f, 0.7599f), (F32)blendf);
 
+        parammapping_t defaults = other->getParameterMap();
+        stringset_t skip = getSkipInterpolateKeys();
+        stringset_t slerps = getSlerpKeys();
+        mAbsorptionConfigs = interpolateSDMap(mAbsorptionConfigs, other->mAbsorptionConfigs, defaults, blendf, skip, slerps);
+        mMieConfigs = interpolateSDMap(mMieConfigs, other->mMieConfigs, defaults, blendf, skip, slerps);
+        mRayleighConfigs = interpolateSDMap(mRayleighConfigs, other->mRayleighConfigs, defaults, blendf, skip, slerps);
+
         setDirtyFlag(true);
         setReplaced();
         setLLSDDirty();
-
-        /////// validation
-        /*
-        LLSD blenddata = interpolateSDMap(settings, other_settings, other->getParameterMap(), blendf, skip, slerps);
-        blenddata[SETTING_CLOUD_SHADOW] = LLSD::Real(mCloudShadow);
-
-        LLSettingsSky::ptr_t sky_p = buildClone();
-        sky_p->replaceSettings(blenddata);
-        sky_p->loadValuesFromLLSD();
-        llassert(sky_p->getSettingsType() == getSettingsType());
-        llassert(sky_p->getSunRotation() == getSunRotation());
-        llassert(sky_p->getMoonRotation() == getMoonRotation());
-        llassert(sky_p->getSunTextureId() == getSunTextureId());
-        llassert(sky_p->getMoonTextureId() == getMoonTextureId());
-        llassert(sky_p->getCloudNoiseTextureId() == getCloudNoiseTextureId());
-        llassert(sky_p->getBloomTextureId() == getBloomTextureId());
-        llassert(sky_p->getRainbowTextureId() == getRainbowTextureId());
-        llassert(sky_p->getHaloTextureId() == getHaloTextureId());
-        llassert(sky_p->getCloudColor() == getCloudColor());
-        llassert(sky_p->getCloudPosDensity1() == getCloudPosDensity1());
-        llassert(sky_p->getCloudPosDensity2() == getCloudPosDensity2());
-        llassert(sky_p->getCloudScale() == getCloudScale());
-        llassert(sky_p->getCloudScrollRate() == getCloudScrollRate());
-        llassert(sky_p->getCloudShadow() == getCloudShadow());
-        llassert(sky_p->getCloudVariance() == getCloudVariance());
-        llassert(sky_p->getDomeOffset() == getDomeOffset());
-        llassert(sky_p->getDomeRadius() == getDomeRadius());
-        llassert(sky_p->getGamma() == getGamma());
-        llassert(sky_p->getStarBrightness() == getStarBrightness());
-        llassert(sky_p->getSunlightColor() == getSunlightColor());
-        llassert(sky_p->getSunScale() == getSunScale());
-        llassert(sky_p->getSunArcRadians() == getSunArcRadians());
-        llassert(sky_p->getSunlightColor() == getSunlightColor());
-        llassert(sky_p->getGlow() == getGlow());
-        llassert(sky_p->getReflectionProbeAmbiance() == getReflectionProbeAmbiance());
-        llassert(sky_p->getStarBrightness() == getStarBrightness());
-        llassert(sky_p->getMoonBrightness() == getMoonBrightness());
-        llassert(sky_p->getMoonScale() == getMoonScale());
-        llassert(sky_p->getMaxY() == getMaxY());
-        llassert(sky_p->getSkyTopRadius() == getSkyTopRadius());
-        llassert(sky_p->getSkyBottomRadius() == getSkyBottomRadius());
-        llassert(sky_p->getSkyMoistureLevel() == getSkyMoistureLevel());
-        llassert(sky_p->getSkyDropletRadius() == getSkyDropletRadius());
-        llassert(sky_p->getSkyIceLevel() == getSkyIceLevel());
-        llassert(sky_p->getPlanetRadius() == getPlanetRadius());
-        llassert(sky_p->getHazeHorizon() == getHazeHorizon());
-        llassert(sky_p->getHazeDensity() == getHazeDensity());
-        llassert(sky_p->getDistanceMultiplier() == getDistanceMultiplier());
-        llassert(sky_p->getDensityMultiplier() == getDensityMultiplier());
-        llassert(sky_p->getBlueHorizon() == getBlueHorizon());
-        llassert(sky_p->getBlueDensity() == getBlueDensity());*/
 
         mNextSunTextureId = other->getSunTextureId();
         mNextMoonTextureId = other->getMoonTextureId();

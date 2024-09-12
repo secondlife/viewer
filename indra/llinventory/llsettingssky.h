@@ -121,8 +121,9 @@ public:
     virtual void blend(LLSettingsBase::ptr_t &end, F64 blendf) SETTINGS_OVERRIDE;
 
     virtual void replaceSettings(LLSD settings) SETTINGS_OVERRIDE;
+    virtual void replaceSettings(const LLSettingsBase::ptr_t& other_sky) override;
 
-    void replaceWithSky(LLSettingsSky::ptr_t pother);
+    void replaceWithSky(const LLSettingsSky::ptr_t& pother);
     static LLSD defaults(const LLSettingsBase::TrackPosition& position = 0.0f);
 
     void loadValuesFromLLSD() override;
