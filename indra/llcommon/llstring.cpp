@@ -36,163 +36,6 @@
 #if LL_WINDOWS
 #include "llwin32headerslean.h"
 #include <winnls.h> // for WideCharToMultiByte
-
-// From https://stackoverflow.com/a/48716488:
-// how to work around MSVC's broken implementation of std::basic_ostream<CHAR>
-// (get C2941 otherwise)
-// The problem is that the MSVC implementation doesn't generalize for
-// arbitrary CHAR.
-namespace std
-{
-
-// The std::numpunct<_Elem> template on which this specialization is based was
-// copied 2024-09-11 from xlocnum header with versions:
-// FRAMEWORK40VERSION="v4.0"
-// FRAMEWORKVERSION="v4.0.30319"
-// FRAMEWORKVERSION64="v4.0.30319"
-// UCRTVERSION="10.0.22621.0"
-// VCTOOLSVERSION="14.40.33807"
-// VISUALSTUDIOVERSION="17.0"
-// WINDOWSSDKLIBVERSION="10.0.22621.0"
-// WINDOWSSDKVERSION="10.0.22621.0"
-// Not sure which of the above versions tracks changes to xlocnum.
-template <>
-class numpunct<llwchar> : public locale::facet // facet for defining numeric punctuation text
-{
-private:
-    friend _Tidy_guard<numpunct>;
-
-public:
-    using string_type = basic_string<llwchar, char_traits<llwchar>, allocator<llwchar>>;
-    using char_type   = llwchar;
-
-    static locale::id id; // unique facet id
-
-    llwchar decimal_point() const {
-        return do_decimal_point();
-    }
-
-    llwchar thousands_sep() const {
-        return do_thousands_sep();
-    }
-
-    string grouping() const {
-        return do_grouping();
-    }
-
-    string_type falsename() const {
-        return do_falsename();
-    }
-
-    string_type truename() const {
-        return do_truename();
-    }
-
-    explicit numpunct(size_t _Refs = 0) : locale::facet(_Refs) { // construct from current locale
-        _BEGIN_LOCINFO(_Lobj)
-        _Init(_Lobj);
-        if (_Kseparator == 0) {
-            _Kseparator = // NB: differs from "C" locale
-                _Maklocchr(',', static_cast<llwchar*>(nullptr), _Lobj._Getcvt());
-        }
-        _END_LOCINFO()
-    }
-
-    numpunct(const _Locinfo& _Lobj, size_t _Refs = 0, bool _Isdef = false) : locale::facet(_Refs) {
-        _Init(_Lobj, _Isdef);
-    }
-
-    static size_t _Getcat(const locale::facet** _Ppf = nullptr, const locale* _Ploc = nullptr) {
-        // return locale category mask and construct standard facet
-        if (_Ppf && !*_Ppf) {
-            *_Ppf = new numpunct<llwchar>(_Locinfo(_Ploc->_C_str()), 0, true);
-        }
-        return _X_NUMERIC;
-    }
-
-protected:
-    __CLR_OR_THIS_CALL ~numpunct() noexcept override {
-        _Tidy();
-    }
-
-    numpunct(const char* _Locname, size_t _Refs = 0, bool _Isdef = false) : locale::facet(_Refs) {
-        _BEGIN_LOCINFO(_Lobj(_Locname))
-        _Init(_Lobj, _Isdef);
-        _END_LOCINFO()
-    }
-
-    template <class _Elem2>
-    void _Getvals(_Elem2, const lconv* _Ptr, _Locinfo::_Cvtvec _Cvt) { // get values
-        _Dp         = _Maklocchr(_Ptr->decimal_point[0], static_cast<_Elem2*>(nullptr), _Cvt);
-        _Kseparator = _Maklocchr(_Ptr->thousands_sep[0], static_cast<_Elem2*>(nullptr), _Cvt);
-    }
-
-    void _Getvals(wchar_t, const lconv* _Ptr, _Locinfo::_Cvtvec) { // get values
-        _Dp         = static_cast<llwchar>(_Ptr->_W_decimal_point[0]);
-        _Kseparator = static_cast<llwchar>(_Ptr->_W_thousands_sep[0]);
-    }
-
-    void _Init(const _Locinfo& _Lobj, bool _Isdef = false) { // initialize from _Lobj
-        const lconv* _Ptr      = _Lobj._Getlconv();
-        _Locinfo::_Cvtvec _Cvt = _Lobj._Getcvt(); // conversion information
-
-        _Grouping  = nullptr;
-        _Falsename = nullptr;
-        _Truename  = nullptr;
-
-        _Tidy_guard<numpunct> _Guard{this};
-        _Grouping      = _Maklocstr(_Isdef ? "" : _Ptr->grouping, static_cast<char*>(nullptr), _Lobj._Getcvt());
-        _Falsename     = _Maklocstr(_Lobj._Getfalse(), static_cast<llwchar*>(nullptr), _Cvt);
-        _Truename      = _Maklocstr(_Lobj._Gettrue(), static_cast<llwchar*>(nullptr), _Cvt);
-        _Guard._Target = nullptr;
-
-        if (_Isdef) { // apply defaults for required facets
-            // _Grouping = _Maklocstr("", static_cast<char *>(nullptr), _Cvt);
-            _Dp         = _Maklocchr('.', static_cast<llwchar*>(nullptr), _Cvt);
-            _Kseparator = _Maklocchr(',', static_cast<llwchar*>(nullptr), _Cvt);
-        } else {
-            _Getvals(llwchar{}, _Ptr, _Cvt);
-        }
-    }
-
-    virtual llwchar __CLR_OR_THIS_CALL do_decimal_point() const {
-        return _Dp;
-    }
-
-    virtual llwchar __CLR_OR_THIS_CALL do_thousands_sep() const {
-        return _Kseparator;
-    }
-
-    virtual string __CLR_OR_THIS_CALL do_grouping() const {
-        return string{_Grouping};
-    }
-
-    virtual string_type __CLR_OR_THIS_CALL do_falsename() const {
-        return string_type{_Falsename};
-    }
-
-    virtual string_type __CLR_OR_THIS_CALL do_truename() const {
-        return string_type{_Truename};
-    }
-
-private:
-    void _Tidy() noexcept { // free all storage
-        _CSTD free(const_cast<char*>(_Grouping));
-        _CSTD free(const_cast<llwchar*>(_Falsename));
-        _CSTD free(const_cast<llwchar*>(_Truename));
-    }
-
-    const char* _Grouping; // grouping string, "" for "C" locale
-    llwchar _Dp; // decimal point, '.' for "C" locale
-    llwchar _Kseparator; // thousands separator, '\0' for "C" locale
-    const llwchar* _Falsename; // name for false, "false" for "C" locale
-    const llwchar* _Truename; // name for true, "true" for "C" locale
-};
-
-locale::id numpunct<llwchar>::id;
-
-} // namespace std
-
 #endif
 
 std::string ll_safe_string(const char* in)
@@ -403,8 +246,14 @@ LLWString utf16str_to_wstring(const U16* utf16str, size_t len)
 {
     if (len == 0) return {};
 
-    // ostringstream for LLWString
-    std::basic_ostringstream<llwchar> wout;
+    // MS doesn't support std::basic_ostringstream<llwchar>; have to work
+    // around it.
+    std::vector<llwchar> wout;
+    // We want to minimize allocations. We don't know how many llwchars we'll
+    // generate from this utf16str, but we do know the length should be at
+    // most len. So if we reserve 'len' llwchars, we shouldn't need to expand
+    // wout incrementally.
+    wout.reserve(len);
 
     S32 i = 0;
     const U16* chars16 = utf16str;
@@ -412,9 +261,9 @@ LLWString utf16str_to_wstring(const U16* utf16str, size_t len)
     {
         llwchar cur_char;
         i += (S32)utf16chars_to_wchar(chars16+i, &cur_char);
-        wout << cur_char;
+        wout.push_back(cur_char);
     }
-    return wout.str();
+    return { wout.begin(), wout.end() };
 }
 
 // Length in llwchar (UTF-32) of the first len units (16 bits) of the given UTF-16 string.
@@ -559,8 +408,14 @@ S32 wstring_utf8_length(const LLWString& wstr)
 
 LLWString utf8str_to_wstring(const char* utf8str, size_t len)
 {
-    // ostringstream for LLWString
-    std::basic_ostringstream<llwchar> wout;
+    // MS doesn't support std::basic_ostringstream<llwchar>; have to work
+    // around it.
+    std::vector<llwchar> wout;
+    // We want to minimize allocations. We don't know how many llwchars we'll
+    // generate from this utf8str, but we do know the length should be at most
+    // len. So if we reserve 'len' llwchars, we shouldn't need to expand wout
+    // incrementally.
+    wout.reserve(len);
 
     S32 i = 0;
     while (i < len)
@@ -603,7 +458,7 @@ LLWString utf8str_to_wstring(const char* utf8str, size_t len)
             }
             else
             {
-                wout << LL_UNKNOWN_CHAR;
+                wout.push_back(LL_UNKNOWN_CHAR);
                 ++i;
                 continue;
             }
@@ -640,10 +495,10 @@ LLWString utf8str_to_wstring(const char* utf8str, size_t len)
             }
         }
 
-        wout << unichar;
+        wout.push_back(unichar);
         ++i;
     }
-    return wout.str();
+    return { wout.begin(), wout.end() };
 }
 
 std::string wstring_to_utf8str(const llwchar* utf32str, size_t len)
