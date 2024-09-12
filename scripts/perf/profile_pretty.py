@@ -18,19 +18,7 @@ import sys
 class Error(Exception):
     pass
 
-def pretty(path=None):
-    if not path:
-        logs = logsdir.logsdir()
-        profiles = Path(logs).glob('profile.*.json')
-        sort = [(p.stat().st_mtime, p) for p in profiles]
-        sort.sort(reverse=True)
-        try:
-            path = sort[0][1]
-        except IndexError:
-            raise Error(f'No profile.*.json files in {logs}')
-        # print path to sys.stderr in case user is redirecting stdout
-        print(path, file=sys.stderr)
-
+def pretty(path):
     with open(path) as inf:
         data = json.load(inf)
     json.dump(data, sys.stdout, indent=4)
@@ -45,6 +33,18 @@ The file produced by the viewer is a single dense line of JSON.
                         help="""profile filename to pretty-print (default is most recent)""")
 
     args = parser.parse_args(raw_args)
+    if not args.path:
+        logs = logsdir.logsdir()
+        profiles = Path(logs).glob('profile.*.json')
+        sort = [(p.stat().st_mtime, p) for p in profiles]
+        sort.sort(reverse=True)
+        try:
+            args.path = sort[0][1]
+        except IndexError:
+            raise Error(f'No profile.*.json files in {logs}')
+        # print path to sys.stderr in case user is redirecting stdout
+        print(args.path, file=sys.stderr)
+
     pretty(args.path)
 
 if __name__ == "__main__":
