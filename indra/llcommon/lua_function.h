@@ -172,7 +172,10 @@ public:
     LuaRemover& operator=(const LuaRemover&) = delete;
     ~LuaRemover()
     {
-        lua_remove(mState, mIndex);
+        // If we're unwinding the C++ stack due to an exception, don't mess
+        // with the Lua stack!
+        if (std::uncaught_exceptions() == 0)
+            lua_remove(mState, mIndex);
     }
 
 private:

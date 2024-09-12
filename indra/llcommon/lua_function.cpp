@@ -709,6 +709,11 @@ int lua_metaipair(lua_State* L)
 
 LuaState::~LuaState()
 {
+    // If we're unwinding the stack due to an exception, don't bother trying
+    // to call any callbacks -- either Lua or C++.
+    if (std::uncaught_exceptions() != 0)
+        return;
+
     /*---------------------------- feature flag ----------------------------*/
     if (mFeature)
     /*---------------------------- feature flag ----------------------------*/
@@ -990,7 +995,8 @@ lua_function(atexit, "atexit(function): "
 *****************************************************************************/
 LuaPopper::~LuaPopper()
 {
-    if (mCount)
+    // If we're unwinding the C++ stack due to an exception, don't pop!
+    if (std::uncaught_exceptions() == 0 && mCount)
     {
         lua_pop(mState, mCount);
     }
