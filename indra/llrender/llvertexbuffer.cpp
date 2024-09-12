@@ -36,6 +36,7 @@
 #include "llshadermgr.h"
 #include "llglslshader.h"
 #include "llmemory.h"
+#include <glm/gtc/type_ptr.hpp>
 
 //Next Highest Power Of Two
 //helper function, returns first number > v that is a power of 2, or v if v is already a power of 2
@@ -590,13 +591,13 @@ void LLVertexBufferData::draw()
 
     gGL.matrixMode(LLRender::MM_MODELVIEW);
     gGL.pushMatrix();
-    gGL.loadMatrix(mModelView.m);
+    gGL.loadMatrix(glm::value_ptr(mModelView));
     gGL.matrixMode(LLRender::MM_PROJECTION);
     gGL.pushMatrix();
-    gGL.loadMatrix(mProjection.m);
+    gGL.loadMatrix(glm::value_ptr(mProjection));
     gGL.matrixMode(LLRender::MM_TEXTURE0);
     gGL.pushMatrix();
-    gGL.loadMatrix(mTexture0.m);
+    gGL.loadMatrix(glm::value_ptr(mTexture0));
 
     mVB->setBuffer();
 

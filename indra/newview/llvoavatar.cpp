@@ -1847,36 +1847,36 @@ bool LLVOAvatar::lineSegmentIntersect(const LLVector4a& start, const LLVector4a&
         {
             mCollisionVolumes[i].updateWorldMatrix();
 
-            glh::matrix4f mat((F32*) mCollisionVolumes[i].getXform()->getWorldMatrix().mMatrix);
-            glh::matrix4f inverse = mat.inverse();
-            glh::matrix4f norm_mat = inverse.transpose();
+            glm::mat4 mat(glm::make_mat4((F32*) mCollisionVolumes[i].getXform()->getWorldMatrix().mMatrix));
+            glm::mat4 inverse = glm::inverse(mat);
+            glm::mat4 norm_mat = glm::transpose(inverse);
 
-            glh::vec3f p1(start.getF32ptr());
-            glh::vec3f p2(end.getF32ptr());
+            glm::vec3 p1(glm::make_vec3(start.getF32ptr()));
+            glm::vec3 p2(glm::make_vec3(end.getF32ptr()));
 
-            inverse.mult_matrix_vec(p1);
-            inverse.mult_matrix_vec(p2);
+            p1 = mul_mat4_vec3(inverse, p1);
+            p2 = mul_mat4_vec3(inverse, p2);
 
             LLVector3 position;
             LLVector3 norm;
 
-            if (linesegment_sphere(LLVector3(p1.v), LLVector3(p2.v), LLVector3(0,0,0), 1.f, position, norm))
+            if (linesegment_sphere(LLVector3(glm::value_ptr(p1)), LLVector3(glm::value_ptr(p2)), LLVector3(0,0,0), 1.f, position, norm))
             {
-                glh::vec3f res_pos(position.mV);
-                mat.mult_matrix_vec(res_pos);
+                glm::vec3 res_pos(glm::make_vec3(position.mV));
+                res_pos = mul_mat4_vec3(mat, res_pos);
 
-                norm.normalize();
-                glh::vec3f res_norm(norm.mV);
-                norm_mat.mult_matrix_dir(res_norm);
+                 glm::vec3 res_norm(glm::make_vec3(norm.mV));
+                res_norm = glm::normalize(res_norm);
+                res_norm = glm::mat3(norm_mat) * res_norm;
 
                 if (intersection)
                 {
-                    intersection->load3(res_pos.v);
+                    intersection->load3(glm::value_ptr(res_pos));
                 }
 
                 if (normal)
                 {
-                    normal->load3(res_norm.v);
+                    normal->load3(glm::value_ptr(res_norm));
                 }
 
                 return true;
