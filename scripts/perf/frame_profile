@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+"$1" --autologin --luafile frame_profile_quit.lua \
+     http://maps.secondlife.com/secondlife/Bug%20Island/220/224/27
