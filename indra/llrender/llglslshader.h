@@ -170,7 +170,7 @@ public:
     static U32 sMaxGLTFNodes;
 
     static void initProfile();
-    static void finishProfile(const std::string& report_name=sDefaultReportName);
+    static void finishProfile(boost::json::value& stats=sDefaultStats);
 
     static void startProfile();
     static void stopProfile();
@@ -365,10 +365,10 @@ public:
 private:
     void unloadInternal();
     // This must be static because finishProfile() is called at least once
-    // within a __try block. If we default its report_name parameter to a
-    // temporary std::string, that temporary must be destroyed when the stack
-    // is unwound, which __try forbids.
-    static std::string sDefaultReportName;
+    // within a __try block. If we default its stats parameter to a temporary
+    // json::value, that temporary must be destroyed when the stack is
+    // unwound, which __try forbids.
+    static boost::json::value sDefaultStats;
 };
 
 //UI shader (declared here so llui_libtest will link properly)
