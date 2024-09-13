@@ -72,7 +72,7 @@ bool LLFloaterLUAScripts::postBuild()
         mContextMenuHandle = menu->getHandle();
     }
 
-    return TRUE;
+    return true;
 }
 
 LLFloaterLUAScripts::~LLFloaterLUAScripts()
