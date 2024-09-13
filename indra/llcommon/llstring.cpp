@@ -33,8 +33,7 @@
 #include <vector>
 
 #if LL_WINDOWS
-#include "llwin32headerslean.h"
-#include <winnls.h> // for WideCharToMultiByte
+#include "llwin32headers.h"
 #endif
 
 std::string ll_safe_string(const char* in)
