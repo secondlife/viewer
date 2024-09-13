@@ -420,7 +420,7 @@ void LLWebRTCVoiceClient::notifyStatusObservers(LLVoiceClientStatusObserver::ESt
         status != LLVoiceClientStatusObserver::STATUS_LEFT_CHANNEL &&
         status != LLVoiceClientStatusObserver::STATUS_VOICE_DISABLED)
     {
-        bool voice_status = LLVoiceClient::getInstance()->voiceEnabled() && LLVoiceClient::getInstance()->isVoiceWorking();
+        bool voice_status = LLVoiceClient::getInstance()->voiceEnabled() && mIsProcessingChannels;
 
         gAgent.setVoiceConnected(voice_status);
 
@@ -1335,7 +1335,10 @@ bool LLWebRTCVoiceClient::startAdHocSession(const LLSD& channelInfo, bool notify
 
 bool LLWebRTCVoiceClient::isVoiceWorking() const
 {
-    return mIsProcessingChannels;
+    // webrtc is working if the coroutine is active in the case of
+    // webrtc. WebRTC doesn't need to connect to a secondary process
+    // or a login server to become active.
+    return mIsCoroutineActive;
 }
 
 // Returns true if calling back the session URI after the session has closed is possible.
@@ -2983,7 +2986,9 @@ void LLVoiceWebRTCConnection::OnDataReceivedImpl(const std::string &data, bool b
                     // we got a 'power' update.
                     if (participant_obj.contains("p") && participant_obj["p"].is_number())
                     {
-                        participant->mLevel = (F32)participant_obj["p"].as_int64();
+                        // server sends up power as an integer which is level * 128 to save
+                        // character count.
+                        participant->mLevel = (F32)participant_obj["p"].as_int64()/128.0f;
                     }
 
                     if (participant_obj.contains("v") && participant_obj["v"].is_bool())
@@ -2991,10 +2996,9 @@ void LLVoiceWebRTCConnection::OnDataReceivedImpl(const std::string &data, bool b
                         participant->mIsSpeaking = participant_obj["v"].as_bool();
                     }
 
-                    if (participant_obj.contains("v") && participant_obj["m"].is_bool())
+                    if (participant_obj.contains("m") && participant_obj["m"].is_bool())
                     {
                         participant->mIsModeratorMuted = participant_obj["m"].as_bool();
-                        ;
                     }
                 }
             }

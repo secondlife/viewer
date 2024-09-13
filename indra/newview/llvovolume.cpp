@@ -6028,8 +6028,8 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 
             group->mBuilt = 1.f;
 
-            const U32 MAX_BUFFER_COUNT = 4096;
-            LLVertexBuffer* locked_buffer[MAX_BUFFER_COUNT];
+            static std::vector<LLVertexBuffer*> locked_buffer;
+            locked_buffer.resize(0);
 
             U32 buffer_count = 0;
 
@@ -6074,8 +6074,6 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
                                     group->dirtyGeom();
                                     gPipeline.markRebuild(group);
                                 }
-
-                                buff->unmapBuffer();
                             }
                         }
                     }
@@ -6091,17 +6089,7 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 
             {
                 LL_PROFILE_ZONE_NAMED("rebuildMesh - flush");
-                for (LLVertexBuffer** iter = locked_buffer, ** end_iter = locked_buffer+buffer_count; iter != end_iter; ++iter)
-                {
-                    (*iter)->unmapBuffer();
-                }
-
-                // don't forget alpha
-                if(group != NULL &&
-                   !group->mVertexBuffer.isNull())
-                {
-                    group->mVertexBuffer->unmapBuffer();
-                }
+                LLVertexBuffer::flushBuffers();
             }
 
             group->clearState(LLSpatialGroup::MESH_DIRTY | LLSpatialGroup::NEW_DRAWINFO);
@@ -6782,11 +6770,6 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
             }
 
             ++face_iter;
-        }
-
-        if (buffer)
-        {
-            buffer->unmapBuffer();
         }
     }
 
