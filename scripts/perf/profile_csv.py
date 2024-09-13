@@ -10,17 +10,16 @@ Copyright (c) 2024, Linden Research, Inc.
 $/LicenseInfo$
 """
 
-import logsdir
 import json
-from pathlib import Path
+from logsdir import Error, latest_file, logsdir
 import sys
-
-class Error(Exception):
-    pass
 
 def convert(path, totals=True, unused=True, file=sys.stdout):
     with open(path) as inf:
         data = json.load(inf)
+    # print path to sys.stderr in case user is redirecting stdout
+    print(path, file=sys.stderr)
+
     print('"name", "file1", "file2", "time", "binds", "samples", "triangles"', file=file)
 
     if totals:
@@ -51,19 +50,8 @@ shaders list to full shaders lines.
                         help="""profile filename to convert (default is most recent)""")
 
     args = parser.parse_args(raw_args)
-    if not args.path:
-        logs = logsdir.logsdir()
-        profiles = Path(logs).glob('profile.*.json')
-        sort = [(p.stat().st_mtime, p) for p in profiles]
-        sort.sort(reverse=True)
-        try:
-            args.path = sort[0][1]
-        except IndexError:
-            raise Error(f'No profile.*.json files in {logs}')
-        # print path to sys.stderr in case user is redirecting stdout
-        print(args.path, file=sys.stderr)
-
-    convert(args.path, totals=args.totals, unused=args.unused)
+    convert(args.path or latest_file(logsdir(), 'profile.*.json'),
+            totals=args.totals, unused=args.unused)
 
 if __name__ == "__main__":
     try:
