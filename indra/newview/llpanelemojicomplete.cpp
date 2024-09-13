@@ -280,8 +280,7 @@ void LLPanelEmojiComplete::onCommit()
 {
     if (mCurSelected < mTotalEmojis)
     {
-        LLSD value(wstring_to_utf8str(LLWString(1, mEmojis[mCurSelected].Character)));
-        setValue(value);
+        setValue(ll_convert_to<std::string>(mEmojis[mCurSelected].Character));
         LLUICtrl::onCommit();
     }
 }

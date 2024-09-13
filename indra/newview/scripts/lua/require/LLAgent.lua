@@ -71,4 +71,13 @@ function LLAgent.getAnimationInfo(item_id)
     return leap.request('LLAgent', {op = 'getAnimationInfo', item_id=item_id}).anim_info
 end
 
+-- Teleport to specified "regionname" at specified region-relative "x", "y", "z".
+-- If "regionname" is "home", ignore "x", "y", "z" and teleport home.
+-- If "regionname" omitted, teleport to GLOBAL coordinates "x", "y", "z".
+function LLAgent.teleport(...)
+    local args = mapargs('regionname,x,y,z', ...)
+    args.op = 'teleport'
+    return leap.request('LLTeleportHandler', args).message
+end
+
 return LLAgent

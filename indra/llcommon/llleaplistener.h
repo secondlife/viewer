@@ -28,7 +28,7 @@ public:
      * event is received.
      */
     using Callback = std::function<bool(const std::string& pump, const LLSD& data)>;
-    LLLeapListener(const std::string_view& caller, const Callback& callback);
+    LLLeapListener(std::string_view caller, const Callback& callback);
     ~LLLeapListener();
 
     LLEventPump& getReplyPump() { return mReplyPump; }

@@ -123,7 +123,7 @@ namespace tut
         }
     }
 
-    void from_lua(const std::string& desc, const std::string_view& construct, const LLSD& expect)
+    void from_lua(const std::string& desc, std::string_view construct, const LLSD& expect)
     {
         LLSD fromlua;
         LLStreamListener pump("testpump",

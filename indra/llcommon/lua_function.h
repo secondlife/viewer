@@ -172,7 +172,10 @@ public:
     LuaRemover& operator=(const LuaRemover&) = delete;
     ~LuaRemover()
     {
-        lua_remove(mState, mIndex);
+        // If we're unwinding the C++ stack due to an exception, don't mess
+        // with the Lua stack!
+        if (std::uncaught_exceptions() == 0)
+            lua_remove(mState, mIndex);
     }
 
 private:
@@ -351,7 +354,7 @@ auto lua_setfieldv(lua_State* L, int index, const char* k, const T& value)
 
 // return to C++, from table at index, the value of field k (without metamethods)
 template <typename T>
-auto lua_rawgetfield(lua_State* L, int index, const std::string_view& k)
+auto lua_rawgetfield(lua_State* L, int index, std::string_view k)
 {
     index = lua_absindex(L, index);
     lua_checkdelta(L);
@@ -364,7 +367,7 @@ auto lua_rawgetfield(lua_State* L, int index, const std::string_view& k)
 
 // set in table at index, as field k, the specified C++ value (without metamethods)
 template <typename T>
-void lua_rawsetfield(lua_State* L, int index, const std::string_view& k, const T& value)
+void lua_rawsetfield(lua_State* L, int index, std::string_view k, const T& value)
 {
     index = lua_absindex(L, index);
     lua_checkdelta(L);
@@ -389,8 +392,8 @@ void lua_rawsetfield(lua_State* L, int index, const std::string_view& k, const T
 class LuaFunction
 {
 public:
-    LuaFunction(const std::string_view& name, lua_CFunction function,
-                const std::string_view& helptext);
+    LuaFunction(std::string_view name, lua_CFunction function,
+                std::string_view helptext);
 
     static void init(lua_State* L);
 

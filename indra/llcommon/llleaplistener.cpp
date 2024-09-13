@@ -54,7 +54,7 @@
     return features;
 }
 
-LLLeapListener::LLLeapListener(const std::string_view& caller, const Callback& callback):
+LLLeapListener::LLLeapListener(std::string_view caller, const Callback& callback):
     // Each LEAP plugin has an instance of this listener. Make the command
     // pump name difficult for other such plugins to guess.
     LLEventAPI(LLUUID::generateNewID().asString(),
