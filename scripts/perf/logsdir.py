@@ -25,7 +25,7 @@ def logsdir():
     if (system == 'Darwin'):
         base_dir = os.path.join(os.path.expanduser('~'),
                                 'Library','Application Support',app)
-    elif (system == 'Linux'): 
+    elif (system == 'Linux'):
         base_dir = os.path.join(os.path.expanduser('~'),
                                 '.' + app.lower())
     elif (system == 'Windows'):
