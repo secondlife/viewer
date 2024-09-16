@@ -9909,6 +9909,17 @@
       <key>Value</key>
       <boolean>1</boolean>
     </map>
+    <key>RLVaTopLevelMenu</key>
+    <map>
+      <key>Comment</key>
+      <string>Show the RLVa specific menu as a top level menu</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <boolean>1</boolean>
+    </map>
 	<key>RevokePermsOnStopAnimation</key>
     <map>
       <key>Comment</key>

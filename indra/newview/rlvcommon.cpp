@@ -1,15 +1,18 @@
 #include "llviewerprecompiledheaders.h"
+
 #include "llagent.h"
 #include "llchat.h"
 #include "lldbstrings.h"
 #include "llversioninfo.h"
+#include "llviewermenu.h"
 #include "llviewerstats.h"
 #include "message.h"
+#include <boost/algorithm/string.hpp>
 
-#include "rlvdefines.h"
 #include "rlvcommon.h"
 
-#include <boost/algorithm/string.hpp>
+#include "llviewercontrol.h"
+#include "rlvhandler.h"
 
 using namespace Rlv;
 
@@ -47,6 +50,32 @@ std::string Strings::getVersionImplNum()
 // ============================================================================
 // RlvUtil
 //
+
+void Util::menuToggleVisible()
+{
+    bool isTopLevel = gSavedSettings.getBOOL(Settings::TopLevelMenu);
+    bool isRlvEnabled = RlvHandler::isEnabled();
+
+    LLMenuGL* menuRLVaMain = gMenuBarView->findChildMenuByName("RLVa Main", false);
+    LLMenuGL* menuAdvanced = gMenuBarView->findChildMenuByName("Advanced", false);
+    LLMenuGL* menuRLVaEmbed= menuAdvanced->findChildMenuByName("RLVa Embedded", false);
+
+    gMenuBarView->setItemVisible("RLVa Main", isRlvEnabled && isTopLevel);
+    menuAdvanced->setItemVisible("RLVa Embedded", isRlvEnabled && !isTopLevel);
+
+    if ( isRlvEnabled && menuRLVaMain && menuRLVaEmbed &&
+         ( (isTopLevel && 1 == menuRLVaMain->getItemCount()) || (!isTopLevel && 1 == menuRLVaEmbed->getItemCount())) )
+    {
+        LLMenuGL* menuFrom = isTopLevel ? menuRLVaEmbed : menuRLVaMain;
+        LLMenuGL* menuTo = isTopLevel ? menuRLVaMain : menuRLVaEmbed;
+        while (LLMenuItemGL* pItem = menuFrom->getItem(1))
+        {
+            menuFrom->removeChild(pItem);
+            menuTo->addChild(pItem);
+            pItem->updateBranchParent(menuTo);
+        }
+    }
+}
 
 bool Util::parseStringList(const std::string& strInput, std::vector<std::string>& optionList, std::string_view strSeparator)
 {
