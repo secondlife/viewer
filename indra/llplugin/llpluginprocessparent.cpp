@@ -48,7 +48,7 @@ LLPluginProcessParentOwner::~LLPluginProcessParentOwner()
 bool LLPluginProcessParent::sUseReadThread = false;
 apr_pollset_t *LLPluginProcessParent::sPollSet = NULL;
 bool LLPluginProcessParent::sPollsetNeedsRebuild = false;
-LLCoros::Mutex *LLPluginProcessParent::sInstancesMutex;
+LLCoros::Mutex *LLPluginProcessParent::sInstancesMutex = nullptr;
 LLPluginProcessParent::mapInstances_t LLPluginProcessParent::sInstances;
 LLThread *LLPluginProcessParent::sReadThread = NULL;
 
@@ -155,6 +155,12 @@ LLPluginProcessParent::ptr_t LLPluginProcessParent::create(LLPluginProcessParent
 /*static*/
 void LLPluginProcessParent::shutdown()
 {
+    if (!sInstancesMutex)
+    {
+        // setup was not complete, skip shutdown
+        return;
+    }
+
     LLCoros::LockType lock(*sInstancesMutex);
 
     mapInstances_t::iterator it;
