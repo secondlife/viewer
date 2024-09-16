@@ -36,6 +36,7 @@
 #include "llshadermgr.h"
 #include "llglslshader.h"
 #include "llmemory.h"
+#include <glm/gtc/type_ptr.hpp>
 
 //Next Highest Power Of Two
 //helper function, returns first number > v that is a power of 2, or v if v is already a power of 2
@@ -590,13 +591,13 @@ void LLVertexBufferData::draw()
 
     gGL.matrixMode(LLRender::MM_MODELVIEW);
     gGL.pushMatrix();
-    gGL.loadMatrix(mModelView.m);
+    gGL.loadMatrix(glm::value_ptr(mModelView));
     gGL.matrixMode(LLRender::MM_PROJECTION);
     gGL.pushMatrix();
-    gGL.loadMatrix(mProjection.m);
+    gGL.loadMatrix(glm::value_ptr(mProjection));
     gGL.matrixMode(LLRender::MM_TEXTURE0);
     gGL.pushMatrix();
-    gGL.loadMatrix(mTexture0.m);
+    gGL.loadMatrix(glm::value_ptr(mTexture0));
 
     mVB->setBuffer();
 
@@ -1301,6 +1302,9 @@ U8* LLVertexBuffer::mapIndexBuffer(U32 index, S32 count)
 void LLVertexBuffer::flush_vbo(GLenum target, U32 start, U32 end, void* data, U8* dst)
 {
 #if LL_DARWIN
+    // on OS X, flush_vbo doesn't actually write to the GL buffer, so be sure to call
+    // _mapBuffer to tag the buffer for flushing to GL
+    _mapBuffer();
     LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("vb memcpy");
     STOP_GLERROR;
     // copy into mapped buffer
@@ -1589,12 +1593,6 @@ bool LLVertexBuffer::getClothWeightStrider(LLStrider<LLVector4>& strider, U32 in
 void LLVertexBuffer::setBuffer()
 {
     STOP_GLERROR;
-#if LL_DARWIN
-    if (!mGLBuffer)
-    { // OS X doesn't allocate a buffer until we call unmapBuffer
-        return;
-    }
-#endif
 
     if (mMapped)
     {

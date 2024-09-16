@@ -807,10 +807,10 @@ void GLTFSceneManager::bind(Asset& asset, Material& material)
 
 LLMatrix4a inverse(const LLMatrix4a& mat)
 {
-    glh::matrix4f m((F32*)mat.mMatrix);
-    m = m.inverse();
+    glm::mat4 m = glm::make_mat4((F32*)mat.mMatrix);
+    m = glm::inverse(m);
     LLMatrix4a ret;
-    ret.loadu(m.m);
+    ret.loadu(glm::value_ptr(m));
     return ret;
 }
 

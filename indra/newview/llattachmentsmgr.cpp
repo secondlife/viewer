@@ -465,7 +465,7 @@ bool LLAttachmentsMgr::isAttachmentStateComplete() const
 //
 void LLAttachmentsMgr::checkInvalidCOFLinks()
 {
-    if (!gInventory.isInventoryUsable())
+    if (!gInventory.isInventoryUsable() || mQuestionableCOFLinks.empty())
     {
         return;
     }
