@@ -58,6 +58,7 @@
 #include "llpostprocess.h"
 #include "llrender.h"
 #include "llscenemonitor.h"
+#include "llsdjson.h"
 #include "llselectmgr.h"
 #include "llsky.h"
 #include "llspatialpartition.h"
@@ -1061,12 +1062,12 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
 
 void getProfileStatsContext(boost::json::object& stats)
 {
-    auto contextit = stats.emplace("context", boost::json::object_kind).first;
+    // populate the context with info from LLFloaterAbout
+    auto contextit = stats.emplace("context",
+                                   LlsdToJson(LLAppViewer::instance()->getViewerInfo())).first;
     auto& context = contextit->value().as_object();
 
-    auto& versionInfo = LLVersionInfo::instance();
-    context.emplace("channel", versionInfo.getChannel());
-    context.emplace("version", versionInfo.getVersion());
+    // then add a few more things
     unsigned char unique_id[MAC_ADDRESS_BYTES]{};
     LLMachineID::getUniqueID(unique_id, sizeof(unique_id));
     context.emplace("machine", stringize(LL::hexdump(unique_id, sizeof(unique_id))));
@@ -1074,7 +1075,6 @@ void getProfileStatsContext(boost::json::object& stats)
     LLViewerRegion* region = gAgent.getRegion();
     if (region)
     {
-        context.emplace("region", region->getName());
         context.emplace("regionid", stringize(region->getRegionID()));
     }
     LLParcel* parcel = LLViewerParcelMgr::instance().getAgentParcel();
