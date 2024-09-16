@@ -1337,8 +1337,6 @@ void LLVertexBuffer::unmapBuffer()
 
 void LLVertexBuffer::_mapBuffer()
 {
-    // must only be called from main thread
-    llassert(LLCoros::on_main_thread_main_coro());
     if (!mMapped)
     {
         mMapped = true;
@@ -1600,7 +1598,7 @@ void LLVertexBuffer::setBuffer()
 
     if (mMapped)
     {
-        LL_WARNS() << "Missing call to unmapBuffer or flushBuffers" << LL_ENDL;
+        LL_WARNS_ONCE() << "Missing call to unmapBuffer or flushBuffers" << LL_ENDL;
         _unmapBuffer();
     }
 

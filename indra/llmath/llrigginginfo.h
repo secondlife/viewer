@@ -66,6 +66,10 @@ public:
     const LLJointRiggingInfo& operator[](S32 i) const { return mRigInfoPtr[i]; };
     bool needsUpdate() { return mNeedsUpdate; }
     void setNeedsUpdate(bool val) { mNeedsUpdate = val; }
+
+    LLJointRiggingInfo* begin() { return mRigInfoPtr; }
+    LLJointRiggingInfo* end() { return mRigInfoPtr + mSize; }
+
 private:
     // Not implemented
     LLJointRiggingInfoTab& operator=(const LLJointRiggingInfoTab& src);
