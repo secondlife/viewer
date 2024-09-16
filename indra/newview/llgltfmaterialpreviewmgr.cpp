@@ -193,7 +193,7 @@ LLGLTFPreviewTexture::LLGLTFPreviewTexture(LLPointer<LLFetchedGLTFMaterial> mate
 // static
 LLPointer<LLGLTFPreviewTexture> LLGLTFPreviewTexture::create(LLPointer<LLFetchedGLTFMaterial> material)
 {
-    return new LLGLTFPreviewTexture(material, LLPipeline::MAX_BAKE_WIDTH);
+    return new LLGLTFPreviewTexture(material, LLPipeline::MAX_PREVIEW_WIDTH);
 }
 
 bool LLGLTFPreviewTexture::needsRender()
