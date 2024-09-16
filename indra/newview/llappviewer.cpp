@@ -3285,10 +3285,10 @@ LLSD LLAppViewer::getViewerInfo() const
         LLVector3d pos = gAgent.getPositionGlobal();
         info["POSITION"] = ll_sd_from_vector3d(pos);
         info["POSITION_LOCAL"] = ll_sd_from_vector3(gAgent.getPosAgentFromGlobal(pos));
-        info["REGION"] = gAgent.getRegion()->getName();
+        info["REGION"] = region->getName();
 
         boost::regex regex("\\.(secondlife|lindenlab)\\..*");
-        info["HOSTNAME"] = boost::regex_replace(gAgent.getRegion()->getSimHostName(), regex, "");
+        info["HOSTNAME"] = boost::regex_replace(region->getSimHostName(), regex, "");
         info["SERVER_VERSION"] = gLastVersionChannel;
         LLSLURL slurl;
         LLAgentUI::buildSLURL(slurl);
