@@ -66,6 +66,7 @@
              left="1"
 			 top="1"
 			 right="-1"
+             show_emoji_helper="false"
              wrap="true"
             />
         </layout_panel>
