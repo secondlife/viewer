@@ -60,7 +60,8 @@ namespace
 namespace lluau
 {
 
-int dostring(lua_State* L, const std::string& desc, const std::string& text)
+int dostring(lua_State* L, const std::string& desc, const std::string& text,
+             const std::vector<std::string>& args)
 {
     auto r = loadstring(L, desc, text);
     if (r != LUA_OK)
@@ -80,12 +81,22 @@ int dostring(lua_State* L, const std::string& desc, const std::string& text)
     // stack: compiled chunk, debug.traceback()
     lua_insert(L, -2);
     // stack: debug.traceback(), compiled chunk
-    LuaRemover cleanup(L, -2);
+    // capture absolute index of debug.traceback()
+    int traceback = lua_absindex(L, -2);
+    // remove it from stack on exit
+    LuaRemover cleanup(L, traceback);
+
+    // push any args passed -- all strings -- script must handle any desired
+    // conversions
+    for (const auto& arg : args)
+    {
+        lua_pushstdstring(L, arg);
+    }
 
     // It's important to pass LUA_MULTRET as the expected number of return
     // values: if we pass any fixed number, we discard any returned values
     // beyond that number.
-    return lua_pcall(L, 0, LUA_MULTRET, -2);
+    return lua_pcall(L, int(args.size()), LUA_MULTRET, traceback);
 }
 
 int loadstring(lua_State *L, const std::string &desc, const std::string &text)
@@ -804,7 +815,13 @@ bool LuaState::checkLua(const std::string& desc, int r)
     return true;
 }
 
-std::pair<int, LLSD> LuaState::expr(const std::string& desc, const std::string& text)
+std::pair<int, LLSD> LuaState::expr(const std::string& desc, const ScriptCommand& command)
+{
+    return expr(desc, , command.args);
+}
+
+std::pair<int, LLSD> LuaState::expr(const std::string& desc, const std::string& text,
+                                    const std::vector<std::string>& args)
 {
     /*---------------------------- feature flag ----------------------------*/
     if (! mFeature)
@@ -827,7 +844,7 @@ std::pair<int, LLSD> LuaState::expr(const std::string& desc, const std::string& 
     };
 
     LL_INFOS("Lua") << desc << " run" << LL_ENDL;
-    if (! checkLua(desc, lluau::dostring(mState, desc, text)))
+    if (! checkLua(desc, lluau::dostring(mState, desc, text, args)))
     {
         LL_WARNS("Lua") << desc << " error: " << mError << LL_ENDL;
         return { -1, mError };
@@ -1047,6 +1064,18 @@ std::pair<LuaFunction::Registry&, LuaFunction::Lookup&> LuaFunction::getState()
     static Registry registry;
     static Lookup lookup;
     return { registry, lookup };
+}
+
+/*****************************************************************************
+*   LuaCommand
+*****************************************************************************/
+LuaCommand::LuaCommand(const std::string& command)
+{
+}
+
+bool LuaCommand::found() const
+{
+    return ;
 }
 
 /*****************************************************************************

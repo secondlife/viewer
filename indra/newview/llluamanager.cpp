@@ -192,35 +192,72 @@ void LLLUAmanager::runScriptFile(const std::string &filename, bool autorun,
     LLCoros::instance().launch(filename, [filename, autorun, result_cb, finished_cb]()
     {
         ScriptObserver observer(LLCoros::getName(), filename);
-        llifstream in_file;
-        in_file.open(filename.c_str());
+        // Use LLStringUtil::getTokens() to parse the script command line
+        auto tokens = LLStringUtil::getTokens(filename,
+                                              " \t\r\n", // drop_delims
+                                              "",        // no keep_delims
+                                              "\"'",     // either kind of quotes
+                                              "\\");     // backslash escape
 
+#error Under construction
+        // TODO:
+        // - Move this either/or file existence logic to LuaCommand()
+        // - Accept LuaCommand in all LLLUAmanager::mumbleScriptFile() methods
+        // - Update all existing mumbleScriptFile() callers
+
+        llifstream in_file;
+        in_file.open(tokens[0]);
         if (in_file.is_open())
         {
-            if (autorun)
-            {
-                sAutorunScriptCount++;
-            }
-            sScriptCount++;
-
-            // A script_finished_fn is used to initialize the LuaState.
-            // It will be called when the LuaState is destroyed.
-            LuaState L(finished_cb);
-            std::string text{std::istreambuf_iterator<char>(in_file), {}};
-            auto [count, result] = L.expr(filename, text);
-            if (result_cb)
-            {
-                result_cb(count, result);
-            }
+            // The first token is in fact the script filename. Now that the
+            // script file is open, we've consumed that token. The rest are
+            // command-line arguments.
+            tokens.erase(tokens.begin());
         }
         else
         {
-            auto msg{ stringize("unable to open script file '", filename, "'") };
-            LL_WARNS("Lua") << msg << LL_ENDL;
-            if (result_cb)
+            // Parsing the command line produced a script file path we can't
+            // open. Maybe that's because there are spaces in the original
+            // pathname that were neither quoted nor escaped? See if we can
+            // open the whole original command line string.
+            in_file.open(filename);
+            if (! in_file.is_open())
             {
-                result_cb(-1, msg);
+                std::ostringstream msgstream;
+                msgstream << "Can't open script file " << std::quoted(tokens[0]);
+                if (filename != tokens[0])
+                {
+                    msgstream << " or " << std::quoted(filename);
+                }
+                auto msg = msgstream.str();
+                LL_WARNS("Lua") << msg << LL_ENDL;
+                if (result_cb)
+                {
+                    result_cb(-1, msg);
+                }
+                return;
             }
+            // Here we do have in_file open, using the whole input command
+            // line as its pathname. Discard any parts of it we mistook for
+            // command-line arguments.
+            tokens.clear();
+        }
+
+        // Here in_file is open.
+        if (autorun)
+        {
+            sAutorunScriptCount++;
+        }
+        sScriptCount++;
+
+        // A script_finished_fn is used to initialize the LuaState.
+        // It will be called when the LuaState is destroyed.
+        LuaState L(finished_cb);
+        std::string text{std::istreambuf_iterator<char>(in_file), {}};
+        auto [count, result] = L.expr(filename, text, tokens);
+        if (result_cb)
+        {
+            result_cb(count, result);
         }
     });
 }
