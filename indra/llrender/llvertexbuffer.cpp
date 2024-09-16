@@ -1341,8 +1341,6 @@ void LLVertexBuffer::unmapBuffer()
 
 void LLVertexBuffer::_mapBuffer()
 {
-    // must only be called from main thread
-    llassert(LLCoros::on_main_thread_main_coro());
     if (!mMapped)
     {
         mMapped = true;
