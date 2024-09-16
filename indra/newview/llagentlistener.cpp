@@ -87,14 +87,15 @@ LLAgentListener::LLAgentListener(LLAgent &agent)
     add("startAutoPilot",
         "Start the autopilot system using the following parameters:\n"
         "[\"target_global\"]: array of target global {x, y, z} position\n"
-        "[\"stop_distance\"]: target maxiumum distance from target [default: autopilot guess]\n"
+        "[\"stop_distance\"]: target maximum distance from target [default: autopilot guess]\n"
         "[\"target_rotation\"]: array of [x, y, z, w] quaternion values [default: no target]\n"
         "[\"rotation_threshold\"]: target maximum angle from target facing rotation [default: 0.03 radians]\n"
         "[\"behavior_name\"]: name of the autopilot behavior [default: \"\"]"
         "[\"allow_flying\"]: allow flying during autopilot [default: True]",
         //"[\"callback_pump\"]: pump to send success/failure and callback data to [default: none]\n"
         //"[\"callback_data\"]: data to send back during a callback [default: none]",
-        &LLAgentListener::startAutoPilot);
+        &LLAgentListener::startAutoPilot,
+        llsd::map("target_global", LLSD()));
     add("getAutoPilot",
         "Send information about current state of the autopilot system to [\"reply\"]:\n"
         "[\"enabled\"]: boolean indicating whether or not autopilot is enabled\n"
@@ -107,13 +108,14 @@ LLAgentListener::LLAgentListener(LLAgent &agent)
         "[\"rotation_threshold\"]: target maximum angle from target facing rotation\n"
         "[\"behavior_name\"]: name of the autopilot behavior",
         &LLAgentListener::getAutoPilot,
-        LLSDMap("reply", LLSD()));
+        llsd::map("reply", LLSD()));
     add("startFollowPilot",
         "[\"leader_id\"]: uuid of target to follow using the autopilot system (optional with avatar_name)\n"
         "[\"avatar_name\"]: avatar name to follow using the autopilot system (optional with leader_id)\n"
         "[\"allow_flying\"]: allow flying during autopilot [default: True]\n"
-        "[\"stop_distance\"]: target maxiumum distance from target [default: autopilot guess]",
-        &LLAgentListener::startFollowPilot);
+        "[\"stop_distance\"]: target maximum distance from target [default: autopilot guess]",
+        &LLAgentListener::startFollowPilot,
+        llsd::map("reply", LLSD()));
     add("setAutoPilotTarget",
         "Update target for currently running autopilot:\n"
         "[\"target_global\"]: array of target global {x, y, z} position",
@@ -205,7 +207,7 @@ void LLAgentListener::requestSit(LLSD const & event_data) const
     //mAgent.getAvatarObject()->sitOnObject();
     // shamelessly ripped from llviewermenu.cpp:handle_sit_or_stand()
     // *TODO - find a permanent place to share this code properly.
-
+    Response response(LLSD(), event_data);
     LLViewerObject *object = NULL;
     if (event_data.has("obj_uuid"))
     {
@@ -215,6 +217,12 @@ void LLAgentListener::requestSit(LLSD const & event_data) const
     {
         LLVector3 target_position = ll_vector3_from_sd(event_data["position"]);
         object = findObjectClosestTo(target_position);
+    }
+    else
+    {
+        //just sit on the ground
+        mAgent.setControlFlags(AGENT_CONTROL_SIT_ON_GROUND);
+        return;
     }
 
     if (object && object->getPCode() == LL_PCODE_VOLUME)
@@ -231,8 +239,7 @@ void LLAgentListener::requestSit(LLSD const & event_data) const
     }
     else
     {
-        LL_WARNS() << "LLAgent requestSit could not find the sit target: "
-            << event_data << LL_ENDL;
+        response.error("requestSit could not find the sit target");
     }
 }
 
@@ -354,11 +361,10 @@ void LLAgentListener::getPosition(const LLSD& event_data) const
 
 void LLAgentListener::startAutoPilot(LLSD const & event_data)
 {
-    LLQuaternion target_rotation_value;
     LLQuaternion* target_rotation = NULL;
     if (event_data.has("target_rotation"))
     {
-        target_rotation_value = ll_quaternion_from_sd(event_data["target_rotation"]);
+        LLQuaternion target_rotation_value = ll_quaternion_from_sd(event_data["target_rotation"]);
         target_rotation = &target_rotation_value;
     }
     // *TODO: Use callback_pump and callback_data
@@ -381,11 +387,17 @@ void LLAgentListener::startAutoPilot(LLSD const & event_data)
         stop_distance = (F32)event_data["stop_distance"].asReal();
     }
 
+    std::string behavior_name = LLCoros::getName();
+    if (event_data.has("behavior_name"))
+    {
+        behavior_name = event_data["behavior_name"].asString();
+    }
+
     // Clear follow target, this is doing a path
     mFollowTarget.setNull();
 
     mAgent.startAutoPilotGlobal(ll_vector3d_from_sd(event_data["target_global"]),
-                                event_data["behavior_name"],
+                                behavior_name,
                                 target_rotation,
                                 NULL, NULL,
                                 stop_distance,
@@ -395,7 +407,7 @@ void LLAgentListener::startAutoPilot(LLSD const & event_data)
 
 void LLAgentListener::getAutoPilot(const LLSD& event_data) const
 {
-    LLSD reply = LLSD::emptyMap();
+    Response reply(LLSD(), event_data);
 
     LLSD::Boolean enabled = mAgent.getAutoPilot();
     reply["enabled"] = enabled;
@@ -424,12 +436,11 @@ void LLAgentListener::getAutoPilot(const LLSD& event_data) const
     reply["rotation_threshold"] = mAgent.getAutoPilotRotationThreshold();
     reply["behavior_name"] = mAgent.getAutoPilotBehaviorName();
     reply["fly"] = (LLSD::Boolean) mAgent.getFlying();
-
-    sendReply(reply, event_data);
 }
 
 void LLAgentListener::startFollowPilot(LLSD const & event_data)
 {
+    Response response(LLSD(), event_data);
     LLUUID target_id;
 
     bool allow_flying = true;
@@ -463,6 +474,10 @@ void LLAgentListener::startFollowPilot(LLSD const & event_data)
             }
         }
     }
+    else
+    {
+        return response.error("'leader_id' or 'avatar_name' should be specified");
+    }
 
     F32 stop_distance = 0.f;
     if (event_data.has("stop_distance"))
@@ -470,13 +485,16 @@ void LLAgentListener::startFollowPilot(LLSD const & event_data)
         stop_distance = (F32)event_data["stop_distance"].asReal();
     }
 
-    if (target_id.notNull())
+    if (!gObjectList.findObject(target_id))
     {
-        mAgent.setFlying(allow_flying);
-        mFollowTarget = target_id;  // Save follow target so we can report distance later
-
-        mAgent.startFollowPilot(target_id, allow_flying, stop_distance);
+        std::string target_info = event_data.has("leader_id") ? event_data["target_id"] : event_data["avatar_name"];
+        return response.error(stringize("Target ", std::quoted(target_info), " was not found"));
     }
+
+    mAgent.setFlying(allow_flying);
+    mFollowTarget = target_id;  // Save follow target so we can report distance later
+
+    mAgent.startFollowPilot(target_id, allow_flying, stop_distance);
 }
 
 void LLAgentListener::setAutoPilotTarget(LLSD const & event_data) const
