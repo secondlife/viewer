@@ -6,7 +6,7 @@ add_library( ll::tracy INTERFACE IMPORTED )
 
 # default Tracy profiling on for test builds, but off for all others
 string(TOLOWER ${VIEWER_CHANNEL} channel_lower)
-if(WINDOWS AND channel_lower MATCHES "^second life test")
+if(channel_lower MATCHES "^second life test")
   option(USE_TRACY "Use Tracy profiler." ON)
 else()
     option(USE_TRACY "Use Tracy profiler." OFF)
