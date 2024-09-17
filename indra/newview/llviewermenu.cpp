@@ -6248,7 +6248,7 @@ void show_debug_menus()
         gMenuBarView->setItemVisible("Advanced", debug);
 //      gMenuBarView->setItemEnabled("Advanced", debug); // Don't disable Advanced keyboard shortcuts when hidden
 
-		Rlv::Util::menuToggleVisible();
+        Rlv::Util::menuToggleVisible();
 
         gMenuBarView->setItemVisible("Debug", qamode);
         gMenuBarView->setItemEnabled("Debug", qamode);
