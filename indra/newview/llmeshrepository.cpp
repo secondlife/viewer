@@ -548,8 +548,8 @@ LLViewerFetchedTexture* LLMeshUploadThread::FindViewerTexture(const LLImportMate
     return ppTex ? (*ppTex).get() : NULL;
 }
 
-volatile S32 LLMeshRepoThread::sActiveHeaderRequests = 0;
-volatile S32 LLMeshRepoThread::sActiveLODRequests = 0;
+std::atomic<S32> LLMeshRepoThread::sActiveHeaderRequests = 0;
+std::atomic<S32> LLMeshRepoThread::sActiveLODRequests = 0;
 U32 LLMeshRepoThread::sMaxConcurrentRequests = 1;
 S32 LLMeshRepoThread::sRequestLowWater = REQUEST2_LOW_WATER_MIN;
 S32 LLMeshRepoThread::sRequestHighWater = REQUEST2_HIGH_WATER_MIN;
@@ -3914,7 +3914,7 @@ void LLMeshRepository::notifyLoadedMeshes()
             }
 
             // erase from background thread
-            mThread->mWorkQueue.post([=]()
+            mThread->mWorkQueue.post([=, this]()
                 {
                     mThread->mSkinMap.erase(id);
                 });
