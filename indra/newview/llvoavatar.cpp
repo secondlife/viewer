@@ -2406,8 +2406,6 @@ void LLVOAvatar::updateMeshData()
 {
     if (mDrawable.notNull())
     {
-        stop_glerror();
-
         S32 f_num = 0 ;
         const U32 VERTEX_NUMBER_THRESHOLD = 128 ;//small number of this means each part of an avatar has its own vertex buffer.
         const auto num_parts = mMeshLOD.size();
@@ -2534,7 +2532,6 @@ void LLVOAvatar::updateMeshData()
                 }
             }
 
-            stop_glerror();
             buff->unmapBuffer();
 
             if(!f_num)
@@ -10754,9 +10751,8 @@ void LLVOAvatar::updateRiggingInfo()
     getAssociatedVolumes(volumes);
 
     {
-        LL_PROFILE_ZONE_NAMED_CATEGORY_AVATAR("update rig info - get key")
-        HBXXH128 hash;
-
+        LL_PROFILE_ZONE_NAMED_CATEGORY_AVATAR("update rig info - get key");
+        size_t hash = 0;
         // Get current rigging info key
         for (LLVOVolume* vol : volumes)
         {
@@ -10765,22 +10761,20 @@ void LLVOAvatar::updateRiggingInfo()
                 const LLUUID& mesh_id = vol->getVolume()->getParams().getSculptID();
                 S32 max_lod = llmax(vol->getLOD(), vol->mLastRiggingInfoLOD);
 
-                hash.update(mesh_id.mData, sizeof(mesh_id.mData));
-                hash.update(&max_lod, sizeof(max_lod));
+                boost::hash_combine(hash, mesh_id);
+                boost::hash_combine(hash, max_lod);
             }
         }
 
-        LLUUID curr_rigging_info_key = hash.digest();
-
         // Check for key change, which indicates some change in volume composition or LOD.
-        if (curr_rigging_info_key == mLastRiggingInfoKey)
+        if (hash == mLastRiggingInfoKey)
         {
             return;
         }
 
 
         // Something changed. Update.
-        mLastRiggingInfoKey = curr_rigging_info_key;
+        mLastRiggingInfoKey = hash;
     }
 
     mJointRiggingInfoTab.clear();

@@ -729,7 +729,6 @@ void LLGrassPartition::getGeometry(LLSpatialGroup* group)
         }
     }
 
-    buffer->unmapBuffer();
     mFaceList.clear();
 }
 

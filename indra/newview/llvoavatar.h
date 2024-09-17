@@ -226,7 +226,7 @@ public:
     // virtual
     void                    updateRiggingInfo();
     // This encodes mesh id and LOD, so we can see whether display is up-to-date.
-    LLUUID    mLastRiggingInfoKey;
+    size_t    mLastRiggingInfoKey;
 
     std::set<LLUUID>        mActiveOverrideMeshes;
     virtual void            onActiveOverrideMeshesChanged();
