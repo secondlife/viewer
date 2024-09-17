@@ -31,6 +31,11 @@ if (USE_TRACY)
     target_compile_definitions(ll::tracy INTERFACE -DTRACY_NO_BROADCAST=1 -DTRACY_ONLY_LOCALHOST=1)
   endif ()
 
+  # GHA runners don't always provide invariant TSC support, but always build with LL_TESTS enabled
+  if (DARWIN AND LL_TESTS)
+    target_compile_definitions(ll::tracy INTERFACE -DTRACY_TIMER_FALLBACK=1)
+  endif ()
+
   # See: indra/llcommon/llprofiler.h
   add_compile_definitions(LL_PROFILER_CONFIGURATION=3)
 endif (USE_TRACY)
