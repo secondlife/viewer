@@ -429,165 +429,247 @@ void gl_draw_scaled_image_with_border(S32 x, S32 y, S32 width, S32 height, LLTex
 
         gGL.color4fv(color.mV);
 
-        const S32 NUM_VERTICES = 9 * 4; // 9 quads
-        LLVector2 uv[NUM_VERTICES];
-        LLVector3 pos[NUM_VERTICES];
+        constexpr S32 NUM_VERTICES = 9 * 2 * 3; // 9 quads, 2 triangles per quad, 3 vertices per triangle
+        static thread_local LLVector2 uv[NUM_VERTICES];
+        static thread_local LLVector3 pos[NUM_VERTICES];
 
         S32 index = 0;
 
-        gGL.begin(LLRender::QUADS);
+        gGL.begin(LLRender::TRIANGLES);
         {
-            // draw bottom left
-            uv[index] = LLVector2(uv_outer_rect.mLeft, uv_outer_rect.mBottom);
-            pos[index] = LLVector3(draw_outer_rect.mLeft, draw_outer_rect.mBottom, 0.f);
+            // draw bottom left triangles
+            // 1
+            uv[index].set(uv_outer_rect.mLeft, uv_outer_rect.mBottom);
+            pos[index].set(draw_outer_rect.mLeft, draw_outer_rect.mBottom, 0.f);
             index++;
 
-            uv[index] = LLVector2(uv_center_rect.mLeft, uv_outer_rect.mBottom);
-            pos[index] = LLVector3(draw_center_rect.mLeft, draw_outer_rect.mBottom, 0.f);
+            uv[index].set(uv_center_rect.mLeft, uv_outer_rect.mBottom);
+            pos[index].set(draw_center_rect.mLeft, draw_outer_rect.mBottom, 0.f);
             index++;
 
-            uv[index] = LLVector2(uv_center_rect.mLeft, uv_center_rect.mBottom);
-            pos[index] = LLVector3(draw_center_rect.mLeft, draw_center_rect.mBottom, 0.f);
+            uv[index].set(uv_center_rect.mLeft, uv_center_rect.mBottom);
+            pos[index].set(draw_center_rect.mLeft, draw_center_rect.mBottom, 0.f);
             index++;
 
-            uv[index] = LLVector2(uv_outer_rect.mLeft, uv_center_rect.mBottom);
-            pos[index] = LLVector3(draw_outer_rect.mLeft, draw_center_rect.mBottom, 0.f);
+            // 2
+            uv[index].set(uv_outer_rect.mLeft, uv_outer_rect.mBottom);
+            pos[index].set(draw_outer_rect.mLeft, draw_outer_rect.mBottom, 0.f);
             index++;
 
-            // draw bottom middle
-            uv[index] = LLVector2(uv_center_rect.mLeft, uv_outer_rect.mBottom);
-            pos[index] = LLVector3(draw_center_rect.mLeft, draw_outer_rect.mBottom, 0.f);
+            uv[index].set(uv_center_rect.mLeft, uv_center_rect.mBottom);
+            pos[index].set(draw_center_rect.mLeft, draw_center_rect.mBottom, 0.f);
             index++;
 
-            uv[index] = LLVector2(uv_center_rect.mRight, uv_outer_rect.mBottom);
-            pos[index] = LLVector3(draw_center_rect.mRight, draw_outer_rect.mBottom, 0.f);
+            uv[index].set(uv_outer_rect.mLeft, uv_center_rect.mBottom);
+            pos[index].set(draw_outer_rect.mLeft, draw_center_rect.mBottom, 0.f);
             index++;
 
-            uv[index] = LLVector2(uv_center_rect.mRight, uv_center_rect.mBottom);
-            pos[index] = LLVector3(draw_center_rect.mRight, draw_center_rect.mBottom, 0.f);
+            // draw bottom middle triangles
+            uv[index].set(uv_center_rect.mLeft, uv_outer_rect.mBottom);
+            pos[index].set(draw_center_rect.mLeft, draw_outer_rect.mBottom, 0.f);
             index++;
 
-            uv[index] = LLVector2(uv_center_rect.mLeft, uv_center_rect.mBottom);
-            pos[index] = LLVector3(draw_center_rect.mLeft, draw_center_rect.mBottom, 0.f);
+            uv[index].set(uv_center_rect.mRight, uv_outer_rect.mBottom);
+            pos[index].set(draw_center_rect.mRight, draw_outer_rect.mBottom, 0.f);
             index++;
 
-            // draw bottom right
-            uv[index] = LLVector2(uv_center_rect.mRight, uv_outer_rect.mBottom);
-            pos[index] = LLVector3(draw_center_rect.mRight, draw_outer_rect.mBottom, 0.f);
+            uv[index].set(uv_center_rect.mRight, uv_center_rect.mBottom);
+            pos[index].set(draw_center_rect.mRight, draw_center_rect.mBottom, 0.f);
             index++;
 
-            uv[index] = LLVector2(uv_outer_rect.mRight, uv_outer_rect.mBottom);
-            pos[index] = LLVector3(draw_outer_rect.mRight, draw_outer_rect.mBottom, 0.f);
+            // 2
+            uv[index].set(uv_center_rect.mLeft, uv_outer_rect.mBottom);
+            pos[index].set(draw_center_rect.mLeft, draw_outer_rect.mBottom, 0.f);
             index++;
 
-            uv[index] = LLVector2(uv_outer_rect.mRight, uv_center_rect.mBottom);
-            pos[index] = LLVector3(draw_outer_rect.mRight, draw_center_rect.mBottom, 0.f);
+            uv[index].set(uv_center_rect.mRight, uv_center_rect.mBottom);
+            pos[index].set(draw_center_rect.mRight, draw_center_rect.mBottom, 0.f);
             index++;
 
-            uv[index] = LLVector2(uv_center_rect.mRight, uv_center_rect.mBottom);
-            pos[index] = LLVector3(draw_center_rect.mRight, draw_center_rect.mBottom, 0.f);
+            uv[index].set(uv_center_rect.mLeft, uv_center_rect.mBottom);
+            pos[index].set(draw_center_rect.mLeft, draw_center_rect.mBottom, 0.f);
             index++;
 
-            // draw left
-            uv[index] = LLVector2(uv_outer_rect.mLeft, uv_center_rect.mBottom);
-            pos[index] = LLVector3(draw_outer_rect.mLeft, draw_center_rect.mBottom, 0.f);
+            // draw bottom right triangles
+            uv[index].set(uv_center_rect.mRight, uv_outer_rect.mBottom);
+            pos[index].set(draw_center_rect.mRight, draw_outer_rect.mBottom, 0.f);
             index++;
 
-            uv[index] = LLVector2(uv_center_rect.mLeft, uv_center_rect.mBottom);
-            pos[index] = LLVector3(draw_center_rect.mLeft, draw_center_rect.mBottom, 0.f);
+            uv[index].set(uv_outer_rect.mRight, uv_outer_rect.mBottom);
+            pos[index].set(draw_outer_rect.mRight, draw_outer_rect.mBottom, 0.f);
             index++;
 
-            uv[index] = LLVector2(uv_center_rect.mLeft, uv_center_rect.mTop);
-            pos[index] = LLVector3(draw_center_rect.mLeft, draw_center_rect.mTop, 0.f);
+            uv[index].set(uv_outer_rect.mRight, uv_center_rect.mBottom);
+            pos[index].set(draw_outer_rect.mRight, draw_center_rect.mBottom, 0.f);
             index++;
 
-            uv[index] = LLVector2(uv_outer_rect.mLeft, uv_center_rect.mTop);
-            pos[index] = LLVector3(draw_outer_rect.mLeft, draw_center_rect.mTop, 0.f);
+            // 2
+            uv[index].set(uv_center_rect.mRight, uv_outer_rect.mBottom);
+            pos[index].set(draw_center_rect.mRight, draw_outer_rect.mBottom, 0.f);
             index++;
 
-            // draw middle
-            uv[index] = LLVector2(uv_center_rect.mLeft, uv_center_rect.mBottom);
-            pos[index] = LLVector3(draw_center_rect.mLeft, draw_center_rect.mBottom, 0.f);
+            uv[index].set(uv_outer_rect.mRight, uv_center_rect.mBottom);
+            pos[index].set(draw_outer_rect.mRight, draw_center_rect.mBottom, 0.f);
             index++;
 
-            uv[index] = LLVector2(uv_center_rect.mRight, uv_center_rect.mBottom);
-            pos[index] = LLVector3(draw_center_rect.mRight, draw_center_rect.mBottom, 0.f);
+            uv[index].set(uv_center_rect.mRight, uv_center_rect.mBottom);
+            pos[index].set(draw_center_rect.mRight, draw_center_rect.mBottom, 0.f);
             index++;
 
-            uv[index] = LLVector2(uv_center_rect.mRight, uv_center_rect.mTop);
-            pos[index] = LLVector3(draw_center_rect.mRight, draw_center_rect.mTop, 0.f);
+            // draw left triangles
+            uv[index].set(uv_outer_rect.mLeft, uv_center_rect.mBottom);
+            pos[index].set(draw_outer_rect.mLeft, draw_center_rect.mBottom, 0.f);
             index++;
 
-            uv[index] = LLVector2(uv_center_rect.mLeft, uv_center_rect.mTop);
-            pos[index] = LLVector3(draw_center_rect.mLeft, draw_center_rect.mTop, 0.f);
+            uv[index].set(uv_center_rect.mLeft, uv_center_rect.mBottom);
+            pos[index].set(draw_center_rect.mLeft, draw_center_rect.mBottom, 0.f);
             index++;
 
-            // draw right
-            uv[index] = LLVector2(uv_center_rect.mRight, uv_center_rect.mBottom);
-            pos[index] = LLVector3(draw_center_rect.mRight, draw_center_rect.mBottom, 0.f);
+            uv[index].set(uv_center_rect.mLeft, uv_center_rect.mTop);
+            pos[index].set(draw_center_rect.mLeft, draw_center_rect.mTop, 0.f);
             index++;
 
-            uv[index] = LLVector2(uv_outer_rect.mRight, uv_center_rect.mBottom);
-            pos[index] = LLVector3(draw_outer_rect.mRight, draw_center_rect.mBottom, 0.f);
+            // 2
+            uv[index].set(uv_outer_rect.mLeft, uv_center_rect.mBottom);
+            pos[index].set(draw_outer_rect.mLeft, draw_center_rect.mBottom, 0.f);
             index++;
 
-            uv[index] = LLVector2(uv_outer_rect.mRight, uv_center_rect.mTop);
-            pos[index] = LLVector3(draw_outer_rect.mRight, draw_center_rect.mTop, 0.f);
+            uv[index].set(uv_center_rect.mLeft, uv_center_rect.mTop);
+            pos[index].set(draw_center_rect.mLeft, draw_center_rect.mTop, 0.f);
             index++;
 
-            uv[index] = LLVector2(uv_center_rect.mRight, uv_center_rect.mTop);
-            pos[index] = LLVector3(draw_center_rect.mRight, draw_center_rect.mTop, 0.f);
+            uv[index].set(uv_outer_rect.mLeft, uv_center_rect.mTop);
+            pos[index].set(draw_outer_rect.mLeft, draw_center_rect.mTop, 0.f);
             index++;
 
-            // draw top left
-            uv[index] = LLVector2(uv_outer_rect.mLeft, uv_center_rect.mTop);
-            pos[index] = LLVector3(draw_outer_rect.mLeft, draw_center_rect.mTop, 0.f);
+            // draw middle triangles
+            uv[index].set(uv_center_rect.mLeft, uv_center_rect.mBottom);
+            pos[index].set(draw_center_rect.mLeft, draw_center_rect.mBottom, 0.f);
             index++;
 
-            uv[index] = LLVector2(uv_center_rect.mLeft, uv_center_rect.mTop);
-            pos[index] = LLVector3(draw_center_rect.mLeft, draw_center_rect.mTop, 0.f);
+            uv[index].set(uv_center_rect.mRight, uv_center_rect.mBottom);
+            pos[index].set(draw_center_rect.mRight, draw_center_rect.mBottom, 0.f);
             index++;
 
-            uv[index] = LLVector2(uv_center_rect.mLeft, uv_outer_rect.mTop);
-            pos[index] = LLVector3(draw_center_rect.mLeft, draw_outer_rect.mTop, 0.f);
+            uv[index].set(uv_center_rect.mRight, uv_center_rect.mTop);
+            pos[index].set(draw_center_rect.mRight, draw_center_rect.mTop, 0.f);
             index++;
 
-            uv[index] = LLVector2(uv_outer_rect.mLeft, uv_outer_rect.mTop);
-            pos[index] = LLVector3(draw_outer_rect.mLeft, draw_outer_rect.mTop, 0.f);
+            // 2
+            uv[index].set(uv_center_rect.mLeft, uv_center_rect.mBottom);
+            pos[index].set(draw_center_rect.mLeft, draw_center_rect.mBottom, 0.f);
             index++;
 
-            // draw top middle
-            uv[index] = LLVector2(uv_center_rect.mLeft, uv_center_rect.mTop);
-            pos[index] = LLVector3(draw_center_rect.mLeft, draw_center_rect.mTop, 0.f);
+            uv[index].set(uv_center_rect.mRight, uv_center_rect.mTop);
+            pos[index].set(draw_center_rect.mRight, draw_center_rect.mTop, 0.f);
             index++;
 
-            uv[index] = LLVector2(uv_center_rect.mRight, uv_center_rect.mTop);
-            pos[index] = LLVector3(draw_center_rect.mRight, draw_center_rect.mTop, 0.f);
+            uv[index].set(uv_center_rect.mLeft, uv_center_rect.mTop);
+            pos[index].set(draw_center_rect.mLeft, draw_center_rect.mTop, 0.f);
             index++;
 
-            uv[index] = LLVector2(uv_center_rect.mRight, uv_outer_rect.mTop);
-            pos[index] = LLVector3(draw_center_rect.mRight, draw_outer_rect.mTop, 0.f);
+            // draw right triangles
+            uv[index].set(uv_center_rect.mRight, uv_center_rect.mBottom);
+            pos[index].set(draw_center_rect.mRight, draw_center_rect.mBottom, 0.f);
             index++;
 
-            uv[index] = LLVector2(uv_center_rect.mLeft, uv_outer_rect.mTop);
-            pos[index] = LLVector3(draw_center_rect.mLeft, draw_outer_rect.mTop, 0.f);
+            uv[index].set(uv_outer_rect.mRight, uv_center_rect.mBottom);
+            pos[index].set(draw_outer_rect.mRight, draw_center_rect.mBottom, 0.f);
             index++;
 
-            // draw top right
-            uv[index] = LLVector2(uv_center_rect.mRight, uv_center_rect.mTop);
-            pos[index] = LLVector3(draw_center_rect.mRight, draw_center_rect.mTop, 0.f);
+            uv[index].set(uv_outer_rect.mRight, uv_center_rect.mTop);
+            pos[index].set(draw_outer_rect.mRight, draw_center_rect.mTop, 0.f);
             index++;
 
-            uv[index] = LLVector2(uv_outer_rect.mRight, uv_center_rect.mTop);
-            pos[index] = LLVector3(draw_outer_rect.mRight, draw_center_rect.mTop, 0.f);
+            // 2
+            uv[index].set(uv_center_rect.mRight, uv_center_rect.mBottom);
+            pos[index].set(draw_center_rect.mRight, draw_center_rect.mBottom, 0.f);
             index++;
 
-            uv[index] = LLVector2(uv_outer_rect.mRight, uv_outer_rect.mTop);
-            pos[index] = LLVector3(draw_outer_rect.mRight, draw_outer_rect.mTop, 0.f);
+            uv[index].set(uv_outer_rect.mRight, uv_center_rect.mTop);
+            pos[index].set(draw_outer_rect.mRight, draw_center_rect.mTop, 0.f);
             index++;
 
-            uv[index] = LLVector2(uv_center_rect.mRight, uv_outer_rect.mTop);
-            pos[index] = LLVector3(draw_center_rect.mRight, draw_outer_rect.mTop, 0.f);
+            uv[index].set(uv_center_rect.mRight, uv_center_rect.mTop);
+            pos[index].set(draw_center_rect.mRight, draw_center_rect.mTop, 0.f);
+            index++;
+
+            // draw top left triangles
+            uv[index].set(uv_outer_rect.mLeft, uv_center_rect.mTop);
+            pos[index].set(draw_outer_rect.mLeft, draw_center_rect.mTop, 0.f);
+            index++;
+
+            uv[index].set(uv_center_rect.mLeft, uv_center_rect.mTop);
+            pos[index].set(draw_center_rect.mLeft, draw_center_rect.mTop, 0.f);
+            index++;
+
+            uv[index].set(uv_center_rect.mLeft, uv_outer_rect.mTop);
+            pos[index].set(draw_center_rect.mLeft, draw_outer_rect.mTop, 0.f);
+            index++;
+
+            // 2
+            uv[index].set(uv_outer_rect.mLeft, uv_center_rect.mTop);
+            pos[index].set(draw_outer_rect.mLeft, draw_center_rect.mTop, 0.f);
+            index++;
+
+            uv[index].set(uv_center_rect.mLeft, uv_outer_rect.mTop);
+            pos[index].set(draw_center_rect.mLeft, draw_outer_rect.mTop, 0.f);
+            index++;
+
+            uv[index].set(uv_outer_rect.mLeft, uv_outer_rect.mTop);
+            pos[index].set(draw_outer_rect.mLeft, draw_outer_rect.mTop, 0.f);
+            index++;
+
+            // draw top middle triangles
+            uv[index].set(uv_center_rect.mLeft, uv_center_rect.mTop);
+            pos[index].set(draw_center_rect.mLeft, draw_center_rect.mTop, 0.f);
+            index++;
+
+            uv[index].set(uv_center_rect.mRight, uv_center_rect.mTop);
+            pos[index].set(draw_center_rect.mRight, draw_center_rect.mTop, 0.f);
+            index++;
+
+            uv[index].set(uv_center_rect.mRight, uv_outer_rect.mTop);
+            pos[index].set(draw_center_rect.mRight, draw_outer_rect.mTop, 0.f);
+            index++;
+
+            // 2
+            uv[index].set(uv_center_rect.mLeft, uv_center_rect.mTop);
+            pos[index].set(draw_center_rect.mLeft, draw_center_rect.mTop, 0.f);
+            index++;
+
+            uv[index].set(uv_center_rect.mRight, uv_outer_rect.mTop);
+            pos[index].set(draw_center_rect.mRight, draw_outer_rect.mTop, 0.f);
+            index++;
+
+            uv[index].set(uv_center_rect.mLeft, uv_outer_rect.mTop);
+            pos[index].set(draw_center_rect.mLeft, draw_outer_rect.mTop, 0.f);
+            index++;
+
+            // draw top right triangles
+            uv[index].set(uv_center_rect.mRight, uv_center_rect.mTop);
+            pos[index].set(draw_center_rect.mRight, draw_center_rect.mTop, 0.f);
+            index++;
+
+            uv[index].set(uv_outer_rect.mRight, uv_center_rect.mTop);
+            pos[index].set(draw_outer_rect.mRight, draw_center_rect.mTop, 0.f);
+            index++;
+
+            uv[index].set(uv_outer_rect.mRight, uv_outer_rect.mTop);
+            pos[index].set(draw_outer_rect.mRight, draw_outer_rect.mTop, 0.f);
+            index++;
+
+            // 2
+            uv[index].set(uv_center_rect.mRight, uv_center_rect.mTop);
+            pos[index].set(draw_center_rect.mRight, draw_center_rect.mTop, 0.f);
+            index++;
+
+            uv[index].set(uv_outer_rect.mRight, uv_outer_rect.mTop);
+            pos[index].set(draw_outer_rect.mRight, draw_outer_rect.mTop, 0.f);
+            index++;
+
+            uv[index].set(uv_center_rect.mRight, uv_outer_rect.mTop);
+            pos[index].set(draw_center_rect.mRight, draw_outer_rect.mTop, 0.f);
             index++;
 
             gGL.vertexBatchPreTransformed(pos, uv, NUM_VERTICES);
@@ -629,11 +711,11 @@ void gl_draw_scaled_rotated_image(S32 x, S32 y, S32 width, S32 height, F32 degre
 
     if (degrees == 0.f)
     {
-        const S32 NUM_VERTICES = 4; // 9 quads
-        LLVector2 uv[NUM_VERTICES];
-        LLVector3 pos[NUM_VERTICES];
+        constexpr S32 NUM_VERTICES = 2 * 3;
+        static thread_local LLVector2 uv[NUM_VERTICES];
+        static thread_local LLVector3 pos[NUM_VERTICES];
 
-        gGL.begin(LLRender::QUADS);
+        gGL.begin(LLRender::TRIANGLES);
         {
             LLVector3 ui_scale = gGL.getUIScale();
             LLVector3 ui_translation = gGL.getUITranslation();
@@ -644,20 +726,28 @@ void gl_draw_scaled_rotated_image(S32 x, S32 y, S32 width, S32 height, F32 degre
             S32 scaled_width = ll_round(width * ui_scale.mV[VX]);
             S32 scaled_height = ll_round(height * ui_scale.mV[VY]);
 
-            uv[index] = LLVector2(uv_rect.mRight, uv_rect.mTop);
-            pos[index] = LLVector3(ui_translation.mV[VX] + scaled_width, ui_translation.mV[VY] + scaled_height, 0.f);
+            uv[index].set(uv_rect.mRight, uv_rect.mTop);
+            pos[index].set(ui_translation.mV[VX] + scaled_width, ui_translation.mV[VY] + scaled_height, 0.f);
             index++;
 
-            uv[index] = LLVector2(uv_rect.mLeft, uv_rect.mTop);
-            pos[index] = LLVector3(ui_translation.mV[VX], ui_translation.mV[VY] + scaled_height, 0.f);
+            uv[index].set(uv_rect.mLeft, uv_rect.mTop);
+            pos[index].set(ui_translation.mV[VX], ui_translation.mV[VY] + scaled_height, 0.f);
             index++;
 
-            uv[index] = LLVector2(uv_rect.mLeft, uv_rect.mBottom);
-            pos[index] = LLVector3(ui_translation.mV[VX], ui_translation.mV[VY], 0.f);
+            uv[index].set(uv_rect.mLeft, uv_rect.mBottom);
+            pos[index].set(ui_translation.mV[VX], ui_translation.mV[VY], 0.f);
             index++;
 
-            uv[index] = LLVector2(uv_rect.mRight, uv_rect.mBottom);
-            pos[index] = LLVector3(ui_translation.mV[VX] + scaled_width, ui_translation.mV[VY], 0.f);
+            uv[index].set(uv_rect.mRight, uv_rect.mTop);
+            pos[index].set(ui_translation.mV[VX] + scaled_width, ui_translation.mV[VY] + scaled_height, 0.f);
+            index++;
+
+            uv[index].set(uv_rect.mLeft, uv_rect.mBottom);
+            pos[index].set(ui_translation.mV[VX], ui_translation.mV[VY], 0.f);
+            index++;
+
+            uv[index].set(uv_rect.mRight, uv_rect.mBottom);
+            pos[index].set(ui_translation.mV[VX] + scaled_width, ui_translation.mV[VY], 0.f);
             index++;
 
             gGL.vertexBatchPreTransformed(pos, uv, NUM_VERTICES);
