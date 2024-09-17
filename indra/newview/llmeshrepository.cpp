@@ -3900,7 +3900,8 @@ void LLMeshRepository::notifyLoadedMeshes()
         for (auto iter = mSkinMap.begin(), ender = mSkinMap.end(); iter != ender;)
         {
             auto copy_iter = iter++;
-
+            LLUUID id = copy_iter->first;
+            
             //skinbytes += U64Bytes(sizeof(LLMeshSkinInfo));
             //skinbytes += U64Bytes(copy_iter->second->mJointNames.size() * sizeof(std::string));
             //skinbytes += U64Bytes(copy_iter->second->mJointNums.size() * sizeof(S32));
@@ -3913,7 +3914,6 @@ void LLMeshRepository::notifyLoadedMeshes()
             }
 
             // erase from background thread
-            LLUUID id = iter->first;
             mThread->mWorkQueue.post([=]()
                 {
                     mThread->mSkinMap.erase(id);
