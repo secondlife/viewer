@@ -1279,7 +1279,6 @@ S32 LLPrimitive::packTEMessageBuffer(U8* packed_buffer) const
     LLTEContents contents(num_tes);
 
     // note: packed_buffer is expected to be at least MAX_TE_BUFFER wide.
-    //U8  packed_buffer[MAX_TE_BUFFER];
     U8 *cur_ptr = packed_buffer;
 
     // ...if we hit the front, send one image id
@@ -1290,13 +1289,10 @@ S32 LLPrimitive::packTEMessageBuffer(U8* packed_buffer) const
     for (face_index = 0; face_index <= last_face_index; ++face_index)
     {
         // Directly sending image_ids is not safe!
-        //memcpy(contents.image_ids[face_index].mData, getTE(face_index)->getID().mData, sizeof(LLUUID));  /* Flawfinder: ignore */
         const LLTextureEntry* te = getTE(face_index);
-        //contents.image_ids[face_index] = getTE(face_index)->getID();
         contents.image_ids[face_index] = te->getID();
 
         // Directly sending material_ids is not safe!
-        //memcpy(&contents.material_ids[face_index].get(), getTE(face_index)->getMaterialID().get(), 16);  /* Flawfinder: ignore */
         contents.material_ids[face_index] = te->getMaterialID();
 
         // Cast LLColor4 to LLColor4U
@@ -1342,7 +1338,6 @@ S32 LLPrimitive::packTEMessageBuffer(U8* packed_buffer) const
     // end of required properties
 
     // we always pack material_ids however the receiving side can handle the case when it is not included
-    // TODO?: don't bother to pack it when it is empty/default?
     cur_ptr += packTEField(cur_ptr, reinterpret_cast<U8*>(contents.material_ids), 16, last_face_index, MVT_LLUUID);
     *cur_ptr++ = 0;
 
@@ -1366,6 +1361,7 @@ bool LLPrimitive::packTEMessage(LLMessageSystem *mesgsys) const
     return true;
 }
 
+// Unpack information about all texture entires and store in LLTEContents
 S32 LLPrimitive::parseTEMessage(LLMessageSystem* mesgsys, char const* block_name, const S32 block_num, LLTEContents& tec)
 {
     U32 data_size;
