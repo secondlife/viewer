@@ -200,8 +200,8 @@ bool LLViewerDynamicTexture::updateAllInstances()
     }
     llassert(preview_target.getWidth() >= LLPipeline::MAX_PREVIEW_WIDTH);
     llassert(preview_target.getHeight() >= LLPipeline::MAX_PREVIEW_WIDTH);
-    llassert(bake_target.getWidth() >= LLAvatarAppearanceDefines::SCRATCH_TEX_WIDTH);
-    llassert(bake_target.getHeight() >= LLAvatarAppearanceDefines::SCRATCH_TEX_HEIGHT);
+    llassert(bake_target.getWidth() >= (U32) LLAvatarAppearanceDefines::SCRATCH_TEX_WIDTH);
+    llassert(bake_target.getHeight() >= (U32) LLAvatarAppearanceDefines::SCRATCH_TEX_HEIGHT);
 
     preview_target.bindTarget();
     preview_target.clear();
