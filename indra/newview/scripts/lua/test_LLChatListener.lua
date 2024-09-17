@@ -1,4 +1,4 @@
-local LLChatListener = require 'LLChatListener'
+local LLListener = require 'LLListener'
 local LLChat = require 'LLChat'
 local UI = require 'UI'
 
@@ -22,7 +22,7 @@ function openOrEcho(message)
     end
 end
 
-local listener = LLChatListener()
+local listener = LLListener()
 
 function listener:handleMessages(event_data)
     if string.find(event_data.message, '[LUA]') then
@@ -36,4 +36,4 @@ function listener:handleMessages(event_data)
     return true
 end
 
-listener:start()
+listener:start(LLChat.nearbyChatPump)

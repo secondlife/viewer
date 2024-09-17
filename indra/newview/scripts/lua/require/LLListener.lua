@@ -3,29 +3,31 @@ local inspect = require 'inspect'
 local leap = require 'leap'
 local util = require 'util'
 
-local LLChatListener = {}
+local LLListener = {}
 local waitfor = {}
 local listener_name = {}
+local pump = {}
 
-function LLChatListener:new()
+function LLListener:new()
     local obj = setmetatable({}, self)
     self.__index = self
-    obj.name = 'Chat_listener'
+    obj.name = 'Listener'
 
     return obj
 end
 
-util.classctor(LLChatListener)
+util.classctor(LLListener)
 
-function LLChatListener:handleMessages(event_data)
+function LLListener:handleMessages(event_data)
     print(inspect(event_data))
     return true
 end
 
-function LLChatListener:start()
+function LLListener:start(pump_name)
+    pump = pump_name
     waitfor = leap.WaitFor(-1, self.name)
-    function waitfor:filter(pump, data)
-        if pump == "LLNearbyChat" then
+    function waitfor:filter(pump_, data)
+        if pump == pump_ then
           return data
         end
     end
@@ -37,12 +39,12 @@ function LLChatListener:start()
         end
     end)
 
-    listener_name = leap.request(leap.cmdpump(), {op='listen', source='LLNearbyChat', listener="ChatListener", tweak=true}).listener
+    listener_name = leap.request(leap.cmdpump(), {op='listen', source=pump, listener="LLListener", tweak=true}).listener
 end
 
-function LLChatListener:stop()
-    leap.send(leap.cmdpump(), {op='stoplistening', source='LLNearbyChat', listener=listener_name})
+function LLListener:stop()
+    leap.send(leap.cmdpump(), {op='stoplistening', source=pump, listener=listener_name})
     waitfor:close()
 end
 
-return LLChatListener
+return LLListener

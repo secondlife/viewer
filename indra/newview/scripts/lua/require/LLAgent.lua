@@ -80,6 +80,11 @@ function LLAgent.teleport(...)
     return leap.request('LLTeleportHandler', args).message
 end
 
+-- Call with no arguments to sit on the ground.
+-- Otherwise specify "obj_uuid" to sit on,
+-- or region "position" {x, y, z} where to find closest object to sit on.
+-- For example: LLAgent.requestSit{position=LLAgent.getRegionPosition()}
+-- Your avatar should be close enough to the object you want to sit on
 function LLAgent.requestSit(...)
     local args = mapargs('obj_uuid,position', ...)
     args.op = 'requestSit'
@@ -90,6 +95,11 @@ function LLAgent.requestStand()
     leap.send('LLAgent', {op = 'requestStand'})
 end
 
+-- ***************************************************************************
+--  Autopilot
+-- ***************************************************************************
+LLAgent.autoPilotPump = "LLAutopilot"
+
 -- Start the autopilot to move to "target_global" location using specified parameters
 -- LLAgent.startAutoPilot{ target_global       array of target global {x, y, z} position
 --                      [, allow_flying]       allow flying during autopilot [default: true]
@@ -97,6 +107,7 @@ end
 --                      [, behavior_name]      name of the autopilot behavior [default: (script name)]
 --                      [, target_rotation]    array of [x, y, z, w] quaternion values [default: no target]
 --                      [, rotation_threshold] target maximum angle from target facing rotation [default: 0.03 radians]
+-- an event with "success" flag is sent to "LLAutopilot" event pump, when auto pilot is terminated
 function LLAgent.startAutoPilot(...)
     local args = mapargs('target_global,allow_flying,stop_distance,behavior_name,target_rotation,rotation_threshold', ...)
     args.op = 'startAutoPilot'
@@ -109,7 +120,7 @@ function LLAgent.setAutoPilotTarget(target_global)
 end
 
 -- Start the autopilot to move to the specified target location
--- either "leader_id" (uuid of target) or "avatar_name" (avatar full name) should be specified
+-- either "leader_id" (uuid of target) or "avatar_name" (avatar full name: use just first name for 'Resident') should be specified
 -- "allow_flying" [default: true], "stop_distance" [default: autopilot guess]
 function LLAgent.startFollowPilot(...)
     local args = mapargs('leader_id,avatar_name,allow_flying,stop_distance', ...)

@@ -90,10 +90,9 @@ LLAgentListener::LLAgentListener(LLAgent &agent)
         "[\"stop_distance\"]: target maximum distance from target [default: autopilot guess]\n"
         "[\"target_rotation\"]: array of [x, y, z, w] quaternion values [default: no target]\n"
         "[\"rotation_threshold\"]: target maximum angle from target facing rotation [default: 0.03 radians]\n"
-        "[\"behavior_name\"]: name of the autopilot behavior [default: \"\"]"
-        "[\"allow_flying\"]: allow flying during autopilot [default: True]",
-        //"[\"callback_pump\"]: pump to send success/failure and callback data to [default: none]\n"
-        //"[\"callback_data\"]: data to send back during a callback [default: none]",
+        "[\"behavior_name\"]: name of the autopilot behavior [default: \"\"]\n"
+        "[\"allow_flying\"]: allow flying during autopilot [default: True]\n"
+        "event with [\"success\"] flag is sent to 'LLAutopilot' event pump, when auto pilot is terminated",
         &LLAgentListener::startAutoPilot,
         llsd::map("target_global", LLSD()));
     add("getAutoPilot",
@@ -216,7 +215,7 @@ void LLAgentListener::requestSit(LLSD const & event_data) const
     else if (event_data.has("position"))
     {
         LLVector3 target_position = ll_vector3_from_sd(event_data["position"]);
-        object = findObjectClosestTo(target_position);
+        object = findObjectClosestTo(target_position, true);
     }
     else
     {
@@ -249,7 +248,7 @@ void LLAgentListener::requestStand(LLSD const & event_data) const
 }
 
 
-LLViewerObject * LLAgentListener::findObjectClosestTo( const LLVector3 & position ) const
+LLViewerObject * LLAgentListener::findObjectClosestTo(const LLVector3 & position, bool sit_target) const
 {
     LLViewerObject *object = NULL;
 
@@ -260,8 +259,13 @@ LLViewerObject * LLAgentListener::findObjectClosestTo( const LLVector3 & positio
     while (cur_index < num_objects)
     {
         LLViewerObject * cur_object = gObjectList.getObject(cur_index++);
-        if (cur_object)
-        {   // Calculate distance from the target position
+        if (cur_object && !cur_object->isAttachment())
+        {
+            if(sit_target && (cur_object->getPCode() != LL_PCODE_VOLUME))
+            {
+                continue;
+            }
+            // Calculate distance from the target position
             LLVector3 target_diff = cur_object->getPositionRegion() - position;
             F32 distance_to_target = target_diff.length();
             if (distance_to_target < min_distance)
@@ -367,7 +371,7 @@ void LLAgentListener::startAutoPilot(LLSD const & event_data)
         LLQuaternion target_rotation_value = ll_quaternion_from_sd(event_data["target_rotation"]);
         target_rotation = &target_rotation_value;
     }
-    // *TODO: Use callback_pump and callback_data
+
     F32 rotation_threshold = 0.03f;
     if (event_data.has("rotation_threshold"))
     {
@@ -396,10 +400,15 @@ void LLAgentListener::startAutoPilot(LLSD const & event_data)
     // Clear follow target, this is doing a path
     mFollowTarget.setNull();
 
+    auto finish_cb = [](bool success, void*)
+    {
+        LLEventPumps::instance().obtain("LLAutopilot").post(llsd::map("success", success));
+    };
+
     mAgent.startAutoPilotGlobal(ll_vector3d_from_sd(event_data["target_global"]),
                                 behavior_name,
                                 target_rotation,
-                                NULL, NULL,
+                                finish_cb, NULL,
                                 stop_distance,
                                 rotation_threshold,
                                 allow_flying);
