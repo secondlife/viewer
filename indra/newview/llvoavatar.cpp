@@ -243,7 +243,8 @@ struct LLTextureMaskData
 
 struct LLAppearanceMessageContents: public LLRefCount
 {
-    LLAppearanceMessageContents():
+    LLAppearanceMessageContents(U8 num_tes):
+        mTEContents(num_tes),
         mAppearanceVersion(-1),
         mParamAppearanceVersion(-1),
         mCOFVersion(LLViewerInventoryCategory::VERSION_UNKNOWN)
@@ -9385,10 +9386,10 @@ void LLVOAvatar::dumpAppearanceMsgParams( const std::string& dump_prefix,
     apr_file_printf(file, "</params>\n");
 
     apr_file_printf(file, "\n<textures>\n");
-    for (U32 i = 0; i < tec.face_count; i++)
+    for (U32 i = 0; i < tec.getNumTEs(); i++)
     {
         std::string uuid_str;
-        ((LLUUID*)tec.image_data)[i].toString(uuid_str);
+        tec.image_ids[i].toString(uuid_str);
         apr_file_printf( file, "\t\t<texture te=\"%i\" uuid=\"%s\"/>\n", i, uuid_str.c_str());
     }
     apr_file_printf(file, "</textures>\n");
@@ -9573,7 +9574,8 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 
     mLastAppearanceMessageTimer.reset();
 
-    LLPointer<LLAppearanceMessageContents> contents(new LLAppearanceMessageContents);
+    S32 num_tes = getNumTEs();
+    LLPointer<LLAppearanceMessageContents> contents(new LLAppearanceMessageContents(num_tes));
     parseAppearanceMessage(mesgsys, *contents);
     if (enable_verbose_dumps)
     {

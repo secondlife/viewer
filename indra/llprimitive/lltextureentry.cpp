@@ -139,7 +139,7 @@ LLTextureEntry &LLTextureEntry::operator=(const LLTextureEntry &rhs)
 
 void LLTextureEntry::init(const LLUUID& tex_id, F32 scale_s, F32 scale_t, F32 offset_s, F32 offset_t, F32 rotation, U8 bump, U8 alphagamma)
 {
-    setID(tex_id);
+    mID = tex_id;
 
     mScaleS = scale_s;
     mScaleT = scale_t;

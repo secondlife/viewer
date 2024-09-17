@@ -2361,8 +2361,6 @@ void LLSelectMgr::selectionSetAlphaGamma(U8 gamma)
     } setfunc(gamma);
     getSelection()->applyToTEs(&setfunc);
 
-    // TODO: remove LLSelectMgrAlphaGammaBypassFunctor and instead
-    // use the normal LLSelectMgrSendFunctor and enhance the server to know when to allow bypass
     LLSelectMgrAlphaGammaBypassFunctor sendfunc;
     getSelection()->applyToObjects(&sendfunc);
 }
@@ -5833,7 +5831,7 @@ void LLSelectMgr::packAlphaGammaBypass(LLViewerObject* object)
     U8  packed_buffer[LLTEContents::MAX_TE_BUFFER];
     U8*       cur_ptr = packed_buffer;
 
-    S32 last_face_index = llmin((U32) object->getNumTEs(), LLTEContents::MAX_TES) - 1;
+    S32 last_face_index = (S32)llmin(object->getNumTEs(), (U8)LLTEContents::MAX_TES) - 1;
 
     if (last_face_index > -1)
     {
