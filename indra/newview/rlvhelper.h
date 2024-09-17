@@ -152,14 +152,20 @@ namespace Rlv
     //
     // CommandHandler - The actual command handler (Note that a handler is more general than a processor; a handler can - for instance - be used by multiple processors)
     //
+    #if LL_WINDOWS
+        #define RLV_TEMPL_FIX(x) template<x>
+    #else
+        #define RLV_TEMPL_FIX(x) template<typename Placeholder = int>
+    #endif // LL_WINDOWS
+
 
     template <EParamType templParamType, EBehaviour templBhvr>
     struct CommandHandler
     {
-        template<typename = typename std::enable_if<templParamType == EParamType::AddRem>::type> static ECmdRet onCommand(const RlvCommand&, bool&);
-        template<typename = typename std::enable_if<templParamType == EParamType::AddRem>::type> static void onCommandToggle(EBehaviour, bool);
-        template<typename = typename std::enable_if<templParamType == EParamType::Force>::type>  static ECmdRet onCommand(const RlvCommand&);
-        template<typename = typename std::enable_if<templParamType == EParamType::Reply>::type>  static ECmdRet onCommand(const RlvCommand&, std::string&);
+        RLV_TEMPL_FIX(typename = typename std::enable_if<templParamType == EParamType::AddRem>::type) static ECmdRet onCommand(const RlvCommand&, bool&);
+        RLV_TEMPL_FIX(typename = typename std::enable_if<templParamType == EParamType::AddRem>::type) static void onCommandToggle(EBehaviour, bool);
+        RLV_TEMPL_FIX(typename = typename std::enable_if<templParamType == EParamType::Force>::type)  static ECmdRet onCommand(const RlvCommand&);
+        RLV_TEMPL_FIX(typename = typename std::enable_if<templParamType == EParamType::Reply>::type)  static ECmdRet onCommand(const RlvCommand&, std::string&);
     };
 
     // Aliases to improve readability in definitions
@@ -179,11 +185,11 @@ namespace Rlv
     {
     public:
         // Default constructor used by behaviour specializations
-        template<typename = typename std::enable_if<templBhvr != EBehaviour::Unknown>::type>
+        RLV_TEMPL_FIX(typename = typename std::enable_if<templBhvr != EBehaviour::Unknown>::type)
         CommandProcessor(const std::string& strBhvr, U32 nBhvrFlags = 0) : BehaviourInfo(strBhvr, templBhvr, templParamType, nBhvrFlags) {}
 
         // Constructor used when we don't want to specialize on behaviour (see BehaviourGenericProcessor)
-        template<typename = typename std::enable_if<templBhvr == EBehaviour::Unknown>::type>
+        RLV_TEMPL_FIX(typename = typename std::enable_if<templBhvr == EBehaviour::Unknown>::type)
         CommandProcessor(const std::string& strBhvr, EBehaviour eBhvr, U32 nBhvrFlags = 0) : BehaviourInfo(strBhvr, eBhvr, templParamType, nBhvrFlags) {}
 
         ECmdRet processCommand(const RlvCommand& rlvCmd) const override { return baseImpl::processCommand(rlvCmd, &handlerImpl::onCommand); }

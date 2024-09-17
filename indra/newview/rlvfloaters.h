@@ -32,6 +32,7 @@
 #include "rlvdefines.h"
 
 class LLChatEntry;
+class LLFloaterReg;
 class LLLayoutPanel;
 class LLTextEditor;
 class RlvCommand;
@@ -45,7 +46,7 @@ namespace Rlv
 
     class FloaterConsole : public LLFloater
     {
-        friend class LLFloaterReg;
+        friend class ::LLFloaterReg;
         FloaterConsole(const LLSD& sdKey) : LLFloater(sdKey) {}
 
     public:
