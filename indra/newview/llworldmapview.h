@@ -210,6 +210,7 @@ private:
 
     F32 mMapScale;
     F32 mTargetMapScale;
+    F32 mMapRatio;
     static F32 sMapScaleSetting;
     static LLVector2 sZoomPivot;
     static LLFrameTimer sZoomTimer;

@@ -420,7 +420,7 @@ void LLWebRTCVoiceClient::notifyStatusObservers(LLVoiceClientStatusObserver::ESt
         status != LLVoiceClientStatusObserver::STATUS_LEFT_CHANNEL &&
         status != LLVoiceClientStatusObserver::STATUS_VOICE_DISABLED)
     {
-        bool voice_status = LLVoiceClient::getInstance()->voiceEnabled() && LLVoiceClient::getInstance()->isVoiceWorking();
+        bool voice_status = LLVoiceClient::getInstance()->voiceEnabled() && mIsProcessingChannels;
 
         gAgent.setVoiceConnected(voice_status);
 
@@ -1335,7 +1335,10 @@ bool LLWebRTCVoiceClient::startAdHocSession(const LLSD& channelInfo, bool notify
 
 bool LLWebRTCVoiceClient::isVoiceWorking() const
 {
-    return mIsProcessingChannels;
+    // webrtc is working if the coroutine is active in the case of
+    // webrtc. WebRTC doesn't need to connect to a secondary process
+    // or a login server to become active.
+    return mIsCoroutineActive;
 }
 
 // Returns true if calling back the session URI after the session has closed is possible.
@@ -2012,7 +2015,10 @@ bool LLWebRTCVoiceClient::estateSessionState::processConnectionStates()
                 // shut down connections to neighbors that are too far away.
                 spatialConnection.get()->shutDown();
             }
-            neighbor_ids.erase(regionID);
+            if (!spatialConnection.get()->isShuttingDown())
+            {
+                neighbor_ids.erase(regionID);
+            }
         }
 
         // add new connections for new neighbors
@@ -2512,8 +2518,6 @@ void LLVoiceWebRTCConnection::breakVoiceConnectionCoro(connectionPtr_t connectio
 
     httpOpts->setWantHeaders(true);
 
-    connection->mOutstandingRequests++;
-
     // tell the server to shut down the connection as a courtesy.
     // shutdownConnection will drop the WebRTC connection which will
     // also shut things down.
@@ -2544,6 +2548,7 @@ void LLVoiceWebRTCSpatialConnection::requestVoiceConnection()
 
         // try again.
         setVoiceConnectionState(VOICE_STATE_REQUEST_CONNECTION);
+        mOutstandingRequests--;
         return;
     }
 
@@ -2551,6 +2556,7 @@ void LLVoiceWebRTCSpatialConnection::requestVoiceConnection()
     if (url.empty())
     {
         setVoiceConnectionState(VOICE_STATE_SESSION_RETRY);
+        mOutstandingRequests--;
         return;
     }
 
@@ -2575,7 +2581,6 @@ void LLVoiceWebRTCSpatialConnection::requestVoiceConnection()
     LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
 
     httpOpts->setWantHeaders(true);
-    mOutstandingRequests++;
     LLSD result = httpAdapter->postAndSuspend(httpRequest, url, body, httpOpts);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
@@ -2663,7 +2668,10 @@ bool LLVoiceWebRTCConnection::connectionStateMachine()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE;
 
-    processIceUpdates();
+    if (!mShutDown)
+    {
+        processIceUpdates();
+    }
 
     switch (getVoiceConnectionState())
     {
@@ -2707,6 +2715,7 @@ bool LLVoiceWebRTCConnection::connectionStateMachine()
             // a given voice channel.  On completion, we'll move on to the
             // VOICE_STATE_SESSION_ESTABLISHED via a callback on a webrtc thread.
             setVoiceConnectionState(VOICE_STATE_CONNECTION_WAIT);
+            mOutstandingRequests++;
             LLCoros::getInstance()->launch("LLVoiceWebRTCConnection::requestVoiceConnectionCoro",
                                            boost::bind(&LLVoiceWebRTCConnection::requestVoiceConnectionCoro, this->shared_from_this()));
             break;
@@ -2757,23 +2766,24 @@ bool LLVoiceWebRTCConnection::connectionStateMachine()
         case VOICE_STATE_SESSION_UP:
         {
             mRetryWaitPeriod = 0;
-            mRetryWaitSecs   = (F32)((F32) rand() / (RAND_MAX)) + 0.5f;
-            LLUUID agentRegionID;
-            if (isSpatial() && gAgent.getRegion())
-            {
-
-                bool primary = (mRegionID == gAgent.getRegion()->getRegionID());
-                if (primary != mPrimary)
-                {
-                    mPrimary = primary;
-                    sendJoin();
-                }
-            }
+            mRetryWaitSecs = (F32)((F32)rand() / (RAND_MAX)) + 0.5f;
 
             // we'll stay here as long as the session remains up.
             if (mShutDown)
             {
                 setVoiceConnectionState(VOICE_STATE_DISCONNECT);
+            }
+            else
+            {
+                if (isSpatial() && gAgent.getRegion())
+                {
+                    bool primary = (mRegionID == gAgent.getRegion()->getRegionID());
+                    if (primary != mPrimary)
+                    {
+                        mPrimary = primary;
+                        sendJoin();
+                    }
+                }
             }
             break;
         }
@@ -2799,6 +2809,7 @@ bool LLVoiceWebRTCConnection::connectionStateMachine()
         case VOICE_STATE_DISCONNECT:
             if (!LLWebRTCVoiceClient::isShuttingDown())
             {
+                mOutstandingRequests++;
                 setVoiceConnectionState(VOICE_STATE_WAIT_FOR_EXIT);
                 LLCoros::instance().launch("LLVoiceWebRTCConnection::breakVoiceConnectionCoro",
                                            boost::bind(&LLVoiceWebRTCConnection::breakVoiceConnectionCoro, this->shared_from_this()));
@@ -2807,7 +2818,6 @@ bool LLVoiceWebRTCConnection::connectionStateMachine()
             {
                 // llwebrtc::terminate() is already shuting down the connection.
                 setVoiceConnectionState(VOICE_STATE_WAIT_FOR_CLOSE);
-                mOutstandingRequests++;
             }
             break;
 
@@ -2976,7 +2986,9 @@ void LLVoiceWebRTCConnection::OnDataReceivedImpl(const std::string &data, bool b
                     // we got a 'power' update.
                     if (participant_obj.contains("p") && participant_obj["p"].is_number())
                     {
-                        participant->mLevel = (F32)participant_obj["p"].as_int64();
+                        // server sends up power as an integer which is level * 128 to save
+                        // character count.
+                        participant->mLevel = (F32)participant_obj["p"].as_int64()/128.0f;
                     }
 
                     if (participant_obj.contains("v") && participant_obj["v"].is_bool())
@@ -2984,10 +2996,9 @@ void LLVoiceWebRTCConnection::OnDataReceivedImpl(const std::string &data, bool b
                         participant->mIsSpeaking = participant_obj["v"].as_bool();
                     }
 
-                    if (participant_obj.contains("v") && participant_obj["m"].is_bool())
+                    if (participant_obj.contains("m") && participant_obj["m"].is_bool())
                     {
                         participant->mIsModeratorMuted = participant_obj["m"].as_bool();
-                        ;
                     }
                 }
             }
@@ -3051,7 +3062,6 @@ void LLVoiceWebRTCConnection::sendJoin()
 
     boost::json::object root;
     boost::json::object join_obj;
-    LLUUID           regionID = gAgent.getRegion()->getRegionID();
     if (mPrimary)
     {
         join_obj["p"] = true;
@@ -3134,6 +3144,7 @@ void LLVoiceWebRTCAdHocConnection::requestVoiceConnection()
         LL_DEBUGS("Voice") << "no capabilities for voice provisioning; retrying " << LL_ENDL;
         // try again.
         setVoiceConnectionState(VOICE_STATE_REQUEST_CONNECTION);
+        mOutstandingRequests--;
         return;
     }
 
@@ -3141,6 +3152,7 @@ void LLVoiceWebRTCAdHocConnection::requestVoiceConnection()
     if (url.empty())
     {
         setVoiceConnectionState(VOICE_STATE_SESSION_RETRY);
+        mOutstandingRequests--;
         return;
     }
 
@@ -3164,7 +3176,7 @@ void LLVoiceWebRTCAdHocConnection::requestVoiceConnection()
     LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
 
     httpOpts->setWantHeaders(true);
-    mOutstandingRequests++;
+
     LLSD result = httpAdapter->postAndSuspend(httpRequest, url, body, httpOpts);
 
     LLSD               httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];

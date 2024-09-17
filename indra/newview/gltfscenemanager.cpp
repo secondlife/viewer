@@ -45,6 +45,7 @@
 #include "llfloaterreg.h"
 #include "llagentbenefits.h"
 #include "llfilesystem.h"
+#include "llviewercontrol.h"
 #include "boost/json.hpp"
 
 #define GLTF_SIM_SUPPORT 1
@@ -618,6 +619,13 @@ void GLTFSceneManager::render(Asset& asset, U8 variant)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_GLTF;
 
+    static LLCachedControl<bool> can_use_shaders(gSavedSettings, "RenderCanUseGLTFPBROpaqueShaders", true);
+    if (!can_use_shaders)
+    {
+        // user should already have been notified of unsupported hardware
+        return;
+    }
+
     for (U32 ds = 0; ds < 2; ++ds)
     {
         RenderData& rd = asset.mRenderData[ds];
@@ -799,10 +807,10 @@ void GLTFSceneManager::bind(Asset& asset, Material& material)
 
 LLMatrix4a inverse(const LLMatrix4a& mat)
 {
-    glh::matrix4f m((F32*)mat.mMatrix);
-    m = m.inverse();
+    glm::mat4 m = glm::make_mat4((F32*)mat.mMatrix);
+    m = glm::inverse(m);
     LLMatrix4a ret;
-    ret.loadu(m.m);
+    ret.loadu(glm::value_ptr(m));
     return ret;
 }
 

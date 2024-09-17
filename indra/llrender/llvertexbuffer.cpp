@@ -36,6 +36,7 @@
 #include "llshadermgr.h"
 #include "llglslshader.h"
 #include "llmemory.h"
+#include <glm/gtc/type_ptr.hpp>
 
 //Next Highest Power Of Two
 //helper function, returns first number > v that is a power of 2, or v if v is already a power of 2
@@ -570,6 +571,54 @@ public:
 
 static LLVBOPool* sVBOPool = nullptr;
 
+void LLVertexBufferData::draw()
+{
+    if (!mVB)
+    {
+        llassert(false);
+        // Not supposed to happen, check buffer generation
+        return;
+    }
+
+    if (mTexName)
+    {
+        gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, mTexName);
+    }
+    else
+    {
+        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+    }
+
+    gGL.matrixMode(LLRender::MM_MODELVIEW);
+    gGL.pushMatrix();
+    gGL.loadMatrix(glm::value_ptr(mModelView));
+    gGL.matrixMode(LLRender::MM_PROJECTION);
+    gGL.pushMatrix();
+    gGL.loadMatrix(glm::value_ptr(mProjection));
+    gGL.matrixMode(LLRender::MM_TEXTURE0);
+    gGL.pushMatrix();
+    gGL.loadMatrix(glm::value_ptr(mTexture0));
+
+    mVB->setBuffer();
+
+    if (mMode == LLRender::QUADS && LLRender::sGLCoreProfile)
+    {
+        mVB->drawArrays(LLRender::TRIANGLES, 0, mCount);
+    }
+    else
+    {
+        mVB->drawArrays(mMode, 0, mCount);
+    }
+
+    gGL.popMatrix();
+    gGL.matrixMode(LLRender::MM_PROJECTION);
+    gGL.popMatrix();
+    gGL.matrixMode(LLRender::MM_MODELVIEW);
+    gGL.popMatrix();
+}
+
+//============================================================================
+
 //static
 U64 LLVertexBuffer::getBytesAllocated()
 {
@@ -906,6 +955,25 @@ LLVertexBuffer::LLVertexBuffer(U32 typemask)
     }
 }
 
+// list of mapped buffers
+// NOTE: must not be LLPointer<LLVertexBuffer> to avoid breaking non-ref-counted LLVertexBuffer instances
+static std::vector<LLVertexBuffer*> sMappedBuffers;
+
+//static
+void LLVertexBuffer::flushBuffers()
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VERTEX;
+    // must only be called from main thread
+    llassert(LLCoros::on_main_thread_main_coro());
+    for (auto& buffer : sMappedBuffers)
+    {
+        buffer->_unmapBuffer();
+        buffer->mMapped = false;
+    }
+
+    sMappedBuffers.resize(0);
+}
+
 //static
 U32 LLVertexBuffer::calcOffsets(const U32& typemask, U32* offsets, U32 num_vertices)
 {
@@ -949,6 +1017,12 @@ U32 LLVertexBuffer::calcVertexSize(const U32& typemask)
 //virtual
 LLVertexBuffer::~LLVertexBuffer()
 {
+    if (mMapped)
+    { // is on the mapped buffer list but doesn't need to be flushed
+        mMapped = false;
+        unmapBuffer();
+    }
+
     destroyGLBuffer();
     destroyGLIndices();
 
@@ -1150,6 +1224,7 @@ bool expand_region(LLVertexBuffer::MappedRegion& region, U32 start, U32 end)
 U8* LLVertexBuffer::mapVertexBuffer(LLVertexBuffer::AttributeType type, U32 index, S32 count)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VERTEX;
+    _mapBuffer();
 
     if (count == -1)
     {
@@ -1185,6 +1260,7 @@ U8* LLVertexBuffer::mapVertexBuffer(LLVertexBuffer::AttributeType type, U32 inde
 U8* LLVertexBuffer::mapIndexBuffer(U32 index, S32 count)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VERTEX;
+    _mapBuffer();
 
     if (count == -1)
     {
@@ -1226,6 +1302,9 @@ U8* LLVertexBuffer::mapIndexBuffer(U32 index, S32 count)
 void LLVertexBuffer::flush_vbo(GLenum target, U32 start, U32 end, void* data, U8* dst)
 {
 #if LL_DARWIN
+    // on OS X, flush_vbo doesn't actually write to the GL buffer, so be sure to call
+    // _mapBuffer to tag the buffer for flushing to GL
+    _mapBuffer();
     LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("vb memcpy");
     STOP_GLERROR;
     // copy into mapped buffer
@@ -1241,11 +1320,11 @@ void LLVertexBuffer::flush_vbo(GLenum target, U32 start, U32 end, void* data, U8
         LL_PROFILE_ZONE_NUM(end);
         LL_PROFILE_ZONE_NUM(end-start);
 
-        constexpr U32 block_size = 8192;
+        constexpr U32 block_size = 65536;
 
         for (U32 i = start; i <= end; i += block_size)
         {
-            LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("glBufferSubData block");
+            //LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("glBufferSubData block");
             //LL_PROFILE_GPU_ZONE("glBufferSubData");
             U32 tend = llmin(i + block_size, end);
             U32 size = tend - i + 1;
@@ -1257,7 +1336,26 @@ void LLVertexBuffer::flush_vbo(GLenum target, U32 start, U32 end, void* data, U8
 
 void LLVertexBuffer::unmapBuffer()
 {
+    flushBuffers();
+}
+
+void LLVertexBuffer::_mapBuffer()
+{
+    if (!mMapped)
+    {
+        mMapped = true;
+        sMappedBuffers.push_back(this);
+    }
+}
+
+void LLVertexBuffer::_unmapBuffer()
+{
     STOP_GLERROR;
+    if (!mMapped)
+    {
+        return;
+    }
+
     struct SortMappedRegion
     {
         bool operator()(const MappedRegion& lhs, const MappedRegion& rhs)
@@ -1495,12 +1593,13 @@ bool LLVertexBuffer::getClothWeightStrider(LLStrider<LLVector4>& strider, U32 in
 void LLVertexBuffer::setBuffer()
 {
     STOP_GLERROR;
-#if LL_DARWIN
-    if (!mGLBuffer)
-    { // OS X doesn't allocate a buffer until we call unmapBuffer
-        return;
+
+    if (mMapped)
+    {
+        LL_WARNS_ONCE() << "Missing call to unmapBuffer or flushBuffers" << LL_ENDL;
+        _unmapBuffer();
     }
-#endif
+
     // no data may be pending
     llassert(mMappedVertexRegions.empty());
     llassert(mMappedIndexRegions.empty());

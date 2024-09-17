@@ -46,7 +46,7 @@
 // LL_WINDOWS
 
 // windows gl headers depend on things like APIENTRY, so include windows.
-#include "llwin32headerslean.h"
+#include "llwin32headers.h"
 
 //----------------------------------------------------------------------------
 #include <GL/gl.h>

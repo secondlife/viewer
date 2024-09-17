@@ -3710,6 +3710,10 @@ S32 OSMessageBoxWin32(const std::string& text, const std::string& caption, U32 t
     //
     // "This is why I'm doing it this way, instead of what you would think would be more obvious..."
     // (C) Nat Goodspeed
+    if (!IsWindow(sWindowHandleForMessageBox))
+    {
+        sWindowHandleForMessageBox = NULL;
+    }
     int retval_win = MessageBoxW(sWindowHandleForMessageBox, // HWND
                                  ll_convert_string_to_wide(text).c_str(),
                                  ll_convert_string_to_wide(caption).c_str(),
@@ -4638,6 +4642,12 @@ void LLWindowWin32::LLWindowWin32Thread::checkDXMem()
 {
     if (!mGLReady || mGotGLBuffer) { return; }
 
+    if ((gGLManager.mHasAMDAssociations || gGLManager.mHasNVXGpuMemoryInfo) && gGLManager.mVRAM != 0)
+    { // OpenGL already told us the memory budget, don't ask DX
+        mGotGLBuffer = true;
+        return;
+    }
+
     IDXGIFactory4* p_factory = nullptr;
 
     HRESULT res = CreateDXGIFactory1(__uuidof(IDXGIFactory4), (void**)&p_factory);
@@ -4734,7 +4744,7 @@ void LLWindowWin32::LLWindowWin32Thread::run()
     {
         LL_PROFILE_ZONE_SCOPED_CATEGORY_WIN32;
 
-        // Check memory budget using DirectX
+        // Check memory budget using DirectX if OpenGL doesn't have the means to tell us
         checkDXMem();
 
         if (mWindowHandleThrd != 0)

@@ -67,59 +67,57 @@ documentation and/or software.
 
 */
 
-#include <cstdint>                  // uint32_t et al.
+#include <cstdint> // uint32_t et al.
 
 // use for the raw digest output
 const int MD5RAW_BYTES = 16;
 
 // use for outputting hex digests
-const int MD5HEX_STR_SIZE = 33;  // char hex[MD5HEX_STR_SIZE]; with null
+const int MD5HEX_STR_SIZE  = 33; // char hex[MD5HEX_STR_SIZE]; with null
 const int MD5HEX_STR_BYTES = 32; // message system fixed size
 
-class LL_COMMON_API LLMD5 {
-// how many bytes to grab at a time when checking files
-  static const int BLOCK_LEN;
+class LL_COMMON_API LLMD5
+{
+    // how many bytes to grab at a time when checking files
+    static const int BLOCK_LEN;
 
 public:
-// methods for controlled operation:
-  LLMD5              ();  // simple initializer
-  void  update     (const uint8_t *input, const size_t input_length);
-  void  update     (std::istream& stream);
-  void  update     (FILE *file);
-  void  update     (const std::string& str);
-  void  finalize   ();
+    // methods for controlled operation:
+    LLMD5(); // simple initializer
+    void update(const uint8_t* input, const size_t input_length);
+    void update(std::istream& stream);
+    void update(FILE* file);
+    void update(const std::string& str);
+    void finalize();
 
-// constructors for special circumstances.  All these constructors finalize
-// the MD5 context.
-  LLMD5              (const unsigned char *string); // digest string, finalize
-  LLMD5              (std::istream& stream);       // digest stream, finalize
-  LLMD5              (FILE *file);            // digest file, close, finalize
-  LLMD5              (const unsigned char *string, const unsigned int number);
+    // constructors for special circumstances.  All these constructors finalize
+    // the MD5 context.
+    LLMD5(const unsigned char* string); // digest string, finalize
+    LLMD5(std::istream& stream);        // digest stream, finalize
+    LLMD5(FILE* file);                  // digest file, close, finalize
+    LLMD5(const unsigned char* string, const unsigned int number);
 
-// methods to acquire finalized result
-  void              raw_digest(unsigned char *array) const; // provide 16-byte array for binary data
-  void              hex_digest(char *string) const;         // provide 33-byte array for ascii-hex string
+    // methods to acquire finalized result
+    void raw_digest(unsigned char* array) const; // provide 16-byte array for binary data
+    void hex_digest(char* string) const;         // provide 33-byte array for ascii-hex string
 
-  friend LL_COMMON_API std::ostream&   operator<< (std::ostream&, LLMD5 context);
+    friend LL_COMMON_API std::ostream& operator<<(std::ostream&, const LLMD5& context);
 
 private:
+    // next, the private data:
+    uint32_t state[4];
+    uint64_t count;      // number of *bits*, mod 2^64
+    uint8_t  buffer[64]; // input buffer
+    uint8_t  digest[16];
+    bool     finalized;
 
+    // last, the private methods, mostly static:
+    void init();                           // called by all constructors
+    void transform(const uint8_t* buffer); // does the real update work.  Note
+                                           // that length is implied to be 64.
 
-// next, the private data:
-  uint32_t state[4];
-  uint64_t count;     // number of *bits*, mod 2^64
-  uint8_t buffer[64];   // input buffer
-  uint8_t digest[16];
-  uint8_t finalized;
-
-// last, the private methods, mostly static:
-  void init             ();               // called by all constructors
-  void transform        (const uint8_t *buffer);  // does the real update work.  Note
-                                          // that length is implied to be 64.
-
-  static void encode    (uint8_t *dest, const uint32_t *src, const size_t length);
-  static void decode    (uint32_t *dest, const uint8_t *src, const size_t length);
-
+    static void encode(uint8_t* dest, const uint32_t* src, const size_t length);
+    static void decode(uint32_t* dest, const uint8_t* src, const size_t length);
 };
 
 LL_COMMON_API bool operator==(const LLMD5& a, const LLMD5& b);

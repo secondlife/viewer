@@ -2067,9 +2067,6 @@ A_STATIC void CasSetup(
  AF3 CasLoad(ASU2 p) { return texelFetch(diffuseRect, p, 0).rgb; }
  void CasInput(inout AF1 r,inout AF1 g,inout AF1 b)
  {
-    r = AFromSrgbF1(r);
-    g = AFromSrgbF1(g);
-    b = AFromSrgbF1(b);
  }
 
 //------------------------------------------------------------------------------------------------------------------------------
@@ -2553,6 +2550,7 @@ void main()
     vec4 diff = vec4(0.f);
     uvec2 point = uvec2(vary_fragcoord * out_screen_res.xy);
     CasFilter(diff.r, diff.g, diff.b, point, cas_param_0, cas_param_1, true);
-    frag_color = vec4(linear_to_srgb(diff.rgb), 1.0);
+    diff.a = texture(diffuseRect, vary_fragcoord).a;
+    frag_color = diff;
 }
 #endif

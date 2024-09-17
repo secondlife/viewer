@@ -29,6 +29,7 @@
 #include "llflashtimer.h"
 #include "llview.h"
 #include "lluiimage.h"
+#include "llfontvertexbuffer.h"
 
 class LLFolderView;
 class LLFolderViewModelItem;
@@ -297,8 +298,8 @@ public:
     //  virtual void handleDropped();
     virtual void draw();
     void drawOpenFolderArrow(const Params& default_params, const LLUIColor& fg_color);
-    void drawHighlight(const bool showContent, const bool hasKeyboardFocus, const LLUIColor &selectColor, const LLUIColor &flashColor, const LLUIColor &outlineColor, const LLUIColor &mouseOverColor);
-    void drawLabel(const LLFontGL * font, const F32 x, const F32 y, const LLColor4& color, F32 &right_x);
+    void drawHighlight(bool showContent, bool hasKeyboardFocus, const LLUIColor& selectColor, const LLUIColor& flashColor, const LLUIColor& outlineColor, const LLUIColor& mouseOverColor);
+    void drawLabel(const LLFontGL* font, const F32 x, const F32 y, const LLColor4& color, F32 &right_x);
     virtual bool handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
                                     EDragAndDropType cargo_type,
                                     void* cargo_data,
@@ -307,6 +308,9 @@ public:
 
 private:
     static std::map<U8, LLFontGL*> sFonts; // map of styles to fonts
+
+    LLFontVertexBuffer mLabelFontBuffer;
+    LLFontVertexBuffer mSuffixFontBuffer;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

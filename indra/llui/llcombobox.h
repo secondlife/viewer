@@ -163,8 +163,11 @@ public:
 
     bool            remove(const std::string& name);    // remove item "name", return true if found and removed
 
-    bool            setCurrentByIndex( S32 index );
+    bool            setCurrentByIndex(S32 index);
     S32             getCurrentIndex() const;
+
+    bool            selectNextItem();
+    bool            selectPrevItem();
 
     void            setEnabledByValue(const LLSD& value, bool enabled);
 

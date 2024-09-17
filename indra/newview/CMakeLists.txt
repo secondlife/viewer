@@ -33,6 +33,7 @@ include(NVAPI)
 include(OPENAL)
 include(OpenGL)
 include(OpenSSL)
+include(OpenXR)
 include(PNG)
 include(TemplateCheck)
 include(TinyEXR)
@@ -1939,6 +1940,7 @@ target_link_libraries(${VIEWER_BINARY_NAME}
         ${LLPHYSICSEXTENSIONS_LIBRARIES}
         ll::bugsplat
         ll::tracy
+        ll::openxr
         )
 
 if( TARGET ll::intel_memops )

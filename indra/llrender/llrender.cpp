@@ -36,6 +36,7 @@
 #include "lltexture.h"
 #include "llshadermgr.h"
 #include "hbxxh.h"
+#include "glm/gtc/type_ptr.hpp"
 
 #if LL_WINDOWS
 extern void APIENTRY gl_debug_callback(GLenum source,
@@ -57,8 +58,8 @@ F32 gGLLastProjection[16];
 F32 gGLProjection[16];
 
 // transform from last frame's camera space to this frame's camera space (and inverse)
-F32 gGLDeltaModelView[16];
-F32 gGLInverseDeltaModelView[16];
+glm::mat4 gGLDeltaModelView;
+glm::mat4 gGLInverseDeltaModelView;
 
 S32 gGLViewport[4];
 
@@ -77,6 +78,7 @@ struct LLVBCache
 };
 
 static std::unordered_map<U64, LLVBCache> sVBCache;
+static thread_local std::list<LLVertexBufferData> *sBufferDataList = nullptr;
 
 static const GLenum sGLTextureType[] =
 {
@@ -115,7 +117,7 @@ static const GLenum sGLBlendFactor[] =
 
 LLTexUnit::LLTexUnit(S32 index)
     : mCurrTexType(TT_NONE),
-    mCurrColorScale(1), mCurrAlphaScale(1), mCurrTexture(0), mTexColorSpace(TCS_LINEAR),
+    mCurrColorScale(1), mCurrAlphaScale(1), mCurrTexture(0),
     mHasMipMaps(false),
     mIndex(index)
 {
@@ -145,8 +147,6 @@ void LLTexUnit::refreshState(void)
     {
         glBindTexture(GL_TEXTURE_2D, 0);
     }
-
-    setTextureColorSpace(mTexColorSpace);
 }
 
 void LLTexUnit::activate(void)
@@ -241,7 +241,6 @@ bool LLTexUnit::bind(LLTexture* texture, bool for_rendering, bool forceBind)
                         setTextureAddressMode(gl_tex->mAddressMode);
                         setTextureFilteringOption(gl_tex->mFilterOption);
                     }
-                    setTextureColorSpace(mTexColorSpace);
                 }
             }
             else
@@ -318,7 +317,6 @@ bool LLTexUnit::bind(LLImageGL* texture, bool for_rendering, bool forceBind, S32
             setTextureFilteringOption(texture->mFilterOption);
             stop_glerror();
         }
-        setTextureColorSpace(mTexColorSpace);
     }
 
     stop_glerror();
@@ -354,7 +352,6 @@ bool LLTexUnit::bind(LLCubeMap* cubeMap)
                 setTextureAddressMode(cubeMap->mImages[0]->mAddressMode);
                 setTextureFilteringOption(cubeMap->mImages[0]->mFilterOption);
             }
-            setTextureColorSpace(mTexColorSpace);
             return true;
         }
         else
@@ -403,7 +400,6 @@ bool LLTexUnit::bindManual(eTextureType type, U32 texture, bool hasMips)
         mCurrTexture = texture;
         glBindTexture(sGLTextureType[type], texture);
         mHasMipMaps = hasMips;
-        setTextureColorSpace(mTexColorSpace);
     }
     return true;
 }
@@ -424,8 +420,6 @@ void LLTexUnit::unbind(eTextureType type)
     {
         mCurrTexture = 0;
 
-        // Always make sure our texture color space is reset to linear.  SRGB sampling should be opt-in in the vast majority of cases.  Also prevents color space "popping".
-        mTexColorSpace = TCS_LINEAR;
         if (type == LLTexUnit::TT_TEXTURE)
         {
             glBindTexture(sGLTextureType[type], sWhiteTexture);
@@ -447,8 +441,6 @@ void LLTexUnit::unbindFast(eTextureType type)
     {
         mCurrTexture = 0;
 
-        // Always make sure our texture color space is reset to linear.  SRGB sampling should be opt-in in the vast majority of cases.  Also prevents color space "popping".
-        mTexColorSpace = TCS_LINEAR;
         if (type == LLTexUnit::TT_TEXTURE)
         {
             glBindTexture(sGLTextureType[type], sWhiteTexture);
@@ -642,11 +634,6 @@ void LLTexUnit::debugTextureUnit(void)
     }
 }
 
-void LLTexUnit::setTextureColorSpace(eTextureColorSpace space)
-{
-    mTexColorSpace = space;
-}
-
 LLLightState::LLLightState(S32 index)
 : mIndex(index),
   mEnabled(false),
@@ -749,10 +736,10 @@ void LLLightState::setPosition(const LLVector4& position)
     ++gGL.mLightHash;
     mPosition = position;
     //transform position by current modelview matrix
-    glh::vec4f pos(position.mV);
-    const glh::matrix4f& mat = gGL.getModelviewMatrix();
-    mat.mult_matrix_vec(pos);
-    mPosition.set(pos.v);
+    glm::vec4 pos(glm::make_vec4(position.mV));
+    const glm::mat4& mat = gGL.getModelviewMatrix();
+    pos = mat * pos;
+    mPosition.set(glm::value_ptr(pos));
 }
 
 void LLLightState::setConstantAttenuation(const F32& atten)
@@ -804,13 +791,13 @@ void LLLightState::setSpotDirection(const LLVector3& direction)
 {
     //always set direction because modelview matrix may have changed
     ++gGL.mLightHash;
-    mSpotDirection = direction;
-    //transform direction by current modelview matrix
-    glh::vec3f dir(direction.mV);
-    const glh::matrix4f& mat = gGL.getModelviewMatrix();
-    mat.mult_matrix_dir(dir);
 
-    mSpotDirection.set(dir.v);
+    //transform direction by current modelview matrix
+    glm::vec3 dir(glm::make_vec3(direction.mV));
+    const glm::mat3 mat(gGL.getModelviewMatrix());
+    dir = mat * dir;
+
+    mSpotDirection.set(glm::value_ptr(dir));
 }
 
 LLRender::LLRender()
@@ -844,6 +831,10 @@ LLRender::LLRender()
 
     for (U32 i = 0; i < NUM_MATRIX_MODES; ++i)
     {
+        for (U32 j = 0; j < LL_MATRIX_STACK_DEPTH; ++j)
+        {
+            mMatrix[i][j] = glm::identity<glm::mat4>();
+        }
         mMatIdx[i] = 0;
         mMatHash[i] = 0;
         mCurMatHash[i] = 0xFFFFFFFF;
@@ -1005,12 +996,12 @@ void LLRender::syncMatrices()
 
     LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
 
-    static glh::matrix4f cached_mvp;
-    static glh::matrix4f cached_inv_mdv;
+    static glm::mat4 cached_mvp;
+    static glm::mat4 cached_inv_mdv;
     static U32 cached_mvp_mdv_hash = 0xFFFFFFFF;
     static U32 cached_mvp_proj_hash = 0xFFFFFFFF;
 
-    static glh::matrix4f cached_normal;
+    static glm::mat4 cached_normal;
     static U32 cached_normal_hash = 0xFFFFFFFF;
 
     if (shader)
@@ -1020,15 +1011,15 @@ void LLRender::syncMatrices()
         U32 i = MM_MODELVIEW;
         if (mMatHash[MM_MODELVIEW] != shader->mMatHash[MM_MODELVIEW])
         { //update modelview, normal, and MVP
-            glh::matrix4f& mat = mMatrix[MM_MODELVIEW][mMatIdx[MM_MODELVIEW]];
+            const glm::mat4& mat = mMatrix[MM_MODELVIEW][mMatIdx[MM_MODELVIEW]];
 
             // if MDV has changed, update the cached inverse as well
             if (cached_mvp_mdv_hash != mMatHash[MM_MODELVIEW])
             {
-                cached_inv_mdv = mat.inverse();
+                cached_inv_mdv = glm::inverse(mat);
             }
 
-            shader->uniformMatrix4fv(name[MM_MODELVIEW], 1, GL_FALSE, mat.m);
+            shader->uniformMatrix4fv(name[MM_MODELVIEW], 1, GL_FALSE, glm::value_ptr(mat));
             shader->mMatHash[MM_MODELVIEW] = mMatHash[MM_MODELVIEW];
 
             //update normal matrix
@@ -1037,17 +1028,17 @@ void LLRender::syncMatrices()
             {
                 if (cached_normal_hash != mMatHash[i])
                 {
-                    cached_normal = cached_inv_mdv.transpose();
+                    cached_normal = glm::transpose(cached_inv_mdv);
                     cached_normal_hash = mMatHash[i];
                 }
 
-                glh::matrix4f& norm = cached_normal;
+                auto norm = glm::value_ptr(cached_normal);
 
                 F32 norm_mat[] =
                 {
-                    norm.m[0], norm.m[1], norm.m[2],
-                    norm.m[4], norm.m[5], norm.m[6],
-                    norm.m[8], norm.m[9], norm.m[10]
+                    norm[0], norm[1], norm[2],
+                    norm[4], norm[5], norm[6],
+                    norm[8], norm[9], norm[10]
                 };
 
                 shader->uniformMatrix3fv(LLShaderMgr::NORMAL_MATRIX, 1, GL_FALSE, norm_mat);
@@ -1055,7 +1046,7 @@ void LLRender::syncMatrices()
 
             if (shader->getUniformLocation(LLShaderMgr::INVERSE_MODELVIEW_MATRIX))
             {
-                shader->uniformMatrix4fv(LLShaderMgr::INVERSE_MODELVIEW_MATRIX, 1, GL_FALSE, cached_inv_mdv.m);
+                shader->uniformMatrix4fv(LLShaderMgr::INVERSE_MODELVIEW_MATRIX, 1, GL_FALSE, glm::value_ptr(cached_inv_mdv));
             }
 
             //update MVP matrix
@@ -1068,36 +1059,36 @@ void LLRender::syncMatrices()
                 if (cached_mvp_mdv_hash != mMatHash[i] || cached_mvp_proj_hash != mMatHash[MM_PROJECTION])
                 {
                     cached_mvp = mat;
-                    cached_mvp.mult_left(mMatrix[proj][mMatIdx[proj]]);
+                    cached_mvp = mMatrix[proj][mMatIdx[proj]] * cached_mvp;
                     cached_mvp_mdv_hash = mMatHash[i];
                     cached_mvp_proj_hash = mMatHash[MM_PROJECTION];
                 }
 
-                shader->uniformMatrix4fv(LLShaderMgr::MODELVIEW_PROJECTION_MATRIX, 1, GL_FALSE, cached_mvp.m);
+                shader->uniformMatrix4fv(LLShaderMgr::MODELVIEW_PROJECTION_MATRIX, 1, GL_FALSE, glm::value_ptr(cached_mvp));
             }
         }
 
         i = MM_PROJECTION;
         if (mMatHash[MM_PROJECTION] != shader->mMatHash[MM_PROJECTION])
         { //update projection matrix, normal, and MVP
-            glh::matrix4f& mat = mMatrix[MM_PROJECTION][mMatIdx[MM_PROJECTION]];
+            const glm::mat4& mat = mMatrix[MM_PROJECTION][mMatIdx[MM_PROJECTION]];
 
             // GZ: This was previously disabled seemingly due to a bug involving the deferred renderer's regular pushing and popping of mats.
             // We're reenabling this and cleaning up the code around that - that would've been the appropriate course initially.
             // Anything beyond the standard proj and inv proj mats are special cases.  Please setup special uniforms accordingly in the future.
             if (shader->getUniformLocation(LLShaderMgr::INVERSE_PROJECTION_MATRIX))
             {
-                glh::matrix4f inv_proj = mat.inverse();
-                shader->uniformMatrix4fv(LLShaderMgr::INVERSE_PROJECTION_MATRIX, 1, false, inv_proj.m);
+                glm::mat4 inv_proj = glm::inverse(mat);
+                shader->uniformMatrix4fv(LLShaderMgr::INVERSE_PROJECTION_MATRIX, 1, false, glm::value_ptr(inv_proj));
             }
 
             // Used by some full screen effects - such as full screen lights, glow, etc.
             if (shader->getUniformLocation(LLShaderMgr::IDENTITY_MATRIX))
             {
-                shader->uniformMatrix4fv(LLShaderMgr::IDENTITY_MATRIX, 1, GL_FALSE, glh::matrix4f::identity().m);
+                shader->uniformMatrix4fv(LLShaderMgr::IDENTITY_MATRIX, 1, GL_FALSE, glm::value_ptr(glm::identity<glm::mat4>()));
             }
 
-            shader->uniformMatrix4fv(name[MM_PROJECTION], 1, GL_FALSE, mat.m);
+            shader->uniformMatrix4fv(name[MM_PROJECTION], 1, GL_FALSE, glm::value_ptr(mat));
             shader->mMatHash[MM_PROJECTION] = mMatHash[MM_PROJECTION];
 
             if (!mvp_done)
@@ -1110,12 +1101,12 @@ void LLRender::syncMatrices()
                     {
                         U32 mdv = MM_MODELVIEW;
                         cached_mvp = mat;
-                        cached_mvp.mult_right(mMatrix[mdv][mMatIdx[mdv]]);
+                        cached_mvp *= mMatrix[mdv][mMatIdx[mdv]];
                         cached_mvp_mdv_hash = mMatHash[MM_MODELVIEW];
                         cached_mvp_proj_hash = mMatHash[MM_PROJECTION];
                     }
 
-                    shader->uniformMatrix4fv(LLShaderMgr::MODELVIEW_PROJECTION_MATRIX, 1, GL_FALSE, cached_mvp.m);
+                    shader->uniformMatrix4fv(LLShaderMgr::MODELVIEW_PROJECTION_MATRIX, 1, GL_FALSE, glm::value_ptr(cached_mvp));
                 }
             }
         }
@@ -1124,7 +1115,7 @@ void LLRender::syncMatrices()
         {
             if (mMatHash[i] != shader->mMatHash[i])
             {
-                shader->uniformMatrix4fv(name[i], 1, GL_FALSE, mMatrix[i][mMatIdx[i]].m);
+                shader->uniformMatrix4fv(name[i], 1, GL_FALSE, glm::value_ptr(mMatrix[i][mMatIdx[i]]));
                 shader->mMatHash[i] = mMatHash[i];
             }
         }
@@ -1143,12 +1134,7 @@ void LLRender::translatef(const GLfloat& x, const GLfloat& y, const GLfloat& z)
     flush();
 
     {
-        glh::matrix4f trans_mat(1,0,0,x,
-                                0,1,0,y,
-                                0,0,1,z,
-                                0,0,0,1);
-
-        mMatrix[mMatrixMode][mMatIdx[mMatrixMode]].mult_right(trans_mat);
+        mMatrix[mMatrixMode][mMatIdx[mMatrixMode]] = glm::translate(mMatrix[mMatrixMode][mMatIdx[mMatrixMode]], glm::vec3(x, y, z));
         mMatHash[mMatrixMode]++;
     }
 }
@@ -1158,12 +1144,7 @@ void LLRender::scalef(const GLfloat& x, const GLfloat& y, const GLfloat& z)
     flush();
 
     {
-        glh::matrix4f scale_mat(x,0,0,0,
-                                0,y,0,0,
-                                0,0,z,0,
-                                0,0,0,1);
-
-        mMatrix[mMatrixMode][mMatIdx[mMatrixMode]].mult_right(scale_mat);
+        mMatrix[mMatrixMode][mMatIdx[mMatrixMode]] = glm::scale(mMatrix[mMatrixMode][mMatIdx[mMatrixMode]], glm::vec3(x, y, z));
         mMatHash[mMatrixMode]++;
     }
 }
@@ -1173,13 +1154,7 @@ void LLRender::ortho(F32 left, F32 right, F32 bottom, F32 top, F32 zNear, F32 zF
     flush();
 
     {
-
-        glh::matrix4f ortho_mat(2.f/(right-left),0,0,   -(right+left)/(right-left),
-                                0,2.f/(top-bottom),0,   -(top+bottom)/(top-bottom),
-                                0,0,-2.f/(zFar-zNear),  -(zFar+zNear)/(zFar-zNear),
-                                0,0,0,1);
-
-        mMatrix[mMatrixMode][mMatIdx[mMatrixMode]].mult_right(ortho_mat);
+        mMatrix[mMatrixMode][mMatIdx[mMatrixMode]] *= glm::ortho(left, right, bottom, top, zNear, zFar);
         mMatHash[mMatrixMode]++;
     }
 }
@@ -1189,19 +1164,7 @@ void LLRender::rotatef(const GLfloat& a, const GLfloat& x, const GLfloat& y, con
     flush();
 
     {
-        F32 r = a * DEG_TO_RAD;
-
-        F32 c = cosf(r);
-        F32 s = sinf(r);
-
-        F32 ic = 1.f-c;
-
-        glh::matrix4f rot_mat(x*x*ic+c,     x*y*ic-z*s,     x*z*ic+y*s,     0,
-                              x*y*ic+z*s,   y*y*ic+c,       y*z*ic-x*s,     0,
-                              x*z*ic-y*s,   y*z*ic+x*s,     z*z*ic+c,       0,
-                              0,0,0,1);
-
-        mMatrix[mMatrixMode][mMatIdx[mMatrixMode]].mult_right(rot_mat);
+        mMatrix[mMatrixMode][mMatIdx[mMatrixMode]] = glm::rotate(mMatrix[mMatrixMode][mMatIdx[mMatrixMode]], glm::radians(a), glm::vec3(x,y,z));
         mMatHash[mMatrixMode]++;
     }
 }
@@ -1243,7 +1206,7 @@ void LLRender::loadMatrix(const GLfloat* m)
 {
     flush();
     {
-        mMatrix[mMatrixMode][mMatIdx[mMatrixMode]].set_value((GLfloat*) m);
+        mMatrix[mMatrixMode][mMatIdx[mMatrixMode]] = glm::make_mat4((GLfloat*) m);
         mMatHash[mMatrixMode]++;
     }
 }
@@ -1252,9 +1215,7 @@ void LLRender::multMatrix(const GLfloat* m)
 {
     flush();
     {
-        glh::matrix4f mat((GLfloat*) m);
-
-        mMatrix[mMatrixMode][mMatIdx[mMatrixMode]].mult_right(mat);
+        mMatrix[mMatrixMode][mMatIdx[mMatrixMode]] *= glm::make_mat4(m);
         mMatHash[mMatrixMode]++;
     }
 }
@@ -1297,17 +1258,17 @@ void LLRender::loadIdentity()
     {
         llassert_always(mMatrixMode < NUM_MATRIX_MODES) ;
 
-        mMatrix[mMatrixMode][mMatIdx[mMatrixMode]].make_identity();
+        mMatrix[mMatrixMode][mMatIdx[mMatrixMode]] = glm::identity<glm::mat4>();
         mMatHash[mMatrixMode]++;
     }
 }
 
-const glh::matrix4f& LLRender::getModelviewMatrix()
+const glm::mat4& LLRender::getModelviewMatrix()
 {
     return mMatrix[MM_MODELVIEW][mMatIdx[MM_MODELVIEW]];
 }
 
-const glh::matrix4f& LLRender::getProjectionMatrix()
+const glm::mat4& LLRender::getProjectionMatrix()
 {
     return mMatrix[MM_PROJECTION][mMatIdx[MM_PROJECTION]];
 }
@@ -1543,6 +1504,30 @@ void LLRender::clearErrors()
     }
 }
 
+void LLRender::beginList(std::list<LLVertexBufferData> *list)
+{
+    if (sBufferDataList)
+    {
+        LL_ERRS() << "beginList called while another list is open." << LL_ENDL;
+    }
+    llassert(LLGLSLShader::sCurBoundShaderPtr == &gUIProgram);
+    flush();
+    sBufferDataList = list;
+}
+
+void LLRender::endList()
+{
+    if (sBufferDataList)
+    {
+        flush();
+        sBufferDataList = nullptr;
+    }
+    else
+    {
+        llassert(false); // endList called without an open list
+    }
+}
+
 void LLRender::begin(const GLuint& mode)
 {
     if (mode != mMode)
@@ -1585,6 +1570,7 @@ void LLRender::end()
         flush();
     }
 }
+
 void LLRender::flush()
 {
     STOP_GLERROR;
@@ -1633,111 +1619,29 @@ void LLRender::flush()
         if (mBuffer)
         {
 
-            HBXXH64 hash;
+            LLVertexBuffer *vb;
+
             U32 attribute_mask = LLGLSLShader::sCurBoundShaderPtr->mAttributeMask;
 
+            if (sBufferDataList)
             {
-                LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("vb cache hash");
-
-                hash.update((U8*)mVerticesp.get(), count * sizeof(LLVector4a));
-                if (attribute_mask & LLVertexBuffer::MAP_TEXCOORD0)
-                {
-                    hash.update((U8*)mTexcoordsp.get(), count * sizeof(LLVector2));
-                }
-
-                if (attribute_mask & LLVertexBuffer::MAP_COLOR)
-                {
-                    hash.update((U8*)mColorsp.get(), count * sizeof(LLColor4U));
-                }
-
-                hash.finalize();
-            }
-
-
-            U64 vhash = hash.digest();
-
-            // check the VB cache before making a new vertex buffer
-            // This is a giant hack to deal with (mostly) our terrible UI rendering code
-            // that was built on top of OpenGL immediate mode.  Huge performance wins
-            // can be had by not uploading geometry to VRAM unless absolutely necessary.
-            // Most of our usage of the "immediate mode" style draw calls is actually
-            // sending the same geometry over and over again.
-            // To leverage this, we maintain a running hash of the vertex stream being
-            // built up before a flush, and then check that hash against a VB
-            // cache just before creating a vertex buffer in VRAM
-            std::unordered_map<U64, LLVBCache>::iterator cache = sVBCache.find(vhash);
-
-            LLPointer<LLVertexBuffer> vb;
-
-            if (cache != sVBCache.end())
-            {
-                LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("vb cache hit");
-                // cache hit, just use the cached buffer
-                vb = cache->second.vb;
-                cache->second.touched = std::chrono::steady_clock::now();
+                vb = genBuffer(attribute_mask, count);
+                sBufferDataList->emplace_back(
+                    vb,
+                    mMode,
+                    count,
+                    gGL.getTexUnit(0)->mCurrTexture,
+                    mMatrix[MM_MODELVIEW][mMatIdx[MM_MODELVIEW]],
+                    mMatrix[MM_PROJECTION][mMatIdx[MM_PROJECTION]],
+                    mMatrix[MM_TEXTURE0][mMatIdx[MM_TEXTURE0]]
+                    );
             }
             else
             {
-                LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("vb cache miss");
-                vb = new LLVertexBuffer(attribute_mask);
-                vb->allocateBuffer(count, 0);
-
-                vb->setBuffer();
-
-                vb->setPositionData((LLVector4a*) mVerticesp.get());
-
-                if (attribute_mask & LLVertexBuffer::MAP_TEXCOORD0)
-                {
-                    vb->setTexCoord0Data(mTexcoordsp.get());
-                }
-
-                if (attribute_mask & LLVertexBuffer::MAP_COLOR)
-                {
-                    vb->setColorData(mColorsp.get());
-                }
-
-#if LL_DARWIN
-                vb->unmapBuffer();
-#endif
-                vb->unbind();
-
-                sVBCache[vhash] = { vb , std::chrono::steady_clock::now() };
-
-                static U32 miss_count = 0;
-                miss_count++;
-                if (miss_count > 1024)
-                {
-                    LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("vb cache clean");
-                    miss_count = 0;
-                    auto now = std::chrono::steady_clock::now();
-
-                    using namespace std::chrono_literals;
-                    // every 1024 misses, clean the cache of any VBs that haven't been touched in the last second
-                    for (std::unordered_map<U64, LLVBCache>::iterator iter = sVBCache.begin(); iter != sVBCache.end(); )
-                    {
-                        if (now - iter->second.touched > 1s)
-                        {
-                            iter = sVBCache.erase(iter);
-                        }
-                        else
-                        {
-                            ++iter;
-                        }
-                    }
-                }
+                vb = bufferfromCache(attribute_mask, count);
             }
 
-            vb->setBuffer();
-
-            if (mMode == LLRender::QUADS && sGLCoreProfile)
-            {
-                vb->drawArrays(LLRender::TRIANGLES, 0, count);
-                mQuadCycle = 1;
-            }
-            else
-            {
-                vb->drawArrays(mMode, 0, count);
-            }
+            drawBuffer(vb, mMode, count);
         }
         else
         {
@@ -1745,13 +1649,134 @@ void LLRender::flush()
             LL_ERRS() << "A flush call from outside main rendering thread" << LL_ENDL;
         }
 
-
-        mVerticesp[0] = mVerticesp[count];
-        mTexcoordsp[0] = mTexcoordsp[count];
-        mColorsp[0] = mColorsp[count];
-
-        mCount = 0;
+        resetStriders(count);
     }
+}
+
+LLVertexBuffer* LLRender::bufferfromCache(U32 attribute_mask, U32 count)
+{
+    LLVertexBuffer *vb = nullptr;
+    HBXXH64 hash;
+
+    {
+        LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("vb cache hash");
+
+        hash.update((U8*)mVerticesp.get(), count * sizeof(LLVector4a));
+        if (attribute_mask & LLVertexBuffer::MAP_TEXCOORD0)
+        {
+            hash.update((U8*)mTexcoordsp.get(), count * sizeof(LLVector2));
+        }
+
+        if (attribute_mask & LLVertexBuffer::MAP_COLOR)
+        {
+            hash.update((U8*)mColorsp.get(), count * sizeof(LLColor4U));
+        }
+
+        hash.finalize();
+    }
+
+    U64 vhash = hash.digest();
+
+    // check the VB cache before making a new vertex buffer
+    // This is a giant hack to deal with (mostly) our terrible UI rendering code
+    // that was built on top of OpenGL immediate mode.  Huge performance wins
+    // can be had by not uploading geometry to VRAM unless absolutely necessary.
+    // Most of our usage of the "immediate mode" style draw calls is actually
+    // sending the same geometry over and over again.
+    // To leverage this, we maintain a running hash of the vertex stream being
+    // built up before a flush, and then check that hash against a VB
+    // cache just before creating a vertex buffer in VRAM
+    std::unordered_map<U64, LLVBCache>::iterator cache = sVBCache.find(vhash);
+
+    if (cache != sVBCache.end())
+    {
+        LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("vb cache hit");
+        // cache hit, just use the cached buffer
+        vb = cache->second.vb;
+        cache->second.touched = std::chrono::steady_clock::now();
+    }
+    else
+    {
+        LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("vb cache miss");
+        vb = genBuffer(attribute_mask, count);
+
+        sVBCache[vhash] = { vb , std::chrono::steady_clock::now() };
+
+        static U32 miss_count = 0;
+        miss_count++;
+        if (miss_count > 1024)
+        {
+            LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("vb cache clean");
+            miss_count = 0;
+            auto now = std::chrono::steady_clock::now();
+
+            using namespace std::chrono_literals;
+            // every 1024 misses, clean the cache of any VBs that haven't been touched in the last second
+            for (std::unordered_map<U64, LLVBCache>::iterator iter = sVBCache.begin(); iter != sVBCache.end(); )
+            {
+                if (now - iter->second.touched > 1s)
+                {
+                    iter = sVBCache.erase(iter);
+                }
+                else
+                {
+                    ++iter;
+                }
+            }
+        }
+    }
+    return vb;
+}
+
+LLVertexBuffer* LLRender::genBuffer(U32 attribute_mask, S32 count)
+{
+    LLVertexBuffer * vb = new LLVertexBuffer(attribute_mask);
+    vb->allocateBuffer(count, 0);
+
+    vb->setBuffer();
+
+    vb->setPositionData((LLVector4a*)mVerticesp.get());
+
+    if (attribute_mask & LLVertexBuffer::MAP_TEXCOORD0)
+    {
+        vb->setTexCoord0Data(mTexcoordsp.get());
+    }
+
+    if (attribute_mask & LLVertexBuffer::MAP_COLOR)
+    {
+        vb->setColorData(mColorsp.get());
+    }
+
+#if LL_DARWIN
+    vb->unmapBuffer();
+#endif
+    vb->unbind();
+
+    return vb;
+}
+
+void LLRender::drawBuffer(LLVertexBuffer* vb, U32 mode, S32 count)
+{
+    vb->setBuffer();
+
+    if (mode == LLRender::QUADS && sGLCoreProfile)
+    {
+        vb->drawArrays(LLRender::TRIANGLES, 0, count);
+        mQuadCycle = 1;
+    }
+    else
+    {
+        vb->drawArrays(mode, 0, count);
+    }
+}
+
+void LLRender::resetStriders(S32 count)
+{
+    mVerticesp[0] = mVerticesp[count];
+    mTexcoordsp[0] = mTexcoordsp[count];
+    mColorsp[0] = mColorsp[count];
+
+    mCount = 0;
 }
 
 void LLRender::vertex3f(const GLfloat& x, const GLfloat& y, const GLfloat& z)
@@ -2164,85 +2189,90 @@ void LLRender::debugTexUnits(void)
     LL_INFOS("TextureUnit") << "Active TexUnit Enabled : " << active_enabled << LL_ENDL;
 }
 
-
-
-glh::matrix4f copy_matrix(F32* src)
+glm::mat4 get_current_modelview()
 {
-    glh::matrix4f ret;
-    ret.set_value(src);
-    return ret;
+    return glm::make_mat4(gGLModelView);
 }
 
-glh::matrix4f get_current_modelview()
+glm::mat4 get_current_projection()
 {
-    return copy_matrix(gGLModelView);
+    return glm::make_mat4(gGLProjection);
 }
 
-glh::matrix4f get_current_projection()
+glm::mat4 get_last_modelview()
 {
-    return copy_matrix(gGLProjection);
+    return glm::make_mat4(gGLLastModelView);
 }
 
-glh::matrix4f get_last_modelview()
+glm::mat4 get_last_projection()
 {
-    return copy_matrix(gGLLastModelView);
+    return glm::make_mat4(gGLLastProjection);
 }
 
-glh::matrix4f get_last_projection()
+void copy_matrix(const glm::mat4& src, F32* dst)
 {
-    return copy_matrix(gGLLastProjection);
-}
-
-void copy_matrix(const glh::matrix4f& src, F32* dst)
-{
+    auto matp = glm::value_ptr(src);
     for (U32 i = 0; i < 16; i++)
     {
-        dst[i] = src.m[i];
+        dst[i] = matp[i];
     }
 }
 
-void set_current_modelview(const glh::matrix4f& mat)
+void set_current_modelview(const glm::mat4& mat)
 {
     copy_matrix(mat, gGLModelView);
 }
 
-void set_current_projection(glh::matrix4f& mat)
+void set_current_projection(const glm::mat4& mat)
 {
     copy_matrix(mat, gGLProjection);
 }
 
-glh::matrix4f gl_ortho(GLfloat left, GLfloat right, GLfloat bottom, GLfloat top, GLfloat znear, GLfloat zfar)
+void set_last_modelview(const glm::mat4& mat)
 {
-    glh::matrix4f ret(
-        2.f/(right-left), 0.f, 0.f, -(right+left)/(right-left),
-        0.f, 2.f/(top-bottom), 0.f, -(top+bottom)/(top-bottom),
-        0.f, 0.f, -2.f/(zfar-znear),  -(zfar+znear)/(zfar-znear),
-        0.f, 0.f, 0.f, 1.f);
-
-    return ret;
+    copy_matrix(mat, gGLLastModelView);
 }
 
-glh::matrix4f gl_perspective(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar)
+void set_last_projection(const glm::mat4& mat)
 {
-    GLfloat f = 1.f/tanf(DEG_TO_RAD*fovy/2.f);
-
-    return glh::matrix4f(f/aspect, 0, 0, 0,
-                         0, f, 0, 0,
-                         0, 0, (zFar+zNear)/(zNear-zFar), (2.f*zFar*zNear)/(zNear-zFar),
-                         0, 0, -1.f, 0);
+    copy_matrix(mat, gGLLastProjection);
 }
 
-glh::matrix4f gl_lookat(LLVector3 eye, LLVector3 center, LLVector3 up)
+glm::vec3 mul_mat4_vec3(const glm::mat4& mat, const glm::vec3& vec)
 {
-    LLVector3 f = center-eye;
-    f.normVec();
-    up.normVec();
-    LLVector3 s = f % up;
-    LLVector3 u = s % f;
+    //const float w = vec[0] * mat[0][3] + vec[1] * mat[1][3] + vec[2] * mat[2][3] + mat[3][3];
+    //return glm::vec3(
+    //    (vec[0] * mat[0][0] + vec[1] * mat[1][0] + vec[2] * mat[2][0] + mat[3][0]) / w,
+    //    (vec[0] * mat[0][1] + vec[1] * mat[1][1] + vec[2] * mat[2][1] + mat[3][1]) / w,
+    //    (vec[0] * mat[0][2] + vec[1] * mat[1][2] + vec[2] * mat[2][2] + mat[3][2]) / w
+    //);
+    LLVector4a x, y, z, s, t, p, q;
 
-    return glh::matrix4f(s[0], s[1], s[2], 0,
-                      u[0], u[1], u[2], 0,
-                      -f[0], -f[1], -f[2], 0,
-                      0, 0, 0, 1);
+    x.splat(vec.x);
+    y.splat(vec.y);
+    z.splat(vec.z);
 
+    s.splat<3>(mat[0].data);
+    t.splat<3>(mat[1].data);
+    p.splat<3>(mat[2].data);
+    q.splat<3>(mat[3].data);
+
+    s.mul(x);
+    t.mul(y);
+    p.mul(z);
+    q.add(s);
+    t.add(p);
+    q.add(t);
+
+    x.mul(mat[0].data);
+    y.mul(mat[1].data);
+    z.mul(mat[2].data);
+
+    x.add(y);
+    z.add(mat[3].data);
+    LLVector4a res;
+    res.load3(glm::value_ptr(vec));
+    res.setAdd(x, z);
+    res.div(q);
+    return glm::make_vec3(res.getF32ptr());
 }
