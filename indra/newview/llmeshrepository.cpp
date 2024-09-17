@@ -3901,7 +3901,7 @@ void LLMeshRepository::notifyLoadedMeshes()
         {
             auto copy_iter = iter++;
             LLUUID id = copy_iter->first;
-            
+
             //skinbytes += U64Bytes(sizeof(LLMeshSkinInfo));
             //skinbytes += U64Bytes(copy_iter->second->mJointNames.size() * sizeof(std::string));
             //skinbytes += U64Bytes(copy_iter->second->mJointNums.size() * sizeof(S32));
