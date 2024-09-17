@@ -289,6 +289,33 @@ static GLuint gen_buffer()
     return ret;
 }
 
+static void delete_buffers(S32 count, GLuint* buffers)
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VERTEX;
+    // wait a few frames before actually deleting the buffers to avoid
+    // synchronization issues with the GPU
+    static std::vector<GLuint> sFreeList[4];
+
+    if (gGLManager.mInited)
+    {
+        U32 idx = LLImageGL::sFrameCount % 4;
+
+        for (S32 i = 0; i < count; ++i)
+        {
+            sFreeList[idx].push_back(buffers[i]);
+        }
+
+        idx = (LLImageGL::sFrameCount + 3) % 4;
+
+        if (!sFreeList[idx].empty())
+        {
+            glDeleteBuffers((GLsizei)sFreeList[idx].size(), sFreeList[idx].data());
+            sFreeList[idx].resize(0);
+        }
+    }
+}
+
+
 #define ANALYZE_VBO_POOL 0
 
 // VBO Pool interface
@@ -348,7 +375,7 @@ public:
         STOP_GLERROR;
         if (name)
         {
-            glDeleteBuffers(1, &name);
+            delete_buffers(1, &name);
         }
         STOP_GLERROR;
     }
@@ -519,7 +546,7 @@ public:
                     LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("vbo cache timeout");
                     auto& entry = entries.back();
                     ll_aligned_free_16(entry.mData);
-                    glDeleteBuffers(1, &entry.mGLName);
+                    delete_buffers(1, &entry.mGLName);
                     llassert(mReserved >= iter->first);
                     mReserved -= iter->first;
                     entries.pop_back();
@@ -555,7 +582,7 @@ public:
             for (auto& entry : entries.second)
             {
                 ll_aligned_free_16(entry.mData);
-                glDeleteBuffers(1, &entry.mGLName);
+                delete_buffers(1, &entry.mGLName);
             }
         }
 
@@ -564,7 +591,7 @@ public:
             for (auto& entry : entries.second)
             {
                 ll_aligned_free_16(entry.mData);
-                glDeleteBuffers(1, &entry.mGLName);
+                delete_buffers(1, &entry.mGLName);
             }
         }
 
@@ -904,10 +931,12 @@ void LLVertexBuffer::initClass(LLWindow* window)
     llassert(sVBOPool == nullptr);
     if (gGLManager.mIsApple)
     {
+        LL_INFOS() << "VBO Pooling Disabled" << LL_ENDL;
         sVBOPool = new LLAppleVBOPool();
     }
     else
     {
+        LL_INFOS() << "VBO Pooling Enabled" << LL_ENDL;
         sVBOPool = new LLDefaultVBOPool();
     }
 
@@ -977,7 +1006,6 @@ void LLVertexBuffer::flushBuffers()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VERTEX;
     // must only be called from main thread
-    llassert(LLCoros::on_main_thread_main_coro());
     for (auto& buffer : sMappedBuffers)
     {
         buffer->_unmapBuffer();
@@ -1389,7 +1417,7 @@ void LLVertexBuffer::_unmapBuffer()
         {
             if (mGLBuffer)
             {
-                glDeleteBuffers(1, &mGLBuffer);
+                delete_buffers(1, &mGLBuffer);
             }
             mGLBuffer = gen_buffer();
             glBindBuffer(GL_ARRAY_BUFFER, mGLBuffer);
@@ -1407,7 +1435,7 @@ void LLVertexBuffer::_unmapBuffer()
         {
             if (mGLIndices)
             {
-                glDeleteBuffers(1, &mGLIndices);
+                delete_buffers(1, &mGLIndices);
             }
 
             mGLIndices = gen_buffer();
