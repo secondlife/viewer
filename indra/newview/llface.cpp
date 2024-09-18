@@ -2268,6 +2268,14 @@ bool LLFace::calcPixelArea(F32& cos_angle_to_view_dir, F32& radius)
         center.mul(0.5f);
         size.setSub(mRiggedExtents[1], mRiggedExtents[0]);
     }
+    else if (mDrawablep && mVObjp.notNull() && mVObjp->getPartitionType() == LLViewerRegion::PARTITION_PARTICLE && mDrawablep->getSpatialGroup())
+    { // use box of spatial group for particles (over approximates size, but we don't actually have a good size per particle)
+        LLSpatialGroup* group = mDrawablep->getSpatialGroup();
+        const LLVector4a* extents = group->getExtents();
+        size.setSub(extents[1], extents[0]);
+        center.setAdd(extents[1], extents[0]);
+        center.mul(0.5f);
+    }
     else
     {
         center.load3(getPositionAgent().mV);
