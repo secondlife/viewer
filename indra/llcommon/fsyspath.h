@@ -3,7 +3,7 @@
  * @author Nat Goodspeed
  * @date   2024-04-03
  * @brief  Adapt our UTF-8 std::strings for std::filesystem::path
- * 
+ *
  * $LicenseInfo:firstyear=2024&license=viewerlgpl$
  * Copyright (c) 2024, Linden Research, Inc.
  * $/LicenseInfo$
