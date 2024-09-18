@@ -421,7 +421,6 @@ bool LLPanelFace::postBuild()
 
     getChildSetCommitCallback(mCheckFullbright, "checkbox fullbright", [&](LLUICtrl*, const LLSD&) { onCommitFullbright(); });
 
-    
     mLabelTexGen = getChild<LLTextBox>("alpha gamma");
     getChildSetCommitCallback(mComboAlphaGamma, "combobox alpha gamma", [&](LLUICtrl *, const LLSD &) { onCommitAlphaGamma(); });
     mComboAlphaGamma->setFollows(FOLLOWS_LEFT | FOLLOWS_TOP);
@@ -1325,14 +1324,6 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
             }
         }
 
-        // Alpha gamma.  This should always be enabled, no matter if the object is mod or not.
-        {
-            U8   alpha_gamma           = 100;
-            bool identical_alpha_gamma = false;
-            LLSelectedTE::getAlphaGamma(alpha_gamma, identical_alpha_gamma);
-            mComboAlphaGamma->getSelectionInterface()->selectByValue(alpha_gamma);
-            mComboAlphaGamma->setEnabled(true);
-        }
 
         // planar align
         bool align_planar = mPlanarAlign->get();
@@ -1819,6 +1810,15 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
         calcp->clearVar(LLCalc::TEX_ROTATION);
         calcp->clearVar(LLCalc::TEX_TRANSPARENCY);
         calcp->clearVar(LLCalc::TEX_GLOW);
+    }
+    if (objectp && (objectp->permModify() || objectp->permYouOwner()))
+    {
+        // AlphaGamma should enabled when modable or owned
+        U8   alpha_gamma           = 100;
+        bool identical_alpha_gamma = false;
+        LLSelectedTE::getAlphaGamma(alpha_gamma, identical_alpha_gamma);
+        mComboAlphaGamma->getSelectionInterface()->selectByValue(alpha_gamma);
+        mComboAlphaGamma->setEnabled(true);
     }
 }
 

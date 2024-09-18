@@ -3114,8 +3114,8 @@ struct LLFilenameAndTask
         LL_DEBUGS() << "Destroying LLFilenameAndTask: " << sCount << LL_ENDL;
     }
 private:
-    LLFilenameAndTask(const LLFilenameAndTask& rhs);
-    const LLFilenameAndTask& operator=(const LLFilenameAndTask& rhs) const;
+    LLFilenameAndTask(const LLFilenameAndTask& rhs) = delete;
+    const LLFilenameAndTask& operator=(const LLFilenameAndTask& rhs) = delete;
 #endif
 };
 

@@ -901,12 +901,13 @@ private:
     static void logAttachmentRequest(LLSelectNode* node, void *user_data);
     static void logDetachRequest(LLSelectNode* node, void *user_data);
     static bool confirmDelete(const LLSD& notification, const LLSD& response, LLObjectSelectionHandle handle);
-    static void packAlphaGammaOverride(LLViewerObject* object);
 
     // Get the first ID that matches test and whether or not all ids are identical in selected objects.
     void getFirst(LLSelectGetFirstTest* test);
 
 public:
+    static void packAlphaGammaBypass(LLViewerObject* object);
+
     // Observer/callback support for when object selection changes or
     // properties are received/updated
     typedef boost::signals2::signal< void ()> update_signal_t;

@@ -399,28 +399,42 @@ public:
 // more obvious. This should be refactored to remove the duplication, at which
 // point we can fix the names as well.
 // - Vir
-struct LLTEContents
+class LLTEContents
 {
-    static const U32 MAX_TES = 45;
+public:
+    static const size_t MAX_TES = 45;
+    static const size_t MAX_TE_BUFFER = 4096;
 
-    LLUUID      image_data[MAX_TES];
-    LLColor4U   colors[MAX_TES];
-    F32    scale_s[MAX_TES];
-    F32    scale_t[MAX_TES];
-    S16    offset_s[MAX_TES];
-    S16    offset_t[MAX_TES];
-    S16    image_rot[MAX_TES];
-    U8     bump[MAX_TES];
-    U8     alpha_gamma[MAX_TES];
-    U8     media_flags[MAX_TES];
-    U8     glow[MAX_TES];
-    LLMaterialID material_ids[MAX_TES];
+    // delete the default ctor
+    LLTEContents() = delete;
 
-    static const U32 MAX_TE_BUFFER = 4096;
-    U8 packed_buffer[MAX_TE_BUFFER];
+    // please use ctor which expects the number of textures as argument
+    LLTEContents(size_t N);
 
-    U32 size;
-    U32 face_count;
+    ~LLTEContents();
+
+    U8 getNumTEs() const { return (U8)(num_textures); }
+
+private:
+    U8* data; // one big chunk of data
+    size_t num_textures;
+
+public:
+    // re-cast offsets into data
+    LLUUID* image_ids;
+    LLMaterialID* material_ids;
+    LLColor4U* colors;
+    F32* scale_s;
+    F32* scale_t;
+    S16* offset_s;
+    S16* offset_t;
+    S16* rot;
+    U8* bump;
+    U8* media_flags;
+    U8* glow;
+    U8* alpha_gamma;
+    // Note: we keep larger elements near the front so they are always 16-byte aligned,
+    // even for odd num_textures, and byte-sized elements to the back.
 };
 
 class LLPrimitive : public LLXform
@@ -498,12 +512,15 @@ public:
 
     void copyTEs(const LLPrimitive *primitive);
     S32 packTEField(U8 *cur_ptr, U8 *data_ptr, U8 data_size, U8 last_face_index, EMsgVariableType type) const;
+
+    S32  packTEMessageBuffer(U8* packed_buffer) const;
     bool packTEMessage(LLMessageSystem *mesgsys) const;
-    bool packTEMessage(LLDataPacker &dp) const;
+
     S32 unpackTEMessage(LLMessageSystem* mesgsys, char const* block_name, const S32 block_num); // Variable num of blocks
     S32 unpackTEMessage(LLDataPacker &dp);
     S32 parseTEMessage(LLMessageSystem* mesgsys, char const* block_name, const S32 block_num, LLTEContents& tec);
-    S32 applyParsedTEMessage(LLTEContents& tec);
+    static S32 parseTEMessage(U8* packed_buffer, U32 data_size, LLTEContents& tec);
+    S32 applyParsedTEMessage(const LLTEContents& tec);
 
 #ifdef CHECK_FOR_FINITE
     inline void setPosition(const LLVector3& pos);
