@@ -97,6 +97,7 @@ public:
 
     // Vendor-specific extensions
     bool mHasAMDAssociations = false;
+    bool mHasNVXGpuMemoryInfo = false;
 
     bool mIsAMD;
     bool mIsNVIDIA;

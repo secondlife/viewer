@@ -541,6 +541,9 @@ void send_viewer_stats(bool include_preferences)
         agent["run_time"] = run_time;
     }
 
+    // report time the viewer has spent in the foreground
+    agent["foreground_time"] = gForegroundTime.getElapsedTimeF32();
+
     // send fps only for time app spends in foreground
     agent["fps"] = (F32)gForegroundFrameCount / gForegroundTime.getElapsedTimeF32();
     agent["version"] = LLVersionInfo::instance().getChannelAndVersion();
