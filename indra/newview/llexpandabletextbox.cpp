@@ -44,6 +44,14 @@ public:
         mExpanderLabel(utf8str_to_wstring(more_text))
     {}
 
+    /*virtual*/ LLTextSegmentPtr clone(LLTextBase& target) const
+    {
+        LLStyleSP sp(cloneStyle(target, mStyle));
+        LLExpanderSegment* copy = new LLExpanderSegment(sp, mStart, mEnd, LLStringUtil::null, target);
+        copy->mExpanderLabel = mExpanderLabel;
+        return copy;
+    }
+
     /*virtual*/ bool    getDimensionsF32(S32 first_char, S32 num_chars, F32& width, S32& height) const
     {
         // more label always spans width of text box

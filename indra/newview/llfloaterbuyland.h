@@ -27,6 +27,7 @@
 #ifndef LL_LLFLOATERBUYLAND_H
 #define LL_LLFLOATERBUYLAND_H
 
+class LLTextBase;
 class LLFloater;
 class LLViewerRegion;
 class LLParcelSelection;
@@ -37,6 +38,7 @@ public:
     static void buyLand(LLViewerRegion* region,
                         LLSafeHandle<LLParcelSelection> parcel,
                         bool is_for_group);
+    static void updateCovenant(const LLTextBase* source, const LLUUID& asset_id);
     static void updateCovenantText(const std::string& string, const LLUUID& asset_id);
     static void updateEstateName(const std::string& name);
     static void updateLastModified(const std::string& text);
