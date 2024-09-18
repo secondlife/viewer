@@ -1630,9 +1630,11 @@ const   S32   max_format  = (S32)num_formats - 1;
     }
     else
     {
-        LLError::LLUserWarningMsg::show(mCallbacks->translateString("MBVideoDrvErr"));
-        // mWindowHandle is 0, going to crash either way
-        LL_ERRS("Window") << "No wgl_ARB_pixel_format extension!" << LL_ENDL;
+        LL_WARNS("Window") << "No wgl_ARB_pixel_format extension!" << LL_ENDL;
+        // cannot proceed without wgl_ARB_pixel_format extension, shutdown same as any other gGLManager.initGL() failure
+        OSMessageBox(mCallbacks->translateString("MBVideoDrvErr"), mCallbacks->translateString("MBError"), OSMB_OK);
+        close();
+        return false;
     }
 
     // Verify what pixel format we actually received.
