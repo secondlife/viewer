@@ -175,50 +175,70 @@ void gl_drop_shadow(S32 left, S32 top, S32 right, S32 bottom, const LLColor4 &st
     LLColor4 end_color = start_color;
     end_color.mV[VALPHA] = 0.f;
 
-    gGL.begin(LLRender::QUADS);
+    gGL.begin(LLRender::TRIANGLES);
 
     // Right edge, CCW faces screen
     gGL.color4fv(start_color.mV);
-    gGL.vertex2i(right,     top-lines);
-    gGL.vertex2i(right,     bottom);
+    gGL.vertex2i(right, top - lines);
+    gGL.vertex2i(right, bottom);
     gGL.color4fv(end_color.mV);
-    gGL.vertex2i(right+lines, bottom);
-    gGL.vertex2i(right+lines, top-lines);
+    gGL.vertex2i(right + lines, bottom);
+    gGL.color4fv(start_color.mV);
+    gGL.vertex2i(right, top - lines);
+    gGL.color4fv(end_color.mV);
+    gGL.vertex2i(right + lines, bottom);
+    gGL.vertex2i(right + lines, top - lines);
 
     // Bottom edge, CCW faces screen
     gGL.color4fv(start_color.mV);
-    gGL.vertex2i(right,     bottom);
-    gGL.vertex2i(left+lines,    bottom);
+    gGL.vertex2i(right, bottom);
+    gGL.vertex2i(left + lines, bottom);
     gGL.color4fv(end_color.mV);
-    gGL.vertex2i(left+lines,    bottom-lines);
-    gGL.vertex2i(right,     bottom-lines);
+    gGL.vertex2i(left + lines, bottom - lines);
+    gGL.color4fv(start_color.mV);
+    gGL.vertex2i(right, bottom);
+    gGL.color4fv(end_color.mV);
+    gGL.vertex2i(left + lines, bottom - lines);
+    gGL.vertex2i(right, bottom - lines);
 
     // bottom left Corner
     gGL.color4fv(start_color.mV);
-    gGL.vertex2i(left+lines,    bottom);
+    gGL.vertex2i(left + lines, bottom);
     gGL.color4fv(end_color.mV);
-    gGL.vertex2i(left,      bottom);
+    gGL.vertex2i(left, bottom);
     // make the bottom left corner not sharp
-    gGL.vertex2i(left+1,        bottom-lines+1);
-    gGL.vertex2i(left+lines,    bottom-lines);
+    gGL.vertex2i(left + 1, bottom - lines + 1);
+    gGL.color4fv(start_color.mV);
+    gGL.vertex2i(left + lines, bottom);
+    gGL.color4fv(end_color.mV);
+    gGL.vertex2i(left + 1, bottom - lines + 1);
+    gGL.vertex2i(left + lines, bottom - lines);
 
     // bottom right corner
     gGL.color4fv(start_color.mV);
-    gGL.vertex2i(right,     bottom);
+    gGL.vertex2i(right, bottom);
     gGL.color4fv(end_color.mV);
-    gGL.vertex2i(right,     bottom-lines);
+    gGL.vertex2i(right, bottom - lines);
     // make the rightmost corner not sharp
-    gGL.vertex2i(right+lines-1, bottom-lines+1);
-    gGL.vertex2i(right+lines,   bottom);
+    gGL.vertex2i(right + lines - 1, bottom - lines + 1);
+    gGL.color4fv(start_color.mV);
+    gGL.vertex2i(right, bottom);
+    gGL.color4fv(end_color.mV);
+    gGL.vertex2i(right + lines - 1, bottom - lines + 1);
+    gGL.vertex2i(right + lines, bottom);
 
     // top right corner
     gGL.color4fv(start_color.mV);
-    gGL.vertex2i( right,            top-lines );
+    gGL.vertex2i(right, top - lines);
     gGL.color4fv(end_color.mV);
-    gGL.vertex2i( right+lines,  top-lines );
+    gGL.vertex2i(right + lines, top - lines);
     // make the corner not sharp
-    gGL.vertex2i( right+lines-1,    top-1 );
-    gGL.vertex2i( right,            top );
+    gGL.vertex2i(right + lines - 1, top - 1);
+    gGL.color4fv(start_color.mV);
+    gGL.vertex2i(right, top - lines);
+    gGL.color4fv(end_color.mV);
+    gGL.vertex2i(right + lines - 1, top - 1);
+    gGL.vertex2i(right, top);
 
     gGL.end();
     stop_glerror();
