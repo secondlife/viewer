@@ -135,7 +135,7 @@ RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	1.0
 RenderTerrainPBRDetail      1   -1
 RenderTerrainPBRPlanarSampleCount 1   1
-RenderTransparentWater		1	1
+RenderTransparentWater		1	0
 RenderTreeLODFactor			1	0.5
 RenderVolumeLODFactor		1	1.125
 RenderDeferredSSAO			1	0
@@ -172,7 +172,7 @@ RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	2.0
 RenderTerrainPBRDetail      1   0
 RenderTerrainPBRPlanarSampleCount 1   1
-RenderTransparentWater		1	1
+RenderTransparentWater		1	0
 RenderTreeLODFactor			1	0.5
 RenderVolumeLODFactor		1	1.25
 RenderDeferredSSAO			1	0
@@ -209,7 +209,7 @@ RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	2.0
 RenderTerrainPBRDetail      1   0
 RenderTerrainPBRPlanarSampleCount 1   1
-RenderTransparentWater		1	1
+RenderTransparentWater		1	0
 RenderTreeLODFactor			1	0.5
 RenderVolumeLODFactor		1	1.375
 RenderDeferredSSAO			1	0
