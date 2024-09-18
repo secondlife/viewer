@@ -161,6 +161,8 @@ bool LLSidepanelInventory::postBuild()
 
         mPanelMainInventory = mInventoryPanel->getChild<LLPanelMainInventory>("panel_main_inventory");
         mPanelMainInventory->setSelectCallback(boost::bind(&LLSidepanelInventory::onSelectionChange, this, _1, _2));
+        mPanelMainInventory->setParentSidepanel(this);
+        mPanelMainInventory->setInboxPanel(getChild<LLPanelMarketplaceInbox>("marketplace_inbox"));
         //LLTabContainer* tabs = mPanelMainInventory->getChild<LLTabContainer>("inventory filter tabs");
         //tabs->setCommitCallback(boost::bind(&LLSidepanelInventory::updateVerbs, this));
 
@@ -385,7 +387,7 @@ void LLSidepanelInventory::onToggleInboxBtn()
 void LLSidepanelInventory::onOpen(const LLSD& key)
 {
     LLFirstUse::newInventory(false);
-    mPanelMainInventory->setFocusFilterEditor();
+    mPanelMainInventory->setFocusOnFilterEditor();
 #if AUTO_EXPAND_INBOX
     // Expand the inbox if we have fresh items
     LLPanelMarketplaceInbox * inbox = findChild<LLPanelMarketplaceInbox>(MARKETPLACE_INBOX_PANEL);

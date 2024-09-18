@@ -1,10 +1,9 @@
 /**
- * @file llallocator.cpp
- * @brief Implementation of the LLAllocator class.
+ * @file SMAANeighborhoodBlendV.glsl
  *
- * $LicenseInfo:firstyear=2009&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2024&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2024, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -24,35 +23,25 @@
  * $/LicenseInfo$
  */
 
-#include "linden_common.h"
-#include "llallocator.h"
+/*[EXTRA_CODE_HERE]*/
 
-//
-// stub implementations for when tcmalloc is disabled
-//
+uniform mat4 modelview_projection_matrix;
 
-void LLAllocator::setProfilingEnabled(bool should_enable)
+in vec3 position;
+
+out vec2 vary_texcoord0;
+out vec4 vary_offset;
+
+#define float4 vec4
+#define float2 vec2
+void SMAANeighborhoodBlendingVS(float2 texcoord,
+                                out float4 offset);
+
+void main()
 {
+    gl_Position = vec4(position.xyz, 1.0);
+    vary_texcoord0 = (gl_Position.xy*0.5+0.5);
+
+    SMAANeighborhoodBlendingVS(vary_texcoord0, vary_offset);
 }
 
-// static
-bool LLAllocator::isProfiling()
-{
-    return false;
-}
-
-std::string LLAllocator::getRawProfile()
-{
-    return std::string();
-}
-
-LLAllocatorHeapProfile const & LLAllocator::getProfile()
-{
-    mProf.mLines.clear();
-
-    // *TODO - avoid making all these extra copies of things...
-    std::string prof_text = getRawProfile();
-    //std::cout << prof_text << std::endl;
-    mProf.parse(prof_text);
-    return mProf;
-}

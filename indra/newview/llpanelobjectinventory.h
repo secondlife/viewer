@@ -73,6 +73,8 @@ public:
     void startRenamingSelectedItem();
 
     LLFolderView* getRootFolder() const { return mFolders; }
+    LLInventoryFilter& getFilter() { return mInventoryViewModel.getFilter(); }
+    const LLInventoryFilter& getFilter() const { return mInventoryViewModel.getFilter(); }
 
     virtual void draw();
     virtual void deleteAllChildren();

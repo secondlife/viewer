@@ -1,10 +1,8 @@
 /**
- * @file llallocator.h
- * @brief Declaration of the LLAllocator class.
- *
- * $LicenseInfo:firstyear=2009&license=viewerlgpl$
+ * @file SMAAEdgeDetectV.glsl
+ * $LicenseInfo:firstyear=2024&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2024, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -24,28 +22,24 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLALLOCATOR_H
-#define LL_LLALLOCATOR_H
+/*[EXTRA_CODE_HERE]*/
 
-#include <string>
+uniform mat4 modelview_projection_matrix;
 
-#include "llallocator_heap_profile.h"
+in vec3 position;
 
-class LL_COMMON_API LLAllocator {
-    friend class LLMemoryView;
+out vec2 vary_texcoord0;
+out vec4 vary_offset[3];
 
-public:
-    void setProfilingEnabled(bool should_enable);
+#define float4 vec4
+#define float2 vec2
+void SMAAEdgeDetectionVS(float2 texcoord,
+                         out float4 offset[3]);
 
-    static bool isProfiling();
+void main()
+{
+    gl_Position = vec4(position.xyz, 1.0);
+    vary_texcoord0 = (gl_Position.xy*0.5+0.5);
 
-    LLAllocatorHeapProfile const & getProfile();
-
-private:
-    std::string getRawProfile();
-
-private:
-    LLAllocatorHeapProfile mProf;
-};
-
-#endif // LL_LLALLOCATOR_H
+    SMAAEdgeDetectionVS(vary_texcoord0, vary_offset);
+}

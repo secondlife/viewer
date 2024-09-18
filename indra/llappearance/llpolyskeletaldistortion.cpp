@@ -34,7 +34,6 @@
 #include "llpolymorph.h"
 #include "llwearable.h"
 #include "llfasttimer.h"
-#include "llcallstack.h"
 
 #include "llpolyskeletaldistortion.h"
 
@@ -203,11 +202,6 @@ void LLPolySkeletalDistortion::apply( ESex avatar_sex )
         //An aspect of attached mesh objects (which contain joint offsets) that need to be cleaned up when detached
         // needed?
         // joint->storeScaleForReset( newScale );
-
-        // BENTO for detailed stack tracing of params.
-        std::stringstream ostr;
-        ostr << "LLPolySkeletalDistortion::apply, id " << getID() << " " << getName() << " effective wt " << effective_weight << " last wt " << mLastWeight << " scaleDelta " << scaleDelta << " offset " << offset;
-        LLScopedContextString str(ostr.str());
 
         joint->setScale(newScale, true);
     }

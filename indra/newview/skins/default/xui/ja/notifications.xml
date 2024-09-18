@@ -4663,17 +4663,6 @@ Webページにリンクすると、他人がこの場所に簡単にアクセ�
 			voice
 		</tag>
 	</notification>
-	<notification name="VoiceEffectsWillExpire">ボイスモーフィング効果の１つ、または複数の有効期限が[INTERVAL]日以内に終了します。
-期限を延長・更新するには[[URL] ここ]をクリックしてください。
-
-プレミアム会員の方は、[[PREMIUM_URL] ここ]をクリックしてボイスモーフィング特典をお受け取りください。
-    <tag>
-			fail
-		</tag>
-		<tag>
-			voice
-		</tag>
-	</notification>
 	<notification name="VoiceEffectsNew">新しいボイスモーフィング効果が登場！
     <tag>
 			voice

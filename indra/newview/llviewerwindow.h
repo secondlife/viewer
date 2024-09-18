@@ -50,7 +50,6 @@
 
 #include <boost/function.hpp>
 #include <boost/signals2.hpp>
-#include <boost/scoped_ptr.hpp>
 
 class LLView;
 class LLViewerObject;

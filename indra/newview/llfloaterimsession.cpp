@@ -138,8 +138,14 @@ void LLFloaterIMSession::onTearOffClicked()
 }
 
 // virtual
-void LLFloaterIMSession::onClickCloseBtn(bool)
+void LLFloaterIMSession::onClickCloseBtn(bool app_qutting)
 {
+    if (app_qutting)
+    {
+        LLFloaterIMSessionTab::onClickCloseBtn();
+        return;
+    }
+
     LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(mSessionID);
 
     if (session != NULL)
@@ -287,10 +293,8 @@ void LLFloaterIMSession::sendMsg(const std::string& msg)
 LLFloaterIMSession::~LLFloaterIMSession()
 {
     mVoiceChannelStateChangeConnection.disconnect();
-    if(LLVoiceClient::instanceExists())
-    {
-        LLVoiceClient::getInstance()->removeObserver(this);
-    }
+
+    LLVoiceClient::removeObserver(this);
 
     LLTransientFloaterMgr::getInstance()->removeControlView(LLTransientFloaterMgr::IM, this);
 
@@ -364,9 +368,7 @@ bool LLFloaterIMSession::postBuild()
     add_btn->setEnabled(isInviteAllowed());
     add_btn->setClickedCallback(boost::bind(&LLFloaterIMSession::onAddButtonClicked, this));
 
-    childSetAction("voice_call_btn", boost::bind(&LLFloaterIMSession::onCallButtonClicked, this));
-
-    LLVoiceClient::getInstance()->addObserver(this);
+    LLVoiceClient::addObserver(this);
 
     //*TODO if session is not initialized yet, add some sort of a warning message like "starting session...blablabla"
     //see LLFloaterIMPanel for how it is done (IB)
@@ -537,29 +539,13 @@ void LLFloaterIMSession::boundVoiceChannel()
     LLVoiceChannel* voice_channel = LLIMModel::getInstance()->getVoiceChannel(mSessionID);
     if(voice_channel)
     {
+        mVoiceChannelStateChangeConnection.disconnect();
         mVoiceChannelStateChangeConnection = voice_channel->setStateChangedCallback(
                 boost::bind(&LLFloaterIMSession::onVoiceChannelStateChanged, this, _1, _2));
 
         //call (either p2p, group or ad-hoc) can be already in started state
         bool callIsActive = voice_channel->getState() >= LLVoiceChannel::STATE_CALL_STARTED;
         updateCallBtnState(callIsActive);
-    }
-}
-
-void LLFloaterIMSession::onCallButtonClicked()
-{
-    LLVoiceChannel* voice_channel = LLIMModel::getInstance()->getVoiceChannel(mSessionID);
-    if (voice_channel)
-    {
-        bool is_call_active = voice_channel->getState() >= LLVoiceChannel::STATE_CALL_STARTED;
-        if (is_call_active)
-        {
-            gIMMgr->endCall(mSessionID);
-        }
-        else
-        {
-            gIMMgr->startCall(mSessionID);
-        }
     }
 }
 

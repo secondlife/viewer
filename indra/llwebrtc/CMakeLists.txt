@@ -31,6 +31,7 @@ add_library (llwebrtc SHARED ${llwebrtc_SOURCE_FILES})
 set_target_properties(llwebrtc PROPERTIES PUBLIC_HEADER llwebrtc.h)
 
 if (WINDOWS)
+    cmake_policy(SET CMP0091 NEW)
     set_target_properties(llwebrtc
         PROPERTIES
         LINK_FLAGS "/debug /LARGEADDRESSAWARE"
@@ -42,7 +43,10 @@ if (WINDOWS)
                                        wmcodecdspuuid
                                        msdmo
                                        strmiids
-                                       iphlpapi)
+                                       iphlpapi
+                                       libcmt)
+    # as the webrtc libraries are release, build this binary as release as well.
+    target_compile_options(llwebrtc PRIVATE "/MT")
     if (USE_BUGSPLAT)
         set_target_properties(llwebrtc PROPERTIES PDB_OUTPUT_DIRECTORY "${SYMBOLS_STAGING_DIR}")
     endif (USE_BUGSPLAT)

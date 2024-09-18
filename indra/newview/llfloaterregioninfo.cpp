@@ -268,7 +268,7 @@ bool LLFloaterRegionInfo::postBuild()
     mInfoPanels.push_back(panel);
     static LLCachedControl<bool> feature_pbr_terrain_enabled(gSavedSettings, "RenderTerrainPBREnabled", false);
     static LLCachedControl<bool> feature_pbr_terrain_transforms_enabled(gSavedSettings, "RenderTerrainPBRTransformsEnabled", false);
-    if (!feature_pbr_terrain_transforms_enabled || !feature_pbr_terrain_enabled)
+    if (!feature_pbr_terrain_transforms_enabled() || !feature_pbr_terrain_enabled())
     {
         panel->buildFromFile("panel_region_terrain.xml");
     }
@@ -1694,7 +1694,7 @@ bool LLPanelRegionTerrainInfo::refreshFromRegion(LLViewerRegion* region)
         static LLCachedControl<bool> feature_pbr_terrain_enabled(gSavedSettings, "RenderTerrainPBREnabled", false);
 
         const bool textures_ready = compp->makeTexturesReady(false, false);
-        const bool materials_ready = feature_pbr_terrain_enabled && compp->makeMaterialsReady(false, false);
+        const bool materials_ready = feature_pbr_terrain_enabled() && compp->makeMaterialsReady(false, false);
 
         bool set_texture_swatches;
         bool set_material_swatches;
@@ -1724,7 +1724,7 @@ bool LLPanelRegionTerrainInfo::refreshFromRegion(LLViewerRegion* region)
         {
             material_type_to_ctrl(mMaterialTypeCtrl, material_type);
             updateForMaterialType();
-            mMaterialTypeCtrl->setVisible(feature_pbr_terrain_enabled);
+            mMaterialTypeCtrl->setVisible(feature_pbr_terrain_enabled());
         }
 
         if (set_texture_swatches)
@@ -1938,7 +1938,7 @@ bool LLPanelRegionTerrainInfo::sendUpdate()
     // POST to ModifyRegion endpoint, if enabled
 
     static LLCachedControl<bool> feature_pbr_terrain_transforms_enabled(gSavedSettings, "RenderTerrainPBRTransformsEnabled", false);
-    if (material_type == LLTerrainMaterials::Type::PBR && feature_pbr_terrain_transforms_enabled)
+    if (material_type == LLTerrainMaterials::Type::PBR && feature_pbr_terrain_transforms_enabled())
     {
         LLTerrainMaterials composition;
         for (S32 i = 0; i < LLTerrainMaterials::ASSET_COUNT; ++i)
@@ -4291,7 +4291,7 @@ void LLPanelRegionEnvironment::refreshFromSource()
     }
 
     LLEnvironment::instance().requestRegion(
-        [that_h](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) { _onEnvironmentReceived(that_h, parcel_id, envifo); });
+        [that_h](S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envifo) { onEnvironmentReceived(that_h, parcel_id, envifo); });
 
     setControlsEnabled(false);
 }

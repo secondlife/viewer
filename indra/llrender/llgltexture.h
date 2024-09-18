@@ -82,8 +82,6 @@ public:
     typedef enum
     {
         DELETED = 0,         //removed from memory
-        DELETION_CANDIDATE,  //ready to be removed from memory
-        INACTIVE,            //not be used for the last certain period (i.e., 30 seconds).
         ACTIVE,              //just being used, can become inactive if not being used for a certain time (10 seconds).
         NO_DELETE = 99       //stay in memory, can not be removed.
     } LLGLTextureState;

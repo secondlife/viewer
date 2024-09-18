@@ -62,7 +62,6 @@
 #include "llfocusmgr.h"
 #include "llurlfloaterdispatchhandler.h"
 #include "llviewerjoystick.h"
-#include "llallocator.h"
 #include "llcalc.h"
 #include "llconversationlog.h"
 #if LL_WINDOWS
@@ -643,8 +642,6 @@ LLAppViewer::LLAppViewer()
     mQuitRequested(false),
     mClosingFloaters(false),
     mLogoutRequestSent(false),
-    mLastAgentControlFlags(0),
-    mLastAgentForceUpdate(0),
     mMainloopTimeout(NULL),
     mAgentRegionLastAlive(false),
     mRandomizeFramerate(LLCachedControl<bool>(gSavedSettings,"Randomize Framerate", false)),
@@ -748,7 +745,9 @@ bool LLAppViewer::init()
     // inits from settings.xml and from strings.xml
     if (!initConfiguration())
     {
-        LL_ERRS("InitInfo") << "initConfiguration() failed." << LL_ENDL;
+        LL_WARNS("InitInfo") << "initConfiguration() failed." << LL_ENDL;
+        // quit immediately
+        return false;
     }
 
     LL_INFOS("InitInfo") << "Configuration initialized." << LL_ENDL ;
@@ -768,8 +767,6 @@ bool LLAppViewer::init()
         // much on successful startup!
         LLError::setFatalFunction([rc](const std::string&){ _exit(rc); });
     }
-
-    mAlloc.setProfilingEnabled(gSavedSettings.getBOOL("MemProfiling"));
 
     // Initialize the non-LLCurl libcurl library.  Should be called
     // before consumers (LLTextureFetch).
@@ -917,7 +914,9 @@ bool LLAppViewer::init()
     if (!initHardwareTest())
     {
         // Early out from user choice.
-        LL_ERRS("InitInfo") << "initHardwareTest() failed." << LL_ENDL;
+        LL_WARNS("InitInfo") << "initHardwareTest() failed." << LL_ENDL;
+        // quit immediately
+        return false;
     }
     LL_INFOS("InitInfo") << "Hardware test initialization done." << LL_ENDL ;
 
@@ -933,7 +932,9 @@ bool LLAppViewer::init()
     {
         std::string msg = LLTrans::getString("MBUnableToAccessFile");
         OSMessageBox(msg.c_str(), LLStringUtil::null, OSMB_OK);
-        LL_ERRS("InitInfo") << "Failed to init cache" << LL_ENDL;
+        LL_WARNS("InitInfo") << "Failed to init cache" << LL_ENDL;
+        // quit immediately
+        return false;
     }
     LL_INFOS("InitInfo") << "Cache initialization is done." << LL_ENDL ;
 
@@ -966,7 +967,9 @@ bool LLAppViewer::init()
     if (!gGLManager.mHasRequirements)
     {
         // Already handled with a MBVideoDrvErr
-        LL_ERRS("InitInfo") << "gGLManager.mHasRequirements is false." << LL_ENDL;
+        LL_WARNS("InitInfo") << "gGLManager.mHasRequirements is false." << LL_ENDL;
+        // quit immediately
+        return false;
     }
 
     // Without SSE2 support we will crash almost immediately, warn here.
@@ -976,7 +979,9 @@ bool LLAppViewer::init()
         // all hell breaks lose.
         std::string msg = LLNotifications::instance().getGlobalString("UnsupportedCPUSSE2");
         OSMessageBox(msg.c_str(), LLStringUtil::null, OSMB_OK);
-        LL_ERRS("InitInfo") << "SSE2 is not supported" << LL_ENDL;
+        LL_WARNS("InitInfo") << "SSE2 is not supported" << LL_ENDL;
+        // quit immediately
+        return false;
     }
 
     // alert the user if they are using unsupported hardware
@@ -3972,7 +3977,6 @@ void LLAppViewer::forceQuit()
     LLApp::setQuitting();
 }
 
-//TODO: remove
 void LLAppViewer::fastQuit(S32 error_code)
 {
     // finish pending transfers
@@ -4705,30 +4709,13 @@ void LLAppViewer::idle()
             gAgent.autoPilot(&yaw);
         }
 
-        static LLFrameTimer agent_update_timer;
+        send_agent_update(false);
 
-        // When appropriate, update agent location to the simulator.
-        F32 agent_update_time = agent_update_timer.getElapsedTimeF32();
-        F32 agent_force_update_time = mLastAgentForceUpdate + agent_update_time;
-        bool timed_out = agent_update_time > (1.0f / (F32)AGENT_UPDATES_PER_SECOND);
-        bool force_send =
-            // if there is something to send
-            (gAgent.controlFlagsDirty() && timed_out)
-            // if something changed
-            || (mLastAgentControlFlags != gAgent.getControlFlags())
-            // keep alive
-            || (agent_force_update_time > (1.0f / (F32) AGENT_FORCE_UPDATES_PER_SECOND));
-        // timing out doesn't warranty that an update will be sent,
-        // just that it will be checked.
-        if (force_send || timed_out)
-        {
-            LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
-            // Send avatar and camera info
-            mLastAgentControlFlags = gAgent.getControlFlags();
-            mLastAgentForceUpdate = force_send ? 0 : agent_force_update_time;
-            send_agent_update(force_send);
-            agent_update_timer.reset();
-        }
+        // After calling send_agent_update() in the mainloop we always clear
+        // the agent's ephemeral ControlFlags (whether an AgentUpdate was
+        // actually sent or not) because these will be recomputed based on
+        // real-time key/controller input and resubmitted next frame.
+        gAgent.resetControlFlags();
     }
 
     //////////////////////////////////////
@@ -5339,11 +5326,6 @@ void LLAppViewer::idleNetwork()
             CheckMessagesMaxTime = CHECK_MESSAGES_DEFAULT_MAX_TIME;
         }
 #endif
-
-
-
-        // we want to clear the control after sending out all necessary agent updates
-        gAgent.resetControlFlags();
 
         // Decode enqueued messages...
         S32 remaining_possible_decodes = MESSAGE_MAX_PER_FRAME - total_decoded;
