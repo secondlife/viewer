@@ -47,6 +47,16 @@
 		<item label="常に再生" name="autoplay_enabled" value="1"/>
 		<item label="その都度確認" name="autoplay_ask" value="2"/>
 	</combo_box>
+	<text name="noise_suppression_label">
+		ノイズ抑制
+	</text>
+	<combo_box name="noise_suppression_combo">
+		<item label="オフ" name="noise_suppression_none" value="0"/>
+		<item label="低" name="noise_suppression_low" value="1"/>
+		<item label="中" name="noise_suppression_moderate" value="2"/>
+		<item label="高" name="noise_suppression_high" value="3"/>
+		<item label="最大" name="noise_suppression_max" value="4"/>
+	</combo_box>
 	<text name="Listen from">
 		ボイスの聞き取り位置：
 	</text>
@@ -58,16 +68,8 @@
 	<check_box label="喋ったときにアバターの口を動かす" name="enable_lip_sync"/>
 	<check_box label="ボイスチャットをトグルモードにする" name="push_to_talk_toggle_check" tool_tip="トグルモードでは、トリガーキーを押すことでマイクのオン／オフを切り替えます。そうでない場合は、トリガーキーを押している間だけマイクがオンになります。"/>
 	<check_box tool_tip="ここをチェックすると自動ゲインコントロールを有効にします。" label="自動ゲインコントロール" name="voice_automatic_gain_control"/>
+	<check_box name="gesture_audio_play_btn" tool_tip="ここをチェックするとジェスチャーからのサウンドを聞くことができるようになります。" label="ジェスチャーからのサウンドを再生する"/>
+	<check_box tool_tip="ここにチェックをいれるとボイスドットインジケーターをアバターの上に表示します。" label="アバターの上にボイスドットを表示する" name="voice_dot_visualizer"/>
 	<button label="入出力機器の設定" name="device_settings_btn"/>
-	<text name="noise_suppression_label">
-		ノイズ抑制
-	</text>
-	<combo_box name="noise_suppression_combo">
-		<item label="オフ" name="noise_suppression_none" value="0"/>
-		<item label="低" name="noise_suppression_low" value="1"/>
-		<item label="中" name="noise_suppression_moderate" value="2"/>
-		<item label="高" name="noise_suppression_high" value="3"/>
-		<item label="最大" name="noise_suppression_max" value="4"/>
-	</combo_box>
 	<panel name="device_settings_panel"/>
 </panel>

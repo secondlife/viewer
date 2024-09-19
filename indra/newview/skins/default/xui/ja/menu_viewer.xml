@@ -62,6 +62,8 @@
 		<menu_item_call label="アニメーション停止" name="Stop Animating My Avatar"/>
 		<menu_item_check label="歩行／走行／飛行…" name="WalkRunFly"/>
 		<menu_item_check label="常時走行" name="Always Run" shortcut="control|R"/>
+		<menu_item_check label="アバターからのメディアとサウンドを聞く" name="Hear Media and Sound from Avatar"/>
+		<menu_item_check label="アバターからのボイスを聞く" name="Hear Voice from Avatar"/>
 		<menu_item_separator/>
 		<menu_item_check label="ジェスチャー…" name="Gestures" shortcut="control|G"/>
 		<menu_item_separator/>
@@ -486,10 +488,10 @@
 			<menu_item_call label="関心リストをリセット" name="Reset Interest Lists"/>
 		</menu>
 		<menu label="地形" name="DevelopTerrain">
-            <menu_item_call label="地形を再構築" name="Rebuild Terrain"/>
-            <menu_item_separator/>
-            <menu_item_call label="ローカルのペイントマップを作成" name="Create Local Paintmap"/>
-            <menu_item_call label="ローカルのペイントマップを削除" name="Delete Local Paintmap"/>
+			<menu_item_call label="地形を再構築" name="Rebuild Terrain"/>
+			<menu_item_separator/>
+			<menu_item_call label="ローカルのペイントマップを作成" name="Create Local Paintmap"/>
+			<menu_item_call label="ローカルのペイントマップを削除" name="Delete Local Paintmap"/>
 		</menu>
 		<menu label="ＵＩ" name="UI">
 			<menu_item_call label="メディアブラウザ" name="Media Browser"/>

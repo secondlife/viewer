@@ -40,6 +40,9 @@
 	<string name="TimeHour12">
 		hour12,datetime,slt
 	</string>
+	<string name="TimeTimezone">
+		timezone,datetime,slt
+	</string>
 	<string name="LTimeMthNum">
 		mthnum,datetime,local
 	</string>

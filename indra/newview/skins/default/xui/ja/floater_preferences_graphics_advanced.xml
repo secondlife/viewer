@@ -48,17 +48,25 @@
 	<check_box control_name="RenderCompressTextures" label="テクスチャ圧縮の有効化 (再起動後に反映)" name="texture compression" tool_tip="ビデオメモリ内のテクスチャを圧縮し、色の品質をある程度犠牲にして、より高解像度のテクスチャを読み込むようにします。"/>
 	<check_box label="HiDPIディスプレイのサポートを有効にする（再起動後に反映）" name="use HiDPI" tool_tip="ＯｐｅｎＧＬの高解像描画を有効化します。"/>
 	<text name="antialiasing label">
-		アンチエイリアス：
+		アンチエイリアス
 	</text>
 	<combo_box label="アンチエイリアシング" name="fsaa">
 		<combo_box.item label="無効" name="FSAADisabled" value="0"/>
-		<combo_box.item label="ＦＸＡＡ" name="FXAA" value="2"/>
+		<combo_box.item label="ＦＸＡＡ" name="FXAA" value="1"/>
+		<combo_box.item label="ＳＭＡＡ" name="SMAA" value="2"/>
 	</combo_box>
-	<text name="antialiasing restart">
-		（再起動後に反映）
+	<text name="antialiasing quality label">
+		アンチエイリアスの品質
 	</text>
-	<view_border name="vert_border"/>
-	<text name="MeshText">メッシュ</text>
+	<combo_box label="アンチエイリアシングの品質" name="fsaa quality">
+		<combo_box.item label="低" name="Low" value="0" />
+		<combo_box.item label="中" name="Medium" value="1" />
+		<combo_box.item label="高" name="High" value="2" />
+		<combo_box.item label="最高" name="Ultra" value="3" />
+	</combo_box>
+	<text name="MeshText">
+		メッシュ
+	</text>
 	<slider label="地形のメッシュの詳細：" name="TerrainMeshDetail"/>
 	<text name="TerrainMeshDetailText">
 		低
@@ -74,6 +82,9 @@
 	<slider label="フレキシプリム：" name="FlexibleMeshDetail"/>
 	<text name="FlexibleMeshDetailText">
 		低
+	</text>
+	<text name="antialiasing restart">
+		（再起動後に反映）
 	</text>
 	<text name="ShadersText">
 		シェーダー
@@ -131,6 +142,7 @@
 		<combo_box.item label="高" name="1" value="2"/>
 		<combo_box.item label="ウルトラ" name="0" value="1"/>
 	</combo_box>
+	<slider label="画像の先鋭化量：" name="RenderSharpness"/>
 	<view_border name="horiz_border"/>
 	<button label="推奨設定値にリセット" name="Defaults"/>
 	<button label="ＯＫ" label_selected="ＯＫ" name="OK"/>

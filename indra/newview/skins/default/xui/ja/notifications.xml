@@ -5949,4 +5949,9 @@ Intelドライバーのウェブサイトを確認しますか？
 		<tag>fail</tag>
 		<usetemplate name="okbutton" yestext="ＯＫ"/>
 	</notification>
+	<notification name="NoSupportGLTFShader">
+		ＧＬＴＦシーンは、お使いのグラフィックハードウェアではまだサポートされていません。
+		<tag>fail</tag>
+		<usetemplate name="okbutton" yestext="ＯＫ"/>
+	</notification>
 </notifications>

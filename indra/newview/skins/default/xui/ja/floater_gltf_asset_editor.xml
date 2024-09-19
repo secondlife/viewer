@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="gltf asset editor" title="[OBJECT_NAME]">
    <floater.string name="floater_title" value="ＧＬＴＦシーンエディタ"/>
-   <floater.string name="scene_tittle" value="シーン"/>
-   <floater.string name="node_tittle" value="ノード"/>
-   <floater.string name="mesh_tittle" value="メッシュ"/>
-   <floater.string name="skin_tittle" value="スキン"/>
+   <floater.string name="scene_title" value="シーン"/>
+   <floater.string name="node_title" value="ノード"/>
+   <floater.string name="mesh_title" value="メッシュ"/>
+   <floater.string name="skin_title" value="スキン"/>
    <layout_stack name="main_layout">
       <layout_panel name="top_lp">
          <panel name="item_list_panel"/>
