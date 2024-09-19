@@ -393,7 +393,7 @@ F32 logExceptionBenchmark()
     __except (msc_exception_filter(GetExceptionCode(), GetExceptionInformation()))
     {
         // HACK - ensure that profiling is disabled
-        LLGLSLShader::finishProfile(false);
+        LLGLSLShader::finishProfile();
 
         // convert to C++ styled exception
         char integer_string[32];

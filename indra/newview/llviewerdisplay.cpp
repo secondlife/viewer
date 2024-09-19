@@ -28,58 +28,70 @@
 
 #include "llviewerdisplay.h"
 
-#include "llgl.h"
-#include "llrender.h"
-#include "llglheaders.h"
-#include "llgltfmateriallist.h"
+#include "fsyspath.h"
+#include "hexdump.h"
 #include "llagent.h"
 #include "llagentcamera.h"
-#include "llviewercontrol.h"
+#include "llappviewer.h"
 #include "llcoord.h"
 #include "llcriticaldamp.h"
+#include "llcubemap.h"
 #include "lldir.h"
-#include "lldynamictexture.h"
 #include "lldrawpoolalpha.h"
+#include "lldrawpoolbump.h"
+#include "lldrawpoolwater.h"
+#include "lldynamictexture.h"
+#include "llenvironment.h"
+#include "llfasttimer.h"
 #include "llfeaturemanager.h"
-//#include "llfirstuse.h"
+#include "llfloatertools.h"
+#include "llfocusmgr.h"
+#include "llgl.h"
+#include "llglheaders.h"
+#include "llgltfmateriallist.h"
 #include "llhudmanager.h"
 #include "llimagepng.h"
+#include "llmachineid.h"
 #include "llmemory.h"
+#include "llparcel.h"
+#include "llperfstats.h"
+#include "llpostprocess.h"
+#include "llrender.h"
+#include "llscenemonitor.h"
+#include "llsdjson.h"
 #include "llselectmgr.h"
 #include "llsky.h"
+#include "llspatialpartition.h"
 #include "llstartup.h"
+#include "llstartup.h"
+#include "lltooldraganddrop.h"
 #include "lltoolfocus.h"
 #include "lltoolmgr.h"
-#include "lltooldraganddrop.h"
 #include "lltoolpie.h"
 #include "lltracker.h"
 #include "lltrans.h"
 #include "llui.h"
+#include "lluuid.h"
+#include "llversioninfo.h"
 #include "llviewercamera.h"
+#include "llviewercontrol.h"
+#include "llviewernetwork.h"
 #include "llviewerobjectlist.h"
 #include "llviewerparcelmgr.h"
+#include "llviewerregion.h"
+#include "llviewershadermgr.h"
+#include "llviewertexturelist.h"
 #include "llviewerwindow.h"
 #include "llvoavatarself.h"
 #include "llvograss.h"
 #include "llworld.h"
 #include "pipeline.h"
-#include "llspatialpartition.h"
-#include "llappviewer.h"
-#include "llstartup.h"
-#include "llviewershadermgr.h"
-#include "llfasttimer.h"
-#include "llfloatertools.h"
-#include "llviewertexturelist.h"
-#include "llfocusmgr.h"
-#include "llcubemap.h"
-#include "llviewerregion.h"
-#include "lldrawpoolwater.h"
-#include "lldrawpoolbump.h"
-#include "llpostprocess.h"
-#include "llscenemonitor.h"
 
-#include "llenvironment.h"
-#include "llperfstats.h"
+#include <boost/json.hpp>
+
+#include <filesystem>
+#include <iomanip>
+#include <sstream>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -126,6 +138,9 @@ void render_hud_attachments();
 void render_ui_3d();
 void render_ui_2d();
 void render_disconnected_background();
+
+void getProfileStatsContext(boost::json::object& stats);
+std::string getProfileStatsFilename();
 
 void display_startup()
 {
@@ -1027,8 +1042,87 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
     if (gShaderProfileFrame)
     {
         gShaderProfileFrame = false;
-        LLGLSLShader::finishProfile();
+        boost::json::value stats{ boost::json::object_kind };
+        getProfileStatsContext(stats.as_object());
+        LLGLSLShader::finishProfile(stats);
+
+        auto report_name = getProfileStatsFilename();
+        std::ofstream outf(report_name);
+        if (! outf)
+        {
+            LL_WARNS() << "Couldn't write to " << std::quoted(report_name) << LL_ENDL;
+        }
+        else
+        {
+            outf << stats;
+            LL_INFOS() << "(also dumped to " << std::quoted(report_name) << ")" << LL_ENDL;
+        }
     }
+}
+
+void getProfileStatsContext(boost::json::object& stats)
+{
+    // populate the context with info from LLFloaterAbout
+    auto contextit = stats.emplace("context",
+                                   LlsdToJson(LLAppViewer::instance()->getViewerInfo())).first;
+    auto& context = contextit->value().as_object();
+
+    // then add a few more things
+    unsigned char unique_id[MAC_ADDRESS_BYTES]{};
+    LLMachineID::getUniqueID(unique_id, sizeof(unique_id));
+    context.emplace("machine", stringize(LL::hexdump(unique_id, sizeof(unique_id))));
+    context.emplace("grid", LLGridManager::instance().getGrid());
+    LLViewerRegion* region = gAgent.getRegion();
+    if (region)
+    {
+        context.emplace("regionid", stringize(region->getRegionID()));
+    }
+    LLParcel* parcel = LLViewerParcelMgr::instance().getAgentParcel();
+    if (parcel)
+    {
+        context.emplace("parcel", parcel->getName());
+        context.emplace("parcelid", parcel->getLocalID());
+    }
+    context.emplace("time", LLDate::now().toHTTPDateString("%Y-%m-%dT%H:%M:%S"));
+}
+
+std::string getProfileStatsFilename()
+{
+    std::ostringstream basebuff;
+    // viewer build
+    basebuff << "profile.v" << LLVersionInfo::instance().getBuild();
+    // machine ID: zero-initialize unique_id in case LLMachineID fails
+    unsigned char unique_id[MAC_ADDRESS_BYTES]{};
+    LLMachineID::getUniqueID(unique_id, sizeof(unique_id));
+    basebuff << ".m" << LL::hexdump(unique_id, sizeof(unique_id));
+    // region ID
+    LLViewerRegion *region = gAgent.getRegion();
+    basebuff << ".r" << (region? region->getRegionID() : LLUUID());
+    // local parcel ID
+    LLParcel* parcel = LLViewerParcelMgr::instance().getAgentParcel();
+    basebuff << ".p" << (parcel? parcel->getLocalID() : 0);
+    // date/time -- omit seconds for now
+    auto now = LLDate::now();
+    basebuff << ".t" << LLDate::now().toHTTPDateString("%Y-%m-%dT%H-%M-");
+    // put this candidate file in our logs directory
+    auto base = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, basebuff.str());
+    S32 sec;
+    now.split(nullptr, nullptr, nullptr, nullptr, nullptr, &sec);
+    // Loop over finished filename, incrementing sec until we find one that
+    // doesn't yet exist. Should rarely loop (only if successive calls within
+    // same second), may produce (e.g.) sec==61, but avoids collisions and
+    // preserves chronological filename sort order.
+    std::string name;
+    std::error_code ec;
+    do
+    {
+        // base + missing 2-digit seconds, append ".json"
+        // post-increment sec in case we have to try again
+        name = stringize(base, std::setw(2), std::setfill('0'), sec++, ".json");
+    } while (std::filesystem::exists(fsyspath(name), ec));
+    // Ignoring ec means we might potentially return a name that does already
+    // exist -- but if we can't check its existence, what more can we do?
+    return name;
 }
 
 // WIP simplified copy of display() that does minimal work

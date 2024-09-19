@@ -30,6 +30,7 @@
 #include "llgl.h"
 #include "llrender.h"
 #include "llstaticstringtable.h"
+#include <boost/json.hpp>
 #include <unordered_map>
 
 class LLShaderFeatures
@@ -169,14 +170,14 @@ public:
     static U32 sMaxGLTFNodes;
 
     static void initProfile();
-    static void finishProfile(bool emit_report = true);
+    static void finishProfile(boost::json::value& stats=sDefaultStats);
 
     static void startProfile();
     static void stopProfile();
 
     void unload();
     void clearStats();
-    void dumpStats();
+    void dumpStats(boost::json::object& stats);
 
     // place query objects for profiling if profiling is enabled
     // if for_runtime is true, will place timer query only whether or not profiling is enabled
@@ -363,6 +364,11 @@ public:
 
 private:
     void unloadInternal();
+    // This must be static because finishProfile() is called at least once
+    // within a __try block. If we default its stats parameter to a temporary
+    // json::value, that temporary must be destroyed when the stack is
+    // unwound, which __try forbids.
+    static boost::json::value sDefaultStats;
 };
 
 //UI shader (declared here so llui_libtest will link properly)
