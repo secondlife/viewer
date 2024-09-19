@@ -87,6 +87,8 @@ namespace {
 
     const F32 SPEAKING_AUDIO_LEVEL = 0.30;
 
+    const uint32_t PEER_GAIN_CONVERSION_FACTOR = 220;
+
     static const std::string REPORTED_VOICE_SERVER_TYPE = "Secondlife WebRTC Gateway";
 
     // Don't send positional updates more frequently than this:
@@ -2443,7 +2445,7 @@ void LLVoiceWebRTCConnection::setSpeakerVolume(F32 volume)
 
 void LLVoiceWebRTCConnection::setUserVolume(const LLUUID& id, F32 volume)
 {
-    boost::json::object root = {{"ug", {id.asString(), (uint32_t) (volume * 200)}}};
+    boost::json::object root      = { { "ug", { { id.asString(), (uint32_t)(volume * PEER_GAIN_CONVERSION_FACTOR) } } } };
     std::string json_data = boost::json::serialize(root);
     if (mWebRTCDataInterface)
     {
@@ -2453,7 +2455,7 @@ void LLVoiceWebRTCConnection::setUserVolume(const LLUUID& id, F32 volume)
 
 void LLVoiceWebRTCConnection::setUserMute(const LLUUID& id, bool mute)
 {
-    boost::json::object root = {{"m", {id.asString(), mute}}};
+    boost::json::object root      = { { "m", { { id.asString(), mute } } } };
     std::string         json_data = boost::json::serialize(root);
     if (mWebRTCDataInterface)
     {
