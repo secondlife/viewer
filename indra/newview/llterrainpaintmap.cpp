@@ -111,12 +111,12 @@ bool LLTerrainPaintMap::bakeHeightNoiseIntoPBRPaintMapRGB(const LLViewerRegion& 
     const LLRect texture_rect(0, scratch_target.getHeight(), scratch_target.getWidth(), 0);
     glViewport(texture_rect.mLeft, texture_rect.mBottom, texture_rect.getWidth(), texture_rect.getHeight());
     // Manually get modelview matrix from camera orientation.
-    glh::matrix4f modelview((GLfloat *) OGL_TO_CFR_ROTATION);
+    glm::mat4 modelview(glm::make_mat4((GLfloat *) OGL_TO_CFR_ROTATION));
     GLfloat ogl_matrix[16];
     camera.getOpenGLTransform(ogl_matrix);
-    modelview *= glh::matrix4f(ogl_matrix);
+    modelview *= glm::make_mat4(ogl_matrix);
     gGL.matrixMode(LLRender::MM_MODELVIEW);
-    gGL.loadMatrix(modelview.m);
+    gGL.loadMatrix(glm::value_ptr(modelview));
     // Override the projection matrix from the camera
     gGL.matrixMode(LLRender::MM_PROJECTION);
     gGL.pushMatrix();

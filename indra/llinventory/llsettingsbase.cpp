@@ -69,25 +69,99 @@ const U32 LLSettingsBase::Validator::VALIDATION_PARTIAL(0x01 << 0);
 LLSettingsBase::LLSettingsBase():
     mSettings(LLSD::emptyMap()),
     mDirty(true),
-    mBlendedFactor(0.0)
+    mLLSDDirty(true),
+    mReplaced(false),
+    mBlendedFactor(0.0),
+    mSettingFlags(0)
 {
 }
 
 LLSettingsBase::LLSettingsBase(const LLSD setting) :
     mSettings(setting),
+    mLLSDDirty(true),
     mDirty(true),
-    mBlendedFactor(0.0)
+    mReplaced(false),
+    mBlendedFactor(0.0),
+    mSettingFlags(0)
 {
+}
+
+//virtual
+void LLSettingsBase::loadValuesFromLLSD()
+{
+    mLLSDDirty = false;
+
+    mAssetId = mSettings[SETTING_ASSETID].asUUID();
+    mSettingId = getValue(SETTING_ID).asUUID();
+    mSettingName = getValue(SETTING_NAME).asString();
+    if (mSettings.has(SETTING_FLAGS))
+    {
+        mSettingFlags = (U32)mSettings[SETTING_FLAGS].asInteger();
+    }
+    else
+    {
+        mSettingFlags = 0;
+    }
+}
+
+//virtual
+void LLSettingsBase::saveValuesToLLSD()
+{
+    mLLSDDirty = false;
+
+    mSettings[SETTING_NAME] = mSettingName;
+    if (mAssetId.isNull())
+    {
+        mSettings.erase(SETTING_ASSETID);
+    }
+    else
+    {
+        mSettings[SETTING_ASSETID] = mAssetId;
+    }
+    mSettings[SETTING_FLAGS] = LLSD::Integer(mSettingFlags);
+}
+
+void LLSettingsBase::saveValuesIfNeeded()
+{
+    if (mLLSDDirty)
+    {
+        saveValuesToLLSD();
+    }
 }
 
 //=========================================================================
-void LLSettingsBase::lerpSettings(const LLSettingsBase &other, F64 mix)
+void LLSettingsBase::lerpSettings(LLSettingsBase &other, F64 mix)
 {
-    mSettings = interpolateSDMap(mSettings, other.mSettings, other.getParameterMap(), mix);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_ENVIRONMENT;
+    saveValuesIfNeeded();
+    stringset_t skip = getSkipInterpolateKeys();
+    stringset_t slerps = getSlerpKeys();
+    mSettings = interpolateSDMap(mSettings, other.getSettings(), other.getParameterMap(), mix, skip, slerps);
     setDirtyFlag(true);
+    loadValuesFromLLSD();
 }
 
-LLSD LLSettingsBase::combineSDMaps(const LLSD &settings, const LLSD &other) const
+void LLSettingsBase::lerpVector2(LLVector2& a, const LLVector2& b, F32 mix)
+{
+    a.mV[0] = lerp(a.mV[0], b.mV[0], mix);
+    a.mV[1] = lerp(a.mV[1], b.mV[1], mix);
+}
+
+void LLSettingsBase::lerpVector3(LLVector3& a, const LLVector3& b, F32 mix)
+{
+    a.mV[0] = lerp(a.mV[0], b.mV[0], mix);
+    a.mV[1] = lerp(a.mV[1], b.mV[1], mix);
+    a.mV[2] = lerp(a.mV[2], b.mV[2], mix);
+}
+
+void LLSettingsBase::lerpColor(LLColor3& a, const LLColor3& b, F32 mix)
+{
+    a.mV[0] = lerp(a.mV[0], b.mV[0], mix);
+    a.mV[1] = lerp(a.mV[1], b.mV[1], mix);
+    a.mV[2] = lerp(a.mV[2], b.mV[2], mix);
+}
+
+LLSD LLSettingsBase::combineSDMaps(const LLSD &settings, const LLSD &other)
 {
     LLSD newSettings;
 
@@ -161,12 +235,9 @@ LLSD LLSettingsBase::combineSDMaps(const LLSD &settings, const LLSD &other) cons
     return newSettings;
 }
 
-LLSD LLSettingsBase::interpolateSDMap(const LLSD &settings, const LLSD &other, const parammapping_t& defaults, F64 mix) const
+LLSD LLSettingsBase::interpolateSDMap(const LLSD &settings, const LLSD &other, const parammapping_t& defaults, F64 mix, const stringset_t& skip, const stringset_t& slerps)
 {
     LLSD newSettings;
-
-    stringset_t skip = getSkipInterpolateKeys();
-    stringset_t slerps = getSlerpKeys();
 
     llassert(mix >= 0.0f && mix <= 1.0f);
 
@@ -204,7 +275,7 @@ LLSD LLSettingsBase::interpolateSDMap(const LLSD &settings, const LLSD &other, c
             }
         }
 
-        newSettings[key_name] = interpolateSDValue(key_name, value, other_value, defaults, mix, slerps);
+        newSettings[key_name] = interpolateSDValue(key_name, value, other_value, defaults, mix, skip, slerps);
     }
 
     // Special handling cases
@@ -233,12 +304,12 @@ LLSD LLSettingsBase::interpolateSDMap(const LLSD &settings, const LLSD &other, c
         if (def_iter != defaults.end())
         {
             // Blend against default value
-            newSettings[key_name] = interpolateSDValue(key_name, def_iter->second.getDefaultValue(), (*it).second, defaults, mix, slerps);
+            newSettings[key_name] = interpolateSDValue(key_name, def_iter->second.getDefaultValue(), (*it).second, defaults, mix, skip, slerps);
         }
         else if ((*it).second.type() == LLSD::TypeMap)
         {
             // interpolate in case there are defaults inside (part of legacy)
-            newSettings[key_name] = interpolateSDValue(key_name, LLSDMap(), (*it).second, defaults, mix, slerps);
+            newSettings[key_name] = interpolateSDValue(key_name, LLSDMap(), (*it).second, defaults, mix, skip, slerps);
         }
         // else do nothing when no known defaults
         // TODO: Should I blend this out instead?
@@ -260,7 +331,7 @@ LLSD LLSettingsBase::interpolateSDMap(const LLSD &settings, const LLSD &other, c
     return newSettings;
 }
 
-LLSD LLSettingsBase::interpolateSDValue(const std::string& key_name, const LLSD &value, const LLSD &other_value, const parammapping_t& defaults, BlendFactor mix, const stringset_t& slerps) const
+LLSD LLSettingsBase::interpolateSDValue(const std::string& key_name, const LLSD &value, const LLSD &other_value, const parammapping_t& defaults, BlendFactor mix, const stringset_t& skip, const stringset_t& slerps)
 {
     LLSD new_value;
 
@@ -286,7 +357,7 @@ LLSD LLSettingsBase::interpolateSDValue(const std::string& key_name, const LLSD 
             break;
         case LLSD::TypeMap:
             // deep copy.
-            new_value = interpolateSDMap(value, other_value, defaults, mix);
+            new_value = interpolateSDMap(value, other_value, defaults, mix, skip, slerps);
             break;
 
         case LLSD::TypeArray:
@@ -348,21 +419,24 @@ LLSettingsBase::stringset_t LLSettingsBase::getSkipInterpolateKeys() const
     return skipSet;
 }
 
-LLSD LLSettingsBase::getSettings() const
+LLSD& LLSettingsBase::getSettings()
 {
+    saveValuesIfNeeded();
     return mSettings;
 }
 
-LLSD LLSettingsBase::cloneSettings() const
+LLSD LLSettingsBase::cloneSettings()
 {
-    U32 flags = getFlags();
-    LLSD settings (combineSDMaps(getSettings(), LLSD()));
-    if (flags)
+    saveValuesIfNeeded();
+    LLSD settings(combineSDMaps(getSettings(), LLSD()));
+    if (U32 flags = getFlags())
+    {
         settings[SETTING_FLAGS] = LLSD::Integer(flags);
+    }
     return settings;
 }
 
-size_t LLSettingsBase::getHash() const
+size_t LLSettingsBase::getHash()
 {   // get a shallow copy of the LLSD filtering out values to not include in the hash
     LLSD hash_settings = llsd_shallow(getSettings(),
         LLSDMap(SETTING_NAME, false)(SETTING_ID, false)(SETTING_HASH, false)("*", true));
@@ -380,7 +454,9 @@ bool LLSettingsBase::validate()
         mSettings[SETTING_TYPE] = getSettingsType();
     }
 
+    saveValuesIfNeeded();
     LLSD result = LLSettingsBase::settingValidation(mSettings, validations);
+    loadValuesFromLLSD();
 
     if (result["errors"].size() > 0)
     {
@@ -703,7 +779,7 @@ F64 LLSettingsBlender::setBlendFactor(const LLSettingsBase::BlendFactor& blendf_
 
     if (mTarget)
     {
-        mTarget->replaceSettings(mInitial->getSettings());
+        mTarget->replaceSettings(mInitial);
         mTarget->blend(mFinal, blendf);
     }
     else
@@ -718,7 +794,7 @@ void LLSettingsBlender::triggerComplete()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_ENVIRONMENT;
     if (mTarget)
-        mTarget->replaceSettings(mFinal->getSettings());
+        mTarget->replaceSettings(mFinal);
     LLSettingsBlender::ptr_t hold = shared_from_this();   // prevents this from deleting too soon
     mTarget->update();
     mOnFinished(shared_from_this());

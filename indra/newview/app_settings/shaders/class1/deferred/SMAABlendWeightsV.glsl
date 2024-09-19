@@ -1,10 +1,9 @@
 /**
- * @file llwin32headerslean.h
- * @brief sanitized include of windows header files
+ * @file SMAABlendWeightsV.glsl
  *
- * $LicenseInfo:firstyear=2001&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2024&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2024, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -24,17 +23,29 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLWINDOWS_H
-#define LL_LLWINDOWS_H
+/*[EXTRA_CODE_HERE]*/
 
-#ifdef LL_WINDOWS
-#ifndef NOMINMAX
-#define NOMINMAX
-#endif
-#define WIN32_LEAN_AND_MEAN
-#include <winsock2.h>
-#include <windows.h>
-#undef NOMINMAX
-#endif
+uniform mat4 modelview_projection_matrix;
 
-#endif
+in vec3 position;
+
+out vec2 vary_texcoord0;
+out vec2 vary_pixcoord;
+out vec4 vary_offset[3];
+
+#define float4 vec4
+#define float2 vec2
+void SMAABlendingWeightCalculationVS(float2 texcoord,
+                                     out float2 pixcoord,
+                                     out float4 offset[3]);
+
+void main()
+{
+    gl_Position = vec4(position.xyz, 1.0);
+    vary_texcoord0 = (gl_Position.xy*0.5+0.5);
+
+    SMAABlendingWeightCalculationVS(vary_texcoord0,
+                                    vary_pixcoord,
+                                    vary_offset);
+}
+

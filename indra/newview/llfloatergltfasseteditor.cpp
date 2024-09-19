@@ -209,7 +209,7 @@ void LLFloaterGLTFAssetEditor::loadFromNode(S32 node_id, LLFolderViewFolder* par
     std::string name = node.mName;
     if (node.mName.empty())
     {
-        name = getString("node_tittle");
+        name = getString("node_title");
     }
     else
     {
@@ -243,7 +243,7 @@ void LLFloaterGLTFAssetEditor::loadFromNode(S32 node_id, LLFolderViewFolder* par
         std::string name = mAsset->mMeshes[node.mMesh].mName;
         if (name.empty())
         {
-            name = getString("mesh_tittle");
+            name = getString("mesh_title");
         }
         loadItem(node.mMesh, name, LLGLTFFolderItem::TYPE_MESH, view);
     }
@@ -253,7 +253,7 @@ void LLFloaterGLTFAssetEditor::loadFromNode(S32 node_id, LLFolderViewFolder* par
         std::string name = mAsset->mSkins[node.mSkin].mName;
         if (name.empty())
         {
-            name = getString("skin_tittle");
+            name = getString("skin_title");
         }
         loadItem(node.mSkin, name, LLGLTFFolderItem::TYPE_SKIN, view);
     }
@@ -306,7 +306,7 @@ void LLFloaterGLTFAssetEditor::loadFromSelection()
         std::string name = scene.mName;
         if (scene.mName.empty())
         {
-            name = getString("scene_tittle");
+            name = getString("scene_title");
         }
         else
         {

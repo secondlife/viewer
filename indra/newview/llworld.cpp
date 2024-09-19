@@ -768,6 +768,7 @@ void LLWorld::updateParticles()
 
 void LLWorld::renderPropertyLines()
 {
+    LL_PROFILE_ZONE_SCOPED;
     for (region_list_t::iterator iter = mVisibleRegionList.begin();
          iter != mVisibleRegionList.end(); ++iter)
     {
