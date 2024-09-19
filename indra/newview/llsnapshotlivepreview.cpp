@@ -690,18 +690,25 @@ bool LLSnapshotLivePreview::onIdle( void* snapshot_preview )
         return false;
     }
 
+    static LLCachedControl<bool> auto_snapshot(gSavedSettings, "AutoSnapshot", false);
+    static LLCachedControl<bool> freeze_time(gSavedSettings, "FreezeTime", false);
+    static LLCachedControl<bool> use_freeze_frame(gSavedSettings, "UseFreezeFrame", false);
+    static LLCachedControl<bool> render_ui(gSavedSettings, "RenderUIInSnapshot", false);
+    static LLCachedControl<bool> render_hud(gSavedSettings, "RenderHUDInSnapshot", false);
+    static LLCachedControl<bool> render_no_post(gSavedSettings, "RenderSnapshotNoPost", false);
+
     // If we're in freeze-frame and/or auto update mode and camera has moved, update snapshot.
     LLVector3 new_camera_pos = LLViewerCamera::getInstance()->getOrigin();
     LLQuaternion new_camera_rot = LLViewerCamera::getInstance()->getQuaternion();
     if (previewp->mForceUpdateSnapshot ||
-        (((gSavedSettings.getBOOL("AutoSnapshot") && LLView::isAvailable(previewp->mViewContainer)) ||
-        (gSavedSettings.getBOOL("FreezeTime") && previewp->mAllowFullScreenPreview)) &&
+        (((auto_snapshot && LLView::isAvailable(previewp->mViewContainer)) ||
+        (freeze_time && previewp->mAllowFullScreenPreview)) &&
         (new_camera_pos != previewp->mCameraPos || dot(new_camera_rot, previewp->mCameraRot) < 0.995f)))
     {
         previewp->mCameraPos = new_camera_pos;
         previewp->mCameraRot = new_camera_rot;
         // request a new snapshot whenever the camera moves, with a time delay
-        bool new_snapshot = gSavedSettings.getBOOL("AutoSnapshot") || previewp->mForceUpdateSnapshot;
+        bool new_snapshot = auto_snapshot || previewp->mForceUpdateSnapshot;
         LL_DEBUGS("Snapshot") << "camera moved, updating thumbnail" << LL_ENDL;
         previewp->updateSnapshot(
             new_snapshot, // whether a new snapshot is needed or merely invalidate the existing one
@@ -739,10 +746,10 @@ bool LLSnapshotLivePreview::onIdle( void* snapshot_preview )
                 previewp->getHeight(),
                 previewp->mKeepAspectRatio,//gSavedSettings.getBOOL("KeepAspectForSnapshot"),
                 previewp->getSnapshotType() == LLSnapshotModel::SNAPSHOT_TEXTURE,
-                previewp->mAllowRenderUI && gSavedSettings.getBOOL("RenderUIInSnapshot"),
-                gSavedSettings.getBOOL("RenderHUDInSnapshot"),
+                previewp->mAllowRenderUI && render_ui,
+                render_hud,
                 false,
-                gSavedSettings.getBOOL("RenderSnapshotNoPost"),
+                render_no_post,
                 previewp->mSnapshotBufferType,
                 previewp->getMaxImageSize()))
         {
@@ -754,7 +761,7 @@ bool LLSnapshotLivePreview::onIdle( void* snapshot_preview )
             previewp->estimateDataSize();
 
             // Full size preview is set: get the decoded image result and save it for animation
-            if (gSavedSettings.getBOOL("UseFreezeFrame") && previewp->mAllowFullScreenPreview)
+            if (use_freeze_frame && previewp->mAllowFullScreenPreview)
             {
                 previewp->prepareFreezeFrame();
             }
@@ -767,7 +774,7 @@ bool LLSnapshotLivePreview::onIdle( void* snapshot_preview )
             previewp->generateThumbnailImage(true) ;
         }
         previewp->getWindow()->decBusyCount();
-        previewp->setVisible(gSavedSettings.getBOOL("UseFreezeFrame") && previewp->mAllowFullScreenPreview); // only show fullscreen preview when in freeze frame mode
+        previewp->setVisible(use_freeze_frame && previewp->mAllowFullScreenPreview); // only show fullscreen preview when in freeze frame mode
         previewp->mSnapshotActive = false;
         LL_DEBUGS("Snapshot") << "done creating snapshot" << LL_ENDL;
     }
