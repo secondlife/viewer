@@ -4255,15 +4255,15 @@ void LLViewerWindow::pickAsync( S32 x,
                                 bool pick_unselectable,
                                 bool pick_reflection_probes)
 {
+    static LLCachedControl<bool> select_invisible_objects(gSavedSettings, "SelectInvisibleObjects");
     // "Show Debug Alpha" means no object actually transparent
     bool in_build_mode = LLFloaterReg::instanceVisible("build");
-    if (LLDrawPoolAlpha::sShowDebugAlpha
-        || (in_build_mode && gSavedSettings.getBOOL("SelectInvisibleObjects")))
+    if (LLDrawPoolAlpha::sShowDebugAlpha || (in_build_mode && select_invisible_objects))
     {
         pick_transparent = true;
     }
 
-    LLPickInfo pick_info(LLCoordGL(x, y_from_bot), mask, pick_transparent, pick_rigged, false, pick_reflection_probes, pick_unselectable, true, callback);
+    LLPickInfo pick_info(LLCoordGL(x, y_from_bot), mask, pick_transparent, pick_rigged, false, pick_reflection_probes, true, pick_unselectable, callback);
     schedulePick(pick_info);
 }
 
@@ -4286,7 +4286,6 @@ void LLViewerWindow::schedulePick(LLPickInfo& pick_info)
     // until the pick triggered in handleMouseDown has been processed, for example
     mWindow->delayInputProcessing();
 }
-
 
 void LLViewerWindow::performPick()
 {
@@ -4321,8 +4320,9 @@ void LLViewerWindow::returnEmptyPicks()
 // Performs the GL object/land pick.
 LLPickInfo LLViewerWindow::pickImmediate(S32 x, S32 y_from_bot, bool pick_transparent, bool pick_rigged, bool pick_particle, bool pick_unselectable, bool pick_reflection_probe)
 {
+    static LLCachedControl<bool> select_invisible_objects(gSavedSettings, "SelectInvisibleObjects");
     bool in_build_mode = LLFloaterReg::instanceVisible("build");
-    if ((in_build_mode && gSavedSettings.getBOOL("SelectInvisibleObjects")) || LLDrawPoolAlpha::sShowDebugAlpha)
+    if ((in_build_mode && select_invisible_objects) || LLDrawPoolAlpha::sShowDebugAlpha)
     {
         // build mode allows interaction with all transparent objects
         // "Show Debug Alpha" means no object actually transparent
@@ -4330,7 +4330,7 @@ LLPickInfo LLViewerWindow::pickImmediate(S32 x, S32 y_from_bot, bool pick_transp
     }
 
     // shortcut queueing in mPicks and just update mLastPick in place
-    MASK    key_mask = gKeyboard->currentMask(true);
+    MASK key_mask = gKeyboard->currentMask(true);
     mLastPick = LLPickInfo(LLCoordGL(x, y_from_bot), key_mask, pick_transparent, pick_rigged, pick_particle, pick_reflection_probe, true, false, NULL);
     mLastPick.fetchResults();
 
@@ -6050,14 +6050,14 @@ LLPickInfo::LLPickInfo(const LLCoordGL& mouse_pos,
     bool pick_rigged,
     bool pick_particle,
     bool pick_reflection_probe,
-    bool pick_uv_coords,
+    bool pick_surface_info,
     bool pick_unselectable,
     void (*pick_callback)(const LLPickInfo& pick_info))
     : mMousePt(mouse_pos),
     mKeyMask(keyboard_mask),
     mPickCallback(pick_callback),
     mPickType(PICK_INVALID),
-    mWantSurfaceInfo(pick_uv_coords),
+    mWantSurfaceInfo(pick_surface_info),
     mObjectFace(-1),
     mUVCoords(-1.f, -1.f),
     mSTCoords(-1.f, -1.f),
