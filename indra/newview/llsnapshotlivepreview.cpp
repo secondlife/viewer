@@ -894,7 +894,9 @@ LLPointer<LLImageRaw> LLSnapshotLivePreview::getEncodedImage()
         else
         {
             // Update mFormattedImage if necessary
-            getFormattedImage();
+            lock.unlock();
+            getFormattedImage(); // will apply filters to mPreviewImage with a lock
+            lock.lock();
             if (getSnapshotFormat() == LLSnapshotModel::SNAPSHOT_FORMAT_BMP)
             {
                 // BMP hack : copy instead of decode otherwise decode will crash.
