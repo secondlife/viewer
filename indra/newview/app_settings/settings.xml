@@ -9348,6 +9348,61 @@
     <key>Value</key>
     <real>0.5</real>
   </map>
+  <key>RenderDynamicExposureEnabled</key>
+  <map>
+    <key>Comment</key>
+    <string>Whether dynamic exposure is enabled</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+  <key>RenderDynamicExposureEVOffset</key>
+  <map>
+    <key>Comment</key>
+    <string>Luminance coefficient for dynamic exposure</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0.0</real>
+  </map>
+  <key>RenderDynamicExposureEVMinimum</key>
+  <map>
+    <key>Comment</key>
+    <string>Luminance coefficient for dynamic exposure</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0.0</real>
+  </map>
+  <key>RenderDynamicExposureEVMaximum</key>
+  <map>
+    <key>Comment</key>
+    <string>Luminance coefficient for dynamic exposure</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0.0</real>
+  </map>
+  <key>RenderDynamicExposureSpeed</key>
+  <map>
+    <key>Comment</key>
+    <string>Number of seconds to take to reach desired exposure level</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>2.0</real>
+  </map>
   <key>RenderDiffuseLuminanceScale</key>
   <map>
     <key>Comment</key>

@@ -7016,8 +7016,16 @@ void LLPipeline::generateExposure(LLRenderTarget* src, LLRenderTarget* dst, bool
         static LLStaticHashedString dt("dt");
         static LLStaticHashedString noiseVec("noiseVec");
         static LLStaticHashedString dynamic_exposure_params("dynamic_exposure_params");
-        static LLCachedControl<F32> dynamic_exposure_coefficient(gSavedSettings, "RenderDynamicExposureCoefficient", 0.175f);
+        static LLStaticHashedString dynamic_exposure_params2("dynamic_exposure_params2");
+        static LLStaticHashedString dynamic_exposure_e("dynamic_exposure_enabled");
         static LLCachedControl<bool> should_auto_adjust(gSavedSettings, "RenderSkyAutoAdjustLegacy", true);
+        static LLCachedControl<bool> dynamic_exposure_enabled(gSavedSettings, "RenderDynamicExposureEnabled", true);
+        static LLCachedControl<F32> dynamic_exposure_coefficient(gSavedSettings, "RenderDynamicExposureCoefficient", 0.175f);
+        static LLCachedControl<F32> dynamic_exposure_ev_offset(gSavedSettings, "RenderDynamicExposureEVOffset", 0.f);
+        static LLCachedControl<F32> dynamic_exposure_ev_min(gSavedSettings, "RenderDynamicExposureEVMinimum", 0.f);
+        static LLCachedControl<F32> dynamic_exposure_ev_max(gSavedSettings, "RenderDynamicExposureEVMaximum", 0.f);
+        static LLCachedControl<F32> dynamic_exposure_speed_error(gSavedSettings, "RenderDynamicExposureSpeedError", 0.1f);
+        static LLCachedControl<F32> dynamic_exposure_speed_target(gSavedSettings, "RenderDynamicExposureSpeedTarget", 2.f);
 
         LLSettingsSky::ptr_t sky = LLEnvironment::instance().getCurrentSky();
 
@@ -7037,7 +7045,9 @@ void LLPipeline::generateExposure(LLRenderTarget* src, LLRenderTarget* dst, bool
         }
         shader->uniform1f(dt, gFrameIntervalSeconds);
         shader->uniform2f(noiseVec, ll_frand() * 2.0f - 1.0f, ll_frand() * 2.0f - 1.0f);
-        shader->uniform3f(dynamic_exposure_params, dynamic_exposure_coefficient, exp_min, exp_max);
+        shader->uniform4f(dynamic_exposure_params, dynamic_exposure_coefficient, exp_min, exp_max, dynamic_exposure_speed_error);
+        shader->uniform4f(dynamic_exposure_params2, dynamic_exposure_ev_offset, dynamic_exposure_ev_min, dynamic_exposure_ev_max, dynamic_exposure_speed_target);
+        shader->uniform1f(dynamic_exposure_e, dynamic_exposure_enabled ? 1.f : 0.f);
 
         mScreenTriangleVB->setBuffer();
         mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
@@ -7082,6 +7092,16 @@ void LLPipeline::tonemap(LLRenderTarget* src, LLRenderTarget* dst)
         shader.bindTexture(LLShaderMgr::EXPOSURE_MAP, &mExposureMap);
 
         shader.uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, (GLfloat)src->getWidth(), (GLfloat)src->getHeight());
+
+        static LLStaticHashedString dt("dt");
+        static LLStaticHashedString noiseVec("noiseVec");
+        static LLStaticHashedString dynamic_exposure_params("dynamic_exposure_params");
+        static LLStaticHashedString dynamic_exposure_e("dynamic_exposure_enabled");
+        static LLStaticHashedString dynamic_exposure_s("dynamic_exposure_speed");
+        static LLCachedControl<F32> dynamic_exposure_coefficient(gSavedSettings, "RenderDynamicExposureCoefficient", 0.175f);
+        static LLCachedControl<bool> dynamic_exposure_enabled(gSavedSettings, "RenderDynamicExposureEnabled", true);
+        static LLCachedControl<F32> dynamic_exposure_speed(gSavedSettings, "RenderDynamicExposureSpeed", 3);
+        shader.uniform1f(dynamic_exposure_e, dynamic_exposure_enabled ? 1.f : 0.f);
 
         static LLCachedControl<F32> exposure(gSavedSettings, "RenderExposure", 1.f);
 
@@ -8060,12 +8080,6 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_
             gGL.getTexUnit(channel)->bind(deferred_target, true);
         }
         stop_glerror();
-    }
-
-    channel = shader.enableTexture(LLShaderMgr::EXPOSURE_MAP);
-    if (channel > -1)
-    {
-        gGL.getTexUnit(channel)->bind(&mExposureMap);
     }
 
     if (shader.getUniformLocation(LLShaderMgr::VIEWPORT) != -1)

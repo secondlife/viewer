@@ -221,6 +221,7 @@ public:
     void uniform1f(const LLStaticHashedString& uniform, GLfloat v);
     void uniform2f(const LLStaticHashedString& uniform, GLfloat x, GLfloat y);
     void uniform3f(const LLStaticHashedString& uniform, GLfloat x, GLfloat y, GLfloat z);
+    void uniform4f(const LLStaticHashedString& uniform, GLfloat x, GLfloat y, GLfloat z, GLfloat w);
     void uniform1fv(const LLStaticHashedString& uniform, U32 count, const GLfloat* v);
     void uniform2fv(const LLStaticHashedString& uniform, U32 count, const GLfloat* v);
     void uniform3fv(const LLStaticHashedString& uniform, U32 count, const GLfloat* v);
