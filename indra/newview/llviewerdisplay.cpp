@@ -139,6 +139,7 @@ void render_ui_3d();
 void render_ui_2d();
 void render_disconnected_background();
 
+void getProfileStatsContext(boost::json::object& stats);
 std::string getProfileStatsFilename();
 
 void display_startup()
@@ -1041,7 +1042,21 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
     if (gShaderProfileFrame)
     {
         gShaderProfileFrame = false;
-        LLGLSLShader::finishProfile(getProfileStatsFilename());
+        boost::json::value stats{ boost::json::object_kind };
+        getProfileStatsContext(stats.as_object());
+        LLGLSLShader::finishProfile(stats);
+
+        auto report_name = getProfileStatsFilename();
+        std::ofstream outf(report_name);
+        if (! outf)
+        {
+            LL_WARNS() << "Couldn't write to " << std::quoted(report_name) << LL_ENDL;
+        }
+        else
+        {
+            outf << stats;
+            LL_INFOS() << "(also dumped to " << std::quoted(report_name) << ")" << LL_ENDL;
+        }
     }
 }
 
@@ -1068,6 +1083,7 @@ void getProfileStatsContext(boost::json::object& stats)
         context.emplace("parcel", parcel->getName());
         context.emplace("parcelid", parcel->getLocalID());
     }
+    context.emplace("time", LLDate::now().toHTTPDateString("%Y-%m-%dT%H:%M:%S"));
 }
 
 std::string getProfileStatsFilename()
