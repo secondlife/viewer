@@ -63,6 +63,8 @@ namespace lluau
 int dostring(lua_State* L, const std::string& desc, const std::string& text,
              const std::vector<std::string>& args)
 {
+    // debug.traceback() + compiled chunk + args table + args... + slop
+    lluau_checkstack(L, 1 + 1 + 1 + int(args.size()) + 2);
     auto r = loadstring(L, desc, text);
     if (r != LUA_OK)
         return r;
@@ -86,12 +88,56 @@ int dostring(lua_State* L, const std::string& desc, const std::string& text,
     // remove it from stack on exit
     LuaRemover cleanup(L, traceback);
 
-    // push any args passed -- all strings -- script must handle any desired
-    // conversions
+    // Originally we just pushed 'args' to the Lua stack before entering the
+    // chunk. But that's awkward for the chunk: it must reference those
+    // arguments as '...', using any of a number of tactics to move them to
+    // named variables. This doesn't work as a Lua chunk expecting arguments:
+    // function(a, b, c)
+    //     -- ...
+    // end
+    // because that code only *defines* a function: the function's body isn't
+    // entered by executing the chunk.
+    //
+    // Per https://www.lua.org/manual/5.1/manual.html#6 Lua Stand-alone, we
+    // now also create a global table called 'arg' whose [0] is the script
+    // name, ['n'] is the number of additional arguments and [1] through
+    // [['n']] are the additional arguments. We diverge from that spec in not
+    // creating any negative indices.
+    //
+    // Since the spec notes that the chunk can also reference args using
+    // '...', we also leave them on the stack.
+
+    // stack: debug.traceback(), compiled chunk
+    // create arg table pre-sized to hold the args array, plus [0] and ['n']
+    lua_createtable(L, narrow(args.size()), 2);
+    // stack: debug.traceback(), compiled chunk, arg table
+    int argi = lua_absindex(L, -1);
+    lua_Integer i = 0;
+    // store desc (e.g. script name) as arg[0]
+    lua_pushinteger(L, i);
+    lua_pushstdstring(L, desc);
+    lua_rawset(L, argi);            // rawset() pops key and value
+    // store args.size() as arg.n
+    lua_pushinteger(L, narrow(args.size()));
+    lua_setfield(L, argi, "n");    // setfield() pops value
     for (const auto& arg : args)
     {
+        // push each arg in order
         lua_pushstdstring(L, arg);
+        // push index
+        lua_pushinteger(L, ++i);
+        // duplicate arg[i] to store in arg table
+        lua_pushvalue(L, -2);
+        // stack: ..., arg[i], i, arg[i]
+        lua_rawset(L, argi);
+        // leave ..., arg[i] on stack
     }
+    // stack: debug.traceback(), compiled chunk, arg, arg[1], arg[2], ...
+    // duplicate the arg table to store it
+    lua_pushvalue(L, argi);
+    lua_setglobal(L, "arg");
+    lua_remove(L, argi);
+    // stack: debug.traceback(), compiled chunk, arg[1], arg[2], ...
 
     // It's important to pass LUA_MULTRET as the expected number of return
     // values: if we pass any fixed number, we discard any returned values
@@ -101,6 +147,7 @@ int dostring(lua_State* L, const std::string& desc, const std::string& text,
 
 int loadstring(lua_State *L, const std::string &desc, const std::string &text)
 {
+    lluau_checkstack(L, 1);
     size_t bytecodeSize = 0;
     // The char* returned by luau_compile() must be freed by calling free().
     // Use unique_ptr so the memory will be freed even if luau_load() throws.
@@ -540,8 +587,7 @@ int lua_metaipair(lua_State* L);
 
 } // anonymous namespace
 
-LuaState::LuaState(script_finished_fn cb):
-    mCallback(cb)
+LuaState::LuaState()
 {
     /*---------------------------- feature flag ----------------------------*/
     try
@@ -726,80 +772,74 @@ LuaState::~LuaState()
         return;
 
     /*---------------------------- feature flag ----------------------------*/
-    if (mFeature)
+    if (! mFeature)
+        return;
     /*---------------------------- feature flag ----------------------------*/
+
+    // We're just about to destroy this lua_State mState. Did this Lua chunk
+    // register any atexit() functions?
+    lluau_checkstack(mState, 3);
+    // look up Registry.atexit
+    lua_getfield(mState, LUA_REGISTRYINDEX, "atexit");
+    // stack contains Registry.atexit
+    if (lua_istable(mState, -1))
     {
-        // We're just about to destroy this lua_State mState. Did this Lua chunk
-        // register any atexit() functions?
-        lluau_checkstack(mState, 3);
-        // look up Registry.atexit
-        lua_getfield(mState, LUA_REGISTRYINDEX, "atexit");
-        // stack contains Registry.atexit
-        if (lua_istable(mState, -1))
+        // We happen to know that Registry.atexit is built by appending array
+        // entries using table.insert(). That's important because it means
+        // there are no holes, and therefore lua_objlen() should be correct.
+        // That's important because we walk the atexit table backwards, to
+        // destroy last the things we created (passed to LL.atexit()) first.
+        int len(lua_objlen(mState, -1));
+        LL_DEBUGS("Lua") << LLCoros::getName() << ": Registry.atexit is a table with "
+                         << len << " entries" << LL_ENDL;
+
+        // Push debug.traceback() onto the stack as lua_pcall()'s error
+        // handler function. On error, lua_pcall() calls the specified error
+        // handler function with the original error message; the message
+        // returned by the error handler is then returned by lua_pcall().
+        // Luau's debug.traceback() is called with a message to prepend to the
+        // returned traceback string. Almost as if they'd been designed to
+        // work together...
+        lua_getglobal(mState, "debug");
+        lua_getfield(mState, -1, "traceback");
+        // ditch "debug"
+        lua_remove(mState, -2);
+        // stack now contains atexit, debug.traceback()
+
+        for (int i(len); i >= 1; --i)
         {
-            // We happen to know that Registry.atexit is built by appending array
-            // entries using table.insert(). That's important because it means
-            // there are no holes, and therefore lua_objlen() should be correct.
-            // That's important because we walk the atexit table backwards, to
-            // destroy last the things we created (passed to LL.atexit()) first.
-            int len(lua_objlen(mState, -1));
-            LL_DEBUGS("Lua") << LLCoros::getName() << ": Registry.atexit is a table with "
-                             << len << " entries" << LL_ENDL;
-
-            // Push debug.traceback() onto the stack as lua_pcall()'s error
-            // handler function. On error, lua_pcall() calls the specified error
-            // handler function with the original error message; the message
-            // returned by the error handler is then returned by lua_pcall().
-            // Luau's debug.traceback() is called with a message to prepend to the
-            // returned traceback string. Almost as if they'd been designed to
-            // work together...
-            lua_getglobal(mState, "debug");
-            lua_getfield(mState, -1, "traceback");
-            // ditch "debug"
-            lua_remove(mState, -2);
-            // stack now contains atexit, debug.traceback()
-
-            for (int i(len); i >= 1; --i)
+            lua_pushinteger(mState, i);
+            // stack contains Registry.atexit, debug.traceback(), i
+            lua_gettable(mState, -3);
+            // stack contains Registry.atexit, debug.traceback(), atexit[i]
+            // Call atexit[i](), no args, no return values.
+            // Use lua_pcall() because errors in any one atexit() function
+            // shouldn't cancel the rest of them. Pass debug.traceback() as
+            // the error handler function.
+            LL_DEBUGS("Lua") << LLCoros::getName()
+                             << ": calling atexit(" << i << ")" << LL_ENDL;
+            if (lua_pcall(mState, 0, 0, -2) != LUA_OK)
             {
-                lua_pushinteger(mState, i);
-                // stack contains Registry.atexit, debug.traceback(), i
-                lua_gettable(mState, -3);
-                // stack contains Registry.atexit, debug.traceback(), atexit[i]
-                // Call atexit[i](), no args, no return values.
-                // Use lua_pcall() because errors in any one atexit() function
-                // shouldn't cancel the rest of them. Pass debug.traceback() as
-                // the error handler function.
-                LL_DEBUGS("Lua") << LLCoros::getName()
-                                 << ": calling atexit(" << i << ")" << LL_ENDL;
-                if (lua_pcall(mState, 0, 0, -2) != LUA_OK)
-                {
-                    auto error{ lua_tostdstring(mState, -1) };
-                    LL_WARNS("Lua") << LLCoros::getName()
-                                    << ": atexit(" << i << ") error: " << error << LL_ENDL;
-                    // pop error message
-                    lua_pop(mState, 1);
-                }
-                LL_DEBUGS("Lua") << LLCoros::getName() << ": atexit(" << i << ") done" << LL_ENDL;
-                // lua_pcall() has already popped atexit[i]:
-                // stack contains atexit, debug.traceback()
+                auto error{ lua_tostdstring(mState, -1) };
+                LL_WARNS("Lua") << LLCoros::getName()
+                                << ": atexit(" << i << ") error: " << error << LL_ENDL;
+                // pop error message
+                lua_pop(mState, 1);
             }
-            // pop debug.traceback()
-            lua_pop(mState, 1);
+            LL_DEBUGS("Lua") << LLCoros::getName() << ": atexit(" << i << ") done" << LL_ENDL;
+            // lua_pcall() has already popped atexit[i]:
+            // stack contains atexit, debug.traceback()
         }
-        // pop Registry.atexit (either table or nil)
+        // pop debug.traceback()
         lua_pop(mState, 1);
-
-        // with the demise of this LuaState, remove sLuaStateMap entry
-        sLuaStateMap.erase(mState);
-
-        lua_close(mState);
     }
+    // pop Registry.atexit (either table or nil)
+    lua_pop(mState, 1);
 
-    if (mCallback)
-    {
-        // mError potentially set by previous checkLua() call(s)
-        mCallback(mError);
-    }
+    // with the demise of this LuaState, remove sLuaStateMap entry
+    sLuaStateMap.erase(mState);
+
+    lua_close(mState);
 }
 
 bool LuaState::checkLua(const std::string& desc, int r)
@@ -813,11 +853,6 @@ bool LuaState::checkLua(const std::string& desc, int r)
         return false;
     }
     return true;
-}
-
-std::pair<int, LLSD> LuaState::expr(const std::string& desc, const ScriptCommand& command)
-{
-    return expr(desc, , command.args);
 }
 
 std::pair<int, LLSD> LuaState::expr(const std::string& desc, const std::string& text,
@@ -969,8 +1004,8 @@ void LuaState::check_interrupts_counter()
     }
     else if (mInterrupts % INTERRUPTS_SUSPEND_LIMIT == 0)
     {
-        LL_DEBUGS("Lua") << LLCoros::getName() << " suspending at " << mInterrupts
-                         << " interrupts" << LL_ENDL;
+        LL_DEBUGS("Lua.suspend") << LLCoros::getName() << " suspending at "
+                                 << mInterrupts << " interrupts" << LL_ENDL;
         llcoro::suspend();
     }
 }
@@ -1064,18 +1099,6 @@ std::pair<LuaFunction::Registry&, LuaFunction::Lookup&> LuaFunction::getState()
     static Registry registry;
     static Lookup lookup;
     return { registry, lookup };
-}
-
-/*****************************************************************************
-*   LuaCommand
-*****************************************************************************/
-LuaCommand::LuaCommand(const std::string& command)
-{
-}
-
-bool LuaCommand::found() const
-{
-    return ;
 }
 
 /*****************************************************************************

@@ -83,9 +83,7 @@ void lua_pushllsd(lua_State* L, const LLSD& data);
 class LuaState
 {
 public:
-    typedef std::function<void(std::string msg)> script_finished_fn;
-
-    LuaState(script_finished_fn cb={});
+    LuaState();
 
     LuaState(const LuaState&) = delete;
     LuaState& operator=(const LuaState&) = delete;
@@ -109,7 +107,6 @@ public:
     //          multiple results, represented as the entries of the array.
     std::pair<int, LLSD> expr(const std::string& desc, const std::string& text,
                               const std::vector<std::string>& args={});
-    std::pair<int, LLSD> expr(const std::string& desc, const ScriptCommand& command);
 
     operator lua_State*() const { return mState; }
 
@@ -129,7 +126,6 @@ private:
     /*---------------------------- feature flag ----------------------------*/
     bool mFeature{ false };
     /*---------------------------- feature flag ----------------------------*/
-    script_finished_fn mCallback;
     lua_State* mState{ nullptr };
     std::string mError;
     S32 mInterrupts{ 0 };

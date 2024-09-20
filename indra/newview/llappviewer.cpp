@@ -1234,23 +1234,8 @@ bool LLAppViewer::init()
         "--luafile", "LuaScript",
         [](const LLSD& script)
         {
-            LLSD paths(gSavedSettings.getLLSD("LuaCommandPath"));
-            LL_DEBUGS("Lua") << "LuaCommandPath = " << paths << LL_ENDL;
-            for (const auto& path : llsd::inArray(paths))
-            {
-                // if script path is already absolute, operator/() preserves it
-                auto abspath(fsyspath(gDirUtilp->getAppRODataDir()) / path.asString());
-                auto absscript{ (abspath / script.asString()) };
-                std::error_code ec;
-                if (std::filesystem::exists(absscript, ec))
-                {
-                    // no completion callback: we don't need to know
-                    LLLUAmanager::runScriptFile(absscript.u8string());
-                    return;         // from lambda
-                }
-            }
-            LL_WARNS("Lua") << "--luafile " << std::quoted(script.asString())
-                            << " not found on " << paths << LL_ENDL;
+            // no completion callback: we don't need to know
+            LLLUAmanager::runScriptFile(script);
         });
     processComposeSwitch(
         "LuaAutorunPath", "LuaAutorunPath",
@@ -1259,15 +1244,16 @@ bool LLAppViewer::init()
             // each directory can be relative to the viewer's install
             // directory -- if directory is already absolute, operator/()
             // preserves it
-            auto abspath(fsyspath(gDirUtilp->getAppRODataDir()) / directory.asString());
-            std::string absdir(abspath.string());
+            fsyspath abspath(fsyspath(gDirUtilp->getAppRODataDir()) /
+                             fsyspath(directory.asString()));
+            std::string absdir(fsyspath(abspath).string());
             LL_DEBUGS("InitInfo") << "LuaAutorunPath: " << absdir << LL_ENDL;
             LLDirIterator scripts(absdir, "*.lua");
             std::string script;
             while (scripts.next(script))
             {
                 LL_DEBUGS("InitInfo") << "LuaAutorunPath: " << absdir << ": " << script << LL_ENDL;
-                LLLUAmanager::runScriptFile((abspath / script).string(), true);
+                LLLUAmanager::runScriptFile(fsyspath(abspath / fsyspath(script)).string(), true);
             }
         });
 
