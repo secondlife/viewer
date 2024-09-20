@@ -2368,6 +2368,34 @@ S32 LLTextBase::removeFirstLine()
     return 0;
 }
 
+// virtual
+void LLTextBase::copyContents(const LLTextBase* source)
+{
+    llassert(source);
+    if (!source)
+        return;
+
+    beforeValueChange();
+    deselect();
+
+    mSegments.clear();
+    for (const LLTextSegmentPtr& segp : source->mSegments)
+    {
+        mSegments.emplace(segp->clone(*this));
+    }
+
+    mLineInfoList.clear();
+    for (const line_info& li : mLineInfoList)
+    {
+        mLineInfoList.push_back(line_info(li));
+    }
+
+    getViewModel()->setDisplay(source->getViewModel()->getDisplay());
+
+    onValueChange(0, getLength());
+    needsReflow();
+}
+
 void LLTextBase::appendLineBreakSegment(const LLStyle::Params& style_params)
 {
     segment_vec_t segments;
@@ -3233,6 +3261,24 @@ boost::signals2::connection LLTextBase::setIsObjectBlockedCallback(const is_bloc
 LLTextSegment::~LLTextSegment()
 {}
 
+// static
+LLStyleSP LLTextSegment::cloneStyle(LLTextBase& target, const LLStyle* source)
+{
+    // Take most params from target
+    LLStyle::Params params = target.getStyleParams();
+    LLStyle* style = new LLStyle(params);
+
+    // Take some params from source
+    style->setLinkHREF(source->getLinkHREF());
+    if (source->isImage())
+    {
+        style->setImage(source->getImage()->getName());
+    }
+
+    return style;
+}
+
+
 bool LLTextSegment::getDimensionsF32(S32 first_char, S32 num_chars, F32& width, S32& height) const { width = 0; height = 0; return false; }
 bool LLTextSegment::getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const
 {
@@ -3574,6 +3620,13 @@ void LLNormalTextSegment::setToolTip(const std::string& tooltip)
     mTooltip = tooltip;
 }
 
+// virtual
+LLTextSegmentPtr LLNormalTextSegment::clone(LLTextBase& target) const
+{
+    LLStyleConstSP sp(cloneStyle(target, mStyle));
+    return new LLNormalTextSegment(sp, mStart, mEnd, target);
+}
+
 bool LLNormalTextSegment::getDimensionsF32(S32 first_char, S32 num_chars, F32& width, S32& height) const
 {
     height = 0;
@@ -3701,6 +3754,13 @@ LLLabelTextSegment::LLLabelTextSegment( const LLUIColor& color, S32 start, S32 e
 {
 }
 
+// virtual
+LLTextSegmentPtr LLLabelTextSegment::clone(LLTextBase& target) const
+{
+    LLStyleConstSP sp(cloneStyle(target, mStyle));
+    return new LLLabelTextSegment(sp, mStart, mEnd, target);
+}
+
 /*virtual*/
 const LLWString& LLLabelTextSegment::getWText() const
 {
@@ -3725,6 +3785,13 @@ LLEmojiTextSegment::LLEmojiTextSegment(const LLUIColor& color, S32 start, S32 en
 {
 }
 
+// virtual
+LLTextSegmentPtr LLEmojiTextSegment::clone(LLTextBase& target) const
+{
+    LLStyleConstSP sp(cloneStyle(target, mStyle));
+    return new LLEmojiTextSegment(sp, mStart, mEnd, target);
+}
+
 bool LLEmojiTextSegment::handleToolTip(S32 x, S32 y, MASK mask)
 {
     if (mTooltip.empty())
@@ -3747,6 +3814,14 @@ LLOnHoverChangeableTextSegment::LLOnHoverChangeableTextSegment( LLStyleConstSP s
       LLNormalTextSegment(normal_style, start, end, editor),
       mHoveredStyle(style),
       mNormalStyle(normal_style){}
+
+// virtual
+LLTextSegmentPtr LLOnHoverChangeableTextSegment::clone(LLTextBase& target) const
+{
+    LLStyleConstSP hsp(cloneStyle(target, mHoveredStyle));
+    LLStyleConstSP nsp(cloneStyle(target, mNormalStyle));
+    return new LLOnHoverChangeableTextSegment(hsp, nsp, mStart, mEnd, target);
+}
 
 /*virtual*/
 F32 LLOnHoverChangeableTextSegment::draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRectf& draw_rect)
@@ -3785,6 +3860,13 @@ LLInlineViewSegment::LLInlineViewSegment(const Params& p, S32 start, S32 end)
 LLInlineViewSegment::~LLInlineViewSegment()
 {
     mView->die();
+}
+
+// virtual
+LLTextSegmentPtr LLInlineViewSegment::clone(LLTextBase& target) const
+{
+    llassert_always_msg(false, "NOT SUPPORTED");
+    return nullptr;
 }
 
 bool LLInlineViewSegment::getDimensionsF32(S32 first_char, S32 num_chars, F32& width, S32& height) const
@@ -3874,6 +3956,14 @@ LLLineBreakTextSegment::LLLineBreakTextSegment(LLStyleConstSP style,S32 pos):LLT
 LLLineBreakTextSegment::~LLLineBreakTextSegment()
 {
 }
+
+// virtual
+LLTextSegmentPtr LLLineBreakTextSegment::clone(LLTextBase& target) const
+{
+    LLLineBreakTextSegment* copy = new LLLineBreakTextSegment(mStart);
+    copy->mFontHeight = mFontHeight;
+    return copy;
+}
 bool LLLineBreakTextSegment::getDimensionsF32(S32 first_char, S32 num_chars, F32& width, S32& height) const
 {
     width = 0;
@@ -3901,8 +3991,16 @@ LLImageTextSegment::~LLImageTextSegment()
 {
 }
 
+// virtual
+LLTextSegmentPtr LLImageTextSegment::clone(LLTextBase& target) const
+{
+    LLStyleConstSP sp(cloneStyle(target, mStyle));
+    return new LLImageTextSegment(sp, mStart, target);
+}
+
 static const S32 IMAGE_HPAD = 3;
 
+// virtual
 bool LLImageTextSegment::getDimensionsF32(S32 first_char, S32 num_chars, F32& width, S32& height) const
 {
     width = 0;

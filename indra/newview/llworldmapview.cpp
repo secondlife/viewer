@@ -462,11 +462,16 @@ void LLWorldMapView::draw()
             gGL.color4f(0.2f, 0.0f, 0.0f, 0.4f);
 
             gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-            gGL.begin(LLRender::QUADS);
+            gGL.begin(LLRender::TRIANGLES);
+            {
                 gGL.vertex2f(left, top);
                 gGL.vertex2f(left, bottom);
                 gGL.vertex2f(right, bottom);
+
+                gGL.vertex2f(left, top);
+                gGL.vertex2f(right, bottom);
                 gGL.vertex2f(right, top);
+            }
             gGL.end();
         }
         else if (show_for_sale && (level <= DRAW_LANDFORSALE_THRESHOLD))
@@ -483,15 +488,22 @@ void LLWorldMapView::draw()
                 {
                     gGL.getTexUnit(0)->bind(overlayimage);
                     gGL.color4f(1.f, 1.f, 1.f, 1.f);
-                    gGL.begin(LLRender::QUADS);
+                    gGL.begin(LLRender::TRIANGLES);
+                    {
                         gGL.texCoord2f(0.f, 1.f);
                         gGL.vertex3f(left, top, -0.5f);
                         gGL.texCoord2f(0.f, 0.f);
                         gGL.vertex3f(left, bottom, -0.5f);
                         gGL.texCoord2f(1.f, 0.f);
                         gGL.vertex3f(right, bottom, -0.5f);
+
+                        gGL.texCoord2f(0.f, 1.f);
+                        gGL.vertex3f(left, top, -0.5f);
+                        gGL.texCoord2f(1.f, 0.f);
+                        gGL.vertex3f(right, bottom, -0.5f);
                         gGL.texCoord2f(1.f, 1.f);
                         gGL.vertex3f(right, top, -0.5f);
+                    }
                     gGL.end();
                 }
             }
@@ -737,15 +749,22 @@ bool LLWorldMapView::drawMipmapLevel(S32 width, S32 height, S32 level, bool load
 
                     gGL.color4f(1.f, 1.0f, 1.0f, 1.0f);
 
-                    gGL.begin(LLRender::QUADS);
+                    gGL.begin(LLRender::TRIANGLES);
+                    {
                         gGL.texCoord2f(0.f, 1.f);
                         gGL.vertex3f(left, top, 0.f);
                         gGL.texCoord2f(0.f, 0.f);
                         gGL.vertex3f(left, bottom, 0.f);
                         gGL.texCoord2f(1.f, 0.f);
                         gGL.vertex3f(right, bottom, 0.f);
+
+                        gGL.texCoord2f(0.f, 1.f);
+                        gGL.vertex3f(left, top, 0.f);
+                        gGL.texCoord2f(1.f, 0.f);
+                        gGL.vertex3f(right, bottom, 0.f);
                         gGL.texCoord2f(1.f, 1.f);
                         gGL.vertex3f(right, top, 0.f);
+                    }
                     gGL.end();
 #if DEBUG_DRAW_TILE
                     drawTileOutline(level, top, left, bottom, right);
