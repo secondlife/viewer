@@ -251,7 +251,6 @@ LLVOVolume::~LLVOVolume()
     mVolumeImpl = NULL;
 
     unregisterOldMeshAndSkin();
-    llassert(!gMeshRepo.forceUnregisterMesh(this));
 
     if(!mMediaImplList.empty())
     {

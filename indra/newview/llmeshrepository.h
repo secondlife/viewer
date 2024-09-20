@@ -636,9 +636,6 @@ public:
     void shutdown();
     S32 update();
 
-#ifdef SHOW_ASSERT
-    bool forceUnregisterMesh(LLVOVolume* volume);
-#endif
     void unregisterMesh(LLVOVolume* vobj, const LLVolumeParams& mesh_params, S32 detail);
     void unregisterSkinInfo(const LLUUID& mesh_id, LLVOVolume* vobj);
     //mesh management functions
