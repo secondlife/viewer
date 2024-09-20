@@ -65,6 +65,7 @@
 #include "lltoolmgr.h"
 #include "lltoolpie.h"
 #include "llkeyboard.h"
+#include "llmeshrepository.h"
 #include "u64.h"
 #include "llviewertexturelist.h"
 #include "lldatapacker.h"
@@ -1418,6 +1419,10 @@ void LLViewerObjectList::cleanDeadObjects(bool use_timer)
     {
         // No dead objects, don't need to scan object list.
         return;
+    }
+    if ((LLApp::isExiting()) || (mNumDeadObjects == (S32)mObjects.size()))
+    {
+        gMeshRepo.unregisterAllMeshes();
     }
 
     LL_PROFILE_ZONE_SCOPED;
