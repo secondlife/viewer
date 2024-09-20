@@ -4271,38 +4271,6 @@ S32 LLMeshRepository::update()
     return static_cast<S32>(size);
 }
 
-#ifdef SHOW_ASSERT
-// Brute-force remove the object from all loading queues. Returns true if
-// something was removed.
-// This function is used in a debug assert to ensure unregisterMesh and
-// unregisterSkinInfo are called as intended.
-// *TODO: Consider removing at some point if we feel confident about the code
-// working as intended.
-bool LLMeshRepository::forceUnregisterMesh(LLVOVolume* vobj)
-{
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
-
-    bool found = false;
-
-    for (auto& lod : mLoadingMeshes)
-    {
-        for (auto& param : lod)
-        {
-            llassert(std::find(param.second.mVolumes.begin(), param.second.mVolumes.end(), vobj) == param.second.mVolumes.end());
-            found = found || vector_replace_with_last(param.second.mVolumes, vobj);
-        }
-    }
-
-    for (auto& skin_pair : mLoadingSkins)
-    {
-        llassert(std::find(skin_pair.mVolumes.second.begin(), skin_pair.mVolumes.second.end(), vobj) == skin_pair.mVolumes.second.end());
-        found = found || vector_replace_with_last(skin_pair.second.mVolumes, vobj);
-    }
-
-    return found;
-}
-#endif
-
 void LLMeshRepository::unregisterMesh(LLVOVolume* vobj, const LLVolumeParams& mesh_params, S32 detail)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
