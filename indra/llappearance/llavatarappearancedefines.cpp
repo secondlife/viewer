@@ -260,7 +260,7 @@ ETextureIndex LLAvatarAppearanceDictionary::bakedToLocalTextureIndex(EBakedTextu
     return getBakedTexture(index)->mTextureIndex;
 }
 
-EBakedTextureIndex LLAvatarAppearanceDictionary::findBakedByRegionName(const std::string name) const
+EBakedTextureIndex LLAvatarAppearanceDictionary::findBakedByRegionName(const std::string& name) const
 {
     U8 index = 0;
     while (index < BAKED_NUM_INDICES)
@@ -277,7 +277,7 @@ EBakedTextureIndex LLAvatarAppearanceDictionary::findBakedByRegionName(const std
     return BAKED_NUM_INDICES;
 }
 
-EBakedTextureIndex LLAvatarAppearanceDictionary::findBakedByImageName(const std::string name) const
+EBakedTextureIndex LLAvatarAppearanceDictionary::findBakedByImageName(const std::string& name) const
 {
     U8 index = 0;
     while (index < BAKED_NUM_INDICES)
