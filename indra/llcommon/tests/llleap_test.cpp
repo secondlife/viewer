@@ -300,8 +300,8 @@ namespace tut
         std::string threw = catch_what<LLLeap::Error>([&BADPYTHON](){
                 LLLeap::create("bad exe", BADPYTHON);
             });
-        ensure_contains("LLLeap::create() didn't throw", threw, "failed");
-        log.messageWith("failed");
+        ensure_contains("LLLeap::create() didn't throw", threw, "Can't find");
+        log.messageWith("Can't find");
         log.messageWith(BADPYTHON);
         // try the suppress-exception variant
         ensure("bad launch returned non-NULL", ! LLLeap::create("bad exe", BADPYTHON, false));
