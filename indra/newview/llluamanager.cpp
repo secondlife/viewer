@@ -204,7 +204,7 @@ void LLLUAmanager::runScriptFile(const std::string &filename, bool autorun,
                 result_cb(-1, error);
             }
             return;
-        }            
+        }
 
         llifstream in_file;
         in_file.open(command.script);
