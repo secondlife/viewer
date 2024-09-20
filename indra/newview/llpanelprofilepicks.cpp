@@ -801,7 +801,7 @@ void LLPanelProfilePick::onClickSave()
     {
         mParcelCallbackConnection.disconnect();
     }
-    if (mLocationChanged) 
+    if (mLocationChanged)
     {
         onClickSetLocation();
     }
