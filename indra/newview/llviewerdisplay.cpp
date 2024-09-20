@@ -58,6 +58,7 @@
 #include "llpostprocess.h"
 #include "llrender.h"
 #include "llscenemonitor.h"
+#include "llsdjson.h"
 #include "llselectmgr.h"
 #include "llsky.h"
 #include "llspatialpartition.h"
@@ -138,6 +139,7 @@ void render_ui_3d();
 void render_ui_2d();
 void render_disconnected_background();
 
+void getProfileStatsContext(boost::json::object& stats);
 std::string getProfileStatsFilename();
 
 void display_startup()
@@ -1040,8 +1042,48 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
     if (gShaderProfileFrame)
     {
         gShaderProfileFrame = false;
-        LLGLSLShader::finishProfile(getProfileStatsFilename());
+        boost::json::value stats{ boost::json::object_kind };
+        getProfileStatsContext(stats.as_object());
+        LLGLSLShader::finishProfile(stats);
+
+        auto report_name = getProfileStatsFilename();
+        std::ofstream outf(report_name);
+        if (! outf)
+        {
+            LL_WARNS() << "Couldn't write to " << std::quoted(report_name) << LL_ENDL;
+        }
+        else
+        {
+            outf << stats;
+            LL_INFOS() << "(also dumped to " << std::quoted(report_name) << ")" << LL_ENDL;
+        }
     }
+}
+
+void getProfileStatsContext(boost::json::object& stats)
+{
+    // populate the context with info from LLFloaterAbout
+    auto contextit = stats.emplace("context",
+                                   LlsdToJson(LLAppViewer::instance()->getViewerInfo())).first;
+    auto& context = contextit->value().as_object();
+
+    // then add a few more things
+    unsigned char unique_id[MAC_ADDRESS_BYTES]{};
+    LLMachineID::getUniqueID(unique_id, sizeof(unique_id));
+    context.emplace("machine", stringize(LL::hexdump(unique_id, sizeof(unique_id))));
+    context.emplace("grid", LLGridManager::instance().getGrid());
+    LLViewerRegion* region = gAgent.getRegion();
+    if (region)
+    {
+        context.emplace("regionid", stringize(region->getRegionID()));
+    }
+    LLParcel* parcel = LLViewerParcelMgr::instance().getAgentParcel();
+    if (parcel)
+    {
+        context.emplace("parcel", parcel->getName());
+        context.emplace("parcelid", parcel->getLocalID());
+    }
+    context.emplace("time", LLDate::now().toHTTPDateString("%Y-%m-%dT%H:%M:%S"));
 }
 
 std::string getProfileStatsFilename()

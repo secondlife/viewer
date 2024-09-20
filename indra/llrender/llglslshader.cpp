@@ -41,8 +41,6 @@
 #include "OpenGL/OpenGL.h"
 #endif
 
-#include <fstream>
-
  // Print-print list of shader included source files that are linked together via glAttachShader()
  // i.e. On macOS / OSX the AMD GLSL linker will display an error if a varying is left in an undefined state.
 #define DEBUG_SHADER_INCLUDES 0
@@ -65,7 +63,7 @@ U64 LLGLSLShader::sTotalTimeElapsed = 0;
 U32 LLGLSLShader::sTotalTrianglesDrawn = 0;
 U64 LLGLSLShader::sTotalSamplesDrawn = 0;
 U32 LLGLSLShader::sTotalBinds = 0;
-std::string LLGLSLShader::sDefaultReportName;
+boost::json::value LLGLSLShader::sDefaultStats;
 
 //UI shader -- declared here so llui_libtest will link properly
 LLGLSLShader    gUIProgram;
@@ -120,16 +118,16 @@ struct LLGLSLShaderCompareTimeElapsed
 };
 
 //static
-void LLGLSLShader::finishProfile(const std::string& report_name)
+void LLGLSLShader::finishProfile(boost::json::value& statsv)
 {
     sProfileEnabled = false;
 
-    if (! report_name.empty())
+    if (! statsv.is_null())
     {
         std::vector<LLGLSLShader*> sorted(sInstances.begin(), sInstances.end());
         std::sort(sorted.begin(), sorted.end(), LLGLSLShaderCompareTimeElapsed());
 
-        boost::json::object stats;
+        auto& stats = statsv.as_object();
         auto shadersit = stats.emplace("shaders", boost::json::array_kind).first;
         auto& shaders = shadersit->value().as_array();
         bool unbound = false;
@@ -173,17 +171,6 @@ void LLGLSLShader::finishProfile(const std::string& report_name)
                     unused.emplace_back(ptr->mName);
                 }
             }
-        }
-
-        std::ofstream outf(report_name);
-        if (! outf)
-        {
-            LL_WARNS() << "Couldn't write to " << std::quoted(report_name) << LL_ENDL;
-        }
-        else
-        {
-            outf << stats;
-            LL_INFOS() << "(also dumped to " << std::quoted(report_name) << ")" << LL_ENDL;
         }
     }
 }
