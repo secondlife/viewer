@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel
- height="750"
+ height="770"
  label="Members &amp; Roles"
  layout="topleft"
  left="0"
@@ -20,7 +20,7 @@
     <tab_container
      border="false"
      follows="left|top|right"
-     height="552"
+     height="770"
      halign="center"
      layout="topleft"
      left="0"
@@ -29,16 +29,10 @@
      tab_position="top"
      tab_height="22"
      tab_min_width="90"
-     top="0"
-     width="304">
+     top="0">
         <panel
          border="false"
-         follows="all"
-         height="303"
          label="MEMBERS"
-         layout="topleft"
-         left="0"
-         right="-1"
          help_topic="roles_members_tab"
          name="members_sub_tab"
          tool_tip="Members"
@@ -128,11 +122,7 @@ clicking on their names.
         </panel>
         <panel
          border="false"
-         height="303"
          label="ROLES"
-         layout="topleft"
-         left="0"
-         right="-1"
          help_topic="roles_roles_tab"
          name="roles_sub_tab"
          class="panel_group_roles_subtab">
@@ -183,15 +173,14 @@ including the Everyone and Owner Roles.
              draw_heading="true"
              draw_stripes="false"
              heading_height="23"
-             height="132"
+             height="138"
              layout="topleft"
              search_column="1"
              left="0"
              follows="left|top|right"
              right="-1"
              name="role_list"
-             top_pad="2"
-             width="310">
+             top_pad="2">
                 <scroll_list.columns
                  label="Role"
                  name="name"
@@ -232,16 +221,11 @@ including the Everyone and Owner Roles.
         </panel>
         <panel
          border="false"
-         height="303"
          label="ABILITIES"
-         layout="topleft"
-         left="0"
-         right="-1"
          help_topic="roles_actions_tab"
          name="actions_sub_tab"
          class="panel_group_actions_subtab"
-         tool_tip="You can view an Ability&apos;s Description and which Roles and Members can execute the Ability."
-         width="310">
+         tool_tip="You can view an Ability&apos;s Description and which Roles and Members can execute the Ability.">
             <panel.string
              name="help_text">
                 Abilities allow Members in Roles to do specific
@@ -280,8 +264,7 @@ things in this group. There&apos;s a broad variety of Abilities.
              name="action_list"
              search_column="2"
              tool_tip="Select an Ability to view more details"
-             top_pad="5"
-             width="300">
+             top_pad="5">
                 <scroll_list.columns
                  label=""
                  name="icon"
@@ -297,16 +280,11 @@ things in this group. There&apos;s a broad variety of Abilities.
         </panel>
         <panel
          border="false"
-         height="303"
          label="BANNED RESIDENTS"
-         layout="topleft"
-         left="0"
-         right="-1"
          help_topic="roles_banlist_tab"
          name="banlist_sub_tab"
          class="panel_group_banlist_subtab"
-         tool_tip="View the banned residents from this group."
-         width="310">
+         tool_tip="View the banned residents from this group.">
             <panel.string
              name="help_text">
                 Any resident on the ban list will be unable to join the group.
@@ -318,7 +296,7 @@ things in this group. There&apos;s a broad variety of Abilities.
             <name_list
              column_padding="0"
              draw_heading="true"
-             height="400"
+             height="714"
              follows="left|top|right"
              layout="topleft"
              left="0"
@@ -384,7 +362,6 @@ things in this group. There&apos;s a broad variety of Abilities.
      follows="top|left|right"
      left="0"
      right="-1"
-     width="313"
      mouse_opaque="false"
      name="members_footer"
      top="325"
@@ -464,7 +441,6 @@ things in this group. There&apos;s a broad variety of Abilities.
      follows="top|left|right"
      left="0"
      right="-1"
-     width="313"
      mouse_opaque="false"
      name="members_header"
      top_pad="3"
@@ -496,11 +472,10 @@ things in this group. There&apos;s a broad variety of Abilities.
      follows="top|left|right"
      left="0"
      right="-1"
-     width="313"
      mouse_opaque="false"
      name="roles_footer"
      top_delta="0"
-     top="209"
+     top="215"
      visible="false">
         <text
          type="string"
@@ -522,8 +497,7 @@ things in this group. There&apos;s a broad variety of Abilities.
          right="-1"
          max_length_bytes="20"
          name="role_name"
-         top_pad="0"
-         width="300">
+         top_pad="0">
         </line_editor>
         <text
          type="string"
@@ -545,8 +519,7 @@ things in this group. There&apos;s a broad variety of Abilities.
          right="-1"
          max_length_bytes="20"
          name="role_title"
-         top_pad="0"
-         width="300">
+         top_pad="0">
         </line_editor>
         <text
          type="string"
@@ -569,7 +542,6 @@ things in this group. There&apos;s a broad variety of Abilities.
          height="35"
          name="role_description"
          top_pad="0"
-         width="300"
          word_wrap="true">
         </text_editor>
         <text
@@ -592,8 +564,7 @@ things in this group. There&apos;s a broad variety of Abilities.
          follows="left|top|right"
          right="-1"
          name="role_assigned_members"
-         top_pad="0"
-         width="300" />
+         top_pad="0" />
         <check_box
          height="15"
          label="Reveal members"
@@ -625,8 +596,7 @@ things in this group. There&apos;s a broad variety of Abilities.
          name="role_allowed_actions"
          search_column="2"
          tool_tip="For details of each allowed ability see the abilities tab"
-         top_pad="0"
-         width="300">
+         top_pad="0">
           <scroll_list.columns
            label=""
            name="icon"
@@ -648,7 +618,6 @@ things in this group. There&apos;s a broad variety of Abilities.
      follows="top|left|right"
      left="0"
      right="-1"
-     width="313"
      mouse_opaque="false"
      name="roles_header"
      top_pad="3"
@@ -673,14 +642,13 @@ things in this group. There&apos;s a broad variety of Abilities.
         </text_editor>
     </panel>
     <panel
-     height="424"
+     height="513"
      background_visible="false"
      bg_alpha_color="FloaterUnfocusBorderColor"
      layout="topleft"
      follows="top|left|right"
      left="0"
      right="-1"
-     width="313"
      mouse_opaque="false"
      name="actions_footer"
      top_delta="0"
@@ -716,14 +684,13 @@ things in this group. There&apos;s a broad variety of Abilities.
             Roles with this ability
         </text>
         <scroll_list
-         height="172"
+         height="216"
          layout="topleft"
          follows="left|top|right"
          left="5"
          right="-1"
          name="action_roles"
-         top_pad="0"
-         width="300" />
+         top_pad="0" />
         <text
          type="string"
          height="16"
@@ -736,13 +703,12 @@ things in this group. There&apos;s a broad variety of Abilities.
             Members with this ability
         </text>
         <name_list
-         height="122"
+         height="167"
          follows="left|top|right"
          layout="topleft"
          left="5"
          right="-1"
          name="action_members"
-         top_pad="0"
-         width="300" />
+         top_pad="0" />
     </panel>
 </panel>
