@@ -702,6 +702,7 @@ void LLGrassPartition::getGeometry(LLSpatialGroup* group)
         S32 idx = static_cast<S32>(draw_vec.size()) - 1;
 
         bool fullbright = facep->isState(LLFace::FULLBRIGHT);
+        U8   alpha_gamma = 100;
 
         if (idx >= 0 && draw_vec[idx]->mEnd == facep->getGeomIndex()-1 &&
             draw_vec[idx]->mTexture == facep->getTexture() &&
@@ -721,7 +722,7 @@ void LLGrassPartition::getGeometry(LLSpatialGroup* group)
             U32 count = facep->getIndicesCount();
             LLDrawInfo* info = new LLDrawInfo(start,end,count,offset,facep->getTexture(),
                 //facep->getTexture(),
-                buffer, object->isSelected(), fullbright);
+                buffer, object->isSelected(), fullbright, (F32)alpha_gamma * 0.01f);
 
             draw_vec.push_back(info);
             //for alpha sorting

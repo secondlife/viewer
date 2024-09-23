@@ -3838,7 +3838,7 @@ LLDrawable* LLSpatialGroup::lineSegmentIntersect(const LLVector4a& start, const 
 
 LLDrawInfo::LLDrawInfo(U16 start, U16 end, U32 count, U32 offset,
                        LLViewerTexture* texture, LLVertexBuffer* buffer,
-                       bool fullbright, U8 bump)
+                       bool fullbright, U8 bump, U8 alpha_gamma)
 :   mVertexBuffer(buffer),
     mTexture(texture),
     mStart(start),
@@ -3847,6 +3847,7 @@ LLDrawInfo::LLDrawInfo(U16 start, U16 end, U32 count, U32 offset,
     mOffset(offset),
     mFullbright(fullbright),
     mBump(bump),
+    mAlphaGamma(alpha_gamma),
     mBlendFuncSrc(LLRender::BF_SOURCE_ALPHA),
     mBlendFuncDst(LLRender::BF_ONE_MINUS_SOURCE_ALPHA),
     mHasGlow(false),

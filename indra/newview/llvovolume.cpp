@@ -5288,6 +5288,7 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
     const LLTextureEntry* te = facep->getTextureEntry();
     U8 bump = (type == LLRenderPass::PASS_BUMP || type == LLRenderPass::PASS_POST_BUMP) ? te->getBumpmap() : 0;
     U8 shiny = te->getShiny();
+    U8 alpha_gamma = te->getAlphaGamma();
 
     LLViewerTexture* tex = facep->getTexture();
 
@@ -5370,6 +5371,7 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
         info->mMaterialID == mat_id &&
         info->mFullbright == fullbright &&
         info->mBump == bump &&
+        info->mAlphaGamma == alpha_gamma &&
         (!mat || (info->mShiny == shiny)) && // need to break batches when a material is shared, but legacy settings are different
         info->mTextureMatrix == tex_mat &&
         info->mModelMatrix == model_mat &&
@@ -5393,8 +5395,7 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
         U32 end = start + facep->getGeomCount()-1;
         U32 offset = facep->getIndicesStart();
         U32 count = facep->getIndicesCount();
-        LLPointer<LLDrawInfo> draw_info = new LLDrawInfo(start,end,count,offset, tex,
-            facep->getVertexBuffer(), fullbright, bump);
+        LLPointer<LLDrawInfo> draw_info = new LLDrawInfo(start,end,count,offset, tex, facep->getVertexBuffer(), fullbright, bump, alpha_gamma);
 
         info = draw_info;
 
@@ -5422,6 +5423,7 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
         draw_info->mShaderMask = shader_mask;
         draw_info->mAvatar = facep->mAvatar;
         draw_info->mSkinInfo = facep->mSkinInfo;
+        draw_info->mAlphaGamma = alpha_gamma;
 
         if (gltf_mat)
         {

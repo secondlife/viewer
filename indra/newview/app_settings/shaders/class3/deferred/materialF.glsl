@@ -87,6 +87,8 @@ uniform vec3 light_direction[8];
 uniform vec4 light_attenuation[8];
 uniform vec3 light_diffuse[8];
 
+uniform float alpha_gamma;
+
 float getAmbientClamp();
 void waterClip(vec3 pos);
 
@@ -403,7 +405,7 @@ void main()
 
     glare *= 1.0-emissive;
     glare = min(glare, 1.0);
-    float al = max(diffcol.a, glare) * vertex_color.a;
+    float al = pow(max(diffcol.a, glare) * vertex_color.a, alpha_gamma);
 
     frag_color = max(vec4(color, al), vec4(0));
 

@@ -1295,6 +1295,7 @@ void LLShaderMgr::initAttribsAndUniforms()
 
     mReservedUniforms.push_back("minimum_alpha");
     mReservedUniforms.push_back("emissive_brightness");
+    mReservedUniforms.push_back("alpha_gamma");
 
     // Deferred
     mReservedUniforms.push_back("shadow_matrix");

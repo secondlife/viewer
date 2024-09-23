@@ -746,6 +746,10 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
                     LLVector4 spec_color(1, 1, 1, 1);
                     F32 env_intensity = 0.0f;
                     F32 brightness = 1.0f;
+                    F32 alpha_gam = 1.f;
+
+                    if (params.mAlphaGamma != 0)
+                        alpha_gam = (F32)params.mAlphaGamma * 0.01f;
 
                     // We have a material.  Supply the appropriate data here.
                     if (mat)
@@ -757,6 +761,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
 
                     if (current_shader)
                     {
+                        current_shader->uniform1f(LLShaderMgr::ALPHA_GAMMA, alpha_gam);
                         current_shader->uniform4f(LLShaderMgr::SPECULAR_COLOR, spec_color.mV[VRED], spec_color.mV[VGREEN], spec_color.mV[VBLUE], spec_color.mV[VALPHA]);
                         current_shader->uniform1f(LLShaderMgr::ENVIRONMENT_INTENSITY, env_intensity);
                         current_shader->uniform1f(LLShaderMgr::EMISSIVE_BRIGHTNESS, brightness);
