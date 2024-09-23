@@ -15,7 +15,6 @@ set(cmake_SOURCE_FILES
         CEFPlugin.cmake
         CEFPlugin.cmake
         CMakeCopyIfDifferent.cmake
-        ConfigurePkgConfig.cmake
         CURL.cmake
         Copy3rdPartyLibs.cmake
         DBusGlib.cmake

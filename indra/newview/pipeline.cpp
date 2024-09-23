@@ -125,7 +125,7 @@
 #define A_GCC 1
 #pragma GCC diagnostic ignored "-Wunused-function"
 #pragma GCC diagnostic ignored "-Wunused-variable"
-#if LL_LINUX
+#if LL_LINUX && defined(__GNUC__) && !defined(__clang__)
 #pragma GCC diagnostic ignored "-Wrestrict"
 #endif
 #endif

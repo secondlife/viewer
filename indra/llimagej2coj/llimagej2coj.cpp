@@ -617,7 +617,6 @@ public:
         for (S32 c = 0; c < numcomps; c++)
         {
             cmptparm[c].prec = 8;
-            cmptparm[c].bpp = 8;
             cmptparm[c].sgnd = 0;
             cmptparm[c].dx = parameters.subsampling_dx;
             cmptparm[c].dy = parameters.subsampling_dy;

@@ -37,7 +37,8 @@
    top="16"
    left="0"
    right="-1"
-   bottom="-1">
+   bottom="-1"
+   orientation="horizontal">
     <layout_panel
      name="map_lp"
      width="385"

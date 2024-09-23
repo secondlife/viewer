@@ -5037,6 +5037,17 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
+  <key>MediaPluginPipeWireVolumeCatcher</key>
+  <map>
+    <key>Comment</key>
+    <string>Use PipeWire instead of PulseAudio for controlling web media volume.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
   <key>MediaControlFadeTime</key>
   <map>
     <key>Comment</key>

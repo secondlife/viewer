@@ -2045,8 +2045,8 @@ void LLInventoryModel::deleteObject(const LLUUID& id, bool fix_broken_links, boo
         {
             LL_WARNS(LOG_INV) << "Deleting cat " << id << " while it still has child cats" << LL_ENDL;
         }
-        delete cat_list;
         mParentChildCategoryTree.erase(id);
+        delete cat_list;
     }
     addChangedMask(LLInventoryObserver::REMOVE, id);
 
@@ -5054,4 +5054,3 @@ void LLInventoryModel::FetchItemHttpHandler::processFailure(const char * const r
                       << LLCoreHttpUtil::responseToString(response) << "]" << LL_ENDL;
     gInventory.notifyObservers();
 }
-

@@ -1,8 +1,11 @@
 /**
- * @file llappviewerlinux_api_dbus.h
- * @brief DBus-glib symbol handling
+ * @file volume_catcher_null.cpp
+ * @brief A null implementation of volume level control of all audio channels opened by a process.
+ *        We are using this for the macOS version for now until we can understand how to make the
+ *        exitising mac_volume_catcher.cpp work without the (now, non-existant) QuickTime dependency
  *
- * $LicenseInfo:firstyear=2008&license=viewerlgpl$
+ * @cond
+ * $LicenseInfo:firstyear=2010&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
  *
@@ -22,23 +25,29 @@
  *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
+ * @endcond
  */
 
-#include "linden_common.h"
+#include "volume_catcher.h"
 
-#if LL_DBUS_ENABLED
+/////////////////////////////////////////////////////
 
-extern "C" {
-#include <dbus/dbus-glib.h>
+VolumeCatcher::VolumeCatcher()
+{
 }
 
-#define DBUSGLIB_DYLIB_DEFAULT_NAME "libdbus-glib-1.so.2"
+VolumeCatcher::~VolumeCatcher()
+{
+}
 
-bool grab_dbus_syms(std::string dbus_dso_name);
-void ungrab_dbus_syms();
+void VolumeCatcher::setVolume(F32 volume)
+{
+}
 
-#define LL_DBUS_SYM(REQUIRED, DBUSSYM, RTN, ...) extern RTN (*ll##DBUSSYM)(__VA_ARGS__)
-#include "llappviewerlinux_api_dbus_syms_raw.inc"
-#undef LL_DBUS_SYM
+void VolumeCatcher::setPan(F32 pan)
+{
+}
 
-#endif // LL_DBUS_ENABLED
+void VolumeCatcher::pump()
+{
+}
