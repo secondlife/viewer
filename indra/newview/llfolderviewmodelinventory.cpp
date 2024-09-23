@@ -234,7 +234,7 @@ bool LLFolderViewModelItemInventory::filterChildItem( LLFolderViewModelItem* ite
     return continue_filtering;
 }
 
-bool LLFolderViewModelItemInventory::filter( LLFolderViewFilter& filter)
+bool LLFolderViewModelItemInventory::filter(LLFolderViewFilter& filter)
 {
     const S32 filter_generation = filter.getCurrentGeneration();
     const S32 must_pass_generation = filter.getFirstRequiredGeneration();

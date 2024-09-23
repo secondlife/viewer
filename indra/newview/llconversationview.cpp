@@ -313,7 +313,7 @@ void LLConversationViewSession::draw()
     {
         // update the rotation angle of open folder arrow
         updateLabelRotation();
-        drawOpenFolderArrow(default_params, sFgColor);
+        drawOpenFolderArrow();
     }
     LLView::draw();
 }

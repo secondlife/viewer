@@ -59,7 +59,7 @@
 using namespace llsd;
 
 #if LL_WINDOWS
-#   include "llwin32headerslean.h"
+#   include "llwin32headers.h"
 #   include <psapi.h>               // GetPerformanceInfo() et al.
 #   include <VersionHelpers.h>
 #elif LL_DARWIN

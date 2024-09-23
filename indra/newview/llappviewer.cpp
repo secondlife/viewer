@@ -642,8 +642,6 @@ LLAppViewer::LLAppViewer()
     mQuitRequested(false),
     mClosingFloaters(false),
     mLogoutRequestSent(false),
-    mLastAgentControlFlags(0),
-    mLastAgentForceUpdate(0),
     mMainloopTimeout(NULL),
     mAgentRegionLastAlive(false),
     mRandomizeFramerate(LLCachedControl<bool>(gSavedSettings,"Randomize Framerate", false)),
@@ -3295,10 +3293,10 @@ LLSD LLAppViewer::getViewerInfo() const
         LLVector3d pos = gAgent.getPositionGlobal();
         info["POSITION"] = ll_sd_from_vector3d(pos);
         info["POSITION_LOCAL"] = ll_sd_from_vector3(gAgent.getPosAgentFromGlobal(pos));
-        info["REGION"] = gAgent.getRegion()->getName();
+        info["REGION"] = region->getName();
 
         boost::regex regex("\\.(secondlife|lindenlab)\\..*");
-        info["HOSTNAME"] = boost::regex_replace(gAgent.getRegion()->getSimHostName(), regex, "");
+        info["HOSTNAME"] = boost::regex_replace(region->getSimHostName(), regex, "");
         info["SERVER_VERSION"] = gLastVersionChannel;
         LLSLURL slurl;
         LLAgentUI::buildSLURL(slurl);
@@ -4719,30 +4717,13 @@ void LLAppViewer::idle()
             gAgent.autoPilot(&yaw);
         }
 
-        static LLFrameTimer agent_update_timer;
+        send_agent_update(false);
 
-        // When appropriate, update agent location to the simulator.
-        F32 agent_update_time = agent_update_timer.getElapsedTimeF32();
-        F32 agent_force_update_time = mLastAgentForceUpdate + agent_update_time;
-        bool timed_out = agent_update_time > (1.0f / (F32)AGENT_UPDATES_PER_SECOND);
-        bool force_send =
-            // if there is something to send
-            (gAgent.controlFlagsDirty() && timed_out)
-            // if something changed
-            || (mLastAgentControlFlags != gAgent.getControlFlags())
-            // keep alive
-            || (agent_force_update_time > (1.0f / (F32) AGENT_FORCE_UPDATES_PER_SECOND));
-        // timing out doesn't warranty that an update will be sent,
-        // just that it will be checked.
-        if (force_send || timed_out)
-        {
-            LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
-            // Send avatar and camera info
-            mLastAgentControlFlags = gAgent.getControlFlags();
-            mLastAgentForceUpdate = force_send ? 0 : agent_force_update_time;
-            send_agent_update(force_send);
-            agent_update_timer.reset();
-        }
+        // After calling send_agent_update() in the mainloop we always clear
+        // the agent's ephemeral ControlFlags (whether an AgentUpdate was
+        // actually sent or not) because these will be recomputed based on
+        // real-time key/controller input and resubmitted next frame.
+        gAgent.resetControlFlags();
     }
 
     //////////////////////////////////////
@@ -5353,11 +5334,6 @@ void LLAppViewer::idleNetwork()
             CheckMessagesMaxTime = CHECK_MESSAGES_DEFAULT_MAX_TIME;
         }
 #endif
-
-
-
-        // we want to clear the control after sending out all necessary agent updates
-        gAgent.resetControlFlags();
 
         // Decode enqueued messages...
         S32 remaining_possible_decodes = MESSAGE_MAX_PER_FRAME - total_decoded;

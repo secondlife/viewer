@@ -98,15 +98,6 @@
 # define LL_THREAD_LOCAL __thread
 #endif
 
-// Static linking with apr on windows needs to be declared.
-#if LL_WINDOWS && !LL_COMMON_LINK_SHARED
-#ifndef APR_DECLARE_STATIC
-#define APR_DECLARE_STATIC // For APR on Windows
-#endif
-#ifndef APU_DECLARE_STATIC
-#define APU_DECLARE_STATIC // For APR util on Windows
-#endif
-#endif
 
 #if defined(LL_WINDOWS)
 #define BOOST_REGEX_NO_LIB 1
@@ -119,13 +110,6 @@
 
 // Deal with VC++ problems
 #if LL_MSVC
-#ifndef _CRT_SECURE_NO_WARNINGS
-#define _CRT_SECURE_NO_WARNINGS // disable warnings for methods considered unsafe
-#endif
-#ifndef _WINSOCK_DEPRECATED_NO_WARNINGS
-#define _WINSOCK_DEPRECATED_NO_WARNINGS // disable deprecated WinSock API warnings
-#endif
-
 // level 4 warnings that we need to disable:
 #pragma warning (disable : 4251) // member needs to have dll-interface to be used by clients of class
 #pragma warning (disable : 4275) // non dll-interface class used as base for dll-interface class

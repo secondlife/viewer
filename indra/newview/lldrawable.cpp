@@ -1067,16 +1067,16 @@ F32 LLDrawable::getVisibilityRadius() const
     {
         return 0.f;
     }
-    else if (isLight())
+
+    if (isLight())
     {
-        const LLVOVolume *vov = getVOVolume();
-        if (vov)
+        if (const LLVOVolume* vov = getVOVolume())
         {
             return llmax(getRadius(), vov->getLightRadius());
-        } else {
-            // LL_WARNS() ?
         }
+        // LL_WARNS() ?
     }
+
     return getRadius();
 }
 
@@ -1089,16 +1089,14 @@ bool LLDrawable::isVisible() const
 {
     if (LLViewerOctreeEntryData::isVisible())
     {
-            return true;
+        return true;
     }
 
+    LLViewerOctreeGroup* group = mEntry->getGroup();
+    if (group && group->isVisible())
     {
-        LLViewerOctreeGroup* group = mEntry->getGroup();
-        if (group && group->isVisible())
-        {
-            LLViewerOctreeEntryData::setVisible();
-            return true;
-        }
+        LLViewerOctreeEntryData::setVisible();
+        return true;
     }
 
     return false;
@@ -1107,27 +1105,30 @@ bool LLDrawable::isVisible() const
 //virtual
 bool LLDrawable::isRecentlyVisible() const
 {
-    //currently visible or visible in the previous frame.
-    bool vis = LLViewerOctreeEntryData::isRecentlyVisible();
-
-    if(!vis)
+    // Currently visible or visible in the previous frame.
+    if (LLViewerOctreeEntryData::isRecentlyVisible())
     {
-        const U32 MIN_VIS_FRAME_RANGE = 2 ; //two frames:the current one and the last one.
-        vis = (sCurVisible - getVisible() < MIN_VIS_FRAME_RANGE);
+        return true;
     }
 
-    return vis ;
+    const U32 MIN_VIS_FRAME_RANGE = 2 ; // Two frames: the current one and the last one.
+    if (sCurVisible - getVisible() < MIN_VIS_FRAME_RANGE)
+    {
+        return true;
+    }
+
+    return false;
 }
 
 void LLDrawable::setGroup(LLViewerOctreeGroup *groupp)
-    {
+{
     LLSpatialGroup* cur_groupp = (LLSpatialGroup*)getGroup();
 
     //precondition: mGroupp MUST be null or DEAD or mGroupp MUST NOT contain this
     //llassert(!cur_groupp || cur_groupp->isDead() || !cur_groupp->hasElement(this));
 
     //precondition: groupp MUST be null or groupp MUST contain this
-    llassert(!groupp || (LLSpatialGroup*)groupp->hasElement(this));
+    llassert(!groupp || groupp->hasElement(this));
 
     if (cur_groupp != groupp && getVOVolume())
     {
@@ -1136,8 +1137,7 @@ void LLDrawable::setGroup(LLViewerOctreeGroup *groupp)
         //contained by its drawable's spatial group
         for (S32 i = 0; i < getNumFaces(); ++i)
         {
-            LLFace* facep = getFace(i);
-            if (facep)
+            if (LLFace* facep = getFace(i))
             {
                 facep->clearVertexBuffer();
             }
@@ -1166,7 +1166,7 @@ LLSpatialPartition* LLDrawable::getSpatialPartition()
         !getVOVolume() ||
         isStatic())
     {
-        retval = gPipeline.getSpatialPartition((LLViewerObject*)mVObjp);
+        retval = gPipeline.getSpatialPartition(mVObjp);
     }
     else if (isRoot())
     {
@@ -1274,13 +1274,12 @@ LLSpatialBridge::LLSpatialBridge(LLDrawable* root, bool render_by_group, U32 dat
 
 LLSpatialBridge::~LLSpatialBridge()
 {
-    if(mEntry)
+    if (mEntry)
     {
-    LLSpatialGroup* group = getSpatialGroup();
-    if (group)
-    {
-        group->getSpatialPartition()->remove(this, group);
-    }
+        if (LLSpatialGroup* group = getSpatialGroup())
+        {
+            group->getSpatialPartition()->remove(this, group);
+        }
     }
 
     //delete octree here so listeners will still be able to access bridge specific state

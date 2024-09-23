@@ -688,10 +688,10 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 
     static LLCachedControl<bool> inworld_media_enabled(gSavedSettings, "AudioStreamingMedia", true);
     static LLCachedControl<bool> inworld_audio_enabled(gSavedSettings, "AudioStreamingMusic", true);
-    U32 max_instances = gSavedSettings.getU32("PluginInstancesTotal");
-    U32 max_normal = gSavedSettings.getU32("PluginInstancesNormal");
-    U32 max_low = gSavedSettings.getU32("PluginInstancesLow");
-    F32 max_cpu = gSavedSettings.getF32("PluginInstancesCPULimit");
+    static LLCachedControl<U32> max_instances(gSavedSettings, "PluginInstancesTotal", 8);
+    static LLCachedControl<U32> max_normal(gSavedSettings, "PluginInstancesNormal", 2);
+    static LLCachedControl<U32> max_low(gSavedSettings, "PluginInstancesLow", 4);
+    static LLCachedControl<F32> max_cpu(gSavedSettings, "PluginInstancesCPULimit", 0.9);
     // Setting max_cpu to 0.0 disables CPU usage checking.
     bool check_cpu_usage = (max_cpu != 0.0f);
 
@@ -829,7 +829,8 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
             }
             else
             {
-                if(gAudiop && LLViewerMedia::hasParcelAudio() && restore_parcel_audio && gSavedSettings.getBOOL("MediaTentativeAutoPlay"))
+                static LLCachedControl<bool> auto_play(gSavedSettings, "MediaTentativeAutoPlay", true);
+                if(gAudiop && LLViewerMedia::hasParcelAudio() && restore_parcel_audio && auto_play())
                 {
                     LLViewerAudio::getInstance()->startInternetStreamWithAutoFade(LLViewerMedia::getParcelAudioURL());
                     restore_parcel_audio = false;
@@ -880,7 +881,8 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
         }
     }
 
-    if(gSavedSettings.getBOOL("MediaPerformanceManagerDebug"))
+    static LLCachedControl<bool> perf_debug(gSavedSettings, "MediaPerformanceManagerDebug", false);
+    if(perf_debug())
     {
         // Give impls the same ordering as the priority list
         // they're already in the right order for this.

@@ -392,7 +392,7 @@ bool LLFeatureManager::loadGPUClass()
         catch (const std::exception& e)
         {
             // HACK - ensure that profiling is disabled
-            LLGLSLShader::finishProfile(false);
+            LLGLSLShader::finishProfile();
             gbps = -1.f;
             LL_WARNS("RenderInit") << "GPU benchmark failed: " << e.what() << LL_ENDL;
         }
@@ -627,6 +627,14 @@ void LLFeatureManager::applyBaseMasks()
     if (gGLManager.mIsIntel)
     {
         maskFeatures("Intel");
+    }
+    if (gGLManager.mIsApple)
+    {
+        maskFeatures("AppleGPU");
+    }
+    else
+    {
+        maskFeatures("NonAppleGPU");
     }
     if (gGLManager.mGLVersion < 3.f)
     {
