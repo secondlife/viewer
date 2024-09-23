@@ -488,7 +488,7 @@ S32 LLTextureEntry::setAlphaGamma(U8 alpha_gamma)
     if (mAlphaGamma != alpha_gamma)
     {
         mAlphaGamma = alpha_gamma;
-        return TEM_CHANGE_TEXTURE;
+        return TEM_CHANGE_COLOR;
     }
     return TEM_CHANGE_NONE;
 }
