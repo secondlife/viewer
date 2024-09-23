@@ -774,6 +774,8 @@ void send_viewer_stats(bool include_preferences)
 
 
     LL_INFOS("LogViewerStatsPacket") << "Sending viewer statistics: " << body << LL_ENDL;
+
+    // <ND> Do those lines even do anything sane in regard of debug logging?
     LL_DEBUGS("LogViewerStatsPacket");
     std::string filename("viewer_stats_packet.xml");
     llofstream of(filename.c_str());

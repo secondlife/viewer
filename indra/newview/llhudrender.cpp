@@ -63,6 +63,7 @@ void hud_render_text(const LLWString &wstr, const LLVector3 &pos_agent,
                     const LLColor4& color,
                     const bool orthographic)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
     LLViewerCamera* camera = LLViewerCamera::getInstance();
     // Do cheap plane culling
     LLVector3 dir_vec = pos_agent - camera->getOrigin();

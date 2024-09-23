@@ -3551,6 +3551,7 @@ void LLIMMgr::inviteToSession(
             && voice_invite && "VoiceInviteQuestionDefault" == question_type)
         {
             LL_INFOS("IMVIEW") << "Rejecting voice call from initiating muted resident " << caller_name << LL_ENDL;
+            payload["voice_channel_info"] = voice_channel_info;
             LLIncomingCallDialog::processCallResponse(1, payload);
             return;
         }
@@ -3599,6 +3600,7 @@ void LLIMMgr::inviteToSession(
                 send_do_not_disturb_message(gMessageSystem, caller_id, session_id);
             }
             // silently decline the call
+            payload["voice_channel_info"] = voice_channel_info;
             LLIncomingCallDialog::processCallResponse(1, payload);
             return;
         }
