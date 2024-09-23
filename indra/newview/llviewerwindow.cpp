@@ -3776,19 +3776,21 @@ void LLViewerWindow::updateUI()
 
 void LLViewerWindow::updateLayout()
 {
-    LLTool* tool = LLToolMgr::getInstance()->getCurrentTool();
+    LLToolMgr* tool_mgr = LLToolMgr::getInstance();
+    LLTool* tool = tool_mgr->getCurrentTool();
+    LLCachedControl<bool> freeze_time(gSavedSettings, "FreezeTime");
     if (gFloaterTools != NULL
         && tool != NULL
         && tool != gToolNull
         && tool != LLToolCompInspect::getInstance()
         && tool != LLToolDragAndDrop::getInstance()
-        && !gSavedSettings.getBOOL("FreezeTime"))
+        && !freeze_time())
     {
         // Suppress the toolbox view if our source tool was the pie tool,
         // and we've overridden to something else.
         bool suppress_toolbox =
-            (LLToolMgr::getInstance()->getBaseTool() == LLToolPie::getInstance()) &&
-            (LLToolMgr::getInstance()->getCurrentTool() != LLToolPie::getInstance());
+            (tool_mgr->getBaseTool() == LLToolPie::getInstance()) &&
+            (tool_mgr->getCurrentTool() != LLToolPie::getInstance());
 
         LLMouseHandler *captor = gFocusMgr.getMouseCapture();
         // With the null, inspect, or drag and drop tool, don't muck
@@ -3798,7 +3800,7 @@ void LLViewerWindow::updateLayout()
             ||  (tool != LLToolPie::getInstance()                       // not default tool
                 && tool != LLToolCompGun::getInstance()                 // not coming out of mouselook
                 && !suppress_toolbox                                    // not override in third person
-                && LLToolMgr::getInstance()->getCurrentToolset()->isShowFloaterTools()
+                && tool_mgr->getCurrentToolset()->isShowFloaterTools()
                 && (!captor || dynamic_cast<LLView*>(captor) != NULL)))                     // not dragging
         {
             // Force floater tools to be visible (unless minimized)

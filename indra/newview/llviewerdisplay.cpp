@@ -1625,7 +1625,8 @@ void render_ui_3d()
     gGL.color4f(1, 1, 1, 1);
 
     // Coordinate axes
-    if (gSavedSettings.getBOOL("ShowAxes"))
+    LLCachedControl<bool> show_axes(gSavedSettings, "ShowAxes");
+    if (show_axes())
     {
         draw_axes();
     }
