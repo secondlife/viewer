@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel
   background_opaque="false"
   border_visible="false"
@@ -32,21 +32,6 @@
     <text
       border_visible="false"
       follows="left|right|top|bottom"
-      font="SansSerif"
-      height="85"
-      layout="topleft"
-      left="10"
-      name="text_box"
-      read_only="true"
-      text_color="White"
-      top="10"
-      visible="false" 
-      width="285"
-      wrap="true"/>
-    <text
-      border_visible="false"
-      follows="left|right|top|bottom"
-      font="SansSerifBold"
       height="85"
       layout="topleft"
       left="10"
@@ -57,14 +42,13 @@
       width="285"
       wrap="true"/>
     <text_editor
-    	h_pad="0"
-	v_pad="0"
+      h_pad="0"
+      v_pad="0"
       bg_readonly_color="Transparent"
       border_visible="false"
       embedded_items="false"
       enabled="false"
       follows="left|right|top|bottom"
-      font="SansSerif"
       height="85" 
       layout="topleft"
       left="10"

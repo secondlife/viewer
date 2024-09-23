@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+  legacy_header_height="18"
+  can_resize="false"
+  height="600"
+  layout="topleft"
+  min_height="175"
+  min_width="500"
+  name="contents"
+  help_topic="contents"
+  title="Inventory Thumbnails Helper"
+  width="800">
+    <scroll_list
+       top="20"
+       height="350"
+       draw_stripes="true"
+       draw_heading="true"
+       follows="all"
+       layout="topleft"
+       left="8"
+       multi_select="true"
+       name="inventory_thumbnails_list"
+       right="-8"
+       tool_tip="Paste items from your inventory">
+        <scroll_list.columns
+             dynamic_width="true"
+             label="Inventory Item"
+             name="item_name"
+             relative_width="0.4" />
+        <scroll_list.columns
+             dynamic_width="true"
+             label="Existing Texture"
+             name="existing_texture"
+             relative_width="0.3" />
+        <scroll_list.columns
+             dynamic_width="true"
+             label="New Texture"
+             name="new_texture"
+             relative_width="0.3" />
+    </scroll_list>
+    <text_editor
+      top="375"
+      height="140"
+      follows="all"
+      left="8"
+      right="-8"
+      name="output_log"
+      font="Monospace"
+      text_color="0.1 0.5 0.1 1.0"
+      width="480">
+    </text_editor>
+    <button
+      follows="left|bottom"
+      height="20"
+      label="Paste items from Inventory"
+      layout="topleft"
+      left="10"
+      name="paste_items_btn"
+      bottom="-60"
+      width="235" />
+    <button
+      follows="left|bottom"
+      height="20"
+      label="Paste textures from Inventory"
+      layout="topleft"
+      left_delta="0"
+      name="paste_textures_btn"
+      top_delta="26	"
+      width="235" />
+    <button
+      follows="left|bottom"
+      height="20"
+      label="Write Thumbnails"
+      layout="topleft"
+      left_delta="0"
+      name="write_thumbnails_btn"
+      top_delta="26	"
+      width="235" />
+    <button
+      follows="left|bottom"
+      height="20"
+      label="Log items with no thumbnail"
+      layout="bottomleft"
+      right="-10"
+      name="log_missing_thumbnails_btn"
+      bottom="60"
+      width="235" />
+    <button
+      follows="left|bottom"
+      height="20"
+      label="Clear thumbnails from pasted items"
+      layout="bottomleft"
+      right="-10"
+      name="clear_thumbnails_btn"
+      top_delta="26"
+      width="235" />
+
+
+</floater>

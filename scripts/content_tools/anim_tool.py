@@ -92,7 +92,7 @@ class FilePacker(object):
         # Now pad what's left of str out to 'size' with nul bytes.
         buf = str + ("\000" * (size-len(str)))
         self.buffer.write(buf)
-        
+
 class FileUnpacker(object):
     def __init__(self, filename):
         with open(filename,"rb") as f:
@@ -103,7 +103,7 @@ class FileUnpacker(object):
         result = struct.unpack_from(fmt, self.buffer, self.offset)
         self.offset += struct.calcsize(fmt)
         return result
-    
+
     def unpack_string(self, size=0):
         # Nonzero size means we must consider exactly the next 'size'
         # characters in self.buffer.
@@ -131,7 +131,7 @@ def F32_to_U16(val, lower, upper):
     # make sure that the value is positive and normalized to <0, 1>
     val -= lower;
     val /= (upper - lower);
-    
+
     # return the U16
     return int(math.floor(val*U16MAX))
 
@@ -149,7 +149,7 @@ def U16_to_F32(ival, lower, upper):
     # make sure that zeroes come through as zero
     if abs(val) < max_error:
         val = 0.0
-    return val; 
+    return val;
 
 class RotKey(object):
     def __init__(self, time, duration, rot):
@@ -185,7 +185,7 @@ class RotKey(object):
         fp.pack("<H",self.time_short)
         (x,y,z) = [F32_to_U16(v, -1.0, 1.0) for v in self.rotation]
         fp.pack("<HHH",x,y,z)
-        
+
 class PosKey(object):
     def __init__(self, time, duration, pos):
         """
@@ -216,7 +216,7 @@ class PosKey(object):
 
     def dump(self, f):
         print("    pos_key: t %.3f" % self.time,"pos ",",".join("%.3f" % f for f in self.position), file=f)
-        
+
     def pack(self, fp):
         fp.pack("<H",self.time_short)
         (x,y,z) = [F32_to_U16(v, -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET) for v in self.position]
@@ -259,7 +259,7 @@ class Constraint(object):
         print("    ease_in_stop",self.ease_in_stop, file=f)
         print("    ease_out_start",self.ease_out_start, file=f)
         print("    ease_out_stop",self.ease_out_stop, file=f)
-        
+
 class Constraints(object):
     @staticmethod
     def unpack(duration, fup):
@@ -340,7 +340,7 @@ class RotationCurve(object):
         print("    num_rot_keys", len(self.keys), file=f)
         for k in self.keys:
             k.dump(f)
-            
+
 class JointInfo(object):
     def __init__(self, name, priority):
         self.joint_name = name
@@ -434,11 +434,11 @@ class Anim(object):
         # find that parent in list of joints, set its index in index list
 
         self.emote_name = fup.unpack_string()
-        
+
         (self.loop_in_point, self.loop_out_point, self.loop,
          self.ease_in_duration, self.ease_out_duration, self.hand_pose, num_joints) = \
             fup.unpack("@ffiffII")
-        
+
         self.joints = [JointInfo.unpack(self.duration, fup)
                        for j in range(num_joints)]
         if self.verbose:
@@ -446,7 +446,7 @@ class Anim(object):
                 print("unpacked joint",joint_info.joint_name)
         self.constraints = Constraints.unpack(self.duration, fup)
         self.buffer = fup.buffer
-        
+
     def pack(self, fp):
         fp.pack("@HHhf", self.version, self.sub_version, self.base_priority, self.duration)
         fp.pack_string(self.emote_name, 0)
@@ -475,7 +475,7 @@ class Anim(object):
         for j in self.joints:
             j.dump(f)
         self.constraints.dump(f)
-       
+
     def write(self, filename):
         fp = FilePacker()
         self.pack(fp)
@@ -603,7 +603,7 @@ def main(*argv):
     # Use sys.argv[0] because (a) this script lives where it lives regardless
     # of what our caller passes and (b) we don't expect our caller to pass the
     # script name anyway.
-    pathname = os.path.dirname(sys.argv[0])        
+    pathname = os.path.dirname(sys.argv[0])
     # we're in scripts/content_tools; hop back to base of repository clone
     path_to_skel = os.path.join(os.path.abspath(pathname),os.pardir,os.pardir,
                                 "indra","newview","character")

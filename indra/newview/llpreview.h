@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llpreview.h
  * @brief LLPreview class definition
  *
  * $LicenseInfo:firstyear=2002&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -44,11 +44,11 @@ class LLPreview;
 class LLMultiPreview : public LLMultiFloater
 {
 public:
-	LLMultiPreview();
+    LLMultiPreview();
 
-	/*virtual*/void onOpen(const LLSD& key);
-	/*virtual*/void tabOpen(LLFloater* opened_floater, bool from_click);
-	/*virtual*/ void handleReshape(const LLRect& new_rect, bool by_user = false);
+    /*virtual*/void onOpen(const LLSD& key);
+    /*virtual*/void tabOpen(LLFloater* opened_floater, bool from_click);
+    /*virtual*/ void handleReshape(const LLRect& new_rect, bool by_user = false);
 
 };
 
@@ -57,103 +57,98 @@ public:
 class LLPreview : public LLFloater, LLInventoryObserver
 {
 public:
-	typedef enum e_asset_status
-	{
-		PREVIEW_ASSET_ERROR,
-		PREVIEW_ASSET_UNLOADED,
-		PREVIEW_ASSET_LOADING,
-		PREVIEW_ASSET_LOADED
-	} EAssetStatus;
+    typedef enum e_asset_status
+    {
+        PREVIEW_ASSET_ERROR,
+        PREVIEW_ASSET_UNLOADED,
+        PREVIEW_ASSET_LOADING,
+        PREVIEW_ASSET_LOADED
+    } EAssetStatus;
 public:
-	LLPreview(const LLSD& key );
-	virtual ~LLPreview();
-		
-	/*virtual*/ BOOL postBuild();
-	
-	virtual void setObjectID(const LLUUID& object_id);
-	void setItem( LLInventoryItem* item );
-	
-	void setAssetId(const LLUUID& asset_id);
-	const LLInventoryItem* getItem() const; // searches if not constructed with it
+    LLPreview(const LLSD& key );
+    virtual ~LLPreview();
 
-	static void hide(const LLUUID& item_uuid, BOOL no_saving = FALSE );
-	static void	dirty(const LLUUID& item_uuid);
-	
-	virtual BOOL handleMouseDown(S32 x, S32 y, MASK mask);
-	virtual BOOL handleMouseUp(S32 x, S32 y, MASK mask);
-	virtual BOOL handleHover(S32 x, S32 y, MASK mask);
-	virtual void onOpen(const LLSD& key);
-	
-	virtual void setAuxItem( const LLInventoryItem* item );
+    /*virtual*/ bool postBuild();
 
-	static void			onBtnCopyToInv(void* userdata);
+    virtual void setObjectID(const LLUUID& object_id);
+    void setItem( LLInventoryItem* item );
 
-	void				addKeepDiscardButtons();
-	static void			onKeepBtn(void* data);
-	static void			onDiscardBtn(void* data);
-	/*virtual*/ void	handleReshape(const LLRect& new_rect, bool by_user = false);
+    void setAssetId(const LLUUID& asset_id);
+    const LLInventoryItem* getItem() const; // searches if not constructed with it
 
-	void userResized() { mUserResized = TRUE; };
+    static void hide(const LLUUID& item_uuid, bool no_saving = false );
+    static void dirty(const LLUUID& item_uuid);
 
-	virtual void loadAsset() { mAssetStatus = PREVIEW_ASSET_LOADED; }
-	virtual EAssetStatus getAssetStatus() { return mAssetStatus;}
+    virtual bool handleMouseDown(S32 x, S32 y, MASK mask);
+    virtual bool handleMouseUp(S32 x, S32 y, MASK mask);
+    virtual bool handleHover(S32 x, S32 y, MASK mask);
+    virtual void onOpen(const LLSD& key);
 
-	static LLPreview* getFirstPreviewForSource(const LLUUID& source_id);
+    virtual void setAuxItem( const LLInventoryItem* item );
 
-	// Why is this at the LLPreview level?  JC
-	void setNotecardInfo(const LLUUID& notecard_inv_id, const LLUUID& object_id);
+    static void         onBtnCopyToInv(void* userdata);
 
-	// llview
-	/*virtual*/ void draw();
-	virtual void refreshFromItem();
+    static void         onKeepBtn(void* data);
+    static void         onDiscardBtn(void* data);
+    /*virtual*/ void    handleReshape(const LLRect& new_rect, bool by_user = false);
 
-	// We can't modify Item or description in preview if either in-world Object
-	// or Item  itself is unmodifiable
-	static BOOL canModify(const LLUUID taskUUID, const LLInventoryItem* item);
-	static BOOL canModify(const LLViewerObject* object, const LLInventoryItem* item);
+    void userResized() { mUserResized = true; };
+
+    virtual void loadAsset() { mAssetStatus = PREVIEW_ASSET_LOADED; }
+    virtual EAssetStatus getAssetStatus() { return mAssetStatus;}
+
+    // Why is this at the LLPreview level?  JC
+    void setNotecardInfo(const LLUUID& notecard_inv_id, const LLUUID& object_id);
+
+    // llview
+    /*virtual*/ void draw();
+    virtual void refreshFromItem();
+
+    // We can't modify Item or description in preview if either in-world Object
+    // or Item  itself is unmodifiable
+    static bool canModify(const LLUUID taskUUID, const LLInventoryItem* item);
+    static bool canModify(const LLViewerObject* object, const LLInventoryItem* item);
 
 protected:
-	virtual void onCommit();
+    virtual void onCommit();
 
-	void addDescriptionUI();
+    static void onText(LLUICtrl*, void* userdata);
+    static void onRadio(LLUICtrl*, void* userdata);
 
-	static void onText(LLUICtrl*, void* userdata);
-	static void onRadio(LLUICtrl*, void* userdata);
-	
-	// for LLInventoryObserver 
-	virtual void changed(U32 mask);	
-	BOOL mDirty;
-	BOOL mSaveDialogShown;
+    // for LLInventoryObserver
+    virtual void changed(U32 mask);
+    bool mDirty;
+    bool mSaveDialogShown;
 
 protected:
-	LLUUID mItemUUID;
+    LLUUID mItemUUID;
 
-	// mObjectUUID will have a value if it is associated with a task in
-	// the world, and will be == LLUUID::null if it's in the agent
-	// inventory.
-	LLUUID mObjectUUID;
+    // mObjectUUID will have a value if it is associated with a task in
+    // the world, and will be == LLUUID::null if it's in the agent
+    // inventory.
+    LLUUID mObjectUUID;
 
-	LLRect mClientRect;
+    LLRect mClientRect;
 
-	LLPointer<LLInventoryItem> mAuxItem;  // HACK!
-	LLPointer<LLInventoryItem> mItem;  // For embedded items (Landmarks)
-	LLButton* mCopyToInvBtn;
+    LLPointer<LLInventoryItem> mAuxItem;  // HACK!
+    LLPointer<LLInventoryItem> mItem;  // For embedded items (Landmarks)
+    LLButton* mCopyToInvBtn;
 
-	// Close without saving changes
-	BOOL mForceClose;
+    // Close without saving changes
+    bool mForceClose;
 
-	BOOL mUserResized;
+    bool mUserResized;
 
-	// When closing springs a "Want to save?" dialog, we want
-	// to keep the preview open until the save completes.
-	BOOL mCloseAfterSave;
+    // When closing springs a "Want to save?" dialog, we want
+    // to keep the preview open until the save completes.
+    bool mCloseAfterSave;
 
-	EAssetStatus mAssetStatus;
+    EAssetStatus mAssetStatus;
 
-	LLUUID mNotecardInventoryID;
-	// I am unsure if this is always the same as mObjectUUID, or why it exists
-	// at the LLPreview level.  JC 2009-06-24
-	LLUUID mNotecardObjectID;
+    LLUUID mNotecardInventoryID;
+    // I am unsure if this is always the same as mObjectUUID, or why it exists
+    // at the LLPreview level.  JC 2009-06-24
+    LLUUID mNotecardObjectID;
 };
 
 

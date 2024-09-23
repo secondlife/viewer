@@ -30,58 +30,68 @@
 #include "llsd.h"
 #include "llassettype.h"
 
+class LLViewerTexture;
+class LLImageBase;
+
 class LLAgentBenefits
 {
 public:
-	LLAgentBenefits();
-	~LLAgentBenefits();
-	LOG_CLASS(LLAgentBenefits);
+    static constexpr S32 MIN_2K_TEXTURE_AREA = 1024 * 1024 + 1;
 
-	bool init(const LLSD& benefits_sd);
+    LLAgentBenefits();
+    ~LLAgentBenefits();
+    LOG_CLASS(LLAgentBenefits);
 
-	S32 getAnimatedObjectLimit() const;
-	S32 getAnimationUploadCost() const;
-	S32 getAttachmentLimit() const;
-	S32 getCreateGroupCost() const;
-	S32 getGroupMembershipLimit() const;
-	S32 getPicksLimit() const;
-	S32 getSoundUploadCost() const;
-	S32 getTextureUploadCost() const;
+    bool init(const LLSD& benefits_sd);
 
-	bool findUploadCost(LLAssetType::EType& asset_type, S32& cost) const;
-	
+    S32 getAnimatedObjectLimit() const;
+    S32 getAnimationUploadCost() const;
+    S32 getAttachmentLimit() const;
+    S32 getCreateGroupCost() const;
+    S32 getGroupMembershipLimit() const;
+    S32 getPicksLimit() const;
+    S32 getSoundUploadCost() const;
+    S32 getTextureUploadCost() const;
+    S32 getTextureUploadCost(const LLViewerTexture* tex) const;
+    S32 getTextureUploadCost(const LLImageBase* tex) const;
+    S32 getTextureUploadCost(S32 w, S32 h) const;
+    S32 get2KTextureUploadCost(S32 area) const;
+
+    bool findUploadCost(LLAssetType::EType& asset_type, S32& cost) const;
+
 private:
-	S32 m_animated_object_limit;
-	S32 m_animation_upload_cost;
-	S32 m_attachment_limit;
-	S32 m_create_group_cost;
-	S32 m_group_membership_limit;
-	S32 m_picks_limit;
-	S32 m_sound_upload_cost;
-	S32 m_texture_upload_cost;
+    S32 m_animated_object_limit;
+    S32 m_animation_upload_cost;
+    S32 m_attachment_limit;
+    S32 m_create_group_cost;
+    S32 m_group_membership_limit;
+    S32 m_picks_limit;
+    S32 m_sound_upload_cost;
+    S32 m_texture_upload_cost;
+    std::vector<S32> m_2k_texture_upload_cost;
 
-	bool m_initalized;
+    bool m_initalized;
 };
 
-class LLAgentBenefitsMgr: public LLSingleton<LLAgentBenefitsMgr> 
+class LLAgentBenefitsMgr: public LLSingleton<LLAgentBenefitsMgr>
 {
-	LLSINGLETON(LLAgentBenefitsMgr);
-	~LLAgentBenefitsMgr();
-	LOG_CLASS(LLAgentBenefitsMgr);
+    LLSINGLETON(LLAgentBenefitsMgr);
+    ~LLAgentBenefitsMgr();
+    LOG_CLASS(LLAgentBenefitsMgr);
 
 public:
-	static const LLAgentBenefits& current();
-	static const LLAgentBenefits& get(const std::string& package);
-	static bool init(const std::string& package, const LLSD& benefits_sd);
-	static bool initCurrent(const std::string& package, const LLSD& benefits_sd);
-	static bool has(const std::string& package);
-	static bool isCurrent(const std::string& package);
+    static const LLAgentBenefits& current();
+    static const LLAgentBenefits& get(const std::string& package);
+    static bool init(const std::string& package, const LLSD& benefits_sd);
+    static bool initCurrent(const std::string& package, const LLSD& benefits_sd);
+    static bool has(const std::string& package);
+    static bool isCurrent(const std::string& package);
 
 private:
-	std::string     mCurrentName;
-	LLAgentBenefits mCurrent;
-	LLAgentBenefits mDefault;
-	std::map<std::string, LLAgentBenefits> mPackageMap;
+    std::string     mCurrentName;
+    LLAgentBenefits mCurrent;
+    LLAgentBenefits mDefault;
+    std::map<std::string, LLAgentBenefits> mPackageMap;
 };
 
 

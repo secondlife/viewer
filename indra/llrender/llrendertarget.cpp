@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llrendertarget.cpp
  * @brief LLRenderTarget implementation
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -44,7 +44,7 @@ void check_framebuffer_status()
             break;
         default:
             LL_WARNS() << "check_framebuffer_status failed -- " << std::hex << status << LL_ENDL;
-            ll_fail("check_framebuffer_status failed");    
+            ll_fail("check_framebuffer_status failed");
             break;
         }
     }
@@ -75,10 +75,10 @@ LLRenderTarget::~LLRenderTarget()
 }
 
 void LLRenderTarget::resize(U32 resx, U32 resy)
-{ 
+{
     //for accounting, get the number of pixels added/subtracted
     S32 pix_diff = (resx*resy)-(mResX*mResY);
-        
+
     mResX = resx;
     mResY = resy;
 
@@ -92,7 +92,7 @@ void LLRenderTarget::resize(U32 resx, U32 resy)
     }
 
     if (mDepth)
-    { 
+    {
         gGL.getTexUnit(0)->bindManual(mUsage, mDepth);
         U32 internal_type = LLTexUnit::getInternalType(mUsage);
         LLImageGL::setManualImage(internal_type, 0, GL_DEPTH_COMPONENT24, mResX, mResY, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL, false);
@@ -100,7 +100,7 @@ void LLRenderTarget::resize(U32 resx, U32 resy)
         sBytesAllocated += pix_diff*4;
     }
 }
-    
+
 
 bool LLRenderTarget::allocate(U32 resx, U32 resy, U32 color_fmt, bool depth, LLTexUnit::eTextureType usage, LLTexUnit::eTextureMipGeneration generateMipMaps)
 {
@@ -112,7 +112,7 @@ bool LLRenderTarget::allocate(U32 resx, U32 resy, U32 color_fmt, bool depth, LLT
     resy = llmin(resy, (U32) gGLManager.mGLMaxTextureSize);
 
     release();
-    
+
     mResX = resx;
     mResY = resy;
 
@@ -123,9 +123,9 @@ bool LLRenderTarget::allocate(U32 resx, U32 resy, U32 color_fmt, bool depth, LLT
 
     if (mGenerateMipMaps != LLTexUnit::TMG_NONE) {
         // Calculate the number of mip levels based upon resolution that we should have.
-        mMipLevels = 1 + floor(log10((float)llmax(mResX, mResY))/log10(2.0));
+        mMipLevels = 1 + (U32)floor(log10((float)llmax(mResX, mResY)) / log10(2.0));
     }
-    
+
     if (depth)
     {
         if (!allocateDepth())
@@ -140,12 +140,12 @@ bool LLRenderTarget::allocate(U32 resx, U32 resy, U32 color_fmt, bool depth, LLT
     if (mDepth)
     {
         glBindFramebuffer(GL_FRAMEBUFFER, mFBO);
-            
+
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, LLTexUnit::getInternalType(mUsage), mDepth, 0);
 
         glBindFramebuffer(GL_FRAMEBUFFER, sCurFBO);
     }
-    
+
     return addColorAttachment(color_fmt);
 }
 
@@ -190,7 +190,7 @@ void LLRenderTarget::releaseColorAttachment()
     llassert(!isBoundInStack());
     llassert(mTex.size() == 1); //cannot use releaseColorAttachment with LLRenderTarget managed color targets
     llassert(mFBO != 0);  // mFBO must be valid
-    
+
     glBindFramebuffer(GL_FRAMEBUFFER, mFBO);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, LLTexUnit::getInternalType(mUsage), 0, 0);
     glBindFramebuffer(GL_FRAMEBUFFER, sCurFBO);
@@ -208,7 +208,7 @@ bool LLRenderTarget::addColorAttachment(U32 color_fmt)
         return true;
     }
 
-    U32 offset = mTex.size();
+    U32 offset = static_cast<U32>(mTex.size());
 
     if( offset >= 4 )
     {
@@ -238,12 +238,12 @@ bool LLRenderTarget::addColorAttachment(U32 color_fmt)
             return false;
         }
     }
-    
+
     sBytesAllocated += mResX*mResY*4;
 
     stop_glerror();
 
-    
+
     if (offset == 0)
     { //use bilinear filtering on single texture render targets that aren't multisampled
         gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_BILINEAR);
@@ -266,15 +266,15 @@ bool LLRenderTarget::addColorAttachment(U32 color_fmt)
         gGL.getTexUnit(0)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
         stop_glerror();
     }
-        
+
     if (mFBO)
     {
         glBindFramebuffer(GL_FRAMEBUFFER, mFBO);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0+offset,
             LLTexUnit::getInternalType(mUsage), tex, 0);
-     
+
         check_framebuffer_status();
-        
+
         glBindFramebuffer(GL_FRAMEBUFFER, sCurFBO);
     }
 
@@ -286,8 +286,8 @@ bool LLRenderTarget::addColorAttachment(U32 color_fmt)
         bindTarget();
         flush();
     }
-    
-    
+
+
     return true;
 }
 
@@ -296,7 +296,7 @@ bool LLRenderTarget::allocateDepth()
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
     LLImageGL::generateTextures(1, &mDepth);
     gGL.getTexUnit(0)->bindManual(mUsage, mDepth);
-        
+
     U32 internal_type = LLTexUnit::getInternalType(mUsage);
     stop_glerror();
     clear_glerror();
@@ -336,7 +336,7 @@ void LLRenderTarget::shareDepthBuffer(LLRenderTarget& target)
     if (mDepth)
     {
         glBindFramebuffer(GL_FRAMEBUFFER, target.mFBO);
-        
+
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, LLTexUnit::getInternalType(mUsage), mDepth, 0);
 
         check_framebuffer_status();
@@ -355,7 +355,7 @@ void LLRenderTarget::release()
     if (mDepth)
     {
         LLImageGL::deleteTextures(1, &mDepth);
-        
+
         mDepth = 0;
 
         sBytesAllocated -= mResX*mResY*4;
@@ -378,11 +378,11 @@ void LLRenderTarget::release()
     if (mFBO && (mTex.size() > 1))
     {
         glBindFramebuffer(GL_FRAMEBUFFER, mFBO);
-        S32 z;
+        size_t z;
         for (z = mTex.size() - 1; z >= 1; z--)
         {
             sBytesAllocated -= mResX*mResY*4;
-            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0+z, LLTexUnit::getInternalType(mUsage), 0, 0);
+            glFramebufferTexture2D(GL_FRAMEBUFFER, static_cast<GLenum>(GL_COLOR_ATTACHMENT0+z), LLTexUnit::getInternalType(mUsage), 0, 0);
             LLImageGL::deleteTextures(1, &mTex[z]);
         }
         glBindFramebuffer(GL_FRAMEBUFFER, sCurFBO);
@@ -408,7 +408,7 @@ void LLRenderTarget::release()
 
     mTex.clear();
     mInternalFormat.clear();
-    
+
     mResX = mResY = 0;
 }
 
@@ -417,7 +417,7 @@ void LLRenderTarget::bindTarget()
     LL_PROFILE_GPU_ZONE("bindTarget");
     llassert(mFBO);
     llassert(!isBoundInStack());
-        
+
     glBindFramebuffer(GL_FRAMEBUFFER, mFBO);
     sCurFBO = mFBO;
 
@@ -426,14 +426,17 @@ void LLRenderTarget::bindTarget()
                             GL_COLOR_ATTACHMENT1,
                             GL_COLOR_ATTACHMENT2,
                             GL_COLOR_ATTACHMENT3};
-    glDrawBuffers(mTex.size(), drawbuffers);
-            
+
     if (mTex.empty())
     { //no color buffer to draw to
         glDrawBuffer(GL_NONE);
         glReadBuffer(GL_NONE);
     }
-
+    else
+    {
+        glDrawBuffers(static_cast<GLsizei>(mTex.size()), drawbuffers);
+        glReadBuffer(GL_COLOR_ATTACHMENT0);
+    }
     check_framebuffer_status();
 
     glViewport(0, 0, mResX, mResY);
@@ -452,7 +455,7 @@ void LLRenderTarget::clear(U32 mask_in)
     if (mUseDepth)
     {
         mask |= GL_DEPTH_BUFFER_BIT;
-        
+
     }
     if (mFBO)
     {
@@ -472,12 +475,10 @@ void LLRenderTarget::clear(U32 mask_in)
 
 U32 LLRenderTarget::getTexture(U32 attachment) const
 {
-    if (attachment > mTex.size()-1)
+    if (attachment >= mTex.size())
     {
-        LL_ERRS() << "Invalid attachment index." << LL_ENDL;
-    }
-    if (mTex.empty())
-    {
+        LL_WARNS() << "Invalid attachment index " << attachment << " for size " << mTex.size() << LL_ENDL;
+        llassert(false);
         return 0;
     }
     return mTex[attachment];
@@ -485,7 +486,7 @@ U32 LLRenderTarget::getTexture(U32 attachment) const
 
 U32 LLRenderTarget::getNumTextures() const
 {
-    return mTex.size();
+    return static_cast<U32>(mTex.size());
 }
 
 void LLRenderTarget::bindTexture(U32 index, S32 channel, LLTexUnit::eTextureFilterOptions filter_options)
@@ -508,7 +509,6 @@ void LLRenderTarget::bindTexture(U32 index, S32 channel, LLTexUnit::eTextureFilt
     }
 
     gGL.getTexUnit(channel)->setTextureFilteringOption(filter_options);
-    gGL.getTexUnit(channel)->setTextureColorSpace(isSRGB ? LLTexUnit::TCS_SRGB : LLTexUnit::TCS_LINEAR);
 }
 
 void LLRenderTarget::flush()
@@ -519,7 +519,8 @@ void LLRenderTarget::flush()
     llassert(sCurFBO == mFBO);
     llassert(sBoundTarget == this);
 
-    if (mGenerateMipMaps == LLTexUnit::TMG_AUTO) {
+    if (mGenerateMipMaps == LLTexUnit::TMG_AUTO)
+    {
         LL_PROFILE_GPU_ZONE("rt generate mipmaps");
         bindTexture(0, 0, LLTexUnit::TFO_TRILINEAR);
         glGenerateMipmap(GL_TEXTURE_2D);
@@ -540,12 +541,14 @@ void LLRenderTarget::flush()
         glViewport(gGLViewport[0], gGLViewport[1], gGLViewport[2], gGLViewport[3]);
         sCurResX = gGLViewport[2];
         sCurResY = gGLViewport[3];
+        glReadBuffer(GL_BACK);
+        glDrawBuffer(GL_BACK);
     }
 }
 
 bool LLRenderTarget::isComplete() const
 {
-    return (!mTex.empty() || mDepth) ? true : false;
+    return !mTex.empty() || mDepth;
 }
 
 void LLRenderTarget::getViewport(S32* viewport)
@@ -560,11 +563,38 @@ bool LLRenderTarget::isBoundInStack() const
 {
     LLRenderTarget* cur = sBoundTarget;
     while (cur && cur != this)
-    { 
+    {
         cur = cur->mPreviousRT;
     }
 
     return cur == this;
 }
 
+void LLRenderTarget::swapFBORefs(LLRenderTarget& other)
+{
+    // Must be initialized
+    llassert(mFBO);
+    llassert(other.mFBO);
 
+    // Must be unbound
+    // *NOTE: mPreviousRT can be non-null even if this target is unbound - presumably for debugging purposes?
+    llassert(sCurFBO != mFBO);
+    llassert(sCurFBO != other.mFBO);
+    llassert(!isBoundInStack());
+    llassert(!other.isBoundInStack());
+
+    // Must be same type
+    llassert(sUseFBO == other.sUseFBO);
+    llassert(mResX == other.mResX);
+    llassert(mResY == other.mResY);
+    llassert(mInternalFormat == other.mInternalFormat);
+    llassert(mTex.size() == other.mTex.size());
+    llassert(mDepth == other.mDepth);
+    llassert(mUseDepth == other.mUseDepth);
+    llassert(mGenerateMipMaps == other.mGenerateMipMaps);
+    llassert(mMipLevels == other.mMipLevels);
+    llassert(mUsage == other.mUsage);
+
+    std::swap(mFBO, other.mFBO);
+    std::swap(mTex, other.mTex);
+}

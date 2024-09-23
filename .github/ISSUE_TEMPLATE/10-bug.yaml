@@ -11,8 +11,8 @@ body:
 - type: textarea
   attributes:
     label: Environment
-    description: About Second Life Text
-    placeholder: ex. Second Life Test 7.1.3.240191747 (64bit) ...
+    description: "Please copy the info from the viewer's 'About Second Life' window and paste it here:"
+    placeholder: 'ex. Second Life Release 7.1.8.9375512768 (64bit) ...'
   validations:
     required: true
 

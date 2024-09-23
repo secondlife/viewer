@@ -38,84 +38,84 @@ class LLProgressBar;
 class LLIconCtrl;
 
 class LLFloaterWebContent :
-	public LLFloater,
-	public LLViewerMediaObserver,
-	public LLInstanceTracker<LLFloaterWebContent, std::string, LLInstanceTrackerReplaceOnCollision>
+    public LLFloater,
+    public LLViewerMediaObserver,
+    public LLInstanceTracker<LLFloaterWebContent, std::string, LLInstanceTrackerReplaceOnCollision>
 {
 public:
 
-	typedef LLInstanceTracker<LLFloaterWebContent, std::string, LLInstanceTrackerReplaceOnCollision> instance_tracker_t;
+    typedef LLInstanceTracker<LLFloaterWebContent, std::string, LLInstanceTrackerReplaceOnCollision> instance_tracker_t;
     LOG_CLASS(LLFloaterWebContent);
 
-	struct _Params : public LLInitParam::Block<_Params>
-	{
-		Optional<std::string>	url,
-								target,
-								window_class,
-								id;
-		Optional<bool>			show_chrome,
-								allow_address_entry,
+    struct _Params : public LLInitParam::Block<_Params>
+    {
+        Optional<std::string>   url,
+                                target,
+                                window_class,
+                                id;
+        Optional<bool>          show_chrome,
+                                allow_address_entry,
                                 allow_back_forward_navigation,
-								trusted_content,
-								show_page_title,
-								clean_browser,
-								dev_mode;
-		Optional<LLRect>		preferred_media_size;
+                                trusted_content,
+                                show_page_title,
+                                clean_browser,
+                                dev_mode;
+        Optional<LLRect>        preferred_media_size;
 
-		_Params();
-	};
+        _Params();
+    };
 
-	typedef LLSDParamAdapter<_Params> Params;
+    typedef LLSDParamAdapter<_Params> Params;
 
-	LLFloaterWebContent(const Params& params);
+    LLFloaterWebContent(const Params& params);
 
-	void initializeURLHistory();
+    void initializeURLHistory();
 
-	static LLFloater* create(Params);
+    static LLFloater* create(Params);
 
-	static void closeRequest(const std::string &uuid);
-	static void geometryChanged(const std::string &uuid, S32 x, S32 y, S32 width, S32 height);
-	void geometryChanged(S32 x, S32 y, S32 width, S32 height);
+    static void closeRequest(const std::string &uuid);
+    static void geometryChanged(const std::string &uuid, S32 x, S32 y, S32 width, S32 height);
+    void geometryChanged(S32 x, S32 y, S32 width, S32 height);
 
-	/* virtual */ BOOL postBuild();
-	/* virtual */ void onOpen(const LLSD& key);
-	/* virtual */ bool matchesKey(const LLSD& key);
-	/* virtual */ void onClose(bool app_quitting);
-	/* virtual */ void draw();
+    /* virtual */ bool postBuild();
+    /* virtual */ void onOpen(const LLSD& key);
+    /* virtual */ bool matchesKey(const LLSD& key);
+    /* virtual */ void onClose(bool app_quitting);
+    /* virtual */ void draw();
 
 protected:
-	// inherited from LLViewerMediaObserver
-	/*virtual*/ void handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event);
+    // inherited from LLViewerMediaObserver
+    /*virtual*/ void handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event);
 
-	void onClickBack();
-	void onClickForward();
-	void onClickReload();
-	void onClickStop();
-	void onEnterAddress();
-	void onPopExternal();
-	void onTestURL(std::string url);
+    void onClickBack();
+    void onClickForward();
+    void onClickReload();
+    void onClickStop();
+    void onEnterAddress();
+    void onPopExternal();
+    void onTestURL(std::string url);
 
-	static void preCreate(Params& p);
-	void open_media(const Params& );
-	void set_current_url(const std::string& url);
+    static void preCreate(Params& p);
+    void open_media(const Params& );
+    void set_current_url(const std::string& url);
 
-	LLMediaCtrl*	mWebBrowser;
-	LLComboBox*		mAddressCombo;
-	LLIconCtrl*		mSecureLockIcon;
-	LLTextBox*		mStatusBarText;
-	LLProgressBar*	mStatusBarProgress;
+    LLMediaCtrl*    mWebBrowser;
+    LLComboBox*     mAddressCombo;
+    LLIconCtrl*     mSecureLockIcon;
+    LLTextBox*      mStatusBarText;
+    LLProgressBar*  mStatusBarProgress;
 
-	LLView*			mBtnBack;
-	LLView*			mBtnForward;
-	LLView*			mBtnReload;
-	LLView*			mBtnStop;
+    LLView*         mBtnBack;
+    LLView*         mBtnForward;
+    LLView*         mBtnReload;
+    LLView*         mBtnStop;
 
-	std::string		mCurrentURL;    // Current URL
-	std::string		mDisplayURL;    // URL being displayed in the address bar (can differ by trailing / leading space)
-	std::string		mUUID;
-	bool			mShowPageTitle;
+    std::string     mCurrentURL;    // Current URL
+    std::string     mDisplayURL;    // URL being displayed in the address bar (can differ by trailing / leading space)
+    std::string     mUUID;
+    bool            mShowPageTitle;
     bool            mAllowNavigation;
-	bool			mDevelopMode;
+    bool            mDevelopMode;
 };
 
 #endif  // LL_LLFLOATERWEBCONTENT_H

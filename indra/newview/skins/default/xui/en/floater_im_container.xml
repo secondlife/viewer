@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <multi_floater
  can_close="true"  
  can_minimize="true"
@@ -14,7 +14,7 @@
  reuse_instance="true"
  title="CONVERSATIONS"
  bottom="-50"
- right="-5"
+ left="5"
  width="450"
  min_width="38">
     <string

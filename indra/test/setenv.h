@@ -4,7 +4,7 @@
  * @date   2020-04-01
  * @brief  Provide a way for a particular test program to alter the
  *         environment before entry to main().
- * 
+ *
  * $LicenseInfo:firstyear=2020&license=viewerlgpl$
  * Copyright (c) 2020, Linden Research, Inc.
  * $/LicenseInfo$

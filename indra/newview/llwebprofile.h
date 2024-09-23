@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llwebprofile.h
  * @brief Web profile access.
  *
  * $LicenseInfo:firstyear=2011&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2011, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -48,14 +48,16 @@ namespace LLWebProfileResponders
  */
 class LLWebProfile
 {
-	LOG_CLASS(LLWebProfile);
+    LOG_CLASS(LLWebProfile);
 
 public:
-	typedef boost::function<void(bool ok)> status_callback_t;
+    typedef boost::function<void(bool ok)> status_callback_t;
 
-	static void uploadImage(LLPointer<LLImageFormatted> image, const std::string& caption, bool add_location);
-	static void setAuthCookie(const std::string& cookie);
-	static void setImageUploadResultCallback(status_callback_t cb) { mStatusCallback = cb; }
+    static void uploadImage(LLPointer<LLImageFormatted> image, const std::string& caption, bool add_location);
+    static void setAuthCookie(const std::string& cookie);
+    static void setImageUploadResultCallback(status_callback_t cb) { mStatusCallback = cb; }
+
+    static constexpr S32 MAX_WEB_DATASIZE = 8 * 1024 * 1024; // 8MB
 
 private:
     static LLCore::HttpHeaders::ptr_t buildDefaultHeaders();
@@ -63,11 +65,11 @@ private:
     static void uploadImageCoro(LLPointer<LLImageFormatted> image, std::string caption, bool add_location);
     static LLCore::BufferArray::ptr_t buildPostData(const LLSD &data, LLPointer<LLImageFormatted> &image, const std::string &boundary);
 
-	static void reportImageUploadStatus(bool ok);
-	static std::string getAuthCookie();
+    static void reportImageUploadStatus(bool ok);
+    static std::string getAuthCookie();
 
-	static std::string sAuthCookie;
-	static status_callback_t mStatusCallback;
+    static std::string sAuthCookie;
+    static status_callback_t mStatusCallback;
 };
 
 #endif // LL_LLWEBPROFILE_H

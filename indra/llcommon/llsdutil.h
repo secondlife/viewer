@@ -1,4 +1,4 @@
-/** 
+/**
  * @file llsdutil.h
  * @author Phoenix
  * @date 2006-05-24
@@ -7,21 +7,21 @@
  * $LicenseInfo:firstyear=2006&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -72,12 +72,12 @@ LL_COMMON_API std::string ll_stream_notation_sd(const LLSD& sd);
 //Returns false if the test is of same type but values differ in type
 //Otherwise, returns true
 
-LL_COMMON_API BOOL compare_llsd_with_template(
-	const LLSD& llsd_to_test,
-	const LLSD& template_llsd,
-	LLSD& resultant_llsd);
+LL_COMMON_API bool compare_llsd_with_template(
+    const LLSD& llsd_to_test,
+    const LLSD& template_llsd,
+    LLSD& resultant_llsd);
 
-// filter_llsd_with_template() is a direct clone (copy-n-paste) of 
+// filter_llsd_with_template() is a direct clone (copy-n-paste) of
 // compare_llsd_with_template with the following differences:
 // (1) bool vs BOOL return types
 // (2) A map with the key value "*" is a special value and maps any key in the
@@ -86,9 +86,9 @@ LL_COMMON_API BOOL compare_llsd_with_template(
 //     for *all* the elements of the test array.  If the template array is of
 //     different size, compare_llsd_with_template() semantics apply.
 bool filter_llsd_with_template(
-	const LLSD & llsd_to_test,
-	const LLSD & template_llsd,
-	LLSD & resultant_llsd);
+    const LLSD & llsd_to_test,
+    const LLSD & template_llsd,
+    LLSD & resultant_llsd);
 
 /**
  * Recursively determine whether a given LLSD data block "matches" another
@@ -164,12 +164,12 @@ inline bool operator!=(const LLSD& lhs, const LLSD& rhs)
 // there is no need for casting.
 template<typename Input> LLSD llsd_copy_array(Input iter, Input end)
 {
-	LLSD dest;
-	for (; iter != end; ++iter)
-	{
-		dest.append(*iter);
-	}
-	return dest;
+    LLSD dest;
+    for (; iter != end; ++iter)
+    {
+        dest.append(*iter);
+    }
+    return dest;
 }
 
 namespace llsd
@@ -478,9 +478,9 @@ namespace llsd
 {
 
 /*****************************************************************************
-*   BOOST_FOREACH() helpers for LLSD
+*   range-based for-loop helpers for LLSD
 *****************************************************************************/
-/// Usage: BOOST_FOREACH(LLSD item, inArray(someLLSDarray)) { ... }
+/// Usage: for (LLSD item : inArray(someLLSDarray)) { ... }
 class inArray
 {
 public:
@@ -503,7 +503,7 @@ private:
 /// MapEntry is what you get from dereferencing an LLSD::map_[const_]iterator.
 typedef std::map<LLSD::String, LLSD>::value_type MapEntry;
 
-/// Usage: BOOST_FOREACH([const] MapEntry& e, inMap(someLLSDmap)) { ... }
+/// Usage: for([const] MapEntry& e : inMap(someLLSDmap)) { ... }
 class inMap
 {
 public:
@@ -526,19 +526,19 @@ private:
 } // namespace llsd
 
 
-// Creates a deep clone of an LLSD object.  Maps, Arrays and binary objects 
+// Creates a deep clone of an LLSD object.  Maps, Arrays and binary objects
 // are duplicated, atomic primitives (Boolean, Integer, Real, etc) simply
-// use a shared reference. 
-// Optionally a filter may be specified to control what is duplicated. The 
+// use a shared reference.
+// Optionally a filter may be specified to control what is duplicated. The
 // map takes the form "keyname/boolean".
-// If the value is true the value will be duplicated otherwise it will be skipped 
+// If the value is true the value will be duplicated otherwise it will be skipped
 // when encountered in a map. A key name of "*" can be specified as a wild card
 // and will specify the default behavior.  If no wild card is given and the clone
 // encounters a name not in the filter, that value will be skipped.
 LLSD llsd_clone(LLSD value, LLSD filter = LLSD());
 
-// Creates a shallow copy of a map or array.  If passed any other type of LLSD 
-// object it simply returns that value.  See llsd_clone for a description of 
+// Creates a shallow copy of a map or array.  If passed any other type of LLSD
+// object it simply returns that value.  See llsd_clone for a description of
 // the filter parameter.
 LLSD llsd_shallow(LLSD value, LLSD filter = LLSD());
 
@@ -561,7 +561,7 @@ struct hash<LLSD>
 {
     typedef LLSD argument_type;
     typedef std::size_t result_type;
-    result_type operator()(argument_type const& s) const 
+    result_type operator()(argument_type const& s) const
     {
         result_type seed(0);
 

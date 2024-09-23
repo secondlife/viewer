@@ -1,25 +1,25 @@
-/** 
+/**
  * @file lllocalrendermaterials.cpp
  * @brief Local GLTF materials source
  *
  * $LicenseInfo:firstyear=2022&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2022, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -51,14 +51,14 @@
 
 /*=======================================*/
 /*  Formal declarations, constants, etc. */
-/*=======================================*/ 
+/*=======================================*/
 
 static const F32 LL_LOCAL_TIMER_HEARTBEAT   = 3.0;
 static const S32 LL_LOCAL_UPDATE_RETRIES    = 5;
 
 /*=======================================*/
 /*  LLLocalGLTFMaterial: unit class            */
-/*=======================================*/ 
+/*=======================================*/
 LLLocalGLTFMaterial::LLLocalGLTFMaterial(std::string filename, S32 index)
     : mFilename(filename)
     , mShortName(gDirUtilp->getBaseFileName(filename, true))
@@ -177,6 +177,8 @@ bool LLLocalGLTFMaterial::updateSelf()
                         }
                     }
 
+                    materialBegin();
+                    materialComplete(true);
                     updated = true;
                 }
 
@@ -201,6 +203,8 @@ bool LLLocalGLTFMaterial::updateSelf()
                         LLNotificationsUtil::add("LocalBitmapsUpdateFailedFinal", notif_args);
 
                         mLinkStatus = LS_BROKEN;
+                        materialBegin();
+                        materialComplete(false);
                     }
                 }
             }
@@ -218,6 +222,8 @@ bool LLLocalGLTFMaterial::updateSelf()
             LLNotificationsUtil::add("LocalBitmapsUpdateFileNotFound", notif_args);
 
             mLinkStatus = LS_BROKEN;
+            materialBegin();
+            materialComplete(false);
         }
     }
 
@@ -301,11 +307,11 @@ bool LLLocalGLTFMaterialTimer::isRunning()
     return mEventTimer.getStarted();
 }
 
-BOOL LLLocalGLTFMaterialTimer::tick()
+bool LLLocalGLTFMaterialTimer::tick()
 {
-    // todo: do on idle? No point in timer 
+    // todo: do on idle? No point in timer
     LLLocalGLTFMaterialMgr::getInstance()->doUpdates();
-    return FALSE;
+    return false;
 }
 
 /*=======================================*/
@@ -340,19 +346,19 @@ S32 LLLocalGLTFMaterialMgr::addUnit(const std::string& filename)
     tinygltf::Model model;
     LLTinyGLTFHelper::loadModel(filename, model);
 
-    S32 materials_in_file = model.materials.size();
+    auto materials_in_file = model.materials.size();
     if (materials_in_file <= 0)
     {
         return 0;
     }
 
     S32 loaded_materials = 0;
-    for (S32 i = 0; i < materials_in_file; i++)
+    for (size_t i = 0; i < materials_in_file; i++)
     {
         // Todo: this is rather inefficient, files will be spammed with
         // separate loads and date checks, find a way to improve this.
         // May be doUpdates() should be checking individual files.
-        LLPointer<LLLocalGLTFMaterial> unit = new LLLocalGLTFMaterial(filename, i);
+        LLPointer<LLLocalGLTFMaterial> unit = new LLLocalGLTFMaterial(filename, static_cast<S32>(i));
 
         // load material from file
         if (unit->updateSelf())

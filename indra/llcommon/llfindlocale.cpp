@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llfindlocale.cpp
  * @brief Detect system language setting
  *
  * $LicenseInfo:firstyear=2008&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -157,14 +157,22 @@ canonise_fl(FL_Locale *l) {
   if (l->lang && 0 == strcmp(l->lang, "en")) {
     if (l->country && 0 == strcmp(l->country, "UK")) {
       free((void*)l->country);
+#ifdef LL_WINDOWS
+      l->country = _strdup("GB");
+#else
       l->country = strdup("GB");
+#endif
     }
   }
   /* ja_JA -> ja_JP */
   if (l->lang && 0 == strcmp(l->lang, "ja")) {
     if (l->country && 0 == strcmp(l->country, "JA")) {
       free((void*)l->country);
+#ifdef LL_WINDOWS
+      l->country = _strdup("JP");
+#else
       l->country = strdup("JP");
+#endif
     }
   }
 }
@@ -177,7 +185,7 @@ canonise_fl(FL_Locale *l) {
 #define RML(pn,sn) MAKELANGID(LANG_##pn, SUBLANG_##sn)
 struct IDToCode {
   LANGID id;
-  char*  code;
+  const char*  code;
 };
 static const IDToCode both_to_code[] = {
   {ML(ENGLISH,US),           "en_US.ISO_8859-1"},

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater legacy_header_height="18"
          can_resize="true"
          height="400"
@@ -25,7 +25,7 @@
                     name="statistics_view"
                     top="20"
                     width="250" >
-     <stat_view name="basic"
+      <stat_view name="basic"
                  label="Basic"
                  setting="OpenDebugStatBasic">
         <stat_bar name="fps"
@@ -54,7 +54,7 @@
                   label="jitter"
                   decimal_digits="1"
                   stat="frametimejitter"/>
-       <stat_bar name="bandwidth"
+        <stat_bar name="bandwidth"
                   label="UDP Data Received"
                   stat="activemessagedatareceived"
                   decimal_digits="0"
@@ -68,7 +68,7 @@
                   stat="simpingstat"/>
       </stat_view>
 
-     <stat_view name="advanced"
+      <stat_view name="advanced"
                  label="Advanced"
                  setting="OpenDebugStatAdvanced">
         <stat_view name="render"
@@ -84,28 +84,29 @@
           <stat_bar name="totalobjs"
                     label="Total Objects"
                     stat="numobjectsstat"/>
-					<stat_bar name="cachedobjs"
+          <stat_bar name="cachedobjs"
                     label="Cached Objects"
                     stat="numactivecachedobjects"/>
-					<stat_bar name="newobjs"
+          <stat_bar name="newobjs"
                     label="New Objects"
                     stat="numnewobjectsstat"/>
           <stat_bar name="object_cache_hits"
                     label="Object Cache Hit Rate"
                     stat="object_cache_hits"
                     show_history="true"/>
-					<stat_bar name="occlusion_queries"
-										label="Occlusion Queries Performed"
-										stat="occlusion_queries"/>
-					<stat_bar name="occluded"
-										label="Objects Occluded"
-										stat="occluded_objects"/>
-					<stat_bar name="unoccluded"
-										label="Object Unoccluded"
-										stat="unoccluded_objects"/>
-				</stat_view>
+          <stat_bar name="occlusion_queries"
+                    label="Occlusion Queries Performed"
+                    stat="occlusion_queries"/>
+          <stat_bar name="occluded"
+                    label="Objects Occluded"
+                    stat="occluded_objects"/>
+          <stat_bar name="unoccluded"
+                    label="Object Unoccluded"
+                    stat="unoccluded_objects"/>
+        </stat_view>
         <stat_view name="texture"
-                   label="Texture">
+                   label="Texture"
+                   setting="OpenDebugStatTexture">
           <stat_bar name="texture_cache_hits"
                     label="Cache Hit Rate"
                     stat="texture_cache_hits"
@@ -243,7 +244,8 @@
                   decimal_digits="1"
                   bar_max="45" />
         <stat_view name="physicsdetail"
-                   label="Physics Details">
+                   label="Physics Details"
+                   setting="OpenDebugStatPhysicsDetails">
           <stat_bar name="physicspinnedtasks"
                     label="Pinned Objects"
                     stat="physicspinnedtasks"/>
@@ -282,7 +284,8 @@
                   stat="simscripteps"
                   unit_label="eps"/>
         <stat_view name="simpathfinding"
-                   label="Pathfinding">
+                   label="Pathfinding"
+                   setting="OpenDebugStatPathfinding">
           <stat_bar name="simsimaistepmsec"
                     label="AI Step Time"
                     stat="simsimaistepmsec"/>
@@ -315,7 +318,8 @@
                   stat="simtotalunackedbytes"
                   decimal_digits="1"/>
         <stat_view name="simperf"
-                   label="Time">
+                   label="Time"
+                   setting="OpenDebugStatSimTime">
           <stat_bar name="simframemsec"
                     label="Total Frame Time"
                     stat="simframemsec"/>
@@ -341,7 +345,8 @@
                     label="Spare Time"
                     stat="simsparemsec"/>
           <stat_view name="timedetails"
-                     label="Time Details">
+                     label="Time Details"
+                     setting="OpenDebugStatSimTimeDetails">
             <stat_bar name="simsimphysicsstepmsec"
                       label="Physics Step"
                       stat="simsimphysicsstepmsec"/>

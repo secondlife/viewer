@@ -1,28 +1,28 @@
-/** 
+/**
  * @file irradianceGenF.glsl
  *
  * $LicenseInfo:firstyear=2022&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2022, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
+
 
 /*[EXTRA_CODE_HERE]*/
 
@@ -130,12 +130,12 @@ vec4 getImportanceSample(int sampleIndex, vec3 N, float roughness)
     // generate the points on the hemisphere with a fitting mapping for
     // the distribution (e.g. lambertian uses a cosine importance)
     importanceSample = Lambertian(xi, roughness);
-    
+
     // transform the hemisphere sample to the normal coordinate frame
     // i.e. rotate the hemisphere to the normal direction
     vec3 localSpaceDirection = normalize(vec3(
-        importanceSample.sinTheta * cos(importanceSample.phi), 
-        importanceSample.sinTheta * sin(importanceSample.phi), 
+        importanceSample.sinTheta * cos(importanceSample.phi),
+        importanceSample.sinTheta * sin(importanceSample.phi),
         importanceSample.cosTheta
     ));
     mat3 TBN = generateTBN(N);
@@ -152,9 +152,9 @@ float computeLod(float pdf)
     // // Solid angle of current sample -- bigger for less likely samples
     // float omegaS = 1.0 / (float(u_sampleCount) * pdf);
     // // Solid angle of texel
-    // // note: the factor of 4.0 * MATH_PI 
+    // // note: the factor of 4.0 * MATH_PI
     // float omegaP = 4.0 * MATH_PI / (6.0 * float(u_width) * float(u_width));
-    // // Mip level is determined by the ratio of our sample's solid angle to a texel's solid angle 
+    // // Mip level is determined by the ratio of our sample's solid angle to a texel's solid angle
     // // note that 0.5 * log2 is equivalent to log4
     // float lod = 0.5 * log2(omegaS / omegaP);
 
@@ -176,7 +176,7 @@ float computeLod(float pdf)
 vec4 filterColor(vec3 N)
 {
     vec4 color = vec4(0.f);
-    
+
     for(int i = 0; i < u_sampleCount; ++i)
     {
         vec4 importanceSample = getImportanceSample(i, N, 1.0);
@@ -208,7 +208,7 @@ void main()
     vec4 color = vec4(0);
 
     color = filterColor(vary_dir);
-    
+
     frag_color = max(color, vec4(0));
 }
 

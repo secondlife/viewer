@@ -3,7 +3,7 @@
  * @author Nat Goodspeed
  * @date   2019-07-18
  * @brief  Test for llcond.
- * 
+ *
  * $LicenseInfo:firstyear=2019&license=viewerlgpl$
  * Copyright (c) 2019, Linden Research, Inc.
  * $/LicenseInfo$
@@ -38,7 +38,7 @@ namespace tut
     {
         set_test_name("Immediate gratification");
         cond.set_one(1);
-        ensure("wait_for_equal() failed", 
+        ensure("wait_for_equal() failed",
                cond.wait_for_equal(F32Milliseconds(1), 1));
         ensure("wait_for_unequal() should have failed",
                ! cond.wait_for_unequal(F32Milliseconds(1), 1));

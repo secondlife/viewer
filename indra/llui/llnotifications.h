@@ -6,21 +6,21 @@
 * $LicenseInfo:firstyear=2008&license=viewerlgpl$
 * Second Life Viewer Source Code
 * Copyright (C) 2010, Linden Research, Inc.
-* 
+*
 * This library is free software; you can redistribute it and/or
 * modify it under the terms of the GNU Lesser General Public
 * License as published by the Free Software Foundation;
 * version 2.1 of the License only.
-* 
+*
 * This library is distributed in the hope that it will be useful,
 * but WITHOUT ANY WARRANTY; without even the implied warranty of
 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 * Lesser General Public License for more details.
-* 
+*
 * You should have received a copy of the GNU Lesser General Public
 * License along with this library; if not, write to the Free Software
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-* 
+*
 * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 * $/LicenseInfo$
 */
@@ -31,46 +31,46 @@
 /**
  * This system is intended to provide a singleton mechanism for adding
  * notifications to one of an arbitrary set of event channels.
- * 
+ *
  * Controlling JIRA: DEV-9061
  *
  * Every notification has (see code for full list):
  *  - a textual name, which is used to look up its template in the XML files
  *  - a payload, which is a block of LLSD
  *  - a channel, which is normally extracted from the XML files but
- *	  can be overridden.
+ *    can be overridden.
  *  - a timestamp, used to order the notifications
  *  - expiration time -- if nonzero, specifies a time after which the
  *    notification will no longer be valid.
  *  - a callback name and a couple of status bits related to callbacks (see below)
- * 
+ *
  * There is a management class called LLNotifications, which is an LLSingleton.
  * The class maintains a collection of all of the notifications received
  * or processed during this session, and also manages the persistence
  * of those notifications that must be persisted.
- * 
+ *
  * We also have Channels. A channel is a view on a collection of notifications;
  * The collection is defined by a filter function that controls which
- * notifications are in the channel, and its ordering is controlled by 
- * a comparator. 
+ * notifications are in the channel, and its ordering is controlled by
+ * a comparator.
  *
  * There is a hierarchy of channels; notifications flow down from
  * the management class (LLNotifications, which itself inherits from
  * The channel base class) to the individual channels.
- * Any change to notifications (add, delete, modify) is 
+ * Any change to notifications (add, delete, modify) is
  * automatically propagated through the channel hierarchy.
- * 
+ *
  * We provide methods for adding a new notification, for removing
  * one, and for managing channels. Channels are relatively cheap to construct
  * and maintain, so in general, human interfaces should use channels to
  * select and manage their lists of notifications.
- * 
- * We also maintain a collection of templates that are loaded from the 
+ *
+ * We also maintain a collection of templates that are loaded from the
  * XML file of template translations. The system supports substitution
  * of named variables from the payload into the XML file.
- * 
+ *
  * By default, only the "unknown message" template is built into the system.
- * It is not an error to add a notification that's not found in the 
+ * It is not an error to add a notification that's not found in the
  * template system, but it is logged.
  *
  */
@@ -87,6 +87,7 @@
 #include <boost/type_traits.hpp>
 #include <boost/signals2.hpp>
 #include <boost/range.hpp>
+#include <boost/intrusive_ptr.hpp>
 
 #include "llevents.h"
 #include "llfunctorregistry.h"
@@ -103,29 +104,29 @@
 class LLAvatarName;
 typedef enum e_notification_priority
 {
-	NOTIFICATION_PRIORITY_UNSPECIFIED,
-	NOTIFICATION_PRIORITY_LOW,
-	NOTIFICATION_PRIORITY_NORMAL,
-	NOTIFICATION_PRIORITY_HIGH,
-	NOTIFICATION_PRIORITY_CRITICAL
+    NOTIFICATION_PRIORITY_UNSPECIFIED,
+    NOTIFICATION_PRIORITY_LOW,
+    NOTIFICATION_PRIORITY_NORMAL,
+    NOTIFICATION_PRIORITY_HIGH,
+    NOTIFICATION_PRIORITY_CRITICAL
 } ENotificationPriority;
 
 struct NotificationPriorityValues : public LLInitParam::TypeValuesHelper<ENotificationPriority, NotificationPriorityValues>
 {
-	static void declareValues();
+    static void declareValues();
 };
 
 class LLNotificationResponderInterface
 {
 public:
-	LLNotificationResponderInterface(){};
-	virtual ~LLNotificationResponderInterface(){};
+    LLNotificationResponderInterface(){};
+    virtual ~LLNotificationResponderInterface(){};
 
-	virtual void handleRespond(const LLSD& notification, const LLSD& response) = 0;
+    virtual void handleRespond(const LLSD& notification, const LLSD& response) = 0;
 
-	virtual LLSD asLLSD() = 0;
+    virtual LLSD asLLSD() = 0;
 
-	virtual void fromLLSD(const LLSD& params) = 0;
+    virtual void fromLLSD(const LLSD& params) = 0;
 };
 
 typedef boost::function<void (const LLSD&, const LLSD&)> LLNotificationResponder;
@@ -141,16 +142,16 @@ class LLNotificationContext : public LLInstanceTracker<LLNotificationContext, LL
 {
 public:
 
-	LLNotificationContext() : LLInstanceTracker<LLNotificationContext, LLUUID>(LLUUID::generateNewID())
-	{
-	}
+    LLNotificationContext() : LLInstanceTracker<LLNotificationContext, LLUUID>(LLUUID::generateNewID())
+    {
+    }
 
-	virtual ~LLNotificationContext() {}
+    virtual ~LLNotificationContext() {}
 
-	LLSD asLLSD() const
-	{
-		return getKey();
-	}
+    LLSD asLLSD() const
+    {
+        return getKey();
+    }
 
 private:
 
@@ -160,119 +161,120 @@ private:
 // manipulator functions
 class LLNotificationForm
 {
-	LOG_CLASS(LLNotificationForm);
+    LOG_CLASS(LLNotificationForm);
 
 public:
-	struct FormElementBase : public LLInitParam::Block<FormElementBase>
-	{
-		Optional<std::string>	name;
-		Optional<bool>			enabled;
+    struct FormElementBase : public LLInitParam::Block<FormElementBase>
+    {
+        Optional<std::string>   name;
+        Optional<bool>          enabled;
 
-		FormElementBase();
-	};
+        FormElementBase();
+    };
 
-	struct FormIgnore : public LLInitParam::Block<FormIgnore, FormElementBase>
-	{
-		Optional<std::string>	text;
-		Optional<bool>			save_option;
-		Optional<std::string>	control;
-		Optional<bool>			invert_control;
-		Optional<bool>			session_only;
-		Optional<bool>			checkbox_only;
+    struct FormIgnore : public LLInitParam::Block<FormIgnore, FormElementBase>
+    {
+        Optional<std::string>   text;
+        Optional<bool>          save_option;
+        Optional<std::string>   control;
+        Optional<bool>          invert_control;
+        Optional<bool>          session_only;
+        Optional<bool>          checkbox_only;
 
-		FormIgnore();
-	};
+        FormIgnore();
+    };
 
-	struct FormButton : public LLInitParam::Block<FormButton, FormElementBase>
-	{
-		Mandatory<S32>			index;
-		Mandatory<std::string>	text;
-		Optional<std::string>	ignore;
-		Optional<bool>			is_default;
-		Optional<S32>			width;
+    struct FormButton : public LLInitParam::Block<FormButton, FormElementBase>
+    {
+        Mandatory<S32>          index;
+        Mandatory<std::string>  text;
+        Optional<std::string>   ignore;
+        Optional<bool>          is_default;
+        Optional<S32>           width;
 
-		Mandatory<std::string>	type;
+        Mandatory<std::string>  type;
 
-		FormButton();
-	};
+        FormButton();
+    };
 
-	struct FormInput : public LLInitParam::Block<FormInput, FormElementBase>
-	{
-		Mandatory<std::string>	type;
-		Optional<S32>			width;
-		Optional<S32>			max_length_chars;
-		Optional<std::string>	text;
+    struct FormInput : public LLInitParam::Block<FormInput, FormElementBase>
+    {
+        Mandatory<std::string>  type;
+        Optional<S32>           width;
+        Optional<S32>           max_length_chars;
+        Optional<bool>          allow_emoji;
+        Optional<std::string>   text;
 
-		Optional<std::string>	value;
-		FormInput();
-	};
+        Optional<std::string>   value;
+        FormInput();
+    };
 
-	struct FormElement : public LLInitParam::ChoiceBlock<FormElement>
-	{
-		Alternative<FormButton> button;
-		Alternative<FormInput>	input;
+    struct FormElement : public LLInitParam::ChoiceBlock<FormElement>
+    {
+        Alternative<FormButton> button;
+        Alternative<FormInput>  input;
 
-		FormElement();
-	};
+        FormElement();
+    };
 
-	struct FormElements : public LLInitParam::Block<FormElements>
-	{
-		Multiple<FormElement> elements;
-		FormElements();
-	};
+    struct FormElements : public LLInitParam::Block<FormElements>
+    {
+        Multiple<FormElement> elements;
+        FormElements();
+    };
 
-	struct Params : public LLInitParam::Block<Params>
-	{
-		Optional<std::string>	name;
-		Optional<FormIgnore>	ignore;
-		Optional<FormElements>	form_elements;
+    struct Params : public LLInitParam::Block<Params>
+    {
+        Optional<std::string>   name;
+        Optional<FormIgnore>    ignore;
+        Optional<FormElements>  form_elements;
 
-		Params();
-	};
+        Params();
+    };
 
-	typedef enum e_ignore_type
-	{ 
-		IGNORE_CHECKBOX_ONLY = -1, // ignore won't be handled, will set value/checkbox only
-		IGNORE_NO = 0,
-		IGNORE_WITH_DEFAULT_RESPONSE,
-		IGNORE_WITH_DEFAULT_RESPONSE_SESSION_ONLY,
-		IGNORE_WITH_LAST_RESPONSE, 
-		IGNORE_SHOW_AGAIN 
-	} EIgnoreType;
+    typedef enum e_ignore_type
+    {
+        IGNORE_CHECKBOX_ONLY = -1, // ignore won't be handled, will set value/checkbox only
+        IGNORE_NO = 0,
+        IGNORE_WITH_DEFAULT_RESPONSE,
+        IGNORE_WITH_DEFAULT_RESPONSE_SESSION_ONLY,
+        IGNORE_WITH_LAST_RESPONSE,
+        IGNORE_SHOW_AGAIN
+    } EIgnoreType;
 
-	LLNotificationForm();
-	LLNotificationForm(const LLNotificationForm&);
-	LLNotificationForm(const LLSD& sd);
-	LLNotificationForm(const std::string& name, const Params& p);
+    LLNotificationForm();
+    LLNotificationForm(const LLNotificationForm&);
+    LLNotificationForm(const LLSD& sd);
+    LLNotificationForm(const std::string& name, const Params& p);
 
-	void fromLLSD(const LLSD& sd);
-	LLSD asLLSD() const;
+    void fromLLSD(const LLSD& sd);
+    LLSD asLLSD() const;
 
-	S32 getNumElements() { return mFormData.size(); }
-	LLSD getElement(S32 index) { return mFormData.get(index); }
-	LLSD getElement(const std::string& element_name);
+    S32 getNumElements() { return static_cast<S32>(mFormData.size()); }
+    LLSD getElement(S32 index) { return mFormData.get(index); }
+    LLSD getElement(std::string_view element_name);
     void getElements(LLSD& elements, S32 offset = 0);
-	bool hasElement(const std::string& element_name) const;
-	bool getElementEnabled(const std::string& element_name) const;
-	void setElementEnabled(const std::string& element_name, bool enabled);
-	void addElement(const std::string& type, const std::string& name, const LLSD& value = LLSD(), bool enabled = true);
-	void formatElements(const LLSD& substitutions);
-	// appends form elements from another form serialized as LLSD
-	void append(const LLSD& sub_form);
-	std::string getDefaultOption();
-	LLPointer<class LLControlVariable> getIgnoreSetting();
-	bool getIgnored();
-	void setIgnored(bool ignored);
+    bool hasElement(std::string_view element_name) const;
+    bool getElementEnabled(std::string_view element_name) const;
+    void setElementEnabled(std::string_view element_name, bool enabled);
+    void addElement(const std::string& type, const std::string& name, const LLSD& value = LLSD(), bool enabled = true);
+    void formatElements(const LLSD& substitutions);
+    // appends form elements from another form serialized as LLSD
+    void append(const LLSD& sub_form);
+    std::string getDefaultOption();
+    LLPointer<class LLControlVariable> getIgnoreSetting();
+    bool getIgnored();
+    void setIgnored(bool ignored);
 
-	EIgnoreType getIgnoreType() { return mIgnore; }
-	std::string getIgnoreMessage() { return mIgnoreMsg; }
+    EIgnoreType getIgnoreType() { return mIgnore; }
+    std::string getIgnoreMessage() { return mIgnoreMsg; }
 
 private:
-	LLSD								mFormData;
-	EIgnoreType							mIgnore;
-	std::string							mIgnoreMsg;
-	LLPointer<class LLControlVariable>	mIgnoreSetting;
-	bool								mInvertSetting;
+    LLSD                                mFormData;
+    EIgnoreType                         mIgnore;
+    std::string                         mIgnoreMsg;
+    LLPointer<class LLControlVariable>  mIgnoreSetting;
+    bool                                mInvertSetting;
 };
 
 typedef std::shared_ptr<LLNotificationForm> LLNotificationFormPtr;
@@ -292,253 +294,253 @@ typedef std::shared_ptr<LLNotificationVisibilityRule> LLNotificationVisibilityRu
 /**
  * @class LLNotification
  * @brief The object that expresses the details of a notification
- * 
+ *
  * We make this noncopyable because
  * we want to manage these through LLNotificationPtr, and only
  * ever create one instance of any given notification.
- * 
+ *
  * The enable_shared_from_this flag ensures that if we construct
  * a smart pointer from a notification, we'll always get the same
  * shared pointer.
  */
-class LLNotification  : 
-	boost::noncopyable,
-	public std::enable_shared_from_this<LLNotification>
+class LLNotification  :
+    boost::noncopyable,
+    public std::enable_shared_from_this<LLNotification>
 {
 LOG_CLASS(LLNotification);
 friend class LLNotifications;
 
 public:
 
-	// parameter object used to instantiate a new notification
-	struct Params : public LLInitParam::Block<Params>
-	{
-		friend class LLNotification;
-	
-		Mandatory<std::string>					name;
-		Optional<LLUUID>						id;
-		Optional<LLSD>							substitutions,
-												form_elements,
-												payload;
-		Optional<ENotificationPriority, NotificationPriorityValues>	priority;
-		Optional<LLDate>						time_stamp,
-												expiry;
-		Optional<LLNotificationContext*>		context;
-		Optional<void*>							responder;
-		Optional<bool>							offer_from_agent;
-        Optional<bool>							is_dnd;
+    // parameter object used to instantiate a new notification
+    struct Params : public LLInitParam::Block<Params>
+    {
+        friend class LLNotification;
 
-		struct Functor : public LLInitParam::ChoiceBlock<Functor>
-		{
-			Alternative<std::string>										name;
-			Alternative<LLNotificationFunctorRegistry::ResponseFunctor>	function;
-			Alternative<LLNotificationResponderPtr>						responder;
-            Alternative<LLSD>						                    responder_sd;
+        Mandatory<std::string>                  name;
+        Optional<LLUUID>                        id;
+        Optional<LLSD>                          substitutions,
+                                                form_elements,
+                                                payload;
+        Optional<ENotificationPriority, NotificationPriorityValues> priority;
+        Optional<LLDate>                        time_stamp,
+                                                expiry;
+        Optional<LLNotificationContext*>        context;
+        Optional<void*>                         responder;
+        Optional<bool>                          offer_from_agent;
+        Optional<bool>                          is_dnd;
 
-			Functor()
-			:	name("responseFunctor"),
-				function("functor"),
-				responder("responder"),
+        struct Functor : public LLInitParam::ChoiceBlock<Functor>
+        {
+            Alternative<std::string>                                        name;
+            Alternative<LLNotificationFunctorRegistry::ResponseFunctor> function;
+            Alternative<LLNotificationResponderPtr>                     responder;
+            Alternative<LLSD>                                           responder_sd;
+
+            Functor()
+            :   name("responseFunctor"),
+                function("functor"),
+                responder("responder"),
                 responder_sd("responder_sd")
-			{}
-		};
-		Optional<Functor>						functor;
+            {}
+        };
+        Optional<Functor>                       functor;
 
-		Params()
-		:	name("name"),
-			id("id"),
-			priority("priority", NOTIFICATION_PRIORITY_UNSPECIFIED),
-			time_stamp("time"),
-			payload("payload"),
-			form_elements("form"),
-			substitutions("substitutions"),
-			expiry("expiry"),
-			offer_from_agent("offer_from_agent", false),
+        Params()
+        :   name("name"),
+            id("id"),
+            priority("priority", NOTIFICATION_PRIORITY_UNSPECIFIED),
+            time_stamp("time"),
+            payload("payload"),
+            form_elements("form"),
+            substitutions("substitutions"),
+            expiry("expiry"),
+            offer_from_agent("offer_from_agent", false),
             is_dnd("is_dnd", false)
-		{
-			time_stamp = LLDate::now();
-			responder = NULL;
-		}
+        {
+            time_stamp = LLDate::now();
+            responder = NULL;
+        }
 
-		Params(const std::string& _name) 
-		:	name("name"),
-			priority("priority", NOTIFICATION_PRIORITY_UNSPECIFIED),
-			time_stamp("time"),
-			payload("payload"),
-			form_elements("form"),
-			substitutions("substitutions"),
-			expiry("expiry"),
-			offer_from_agent("offer_from_agent", false),
+        Params(const std::string& _name)
+        :   name("name"),
+            priority("priority", NOTIFICATION_PRIORITY_UNSPECIFIED),
+            time_stamp("time"),
+            payload("payload"),
+            form_elements("form"),
+            substitutions("substitutions"),
+            expiry("expiry"),
+            offer_from_agent("offer_from_agent", false),
             is_dnd("is_dnd", false)
-		{
-			functor.name = _name;
-			name = _name;
-			time_stamp = LLDate::now();
-			responder = NULL;
-		}
-	};
+        {
+            functor.name = _name;
+            name = _name;
+            time_stamp = LLDate::now();
+            responder = NULL;
+        }
+    };
 
-	LLNotificationResponderPtr getResponderPtr() { return mResponder; }
+    LLNotificationResponderPtr getResponderPtr() { return mResponder; }
 
 private:
-	
-	const LLUUID mId;
-	LLSD mPayload;
-	LLSD mSubstitutions;
-	LLDate mTimestamp;
-	LLDate mExpiresAt;
-	bool mCancelled;
-	bool mRespondedTo; 	// once the notification has been responded to, this becomes true
-	LLSD mResponse;
-	bool mIgnored;
-	ENotificationPriority mPriority;
-	LLNotificationFormPtr mForm;
-	void* mResponderObj; // TODO - refactor/remove this field
-	LLNotificationResponderPtr mResponder;
-	bool mOfferFromAgent;
+
+    const LLUUID mId;
+    LLSD mPayload;
+    LLSD mSubstitutions;
+    LLDate mTimestamp;
+    LLDate mExpiresAt;
+    bool mCancelled;
+    bool mRespondedTo;  // once the notification has been responded to, this becomes true
+    LLSD mResponse;
+    bool mIgnored;
+    ENotificationPriority mPriority;
+    LLNotificationFormPtr mForm;
+    void* mResponderObj; // TODO - refactor/remove this field
+    LLNotificationResponderPtr mResponder;
+    bool mOfferFromAgent;
     bool mIsDND;
 
-	// a reference to the template
-	LLNotificationTemplatePtr mTemplatep;
+    // a reference to the template
+    LLNotificationTemplatePtr mTemplatep;
 
-	/*
-	 We want to be able to store and reload notifications so that they can survive
-	 a shutdown/restart of the client. So we can't simply pass in callbacks;
-	 we have to specify a callback mechanism that can be used by name rather than 
-	 by some arbitrary pointer -- and then people have to initialize callbacks 
-	 in some useful location. So we use LLNotificationFunctorRegistry to manage them.
-	 */
-	 std::string mResponseFunctorName;
-	
-	/*
-	 In cases where we want to specify an explict, non-persisted callback, 
-	 we store that in the callback registry under a dynamically generated
-	 key, and store the key in the notification, so we can still look it up
-	 using the same mechanism.
-	 */
-	bool mTemporaryResponder;
-	
-	// keep track of other notifications combined with COMBINE_WITH_NEW
-	std::vector<LLNotificationPtr> mCombinedNotifications;
+    /*
+     We want to be able to store and reload notifications so that they can survive
+     a shutdown/restart of the client. So we can't simply pass in callbacks;
+     we have to specify a callback mechanism that can be used by name rather than
+     by some arbitrary pointer -- and then people have to initialize callbacks
+     in some useful location. So we use LLNotificationFunctorRegistry to manage them.
+     */
+     std::string mResponseFunctorName;
 
-	void init(const std::string& template_name, const LLSD& form_elements);
+    /*
+     In cases where we want to specify an explict, non-persisted callback,
+     we store that in the callback registry under a dynamically generated
+     key, and store the key in the notification, so we can still look it up
+     using the same mechanism.
+     */
+    bool mTemporaryResponder;
 
-	void cancel();
+    // keep track of other notifications combined with COMBINE_WITH_NEW
+    std::vector<LLNotificationPtr> mCombinedNotifications;
+
+    void init(const std::string& template_name, const LLSD& form_elements);
+
+    void cancel();
 
 public:
-	LLNotification(const LLSDParamAdapter<Params>& p);
+    LLNotification(const LLSDParamAdapter<Params>& p);
 
-	void setResponseFunctor(std::string const &responseFunctorName);
+    void setResponseFunctor(std::string const &responseFunctorName);
 
-	void setResponseFunctor(const LLNotificationFunctorRegistry::ResponseFunctor& cb);
+    void setResponseFunctor(const LLNotificationFunctorRegistry::ResponseFunctor& cb);
 
-	void setResponseFunctor(const LLNotificationResponderPtr& responder);
+    void setResponseFunctor(const LLNotificationResponderPtr& responder);
 
-	typedef enum e_response_template_type
-	{
-		WITHOUT_DEFAULT_BUTTON,
-		WITH_DEFAULT_BUTTON
-	} EResponseTemplateType;
+    typedef enum e_response_template_type
+    {
+        WITHOUT_DEFAULT_BUTTON,
+        WITH_DEFAULT_BUTTON
+    } EResponseTemplateType;
 
-	// return response LLSD filled in with default form contents and (optionally) the default button selected
-	LLSD getResponseTemplate(EResponseTemplateType type = WITHOUT_DEFAULT_BUTTON);
+    // return response LLSD filled in with default form contents and (optionally) the default button selected
+    LLSD getResponseTemplate(EResponseTemplateType type = WITHOUT_DEFAULT_BUTTON);
 
-	// returns index of first button with value==TRUE
-	// usually this the button the user clicked on
-	// returns -1 if no button clicked (e.g. form has not been displayed)
-	static S32 getSelectedOption(const LLSD& notification, const LLSD& response);
-	// returns name of first button with value==TRUE
-	static std::string getSelectedOptionName(const LLSD& notification);
+    // returns index of first button with value==true
+    // usually this the button the user clicked on
+    // returns -1 if no button clicked (e.g. form has not been displayed)
+    static S32 getSelectedOption(const LLSD& notification, const LLSD& response);
+    // returns name of first button with value==true
+    static std::string getSelectedOptionName(const LLSD& notification);
 
-	// after someone responds to a notification (usually by clicking a button,
-	// but sometimes by filling out a little form and THEN clicking a button),
+    // after someone responds to a notification (usually by clicking a button,
+    // but sometimes by filling out a little form and THEN clicking a button),
     // the result of the response (the name and value of the button clicked,
-	// plus any other data) should be packaged up as LLSD, then passed as a
-	// parameter to the notification's respond() method here. This will look up
-	// and call the appropriate responder.
-	//
-	// response is notification serialized as LLSD:
-	// ["name"] = notification name
-	// ["form"] = LLSD tree that includes form description and any prefilled form data
-	// ["response"] = form data filled in by user
-	// (including, but not limited to which button they clicked on)
-	// ["payload"] = transaction specific data, such as ["source_id"] (originator of notification),  
-	//				["item_id"] (attached inventory item), etc.
-	// ["substitutions"] = string substitutions used to generate notification message
+    // plus any other data) should be packaged up as LLSD, then passed as a
+    // parameter to the notification's respond() method here. This will look up
+    // and call the appropriate responder.
+    //
+    // response is notification serialized as LLSD:
+    // ["name"] = notification name
+    // ["form"] = LLSD tree that includes form description and any prefilled form data
+    // ["response"] = form data filled in by user
+    // (including, but not limited to which button they clicked on)
+    // ["payload"] = transaction specific data, such as ["source_id"] (originator of notification),
+    //              ["item_id"] (attached inventory item), etc.
+    // ["substitutions"] = string substitutions used to generate notification message
     // from the template
-	// ["time"] = time at which notification was generated;
-	// ["expiry"] = time at which notification expires;
-	// ["responseFunctor"] = name of registered functor that handles responses to notification;
-	LLSD asLLSD(bool excludeTemplateElements = false);
+    // ["time"] = time at which notification was generated;
+    // ["expiry"] = time at which notification expires;
+    // ["responseFunctor"] = name of registered functor that handles responses to notification;
+    LLSD asLLSD(bool excludeTemplateElements = false);
 
-	const LLNotificationFormPtr getForm();
-	void updateForm(const LLNotificationFormPtr& form);
+    const LLNotificationFormPtr getForm();
+    void updateForm(const LLNotificationFormPtr& form);
 
-	void repost();
+    void repost();
 
-	void respond(const LLSD& sd);
-	void respondWithDefault();
+    void respond(const LLSD& sd);
+    void respondWithDefault();
 
-	void* getResponder() { return mResponderObj; }
+    void* getResponder() { return mResponderObj; }
 
-	void setResponder(void* responder) { mResponderObj = responder; }
+    void setResponder(void* responder) { mResponderObj = responder; }
 
-	void setIgnored(bool ignore);
+    void setIgnored(bool ignore);
 
-	bool isCancelled() const
-	{
-		return mCancelled;
-	}
+    bool isCancelled() const
+    {
+        return mCancelled;
+    }
 
-	bool isRespondedTo() const
-	{
-		return mRespondedTo;
-	}
+    bool isRespondedTo() const
+    {
+        return mRespondedTo;
+    }
 
-	bool isActive() const
-	{
-		return !isRespondedTo()
-			&& !isCancelled()
-			&& !isExpired();
-	}
+    bool isActive() const
+    {
+        return !isRespondedTo()
+            && !isCancelled()
+            && !isExpired();
+    }
 
-	const LLSD& getResponse() { return mResponse; }
+    const LLSD& getResponse() { return mResponse; }
 
-	bool isIgnored() const
-	{
-		return mIgnored;
-	}
+    bool isIgnored() const
+    {
+        return mIgnored;
+    }
 
-	const std::string& getName() const;
+    const std::string& getName() const;
 
-	const std::string& getIcon() const;
+    const std::string& getIcon() const;
 
-	bool isPersistent() const;
+    bool isPersistent() const;
 
-	const LLUUID& id() const
-	{
-		return mId;
-	}
-	
-	const LLSD& getPayload() const
-	{
-		return mPayload;
-	}
+    const LLUUID& id() const
+    {
+        return mId;
+    }
 
-	const LLSD& getSubstitutions() const
-	{
-		return mSubstitutions;
-	}
+    const LLSD& getPayload() const
+    {
+        return mPayload;
+    }
 
-	const LLDate& getDate() const
-	{
-		return mTimestamp;
-	}
+    const LLSD& getSubstitutions() const
+    {
+        return mSubstitutions;
+    }
 
-	bool getOfferFromAgent() const
-	{
-		return mOfferFromAgent;
-	}
+    const LLDate& getDate() const
+    {
+        return mTimestamp;
+    }
+
+    bool getOfferFromAgent() const
+    {
+        return mOfferFromAgent;
+    }
 
     bool isDND() const
     {
@@ -550,165 +552,165 @@ public:
         mIsDND = flag;
     }
 
-	std::string getType() const;
-	std::string getMessage() const;
-	std::string getFooter() const;
-	std::string getLabel() const;
-	std::string getURL() const;
-	S32 getURLOption() const;
-	S32 getURLOpenExternally() const; //for url responce option
-	bool getForceUrlsExternal() const;
-	bool canLogToChat() const;
-	bool canLogToIM() const;
-	bool canShowToast() const;
-	bool canFadeToast() const;
-	bool hasFormElements() const;
+    std::string getType() const;
+    std::string getMessage() const;
+    std::string getFooter() const;
+    std::string getLabel() const;
+    std::string getURL() const;
+    S32 getURLOption() const;
+    S32 getURLOpenExternally() const; //for url responce option
+    bool getForceUrlsExternal() const;
+    bool canLogToChat() const;
+    bool canLogToIM() const;
+    bool canShowToast() const;
+    bool canFadeToast() const;
+    bool hasFormElements() const;
     void playSound();
 
-	typedef enum e_combine_behavior
-	{
-		REPLACE_WITH_NEW,
-		COMBINE_WITH_NEW,
-		KEEP_OLD,
-		CANCEL_OLD
+    typedef enum e_combine_behavior
+    {
+        REPLACE_WITH_NEW,
+        COMBINE_WITH_NEW,
+        KEEP_OLD,
+        CANCEL_OLD
 
-	} ECombineBehavior;
-	
-	ECombineBehavior getCombineBehavior() const;
+    } ECombineBehavior;
 
-	const LLDate getExpiration() const
-	{
-		return mExpiresAt;
-	}
+    ECombineBehavior getCombineBehavior() const;
 
-	ENotificationPriority getPriority() const
-	{
-		return mPriority;
-	}
+    const LLDate getExpiration() const
+    {
+        return mExpiresAt;
+    }
 
-	const LLUUID getID() const
-	{
-		return mId;
-	}
+    ENotificationPriority getPriority() const
+    {
+        return mPriority;
+    }
 
-	// comparing two notifications normally means comparing them by UUID (so we can look them
-	// up quickly this way)
-	bool operator<(const LLNotification& rhs) const
-	{
-		return mId < rhs.mId;
-	}
+    const LLUUID getID() const
+    {
+        return mId;
+    }
 
-	bool operator==(const LLNotification& rhs) const
-	{
-		return mId == rhs.mId;
-	}
+    // comparing two notifications normally means comparing them by UUID (so we can look them
+    // up quickly this way)
+    bool operator<(const LLNotification& rhs) const
+    {
+        return mId < rhs.mId;
+    }
 
-	bool operator!=(const LLNotification& rhs) const
-	{
-		return !operator==(rhs);
-	}
+    bool operator==(const LLNotification& rhs) const
+    {
+        return mId == rhs.mId;
+    }
 
-	bool isSameObjectAs(const LLNotification* rhs) const
-	{
-		return this == rhs;
-	}
-	
-	// this object has been updated, so tell all our clients
-	void update();
+    bool operator!=(const LLNotification& rhs) const
+    {
+        return !operator==(rhs);
+    }
 
-	void updateFrom(LLNotificationPtr other);
-	
-	// A fuzzy equals comparator.
-	// true only if both notifications have the same template and 
-	//     1) flagged as unique (there can be only one of these) OR 
-	//     2) all required payload fields of each also exist in the other.
-	bool isEquivalentTo(LLNotificationPtr that) const;
-	
-	// if the current time is greater than the expiration, the notification is expired
-	bool isExpired() const
-	{
-		if (mExpiresAt.secondsSinceEpoch() == 0)
-		{
-			return false;
-		}
-		
-		LLDate rightnow = LLDate::now();
-		return rightnow > mExpiresAt;
-	}
-	
-	std::string summarize() const;
+    bool isSameObjectAs(const LLNotification* rhs) const
+    {
+        return this == rhs;
+    }
 
-	bool hasUniquenessConstraints() const;
+    // this object has been updated, so tell all our clients
+    void update();
 
-	bool matchesTag(const std::string& tag);
+    void updateFrom(LLNotificationPtr other);
 
-	virtual ~LLNotification() {}
+    // A fuzzy equals comparator.
+    // true only if both notifications have the same template and
+    //     1) flagged as unique (there can be only one of these) OR
+    //     2) all required payload fields of each also exist in the other.
+    bool isEquivalentTo(LLNotificationPtr that) const;
+
+    // if the current time is greater than the expiration, the notification is expired
+    bool isExpired() const
+    {
+        if (mExpiresAt.secondsSinceEpoch() == 0)
+        {
+            return false;
+        }
+
+        LLDate rightnow = LLDate::now();
+        return rightnow > mExpiresAt;
+    }
+
+    std::string summarize() const;
+
+    bool hasUniquenessConstraints() const;
+
+    bool matchesTag(std::string_view tag);
+
+    virtual ~LLNotification() {}
 };
 
 std::ostream& operator<<(std::ostream& s, const LLNotification& notification);
 
 namespace LLNotificationFilters
 {
-	// a sample filter
-	bool includeEverything(LLNotificationPtr p);
+    // a sample filter
+    bool includeEverything(LLNotificationPtr p);
 
-	typedef enum e_comparison 
-	{ 
-		EQUAL, 
-		LESS, 
-		GREATER, 
-		LESS_EQUAL, 
-		GREATER_EQUAL 
-	} EComparison;
+    typedef enum e_comparison
+    {
+        EQUAL,
+        LESS,
+        GREATER,
+        LESS_EQUAL,
+        GREATER_EQUAL
+    } EComparison;
 
-	// generic filter functor that takes method or member variable reference
-	template<typename T>
-	struct filterBy
-	{
-		typedef boost::function<T (LLNotificationPtr)>	field_t;
-		typedef typename boost::remove_reference<T>::type		value_t;
-		
-		filterBy(field_t field, value_t value, EComparison comparison = EQUAL) 
-			:	mField(field), 
-				mFilterValue(value),
-				mComparison(comparison)
-		{
-		}		
-		
-		bool operator()(LLNotificationPtr p)
-		{
-			switch(mComparison)
-			{
-			case EQUAL:
-				return mField(p) == mFilterValue;
-			case LESS:
-				return mField(p) < mFilterValue;
-			case GREATER:
-				return mField(p) > mFilterValue;
-			case LESS_EQUAL:
-				return mField(p) <= mFilterValue;
-			case GREATER_EQUAL:
-				return mField(p) >= mFilterValue;
-			default:
-				return false;
-			}
-		}
+    // generic filter functor that takes method or member variable reference
+    template<typename T>
+    struct filterBy
+    {
+        typedef boost::function<T (LLNotificationPtr)>  field_t;
+        typedef typename boost::remove_reference<T>::type       value_t;
 
-		field_t mField;
-		value_t	mFilterValue;
-		EComparison mComparison;
-	};
+        filterBy(field_t field, value_t value, EComparison comparison = EQUAL)
+            :   mField(field),
+                mFilterValue(value),
+                mComparison(comparison)
+        {
+        }
+
+        bool operator()(LLNotificationPtr p)
+        {
+            switch(mComparison)
+            {
+            case EQUAL:
+                return mField(p) == mFilterValue;
+            case LESS:
+                return mField(p) < mFilterValue;
+            case GREATER:
+                return mField(p) > mFilterValue;
+            case LESS_EQUAL:
+                return mField(p) <= mFilterValue;
+            case GREATER_EQUAL:
+                return mField(p) >= mFilterValue;
+            default:
+                return false;
+            }
+        }
+
+        field_t mField;
+        value_t mFilterValue;
+        EComparison mComparison;
+    };
 };
 
 namespace LLNotificationComparators
 {
-	struct orderByUUID
-	{
-		bool operator()(LLNotificationPtr lhs, LLNotificationPtr rhs) const
-		{
-			return lhs->id() < rhs->id();
-		}
-	};
+    struct orderByUUID
+    {
+        bool operator()(LLNotificationPtr lhs, LLNotificationPtr rhs) const
+        {
+            return lhs->id() < rhs->id();
+        }
+    };
 };
 
 typedef boost::function<bool (LLNotificationPtr)> LLNotificationFilter;
@@ -729,29 +731,32 @@ typedef std::multimap<std::string, LLNotificationPtr> LLNotificationMap;
 //                                                                          +-- Alerts
 //                                                                          +-- Notifications
 //
-// In general, new channels that want to only see notifications that pass through 
+// In general, new channels that want to only see notifications that pass through
 // all of the built-in tests should attach to the "Visible" channel
 //
 class LLNotificationChannelBase :
-	public LLEventTrackable,
-	public LLRefCount
+    public LLEventTrackable,
+    public LLRefCount
 {
-	LOG_CLASS(LLNotificationChannelBase);
+    LOG_CLASS(LLNotificationChannelBase);
 public:
-	LLNotificationChannelBase(LLNotificationFilter filter) 
-	:	mFilter(filter), 
-		mItems() 
-	{}
+    LLNotificationChannelBase(LLNotificationFilter filter)
+    : mFilter(filter)
+    , mItems()
+    , mItemsMutex()
+    {}
+
     virtual ~LLNotificationChannelBase()
     {
         // explicit cleanup for easier issue detection
         mChanged.disconnect_all_slots();
         mPassedFilter.disconnect_all_slots();
         mFailedFilter.disconnect_all_slots();
+        LLMutexLock lock(&mItemsMutex);
         mItems.clear();
     }
-	// you can also connect to a Channel, so you can be notified of
-	// changes to this channel
+    // you can also connect to a Channel, so you can be notified of
+    // changes to this channel
     LLBoundListener connectChanged(const LLEventListener& slot)
     {
         // Call this->connectChangedImpl() to actually connect it.
@@ -772,9 +777,9 @@ public:
         return connectFailedFilterImpl(slot);
     }
 
-	// use this when items change or to add a new one
-	bool updateItem(const LLSD& payload);
-	const LLNotificationFilter& getFilter() { return mFilter; }
+    // use this when items change or to add a new one
+    bool updateItem(const LLSD& payload);
+    const LLNotificationFilter& getFilter() { return mFilter; }
 
 protected:
     LLBoundListener connectChangedImpl(const LLEventListener& slot);
@@ -782,28 +787,29 @@ protected:
     LLBoundListener connectPassedFilterImpl(const LLEventListener& slot);
     LLBoundListener connectFailedFilterImpl(const LLEventListener& slot);
 
-	LLNotificationSet mItems;
-	LLStandardSignal mChanged;
-	LLStandardSignal mPassedFilter;
-	LLStandardSignal mFailedFilter;
-	
-	// these are action methods that subclasses can override to take action 
-	// on specific types of changes; the management of the mItems list is
-	// still handled by the generic handler.
-	virtual void onLoad(LLNotificationPtr p) {}
-	virtual void onAdd(LLNotificationPtr p) {}
-	virtual void onDelete(LLNotificationPtr p) {}
-	virtual void onChange(LLNotificationPtr p) {}
+    LLNotificationSet mItems;
+    LLStandardSignal mChanged;
+    LLStandardSignal mPassedFilter;
+    LLStandardSignal mFailedFilter;
+    LLMutex mItemsMutex;
 
-	virtual void onFilterPass(LLNotificationPtr p) {}
-	virtual void onFilterFail(LLNotificationPtr p) {}
+    // these are action methods that subclasses can override to take action
+    // on specific types of changes; the management of the mItems list is
+    // still handled by the generic handler.
+    virtual void onLoad(LLNotificationPtr p) {}
+    virtual void onAdd(LLNotificationPtr p) {}
+    virtual void onDelete(LLNotificationPtr p) {}
+    virtual void onChange(LLNotificationPtr p) {}
 
-	bool updateItem(const LLSD& payload, LLNotificationPtr pNotification);
-	LLNotificationFilter mFilter;
+    virtual void onFilterPass(LLNotificationPtr p) {}
+    virtual void onFilterFail(LLNotificationPtr p) {}
+
+    bool updateItem(const LLSD& payload, LLNotificationPtr pNotification);
+    LLNotificationFilter mFilter;
 };
 
 // The type of the pointers that we're going to manage in the NotificationQueue system
-// Because LLNotifications is a singleton, we don't actually expect to ever 
+// Because LLNotifications is a singleton, we don't actually expect to ever
 // destroy it, but if it becomes necessary to do so, the shared_ptr model
 // will ensure that we don't leak resources.
 class LLNotificationChannel;
@@ -811,54 +817,56 @@ typedef boost::intrusive_ptr<LLNotificationChannel> LLNotificationChannelPtr;
 
 // manages a list of notifications
 // Note that if this is ever copied around, we might find ourselves with multiple copies
-// of a queue with notifications being added to different nonequivalent copies. So we 
+// of a queue with notifications being added to different nonequivalent copies. So we
 // make it inherit from boost::noncopyable, and then create a map of LLPointer to manage it.
 //
-class LLNotificationChannel : 
-	boost::noncopyable, 
-	public LLNotificationChannelBase,
-	public LLInstanceTracker<LLNotificationChannel, std::string>
+class LLNotificationChannel :
+    boost::noncopyable,
+    public LLNotificationChannelBase,
+    public LLInstanceTracker<LLNotificationChannel, std::string>
 {
-	LOG_CLASS(LLNotificationChannel);
+    LOG_CLASS(LLNotificationChannel);
 
-public:  
-	// Notification Channels have a filter, which determines which notifications
-	// will be added to this channel. 
-	// Channel filters cannot change.
-	struct Params : public LLInitParam::Block<Params>
-	{
-		Mandatory<std::string>				name;
-		Optional<LLNotificationFilter>		filter;
-		Multiple<std::string>				sources;
-	};
+public:
+    // Notification Channels have a filter, which determines which notifications
+    // will be added to this channel.
+    // Channel filters cannot change.
+    struct Params : public LLInitParam::Block<Params>
+    {
+        Mandatory<std::string>              name;
+        Optional<LLNotificationFilter>      filter;
+        Multiple<std::string>               sources;
+    };
 
-	LLNotificationChannel(const Params& p = Params());
-	LLNotificationChannel(const std::string& name, const std::string& parent, LLNotificationFilter filter);
+    LLNotificationChannel(const Params& p = Params());
+    LLNotificationChannel(const std::string& name, const std::string& parent, LLNotificationFilter filter);
 
-	virtual ~LLNotificationChannel() {}
-	typedef LLNotificationSet::iterator Iterator;
-    
-	std::string getName() const { return mName; }
-	typedef std::vector<std::string>::const_iterator parents_iter;
-	boost::iterator_range<parents_iter> getParents() const
-	{
-		return boost::iterator_range<parents_iter>(mParents);
-	}
-    
-	void connectToChannel(const std::string& channel_name);
-    
+    virtual ~LLNotificationChannel();
+    typedef LLNotificationSet::iterator Iterator;
+
+    std::string getName() const { return mName; }
+    typedef std::vector<std::string>::const_iterator parents_iter;
+    boost::iterator_range<parents_iter> getParents() const
+    {
+        return boost::iterator_range<parents_iter>(mParents);
+    }
+
     bool isEmpty() const;
     S32 size() const;
-    
-    Iterator begin();
-    Iterator end();
-	size_t size();
-	
-	std::string summarize();
+    size_t size();
+
+    typedef boost::function<void(LLNotificationPtr)> NotificationProcess;
+    void forEachNotification(NotificationProcess process);
+
+    std::string summarize();
+
+protected:
+    void connectToChannel(const std::string& channel_name);
 
 private:
-	std::string mName;
-	std::vector<std::string> mParents;
+    std::string mName;
+    std::vector<std::string> mParents;
+    std::vector<LLBoundListener> mListeners;
 };
 
 // An interface class to provide a clean linker seam to the LLNotifications class.
@@ -866,20 +874,20 @@ private:
 class LLNotificationsInterface
 {
 public:
-	virtual LLNotificationPtr add(const std::string& name, 
-						const LLSD& substitutions, 
-						const LLSD& payload, 
-						LLNotificationFunctorRegistry::ResponseFunctor functor) = 0;
+    virtual LLNotificationPtr add(const std::string& name,
+                        const LLSD& substitutions,
+                        const LLSD& payload,
+                        LLNotificationFunctorRegistry::ResponseFunctor functor) = 0;
 };
 
-class LLNotifications : 
-	public LLNotificationsInterface,
-	public LLSingleton<LLNotifications>, 
-	public LLNotificationChannelBase
+class LLNotifications :
+    public LLNotificationsInterface,
+    public LLSingleton<LLNotifications>,
+    public LLNotificationChannelBase
 {
-	LLSINGLETON(LLNotifications);
-	LOG_CLASS(LLNotifications);
-	virtual ~LLNotifications() {}
+    LLSINGLETON(LLNotifications);
+    LOG_CLASS(LLNotifications);
+    virtual ~LLNotifications() {}
 
 public:
 
@@ -889,110 +897,106 @@ public:
     //
     void clear();
 
-	// load all notification descriptions from file
-	// calling more than once will overwrite existing templates
-	// but never delete a template
-	bool loadTemplates();
+    // load all notification descriptions from file
+    // calling more than once will overwrite existing templates
+    // but never delete a template
+    bool loadTemplates();
 
-	// load visibility rules from file; 
-	// OK to call more than once because it will reload
-	bool loadVisibilityRules();  
-	
-	// Add a simple notification (from XUI)
-	void addFromCallback(const LLSD& name);
-	
-	// *NOTE: To add simple notifications, #include "llnotificationsutil.h"
-	// and use LLNotificationsUtil::add("MyNote") or add("MyNote", args)
-	LLNotificationPtr add(const std::string& name, 
-						const LLSD& substitutions,
-						const LLSD& payload);
-	LLNotificationPtr add(const std::string& name, 
-						const LLSD& substitutions, 
-						const LLSD& payload, 
-						const std::string& functor_name);
-	/* virtual */ LLNotificationPtr add(const std::string& name, 
-						const LLSD& substitutions, 
-						const LLSD& payload, 
-						LLNotificationFunctorRegistry::ResponseFunctor functor) override;
-	LLNotificationPtr add(const LLNotification::Params& p);
+    // load visibility rules from file;
+    // OK to call more than once because it will reload
+    bool loadVisibilityRules();
 
-	void add(const LLNotificationPtr pNotif);
-	void load(const LLNotificationPtr pNotif);
-	void cancel(LLNotificationPtr pNotif);
-	void cancelByName(const std::string& name);
-	void cancelByOwner(const LLUUID ownerId);
-	void update(const LLNotificationPtr pNotif);
+    // Add a simple notification (from XUI)
+    void addFromCallback(const LLSD& name);
 
-	LLNotificationPtr find(LLUUID uuid);
-	
-	typedef boost::function<void (LLNotificationPtr)> NotificationProcess;
-	
-	void forEachNotification(NotificationProcess process);
+    // *NOTE: To add simple notifications, #include "llnotificationsutil.h"
+    // and use LLNotificationsUtil::add("MyNote") or add("MyNote", args)
+    LLNotificationPtr add(const std::string& name,
+                        const LLSD& substitutions,
+                        const LLSD& payload);
+    LLNotificationPtr add(const std::string& name,
+                        const LLSD& substitutions,
+                        const LLSD& payload,
+                        const std::string& functor_name);
+    /* virtual */ LLNotificationPtr add(const std::string& name,
+                        const LLSD& substitutions,
+                        const LLSD& payload,
+                        LLNotificationFunctorRegistry::ResponseFunctor functor) override;
+    LLNotificationPtr add(const LLNotification::Params& p);
 
-	// This is all stuff for managing the templates
-	// take your template out
-	LLNotificationTemplatePtr getTemplate(const std::string& name);
-	
-	// get the whole collection
-	typedef std::vector<std::string> TemplateNames;
-	TemplateNames getTemplateNames() const;  // returns a list of notification names
-	
-	typedef std::map<std::string, LLNotificationTemplatePtr> TemplateMap;
+    void add(const LLNotificationPtr pNotif);
+    void load(const LLNotificationPtr pNotif);
+    void cancel(LLNotificationPtr pNotif);
+    void cancelByName(std::string_view name);
+    void cancelByOwner(const LLUUID ownerId);
+    void update(const LLNotificationPtr pNotif);
 
-	TemplateMap::const_iterator templatesBegin() { return mTemplates.begin(); }
-	TemplateMap::const_iterator templatesEnd() { return mTemplates.end(); }
+    LLNotificationPtr find(LLUUID uuid);
 
-	// test for existence
-	bool templateExists(const std::string& name);
+    // This is all stuff for managing the templates
+    // take your template out
+    LLNotificationTemplatePtr getTemplate(std::string_view name);
 
-	typedef std::list<LLNotificationVisibilityRulePtr> VisibilityRuleList;
-	
-	void forceResponse(const LLNotification::Params& params, S32 option);
+    // get the whole collection
+    typedef std::vector<std::string> TemplateNames;
+    TemplateNames getTemplateNames() const;  // returns a list of notification names
 
-	void createDefaultChannels();
+    typedef std::map<std::string, LLNotificationTemplatePtr, std::less<>> TemplateMap;
 
-	LLNotificationChannelPtr getChannel(const std::string& channelName);
-	
-	std::string getGlobalString(const std::string& key) const;
+    TemplateMap::const_iterator templatesBegin() { return mTemplates.begin(); }
+    TemplateMap::const_iterator templatesEnd() { return mTemplates.end(); }
 
-	void setIgnoreAllNotifications(bool ignore);
-	bool getIgnoreAllNotifications();
+    // test for existence
+    bool templateExists(std::string_view name);
 
-	void setIgnored(const std::string& name, bool ignored);
-	bool getIgnored(const std::string& name);
+    typedef std::list<LLNotificationVisibilityRulePtr> VisibilityRuleList;
 
-	bool isVisibleByRules(LLNotificationPtr pNotification);
-	
+    void forceResponse(const LLNotification::Params& params, S32 option);
+
+    void createDefaultChannels();
+
+    LLNotificationChannelPtr getChannel(const std::string& channelName);
+
+    std::string getGlobalString(std::string_view key) const;
+
+    void setIgnoreAllNotifications(bool ignore);
+    bool getIgnoreAllNotifications();
+
+    void setIgnored(std::string_view name, bool ignored);
+    bool getIgnored(std::string_view name);
+
+    bool isVisibleByRules(LLNotificationPtr pNotification);
+
 private:
-	/*virtual*/ void initSingleton() override;
-	/*virtual*/ void cleanupSingleton() override;
-	
-	void loadPersistentNotifications();
+    /*virtual*/ void initSingleton() override;
+    /*virtual*/ void cleanupSingleton() override;
 
-	bool expirationFilter(LLNotificationPtr pNotification);
-	bool expirationHandler(const LLSD& payload);
-	bool uniqueFilter(LLNotificationPtr pNotification);
-	bool uniqueHandler(const LLSD& payload);
-	bool failedUniquenessTest(const LLSD& payload);
-	LLNotificationChannelPtr pHistoryChannel;
-	LLNotificationChannelPtr pExpirationChannel;
-	
-	TemplateMap mTemplates;
+    void loadPersistentNotifications();
 
-	VisibilityRuleList mVisibilityRules;
+    bool expirationFilter(LLNotificationPtr pNotification);
+    bool expirationHandler(const LLSD& payload);
+    bool uniqueFilter(LLNotificationPtr pNotification);
+    bool uniqueHandler(const LLSD& payload);
+    bool failedUniquenessTest(const LLSD& payload);
+    LLNotificationChannelPtr pHistoryChannel;
+    LLNotificationChannelPtr pExpirationChannel;
 
-	std::string mFileName;
-	
-	LLNotificationMap mUniqueNotifications;
-	
-	typedef std::map<std::string, std::string> GlobalStringMap;
-	GlobalStringMap mGlobalStrings;
+    TemplateMap mTemplates;
 
-	bool mIgnoreAllNotifications;
+    VisibilityRuleList mVisibilityRules;
 
-	boost::scoped_ptr<LLNotificationsListener> mListener;
+    std::string mFileName;
 
-	std::vector<LLNotificationChannelPtr> mDefaultChannels;
+    LLNotificationMap mUniqueNotifications;
+
+    typedef std::map<std::string, std::string, std::less<>> GlobalStringMap;
+    GlobalStringMap mGlobalStrings;
+
+    bool mIgnoreAllNotifications;
+
+    std::unique_ptr<LLNotificationsListener> mListener;
+
+    std::vector<LLNotificationChannelPtr> mDefaultChannels;
 };
 
 /**
@@ -1008,64 +1012,64 @@ private:
 class LLPostponedNotification : public LLMortician
 {
 public:
-	/**
-	 * Performs hooking cache name callback which will add notification to notifications system.
-	 * Type of added notification should be specified by template parameter T
-	 * and non-private derived from LLPostponedNotification class,
-	 * otherwise compilation error will occur.
-	 */
-	template<class T>
-	static void add(const LLNotification::Params& params,
-			const LLUUID& id, bool is_group)
-	{
-		// upcast T to the base type to restrict T derivation from LLPostponedNotification
-		LLPostponedNotification* thiz = new T();
-		thiz->mParams = params;
+    /**
+     * Performs hooking cache name callback which will add notification to notifications system.
+     * Type of added notification should be specified by template parameter T
+     * and non-private derived from LLPostponedNotification class,
+     * otherwise compilation error will occur.
+     */
+    template<class T>
+    static void add(const LLNotification::Params& params,
+            const LLUUID& id, bool is_group)
+    {
+        // upcast T to the base type to restrict T derivation from LLPostponedNotification
+        LLPostponedNotification* thiz = new T();
+        thiz->mParams = params;
 
-		// Avoid header file dependency on llcachename.h
-		thiz->lookupName(id, is_group);
-	}
+        // Avoid header file dependency on llcachename.h
+        thiz->lookupName(id, is_group);
+    }
 
 private:
-	void lookupName(const LLUUID& id, bool is_group);
-	// only used for groups
-	void onGroupNameCache(const LLUUID& id, const std::string& full_name, bool is_group);
-	// only used for avatars
-	void fetchAvatarName(const LLUUID& id);
-	void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name);
-	// used for both group and avatar names
-	void finalizeName(const std::string& name);
+    void lookupName(const LLUUID& id, bool is_group);
+    // only used for groups
+    void onGroupNameCache(const LLUUID& id, const std::string& full_name, bool is_group);
+    // only used for avatars
+    void fetchAvatarName(const LLUUID& id);
+    void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name);
+    // used for both group and avatar names
+    void finalizeName(const std::string& name);
 
-	void cleanup()
-	{
-		die();
-	}
+    void cleanup()
+    {
+        die();
+    }
 
 protected:
-	LLPostponedNotification()
-		: mParams(),
-		mName(),
-		mAvatarNameCacheConnection()
-	{}
+    LLPostponedNotification()
+        : mParams(),
+        mName(),
+        mAvatarNameCacheConnection()
+    {}
 
-	virtual ~LLPostponedNotification()
-	{
-		if (mAvatarNameCacheConnection.connected())
-		{
-			mAvatarNameCacheConnection.disconnect();
-		}
-	}
+    virtual ~LLPostponedNotification()
+    {
+        if (mAvatarNameCacheConnection.connected())
+        {
+            mAvatarNameCacheConnection.disconnect();
+        }
+    }
 
-	/**
-	 * Abstract method provides possibility to modify notification parameters and
-	 * will be called after cache name retrieve information about avatar or group
-	 * and before notification will be added to the notification system.
-	 */
-	virtual void modifyNotificationParams() = 0;
+    /**
+     * Abstract method provides possibility to modify notification parameters and
+     * will be called after cache name retrieve information about avatar or group
+     * and before notification will be added to the notification system.
+     */
+    virtual void modifyNotificationParams() = 0;
 
-	LLNotification::Params mParams;
-	std::string mName;
-	boost::signals2::connection mAvatarNameCacheConnection;
+    LLNotification::Params mParams;
+    std::string mName;
+    boost::signals2::connection mAvatarNameCacheConnection;
 };
 
 // Stores only persistent notifications.
@@ -1073,57 +1077,57 @@ protected:
 // (see LLPersistentNotificationStorage for example).
 class LLPersistentNotificationChannel : public LLNotificationChannel
 {
-	LOG_CLASS(LLPersistentNotificationChannel);
+    LOG_CLASS(LLPersistentNotificationChannel);
 public:
-	LLPersistentNotificationChannel() 
-		:	LLNotificationChannel("Persistent", "Visible", &notificationFilter)
-	{}
+    LLPersistentNotificationChannel()
+        :   LLNotificationChannel("Persistent", "Visible", &notificationFilter)
+    {}
 
     virtual ~LLPersistentNotificationChannel()
     {
         mHistory.clear();
     }
 
-	typedef std::vector<LLNotificationPtr> history_list_t;
-	history_list_t::iterator beginHistory() { sortHistory(); return mHistory.begin(); }
-	history_list_t::iterator endHistory() { return mHistory.end(); }
+    typedef std::vector<LLNotificationPtr> history_list_t;
+    history_list_t::iterator beginHistory() { sortHistory(); return mHistory.begin(); }
+    history_list_t::iterator endHistory() { return mHistory.end(); }
 
 private:
-	struct sortByTime
-	{
-		S32 operator ()(const LLNotificationPtr& a, const LLNotificationPtr& b)
-		{
-			return a->getDate() < b->getDate();
-		}
-	};
+    struct sortByTime
+    {
+        S32 operator ()(const LLNotificationPtr& a, const LLNotificationPtr& b)
+        {
+            return a->getDate() < b->getDate();
+        }
+    };
 
-	void sortHistory()
-	{
-		std::sort(mHistory.begin(), mHistory.end(), sortByTime());
-	}
+    void sortHistory()
+    {
+        std::sort(mHistory.begin(), mHistory.end(), sortByTime());
+    }
 
-	// The channel gets all persistent notifications except those that have been canceled
-	static bool notificationFilter(LLNotificationPtr pNotification)
-	{
-		bool handle_notification = false;
+    // The channel gets all persistent notifications except those that have been canceled
+    static bool notificationFilter(LLNotificationPtr pNotification)
+    {
+        bool handle_notification = false;
 
-		handle_notification = pNotification->isPersistent()
-			&& !pNotification->isCancelled();
+        handle_notification = pNotification->isPersistent()
+            && !pNotification->isCancelled();
 
-		return handle_notification;
-	}
+        return handle_notification;
+    }
 
-	void onAdd(LLNotificationPtr p) 
-	{
-		mHistory.push_back(p);
-	}
+    void onAdd(LLNotificationPtr p)
+    {
+        mHistory.push_back(p);
+    }
 
-	void onLoad(LLNotificationPtr p) 
-	{
-		mHistory.push_back(p);
-	}
+    void onLoad(LLNotificationPtr p)
+    {
+        mHistory.push_back(p);
+    }
 
-	std::vector<LLNotificationPtr> mHistory;
+    std::vector<LLNotificationPtr> mHistory;
 };
 
 #endif//LL_LLNOTIFICATIONS_H

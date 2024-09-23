@@ -1,25 +1,25 @@
-/** 
+/**
  * @file lldriverparam.h
  * @brief A visual parameter that drives (controls) other visual parameters.
  *
  * $LicenseInfo:firstyear=2002&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -39,40 +39,40 @@ class LLWearable;
 
 struct LLDrivenEntryInfo
 {
-	LLDrivenEntryInfo( S32 id, F32 min1, F32 max1, F32 max2, F32 min2 )
-		: mDrivenID( id ), mMin1( min1 ), mMax1( max1 ), mMax2( max2 ), mMin2( min2 ) {}
-	S32					mDrivenID;
-	F32					mMin1;
-	F32					mMax1;
-	F32					mMax2;
-	F32					mMin2;
+    LLDrivenEntryInfo( S32 id, F32 min1, F32 max1, F32 max2, F32 min2 )
+        : mDrivenID( id ), mMin1( min1 ), mMax1( max1 ), mMax2( max2 ), mMin2( min2 ) {}
+    S32                 mDrivenID;
+    F32                 mMin1;
+    F32                 mMax1;
+    F32                 mMax2;
+    F32                 mMin2;
 };
 
 struct LLDrivenEntry
 {
-	LLDrivenEntry( LLViewerVisualParam* param, LLDrivenEntryInfo *info )
-		: mParam( param ), mInfo( info ) {}
-	LLViewerVisualParam* mParam;
-	LLDrivenEntryInfo*	 mInfo;
+    LLDrivenEntry( LLViewerVisualParam* param, LLDrivenEntryInfo *info )
+        : mParam( param ), mInfo( info ) {}
+    LLViewerVisualParam* mParam;
+    LLDrivenEntryInfo*   mInfo;
 };
 
 //-----------------------------------------------------------------------------
 
 class LLDriverParamInfo : public LLViewerVisualParamInfo
 {
-	friend class LLDriverParam;
+    friend class LLDriverParam;
 public:
-	LLDriverParamInfo();
-	/*virtual*/ ~LLDriverParamInfo() {};
-	
-	/*virtual*/ BOOL parseXml(LLXmlTreeNode* node);
+    LLDriverParamInfo();
+    /*virtual*/ ~LLDriverParamInfo() {};
 
-	/*virtual*/ void toStream(std::ostream &out);	
+    /*virtual*/ bool parseXml(LLXmlTreeNode* node);
+
+    /*virtual*/ void toStream(std::ostream &out);
 
 protected:
-	typedef std::deque<LLDrivenEntryInfo> entry_info_list_t;
-	entry_info_list_t mDrivenInfoList;
-	LLDriverParam* mDriverParam; // backpointer
+    typedef std::deque<LLDrivenEntryInfo> entry_info_list_t;
+    entry_info_list_t mDrivenInfoList;
+    LLDriverParam* mDriverParam; // backpointer
 };
 
 //-----------------------------------------------------------------------------
@@ -90,32 +90,32 @@ public:
     // Special: These functions are overridden by child classes
     LLDriverParamInfo* getInfo() const { return (LLDriverParamInfo*)mInfo; }
     //   This sets mInfo and calls initialization functions
-    BOOL					setInfo(LLDriverParamInfo* info);
+    bool                    setInfo(LLDriverParamInfo* info);
 
     LLAvatarAppearance* getAvatarAppearance() { return mAvatarAppearance; }
     const LLAvatarAppearance* getAvatarAppearance() const { return mAvatarAppearance; }
 
-    void					updateCrossDrivenParams(LLWearableType::EType driven_type);
+    void                    updateCrossDrivenParams(LLWearableType::EType driven_type);
 
     /*virtual*/ LLViewerVisualParam* cloneParam(LLWearable* wearable) const;
 
     // LLVisualParam Virtual functions
-    /*virtual*/ void				apply(ESex sex) {} // apply is called separately for each driven param.
-    /*virtual*/ void				setWeight(F32 weight);
-    /*virtual*/ void				setAnimationTarget(F32 target_value);
-    /*virtual*/ void				stopAnimating();
-    /*virtual*/ BOOL				linkDrivenParams(visual_param_mapper mapper, BOOL only_cross_params);
-    /*virtual*/ void				resetDrivenParams();
+    /*virtual*/ void                apply(ESex sex) {} // apply is called separately for each driven param.
+    /*virtual*/ void                setWeight(F32 weight);
+    /*virtual*/ void                setAnimationTarget(F32 target_value);
+    /*virtual*/ void                stopAnimating();
+    /*virtual*/ bool                linkDrivenParams(visual_param_mapper mapper, bool only_cross_params);
+    /*virtual*/ void                resetDrivenParams();
 
     // LLViewerVisualParam Virtual functions
-    /*virtual*/ F32					getTotalDistortion();
+    /*virtual*/ F32                 getTotalDistortion();
     /*virtual*/ const LLVector4a& getAvgDistortion();
-    /*virtual*/ F32					getMaxDistortion();
-    /*virtual*/ LLVector4a			getVertexDistortion(S32 index, LLPolyMesh* poly_mesh);
+    /*virtual*/ F32                 getMaxDistortion();
+    /*virtual*/ LLVector4a          getVertexDistortion(S32 index, LLPolyMesh* poly_mesh);
     /*virtual*/ const LLVector4a* getFirstDistortion(U32* index, LLPolyMesh** poly_mesh);
     /*virtual*/ const LLVector4a* getNextDistortion(U32* index, LLPolyMesh** poly_mesh);
 
-    S32								getDrivenParamsCount() const;
+    S32                             getDrivenParamsCount() const;
     const LLViewerVisualParam* getDrivenParam(S32 index) const;
 
     typedef std::vector<LLDrivenEntry> entry_list_t;
@@ -128,12 +128,12 @@ protected:
     void setDrivenWeight(LLDrivenEntry* driven, F32 driven_weight);
 
 
-    LL_ALIGN_16(LLVector4a	mDefaultVec); // temp holder
+    LL_ALIGN_16(LLVector4a  mDefaultVec); // temp holder
     entry_list_t mDriven;
-    LLViewerVisualParam* mCurrentDistortionParam;
+    LLViewerVisualParam* mCurrentDistortionParam{ nullptr };
     // Backlink only; don't make this an LLPointer.
-    LLAvatarAppearance* mAvatarAppearance;
-    LLWearable* mWearablep;
+    LLAvatarAppearance* mAvatarAppearance{ nullptr };
+    LLWearable* mWearablep{ nullptr };
 };
 
 #endif  // LL_LLDRIVERPARAM_H

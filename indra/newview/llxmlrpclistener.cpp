@@ -3,25 +3,25 @@
  * @author Nat Goodspeed
  * @date   2009-03-18
  * @brief  Implementation for llxmlrpclistener.
- * 
+ *
  * $LicenseInfo:firstyear=2009&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -34,16 +34,6 @@
 // STL headers
 #include <map>
 #include <set>
-// std headers
-// external library headers
-#include <boost/scoped_ptr.hpp>
-#include <boost/range.hpp>          // boost::begin(), boost::end()
-
-#ifdef LL_USESYSTEMLIBS
-#include <xmlrpc.h>
-#else
-#include <xmlrpc-epi/xmlrpc.h>
-#endif
 
 #include "curl/curl.h"
 
@@ -88,13 +78,13 @@ class StatusMapper: public StatusMapperBase<LLXMLRPCTransaction::EStatus>
 public:
     StatusMapper(): StatusMapperBase<LLXMLRPCTransaction::EStatus>("Status")
     {
-		mMap[LLXMLRPCTransaction::StatusNotStarted]  = "NotStarted";
-		mMap[LLXMLRPCTransaction::StatusStarted]     = "Started";
-		mMap[LLXMLRPCTransaction::StatusDownloading] = "Downloading";
-		mMap[LLXMLRPCTransaction::StatusComplete]    = "Complete";
-		mMap[LLXMLRPCTransaction::StatusCURLError]   = "CURLError";
-		mMap[LLXMLRPCTransaction::StatusXMLRPCError] = "XMLRPCError";
-		mMap[LLXMLRPCTransaction::StatusOtherError]  = "OtherError";
+        mMap[LLXMLRPCTransaction::StatusNotStarted]  = "NotStarted";
+        mMap[LLXMLRPCTransaction::StatusStarted]     = "Started";
+        mMap[LLXMLRPCTransaction::StatusDownloading] = "Downloading";
+        mMap[LLXMLRPCTransaction::StatusComplete]    = "Complete";
+        mMap[LLXMLRPCTransaction::StatusCURLError]   = "CURLError";
+        mMap[LLXMLRPCTransaction::StatusXMLRPCError] = "XMLRPCError";
+        mMap[LLXMLRPCTransaction::StatusOtherError]  = "OtherError";
     }
 };
 
@@ -178,13 +168,6 @@ public:
 
 static const CURLcodeMapper sCURLcodeMapper;
 
-LLXMLRPCListener::LLXMLRPCListener(const std::string& pumpname):
-    mBoundListener(LLEventPumps::instance().
-                   obtain(pumpname).
-                   listen("LLXMLRPCListener", boost::bind(&LLXMLRPCListener::process, this, _1)))
-{
-}
-
 /**
  * Capture an outstanding LLXMLRPCTransaction and poll it periodically until
  * done.
@@ -213,38 +196,20 @@ public:
         mMethod(command["method"]),
         mReplyPump(command["reply"])
     {
-        // LL_ERRS if any of these are missing
-        const char* required[] = { "uri", "method", "reply" };
-        // optional: "options" (array of string)
-        // Validate the request
-        std::set<std::string> missing;
-        for (const char** ri = boost::begin(required); ri != boost::end(required); ++ri)
+        // LL_ERRS if any of these keys are missing or empty
+        if (mUri.empty() || mMethod.empty() || mReplyPump.empty())
         {
-            // If the command does not contain this required entry, add it to 'missing'.
-            if (! command.has(*ri))
-            {
-                missing.insert(*ri);
-            }
-        }
-        if (! missing.empty())
-        {
-            LL_ERRS("LLXMLRPCListener") << mMethod << " request missing params: ";
-            const char* separator = "";
-            for (std::set<std::string>::const_iterator mi(missing.begin()), mend(missing.end());
-                 mi != mend; ++mi)
-            {
-                LL_CONT << separator << *mi;
-                separator = ", ";
-            }
-            LL_CONT << LL_ENDL;
+            LL_ERRS("LLXMLRPCListener")
+                << "Some params are missing: "
+                << "reply: '" << mReplyPump << "', "
+                << "method: '" << mMethod << "', "
+                << "uri: '" << mUri << "'"
+                << LL_ENDL;
         }
 
-        // Build the XMLRPC request.
-        XMLRPC_REQUEST request = XMLRPC_RequestNew();
-        XMLRPC_RequestSetMethodName(request, mMethod.c_str());
-        XMLRPC_RequestSetRequestType(request, xmlrpc_request_call);
-        XMLRPC_VALUE xparams = XMLRPC_CreateVector(NULL, xmlrpc_vector_struct);
-        LLSD params(command["params"]);
+        LLSD request_params = LLSD::emptyMap();
+
+        LLSD params = command.get("params");
         if (params.isMap())
         {
             for (LLSD::map_const_iterator pi(params.beginMap()), pend(params.endMap());
@@ -252,43 +217,32 @@ public:
             {
                 std::string name(pi->first);
                 LLSD param(pi->second);
-                if (param.isString())
+                switch (param.type())
                 {
-                    XMLRPC_VectorAppendString(xparams, name.c_str(), param.asString().c_str(), 0);
-                }
-                else if (param.isInteger() || param.isBoolean())
-                {
-                    XMLRPC_VectorAppendInt(xparams, name.c_str(), param.asInteger());
-                }
-                else if (param.isReal())
-                {
-                    XMLRPC_VectorAppendDouble(xparams, name.c_str(), param.asReal());
-                }
-                else
-                {
-                    LL_ERRS("LLXMLRPCListener") << mMethod << " request param "
-                                                << name << " has unknown type: " << param << LL_ENDL;
+                case LLSD::TypeString:
+                case LLSD::TypeInteger:
+                case LLSD::TypeReal:
+                    request_params.insert(name, param);
+                    break;
+                case LLSD::TypeBoolean:
+                    request_params.insert(name, param.asInteger());
+                    break;
+                default:
+                    LL_ERRS("LLXMLRPCListener") << mMethod
+                        << " request param '" << name << "' has unknown type: " << param << LL_ENDL;
                 }
             }
         }
-        LLSD options(command["options"]);
+
+        LLSD options = command.get("options");
         if (options.isArray())
         {
-            XMLRPC_VALUE xoptions = XMLRPC_CreateVector("options", xmlrpc_vector_array);
-            for (LLSD::array_const_iterator oi(options.beginArray()), oend(options.endArray());
-                 oi != oend; ++oi)
-            {
-                XMLRPC_VectorAppendString(xoptions, NULL, oi->asString().c_str(), 0);
-            }
-            XMLRPC_AddValueToVector(xparams, xoptions);
+            request_params.insert("options", options);
         }
-        XMLRPC_RequestSetData(request, xparams);
 
-        mTransaction.reset(new LLXMLRPCTransaction(mUri, request, true, command.has("http_params")? LLSD(command["http_params"]) : LLSD()));
-		mPreviousStatus = mTransaction->status(NULL);
-
-        // Free the XMLRPC_REQUEST object and the attached data values.
-        XMLRPC_RequestFree(request, 1);
+        LLSD http_params = command.get("http_params");
+        mTransaction.reset(new LLXMLRPCTransaction(mUri, mMethod, request_params, http_params));
+        mPreviousStatus = mTransaction->status(NULL);
 
         // Now ensure that we get regular callbacks to poll for completion.
         mBoundListener =
@@ -323,42 +277,42 @@ public:
         data["error"] = "";
         data["transfer_rate"] = 0.0;
         LLEventPump& replyPump(LLEventPumps::instance().obtain(mReplyPump));
-		if (! done)
+        if (!done)
         {
             // Not done yet, carry on.
-			if (status == LLXMLRPCTransaction::StatusDownloading
-				&& status != mPreviousStatus)
-			{
-				// If a response has been received, send the 
-				// 'downloading' status if it hasn't been sent.
-				replyPump.post(data);
-			}
+            if (status == LLXMLRPCTransaction::StatusDownloading
+                && status != mPreviousStatus)
+            {
+                // If a response has been received, send the
+                // 'downloading' status if it hasn't been sent.
+                replyPump.post(data);
+            }
 
-			mPreviousStatus = status;
+            mPreviousStatus = status;
             return false;
         }
 
         // Here the transaction is complete. Check status.
         data["error"] = mTransaction->statusMessage();
-		data["transfer_rate"] = mTransaction->transferRate();
+        data["transfer_rate"] = mTransaction->transferRate();
         LL_INFOS("LLXMLRPCListener") << mMethod << " result from " << mUri << ": status "
                                      << data["status"].asString() << ", errorcode "
                                      << data["errorcode"].asString()
                                      << " (" << data["error"].asString() << ")"
                                      << LL_ENDL;
-		
-		switch (curlcode)
-		{
-#if CURLE_SSL_PEER_CERTIFICATE != CURLE_SSL_CACERT
-			case CURLE_SSL_PEER_CERTIFICATE:
-#endif
-			case CURLE_SSL_CACERT:
-                data["certificate"] = mTransaction->getErrorCertData();
-				break;
 
-			default:
-				break;
-		}
+        switch (curlcode)
+        {
+#if CURLE_SSL_PEER_CERTIFICATE != CURLE_SSL_CACERT
+            case CURLE_SSL_PEER_CERTIFICATE:
+#endif
+            case CURLE_SSL_CACERT:
+                data["certificate"] = mTransaction->getErrorCertData();
+                break;
+
+            default:
+                break;
+        }
         // values of 'curlcode':
         // CURLE_COULDNT_RESOLVE_HOST,
         // CURLE_SSL_PEER_CERTIFICATE,
@@ -367,10 +321,8 @@ public:
         // Given 'message', need we care?
         if (status == LLXMLRPCTransaction::StatusComplete)
         {
-            // Success! Parse data.
-            std::string status_string(data["status"]);
-            data["responses"] = parseResponse(status_string);
-            data["status"] = status_string;
+            // Success! Retrieve response data.
+            data["responses"] = mTransaction->response();
         }
 
         // whether successful or not, send reply on requested LLEventPump
@@ -378,7 +330,7 @@ public:
         // need to wake up the loginCoro now
         llcoro::suspend();
 
-        // Because mTransaction is a boost::scoped_ptr, deleting this object
+        // Because mTransaction is a std::unique_ptr, deleting this object
         // frees our LLXMLRPCTransaction object.
         // Because mBoundListener is an LLTempBoundListener, deleting this
         // object disconnects it from "mainloop".
@@ -388,171 +340,27 @@ public:
     }
 
 private:
-    /// Derived from LLUserAuth::parseResponse() and parseOptionInto()
-    LLSD parseResponse(std::string& status_string)
-    {
-        // Extract every member into data["responses"] (a map of string
-        // values).
-        XMLRPC_REQUEST response = mTransaction->response();
-        if (! response)
-        {
-            LL_DEBUGS("LLXMLRPCListener") << "No response" << LL_ENDL;
-            return LLSD();
-        }
-
-        XMLRPC_VALUE param = XMLRPC_RequestGetData(response);
-        if (! param)
-        {
-            LL_DEBUGS("LLXMLRPCListener") << "Response contains no data" << LL_ENDL;
-            return LLSD();
-        }
-
-        // Now, parse everything
-        return parseValues(status_string, "", param);
-    }
-
-    /**
-     * Parse key/value pairs from a given XMLRPC_VALUE into an LLSD map.
-     * @param key_pfx Used to describe a given key in log messages. At top
-     * level, pass "". When parsing an options array, pass the top-level key
-     * name of the array plus the index of the array entry; to this we'll
-     * append the subkey of interest.
-     * @param param XMLRPC_VALUE iterator. At top level, pass
-     * XMLRPC_RequestGetData(XMLRPC_REQUEST).
-     */
-    LLSD parseValues(std::string& status_string, const std::string& key_pfx, XMLRPC_VALUE param)
-    {
-        LLSD responses;
-        for (XMLRPC_VALUE current = XMLRPC_VectorRewind(param); current;
-             current = XMLRPC_VectorNext(param))
-        {
-            std::string key(XMLRPC_GetValueID(current));
-            LL_DEBUGS("LLXMLRPCListener") << "key: " << key_pfx << key << LL_ENDL;
-            XMLRPC_VALUE_TYPE_EASY type = XMLRPC_GetValueTypeEasy(current);
-            switch (type)
-            {
-            case xmlrpc_type_empty:
-                LL_INFOS("LLXMLRPCListener") << "Empty result for key " << key_pfx << key << LL_ENDL;
-                responses.insert(key, LLSD());
-                break;
-            case xmlrpc_type_base64:
-                {
-                    S32 len = XMLRPC_GetValueStringLen(current);
-                    const char* buf = XMLRPC_GetValueBase64(current);
-                    if ((len > 0) && buf)
-                    {
-                        // During implementation this code was not tested
-                        // If you encounter this, please make sure this is correct,
-                        // then remove llassert
-                        llassert(0);
-
-                        LLSD::Binary data;
-                        data.resize(len);
-                        memcpy((void*)&data[0], (void*)buf, len);
-                        responses.insert(key, data);
-                    }
-                    else
-                    {
-                        LL_WARNS("LLXMLRPCListener") << "Potentially malformed xmlrpc_type_base64 for key "
-                            << key_pfx << key << LL_ENDL;
-                        responses.insert(key, LLSD());
-                    }
-                    break;
-                }
-            case xmlrpc_type_boolean:
-                {
-                    LLSD::Boolean val(XMLRPC_GetValueBoolean(current));
-                    LL_DEBUGS("LLXMLRPCListener") << "val: " << val << LL_ENDL;
-                    responses.insert(key, val);
-                    break;
-                }
-            case xmlrpc_type_datetime:
-                {
-                    std::string iso8601_date(XMLRPC_GetValueDateTime_ISO8601(current));
-                    LL_DEBUGS("LLXMLRPCListener") << "val: " << iso8601_date << LL_ENDL;
-                    responses.insert(key, LLSD::Date(iso8601_date));
-                    break;
-                }
-            case xmlrpc_type_double:
-                {
-                    LLSD::Real val(XMLRPC_GetValueDouble(current));
-                    LL_DEBUGS("LLXMLRPCListener") << "val: " << val << LL_ENDL;
-                    responses.insert(key, val);
-                    break;
-                }
-            case xmlrpc_type_int:
-                {
-                    LLSD::Integer val(XMLRPC_GetValueInt(current));
-                    LL_DEBUGS("LLXMLRPCListener") << "val: " << val << LL_ENDL;
-                    responses.insert(key, val);
-                    break;
-                }
-            case xmlrpc_type_string:
-                {
-                    LLSD::String val(XMLRPC_GetValueString(current));
-                    LL_DEBUGS("LLXMLRPCListener") << "val: " << val << LL_ENDL;
-                    responses.insert(key, val);
-                    break;
-                }
-            case xmlrpc_type_mixed:
-            case xmlrpc_type_array:
-                {
-                    // We expect this to be an array of submaps. Walk the array,
-                    // recursively parsing each submap and collecting them.
-                    LLSD array;
-                    int i = 0;          // for descriptive purposes
-                    for (XMLRPC_VALUE row = XMLRPC_VectorRewind(current); row;
-                         row = XMLRPC_VectorNext(current), ++i)
-                    {
-                        // Recursive call. For the lower-level key_pfx, if 'key'
-                        // is "foo", pass "foo[0]:", then "foo[1]:", etc. In the
-                        // nested call, a subkey "bar" will then be logged as
-                        // "foo[0]:bar", and so forth.
-                        // Parse the scalar subkey/value pairs from this array
-                        // entry into a temp submap. Collect such submaps in 'array'.
-                        array.append(parseValues(status_string,
-                                                 STRINGIZE(key_pfx << key << '[' << i << "]:"),
-                                                 row));
-                    }
-                    // Having collected an 'array' of 'submap's, insert that whole
-                    // 'array' as the value of this 'key'.
-                    responses.insert(key, array);
-                    break;
-                }
-            case xmlrpc_type_struct:
-                {
-                    LLSD submap = parseValues(status_string,
-                                              STRINGIZE(key_pfx << key << ':'),
-                                              current);
-                    responses.insert(key, submap);
-                    break;
-                }
-            case xmlrpc_type_none: // Not expected
-            default:
-                // whoops - unrecognized type
-                LL_WARNS("LLXMLRPCListener") << "Unhandled xmlrpc type " << type << " for key "
-                    << key_pfx << key << LL_ENDL;
-                responses.insert(key, STRINGIZE("<bad XMLRPC type " << type << '>'));
-                status_string = "BadType";
-            }
-        }
-        return responses;
-    }
-
     const LLReqID mReqID;
     const std::string mUri;
     const std::string mMethod;
     const std::string mReplyPump;
     LLTempBoundListener mBoundListener;
-    boost::scoped_ptr<LLXMLRPCTransaction> mTransaction;
-	LLXMLRPCTransaction::EStatus mPreviousStatus; // To detect state changes.
+    std::unique_ptr<LLXMLRPCTransaction> mTransaction;
+    LLXMLRPCTransaction::EStatus mPreviousStatus; // To detect state changes.
 };
 
-bool LLXMLRPCListener::process(const LLSD& command)
+LLXMLRPCListener::LLXMLRPCListener(const std::string& pumpname)
+: mBoundListener(LLEventPumps::instance().obtain(pumpname).listen
+(
+    "LLXMLRPCListener",
+    [&](const LLSD& command) -> bool
+    {
+        // Allocate a new heap Poller, but do not save a pointer to it. Poller
+        // will check its own status and free itself on completion of the request.
+        (new Poller(command));
+        // Conventional event listener return
+        return false;
+    }
+))
 {
-    // Allocate a new heap Poller, but do not save a pointer to it. Poller
-    // will check its own status and free itself on completion of the request.
-    (new Poller(command));
-    // conventional event listener return
-    return false;
 }

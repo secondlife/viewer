@@ -1,4 +1,4 @@
-/** 
+/**
 * @file llcommunicationchannel.cpp
 * @brief Implementation of llcommunicationchannel
 * @author Stinson@lindenlab.com
@@ -38,8 +38,8 @@
 
 
 LLCommunicationChannel::LLCommunicationChannel(const std::string& pName, const std::string& pParentName)
-	: LLNotificationChannel(pName, pParentName, filterByDoNotDisturbStatus)
-	, mHistory()
+    : LLNotificationChannel(pName, pParentName, filterByDoNotDisturbStatus)
+    , mHistory()
 {
 }
 
@@ -49,22 +49,22 @@ LLCommunicationChannel::~LLCommunicationChannel()
 
 bool LLCommunicationChannel::filterByDoNotDisturbStatus(LLNotificationPtr)
 {
-	return !gAgent.isDoNotDisturb();
+    return !gAgent.isDoNotDisturb();
 }
 
 S32 LLCommunicationChannel::getHistorySize() const
 {
-    return mHistory.size();
+    return static_cast<S32>(mHistory.size());
 }
 
 LLCommunicationChannel::history_list_t::const_iterator LLCommunicationChannel::beginHistory() const
 {
-	return mHistory.begin();
+    return mHistory.begin();
 }
 
 LLCommunicationChannel::history_list_t::const_iterator LLCommunicationChannel::endHistory() const
 {
-	return mHistory.end();
+    return mHistory.end();
 }
 
 LLCommunicationChannel::history_list_t::iterator LLCommunicationChannel::beginHistory()
@@ -79,7 +79,7 @@ LLCommunicationChannel::history_list_t::iterator LLCommunicationChannel::endHist
 
 void LLCommunicationChannel::clearHistory()
 {
-	mHistory.clear();
+    mHistory.clear();
 }
 
 void LLCommunicationChannel::removeItemFromHistory(LLNotificationPtr p)
@@ -95,19 +95,19 @@ void LLCommunicationChannel::removeItemFromHistory(LLNotificationPtr p)
     }
 }
 
-void LLCommunicationChannel::onDelete(LLNotificationPtr p) 
+void LLCommunicationChannel::onDelete(LLNotificationPtr p)
 {
     removeItemFromHistory(p);
 }
 
 void LLCommunicationChannel::onFilterFail(LLNotificationPtr pNotificationPtr)
 {
-	std::string notificationType = pNotificationPtr->getType();
-	if (((notificationType == "groupnotify")
-		|| (notificationType == "offer")
-		|| (notificationType == "notifytoast"))
+    std::string notificationType = pNotificationPtr->getType();
+    if (((notificationType == "groupnotify")
+        || (notificationType == "offer")
+        || (notificationType == "notifytoast"))
         && !pNotificationPtr->isCancelled())
-	{
-		mHistory.insert(history_list_t::value_type(pNotificationPtr->getDate(), pNotificationPtr));
-	}
+    {
+        mHistory.insert(history_list_t::value_type(pNotificationPtr->getDate(), pNotificationPtr));
+    }
 }

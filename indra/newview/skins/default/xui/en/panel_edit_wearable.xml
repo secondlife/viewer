@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel
  background_visible="true"
  bevel_style="in"
@@ -260,7 +260,7 @@
          left="10"
          max_length_bytes="63"
          name="description"
-         prevalidate_callback="ascii"
+         prevalidator="ascii"
          select_on_focus="true"
          text_color="Black"
          top_pad="3"

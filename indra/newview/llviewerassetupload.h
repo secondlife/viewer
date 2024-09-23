@@ -90,8 +90,8 @@ public:
     LLUUID              getItemId() const { return mItemId; }
     LLAssetID           getAssetId() const { return mAssetId; }
 
-	static bool			findAssetTypeOfExtension(const std::string& exten, LLAssetType::EType& asset_type);
-	static bool			findAssetTypeAndCodecOfExtension(const std::string& exten, LLAssetType::EType& asset_type, U32& codec, bool bulk_upload = true);
+    static bool         findAssetTypeOfExtension(const std::string& exten, LLAssetType::EType& asset_type);
+    static bool         findAssetTypeAndCodecOfExtension(const std::string& exten, LLAssetType::EType& asset_type, U32& codec, bool bulk_upload = true);
 
 protected:
     LLResourceUploadInfo(
@@ -161,13 +161,15 @@ public:
 
     std::string         getFileName() const { return mFileName; };
 
+    void setMaxImageSize(U32 maxUploadSize) { mMaxImageSize = maxUploadSize; }
+
 protected:
 
     virtual LLSD        exportTempFile();
 
 private:
     std::string         mFileName;
-
+    S32                 mMaxImageSize;
 };
 
 //-------------------------------------------------------------------------
@@ -256,7 +258,7 @@ public:
     };
 
     LLScriptAssetUpload(LLUUID itemId, std::string buffer, invnUploadFinish_f finish, uploadFailed_f failed);
-    LLScriptAssetUpload(LLUUID taskId, LLUUID itemId, TargetType_t targetType, 
+    LLScriptAssetUpload(LLUUID taskId, LLUUID itemId, TargetType_t targetType,
             bool isRunning, LLUUID exerienceId, std::string buffer, taskUploadFinish_f finish, uploadFailed_f failed);
 
     virtual LLSD        generatePostBody();

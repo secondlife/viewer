@@ -1,25 +1,25 @@
-/** 
+/**
  * @file lltextureview.h
  * @brief LLTextureView class header file
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -36,42 +36,41 @@ class LLAvatarTexBar;
 
 class LLTextureView : public LLContainerView
 {
-	friend class LLTextureBar;
-	friend class LLGLTexMemBar;
-	friend class LLAvatarTexBar;
+    friend class LLTextureBar;
+    friend class LLGLTexMemBar;
+    friend class LLAvatarTexBar;
 protected:
-	LLTextureView(const Params&);
-	friend class LLUICtrlFactory;
+    LLTextureView(const Params&);
+    friend class LLUICtrlFactory;
 public:
-	~LLTextureView();
+    ~LLTextureView();
 
-	/*virtual*/ void draw();
-	/*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL handleMouseUp(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL handleKey(KEY key, MASK mask, BOOL called_from_parent);
+    void draw() override;
+    bool handleMouseDown(S32 x, S32 y, MASK mask) override;
+    bool handleMouseUp(S32 x, S32 y, MASK mask) override;
+    bool handleKey(KEY key, MASK mask, bool called_from_parent) override;
 
-	static void addDebugImage(LLViewerFetchedTexture* image) { sDebugImages.insert(image); }
-	static void removeDebugImage(LLViewerFetchedTexture* image) { sDebugImages.insert(image); }
-	static void clearDebugImages() { sDebugImages.clear(); }
+    static void addDebugImage(LLViewerFetchedTexture* image) { sDebugImages.insert(image); }
+    static void removeDebugImage(LLViewerFetchedTexture* image) { sDebugImages.insert(image); }
+    static void clearDebugImages() { sDebugImages.clear(); }
 
 private:
-	BOOL addBar(LLViewerFetchedTexture *image, BOOL hilight = FALSE);
-	void removeAllBars();
+    bool addBar(LLViewerFetchedTexture *image, S32 hilight = 0);
 
 private:
-	BOOL mFreezeView;
-	BOOL mOrderFetch;
-	BOOL mPrintList;
-	
-	LLTextBox *mInfoTextp;
+    bool mFreezeView;
+    bool mOrderFetch;
+    bool mPrintList;
 
-	std::vector<LLTextureBar*> mTextureBars;
-	U32 mNumTextureBars;
+    LLTextBox *mInfoTextp;
 
-	LLGLTexMemBar* mGLTexMemBar;
-	LLAvatarTexBar* mAvatarTexBar;
+    std::vector<LLTextureBar*> mTextureBars;
+    U32 mNumTextureBars;
+
+    LLGLTexMemBar* mGLTexMemBar;
+    LLAvatarTexBar* mAvatarTexBar;
 public:
-	static std::set<LLViewerFetchedTexture*> sDebugImages;
+    static std::set<LLViewerFetchedTexture*> sDebugImages;
 };
 
 class LLGLTexSizeBar;

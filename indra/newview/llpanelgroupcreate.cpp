@@ -1,24 +1,24 @@
-/** 
+/**
  * @file llpanelgroupcreate.cpp
  *
  * $LicenseInfo:firstyear=2019&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2019, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -66,28 +66,28 @@ LLPanelGroupCreate::~LLPanelGroupCreate()
 {
 }
 
-BOOL LLPanelGroupCreate::postBuild()
+bool LLPanelGroupCreate::postBuild()
 {
     childSetCommitCallback("back", boost::bind(&LLPanelGroupCreate::onBackBtnClick, this), NULL);
 
-    mComboMature = getChild<LLComboBox>("group_mature_check", TRUE);
-    mCtrlOpenEnrollment = getChild<LLCheckBoxCtrl>("open_enrollement", TRUE);
-    mCtrlEnrollmentFee = getChild<LLCheckBoxCtrl>("check_enrollment_fee", TRUE);
-    mEditCharter = getChild<LLTextEditor>("charter", TRUE);
-    mSpinEnrollmentFee = getChild<LLSpinCtrl>("spin_enrollment_fee", TRUE);
-    mMembershipList = getChild<LLScrollListCtrl>("membership_list", TRUE);
+    mComboMature = getChild<LLComboBox>("group_mature_check", true);
+    mCtrlOpenEnrollment = getChild<LLCheckBoxCtrl>("open_enrollement", true);
+    mCtrlEnrollmentFee = getChild<LLCheckBoxCtrl>("check_enrollment_fee", true);
+    mEditCharter = getChild<LLTextEditor>("charter", true);
+    mSpinEnrollmentFee = getChild<LLSpinCtrl>("spin_enrollment_fee", true);
+    mMembershipList = getChild<LLScrollListCtrl>("membership_list", true);
 
-    mCreateButton = getChild<LLButton>("btn_create", TRUE);
+    mCreateButton = getChild<LLButton>("btn_create", true);
     mCreateButton->setCommitCallback(boost::bind(&LLPanelGroupCreate::onBtnCreate, this));
 
-    mGroupNameEditor = getChild<LLLineEditor>("group_name_editor", TRUE);
+    mGroupNameEditor = getChild<LLLineEditor>("group_name_editor", true);
     mGroupNameEditor->setPrevalidate(LLTextValidate::validateASCIINoLeadingSpace);
 
-    mInsignia = getChild<LLTextureCtrl>("insignia", TRUE);
-    mInsignia->setAllowLocalTexture(FALSE);
-    mInsignia->setCanApplyImmediately(FALSE);
+    mInsignia = getChild<LLTextureCtrl>("insignia", true);
+    mInsignia->setAllowLocalTexture(false);
+    mInsignia->setCanApplyImmediately(false);
 
-    return TRUE;
+    return true;
 }
 
 void LLPanelGroupCreate::onOpen(const LLSD& key)
@@ -97,8 +97,8 @@ void LLPanelGroupCreate::onOpen(const LLSD& key)
     mGroupNameEditor->clear();
     mEditCharter->clear();
     mSpinEnrollmentFee->set(0.f);
-    mCtrlEnrollmentFee->set(FALSE);
-    mCtrlOpenEnrollment->set(FALSE);
+    mCtrlEnrollmentFee->set(false);
+    mCtrlOpenEnrollment->set(false);
     mMembershipList->clearRows();
 
     // populate list
@@ -194,7 +194,7 @@ void LLPanelGroupCreate::onBtnCreate()
     // Validate the group name length.
     std::string gr_name = mGroupNameEditor->getText();
     LLStringUtil::trim(gr_name);
-    S32 group_name_len = gr_name.size();
+    S32 group_name_len = static_cast<S32>(gr_name.size());
     if (group_name_len < DB_GROUP_NAME_MIN_LEN
         || group_name_len > DB_GROUP_NAME_STR_LEN)
     {

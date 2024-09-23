@@ -3,25 +3,25 @@
  * @author Nat Goodspeed
  * @date   2008-09-12
  * @brief  Implementation for llevents.
- * 
+ *
  * $LicenseInfo:firstyear=2008&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -211,12 +211,21 @@ void LLEventPumps::clear()
     }
 }
 
-void LLEventPumps::reset()
+void LLEventPumps::reset(bool log_pumps)
 {
     // Reset every known LLEventPump instance. Leave it up to each instance to
     // decide what to do with the reset() call.
+    if (log_pumps)
+    {
+        LL_INFOS() << "Resetting " << (S32)mPumpMap.size() << " pumps" << LL_ENDL;
+    }
+
     for (PumpMap::value_type& pair : mPumpMap)
     {
+        if (log_pumps)
+        {
+            LL_INFOS() << "Resetting pump " << pair.first << LL_ENDL;
+        }
         pair.second->reset();
     }
 }
@@ -373,9 +382,11 @@ std::string LLEventPump::inventName(const std::string& pfx)
 
 void LLEventPump::clear()
 {
+    LLCoros::LockType lock(mConnectionListMutex);
     // Destroy the original LLStandardSignal instance, replacing it with a
     // whole new one.
     mSignal = std::make_shared<LLStandardSignal>();
+
     mConnections.clear();
 }
 
@@ -383,6 +394,7 @@ void LLEventPump::reset()
 {
     // Resetting mSignal is supposed to disconnect everything on its own
     // But due to crash on 'reset' added explicit cleanup to get more data
+    LLCoros::LockType lock(mConnectionListMutex);
     ConnectionMap::const_iterator iter = mConnections.begin();
     ConnectionMap::const_iterator end = mConnections.end();
     while (iter!=end)
@@ -407,10 +419,12 @@ LLBoundListener LLEventPump::listen_impl(const std::string& name, const LLEventL
         return LLBoundListener();
     }
 
+    LLCoros::LockType lock(mConnectionListMutex);
+
     float nodePosition = 1.0;
 
-    // if the supplied name is empty we are not interested in the ordering mechanism 
-    // and can bypass attempting to find the optimal location to insert the new 
+    // if the supplied name is empty we are not interested in the ordering mechanism
+    // and can bypass attempting to find the optimal location to insert the new
     // listener.  We'll just tack it on to the end.
     if (!name.empty()) // should be the same as testing against ANONYMOUS
     {
@@ -555,19 +569,20 @@ LLBoundListener LLEventPump::listen_impl(const std::string& name, const LLEventL
     // Now that newNode has a value that places it appropriately in mSignal,
     // connect it.
     LLBoundListener bound = mSignal->connect(nodePosition, listener);
-    
+
     if (!name.empty())
     {   // note that we are not tracking anonymous listeners here either.
-        // This means that it is the caller's responsibility to either assign 
-        // to a TempBoundListerer (scoped_connection) or manually disconnect 
-        // when done. 
+        // This means that it is the caller's responsibility to either assign
+        // to a TempBoundListerer (scoped_connection) or manually disconnect
+        // when done.
         mConnections[name] = bound;
     }
     return bound;
 }
 
-LLBoundListener LLEventPump::getListener(const std::string& name) const
+LLBoundListener LLEventPump::getListener(const std::string& name)
 {
+    LLCoros::LockType lock(mConnectionListMutex);
     ConnectionMap::const_iterator found = mConnections.find(name);
     if (found != mConnections.end())
     {
@@ -579,6 +594,7 @@ LLBoundListener LLEventPump::getListener(const std::string& name) const
 
 void LLEventPump::stopListening(const std::string& name)
 {
+    LLCoros::LockType lock(mConnectionListMutex);
     ConnectionMap::iterator found = mConnections.find(name);
     if (found != mConnections.end())
     {
@@ -625,9 +641,9 @@ bool LLEventMailDrop::post(const LLSD& event)
 {
     // forward the call to our base class
     bool posted = LLEventStream::post(event);
-    
+
     if (!posted)
-    {   // if the event was not handled we will save it for later so that it can 
+    {   // if the event was not handled we will save it for later so that it can
         // be posted to any future listeners when they attach.
         mEventHistory.push_back(event);
     }

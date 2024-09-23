@@ -3,25 +3,25 @@
  * @author Nat Goodspeed
  * @date   2009-03-05
  * @brief  Define LLEventFilter: LLEventStream subclass with conditions
- * 
+ *
  * $LicenseInfo:firstyear=2009&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -149,11 +149,11 @@ public:
     /**
      * Like actionAfter(), but where the desired Action is a particular event
      * for all listeners. Pass the timeout time and the desired @a event data.
-     * 
+     *
      * Suppose the timeout should only be satisfied by a particular event, but
      * the ultimate listener must see all other incoming events as well, plus
      * the timeout @a event if any:
-     * 
+     *
      * @code
      * some        LLEventMatching                           LLEventMatching
      * event  ---> for particular  ---> LLEventTimeout  ---> for timeout
@@ -161,7 +161,7 @@ public:
      *       \                                                      \ ultimate
      *        `-----------------------------------------------------> listener
      * @endcode
-     * 
+     *
      * Since a given listener can listen on more than one LLEventPump, we can
      * set things up so it sees the set union of events from LLEventTimeout
      * and the original event source. However, as LLEventTimeout passes
@@ -197,8 +197,8 @@ private:
 
 /**
  * Production implementation of LLEventTimoutBase.
- * 
- * @NOTE: Caution should be taken when using the LLEventTimeout(LLEventPump &) 
+ *
+ * @NOTE: Caution should be taken when using the LLEventTimeout(LLEventPump &)
  * constructor to ensure that the upstream event pump is not an LLEventMaildrop
  * or any other kind of store and forward pump which may have events outstanding.
  * Using this constructor will cause the upstream event pump to fire any pending
@@ -207,7 +207,7 @@ private:
  * from the event pump and attached using the listen method.
  * See llcoro::suspendUntilEventOnWithTimeout() for an example.
  */
- 
+
 class LL_COMMON_API LLEventTimeout: public LLEventTimeoutBase
 {
 public:
@@ -429,7 +429,7 @@ public:
     // path, then stores it to mTarget.
     virtual bool post(const LLSD& event)
     {
-        LL_PROFILE_ZONE_SCOPED
+        LL_PROFILE_ZONE_SCOPED;
 
         // Extract the element specified by 'mPath' from 'event'. To perform a
         // generic type-appropriate store through mTarget, construct an

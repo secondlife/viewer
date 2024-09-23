@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llfloaternewfeaturenotification.cpp
  * @brief LLFloaterNewFeatureNotification class implementation
  *
  * $LicenseInfo:firstyear=2023&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2023, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -38,15 +38,15 @@ LLFloaterNewFeatureNotification::~LLFloaterNewFeatureNotification()
 {
 }
 
-BOOL LLFloaterNewFeatureNotification::postBuild()
+bool LLFloaterNewFeatureNotification::postBuild()
 {
-    setCanDrag(FALSE);
+    setCanDrag(false);
     getChild<LLButton>("close_btn")->setCommitCallback(boost::bind(&LLFloaterNewFeatureNotification::onCloseBtn, this));
 
     const std::string title_txt = "title_txt";
     const std::string dsc_txt = "description_txt";
     std::string feature = "_" + getKey().asString();
-    
+
     getChild<LLUICtrl>(title_txt)->setValue(getString(title_txt + feature));
     getChild<LLUICtrl>(dsc_txt)->setValue(getString(dsc_txt + feature));
 
@@ -57,7 +57,7 @@ BOOL LLFloaterNewFeatureNotification::postBuild()
         reshape(rect.getWidth() + 90, rect.getHeight() + 45);
     }
 
-    return TRUE;
+    return true;
 }
 
 void LLFloaterNewFeatureNotification::onOpen(const LLSD& key)

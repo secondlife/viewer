@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <check_box
   label_text.text_color="LabelTextColor"
   label_text.text_readonly_color="LabelDisabledColor"

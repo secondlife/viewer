@@ -64,6 +64,8 @@ Aimee Trescothick
 	VWR-14711
 	VWR-14712
 	VWR-15454
+AiraYumi
+	SL-20781 (github PR #613)
 Alejandro Rosenthal
 	VWR-1184
 Aleric Inglewood
@@ -243,6 +245,8 @@ Ansariel Hiller
 	SL-19623
 	SL-4126
 	SL-20224
+	SL-20524
+	secondlife/viewer#1051
 Aralara Rajal
 Arare Chantilly
 	CHUIBUG-191
@@ -294,6 +298,7 @@ Beq Janus
 	SL-18637
 	SL-19317
 	SL-19660
+	SL-20610
 Beth Walcher
 Bezilon Kasei
 Biancaluce Robbiani
@@ -385,6 +390,7 @@ Chaser Zaks
     BUG-225599
     BUG-227485
     SL-16874
+	SL-20442
 Cherry Cheevers
 ChickyBabes Zuzu
 Chorazin Allen
@@ -600,6 +606,7 @@ Henri Beauchamp
 	SL-19110
 	SL-19159
 	[NO JIRA] (fullbright HUD alpha fix)
+    secondlife/viewer#1744
 herina Bode
 Hikkoshi Sakai
 	VWR-429
@@ -846,6 +853,7 @@ Kadah Coba
 Jondan Lundquist
 Joosten Briebers
     MAINT-7074
+    BUG-225288
 Josef Munster
 Josette Windlow
 Juilan Tripsa
@@ -1202,6 +1210,7 @@ PanteraPolnocy
 	SL-18937
 	SL-19207
 	SL-19681
+    secondlife/viewer#2483
 Parvati Silverweb
 Patric Mills
 	VWR-2645
@@ -1428,6 +1437,30 @@ Sovereign Engineer
     SL-18534
     SL-19690
     SL-19336
+    secondlife/viewer/pull/1283
+    secondlife/viewer/pull/1287
+    secondlife/viewer/pull/1906
+    secondlife/viewer/pull/1930
+    secondlife/viewer/pull/1941
+    secondlife/viewer/pull/1946
+    secondlife/viewer/pull/1948
+    secondlife/viewer/pull/1950
+    secondlife/viewer/pull/1951
+    secondlife/viewer/pull/2066
+    secondlife/viewer/pull/2077
+    secondlife/viewer/pull/2078
+    secondlife/viewer/pull/2080
+    secondlife/viewer/pull/2085
+    secondlife/viewer/pull/2098
+    secondlife/viewer/pull/2099
+    secondlife/viewer/pull/2105
+    secondlife/viewer/pull/2115
+    secondlife/viewer/pull/2116
+    secondlife/viewer/pull/2124
+    secondlife/viewer/pull/2125
+    secondlife/viewer/pull/2135
+    secondlife/viewer/pull/2136
+    secondlife/viewer/pull/2149
 SpacedOut Frye
 	VWR-34
 	VWR-45

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater
  can_resize="false"
  show_title="false"
@@ -27,7 +27,7 @@
         follows="left|top"
         auto_resize="true"
         layout="topleft">
-        <icon
+        <profile_image
          name="profile_pic"
          image_name="Generic_Person_Large"
          layout="topleft"

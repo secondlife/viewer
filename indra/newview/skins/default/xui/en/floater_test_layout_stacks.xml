@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater
         can_resize="true"
         can_close="true"
@@ -26,7 +26,7 @@
                 background_visible="true">
             <text follows="top|left|right" halign="center" text_color="white">flex</text>
         </layout_panel>
-        <layout_panel name="flex"
+        <layout_panel name="flex2"
                 auto_resize="true"
                 user_resize="true"
                 bg_alpha_color="blue"
@@ -36,7 +36,7 @@
                 background_visible="true">
             <text follows="top|left|right" halign="center" text_color="white">flex</text>
         </layout_panel>
-        <layout_panel name="flex"
+        <layout_panel name="flex3"
                 auto_resize="true"
                 user_resize="true"
                 bg_alpha_color="blue"
@@ -46,7 +46,7 @@
                 background_visible="true">
             <text follows="top|left|right" halign="center" text_color="white">flex</text>
         </layout_panel>
-        <layout_panel name="flex"
+        <layout_panel name="flex4"
                 auto_resize="true"
                 user_resize="true"
                 bg_alpha_color="blue"
@@ -56,7 +56,7 @@
             <text follows="top|left|right" halign="center" text_color="white">flex</text>
         </layout_panel>
     </layout_stack>
-    <layout_stack name="test_stack"
+    <layout_stack name="test_stack1"
             left_pad="5"
             top="0"
             width="100"
@@ -71,7 +71,7 @@
                 background_visible="true">
             <text follows="top|left|right" halign="center" text_color="white">flex</text>
         </layout_panel>
-        <layout_panel name="flex"
+        <layout_panel name="flex2"
                 auto_resize="true"
                 user_resize="true"
                 visible="false"
@@ -89,7 +89,7 @@
                 background_visible="true">
             <text follows="top|left|right" halign="center" text_color="black">fixed</text>
         </layout_panel>
-        <layout_panel name="fixed"
+        <layout_panel name="fixed2"
                 auto_resize="false"
                 user_resize="true"
                 height="50"
@@ -98,7 +98,7 @@
                 background_visible="true">
             <text follows="top|left|right" halign="center" text_color="black">fixed</text>
         </layout_panel>
-        <layout_panel name="flex"
+        <layout_panel name="flex3"
                 auto_resize="true"
                 user_resize="true"
                 bg_alpha_color="blue"
@@ -106,7 +106,7 @@
                 background_visible="true">
             <text follows="top|left|right" halign="center" text_color="white">flex</text>
         </layout_panel>
-        <layout_panel name="flex"
+        <layout_panel name="flex4"
                 auto_resize="true"
                 user_resize="true"
                 bg_alpha_color="blue"
@@ -114,7 +114,7 @@
                 background_visible="true">
             <text follows="top|left|right" halign="center" text_color="white">flex</text>
         </layout_panel>
-        <layout_panel name="flex"
+        <layout_panel name="flex5"
                 auto_resize="true"
                 user_resize="true"
                 bg_alpha_color="blue"
@@ -122,7 +122,7 @@
                 background_visible="true">
             <text follows="top|left|right" halign="center" text_color="white">flex</text>
         </layout_panel>
-        <layout_panel name="flex"
+        <layout_panel name="flex6"
                 auto_resize="true"
                 user_resize="true"
                 bg_alpha_color="blue"
@@ -132,7 +132,7 @@
             <text follows="top|left|right" halign="center" text_color="white">flex</text>
         </layout_panel>
     </layout_stack>
-    <layout_stack name="test_stack"
+    <layout_stack name="test_stack2"
             left_pad="5"
             top="0"
             width="100"
@@ -155,7 +155,7 @@
                 background_visible="true">
             <text follows="top|left|right" halign="center" text_color="black">fixed</text>
         </layout_panel>
-        <layout_panel name="flex"
+        <layout_panel name="flex2"
                 auto_resize="true"
                 user_resize="true"
                 bg_alpha_color="blue"
@@ -164,7 +164,7 @@
             <text follows="top|left|right" halign="center" text_color="white">flex</text>
         </layout_panel>
     </layout_stack>
-    <layout_stack name="test_stack"
+    <layout_stack name="test_stack3"
             left_pad="5"
             top="0"
             width="100"
@@ -179,7 +179,7 @@
                 background_visible="true">
             <text follows="top|left|right" halign="center" text_color="black">fixed</text>
         </layout_panel>
-        <layout_panel name="fixed"
+        <layout_panel name="fixed2"
                 auto_resize="false"
                 user_resize="true"
                 height="50"
@@ -187,7 +187,7 @@
                 background_visible="true">
             <text follows="top|left|right" halign="center" text_color="black">fixed</text>
         </layout_panel>
-        <layout_panel name="fixed"
+        <layout_panel name="fixed3"
                 auto_resize="false"
                 user_resize="true"
                 height="50"
@@ -204,7 +204,7 @@
                 background_visible="true">
             <text follows="top|left|right" halign="center" text_color="white">flex</text>
         </layout_panel>
-        <layout_panel name="flex"
+        <layout_panel name="flex2"
                 auto_resize="true"
                 user_resize="true"
                 bg_alpha_color="blue"
@@ -213,7 +213,7 @@
                 background_visible="true">
             <text follows="top|left|right" halign="center" text_color="white">flex</text>
         </layout_panel>
-        <layout_panel name="flex"
+        <layout_panel name="flex3"
                 auto_resize="true"
                 user_resize="true"
                 bg_alpha_color="blue"

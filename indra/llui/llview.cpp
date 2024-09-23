@@ -1,4 +1,4 @@
-/** 
+/**
  * @file llview.cpp
  * @author James Cook
  * @brief Container for other views, anything that draws.
@@ -6,21 +6,21 @@
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -32,7 +32,6 @@
 
 #include <sstream>
 #include <boost/tokenizer.hpp>
-#include <boost/foreach.hpp>
 #include <boost/bind.hpp>
 
 #include "llrender.h"
@@ -58,260 +57,261 @@
 
 static const S32 LINE_HEIGHT = 15;
 
-S32		LLView::sDepth = 0;
-bool	LLView::sDebugRects = false;
-bool	LLView::sDebugUnicode = false;
-bool	LLView::sIsRectDirty = false;
-LLRect	LLView::sDirtyRect;
-bool	LLView::sDebugRectsShowNames = true;
-bool	LLView::sDebugKeys = false;
-bool	LLView::sDebugMouseHandling = false;
+S32     LLView::sDepth = 0;
+bool    LLView::sDebugRects = false;
+bool    LLView::sDebugUnicode = false;
+bool    LLView::sDebugCamera = false;
+bool    LLView::sIsRectDirty = false;
+LLRect  LLView::sDirtyRect;
+bool    LLView::sDebugRectsShowNames = true;
+bool    LLView::sDebugKeys = false;
+bool    LLView::sDebugMouseHandling = false;
 std::string LLView::sMouseHandlerMessage;
-BOOL	LLView::sForceReshape = FALSE;
+bool    LLView::sForceReshape = false;
 std::set<LLView*> LLView::sPreviewHighlightedElements;
-BOOL LLView::sHighlightingDiffs = FALSE;
+bool LLView::sHighlightingDiffs = false;
 LLView* LLView::sPreviewClickedElement = NULL;
-BOOL	LLView::sDrawPreviewHighlights = FALSE;
-S32		LLView::sLastLeftXML = S32_MIN;
-S32		LLView::sLastBottomXML = S32_MIN;
+bool    LLView::sDrawPreviewHighlights = false;
+S32     LLView::sLastLeftXML = S32_MIN;
+S32     LLView::sLastBottomXML = S32_MIN;
 std::vector<LLViewDrawContext*> LLViewDrawContext::sDrawContextStack;
 
 LLView::DrilldownFunc LLView::sDrilldown =
-	boost::bind(&LLView::pointInView, _1, _2, _3, HIT_TEST_USE_BOUNDING_RECT);
+    boost::bind(&LLView::pointInView, _1, _2, _3, HIT_TEST_USE_BOUNDING_RECT);
 
 //#if LL_DEBUG
-BOOL LLView::sIsDrawing = FALSE;
+bool LLView::sIsDrawing = false;
 //#endif
 
 // Compiler optimization, generate extern template
 template class LLView* LLView::getChild<class LLView>(
-	const std::string& name, BOOL recurse) const;
+    std::string_view name, bool recurse) const;
 
 static LLDefaultChildRegistry::Register<LLView> r("view");
 
 void deleteView(LLView *aView)
 {
-	delete aView;
+    delete aView;
 }
 
 namespace LLInitParam
 {
-	void TypeValues<LLView::EOrientation>::declareValues()
-	{
-		declare("horizontal", LLView::HORIZONTAL);
-		declare("vertical", LLView::VERTICAL);	
-	}
+    void TypeValues<LLView::EOrientation>::declareValues()
+    {
+        declare("horizontal", LLView::HORIZONTAL);
+        declare("vertical", LLView::VERTICAL);
+    }
 }
 
 
 LLView::Follows::Follows()
 :   string(""),
-	flags("flags", FOLLOWS_LEFT | FOLLOWS_TOP)
+    flags("flags", FOLLOWS_LEFT | FOLLOWS_TOP)
 {}
 
 LLView::Params::Params()
-:	name("name", std::string("unnamed")),
-	enabled("enabled", true),
-	visible("visible", true),
-	mouse_opaque("mouse_opaque", true),
-	follows("follows"),
-	hover_cursor("hover_cursor", "UI_CURSOR_ARROW"),
-	use_bounding_rect("use_bounding_rect", false),
-	tab_group("tab_group", 0),
-	default_tab_group("default_tab_group"),
-	tool_tip("tool_tip"),
-	sound_flags("sound_flags", MOUSE_UP),
-	layout("layout"),
-	rect("rect"),
-	bottom_delta("bottom_delta", S32_MAX),
-	top_pad("top_pad"),
-	top_delta("top_delta", S32_MAX),
-	left_pad("left_pad"),
-	left_delta("left_delta", S32_MAX),
-	from_xui("from_xui", false),
-	focus_root("focus_root", false),
-	needs_translate("translate"),
-	xmlns("xmlns"),
-	xmlns_xsi("xmlns:xsi"),
-	xsi_schemaLocation("xsi:schemaLocation"),
-	xsi_type("xsi:type")
+:   name("name", std::string("unnamed")),
+    enabled("enabled", true),
+    visible("visible", true),
+    mouse_opaque("mouse_opaque", true),
+    follows("follows"),
+    hover_cursor("hover_cursor", "UI_CURSOR_ARROW"),
+    use_bounding_rect("use_bounding_rect", false),
+    tab_group("tab_group", 0),
+    default_tab_group("default_tab_group"),
+    tool_tip("tool_tip"),
+    sound_flags("sound_flags", MOUSE_UP),
+    layout("layout"),
+    rect("rect"),
+    bottom_delta("bottom_delta", S32_MAX),
+    top_pad("top_pad"),
+    top_delta("top_delta", S32_MAX),
+    left_pad("left_pad"),
+    left_delta("left_delta", S32_MAX),
+    from_xui("from_xui", false),
+    focus_root("focus_root", false),
+    needs_translate("translate"),
+    xmlns("xmlns"),
+    xmlns_xsi("xmlns:xsi"),
+    xsi_schemaLocation("xsi:schemaLocation"),
+    xsi_type("xsi:type")
 
 {
-	addSynonym(rect, "");
+    addSynonym(rect, "");
 }
 
 LLView::LLView(const LLView::Params& p)
-:	mVisible(p.visible),
-	mInDraw(false),
-	mName(p.name),
-	mParentView(NULL),
-	mReshapeFlags(FOLLOWS_NONE),
-	mFromXUI(p.from_xui),
-	mIsFocusRoot(p.focus_root),
-	mLastVisible(FALSE),
-	mHoverCursor(getCursorFromString(p.hover_cursor)),
-	mEnabled(p.enabled),
-	mMouseOpaque(p.mouse_opaque),
-	mSoundFlags(p.sound_flags),
-	mUseBoundingRect(p.use_bounding_rect),
-	mDefaultTabGroup(p.default_tab_group),
-	mLastTabGroup(0),
-	mToolTipMsg((LLStringExplicit)p.tool_tip()),
-	mDefaultWidgets(NULL)
+:   mVisible(p.visible),
+    mInDraw(false),
+    mName(p.name),
+    mParentView(NULL),
+    mReshapeFlags(FOLLOWS_NONE),
+    mFromXUI(p.from_xui),
+    mIsFocusRoot(p.focus_root),
+    mLastVisible(false),
+    mHoverCursor(getCursorFromString(p.hover_cursor)),
+    mEnabled(p.enabled),
+    mMouseOpaque(p.mouse_opaque),
+    mSoundFlags(p.sound_flags),
+    mUseBoundingRect(p.use_bounding_rect),
+    mDefaultTabGroup(p.default_tab_group),
+    mLastTabGroup(0),
+    mToolTipMsg((LLStringExplicit)p.tool_tip()),
+    mDefaultWidgets(NULL)
 {
-	// create rect first, as this will supply initial follows flags
-	setShape(p.rect);
-	parseFollowsFlags(p);
+    // create rect first, as this will supply initial follows flags
+    setShape(p.rect);
+    parseFollowsFlags(p);
 }
 
 LLView::~LLView()
 {
-	dirtyRect();
-	//LL_INFOS() << "Deleting view " << mName << ":" << (void*) this << LL_ENDL;
-	if (LLView::sIsDrawing)
-	{
-		LL_DEBUGS() << "Deleting view " << mName << " during UI draw() phase" << LL_ENDL;
-	}
-// 	llassert(LLView::sIsDrawing == FALSE);
-	
-//	llassert_always(sDepth == 0); // avoid deleting views while drawing! It can subtly break list iterators
-	
-	if( hasMouseCapture() )
-	{
-		//LL_WARNS() << "View holding mouse capture deleted: " << getName() << ".  Mouse capture removed." << LL_ENDL;
-		gFocusMgr.removeMouseCaptureWithoutCallback( this );
-	}
+    dirtyRect();
+    //LL_INFOS() << "Deleting view " << mName << ":" << (void*) this << LL_ENDL;
+    if (LLView::sIsDrawing)
+    {
+        LL_DEBUGS() << "Deleting view " << mName << " during UI draw() phase" << LL_ENDL;
+    }
+//  llassert(LLView::sIsDrawing == false);
 
-	deleteAllChildren();
+//  llassert_always(sDepth == 0); // avoid deleting views while drawing! It can subtly break list iterators
 
-	if (mParentView != NULL)
-	{
-		mParentView->removeChild(this);
-	}
+    if( hasMouseCapture() )
+    {
+        //LL_WARNS() << "View holding mouse capture deleted: " << getName() << ".  Mouse capture removed." << LL_ENDL;
+        gFocusMgr.removeMouseCaptureWithoutCallback( this );
+    }
 
-	if (mDefaultWidgets)
-	{
-		delete mDefaultWidgets;
-		mDefaultWidgets = NULL;
-	}
+    deleteAllChildren();
+
+    if (mParentView != NULL)
+    {
+        mParentView->removeChild(this);
+    }
+
+    if (mDefaultWidgets)
+    {
+        delete mDefaultWidgets;
+        mDefaultWidgets = NULL;
+    }
 }
 
 // virtual
-BOOL LLView::isCtrl() const
+bool LLView::isCtrl() const
 {
-	return FALSE;
+    return false;
 }
 
 // virtual
-BOOL LLView::isPanel() const
+bool LLView::isPanel() const
 {
-	return FALSE;
+    return false;
 }
 
 void LLView::setToolTip(const LLStringExplicit& msg)
 {
-	mToolTipMsg = msg;
+    mToolTipMsg = msg;
 }
 
-BOOL LLView::setToolTipArg(const LLStringExplicit& key, const LLStringExplicit& text)
+bool LLView::setToolTipArg(const LLStringExplicit& key, const LLStringExplicit& text)
 {
-	mToolTipMsg.setArg(key, text);
-	return TRUE;
+    mToolTipMsg.setArg(key, text);
+    return true;
 }
 
 void LLView::setToolTipArgs( const LLStringUtil::format_map_t& args )
 {
-	mToolTipMsg.setArgList(args);
+    mToolTipMsg.setArgList(args);
 }
 
 // virtual
 void LLView::setRect(const LLRect& rect)
 {
-	mRect = rect;
-	updateBoundingRect();
+    mRect = rect;
+    updateBoundingRect();
 }
 
-void LLView::setUseBoundingRect( BOOL use_bounding_rect ) 
+void LLView::setUseBoundingRect( bool use_bounding_rect )
 {
-	if (mUseBoundingRect != use_bounding_rect)
-	{
-        mUseBoundingRect = use_bounding_rect; 
-		updateBoundingRect();
-	}
+    if (mUseBoundingRect != use_bounding_rect)
+    {
+        mUseBoundingRect = use_bounding_rect;
+        updateBoundingRect();
+    }
 }
 
-BOOL LLView::getUseBoundingRect() const
+bool LLView::getUseBoundingRect() const
 {
-	return mUseBoundingRect;
+    return mUseBoundingRect;
 }
 
 // virtual
 const std::string& LLView::getName() const
 {
-	static std::string no_name("(no name)");
+    static std::string no_name("(no name)");
 
-	return mName.empty() ? no_name : mName;
+    return mName.empty() ? no_name : mName;
 }
 
 void LLView::sendChildToFront(LLView* child)
 {
-// 	llassert_always(sDepth == 0); // Avoid re-ordering while drawing; it can cause subtle iterator bugs
-	if (child && child->getParent() == this) 
-	{
-		// minor optimization, but more importantly,
-		//  won't temporarily create an empty list
-		if (child != mChildList.front())
-		{
-			mChildList.remove( child );
-			mChildList.push_front(child);
-		}
-	}
+//  llassert_always(sDepth == 0); // Avoid re-ordering while drawing; it can cause subtle iterator bugs
+    if (child && child->getParent() == this)
+    {
+        // minor optimization, but more importantly,
+        //  won't temporarily create an empty list
+        if (child != mChildList.front())
+        {
+            mChildList.remove( child );
+            mChildList.push_front(child);
+        }
+    }
 }
 
 void LLView::sendChildToBack(LLView* child)
 {
-// 	llassert_always(sDepth == 0); // Avoid re-ordering while drawing; it can cause subtle iterator bugs
-	if (child && child->getParent() == this) 
-	{
-		// minor optimization, but more importantly,
-		//  won't temporarily create an empty list
-		if (child != mChildList.back())
-		{
-			mChildList.remove( child );
-			mChildList.push_back(child);
-		}
-	}
+//  llassert_always(sDepth == 0); // Avoid re-ordering while drawing; it can cause subtle iterator bugs
+    if (child && child->getParent() == this)
+    {
+        // minor optimization, but more importantly,
+        //  won't temporarily create an empty list
+        if (child != mChildList.back())
+        {
+            mChildList.remove( child );
+            mChildList.push_back(child);
+        }
+    }
 }
 
 // virtual
 bool LLView::addChild(LLView* child, S32 tab_group)
 {
-	if (!child)
-	{
-		return false;
-	}
+    if (!child)
+    {
+        return false;
+    }
 
-	if (this == child) 
-	{
-		LL_ERRS() << "Adding view " << child->getName() << " as child of itself" << LL_ENDL;
-	}
+    if (this == child)
+    {
+        LL_ERRS() << "Adding view " << child->getName() << " as child of itself" << LL_ENDL;
+    }
 
-	// remove from current parent
-	if (child->mParentView) 
-	{
-		child->mParentView->removeChild(child);
-	}
+    // remove from current parent
+    if (child->mParentView)
+    {
+        child->mParentView->removeChild(child);
+    }
 
-	// add to front of child list, as normal
-	mChildList.push_front(child);
+    // add to front of child list, as normal
+    mChildList.push_front(child);
 
-	// add to tab order list
-	if (tab_group != 0)
-	{
-		mTabOrder.insert(tab_order_pair_t(child, tab_group));
-	}
+    // add to tab order list
+    if (tab_group != 0)
+    {
+        mTabOrder.insert(tab_order_pair_t(child, tab_group));
+    }
 
-	child->mParentView = this;
+    child->mParentView = this;
     if (getVisible() && child->getVisible())
     {
         // if child isn't visible it won't affect bounding rect
@@ -319,119 +319,119 @@ bool LLView::addChild(LLView* child, S32 tab_group)
         // on visibility change
         updateBoundingRect();
     }
-	mLastTabGroup = tab_group;
-	return true;
+    mLastTabGroup = tab_group;
+    return true;
 }
 
 
 bool LLView::addChildInBack(LLView* child, S32 tab_group)
 {
-	if(addChild(child, tab_group))
-	{
-		sendChildToBack(child);
-		return true;
-	}
+    if(addChild(child, tab_group))
+    {
+        sendChildToBack(child);
+        return true;
+    }
 
-	return false;
+    return false;
 }
 
 // remove the specified child from the view, and set it's parent to NULL.
 void LLView::removeChild(LLView* child)
 {
-	//llassert_always(sDepth == 0); // Avoid re-ordering while drawing; it can cause subtle iterator bugs
-	if (child->mParentView == this) 
-	{
-		// if we are removing an item we are currently iterating over, that would be bad
-		llassert(child->mInDraw == false);
-		mChildList.remove( child );
-		child->mParentView = NULL;
-		child_tab_order_t::iterator found = mTabOrder.find(child);
-		if(found != mTabOrder.end())
-		{
-			mTabOrder.erase(found);
-		}
-	}
-	else
-	{
-		LL_WARNS() << "\"" << child->getName() << "\" is not a child of " << getName() << LL_ENDL;
-	}
-	updateBoundingRect();
+    //llassert_always(sDepth == 0); // Avoid re-ordering while drawing; it can cause subtle iterator bugs
+    if (child->mParentView == this)
+    {
+        // if we are removing an item we are currently iterating over, that would be bad
+        llassert(!child->mInDraw);
+        mChildList.remove( child );
+        child->mParentView = NULL;
+        child_tab_order_t::iterator found = mTabOrder.find(child);
+        if (found != mTabOrder.end())
+        {
+            mTabOrder.erase(found);
+        }
+    }
+    else
+    {
+        LL_WARNS() << "\"" << child->getName() << "\" is not a child of " << getName() << LL_ENDL;
+    }
+    updateBoundingRect();
 }
 
-BOOL LLView::isInVisibleChain() const
+bool LLView::isInVisibleChain() const
 {
-	BOOL visible = TRUE;
+    bool visible = true;
 
-	const LLView* viewp = this;
-	while(viewp)
-	{
-		if (!viewp->getVisible())
-		{
-			visible = FALSE;
-			break;
-		}
-		viewp = viewp->getParent();
-	}
-	
-	return visible;
+    const LLView* viewp = this;
+    while(viewp)
+    {
+        if (!viewp->getVisible())
+        {
+            visible = false;
+            break;
+        }
+        viewp = viewp->getParent();
+    }
+
+    return visible;
 }
 
-BOOL LLView::isInEnabledChain() const
+bool LLView::isInEnabledChain() const
 {
-	BOOL enabled = TRUE;
+    bool enabled = true;
 
-	const LLView* viewp = this;
-	while(viewp)
-	{
-		if (!viewp->getEnabled())
-		{
-			enabled = FALSE;
-			break;
-		}
-		viewp = viewp->getParent();
-	}
-	
-	return enabled;
+    const LLView* viewp = this;
+    while(viewp)
+    {
+        if (!viewp->getEnabled())
+        {
+            enabled = false;
+            break;
+        }
+        viewp = viewp->getParent();
+    }
+
+    return enabled;
 }
 
 static void buildPathname(std::ostream& out, const LLView* view)
 {
-	if (! (view && view->getParent()))
-	{
-		return; // Don't include root in the path.
-	}
+    if (! (view && view->getParent()))
+    {
+        return; // Don't include root in the path.
+    }
 
-	buildPathname(out, view->getParent());
+    buildPathname(out, view->getParent());
 
-	// Build pathname into ostream on the way back from recursion.
-	out << '/';
+    // Build pathname into ostream on the way back from recursion.
+    out << '/';
 
-	// substitute all '/' in name with appropriate code
-	std::string name = view->getName();
-	std::size_t found = name.find('/');
-	std::size_t start = 0;
-	while (found != std::string::npos)
-	{
-		std::size_t sub_len = found - start;
-		if (sub_len > 0)
-		{
-			out << name.substr(start, sub_len);
-		}
-		out << "%2F";
-		start = found + 1;
-		found = name.find('/', start);
-	}
-	if (start < name.size())
-	{
-		out << name.substr(start, name.size() - start);
-	}
+    // substitute all '/' in name with appropriate code
+    std::string name = view->getName();
+    std::size_t found = name.find('/');
+    std::size_t start = 0;
+    while (found != std::string::npos)
+    {
+        std::size_t sub_len = found - start;
+        if (sub_len > 0)
+        {
+            out << name.substr(start, sub_len);
+        }
+        out << "%2F";
+        start = found + 1;
+        found = name.find('/', start);
+    }
+    if (start < name.size())
+    {
+        out << name.substr(start, name.size() - start);
+    }
 }
 
 std::string LLView::getPathname() const
 {
-	std::ostringstream out;
-	buildPathname(out, this);
-	return out.str();
+    std::ostringstream out;
+    buildPathname(out, this);
+    return out.str();
 }
 
 //static
@@ -445,15 +445,15 @@ std::string LLView::getPathname(const LLView* view)
 }
 
 // virtual
-BOOL LLView::canFocusChildren() const
+bool LLView::canFocusChildren() const
 {
-	return TRUE;
+    return true;
 }
 
 //virtual
-void LLView::setEnabled(BOOL enabled)
+void LLView::setEnabled(bool enabled)
 {
-	mEnabled = enabled;
+    mEnabled = enabled;
 }
 
 //virtual
@@ -469,108 +469,108 @@ bool LLView::isAvailable(const LLView* view)
 }
 
 //virtual
-BOOL LLView::setLabelArg( const std::string& key, const LLStringExplicit& text )
+bool LLView::setLabelArg( const std::string& key, const LLStringExplicit& text )
 {
-	return FALSE;
+    return false;
 }
 
 //virtual
 LLRect LLView::getSnapRect() const
 {
-	return mRect;
+    return mRect;
 }
 
 //virtual
 LLRect LLView::getRequiredRect()
 {
-	return mRect;
+    return mRect;
 }
 
-BOOL LLView::focusNextRoot()
+bool LLView::focusNextRoot()
 {
-	LLView::child_list_t result = LLView::getFocusRootsQuery().run(this);
-	return LLView::focusNext(result);
+    LLView::child_list_t result = LLView::getFocusRootsQuery().run(this);
+    return LLView::focusNext(result);
 }
 
-BOOL LLView::focusPrevRoot()
+bool LLView::focusPrevRoot()
 {
-	LLView::child_list_t result = LLView::getFocusRootsQuery().run(this);
-	return LLView::focusPrev(result);
-}
-
-// static
-BOOL LLView::focusNext(LLView::child_list_t & result)
-{
-	LLView::child_list_reverse_iter_t focused = result.rend();
-	for(LLView::child_list_reverse_iter_t iter = result.rbegin();
-		iter != result.rend();
-		++iter)
-	{
-		if(gFocusMgr.childHasKeyboardFocus(*iter))
-		{
-			focused = iter;
-			break;
-		}
-	}
-	LLView::child_list_reverse_iter_t next = focused;
-	next = (next == result.rend()) ? result.rbegin() : ++next;
-	while(next != focused)
-	{
-		// wrap around to beginning if necessary
-		if(next == result.rend())
-		{
-			next = result.rbegin();
-		}
-		if ((*next)->isCtrl() && ((LLUICtrl*)*next)->hasTabStop())
-		{
-			LLUICtrl * ctrl = static_cast<LLUICtrl*>(*next);
-			ctrl->setFocus(TRUE);
-			ctrl->onTabInto();  
-			gFocusMgr.triggerFocusFlash();
-			return TRUE;
-		}
-		++next;
-	}
-	return FALSE;
+    LLView::child_list_t result = LLView::getFocusRootsQuery().run(this);
+    return LLView::focusPrev(result);
 }
 
 // static
-BOOL LLView::focusPrev(LLView::child_list_t & result)
+bool LLView::focusNext(LLView::child_list_t & result)
 {
-	LLView::child_list_iter_t focused = result.end();
-	for(LLView::child_list_iter_t iter = result.begin();
-		iter != result.end();
-		++iter)
-	{
-		if(gFocusMgr.childHasKeyboardFocus(*iter))
-		{
-			focused = iter;
-			break;
-		}
-	}
-	LLView::child_list_iter_t next = focused;
-	next = (next == result.end()) ? result.begin() : ++next;
-	while(next != focused)
-	{
-		// wrap around to beginning if necessary
-		if(next == result.end())
-		{
-			next = result.begin();
-		}
-		if((*next)->isCtrl())
-		{
-			LLUICtrl * ctrl = static_cast<LLUICtrl*>(*next);
-			if (!ctrl->hasFocus())
-			{
-				ctrl->setFocus(TRUE);
-				ctrl->onTabInto();  
-				gFocusMgr.triggerFocusFlash();
-			}
-			return TRUE;
-		}
-		++next;
-	}
-	return FALSE;
+    LLView::child_list_reverse_iter_t focused = result.rend();
+    for(LLView::child_list_reverse_iter_t iter = result.rbegin();
+        iter != result.rend();
+        ++iter)
+    {
+        if(gFocusMgr.childHasKeyboardFocus(*iter))
+        {
+            focused = iter;
+            break;
+        }
+    }
+    LLView::child_list_reverse_iter_t next = focused;
+    next = (next == result.rend()) ? result.rbegin() : ++next;
+    while(next != focused)
+    {
+        // wrap around to beginning if necessary
+        if(next == result.rend())
+        {
+            next = result.rbegin();
+        }
+        if ((*next)->isCtrl() && ((LLUICtrl*)*next)->hasTabStop())
+        {
+            LLUICtrl * ctrl = static_cast<LLUICtrl*>(*next);
+            ctrl->setFocus(true);
+            ctrl->onTabInto();
+            gFocusMgr.triggerFocusFlash();
+            return true;
+        }
+        ++next;
+    }
+    return false;
+}
+
+// static
+bool LLView::focusPrev(LLView::child_list_t & result)
+{
+    LLView::child_list_iter_t focused = result.end();
+    for(LLView::child_list_iter_t iter = result.begin();
+        iter != result.end();
+        ++iter)
+    {
+        if(gFocusMgr.childHasKeyboardFocus(*iter))
+        {
+            focused = iter;
+            break;
+        }
+    }
+    LLView::child_list_iter_t next = focused;
+    next = (next == result.end()) ? result.begin() : ++next;
+    while(next != focused)
+    {
+        // wrap around to beginning if necessary
+        if(next == result.end())
+        {
+            next = result.begin();
+        }
+        if((*next)->isCtrl())
+        {
+            LLUICtrl * ctrl = static_cast<LLUICtrl*>(*next);
+            if (!ctrl->hasFocus())
+            {
+                ctrl->setFocus(true);
+                ctrl->onTabInto();
+                gFocusMgr.triggerFocusFlash();
+            }
+            return true;
+        }
+        ++next;
+    }
+    return false;
 }
 
 // delete all children. Override this function if you need to
@@ -578,82 +578,90 @@ BOOL LLView::focusPrev(LLView::child_list_t & result)
 // children, etc.
 void LLView::deleteAllChildren()
 {
-	// clear out the control ordering
-	mTabOrder.clear();
+    // clear out the control ordering
+    mTabOrder.clear();
 
-	while (!mChildList.empty())
-	{
+    while (!mChildList.empty())
+    {
         LLView* viewp = mChildList.front();
         viewp->mParentView = NULL;
         delete viewp;
         mChildList.pop_front();
-	}
+    }
     updateBoundingRect();
 }
 
-void LLView::setAllChildrenEnabled(BOOL b)
+void LLView::setAllChildrenEnabled(bool b, bool recursive /*= false*/)
 {
-	BOOST_FOREACH(LLView* viewp, mChildList)
-	{
-		viewp->setEnabled(b);
-	}
+    for (LLView* viewp : mChildList)
+    {
+        viewp->setEnabled(b);
+    }
+
+    if (recursive)
+    {
+        for (LLView* viewp : mChildList)
+        {
+            viewp->setAllChildrenEnabled(b, recursive);
+        }
+    }
 }
 
 // virtual
-void LLView::setVisible(BOOL visible)
+void LLView::setVisible(bool visible)
 {
-	if ( mVisible != visible )
-	{
-		mVisible = visible;
+    if ( mVisible != visible )
+    {
+        mVisible = visible;
 
-		// notify children of visibility change if root, or part of visible hierarchy
-		if (!getParent() || getParent()->isInVisibleChain())
-		{
-			// tell all children of this view that the visibility may have changed
-			dirtyRect();
-			onVisibilityChange( visible );
-		}
-		updateBoundingRect();
-	}
+        // notify children of visibility change if root, or part of visible hierarchy
+        if (!getParent() || getParent()->isInVisibleChain())
+        {
+            // tell all children of this view that the visibility may have changed
+            dirtyRect();
+            onVisibilityChange( visible );
+        }
+        updateBoundingRect();
+    }
 }
 
 // virtual
-void LLView::onVisibilityChange ( BOOL new_visibility )
+void LLView::onVisibilityChange ( bool new_visibility )
 {
-	BOOL old_visibility;
-	BOOL log_visibility_change = LLViewerEventRecorder::instance().getLoggingStatus();
-	BOOST_FOREACH(LLView* viewp, mChildList)
-	{
-		if (!viewp)
-		{
-			continue;
-		}
+    bool old_visibility;
+    bool log_visibility_change = LLViewerEventRecorder::instance().getLoggingStatus();
+    for (LLView* viewp : mChildList)
+    {
+        if (!viewp)
+        {
+            continue;
+        }
 
-		// only views that are themselves visible will have their overall visibility affected by their ancestors
-		old_visibility=viewp->getVisible();
+        // only views that are themselves visible will have their overall visibility affected by their ancestors
+        old_visibility=viewp->getVisible();
 
-		if(log_visibility_change)
-		{
-		if (old_visibility!=new_visibility)
-		{
-			LLViewerEventRecorder::instance().logVisibilityChange( viewp->getPathname(), viewp->getName(), new_visibility,"widget");
-		}
-		}
+        if(log_visibility_change)
+        {
+        if (old_visibility!=new_visibility)
+        {
+            LLViewerEventRecorder::instance().logVisibilityChange( viewp->getPathname(), viewp->getName(), new_visibility,"widget");
+        }
+        }
 
-		if (old_visibility)
-		{
-			viewp->onVisibilityChange ( new_visibility );
-		}
+        if (old_visibility)
+        {
+            viewp->onVisibilityChange ( new_visibility );
+        }
 
-		if(log_visibility_change)
-		{
-			// Consider changing returns to confirm success and know which widget grabbed it
-			// For now assume success and log at highest xui possible 
-			// NOTE we log actual state - which may differ if it somehow failed to set visibility
-			LL_DEBUGS() << "LLView::handleVisibilityChange	 - now: " << getVisible()  << " xui: " << viewp->getPathname() << " name: " << viewp->getName() << LL_ENDL;
-		
-		}
-	}
+        if(log_visibility_change)
+        {
+            // Consider changing returns to confirm success and know which widget grabbed it
+            // For now assume success and log at highest xui possible
+            // NOTE we log actual state - which may differ if it somehow failed to set visibility
+            LL_DEBUGS() << "LLView::handleVisibilityChange   - now: " << getVisible()  << " xui: " << viewp->getPathname() << " name: " << viewp->getName() << LL_ENDL;
+
+        }
+    }
 }
 
 // virtual
@@ -669,14 +677,14 @@ void LLView::onUpdateScrollToChild(const LLUICtrl * cntrl)
 // virtual
 void LLView::translate(S32 x, S32 y)
 {
-	mRect.translate(x, y);
-	updateBoundingRect();
+    mRect.translate(x, y);
+    updateBoundingRect();
 }
 
 // virtual
-BOOL LLView::canSnapTo(const LLView* other_view)
+bool LLView::canSnapTo(const LLView* other_view)
 {
-	return other_view != this && other_view->getVisible();
+    return other_view != this && other_view->getVisible();
 }
 
 // virtual
@@ -684,60 +692,60 @@ void LLView::setSnappedTo(const LLView* snap_view)
 {
 }
 
-BOOL LLView::handleHover(S32 x, S32 y, MASK mask)
+bool LLView::handleHover(S32 x, S32 y, MASK mask)
 {
-	return childrenHandleHover( x, y, mask ) != NULL;
+    return childrenHandleHover( x, y, mask ) != NULL;
 }
 
 void LLView::onMouseEnter(S32 x, S32 y, MASK mask)
 {
-	//LL_INFOS() << "Mouse entered " << getName() << LL_ENDL;
+    //LL_INFOS() << "Mouse entered " << getName() << LL_ENDL;
 }
 
 void LLView::onMouseLeave(S32 x, S32 y, MASK mask)
 {
-	//LL_INFOS() << "Mouse left " << getName() << LL_ENDL;
+    //LL_INFOS() << "Mouse left " << getName() << LL_ENDL;
 }
 
 bool LLView::visibleAndContains(S32 local_x, S32 local_y)
 {
-	return sDrilldown(this, local_x, local_y)
-		&& getVisible();
+    return sDrilldown(this, local_x, local_y)
+        && getVisible();
 }
 
 bool LLView::visibleEnabledAndContains(S32 local_x, S32 local_y)
 {
-	return visibleAndContains(local_x, local_y)
-		&& getEnabled();
+    return visibleAndContains(local_x, local_y)
+        && getEnabled();
 }
 
 // This is NOT event recording related
 void LLView::logMouseEvent()
 {
-	if (sDebugMouseHandling)
-	{
-		sMouseHandlerMessage = std::string("/") + mName + sMouseHandlerMessage;
-	}
+    if (sDebugMouseHandling)
+    {
+        sMouseHandlerMessage = std::string("/") + mName + sMouseHandlerMessage;
+    }
 }
 
 template <typename METHOD, typename CHARTYPE>
-LLView* LLView::childrenHandleCharEvent(const std::string& desc, const METHOD& method,
-										CHARTYPE c, MASK mask)
+LLView* LLView::childrenHandleCharEvent(std::string_view desc, const METHOD& method,
+                                        CHARTYPE c, MASK mask)
 {
-	if ( getVisible() && getEnabled() )
-	{
-		BOOST_FOREACH(LLView* viewp, mChildList)
-		{
-			if ((viewp->*method)(c, mask, TRUE))
-			{
-				if (LLView::sDebugKeys)
-				{
-					LL_INFOS() << desc << " handled by " << viewp->getName() << LL_ENDL;
-				}
-				return viewp;
-			}
-		}
-	}
+    if ( getVisible() && getEnabled() )
+    {
+        for (LLView* viewp : mChildList)
+        {
+            if ((viewp->*method)(c, mask, true))
+            {
+                if (LLView::sDebugKeys)
+                {
+                    LL_INFOS() << desc << " handled by " << viewp->getName() << LL_ENDL;
+                }
+                return viewp;
+            }
+        }
+    }
     return NULL;
 }
 
@@ -745,146 +753,146 @@ LLView* LLView::childrenHandleCharEvent(const std::string& desc, const METHOD& m
 template <typename METHOD, typename XDATA>
 LLView* LLView::childrenHandleMouseEvent(const METHOD& method, S32 x, S32 y, XDATA extra, bool allow_mouse_block)
 {
-	BOOST_FOREACH(LLView* viewp, mChildList)
-	{
-		S32 local_x = x - viewp->getRect().mLeft;
-		S32 local_y = y - viewp->getRect().mBottom;
+    for (LLView* viewp : mChildList)
+    {
+        S32 local_x = x - viewp->getRect().mLeft;
+        S32 local_y = y - viewp->getRect().mBottom;
 
-		if (!viewp->visibleEnabledAndContains(local_x, local_y))
-		{
-			continue;
-		}
+        if (!viewp->visibleEnabledAndContains(local_x, local_y))
+        {
+            continue;
+        }
 
-		if ((viewp->*method)( local_x, local_y, extra )
-			|| (allow_mouse_block && viewp->blockMouseEvent( local_x, local_y )))
-		{
-			LL_DEBUGS() << "LLView::childrenHandleMouseEvent calling updatemouseeventinfo - local_x|global x  "<< local_x << " " << x	<< "local/global y " << local_y << " " << y << LL_ENDL;
-			LL_DEBUGS() << "LLView::childrenHandleMouseEvent  getPathname for viewp result: " << viewp->getPathname() << "for this view: " << getPathname() << LL_ENDL;
+        if ((viewp->*method)( local_x, local_y, extra )
+            || (allow_mouse_block && viewp->blockMouseEvent( local_x, local_y )))
+        {
+            LL_DEBUGS() << "LLView::childrenHandleMouseEvent calling updatemouseeventinfo - local_x|global x  "<< local_x << " " << x   << "local/global y " << local_y << " " << y << LL_ENDL;
+            LL_DEBUGS() << "LLView::childrenHandleMouseEvent  getPathname for viewp result: " << viewp->getPathname() << "for this view: " << getPathname() << LL_ENDL;
 
-			LLViewerEventRecorder::instance().updateMouseEventInfo(x,y,-55,-55,getPathname()); 
+            LLViewerEventRecorder::instance().updateMouseEventInfo(x,y,-55,-55,getPathname());
 
-			// This is NOT event recording related
-			viewp->logMouseEvent();
+            // This is NOT event recording related
+            viewp->logMouseEvent();
 
-			return viewp;
-		}
-	}
-	return NULL;
+            return viewp;
+        }
+    }
+    return NULL;
 }
 
 LLView* LLView::childrenHandleToolTip(S32 x, S32 y, MASK mask)
 {
-	BOOST_FOREACH(LLView* viewp, mChildList)
-	{
-		S32 local_x = x - viewp->getRect().mLeft;
-		S32 local_y = y - viewp->getRect().mBottom;
-		// Differs from childrenHandleMouseEvent() in that we want to offer
-		// tooltips even for disabled widgets.
-		if(!viewp->visibleAndContains(local_x, local_y))
-		{
-			continue;
-		}
+    for (LLView* viewp : mChildList)
+    {
+        S32 local_x = x - viewp->getRect().mLeft;
+        S32 local_y = y - viewp->getRect().mBottom;
+        // Differs from childrenHandleMouseEvent() in that we want to offer
+        // tooltips even for disabled widgets.
+        if(!viewp->visibleAndContains(local_x, local_y))
+        {
+            continue;
+        }
 
-		if (viewp->handleToolTip(local_x, local_y, mask) 
-			|| viewp->blockMouseEvent(local_x, local_y))
-		{
-			// This is NOT event recording related
-			viewp->logMouseEvent();
-			return viewp;
-		}
-	}
-	return NULL;
+        if (viewp->handleToolTip(local_x, local_y, mask)
+            || viewp->blockMouseEvent(local_x, local_y))
+        {
+            // This is NOT event recording related
+            viewp->logMouseEvent();
+            return viewp;
+        }
+    }
+    return NULL;
 }
 
 LLView* LLView::childrenHandleDragAndDrop(S32 x, S32 y, MASK mask,
-									   BOOL drop,
-									   EDragAndDropType cargo_type,
-									   void* cargo_data,
-									   EAcceptance* accept,
-									   std::string& tooltip_msg)
+                                       bool drop,
+                                       EDragAndDropType cargo_type,
+                                       void* cargo_data,
+                                       EAcceptance* accept,
+                                       std::string& tooltip_msg)
 {
-	// default to not accepting drag and drop, will be overridden by handler
-	*accept = ACCEPT_NO;
+    // default to not accepting drag and drop, will be overridden by handler
+    *accept = ACCEPT_NO;
 
-	BOOST_FOREACH(LLView* viewp, mChildList)
-	{
-		S32 local_x = x - viewp->getRect().mLeft;
-		S32 local_y = y - viewp->getRect().mBottom;
-		if( !viewp->visibleEnabledAndContains(local_x, local_y))
-		{
-			continue;
-		}
+    for (LLView* viewp : mChildList)
+    {
+        S32 local_x = x - viewp->getRect().mLeft;
+        S32 local_y = y - viewp->getRect().mBottom;
+        if( !viewp->visibleEnabledAndContains(local_x, local_y))
+        {
+            continue;
+        }
 
-		// Differs from childrenHandleMouseEvent() simply in that this virtual
-		// method call diverges pretty radically from the usual (x, y, int).
-		if (viewp->handleDragAndDrop(local_x, local_y, mask, drop,
-									 cargo_type,
-									 cargo_data,
-									 accept,
-									 tooltip_msg)
-			|| viewp->blockMouseEvent(local_x, local_y))
-		{
-			return viewp;
-		}
-	}
-	return NULL;
+        // Differs from childrenHandleMouseEvent() simply in that this virtual
+        // method call diverges pretty radically from the usual (x, y, int).
+        if (viewp->handleDragAndDrop(local_x, local_y, mask, drop,
+                                     cargo_type,
+                                     cargo_data,
+                                     accept,
+                                     tooltip_msg)
+            || viewp->blockMouseEvent(local_x, local_y))
+        {
+            return viewp;
+        }
+    }
+    return NULL;
 }
 
 LLView* LLView::childrenHandleHover(S32 x, S32 y, MASK mask)
 {
-	BOOST_FOREACH(LLView* viewp, mChildList)
-	{
-		S32 local_x = x - viewp->getRect().mLeft;
-		S32 local_y = y - viewp->getRect().mBottom;
-		if(!viewp->visibleEnabledAndContains(local_x, local_y))
-		{
-			continue;
-		}
+    for (LLView* viewp : mChildList)
+    {
+        S32 local_x = x - viewp->getRect().mLeft;
+        S32 local_y = y - viewp->getRect().mBottom;
+        if(!viewp->visibleEnabledAndContains(local_x, local_y))
+        {
+            continue;
+        }
 
-		// This call differentiates this method from childrenHandleMouseEvent().
-		LLUI::getInstance()->mWindow->setCursor(viewp->getHoverCursor());
+        // This call differentiates this method from childrenHandleMouseEvent().
+        LLUI::getInstance()->mWindow->setCursor(viewp->getHoverCursor());
 
-		if (viewp->handleHover(local_x, local_y, mask)
-			|| viewp->blockMouseEvent(local_x, local_y))
-		{
-			// This is NOT event recording related
-			viewp->logMouseEvent();
-			return viewp;
-		}
-	}
-	return NULL;
+        if (viewp->handleHover(local_x, local_y, mask)
+            || viewp->blockMouseEvent(local_x, local_y))
+        {
+            // This is NOT event recording related
+            viewp->logMouseEvent();
+            return viewp;
+        }
+    }
+    return NULL;
 }
 
-LLView*	LLView::childFromPoint(S32 x, S32 y, bool recur)
+LLView* LLView::childFromPoint(S32 x, S32 y, bool recur)
 {
-	if (!getVisible())
-		return NULL;
+    if (!getVisible())
+        return NULL;
 
-	BOOST_FOREACH(LLView* viewp, mChildList)
-	{
-		S32 local_x = x - viewp->getRect().mLeft;
-		S32 local_y = y - viewp->getRect().mBottom;
-		if (!viewp->visibleAndContains(local_x, local_y))
-		{
-			continue;
-		}
-		// Here we've found the first (frontmost) visible child at this level
-		// containing the specified point. Is the caller asking us to drill
-		// down and return the innermost leaf child at this point, or just the
-		// top-level child?
-		if (recur)
-		{
-			LLView* leaf(viewp->childFromPoint(local_x, local_y, recur));
-			// Maybe viewp is already a leaf LLView, or maybe it has children
-			// but this particular (x, y) point falls between them. If the
-			// recursive call returns non-NULL, great, use that; else just use
-			// viewp.
-			return leaf? leaf : viewp;
-		}
-		return viewp;
+    for (LLView* viewp : mChildList)
+    {
+        S32 local_x = x - viewp->getRect().mLeft;
+        S32 local_y = y - viewp->getRect().mBottom;
+        if (!viewp->visibleAndContains(local_x, local_y))
+        {
+            continue;
+        }
+        // Here we've found the first (frontmost) visible child at this level
+        // containing the specified point. Is the caller asking us to drill
+        // down and return the innermost leaf child at this point, or just the
+        // top-level child?
+        if (recur)
+        {
+            LLView* leaf(viewp->childFromPoint(local_x, local_y, recur));
+            // Maybe viewp is already a leaf LLView, or maybe it has children
+            // but this particular (x, y) point falls between them. If the
+            // recursive call returns non-NULL, great, use that; else just use
+            // viewp.
+            return leaf? leaf : viewp;
+        }
+        return viewp;
 
-	}
-	return 0;
+    }
+    return 0;
 }
 
 F32 LLView::getTooltipTimeout()
@@ -898,355 +906,383 @@ F32 LLView::getTooltipTimeout()
     : tooltip_delay);
 }
 
-BOOL LLView::handleToolTip(S32 x, S32 y, MASK mask)
+// virtual
+const std::string LLView::getToolTip() const
 {
-	BOOL handled = FALSE;
+    if (sDebugUnicode)
+    {
+        std::string text = getText();
+        if (!text.empty())
+        {
+            const std::string& name = getName();
+            std::string tooltip = llformat("Name: \"%s\"", name.c_str());
 
-	// parents provide tooltips first, which are optionally
-	// overridden by children, in case child is mouse_opaque
-	std::string tooltip = getToolTip();
-	if (!tooltip.empty())
-	{
+            if (const LLFontGL* font = getFont())
+            {
+                tooltip += llformat("\nFont: %s (%s)",
+                    font->getFontDesc().getName().c_str(),
+                    font->getFontDesc().getSize().c_str()
+                );
+            }
+
+            tooltip += "\n\n" + utf8str_showBytesUTF8(text);
+
+            return tooltip;
+        }
+    }
+
+    return mToolTipMsg.getString();
+}
+
+bool LLView::handleToolTip(S32 x, S32 y, MASK mask)
+{
+    bool handled = false;
+
+    // parents provide tooltips first, which are optionally
+    // overridden by children, in case child is mouse_opaque
+    std::string tooltip = getToolTip();
+    if (!tooltip.empty())
+    {
         static LLCachedControl<bool> allow_ui_tooltips(*LLUI::getInstance()->mSettingGroups["config"], "BasicUITooltips", true);
 
-		// Even if we don't show tooltips, consume the event, nothing below should show tooltip
-		if (allow_ui_tooltips)
-		{
-			LLToolTipMgr::instance().show(LLToolTip::Params()
-			                              .message(tooltip)
-			                              .sticky_rect(calcScreenRect())
-			                              .delay_time(getTooltipTimeout()));
-		}
-		handled = TRUE;
-	}
+        // Even if we don't show tooltips, consume the event, nothing below should show tooltip
+        if (allow_ui_tooltips)
+        {
+            LLToolTipMgr::instance().show(LLToolTip::Params()
+                                          .message(tooltip)
+                                          .sticky_rect(calcScreenRect())
+                                          .delay_time(getTooltipTimeout()));
+        }
+        handled = true;
+    }
 
-	// child tooltips will override our own
-	LLView* child_handler = childrenHandleToolTip(x, y, mask);
-	if (child_handler)
-	{
-		handled = TRUE;
-	}
+    // child tooltips will override our own
+    LLView* child_handler = childrenHandleToolTip(x, y, mask);
+    if (child_handler)
+    {
+        handled = true;
+    }
 
-	return handled;
+    return handled;
 }
 
-BOOL LLView::handleKey(KEY key, MASK mask, BOOL called_from_parent)
+bool LLView::handleKey(KEY key, MASK mask, bool called_from_parent)
 {
-	BOOL handled = FALSE;
+    bool handled = false;
 
-	if (getVisible() && getEnabled())
-	{
-		if( called_from_parent )
-		{
-			// Downward traversal
-			handled = childrenHandleKey( key, mask ) != NULL;
-		}
+    if (getVisible() && getEnabled())
+    {
+        if( called_from_parent )
+        {
+            // Downward traversal
+            handled = childrenHandleKey( key, mask ) != NULL;
+        }
 
-		if (!handled)
-		{
-			// For event logging we don't care which widget handles it
-			// So we capture the key at the end of this function once we know if it was handled
-			handled = handleKeyHere( key, mask );
-			if (handled)
-			{
-				LL_DEBUGS() << "Key handled by " << getName() << LL_ENDL;
-			}
-		}
-	}
+        if (!handled)
+        {
+            // For event logging we don't care which widget handles it
+            // So we capture the key at the end of this function once we know if it was handled
+            handled = handleKeyHere( key, mask );
+            if (handled)
+            {
+                LL_DEBUGS() << "Key handled by " << getName() << LL_ENDL;
+            }
+        }
+    }
 
-	if( !handled && !called_from_parent && mParentView)
-	{
-		// Upward traversal
-		handled = mParentView->handleKey( key, mask, FALSE );
-	}
-	return handled;
+    if( !handled && !called_from_parent && mParentView)
+    {
+        // Upward traversal
+        handled = mParentView->handleKey( key, mask, false );
+    }
+    return handled;
 }
 
-BOOL LLView::handleKeyUp(KEY key, MASK mask, BOOL called_from_parent)
+bool LLView::handleKeyUp(KEY key, MASK mask, bool called_from_parent)
 {
-	BOOL handled = FALSE;
+    bool handled = false;
 
-	if (getVisible() && getEnabled())
-	{
-		if (called_from_parent)
-		{
-			// Downward traversal
-			handled = childrenHandleKeyUp(key, mask) != NULL;
-		}
+    if (getVisible() && getEnabled())
+    {
+        if (called_from_parent)
+        {
+            // Downward traversal
+            handled = childrenHandleKeyUp(key, mask) != NULL;
+        }
 
-		if (!handled)
-		{
-			// For event logging we don't care which widget handles it
-			// So we capture the key at the end of this function once we know if it was handled
-			handled = handleKeyUpHere(key, mask);
-			if (handled)
-			{
-				LL_DEBUGS() << "Key handled by " << getName() << LL_ENDL;
-			}
-		}
-	}
+        if (!handled)
+        {
+            // For event logging we don't care which widget handles it
+            // So we capture the key at the end of this function once we know if it was handled
+            handled = handleKeyUpHere(key, mask);
+            if (handled)
+            {
+                LL_DEBUGS() << "Key handled by " << getName() << LL_ENDL;
+            }
+        }
+    }
 
-	if (!handled && !called_from_parent && mParentView)
-	{
-		// Upward traversal
-		handled = mParentView->handleKeyUp(key, mask, FALSE);
-	}
-	return handled;
-}
-
-// Called from handleKey()
-// Handles key in this object.  Checking parents and children happens in handleKey()
-BOOL LLView::handleKeyHere(KEY key, MASK mask)
-{
-	return FALSE;
+    if (!handled && !called_from_parent && mParentView)
+    {
+        // Upward traversal
+        handled = mParentView->handleKeyUp(key, mask, false);
+    }
+    return handled;
 }
 
 // Called from handleKey()
 // Handles key in this object.  Checking parents and children happens in handleKey()
-BOOL LLView::handleKeyUpHere(KEY key, MASK mask)
+bool LLView::handleKeyHere(KEY key, MASK mask)
 {
-	return FALSE;
+    return false;
 }
 
-BOOL LLView::handleUnicodeChar(llwchar uni_char, BOOL called_from_parent)
+// Called from handleKey()
+// Handles key in this object.  Checking parents and children happens in handleKey()
+bool LLView::handleKeyUpHere(KEY key, MASK mask)
 {
-	BOOL handled = FALSE;
+    return false;
+}
 
-	if (getVisible() && getEnabled())
-	{
-		if( called_from_parent )
-		{
-			// Downward traversal
-			handled = childrenHandleUnicodeChar( uni_char ) != NULL;
-		}
+bool LLView::handleUnicodeChar(llwchar uni_char, bool called_from_parent)
+{
+    bool handled = false;
 
-		if (!handled)
-		{
-			handled = handleUnicodeCharHere(uni_char);
-			if (handled && LLView::sDebugKeys)
-			{
-				LL_INFOS() << "Unicode key " << wchar_utf8_preview(uni_char) << " is handled by " << getName() << LL_ENDL;
-			}
-		}
-	}
+    if (getVisible() && getEnabled())
+    {
+        if( called_from_parent )
+        {
+            // Downward traversal
+            handled = childrenHandleUnicodeChar( uni_char ) != NULL;
+        }
 
-	if (!handled && !called_from_parent && mParentView)
-	{
-		// Upward traversal
-		handled = mParentView->handleUnicodeChar(uni_char, FALSE);
-	}
+        if (!handled)
+        {
+            handled = handleUnicodeCharHere(uni_char);
+            if (handled && LLView::sDebugKeys)
+            {
+                LL_INFOS() << "Unicode key " << wchar_utf8_preview(uni_char) << " is handled by " << getName() << LL_ENDL;
+            }
+        }
+    }
 
-	if (handled)
-	{
-		LLViewerEventRecorder::instance().logKeyUnicodeEvent(uni_char);
-	}
-	
-	return handled;
+    if (!handled && !called_from_parent && mParentView)
+    {
+        // Upward traversal
+        handled = mParentView->handleUnicodeChar(uni_char, false);
+    }
+
+    if (handled)
+    {
+        LLViewerEventRecorder::instance().logKeyUnicodeEvent(uni_char);
+    }
+
+    return handled;
 }
 
 
-BOOL LLView::handleUnicodeCharHere(llwchar uni_char )
+bool LLView::handleUnicodeCharHere(llwchar uni_char )
 {
-	return FALSE;
+    return false;
 }
 
 
-BOOL LLView::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
-							   EDragAndDropType cargo_type, void* cargo_data,
-							   EAcceptance* accept,
-							   std::string& tooltip_msg)
+bool LLView::handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
+                               EDragAndDropType cargo_type, void* cargo_data,
+                               EAcceptance* accept,
+                               std::string& tooltip_msg)
 {
-	return childrenHandleDragAndDrop( x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg) != NULL;
+    return childrenHandleDragAndDrop( x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg) != NULL;
 }
 
 void LLView::onMouseCaptureLost()
 {
 }
 
-BOOL LLView::hasMouseCapture()
-{ 
-	return gFocusMgr.getMouseCapture() == this; 
+bool LLView::hasMouseCapture()
+{
+    return gFocusMgr.getMouseCapture() == this;
 }
 
-BOOL LLView::handleMouseUp(S32 x, S32 y, MASK mask)
+bool LLView::handleMouseUp(S32 x, S32 y, MASK mask)
 {
-	LLView* r = childrenHandleMouseUp( x, y, mask );
+    LLView* r = childrenHandleMouseUp( x, y, mask );
 
-	return (r!=NULL);
+    return (r!=NULL);
 }
 
-BOOL LLView::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLView::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	LLView* r= childrenHandleMouseDown(x, y, mask );
+    LLView* r= childrenHandleMouseDown(x, y, mask );
 
-	return (r!=NULL);
+    return (r!=NULL);
 }
 
-BOOL LLView::handleDoubleClick(S32 x, S32 y, MASK mask)
+bool LLView::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
-	return childrenHandleDoubleClick( x, y, mask ) != NULL;
+    return childrenHandleDoubleClick( x, y, mask ) != NULL;
 }
 
-BOOL LLView::handleScrollWheel(S32 x, S32 y, S32 clicks)
+bool LLView::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
-	return childrenHandleScrollWheel( x, y, clicks ) != NULL;
+    return childrenHandleScrollWheel( x, y, clicks ) != NULL;
 }
 
-BOOL LLView::handleScrollHWheel(S32 x, S32 y, S32 clicks)
+bool LLView::handleScrollHWheel(S32 x, S32 y, S32 clicks)
 {
-	return childrenHandleScrollHWheel( x, y, clicks ) != NULL;
+    return childrenHandleScrollHWheel( x, y, clicks ) != NULL;
 }
 
-BOOL LLView::handleRightMouseDown(S32 x, S32 y, MASK mask)
+bool LLView::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
-	return childrenHandleRightMouseDown( x, y, mask ) != NULL;
+    return childrenHandleRightMouseDown( x, y, mask ) != NULL;
 }
 
-BOOL LLView::handleRightMouseUp(S32 x, S32 y, MASK mask)
+bool LLView::handleRightMouseUp(S32 x, S32 y, MASK mask)
 {
-	return childrenHandleRightMouseUp( x, y, mask ) != NULL;
-}
- 
-BOOL LLView::handleMiddleMouseDown(S32 x, S32 y, MASK mask)
-{
-	return childrenHandleMiddleMouseDown( x, y, mask ) != NULL;
+    return childrenHandleRightMouseUp( x, y, mask ) != NULL;
 }
 
-BOOL LLView::handleMiddleMouseUp(S32 x, S32 y, MASK mask)
+bool LLView::handleMiddleMouseDown(S32 x, S32 y, MASK mask)
 {
-	return childrenHandleMiddleMouseUp( x, y, mask ) != NULL;
+    return childrenHandleMiddleMouseDown( x, y, mask ) != NULL;
+}
+
+bool LLView::handleMiddleMouseUp(S32 x, S32 y, MASK mask)
+{
+    return childrenHandleMiddleMouseUp( x, y, mask ) != NULL;
 }
 
 LLView* LLView::childrenHandleScrollWheel(S32 x, S32 y, S32 clicks)
 {
-	return childrenHandleMouseEvent(&LLView::handleScrollWheel, x, y, clicks, false);
+    return childrenHandleMouseEvent(&LLView::handleScrollWheel, x, y, clicks, false);
 }
 
 LLView* LLView::childrenHandleScrollHWheel(S32 x, S32 y, S32 clicks)
 {
-	return childrenHandleMouseEvent(&LLView::handleScrollHWheel, x, y, clicks, false);
+    return childrenHandleMouseEvent(&LLView::handleScrollHWheel, x, y, clicks, false);
 }
 
 // Called during downward traversal
 LLView* LLView::childrenHandleKey(KEY key, MASK mask)
 {
-	return childrenHandleCharEvent("Key", &LLView::handleKey, key, mask);
+    return childrenHandleCharEvent("Key", &LLView::handleKey, key, mask);
 }
 
 // Called during downward traversal
 LLView* LLView::childrenHandleKeyUp(KEY key, MASK mask)
 {
-	return childrenHandleCharEvent("Key Up", &LLView::handleKeyUp, key, mask);
+    return childrenHandleCharEvent("Key Up", &LLView::handleKeyUp, key, mask);
 }
 
 // Called during downward traversal
 LLView* LLView::childrenHandleUnicodeChar(llwchar uni_char)
 {
-	return childrenHandleCharEvent("Unicode character", &LLView::handleUnicodeCharWithDummyMask,
-								   uni_char, MASK_NONE);
+    return childrenHandleCharEvent("Unicode character", &LLView::handleUnicodeCharWithDummyMask,
+                                   uni_char, MASK_NONE);
 }
 
 LLView* LLView::childrenHandleMouseDown(S32 x, S32 y, MASK mask)
 {
-	return childrenHandleMouseEvent(&LLView::handleMouseDown, x, y, mask);
+    return childrenHandleMouseEvent(&LLView::handleMouseDown, x, y, mask);
 }
 
 LLView* LLView::childrenHandleRightMouseDown(S32 x, S32 y, MASK mask)
 {
-	return childrenHandleMouseEvent(&LLView::handleRightMouseDown, x, y, mask);
+    return childrenHandleMouseEvent(&LLView::handleRightMouseDown, x, y, mask);
 }
 
 LLView* LLView::childrenHandleMiddleMouseDown(S32 x, S32 y, MASK mask)
 {
-	return childrenHandleMouseEvent(&LLView::handleMiddleMouseDown, x, y, mask);
+    return childrenHandleMouseEvent(&LLView::handleMiddleMouseDown, x, y, mask);
 }
 
 LLView* LLView::childrenHandleDoubleClick(S32 x, S32 y, MASK mask)
 {
-	return childrenHandleMouseEvent(&LLView::handleDoubleClick, x, y, mask);
+    return childrenHandleMouseEvent(&LLView::handleDoubleClick, x, y, mask);
 }
 
 LLView* LLView::childrenHandleMouseUp(S32 x, S32 y, MASK mask)
 {
-	return	childrenHandleMouseEvent(&LLView::handleMouseUp, x, y, mask);
+    return  childrenHandleMouseEvent(&LLView::handleMouseUp, x, y, mask);
 }
 
 LLView* LLView::childrenHandleRightMouseUp(S32 x, S32 y, MASK mask)
 {
-	return childrenHandleMouseEvent(&LLView::handleRightMouseUp, x, y, mask);
+    return childrenHandleMouseEvent(&LLView::handleRightMouseUp, x, y, mask);
 }
 
 LLView* LLView::childrenHandleMiddleMouseUp(S32 x, S32 y, MASK mask)
 {
-	return childrenHandleMouseEvent(&LLView::handleMiddleMouseUp, x, y, mask);
+    return childrenHandleMouseEvent(&LLView::handleMiddleMouseUp, x, y, mask);
 }
 
 void LLView::draw()
 {
-	drawChildren();
+    drawChildren();
 }
 
 void LLView::drawChildren()
 {
-	if (!mChildList.empty())
-	{
-		LLView* rootp = LLUI::getInstance()->getRootView();		
-		++sDepth;
+    if (!mChildList.empty())
+    {
+        LLView* rootp = LLUI::getInstance()->getRootView();
+        ++sDepth;
 
-		for (child_list_reverse_iter_t child_iter = mChildList.rbegin(); child_iter != mChildList.rend();)  // ++child_iter)
-		{
-			child_list_reverse_iter_t child = child_iter++;
-			LLView *viewp = *child;
-			
-			if (viewp == NULL)
-			{
-				continue;
-			}
+        for (child_list_reverse_iter_t child_iter = mChildList.rbegin(); child_iter != mChildList.rend();)  // ++child_iter)
+        {
+            child_list_reverse_iter_t child = child_iter++;
+            LLView *viewp = *child;
 
-			if (viewp->getVisible() && viewp->getRect().isValid())
-			{
-				LLRect screen_rect = viewp->calcScreenRect();
-				if ( rootp->getLocalRect().overlaps(screen_rect)  && sDirtyRect.overlaps(screen_rect))
-				{
-					LLUI::pushMatrix();
-					{
-						LLUI::translate((F32)viewp->getRect().mLeft, (F32)viewp->getRect().mBottom);
-						// flag the fact we are in draw here, in case overridden draw() method attempts to remove this widget
-						viewp->mInDraw = true;
-						viewp->draw();
-						viewp->mInDraw = false;
+            if (viewp == NULL)
+            {
+                continue;
+            }
 
-						if (sDebugRects)
-						{
-							viewp->drawDebugRect();
+            if (viewp->getVisible() && viewp->getRect().isValid())
+            {
+                LLRect screen_rect = viewp->calcScreenRect();
+                if ( rootp->getLocalRect().overlaps(screen_rect)  && sDirtyRect.overlaps(screen_rect))
+                {
+                    LLUI::pushMatrix();
+                    {
+                        LLUI::translate((F32)viewp->getRect().mLeft, (F32)viewp->getRect().mBottom);
+                        // flag the fact we are in draw here, in case overridden draw() method attempts to remove this widget
+                        viewp->mInDraw = true;
+                        viewp->draw();
+                        viewp->mInDraw = false;
 
-							// Check for bogus rectangle
-							if (!getRect().isValid())
-							{
-								LL_WARNS() << "Bogus rectangle for " << getName() << " with " << mRect << LL_ENDL;
-							}
-						}
-					}
-					LLUI::popMatrix();
-				}
-			}
+                        if (sDebugRects)
+                        {
+                            viewp->drawDebugRect();
 
-		}
-		--sDepth;
-	}
+                            // Check for bogus rectangle
+                            if (!getRect().isValid())
+                            {
+                                LL_WARNS() << "Bogus rectangle for " << getName() << " with " << mRect << LL_ENDL;
+                            }
+                        }
+                    }
+                    LLUI::popMatrix();
+                }
+            }
+
+        }
+        --sDepth;
+    }
 }
 
 void LLView::dirtyRect()
 {
-	LLView* child = getParent();
-	LLView* parent = child ? child->getParent() : NULL;
-	LLView* cur = this;
-	while (child && parent && parent->getParent())
-	{ //find third to top-most view
-		cur = child;
-		child = parent;
-		parent = parent->getParent();
-	}
+    LLView* child = getParent();
+    LLView* parent = child ? child->getParent() : NULL;
+    LLView* cur = this;
+    while (child && parent && parent->getParent())
+    { //find third to top-most view
+        cur = child;
+        child = parent;
+        parent = parent->getParent();
+    }
 
     if (!sIsRectDirty)
     {
@@ -1262,1013 +1298,1015 @@ void LLView::dirtyRect()
 //Draw a box for debugging.
 void LLView::drawDebugRect()
 {
-	std::set<LLView*>::iterator preview_iter = std::find(sPreviewHighlightedElements.begin(), sPreviewHighlightedElements.end(), this);	// figure out if it's a previewed element
+    std::set<LLView*>::iterator preview_iter = std::find(sPreviewHighlightedElements.begin(), sPreviewHighlightedElements.end(), this); // figure out if it's a previewed element
 
-	LLUI::pushMatrix();
-	{
-		// drawing solids requires texturing be disabled
-		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+    LLUI::pushMatrix();
+    {
+        // drawing solids requires texturing be disabled
+        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
-		if (getUseBoundingRect())
-		{
-			LLUI::translate((F32)mBoundingRect.mLeft - (F32)mRect.mLeft, (F32)mBoundingRect.mBottom - (F32)mRect.mBottom);
-		}
+        if (getUseBoundingRect())
+        {
+            LLUI::translate((F32)mBoundingRect.mLeft - (F32)mRect.mLeft, (F32)mBoundingRect.mBottom - (F32)mRect.mBottom);
+        }
 
-		LLRect debug_rect = getUseBoundingRect() ? mBoundingRect : mRect;
+        LLRect debug_rect = getUseBoundingRect() ? mBoundingRect : mRect;
 
-		// draw red rectangle for the border
-		LLColor4 border_color(0.25f, 0.25f, 0.25f, 1.f);
-		if(preview_iter != sPreviewHighlightedElements.end())
-		{
-			if(LLView::sPreviewClickedElement && this == sPreviewClickedElement)
-			{
-				border_color = LLColor4::red;
-			}
-			else
-			{
-				static LLUIColor scroll_highlighted_color = LLUIColorTable::instance().getColor("ScrollHighlightedColor");
-				border_color = scroll_highlighted_color;
-			}
-		}
-		else
-		{
-			border_color.mV[sDepth%3] = 1.f;
-		}
+        // draw red rectangle for the border
+        LLColor4 border_color(0.25f, 0.25f, 0.25f, 1.f);
+        if(preview_iter != sPreviewHighlightedElements.end())
+        {
+            if(LLView::sPreviewClickedElement && this == sPreviewClickedElement)
+            {
+                border_color = LLColor4::red;
+            }
+            else
+            {
+                static LLUIColor scroll_highlighted_color = LLUIColorTable::instance().getColor("ScrollHighlightedColor");
+                border_color = scroll_highlighted_color;
+            }
+        }
+        else
+        {
+            border_color.mV[sDepth%3] = 1.f;
+        }
 
-		gGL.color4fv( border_color.mV );
+        gGL.color4fv( border_color.mV );
 
-		gGL.begin(LLRender::LINES);
-			gGL.vertex2i(0, debug_rect.getHeight() - 1);
-			gGL.vertex2i(0, 0);
+        gGL.begin(LLRender::LINES);
+            gGL.vertex2i(0, debug_rect.getHeight() - 1);
+            gGL.vertex2i(0, 0);
 
-			gGL.vertex2i(0, 0);
-			gGL.vertex2i(debug_rect.getWidth() - 1, 0);
+            gGL.vertex2i(0, 0);
+            gGL.vertex2i(debug_rect.getWidth() - 1, 0);
 
-			gGL.vertex2i(debug_rect.getWidth() - 1, 0);
-			gGL.vertex2i(debug_rect.getWidth() - 1, debug_rect.getHeight() - 1);
+            gGL.vertex2i(debug_rect.getWidth() - 1, 0);
+            gGL.vertex2i(debug_rect.getWidth() - 1, debug_rect.getHeight() - 1);
 
-			gGL.vertex2i(debug_rect.getWidth() - 1, debug_rect.getHeight() - 1);
-			gGL.vertex2i(0, debug_rect.getHeight() - 1);
-		gGL.end();
+            gGL.vertex2i(debug_rect.getWidth() - 1, debug_rect.getHeight() - 1);
+            gGL.vertex2i(0, debug_rect.getHeight() - 1);
+        gGL.end();
 
-		// Draw the name if it's not a leaf node or not in editing or preview mode
-		if (mChildList.size()
-			&& preview_iter == sPreviewHighlightedElements.end()
-			&& sDebugRectsShowNames)
-		{
-			S32 x, y;
-			gGL.color4fv( border_color.mV );
+        // Draw the name if it's not a leaf node or not in editing or preview mode
+        if (mChildList.size()
+            && preview_iter == sPreviewHighlightedElements.end()
+            && sDebugRectsShowNames)
+        {
+            S32 x, y;
+            gGL.color4fv( border_color.mV );
 
-			x = debug_rect.getWidth() / 2;
+            x = debug_rect.getWidth() / 2;
 
-			S32 rect_height = debug_rect.getHeight();
-			S32 lines = rect_height / LINE_HEIGHT + 1;
+            S32 rect_height = debug_rect.getHeight();
+            S32 lines = rect_height / LINE_HEIGHT + 1;
 
-			S32 depth = 0;
-			LLView * viewp = this;
-			while (NULL != viewp)
-			{
-				viewp = viewp->getParent();
-				depth++;
-			}
+            S32 depth = 0;
+            LLView * viewp = this;
+            while (NULL != viewp)
+            {
+                viewp = viewp->getParent();
+                depth++;
+            }
 
-			y = rect_height - LINE_HEIGHT * (depth % lines + 1);
+            y = rect_height - LINE_HEIGHT * (depth % lines + 1);
 
-			std::string debug_text = llformat("%s (%d x %d)", getName().c_str(),
-										debug_rect.getWidth(), debug_rect.getHeight());
-			LLFontGL::getFontSansSerifSmall()->renderUTF8(debug_text, 0, (F32)x, (F32)y, border_color,
-					LLFontGL::HCENTER, LLFontGL::BASELINE, LLFontGL::NORMAL, LLFontGL::NO_SHADOW);
-		}
-	}
-	LLUI::popMatrix();
+            std::string debug_text = llformat("%s [%d, %d] + (%d x %d) = [%d, %d]", getName().c_str(),
+                    debug_rect.mLeft, mParentView->getRect().getHeight() - debug_rect.mTop,
+                    debug_rect.getWidth(), debug_rect.getHeight(),
+                    debug_rect.mRight, mParentView->getRect().getHeight() - debug_rect.mBottom);
+            LLFontGL::getFontSansSerifSmall()->renderUTF8(debug_text, 0, (F32)x, (F32)y, border_color,
+                    LLFontGL::HCENTER, LLFontGL::BASELINE, LLFontGL::NORMAL, LLFontGL::NO_SHADOW);
+        }
+    }
+    LLUI::popMatrix();
 }
 
-void LLView::drawChild(LLView* childp, S32 x_offset, S32 y_offset, BOOL force_draw)
+void LLView::drawChild(LLView* childp, S32 x_offset, S32 y_offset, bool force_draw)
 {
-	if (childp && childp->getParent() == this)
-	{
-		++sDepth;
+    if (childp && childp->getParent() == this)
+    {
+        ++sDepth;
 
-		if ((childp->getVisible() && childp->getRect().isValid()) 
-			|| force_draw)
-		{
-			gGL.matrixMode(LLRender::MM_MODELVIEW);
-			LLUI::pushMatrix();
-			{
-				LLUI::translate((F32)childp->getRect().mLeft + x_offset, (F32)childp->getRect().mBottom + y_offset);
-				childp->draw();
-			}
-			LLUI::popMatrix();
-		}
+        if ((childp->getVisible() && childp->getRect().isValid())
+            || force_draw)
+        {
+            gGL.matrixMode(LLRender::MM_MODELVIEW);
+            LLUI::pushMatrix();
+            {
+                LLUI::translate((F32)childp->getRect().mLeft + x_offset, (F32)childp->getRect().mBottom + y_offset);
+                childp->draw();
+            }
+            LLUI::popMatrix();
+        }
 
-		--sDepth;
-	}
+        --sDepth;
+    }
 }
 
 
-void LLView::reshape(S32 width, S32 height, BOOL called_from_parent)
+void LLView::reshape(S32 width, S32 height, bool called_from_parent)
 {
-	// compute how much things changed and apply reshape logic to children
-	S32 delta_width = width - getRect().getWidth();
-	S32 delta_height = height - getRect().getHeight();
+    // compute how much things changed and apply reshape logic to children
+    S32 delta_width = width - getRect().getWidth();
+    S32 delta_height = height - getRect().getHeight();
 
-	if (delta_width || delta_height || sForceReshape)
-	{
-		// adjust our rectangle
-		mRect.mRight = getRect().mLeft + width;
-		mRect.mTop = getRect().mBottom + height;
+    if (delta_width || delta_height || sForceReshape)
+    {
+        // adjust our rectangle
+        mRect.mRight = getRect().mLeft + width;
+        mRect.mTop = getRect().mBottom + height;
 
-		// move child views according to reshape flags
-		BOOST_FOREACH(LLView* viewp, mChildList)
-		{
-			if (viewp != NULL)
-			{
-			LLRect child_rect( viewp->mRect );
+        // move child views according to reshape flags
+        for (LLView* viewp : mChildList)
+        {
+            if (viewp != NULL)
+            {
+            LLRect child_rect( viewp->mRect );
 
-			if (viewp->followsRight() && viewp->followsLeft())
-			{
-				child_rect.mRight += delta_width;
-			}
-			else if (viewp->followsRight())
-			{
-				child_rect.mLeft += delta_width;
-				child_rect.mRight += delta_width;
-			}
-			else if (viewp->followsLeft())
-			{
-				// left is 0, don't need to adjust coords
-			}
-			else
-			{
-				// BUG what to do when we don't follow anyone?
-				// for now, same as followsLeft
-			}
+            if (viewp->followsRight() && viewp->followsLeft())
+            {
+                child_rect.mRight += delta_width;
+            }
+            else if (viewp->followsRight())
+            {
+                child_rect.mLeft += delta_width;
+                child_rect.mRight += delta_width;
+            }
+            else if (viewp->followsLeft())
+            {
+                // left is 0, don't need to adjust coords
+            }
+            else
+            {
+                // BUG what to do when we don't follow anyone?
+                // for now, same as followsLeft
+            }
 
-			if (viewp->followsTop() && viewp->followsBottom())
-			{
-				child_rect.mTop += delta_height;
-			}
-			else if (viewp->followsTop())
-			{
-				child_rect.mTop += delta_height;
-				child_rect.mBottom += delta_height;
-			}
-			else if (viewp->followsBottom())
-			{
-				// bottom is 0, so don't need to adjust coords
-			}
-			else
-			{
-				// BUG what to do when we don't follow?
-				// for now, same as bottom
-			}
+            if (viewp->followsTop() && viewp->followsBottom())
+            {
+                child_rect.mTop += delta_height;
+            }
+            else if (viewp->followsTop())
+            {
+                child_rect.mTop += delta_height;
+                child_rect.mBottom += delta_height;
+            }
+            else if (viewp->followsBottom())
+            {
+                // bottom is 0, so don't need to adjust coords
+            }
+            else
+            {
+                // BUG what to do when we don't follow?
+                // for now, same as bottom
+            }
 
-			S32 delta_x = child_rect.mLeft - viewp->getRect().mLeft;
-			S32 delta_y = child_rect.mBottom - viewp->getRect().mBottom;
-			viewp->translate( delta_x, delta_y );
-			if (child_rect.getWidth() != viewp->getRect().getWidth()
+            S32 delta_x = child_rect.mLeft - viewp->getRect().mLeft;
+            S32 delta_y = child_rect.mBottom - viewp->getRect().mBottom;
+            viewp->translate( delta_x, delta_y );
+            if (child_rect.getWidth() != viewp->getRect().getWidth()
                 || child_rect.getHeight() != viewp->getRect().getHeight()
                 || sForceReshape)
-			{
-				viewp->reshape(child_rect.getWidth(), child_rect.getHeight());
-			}
-		}
-	}
-	}
+            {
+                viewp->reshape(child_rect.getWidth(), child_rect.getHeight());
+            }
+        }
+    }
+    }
 
-	if (!called_from_parent)
-	{
-		if (mParentView)
-		{
-			mParentView->reshape(mParentView->getRect().getWidth(), mParentView->getRect().getHeight(), FALSE);
-		}
-	}
+    if (!called_from_parent)
+    {
+        if (mParentView)
+        {
+            mParentView->reshape(mParentView->getRect().getWidth(), mParentView->getRect().getHeight(), false);
+        }
+    }
 
-	updateBoundingRect();
+    updateBoundingRect();
 }
 
 LLRect LLView::calcBoundingRect()
 {
-	LLRect local_bounding_rect = LLRect::null;
+    LLRect local_bounding_rect = LLRect::null;
 
-	BOOST_FOREACH(LLView* childp, mChildList)
-	{
-		// ignore invisible and "top" children when calculating bounding rect
-		// such as combobox popups
-		if (!childp->getVisible() || childp == gFocusMgr.getTopCtrl()) 
-		{
-			continue;
-		}
+    for (LLView* childp : mChildList)
+    {
+        // ignore invisible and "top" children when calculating bounding rect
+        // such as combobox popups
+        if (!childp->getVisible() || childp == gFocusMgr.getTopCtrl())
+        {
+            continue;
+        }
 
-		LLRect child_bounding_rect = childp->getBoundingRect();
+        LLRect child_bounding_rect = childp->getBoundingRect();
 
-		if (local_bounding_rect.isEmpty())
-		{
-			// start out with bounding rect equal to first visible child's bounding rect
-			local_bounding_rect = child_bounding_rect;
-		}
-		else
-		{
-			// accumulate non-null children rectangles
-			if (!child_bounding_rect.isEmpty())
-			{
-				local_bounding_rect.unionWith(child_bounding_rect);
-			}
-		}
-	}
+        if (local_bounding_rect.isEmpty())
+        {
+            // start out with bounding rect equal to first visible child's bounding rect
+            local_bounding_rect = child_bounding_rect;
+        }
+        else
+        {
+            // accumulate non-null children rectangles
+            if (!child_bounding_rect.isEmpty())
+            {
+                local_bounding_rect.unionWith(child_bounding_rect);
+            }
+        }
+    }
 
-	// convert to parent-relative coordinates
-	local_bounding_rect.translate(mRect.mLeft, mRect.mBottom);
-	return local_bounding_rect;
+    // convert to parent-relative coordinates
+    local_bounding_rect.translate(mRect.mLeft, mRect.mBottom);
+    return local_bounding_rect;
 }
 
 
 void LLView::updateBoundingRect()
 {
-	if (isDead()) return;
+    if (isDead()) return;
 
-	LLRect cur_rect = mBoundingRect;
+    LLRect cur_rect = mBoundingRect;
 
-	if (getUseBoundingRect())
-	{
-		mBoundingRect = calcBoundingRect();
-	}
-	else
-	{
-		mBoundingRect = mRect;
-	}
+    if (getUseBoundingRect())
+    {
+        mBoundingRect = calcBoundingRect();
+    }
+    else
+    {
+        mBoundingRect = mRect;
+    }
 
-	// give parent view a chance to resize, in case we just moved, for example
-	if (getParent() && getParent()->getUseBoundingRect())
-	{
-		getParent()->updateBoundingRect();
-	}
+    // give parent view a chance to resize, in case we just moved, for example
+    if (getParent() && getParent()->getUseBoundingRect())
+    {
+        getParent()->updateBoundingRect();
+    }
 
-	if (mBoundingRect != cur_rect)
-	{
-		dirtyRect();
-	}
+    if (mBoundingRect != cur_rect)
+    {
+        dirtyRect();
+    }
 
 }
 
 LLRect LLView::calcScreenRect() const
 {
-	LLRect screen_rect;
-	localPointToScreen(0, 0, &screen_rect.mLeft, &screen_rect.mBottom);
-	localPointToScreen(getRect().getWidth(), getRect().getHeight(), &screen_rect.mRight, &screen_rect.mTop);
-	return screen_rect;
+    LLRect screen_rect;
+    localPointToScreen(0, 0, &screen_rect.mLeft, &screen_rect.mBottom);
+    localPointToScreen(getRect().getWidth(), getRect().getHeight(), &screen_rect.mRight, &screen_rect.mTop);
+    return screen_rect;
 }
 
 LLRect LLView::calcScreenBoundingRect() const
 {
-	LLRect screen_rect;
-	// get bounding rect, if used
-	LLRect bounding_rect = getUseBoundingRect() ? mBoundingRect : mRect;
+    LLRect screen_rect;
+    // get bounding rect, if used
+    LLRect bounding_rect = getUseBoundingRect() ? mBoundingRect : mRect;
 
-	// convert to local coordinates, as defined by mRect
-	bounding_rect.translate(-mRect.mLeft, -mRect.mBottom);
+    // convert to local coordinates, as defined by mRect
+    bounding_rect.translate(-mRect.mLeft, -mRect.mBottom);
 
-	localPointToScreen(bounding_rect.mLeft, bounding_rect.mBottom, &screen_rect.mLeft, &screen_rect.mBottom);
-	localPointToScreen(bounding_rect.mRight, bounding_rect.mTop, &screen_rect.mRight, &screen_rect.mTop);
-	return screen_rect;
+    localPointToScreen(bounding_rect.mLeft, bounding_rect.mBottom, &screen_rect.mLeft, &screen_rect.mBottom);
+    localPointToScreen(bounding_rect.mRight, bounding_rect.mTop, &screen_rect.mRight, &screen_rect.mTop);
+    return screen_rect;
 }
 
 LLRect LLView::getLocalBoundingRect() const
 {
-	LLRect local_bounding_rect = getBoundingRect();
-	local_bounding_rect.translate(-mRect.mLeft, -mRect.mBottom);
+    LLRect local_bounding_rect = getBoundingRect();
+    local_bounding_rect.translate(-mRect.mLeft, -mRect.mBottom);
 
-	return local_bounding_rect;
+    return local_bounding_rect;
 }
 
 
 LLRect LLView::getLocalRect() const
 {
-	LLRect local_rect(0, getRect().getHeight(), getRect().getWidth(), 0);
-	return local_rect;
+    LLRect local_rect(0, getRect().getHeight(), getRect().getWidth(), 0);
+    return local_rect;
 }
 
 LLRect LLView::getLocalSnapRect() const
 {
-	LLRect local_snap_rect = getSnapRect();
-	local_snap_rect.translate(-getRect().mLeft, -getRect().mBottom);
-	return local_snap_rect;
+    LLRect local_snap_rect = getSnapRect();
+    local_snap_rect.translate(-getRect().mLeft, -getRect().mBottom);
+    return local_snap_rect;
 }
 
-BOOL LLView::hasAncestor(const LLView* parentp) const
+bool LLView::hasAncestor(const LLView* parentp) const
 {
-	if (!parentp)
-	{
-		return FALSE;
-	}
+    if (!parentp)
+    {
+        return false;
+    }
 
-	LLView* viewp = getParent();
-	while(viewp)
-	{
-		if (viewp == parentp)
-		{
-			return TRUE;
-		}
-		viewp = viewp->getParent();
-	}
+    LLView* viewp = getParent();
+    while(viewp)
+    {
+        if (viewp == parentp)
+        {
+            return true;
+        }
+        viewp = viewp->getParent();
+    }
 
-	return FALSE;
-}
-
-//-----------------------------------------------------------------------------
-
-BOOL LLView::childHasKeyboardFocus( const std::string& childname ) const
-{
-	LLView *focus = dynamic_cast<LLView *>(gFocusMgr.getKeyboardFocus());
-	
-	while (focus != NULL)
-	{
-		if (focus->getName() == childname)
-		{
-			return TRUE;
-		}
-		
-		focus = focus->getParent();
-	}
-	
-	return FALSE;
+    return false;
 }
 
 //-----------------------------------------------------------------------------
 
-BOOL LLView::hasChild(const std::string& childname, BOOL recurse) const
+bool LLView::childHasKeyboardFocus(std::string_view childname) const
 {
-	return findChildView(childname, recurse) != NULL;
+    LLView *focus = dynamic_cast<LLView *>(gFocusMgr.getKeyboardFocus());
+
+    while (focus != NULL)
+    {
+        if (focus->getName() == childname)
+        {
+            return true;
+        }
+
+        focus = focus->getParent();
+    }
+
+    return false;
+}
+
+//-----------------------------------------------------------------------------
+
+bool LLView::hasChild(std::string_view childname, bool recurse) const
+{
+    return findChildView(childname, recurse) != NULL;
 }
 
 //-----------------------------------------------------------------------------
 // getChildView()
 //-----------------------------------------------------------------------------
-LLView* LLView::getChildView(const std::string& name, BOOL recurse) const
+LLView* LLView::getChildView(std::string_view name, bool recurse) const
 {
-	return getChild<LLView>(name, recurse);
+    return getChild<LLView>(name, recurse);
 }
 
-LLView* LLView::findChildView(const std::string& name, BOOL recurse) const
+LLView* LLView::findChildView(std::string_view name, bool recurse) const
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
-	
+
     // Look for direct children *first*
-	BOOST_FOREACH(LLView* childp, mChildList)
-	{
-		llassert(childp);
-		if (childp->getName() == name)
-		{
-			return childp;
-		}
-	}
-	if (recurse)
-	{
-		// Look inside each child as well.
-		BOOST_FOREACH(LLView* childp, mChildList)
-		{
-			llassert(childp);
-			LLView* viewp = childp->findChildView(name, recurse);
-			if ( viewp )
-			{
-				return viewp;
-			}
-		}
-	}
-	return NULL;
+    for (LLView* childp : mChildList)
+    {
+        llassert(childp);
+        if (childp->getName() == name)
+        {
+            return childp;
+        }
+    }
+    if (recurse)
+    {
+        // Look inside each child as well.
+        for (LLView* childp : mChildList)
+        {
+            llassert(childp);
+            LLView* viewp = childp->findChildView(name, recurse);
+            if ( viewp )
+            {
+                return viewp;
+            }
+        }
+    }
+    return NULL;
 }
 
-BOOL LLView::parentPointInView(S32 x, S32 y, EHitTestType type) const 
-{ 
-	return (getUseBoundingRect() && type == HIT_TEST_USE_BOUNDING_RECT)
-		? mBoundingRect.pointInRect( x, y ) 
-		: mRect.pointInRect( x, y ); 
-}
-
-BOOL LLView::pointInView(S32 x, S32 y, EHitTestType type) const 
-{ 
-	return (getUseBoundingRect() && type == HIT_TEST_USE_BOUNDING_RECT)
-		? mBoundingRect.pointInRect( x + mRect.mLeft, y + mRect.mBottom ) 
-		: mRect.localPointInRect( x, y ); 
-}
-
-BOOL LLView::blockMouseEvent(S32 x, S32 y) const
+bool LLView::parentPointInView(S32 x, S32 y, EHitTestType type) const
 {
-	return mMouseOpaque && pointInView(x, y, HIT_TEST_IGNORE_BOUNDING_RECT);
+    return (getUseBoundingRect() && type == HIT_TEST_USE_BOUNDING_RECT)
+        ? mBoundingRect.pointInRect( x, y )
+        : mRect.pointInRect( x, y );
+}
+
+bool LLView::pointInView(S32 x, S32 y, EHitTestType type) const
+{
+    return (getUseBoundingRect() && type == HIT_TEST_USE_BOUNDING_RECT)
+        ? mBoundingRect.pointInRect( x + mRect.mLeft, y + mRect.mBottom )
+        : mRect.localPointInRect( x, y );
+}
+
+bool LLView::blockMouseEvent(S32 x, S32 y) const
+{
+    return mMouseOpaque && pointInView(x, y, HIT_TEST_IGNORE_BOUNDING_RECT);
 }
 
 // virtual
 void LLView::screenPointToLocal(S32 screen_x, S32 screen_y, S32* local_x, S32* local_y) const
 {
-	*local_x = screen_x - getRect().mLeft;
-	*local_y = screen_y - getRect().mBottom;
+    *local_x = screen_x - getRect().mLeft;
+    *local_y = screen_y - getRect().mBottom;
 
-	const LLView* cur = this;
-	while( cur->mParentView )
-	{
-		cur = cur->mParentView;
-		*local_x -= cur->getRect().mLeft;
-		*local_y -= cur->getRect().mBottom;
-	}
+    const LLView* cur = this;
+    while( cur->mParentView )
+    {
+        cur = cur->mParentView;
+        *local_x -= cur->getRect().mLeft;
+        *local_y -= cur->getRect().mBottom;
+    }
 }
 
 void LLView::localPointToScreen(S32 local_x, S32 local_y, S32* screen_x, S32* screen_y) const
 {
-	*screen_x = local_x;
-	*screen_y = local_y;
+    *screen_x = local_x;
+    *screen_y = local_y;
 
-	const LLView* cur = this;
-	do
-	{
-		LLRect cur_rect = cur->getRect();
-		*screen_x += cur_rect.mLeft;
-		*screen_y += cur_rect.mBottom;
-		cur = cur->mParentView;
-	}
-	while( cur );
+    const LLView* cur = this;
+    do
+    {
+        LLRect cur_rect = cur->getRect();
+        *screen_x += cur_rect.mLeft;
+        *screen_y += cur_rect.mBottom;
+        cur = cur->mParentView;
+    }
+    while( cur );
 }
 
 void LLView::screenRectToLocal(const LLRect& screen, LLRect* local) const
 {
-	*local = screen;
-	local->translate( -getRect().mLeft, -getRect().mBottom );
+    *local = screen;
+    local->translate( -getRect().mLeft, -getRect().mBottom );
 
-	const LLView* cur = this;
-	while( cur->mParentView )
-	{
-		cur = cur->mParentView;
-		local->translate( -cur->getRect().mLeft, -cur->getRect().mBottom );
-	}
+    const LLView* cur = this;
+    while( cur->mParentView )
+    {
+        cur = cur->mParentView;
+        local->translate( -cur->getRect().mLeft, -cur->getRect().mBottom );
+    }
 }
 
 void LLView::localRectToScreen(const LLRect& local, LLRect* screen) const
 {
-	*screen = local;
-	screen->translate( getRect().mLeft, getRect().mBottom );
+    *screen = local;
+    screen->translate( getRect().mLeft, getRect().mBottom );
 
-	const LLView* cur = this;
-	while( cur->mParentView )
-	{
-		cur = cur->mParentView;
-		screen->translate( cur->getRect().mLeft, cur->getRect().mBottom );
-	}
+    const LLView* cur = this;
+    while( cur->mParentView )
+    {
+        cur = cur->mParentView;
+        screen->translate( cur->getRect().mLeft, cur->getRect().mBottom );
+    }
 }
 
 LLView* LLView::getRootView()
 {
-	LLView* view = this;
-	while( view->mParentView )
-	{
-		view = view->mParentView;
-	}
-	return view;
+    LLView* view = this;
+    while( view->mParentView )
+    {
+        view = view->mParentView;
+    }
+    return view;
 }
 
 LLView* LLView::findPrevSibling(LLView* child)
 {
-	child_list_t::iterator prev_it = std::find(mChildList.begin(), mChildList.end(), child);
-	if (prev_it != mChildList.end() && prev_it != mChildList.begin())
-	{
-		return *(--prev_it);
-	}
-	return NULL;
+    child_list_t::iterator prev_it = std::find(mChildList.begin(), mChildList.end(), child);
+    if (prev_it != mChildList.end() && prev_it != mChildList.begin())
+    {
+        return *(--prev_it);
+    }
+    return NULL;
 }
 
 LLView* LLView::findNextSibling(LLView* child)
 {
-	child_list_t::iterator next_it = std::find(mChildList.begin(), mChildList.end(), child);
-	if (next_it != mChildList.end())
-	{
-		next_it++;
-	}
+    child_list_t::iterator next_it = std::find(mChildList.begin(), mChildList.end(), child);
+    if (next_it != mChildList.end())
+    {
+        next_it++;
+    }
 
-	return (next_it != mChildList.end()) ? *next_it : NULL;
+    return (next_it != mChildList.end()) ? *next_it : NULL;
 }
 
 
 LLCoordGL getNeededTranslation(const LLRect& input, const LLRect& constraint, S32 min_overlap_pixels)
 {
-	LLCoordGL delta;
+    LLCoordGL delta;
 
-	const S32 KEEP_ONSCREEN_PIXELS_WIDTH = llmin(min_overlap_pixels, input.getWidth());
-	const S32 KEEP_ONSCREEN_PIXELS_HEIGHT = llmin(min_overlap_pixels, input.getHeight());
+    const S32 KEEP_ONSCREEN_PIXELS_WIDTH = llmin(min_overlap_pixels, input.getWidth());
+    const S32 KEEP_ONSCREEN_PIXELS_HEIGHT = llmin(min_overlap_pixels, input.getHeight());
 
-	if (KEEP_ONSCREEN_PIXELS_WIDTH <= constraint.getWidth() &&
-		KEEP_ONSCREEN_PIXELS_HEIGHT <= constraint.getHeight())
-	{
-		if (input.mRight - KEEP_ONSCREEN_PIXELS_WIDTH < constraint.mLeft)
-		{
-			delta.mX = constraint.mLeft - (input.mRight - KEEP_ONSCREEN_PIXELS_WIDTH);
-		}
-		else if (input.mLeft + KEEP_ONSCREEN_PIXELS_WIDTH > constraint.mRight)
-		{
-			delta.mX = constraint.mRight - (input.mLeft + KEEP_ONSCREEN_PIXELS_WIDTH);
-		}
+    if (KEEP_ONSCREEN_PIXELS_WIDTH <= constraint.getWidth() &&
+        KEEP_ONSCREEN_PIXELS_HEIGHT <= constraint.getHeight())
+    {
+        if (input.mRight - KEEP_ONSCREEN_PIXELS_WIDTH < constraint.mLeft)
+        {
+            delta.mX = constraint.mLeft - (input.mRight - KEEP_ONSCREEN_PIXELS_WIDTH);
+        }
+        else if (input.mLeft + KEEP_ONSCREEN_PIXELS_WIDTH > constraint.mRight)
+        {
+            delta.mX = constraint.mRight - (input.mLeft + KEEP_ONSCREEN_PIXELS_WIDTH);
+        }
 
-		if (input.mTop > constraint.mTop)
-		{
-			delta.mY = constraint.mTop - input.mTop;
-		}
-		else if (input.mTop - KEEP_ONSCREEN_PIXELS_HEIGHT < constraint.mBottom)
-		{
-			delta.mY = constraint.mBottom - (input.mTop - KEEP_ONSCREEN_PIXELS_HEIGHT);
-		}
-	}
+        if (input.mTop > constraint.mTop)
+        {
+            delta.mY = constraint.mTop - input.mTop;
+        }
+        else if (input.mTop - KEEP_ONSCREEN_PIXELS_HEIGHT < constraint.mBottom)
+        {
+            delta.mY = constraint.mBottom - (input.mTop - KEEP_ONSCREEN_PIXELS_HEIGHT);
+        }
+    }
 
-	return delta;
+    return delta;
 }
 
 // Moves the view so that it is entirely inside of constraint.
 // If the view will not fit because it's too big, aligns with the top and left.
 // (Why top and left?  That's where the drag bars are for floaters.)
-BOOL LLView::translateIntoRect(const LLRect& constraint, S32 min_overlap_pixels)
+bool LLView::translateIntoRect(const LLRect& constraint, S32 min_overlap_pixels)
 {
     return translateRectIntoRect(getRect(), constraint, min_overlap_pixels);
 }
 
-BOOL LLView::translateRectIntoRect(const LLRect& rect, const LLRect& constraint, S32 min_overlap_pixels)
+bool LLView::translateRectIntoRect(const LLRect& rect, const LLRect& constraint, S32 min_overlap_pixels)
 {
-	LLCoordGL translation = getNeededTranslation(rect, constraint, min_overlap_pixels);
+    LLCoordGL translation = getNeededTranslation(rect, constraint, min_overlap_pixels);
 
-	if (translation.mX != 0 || translation.mY != 0)
-	{
-		translate(translation.mX, translation.mY);
-		return TRUE;
-	}
+    if (translation.mX != 0 || translation.mY != 0)
+    {
+        translate(translation.mX, translation.mY);
+        return true;
+    }
 
-	return FALSE;
+    return false;
 }
 
 // move this view into "inside" but not onto "exclude"
 // NOTE: if this view is already contained in "inside", we ignore the "exclude" rect
-BOOL LLView::translateIntoRectWithExclusion( const LLRect& inside, const LLRect& exclude, S32 min_overlap_pixels)
+bool LLView::translateIntoRectWithExclusion( const LLRect& inside, const LLRect& exclude, S32 min_overlap_pixels)
 {
-	LLCoordGL translation = getNeededTranslation(getRect(), inside, min_overlap_pixels);
-	
-	if (translation.mX != 0 || translation.mY != 0)
-	{
-		// translate ourselves into constraint rect
-		translate(translation.mX, translation.mY);
-	
-		// do we overlap with exclusion area?
-		// keep moving in the same direction to the other side of the exclusion rect
-		if (exclude.overlaps(getRect()))
-		{
-			// moving right
-			if (translation.mX > 0)
-			{
-				translate(exclude.mRight - getRect().mLeft, 0);
-			}
-			// moving left
-			else if (translation.mX < 0)
-			{
-				translate(exclude.mLeft - getRect().mRight, 0);
-			}
+    LLCoordGL translation = getNeededTranslation(getRect(), inside, min_overlap_pixels);
 
-			// moving up
-			if (translation.mY > 0)
-			{
-				translate(0, exclude.mTop - getRect().mBottom);
-			}
-			// moving down
-			else if (translation.mY < 0)
-			{
-				translate(0, exclude.mBottom - getRect().mTop);
-			}
-		}
+    if (translation.mX != 0 || translation.mY != 0)
+    {
+        // translate ourselves into constraint rect
+        translate(translation.mX, translation.mY);
 
-		return TRUE;
-	}
-	return FALSE;
+        // do we overlap with exclusion area?
+        // keep moving in the same direction to the other side of the exclusion rect
+        if (exclude.overlaps(getRect()))
+        {
+            // moving right
+            if (translation.mX > 0)
+            {
+                translate(exclude.mRight - getRect().mLeft, 0);
+            }
+            // moving left
+            else if (translation.mX < 0)
+            {
+                translate(exclude.mLeft - getRect().mRight, 0);
+            }
+
+            // moving up
+            if (translation.mY > 0)
+            {
+                translate(0, exclude.mTop - getRect().mBottom);
+            }
+            // moving down
+            else if (translation.mY < 0)
+            {
+                translate(0, exclude.mBottom - getRect().mTop);
+            }
+        }
+
+        return true;
+    }
+    return false;
 }
 
 
 void LLView::centerWithin(const LLRect& bounds)
 {
-	S32 left   = bounds.mLeft + (bounds.getWidth() - getRect().getWidth()) / 2;
-	S32 bottom = bounds.mBottom + (bounds.getHeight() - getRect().getHeight()) / 2;
+    S32 left   = bounds.mLeft + (bounds.getWidth() - getRect().getWidth()) / 2;
+    S32 bottom = bounds.mBottom + (bounds.getHeight() - getRect().getHeight()) / 2;
 
-	translate( left - getRect().mLeft, bottom - getRect().mBottom );
+    translate( left - getRect().mLeft, bottom - getRect().mBottom );
 }
 
-BOOL LLView::localPointToOtherView( S32 x, S32 y, S32 *other_x, S32 *other_y, const LLView* other_view) const
+bool LLView::localPointToOtherView( S32 x, S32 y, S32 *other_x, S32 *other_y, const LLView* other_view) const
 {
-	const LLView* cur_view = this;
-	const LLView* root_view = NULL;
+    const LLView* cur_view = this;
+    const LLView* root_view = NULL;
 
-	while (cur_view)
-	{
-		if (cur_view == other_view)
-		{
-			*other_x = x;
-			*other_y = y;
-			return TRUE;
-		}
+    while (cur_view)
+    {
+        if (cur_view == other_view)
+        {
+            *other_x = x;
+            *other_y = y;
+            return true;
+        }
 
-		x += cur_view->getRect().mLeft;
-		y += cur_view->getRect().mBottom;
+        x += cur_view->getRect().mLeft;
+        y += cur_view->getRect().mBottom;
 
-		cur_view = cur_view->getParent();
-		root_view = cur_view;
-	}
+        cur_view = cur_view->getParent();
+        root_view = cur_view;
+    }
 
-	// assuming common root between two views, chase other_view's parents up to root
-	cur_view = other_view;
-	while (cur_view)
-	{
-		x -= cur_view->getRect().mLeft;
-		y -= cur_view->getRect().mBottom;
+    // assuming common root between two views, chase other_view's parents up to root
+    cur_view = other_view;
+    while (cur_view)
+    {
+        x -= cur_view->getRect().mLeft;
+        y -= cur_view->getRect().mBottom;
 
-		cur_view = cur_view->getParent();
+        cur_view = cur_view->getParent();
 
-		if (cur_view == root_view)
-		{
-			*other_x = x;
-			*other_y = y;
-			return TRUE;
-		}
-	}
+        if (cur_view == root_view)
+        {
+            *other_x = x;
+            *other_y = y;
+            return true;
+        }
+    }
 
-	*other_x = x;
-	*other_y = y;
-	return FALSE;
+    *other_x = x;
+    *other_y = y;
+    return false;
 }
 
-BOOL LLView::localRectToOtherView( const LLRect& local, LLRect* other, const LLView* other_view ) const
+bool LLView::localRectToOtherView( const LLRect& local, LLRect* other, const LLView* other_view ) const
 {
-	LLRect cur_rect = local;
-	const LLView* cur_view = this;
-	const LLView* root_view = NULL;
+    LLRect cur_rect = local;
+    const LLView* cur_view = this;
+    const LLView* root_view = NULL;
 
-	while (cur_view)
-	{
-		if (cur_view == other_view)
-		{
-			*other = cur_rect;
-			return TRUE;
-		}
+    while (cur_view)
+    {
+        if (cur_view == other_view)
+        {
+            *other = cur_rect;
+            return true;
+        }
 
-		cur_rect.translate(cur_view->getRect().mLeft, cur_view->getRect().mBottom);
+        cur_rect.translate(cur_view->getRect().mLeft, cur_view->getRect().mBottom);
 
-		cur_view = cur_view->getParent();
-		root_view = cur_view;
-	}
+        cur_view = cur_view->getParent();
+        root_view = cur_view;
+    }
 
-	// assuming common root between two views, chase other_view's parents up to root
-	cur_view = other_view;
-	while (cur_view)
-	{
-		cur_rect.translate(-cur_view->getRect().mLeft, -cur_view->getRect().mBottom);
+    // assuming common root between two views, chase other_view's parents up to root
+    cur_view = other_view;
+    while (cur_view)
+    {
+        cur_rect.translate(-cur_view->getRect().mLeft, -cur_view->getRect().mBottom);
 
-		cur_view = cur_view->getParent();
+        cur_view = cur_view->getParent();
 
-		if (cur_view == root_view)
-		{
-			*other = cur_rect;
-			return TRUE;
-		}
-	}
+        if (cur_view == root_view)
+        {
+            *other = cur_rect;
+            return true;
+        }
+    }
 
-	*other = cur_rect;
-	return FALSE;
+    *other = cur_rect;
+    return false;
 }
 
 
 class CompareByTabOrder
 {
 public:
-	CompareByTabOrder(const LLView::child_tab_order_t& order, S32 default_tab_group = 0) 
-		:	mTabOrder(order),
-		mDefaultTabGroup(default_tab_group)
-	{}
-	virtual ~CompareByTabOrder() {}
+    CompareByTabOrder(const LLView::child_tab_order_t& order, S32 default_tab_group = 0)
+        :   mTabOrder(order),
+        mDefaultTabGroup(default_tab_group)
+    {}
+    virtual ~CompareByTabOrder() {}
 
-	// This method compares two LLViews by the tab order specified in the comparator object.  The
-	// code for this is a little convoluted because each argument can have four states:
-	// 1) not a control, 2) a control but not in the tab order, 3) a control in the tab order, 4) null
-	bool operator() (const LLView* const a, const LLView* const b) const
-	{
-		S32 a_group = 0, b_group = 0;
-		if(!a) return false;
-		if(!b) return true;
+    // This method compares two LLViews by the tab order specified in the comparator object.  The
+    // code for this is a little convoluted because each argument can have four states:
+    // 1) not a control, 2) a control but not in the tab order, 3) a control in the tab order, 4) null
+    bool operator() (const LLView* const a, const LLView* const b) const
+    {
+        S32 a_group = 0, b_group = 0;
+        if(!a) return false;
+        if(!b) return true;
 
-		LLView::child_tab_order_const_iter_t a_found = mTabOrder.find(a), b_found = mTabOrder.find(b);
-		if(a_found != mTabOrder.end())
-		{
-			a_group = a_found->second;
-		}
-		if(b_found != mTabOrder.end())
-		{
-			b_group = b_found->second;
-		}
+        LLView::child_tab_order_const_iter_t a_found = mTabOrder.find(a), b_found = mTabOrder.find(b);
+        if(a_found != mTabOrder.end())
+        {
+            a_group = a_found->second;
+        }
+        if(b_found != mTabOrder.end())
+        {
+            b_group = b_found->second;
+        }
 
-		if(a_group < mDefaultTabGroup && b_group >= mDefaultTabGroup) return true;
-		if(b_group < mDefaultTabGroup && a_group >= mDefaultTabGroup) return false;
-		return a_group > b_group;  // sort correctly if they're both on the same side of the default tab groupreturn a > b; 
-	}
+        if(a_group < mDefaultTabGroup && b_group >= mDefaultTabGroup) return true;
+        if(b_group < mDefaultTabGroup && a_group >= mDefaultTabGroup) return false;
+        return a_group > b_group;  // sort correctly if they're both on the same side of the default tab groupreturn a > b;
+    }
 private:
-	// ok to store a reference, as this should only be allocated on stack during view query operations
-	const LLView::child_tab_order_t& mTabOrder;
-	const S32 mDefaultTabGroup;
+    // ok to store a reference, as this should only be allocated on stack during view query operations
+    const LLView::child_tab_order_t& mTabOrder;
+    const S32 mDefaultTabGroup;
 };
 
 class SortByTabOrder : public LLQuerySorter, public LLSingleton<SortByTabOrder>
 {
-	LLSINGLETON_EMPTY_CTOR(SortByTabOrder);
-	/*virtual*/ void sort(LLView * parent, LLView::child_list_t &children) const override
-	{
-		children.sort(CompareByTabOrder(parent->getTabOrder(), parent->getDefaultTabGroup()));
-	}
+    LLSINGLETON_EMPTY_CTOR(SortByTabOrder);
+    /*virtual*/ void sort(LLView * parent, LLView::child_list_t &children) const override
+    {
+        children.sort(CompareByTabOrder(parent->getTabOrder(), parent->getDefaultTabGroup()));
+    }
 };
 
 // static
 const LLViewQuery & LLView::getTabOrderQuery()
 {
-	static LLViewQuery query;
-	if(query.getPreFilters().size() == 0) {
-		query.addPreFilter(LLVisibleFilter::getInstance());
-		query.addPreFilter(LLEnabledFilter::getInstance());
-		query.addPreFilter(LLTabStopFilter::getInstance());
-		query.addPostFilter(LLLeavesFilter::getInstance());
-		query.setSorter(SortByTabOrder::getInstance());
-	}
-	return query;
+    static LLViewQuery query;
+    if(query.getPreFilters().size() == 0) {
+        query.addPreFilter(LLVisibleFilter::getInstance());
+        query.addPreFilter(LLEnabledFilter::getInstance());
+        query.addPreFilter(LLTabStopFilter::getInstance());
+        query.addPostFilter(LLLeavesFilter::getInstance());
+        query.setSorter(SortByTabOrder::getInstance());
+    }
+    return query;
 }
 
-// This class is only used internally by getFocusRootsQuery below. 
+// This class is only used internally by getFocusRootsQuery below.
 class LLFocusRootsFilter : public LLQueryFilter, public LLSingleton<LLFocusRootsFilter>
 {
-	LLSINGLETON_EMPTY_CTOR(LLFocusRootsFilter);
-	/*virtual*/ filterResult_t operator() (const LLView* const view, const viewList_t & children) const override
-	{
-		return filterResult_t(view->isCtrl() && view->isFocusRoot(), !view->isFocusRoot());
-	}
+    LLSINGLETON_EMPTY_CTOR(LLFocusRootsFilter);
+    /*virtual*/ filterResult_t operator() (const LLView* const view, const viewList_t & children) const override
+    {
+        return filterResult_t(view->isCtrl() && view->isFocusRoot(), !view->isFocusRoot());
+    }
 };
 
 // static
 const LLViewQuery & LLView::getFocusRootsQuery()
 {
-	static LLViewQuery query;
-	if(query.getPreFilters().size() == 0) {
-		query.addPreFilter(LLVisibleFilter::getInstance());
-		query.addPreFilter(LLEnabledFilter::getInstance());
-		query.addPreFilter(LLFocusRootsFilter::getInstance());
-		query.addPostFilter(LLRootsFilter::getInstance());
-	}
-	return query;
+    static LLViewQuery query;
+    if(query.getPreFilters().size() == 0) {
+        query.addPreFilter(LLVisibleFilter::getInstance());
+        query.addPreFilter(LLEnabledFilter::getInstance());
+        query.addPreFilter(LLFocusRootsFilter::getInstance());
+        query.addPostFilter(LLRootsFilter::getInstance());
+    }
+    return query;
 }
 
 
-void	LLView::setShape(const LLRect& new_rect, bool by_user)
+void    LLView::setShape(const LLRect& new_rect, bool by_user)
 {
-	if (new_rect != getRect())
-	{
-		handleReshape(new_rect, by_user);
-	}
+    if (new_rect != getRect())
+    {
+        handleReshape(new_rect, by_user);
+    }
 }
 
 void LLView::handleReshape(const LLRect& new_rect, bool by_user)
 {
-	reshape(new_rect.getWidth(), new_rect.getHeight());
-	translate(new_rect.mLeft - getRect().mLeft, new_rect.mBottom - getRect().mBottom);
+    reshape(new_rect.getWidth(), new_rect.getHeight());
+    translate(new_rect.mLeft - getRect().mLeft, new_rect.mBottom - getRect().mBottom);
 }
 
 LLView* LLView::findSnapRect(LLRect& new_rect, const LLCoordGL& mouse_dir,
-							 LLView::ESnapType snap_type, S32 threshold, S32 padding)
+                             LLView::ESnapType snap_type, S32 threshold, S32 padding)
 {
-	new_rect = mRect;
-	LLView* snap_view = NULL;
+    new_rect = mRect;
+    LLView* snap_view = NULL;
 
-	if (!mParentView)
-	{
-		return NULL;
-	}
-	
-	S32 delta_x = 0;
-	S32 delta_y = 0;
-	if (mouse_dir.mX >= 0)
-	{
-		S32 new_right = mRect.mRight;
-		LLView* view = findSnapEdge(new_right, mouse_dir, SNAP_RIGHT, snap_type, threshold, padding);
-		delta_x = new_right - mRect.mRight;
-		snap_view = view ? view : snap_view;
-	}
+    if (!mParentView)
+    {
+        return NULL;
+    }
 
-	if (mouse_dir.mX <= 0)
-	{
-		S32 new_left = mRect.mLeft;
-		LLView* view = findSnapEdge(new_left, mouse_dir, SNAP_LEFT, snap_type, threshold, padding);
-		delta_x = new_left - mRect.mLeft;
-		snap_view = view ? view : snap_view;
-	}
+    S32 delta_x = 0;
+    S32 delta_y = 0;
+    if (mouse_dir.mX >= 0)
+    {
+        S32 new_right = mRect.mRight;
+        LLView* view = findSnapEdge(new_right, mouse_dir, SNAP_RIGHT, snap_type, threshold, padding);
+        delta_x = new_right - mRect.mRight;
+        snap_view = view ? view : snap_view;
+    }
 
-	if (mouse_dir.mY >= 0)
-	{
-		S32 new_top = mRect.mTop;
-		LLView* view = findSnapEdge(new_top, mouse_dir, SNAP_TOP, snap_type, threshold, padding);
-		delta_y = new_top - mRect.mTop;
-		snap_view = view ? view : snap_view;
-	}
+    if (mouse_dir.mX <= 0)
+    {
+        S32 new_left = mRect.mLeft;
+        LLView* view = findSnapEdge(new_left, mouse_dir, SNAP_LEFT, snap_type, threshold, padding);
+        delta_x = new_left - mRect.mLeft;
+        snap_view = view ? view : snap_view;
+    }
 
-	if (mouse_dir.mY <= 0)
-	{
-		S32 new_bottom = mRect.mBottom;
-		LLView* view = findSnapEdge(new_bottom, mouse_dir, SNAP_BOTTOM, snap_type, threshold, padding);
-		delta_y = new_bottom - mRect.mBottom;
-		snap_view = view ? view : snap_view;
-	}
+    if (mouse_dir.mY >= 0)
+    {
+        S32 new_top = mRect.mTop;
+        LLView* view = findSnapEdge(new_top, mouse_dir, SNAP_TOP, snap_type, threshold, padding);
+        delta_y = new_top - mRect.mTop;
+        snap_view = view ? view : snap_view;
+    }
 
-	new_rect.translate(delta_x, delta_y);
-	return snap_view;
+    if (mouse_dir.mY <= 0)
+    {
+        S32 new_bottom = mRect.mBottom;
+        LLView* view = findSnapEdge(new_bottom, mouse_dir, SNAP_BOTTOM, snap_type, threshold, padding);
+        delta_y = new_bottom - mRect.mBottom;
+        snap_view = view ? view : snap_view;
+    }
+
+    new_rect.translate(delta_x, delta_y);
+    return snap_view;
 }
 
-LLView*	LLView::findSnapEdge(S32& new_edge_val, const LLCoordGL& mouse_dir, ESnapEdge snap_edge, ESnapType snap_type, S32 threshold, S32 padding)
+LLView* LLView::findSnapEdge(S32& new_edge_val, const LLCoordGL& mouse_dir, ESnapEdge snap_edge, ESnapType snap_type, S32 threshold, S32 padding)
 {
-	LLRect snap_rect = getSnapRect();
-	S32 snap_pos = 0;
-	switch(snap_edge)
-	{
-	case SNAP_LEFT:
-		snap_pos = snap_rect.mLeft;
-		break;
-	case SNAP_RIGHT:
-		snap_pos = snap_rect.mRight;
-		break;
-	case SNAP_TOP:
-		snap_pos = snap_rect.mTop;
-		break;
-	case SNAP_BOTTOM:
-		snap_pos = snap_rect.mBottom;
-		break;
-	}
+    LLRect snap_rect = getSnapRect();
+    S32 snap_pos = 0;
+    switch(snap_edge)
+    {
+    case SNAP_LEFT:
+        snap_pos = snap_rect.mLeft;
+        break;
+    case SNAP_RIGHT:
+        snap_pos = snap_rect.mRight;
+        break;
+    case SNAP_TOP:
+        snap_pos = snap_rect.mTop;
+        break;
+    case SNAP_BOTTOM:
+        snap_pos = snap_rect.mBottom;
+        break;
+    }
 
-	if (!mParentView)
-	{
-		new_edge_val = snap_pos;
-		return NULL;
-	}
+    if (!mParentView)
+    {
+        new_edge_val = snap_pos;
+        return NULL;
+    }
 
-	LLView* snap_view = NULL;
+    LLView* snap_view = NULL;
 
-	// If the view is near the edge of its parent, snap it to
-	// the edge.
-	LLRect test_rect = snap_rect;
-	test_rect.stretch(padding);
+    // If the view is near the edge of its parent, snap it to
+    // the edge.
+    LLRect test_rect = snap_rect;
+    test_rect.stretch(padding);
 
-	S32 x_threshold = threshold;
-	S32 y_threshold = threshold;
+    S32 x_threshold = threshold;
+    S32 y_threshold = threshold;
 
-	LLRect parent_local_snap_rect = mParentView->getLocalSnapRect();
+    LLRect parent_local_snap_rect = mParentView->getLocalSnapRect();
 
-	if (snap_type == SNAP_PARENT || snap_type == SNAP_PARENT_AND_SIBLINGS)
-	{
-		switch(snap_edge)
-		{
-		case SNAP_RIGHT:
-			if (llabs(parent_local_snap_rect.mRight - test_rect.mRight) <= x_threshold 
-				&& (parent_local_snap_rect.mRight - test_rect.mRight) * mouse_dir.mX >= 0)
-			{
-				snap_pos = parent_local_snap_rect.mRight - padding;
-				snap_view = mParentView;
-				x_threshold = llabs(parent_local_snap_rect.mRight - test_rect.mRight);
-			}
-			break;
-		case SNAP_LEFT:
-			if (llabs(test_rect.mLeft - parent_local_snap_rect.mLeft) <= x_threshold 
-				&& test_rect.mLeft * mouse_dir.mX <= 0)
-			{
-				snap_pos = parent_local_snap_rect.mLeft + padding;
-				snap_view = mParentView;
-				x_threshold = llabs(test_rect.mLeft - parent_local_snap_rect.mLeft);
-			}
-			break;
-		case SNAP_BOTTOM:
-			if (llabs(test_rect.mBottom - parent_local_snap_rect.mBottom) <= y_threshold 
-				&& test_rect.mBottom * mouse_dir.mY <= 0)
-			{
-				snap_pos = parent_local_snap_rect.mBottom + padding;
-				snap_view = mParentView;
-				y_threshold = llabs(test_rect.mBottom - parent_local_snap_rect.mBottom);
-			}
-			break;
-		case SNAP_TOP:
-			if (llabs(parent_local_snap_rect.mTop - test_rect.mTop) <= y_threshold && (parent_local_snap_rect.mTop - test_rect.mTop) * mouse_dir.mY >= 0)
-			{
-				snap_pos = parent_local_snap_rect.mTop - padding;
-				snap_view = mParentView;
-				y_threshold = llabs(parent_local_snap_rect.mTop - test_rect.mTop);
-			}
-			break;
-		default:
-			LL_ERRS() << "Invalid snap edge" << LL_ENDL;
-		}
-	}
+    if (snap_type == SNAP_PARENT || snap_type == SNAP_PARENT_AND_SIBLINGS)
+    {
+        switch(snap_edge)
+        {
+        case SNAP_RIGHT:
+            if (llabs(parent_local_snap_rect.mRight - test_rect.mRight) <= x_threshold
+                && (parent_local_snap_rect.mRight - test_rect.mRight) * mouse_dir.mX >= 0)
+            {
+                snap_pos = parent_local_snap_rect.mRight - padding;
+                snap_view = mParentView;
+                x_threshold = llabs(parent_local_snap_rect.mRight - test_rect.mRight);
+            }
+            break;
+        case SNAP_LEFT:
+            if (llabs(test_rect.mLeft - parent_local_snap_rect.mLeft) <= x_threshold
+                && test_rect.mLeft * mouse_dir.mX <= 0)
+            {
+                snap_pos = parent_local_snap_rect.mLeft + padding;
+                snap_view = mParentView;
+                x_threshold = llabs(test_rect.mLeft - parent_local_snap_rect.mLeft);
+            }
+            break;
+        case SNAP_BOTTOM:
+            if (llabs(test_rect.mBottom - parent_local_snap_rect.mBottom) <= y_threshold
+                && test_rect.mBottom * mouse_dir.mY <= 0)
+            {
+                snap_pos = parent_local_snap_rect.mBottom + padding;
+                snap_view = mParentView;
+                y_threshold = llabs(test_rect.mBottom - parent_local_snap_rect.mBottom);
+            }
+            break;
+        case SNAP_TOP:
+            if (llabs(parent_local_snap_rect.mTop - test_rect.mTop) <= y_threshold && (parent_local_snap_rect.mTop - test_rect.mTop) * mouse_dir.mY >= 0)
+            {
+                snap_pos = parent_local_snap_rect.mTop - padding;
+                snap_view = mParentView;
+                y_threshold = llabs(parent_local_snap_rect.mTop - test_rect.mTop);
+            }
+            break;
+        default:
+            LL_ERRS() << "Invalid snap edge" << LL_ENDL;
+        }
+    }
 
-	if (snap_type == SNAP_SIBLINGS || snap_type == SNAP_PARENT_AND_SIBLINGS)
-	{
-		for ( child_list_const_iter_t child_it = mParentView->getChildList()->begin();
-			  child_it != mParentView->getChildList()->end(); ++child_it)
-		{
-			LLView* siblingp = *child_it;
+    if (snap_type == SNAP_SIBLINGS || snap_type == SNAP_PARENT_AND_SIBLINGS)
+    {
+        for ( child_list_const_iter_t child_it = mParentView->getChildList()->begin();
+              child_it != mParentView->getChildList()->end(); ++child_it)
+        {
+            LLView* siblingp = *child_it;
 
-			if (!canSnapTo(siblingp)) continue;
+            if (!canSnapTo(siblingp)) continue;
 
-			LLRect sibling_rect = siblingp->getSnapRect();
+            LLRect sibling_rect = siblingp->getSnapRect();
 
-			switch(snap_edge)
-			{
-			case SNAP_RIGHT:
-				if (llabs(test_rect.mRight - sibling_rect.mLeft) <= x_threshold 
-					&& (test_rect.mRight - sibling_rect.mLeft) * mouse_dir.mX <= 0)
-				{
-					snap_pos = sibling_rect.mLeft - padding;
-					snap_view = siblingp;
-					x_threshold = llabs(test_rect.mRight - sibling_rect.mLeft);
-				}
-				// if snapped with sibling along other axis, check for shared edge
-				else if (llabs(sibling_rect.mTop - (test_rect.mBottom - padding)) <= y_threshold 
-					|| llabs(sibling_rect.mBottom - (test_rect.mTop + padding)) <= x_threshold)
-				{
-					if (llabs(test_rect.mRight - sibling_rect.mRight) <= x_threshold 
-						&& (test_rect.mRight - sibling_rect.mRight) * mouse_dir.mX <= 0)
-					{
-						snap_pos = sibling_rect.mRight;
-						snap_view = siblingp;
-						x_threshold = llabs(test_rect.mRight - sibling_rect.mRight);
-					}
-				}
-				break;
-			case SNAP_LEFT:
-				if (llabs(test_rect.mLeft - sibling_rect.mRight) <= x_threshold 
-					&& (test_rect.mLeft - sibling_rect.mRight) * mouse_dir.mX <= 0)
-				{
-					snap_pos = sibling_rect.mRight + padding;
-					snap_view = siblingp;
-					x_threshold = llabs(test_rect.mLeft - sibling_rect.mRight);				
-				}
-				// if snapped with sibling along other axis, check for shared edge
-				else if (llabs(sibling_rect.mTop - (test_rect.mBottom - padding)) <= y_threshold 
-					|| llabs(sibling_rect.mBottom - (test_rect.mTop + padding)) <= y_threshold)
-				{
-					if (llabs(test_rect.mLeft - sibling_rect.mLeft) <= x_threshold 
-						&& (test_rect.mLeft - sibling_rect.mLeft) * mouse_dir.mX <= 0)
-					{
-						snap_pos = sibling_rect.mLeft;
-						snap_view = siblingp;
-						x_threshold = llabs(test_rect.mLeft - sibling_rect.mLeft);									
-					}
-				}
-				break;
-			case SNAP_BOTTOM:
-				if (llabs(test_rect.mBottom - sibling_rect.mTop) <= y_threshold 
-					&& (test_rect.mBottom - sibling_rect.mTop) * mouse_dir.mY <= 0)
-				{
-					snap_pos = sibling_rect.mTop + padding;
-					snap_view = siblingp;
-					y_threshold = llabs(test_rect.mBottom - sibling_rect.mTop);
-				}
-				// if snapped with sibling along other axis, check for shared edge
-				else if (llabs(sibling_rect.mRight - (test_rect.mLeft - padding)) <= x_threshold 
-					|| llabs(sibling_rect.mLeft - (test_rect.mRight + padding)) <= x_threshold)
-				{
-					if (llabs(test_rect.mBottom - sibling_rect.mBottom) <= y_threshold 
-						&& (test_rect.mBottom - sibling_rect.mBottom) * mouse_dir.mY <= 0)
-					{
-						snap_pos = sibling_rect.mBottom;
-						snap_view = siblingp;
-						y_threshold = llabs(test_rect.mBottom - sibling_rect.mBottom);
-					}
-				}
-				break;
-			case SNAP_TOP:
-				if (llabs(test_rect.mTop - sibling_rect.mBottom) <= y_threshold 
-					&& (test_rect.mTop - sibling_rect.mBottom) * mouse_dir.mY <= 0)
-				{
-					snap_pos = sibling_rect.mBottom - padding;
-					snap_view = siblingp;
-					y_threshold = llabs(test_rect.mTop - sibling_rect.mBottom);
-				}
-				// if snapped with sibling along other axis, check for shared edge
-				else if (llabs(sibling_rect.mRight - (test_rect.mLeft - padding)) <= x_threshold 
-					|| llabs(sibling_rect.mLeft - (test_rect.mRight + padding)) <= x_threshold)
-				{
-					if (llabs(test_rect.mTop - sibling_rect.mTop) <= y_threshold 
-						&& (test_rect.mTop - sibling_rect.mTop) * mouse_dir.mY <= 0)
-					{
-						snap_pos = sibling_rect.mTop;
-						snap_view = siblingp;
-						y_threshold = llabs(test_rect.mTop - sibling_rect.mTop);
-					}
-				}
-				break;
-			default:
-				LL_ERRS() << "Invalid snap edge" << LL_ENDL;
-			}
-		}
-	}
+            switch(snap_edge)
+            {
+            case SNAP_RIGHT:
+                if (llabs(test_rect.mRight - sibling_rect.mLeft) <= x_threshold
+                    && (test_rect.mRight - sibling_rect.mLeft) * mouse_dir.mX <= 0)
+                {
+                    snap_pos = sibling_rect.mLeft - padding;
+                    snap_view = siblingp;
+                    x_threshold = llabs(test_rect.mRight - sibling_rect.mLeft);
+                }
+                // if snapped with sibling along other axis, check for shared edge
+                else if (llabs(sibling_rect.mTop - (test_rect.mBottom - padding)) <= y_threshold
+                    || llabs(sibling_rect.mBottom - (test_rect.mTop + padding)) <= x_threshold)
+                {
+                    if (llabs(test_rect.mRight - sibling_rect.mRight) <= x_threshold
+                        && (test_rect.mRight - sibling_rect.mRight) * mouse_dir.mX <= 0)
+                    {
+                        snap_pos = sibling_rect.mRight;
+                        snap_view = siblingp;
+                        x_threshold = llabs(test_rect.mRight - sibling_rect.mRight);
+                    }
+                }
+                break;
+            case SNAP_LEFT:
+                if (llabs(test_rect.mLeft - sibling_rect.mRight) <= x_threshold
+                    && (test_rect.mLeft - sibling_rect.mRight) * mouse_dir.mX <= 0)
+                {
+                    snap_pos = sibling_rect.mRight + padding;
+                    snap_view = siblingp;
+                    x_threshold = llabs(test_rect.mLeft - sibling_rect.mRight);
+                }
+                // if snapped with sibling along other axis, check for shared edge
+                else if (llabs(sibling_rect.mTop - (test_rect.mBottom - padding)) <= y_threshold
+                    || llabs(sibling_rect.mBottom - (test_rect.mTop + padding)) <= y_threshold)
+                {
+                    if (llabs(test_rect.mLeft - sibling_rect.mLeft) <= x_threshold
+                        && (test_rect.mLeft - sibling_rect.mLeft) * mouse_dir.mX <= 0)
+                    {
+                        snap_pos = sibling_rect.mLeft;
+                        snap_view = siblingp;
+                        x_threshold = llabs(test_rect.mLeft - sibling_rect.mLeft);
+                    }
+                }
+                break;
+            case SNAP_BOTTOM:
+                if (llabs(test_rect.mBottom - sibling_rect.mTop) <= y_threshold
+                    && (test_rect.mBottom - sibling_rect.mTop) * mouse_dir.mY <= 0)
+                {
+                    snap_pos = sibling_rect.mTop + padding;
+                    snap_view = siblingp;
+                    y_threshold = llabs(test_rect.mBottom - sibling_rect.mTop);
+                }
+                // if snapped with sibling along other axis, check for shared edge
+                else if (llabs(sibling_rect.mRight - (test_rect.mLeft - padding)) <= x_threshold
+                    || llabs(sibling_rect.mLeft - (test_rect.mRight + padding)) <= x_threshold)
+                {
+                    if (llabs(test_rect.mBottom - sibling_rect.mBottom) <= y_threshold
+                        && (test_rect.mBottom - sibling_rect.mBottom) * mouse_dir.mY <= 0)
+                    {
+                        snap_pos = sibling_rect.mBottom;
+                        snap_view = siblingp;
+                        y_threshold = llabs(test_rect.mBottom - sibling_rect.mBottom);
+                    }
+                }
+                break;
+            case SNAP_TOP:
+                if (llabs(test_rect.mTop - sibling_rect.mBottom) <= y_threshold
+                    && (test_rect.mTop - sibling_rect.mBottom) * mouse_dir.mY <= 0)
+                {
+                    snap_pos = sibling_rect.mBottom - padding;
+                    snap_view = siblingp;
+                    y_threshold = llabs(test_rect.mTop - sibling_rect.mBottom);
+                }
+                // if snapped with sibling along other axis, check for shared edge
+                else if (llabs(sibling_rect.mRight - (test_rect.mLeft - padding)) <= x_threshold
+                    || llabs(sibling_rect.mLeft - (test_rect.mRight + padding)) <= x_threshold)
+                {
+                    if (llabs(test_rect.mTop - sibling_rect.mTop) <= y_threshold
+                        && (test_rect.mTop - sibling_rect.mTop) * mouse_dir.mY <= 0)
+                    {
+                        snap_pos = sibling_rect.mTop;
+                        snap_view = siblingp;
+                        y_threshold = llabs(test_rect.mTop - sibling_rect.mTop);
+                    }
+                }
+                break;
+            default:
+                LL_ERRS() << "Invalid snap edge" << LL_ENDL;
+            }
+        }
+    }
 
-	new_edge_val = snap_pos;
-	return snap_view;
+    new_edge_val = snap_pos;
+    return snap_view;
 }
 
 //-----------------------------------------------------------------------------
@@ -2276,116 +2314,118 @@ LLView*	LLView::findSnapEdge(S32& new_edge_val, const LLCoordGL& mouse_dir, ESna
 //-----------------------------------------------------------------------------
 
 
-LLControlVariable *LLView::findControl(const std::string& name)
+LLControlVariable *LLView::findControl(std::string_view name)
 {
-	// parse the name to locate which group it belongs to
-	std::size_t key_pos= name.find(".");
-	if(key_pos!=  std::string::npos )
-	{
-		std::string control_group_key = name.substr(0, key_pos);
-		LLControlVariable* control;
-		// check if it's in the control group that name indicated
-		if(LLUI::getInstance()->mSettingGroups[control_group_key])
-		{
-			control = LLUI::getInstance()->mSettingGroups[control_group_key]->getControl(name);
-			if (control)
-			{
-				return control;
-			}
-		}
-	}
-	
-	LLControlGroup& control_group = LLUI::getInstance()->getControlControlGroup(name);
-	return control_group.getControl(name);	
+    auto uiInst = LLUI::getInstance();
+    // parse the name to locate which group it belongs to
+    std::size_t key_pos= name.find(".");
+    if(key_pos !=  std::string_view::npos )
+    {
+        std::string_view control_group_key = name.substr(0, key_pos);
+        LLControlVariable* control;
+        // check if it's in the control group that name indicated
+        auto it = uiInst->mSettingGroups.find(control_group_key);
+        if(it != uiInst->mSettingGroups.end() && it->second)
+        {
+            control = it->second->getControl(name);
+            if (control)
+            {
+                return control;
+            }
+        }
+    }
+
+    LLControlGroup& control_group = uiInst->getControlControlGroup(name);
+    return control_group.getControl(name);
 }
 
 void LLView::initFromParams(const LLView::Params& params)
 {
-	LLRect required_rect = getRequiredRect();
+    LLRect required_rect = getRequiredRect();
 
-	S32 width = llmax(getRect().getWidth(), required_rect.getWidth());
-	S32 height = llmax(getRect().getHeight(), required_rect.getHeight());
+    S32 width = llmax(getRect().getWidth(), required_rect.getWidth());
+    S32 height = llmax(getRect().getHeight(), required_rect.getHeight());
 
-	reshape(width, height);
+    reshape(width, height);
 
-	// call virtual methods with most recent data
-	// use getters because these values might not come through parameter block
-	setEnabled(getEnabled());
-	setVisible(getVisible());
+    // call virtual methods with most recent data
+    // use getters because these values might not come through parameter block
+    setEnabled(getEnabled());
+    setVisible(getVisible());
 
-	if (!params.name().empty())
-	{
-		setName(params.name());
-	}
+    if (!params.name().empty())
+    {
+        setName(params.name());
+    }
 
-	mLayout = params.layout();
+    mLayout = params.layout();
 }
 
 void LLView::parseFollowsFlags(const LLView::Params& params)
 {
-	// preserve follows flags set by code if user did not override
-	if (!params.follows.isProvided()) 
-	{
-		return;
-	}
+    // preserve follows flags set by code if user did not override
+    if (!params.follows.isProvided())
+    {
+        return;
+    }
 
-	// interpret either string or bitfield version of follows
-	if (params.follows.string.isChosen())
-	{
-		setFollows(FOLLOWS_NONE);
+    // interpret either string or bitfield version of follows
+    if (params.follows.string.isChosen())
+    {
+        setFollows(FOLLOWS_NONE);
 
-		std::string follows = params.follows.string;
+        std::string follows = params.follows.string;
 
-		typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
-		boost::char_separator<char> sep("|");
-		tokenizer tokens(follows, sep);
-		tokenizer::iterator token_iter = tokens.begin();
+        typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+        boost::char_separator<char> sep("|");
+        tokenizer tokens(follows, sep);
+        tokenizer::iterator token_iter = tokens.begin();
 
-		while(token_iter != tokens.end())
-		{
-			const std::string& token_str = *token_iter;
-			if (token_str == "left")
-			{
-				setFollowsLeft();
-			}
-			else if (token_str == "right")
-			{
-				setFollowsRight();
-			}
-			else if (token_str == "top")
-			{
-				setFollowsTop();
-			}
-			else if (token_str == "bottom")
-			{
-				setFollowsBottom();
-			}
-			else if (token_str == "all")
-			{
-				setFollowsAll();
-			}
-			++token_iter;
-		}
-	}
-	else if (params.follows.flags.isChosen())
-	{
-		setFollows(params.follows.flags);
-	}
+        while(token_iter != tokens.end())
+        {
+            const std::string& token_str = *token_iter;
+            if (token_str == "left")
+            {
+                setFollowsLeft();
+            }
+            else if (token_str == "right")
+            {
+                setFollowsRight();
+            }
+            else if (token_str == "top")
+            {
+                setFollowsTop();
+            }
+            else if (token_str == "bottom")
+            {
+                setFollowsBottom();
+            }
+            else if (token_str == "all")
+            {
+                setFollowsAll();
+            }
+            ++token_iter;
+        }
+    }
+    else if (params.follows.flags.isChosen())
+    {
+        setFollows(params.follows.flags);
+    }
 }
 
 
 // static
 //LLFontGL::HAlign LLView::selectFontHAlign(LLXMLNodePtr node)
 //{
-//	LLFontGL::HAlign gl_hfont_align = LLFontGL::LEFT;
+//  LLFontGL::HAlign gl_hfont_align = LLFontGL::LEFT;
 //
-//	if (node->hasAttribute("halign"))
-//	{
-//		std::string horizontal_align_name;
-//		node->getAttributeString("halign", horizontal_align_name);
-//		gl_hfont_align = LLFontGL::hAlignFromName(horizontal_align_name);
-//	}
-//	return gl_hfont_align;
+//  if (node->hasAttribute("halign"))
+//  {
+//      std::string horizontal_align_name;
+//      node->getAttributeString("halign", horizontal_align_name);
+//      gl_hfont_align = LLFontGL::hAlignFromName(horizontal_align_name);
+//  }
+//  return gl_hfont_align;
 //}
 
 // Return the rectangle of the last-constructed child,
@@ -2393,395 +2433,395 @@ void LLView::parseFollowsFlags(const LLView::Params& params)
 // Returns true if found
 static bool get_last_child_rect(LLView* parent, LLRect *rect)
 {
-	if (!parent) return false;
+    if (!parent) return false;
 
-	LLView::child_list_t::const_iterator itor = 
-		parent->getChildList()->begin();
-	for (;itor != parent->getChildList()->end(); ++itor)
-	{
-		LLView *last_view = (*itor);
-		if (last_view->getFromXUI())
-		{
-			*rect = last_view->getRect();
-			return true;
-		}
-	}
-	return false;
+    LLView::child_list_t::const_iterator itor =
+        parent->getChildList()->begin();
+    for (;itor != parent->getChildList()->end(); ++itor)
+    {
+        LLView *last_view = (*itor);
+        if (last_view->getFromXUI())
+        {
+            *rect = last_view->getRect();
+            return true;
+        }
+    }
+    return false;
 }
 
 //static
 void LLView::applyXUILayout(LLView::Params& p, LLView* parent, LLRect layout_rect)
 {
-	if (!parent) return;
+    if (!parent) return;
 
-	const S32 VPAD = 4;
-	const S32 MIN_WIDGET_HEIGHT = 10;
-	
-	// *NOTE:  This will confuse export of floater/panel coordinates unless
-	// the default is also "topleft".  JC
-	if (p.layout().empty())
-	{
-		p.layout = parent->getLayout();
-	}
+    const S32 VPAD = 4;
+    const S32 MIN_WIDGET_HEIGHT = 10;
 
-	if (layout_rect.isEmpty())
-	{
-		layout_rect = parent->getLocalRect();
-	}
+    // *NOTE:  This will confuse export of floater/panel coordinates unless
+    // the default is also "topleft".  JC
+    if (p.layout().empty())
+    {
+        p.layout = parent->getLayout();
+    }
 
-	// overwrite uninitialized rect params, using context
-	LLRect default_rect = parent->getLocalRect();
+    if (layout_rect.isEmpty())
+    {
+        layout_rect = parent->getLocalRect();
+    }
 
-	bool layout_topleft = (p.layout() == "topleft");
+    // overwrite uninitialized rect params, using context
+    LLRect default_rect = parent->getLocalRect();
 
-	// convert negative or centered coordinates to parent relative values
-	// Note: some of this logic matches the logic in TypedParam<LLRect>::setValueFromBlock()
-	if (p.rect.left.isProvided()) 
-	{
-		p.rect.left = p.rect.left + ((p.rect.left >= 0) ? layout_rect.mLeft : layout_rect.mRight);
-	}
-	if (p.rect.right.isProvided())
-	{
-		p.rect.right = p.rect.right + ((p.rect.right >= 0) ? layout_rect.mLeft : layout_rect.mRight);
-	}
-	if (p.rect.bottom.isProvided()) 
-	{
-		p.rect.bottom = p.rect.bottom + ((p.rect.bottom >= 0) ? layout_rect.mBottom : layout_rect.mTop);
-		if (layout_topleft)
-		{
-			//invert top to bottom
-			p.rect.bottom = layout_rect.mBottom + layout_rect.mTop - p.rect.bottom;
-		}
-	}
-	if (p.rect.top.isProvided())
-	{
-		p.rect.top = p.rect.top + ((p.rect.top >= 0) ? layout_rect.mBottom : layout_rect.mTop);
-		if (layout_topleft)
-		{
-			//invert top to bottom
-			p.rect.top = layout_rect.mBottom + layout_rect.mTop - p.rect.top;
-		}
-	}
+    bool layout_topleft = (p.layout() == "topleft");
 
-	// DEPRECATE: automatically fall back to height of MIN_WIDGET_HEIGHT pixels
-	if (!p.rect.height.isProvided() && !p.rect.top.isProvided() && p.rect.height == 0)
-	{
-		p.rect.height = MIN_WIDGET_HEIGHT;
-	}
+    // convert negative or centered coordinates to parent relative values
+    // Note: some of this logic matches the logic in TypedParam<LLRect>::setValueFromBlock()
+    if (p.rect.left.isProvided())
+    {
+        p.rect.left = p.rect.left + ((p.rect.left >= 0) ? layout_rect.mLeft : layout_rect.mRight);
+    }
+    if (p.rect.right.isProvided())
+    {
+        p.rect.right = p.rect.right + ((p.rect.right >= 0) ? layout_rect.mLeft : layout_rect.mRight);
+    }
+    if (p.rect.bottom.isProvided())
+    {
+        p.rect.bottom = p.rect.bottom + ((p.rect.bottom >= 0) ? layout_rect.mBottom : layout_rect.mTop);
+        if (layout_topleft)
+        {
+            //invert top to bottom
+            p.rect.bottom = layout_rect.mBottom + layout_rect.mTop - p.rect.bottom;
+        }
+    }
+    if (p.rect.top.isProvided())
+    {
+        p.rect.top = p.rect.top + ((p.rect.top >= 0) ? layout_rect.mBottom : layout_rect.mTop);
+        if (layout_topleft)
+        {
+            //invert top to bottom
+            p.rect.top = layout_rect.mBottom + layout_rect.mTop - p.rect.top;
+        }
+    }
 
-	default_rect.translate(0, default_rect.getHeight());
+    // DEPRECATE: automatically fall back to height of MIN_WIDGET_HEIGHT pixels
+    if (!p.rect.height.isProvided() && !p.rect.top.isProvided() && p.rect.height == 0)
+    {
+        p.rect.height = MIN_WIDGET_HEIGHT;
+    }
 
-	// If there was a recently constructed child, use its rectangle
-	get_last_child_rect(parent, &default_rect);
+    default_rect.translate(0, default_rect.getHeight());
 
-	if (layout_topleft)
-	{
-		// Invert the sense of bottom_delta for topleft layout
-		if (p.bottom_delta.isProvided())
-		{
-			p.bottom_delta = -p.bottom_delta;
-		}
-		else if (p.top_pad.isProvided()) 
-		{
-			p.bottom_delta = -(p.rect.height + p.top_pad);
-		}
-		else if (p.top_delta.isProvided())
-		{
-			p.bottom_delta =
-				-(p.top_delta + p.rect.height - default_rect.getHeight());
-		}
-		else if (!p.left_delta.isProvided()
-					&& !p.left_pad.isProvided())
-		{
-			// set default position is just below last rect
-			p.bottom_delta.set(-(p.rect.height + VPAD), false);
-		}
-		else
-		{
-			p.bottom_delta.set(0, false);
-		}
-	
-		// default to same left edge
-		if (!p.left_delta.isProvided())
-		{
-			p.left_delta.set(0, false);
-		}
-		if (p.left_pad.isProvided())
-		{
-			// left_pad is based on prior widget's right edge
-			p.left_delta.set(p.left_pad + default_rect.getWidth(), false);
-		}
-			
-		default_rect.translate(p.left_delta, p.bottom_delta);				
-	}
-	else
-	{	
-		// set default position is just below last rect
-		if (!p.bottom_delta.isProvided())
-		{
-			p.bottom_delta.set(-(p.rect.height + VPAD), false);
-		}
-		if (!p.left_delta.isProvided())
-		{
-			p.left_delta.set(0, false);
-		}
-		default_rect.translate(p.left_delta, p.bottom_delta);
-	}
+    // If there was a recently constructed child, use its rectangle
+    get_last_child_rect(parent, &default_rect);
 
-	// this handles case where *both* x and x_delta are provided
-	// ignore x in favor of default x + x_delta
-	if (p.bottom_delta.isProvided()) p.rect.bottom.set(0, false);
-	if (p.left_delta.isProvided()) p.rect.left.set(0, false);
+    if (layout_topleft)
+    {
+        // Invert the sense of bottom_delta for topleft layout
+        if (p.bottom_delta.isProvided())
+        {
+            p.bottom_delta = -p.bottom_delta;
+        }
+        else if (p.top_pad.isProvided())
+        {
+            p.bottom_delta = -(p.rect.height + p.top_pad);
+        }
+        else if (p.top_delta.isProvided())
+        {
+            p.bottom_delta =
+                -(p.top_delta + p.rect.height - default_rect.getHeight());
+        }
+        else if (!p.left_delta.isProvided()
+                    && !p.left_pad.isProvided())
+        {
+            // set default position is just below last rect
+            p.bottom_delta.set(-(p.rect.height + VPAD), false);
+        }
+        else
+        {
+            p.bottom_delta.set(0, false);
+        }
 
-	// selectively apply rectangle defaults, making sure that
-	// params are not flagged as having been "provided"
-	// as rect params are overconstrained and rely on provided flags
-	if (!p.rect.left.isProvided())
-	{
-		p.rect.left.set(default_rect.mLeft, false);
-		//HACK: get around the fact that setting a rect param component value won't invalidate the existing rect object value
-		p.rect.paramChanged(p.rect.left, true);
-	}
-	if (!p.rect.bottom.isProvided())
-	{
-		p.rect.bottom.set(default_rect.mBottom, false);
-		p.rect.paramChanged(p.rect.bottom, true);
-	}
-	if (!p.rect.top.isProvided())
-	{
-		p.rect.top.set(default_rect.mTop, false);
-		p.rect.paramChanged(p.rect.top, true);
-	}
-	if (!p.rect.right.isProvided())
-	{
-		p.rect.right.set(default_rect.mRight, false);
-		p.rect.paramChanged(p.rect.right, true);
+        // default to same left edge
+        if (!p.left_delta.isProvided())
+        {
+            p.left_delta.set(0, false);
+        }
+        if (p.left_pad.isProvided())
+        {
+            // left_pad is based on prior widget's right edge
+            p.left_delta.set(p.left_pad + default_rect.getWidth(), false);
+        }
 
-	}
-	if (!p.rect.width.isProvided())
-	{
-		p.rect.width.set(default_rect.getWidth(), false);
-		p.rect.paramChanged(p.rect.width, true);
-	}
-	if (!p.rect.height.isProvided())
-	{
-		p.rect.height.set(default_rect.getHeight(), false);
-		p.rect.paramChanged(p.rect.height, true);
-	}
+        default_rect.translate(p.left_delta, p.bottom_delta);
+    }
+    else
+    {
+        // set default position is just below last rect
+        if (!p.bottom_delta.isProvided())
+        {
+            p.bottom_delta.set(-(p.rect.height + VPAD), false);
+        }
+        if (!p.left_delta.isProvided())
+        {
+            p.left_delta.set(0, false);
+        }
+        default_rect.translate(p.left_delta, p.bottom_delta);
+    }
+
+    // this handles case where *both* x and x_delta are provided
+    // ignore x in favor of default x + x_delta
+    if (p.bottom_delta.isProvided()) p.rect.bottom.set(0, false);
+    if (p.left_delta.isProvided()) p.rect.left.set(0, false);
+
+    // selectively apply rectangle defaults, making sure that
+    // params are not flagged as having been "provided"
+    // as rect params are overconstrained and rely on provided flags
+    if (!p.rect.left.isProvided())
+    {
+        p.rect.left.set(default_rect.mLeft, false);
+        //HACK: get around the fact that setting a rect param component value won't invalidate the existing rect object value
+        p.rect.paramChanged(p.rect.left, true);
+    }
+    if (!p.rect.bottom.isProvided())
+    {
+        p.rect.bottom.set(default_rect.mBottom, false);
+        p.rect.paramChanged(p.rect.bottom, true);
+    }
+    if (!p.rect.top.isProvided())
+    {
+        p.rect.top.set(default_rect.mTop, false);
+        p.rect.paramChanged(p.rect.top, true);
+    }
+    if (!p.rect.right.isProvided())
+    {
+        p.rect.right.set(default_rect.mRight, false);
+        p.rect.paramChanged(p.rect.right, true);
+
+    }
+    if (!p.rect.width.isProvided())
+    {
+        p.rect.width.set(default_rect.getWidth(), false);
+        p.rect.paramChanged(p.rect.width, true);
+    }
+    if (!p.rect.height.isProvided())
+    {
+        p.rect.height.set(default_rect.getHeight(), false);
+        p.rect.paramChanged(p.rect.height, true);
+    }
 }
 
 static S32 invert_vertical(S32 y, LLView* parent)
 {
-	if (y < 0)
-	{
-		// already based on top-left, just invert
-		return -y;
-	}
-	else if (parent)
-	{
-		// use parent to flip coordinate
-		S32 parent_height = parent->getRect().getHeight();
-		return parent_height - y;
-	}
-	else
-	{
-		LL_WARNS() << "Attempting to convert layout to top-left with no parent" << LL_ENDL;
-		return y;
-	}
+    if (y < 0)
+    {
+        // already based on top-left, just invert
+        return -y;
+    }
+    else if (parent)
+    {
+        // use parent to flip coordinate
+        S32 parent_height = parent->getRect().getHeight();
+        return parent_height - y;
+    }
+    else
+    {
+        LL_WARNS() << "Attempting to convert layout to top-left with no parent" << LL_ENDL;
+        return y;
+    }
 }
 
 // Assumes that input is in bottom-left coordinates, hence must call
 // _before_ convert_coords_to_top_left().
 static void convert_to_relative_layout(LLView::Params& p, LLView* parent)
 {
-	// Use setupParams to get the final widget rectangle
-	// according to our wacky layout rules.
-	LLView::Params final = p;
-	LLView::applyXUILayout(final, parent);
-	// Must actually extract the rectangle to get consistent
-	// right = left+width, top = bottom+height
-	LLRect final_rect = final.rect;
+    // Use setupParams to get the final widget rectangle
+    // according to our wacky layout rules.
+    LLView::Params final = p;
+    LLView::applyXUILayout(final, parent);
+    // Must actually extract the rectangle to get consistent
+    // right = left+width, top = bottom+height
+    LLRect final_rect = final.rect;
 
-	// We prefer to write out top edge instead of bottom, regardless
-	// of whether we use relative positioning
-	bool converted_top = false;
+    // We prefer to write out top edge instead of bottom, regardless
+    // of whether we use relative positioning
+    bool converted_top = false;
 
-	// Look for a last rectangle
-	LLRect last_rect;
-	if (get_last_child_rect(parent, &last_rect))
-	{
-		// ...we have a previous widget to compare to
-		const S32 EDGE_THRESHOLD_PIXELS = 4;
-		S32 left_pad = final_rect.mLeft - last_rect.mRight;
-		S32 left_delta = final_rect.mLeft - last_rect.mLeft;
-		S32 top_pad = final_rect.mTop - last_rect.mBottom;
-		S32 top_delta = final_rect.mTop - last_rect.mTop;
-		// If my left edge is almost the same, or my top edge is
-		// almost the same...
-		if (llabs(left_delta) <= EDGE_THRESHOLD_PIXELS
-			|| llabs(top_delta) <= EDGE_THRESHOLD_PIXELS)
-		{
-			// ...use relative positioning
-			// prefer top_pad if widgets are stacking vertically
-			// (coordinate system is still bottom-left here)
-			if (top_pad < 0)
-			{
-				p.top_pad = top_pad;
-				p.top_delta.setProvided(false);
-			}
-			else
-			{
-				p.top_pad.setProvided(false);
-				p.top_delta = top_delta;
-			}
-			// null out other vertical specifiers
-			p.rect.top.setProvided(false);
-			p.rect.bottom.setProvided(false);
-			p.bottom_delta.setProvided(false);
-			converted_top = true;
+    // Look for a last rectangle
+    LLRect last_rect;
+    if (get_last_child_rect(parent, &last_rect))
+    {
+        // ...we have a previous widget to compare to
+        const S32 EDGE_THRESHOLD_PIXELS = 4;
+        S32 left_pad = final_rect.mLeft - last_rect.mRight;
+        S32 left_delta = final_rect.mLeft - last_rect.mLeft;
+        S32 top_pad = final_rect.mTop - last_rect.mBottom;
+        S32 top_delta = final_rect.mTop - last_rect.mTop;
+        // If my left edge is almost the same, or my top edge is
+        // almost the same...
+        if (llabs(left_delta) <= EDGE_THRESHOLD_PIXELS
+            || llabs(top_delta) <= EDGE_THRESHOLD_PIXELS)
+        {
+            // ...use relative positioning
+            // prefer top_pad if widgets are stacking vertically
+            // (coordinate system is still bottom-left here)
+            if (top_pad < 0)
+            {
+                p.top_pad = top_pad;
+                p.top_delta.setProvided(false);
+            }
+            else
+            {
+                p.top_pad.setProvided(false);
+                p.top_delta = top_delta;
+            }
+            // null out other vertical specifiers
+            p.rect.top.setProvided(false);
+            p.rect.bottom.setProvided(false);
+            p.bottom_delta.setProvided(false);
+            converted_top = true;
 
-			// prefer left_pad if widgets are stacking horizontally
-			if (left_pad > 0)
-			{
-				p.left_pad = left_pad;
-				p.left_delta.setProvided(false);
-			}
-			else
-			{
-				p.left_pad.setProvided(false);
-				p.left_delta = left_delta;
-			}
-			p.rect.left.setProvided(false);
-			p.rect.right.setProvided(false);
-		}
-	}
+            // prefer left_pad if widgets are stacking horizontally
+            if (left_pad > 0)
+            {
+                p.left_pad = left_pad;
+                p.left_delta.setProvided(false);
+            }
+            else
+            {
+                p.left_pad.setProvided(false);
+                p.left_delta = left_delta;
+            }
+            p.rect.left.setProvided(false);
+            p.rect.right.setProvided(false);
+        }
+    }
 
-	if (!converted_top)
-	{
-		// ...this is the first widget, or one that wasn't aligned
-		// prefer top/left specification
-		p.rect.top = final_rect.mTop;
-		p.rect.bottom.setProvided(false);
-		p.bottom_delta.setProvided(false);
-		p.top_pad.setProvided(false);
-		p.top_delta.setProvided(false);
-	}
+    if (!converted_top)
+    {
+        // ...this is the first widget, or one that wasn't aligned
+        // prefer top/left specification
+        p.rect.top = final_rect.mTop;
+        p.rect.bottom.setProvided(false);
+        p.bottom_delta.setProvided(false);
+        p.top_pad.setProvided(false);
+        p.top_delta.setProvided(false);
+    }
 }
 
 static void convert_coords_to_top_left(LLView::Params& p, LLView* parent)
 {
-	// Convert the coordinate system to be top-left based.
-	if (p.rect.top.isProvided())
-	{
-		p.rect.top = invert_vertical(p.rect.top, parent);
-	}
-	if (p.rect.bottom.isProvided())
-	{
-		p.rect.bottom = invert_vertical(p.rect.bottom, parent);
-	}
-	if (p.top_pad.isProvided())
-	{
-		p.top_pad = -p.top_pad;
-	}
-	if (p.top_delta.isProvided())
-	{
-		p.top_delta = -p.top_delta;
-	}
-	if (p.bottom_delta.isProvided())
-	{
-		p.bottom_delta = -p.bottom_delta;
-	}
-	p.layout = "topleft";
+    // Convert the coordinate system to be top-left based.
+    if (p.rect.top.isProvided())
+    {
+        p.rect.top = invert_vertical(p.rect.top, parent);
+    }
+    if (p.rect.bottom.isProvided())
+    {
+        p.rect.bottom = invert_vertical(p.rect.bottom, parent);
+    }
+    if (p.top_pad.isProvided())
+    {
+        p.top_pad = -p.top_pad;
+    }
+    if (p.top_delta.isProvided())
+    {
+        p.top_delta = -p.top_delta;
+    }
+    if (p.bottom_delta.isProvided())
+    {
+        p.bottom_delta = -p.bottom_delta;
+    }
+    p.layout = "topleft";
 }
 
 //static
 void LLView::setupParamsForExport(Params& p, LLView* parent)
 {
-	// Don't convert if already top-left based
-	if (p.layout() == "topleft") 
-	{
-		return;
-	}
+    // Don't convert if already top-left based
+    if (p.layout() == "topleft")
+    {
+        return;
+    }
 
-	// heuristic:  Many of our floaters and panels were bulk-exported.
-	// These specify exactly bottom/left and height/width.
-	// Others were done by hand using bottom_delta and/or left_delta.
-	// Some rely on not specifying left to mean align with left edge.
-	// Try to convert both to use relative layout, but using top-left
-	// coordinates.
-	// Avoid rectangles where top/bottom/left/right was specified.
-	if (p.rect.height.isProvided() && p.rect.width.isProvided())
-	{
-		if (p.rect.bottom.isProvided() && p.rect.left.isProvided())
-		{
-			// standard bulk export, convert it
-			convert_to_relative_layout(p, parent);
-		}
-		else if (p.rect.bottom.isProvided() && p.left_delta.isProvided())
-		{
-			// hand layout with left_delta
-			convert_to_relative_layout(p, parent);
-		}
-		else if (p.bottom_delta.isProvided())
-		{
-			// hand layout with bottom_delta
-			// don't check for p.rect.left or p.left_delta because sometimes
-			// this layout doesn't set it for widgets that are left-aligned
-			convert_to_relative_layout(p, parent);
-		}
-	}
+    // heuristic:  Many of our floaters and panels were bulk-exported.
+    // These specify exactly bottom/left and height/width.
+    // Others were done by hand using bottom_delta and/or left_delta.
+    // Some rely on not specifying left to mean align with left edge.
+    // Try to convert both to use relative layout, but using top-left
+    // coordinates.
+    // Avoid rectangles where top/bottom/left/right was specified.
+    if (p.rect.height.isProvided() && p.rect.width.isProvided())
+    {
+        if (p.rect.bottom.isProvided() && p.rect.left.isProvided())
+        {
+            // standard bulk export, convert it
+            convert_to_relative_layout(p, parent);
+        }
+        else if (p.rect.bottom.isProvided() && p.left_delta.isProvided())
+        {
+            // hand layout with left_delta
+            convert_to_relative_layout(p, parent);
+        }
+        else if (p.bottom_delta.isProvided())
+        {
+            // hand layout with bottom_delta
+            // don't check for p.rect.left or p.left_delta because sometimes
+            // this layout doesn't set it for widgets that are left-aligned
+            convert_to_relative_layout(p, parent);
+        }
+    }
 
-	convert_coords_to_top_left(p, parent);
+    convert_coords_to_top_left(p, parent);
 }
 
-LLView::tree_iterator_t LLView::beginTreeDFS() 
-{ 
-	return tree_iterator_t(this, 
-							boost::bind(boost::mem_fn(&LLView::beginChild), _1), 
-							boost::bind(boost::mem_fn(&LLView::endChild), _1)); 
+LLView::tree_iterator_t LLView::beginTreeDFS()
+{
+    return tree_iterator_t(this,
+                            boost::bind(boost::mem_fn(&LLView::beginChild), _1),
+                            boost::bind(boost::mem_fn(&LLView::endChild), _1));
 }
 
-LLView::tree_iterator_t LLView::endTreeDFS() 
-{ 
-	// an empty iterator is an "end" iterator
-	return tree_iterator_t();
+LLView::tree_iterator_t LLView::endTreeDFS()
+{
+    // an empty iterator is an "end" iterator
+    return tree_iterator_t();
 }
 
-LLView::tree_post_iterator_t LLView::beginTreeDFSPost() 
-{ 
-	return tree_post_iterator_t(this, 
-							boost::bind(boost::mem_fn(&LLView::beginChild), _1), 
-							boost::bind(boost::mem_fn(&LLView::endChild), _1)); 
+LLView::tree_post_iterator_t LLView::beginTreeDFSPost()
+{
+    return tree_post_iterator_t(this,
+                            boost::bind(boost::mem_fn(&LLView::beginChild), _1),
+                            boost::bind(boost::mem_fn(&LLView::endChild), _1));
 }
 
-LLView::tree_post_iterator_t LLView::endTreeDFSPost() 
-{ 
-	// an empty iterator is an "end" iterator
-	return tree_post_iterator_t();
+LLView::tree_post_iterator_t LLView::endTreeDFSPost()
+{
+    // an empty iterator is an "end" iterator
+    return tree_post_iterator_t();
 }
 
-LLView::bfs_tree_iterator_t LLView::beginTreeBFS() 
-{ 
-	return bfs_tree_iterator_t(this, 
-							boost::bind(boost::mem_fn(&LLView::beginChild), _1), 
-							boost::bind(boost::mem_fn(&LLView::endChild), _1)); 
+LLView::bfs_tree_iterator_t LLView::beginTreeBFS()
+{
+    return bfs_tree_iterator_t(this,
+                            boost::bind(boost::mem_fn(&LLView::beginChild), _1),
+                            boost::bind(boost::mem_fn(&LLView::endChild), _1));
 }
 
-LLView::bfs_tree_iterator_t LLView::endTreeBFS() 
-{ 
-	// an empty iterator is an "end" iterator
-	return bfs_tree_iterator_t();
+LLView::bfs_tree_iterator_t LLView::endTreeBFS()
+{
+    // an empty iterator is an "end" iterator
+    return bfs_tree_iterator_t();
 }
 
 
 LLView::root_to_view_iterator_t LLView::beginRootToView()
 {
-	return root_to_view_iterator_t(this, boost::bind(&LLView::getParent, _1));
+    return root_to_view_iterator_t(this, boost::bind(&LLView::getParent, _1));
 }
 
 LLView::root_to_view_iterator_t LLView::endRootToView()
 {
-	return root_to_view_iterator_t();
+    return root_to_view_iterator_t();
 }
 
 
@@ -2789,66 +2829,66 @@ LLView::root_to_view_iterator_t LLView::endRootToView()
 // when a view is constructed/deconstructed
 LLView& LLView::getDefaultWidgetContainer() const
 {
-	if (!mDefaultWidgets)
-	{
-		LLView::Params p;
-		p.name = "default widget container";
-		p.visible = false; // ensures default widgets can't steal focus, etc.
-		mDefaultWidgets = new LLView(p);
-	}
-	return *mDefaultWidgets;
+    if (!mDefaultWidgets)
+    {
+        LLView::Params p;
+        p.name = "default widget container";
+        p.visible = false; // ensures default widgets can't steal focus, etc.
+        mDefaultWidgets = new LLView(p);
+    }
+    return *mDefaultWidgets;
 }
 
-S32	LLView::notifyParent(const LLSD& info)
+S32 LLView::notifyParent(const LLSD& info)
 {
-	LLView* parent = getParent();
-	if(parent)
-		return parent->notifyParent(info);
-	return 0;
+    LLView* parent = getParent();
+    if(parent)
+        return parent->notifyParent(info);
+    return 0;
 }
-bool	LLView::notifyChildren(const LLSD& info)
+bool    LLView::notifyChildren(const LLSD& info)
 {
-	bool ret = false;
-	BOOST_FOREACH(LLView* childp, mChildList)
-	{
-		ret = ret || childp->notifyChildren(info);
-	}
-	return ret;
+    bool ret = false;
+    for (LLView* childp : mChildList)
+    {
+        ret = ret || childp->notifyChildren(info);
+    }
+    return ret;
 }
 
 // convenient accessor for draw context
 const LLViewDrawContext& LLView::getDrawContext()
 {
-	return LLViewDrawContext::getCurrentContext();
+    return LLViewDrawContext::getCurrentContext();
 }
 
 const LLViewDrawContext& LLViewDrawContext::getCurrentContext()
 {
-	static LLViewDrawContext default_context;
+    static LLViewDrawContext default_context;
 
-	if (sDrawContextStack.empty())
-		return default_context;
-		
-	return *sDrawContextStack.back();
+    if (sDrawContextStack.empty())
+        return default_context;
+
+    return *sDrawContextStack.back();
 }
 
 LLSD LLView::getInfo(void)
 {
-	LLSD info;
-	addInfo(info);
-	return info;
+    LLSD info;
+    addInfo(info);
+    return info;
 }
 
 void LLView::addInfo(LLSD & info)
 {
-	info["path"] = getPathname();
-	info["class"] = typeid(*this).name();
-	info["visible"] = getVisible();
-	info["visible_chain"] = isInVisibleChain();
-	info["enabled"] = getEnabled();
-	info["enabled_chain"] = isInEnabledChain();
-	info["available"] = isAvailable();
-	LLRect rect(calcScreenRect());
-	info["rect"] = LLSDMap("left", rect.mLeft)("top", rect.mTop)
-				("right", rect.mRight)("bottom", rect.mBottom);
+    info["path"] = getPathname();
+    info["class"] = typeid(*this).name();
+    info["visible"] = getVisible();
+    info["visible_chain"] = isInVisibleChain();
+    info["enabled"] = getEnabled();
+    info["enabled_chain"] = isInEnabledChain();
+    info["available"] = isAvailable();
+    LLRect rect(calcScreenRect());
+    info["rect"] = LLSDMap("left", rect.mLeft)("top", rect.mTop)
+                ("right", rect.mRight)("bottom", rect.mBottom);
 }

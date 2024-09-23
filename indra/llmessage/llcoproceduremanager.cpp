@@ -41,7 +41,7 @@
 //=========================================================================
 // Map of pool sizes for known pools
 static const std::map<std::string, U32> DefaultPoolSizes{
-	{std::string("Upload"),  1},
+    {std::string("Upload"),  1},
     {std::string("AIS"),     1},
     // *TODO: Rider for the moment keep AIS calls serialized otherwise the COF will tend to get out of sync.
 };
@@ -61,11 +61,11 @@ public:
     LLCoprocedurePool(const std::string &name, size_t size);
     ~LLCoprocedurePool();
 
-    /// Places the coprocedure on the queue for processing. 
-    /// 
+    /// Places the coprocedure on the queue for processing.
+    ///
     /// @param name Is used for debugging and should identify this coroutine.
-    /// @param proc Is a bound function to be executed 
-    /// 
+    /// @param proc Is a bound function to be executed
+    ///
     /// @return This method returns a UUID that can be used later to cancel execution.
     LLUUID enqueueCoprocedure(const std::string &name, CoProcedure_t proc);
 
@@ -87,15 +87,15 @@ public:
     ///
     inline S32 count() const
     {
-        return countPending() + countActive();
+        return static_cast<S32>(countPending() + countActive());
     }
 
     void close();
-    
+
 private:
     struct QueuedCoproc
     {
-        typedef boost::shared_ptr<QueuedCoproc> ptr_t;
+        typedef std::shared_ptr<QueuedCoproc> ptr_t;
 
         QueuedCoproc(const std::string &name, const LLUUID &id, CoProcedure_t proc) :
             mName(name),
@@ -108,14 +108,14 @@ private:
         CoProcedure_t mProc;
     };
 
-    // we use a buffered_channel here rather than unbuffered_channel since we want to be able to 
+    // we use a buffered_channel here rather than unbuffered_channel since we want to be able to
     // push values without blocking,even if there's currently no one calling a pop operation (due to
     // fiber running right now)
     typedef boost::fibers::buffered_channel<QueuedCoproc::ptr_t>  CoprocQueue_t;
     // Use shared_ptr to control the lifespan of our CoprocQueue_t instance
     // because the consuming coroutine might outlive this LLCoprocedurePool
     // instance.
-    typedef boost::shared_ptr<CoprocQueue_t> CoprocQueuePtr;
+    typedef std::shared_ptr<CoprocQueue_t> CoprocQueuePtr;
 
     std::string     mPoolName;
     size_t          mPoolSize, mActiveCoprocsCount, mPending;
@@ -167,7 +167,7 @@ void LLCoprocedureManager::initializePool(const std::string &poolName)
 
     if (size == 0)
     {
-        // if not found grab the know default... if there is no known 
+        // if not found grab the know default... if there is no known
         // default use a reasonable number like 5.
         auto it = DefaultPoolSizes.find(poolName);
         size = (it != DefaultPoolSizes.end()) ? it->second : DEFAULT_POOL_SIZE;
@@ -190,7 +190,7 @@ void LLCoprocedureManager::initializePool(const std::string &poolName)
 //-------------------------------------------------------------------------
 LLUUID LLCoprocedureManager::enqueueCoprocedure(const std::string &pool, const std::string &name, CoProcedure_t proc)
 {
-    // Attempt to find the pool and enqueue the procedure.  If the pool does 
+    // Attempt to find the pool and enqueue the procedure.  If the pool does
     // not exist, create it.
     poolMap_t::iterator it = mPoolMap.find(pool);
 
@@ -301,7 +301,7 @@ LLCoprocedurePool::LLCoprocedurePool(const std::string &poolName, size_t size):
     mPoolSize(size),
     mActiveCoprocsCount(0),
     mPending(0),
-    mPendingCoprocs(boost::make_shared<CoprocQueue_t>(LLCoprocedureManager::DEFAULT_QUEUE_SIZE)),
+    mPendingCoprocs(std::make_shared<CoprocQueue_t>(LLCoprocedureManager::DEFAULT_QUEUE_SIZE)),
     mHTTPPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID),
     mCoroMapping()
 {
@@ -355,7 +355,7 @@ LLCoprocedurePool::LLCoprocedurePool(const std::string &poolName, size_t size):
     LL_INFOS("CoProcMgr") << "Created coprocedure pool named \"" << mPoolName << "\" with " << size << " items, queue max " << LLCoprocedureManager::DEFAULT_QUEUE_SIZE << LL_ENDL;
 }
 
-LLCoprocedurePool::~LLCoprocedurePool() 
+LLCoprocedurePool::~LLCoprocedurePool()
 {
 }
 
@@ -384,7 +384,7 @@ LLUUID LLCoprocedurePool::enqueueCoprocedure(const std::string &name, LLCoproced
         LL_INFOS("CoProcMgr") << "Coprocedure(" << name << ") enqueuing with id=" << id.asString() << " in pool \"" << mPoolName << "\" at "
                               << mPending << LL_ENDL;
     }
-    auto pushed = mPendingCoprocs->try_push(boost::make_shared<QueuedCoproc>(name, id, proc));
+    auto pushed = mPendingCoprocs->try_push(std::make_shared<QueuedCoproc>(name, id, proc));
     if (pushed == boost::fibers::channel_op_status::success)
     {
         ++mPending;

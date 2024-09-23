@@ -3,25 +3,25 @@
  * @author Nat Goodspeed
  * @date   2008-08-20
  * @brief  Test of lltreeiterators.h
- * 
+ *
  * $LicenseInfo:firstyear=2008&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -38,7 +38,6 @@
 // external library headers
 #include <boost/bind.hpp>
 #include <boost/range/iterator_range.hpp>
-#include <boost/foreach.hpp>
 
 // associated header
 #include "../lltreeiterators.h"
@@ -402,7 +401,7 @@ private:
  *
  * Example:
  * @code
- * BOOST_FOREACH(TreeNodePtr node, getRootRange<LLTreeIter::UP>(somenode))
+ * for (TreeNodePtr node : getRootRange<LLTreeIter::UP>(somenode))
  * {
  *     std::cout << node->name() << '\n';
  * }
@@ -424,7 +423,7 @@ getRootRange(const TreeNodePtr& node)
  *
  * Example:
  * @code
- * BOOST_FOREACH(TreeNodePtr node, getWalkRange<LLTreeIter::DFS_PRE>(root))
+ * for (TreeNodePtr node : getWalkRange<LLTreeIter::DFS_PRE>(root))
  * {
  *     std::cout << node->name() << '\n';
  * }
@@ -520,7 +519,7 @@ public:
      *
      * Example usage:
      * @code
-     * BOOST_FOREACH(EnhancedTreeNodePtr node, somenode->getRootRange<LLTreeIter::UP>())
+     * for (EnhancedTreeNodePtr node : somenode->getRootRange<LLTreeIter::UP>())
      * {
      *     std::cout << node->name() << '\n';
      * }
@@ -564,7 +563,7 @@ public:
      *
      * Example usage:
      * @code
-     * BOOST_FOREACH(EnhancedTreeNodePtr node, somenode->getWalkRange<LLTreeIter::DFS_PRE>())
+     * for (EnhancedTreeNodePtr node : somenode->getWalkRange<LLTreeIter::DFS_PRE>())
      * {
      *     std::cout << node->name() << '\n';
      * }
@@ -644,7 +643,7 @@ LLLinkedIter<PlainTree> PlainTree_child_end(PlainTree* node)
  *
  * Example:
  * @code
- * BOOST_FOREACH(PlainTree* node, getRootRange<LLTreeIter::UP>(somenode))
+ * for (PlainTree* node : getRootRange<LLTreeIter::UP>(somenode))
  * {
  *     std::cout << node->name() << '\n';
  * }
@@ -668,7 +667,7 @@ getRootRange(PlainTree* node)
  *
  * Example:
  * @code
- * BOOST_FOREACH(PlainTree* node, getWalkRange<LLTreeIter::DFS_PRE>(root))
+ * for (PlainTree* node : getWalkRange<LLTreeIter::DFS_PRE>(root))
  * {
  *     std::cout << node->name() << '\n';
  * }
@@ -1046,7 +1045,7 @@ bool LLTreeWalkIter_test(const std::string& itername, const std::string& nodenam
     {
         std::cout << itername << '<' << nodename << ">(NULL)\n";
         return false;
-    }             
+    }
     return true;
 }
 
@@ -1103,18 +1102,18 @@ namespace tut
         // This test function illustrates the looping techniques described in the
         // comments for the getRootRange() free function, the
         // EnhancedTreeNode::root_range template and the
-        // EnhancedTreeNode::getRootRange() method. Obviously the BOOST_FOREACH()
+        // EnhancedTreeNode::getRootRange() method. Obviously the for()
         // forms are more succinct.
         TreeNodePtr tnroot(example_tree<TreeNode>());
         TreeNodePtr tnB2b(get_B2b<TreeNode, TreeNode::child_iterator>
                           (tnroot, boost::bind(&TreeNode::child_begin, _1)));
-    
-        std::string desc1("BOOST_FOREACH(TreeNodePr, getRootRange<LLTreeIter::UP>(tnB2b))");
+
+        std::string desc1("for (TreeNodePr : getRootRange<LLTreeIter::UP>(tnB2b))");
 //      std::cout << desc1 << "\n";
         // Although we've commented out the output statement, ensure that the
         // loop construct is still valid, as promised by the getRootRange()
         // documentation.
-        BOOST_FOREACH(TreeNodePtr node, getRootRange<LLTreeIter::UP>(tnB2b))
+        for (TreeNodePtr node : getRootRange<LLTreeIter::UP>(tnB2b))
         {
 //          std::cout << node->name() << '\n';
         }
@@ -1137,9 +1136,9 @@ namespace tut
 //          std::cout << (*ri)->name() << '\n';
         }
 
-        std::string desc2("BOOST_FOREACH(EnhancedTreeNodePtr node, etnB2b->getRootRange<LLTreeIter::UP>())");
+        std::string desc2("for (EnhancedTreeNodePtr node : etnB2b->getRootRange<LLTreeIter::UP>())");
 //      std::cout << desc2 << '\n';
-        BOOST_FOREACH(EnhancedTreeNodePtr node, etnB2b->getRootRange<LLTreeIter::UP>())
+        for (EnhancedTreeNodePtr node : etnB2b->getRootRange<LLTreeIter::UP>())
         {
 //          std::cout << node->name() << '\n';
         }

@@ -37,26 +37,26 @@ LLToastScriptQuestion::LLToastScriptQuestion(const LLNotificationPtr& notificati
 :
 LLToastPanel(notification)
 {
-	buildFromFile("panel_script_question_toast.xml");
+    buildFromFile("panel_script_question_toast.xml");
 }
 
-BOOL LLToastScriptQuestion::postBuild()
+bool LLToastScriptQuestion::postBuild()
 {
-	createButtons();
+    createButtons();
 
-	LLTextBox* mMessage = getChild<LLTextBox>("top_info_message");
-	LLTextBox* mFooter = getChild<LLTextBox>("bottom_info_message");
+    LLTextBox* mMessage = getChild<LLTextBox>("top_info_message");
+    LLTextBox* mFooter = getChild<LLTextBox>("bottom_info_message");
 
-	mMessage->setValue(mNotification->getMessage());
-	mFooter->setValue(mNotification->getFooter());
+    mMessage->setValue(mNotification->getMessage());
+    mFooter->setValue(mNotification->getFooter());
 
-	snapToMessageHeight();
+    snapToMessageHeight();
 
-	return TRUE;
+    return true;
 }
 
 // virtual
-void LLToastScriptQuestion::setFocus(BOOL b)
+void LLToastScriptQuestion::setFocus(bool b)
 {
     LLToastPanel::setFocus(b);
     // toast can fade out and disappear with focus ON, so reset to default anyway
@@ -69,81 +69,81 @@ void LLToastScriptQuestion::setFocus(BOOL b)
 
 void LLToastScriptQuestion::snapToMessageHeight()
 {
-	LLTextBox* mMessage = getChild<LLTextBox>("top_info_message");
-	LLTextBox* mFooter = getChild<LLTextBox>("bottom_info_message");
-	if (!mMessage || !mFooter)
-	{
-		return;
-	}
+    LLTextBox* mMessage = getChild<LLTextBox>("top_info_message");
+    LLTextBox* mFooter = getChild<LLTextBox>("bottom_info_message");
+    if (!mMessage || !mFooter)
+    {
+        return;
+    }
 
-	if (mMessage->getVisible() && mFooter->getVisible())
-	{
-		S32 heightDelta = 0;
-		S32 maxTextHeight = (mMessage->getFont()->getLineHeight() * MAX_LINES_COUNT)
-						  + (mFooter->getFont()->getLineHeight() * MAX_LINES_COUNT);
+    if (mMessage->getVisible() && mFooter->getVisible())
+    {
+        S32 heightDelta = 0;
+        S32 maxTextHeight = (mMessage->getFont()->getLineHeight() * MAX_LINES_COUNT)
+                          + (mFooter->getFont()->getLineHeight() * MAX_LINES_COUNT);
 
-		LLRect messageRect = mMessage->getRect();
-		LLRect footerRect  = mFooter->getRect();
+        LLRect messageRect = mMessage->getRect();
+        LLRect footerRect  = mFooter->getRect();
 
-		S32 oldTextHeight = messageRect.getHeight() + footerRect.getHeight();
+        S32 oldTextHeight = messageRect.getHeight() + footerRect.getHeight();
 
-		S32 requiredTextHeight = mMessage->getTextBoundingRect().getHeight() + mFooter->getTextBoundingRect().getHeight();
-		S32 newTextHeight = llmin(requiredTextHeight, maxTextHeight);
+        S32 requiredTextHeight = mMessage->getTextBoundingRect().getHeight() + mFooter->getTextBoundingRect().getHeight();
+        S32 newTextHeight = llmin(requiredTextHeight, maxTextHeight);
 
-		heightDelta = newTextHeight - oldTextHeight - heightDelta;
+        heightDelta = newTextHeight - oldTextHeight - heightDelta;
 
-		reshape( getRect().getWidth(), llmax(getRect().getHeight() + heightDelta, MIN_PANEL_HEIGHT));
-	}
+        reshape( getRect().getWidth(), llmax(getRect().getHeight() + heightDelta, MIN_PANEL_HEIGHT));
+    }
 }
 
 void LLToastScriptQuestion::createButtons()
 {
-	LLNotificationFormPtr form = mNotification->getForm();
-	int num_elements = form->getNumElements();
-	int buttons_width = 0;
+    LLNotificationFormPtr form = mNotification->getForm();
+    int num_elements = form->getNumElements();
+    int buttons_width = 0;
 
-	for (int i = 0; i < num_elements; ++i)
-	{
-		LLSD form_element = form->getElement(i);
-		if ("button" == form_element["type"].asString())
-		{
-			LLButton::Params p;
-			const LLFontGL* font = LLFontGL::getFontSansSerif();
-			p.name(form_element["name"].asString());
-			p.label(form_element["text"].asString());
-			p.layout("topleft");
-			p.font(font);
-			p.rect.height(BUTTON_HEIGHT);
-			p.click_callback.function(boost::bind(&LLToastScriptQuestion::onButtonClicked, this, form_element["name"].asString()));
-			p.rect.left = LEFT_PAD;
-			p.rect.width = font->getWidth(form_element["text"].asString());
-			p.auto_resize = true;
-			p.follows.flags(FOLLOWS_LEFT | FOLLOWS_BOTTOM);
-			p.image_color(LLUIColorTable::instance().getColor("ButtonCautionImageColor"));
-			p.image_color_disabled(LLUIColorTable::instance().getColor("ButtonCautionImageColor"));
+    for (int i = 0; i < num_elements; ++i)
+    {
+        LLSD form_element = form->getElement(i);
+        if ("button" == form_element["type"].asString())
+        {
+            LLButton::Params p;
+            const LLFontGL* font = LLFontGL::getFontSansSerif();
+            p.name(form_element["name"].asString());
+            p.label(form_element["text"].asString());
+            p.layout("topleft");
+            p.font(font);
+            p.rect.height(BUTTON_HEIGHT);
+            p.click_callback.function(boost::bind(&LLToastScriptQuestion::onButtonClicked, this, form_element["name"].asString()));
+            p.rect.left = LEFT_PAD;
+            p.rect.width = font->getWidth(form_element["text"].asString());
+            p.auto_resize = true;
+            p.follows.flags(FOLLOWS_LEFT | FOLLOWS_BOTTOM);
+            p.image_color(LLUIColorTable::instance().getColor("ButtonCautionImageColor"));
+            p.image_color_disabled(LLUIColorTable::instance().getColor("ButtonCautionImageColor"));
 
-			LLButton* button = LLUICtrlFactory::create<LLButton>(p);
-			button->autoResize();
-			getChild<LLPanel>("buttons_panel")->addChild(button);
+            LLButton* button = LLUICtrlFactory::create<LLButton>(p);
+            button->autoResize();
+            getChild<LLPanel>("buttons_panel")->addChild(button);
 
-			LLRect rect = button->getRect();
-			rect.setLeftTopAndSize(buttons_width, rect.mTop, rect.getWidth(), rect.getHeight());
-			button->setRect(rect);
+            LLRect rect = button->getRect();
+            rect.setLeftTopAndSize(buttons_width, rect.mTop, rect.getWidth(), rect.getHeight());
+            button->setRect(rect);
 
-			buttons_width += rect.getWidth() + LEFT_PAD;
+            buttons_width += rect.getWidth() + LEFT_PAD;
 
-			if (form_element.has("default") && form_element["default"].asBoolean())
-			{
-				button->setFocus(TRUE);
-				setDefaultBtn(button);
-			}
-		}
-	}
+            if (form_element.has("default") && form_element["default"].asBoolean())
+            {
+                button->setFocus(true);
+                setDefaultBtn(button);
+            }
+        }
+    }
 }
 
 void LLToastScriptQuestion::onButtonClicked(std::string btn_name)
 {
-	LLSD response = mNotification->getResponseTemplate();
-	response[btn_name] = true;
-	mNotification->respond(response);
+    LLSD response = mNotification->getResponseTemplate();
+    response[btn_name] = true;
+    mNotification->respond(response);
 }

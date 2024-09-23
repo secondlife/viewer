@@ -1,4 +1,4 @@
-/** 
+/**
  * @file llweb.h
  * @brief Functions dealing with web browsers
  * @author James Cook
@@ -6,21 +6,21 @@
  * $LicenseInfo:firstyear=2006&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -32,7 +32,7 @@
 
 ///
 /// The LLWeb class provides various static methods to display the
-/// contents of a Url in a web browser. Variations are provided to 
+/// contents of a Url in a web browser. Variations are provided to
 /// let you specifically use the Second Life internal browser, the
 /// operating system's default browser, or to respect the user's
 /// setting for which of these two they prefer to use with SL.
@@ -40,29 +40,29 @@
 class LLWeb
 {
 public:
-	enum PreferredBrowser
-	{
-		BROWSER_EXTERNAL_ONLY = 0,
-		BROWSER_INT_LL_EXT_OTHERS = 1,
-		BROWSER_INTERNAL_ONLY = 2
-	};
-	
-	/// Load the given url in the operating system's web browser, async if we want to return immediately
-	/// before browser has spawned
-	static void loadURLExternal(const std::string& url) {loadURLExternal(url, LLStringUtil::null);}
-	static void loadURLExternal(const std::string& url, const std::string& uuid);
-	static void loadURLExternal(const std::string& url, bool async, const std::string& uuid = LLStringUtil::null);
+    enum PreferredBrowser
+    {
+        BROWSER_EXTERNAL_ONLY = 0,
+        BROWSER_INT_LL_EXT_OTHERS = 1,
+        BROWSER_INTERNAL_ONLY = 2
+    };
 
-	static void loadURL(const std::string& url, const std::string& target = LLStringUtil::null, const std::string& uuid = LLStringUtil::null);
-	// load content using built-in browser
-	static void loadURLInternal(const std::string &url, const std::string& target = LLStringUtil::null, const std::string& uuid = LLStringUtil::null, bool dev_mode = false);
+    /// Load the given url in the operating system's web browser, async if we want to return immediately
+    /// before browser has spawned
+    static void loadURLExternal(const std::string& url) {loadURLExternal(url, LLStringUtil::null);}
+    static void loadURLExternal(const std::string& url, const std::string& uuid);
+    static void loadURLExternal(const std::string& url, bool async, const std::string& uuid = LLStringUtil::null);
 
-	/// Returns escaped url (eg, " " to "%20") - used by all loadURL methods
-	static std::string escapeURL(const std::string& url);
-	/// Expands various strings like [LANG], [VERSION], etc. in a URL
-	static std::string expandURLSubstitutions(const std::string &url,
-											  const LLSD &default_subs);
-	static bool useExternalBrowser(const std::string &url);
+    static void loadURL(const std::string& url, const std::string& target = LLStringUtil::null, const std::string& uuid = LLStringUtil::null);
+    // load content using built-in browser
+    static void loadURLInternal(const std::string &url, const std::string& target = LLStringUtil::null, const std::string& uuid = LLStringUtil::null, bool dev_mode = false);
+
+    /// Returns escaped url (eg, " " to "%20") - used by all loadURL methods
+    static std::string escapeURL(const std::string& url);
+    /// Expands various strings like [LANG], [VERSION], etc. in a URL
+    static std::string expandURLSubstitutions(const std::string &url,
+                                              const LLSD &default_subs);
+    static bool useExternalBrowser(const std::string &url);
 };
 
 #endif

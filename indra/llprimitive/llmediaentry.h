@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llmediaentry.h
  * @brief This is a single instance of media data related to the face of a prim
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -35,12 +35,12 @@
 
 class LLMediaEntry
 {
-public: 
+public:
     enum MediaControls {
         STANDARD = 0,
         MINI
     };
-    
+
     // Constructors
     LLMediaEntry();
     LLMediaEntry(const LLMediaEntry &rhs);
@@ -50,7 +50,7 @@ public:
 
     bool operator==(const LLMediaEntry &rhs) const;
     bool operator!=(const LLMediaEntry &rhs) const;
-    
+
     // Render as LLSD
     LLSD asLLSD() const;
     void asLLSD(LLSD& sd) const;
@@ -61,7 +61,7 @@ public:
     // This doesn't merge, it overwrites the data, so will use
     // LLSD defaults if need be.  Note: does not check limits!
     // Use checkLLSD() above first to ensure the LLSD is valid.
-    void fromLLSD(const LLSD& sd);  
+    void fromLLSD(const LLSD& sd);
     // This merges data from the incoming LLSD into our fields.
     // Note that it also does NOT check limits!  Use checkLLSD() above first.
     void mergeFromLLSD(const LLSD& sd);
@@ -89,7 +89,7 @@ public:
 
     // Setters.  Those that return a U32 return a status error code
     // See lllslconstants.h
-    
+
     // "general" fields
     U32 setAltImageEnable(bool alt_image_enable) { mAltImageEnable = alt_image_enable; return LSL_STATUS_OK; }
     U32 setControls(MediaControls controls);
@@ -121,9 +121,9 @@ public:
 public:
     // Static function to check a URL against a whitelist
     // Returns true iff url passes the given whitelist
-    static bool checkUrlAgainstWhitelist(const std::string &url, 
+    static bool checkUrlAgainstWhitelist(const std::string &url,
                                          const std::vector<std::string> &whitelist);
-    
+
 public:
         // LLSD key defines
     // "general" fields
@@ -214,7 +214,7 @@ private:
     // "permissions" fields
     U8 mPermsInteract;
     U8 mPermsControl;
-    
+
     mutable LLUUID *mMediaIDp;            // temporary id assigned to media on the viewer
 };
 

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel
   follows="all"
   height="570"
@@ -208,7 +208,7 @@ TestString PleaseIgnore
         Description:
       </text>
       <text_editor
-        text_type="ascii_printable_no_pipe"
+        prevalidator="ascii_printable_no_pipe"
         commit_on_focus_lost="true"
         border_style="line"
         border_thickness="1"
@@ -288,7 +288,7 @@ TestString PleaseIgnore
         height="15"
         follows="left|top"
         layout="topleft"
-        name="perm_modify"
+        name="you_perm_modify"
         width="200">
         You can:
       </text>
@@ -401,7 +401,7 @@ TestString PleaseIgnore
         layout="topleft"
         left="5"
         right="-5"
-        name="cost_text_border"
+        name="cost_text_border1"
         top_pad="9"/>
         
       <check_box

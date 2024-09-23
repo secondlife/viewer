@@ -57,16 +57,16 @@ void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, ou
 
     vec3  rel_pos_norm = normalize(rel_pos);
     float rel_pos_len  = length(rel_pos);
-    
+
     vec3  sunlight     = (sun_up_factor == 1) ? sunlight_color: moonlight_color;
-    
+
     // sunlight attenuation effect (hue and brightness) due to atmosphere
     // this is used later for sunlight modulation at various altitudes
     vec3 light_atten = (blue_density + vec3(haze_density * 0.25)) * (density_multiplier * max_y);
     // I had thought blue_density and haze_density should have equal weighting,
     // but attenuation due to haze_density tends to seem too strong
 
-    vec3 combined_haze = blue_density + vec3(haze_density);
+    vec3 combined_haze = max(blue_density + vec3(haze_density), vec3(1e-6));
     vec3 blue_weight   = blue_density / combined_haze;
     vec3 haze_weight   = vec3(haze_density) / combined_haze;
 
@@ -98,7 +98,7 @@ void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, ou
     haze_glow = max(haze_glow, .001);  // set a minimum "angle" (smaller glow.y allows tighter, brighter hotspot)
     haze_glow *= glow.x;
     // higher glow.x gives dimmer glow (because next step is 1 / "angle")
-    haze_glow = pow(haze_glow, glow.z);
+    haze_glow = clamp(pow(haze_glow, glow.z), -100000, 100000);
     // glow.z should be negative, so we're doing a sort of (1 / "angle") function
 
     // add "minimum anti-solar illumination"
@@ -119,16 +119,19 @@ void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, ou
     additive = (blue_horizon.rgb * blue_weight.rgb) * (cs + tmpAmbient.rgb) + (haze_horizon * haze_weight.rgb) * (cs * haze_glow + tmpAmbient.rgb);
 
     // brightness of surface both sunlight and ambient
-    
+
     sunlit = sunlight.rgb;
     amblit = tmpAmbient;
 
     additive *= vec3(1.0 - combined_haze);
+
+    // sanity clamp haze contribution
+    additive = min(additive, vec3(10));
 }
 
 vec3 srgb_to_linear(vec3 col);
 
-// provide a touch of lighting in the opposite direction of the sun light 
+// provide a touch of lighting in the opposite direction of the sun light
     // so areas in shadow don't lose all detail
 float ambientLighting(vec3 norm, vec3 light_dir)
 {
@@ -150,7 +153,7 @@ void calcAtmosphericVarsLinear(vec3 inPositionEye, vec3 norm, vec3 light_dir, ou
     // (allows for mixing of light sources other than sunlight e.g. reflection probes)
     sunlit *= sky_sunlight_scale;
     amblit *= sky_ambient_scale;
-    
+
     amblit = srgb_to_linear(amblit);
     amblit *= ambientLighting(norm, light_dir);
 }

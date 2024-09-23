@@ -48,12 +48,9 @@
 
 // TODO: includes inherited from dae loader.  Validate / prune
 
-#include <boost/lexical_cast.hpp>
-
 #include "llsdserialize.h"
 #include "lljoint.h"
 
-#include "glh/glh_linear.h"
 #include "llmatrix4a.h"
 
 #include <boost/regex.hpp>
@@ -61,11 +58,11 @@
 
 static const std::string lod_suffix[LLModel::NUM_LODS] =
 {
-	"_LOD0",
-	"_LOD1",
-	"_LOD2",
-	"",
-	"_PHYS",
+    "_LOD0",
+    "_LOD1",
+    "_LOD2",
+    "",
+    "_PHYS",
 };
 
 
@@ -144,13 +141,13 @@ bool LLGLTFLoader::parseMeshes()
 
     // 2022-04 DJH Volume params from dae example. TODO understand PCODE
     LLVolumeParams volume_params;
-    volume_params.setType(LL_PCODE_PROFILE_SQUARE, LL_PCODE_PATH_LINE);    
-    
+    volume_params.setType(LL_PCODE_PROFILE_SQUARE, LL_PCODE_PATH_LINE);
+
     for (tinygltf::Mesh mesh : mGltfModel.meshes)
     {
         LLModel *pModel = new LLModel(volume_params, 0.f);
 
-        if (populateModelFromMesh(pModel, mesh)         && 
+        if (populateModelFromMesh(pModel, mesh)         &&
             (LLModel::NO_ERRORS == pModel->getStatus()) &&
             validate_model(pModel))
         {
@@ -181,7 +178,7 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const tinygltf::Mesh &
         if (pos_idx >= 0)
         {
             positions_a = mGltfModel.accessors[pos_idx];
-            if (TINYGLTF_COMPONENT_TYPE_FLOAT != positions_a.componentType) 
+            if (TINYGLTF_COMPONENT_TYPE_FLOAT != positions_a.componentType)
                 continue;
             auto positions_bv = mGltfModel.bufferViews[positions_a.bufferView];
             auto positions_buf = mGltfModel.buffers[positions_bv.buffer];
@@ -204,12 +201,12 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const tinygltf::Mesh &
             //auto pos = mesh.    TODO resume here DJH 2022-04
         }
     }
-    
+
     //pModel->addFace()
     return false;
 }
 
-bool LLGLTFLoader::parseMaterials() 
+bool LLGLTFLoader::parseMaterials()
 {
     if (!mGltfLoaded) return false;
 
@@ -233,7 +230,7 @@ bool LLGLTFLoader::parseMaterials()
         image.numChannels     = in_image.component;
         image.bytesPerChannel = in_image.bits >> 3;     // Convert bits to bytes
         image.pixelType       = in_image.pixel_type;    // Maps exactly, i.e. TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE == GL_UNSIGNED_BYTE, etc
-        image.size            = in_image.image.size();
+        image.size            = static_cast<U32>(in_image.image.size());
         image.height          = in_image.height;
         image.width           = in_image.width;
         image.data            = in_image.image.data();
@@ -243,7 +240,7 @@ bool LLGLTFLoader::parseMaterials()
             LL_WARNS("GLTF_IMPORT") << "Unsupported image encoding" << LL_ENDL;
             return false;
         }
-        
+
         if (image.size != image.height * image.width * image.numChannels * image.bytesPerChannel)
         {
             LL_WARNS("GLTF_IMPORT") << "Image size error" << LL_ENDL;
@@ -331,7 +328,7 @@ bool LLGLTFLoader::parseMaterials()
         mMaterials.push_back(mat);
     }
 
-    return true; 
+    return true;
 }
 
 // TODO: convert raw vertex buffers to UUIDs
@@ -348,7 +345,7 @@ void LLGLTFLoader::uploadMaterials()
         if (mat.hasBaseTex)
         {
             gltf_texture& gtex = mTextures[mat.baseColorTexIdx];
-            if (gtex.imageUuid.isNull()) 
+            if (gtex.imageUuid.isNull())
             {
                 gtex.imageUuid = imageBufferToTextureUUID(gtex);
             }

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater
  legacy_header_height="18"
  can_resize="true"
@@ -24,7 +24,7 @@
    follows="top|left|bottom"
    font="SansSerif" 
    left="10"
-   name="test_text_editor"
+   name="test_text_editor1"
    tool_tip="text editor"
    top_pad="10"
    width="200">
@@ -38,7 +38,7 @@
    name="numeric_text_editor"
    tool_tip="text editor for numeric text entry only"
    top_pad="10"
-   text_type="int"
+   prevalidator="int"
    width="200">
     This is text that is NOT a number, so shouldn't appear
   </text_editor>

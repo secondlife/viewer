@@ -37,15 +37,15 @@ class LLSD;
 class LLGestureListener : public LLEventAPI
 {
 public:
-	LLGestureListener();
+    LLGestureListener();
 
 private:
     void getActiveGestures(LLSD const & gesture_data) const;
-	void isGesturePlaying(LLSD const & gesture_data) const;
+    void isGesturePlaying(LLSD const & gesture_data) const;
     void startGesture(LLSD const & gesture_data) const;
     void stopGesture(LLSD const & gesture_data) const;
 
-	void startOrStopGesture(LLSD const & event_data, bool start) const;
+    void startOrStopGesture(LLSD const & event_data, bool start) const;
 };
 
 #endif // LL_LLGESTURELISTENER_H

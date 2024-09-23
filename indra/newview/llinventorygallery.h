@@ -75,15 +75,15 @@ public:
     LLInventoryGallery(const LLInventoryGallery::Params& params = getDefaultParams());
     ~LLInventoryGallery();
 
-    BOOL postBuild() override;
+    bool postBuild() override;
     void initGallery();
     void draw() override;
-    void onVisibilityChange(BOOL new_visibility) override;
-    BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop, EDragAndDropType cargo_type,
+    void onVisibilityChange(bool new_visibility) override;
+    bool handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop, EDragAndDropType cargo_type,
                            void* cargo_data, EAcceptance* accept, std::string& tooltip_msg) override;
     void startDrag();
-    BOOL handleRightMouseDown(S32 x, S32 y, MASK mask) override;
-    BOOL handleKeyHere(KEY key, MASK mask) override;
+    bool handleRightMouseDown(S32 x, S32 y, MASK mask) override;
+    bool handleKeyHere(KEY key, MASK mask) override;
     void moveUp(MASK mask);
     void moveDown(MASK mask);
     void moveLeft(MASK mask);
@@ -152,20 +152,21 @@ public:
     LLInventoryGalleryItem* getFirstSelectedItem();
 
     // Copy & paste (LLEditMenuHandler)
-    void	copy() override;
-    BOOL	canCopy() const override;
+    void    copy() override;
+    bool    canCopy() const override;
 
-    void	cut() override;
-    BOOL	canCut() const override;
+    void    cut() override;
+    bool    canCut() const override;
 
     void paste() override;
-    BOOL canPaste() const override;
+    bool canPaste() const override;
 
     // Copy & paste & delete
     static void onDelete(const LLSD& notification, const LLSD& response, const selection_deque selected_ids);
     void deleteSelection();
     bool canDeleteSelection();
     void pasteAsLink();
+    void doCreate(const LLUUID& dest, const LLSD& userdata);
 
     void setSortOrder(U32 order, bool update = false);
     U32 getSortOrder() { return mSortOrder; };
@@ -174,7 +175,7 @@ public:
     void resetEditHandler();
     static bool isItemCopyable(const LLUUID & item_id);
 
-    BOOL baseHandleDragAndDrop(LLUUID dest_id, BOOL drop, EDragAndDropType cargo_type,
+    bool baseHandleDragAndDrop(LLUUID dest_id, bool drop, EDragAndDropType cargo_type,
                                void* cargo_data, EAcceptance* accept, std::string& tooltip_msg);
 
     void showContextMenu(LLUICtrl* ctrl, S32 x, S32 y, const LLUUID& item_id);
@@ -227,6 +228,7 @@ private:
     void updateGalleryWidth();
 
     LLInventoryGalleryItem* buildGalleryItem(std::string name, LLUUID item_id, LLAssetType::EType type, LLUUID thumbnail_id, LLInventoryType::EType inventory_type, U32 flags, time_t creation_date, bool is_link, bool is_worn);
+    LLInventoryGalleryItem* getItem(const LLUUID& id) const;
 
     void buildGalleryPanel(int row_count);
     void reshapeGalleryPanel(int row_count);
@@ -298,19 +300,19 @@ public:
     LLInventoryGalleryItem(const Params& p);
     virtual ~LLInventoryGalleryItem();
 
-    BOOL postBuild();
+    bool postBuild();
     void draw();
-    BOOL handleMouseDown(S32 x, S32 y, MASK mask);
-    BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
-    BOOL handleDoubleClick(S32 x, S32 y, MASK mask);
-    BOOL handleMouseUp(S32 x, S32 y, MASK mask);
-    BOOL handleHover(S32 x, S32 y, MASK mask);
-    BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+    bool handleMouseDown(S32 x, S32 y, MASK mask);
+    bool handleRightMouseDown(S32 x, S32 y, MASK mask);
+    bool handleDoubleClick(S32 x, S32 y, MASK mask);
+    bool handleMouseUp(S32 x, S32 y, MASK mask);
+    bool handleHover(S32 x, S32 y, MASK mask);
+    bool handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
                                    EDragAndDropType cargo_type,
                                    void* cargo_data,
                                    EAcceptance* accept,
                                    std::string& tooltip_msg);
-    BOOL handleKeyHere(KEY key, MASK mask);
+    bool handleKeyHere(KEY key, MASK mask);
 
     void onFocusLost();
     void onFocusReceived();
@@ -336,7 +338,7 @@ public:
     std::string getItemName() {return mItemName;}
     std::string getItemNameSuffix() {return mPermSuffix + mWornSuffix;}
     bool isDefaultImage() {return mDefaultImage;}
-    
+
     bool isHidden() {return mHidden;}
     void setHidden(bool hidden) {mHidden = hidden;}
 
@@ -350,7 +352,7 @@ public:
     EInventorySortGroup getSortGroup() { return mSortGroup; }
 
     void updateNameText();
-    
+
 private:
     bool isFadeItem();
 

@@ -1,4 +1,4 @@
-/** 
+/**
 * @file #filename#.cpp
 * @brief Implementation of #filename#
 * @author #getpass.getuser()#@lindenlab.com

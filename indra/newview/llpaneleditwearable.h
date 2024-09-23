@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llpaneleditwearable.h
  * @brief A LLPanel dedicated to the editing of wearables.
  *
  * $LicenseInfo:firstyear=2009&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -44,137 +44,146 @@ class LLViewerJointMesh;
 class LLAccordionCtrlTab;
 class LLJoint;
 class LLLineEditor;
+class LLRadioGroup;
+class LLIconCtrl;
 
 class LLPanelEditWearable : public LLPanel
 {
 public:
-	LLPanelEditWearable( );
-	virtual ~LLPanelEditWearable();
+    LLPanelEditWearable( );
+    virtual ~LLPanelEditWearable();
 
-	/*virtual*/ BOOL 		postBuild();
-	/*virtual*/ BOOL		isDirty() const;	// LLUICtrl
-	/*virtual*/ void		draw();	
-				void		onClose();
+    /*virtual*/ bool        postBuild();
+    /*virtual*/ bool        isDirty() const;    // LLUICtrl
+    /*virtual*/ void        draw();
+                void        onClose();
 
-	// changes camera angle to default for selected subpart
-	void				changeCamera(U8 subpart);
+    // changes camera angle to default for selected subpart
+    void                changeCamera(U8 subpart);
 
-	LLViewerWearable*	getWearable() { return mWearablePtr; }
-	void				setWearable(LLViewerWearable *wearable, BOOL disable_camera_switch = FALSE);
+    LLViewerWearable*   getWearable() { return mWearablePtr; }
+    void                setWearable(LLViewerWearable *wearable, bool disable_camera_switch = false);
 
-	void				saveChanges(bool force_save_as = false);
-	void				revertChanges();
+    void                saveChanges(bool force_save_as = false);
+    void                revertChanges();
 
-	void				showDefaultSubpart();
-	void				onTabExpandedCollapsed(const LLSD& param, U8 index);
+    void                showDefaultSubpart();
+    void                onTabExpandedCollapsed(const LLSD& param, U8 index);
 
-	void 				updateScrollingPanelList();
+    void                updateScrollingPanelList();
 
-	static void			onRevertButtonClicked(void* userdata);
-	static void			onBackButtonClicked(void* userdata); 
-	void				onCommitSexChange();
-	void				onSaveAsButtonClicked();
-	void				saveAsCallback(const LLSD& notification, const LLSD& response);
+    static void         onRevertButtonClicked(void* userdata);
+    static void         onBackButtonClicked(void* userdata);
+    void                onCommitSexChange();
+    void                onSaveAsButtonClicked();
+    void                saveAsCallback(const LLSD& notification, const LLSD& response);
 
-	virtual void		setVisible(BOOL visible);
+    virtual void        setVisible(bool visible);
 
 private:
-	typedef std::map<F32, LLViewerVisualParam*> value_map_t;
+    typedef std::map<F32, LLViewerVisualParam*> value_map_t;
 
-	void				showWearable(LLViewerWearable* wearable, BOOL show, BOOL disable_camera_switch = FALSE);
-	void				updateScrollingPanelUI();
-	LLPanel*			getPanel(LLWearableType::EType type);
-	void				getSortedParams(value_map_t &sorted_params, const std::string &edit_group);
-	void				buildParamList(LLScrollingPanelList *panel_list, value_map_t &sorted_params, LLAccordionCtrlTab *tab, LLJoint* jointp);
-	// update bottom bar buttons ("Save", "Revert", etc)
-	void				updateVerbs();
+    void                showWearable(LLViewerWearable* wearable, bool show, bool disable_camera_switch = false);
+    void                updateScrollingPanelUI();
+    LLPanel*            getPanel(LLWearableType::EType type);
+    void                getSortedParams(value_map_t &sorted_params, const std::string &edit_group);
+    void                buildParamList(LLScrollingPanelList *panel_list, value_map_t &sorted_params, LLAccordionCtrlTab *tab, LLJoint* jointp);
+    // update bottom bar buttons ("Save", "Revert", etc)
+    void                updateVerbs();
 
-	void				onColorSwatchCommit(const LLUICtrl*);
-	void				onTexturePickerCommit(const LLUICtrl*);
-	void				updatePanelPickerControls(LLWearableType::EType type);
-	void				toggleTypeSpecificControls(LLWearableType::EType type);
-	void				updateTypeSpecificControls(LLWearableType::EType type);
+    void                onColorSwatchCommit(const LLUICtrl*);
+    void                onTexturePickerCommit(const LLUICtrl*);
+    void                updatePanelPickerControls(LLWearableType::EType type);
+    void                toggleTypeSpecificControls(LLWearableType::EType type);
+    void                updateTypeSpecificControls(LLWearableType::EType type);
 
-	//alpha mask checkboxes
-	void configureAlphaCheckbox(LLAvatarAppearanceDefines::ETextureIndex te, const std::string& name);
-	void onInvisibilityCommit(LLCheckBoxCtrl* checkbox_ctrl, LLAvatarAppearanceDefines::ETextureIndex te);
-	void updateAlphaCheckboxes();
-	void initPreviousAlphaTextures();
-	void initPreviousAlphaTextureEntry(LLAvatarAppearanceDefines::ETextureIndex te);
+    //alpha mask checkboxes
+    void configureAlphaCheckbox(LLAvatarAppearanceDefines::ETextureIndex te, const std::string& name);
+    void onInvisibilityCommit(LLCheckBoxCtrl* checkbox_ctrl, LLAvatarAppearanceDefines::ETextureIndex te);
+    void updateAlphaCheckboxes();
+    void initPreviousAlphaTextures();
+    void initPreviousAlphaTextureEntry(LLAvatarAppearanceDefines::ETextureIndex te);
 
-	// callback for HeightUnits parameter.
-	bool changeHeightUnits(const LLSD& new_value);
+    // callback for HeightUnits parameter.
+    bool changeHeightUnits(const LLSD& new_value);
 
-	// updates current metric and replacement metric label text
-	void updateMetricLayout(BOOL new_value);
+    // updates current metric and replacement metric label text
+    void updateMetricLayout(bool new_value);
 
-	// updates avatar height label
-	void updateAvatarHeightLabel();
+    // updates avatar height label
+    void updateAvatarHeightLabel();
 
-	void onWearablePanelVisibilityChange(const LLSD &in_visible_chain, LLAccordionCtrl* accordion_ctrl);
+    void onWearablePanelVisibilityChange(const LLSD &in_visible_chain, LLAccordionCtrl* accordion_ctrl);
 
-	void setWearablePanelVisibilityChangeCallback(LLPanel* bodypart_panel);
+    void setWearablePanelVisibilityChangeCallback(LLPanel* bodypart_panel);
 
-	// *HACK Remove this when serverside texture baking is available on all regions.
-	void incrementCofVersionLegacy();
+    // *HACK Remove this when serverside texture baking is available on all regions.
+    void incrementCofVersionLegacy();
 
-	// the pointer to the wearable we're editing. NULL means we're not editing a wearable.
-	LLViewerWearable *mWearablePtr;
-	LLViewerInventoryItem* mWearableItem;
+    // the pointer to the wearable we're editing. NULL means we're not editing a wearable.
+    LLViewerWearable *mWearablePtr;
+    LLViewerInventoryItem* mWearableItem;
 
-	// these are constant no matter what wearable we're editing
-	LLButton *mBtnRevert;
-	LLButton *mBtnBack;
-	std::string mBackBtnLabel;
+    // these are constant no matter what wearable we're editing
+    LLButton* mBtnSaveAs;
+    LLButton *mBtnRevert;
+    LLButton *mBtnBack;
+    std::string mBackBtnLabel;
 
-	LLTextBox *mPanelTitle;
-	LLTextBox *mDescTitle;
-	LLTextBox *mTxtAvatarHeight;
+    LLTextBox *mPanelTitle;
+    LLTextBox *mDescTitle;
+    LLTextBox *mTxtAvatarHeight;
 
+    LLRadioGroup* mSexRadio = nullptr;
+    LLIconCtrl*   mMaleIcon = nullptr;
+    LLIconCtrl*   mFemaleIcon = nullptr;
 
-	// localized and parameterized strings that used to build avatar_height_label
-	std::string mMeters;
-	std::string mFeet;
-	std::string mHeigth;
-	LLUIString  mHeigthValue;
-	LLUIString  mReplacementMetricUrl;
+    // localized and parameterized strings that used to build avatar_height_label
+    std::string mMeters;
+    std::string mFeet;
+    std::string mHeight;
+    LLUIString  mHeightValue;
+    LLUIString  mReplacementMetricUrl;
 
-	// color for mHeigth string
-	LLUIColor mAvatarHeigthLabelColor;
-	// color for mHeigthValue string
-	LLUIColor mAvatarHeigthValueLabelColor;
+    // color for mHeight string
+    LLUIColor mAvatarHeightLabelColor;
+    // color for mHeightValue string
+    LLUIColor mAvatarHeightValueLabelColor;
 
-	// This text editor reference will change each time we edit a new wearable - 
-	// it will be grabbed from the currently visible panel
-	LLLineEditor *mNameEditor;
+    // This text editor reference will change each time we edit a new wearable -
+    // it will be grabbed from the currently visible panel
+    LLLineEditor *mNameEditor;
 
-	// The following panels will be shown/hidden based on what wearable we're editing
-	// body parts
-	LLPanel *mPanelShape;
-	LLPanel *mPanelSkin;
-	LLPanel *mPanelEyes;
-	LLPanel *mPanelHair;
+    // The following panels will be shown/hidden based on what wearable we're editing
+    // body parts
+    LLPanel *mPanelShape;
+    LLPanel *mPanelSkin;
+    LLPanel *mPanelEyes;
+    LLPanel *mPanelHair;
 
-	//clothes
-	LLPanel *mPanelShirt;
-	LLPanel *mPanelPants;
-	LLPanel *mPanelShoes;
-	LLPanel *mPanelSocks;
-	LLPanel *mPanelJacket;
-	LLPanel *mPanelGloves;
-	LLPanel *mPanelUndershirt;
-	LLPanel *mPanelUnderpants;
-	LLPanel *mPanelSkirt;
-	LLPanel *mPanelAlpha;
-	LLPanel *mPanelTattoo;
-	LLPanel *mPanelUniversal;
-	LLPanel *mPanelPhysics;
+    //clothes
+    LLPanel *mPanelShirt;
+    LLPanel *mPanelPants;
+    LLPanel *mPanelShoes;
+    LLPanel *mPanelSocks;
+    LLPanel *mPanelJacket;
+    LLPanel *mPanelGloves;
+    LLPanel *mPanelUndershirt;
+    LLPanel *mPanelUnderpants;
+    LLPanel *mPanelSkirt;
+    LLPanel *mPanelAlpha;
+    LLPanel *mPanelTattoo;
+    LLPanel *mPanelUniversal;
+    LLPanel *mPanelPhysics;
 
-	typedef std::map<std::string, LLAvatarAppearanceDefines::ETextureIndex> string_texture_index_map_t;
-	string_texture_index_map_t mAlphaCheckbox2Index;
+    std::unordered_map<std::string, LLAccordionCtrlTab*> mAccordionTabs;
+    std::unordered_map<std::string, LLScrollingPanelList*> mParamPanels;
 
-	typedef std::map<LLAvatarAppearanceDefines::ETextureIndex, LLUUID> s32_uuid_map_t;
-	s32_uuid_map_t mPreviousAlphaTexture;
+    typedef std::vector<std::pair<LLCheckBoxCtrl*, LLAvatarAppearanceDefines::ETextureIndex>> checkbox_texture_index_vec_t;
+    checkbox_texture_index_vec_t mAlphaCheckbox2Index;
+
+    typedef std::map<LLAvatarAppearanceDefines::ETextureIndex, LLUUID> s32_uuid_map_t;
+    s32_uuid_map_t mPreviousAlphaTexture;
 };
 
 #endif

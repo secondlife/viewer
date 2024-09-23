@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llphysicsshapebuilder.h
  * @brief Generic system to convert LL(Physics)VolumeParams to physics shapes
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -53,33 +53,36 @@ class LLPhysicsVolumeParams : public LLVolumeParams
 {
 public:
 
-	LLPhysicsVolumeParams( const LLVolumeParams& params, bool forceConvex ) : 
-		LLVolumeParams( params ),
-		mForceConvex(forceConvex) {}
+    LLPhysicsVolumeParams( const LLVolumeParams& params, bool forceConvex ) :
+        LLVolumeParams( params ),
+        mForceConvex(forceConvex) {}
 
-	bool operator==(const LLPhysicsVolumeParams &params) const
-	{
-		return ( LLVolumeParams::operator==(params) && (mForceConvex == params.mForceConvex) );
-	}
+    bool operator==(const LLPhysicsVolumeParams &params) const
+    {
+        return ( LLVolumeParams::operator==(params) && (mForceConvex == params.mForceConvex) );
+    }
 
-	bool operator!=(const LLPhysicsVolumeParams &params) const
-	{
-		return !operator==(params);
-	}
+    bool operator!=(const LLPhysicsVolumeParams &params) const
+    {
+        return !operator==(params);
+    }
 
-	bool operator<(const LLPhysicsVolumeParams &params) const
-	{
-		if ( LLVolumeParams::operator!=(params) )
-		{
-			return LLVolumeParams::operator<(params);
-		}
-		return (params.mForceConvex == false) && (mForceConvex == true);	
-	}
+    bool operator<(const LLPhysicsVolumeParams &params) const
+    {
+        if ( LLVolumeParams::operator!=(params) )
+        {
+            return LLVolumeParams::operator<(params);
+        }
 
-	bool shouldForceConvex() const { return mForceConvex; }
+        return !params.mForceConvex && mForceConvex;
+    }
+
+    bool shouldForceConvex() const { return mForceConvex; }
+
+    bool hasDecomposition() const;
 
 private:
-	bool mForceConvex;
+    bool mForceConvex;
 };
 
 
@@ -87,55 +90,55 @@ class LLPhysicsShapeBuilderUtil
 {
 public:
 
-	class PhysicsShapeSpecification
-	{
-	public:
-		enum ShapeType
-		{
-			// Primitive types
-			BOX,
-			SPHERE,
-			CYLINDER,
+    class PhysicsShapeSpecification
+    {
+    public:
+        enum ShapeType
+        {
+            // Primitive types
+            BOX,
+            SPHERE,
+            CYLINDER,
 
-			USER_CONVEX,	// User specified they wanted the convex hull of the volume
+            USER_CONVEX,    // User specified they wanted the convex hull of the volume
 
-			PRIM_CONVEX,	// Either a volume that is inherently convex but not a primitive type, or a shape
-							// with dimensions such that will convexify it anyway.
+            PRIM_CONVEX,    // Either a volume that is inherently convex but not a primitive type, or a shape
+                            // with dimensions such that will convexify it anyway.
 
- 			SCULPT,			// Special case for traditional sculpts--they are the convex hull of a single particular set of volume params
+            SCULPT,         // Special case for traditional sculpts--they are the convex hull of a single particular set of volume params
 
-			USER_MESH,		// A user mesh. May or may not contain a convex decomposition.
+            USER_MESH,      // A user mesh. May or may not contain a convex decomposition.
 
-			PRIM_MESH,		// A non-convex volume which we have to represent accurately
+            PRIM_MESH,      // A non-convex volume which we have to represent accurately
 
-			INVALID
-		};
+            INVALID
+        };
 
-		PhysicsShapeSpecification() : 
-		mType( INVALID ),
-		mScale( 0.f, 0.f, 0.f ),
-		mCenter( 0.f, 0.f, 0.f ) {}
-		
-		bool isConvex() { return (mType != USER_MESH && mType != PRIM_MESH && mType != INVALID); }
-		bool isMesh() { return (mType == USER_MESH) || (mType == PRIM_MESH); }
+        PhysicsShapeSpecification() :
+        mType( INVALID ),
+        mScale( 0.f, 0.f, 0.f ),
+        mCenter( 0.f, 0.f, 0.f ) {}
 
-		ShapeType getType() { return mType; }
-		const LLVector3& getScale() { return mScale; }
-		const LLVector3& getCenter() { return mCenter; }
+        bool isConvex() { return (mType != USER_MESH && mType != PRIM_MESH && mType != INVALID); }
+        bool isMesh() { return (mType == USER_MESH) || (mType == PRIM_MESH); }
 
-	private:
-		friend class LLPhysicsShapeBuilderUtil;
+        ShapeType getType() { return mType; }
+        const LLVector3& getScale() { return mScale; }
+        const LLVector3& getCenter() { return mCenter; }
 
-		ShapeType	mType;
+    private:
+        friend class LLPhysicsShapeBuilderUtil;
 
-		// Dimensions of an AABB around the shape
-		LLVector3	mScale;
+        ShapeType   mType;
 
-		// Offset of shape from origin of primitive's reference frame
-		LLVector3	mCenter;
-	};
+        // Dimensions of an AABB around the shape
+        LLVector3   mScale;
 
-	static void determinePhysicsShape( const LLPhysicsVolumeParams& volume_params, const LLVector3& scale, PhysicsShapeSpecification& specOut );
+        // Offset of shape from origin of primitive's reference frame
+        LLVector3   mCenter;
+    };
+
+    static void determinePhysicsShape( const LLPhysicsVolumeParams& volume_params, const LLVector3& scale, PhysicsShapeSpecification& specOut );
 };
 
 #endif //LL_PHYSICS_SHAPE_BUILDER_H

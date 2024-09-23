@@ -1,24 +1,24 @@
-/** 
+/**
  * @file llaudiodecodemgr.cpp
  *
  * $LicenseInfo:firstyear=2003&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -56,476 +56,476 @@ static const S32 WAV_HEADER_SIZE = 44;
 class LLVorbisDecodeState : public LLThreadSafeRefCount
 {
 public:
-	class WriteResponder : public LLLFSThread::Responder
-	{
-	public:
-		WriteResponder(LLVorbisDecodeState* decoder) : mDecoder(decoder) {}
-		~WriteResponder() {}
-		void completed(S32 bytes)
-		{
-			mDecoder->ioComplete(bytes);
-		}
-		LLPointer<LLVorbisDecodeState> mDecoder;
-	};
-	
-	LLVorbisDecodeState(const LLUUID &uuid, const std::string &out_filename);
+    class WriteResponder : public LLLFSThread::Responder
+    {
+    public:
+        WriteResponder(LLVorbisDecodeState* decoder) : mDecoder(decoder) {}
+        ~WriteResponder() {}
+        void completed(S32 bytes)
+        {
+            mDecoder->ioComplete(bytes);
+        }
+        LLPointer<LLVorbisDecodeState> mDecoder;
+    };
 
-	BOOL initDecode();
-	BOOL decodeSection(); // Return TRUE if done.
-	BOOL finishDecode();
+    LLVorbisDecodeState(const LLUUID &uuid, const std::string &out_filename);
 
-	void flushBadFile();
+    bool initDecode();
+    bool decodeSection(); // Return true if done.
+    bool finishDecode();
 
-	void ioComplete(S32 bytes)			{ mBytesRead = bytes; }
-	BOOL isValid() const				{ return mValid; }
-	BOOL isDone() const					{ return mDone; }
-	const LLUUID &getUUID() const		{ return mUUID; }
+    void flushBadFile();
+
+    void ioComplete(S32 bytes)          { mBytesRead = bytes; }
+    bool isValid() const                { return mValid; }
+    bool isDone() const                 { return mDone; }
+    const LLUUID &getUUID() const       { return mUUID; }
 
 protected:
-	virtual ~LLVorbisDecodeState();
+    virtual ~LLVorbisDecodeState();
 
-	BOOL mValid;
-	BOOL mDone;
-	LLAtomicS32 mBytesRead;
-	LLUUID mUUID;
+    bool mValid;
+    bool mDone;
+    LLAtomicS32 mBytesRead;
+    LLUUID mUUID;
 
-	std::vector<U8> mWAVBuffer;
-	std::string mOutFilename;
-	LLLFSThread::handle_t mFileHandle;
-	
-	LLFileSystem *mInFilep;
-	OggVorbis_File mVF;
-	S32 mCurrentSection;
+    std::vector<U8> mWAVBuffer;
+    std::string mOutFilename;
+    LLLFSThread::handle_t mFileHandle;
+
+    LLFileSystem *mInFilep;
+    OggVorbis_File mVF;
+    S32 mCurrentSection;
 };
 
 size_t cache_read(void *ptr, size_t size, size_t nmemb, void *datasource)
 {
-	LLFileSystem *file = (LLFileSystem *)datasource;
+    LLFileSystem *file = (LLFileSystem *)datasource;
 
-	if (file->read((U8*)ptr, (S32)(size * nmemb)))	/*Flawfinder: ignore*/
-	{
-		S32 read = file->getLastBytesRead();
-		return  read / size;	/*Flawfinder: ignore*/
-	}
-	else
-	{
-		return 0;
-	}
+    if (file->read((U8*)ptr, (S32)(size * nmemb)))  /*Flawfinder: ignore*/
+    {
+        S32 read = file->getLastBytesRead();
+        return  read / size;    /*Flawfinder: ignore*/
+    }
+    else
+    {
+        return 0;
+    }
 }
 
 S32 cache_seek(void *datasource, ogg_int64_t offset, S32 whence)
 {
-	LLFileSystem *file = (LLFileSystem *)datasource;
+    LLFileSystem *file = (LLFileSystem *)datasource;
 
-	// cache has 31-bit files
-	if (offset > S32_MAX)
-	{
-		return -1;
-	}
+    // cache has 31-bit files
+    if (offset > S32_MAX)
+    {
+        return -1;
+    }
 
-	S32 origin;
-	switch (whence) {
-	case SEEK_SET:
-		origin = 0;
-		break;
-	case SEEK_END:
-		origin = file->getSize();
-		break;
-	case SEEK_CUR:
-		origin = -1;
-		break;
-	default:
-		LL_ERRS("AudioEngine") << "Invalid whence argument to cache_seek" << LL_ENDL;
-		return -1;
-	}
+    S32 origin;
+    switch (whence) {
+    case SEEK_SET:
+        origin = 0;
+        break;
+    case SEEK_END:
+        origin = file->getSize();
+        break;
+    case SEEK_CUR:
+        origin = -1;
+        break;
+    default:
+        LL_ERRS("AudioEngine") << "Invalid whence argument to cache_seek" << LL_ENDL;
+        return -1;
+    }
 
-	if (file->seek((S32)offset, origin))
-	{
-		return 0;
-	}
-	else
-	{
-		return -1;
-	}
+    if (file->seek((S32)offset, origin))
+    {
+        return 0;
+    }
+    else
+    {
+        return -1;
+    }
 }
 
 S32 cache_close (void *datasource)
 {
-	LLFileSystem *file = (LLFileSystem *)datasource;
-	delete file;
-	return 0;
+    LLFileSystem *file = (LLFileSystem *)datasource;
+    delete file;
+    return 0;
 }
 
 long cache_tell (void *datasource)
 {
-	LLFileSystem *file = (LLFileSystem *)datasource;
-	return file->tell();
+    LLFileSystem *file = (LLFileSystem *)datasource;
+    return file->tell();
 }
 
 LLVorbisDecodeState::LLVorbisDecodeState(const LLUUID &uuid, const std::string &out_filename)
 {
-	mDone = FALSE;
-	mValid = FALSE;
-	mBytesRead = -1;
-	mUUID = uuid;
-	mInFilep = NULL;
-	mCurrentSection = 0;
-	mOutFilename = out_filename;
-	mFileHandle = LLLFSThread::nullHandle();
+    mDone = false;
+    mValid = false;
+    mBytesRead = -1;
+    mUUID = uuid;
+    mInFilep = NULL;
+    mCurrentSection = 0;
+    mOutFilename = out_filename;
+    mFileHandle = LLLFSThread::nullHandle();
 
     // No default value for mVF, it's an ogg structure?
-	// Hey, let's zero it anyway, for predictability.
-	memset(&mVF, 0, sizeof(mVF));
+    // Hey, let's zero it anyway, for predictability.
+    memset(&mVF, 0, sizeof(mVF));
 }
 
 LLVorbisDecodeState::~LLVorbisDecodeState()
 {
-	if (!mDone)
-	{
-		delete mInFilep;
-		mInFilep = NULL;
-	}
+    if (!mDone)
+    {
+        delete mInFilep;
+        mInFilep = NULL;
+    }
 }
 
 
-BOOL LLVorbisDecodeState::initDecode()
+bool LLVorbisDecodeState::initDecode()
 {
-	ov_callbacks cache_callbacks;
-	cache_callbacks.read_func = cache_read;
-	cache_callbacks.seek_func = cache_seek;
-	cache_callbacks.close_func = cache_close;
-	cache_callbacks.tell_func = cache_tell;
+    ov_callbacks cache_callbacks;
+    cache_callbacks.read_func = cache_read;
+    cache_callbacks.seek_func = cache_seek;
+    cache_callbacks.close_func = cache_close;
+    cache_callbacks.tell_func = cache_tell;
 
-	LL_DEBUGS("AudioEngine") << "Initing decode from vfile: " << mUUID << LL_ENDL;
+    LL_DEBUGS("AudioEngine") << "Initing decode from vfile: " << mUUID << LL_ENDL;
 
-	mInFilep = new LLFileSystem(mUUID, LLAssetType::AT_SOUND);
-	if (!mInFilep || !mInFilep->getSize())
-	{
-		LL_WARNS("AudioEngine") << "unable to open vorbis source vfile for reading" << LL_ENDL;
-		delete mInFilep;
-		mInFilep = NULL;
-		return FALSE;
-	}
+    mInFilep = new LLFileSystem(mUUID, LLAssetType::AT_SOUND);
+    if (!mInFilep || !mInFilep->getSize())
+    {
+        LL_WARNS("AudioEngine") << "unable to open vorbis source vfile for reading" << LL_ENDL;
+        delete mInFilep;
+        mInFilep = NULL;
+        return false;
+    }
 
-	S32 r = ov_open_callbacks(mInFilep, &mVF, NULL, 0, cache_callbacks);
-	if(r < 0) 
-	{
-		LL_WARNS("AudioEngine") << r << " Input to vorbis decode does not appear to be an Ogg bitstream: " << mUUID << LL_ENDL;
-		return(FALSE);
-	}
-	
-	S32 sample_count = (S32)ov_pcm_total(&mVF, -1);
-	size_t size_guess = (size_t)sample_count;
-	vorbis_info* vi = ov_info(&mVF, -1);
-	size_guess *= (vi? vi->channels : 1);
-	size_guess *= 2;
-	size_guess += 2048;
-	
-	bool abort_decode = false;
-	
-	if (vi)
-	{
-		if( vi->channels < 1 || vi->channels > LLVORBIS_CLIP_MAX_CHANNELS )
-		{
-			abort_decode = true;
-			LL_WARNS("AudioEngine") << "Bad channel count: " << vi->channels << LL_ENDL;
-		}
-	}
-	else // !vi
-	{
-		abort_decode = true;
-		LL_WARNS("AudioEngine") << "No default bitstream found" << LL_ENDL;	
-	}
-	
-	if( (size_t)sample_count > LLVORBIS_CLIP_REJECT_SAMPLES ||
-	    (size_t)sample_count <= 0)
-	{
-		abort_decode = true;
-		LL_WARNS("AudioEngine") << "Illegal sample count: " << sample_count << LL_ENDL;
-	}
-	
-	if( size_guess > LLVORBIS_CLIP_REJECT_SIZE )
-	{
-		abort_decode = true;
-		LL_WARNS("AudioEngine") << "Illegal sample size: " << size_guess << LL_ENDL;
-	}
-	
-	if( abort_decode )
-	{
-		LL_WARNS("AudioEngine") << "Canceling initDecode. Bad asset: " << mUUID << LL_ENDL;
-		vorbis_comment* comment = ov_comment(&mVF,-1);
-		if (comment && comment->vendor)
-		{
-			LL_WARNS("AudioEngine") << "Bad asset encoded by: " << comment->vendor << LL_ENDL;
-		}
-		delete mInFilep;
-		mInFilep = NULL;
-		return FALSE;
-	}
+    S32 r = ov_open_callbacks(mInFilep, &mVF, NULL, 0, cache_callbacks);
+    if(r < 0)
+    {
+        LL_WARNS("AudioEngine") << r << " Input to vorbis decode does not appear to be an Ogg bitstream: " << mUUID << LL_ENDL;
+        return(false);
+    }
 
-	try
-	{
-		mWAVBuffer.reserve(size_guess);
-		mWAVBuffer.resize(WAV_HEADER_SIZE);
-	}
-	catch (std::bad_alloc&)
-	{
-		LL_WARNS("AudioEngine") << "Out of memory when trying to alloc buffer: " << size_guess << LL_ENDL;
-		delete mInFilep;
-		mInFilep = NULL;
-		return FALSE;
-	}
+    S32 sample_count = (S32)ov_pcm_total(&mVF, -1);
+    size_t size_guess = (size_t)sample_count;
+    vorbis_info* vi = ov_info(&mVF, -1);
+    size_guess *= (vi? vi->channels : 1);
+    size_guess *= 2;
+    size_guess += 2048;
 
-	{
-		// write the .wav format header
-		//"RIFF"
-		mWAVBuffer[0] = 0x52;
-		mWAVBuffer[1] = 0x49;
-		mWAVBuffer[2] = 0x46;
-		mWAVBuffer[3] = 0x46;
+    bool abort_decode = false;
 
-		// length = datalen + 36 (to be filled in later)
-		mWAVBuffer[4] = 0x00;
-		mWAVBuffer[5] = 0x00;
-		mWAVBuffer[6] = 0x00;
-		mWAVBuffer[7] = 0x00;
+    if (vi)
+    {
+        if( vi->channels < 1 || vi->channels > LLVORBIS_CLIP_MAX_CHANNELS )
+        {
+            abort_decode = true;
+            LL_WARNS("AudioEngine") << "Bad channel count: " << vi->channels << LL_ENDL;
+        }
+    }
+    else // !vi
+    {
+        abort_decode = true;
+        LL_WARNS("AudioEngine") << "No default bitstream found" << LL_ENDL;
+    }
 
-		//"WAVE"
-		mWAVBuffer[8] = 0x57;
-		mWAVBuffer[9] = 0x41;
-		mWAVBuffer[10] = 0x56;
-		mWAVBuffer[11] = 0x45;
+    if( (size_t)sample_count > LLVORBIS_CLIP_REJECT_SAMPLES ||
+        (size_t)sample_count <= 0)
+    {
+        abort_decode = true;
+        LL_WARNS("AudioEngine") << "Illegal sample count: " << sample_count << LL_ENDL;
+    }
 
-		// "fmt "
-		mWAVBuffer[12] = 0x66;
-		mWAVBuffer[13] = 0x6D;
-		mWAVBuffer[14] = 0x74;
-		mWAVBuffer[15] = 0x20;
+    if( size_guess > LLVORBIS_CLIP_REJECT_SIZE )
+    {
+        abort_decode = true;
+        LL_WARNS("AudioEngine") << "Illegal sample size: " << size_guess << LL_ENDL;
+    }
 
-		// chunk size = 16
-		mWAVBuffer[16] = 0x10;
-		mWAVBuffer[17] = 0x00;
-		mWAVBuffer[18] = 0x00;
-		mWAVBuffer[19] = 0x00;
+    if( abort_decode )
+    {
+        LL_WARNS("AudioEngine") << "Canceling initDecode. Bad asset: " << mUUID << LL_ENDL;
+        vorbis_comment* comment = ov_comment(&mVF,-1);
+        if (comment && comment->vendor)
+        {
+            LL_WARNS("AudioEngine") << "Bad asset encoded by: " << comment->vendor << LL_ENDL;
+        }
+        delete mInFilep;
+        mInFilep = NULL;
+        return false;
+    }
 
-		// format (1 = PCM)
-		mWAVBuffer[20] = 0x01;
-		mWAVBuffer[21] = 0x00;
+    try
+    {
+        mWAVBuffer.reserve(size_guess);
+        mWAVBuffer.resize(WAV_HEADER_SIZE);
+    }
+    catch (std::bad_alloc&)
+    {
+        LL_WARNS("AudioEngine") << "Out of memory when trying to alloc buffer: " << size_guess << LL_ENDL;
+        delete mInFilep;
+        mInFilep = NULL;
+        return false;
+    }
 
-		// number of channels
-		mWAVBuffer[22] = 0x01;
-		mWAVBuffer[23] = 0x00;
+    {
+        // write the .wav format header
+        //"RIFF"
+        mWAVBuffer[0] = 0x52;
+        mWAVBuffer[1] = 0x49;
+        mWAVBuffer[2] = 0x46;
+        mWAVBuffer[3] = 0x46;
 
-		// samples per second
-		mWAVBuffer[24] = 0x44;
-		mWAVBuffer[25] = 0xAC;
-		mWAVBuffer[26] = 0x00;
-		mWAVBuffer[27] = 0x00;
+        // length = datalen + 36 (to be filled in later)
+        mWAVBuffer[4] = 0x00;
+        mWAVBuffer[5] = 0x00;
+        mWAVBuffer[6] = 0x00;
+        mWAVBuffer[7] = 0x00;
 
-		// average bytes per second
-		mWAVBuffer[28] = 0x88;
-		mWAVBuffer[29] = 0x58;
-		mWAVBuffer[30] = 0x01;
-		mWAVBuffer[31] = 0x00;
+        //"WAVE"
+        mWAVBuffer[8] = 0x57;
+        mWAVBuffer[9] = 0x41;
+        mWAVBuffer[10] = 0x56;
+        mWAVBuffer[11] = 0x45;
 
-		// bytes to output at a single time
-		mWAVBuffer[32] = 0x02;
-		mWAVBuffer[33] = 0x00;
-		 
-		// 16 bits per sample
-		mWAVBuffer[34] = 0x10;
-		mWAVBuffer[35] = 0x00;
+        // "fmt "
+        mWAVBuffer[12] = 0x66;
+        mWAVBuffer[13] = 0x6D;
+        mWAVBuffer[14] = 0x74;
+        mWAVBuffer[15] = 0x20;
 
-		// "data"
-		mWAVBuffer[36] = 0x64;
-		mWAVBuffer[37] = 0x61;
-		mWAVBuffer[38] = 0x74;
-		mWAVBuffer[39] = 0x61;
+        // chunk size = 16
+        mWAVBuffer[16] = 0x10;
+        mWAVBuffer[17] = 0x00;
+        mWAVBuffer[18] = 0x00;
+        mWAVBuffer[19] = 0x00;
 
-		// these are the length of the data chunk, to be filled in later
-		mWAVBuffer[40] = 0x00;
-		mWAVBuffer[41] = 0x00;
-		mWAVBuffer[42] = 0x00;
-		mWAVBuffer[43] = 0x00;
-	}
-	
-	//{
-		//char **ptr=ov_comment(&mVF,-1)->user_comments;
-//		vorbis_info *vi=ov_info(&vf,-1);
-		//while(*ptr){
-		//	fprintf(stderr,"%s\n",*ptr);
-		//	++ptr;
-		//}
+        // format (1 = PCM)
+        mWAVBuffer[20] = 0x01;
+        mWAVBuffer[21] = 0x00;
+
+        // number of channels
+        mWAVBuffer[22] = 0x01;
+        mWAVBuffer[23] = 0x00;
+
+        // samples per second
+        mWAVBuffer[24] = 0x44;
+        mWAVBuffer[25] = 0xAC;
+        mWAVBuffer[26] = 0x00;
+        mWAVBuffer[27] = 0x00;
+
+        // average bytes per second
+        mWAVBuffer[28] = 0x88;
+        mWAVBuffer[29] = 0x58;
+        mWAVBuffer[30] = 0x01;
+        mWAVBuffer[31] = 0x00;
+
+        // bytes to output at a single time
+        mWAVBuffer[32] = 0x02;
+        mWAVBuffer[33] = 0x00;
+
+        // 16 bits per sample
+        mWAVBuffer[34] = 0x10;
+        mWAVBuffer[35] = 0x00;
+
+        // "data"
+        mWAVBuffer[36] = 0x64;
+        mWAVBuffer[37] = 0x61;
+        mWAVBuffer[38] = 0x74;
+        mWAVBuffer[39] = 0x61;
+
+        // these are the length of the data chunk, to be filled in later
+        mWAVBuffer[40] = 0x00;
+        mWAVBuffer[41] = 0x00;
+        mWAVBuffer[42] = 0x00;
+        mWAVBuffer[43] = 0x00;
+    }
+
+    //{
+        //char **ptr=ov_comment(&mVF,-1)->user_comments;
+//      vorbis_info *vi=ov_info(&vf,-1);
+        //while(*ptr){
+        //  fprintf(stderr,"%s\n",*ptr);
+        //  ++ptr;
+        //}
 //    fprintf(stderr,"\nBitstream is %d channel, %ldHz\n",vi->channels,vi->rate);
 //    fprintf(stderr,"\nDecoded length: %ld samples\n", (long)ov_pcm_total(&vf,-1));
 //    fprintf(stderr,"Encoded by: %s\n\n",ov_comment(&vf,-1)->vendor);
-	//}
-	return TRUE;
+    //}
+    return true;
 }
 
-BOOL LLVorbisDecodeState::decodeSection()
+bool LLVorbisDecodeState::decodeSection()
 {
-	if (!mInFilep)
-	{
-		LL_WARNS("AudioEngine") << "No cache file to decode in vorbis!" << LL_ENDL;
-		return TRUE;
-	}
-	if (mDone)
-	{
-// 		LL_WARNS("AudioEngine") << "Already done with decode, aborting!" << LL_ENDL;
-		return TRUE;
-	}
-	char pcmout[4096];	/*Flawfinder: ignore*/
+    if (!mInFilep)
+    {
+        LL_WARNS("AudioEngine") << "No cache file to decode in vorbis!" << LL_ENDL;
+        return true;
+    }
+    if (mDone)
+    {
+//      LL_WARNS("AudioEngine") << "Already done with decode, aborting!" << LL_ENDL;
+        return true;
+    }
+    char pcmout[4096];  /*Flawfinder: ignore*/
 
-	BOOL eof = FALSE;
-	long ret=ov_read(&mVF, pcmout, sizeof(pcmout), 0, 2, 1, &mCurrentSection);
-	if (ret == 0)
-	{
-		/* EOF */
-		eof = TRUE;
-		mDone = TRUE;
-		mValid = TRUE;
-//			LL_INFOS("AudioEngine") << "Vorbis EOF" << LL_ENDL;
-	}
-	else if (ret < 0)
-	{
-		/* error in the stream.  Not a problem, just reporting it in
-		   case we (the app) cares.  In this case, we don't. */
+    bool eof = false;
+    long ret=ov_read(&mVF, pcmout, sizeof(pcmout), 0, 2, 1, &mCurrentSection);
+    if (ret == 0)
+    {
+        /* EOF */
+        eof = true;
+        mDone = true;
+        mValid = true;
+//          LL_INFOS("AudioEngine") << "Vorbis EOF" << LL_ENDL;
+    }
+    else if (ret < 0)
+    {
+        /* error in the stream.  Not a problem, just reporting it in
+           case we (the app) cares.  In this case, we don't. */
 
-		LL_WARNS("AudioEngine") << "BAD vorbis decode in decodeSection." << LL_ENDL;
+        LL_WARNS("AudioEngine") << "BAD vorbis decode in decodeSection." << LL_ENDL;
 
-		mValid = FALSE;
-		mDone = TRUE;
-		// We're done, return TRUE.
-		return TRUE;
-	}
-	else
-	{
-//			LL_INFOS("AudioEngine") << "Vorbis read " << ret << "bytes" << LL_ENDL;
-		/* we don't bother dealing with sample rate changes, etc, but.
-		   you'll have to*/
-		std::copy(pcmout, pcmout+ret, std::back_inserter(mWAVBuffer));
-	}
-	return eof;
+        mValid = false;
+        mDone = true;
+        // We're done, return true.
+        return true;
+    }
+    else
+    {
+//          LL_INFOS("AudioEngine") << "Vorbis read " << ret << "bytes" << LL_ENDL;
+        /* we don't bother dealing with sample rate changes, etc, but.
+           you'll have to*/
+        std::copy(pcmout, pcmout+ret, std::back_inserter(mWAVBuffer));
+    }
+    return eof;
 }
 
-BOOL LLVorbisDecodeState::finishDecode()
+bool LLVorbisDecodeState::finishDecode()
 {
-	if (!isValid())
-	{
-		LL_WARNS("AudioEngine") << "Bogus vorbis decode state for " << getUUID() << ", aborting!" << LL_ENDL;
-		return TRUE; // We've finished
-	}
+    if (!isValid())
+    {
+        LL_WARNS("AudioEngine") << "Bogus vorbis decode state for " << getUUID() << ", aborting!" << LL_ENDL;
+        return true; // We've finished
+    }
 
-	if (mFileHandle == LLLFSThread::nullHandle())
-	{
-		ov_clear(&mVF);
-  
-		// write "data" chunk length, in little-endian format
-		S32 data_length = mWAVBuffer.size() - WAV_HEADER_SIZE;
-		mWAVBuffer[40] = (data_length) & 0x000000FF;
-		mWAVBuffer[41] = (data_length >> 8) & 0x000000FF;
-		mWAVBuffer[42] = (data_length >> 16) & 0x000000FF;
-		mWAVBuffer[43] = (data_length >> 24) & 0x000000FF;
-		// write overall "RIFF" length, in little-endian format
-		data_length += 36;
-		mWAVBuffer[4] = (data_length) & 0x000000FF;
-		mWAVBuffer[5] = (data_length >> 8) & 0x000000FF;
-		mWAVBuffer[6] = (data_length >> 16) & 0x000000FF;
-		mWAVBuffer[7] = (data_length >> 24) & 0x000000FF;
+    if (mFileHandle == LLLFSThread::nullHandle())
+    {
+        ov_clear(&mVF);
 
-		//
-		// FUDGECAKES!!! Vorbis encode/decode messes up loop point transitions (pop)
-		// do a cheap-and-cheesy crossfade 
-		//
-		{
-			S16 *samplep;
-			S32 i;
-			S32 fade_length;
-			char pcmout[4096];		/*Flawfinder: ignore*/ 	
+        // write "data" chunk length, in little-endian format
+        S32 data_length = static_cast<S32>(mWAVBuffer.size()) - WAV_HEADER_SIZE;
+        mWAVBuffer[40] = (data_length) & 0x000000FF;
+        mWAVBuffer[41] = (data_length >> 8) & 0x000000FF;
+        mWAVBuffer[42] = (data_length >> 16) & 0x000000FF;
+        mWAVBuffer[43] = (data_length >> 24) & 0x000000FF;
+        // write overall "RIFF" length, in little-endian format
+        data_length += 36;
+        mWAVBuffer[4] = (data_length) & 0x000000FF;
+        mWAVBuffer[5] = (data_length >> 8) & 0x000000FF;
+        mWAVBuffer[6] = (data_length >> 16) & 0x000000FF;
+        mWAVBuffer[7] = (data_length >> 24) & 0x000000FF;
 
-			fade_length = llmin((S32)128,(S32)(data_length-36)/8);			
-			if((S32)mWAVBuffer.size() >= (WAV_HEADER_SIZE + 2* fade_length))
-			{
-				memcpy(pcmout, &mWAVBuffer[WAV_HEADER_SIZE], (2 * fade_length));	/*Flawfinder: ignore*/
-			}
-			llendianswizzle(&pcmout, 2, fade_length);
-	
-			samplep = (S16 *)pcmout;
-			for (i = 0 ;i < fade_length; i++)
-			{
-				*samplep = llfloor((F32)*samplep * ((F32)i/(F32)fade_length));
-				samplep++;
-			}
+        //
+        // FUDGECAKES!!! Vorbis encode/decode messes up loop point transitions (pop)
+        // do a cheap-and-cheesy crossfade
+        //
+        {
+            S16 *samplep;
+            S32 i;
+            S32 fade_length;
+            char pcmout[4096];      /*Flawfinder: ignore*/
 
-			llendianswizzle(&pcmout, 2, fade_length);			
-			if((WAV_HEADER_SIZE+(2 * fade_length)) < (S32)mWAVBuffer.size())
-			{
-				memcpy(&mWAVBuffer[WAV_HEADER_SIZE], pcmout, (2 * fade_length));	/*Flawfinder: ignore*/
-			}
-			S32 near_end = mWAVBuffer.size() - (2 * fade_length);
-			if ((S32)mWAVBuffer.size() >= ( near_end + 2* fade_length))
-			{
-				memcpy(pcmout, &mWAVBuffer[near_end], (2 * fade_length));	/*Flawfinder: ignore*/
-			}
-			llendianswizzle(&pcmout, 2, fade_length);
+            fade_length = llmin((S32)128,(S32)(data_length-36)/8);
+            if((S32)mWAVBuffer.size() >= (WAV_HEADER_SIZE + 2* fade_length))
+            {
+                memcpy(pcmout, &mWAVBuffer[WAV_HEADER_SIZE], (2 * fade_length));    /*Flawfinder: ignore*/
+            }
+            llendianswizzle(&pcmout, 2, fade_length);
 
-			samplep = (S16 *)pcmout;
-			for (i = fade_length-1 ; i >=  0; i--)
-			{
-				*samplep = llfloor((F32)*samplep * ((F32)i/(F32)fade_length));
-				samplep++;
-			}
-	
-			llendianswizzle(&pcmout, 2, fade_length);			
-			if (near_end + (2 * fade_length) < (S32)mWAVBuffer.size())
-			{
-				memcpy(&mWAVBuffer[near_end], pcmout, (2 * fade_length));/*Flawfinder: ignore*/
-			}
-		}
+            samplep = (S16 *)pcmout;
+            for (i = 0 ;i < fade_length; i++)
+            {
+                *samplep = llfloor((F32)*samplep * ((F32)i/(F32)fade_length));
+                samplep++;
+            }
 
-		if (36 == data_length)
-		{
-			LL_WARNS("AudioEngine") << "BAD Vorbis decode in finishDecode!" << LL_ENDL;
-			mValid = FALSE;
-			return TRUE; // we've finished
-		}
-		mBytesRead = -1;
-		mFileHandle = LLLFSThread::sLocal->write(mOutFilename, &mWAVBuffer[0], 0, mWAVBuffer.size(),
-							 new WriteResponder(this));
-	}
+            llendianswizzle(&pcmout, 2, fade_length);
+            if((WAV_HEADER_SIZE+(2 * fade_length)) < (S32)mWAVBuffer.size())
+            {
+                memcpy(&mWAVBuffer[WAV_HEADER_SIZE], pcmout, (2 * fade_length));    /*Flawfinder: ignore*/
+            }
+            S32 near_end = static_cast<S32>(mWAVBuffer.size()) - (2 * fade_length);
+            if ((S32)mWAVBuffer.size() >= ( near_end + 2* fade_length))
+            {
+                memcpy(pcmout, &mWAVBuffer[near_end], (2 * fade_length));   /*Flawfinder: ignore*/
+            }
+            llendianswizzle(&pcmout, 2, fade_length);
 
-	if (mFileHandle != LLLFSThread::nullHandle())
-	{
-		if (mBytesRead >= 0)
-		{
-			if (mBytesRead == 0)
-			{
-				LL_WARNS("AudioEngine") << "Unable to write file in LLVorbisDecodeState::finishDecode" << LL_ENDL;
-				mValid = FALSE;
-				return TRUE; // we've finished
-			}
-		}
-		else
-		{
-			return FALSE; // not done
-		}
-	}
-	
-	mDone = TRUE;
+            samplep = (S16 *)pcmout;
+            for (i = fade_length-1 ; i >=  0; i--)
+            {
+                *samplep = llfloor((F32)*samplep * ((F32)i/(F32)fade_length));
+                samplep++;
+            }
 
-	LL_DEBUGS("AudioEngine") << "Finished decode for " << getUUID() << LL_ENDL;
+            llendianswizzle(&pcmout, 2, fade_length);
+            if (near_end + (2 * fade_length) < (S32)mWAVBuffer.size())
+            {
+                memcpy(&mWAVBuffer[near_end], pcmout, (2 * fade_length));/*Flawfinder: ignore*/
+            }
+        }
 
-	return TRUE;
+        if (36 == data_length)
+        {
+            LL_WARNS("AudioEngine") << "BAD Vorbis decode in finishDecode!" << LL_ENDL;
+            mValid = false;
+            return true; // we've finished
+        }
+        mBytesRead = -1;
+        mFileHandle = LLLFSThread::sLocal->write(mOutFilename, &mWAVBuffer[0], 0, static_cast<S32>(mWAVBuffer.size()),
+                             new WriteResponder(this));
+    }
+
+    if (mFileHandle != LLLFSThread::nullHandle())
+    {
+        if (mBytesRead >= 0)
+        {
+            if (mBytesRead == 0)
+            {
+                LL_WARNS("AudioEngine") << "Unable to write file in LLVorbisDecodeState::finishDecode" << LL_ENDL;
+                mValid = false;
+                return true; // we've finished
+            }
+        }
+        else
+        {
+            return false; // not done
+        }
+    }
+
+    mDone = true;
+
+    LL_DEBUGS("AudioEngine") << "Finished decode for " << getUUID() << LL_ENDL;
+
+    return true;
 }
 
 void LLVorbisDecodeState::flushBadFile()
 {
-	if (mInFilep)
-	{
-		LL_WARNS("AudioEngine") << "Flushing bad vorbis file from cache for " << mUUID << LL_ENDL;
-		mInFilep->remove();
-	}
+    if (mInFilep)
+    {
+        LL_WARNS("AudioEngine") << "Flushing bad vorbis file from cache for " << mUUID << LL_ENDL;
+        mInFilep->remove();
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -779,23 +779,26 @@ void LLAudioDecodeMgr::processQueue()
     mImpl->processQueue();
 }
 
-BOOL LLAudioDecodeMgr::addDecodeRequest(const LLUUID &uuid)
+bool LLAudioDecodeMgr::addDecodeRequest(const LLUUID &uuid)
 {
-	if (gAudiop && gAudiop->hasDecodedFile(uuid))
-	{
-		// Already have a decoded version, don't need to decode it.
-		LL_DEBUGS("AudioEngine") << "addDecodeRequest for " << uuid << " has decoded file already" << LL_ENDL;
-		return TRUE;
-	}
+    if (gAudiop && gAudiop->hasDecodedFile(uuid))
+    {
+        // Already have a decoded version, don't need to decode it.
+        LL_DEBUGS("AudioEngine") << "addDecodeRequest for " << uuid << " has decoded file already" << LL_ENDL;
+        return true;
+    }
 
-	if (gAssetStorage->hasLocalAsset(uuid, LLAssetType::AT_SOUND))
-	{
-		// Just put it on the decode queue.
-		LL_DEBUGS("AudioEngine") << "addDecodeRequest for " << uuid << " has local asset file already" << LL_ENDL;
-        mImpl->mDecodeQueue.push_back(uuid);
-		return TRUE;
-	}
+    if (gAssetStorage->hasLocalAsset(uuid, LLAssetType::AT_SOUND))
+    {
+        // Just put it on the decode queue it if it's not already in the queue
+        LL_DEBUGS("AudioEngine") << "addDecodeRequest for " << uuid << " has local asset file already" << LL_ENDL;
+        if (std::find(mImpl->mDecodeQueue.begin(), mImpl->mDecodeQueue.end(), uuid) == mImpl->mDecodeQueue.end())
+        {
+            mImpl->mDecodeQueue.emplace_back(uuid);
+        }
+        return true;
+    }
 
-	LL_DEBUGS("AudioEngine") << "addDecodeRequest for " << uuid << " no file available" << LL_ENDL;
-	return FALSE;
+    LL_DEBUGS("AudioEngine") << "addDecodeRequest for " << uuid << " no file available" << LL_ENDL;
+    return false;
 }

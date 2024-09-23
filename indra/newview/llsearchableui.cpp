@@ -35,31 +35,31 @@ ll::prefs::SearchableItem::~SearchableItem()
 
 void ll::prefs::SearchableItem::setNotHighlighted()
 {
-	mCtrl->setHighlighted( false );
+    mCtrl->setHighlighted( false );
 }
 
 bool ll::prefs::SearchableItem::hightlightAndHide( LLWString const &aFilter )
 {
-	if( mCtrl->getHighlighted() )
-		return true;
+    if( mCtrl->getHighlighted() )
+        return true;
 
-	LLView const *pView = dynamic_cast< LLView const* >( mCtrl );
-	if( pView && !pView->getVisible() )
-		return false;
+    LLView const *pView = dynamic_cast< LLView const* >( mCtrl );
+    if( pView && !pView->getVisible() )
+        return false;
 
-	if( aFilter.empty() )
-	{
-		mCtrl->setHighlighted( false );
-		return true;
-	}
+    if( aFilter.empty() )
+    {
+        mCtrl->setHighlighted( false );
+        return true;
+    }
 
-	if( mLabel.find( aFilter ) != LLWString::npos )
-	{
-		mCtrl->setHighlighted( true );
-		return true;
-	}
+    if( mLabel.find( aFilter ) != LLWString::npos )
+    {
+        mCtrl->setHighlighted( true );
+        return true;
+    }
 
-	return false;
+    return false;
 }
 
 ll::prefs::PanelData::~PanelData()
@@ -67,109 +67,109 @@ ll::prefs::PanelData::~PanelData()
 
 bool ll::prefs::PanelData::hightlightAndHide( LLWString const &aFilter )
 {
-	for( tSearchableItemList::iterator itr = mChildren.begin(); itr  != mChildren.end(); ++itr )
-		(*itr)->setNotHighlighted();
+    for( tSearchableItemList::iterator itr = mChildren.begin(); itr  != mChildren.end(); ++itr )
+        (*itr)->setNotHighlighted();
 
-	for (tPanelDataList::iterator itr = mChildPanel.begin(); itr != mChildPanel.end(); ++itr)
-		(*itr)->setNotHighlighted();
+    for (tPanelDataList::iterator itr = mChildPanel.begin(); itr != mChildPanel.end(); ++itr)
+        (*itr)->setNotHighlighted();
 
-	if (aFilter.empty())
-	{
-		return true;
-	}
+    if (aFilter.empty())
+    {
+        return true;
+    }
 
-	bool bVisible(false);
-	for( tSearchableItemList::iterator itr = mChildren.begin(); itr  != mChildren.end(); ++itr )
-		bVisible |= (*itr)->hightlightAndHide( aFilter );
+    bool bVisible(false);
+    for( tSearchableItemList::iterator itr = mChildren.begin(); itr  != mChildren.end(); ++itr )
+        bVisible |= (*itr)->hightlightAndHide( aFilter );
 
-	for( tPanelDataList::iterator itr = mChildPanel.begin(); itr  != mChildPanel.end(); ++itr )
-		bVisible |= (*itr)->hightlightAndHide( aFilter );
+    for( tPanelDataList::iterator itr = mChildPanel.begin(); itr  != mChildPanel.end(); ++itr )
+        bVisible |= (*itr)->hightlightAndHide( aFilter );
 
-	return bVisible;
+    return bVisible;
 }
 
 void ll::prefs::PanelData::setNotHighlighted()
 {
-	for (tSearchableItemList::iterator itr = mChildren.begin(); itr != mChildren.end(); ++itr)
-		(*itr)->setNotHighlighted();
+    for (tSearchableItemList::iterator itr = mChildren.begin(); itr != mChildren.end(); ++itr)
+        (*itr)->setNotHighlighted();
 
-	for (tPanelDataList::iterator itr = mChildPanel.begin(); itr != mChildPanel.end(); ++itr)
-		(*itr)->setNotHighlighted();
+    for (tPanelDataList::iterator itr = mChildPanel.begin(); itr != mChildPanel.end(); ++itr)
+        (*itr)->setNotHighlighted();
 }
 
 bool ll::prefs::TabContainerData::hightlightAndHide( LLWString const &aFilter )
 {
-	for( tSearchableItemList::iterator itr = mChildren.begin(); itr  != mChildren.end(); ++itr )
-		(*itr)->setNotHighlighted( );
+    for( tSearchableItemList::iterator itr = mChildren.begin(); itr  != mChildren.end(); ++itr )
+        (*itr)->setNotHighlighted( );
 
-	bool bVisible(false);
-	for( tSearchableItemList::iterator itr = mChildren.begin(); itr  != mChildren.end(); ++itr )
-		bVisible |= (*itr)->hightlightAndHide( aFilter );
+    bool bVisible(false);
+    for( tSearchableItemList::iterator itr = mChildren.begin(); itr  != mChildren.end(); ++itr )
+        bVisible |= (*itr)->hightlightAndHide( aFilter );
 
-	for( tPanelDataList::iterator itr = mChildPanel.begin(); itr  != mChildPanel.end(); ++itr )
-	{
-		bool bPanelVisible = (*itr)->hightlightAndHide( aFilter );
-		if( (*itr)->mPanel )
-			mTabContainer->setTabVisibility( (*itr)->mPanel, bPanelVisible );
-		bVisible |= bPanelVisible;
-	}
+    for( tPanelDataList::iterator itr = mChildPanel.begin(); itr  != mChildPanel.end(); ++itr )
+    {
+        bool bPanelVisible = (*itr)->hightlightAndHide( aFilter );
+        if( (*itr)->mPanel )
+            mTabContainer->setTabVisibility( (*itr)->mPanel, bPanelVisible );
+        bVisible |= bPanelVisible;
+    }
 
-	return bVisible;
+    return bVisible;
 }
 
 ll::statusbar::SearchableItem::SearchableItem()
-	: mMenu(0)
-	, mCtrl(0)
-	, mWasHiddenBySearch( false )
+    : mMenu(0)
+    , mCtrl(0)
+    , mWasHiddenBySearch( false )
 { }
 
 void ll::statusbar::SearchableItem::setNotHighlighted( )
 {
-	for( tSearchableItemList::iterator itr = mChildren.begin(); itr  != mChildren.end(); ++itr )
-		(*itr)->setNotHighlighted( );
+    for( tSearchableItemList::iterator itr = mChildren.begin(); itr  != mChildren.end(); ++itr )
+        (*itr)->setNotHighlighted( );
 
-	if( mCtrl )
-	{
-		mCtrl->setHighlighted( false );
+    if( mCtrl )
+    {
+        mCtrl->setHighlighted( false );
 
         if (mWasHiddenBySearch)
         {
-            mMenu->setVisible(TRUE);
+            mMenu->setVisible(true);
             mWasHiddenBySearch = false;
         }
-	}
+    }
 }
 
 bool ll::statusbar::SearchableItem::hightlightAndHide(LLWString const &aFilter, bool hide)
 {
-	if ((mMenu && !mMenu->getVisible() && !mWasHiddenBySearch) || dynamic_cast<LLMenuItemTearOffGL*>(mMenu))
-		return false;
+    if ((mMenu && !mMenu->getVisible() && !mWasHiddenBySearch) || dynamic_cast<LLMenuItemTearOffGL*>(mMenu))
+        return false;
 
-	setNotHighlighted( );
+    setNotHighlighted( );
 
-	if( aFilter.empty() )
-	{
-		if( mCtrl )
-			mCtrl->setHighlighted( false );
-		return true;
-	}
+    if( aFilter.empty() )
+    {
+        if( mCtrl )
+            mCtrl->setHighlighted( false );
+        return true;
+    }
 
-	bool bHighlighted(!hide);
-	if( mLabel.find( aFilter ) != LLWString::npos )
-	{
-		if( mCtrl )
-			mCtrl->setHighlighted( true );
-		bHighlighted = true;
-	}
+    bool bHighlighted(!hide);
+    if( mLabel.find( aFilter ) != LLWString::npos )
+    {
+        if( mCtrl )
+            mCtrl->setHighlighted( true );
+        bHighlighted = true;
+    }
 
-	bool bVisible(false);
-	for (tSearchableItemList::iterator itr = mChildren.begin(); itr != mChildren.end(); ++itr)
-		bVisible |= (*itr)->hightlightAndHide(aFilter, !bHighlighted);
+    bool bVisible(false);
+    for (tSearchableItemList::iterator itr = mChildren.begin(); itr != mChildren.end(); ++itr)
+        bVisible |= (*itr)->hightlightAndHide(aFilter, !bHighlighted);
 
-	if (mCtrl && !bVisible && !bHighlighted)
-	{
-		mWasHiddenBySearch = true;
-		mMenu->setVisible(FALSE);
-	}
-	return bVisible || bHighlighted;
+    if (mCtrl && !bVisible && !bHighlighted)
+    {
+        mWasHiddenBySearch = true;
+        mMenu->setVisible(false);
+    }
+    return bVisible || bHighlighted;
 }

@@ -1,24 +1,24 @@
-/** 
+/**
  * @file llthread.cpp
  *
  * $LicenseInfo:firstyear=2004&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010-2013, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -91,7 +91,7 @@ void set_thread_name( DWORD dwThreadID, const char* threadName)
 //     break;
 //   }
 // }
-// 
+//
 //----------------------------------------------------------------------------
 namespace
 {
@@ -113,15 +113,16 @@ LL_COMMON_API bool on_main_thread()
     return (LLThread::currentID() == main_thread());
 }
 
-LL_COMMON_API void assert_main_thread()
+LL_COMMON_API bool assert_main_thread()
 {
     auto curr = LLThread::currentID();
     auto main = main_thread();
-    if (curr != main)
-    {
-        LL_WARNS() << "Illegal execution from thread id " << curr
-            << " outside main thread " << main << LL_ENDL;
-    }
+    if (curr == main)
+        return true;
+
+    LL_WARNS() << "Illegal execution from thread id " << curr
+               << " outside main thread " << main << LL_ENDL;
+    return false;
 }
 
 // this function has become moot
@@ -154,7 +155,7 @@ void LLThread::threadRun()
     mRecorder = new LLTrace::ThreadRecorder(*LLTrace::get_master_thread_recorder());
 
     // Run the user supplied function
-    do 
+    do
     {
         try
         {
@@ -188,7 +189,7 @@ void LLThread::threadRun()
 }
 
 LLThread::LLThread(const std::string& name, apr_pool_t *poolp) :
-    mPaused(FALSE),
+    mPaused(false),
     mName(name),
     mThreadp(NULL),
     mStatus(STOPPED),
@@ -257,7 +258,7 @@ void LLThread::shutdown()
             // This thread just wouldn't stop, even though we gave it time
             //LL_WARNS() << "LLThread::~LLThread() exiting thread before clean exit!" << LL_ENDL;
             // Put a stake in its heart. (A very hostile method to force a thread to quit)
-#if		LL_WINDOWS
+#if     LL_WINDOWS
             TerminateThread(mNativeHandle, 0);
 #else
             pthread_cancel(mNativeHandle);
@@ -268,6 +269,7 @@ void LLThread::shutdown()
             mStatus = STOPPED;
             return;
         }
+        delete mThreadp;
         mThreadp = NULL;
     }
 
@@ -290,7 +292,7 @@ void LLThread::shutdown()
 void LLThread::start()
 {
     llassert(isStopped());
-    
+
     // Set thread state to running
     mStatus = RUNNING;
 
@@ -298,6 +300,7 @@ void LLThread::start()
     {
         mThreadp = new std::thread(std::bind(&LLThread::threadRun, this));
         mNativeHandle = mThreadp->native_handle();
+        mThreadp->detach();
     }
     catch (std::system_error& ex)
     {
@@ -318,7 +321,7 @@ void LLThread::pause()
     {
         // this will cause the thread to stop execution as soon as checkPause() is called
         mPaused = 1;        // Does not need to be atomic since this is only set/unset from the main thread
-    }   
+    }
 }
 
 void LLThread::unpause()
@@ -343,7 +346,7 @@ bool LLThread::runCondition(void)
 // Stop thread execution if requested until unpaused.
 void LLThread::checkPause()
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
     mDataLock->lock();
 
     // This is in a while loop because the pthread API allows for spurious wakeups.
@@ -354,7 +357,7 @@ void LLThread::checkPause()
         mDataLock->lock();
         // mRunCondition is locked when the thread wakes up
     }
-    
+
     mDataLock->unlock();
 }
 
@@ -375,20 +378,20 @@ void LLThread::setQuitting()
 // static
 LLThread::id_t LLThread::currentID()
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
     return std::this_thread::get_id();
 }
 
 // static
 void LLThread::yield()
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
     std::this_thread::yield();
 }
 
 void LLThread::wake()
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
     mDataLock->lock();
     if(!shouldSleep())
     {
@@ -399,7 +402,7 @@ void LLThread::wake()
 
 void LLThread::wakeLocked()
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
     if(!shouldSleep())
     {
         mRunCondition->signal();
@@ -408,41 +411,17 @@ void LLThread::wakeLocked()
 
 void LLThread::lockData()
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
     mDataLock->lock();
 }
 
 void LLThread::unlockData()
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
     mDataLock->unlock();
 }
 
 //============================================================================
-
-//----------------------------------------------------------------------------
-
-//static
-LLMutex* LLThreadSafeRefCount::sMutex = 0;
-
-//static
-void LLThreadSafeRefCount::initThreadSafeRefCount()
-{
-    if (!sMutex)
-    {
-        sMutex = new LLMutex();
-    }
-}
-
-//static
-void LLThreadSafeRefCount::cleanupThreadSafeRefCount()
-{
-    delete sMutex;
-    sMutex = NULL;
-}
-    
-
-//----------------------------------------------------------------------------
 
 LLThreadSafeRefCount::LLThreadSafeRefCount() :
     mRef(0)
@@ -455,10 +434,10 @@ LLThreadSafeRefCount::LLThreadSafeRefCount(const LLThreadSafeRefCount& src)
 }
 
 LLThreadSafeRefCount::~LLThreadSafeRefCount()
-{ 
+{
     if (mRef != 0)
     {
-		LL_ERRS() << "deleting referenced object mRef = " << mRef << LL_ENDL;
+        LL_ERRS() << "deleting referenced object mRef = " << mRef << LL_ENDL;
     }
 }
 

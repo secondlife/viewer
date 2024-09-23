@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llpostprocess.cpp
  * @brief LLPostProcess class implementation
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -51,214 +51,214 @@ LLPostProcess * gPostProcess = NULL;
 
 static const unsigned int NOISE_SIZE = 512;
 
-LLPostProcess::LLPostProcess(void) : 
-					initialized(false),  
-					mAllEffects(LLSD::emptyMap()),
-					screenW(1), screenH(1)
+LLPostProcess::LLPostProcess(void) :
+                    initialized(false),
+                    mAllEffects(LLSD::emptyMap()),
+                    screenW(1), screenH(1)
 {
-	mSceneRenderTexture = NULL ; 
-	mNoiseTexture = NULL ;
-	mTempBloomTexture = NULL ;
+    mSceneRenderTexture = NULL ;
+    mNoiseTexture = NULL ;
+    mTempBloomTexture = NULL ;
 
-	noiseTextureScale = 1.0f;
-					
-	/*  Do nothing.  Needs to be updated to use our current shader system, and to work with the move into llrender.
-	std::string pathName(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "windlight", XML_FILENAME));
-	LL_DEBUGS("AppInit", "Shaders") << "Loading PostProcess Effects settings from " << pathName << LL_ENDL;
+    noiseTextureScale = 1.0f;
 
-	llifstream effectsXML(pathName);
+    /*  Do nothing.  Needs to be updated to use our current shader system, and to work with the move into llrender.
+    std::string pathName(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "windlight", XML_FILENAME));
+    LL_DEBUGS("AppInit", "Shaders") << "Loading PostProcess Effects settings from " << pathName << LL_ENDL;
 
-	if (effectsXML)
-	{
-		LLPointer<LLSDParser> parser = new LLSDXMLParser();
+    llifstream effectsXML(pathName);
 
-		parser->parse(effectsXML, mAllEffects, LLSDSerialize::SIZE_UNLIMITED);
-	}
+    if (effectsXML)
+    {
+        LLPointer<LLSDParser> parser = new LLSDXMLParser();
 
-	if (!mAllEffects.has("default"))
-	{
-		LLSD & defaultEffect = (mAllEffects["default"] = LLSD::emptyMap());
+        parser->parse(effectsXML, mAllEffects, LLSDSerialize::SIZE_UNLIMITED);
+    }
 
-		defaultEffect["enable_night_vision"] = LLSD::Boolean(false);
-		defaultEffect["enable_bloom"] = LLSD::Boolean(false);
-		defaultEffect["enable_color_filter"] = LLSD::Boolean(false);
+    if (!mAllEffects.has("default"))
+    {
+        LLSD & defaultEffect = (mAllEffects["default"] = LLSD::emptyMap());
 
-		/// NVG Defaults
-		defaultEffect["brightness_multiplier"] = 3.0;
-		defaultEffect["noise_size"] = 25.0;
-		defaultEffect["noise_strength"] = 0.4;
+        defaultEffect["enable_night_vision"] = LLSD::Boolean(false);
+        defaultEffect["enable_bloom"] = LLSD::Boolean(false);
+        defaultEffect["enable_color_filter"] = LLSD::Boolean(false);
 
-		// TODO BTest potentially add this to tweaks?
-		noiseTextureScale = 1.0f;
-		
-		/// Bloom Defaults
-		defaultEffect["extract_low"] = 0.95;
-		defaultEffect["extract_high"] = 1.0;
-		defaultEffect["bloom_width"] = 2.25;
-		defaultEffect["bloom_strength"] = 1.5;
+        /// NVG Defaults
+        defaultEffect["brightness_multiplier"] = 3.0;
+        defaultEffect["noise_size"] = 25.0;
+        defaultEffect["noise_strength"] = 0.4;
 
-		/// Color Filter Defaults
-		defaultEffect["brightness"] = 1.0;
-		defaultEffect["contrast"] = 1.0;
-		defaultEffect["saturation"] = 1.0;
+        // TODO BTest potentially add this to tweaks?
+        noiseTextureScale = 1.0f;
 
-		LLSD& contrastBase = (defaultEffect["contrast_base"] = LLSD::emptyArray());
-		contrastBase.append(1.0);
-		contrastBase.append(1.0);
-		contrastBase.append(1.0);
-		contrastBase.append(0.5);
-	}
+        /// Bloom Defaults
+        defaultEffect["extract_low"] = 0.95;
+        defaultEffect["extract_high"] = 1.0;
+        defaultEffect["bloom_width"] = 2.25;
+        defaultEffect["bloom_strength"] = 1.5;
 
-	setSelectedEffect("default");
-	*/
+        /// Color Filter Defaults
+        defaultEffect["brightness"] = 1.0;
+        defaultEffect["contrast"] = 1.0;
+        defaultEffect["saturation"] = 1.0;
+
+        LLSD& contrastBase = (defaultEffect["contrast_base"] = LLSD::emptyArray());
+        contrastBase.append(1.0);
+        contrastBase.append(1.0);
+        contrastBase.append(1.0);
+        contrastBase.append(0.5);
+    }
+
+    setSelectedEffect("default");
+    */
 }
 
 LLPostProcess::~LLPostProcess(void)
 {
-	invalidate() ;
+    invalidate() ;
 }
 
 // static
 void LLPostProcess::initClass(void)
 {
-	//this will cause system to crash at second time login
-	//if first time login fails due to network connection --- bao
-	//***llassert_always(gPostProcess == NULL);
-	//replaced by the following line:
-	if(gPostProcess)
-		return ;
-	
-	
-	gPostProcess = new LLPostProcess();
+    //this will cause system to crash at second time login
+    //if first time login fails due to network connection --- bao
+    //***llassert_always(gPostProcess == NULL);
+    //replaced by the following line:
+    if(gPostProcess)
+        return ;
+
+
+    gPostProcess = new LLPostProcess();
 }
 
 // static
 void LLPostProcess::cleanupClass()
 {
-	delete gPostProcess;
-	gPostProcess = NULL;
+    delete gPostProcess;
+    gPostProcess = NULL;
 }
 
 void LLPostProcess::setSelectedEffect(std::string const & effectName)
 {
-	mSelectedEffectName = effectName;
-	static_cast<LLSD &>(tweaks) = mAllEffects[effectName];
+    mSelectedEffectName = effectName;
+    static_cast<LLSD &>(tweaks) = mAllEffects[effectName];
 }
 
 void LLPostProcess::saveEffect(std::string const & effectName)
 {
-	/*  Do nothing.  Needs to be updated to use our current shader system, and to work with the move into llrender.
-	mAllEffects[effectName] = tweaks;
+    /*  Do nothing.  Needs to be updated to use our current shader system, and to work with the move into llrender.
+    mAllEffects[effectName] = tweaks;
 
-	std::string pathName(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "windlight", XML_FILENAME));
-	//LL_INFOS() << "Saving PostProcess Effects settings to " << pathName << LL_ENDL;
+    std::string pathName(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "windlight", XML_FILENAME));
+    //LL_INFOS() << "Saving PostProcess Effects settings to " << pathName << LL_ENDL;
 
-	llofstream effectsXML(pathName);
+    llofstream effectsXML(pathName);
 
-	LLPointer<LLSDFormatter> formatter = new LLSDXMLFormatter();
+    LLPointer<LLSDFormatter> formatter = new LLSDXMLFormatter();
 
-	formatter->format(mAllEffects, effectsXML);
-	*/
+    formatter->format(mAllEffects, effectsXML);
+    */
 }
 void LLPostProcess::invalidate()
 {
-	mSceneRenderTexture = NULL ;
-	mNoiseTexture = NULL ;
-	mTempBloomTexture = NULL ;
-	initialized = FALSE ;
+    mSceneRenderTexture = NULL ;
+    mNoiseTexture = NULL ;
+    mTempBloomTexture = NULL ;
+    initialized = false ;
 }
 
 void LLPostProcess::apply(unsigned int width, unsigned int height)
 {
-	if (!initialized || width != screenW || height != screenH){
-		initialize(width, height);
-	}
-	if (shadersEnabled()){
-		doEffects();
-	}
+    if (!initialized || width != screenW || height != screenH){
+        initialize(width, height);
+    }
+    if (shadersEnabled()){
+        doEffects();
+    }
 }
 
 void LLPostProcess::initialize(unsigned int width, unsigned int height)
 {
-	screenW = width;
-	screenH = height;
-	createTexture(mSceneRenderTexture, screenW, screenH);
-	initialized = true;
+    screenW = width;
+    screenH = height;
+    createTexture(mSceneRenderTexture, screenW, screenH);
+    initialized = true;
 
-	checkError();
-	createNightVisionShader();
-	createBloomShader();
-	createColorFilterShader();
-	checkError();
+    checkError();
+    createNightVisionShader();
+    createBloomShader();
+    createColorFilterShader();
+    checkError();
 }
 
 inline bool LLPostProcess::shadersEnabled(void)
 {
-	return (tweaks.useColorFilter().asBoolean() ||
-			tweaks.useNightVisionShader().asBoolean() ||
-			tweaks.useBloomShader().asBoolean() );
+    return (tweaks.useColorFilter().asBoolean() ||
+            tweaks.useNightVisionShader().asBoolean() ||
+            tweaks.useBloomShader().asBoolean() );
 
 }
 
 void LLPostProcess::applyShaders(void)
 {
-	if (tweaks.useColorFilter()){
-		applyColorFilterShader();
-		checkError();
-	}	
-	if (tweaks.useNightVisionShader()){
-		/// If any of the above shaders have been called update the frame buffer;
-		if (tweaks.useColorFilter())
-		{
-			U32 tex = mSceneRenderTexture->getTexName() ;
-			copyFrameBuffer(tex, screenW, screenH);
-		}
-		applyNightVisionShader();
-		checkError();
-	}
-	if (tweaks.useBloomShader()){
-		/// If any of the above shaders have been called update the frame buffer;
-		if (tweaks.useColorFilter().asBoolean() || tweaks.useNightVisionShader().asBoolean())
-		{
-			U32 tex = mSceneRenderTexture->getTexName() ;
-			copyFrameBuffer(tex, screenW, screenH);
-		}
-		applyBloomShader();
-		checkError();
-	}
+    if (tweaks.useColorFilter()){
+        applyColorFilterShader();
+        checkError();
+    }
+    if (tweaks.useNightVisionShader()){
+        /// If any of the above shaders have been called update the frame buffer;
+        if (tweaks.useColorFilter())
+        {
+            U32 tex = mSceneRenderTexture->getTexName() ;
+            copyFrameBuffer(tex, screenW, screenH);
+        }
+        applyNightVisionShader();
+        checkError();
+    }
+    if (tweaks.useBloomShader()){
+        /// If any of the above shaders have been called update the frame buffer;
+        if (tweaks.useColorFilter().asBoolean() || tweaks.useNightVisionShader().asBoolean())
+        {
+            U32 tex = mSceneRenderTexture->getTexName() ;
+            copyFrameBuffer(tex, screenW, screenH);
+        }
+        applyBloomShader();
+        checkError();
+    }
 }
 
 void LLPostProcess::applyColorFilterShader(void)
-{	
-	
+{
+
 }
 
 void LLPostProcess::createColorFilterShader(void)
 {
-	/// Define uniform names
-	colorFilterUniforms[sRenderTexture] = 0;
-	colorFilterUniforms[sBrightness] = 0;
-	colorFilterUniforms[sContrast] = 0;
-	colorFilterUniforms[sContrastBase] = 0;
-	colorFilterUniforms[sSaturation] = 0;
-	colorFilterUniforms[sLumWeights] = 0;
+    /// Define uniform names
+    colorFilterUniforms[sRenderTexture] = 0;
+    colorFilterUniforms[sBrightness] = 0;
+    colorFilterUniforms[sContrast] = 0;
+    colorFilterUniforms[sContrastBase] = 0;
+    colorFilterUniforms[sSaturation] = 0;
+    colorFilterUniforms[sLumWeights] = 0;
 }
 
 void LLPostProcess::applyNightVisionShader(void)
-{	
-	
+{
+
 }
 
 void LLPostProcess::createNightVisionShader(void)
 {
-	/// Define uniform names
-	nightVisionUniforms[sRenderTexture] = 0;
-	nightVisionUniforms[sNoiseTexture] = 0;
-	nightVisionUniforms[sBrightMult] = 0;	
-	nightVisionUniforms[sNoiseStrength] = 0;
-	nightVisionUniforms[sLumWeights] = 0;	
+    /// Define uniform names
+    nightVisionUniforms[sRenderTexture] = 0;
+    nightVisionUniforms[sNoiseTexture] = 0;
+    nightVisionUniforms[sBrightMult] = 0;
+    nightVisionUniforms[sNoiseStrength] = 0;
+    nightVisionUniforms[sLumWeights] = 0;
 
-	createNoiseTexture(mNoiseTexture);
+    createNoiseTexture(mNoiseTexture);
 }
 
 void LLPostProcess::applyBloomShader(void)
@@ -268,69 +268,69 @@ void LLPostProcess::applyBloomShader(void)
 
 void LLPostProcess::createBloomShader(void)
 {
-	createTexture(mTempBloomTexture, unsigned(screenW * 0.5), unsigned(screenH * 0.5));
+    createTexture(mTempBloomTexture, unsigned(screenW * 0.5), unsigned(screenH * 0.5));
 
-	/// Create Bloom Extract Shader
-	bloomExtractUniforms[sRenderTexture] = 0;
-	bloomExtractUniforms[sExtractLow] = 0;
-	bloomExtractUniforms[sExtractHigh] = 0;	
-	bloomExtractUniforms[sLumWeights] = 0;	
-	
-	/// Create Bloom Blur Shader
-	bloomBlurUniforms[sRenderTexture] = 0;
-	bloomBlurUniforms[sBloomStrength] = 0;	
-	bloomBlurUniforms[sTexelSize] = 0;
-	bloomBlurUniforms[sBlurDirection] = 0;
-	bloomBlurUniforms[sBlurWidth] = 0;
+    /// Create Bloom Extract Shader
+    bloomExtractUniforms[sRenderTexture] = 0;
+    bloomExtractUniforms[sExtractLow] = 0;
+    bloomExtractUniforms[sExtractHigh] = 0;
+    bloomExtractUniforms[sLumWeights] = 0;
+
+    /// Create Bloom Blur Shader
+    bloomBlurUniforms[sRenderTexture] = 0;
+    bloomBlurUniforms[sBloomStrength] = 0;
+    bloomBlurUniforms[sTexelSize] = 0;
+    bloomBlurUniforms[sBlurDirection] = 0;
+    bloomBlurUniforms[sBlurWidth] = 0;
 }
 
 void LLPostProcess::getShaderUniforms(glslUniforms & uniforms, GLuint & prog)
 {
-	/// Find uniform locations and insert into map	
-	glslUniforms::iterator i;
-	for (i  = uniforms.begin(); i != uniforms.end(); ++i){
-		i->second = glGetUniformLocation(prog, i->first.String().c_str());
-	}
+    /// Find uniform locations and insert into map
+    glslUniforms::iterator i;
+    for (i  = uniforms.begin(); i != uniforms.end(); ++i){
+        i->second = glGetUniformLocation(prog, i->first.String().c_str());
+    }
 }
 
 void LLPostProcess::doEffects(void)
 {
-	/// Save GL State
-	glPushAttrib(GL_ALL_ATTRIB_BITS);
-	glPushClientAttrib(GL_ALL_ATTRIB_BITS);
+    /// Save GL State
+    glPushAttrib(GL_ALL_ATTRIB_BITS);
+    glPushClientAttrib(GL_ALL_ATTRIB_BITS);
 
-	/// Copy the screen buffer to the render texture
-	{
-		U32 tex = mSceneRenderTexture->getTexName() ;
-		copyFrameBuffer(tex, screenW, screenH);
-	}
+    /// Copy the screen buffer to the render texture
+    {
+        U32 tex = mSceneRenderTexture->getTexName() ;
+        copyFrameBuffer(tex, screenW, screenH);
+    }
 
-	/// Clear the frame buffer.
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
-	
-	/// Change to an orthogonal view
-	viewOrthogonal(screenW, screenH);
-	
-	checkError();
-	applyShaders();
-	
-	LLGLSLShader::unbind();
-	checkError();
+    /// Clear the frame buffer.
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
 
-	/// Change to a perspective view
-	viewPerspective();	
+    /// Change to an orthogonal view
+    viewOrthogonal(screenW, screenH);
 
-	/// Reset GL State
-	glPopClientAttrib();
-	glPopAttrib();
-	checkError();
+    checkError();
+    applyShaders();
+
+    LLGLSLShader::unbind();
+    checkError();
+
+    /// Change to a perspective view
+    viewPerspective();
+
+    /// Reset GL State
+    glPopClientAttrib();
+    glPopAttrib();
+    checkError();
 }
 
 void LLPostProcess::copyFrameBuffer(U32 & texture, unsigned int width, unsigned int height)
 {
-	gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, texture);
-	glCopyTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_RGBA, 0, 0, width, height, 0);
+    gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, texture);
+    glCopyTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_RGBA, 0, 0, width, height, 0);
 }
 
 void LLPostProcess::drawOrthoQuad(unsigned int width, unsigned int height, QuadType type)
@@ -340,84 +340,84 @@ void LLPostProcess::drawOrthoQuad(unsigned int width, unsigned int height, QuadT
 
 void LLPostProcess::viewOrthogonal(unsigned int width, unsigned int height)
 {
-	gGL.matrixMode(LLRender::MM_PROJECTION);
-	gGL.pushMatrix();
-	gGL.loadIdentity();
-	gGL.ortho( 0.f, (GLdouble) width , (GLdouble) height , 0.f, -1.f, 1.f );
-	gGL.matrixMode(LLRender::MM_MODELVIEW);
-	gGL.pushMatrix();
-	gGL.loadIdentity();
+    gGL.matrixMode(LLRender::MM_PROJECTION);
+    gGL.pushMatrix();
+    gGL.loadIdentity();
+    gGL.ortho( 0.f, (GLfloat) width , (GLfloat) height , 0.f, -1.f, 1.f );
+    gGL.matrixMode(LLRender::MM_MODELVIEW);
+    gGL.pushMatrix();
+    gGL.loadIdentity();
 }
 
 void LLPostProcess::viewPerspective(void)
 {
-	gGL.matrixMode(LLRender::MM_PROJECTION);
-	gGL.popMatrix();
-	gGL.matrixMode(LLRender::MM_MODELVIEW);
-	gGL.popMatrix();
+    gGL.matrixMode(LLRender::MM_PROJECTION);
+    gGL.popMatrix();
+    gGL.matrixMode(LLRender::MM_MODELVIEW);
+    gGL.popMatrix();
 }
 
 void LLPostProcess::changeOrthogonal(unsigned int width, unsigned int height)
 {
-	viewPerspective();
-	viewOrthogonal(width, height);
+    viewPerspective();
+    viewOrthogonal(width, height);
 }
 
 void LLPostProcess::createTexture(LLPointer<LLImageGL>& texture, unsigned int width, unsigned int height)
 {
-	std::vector<GLubyte> data(width * height * 4, 0) ;
+    std::vector<GLubyte> data(width * height * 4, 0) ;
 
-	texture = new LLImageGL(FALSE) ;	
-	if(texture->createGLTexture())
-	{
-		gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, texture->getTexName());
-		glTexImage2D(GL_TEXTURE_RECTANGLE, 0, 4, width, height, 0,
-			GL_RGBA, GL_UNSIGNED_BYTE, &data[0]);
-		gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_BILINEAR);
-		gGL.getTexUnit(0)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
-	}
+    texture = new LLImageGL(false) ;
+    if(texture->createGLTexture())
+    {
+        gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, texture->getTexName());
+        glTexImage2D(GL_TEXTURE_RECTANGLE, 0, 4, width, height, 0,
+            GL_RGBA, GL_UNSIGNED_BYTE, &data[0]);
+        gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_BILINEAR);
+        gGL.getTexUnit(0)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
+    }
 }
 
 void LLPostProcess::createNoiseTexture(LLPointer<LLImageGL>& texture)
-{	
-	std::vector<GLubyte> buffer(NOISE_SIZE * NOISE_SIZE);
-	for (unsigned int i = 0; i < NOISE_SIZE; i++){
-		for (unsigned int k = 0; k < NOISE_SIZE; k++){
-			buffer[(i * NOISE_SIZE) + k] = (GLubyte)((double) rand() / ((double) RAND_MAX + 1.f) * 255.f);
-		}
-	}
+{
+    std::vector<GLubyte> buffer(NOISE_SIZE * NOISE_SIZE);
+    for (unsigned int i = 0; i < NOISE_SIZE; i++){
+        for (unsigned int k = 0; k < NOISE_SIZE; k++){
+            buffer[(i * NOISE_SIZE) + k] = (GLubyte)((double) rand() / ((double) RAND_MAX + 1.f) * 255.f);
+        }
+    }
 
-	texture = new LLImageGL(FALSE) ;
-	if(texture->createGLTexture())
-	{
-		gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, texture->getTexName());
-		LLImageGL::setManualImage(GL_TEXTURE_2D, 0, GL_LUMINANCE, NOISE_SIZE, NOISE_SIZE, GL_LUMINANCE, GL_UNSIGNED_BYTE, &buffer[0]);
-		gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_BILINEAR);
-		gGL.getTexUnit(0)->setTextureAddressMode(LLTexUnit::TAM_WRAP);
-	}
+    texture = new LLImageGL(false) ;
+    if(texture->createGLTexture())
+    {
+        gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, texture->getTexName());
+        LLImageGL::setManualImage(GL_TEXTURE_2D, 0, GL_LUMINANCE, NOISE_SIZE, NOISE_SIZE, GL_LUMINANCE, GL_UNSIGNED_BYTE, &buffer[0]);
+        gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_BILINEAR);
+        gGL.getTexUnit(0)->setTextureAddressMode(LLTexUnit::TAM_WRAP);
+    }
 }
 
 bool LLPostProcess::checkError(void)
 {
-	GLenum glErr;
+    GLenum glErr;
     bool    retCode = false;
 
     glErr = glGetError();
     while (glErr != GL_NO_ERROR)
     {
-		// shaderErrorLog << (const char *) gluErrorString(glErr) << std::endl;
-		char const * err_str_raw = (const char *) gluErrorString(glErr);
+        // shaderErrorLog << (const char *) gluErrorString(glErr) << std::endl;
+        char const * err_str_raw = (const char *) gluErrorString(glErr);
 
-		if(err_str_raw == NULL)
-		{
-			std::ostringstream err_builder;
-			err_builder << "unknown error number " << glErr;
-			mShaderErrorString = err_builder.str();
-		}
-		else
-		{
-			mShaderErrorString = err_str_raw;
-		}
+        if(err_str_raw == NULL)
+        {
+            std::ostringstream err_builder;
+            err_builder << "unknown error number " << glErr;
+            mShaderErrorString = err_builder.str();
+        }
+        else
+        {
+            mShaderErrorString = err_str_raw;
+        }
 
         retCode = true;
         glErr = glGetError();
@@ -446,8 +446,8 @@ void LLPostProcess::checkShaderError(GLuint shader)
             return;
         }
        glGetProgramInfoLog(shader, infologLength, &charsWritten, infoLog);
-		// shaderErrorLog << (char *) infoLog << std::endl;
-		mShaderErrorString = (char *) infoLog;
+        // shaderErrorLog << (char *) infoLog << std::endl;
+        mShaderErrorString = (char *) infoLog;
         free(infoLog);
     }
     checkError();  // Check for OpenGL errors

@@ -5,48 +5,34 @@
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
- */ 
+ */
 
 #include "llviewerprecompiledheaders.h"
 #include "llcommandlineparser.h"
 #include "llexception.h"
-
-// *NOTE: The boost::lexical_cast generates 
-// the warning C4701(local used with out assignment) in VC7.1.
-// Disable the warning for the boost includes.
-#if _MSC_VER
-#   pragma warning(push)
-#   pragma warning( disable : 4701 )
-#else
-// NOTE: For the other platforms?
-#endif
 
 #include <boost/program_options.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/bind.hpp>
 #include <boost/tokenizer.hpp>
 #include <boost/assign/list_of.hpp>
-
-#if _MSC_VER
-#   pragma warning(pop)
-#endif
 
 #include "llsdserialize.h"
 #include "llerror.h"
@@ -63,14 +49,14 @@
 namespace po = boost::program_options;
 
 // *NOTE:MEP - Currently the boost object reside in file scope.
-// This has a couple of negatives, they are always around and 
-// there can be only one instance of each. 
-// The plus is that the boost-ly-ness of this implementation is 
-// hidden from the rest of the world. 
-// Its importatnt to realize that multiple LLCommandLineParser objects 
+// This has a couple of negatives, they are always around and
+// there can be only one instance of each.
+// The plus is that the boost-ly-ness of this implementation is
+// hidden from the rest of the world.
+// Its importatnt to realize that multiple LLCommandLineParser objects
 // will all have this single repository of option escs and parsed options.
 // This could be good or bad, and probably won't matter for most use cases.
-namespace 
+namespace
 {
     // List of command-line switches that can't map-to settings variables.
     // Going forward, we want every new command-line switch to map-to some
@@ -86,15 +72,15 @@ namespace
 
     po::options_description gOptionsDesc;
     po::positional_options_description gPositionalOptions;
-	po::variables_map gVariableMap;
+    po::variables_map gVariableMap;
 
     const LLCommandLineParser::token_vector_t gEmptyValue;
 
     void read_file_into_string(std::string& str, const std::basic_istream < char >& file)
     {
-	    std::ostringstream oss;
-	    oss << file.rdbuf();
-	    str = oss.str();
+        std::ostringstream oss;
+        oss << file.rdbuf();
+        str = oss.str();
     }
 
     bool gPastLastOption = false;
@@ -110,7 +96,7 @@ public:
     LLCLPLastOption(const std::string& what) : LLException(what) {}
 };
 
-class LLCLPValue : public po::value_semantic_codecvt_helper<char> 
+class LLCLPValue : public po::value_semantic_codecvt_helper<char>
 {
     unsigned mMinTokens;
     unsigned mMaxTokens;
@@ -126,15 +112,15 @@ public:
         mIsComposing(false),
         mLastOption(false)
         {}
-      
+
     virtual ~LLCLPValue() {};
 
-    void setMinTokens(unsigned c) 
+    void setMinTokens(unsigned c)
     {
         mMinTokens = c;
     }
 
-    void setMaxTokens(unsigned c) 
+    void setMaxTokens(unsigned c)
     {
         mMaxTokens = c;
     }
@@ -155,11 +141,11 @@ public:
     }
 
     // Overrides to support the value_semantic interface.
-    virtual std::string name() const 
-    { 
+    virtual std::string name() const
+    {
         const std::string arg("arg");
         const std::string args("args");
-        return (max_tokens() > 1) ? args : arg; 
+        return (max_tokens() > 1) ? args : arg;
     }
 
     virtual unsigned min_tokens() const
@@ -167,21 +153,21 @@ public:
         return mMinTokens;
     }
 
-    virtual unsigned max_tokens() const 
+    virtual unsigned max_tokens() const
     {
         return mMaxTokens;
     }
 
-    virtual bool is_composing() const 
+    virtual bool is_composing() const
     {
         return mIsComposing;
     }
 
-	// Needed for boost 1.42
-	virtual bool is_required() const
-	{
-		return false; // All our command line options are optional.
-	}
+    // Needed for boost 1.42
+    virtual bool is_required() const
+    {
+        return false; // All our command line options are optional.
+    }
 
     virtual bool apply_default(boost::any& value_store) const
     {
@@ -192,7 +178,7 @@ public:
     {
         const LLCommandLineParser::token_vector_t* value =
             boost::any_cast<const LLCommandLineParser::token_vector_t>(&value_store);
-        if(mNotifyCallback) 
+        if(mNotifyCallback)
         {
            mNotifyCallback(*value);
         }
@@ -208,7 +194,7 @@ protected:
         }
 
         // Error checks. Needed?
-        if (!value_store.empty() && !is_composing()) 
+        if (!value_store.empty() && !is_composing())
         {
             LLTHROW(LLCLPError("Non composing value with multiple occurences."));
         }
@@ -216,14 +202,14 @@ protected:
         {
             LLTHROW(LLCLPError("Illegal number of tokens specified."));
         }
-        
+
         if(value_store.empty())
         {
             value_store = boost::any(LLCommandLineParser::token_vector_t());
         }
-        LLCommandLineParser::token_vector_t* tv = 
-            boost::any_cast<LLCommandLineParser::token_vector_t>(&value_store); 
-       
+        LLCommandLineParser::token_vector_t* tv =
+            boost::any_cast<LLCommandLineParser::token_vector_t>(&value_store);
+
         for(unsigned i = 0; i < new_tokens.size() && i < mMaxTokens; ++i)
         {
             tv->push_back(new_tokens[i]);
@@ -239,7 +225,7 @@ protected:
 //----------------------------------------------------------------------------
 // LLCommandLineParser defintions
 //----------------------------------------------------------------------------
-void LLCommandLineParser::addOptionDesc(const std::string& option_name, 
+void LLCommandLineParser::addOptionDesc(const std::string& option_name,
                                         boost::function1<void, const token_vector_t&> notify_callback,
                                         unsigned int token_count,
                                         const std::string& description,
@@ -248,7 +234,7 @@ void LLCommandLineParser::addOptionDesc(const std::string& option_name,
                                         bool positional,
                                         bool last_option)
 {
-    // Compose the name for boost::po. 
+    // Compose the name for boost::po.
     // It takes the format "long_name, short name"
     const std::string comma(",");
     std::string boost_option_name = option_name;
@@ -257,7 +243,7 @@ void LLCommandLineParser::addOptionDesc(const std::string& option_name,
         boost_option_name += comma;
         boost_option_name += short_name;
     }
-   
+
     LLCLPValue* value_desc = new LLCLPValue();
     value_desc->setMinTokens(token_count);
     value_desc->setMaxTokens(token_count);
@@ -265,8 +251,8 @@ void LLCommandLineParser::addOptionDesc(const std::string& option_name,
     value_desc->setLastOption(last_option);
 
     boost::shared_ptr<po::option_description> d(
-            new po::option_description(boost_option_name.c_str(), 
-                                    value_desc, 
+            new po::option_description(boost_option_name.c_str(),
+                                    value_desc,
                                     description.c_str()));
 
     if(!notify_callback.empty())
@@ -288,43 +274,43 @@ bool LLCommandLineParser::parseAndStoreResults(po::command_line_parser& clp)
     {
         clp.options(gOptionsDesc);
         clp.positional(gPositionalOptions);
-		// SNOW-626: Boost 1.42 erroneously added allow_guessing to the default style
-		// (see http://groups.google.com/group/boost-list/browse_thread/thread/545d7bf98ff9bb16?fwc=2&pli=1)
-		// Remove allow_guessing from the default style, because that is not allowed
-		// when we have options that are a prefix of other options (aka, --help and --helperuri).
+        // SNOW-626: Boost 1.42 erroneously added allow_guessing to the default style
+        // (see http://groups.google.com/group/boost-list/browse_thread/thread/545d7bf98ff9bb16?fwc=2&pli=1)
+        // Remove allow_guessing from the default style, because that is not allowed
+        // when we have options that are a prefix of other options (aka, --help and --helperuri).
         clp.style((po::command_line_style::default_style & ~po::command_line_style::allow_guessing)
                   | po::command_line_style::allow_long_disguise);
-		if(mExtraParser)
-		{
-			clp.extra_parser(mExtraParser);
-		}
-			
+        if(mExtraParser)
+        {
+            clp.extra_parser(mExtraParser);
+        }
+
         po::basic_parsed_options<char> opts = clp.run();
         po::store(opts, gVariableMap);
     }
     catch(po::error& e)
     {
         LL_WARNS() << "Caught Error:" << e.what() << LL_ENDL;
-		mErrorMsg = e.what();
+        mErrorMsg = e.what();
         return false;
     }
     catch(LLCLPError& e)
     {
         LL_WARNS() << "Caught Error:" << e.what() << LL_ENDL;
-		mErrorMsg = e.what();
+        mErrorMsg = e.what();
         return false;
     }
-    catch(LLCLPLastOption&) 
+    catch(LLCLPLastOption&)
     {
-		// This exception means a token was read after an option 
-		// that must be the last option was reached (see url and slurl options)
+        // This exception means a token was read after an option
+        // that must be the last option was reached (see url and slurl options)
 
-        // boost::po will have stored a malformed option. 
+        // boost::po will have stored a malformed option.
         // All such options will be removed below.
-		// The last option read, the last_option option, and its value
-		// are put into the error message.
-		std::string last_option;
-		std::string last_value;
+        // The last option read, the last_option option, and its value
+        // are put into the error message.
+        std::string last_option;
+        std::string last_value;
         for(po::variables_map::iterator i = gVariableMap.begin(); i != gVariableMap.end();)
         {
             po::variables_map::iterator tempI = i++;
@@ -332,28 +318,28 @@ bool LLCommandLineParser::parseAndStoreResults(po::command_line_parser& clp)
             {
                 gVariableMap.erase(tempI);
             }
-			else
-			{
-				last_option = tempI->first;
-		        LLCommandLineParser::token_vector_t* tv = 
-				    boost::any_cast<LLCommandLineParser::token_vector_t>(&(tempI->second.value())); 
-				if(!tv->empty())
-				{
-					last_value = (*tv)[tv->size()-1];
-				}
-			}
+            else
+            {
+                last_option = tempI->first;
+                LLCommandLineParser::token_vector_t* tv =
+                    boost::any_cast<LLCommandLineParser::token_vector_t>(&(tempI->second.value()));
+                if(!tv->empty())
+                {
+                    last_value = (*tv)[tv->size()-1];
+                }
+            }
         }
 
-		// Continue without parsing.
-		std::ostringstream msg;
-		msg << "Caught Error: Found options after last option: " 
-			<< last_option << " "
-			<< last_value;
+        // Continue without parsing.
+        std::ostringstream msg;
+        msg << "Caught Error: Found options after last option: "
+            << last_option << " "
+            << last_value;
 
         LL_WARNS() << msg.str() << LL_ENDL;
-		mErrorMsg = msg.str();
+        mErrorMsg = msg.str();
         return false;
-    } 
+    }
     return true;
 }
 
@@ -378,8 +364,8 @@ bool LLCommandLineParser::parseCommandLineString(const std::string& str)
     if (!str.empty())
     {
         bool add_last_c = true;
-        S32 last_c_pos = str.size() - 1; //don't get out of bounds on pos+1, last char will be processed separately
-        for (S32 pos = 0; pos < last_c_pos; ++pos)
+        auto last_c_pos = str.size() - 1; //don't get out of bounds on pos+1, last char will be processed separately
+        for (size_t pos = 0; pos < last_c_pos; ++pos)
         {
             cmd_line_string.append(&str[pos], 1);
             if (str[pos] == '\\')
@@ -429,7 +415,7 @@ bool LLCommandLineParser::parseCommandLineString(const std::string& str)
 
     po::command_line_parser clp(tokens);
     return parseAndStoreResults(clp);
-        
+
 }
 
 bool LLCommandLineParser::parseCommandLineFile(const std::basic_istream < char >& file)
@@ -508,7 +494,7 @@ onevalue(const std::string& option,
     else if (value.size() > 1)
     {
         LL_WARNS() << "Ignoring extra tokens specified for --"
-                << option << "." << LL_ENDL; 
+                << option << "." << LL_ENDL;
     }
     return value[0];
 }
@@ -543,8 +529,8 @@ T convertTo(const std::string& option,
     }
 }
 
-void setControlValueCB(const LLCommandLineParser::token_vector_t& value, 
-                       const std::string& option, 
+void setControlValueCB(const LLCommandLineParser::token_vector_t& value,
+                       const std::string& option,
                        LLControlVariable* ctrl)
 {
     // *FIX: Do semantic conversion here.
@@ -569,10 +555,10 @@ void setControlValueCB(const LLCommandLineParser::token_vector_t& value,
             {
                 // Only call onevalue() AFTER handling value.empty() case!
                 std::string token(onevalue(option, value));
-            
+
                 // There's a token. check the string for true/false/1/0 etc.
-                BOOL result = false;
-                BOOL gotSet = LLStringUtil::convertToBOOL(token, result);
+                bool result = false;
+                bool gotSet = LLStringUtil::convertToBOOL(token, result);
                 if (gotSet)
                 {
                     ctrl->setValue(LLSD(result), false);
@@ -654,29 +640,29 @@ void setControlValueCB(const LLCommandLineParser::token_vector_t& value,
 
 void LLControlGroupCLP::configure(const std::string& config_filename, LLControlGroup* controlGroup)
 {
-    // This method reads the llsd based config file, and uses it to set 
+    // This method reads the llsd based config file, and uses it to set
     // members of a control group.
     LLSD clpConfigLLSD;
-    
+
     llifstream input_stream;
     input_stream.open(config_filename.c_str(), std::ios::in | std::ios::binary);
 
     if(input_stream.is_open())
     {
         LLSDSerialize::fromXML(clpConfigLLSD, input_stream);
-        for(LLSD::map_iterator option_itr = clpConfigLLSD.beginMap(); 
-            option_itr != clpConfigLLSD.endMap(); 
+        for(LLSD::map_iterator option_itr = clpConfigLLSD.beginMap();
+            option_itr != clpConfigLLSD.endMap();
             ++option_itr)
         {
             LLSD::String long_name = option_itr->first;
             LLSD option_params = option_itr->second;
-            
+
             std::string desc("n/a");
             if(option_params.has("desc"))
             {
                 desc = option_params["desc"].asString();
             }
-            
+
             std::string short_name = LLStringUtil::null;
             if(option_params.has("short"))
             {
@@ -742,11 +728,11 @@ void LLControlGroupCLP::configure(const std::string& config_filename, LLControlG
             }
 
             this->addOptionDesc(
-                long_name, 
+                long_name,
                 callback,
-                token_count, 
-                desc, 
-                short_name, 
+                token_count,
+                desc,
+                short_name,
                 composing,
                 positional,
                 last_option);

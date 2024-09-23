@@ -1,4 +1,5 @@
-<?xml version="1.0" ?><notifications>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<notifications>
     <global name="skipnexttime">
 
 		Don&apos;t show me this again
@@ -411,6 +412,15 @@ Initialization with the Marketplace failed because of a system or network error.
         <usetemplate
         name="okbutton"
         yestext="OK"/>
+    </notification>
+
+    <notification
+     icon="notifytip.tga"
+     name="InvalidKeystroke"
+     type="notifytip">
+There was an invalid keystroke entered.
+[REASON].
+Please input a valid text.
     </notification>
 
     <notification
@@ -2378,6 +2388,26 @@ Unable to upload [FILE] due to the following reason: [REASON]
 Please try again later.
   <tag>fail</tag>
   </notification>
+    
+  <notification
+   icon="alertmodal.tga"
+   name="CannotUploadSnapshotEmailTooBig"
+   type="alertmodal">
+Unable to upload snapshot [FILE] due to the following reason: [REASON]
+
+File might be too big, try reducing resolution, quality or try again later.
+  <tag>fail</tag>
+  </notification>
+    
+  <notification
+   icon="alertmodal.tga"
+   name="CannotUploadSnapshotWebTooBig"
+   type="alertmodal">
+Unable to upload snapshot.
+
+File might be too big, try reducing resolution or try again later.
+  <tag>fail</tag>
+  </notification>
 
   <notification
    icon="notifytip.tga"
@@ -3019,6 +3049,15 @@ Unable to save &apos;[NAME]&apos; to wearable file.  You will need to free up so
 Unable to save [NAME] to central asset store.
 This is usually a temporary failure. Please customize and save the wearable again in a few minutes.
   <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="notifytip.tga"
+   name="OutOfDiskSpace"
+   type="notifytip">
+The system is out of disk space. You will need to free up some space on your computer or clear the cache.
+<tag>fail</tag>
+    <unique/>
   </notification>
 
   <notification
@@ -4001,10 +4040,39 @@ Are you sure you want to return objects owned by [USER_NAME]?
    icon="alertmodal.tga"
    name="InvalidTerrainBitDepth"
    type="alertmodal">
+    <unique combine="cancel_old" />
 Couldn&apos;t set region textures:
 Terrain texture [TEXTURE_NUM] has an invalid bit depth of [TEXTURE_BIT_DEPTH].
 
-Replace texture [TEXTURE_NUM] with a 24-bit [MAX_SIZE]x[MAX_SIZE] or smaller image then click &quot;Apply&quot; again.
+Replace texture [TEXTURE_NUM] with an RGB [MAX_SIZE]x[MAX_SIZE] or smaller image then click &quot;Apply&quot; again.
+  <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="InvalidTerrainAlphaNotFullyLoaded"
+   type="alertmodal">
+    <unique combine="cancel_old" />
+Couldn&apos;t set region textures:
+Terrain texture [TEXTURE_NUM] is not fully loaded, but is assumed to contain transparency due to a bit depth of [TEXTURE_BIT_DEPTH]. Transparency is not currently supported for terrain textures.
+
+If texture [TEXTURE_NUM] is opaque, wait for the texture to fully load and then click &quot;Apply&quot; again.
+
+Alpha is only supported for terrain materials (PBR Metallic Roughness), when alphaMode="MASK" and doubleSided=false.
+  <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="InvalidTerrainAlpha"
+   type="alertmodal">
+    <unique combine="cancel_old" />
+Couldn&apos;t set region textures:
+Terrain texture [TEXTURE_NUM] contains transparency. Transparency is not currently supported for terrain textures.
+
+Replace texture [TEXTURE_NUM] with an opaque RGB image, then click &quot;Apply&quot; again.
+
+Alpha is only supported for terrain materials (PBR Metallic Roughness), when alphaMode="MASK" and doubleSided=false.
   <tag>fail</tag>
   </notification>
 
@@ -4012,10 +4080,55 @@ Replace texture [TEXTURE_NUM] with a 24-bit [MAX_SIZE]x[MAX_SIZE] or smaller ima
    icon="alertmodal.tga"
    name="InvalidTerrainSize"
    type="alertmodal">
+    <unique combine="cancel_old" />
 Couldn&apos;t set region textures:
 Terrain texture [TEXTURE_NUM] is too large at [TEXTURE_SIZE_X]x[TEXTURE_SIZE_Y].
 
-Replace texture [TEXTURE_NUM] with a 24-bit [MAX_SIZE]x[MAX_SIZE] or smaller image then click &quot;Apply&quot; again.
+Replace texture [TEXTURE_NUM] with an RGB [MAX_SIZE]x[MAX_SIZE] or smaller image then click &quot;Apply&quot; again.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="InvalidTerrainMaterialNotLoaded"
+   type="alertmodal">
+    <unique combine="cancel_old" />
+Couldn&apos;t set region materials:
+Terrain material [MATERIAL_NUM] is not loaded.
+
+Wait for the material to load, or replace material [MATERIAL_NUM] with a valid material.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="InvalidTerrainMaterialLoadFailed"
+   type="alertmodal">
+    <unique combine="cancel_old" />
+Couldn&apos;t set region materials:
+Terrain material [MATERIAL_NUM] failed to load.
+
+Replace material [MATERIAL_NUM] with a valid material.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="InvalidTerrainMaterialDoubleSided"
+   type="alertmodal">
+    <unique combine="cancel_old" />
+Couldn&apos;t set region materials:
+Terrain material [MATERIAL_NUM] is double-sided. Double-sided materials are not currently supported for PBR terrain.
+
+Replace material [MATERIAL_NUM] with a material with doubleSided=false.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="InvalidTerrainMaterialAlphaMode"
+   type="alertmodal">
+    <unique combine="cancel_old" />
+Couldn&apos;t set region materials:
+Terrain material [MATERIAL_NUM] is using the unsupported alphaMode="[MATERIAL_ALPHA_MODE]".
+
+Replace material [MATERIAL_NUM] with a material with alphaMode="OPAQUE" or alphaMode="MASK".
   </notification>
 
   <notification
@@ -4166,6 +4279,20 @@ Unable to add estate manager [AGENT] to banned list.
    name="CanNotChangeAppearanceUntilLoaded"
    type="alertmodal">
 Can&apos;t change appearance until clothing and shape are loaded.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="UsavedWearableChanges"
+   type="alertmodal">
+You have unsaved changes.
+      <tag>group</tag>
+    <tag>confirm</tag>
+    <usetemplate
+     ignoretext="Confirm before I discard unsaved wearable changes"
+     name="okcancelignore"
+     notext="Keep Editing"
+     yestext="Discard"/>
   </notification>
 
   <notification
@@ -4399,14 +4526,28 @@ Are you sure you want to return the selected objects to their owners? Transferab
    icon="alert.tga"
    name="GroupLeaveConfirmMember"
    type="alert">
-You are currently a member of the group &lt;nolink&gt;[GROUP]&lt;/nolink&gt;.
-Leave Group?
+Leave the group &apos;&lt;nolink&gt;[GROUP]&lt;/nolink&gt;&apos;?
+Currently, the fee to join this &quot;group&quot; is L$ [COST].
     <tag>group</tag>
     <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
-     yestext="OK"/>
+     yestext="Leave"/>
+  </notification>
+
+  <notification
+   icon="alert.tga"
+   name="GroupLeaveConfirmMemberNoFee"
+   type="alert">
+Leave the group &apos;&lt;nolink&gt;[GROUP]&lt;/nolink&gt;&apos;?
+There is currently no fee to join this group.
+    <tag>group</tag>
+    <tag>confirm</tag>
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="Leave"/>
   </notification>
 
 
@@ -6172,6 +6313,33 @@ Are you sure you want to delete them?
 
   <notification
    icon="alertmodal.tga"
+   name="DeleteWornItems"
+   type="alertmodal">
+    <unique/>
+Some item(s) you wish to delete are being worn on your avatar.
+Remove these items from your avatar?
+    <tag>confirm</tag>
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="Remove item(s) and delete"/>
+  </notification>
+    
+  <notification
+   icon="alertmodal.tga"
+   name="CantDeleteRequiredClothing"
+   type="alertmodal">
+    <unique/>
+Some item(s) you wish to delete are required clothing layers (skin, shape, hair, eyes).
+You must replace those layers before deleting them.
+    <tag>confirm</tag>
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="DeleteThumbnail"
    type="alertmodal">
     <unique/>
@@ -6216,6 +6384,17 @@ Are you sure you want to delete them?
      name="okbutton"
      yestext="OK"/>
   </notification>
+
+    <notification
+     icon="alertmodal.tga"
+     name="ThumbnailSelectionTooLarge"
+     type="alertmodal">
+        <unique/>
+        You can only modify up to 50 thumbnails at a time.
+        <usetemplate
+         name="okbutton"
+         yestext="OK"/>
+    </notification>
 
   <notification
      icon="alertmodal.tga"
@@ -6457,25 +6636,9 @@ Your trash is overflowing. This may cause problems logging in.
   </notification>
 
   <notification
-   icon="notifytip.tga"
-   name="InventoryLimitReachedAIS"
-   type="notifytip">
-Your inventory is experiencing issues. Please, contact support.
-  <tag>fail</tag>
-  </notification>
-
-  <notification
    icon="alertmodal.tga"
    name="InventoryLimitReachedAISAlert"
    type="alertmodal">
-Your inventory is experiencing issues. Please, contact support.
-  <tag>fail</tag>
-  </notification>
-
-  <notification
-   icon="notifytip.tga"
-   name="InventoryLimitReachedAIS"
-   type="notifytip">
 Your inventory is experiencing issues. Please, contact support.
   <tag>fail</tag>
   </notification>
@@ -8697,21 +8860,6 @@ If you are a Premium Member, [[PREMIUM_URL] click here] to receive your voice mo
 
   <notification
    icon="notify.tga"
-   name="VoiceEffectsWillExpire"
-   sound="UISndAlert"
-   persist="true"
-   type="notify">
-    <unique/>    
-One or more of your Voice Morphs will expire in less than [INTERVAL] days.
-[[URL] Click here] to renew your subscription.
-
-If you are a Premium Member, [[PREMIUM_URL] click here] to receive your voice morphing perk.
-  <tag>fail</tag>
-    <tag>voice</tag>
-  </notification>
-
-  <notification
-   icon="notify.tga"
    name="VoiceEffectsNew"
    sound="UISndAlert"
    persist="true"
@@ -8719,6 +8867,21 @@ If you are a Premium Member, [[PREMIUM_URL] click here] to receive your voice mo
     <unique/>    
 New Voice Morphs are available!
    <tag>voice</tag>
+  </notification>
+
+  <notification
+    icon="alertmodal.tga"
+    name="VoiceEffectsNotSupported"
+    sound="UISndAlert"
+    persist="true"
+    type="alertmodal">
+Voice Morphs are not supported by this viewer.
+For more information about other voice morph tools, see [[FAQ_URL] this article].
+    <usetemplate
+        ignoretext="Warn me about voice morph not being supported"
+        name="okignore"
+        yestext="OK"/>
+    <tag>voice</tag>
   </notification>
 
   <notification
@@ -8926,17 +9089,6 @@ Your voice has been muted by moderator.
           name="okbutton"
           yestext="OK"/>
     </notification>
-
-   <notification
-    icon="alertmodal.tga"
-    name="BulkUploadCostConfirmation"
-    type="alertmodal">
-This will upload [COUNT] items at a total cost of L$[COST]. Do you wish to continue with the upload?
-    <usetemplate
-     name="okcancelbuttons"
-     notext="Cancel"
-     yestext="Upload"/>
-   </notification>
   
    <notification
     icon="alertmodal.tga"
@@ -9254,9 +9406,18 @@ You locally updated a [RESOLUTION] baked texture for '[BODYREGION]' after [TIME]
    icon="alertmodal.tga"
    name="CannotUploadTexture"
    type="alertmodal">
-Unable to upload texture.
+Unable to upload texture: &apos;[NAME]&apos;
 [REASON]   
   <tag>fail</tag>  
+  </notification>
+
+  <notification
+ icon="alertmodal.tga"
+ name="CannotLoad"
+ type="alertmodal">
+    Unable to load [WHAT].
+    [REASON]
+    <tag>fail</tag>
   </notification>
 
   <notification
@@ -12261,6 +12422,50 @@ Would you like to save them first?
        notext="No"
        yestext="Yes"/>
   </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="ConfirmOverwriteOutfit"
+   type="alertmodal">
+      <unique/>
+This will replace the items in the
+selected outfit with the items you
+are wearing now.
+      <tag>confirm</tag>
+      <usetemplate
+       ignoretext="Confirm before overwriting outfit"
+       name="okcancelignore"
+       notext="Cancel"
+       yestext="Save"/>
+  </notification>
+    
+  <notification
+    icon="alertmodal.tga"
+    name="ClearInventoryThumbnailsWarning"
+    type="alertmodal">
+        You are about to remove thumbnail images from the inventory items in the list. This change cannot be undone.
+
+        Would you like to proceed?
+   <tag>confirm</tag>
+   <usetemplate
+       name="okcancelbuttons"
+       notext="No"
+       yestext="Yes"/>
+  </notification>
+
+  <notification
+    icon="alertmodal.tga"
+    name="WriteInventoryThumbnailsWarning"
+    type="alertmodal">
+        You are about to overwrite thumbnail images for some or all of the inventory items in the list. This change cannot be undone.
+
+        Would you like to proceed?
+   <tag>confirm</tag>
+   <usetemplate
+       name="okcancelbuttons"
+       notext="No"
+       yestext="Yes"/>
+  </notification>
     
   <notification
     icon="notifytip.tga"
@@ -12285,5 +12490,82 @@ Would you like to save them first?
         name="okignore"
         yestext="OK"/>
   </notification>
-  
+
+  <notification
+   icon="alertmodal.tga"
+   name="GLTFOpenSelection"
+   type="alert">
+    You must select an object to act as a handle to the GLTF asset you are previewing.
+    <tag>fail</tag>
+    <usetemplate
+      name="okbutton"
+      yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="GLTFLoadFailed"
+   type="alert">
+    Failed to load GLTF file.  See log for details.
+    <tag>fail</tag>
+    <usetemplate
+      name="okbutton"
+      yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="GLTFSaveFailed"
+   type="alert">
+    Failed to save GLTF file.  See log for details.
+    <tag>fail</tag>
+    <usetemplate
+      name="okbutton"
+      yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="GLTFSaveSelection"
+   type="alert">
+    You must select an object that has a GLTF asset associated with it.
+    <tag>fail</tag>
+    <usetemplate
+      name="okbutton"
+      yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="GLTFUploadSelection"
+   type="alert">
+    You must select an object that has local-only GLTF asset associated with it.
+    <tag>fail</tag>
+    <usetemplate
+      name="okbutton"
+      yestext="OK"/>
+  </notification>
+
+  <notification
+ icon="alertmodal.tga"
+ name="GLTFUploadInProgress"
+ type="alert">
+    Upload is currently in progress.  Please try again later.
+    <tag>fail</tag>
+    <usetemplate
+      name="okbutton"
+      yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="NoSupportGLTFShader"
+   type="notify">
+     GLTF scenes are not yet supported on your graphics hardware.
+     <tag>fail</tag>
+     <usetemplate
+       name="okbutton"
+       yestext="OK"/>
+  </notification>
+
 </notifications>

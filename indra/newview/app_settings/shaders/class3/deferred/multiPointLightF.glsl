@@ -27,7 +27,6 @@
 
 out vec4 frag_color;
 
-uniform sampler2D depthMap;
 uniform sampler2D diffuseRect;
 uniform sampler2D specularRect;
 uniform sampler2D emissiveRect; // PBR linear packed Occlusion, Roughness, Metal. See: pbropaqueF.glsl
@@ -48,7 +47,7 @@ in vec4 vary_fragcoord;
 void calcHalfVectors(vec3 lv, vec3 n, vec3 v, out vec3 h, out vec3 l, out float nh, out float nl, out float nv, out float vh, out float lightDist);
 float calcLegacyDistanceAttenuation(float distance, float falloff);
 vec4 getPosition(vec2 pos_screen);
-vec4 getNormalEnvIntensityFlags(vec2 screenpos, out vec3 n, out float envIntensity);
+vec4 getNorm(vec2 screenpos);
 vec2 getScreenXY(vec4 clip);
 vec2 getScreenCoord(vec4 clip);
 vec3 srgb_to_linear(vec3 c);
@@ -56,8 +55,8 @@ vec3 srgb_to_linear(vec3 c);
 // Util
 vec3 hue_to_rgb(float hue);
 
-vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor, 
-                    float perceptualRoughness, 
+vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor,
+                    float perceptualRoughness,
                     float metallic,
                     vec3 n, // normal
                     vec3 v, // surface point to camera
@@ -74,9 +73,8 @@ void main()
         discard;
     }
 
-    float envIntensity; // not used for this shader
-    vec3 n;
-    vec4 norm = getNormalEnvIntensityFlags(tc, n, envIntensity); // need `norm.w` for GET_GBUFFER_FLAG()
+    vec4 norm = getNorm(tc); // need `norm.w` for GET_GBUFFER_FLAG()
+    vec3 n = norm.xyz;
 
     vec4 spec    = texture(specularRect, tc);
     vec3 diffuse = texture(diffuseRect, tc).rgb;
@@ -92,7 +90,7 @@ void main()
         float metallic = orm.b;
         vec3 f0 = vec3(0.04);
         vec3 baseColor = diffuse.rgb;
-        
+
         vec3 diffuseColor = baseColor.rgb*(vec3(1.0)-f0);
         diffuseColor *= 1.0 - metallic;
 

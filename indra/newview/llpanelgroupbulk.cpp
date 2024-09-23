@@ -1,4 +1,4 @@
-/** 
+/**
 * @file llpanelgroupbulk.cpp
 * @brief Implementation of llpanelgroupbulk
 * @author Baker@lindenlab.com
@@ -53,370 +53,361 @@
 // Implementation of llpanelgroupbulkimpl.h functions
 //////////////////////////////////////////////////////////////////////////
 LLPanelGroupBulkImpl::LLPanelGroupBulkImpl(const LLUUID& group_id) :
-	mGroupID(group_id),
-	mBulkAgentList(NULL),
-	mOKButton(NULL),
-	mRemoveButton(NULL),
-	mGroupName(NULL),
-	mLoadingText(),
-	mTooManySelected(),
-	mCloseCallback(NULL),
-	mCloseCallbackUserData(NULL),
-	mAvatarNameCacheConnection(),
-	mRoleNames(NULL),
-	mOwnerWarning(),
-	mAlreadyInGroup(),
-	mConfirmedOwnerInvite(false),
-	mListFullNotificationSent(false)
-{}
+    mGroupID(group_id),
+    mBulkAgentList(NULL),
+    mOKButton(NULL),
+    mAddButton(nullptr),
+    mRemoveButton(NULL),
+    mGroupName(NULL),
+    mLoadingText(),
+    mTooManySelected(),
+    mCloseCallback(NULL),
+    mCloseCallbackUserData(NULL),
+    mAvatarNameCacheConnection(),
+    mRoleNames(NULL),
+    mOwnerWarning(),
+    mAlreadyInGroup(),
+    mConfirmedOwnerInvite(false),
+    mListFullNotificationSent(false)
+{
+}
 
 LLPanelGroupBulkImpl::~LLPanelGroupBulkImpl()
 {
-	if(mAvatarNameCacheConnection.connected())
-	{
-		mAvatarNameCacheConnection.disconnect();
-	}
+    if (mAvatarNameCacheConnection.connected())
+    {
+        mAvatarNameCacheConnection.disconnect();
+    }
 }
 
-void LLPanelGroupBulkImpl::callbackClickAdd(void* userdata)
+void LLPanelGroupBulkImpl::callbackClickAdd(LLPanelGroupBulk* panelp)
 {
-	LLPanelGroupBulk* panelp = (LLPanelGroupBulk*)userdata;
-
-	if(panelp)
-	{
-		//Right now this is hard coded with some knowledge that it is part
-		//of a floater since the avatar picker needs to be added as a dependent
-		//floater to the parent floater.
-		//Soon the avatar picker will be embedded into this panel
-		//instead of being it's own separate floater.  But that is next week.
-		//This will do for now. -jwolk May 10, 2006
-		LLView* button = panelp->findChild<LLButton>("add_button");
-		LLFloater* root_floater = gFloaterView->getParentFloater(panelp);
-		LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(
-			boost::bind(callbackAddUsers, _1, panelp->mImplementation), TRUE, FALSE, FALSE, root_floater->getName(), button);
-		if(picker)
-		{
-			root_floater->addDependentFloater(picker);
-			LLGroupMgr::getInstance()->sendCapGroupMembersRequest(panelp->mImplementation->mGroupID);
-		}
-	}
+    LLFloater* root_floater = gFloaterView->getParentFloater(panelp);
+    LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(
+        [this](const uuid_vec_t& agent_ids, const std::vector<LLAvatarName>&)
+        {
+            addUsers(agent_ids);
+        }, true, false, false, root_floater->getName(), mAddButton);
+    if (picker)
+    {
+        root_floater->addDependentFloater(picker);
+        LLGroupMgr::getInstance()->sendCapGroupMembersRequest(mGroupID);
+    }
 }
 
+// static
 void LLPanelGroupBulkImpl::callbackClickRemove(void* userdata)
 {
-	LLPanelGroupBulkImpl* selfp = (LLPanelGroupBulkImpl*)userdata;
-	if (selfp) 
-		selfp->handleRemove();
+    if (LLPanelGroupBulkImpl* selfp = (LLPanelGroupBulkImpl*)userdata)
+    {
+        selfp->handleRemove();
+    }
 }
 
+// static
 void LLPanelGroupBulkImpl::callbackClickCancel(void* userdata)
 {
-	LLPanelGroupBulkImpl* selfp = (LLPanelGroupBulkImpl*)userdata;
-	if(selfp) 
-		(*(selfp->mCloseCallback))(selfp->mCloseCallbackUserData);
+    if (LLPanelGroupBulkImpl* selfp = (LLPanelGroupBulkImpl*)userdata)
+    {
+        (*(selfp->mCloseCallback))(selfp->mCloseCallbackUserData);
+    }
 }
 
+// static
 void LLPanelGroupBulkImpl::callbackSelect(LLUICtrl* ctrl, void* userdata)
 {
-	LLPanelGroupBulkImpl* selfp = (LLPanelGroupBulkImpl*)userdata;
-	if (selfp) 
-		selfp->handleSelection();
+    if (LLPanelGroupBulkImpl* selfp = (LLPanelGroupBulkImpl*)userdata)
+    {
+        selfp->handleSelection();
+    }
 }
 
-void LLPanelGroupBulkImpl::callbackAddUsers(const uuid_vec_t& agent_ids, void* user_data)
+void LLPanelGroupBulkImpl::addUsers(const uuid_vec_t& agent_ids)
 {
-	std::vector<std::string> names;
-	for (S32 i = 0; i < (S32)agent_ids.size(); i++)
-	{
-		LLAvatarName av_name;
-		if (LLAvatarNameCache::get(agent_ids[i], &av_name))
-		{
-			onAvatarNameCache(agent_ids[i], av_name, user_data);
-		}
-		else 
-		{
-			LLPanelGroupBulkImpl* selfp = (LLPanelGroupBulkImpl*) user_data;
-			if (selfp)
-			{
-				if (selfp->mAvatarNameCacheConnection.connected())
-				{
-					selfp->mAvatarNameCacheConnection.disconnect();
-				}
-				// *TODO : Add a callback per avatar name being fetched.
-				selfp->mAvatarNameCacheConnection = LLAvatarNameCache::get(agent_ids[i],boost::bind(onAvatarNameCache, _1, _2, user_data));
-			}
-		}
-	}
+    std::vector<std::string> names;
+    for (const LLUUID& agent_id : agent_ids)
+    {
+        LLAvatarName av_name;
+        if (LLAvatarNameCache::get(agent_id, &av_name))
+        {
+            onAvatarNameCache(agent_id, av_name);
+        }
+        else
+        {
+            if (mAvatarNameCacheConnection.connected())
+            {
+                mAvatarNameCacheConnection.disconnect();
+            }
+            // *TODO : Add a callback per avatar name being fetched.
+            mAvatarNameCacheConnection = LLAvatarNameCache::get(agent_id,
+                [&](const LLUUID& agent_id, const LLAvatarName& av_name)
+                {
+                    onAvatarNameCache(agent_id, av_name);
+                });
+        }
+    }
 }
 
-void LLPanelGroupBulkImpl::onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name, void* user_data)
+void LLPanelGroupBulkImpl::onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name)
 {
-	LLPanelGroupBulkImpl* selfp = (LLPanelGroupBulkImpl*) user_data;
+    if (mAvatarNameCacheConnection.connected())
+    {
+        mAvatarNameCacheConnection.disconnect();
+    }
 
-	if (selfp)
-	{
-		if (selfp->mAvatarNameCacheConnection.connected())
-		{
-			selfp->mAvatarNameCacheConnection.disconnect();
-		}
-		std::vector<std::string> names;
-		uuid_vec_t agent_ids;
-		agent_ids.push_back(agent_id);
-		names.push_back(av_name.getCompleteName());
+    std::vector<std::string> names;
+    uuid_vec_t agent_ids;
+    agent_ids.push_back(agent_id);
+    names.push_back(av_name.getCompleteName());
 
-		selfp->addUsers(names, agent_ids);
-	}
+    addUsers(names, agent_ids);
 }
 
 void LLPanelGroupBulkImpl::handleRemove()
 {
-	std::vector<LLScrollListItem*> selection = mBulkAgentList->getAllSelected();
-	if (selection.empty()) 
-		return;
+    std::vector<LLScrollListItem*> selection = mBulkAgentList->getAllSelected();
+    if (selection.empty())
+        return;
 
-	std::vector<LLScrollListItem*>::iterator iter;
-	for(iter = selection.begin(); iter != selection.end(); ++iter)
-	{
-		mInviteeIDs.erase((*iter)->getUUID());
-	}
+    for (const LLScrollListItem* item : selection)
+    {
+        mInviteeIDs.erase(item->getUUID());
+    }
 
-	mBulkAgentList->deleteSelectedItems();
-	mRemoveButton->setEnabled(FALSE);
+    mBulkAgentList->deleteSelectedItems();
+    mRemoveButton->setEnabled(false);
 
-	if(	mOKButton && mOKButton->getEnabled() &&
-		mBulkAgentList->isEmpty())
-	{
-		mOKButton->setEnabled(FALSE);
-	}
+    if (mOKButton && mOKButton->getEnabled() && mBulkAgentList->isEmpty())
+    {
+        mOKButton->setEnabled(false);
+    }
 }
 
 void LLPanelGroupBulkImpl::handleSelection()
 {
-	std::vector<LLScrollListItem*> selection = mBulkAgentList->getAllSelected();
-	if (selection.empty())
-		mRemoveButton->setEnabled(FALSE);
-	else
-		mRemoveButton->setEnabled(TRUE);
+    mRemoveButton->setEnabled(mBulkAgentList->getFirstSelected());
 }
 
 void LLPanelGroupBulkImpl::addUsers(const std::vector<std::string>& names, const uuid_vec_t& agent_ids)
 {
-	std::string name;
-	LLUUID id;
+    if (mListFullNotificationSent)
+    {
+        return;
+    }
 
-	if(mListFullNotificationSent)
-	{	
-		return;
-	}
+    if (!mListFullNotificationSent &&
+        (names.size() + mInviteeIDs.size() > MAX_GROUP_INVITES))
+    {
+        mListFullNotificationSent = true;
 
-	if(	!mListFullNotificationSent &&
-		(names.size() + mInviteeIDs.size() > MAX_GROUP_INVITES))
-	{
-		mListFullNotificationSent = true;
+        // Fail! Show a warning and don't add any names.
+        LLSD msg;
+        msg["MESSAGE"] = mTooManySelected;
+        LLNotificationsUtil::add("GenericAlert", msg);
+        return;
+    }
 
-		// Fail! Show a warning and don't add any names.
-		LLSD msg;
-		msg["MESSAGE"] = mTooManySelected;
-		LLNotificationsUtil::add("GenericAlert", msg);
-		return;
-	}
+    for (S32 i = 0; i < (S32)names.size(); ++i)
+    {
+        const LLUUID& id = agent_ids[i];
 
-	for (S32 i = 0; i < (S32)names.size(); ++i)
-	{
-		name = names[i];
-		id = agent_ids[i];
+        if (mInviteeIDs.find(id) != mInviteeIDs.end())
+        {
+            continue;
+        }
 
-		if(mInviteeIDs.find(id) != mInviteeIDs.end())
-		{
-			continue;
-		}
+        // Add the name to the name list
+        LLSD row;
+        row["id"] = id;
+        row["columns"][0]["value"] = names[i];
 
-		//add the name to the names list
-		LLSD row;
-		row["id"] = id;
-		row["columns"][0]["value"] = name;
+        mBulkAgentList->addElement(row);
+        mInviteeIDs.insert(id);
 
-		mBulkAgentList->addElement(row);
-		mInviteeIDs.insert(id);
-
-		// We've successfully added someone to the list.
-		if(mOKButton && !mOKButton->getEnabled())
-			mOKButton->setEnabled(TRUE);
-	}
+        // We've successfully added someone to the list.
+        if (mOKButton && !mOKButton->getEnabled())
+        {
+            mOKButton->setEnabled(true);
+        }
+    }
 }
 
 void LLPanelGroupBulkImpl::setGroupName(std::string name)
 {
-	if(mGroupName)
-		mGroupName->setText(name);
+    if (mGroupName)
+    {
+        mGroupName->setText(name);
+    }
 }
 
 
-LLPanelGroupBulk::LLPanelGroupBulk(const LLUUID& group_id) : 
-	LLPanel(),
-	mImplementation(new LLPanelGroupBulkImpl(group_id)),
-	mPendingGroupPropertiesUpdate(false),
-	mPendingRoleDataUpdate(false),
-	mPendingMemberDataUpdate(false)
-{}
+LLPanelGroupBulk::LLPanelGroupBulk(const LLUUID& group_id) :
+    LLPanel(),
+    mImplementation(new LLPanelGroupBulkImpl(group_id)),
+    mPendingGroupPropertiesUpdate(false),
+    mPendingRoleDataUpdate(false),
+    mPendingMemberDataUpdate(false)
+{
+}
 
 LLPanelGroupBulk::~LLPanelGroupBulk()
 {
-	delete mImplementation;
+    delete mImplementation;
 }
 
 void LLPanelGroupBulk::clear()
 {
-	mImplementation->mInviteeIDs.clear();
+    mImplementation->mInviteeIDs.clear();
 
-	if(mImplementation->mBulkAgentList)
-		mImplementation->mBulkAgentList->deleteAllItems();
-	
-	if(mImplementation->mOKButton)
-		mImplementation->mOKButton->setEnabled(FALSE);
+    if (mImplementation->mBulkAgentList)
+    {
+        mImplementation->mBulkAgentList->deleteAllItems();
+    }
+
+    if (mImplementation->mOKButton)
+    {
+        mImplementation->mOKButton->setEnabled(false);
+    }
 }
 
 void LLPanelGroupBulk::update()
 {
-	updateGroupName();
-	updateGroupData();
+    updateGroupName();
+    updateGroupData();
 }
 
 void LLPanelGroupBulk::draw()
 {
-	LLPanel::draw();
-	update();
+    LLPanel::draw();
+    update();
 }
 
 void LLPanelGroupBulk::updateGroupName()
 {
-	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mImplementation->mGroupID);
+    LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mImplementation->mGroupID);
 
-	if(	gdatap &&
-		gdatap->isGroupPropertiesDataComplete())
-	{
-		// Only do work if the current group name differs
-		if(mImplementation->mGroupName->getText().compare(gdatap->mName) != 0)
-			mImplementation->setGroupName(gdatap->mName);
-	}
-	else
-	{
-		mImplementation->setGroupName(mImplementation->mLoadingText);
-	}
+    if (gdatap &&
+        gdatap->isGroupPropertiesDataComplete())
+    {
+        // Only do work if the current group name differs
+        if (mImplementation->mGroupName->getText().compare(gdatap->mName) != 0)
+        {
+            mImplementation->setGroupName(gdatap->mName);
+        }
+    }
+    else
+    {
+        mImplementation->setGroupName(mImplementation->mLoadingText);
+    }
 }
 
 void LLPanelGroupBulk::updateGroupData()
 {
-	LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mImplementation->mGroupID);
-	if(gdatap && gdatap->isGroupPropertiesDataComplete())
-	{
-		mPendingGroupPropertiesUpdate = false;
-	}
-	else
-	{
-		if(!mPendingGroupPropertiesUpdate)
-		{
-			mPendingGroupPropertiesUpdate = true;
-			LLGroupMgr::getInstance()->sendGroupPropertiesRequest(mImplementation->mGroupID);
-		}
-	}
+    LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mImplementation->mGroupID);
+    if (gdatap && gdatap->isGroupPropertiesDataComplete())
+    {
+        mPendingGroupPropertiesUpdate = false;
+    }
+    else if (!mPendingGroupPropertiesUpdate)
+    {
+        mPendingGroupPropertiesUpdate = true;
+        LLGroupMgr::getInstance()->sendGroupPropertiesRequest(mImplementation->mGroupID);
+    }
 
-	if(gdatap && gdatap->isRoleDataComplete())
-	{
-		mPendingRoleDataUpdate = false;
-	}
-	else
-	{
-		if(!mPendingRoleDataUpdate)
-		{
-			mPendingRoleDataUpdate = true;
-			LLGroupMgr::getInstance()->sendGroupRoleDataRequest(mImplementation->mGroupID);
-		}
-	}
+    if (gdatap && gdatap->isRoleDataComplete())
+    {
+        mPendingRoleDataUpdate = false;
+    }
+    else if (!mPendingRoleDataUpdate)
+    {
+        mPendingRoleDataUpdate = true;
+        LLGroupMgr::getInstance()->sendGroupRoleDataRequest(mImplementation->mGroupID);
+    }
 
-	if(gdatap && gdatap->isMemberDataComplete())
-	{
-		mPendingMemberDataUpdate = false;
-	}
-	else
-	{
-		if(!mPendingMemberDataUpdate)
-		{
-			mPendingMemberDataUpdate = true;
-			LLGroupMgr::getInstance()->sendCapGroupMembersRequest(mImplementation->mGroupID);
-		}
-	}
+    if (gdatap && gdatap->isMemberDataComplete())
+    {
+        mPendingMemberDataUpdate = false;
+    }
+    else if (!mPendingMemberDataUpdate)
+    {
+        mPendingMemberDataUpdate = true;
+        LLGroupMgr::getInstance()->sendCapGroupMembersRequest(mImplementation->mGroupID);
+    }
 }
 
 void LLPanelGroupBulk::addUserCallback(const LLUUID& id, const LLAvatarName& av_name)
 {
-	std::vector<std::string> names;
-	uuid_vec_t agent_ids;
-	agent_ids.push_back(id);
-	names.push_back(av_name.getAccountName());
+    std::vector<std::string> names;
+    uuid_vec_t agent_ids;
+    agent_ids.push_back(id);
+    names.push_back(av_name.getAccountName());
 
-	mImplementation->addUsers(names, agent_ids);
+    mImplementation->addUsers(names, agent_ids);
 }
 
 void LLPanelGroupBulk::setCloseCallback(void (*close_callback)(void*), void* data)
 {
-	mImplementation->mCloseCallback         = close_callback;
-	mImplementation->mCloseCallbackUserData = data;
+    mImplementation->mCloseCallback         = close_callback;
+    mImplementation->mCloseCallbackUserData = data;
 }
 
 void LLPanelGroupBulk::addUsers(uuid_vec_t& agent_ids)
 {
-	std::vector<std::string> names;
-	for (S32 i = 0; i < (S32)agent_ids.size(); i++)
-	{
-		std::string fullname;
-		LLUUID agent_id = agent_ids[i];
-		LLViewerObject* dest = gObjectList.findObject(agent_id);
-		if(dest && dest->isAvatar())
-		{
-			LLNameValue* nvfirst = dest->getNVPair("FirstName");
-			LLNameValue* nvlast = dest->getNVPair("LastName");
-			if(nvfirst && nvlast)
-			{
-				fullname = LLCacheName::buildFullName(
-					nvfirst->getString(), nvlast->getString());
+    std::vector<std::string> names;
+    for (size_t i = 0; i < agent_ids.size(); i++)
+    {
+        std::string fullname;
+        const LLUUID& agent_id = agent_ids[i];
+        LLViewerObject* dest = gObjectList.findObject(agent_id);
+        if (dest && dest->isAvatar())
+        {
+            LLNameValue* nvfirst = dest->getNVPair("FirstName");
+            LLNameValue* nvlast = dest->getNVPair("LastName");
+            if (nvfirst && nvlast)
+            {
+                fullname = LLCacheName::buildFullName(nvfirst->getString(), nvlast->getString());
+            }
 
-			}
-			if (!fullname.empty())
-			{
-				names.push_back(fullname);
-			} 
-			else 
-			{
-				LL_WARNS() << "llPanelGroupBulk: Selected avatar has no name: " << dest->getID() << LL_ENDL;
-				names.push_back("(Unknown)");
-			}
-		}
-		else
-		{
-			//looks like user try to invite offline friend
-			//for offline avatar_id gObjectList.findObject() will return null
-			//so we need to do this additional search in avatar tracker, see EXT-4732
-			if (LLAvatarTracker::instance().isBuddy(agent_id))
-			{
-				LLAvatarName av_name;
-				if (!LLAvatarNameCache::get(agent_id, &av_name))
-				{
-					// actually it should happen, just in case
-					LLAvatarNameCache::get(LLUUID(agent_id), boost::bind(&LLPanelGroupBulk::addUserCallback, this, _1, _2));
-					// for this special case!
-					//when there is no cached name we should remove resident from agent_ids list to avoid breaking of sequence
-					// removed id will be added in callback
-					agent_ids.erase(agent_ids.begin() + i);
-				}
-				else
-				{
-					names.push_back(av_name.getAccountName());
-				}
-			}
-		}
-	}
-	mImplementation->mListFullNotificationSent = false;
-	mImplementation->addUsers(names, agent_ids);
+            if (!fullname.empty())
+            {
+                names.push_back(fullname);
+            }
+            else
+            {
+                LL_WARNS() << "llPanelGroupBulk: Selected avatar has no name: " << dest->getID() << LL_ENDL;
+                names.push_back("(Unknown)");
+            }
+        }
+        else
+        {
+            // Looks like the user tries to invite a friend which is offline.
+            // For offline avatar_id gObjectList.findObject() will return null
+            // so we need to do this additional search in avatar tracker, see EXT-4732
+            if (LLAvatarTracker::instance().isBuddy(agent_id))
+            {
+                LLAvatarName av_name;
+                if (!LLAvatarNameCache::get(agent_id, &av_name))
+                {
+                    // Actually it shouldn't happen, just in case
+                    LLAvatarNameCache::get(LLUUID(agent_id),
+                        [&](const LLUUID& agent_id, const LLAvatarName& av_name)
+                        {
+                            addUserCallback(agent_id, av_name);
+                        });
+                    // for this special case!
+                    // when there is no cached name we should remove resident from agent_ids list to avoid breaking of sequence
+                    // removed id will be added in callback
+                    agent_ids.erase(agent_ids.begin() + i);
+                    i--; // To process the next agent_id with the same index
+                }
+                else
+                {
+                    names.push_back(av_name.getAccountName());
+                }
+            }
+        }
+    }
+    mImplementation->mListFullNotificationSent = false;
+    mImplementation->addUsers(names, agent_ids);
 }
 

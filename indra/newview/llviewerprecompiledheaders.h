@@ -1,4 +1,4 @@
-/** 
+/**
  * @file llviewerprecompiledheaders.h
  * @brief precompiled headers for newview project
  * @author James Cook
@@ -6,21 +6,21 @@
  * $LicenseInfo:firstyear=2005&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -37,25 +37,16 @@
 
 #include "linden_common.h"
 
-// Work around stupid Microsoft STL warning
-#ifdef LL_WINDOWS
-#pragma warning (disable : 4702) // warning C4702: unreachable code
-#endif
-
 #include <algorithm>
 #include <deque>
 #include <functional>
 #include <map>
 #include <set>
-
-#ifdef LL_WINDOWS
-#pragma warning (3 : 4702) // we like level 3, not 4
-#endif
+#include <vector>
 
 // Library headers from llcommon project:
 #include "indra_constants.h"
 #include "llinitparam.h"
-#include "llallocator.h"
 #include "llapp.h"
 #include "llcriticaldamp.h"
 #include "lldefs.h"

@@ -3,25 +3,25 @@
  * @author Nat Goodspeed
  * @date   2009-03-06
  * @brief  Test for lleventfilter.
- * 
+ *
  * $LicenseInfo:firstyear=2009&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -81,13 +81,13 @@ class TestEventThrottle: public LLEventThrottleBase
 public:
     TestEventThrottle(F32 interval):
         LLEventThrottleBase(interval),
-        mAlarmRemaining(-1),
-        mTimerRemaining(-1)
+        mAlarmRemaining(-1.f),
+        mTimerRemaining(-1.f)
     {}
     TestEventThrottle(LLEventPump& source, F32 interval):
         LLEventThrottleBase(source, interval),
-        mAlarmRemaining(-1),
-        mTimerRemaining(-1)
+        mAlarmRemaining(-1.f),
+        mTimerRemaining(-1.f)
     {}
 
     /*----- implementation of LLEventThrottleBase timing functionality -----*/
@@ -100,12 +100,12 @@ public:
     virtual bool alarmRunning() const /*override*/
     {
         // decrementing to exactly 0 should mean the alarm fires
-        return mAlarmRemaining > 0;
+        return mAlarmRemaining > 0.f;
     }
 
     virtual void alarmCancel() /*override*/
     {
-        mAlarmRemaining = -1;
+        mAlarmRemaining = -1.f;
     }
 
     virtual void timerSet(F32 interval) /*override*/
@@ -116,7 +116,7 @@ public:
     virtual F32  timerGetRemaining() const /*override*/
     {
         // LLTimer.getRemainingTimeF32() never returns negative; 0.0 means expired
-        return (mTimerRemaining > 0.0)? mTimerRemaining : 0.0;
+        return (mTimerRemaining > 0.0f)? mTimerRemaining : 0.0f;
     }
 
     /*------------------- methods for manipulating time --------------------*/

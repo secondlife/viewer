@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel
  height="530"
  label="Notices"
@@ -141,7 +141,7 @@ Maximum 200 per group daily
          left_pad="3"
          max_length_bytes="63"
          name="create_subject"
-         prevalidate_callback="ascii"
+         prevalidator="ascii"
          spellcheck="true"
          width="218" />
         <text

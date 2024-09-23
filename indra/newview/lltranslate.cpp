@@ -5,21 +5,21 @@
  * $LicenseInfo:firstyear=2009&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -36,11 +36,11 @@
 #include "llversioninfo.h"
 #include "llviewercontrol.h"
 #include "llcoros.h"
-#include "json/reader.h"
 #include "llcorehttputil.h"
 #include "llurlregistry.h"
 #include "stringize.h"
 
+#include <boost/json.hpp>
 
 static const std::string AZURE_NOTRANSLATE_OPENING_TAG("<div translate=\"no\">");
 static const std::string AZURE_NOTRANSLATE_CLOSING_TAG("</div>");
@@ -254,7 +254,7 @@ void LLTranslationAPIHandler::translateMessageCoro(LanguagePair_t fromTo, std::s
 
     try
     {
-        res = this->parseResponse(httpResults, parseResult, body, translation, detected_lang, err_msg);
+        res = parseResponse(httpResults, parseResult, body, translation, detected_lang, err_msg);
     }
     catch (std::out_of_range&)
     {
@@ -294,8 +294,6 @@ void LLTranslationAPIHandler::translateMessageCoro(LanguagePair_t fromTo, std::s
         if (!failure.empty())
             failure(status, err_msg);
     }
-
-
 }
 
 //=========================================================================
@@ -346,36 +344,35 @@ public:
 
 private:
     static void parseErrorResponse(
-        const Json::Value& root,
+        const boost::json::value& root,
         int& status,
         std::string& err_msg);
     static bool parseTranslation(
-        const Json::Value& root,
+        const boost::json::value& root,
         std::string& translation,
         std::string& detected_lang);
     static std::string getAPIKey();
-
 };
 
 //-------------------------------------------------------------------------
 // virtual
 std::string LLGoogleTranslationHandler::getTranslateURL(
-	const std::string &from_lang,
-	const std::string &to_lang,
-	const std::string &text) const
+    const std::string &from_lang,
+    const std::string &to_lang,
+    const std::string &text) const
 {
-	std::string url = std::string("https://www.googleapis.com/language/translate/v2?key=")
-		+ getAPIKey() + "&q=" + LLURI::escape(text) + "&target=" + to_lang;
-	if (!from_lang.empty())
-	{
-		url += "&source=" + from_lang;
-	}
+    std::string url = std::string("https://www.googleapis.com/language/translate/v2?key=")
+        + getAPIKey() + "&q=" + LLURI::escape(text) + "&target=" + to_lang;
+    if (!from_lang.empty())
+    {
+        url += "&source=" + from_lang;
+    }
     return url;
 }
 
 // virtual
 std::string LLGoogleTranslationHandler::getKeyVerificationURL(
-	const LLSD& key) const
+    const LLSD& key) const
 {
     std::string url = std::string("https://www.googleapis.com/language/translate/v2/languages?key=")
         + key.asString() +"&target=en";
@@ -393,98 +390,103 @@ bool LLGoogleTranslationHandler::checkVerificationResponse(
 // virtual
 bool LLGoogleTranslationHandler::parseResponse(
     const LLSD& http_response,
-	int& status,
-	const std::string& body,
-	std::string& translation,
-	std::string& detected_lang,
-	std::string& err_msg) const
+    int& status,
+    const std::string& body,
+    std::string& translation,
+    std::string& detected_lang,
+    std::string& err_msg) const
 {
-	Json::Value root;
-	Json::Reader reader;
+    const std::string& text = !body.empty() ? body : http_response["error_body"].asStringRef();
 
-	if (!reader.parse(body, root))
-	{
-		err_msg = reader.getFormatedErrorMessages();
-		return false;
-	}
+    boost::system::error_code ec;
+    boost::json::value root = boost::json::parse(text, ec);
+    if (ec.failed())
+    {
+        err_msg = ec.what();
+        return false;
+    }
 
-	if (!root.isObject()) // empty response? should not happen
-	{
-		return false;
-	}
+    if (root.is_object())
+    {
+        // Request succeeded, extract translation from the XML body.
+        if (parseTranslation(root, translation, detected_lang))
+            return true;
 
-	if (status != HTTP_OK)
-	{
-		// Request failed. Extract error message from the response.
-		parseErrorResponse(root, status, err_msg);
-		return false;
-	}
+        // Request failed. Extract error message from the XML body.
+        parseErrorResponse(root, status, err_msg);
+    }
 
-	// Request succeeded, extract translation from the response.
-	return parseTranslation(root, translation, detected_lang);
+    return false;
 }
 
 // virtual
 bool LLGoogleTranslationHandler::isConfigured() const
 {
-	return !getAPIKey().empty();
+    return !getAPIKey().empty();
 }
 
 // static
 void LLGoogleTranslationHandler::parseErrorResponse(
-	const Json::Value& root,
-	int& status,
-	std::string& err_msg)
+    const boost::json::value& root,
+    int& status,
+    std::string& err_msg)
 {
-	const Json::Value& error = root.get("error", 0);
-	if (!error.isObject() || !error.isMember("message") || !error.isMember("code"))
-	{
-		return;
-	}
+    boost::system::error_code ec;
+    auto message = root.find_pointer("/data/message", ec);
+    auto code = root.find_pointer("/data/code", ec);
+    if (!message || !code)
+    {
+        return;
+    }
 
-	err_msg = error["message"].asString();
-	status = error["code"].asInt();
+    auto message_val = boost::json::try_value_to<std::string>(*message);
+    auto code_val = boost::json::try_value_to<int>(*code);
+    if (!message_val || !code_val)
+    {
+        return;
+    }
+
+    err_msg = message_val.value();
+    status = code_val.value();
 }
 
 // static
 bool LLGoogleTranslationHandler::parseTranslation(
-	const Json::Value& root,
-	std::string& translation,
-	std::string& detected_lang)
+    const boost::json::value& root,
+    std::string& translation,
+    std::string& detected_lang)
 {
-	// JsonCpp is prone to aborting the program on failed assertions,
-	// so be super-careful and verify the response format.
-	const Json::Value& data = root.get("data", 0);
-	if (!data.isObject() || !data.isMember("translations"))
-	{
-		return false;
-	}
+    boost::system::error_code ec;
+    auto translated_text = root.find_pointer("/data/translations/0/translatedText", ec);
+    if (!translated_text) return false;
 
-	const Json::Value& translations = data["translations"];
-	if (!translations.isArray() || translations.size() == 0)
-	{
-		return false;
-	}
+    auto text_val = boost::json::try_value_to<std::string>(*translated_text);
+    if (!text_val)
+    {
+        LL_WARNS() << "Failed to parse translation" << text_val.error() << LL_ENDL;
+        return false;
+    }
 
-	const Json::Value& first = translations[0U];
-	if (!first.isObject() || !first.isMember("translatedText"))
-	{
-		return false;
-	}
+    translation = text_val.value();
 
-	translation = first["translatedText"].asString();
-	detected_lang = first.get("detectedSourceLanguage", "").asString();
-	return true;
+    auto language = root.find_pointer("/data/translations/0/detectedSourceLanguage", ec);
+    if (language)
+    {
+        auto lang_val = boost::json::try_value_to<std::string>(*language);
+        detected_lang = lang_val ? lang_val.value() : "";
+    }
+
+    return true;
 }
 
 // static
 std::string LLGoogleTranslationHandler::getAPIKey()
 {
     static LLCachedControl<std::string> google_key(gSavedSettings, "GoogleTranslateAPIKey");
-	return google_key;
+    return google_key;
 }
 
-/*virtual*/ 
+/*virtual*/
 void LLGoogleTranslationHandler::verifyKey(const LLSD &key, LLTranslate::KeyVerificationResult_fn fnc)
 {
     LLCoros::instance().launch("Google /Verify Key", boost::bind(&LLTranslationAPIHandler::verifyKeyCoro,
@@ -494,7 +496,7 @@ void LLGoogleTranslationHandler::verifyKey(const LLSD &key, LLTranslate::KeyVeri
 /*virtual*/
 void LLGoogleTranslationHandler::initHttpHeader(LLCore::HttpHeaders::ptr_t headers, const std::string& user_agent) const
 {
-    headers->append(HTTP_OUT_HEADER_ACCEPT, HTTP_CONTENT_TEXT_PLAIN);
+    headers->append(HTTP_OUT_HEADER_ACCEPT, HTTP_CONTENT_JSON);
     headers->append(HTTP_OUT_HEADER_USER_AGENT, user_agent);
 }
 
@@ -504,8 +506,7 @@ void LLGoogleTranslationHandler::initHttpHeader(
     const std::string& user_agent,
     const LLSD &key) const
 {
-    headers->append(HTTP_OUT_HEADER_ACCEPT, HTTP_CONTENT_TEXT_PLAIN);
-    headers->append(HTTP_OUT_HEADER_USER_AGENT, user_agent);
+    initHttpHeader(headers, user_agent);
 }
 
 LLSD LLGoogleTranslationHandler::sendMessageAndSuspend(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t adapter,
@@ -585,9 +586,9 @@ private:
 //-------------------------------------------------------------------------
 // virtual
 std::string LLAzureTranslationHandler::getTranslateURL(
-	const std::string &from_lang,
-	const std::string &to_lang,
-	const std::string &text) const
+    const std::string &from_lang,
+    const std::string &to_lang,
+    const std::string &text) const
 {
     std::string url;
     LLSD key = getAPIKey();
@@ -608,7 +609,7 @@ std::string LLAzureTranslationHandler::getTranslateURL(
 
 // virtual
 std::string LLAzureTranslationHandler::getKeyVerificationURL(
-	const LLSD& key) const
+    const LLSD& key) const
 {
     std::string url;
     if (key.isMap())
@@ -655,12 +656,11 @@ bool LLAzureTranslationHandler::checkVerificationResponse(
     // Expected: "{\"error\":{\"code\":400000,\"message\":\"One of the request inputs is not valid.\"}}"
     // But for now just verify response is a valid json
 
-    Json::Value root;
-    Json::Reader reader;
-
-    if (!reader.parse(response["error_body"].asString(), root))
+    boost::system::error_code ec;
+    boost::json::value root = boost::json::parse(response["error_body"].asString(), ec);
+    if (ec.failed())
     {
-        LL_DEBUGS("Translate") << "Failed to parse error_body:" << reader.getFormatedErrorMessages() << LL_ENDL;
+        LL_DEBUGS("Translate") << "Failed to parse error_body:" << ec.what() << LL_ENDL;
         return false;
     }
 
@@ -670,66 +670,45 @@ bool LLAzureTranslationHandler::checkVerificationResponse(
 // virtual
 bool LLAzureTranslationHandler::parseResponse(
     const LLSD& http_response,
-	int& status,
-	const std::string& body,
-	std::string& translation,
-	std::string& detected_lang,
-	std::string& err_msg) const
+    int& status,
+    const std::string& body,
+    std::string& translation,
+    std::string& detected_lang,
+    std::string& err_msg) const
 {
-	if (status != HTTP_OK)
-	{
+    if (status != HTTP_OK)
+    {
         if (http_response.has("error_body"))
-        err_msg = parseErrorResponse(http_response["error_body"].asString());
-		return false;
-	}
+            err_msg = parseErrorResponse(http_response["error_body"].asString());
+        return false;
+    }
 
     //Example:
     // "[{\"detectedLanguage\":{\"language\":\"en\",\"score\":1.0},\"translations\":[{\"text\":\"Hello, what is your name?\",\"to\":\"en\"}]}]"
 
-    Json::Value root;
-    Json::Reader reader;
-
-    if (!reader.parse(body, root))
+    boost::system::error_code ec;
+    boost::json::value root = boost::json::parse(body, ec);
+    if (ec.failed())
     {
-        err_msg = reader.getFormatedErrorMessages();
+        err_msg = ec.what();
+        return false;
+    }
+    auto language = root.find_pointer("/0/detectedLanguage/language", ec);
+    if (!language) return false;
+
+    auto translated_text = root.find_pointer("/0/translations/0/text", ec);
+    if (!translated_text) return false;
+
+    auto lang_val = boost::json::try_value_to<std::string>(*language);
+    auto text_val = boost::json::try_value_to<std::string>(*translated_text);
+    if (!lang_val || !text_val)
+    {
+        LL_WARNS() << "Failed to parse translation" << lang_val.error() << text_val.error() << LL_ENDL;
         return false;
     }
 
-    if (!root.isArray()) // empty response? should not happen
-    {
-        return false;
-    }
-
-    // Request succeeded, extract translation from the response.
-
-    const Json::Value& data = root[0U];
-    if (!data.isObject()
-        || !data.isMember("detectedLanguage")
-        || !data.isMember("translations"))
-    {
-        return false;
-    }
-
-    const Json::Value& detectedLanguage = data["detectedLanguage"];
-    if (!detectedLanguage.isObject() || !detectedLanguage.isMember("language"))
-    {
-        return false;
-    }
-    detected_lang = detectedLanguage["language"].asString();
-
-    const Json::Value& translations = data["translations"];
-    if (!translations.isArray() || translations.size() == 0)
-    {
-        return false;
-    }
-
-    const Json::Value& first = translations[0U];
-    if (!first.isObject() || !first.isMember("text"))
-    {
-        return false;
-    }
-
-    translation = first["text"].asString();
+    detected_lang = lang_val.value();
+    translation = text_val.value();
 
     return true;
 }
@@ -737,7 +716,7 @@ bool LLAzureTranslationHandler::parseResponse(
 // virtual
 bool LLAzureTranslationHandler::isConfigured() const
 {
-	return getAPIKey().isMap();
+    return getAPIKey().isMap();
 }
 
 //static
@@ -747,46 +726,44 @@ std::string LLAzureTranslationHandler::parseErrorResponse(
     // Expected: "{\"error\":{\"code\":400000,\"message\":\"One of the request inputs is not valid.\"}}"
     // But for now just verify response is a valid json with an error
 
-    Json::Value root;
-    Json::Reader reader;
-
-    if (!reader.parse(body, root))
+    boost::system::error_code ec;
+    boost::json::value root = boost::json::parse(body, ec);
+    if (ec.failed())
     {
-        return std::string();
+        return {};
     }
 
-    if (!root.isObject() || !root.isMember("error"))
+    auto err_msg = root.find_pointer("/error/message", ec);
+    if (!err_msg)
     {
-        return std::string();
+        return {};
     }
 
-    const Json::Value& error_map = root["error"];
-
-    if (!error_map.isObject() || !error_map.isMember("message"))
+    auto err_msg_val = boost::json::try_value_to<std::string>(*err_msg);
+    if (!err_msg_val)
     {
-        return std::string();
+        return {};
     }
-
-    return error_map["message"].asString();
+    return err_msg_val.value();
 }
 
 // static
 LLSD LLAzureTranslationHandler::getAPIKey()
 {
     static LLCachedControl<LLSD> azure_key(gSavedSettings, "AzureTranslateAPIKey");
-	return azure_key;
+    return azure_key;
 }
 
 // static
 std::string LLAzureTranslationHandler::getAPILanguageCode(const std::string& lang)
 {
-	return lang == "zh" ? "zh-CHT" : lang; // treat Chinese as Traditional Chinese
+    return lang == "zh" ? "zh-CHT" : lang; // treat Chinese as Traditional Chinese
 }
 
 /*virtual*/
 void LLAzureTranslationHandler::verifyKey(const LLSD &key, LLTranslate::KeyVerificationResult_fn fnc)
 {
-    LLCoros::instance().launch("Azure /Verify Key", boost::bind(&LLTranslationAPIHandler::verifyKeyCoro, 
+    LLCoros::instance().launch("Azure /Verify Key", boost::bind(&LLTranslationAPIHandler::verifyKeyCoro,
         this, LLTranslate::SERVICE_AZURE, key, fnc));
 }
 /*virtual*/
@@ -829,8 +806,13 @@ LLSD LLAzureTranslationHandler::sendMessageAndSuspend(LLCoreHttpUtil::HttpCorout
 {
     LLCore::BufferArray::ptr_t rawbody(new LLCore::BufferArray);
     LLCore::BufferArrayStream outs(rawbody.get());
+
+    static const std::string allowed_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz "
+                                             "0123456789"
+                                             "-._~";
+
     outs << "[{\"text\":\"";
-    outs << msg;
+    outs << LLURI::escape(msg, allowed_chars);
     outs << "\"}]";
 
     return adapter->postRawAndSuspend(request, url, rawbody, options, headers);
@@ -974,39 +956,39 @@ bool LLDeepLTranslationHandler::parseResponse(
     //Example:
     // "{\"translations\":[{\"detected_source_language\":\"EN\",\"text\":\"test\"}]}"
 
-    Json::Value root;
-    Json::Reader reader;
-
-    if (!reader.parse(body, root))
+    boost::system::error_code ec;
+    boost::json::value root = boost::json::parse(body, ec);
+    if (ec.failed())
     {
-        err_msg = reader.getFormatedErrorMessages();
+        err_msg = ec.message();
         return false;
     }
 
-    if (!root.isObject()
-        || !root.isMember("translations")) // empty response? should not happen
+    auto detected_langp = root.find_pointer("/translations/0/detected_source_language", ec);
+    if (!detected_langp || ec.failed()) // empty response? should not happen
     {
+        err_msg = ec.message();
         return false;
     }
 
     // Request succeeded, extract translation from the response.
-    const Json::Value& translations = root["translations"];
-    if (!translations.isArray() || translations.size() == 0)
+    auto text_valp = root.find_pointer("/translations/0/text", ec);
+    if (!text_valp || ec.failed())
+    {
+        err_msg = ec.message();
+        return false;
+    }
+
+    auto lang_result = boost::json::try_value_to<std::string>(*detected_langp);
+    auto text_result = boost::json::try_value_to<std::string>(*text_valp);
+    if (!lang_result || !text_result)
     {
         return false;
     }
 
-    const Json::Value& data= translations[0U];
-    if (!data.isObject()
-        || !data.isMember("detected_source_language")
-        || !data.isMember("text"))
-    {
-        return false;
-    }
-
-    detected_lang = data["detected_source_language"].asString();
+    detected_lang = lang_result.value();
     LLStringUtil::toLower(detected_lang);
-    translation = data["text"].asString();
+    translation = text_result.value();
 
     return true;
 }
@@ -1022,21 +1004,24 @@ std::string LLDeepLTranslationHandler::parseErrorResponse(
     const std::string& body)
 {
     // Example: "{\"message\":\"One of the request inputs is not valid.\"}"
-
-    Json::Value root;
-    Json::Reader reader;
-
-    if (!reader.parse(body, root))
+    boost::system::error_code ec;
+    boost::json::value root = boost::json::parse(body, ec);
+    if (ec.failed())
     {
-        return std::string();
+        return {};
     }
 
-    if (!root.isObject() || !root.isMember("message"))
+    auto message_ptr = root.find_pointer("/message", ec);
+    if (!message_ptr || ec.failed())
     {
-        return std::string();
+        return {};
     }
 
-    return root["message"].asString();
+    auto message_val = boost::json::try_value_to<std::string>(*message_ptr);
+    if (!message_val)
+        return {};
+
+    return message_val.value();
 }
 
 // static
@@ -1119,10 +1104,10 @@ LLSD LLDeepLTranslationHandler::verifyAndSuspend(LLCoreHttpUtil::HttpCoroutineAd
 
 //=========================================================================
 LLTranslate::LLTranslate():
-	mCharsSeen(0),
-	mCharsSent(0),
-	mFailureCount(0),
-	mSuccessCount(0)
+    mCharsSeen(0),
+    mCharsSent(0),
+    mFailureCount(0),
+    mSuccessCount(0)
 {
 }
 
@@ -1163,7 +1148,7 @@ std::string LLTranslate::addNoTranslateTags(std::string mesg)
             upd_msg.insert(dif + match.getStart(), AZURE_NOTRANSLATE_OPENING_TAG);
             upd_msg.insert(dif + AZURE_NOTRANSLATE_OPENING_TAG.size() + match.getEnd() + 1, AZURE_NOTRANSLATE_CLOSING_TAG);
             mesg.erase(match.getStart(), match.getEnd() - match.getStart());
-            dif += match.getEnd() - match.getStart() + AZURE_NOTRANSLATE_OPENING_TAG.size() + AZURE_NOTRANSLATE_CLOSING_TAG.size();
+            dif += match.getEnd() - match.getStart() + static_cast<S32>(AZURE_NOTRANSLATE_OPENING_TAG.size() + AZURE_NOTRANSLATE_CLOSING_TAG.size());
         }
         return upd_msg;
     }
@@ -1185,9 +1170,9 @@ std::string LLTranslate::removeNoTranslateTags(std::string mesg)
     {
         std::string upd_msg(mesg);
         LLUrlMatch match;
-        S32 opening_tag_size = AZURE_NOTRANSLATE_OPENING_TAG.size();
-        S32 closing_tag_size = AZURE_NOTRANSLATE_CLOSING_TAG.size();
-        S32 dif = 0;
+        auto opening_tag_size = AZURE_NOTRANSLATE_OPENING_TAG.size();
+        auto closing_tag_size = AZURE_NOTRANSLATE_CLOSING_TAG.size();
+        size_t dif = 0;
         //remove 'no-translate' tags we added to the links before
         while (LLUrlRegistry::instance().findUrl(mesg, match))
         {
@@ -1223,68 +1208,68 @@ void LLTranslate::verifyKey(EService service, const LLSD &key, KeyVerificationRe
 //static
 std::string LLTranslate::getTranslateLanguage()
 {
-	std::string language = gSavedSettings.getString("TranslateLanguage");
-	if (language.empty() || language == "default")
-	{
-		language = LLUI::getLanguage();
-	}
-	language = language.substr(0,2);
-	return language;
+    std::string language = gSavedSettings.getString("TranslateLanguage");
+    if (language.empty() || language == "default")
+    {
+        language = LLUI::getLanguage();
+    }
+    language = language.substr(0,2);
+    return language;
 }
 
 // static
 bool LLTranslate::isTranslationConfigured()
 {
-	return getPreferredHandler().isConfigured();
+    return getPreferredHandler().isConfigured();
 }
 
 void LLTranslate::logCharsSeen(size_t count)
 {
-	mCharsSeen += count;
+    mCharsSeen += count;
 }
 
 void LLTranslate::logCharsSent(size_t count)
 {
-	mCharsSent += count;
+    mCharsSent += count;
 }
 
 void LLTranslate::logSuccess(S32 count)
 {
-	mSuccessCount += count;
+    mSuccessCount += count;
 }
 
 void LLTranslate::logFailure(S32 count)
 {
-	mFailureCount += count;
+    mFailureCount += count;
 }
 
 LLSD LLTranslate::asLLSD() const
 {
-	LLSD res;
-	bool on = gSavedSettings.getBOOL("TranslateChat");
-	res["on"] = on;
-	res["chars_seen"] = (S32) mCharsSeen;
-	if (on)
-	{
-		res["chars_sent"] = (S32) mCharsSent;
-		res["success_count"] = mSuccessCount;
-		res["failure_count"] = mFailureCount;
-		res["language"] = getTranslateLanguage();  
-		res["service"] = gSavedSettings.getString("TranslationService");
-	}
-	return res;
+    LLSD res;
+    bool on = gSavedSettings.getBOOL("TranslateChat");
+    res["on"] = on;
+    res["chars_seen"] = (S32) mCharsSeen;
+    if (on)
+    {
+        res["chars_sent"] = (S32) mCharsSent;
+        res["success_count"] = mSuccessCount;
+        res["failure_count"] = mFailureCount;
+        res["language"] = getTranslateLanguage();
+        res["service"] = gSavedSettings.getString("TranslationService");
+    }
+    return res;
 }
 
 // static
 LLTranslationAPIHandler& LLTranslate::getPreferredHandler()
 {
-	EService service = SERVICE_AZURE;
+    EService service = SERVICE_AZURE;
 
-	std::string service_str = gSavedSettings.getString("TranslationService");
-	if (service_str == "google")
-	{
-		service = SERVICE_GOOGLE;
-	}
+    std::string service_str = gSavedSettings.getString("TranslationService");
+    if (service_str == "google")
+    {
+        service = SERVICE_GOOGLE;
+    }
     if (service_str == "azure")
     {
         service = SERVICE_AZURE;
@@ -1294,14 +1279,14 @@ LLTranslationAPIHandler& LLTranslate::getPreferredHandler()
         service = SERVICE_DEEPL;
     }
 
-	return getHandler(service);
+    return getHandler(service);
 }
 
 // static
 LLTranslationAPIHandler& LLTranslate::getHandler(EService service)
 {
-	static LLGoogleTranslationHandler google;
-	static LLAzureTranslationHandler azure;
+    static LLGoogleTranslationHandler google;
+    static LLAzureTranslationHandler azure;
     static LLDeepLTranslationHandler deepl;
 
     switch (service)
@@ -1315,5 +1300,4 @@ LLTranslationAPIHandler& LLTranslate::getHandler(EService service)
     }
 
     return azure;
-
 }

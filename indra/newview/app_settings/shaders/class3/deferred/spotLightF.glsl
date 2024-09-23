@@ -1,40 +1,37 @@
-/** 
+/**
  * @file class3\deferred\spotLightF.glsl
  *
  * $LicenseInfo:firstyear=2022&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2022, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
+
 /*[EXTRA_CODE_HERE]*/
 
 out vec4 frag_color;
 
 uniform sampler2D diffuseRect;
 uniform sampler2D specularRect;
-uniform sampler2D depthMap;
-uniform sampler2D normalMap;
 uniform sampler2D emissiveRect; // PBR linear packed Occlusion, Roughness, Metal. See: pbropaqueF.glsl
 uniform samplerCube environmentMap;
 uniform sampler2D lightMap;
-uniform sampler2D projectionMap; // rgba
 uniform sampler2D lightFunc;
 
 uniform mat4 proj_mat; //screen space to light space
@@ -72,7 +69,7 @@ uniform mat4 inv_proj;
 void calcHalfVectors(vec3 lv, vec3 n, vec3 v, out vec3 h, out vec3 l, out float nh, out float nl, out float nv, out float vh, out float lightDist);
 float calcLegacyDistanceAttenuation(float distance, float falloff);
 bool clipProjectedLightVars(vec3 center, vec3 pos, out float dist, out float l_dist, out vec3 lv, out vec4 proj_tc );
-vec4 getNormalEnvIntensityFlags(vec2 screenpos, out vec3 n, out float envIntensity);
+vec4 getNorm(vec2 screenpos);
 vec3 getProjectedLightAmbiance(float amb_da, float attenuation, float lit, float nl, float noise, vec2 projected_uv);
 vec3 getProjectedLightDiffuseColor(float light_distance, vec2 projected_uv );
 vec2 getScreenCoord(vec4 clip);
@@ -83,8 +80,8 @@ vec4 getPosition(vec2 pos_screen);
 
 const float M_PI = 3.14159265;
 
-vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor, 
-                    float perceptualRoughness, 
+vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor,
+                    float perceptualRoughness,
                     float metallic,
                     vec3 n, // normal
                     vec3 v, // surface point to camera
@@ -112,18 +109,17 @@ void main()
     }
 
     float shadow = 1.0;
-    
+
     if (proj_shadow_idx >= 0)
     {
         vec4 shd = texture(lightMap, tc);
         shadow = (proj_shadow_idx==0)?shd.b:shd.a;
         shadow += shadow_fade;
-        shadow = clamp(shadow, 0.0, 1.0);        
+        shadow = clamp(shadow, 0.0, 1.0);
     }
 
-    float envIntensity;
-    vec3 n;
-    vec4 norm = getNormalEnvIntensityFlags(tc, n, envIntensity);
+    vec4 norm = getNorm(tc);
+    vec3 n = norm.xyz;
 
     float dist_atten = calcLegacyDistanceAttenuation(dist, falloff);
     if (dist_atten <= 0.0)
@@ -145,13 +141,12 @@ void main()
 
     if (GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_PBR))
     {
-        vec3 colorEmissive = texture(emissiveRect, tc).rgb; 
         vec3 orm = spec.rgb;
         float perceptualRoughness = orm.g;
         float metallic = orm.b;
         vec3 f0 = vec3(0.04);
         vec3 baseColor = diffuse.rgb;
-        
+
         vec3 diffuseColor = baseColor.rgb*(vec3(1.0)-f0);
         diffuseColor *= 1.0 - metallic;
 
@@ -169,7 +164,7 @@ void main()
             if (nl > 0.0)
             {
                 amb_da += (nl*0.5 + 0.5) * proj_ambiance;
-                
+
                 dlit = getProjectedLightDiffuseColor( l_dist, proj_tc.xy );
 
                 vec3 intensity = dist_atten * dlit * 3.25 * shadow; // Legacy attenuation, magic number to balance with legacy materials
@@ -182,6 +177,8 @@ void main()
     }
     else
     {
+        float envIntensity = texture(emissiveRect, tc).r;
+
         diffuse = srgb_to_linear(diffuse);
         spec.rgb = srgb_to_linear(spec.rgb);
 
@@ -205,11 +202,11 @@ void main()
                 // unshadowed for consistency between forward and deferred?
                 amb_da += (nl*0.5+0.5) /* * (1.0-shadow) */ * proj_ambiance;
             }
-        
+
             amb_rgb = getProjectedLightAmbiance( amb_da, dist_atten, lit, nl, 1.0, proj_tc.xy );
             final_color += diffuse.rgb * amb_rgb * max(dot(-normalize(lv), n), 0.0);
         }
-    
+
         if (spec.a > 0.0)
         {
             dlit *= min(nl*6.0, 1.0) * dist_atten;
@@ -218,7 +215,7 @@ void main()
 
             float gtdenom = 2 * nh;
             float gt = max(0, min(gtdenom * nv / vh, gtdenom * nl / vh));
-                                
+
             if (nh > 0.0)
             {
                 float scol = fres*texture(lightFunc, vec2(nh, spec.a)).r*gt/(nh*nl);
@@ -226,26 +223,26 @@ void main()
                 speccol = clamp(speccol, vec3(0), vec3(1));
                 final_color += speccol;
             }
-        }   
+        }
 
         if (envIntensity > 0.0)
         {
             vec3 ref = reflect(normalize(pos), n);
-        
+
             //project from point pos in direction ref to plane proj_p, proj_n
             vec3 pdelta = proj_p-pos;
             float ds = dot(ref, proj_n);
-        
+
             if (ds < 0.0)
             {
                 vec3 pfinal = pos + ref * dot(pdelta, proj_n)/ds;
-            
+
                 vec4 stc = (proj_mat * vec4(pfinal.xyz, 1.0));
 
                 if (stc.z > 0.0)
                 {
                     stc /= stc.w;
-                                
+
                     if (stc.x < 1.0 &&
                         stc.y < 1.0 &&
                         stc.x > 0.0 &&

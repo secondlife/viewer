@@ -3,7 +3,7 @@
  * @author Nat Goodspeed
  * @date   2016-08-30
  * @brief  Implementation for llcleanup.
- * 
+ *
  * $LicenseInfo:firstyear=2016&license=viewerlgpl$
  * Copyright (c) 2016, Linden Research, Inc.
  * $/LicenseInfo$

@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llpermissions.h
  * @brief Permissions structures for objects.
  *
  * $LicenseInfo:firstyear=2002&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -85,284 +85,274 @@ template<class T> class LLMetaClassT;
 class LLPermissions
 {
 private:
-	LLUUID			mCreator;				// null if object created by system
-	LLUUID			mOwner;					// null if object "unowned" (owned by system)
-	LLUUID			mLastOwner;				// object's last owner
-	LLUUID			mGroup;					// The group association
+    LLUUID          mCreator;               // null if object created by system
+    LLUUID          mOwner;                 // null if object "unowned" (owned by system)
+    LLUUID          mLastOwner;             // object's last owner
+    LLUUID          mGroup;                 // The group association
 
-	PermissionMask	mMaskBase;				// initially permissive, progressively AND restricted by each owner
+    PermissionMask  mMaskBase;              // initially permissive, progressively AND restricted by each owner
 
-	PermissionMask	mMaskOwner;				// set by owner, applies to owner only, restricts lower permissions
-	PermissionMask	mMaskEveryone;			// set by owner, applies to everyone else
+    PermissionMask  mMaskOwner;             // set by owner, applies to owner only, restricts lower permissions
+    PermissionMask  mMaskEveryone;          // set by owner, applies to everyone else
 
-	PermissionMask	mMaskGroup;				// set by owner, applies to group that is associated with permissions
+    PermissionMask  mMaskGroup;             // set by owner, applies to group that is associated with permissions
 
-	PermissionMask mMaskNextOwner;			// set by owner, applied to base on transfer.
+    PermissionMask mMaskNextOwner;          // set by owner, applied to base on transfer.
 
-	// Usually set in the fixOwnership() method based on current uuid
-	// values.
-	bool mIsGroupOwned;
+    // Usually set in the fixOwnership() method based on current uuid
+    // values.
+    bool mIsGroupOwned;
 
-	// Correct for fair use - you can never take away the right to
-	// move stuff you own, and you can never take away the right to
-	// transfer something you cannot otherwise copy.
-	void fixFairUse();
+    // Correct for fair use - you can never take away the right to
+    // move stuff you own, and you can never take away the right to
+    // transfer something you cannot otherwise copy.
+    void fixFairUse();
 
-	// Fix internal consistency for group/agent ownership
-	void fixOwnership();
+    // Fix internal consistency for group/agent ownership
+    void fixOwnership();
 
 public:
-	static const LLPermissions DEFAULT;
+    static const LLPermissions DEFAULT;
 
-	LLPermissions();						// defaults to created by system
-	//~LLPermissions();
+    LLPermissions();                        // defaults to created by system
+    //~LLPermissions();
 
-	// base initialization code
-	void init(const LLUUID& creator, const LLUUID& owner,
-			  const LLUUID& last_owner, const LLUUID& group);
-	void initMasks(PermissionMask base, PermissionMask owner,
-				   PermissionMask everyone, PermissionMask group,
-				   PermissionMask next);
-	// adjust permissions based on inventory type.
-	void initMasks(LLInventoryType::EType type);
+    // base initialization code
+    void init(const LLUUID& creator, const LLUUID& owner,
+              const LLUUID& last_owner, const LLUUID& group);
+    void initMasks(PermissionMask base, PermissionMask owner,
+                   PermissionMask everyone, PermissionMask group,
+                   PermissionMask next);
+    // adjust permissions based on inventory type.
+    void initMasks(LLInventoryType::EType type);
 
-	//
-	// ACCESSORS
-	//
+    //
+    // ACCESSORS
+    //
 
-	// return the agent_id of the agent that created the item
-	const LLUUID&	getCreator() 		const	{ return mCreator; }
+    // return the agent_id of the agent that created the item
+    const LLUUID&   getCreator()        const   { return mCreator; }
 
-	// return the agent_id of the owner. returns LLUUID::null if group
-	// owned or public (a really big group).
-	const LLUUID&	getOwner() 			const	{ return mOwner; }
+    // return the agent_id of the owner. returns LLUUID::null if group
+    // owned or public (a really big group).
+    const LLUUID&   getOwner()          const   { return mOwner; }
 
-	// return the group_id of the group associated with the
-	// object.
-	const LLUUID&	getGroup() 			const	{ return mGroup; }
+    // return the group_id of the group associated with the
+    // object.
+    const LLUUID&   getGroup()          const   { return mGroup; }
 
-	// return the agent_id of the last agent owner. Only returns
-	// LLUUID::null if there has never been a previous owner (*note: this is apparently not true, say for textures in inventory, it may return LLUUID::null even if there was a previous owner).
-	const LLUUID&	getLastOwner() 		const	{ return mLastOwner; }
+    // return the agent_id of the last agent owner. Only returns
+    // LLUUID::null if there has never been a previous owner (*note: this is apparently not true, say for textures in inventory, it may return LLUUID::null even if there was a previous owner).
+    const LLUUID&   getLastOwner()      const   { return mLastOwner; }
 
-	U32				getMaskBase() 		const	{ return mMaskBase; }
-	U32				getMaskOwner() 		const	{ return mMaskOwner; }
-	U32				getMaskGroup() 		const	{ return mMaskGroup; }
-	U32				getMaskEveryone() 	const	{ return mMaskEveryone; }
-	U32 getMaskNextOwner() const { return mMaskNextOwner; }
+    U32             getMaskBase()       const   { return mMaskBase; }
+    U32             getMaskOwner()      const   { return mMaskOwner; }
+    U32             getMaskGroup()      const   { return mMaskGroup; }
+    U32             getMaskEveryone()   const   { return mMaskEveryone; }
+    U32 getMaskNextOwner() const { return mMaskNextOwner; }
 
-	// return TRUE if the object has any owner
-	bool isOwned() const { return (mOwner.notNull() || mIsGroupOwned); }
+    // return true if the object has any owner
+    bool isOwned() const { return (mOwner.notNull() || mIsGroupOwned); }
 
-	// return TRUE if group_id is owner.
-	bool isGroupOwned() const { return mIsGroupOwned; }
+    // return true if group_id is owner.
+    bool isGroupOwned() const { return mIsGroupOwned; }
 
-	// This API returns TRUE if the object is owned at all, and FALSE
-	// otherwise. If it is owned at all, owner id is filled with
-	// either the owner id or the group id, and the is_group_owned
-	// parameter is appropriately filled. The values of owner_id and
-	// is_group_owned are not changed if the object is not owned.
-	BOOL getOwnership(LLUUID& owner_id, BOOL& is_group_owned) const;
+    // This API returns true if the object is owned at all, and false
+    // otherwise. If it is owned at all, owner id is filled with
+    // either the owner id or the group id, and the is_group_owned
+    // parameter is appropriately filled. The values of owner_id and
+    // is_group_owned are not changed if the object is not owned.
+    bool getOwnership(LLUUID& owner_id, bool& is_group_owned) const;
 
-	// Gets the 'safe' owner.  This should never return LLUUID::null.
-	// If no group owned, return the agent owner id normally.
-	// If group owned, return the group id.
-	// If not owned, return a random uuid which should have no power.
-	LLUUID getSafeOwner() const;
+    // Gets the 'safe' owner.  This should never return LLUUID::null.
+    // If no group owned, return the agent owner id normally.
+    // If group owned, return the group id.
+    // If not owned, return a random uuid which should have no power.
+    LLUUID getSafeOwner() const;
 
-	// return a cheap crc
-	U32 getCRC32() const;
+    // return a cheap crc
+    U32 getCRC32() const;
 
 
-	//
-	// MANIPULATORS
-	//
+    //
+    // MANIPULATORS
+    //
 
-	// Fix hierarchy of permissions, applies appropriate permissions
-	// at each level to ensure that base permissions are respected,
-	// and also ensures that if base cannot transfer, then group and
-	// other cannot copy.
-	void fix();
+    // Fix hierarchy of permissions, applies appropriate permissions
+    // at each level to ensure that base permissions are respected,
+    // and also ensures that if base cannot transfer, then group and
+    // other cannot copy.
+    void fix();
 
-	// All of these methods just do exactly what they say. There is no
-	// permissions checking to see if the operation is allowed, and do
-	// not fix the permissions hierarchy. So please only use these
-	// methods when you are know what you're doing and coding on
-	// behalf of the system - ie, acting as god.
-	void set(const LLPermissions& permissions);
-	void setMaskBase(U32 mask)	   { mMaskBase = mask; }
-	void setMaskOwner(U32 mask)	   { mMaskOwner = mask; }
-	void setMaskEveryone(U32 mask) { mMaskEveryone = mask;}
-	void setMaskGroup(U32 mask)	   { mMaskGroup = mask;}
-	void setMaskNext(U32 mask) { mMaskNextOwner = mask; }
+    // All of these methods just do exactly what they say. There is no
+    // permissions checking to see if the operation is allowed, and do
+    // not fix the permissions hierarchy. So please only use these
+    // methods when you are know what you're doing and coding on
+    // behalf of the system - ie, acting as god.
+    void set(const LLPermissions& permissions);
+    void setMaskBase(U32 mask)     { mMaskBase = mask; }
+    void setMaskOwner(U32 mask)    { mMaskOwner = mask; }
+    void setMaskEveryone(U32 mask) { mMaskEveryone = mask;}
+    void setMaskGroup(U32 mask)    { mMaskGroup = mask;}
+    void setMaskNext(U32 mask) { mMaskNextOwner = mask; }
 
-	// Allow accumulation of permissions. Results in the tightest
-	// permissions possible. In the case of clashing UUIDs, it sets
-	// the ID to LLUUID::null.
-	void accumulate(const LLPermissions& perm);
+    // Allow accumulation of permissions. Results in the tightest
+    // permissions possible. In the case of clashing UUIDs, it sets
+    // the ID to LLUUID::null.
+    void accumulate(const LLPermissions& perm);
 
-	//
-	// CHECKED MANIPULATORS 
-	//
+    //
+    // CHECKED MANIPULATORS
+    //
 
-	// These functions return true on success.  They return false if
-	// the given agent isn't allowed to make the change.  You can pass
-	// LLUUID::null as the agent id if the change is being made by the
-	// simulator itself, not on behalf of any agent - this will always
-	// succeed. Passing in group id of LLUUID:null means no group, and
-	// does not offer special permission to do anything.
+    // These functions return true on success.  They return false if
+    // the given agent isn't allowed to make the change.  You can pass
+    // LLUUID::null as the agent id if the change is being made by the
+    // simulator itself, not on behalf of any agent - this will always
+    // succeed. Passing in group id of LLUUID:null means no group, and
+    // does not offer special permission to do anything.
 
-	// saves last owner, sets current owner, and sets the group.
-	// set is_atomic = true means that this permission represents
-	// an atomic permission and not a collection of permissions.
-	// Currently, the only way to have a collection is when an object
-	// has inventory and is then itself rolled up into an inventory
-	// item.
-	BOOL setOwnerAndGroup(const LLUUID& agent, const LLUUID& owner, const LLUUID& group, bool is_atomic);	
+    // saves last owner, sets current owner, and sets the group.
+    // set is_atomic = true means that this permission represents
+    // an atomic permission and not a collection of permissions.
+    // Currently, the only way to have a collection is when an object
+    // has inventory and is then itself rolled up into an inventory
+    // item.
+    bool setOwnerAndGroup(const LLUUID& agent, const LLUUID& owner, const LLUUID& group, bool is_atomic);
 
-	// only call this if you know what you're doing
-	// there are usually perm-bit consequences when the 
-	// ownerhsip changes
-	void yesReallySetOwner(const LLUUID& owner, bool group_owned);
+    // only call this if you know what you're doing
+    // there are usually perm-bit consequences when the
+    // ownerhsip changes
+    void yesReallySetOwner(const LLUUID& owner, bool group_owned);
 
-	// Last owner doesn't have much in the way of permissions so it's 
-	//not too dangerous to do this. 
-	void setLastOwner(const LLUUID& last_owner);
+    // Last owner doesn't have much in the way of permissions so it's
+    //not too dangerous to do this.
+    void setLastOwner(const LLUUID& last_owner);
 
-	// saves last owner, sets owner to uuid null, sets group
-	// owned. group_id must be the group of the object (that's who it
-	// is being deeded to) and the object must be group
-	// modify. Technically, the agent id and group id are not
-	// necessary, but I wanted this function to look like the other
-	// checked manipulators (since that is how it is used.) If the
-	// agent is the system or (group == mGroup and group modify and
-	// owner transfer) then this function will deed the permissions,
-	// set the next owner mask, and return TRUE. Otherwise, no change
-	// is effected, and the function returns FALSE.
-	BOOL deedToGroup(const LLUUID& agent, const LLUUID& group);
-	// Attempt to set or clear the given bitmask.  Returns TRUE if you
-	// are allowed to modify the permissions.  If you attempt to turn
-	// on bits not allowed by the base bits, the function will return
-	// TRUE, but those bits will not be set.
-	BOOL setBaseBits( const LLUUID& agent, BOOL set, PermissionMask bits);
-	BOOL setOwnerBits( const LLUUID& agent, BOOL set, PermissionMask bits);
-	BOOL setGroupBits( const LLUUID& agent, const LLUUID& group, BOOL set, PermissionMask bits);
-	BOOL setEveryoneBits(const LLUUID& agent, const LLUUID& group, BOOL set, PermissionMask bits);
-	BOOL setNextOwnerBits(const LLUUID& agent, const LLUUID& group, BOOL set, PermissionMask bits);
-	
-	// This is currently only used in the Viewer to handle calling cards
-	// where the creator is actually used to store the target. Use with care.
-	void setCreator(const LLUUID& creator) { mCreator = creator; }
-	
-	//
-	// METHODS
-	//
+    // saves last owner, sets owner to uuid null, sets group
+    // owned. group_id must be the group of the object (that's who it
+    // is being deeded to) and the object must be group
+    // modify. Technically, the agent id and group id are not
+    // necessary, but I wanted this function to look like the other
+    // checked manipulators (since that is how it is used.) If the
+    // agent is the system or (group == mGroup and group modify and
+    // owner transfer) then this function will deed the permissions,
+    // set the next owner mask, and return true. Otherwise, no change
+    // is effected, and the function returns false.
+    bool deedToGroup(const LLUUID& agent, const LLUUID& group);
+    // Attempt to set or clear the given bitmask.  Returns true if you
+    // are allowed to modify the permissions.  If you attempt to turn
+    // on bits not allowed by the base bits, the function will return
+    // true, but those bits will not be set.
+    bool setBaseBits( const LLUUID& agent, bool set, PermissionMask bits);
+    bool setOwnerBits( const LLUUID& agent, bool set, PermissionMask bits);
+    bool setGroupBits( const LLUUID& agent, const LLUUID& group, bool set, PermissionMask bits);
+    bool setEveryoneBits(const LLUUID& agent, const LLUUID& group, bool set, PermissionMask bits);
+    bool setNextOwnerBits(const LLUUID& agent, const LLUUID& group, bool set, PermissionMask bits);
 
-	// All the allow* functions return true if the given agent or
-	// group can perform the function. Prefer using this set of
-	// operations to check permissions on an object.  These return
-	// true if the given agent or group can perform the function.
-	// They also return true if the object isn't owned, or the
-	// requesting agent is a system agent.  See llpermissionsflags.h
-	// for bits.
-	bool allowOperationBy(PermissionBit op, const LLUUID& agent, const LLUUID& group = LLUUID::null) const;
+    // This is currently only used in the Viewer to handle calling cards
+    // where the creator is actually used to store the target. Use with care.
+    void setCreator(const LLUUID& creator) { mCreator = creator; }
 
-	inline bool allowModifyBy(const LLUUID &agent_id) const;
-	inline bool allowCopyBy(const LLUUID& agent_id) const;
-	inline bool allowMoveBy(const LLUUID& agent_id) const;
-	inline bool allowModifyBy(const LLUUID &agent_id, const LLUUID& group) const;
-	inline bool allowCopyBy(const LLUUID& agent_id, const LLUUID& group) const;
-	inline bool allowMoveBy(const LLUUID &agent_id, const LLUUID &group) const;
+    //
+    // METHODS
+    //
 
-	// This somewhat specialized function is meant for testing if the
-	// current owner is allowed to transfer to the specified agent id.
-	inline bool allowTransferTo(const LLUUID &agent_id) const;
+    // All the allow* functions return true if the given agent or
+    // group can perform the function. Prefer using this set of
+    // operations to check permissions on an object.  These return
+    // true if the given agent or group can perform the function.
+    // They also return true if the object isn't owned, or the
+    // requesting agent is a system agent.  See llpermissionsflags.h
+    // for bits.
+    bool allowOperationBy(PermissionBit op, const LLUUID& agent, const LLUUID& group = LLUUID::null) const;
 
-	//
-	// DEPRECATED.
-	//
-	// These return true if the given agent can perform the function.
-	// They also return true if the object isn't owned, or the
-	// requesting agent is a system agent.  See llpermissionsflags.h
-	// for bits.
-	//BOOL	allowDeleteBy(const LLUUID& agent_id) 	const		{ return allowModifyBy(agent_id); }
-	//BOOL	allowEditBy(const LLUUID& agent_id) 	const		{ return allowModifyBy(agent_id); }
-	// saves last owner and sets current owner
-	//BOOL setOwner(const LLUUID& agent, const LLUUID& owner);	
-	// This method saves the last owner, sets the current owner to the
-	// one provided, and sets the base mask as indicated.
-	//BOOL setOwner(const LLUUID& agent, const LLUUID& owner, U32 new_base_mask);
+    inline bool allowModifyBy(const LLUUID &agent_id) const;
+    inline bool allowCopyBy(const LLUUID& agent_id) const;
+    inline bool allowMoveBy(const LLUUID& agent_id) const;
 
-	// Attempt to set or clear the given bitmask.  Returns TRUE if you
-	// are allowed to modify the permissions.  If you attempt to turn
-	// on bits not allowed by the base bits, the function will return
-	// TRUE, but those bits will not be set.
-	//BOOL setGroupBits( const LLUUID& agent, BOOL set, PermissionMask bits);
-	//BOOL setEveryoneBits(const LLUUID& agent, BOOL set, PermissionMask bits);
+    inline bool allowModifyBy(const LLUUID &agent_id, const LLUUID& group) const;
+    inline bool allowCopyBy(const LLUUID& agent_id, const LLUUID& group) const;
+    inline bool allowMoveBy(const LLUUID &agent_id, const LLUUID &group) const;
 
-	//
-	// MISC METHODS and OPERATORS
-	//
+    // This somewhat specialized function is meant for testing if the
+    // current owner is allowed to transfer to the specified agent id.
+    inline bool allowTransferTo(const LLUUID &agent_id) const;
 
-	LLSD	packMessage() const;
-	void	unpackMessage(LLSD perms);
+    // Returns true if the object can exported by the given agent
+    // (e.g. saved as a local .gltf file)
+    // The current test should return true if the agent is the owner
+    // AND the creator of the object.
+    inline bool allowExportBy(const LLUUID& agent_id) const;
 
-	// For messaging system support
-	void	packMessage(LLMessageSystem* msg) const;
-	void	unpackMessage(LLMessageSystem* msg, const char* block, S32 block_num = 0);
+    //
+    // MISC METHODS and OPERATORS
+    //
 
-	BOOL	importLegacyStream(std::istream& input_stream);
-	BOOL	exportLegacyStream(std::ostream& output_stream) const;
+    LLSD    packMessage() const;
+    void    unpackMessage(LLSD perms);
 
-	bool operator==(const LLPermissions &rhs) const;
-	bool operator!=(const LLPermissions &rhs) const;
+    // For messaging system support
+    void    packMessage(LLMessageSystem* msg) const;
+    void    unpackMessage(LLMessageSystem* msg, const char* block, S32 block_num = 0);
 
-	friend std::ostream& operator<<(std::ostream &s, const LLPermissions &perm);
+    bool    importLegacyStream(std::istream& input_stream);
+    bool    exportLegacyStream(std::ostream& output_stream) const;
+
+    bool operator==(const LLPermissions &rhs) const;
+    bool operator!=(const LLPermissions &rhs) const;
+
+    friend std::ostream& operator<<(std::ostream &s, const LLPermissions &perm);
 
 };
 
 // Inlines
 bool LLPermissions::allowModifyBy(const LLUUID& agent, const LLUUID& group) const
 {
-	return allowOperationBy(PERM_MODIFY, agent, group);
+    return allowOperationBy(PERM_MODIFY, agent, group);
 }
 
 bool LLPermissions::allowCopyBy(const LLUUID& agent, const LLUUID& group) const
 {
-	return allowOperationBy(PERM_COPY, agent, group);
+    return allowOperationBy(PERM_COPY, agent, group);
 }
 
 
 bool LLPermissions::allowMoveBy(const LLUUID& agent, const LLUUID& group) const
 {
-	return allowOperationBy(PERM_MOVE, agent, group);
+    return allowOperationBy(PERM_MOVE, agent, group);
 }
 
 bool LLPermissions::allowModifyBy(const LLUUID& agent) const
 {
-	return allowOperationBy(PERM_MODIFY, agent, LLUUID::null);
+    return allowOperationBy(PERM_MODIFY, agent, LLUUID::null);
 }
 
 bool LLPermissions::allowCopyBy(const LLUUID& agent) const
 {
-	return allowOperationBy(PERM_COPY, agent, LLUUID::null);
+    return allowOperationBy(PERM_COPY, agent, LLUUID::null);
 }
 
 bool LLPermissions::allowMoveBy(const LLUUID& agent) const
 {
-	return allowOperationBy(PERM_MOVE, agent, LLUUID::null);
+    return allowOperationBy(PERM_MOVE, agent, LLUUID::null);
+}
+
+bool LLPermissions::allowExportBy(const LLUUID& agent) const
+{
+    return agent == mOwner && agent == mCreator;
 }
 
 bool LLPermissions::allowTransferTo(const LLUUID &agent_id) const
 {
-	if (mIsGroupOwned)
-	{
-		return allowOperationBy(PERM_TRANSFER, mGroup, mGroup);
-	}
-	else
-	{
-		return ((mOwner == agent_id) ? TRUE : allowOperationBy(PERM_TRANSFER, mOwner));
-	}
+    if (mIsGroupOwned)
+    {
+        return allowOperationBy(PERM_TRANSFER, mGroup, mGroup);
+    }
+    else
+    {
+        return ((mOwner == agent_id) ? true : allowOperationBy(PERM_TRANSFER, mOwner));
+    }
 }
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -380,64 +370,64 @@ bool LLPermissions::allowTransferTo(const LLUUID &agent_id) const
 class LLAggregatePermissions
 {
 public:
-	enum EValue
-	{
-		AP_EMPTY = 0x00,
-		AP_NONE = 0x01,
-		AP_SOME = 0x02,
-		AP_ALL = 0x03
-	};
+    enum EValue
+    {
+        AP_EMPTY = 0x00,
+        AP_NONE = 0x01,
+        AP_SOME = 0x02,
+        AP_ALL = 0x03
+    };
 
-	// construct an empty aggregate permissions
-	LLAggregatePermissions();
+    // construct an empty aggregate permissions
+    LLAggregatePermissions();
 
-	// pass in a PERM_COPY, PERM_TRANSFER, etc, and get out a EValue
-	// enumeration describing the current aggregate permissions.
-	EValue getValue(PermissionBit bit) const;
+    // pass in a PERM_COPY, PERM_TRANSFER, etc, and get out a EValue
+    // enumeration describing the current aggregate permissions.
+    EValue getValue(PermissionBit bit) const;
 
-	// returns the permissions packed into the 6 LSB of a U8:
-	// 00TTMMCC
-	// where TT = transfer, MM = modify, and CC = copy
-	// LSB is to the right
-	U8 getU8() const;
+    // returns the permissions packed into the 6 LSB of a U8:
+    // 00TTMMCC
+    // where TT = transfer, MM = modify, and CC = copy
+    // LSB is to the right
+    U8 getU8() const;
 
-	// return TRUE is the aggregate permissions are empty, otherwise FALSE.
-	BOOL isEmpty() const ;
+    // return true is the aggregate permissions are empty, otherwise false.
+    bool isEmpty() const ;
 
-	// pass in a PERM_COPY, PERM_TRANSFER, etc, and an EValue
-	// enumeration to specifically set that value. Not implemented
-	// because I'm not sure it's a useful api.
-	//void setValue(PermissionBit bit, EValue);
+    // pass in a PERM_COPY, PERM_TRANSFER, etc, and an EValue
+    // enumeration to specifically set that value. Not implemented
+    // because I'm not sure it's a useful api.
+    //void setValue(PermissionBit bit, EValue);
 
-	// Given a mask, aggregate the useful permissions.
-	void aggregate(PermissionMask mask);
+    // Given a mask, aggregate the useful permissions.
+    void aggregate(PermissionMask mask);
 
-	// Aggregate aggregates
-	void aggregate(const LLAggregatePermissions& ag);
+    // Aggregate aggregates
+    void aggregate(const LLAggregatePermissions& ag);
 
-	// message handling
-	void packMessage(LLMessageSystem* msg, const char* field) const;
-	void unpackMessage(LLMessageSystem* msg, const char* block, const char *field, S32 block_num = 0);
+    // message handling
+    void packMessage(LLMessageSystem* msg, const char* field) const;
+    void unpackMessage(LLMessageSystem* msg, const char* block, const char *field, S32 block_num = 0);
 
-	static const LLAggregatePermissions empty;
-	
-	friend std::ostream& operator<<(std::ostream &s, const LLAggregatePermissions &perm);
+    static const LLAggregatePermissions empty;
+
+    friend std::ostream& operator<<(std::ostream &s, const LLAggregatePermissions &perm);
 
 protected:
-	enum EPermIndex
-	{
-		PI_COPY = 0,
-		PI_MODIFY = 1,
-		PI_TRANSFER = 2,
-		PI_END = 3,
-		PI_COUNT = 3
-	};
-	void aggregateBit(EPermIndex idx, BOOL allowed);
-	void aggregateIndex(EPermIndex idx, U8 bits);
-	static EPermIndex perm2PermIndex(PermissionBit bit);
+    enum EPermIndex
+    {
+        PI_COPY = 0,
+        PI_MODIFY = 1,
+        PI_TRANSFER = 2,
+        PI_END = 3,
+        PI_COUNT = 3
+    };
+    void aggregateBit(EPermIndex idx, bool allowed);
+    void aggregateIndex(EPermIndex idx, U8 bits);
+    static EPermIndex perm2PermIndex(PermissionBit bit);
 
-	// structure used to store the aggregate so far.
-	U8 mBits[PI_COUNT];
+    // structure used to store the aggregate so far.
+    U8 mBits[PI_COUNT];
 };
 
 // These functions convert between structured data and permissions as

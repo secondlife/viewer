@@ -3,16 +3,13 @@
 project(llcommon)
 
 include(00-Common)
-include(ICU4C)
 include(LLCommon)
 include(bugsplat)
 include(Linking)
 include(Boost)
 include(LLSharedLibs)
-include(JsonCpp)
 include(Copy3rdPartyLibs)
 include(ZLIBNG)
-include(URIPARSER)
 include(Tracy)
 
 
@@ -21,8 +18,6 @@ set(llcommon_SOURCE_FILES
     commoncontrol.cpp
     indra_constants.cpp
     lazyeventapi.cpp
-    llallocator.cpp
-    llallocator_heap_profile.cpp
     llapp.cpp
     llapr.cpp
     llassettype.cpp
@@ -31,7 +26,6 @@ set(llcommon_SOURCE_FILES
     llbase64.cpp
     llbitpack.cpp
     llcallbacklist.cpp
-    llcallstack.cpp
     llcleanup.cpp
     llcommon.cpp
     llcommonutils.cpp
@@ -125,13 +119,12 @@ set(llcommon_HEADER_FILES
     commoncontrol.h
     ctype_workaround.h
     fix_macros.h
+    fsyspath.h
     function_types.h
     indra_constants.h
     lazyeventapi.h
     linden_common.h
     llalignedarray.h
-    llallocator.h
-    llallocator_heap_profile.h
     llapp.h
     llapr.h
     llassettype.h
@@ -141,7 +134,6 @@ set(llcommon_HEADER_FILES
     llbitpack.h
     llboost.h
     llcallbacklist.h
-    llcallstack.h
     llcleanup.h
     llcommon.h
     llcommonutils.h
@@ -195,6 +187,7 @@ set(llcommon_HEADER_FILES
     llmetrics.h
     llmetricperformancetester.h
     llmortician.h
+    llmutex.h
     llnametable.h
     llpointer.h
     llprofiler.h
@@ -248,7 +241,6 @@ set(llcommon_HEADER_FILES
     lluriparser.h
     lluuid.h
     llwin32headers.h
-    llwin32headerslean.h
     llworkerthread.h
     hbxxh.h
     lockstatic.h
@@ -269,6 +261,10 @@ if (DARWIN)
   list(APPEND llcommon_SOURCE_FILES llsys_objc.mm)
 endif (DARWIN)
 
+if (USE_TRACY)
+  list(APPEND llcommon_SOURCE_FILES llprofiler.cpp)
+endif ()
+
 list(APPEND llcommon_SOURCE_FILES ${llcommon_HEADER_FILES})
 
 add_library (llcommon ${llcommon_SOURCE_FILES})
@@ -277,13 +273,10 @@ target_link_libraries(
         llcommon
         ll::apr
         ll::expat
-        ll::jsoncpp
         ll::zlib-ng
         ll::boost
-        ll::uriparser
         ll::oslibraries
         ll::tracy
-        ll::icu4c
     )
 
 target_include_directories(llcommon INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})

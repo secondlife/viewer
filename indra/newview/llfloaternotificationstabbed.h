@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llfloaternotificationstabbed.h
- * @brief                                  
+ * @brief
  *
  * $LicenseInfo:firstyear=2015&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2015, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -72,7 +72,7 @@ public:
 
     LLFloaterNotificationsTabbed(const LLSD& key);
     virtual ~LLFloaterNotificationsTabbed();
-    BOOL postBuild();
+    bool postBuild();
 
     // other interface functions
     // check is window empty
@@ -85,11 +85,11 @@ public:
     void updateNotificationCounter(S32 panelIndex, S32 counterValue, std::string stringName);
 
     // Operating with outfit
-    virtual void setVisible(BOOL visible);
+    virtual void setVisible(bool visible);
 
     /*virtual*/ void    setDocked(bool docked, bool pop_on_undock = true);
     // override LLFloater's minimization according to EXT-1216
-    /*virtual*/ void    setMinimized(BOOL minimize);
+    /*virtual*/ void    setMinimized(bool minimize);
     /*virtual*/ void    handleReshape(const LLRect& rect, bool by_user);
 
     void onStartUpToastClick(S32 x, S32 y, MASK mask);
@@ -101,8 +101,8 @@ public:
     static LLFloaterNotificationsTabbed* getInstance(const LLSD& key = LLSD());
 
     // size constants for the window and for its elements
-    static const S32 MAX_WINDOW_HEIGHT      = 200;
-    static const S32 MIN_WINDOW_WIDTH       = 318;
+    static constexpr S32 MAX_WINDOW_HEIGHT      = 200;
+    static constexpr S32 MIN_WINDOW_WIDTH       = 318;
 
 private:
     // init Window's channel
@@ -115,7 +115,7 @@ private:
     void reshapeWindow();
 
     // pointer to a corresponding channel's instance
-    LLNotificationsUI::LLScreenChannel*	mChannel;
+    LLNotificationsUI::LLScreenChannel* mChannel;
 
     /**
      * Reference to an appropriate Well chiclet to release "new message" state. EXT-3147
@@ -130,7 +130,7 @@ private:
         void onDelete(LLNotificationPtr notify)
         {
             mNotificationsTabbedWindow->removeItemByID(notify->getID(), notify->getName());
-        } 
+        }
 
         LLFloaterNotificationsTabbed* mNotificationsTabbedWindow;
     };
@@ -158,14 +158,14 @@ private:
     // ID of a toast loaded by user (by clicking notification well item)
     LLUUID mLoadedToastId;
 
-    LLNotificationListView*	mGroupInviteMessageList;
-    LLNotificationListView*	mGroupNoticeMessageList;
-    LLNotificationListView*	mTransactionMessageList;
-    LLNotificationListView*	mSystemMessageList;
+    LLNotificationListView* mGroupInviteMessageList;
+    LLNotificationListView* mGroupNoticeMessageList;
+    LLNotificationListView* mTransactionMessageList;
+    LLNotificationListView* mSystemMessageList;
     LLNotificationSeparator* mNotificationsSeparator;
     LLTabContainer* mNotificationsTabContainer;
-    LLButton*	mDeleteAllBtn;
-    LLButton*	mCollapseAllBtn;
+    LLButton*   mDeleteAllBtn;
+    LLButton*   mCollapseAllBtn;
 };
 
 #endif // LL_FLOATERNOTIFICATIONSTABBED_H

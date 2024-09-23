@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater
  can_resize="false"
  show_title="false"
@@ -39,7 +39,7 @@
      layout="topleft"
      max_length_bytes="63"
      name="title_editor"
-     prevalidate_callback="ascii"
+     prevalidator="ascii"
      text_readonly_color="white"
      top_pad="5"
      width="290" />
@@ -87,7 +87,7 @@
      name="notes_editor"
      spellcheck="true"
      text_readonly_color="white"
-     text_type="ascii_with_newline"
+     prevalidator="ascii_with_newline"
      commit_on_focus_lost="true"
      top_pad="5"
      width="290"

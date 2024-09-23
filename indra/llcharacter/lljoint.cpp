@@ -1,25 +1,25 @@
-/** 
+/**
  * @file lljoint.cpp
  * @brief Implementation of LLJoint class.
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -32,67 +32,66 @@
 #include "lljoint.h"
 
 #include "llmath.h"
-#include "llcallstack.h"
 #include <boost/algorithm/string.hpp>
 
 S32 LLJoint::sNumUpdates = 0;
 S32 LLJoint::sNumTouches = 0;
 
-template <class T> 
+template <class T>
 bool attachment_map_iter_compare_key(const T& a, const T& b)
 {
-	return a.first < b.first;
+    return a.first < b.first;
 }
 
 bool LLVector3OverrideMap::findActiveOverride(LLUUID& mesh_id, LLVector3& pos) const
 {
-	pos = LLVector3(0,0,0);
-	mesh_id = LLUUID();
-	bool found = false;
-	
-	map_type::const_iterator it = std::max_element(m_map.begin(),
-												   m_map.end(),
-												   attachment_map_iter_compare_key<map_type::value_type>);
-	if (it != m_map.end())
-	{
-		found = true;
-		pos = it->second;
-		mesh_id = it->first;
-	}
-	return found;
+    pos = LLVector3(0,0,0);
+    mesh_id = LLUUID();
+    bool found = false;
+
+    map_type::const_iterator it = std::max_element(m_map.begin(),
+                                                   m_map.end(),
+                                                   attachment_map_iter_compare_key<map_type::value_type>);
+    if (it != m_map.end())
+    {
+        found = true;
+        pos = it->second;
+        mesh_id = it->first;
+    }
+    return found;
 }
 
 void LLVector3OverrideMap::showJointVector3Overrides( std::ostringstream& os ) const
 {
-	map_type::const_iterator max_it = std::max_element(m_map.begin(),
-													   m_map.end(),
-													   attachment_map_iter_compare_key<map_type::value_type>);
-	for (const map_type::value_type& pos_pair : m_map)
-	{
-		const LLVector3& pos = pos_pair.second;
-		os << " " << "[" << pos_pair.first <<": " << pos << "]" << ((pos_pair==(*max_it)) ? "*" : "");
-	}
+    map_type::const_iterator max_it = std::max_element(m_map.begin(),
+                                                       m_map.end(),
+                                                       attachment_map_iter_compare_key<map_type::value_type>);
+    for (const map_type::value_type& pos_pair : m_map)
+    {
+        const LLVector3& pos = pos_pair.second;
+        os << " " << "[" << pos_pair.first <<": " << pos << "]" << ((pos_pair==(*max_it)) ? "*" : "");
+    }
 }
 
 U32 LLVector3OverrideMap::count() const
 {
-	return m_map.size();
+    return static_cast<U32>(m_map.size());
 }
 
 void LLVector3OverrideMap::add(const LLUUID& mesh_id, const LLVector3& pos)
 {
-	m_map[mesh_id] = pos;
+    m_map[mesh_id] = pos;
 }
 
 bool LLVector3OverrideMap::remove(const LLUUID& mesh_id)
 {
-	U32 remove_count = m_map.erase(mesh_id);
-	return (remove_count > 0);
+    auto remove_count = m_map.erase(mesh_id);
+    return (remove_count > 0);
 }
 
 void LLVector3OverrideMap::clear()
 {
-	m_map.clear();
+    m_map.clear();
 }
 
 //-----------------------------------------------------------------------------
@@ -103,28 +102,28 @@ void LLVector3OverrideMap::clear()
 
 void LLJoint::init()
 {
-	mName = "unnamed";
-	mParent = NULL;
-	mXform.setScaleChildOffset(TRUE);
-	mXform.setScale(LLVector3(1.0f, 1.0f, 1.0f));
-	mDirtyFlags = MATRIX_DIRTY | ROTATION_DIRTY | POSITION_DIRTY;
-	mUpdateXform = TRUE;
+    mName = "unnamed";
+    mParent = NULL;
+    mXform.setScaleChildOffset(true);
+    mXform.setScale(LLVector3(1.0f, 1.0f, 1.0f));
+    mDirtyFlags = MATRIX_DIRTY | ROTATION_DIRTY | POSITION_DIRTY;
+    mUpdateXform = true;
     mSupport = SUPPORT_BASE;
     mEnd = LLVector3(0.0f, 0.0f, 0.0f);
 }
 
 LLJoint::LLJoint() :
-	mJointNum(-1)
+    mJointNum(-1)
 {
-	init();
-	touch();
+    init();
+    touch();
 }
 
 LLJoint::LLJoint(S32 joint_num) :
-	mJointNum(joint_num)
+    mJointNum(joint_num)
 {
-	init();
-	touch();
+    init();
+    touch();
 }
 
 //-----------------------------------------------------------------------------
@@ -132,17 +131,17 @@ LLJoint::LLJoint(S32 joint_num) :
 // Class Constructor
 //-----------------------------------------------------------------------------
 LLJoint::LLJoint(const std::string &name, LLJoint *parent) :
-	mJointNum(-2)
+    mJointNum(-2)
 {
-	init();
-	mUpdateXform = FALSE;
+    init();
+    mUpdateXform = false;
 
-	setName(name);
-	if (parent)
-	{
-		parent->addChild( this );
-	}
-	touch();
+    setName(name);
+    if (parent)
+    {
+        parent->addChild( this );
+    }
+    touch();
 }
 
 //-----------------------------------------------------------------------------
@@ -151,11 +150,11 @@ LLJoint::LLJoint(const std::string &name, LLJoint *parent) :
 //-----------------------------------------------------------------------------
 LLJoint::~LLJoint()
 {
-	if (mParent)
-	{
-		mParent->removeChild( this );
-	}
-	removeAllChildren();
+    if (mParent)
+    {
+        mParent->removeChild( this );
+    }
+    removeAllChildren();
 }
 
 
@@ -164,11 +163,11 @@ LLJoint::~LLJoint()
 //-----------------------------------------------------------------------------
 void LLJoint::setup(const std::string &name, LLJoint *parent)
 {
-	setName(name);
-	if (parent)
-	{
-		parent->addChild( this );
-	}
+    setName(name);
+    if (parent)
+    {
+        parent->addChild( this );
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -190,7 +189,7 @@ void LLJoint::setSupport(const std::string& support_name)
         setSupport(SUPPORT_BASE);
     }
 }
-    
+
 
 //-----------------------------------------------------------------------------
 // touch()
@@ -198,21 +197,21 @@ void LLJoint::setSupport(const std::string& support_name)
 //-----------------------------------------------------------------------------
 void LLJoint::touch(U32 flags)
 {
-	if ((flags | mDirtyFlags) != mDirtyFlags)
-	{
-		sNumTouches++;
-		mDirtyFlags |= flags;
-		U32 child_flags = flags;
-		if (flags & ROTATION_DIRTY)
-		{
-			child_flags |= POSITION_DIRTY;
-		}
+    if ((flags | mDirtyFlags) != mDirtyFlags)
+    {
+        sNumTouches++;
+        mDirtyFlags |= flags;
+        U32 child_flags = flags;
+        if (flags & ROTATION_DIRTY)
+        {
+            child_flags |= POSITION_DIRTY;
+        }
 
-		for (LLJoint* joint : mChildren)
-		{
-			joint->touch(child_flags);
-		}
-	}
+        for (LLJoint* joint : mChildren)
+        {
+            joint->touch(child_flags);
+        }
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -232,11 +231,11 @@ void LLJoint::setJointNum(S32 joint_num)
 //-----------------------------------------------------------------------------
 LLJoint *LLJoint::getRoot()
 {
-	if ( getParent() == NULL )
-	{
-		return this;
-	}
-	return getParent()->getRoot();
+    if ( getParent() == NULL )
+    {
+        return this;
+    }
+    return getParent()->getRoot();
 }
 
 
@@ -245,19 +244,19 @@ LLJoint *LLJoint::getRoot()
 //-----------------------------------------------------------------------------
 LLJoint *LLJoint::findJoint( const std::string &name )
 {
-	if (name == getName())
-		return this;
+    if (name == getName())
+        return this;
 
-	for (LLJoint* joint : mChildren)
-	{
-		LLJoint *found = joint->findJoint(name);
-		if (found)
-		{
-			return found;
-		}
-	}
+    for (LLJoint* joint : mChildren)
+    {
+        LLJoint *found = joint->findJoint(name);
+        if (found)
+        {
+            return found;
+        }
+    }
 
-	return NULL;	
+    return NULL;
 }
 
 
@@ -266,13 +265,13 @@ LLJoint *LLJoint::findJoint( const std::string &name )
 //--------------------------------------------------------------------
 void LLJoint::addChild(LLJoint* joint)
 {
-	if (joint->mParent)
-		joint->mParent->removeChild(joint);
+    if (joint->mParent)
+        joint->mParent->removeChild(joint);
 
-	mChildren.push_back(joint);
-	joint->mXform.setParent(&mXform);
-	joint->mParent = this;	
-	joint->touch();
+    mChildren.push_back(joint);
+    joint->mXform.setParent(&mXform);
+    joint->mParent = this;
+    joint->touch();
 }
 
 
@@ -281,15 +280,15 @@ void LLJoint::addChild(LLJoint* joint)
 //--------------------------------------------------------------------
 void LLJoint::removeChild(LLJoint* joint)
 {
-	joints_t::iterator iter = std::find(mChildren.begin(), mChildren.end(), joint);
-	if (iter != mChildren.end())
-	{
-		mChildren.erase(iter);
-	
-		joint->mXform.setParent(NULL);
-		joint->mParent = NULL;
-		joint->touch();
-	}
+    joints_t::iterator iter = std::find(mChildren.begin(), mChildren.end(), joint);
+    if (iter != mChildren.end())
+    {
+        mChildren.erase(iter);
+
+        joint->mXform.setParent(NULL);
+        joint->mParent = NULL;
+        joint->touch();
+    }
 }
 
 
@@ -298,16 +297,16 @@ void LLJoint::removeChild(LLJoint* joint)
 //--------------------------------------------------------------------
 void LLJoint::removeAllChildren()
 {
-	for (LLJoint* joint : mChildren)
-	{
-		if (joint)
+    for (LLJoint* joint : mChildren)
+    {
+        if (joint)
         {
-		    joint->mXform.setParent(NULL);
-		    joint->mParent = NULL;
-		    joint->touch();
+            joint->mXform.setParent(NULL);
+            joint->mParent = NULL;
+            joint->touch();
             //delete joint;
         }
-	}
+    }
     mChildren.clear();
 }
 
@@ -317,7 +316,7 @@ void LLJoint::removeAllChildren()
 //--------------------------------------------------------------------
 const LLVector3& LLJoint::getPosition()
 {
-	return mXform.getPosition();
+    return mXform.getPosition();
 }
 
 bool do_debug_joint(const std::string& name)
@@ -339,24 +338,18 @@ void LLJoint::setPosition( const LLVector3& requested_pos, bool apply_attachment
     LLVector3 active_override;
     LLUUID mesh_id;
     if (apply_attachment_overrides && m_attachmentPosOverrides.findActiveOverride(mesh_id,active_override))
-    {  
+    {
         if (pos != active_override && do_debug_joint(getName()))
         {
-            LLScopedContextString str("setPosition");
             LL_DEBUGS("Avatar") << " joint " << getName() << " requested_pos " << requested_pos
                                 << " overriden by attachment " << active_override << LL_ENDL;
         }
         pos = active_override;
     }
-	if ((pos != getPosition()) && do_debug_joint(getName()))
-	{
-        LLScopedContextString str("setPosition");
-        LLCallStack cs;
-        LLContextStatus con_status;
+    if ((pos != getPosition()) && do_debug_joint(getName()))
+    {
         LL_DEBUGS("Avatar") << " joint " << getName() << " set pos " << pos << LL_ENDL;
-        LL_DEBUGS("Avatar") << "CONTEXT:\n" << "====================\n" << con_status << "====================" << LL_ENDL;
-        LL_DEBUGS("Avatar") << "STACK:\n" << "====================\n" << cs << "====================" << LL_ENDL;
-	}
+    }
     if (pos != getPosition())
     {
         mXform.setPosition(pos);
@@ -404,14 +397,14 @@ bool LLJoint::aboveJointPosThreshold(const LLVector3& pos) const
 {
     LLVector3 diff = pos - getDefaultPosition();
     const F32 max_joint_pos_offset = LL_JOINT_TRESHOLD_POS_OFFSET; // 0.1 mm
-	return diff.lengthSquared() > max_joint_pos_offset * max_joint_pos_offset;
+    return diff.lengthSquared() > max_joint_pos_offset * max_joint_pos_offset;
 }
 
 bool LLJoint::aboveJointScaleThreshold(const LLVector3& scale) const
 {
     LLVector3 diff = scale - getDefaultScale();
-	const F32 max_joint_scale_offset = 0.0001f; // 0.1 mm
-	return diff.lengthSquared() > max_joint_scale_offset * max_joint_scale_offset;
+    const F32 max_joint_scale_offset = 0.0001f; // 0.1 mm
+    return diff.lengthSquared() > max_joint_scale_offset * max_joint_scale_offset;
 }
 
 //--------------------------------------------------------------------
@@ -420,28 +413,28 @@ bool LLJoint::aboveJointScaleThreshold(const LLVector3& scale) const
 void LLJoint::addAttachmentPosOverride( const LLVector3& pos, const LLUUID& mesh_id, const std::string& av_info, bool& active_override_changed )
 {
     active_override_changed = false;
-	if (mesh_id.isNull())
-	{
-		return;
-	}
+    if (mesh_id.isNull())
+    {
+        return;
+    }
     LLVector3 before_pos;
     LLUUID before_mesh_id;
     bool has_active_override_before = hasAttachmentPosOverride( before_pos, before_mesh_id );
-	if (!m_attachmentPosOverrides.count())
-	{
-		if (do_debug_joint(getName()))
-		{
-			LL_DEBUGS("Avatar") << "av " << av_info << " joint " << getName() << " saving m_posBeforeOverrides " << getPosition() << LL_ENDL;
-		}
-		m_posBeforeOverrides = getPosition();
-	}
-	m_attachmentPosOverrides.add(mesh_id,pos);
+    if (!m_attachmentPosOverrides.count())
+    {
+        if (do_debug_joint(getName()))
+        {
+            LL_DEBUGS("Avatar") << "av " << av_info << " joint " << getName() << " saving m_posBeforeOverrides " << getPosition() << LL_ENDL;
+        }
+        m_posBeforeOverrides = getPosition();
+    }
+    m_attachmentPosOverrides.add(mesh_id,pos);
     LLVector3 after_pos;
     LLUUID after_mesh_id;
     hasAttachmentPosOverride(after_pos, after_mesh_id);
     if (!has_active_override_before || (after_pos != before_pos))
     {
-        active_override_changed = true; 
+        active_override_changed = true;
         if (do_debug_joint(getName()))
         {
             LL_DEBUGS("Avatar") << "av " << av_info << " joint " << getName() << " addAttachmentPosOverride for mesh " << mesh_id << " pos " << pos << LL_ENDL;
@@ -456,15 +449,15 @@ void LLJoint::addAttachmentPosOverride( const LLVector3& pos, const LLUUID& mesh
 void LLJoint::removeAttachmentPosOverride( const LLUUID& mesh_id, const std::string& av_info, bool& active_override_changed )
 {
     active_override_changed = false;
-	if (mesh_id.isNull())
-	{
-		return;
-	}
+    if (mesh_id.isNull())
+    {
+        return;
+    }
     LLVector3 before_pos;
     LLUUID before_mesh_id;
     hasAttachmentPosOverride( before_pos, before_mesh_id );
-	if (m_attachmentPosOverrides.remove(mesh_id))
-	{
+    if (m_attachmentPosOverrides.remove(mesh_id))
+    {
         LLVector3 after_pos;
         LLUUID after_mesh_id;
         bool has_active_override_after = hasAttachmentPosOverride(after_pos, after_mesh_id);
@@ -479,7 +472,7 @@ void LLJoint::removeAttachmentPosOverride( const LLUUID& mesh_id, const std::str
             }
             updatePos(av_info);
         }
-	}
+    }
 }
 
 //--------------------------------------------------------------------
@@ -487,7 +480,7 @@ void LLJoint::removeAttachmentPosOverride( const LLUUID& mesh_id, const std::str
  //--------------------------------------------------------------------
 bool LLJoint::hasAttachmentPosOverride( LLVector3& pos, LLUUID& mesh_id ) const
 {
-	return m_attachmentPosOverrides.findActiveOverride(mesh_id,pos);
+    return m_attachmentPosOverrides.findActiveOverride(mesh_id,pos);
 }
 
 //--------------------------------------------------------------------
@@ -495,11 +488,11 @@ bool LLJoint::hasAttachmentPosOverride( LLVector3& pos, LLUUID& mesh_id ) const
 //--------------------------------------------------------------------
 void LLJoint::clearAttachmentPosOverrides()
 {
-	if (m_attachmentPosOverrides.count())
-	{
-		m_attachmentPosOverrides.clear();
-		setPosition(m_posBeforeOverrides);
-	}
+    if (m_attachmentPosOverrides.count())
+    {
+        m_attachmentPosOverrides.clear();
+        setPosition(m_posBeforeOverrides);
+    }
 }
 
 //--------------------------------------------------------------------
@@ -514,7 +507,7 @@ void LLJoint::getAllAttachmentPosOverrides(S32& num_pos_overrides,
         distinct_pos_overrides.insert(pos_override_pair.second);
     }
 }
-                                        
+
 //--------------------------------------------------------------------
 // getAllAttachmentScaleOverrides()
 //--------------------------------------------------------------------
@@ -527,7 +520,7 @@ void LLJoint::getAllAttachmentScaleOverrides(S32& num_scale_overrides,
         distinct_scale_overrides.insert(scale_override_pair.second);
     }
 }
-                                        
+
 //--------------------------------------------------------------------
 // showAttachmentPosOverrides()
 //--------------------------------------------------------------------
@@ -540,7 +533,7 @@ void LLJoint::showAttachmentPosOverrides(const std::string& av_info) const
     U32 count = m_attachmentPosOverrides.count();
     if (count==1)
     {
-		LLVector3OverrideMap::map_type::const_iterator it = m_attachmentPosOverrides.getMap().begin();
+        LLVector3OverrideMap::map_type::const_iterator it = m_attachmentPosOverrides.getMap().begin();
         std::string highlight = (has_active_override && (it->second == active_override)) ? "*" : "";
         LL_DEBUGS("Avatar") << "av " << av_info << " joint " << getName()
                             << " has single attachment pos override " << highlight << "" << it->second << " default " << mDefaultPosition << LL_ENDL;
@@ -548,7 +541,7 @@ void LLJoint::showAttachmentPosOverrides(const std::string& av_info) const
     else if (count>1)
     {
         LL_DEBUGS("Avatar") << "av " << av_info << " joint " << getName() << " has " << count << " attachment pos overrides" << LL_ENDL;
-		std::set<LLVector3> distinct_offsets;
+        std::set<LLVector3> distinct_offsets;
         for (const LLVector3OverrideMap::map_type::value_type& pos_override_pair : m_attachmentPosOverrides.getMap())
         {
             distinct_offsets.insert(pos_override_pair.second);
@@ -566,7 +559,7 @@ void LLJoint::showAttachmentPosOverrides(const std::string& av_info) const
             std::string highlight = (has_active_override && offset == active_override) ? "*" : "";
             LL_DEBUGS("Avatar") << "  POS " << highlight << "" << offset << " default " << mDefaultPosition << LL_ENDL;
         }
-	}
+    }
 }
 
 //--------------------------------------------------------------------
@@ -574,25 +567,25 @@ void LLJoint::showAttachmentPosOverrides(const std::string& av_info) const
 //--------------------------------------------------------------------
 void LLJoint::updatePos(const std::string& av_info)
 {
-	LLVector3 pos, found_pos;
-	LLUUID mesh_id;
-	if (m_attachmentPosOverrides.findActiveOverride(mesh_id,found_pos))
-	{
+    LLVector3 pos, found_pos;
+    LLUUID mesh_id;
+    if (m_attachmentPosOverrides.findActiveOverride(mesh_id,found_pos))
+    {
         if (do_debug_joint(getName()))
         {
             LL_DEBUGS("Avatar") << "av " << av_info << " joint " << getName() << " updatePos, winner of " << m_attachmentPosOverrides.count() << " is mesh " << mesh_id << " pos " << found_pos << LL_ENDL;
         }
-		pos = found_pos;
-	}
-	else
-	{
+        pos = found_pos;
+    }
+    else
+    {
         if (do_debug_joint(getName()))
         {
             LL_DEBUGS("Avatar") << "av " << av_info << " joint " << getName() << " updatePos, winner is posBeforeOverrides " << m_posBeforeOverrides << LL_ENDL;
         }
-		pos = m_posBeforeOverrides;
-	}
-	setPosition(pos);
+        pos = m_posBeforeOverrides;
+    }
+    setPosition(pos);
 }
 
 //--------------------------------------------------------------------
@@ -600,25 +593,25 @@ void LLJoint::updatePos(const std::string& av_info)
 //--------------------------------------------------------------------
 void LLJoint::updateScale(const std::string& av_info)
 {
-	LLVector3 scale, found_scale;
-	LLUUID mesh_id;
-	if (m_attachmentScaleOverrides.findActiveOverride(mesh_id,found_scale))
-	{
+    LLVector3 scale, found_scale;
+    LLUUID mesh_id;
+    if (m_attachmentScaleOverrides.findActiveOverride(mesh_id,found_scale))
+    {
         if (do_debug_joint(getName()))
         {
             LL_DEBUGS("Avatar") << "av " << av_info << " joint " << getName() << " updateScale, winner of " << m_attachmentScaleOverrides.count() << " is mesh " << mesh_id << " scale " << found_scale << LL_ENDL;
         }
-		scale = found_scale;
-	}
-	else
-	{
+        scale = found_scale;
+    }
+    else
+    {
         if (do_debug_joint(getName()))
         {
             LL_DEBUGS("Avatar") << "av " << av_info << " joint " << getName() << " updateScale, winner is scaleBeforeOverrides " << m_scaleBeforeOverrides << LL_ENDL;
         }
-		scale = m_scaleBeforeOverrides;
-	}
-	setScale(scale);
+        scale = m_scaleBeforeOverrides;
+    }
+    setScale(scale);
 }
 
 //--------------------------------------------------------------------
@@ -626,24 +619,24 @@ void LLJoint::updateScale(const std::string& av_info)
 //--------------------------------------------------------------------
 void LLJoint::addAttachmentScaleOverride( const LLVector3& scale, const LLUUID& mesh_id, const std::string& av_info )
 {
-	if (mesh_id.isNull())
-	{
-		return;
-	}
-	if (!m_attachmentScaleOverrides.count())
-	{
-		if (do_debug_joint(getName()))
-		{
-			LL_DEBUGS("Avatar") << "av " << av_info << " joint " << getName() << " saving m_scaleBeforeOverrides " << getScale() << LL_ENDL;
-		}
-		m_scaleBeforeOverrides = getScale();
-	}
-	m_attachmentScaleOverrides.add(mesh_id,scale);
-	if (do_debug_joint(getName()))
-	{
-		LL_DEBUGS("Avatar") << "av " << av_info << " joint " << getName() << " addAttachmentScaleOverride for mesh " << mesh_id << " scale " << scale << LL_ENDL;
-	}
-	updateScale(av_info);
+    if (mesh_id.isNull())
+    {
+        return;
+    }
+    if (!m_attachmentScaleOverrides.count())
+    {
+        if (do_debug_joint(getName()))
+        {
+            LL_DEBUGS("Avatar") << "av " << av_info << " joint " << getName() << " saving m_scaleBeforeOverrides " << getScale() << LL_ENDL;
+        }
+        m_scaleBeforeOverrides = getScale();
+    }
+    m_attachmentScaleOverrides.add(mesh_id,scale);
+    if (do_debug_joint(getName()))
+    {
+        LL_DEBUGS("Avatar") << "av " << av_info << " joint " << getName() << " addAttachmentScaleOverride for mesh " << mesh_id << " scale " << scale << LL_ENDL;
+    }
+    updateScale(av_info);
 }
 
 //--------------------------------------------------------------------
@@ -651,20 +644,20 @@ void LLJoint::addAttachmentScaleOverride( const LLVector3& scale, const LLUUID& 
 //--------------------------------------------------------------------
 void LLJoint::removeAttachmentScaleOverride( const LLUUID& mesh_id, const std::string& av_info )
 {
-	if (mesh_id.isNull())
-	{
-		return;
-	}
-	if (m_attachmentScaleOverrides.remove(mesh_id))
-	{
-		if (do_debug_joint(getName()))
-		{
-			LL_DEBUGS("Avatar") << "av " << av_info << " joint " << getName()
-								<< " removeAttachmentScaleOverride for " << mesh_id << LL_ENDL;
-			showJointScaleOverrides(*this, "remove", av_info);
-		}
-		updateScale(av_info);
-	}
+    if (mesh_id.isNull())
+    {
+        return;
+    }
+    if (m_attachmentScaleOverrides.remove(mesh_id))
+    {
+        if (do_debug_joint(getName()))
+        {
+            LL_DEBUGS("Avatar") << "av " << av_info << " joint " << getName()
+                                << " removeAttachmentScaleOverride for " << mesh_id << LL_ENDL;
+            showJointScaleOverrides(*this, "remove", av_info);
+        }
+        updateScale(av_info);
+    }
 }
 
 //--------------------------------------------------------------------
@@ -672,7 +665,7 @@ void LLJoint::removeAttachmentScaleOverride( const LLUUID& mesh_id, const std::s
  //--------------------------------------------------------------------
 bool LLJoint::hasAttachmentScaleOverride( LLVector3& scale, LLUUID& mesh_id ) const
 {
-	return m_attachmentScaleOverrides.findActiveOverride(mesh_id,scale);
+    return m_attachmentScaleOverrides.findActiveOverride(mesh_id,scale);
 }
 
 //--------------------------------------------------------------------
@@ -680,11 +673,11 @@ bool LLJoint::hasAttachmentScaleOverride( LLVector3& scale, LLUUID& mesh_id ) co
 //--------------------------------------------------------------------
 void LLJoint::clearAttachmentScaleOverrides()
 {
-	if (m_attachmentScaleOverrides.count())
-	{
-		m_attachmentScaleOverrides.clear();
-		setScale(m_scaleBeforeOverrides);
-	}
+    if (m_attachmentScaleOverrides.count())
+    {
+        m_attachmentScaleOverrides.clear();
+        setScale(m_scaleBeforeOverrides);
+    }
 }
 
 //--------------------------------------------------------------------
@@ -699,7 +692,7 @@ void LLJoint::showAttachmentScaleOverrides(const std::string& av_info) const
     U32 count = m_attachmentScaleOverrides.count();
     if (count==1)
     {
-		LLVector3OverrideMap::map_type::const_iterator it = m_attachmentScaleOverrides.getMap().begin();
+        LLVector3OverrideMap::map_type::const_iterator it = m_attachmentScaleOverrides.getMap().begin();
         std::string highlight = (has_active_override && (it->second == active_override)) ? "*" : "";
         LL_DEBUGS("Avatar") << "av " << av_info << " joint " << getName()
                             << " has single attachment scale override " << highlight << "" << it->second << " default " << mDefaultScale << LL_ENDL;
@@ -707,7 +700,7 @@ void LLJoint::showAttachmentScaleOverrides(const std::string& av_info) const
     else if (count>1)
     {
         LL_DEBUGS("Avatar") << "av " << av_info << " joint " << getName() << " has " << count << " attachment scale overrides" << LL_ENDL;
-		std::set<LLVector3> distinct_offsets;
+        std::set<LLVector3> distinct_offsets;
         for (const LLVector3OverrideMap::map_type::value_type& scale_override_pair : m_attachmentScaleOverrides.getMap())
         {
             distinct_offsets.insert(scale_override_pair.second);
@@ -725,7 +718,7 @@ void LLJoint::showAttachmentScaleOverrides(const std::string& av_info) const
             std::string highlight = (has_active_override && offset == active_override) ? "*" : "";
             LL_DEBUGS("Avatar") << "  POS " << highlight << "" << offset << " default " << mDefaultScale << LL_ENDL;
         }
-	}
+    }
 }
 
 // init static
@@ -750,8 +743,8 @@ void LLJoint::setDebugJointNames(const std::string& names_string)
 //--------------------------------------------------------------------
 LLVector3 LLJoint::getWorldPosition()
 {
-	updateWorldPRSParent();
-	return mXform.getWorldPosition();
+    updateWorldPRSParent();
+    return mXform.getWorldPosition();
 }
 
 //-----------------------------------------------------------------------------
@@ -759,34 +752,34 @@ LLVector3 LLJoint::getWorldPosition()
 //-----------------------------------------------------------------------------
 LLVector3 LLJoint::getLastWorldPosition()
 {
-	return mXform.getWorldPosition();
+    return mXform.getWorldPosition();
 }
 //--------------------------------------------------------------------
 // setWorldPosition()
 //--------------------------------------------------------------------
 void LLJoint::setWorldPosition( const LLVector3& pos )
 {
-	if (mParent == NULL)
-	{
-		this->setPosition( pos );
-		return;
-	}
+    if (mParent == NULL)
+    {
+        this->setPosition( pos );
+        return;
+    }
 
-	LLMatrix4 temp_matrix = getWorldMatrix();
-	temp_matrix.mMatrix[VW][VX] = pos.mV[VX];
-	temp_matrix.mMatrix[VW][VY] = pos.mV[VY];
-	temp_matrix.mMatrix[VW][VZ] = pos.mV[VZ];
+    LLMatrix4 temp_matrix = getWorldMatrix();
+    temp_matrix.mMatrix[VW][VX] = pos.mV[VX];
+    temp_matrix.mMatrix[VW][VY] = pos.mV[VY];
+    temp_matrix.mMatrix[VW][VZ] = pos.mV[VZ];
 
-	LLMatrix4 parentWorldMatrix = mParent->getWorldMatrix();
-	LLMatrix4 invParentWorldMatrix = parentWorldMatrix.invert();
+    LLMatrix4 parentWorldMatrix = mParent->getWorldMatrix();
+    LLMatrix4 invParentWorldMatrix = parentWorldMatrix.invert();
 
-	temp_matrix *= invParentWorldMatrix;
+    temp_matrix *= invParentWorldMatrix;
 
-	LLVector3 localPos(	temp_matrix.mMatrix[VW][VX],
-						temp_matrix.mMatrix[VW][VY],
-						temp_matrix.mMatrix[VW][VZ] );
+    LLVector3 localPos( temp_matrix.mMatrix[VW][VX],
+                        temp_matrix.mMatrix[VW][VY],
+                        temp_matrix.mMatrix[VW][VZ] );
 
-	setPosition( localPos );
+    setPosition( localPos );
 }
 
 
@@ -795,7 +788,7 @@ void LLJoint::setWorldPosition( const LLVector3& pos )
 //--------------------------------------------------------------------
 const LLQuaternion& LLJoint::getRotation()
 {
-	return mXform.getRotation();
+    return mXform.getRotation();
 }
 
 
@@ -804,14 +797,14 @@ const LLQuaternion& LLJoint::getRotation()
 //--------------------------------------------------------------------
 void LLJoint::setRotation( const LLQuaternion& rot )
 {
-	if (rot.isFinite())
-	{
-	//	if (mXform.getRotation() != rot)
-		{
-			mXform.setRotation(rot);
-			touch(MATRIX_DIRTY | ROTATION_DIRTY);
-		}
-	}
+    if (rot.isFinite())
+    {
+    //  if (mXform.getRotation() != rot)
+        {
+            mXform.setRotation(rot);
+            touch(MATRIX_DIRTY | ROTATION_DIRTY);
+        }
+    }
 }
 
 
@@ -820,9 +813,9 @@ void LLJoint::setRotation( const LLQuaternion& rot )
 //--------------------------------------------------------------------
 LLQuaternion LLJoint::getWorldRotation()
 {
-	updateWorldPRSParent();
+    updateWorldPRSParent();
 
-	return mXform.getWorldRotation();
+    return mXform.getWorldRotation();
 }
 
 //-----------------------------------------------------------------------------
@@ -830,7 +823,7 @@ LLQuaternion LLJoint::getWorldRotation()
 //-----------------------------------------------------------------------------
 LLQuaternion LLJoint::getLastWorldRotation()
 {
-	return mXform.getWorldRotation();
+    return mXform.getWorldRotation();
 }
 
 //--------------------------------------------------------------------
@@ -838,24 +831,24 @@ LLQuaternion LLJoint::getLastWorldRotation()
 //--------------------------------------------------------------------
 void LLJoint::setWorldRotation( const LLQuaternion& rot )
 {
-	if (mParent == NULL)
-	{
-		this->setRotation( rot );
-		return;
-	}
+    if (mParent == NULL)
+    {
+        this->setRotation( rot );
+        return;
+    }
 
-	LLMatrix4 temp_mat(rot);
+    LLMatrix4 temp_mat(rot);
 
-	LLMatrix4 parentWorldMatrix = mParent->getWorldMatrix();
-	parentWorldMatrix.mMatrix[VW][VX] = 0;
-	parentWorldMatrix.mMatrix[VW][VY] = 0;
-	parentWorldMatrix.mMatrix[VW][VZ] = 0;
+    LLMatrix4 parentWorldMatrix = mParent->getWorldMatrix();
+    parentWorldMatrix.mMatrix[VW][VX] = 0;
+    parentWorldMatrix.mMatrix[VW][VY] = 0;
+    parentWorldMatrix.mMatrix[VW][VZ] = 0;
 
-	LLMatrix4 invParentWorldMatrix = parentWorldMatrix.invert();
+    LLMatrix4 invParentWorldMatrix = parentWorldMatrix.invert();
 
-	temp_mat *= invParentWorldMatrix;
+    temp_mat *= invParentWorldMatrix;
 
-	setRotation(LLQuaternion(temp_mat));
+    setRotation(LLQuaternion(temp_mat));
 }
 
 
@@ -876,24 +869,18 @@ void LLJoint::setScale( const LLVector3& requested_scale, bool apply_attachment_
     LLUUID mesh_id;
     LLVector3 active_override;
     if (apply_attachment_overrides && m_attachmentScaleOverrides.findActiveOverride(mesh_id,active_override))
-    {  
+    {
         if (scale != active_override && do_debug_joint(getName()))
         {
-            LLScopedContextString str("setScale");
             LL_DEBUGS("Avatar") << " joint " << getName() << " requested_scale " << requested_scale
                                 << " overriden by attachment " << active_override << LL_ENDL;
         }
         scale = active_override;
     }
-	if ((mXform.getScale() != scale) && do_debug_joint(getName()))
-	{	
-        LLScopedContextString str("setScale");
-        LLCallStack cs;
-        LLContextStatus con_status;
+    if ((mXform.getScale() != scale) && do_debug_joint(getName()))
+    {
         LL_DEBUGS("Avatar") << " joint " << getName() << " set scale " << scale << LL_ENDL;
-        LL_DEBUGS("Avatar") << "CONTEXT:\n" << "====================\n" << con_status << LL_ENDL;
-        LL_DEBUGS("Avatar") << "STACK:\n" << "====================\n" << cs << "====================" << LL_ENDL;
-	}
+    }
     mXform.setScale(scale);
     touch();
 
@@ -906,9 +893,9 @@ void LLJoint::setScale( const LLVector3& requested_scale, bool apply_attachment_
 //--------------------------------------------------------------------
 const LLMatrix4 &LLJoint::getWorldMatrix()
 {
-	updateWorldMatrixParent();
+    updateWorldMatrixParent();
 
-	return mXform.getWorldMatrix();
+    return mXform.getWorldMatrix();
 }
 
 const LLMatrix4a& LLJoint::getWorldMatrix4a()
@@ -924,17 +911,17 @@ const LLMatrix4a& LLJoint::getWorldMatrix4a()
 //--------------------------------------------------------------------
 void LLJoint::setWorldMatrix( const LLMatrix4& mat )
 {
-	LL_INFOS() << "WARNING: LLJoint::setWorldMatrix() not correctly implemented yet" << LL_ENDL;
-	// extract global translation
-	LLVector3 trans(	mat.mMatrix[VW][VX],
-						mat.mMatrix[VW][VY],
-						mat.mMatrix[VW][VZ] );
+    LL_INFOS() << "WARNING: LLJoint::setWorldMatrix() not correctly implemented yet" << LL_ENDL;
+    // extract global translation
+    LLVector3 trans(    mat.mMatrix[VW][VX],
+                        mat.mMatrix[VW][VY],
+                        mat.mMatrix[VW][VZ] );
 
-	// extract global rotation
-	LLQuaternion rot( mat );
+    // extract global rotation
+    LLQuaternion rot( mat );
 
-	setWorldPosition( trans );
-	setWorldRotation( rot );
+    setWorldPosition( trans );
+    setWorldRotation( rot );
 }
 
 //-----------------------------------------------------------------------------
@@ -942,15 +929,15 @@ void LLJoint::setWorldMatrix( const LLMatrix4& mat )
 //-----------------------------------------------------------------------------
 void LLJoint::updateWorldMatrixParent()
 {
-	if (mDirtyFlags & MATRIX_DIRTY)
-	{
-		LLJoint *parent = getParent();
-		if (parent)
-		{
-			parent->updateWorldMatrixParent();
-		}
-		updateWorldMatrix();
-	}
+    if (mDirtyFlags & MATRIX_DIRTY)
+    {
+        LLJoint *parent = getParent();
+        if (parent)
+        {
+            parent->updateWorldMatrixParent();
+        }
+        updateWorldMatrix();
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -958,34 +945,34 @@ void LLJoint::updateWorldMatrixParent()
 //-----------------------------------------------------------------------------
 void LLJoint::updateWorldPRSParent()
 {
-	if (mDirtyFlags & (ROTATION_DIRTY | POSITION_DIRTY))
-	{
-		LLJoint *parent = getParent();
-		if (parent)
-		{
-			parent->updateWorldPRSParent();
-		}
+    if (mDirtyFlags & (ROTATION_DIRTY | POSITION_DIRTY))
+    {
+        LLJoint *parent = getParent();
+        if (parent)
+        {
+            parent->updateWorldPRSParent();
+        }
 
-		mXform.update();
-		mDirtyFlags &= ~(ROTATION_DIRTY | POSITION_DIRTY);
-	}
+        mXform.update();
+        mDirtyFlags &= ~(ROTATION_DIRTY | POSITION_DIRTY);
+    }
 }
 
 //-----------------------------------------------------------------------------
 // updateWorldMatrixChildren()
 //-----------------------------------------------------------------------------
 void LLJoint::updateWorldMatrixChildren()
-{	
-	if (!this->mUpdateXform) return;
+{
+    if (!this->mUpdateXform) return;
 
-	if (mDirtyFlags & MATRIX_DIRTY)
-	{
-		updateWorldMatrix();
-	}
-	for (LLJoint* joint : mChildren)
-	{
-		joint->updateWorldMatrixChildren();
-	}
+    if (mDirtyFlags & MATRIX_DIRTY)
+    {
+        updateWorldMatrix();
+    }
+    for (LLJoint* joint : mChildren)
+    {
+        joint->updateWorldMatrixChildren();
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -993,13 +980,13 @@ void LLJoint::updateWorldMatrixChildren()
 //-----------------------------------------------------------------------------
 void LLJoint::updateWorldMatrix()
 {
-	if (mDirtyFlags & MATRIX_DIRTY)
-	{
-		sNumUpdates++;
-		mXform.updateMatrix(FALSE);
+    if (mDirtyFlags & MATRIX_DIRTY)
+    {
+        sNumUpdates++;
+        mXform.updateMatrix(false);
         mWorldMatrix.loadu(mXform.getWorldMatrix());
-		mDirtyFlags = 0x0;
-	}
+        mDirtyFlags = 0x0;
+    }
 }
 
 //--------------------------------------------------------------------
@@ -1007,7 +994,7 @@ void LLJoint::updateWorldMatrix()
 //--------------------------------------------------------------------
 const LLVector3 &LLJoint::getSkinOffset()
 {
-	return mSkinOffset;
+    return mSkinOffset;
 }
 
 
@@ -1016,7 +1003,7 @@ const LLVector3 &LLJoint::getSkinOffset()
 //--------------------------------------------------------------------
 void LLJoint::setSkinOffset( const LLVector3& offset )
 {
-	mSkinOffset = offset;
+    mSkinOffset = offset;
 }
 
 
@@ -1025,18 +1012,18 @@ void LLJoint::setSkinOffset( const LLVector3& offset )
 //-----------------------------------------------------------------------------
 void LLJoint::clampRotation(LLQuaternion old_rot, LLQuaternion new_rot)
 {
-	LLVector3 main_axis(1.f, 0.f, 0.f);
+    LLVector3 main_axis(1.f, 0.f, 0.f);
 
-	for (LLJoint* joint : mChildren)
-	{
-		if (joint->isAnimatable())
-		{
-			main_axis = joint->getPosition();
-			main_axis.normVec();
-			// only care about first animatable child
-			break;
-		}
-	}
+    for (LLJoint* joint : mChildren)
+    {
+        if (joint->isAnimatable())
+        {
+            main_axis = joint->getPosition();
+            main_axis.normVec();
+            // only care about first animatable child
+            break;
+        }
+    }
 }
 
 // End

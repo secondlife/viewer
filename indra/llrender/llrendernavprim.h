@@ -1,4 +1,4 @@
-/** 
+/**
 * @file   llrendernavprim.h
 * @brief  Header file for llrendernavprim
 * @author Prep@lindenlab.com
@@ -37,10 +37,10 @@ class LLVertexBuffer;
 class LLRenderNavPrim
 {
 public:
-	//Draw simple tri
-	void renderLLTri( const LLVector3& a, const LLVector3& b, const LLVector3& c, const LLColor4U& color ) const;
-	//Draw the contents of vertex buffer
-	void renderNavMeshVB( U32 mode, LLVertexBuffer* pVBO, int vertCnt );
+    //Draw simple tri
+    void renderLLTri( const LLVector3& a, const LLVector3& b, const LLVector3& c, const LLColor4U& color ) const;
+    //Draw the contents of vertex buffer
+    void renderNavMeshVB( U32 mode, LLVertexBuffer* pVBO, int vertCnt );
 private:
 };
 

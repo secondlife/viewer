@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater
  positioning="cascading"
  legacy_header_height="18"
@@ -234,7 +234,7 @@
          height="1"
          left="10"
          layout="topleft"
-         name="advanced_options_hr"
+         name="advanced_options_hr1"
          right="-1"
          top_pad="7"
          />

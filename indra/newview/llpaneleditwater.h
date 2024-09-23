@@ -55,8 +55,8 @@ protected:
     LLSettingsWater::ptr_t  mWaterSettings;
 };
 
-// *RIDER* In this case this split is unecessary since there is only a single 
-// tab page for water settings at this point.  However more may be added in the 
+// *RIDER* In this case this split is unecessary since there is only a single
+// tab page for water settings at this point.  However more may be added in the
 // future and I want to reinforce the pattern used for sky/atmosphere tabs.
 class LLPanelSettingsWaterMainTab : public LLPanelSettingsWater
 {
@@ -65,8 +65,8 @@ class LLPanelSettingsWaterMainTab : public LLPanelSettingsWater
 public:
                             LLPanelSettingsWaterMainTab();
 
-    virtual BOOL	        postBuild() override;
-    virtual void	        setEnabled(BOOL enabled) override;
+    virtual bool            postBuild() override;
+    virtual void            setEnabled(bool enabled) override;
 
 protected:
     virtual void            refresh() override;

@@ -6,9 +6,6 @@
 # it relies on the environment that sets up, functions it provides, and
 # the build result post-processing it does.
 #
-# The shared buildscript build.sh invokes this because it is named 'build.sh',
-# which is the default custom build script name in buildscripts/hg/BuildParams
-#
 # PLEASE NOTE:
 #
 # * This script is interpreted on three platforms, including windows and cygwin
@@ -85,7 +82,7 @@ installer_Linux()
 {
   local package_name="$1"
   local package_dir="$(build_dir_Linux)/newview/"
-  local pattern=".*$(viewer_channel_suffix ${package_name})_[0-9]+_[0-9]+_[0-9]+_[0-9]+_i686\\.tar\\.bz2\$"
+  local pattern=".*$(viewer_channel_suffix ${package_name})_[0-9]+_[0-9]+_[0-9]+_[0-9]+_i686\\.tar\\.xz\$"
   # since the additional packages are built after the base package,
   # sorting oldest first ensures that the unqualified package is returned
   # even if someone makes a qualified name that duplicates the last word of the base name
@@ -112,7 +109,8 @@ installer_CYGWIN()
   fi
 }
 
-[[ -n "$GITHUB_OUTPUT" ]] || fatal "Need to export GITHUB_OUTPUT"
+# if someone wants to run build.sh outside the GitHub environment
+[[ -n "$GITHUB_OUTPUT" ]] || export GITHUB_OUTPUT='/dev/null'
 # The following is based on the Warning for GitHub multiline output strings:
 # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#multiline-strings
 EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
@@ -148,12 +146,21 @@ pre_build()
     && [ -r "$master_message_template_checkout/message_template.msg" ] \
     && template_verifier_master_url="-DTEMPLATE_VERIFIER_MASTER_URL=file://$master_message_template_checkout/message_template.msg"
 
-    RELEASE_CRASH_REPORTING=ON
-    HAVOK=ON
+    RELEASE_CRASH_REPORTING=OFF
+    HAVOK=OFF
     SIGNING=()
-    if [[ "$arch" == "Darwin" && "$variant" == "Release" ]]
-    then SIGNING=("-DENABLE_SIGNING:BOOL=YES" \
-                  "-DSIGNING_IDENTITY:STRING=Developer ID Application: Linden Research, Inc.")
+    if [[ "$variant" != *OS ]]
+    then
+        # Proprietary builds
+
+        RELEASE_CRASH_REPORTING=ON
+        HAVOK=ON
+
+        if [[ "$arch" == "Darwin" ]]
+        then
+            SIGNING=("-DENABLE_SIGNING:BOOL=YES" \
+                          "-DSIGNING_IDENTITY:STRING=Developer ID Application: Linden Research, Inc.")
+        fi
     fi
 
     if [ "${RELEASE_CRASH_REPORTING:-}" != "OFF" ]
@@ -172,7 +179,7 @@ pre_build()
         # This name is consumed by indra/newview/CMakeLists.txt. Make it
         # absolute because we've had troubles with relative pathnames.
         abs_build_dir="$(cd "$build_dir"; pwd)"
-        VIEWER_SYMBOL_FILE="$(native_path "$abs_build_dir/newview/$variant/secondlife-symbols-$symplat-${AUTOBUILD_ADDRSIZE}.tar.bz2")"
+        VIEWER_SYMBOL_FILE="$(native_path "$abs_build_dir/symbols/$variant/${viewer_channel}.sym.tar.xz")"
     fi
 
     # honor autobuild_configure_parameters same as sling-buildscripts
@@ -180,6 +187,7 @@ pre_build()
 
     "$autobuild" configure --quiet -c $variant \
      ${eval_autobuild_configure_parameters:---} \
+     -DLL_TESTS:BOOL=ON \
      -DPACKAGE:BOOL=ON \
      -DHAVOK:BOOL="$HAVOK" \
      -DRELEASE_CRASH_REPORTING:BOOL="$RELEASE_CRASH_REPORTING" \
@@ -200,14 +208,14 @@ package_llphysicsextensions_tpv()
   tpv_status=0
   # nat 2016-12-21: without HAVOK, can't build PhysicsExtensions_TPV.
   if [ "$variant" = "Release" -a "${HAVOK:-}" != "OFF" ]
-  then 
+  then
       tpvconfig="$build_dir/packages/llphysicsextensions/autobuild-tpv.xml"
       test -r "$tpvconfig" || fatal "No llphysicsextensions_tpv autobuild configuration found"
       # SL-19942: autobuild ignores -c switch if AUTOBUILD_CONFIGURATION set
       unset AUTOBUILD_CONFIGURATION
       "$autobuild" build --quiet --config-file "$(native_path "$tpvconfig")" -c Tpv \
           || fatal "failed to build llphysicsextensions_tpv"
-      
+
       # capture the package file name for use in upload later...
       PKGTMP=`mktemp -t pgktpv.XXXXXX`
       cleanup="$cleanup ; rm $PKGTMP* 2>/dev/null"
@@ -240,7 +248,7 @@ build()
     || fatal "failed building $variant"
     echo true >"$build_dir"/build_ok
     end_section "autobuild $variant"
-    
+
     begin_section "extensions $variant"
     # Run build extensions
     if [ -d ${build_dir}/packages/build-extensions ]
@@ -313,7 +321,7 @@ begin_section "select viewer channel"
 # Look for a branch-specific viewer_channel setting
 #    changeset_branch is set in the sling-buildscripts
 viewer_build_branch=$(echo -n "${changeset_branch:-$(repo_branch ${BUILDSCRIPTS_SRC:-$(pwd)})}" | tr -Cs 'A-Za-z0-9_' '_' | sed -E 's/^_+//; s/_+$//')
-if [ -n "$viewer_build_branch" ] 
+if [ -n "$viewer_build_branch" ]
 then
     branch_viewer_channel_var="${viewer_build_branch}_viewer_channel"
     if [ -n "${!branch_viewer_channel_var}" ]
@@ -416,10 +424,10 @@ do
               fi
               if [ -d "$build_dir/doxygen/html" ]
               then
-                  tar -c -f "$build_dir/viewer-doxygen.tar.bz2" --strip-components 3  "$build_dir/doxygen/html"
-                  python_cmd "$helpers/codeticket.py" addoutput "Doxygen Tarball" "$build_dir/viewer-doxygen.tar.bz2" \
+                  tar -cJf "$build_dir/viewer-doxygen.tar.xz" --strip-components 3  "$build_dir/doxygen/html"
+                  python_cmd "$helpers/codeticket.py" addoutput "Doxygen Tarball" "$build_dir/viewer-doxygen.tar.xz" \
                       || fatal "Upload of doxygen tarball failed"
-                  metadata+=("$build_dir/viewer-doxygen.tar.bz2")
+                  metadata+=("$build_dir/viewer-doxygen.tar.xz")
               fi
               ;;
             *)
@@ -435,7 +443,7 @@ do
       record_event "configure for $variant failed: build skipped"
   fi
 
-  if ! $succeeded 
+  if ! $succeeded
   then
       record_event "remaining variants skipped due to $variant failure"
       break
@@ -500,7 +508,7 @@ then
         fi
       done
       end_section "Upload Debian Repository"
-      
+
     else
       record_event "debian build not enabled"
     fi
@@ -508,15 +516,6 @@ then
     record_event "skipping debian build due to failed build"
   fi
 fi
-
-# Some of the uploads takes a long time to finish in the codeticket backend,
-# causing the next codeticket upload attempt to fail.
-# Inserting this after each potentially large upload may prevent those errors.
-# JJ is making changes to Codeticket that we hope will eliminate this failure, then this can be removed
-wait_for_codeticket()
-{
-    sleep $(( 60 * 6 ))
-}
 
 # check status and upload results to S3
 if $succeeded
@@ -527,9 +526,8 @@ then
     # nat 2016-12-22: without RELEASE_CRASH_REPORTING, we have no symbol file.
     if [ "${RELEASE_CRASH_REPORTING:-}" != "OFF" ]
     then
-        # BugSplat wants to see xcarchive.zip
-        # e.g. build-darwin-x86_64/newview/Release/Second Life Test.xcarchive.zip
-        symbol_file="${build_dir}/newview/${variant}/${viewer_channel}.xcarchive.zip"
+        # e.g. build-darwin-x86_64/symbols/Release/Second Life Test.xarchive.zip
+        symbol_file="${build_dir}/symbols/${variant}/${viewer_channel}.xcarchive.zip"
         if [[ ! -f "$symbol_file" ]]
         then
             # symbol tarball we prep for (e.g.) Breakpad

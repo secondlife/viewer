@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater
  legacy_header_height="18"
  can_resize="true"
@@ -23,7 +23,7 @@
    layout="topleft"
    left_delta="0"
    name="ascii_line_editor"
-   prevalidate_callback="ascii"
+   prevalidator="ascii"
    tool_tip="ascii line editor"
    top_pad="10" 
    width="200">
@@ -75,7 +75,7 @@
   <line_editor
    height="20"
    left_delta="0"
-   name="left_pad_editor"
+   name="left_pad_editor1"
    text_pad_right="75"
    top_pad="10"
    width="200">
@@ -84,7 +84,7 @@
   <line_editor
    height="20"
    left_delta="0"
-   name="left_pad_editor"
+   name="left_pad_editor2"
    text_pad_left="25"
    text_pad_right="75"
    top_pad="10"

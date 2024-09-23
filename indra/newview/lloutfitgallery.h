@@ -1,4 +1,4 @@
-/** 
+/**
  * @file lloutfitgallery.h
  * @author Pavlo Kryvych
  * @brief Visual gallery of agent's outfits for My Appearance side panel
@@ -6,21 +6,21 @@
  * $LicenseInfo:firstyear=2015&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2015, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -71,10 +71,10 @@ public:
     LLOutfitGallery(const LLOutfitGallery::Params& params = getDefaultParams());
     virtual ~LLOutfitGallery();
 
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
     /*virtual*/ void onOpen(const LLSD& info);
     /*virtual*/ void draw();
-    /*virtual*/ BOOL handleKeyHere(KEY key, MASK mask);
+    /*virtual*/ bool handleKeyHere(KEY key, MASK mask);
     void moveUp();
     void moveDown();
     void moveLeft();
@@ -90,7 +90,7 @@ public:
     void wearSelectedOutfit();
 
 
-    /*virtual*/ void setFilterSubString(const std::string& string);
+    /*virtual*/ void onFilterSubStringChanged(const std::string& new_string, const std::string& old_string);
 
     /*virtual*/ void getCurrentCategories(uuid_vec_t& vcur);
     /*virtual*/ void updateAddedCategory(LLUUID cat_id);
@@ -100,7 +100,7 @@ public:
     /*virtual*/ bool hasItemSelected();
     /*virtual*/ bool canWearSelected();
 
-    /*virtual*/ bool getHasExpandableFolders() { return FALSE; }
+    /*virtual*/ bool getHasExpandableFolders() { return false; }
 
     void updateMessageVisibility();
     bool hasDefaultImage(const LLUUID& outfit_cat_id);
@@ -116,8 +116,6 @@ protected:
     /*virtual*/ void onCollapseAllFolders() {}
     /*virtual*/ void onExpandAllFolders() {}
     /*virtual*/ LLOutfitListGearMenuBase* createGearMenu();
-
-    void applyFilter(LLOutfitGalleryItem* item, const std::string& filter_substring);
 
 private:
     LLUUID getPhotoAssetId(const LLUUID& outfit_id);
@@ -137,7 +135,8 @@ private:
     void updateGalleryWidth();
 
     LLOutfitGalleryItem* buildGalleryItem(std::string name, LLUUID outfit_id);
-    LLOutfitGalleryItem* getSelectedItem();
+    LLOutfitGalleryItem* getSelectedItem() const;
+    LLOutfitGalleryItem* getItem(const LLUUID& id) const;
 
     void onTextureSelectionChanged(LLInventoryItem* itemp);
 
@@ -175,7 +174,7 @@ private:
     int mGalleryWidth;
     int mRowPanWidthFactor;
     int mGalleryWidthFactor;
-    
+
     LLListContextMenu* mOutfitGalleryMenu;
 
     typedef std::map<LLUUID, LLOutfitGalleryItem*>      outfit_map_t;
@@ -187,25 +186,21 @@ private:
     std::map<S32, LLOutfitGalleryItem*>                 mIndexToItemMap;
 
 
-    LLInventoryCategoriesObserver* 	mOutfitsObserver;
+    LLInventoryCategoriesObserver*  mOutfitsObserver;
 };
 class LLOutfitGalleryContextMenu : public LLOutfitContextMenu
 {
 public:
-    
+
     friend class LLOutfitGallery;
     LLOutfitGalleryContextMenu(LLOutfitListBase* outfit_list)
-    : LLOutfitContextMenu(outfit_list),
-    mOutfitList(outfit_list){}
+    : LLOutfitContextMenu(outfit_list){}
 
 protected:
     /* virtual */ LLContextMenu* createMenu();
     bool onEnable(LLSD::String param);
     bool onVisible(LLSD::String param);
-    void onThumbnail(const LLUUID& outfit_cat_id);
     void onCreate(const LLSD& data);
-private:
-    LLOutfitListBase*	mOutfitList;
 };
 
 
@@ -232,12 +227,12 @@ public:
     LLOutfitGalleryItem(const Params& p);
     virtual ~LLOutfitGalleryItem();
 
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
     /*virtual*/ void draw();
-    /*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
-    /*virtual*/ BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
-    /*virtual*/ BOOL handleDoubleClick(S32 x, S32 y, MASK mask);
-    /*virtual*/ BOOL handleKeyHere(KEY key, MASK mask);
+    /*virtual*/ bool handleMouseDown(S32 x, S32 y, MASK mask);
+    /*virtual*/ bool handleRightMouseDown(S32 x, S32 y, MASK mask);
+    /*virtual*/ bool handleDoubleClick(S32 x, S32 y, MASK mask);
+    /*virtual*/ bool handleKeyHere(KEY key, MASK mask);
     /*virtual*/ void onFocusLost();
     /*virtual*/ void onFocusReceived();
 
@@ -252,13 +247,13 @@ public:
     void setSelected(bool value);
     void setUUID(const LLUUID &outfit_id) {mUUID = outfit_id;}
     LLUUID getUUID() const { return mUUID; }
-    
+
     std::string getItemName() {return mOutfitName;}
     bool isDefaultImage() {return mDefaultImage;}
-    
+
     bool isHidden() {return mHidden;}
     void setHidden(bool hidden) {mHidden = hidden;}
-    
+
 private:
     LLOutfitGallery* mGallery;
     LLPointer<LLViewerFetchedTexture> mTexturep;
@@ -267,11 +262,12 @@ private:
     LLTextBox* mOutfitNameText;
     LLTextBox* mOutfitWornText;
     LLPanel* mTextBgPanel;
+    LLIconCtrl* mPreviewIcon = nullptr;
     bool     mSelected;
     bool     mWorn;
     bool     mDefaultImage;
     bool     mImageUpdatePending;
-    bool	 mHidden;
+    bool     mHidden;
     std::string mOutfitName;
 };
 

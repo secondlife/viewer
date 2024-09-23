@@ -3,7 +3,7 @@ include(Prebuilt)
 
 # There are three possible solutions to provide the llphysicsextensions:
 # - The full source package, selected by -DHAVOK:BOOL=ON
-# - The stub source package, selected by -DHAVOK:BOOL=OFF 
+# - The stub source package, selected by -DHAVOK:BOOL=OFF
 # - The prebuilt package available to those with sublicenses, selected by -DHAVOK_TPV:BOOL=ON
 
 if (INSTALL_PROPRIETARY)

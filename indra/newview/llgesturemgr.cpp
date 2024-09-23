@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llgesturemgr.cpp
  * @brief Manager for playing gestures on the viewer
  *
  * $LicenseInfo:firstyear=2004&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -41,7 +41,7 @@
 #include "llmultigesture.h"
 #include "llnotificationsutil.h"
 #include "llstl.h"
-#include "llstring.h"	// todo: remove
+#include "llstring.h"   // todo: remove
 #include "llfilesystem.h"
 #include "message.h"
 
@@ -58,73 +58,76 @@
 
 // Longest time, in seconds, to wait for all animations to stop playing
 const F32 MAX_WAIT_ANIM_SECS = 30.f;
+// Longest time, in seconds, to wait for a key release.
+// This should be relatively long, but not too long. 10 minutes is enough
+const F32 MAX_WAIT_KEY_SECS = 60.f * 10.f;
 
 // Lightweight constructor.
 // init() does the heavy lifting.
 LLGestureMgr::LLGestureMgr()
-:	mValid(FALSE),
-	mPlaying(),
-	mActive(),
-	mLoadingCount(0)
+:   mValid(false),
+    mPlaying(),
+    mActive(),
+    mLoadingCount(0)
 {
-	gInventory.addObserver(this);
-	mListener.reset(new LLGestureListener());
+    gInventory.addObserver(this);
+    mListener.reset(new LLGestureListener());
 }
 
 
 // We own the data for gestures, so clean them up.
 LLGestureMgr::~LLGestureMgr()
 {
-	item_map_t::iterator it;
-	for (it = mActive.begin(); it != mActive.end(); ++it)
-	{
-		LLMultiGesture* gesture = (*it).second;
+    item_map_t::iterator it;
+    for (it = mActive.begin(); it != mActive.end(); ++it)
+    {
+        LLMultiGesture* gesture = (*it).second;
 
-		delete gesture;
-		gesture = NULL;
-	}
-	gInventory.removeObserver(this);
+        delete gesture;
+        gesture = NULL;
+    }
+    gInventory.removeObserver(this);
 }
 
 
 void LLGestureMgr::init()
 {
-	// TODO
+    // TODO
 }
 
-void LLGestureMgr::changed(U32 mask) 
-{ 
-	LLInventoryFetchItemsObserver::changed(mask);
+void LLGestureMgr::changed(U32 mask)
+{
+    LLInventoryFetchItemsObserver::changed(mask);
 
-	if (mask & LLInventoryObserver::GESTURE)
-	{
-		// If there was a gesture label changed, update all the names in the 
-		// active gestures and then notify observers
-		if (mask & LLInventoryObserver::LABEL)
-		{
-			for(item_map_t::iterator it = mActive.begin(); it != mActive.end(); ++it)
-			{
-				if(it->second)
-				{
-					LLViewerInventoryItem* item = gInventory.getItem(it->first);
-					if(item)
-					{
-						it->second->mName = item->getName();
-					}
-				}
-			}
-			notifyObservers();
-		}
-		// If there was a gesture added or removed notify observers
-		// STRUCTURE denotes that the inventory item has been moved
-		// In the case of deleting gesture, it is moved to the trash
-		else if(mask & LLInventoryObserver::ADD ||
-				mask & LLInventoryObserver::REMOVE ||
-				mask & LLInventoryObserver::STRUCTURE)
-		{
-			notifyObservers();
-		}
-	}
+    if (mask & LLInventoryObserver::GESTURE)
+    {
+        // If there was a gesture label changed, update all the names in the
+        // active gestures and then notify observers
+        if (mask & LLInventoryObserver::LABEL)
+        {
+            for(item_map_t::iterator it = mActive.begin(); it != mActive.end(); ++it)
+            {
+                if(it->second)
+                {
+                    LLViewerInventoryItem* item = gInventory.getItem(it->first);
+                    if(item)
+                    {
+                        it->second->mName = item->getName();
+                    }
+                }
+            }
+            notifyObservers();
+        }
+        // If there was a gesture added or removed notify observers
+        // STRUCTURE denotes that the inventory item has been moved
+        // In the case of deleting gesture, it is moved to the trash
+        else if(mask & LLInventoryObserver::ADD ||
+                mask & LLInventoryObserver::REMOVE ||
+                mask & LLInventoryObserver::STRUCTURE)
+        {
+            notifyObservers();
+        }
+    }
 }
 
 
@@ -132,111 +135,111 @@ void LLGestureMgr::changed(U32 mask)
 // and you KNOW the inventory is loaded.
 void LLGestureMgr::activateGesture(const LLUUID& item_id)
 {
-	LLViewerInventoryItem* item = gInventory.getItem(item_id);
-	if (!item) return;
-	if (item->getType() != LLAssetType::AT_GESTURE)
-		return;
+    LLViewerInventoryItem* item = gInventory.getItem(item_id);
+    if (!item) return;
+    if (item->getType() != LLAssetType::AT_GESTURE)
+        return;
 
-	LLUUID asset_id = item->getAssetUUID();
+    LLUUID asset_id = item->getAssetUUID();
 
-	mLoadingCount = 1;
-	mDeactivateSimilarNames.clear();
+    mLoadingCount = 1;
+    mDeactivateSimilarNames.clear();
 
-	const BOOL inform_server = TRUE;
-	const BOOL deactivate_similar = FALSE; 
-	activateGestureWithAsset(item_id, asset_id, inform_server, deactivate_similar);
+    const bool inform_server = true;
+    const bool deactivate_similar = false;
+    activateGestureWithAsset(item_id, asset_id, inform_server, deactivate_similar);
 }
 
 
 void LLGestureMgr::activateGestures(LLViewerInventoryItem::item_array_t& items)
 {
-	// Load up the assets
-	S32 count = 0;
-	LLViewerInventoryItem::item_array_t::const_iterator it;
-	for (it = items.begin(); it != items.end(); ++it)
-	{
-		LLViewerInventoryItem* item = *it;
+    // Load up the assets
+    S32 count = 0;
+    LLViewerInventoryItem::item_array_t::const_iterator it;
+    for (it = items.begin(); it != items.end(); ++it)
+    {
+        LLViewerInventoryItem* item = *it;
 
-		if (isGestureActive(item->getUUID()))
-		{
-			continue;
-		}
-		else 
-		{ // Make gesture active and persistent through login sessions.  -Aura 07-12-06
-			activateGesture(item->getUUID());
-		}
+        if (isGestureActive(item->getUUID()))
+        {
+            continue;
+        }
+        else
+        { // Make gesture active and persistent through login sessions.  -Aura 07-12-06
+            activateGesture(item->getUUID());
+        }
 
-		count++;
-	}
+        count++;
+    }
 
-	mLoadingCount = count;
-	mDeactivateSimilarNames.clear();
+    mLoadingCount = count;
+    mDeactivateSimilarNames.clear();
 
-	for (it = items.begin(); it != items.end(); ++it)
-	{
-		LLViewerInventoryItem* item = *it;
+    for (it = items.begin(); it != items.end(); ++it)
+    {
+        LLViewerInventoryItem* item = *it;
 
-		if (isGestureActive(item->getUUID()))
-		{
-			continue;
-		}
+        if (isGestureActive(item->getUUID()))
+        {
+            continue;
+        }
 
-		// Don't inform server, we'll do that in bulk
-		const BOOL no_inform_server = FALSE;
-		const BOOL deactivate_similar = TRUE;
-		activateGestureWithAsset(item->getUUID(), item->getAssetUUID(),
-								 no_inform_server,
-								 deactivate_similar);
-	}
+        // Don't inform server, we'll do that in bulk
+        const bool no_inform_server = false;
+        const bool deactivate_similar = true;
+        activateGestureWithAsset(item->getUUID(), item->getAssetUUID(),
+                                 no_inform_server,
+                                 deactivate_similar);
+    }
 
-	// Inform the database of this change
-	LLMessageSystem* msg = gMessageSystem;
+    // Inform the database of this change
+    LLMessageSystem* msg = gMessageSystem;
 
-	BOOL start_message = TRUE;
+    bool start_message = true;
 
-	for (it = items.begin(); it != items.end(); ++it)
-	{
-		LLViewerInventoryItem* item = *it;
+    for (it = items.begin(); it != items.end(); ++it)
+    {
+        LLViewerInventoryItem* item = *it;
 
-		if (isGestureActive(item->getUUID()))
-		{
-			continue;
-		}
+        if (isGestureActive(item->getUUID()))
+        {
+            continue;
+        }
 
-		if (start_message)
-		{
-			msg->newMessage("ActivateGestures");
-			msg->nextBlock("AgentData");
-			msg->addUUID("AgentID", gAgent.getID());
-			msg->addUUID("SessionID", gAgent.getSessionID());
-			msg->addU32("Flags", 0x0);
-			start_message = FALSE;
-		}
-		
-		msg->nextBlock("Data");
-		msg->addUUID("ItemID", item->getUUID());
-		msg->addUUID("AssetID", item->getAssetUUID());
-		msg->addU32("GestureFlags", 0x0);
+        if (start_message)
+        {
+            msg->newMessage("ActivateGestures");
+            msg->nextBlock("AgentData");
+            msg->addUUID("AgentID", gAgent.getID());
+            msg->addUUID("SessionID", gAgent.getSessionID());
+            msg->addU32("Flags", 0x0);
+            start_message = false;
+        }
 
-		if (msg->getCurrentSendTotal() > MTUBYTES)
-		{
-			gAgent.sendReliableMessage();
-			start_message = TRUE;
-		}
-	}
+        msg->nextBlock("Data");
+        msg->addUUID("ItemID", item->getUUID());
+        msg->addUUID("AssetID", item->getAssetUUID());
+        msg->addU32("GestureFlags", 0x0);
 
-	if (!start_message)
-	{
-		gAgent.sendReliableMessage();
-	}
+        if (msg->getCurrentSendTotal() > MTUBYTES)
+        {
+            gAgent.sendReliableMessage();
+            start_message = true;
+        }
+    }
+
+    if (!start_message)
+    {
+        gAgent.sendReliableMessage();
+    }
 }
 
 
 struct LLLoadInfo
 {
-	LLUUID mItemID;
-	BOOL mInformServer;
-	BOOL mDeactivateSimilar;
+    LLUUID mItemID;
+    bool mInformServer;
+    bool mDeactivateSimilar;
 };
 
 // If inform_server is true, will send a message upstream to update
@@ -245,243 +248,243 @@ struct LLLoadInfo
  * It will load a gesture from remote storage
  */
 void LLGestureMgr::activateGestureWithAsset(const LLUUID& item_id,
-												const LLUUID& asset_id,
-												BOOL inform_server,
-												BOOL deactivate_similar)
+                                                const LLUUID& asset_id,
+                                                bool inform_server,
+                                                bool deactivate_similar)
 {
-	const LLUUID& base_item_id = gInventory.getLinkedItemID(item_id);
+    const LLUUID& base_item_id = gInventory.getLinkedItemID(item_id);
 
-	if( !gAssetStorage )
-	{
-		LL_WARNS() << "LLGestureMgr::activateGestureWithAsset without valid gAssetStorage" << LL_ENDL;
-		return;
-	}
-	// If gesture is already active, nothing to do.
-	if (isGestureActive(item_id))
-	{
-		LL_WARNS() << "Tried to loadGesture twice " << item_id << LL_ENDL;
-		return;
-	}
+    if( !gAssetStorage )
+    {
+        LL_WARNS() << "LLGestureMgr::activateGestureWithAsset without valid gAssetStorage" << LL_ENDL;
+        return;
+    }
+    // If gesture is already active, nothing to do.
+    if (isGestureActive(item_id))
+    {
+        LL_WARNS() << "Tried to loadGesture twice " << item_id << LL_ENDL;
+        return;
+    }
 
-//	if (asset_id.isNull())
-//	{
-//		LL_WARNS() << "loadGesture() - gesture has no asset" << LL_ENDL;
-//		return;
-//	}
+//  if (asset_id.isNull())
+//  {
+//      LL_WARNS() << "loadGesture() - gesture has no asset" << LL_ENDL;
+//      return;
+//  }
 
-	// For now, put NULL into the item map.  We'll build a gesture
-	// class object when the asset data arrives.
-	mActive[base_item_id] = NULL;
+    // For now, put NULL into the item map.  We'll build a gesture
+    // class object when the asset data arrives.
+    mActive[base_item_id] = NULL;
 
-	// Copy the UUID
-	if (asset_id.notNull())
-	{
-		LLLoadInfo* info = new LLLoadInfo;
-		info->mItemID = base_item_id;
-		info->mInformServer = inform_server;
-		info->mDeactivateSimilar = deactivate_similar;
+    // Copy the UUID
+    if (asset_id.notNull())
+    {
+        LLLoadInfo* info = new LLLoadInfo;
+        info->mItemID = base_item_id;
+        info->mInformServer = inform_server;
+        info->mDeactivateSimilar = deactivate_similar;
 
-		const BOOL high_priority = TRUE;
-		gAssetStorage->getAssetData(asset_id,
-									LLAssetType::AT_GESTURE,
-									onLoadComplete,
-									(void*)info,
-									high_priority);
-	}
-	else
-	{
-		notifyObservers();
-	}
+        const bool high_priority = true;
+        gAssetStorage->getAssetData(asset_id,
+                                    LLAssetType::AT_GESTURE,
+                                    onLoadComplete,
+                                    (void*)info,
+                                    high_priority);
+    }
+    else
+    {
+        notifyObservers();
+    }
 }
 
 
 void notify_update_label(const LLUUID& base_item_id)
 {
-	gInventory.addChangedMask(LLInventoryObserver::LABEL, base_item_id);
-	LLGestureMgr::instance().notifyObservers();
+    gInventory.addChangedMask(LLInventoryObserver::LABEL, base_item_id);
+    LLGestureMgr::instance().notifyObservers();
 }
 
 void LLGestureMgr::deactivateGesture(const LLUUID& item_id)
 {
-	const LLUUID& base_item_id = gInventory.getLinkedItemID(item_id);
-	item_map_t::iterator it = mActive.find(base_item_id);
-	if (it == mActive.end())
-	{
-		LL_WARNS() << "deactivateGesture for inactive gesture " << item_id << LL_ENDL;
-		return;
-	}
+    const LLUUID& base_item_id = gInventory.getLinkedItemID(item_id);
+    item_map_t::iterator it = mActive.find(base_item_id);
+    if (it == mActive.end())
+    {
+        LL_WARNS() << "deactivateGesture for inactive gesture " << item_id << LL_ENDL;
+        return;
+    }
 
-	// mActive owns this gesture pointer, so clean up memory.
-	LLMultiGesture* gesture = (*it).second;
+    // mActive owns this gesture pointer, so clean up memory.
+    LLMultiGesture* gesture = (*it).second;
 
-	// Can be NULL gestures in the map
-	if (gesture)
-	{
-		stopGesture(gesture);
+    // Can be NULL gestures in the map
+    if (gesture)
+    {
+        stopGesture(gesture);
 
-		delete gesture;
-		gesture = NULL;
-	}
+        delete gesture;
+        gesture = NULL;
+    }
 
-	mActive.erase(it);
+    mActive.erase(it);
 
-	// Inform the database of this change
-	LLMessageSystem* msg = gMessageSystem;
-	msg->newMessage("DeactivateGestures");
-	msg->nextBlock("AgentData");
-	msg->addUUID("AgentID", gAgent.getID());
-	msg->addUUID("SessionID", gAgent.getSessionID());
-	msg->addU32("Flags", 0x0);
-	
-	msg->nextBlock("Data");
-	msg->addUUID("ItemID", item_id);
-	msg->addU32("GestureFlags", 0x0);
+    // Inform the database of this change
+    LLMessageSystem* msg = gMessageSystem;
+    msg->newMessage("DeactivateGestures");
+    msg->nextBlock("AgentData");
+    msg->addUUID("AgentID", gAgent.getID());
+    msg->addUUID("SessionID", gAgent.getSessionID());
+    msg->addU32("Flags", 0x0);
 
-	gAgent.sendReliableMessage();
+    msg->nextBlock("Data");
+    msg->addUUID("ItemID", item_id);
+    msg->addU32("GestureFlags", 0x0);
 
-	LLPointer<LLInventoryCallback> cb =
-		new LLBoostFuncInventoryCallback(no_op_inventory_func,
-										 boost::bind(notify_update_label,base_item_id));
+    gAgent.sendReliableMessage();
 
-	LLAppearanceMgr::instance().removeCOFItemLinks(base_item_id, cb);
+    LLPointer<LLInventoryCallback> cb =
+        new LLBoostFuncInventoryCallback(no_op_inventory_func,
+                                         boost::bind(notify_update_label,base_item_id));
+
+    LLAppearanceMgr::instance().removeCOFItemLinks(base_item_id, cb);
 }
 
 
 void LLGestureMgr::deactivateSimilarGestures(LLMultiGesture* in, const LLUUID& in_item_id)
 {
-	const LLUUID& base_in_item_id = gInventory.getLinkedItemID(in_item_id);
-	uuid_vec_t gest_item_ids;
+    const LLUUID& base_in_item_id = gInventory.getLinkedItemID(in_item_id);
+    uuid_vec_t gest_item_ids;
 
-	// Deactivate all gestures that match
-	item_map_t::iterator it;
-	for (it = mActive.begin(); it != mActive.end(); )
-	{
-		const LLUUID& item_id = (*it).first;
-		LLMultiGesture* gest = (*it).second;
+    // Deactivate all gestures that match
+    item_map_t::iterator it;
+    for (it = mActive.begin(); it != mActive.end(); )
+    {
+        const LLUUID& item_id = (*it).first;
+        LLMultiGesture* gest = (*it).second;
 
-		// Don't deactivate the gesture we are looking for duplicates of
-		// (for replaceGesture)
-		if (!gest || item_id == base_in_item_id) 
-		{
-			// legal, can have null pointers in list
-			++it;
-		}
-		else if ((!gest->mTrigger.empty() && gest->mTrigger == in->mTrigger)
-				 || (gest->mKey != KEY_NONE && gest->mKey == in->mKey && gest->mMask == in->mMask))
-		{
-			gest_item_ids.push_back(item_id);
+        // Don't deactivate the gesture we are looking for duplicates of
+        // (for replaceGesture)
+        if (!gest || item_id == base_in_item_id)
+        {
+            // legal, can have null pointers in list
+            ++it;
+        }
+        else if ((!gest->mTrigger.empty() && gest->mTrigger == in->mTrigger)
+                 || (gest->mKey != KEY_NONE && gest->mKey == in->mKey && gest->mMask == in->mMask))
+        {
+            gest_item_ids.push_back(item_id);
 
-			stopGesture(gest);
+            stopGesture(gest);
 
-			delete gest;
-			gest = NULL;
+            delete gest;
+            gest = NULL;
 
-			mActive.erase(it++);
-			gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
+            mActive.erase(it++);
+            gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
 
-		}
-		else
-		{
-			++it;
-		}
-	}
+        }
+        else
+        {
+            ++it;
+        }
+    }
 
-	// Inform database of the change
-	LLMessageSystem* msg = gMessageSystem;
-	BOOL start_message = TRUE;
-	uuid_vec_t::const_iterator vit = gest_item_ids.begin();
-	while (vit != gest_item_ids.end())
-	{
-		if (start_message)
-		{
-			msg->newMessage("DeactivateGestures");
-			msg->nextBlock("AgentData");
-			msg->addUUID("AgentID", gAgent.getID());
-			msg->addUUID("SessionID", gAgent.getSessionID());
-			msg->addU32("Flags", 0x0);
-			start_message = FALSE;
-		}
-	
-		msg->nextBlock("Data");
-		msg->addUUID("ItemID", *vit);
-		msg->addU32("GestureFlags", 0x0);
+    // Inform database of the change
+    LLMessageSystem* msg = gMessageSystem;
+    bool start_message = true;
+    uuid_vec_t::const_iterator vit = gest_item_ids.begin();
+    while (vit != gest_item_ids.end())
+    {
+        if (start_message)
+        {
+            msg->newMessage("DeactivateGestures");
+            msg->nextBlock("AgentData");
+            msg->addUUID("AgentID", gAgent.getID());
+            msg->addUUID("SessionID", gAgent.getSessionID());
+            msg->addU32("Flags", 0x0);
+            start_message = false;
+        }
 
-		if (msg->getCurrentSendTotal() > MTUBYTES)
-		{
-			gAgent.sendReliableMessage();
-			start_message = TRUE;
-		}
+        msg->nextBlock("Data");
+        msg->addUUID("ItemID", *vit);
+        msg->addU32("GestureFlags", 0x0);
 
-		++vit;
-	}
+        if (msg->getCurrentSendTotal() > MTUBYTES)
+        {
+            gAgent.sendReliableMessage();
+            start_message = true;
+        }
 
-	if (!start_message)
-	{
-		gAgent.sendReliableMessage();
-	}
+        ++vit;
+    }
 
-	// Add to the list of names for the user.
-	for (vit = gest_item_ids.begin(); vit != gest_item_ids.end(); ++vit)
-	{
-		LLViewerInventoryItem* item = gInventory.getItem(*vit);
-		if (!item) continue;
+    if (!start_message)
+    {
+        gAgent.sendReliableMessage();
+    }
 
-		mDeactivateSimilarNames.append(item->getName());
-		mDeactivateSimilarNames.append("\n");
-	}
+    // Add to the list of names for the user.
+    for (vit = gest_item_ids.begin(); vit != gest_item_ids.end(); ++vit)
+    {
+        LLViewerInventoryItem* item = gInventory.getItem(*vit);
+        if (!item) continue;
 
-	notifyObservers();
+        mDeactivateSimilarNames.append(item->getName());
+        mDeactivateSimilarNames.append("\n");
+    }
+
+    notifyObservers();
 }
 
 
-BOOL LLGestureMgr::isGestureActive(const LLUUID& item_id)
+bool LLGestureMgr::isGestureActive(const LLUUID& item_id)
 {
-	const LLUUID& base_item_id = gInventory.getLinkedItemID(item_id);
-	item_map_t::iterator it = mActive.find(base_item_id);
-	return (it != mActive.end());
+    const LLUUID& base_item_id = gInventory.getLinkedItemID(item_id);
+    item_map_t::iterator it = mActive.find(base_item_id);
+    return (it != mActive.end());
 }
 
 
-BOOL LLGestureMgr::isGesturePlaying(const LLUUID& item_id)
+bool LLGestureMgr::isGesturePlaying(const LLUUID& item_id)
 {
-	const LLUUID& base_item_id = gInventory.getLinkedItemID(item_id);
+    const LLUUID& base_item_id = gInventory.getLinkedItemID(item_id);
 
-	item_map_t::iterator it = mActive.find(base_item_id);
-	if (it == mActive.end()) return FALSE;
+    item_map_t::iterator it = mActive.find(base_item_id);
+    if (it == mActive.end()) return false;
 
-	LLMultiGesture* gesture = (*it).second;
-	if (!gesture) return FALSE;
+    LLMultiGesture* gesture = (*it).second;
+    if (!gesture) return false;
 
-	return gesture->mPlaying;
+    return gesture->mPlaying;
 }
 
-BOOL LLGestureMgr::isGesturePlaying(LLMultiGesture* gesture)
+bool LLGestureMgr::isGesturePlaying(LLMultiGesture* gesture)
 {
-	if(!gesture)
-	{
-		return FALSE;
-	}
+    if(!gesture)
+    {
+        return false;
+    }
 
-	return gesture->mPlaying;
+    return gesture->mPlaying;
 }
 
 void LLGestureMgr::replaceGesture(const LLUUID& item_id, LLMultiGesture* new_gesture, const LLUUID& asset_id)
 {
-	const LLUUID& base_item_id = gInventory.getLinkedItemID(item_id);
+    const LLUUID& base_item_id = gInventory.getLinkedItemID(item_id);
 
-	item_map_t::iterator it = mActive.find(base_item_id);
-	if (it == mActive.end())
-	{
-		LL_WARNS() << "replaceGesture for inactive gesture " << base_item_id << LL_ENDL;
-		return;
-	}
+    item_map_t::iterator it = mActive.find(base_item_id);
+    if (it == mActive.end())
+    {
+        LL_WARNS() << "replaceGesture for inactive gesture " << base_item_id << LL_ENDL;
+        return;
+    }
 
-	LLMultiGesture* old_gesture = (*it).second;
-	stopGesture(old_gesture);
+    LLMultiGesture* old_gesture = (*it).second;
+    stopGesture(old_gesture);
 
-	mActive.erase(base_item_id);
+    mActive.erase(base_item_id);
 
-	mActive[base_item_id] = new_gesture;
+    mActive[base_item_id] = new_gesture;
 
     // replaceGesture(const LLUUID& item_id, const LLUUID& new_asset_id)
     // replaces ids without repalcing gesture
@@ -491,617 +494,679 @@ void LLGestureMgr::replaceGesture(const LLUUID& item_id, LLMultiGesture* new_ges
         old_gesture = NULL;
     }
 
-	if (asset_id.notNull())
-	{
-		mLoadingCount = 1;
-		mDeactivateSimilarNames.clear();
+    if (asset_id.notNull())
+    {
+        mLoadingCount = 1;
+        mDeactivateSimilarNames.clear();
 
-		LLLoadInfo* info = new LLLoadInfo;
-		info->mItemID = base_item_id;
-		info->mInformServer = TRUE;
-		info->mDeactivateSimilar = FALSE;
+        LLLoadInfo* info = new LLLoadInfo;
+        info->mItemID = base_item_id;
+        info->mInformServer = true;
+        info->mDeactivateSimilar = false;
 
-		const BOOL high_priority = TRUE;
-		gAssetStorage->getAssetData(asset_id,
-									LLAssetType::AT_GESTURE,
-									onLoadComplete,
-									(void*)info,
-									high_priority);
-	}
+        const bool high_priority = true;
+        gAssetStorage->getAssetData(asset_id,
+                                    LLAssetType::AT_GESTURE,
+                                    onLoadComplete,
+                                    (void*)info,
+                                    high_priority);
+    }
 
-	notifyObservers();
+    notifyObservers();
 }
 
 void LLGestureMgr::replaceGesture(const LLUUID& item_id, const LLUUID& new_asset_id)
 {
-	const LLUUID& base_item_id = gInventory.getLinkedItemID(item_id);
+    const LLUUID& base_item_id = gInventory.getLinkedItemID(item_id);
 
-	item_map_t::iterator it = LLGestureMgr::instance().mActive.find(base_item_id);
-	if (it == mActive.end())
-	{
-		LL_WARNS() << "replaceGesture for inactive gesture " << base_item_id << LL_ENDL;
-		return;
-	}
+    item_map_t::iterator it = LLGestureMgr::instance().mActive.find(base_item_id);
+    if (it == mActive.end())
+    {
+        LL_WARNS() << "replaceGesture for inactive gesture " << base_item_id << LL_ENDL;
+        return;
+    }
 
-	// mActive owns this gesture pointer, so clean up memory.
-	LLMultiGesture* gesture = (*it).second;
-	LLGestureMgr::instance().replaceGesture(base_item_id, gesture, new_asset_id);
+    // mActive owns this gesture pointer, so clean up memory.
+    LLMultiGesture* gesture = (*it).second;
+    LLGestureMgr::instance().replaceGesture(base_item_id, gesture, new_asset_id);
 }
 
-void LLGestureMgr::playGesture(LLMultiGesture* gesture)
+void LLGestureMgr::playGesture(LLMultiGesture* gesture, bool fromKeyPress)
 {
-	if (!gesture) return;
+    if (!gesture) return;
 
-	// Reset gesture to first step
-	gesture->mCurrentStep = 0;
+    // Reset gesture to first step
+    gesture->reset();
+    gesture->mTriggeredByKey = fromKeyPress;
 
-	// Add to list of playing
-	gesture->mPlaying = TRUE;
-	mPlaying.push_back(gesture);
+    // Add to list of playing
+    gesture->mPlaying = true;
+    mPlaying.push_back(gesture);
 
-	// Load all needed assets to minimize the delays
-	// when gesture is playing.
-	for (std::vector<LLGestureStep*>::iterator steps_it = gesture->mSteps.begin();
-		 steps_it != gesture->mSteps.end();
-		 ++steps_it)
-	{
-		LLGestureStep* step = *steps_it;
-		switch(step->getType())
-		{
-		case STEP_ANIMATION:
-			{
-				LLGestureStepAnimation* anim_step = (LLGestureStepAnimation*)step;
-				const LLUUID& anim_id = anim_step->mAnimAssetID;
+    // Load all needed assets to minimize the delays
+    // when gesture is playing.
+    for (std::vector<LLGestureStep*>::iterator steps_it = gesture->mSteps.begin();
+         steps_it != gesture->mSteps.end();
+         ++steps_it)
+    {
+        LLGestureStep* step = *steps_it;
+        switch(step->getType())
+        {
+        case STEP_ANIMATION:
+            {
+                LLGestureStepAnimation* anim_step = (LLGestureStepAnimation*)step;
+                const LLUUID& anim_id = anim_step->mAnimAssetID;
 
-				// Don't request the animation if this step stops it or if it is already in the cache
-				if (!(anim_id.isNull()
-					  || anim_step->mFlags & ANIM_FLAG_STOP
-					  || gAssetStorage->hasLocalAsset(anim_id, LLAssetType::AT_ANIMATION)))
-				{
-					mLoadingAssets.insert(anim_id);
+                // Don't request the animation if this step stops it or if it is already in the cache
+                if (!(anim_id.isNull()
+                      || anim_step->mFlags & ANIM_FLAG_STOP
+                      || gAssetStorage->hasLocalAsset(anim_id, LLAssetType::AT_ANIMATION)))
+                {
+                    mLoadingAssets.insert(anim_id);
 
-					LLUUID* id = new LLUUID(gAgentID);
-					gAssetStorage->getAssetData(anim_id,
-									LLAssetType::AT_ANIMATION,
-									onAssetLoadComplete,
-									(void *)id,
-									TRUE);
-				}
-				break;
-			}
-		case STEP_SOUND:
-			{
-				LLGestureStepSound* sound_step = (LLGestureStepSound*)step;
-				const LLUUID& sound_id = sound_step->mSoundAssetID;
-				if (!(sound_id.isNull()
-					  || gAssetStorage->hasLocalAsset(sound_id, LLAssetType::AT_SOUND)))
-				{
-					mLoadingAssets.insert(sound_id);
+                    LLUUID* id = new LLUUID(gAgentID);
+                    gAssetStorage->getAssetData(anim_id,
+                                    LLAssetType::AT_ANIMATION,
+                                    onAssetLoadComplete,
+                                    (void *)id,
+                                    true);
+                }
+                break;
+            }
+        case STEP_SOUND:
+            {
+                LLGestureStepSound* sound_step = (LLGestureStepSound*)step;
+                const LLUUID& sound_id = sound_step->mSoundAssetID;
+                if (!(sound_id.isNull()
+                      || gAssetStorage->hasLocalAsset(sound_id, LLAssetType::AT_SOUND)))
+                {
+                    mLoadingAssets.insert(sound_id);
 
-					gAssetStorage->getAssetData(sound_id,
-									LLAssetType::AT_SOUND,
-									onAssetLoadComplete,
-									NULL,
-									TRUE);
-				}
-				break;
-			}
-		case STEP_CHAT:
-		case STEP_WAIT:
-		case STEP_EOF:
-			{
-				break;
-			}
-		default:
-			{
-				LL_WARNS() << "Unknown gesture step type: " << step->getType() << LL_ENDL;
-			}
-		}
-	}
+                    gAssetStorage->getAssetData(sound_id,
+                                    LLAssetType::AT_SOUND,
+                                    onAssetLoadComplete,
+                                    NULL,
+                                    true);
+                }
+                break;
+            }
+        case STEP_CHAT:
+        case STEP_WAIT:
+        case STEP_EOF:
+            {
+                break;
+            }
+        default:
+            {
+                LL_WARNS() << "Unknown gesture step type: " << step->getType() << LL_ENDL;
+            }
+        }
+    }
 
-	// And get it going
-	stepGesture(gesture);
+    // And get it going
+    stepGesture(gesture);
 
-	notifyObservers();
+    notifyObservers();
 }
 
 
 // Convenience function that looks up the item_id for you.
 void LLGestureMgr::playGesture(const LLUUID& item_id)
 {
-	const LLUUID& base_item_id = gInventory.getLinkedItemID(item_id);
+    const LLUUID& base_item_id = gInventory.getLinkedItemID(item_id);
 
-	item_map_t::iterator it = mActive.find(base_item_id);
-	if (it == mActive.end()) return;
+    item_map_t::iterator it = mActive.find(base_item_id);
+    if (it == mActive.end()) return;
 
-	LLMultiGesture* gesture = (*it).second;
-	if (!gesture) return;
+    LLMultiGesture* gesture = (*it).second;
+    if (!gesture) return;
 
-	playGesture(gesture);
+    playGesture(gesture);
 }
 
 
 // Iterates through space delimited tokens in string, triggering any gestures found.
 // Generates a revised string that has the found tokens replaced by their replacement strings
 // and (as a minor side effect) has multiple spaces in a row replaced by single spaces.
-BOOL LLGestureMgr::triggerAndReviseString(const std::string &utf8str, std::string* revised_string)
+bool LLGestureMgr::triggerAndReviseString(const std::string &utf8str, std::string* revised_string)
 {
-	std::string tokenized = utf8str;
+    std::string tokenized = utf8str;
 
-	BOOL found_gestures = FALSE;
-	BOOL first_token = TRUE;
+    bool found_gestures = false;
+    bool first_token = true;
 
-	typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
-	boost::char_separator<char> sep(" ");
-	tokenizer tokens(tokenized, sep);
-	tokenizer::iterator token_iter;
+    typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+    boost::char_separator<char> sep(" ");
+    tokenizer tokens(tokenized, sep);
+    tokenizer::iterator token_iter;
 
-	for( token_iter = tokens.begin(); token_iter != tokens.end(); ++token_iter)
-	{
-		const char* cur_token = token_iter->c_str();
-		LLMultiGesture* gesture = NULL;
+    for( token_iter = tokens.begin(); token_iter != tokens.end(); ++token_iter)
+    {
+        const char* cur_token = token_iter->c_str();
+        LLMultiGesture* gesture = NULL;
 
-		// Only pay attention to the first gesture in the string.
-		if( !found_gestures )
-		{
-			// collect gestures that match
-			std::vector <LLMultiGesture *> matching;
-			item_map_t::iterator it;
-			for (it = mActive.begin(); it != mActive.end(); ++it)
-			{
-				gesture = (*it).second;
+        // Only pay attention to the first gesture in the string.
+        if( !found_gestures )
+        {
+            // collect gestures that match
+            std::vector <LLMultiGesture *> matching;
+            item_map_t::iterator it;
+            for (it = mActive.begin(); it != mActive.end(); ++it)
+            {
+                gesture = (*it).second;
 
-				// Gesture asset data might not have arrived yet
-				if (!gesture) continue;
-				
-				if (LLStringUtil::compareInsensitive(gesture->mTrigger, cur_token) == 0)
-				{
-					matching.push_back(gesture);
-				}
-				
-				gesture = NULL;
-			}
+                // Gesture asset data might not have arrived yet
+                if (!gesture) continue;
 
-			
-			if (matching.size() > 0)
-			{
-				// choose one at random
-				{
-					S32 random = ll_rand(matching.size());
+                if (LLStringUtil::compareInsensitive(gesture->mTrigger, cur_token) == 0)
+                {
+                    matching.push_back(gesture);
+                }
 
-					gesture = matching[random];
-					
-					playGesture(gesture);
+                gesture = NULL;
+            }
 
-					if (!gesture->mReplaceText.empty())
-					{
-						if( !first_token )
-						{
-							if (revised_string)
-								revised_string->append( " " );
-						}
 
-						// Don't muck with the user's capitalization if we don't have to.
-						if( LLStringUtil::compareInsensitive(cur_token, gesture->mReplaceText) == 0)
-						{
-							if (revised_string)
-								revised_string->append( cur_token );
-						}
-						else
-						{
-							if (revised_string)
-								revised_string->append( gesture->mReplaceText );
-						}
-					}
-					found_gestures = TRUE;
-				}
-			}
-		}
-		
-		if(!gesture)
-		{
-			// This token doesn't match a gesture.  Pass it through to the output.
-			if( !first_token )
-			{
-				if (revised_string)
-					revised_string->append( " " );
-			}
-			if (revised_string)
-				revised_string->append( cur_token );
-		}
+            if (matching.size() > 0)
+            {
+                // choose one at random
+                {
+                    S32 random = ll_rand(static_cast<S32>(matching.size()));
 
-		first_token = FALSE;
-		gesture = NULL;
-	}
-	return found_gestures;
+                    gesture = matching[random];
+
+                    playGesture(gesture);
+
+                    if (!gesture->mReplaceText.empty())
+                    {
+                        if( !first_token )
+                        {
+                            if (revised_string)
+                                revised_string->append( " " );
+                        }
+
+                        // Don't muck with the user's capitalization if we don't have to.
+                        if( LLStringUtil::compareInsensitive(cur_token, gesture->mReplaceText) == 0)
+                        {
+                            if (revised_string)
+                                revised_string->append( cur_token );
+                        }
+                        else
+                        {
+                            if (revised_string)
+                                revised_string->append( gesture->mReplaceText );
+                        }
+                    }
+                    found_gestures = true;
+                }
+            }
+        }
+
+        if(!gesture)
+        {
+            // This token doesn't match a gesture.  Pass it through to the output.
+            if( !first_token )
+            {
+                if (revised_string)
+                    revised_string->append( " " );
+            }
+            if (revised_string)
+                revised_string->append( cur_token );
+        }
+
+        first_token = false;
+        gesture = NULL;
+    }
+    return found_gestures;
 }
 
 
-BOOL LLGestureMgr::triggerGesture(KEY key, MASK mask)
+bool LLGestureMgr::triggerGesture(KEY key, MASK mask)
 {
-	std::vector <LLMultiGesture *> matching;
-	item_map_t::iterator it;
+    std::vector <LLMultiGesture *> matching;
+    item_map_t::iterator it;
 
-	// collect matching gestures
-	for (it = mActive.begin(); it != mActive.end(); ++it)
-	{
-		LLMultiGesture* gesture = (*it).second;
+    // collect matching gestures
+    for (it = mActive.begin(); it != mActive.end(); ++it)
+    {
+        LLMultiGesture* gesture = (*it).second;
 
-		// asset data might not have arrived yet
-		if (!gesture) continue;
+        // asset data might not have arrived yet
+        if (!gesture) continue;
 
-		if (gesture->mKey == key
-			&& gesture->mMask == mask)
-		{
-			matching.push_back(gesture);
-		}
-	}
+        if (gesture->mKey == key
+            && gesture->mMask == mask
+            && gesture->mWaitingKeyRelease == false)
+        {
+            matching.push_back(gesture);
+        }
+    }
 
-	// choose one and play it
-	if (matching.size() > 0)
-	{
-		U32 random = ll_rand(matching.size());
-		
-		LLMultiGesture* gesture = matching[random];
-			
-		playGesture(gesture);
-		return TRUE;
-	}
-	return FALSE;
+    // choose one and play it
+    if (matching.size() > 0)
+    {
+        U32 random = ll_rand(static_cast<S32>(matching.size()));
+
+        LLMultiGesture* gesture = matching[random];
+
+        playGesture(gesture, true);
+        return true;
+    }
+    return false;
+}
+
+
+bool LLGestureMgr::triggerGestureRelease(KEY key, MASK mask)
+{
+    std::vector <LLMultiGesture *> matching;
+    item_map_t::iterator it;
+
+    // collect matching gestures
+    for (it = mActive.begin(); it != mActive.end(); ++it)
+    {
+        LLMultiGesture* gesture = (*it).second;
+
+        // asset data might not have arrived yet
+        if (!gesture) continue;
+
+        if (gesture->mKey == key
+            && gesture->mMask == mask)
+        {
+            gesture->mKeyReleased = true;
+        }
+    }
+
+    //If we found one, block. Otherwise tell them it's free to go.
+    return matching.size() > 0;
 }
 
 
 S32 LLGestureMgr::getPlayingCount() const
 {
-	return mPlaying.size();
+    return static_cast<S32>(mPlaying.size());
 }
 
 
 struct IsGesturePlaying
 {
-	bool operator()(const LLMultiGesture* gesture) const
-	{
-		return bool(gesture->mPlaying);
-	}
+    bool operator()(const LLMultiGesture* gesture) const
+    {
+        return bool(gesture->mPlaying);
+    }
 };
 
 void LLGestureMgr::update()
 {
-	S32 i;
-	for (i = 0; i < (S32)mPlaying.size(); ++i)
-	{
-		stepGesture(mPlaying[i]);
-	}
+    S32 i;
+    for (i = 0; i < (S32)mPlaying.size(); ++i)
+    {
+        stepGesture(mPlaying[i]);
+    }
 
-	// Clear out gestures that are done, by moving all the
-	// ones that are still playing to the front.
-	std::vector<LLMultiGesture*>::iterator new_end;
-	new_end = std::partition(mPlaying.begin(),
-							 mPlaying.end(),
-							 IsGesturePlaying());
+    // Clear out gestures that are done, by moving all the
+    // ones that are still playing to the front.
+    std::vector<LLMultiGesture*>::iterator new_end;
+    new_end = std::partition(mPlaying.begin(),
+                             mPlaying.end(),
+                             IsGesturePlaying());
 
-	// Something finished playing
-	if (new_end != mPlaying.end())
-	{
-		// Delete the completed gestures that want deletion
-		std::vector<LLMultiGesture*>::iterator it;
-		for (it = new_end; it != mPlaying.end(); ++it)
-		{
-			LLMultiGesture* gesture = *it;
+    // Something finished playing
+    if (new_end != mPlaying.end())
+    {
+        // Delete the completed gestures that want deletion
+        std::vector<LLMultiGesture*>::iterator it;
+        for (it = new_end; it != mPlaying.end(); ++it)
+        {
+            LLMultiGesture* gesture = *it;
 
-			if (gesture->mDoneCallback)
-			{
-				gesture->mDoneCallback(gesture, gesture->mCallbackData);
+            if (gesture->mDoneCallback)
+            {
+                gesture->mDoneCallback(gesture, gesture->mCallbackData);
 
-				// callback might have deleted gesture, can't
-				// rely on this pointer any more
-				gesture = NULL;
-			}
-		}
+                // callback might have deleted gesture, can't
+                // rely on this pointer any more
+                gesture = NULL;
+            }
+        }
 
-		// And take done gestures out of the playing list
-		mPlaying.erase(new_end, mPlaying.end());
+        // And take done gestures out of the playing list
+        mPlaying.erase(new_end, mPlaying.end());
 
-		notifyObservers();
-	}
+        notifyObservers();
+    }
 }
 
 
 // Run all steps until you're either done or hit a wait.
 void LLGestureMgr::stepGesture(LLMultiGesture* gesture)
 {
-	if (!gesture)
-	{
-		return;
-	}
-	if (!isAgentAvatarValid() || hasLoadingAssets(gesture)) return;
+    if (!gesture)
+    {
+        return;
+    }
+    if (!isAgentAvatarValid() || hasLoadingAssets(gesture)) return;
 
-	// Of the ones that started playing, have any stopped?
+    // Of the ones that started playing, have any stopped?
 
-	std::set<LLUUID>::iterator gest_it;
-	for (gest_it = gesture->mPlayingAnimIDs.begin(); 
-		 gest_it != gesture->mPlayingAnimIDs.end(); 
-		 )
-	{
-		// look in signaled animations (simulator's view of what is
-		// currently playing.
-		LLVOAvatar::AnimIterator play_it = gAgentAvatarp->mSignaledAnimations.find(*gest_it);
-		if (play_it != gAgentAvatarp->mSignaledAnimations.end())
-		{
-			++gest_it;
-		}
-		else
-		{
-			// not found, so not currently playing or scheduled to play
-			// delete from the triggered set
-			gesture->mPlayingAnimIDs.erase(gest_it++);
-		}
-	}
+    std::set<LLUUID>::iterator gest_it;
+    for (gest_it = gesture->mPlayingAnimIDs.begin();
+         gest_it != gesture->mPlayingAnimIDs.end();
+         )
+    {
+        // look in signaled animations (simulator's view of what is
+        // currently playing.
+        LLVOAvatar::AnimIterator play_it = gAgentAvatarp->mSignaledAnimations.find(*gest_it);
+        if (play_it != gAgentAvatarp->mSignaledAnimations.end())
+        {
+            ++gest_it;
+        }
+        else
+        {
+            // not found, so not currently playing or scheduled to play
+            // delete from the triggered set
+            gesture->mPlayingAnimIDs.erase(gest_it++);
+        }
+    }
 
-	// Of all the animations that we asked the sim to start for us,
-	// pick up the ones that have actually started.
-	for (gest_it = gesture->mRequestedAnimIDs.begin();
-		 gest_it != gesture->mRequestedAnimIDs.end();
-		 )
-	{
-	 LLVOAvatar::AnimIterator play_it = gAgentAvatarp->mSignaledAnimations.find(*gest_it);
-		if (play_it != gAgentAvatarp->mSignaledAnimations.end())
-		{
-			// Hooray, this animation has started playing!
-			// Copy into playing.
-			gesture->mPlayingAnimIDs.insert(*gest_it);
-			gesture->mRequestedAnimIDs.erase(gest_it++);
-		}
-		else
-		{
-			// nope, not playing yet
-			++gest_it;
-		}
-	}
+    // Of all the animations that we asked the sim to start for us,
+    // pick up the ones that have actually started.
+    for (gest_it = gesture->mRequestedAnimIDs.begin();
+         gest_it != gesture->mRequestedAnimIDs.end();
+         )
+    {
+     LLVOAvatar::AnimIterator play_it = gAgentAvatarp->mSignaledAnimations.find(*gest_it);
+        if (play_it != gAgentAvatarp->mSignaledAnimations.end())
+        {
+            // Hooray, this animation has started playing!
+            // Copy into playing.
+            gesture->mPlayingAnimIDs.insert(*gest_it);
+            gesture->mRequestedAnimIDs.erase(gest_it++);
+        }
+        else
+        {
+            // nope, not playing yet
+            ++gest_it;
+        }
+    }
 
-	// Run the current steps
-	BOOL waiting = FALSE;
-	while (!waiting && gesture->mPlaying)
-	{
-		// Get the current step, if there is one.
-		// Otherwise enter the waiting at end state.
-		LLGestureStep* step = NULL;
-		if (gesture->mCurrentStep < (S32)gesture->mSteps.size())
-		{
-			step = gesture->mSteps[gesture->mCurrentStep];
-			llassert(step != NULL);
-		}
-		else
-		{
-			// step stays null, we're off the end
-			gesture->mWaitingAtEnd = TRUE;
-		}
+    // Run the current steps
+    bool waiting = false;
+    while (!waiting && gesture->mPlaying)
+    {
+        // Get the current step, if there is one.
+        // Otherwise enter the waiting at end state.
+        LLGestureStep* step = NULL;
+        if (gesture->mCurrentStep < (S32)gesture->mSteps.size())
+        {
+            step = gesture->mSteps[gesture->mCurrentStep];
+            llassert(step != NULL);
+        }
+        else
+        {
+            // step stays null, we're off the end
+            gesture->mWaitingAtEnd = true;
+        }
 
 
-		// If we're waiting at the end, wait for all gestures to stop
-		// playing.
-		// TODO: Wait for all sounds to complete as well.
-		if (gesture->mWaitingAtEnd)
-		{
-			// Neither do we have any pending requests, nor are they
-			// still playing.
-			if ((gesture->mRequestedAnimIDs.empty()
-				&& gesture->mPlayingAnimIDs.empty()))
-			{
-				// all animations are done playing
-				gesture->mWaitingAtEnd = FALSE;
-				gesture->mPlaying = FALSE;
-			}
-			else
-			{
-				waiting = TRUE;
-			}
-			continue;
-		}
+        // If we're waiting at the end, wait for all gestures to stop
+        // playing.
+        // TODO: Wait for all sounds to complete as well.
+        if (gesture->mWaitingAtEnd)
+        {
+            // Neither do we have any pending requests, nor are they
+            // still playing.
+            if ((gesture->mRequestedAnimIDs.empty()
+                && gesture->mPlayingAnimIDs.empty()))
+            {
+                // all animations are done playing
+                gesture->mWaitingAtEnd = false;
+                gesture->mPlaying = false;
+            }
+            else
+            {
+                waiting = true;
+            }
+            continue;
+        }
 
-		// If we're waiting on our animations to stop, poll for
-		// completion.
-		if (gesture->mWaitingAnimations)
-		{
-			// Neither do we have any pending requests, nor are they
-			// still playing.
-			if ((gesture->mRequestedAnimIDs.empty()
-				&& gesture->mPlayingAnimIDs.empty()))
-			{
-				// all animations are done playing
-				gesture->mWaitingAnimations = FALSE;
-				gesture->mCurrentStep++;
-			}
-			else if (gesture->mWaitTimer.getElapsedTimeF32() > MAX_WAIT_ANIM_SECS)
-			{
-				// we've waited too long for an animation
-				LL_INFOS("GestureMgr") << "Waited too long for animations to stop, continuing gesture."
-					<< LL_ENDL;
-				gesture->mWaitingAnimations = FALSE;
-				gesture->mCurrentStep++;
-			}
-			else
-			{
-				waiting = TRUE;
-			}
-			continue;
-		}
+        // If we're waiting a fixed amount of time, check for timer
+        // expiration.
+        if (gesture->mWaitingKeyRelease)
+        {
+            // We're waiting for a certain amount of time to pass
+            if (gesture->mKeyReleased)
+            {
+                // wait is done, continue execution
+                gesture->mWaitingKeyRelease = false;
+                gesture->mCurrentStep++;
+            }
+            else if (gesture->mWaitTimer.getElapsedTimeF32() > MAX_WAIT_KEY_SECS)
+            {
+                LL_INFOS("GestureMgr") << "Waited too long for key release, continuing gesture."
+                    << LL_ENDL;
+                gesture->mWaitingKeyRelease = false;
+                gesture->mCurrentStep++;
+            }
+            else
+            {
+                // we're waiting, so execution is done for now
+                waiting = true;
+            }
+            continue;
+        }
 
-		// If we're waiting a fixed amount of time, check for timer
-		// expiration.
-		if (gesture->mWaitingTimer)
-		{
-			// We're waiting for a certain amount of time to pass
-			LLGestureStepWait* wait_step = (LLGestureStepWait*)step;
+        // If we're waiting on our animations to stop, poll for
+        // completion.
+        if (gesture->mWaitingAnimations)
+        {
+            // Neither do we have any pending requests, nor are they
+            // still playing.
+            if ((gesture->mRequestedAnimIDs.empty()
+                && gesture->mPlayingAnimIDs.empty()))
+            {
+                // all animations are done playing
+                gesture->mWaitingAnimations = false;
+                gesture->mCurrentStep++;
+            }
+            else if (gesture->mWaitTimer.getElapsedTimeF32() > MAX_WAIT_ANIM_SECS)
+            {
+                // we've waited too long for an animation
+                LL_INFOS("GestureMgr") << "Waited too long for animations to stop, continuing gesture."
+                    << LL_ENDL;
+                gesture->mWaitingAnimations = false;
+                gesture->mCurrentStep++;
+            }
+            else
+            {
+                waiting = true;
+            }
+            continue;
+        }
 
-			F32 elapsed = gesture->mWaitTimer.getElapsedTimeF32();
-			if (elapsed > wait_step->mWaitSeconds)
-			{
-				// wait is done, continue execution
-				gesture->mWaitingTimer = FALSE;
-				gesture->mCurrentStep++;
-			}
-			else
-			{
-				// we're waiting, so execution is done for now
-				waiting = TRUE;
-			}
-			continue;
-		}
+        // If we're waiting a fixed amount of time, check for timer
+        // expiration.
+        if (gesture->mWaitingTimer)
+        {
+            // We're waiting for a certain amount of time to pass
+            LLGestureStepWait* wait_step = (LLGestureStepWait*)step;
 
-		// Not waiting, do normal execution
-		runStep(gesture, step);
-	}
+            F32 elapsed = gesture->mWaitTimer.getElapsedTimeF32();
+            if (elapsed > wait_step->mWaitSeconds)
+            {
+                // wait is done, continue execution
+                gesture->mWaitingTimer = false;
+                gesture->mCurrentStep++;
+            }
+            else
+            {
+                // we're waiting, so execution is done for now
+                waiting = true;
+            }
+            continue;
+        }
+
+        // Not waiting, do normal execution
+        runStep(gesture, step);
+    }
 }
 
 
 void LLGestureMgr::runStep(LLMultiGesture* gesture, LLGestureStep* step)
 {
-	switch(step->getType())
-	{
-	case STEP_ANIMATION:
-		{
-			LLGestureStepAnimation* anim_step = (LLGestureStepAnimation*)step;
-			if (anim_step->mAnimAssetID.isNull())
-			{
-				gesture->mCurrentStep++;
-			}
+    switch(step->getType())
+    {
+    case STEP_ANIMATION:
+        {
+            LLGestureStepAnimation* anim_step = (LLGestureStepAnimation*)step;
+            if (anim_step->mAnimAssetID.isNull())
+            {
+                gesture->mCurrentStep++;
+            }
 
-			if (anim_step->mFlags & ANIM_FLAG_STOP)
-			{
-				gAgent.sendAnimationRequest(anim_step->mAnimAssetID, ANIM_REQUEST_STOP);
-				// remove it from our request set in case we just requested it
-				std::set<LLUUID>::iterator set_it = gesture->mRequestedAnimIDs.find(anim_step->mAnimAssetID);
-				if (set_it != gesture->mRequestedAnimIDs.end())
-				{
-					gesture->mRequestedAnimIDs.erase(set_it);
-				}
-			}
-			else
-			{
-				gAgent.sendAnimationRequest(anim_step->mAnimAssetID, ANIM_REQUEST_START);
-				// Indicate that we've requested this animation to play as
-				// part of this gesture (but it won't start playing for at
-				// least one round-trip to simulator).
-				gesture->mRequestedAnimIDs.insert(anim_step->mAnimAssetID);
-			}
-			gesture->mCurrentStep++;
-			break;
-		}
-	case STEP_SOUND:
-		{
-			LLGestureStepSound* sound_step = (LLGestureStepSound*)step;
-			const LLUUID& sound_id = sound_step->mSoundAssetID;
-			const F32 volume = 1.f;
-			send_sound_trigger(sound_id, volume);
-			gesture->mCurrentStep++;
-			break;
-		}
-	case STEP_CHAT:
-		{
-			LLGestureStepChat* chat_step = (LLGestureStepChat*)step;
-			std::string chat_text = chat_step->mChatText;
-			// Don't animate the nodding, as this might not blend with
-			// other playing animations.
+            if (anim_step->mFlags & ANIM_FLAG_STOP)
+            {
+                gAgent.sendAnimationRequest(anim_step->mAnimAssetID, ANIM_REQUEST_STOP);
+                // remove it from our request set in case we just requested it
+                std::set<LLUUID>::iterator set_it = gesture->mRequestedAnimIDs.find(anim_step->mAnimAssetID);
+                if (set_it != gesture->mRequestedAnimIDs.end())
+                {
+                    gesture->mRequestedAnimIDs.erase(set_it);
+                }
+            }
+            else
+            {
+                gAgent.sendAnimationRequest(anim_step->mAnimAssetID, ANIM_REQUEST_START);
+                // Indicate that we've requested this animation to play as
+                // part of this gesture (but it won't start playing for at
+                // least one round-trip to simulator).
+                gesture->mRequestedAnimIDs.insert(anim_step->mAnimAssetID);
+            }
+            gesture->mCurrentStep++;
+            break;
+        }
+    case STEP_SOUND:
+        {
+            LLGestureStepSound* sound_step = (LLGestureStepSound*)step;
+            const LLUUID& sound_id = sound_step->mSoundAssetID;
+            const F32 volume = 1.f;
+            send_sound_trigger(sound_id, volume);
+            gesture->mCurrentStep++;
+            break;
+        }
+    case STEP_CHAT:
+        {
+            LLGestureStepChat* chat_step = (LLGestureStepChat*)step;
+            std::string chat_text = chat_step->mChatText;
+            // Don't animate the nodding, as this might not blend with
+            // other playing animations.
 
-			const BOOL animate = FALSE;
+            const bool animate = false;
 
-			(LLFloaterReg::getTypedInstance<LLFloaterIMNearbyChat>("nearby_chat"))->
-					sendChatFromViewer(chat_text, CHAT_TYPE_NORMAL, animate);
+            (LLFloaterReg::getTypedInstance<LLFloaterIMNearbyChat>("nearby_chat"))->
+                    sendChatFromViewer(chat_text, CHAT_TYPE_NORMAL, animate);
 
-			gesture->mCurrentStep++;
-			break;
-		}
-	case STEP_WAIT:
-		{
-			LLGestureStepWait* wait_step = (LLGestureStepWait*)step;
-			if (wait_step->mFlags & WAIT_FLAG_TIME)
-			{
-				gesture->mWaitingTimer = TRUE;
-				gesture->mWaitTimer.reset();
-			}
-			else if (wait_step->mFlags & WAIT_FLAG_ALL_ANIM)
-			{
-				gesture->mWaitingAnimations = TRUE;
-				// Use the wait timer as a deadlock breaker for animation
-				// waits.
-				gesture->mWaitTimer.reset();
-			}
-			else
-			{
-				gesture->mCurrentStep++;
-			}
-			// Don't increment instruction pointer until wait is complete.
-			break;
-		}
-	default:
-		{
-			break;
-		}
-	}
+            gesture->mCurrentStep++;
+            break;
+        }
+    case STEP_WAIT:
+        {
+            LLGestureStepWait* wait_step = (LLGestureStepWait*)step;
+            if (gesture->mTriggeredByKey // Only wait here IF we were triggered by a key!
+                && gesture->mWaitingKeyRelease == false // We can only do this once! Prevent gestures infinitely running
+                && wait_step->mFlags & WAIT_FLAG_KEY_RELEASE)
+            {
+                // Lets wait for the key release first so we don't hold up re-presses
+                gesture->mWaitingKeyRelease = true;
+                gesture->mKeyReleased = false;
+                // Use the wait timer as a deadlock breaker for key release waits.
+                gesture->mWaitTimer.reset();
+            }
+            else if (wait_step->mFlags & WAIT_FLAG_TIME)
+            {
+                gesture->mWaitingTimer = true;
+                gesture->mWaitTimer.reset();
+            }
+            else if (wait_step->mFlags & WAIT_FLAG_ALL_ANIM)
+            {
+                gesture->mWaitingAnimations = true;
+                // Use the wait timer as a deadlock breaker for animation waits.
+                gesture->mWaitTimer.reset();
+            }
+            else
+            {
+                gesture->mCurrentStep++;
+            }
+            // Don't increment instruction pointer until wait is complete.
+            break;
+        }
+    default:
+        {
+            break;
+        }
+    }
 }
 
 
 // static
 void LLGestureMgr::onLoadComplete(const LLUUID& asset_uuid,
-								  LLAssetType::EType type,
-								  void* user_data, S32 status, LLExtStat ext_status)
+                                  LLAssetType::EType type,
+                                  void* user_data, S32 status, LLExtStat ext_status)
 {
-	LLLoadInfo* info = (LLLoadInfo*)user_data;
+    LLLoadInfo* info = (LLLoadInfo*)user_data;
 
-	LLUUID item_id = info->mItemID;
-	BOOL inform_server = info->mInformServer;
-	BOOL deactivate_similar = info->mDeactivateSimilar;
+    LLUUID item_id = info->mItemID;
+    bool inform_server = info->mInformServer;
+    bool deactivate_similar = info->mDeactivateSimilar;
 
-	delete info;
-	info = NULL;
-	LLGestureMgr& self = LLGestureMgr::instance();
-	self.mLoadingCount--;
+    delete info;
+    info = NULL;
+    LLGestureMgr& self = LLGestureMgr::instance();
+    self.mLoadingCount--;
 
-	if (0 == status)
-	{
-		LLFileSystem file(asset_uuid, type, LLFileSystem::READ);
-		S32 size = file.getSize();
+    if (0 == status)
+    {
+        LLFileSystem file(asset_uuid, type, LLFileSystem::READ);
+        S32 size = file.getSize();
 
-		std::vector<char> buffer(size+1);
+        std::vector<char> buffer(size+1);
 
-		file.read((U8*)&buffer[0], size);
-		// ensure there's a trailing NULL so strlen will work.
-		buffer[size] = '\0';
+        file.read((U8*)&buffer[0], size);
+        // ensure there's a trailing NULL so strlen will work.
+        buffer[size] = '\0';
 
-		LLMultiGesture* gesture = new LLMultiGesture();
+        LLMultiGesture* gesture = new LLMultiGesture();
 
-		LLDataPackerAsciiBuffer dp(&buffer[0], size+1);
-		BOOL ok = gesture->deserialize(dp);
+        LLDataPackerAsciiBuffer dp(&buffer[0], size+1);
+        bool ok = gesture->deserialize(dp);
 
-		if (ok)
-		{
-			if (deactivate_similar)
-			{
-				self.deactivateSimilarGestures(gesture, item_id);
+        if (ok)
+        {
+            if (deactivate_similar)
+            {
+                self.deactivateSimilarGestures(gesture, item_id);
 
-				// Display deactivation message if this was the last of the bunch.
-				if (self.mLoadingCount == 0
-					&& self.mDeactivateSimilarNames.length() > 0)
-				{
-					// we're done with this set of deactivations
-					LLSD args;
-					args["NAMES"] = self.mDeactivateSimilarNames;
-					LLNotificationsUtil::add("DeactivatedGesturesTrigger", args);
-				}
-			}
+                // Display deactivation message if this was the last of the bunch.
+                if (self.mLoadingCount == 0
+                    && self.mDeactivateSimilarNames.length() > 0)
+                {
+                    // we're done with this set of deactivations
+                    LLSD args;
+                    args["NAMES"] = self.mDeactivateSimilarNames;
+                    LLNotificationsUtil::add("DeactivatedGesturesTrigger", args);
+                }
+            }
 
-			LLViewerInventoryItem* item = gInventory.getItem(item_id);
-			if(item)
-			{
-				gesture->mName = item->getName();
-			}
-			else
-			{
-				// Watch this item and set gesture name when item exists in inventory
-				self.setFetchID(item_id);
-				self.startFetch();
-			}
+            LLViewerInventoryItem* item = gInventory.getItem(item_id);
+            if(item)
+            {
+                gesture->mName = item->getName();
+            }
+            else
+            {
+                // Watch this item and set gesture name when item exists in inventory
+                self.setFetchID(item_id);
+                self.startFetch();
+            }
 
             item_map_t::iterator it = self.mActive.find(item_id);
             if (it == self.mActive.end())
@@ -1130,41 +1195,41 @@ void LLGestureMgr::onLoadComplete(const LLUUID& asset_uuid,
                 }
             }
 
-			self.mActive[item_id] = gesture;
+            self.mActive[item_id] = gesture;
 
-			// Everything has been successful.  Add to the active list.
-			gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
+            // Everything has been successful.  Add to the active list.
+            gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
 
-			if (inform_server)
-			{
-				// Inform the database of this change
-				LLMessageSystem* msg = gMessageSystem;
-				msg->newMessage("ActivateGestures");
-				msg->nextBlock("AgentData");
-				msg->addUUID("AgentID", gAgent.getID());
-				msg->addUUID("SessionID", gAgent.getSessionID());
-				msg->addU32("Flags", 0x0);
-				
-				msg->nextBlock("Data");
-				msg->addUUID("ItemID", item_id);
-				msg->addUUID("AssetID", asset_uuid);
-				msg->addU32("GestureFlags", 0x0);
+            if (inform_server)
+            {
+                // Inform the database of this change
+                LLMessageSystem* msg = gMessageSystem;
+                msg->newMessage("ActivateGestures");
+                msg->nextBlock("AgentData");
+                msg->addUUID("AgentID", gAgent.getID());
+                msg->addUUID("SessionID", gAgent.getSessionID());
+                msg->addU32("Flags", 0x0);
 
-				gAgent.sendReliableMessage();
-			}
-			callback_map_t::iterator i_cb = self.mCallbackMap.find(item_id);
-			
-			if(i_cb != self.mCallbackMap.end())
-			{
-				i_cb->second(gesture);
-				self.mCallbackMap.erase(i_cb);
-			}
+                msg->nextBlock("Data");
+                msg->addUUID("ItemID", item_id);
+                msg->addUUID("AssetID", asset_uuid);
+                msg->addU32("GestureFlags", 0x0);
 
-			self.notifyObservers();
-		}
-		else
-		{
-			LL_WARNS("GestureMgr") << "Unable to load gesture" << LL_ENDL;
+                gAgent.sendReliableMessage();
+            }
+            callback_map_t::iterator i_cb = self.mCallbackMap.find(item_id);
+
+            if(i_cb != self.mCallbackMap.end())
+            {
+                i_cb->second(gesture);
+                self.mCallbackMap.erase(i_cb);
+            }
+
+            self.notifyObservers();
+        }
+        else
+        {
+            LL_WARNS("GestureMgr") << "Unable to load gesture" << LL_ENDL;
 
             item_map_t::iterator it = self.mActive.find(item_id);
             if (it != self.mActive.end())
@@ -1181,25 +1246,25 @@ void LLGestureMgr::onLoadComplete(const LLUUID& asset_uuid,
                 }
                 self.mActive.erase(item_id);
             }
-			
-			delete gesture;
-			gesture = NULL;
-		}
-	}
-	else
-	{
-		if( LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE == status ||
-			LL_ERR_FILE_EMPTY == status)
-		{
-			LLDelayedGestureError::gestureMissing( item_id );
-		}
-		else
-		{
-			LLDelayedGestureError::gestureFailedToLoad( item_id );
-		}
 
-		LL_WARNS("GestureMgr") << "Problem loading gesture: " << status << LL_ENDL;
-        
+            delete gesture;
+            gesture = NULL;
+        }
+    }
+    else
+    {
+        if( LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE == status ||
+            LL_ERR_FILE_EMPTY == status)
+        {
+            LLDelayedGestureError::gestureMissing( item_id );
+        }
+        else
+        {
+            LLDelayedGestureError::gestureFailedToLoad( item_id );
+        }
+
+        LL_WARNS("GestureMgr") << "Problem loading gesture: " << status << LL_ENDL;
+
         item_map_t::iterator it = self.mActive.find(item_id);
         if (it != self.mActive.end())
         {
@@ -1215,168 +1280,168 @@ void LLGestureMgr::onLoadComplete(const LLUUID& asset_uuid,
             }
             self.mActive.erase(item_id);
         }
-	}
+    }
 }
 
 // static
 void LLGestureMgr::onAssetLoadComplete(const LLUUID& asset_uuid,
-									   LLAssetType::EType type,
-									   void* user_data, S32 status, LLExtStat ext_status)
+                                       LLAssetType::EType type,
+                                       void* user_data, S32 status, LLExtStat ext_status)
 {
-	LLGestureMgr& self = LLGestureMgr::instance();
+    LLGestureMgr& self = LLGestureMgr::instance();
 
-	// Complete the asset loading process depending on the type and
-	// remove the asset id from pending downloads list.
-	switch(type)
-	{
-	case LLAssetType::AT_ANIMATION:
-		{
-			LLKeyframeMotion::onLoadComplete(asset_uuid, type, user_data, status, ext_status);
+    // Complete the asset loading process depending on the type and
+    // remove the asset id from pending downloads list.
+    switch(type)
+    {
+    case LLAssetType::AT_ANIMATION:
+        {
+            LLKeyframeMotion::onLoadComplete(asset_uuid, type, user_data, status, ext_status);
 
-			self.mLoadingAssets.erase(asset_uuid);
+            self.mLoadingAssets.erase(asset_uuid);
 
-			break;
-		}
-	case LLAssetType::AT_SOUND:
-		{
-			LLAudioEngine::assetCallback(asset_uuid, type, user_data, status, ext_status);
+            break;
+        }
+    case LLAssetType::AT_SOUND:
+        {
+            LLAudioEngine::assetCallback(asset_uuid, type, user_data, status, ext_status);
 
-			self.mLoadingAssets.erase(asset_uuid);
+            self.mLoadingAssets.erase(asset_uuid);
 
-			break;
-		}
-	default:
-		{
-			LL_WARNS() << "Unexpected asset type: " << type << LL_ENDL;
+            break;
+        }
+    default:
+        {
+            LL_WARNS() << "Unexpected asset type: " << type << LL_ENDL;
 
-			// We don't want to return from this callback without
-			// an animation or sound callback being fired
-			// and *user_data handled to avoid memory leaks.
-			llassert(type == LLAssetType::AT_ANIMATION || type == LLAssetType::AT_SOUND);
-		}
-	}
+            // We don't want to return from this callback without
+            // an animation or sound callback being fired
+            // and *user_data handled to avoid memory leaks.
+            llassert(type == LLAssetType::AT_ANIMATION || type == LLAssetType::AT_SOUND);
+        }
+    }
 }
 
 // static
 bool LLGestureMgr::hasLoadingAssets(LLMultiGesture* gesture)
 {
-	LLGestureMgr& self = LLGestureMgr::instance();
+    LLGestureMgr& self = LLGestureMgr::instance();
 
-	for (std::vector<LLGestureStep*>::iterator steps_it = gesture->mSteps.begin();
-		 steps_it != gesture->mSteps.end();
-		 ++steps_it)
-	{
-		LLGestureStep* step = *steps_it;
-		switch(step->getType())
-		{
-		case STEP_ANIMATION:
-			{
-				LLGestureStepAnimation* anim_step = (LLGestureStepAnimation*)step;
-				const LLUUID& anim_id = anim_step->mAnimAssetID;
+    for (std::vector<LLGestureStep*>::iterator steps_it = gesture->mSteps.begin();
+         steps_it != gesture->mSteps.end();
+         ++steps_it)
+    {
+        LLGestureStep* step = *steps_it;
+        switch(step->getType())
+        {
+        case STEP_ANIMATION:
+            {
+                LLGestureStepAnimation* anim_step = (LLGestureStepAnimation*)step;
+                const LLUUID& anim_id = anim_step->mAnimAssetID;
 
-				if (!(anim_id.isNull()
-					  || anim_step->mFlags & ANIM_FLAG_STOP
-					  || self.mLoadingAssets.find(anim_id) == self.mLoadingAssets.end()))
-				{
-					return true;
-				}
-				break;
-			}
-		case STEP_SOUND:
-			{
-				LLGestureStepSound* sound_step = (LLGestureStepSound*)step;
-				const LLUUID& sound_id = sound_step->mSoundAssetID;
+                if (!(anim_id.isNull()
+                      || anim_step->mFlags & ANIM_FLAG_STOP
+                      || self.mLoadingAssets.find(anim_id) == self.mLoadingAssets.end()))
+                {
+                    return true;
+                }
+                break;
+            }
+        case STEP_SOUND:
+            {
+                LLGestureStepSound* sound_step = (LLGestureStepSound*)step;
+                const LLUUID& sound_id = sound_step->mSoundAssetID;
 
-				if (!(sound_id.isNull()
-					  || self.mLoadingAssets.find(sound_id) == self.mLoadingAssets.end()))
-				{
-					return true;
-				}
-				break;
-			}
-		case STEP_CHAT:
-		case STEP_WAIT:
-		case STEP_EOF:
-			{
-				break;
-			}
-		default:
-			{
-				LL_WARNS() << "Unknown gesture step type: " << step->getType() << LL_ENDL;
-			}
-		}
-	}
+                if (!(sound_id.isNull()
+                      || self.mLoadingAssets.find(sound_id) == self.mLoadingAssets.end()))
+                {
+                    return true;
+                }
+                break;
+            }
+        case STEP_CHAT:
+        case STEP_WAIT:
+        case STEP_EOF:
+            {
+                break;
+            }
+        default:
+            {
+                LL_WARNS() << "Unknown gesture step type: " << step->getType() << LL_ENDL;
+            }
+        }
+    }
 
-	return false;
+    return false;
 }
 
 void LLGestureMgr::stopGesture(LLMultiGesture* gesture)
 {
-	if (!gesture) return;
+    if (!gesture) return;
 
-	// Stop any animations that this gesture is currently playing
-	std::set<LLUUID>::const_iterator set_it;
-	for (set_it = gesture->mRequestedAnimIDs.begin(); set_it != gesture->mRequestedAnimIDs.end(); ++set_it)
-	{
-		const LLUUID& anim_id = *set_it;
-		gAgent.sendAnimationRequest(anim_id, ANIM_REQUEST_STOP);
-	}
-	for (set_it = gesture->mPlayingAnimIDs.begin(); set_it != gesture->mPlayingAnimIDs.end(); ++set_it)
-	{
-		const LLUUID& anim_id = *set_it;
-		gAgent.sendAnimationRequest(anim_id, ANIM_REQUEST_STOP);
-	}
+    // Stop any animations that this gesture is currently playing
+    std::set<LLUUID>::const_iterator set_it;
+    for (set_it = gesture->mRequestedAnimIDs.begin(); set_it != gesture->mRequestedAnimIDs.end(); ++set_it)
+    {
+        const LLUUID& anim_id = *set_it;
+        gAgent.sendAnimationRequest(anim_id, ANIM_REQUEST_STOP);
+    }
+    for (set_it = gesture->mPlayingAnimIDs.begin(); set_it != gesture->mPlayingAnimIDs.end(); ++set_it)
+    {
+        const LLUUID& anim_id = *set_it;
+        gAgent.sendAnimationRequest(anim_id, ANIM_REQUEST_STOP);
+    }
 
-	std::vector<LLMultiGesture*>::iterator it;
-	it = std::find(mPlaying.begin(), mPlaying.end(), gesture);
-	while (it != mPlaying.end())
-	{
-		mPlaying.erase(it);
-		it = std::find(mPlaying.begin(), mPlaying.end(), gesture);
-	}
+    std::vector<LLMultiGesture*>::iterator it;
+    it = std::find(mPlaying.begin(), mPlaying.end(), gesture);
+    while (it != mPlaying.end())
+    {
+        mPlaying.erase(it);
+        it = std::find(mPlaying.begin(), mPlaying.end(), gesture);
+    }
 
-	gesture->reset();
+    gesture->reset();
 
-	if (gesture->mDoneCallback)
-	{
-		gesture->mDoneCallback(gesture, gesture->mCallbackData);
+    if (gesture->mDoneCallback)
+    {
+        gesture->mDoneCallback(gesture, gesture->mCallbackData);
 
-		// callback might have deleted gesture, can't
-		// rely on this pointer any more
-		gesture = NULL;
-	}
+        // callback might have deleted gesture, can't
+        // rely on this pointer any more
+        gesture = NULL;
+    }
 
-	notifyObservers();
+    notifyObservers();
 }
 
 
 void LLGestureMgr::stopGesture(const LLUUID& item_id)
 {
-	const LLUUID& base_item_id = gInventory.getLinkedItemID(item_id);
+    const LLUUID& base_item_id = gInventory.getLinkedItemID(item_id);
 
-	item_map_t::iterator it = mActive.find(base_item_id);
-	if (it == mActive.end()) return;
+    item_map_t::iterator it = mActive.find(base_item_id);
+    if (it == mActive.end()) return;
 
-	LLMultiGesture* gesture = (*it).second;
-	if (!gesture) return;
+    LLMultiGesture* gesture = (*it).second;
+    if (!gesture) return;
 
-	stopGesture(gesture);
+    stopGesture(gesture);
 }
 
 
 void LLGestureMgr::addObserver(LLGestureManagerObserver* observer)
 {
-	mObservers.push_back(observer);
+    mObservers.push_back(observer);
 }
 
 void LLGestureMgr::removeObserver(LLGestureManagerObserver* observer)
 {
-	std::vector<LLGestureManagerObserver*>::iterator it;
-	it = std::find(mObservers.begin(), mObservers.end(), observer);
-	if (it != mObservers.end())
-	{
-		mObservers.erase(it);
-	}
+    std::vector<LLGestureManagerObserver*>::iterator it;
+    it = std::find(mObservers.begin(), mObservers.end(), observer);
+    if (it != mObservers.end())
+    {
+        mObservers.erase(it);
+    }
 }
 
 // Call this method when it's time to update everyone on a new state.
@@ -1384,132 +1449,132 @@ void LLGestureMgr::removeObserver(LLGestureManagerObserver* observer)
 // from the list.
 void LLGestureMgr::notifyObservers()
 {
-	LL_DEBUGS() << "LLGestureMgr::notifyObservers" << LL_ENDL;
+    LL_DEBUGS() << "LLGestureMgr::notifyObservers" << LL_ENDL;
 
-	for(std::vector<LLGestureManagerObserver*>::iterator iter = mObservers.begin(); 
-		iter != mObservers.end(); 
-		++iter)
-	{
-		LLGestureManagerObserver* observer = (*iter);
-		observer->changed();
-	}
+    for(std::vector<LLGestureManagerObserver*>::iterator iter = mObservers.begin();
+        iter != mObservers.end();
+        ++iter)
+    {
+        LLGestureManagerObserver* observer = (*iter);
+        observer->changed();
+    }
 }
 
-BOOL LLGestureMgr::matchPrefix(const std::string& in_str, std::string* out_str)
+bool LLGestureMgr::matchPrefix(const std::string& in_str, std::string* out_str)
 {
-	S32 in_len = in_str.length();
+    auto in_len = in_str.length();
 
-	//return whole trigger, if received text equals to it
-	item_map_t::iterator it;
-	for (it = mActive.begin(); it != mActive.end(); ++it)
-	{
-		LLMultiGesture* gesture = (*it).second;
-		if (gesture)
-		{
-			const std::string& trigger = gesture->getTrigger();
-			if (!LLStringUtil::compareInsensitive(in_str, trigger))
-			{
-				*out_str = trigger;
-				return TRUE;
-			}
-		}
-	}
+    //return whole trigger, if received text equals to it
+    item_map_t::iterator it;
+    for (it = mActive.begin(); it != mActive.end(); ++it)
+    {
+        LLMultiGesture* gesture = (*it).second;
+        if (gesture)
+        {
+            const std::string& trigger = gesture->getTrigger();
+            if (!LLStringUtil::compareInsensitive(in_str, trigger))
+            {
+                *out_str = trigger;
+                return true;
+            }
+        }
+    }
 
-	//return common chars, if more than one trigger matches the prefix
-	std::string rest_of_match = "";
-	std::string buf = "";
-	for (it = mActive.begin(); it != mActive.end(); ++it)
-	{
-		LLMultiGesture* gesture = (*it).second;
-		if (gesture)
-		{
-			const std::string& trigger = gesture->getTrigger();
+    //return common chars, if more than one trigger matches the prefix
+    std::string rest_of_match = "";
+    std::string buf = "";
+    for (it = mActive.begin(); it != mActive.end(); ++it)
+    {
+        LLMultiGesture* gesture = (*it).second;
+        if (gesture)
+        {
+            const std::string& trigger = gesture->getTrigger();
 
-			if (in_len > (S32)trigger.length())
-			{
-				// too short, bail out
-				continue;
-			}
+            if (in_len > trigger.length())
+            {
+                // too short, bail out
+                continue;
+            }
 
-			std::string trigger_trunc = trigger;
-			LLStringUtil::truncate(trigger_trunc, in_len);
-			if (!LLStringUtil::compareInsensitive(in_str, trigger_trunc))
-			{
-				if (rest_of_match.compare("") == 0)
-				{
-					rest_of_match = trigger.substr(in_str.size());
-				}
-				std::string cur_rest_of_match = trigger.substr(in_str.size());
-				buf = "";
-				S32 i=0;
+            std::string trigger_trunc = trigger;
+            LLStringUtil::truncate(trigger_trunc, in_len);
+            if (!LLStringUtil::compareInsensitive(in_str, trigger_trunc))
+            {
+                if (rest_of_match.compare("") == 0)
+                {
+                    rest_of_match = trigger.substr(in_str.size());
+                }
+                std::string cur_rest_of_match = trigger.substr(in_str.size());
+                buf = "";
+                S32 i=0;
 
-				while (i<rest_of_match.length() && i<cur_rest_of_match.length())
-				{
-					if (rest_of_match[i]==cur_rest_of_match[i])
-				    {
-						buf.push_back(rest_of_match[i]);
-				    }
-				    else
-				    {
-				    	if(i==0)
-				    	{
-				    		rest_of_match = "";
-				    	}
-				    	break;
-				    }
-					i++;
-				}
-				if (rest_of_match.compare("") == 0)
-				{
-					return TRUE;
-				}
-				if (buf.compare("") != 0)
-				{
-					rest_of_match = buf;
-				}
+                while (i<rest_of_match.length() && i<cur_rest_of_match.length())
+                {
+                    if (rest_of_match[i]==cur_rest_of_match[i])
+                    {
+                        buf.push_back(rest_of_match[i]);
+                    }
+                    else
+                    {
+                        if(i==0)
+                        {
+                            rest_of_match = "";
+                        }
+                        break;
+                    }
+                    i++;
+                }
+                if (rest_of_match.compare("") == 0)
+                {
+                    return true;
+                }
+                if (buf.compare("") != 0)
+                {
+                    rest_of_match = buf;
+                }
 
-			}
-		}
-	}
+            }
+        }
+    }
 
-	if (rest_of_match.compare("") != 0)
-	{
-		*out_str = in_str+rest_of_match;
-		return TRUE;
-	}
+    if (rest_of_match.compare("") != 0)
+    {
+        *out_str = in_str+rest_of_match;
+        return true;
+    }
 
-	return FALSE;
+    return false;
 }
 
 
 void LLGestureMgr::getItemIDs(uuid_vec_t* ids)
 {
-	item_map_t::const_iterator it;
-	for (it = mActive.begin(); it != mActive.end(); ++it)
-	{
-		ids->push_back(it->first);
-	}
+    item_map_t::const_iterator it;
+    for (it = mActive.begin(); it != mActive.end(); ++it)
+    {
+        ids->push_back(it->first);
+    }
 }
 
 void LLGestureMgr::done()
 {
-	bool notify = false;
-	for(item_map_t::iterator it = mActive.begin(); it != mActive.end(); ++it)
-	{
-		if(it->second && it->second->mName.empty())
-		{
-			LLViewerInventoryItem* item = gInventory.getItem(it->first);
-			if(item)
-			{
-				it->second->mName = item->getName();
-				notify = true;
-			}
-		}
-	}
-	if(notify)
-	{
-		notifyObservers();
-	}
+    bool notify = false;
+    for(item_map_t::iterator it = mActive.begin(); it != mActive.end(); ++it)
+    {
+        if(it->second && it->second->mName.empty())
+        {
+            LLViewerInventoryItem* item = gInventory.getItem(it->first);
+            if(item)
+            {
+                it->second->mName = item->getName();
+                notify = true;
+            }
+        }
+    }
+    if(notify)
+    {
+        notifyObservers();
+    }
 }
 
 

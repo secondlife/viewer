@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llstl.h
  * @brief helper object & functions for use with the stl.
  *
  * $LicenseInfo:firstyear=2003&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -41,39 +41,39 @@
 #include <string.h>
 #endif
 // Use to compare the first element only of a pair
-// e.g. typedef std::set<std::pair<int, Data*>, compare_pair<int, Data*> > some_pair_set_t; 
+// e.g. typedef std::set<std::pair<int, Data*>, compare_pair<int, Data*> > some_pair_set_t;
 template <typename T1, typename T2>
 struct compare_pair_first
 {
-	bool operator()(const std::pair<T1, T2>& a, const std::pair<T1, T2>& b) const
-	{
-		return a.first < b.first;
-	}
+    bool operator()(const std::pair<T1, T2>& a, const std::pair<T1, T2>& b) const
+    {
+        return a.first < b.first;
+    }
 };
 
 template <typename T1, typename T2>
 struct compare_pair_greater
 {
-	bool operator()(const std::pair<T1, T2>& a, const std::pair<T1, T2>& b) const
-	{
-		if (!(a.first < b.first))
-			return true;
-		else if (!(b.first < a.first))
-			return false;
-		else
-			return !(a.second < b.second);
-	}
+    bool operator()(const std::pair<T1, T2>& a, const std::pair<T1, T2>& b) const
+    {
+        if (!(a.first < b.first))
+            return true;
+        else if (!(b.first < a.first))
+            return false;
+        else
+            return !(a.second < b.second);
+    }
 };
 
 // Use to compare the contents of two pointers (e.g. std::string*)
 template <typename T>
 struct compare_pointer_contents
 {
-	typedef const T* Tptr;
-	bool operator()(const Tptr& a, const Tptr& b) const
-	{
-		return *a < *b;
-	}
+    typedef const T* Tptr;
+    bool operator()(const Tptr& a, const Tptr& b) const
+    {
+        return *a < *b;
+    }
 };
 
 // DeletePointer is a simple helper for deleting all pointers in a container.
@@ -86,40 +86,40 @@ struct compare_pointer_contents
 
 struct DeletePointer
 {
-	template<typename T> void operator()(T* ptr) const
-	{
-		delete ptr;
-	}
+    template<typename T> void operator()(T* ptr) const
+    {
+        delete ptr;
+    }
 };
 struct DeletePointerArray
 {
-	template<typename T> void operator()(T* ptr) const
-	{
-		delete[] ptr;
-	}
+    template<typename T> void operator()(T* ptr) const
+    {
+        delete[] ptr;
+    }
 };
 
 // DeletePairedPointer is a simple helper for deleting all pointers in a map.
 // The general form is:
 //
 //  std::for_each(somemap.begin(), somemap.end(), DeletePairedPointer());
-//  somemap.clear();		// Don't leave dangling pointers around
+//  somemap.clear();        // Don't leave dangling pointers around
 
 struct DeletePairedPointer
 {
-	template<typename T> void operator()(T &ptr) const
-	{
-		delete ptr.second;
-		ptr.second = NULL;
-	}
+    template<typename T> void operator()(T &ptr) const
+    {
+        delete ptr.second;
+        ptr.second = NULL;
+    }
 };
 struct DeletePairedPointerArray
 {
-	template<typename T> void operator()(T &ptr) const
-	{
-		delete[] ptr.second;
-		ptr.second = NULL;
-	}
+    template<typename T> void operator()(T &ptr) const
+    {
+        delete[] ptr.second;
+        ptr.second = NULL;
+    }
 };
 
 
@@ -144,22 +144,22 @@ struct DeletePairedPointerArray
 template<typename T>
 struct DeletePointerFunctor
 {
-	bool operator()(T* ptr) const
-	{
-		delete ptr;
-		return true;
-	}
+    bool operator()(T* ptr) const
+    {
+        delete ptr;
+        return true;
+    }
 };
 
 // See notes about DeleteArray for why you should consider avoiding this.
 template<typename T>
 struct DeleteArrayFunctor
 {
-	bool operator()(T* ptr) const
-	{
-		delete[] ptr;
-		return true;
-	}
+    bool operator()(T* ptr) const
+    {
+        delete[] ptr;
+        return true;
+    }
 };
 
 // CopyNewPointer is a simple helper which accepts a pointer, and
@@ -169,91 +169,91 @@ struct DeleteArrayFunctor
 
 struct CopyNewPointer
 {
-	template<typename T> T* operator()(const T* ptr) const
-	{
-		return new T(*ptr);
-	}
+    template<typename T> T* operator()(const T* ptr) const
+    {
+        return new T(*ptr);
+    }
 };
 
 template<typename T, typename ALLOC>
 void delete_and_clear(std::list<T*, ALLOC>& list)
 {
-	std::for_each(list.begin(), list.end(), DeletePointer());
-	list.clear();
+    std::for_each(list.begin(), list.end(), DeletePointer());
+    list.clear();
 }
 
 template<typename T, typename ALLOC>
 void delete_and_clear(std::vector<T*, ALLOC>& vector)
 {
-	std::for_each(vector.begin(), vector.end(), DeletePointer());
-	vector.clear();
+    std::for_each(vector.begin(), vector.end(), DeletePointer());
+    vector.clear();
 }
 
 template<typename T, typename COMPARE, typename ALLOC>
 void delete_and_clear(std::set<T*, COMPARE, ALLOC>& set)
 {
-	std::for_each(set.begin(), set.end(), DeletePointer());
-	set.clear();
+    std::for_each(set.begin(), set.end(), DeletePointer());
+    set.clear();
 }
 
 template<typename K, typename V, typename COMPARE, typename ALLOC>
 void delete_and_clear(std::map<K, V*, COMPARE, ALLOC>& map)
 {
-	std::for_each(map.begin(), map.end(), DeletePairedPointer());
-	map.clear();
+    std::for_each(map.begin(), map.end(), DeletePairedPointer());
+    map.clear();
 }
 
 template<typename T>
 void delete_and_clear(T*& ptr)
 {
-	delete ptr;
-	ptr = NULL;
+    delete ptr;
+    ptr = NULL;
 }
 
 
 template<typename T>
 void delete_and_clear_array(T*& ptr)
 {
-	delete[] ptr;
-	ptr = NULL;
+    delete[] ptr;
+    ptr = NULL;
 }
 
 // Simple function to help with finding pointers in maps.
 // For example:
-// 	typedef  map_t;
+//  typedef  map_t;
 //  std::map<int, const char*> foo;
-//	foo[18] = "there";
-//	foo[2] = "hello";
-// 	const char* bar = get_ptr_in_map(foo, 2); // bar -> "hello"
+//  foo[18] = "there";
+//  foo[2] = "hello";
+//  const char* bar = get_ptr_in_map(foo, 2); // bar -> "hello"
 //  const char* baz = get_ptr_in_map(foo, 3); // baz == NULL
-template <typename K, typename T>
-inline T* get_ptr_in_map(const std::map<K,T*>& inmap, const K& key)
+template <typename T>
+inline typename T::mapped_type get_ptr_in_map(const T& inmap, typename T::key_type const& key)
 {
-	// Typedef here avoids warnings because of new c++ naming rules.
-	typedef typename std::map<K,T*>::const_iterator map_iter;
-	map_iter iter = inmap.find(key);
-	if(iter == inmap.end())
-	{
-		return NULL;
-	}
-	else
-	{
-		return iter->second;
-	}
+    // Typedef here avoids warnings because of new c++ naming rules.
+    typedef typename T::const_iterator map_iter;
+    map_iter iter = inmap.find(key);
+    if(iter == inmap.end())
+    {
+        return NULL;
+    }
+    else
+    {
+        return iter->second;
+    }
 };
 
 // helper function which returns true if key is in inmap.
 template <typename K, typename T>
 inline bool is_in_map(const std::map<K,T>& inmap, const K& key)
 {
-	if(inmap.find(key) == inmap.end())
-	{
-		return false;
-	}
-	else
-	{
-		return true;
-	}
+    if(inmap.find(key) == inmap.end())
+    {
+        return false;
+    }
+    else
+    {
+        return true;
+    }
 }
 
 // Similar to get_ptr_in_map, but for any type with a valid T(0) constructor.
@@ -263,17 +263,17 @@ inline bool is_in_map(const std::map<K,T>& inmap, const K& key)
 template <typename K, typename T>
 inline T get_if_there(const std::map<K,T>& inmap, const K& key, T default_value)
 {
-	// Typedef here avoids warnings because of new c++ naming rules.
-	typedef typename std::map<K,T>::const_iterator map_iter;
-	map_iter iter = inmap.find(key);
-	if(iter == inmap.end())
-	{
-		return default_value;
-	}
-	else
-	{
-		return iter->second;
-	}
+    // Typedef here avoids warnings because of new c++ naming rules.
+    typedef typename std::map<K,T>::const_iterator map_iter;
+    map_iter iter = inmap.find(key);
+    if(iter == inmap.end())
+    {
+        return default_value;
+    }
+    else
+    {
+        return iter->second;
+    }
 };
 
 // Useful for replacing the removeObj() functionality of LLDynamicArray
@@ -288,22 +288,22 @@ inline T get_if_there(const std::map<K,T>& inmap, const K& key, T default_value)
 template <typename T>
 inline typename std::vector<T>::iterator vector_replace_with_last(std::vector<T>& invec, typename std::vector<T>::iterator iter)
 {
-	typename std::vector<T>::iterator last = invec.end(); --last;
-	if (iter == invec.end())
-	{
-		return iter;
-	}
-	else if (iter == last)
-	{
-		invec.pop_back();
-		return invec.end();
-	}
-	else
-	{
-		*iter = *last;
-		invec.pop_back();
-		return iter;
-	}
+    typename std::vector<T>::iterator last = invec.end(); --last;
+    if (iter == invec.end())
+    {
+        return iter;
+    }
+    else if (iter == last)
+    {
+        invec.pop_back();
+        return invec.end();
+    }
+    else
+    {
+        *iter = *last;
+        invec.pop_back();
+        return iter;
+    }
 };
 
 // Example:
@@ -311,55 +311,55 @@ inline typename std::vector<T>::iterator vector_replace_with_last(std::vector<T>
 template <typename T>
 inline bool vector_replace_with_last(std::vector<T>& invec, const T& val)
 {
-	typename std::vector<T>::iterator iter = std::find(invec.begin(), invec.end(), val);
-	if (iter != invec.end())
-	{
-		typename std::vector<T>::iterator last = invec.end(); --last;
-		*iter = *last;
-		invec.pop_back();
-		return true;
-	}
-	return false;
+    typename std::vector<T>::iterator iter = std::find(invec.begin(), invec.end(), val);
+    if (iter != invec.end())
+    {
+        typename std::vector<T>::iterator last = invec.end(); --last;
+        *iter = *last;
+        invec.pop_back();
+        return true;
+    }
+    return false;
 }
 
 // Append N elements to the vector and return a pointer to the first new element.
 template <typename T>
 inline T* vector_append(std::vector<T>& invec, S32 N)
 {
-	U32 sz = invec.size();
-	invec.resize(sz+N);
-	return &(invec[sz]);
+    auto sz = invec.size();
+    invec.resize(sz+N);
+    return &(invec[sz]);
 }
 
 // call function f to n members starting at first. similar to std::for_each
 template <class InputIter, class Size, class Function>
 Function ll_for_n(InputIter first, Size n, Function f)
 {
-	for ( ; n > 0; --n, ++first)
-		f(*first);
-	return f;
+    for ( ; n > 0; --n, ++first)
+        f(*first);
+    return f;
 }
 
 // copy first to result n times, incrementing each as we go
 template <class InputIter, class Size, class OutputIter>
 OutputIter ll_copy_n(InputIter first, Size n, OutputIter result)
 {
-	for ( ; n > 0; --n, ++result, ++first)
-		*result = *first;
-	return result;
+    for ( ; n > 0; --n, ++result, ++first)
+        *result = *first;
+    return result;
 }
 
 // set  *result = op(*f) for n elements of f
 template <class InputIter, class OutputIter, class Size, class UnaryOp>
 OutputIter ll_transform_n(
-	InputIter first,
-	Size n,
-	OutputIter result,
-	UnaryOp op)
+    InputIter first,
+    Size n,
+    OutputIter result,
+    UnaryOp op)
 {
-	for ( ; n > 0; --n, ++result, ++first)
-		*result = op(*first);
-	return result;
+    for ( ; n > 0; --n, ++result, ++first)
+        *result = op(*first);
+    return result;
 }
 
 
@@ -448,7 +448,7 @@ protected:
   _Operation3 _M_op3;
 public:
   ll_binary_compose(const _Operation1& __x, const _Operation2& __y,
-					const _Operation3& __z)
+                    const _Operation3& __z)
     : _M_op1(__x), _M_op2(__y), _M_op3(__z) { }
   template<typename OP2ARG>
   auto
@@ -495,17 +495,17 @@ template <class _Operation, typename _Arg2>
 class llbinder2nd
 {
 protected:
-	_Operation op;
-	_Arg2 value;
+    _Operation op;
+    _Arg2 value;
 public:
-	llbinder2nd(const _Operation& __x,
-				const _Arg2& __y)
-		: op(__x), value(__y) {}
-	template <typename _Arg1>
-	auto
-	operator()(const _Arg1& __x) const {
-		return op(__x, value);
-	}
+    llbinder2nd(const _Operation& __x,
+                const _Arg2& __y)
+        : op(__x), value(__y) {}
+    template <typename _Arg1>
+    auto
+    operator()(const _Arg1& __x) const {
+        return op(__x, value);
+    }
 };
 
 template <class _Operation, class _Tp>
@@ -532,7 +532,7 @@ bool before(const std::type_info* lhs, const std::type_info* rhs)
     return strcmp(lhs->name(), rhs->name()) < 0;
 #else  // not Linux, or gcc 4.4+
     // Just use before(), as we normally would
-    return lhs->before(*rhs) ? true : false;
+    return lhs->before(*rhs);
 #endif
 }
 
@@ -544,23 +544,23 @@ bool before(const std::type_info* lhs, const std::type_info* rhs)
  */
 namespace std
 {
-	template <>
-	struct less<const std::type_info*>
-	{
-		bool operator()(const std::type_info* lhs, const std::type_info* rhs) const
-		{
-			return before(lhs, rhs);
-		}
-	};
+    template <>
+    struct less<const std::type_info*>
+    {
+        bool operator()(const std::type_info* lhs, const std::type_info* rhs) const
+        {
+            return before(lhs, rhs);
+        }
+    };
 
-	template <>
-	struct less<std::type_info*>
-	{
-		bool operator()(std::type_info* lhs, std::type_info* rhs) const
-		{
-			return before(lhs, rhs);
-		}
-	};
+    template <>
+    struct less<std::type_info*>
+    {
+        bool operator()(std::type_info* lhs, std::type_info* rhs) const
+        {
+            return before(lhs, rhs);
+        }
+    };
 } // std
 
 

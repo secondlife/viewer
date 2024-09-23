@@ -14,7 +14,7 @@ if (LINUX)
 
   use_system_binary(SDL)
   use_prebuilt_binary(SDL)
-  
+
   target_include_directories( ll::SDL SYSTEM INTERFACE ${LIBS_PREBUILT_DIR}/include)
   target_link_libraries( ll::SDL INTERFACE SDL directfb fusion direct X11)
 endif (LINUX)

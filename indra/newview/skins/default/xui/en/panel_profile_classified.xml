@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel
  name="panel_profile_classified"
  top="0"
@@ -483,7 +483,7 @@
                  layout="topleft"
                  font="SansSerif"
                  max_length_bytes="30"
-                 prevalidate_callback="ascii"
+                 prevalidator="ascii"
                  commit_on_focus_lost="false"
                  text_color="black"
                 />

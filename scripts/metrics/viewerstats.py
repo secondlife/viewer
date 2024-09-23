@@ -144,7 +144,7 @@ def get_used_strings(root_dir):
             #if ext not in [".cpp", ".hpp", ".h", ".xml"]:
             #    skipped_ext.add(ext)
             #    continue
-            
+
             full_name = os.path.join(dir_name,fname)
 
             with open(full_name,"r") as f:
@@ -158,8 +158,8 @@ def get_used_strings(root_dir):
     print("skipped extensions", skipped_ext)
     print("got used_str", len(used_str))
     return used_str
-                
-    
+
+
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="process tab-separated table containing viewerstats logs")
@@ -184,7 +184,7 @@ if __name__ == "__main__":
         if args.preferences:
             print("\nSETTINGS.XML")
             settings_sd = parse_settings_xml("settings.xml")
-            #for skey,svals in settings_sd.items(): 
+            #for skey,svals in settings_sd.items():
             #    print skey, "=>", svals
             (all_str,_,_,_) = show_stats_by_key(recs,["preferences","settings"],settings_sd)
             print()
@@ -211,16 +211,16 @@ if __name__ == "__main__":
                 print("PREFIX_USED", len(prefix_used), ",".join(list(prefix_used)))
                 print()
                 unref_strings = unref_strings - prefix_used
-                        
+
                 print("\nUNREF_IN_CODE " + str(len(unref_strings)) + "\n")
                 print("\n".join(list(unref_strings)))
                 settings_str = read_raw_settings_xml("settings.xml")
                 # Do this via direct string munging to generate minimal changeset
                 settings_edited = remove_settings(settings_str,unref_strings)
                 write_raw_settings_xml("settings.xml.edit",settings_edited)
-                    
 
 
 
-        
-    
+
+
+

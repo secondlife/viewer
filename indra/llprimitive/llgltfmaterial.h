@@ -5,21 +5,21 @@
  * $LicenseInfo:firstyear=2022&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2022, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -68,7 +68,12 @@ public:
         LLVector2 mScale = { 1.f, 1.f };
         F32 mRotation = 0.f;
 
-        void getPacked(F32 (&packed)[8]) const;
+        static const size_t PACK_SIZE = 8;
+        static const size_t PACK_TIGHT_SIZE = 5;
+        using Pack = F32[PACK_SIZE];
+        using PackTight = F32[PACK_TIGHT_SIZE];
+        void getPacked(Pack& packed) const;
+        void getPackedTight(PackTight& packed) const;
 
         bool operator==(const TextureTransform& other) const;
         bool operator!=(const TextureTransform& other) const { return !(*this == other); }
@@ -81,7 +86,7 @@ public:
         ALPHA_MODE_MASK
     };
 
-    LLGLTFMaterial() {}
+    LLGLTFMaterial();
     LLGLTFMaterial(const LLGLTFMaterial& rhs);
 
     LLGLTFMaterial& operator=(const LLGLTFMaterial& rhs);
@@ -109,25 +114,6 @@ public:
     static const char* const GLTF_FILE_EXTENSION_TRANSFORM_OFFSET;
     static const char* const GLTF_FILE_EXTENSION_TRANSFORM_ROTATION;
     static const LLUUID GLTF_OVERRIDE_NULL_UUID;
-
-    std::array<LLUUID, GLTF_TEXTURE_INFO_COUNT> mTextureId;
-    std::array<TextureTransform, GLTF_TEXTURE_INFO_COUNT> mTextureTransform;
-
-    // NOTE: initialize values to defaults according to the GLTF spec
-    // NOTE: these values should be in linear color space
-    LLColor4 mBaseColor = LLColor4(1, 1, 1, 1);
-    LLColor3 mEmissiveColor = LLColor3(0, 0, 0);
-
-    F32 mMetallicFactor = 1.f;
-    F32 mRoughnessFactor = 1.f;
-    F32 mAlphaCutoff = 0.5f;
-
-    bool mDoubleSided = false;
-    AlphaMode mAlphaMode = ALPHA_MODE_OPAQUE;
-
-    // override specific flags for state that can't use off-by-epsilon or UUID hack
-    bool mOverrideDoubleSided = false;
-    bool mOverrideAlphaMode = false;
 
     // get a UUID based on a hash of this LLGLTFMaterial
     LLUUID getHash() const;
@@ -197,14 +183,14 @@ public:
     void writeToModel(tinygltf::Model& model, S32 mat_index) const;
 
     virtual void applyOverride(const LLGLTFMaterial& override_mat);
-    
+
     // apply the given LLSD override data
     void applyOverrideLLSD(const LLSD& data);
 
     // Get the given override on this LLGLTFMaterial as LLSD
     // override_mat -- the override source data
     // data -- output LLSD object (should be passed in empty)
-    void getOverrideLLSD(const LLGLTFMaterial& override_mat, LLSD& data);
+    void getOverrideLLSD(const LLGLTFMaterial& override_mat, LLSD& data) const;
 
     // For base materials only (i.e. assets). Clears transforms to
     // default since they're not supported in assets yet.
@@ -228,11 +214,6 @@ public:
     bool hasLocalTextures() { return !mTrackingIdToLocalTexture.empty(); }
     virtual bool replaceLocalTexture(const LLUUID& tracking_id, const LLUUID &old_id, const LLUUID& new_id);
     virtual void updateTextureTracking();
-
-    // These fields are local to viewer and are a part of local bitmap support
-    typedef std::map<LLUUID, LLUUID> local_tex_map_t;
-    local_tex_map_t mTrackingIdToLocalTexture;
-
 protected:
     static LLVector2 vec2FromJson(const std::map<std::string, tinygltf::Value>& object, const char* key, const LLVector2& default_value);
     static F32 floatFromJson(const std::map<std::string, tinygltf::Value>& object, const char* key, const F32 default_value);
@@ -249,4 +230,49 @@ protected:
     void writeToTexture(tinygltf::Model& model, T& texture_info, TextureInfo texture_info_id, bool force_write = false) const;
     template<typename T>
     static void writeToTexture(tinygltf::Model& model, T& texture_info, const LLUUID& texture_id, const TextureTransform& transform, bool force_write = false);
+
+    // Used to update the digest of the mTrackingIdToLocalTexture map each time
+    // it is changed; this way, that digest can be used by the fast getHash()
+    // method intsead of having to hash all individual keys and values. HB
+    void updateLocalTexDataDigest();
+
+public:
+    // *TODO: If/when we implement additional GLTF extensions, they may not be
+    // compatible with our GLTF terrain implementation. We may want to disallow
+    // materials with some features from being set on terrain, if their
+    // implementation on terrain is not compliant with the spec:
+    //     - KHR_materials_transmission: Probably OK?
+    //     - KHR_materials_ior: Probably OK?
+    //     - KHR_materials_volume: Likely incompatible, as our terrain
+    //       heightmaps cannot currently be described as finite enclosed
+    //       volumes.
+    // See also LLPanelRegionTerrainInfo::validateMaterials
+    // These fields are local to viewer and are a part of local bitmap support
+    typedef std::map<LLUUID, LLUUID> local_tex_map_t;
+    local_tex_map_t mTrackingIdToLocalTexture;
+
+    // Used to store a digest of mTrackingIdToLocalTexture when the latter is
+    // not empty, or zero otherwise. HB
+    U64 mLocalTexDataDigest;
+
+    std::array<LLUUID, GLTF_TEXTURE_INFO_COUNT> mTextureId;
+    std::array<TextureTransform, GLTF_TEXTURE_INFO_COUNT> mTextureTransform;
+
+    // NOTE: initialize values to defaults according to the GLTF spec
+    // NOTE: these values should be in linear color space
+    LLColor4 mBaseColor;
+    LLColor3 mEmissiveColor;
+
+    F32 mMetallicFactor;
+    F32 mRoughnessFactor;
+    F32 mAlphaCutoff;
+
+    AlphaMode mAlphaMode;
+
+    bool mDoubleSided = false;
+
+    // Override specific flags for state that can't use off-by-epsilon or UUID
+    // hack
+    bool mOverrideDoubleSided = false;
+    bool mOverrideAlphaMode = false;
 };

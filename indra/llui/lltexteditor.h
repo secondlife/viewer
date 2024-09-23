@@ -47,305 +47,307 @@ class LLUICtrlFactory;
 class LLScrollContainer;
 
 class LLTextEditor :
-	public LLTextBase,
-	protected LLPreeditor
+    public LLTextBase,
+    protected LLPreeditor
 {
 public:
-	struct Params : public LLInitParam::Block<Params, LLTextBase::Params>
-	{
-		Optional<std::string>	default_text;
-		Optional<LLTextValidate::validate_func_t, LLTextValidate::ValidateTextNamedFuncs>	prevalidate_callback;
+    struct Params : public LLInitParam::Block<Params, LLTextBase::Params>
+    {
+        Optional<std::string>   default_text;
+        Optional<LLTextValidate::Validator, LLTextValidate::Validators> prevalidator;
 
-		Optional<bool>			embedded_items,
-								ignore_tab,
-								commit_on_focus_lost,
-								show_context_menu,
-								show_emoji_helper,
-								enable_tooltip_paste,
-								auto_indent;
+        Optional<bool>          embedded_items,
+                                ignore_tab,
+                                commit_on_focus_lost,
+                                show_context_menu,
+                                show_emoji_helper,
+                                enable_tooltip_paste,
+                                auto_indent;
 
-		//colors
-		Optional<LLUIColor>		default_color;
+        //colors
+        Optional<LLUIColor>     default_color;
 
-		Params();
-	};
+        Params();
+    };
 
-	void initFromParams(const Params&);
+    void initFromParams(const Params&);
 protected:
-	LLTextEditor(const Params&);
-	friend class LLUICtrlFactory;
+    LLTextEditor(const Params&);
+    friend class LLUICtrlFactory;
 public:
-	//
-	// Constants
-	//
-	static const llwchar FIRST_EMBEDDED_CHAR = 0x100000;
-	static const llwchar LAST_EMBEDDED_CHAR =  0x10ffff;
-	static const S32 MAX_EMBEDDED_ITEMS = LAST_EMBEDDED_CHAR - FIRST_EMBEDDED_CHAR + 1;
+    //
+    // Constants
+    //
+    static const llwchar FIRST_EMBEDDED_CHAR = 0x100000;
+    static const llwchar LAST_EMBEDDED_CHAR =  0x10ffff;
+    static const S32 MAX_EMBEDDED_ITEMS = LAST_EMBEDDED_CHAR - FIRST_EMBEDDED_CHAR + 1;
 
-	virtual ~LLTextEditor();
+    virtual ~LLTextEditor();
 
-	typedef boost::signals2::signal<void (LLTextEditor* caller)> keystroke_signal_t;
+    typedef boost::signals2::signal<void (LLTextEditor* caller)> keystroke_signal_t;
 
-	void	setKeystrokeCallback(const keystroke_signal_t::slot_type& callback);
+    void    setKeystrokeCallback(const keystroke_signal_t::slot_type& callback);
 
-	void	setParseHighlights(BOOL parsing) {mParseHighlights=parsing;}
+    void    setParseHighlights(bool parsing) {mParseHighlights=parsing;}
 
-	static S32		spacesPerTab();
+    static S32      spacesPerTab();
 
-	void    insertEmoji(llwchar emoji);
-	void    handleEmojiCommit(llwchar emoji);
+    void    insertEmoji(llwchar emoji);
+    void    handleEmojiCommit(llwchar emoji);
 
-	// mousehandler overrides
-	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleDoubleClick(S32 x, S32 y, MASK mask );
-	virtual BOOL	handleMiddleMouseDown(S32 x,S32 y,MASK mask);
+    // mousehandler overrides
+    virtual bool    handleMouseDown(S32 x, S32 y, MASK mask);
+    virtual bool    handleMouseUp(S32 x, S32 y, MASK mask);
+    virtual bool    handleRightMouseDown(S32 x, S32 y, MASK mask);
+    virtual bool    handleHover(S32 x, S32 y, MASK mask);
+    virtual bool    handleDoubleClick(S32 x, S32 y, MASK mask );
+    virtual bool    handleMiddleMouseDown(S32 x,S32 y,MASK mask);
 
-	virtual BOOL	handleKeyHere(KEY key, MASK mask );
-	virtual BOOL	handleUnicodeCharHere(llwchar uni_char);
+    virtual bool    handleKeyHere(KEY key, MASK mask );
+    virtual bool    handleUnicodeCharHere(llwchar uni_char);
 
-	virtual void	onMouseCaptureLost();
+    virtual void    onMouseCaptureLost();
 
-	// view overrides
-	virtual void	draw();
-	virtual void	onFocusReceived();
-	virtual void	onFocusLost();
-	virtual void	onCommit();
-	virtual void	setEnabled(BOOL enabled);
+    // view overrides
+    virtual void    draw();
+    virtual void    onFocusReceived();
+    virtual void    onFocusLost();
+    virtual void    onCommit();
+    virtual void    setEnabled(bool enabled);
 
-	// uictrl overrides
-	virtual void	clear();
-	virtual void	setFocus( BOOL b );
-	virtual BOOL	isDirty() const;
+    // uictrl overrides
+    virtual void    clear();
+    virtual void    setFocus( bool b );
+    virtual bool    isDirty() const;
 
-	// LLEditMenuHandler interface
-	virtual void	undo();
-	virtual BOOL	canUndo() const;
-	virtual void	redo();
-	virtual BOOL	canRedo() const;
+    // LLEditMenuHandler interface
+    virtual void    undo();
+    virtual bool    canUndo() const;
+    virtual void    redo();
+    virtual bool    canRedo() const;
 
-	virtual void	cut();
-	virtual BOOL	canCut() const;
-	virtual void	copy();
-	virtual BOOL	canCopy() const;
-	virtual void	paste();
-	virtual BOOL	canPaste() const;
+    virtual void    cut();
+    virtual bool    canCut() const;
+    virtual void    copy();
+    virtual bool    canCopy() const;
+    virtual void    paste();
+    virtual bool    canPaste() const;
 
-	virtual void	updatePrimary();
-	virtual void	copyPrimary();
-	virtual void	pastePrimary();
-	virtual BOOL	canPastePrimary() const;
+    virtual void    updatePrimary();
+    virtual void    copyPrimary();
+    virtual void    pastePrimary();
+    virtual bool    canPastePrimary() const;
 
-	virtual void	doDelete();
-	virtual BOOL	canDoDelete() const;
-	virtual void	selectAll();
-	virtual BOOL	canSelectAll()	const;
+    virtual void    doDelete();
+    virtual bool    canDoDelete() const;
+    virtual void    selectAll();
+    virtual bool    canSelectAll()  const;
 
-	void 			selectByCursorPosition(S32 prev_cursor_pos, S32 next_cursor_pos);
+    void            selectByCursorPosition(S32 prev_cursor_pos, S32 next_cursor_pos);
 
-	virtual bool	canLoadOrSaveToFile();
+    virtual bool    canLoadOrSaveToFile();
 
-	void			selectNext(const std::string& search_text_in, BOOL case_insensitive, BOOL wrap = TRUE);
-	BOOL			replaceText(const std::string& search_text, const std::string& replace_text, BOOL case_insensitive, BOOL wrap = TRUE);
-	void			replaceTextAll(const std::string& search_text, const std::string& replace_text, BOOL case_insensitive);
+    void            selectNext(const std::string& search_text_in, bool case_insensitive, bool wrap = true);
+    bool            replaceText(const std::string& search_text, const std::string& replace_text, bool case_insensitive, bool wrap = true);
+    void            replaceTextAll(const std::string& search_text, const std::string& replace_text, bool case_insensitive);
 
-	// Undo/redo stack
-	void			blockUndo();
+    // Undo/redo stack
+    void            blockUndo();
 
-	// Text editing
-	virtual void	makePristine();
-	BOOL			isPristine() const;
-	BOOL			allowsEmbeddedItems() const { return mAllowEmbeddedItems; }
+    // Text editing
+    virtual void    makePristine();
+    bool            isPristine() const;
+    bool            allowsEmbeddedItems() const { return mAllowEmbeddedItems; }
 
-	// Autoreplace (formerly part of LLLineEditor)
-	typedef boost::function<void(S32&, S32&, LLWString&, S32&, const LLWString&)> autoreplace_callback_t;
-	autoreplace_callback_t mAutoreplaceCallback;
-	void			setAutoreplaceCallback(autoreplace_callback_t cb) { mAutoreplaceCallback = cb; }
+    // Autoreplace (formerly part of LLLineEditor)
+    typedef boost::function<void(S32&, S32&, LLWString&, S32&, const LLWString&)> autoreplace_callback_t;
+    autoreplace_callback_t mAutoreplaceCallback;
+    void            setAutoreplaceCallback(autoreplace_callback_t cb) { mAutoreplaceCallback = cb; }
 
-	/*virtual*/ void	onSpellCheckPerformed();
+    /*virtual*/ void    onSpellCheckPerformed();
 
-	//
-	// Text manipulation
-	//
+    //
+    // Text manipulation
+    //
 
-	// inserts text at cursor
-	void			insertText(const std::string &text);
-	void			insertText(LLWString &text);
+    // inserts text at cursor
+    void            insertText(const std::string &text);
+    void            insertText(LLWString &text);
 
-	void			appendWidget(const LLInlineViewSegment::Params& params, const std::string& text, bool allow_undo);
-	// Non-undoable
-	void			setText(const LLStringExplicit &utf8str, const LLStyle::Params& input_params = LLStyle::Params());
-
-
-	// Removes text from the end of document
-	// Does not change highlight or cursor position.
-	void 			removeTextFromEnd(S32 num_chars);
-
-	BOOL			tryToRevertToPristineState();
-
-	void			setCursorAndScrollToEnd();
-
-	void			getCurrentLineAndColumn( S32* line, S32* col, BOOL include_wordwrap );
-
-	// Hacky methods to make it into a word-wrapping, potentially scrolling,
-	// read-only text box.
-	void			setCommitOnFocusLost(BOOL b)			{ mCommitOnFocusLost = b; }
-
-	// Hack to handle Notecards
-	virtual BOOL	importBuffer(const char* buffer, S32 length );
-	virtual BOOL	exportBuffer(std::string& buffer );
-
-	const LLUUID&	getSourceID() const						{ return mSourceID; }
-
-	const LLTextSegmentPtr	getPreviousSegment() const;
-    const LLTextSegmentPtr	getLastSegment() const;
-	void			getSelectedSegments(segment_vec_t& segments) const;
-
-	void			setShowContextMenu(bool show) { mShowContextMenu = show; }
-	bool			getShowContextMenu() const { return mShowContextMenu; }
-
-	void			showEmojiHelper();
-	void			setShowEmojiHelper(bool show);
-	bool			getShowEmojiHelper() const { return mShowEmojiHelper; }
-
-	void			setPassDelete(BOOL b) { mPassDelete = b; }
-
-protected:
-	void			showContextMenu(S32 x, S32 y);
-	void			drawPreeditMarker();
-
-	void 			assignEmbedded(const std::string &s);
-
-	void			removeCharOrTab();
-
-	void			indentSelectedLines( S32 spaces );
-	S32				indentLine( S32 pos, S32 spaces );
-	void			unindentLineBeforeCloseBrace();
-
-	virtual	BOOL	handleSpecialKey(const KEY key, const MASK mask);
-	BOOL			handleNavigationKey(const KEY key, const MASK mask);
-	BOOL			handleSelectionKey(const KEY key, const MASK mask);
-	BOOL			handleControlKey(const KEY key, const MASK mask);
-
-	BOOL			selectionContainsLineBreaks();
-	void			deleteSelection(BOOL transient_operation);
-
-	S32				prevWordPos(S32 cursorPos) const;
-	S32				nextWordPos(S32 cursorPos) const;
-
-	void			autoIndent();
-
-	void			findEmbeddedItemSegments(S32 start, S32 end);
-	void			getSegmentsInRange(segment_vec_t& segments, S32 start, S32 end, bool include_partial) const;
-
-	virtual llwchar	pasteEmbeddedItem(llwchar ext_char) { return ext_char; }
+    void            appendWidget(const LLInlineViewSegment::Params& params, const std::string& text, bool allow_undo);
+    // Non-undoable
+    void            setText(const LLStringExplicit &utf8str, const LLStyle::Params& input_params = LLStyle::Params());
 
 
-	// Here's the method that takes and applies text commands.
-	S32 			execute(TextCmd* cmd);
+    // Removes text from the end of document
+    // Does not change highlight or cursor position.
+    void            removeTextFromEnd(S32 num_chars);
 
-	// Undoable operations
-	void			addChar(llwchar c); // at mCursorPos
-	S32				addChar(S32 pos, llwchar wc);
-	void			addLineBreakChar(BOOL group_together = FALSE);
-	S32				overwriteChar(S32 pos, llwchar wc);
-	void			removeChar();
-	S32 			removeChar(S32 pos);
-	S32				insert(S32 pos, const LLWString &wstr, bool group_with_next_op, LLTextSegmentPtr segment);
-	S32				remove(S32 pos, S32 length, bool group_with_next_op);
+    bool            tryToRevertToPristineState();
 
-	void			tryToShowEmojiHelper();
-	void			focusLostHelper();
-	void			updateAllowingLanguageInput();
-	BOOL			hasPreeditString() const;
+    void            setCursorAndScrollToEnd();
 
-	// Overrides LLPreeditor
-	virtual void	resetPreedit();
-	virtual void	updatePreedit(const LLWString &preedit_string,
-						const segment_lengths_t &preedit_segment_lengths, const standouts_t &preedit_standouts, S32 caret_position);
-	virtual void	markAsPreedit(S32 position, S32 length);
-	virtual void	getPreeditRange(S32 *position, S32 *length) const;
-	virtual void	getSelectionRange(S32 *position, S32 *length) const;
-	virtual BOOL	getPreeditLocation(S32 query_offset, LLCoordGL *coord, LLRect *bounds, LLRect *control) const;
-	virtual S32		getPreeditFontSize() const;
-	virtual LLWString getPreeditString() const { return getWText(); }
-	//
-	// Protected data
-	//
-	// Probably deserves serious thought to hiding as many of these
-	// as possible behind protected accessor methods.
-	//
+    void            getCurrentLineAndColumn( S32* line, S32* col, bool include_wordwrap );
 
-	// Use these to determine if a click on an embedded item is a drag or not.
-	S32				mMouseDownX;
-	S32				mMouseDownY;
+    // Hacky methods to make it into a word-wrapping, potentially scrolling,
+    // read-only text box.
+    void            setCommitOnFocusLost(bool b)            { mCommitOnFocusLost = b; }
 
-	LLWString			mPreeditWString;
-	LLWString			mPreeditOverwrittenWString;
-	std::vector<S32> 	mPreeditPositions;
-	std::vector<BOOL> 	mPreeditStandouts;
+    // Hack to handle Notecards
+    virtual bool    importBuffer(const char* buffer, S32 length );
+    virtual bool    exportBuffer(std::string& buffer );
+
+    const LLUUID&   getSourceID() const                     { return mSourceID; }
+
+    const LLTextSegmentPtr  getPreviousSegment() const;
+    const LLTextSegmentPtr  getLastSegment() const;
+    void            getSelectedSegments(segment_vec_t& segments) const;
+
+    void            setShowContextMenu(bool show) { mShowContextMenu = show; }
+    bool            getShowContextMenu() const { return mShowContextMenu; }
+
+    void            showEmojiHelper();
+    void            setShowEmojiHelper(bool show);
+    bool            getShowEmojiHelper() const { return mShowEmojiHelper; }
+
+    void            setPassDelete(bool b) { mPassDelete = b; }
 
 protected:
-	LLUIColor			mDefaultColor;
+    void            showContextMenu(S32 x, S32 y);
+    void            drawPreeditMarker();
 
-	bool				mAutoIndent;
-	bool				mParseOnTheFly;
+    void            assignEmbedded(const std::string &s);
 
-	void				updateLinkSegments();
-	void				keepSelectionOnReturn(bool keep) { mKeepSelectionOnReturn = keep; }
-	class LLViewBorder*	mBorder;
+    void            removeCharOrTab();
+
+    void            indentSelectedLines( S32 spaces );
+    S32             indentLine( S32 pos, S32 spaces );
+    void            unindentLineBeforeCloseBrace();
+
+    virtual bool    handleSpecialKey(const KEY key, const MASK mask);
+    bool            handleNavigationKey(const KEY key, const MASK mask);
+    bool            handleSelectionKey(const KEY key, const MASK mask);
+    bool            handleControlKey(const KEY key, const MASK mask);
+
+    bool            selectionContainsLineBreaks();
+    void            deleteSelection(bool transient_operation);
+
+    S32             prevWordPos(S32 cursorPos) const;
+    S32             nextWordPos(S32 cursorPos) const;
+
+    void            autoIndent();
+
+    void            findEmbeddedItemSegments(S32 start, S32 end);
+    void            getSegmentsInRange(segment_vec_t& segments, S32 start, S32 end, bool include_partial) const;
+
+    virtual llwchar pasteEmbeddedItem(llwchar ext_char) { return ext_char; }
+
+
+    // Here's the method that takes and applies text commands.
+    S32             execute(TextCmd* cmd);
+
+    // Undoable operations
+    void            addChar(llwchar c); // at mCursorPos
+    S32             addChar(S32 pos, llwchar wc);
+    void            addLineBreakChar(bool group_together = false);
+    S32             overwriteChar(S32 pos, llwchar wc);
+    void            removeChar();
+    S32             removeChar(S32 pos);
+    S32             insert(S32 pos, const LLWString &wstr, bool group_with_next_op, LLTextSegmentPtr segment);
+    S32             remove(S32 pos, S32 length, bool group_with_next_op);
+
+    void            tryToShowEmojiHelper();
+    void            focusLostHelper();
+    void            updateAllowingLanguageInput();
+    bool            hasPreeditString() const;
+
+    // Overrides LLPreeditor
+    virtual void    resetPreedit();
+    virtual void    updatePreedit(const LLWString &preedit_string,
+                        const segment_lengths_t &preedit_segment_lengths, const standouts_t &preedit_standouts, S32 caret_position);
+    virtual void    markAsPreedit(S32 position, S32 length);
+    virtual void    getPreeditRange(S32 *position, S32 *length) const;
+    virtual void    getSelectionRange(S32 *position, S32 *length) const;
+    virtual bool    getPreeditLocation(S32 query_offset, LLCoordGL *coord, LLRect *bounds, LLRect *control) const;
+    virtual S32     getPreeditFontSize() const;
+    virtual LLWString getPreeditString() const { return getWText(); }
+
+    virtual bool    useFontBuffers() const { return getReadOnly(); }
+    //
+    // Protected data
+    //
+    // Probably deserves serious thought to hiding as many of these
+    // as possible behind protected accessor methods.
+    //
+
+    // Use these to determine if a click on an embedded item is a drag or not.
+    S32             mMouseDownX;
+    S32             mMouseDownY;
+
+    LLWString           mPreeditWString;
+    LLWString           mPreeditOverwrittenWString;
+    std::vector<S32>    mPreeditPositions;
+    LLPreeditor::standouts_t mPreeditStandouts;
+
+protected:
+    LLUIColor           mDefaultColor;
+
+    bool                mAutoIndent;
+    bool                mParseOnTheFly;
+
+    void                updateLinkSegments();
+    void                keepSelectionOnReturn(bool keep) { mKeepSelectionOnReturn = keep; }
+    class LLViewBorder* mBorder;
 
 private:
-	//
-	// Methods
-	//
-	void	        pasteHelper(bool is_primary);
-	void			cleanStringForPaste(LLWString & clean_string);
-	void			pasteTextWithLinebreaks(LLWString & clean_string);
+    //
+    // Methods
+    //
+    void            pasteHelper(bool is_primary);
+    void            cleanStringForPaste(LLWString & clean_string);
+    void            pasteTextWithLinebreaks(LLWString & clean_string);
 
-	void			onKeyStroke();
+    void            onKeyStroke();
 
-	// Concrete TextCmd sub-classes used by the LLTextEditor base class
-	class TextCmdInsert;
-	class TextCmdAddChar;
-	class TextCmdOverwriteChar;
-	class TextCmdRemove;
+    // Concrete TextCmd sub-classes used by the LLTextEditor base class
+    class TextCmdInsert;
+    class TextCmdAddChar;
+    class TextCmdOverwriteChar;
+    class TextCmdRemove;
 
-	BOOL			mBaseDocIsPristine;
-	TextCmd*		mPristineCmd;
+    bool            mBaseDocIsPristine;
+    TextCmd*        mPristineCmd;
 
-	TextCmd*		mLastCmd;
+    TextCmd*        mLastCmd;
 
-	typedef std::deque<TextCmd*> undo_stack_t;
-	undo_stack_t	mUndoStack;
+    typedef std::deque<TextCmd*> undo_stack_t;
+    undo_stack_t    mUndoStack;
 
-	BOOL			mTabsToNextField;		// if true, tab moves focus to next field, else inserts spaces
-	BOOL			mCommitOnFocusLost;
-	BOOL			mTakesFocus;
+    bool            mTabsToNextField;       // if true, tab moves focus to next field, else inserts spaces
+    bool            mCommitOnFocusLost;
+    bool            mTakesFocus;
 
-	BOOL			mAllowEmbeddedItems;
-	bool			mShowContextMenu;
-	bool			mShowEmojiHelper;
-	bool			mEnableTooltipPaste;
-	bool			mPassDelete;
-	bool			mKeepSelectionOnReturn;	// disabling of removing selected text after pressing of Enter
+    bool            mAllowEmbeddedItems;
+    bool            mShowContextMenu;
+    bool            mShowEmojiHelper;
+    bool            mEnableTooltipPaste;
+    bool            mPassDelete;
+    bool            mKeepSelectionOnReturn; // disabling of removing selected text after pressing of Enter
 
-	LLUUID			mSourceID;
+    LLUUID          mSourceID;
 
-	LLCoordGL		mLastIMEPosition;		// Last position of the IME editor
+    LLCoordGL       mLastIMEPosition;       // Last position of the IME editor
 
-	keystroke_signal_t mKeystrokeSignal;
-	LLTextValidate::validate_func_t mPrevalidateFunc;
+    keystroke_signal_t mKeystrokeSignal;
+    LLTextValidate::Validator mPrevalidator;
 
-	LLHandle<LLContextMenu> mContextMenuHandle;
+    LLHandle<LLContextMenu> mContextMenuHandle;
 }; // end class LLTextEditor
 
 // Build time optimization, generate once in .cpp file
 #ifndef LLTEXTEDITOR_CPP
 extern template class LLTextEditor* LLView::getChild<class LLTextEditor>(
-	const std::string& name, BOOL recurse) const;
+    std::string_view name, bool recurse) const;
 #endif
 
 #endif  // LL_TEXTEDITOR_H

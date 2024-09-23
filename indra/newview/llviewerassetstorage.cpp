@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llviewerassetstorage.cpp
  * @brief Subclass capable of loading asset data to/from an external source.
  *
  * $LicenseInfo:firstyear=2003&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -67,10 +67,10 @@ public:
           mWithHTTP(with_http)
     {
     }
-    
+
     LLViewerAssetRequest & operator=(const LLViewerAssetRequest &); // Not defined
     // Default assignment operator valid
-    
+
     // virtual
     ~LLViewerAssetRequest()
     {
@@ -92,7 +92,7 @@ protected:
             mMetricsStartTime = (U32Seconds)0;
         }
     }
-    
+
 public:
     LLViewerAssetStats::duration_t      mMetricsStartTime;
     bool mWithHTTP;
@@ -131,12 +131,12 @@ LLViewerAssetStorage::~LLViewerAssetStorage()
 {
     if (!LLCoprocedureManager::wasDeleted())
     {
-        // This class has dedicated coroutine pool, clean it up, otherwise coroutines will crash later. 
+        // This class has dedicated coroutine pool, clean it up, otherwise coroutines will crash later.
         LLCoprocedureManager::instance().close(VIEWER_ASSET_STORAGE_CORO_POOL);
     }
 }
 
-// virtual 
+// virtual
 void LLViewerAssetStorage::storeAssetData(
     const LLTransactionID& tid,
     LLAssetType::EType asset_type,
@@ -151,7 +151,7 @@ void LLViewerAssetStorage::storeAssetData(
     LLAssetID asset_id = tid.makeAssetID(gAgent.getSecureSessionID());
     LL_DEBUGS("AssetStorage") << "LLViewerAssetStorage::storeAssetData (legacy) " << tid << ":" << LLAssetType::lookup(asset_type)
                               << " ASSET_ID: " << asset_id << LL_ENDL;
-    
+
     if (mUpstreamHost.isOk())
     {
         if (LLFileSystem::getExists(asset_id, asset_type))
@@ -199,12 +199,12 @@ void LLViewerAssetStorage::storeAssetData(
             // Read the data from the cache if it'll fit in this packet.
             if (asset_size + 100 < MTUBYTES)
             {
-                BOOL res = vfile.read(buffer, asset_size);      /* Flawfinder: ignore */
+                bool res = vfile.read(buffer, asset_size);      /* Flawfinder: ignore */
                 S32 bytes_read = res ? vfile.getLastBytesRead() : 0;
-                
+
                 if( bytes_read == asset_size )
                 {
-                    req->mDataSentInFirstPacket = TRUE;
+                    req->mDataSentInFirstPacket = true;
                     //LL_INFOS() << "LLViewerAssetStorage::createAsset sending data in first packet" << LL_ENDL;
                 }
                 else
@@ -272,7 +272,7 @@ void LLViewerAssetStorage::storeAssetData(
         LL_ERRS() << "No filename specified" << LL_ENDL;
         return;
     }
-    
+
     LLAssetID asset_id = tid.makeAssetID(gAgent.getSecureSessionID());
     LL_DEBUGS("AssetStorage") << "LLViewerAssetStorage::storeAssetData (legacy)" << asset_id << ":" << LLAssetType::lookup(asset_type) << LL_ENDL;
 
@@ -289,7 +289,7 @@ void LLViewerAssetStorage::storeAssetData(
     if( size )
     {
         LLLegacyAssetRequest *legacy = new LLLegacyAssetRequest;
-        
+
         legacy->mUpCallback = callback;
         legacy->mUserData = user_data;
 
@@ -361,8 +361,8 @@ void LLViewerAssetStorage::_queueDataRequest(
     LLAssetType::EType atype,
     LLGetAssetCallback callback,
     void *user_data,
-    BOOL duplicate,
-    BOOL is_priority)
+    bool duplicate,
+    bool is_priority)
 {
     mCountRequests++;
     queueRequestHttp(uuid, atype, callback, user_data, duplicate, is_priority);
@@ -373,9 +373,10 @@ void LLViewerAssetStorage::queueRequestHttp(
     LLAssetType::EType atype,
     LLGetAssetCallback callback,
     void *user_data,
-    BOOL duplicate,
-    BOOL is_priority)
+    bool duplicate,
+    bool is_priority)
 {
+    LL_PROFILE_ZONE_SCOPED;
     LL_DEBUGS("ViewerAsset") << "Request asset via HTTP " << uuid << " type " << LLAssetType::lookup(atype) << LL_ENDL;
 
     bool with_http = true;
@@ -385,7 +386,7 @@ void LLViewerAssetStorage::queueRequestHttp(
     req->mIsPriority = is_priority;
     if (!duplicate)
     {
-        // Only collect metrics for non-duplicate requests.  Others 
+        // Only collect metrics for non-duplicate requests.  Others
         // are piggy-backing and will artificially lower averages.
         req->mMetricsStartTime = LLViewerAssetStatsFF::get_timestamp();
     }
@@ -446,7 +447,7 @@ void LLViewerAssetStorage::assetRequestCoro(
     void *user_data)
 {
     LLScopedIncrement coro_count_boost(sAssetCoroCount); // static counter since corotine can outlive LLViewerAssetStorage
-    
+
     S32 result_code = LL_ERR_NOERR;
     LLExtStat ext_status = LLExtStat::NONE;
 
@@ -464,7 +465,7 @@ void LLViewerAssetStorage::assetRequestCoro(
         result_code = LL_ERR_ASSET_REQUEST_FAILED;
         ext_status = LLExtStat::NONE;
         removeAndCallbackPendingDownloads(uuid, atype, uuid, atype, result_code, ext_status);
-		return;
+        return;
     }
     else if (!gAgent.getRegion()->capabilitiesReceived())
     {
@@ -474,7 +475,7 @@ void LLViewerAssetStorage::assetRequestCoro(
 
         gAgent.getRegion()->setCapabilitiesReceivedCallback(
             boost::bind(&LLViewerAssetStorage::capsRecvForRegion, this, _1, capsRecv.getName()));
-        
+
         llcoro::suspendUntilEventOn(capsRecv);
 
         if (LLApp::isExiting() || !gAssetStorage)
@@ -495,7 +496,7 @@ void LLViewerAssetStorage::assetRequestCoro(
         result_code = LL_ERR_ASSET_REQUEST_FAILED;
         ext_status = LLExtStat::NONE;
         removeAndCallbackPendingDownloads(uuid, atype, uuid, atype, result_code, ext_status);
-		return;
+        return;
     }
     std::string url = getAssetURL(mViewerAssetUrl, uuid,atype);
     LL_DEBUGS("ViewerAsset") << "request url: " << url << LL_ENDL;
@@ -515,7 +516,7 @@ void LLViewerAssetStorage::assetRequestCoro(
     }
 
     mCountCompleted++;
-    
+
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
     if (!status)
@@ -542,14 +543,14 @@ void LLViewerAssetStorage::assetRequestCoro(
 
         const LLSD::Binary &raw = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_RAW].asBinary();
 
-        S32 size = raw.size();
+        S32 size = static_cast<S32>(raw.size());
         if (size > 0)
         {
             mTotalBytesFetched += size;
-            
-			// This create-then-rename flow is modeled on
-			// LLTransferTargetVFile, which is what was used in the UDP
-			// case.
+
+            // This create-then-rename flow is modeled on
+            // LLTransferTargetVFile, which is what was used in the UDP
+            // case.
             LLUUID temp_id;
             temp_id.generate();
             LLFileSystem vf(temp_id, atype, LLFileSystem::WRITE);
@@ -575,7 +576,7 @@ void LLViewerAssetStorage::assetRequestCoro(
         else
         {
             // TODO asset-http: handle invalid size case
-			LL_WARNS("ViewerAsset") << "bad size" << LL_ENDL;
+            LL_WARNS("ViewerAsset") << "bad size" << LL_ENDL;
             result_code = LL_ERR_ASSET_REQUEST_FAILED;
             ext_status = LLExtStat::NONE;
         }

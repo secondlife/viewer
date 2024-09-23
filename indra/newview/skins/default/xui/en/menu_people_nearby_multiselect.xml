@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <context_menu
  layout="topleft"
  name="Multi-Selected People Context Menu">
@@ -48,6 +48,9 @@
      name="share">
         <on_click
          function="Avatar.Share" />
+        <on_enable
+         function="Avatar.EnableItem"
+         parameter="can_share" />
     </menu_item_call>
     <menu_item_call
      enabled="false"
@@ -56,6 +59,9 @@
      name="pay">
         <on_click
          function="Avatar.Pay" />
+        <on_enable
+         function="Avatar.EnableItem"
+         parameter="can_pay" />
     </menu_item_call>
     <menu_item_call
     label="Offer Teleport"

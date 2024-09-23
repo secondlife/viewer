@@ -31,7 +31,7 @@
 #include "llviewertexture.h"
 #include "llviewertexturelist.h"
 
-void strip_alpha_channel(LLPointer<LLImageRaw>& img)
+static void strip_alpha_channel(LLPointer<LLImageRaw>& img)
 {
     if (img->getComponents() == 4)
     {
@@ -45,13 +45,13 @@ void strip_alpha_channel(LLPointer<LLImageRaw>& img)
 // PRECONDITIONS:
 // dst_img must be 3 component
 // src_img and dst_image must have the same dimensions
-void copy_red_channel(LLPointer<LLImageRaw>& src_img, LLPointer<LLImageRaw>& dst_img)
+static void copy_red_channel(const LLPointer<LLImageRaw>& src_img, LLPointer<LLImageRaw>& dst_img)
 {
     llassert(src_img->getWidth() == dst_img->getWidth() && src_img->getHeight() == dst_img->getHeight());
     llassert(dst_img->getComponents() == 3);
 
     U32 pixel_count = dst_img->getWidth() * dst_img->getHeight();
-    U8* src = src_img->getData();
+    const U8* src = src_img->getData();
     U8* dst = dst_img->getData();
     S8 src_components = src_img->getComponents();
 
@@ -87,23 +87,36 @@ void LLTinyGLTFHelper::initFetchedTextures(tinygltf::Material& material,
     {
         strip_alpha_channel(mr_img);
 
-        if (occlusion_img && material.pbrMetallicRoughness.metallicRoughnessTexture.index != material.occlusionTexture.index)
+        if (occlusion_img)
         {
-            // occlusion is a distinct texture from pbrMetallicRoughness
-            // pack into mr red channel
-            int occlusion_idx = material.occlusionTexture.index;
-            int mr_idx = material.pbrMetallicRoughness.metallicRoughnessTexture.index;
-            if (occlusion_idx != mr_idx)
+            if (material.pbrMetallicRoughness.metallicRoughnessTexture.index != material.occlusionTexture.index)
             {
-                //scale occlusion image to match resolution of mr image
-                occlusion_img->scale(mr_img->getWidth(), mr_img->getHeight());
+                // occlusion is a distinct texture from pbrMetallicRoughness
+                // pack into mr red channel
+                int occlusion_idx = material.occlusionTexture.index;
+                int mr_idx = material.pbrMetallicRoughness.metallicRoughnessTexture.index;
+                if (occlusion_idx != mr_idx)
+                {
+                    LLImageDataLock lockIn(occlusion_img);
+                    LLImageDataLock lockOut(mr_img);
+                    //scale occlusion image to match resolution of mr image
+                    occlusion_img->scale(mr_img->getWidth(), mr_img->getHeight());
 
-                copy_red_channel(occlusion_img, mr_img);
+                    copy_red_channel(occlusion_img, mr_img);
+                }
             }
+        }
+        else if (material.occlusionTexture.index == -1)
+        {
+            // no occlusion, make sure red channel of ORM is all 255
+            occlusion_img = new LLImageRaw(mr_img->getWidth(), mr_img->getHeight(), 3);
+            occlusion_img->clear(255, 255, 255);
+            copy_red_channel(occlusion_img, mr_img);
         }
     }
     else if (occlusion_img)
     {
+        LLImageDataSharedLock lock(occlusion_img);
         //no mr but occlusion exists, make a white mr_img and copy occlusion red channel over
         mr_img = new LLImageRaw(occlusion_img->getWidth(), occlusion_img->getHeight(), 3);
         mr_img->clear(255, 255, 255);
@@ -127,7 +140,7 @@ LLColor4 LLTinyGLTFHelper::getColor(const std::vector<double>& in)
     LLColor4 out;
     for (S32 i = 0; i < llmin((S32)in.size(), 4); ++i)
     {
-        out.mV[i] = in[i];
+        out.mV[i] = (F32)in[i];
     }
 
     return out;
@@ -147,7 +160,7 @@ const tinygltf::Image * LLTinyGLTFHelper::getImageFromTextureIndex(const tinyglt
     return nullptr;
 }
 
-LLImageRaw * LLTinyGLTFHelper::getTexture(const std::string & folder, const tinygltf::Model & model, S32 texture_index, std::string & name)
+LLImageRaw * LLTinyGLTFHelper::getTexture(const std::string & folder, const tinygltf::Model & model, S32 texture_index, std::string & name, bool flip)
 {
     const tinygltf::Image* image = getImageFromTextureIndex(model, texture_index);
     LLImageRaw* rawImage = nullptr;
@@ -159,14 +172,17 @@ LLImageRaw * LLTinyGLTFHelper::getTexture(const std::string & folder, const tiny
     {
         name = image->name;
         rawImage = new LLImageRaw(&image->image[0], image->width, image->height, image->component);
-        rawImage->verticalFlip();
+        if (flip)
+        {
+            rawImage->verticalFlip();
+        }
         rawImage->optimizeAwayAlpha();
     }
 
     return rawImage;
 }
 
-LLImageRaw * LLTinyGLTFHelper::getTexture(const std::string & folder, const tinygltf::Model & model, S32 texture_index)
+LLImageRaw * LLTinyGLTFHelper::getTexture(const std::string & folder, const tinygltf::Model & model, S32 texture_index, bool flip)
 {
     const tinygltf::Image* image = getImageFromTextureIndex(model, texture_index);
     LLImageRaw* rawImage = nullptr;
@@ -177,7 +193,11 @@ LLImageRaw * LLTinyGLTFHelper::getTexture(const std::string & folder, const tiny
         image->component <= 4)
     {
         rawImage = new LLImageRaw(&image->image[0], image->width, image->height, image->component);
-        rawImage->verticalFlip();
+        if (flip)
+        {
+            rawImage->verticalFlip();
+        }
+        rawImage->optimizeAwayAlpha();
     }
 
     return rawImage;
@@ -186,7 +206,7 @@ LLImageRaw * LLTinyGLTFHelper::getTexture(const std::string & folder, const tiny
 bool LLTinyGLTFHelper::loadModel(const std::string& filename, tinygltf::Model& model_in)
 {
     std::string exten = gDirUtilp->getExtension(filename);
-    
+
     if (exten == "gltf" || exten == "glb")
     {
         tinygltf::TinyGLTF loader;
@@ -223,7 +243,7 @@ bool LLTinyGLTFHelper::loadModel(const std::string& filename, tinygltf::Model& m
             LL_WARNS("GLTF") << "Cannot load. File has no materials " << filename << LL_ENDL;
             return false;
         }
-        
+
         return true;
     }
 
@@ -231,12 +251,50 @@ bool LLTinyGLTFHelper::loadModel(const std::string& filename, tinygltf::Model& m
     return false;
 }
 
+bool LLTinyGLTFHelper::saveModel(const std::string& filename, tinygltf::Model& model_in)
+{
+    std::string exten = gDirUtilp->getExtension(filename);
+
+    bool success = false;
+
+    if (exten == "gltf" || exten == "glb")
+    {
+        tinygltf::TinyGLTF writer;
+
+        std::string filename_lc = filename;
+        LLStringUtil::toLower(filename_lc);
+
+
+        bool embed_images = false;
+        bool embed_buffers = false;
+        bool pretty_print = true;
+        bool write_binary = false;
+
+
+        if (std::string::npos == filename_lc.rfind(".gltf"))
+        {  // file is binary
+            embed_images = embed_buffers = write_binary = true;
+        }
+
+        success = writer.WriteGltfSceneToFile(&model_in, filename, embed_images, embed_buffers, pretty_print, write_binary);
+
+        if (!success)
+        {
+            LL_WARNS("GLTF") << "Failed to save" << LL_ENDL;
+            return false;
+        }
+    }
+
+    return success;
+}
+
 bool LLTinyGLTFHelper::getMaterialFromModel(
     const std::string& filename,
     const tinygltf::Model& model_in,
     S32 mat_index,
     LLFetchedGLTFMaterial* material,
-    std::string& material_name)
+    std::string& material_name,
+    bool flip)
 {
     llassert(material);
 
@@ -255,18 +313,18 @@ bool LLTinyGLTFHelper::getMaterialFromModel(
     material_name = material_in.name;
 
     // get base color texture
-    LLPointer<LLImageRaw> base_img = LLTinyGLTFHelper::getTexture(folder, model_in, material_in.pbrMetallicRoughness.baseColorTexture.index);
+    LLPointer<LLImageRaw> base_img = LLTinyGLTFHelper::getTexture(folder, model_in, material_in.pbrMetallicRoughness.baseColorTexture.index, flip);
     // get normal map
-    LLPointer<LLImageRaw> normal_img = LLTinyGLTFHelper::getTexture(folder, model_in, material_in.normalTexture.index);
+    LLPointer<LLImageRaw> normal_img = LLTinyGLTFHelper::getTexture(folder, model_in, material_in.normalTexture.index, flip);
     // get metallic-roughness texture
-    LLPointer<LLImageRaw> mr_img = LLTinyGLTFHelper::getTexture(folder, model_in, material_in.pbrMetallicRoughness.metallicRoughnessTexture.index);
+    LLPointer<LLImageRaw> mr_img = LLTinyGLTFHelper::getTexture(folder, model_in, material_in.pbrMetallicRoughness.metallicRoughnessTexture.index, flip);
     // get emissive texture
-    LLPointer<LLImageRaw> emissive_img = LLTinyGLTFHelper::getTexture(folder, model_in, material_in.emissiveTexture.index);
+    LLPointer<LLImageRaw> emissive_img = LLTinyGLTFHelper::getTexture(folder, model_in, material_in.emissiveTexture.index, flip);
     // get occlusion map if needed
     LLPointer<LLImageRaw> occlusion_img;
     if (material_in.occlusionTexture.index != material_in.pbrMetallicRoughness.metallicRoughnessTexture.index)
     {
-        occlusion_img = LLTinyGLTFHelper::getTexture(folder, model_in, material_in.occlusionTexture.index);
+        occlusion_img = LLTinyGLTFHelper::getTexture(folder, model_in, material_in.occlusionTexture.index, flip);
     }
 
     LLPointer<LLViewerFetchedTexture> base_color_tex;
@@ -281,7 +339,7 @@ bool LLTinyGLTFHelper::getMaterialFromModel(
 
     if (base_color_tex)
     {
-        base_color_tex->addTextureStats(64.f * 64.f, TRUE);
+        base_color_tex->addTextureStats(64.f * 64.f, true);
         material->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR] = base_color_tex->getID();
         material->mBaseColorTexture = base_color_tex;
     }
@@ -293,7 +351,7 @@ bool LLTinyGLTFHelper::getMaterialFromModel(
 
     if (normal_tex)
     {
-        normal_tex->addTextureStats(64.f * 64.f, TRUE);
+        normal_tex->addTextureStats(64.f * 64.f, true);
         material->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL] = normal_tex->getID();
         material->mNormalTexture = normal_tex;
     }
@@ -305,7 +363,7 @@ bool LLTinyGLTFHelper::getMaterialFromModel(
 
     if (mr_tex)
     {
-        mr_tex->addTextureStats(64.f * 64.f, TRUE);
+        mr_tex->addTextureStats(64.f * 64.f, true);
         material->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS] = mr_tex->getID();
         material->mMetallicRoughnessTexture = mr_tex;
     }
@@ -317,7 +375,7 @@ bool LLTinyGLTFHelper::getMaterialFromModel(
 
     if (emissive_tex)
     {
-        emissive_tex->addTextureStats(64.f * 64.f, TRUE);
+        emissive_tex->addTextureStats(64.f * 64.f, true);
         material->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE] = emissive_tex->getID();
         material->mEmissiveTexture = emissive_tex;
     }

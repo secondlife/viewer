@@ -44,191 +44,203 @@ class LLChatHistory;
 class LLPanelEmojiComplete;
 
 class LLFloaterIMSessionTab
-	: public LLTransientDockableFloater
+    : public LLTransientDockableFloater
 {
-	using super = LLTransientDockableFloater;
+    using super = LLTransientDockableFloater;
 
 public:
-	LOG_CLASS(LLFloaterIMSessionTab);
+    LOG_CLASS(LLFloaterIMSessionTab);
 
-	LLFloaterIMSessionTab(const LLSD& session_id);
-	~LLFloaterIMSessionTab();
+    LLFloaterIMSessionTab(const LLSD& session_id);
+    ~LLFloaterIMSessionTab();
 
-	// reload all message with new settings of visual modes
-	static void processChatHistoryStyleUpdate(bool clean_messages = false);
-	static void reloadEmptyFloaters();
+    // reload all message with new settings of visual modes
+    static void processChatHistoryStyleUpdate(bool clean_messages = false);
+    static void reloadEmptyFloaters();
 
-	/**
-	 * Returns true if chat is displayed in multi tabbed floater
-	 *         false if chat is displayed in multiple windows
-	 */
-	static bool isChatMultiTab();
+    /**
+     * Returns true if chat is displayed in multi tabbed floater
+     *         false if chat is displayed in multiple windows
+     */
+    static bool isChatMultiTab();
 
-	// add conversation to container
-	static void addToHost(const LLUUID& session_id);
+    // add conversation to container
+    static void addToHost(const LLUUID& session_id);
 
-	bool isHostAttached() {return mIsHostAttached;}
-	void setHostAttached(bool is_attached) {mIsHostAttached = is_attached;}
+    bool isHostAttached() {return mIsHostAttached;}
+    void setHostAttached(bool is_attached) {mIsHostAttached = is_attached;}
 
-	static LLFloaterIMSessionTab* findConversation(const LLUUID& uuid);
-	static LLFloaterIMSessionTab* getConversation(const LLUUID& uuid);
+    static LLFloaterIMSessionTab* findConversation(const LLUUID& uuid);
+    static LLFloaterIMSessionTab* getConversation(const LLUUID& uuid);
 
-	bool isNearbyChat() {return mIsNearbyChat;}
+    bool isNearbyChat() {return mIsNearbyChat;}
 
-	// LLFloater overrides
-	/*virtual*/ void onOpen(const LLSD& key);
-	/*virtual*/ BOOL postBuild();
-	/*virtual*/ void draw();
-	/*virtual*/ void setVisible(BOOL visible);
-	/*virtual*/ void setFocus(BOOL focus);
-	/*virtual*/ void closeFloater(bool app_quitting = false);
-	
-	// Handle the left hand participant list widgets
-	void addConversationViewParticipant(LLConversationItem* item, bool update_view = true);
-	void removeConversationViewParticipant(const LLUUID& participant_id);
-	void updateConversationViewParticipant(const LLUUID& participant_id);
-	void refreshConversation();
-	void buildConversationViewParticipant();
+    // LLFloater overrides
+    /*virtual*/ void onOpen(const LLSD& key);
+    /*virtual*/ bool postBuild();
+    /*virtual*/ void draw();
+    /*virtual*/ void setVisible(bool visible);
+    /*virtual*/ void setFocus(bool focus);
+    /*virtual*/ void closeFloater(bool app_quitting = false);
+    /*virtual*/ void deleteAllChildren();
 
-	void setSortOrder(const LLConversationSort& order);
-	virtual void onTearOffClicked();
-	void updateGearBtn();
-	void initBtns();
-	virtual void updateMessages() {}
-	LLConversationItem* getCurSelectedViewModelItem();
-	void forceReshape();
-	virtual BOOL handleKeyHere( KEY key, MASK mask );
-	bool isMessagePaneExpanded(){return mMessagePaneExpanded;}
-	void setMessagePaneExpanded(bool expanded){mMessagePaneExpanded = expanded;}
-	void restoreFloater();
-	void saveCollapsedState();
+    // Handle the left hand participant list widgets
+    void addConversationViewParticipant(LLConversationItem* item, bool update_view = true);
+    void removeConversationViewParticipant(const LLUUID& participant_id);
+    void updateConversationViewParticipant(const LLUUID& participant_id);
+    void refreshConversation();
+    void buildConversationViewParticipant();
 
-	void updateChatIcon(const LLUUID& id);
+    void setSortOrder(const LLConversationSort& order);
+    virtual void onTearOffClicked();
+    void updateGearBtn();
+    void initBtns();
+    virtual void updateMessages() {}
+    LLConversationItem* getCurSelectedViewModelItem();
+    void forceReshape();
+    virtual bool handleKeyHere( KEY key, MASK mask );
+    bool isMessagePaneExpanded(){return mMessagePaneExpanded;}
+    void setMessagePaneExpanded(bool expanded){mMessagePaneExpanded = expanded;}
+    void restoreFloater();
+    void saveCollapsedState();
 
-	LLView* getChatHistory();
+    void updateChatIcon(const LLUUID& id);
+
+    LLView* getChatHistory();
 
 protected:
 
-	// callback for click on any items of the visual states menu
-	void onIMSessionMenuItemClicked(const LLSD& userdata);
+    // callback for click on any items of the visual states menu
+    void onIMSessionMenuItemClicked(const LLSD& userdata);
 
-	// callback for check/uncheck of the expanded/collapse mode's switcher
-	bool onIMCompactExpandedMenuItemCheck(const LLSD& userdata);
+    // callback for check/uncheck of the expanded/collapse mode's switcher
+    bool onIMCompactExpandedMenuItemCheck(const LLSD& userdata);
 
-	//
-	bool onIMShowModesMenuItemCheck(const LLSD& userdata);
-	bool onIMShowModesMenuItemEnable(const LLSD& userdata);
-	static void onSlide(LLFloaterIMSessionTab *self);
-	static void onCollapseToLine(LLFloaterIMSessionTab *self);
-	void reshapeFloater(bool collapse);
+    //
+    bool onIMShowModesMenuItemCheck(const LLSD& userdata);
+    bool onIMShowModesMenuItemEnable(const LLSD& userdata);
+    static void onSlide(LLFloaterIMSessionTab *self);
+    static void onCollapseToLine(LLFloaterIMSessionTab *self);
+    void reshapeFloater(bool collapse);
 
-	// refresh a visual state of the Call button
-	void updateCallBtnState(bool callIsActive);
+    // refresh a visual state of the Call button
+    void updateCallBtnState(bool callIsActive);
 
-	void hideOrShowTitle(); // toggle the floater's drag handle
-	void hideAllStandardButtons();
+    void hideOrShowTitle(); // toggle the floater's drag handle
+    void hideAllStandardButtons();
 
-	/// Update floater header and toolbar buttons when hosted/torn off state is toggled.
-	void updateHeaderAndToolbar();
+    /// Update floater header and toolbar buttons when hosted/torn off state is toggled.
+    void updateHeaderAndToolbar();
 
-	// Update the input field help text and other places that need the session name
-	virtual void updateSessionName(const std::string& name);
+    // Update the input field help text and other places that need the session name
+    virtual void updateSessionName(const std::string& name);
 
-	// set the enable/disable state for the Call button
-	virtual void enableDisableCallBtn();
+    // set the enable/disable state for the Call button
+    virtual void enableDisableCallBtn();
 
-	// process focus events to set a currently active session
-	/* virtual */ void onFocusReceived();
-	/* virtual */ void onFocusLost();
+    // process focus events to set a currently active session
+    /* virtual */ void onFocusReceived();
+    /* virtual */ void onFocusLost();
 
-	// prepare chat's params and out one message to chatHistory
-	void appendMessage(const LLChat& chat, const LLSD& args = LLSD());
+    // prepare chat's params and out one message to chatHistory
+    void appendMessage(const LLChat& chat, const LLSD& args = LLSD());
 
-	std::string appendTime();
-	void assignResizeLimits();
+    std::string appendTime();
+    void assignResizeLimits();
 
-	void updateUsedEmojis(LLWString text);
+    void updateUsedEmojis(LLWStringView text);
 
-	S32  mFloaterExtraWidth;
+    S32  mFloaterExtraWidth;
 
-	bool mIsNearbyChat;
-	bool mIsP2PChat;
+    bool mIsNearbyChat;
+    bool mIsP2PChat;
 
-	bool mMessagePaneExpanded;
-	bool mIsParticipantListExpanded;
-	S32 mMinFloaterHeight;
+    bool mMessagePaneExpanded;
+    bool mIsParticipantListExpanded;
+    S32 mMinFloaterHeight;
 
-	LLIMModel::LLIMSession* mSession;
+    LLIMModel::LLIMSession* mSession;
 
-	// Participants list: model and view
-	LLConversationViewParticipant* createConversationViewParticipant(LLConversationItem* item);
-	
-	LLUUID mSessionID; 
-	LLLayoutStack* mBodyStack;
-	LLLayoutStack* mParticipantListAndHistoryStack;
-	LLLayoutPanel* mParticipantListPanel;	// add the widgets to that see mConversationsListPanel
-	LLLayoutPanel* mRightPartPanel;
-	LLLayoutPanel* mContentPanel;
-	LLLayoutPanel* mToolbarPanel;
-	LLLayoutPanel* mInputButtonPanel;
-	LLLayoutPanel* mEmojiRecentPanel;
-	LLTextBox* mEmojiRecentEmptyText;
-	LLPanelEmojiComplete* mEmojiRecentIconsCtrl;
-	LLParticipantList* getParticipantList();
-	conversations_widgets_map mConversationsWidgets;
-	LLConversationViewModel mConversationViewModel;
-	LLFolderView* mConversationsRoot;
-	LLScrollContainer* mScroller;
+    // Participants list: model and view
+    LLConversationViewParticipant* createConversationViewParticipant(LLConversationItem* item);
 
-	LLChatHistory* mChatHistory;
-	LLChatEntry* mInputEditor;
-	LLLayoutPanel* mChatLayoutPanel;
-	LLLayoutStack* mInputPanels;
-	
-	LLButton* mExpandCollapseLineBtn;
-	LLButton* mExpandCollapseBtn;
-	LLButton* mTearOffBtn;
-	LLButton* mEmojiRecentPanelToggleBtn;
-	LLButton* mEmojiPickerShowBtn;
-	LLButton* mCloseBtn;
-	LLButton* mGearBtn;
-	LLButton* mAddBtn;
-	LLButton* mVoiceButton;
+    LLUUID mSessionID;
+    LLView* mContentsView;
+    LLLayoutStack* mBodyStack;
+    LLLayoutStack* mParticipantListAndHistoryStack;
+    LLLayoutPanel* mParticipantListPanel;   // add the widgets to that see mConversationsListPanel
+    LLLayoutPanel* mRightPartPanel;
+    LLLayoutPanel* mContentPanel;
+    LLLayoutPanel* mToolbarPanel;
+    LLLayoutPanel* mInputButtonPanel;
+    LLLayoutPanel* mEmojiRecentPanel;
+    LLTextBox* mEmojiRecentEmptyText;
+    LLPanel* mEmojiRecentContainer;
+    LLPanelEmojiComplete* mEmojiRecentIconsCtrl;
+    LLParticipantList* getParticipantList();
+    conversations_widgets_map mConversationsWidgets;
+    LLConversationViewModel mConversationViewModel;
+    LLFolderView* mConversationsRoot;
+    LLScrollContainer* mScroller;
+
+    LLChatHistory* mChatHistory;
+    LLChatEntry* mInputEditor;
+    LLLayoutPanel* mChatLayoutPanel;
+    LLLayoutStack* mInputPanels;
+
+    LLButton* mExpandCollapseLineBtn;
+    LLButton* mExpandCollapseBtn;
+    LLButton* mTearOffBtn;
+    LLButton* mEmojiRecentPanelToggleBtn;
+    LLButton* mEmojiPickerShowBtn;
+    LLButton* mCloseBtn;
+    LLButton* mGearBtn;
+    LLButton* mAddBtn;
+    LLButton* mVoiceButton;
+
+    // Since mVoiceButton can work in one of two modes, "Start call" or "Hang up",
+    // (with different images and tooltips depending on the currently chosen mode)
+    // we should track the mode we're currently using to react on click accordingly
+    bool mVoiceButtonHangUpMode { false };
 
 private:
-	// Handling selection and contextual menu
-	void doToSelected(const LLSD& userdata);
-	bool enableContextMenuItem(const LLSD& userdata);
-	bool checkContextMenuItem(const LLSD& userdata);
-	
-	void getSelectedUUIDs(uuid_vec_t& selected_uuids);
-	
-	/// Refreshes the floater at a constant rate.
-	virtual void refresh() = 0;
+    // Handling selection and contextual menu
+    void doToSelected(const LLSD& userdata);
+    bool enableContextMenuItem(const LLSD& userdata);
+    bool checkContextMenuItem(const LLSD& userdata);
 
-	/**
-	 * Adjusts chat history height to fit vertically with input chat field
-	 * and avoid overlapping, since input chat field can be vertically expanded.
-	 * Implementation: chat history bottom "follows" top+top_pad of input chat field
-	 */
-	void reshapeChatLayoutPanel();
+    void getSelectedUUIDs(uuid_vec_t& selected_uuids);
 
-	void onInputEditorClicked();
+    /// Refreshes the floater at a constant rate.
+    virtual void refresh() = 0;
 
-	void onEmojiRecentPanelToggleBtnClicked();
-	void onEmojiPickerShowBtnClicked();
-	void initEmojiRecentPanel();
-	void onRecentEmojiPicked(const LLSD& value);
+    /**
+     * Adjusts chat history height to fit vertically with input chat field
+     * and avoid overlapping, since input chat field can be vertically expanded.
+     * Implementation: chat history bottom "follows" top+top_pad of input chat field
+     */
+    void reshapeChatLayoutPanel();
 
-	bool checkIfTornOff();
-	bool mIsHostAttached;
-	bool mHasVisibleBeenInitialized;
+    void onCallButtonClicked();
 
-	LLTimer* mRefreshTimer; ///< Defines the rate at which refresh() is called.
+    void onInputEditorClicked();
 
-	S32 mInputEditorPad;
-	S32 mChatLayoutPanelHeight;
-	S32 mFloaterHeight;
+    void onEmojiRecentPanelToggleBtnClicked();
+    void onEmojiPickerShowBtnClicked();
+    void initEmojiRecentPanel();
+    void onEmojiRecentPanelFocusReceived();
+    void onEmojiRecentPanelFocusLost();
+    void onRecentEmojiPicked(const LLSD& value);
+
+    bool checkIfTornOff();
+    bool mIsHostAttached;
+    bool mHasVisibleBeenInitialized;
+
+    LLTimer* mRefreshTimer; ///< Defines the rate at which refresh() is called.
+
+    S32 mInputEditorPad;
+    S32 mChatLayoutPanelHeight;
+    S32 mFloaterHeight;
 };
 
 

@@ -1,4 +1,4 @@
-/** 
+/**
  * @file llinstancetracker.h
  * @brief LLInstanceTracker is a mixin class that automatically tracks object
  *        instances with or without an associated key
@@ -6,21 +6,21 @@
  * $LicenseInfo:firstyear=2000&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -52,7 +52,7 @@ namespace LLInstanceTrackerPrivate
     struct StaticBase
     {
         // We need to be able to lock static data while manipulating it.
-        std::mutex mMutex;
+        LL_PROFILE_MUTEX_NAMED(std::mutex, mMutex, "InstanceTracker Data");
     };
 
     void logerrs(const char* cls, const std::string&, const std::string&, const std::string&);
@@ -99,11 +99,12 @@ public:
         return mSelf;
     }
 
-    static size_t instanceCount() 
-    { 
-        return LockStatic()->mMap.size(); 
+    static size_t instanceCount()
+    {
+        LockStatic lock; LL_PROFILE_MUTEX_LOCK(lock->mMutex);
+        return lock->mMap.size();
     }
-    
+
     // snapshot of std::pair<const KEY, std::shared_ptr<SUBCLASS>> pairs, for
     // some SUBCLASS derived from T
     template <typename SUBCLASS>
@@ -236,14 +237,14 @@ public:
 
     static ptr_t getInstance(const KEY& k)
     {
-        LockStatic lock;
+        LockStatic lock; LL_PROFILE_MUTEX_LOCK(lock->mMutex);
         const InstanceMap& map(lock->mMap);
         typename InstanceMap::const_iterator found = map.find(k);
         return (found == map.end()) ? NULL : found->second;
     }
 
 protected:
-    LLInstanceTracker(const KEY& key) 
+    LLInstanceTracker(const KEY& key)
     {
         // We do not intend to manage the lifespan of this object with
         // shared_ptr, so give it a no-op deleter. We store shared_ptrs in our
@@ -252,19 +253,19 @@ protected:
         ptr_t ptr(static_cast<T*>(this), [](T*){});
         // save corresponding weak_ptr for future reference
         mSelf = ptr;
-        LockStatic lock;
+        LockStatic lock; LL_PROFILE_MUTEX_LOCK(lock->mMutex);
         add_(lock, key, ptr);
     }
 public:
     virtual ~LLInstanceTracker()
     {
-        LockStatic lock;
+        LockStatic lock; LL_PROFILE_MUTEX_LOCK(lock->mMutex);
         remove_(lock);
     }
 protected:
     virtual void setKey(KEY key)
     {
-        LockStatic lock;
+        LockStatic lock; LL_PROFILE_MUTEX_LOCK(lock->mMutex);
         // Even though the shared_ptr we store in our map has a no-op deleter
         // for T itself, letting the use count decrement to 0 will still
         // delete the use-count object. Capture the shared_ptr we just removed
@@ -286,9 +287,9 @@ private:
     static std::string report(const char* key) { return report(std::string(key)); }
 
     // caller must instantiate LockStatic
-    void add_(LockStatic& lock, const KEY& key, const ptr_t& ptr) 
-    { 
-        mInstanceKey = key; 
+    void add_(LockStatic& lock, const KEY& key, const ptr_t& ptr)
+    {
+        mInstanceKey = key;
         InstanceMap& map = lock->mMap;
         switch(KEY_COLLISION_BEHAVIOR)
         {
@@ -373,10 +374,11 @@ public:
     {
         return mSelf;
     }
-    
+
     static size_t instanceCount()
     {
-        return LockStatic()->mSet.size();
+        LockStatic lock; LL_PROFILE_MUTEX_LOCK(lock->mMutex);
+        return lock->mSet.size();
     }
 
     // snapshot of std::shared_ptr<SUBCLASS> pointers
@@ -488,14 +490,16 @@ protected:
         // save corresponding weak_ptr for future reference
         mSelf = ptr;
         // Also store it in our class-static set to track this instance.
-        LockStatic()->mSet.emplace(ptr);
+        LockStatic lock; LL_PROFILE_MUTEX_LOCK(lock->mMutex);
+        lock->mSet.emplace(ptr);
     }
 public:
     virtual ~LLInstanceTracker()
     {
         // convert weak_ptr to shared_ptr because that's what we store in our
         // InstanceSet
-        LockStatic()->mSet.erase(mSelf.lock());
+        LockStatic lock; LL_PROFILE_MUTEX_LOCK(lock->mMutex);
+        lock->mSet.erase(mSelf.lock());
     }
 protected:
     LLInstanceTracker(const LLInstanceTracker& other):

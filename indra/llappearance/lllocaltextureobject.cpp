@@ -1,24 +1,24 @@
-/** 
+/**
  * @file lllocaltextureobject.cpp
  *
  * $LicenseInfo:firstyear=2009&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -36,177 +36,177 @@
 
 
 LLLocalTextureObject::LLLocalTextureObject() :
-	mIsBakedReady(FALSE),
-	mDiscard(MAX_DISCARD_LEVEL+1)
+    mIsBakedReady(false),
+    mDiscard(MAX_DISCARD_LEVEL+1)
 {
-	mImage = NULL;
+    mImage = NULL;
 }
 
 LLLocalTextureObject::LLLocalTextureObject(LLGLTexture* image, const LLUUID& id) :
-	mIsBakedReady(FALSE),
-	mDiscard(MAX_DISCARD_LEVEL+1)
+    mIsBakedReady(false),
+    mDiscard(MAX_DISCARD_LEVEL+1)
 {
-	mImage = image;
-	gGL.getTexUnit(0)->bind(mImage);
-	mID = id;
+    mImage = image;
+    gGL.getTexUnit(0)->bind(mImage);
+    mID = id;
 }
 
 LLLocalTextureObject::LLLocalTextureObject(const LLLocalTextureObject& lto) :
-	mImage(lto.mImage),
-	mID(lto.mID),
-	mIsBakedReady(lto.mIsBakedReady),
-	mDiscard(lto.mDiscard)
+    mImage(lto.mImage),
+    mID(lto.mID),
+    mIsBakedReady(lto.mIsBakedReady),
+    mDiscard(lto.mDiscard)
 {
-	U32 num_layers = lto.getNumTexLayers();
-	mTexLayers.reserve(num_layers);
-	for (U32 index = 0; index < num_layers; index++)
-	{
-		LLTexLayer* original_layer = lto.getTexLayer(index);
-		if (!original_layer)
-		{
-			LL_ERRS() << "could not clone Local Texture Object: unable to extract texlayer!" << LL_ENDL;
-			continue;
-		}
+    U32 num_layers = lto.getNumTexLayers();
+    mTexLayers.reserve(num_layers);
+    for (U32 index = 0; index < num_layers; index++)
+    {
+        LLTexLayer* original_layer = lto.getTexLayer(index);
+        if (!original_layer)
+        {
+            LL_ERRS() << "could not clone Local Texture Object: unable to extract texlayer!" << LL_ENDL;
+            continue;
+        }
 
-		LLTexLayer* new_layer = new LLTexLayer(*original_layer);
-		new_layer->setLTO(this);
-		mTexLayers.push_back(new_layer);
-	}
+        LLTexLayer* new_layer = new LLTexLayer(*original_layer);
+        new_layer->setLTO(this);
+        mTexLayers.push_back(new_layer);
+    }
 }
 
 LLLocalTextureObject::~LLLocalTextureObject()
 {
-	delete_and_clear(mTexLayers);
+    delete_and_clear(mTexLayers);
 }
 
 LLGLTexture* LLLocalTextureObject::getImage() const
 {
-	return mImage;
+    return mImage;
 }
 
 LLTexLayer* LLLocalTextureObject::getTexLayer(U32 index) const
 {
-	if (index >= getNumTexLayers())
-	{
-		return NULL;
-	}
+    if (index >= getNumTexLayers())
+    {
+        return NULL;
+    }
 
-	return mTexLayers[index];
+    return mTexLayers[index];
 }
 
 LLTexLayer* LLLocalTextureObject::getTexLayer(const std::string &name)
 {
-	for(LLTexLayer* layer : mTexLayers)
-	{
-		if (layer->getName().compare(name) == 0)
-		{
-			return layer;
-		}
-	}
+    for(LLTexLayer* layer : mTexLayers)
+    {
+        if (layer->getName().compare(name) == 0)
+        {
+            return layer;
+        }
+    }
 
-	return NULL;
+    return NULL;
 }
 
 U32 LLLocalTextureObject::getNumTexLayers() const
 {
-	return mTexLayers.size();
+    return static_cast<U32>(mTexLayers.size());
 }
 
 LLUUID LLLocalTextureObject::getID() const
 {
-	return mID;
+    return mID;
 }
 
 S32 LLLocalTextureObject::getDiscard() const
 {
-	return mDiscard;
+    return mDiscard;
 }
 
-BOOL LLLocalTextureObject::getBakedReady() const
+bool LLLocalTextureObject::getBakedReady() const
 {
-	return mIsBakedReady;
+    return mIsBakedReady;
 }
 
 void LLLocalTextureObject::setImage(LLGLTexture* new_image)
 {
-	mImage = new_image;
+    mImage = new_image;
 }
 
-BOOL LLLocalTextureObject::setTexLayer(LLTexLayer *new_tex_layer, U32 index)
+bool LLLocalTextureObject::setTexLayer(LLTexLayer *new_tex_layer, U32 index)
 {
-	if (index >= getNumTexLayers() )
-	{
-		return FALSE;
-	}
+    if (index >= getNumTexLayers() )
+    {
+        return false;
+    }
 
-	if (new_tex_layer == NULL)
-	{
-		return removeTexLayer(index);
-	}
+    if (new_tex_layer == NULL)
+    {
+        return removeTexLayer(index);
+    }
 
-	LLTexLayer *layer = new LLTexLayer(*new_tex_layer);
-	layer->setLTO(this);
+    LLTexLayer *layer = new LLTexLayer(*new_tex_layer);
+    layer->setLTO(this);
 
-	if (mTexLayers[index])
-	{
-		delete mTexLayers[index];
-	}
-	mTexLayers[index] = layer;
+    if (mTexLayers[index])
+    {
+        delete mTexLayers[index];
+    }
+    mTexLayers[index] = layer;
 
-	return TRUE;
+    return true;
 }
 
-BOOL LLLocalTextureObject::addTexLayer(LLTexLayer *new_tex_layer, LLWearable *wearable)
+bool LLLocalTextureObject::addTexLayer(LLTexLayer *new_tex_layer, LLWearable *wearable)
 {
-	if (new_tex_layer == NULL)
-	{
-		return FALSE;
-	}
+    if (new_tex_layer == NULL)
+    {
+        return false;
+    }
 
-	LLTexLayer *layer = new LLTexLayer(*new_tex_layer, wearable);
-	layer->setLTO(this);
-	mTexLayers.push_back(layer);
-	return TRUE;
+    LLTexLayer *layer = new LLTexLayer(*new_tex_layer, wearable);
+    layer->setLTO(this);
+    mTexLayers.push_back(layer);
+    return true;
 }
 
-BOOL LLLocalTextureObject::addTexLayer(LLTexLayerTemplate *new_tex_layer, LLWearable *wearable)
+bool LLLocalTextureObject::addTexLayer(LLTexLayerTemplate *new_tex_layer, LLWearable *wearable)
 {
-	if (new_tex_layer == NULL)
-	{
-		return FALSE;
-	}
+    if (new_tex_layer == NULL)
+    {
+        return false;
+    }
 
-	LLTexLayer *layer = new LLTexLayer(*new_tex_layer, this, wearable);
-	layer->setLTO(this);
-	mTexLayers.push_back(layer);
-	return TRUE;
+    LLTexLayer *layer = new LLTexLayer(*new_tex_layer, this, wearable);
+    layer->setLTO(this);
+    mTexLayers.push_back(layer);
+    return true;
 }
 
-BOOL LLLocalTextureObject::removeTexLayer(U32 index)
+bool LLLocalTextureObject::removeTexLayer(U32 index)
 {
-	if (index >= getNumTexLayers())
-	{
-		return FALSE;
-	}
-	tex_layer_vec_t::iterator iter = mTexLayers.begin();
-	iter += index;
+    if (index >= getNumTexLayers())
+    {
+        return false;
+    }
+    tex_layer_vec_t::iterator iter = mTexLayers.begin();
+    iter += index;
 
-	delete *iter;
-	mTexLayers.erase(iter);
-	return TRUE;
+    delete *iter;
+    mTexLayers.erase(iter);
+    return true;
 }
 
 void LLLocalTextureObject::setID(LLUUID new_id)
 {
-	mID = new_id;
+    mID = new_id;
 }
 
 void LLLocalTextureObject::setDiscard(S32 new_discard)
 {
-	mDiscard = new_discard;
+    mDiscard = new_discard;
 }
 
-void LLLocalTextureObject::setBakedReady(BOOL ready)
+void LLLocalTextureObject::setBakedReady(bool ready)
 {
-	mIsBakedReady = ready;
+    mIsBakedReady = ready;
 }

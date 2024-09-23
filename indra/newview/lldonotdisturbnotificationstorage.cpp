@@ -1,4 +1,4 @@
-/** 
+/**
 * @file lldonotdisturbnotificationstorage.cpp
 * @brief Implementation of lldonotdisturbnotificationstorage
 * @author Stinson@lindenlab.com
@@ -55,7 +55,7 @@ LLDoNotDisturbNotificationStorageTimer::~LLDoNotDisturbNotificationStorageTimer(
 
 }
 
-BOOL LLDoNotDisturbNotificationStorageTimer::tick()
+bool LLDoNotDisturbNotificationStorageTimer::tick()
 {
     LLDoNotDisturbNotificationStorage * doNotDisturbNotificationStorage =  LLDoNotDisturbNotificationStorage::getInstance();
 
@@ -64,11 +64,11 @@ BOOL LLDoNotDisturbNotificationStorageTimer::tick()
     {
         doNotDisturbNotificationStorage->saveNotifications();
     }
-    return FALSE;
+    return false;
 }
 
 LLDoNotDisturbNotificationStorage::LLDoNotDisturbNotificationStorage()
-	: LLNotificationStorage("")
+    : LLNotificationStorage("")
     , mDirty(false)
 {
     nameToPayloadParameterMap[toastName] = "SESSION_ID";
@@ -88,7 +88,7 @@ void LLDoNotDisturbNotificationStorage::reset()
 void LLDoNotDisturbNotificationStorage::initialize()
 {
     reset();
-	getCommunicationChannel()->connectFailedFilter(boost::bind(&LLDoNotDisturbNotificationStorage::onChannelChanged, this, _1));
+    getCommunicationChannel()->connectFailedFilter(boost::bind(&LLDoNotDisturbNotificationStorage::onChannelChanged, this, _1));
 }
 
 bool LLDoNotDisturbNotificationStorage::getDirty()
@@ -105,27 +105,27 @@ void LLDoNotDisturbNotificationStorage::saveNotifications()
 {
     LL_PROFILE_ZONE_SCOPED;
 
-	LLNotificationChannelPtr channelPtr = getCommunicationChannel();
-	const LLCommunicationChannel *commChannel = dynamic_cast<LLCommunicationChannel*>(channelPtr.get());
-	llassert(commChannel != NULL);
+    LLNotificationChannelPtr channelPtr = getCommunicationChannel();
+    const LLCommunicationChannel *commChannel = dynamic_cast<LLCommunicationChannel*>(channelPtr.get());
+    llassert(commChannel != NULL);
 
-	LLSD output = LLSD::emptyMap();
-	LLSD& data = output["data"];
-	data = LLSD::emptyArray();
+    LLSD output = LLSD::emptyMap();
+    LLSD& data = output["data"];
+    data = LLSD::emptyArray();
 
-	for (LLCommunicationChannel::history_list_t::const_iterator historyIter = commChannel->beginHistory();
-		historyIter != commChannel->endHistory(); ++historyIter)
-	{
-		LLNotificationPtr notificationPtr = historyIter->second;
+    for (LLCommunicationChannel::history_list_t::const_iterator historyIter = commChannel->beginHistory();
+        historyIter != commChannel->endHistory(); ++historyIter)
+    {
+        LLNotificationPtr notificationPtr = historyIter->second;
 
-		if (!notificationPtr->isRespondedTo() && !notificationPtr->isCancelled() &&
-			!notificationPtr->isExpired() && !notificationPtr->isPersistent())
-		{
-			data.append(notificationPtr->asLLSD(true));
-		}
-	}
+        if (!notificationPtr->isRespondedTo() && !notificationPtr->isCancelled() &&
+            !notificationPtr->isExpired() && !notificationPtr->isPersistent())
+        {
+            data.append(notificationPtr->asLLSD(true));
+        }
+    }
 
-	writeNotifications(output);
+    writeNotifications(output);
 
     resetDirty();
 }
@@ -134,114 +134,114 @@ static LLTrace::BlockTimerStatHandle FTM_LOAD_DND_NOTIFICATIONS("Load DND Notifi
 
 void LLDoNotDisturbNotificationStorage::loadNotifications()
 {
-	LL_RECORD_BLOCK_TIME(FTM_LOAD_DND_NOTIFICATIONS);
-	
-	LL_INFOS("LLDoNotDisturbNotificationStorage") << "start loading notifications" << LL_ENDL;
+    LL_RECORD_BLOCK_TIME(FTM_LOAD_DND_NOTIFICATIONS);
 
-	LLSD input;
-	if (!readNotifications(input) ||input.isUndefined())
-	{
-		return;
-	}
-	
-	LLSD& data = input["data"];
-	if (data.isUndefined())
-	{
-		return;
-	}
-	
-	LLNotifications& instance = LLNotifications::instance();
+    LL_INFOS("LLDoNotDisturbNotificationStorage") << "start loading notifications" << LL_ENDL;
+
+    LLSD input;
+    if (!readNotifications(input) ||input.isUndefined())
+    {
+        return;
+    }
+
+    LLSD& data = input["data"];
+    if (data.isUndefined())
+    {
+        return;
+    }
+
+    LLNotifications& instance = LLNotifications::instance();
     bool imToastExists = false;
-	bool group_ad_hoc_toast_exists = false;
-	S32 toastSessionType;
+    bool group_ad_hoc_toast_exists = false;
+    S32 toastSessionType;
     bool offerExists = false;
-	
-	for (LLSD::array_const_iterator notification_it = data.beginArray();
-		 notification_it != data.endArray();
-		 ++notification_it)
-	{
-		LLSD notification_params = *notification_it;
+
+    for (LLSD::array_const_iterator notification_it = data.beginArray();
+         notification_it != data.endArray();
+         ++notification_it)
+    {
+        LLSD notification_params = *notification_it;
         const LLUUID& notificationID = notification_params["id"];
         std::string notificationName = notification_params["name"];
         LLNotificationPtr notification = instance.find(notificationID);
 
         if(notificationName == toastName)
         {
-			toastSessionType = notification_params["payload"]["SESSION_TYPE"];
-			if(toastSessionType == LLIMModel::LLIMSession::P2P_SESSION)
-			{
-				imToastExists = true;
-			}
-			//Don't add group/ad-hoc messages to the notification system because
-			//this means the group/ad-hoc session has to be re-created
-			else if(toastSessionType == LLIMModel::LLIMSession::GROUP_SESSION 
-					|| toastSessionType == LLIMModel::LLIMSession::ADHOC_SESSION)
-			{
-				//Just allows opening the conversation log for group/ad-hoc messages upon startup
-				group_ad_hoc_toast_exists = true;
-				continue;
-			}
+            toastSessionType = notification_params["payload"]["SESSION_TYPE"];
+            if(toastSessionType == LLIMModel::LLIMSession::P2P_SESSION)
+            {
+                imToastExists = true;
+            }
+            //Don't add group/ad-hoc messages to the notification system because
+            //this means the group/ad-hoc session has to be re-created
+            else if(toastSessionType == LLIMModel::LLIMSession::GROUP_SESSION
+                    || toastSessionType == LLIMModel::LLIMSession::ADHOC_SESSION)
+            {
+                //Just allows opening the conversation log for group/ad-hoc messages upon startup
+                group_ad_hoc_toast_exists = true;
+                continue;
+            }
         }
         else if(notificationName == offerName)
         {
             offerExists = true;
         }
-		
-		//Notification already exists due to persistent storage adding it first into the notification system
-		if(notification)
-		{
-			notification->setDND(true);
-			instance.update(instance.find(notificationID));
-		}
-		//New notification needs to be added
-		else
-		{
-			notification = (LLNotificationPtr) new LLNotification(notification_params.with("is_dnd", true));
-			LLNotificationResponderInterface* responder = createResponder(notification_params["responder_sd"]["responder_type"], notification_params["responder_sd"]);
-			if (responder == NULL)
-			{
-				LL_WARNS("LLDoNotDisturbNotificationStorage") << "cannot create responder for notification of type '"
-					<< notification->getType() << "'" << LL_ENDL;
-			}
-			else
-			{
-				LLNotificationResponderPtr responderPtr(responder);
-				notification->setResponseFunctor(responderPtr);
-			}
 
-			instance.add(notification);
-		}
+        //Notification already exists due to persistent storage adding it first into the notification system
+        if(notification)
+        {
+            notification->setDND(true);
+            instance.update(instance.find(notificationID));
+        }
+        //New notification needs to be added
+        else
+        {
+            notification = (LLNotificationPtr) new LLNotification(notification_params.with("is_dnd", true));
+            LLNotificationResponderInterface* responder = createResponder(notification_params["responder_sd"]["responder_type"], notification_params["responder_sd"]);
+            if (responder == NULL)
+            {
+                LL_WARNS("LLDoNotDisturbNotificationStorage") << "cannot create responder for notification of type '"
+                    << notification->getType() << "'" << LL_ENDL;
+            }
+            else
+            {
+                LLNotificationResponderPtr responderPtr(responder);
+                notification->setResponseFunctor(responderPtr);
+            }
 
-	}
+            instance.add(notification);
+        }
+
+    }
 
     bool isConversationLoggingAllowed = gSavedPerAccountSettings.getS32("KeepConversationLogTranscripts") > 0;
-	if(group_ad_hoc_toast_exists && isConversationLoggingAllowed)
-	{
-		LLFloaterReg::showInstance("conversation");
-	}
+    if(group_ad_hoc_toast_exists && isConversationLoggingAllowed)
+    {
+        LLFloaterReg::showInstance("conversation");
+    }
 
     if(imToastExists || group_ad_hoc_toast_exists || offerExists)
     {
-		make_ui_sound_deferred("UISndNewIncomingIMSession");
+        make_ui_sound_deferred("UISndNewIncomingIMSession");
     }
 
     //writes out empty .xml file (since LLCommunicationChannel::mHistory is empty)
-	saveNotifications();
+    saveNotifications();
 
-	LL_INFOS("LLDoNotDisturbNotificationStorage") << "finished loading notifications" << LL_ENDL;
+    LL_INFOS("LLDoNotDisturbNotificationStorage") << "finished loading notifications" << LL_ENDL;
 }
 
 void LLDoNotDisturbNotificationStorage::updateNotifications()
 {
 
-	LLNotificationChannelPtr channelPtr = getCommunicationChannel();
-	LLCommunicationChannel *commChannel = dynamic_cast<LLCommunicationChannel*>(channelPtr.get());
-	llassert(commChannel != NULL);
+    LLNotificationChannelPtr channelPtr = getCommunicationChannel();
+    LLCommunicationChannel *commChannel = dynamic_cast<LLCommunicationChannel*>(channelPtr.get());
+    llassert(commChannel != NULL);
 
     LLNotifications& instance = LLNotifications::instance();
     bool imToastExists = false;
     bool offerExists = false;
-  
+
     for (LLCommunicationChannel::history_list_t::const_iterator it = commChannel->beginHistory();
         it != commChannel->endHistory();
         ++it)
@@ -274,16 +274,16 @@ void LLDoNotDisturbNotificationStorage::updateNotifications()
     //When exit DND mode, write empty notifications file
     if(commChannel->getHistorySize())
     {
-	    commChannel->clearHistory();
-	    saveNotifications();
+        commChannel->clearHistory();
+        saveNotifications();
     }
 }
 
 LLNotificationChannelPtr LLDoNotDisturbNotificationStorage::getCommunicationChannel() const
 {
-	LLNotificationChannelPtr channelPtr = LLNotifications::getInstance()->getChannel("Communication");
-	llassert(channelPtr);
-	return channelPtr;
+    LLNotificationChannelPtr channelPtr = LLNotifications::getInstance()->getChannel("Communication");
+    llassert(channelPtr);
+    return channelPtr;
 }
 
 void LLDoNotDisturbNotificationStorage::removeNotification(const char * name, const LLUUID& id)
@@ -301,7 +301,7 @@ void LLDoNotDisturbNotificationStorage::removeNotification(const char * name, co
 
     //Find notification with the matching session id
     for (it = commChannel->beginHistory();
-        it != commChannel->endHistory(); 
+        it != commChannel->endHistory();
         ++it)
     {
         notification = it->second;
@@ -336,10 +336,10 @@ void LLDoNotDisturbNotificationStorage::removeNotification(const char * name, co
 
 bool LLDoNotDisturbNotificationStorage::onChannelChanged(const LLSD& pPayload)
 {
-	if (pPayload["sigtype"].asString() != "load")
-	{
+    if (pPayload["sigtype"].asString() != "load")
+    {
         mDirty = true;
-	}
+    }
 
-	return false;
+    return false;
 }

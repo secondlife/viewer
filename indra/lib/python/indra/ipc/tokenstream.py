@@ -35,7 +35,7 @@ EOF = _EOF()
 
 class _LineMarker(int):
     pass
-    
+
 _commentRE = re.compile(r'//.*')
 _symbolRE = re.compile(r'[a-zA-Z_][a-zA-Z_0-9]*')
 _integerRE = re.compile(r'(0x[0-9A-Fa-f]+|0\d*|[1-9]\d*)')
@@ -48,7 +48,7 @@ class ParseError(Exception):
         self.context = stream._context()
         self.reason = reason
 
-    def _contextString(self):    
+    def _contextString(self):
         c = [ ]
         for t in self.context:
             if isinstance(t, _LineMarker):
@@ -75,10 +75,10 @@ class TokenStream(object):
     def __init__(self):
         self.line = 0
         self.tokens = [ ]
-    
+
     def fromString(self, string):
         return self.fromLines(string.split('\n'))
-        
+
     def fromFile(self, file):
         return self.fromLines(file)
 
@@ -90,23 +90,23 @@ class TokenStream(object):
             self.tokens.extend(_commentRE.sub(" ", line).split())
         self._consumeLines()
         return self
-    
+
     def consume(self):
         if not self.tokens:
             return EOF
         t = self.tokens.pop(0)
         self._consumeLines()
         return t
-    
+
     def _consumeLines(self):
         while self.tokens and isinstance(self.tokens[0], _LineMarker):
             self.line = self.tokens.pop(0)
-    
+
     def peek(self):
         if not self.tokens:
             return EOF
         return self.tokens[0]
-            
+
     def want(self, t):
         if t == self.peek():
             return self.consume()
@@ -120,7 +120,7 @@ class TokenStream(object):
 
     def wantEOF(self):
         return self.want(EOF)
-        
+
     def wantRE(self, re, message=None):
         t = self.peek()
         if t != EOF:
@@ -130,16 +130,16 @@ class TokenStream(object):
         if not message:
             message = "expected match for r'%s'" % re.pattern
         return ParseError(self, message)
-    
+
     def wantSymbol(self):
         return self.wantRE(_symbolRE, "expected symbol")
-    
+
     def wantInteger(self):
         return self.wantRE(_integerRE, "expected integer")
-    
+
     def wantFloat(self):
         return self.wantRE(_floatRE, "expected float")
-    
+
     def _context(self):
         n = min(5, len(self.tokens))
         return self.tokens[0:n]

@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llcubemaparray.cpp
  * @brief LLCubeMap class implementation
  *
  * $LicenseInfo:firstyear=2022&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2022, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -42,6 +42,8 @@
 
 //#pragma optimize("", off)
 
+using namespace LLImageGLMemory;
+
 // MUST match order of OpenGL face-layers
 GLenum LLCubeMapArray::sTargets[6] =
 {
@@ -63,7 +65,7 @@ LLVector3 LLCubeMapArray::sLookVecs[6] =
         LLVector3(0, 0, -1)
 };
 
-LLVector3 LLCubeMapArray::sUpVecs[6] = 
+LLVector3 LLCubeMapArray::sUpVecs[6] =
 {
     LLVector3(0, -1, 0),
     LLVector3(0, -1, 0),
@@ -77,7 +79,7 @@ LLVector3 LLCubeMapArray::sClipToCubeLookVecs[6] =
 {
         LLVector3(0, 0, -1), //GOOD
         LLVector3(0, 0, 1), //GOOD
-        
+
         LLVector3(1, 0, 0), // GOOD
         LLVector3(1, 0, 0), // GOOD
 
@@ -98,16 +100,16 @@ LLVector3 LLCubeMapArray::sClipToCubeUpVecs[6] =
 };
 
 LLCubeMapArray::LLCubeMapArray()
-	: mTextureStage(0)
+    : mTextureStage(0)
 {
-	
+
 }
 
 LLCubeMapArray::~LLCubeMapArray()
 {
 }
 
-void LLCubeMapArray::allocate(U32 resolution, U32 components, U32 count, BOOL use_mips)
+void LLCubeMapArray::allocate(U32 resolution, U32 components, U32 count, bool use_mips)
 {
     U32 texname = 0;
     mWidth = resolution;
@@ -123,23 +125,25 @@ void LLCubeMapArray::allocate(U32 resolution, U32 components, U32 count, BOOL us
     mImage->setHasMipMaps(use_mips);
 
     bind(0);
+    free_cur_tex_image();
 
     U32 format = components == 4 ? GL_RGBA16F : GL_RGB16F;
-
     U32 mip = 0;
-
-    while (resolution >= 1)
+    U32 mip_resolution = resolution;
+    while (mip_resolution >= 1)
     {
-        glTexImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, mip, format, resolution, resolution, count * 6, 0,
+        glTexImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, mip, format, mip_resolution, mip_resolution, count * 6, 0,
             GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 
         if (!use_mips)
         {
             break;
         }
-        resolution /= 2;
+        mip_resolution /= 2;
         ++mip;
     }
+
+    alloc_tex_image(resolution, resolution, format, count * 6);
 
     mImage->setAddressMode(LLTexUnit::TAM_CLAMP);
 
@@ -170,7 +174,7 @@ void LLCubeMapArray::unbind()
 
 GLuint LLCubeMapArray::getGLName()
 {
-	return mImage->getTexName();
+    return mImage->getTexName();
 }
 
 void LLCubeMapArray::destroyGL()

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <menu
  layout="topleft"
  left="0"
@@ -13,7 +13,7 @@
              name="upload"
              tear_off="true">
                 <menu_item_call
-                 label="Image (L$[COST])..."
+                 label="Image..."
                  layout="topleft"
                  name="Upload Image"
                  shortcut="control|U">

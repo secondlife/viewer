@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater
  legacy_header_height="18"
  can_close="false"
@@ -12,7 +12,7 @@
  width="550">
     <floater.string
      name="lifetime">
-        5
+        30
     </floater.string>
     <floater.string
      name="localchat">

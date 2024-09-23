@@ -4,7 +4,7 @@
  * @date   2023-01-20
  * @brief  Call specified callable with arbitrary arguments, but always return
  *         specified type.
- * 
+ *
  * $LicenseInfo:firstyear=2023&license=viewerlgpl$
  * Copyright (c) 2023, Linden Research, Inc.
  * $/LicenseInfo$

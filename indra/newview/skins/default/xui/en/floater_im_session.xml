@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater
  background_visible="true"
  height="355"
@@ -335,29 +335,37 @@
             </layout_panel>
             <layout_panel
              name="emoji_recent_layout_panel"
-             height="30"
+             height="36"
              auto_resize="false">
                 <text
                  name="emoji_recent_empty_text"
                  follows="top|left|right"
                  layout="topleft"
-                 auto_resize="false"
                  h_pad="20"
                  v_pad="10"
                  top="0"
-                 left="1"
+                 left="2"
                  right="-65"
-                 height="30"
+                 height="34"
                 >Recently used emojis will appear here</text>
-                <emoji_complete
-                 name="emoji_recent_icons_ctrl"
+                <panel
+                 name="emoji_recent_container"
                  follows="top|left|right"
                  layout="topleft"
-                 max_visible="20"
                  top="0"
-                 left="1"
+                 left="2"
                  right="-65"
-                 height="30"/>
+                 height="34">
+                    <emoji_complete
+                     name="emoji_recent_icons_ctrl"
+                     follows="top|left|right"
+                     layout="topleft"
+                     max_visible="20"
+                     top="2"
+                     left="2"
+                     right="-2"
+                     height="30"/>
+                </panel>
                 <button
                  name="emoji_picker_show_btn"
                  label="More"

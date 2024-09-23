@@ -3,7 +3,7 @@
  * @author Nat Goodspeed
  * @date   2021-10-04
  * @brief  Test for threadsafeschedule.
- * 
+ *
  * $LicenseInfo:firstyear=2021&license=viewerlgpl$
  * Copyright (c) 2021, Linden Research, Inc.
  * $/LicenseInfo$
@@ -46,11 +46,12 @@ namespace tut
         // the real time required for each push() call. Explicitly increment
         // the timestamp for each one -- but since we're passing explicit
         // timestamps, make the queue reorder them.
-        queue.push(Queue::TimeTuple(Queue::Clock::now() + 200ms, "ghi"));
+        auto now{ Queue::Clock::now() };
+        queue.push(Queue::TimeTuple(now + 200ms, "ghi"s));
         // Given the various push() overloads, you have to match the type
         // exactly: conversions are ambiguous.
-        queue.push("abc"s);
-        queue.push(Queue::Clock::now() + 100ms, "def");
+        queue.push(now, "abc"s);
+        queue.push(now + 100ms, "def"s);
         queue.close();
         auto entry = queue.pop();
         ensure_equals("failed to pop first", std::get<0>(entry), "abc"s);

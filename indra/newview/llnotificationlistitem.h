@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llnotificationlistitem.h
- * @brief                                    
+ * @brief
  *
  * $LicenseInfo:firstyear=2015&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2015, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -46,7 +46,7 @@ public:
     struct Params : public LLInitParam::Block<Params, LLPanel::Params>
     {
         LLUUID          notification_id;
-        LLUUID			transaction_id;
+        LLUUID          transaction_id;
         LLUUID          group_id;
         LLUUID          paid_from_id;
         LLUUID          paid_to_id;
@@ -79,9 +79,9 @@ public:
     std::string& getNotificationName() { return mNotificationName; }
 
     // handlers
-    virtual BOOL handleMouseUp(S32 x, S32 y, MASK mask);
-	virtual void onMouseEnter(S32 x, S32 y, MASK mask);
-	virtual void onMouseLeave(S32 x, S32 y, MASK mask);
+    virtual bool handleMouseUp(S32 x, S32 y, MASK mask);
+    virtual void onMouseEnter(S32 x, S32 y, MASK mask);
+    virtual void onMouseLeave(S32 x, S32 y, MASK mask);
 
     //callbacks
     typedef boost::function<void (LLNotificationListItem* item)> item_callback_t;
@@ -90,18 +90,18 @@ public:
     item_signal_t mOnItemClick;
     boost::signals2::connection setOnItemCloseCallback(item_callback_t cb) { return mOnItemClose.connect(cb); }
     boost::signals2::connection setOnItemClickCallback(item_callback_t cb) { return mOnItemClick.connect(cb); }
-    
+
     virtual bool showPopup() { return true; }
-    void setExpanded(BOOL value);
-    virtual BOOL postBuild();
+    void setExpanded(bool value);
+    virtual bool postBuild();
     void reshapeNotification();
 
     typedef enum e_time_type
-	{
-		SLT = 1,
-		Local = 2,
-		UTC = 3,
-	}ETimeType;
+    {
+        SLT = 1,
+        Local = 2,
+        UTC = 3,
+    }ETimeType;
 
 protected:
     LLNotificationListItem(const Params& p);
@@ -137,8 +137,8 @@ class LLGroupNotificationListItem
     : public LLNotificationListItem, public LLGroupMgrObserver
 {
 public:
-	virtual ~LLGroupNotificationListItem();
-    virtual BOOL postBuild();
+    virtual ~LLGroupNotificationListItem();
+    virtual bool postBuild();
 
     void setGroupId(const LLUUID& value);
     // LLGroupMgrObserver observer trigger
@@ -168,7 +168,7 @@ class LLGroupInviteNotificationListItem
 {
 public:
     static std::set<std::string> getTypes();
-    virtual BOOL postBuild();
+    virtual bool postBuild();
 
     /*virtual*/ bool showPopup() { return false; }
 
@@ -185,9 +185,9 @@ private:
     void onClickInfoBtn();
 
     LLPanel*        mInviteButtonPanel;
-    LLButton*		mJoinBtn;
-    LLButton*		mDeclineBtn;
-    LLButton*		mInfoBtn;
+    LLButton*       mJoinBtn;
+    LLButton*       mDeclineBtn;
+    LLButton*       mInfoBtn;
 };
 
 class LLGroupNoticeNotificationListItem
@@ -195,7 +195,7 @@ class LLGroupNoticeNotificationListItem
 {
 public:
     static std::set<std::string> getTypes();
-    virtual BOOL postBuild();
+    virtual bool postBuild();
 
     /*virtual*/ bool showPopup() { return false; }
 
@@ -222,7 +222,7 @@ class LLTransactionNotificationListItem : public LLNotificationListItem
 {
 public:
     static std::set<std::string> getTypes();
-    virtual BOOL postBuild();
+    virtual bool postBuild();
 private:
     friend class LLNotificationListItem;
     LLTransactionNotificationListItem(const Params& p);
@@ -235,7 +235,7 @@ private:
 class LLSystemNotificationListItem : public LLNotificationListItem
 {
 public:
-    virtual BOOL postBuild();
+    virtual bool postBuild();
 private:
     friend class LLNotificationListItem;
     LLSystemNotificationListItem(const Params& p);

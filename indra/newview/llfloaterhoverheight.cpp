@@ -1,4 +1,4 @@
-/** 
+/**
 * @file llfloaterhoverheight.cpp
 * @brief Controller for self avatar hover height
 * @author vir@lindenlab.com
@@ -41,60 +41,60 @@ LLFloaterHoverHeight::LLFloaterHoverHeight(const LLSD& key) : LLFloater(key)
 
 void LLFloaterHoverHeight::syncFromPreferenceSetting(void *user_data, bool update_offset)
 {
-	F32 value = gSavedPerAccountSettings.getF32("AvatarHoverOffsetZ");
+    F32 value = gSavedPerAccountSettings.getF32("AvatarHoverOffsetZ");
 
-	LLFloaterHoverHeight *self = static_cast<LLFloaterHoverHeight*>(user_data);
-	LLSliderCtrl* sldrCtrl = self->getChild<LLSliderCtrl>("HoverHeightSlider");
-	sldrCtrl->setValue(value,FALSE);
+    LLFloaterHoverHeight *self = static_cast<LLFloaterHoverHeight*>(user_data);
+    LLSliderCtrl* sldrCtrl = self->getChild<LLSliderCtrl>("HoverHeightSlider");
+    sldrCtrl->setValue(value,false);
 
-	if (isAgentAvatarValid() && update_offset)
-	{
-		LLVector3 offset(0.0, 0.0, llclamp(value,MIN_HOVER_Z,MAX_HOVER_Z));
-		LL_INFOS("Avatar") << "setting hover from preference setting " << offset[2] << LL_ENDL;
-		gAgentAvatarp->setHoverOffset(offset);
-		//gAgentAvatarp->sendHoverHeight();
-	}
+    if (isAgentAvatarValid() && update_offset)
+    {
+        LLVector3 offset(0.0, 0.0, llclamp(value,MIN_HOVER_Z,MAX_HOVER_Z));
+        LL_INFOS("Avatar") << "setting hover from preference setting " << offset[2] << LL_ENDL;
+        gAgentAvatarp->setHoverOffset(offset);
+        //gAgentAvatarp->sendHoverHeight();
+    }
 }
 
-BOOL LLFloaterHoverHeight::postBuild()
+bool LLFloaterHoverHeight::postBuild()
 {
-	LLSliderCtrl* sldrCtrl = getChild<LLSliderCtrl>("HoverHeightSlider");
-	sldrCtrl->setMinValue(MIN_HOVER_Z);
-	sldrCtrl->setMaxValue(MAX_HOVER_Z);
-	sldrCtrl->setSliderMouseUpCallback(boost::bind(&LLFloaterHoverHeight::onFinalCommit,this));
-	sldrCtrl->setSliderEditorCommitCallback(boost::bind(&LLFloaterHoverHeight::onFinalCommit,this));
-	childSetCommitCallback("HoverHeightSlider", &LLFloaterHoverHeight::onSliderMoved, NULL);
+    LLSliderCtrl* sldrCtrl = getChild<LLSliderCtrl>("HoverHeightSlider");
+    sldrCtrl->setMinValue(MIN_HOVER_Z);
+    sldrCtrl->setMaxValue(MAX_HOVER_Z);
+    sldrCtrl->setSliderMouseUpCallback(boost::bind(&LLFloaterHoverHeight::onFinalCommit,this));
+    sldrCtrl->setSliderEditorCommitCallback(boost::bind(&LLFloaterHoverHeight::onFinalCommit,this));
+    childSetCommitCallback("HoverHeightSlider", &LLFloaterHoverHeight::onSliderMoved, NULL);
 
-	// Initialize slider from pref setting.
-	syncFromPreferenceSetting(this);
-	// Update slider on future pref changes.
-	if (gSavedPerAccountSettings.getControl("AvatarHoverOffsetZ"))
-	{
-		gSavedPerAccountSettings.getControl("AvatarHoverOffsetZ")->getCommitSignal()->connect(boost::bind(&syncFromPreferenceSetting, this, false));
-	}
-	else
-	{
-		LL_WARNS() << "Control not found for AvatarHoverOffsetZ" << LL_ENDL;
-	}
+    // Initialize slider from pref setting.
+    syncFromPreferenceSetting(this);
+    // Update slider on future pref changes.
+    if (gSavedPerAccountSettings.getControl("AvatarHoverOffsetZ"))
+    {
+        gSavedPerAccountSettings.getControl("AvatarHoverOffsetZ")->getCommitSignal()->connect(boost::bind(&syncFromPreferenceSetting, this, false));
+    }
+    else
+    {
+        LL_WARNS() << "Control not found for AvatarHoverOffsetZ" << LL_ENDL;
+    }
 
-	updateEditEnabled();
+    updateEditEnabled();
 
-	if (!mRegionChangedSlot.connected())
-	{
-		mRegionChangedSlot = gAgent.addRegionChangedCallback(boost::bind(&LLFloaterHoverHeight::onRegionChanged,this));
-	}
-	// Set up based on initial region.
-	onRegionChanged();
+    if (!mRegionChangedSlot.connected())
+    {
+        mRegionChangedSlot = gAgent.addRegionChangedCallback(boost::bind(&LLFloaterHoverHeight::onRegionChanged,this));
+    }
+    // Set up based on initial region.
+    onRegionChanged();
 
-	return TRUE;
+    return true;
 }
 
 void LLFloaterHoverHeight::onClose(bool app_quitting)
 {
-	if (mRegionChangedSlot.connected())
-	{
-		mRegionChangedSlot.disconnect();
-	}
+    if (mRegionChangedSlot.connected())
+    {
+        mRegionChangedSlot.disconnect();
+    }
 }
 
 // static
@@ -114,42 +114,42 @@ void LLFloaterHoverHeight::onSliderMoved(LLUICtrl* ctrl, void* userData)
 // value entered as text.
 void LLFloaterHoverHeight::onFinalCommit()
 {
-	LLSliderCtrl* sldrCtrl = getChild<LLSliderCtrl>("HoverHeightSlider");
-	F32 value = sldrCtrl->getValueF32();
-	gSavedPerAccountSettings.setF32("AvatarHoverOffsetZ",value);
+    LLSliderCtrl* sldrCtrl = getChild<LLSliderCtrl>("HoverHeightSlider");
+    F32 value = sldrCtrl->getValueF32();
+    gSavedPerAccountSettings.setF32("AvatarHoverOffsetZ",value);
 }
 
 void LLFloaterHoverHeight::onRegionChanged()
 {
-	LLViewerRegion *region = gAgent.getRegion();
-	if (region && region->simulatorFeaturesReceived())
-	{
-		updateEditEnabled();
-	}
-	else if (region)
-	{
-		region->setSimulatorFeaturesReceivedCallback(boost::bind(&LLFloaterHoverHeight::onSimulatorFeaturesReceived,this,_1));
-	}
+    LLViewerRegion *region = gAgent.getRegion();
+    if (region && region->simulatorFeaturesReceived())
+    {
+        updateEditEnabled();
+    }
+    else if (region)
+    {
+        region->setSimulatorFeaturesReceivedCallback(boost::bind(&LLFloaterHoverHeight::onSimulatorFeaturesReceived,this,_1));
+    }
 }
 
 void LLFloaterHoverHeight::onSimulatorFeaturesReceived(const LLUUID &region_id)
 {
-	LLViewerRegion *region = gAgent.getRegion();
-	if (region && (region->getRegionID()==region_id))
-	{
-		updateEditEnabled();
-	}
+    LLViewerRegion *region = gAgent.getRegion();
+    if (region && (region->getRegionID()==region_id))
+    {
+        updateEditEnabled();
+    }
 }
 
 void LLFloaterHoverHeight::updateEditEnabled()
 {
-	bool enabled = gAgent.getRegion() && gAgent.getRegion()->avatarHoverHeightEnabled();
-	LLSliderCtrl* sldrCtrl = getChild<LLSliderCtrl>("HoverHeightSlider");
-	sldrCtrl->setEnabled(enabled);
-	if (enabled)
-	{
-		syncFromPreferenceSetting(this);
-	}
+    bool enabled = gAgent.getRegion() && gAgent.getRegion()->avatarHoverHeightEnabled();
+    LLSliderCtrl* sldrCtrl = getChild<LLSliderCtrl>("HoverHeightSlider");
+    sldrCtrl->setEnabled(enabled);
+    if (enabled)
+    {
+        syncFromPreferenceSetting(this);
+    }
 }
 
 

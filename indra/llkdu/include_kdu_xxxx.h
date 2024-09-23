@@ -2,8 +2,8 @@
  * @file   include_kdu_xxxx.h
  * @author Nat Goodspeed
  * @date   2016-04-25
- * @brief  
- * 
+ * @brief
+ *
  * $LicenseInfo:firstyear=2016&license=viewerlgpl$
  * Copyright (c) 2016, Linden Research, Inc.
  * $/LicenseInfo$

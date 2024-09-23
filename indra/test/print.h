@@ -3,7 +3,7 @@
  * @author Nat Goodspeed
  * @date   2020-01-02
  * @brief  print() function for debugging
- * 
+ *
  * $LicenseInfo:firstyear=2020&license=viewerlgpl$
  * Copyright (c) 2020, Linden Research, Inc.
  * $/LicenseInfo$

@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llfloaterexperienceprofile.cpp
  * @brief llfloaterexperienceprofile and related class definitions
  *
  * $LicenseInfo:firstyear=2013&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2013, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -140,15 +140,15 @@ LLFloaterExperienceProfile::~LLFloaterExperienceProfile()
 
 }
 
-BOOL LLFloaterExperienceProfile::postBuild()
+bool LLFloaterExperienceProfile::postBuild()
 {
 
     if (mExperienceId.notNull())
     {
         LLExperienceCache::instance().fetch(mExperienceId, true);
         LLExperienceCache::instance().get(mExperienceId, boost::bind(&LLFloaterExperienceProfile::experienceCallback,
-            getDerivedHandle<LLFloaterExperienceProfile>(), _1)); 
-        
+            getDerivedHandle<LLFloaterExperienceProfile>(), _1));
+
         LLViewerRegion* region = gAgent.getRegion();
         if (region)
         {
@@ -162,26 +162,26 @@ BOOL LLFloaterExperienceProfile::postBuild()
     childSetAction(BTN_FORGET, boost::bind(&LLFloaterExperienceProfile::onClickForget, this));
     childSetAction(BTN_BLOCK, boost::bind(&LLFloaterExperienceProfile::onClickPermission, this, "Block"));
     childSetAction(BTN_CANCEL, boost::bind(&LLFloaterExperienceProfile::onClickCancel, this));
-	childSetAction(BTN_SAVE, boost::bind(&LLFloaterExperienceProfile::onClickSave, this));
-	childSetAction(BTN_SET_LOCATION, boost::bind(&LLFloaterExperienceProfile::onClickLocation, this));
-	childSetAction(BTN_CLEAR_LOCATION, boost::bind(&LLFloaterExperienceProfile::onClickClear, this));
-	childSetAction(BTN_SET_GROUP, boost::bind(&LLFloaterExperienceProfile::onPickGroup, this));
-	childSetAction(BTN_REPORT, boost::bind(&LLFloaterExperienceProfile::onReportExperience, this));
+    childSetAction(BTN_SAVE, boost::bind(&LLFloaterExperienceProfile::onClickSave, this));
+    childSetAction(BTN_SET_LOCATION, boost::bind(&LLFloaterExperienceProfile::onClickLocation, this));
+    childSetAction(BTN_CLEAR_LOCATION, boost::bind(&LLFloaterExperienceProfile::onClickClear, this));
+    childSetAction(BTN_SET_GROUP, boost::bind(&LLFloaterExperienceProfile::onPickGroup, this));
+    childSetAction(BTN_REPORT, boost::bind(&LLFloaterExperienceProfile::onReportExperience, this));
 
     getChild<LLTextEditor>(EDIT TF_DESC)->setKeystrokeCallback(boost::bind(&LLFloaterExperienceProfile::onFieldChanged, this));
     getChild<LLUICtrl>(EDIT TF_MATURITY)->setCommitCallback(boost::bind(&LLFloaterExperienceProfile::onFieldChanged, this));
     getChild<LLLineEditor>(EDIT TF_MRKT)->setKeystrokeCallback(boost::bind(&LLFloaterExperienceProfile::onFieldChanged, this), NULL);
     getChild<LLLineEditor>(EDIT TF_NAME)->setKeystrokeCallback(boost::bind(&LLFloaterExperienceProfile::onFieldChanged, this), NULL);
-    
+
     childSetCommitCallback(EDIT BTN_ENABLE, boost::bind(&LLFloaterExperienceProfile::onFieldChanged, this), NULL);
     childSetCommitCallback(EDIT BTN_PRIVATE, boost::bind(&LLFloaterExperienceProfile::onFieldChanged, this), NULL);
 
     childSetCommitCallback(EDIT IMG_LOGO, boost::bind(&LLFloaterExperienceProfile::onFieldChanged, this), NULL);
 
-    getChild<LLTextEditor>(EDIT TF_DESC)->setCommitOnFocusLost(TRUE);
+    getChild<LLTextEditor>(EDIT TF_DESC)->setCommitOnFocusLost(true);
 
 
-    LLEventPumps::instance().obtain("experience_permission").listen(mExperienceId.asString()+"-profile", 
+    LLEventPumps::instance().obtain("experience_permission").listen(mExperienceId.asString()+"-profile",
         boost::bind(&LLFloaterExperienceProfile::experiencePermission, getDerivedHandle<LLFloaterExperienceProfile>(this), _1));
 
     if (mPostEdit && mExperienceId.notNull())
@@ -190,7 +190,7 @@ BOOL LLFloaterExperienceProfile::postBuild()
         changeToEdit();
     }
 
-    return TRUE;
+    return true;
 }
 
 void LLFloaterExperienceProfile::experienceCallback(LLHandle<LLFloaterExperienceProfile> handle,  const LLSD& experience )
@@ -296,7 +296,7 @@ bool LLFloaterExperienceProfile::setMaturityString( U8 maturity, LLTextBox* chil
     child->appendImageSegment(style);
 
     child->appendText(access, false);
-    
+
     return true;
 }
 
@@ -310,24 +310,24 @@ void LLFloaterExperienceProfile::refreshExperience( const LLSD& experience )
     LLLayoutPanel* imagePanel = getChild<LLLayoutPanel>(PNL_IMAGE);
     LLLayoutPanel* descriptionPanel = getChild<LLLayoutPanel>(PNL_DESC);
     LLLayoutPanel* locationPanel = getChild<LLLayoutPanel>(PNL_LOC);
-    LLLayoutPanel* marketplacePanel = getChild<LLLayoutPanel>(PNL_MRKT);  
-    LLLayoutPanel* topPanel = getChild<LLLayoutPanel>(PNL_TOP);  
+    LLLayoutPanel* marketplacePanel = getChild<LLLayoutPanel>(PNL_MRKT);
+    LLLayoutPanel* topPanel = getChild<LLLayoutPanel>(PNL_TOP);
 
 
-    imagePanel->setVisible(FALSE);
-    descriptionPanel->setVisible(FALSE);
-    locationPanel->setVisible(FALSE);
-    marketplacePanel->setVisible(FALSE);
-    topPanel->setVisible(FALSE);
+    imagePanel->setVisible(false);
+    descriptionPanel->setVisible(false);
+    locationPanel->setVisible(false);
+    marketplacePanel->setVisible(false);
+    topPanel->setVisible(false);
 
 
     LLTextBox* child = getChild<LLTextBox>(TF_NAME);
     //child->setText(experience[LLExperienceCache::NAME].asString());
-	child->setText(LLSLURL("experience", experience[LLExperienceCache::EXPERIENCE_ID], "profile").getSLURLString());
-    
+    child->setText(LLSLURL("experience", experience[LLExperienceCache::EXPERIENCE_ID], "profile").getSLURLString());
+
     LLLineEditor* linechild = getChild<LLLineEditor>(EDIT TF_NAME);
     linechild->setText(experience[LLExperienceCache::NAME].asString());
-    
+
     std::string value = experience[LLExperienceCache::DESCRIPTION].asString();
     LLExpandableTextBox* exchild = getChild<LLExpandableTextBox>(TF_DESC);
     exchild->setText(value);
@@ -335,7 +335,7 @@ void LLFloaterExperienceProfile::refreshExperience( const LLSD& experience )
 
     LLTextEditor* edit_child = getChild<LLTextEditor>(EDIT TF_DESC);
     edit_child->setText(value);
-   
+
     mLocationSLURL = experience[LLExperienceCache::SLURL].asString();
     child = getChild<LLTextBox>(TF_SLURL);
     bool has_slurl = mLocationSLURL.length()>0;
@@ -353,7 +353,7 @@ void LLFloaterExperienceProfile::refreshExperience( const LLSD& experience )
     {
         child->setText(getString("empty_slurl"));
     }
-    
+
     setMaturityString((U8)(experience[LLExperienceCache::MATURITY].asInteger()), getChild<LLTextBox>(TF_MATURITY), getChild<LLComboBox>(EDIT TF_MATURITY));
 
     LLUUID id = experience[LLExperienceCache::AGENT_ID].asUUID();
@@ -363,45 +363,45 @@ void LLFloaterExperienceProfile::refreshExperience( const LLSD& experience )
 
 
     id = experience[LLExperienceCache::GROUP_ID].asUUID();
-	bool id_null = id.isNull();
+    bool id_null = id.isNull();
     child = getChild<LLTextBox>(TF_GROUP);
     value = LLSLURL("group", id, "inspect").getSLURLString();
     child->setText(value);
     getChild<LLLayoutPanel>(PNL_GROUP)->setVisible(!id_null);
 
-	setEditGroup(id);
+    setEditGroup(id);
 
-	getChild<LLButton>(BTN_SET_GROUP)->setEnabled(experience[LLExperienceCache::AGENT_ID].asUUID() == gAgent.getID());
-    
+    getChild<LLButton>(BTN_SET_GROUP)->setEnabled(experience[LLExperienceCache::AGENT_ID].asUUID() == gAgent.getID());
+
     LLCheckBoxCtrl* enable = getChild<LLCheckBoxCtrl>(EDIT BTN_ENABLE);
     S32 properties = mExperienceDetails[LLExperienceCache::PROPERTIES].asInteger();
-    enable->set(!(properties & LLExperienceCache::PROPERTY_DISABLED)); 
+    enable->set(!(properties & LLExperienceCache::PROPERTY_DISABLED));
 
     enable = getChild<LLCheckBoxCtrl>(EDIT BTN_PRIVATE);
-    enable->set(properties & LLExperienceCache::PROPERTY_PRIVATE);  
+    enable->set(properties & LLExperienceCache::PROPERTY_PRIVATE);
 
-    topPanel->setVisible(TRUE);
+    topPanel->setVisible(true);
     child=getChild<LLTextBox>(TF_GRID_WIDE);
-    child->setVisible(TRUE);
+    child->setVisible(true);
 
     if(properties & LLExperienceCache::PROPERTY_GRID)
     {
         child->setText(LLTrans::getString("Grid-Scope"));
     }
-	else 
-	{
+    else
+    {
         child->setText(LLTrans::getString("Land-Scope"));
-	}
+    }
 
-	if(getChild<LLButton>(BTN_EDIT)->getVisible())
-	{
-		topPanel->setVisible(TRUE);
-	}
+    if(getChild<LLButton>(BTN_EDIT)->getVisible())
+    {
+        topPanel->setVisible(true);
+    }
 
     if(properties & LLExperienceCache::PROPERTY_PRIVILEGED)
     {
         child = getChild<LLTextBox>(TF_PRIVILEGED);
-        child->setVisible(TRUE);
+        child->setVisible(true);
     }
     else
     {
@@ -412,11 +412,11 @@ void LLFloaterExperienceProfile::refreshExperience( const LLSD& experience )
                 &LLFloaterExperienceProfile::experiencePermissionResults, mExperienceId, _1));
         }
     }
-            
+
     value=experience[LLExperienceCache::METADATA].asString();
     if(value.empty())
         return;
-    
+
     LLPointer<LLSDParser> parser = new LLSDXMLParser();
 
     LLSD data;
@@ -433,18 +433,18 @@ void LLFloaterExperienceProfile::refreshExperience( const LLSD& experience )
             child->setText(value);
             if(value.size())
             {
-                marketplacePanel->setVisible(TRUE);
+                marketplacePanel->setVisible(true);
             }
             else
             {
-                marketplacePanel->setVisible(FALSE);
+                marketplacePanel->setVisible(false);
             }
         }
         else
         {
-            marketplacePanel->setVisible(FALSE);
+            marketplacePanel->setVisible(false);
         }
-        
+
         linechild = getChild<LLLineEditor>(EDIT TF_MRKT);
         linechild->setText(value);
 
@@ -454,7 +454,7 @@ void LLFloaterExperienceProfile::refreshExperience( const LLSD& experience )
 
             LLUUID id = data[IMG_LOGO].asUUID();
             logo->setImageAssetID(id);
-            imagePanel->setVisible(TRUE);
+            imagePanel->setVisible(true);
 
             logo = getChild<LLTextureCtrl>(EDIT IMG_LOGO);
             logo->setImageAssetID(data[IMG_LOGO].asUUID());
@@ -464,8 +464,8 @@ void LLFloaterExperienceProfile::refreshExperience( const LLSD& experience )
     }
     else
     {
-        marketplacePanel->setVisible(FALSE);
-        imagePanel->setVisible(FALSE);
+        marketplacePanel->setVisible(false);
+        imagePanel->setVisible(false);
     }
 
     mDirty=false;
@@ -510,10 +510,10 @@ void LLFloaterExperienceProfile::onFieldChanged()
 {
     updatePackage();
 
-	if(!getChild<LLButton>(BTN_EDIT)->getVisible())
-	{
-		return;
-	}
+    if(!getChild<LLButton>(BTN_EDIT)->getVisible())
+    {
+        return;
+    }
     LLSD::map_const_iterator st = mExperienceDetails.beginMap();
     LLSD::map_const_iterator dt = mPackage.beginMap();
 
@@ -533,17 +533,17 @@ void LLFloaterExperienceProfile::onFieldChanged()
 }
 
 
-BOOL LLFloaterExperienceProfile::canClose()
+bool LLFloaterExperienceProfile::canClose()
 {
     if(mForceClose || !mDirty)
     {
-        return TRUE;
+        return true;
     }
     else
     {
         // Bring up view-modal dialog: Save changes? Yes, No, Cancel
         LLNotificationsUtil::add("SaveChanges", LLSD(), LLSD(), boost::bind(&LLFloaterExperienceProfile::handleSaveChangesDialog, this, _1, _2, CLOSE));
-        return FALSE;
+        return false;
     }
 }
 
@@ -560,7 +560,7 @@ bool LLFloaterExperienceProfile::handleSaveChangesDialog( const LLSD& notificati
     case 1:  // "No"
         if(action != NOTHING)
         {
-            mForceClose = TRUE;
+            mForceClose = true;
             if(action==CLOSE)
             {
                 closeFloater();
@@ -590,7 +590,7 @@ void LLFloaterExperienceProfile::doSave( int success_action )
         return;
 
     LLExperienceCache::instance().updateExperience(mPackage, boost::bind(
-            &LLFloaterExperienceProfile::experienceUpdateResult, 
+            &LLFloaterExperienceProfile::experienceUpdateResult,
             getDerivedHandle<LLFloaterExperienceProfile>(), _1));
 }
 
@@ -598,34 +598,34 @@ void LLFloaterExperienceProfile::onSaveComplete( const LLSD& content )
 {
     LLUUID id = getExperienceId();
 
-	if(content.has("removed"))
-	{
-		const LLSD& removed = content["removed"];
-		LLSD::map_const_iterator it = removed.beginMap();
-		for(/**/; it != removed.endMap(); ++it)
-		{
-			const std::string& field = it->first;
-			if(field == LLExperienceCache::EXPERIENCE_ID)
-			{
-				//this message should be removed by the experience api
-				continue;
-			}
-			const LLSD& data = it->second;
-			std::string error_tag = data["error_tag"].asString()+ "ExperienceProfileMessage";
-			LLSD fields;
-			if( LLNotifications::instance().getTemplate(error_tag))
-			{
-				fields["field"] = field;
-				fields["extra_info"] = data["extra_info"];
-				LLNotificationsUtil::add(error_tag, fields);
-			}
-			else
-			{
-				fields["MESSAGE"]=data["en"];
-				LLNotificationsUtil::add("GenericAlert", fields);
-			}
-		}		
-	}
+    if(content.has("removed"))
+    {
+        const LLSD& removed = content["removed"];
+        LLSD::map_const_iterator it = removed.beginMap();
+        for(/**/; it != removed.endMap(); ++it)
+        {
+            const std::string& field = it->first;
+            if(field == LLExperienceCache::EXPERIENCE_ID)
+            {
+                //this message should be removed by the experience api
+                continue;
+            }
+            const LLSD& data = it->second;
+            std::string error_tag = data["error_tag"].asString()+ "ExperienceProfileMessage";
+            LLSD fields;
+            if( LLNotifications::instance().getTemplate(error_tag))
+            {
+                fields["field"] = field;
+                fields["extra_info"] = data["extra_info"];
+                LLNotificationsUtil::add(error_tag, fields);
+            }
+            else
+            {
+                fields["MESSAGE"]=data["en"];
+                LLNotificationsUtil::add("GenericAlert", fields);
+            }
+        }
+    }
 
     if(!content.has("experience_keys"))
     {
@@ -647,7 +647,7 @@ void LLFloaterExperienceProfile::onSaveComplete( const LLSD& content )
         LL_WARNS() << "LLFloaterExperienceProfile::onSaveComplete called with unexpected experience id" << LL_ENDL;
         return;
     }
- 
+
     refreshExperience(*it);
     LLExperienceCache::instance().insert(*it);
     LLExperienceCache::instance().fetch(id, true);
@@ -660,7 +660,7 @@ void LLFloaterExperienceProfile::onSaveComplete( const LLSD& content )
     else if(mSaveCompleteAction == CLOSE)
     {
         closeFloater();
-    }   
+    }
 }
 
 void LLFloaterExperienceProfile::changeToView()
@@ -692,7 +692,7 @@ void LLFloaterExperienceProfile::onClickLocation()
     if(region)
     {
         LLTextBox* child = getChild<LLTextBox>(EDIT TF_SLURL);
-		mLocationSLURL = LLSLURL(region->getName(), gAgent.getPositionGlobal()).getSLURLString();
+        mLocationSLURL = LLSLURL(region->getName(), gAgent.getPositionGlobal()).getSLURLString();
         child->setText(mLocationSLURL);
         onFieldChanged();
     }
@@ -701,7 +701,7 @@ void LLFloaterExperienceProfile::onClickLocation()
 void LLFloaterExperienceProfile::onClickClear()
 {
     LLTextBox* child = getChild<LLTextBox>(EDIT TF_SLURL);
-	mLocationSLURL = "";
+    mLocationSLURL = "";
     child->setText(getString("empty_slurl"));
     onFieldChanged();
 }
@@ -738,37 +738,37 @@ void LLFloaterExperienceProfile::updatePermission( const LLSD& permission )
 void LLFloaterExperienceProfile::experienceAllowed()
 {
     LLButton* button=getChild<LLButton>(BTN_ALLOW);
-    button->setEnabled(FALSE);
+    button->setEnabled(false);
 
     button=getChild<LLButton>(BTN_FORGET);
-    button->setEnabled(TRUE);
+    button->setEnabled(true);
 
     button=getChild<LLButton>(BTN_BLOCK);
-    button->setEnabled(TRUE);
+    button->setEnabled(true);
 }
 
 void LLFloaterExperienceProfile::experienceForgotten()
 {
     LLButton* button=getChild<LLButton>(BTN_ALLOW);
-    button->setEnabled(TRUE);
+    button->setEnabled(true);
 
     button=getChild<LLButton>(BTN_FORGET);
-    button->setEnabled(FALSE);
+    button->setEnabled(false);
 
     button=getChild<LLButton>(BTN_BLOCK);
-    button->setEnabled(TRUE);
+    button->setEnabled(true);
 }
 
 void LLFloaterExperienceProfile::experienceBlocked()
 {
     LLButton* button=getChild<LLButton>(BTN_ALLOW);
-    button->setEnabled(TRUE);
+    button->setEnabled(true);
 
     button=getChild<LLButton>(BTN_FORGET);
-    button->setEnabled(TRUE);
+    button->setEnabled(true);
 
     button=getChild<LLButton>(BTN_BLOCK);
-    button->setEnabled(FALSE);
+    button->setEnabled(false);
 }
 
 void LLFloaterExperienceProfile::onClose( bool app_quitting )
@@ -781,7 +781,7 @@ void LLFloaterExperienceProfile::updatePackage()
 {
     mPackage[LLExperienceCache::NAME] = getChild<LLLineEditor>(EDIT TF_NAME)->getText();
     mPackage[LLExperienceCache::DESCRIPTION] = getChild<LLTextEditor>(EDIT TF_DESC)->getText();
-	if(mLocationSLURL.empty())
+    if(mLocationSLURL.empty())
     {
         mPackage[LLExperienceCache::SLURL] = LLStringUtil::null;
     }
@@ -831,33 +831,33 @@ void LLFloaterExperienceProfile::updatePackage()
 
 void LLFloaterExperienceProfile::onPickGroup()
 {
-	LLFloater* parent_floater = gFloaterView->getParentFloater(this);
+    LLFloater* parent_floater = gFloaterView->getParentFloater(this);
 
-	LLFloaterGroupPicker* widget = LLFloaterReg::showTypedInstance<LLFloaterGroupPicker>("group_picker", LLSD(gAgent.getID()));
-	if (widget)
-	{
-		widget->setSelectGroupCallback(boost::bind(&LLFloaterExperienceProfile::setEditGroup, this, _1));
-		if (parent_floater)
-		{
-			LLRect new_rect = gFloaterView->findNeighboringPosition(parent_floater, widget);
-			widget->setOrigin(new_rect.mLeft, new_rect.mBottom);
-			parent_floater->addDependentFloater(widget);
-		}
-	}
+    LLFloaterGroupPicker* widget = LLFloaterReg::showTypedInstance<LLFloaterGroupPicker>("group_picker", LLSD(gAgent.getID()));
+    if (widget)
+    {
+        widget->setSelectGroupCallback(boost::bind(&LLFloaterExperienceProfile::setEditGroup, this, _1));
+        if (parent_floater)
+        {
+            LLRect new_rect = gFloaterView->findNeighboringPosition(parent_floater, widget);
+            widget->setOrigin(new_rect.mLeft, new_rect.mBottom);
+            parent_floater->addDependentFloater(widget);
+        }
+    }
 }
 
 void LLFloaterExperienceProfile::setEditGroup( LLUUID group_id )
 {
-	LLTextBox* child = getChild<LLTextBox>(EDIT TF_GROUP);
-	std::string value = LLSLURL("group", group_id, "inspect").getSLURLString();
-	child->setText(value);
-	mPackage[LLExperienceCache::GROUP_ID] = group_id;
-	onFieldChanged();
+    LLTextBox* child = getChild<LLTextBox>(EDIT TF_GROUP);
+    std::string value = LLSLURL("group", group_id, "inspect").getSLURLString();
+    child->setText(value);
+    mPackage[LLExperienceCache::GROUP_ID] = group_id;
+    onFieldChanged();
 }
 
 void LLFloaterExperienceProfile::onReportExperience()
 {
-	LLFloaterReporter::showFromExperience(mExperienceId);
+    LLFloaterReporter::showFromExperience(mExperienceId);
 }
 
 /*static*/
@@ -918,8 +918,8 @@ void LLFloaterExperienceProfile::experienceIsAdmin(LLHandle<LLFloaterExperienceP
     }
     if (enabled && result["status"].asBoolean())
     {
-        parent->getChild<LLLayoutPanel>(PNL_TOP)->setVisible(TRUE);
-        parent->getChild<LLButton>(BTN_EDIT)->setVisible(TRUE);
+        parent->getChild<LLLayoutPanel>(PNL_TOP)->setVisible(true);
+        parent->getChild<LLButton>(BTN_EDIT)->setVisible(true);
     }
 }
 

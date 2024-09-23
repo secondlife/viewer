@@ -68,6 +68,8 @@
 #include "lltabcontainer.h"
 #include "lltextbox.h"
 
+#include <filesystem>
+
 #include <boost/algorithm/string.hpp>
 
 bool LLModelPreview::sIgnoreLoadedCallback = false;
@@ -93,7 +95,7 @@ const F32 SKIN_WEIGHT_CAMERA_DISTANCE = 16.f;
 
 LLViewerFetchedTexture* bindMaterialDiffuseTexture(const LLImportMaterial& material)
 {
-    LLViewerFetchedTexture *texture = LLViewerTextureManager::getFetchedTexture(material.getDiffuseMap(), FTT_DEFAULT, TRUE, LLGLTexture::BOOST_PREVIEW);
+    LLViewerFetchedTexture *texture = LLViewerTextureManager::getFetchedTexture(material.getDiffuseMap(), FTT_DEFAULT, true, LLGLTexture::BOOST_PREVIEW);
 
     if (texture)
     {
@@ -159,7 +161,7 @@ void FindModel(LLModelLoader::scene& scene, const std::string& name_to_match, LL
 //-----------------------------------------------------------------------------
 
 LLModelPreview::LLModelPreview(S32 width, S32 height, LLFloater* fmp)
-    : LLViewerDynamicTexture(width, height, 3, ORDER_MIDDLE, FALSE), LLMutex()
+    : LLViewerDynamicTexture(width, height, 3, ORDER_MIDDLE, false), LLMutex()
     , mLodsQuery()
     , mLodsWithParsingError()
     , mPelvisZOffset(0.0f)
@@ -173,7 +175,7 @@ LLModelPreview::LLModelPreview(S32 width, S32 height, LLFloater* fmp)
     , mHasDegenerate(false)
     , mImporterDebug(LLCachedControl<bool>(gSavedSettings, "ImporterDebug", false))
 {
-    mNeedsUpdate = TRUE;
+    mNeedsUpdate = true;
     mCameraDistance = 0.f;
     mCameraYaw = 0.f;
     mCameraPitch = 0.f;
@@ -220,6 +222,16 @@ LLModelPreview::~LLModelPreview()
         mPreviewAvatar->markDead();
         mPreviewAvatar = NULL;
     }
+
+    mUploadData.clear();
+    mTextureSet.clear();
+
+    for (U32 i = 0; i < LLModel::NUM_LODS; i++)
+    {
+        clearModel(i);
+    }
+    mBaseModel.clear();
+    mBaseScene.clear();
 }
 
 void LLModelPreview::updateDimentionsAndOffsets()
@@ -230,7 +242,7 @@ void LLModelPreview::updateDimentionsAndOffsets()
 
     std::set<LLModel*> accounted;
 
-    mPelvisZOffset = mFMP ? mFMP->childGetValue("pelvis_offset").asReal() : 3.0f;
+    mPelvisZOffset = mFMP ? (F32)mFMP->childGetValue("pelvis_offset").asReal() : 3.0f;
 
     if (mFMP && mFMP->childGetValue("upload_joints").asBoolean())
     {
@@ -249,7 +261,7 @@ void LLModelPreview::updateDimentionsAndOffsets()
         {
             accounted.insert(instance.mModel);
 
-            //update instance skin info for each lods pelvisZoffset 
+            // update instance skin info for each lods pelvisZoffset
             for (int j = 0; j<LLModel::NUM_LODS; ++j)
             {
                 if (instance.mLOD[j])
@@ -260,7 +272,7 @@ void LLModelPreview::updateDimentionsAndOffsets()
         }
     }
 
-    F32 scale = mFMP ? mFMP->childGetValue("import_scale").asReal()*2.f : 2.f;
+    F32 scale = mFMP ? (F32)mFMP->childGetValue("import_scale").asReal()*2.f : 2.f;
 
     mDetailsSignal((F32)(mPreviewScale[0] * scale), (F32)(mPreviewScale[1] * scale), (F32)(mPreviewScale[2] * scale));
 
@@ -271,6 +283,7 @@ void LLModelPreview::rebuildUploadData()
 {
     assert_main_thread();
 
+    mDefaultPhysicsShapeP = NULL;
     mUploadData.clear();
     mTextureSet.clear();
 
@@ -280,14 +293,14 @@ void LLModelPreview::rebuildUploadData()
 
     LLSpinCtrl* scale_spinner = mFMP->getChild<LLSpinCtrl>("import_scale");
 
-    F32 scale = scale_spinner->getValue().asReal();
+    F32 scale = (F32)scale_spinner->getValue().asReal();
 
     LLMatrix4 scale_mat;
     scale_mat.initScale(LLVector3(scale, scale, scale));
 
     F32 max_scale = 0.f;
 
-    BOOL legacyMatching = gSavedSettings.getBOOL("ImporterLegacyMatching");
+    bool legacyMatching = gSavedSettings.getBOOL("ImporterLegacyMatching");
     U32 load_state = 0;
 
     for (LLModelLoader::scene::iterator iter = mBaseScene.begin(); iter != mBaseScene.end(); ++iter)
@@ -310,7 +323,7 @@ void LLModelPreview::rebuildUploadData()
         mat *= scale_mat;
 
         for (LLModelLoader::model_instance_list::iterator model_iter = iter->second.begin(); model_iter != iter->second.end();)
-        { //for each instance with said transform applied 
+        { // for each instance with said transform applied
             LLModelInstance instance = *model_iter++;
 
             LLModel* base_model = instance.mModel;
@@ -440,13 +453,13 @@ void LLModelPreview::rebuildUploadData()
                     // That's ok, but might not what they wanted. Use default_physics_shape if found.
                     std::ostringstream out;
                     out << "No physics model specified for " << instance.mLabel;
-                    if (mDefaultPhysicsShapeP)
+                    if (mDefaultPhysicsShapeP.notNull())
                     {
                         out << " - using: " << DEFAULT_PHYSICS_MESH_NAME;
                         lod_model = mDefaultPhysicsShapeP;
                     }
                     LL_WARNS() << out.str() << LL_ENDL;
-                    LLFloaterModelPreview::addStringToLog(out, !mDefaultPhysicsShapeP); // Flash log tab if no default.
+                    LLFloaterModelPreview::addStringToLog(out, mDefaultPhysicsShapeP.isNull()); // Flash log tab if no default.
                 }
 
                 if (lod_model)
@@ -530,6 +543,32 @@ void LLModelPreview::rebuildUploadData()
             }
             instance.mTransform = mat;
             mUploadData.push_back(instance);
+
+            // if uploading textures, make sure textures are present
+            if (mFMP->childGetValue("upload_textures").asBoolean()) // too early to cheack if still loading
+            {
+                for (auto& mat_pair : instance.mMaterial)
+                {
+                    LLImportMaterial& material = mat_pair.second;
+
+                    if (material.mDiffuseMapFilename.size())
+                    {
+                        LLViewerFetchedTexture* texture = LLMeshUploadThread::FindViewerTexture(material);
+                        if (texture && texture->isMissingAsset())
+                        {
+                            // in case user provided a missing file later
+                            texture->setIsMissingAsset(false);
+                            texture->setLoadedCallback(LLModelPreview::textureLoadedCallback, 0, true, false, this, NULL, false);
+                            texture->forceToSaveRawImage(0, F32_MAX);
+                            texture->updateFetch();
+                            if (mModelLoader)
+                            {
+                                mModelLoader->mNumOfFetchingTextures++;
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -573,7 +612,7 @@ void LLModelPreview::rebuildUploadData()
     else if (getLoadState() == LLModelLoader::ERROR_MATERIALS
              || getLoadState() == LLModelLoader::WARNING_BIND_SHAPE_ORIENTATION)
     {
-        // This is only valid for these two error types because they are 
+        // This is only valid for these two error types because they are
         // only used inside rebuildUploadData() and updateStatusMessages()
         // updateStatusMessages() is called after rebuildUploadData()
         setLoadState(LLModelLoader::DONE);
@@ -656,7 +695,7 @@ void LLModelPreview::saveUploadData(const std::string& filename,
                 save_skinweights,
                 save_joint_positions,
                 lock_scale_if_joint_position,
-                FALSE, TRUE, instance.mModel->mSubmodelID);
+                false, true, instance.mModel->mSubmodelID);
 
             data["mesh"][instance.mModel->mLocalID] = str.str();
         }
@@ -798,7 +837,7 @@ void LLModelPreview::loadModel(std::string filename, S32 lod, bool force_disable
         // it tends to force the UI into strange checkbox options
         // which cannot be altered.
 
-        //only try to load from slm if viewer is configured to do so and this is the 
+        //only try to load from slm if viewer is configured to do so and this is the
         //initial model load (not an LoD or physics shape)
         mModelLoader->mTrySLM = gSavedSettings.getBOOL("MeshImportUseSLM") && mUploadData.empty();
     }
@@ -884,12 +923,13 @@ void LLModelPreview::clearIncompatible(S32 lod)
 
         // Check if already started
         bool subscribe_for_generation = mLodsQuery.empty();
-        
+
         // Remove previously scheduled work
         mLodsQuery.clear();
 
         LLFloaterModelPreview* fmp = LLFloaterModelPreview::sInstance;
-        if (!fmp) return;
+        if (!fmp)
+            return;
 
         // Schedule new work
         for (S32 i = LLModel::LOD_HIGH; i >= 0; --i)
@@ -1055,6 +1095,29 @@ void LLModelPreview::loadModelCallback(S32 loaded_lod)
     { //only replace given LoD
         mModel[loaded_lod] = mModelLoader->mModelList;
         mScene[loaded_lod] = mModelLoader->mScene;
+
+        // Duplicate the model if it is an internal bounding box model
+        if (loaded_lod == LLModel::LOD_PHYSICS &&
+            mBaseModel.size() > 1 && // This makes sense for multiple models only
+            mModelLoader->mModelList.size() == 1 && // Just on the off-chance
+            mModelLoader->mScene.size() == 1 &&     // Just on the off-chance
+            std::filesystem::path(mModelLoader->mFilename).filename() == "cube.dae")
+        {
+            // Create a copy of the just loaded model for each model in mBaseModel
+            const LLModel* origin = mModelLoader->mModelList.front();
+            const LLModelInstance& mi = mModelLoader->mScene.begin()->second.front();
+            for (U32 i = 1; i < mBaseModel.size(); ++i)
+            {
+                LLPointer<LLModel> copy(new LLModel(origin->getParams(), origin->getDetail()));
+                copy->mLabel = origin->mLabel;
+                copy->copyVolumeFaces(origin);
+                copy->mPosition = origin->mPosition;
+                copy->mMaterialList = origin->mMaterialList;
+                mModel[loaded_lod].push_back(copy);
+                mScene[loaded_lod][mi.mTransform].push_back(LLModelInstance(copy, copy->mLabel, mi.mTransform, mi.mMaterial));
+            }
+        }
+
         mVertexBuffer[loaded_lod].clear();
 
         setPreviewLOD(loaded_lod);
@@ -1076,22 +1139,23 @@ void LLModelPreview::loadModelCallback(S32 loaded_lod)
             if (loaded_lod == LLModel::LOD_PHYSICS)
             {   // Explicitly loading physics. See if there is a default mesh.
                 LLMatrix4 ignored_transform; // Each mesh that uses this will supply their own.
-                mDefaultPhysicsShapeP = nullptr;
-                FindModel(mScene[loaded_lod], DEFAULT_PHYSICS_MESH_NAME + getLodSuffix(loaded_lod), mDefaultPhysicsShapeP, ignored_transform);
+                LLModel* out_model = nullptr;
+                FindModel(mScene[loaded_lod], DEFAULT_PHYSICS_MESH_NAME + getLodSuffix(loaded_lod), out_model, ignored_transform);
+                mDefaultPhysicsShapeP = out_model;
                 mWarnOfUnmatchedPhyicsMeshes = true;
             }
-            BOOL legacyMatching = gSavedSettings.getBOOL("ImporterLegacyMatching");
+            bool legacyMatching = gSavedSettings.getBOOL("ImporterLegacyMatching");
             if (!legacyMatching)
             {
                 if (!mBaseModel.empty())
                 {
-                    BOOL name_based = FALSE;
-                    BOOL has_submodels = FALSE;
+                    bool name_based = false;
+                    bool has_submodels = false;
                     for (U32 idx = 0; idx < mBaseModel.size(); ++idx)
                     {
                         if (mBaseModel[idx]->mSubmodelID)
                         { // don't do index-based renaming when the base model has submodels
-                            has_submodels = TRUE;
+                            has_submodels = true;
                             if (mImporterDebug)
                             {
                                 std::ostringstream out;
@@ -1112,12 +1176,12 @@ void LLModelPreview::loadModelCallback(S32 loaded_lod)
                         FindModel(mBaseScene, loaded_name, found_model, transform);
                         if (found_model)
                         { // don't rename correctly named models (even if they are placed in a wrong order)
-                            name_based = TRUE;
+                            name_based = true;
                         }
 
                         if (mModel[loaded_lod][idx]->mSubmodelID)
                         { // don't rename the models when loaded LOD model has submodels
-                            has_submodels = TRUE;
+                            has_submodels = true;
                         }
                     }
 
@@ -1151,6 +1215,17 @@ void LLModelPreview::loadModelCallback(S32 loaded_lod)
                                     LLFloaterModelPreview::addStringToLog(out, false);
                                 }
                                 mModel[loaded_lod][idx]->mLabel = name;
+                                // Rename the correspondent instance as well
+                                [&]()
+                                {
+                                    for (auto& p : mScene[loaded_lod])
+                                        for (auto& i : p.second)
+                                            if (i.mModel == mModel[loaded_lod][idx])
+                                            {
+                                                i.mLabel = name;
+                                                return;
+                                            }
+                                }();
                             }
                         }
                     }
@@ -1215,7 +1290,7 @@ void LLModelPreview::generateNormals()
         return;
     }
 
-    F32 angle_cutoff = mFMP->childGetValue("crease_angle").asReal();
+    F32 angle_cutoff = (F32)mFMP->childGetValue("crease_angle").asReal();
 
     mRequestedCreaseAngle[which_lod] = angle_cutoff;
 
@@ -1313,7 +1388,7 @@ F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *targe
     S32 size_indices = 0;
     S32 size_vertices = 0;
 
-    for (U32 face_idx = 0; face_idx < base_model->getNumVolumeFaces(); ++face_idx)
+    for (S32 face_idx = 0; face_idx < base_model->getNumVolumeFaces(); ++face_idx)
     {
         const LLVolumeFace &face = base_model->getVolumeFace(face_idx);
         size_indices += face.mNumIndices;
@@ -1339,7 +1414,7 @@ F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *targe
     S32 combined_positions_shift = 0;
     S32 indices_idx_shift = 0;
     S32 combined_indices_shift = 0;
-    for (U32 face_idx = 0; face_idx < base_model->getNumVolumeFaces(); ++face_idx)
+    for (S32 face_idx = 0; face_idx < base_model->getNumVolumeFaces(); ++face_idx)
     {
         const LLVolumeFace &face = base_model->getVolumeFace(face_idx);
 
@@ -1414,7 +1489,7 @@ F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *targe
         target_indices = 3;
     }
 
-    size_new_indices = LLMeshOptimizer::simplifyU32(
+    size_new_indices = (S32)LLMeshOptimizer::simplifyU32(
         output_indices,
         source_indices,
         size_indices,
@@ -1464,7 +1539,7 @@ F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *targe
     S32 valid_faces = 0;
 
     // Crude method to copy indices back into face
-    for (U32 face_idx = 0; face_idx < base_model->getNumVolumeFaces(); ++face_idx)
+    for (S32 face_idx = 0; face_idx < base_model->getNumVolumeFaces(); ++face_idx)
     {
         const LLVolumeFace &face = base_model->getVolumeFace(face_idx);
 
@@ -1482,7 +1557,7 @@ F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *targe
         // Copy relevant indices and vertices
         for (S32 i = 0; i < size_new_indices; ++i)
         {
-            U32 idx = output_indices[i];
+            S32 idx = (S32)output_indices[i];
 
             if ((i % 3) == 0)
             {
@@ -1511,7 +1586,7 @@ F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *targe
                         // U16 vertices overflow shouldn't happen, but just in case
                         size_new_indices = 0;
                         valid_faces = 0;
-                        for (U32 face_idx = 0; face_idx < base_model->getNumVolumeFaces(); ++face_idx)
+                        for (S32 face_idx = 0; face_idx < base_model->getNumVolumeFaces(); ++face_idx)
                         {
                             genMeshOptimizerPerFace(base_model, target_model, face_idx, indices_decimator, error_threshold, simplification_mode);
                             const LLVolumeFace &face = target_model->getVolumeFace(face_idx);
@@ -1655,7 +1730,7 @@ F32 LLModelPreview::genMeshOptimizerPerFace(LLModel *base_model, LLModel *target
         target_indices = 3;
     }
 
-    size_new_indices = LLMeshOptimizer::simplify(
+    size_new_indices = (S32)LLMeshOptimizer::simplify(
         output_indices,
         source_indices,
         size_indices,
@@ -1719,7 +1794,7 @@ F32 LLModelPreview::genMeshOptimizerPerFace(LLModel *base_model, LLModel *target
 
     ll_aligned_free_16(output_indices);
     ll_aligned_free_16(shadow_indices);
-     
+
     if (size_new_indices < 3)
     {
         // At least one triangle is needed
@@ -1776,7 +1851,7 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
         {
             if (!enforce_tri_limit)
             {
-                triangle_limit = base_triangle_count;
+                triangle_limit = (F32)base_triangle_count;
                 // reset to default value for this lod
                 F32 pw = pow((F32)decimation, (F32)(LLModel::LOD_HIGH - which_lod));
 
@@ -1786,7 +1861,7 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
             {
 
                 // UI spacifies limit for all models of single lod
-                triangle_limit = mFMP->childGetValue("lod_triangle_limit_" + lod_name[which_lod]).asInteger();
+                triangle_limit = (F32)mFMP->childGetValue("lod_triangle_limit_" + lod_name[which_lod]).asReal();
 
             }
             // meshoptimizer doesn't use triangle limit, it uses indices limit, so convert it to aproximate ratio
@@ -1796,14 +1871,14 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
         else
         {
             // UI shows 0 to 100%, but meshoptimizer works with 0 to 1
-            lod_error_threshold = mFMP->childGetValue("lod_error_threshold_" + lod_name[which_lod]).asReal() / 100.f;
+            lod_error_threshold = (F32)mFMP->childGetValue("lod_error_threshold_" + lod_name[which_lod]).asReal() / 100.f;
         }
     }
     else
     {
         // we are genrating all lods and each lod will get own indices_decimator
         indices_decimator = 1;
-        triangle_limit = base_triangle_count;
+        triangle_limit = (F32)base_triangle_count;
     }
 
     mMaxTriangleLimit = base_triangle_count;
@@ -1831,7 +1906,7 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
             }
         }
 
-        mRequestedTriangleCount[lod] = triangle_limit;
+        mRequestedTriangleCount[lod] = (S32)triangle_limit;
         mRequestedErrorThreshold[lod] = lod_error_threshold * 100;
         mRequestedLoDMode[lod] = lod_mode;
 
@@ -1857,7 +1932,7 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
             LLModel* target_model = mModel[lod][mdl_idx];
 
             // carry over normalized transform into simplified model
-            for (int i = 0; i < base->getNumVolumeFaces(); ++i)
+            for (S32 i = 0; i < base->getNumVolumeFaces(); ++i)
             {
                 LLVolumeFace& src = base->getVolumeFace(i);
                 LLVolumeFace& dst = target_model->getVolumeFace(i);
@@ -1871,7 +1946,7 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
             if (model_meshopt_mode == MESH_OPTIMIZER_PRECISE)
             {
                 // Run meshoptimizer for each face
-                for (U32 face_idx = 0; face_idx < base->getNumVolumeFaces(); ++face_idx)
+                for (S32 face_idx = 0; face_idx < base->getNumVolumeFaces(); ++face_idx)
                 {
                     F32 res = genMeshOptimizerPerFace(base, target_model, face_idx, indices_decimator, lod_error_threshold, MESH_OPTIMIZER_FULL);
                     if (res < 0)
@@ -1887,7 +1962,7 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
             if (model_meshopt_mode == MESH_OPTIMIZER_SLOPPY)
             {
                 // Run meshoptimizer for each face
-                for (U32 face_idx = 0; face_idx < base->getNumVolumeFaces(); ++face_idx)
+                for (S32 face_idx = 0; face_idx < base->getNumVolumeFaces(); ++face_idx)
                 {
                     if (genMeshOptimizerPerFace(base, target_model, face_idx, indices_decimator, lod_error_threshold, MESH_OPTIMIZER_NO_TOPOLOGY) < 0)
                     {
@@ -1912,7 +1987,7 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
                 {
                     precise_ratio = genMeshOptimizerPerModel(base, target_model, indices_decimator, lod_error_threshold, MESH_OPTIMIZER_NO_UVS);
                 }
-                
+
                 if (precise_ratio < 0 || (precise_ratio * allowed_ratio_drift < indices_decimator))
                 {
                     // Try sloppy variant if normal one failed to simplify model enough.
@@ -2234,7 +2309,7 @@ void LLModelPreview::updateStatusMessages()
     mModelNoErrors = true;
 
     const U32 lod_high = LLModel::LOD_HIGH;
-    U32 high_submodel_count = mModel[lod_high].size() - countRootModels(mModel[lod_high]);
+    U32 high_submodel_count = static_cast<U32>(mModel[lod_high].size()) - countRootModels(mModel[lod_high]);
 
     for (S32 lod = 0; lod <= lod_high; ++lod)
     {
@@ -2331,7 +2406,7 @@ void LLModelPreview::updateStatusMessages()
 
 
     //warn if hulls have more than 256 points in them
-    BOOL physExceededVertexLimit = FALSE;
+    bool physExceededVertexLimit = false;
     for (U32 i = 0; mModelNoErrors && i < mModel[LLModel::LOD_PHYSICS].size(); ++i)
     {
         LLModel* mdl = mModel[LLModel::LOD_PHYSICS][i];
@@ -2342,7 +2417,7 @@ void LLModelPreview::updateStatusMessages()
             {
                 if (mdl->mPhysics.mHull[j].size() > 256)
                 {
-                    physExceededVertexLimit = TRUE;
+                    physExceededVertexLimit = true;
                     LL_INFOS() << "Physical model " << mdl->mLabel << " exceeds vertex per hull limitations." << LL_ENDL;
                     break;
                 }
@@ -2433,10 +2508,10 @@ void LLModelPreview::updateStatusMessages()
 
                 if (!decomp.empty())
                 {
-                    phys_hulls += decomp.size();
+                    phys_hulls += static_cast<S32>(decomp.size());
                     for (U32 i = 0; i < decomp.size(); ++i)
                     {
-                        phys_points += decomp[i].size();
+                        phys_points += static_cast<S32>(decomp[i].size());
                     }
                 }
                 else
@@ -2673,7 +2748,7 @@ void LLModelPreview::updateLodControls(S32 lod)
         LLSpinCtrl* threshold = mFMP->getChild<LLSpinCtrl>("lod_error_threshold_" + lod_name[lod]);
         LLSpinCtrl* limit = mFMP->getChild<LLSpinCtrl>("lod_triangle_limit_" + lod_name[lod]);
 
-        limit->setMaxValue(mMaxTriangleLimit);
+        limit->setMaxValue((F32)mMaxTriangleLimit);
         limit->forceSetValue(mRequestedTriangleCount[lod]);
 
         threshold->forceSetValue(mRequestedErrorThreshold[lod]);
@@ -2685,8 +2760,8 @@ void LLModelPreview::updateLodControls(S32 lod)
             limit->setVisible(true);
             threshold->setVisible(false);
 
-            limit->setMaxValue(mMaxTriangleLimit);
-            limit->setIncrement(llmax((U32)1, mMaxTriangleLimit / 32));
+            limit->setMaxValue((F32)mMaxTriangleLimit);
+            limit->setIncrement((F32)llmax((U32)1, mMaxTriangleLimit / 32));
         }
         else
         {
@@ -2753,9 +2828,9 @@ void LLModelPreview::genBuffers(S32 lod, bool include_skin_weights)
         LLMatrix4a mat_normal;
         if (skinned)
         {
-            glh::matrix4f m((F32*)mdl->mSkinInfo.mBindShapeMatrix.getF32ptr());
-            m = m.inverse().transpose();
-            mat_normal.loadu(m.m);
+            glm::mat4 m = glm::make_mat4((F32*)mdl->mSkinInfo.mBindShapeMatrix.getF32ptr());
+            m = glm::transpose(glm::inverse(m));
+            mat_normal.loadu(glm::value_ptr(m));
         }
 
         S32 num_faces = mdl->getNumVolumeFaces();
@@ -2772,7 +2847,7 @@ void LLModelPreview::genBuffers(S32 lod, bool include_skin_weights)
 
             LLVertexBuffer* vb = NULL;
 
-            
+
 
             U32 mask = LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_NORMAL | LLVertexBuffer::MAP_TEXCOORD0;
 
@@ -3058,8 +3133,15 @@ U32 LLModelPreview::loadTextures(LLImportMaterial& material, void* opaque)
         material.mOpaqueData = new LLPointer< LLViewerFetchedTexture >;
         LLPointer< LLViewerFetchedTexture >& tex = (*reinterpret_cast< LLPointer< LLViewerFetchedTexture > * >(material.mOpaqueData));
 
-        tex = LLViewerTextureManager::getFetchedTextureFromUrl("file://" + LLURI::unescape(material.mDiffuseMapFilename), FTT_LOCAL_FILE, TRUE, LLGLTexture::BOOST_PREVIEW);
-        tex->setLoadedCallback(LLModelPreview::textureLoadedCallback, 0, TRUE, FALSE, opaque, NULL, FALSE);
+        tex = LLViewerTextureManager::getFetchedTextureFromUrl("file://" + LLURI::unescape(material.mDiffuseMapFilename), FTT_LOCAL_FILE, true, LLGLTexture::BOOST_PREVIEW);
+        if (tex->getDiscardLevel() < tex->getMaxDiscardLevel())
+        {
+            // file was loaded previosly, reload image to get potential changes
+            tex->clearFetchedResults();
+        }
+        // Todo: might cause a crash if preview gets closed before we get the callback.
+        // Use a callback list or guard callback in some way
+        tex->setLoadedCallback(LLModelPreview::textureLoadedCallback, 0, true, false, opaque, NULL, false);
         tex->forceToSaveRawImage(0, F32_MAX);
         material.setDiffuseMap(tex->getID()); // record tex ID
         return 1;
@@ -3111,12 +3193,12 @@ void LLModelPreview::addEmptyFace(LLModel* pTarget)
 //-----------------------------------------------------------------------------
 // Todo: we shouldn't be setting all those UI elements on render.
 // Note: Render happens each frame with skinned avatars
-BOOL LLModelPreview::render()
+bool LLModelPreview::render()
 {
     assert_main_thread();
 
     LLMutexLock lock(this);
-    mNeedsUpdate = FALSE;
+    mNeedsUpdate = false;
 
     bool edges = mViewOption["show_edges"];
     bool joint_overrides = mViewOption["show_joint_overrides"];
@@ -3132,7 +3214,7 @@ BOOL LLModelPreview::render()
     LLGLDisable no_blend(GL_BLEND);
     LLGLEnable cull(GL_CULL_FACE);
     LLGLDepthTest depth(GL_FALSE); // SL-12781 disable z-buffer to render background color
-    
+
     {
         gUIProgram.bind();
 
@@ -3140,7 +3222,7 @@ BOOL LLModelPreview::render()
         gGL.matrixMode(LLRender::MM_PROJECTION);
         gGL.pushMatrix();
         gGL.loadIdentity();
-        gGL.ortho(0.0f, width, 0.0f, height, -1.0f, 1.0f);
+        gGL.ortho(0.0f, (F32)width, 0.0f, (F32)height, -1.0f, 1.0f);
 
         gGL.matrixMode(LLRender::MM_MODELVIEW);
         gGL.pushMatrix();
@@ -3278,7 +3360,7 @@ BOOL LLModelPreview::render()
         mFMP->childSetEnabled("upload_joints", upload_skin);
     }
 
-    F32 explode = mFMP->childGetValue("physics_explode").asReal();
+    F32 explode = (F32)mFMP->childGetValue("physics_explode").asReal();
 
     LLGLDepthTest gls_depth(GL_TRUE); // SL-12781 re-enable z-buffer for 3D model preview
 
@@ -3319,14 +3401,14 @@ BOOL LLModelPreview::render()
     LLQuaternion av_rot = camera_rot;
     F32 camera_distance = skin_weight ? SKIN_WEIGHT_CAMERA_DISTANCE : mCameraDistance;
     LLViewerCamera::getInstance()->setOriginAndLookAt(
-        target_pos + ((LLVector3(camera_distance, 0.f, 0.f) + offset) * av_rot),		// camera
-        LLVector3::z_axis,																	// up
-        target_pos);											// point of interest
+        target_pos + ((LLVector3(camera_distance, 0.f, 0.f) + offset) * av_rot),        // camera
+        LLVector3::z_axis,                                                                  // up
+        target_pos);                                            // point of interest
 
 
     z_near = llclamp(z_far * 0.001f, 0.001f, 0.1f);
 
-    LLViewerCamera::getInstance()->setPerspective(FALSE, mOrigin.mX, mOrigin.mY, width, height, FALSE, z_near, z_far);
+    LLViewerCamera::getInstance()->setPerspective(false, mOrigin.mX, mOrigin.mY, width, height, false, z_near, z_far);
 
     stop_glerror();
 
@@ -3355,7 +3437,7 @@ BOOL LLModelPreview::render()
             else
             {
                 LL_INFOS() << "Vertex Buffer[" << mPreviewLOD << "]" << " is EMPTY!!!" << LL_ENDL;
-                regen = TRUE;
+                regen = true;
             }
         }
 
@@ -3387,9 +3469,9 @@ BOOL LLModelPreview::render()
                 LLMatrix4 mat = instance.mTransform;
 
                 gGL.multMatrix((GLfloat*)mat.mMatrix);
-        
-                U32 num_models = mVertexBuffer[mPreviewLOD][model].size();
-                for (U32 i = 0; i < num_models; ++i)
+
+                auto num_models = mVertexBuffer[mPreviewLOD][model].size();
+                for (size_t i = 0; i < num_models; ++i)
                 {
                     LLVertexBuffer* buffer = mVertexBuffer[mPreviewLOD][model][i];
 
@@ -3397,7 +3479,7 @@ BOOL LLModelPreview::render()
 
                     if (textures)
                     {
-                        int materialCnt = instance.mModel->mMaterialList.size();
+                        auto materialCnt = instance.mModel->mMaterialList.size();
                         if (i < materialCnt)
                         {
                             const std::string& binding = instance.mModel->mMaterialList[i];
@@ -3535,9 +3617,9 @@ BOOL LLModelPreview::render()
 
                         if (render_mesh)
                         {
-                            U32 num_models = mVertexBuffer[LLModel::LOD_PHYSICS][model].size();
+                            auto num_models = mVertexBuffer[LLModel::LOD_PHYSICS][model].size();
                             if (pass > 0){
-                                for (U32 i = 0; i < num_models; ++i)
+                                for (size_t i = 0; i < num_models; ++i)
                                 {
                                     LLVertexBuffer* buffer = mVertexBuffer[LLModel::LOD_PHYSICS][model][i];
 
@@ -3600,8 +3682,8 @@ BOOL LLModelPreview::render()
 
                                 if (physics.mHull.empty())
                                 {
-                                    U32 num_models = mVertexBuffer[LLModel::LOD_PHYSICS][model].size();
-                                    for (U32 v = 0; v < num_models; ++v)
+                                    auto num_models = mVertexBuffer[LLModel::LOD_PHYSICS][model].size();
+                                    for (size_t v = 0; v < num_models; ++v)
                                     {
                                         LLVertexBuffer* buffer = mVertexBuffer[LLModel::LOD_PHYSICS][model][v];
 
@@ -3652,9 +3734,9 @@ BOOL LLModelPreview::render()
             bool pelvis_recalc = false;
 
             LLViewerCamera::getInstance()->setOriginAndLookAt(
-                target_pos + ((LLVector3(camera_distance, 0.f, 0.f) + offset) * av_rot),		// camera
-                LLVector3::z_axis,																	// up
-                target_pos);											// point of interest
+                target_pos + ((LLVector3(camera_distance, 0.f, 0.f) + offset) * av_rot),        // camera
+                LLVector3::z_axis,                                                                  // up
+                target_pos);                                            // point of interest
 
             for (LLModelLoader::scene::iterator iter = mScene[mPreviewLOD].begin(); iter != mScene[mPreviewLOD].end(); ++iter)
             {
@@ -3668,7 +3750,7 @@ BOOL LLModelPreview::render()
                         const LLMeshSkinInfo *skin = &model->mSkinInfo;
                         LLSkinningUtil::initJointNums(&model->mSkinInfo, getPreviewAvatar());// inits skin->mJointNums if nessesary
                         U32 joint_count = LLSkinningUtil::getMeshJointCount(skin);
-                        U32 bind_count = skin->mAlternateBindMatrix.size();
+                        auto bind_count = skin->mAlternateBindMatrix.size();
 
                         if (joint_overrides
                             && bind_count > 0
@@ -3713,7 +3795,7 @@ BOOL LLModelPreview::render()
                             }
                         }
 
-                        for (U32 i = 0, e = mVertexBuffer[mPreviewLOD][model].size(); i < e; ++i)
+                        for (U32 i = 0, e = static_cast<U32>(mVertexBuffer[mPreviewLOD][model].size()); i < e; ++i)
                         {
                             LLVertexBuffer* buffer = mVertexBuffer[mPreviewLOD][model][i];
 
@@ -3724,7 +3806,7 @@ BOOL LLModelPreview::render()
 
                             if (textures)
                             {
-                                int materialCnt = instance.mModel->mMaterialList.size();
+                                auto materialCnt = instance.mModel->mMaterialList.size();
                                 if (i < materialCnt)
                                 {
                                     const std::string& binding = instance.mModel->mMaterialList[i];
@@ -3799,28 +3881,28 @@ BOOL LLModelPreview::render()
 
     gGL.popMatrix();
 
-    return TRUE;
+    return true;
 }
 
 void LLModelPreview::renderGroundPlane(float z_offset)
 {   // Not necesarilly general - beware - but it seems to meet the needs of LLModelPreview::render
 
-	gGL.diffuseColor3f( 1.0f, 0.0f, 1.0f );
+    gGL.diffuseColor3f( 1.0f, 0.0f, 1.0f );
 
-	gGL.begin(LLRender::LINES);
-	gGL.vertex3fv(mGroundPlane[0].mV);
-	gGL.vertex3fv(mGroundPlane[1].mV);
+    gGL.begin(LLRender::LINES);
+    gGL.vertex3fv(mGroundPlane[0].mV);
+    gGL.vertex3fv(mGroundPlane[1].mV);
 
-	gGL.vertex3fv(mGroundPlane[1].mV);
-	gGL.vertex3fv(mGroundPlane[2].mV);
+    gGL.vertex3fv(mGroundPlane[1].mV);
+    gGL.vertex3fv(mGroundPlane[2].mV);
 
-	gGL.vertex3fv(mGroundPlane[2].mV);
-	gGL.vertex3fv(mGroundPlane[3].mV);
+    gGL.vertex3fv(mGroundPlane[2].mV);
+    gGL.vertex3fv(mGroundPlane[3].mV);
 
-	gGL.vertex3fv(mGroundPlane[3].mV);
-	gGL.vertex3fv(mGroundPlane[0].mV);
+    gGL.vertex3fv(mGroundPlane[3].mV);
+    gGL.vertex3fv(mGroundPlane[0].mV);
 
-	gGL.end();
+    gGL.end();
 }
 
 
@@ -3829,7 +3911,7 @@ void LLModelPreview::renderGroundPlane(float z_offset)
 //-----------------------------------------------------------------------------
 void LLModelPreview::refresh()
 {
-    mNeedsUpdate = TRUE;
+    mNeedsUpdate = true;
 }
 
 //-----------------------------------------------------------------------------
@@ -3898,12 +3980,12 @@ void LLModelPreview::setPreviewLOD(S32 lod)
 
 //static
 void LLModelPreview::textureLoadedCallback(
-    BOOL success,
+    bool success,
     LLViewerFetchedTexture *src_vi,
     LLImageRaw* src,
     LLImageRaw* src_aux,
     S32 discard_level,
-    BOOL final,
+    bool final,
     void* userdata)
 {
     LLModelPreview* preview = (LLModelPreview*)userdata;

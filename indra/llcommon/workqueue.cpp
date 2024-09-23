@@ -3,7 +3,7 @@
  * @author Nat Goodspeed
  * @date   2021-10-06
  * @brief  Implementation for WorkQueue.
- * 
+ *
  * $LicenseInfo:firstyear=2021&license=viewerlgpl$
  * Copyright (c) 2021, Linden Research, Inc.
  * $/LicenseInfo$

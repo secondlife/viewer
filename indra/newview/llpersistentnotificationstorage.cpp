@@ -1,4 +1,4 @@
-/** 
+/**
 * @file llpersistentnotificationstorage.cpp
 * @brief Implementation of llpersistentnotificationstorage
 * @author Stinson@lindenlab.com
@@ -37,8 +37,8 @@
 #include "llviewermessage.h"
 #include "llviewernetwork.h"
 LLPersistentNotificationStorage::LLPersistentNotificationStorage():
-	  LLNotificationStorage("")
-	, mLoaded(false)
+      LLNotificationStorage("")
+    , mLoaded(false)
 {
     initialize();
 }
@@ -51,116 +51,116 @@ void LLPersistentNotificationStorage::saveNotifications()
 {
     LL_PROFILE_ZONE_SCOPED;
 
-	boost::intrusive_ptr<LLPersistentNotificationChannel> history_channel = boost::dynamic_pointer_cast<LLPersistentNotificationChannel>(LLNotifications::instance().getChannel("Persistent"));
-	if (!history_channel)
-	{
-		return;
-	}
+    boost::intrusive_ptr<LLPersistentNotificationChannel> history_channel = boost::dynamic_pointer_cast<LLPersistentNotificationChannel>(LLNotifications::instance().getChannel("Persistent"));
+    if (!history_channel)
+    {
+        return;
+    }
 
-	LLSD output = LLSD::emptyMap();
-	LLSD& data = output["data"];
+    LLSD output = LLSD::emptyMap();
+    LLSD& data = output["data"];
 
-	for ( std::vector<LLNotificationPtr>::iterator it = history_channel->beginHistory(), end_it = history_channel->endHistory();
-		it != end_it;
-		++it)
-	{
-		LLNotificationPtr notification = *it;
+    for ( std::vector<LLNotificationPtr>::iterator it = history_channel->beginHistory(), end_it = history_channel->endHistory();
+        it != end_it;
+        ++it)
+    {
+        LLNotificationPtr notification = *it;
 
-		// After a notification was placed in Persist channel, it can become
-		// responded, expired or canceled - in this case we are should not save it
-		if(notification->isRespondedTo() || notification->isCancelled()
-			|| notification->isExpired())
-		{
-			continue;
-		}
+        // After a notification was placed in Persist channel, it can become
+        // responded, expired or canceled - in this case we are should not save it
+        if(notification->isRespondedTo() || notification->isCancelled()
+            || notification->isExpired())
+        {
+            continue;
+        }
 
-		data.append(notification->asLLSD(true));
-		if (data.size() >= gSavedSettings.getS32("MaxPersistentNotifications"))
-		{
-			LL_WARNS() << "Too many persistent notifications."
-					<< " Saved " << gSavedSettings.getS32("MaxPersistentNotifications") << " of " << history_channel->size()
-					<< " persistent notifications." << LL_ENDL;
-			break;
-		}
+        data.append(notification->asLLSD(true));
+        if (data.size() >= gSavedSettings.getS32("MaxPersistentNotifications"))
+        {
+            LL_WARNS() << "Too many persistent notifications."
+                    << " Saved " << gSavedSettings.getS32("MaxPersistentNotifications") << " of " << history_channel->size()
+                    << " persistent notifications." << LL_ENDL;
+            break;
+        }
 
-	}
+    }
 
-	writeNotifications(output);
+    writeNotifications(output);
 }
 
 void LLPersistentNotificationStorage::loadNotifications()
 {
     LL_PROFILE_ZONE_SCOPED;
 
-	LL_INFOS("LLPersistentNotificationStorage") << "start loading notifications" << LL_ENDL;
+    LL_INFOS("LLPersistentNotificationStorage") << "start loading notifications" << LL_ENDL;
 
-	if (mLoaded)
-	{
-		LL_INFOS("LLPersistentNotificationStorage") << "notifications already loaded, exiting" << LL_ENDL;
-		return;
-	}
+    if (mLoaded)
+    {
+        LL_INFOS("LLPersistentNotificationStorage") << "notifications already loaded, exiting" << LL_ENDL;
+        return;
+    }
 
-	mLoaded = true;
-	LLSD input;
-	if (!readNotifications(input) ||input.isUndefined())
-	{
-		return;
-	}
+    mLoaded = true;
+    LLSD input;
+    if (!readNotifications(input) ||input.isUndefined())
+    {
+        return;
+    }
 
-	LLSD& data = input["data"];
-	if (data.isUndefined())
-	{
-		return;
-	}
+    LLSD& data = input["data"];
+    if (data.isUndefined())
+    {
+        return;
+    }
 
-	using namespace LLNotificationsUI;
-	LLScreenChannel* notification_channel = dynamic_cast<LLScreenChannel*>(LLChannelManager::getInstance()->
-		findChannelByID(LLUUID(gSavedSettings.getString("NotificationChannelUUID"))));
+    using namespace LLNotificationsUI;
+    LLScreenChannel* notification_channel = dynamic_cast<LLScreenChannel*>(LLChannelManager::getInstance()->
+        findChannelByID(LLNotificationsUI::NOTIFICATION_CHANNEL_UUID));
 
-	LLNotifications& instance = LLNotifications::instance();
-	S32 processed_notifications = 0;
-	std::vector<LLSD> notifications_array;
-	for (LLSD::reverse_array_iterator notification_it = data.rbeginArray();
-		notification_it != data.rendArray();
-		++notification_it)
-	{
-		LLSD notification_params = *notification_it;
-		notifications_array.push_back(notification_params);
+    LLNotifications& instance = LLNotifications::instance();
+    S32 processed_notifications = 0;
+    std::vector<LLSD> notifications_array;
+    for (LLSD::reverse_array_iterator notification_it = data.rbeginArray();
+        notification_it != data.rendArray();
+        ++notification_it)
+    {
+        LLSD notification_params = *notification_it;
+        notifications_array.push_back(notification_params);
 
-		++processed_notifications;
-		if (processed_notifications >= gSavedSettings.getS32("MaxPersistentNotifications"))
-		{
-			LL_WARNS() << "Too many persistent notifications."
-					<< " Processed " << gSavedSettings.getS32("MaxPersistentNotifications") << " of " << data.size() << " persistent notifications." << LL_ENDL;
-		    break;
-		}
-	}
+        ++processed_notifications;
+        if (processed_notifications >= gSavedSettings.getS32("MaxPersistentNotifications"))
+        {
+            LL_WARNS() << "Too many persistent notifications."
+                    << " Processed " << gSavedSettings.getS32("MaxPersistentNotifications") << " of " << data.size() << " persistent notifications." << LL_ENDL;
+            break;
+        }
+    }
 
-	for (LLSD::reverse_array_iterator notification_it = notifications_array.rbegin();
-			notification_it != notifications_array.rend();
-			++notification_it)
-	{
-		LLSD notification_params = *notification_it;
-		LLNotificationPtr notification(new LLNotification(notification_params));
+    for (LLSD::reverse_array_iterator notification_it = notifications_array.rbegin();
+            notification_it != notifications_array.rend();
+            ++notification_it)
+    {
+        LLSD notification_params = *notification_it;
+        LLNotificationPtr notification(new LLNotification(notification_params));
 
-		LLNotificationResponderPtr responder(createResponder(notification_params["name"], notification_params["responder"]));
-		notification->setResponseFunctor(responder);
+        LLNotificationResponderPtr responder(createResponder(notification_params["name"], notification_params["responder"]));
+        notification->setResponseFunctor(responder);
 
-		instance.load(notification);
+        instance.load(notification);
 
-		// hide script floaters so they don't confuse the user and don't overlap startup toast
-		LLScriptFloaterManager::getInstance()->setFloaterVisible(notification->getID(), false);
+        // hide script floaters so they don't confuse the user and don't overlap startup toast
+        LLScriptFloaterManager::getInstance()->setFloaterVisible(notification->getID(), false);
 
-		if(notification_channel)
-		{
-			// hide saved toasts so they don't confuse the user
-			notification_channel->hideToast(notification->getID());
-		}
-	}
+        if(notification_channel)
+        {
+            // hide saved toasts so they don't confuse the user
+            notification_channel->hideToast(notification->getID());
+        }
+    }
 
-	LLNotifications::instance().getChannel("Persistent")->
-			connectChanged(boost::bind(&LLPersistentNotificationStorage::onPersistentChannelChanged, this, _1));
-	LL_INFOS("LLPersistentNotificationStorage") << "finished loading notifications" << LL_ENDL;
+    LLNotifications::instance().getChannel("Persistent")->
+            connectChanged(boost::bind(&LLPersistentNotificationStorage::onPersistentChannelChanged, this, _1));
+    LL_INFOS("LLPersistentNotificationStorage") << "finished loading notifications" << LL_ENDL;
 }
 
 void LLPersistentNotificationStorage::reset()
@@ -173,24 +173,24 @@ void LLPersistentNotificationStorage::reset()
 void LLPersistentNotificationStorage::initialize()
 {
     reset();
-	LLNotifications::instance().getChannel("Persistent")->
-		connectChanged(boost::bind(&LLPersistentNotificationStorage::onPersistentChannelChanged, this, _1));
+    LLNotifications::instance().getChannel("Persistent")->
+        connectChanged(boost::bind(&LLPersistentNotificationStorage::onPersistentChannelChanged, this, _1));
 }
 
 bool LLPersistentNotificationStorage::onPersistentChannelChanged(const LLSD& payload)
 {
-	// In case we received channel changed signal but haven't yet loaded notifications, do it
-	if (!mLoaded)
-	{
-		loadNotifications();
-	}
-	// we ignore "load" messages, but rewrite the persistence file on any other
-	const std::string sigtype = payload["sigtype"].asString();
-	if ("load" != sigtype)
-	{
-		saveNotifications();
-	}
-	return false;
+    // In case we received channel changed signal but haven't yet loaded notifications, do it
+    if (!mLoaded)
+    {
+        loadNotifications();
+    }
+    // we ignore "load" messages, but rewrite the persistence file on any other
+    const std::string sigtype = payload["sigtype"].asString();
+    if ("load" != sigtype)
+    {
+        saveNotifications();
+    }
+    return false;
 }
 
 // EOF

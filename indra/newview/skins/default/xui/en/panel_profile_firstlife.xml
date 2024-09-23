@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel
  name="panel_profile_firstlife"
  label="Profile"
@@ -19,9 +19,10 @@
      layout="topleft"
      visible="false"
     />
-    <thumbnail
+    <profile_image
      name="real_world_pic"
      image_name="Generic_Person_Large"
+     show_loading="false"
      follows="top|left"
      layout="topleft"
      top="10"

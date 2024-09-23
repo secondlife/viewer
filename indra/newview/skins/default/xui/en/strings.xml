@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <!-- This file contains strings that used to be hardcoded in the source.
      It is only for those strings which do not belong in a floater.
      For example, the strings used in avatar chat bubbles, and strings
@@ -53,7 +53,6 @@ Draw distance: [DRAW_DISTANCE]m
 Bandwidth: [NET_BANDWITH]kbit/s
 LOD factor: [LOD_FACTOR]
 Render quality: [RENDER_QUALITY]
-Advanced Lighting Model: [GPU_SHADERS]
 Texture memory: [TEXTURE_MEMORY]MB
 Disk cache: [DISK_CACHE_INFO]
 	</string>
@@ -581,7 +580,21 @@ http://secondlife.com/support for help fixing this problem.
 	<string name="script_files">Scripts</string>
 	<string name="dictionary_files">Dictionaries</string>
 
-  <!-- LSL Usage Hover Tips -->
+    <!-- Text validator error messages -->
+    <string name="Validator_InvalidNumericString">Invalid numeric string: "[STR]"</string>
+    <string name="Validator_ShouldNotBeMinus">Invalid initial character: '[CH]' (shouldn't be a minus)</string>
+    <string name="Validator_ShouldNotBeMinusOrZero">Invalid initial character: '[CH]' (shouldn't be either a minus or a zero)</string>
+    <string name="Validator_ShouldBeDigit">Invalid character [NR]: '[CH]' (should only be a digit)</string>
+    <string name="Validator_ShouldBeDigitOrDot">Invalid character [NR]: '[CH]' (should only be a digit or a decimal point)</string>
+    <string name="Validator_ShouldBeDigitOrAlpha">Invalid character [NR]: '[CH]' (should only be a digit or an alpha-numeric ASCII character)</string>
+    <string name="Validator_ShouldBeDigitOrAlphaOrSpace">Invalid character [NR]: '[CH]' (should only be a digit or an alpha-numeric ASCII character or a space)</string>
+    <string name="Validator_ShouldBeDigitOrAlphaOrPunct">Invalid character [NR]: '[CH]' (should only be a digit or an alpha-numeric ASCII character or a punctuation)</string>
+    <string name="Validator_ShouldBeDigitOrAlphaOrPunctNotSpace">Invalid character [NR]: '[CH]' (should only be a digit or an alpha-numeric ASCII character or a punctuation with no space)</string>
+    <string name="Validator_ShouldBeDigitNotSpace">Invalid character [NR]: '[CH]' (should only be a digit with no space)</string>
+    <string name="Validator_ShouldBeASCII">Invalid character [NR]: '[CH]' (should only be an ASCII character)</string>
+    <string name="Validator_ShouldBeNewLineOrASCII">Invalid character [NR]: '[CH]' (should only be an ASCII character or a new line)</string>
+
+    <!-- LSL Usage Hover Tips -->
   <!-- NOTE: For now these are set as translate="false", until DEV-40761 is implemented (to internationalize the rest of tooltips in the same window).
              This has no effect on viewer code, but prevents Linden Lab internal localization tool from scraping these strings.  -->
 	<string name="LSLTipSleepTime" translate="false">
@@ -3020,8 +3033,19 @@ Running in window.
 
 If you continue to receive this message, contact the [SUPPORT_SITE].
 	</string>
+    <string name="MBOutOfMemoryTitle">Out Of Memory</string>
+    <string name="MBOutOfMemoryErr">
+        [APP_NAME]'s request for memory failed. Application can't proceed and will be closed.
 
-	<!-- Avatar Shape Information -->
+If your computer's RAM is low, quit any heavy applications before runing Second Life, allocate a page file or reduce graphical settings like draw distance.
+    </string>
+    <string name="MBMissingFile">
+        [APP_NAME] couldn't access or find some of the files it needs and will be closed.
+
+Please reinstall viewer from  https://secondlife.com/support/downloads/ and contact https://support.secondlife.com if issue persists after reinstall.
+    </string>
+
+    <!-- Avatar Shape Information -->
 <string name="5 O'Clock Shadow">5 O'Clock Shadow</string>
 
 <string name="All White">All White</string>
@@ -3794,6 +3818,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 
   <string name="voice_morphing_url">https://secondlife.com/destination/voice-island</string>
   <string name="premium_voice_morphing_url">https://secondlife.com/destination/voice-morphing-premium</string>
+  <string name="no_voice_morphing_faq_url">https://lindenlab.freshdesk.com/support/solutions/articles/31000173560-webrtc-update-for-voice-chat-faq/</string>
 
   <string name="lindenhomes_get_home_url">https://secondlife.com/land/lindenhomes/member.php</string>
   <string name="lindenhomes_my_home_url">https://land.secondlife.com/en-Us/lindenhomes/my-home.php</string>
@@ -3936,10 +3961,13 @@ Abuse Report</string>
   <string name="dance8">dance8</string>
 
   <!-- birth date format shared by avatar inspector and profile panels -->
-  <string name="AvatarBirthDateFormat">[mthnum,datetime,slt]/[day,datetime,slt]/[year,datetime,slt]</string>
+  <string name="AvatarBirthDateFormatFull">[mthnum,datetime,slt]/[day,datetime,slt]/[year,datetime,slt]</string>
+  <string name="AvatarBirthDateFormatShort">[mthnum,datetime,slt]/[day,datetime,slt]</string>
 
   <string name="DefaultMimeType">none/none</string>
   <string name="texture_load_dimensions_error">Can't load images larger than [WIDTH]*[HEIGHT]</string>
+  <string name="texture_load_format_error">Incorrect image format.</string>
+  <string name="texture_load_empty_file">File is empty.</string>
   <string name="outfit_photo_load_dimensions_error">Max outfit photo size is [WIDTH]*[HEIGHT]. Please resize or use another image</string>
   <string name="outfit_photo_select_dimensions_error">Max outfit photo size is [WIDTH]*[HEIGHT]. Please select another texture</string>
   <string name="outfit_photo_verify_dimensions_error">Cannot verify photo dimensions. Please wait until photo size is displayed in picker</string>
@@ -4001,7 +4029,8 @@ Please check http://status.secondlifegrid.net to see if there is a known problem
   <string name="EmptyOutfitText">There are no items in this outfit</string>
 
  <!-- External editor status codes -->
- <string name="ExternalEditorNotSet">Select an editor by setting the environment variable LL_SCRIPT_EDITOR or the ExternalEditor setting.</string>
+ <string name="ExternalEditorNotSet">Select an editor by setting the environment variable LL_SCRIPT_EDITOR or the ExternalEditor setting.
+See https://wiki.secondlife.com/wiki/LSL_Alternate_Editors</string>
  <string name="ExternalEditorNotFound">Cannot find the external editor you specified.
 Try enclosing path to the editor with double quotes.
 (e.g. "/path to my/editor" "%s")</string>

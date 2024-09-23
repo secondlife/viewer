@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater
  can_close="true"
  can_drag_on_left="false"
@@ -93,7 +93,7 @@
           height="19"
           max_length_bytes="63"
           name="description_form"
-          prevalidate_callback="ascii"
+          prevalidator="ascii"
           top_pad="5"
           width="290" />
     </panel>
@@ -745,7 +745,7 @@
              height="0"
              layout="topleft"
              left="10"
-             name="lod_tab_border"
+             name="lod_tab_border1"
              top_pad="20"
              width="614" />
             <check_box
@@ -858,7 +858,7 @@
               height="0"
               layout="topleft"
               left="18"
-              name="physics_tab_border"
+              name="physics_tab_border1"
               top_pad="10"
               width="589"/>
                 <panel
@@ -965,7 +965,7 @@
               height="0"
               layout="topleft"
               left="18"
-              name="physics_tab_border"
+              name="physics_tab_border2"
               top_pad="10"
               width="589"/>
                 <panel
@@ -1073,7 +1073,7 @@
               height="0"
               layout="topleft"
               left="18"
-              name="physics_tab_border"
+              name="physics_tab_border3"
               top_pad="10"
               width="589"/>
                 <panel

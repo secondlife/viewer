@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel
  border="true"
  follows="all"
@@ -107,7 +107,7 @@
 		is_toggle="true"
 		layout="topleft"
 		left_pad="5"
-		name="mute_audio"
+		name="mute_audio_ui"
 		tab_stop="false"
 		width="16" />
     <slider
@@ -141,7 +141,7 @@
      is_toggle="true"
      layout="topleft"
      left_pad="5"
-     name="mute_audio"
+     name="mute_audio_ambient"
      tab_stop="false"
      width="16" />
     <slider
@@ -175,7 +175,7 @@
      is_toggle="true"
      layout="topleft"
      left_pad="5"
-     name="mute_audio"
+     name="mute_audio_sounds"
      tab_stop="false"
      width="16">
       <button.commit_callback
@@ -212,7 +212,7 @@
      is_toggle="true"
      layout="topleft"
 	   left_pad="5"
-     name="mute_audio"
+     name="mute_audio_music"
      tab_stop="false"
 	 width="16" />
 	<check_box
@@ -258,7 +258,7 @@
 		is_toggle="true"
 		layout="topleft"
 		left_pad="5"
-		name="mute_audio"
+		name="mute_audio_media"
 		tab_stop="false"
 		width="16" />
 	<check_box
@@ -306,7 +306,7 @@
 		is_toggle="true"
 		layout="topleft"
 		left_pad="5"
-		name="mute_audio"
+		name="mute_audio_voice"
 		tab_stop="false"
 		width="16" />
 	<check_box
@@ -340,7 +340,7 @@
    follows="left|top"
    top_delta="-6"
    layout="topleft"
-   left_pad="20"
+   left_pad="10"
    width="360"
    height="40"
    name="media_ear_location">
@@ -407,6 +407,44 @@
         value="2"/>
   </combo_box>
   <text
+   layout="topleft"
+   height="15"
+   left="260"
+   top_pad="-18"
+   width="100"
+   name="noise_suppression_label">
+     Noise Suppression
+  </text>
+  <combo_box
+   control_name="VoiceNoiseSuppressionLevel"
+   layout="topleft"
+   height="23"
+   left_pad="10"
+   top_pad="-20"
+   name="noise_suppression_combo"
+   width="80">
+    <item
+     label="Off"
+     name="noise_suppression_none"
+     value="0"/>
+    <item
+     label="Low"
+     name="noise_suppression_low"
+     value="1"/>
+    <item
+     label="Moderate"
+     name="noise_suppression_moderate"
+     value="2"/>
+    <item
+     label="High"
+     name="noise_suppression_high"
+     value="3"/>
+    <item
+     label="Max"
+     name="noise_suppression_max"
+     value="4"/>
+  </combo_box>
+  <text
    type="string"
    length="1"
    follows="left|top"
@@ -422,7 +460,7 @@
    control_name="VoiceEarLocation"
    follows="left|top"
    layout="topleft"
-   left_pad="20"
+   left_pad="10"
    top_delta="-6"
    width="360"
    height="40"
@@ -455,17 +493,37 @@
    top_pad="10" 
    width="237"/>
   <check_box
+   control_name="VoiceEchoCancellation"
+   height="15"
+   tool_tip="Check to enable voice echo cancellation"
+   label="Echo Cancellation"
+   layout="topleft"
+   left="260"
+   name="enable_echo_cancellation"
+   top_pad="-15"
+   width="200"/>
+  <check_box
    follows="top|left"
    enabled_control="EnableVoiceChat"
    control_name="PushToTalkToggle"
    height="15"
-   label="Toggle speak on/off when I press button in toolbar"
+   label="Toggle speak on/off with toolbar button"
    layout="topleft"
    left="20"
    name="push_to_talk_toggle_check"
    width="237"
    tool_tip="When in toggle mode, press and release the trigger key ONCE to switch your microphone on or off. When not in toggle mode, the microphone broadcasts your voice only while the trigger is being held down."
    top_pad="5"/>
+  <check_box
+   control_name="VoiceAutomaticGainControl"
+   height="15"
+   tool_tip="Check to enable automatic gain control"
+   label="Automatic Gain Control"
+   layout="topleft"
+   name="voice_automatic_gain_control"
+   left="260"
+   top_pad="-15"
+   width="200"/>
   <check_box
    name="gesture_audio_play_btn"
    control_name="EnableGestureSounds"
@@ -477,6 +535,16 @@
    label="Play sounds from gestures"
    top_pad="5"
    left="20"/>
+  <check_box
+   control_name="VoiceVisualizerEnabled"
+   height="15"
+   tool_tip="Check to show voice dot indicator above avatars"
+   label="Show voice dot above avatars"
+   layout="topleft"
+   name="voice_dot_visualizer"
+   left="260"
+   top_pad="-15"
+   width="200"/>
   <button
    control_name="ShowDeviceSettings"
    follows="left|top"
@@ -485,9 +553,9 @@
    label="Voice Input/Output devices"
    layout="topleft"
    left="20"
-   top_pad="9"
+   top_pad="0"
    name="device_settings_btn"
-   width="230">
+   width="200">
   </button>
     <panel
     layout="topleft"

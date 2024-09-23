@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <menu
  bottom="825"
  layout="topleft"
@@ -144,6 +144,14 @@
          parameter="rename" />
     </menu_item_call>
     <menu_item_call
+     label="New Folder"
+     layout="topleft"
+     name="New Listing Folder">
+        <menu_item_call.on_click
+         function="Inventory.DoCreate"
+         parameter="category" />
+    </menu_item_call>
+    <menu_item_call
      label="New Outfit"
      layout="topleft"
      name="New Outfit">
@@ -264,7 +272,7 @@
      layout="topleft"
      name="Folder Wearables Separator" />
     <menu_item_call
-     label="Replace Current Outfit"
+     label="Replace current outfit"
      layout="topleft"
      name="Replace Outfit">
         <menu_item_call.on_click
@@ -272,7 +280,7 @@
          parameter="replaceoutfit" />
     </menu_item_call>
     <menu_item_call
-     label="Add To Current Outfit"
+     label="Add folder items"
      layout="topleft"
      name="Add To Outfit">
         <menu_item_call.on_click
@@ -280,7 +288,7 @@
          parameter="addtooutfit" />
     </menu_item_call>
     <menu_item_call
-     label="Remove From Current Outfit"
+     label="Take off folder items"
      layout="topleft"
      name="Remove From Outfit">
         <menu_item_call.on_click

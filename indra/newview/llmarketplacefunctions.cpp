@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llmarketplacefunctions.cpp
  * @brief Implementation of assorted functions related to the marketplace
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -42,8 +42,6 @@
 #include "llviewermedia.h"
 #include "llviewernetwork.h"
 #include "llviewerregion.h"
-#include "json/reader.h" // JSON
-#include "json/writer.h" // JSON
 #include "lleventcoro.h"
 #include "llcoros.h"
 #include "llcorehttputil.h"
@@ -111,7 +109,7 @@ namespace {
     {
 
         LL_WARNS("SLM") << "SLM API : Responder to " << request << ". status : " << status << ", reason : " << reason << ", code : " << code << ", description : " << ll_pretty_print_sd(result) << LL_ENDL;
-        if ((status == 422) && (result.has(LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_CONTENT) && 
+        if ((status == 422) && (result.has(LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_CONTENT) &&
             result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_CONTENT].isArray() &&
             result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_CONTENT].size() > 4))
         {
@@ -180,29 +178,29 @@ namespace {
 #if 1
 namespace LLMarketplaceImport
 {
-	// Basic interface for this namespace
+    // Basic interface for this namespace
 
-	bool hasSessionCookie();
-	bool inProgress();
-	bool resultPending();
-	S32 getResultStatus();
-	const LLSD& getResults();
+    bool hasSessionCookie();
+    bool inProgress();
+    bool resultPending();
+    S32 getResultStatus();
+    const LLSD& getResults();
 
-	bool establishMarketplaceSessionCookie();
-	bool pollStatus();
-	bool triggerImport();
-	
-	// Internal state variables
+    bool establishMarketplaceSessionCookie();
+    bool pollStatus();
+    bool triggerImport();
 
-	static std::string sMarketplaceCookie = "";
-	static LLSD sImportId = LLSD::emptyMap();
-	static bool sImportInProgress = false;
-	static bool sImportPostPending = false;
-	static bool sImportGetPending = false;
-	static S32 sImportResultStatus = 0;
-	static LLSD sImportResults = LLSD::emptyMap();
+    // Internal state variables
 
-	// Responders
+    static std::string sMarketplaceCookie = "";
+    static LLSD sImportId = LLSD::emptyMap();
+    static bool sImportInProgress = false;
+    static bool sImportPostPending = false;
+    static bool sImportGetPending = false;
+    static S32 sImportResultStatus = 0;
+    static LLSD sImportResults = LLSD::emptyMap();
+
+    // Responders
 
     void marketplacePostCoro(std::string url)
     {
@@ -271,7 +269,7 @@ namespace LLMarketplaceImport
         LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
             httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("marketplaceGetCoro", httpPolicy));
         LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
-        LLCore::HttpHeaders::ptr_t httpHeaders; 
+        LLCore::HttpHeaders::ptr_t httpHeaders;
         LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
 
         httpOpts->setWantHeaders(true);
@@ -330,101 +328,101 @@ namespace LLMarketplaceImport
 
     }
 
-	// Basic API
+    // Basic API
 
-	bool hasSessionCookie()
-	{
-		return !sMarketplaceCookie.empty();
-	}
-	
-	bool inProgress()
-	{
-		return sImportInProgress;
-	}
-	
-	bool resultPending()
-	{
-		return (sImportPostPending || sImportGetPending);
-	}
-	
-	S32 getResultStatus()
-	{
+    bool hasSessionCookie()
+    {
+        return !sMarketplaceCookie.empty();
+    }
+
+    bool inProgress()
+    {
+        return sImportInProgress;
+    }
+
+    bool resultPending()
+    {
+        return (sImportPostPending || sImportGetPending);
+    }
+
+    S32 getResultStatus()
+    {
         return sImportResultStatus;
-	}
-	
-	const LLSD& getResults()
-	{
-		return sImportResults;
-	}
-	
-	static std::string getInventoryImportURL()
-	{
-		std::string url = getMarketplaceURL("MarketplaceURL");
-		
-		url += "api/1/";
-		url += gAgent.getID().getString();
-		url += "/inventory/import/";
-		
-		return url;
-	}
-	
-	bool establishMarketplaceSessionCookie()
-	{
-		if (hasSessionCookie())
-		{
-			return false;
-		}
+    }
 
-		sImportInProgress = true;
-		sImportGetPending = true;
-		
-		std::string url = getInventoryImportURL();
+    const LLSD& getResults()
+    {
+        return sImportResults;
+    }
+
+    static std::string getInventoryImportURL()
+    {
+        std::string url = getMarketplaceURL("MarketplaceURL");
+
+        url += "api/1/";
+        url += gAgent.getID().getString();
+        url += "/inventory/import/";
+
+        return url;
+    }
+
+    bool establishMarketplaceSessionCookie()
+    {
+        if (hasSessionCookie())
+        {
+            return false;
+        }
+
+        sImportInProgress = true;
+        sImportGetPending = true;
+
+        std::string url = getInventoryImportURL();
 
         LLCoros::instance().launch("marketplaceGetCoro",
             boost::bind(&marketplaceGetCoro, url, false));
 
-		return true;
-	}
-	
-	bool pollStatus()
-	{
-		if (!hasSessionCookie())
-		{
-			return false;
-		}
-		
-		sImportGetPending = true;
+        return true;
+    }
 
-		std::string url = getInventoryImportURL();
+    bool pollStatus()
+    {
+        if (!hasSessionCookie())
+        {
+            return false;
+        }
 
-		url += sImportId.asString();
+        sImportGetPending = true;
+
+        std::string url = getInventoryImportURL();
+
+        url += sImportId.asString();
 
         LLCoros::instance().launch("marketplaceGetCoro",
             boost::bind(&marketplaceGetCoro, url, true));
-        
-		return true;
-	}
-	
-	bool triggerImport()
-	{
-		if (!hasSessionCookie())
-		{
-			return false;
-		}
 
-		sImportId = LLSD::emptyMap();
-		sImportInProgress = true;
-		sImportPostPending = true;
-		sImportResultStatus = MarketplaceErrorCodes::IMPORT_PROCESSING;
-		sImportResults = LLSD::emptyMap();
+        return true;
+    }
 
-		std::string url = getInventoryImportURL();
-		
+    bool triggerImport()
+    {
+        if (!hasSessionCookie())
+        {
+            return false;
+        }
+
+        sImportId = LLSD::emptyMap();
+        sImportInProgress = true;
+        sImportPostPending = true;
+        sImportResultStatus = MarketplaceErrorCodes::IMPORT_PROCESSING;
+        sImportResults = LLSD::emptyMap();
+
+        std::string url = getInventoryImportURL();
+
         LLCoros::instance().launch("marketplacePostCoro",
             boost::bind(&marketplacePostCoro, url));
 
-		return true;
-	}
+        return true;
+    }
 }
 #endif
 
@@ -436,56 +434,56 @@ static const F32 MARKET_IMPORTER_UPDATE_FREQUENCY = 1.0f;
 //static
 void LLMarketplaceInventoryImporter::update()
 {
-	if (instanceExists())
-	{
-		static LLTimer update_timer;
-		if (update_timer.hasExpired())
-		{
-			LLMarketplaceInventoryImporter::instance().updateImport();
-			update_timer.setTimerExpirySec(MARKET_IMPORTER_UPDATE_FREQUENCY);
-		}
-	}
+    if (instanceExists())
+    {
+        static LLTimer update_timer;
+        if (update_timer.hasExpired())
+        {
+            LLMarketplaceInventoryImporter::instance().updateImport();
+            update_timer.setTimerExpirySec(MARKET_IMPORTER_UPDATE_FREQUENCY);
+        }
+    }
 }
 
 LLMarketplaceInventoryImporter::LLMarketplaceInventoryImporter()
-	: mAutoTriggerImport(false)
-	, mImportInProgress(false)
-	, mInitialized(false)
-	, mMarketPlaceStatus(MarketplaceStatusCodes::MARKET_PLACE_NOT_INITIALIZED)
-	, mErrorInitSignal(NULL)
-	, mStatusChangedSignal(NULL)
-	, mStatusReportSignal(NULL)
+    : mAutoTriggerImport(false)
+    , mImportInProgress(false)
+    , mInitialized(false)
+    , mMarketPlaceStatus(MarketplaceStatusCodes::MARKET_PLACE_NOT_INITIALIZED)
+    , mErrorInitSignal(NULL)
+    , mStatusChangedSignal(NULL)
+    , mStatusReportSignal(NULL)
 {
 }
 
 boost::signals2::connection LLMarketplaceInventoryImporter::setInitializationErrorCallback(const status_report_signal_t::slot_type& cb)
 {
-	if (mErrorInitSignal == NULL)
-	{
-		mErrorInitSignal = new status_report_signal_t();
-	}
-	
-	return mErrorInitSignal->connect(cb);
+    if (mErrorInitSignal == NULL)
+    {
+        mErrorInitSignal = new status_report_signal_t();
+    }
+
+    return mErrorInitSignal->connect(cb);
 }
 
 boost::signals2::connection LLMarketplaceInventoryImporter::setStatusChangedCallback(const status_changed_signal_t::slot_type& cb)
 {
-	if (mStatusChangedSignal == NULL)
-	{
-		mStatusChangedSignal = new status_changed_signal_t();
-	}
+    if (mStatusChangedSignal == NULL)
+    {
+        mStatusChangedSignal = new status_changed_signal_t();
+    }
 
-	return mStatusChangedSignal->connect(cb);
+    return mStatusChangedSignal->connect(cb);
 }
 
 boost::signals2::connection LLMarketplaceInventoryImporter::setStatusReportCallback(const status_report_signal_t::slot_type& cb)
 {
-	if (mStatusReportSignal == NULL)
-	{
-		mStatusReportSignal = new status_report_signal_t();
-	}
+    if (mStatusReportSignal == NULL)
+    {
+        mStatusReportSignal = new status_report_signal_t();
+    }
 
-	return mStatusReportSignal->connect(cb);
+    return mStatusReportSignal->connect(cb);
 }
 
 void LLMarketplaceInventoryImporter::initialize()
@@ -508,45 +506,45 @@ void LLMarketplaceInventoryImporter::initialize()
 
 void LLMarketplaceInventoryImporter::reinitializeAndTriggerImport()
 {
-	mInitialized = false;
-	mMarketPlaceStatus = MarketplaceStatusCodes::MARKET_PLACE_NOT_INITIALIZED;
-	initialize();
-	mAutoTriggerImport = true;
+    mInitialized = false;
+    mMarketPlaceStatus = MarketplaceStatusCodes::MARKET_PLACE_NOT_INITIALIZED;
+    initialize();
+    mAutoTriggerImport = true;
 }
 
 bool LLMarketplaceInventoryImporter::triggerImport()
 {
-	const bool import_triggered = LLMarketplaceImport::triggerImport();
-	
-	if (!import_triggered)
-	{
-		reinitializeAndTriggerImport();
-	}
-	
-	return import_triggered;
+    const bool import_triggered = LLMarketplaceImport::triggerImport();
+
+    if (!import_triggered)
+    {
+        reinitializeAndTriggerImport();
+    }
+
+    return import_triggered;
 }
 
 void LLMarketplaceInventoryImporter::updateImport()
 {
-	const bool in_progress = LLMarketplaceImport::inProgress();
-	
-	if (in_progress && !LLMarketplaceImport::resultPending())
-	{
-		const bool polling_status = LLMarketplaceImport::pollStatus();
-		
-		if (!polling_status)
-		{
-			reinitializeAndTriggerImport();
-		}
-	}	
-	
-	if (mImportInProgress != in_progress)
-	{
-		mImportInProgress = in_progress;
+    const bool in_progress = LLMarketplaceImport::inProgress();
 
-		// If we are no longer in progress
-		if (!mImportInProgress)
-		{
+    if (in_progress && !LLMarketplaceImport::resultPending())
+    {
+        const bool polling_status = LLMarketplaceImport::pollStatus();
+
+        if (!polling_status)
+        {
+            reinitializeAndTriggerImport();
+        }
+    }
+
+    if (mImportInProgress != in_progress)
+    {
+        mImportInProgress = in_progress;
+
+        // If we are no longer in progress
+        if (!mImportInProgress)
+        {
             // Look for results success
             mInitialized = LLMarketplaceImport::hasSessionCookie();
 
@@ -555,7 +553,7 @@ void LLMarketplaceInventoryImporter::updateImport()
             {
                 (*mStatusReportSignal)(LLMarketplaceImport::getResultStatus(), LLMarketplaceImport::getResults());
             }
-            
+
             if (mInitialized)
             {
                 mMarketPlaceStatus = MarketplaceStatusCodes::MARKET_PLACE_MERCHANT;
@@ -587,9 +585,9 @@ void LLMarketplaceInventoryImporter::updateImport()
                     (*mErrorInitSignal)(LLMarketplaceImport::getResultStatus(), LLMarketplaceImport::getResults());
                 }
             }
-		}
-	}
-    
+        }
+    }
+
     // Make sure we trigger the status change with the final state (in case of auto trigger after initialize)
     if (mStatusChangedSignal)
     {
@@ -603,35 +601,25 @@ void LLMarketplaceInventoryImporter::updateImport()
 class LLMarketplaceInventoryObserver : public LLInventoryObserver
 {
 public:
-	LLMarketplaceInventoryObserver() {}
-	virtual ~LLMarketplaceInventoryObserver() {}
-	virtual void changed(U32 mask);
+    LLMarketplaceInventoryObserver() {}
+    virtual ~LLMarketplaceInventoryObserver() {}
+    virtual void changed(U32 mask);
 
 private:
     static void onIdleProcessQueue(void *userdata);
 
     // doesn't hold just marketplace related ids
-    static std::set<LLUUID> sAddQueue;
     static std::set<LLUUID> sStructureQueue;
     static bool sProcessingQueue;
 };
 
-std::set<LLUUID> LLMarketplaceInventoryObserver::sAddQueue;
 std::set<LLUUID> LLMarketplaceInventoryObserver::sStructureQueue;
 bool LLMarketplaceInventoryObserver::sProcessingQueue = false;
 
 void LLMarketplaceInventoryObserver::changed(U32 mask)
 {
-	if (mask & LLInventoryObserver::ADD && LLMarketplaceData::instance().hasValidationWaiting())
-	{
-        // When things are added to the marketplace, we might need to re-validate and fix the containing listings
-        // just add whole list even if it contains items and non-marketplace folders
-        const std::set<LLUUID>& changed_items = gInventory.getChangedIDs();
-        sAddQueue.insert(changed_items.begin(), changed_items.end());
-	}
-    
-	if (mask & (LLInventoryObserver::INTERNAL | LLInventoryObserver::STRUCTURE))
-	{
+    if (mask & (LLInventoryObserver::INTERNAL | LLInventoryObserver::STRUCTURE))
+    {
         // When things are changed in the inventory, this can trigger a host of changes in the marketplace listings folder:
         // * stock counts changing : no copy items coming in and out will change the stock count on folders
         // * version and listing folders : moving those might invalidate the marketplace data itself
@@ -639,9 +627,9 @@ void LLMarketplaceInventoryObserver::changed(U32 mask)
         // once observers are called) we need to raise a flag in the inventory to signal that things have been dirtied.
         const std::set<LLUUID>& changed_items = gInventory.getChangedIDs();
         sStructureQueue.insert(changed_items.begin(), changed_items.end());
-	}
+    }
 
-    if (!sProcessingQueue && (!sAddQueue.empty() || !sStructureQueue.empty()))
+    if (!sProcessingQueue && !sStructureQueue.empty())
     {
         gIdleCallbacks.addFunction(onIdleProcessQueue, NULL);
         // can do without sProcessingQueue, but it's usufull for simplicity and reliability
@@ -654,40 +642,6 @@ void LLMarketplaceInventoryObserver::onIdleProcessQueue(void *userdata)
     U64 start_time = LLTimer::getTotalTime(); // microseconds
     const U64 MAX_PROCESSING_TIME = 1000;
     U64 stop_time = start_time + MAX_PROCESSING_TIME;
-
-    if (!sAddQueue.empty())
-    {
-        // Make a copy of sAddQueue since decrementValidationWaiting
-        // can theoretically add more items
-        std::set<LLUUID> add_queue(sAddQueue);
-        sAddQueue.clear();
-
-        std::set<LLUUID>::const_iterator id_it = add_queue.begin();
-        std::set<LLUUID>::const_iterator id_end = add_queue.end();
-        // First, count the number of items in this list...
-        S32 count = 0;
-        for (; id_it != id_end; ++id_it)
-        {
-            LLInventoryObject* obj = gInventory.getObject(*id_it);
-            if (obj && (LLAssetType::AT_CATEGORY != obj->getType()))
-            {
-                count++;
-            }
-        }
-        // Then, decrement the folders of that amount
-        // Note that of all of those, only one folder will be a listing folder (if at all).
-        // The other will be ignored by the decrement method.
-        id_it = add_queue.begin();
-        for (; id_it != id_end; ++id_it)
-        {
-            LLInventoryObject* obj = gInventory.getObject(*id_it);
-            if (obj && (LLAssetType::AT_CATEGORY == obj->getType()))
-            {
-                // can trigger notifyObservers
-                LLMarketplaceData::instance().decrementValidationWaiting(obj->getUUID(), count);
-            }
-        }
-    }
 
     while (!sStructureQueue.empty() && LLTimer::getTotalTime() < stop_time)
     {
@@ -722,7 +676,7 @@ void LLMarketplaceInventoryObserver::onIdleProcessQueue(void *userdata)
         sStructureQueue.erase(id_it);
     }
 
-    if (LLApp::isExiting() || (sAddQueue.empty() && sStructureQueue.empty()))
+    if (LLApp::isExiting() || sStructureQueue.empty())
     {
         // Nothing to do anymore
         gIdleCallbacks.deleteFunction(onIdleProcessQueue, NULL);
@@ -760,7 +714,7 @@ LLMarketplaceTuple::LLMarketplaceTuple(const LLUUID& folder_id, S32 listing_id, 
 
 
 // Data map
-LLMarketplaceData::LLMarketplaceData() : 
+LLMarketplaceData::LLMarketplaceData() :
  mMarketPlaceStatus(MarketplaceStatusCodes::MARKET_PLACE_NOT_INITIALIZED),
  mMarketPlaceDataFetched(MarketplaceFetchCodes::MARKET_FETCH_NOT_DONE),
  mStatusUpdatedSignal(NULL),
@@ -773,7 +727,7 @@ LLMarketplaceData::LLMarketplaceData() :
 
 LLMarketplaceData::~LLMarketplaceData()
 {
-	gInventory.removeObserver(mInventoryObserver);
+    gInventory.removeObserver(mInventoryObserver);
 }
 
 
@@ -798,12 +752,12 @@ LLSD LLMarketplaceData::getMarketplaceStringSubstitutions()
 
 void LLMarketplaceData::initializeSLM(const status_updated_signal_t::slot_type& cb)
 {
-	if (mStatusUpdatedSignal == NULL)
-	{
-		mStatusUpdatedSignal = new status_updated_signal_t();
-	}
-	mStatusUpdatedSignal->connect(cb);
-    
+    if (mStatusUpdatedSignal == NULL)
+    {
+        mStatusUpdatedSignal = new status_updated_signal_t();
+    }
+    mStatusUpdatedSignal->connect(cb);
+
     if (mMarketPlaceStatus != MarketplaceStatusCodes::MARKET_PLACE_NOT_INITIALIZED)
     {
         // If already initialized, just confirm the status so the callback gets called
@@ -849,7 +803,7 @@ void LLMarketplaceData::getMerchantStatusCoro()
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
     if (!status)
-    { 
+    {
         S32 httpCode = status.getType();
 
         if (httpCode == HTTP_NOT_FOUND)
@@ -886,11 +840,11 @@ void LLMarketplaceData::getMerchantStatusCoro()
 
 void LLMarketplaceData::setDataFetchedSignal(const status_updated_signal_t::slot_type& cb)
 {
-	if (mDataFetchedSignal == NULL)
-	{
-		mDataFetchedSignal = new status_updated_signal_t();
-	}
-	mDataFetchedSignal->connect(cb);
+    if (mDataFetchedSignal == NULL)
+    {
+        mDataFetchedSignal = new status_updated_signal_t();
+    }
+    mDataFetchedSignal->connect(cb);
 }
 
 // Get/Post/Put requests to the SLM Server using the SLM API
@@ -937,7 +891,7 @@ void LLMarketplaceData::getSLMListingsCoro(LLUUID folderId)
     // Extract the info from the results
     for (LLSD::array_iterator it = result["listings"].beginArray();
             it != result["listings"].endArray(); ++it)
-    { 
+    {
         LLSD listing = *it;
 
         int listingId = listing["id"].asInteger();
@@ -1077,7 +1031,7 @@ void LLMarketplaceData::createSLMListingCoro(LLUUID folderId, LLUUID versionId, 
         gInventory.notifyObservers();
         return;
     }
-    
+
     log_SLM_infos("Post /listings", status.getType(), result);
 
     if (!result.has("listings") || !result["listings"].isArray() || result["listings"].size() == 0)
@@ -1123,7 +1077,7 @@ void LLMarketplaceData::updateSLMListingCoro(LLUUID folderId, S32 listingId, LLU
 
     httpHeaders->append("Accept", "application/json");
     httpHeaders->append("Content-Type", "application/json");
-    
+
     LLSD invInfo;
     invInfo["listing_folder_id"] = folderId;
     invInfo["version_folder_id"] = versionId;
@@ -1322,7 +1276,7 @@ void LLMarketplaceData::deleteSLMListingCoro(S32 listingId)
 
     log_SLM_infos("Delete /listing", status.getType(), result);
 
-    for (LLSD::array_iterator it = result["listings"].beginArray(); 
+    for (LLSD::array_iterator it = result["listings"].beginArray();
             it != result["listings"].endArray(); ++it)
     {
         LLSD listing = *it;
@@ -1347,7 +1301,7 @@ std::string LLMarketplaceData::getSLMConnectURL(const std::string& route)
             url += route;
         }
     }
-	return url;
+    return url;
 }
 
 void LLMarketplaceData::setSLMStatus(U32 status)
@@ -1393,7 +1347,7 @@ bool LLMarketplaceData::createListing(const LLUUID& folder_id)
         // Listing already exists -> exit with error
         return false;
     }
-    
+
     // Get the version folder: if there is only one subfolder, we will set it as a version folder immediately
     S32 count = -1;
     LLUUID version_id = getVersionFolderIfUnique(folder_id);
@@ -1401,7 +1355,7 @@ bool LLMarketplaceData::createListing(const LLUUID& folder_id)
     {
         count = compute_stock_count(version_id, true);
     }
-    
+
     // Validate the count on hand
     if (count == COMPUTE_STOCK_NOT_EVALUATED)
     {
@@ -1412,7 +1366,7 @@ bool LLMarketplaceData::createListing(const LLUUID& folder_id)
 
     // Post the listing creation request to SLM
     createSLMListing(folder_id, version_id, count);
-    
+
     return true;
 }
 
@@ -1428,21 +1382,21 @@ bool LLMarketplaceData::clearListing(const LLUUID& folder_id, S32 depth)
     if (depth < 0)
     {
         depth = depth_nesting_in_marketplace(folder_id);
-        
+
     }
     // Folder id can be the root of the listing or not so we need to retrieve the root first
     LLUUID listing_uuid = (isListed(folder_id) ? folder_id : nested_parent_id(folder_id, depth));
     S32 listing_id = getListingID(listing_uuid);
-   
+
     if (listing_id == 0)
     {
         // Listing doesn't exists -> exit with error
         return false;
     }
-    
+
     // Update the SLM Server so that this listing is deleted (actually, archived...)
     deleteSLMListing(listing_id);
-    
+
     return true;
 }
 
@@ -1453,26 +1407,26 @@ bool LLMarketplaceData::getListing(const LLUUID& folder_id, S32 depth)
         // Folder doesn't exists -> exit with error
         return false;
     }
-    
+
     // Evaluate the depth if it wasn't passed as a parameter
     if (depth < 0)
     {
         depth = depth_nesting_in_marketplace(folder_id);
-        
+
     }
     // Folder id can be the root of the listing or not so we need to retrieve the root first
     LLUUID listing_uuid = (isListed(folder_id) ? folder_id : nested_parent_id(folder_id, depth));
     S32 listing_id = getListingID(listing_uuid);
-    
+
     if (listing_id == 0)
     {
         // Listing doesn't exists -> exit with error
         return false;
     }
-    
+
     // Get listing data from SLM
     getSLMListing(listing_id);
-    
+
     return true;
 }
 
@@ -1482,7 +1436,7 @@ bool LLMarketplaceData::getListing(S32 listing_id)
     {
         return false;
     }
-    
+
     // Get listing data from SLM
     getSLMListing(listing_id);
     return true;
@@ -1494,7 +1448,7 @@ bool LLMarketplaceData::activateListing(const LLUUID& folder_id, bool activate, 
     if (depth < 0)
     {
         depth = depth_nesting_in_marketplace(folder_id);
-        
+
     }
     // Folder id can be the root of the listing or not so we need to retrieve the root first
     LLUUID listing_uuid = nested_parent_id(folder_id, depth);
@@ -1504,15 +1458,15 @@ bool LLMarketplaceData::activateListing(const LLUUID& folder_id, bool activate, 
         // Listing doesn't exists -> exit with error
         return false;
     }
-    
+
     if (getActivationState(listing_uuid) == activate)
     {
         // If activation state is unchanged, no point spamming SLM with an update
         return true;
     }
-    
+
     LLUUID version_uuid = getVersionFolder(listing_uuid);
-    
+
     // Also update the count on hand
     S32 count = compute_stock_count(folder_id);
     if (count == COMPUTE_STOCK_NOT_EVALUATED)
@@ -1521,10 +1475,10 @@ bool LLMarketplaceData::activateListing(const LLUUID& folder_id, bool activate, 
         // We are assuming that this issue is local and should not modify server side values
         count = getCountOnHand(listing_uuid);
     }
-    
+
     // Post the listing update request to SLM
     updateSLMListing(listing_uuid, listing_id, version_uuid, activate, count);
-    
+
     return true;
 }
 
@@ -1534,7 +1488,7 @@ bool LLMarketplaceData::setVersionFolder(const LLUUID& folder_id, const LLUUID& 
     if (depth < 0)
     {
         depth = depth_nesting_in_marketplace(folder_id);
-        
+
     }
     // Folder id can be the root of the listing or not so we need to retrieve the root first
     LLUUID listing_uuid = nested_parent_id(folder_id, depth);
@@ -1544,16 +1498,16 @@ bool LLMarketplaceData::setVersionFolder(const LLUUID& folder_id, const LLUUID& 
         // Listing doesn't exists -> exit with error
         return false;
     }
-    
+
     if (getVersionFolder(listing_uuid) == version_id)
     {
         // If version folder is unchanged, no point spamming SLM with an update
         return true;
     }
-    
+
     // Note: if the version_id is cleared, we need to unlist the listing, otherwise, state unchanged
     bool is_listed = (version_id.isNull() ? false : getActivationState(listing_uuid));
-    
+
     // Also update the count on hand
     S32 count = compute_stock_count(version_id);
     if (count == COMPUTE_STOCK_NOT_EVALUATED)
@@ -1562,10 +1516,10 @@ bool LLMarketplaceData::setVersionFolder(const LLUUID& folder_id, const LLUUID& 
         // It will get reevaluated and updated once the items are fetched
         count = 0;
     }
-    
+
     // Post the listing update request to SLM
     updateSLMListing(listing_uuid, listing_id, version_id, is_listed, count);
-    
+
     return true;
 }
 
@@ -1575,7 +1529,7 @@ bool LLMarketplaceData::updateCountOnHand(const LLUUID& folder_id, S32 depth)
     if (depth < 0)
     {
         depth = depth_nesting_in_marketplace(folder_id);
-        
+
     }
     // Folder id can be the root of the listing or not so we need to retrieve the root first
     LLUUID listing_uuid = nested_parent_id(folder_id, depth);
@@ -1585,7 +1539,7 @@ bool LLMarketplaceData::updateCountOnHand(const LLUUID& folder_id, S32 depth)
         // Listing doesn't exists -> exit with error
         return false;
     }
-    
+
     // Compute the new count on hand
     S32 count = compute_stock_count(folder_id);
 
@@ -1599,15 +1553,15 @@ bool LLMarketplaceData::updateCountOnHand(const LLUUID& folder_id, S32 depth)
         // If local count on hand is not known at that point, do *not* force an update to SLM
         return false;
     }
-    
+
     // Get the unchanged values
     bool is_listed = getActivationState(listing_uuid);
     LLUUID version_uuid = getVersionFolder(listing_uuid);
 
-    
+
     // Post the listing update request to SLM
     updateSLMListing(listing_uuid, listing_id, version_uuid, is_listed, count);
-    
+
     // Force the local value as it prevents spamming (count update may occur in burst when restocking)
     // Note that if SLM has a good reason to return a different value, it'll be updated by the responder
     setCountOnHand(listing_uuid, count, false);
@@ -1622,20 +1576,20 @@ bool LLMarketplaceData::associateListing(const LLUUID& folder_id, const LLUUID& 
         // Listing already exists -> exit with error
         return false;
     }
-    
+
     // Get the version folder: if there is only one subfolder, we will set it as a version folder immediately
     LLUUID version_id = getVersionFolderIfUnique(folder_id);
-    
+
     // Post the listing associate request to SLM
     associateSLMListing(folder_id, listing_id, version_id, source_folder_id);
-     
+
     return true;
 }
 
 // Methods privately called or called by SLM responders to perform changes
 bool LLMarketplaceData::addListing(const LLUUID& folder_id, S32 listing_id, const LLUUID& version_id, bool is_listed,  const std::string& edit_url, S32 count)
 {
-	mMarketplaceItems[folder_id] = LLMarketplaceTuple(folder_id, listing_id, version_id, is_listed);
+    mMarketplaceItems[folder_id] = LLMarketplaceTuple(folder_id, listing_id, version_id, is_listed);
     mMarketplaceItems[folder_id].mEditURL = edit_url;
     mMarketplaceItems[folder_id].mCountOnHand = count;
     if (version_id.notNull())
@@ -1648,13 +1602,13 @@ bool LLMarketplaceData::addListing(const LLUUID& folder_id, S32 listing_id, cons
 bool LLMarketplaceData::deleteListing(const LLUUID& folder_id, bool update)
 {
     LLUUID version_folder = getVersionFolder(folder_id);
-    
-	if (mMarketplaceItems.erase(folder_id) != 1)
+
+    if (mMarketplaceItems.erase(folder_id) != 1)
     {
         return false;
     }
     mVersionFolders.erase(version_folder);
-    
+
     if (update)
     {
         update_marketplace_category(folder_id, false);
@@ -1669,7 +1623,7 @@ bool LLMarketplaceData::deleteListing(S32 listing_id, bool update)
     {
         return false;
     }
-    
+
     LLUUID folder_id = getListingFolder(listing_id);
     return deleteListing(folder_id, update);
 }
@@ -1735,11 +1689,11 @@ std::string LLMarketplaceData::getListingURL(const LLUUID& folder_id, S32 depth)
     if (depth < 0)
     {
         depth = depth_nesting_in_marketplace(folder_id);
-        
+
     }
 
     LLUUID listing_uuid = nested_parent_id(folder_id, depth);
-    
+
     marketplace_items_list_t::iterator it = mMarketplaceItems.find(listing_uuid);
     return (it == mMarketplaceItems.end() ? "" : (it->second).mEditURL);
 }
@@ -1767,7 +1721,7 @@ bool LLMarketplaceData::isInActiveFolder(const LLUUID& obj_id, S32 depth)
     if (depth < 0)
     {
         depth = depth_nesting_in_marketplace(obj_id);
-        
+
     }
 
     LLUUID listing_uuid = nested_parent_id(obj_id, depth);
@@ -1782,9 +1736,9 @@ LLUUID LLMarketplaceData::getActiveFolder(const LLUUID& obj_id, S32 depth)
     if (depth < 0)
     {
         depth = depth_nesting_in_marketplace(obj_id);
-        
+
     }
-    
+
     LLUUID listing_uuid = nested_parent_id(obj_id, depth);
     return (getActivationState(listing_uuid) ? getVersionFolder(listing_uuid) : LLUUID::null);
 }
@@ -1862,9 +1816,9 @@ bool LLMarketplaceData::setListingID(const LLUUID& folder_id, S32 listing_id, bo
     {
         return false;
     }
-    
+
     (it->second).mListingId = listing_id;
-    
+
     if (update)
     {
         update_marketplace_category(folder_id, false);
@@ -1880,7 +1834,7 @@ bool LLMarketplaceData::setCountOnHand(const LLUUID& folder_id, S32 count, bool 
     {
         return false;
     }
-    
+
     (it->second).mCountOnHand = count;
 
     return true;
@@ -1893,20 +1847,20 @@ bool LLMarketplaceData::setVersionFolderID(const LLUUID& folder_id, const LLUUID
     {
         return false;
     }
-    
+
     LLUUID old_version_id = (it->second).mVersionFolderId;
     if (old_version_id == version_id)
     {
         return false;
     }
-    
+
     (it->second).mVersionFolderId = version_id;
     mVersionFolders.erase(old_version_id);
     if (version_id.notNull())
     {
         mVersionFolders[version_id] = folder_id;
     }
-    
+
     if (update)
     {
         update_marketplace_category(old_version_id, false);
@@ -1925,7 +1879,7 @@ bool LLMarketplaceData::setActivationState(const LLUUID& folder_id, bool activat
     }
 
     (it->second).mIsActive = activate;
-    
+
     if (update)
     {
         update_marketplace_category((it->second).mListingFolderId, false);
@@ -1941,7 +1895,7 @@ bool LLMarketplaceData::setListingURL(const LLUUID& folder_id, const std::string
     {
         return false;
     }
-    
+
     (it->second).mEditURL = edit_url;
     return true;
 }

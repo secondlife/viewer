@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater
  legacy_header_height="18"
  height="555"
@@ -7,14 +7,16 @@
  name="regioninfo"
  save_rect="true"
  title="REGION/ESTATE"
- width="530">
+ width="637">
     <tab_container
      bottom="555"
      follows="left|right|top|bottom"
      layout="topleft"
-     left="1"
+     left="0"
      name="region_panels"
-     right="-1"
-     tab_position="top"
+     tab_padding_right="3"
+     tab_position="left"
+     halign="left"
+     tab_width="110"
      top="20"/>
 </floater>

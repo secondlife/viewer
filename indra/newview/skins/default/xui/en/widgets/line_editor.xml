@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <line_editor background_image="TextField_Off"
              background_image_disabled="TextField_Disabled"
              background_image_focused="TextField_Active"
@@ -15,5 +15,5 @@
 			 preedit_bg_color="White"
              mouse_opaque="true"
              name="line_editor"
-             font="SansSerifSmall">
+             font="EmojiSmall">
 </line_editor>

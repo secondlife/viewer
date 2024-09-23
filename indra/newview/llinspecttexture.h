@@ -31,19 +31,19 @@ class LLTexturePreviewView;
 
 namespace LLInspectTextureUtil
 {
-	LLToolTip* createInventoryToolTip(LLToolTip::Params p);
+    LLToolTip* createInventoryToolTip(LLToolTip::Params p);
 }
 
 class LLTextureToolTip : public LLToolTip
 {
 public:
-	LLTextureToolTip(const LLToolTip::Params& p);
-	~LLTextureToolTip();
+    LLTextureToolTip(const LLToolTip::Params& p);
+    ~LLTextureToolTip();
 
 public:
-	void initFromParams(const LLToolTip::Params& p) override;
+    void initFromParams(const LLToolTip::Params& p) override;
 
 protected:
-	LLTexturePreviewView* mPreviewView;
-	S32                   mPreviewSize;
+    LLTexturePreviewView* mPreviewView;
+    S32                   mPreviewSize;
 };

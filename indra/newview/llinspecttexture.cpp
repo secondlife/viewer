@@ -41,7 +41,7 @@
 LLToolTip* LLInspectTextureUtil::createInventoryToolTip(LLToolTip::Params p)
 {
     const LLSD& sdTooltip = p.create_params;
-    
+
     if (sdTooltip.has("thumbnail_id") && sdTooltip["thumbnail_id"].asUUID().notNull())
     {
         // go straight for thumbnail regardless of type
@@ -49,14 +49,14 @@ LLToolTip* LLInspectTextureUtil::createInventoryToolTip(LLToolTip::Params p)
         return LLUICtrlFactory::create<LLTextureToolTip>(p);
     }
 
-	LLInventoryType::EType eInvType = (sdTooltip.has("inv_type")) ? (LLInventoryType::EType)sdTooltip["inv_type"].asInteger() : LLInventoryType::IT_NONE;
-	switch (eInvType)
-	{
-		case LLInventoryType::IT_CATEGORY:
-			{
-				if (sdTooltip.has("item_id"))
-				{
-					const LLUUID idCategory = sdTooltip["item_id"].asUUID();
+    LLInventoryType::EType eInvType = (sdTooltip.has("inv_type")) ? (LLInventoryType::EType)sdTooltip["inv_type"].asInteger() : LLInventoryType::IT_NONE;
+    switch (eInvType)
+    {
+        case LLInventoryType::IT_CATEGORY:
+            {
+                if (sdTooltip.has("item_id"))
+                {
+                    const LLUUID idCategory = sdTooltip["item_id"].asUUID();
                     LLViewerInventoryCategory* cat = gInventory.getCategory(idCategory);
                     if (cat && cat->getPreferredType() == LLFolderType::FT_OUTFIT)
                     {
@@ -83,14 +83,17 @@ LLToolTip* LLInspectTextureUtil::createInventoryToolTip(LLToolTip::Params p)
                             }
                         }
                     }
-				}
-
-				// No or more than one texture found => show default tooltip
-				return LLUICtrlFactory::create<LLToolTip>(p);
-			}
-		default:
-			return LLUICtrlFactory::create<LLToolTip>(p);
-	}
+                }
+                if ((!p.message.isProvided() || p.message().empty()))
+                {
+                    return NULL;
+                }
+                // No or more than one texture found => show default tooltip
+                return LLUICtrlFactory::create<LLToolTip>(p);
+            }
+        default:
+            return LLUICtrlFactory::create<LLToolTip>(p);
+    }
 }
 
 // ============================================================================
@@ -100,83 +103,83 @@ LLToolTip* LLInspectTextureUtil::createInventoryToolTip(LLToolTip::Params p)
 class LLTexturePreviewView : public LLView
 {
 public:
-	LLTexturePreviewView(const LLView::Params& p);
-	~LLTexturePreviewView();
+    LLTexturePreviewView(const LLView::Params& p);
+    ~LLTexturePreviewView();
 
 public:
-	void draw() override;
+    void draw() override;
 
 public:
-	void setImageFromAssetId(const LLUUID& idAsset);
-	void setImageFromItemId(const LLUUID& idItem);
+    void setImageFromAssetId(const LLUUID& idAsset);
+    void setImageFromItemId(const LLUUID& idItem);
 
 protected:
-	LLPointer<LLViewerFetchedTexture> m_Image;
-	S32         mImageBoostLevel = LLGLTexture::BOOST_NONE;
-	std::string mLoadingText;
+    LLPointer<LLViewerFetchedTexture> m_Image;
+    S32         mImageBoostLevel = LLGLTexture::BOOST_NONE;
+    std::string mLoadingText;
 };
 
 
 LLTexturePreviewView::LLTexturePreviewView(const LLView::Params& p)
-	: LLView(p)
+    : LLView(p)
 {
-	mLoadingText = LLTrans::getString("texture_loading");
+    mLoadingText = LLTrans::getString("texture_loading");
 }
 
 LLTexturePreviewView::~LLTexturePreviewView()
 {
-	if (m_Image)
-	{
-		m_Image->setBoostLevel(mImageBoostLevel);
-		m_Image = nullptr;
-	}
+    if (m_Image)
+    {
+        m_Image->setBoostLevel(mImageBoostLevel);
+        m_Image = nullptr;
+    }
 }
 
 void LLTexturePreviewView::draw()
 {
     LLView::draw();
 
-	if (m_Image)
-	{
-		LLRect rctClient = getLocalRect();
+    if (m_Image)
+    {
+        LLRect rctClient = getLocalRect();
 
         if (4 == m_Image->getComponents())
         {
             const LLColor4 color(.098f, .098f, .098f);
-            gl_rect_2d(rctClient, color, TRUE);
+            gl_rect_2d(rctClient, color, true);
         }
-		gl_draw_scaled_image(rctClient.mLeft, rctClient.mBottom, rctClient.getWidth(), rctClient.getHeight(), m_Image);
+        gl_draw_scaled_image(rctClient.mLeft, rctClient.mBottom, rctClient.getWidth(), rctClient.getHeight(), m_Image);
 
-		bool isLoading = (!m_Image->isFullyLoaded()) && (m_Image->getDiscardLevel() > 0);
-		if (isLoading)
-			LLFontGL::getFontSansSerif()->renderUTF8(mLoadingText, 0, llfloor(rctClient.mLeft + 3),  llfloor(rctClient.mTop - 25), LLColor4::white, LLFontGL::LEFT, LLFontGL::BASELINE, LLFontGL::DROP_SHADOW);
-		m_Image->addTextureStats((isLoading) ? MAX_IMAGE_AREA : (F32)(rctClient.getWidth() * rctClient.getHeight()));
-	}
+        bool isLoading = (!m_Image->isFullyLoaded()) && (m_Image->getDiscardLevel() > 0);
+        if (isLoading)
+            LLFontGL::getFontSansSerif()->renderUTF8(mLoadingText, 0, rctClient.mLeft + 3, rctClient.mTop - 25, LLColor4::white, LLFontGL::LEFT, LLFontGL::BASELINE, LLFontGL::DROP_SHADOW);
+        m_Image->addTextureStats((isLoading) ? MAX_IMAGE_AREA : (F32)(rctClient.getWidth() * rctClient.getHeight()));
+    }
 }
 
 void LLTexturePreviewView::setImageFromAssetId(const LLUUID& idAsset)
 {
-	m_Image = LLViewerTextureManager::getFetchedTexture(idAsset, FTT_DEFAULT, MIPMAP_TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
-	if (m_Image)
-	{
-		mImageBoostLevel = m_Image->getBoostLevel();
-		m_Image->setBoostLevel(LLGLTexture::BOOST_PREVIEW);
-		m_Image->forceToSaveRawImage(0);
-		if ( (!m_Image->isFullyLoaded()) && (!m_Image->hasFetcher()) )
-		{
-			if (m_Image->isInFastCacheList())
-			{
-				m_Image->loadFromFastCache();
-			}
-			gTextureList.forceImmediateUpdate(m_Image);
-		}
-	}
+    m_Image = LLViewerTextureManager::getFetchedTexture(idAsset, FTT_DEFAULT, MIPMAP_TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+    if (m_Image)
+    {
+        mImageBoostLevel = m_Image->getBoostLevel();
+        m_Image->setBoostLevel(LLGLTexture::BOOST_PREVIEW);
+        m_Image->forceToSaveRawImage(0);
+        if ( (!m_Image->isFullyLoaded()) && (!m_Image->hasFetcher()) )
+        {
+            if (m_Image->isInFastCacheList())
+            {
+                m_Image->loadFromFastCache();
+            }
+            gTextureList.forceImmediateUpdate(m_Image);
+        }
+    }
 }
 
 void LLTexturePreviewView::setImageFromItemId(const LLUUID& idItem)
 {
-	const LLViewerInventoryItem* pItem = gInventory.getItem(idItem);
-	setImageFromAssetId( (pItem) ? pItem->getAssetUUID() : LLUUID::null );
+    const LLViewerInventoryItem* pItem = gInventory.getItem(idItem);
+    setImageFromAssetId( (pItem) ? pItem->getAssetUUID() : LLUUID::null );
 }
 
 // ============================================================================
@@ -184,11 +187,11 @@ void LLTexturePreviewView::setImageFromItemId(const LLUUID& idItem)
 //
 
 LLTextureToolTip::LLTextureToolTip(const LLToolTip::Params& p)
-	: LLToolTip(p)
-	, mPreviewView(nullptr)
-	, mPreviewSize(256)
+    : LLToolTip(p)
+    , mPreviewView(nullptr)
+    , mPreviewSize(256)
 {
-	mMaxWidth = llmax(mMaxWidth, mPreviewSize);
+    mMaxWidth = llmax(mMaxWidth, mPreviewSize);
 
     // Currently has to share params with LLToolTip, override values
     setBackgroundColor(LLColor4::black);
@@ -203,7 +206,7 @@ LLTextureToolTip::~LLTextureToolTip()
 void LLTextureToolTip::initFromParams(const LLToolTip::Params& p)
 {
     LLToolTip::initFromParams(p);
-    
+
     // Create and add the preview control
     LLView::Params p_preview;
     p_preview.name = "texture_preview";
@@ -212,7 +215,7 @@ void LLTextureToolTip::initFromParams(const LLToolTip::Params& p)
     p_preview.rect = rctPreview;
     mPreviewView = LLUICtrlFactory::create<LLTexturePreviewView>(p_preview);
     addChild(mPreviewView);
-    
+
     // Parse the control params
     const LLSD& sdTextureParams = p.create_params;
     if (sdTextureParams.has("thumbnail_id"))
@@ -243,7 +246,7 @@ void LLTextureToolTip::initFromParams(const LLToolTip::Params& p)
 
     mTextBox->setColor(LLColor4::white);
 
-	snapToChildren();
+    snapToChildren();
 }
 
 // ============================================================================

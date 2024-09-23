@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater
  legacy_header_height="18"
  can_resize="true"
@@ -14,6 +14,9 @@
  single_instance="true"
  title="WORLD MAP"
  width="650">
+  <string name="UnnamedParcel">
+    (Unnamed Parcel)
+  </string>
   <string
    name="collapse_icon"
    value="map_ui_collapse_icon.png"/>
@@ -241,7 +244,7 @@
      image_name="legend.tga"
      layout="topleft"
      mouse_opaque="true"
-     name="square2"
+     name="square2_auction"
      left="20"
      top_pad="2"
      width="16" />
@@ -264,7 +267,7 @@
      image_name="legend.tga"
      layout="topleft"
      mouse_opaque="true"
-     name="square2"
+     name="square2_owner"
      left="20"
      top_pad="-5"
      width="16" />

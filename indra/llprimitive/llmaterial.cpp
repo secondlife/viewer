@@ -5,21 +5,21 @@
  * $LicenseInfo:firstyear=2006&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -412,7 +412,7 @@ bool LLMaterial::isNull() const
 
 bool LLMaterial::operator == (const LLMaterial& rhs) const
 {
-    return 
+    return
         (mNormalID == rhs.mNormalID) && (mNormalOffsetX == rhs.mNormalOffsetX) && (mNormalOffsetY == rhs.mNormalOffsetY) &&
         (mNormalRepeatX == rhs.mNormalRepeatX) && (mNormalRepeatY == rhs.mNormalRepeatY) && (mNormalRotation == rhs.mNormalRotation) &&
         (mSpecularID == rhs.mSpecularID) && (mSpecularOffsetX == rhs.mSpecularOffsetX) && (mSpecularOffsetY == rhs.mSpecularOffsetY) &&
@@ -427,18 +427,18 @@ bool LLMaterial::operator != (const LLMaterial& rhs) const
 }
 
 
-U32 LLMaterial::getShaderMask(U32 alpha_mode, BOOL is_alpha)
+U32 LLMaterial::getShaderMask(U32 alpha_mode, bool is_alpha)
 { //NEVER incorporate this value into the message system -- this function will vary depending on viewer implementation
 
-	//two least significant bits are "diffuse alpha mode"
-	U32 ret = alpha_mode;
+    //two least significant bits are "diffuse alpha mode"
+    U32 ret = alpha_mode;
     if (ret == DIFFUSE_ALPHA_MODE_DEFAULT)
     {
-		ret = getDiffuseAlphaMode();
-		if (ret == DIFFUSE_ALPHA_MODE_BLEND && !is_alpha)
-		{
-			ret = DIFFUSE_ALPHA_MODE_NONE;
-		}
+        ret = getDiffuseAlphaMode();
+        if (ret == DIFFUSE_ALPHA_MODE_BLEND && !is_alpha)
+        {
+            ret = DIFFUSE_ALPHA_MODE_NONE;
+        }
     }
 
     llassert(ret < SHADER_COUNT);
@@ -452,7 +452,7 @@ U32 LLMaterial::getShaderMask(U32 alpha_mode, BOOL is_alpha)
     }
 
     llassert(ret < SHADER_COUNT);
-    
+
     //next bit is whether or not normal map is present
     const U32 NORM_BIT = 0x8;
     if (getNormalID().notNull())

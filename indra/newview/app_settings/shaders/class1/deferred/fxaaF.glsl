@@ -1,28 +1,28 @@
-/** 
+/**
  * @file fxaaF.glsl
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2007, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
+
 #extension GL_ARB_texture_rectangle : enable
 #extension GL_ARB_shader_texture_lod : enable
 
@@ -32,7 +32,7 @@ out vec4 frag_color;
 
 #define FXAA_PC 1
 //#define FXAA_GLSL_130 1
-#define FXAA_QUALITY__PRESET 12
+//#define FXAA_QUALITY__PRESET 12
 
 /*============================================================================
 
@@ -70,11 +70,11 @@ Example,
 Or,
 
   #define FXAA_360 1
-  
+
 Or,
 
   #define FXAA_PS3 1
-  
+
 Etc.
 
 (2.)
@@ -85,7 +85,7 @@ Then include this file,
 (3.)
 Then call the FXAA pixel shader from within your desired shader.
 Look at the FXAA Quality FxaaPixelShader() for docs on inputs.
-As for FXAA 3.11 all inputs for all shaders are the same 
+As for FXAA 3.11 all inputs for all shaders are the same
 to enable easy porting between platforms.
 
   return FxaaPixelShader(...);
@@ -116,7 +116,7 @@ Look at the FXAA Quality FxaaPixelShader() for docs on inputs.
 
 (6.)
 Have FXAA vertex shader run as a full screen triangle,
-and output "pos" and "fxaaConsolePosPos" 
+and output "pos" and "fxaaConsolePosPos"
 such that inputs in the pixel shader provide,
 
   // {xy} = center of pixel
@@ -133,7 +133,7 @@ Insure the texture sampler(s) used by FXAA are set to bilinear filtering.
 ------------------------------------------------------------------------------
                     INTEGRATION - RGBL AND COLORSPACE
 ------------------------------------------------------------------------------
-FXAA3 requires RGBL as input unless the following is set, 
+FXAA3 requires RGBL as input unless the following is set,
 
   #define FXAA_GREEN_AS_LUMA 1
 
@@ -186,7 +186,7 @@ Getting luma correct is required for the algorithm to work correctly.
 ------------------------------------------------------------------------------
 Applying FXAA to a framebuffer with linear RGB color will look worse.
 This is very counter intuitive, but happends to be true in this case.
-The reason is because dithering artifacts will be more visiable 
+The reason is because dithering artifacts will be more visiable
 in a linear colorspace.
 
 
@@ -256,6 +256,10 @@ A. Or use FXAA_GREEN_AS_LUMA.
     #define FXAA_GLSL_130 0
 #endif
 /*--------------------------------------------------------------------------*/
+#ifndef FXAA_GLSL_400
+    #define FXAA_GLSL_400 0
+#endif
+/*--------------------------------------------------------------------------*/
 #ifndef FXAA_HLSL_3
     #define FXAA_HLSL_3 0
 #endif
@@ -281,7 +285,7 @@ A. Or use FXAA_GREEN_AS_LUMA.
     // Might want to lower the settings for both,
     //    fxaaConsoleEdgeThresholdMin
     //    fxaaQualityEdgeThresholdMin
-    // In order to insure AA does not get turned off on colors 
+    // In order to insure AA does not get turned off on colors
     // which contain a minor amount of green.
     //
     // 1 = On.
@@ -342,23 +346,23 @@ A. Or use FXAA_GREEN_AS_LUMA.
     // 1 = API supports gather4 on alpha channel.
     // 0 = API does not support gather4 on alpha channel.
     //
-	#if (FXAA_GLSL_130 == 0)
-		#define FXAA_GATHER4_ALPHA 0
-	#endif
+    #if (FXAA_GLSL_400 == 1)
+        #define FXAA_GATHER4_ALPHA 1
+    #endif
     #if (FXAA_HLSL_5 == 1)
         #define FXAA_GATHER4_ALPHA 1
     #endif
     #ifndef FXAA_GATHER4_ALPHA
-		#ifdef GL_ARB_gpu_shader5
-			#define FXAA_GATHER4_ALPHA 1
-		#endif
-	    #ifdef GL_NV_gpu_shader5
-		    #define FXAA_GATHER4_ALPHA 1
-		#endif
-		#ifndef FXAA_GATHER4_ALPHA
-			#define FXAA_GATHER4_ALPHA 0
-		#endif
-	#endif
+        #ifdef GL_ARB_gpu_shader5
+            #define FXAA_GATHER4_ALPHA 1
+        #endif
+        #ifdef GL_NV_gpu_shader5
+            #define FXAA_GATHER4_ALPHA 1
+        #endif
+        #ifndef FXAA_GATHER4_ALPHA
+            #define FXAA_GATHER4_ALPHA 0
+        #endif
+    #endif
 #endif
 
 /*============================================================================
@@ -421,14 +425,14 @@ NOTE the other tuning knobs are now in the shader function inputs!
     //
     // Choose the quality preset.
     // This needs to be compiled into the shader as it effects code.
-    // Best option to include multiple presets is to 
+    // Best option to include multiple presets is to
     // in each shader define the preset, then include this file.
-    // 
+    //
     // OPTIONS
     // -----------------------------------------------------------------------
     // 10 to 15 - default medium dither (10=fastest, 15=highest quality)
     // 20 to 29 - less dither, more expensive (20=fastest, 29=highest quality)
-    // 39       - no dither, very expensive 
+    // 39       - no dither, very expensive
     //
     // NOTES
     // -----------------------------------------------------------------------
@@ -437,7 +441,7 @@ NOTE the other tuning knobs are now in the shader function inputs!
     // 23 = closest to FXAA 3.9 visually and performance wise
     //  _ = the lowest digit is directly related to performance
     // _  = the highest digit is directly related to style
-    // 
+    //
     #define FXAA_QUALITY__PRESET 12
 #endif
 
@@ -652,7 +656,7 @@ NOTE the other tuning knobs are now in the shader function inputs!
                                 API PORTING
 
 ============================================================================*/
-#if (FXAA_GLSL_120 == 1) || (FXAA_GLSL_130 == 1)
+#if (FXAA_GLSL_120 == 1) || (FXAA_GLSL_130 == 1) || (FXAA_GLSL_400 == 1)
     #define FxaaBool bool
     #define FxaaDiscard discard
     #define FxaaFloat float
@@ -714,6 +718,16 @@ NOTE the other tuning knobs are now in the shader function inputs!
     #endif
 #endif
 /*--------------------------------------------------------------------------*/
+#if (FXAA_GLSL_400 == 1)
+    // Requires "#version 400" or better
+    #define FxaaTexTop(t, p) textureLod(t, p, 0.0)
+    #define FxaaTexOff(t, p, o, r) textureLodOffset(t, p, 0.0, o)
+    #define FxaaTexAlpha4(t, p) textureGather(t, p, 3)
+    #define FxaaTexOffAlpha4(t, p, o) textureGatherOffset(t, p, o, 3)
+    #define FxaaTexGreen4(t, p) textureGather(t, p, 1)
+    #define FxaaTexOffGreen4(t, p, o) textureGatherOffset(t, p, o, 1)
+#endif
+/*--------------------------------------------------------------------------*/
 #if (FXAA_HLSL_3 == 1) || (FXAA_360 == 1) || (FXAA_PS3 == 1)
     #define FxaaInt2 float2
     #define FxaaTex sampler2D
@@ -747,7 +761,7 @@ NOTE the other tuning knobs are now in the shader function inputs!
     FxaaFloat FxaaLuma(FxaaFloat4 rgba) { return rgba.w; }
 #else
     FxaaFloat FxaaLuma(FxaaFloat4 rgba) { return rgba.y; }
-#endif    
+#endif
 
 
 
@@ -801,28 +815,28 @@ FxaaFloat4 FxaaPixelShader(
     //   Where N ranges between,
     //     N = 0.50 (default)
     //     N = 0.33 (sharper)
-    // {x___} = -N/screenWidthInPixels  
+    // {x___} = -N/screenWidthInPixels
     // {_y__} = -N/screenHeightInPixels
-    // {__z_} =  N/screenWidthInPixels  
-    // {___w} =  N/screenHeightInPixels 
+    // {__z_} =  N/screenWidthInPixels
+    // {___w} =  N/screenHeightInPixels
     FxaaFloat4 fxaaConsoleRcpFrameOpt,
     //
     // Only used on FXAA Console.
     // Not used on 360, but used on PS3 and PC.
     // This must be from a constant/uniform.
-    // {x___} = -2.0/screenWidthInPixels  
+    // {x___} = -2.0/screenWidthInPixels
     // {_y__} = -2.0/screenHeightInPixels
-    // {__z_} =  2.0/screenWidthInPixels  
-    // {___w} =  2.0/screenHeightInPixels 
+    // {__z_} =  2.0/screenWidthInPixels
+    // {___w} =  2.0/screenHeightInPixels
     FxaaFloat4 fxaaConsoleRcpFrameOpt2,
     //
     // Only used on FXAA Console.
     // Only used on 360 in place of fxaaConsoleRcpFrameOpt2.
     // This must be from a constant/uniform.
-    // {x___} =  8.0/screenWidthInPixels  
+    // {x___} =  8.0/screenWidthInPixels
     // {_y__} =  8.0/screenHeightInPixels
-    // {__z_} = -4.0/screenWidthInPixels  
-    // {___w} = -4.0/screenHeightInPixels 
+    // {__z_} = -4.0/screenWidthInPixels
+    // {___w} = -4.0/screenHeightInPixels
     FxaaFloat4 fxaaConsole360RcpFrameOpt2,
     //
     // Only used on FXAA Quality.
@@ -844,7 +858,7 @@ FxaaFloat4 FxaaPixelShader(
     //   0.333 - too little (faster)
     //   0.250 - low quality
     //   0.166 - default
-    //   0.125 - high quality 
+    //   0.125 - high quality
     //   0.063 - overkill (slower)
     FxaaFloat fxaaQualityEdgeThreshold,
     //
@@ -862,7 +876,7 @@ FxaaFloat4 FxaaPixelShader(
     //   Tune by looking at mostly non-green content,
     //   then start at zero and increase until aliasing is a problem.
     FxaaFloat fxaaQualityEdgeThresholdMin,
-    // 
+    //
     // Only used on FXAA Console.
     // This used to be the FXAA_CONSOLE__EDGE_SHARPNESS define.
     // It is here now to allow easier tuning.
@@ -897,7 +911,7 @@ FxaaFloat4 FxaaPixelShader(
     // Trims the algorithm from processing darks.
     // The console setting has a different mapping than the quality setting.
     // This only applies when FXAA_EARLY_EXIT is 1.
-    // This does not apply to PS3, 
+    // This does not apply to PS3,
     // PS3 was simplified to avoid more shader instructions.
     //   0.06 - faster but more aliasing in darks
     //   0.05 - default
@@ -909,7 +923,7 @@ FxaaFloat4 FxaaPixelShader(
     //   Tune by looking at mostly non-green content,
     //   then start at zero and increase until aliasing is a problem.
     FxaaFloat fxaaConsoleEdgeThresholdMin,
-    //    
+    //
     // Extra constants for 360 FXAA Console only.
     // Use zeros or anything else for other platforms.
     // These must be in physical constant registers and NOT immedates.
@@ -1286,11 +1300,11 @@ FxaaFloat4 FxaaPixelShader(
 /*============================================================================
 
                          FXAA3 CONSOLE - PC VERSION
-                         
+
 ------------------------------------------------------------------------------
 Instead of using this on PC, I'd suggest just using FXAA Quality with
     #define FXAA_QUALITY__PRESET 10
-Or 
+Or
     #define FXAA_QUALITY__PRESET 20
 Either are higher qualilty and almost as fast as this on modern PC GPUs.
 ============================================================================*/
@@ -1379,7 +1393,7 @@ FxaaFloat4 FxaaPixelShader(
 
 /*============================================================================
 
-                      FXAA3 CONSOLE - 360 PIXEL SHADER 
+                      FXAA3 CONSOLE - 360 PIXEL SHADER
 
 ------------------------------------------------------------------------------
 This optimized version thanks to suggestions from Andy Luedke.
@@ -1414,14 +1428,14 @@ float4 FxaaPixelShader(
 /*--------------------------------------------------------------------------*/
     float4 lumaNwNeSwSe;
     #if (FXAA_GREEN_AS_LUMA == 0)
-        asm { 
+        asm {
             tfetch2D lumaNwNeSwSe.w___, tex, pos.xy, OffsetX = -0.5, OffsetY = -0.5, UseComputedLOD=false
             tfetch2D lumaNwNeSwSe._w__, tex, pos.xy, OffsetX =  0.5, OffsetY = -0.5, UseComputedLOD=false
             tfetch2D lumaNwNeSwSe.__w_, tex, pos.xy, OffsetX = -0.5, OffsetY =  0.5, UseComputedLOD=false
             tfetch2D lumaNwNeSwSe.___w, tex, pos.xy, OffsetX =  0.5, OffsetY =  0.5, UseComputedLOD=false
         };
     #else
-        asm { 
+        asm {
             tfetch2D lumaNwNeSwSe.y___, tex, pos.xy, OffsetX = -0.5, OffsetY = -0.5, UseComputedLOD=false
             tfetch2D lumaNwNeSwSe._y__, tex, pos.xy, OffsetX =  0.5, OffsetY = -0.5, UseComputedLOD=false
             tfetch2D lumaNwNeSwSe.__y_, tex, pos.xy, OffsetX = -0.5, OffsetY =  0.5, UseComputedLOD=false
@@ -1442,7 +1456,7 @@ float4 FxaaPixelShader(
     #else
         float lumaMinM = min(lumaMin, rgbyM.y);
         float lumaMaxM = max(lumaMax, rgbyM.y);
-    #endif        
+    #endif
     if((lumaMaxM - lumaMinM) < max(fxaaConsoleEdgeThresholdMin, lumaMax * fxaaConsoleEdgeThreshold)) return rgbyM;
 /*--------------------------------------------------------------------------*/
     float2 dir;
@@ -1591,7 +1605,7 @@ Pass |  Unit  |  uOp |  PC:  Op
      |        |      |
   13 |   SCT0 |  mad |  48:  ADDxc0_s rc, h2, h2.w---;
      | SCB0/1 |  mul |  49:  MOVh h0(NE0.xxxx), h1;
- 
+
 Pass   SCT  TEX  SCB
   1:   0% 100%  25%
   2:   0% 100%  25%
@@ -1677,7 +1691,7 @@ half4 FxaaPixelShader(
     #else
         dir.x += lumaSw.y;
         dir.z += lumaSw.y;
-    #endif        
+    #endif
 /*--------------------------------------------------------------------------*/
 // (3)
     half4 lumaNw = h4tex2Dlod(tex, half4(fxaaConsolePosPos.xy, 0, 0));
@@ -1740,7 +1754,7 @@ half4 FxaaPixelShader(
     #else
         half lumaMin = min(min(lumaNw.y, lumaSw.y), min(lumaNe.y, lumaSe.y));
         half lumaMax = max(max(lumaNw.y, lumaSw.y), max(lumaNe.y, lumaSe.y));
-    #endif        
+    #endif
     rgby2 = (rgby2 + rgby1) * 0.5;
 /*--------------------------------------------------------------------------*/
 // (12)
@@ -1896,7 +1910,7 @@ Pass |  Unit  |  uOp |  PC:  Op
      |        |      |
   15 | SCT0/1 |  mul |  55:  MOVh h0(NE0.wwww), h2;
      | SCB0/1 |  mul |  56:  MOVh h0(NE0.xxxx), h1;
- 
+
 Pass   SCT  TEX  SCB
   1:   0% 100%  25%
   2:   0% 100%  25%
@@ -2096,28 +2110,28 @@ uniform vec4 rcp_frame_opt2;
 in vec2 vary_fragcoord;
 in vec2 vary_tc;
 
-void main() 
+void main()
 {
-	vec4 diff =			FxaaPixelShader(vary_tc,			//pos
-										vec4(vary_fragcoord.xy, 0, 0), //fxaaConsolePosPos
-										diffuseMap,					//tex
-										diffuseMap,					
-										diffuseMap,
-										rcp_screen_res,				//fxaaQualityRcpFrame
-										vec4(0,0,0,0),				//fxaaConsoleRcpFrameOpt
-										rcp_frame_opt,				//fxaaConsoleRcpFrameOpt2
-										rcp_frame_opt2,				//fxaaConsole360RcpFrameOpt2
-										0.75,						//fxaaQualitySubpix
-										0.07,						//fxaaQualityEdgeThreshold
-										0.03,						//fxaaQualityEdgeThresholdMin
-										8.0,						//fxaaConsoleEdgeSharpness
-										0.125,						//fxaaConsoleEdgeThreshold
-										0.05,						//fxaaConsoleEdgeThresholdMin
-										vec4(0,0,0,0));				//fxaaConsole360ConstDir
+    vec4 diff =         FxaaPixelShader(vary_tc,            //pos
+                                        vec4(vary_fragcoord.xy, 0, 0), //fxaaConsolePosPos
+                                        diffuseMap,                 //tex
+                                        diffuseMap,
+                                        diffuseMap,
+                                        rcp_screen_res,             //fxaaQualityRcpFrame
+                                        vec4(0,0,0,0),              //fxaaConsoleRcpFrameOpt
+                                        rcp_frame_opt,              //fxaaConsoleRcpFrameOpt2
+                                        rcp_frame_opt2,             //fxaaConsole360RcpFrameOpt2
+                                        0.75,                       //fxaaQualitySubpix
+                                        0.07,                       //fxaaQualityEdgeThreshold
+                                        0.03,                       //fxaaQualityEdgeThresholdMin
+                                        8.0,                        //fxaaConsoleEdgeSharpness
+                                        0.125,                      //fxaaConsoleEdgeThreshold
+                                        0.05,                       //fxaaConsoleEdgeThresholdMin
+                                        vec4(0,0,0,0));             //fxaaConsole360ConstDir
 
 
 
     frag_color = diff;
-    
+
     gl_FragDepth = texture(depthMap, vary_fragcoord.xy).r;
 }

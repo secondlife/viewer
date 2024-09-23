@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <!-- Sample "floater" window with examples of common widgets.
 
     Notes:
@@ -300,7 +300,7 @@
    layout="topleft"
    width="60"
    use_ellipses="true"
-   name="test_text"
+   name="test_text1"
    tool_tip="text">
     Truncated text here
   </text>
@@ -395,7 +395,7 @@ line to actually fit
        width="250" 
        follows="top|left"
        font.name="SansSerifSmall"
-       name="test_text10"
+       name="test_text101"
        tool_tip="text">
         SansSerifSmall.  Русский 中文 (简体)
       </text>

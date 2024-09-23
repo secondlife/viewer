@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater
     positioning="cascading"
     can_resize="true"
@@ -372,7 +372,7 @@
       follows="left|bottom|right"
       height="0"
       layout="topleft"
-      name="horiz_separator"
+      name="horiz_separator1"
       top_pad="0"
       left="18"
       width="1039"/>

@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llpolymesh.h
  * @brief Implementation of LLPolyMesh class
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -41,7 +41,7 @@ class LLSkinJoint;
 class LLAvatarAppearance;
 class LLWearable;
 
-//#define USE_STRIPS	// Use tri-strips for rendering.
+//#define USE_STRIPS    // Use tri-strips for rendering.
 
 //-----------------------------------------------------------------------------
 // LLPolyFace
@@ -63,305 +63,305 @@ class LLPolyMorphTarget;
 
 class LLPolyMeshSharedData
 {
-	friend class LLPolyMesh;
+    friend class LLPolyMesh;
 private:
-	// transform data
-	LLVector3				mPosition;
-	LLQuaternion			mRotation;
-	LLVector3				mScale;
-							
-	// vertex data			
-	S32						mNumVertices;
-	LLVector4a				*mBaseCoords;
-	LLVector4a				*mBaseNormals;
-	LLVector4a				*mBaseBinormals;
-	LLVector2				*mTexCoords;
-	LLVector2				*mDetailTexCoords;
-	F32						*mWeights;
-	
-	BOOL					mHasWeights;
-	BOOL					mHasDetailTexCoords;
+    // transform data
+    LLVector3               mPosition;
+    LLQuaternion            mRotation;
+    LLVector3               mScale;
 
-	// face data			
-	S32						mNumFaces;
-	LLPolyFace				*mFaces;
-							
-	// face set data		
-	U32						mNumJointNames;
-	std::string*			mJointNames;
+    // vertex data
+    S32                     mNumVertices;
+    LLVector4a              *mBaseCoords;
+    LLVector4a              *mBaseNormals;
+    LLVector4a              *mBaseBinormals;
+    LLVector2               *mTexCoords;
+    LLVector2               *mDetailTexCoords;
+    F32                     *mWeights;
 
-	// morph targets
-	typedef std::set<LLPolyMorphData*> morphdata_list_t;
-	morphdata_list_t			mMorphData;
+    bool                    mHasWeights;
+    bool                    mHasDetailTexCoords;
 
-	std::map<S32, S32> 			mSharedVerts;
-	
-	LLPolyMeshSharedData*		mReferenceData;
-	S32							mLastIndexOffset;
+    // face data
+    S32                     mNumFaces;
+    LLPolyFace              *mFaces;
 
-public:
-	// Temporarily...
-	// Triangle indices
-	U32				mNumTriangleIndices;
-	U32				*mTriangleIndices;
+    // face set data
+    U32                     mNumJointNames;
+    std::string*            mJointNames;
+
+    // morph targets
+    typedef std::set<LLPolyMorphData*> morphdata_list_t;
+    morphdata_list_t            mMorphData;
+
+    std::map<S32, S32>          mSharedVerts;
+
+    LLPolyMeshSharedData*       mReferenceData;
+    S32                         mLastIndexOffset;
 
 public:
-	LLPolyMeshSharedData();
-	~LLPolyMeshSharedData();
+    // Temporarily...
+    // Triangle indices
+    U32             mNumTriangleIndices;
+    U32             *mTriangleIndices;
+
+public:
+    LLPolyMeshSharedData();
+    ~LLPolyMeshSharedData();
 
 private:
-	void setupLOD(LLPolyMeshSharedData* reference_data);
+    void setupLOD(LLPolyMeshSharedData* reference_data);
 
-	// Frees all mesh memory resources 
-	void freeMeshData();
+    // Frees all mesh memory resources
+    void freeMeshData();
 
-	void setPosition( const LLVector3 &pos ) { 	mPosition = pos; }
-	void setRotation( const LLQuaternion &rot ) { mRotation = rot; }
-	void setScale( const LLVector3 &scale ) { mScale = scale; }
+    void setPosition( const LLVector3 &pos ) {  mPosition = pos; }
+    void setRotation( const LLQuaternion &rot ) { mRotation = rot; }
+    void setScale( const LLVector3 &scale ) { mScale = scale; }
 
-	BOOL allocateVertexData( U32 numVertices );
+    bool allocateVertexData( U32 numVertices );
 
-	BOOL allocateFaceData( U32 numFaces );
+    bool allocateFaceData( U32 numFaces );
 
-	BOOL allocateJointNames( U32 numJointNames );
+    bool allocateJointNames( U32 numJointNames );
 
-	// Retrieve the number of KB of memory used by this instance
-	U32 getNumKB();
+    // Retrieve the number of KB of memory used by this instance
+    U32 getNumKB();
 
-	// Load mesh data from file
-	BOOL loadMesh( const std::string& fileName );
+    // Load mesh data from file
+    bool loadMesh( const std::string& fileName );
 
 public:
-	void genIndices(S32 offset);
+    void genIndices(S32 offset);
 
-	const LLVector2 &getUVs(U32 index);
+    const LLVector2 &getUVs(U32 index);
 
-	const S32	*getSharedVert(S32 vert);
+    const S32   *getSharedVert(S32 vert);
 
-	BOOL isLOD() { return (mReferenceData != NULL); }
+    bool isLOD() { return (mReferenceData != NULL); }
 };
 
 
 class LLJointRenderData
 {
 public:
-	LLJointRenderData(const LLMatrix4* world_matrix, LLSkinJoint* skin_joint) : mWorldMatrix(world_matrix), mSkinJoint(skin_joint) {}
-	~LLJointRenderData(){}
+    LLJointRenderData(const LLMatrix4* world_matrix, LLSkinJoint* skin_joint) : mWorldMatrix(world_matrix), mSkinJoint(skin_joint) {}
+    ~LLJointRenderData(){}
 
-	const LLMatrix4*		mWorldMatrix;
-	LLSkinJoint*			mSkinJoint;
+    const LLMatrix4*        mWorldMatrix;
+    LLSkinJoint*            mSkinJoint;
 };
 
 
 class LLPolyMesh
 {
 public:
-	
-	// Constructor
-	LLPolyMesh(LLPolyMeshSharedData *shared_data, LLPolyMesh *reference_mesh);
 
-	// Destructor 
-	~LLPolyMesh();
+    // Constructor
+    LLPolyMesh(LLPolyMeshSharedData *shared_data, LLPolyMesh *reference_mesh);
 
-	// Requests a mesh by name.
-	// If the mesh already exists in the global mesh table, it is returned,
-	// otherwise it is loaded from file, added to the table, and returned.
-	static LLPolyMesh *getMesh( const std::string &name, LLPolyMesh* reference_mesh = NULL);
+    // Destructor
+    ~LLPolyMesh();
 
-	// Frees all loaded meshes.
-	// This should only be called once you know there are no outstanding
-	// references to these objects.  Generally, upon exit of the application.
-	static void freeAllMeshes();
+    // Requests a mesh by name.
+    // If the mesh already exists in the global mesh table, it is returned,
+    // otherwise it is loaded from file, added to the table, and returned.
+    static LLPolyMesh *getMesh( const std::string &name, LLPolyMesh* reference_mesh = NULL);
 
-	//--------------------------------------------------------------------
-	// Transform Data Access
-	//--------------------------------------------------------------------
-	// Get position
-	const LLVector3 &getPosition() { 
-		llassert (mSharedData);
-		return mSharedData->mPosition; 
-	}
+    // Frees all loaded meshes.
+    // This should only be called once you know there are no outstanding
+    // references to these objects.  Generally, upon exit of the application.
+    static void freeAllMeshes();
 
-	// Get rotation
-	const LLQuaternion &getRotation() { 
-		llassert (mSharedData);
-		return mSharedData->mRotation; 
-	}
+    //--------------------------------------------------------------------
+    // Transform Data Access
+    //--------------------------------------------------------------------
+    // Get position
+    const LLVector3 &getPosition() {
+        llassert (mSharedData);
+        return mSharedData->mPosition;
+    }
 
-	// Get scale
-	const LLVector3 &getScale() { 
-		llassert (mSharedData);
-		return mSharedData->mScale; 
-	}
+    // Get rotation
+    const LLQuaternion &getRotation() {
+        llassert (mSharedData);
+        return mSharedData->mRotation;
+    }
 
-	//--------------------------------------------------------------------
-	// Vertex Data Access
-	//--------------------------------------------------------------------
-	// Get number of vertices
-	U32 getNumVertices() { 
-		llassert (mSharedData);
-		return mSharedData->mNumVertices; 
-	}
+    // Get scale
+    const LLVector3 &getScale() {
+        llassert (mSharedData);
+        return mSharedData->mScale;
+    }
 
-	// Returns whether or not the mesh has detail texture coords
-	BOOL hasDetailTexCoords() { 
-		llassert (mSharedData);
-		return mSharedData->mHasDetailTexCoords; 
-	}
+    //--------------------------------------------------------------------
+    // Vertex Data Access
+    //--------------------------------------------------------------------
+    // Get number of vertices
+    U32 getNumVertices() {
+        llassert (mSharedData);
+        return mSharedData->mNumVertices;
+    }
 
-	// Returns whether or not the mesh has vertex weights
-	BOOL hasWeights() const{ 
-		llassert (mSharedData);
-		return mSharedData->mHasWeights; 
-	}
+    // Returns whether or not the mesh has detail texture coords
+    bool hasDetailTexCoords() {
+        llassert (mSharedData);
+        return mSharedData->mHasDetailTexCoords;
+    }
 
-	// Get coords
-	const LLVector4a	*getCoords() const{
-		return mCoords;
-	}
+    // Returns whether or not the mesh has vertex weights
+    bool hasWeights() const{
+        llassert (mSharedData);
+        return mSharedData->mHasWeights;
+    }
 
-	// non const version
-	LLVector4a *getWritableCoords();
+    // Get coords
+    const LLVector4a    *getCoords() const{
+        return mCoords;
+    }
 
-	// Get normals
-	const LLVector4a	*getNormals() const{ 
-		return mNormals; 
-	}
+    // non const version
+    LLVector4a *getWritableCoords();
 
-	// Get normals
-	const LLVector4a	*getBinormals() const{ 
-		return mBinormals; 
-	}
+    // Get normals
+    const LLVector4a    *getNormals() const{
+        return mNormals;
+    }
 
-	// Get base mesh normals
-	const LLVector4a *getBaseNormals() const{
-		llassert(mSharedData);
-		return mSharedData->mBaseNormals;
-	}
+    // Get normals
+    const LLVector4a    *getBinormals() const{
+        return mBinormals;
+    }
 
-	// Get base mesh normals
-	const LLVector4a *getBaseBinormals() const{
-		llassert(mSharedData);
-		return mSharedData->mBaseBinormals;
-	}
+    // Get base mesh normals
+    const LLVector4a *getBaseNormals() const{
+        llassert(mSharedData);
+        return mSharedData->mBaseNormals;
+    }
 
-	// intermediate morphed normals and output normals
-	LLVector4a *getWritableNormals();
-	LLVector4a *getScaledNormals();
+    // Get base mesh normals
+    const LLVector4a *getBaseBinormals() const{
+        llassert(mSharedData);
+        return mSharedData->mBaseBinormals;
+    }
 
-	LLVector4a *getWritableBinormals();
-	LLVector4a *getScaledBinormals();
+    // intermediate morphed normals and output normals
+    LLVector4a *getWritableNormals();
+    LLVector4a *getScaledNormals();
 
-	// Get texCoords
-	const LLVector2	*getTexCoords() const { 
-		return mTexCoords; 
-	}
+    LLVector4a *getWritableBinormals();
+    LLVector4a *getScaledBinormals();
 
-	// non const version
-	LLVector2 *getWritableTexCoords();
+    // Get texCoords
+    const LLVector2 *getTexCoords() const {
+        return mTexCoords;
+    }
 
-	// Get detailTexCoords
-	const LLVector2	*getDetailTexCoords() const { 
-		llassert (mSharedData);
-		return mSharedData->mDetailTexCoords; 
-	}
+    // non const version
+    LLVector2 *getWritableTexCoords();
 
-	// Get weights
-	const F32 *getWeights() const {
-		llassert (mSharedData);
-		return mSharedData->mWeights;
-	}
+    // Get detailTexCoords
+    const LLVector2 *getDetailTexCoords() const {
+        llassert (mSharedData);
+        return mSharedData->mDetailTexCoords;
+    }
 
-	F32			*getWritableWeights() const;
+    // Get weights
+    const F32 *getWeights() const {
+        llassert (mSharedData);
+        return mSharedData->mWeights;
+    }
 
-	LLVector4a	*getWritableClothingWeights();
+    F32         *getWritableWeights() const;
 
-	const LLVector4a		*getClothingWeights()
-	{
-		return mClothingWeights;	
-	}
+    LLVector4a  *getWritableClothingWeights();
 
-	//--------------------------------------------------------------------
-	// Face Data Access
-	//--------------------------------------------------------------------
-	// Get number of faces
-	S32 getNumFaces() { 
-		llassert (mSharedData);
-		return mSharedData->mNumFaces; 
-	}
+    const LLVector4a        *getClothingWeights()
+    {
+        return mClothingWeights;
+    }
 
-	// Get faces
-	LLPolyFace *getFaces() { 
-		llassert (mSharedData);
-		return mSharedData->mFaces;
-	}
+    //--------------------------------------------------------------------
+    // Face Data Access
+    //--------------------------------------------------------------------
+    // Get number of faces
+    S32 getNumFaces() {
+        llassert (mSharedData);
+        return mSharedData->mNumFaces;
+    }
 
-	U32 getNumJointNames() { 
-		llassert (mSharedData);
-		return mSharedData->mNumJointNames; 
-	}
+    // Get faces
+    LLPolyFace *getFaces() {
+        llassert (mSharedData);
+        return mSharedData->mFaces;
+    }
 
-	std::string *getJointNames() { 
-		llassert (mSharedData);
-		return mSharedData->mJointNames;
-	}
+    U32 getNumJointNames() {
+        llassert (mSharedData);
+        return mSharedData->mNumJointNames;
+    }
 
-	LLPolyMorphData*	getMorphData(const std::string& morph_name);
-// 	void	removeMorphData(LLPolyMorphData *morph_target);
-// 	void	deleteAllMorphData();
+    std::string *getJointNames() {
+        llassert (mSharedData);
+        return mSharedData->mJointNames;
+    }
 
-	LLPolyMeshSharedData *getSharedData() const;
-	LLPolyMesh *getReferenceMesh() { return mReferenceMesh ? mReferenceMesh : this; }
+    LLPolyMorphData*    getMorphData(const std::string& morph_name);
+//  void    removeMorphData(LLPolyMorphData *morph_target);
+//  void    deleteAllMorphData();
 
-	// Get indices
-	U32*	getIndices() { return mSharedData ? mSharedData->mTriangleIndices : NULL; }
+    LLPolyMeshSharedData *getSharedData() const;
+    LLPolyMesh *getReferenceMesh() { return mReferenceMesh ? mReferenceMesh : this; }
 
-	BOOL	isLOD() { return mSharedData && mSharedData->isLOD(); }
+    // Get indices
+    U32*    getIndices() { return mSharedData ? mSharedData->mTriangleIndices : NULL; }
 
-	void setAvatar(LLAvatarAppearance* avatarp) { mAvatarp = avatarp; }
-	LLAvatarAppearance* getAvatar() { return mAvatarp; }
+    bool    isLOD() { return mSharedData && mSharedData->isLOD(); }
 
-	std::vector<LLJointRenderData*>	mJointRenderData;
+    void setAvatar(LLAvatarAppearance* avatarp) { mAvatarp = avatarp; }
+    LLAvatarAppearance* getAvatar() { return mAvatarp; }
 
-	U32				mFaceVertexOffset;
-	U32				mFaceVertexCount;
-	U32				mFaceIndexOffset;
-	U32				mFaceIndexCount;
-	U32				mCurVertexCount;
+    std::vector<LLJointRenderData*> mJointRenderData;
+
+    U32             mFaceVertexOffset;
+    U32             mFaceVertexCount;
+    U32             mFaceIndexOffset;
+    U32             mFaceIndexCount;
+    U32             mCurVertexCount;
 private:
-	void initializeForMorph();
+    void initializeForMorph();
 
-	// Dumps diagnostic information about the global mesh table
-	static void dumpDiagInfo();
+    // Dumps diagnostic information about the global mesh table
+    static void dumpDiagInfo();
 
 protected:
-	// mesh data shared across all instances of a given mesh
-	LLPolyMeshSharedData	*mSharedData;
-	// Single array of floats for allocation / deletion
-	F32						*mVertexData;
-	// deformed vertices (resulting from application of morph targets)
-	LLVector4a				*mCoords;
-	// deformed normals (resulting from application of morph targets)
-	LLVector4a				*mScaledNormals;
-	// output normals (after normalization)
-	LLVector4a				*mNormals;
-	// deformed binormals (resulting from application of morph targets)
-	LLVector4a				*mScaledBinormals;
-	// output binormals (after normalization)
-	LLVector4a				*mBinormals;
-	// weight values that mark verts as clothing/skin
-	LLVector4a				*mClothingWeights;
-	// output texture coordinates
-	LLVector2				*mTexCoords;
-	
-	LLPolyMesh				*mReferenceMesh;
+    // mesh data shared across all instances of a given mesh
+    LLPolyMeshSharedData    *mSharedData;
+    // Single array of floats for allocation / deletion
+    F32                     *mVertexData;
+    // deformed vertices (resulting from application of morph targets)
+    LLVector4a              *mCoords;
+    // deformed normals (resulting from application of morph targets)
+    LLVector4a              *mScaledNormals;
+    // output normals (after normalization)
+    LLVector4a              *mNormals;
+    // deformed binormals (resulting from application of morph targets)
+    LLVector4a              *mScaledBinormals;
+    // output binormals (after normalization)
+    LLVector4a              *mBinormals;
+    // weight values that mark verts as clothing/skin
+    LLVector4a              *mClothingWeights;
+    // output texture coordinates
+    LLVector2               *mTexCoords;
 
-	// global mesh list
-	typedef std::map<std::string, LLPolyMeshSharedData*> LLPolyMeshSharedDataTable; 
-	static LLPolyMeshSharedDataTable sGlobalSharedMeshList;
+    LLPolyMesh              *mReferenceMesh;
 
-	// Backlink only; don't make this an LLPointer.
-	LLAvatarAppearance* mAvatarp;
+    // global mesh list
+    typedef std::map<std::string, LLPolyMeshSharedData*> LLPolyMeshSharedDataTable;
+    static LLPolyMeshSharedDataTable sGlobalSharedMeshList;
+
+    // Backlink only; don't make this an LLPointer.
+    LLAvatarAppearance* mAvatarp;
 };
 
 #endif // LL_LLPOLYMESHINTERFACE_H
