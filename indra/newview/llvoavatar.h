@@ -109,7 +109,6 @@ public:
     virtual void        initInstance(); // Called after construction to initialize the class.
 protected:
     virtual             ~LLVOAvatar();
-    static bool         handleVOAvatarPrefsChanged(const LLSD &newvalue);
 
 /**                    Initialization
  **                                                                            **
@@ -127,17 +126,18 @@ public:
     /*virtual*/ void            updateGL();
     /*virtual*/ LLVOAvatar*     asAvatar();
 
-    virtual U32             processUpdateMessage(LLMessageSystem *mesgsys,
+    virtual U32                 processUpdateMessage(LLMessageSystem *mesgsys,
                                                      void **user_data,
                                                      U32 block_num,
                                                      const EObjectUpdateType update_type,
                                                      LLDataPacker *dp);
-    virtual void            idleUpdate(LLAgent &agent, const F64 &time);
+    virtual void                idleUpdate(LLAgent &agent, const F64 &time);
     /*virtual*/ bool            updateLOD();
-    bool                    updateJointLODs();
-    void                    updateLODRiggedAttachments( void );
+    bool                        updateJointLODs();
+    void                        updateLODRiggedAttachments(void);
+    void                        setCorrectedPixelArea(F32 area);
     /*virtual*/ bool            isActive() const; // Whether this object needs to do an idleUpdate.
-    S32Bytes                totalTextureMemForUUIDS(std::set<LLUUID>& ids);
+    S32Bytes                    totalTextureMemForUUIDS(std::set<LLUUID>& ids);
     bool                        allTexturesCompletelyDownloaded(std::set<LLUUID>& ids) const;
     bool                        allLocalTexturesCompletelyDownloaded() const;
     bool                        allBakedTexturesCompletelyDownloaded() const;
@@ -226,7 +226,7 @@ public:
     // virtual
     void                    updateRiggingInfo();
     // This encodes mesh id and LOD, so we can see whether display is up-to-date.
-    std::map<LLUUID,S32>    mLastRiggingInfoKey;
+    size_t    mLastRiggingInfoKey;
 
     std::set<LLUUID>        mActiveOverrideMeshes;
     virtual void            onActiveOverrideMeshesChanged();
@@ -368,7 +368,6 @@ public:
     static F32      sLODFactor; // user-settable LOD factor
     static F32      sPhysicsLODFactor; // user-settable physics LOD factor
     static bool     sJointDebug; // output total number of joints being touched for each avatar
-    static bool     sLipSyncEnabled;
 
     static LLPointer<LLViewerTexture>  sCloudTexture;
 
@@ -620,6 +619,7 @@ public:
 protected:
     void        updateVisibility();
 private:
+    F32         mVisibilityPreference;
     U32         mVisibilityRank;
     bool        mVisible;
 

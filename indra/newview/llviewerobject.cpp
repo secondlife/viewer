@@ -7418,6 +7418,7 @@ const std::string& LLViewerObject::getAttachmentItemName() const
 //virtual
 LLVOAvatar* LLViewerObject::getAvatar() const
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
     if (getControlAvatar())
     {
         return getControlAvatar();
