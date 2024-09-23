@@ -6,5 +6,5 @@ then
     exe="$(ls "$exe/Contents/MacOS/Second Life "*)"
 fi
 
-"$exe" --autologin --luafile frame_profile_quit.lua \
+"$exe" --autologin --luafile 'frame_profile_quit.lua 228 232 26' \
      http://maps.secondlife.com/secondlife/Bug%20Island/220/224/27
