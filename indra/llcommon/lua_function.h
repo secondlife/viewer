@@ -19,6 +19,7 @@
 #include "fsyspath.h"
 #include "llerror.h"
 #include "llsd.h"
+#include "scriptcommand.h"
 #include "stringize.h"
 #include <exception>                // std::uncaught_exceptions()
 #include <memory>                   // std::shared_ptr
@@ -26,6 +27,7 @@
 #include <typeinfo>
 #include <unordered_map>
 #include <utility>                  // std::pair
+#include <vector>
 
 class LuaListener;
 
@@ -55,8 +57,10 @@ namespace lluau
     // luau removed lua_dostring(), but since we perform the equivalent luau
     // sequence in multiple places, encapsulate it. desc and text are strings
     // rather than string_views because dostring() needs pointers to nul-
-    // terminated char arrays.
-    int dostring(lua_State* L, const std::string& desc, const std::string& text);
+    // terminated char arrays. Any args are pushed to the Lua stack before
+    // calling the Lua chunk in text.
+    int dostring(lua_State* L, const std::string& desc, const std::string& text,
+                 const std::vector<std::string>& args={});
     int loadstring(lua_State* L, const std::string& desc, const std::string& text);
 
     fsyspath source_path(lua_State* L);
@@ -79,9 +83,7 @@ void lua_pushllsd(lua_State* L, const LLSD& data);
 class LuaState
 {
 public:
-    typedef std::function<void(std::string msg)> script_finished_fn;
-
-    LuaState(script_finished_fn cb={});
+    LuaState();
 
     LuaState(const LuaState&) = delete;
     LuaState& operator=(const LuaState&) = delete;
@@ -92,13 +94,19 @@ public:
 
     // expr() is for when we want to capture any results left on the stack
     // by a Lua expression, possibly including multiple return values.
+    // Pass:
+    // desc = description used for logging et al.
+    // text = Lua chunk to execute, e.g. contents of a script file
+    // args = arguments, if any, to pass to script file
+    // Returns:
     // int <  0 means error, and LLSD::asString() is the error message.
     // int == 0 with LLSD::isUndefined() means the Lua expression returned no
     //          results.
     // int == 1 means the Lua expression returned one result.
     // int >  1 with LLSD::isArray() means the Lua expression returned
     //          multiple results, represented as the entries of the array.
-    std::pair<int, LLSD> expr(const std::string& desc, const std::string& text);
+    std::pair<int, LLSD> expr(const std::string& desc, const std::string& text,
+                              const std::vector<std::string>& args={});
 
     operator lua_State*() const { return mState; }
 
@@ -118,7 +126,6 @@ private:
     /*---------------------------- feature flag ----------------------------*/
     bool mFeature{ false };
     /*---------------------------- feature flag ----------------------------*/
-    script_finished_fn mCallback;
     lua_State* mState{ nullptr };
     std::string mError;
     S32 mInterrupts{ 0 };

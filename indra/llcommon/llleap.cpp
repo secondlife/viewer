@@ -21,17 +21,18 @@
 // external library headers
 // other Linden headers
 #include "llerror.h"
-#include "llstring.h"
-#include "llprocess.h"
-#include "llevents.h"
-#include "stringize.h"
-#include "llsdutil.h"
-#include "llsdserialize.h"
 #include "llerrorcontrol.h"
+#include "llevents.h"
+#include "llexception.h"
+#include "llleaplistener.h"
+#include "llprocess.h"
+#include "llsdserialize.h"
+#include "llsdutil.h"
+#include "llstring.h"
 #include "lltimer.h"
 #include "lluuid.h"
-#include "llleaplistener.h"
-#include "llexception.h"
+#include "scriptcommand.h"
+#include "stringize.h"
 
 #if LL_MSVC
 #pragma warning (disable : 4355) // 'this' used in initializer list: yes, intentionally
@@ -107,7 +108,7 @@ public:
         // If that didn't work, no point in keeping this LLLeap object.
         if (! mChild)
         {
-            LLTHROW(Error(STRINGIZE("failed to run " << mDesc)));
+            LLTHROW(Error(stringize("failed to run ", mDesc)));
         }
 
         // Okay, launch apparently worked. Change our mDonePump listener.
@@ -484,12 +485,24 @@ LLLeap* LLLeap::create(const std::string& desc, const std::vector<std::string>& 
 
 LLLeap* LLLeap::create(const std::string& desc, const std::string& plugin, bool exc)
 {
-    // Use LLStringUtil::getTokens() to parse the command line
-    return create(desc,
-                  LLStringUtil::getTokens(plugin,
-                                          " \t\r\n", // drop_delims
-                                          "",        // no keep_delims
-                                          "\"'",     // either kind of quotes
-                                          "\\"),     // backslash escape
-                  exc);
+    // Use ScriptCommand to parse the command line
+    ScriptCommand command(plugin);
+    auto error = command.error();
+    if (! error.empty())
+    {
+        if (exc)
+        {
+            LLTHROW(Error(error));
+        }
+        return nullptr;
+    }
+
+    LLProcess::Params params;
+    params.desc = desc;
+    params.executable = command.script;
+    for (const auto& arg : command.args)
+    {
+        params.args.add(arg);
+    }
+    return create(params, exc);
 }
