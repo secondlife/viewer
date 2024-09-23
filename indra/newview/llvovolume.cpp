@@ -5377,6 +5377,7 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
         info->mModelMatrix == model_mat &&
         info->mShaderMask == shader_mask &&
         info->mAvatar == facep->mAvatar &&
+        info->mAlphaGamma == alpha_gamma &&
         info->getSkinHash() == facep->getSkinHash())
     {
         info->mCount += facep->getIndicesCount();
