@@ -1647,6 +1647,9 @@ void LLVOAvatar::renderCollisionVolumes()
     }
 }
 
+// defined in llspatialpartition.cpp -- draw a box outline in the current GL context from given center and half-size
+void drawBoxOutline(const LLVector4a& pos, const LLVector4a& size);
+
 void LLVOAvatar::renderBones(const std::string &selected_joint)
 {
     LLGLEnable blend(GL_BLEND);
@@ -1722,6 +1725,88 @@ void LLVOAvatar::renderBones(const std::string &selected_joint)
         render_sphere_and_line(begin_pos, end_pos, sphere_scale, occ_color, visible_color);
 
         gGL.popMatrix();
+    }
+
+
+    // draw joint space bounding boxes of rigged attachments in yellow
+    gGL.color3f(1.f, 1.f, 0.f);
+    for (S32 joint_num = 0; joint_num < LL_CHARACTER_MAX_ANIMATED_JOINTS; joint_num++)
+    {
+        LLJoint* joint = getJoint(joint_num);
+        LLJointRiggingInfo* rig_info = NULL;
+        if (joint_num < mJointRiggingInfoTab.size())
+        {
+            rig_info = &mJointRiggingInfoTab[joint_num];
+        }
+
+        if (joint && rig_info && rig_info->isRiggedTo())
+        {
+            LLViewerJointAttachment* as_joint_attach = dynamic_cast<LLViewerJointAttachment*>(joint);
+            if (as_joint_attach && as_joint_attach->getIsHUDAttachment())
+            {
+                // Ignore bounding box of HUD joints
+                continue;
+            }
+            gGL.pushMatrix();
+            gGL.multMatrix(&joint->getXform()->getWorldMatrix().mMatrix[0][0]);
+
+            LLVector4a pos;
+            LLVector4a size;
+
+            const LLVector4a* extents = rig_info->getRiggedExtents();
+
+            pos.setAdd(extents[0], extents[1]);
+            pos.mul(0.5f);
+            size.setSub(extents[1], extents[0]);
+            size.mul(0.5f);
+
+            drawBoxOutline(pos, size);
+
+            gGL.popMatrix();
+        }
+    }
+
+    // draw world space attachment rigged bounding boxes in cyan
+    gGL.color3f(0.f, 1.f, 1.f);
+    for (attachment_map_t::iterator iter = mAttachmentPoints.begin();
+         iter != mAttachmentPoints.end();
+         ++iter)
+    {
+        LLViewerJointAttachment* attachment = iter->second;
+
+        if (attachment->getValid())
+        {
+            for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
+                 attachment_iter != attachment->mAttachedObjects.end();
+                 ++attachment_iter)
+            {
+                LLViewerObject* attached_object = attachment_iter->get();
+                if (attached_object && !attached_object->isHUDAttachment())
+                {
+                    LLDrawable* drawable = attached_object->mDrawable;
+                    if (drawable && drawable->isState(LLDrawable::RIGGED | LLDrawable::RIGGED_CHILD))
+                    {
+                        // get face rigged extents
+                        for (S32 i = 0; i < drawable->getNumFaces(); ++i)
+                        {
+                            LLFace* facep = drawable->getFace(i);
+                            if (facep && facep->isState(LLFace::RIGGED))
+                            {
+                                LLVector4a center, size;
+
+                                LLVector4a* extents = facep->mRiggedExtents;
+
+                                center.setAdd(extents[0], extents[1]);
+                                center.mul(0.5f);
+                                size.setSub(extents[1], extents[0]);
+                                size.mul(0.5f);
+                                drawBoxOutline(center, size);
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -2322,8 +2407,6 @@ void LLVOAvatar::updateMeshData()
 {
     if (mDrawable.notNull())
     {
-        stop_glerror();
-
         S32 f_num = 0 ;
         const U32 VERTEX_NUMBER_THRESHOLD = 128 ;//small number of this means each part of an avatar has its own vertex buffer.
         const auto num_parts = mMeshLOD.size();
@@ -2450,7 +2533,6 @@ void LLVOAvatar::updateMeshData()
                 }
             }
 
-            stop_glerror();
             buff->unmapBuffer();
 
             if(!f_num)
@@ -5343,14 +5425,6 @@ U32 LLVOAvatar::renderImpostor(LLColor4U color, S32 diffuse_channel)
         gGL.setSceneBlendType(LLRender::BT_ADD);
         gGL.getTexUnit(diffuse_channel)->unbind(LLTexUnit::TT_TEXTURE);
 
-        // gGL.begin(LLRender::QUADS);
-        // gGL.vertex3fv((pos+left-up).mV);
-        // gGL.vertex3fv((pos-left-up).mV);
-        // gGL.vertex3fv((pos-left+up).mV);
-        // gGL.vertex3fv((pos+left+up).mV);
-        // gGL.end();
-
-
         gGL.begin(LLRender::LINES);
         gGL.color4f(1.f,1.f,1.f,1.f);
         F32 thickness = llmax(F32(5.0f-5.0f*(gFrameTimeSeconds-mLastImpostorUpdateFrameTime)),1.0f);
@@ -5371,15 +5445,22 @@ U32 LLVOAvatar::renderImpostor(LLColor4U color, S32 diffuse_channel)
 
     gGL.color4ubv(color.mV);
     gGL.getTexUnit(diffuse_channel)->bind(&mImpostor);
-    gGL.begin(LLRender::QUADS);
-    gGL.texCoord2f(0,0);
-    gGL.vertex3fv((pos+left-up).mV);
-    gGL.texCoord2f(1,0);
-    gGL.vertex3fv((pos-left-up).mV);
-    gGL.texCoord2f(1,1);
-    gGL.vertex3fv((pos-left+up).mV);
-    gGL.texCoord2f(0,1);
-    gGL.vertex3fv((pos+left+up).mV);
+    gGL.begin(LLRender::TRIANGLES);
+    {
+        gGL.texCoord2f(0.f, 0.f);
+        gGL.vertex3fv((pos + left - up).mV);
+        gGL.texCoord2f(1.f, 0.f);
+        gGL.vertex3fv((pos - left - up).mV);
+        gGL.texCoord2f(1.f, 1.f);
+        gGL.vertex3fv((pos - left + up).mV);
+
+        gGL.texCoord2f(0.f, 0.f);
+        gGL.vertex3fv((pos + left - up).mV);
+        gGL.texCoord2f(1.f, 1.f);
+        gGL.vertex3fv((pos - left + up).mV);
+        gGL.texCoord2f(0.f, 1.f);
+        gGL.vertex3fv((pos + left + up).mV);
+    }
     gGL.end();
     gGL.flush();
     }
@@ -10663,35 +10744,39 @@ void LLVOAvatar::updateRiggingInfo()
 
     LL_DEBUGS("RigSpammish") << getFullname() << " updating rig tab" << LL_ENDL;
 
-    std::vector<LLVOVolume*> volumes;
+    // use a local static for scratch space to avoid reallocation here
+    static std::vector<LLVOVolume*> volumes;
+    volumes.resize(0);
 
     getAssociatedVolumes(volumes);
 
-    std::map<LLUUID, S32> curr_rigging_info_key;
-
     {
-        LL_PROFILE_ZONE_NAMED_CATEGORY_AVATAR("update rig info - get key")
-
+        LL_PROFILE_ZONE_NAMED_CATEGORY_AVATAR("update rig info - get key");
+        size_t hash = 0;
         // Get current rigging info key
         for (LLVOVolume* vol : volumes)
         {
-            if (vol->isMesh() && vol->getVolume())
+            if (vol->isRiggedMesh())
             {
                 const LLUUID& mesh_id = vol->getVolume()->getParams().getSculptID();
                 S32 max_lod = llmax(vol->getLOD(), vol->mLastRiggingInfoLOD);
-                curr_rigging_info_key[mesh_id] = max_lod;
+
+                boost::hash_combine(hash, mesh_id);
+                boost::hash_combine(hash, max_lod);
             }
         }
+
+        // Check for key change, which indicates some change in volume composition or LOD.
+        if (hash == mLastRiggingInfoKey)
+        {
+            return;
+        }
+
+
+        // Something changed. Update.
+        mLastRiggingInfoKey = hash;
     }
 
-    // Check for key change, which indicates some change in volume composition or LOD.
-    if (curr_rigging_info_key == mLastRiggingInfoKey)
-    {
-        return;
-    }
-
-    // Something changed. Update.
-    mLastRiggingInfoKey = curr_rigging_info_key;
     mJointRiggingInfoTab.clear();
     for (LLVOVolume* vol : volumes)
     {

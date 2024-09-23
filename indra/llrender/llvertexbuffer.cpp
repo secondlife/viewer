@@ -289,22 +289,58 @@ static GLuint gen_buffer()
     return ret;
 }
 
+static void delete_buffers(S32 count, GLuint* buffers)
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VERTEX;
+    // wait a few frames before actually deleting the buffers to avoid
+    // synchronization issues with the GPU
+    static std::vector<GLuint> sFreeList[4];
+
+    if (gGLManager.mInited)
+    {
+        U32 idx = LLImageGL::sFrameCount % 4;
+
+        for (S32 i = 0; i < count; ++i)
+        {
+            sFreeList[idx].push_back(buffers[i]);
+        }
+
+        idx = (LLImageGL::sFrameCount + 3) % 4;
+
+        if (!sFreeList[idx].empty())
+        {
+            glDeleteBuffers((GLsizei)sFreeList[idx].size(), sFreeList[idx].data());
+            sFreeList[idx].resize(0);
+        }
+    }
+}
+
+
 #define ANALYZE_VBO_POOL 0
 
-#if LL_DARWIN
-
-// experimental -- disable VBO pooling on OS X and use glMapBuffer
+// VBO Pool interface
 class LLVBOPool
+{
+    public:
+    virtual ~LLVBOPool() = default;
+    virtual void allocate(GLenum type, U32 size, GLuint& name, U8*& data) = 0;
+    virtual void free(GLenum type, U32 size, GLuint name, U8* data) = 0;
+    virtual U64 getVramBytesUsed() = 0;
+};
+
+// VBO Pool for Apple GPUs (as in M1/M2 etc, not Intel macs)
+// Effectively disables VBO pooling
+class LLAppleVBOPool final: public LLVBOPool
 {
 public:
     U64 mAllocated = 0;
 
-    U64 getVramBytesUsed()
+    U64 getVramBytesUsed() override
     {
         return mAllocated;
     }
 
-    void allocate(GLenum type, U32 size, GLuint& name, U8*& data)
+    void allocate(GLenum type, U32 size, GLuint& name, U8*& data) override
     {
         LL_PROFILE_ZONE_SCOPED_CATEGORY_VERTEX;
         STOP_GLERROR;
@@ -324,7 +360,7 @@ public:
         }
     }
 
-    void free(GLenum type, U32 size, GLuint name, U8* data)
+    void free(GLenum type, U32 size, GLuint name, U8* data) override
     {
         LL_PROFILE_ZONE_SCOPED_CATEGORY_VERTEX;
         llassert(type == GL_ARRAY_BUFFER || type == GL_ELEMENT_ARRAY_BUFFER);
@@ -339,19 +375,17 @@ public:
         STOP_GLERROR;
         if (name)
         {
-            glDeleteBuffers(1, &name);
+            delete_buffers(1, &name);
         }
         STOP_GLERROR;
     }
 };
 
-#else
-
-class LLVBOPool
+// VBO Pool for GPUs that benefit from VBO pooling
+class LLDefaultVBOPool final : public LLVBOPool
 {
 public:
     typedef std::chrono::steady_clock::time_point Time;
-
     struct Entry
     {
         U8* mData;
@@ -359,7 +393,7 @@ public:
         Time mAge;
     };
 
-    ~LLVBOPool()
+    ~LLDefaultVBOPool() override
     {
         clear();
     }
@@ -377,7 +411,7 @@ public:
     U32 mMisses = 0;
     U32 mHits = 0;
 
-    U64 getVramBytesUsed()
+    U64 getVramBytesUsed() override
     {
         return mAllocated + mReserved;
     }
@@ -393,7 +427,7 @@ public:
         size += block_size - (size % block_size);
     }
 
-    void allocate(GLenum type, U32 size, GLuint& name, U8*& data)
+    void allocate(GLenum type, U32 size, GLuint& name, U8*& data) override
     {
         LL_PROFILE_ZONE_SCOPED_CATEGORY_VERTEX;
         llassert(type == GL_ARRAY_BUFFER || type == GL_ELEMENT_ARRAY_BUFFER);
@@ -449,7 +483,7 @@ public:
         clean();
     }
 
-    void free(GLenum type, U32 size, GLuint name, U8* data)
+    void free(GLenum type, U32 size, GLuint name, U8* data) override
     {
         LL_PROFILE_ZONE_SCOPED_CATEGORY_VERTEX;
         llassert(type == GL_ARRAY_BUFFER || type == GL_ELEMENT_ARRAY_BUFFER);
@@ -512,7 +546,7 @@ public:
                     LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("vbo cache timeout");
                     auto& entry = entries.back();
                     ll_aligned_free_16(entry.mData);
-                    glDeleteBuffers(1, &entry.mGLName);
+                    delete_buffers(1, &entry.mGLName);
                     llassert(mReserved >= iter->first);
                     mReserved -= iter->first;
                     entries.pop_back();
@@ -548,7 +582,7 @@ public:
             for (auto& entry : entries.second)
             {
                 ll_aligned_free_16(entry.mData);
-                glDeleteBuffers(1, &entry.mGLName);
+                delete_buffers(1, &entry.mGLName);
             }
         }
 
@@ -557,7 +591,7 @@ public:
             for (auto& entry : entries.second)
             {
                 ll_aligned_free_16(entry.mData);
-                glDeleteBuffers(1, &entry.mGLName);
+                delete_buffers(1, &entry.mGLName);
             }
         }
 
@@ -567,7 +601,6 @@ public:
         mVBOPool.clear();
     }
 };
-#endif
 
 static LLVBOPool* sVBOPool = nullptr;
 
@@ -600,15 +633,7 @@ void LLVertexBufferData::draw()
     gGL.loadMatrix(glm::value_ptr(mTexture0));
 
     mVB->setBuffer();
-
-    if (mMode == LLRender::QUADS && LLRender::sGLCoreProfile)
-    {
-        mVB->drawArrays(LLRender::TRIANGLES, 0, mCount);
-    }
-    else
-    {
-        mVB->drawArrays(mMode, 0, mCount);
-    }
+    mVB->drawArrays(mMode, 0, mCount);
 
     gGL.popMatrix();
     gGL.matrixMode(LLRender::MM_PROJECTION);
@@ -681,7 +706,6 @@ const U32 LLVertexBuffer::sGLMode[LLRender::NUM_MODES] =
     GL_POINTS,
     GL_LINES,
     GL_LINE_STRIP,
-    GL_QUADS,
     GL_LINE_LOOP,
 };
 
@@ -896,7 +920,16 @@ void LLVertexBuffer::drawArrays(U32 mode, U32 first, U32 count) const
 void LLVertexBuffer::initClass(LLWindow* window)
 {
     llassert(sVBOPool == nullptr);
-    sVBOPool = new LLVBOPool();
+    if (gGLManager.mIsApple)
+    {
+        LL_INFOS() << "VBO Pooling Disabled" << LL_ENDL;
+        sVBOPool = new LLAppleVBOPool();
+    }
+    else
+    {
+        LL_INFOS() << "VBO Pooling Enabled" << LL_ENDL;
+        sVBOPool = new LLDefaultVBOPool();
+    }
 
 #if ENABLE_GL_WORK_QUEUE
     sQueue = new GLWorkQueue();
@@ -964,7 +997,6 @@ void LLVertexBuffer::flushBuffers()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VERTEX;
     // must only be called from main thread
-    llassert(LLCoros::on_main_thread_main_coro());
     for (auto& buffer : sMappedBuffers)
     {
         buffer->_unmapBuffer();
@@ -1231,28 +1263,29 @@ U8* LLVertexBuffer::mapVertexBuffer(LLVertexBuffer::AttributeType type, U32 inde
         count = mNumVerts - index;
     }
 
-#if !LL_DARWIN
-    U32 start = mOffsets[type] + sTypeSize[type] * index;
-    U32 end = start + sTypeSize[type] * count-1;
-
-    bool flagged = false;
-    // flag region as mapped
-    for (U32 i = 0; i < mMappedVertexRegions.size(); ++i)
+    if (!gGLManager.mIsApple)
     {
-        MappedRegion& region = mMappedVertexRegions[i];
-        if (expand_region(region, start, end))
+        U32 start = mOffsets[type] + sTypeSize[type] * index;
+        U32 end = start + sTypeSize[type] * count-1;
+
+        bool flagged = false;
+        // flag region as mapped
+        for (U32 i = 0; i < mMappedVertexRegions.size(); ++i)
         {
-            flagged = true;
-            break;
+            MappedRegion& region = mMappedVertexRegions[i];
+            if (expand_region(region, start, end))
+            {
+                flagged = true;
+                break;
+            }
+        }
+
+        if (!flagged)
+        {
+            //didn't expand an existing region, make a new one
+            mMappedVertexRegions.push_back({ start, end });
         }
     }
-
-    if (!flagged)
-    {
-        //didn't expand an existing region, make a new one
-        mMappedVertexRegions.push_back({ start, end });
-    }
-#endif
     return mMappedData+mOffsets[type]+sTypeSize[type]*index;
 }
 
@@ -1267,28 +1300,29 @@ U8* LLVertexBuffer::mapIndexBuffer(U32 index, S32 count)
         count = mNumIndices-index;
     }
 
-#if !LL_DARWIN
-    U32 start = sizeof(U16) * index;
-    U32 end = start + sizeof(U16) * count-1;
-
-    bool flagged = false;
-    // flag region as mapped
-    for (U32 i = 0; i < mMappedIndexRegions.size(); ++i)
+    if (!gGLManager.mIsApple)
     {
-        MappedRegion& region = mMappedIndexRegions[i];
-        if (expand_region(region, start, end))
+        U32 start = sizeof(U16) * index;
+        U32 end = start + sizeof(U16) * count-1;
+
+        bool flagged = false;
+        // flag region as mapped
+        for (U32 i = 0; i < mMappedIndexRegions.size(); ++i)
         {
-            flagged = true;
-            break;
+            MappedRegion& region = mMappedIndexRegions[i];
+            if (expand_region(region, start, end))
+            {
+                flagged = true;
+                break;
+            }
+        }
+
+        if (!flagged)
+        {
+            //didn't expand an existing region, make a new one
+            mMappedIndexRegions.push_back({ start, end });
         }
     }
-
-    if (!flagged)
-    {
-        //didn't expand an existing region, make a new one
-        mMappedIndexRegions.push_back({ start, end });
-    }
-#endif
 
     return mMappedIndexData + sizeof(U16)*index;
 }
@@ -1301,34 +1335,40 @@ U8* LLVertexBuffer::mapIndexBuffer(U32 index, S32 count)
 //  dst -- mMappedData or mMappedIndexData
 void LLVertexBuffer::flush_vbo(GLenum target, U32 start, U32 end, void* data, U8* dst)
 {
-#if LL_DARWIN
-    LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("vb memcpy");
-    STOP_GLERROR;
-    // copy into mapped buffer
-    memcpy(dst+start, data, end-start+1);
-#else
-    llassert(target == GL_ARRAY_BUFFER ? sGLRenderBuffer == mGLBuffer : sGLRenderIndices == mGLIndices);
-
-    // skip mapped data and stream to GPU via glBufferSubData
-    if (end != 0)
+    if (gGLManager.mIsApple)
     {
-        LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("glBufferSubData");
-        LL_PROFILE_ZONE_NUM(start);
-        LL_PROFILE_ZONE_NUM(end);
-        LL_PROFILE_ZONE_NUM(end-start);
+        // on OS X, flush_vbo doesn't actually write to the GL buffer, so be sure to call
+        // _mapBuffer to tag the buffer for flushing to GL
+        _mapBuffer();
+        LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("vb memcpy");
+        STOP_GLERROR;
+        // copy into mapped buffer
+        memcpy(dst+start, data, end-start+1);
+    }
+    else
+    {
+        llassert(target == GL_ARRAY_BUFFER ? sGLRenderBuffer == mGLBuffer : sGLRenderIndices == mGLIndices);
 
-        constexpr U32 block_size = 65536;
-
-        for (U32 i = start; i <= end; i += block_size)
+        // skip mapped data and stream to GPU via glBufferSubData
+        if (end != 0)
         {
-            //LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("glBufferSubData block");
-            //LL_PROFILE_GPU_ZONE("glBufferSubData");
-            U32 tend = llmin(i + block_size, end);
-            U32 size = tend - i + 1;
-            glBufferSubData(target, i, size, (U8*) data + (i-start));
+            LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("glBufferSubData");
+            LL_PROFILE_ZONE_NUM(start);
+            LL_PROFILE_ZONE_NUM(end);
+            LL_PROFILE_ZONE_NUM(end-start);
+
+            constexpr U32 block_size = 65536;
+
+            for (U32 i = start; i <= end; i += block_size)
+            {
+                //LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("glBufferSubData block");
+                //LL_PROFILE_GPU_ZONE("glBufferSubData");
+                U32 tend = llmin(i + block_size, end);
+                U32 size = tend - i + 1;
+                glBufferSubData(target, i, size, (U8*) data + (i-start));
+            }
         }
     }
-#endif
 }
 
 void LLVertexBuffer::unmapBuffer()
@@ -1338,8 +1378,6 @@ void LLVertexBuffer::unmapBuffer()
 
 void LLVertexBuffer::_mapBuffer()
 {
-    // must only be called from main thread
-    llassert(LLCoros::on_main_thread_main_coro());
     if (!mMapped)
     {
         mMapped = true;
@@ -1363,114 +1401,116 @@ void LLVertexBuffer::_unmapBuffer()
         }
     };
 
-#if LL_DARWIN
-    STOP_GLERROR;
-    if (mMappedData)
+    if (gGLManager.mIsApple)
     {
-        if (mGLBuffer)
+        STOP_GLERROR;
+        if (mMappedData)
         {
-            glDeleteBuffers(1, &mGLBuffer);
+            if (mGLBuffer)
+            {
+                delete_buffers(1, &mGLBuffer);
+            }
+            mGLBuffer = gen_buffer();
+            glBindBuffer(GL_ARRAY_BUFFER, mGLBuffer);
+            sGLRenderBuffer = mGLBuffer;
+            glBufferData(GL_ARRAY_BUFFER, mSize, mMappedData, GL_STATIC_DRAW);
         }
-        mGLBuffer = gen_buffer();
-        glBindBuffer(GL_ARRAY_BUFFER, mGLBuffer);
-        sGLRenderBuffer = mGLBuffer;
-        glBufferData(GL_ARRAY_BUFFER, mSize, mMappedData, GL_STATIC_DRAW);
-    }
-    else if (mGLBuffer != sGLRenderBuffer)
-    {
-        glBindBuffer(GL_ARRAY_BUFFER, mGLBuffer);
-        sGLRenderBuffer = mGLBuffer;
-    }
-    STOP_GLERROR;
-
-    if (mMappedIndexData)
-    {
-        if (mGLIndices)
-        {
-            glDeleteBuffers(1, &mGLIndices);
-        }
-
-        mGLIndices = gen_buffer();
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mGLIndices);
-        sGLRenderIndices = mGLIndices;
-
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, mIndicesSize, mMappedIndexData, GL_STATIC_DRAW);
-    }
-    else if (mGLIndices != sGLRenderIndices)
-    {
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mGLIndices);
-        sGLRenderIndices = mGLIndices;
-    }
-    STOP_GLERROR;
-#else
-
-    if (!mMappedVertexRegions.empty())
-    {
-        LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("unmapBuffer - vertex");
-
-        if (sGLRenderBuffer != mGLBuffer)
+        else if (mGLBuffer != sGLRenderBuffer)
         {
             glBindBuffer(GL_ARRAY_BUFFER, mGLBuffer);
             sGLRenderBuffer = mGLBuffer;
         }
+        STOP_GLERROR;
 
-        U32 start = 0;
-        U32 end = 0;
-
-        std::sort(mMappedVertexRegions.begin(), mMappedVertexRegions.end(), SortMappedRegion());
-
-        for (U32 i = 0; i < mMappedVertexRegions.size(); ++i)
+        if (mMappedIndexData)
         {
-            const MappedRegion& region = mMappedVertexRegions[i];
-            if (region.mStart == end + 1)
+            if (mGLIndices)
             {
-                end = region.mEnd;
+                delete_buffers(1, &mGLIndices);
             }
-            else
-            {
-                flush_vbo(GL_ARRAY_BUFFER, start, end, (U8*)mMappedData + start, mMappedData);
-                start = region.mStart;
-                end = region.mEnd;
-            }
+
+            mGLIndices = gen_buffer();
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mGLIndices);
+            sGLRenderIndices = mGLIndices;
+
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER, mIndicesSize, mMappedIndexData, GL_STATIC_DRAW);
         }
-
-        flush_vbo(GL_ARRAY_BUFFER, start, end, (U8*)mMappedData + start, mMappedData);
-        mMappedVertexRegions.clear();
-    }
-
-    if (!mMappedIndexRegions.empty())
-    {
-        LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("unmapBuffer - index");
-
-        if (mGLIndices != sGLRenderIndices)
+        else if (mGLIndices != sGLRenderIndices)
         {
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mGLIndices);
             sGLRenderIndices = mGLIndices;
         }
-        U32 start = 0;
-        U32 end = 0;
-
-        std::sort(mMappedIndexRegions.begin(), mMappedIndexRegions.end(), SortMappedRegion());
-
-        for (U32 i = 0; i < mMappedIndexRegions.size(); ++i)
+        STOP_GLERROR;
+    }
+    else
+    {
+        if (!mMappedVertexRegions.empty())
         {
-            const MappedRegion& region = mMappedIndexRegions[i];
-            if (region.mStart == end + 1)
+            LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("unmapBuffer - vertex");
+
+            if (sGLRenderBuffer != mGLBuffer)
             {
-                end = region.mEnd;
+                glBindBuffer(GL_ARRAY_BUFFER, mGLBuffer);
+                sGLRenderBuffer = mGLBuffer;
             }
-            else
+
+            U32 start = 0;
+            U32 end = 0;
+
+            std::sort(mMappedVertexRegions.begin(), mMappedVertexRegions.end(), SortMappedRegion());
+
+            for (U32 i = 0; i < mMappedVertexRegions.size(); ++i)
             {
-                flush_vbo(GL_ELEMENT_ARRAY_BUFFER, start, end, (U8*)mMappedIndexData + start, mMappedIndexData);
-                start = region.mStart;
-                end = region.mEnd;
+                const MappedRegion& region = mMappedVertexRegions[i];
+                if (region.mStart == end + 1)
+                {
+                    end = region.mEnd;
+                }
+                else
+                {
+                    flush_vbo(GL_ARRAY_BUFFER, start, end, (U8*)mMappedData + start, mMappedData);
+                    start = region.mStart;
+                    end = region.mEnd;
+                }
             }
+
+            flush_vbo(GL_ARRAY_BUFFER, start, end, (U8*)mMappedData + start, mMappedData);
+            mMappedVertexRegions.clear();
         }
 
-        flush_vbo(GL_ELEMENT_ARRAY_BUFFER, start, end, (U8*)mMappedIndexData + start, mMappedIndexData);
-        mMappedIndexRegions.clear();
+        if (!mMappedIndexRegions.empty())
+        {
+            LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("unmapBuffer - index");
+
+            if (mGLIndices != sGLRenderIndices)
+            {
+                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mGLIndices);
+                sGLRenderIndices = mGLIndices;
+            }
+            U32 start = 0;
+            U32 end = 0;
+
+            std::sort(mMappedIndexRegions.begin(), mMappedIndexRegions.end(), SortMappedRegion());
+
+            for (U32 i = 0; i < mMappedIndexRegions.size(); ++i)
+            {
+                const MappedRegion& region = mMappedIndexRegions[i];
+                if (region.mStart == end + 1)
+                {
+                    end = region.mEnd;
+                }
+                else
+                {
+                    flush_vbo(GL_ELEMENT_ARRAY_BUFFER, start, end, (U8*)mMappedIndexData + start, mMappedIndexData);
+                    start = region.mStart;
+                    end = region.mEnd;
+                }
+            }
+
+            flush_vbo(GL_ELEMENT_ARRAY_BUFFER, start, end, (U8*)mMappedIndexData + start, mMappedIndexData);
+            mMappedIndexRegions.clear();
+        }
     }
-#endif
 }
 
 //----------------------------------------------------------------------------
@@ -1592,12 +1632,6 @@ bool LLVertexBuffer::getClothWeightStrider(LLStrider<LLVector4>& strider, U32 in
 void LLVertexBuffer::setBuffer()
 {
     STOP_GLERROR;
-#if LL_DARWIN
-    if (!mGLBuffer)
-    { // OS X doesn't allocate a buffer until we call unmapBuffer
-        return;
-    }
-#endif
 
     if (mMapped)
     {

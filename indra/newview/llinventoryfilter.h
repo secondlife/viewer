@@ -341,7 +341,7 @@ public:
     bool checkAgainstFilterThumbnails(const LLUUID& object_id) const;
 
 private:
-    bool                areDateLimitsSet();
+    bool                areDateLimitsSet() const;
     bool                checkAgainstFilterSubString(const std::string& desc) const;
     bool                checkAgainstFilterType(const class LLFolderViewModelItemInventory* listener) const;
     bool                checkAgainstFilterType(const LLInventoryItem* item) const;

@@ -285,12 +285,17 @@ void LLVisualParamHint::draw(F32 alpha)
     gGL.color4f(1.f, 1.f, 1.f, alpha);
 
     LLGLSUIDefault gls_ui;
-    gGL.begin(LLRender::QUADS);
+    gGL.begin(LLRender::TRIANGLES);
     {
         gGL.texCoord2i(0, 1);
         gGL.vertex2i(0, mFullHeight);
         gGL.texCoord2i(0, 0);
         gGL.vertex2i(0, 0);
+        gGL.texCoord2i(1, 0);
+        gGL.vertex2i(mFullWidth, 0);
+
+        gGL.texCoord2i(0, 1);
+        gGL.vertex2i(0, mFullHeight);
         gGL.texCoord2i(1, 0);
         gGL.vertex2i(mFullWidth, 0);
         gGL.texCoord2i(1, 1);

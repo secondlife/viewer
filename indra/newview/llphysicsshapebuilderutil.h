@@ -79,6 +79,8 @@ public:
 
     bool shouldForceConvex() const { return mForceConvex; }
 
+    bool hasDecomposition() const;
+
 private:
     bool mForceConvex;
 };

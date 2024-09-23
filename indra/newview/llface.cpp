@@ -56,6 +56,7 @@
 #include "llvoavatar.h"
 #include "llsculptidsize.h"
 #include "llmeshrepository.h"
+#include "llskinningutil.h"
 
 #if LL_LINUX
 // Work-around spurious used before init warning on Vector4a
@@ -2184,28 +2185,96 @@ F32 LLFace::getTextureVirtualSize()
 
 bool LLFace::calcPixelArea(F32& cos_angle_to_view_dir, F32& radius)
 {
+    constexpr F32 PIXEL_AREA_UPDATE_PERIOD = 0.1f;
+    // this is an expensive operation and the result is valid (enough) for several frames
+    // don't update every frame
+    if (gFrameTimeSeconds - mLastPixelAreaUpdate < PIXEL_AREA_UPDATE_PERIOD)
+    {
+        return true;
+    }
+
     LL_PROFILE_ZONE_SCOPED_CATEGORY_FACE;
 
     //get area of circle around face
-
     LLVector4a center;
     LLVector4a size;
 
-
     if (isState(LLFace::RIGGED))
     {
-        //override with avatar bounding box
+        LL_PROFILE_ZONE_NAMED_CATEGORY_FACE("calcPixelArea - rigged");
+        //override with joint volume face joint bounding boxes
         LLVOAvatar* avatar = mVObjp->getAvatar();
+        bool hasRiggedExtents = false;
+
         if (avatar && avatar->mDrawable)
         {
-            center.load3(avatar->getPositionAgent().mV);
-            const LLVector4a* exts = avatar->mDrawable->getSpatialExtents();
-            size.setSub(exts[1], exts[0]);
+            LLVolume* volume = mVObjp->getVolume();
+            if (volume)
+            {
+                LLVolumeFace& face = volume->getVolumeFace(mTEOffset);
+
+                auto& rigInfo = face.mJointRiggingInfoTab;
+
+                if (rigInfo.needsUpdate())
+                {
+                    LLVOVolume* vo_volume = (LLVOVolume*)mVObjp.get();
+                    LLVOAvatar* avatar = mVObjp->getAvatar();
+                    const LLMeshSkinInfo* skin = vo_volume->getSkinInfo();
+                    LLSkinningUtil::updateRiggingInfo(skin, avatar, face);
+                }
+
+                // calculate the world space bounding box of the face by combining the bounding boxes of all the joints
+                LLVector4a& minp = mRiggedExtents[0];
+                LLVector4a& maxp = mRiggedExtents[1];
+                minp = LLVector4a(FLT_MAX, FLT_MAX, FLT_MAX);
+                maxp = LLVector4a(-FLT_MAX, -FLT_MAX, -FLT_MAX);
+
+                for (S32 i = 0; i < rigInfo.size(); i++)
+                {
+                    auto& jointInfo = rigInfo[i];
+                    if (jointInfo.isRiggedTo())
+                    {
+                        LLJoint* joint = avatar->getJoint(i);
+
+                        if (joint)
+                        {
+                            LLVector4a jointPos;
+
+                            LLMatrix4a worldMat;
+                            worldMat.loadu((F32*)&joint->getWorldMatrix().mMatrix[0][0]);
+
+                            LLVector4a extents[2];
+
+                            matMulBoundBox(worldMat, jointInfo.getRiggedExtents(), extents);
+
+                            minp.setMin(minp, extents[0]);
+                            maxp.setMax(maxp, extents[1]);
+                            hasRiggedExtents = true;
+                        }
+                    }
+                }
+            }
         }
-        else
+
+        if (!hasRiggedExtents)
         {
+            // no rigged extents, zero out bounding box and skip update
+            mRiggedExtents[0] = mRiggedExtents[1] = LLVector4a(0.f, 0.f, 0.f);
+
             return false;
         }
+
+        center.setAdd(mRiggedExtents[1], mRiggedExtents[0]);
+        center.mul(0.5f);
+        size.setSub(mRiggedExtents[1], mRiggedExtents[0]);
+    }
+    else if (mDrawablep && mVObjp.notNull() && mVObjp->getPartitionType() == LLViewerRegion::PARTITION_PARTICLE && mDrawablep->getSpatialGroup())
+    { // use box of spatial group for particles (over approximates size, but we don't actually have a good size per particle)
+        LLSpatialGroup* group = mDrawablep->getSpatialGroup();
+        const LLVector4a* extents = group->getExtents();
+        size.setSub(extents[1], extents[0]);
+        center.setAdd(extents[1], extents[0]);
+        center.mul(0.5f);
     }
     else
     {
@@ -2231,6 +2300,10 @@ bool LLFace::calcPixelArea(F32& cos_angle_to_view_dir, F32& radius)
     F32 app_angle = atanf((F32) sqrt(size_squared) / dist);
     radius = app_angle*LLDrawable::sCurPixelAngle;
     mPixelArea = radius*radius * 3.14159f;
+
+    // remember last update time, add 10% noise to avoid all faces updating at the same time
+    mLastPixelAreaUpdate = gFrameTimeSeconds + ll_frand() * PIXEL_AREA_UPDATE_PERIOD * 0.1f;
+
     LLVector4a x_axis;
     x_axis.load3(camera->getXAxis().mV);
     cos_angle_to_view_dir = lookAt.dot3(x_axis).getF32();

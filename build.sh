@@ -517,15 +517,6 @@ then
   fi
 fi
 
-# Some of the uploads takes a long time to finish in the codeticket backend,
-# causing the next codeticket upload attempt to fail.
-# Inserting this after each potentially large upload may prevent those errors.
-# JJ is making changes to Codeticket that we hope will eliminate this failure, then this can be removed
-wait_for_codeticket()
-{
-    sleep $(( 60 * 6 ))
-}
-
 # check status and upload results to S3
 if $succeeded
 then

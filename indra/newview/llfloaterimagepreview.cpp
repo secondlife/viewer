@@ -285,7 +285,7 @@ void LLFloaterImagePreview::draw()
             }
 
             gGL.color3f(1.f, 1.f, 1.f);
-            gGL.begin( LLRender::QUADS );
+            gGL.begin(LLRender::TRIANGLES);
             {
                 gGL.texCoord2f(mPreviewImageRect.mLeft, mPreviewImageRect.mTop);
                 gGL.vertex2i(PREVIEW_HPAD, PREVIEW_TEXTURE_HEIGHT + PREVIEW_VPAD);
@@ -293,6 +293,11 @@ void LLFloaterImagePreview::draw()
                 gGL.vertex2i(PREVIEW_HPAD, PREVIEW_HPAD + PREF_BUTTON_HEIGHT + PREVIEW_HPAD);
                 gGL.texCoord2f(mPreviewImageRect.mRight, mPreviewImageRect.mBottom);
                 gGL.vertex2i(r.getWidth() - PREVIEW_HPAD, PREVIEW_HPAD + PREF_BUTTON_HEIGHT + PREVIEW_HPAD);
+
+                gGL.texCoord2f(mPreviewImageRect.mRight, mPreviewImageRect.mBottom);
+                gGL.vertex2i(r.getWidth() - PREVIEW_HPAD, PREVIEW_HPAD + PREF_BUTTON_HEIGHT + PREVIEW_HPAD);
+                gGL.texCoord2f(mPreviewImageRect.mLeft, mPreviewImageRect.mTop);
+                gGL.vertex2i(PREVIEW_HPAD, PREVIEW_TEXTURE_HEIGHT + PREVIEW_VPAD);
                 gGL.texCoord2f(mPreviewImageRect.mRight, mPreviewImageRect.mTop);
                 gGL.vertex2i(r.getWidth() - PREVIEW_HPAD, PREVIEW_TEXTURE_HEIGHT + PREVIEW_VPAD);
             }
@@ -317,7 +322,7 @@ void LLFloaterImagePreview::draw()
                     gGL.getTexUnit(0)->bind(mAvatarPreview);
                 }
 
-                gGL.begin( LLRender::QUADS );
+                gGL.begin(LLRender::TRIANGLES);
                 {
                     gGL.texCoord2f(0.f, 1.f);
                     gGL.vertex2i(PREVIEW_HPAD, PREVIEW_TEXTURE_HEIGHT + PREVIEW_VPAD);
@@ -325,6 +330,11 @@ void LLFloaterImagePreview::draw()
                     gGL.vertex2i(PREVIEW_HPAD, PREVIEW_HPAD + PREF_BUTTON_HEIGHT + PREVIEW_HPAD);
                     gGL.texCoord2f(1.f, 0.f);
                     gGL.vertex2i(r.getWidth() - PREVIEW_HPAD, PREVIEW_HPAD + PREF_BUTTON_HEIGHT + PREVIEW_HPAD);
+
+                    gGL.texCoord2f(1.f, 0.f);
+                    gGL.vertex2i(r.getWidth() - PREVIEW_HPAD, PREVIEW_HPAD + PREF_BUTTON_HEIGHT + PREVIEW_HPAD);
+                    gGL.texCoord2f(0.f, 1.f);
+                    gGL.vertex2i(PREVIEW_HPAD, PREVIEW_TEXTURE_HEIGHT + PREVIEW_VPAD);
                     gGL.texCoord2f(1.f, 1.f);
                     gGL.vertex2i(r.getWidth() - PREVIEW_HPAD, PREVIEW_TEXTURE_HEIGHT + PREVIEW_VPAD);
                 }
