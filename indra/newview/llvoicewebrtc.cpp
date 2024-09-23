@@ -2769,17 +2769,6 @@ bool LLVoiceWebRTCConnection::connectionStateMachine()
         {
             mRetryWaitPeriod = 0;
             mRetryWaitSecs   = (F32)((F32)rand() / (F32)RAND_MAX) + 0.5f;
-            LLUUID agentRegionID;
-            if (isSpatial() && gAgent.getRegion())
-            {
-
-                bool primary = (mRegionID == gAgent.getRegion()->getRegionID());
-                if (primary != mPrimary)
-                {
-                    mPrimary = primary;
-                    sendJoin();
-                }
-            }
 
             // we'll stay here as long as the session remains up.
             if (mShutDown)
