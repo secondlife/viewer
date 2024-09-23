@@ -75,7 +75,7 @@ static LLPanelInjector<LLPanelSnapshotLocal> panel_class("llpanelsnapshotlocal")
 LLPanelSnapshotLocal::LLPanelSnapshotLocal()
 {
     mLocalFormat = gSavedSettings.getS32("SnapshotFormat");
-    mCommitCallbackRegistrar.add("Local.Cancel",    boost::bind(&LLPanelSnapshotLocal::cancel,      this));
+    mCommitCallbackRegistrar.add("Local.Cancel",   { boost::bind(&LLPanelSnapshotLocal::cancel, this) });
 }
 
 // virtual

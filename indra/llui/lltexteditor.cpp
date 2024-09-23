@@ -1131,7 +1131,7 @@ void LLTextEditor::removeChar()
 // Add a single character to the text
 S32 LLTextEditor::addChar(S32 pos, llwchar wc)
 {
-    if ((wstring_utf8_length(getWText()) + wchar_utf8_length(wc)) > mMaxTextByteLength)
+    if ( (wstring_utf8_length( getWText() ) + wchar_utf8_length( wc ))  > mMaxTextByteLength)
     {
         LLUI::getInstance()->reportBadKeystroke();
         return 0;
@@ -1166,12 +1166,12 @@ S32 LLTextEditor::addChar(S32 pos, llwchar wc)
 
 void LLTextEditor::addChar(llwchar wc)
 {
-    if (!getEnabled())
+    if( !getEnabled() )
     {
         return;
     }
 
-    if (hasSelection())
+    if( hasSelection() )
     {
         deleteSelection(true);
     }
@@ -1595,7 +1595,8 @@ void LLTextEditor::cleanStringForPaste(LLWString & clean_string)
 }
 
 
-void LLTextEditor::pasteTextWithLinebreaks(LLWString & clean_string)
+template <>
+void LLTextEditor::pasteTextWithLinebreaks<LLWString>(const LLWString & clean_string)
 {
     std::basic_string<llwchar>::size_type start = 0;
     std::basic_string<llwchar>::size_type pos = clean_string.find('\n',start);

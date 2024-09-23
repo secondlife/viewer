@@ -1,8 +1,7 @@
 /**
- * @file llkeyboardsdl.h
- * @brief Handler for assignable key bindings
+ * @author This module has many fathers, and it shows.
  *
- * $LicenseInfo:firstyear=2004&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
  *
@@ -24,11 +23,11 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLKEYBOARDSDL_H
-#define LL_LLKEYBOARDSDL_H
+#ifndef LL_LLKEYBOARDSDL2_H
+#define LL_LLKEYBOARDSDL2_H
 
 #include "llkeyboard.h"
-#include "SDL/SDL.h"
+#include "SDL2/SDL.h"
 
 class LLKeyboardSDL : public LLKeyboard
 {
@@ -36,8 +35,8 @@ public:
     LLKeyboardSDL();
     /*virtual*/ ~LLKeyboardSDL() {};
 
-    /*virtual*/ bool    handleKeyUp(const U16 key, MASK mask);
-    /*virtual*/ bool    handleKeyDown(const U16 key, MASK mask);
+    /*virtual*/ bool    handleKeyUp(const U32 key, MASK mask);
+    /*virtual*/ bool    handleKeyDown(const U32 key, MASK mask);
     /*virtual*/ void    resetMaskKeys();
     /*virtual*/ MASK    currentMask(bool for_mouse_event);
     /*virtual*/ void    scanKeyboard();
@@ -45,11 +44,14 @@ public:
 protected:
     MASK    updateModifiers(const U32 mask);
     void    setModifierKeyLevel( KEY key, bool new_state );
-    bool    translateNumpadKey( const U16 os_key, KEY *translated_key );
+    bool    translateNumpadKey( const U32 os_key, KEY *translated_key );
     U16 inverseTranslateNumpadKey(const KEY translated_key);
 private:
-    std::map<U16, KEY> mTranslateNumpadMap;  // special map for translating OS keys to numpad keys
-    std::map<KEY, U16> mInvTranslateNumpadMap; // inverse of the above
+    std::map<U32, KEY> mTranslateNumpadMap;  // special map for translating OS keys to numpad keys
+    std::map<KEY, U32> mInvTranslateNumpadMap; // inverse of the above
+
+public:
+    static U32 mapSDL2toWin( U32 );
 };
 
 #endif

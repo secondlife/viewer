@@ -47,7 +47,7 @@ const std::string LAG_GOOD_IMAGE_NAME     = "lag_status_good.tga";
 LLFloaterLagMeter::LLFloaterLagMeter(const LLSD& key)
     :   LLFloater(key)
 {
-    mCommitCallbackRegistrar.add("LagMeter.ClickShrink",  boost::bind(&LLFloaterLagMeter::onClickShrink, this));
+    mCommitCallbackRegistrar.add("LagMeter.ClickShrink",  { boost::bind(&LLFloaterLagMeter::onClickShrink, this) });
 }
 
 bool LLFloaterLagMeter::postBuild()

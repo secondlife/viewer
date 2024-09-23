@@ -170,7 +170,7 @@ namespace
             : LLEventTimer(refresh), mLiveFile(f)
             { }
 
-        bool tick()
+        bool tick() override
         {
             mLiveFile.checkAndReload();
             return false;

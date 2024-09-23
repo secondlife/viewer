@@ -407,6 +407,44 @@
         value="2"/>
   </combo_box>
   <text
+   layout="topleft"
+   height="15"
+   left="260"
+   top_pad="-18"
+   width="100"
+   name="noise_suppression_label">
+     Noise Suppression
+  </text>
+  <combo_box
+   control_name="VoiceNoiseSuppressionLevel"
+   layout="topleft"
+   height="23"
+   left_pad="10"
+   top_pad="-20"
+   name="noise_suppression_combo"
+   width="80">
+    <item
+     label="Off"
+     name="noise_suppression_none"
+     value="0"/>
+    <item
+     label="Low"
+     name="noise_suppression_low"
+     value="1"/>
+    <item
+     label="Moderate"
+     name="noise_suppression_moderate"
+     value="2"/>
+    <item
+     label="High"
+     name="noise_suppression_high"
+     value="3"/>
+    <item
+     label="Max"
+     name="noise_suppression_max"
+     value="4"/>
+  </combo_box>
+  <text
    type="string"
    length="1"
    follows="left|top"
@@ -497,44 +535,16 @@
    label="Play sounds from gestures"
    top_pad="5"
    left="20"/>
-  <text
-   layout="topleft"
+  <check_box
+   control_name="VoiceVisualizerEnabled"
    height="15"
+   tool_tip="Check to show voice dot indicator above avatars"
+   label="Show voice dot above avatars"
+   layout="topleft"
+   name="voice_dot_visualizer"
    left="260"
-   top_pad="-12"
-   width="100"
-   name="noise_suppression_label">
-    Noise Suppression
-  </text>
-  <combo_box
-      control_name="VoiceNoiseSuppressionLevel"
-      layout="topleft"
-      height="23"
-      left_pad="10"
-      top_pad="-18"
-      name="noise_suppression_combo"
-      width="80">
-  <item
-      label="Off"
-      name="noise_suppression_none"
-      value="0"/>
-  <item
-      label="Low"
-      name="noise_suppression_low"
-      value="1"/>
-  <item
-      label="Moderate"
-      name="noise_suppression_moderate"
-      value="2"/>
-  <item
-      label="High"
-      name="noise_suppression_high"
-      value="3"/>
-  <item
-      label="Max"
-      name="noise_suppression_max"
-      value="4"/>
-  </combo_box>
+   top_pad="-15"
+   width="200"/>
   <button
    control_name="ShowDeviceSettings"
    follows="left|top"

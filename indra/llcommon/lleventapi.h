@@ -157,6 +157,7 @@ protected:
     LLEventAPI(const LL::LazyEventAPIParams&);
 
 private:
+    bool process(const LLSD& event) const override;
     std::string mDesc;
 };
 

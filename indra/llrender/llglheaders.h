@@ -41,12 +41,28 @@
 # include "GL/glh_extensions.h"
 # undef __APPLE__
 
+#elif LL_LINUX
+#define GL_GLEXT_PROTOTYPES
+#define GLX_GLEXT_PROTOTYPES
+
+#include "GL/gl.h"
+#include "GL/glext.h"
+#include "GL/glu.h"
+
+// The __APPLE__ kludge is to make glh_extensions.h not symbol-clash horribly
+# define __APPLE__
+# include "GL/glh_extensions.h"
+# undef __APPLE__
+
+# include "GL/glx.h"
+# include "GL/glxext.h"
+
 #elif LL_WINDOWS
 //----------------------------------------------------------------------------
 // LL_WINDOWS
 
 // windows gl headers depend on things like APIENTRY, so include windows.
-#include "llwin32headerslean.h"
+#include "llwin32headers.h"
 
 //----------------------------------------------------------------------------
 #include <GL/gl.h>
@@ -1028,6 +1044,25 @@ extern void glGetBufferPointervARB (GLenum, GLenum, GLvoid* *);
 #endif
 
 #include <OpenGL/gl.h>
+
+#elif LL_LINUX
+
+#define GL_GLEXT_PROTOTYPES
+#define GLX_GLEXT_PROTOTYPES
+
+#include "GL/gl.h"
+#include "GL/glu.h"
+#include "GL/glext.h"
+#include "GL/glx.h"
+
+// The __APPLE__ kludge is to make glh_extensions.h not symbol-clash horribly
+# define __APPLE__
+# include "GL/glh_extensions.h"
+# undef __APPLE__
+
+// #include <X11/Xlib.h>
+// #include <X11/Xutil.h>
+#include "GL/glh_extensions.h"
 
 #endif // LL_MESA / LL_WINDOWS / LL_DARWIN
 

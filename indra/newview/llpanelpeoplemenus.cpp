@@ -58,7 +58,7 @@ NearbyPeopleContextMenu gNearbyPeopleContextMenu;
 LLContextMenu* PeopleContextMenu::createMenu()
 {
     // set up the callbacks for all of the avatar menu items
-    LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+    LLUICtrl::ScopedRegistrarHelper registrar;
     LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
     LLContextMenu* menu;
 
@@ -68,21 +68,21 @@ LLContextMenu* PeopleContextMenu::createMenu()
 
         const LLUUID& id = mUUIDs.front();
         registrar.add("Avatar.Profile",         boost::bind(&LLAvatarActions::showProfile,              id));
-        registrar.add("Avatar.AddFriend",       boost::bind(&LLAvatarActions::requestFriendshipDialog,  id));
-        registrar.add("Avatar.RemoveFriend",    boost::bind(&LLAvatarActions::removeFriendDialog,       id));
+        registrar.add("Avatar.AddFriend",       boost::bind(&LLAvatarActions::requestFriendshipDialog,  id), LLUICtrl::cb_info::UNTRUSTED_THROTTLE);
+        registrar.add("Avatar.RemoveFriend",    boost::bind(&LLAvatarActions::removeFriendDialog,       id), LLUICtrl::cb_info::UNTRUSTED_BLOCK);
         registrar.add("Avatar.IM",              boost::bind(&LLAvatarActions::startIM,                  id));
-        registrar.add("Avatar.Call",            boost::bind(&LLAvatarActions::startCall,                id));
-        registrar.add("Avatar.OfferTeleport",   boost::bind(&PeopleContextMenu::offerTeleport,          this));
+        registrar.add("Avatar.Call",            boost::bind(&LLAvatarActions::startCall,                id), LLUICtrl::cb_info::UNTRUSTED_BLOCK);
+        registrar.add("Avatar.OfferTeleport",   boost::bind(&PeopleContextMenu::offerTeleport,          this), LLUICtrl::cb_info::UNTRUSTED_BLOCK);
         registrar.add("Avatar.ZoomIn",          boost::bind(&handle_zoom_to_object,                     id));
         registrar.add("Avatar.ShowOnMap",       boost::bind(&LLAvatarActions::showOnMap,                id));
-        registrar.add("Avatar.Share",           boost::bind(&LLAvatarActions::share,                    id));
-        registrar.add("Avatar.Pay",             boost::bind(&LLAvatarActions::pay,                      id));
+        registrar.add("Avatar.Share",           boost::bind(&LLAvatarActions::share,                    id), LLUICtrl::cb_info::UNTRUSTED_BLOCK);
+        registrar.add("Avatar.Pay",             boost::bind(&LLAvatarActions::pay,                      id), LLUICtrl::cb_info::UNTRUSTED_BLOCK);
         registrar.add("Avatar.BlockUnblock",    boost::bind(&LLAvatarActions::toggleBlock,              id));
-        registrar.add("Avatar.InviteToGroup",   boost::bind(&LLAvatarActions::inviteToGroup,            id));
+        registrar.add("Avatar.InviteToGroup",   boost::bind(&LLAvatarActions::inviteToGroup,            id), LLUICtrl::cb_info::UNTRUSTED_BLOCK);
         registrar.add("Avatar.TeleportRequest", boost::bind(&PeopleContextMenu::requestTeleport,        this));
-        registrar.add("Avatar.Calllog",         boost::bind(&LLAvatarActions::viewChatHistory,          id));
-        registrar.add("Avatar.Freeze",          boost::bind(&LLAvatarActions::freezeAvatar,                 id));
-        registrar.add("Avatar.Eject",           boost::bind(&PeopleContextMenu::eject,                  this));
+        registrar.add("Avatar.Calllog",         boost::bind(&LLAvatarActions::viewChatHistory,          id), LLUICtrl::cb_info::UNTRUSTED_THROTTLE);
+        registrar.add("Avatar.Freeze",          boost::bind(&LLAvatarActions::freezeAvatar,             id), LLUICtrl::cb_info::UNTRUSTED_THROTTLE);
+        registrar.add("Avatar.Eject",           boost::bind(&PeopleContextMenu::eject,                  this), LLUICtrl::cb_info::UNTRUSTED_THROTTLE);
 
 
         enable_registrar.add("Avatar.EnableItem", boost::bind(&PeopleContextMenu::enableContextMenuItem, this, _2));

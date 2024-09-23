@@ -43,22 +43,13 @@ LLViewerWindowListener::LLViewerWindowListener(LLViewerWindow* llviewerwindow):
     mViewerWindow(llviewerwindow)
 {
     // add() every method we want to be able to invoke via this event API.
-    LLSD saveSnapshotArgs;
-    saveSnapshotArgs["filename"] = LLSD::String();
-    saveSnapshotArgs["reply"] = LLSD::String();
-    // The following are optional, so don't build them into required prototype.
-//  saveSnapshotArgs["width"] = LLSD::Integer();
-//  saveSnapshotArgs["height"] = LLSD::Integer();
-//  saveSnapshotArgs["showui"] = LLSD::Boolean();
-//  saveSnapshotArgs["showhud"] = LLSD::Boolean();
-//  saveSnapshotArgs["rebuild"] = LLSD::Boolean();
-//  saveSnapshotArgs["type"] = LLSD::String();
     add("saveSnapshot",
-        "Save screenshot: [\"filename\"], [\"width\"], [\"height\"], [\"showui\"], [\"showhud\"], [\"rebuild\"], [\"type\"]\n"
+        "Save screenshot: [\"filename\"] (extension may be specified: bmp, jpeg, png)\n"
+        "[\"width\"], [\"height\"], [\"showui\"], [\"showhud\"], [\"rebuild\"], [\"type\"]\n"
         "type: \"COLOR\", \"DEPTH\"\n"
-        "Post on [\"reply\"] an event containing [\"ok\"]",
+        "Post on [\"reply\"] an event containing [\"result\"]",
         &LLViewerWindowListener::saveSnapshot,
-        saveSnapshotArgs);
+        llsd::map("filename", LLSD::String(), "reply", LLSD()));
     add("requestReshape",
         "Resize the window: [\"w\"], [\"h\"]",
         &LLViewerWindowListener::requestReshape);
@@ -66,12 +57,15 @@ LLViewerWindowListener::LLViewerWindowListener(LLViewerWindow* llviewerwindow):
 
 void LLViewerWindowListener::saveSnapshot(const LLSD& event) const
 {
+    Response response(LLSD(), event);
+
     typedef std::map<LLSD::String, LLSnapshotModel::ESnapshotLayerType> TypeMap;
     TypeMap types;
 #define tp(name) types[#name] = LLSnapshotModel::SNAPSHOT_TYPE_##name
     tp(COLOR);
     tp(DEPTH);
-#undef  tp
+#undef tp
+
     // Our add() call should ensure that the incoming LLSD does in fact
     // contain our required arguments. Deal with the optional ones.
     S32 width (mViewerWindow->getWindowWidthRaw());
@@ -94,14 +88,36 @@ void LLViewerWindowListener::saveSnapshot(const LLSD& event) const
         TypeMap::const_iterator found = types.find(event["type"]);
         if (found == types.end())
         {
-            LL_ERRS("LLViewerWindowListener") << "LLViewerWindowListener::saveSnapshot(): "
-                                              << "unrecognized type " << event["type"] << LL_ENDL;
-        return;
+            return response.error(stringize("Unrecognized type ", std::quoted(event["type"].asString()), " [\"COLOR\"] or [\"DEPTH\"] is expected."));
         }
         type = found->second;
     }
-    bool ok = mViewerWindow->saveSnapshot(event["filename"], width, height, showui, showhud, rebuild, type);
-    sendReply(LLSDMap("ok", ok), event);
+
+    std::string filename(event["filename"]);
+    if (filename.empty())
+    {
+        return response.error(stringize("File path is empty."));
+    }
+
+    LLSnapshotModel::ESnapshotFormat format(LLSnapshotModel::SNAPSHOT_FORMAT_BMP);
+    std::string ext = gDirUtilp->getExtension(filename);
+    if (ext.empty())
+    {
+        filename.append(".bmp");
+    }
+    else if (ext == "png")
+    {
+        format = LLSnapshotModel::SNAPSHOT_FORMAT_PNG;
+    }
+    else if (ext == "jpeg" || ext == "jpg")
+    {
+        format = LLSnapshotModel::SNAPSHOT_FORMAT_JPEG;
+    }
+    else if (ext != "bmp")
+    {
+        return response.error(stringize("Unrecognized format. [\"png\"], [\"jpeg\"] or [\"bmp\"] is expected."));
+    }
+    response["result"] = mViewerWindow->saveSnapshot(filename, width, height, showui, showhud, rebuild, type, format);
 }
 
 void LLViewerWindowListener::requestReshape(LLSD const & event_data) const

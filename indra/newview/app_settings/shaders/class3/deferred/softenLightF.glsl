@@ -69,7 +69,7 @@ vec3  scaleSoftClipFragLinear(vec3 l);
 // reflection probe interface
 void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv,
     vec2 tc, vec3 pos, vec3 norm, float glossiness, bool transparent, vec3 amblit_linear);
-void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout vec3 legacyenv,
+void sampleReflectionProbesLegacy(out vec3 ambenv, out vec3 glossenv, out vec3 legacyenv,
         vec2 tc, vec3 pos, vec3 norm, float glossiness, float envIntensity, bool transparent, vec3 amblit_linear);
 void applyGlossEnv(inout vec3 color, vec3 glossenv, vec4 spec, vec3 pos, vec3 norm);
 void applyLegacyEnv(inout vec3 color, vec3 legacyenv, vec4 spec, vec3 pos, vec3 norm, float envIntensity);

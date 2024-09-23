@@ -221,14 +221,14 @@ bool callKeyDown(NSKeyEventRef event, unsigned short key, unsigned int mask, wch
 {
     //if (mask!=MASK_NONE)
     {
-        if((key == gKeyboard->inverseTranslateKey('Z')) && (character == 'y'))
-        {
-            key = gKeyboard->inverseTranslateKey('Y');
-        }
-        else if ((key == gKeyboard->inverseTranslateKey('Y')) && (character == 'z'))
-        {
-            key = gKeyboard->inverseTranslateKey('Z');
-        }
+    if((key == gKeyboard->inverseTranslateKey('Z')) && (character == 'y'))
+    {
+        key = gKeyboard->inverseTranslateKey('Y');
+    }
+    else if ((key == gKeyboard->inverseTranslateKey('Y')) && (character == 'z'))
+    {
+        key = gKeyboard->inverseTranslateKey('Z');
+    }
     }
 
     mRawKeyEvent = event;
@@ -2554,6 +2554,11 @@ MASK LLWindowMacOSX::modifiersToMask(S16 modifiers)
 F32 LLWindowMacOSX::getSystemUISize()
 {
     return gHiDPISupport ? ::getDeviceUnitSize(mGLView) : LLWindow::getSystemUISize();
+}
+
+void LLWindowMacOSX::openFolder(const std::string &path)
+{
+    openFolderWithFinder(path.c_str());
 }
 
 #if LL_OS_DRAGDROP_ENABLED

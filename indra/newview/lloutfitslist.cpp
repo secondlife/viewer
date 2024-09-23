@@ -924,8 +924,8 @@ void LLOutfitListBase::onIdleRefreshList()
         if (cat)
         {
             std::string name = cat->getName();
-        updateChangedCategoryName(cat, name);
-    }
+            updateChangedCategoryName(cat, name);
+        }
 
         curent_time = LLTimer::getTotalSeconds();
         if (curent_time >= end_time)
@@ -1053,7 +1053,7 @@ void LLOutfitListBase::deselectOutfit(const LLUUID& category_id)
 
 LLContextMenu* LLOutfitContextMenu::createMenu()
 {
-    LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+    LLUICtrl::ScopedRegistrarHelper registrar;
     LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
     LLUUID selected_id = mUUIDs.front();
 
@@ -1064,8 +1064,8 @@ LLContextMenu* LLOutfitContextMenu::createMenu()
     registrar.add("Outfit.TakeOff",
         boost::bind(&LLAppearanceMgr::takeOffOutfit, &LLAppearanceMgr::instance(), selected_id));
     registrar.add("Outfit.Edit", boost::bind(editOutfit));
-    registrar.add("Outfit.Rename", boost::bind(renameOutfit, selected_id));
-    registrar.add("Outfit.Delete", boost::bind(&LLOutfitListBase::removeSelected, mOutfitList));
+    registrar.add("Outfit.Rename", boost::bind(renameOutfit, selected_id), LLUICtrl::cb_info::UNTRUSTED_BLOCK);
+    registrar.add("Outfit.Delete", boost::bind(&LLOutfitListBase::removeSelected, mOutfitList), LLUICtrl::cb_info::UNTRUSTED_BLOCK);
     registrar.add("Outfit.Thumbnail", boost::bind(&LLOutfitContextMenu::onThumbnail, this, selected_id));
     registrar.add("Outfit.Save", boost::bind(&LLOutfitContextMenu::onSave, this, selected_id));
 
@@ -1163,7 +1163,7 @@ LLOutfitListGearMenuBase::LLOutfitListGearMenuBase(LLOutfitListBase* olist)
 {
     llassert_always(mOutfitList);
 
-    LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+    LLUICtrl::ScopedRegistrarHelper registrar;
     LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
 
     registrar.add("Gear.Wear", boost::bind(&LLOutfitListGearMenuBase::onWear, this));

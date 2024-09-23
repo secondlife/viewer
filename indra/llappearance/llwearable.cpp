@@ -645,9 +645,10 @@ void LLWearable::addVisualParam(LLVisualParam *param)
 
 void LLWearable::setVisualParamWeight(S32 param_index, F32 value)
 {
-    if( is_in_map(mVisualParamIndexMap, param_index ) )
+    visual_param_index_map_t::iterator found = mVisualParamIndexMap.find(param_index);
+    if (found != mVisualParamIndexMap.end())
     {
-        LLVisualParam *wearable_param = mVisualParamIndexMap[param_index];
+        LLVisualParam *wearable_param = found->second;
         wearable_param->setWeight(value);
     }
     else
@@ -658,9 +659,10 @@ void LLWearable::setVisualParamWeight(S32 param_index, F32 value)
 
 F32 LLWearable::getVisualParamWeight(S32 param_index) const
 {
-    if( is_in_map(mVisualParamIndexMap, param_index ) )
+    visual_param_index_map_t::const_iterator found = mVisualParamIndexMap.find(param_index);
+    if(found != mVisualParamIndexMap.end())
     {
-        const LLVisualParam *wearable_param = mVisualParamIndexMap.find(param_index)->second;
+        const LLVisualParam *wearable_param = found->second;
         return wearable_param->getWeight();
     }
     else
@@ -733,9 +735,9 @@ void LLWearable::writeToAvatar(LLAvatarAppearance* avatarp)
         if( (((LLViewerVisualParam*)param)->getWearableType() == mType) && (!((LLViewerVisualParam*)param)->getCrossWearable()) )
         {
             S32 param_id = param->getID();
+            // get weight from wearable and write back into character
             F32 weight = getVisualParamWeight(param_id);
-
-            avatarp->setVisualParamWeight( param_id, weight);
+            param->setWeight(weight);
         }
     }
 }

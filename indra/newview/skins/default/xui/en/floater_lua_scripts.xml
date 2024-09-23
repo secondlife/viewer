@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ can_minimize="false"
+ can_resize="true"
+ can_close="true"
+ bevel_style="in"
+ height="220"
+ min_height="220"
+ layout="topleft"
+ name="LUA scripts"
+ save_rect="true"
+ title="LUA Scripts"
+ single_instance="true" 
+ width="555"
+ min_width="555">
+    <scroll_list
+      column_padding="0"
+      draw_stripes="true"
+      draw_heading="true"
+      height="200"
+      left="10"
+      follows="all"
+      layout="topleft"
+      sort_column="script_name"
+      name="scripts_list"
+      top_pad="10"
+      width="535">
+        <scroll_list.columns
+         label="Name"
+         name="script_name"
+         width="180" />
+        <scroll_list.columns
+         label="Path"
+         name="script_path"/>
+    </scroll_list>
+</floater>

@@ -28,7 +28,7 @@
 #define LL_LLWINDOWWIN32_H
 
 // Limit Windows API to small and manageable set.
-#include "llwin32headerslean.h"
+#include "llwin32headers.h"
 
 #include "llwindow.h"
 #include "llwindowcallbacks.h"
@@ -119,6 +119,8 @@ public:
     /*virtual*/ void updateLanguageTextInputArea();
     /*virtual*/ void interruptLanguageTextInput();
     /*virtual*/ void spawnWebBrowser(const std::string& escaped_url, bool async);
+
+    void openFolder(const std::string &path) override;
 
     /*virtual*/ F32 getSystemUISize();
 

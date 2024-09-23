@@ -15,6 +15,8 @@
 #include "llexception.h"
 // STL headers
 // std headers
+#include <iomanip>
+#include <sstream>
 #include <typeinfo>
 // external library headers
 #include <boost/exception/diagnostic_information.hpp>
@@ -29,7 +31,6 @@
 // On Windows, header-only implementation causes macro collisions -- use
 // prebuilt library
 #define BOOST_STACKTRACE_LINK
-#include <excpt.h>
 #endif // LL_WINDOWS
 
 #include <boost/stacktrace.hpp>
@@ -94,25 +95,47 @@ void annotate_exception_(boost::exception& exc)
 
 // For windows SEH exception handling we sometimes need a filter that will
 // separate C++ exceptions from C SEH exceptions
-static const U32 STATUS_MSC_EXCEPTION = 0xE06D7363; // compiler specific
+static constexpr U32 STATUS_MSC_EXCEPTION = 0xE06D7363; // compiler specific
+static constexpr U32 STATUS_STACK_FULL    = 0xC00000FD;
 
-U32 msc_exception_filter(U32 code, struct _EXCEPTION_POINTERS *exception_infop)
+void LL::seh::fill_stacktrace(std::string& stacktrace, U32 code)
 {
-    const auto stack = to_string(boost::stacktrace::stacktrace());
-    LL_WARNS() << "SEH Exception handled (that probably shouldn't be): Code " << code
-        << "\n Stack trace: \n"
-        << stack << LL_ENDL;
+    // Sadly, despite its diagnostic importance, trying to capture a
+    // stacktrace when the stack is already blown only terminates us faster.
+    if (code == STATUS_STACK_FULL)
+    {
+        stacktrace = "(stack overflow, no traceback)";
+    }
+    else
+    {
+        stacktrace = to_string(boost::stacktrace::stacktrace());
+    }
+}
 
+U32 LL::seh::common_filter(U32 code, struct _EXCEPTION_POINTERS*)
+{
     if (code == STATUS_MSC_EXCEPTION)
     {
-        // C++ exception, go on
+        // C++ exception, don't stop at this handler
         return EXCEPTION_CONTINUE_SEARCH;
     }
     else
     {
-        // handle it
+        // This is a non-C++ exception, e.g. hardware check.
+        // Pass control into the handler block.
         return EXCEPTION_EXECUTE_HANDLER;
     }
+}
+
+void LL::seh::rethrow(U32 code, const std::string& stacktrace)
+{
+    std::ostringstream out;
+    out << "Windows exception 0x" << std::hex << code;
+    if (! stacktrace.empty())
+    {
+        out << '\n' << stacktrace;
+    }
+    LLTHROW(Windows_SEH_exception(out.str()));
 }
 
 #endif //LL_WINDOWS

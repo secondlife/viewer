@@ -63,11 +63,10 @@
 #include "llfloatertools.h"  // to enable hide if build tools are up
 #include "llvector4a.h"
 
-// Functions pulled from pipeline.cpp
-glh::matrix4f get_current_modelview();
-glh::matrix4f get_current_projection();
+#include <glm/gtx/transform2.hpp>
+
 // Functions pulled from llviewerdisplay.cpp
-bool get_hud_matrices(glh::matrix4f &proj, glh::matrix4f &model);
+bool get_hud_matrices(glm::mat4 &proj, glm::mat4 &model);
 
 // Warning: make sure these two match!
 const LLPanelPrimMediaControls::EZoomLevel LLPanelPrimMediaControls::kZoomLevels[] = { ZOOM_NONE, ZOOM_MEDIUM };
@@ -102,28 +101,28 @@ LLPanelPrimMediaControls::LLPanelPrimMediaControls() :
     mSecureURL(false),
     mMediaPlaySliderCtrlMouseDownValue(0.0)
 {
-    mCommitCallbackRegistrar.add("MediaCtrl.Close",     boost::bind(&LLPanelPrimMediaControls::onClickClose, this));
-    mCommitCallbackRegistrar.add("MediaCtrl.Back",      boost::bind(&LLPanelPrimMediaControls::onClickBack, this));
-    mCommitCallbackRegistrar.add("MediaCtrl.Forward",   boost::bind(&LLPanelPrimMediaControls::onClickForward, this));
-    mCommitCallbackRegistrar.add("MediaCtrl.Home",      boost::bind(&LLPanelPrimMediaControls::onClickHome, this));
-    mCommitCallbackRegistrar.add("MediaCtrl.Stop",      boost::bind(&LLPanelPrimMediaControls::onClickStop, this));
-    mCommitCallbackRegistrar.add("MediaCtrl.MediaStop",     boost::bind(&LLPanelPrimMediaControls::onClickMediaStop, this));
-    mCommitCallbackRegistrar.add("MediaCtrl.Reload",    boost::bind(&LLPanelPrimMediaControls::onClickReload, this));
-    mCommitCallbackRegistrar.add("MediaCtrl.Play",      boost::bind(&LLPanelPrimMediaControls::onClickPlay, this));
-    mCommitCallbackRegistrar.add("MediaCtrl.Pause",     boost::bind(&LLPanelPrimMediaControls::onClickPause, this));
-    mCommitCallbackRegistrar.add("MediaCtrl.Open",      boost::bind(&LLPanelPrimMediaControls::onClickOpen, this));
-    mCommitCallbackRegistrar.add("MediaCtrl.Zoom",      boost::bind(&LLPanelPrimMediaControls::onClickZoom, this));
-    mCommitCallbackRegistrar.add("MediaCtrl.CommitURL", boost::bind(&LLPanelPrimMediaControls::onCommitURL, this));
-    mCommitCallbackRegistrar.add("MediaCtrl.MouseDown", boost::bind(&LLPanelPrimMediaControls::onMediaPlaySliderCtrlMouseDown, this));
-    mCommitCallbackRegistrar.add("MediaCtrl.MouseUp", boost::bind(&LLPanelPrimMediaControls::onMediaPlaySliderCtrlMouseUp, this));
-    mCommitCallbackRegistrar.add("MediaCtrl.CommitVolumeUp",    boost::bind(&LLPanelPrimMediaControls::onCommitVolumeUp, this));
-    mCommitCallbackRegistrar.add("MediaCtrl.CommitVolumeDown",  boost::bind(&LLPanelPrimMediaControls::onCommitVolumeDown, this));
-    mCommitCallbackRegistrar.add("MediaCtrl.Volume",    boost::bind(&LLPanelPrimMediaControls::onCommitVolumeSlider, this));
-    mCommitCallbackRegistrar.add("MediaCtrl.ToggleMute",        boost::bind(&LLPanelPrimMediaControls::onToggleMute, this));
-    mCommitCallbackRegistrar.add("MediaCtrl.ShowVolumeSlider",      boost::bind(&LLPanelPrimMediaControls::showVolumeSlider, this));
-    mCommitCallbackRegistrar.add("MediaCtrl.HideVolumeSlider",      boost::bind(&LLPanelPrimMediaControls::hideVolumeSlider, this));
-    mCommitCallbackRegistrar.add("MediaCtrl.SkipBack",      boost::bind(&LLPanelPrimMediaControls::onClickSkipBack, this));
-    mCommitCallbackRegistrar.add("MediaCtrl.SkipForward",   boost::bind(&LLPanelPrimMediaControls::onClickSkipForward, this));
+    mCommitCallbackRegistrar.add("MediaCtrl.Close",     { boost::bind(&LLPanelPrimMediaControls::onClickClose, this) });
+    mCommitCallbackRegistrar.add("MediaCtrl.Back",      { boost::bind(&LLPanelPrimMediaControls::onClickBack, this) });
+    mCommitCallbackRegistrar.add("MediaCtrl.Forward",   { boost::bind(&LLPanelPrimMediaControls::onClickForward, this) });
+    mCommitCallbackRegistrar.add("MediaCtrl.Home",      { boost::bind(&LLPanelPrimMediaControls::onClickHome, this) });
+    mCommitCallbackRegistrar.add("MediaCtrl.Stop",      { boost::bind(&LLPanelPrimMediaControls::onClickStop, this) });
+    mCommitCallbackRegistrar.add("MediaCtrl.MediaStop",     { boost::bind(&LLPanelPrimMediaControls::onClickMediaStop, this) });
+    mCommitCallbackRegistrar.add("MediaCtrl.Reload",    { boost::bind(&LLPanelPrimMediaControls::onClickReload, this) });
+    mCommitCallbackRegistrar.add("MediaCtrl.Play",      { boost::bind(&LLPanelPrimMediaControls::onClickPlay, this) });
+    mCommitCallbackRegistrar.add("MediaCtrl.Pause",     { boost::bind(&LLPanelPrimMediaControls::onClickPause, this) });
+    mCommitCallbackRegistrar.add("MediaCtrl.Open",      { boost::bind(&LLPanelPrimMediaControls::onClickOpen, this) });
+    mCommitCallbackRegistrar.add("MediaCtrl.Zoom",      { boost::bind(&LLPanelPrimMediaControls::onClickZoom, this) });
+    mCommitCallbackRegistrar.add("MediaCtrl.CommitURL", { boost::bind(&LLPanelPrimMediaControls::onCommitURL, this), LLUICtrl::cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("MediaCtrl.MouseDown", { boost::bind(&LLPanelPrimMediaControls::onMediaPlaySliderCtrlMouseDown, this) });
+    mCommitCallbackRegistrar.add("MediaCtrl.MouseUp", { boost::bind(&LLPanelPrimMediaControls::onMediaPlaySliderCtrlMouseUp, this) });
+    mCommitCallbackRegistrar.add("MediaCtrl.CommitVolumeUp",    { boost::bind(&LLPanelPrimMediaControls::onCommitVolumeUp, this) });
+    mCommitCallbackRegistrar.add("MediaCtrl.CommitVolumeDown",  { boost::bind(&LLPanelPrimMediaControls::onCommitVolumeDown, this) });
+    mCommitCallbackRegistrar.add("MediaCtrl.Volume",    { boost::bind(&LLPanelPrimMediaControls::onCommitVolumeSlider, this) });
+    mCommitCallbackRegistrar.add("MediaCtrl.ToggleMute",        { boost::bind(&LLPanelPrimMediaControls::onToggleMute, this) });
+    mCommitCallbackRegistrar.add("MediaCtrl.ShowVolumeSlider",      { boost::bind(&LLPanelPrimMediaControls::showVolumeSlider, this) });
+    mCommitCallbackRegistrar.add("MediaCtrl.HideVolumeSlider",      { boost::bind(&LLPanelPrimMediaControls::hideVolumeSlider, this) });
+    mCommitCallbackRegistrar.add("MediaCtrl.SkipBack",      { boost::bind(&LLPanelPrimMediaControls::onClickSkipBack, this) });
+    mCommitCallbackRegistrar.add("MediaCtrl.SkipForward",   { boost::bind(&LLPanelPrimMediaControls::onClickSkipForward, this) });
 
     buildFromFile( "panel_prim_media_controls.xml");
     mInactivityTimer.reset();
@@ -646,13 +645,13 @@ void LLPanelPrimMediaControls::updateShape()
         vert_it = vect_face.begin();
         vert_end = vect_face.end();
 
-        glh::matrix4f mat;
+        glm::mat4 mat;
         if (!is_hud)
         {
             mat = get_current_projection() * get_current_modelview();
         }
         else {
-            glh::matrix4f proj, modelview;
+            glm::mat4 proj, modelview;
             if (get_hud_matrices(proj, modelview))
                 mat = proj * modelview;
         }
@@ -661,11 +660,11 @@ void LLPanelPrimMediaControls::updateShape()
         for(; vert_it != vert_end; ++vert_it)
         {
             // project silhouette vertices into screen space
-            glh::vec3f screen_vert = glh::vec3f(vert_it->mV);
-            mat.mult_matrix_vec(screen_vert);
+            glm::vec3 screen_vert(glm::make_vec3(vert_it->mV));
+            screen_vert = mul_mat4_vec3(mat, screen_vert);
 
             // add to screenspace bounding box
-            update_min_max(min, max, LLVector3(screen_vert.v));
+            update_min_max(min, max, LLVector3(glm::value_ptr(screen_vert)));
         }
 
         // convert screenspace bbox to pixels (in screen coords)

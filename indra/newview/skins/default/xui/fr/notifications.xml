@@ -2451,10 +2451,6 @@ Si vous êtes un membre Premium,  [[PREMIUM_URL] cliquez ici] pour recevoir votr
 [[URL] Cliquez ici] pour renouveler votre abonnement. 
 
 Si vous êtes un membre Premium, [[PREMIUM_URL] cliquez ici] pour recevoir votre effet de voix.</notification>
-	<notification name="VoiceEffectsWillExpire">Au moins l'un de vos effets de voix expirera dans moins de [INTERVAL] jours.  
-[[URL] Cliquez ici] pour renouveler votre abonnement. 
-
-Si vous êtes un membre Premium,  [[PREMIUM_URL] cliquez ici] pour recevoir votre effet de voix.</notification>
 	<notification name="VoiceEffectsNew">De nouveaux effets de voix sont disponibles !</notification>
 	<notification name="Cannot enter parcel: not a group member">Seuls les membres d'un certain groupe peuvent visiter cette zone.</notification>
 	<notification name="Cannot enter parcel: banned">Vous ne pouvez pas pénétrer sur ce terrain car l'accès vous y est interdit.</notification>

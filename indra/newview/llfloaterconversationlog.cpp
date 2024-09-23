@@ -35,7 +35,7 @@ LLFloaterConversationLog::LLFloaterConversationLog(const LLSD& key)
 :   LLFloater(key),
     mConversationLogList(NULL)
 {
-    mCommitCallbackRegistrar.add("CallLog.Action",  boost::bind(&LLFloaterConversationLog::onCustomAction,  this, _2));
+    mCommitCallbackRegistrar.add("CallLog.Action",  { boost::bind(&LLFloaterConversationLog::onCustomAction,  this, _2) });
     mEnableCallbackRegistrar.add("CallLog.Check",   boost::bind(&LLFloaterConversationLog::isActionChecked, this, _2));
 }
 

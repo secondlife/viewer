@@ -28,7 +28,7 @@
 
 #include "linden_common.h"
 
-#include "llwin32headerslean.h"
+#include "llwin32headers.h"
 #include "llkeyboardwin32.h"
 
 #include "llwindowcallbacks.h"

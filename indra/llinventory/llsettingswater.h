@@ -55,151 +55,181 @@ public:
     LLSettingsWater(const LLSD &data);
     virtual ~LLSettingsWater() { };
 
-    virtual ptr_t   buildClone() const = 0;
+    virtual ptr_t   buildClone() = 0;
 
     //---------------------------------------------------------------------
     virtual std::string     getSettingsType() const SETTINGS_OVERRIDE { return std::string("water"); }
     virtual LLSettingsType::type_e  getSettingsTypeValue() const SETTINGS_OVERRIDE { return LLSettingsType::ST_WATER; }
 
     // Settings status
-    virtual void blend(const LLSettingsBase::ptr_t &end, F64 blendf) SETTINGS_OVERRIDE;
+    virtual void blend(LLSettingsBase::ptr_t &end, F64 blendf) SETTINGS_OVERRIDE;
 
     virtual void replaceSettings(LLSD settings) SETTINGS_OVERRIDE;
-    void replaceWithWater(LLSettingsWater::ptr_t other);
+    virtual void replaceSettings(const LLSettingsBase::ptr_t& other_water) override;
+    void replaceWithWater(const LLSettingsWater::ptr_t& other);
 
     static LLSD defaults(const LLSettingsBase::TrackPosition& position = 0.0f);
+
+    void loadValuesFromLLSD() override;
+    void saveValuesToLLSD() override;
 
     //---------------------------------------------------------------------
     F32 getBlurMultiplier() const
     {
-        return (F32)mSettings[SETTING_BLUR_MULTIPLIER].asReal();
+        return mBlurMultiplier;
     }
 
     void setBlurMultiplier(F32 val)
     {
-        setValue(SETTING_BLUR_MULTIPLIER, val);
+        mBlurMultiplier = val;
+        setDirtyFlag(true);
+        setLLSDDirty();
     }
 
     LLColor3 getWaterFogColor() const
     {
-        return LLColor3(mSettings[SETTING_FOG_COLOR]);
+        return mWaterFogColor;
     }
 
     void setWaterFogColor(LLColor3 val)
     {
-        setValue(SETTING_FOG_COLOR, val);
+        mWaterFogColor = val;
+        setDirtyFlag(true);
+        setLLSDDirty();
     }
 
     F32 getWaterFogDensity() const
     {
-        return (F32)mSettings[SETTING_FOG_DENSITY].asReal();
+        return mWaterFogDensity;
     }
 
     F32 getModifiedWaterFogDensity(bool underwater) const;
 
     void setWaterFogDensity(F32 val)
     {
-        setValue(SETTING_FOG_DENSITY, val);
+        mWaterFogDensity = val;
+        setDirtyFlag(true);
+        setLLSDDirty();
     }
 
     F32 getFogMod() const
     {
-        return (F32)mSettings[SETTING_FOG_MOD].asReal();
+        return mFogMod;
     }
 
     void setFogMod(F32 val)
     {
-        setValue(SETTING_FOG_MOD, val);
+        mFogMod = val;
+        setDirtyFlag(true);
+        setLLSDDirty();
     }
 
     F32 getFresnelOffset() const
     {
-        return (F32)mSettings[SETTING_FRESNEL_OFFSET].asReal();
+        return mFresnelOffset;
     }
 
     void setFresnelOffset(F32 val)
     {
-        setValue(SETTING_FRESNEL_OFFSET, val);
+        mFresnelOffset = val;
+        setDirtyFlag(true);
+        setLLSDDirty();
     }
 
     F32 getFresnelScale() const
     {
-        return (F32)mSettings[SETTING_FRESNEL_SCALE].asReal();
+        return mFresnelScale;
     }
 
     void setFresnelScale(F32 val)
     {
-        setValue(SETTING_FRESNEL_SCALE, val);
+        mFresnelScale = val;
+        setDirtyFlag(true);
+        setLLSDDirty();
     }
 
     LLUUID getTransparentTextureID() const
     {
-        return mSettings[SETTING_TRANSPARENT_TEXTURE].asUUID();
+        return mTransparentTextureID;
     }
 
     void setTransparentTextureID(LLUUID val)
     {
-        setValue(SETTING_TRANSPARENT_TEXTURE, val);
+        mTransparentTextureID = val;
+        setDirtyFlag(true);
+        setLLSDDirty();
     }
 
     LLUUID getNormalMapID() const
     {
-        return mSettings[SETTING_NORMAL_MAP].asUUID();
+        return mNormalMapID;
     }
 
     void setNormalMapID(LLUUID val)
     {
-        setValue(SETTING_NORMAL_MAP, val);
+        mNormalMapID = val;
+        setDirtyFlag(true);
+        setLLSDDirty();
     }
 
     LLVector3 getNormalScale() const
     {
-        return LLVector3(mSettings[SETTING_NORMAL_SCALE]);
+        return mNormalScale;
     }
 
     void setNormalScale(LLVector3 val)
     {
-        setValue(SETTING_NORMAL_SCALE, val);
+        mNormalScale = val;
+        setDirtyFlag(true);
+        setLLSDDirty();
     }
 
     F32 getScaleAbove() const
     {
-        return (F32)mSettings[SETTING_SCALE_ABOVE].asReal();
+        return mScaleAbove;
     }
 
     void setScaleAbove(F32 val)
     {
-        setValue(SETTING_SCALE_ABOVE, val);
+        mScaleAbove = val;
+        setDirtyFlag(true);
+        setLLSDDirty();
     }
 
     F32 getScaleBelow() const
     {
-        return (F32)mSettings[SETTING_SCALE_BELOW].asReal();
+        return mScaleBelow;
     }
 
     void setScaleBelow(F32 val)
     {
-        setValue(SETTING_SCALE_BELOW, val);
+        mScaleBelow = val;
+        setDirtyFlag(true);
+        setLLSDDirty();
     }
 
     LLVector2 getWave1Dir() const
     {
-        return LLVector2(mSettings[SETTING_WAVE1_DIR]);
+        return mWave1Dir;
     }
 
     void setWave1Dir(LLVector2 val)
     {
-        setValue(SETTING_WAVE1_DIR, val);
+        mWave1Dir = val;
+        setDirtyFlag(true);
+        setLLSDDirty();
     }
 
     LLVector2 getWave2Dir() const
     {
-        return LLVector2(mSettings[SETTING_WAVE2_DIR]);
+        return mWave2Dir;
     }
 
     void setWave2Dir(LLVector2 val)
     {
-        setValue(SETTING_WAVE2_DIR, val);
+        mWave2Dir = val;
+        setDirtyFlag(true);
+        setLLSDDirty();
     }
 
     //-------------------------------------------
@@ -218,7 +248,7 @@ public:
 
     static LLSD         translateLegacySettings(LLSD legacy);
 
-    virtual LLSettingsBase::ptr_t buildDerivedClone() const SETTINGS_OVERRIDE { return buildClone(); }
+    virtual LLSettingsBase::ptr_t buildDerivedClone() SETTINGS_OVERRIDE { return buildClone(); }
 
     static LLUUID GetDefaultAssetId();
     static LLUUID GetDefaultWaterNormalAssetId();
@@ -241,9 +271,22 @@ protected:
 
     LLSettingsWater();
 
+    LLUUID    mTransparentTextureID;
+    LLUUID    mNormalMapID;
     LLUUID    mNextTransparentTextureID;
     LLUUID    mNextNormalMapID;
 
+    F32 mBlurMultiplier;
+    LLColor3 mWaterFogColor;
+    F32 mWaterFogDensity;
+    F32 mFogMod;
+    F32 mFresnelOffset;
+    F32 mFresnelScale;
+    LLVector3 mNormalScale;
+    F32 mScaleAbove;
+    F32 mScaleBelow;
+    LLVector2 mWave1Dir;
+    LLVector2 mWave2Dir;
 };
 
 #endif

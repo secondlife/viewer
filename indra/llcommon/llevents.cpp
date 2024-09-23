@@ -43,6 +43,7 @@
 #include <typeinfo>
 #include <cmath>
 #include <cctype>
+#include <iomanip>                  // std::quoted
 // external library headers
 #include <boost/range/iterator_range.hpp>
 #if LL_WINDOWS
@@ -54,10 +55,11 @@
 #pragma warning (pop)
 #endif
 // other Linden headers
-#include "stringize.h"
 #include "llerror.h"
-#include "llsdutil.h"
+#include "lleventfilter.h"
 #include "llexception.h"
+#include "llsdutil.h"
+#include "stringize.h"
 #if LL_MSVC
 #pragma warning (disable : 4702)
 #endif
@@ -71,7 +73,9 @@ LLEventPumps::LLEventPumps():
         { "LLEventStream",   [](const std::string& name, bool tweak, const std::string& /*type*/)
                              { return new LLEventStream(name, tweak); } },
         { "LLEventMailDrop", [](const std::string& name, bool tweak, const std::string& /*type*/)
-                             { return new LLEventMailDrop(name, tweak); } }
+                             { return new LLEventMailDrop(name, tweak); } },
+        { "LLEventLogProxy", [](const std::string& name, bool tweak, const std::string& /*type*/)
+                             { return new LLEventLogProxyFor<LLEventStream>(name, tweak); } }
     },
     mTypes
     {
@@ -186,8 +190,13 @@ bool LLEventPumps::post(const std::string&name, const LLSD&message)
     PumpMap::iterator found = mPumpMap.find(name);
 
     if (found == mPumpMap.end())
+    {
+        LL_DEBUGS("LLEventPumps") << "LLEventPump(" << std::quoted(name) << ") not found"
+                                  << LL_ENDL;
         return false;
+    }
 
+//  LL_DEBUGS("LLEventPumps") << "posting to " << name << ": " << message << LL_ENDL;
     return (*found).second->post(message);
 }
 
@@ -350,8 +359,7 @@ const std::string LLEventPump::ANONYMOUS = std::string();
 
 LLEventPump::LLEventPump(const std::string& name, bool tweak):
     // Register every new instance with LLEventPumps
-    mRegistry(LLEventPumps::instance().getHandle()),
-    mName(mRegistry.get()->registerNew(*this, name, tweak)),
+    mName(LLEventPumps::instance().registerNew(*this, name, tweak)),
     mSignal(std::make_shared<LLStandardSignal>()),
     mEnabled(true)
 {}
@@ -364,10 +372,9 @@ LLEventPump::~LLEventPump()
 {
     // Unregister this doomed instance from LLEventPumps -- but only if
     // LLEventPumps is still around!
-    LLEventPumps* registry = mRegistry.get();
-    if (registry)
+    if (LLEventPumps::instanceExists())
     {
-        registry->unregister(*this);
+        LLEventPumps::instance().unregister(*this);
     }
 }
 
@@ -382,7 +389,7 @@ std::string LLEventPump::inventName(const std::string& pfx)
 
 void LLEventPump::clear()
 {
-    LLCoros::LockType lock(mConnectionListMutex);
+    llcoro::LockType lock(mConnectionListMutex);
     // Destroy the original LLStandardSignal instance, replacing it with a
     // whole new one.
     mSignal = std::make_shared<LLStandardSignal>();
@@ -394,7 +401,7 @@ void LLEventPump::reset()
 {
     // Resetting mSignal is supposed to disconnect everything on its own
     // But due to crash on 'reset' added explicit cleanup to get more data
-    LLCoros::LockType lock(mConnectionListMutex);
+    llcoro::LockType lock(mConnectionListMutex);
     ConnectionMap::const_iterator iter = mConnections.begin();
     ConnectionMap::const_iterator end = mConnections.end();
     while (iter!=end)
@@ -408,18 +415,18 @@ void LLEventPump::reset()
     //mDeps.clear();
 }
 
-LLBoundListener LLEventPump::listen_impl(const std::string& name, const LLEventListener& listener,
+LLBoundListener LLEventPump::listen_impl(const std::string& name, const LLAwareListener& listener,
                                          const NameList& after,
                                          const NameList& before)
 {
     if (!mSignal)
     {
-        LL_WARNS() << "Can't connect listener" << LL_ENDL;
+        LL_WARNS("LLEventPump") << "Can't connect listener" << LL_ENDL;
         // connect will fail, return dummy
         return LLBoundListener();
     }
 
-    LLCoros::LockType lock(mConnectionListMutex);
+    llcoro::LockType lock(mConnectionListMutex);
 
     float nodePosition = 1.0;
 
@@ -568,7 +575,7 @@ LLBoundListener LLEventPump::listen_impl(const std::string& name, const LLEventL
     }
     // Now that newNode has a value that places it appropriately in mSignal,
     // connect it.
-    LLBoundListener bound = mSignal->connect(nodePosition, listener);
+    LLBoundListener bound = mSignal->connect_extended(nodePosition, listener);
 
     if (!name.empty())
     {   // note that we are not tracking anonymous listeners here either.
@@ -582,7 +589,7 @@ LLBoundListener LLEventPump::listen_impl(const std::string& name, const LLEventL
 
 LLBoundListener LLEventPump::getListener(const std::string& name)
 {
-    LLCoros::LockType lock(mConnectionListMutex);
+    llcoro::LockType lock(mConnectionListMutex);
     ConnectionMap::const_iterator found = mConnections.find(name);
     if (found != mConnections.end())
     {
@@ -594,7 +601,7 @@ LLBoundListener LLEventPump::getListener(const std::string& name)
 
 void LLEventPump::stopListening(const std::string& name)
 {
-    LLCoros::LockType lock(mConnectionListMutex);
+    llcoro::LockType lock(mConnectionListMutex);
     ConnectionMap::iterator found = mConnections.find(name);
     if (found != mConnections.end())
     {
@@ -652,7 +659,7 @@ bool LLEventMailDrop::post(const LLSD& event)
 }
 
 LLBoundListener LLEventMailDrop::listen_impl(const std::string& name,
-                                    const LLEventListener& listener,
+                                    const LLAwareListener& listener,
                                     const NameList& after,
                                     const NameList& before)
 {
@@ -661,7 +668,10 @@ LLBoundListener LLEventMailDrop::listen_impl(const std::string& name,
     // Remove any that this listener consumes -- Effective STL, Item 9.
     for (auto hi(mEventHistory.begin()), hend(mEventHistory.end()); hi != hend; )
     {
-        if (listener(*hi))
+        // We don't actually have an LLBoundListener in hand, and we won't
+        // until the base-class listen_impl() call below. Pass an empty
+        // instance.
+        if (listener({}, *hi))
         {
             // new listener consumed this event, erase it
             hi = mEventHistory.erase(hi);
@@ -733,7 +743,7 @@ void LLReqID::stamp(LLSD& response) const
     response["reqid"] = mReqid;
 }
 
-bool sendReply(const LLSD& reply, const LLSD& request, const std::string& replyKey)
+bool sendReply(LLSD reply, const LLSD& request, const std::string& replyKey)
 {
     // If the original request has no value for replyKey, it's pointless to
     // construct or send a reply event: on which LLEventPump should we send
@@ -746,13 +756,13 @@ bool sendReply(const LLSD& reply, const LLSD& request, const std::string& replyK
 
     // Here the request definitely contains replyKey; reasonable to proceed.
 
-    // Copy 'reply' to modify it.
-    LLSD newreply(reply);
     // Get the ["reqid"] element from request
     LLReqID reqID(request);
-    // and copy it to 'newreply'.
-    reqID.stamp(newreply);
-    // Send reply on LLEventPump named in request[replyKey]. Don't forget to
-    // send the modified 'newreply' instead of the original 'reply'.
-    return LLEventPumps::instance().obtain(request[replyKey]).post(newreply);
+    // and copy it to 'reply'.
+    reqID.stamp(reply);
+    // Send reply on LLEventPump named in request[replyKey] -- if that
+    // LLEventPump exists. If it does not, don't create it.
+    // This addresses the case in which a requester goes away before a
+    // particular LLEventAPI responds.
+    return LLEventPumps::instance().post(request[replyKey], reply);
 }

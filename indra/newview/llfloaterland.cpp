@@ -3124,6 +3124,16 @@ void LLPanelLandCovenant::refresh()
 }
 
 // static
+void LLPanelLandCovenant::updateCovenant(const LLTextBase* source)
+{
+    if (LLPanelLandCovenant* self = LLFloaterLand::getCurrentPanelLandCovenant())
+    {
+        LLViewerTextEditor* editor = self->getChild<LLViewerTextEditor>("covenant_editor");
+        editor->copyContents(source);
+    }
+}
+
+// static
 void LLPanelLandCovenant::updateCovenantText(const std::string &string)
 {
     LLPanelLandCovenant* self = LLFloaterLand::getCurrentPanelLandCovenant();

@@ -35,6 +35,7 @@
 #include "v2math.h"
 #include "llrect.h"
 #include "llfontgl.h"
+#include "llfontvertexbuffer.h"
 #include <set>
 #include <vector>
 
@@ -161,6 +162,7 @@ private:
     ETextAlignment  mTextAlignment;
     EVertAlignment  mVertAlignment;
     bool            mHidden;
+    LLFontVertexBuffer   mFontBuffer;
 
     static bool    sDisplayText ;
     static std::set<LLPointer<LLHUDText> > sTextObjects;

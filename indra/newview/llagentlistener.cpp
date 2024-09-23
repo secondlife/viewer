@@ -31,23 +31,30 @@
 #include "llagentlistener.h"
 
 #include "llagent.h"
+#include "llagentcamera.h"
 #include "llvoavatar.h"
 #include "llcommandhandler.h"
+#include "llinventorymodel.h"
 #include "llslurl.h"
 #include "llurldispatcher.h"
 #include "llviewernetwork.h"
 #include "llviewerobject.h"
 #include "llviewerobjectlist.h"
 #include "llviewerregion.h"
+#include "llvoavatarself.h"
 #include "llsdutil.h"
 #include "llsdutil_math.h"
 #include "lltoolgrab.h"
 #include "llhudeffectlookat.h"
 #include "llagentcamera.h"
+#include <functional>
+
+static const F64 PLAY_ANIM_THROTTLE_PERIOD = 1.f;
 
 LLAgentListener::LLAgentListener(LLAgent &agent)
   : LLEventAPI("LLAgent",
                "LLAgent listener to (e.g.) teleport, sit, stand, etc."),
+    mPlayAnimThrottle("playAnimation", &LLAgentListener::playAnimation_, this, PLAY_ANIM_THROTTLE_PERIOD),
     mAgent(agent)
 {
     add("requestTeleport",
@@ -69,13 +76,6 @@ LLAgentListener::LLAgentListener(LLAgent &agent)
     add("resetAxes",
         "Set the agent to a fixed orientation (optionally specify [\"lookat\"] = array of [x, y, z])",
         &LLAgentListener::resetAxes);
-    add("getAxes",
-        "Obsolete - use getPosition instead\n"
-        "Send information about the agent's orientation on [\"reply\"]:\n"
-        "[\"euler\"]: map of {roll, pitch, yaw}\n"
-        "[\"quat\"]:  array of [x, y, z, w] quaternion values",
-        &LLAgentListener::getAxes,
-        LLSDMap("reply", LLSD()));
     add("getPosition",
         "Send information about the agent's position and orientation on [\"reply\"]:\n"
         "[\"region\"]: array of region {x, y, z} position\n"
@@ -138,6 +138,43 @@ LLAgentListener::LLAgentListener(LLAgent &agent)
         "[\"contrib\"]: user's land contribution to this group\n",
         &LLAgentListener::getGroups,
         LLSDMap("reply", LLSD()));
+    //camera params are similar to LSL, see https://wiki.secondlife.com/wiki/LlSetCameraParams
+    add("setCameraParams",
+        "Set Follow camera params, and then activate it:\n"
+        "[\"camera_pos\"]: vector3, camera position in region coordinates\n"
+        "[\"focus_pos\"]: vector3, what the camera is aimed at (in region coordinates)\n"
+        "[\"focus_offset\"]: vector3, adjusts the camera focus position relative to the target, default is (1, 0, 0)\n"
+        "[\"distance\"]: float (meters), distance the camera wants to be from its target, default is 3\n"
+        "[\"focus_threshold\"]: float (meters), sets the radius of a sphere around the camera's target position within which its focus is not affected by target motion, default is 1\n"
+        "[\"camera_threshold\"]: float (meters), sets the radius of a sphere around the camera's ideal position within which it is not affected by target motion, default is 1\n"
+        "[\"focus_lag\"]: float (seconds), how much the camera lags as it tries to aim towards the target, default is 0.1\n"
+        "[\"camera_lag\"]: float (seconds), how much the camera lags as it tries to move towards its 'ideal' position, default is 0.1\n"
+        "[\"camera_pitch\"]: float (degrees), adjusts the angular amount that the camera aims straight ahead vs. straight down, maintaining the same distance, default is 0\n"
+        "[\"behindness_angle\"]: float (degrees), sets the angle in degrees within which the camera is not constrained by changes in target rotation, default is 10\n"
+        "[\"behindness_lag\"]: float (seconds), sets how strongly the camera is forced to stay behind the target if outside of behindness angle, default is 0\n"
+        "[\"camera_locked\"]: bool, locks the camera position so it will not move\n"
+        "[\"focus_locked\"]: bool, locks the camera focus so it will not move",
+        &LLAgentListener::setFollowCamParams);
+    add("setFollowCamActive",
+        "Turns on or off scripted control of the camera using boolean [\"active\"]",
+        &LLAgentListener::setFollowCamActive,
+        llsd::map("active", LLSD()));
+    add("removeCameraParams",
+        "Reset Follow camera params",
+        &LLAgentListener::removeFollowCamParams);
+
+    add("playAnimation",
+        "Play [\"item_id\"] animation locally (by default) or [\"inworld\"] (when set to true)",
+        &LLAgentListener::playAnimation,
+        llsd::map("item_id", LLSD(), "reply", LLSD()));
+    add("stopAnimation",
+        "Stop playing [\"item_id\"] animation",
+        &LLAgentListener::stopAnimation,
+        llsd::map("item_id", LLSD(), "reply", LLSD()));
+    add("getAnimationInfo",
+        "Return information about [\"item_id\"] animation",
+        &LLAgentListener::getAnimationInfo,
+        llsd::map("item_id", LLSD(), "reply", LLSD()));
 }
 
 void LLAgentListener::requestTeleport(LLSD const & event_data) const
@@ -294,22 +331,6 @@ void LLAgentListener::resetAxes(const LLSD& event_data) const
         // no "lookat", default call
         mAgent.resetAxes();
     }
-}
-
-void LLAgentListener::getAxes(const LLSD& event_data) const
-{
-    LLQuaternion quat(mAgent.getQuat());
-    F32 roll, pitch, yaw;
-    quat.getEulerAngles(&roll, &pitch, &yaw);
-    // The official query API for LLQuaternion's [x, y, z, w] values is its
-    // public member mQ...
-    LLSD reply = LLSD::emptyMap();
-    reply["quat"] = llsd_copy_array(boost::begin(quat.mQ), boost::end(quat.mQ));
-    reply["euler"] = LLSD::emptyMap();
-    reply["euler"]["roll"] = roll;
-    reply["euler"]["pitch"] = pitch;
-    reply["euler"]["yaw"] = yaw;
-    sendReply(reply, event_data);
 }
 
 void LLAgentListener::getPosition(const LLSD& event_data) const
@@ -518,4 +539,130 @@ void LLAgentListener::getGroups(const LLSD& event) const
                      ("contrib", gi->mContribution));
     }
     sendReply(LLSDMap("groups", reply), event);
+}
+
+/*----------------------------- camera control -----------------------------*/
+// specialize LLSDParam to support (const LLVector3&) arguments -- this
+// wouldn't even be necessary except that the relevant LLVector3 constructor
+// is explicitly explicit
+template <>
+class LLSDParam<const LLVector3&>: public LLSDParamBase
+{
+public:
+    LLSDParam(const LLSD& value): value(LLVector3(value)) {}
+
+    operator const LLVector3&() const { return value; }
+
+private:
+    LLVector3 value;
+};
+
+// accept any of a number of similar LLFollowCamMgr methods with different
+// argument types, and return a wrapper lambda that accepts LLSD and converts
+// to the target argument type
+template <typename T>
+auto wrap(void (LLFollowCamMgr::*method)(const LLUUID& source, T arg))
+{
+    return [method](LLFollowCamMgr& followcam, const LLUUID& source, const LLSD& arg)
+    { (followcam.*method)(source, LLSDParam<T>(arg)); };
+}
+
+// table of supported LLFollowCamMgr methods,
+// with the corresponding setFollowCamParams() argument keys
+static std::pair<std::string, std::function<void(LLFollowCamMgr&, const LLUUID&, const LLSD&)>>
+cam_params[] =
+{
+    { "camera_pos",       wrap(&LLFollowCamMgr::setPosition) },
+    { "focus_pos",        wrap(&LLFollowCamMgr::setFocus) },
+    { "focus_offset",     wrap(&LLFollowCamMgr::setFocusOffset) },
+    { "camera_locked",    wrap(&LLFollowCamMgr::setPositionLocked) },
+    { "focus_locked",     wrap(&LLFollowCamMgr::setFocusLocked) },
+    { "distance",         wrap(&LLFollowCamMgr::setDistance) },
+    { "focus_threshold",  wrap(&LLFollowCamMgr::setFocusThreshold) },
+    { "camera_threshold", wrap(&LLFollowCamMgr::setPositionThreshold) },
+    { "focus_lag",        wrap(&LLFollowCamMgr::setFocusLag) },
+    { "camera_lag",       wrap(&LLFollowCamMgr::setPositionLag) },
+    { "camera_pitch",     wrap(&LLFollowCamMgr::setPitch) },
+    { "behindness_lag",   wrap(&LLFollowCamMgr::setBehindnessLag) },
+    { "behindness_angle", wrap(&LLFollowCamMgr::setBehindnessAngle) },
+};
+
+void LLAgentListener::setFollowCamParams(const LLSD& event) const
+{
+    auto& followcam{ LLFollowCamMgr::instance() };
+    for (const auto& pair : cam_params)
+    {
+        if (event.has(pair.first))
+        {
+            pair.second(followcam, gAgentID, event[pair.first]);
+        }
+    }
+    followcam.setCameraActive(gAgentID, true);
+}
+
+void LLAgentListener::setFollowCamActive(LLSD const & event) const
+{
+    LLFollowCamMgr::getInstance()->setCameraActive(gAgentID, event["active"]);
+}
+
+void LLAgentListener::removeFollowCamParams(LLSD const & event) const
+{
+    LLFollowCamMgr::getInstance()->removeFollowCamParams(gAgentID);
+}
+
+LLViewerInventoryItem* get_anim_item(LLEventAPI::Response &response, const LLSD &event_data)
+{
+    LLViewerInventoryItem* item = gInventory.getItem(event_data["item_id"].asUUID());
+    if (!item || (item->getInventoryType() != LLInventoryType::IT_ANIMATION))
+    {
+        response.error(stringize("Animation item ", std::quoted(event_data["item_id"].asString()), " was not found"));
+        return NULL;
+    }
+    return item;
+}
+
+void LLAgentListener::playAnimation(LLSD const &event_data)
+{
+    Response response(LLSD(), event_data);
+    if (LLViewerInventoryItem* item = get_anim_item(response, event_data))
+    {
+        mPlayAnimThrottle(item->getAssetUUID(), event_data["inworld"].asBoolean());
+    }
+}
+
+void LLAgentListener::playAnimation_(const LLUUID& asset_id, const bool inworld)
+{
+    if (inworld)
+    {
+        mAgent.sendAnimationRequest(asset_id, ANIM_REQUEST_START);
+    }
+    else
+    {
+        gAgentAvatarp->startMotion(asset_id);
+    }
+}
+
+void LLAgentListener::stopAnimation(LLSD const &event_data)
+{
+    Response response(LLSD(), event_data);
+    if (LLViewerInventoryItem* item = get_anim_item(response, event_data))
+    {
+        gAgentAvatarp->stopMotion(item->getAssetUUID());
+        mAgent.sendAnimationRequest(item->getAssetUUID(), ANIM_REQUEST_STOP);
+    }
+}
+
+void LLAgentListener::getAnimationInfo(LLSD const &event_data)
+{
+    Response response(LLSD(), event_data);
+    if (LLViewerInventoryItem* item = get_anim_item(response, event_data))
+    {
+        // if motion exists, will return existing one
+        LLMotion* motion = gAgentAvatarp->createMotion(item->getAssetUUID());
+        response["anim_info"] = llsd::map("duration", motion->getDuration(),
+                                               "is_loop", motion->getLoop(),
+                                               "num_joints", motion->getNumJointMotions(),
+                                               "asset_id", item->getAssetUUID(),
+                                               "priority", motion->getPriority());
+    }
 }

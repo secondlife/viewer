@@ -86,8 +86,8 @@ static LLPanelInjector<LLPanelSnapshotPostcard> panel_class("llpanelsnapshotpost
 LLPanelSnapshotPostcard::LLPanelSnapshotPostcard()
 :   mHasFirstMsgFocus(false)
 {
-    mCommitCallbackRegistrar.add("Postcard.Send",       boost::bind(&LLPanelSnapshotPostcard::onSend,   this));
-    mCommitCallbackRegistrar.add("Postcard.Cancel",     boost::bind(&LLPanelSnapshotPostcard::cancel,   this));
+    mCommitCallbackRegistrar.add("Postcard.Send",       { boost::bind(&LLPanelSnapshotPostcard::onSend,   this), cb_info::UNTRUSTED_THROTTLE });
+    mCommitCallbackRegistrar.add("Postcard.Cancel",     { boost::bind(&LLPanelSnapshotPostcard::cancel,   this), cb_info::UNTRUSTED_THROTTLE });
 
 }
 

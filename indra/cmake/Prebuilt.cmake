@@ -40,6 +40,7 @@ macro (use_prebuilt_binary _binary)
         --install-dir=${AUTOBUILD_INSTALL_DIR}
         ${_binary} ")
         endif(DEBUG_PREBUILT)
+        message(STATUS "Installing ${_binary}...")
         execute_process(COMMAND "${AUTOBUILD_EXECUTABLE}"
                 install
                 --install-dir=${AUTOBUILD_INSTALL_DIR}

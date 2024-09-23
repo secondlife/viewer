@@ -78,16 +78,23 @@ void LLHUDEffectBlob::render()
         LLVector3 u_scale = pixel_right * (F32)mPixelSize;
         LLVector3 v_scale = pixel_up * (F32)mPixelSize;
 
-        { gGL.begin(LLRender::QUADS);
+        gGL.begin(LLRender::TRIANGLES);
+        {
             gGL.texCoord2f(0.f, 1.f);
             gGL.vertex3fv((v_scale - u_scale).mV);
             gGL.texCoord2f(0.f, 0.f);
             gGL.vertex3fv((-v_scale - u_scale).mV);
             gGL.texCoord2f(1.f, 0.f);
             gGL.vertex3fv((-v_scale + u_scale).mV);
+
+            gGL.texCoord2f(0.f, 1.f);
+            gGL.vertex3fv((v_scale - u_scale).mV);
+            gGL.texCoord2f(1.f, 0.f);
+            gGL.vertex3fv((-v_scale + u_scale).mV);
             gGL.texCoord2f(1.f, 1.f);
             gGL.vertex3fv((v_scale + u_scale).mV);
-        } gGL.end();
+        }
+        gGL.end();
 
     } gGL.popMatrix();
 }

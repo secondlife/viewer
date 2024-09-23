@@ -76,16 +76,23 @@ void LLBox::renderface(S32 which_face)
         {7, 4, 0, 3}
     };
 
-    gGL.begin(LLRender::QUADS);
+    gGL.begin(LLRender::TRIANGLES);
+    {
         //gGL.normal3fv(&normals[which_face][0]);
-        gGL.texCoord2f(1,0);
-        gGL.vertex3fv(&mVertex[ faces[which_face][0] ][0]);
-        gGL.texCoord2f(1,1);
-        gGL.vertex3fv(&mVertex[ faces[which_face][1] ][0]);
-        gGL.texCoord2f(0,1);
-        gGL.vertex3fv(&mVertex[ faces[which_face][2] ][0]);
-        gGL.texCoord2f(0,0);
-        gGL.vertex3fv(&mVertex[ faces[which_face][3] ][0]);
+        gGL.texCoord2f(1.f, 0.f);
+        gGL.vertex3fv(&mVertex[faces[which_face][0]][0]);
+        gGL.texCoord2f(1.f, 1.f);
+        gGL.vertex3fv(&mVertex[faces[which_face][1]][0]);
+        gGL.texCoord2f(0.f, 1.f);
+        gGL.vertex3fv(&mVertex[faces[which_face][2]][0]);
+
+        gGL.texCoord2f(1.f, 0.f);
+        gGL.vertex3fv(&mVertex[faces[which_face][0]][0]);
+        gGL.texCoord2f(0.f, 1.f);
+        gGL.vertex3fv(&mVertex[faces[which_face][2]][0]);
+        gGL.texCoord2f(0.f, 0.f);
+        gGL.vertex3fv(&mVertex[faces[which_face][3]][0]);
+    }
     gGL.end();
 }
 

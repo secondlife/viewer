@@ -11,10 +11,10 @@
  name="gltf asset editor"
  title="[OBJECT_NAME]">
     <floater.string name="floater_title" value="GLTF Scene Editor"/>
-    <floater.string name="scene_tittle" value="Scene"/>
-    <floater.string name="node_tittle" value="Node"/>
-    <floater.string name="mesh_tittle" value="Mesh"/>
-    <floater.string name="skin_tittle" value="Skin"/>
+    <floater.string name="scene_title" value="Scene"/>
+    <floater.string name="node_title" value="Node"/>
+    <floater.string name="mesh_title" value="Mesh"/>
+    <floater.string name="skin_title" value="Skin"/>
 
     <layout_stack
      name="main_layout"

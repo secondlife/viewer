@@ -27,12 +27,13 @@
 #ifndef LL_LLPANELCONTENTS_H
 #define LL_LLPANELCONTENTS_H
 
-#include "v3math.h"
-#include "llpanel.h"
+#include "llfolderview.h"
 #include "llinventory.h"
+#include "llpanel.h"
 #include "lluuid.h"
 #include "llviewerobject.h"
 #include "llvoinventorylistener.h"
+#include "v3math.h"
 
 class LLButton;
 class LLPanelObjectInventory;
@@ -66,9 +67,12 @@ public:
     static const char* PERMS_ANYONE_CONTROL_KEY;
 
 protected:
-    void                getState(LLViewerObject *object);
+    void getState(LLViewerObject *object);
+    void onFilterEdit();
 
 public:
+    class LLFilterEditor* mFilterEditor;
+    LLSaveFolderState mSavedFolderState;
     LLPanelObjectInventory* mPanelInventoryObject;
 };
 

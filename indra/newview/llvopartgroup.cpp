@@ -54,63 +54,6 @@ void LLVOPartGroup::initClass()
 void LLVOPartGroup::restoreGL()
 {
 
-    //TODO: optimize out binormal mask here.  Specular and normal coords as well.
-#if 0
-    sVB = new LLVertexBuffer(VERTEX_DATA_MASK | LLVertexBuffer::MAP_TANGENT | LLVertexBuffer::MAP_TEXCOORD1 | LLVertexBuffer::MAP_TEXCOORD2);
-    U32 count = LL_MAX_PARTICLE_COUNT;
-    if (!sVB->allocateBuffer(count*4, count*6))
-    {
-        LL_WARNS() << "Failed to allocate Vertex Buffer to "
-            << count*4 << " vertices and "
-            << count * 6 << " indices" << LL_ENDL;
-        // we are likelly to crash at following getTexCoord0Strider(), so unref and return
-        sVB = NULL;
-        return;
-    }
-
-    //indices and texcoords are always the same, set once
-    LLStrider<U16> indicesp;
-
-    LLStrider<LLVector4a> verticesp;
-
-    sVB->getIndexStrider(indicesp);
-    sVB->getVertexStrider(verticesp);
-
-    LLVector4a v;
-    v.set(0,0,0,0);
-
-
-    U16 vert_offset = 0;
-
-    for (U32 i = 0; i < LL_MAX_PARTICLE_COUNT; i++)
-    {
-        *indicesp++ = vert_offset + 0;
-        *indicesp++ = vert_offset + 1;
-        *indicesp++ = vert_offset + 2;
-
-        *indicesp++ = vert_offset + 1;
-        *indicesp++ = vert_offset + 3;
-        *indicesp++ = vert_offset + 2;
-
-        *verticesp++ = v;
-
-        vert_offset += 4;
-    }
-
-    LLStrider<LLVector2> texcoordsp;
-    sVB->getTexCoord0Strider(texcoordsp);
-
-    for (U32 i = 0; i < LL_MAX_PARTICLE_COUNT; i++)
-    {
-        *texcoordsp++ = LLVector2(0.f, 1.f);
-        *texcoordsp++ = LLVector2(0.f, 0.f);
-        *texcoordsp++ = LLVector2(1.f, 1.f);
-        *texcoordsp++ = LLVector2(1.f, 0.f);
-    }
-
-    sVB->unmapBuffer();
-#endif
-
 }
 
 //static
@@ -702,7 +645,7 @@ U32 LLVOPartGroup::getPartitionType() const
 }
 
 LLParticlePartition::LLParticlePartition(LLViewerRegion* regionp)
-: LLSpatialPartition(LLDrawPoolAlpha::VERTEX_DATA_MASK | LLVertexBuffer::MAP_TEXTURE_INDEX, true, regionp)
+: LLSpatialPartition(static_cast<U32>(LLDrawPoolAlpha::VERTEX_DATA_MASK) | static_cast<U32>(LLVertexBuffer::MAP_TEXTURE_INDEX), true, regionp)
 {
     mRenderPass = LLRenderPass::PASS_ALPHA;
     mDrawableType = LLPipeline::RENDER_TYPE_PARTICLES;
@@ -955,7 +898,6 @@ void LLParticlePartition::getGeometry(LLSpatialGroup* group)
         }
     }
 
-    buffer->unmapBuffer();
     mFaceList.clear();
 }
 

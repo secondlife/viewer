@@ -52,6 +52,7 @@
 
 #include "llfirstuse.h"
 #include "llfloaterimnearbychat.h"
+#include "llfloaterimnearbychatlistener.h"
 #include "llagent.h" // gAgent
 #include "llgesturemgr.h"
 #include "llmultigesture.h"
@@ -70,6 +71,8 @@
 #include "lluiusage.h"
 
 S32 LLFloaterIMNearbyChat::sLastSpecialChatChannel = 0;
+
+static LLFloaterIMNearbyChatListener sChatListener;
 
 constexpr S32 EXPANDED_HEIGHT = 266;
 constexpr S32 COLLAPSED_HEIGHT = 60;
@@ -106,7 +109,7 @@ LLFloaterIMNearbyChat::LLFloaterIMNearbyChat(const LLSD& llsd)
     // Required by LLFloaterIMSessionTab::mGearBtn
     // But nearby floater has no 'per agent' menu items,
     mEnableCallbackRegistrar.add("Avatar.EnableGearItem", boost::bind(&cb_do_nothing));
-    mCommitCallbackRegistrar.add("Avatar.GearDoToSelected", boost::bind(&cb_do_nothing));
+    mCommitCallbackRegistrar.add("Avatar.GearDoToSelected", { boost::bind(&cb_do_nothing) });
     mEnableCallbackRegistrar.add("Avatar.CheckGearItem", boost::bind(&cb_do_nothing));
 
     mMinFloaterHeight = EXPANDED_MIN_HEIGHT;

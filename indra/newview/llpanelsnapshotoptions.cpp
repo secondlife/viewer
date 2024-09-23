@@ -65,10 +65,10 @@ static LLPanelInjector<LLPanelSnapshotOptions> panel_class("llpanelsnapshotoptio
 
 LLPanelSnapshotOptions::LLPanelSnapshotOptions()
 {
-    mCommitCallbackRegistrar.add("Snapshot.SaveToProfile",      boost::bind(&LLPanelSnapshotOptions::onSaveToProfile,   this));
-    mCommitCallbackRegistrar.add("Snapshot.SaveToEmail",        boost::bind(&LLPanelSnapshotOptions::onSaveToEmail,     this));
-    mCommitCallbackRegistrar.add("Snapshot.SaveToInventory",    boost::bind(&LLPanelSnapshotOptions::onSaveToInventory, this));
-    mCommitCallbackRegistrar.add("Snapshot.SaveToComputer",     boost::bind(&LLPanelSnapshotOptions::onSaveToComputer,  this));
+    mCommitCallbackRegistrar.add("Snapshot.SaveToProfile",      { boost::bind(&LLPanelSnapshotOptions::onSaveToProfile,   this) });
+    mCommitCallbackRegistrar.add("Snapshot.SaveToEmail",        { boost::bind(&LLPanelSnapshotOptions::onSaveToEmail,     this) });
+    mCommitCallbackRegistrar.add("Snapshot.SaveToInventory",    { boost::bind(&LLPanelSnapshotOptions::onSaveToInventory, this) });
+    mCommitCallbackRegistrar.add("Snapshot.SaveToComputer",     { boost::bind(&LLPanelSnapshotOptions::onSaveToComputer,  this) });
 }
 
 LLPanelSnapshotOptions::~LLPanelSnapshotOptions()

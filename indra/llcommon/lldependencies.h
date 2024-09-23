@@ -30,6 +30,8 @@
 #if ! defined(LL_LLDEPENDENCIES_H)
 #define LL_LLDEPENDENCIES_H
 
+#include "linden_common.h"
+#include "llexception.h"
 #include <string>
 #include <vector>
 #include <set>
@@ -40,7 +42,6 @@
 #include <boost/range/iterator_range.hpp>
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
-#include "llexception.h"
 
 /*****************************************************************************
 *   Utilities

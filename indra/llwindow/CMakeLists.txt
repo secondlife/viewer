@@ -17,6 +17,7 @@ include(LLImage)
 include(LLWindow)
 include(UI)
 include(ViewerMiscLibs)
+include(GLM)
 
 set(llwindow_SOURCE_FILES
     llcursortypes.cpp
@@ -54,16 +55,18 @@ set(llwindow_LINK_LIBRARIES
         llrender
         llfilesystem
         llxml
-        ll::glh_linear
+        ll::glm
         ll::glext
         ll::uilibraries
         ll::SDL
+        ll::zlib-ng
         )
+
 # Libraries on which this library depends, needed for Linux builds
 # Sort by high-level to low-level
 if (LINUX)
-  list(APPEND viewer_SOURCE_FILES 
-       llkeyboardsdl.cpp 
+  list(APPEND viewer_SOURCE_FILES
+       llkeyboardsdl.cpp
        llwindowsdl.cpp
        )
   list(APPEND viewer_HEADER_FILES
@@ -83,7 +86,6 @@ if (LINUX)
         fontconfig          # For FCInit and other FC* functions.
         )
   endif (BUILD_HEADLESS)
-
 endif (LINUX)
 
 if (DARWIN)
@@ -179,7 +181,7 @@ endif (SDL_FOUND)
 
   target_link_libraries (llwindow ${llwindow_LINK_LIBRARIES})
   target_include_directories(llwindow INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
-  
+
 if (DARWIN)
   include(CMakeFindFrameworks)
   find_library(CARBON_LIBRARY Carbon)

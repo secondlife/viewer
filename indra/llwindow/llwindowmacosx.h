@@ -113,6 +113,8 @@ public:
     void spawnWebBrowser(const std::string& escaped_url, bool async) override;
     F32 getSystemUISize() override;
 
+    void openFolder(const std::string &path) override;
+
     bool getInputDevices(U32 device_type_filter,
                          std::function<bool(std::string&, LLSD&, void*)> osx_callback,
                          void* win_callback,

@@ -51,9 +51,9 @@ LLFloaterInspect::LLFloaterInspect(const LLSD& key)
     mOwnerNameCacheConnection(),
     mCreatorNameCacheConnection()
 {
-    mCommitCallbackRegistrar.add("Inspect.OwnerProfile",    boost::bind(&LLFloaterInspect::onClickOwnerProfile, this));
-    mCommitCallbackRegistrar.add("Inspect.CreatorProfile",  boost::bind(&LLFloaterInspect::onClickCreatorProfile, this));
-    mCommitCallbackRegistrar.add("Inspect.SelectObject",    boost::bind(&LLFloaterInspect::onSelectObject, this));
+    mCommitCallbackRegistrar.add("Inspect.OwnerProfile",    { boost::bind(&LLFloaterInspect::onClickOwnerProfile, this) });
+    mCommitCallbackRegistrar.add("Inspect.CreatorProfile",  { boost::bind(&LLFloaterInspect::onClickCreatorProfile, this) });
+    mCommitCallbackRegistrar.add("Inspect.SelectObject",    { boost::bind(&LLFloaterInspect::onSelectObject, this) });
 }
 
 bool LLFloaterInspect::postBuild()

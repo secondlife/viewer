@@ -101,7 +101,7 @@ class LLChatHistory : public LLUICtrl
          * Builds a message header.
          * @return pointer to LLView header object.
          */
-        LLView* getHeader(const LLChat& chat,const LLStyle::Params& style_params, const LLSD& args);
+        LLView* getHeader(const LLChat& chat,const LLStyle::Params& style_params, const LLSD& args, bool is_script = false);
     public:
         ~LLChatHistory();
         LLSD getValue() const;
@@ -127,6 +127,7 @@ class LLChatHistory : public LLUICtrl
         LLDate mLastMessageTime;
         bool mIsLastMessageFromLog;
         bool mNotifyAboutUnreadMsg;
+        bool mIsLastFromScript;
         //std::string mLastMessageTimeStr;
 
         std::string mMessageHeaderFilename;

@@ -41,7 +41,6 @@ std::map<KEY,std::string> LLKeyboard::sKeysToNames;
 std::map<std::string,KEY> LLKeyboard::sNamesToKeys;
 LLKeyStringTranslatorFunc*  LLKeyboard::mStringTranslator = NULL;   // Used for l10n + PC/Mac/Linux accelerator labeling
 
-
 //
 // Class Implementation
 //
@@ -195,12 +194,11 @@ void LLKeyboard::resetKeys()
 }
 
 
-bool LLKeyboard::translateKey(const U16 os_key, KEY *out_key)
+bool LLKeyboard::translateKey(const NATIVE_KEY_TYPE os_key, KEY *out_key)
 {
-    std::map<U16, KEY>::iterator iter;
 
     // Only translate keys in the map, ignore all other keys for now
-    iter = mTranslateKeyMap.find(os_key);
+    auto iter = mTranslateKeyMap.find(os_key);
     if (iter == mTranslateKeyMap.end())
     {
         //LL_WARNS() << "Unknown virtual key " << os_key << LL_ENDL;
@@ -214,11 +212,9 @@ bool LLKeyboard::translateKey(const U16 os_key, KEY *out_key)
     }
 }
 
-
-U16 LLKeyboard::inverseTranslateKey(const KEY translated_key)
+LLKeyboard::NATIVE_KEY_TYPE LLKeyboard::inverseTranslateKey(const KEY translated_key)
 {
-    std::map<KEY, U16>::iterator iter;
-    iter = mInvTranslateKeyMap.find(translated_key);
+    auto iter = mInvTranslateKeyMap.find(translated_key);
     if (iter == mInvTranslateKeyMap.end())
     {
         return 0;

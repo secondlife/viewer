@@ -68,8 +68,8 @@ static LLPanelInjector<LLPanelSnapshotProfile> panel_class("llpanelsnapshotprofi
 
 LLPanelSnapshotProfile::LLPanelSnapshotProfile()
 {
-    mCommitCallbackRegistrar.add("PostToProfile.Send",      boost::bind(&LLPanelSnapshotProfile::onSend,        this));
-    mCommitCallbackRegistrar.add("PostToProfile.Cancel",    boost::bind(&LLPanelSnapshotProfile::cancel,        this));
+    mCommitCallbackRegistrar.add("PostToProfile.Send",      { boost::bind(&LLPanelSnapshotProfile::onSend, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("PostToProfile.Cancel",    { boost::bind(&LLPanelSnapshotProfile::cancel, this), cb_info::UNTRUSTED_BLOCK });
 }
 
 // virtual

@@ -76,16 +76,16 @@ LLFloaterTopObjects::LLFloaterTopObjects(const LLSD& key)
     mInitialized(false),
     mtotalScore(0.f)
 {
-    mCommitCallbackRegistrar.add("TopObjects.ShowBeacon",       boost::bind(&LLFloaterTopObjects::onClickShowBeacon, this));
-    mCommitCallbackRegistrar.add("TopObjects.ReturnSelected",   boost::bind(&LLFloaterTopObjects::onReturnSelected, this));
-    mCommitCallbackRegistrar.add("TopObjects.ReturnAll",        boost::bind(&LLFloaterTopObjects::onReturnAll, this));
-    mCommitCallbackRegistrar.add("TopObjects.Refresh",          boost::bind(&LLFloaterTopObjects::onRefresh, this));
-    mCommitCallbackRegistrar.add("TopObjects.GetByObjectName",  boost::bind(&LLFloaterTopObjects::onGetByObjectName, this));
-    mCommitCallbackRegistrar.add("TopObjects.GetByOwnerName",   boost::bind(&LLFloaterTopObjects::onGetByOwnerName, this));
-    mCommitCallbackRegistrar.add("TopObjects.GetByParcelName",  boost::bind(&LLFloaterTopObjects::onGetByParcelName, this));
-    mCommitCallbackRegistrar.add("TopObjects.CommitObjectsList",boost::bind(&LLFloaterTopObjects::onCommitObjectsList, this));
+    mCommitCallbackRegistrar.add("TopObjects.ShowBeacon",       { boost::bind(&LLFloaterTopObjects::onClickShowBeacon, this) });
+    mCommitCallbackRegistrar.add("TopObjects.ReturnSelected",   { boost::bind(&LLFloaterTopObjects::onReturnSelected, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("TopObjects.ReturnAll",        { boost::bind(&LLFloaterTopObjects::onReturnAll, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("TopObjects.Refresh",          { boost::bind(&LLFloaterTopObjects::onRefresh, this), cb_info::UNTRUSTED_THROTTLE });
+    mCommitCallbackRegistrar.add("TopObjects.GetByObjectName",  { boost::bind(&LLFloaterTopObjects::onGetByObjectName, this), cb_info::UNTRUSTED_THROTTLE });
+    mCommitCallbackRegistrar.add("TopObjects.GetByOwnerName",   { boost::bind(&LLFloaterTopObjects::onGetByOwnerName, this), cb_info::UNTRUSTED_THROTTLE });
+    mCommitCallbackRegistrar.add("TopObjects.GetByParcelName",  { boost::bind(&LLFloaterTopObjects::onGetByParcelName, this), cb_info::UNTRUSTED_THROTTLE });
+    mCommitCallbackRegistrar.add("TopObjects.CommitObjectsList",{ boost::bind(&LLFloaterTopObjects::onCommitObjectsList, this), cb_info::UNTRUSTED_THROTTLE });
 
-    mCommitCallbackRegistrar.add("TopObjects.TeleportToSelected",        boost::bind(&LLFloaterTopObjects::teleportToSelectedObject, this));
+    mCommitCallbackRegistrar.add("TopObjects.TeleportToSelected", { boost::bind(&LLFloaterTopObjects::teleportToSelectedObject, this), cb_info::UNTRUSTED_THROTTLE });
 }
 
 LLFloaterTopObjects::~LLFloaterTopObjects()

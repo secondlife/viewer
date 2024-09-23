@@ -75,10 +75,10 @@ LLFloaterAuction::LLFloaterAuction(const LLSD& key)
   : LLFloater(key),
     mParcelID(-1)
 {
-    mCommitCallbackRegistrar.add("ClickSnapshot",   boost::bind(&LLFloaterAuction::onClickSnapshot, this));
-    mCommitCallbackRegistrar.add("ClickSellToAnyone",       boost::bind(&LLFloaterAuction::onClickSellToAnyone, this));
-    mCommitCallbackRegistrar.add("ClickStartAuction",       boost::bind(&LLFloaterAuction::onClickStartAuction, this));
-    mCommitCallbackRegistrar.add("ClickResetParcel",        boost::bind(&LLFloaterAuction::onClickResetParcel, this));
+    mCommitCallbackRegistrar.add("ClickSnapshot",   { boost::bind(&LLFloaterAuction::onClickSnapshot, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("ClickSellToAnyone",       { boost::bind(&LLFloaterAuction::onClickSellToAnyone, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("ClickStartAuction",       { boost::bind(&LLFloaterAuction::onClickStartAuction, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("ClickResetParcel",        { boost::bind(&LLFloaterAuction::onClickResetParcel, this), cb_info::UNTRUSTED_BLOCK });
 }
 
 // Destroys the object

@@ -3232,12 +3232,6 @@ Aboneliğinizi yenilemek için [[URL] buraya tıklayın].
 
 Özel Üye iseniz, ses dönüştürme özelliğini almak için [[PREMIUM_URL] buraya tıklayın].
 	</notification>
-	<notification name="VoiceEffectsWillExpire">
-		Ses Dönüşümlerinizden birinin ya da daha fazlasının süresi [INTERVAL] günden daha az bir zamanda dolacak. 
-Aboneliğinizi yenilemek için [[URL] buraya tıklayın]. 
-
-Özel Üye iseniz, ses dönüştürme özelliğini almak için [[PREMIUM_URL] buraya tıklayın].
-	</notification>
 	<notification name="VoiceEffectsNew">
 		Yeni Ses Şekilleri kullanılabilir!
 	</notification>

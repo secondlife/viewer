@@ -87,7 +87,10 @@ LLToastIMPanel::LLToastIMPanel(LLToastIMPanel::Params &p) : LLToastPanel(p.notif
         {
             LLAvatarName avatar_name;
             LLAvatarNameCache::get(p.avatar_id, &avatar_name);
-            p.message = "[From " + avatar_name.getDisplayName() + "]\n" + p.message;
+            // move Lua prefix from the message field to the [From] field
+            auto [message, is_lua] = LLStringUtil::withoutPrefix(p.message, LUA_PREFIX);
+            std::string prefix = is_lua ? "LUA - " : "";
+            p.message = "[From " + prefix + avatar_name.getDisplayName() + "]\n" + message;
         }
         style_params.font.style =  "NORMAL";
         mMessage->setText(p.message, style_params);

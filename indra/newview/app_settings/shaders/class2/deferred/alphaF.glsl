@@ -79,7 +79,7 @@ float getAmbientClamp();
 
 void mirrorClip(vec3 pos);
 
-void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout vec3 legacyenv,
+void sampleReflectionProbesLegacy(out vec3 ambenv, out vec3 glossenv, out vec3 legacyenv,
         vec2 tc, vec3 pos, vec3 norm, float glossiness, float envIntensity, bool transparent, vec3 amblit_linear);
 
 vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 diffuse, vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float fa, float is_pointlight, float ambiance)

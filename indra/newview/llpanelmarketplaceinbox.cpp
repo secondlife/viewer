@@ -52,6 +52,8 @@ LLPanelMarketplaceInbox::LLPanelMarketplaceInbox(const Params& p)
     , mInboxButton(NULL)
     , mInventoryPanel(NULL)
     , mSavedFolderState(NULL)
+    , mLastItemCount(-1)
+    , mLastFreshItemCount(-1)
 {
     mSavedFolderState = new LLSaveFolderState();
     mSavedFolderState->setApply(false);
@@ -253,28 +255,40 @@ void LLPanelMarketplaceInbox::draw()
 
     llassert(mFreshCountCtrl != NULL);
 
-    if (item_count > 0)
+    if (mLastItemCount != item_count)
     {
-        std::string item_count_str = llformat("%d", item_count);
-
-        LLStringUtil::format_map_t args;
-        args["[NUM]"] = item_count_str;
-        mInboxButton->setLabel(getString("InboxLabelWithArg", args));
-
-        // set green text to fresh item count
-        U32 fresh_item_count = getFreshItemCount();
-        mFreshCountCtrl->setVisible((fresh_item_count > 0));
-
-        if (fresh_item_count > 0)
+        mLastItemCount = item_count;
+        if (item_count > 0)
         {
-            mFreshCountCtrl->setTextArg("[NUM]", llformat("%d", fresh_item_count));
+            std::string item_count_str = llformat("%d", item_count);
+
+            LLStringUtil::format_map_t args;
+            args["[NUM]"] = item_count_str;
+            // setLabel is expensive, causes buffer regeneration
+            mInboxButton->setLabel(getString("InboxLabelWithArg", args));
+        }
+        else
+        {
+            mInboxButton->setLabel(getString("InboxLabelNoArg"));
+
+            mFreshCountCtrl->setVisible(false);
         }
     }
-    else
-    {
-        mInboxButton->setLabel(getString("InboxLabelNoArg"));
 
-        mFreshCountCtrl->setVisible(false);
+    if (item_count > 0)
+    {
+        // set green text to fresh item count
+        U32 fresh_item_count = getFreshItemCount();
+        if (mLastFreshItemCount != fresh_item_count)
+        {
+            mLastFreshItemCount = fresh_item_count;
+            mFreshCountCtrl->setVisible((fresh_item_count > 0));
+
+            if (fresh_item_count > 0)
+            {
+                mFreshCountCtrl->setTextArg("[NUM]", llformat("%d", fresh_item_count));
+            }
+        }
     }
 
     LLPanel::draw();

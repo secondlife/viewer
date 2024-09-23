@@ -389,17 +389,10 @@ void ll_nvapi_init(NvDRSSessionHandle hSession)
     }
 }
 
-//#define DEBUGGING_SEH_FILTER 1
-#if DEBUGGING_SEH_FILTER
-#   define WINMAIN DebuggingWinMain
-#else
-#   define WINMAIN wWinMain
-#endif
-
-int APIENTRY WINMAIN(HINSTANCE hInstance,
-                     HINSTANCE hPrevInstance,
-                     PWSTR     pCmdLine,
-                     int       nCmdShow)
+int APIENTRY wWinMain(HINSTANCE hInstance,
+                      HINSTANCE hPrevInstance,
+                      PWSTR     pCmdLine,
+                      int       nCmdShow)
 {
     // Call Tracy first thing to have it allocate memory
     // https://github.com/wolfpld/tracy/issues/196
@@ -547,27 +540,6 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
 
     return 0;
 }
-
-#if DEBUGGING_SEH_FILTER
-// The compiler doesn't like it when you use __try/__except blocks
-// in a method that uses object destructors. Go figure.
-// This winmain just calls the real winmain inside __try.
-// The __except calls our exception filter function. For debugging purposes.
-int APIENTRY wWinMain(HINSTANCE hInstance,
-                     HINSTANCE hPrevInstance,
-                     PWSTR     lpCmdLine,
-                     int       nCmdShow)
-{
-    __try
-    {
-        WINMAIN(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
-    }
-    __except( viewer_windows_exception_handler( GetExceptionInformation() ) )
-    {
-        _tprintf( _T("Exception handled.\n") );
-    }
-}
-#endif
 
 void LLAppViewerWin32::disableWinErrorReporting()
 {

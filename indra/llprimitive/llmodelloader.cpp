@@ -31,13 +31,12 @@
 #include "lljoint.h"
 #include "llcallbacklist.h"
 
-#include "glh/glh_linear.h"
 #include "llmatrix4a.h"
 #include <boost/bind.hpp>
 
 std::list<LLModelLoader*> LLModelLoader::sActiveLoaderList;
 
-void stretch_extents(LLModel* model, LLMatrix4a& mat, LLVector4a& min, LLVector4a& max, bool& first_transform)
+static void stretch_extents(const LLModel* model, const LLMatrix4a& mat, LLVector4a& min, LLVector4a& max, bool& first_transform)
 {
     LLVector4a box[] =
     {
@@ -59,7 +58,7 @@ void stretch_extents(LLModel* model, LLMatrix4a& mat, LLVector4a& min, LLVector4
         center.setAdd(face.mExtents[0], face.mExtents[1]);
         center.mul(0.5f);
         LLVector4a size;
-        size.setSub(face.mExtents[1],face.mExtents[0]);
+        size.setSub(face.mExtents[1], face.mExtents[0]);
         size.mul(0.5f);
 
         for (U32 i = 0; i < 8; i++)
@@ -85,19 +84,19 @@ void stretch_extents(LLModel* model, LLMatrix4a& mat, LLVector4a& min, LLVector4
     }
 }
 
-void stretch_extents(LLModel* model, LLMatrix4& mat, LLVector3& min, LLVector3& max, bool& first_transform)
+void LLModelLoader::stretch_extents(const LLModel* model, const LLMatrix4& mat)
 {
     LLVector4a mina, maxa;
     LLMatrix4a mata;
 
     mata.loadu(mat);
-    mina.load3(min.mV);
-    maxa.load3(max.mV);
+    mina.load3(mExtents[0].mV);
+    maxa.load3(mExtents[1].mV);
 
-    stretch_extents(model, mata, mina, maxa, first_transform);
+    ::stretch_extents(model, mata, mina, maxa, mFirstTransform);
 
-    min.set(mina.getF32ptr());
-    max.set(maxa.getF32ptr());
+    mExtents[0].set(mina.getF32ptr());
+    mExtents[1].set(maxa.getF32ptr());
 }
 
 //-----------------------------------------------------------------------------
@@ -292,14 +291,7 @@ bool LLModelLoader::loadFromSLM(const std::string& filename)
             {
                 if (idx >= model[lod].size())
                 {
-                    if (model[lod].size())
-                    {
-                        instance_list[i].mLOD[lod] = model[lod][0];
-                    }
-                    else
-                    {
-                        instance_list[i].mLOD[lod] = NULL;
-                    }
+                    instance_list[i].mLOD[lod] = model[lod].front();
                     continue;
                 }
 
@@ -342,7 +334,7 @@ bool LLModelLoader::loadFromSLM(const std::string& filename)
     {
         LLModelInstance& cur_instance = instance_list[i];
         mScene[cur_instance.mTransform].push_back(cur_instance);
-        stretch_extents(cur_instance.mModel, cur_instance.mTransform, mExtents[0], mExtents[1], mFirstTransform);
+        stretch_extents(cur_instance.mModel, cur_instance.mTransform);
     }
 
     setLoadState( DONE );
