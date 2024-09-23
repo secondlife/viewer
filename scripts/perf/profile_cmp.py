@@ -60,8 +60,9 @@ def compare(baseline, test, epsilon=DEFAULT_EPSILON):
         if abs(delta) > epsilon:
             deltas.append((delta, shader, bthruput, tthruput))
 
-    # descending order of performance gain
-    deltas.sort(reverse=True)
+    # ascending order of performance gain: put the most egregious performance
+    # hits at the top of the list
+    deltas.sort()
     print(f'{len(deltas)} shaders showed nontrivial performance differences '
           '(millon samples/sec):')
     namelen = max(len(s[1]) for s in deltas) if deltas else 0
