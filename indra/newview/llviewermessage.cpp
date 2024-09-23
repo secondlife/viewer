@@ -3153,14 +3153,9 @@ void process_crossed_region(LLMessageSystem* msg, void**)
 }
 
 
-
-// Sends avatar and camera information to simulator.
-// Sent roughly once per frame, or 20 times per second, whichever is less often
-
-const F32 THRESHOLD_HEAD_ROT_QDOT = 0.9997f;    // ~= 2.5 degrees -- if its less than this we need to update head_rot
-const F32 MAX_HEAD_ROT_QDOT = 0.99999f;         // ~= 0.5 degrees -- if its greater than this then no need to update head_rot
-                                                // between these values we delay the updates (but no more than one second)
-
+// sends an AgentUpdate message to the server... or not:
+// only when force_send is 'true' OR
+// something changed AND the update is not being throttled
 void send_agent_update(bool force_send, bool send_reliable)
 {
     LL_PROFILE_ZONE_SCOPED;
@@ -3168,72 +3163,46 @@ void send_agent_update(bool force_send, bool send_reliable)
 
     if (gAgent.getTeleportState() != LLAgent::TELEPORT_NONE)
     {
-        // We don't care if they want to send an agent update, they're not allowed to until the simulator
-        // that's the target is ready to receive them (after avatar_init_complete is received)
+        // We don't care if they want to send an agent update, they're not allowed
+        // until the target simulator is ready to receive them
+        // (e.g. after avatar_init_complete is received)
         return;
     }
 
-    // We have already requested to log out.  Don't send agent updates.
-    if(LLAppViewer::instance()->logoutRequestSent())
+    if (LLAppViewer::instance()->logoutRequestSent())
     {
+        // We have already requested to log out.  Don't send agent updates.
         return;
     }
 
-    // no region to send update to
-    if(gAgent.getRegion() == NULL)
+    if (gAgent.getRegion() == nullptr || gDisconnected)
     {
+        // no region to send update to
         return;
     }
 
-    const F32 TRANSLATE_THRESHOLD = 0.01f;
+    static F64          last_send_time = 0.0;
+    static U32          last_control_flags = 0;
+    static U8           last_render_state = 0;
+    static U8           last_flags = AU_FLAGS_NONE;
+    static LLQuaternion last_body_rot,
+                        last_head_rot;
+    static LLVector3    last_camera_pos_agent,
+                        last_camera_at;
 
-    // NOTA BENE: This is (intentionally?) using the small angle sine approximation to test for rotation
-    //            Plus, there is an extra 0.5 in the mix since the perpendicular between last_camera_at and getAtAxis() bisects cam_rot_change
-    //            Thus, we're actually testing against 0.2 degrees
-    const F32 ROTATION_THRESHOLD = 0.1f * 2.f*F_PI/360.f;           //  Rotation thresh 0.2 deg, see note above
-
-    const U8 DUP_MSGS = 1;              //  HACK!  number of times to repeat data on motionless agent
-
-    //  Store data on last sent update so that if no changes, no send
-    static LLVector3 last_camera_pos_agent,
-                     last_camera_at,
-                     last_camera_left,
-                     last_camera_up;
-
-    static LLVector3 cam_center_chg,
-                     cam_rot_chg;
-
-    static LLQuaternion last_head_rot;
-    static U32 last_control_flags = 0;
-    static U8 last_render_state;
-    static U8 duplicate_count = 0;
-    static F32 head_rot_chg = 1.0;
-    static U8 last_flags;
-
-    LLMessageSystem *msg = gMessageSystem;
-    LLVector3       camera_pos_agent;               // local to avatar's region
-    U8              render_state;
-
-    LLQuaternion body_rotation = gAgent.getFrameAgent().getQuaternion();
-    LLQuaternion head_rotation = gAgent.getHeadRotation();
-
-    camera_pos_agent = gAgentCamera.getCameraPositionAgent();
-
-    render_state = gAgent.getRenderState();
-
-    U32     control_flag_change = 0;
-    U8      flag_change = 0;
-
-    cam_center_chg = last_camera_pos_agent - camera_pos_agent;
-    cam_rot_chg = last_camera_at - LLViewerCamera::getInstance()->getAtAxis();
+    // compute sec_since_last_send
+    constexpr F64 MAX_AGENT_UPDATES_PER_SECOND = 125.0; // Value derived experimentally to avoid Input Delays with latest PBR-Capable Viewers when viewer FPS is highly volatile.
+    constexpr F64 MIN_AGENT_UPDATES_PER_SECOND = 1.0; // keep-alive rate
+    constexpr F64 MIN_AGENT_UPDATE_PERIOD = 1.0 / MAX_AGENT_UPDATES_PER_SECOND;
+    constexpr F64 MAX_AGENT_UPDATE_PERIOD = 1.0 / MIN_AGENT_UPDATES_PER_SECOND;
+    F64 now =  LLFrameTimer::getTotalSeconds();
+    F64 sec_since_last_send = now - last_send_time;
 
     // If a modifier key is held down, turn off
     // LBUTTON and ML_LBUTTON so that using the camera (alt-key) doesn't
     // trigger a control event.
     U32 control_flags = gAgent.getControlFlags();
-
-    MASK    key_mask = gKeyboard->currentMask(true);
-
+    MASK key_mask = gKeyboard->currentMask(true);
     if (key_mask & MASK_ALT || key_mask & MASK_CONTROL)
     {
         control_flags &= ~( AGENT_CONTROL_LBUTTON_DOWN |
@@ -3242,7 +3211,22 @@ void send_agent_update(bool force_send, bool send_reliable)
                             AGENT_CONTROL_ML_LBUTTON_UP ;
     }
 
-    control_flag_change = last_control_flags ^ control_flags;
+    // any change in control_flags should be sent ASAP, so we fold that into force_send
+    force_send = force_send || (control_flags != last_control_flags);
+
+    if (! force_send && sec_since_last_send < MIN_AGENT_UPDATE_PERIOD)
+    {
+        // throttle less-important AgentUpdates
+        return;
+    }
+
+    bool send_update = force_send || sec_since_last_send > MAX_AGENT_UPDATE_PERIOD;
+
+    LLVector3 camera_pos_agent = gAgentCamera.getCameraPositionAgent(); // local to avatar's region
+    LLVector3 camera_at = LLViewerCamera::getInstance()->getAtAxis();
+    LLQuaternion body_rotation = gAgent.getFrameAgent().getQuaternion();
+    LLQuaternion head_rotation = gAgent.getHeadRotation();
+    U8 render_state = gAgent.getRenderState();
 
     U8 flags = AU_FLAGS_NONE;
     if (gAgent.isGroupTitleHidden())
@@ -3254,159 +3238,140 @@ void send_agent_update(bool force_send, bool send_reliable)
         flags |= AU_FLAGS_CLIENT_AUTOPILOT;
     }
 
-    flag_change = last_flags ^ flags;
-
-    head_rot_chg = dot(last_head_rot, head_rotation);
-
-    //static S32 msg_number = 0;        // Used for diagnostic log messages
-
-    if (force_send ||
-        (cam_center_chg.magVec() > TRANSLATE_THRESHOLD) ||
-        (head_rot_chg < THRESHOLD_HEAD_ROT_QDOT) ||
-        (last_render_state != render_state) ||
-        (cam_rot_chg.magVec() > ROTATION_THRESHOLD) ||
-        control_flag_change != 0 ||
-        flag_change != 0)
+    if (!send_update)
     {
-        /* Diagnotics to show why we send the AgentUpdate message.  Also un-commment the msg_number code above and below this block
-        msg_number += 1;
-        if (head_rot_chg < THRESHOLD_HEAD_ROT_QDOT)
+        // check to see if anything changed
+        // use a do-while-false to provide easy way to break out as soon as we find something changed
+        do
         {
-            //LL_INFOS("Messaging") << "head rot " << head_rotation << LL_ENDL;
-            LL_INFOS("Messaging") << "msg " << msg_number << ", frame " << LLFrameTimer::getFrameCount() << ", head_rot_chg " << head_rot_chg << LL_ENDL;
-        }
-        if (cam_rot_chg.magVec() > ROTATION_THRESHOLD)
-        {
-            LL_INFOS("Messaging") << "msg " << msg_number << ", frame " << LLFrameTimer::getFrameCount() << ", cam rot " <<  cam_rot_chg.magVec() << LL_ENDL;
-        }
-        if (cam_center_chg.magVec() > TRANSLATE_THRESHOLD)
-        {
-            LL_INFOS("Messaging") << "msg " << msg_number << ", frame " << LLFrameTimer::getFrameCount() << ", cam center " << cam_center_chg.magVec() << LL_ENDL;
-        }
-//      if (drag_delta_chg.magVec() > TRANSLATE_THRESHOLD)
-//      {
-//          LL_INFOS("Messaging") << "drag delta " << drag_delta_chg.magVec() << LL_ENDL;
-//      }
-        if (control_flag_change)
-        {
-            LL_INFOS("Messaging") << "msg " << msg_number << ", frame " << LLFrameTimer::getFrameCount() << ", dcf = " << control_flag_change << LL_ENDL;
-        }
-*/
+            // start with the easy evaluations and progress to more complicated
 
-        duplicate_count = 0;
-    }
-    else
-    {
-        duplicate_count++;
+            // check render_state
+            if (last_render_state != render_state)
+            {
+                send_update = true;
+                break;
+            }
 
-        if (head_rot_chg < MAX_HEAD_ROT_QDOT  &&  duplicate_count < AGENT_UPDATES_PER_SECOND)
-        {
+            // check flags
+            if (last_flags != flags)
+            {
+                send_update = true;
+                break;
+            }
+
+            // check translation
+            constexpr F32 TRANSLATE_THRESHOLD = 0.01f;
+            if ((last_camera_pos_agent - camera_pos_agent).magVec() > TRANSLATE_THRESHOLD)
+            {
+                send_update = true;
+                break;
+            }
+
+            // check camera rotation
+            // Note: we are using the sine small angle approximation trick here
+            constexpr F32 RADIANS_PER_DEGREE = F_PI / 360.f;
+            constexpr F32 CAMERA_AT_THRESHOLD = 0.2f * RADIANS_PER_DEGREE;
+            if ((last_camera_at - camera_at).magVec() > CAMERA_AT_THRESHOLD)
+            {
+                send_update = true;
+                break;
+            }
+
+            // check head rotation
+            constexpr F64 MIN_HEAD_ROT_QDOT = 0.9997;    // ~= 2.5 degrees -- if its less than this we need to update head_rot
+            constexpr F64 MAX_HEAD_ROT_QDOT = 0.99999;   // ~= 0.5 degrees -- if its greater than this then we consider it close enough
+
+            if (fabs((F64)(dot(last_body_rot, body_rotation))) < MIN_HEAD_ROT_QDOT)
+            {
+                send_update = true;
+                break;
+            }
+
+            F64 head_rot_qdot = fabs((F64)(dot(last_head_rot, head_rotation)));
+            if (head_rot_qdot > MAX_HEAD_ROT_QDOT)
+            {
+                // close enough
+                return;
+            }
+            else if (head_rot_qdot < MIN_HEAD_ROT_QDOT)
+            {
+                // way off
+                send_update = true;
+                break;
+            }
+
+            // Finally, if we get here then head_rot_qdot is somewhere between MIN_ and MAX_HEAD_ROT_QDOT
+
             // The head_rotation is sent for updating things like attached guns.
             // We only trigger a new update when head_rotation deviates beyond
             // some threshold from the last update, however this can break fine
             // adjustments when trying to aim an attached gun, so what we do here
             // (where we would normally skip sending an update when nothing has changed)
-            // is gradually reduce the threshold to allow a better update to
-            // eventually get sent... should update to within 0.5 degrees in less
-            // than a second.
-            if (head_rot_chg < THRESHOLD_HEAD_ROT_QDOT + (MAX_HEAD_ROT_QDOT - THRESHOLD_HEAD_ROT_QDOT) * duplicate_count / AGENT_UPDATES_PER_SECOND)
-            {
-                duplicate_count = 0;
-            }
-            else
-            {
-                return;
-            }
-        }
-        else
-        {
-            return;
-        }
+            // is linearly increase the min threshold until an update is sent.
+            // Min threshold should update to MAX_HEAD_ROT_QDOT within THRESHOLD_GROWTH_PERIOD.
+            constexpr F64 THRESHOLD_GROWTH_PERIOD = 0.5;
+            constexpr F64 threshold_growth_per_sec = (MAX_HEAD_ROT_QDOT - MIN_HEAD_ROT_QDOT) / THRESHOLD_GROWTH_PERIOD;
+            send_update = head_rot_qdot < MIN_HEAD_ROT_QDOT + sec_since_last_send * threshold_growth_per_sec;
+        } while (false);
     }
 
-    if (duplicate_count < DUP_MSGS && !gDisconnected)
+    if (!send_update)
     {
-        /* More diagnostics to count AgentUpdate messages
-        static S32 update_sec = 0;
-        static S32 update_count = 0;
-        static S32 max_update_count = 0;
-        S32 cur_sec = lltrunc( LLTimer::getTotalSeconds() );
-        update_count += 1;
-        if (cur_sec != update_sec)
-        {
-            if (update_sec != 0)
-            {
-                update_sec = cur_sec;
-                //msg_number = 0;
-                max_update_count = llmax(max_update_count, update_count);
-                LL_INFOS() << "Sent " << update_count << " AgentUpdate messages per second, max is " << max_update_count << LL_ENDL;
-            }
-            update_sec = cur_sec;
-            update_count = 0;
-        }
-        */
-
-        // Build the message
-        msg->newMessageFast(_PREHASH_AgentUpdate);
-        msg->nextBlockFast(_PREHASH_AgentData);
-        msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-        msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-        msg->addQuatFast(_PREHASH_BodyRotation, body_rotation);
-        msg->addQuatFast(_PREHASH_HeadRotation, head_rotation);
-        msg->addU8Fast(_PREHASH_State, render_state);
-        msg->addU8Fast(_PREHASH_Flags, flags);
-
-//      if (camera_pos_agent.mV[VY] > 255.f)
-//      {
-//          LL_INFOS("Messaging") << "Sending camera center " << camera_pos_agent << LL_ENDL;
-//      }
-
-        msg->addVector3Fast(_PREHASH_CameraCenter, camera_pos_agent);
-        msg->addVector3Fast(_PREHASH_CameraAtAxis, LLViewerCamera::getInstance()->getAtAxis());
-        msg->addVector3Fast(_PREHASH_CameraLeftAxis, LLViewerCamera::getInstance()->getLeftAxis());
-        msg->addVector3Fast(_PREHASH_CameraUpAxis, LLViewerCamera::getInstance()->getUpAxis());
-        msg->addF32Fast(_PREHASH_Far, gAgentCamera.mDrawDistance);
-
-        msg->addU32Fast(_PREHASH_ControlFlags, control_flags);
-
-        if (gDebugClicks)
-        {
-            if (control_flags & AGENT_CONTROL_LBUTTON_DOWN)
-            {
-                LL_INFOS("Messaging") << "AgentUpdate left button down" << LL_ENDL;
-            }
-
-            if (control_flags & AGENT_CONTROL_LBUTTON_UP)
-            {
-                LL_INFOS("Messaging") << "AgentUpdate left button up" << LL_ENDL;
-            }
-        }
-
-        gAgent.enableControlFlagReset();
-
-        if (!send_reliable)
-        {
-            gAgent.sendMessage();
-        }
-        else
-        {
-            gAgent.sendReliableMessage();
-        }
-
-//      LL_DEBUGS("Messaging") << "agent " << avatar_pos_agent << " cam " << camera_pos_agent << LL_ENDL;
-
-        // Copy the old data
-        last_head_rot = head_rotation;
-        last_render_state = render_state;
-        last_camera_pos_agent = camera_pos_agent;
-        last_camera_at = LLViewerCamera::getInstance()->getAtAxis();
-        last_camera_left = LLViewerCamera::getInstance()->getLeftAxis();
-        last_camera_up = LLViewerCamera::getInstance()->getUpAxis();
-        last_control_flags = control_flags;
-        last_flags = flags;
+        return;
     }
-}
 
+    // Build the message
+    LLMessageSystem* msg = gMessageSystem;
+    msg->newMessageFast(_PREHASH_AgentUpdate);
+    msg->nextBlockFast(_PREHASH_AgentData);
+    msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+    msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+    msg->addQuatFast(_PREHASH_BodyRotation, body_rotation);
+    msg->addQuatFast(_PREHASH_HeadRotation, head_rotation);
+    msg->addU8Fast(_PREHASH_State, render_state);
+    msg->addU8Fast(_PREHASH_Flags, flags);
+
+    msg->addVector3Fast(_PREHASH_CameraCenter, camera_pos_agent);
+    msg->addVector3Fast(_PREHASH_CameraAtAxis, camera_at);
+    msg->addVector3Fast(_PREHASH_CameraLeftAxis, LLViewerCamera::getInstance()->getLeftAxis());
+    msg->addVector3Fast(_PREHASH_CameraUpAxis, LLViewerCamera::getInstance()->getUpAxis());
+    msg->addF32Fast(_PREHASH_Far, gAgentCamera.mDrawDistance);
+
+    msg->addU32Fast(_PREHASH_ControlFlags, control_flags);
+
+    if (gDebugClicks)
+    {
+        if (control_flags & AGENT_CONTROL_LBUTTON_DOWN)
+        {
+            LL_INFOS("Messaging") << "AgentUpdate left button down" << LL_ENDL;
+        }
+
+        if (control_flags & AGENT_CONTROL_LBUTTON_UP)
+        {
+            LL_INFOS("Messaging") << "AgentUpdate left button up" << LL_ENDL;
+        }
+    }
+
+    if (send_reliable)
+    {
+        gAgent.sendReliableMessage();
+    }
+    else
+    {
+        gAgent.sendMessage();
+    }
+
+    // remember last update data
+    last_send_time = now;
+    last_control_flags = control_flags;
+    last_render_state = render_state;
+    last_flags = flags;
+    last_body_rot = body_rotation;
+    last_head_rot = head_rotation;
+    last_camera_pos_agent = camera_pos_agent;
+    last_camera_at = camera_at;
+}
 
 // sounds can arrive before objects, store them for a short time
 // Note: this is a workaround for MAINT-4743, real fix would be to make
@@ -6788,7 +6753,8 @@ void onCovenantLoadComplete(const LLUUID& asset_uuid,
 {
     LL_DEBUGS("Messaging") << "onCovenantLoadComplete()" << LL_ENDL;
     std::string covenant_text;
-    if(0 == status)
+    std::unique_ptr<LLViewerTextEditor> editorp;
+    if (0 == status)
     {
         LLFileSystem file(asset_uuid, type, LLFileSystem::READ);
 
@@ -6809,13 +6775,13 @@ void onCovenantLoadComplete(const LLUUID& asset_uuid,
             {
                 LL_WARNS("Messaging") << "Problem importing estate covenant." << LL_ENDL;
                 covenant_text = "Problem importing estate covenant.";
+                delete editor;
             }
             else
             {
                 // Version 0 (just text, doesn't include version number)
-                covenant_text = editor->getText();
+                editorp.reset(editor); // Use covenant from editorp;
             }
-            delete editor;
         }
         else
         {
@@ -6841,17 +6807,32 @@ void onCovenantLoadComplete(const LLUUID& asset_uuid,
 
         LL_WARNS("Messaging") << "Problem loading notecard: " << status << LL_ENDL;
     }
-    LLPanelEstateCovenant::updateCovenantText(covenant_text, asset_uuid);
-    LLPanelLandCovenant::updateCovenantText(covenant_text);
-    LLFloaterBuyLand::updateCovenantText(covenant_text, asset_uuid);
 
-    LLPanelPlaceProfile* panel = LLFloaterSidePanelContainer::getPanel<LLPanelPlaceProfile>("places", "panel_place_profile");
-    if (panel)
+    if (editorp)
     {
-        panel->updateCovenantText(covenant_text);
+        LLPanelEstateCovenant::updateCovenant(editorp.get(), asset_uuid);
+        LLPanelLandCovenant::updateCovenant(editorp.get());
+        LLFloaterBuyLand::updateCovenant(editorp.get(), asset_uuid);
+    }
+    else
+    {
+        LLPanelEstateCovenant::updateCovenantText(covenant_text, asset_uuid);
+        LLPanelLandCovenant::updateCovenantText(covenant_text);
+        LLFloaterBuyLand::updateCovenantText(covenant_text, asset_uuid);
+    }
+
+    if (LLPanelPlaceProfile* panel = LLFloaterSidePanelContainer::getPanel<LLPanelPlaceProfile>("places", "panel_place_profile"))
+    {
+        if (editorp)
+        {
+            panel->updateCovenant(editorp.get());
+        }
+        else
+        {
+            panel->updateCovenantText(covenant_text);
+        }
     }
 }
-
 
 void process_feature_disabled_message(LLMessageSystem* msg, void**)
 {

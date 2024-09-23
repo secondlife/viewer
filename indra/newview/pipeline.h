@@ -737,6 +737,9 @@ public:
     // downres scratch space for GPU downscaling of textures
     LLRenderTarget          mDownResMap;
 
+    // 2k bom scratch target
+    LLRenderTarget          mBakeMap;
+
     LLCullResult            mSky;
     LLCullResult            mReflectedObjects;
     LLCullResult            mRefractedObjects;
@@ -776,7 +779,7 @@ public:
     //water distortion texture (refraction)
     LLRenderTarget              mWaterDis;
 
-    static const U32 MAX_BAKE_WIDTH;
+    static const U32 MAX_PREVIEW_WIDTH;
 
     //texture for making the glow
     LLRenderTarget              mGlow[3];

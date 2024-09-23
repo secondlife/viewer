@@ -62,13 +62,14 @@ private:
     void onSaveClicked();
     void onCancelClicked();
 
-    void folderCreatedCallback(LLUUID folder_id);
+    static void folderCreatedCallback(LLUUID folder_id);
 
     LLComboBox*     mFolderCombo;
     LLLineEditor*   mLandmarkTitleEditor;
     LLTextEditor*   mNotesEditor;
     LLUUID          mLandmarksID;
     LLUUID          mAssetID;
+    LLUUID          mParentID;
 
     LLLandmarksInventoryObserver*   mInventoryObserver;
     LLPointer<LLInventoryItem>      mItem;

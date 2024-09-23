@@ -252,7 +252,6 @@ set(llcommon_HEADER_FILES
     lluriparser.h
     lluuid.h
     llwin32headers.h
-    llwin32headerslean.h
     llworkerthread.h
     lockstatic.h
     lua_function.h

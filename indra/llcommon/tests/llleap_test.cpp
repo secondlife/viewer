@@ -35,7 +35,7 @@
 // causes Windows abdominal pain such that it later fails code-signing in some
 // mysterious way. Entirely suppressing these LLLeap tests pushes the failure
 // rate MUCH lower. Can we re-enable them with a smaller data size on Windows?
-const size_t BUFFERED_LENGTH =  100*1024;
+const size_t BUFFERED_LENGTH = 1023*1024;
 
 #else // not Windows
 const size_t BUFFERED_LENGTH = 1023*1024; // try wrangling just under a megabyte of data

@@ -26,7 +26,7 @@
 
 #include "llviewerprecompiledheaders.h"
 // include this to get winsock2 because openssl attempts to include winsock1
-#include "llwin32headerslean.h"
+#include "llwin32headers.h"
 #include <openssl/x509_vfy.h>
 #include <openssl/ssl.h>
 #include "llsecapi.h"

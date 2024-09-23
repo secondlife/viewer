@@ -59,7 +59,7 @@
 using namespace llsd;
 
 #if LL_WINDOWS
-#   include "llwin32headerslean.h"
+#   include "llwin32headers.h"
 #   include <psapi.h>               // GetPerformanceInfo() et al.
 #   include <VersionHelpers.h>
 #elif LL_DARWIN
@@ -504,57 +504,46 @@ const S32 LLOSInfo::getOSBitness() const
     return mOSBitness;
 }
 
+namespace {
+
+    U32 readFromProcStat( std::string entryName )
+    {
+        U32 val{};
+#if LL_LINUX
+        constexpr U32 STATUS_SIZE  = 2048;
+
+        LLFILE* status_filep = LLFile::fopen("/proc/self/status", "rb");
+        if (status_filep)
+        {
+            char buff[STATUS_SIZE];     /* Flawfinder: ignore */
+
+            size_t nbytes = fread(buff, 1, STATUS_SIZE-1, status_filep);
+            buff[nbytes] = '\0';
+
+            // All these guys return numbers in KB
+            char *memp = strstr(buff, entryName.c_str());
+            if (memp)
+            {
+                (void) sscanf(memp, "%*s %u", &val);
+            }
+            fclose(status_filep);
+        }
+#endif
+        return val;
+    }
+
+}
+
 //static
 U32 LLOSInfo::getProcessVirtualSizeKB()
 {
-    U32 virtual_size = 0;
-#if LL_LINUX
-#   define STATUS_SIZE 2048
-    LLFILE* status_filep = LLFile::fopen("/proc/self/status", "rb");
-    if (status_filep)
-    {
-        S32 numRead = 0;
-        char buff[STATUS_SIZE];     /* Flawfinder: ignore */
-
-        size_t nbytes = fread(buff, 1, STATUS_SIZE-1, status_filep);
-        buff[nbytes] = '\0';
-
-        // All these guys return numbers in KB
-        char *memp = strstr(buff, "VmSize:");
-        if (memp)
-        {
-            numRead += sscanf(memp, "%*s %u", &virtual_size);
-        }
-        fclose(status_filep);
-    }
-#endif
-    return virtual_size;
+    return readFromProcStat( "VmSize:" );
 }
 
 //static
 U32 LLOSInfo::getProcessResidentSizeKB()
 {
-    U32 resident_size = 0;
-#if LL_LINUX
-    LLFILE* status_filep = LLFile::fopen("/proc/self/status", "rb");
-    if (status_filep != NULL)
-    {
-        S32 numRead = 0;
-        char buff[STATUS_SIZE];     /* Flawfinder: ignore */
-
-        size_t nbytes = fread(buff, 1, STATUS_SIZE-1, status_filep);
-        buff[nbytes] = '\0';
-
-        // All these guys return numbers in KB
-        char *memp = strstr(buff, "VmRSS:");
-        if (memp)
-        {
-            numRead += sscanf(memp, "%*s %u", &resident_size);
-        }
-        fclose(status_filep);
-    }
-#endif
-    return resident_size;
+    return readFromProcStat( "VmRSS:" );
 }
 
 //static
@@ -1118,6 +1107,14 @@ LLSD LLMemoryInfo::loadStatsMap()
                 LLSD::String key(matched[1].first, matched[1].second);
                 LLSD::String value_str(matched[2].first, matched[2].second);
                 LLSD::Integer value(0);
+
+                // Skip over VmallocTotal. It's just a fixed and huge number on (modern) systems. "34359738367 kB"
+                // https://unix.stackexchange.com/questions/700724/why-is-vmalloctotal-34359738367-kb
+                // If not skipped converting it to a LLSD::integer (32 bit) will fail and spam the logs (this function
+                // is called quite frequently).
+                if( key == "VmallocTotal")
+                    continue;
+
                 try
                 {
                     value = boost::lexical_cast<LLSD::Integer>(value_str);

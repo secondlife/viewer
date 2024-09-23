@@ -2820,6 +2820,16 @@ void LLPanelEstateCovenant::setEstateName(const std::string& name)
 }
 
 // static
+void LLPanelEstateCovenant::updateCovenant(const LLTextBase* source, const LLUUID& asset_id)
+{
+    if (LLPanelEstateCovenant* panelp = LLFloaterRegionInfo::getPanelCovenant())
+    {
+        panelp->mEditor->copyContents(source);
+        panelp->setCovenantID(asset_id);
+    }
+}
+
+// static
 void LLPanelEstateCovenant::updateCovenantText(const std::string& string, const LLUUID& asset_id)
 {
     LLPanelEstateCovenant* panelp = LLFloaterRegionInfo::getPanelCovenant();
@@ -4329,7 +4339,6 @@ void LLPanelRegionEnvironment::onChkAllowOverride(bool value)
     setDirtyFlag(DIRTY_FLAG_OVERRIDE);
     mAllowOverrideRestore = mAllowOverride;
     mAllowOverride = value;
-
 
     std::string notification("EstateParcelEnvironmentOverride");
     if (LLPanelEstateInfo::isLindenEstate())

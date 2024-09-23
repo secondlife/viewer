@@ -82,14 +82,10 @@ private:
 
     struct ButtonData
     {
-        ButtonData()
-        : mWidth(0)
-        {}
-
-        LLButton* mButton;
+        LLButton* mButton = nullptr;
         std::string mURL;
-        U32 mURLExternal;
-        S32 mWidth;
+        U32 mURLExternal = 0;
+        S32 mWidth = 0;
     };
     std::vector<ButtonData> mButtonData;
 

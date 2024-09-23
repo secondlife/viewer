@@ -125,7 +125,7 @@
 #define A_GCC 1
 #pragma GCC diagnostic ignored "-Wunused-function"
 #pragma GCC diagnostic ignored "-Wunused-variable"
-#if LL_LINUX
+#if LL_LINUX && defined(__GNUC__) && !defined(__clang__)
 #pragma GCC diagnostic ignored "-Wrestrict"
 #endif
 #endif
@@ -219,7 +219,7 @@ S32 LLPipeline::RenderHeroProbeUpdateRate;
 S32 LLPipeline::RenderHeroProbeConservativeUpdateMultiplier;
 LLTrace::EventStatHandle<S64> LLPipeline::sStatBatchSize("renderbatchsize");
 
-const U32 LLPipeline::MAX_BAKE_WIDTH = 512;
+const U32 LLPipeline::MAX_PREVIEW_WIDTH = 512;
 
 const F32 BACKLIGHT_DAY_MAGNITUDE_OBJECT = 0.1f;
 const F32 BACKLIGHT_NIGHT_MAGNITUDE_OBJECT = 0.08f;
@@ -878,6 +878,8 @@ bool LLPipeline::allocateScreenBufferInternal(U32 resX, U32 resY)
         // used to scale down textures
         // See LLViwerTextureList::updateImagesCreateTextures and LLImageGL::scaleDown
         mDownResMap.allocate(4, 4, GL_RGBA);
+
+        mBakeMap.allocate(LLAvatarAppearanceDefines::SCRATCH_TEX_WIDTH, LLAvatarAppearanceDefines::SCRATCH_TEX_HEIGHT, GL_RGBA);
     }
     //HACK make screenbuffer allocations start failing after 30 seconds
     if (gSavedSettings.getBOOL("SimulateFBOFailure"))
@@ -1137,6 +1139,8 @@ void LLPipeline::releaseGLBuffers()
     mUIScreen.release();
 
     mDownResMap.release();
+
+    mBakeMap.release();
 
     for (U32 i = 0; i < 3; i++)
     {
@@ -3727,6 +3731,7 @@ void LLPipeline::postSort(LLCamera &camera)
         }
     }
 
+    LLVertexBuffer::flushBuffers();
     // LLSpatialGroup::sNoDelete = false;
     LL_PUSH_CALLSTACKS();
 }
@@ -7065,7 +7070,7 @@ void LLPipeline::tonemap(LLRenderTarget* src, LLRenderTarget* dst)
 
         LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
 
-        bool no_post = gSnapshotNoPost || (buildNoPost && gFloaterTools->isAvailable());
+        bool no_post = gSnapshotNoPost || psky->getReflectionProbeAmbiance(should_auto_adjust) == 0.f || (buildNoPost && gFloaterTools->isAvailable());
         LLGLSLShader& shader = no_post ? gNoPostTonemapProgram : gDeferredPostTonemapProgram;
 
         shader.bind();
@@ -7914,6 +7919,8 @@ void LLPipeline::renderFinalize()
     // Whatever is last in the above post processing chain should _always_ be rendered directly here.  If not, expect problems.
     gDeferredPostNoDoFNoiseProgram.bindTexture(LLShaderMgr::DEFERRED_DIFFUSE, finalBuffer);
     gDeferredPostNoDoFNoiseProgram.bindTexture(LLShaderMgr::DEFERRED_DEPTH, &mRT->deferredScreen, true);
+
+    gDeferredPostNoDoFNoiseProgram.uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, (GLfloat)finalBuffer->getWidth(), (GLfloat)finalBuffer->getHeight());
 
     {
         LLGLDepthTest depth_test(GL_TRUE, GL_TRUE, GL_ALWAYS);
@@ -10890,11 +10897,16 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar, bool preview_avatar, bool 
             gGL.diffuseColor4fv(LLColor4::pink.mV );
         }
 
-        gGL.begin(LLRender::QUADS);
-        gGL.vertex3f(-1, -1, clip_plane);
-        gGL.vertex3f(1, -1, clip_plane);
-        gGL.vertex3f(1, 1, clip_plane);
-        gGL.vertex3f(-1, 1, clip_plane);
+        gGL.begin(LLRender::TRIANGLES);
+        {
+            gGL.vertex3f(-1.f, -1.f, clip_plane);
+            gGL.vertex3f(1.f, -1.f, clip_plane);
+            gGL.vertex3f(1.f, 1.f, clip_plane);
+
+            gGL.vertex3f(-1.f, -1.f, clip_plane);
+            gGL.vertex3f(1.f, 1.f, clip_plane);
+            gGL.vertex3f(-1.f, 1.f, clip_plane);
+        }
         gGL.end();
         gGL.flush();
 

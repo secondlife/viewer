@@ -275,7 +275,8 @@ void LLHUDNameTag::renderText()
     LLVector3 x_pixel_vec;
     LLVector3 y_pixel_vec;
 
-    LLViewerCamera::getInstance()->getPixelVectors(mPositionAgent, y_pixel_vec, x_pixel_vec);
+    LLViewerCamera* camera = LLViewerCamera::getInstance();
+    camera->getPixelVectors(mPositionAgent, y_pixel_vec, x_pixel_vec);
 
     LLVector3 width_vec = mWidth * x_pixel_vec;
     LLVector3 height_vec = mHeight * y_pixel_vec;
@@ -283,7 +284,7 @@ void LLHUDNameTag::renderText()
     mRadius = (width_vec + height_vec).magVec() * 0.5f;
 
     LLCoordGL screen_pos;
-    LLViewerCamera::getInstance()->projectPosAgentToScreen(mPositionAgent, screen_pos, false);
+    camera->projectPosAgentToScreen(mPositionAgent, screen_pos, false);
 
     LLVector2 screen_offset = updateScreenPos(mPositionOffset);
 
@@ -310,7 +311,7 @@ void LLHUDNameTag::renderText()
         const S32 label_height = ll_round((mFontp->getLineHeight() * (F32)mLabelSegments.size() + (VERTICAL_PADDING / 3.f)));
         label_top_rect.mBottom = label_top_rect.mTop - label_height;
         LLColor4 label_top_color = text_color;
-        label_top_color.mV[VALPHA] = gSavedSettings.getF32("ChatBubbleOpacity") * alpha_factor;
+        label_top_color.mV[VALPHA] = bubble_opacity() * alpha_factor;
 
         mRoundedRectTopImgp->draw3D(render_position, x_pixel_vec, y_pixel_vec, label_top_rect, label_top_color);
     }
@@ -645,12 +646,13 @@ LLVector2 LLHUDNameTag::updateScreenPos(LLVector2 &offset)
     LLVector2 screen_pos_vec;
     LLVector3 x_pixel_vec;
     LLVector3 y_pixel_vec;
-    LLViewerCamera::getInstance()->getPixelVectors(mPositionAgent, y_pixel_vec, x_pixel_vec);
+    LLViewerCamera* camera = LLViewerCamera::getInstance();
+    camera->getPixelVectors(mPositionAgent, y_pixel_vec, x_pixel_vec);
     LLVector3 world_pos = mPositionAgent + (offset.mV[VX] * x_pixel_vec) + (offset.mV[VY] * y_pixel_vec);
-    if (!LLViewerCamera::getInstance()->projectPosAgentToScreen(world_pos, screen_pos, false) && mVisibleOffScreen)
+    if (!camera->projectPosAgentToScreen(world_pos, screen_pos, false) && mVisibleOffScreen)
     {
         // bubble off-screen, so find a spot for it along screen edge
-        LLViewerCamera::getInstance()->projectPosAgentToScreenEdge(world_pos, screen_pos);
+        camera->projectPosAgentToScreenEdge(world_pos, screen_pos);
     }
 
     screen_pos_vec.setVec((F32)screen_pos.mX, (F32)screen_pos.mY);

@@ -40,6 +40,7 @@
 
 #include "llappviewer.h"
 #include "llbufferstream.h"
+#include "llexception.h"
 #include "llnotificationsutil.h"
 #include "llviewercontrol.h"
 #include "llworld.h"
@@ -377,33 +378,6 @@ bool LLFeatureManager::parseFeatureTable(std::string filename)
 
 F32 gpu_benchmark();
 
-#if LL_WINDOWS
-
-F32 logExceptionBenchmark()
-{
-    // FIXME: gpu_benchmark uses many C++ classes on the stack to control state.
-    //  SEH exceptions with our current exception handling options do not call
-    //  destructors for these classes, resulting in an undefined state should
-    //  this handler be invoked.
-    F32 gbps = -1;
-    __try
-    {
-        gbps = gpu_benchmark();
-    }
-    __except (msc_exception_filter(GetExceptionCode(), GetExceptionInformation()))
-    {
-        // HACK - ensure that profiling is disabled
-        LLGLSLShader::finishProfile();
-
-        // convert to C++ styled exception
-        char integer_string[32];
-        sprintf(integer_string, "SEH, code: %lu\n", GetExceptionCode());
-        throw std::exception(integer_string);
-    }
-    return gbps;
-}
-#endif
-
 bool LLFeatureManager::loadGPUClass()
 {
     if (!gSavedSettings.getBOOL("SkipBenchmark"))
@@ -413,14 +387,12 @@ bool LLFeatureManager::loadGPUClass()
         F32 gbps;
         try
         {
-#if LL_WINDOWS
-            gbps = logExceptionBenchmark();
-#else
-            gbps = gpu_benchmark();
-#endif
+            gbps = LL::seh::catcher(gpu_benchmark);
         }
         catch (const std::exception& e)
         {
+            // HACK - ensure that profiling is disabled
+            LLGLSLShader::finishProfile();
             gbps = -1.f;
             LL_WARNS("RenderInit") << "GPU benchmark failed: " << e.what() << LL_ENDL;
         }
@@ -655,6 +627,14 @@ void LLFeatureManager::applyBaseMasks()
     if (gGLManager.mIsIntel)
     {
         maskFeatures("Intel");
+    }
+    if (gGLManager.mIsApple)
+    {
+        maskFeatures("AppleGPU");
+    }
+    else
+    {
+        maskFeatures("NonAppleGPU");
     }
     if (gGLManager.mGLVersion < 3.f)
     {

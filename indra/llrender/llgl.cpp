@@ -215,8 +215,6 @@ LLMatrix4 gGLObliqueProjectionInverse;
 
 std::list<LLGLUpdate*> LLGLUpdate::sGLQ;
 
-#if (LL_WINDOWS || LL_LINUX)  && !LL_MESA_HEADLESS
-
 #if LL_WINDOWS
 // WGL_ARB_create_context
 PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB = nullptr;
@@ -235,8 +233,6 @@ PFNWGLBLITCONTEXTFRAMEBUFFERAMDPROC             wglBlitContextFramebufferAMD = n
 // WGL_EXT_swap_control
 PFNWGLSWAPINTERVALEXTPROC    wglSwapIntervalEXT = nullptr;
 PFNWGLGETSWAPINTERVALEXTPROC wglGetSwapIntervalEXT = nullptr;
-
-#endif
 
 // GL_VERSION_1_2
 //PFNGLDRAWRANGEELEMENTSPROC  glDrawRangeElements = nullptr;
@@ -1170,6 +1166,11 @@ bool LLGLManager::initGL()
         mGLVendorShort = "INTEL";
         mIsIntel = true;
     }
+    else if (mGLVendor.find("APPLE") != std::string::npos)
+    {
+        mGLVendorShort = "APPLE";
+        mIsApple = true;
+    }
     else
     {
         mGLVendorShort = "MISC";
@@ -1402,6 +1403,9 @@ void LLGLManager::shutdownGL()
 
 void LLGLManager::initExtensions()
 {
+#if LL_LINUX
+    glh_init_extensions("");
+#endif
 #if LL_DARWIN
     GLint num_extensions = 0;
     std::string all_extensions{""};
@@ -1432,10 +1436,9 @@ void LLGLManager::initExtensions()
 
     mInited = true;
 
-#if (LL_WINDOWS || LL_LINUX) && !LL_MESA_HEADLESS
+#if LL_WINDOWS
     LL_DEBUGS("RenderInit") << "GL Probe: Getting symbols" << LL_ENDL;
 
-#if LL_WINDOWS
     // WGL_AMD_gpu_association
     wglGetGPUIDsAMD = (PFNWGLGETGPUIDSAMDPROC)GLH_EXT_GET_PROC_ADDRESS("wglGetGPUIDsAMD");
     wglGetGPUInfoAMD = (PFNWGLGETGPUINFOAMDPROC)GLH_EXT_GET_PROC_ADDRESS("wglGetGPUInfoAMD");
@@ -1453,8 +1456,6 @@ void LLGLManager::initExtensions()
 
     // WGL_ARB_create_context
     wglCreateContextAttribsARB = (PFNWGLCREATECONTEXTATTRIBSARBPROC)GLH_EXT_GET_PROC_ADDRESS("wglCreateContextAttribsARB");
-#endif
-
 
     // Load entire OpenGL API through GetProcAddress, leaving sections beyond mGLVersion unloaded
 
@@ -2582,6 +2583,7 @@ void parse_gl_version( S32* major, S32* minor, S32* release, std::string* vendor
     {
         return;
     }
+    LL_INFOS() << "GL: "  << version << LL_ENDL;
 
     version_string->assign(version);
 
@@ -2957,5 +2959,3 @@ extern "C"
     __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
 }
 #endif
-
-

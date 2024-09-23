@@ -102,6 +102,7 @@ public:
     bool mIsAMD;
     bool mIsNVIDIA;
     bool mIsIntel;
+    bool mIsApple = false;
 
     // hints to the render pipe
     U32 mDownScaleMethod = 0; // see settings.xml RenderDownScaleMethod

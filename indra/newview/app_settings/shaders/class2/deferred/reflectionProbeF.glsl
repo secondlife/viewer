@@ -55,7 +55,7 @@ vec4 sampleReflectionProbesDebug(vec3 pos)
     return vec4(0, 0, 0, 0);
 }
 
-void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout vec3 legacyenv,
+void sampleReflectionProbesLegacy(out vec3 ambenv, out vec3 glossenv, out vec3 legacyenv,
         vec2 tc, vec3 pos, vec3 norm, float glossiness, float envIntensity, bool transparent, vec3 amblit_linear)
 {
     ambenv = vec3(reflection_probe_ambiance * 0.25);

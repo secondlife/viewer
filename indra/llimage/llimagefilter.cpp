@@ -389,6 +389,11 @@ void LLImageFilter::convolve(const LLMatrix3 &kernel, bool normalize, bool abs_v
 
     S32 buffer_size = width * components;
     llassert_always(buffer_size > 0);
+
+    // ND: GCC womtimes is unable to figure out llassert_always (aka LLERROR_CRASH) will never return.
+    // This return here is just a dummy and will not be reached.
+    if( buffer_size == 0 ){return; }
+
     std::vector<U8> even_buffer(buffer_size);
     std::vector<U8> odd_buffer(buffer_size);
 

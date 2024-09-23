@@ -179,6 +179,16 @@ public:
         mToolTip = inv_item->getName() + '\n' + inv_item->getDescription();
     }
 
+    /*virtual*/ LLTextSegmentPtr clone(LLTextBase& target) const
+    {
+        LLTextEditor* editor = dynamic_cast<LLTextEditor*>(&target);
+        llassert(editor);
+        if (!editor)
+            return nullptr;
+
+        return new LLEmbeddedItemSegment(mStart, mImage, mItem, *editor);
+    }
+
     /*virtual*/ bool getDimensionsF32(S32 first_char, S32 num_chars, F32& width, S32& height) const
     {
         if (num_chars == 0)

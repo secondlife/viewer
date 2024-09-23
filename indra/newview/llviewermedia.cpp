@@ -688,10 +688,10 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 
     static LLCachedControl<bool> inworld_media_enabled(gSavedSettings, "AudioStreamingMedia", true);
     static LLCachedControl<bool> inworld_audio_enabled(gSavedSettings, "AudioStreamingMusic", true);
-    U32 max_instances = gSavedSettings.getU32("PluginInstancesTotal");
-    U32 max_normal = gSavedSettings.getU32("PluginInstancesNormal");
-    U32 max_low = gSavedSettings.getU32("PluginInstancesLow");
-    F32 max_cpu = gSavedSettings.getF32("PluginInstancesCPULimit");
+    static LLCachedControl<U32> max_instances(gSavedSettings, "PluginInstancesTotal", 8);
+    static LLCachedControl<U32> max_normal(gSavedSettings, "PluginInstancesNormal", 2);
+    static LLCachedControl<U32> max_low(gSavedSettings, "PluginInstancesLow", 4);
+    static LLCachedControl<F32> max_cpu(gSavedSettings, "PluginInstancesCPULimit", 0.9);
     // Setting max_cpu to 0.0 disables CPU usage checking.
     bool check_cpu_usage = (max_cpu != 0.0f);
 
@@ -829,7 +829,8 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
             }
             else
             {
-                if(gAudiop && LLViewerMedia::hasParcelAudio() && restore_parcel_audio && gSavedSettings.getBOOL("MediaTentativeAutoPlay"))
+                static LLCachedControl<bool> auto_play(gSavedSettings, "MediaTentativeAutoPlay", true);
+                if(gAudiop && LLViewerMedia::hasParcelAudio() && restore_parcel_audio && auto_play())
                 {
                     LLViewerAudio::getInstance()->startInternetStreamWithAutoFade(LLViewerMedia::getParcelAudioURL());
                     restore_parcel_audio = false;
@@ -880,7 +881,8 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
         }
     }
 
-    if(gSavedSettings.getBOOL("MediaPerformanceManagerDebug"))
+    static LLCachedControl<bool> perf_debug(gSavedSettings, "MediaPerformanceManagerDebug", false);
+    if(perf_debug())
     {
         // Give impls the same ordering as the priority list
         // they're already in the right order for this.
@@ -1728,8 +1730,6 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
         std::string user_data_path_cache = gDirUtilp->getCacheDir(false);
         user_data_path_cache += gDirUtilp->getDirDelimiter();
 
-        std::string user_data_path_cef_log = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "cef_log.txt");
-
         // See if the plugin executable exists
         llstat s;
         if(LLFile::stat(launcher_name, &s))
@@ -1738,14 +1738,13 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
         }
         else if(LLFile::stat(plugin_name, &s))
         {
-#if !LL_LINUX
             LL_WARNS_ONCE("Media") << "Couldn't find plugin at " << plugin_name << LL_ENDL;
-#endif
         }
         else
         {
             media_source = new LLPluginClassMedia(owner);
             media_source->setSize(default_width, default_height);
+            std::string user_data_path_cef_log = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "cef.log");
             media_source->setUserDataPath(user_data_path_cache, gDirUtilp->getUserName(), user_data_path_cef_log);
             media_source->setLanguageCode(LLUI::getLanguage());
             media_source->setZoomFactor(zoom_factor);
@@ -1771,6 +1770,11 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
             bool media_plugin_debugging_enabled = gSavedSettings.getBOOL("MediaPluginDebugging");
             media_source->enableMediaPluginDebugging( media_plugin_debugging_enabled  || clean_browser);
 
+#if LL_LINUX
+            bool media_plugin_pipewire_volume_catcher = gSavedSettings.getBOOL("MediaPluginPipeWireVolumeCatcher");
+            media_source->enablePipeWireVolumeCatcher( media_plugin_pipewire_volume_catcher );
+#endif
+
             // need to set agent string here before instance created
             media_source->setBrowserUserAgent(LLViewerMedia::getInstance()->getCurrentUserAgent());
 
@@ -1792,9 +1796,7 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
             }
         }
     }
-#if !LL_LINUX
     LL_WARNS_ONCE("Plugin") << "plugin initialization failed for mime type: " << media_type << LL_ENDL;
-#endif
 
     if(gAgent.isInitialized())
     {
