@@ -27,12 +27,14 @@
 
 #include "linden_common.h"
 
+#include <filesystem>
 #include "llstring.h"
 #include "tests/StringVec.h"
 #include "../lldir.h"
 #include "../lldiriterator.h"
 
 #include "../test/lltut.h"
+#include "../test/namedtempfile.h"
 #include "stringize.h"
 #include <boost/assign/list_of.hpp>
 
@@ -425,23 +427,19 @@ namespace tut
       return path;
    }
 
-   std::string makeTestDir( const std::string& dirbase )
+   std::string makeTestDir(  )
    {
-      int counter;
-      std::string uniqueDir;
-      bool foundUnused;
-      std::string delim = gDirUtilp->getDirDelimiter();
+      auto p = NamedTempFile::temp_path();
+      std::filesystem::create_directories(p.native());
 
-      for (counter=0, foundUnused=false; !foundUnused; counter++ )
-      {
-         char counterStr[3];
-         sprintf(counterStr, "%02d", counter);
-         uniqueDir = dirbase + counterStr;
-         foundUnused = ! ( LLFile::isdir(uniqueDir) || LLFile::isfile(uniqueDir) );
-      }
-      ensure("test directory '" + uniqueDir + "' creation failed", !LLFile::mkdir(uniqueDir));
+      std::string ret = p.string();
 
-      return uniqueDir + delim; // HACK - apparently, the trailing delimiter is needed...
+      // There's an implicit assumtion all over this code that the returned path ends with "/" (or "\")
+
+      if(ret.size() >= 1 && ret[ ret.size()-1 ] != std::filesystem::path::preferred_separator )
+          ret += std::filesystem::path::preferred_separator;
+
+      return ret;
    }
 
    static const char* DirScanFilename[5] = { "file1.abc", "file2.abc", "file1.xyz", "file2.xyz", "file1.mno" };
@@ -497,8 +495,9 @@ namespace tut
 
       // Create the same 5 file names of the two directories
 
-      std::string dir1 = makeTestDir(dirTemp + "LLDirIterator");
-      std::string dir2 = makeTestDir(dirTemp + "LLDirIterator");
+      std::string dir1 = makeTestDir();
+      std::string dir2 = makeTestDir();
+
       std::string dir1files[5];
       std::string dir2files[5];
       for (int i=0; i<5; i++)
