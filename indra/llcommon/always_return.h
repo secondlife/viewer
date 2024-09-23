@@ -14,6 +14,7 @@
 #define LL_ALWAYS_RETURN_H
 
 #include <type_traits>              // std::enable_if, std::is_convertible
+#include <utility>                  // std::forward
 
 namespace LL
 {

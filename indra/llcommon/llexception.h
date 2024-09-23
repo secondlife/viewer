@@ -15,6 +15,7 @@
 #include "always_return.h"
 #include "stdtypes.h"
 #include <stdexcept>
+#include <utility>                  // std::forward
 #include <boost/exception/exception.hpp>
 #include <boost/throw_exception.hpp>
 #include <boost/current_function.hpp>
