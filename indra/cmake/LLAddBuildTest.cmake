@@ -1,4 +1,11 @@
 # -*- cmake -*-
+
+include_guard()
+
+if( NOT LL_TESTS )
+  return()
+endif()
+
 include(00-Common)
 include(LLTestCommand)
 include(bugsplat)

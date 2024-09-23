@@ -1137,7 +1137,7 @@ bool LLAppViewer::init()
 
     gGLActive = false;
 
-#if LL_RELEASE_FOR_DOWNLOAD
+#if LL_RELEASE_FOR_DOWNLOAD && !LL_LINUX
     // Skip updater if this is a non-interactive instance
     if (!gSavedSettings.getBOOL("CmdLineSkipUpdater") && !gNonInteractive)
     {
@@ -2372,6 +2372,14 @@ void LLAppViewer::initLoggingAndGetLastDuration()
         {
             LL_WARNS("MarkerFile") << duration_log_msg << LL_ENDL;
         }
+
+        std::string user_data_path_cef_log = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "cef.log");
+        if (gDirUtilp->fileExists(user_data_path_cef_log))
+        {
+            std::string user_data_path_cef_old = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "cef.old");
+            LLFile::remove(user_data_path_cef_old, ENOENT);
+            LLFile::rename(user_data_path_cef_log, user_data_path_cef_old);
+        }
     }
 }
 
@@ -2998,9 +3006,10 @@ void LLAppViewer::initStrings()
     std::string strings_path_full = gDirUtilp->findSkinnedFilenameBaseLang(LLDir::XUI, strings_file);
     if (strings_path_full.empty() || !LLFile::isfile(strings_path_full))
     {
+        std::string crash_reason;
         if (strings_path_full.empty())
         {
-            LL_WARNS() << "The file '" << strings_file << "' is not found" << LL_ENDL;
+            crash_reason = "The file '" + strings_file + "' is not found";
         }
         else
         {
@@ -3008,24 +3017,23 @@ void LLAppViewer::initStrings()
             int rc = LLFile::stat(strings_path_full, &st);
             if (rc != 0)
             {
-                LL_WARNS() << "The file '" << strings_path_full << "' failed to get status. Error code: " << rc << LL_ENDL;
+                crash_reason = "The file '" + strings_path_full + "' failed to get status. Error code: " + std::to_string(rc);
             }
             else if (S_ISDIR(st.st_mode))
             {
-                LL_WARNS() << "The filename '" << strings_path_full << "' is a directory name" << LL_ENDL;
+                crash_reason = "The filename '" + strings_path_full + "' is a directory name";
             }
             else
             {
-                LL_WARNS() << "The filename '" << strings_path_full << "' doesn't seem to be a regular file name" << LL_ENDL;
+                crash_reason = "The filename '" + strings_path_full + "' doesn't seem to be a regular file name";
             }
         }
 
         // initial check to make sure files are there failed
         gDirUtilp->dumpCurrentDirectories(LLError::LEVEL_WARN);
         LLError::LLUserWarningMsg::showMissingFiles();
-        LL_ERRS() << "Viewer failed to find localization and UI files."
-            << " Please reinstall viewer from https://secondlife.com/support/downloads"
-            << " and contact https://support.secondlife.com if issue persists after reinstall." << LL_ENDL;
+        LL_ERRS() << "Viewer failed to open some of localization and UI files."
+            << " " << crash_reason << "." << LL_ENDL;
     }
     LLTransUtil::parseStrings(strings_file, default_trans_args);
     LLTransUtil::parseLanguageStrings("language_settings.xml");
@@ -5715,4 +5723,3 @@ void LLAppViewer::metricsSend(bool enable_reporting)
     // resolution in time.
     gViewerAssetStats->restart();
 }
-

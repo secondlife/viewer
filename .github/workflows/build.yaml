@@ -18,6 +18,10 @@ jobs:
     env:
       # Build with a tag like "Second_Life#abcdef0" to generate a release page
       # (used for builds we are planning to deploy).
+      # Even though inputs.release_run is specified with type boolean, which
+      # correctly presents a checkbox, its *value* is a GH workflow string
+      # 'true' or 'false'. If you simply test github.event.inputs.release_run,
+      # it always evaluates as true because it's a non-empty string either way.
       # When you want to use a string variable as a workflow YAML boolean, it's
       # important to ensure it's the empty string when false. If you omit || '',
       # its value when false is "false", which is interpreted as true.
@@ -44,6 +48,9 @@ jobs:
       matrix:
         runner: [windows-large, macos-12-xl]
         configuration: ${{ fromJSON(needs.setup.outputs.configurations) }}
+        include:
+        - runner: linux-large
+          configuration: ReleaseOS
     runs-on: ${{ matrix.runner }}
     outputs:
       viewer_channel: ${{ steps.build.outputs.viewer_channel }}
@@ -119,6 +126,21 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-64-${{ matrix.configuration }}-
             ${{ runner.os }}-64-
+
+      - name: Install Linux dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt update
+          sudo apt install -y \
+            libpulse-dev libunwind-dev \
+            libgl1-mesa-dev libglu1-mesa-dev libxinerama-dev \
+            libxcursor-dev libxfixes-dev libgstreamer1.0-dev \
+            libgstreamer-plugins-base1.0-dev ninja-build libxft-dev \
+            llvm mold libpipewire-0.3-dev
+
+      - name: Install windows dependencies
+        if: runner.os == 'Windows'
+        run: choco install nsis-unicode
 
       - name: Determine source branch
         id: which-branch
@@ -241,6 +263,13 @@ jobs:
           fi
           export PYTHON_COMMAND_NATIVE="$(native_path "$PYTHON_COMMAND")"
 
+          # Compile with clang, link with mold on linux.
+          if [[ "$RUNNER_OS" == "Linux" ]]; then
+            export CC=clang
+            export CXX=clang++
+            export CMAKE_OPTIONS='-DLINK_WITH_MOLD=ON'
+          fi
+
           ./build.sh
 
           # Each artifact is downloaded as a distinct .zip file. Multiple jobs
@@ -268,6 +297,7 @@ jobs:
           name: "${{ steps.build.outputs.artifact }}-app"
           path: |
             ${{ steps.build.outputs.viewer_app }}
+
 
       # The other upload of nontrivial size is the symbol file. Use a distinct
       # artifact for that too.
@@ -431,6 +461,10 @@ jobs:
         with:
           pattern: "*-metadata"
 
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: "LinuxOS-app"
+
       - name: Rename metadata
         run: |
           cp Windows-metadata/autobuild-package.xml Windows-autobuild-package.xml
@@ -451,7 +485,7 @@ jobs:
             Build ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
             ${{ needs.build.outputs.viewer_channel }}
             ${{ needs.build.outputs.viewer_version }}
-            ${{ needs.build.outputs.relnotes }}
+            ${{ needs.setvar.outputs.relnotes }}
           prerelease: true
           generate_release_notes: true
           target_commitish: ${{ github.sha }}

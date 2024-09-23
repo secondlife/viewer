@@ -309,7 +309,7 @@ def main(extra=[]):
 class LLManifestRegistry(type):
     def __init__(cls, name, bases, dct):
         super(LLManifestRegistry, cls).__init__(name, bases, dct)
-        match = re.match("(\w+)Manifest", name)
+        match = re.match(r"(\w+)Manifest", name)
         if match:
            cls.manifests[match.group(1).lower()] = cls
 

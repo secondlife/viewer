@@ -12,6 +12,11 @@ else()
     option(USE_TRACY "Use Tracy profiler." OFF)
 endif()
 
+if (LINUX)
+  # tracy currently conflicts with llcommon/stdtypes.h on linux.  keep it disabled until we fix it
+  set(USE_TRACY OFF)
+endif(LINUX)
+
 if (USE_TRACY)
   option(USE_TRACY_ON_DEMAND "Use on-demand Tracy profiling." ON)
   option(USE_TRACY_LOCAL_ONLY "Disallow remote Tracy profiling." OFF)
