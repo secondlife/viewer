@@ -18,16 +18,25 @@ local function ensure_login_state(op)
     end
 end
 
+local function fullgrid(grid)
+    if string.find(grid, '.', 1, true) then
+        return grid
+    else
+        return `util.{grid}.secondlife.com`
+    end
+end
+
 function login.login(...)
     ensure_login_state('login')
     local args = mapargs('username,grid,slurl', ...)
     args.op = 'login'
+    args.grid = fullgrid(args.grid)
     return leap.request('LLPanelLogin', args)
 end
 
 function login.savedLogins(grid)
     ensure_login_state('savedLogins')
-    return leap.request('LLPanelLogin', {op='savedLogins', grid=grid})['logins']
+    return leap.request('LLPanelLogin', {op='savedLogins', grid=fullgrid(grid)})['logins']
 end
 
 return login

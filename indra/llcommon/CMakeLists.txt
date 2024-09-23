@@ -108,6 +108,7 @@ set(llcommon_SOURCE_FILES
     lua_function.cpp
     lualistener.cpp
     resultset.cpp
+    scriptcommand.cpp
     threadpool.cpp
     throttle.cpp
     u64.cpp
@@ -256,6 +257,7 @@ set(llcommon_HEADER_FILES
     lua_function.h
     lualistener.h
     resultset.h
+    scriptcommand.h
     stdtypes.h
     stringize.h
     tempset.h

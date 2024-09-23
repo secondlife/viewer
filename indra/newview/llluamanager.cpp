@@ -186,41 +186,44 @@ LLLUAmanager::script_result LLLUAmanager::waitScriptFile(const std::string& file
 }
 
 void LLLUAmanager::runScriptFile(const std::string &filename, bool autorun,
-                                 script_result_fn result_cb, script_finished_fn finished_cb)
+                                 script_result_fn result_cb)
 {
     // A script_result_fn will be called when LuaState::expr() completes.
-    LLCoros::instance().launch(filename, [filename, autorun, result_cb, finished_cb]()
+    LLCoros::instance().launch(filename, [filename, autorun, result_cb]()
     {
         ScriptObserver observer(LLCoros::getName(), filename);
-        llifstream in_file;
-        in_file.open(filename.c_str());
-
-        if (in_file.is_open())
+        LLSD paths(gSavedSettings.getLLSD("LuaCommandPath"));
+        LL_DEBUGS("Lua") << "LuaCommandPath = " << paths << LL_ENDL;
+        // allow LuaCommandPath to be specified relative to install dir
+        ScriptCommand command(filename, paths, gDirUtilp->getAppRODataDir());
+        auto error = command.error();
+        if (! error.empty())
         {
-            if (autorun)
-            {
-                sAutorunScriptCount++;
-            }
-            sScriptCount++;
-
-            // A script_finished_fn is used to initialize the LuaState.
-            // It will be called when the LuaState is destroyed.
-            LuaState L(finished_cb);
-            std::string text{std::istreambuf_iterator<char>(in_file), {}};
-            auto [count, result] = L.expr(filename, text);
             if (result_cb)
             {
-                result_cb(count, result);
+                result_cb(-1, error);
             }
+            return;
         }
-        else
+
+        llifstream in_file;
+        in_file.open(command.script);
+        // At this point, since ScriptCommand did not report an error, we
+        // should be able to assume that 'script' exists. If we can't open it,
+        // something else is wrong?!
+        llassert(in_file.is_open());
+        if (autorun)
         {
-            auto msg{ stringize("unable to open script file '", filename, "'") };
-            LL_WARNS("Lua") << msg << LL_ENDL;
-            if (result_cb)
-            {
-                result_cb(-1, msg);
-            }
+            sAutorunScriptCount++;
+        }
+        sScriptCount++;
+
+        LuaState L;
+        std::string text{std::istreambuf_iterator<char>(in_file), {}};
+        auto [count, result] = L.expr(command.script, text, command.args);
+        if (result_cb)
+        {
+            result_cb(count, result);
         }
     });
 }
@@ -242,8 +245,7 @@ LLLUAmanager::script_result LLLUAmanager::waitScriptLine(const std::string& chun
     return startScriptLine(chunk).get();
 }
 
-void LLLUAmanager::runScriptLine(const std::string& chunk, script_result_fn result_cb,
-                                 script_finished_fn finished_cb)
+void LLLUAmanager::runScriptLine(const std::string& chunk, script_result_fn result_cb)
 {
     // find a suitable abbreviation for the chunk string
     std::string shortchunk{ chunk };
@@ -255,11 +257,9 @@ void LLLUAmanager::runScriptLine(const std::string& chunk, script_result_fn resu
         shortchunk = stringize(shortchunk.substr(0, shortlen), "...");
 
     std::string desc{ "lua: " + shortchunk };
-    LLCoros::instance().launch(desc, [desc, chunk, result_cb, finished_cb]()
+    LLCoros::instance().launch(desc, [desc, chunk, result_cb]()
     {
-        // A script_finished_fn is used to initialize the LuaState.
-        // It will be called when the LuaState is destroyed.
-        LuaState L(finished_cb);
+        LuaState L;
         auto [count, result] = L.expr(desc, chunk);
         if (result_cb)
         {

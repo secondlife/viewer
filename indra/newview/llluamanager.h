@@ -44,9 +44,6 @@ class LLLUAmanager
     friend class ScriptObserver;
 
 public:
-    // Pass a callback with this signature to obtain the error message, if
-    // any, from running a script or source string. Empty msg means success.
-    typedef std::function<void(std::string msg)> script_finished_fn;
     // Pass a callback with this signature to obtain the result, if any, of
     // running a script or source string.
     // count <  0 means error, and result.asString() is the error message.
@@ -58,20 +55,31 @@ public:
     // same semantics as script_result_fn parameters
     typedef std::pair<int, LLSD> script_result;
 
-    static void runScriptFile(const std::string &filename, bool autorun = false, script_result_fn result_cb = {},
-                              script_finished_fn finished_cb = {});
+    // Run the script specified by the command line passed as @a filename.
+    // This can be followed by some number of command-line arguments, which
+    // a Lua script can view using either '...' or predefined global 'arg'.
+    // The script pathname or its arguments can be quoted using 'single
+    // quotes' or "double quotes", or special characters can be \escaped.
+    // runScriptFile() recognizes the case in which the whole 'filename'
+    // string is a path containing spaces; if so no arguments are permitted.
+    // In either form, if the script pathname isn't absolute, it is sought on
+    // LuaCommandPath.
+    // If autorun is true, statistics will count this as an autorun script.
+    static void runScriptFile(const std::string &filename, bool autorun = false,
+                              script_result_fn result_cb = {});
     // Start running a Lua script file, returning an LLCoros::Future whose
     // get() method will pause the calling coroutine until it can deliver the
     // (count, result) pair described above. Between startScriptFile() and
     // Future::get(), the caller and the Lua script coroutine will run
     // concurrently.
+    // @a filename is as described for runScriptFile().
     static LLCoros::Future<script_result> startScriptFile(const std::string& filename);
     // Run a Lua script file, and pause the calling coroutine until it completes.
     // The return value is the (count, result) pair described above.
+    // @a filename is as described for runScriptFile().
     static script_result waitScriptFile(const std::string& filename);
 
-    static void runScriptLine(const std::string &chunk, script_result_fn result_cb = {},
-                              script_finished_fn finished_cb = {});
+    static void runScriptLine(const std::string &chunk, script_result_fn result_cb = {});
     // Start running a Lua chunk, returning an LLCoros::Future whose
     // get() method will pause the calling coroutine until it can deliver the
     // (count, result) pair described above. Between startScriptLine() and
