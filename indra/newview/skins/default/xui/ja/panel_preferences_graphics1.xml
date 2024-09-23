@@ -40,6 +40,10 @@
 	<text name="DrawDistanceMeterText2">
 		ｍ
 	</text>
+	<slider name="IndirectMaxNonImpostors" label="アニメーションさせる最大アバター数："/>
+	<text name="IndirectMaxNonImpostorsText">
+		0
+	</text>
 	<button label="自動調整設定" name="AutoAdjustmentsButton"/>
 	<text name="AvatarComplexityModeLabel">
 		アバターの描画設定：
