@@ -306,6 +306,7 @@ private:
     LLTextBox* mLabelTexGen { nullptr };
     LLComboBox* mComboTexGen { nullptr };
 
+    LLTextBox* mLabelAlphaGamma{ nullptr };
     LLComboBox *mComboAlphaGamma {nullptr};
 
     LLRadioGroup* mRadioMaterialType { nullptr };
