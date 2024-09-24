@@ -105,11 +105,16 @@ public:
     bool notNull() const                        { return (mPointer != nullptr); }
 
     operator Type*() const                      { return mPointer; }
-    bool operator !=(Type* ptr) const           { return (mPointer != ptr); }
-    bool operator ==(Type* ptr) const           { return (mPointer == ptr); }
-    bool operator ==(const LLPointer<Type>& ptr) const { return (mPointer == ptr.mPointer); }
-    bool operator < (const LLPointer<Type>& ptr) const { return (mPointer < ptr.mPointer); }
-    bool operator > (const LLPointer<Type>& ptr) const { return (mPointer > ptr.mPointer); }
+    template <typename Type1>
+    bool operator !=(Type1* ptr) const          { return (mPointer != ptr); }
+    template <typename Type1>
+    bool operator ==(Type1* ptr) const          { return (mPointer == ptr); }
+    template <typename Type1>
+    bool operator !=(const LLPointer<Type1>& ptr) const { return (mPointer != ptr.mPointer); }
+    template <typename Type1>
+    bool operator ==(const LLPointer<Type1>& ptr) const { return (mPointer == ptr.mPointer); }
+    bool operator < (const LLPointer<Type>& ptr)  const { return (mPointer < ptr.mPointer); }
+    bool operator > (const LLPointer<Type>& ptr)  const { return (mPointer > ptr.mPointer); }
 
     LLPointer<Type>& operator =(Type* ptr)
     {
@@ -418,14 +423,14 @@ private:
     bool mStayUnique;
 };
 
-template<typename Type>
-bool operator!=(Type* lhs, const LLPointer<Type>& rhs)
+template<typename Type0, typename Type1>
+bool operator!=(Type0* lhs, const LLPointer<Type1>& rhs)
 {
     return (lhs != rhs.get());
 }
 
-template<typename Type>
-bool operator==(Type* lhs, const LLPointer<Type>& rhs)
+template<typename Type0, typename Type1>
+bool operator==(Type0* lhs, const LLPointer<Type1>& rhs)
 {
     return (lhs == rhs.get());
 }
