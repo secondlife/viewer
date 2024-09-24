@@ -113,6 +113,7 @@
 #include "llskinningutil.h"
 
 #include "llperfstats.h"
+#include "lleventapi.h"
 
 #include <boost/lexical_cast.hpp>
 
@@ -11819,3 +11820,33 @@ bool LLVOAvatar::isBuddy() const
     return is_friend;
 }
 
+class LLVOAvatarListener : public LLEventAPI
+{
+  public:
+    LLVOAvatarListener() : LLEventAPI("LLVOAvatar", "LLVOAvatar listener to retrieve avatar info")
+    {
+        add("getSpeed",
+            "Return the avatar movement speed in the XY plane",
+            &LLVOAvatarListener::getSpeed,
+            LLSD().with("reply", LLSD()));
+        add("isInAir",
+            "Return the info whether avatar is in the air, and if so the time in the air",
+            &LLVOAvatarListener::isInAir,
+            LLSD().with("reply", LLSD()));
+    }
+
+  private:
+    void getSpeed(const LLSD &request) const
+    {
+        LLVector3 avatar_velocity = gAgentAvatarp->getCharacterVelocity() * gAgentAvatarp->getTimeDilation();
+        avatar_velocity.mV[VZ] = 0.f;
+        Response response(llsd::map("value", avatar_velocity.magVec()), request);
+    }
+    void isInAir(const LLSD &request) const
+    {
+        Response response(llsd::map("value", gAgentAvatarp->mInAir,
+                                    "duration", gAgentAvatarp->mInAir ? gAgentAvatarp->mTimeInAir.getElapsedTimeF32() : 0), request);
+    }
+};
+
+static LLVOAvatarListener VOAvatarListener;

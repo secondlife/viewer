@@ -35,13 +35,15 @@
  */
 
 #include "linden_common.h"
-#include "llerrorcontrol.h"
-#include "lltut.h"
+#include "llexception.h"
 #include "chained_callback.h"
-#include "stringize.h"
-#include "namedtempfile.h"
+#include "fsyspath.h"
+#include "llerrorcontrol.h"
 #include "lltrace.h"
 #include "lltracethreadrecorder.h"
+#include "lltut.h"
+#include "namedtempfile.h"
+#include "stringize.h"
 
 #include "apr_pools.h"
 #include "apr_getopt.h"
@@ -164,10 +166,6 @@ public:
     LLTestCallback(bool verbose_mode, std::ostream *stream,
                    std::shared_ptr<LLReplayLog> replayer) :
         mVerboseMode(verbose_mode),
-        mTotalTests(0),
-        mPassedTests(0),
-        mFailedTests(0),
-        mSkippedTests(0),
         // By default, capture a shared_ptr to std::cout, with a no-op "deleter"
         // so that destroying the shared_ptr makes no attempt to delete std::cout.
         mStream(std::shared_ptr<std::ostream>(&std::cout, [](std::ostream*){})),
@@ -203,6 +201,8 @@ public:
     virtual void group_started(const std::string& name) {
         LL_INFOS("TestRunner")<<"Unit test group_started name=" << name << LL_ENDL;
         *mStream << "Unit test group_started name=" << name << std::endl;
+        mGroup = name;
+        mGroupTests = 0;
         super::group_started(name);
     }
 
@@ -215,6 +215,7 @@ public:
     virtual void test_completed(const tut::test_result& tr)
     {
         ++mTotalTests;
+        ++mGroupTests;
 
         // If this test failed, dump requested log messages BEFORE stating the
         // test result.
@@ -302,12 +303,15 @@ public:
         super::run_completed();
     }
 
+    std::string mGroup;
+    int mGroupTests{ 0 };
+
 protected:
-    bool mVerboseMode;
-    int mTotalTests;
-    int mPassedTests;
-    int mFailedTests;
-    int mSkippedTests;
+    bool mVerboseMode{ false };
+    int mTotalTests{ 0 };
+    int mPassedTests{ 0 };
+    int mFailedTests{ 0 };
+    int mSkippedTests{ 0 };
     std::shared_ptr<std::ostream> mStream;
     std::shared_ptr<LLReplayLog> mReplayer;
 };
@@ -522,6 +526,29 @@ int main(int argc, char **argv)
     // LOGTEST overrides default, but can be overridden by --debug.
     const char* LOGTEST = getenv("LOGTEST");
 
+    // Sometimes we must rebuild much of the viewer before we get to the
+    // specific test we want to monitor, and some viewer integration tests are
+    // quite verbose. In addition to noticing plain LOGTEST= (for all tests),
+    // also notice LOGTEST_progname= (for a specific test).
+    // (Why doesn't MSVC notice fsyspath::operator std::string()?
+    // Why must we explicitly call fsyspath::string()?)
+    std::string basename(fsyspath(argv[0]).stem().string());
+    // don't make user set LOGTEST_INTEGRATION_TEST_progname or (worse)
+    // LOGTEST_PROJECT_foo_TEST_bar -- only LOGTEST_progname or LOGTEST_bar
+    auto _TEST_ = basename.find("_TEST_");
+    if (_TEST_ != std::string::npos)
+    {
+        basename.erase(0, _TEST_+6);
+    }
+    std::string LOGTEST_prog_key("LOGTEST_" + basename);
+    const char* LOGTEST_prog = getenv(LOGTEST_prog_key.c_str());
+//  std::cout << LOGTEST_prog_key << "='" << (LOGTEST_prog? LOGTEST_prog : "") << "'" << std::endl;
+    if (LOGTEST_prog && *LOGTEST_prog)
+    {
+        LOGTEST = LOGTEST_prog;
+        std::cout << "LOGTEST='" << LOGTEST << "' from " << LOGTEST_prog_key << std::endl;
+    }
+
     // values used for options parsing
     apr_status_t apr_err;
     const char* opt_arg = NULL;
@@ -635,14 +662,47 @@ int main(int argc, char **argv)
     // a chained_callback subclass must be linked with previous
     mycallback->link();
 
-    if(test_group.empty())
-    {
-        tut::runner.get().run_tests();
-    }
-    else
-    {
-        tut::runner.get().run_tests(test_group);
-    }
+    LL::seh::catcher(
+        // __try
+        [test_group]
+        {
+            if(test_group.empty())
+            {
+                tut::runner.get().run_tests();
+            }
+            else
+            {
+                tut::runner.get().run_tests(test_group);
+            }
+        },
+        // __except
+        [mycallback](U32 code, const std::string& /*stacktrace*/)
+        {
+            static std::map<U32, const char*> codes = {
+                { 0xC0000005, "Access Violation" },
+                { 0xC00000FD, "Stack Overflow" },
+                // ... continue filling in as desired
+            };
+
+            auto found{ codes.find(code) };
+            const char* name = ((found == codes.end())? "unknown" : found->second);
+            auto msg{ stringize("test threw ", std::hex, code, " (", name, ")") };
+
+            // Instead of bombing the whole test run, report this as a test
+            // failure. Arguably, catching structured exceptions should be
+            // hacked into TUT itself.
+            mycallback->test_completed(tut::test_result(
+                mycallback->mGroup,
+                mycallback->mGroupTests+1, // test within group
+                "unknown",                 // test name
+                tut::test_result::ex,      // result: exception
+                // we don't have to throw this exception subclass to use it to
+                // populate the test_result struct
+                Windows_SEH_exception(msg)));
+            // we've left the TUT framework -- finish up by hand
+            mycallback->group_completed(mycallback->mGroup);
+            mycallback->run_completed();
+        });
 
     bool success = (mycallback->getFailedTests() == 0);
 

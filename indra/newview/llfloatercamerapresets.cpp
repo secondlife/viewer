@@ -90,8 +90,8 @@ LLCameraPresetFlatItem::LLCameraPresetFlatItem(const std::string &preset_name, b
     mPresetName(preset_name),
     mIsDefaultPrest(is_default)
 {
-    mCommitCallbackRegistrar.add("CameraPresets.Delete", boost::bind(&LLCameraPresetFlatItem::onDeleteBtnClick, this));
-    mCommitCallbackRegistrar.add("CameraPresets.Reset", boost::bind(&LLCameraPresetFlatItem::onResetBtnClick, this));
+    mCommitCallbackRegistrar.add("CameraPresets.Delete", { boost::bind(&LLCameraPresetFlatItem::onDeleteBtnClick, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("CameraPresets.Reset", { boost::bind(&LLCameraPresetFlatItem::onResetBtnClick, this), cb_info::UNTRUSTED_BLOCK });
     buildFromFile("panel_camera_preset_item.xml");
 }
 

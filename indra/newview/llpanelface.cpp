@@ -474,7 +474,7 @@ LLPanelFace::LLPanelFace()
     mNeedMediaTitle(true)
 {
     USE_TEXTURE = LLTrans::getString("use_texture");
-    mCommitCallbackRegistrar.add("PanelFace.menuDoToSelected", boost::bind(&LLPanelFace::menuDoToSelected, this, _2));
+    mCommitCallbackRegistrar.add("PanelFace.menuDoToSelected", { boost::bind(&LLPanelFace::menuDoToSelected, this, _2) });
     mEnableCallbackRegistrar.add("PanelFace.menuEnable", boost::bind(&LLPanelFace::menuEnableItem, this, _2));
 }
 
@@ -5228,4 +5228,3 @@ void LLPanelFace::LLSelectedTE::getMaxDiffuseRepeats(F32& repeats, bool& identic
     } max_diff_repeats_func;
     identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &max_diff_repeats_func, repeats );
 }
-

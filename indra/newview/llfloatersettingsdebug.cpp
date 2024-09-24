@@ -34,14 +34,16 @@
 #include "llcolorswatch.h"
 #include "llviewercontrol.h"
 #include "lltexteditor.h"
+#include "llclipboard.h"
+#include "llsdutil.h"
 
 
 LLFloaterSettingsDebug::LLFloaterSettingsDebug(const LLSD& key)
 :   LLFloater(key),
     mSettingList(NULL)
 {
-    mCommitCallbackRegistrar.add("CommitSettings",  boost::bind(&LLFloaterSettingsDebug::onCommitSettings, this));
-    mCommitCallbackRegistrar.add("ClickDefault",    boost::bind(&LLFloaterSettingsDebug::onClickDefault, this));
+    mCommitCallbackRegistrar.add("CommitSettings",  { boost::bind(&LLFloaterSettingsDebug::onCommitSettings, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("ClickDefault",    { boost::bind(&LLFloaterSettingsDebug::onClickDefault, this), cb_info::UNTRUSTED_BLOCK });
 }
 
 LLFloaterSettingsDebug::~LLFloaterSettingsDebug()
@@ -64,12 +66,16 @@ bool LLFloaterSettingsDebug::postBuild()
     mSettingNameText = getChild<LLTextBox>("setting_name_txt");
 
     mComment = getChild<LLTextEditor>("comment_text");
+    mLLSDVal = getChild<LLTextEditor>("llsd_text");
+    mCopyBtn = getChild<LLButton>("copy_btn");
 
     getChild<LLFilterEditor>("filter_input")->setCommitCallback(boost::bind(&LLFloaterSettingsDebug::setSearchFilter, this, _2));
 
     mSettingList = getChild<LLScrollListCtrl>("setting_list");
     mSettingList->setCommitOnSelectionChange(true);
     mSettingList->setCommitCallback(boost::bind(&LLFloaterSettingsDebug::onSettingSelect, this));
+
+    mCopyBtn->setCommitCallback([this](LLUICtrl *ctrl, const LLSD &param) { onClickCopy(); });
 
     updateList();
 
@@ -205,6 +211,7 @@ void LLFloaterSettingsDebug::updateControl(LLControlVariable* controlp)
         mSettingNameText->setVisible(true);
         mSettingNameText->setText(controlp->getName());
         mSettingNameText->setToolTip(controlp->getName());
+        mCopyBtn->setVisible(true);
         mComment->setVisible(true);
 
         std::string old_text = mComment->getText();
@@ -465,6 +472,17 @@ void LLFloaterSettingsDebug::updateControl(LLControlVariable* controlp)
             mColorSwatch->setValue(sd);
             break;
           }
+          case TYPE_LLSD:
+          {
+            mLLSDVal->setVisible(true);
+            std::string new_text = ll_pretty_print_sd(sd);
+            // Don't setText if not nessesary, it will reset scroll
+            if (mLLSDVal->getText() != new_text)
+            {
+                mLLSDVal->setText(new_text);
+            }
+            break;
+          }
           default:
             mComment->setText(std::string("unknown"));
             break;
@@ -631,7 +649,14 @@ void LLFloaterSettingsDebug::hideUIControls()
     mValText->setVisible(false);
     mDefaultButton->setVisible(false);
     mBooleanCombo->setVisible(false);
+    mLLSDVal->setVisible(false);
     mSettingNameText->setVisible(false);
+    mCopyBtn->setVisible(false);
     mComment->setVisible(false);
 }
 
+void LLFloaterSettingsDebug::onClickCopy()
+{
+    std::string setting_name = mSettingNameText->getText();
+    LLClipboard::instance().copyToClipboard(utf8str_to_wstring(setting_name), 0, narrow(setting_name.size()));
+}

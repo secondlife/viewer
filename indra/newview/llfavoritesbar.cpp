@@ -430,7 +430,7 @@ LLFavoritesBarCtrl::LLFavoritesBarCtrl(const LLFavoritesBarCtrl::Params& p)
 {
     // Register callback for menus with current registrar (will be parent panel's registrar)
     LLUICtrl::CommitCallbackRegistry::currentRegistrar().add("Favorites.DoToSelected",
-        boost::bind(&LLFavoritesBarCtrl::doToSelected, this, _2));
+        { boost::bind(&LLFavoritesBarCtrl::doToSelected, this, _2), cb_info::UNTRUSTED_BLOCK });
 
     // Add this if we need to selectively enable items
     LLUICtrl::EnableCallbackRegistry::currentRegistrar().add("Favorites.EnableSelected",

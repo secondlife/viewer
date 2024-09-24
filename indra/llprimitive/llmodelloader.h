@@ -34,13 +34,13 @@
 
 class LLJoint;
 
-typedef std::map<std::string, LLMatrix4>            JointTransformMap;
-typedef std::map<std::string, LLMatrix4>::iterator  JointTransformMapIt;
-typedef std::map<std::string, std::string>          JointMap;
-typedef std::deque<std::string>                     JointNameSet;
+typedef std::map<std::string, LLMatrix4> JointTransformMap;
+typedef std::map<std::string, LLMatrix4>::iterator JointTransformMapIt;
+typedef std::map<std::string, std::string> JointMap;
+typedef std::deque<std::string> JointNameSet;
 
 const S32 SLM_SUPPORTED_VERSION = 3;
-const S32 NUM_LOD                       = 4;
+const S32 NUM_LOD = 4;
 
 const U32 LEGACY_RIG_OK = 0;
 const U32 LEGACY_RIG_FLAG_TOO_MANY_JOINTS = 1;
@@ -50,32 +50,32 @@ class LLModelLoader : public LLThread
 {
 public:
 
-    typedef std::map<std::string, LLImportMaterial>         material_map;
-    typedef std::vector<LLPointer<LLModel > >                   model_list;
-    typedef std::vector<LLModelInstance>                        model_instance_list;
-    typedef std::map<LLMatrix4, model_instance_list >       scene;
+    typedef std::map<std::string, LLImportMaterial> material_map;
+    typedef std::vector<LLPointer<LLModel>> model_list;
+    typedef std::vector<LLModelInstance> model_instance_list;
+    typedef std::map<LLMatrix4, model_instance_list> scene;
 
     // Callback with loaded model data and loaded LoD
     //
-    typedef boost::function<void (scene&,model_list&,S32,void*) >       load_callback_t;
+    typedef boost::function<void (scene&, model_list&, S32, void*)> load_callback_t;
 
     // Function to provide joint lookup by name
     // (within preview avi skeleton, for example)
     //
-    typedef boost::function<LLJoint* (const std::string&,void*) >       joint_lookup_func_t;
+    typedef boost::function<LLJoint* (const std::string&, void*)> joint_lookup_func_t;
 
     // Func to load and associate material with all it's textures,
     // returned value is the number of textures loaded
     // intentionally non-const so func can modify material to
     // store platform-specific data
     //
-    typedef boost::function<U32 (LLImportMaterial&,void*) >             texture_load_func_t;
+    typedef boost::function<U32 (LLImportMaterial&, void*)> texture_load_func_t;
 
     // Callback to inform client of state changes
     // during loading process (errors will be reported
     // as state changes here as well)
     //
-    typedef boost::function<void (U32,void*) >                              state_callback_t;
+    typedef boost::function<void (U32, void*)> state_callback_t;
 
     typedef enum
     {
@@ -136,7 +136,7 @@ public:
         JointNameSet&                       jointsFromNodes,
         JointMap&                           legalJointNamesMap,
         U32                                 maxJointsPerMesh);
-    virtual ~LLModelLoader() ;
+    virtual ~LLModelLoader();
 
     virtual void setNoNormalize() { mNoNormalize = true; }
     virtual void setNoOptimize() { mNoOptimize = true; }
@@ -156,13 +156,13 @@ public:
     bool loadFromSLM(const std::string& filename);
 
     void loadModelCallback();
-    void loadTextures() ; //called in the main thread.
+    void loadTextures(); // called in the main thread.
     void setLoadState(U32 state);
 
+    void stretch_extents(const LLModel* model, const LLMatrix4& mat);
 
-
-    S32 mNumOfFetchingTextures ; //updated in the main thread
-    bool areTexturesReady() { return !mNumOfFetchingTextures; } //called in the main thread.
+    S32 mNumOfFetchingTextures; // updated in the main thread
+    bool areTexturesReady() { return !mNumOfFetchingTextures; } // called in the main thread.
 
     bool verifyCount( int expected, int result );
 
@@ -212,10 +212,7 @@ protected:
     LLSD mWarningsArray; // preview floater will pull logs from here
 
     static std::list<LLModelLoader*> sActiveLoaderList;
-    static bool isAlive(LLModelLoader* loader) ;
+    static bool isAlive(LLModelLoader* loader);
 };
-class LLMatrix4a;
-void stretch_extents(LLModel* model, LLMatrix4a& mat, LLVector4a& min, LLVector4a& max, bool& first_transform);
-void stretch_extents(LLModel* model, LLMatrix4& mat, LLVector3& min, LLVector3& max, bool& first_transform);
 
 #endif  // LL_LLMODELLOADER_H

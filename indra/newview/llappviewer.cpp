@@ -29,6 +29,7 @@
 #include "llappviewer.h"
 
 // Viewer includes
+#include "coro_scheduler.h"
 #include "llversioninfo.h"
 #include "llfeaturemanager.h"
 #include "lluictrlfactory.h"
@@ -60,6 +61,7 @@
 #include "llslurl.h"
 #include "llstartup.h"
 #include "llfocusmgr.h"
+#include "llluamanager.h"
 #include "llurlfloaterdispatchhandler.h"
 #include "llviewerjoystick.h"
 #include "llcalc.h"
@@ -111,10 +113,12 @@
 #include "llgltfmateriallist.h"
 
 // Linden library includes
+#include "fsyspath.h"
 #include "llavatarnamecache.h"
 #include "lldiriterator.h"
 #include "llexperiencecache.h"
 #include "llimagej2c.h"
+#include "llluamanager.h"
 #include "llmemory.h"
 #include "llprimitive.h"
 #include "llurlaction.h"
@@ -379,6 +383,9 @@ static std::string gLaunchFileOnQuit;
 
 // Used on Win32 for other apps to identify our window (eg, win_setup)
 const char* const VIEWER_WINDOW_CLASSNAME = "Second Life";
+
+void processComposeSwitch(const std::string&, const std::string&,
+                          const std::function<void(const LLSD&)>&);
 
 //----------------------------------------------------------------------------
 
@@ -755,6 +762,8 @@ bool LLAppViewer::init()
     //set the max heap size.
     initMaxHeapSize() ;
     LLCoros::instance().setStackSize(gSavedSettings.getS32("CoroutineStackSize"));
+    // Use our custom scheduler for coroutine scheduling.
+    llcoro::scheduler::use();
 
     // Although initLoggingAndGetLastDuration() is the right place to mess with
     // setFatalFunction(), we can't query gSavedSettings until after
@@ -1137,7 +1146,7 @@ bool LLAppViewer::init()
 
     gGLActive = false;
 
-#if LL_RELEASE_FOR_DOWNLOAD
+#if LL_RELEASE_FOR_DOWNLOAD && !LL_LINUX
     // Skip updater if this is a non-interactive instance
     if (!gSavedSettings.getBOOL("CmdLineSkipUpdater") && !gNonInteractive)
     {
@@ -1200,22 +1209,10 @@ bool LLAppViewer::init()
     }
 #endif //LL_RELEASE_FOR_DOWNLOAD
 
-    {
-        // Iterate over --leap command-line options. But this is a bit tricky: if
-        // there's only one, it won't be an array at all.
-        LLSD LeapCommand(gSavedSettings.getLLSD("LeapCommand"));
-        LL_DEBUGS("InitInfo") << "LeapCommand: " << LeapCommand << LL_ENDL;
-        if (LeapCommand.isDefined() && !LeapCommand.isArray())
+    processComposeSwitch(
+        "--leap", "LeapCommand",
+        [](const LLSD& leap)
         {
-            // If LeapCommand is actually a scalar value, make an array of it.
-            // Have to do it in two steps because LeapCommand.append(LeapCommand)
-            // trashes content! :-P
-            LLSD item(LeapCommand);
-            LeapCommand.append(item);
-        }
-        for (const auto& leap : llsd::inArray(LeapCommand))
-        {
-            LL_INFOS("InitInfo") << "processing --leap \"" << leap << '"' << LL_ENDL;
             // We don't have any better description of this plugin than the
             // user-specified command line. Passing "" causes LLLeap to derive a
             // description from the command line itself.
@@ -1223,8 +1220,40 @@ bool LLAppViewer::init()
             // don't consider any one --leap command mission-critical, so if one
             // fails, log it, shrug and carry on.
             LLLeap::create("", leap, false); // exception=false
-        }
-    }
+        });
+    processComposeSwitch(
+        "--lua", "LuaChunk",
+        [](const LLSD& chunk)
+        {
+            // no completion callback: we don't need to know
+            LLLUAmanager::runScriptLine(chunk);
+        });
+    processComposeSwitch(
+        "--luafile", "LuaScript",
+        [](const LLSD& script)
+        {
+            // no completion callback: we don't need to know
+            LLLUAmanager::runScriptFile(script);
+        });
+    processComposeSwitch(
+        "LuaAutorunPath", "LuaAutorunPath",
+        [](const LLSD& directory)
+        {
+            // each directory can be relative to the viewer's install
+            // directory -- if directory is already absolute, operator/()
+            // preserves it
+            fsyspath abspath(fsyspath(gDirUtilp->getAppRODataDir()) /
+                             fsyspath(directory.asString()));
+            std::string absdir(fsyspath(abspath).string());
+            LL_DEBUGS("InitInfo") << "LuaAutorunPath: " << absdir << LL_ENDL;
+            LLDirIterator scripts(absdir, "*.lua");
+            std::string script;
+            while (scripts.next(script))
+            {
+                LL_DEBUGS("InitInfo") << "LuaAutorunPath: " << absdir << ": " << script << LL_ENDL;
+                LLLUAmanager::runScriptFile(fsyspath(abspath / fsyspath(script)).string(), true);
+            }
+        });
 
     if (gSavedSettings.getBOOL("QAMode") && gSavedSettings.getS32("QAModeEventHostPort") > 0)
     {
@@ -1298,6 +1327,27 @@ bool LLAppViewer::init()
 #endif
 
     return true;
+}
+
+void processComposeSwitch(const std::string& option,
+                          const std::string& setting,
+                          const std::function<void(const LLSD&)>& action)
+{
+    // Iterate over 'option' command-line options. But this is a bit tricky:
+    // if there's only one, it won't be an array at all.
+    LLSD args(gSavedSettings.getLLSD(setting));
+    LL_DEBUGS("InitInfo") << option << ": " << args << LL_ENDL;
+    if (args.isDefined() && ! args.isArray())
+    {
+        // If args is actually a scalar value, make an array of it. Have to do
+        // it in two steps because args.append(args) trashes content! :-P
+        args.append(LLSD(args));
+    }
+    for (const auto& arg : llsd::inArray(args))
+    {
+        LL_INFOS("InitInfo") << "processing " << option << ' ' << arg << LL_ENDL;
+        action(arg);
+    }
 }
 
 void LLAppViewer::initMaxHeapSize()
@@ -2372,6 +2422,14 @@ void LLAppViewer::initLoggingAndGetLastDuration()
         {
             LL_WARNS("MarkerFile") << duration_log_msg << LL_ENDL;
         }
+
+        std::string user_data_path_cef_log = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "cef.log");
+        if (gDirUtilp->fileExists(user_data_path_cef_log))
+        {
+            std::string user_data_path_cef_old = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "cef.old");
+            LLFile::remove(user_data_path_cef_old, ENOENT);
+            LLFile::rename(user_data_path_cef_log, user_data_path_cef_old);
+        }
     }
 }
 
@@ -2998,9 +3056,10 @@ void LLAppViewer::initStrings()
     std::string strings_path_full = gDirUtilp->findSkinnedFilenameBaseLang(LLDir::XUI, strings_file);
     if (strings_path_full.empty() || !LLFile::isfile(strings_path_full))
     {
+        std::string crash_reason;
         if (strings_path_full.empty())
         {
-            LL_WARNS() << "The file '" << strings_file << "' is not found" << LL_ENDL;
+            crash_reason = "The file '" + strings_file + "' is not found";
         }
         else
         {
@@ -3008,24 +3067,23 @@ void LLAppViewer::initStrings()
             int rc = LLFile::stat(strings_path_full, &st);
             if (rc != 0)
             {
-                LL_WARNS() << "The file '" << strings_path_full << "' failed to get status. Error code: " << rc << LL_ENDL;
+                crash_reason = "The file '" + strings_path_full + "' failed to get status. Error code: " + std::to_string(rc);
             }
             else if (S_ISDIR(st.st_mode))
             {
-                LL_WARNS() << "The filename '" << strings_path_full << "' is a directory name" << LL_ENDL;
+                crash_reason = "The filename '" + strings_path_full + "' is a directory name";
             }
             else
             {
-                LL_WARNS() << "The filename '" << strings_path_full << "' doesn't seem to be a regular file name" << LL_ENDL;
+                crash_reason = "The filename '" + strings_path_full + "' doesn't seem to be a regular file name";
             }
         }
 
         // initial check to make sure files are there failed
         gDirUtilp->dumpCurrentDirectories(LLError::LEVEL_WARN);
         LLError::LLUserWarningMsg::showMissingFiles();
-        LL_ERRS() << "Viewer failed to find localization and UI files."
-            << " Please reinstall viewer from https://secondlife.com/support/downloads"
-            << " and contact https://support.secondlife.com if issue persists after reinstall." << LL_ENDL;
+        LL_ERRS() << "Viewer failed to open some of localization and UI files."
+            << " " << crash_reason << "." << LL_ENDL;
     }
     LLTransUtil::parseStrings(strings_file, default_trans_args);
     LLTransUtil::parseLanguageStrings("language_settings.xml");
@@ -3285,10 +3343,10 @@ LLSD LLAppViewer::getViewerInfo() const
         LLVector3d pos = gAgent.getPositionGlobal();
         info["POSITION"] = ll_sd_from_vector3d(pos);
         info["POSITION_LOCAL"] = ll_sd_from_vector3(gAgent.getPosAgentFromGlobal(pos));
-        info["REGION"] = gAgent.getRegion()->getName();
+        info["REGION"] = region->getName();
 
         boost::regex regex("\\.(secondlife|lindenlab)\\..*");
-        info["HOSTNAME"] = boost::regex_replace(gAgent.getRegion()->getSimHostName(), regex, "");
+        info["HOSTNAME"] = boost::regex_replace(region->getSimHostName(), regex, "");
         info["SERVER_VERSION"] = gLastVersionChannel;
         LLSLURL slurl;
         LLAgentUI::buildSLURL(slurl);
@@ -4605,7 +4663,6 @@ void LLAppViewer::idle()
 
     LLFrameTimer::updateFrameTime();
     LLFrameTimer::updateFrameCount();
-    LLEventTimer::updateClass();
     LLPerfStats::updateClass();
 
     // LLApp::stepFrame() performs the above three calls plus mRunner.run().
@@ -5541,9 +5598,9 @@ void LLAppViewer::forceErrorThreadCrash()
     thread->start();
 }
 
-void LLAppViewer::initMainloopTimeout(const std::string& state, F32 secs)
+void LLAppViewer::initMainloopTimeout(std::string_view state, F32 secs)
 {
-    if(!mMainloopTimeout)
+    if (!mMainloopTimeout)
     {
         mMainloopTimeout = new LLWatchdogTimeout();
         resumeMainloopTimeout(state, secs);
@@ -5552,20 +5609,20 @@ void LLAppViewer::initMainloopTimeout(const std::string& state, F32 secs)
 
 void LLAppViewer::destroyMainloopTimeout()
 {
-    if(mMainloopTimeout)
+    if (mMainloopTimeout)
     {
         delete mMainloopTimeout;
-        mMainloopTimeout = NULL;
+        mMainloopTimeout = nullptr;
     }
 }
 
-void LLAppViewer::resumeMainloopTimeout(const std::string& state, F32 secs)
+void LLAppViewer::resumeMainloopTimeout(std::string_view state, F32 secs)
 {
-    if(mMainloopTimeout)
+    if (mMainloopTimeout)
     {
-        if(secs < 0.0f)
+        if (secs < 0.0f)
         {
-            static LLCachedControl<F32> mainloop_timeout(gSavedSettings, "MainloopTimeoutDefault", 60);
+            static LLCachedControl<F32> mainloop_timeout(gSavedSettings, "MainloopTimeoutDefault", 60.f);
             secs = mainloop_timeout;
         }
 
@@ -5576,19 +5633,19 @@ void LLAppViewer::resumeMainloopTimeout(const std::string& state, F32 secs)
 
 void LLAppViewer::pauseMainloopTimeout()
 {
-    if(mMainloopTimeout)
+    if (mMainloopTimeout)
     {
         mMainloopTimeout->stop();
     }
 }
 
-void LLAppViewer::pingMainloopTimeout(const std::string& state, F32 secs)
+void LLAppViewer::pingMainloopTimeout(std::string_view state, F32 secs)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_APP;
 
-    if(mMainloopTimeout)
+    if (mMainloopTimeout)
     {
-        if(secs < 0.0f)
+        if (secs < 0.0f)
         {
             static LLCachedControl<F32> mainloop_timeout(gSavedSettings, "MainloopTimeoutDefault", 60);
             secs = mainloop_timeout;
@@ -5715,4 +5772,3 @@ void LLAppViewer::metricsSend(bool enable_reporting)
     // resolution in time.
     gViewerAssetStats->restart();
 }
-

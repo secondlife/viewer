@@ -31,6 +31,7 @@
 #include "lltextvalidate.h"
 
 #include "llnotificationsutil.h"
+#include "lltimer.h"
 #include "lltrans.h"
 
 #include "llresmgr.h" // for LLLocale

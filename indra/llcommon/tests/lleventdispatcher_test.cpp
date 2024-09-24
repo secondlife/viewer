@@ -17,13 +17,13 @@
 // std headers
 // external library headers
 // other Linden headers
+#include "StringVec.h"
 #include "../test/lltut.h"
 #include "lleventfilter.h"
 #include "llsd.h"
 #include "llsdutil.h"
 #include "llevents.h"
 #include "stringize.h"
-#include "StringVec.h"
 #include "tests/wrapllerrs.h"
 #include "../test/catch_and_store_what_in.h"
 #include "../test/debug.h"

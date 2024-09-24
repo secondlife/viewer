@@ -1298,7 +1298,7 @@ void LLRender::pushUIMatrix()
 {
     if (mUIOffset.empty())
     {
-        mUIOffset.push_back(LLVector3(0,0,0));
+        mUIOffset.emplace_back(0.f,0.f,0.f);
     }
     else
     {
@@ -1307,7 +1307,7 @@ void LLRender::pushUIMatrix()
 
     if (mUIScale.empty())
     {
-        mUIScale.push_back(LLVector3(1,1,1));
+        mUIScale.emplace_back(1.f,1.f,1.f);
     }
     else
     {
@@ -1718,7 +1718,7 @@ LLVertexBuffer* LLRender::genBuffer(U32 attribute_mask, S32 count)
 
     vb->setBuffer();
 
-    vb->setPositionData((LLVector4a*)mVerticesp.get());
+    vb->setPositionData(mVerticesp.get());
 
     if (attribute_mask & LLVertexBuffer::MAP_TEXCOORD0)
     {
@@ -1774,12 +1774,12 @@ void LLRender::vertex3f(const GLfloat& x, const GLfloat& y, const GLfloat& z)
 
     if (mUIOffset.empty())
     {
-        mVerticesp[mCount] = LLVector3(x,y,z);
+        mVerticesp[mCount].set(x,y,z);
     }
     else
     {
         LLVector3 vert = (LLVector3(x,y,z)+mUIOffset.back()).scaledVec(mUIScale.back());
-        mVerticesp[mCount] = vert;
+        mVerticesp[mCount].set(vert.mV[VX], vert.mV[VY], vert.mV[VZ]);
     }
 
     mCount++;
@@ -1788,7 +1788,7 @@ void LLRender::vertex3f(const GLfloat& x, const GLfloat& y, const GLfloat& z)
     mTexcoordsp[mCount] = mTexcoordsp[mCount-1];
 }
 
-void LLRender::vertexBatchPreTransformed(LLVector3* verts, S32 vert_count)
+void LLRender::vertexBatchPreTransformed(LLVector4a* verts, S32 vert_count)
 {
     if (mCount + vert_count > 4094)
     {
@@ -1809,7 +1809,7 @@ void LLRender::vertexBatchPreTransformed(LLVector3* verts, S32 vert_count)
         mVerticesp[mCount] = mVerticesp[mCount-1];
 }
 
-void LLRender::vertexBatchPreTransformed(LLVector3* verts, LLVector2* uvs, S32 vert_count)
+void LLRender::vertexBatchPreTransformed(LLVector4a* verts, LLVector2* uvs, S32 vert_count)
 {
     if (mCount + vert_count > 4094)
     {
@@ -1833,7 +1833,7 @@ void LLRender::vertexBatchPreTransformed(LLVector3* verts, LLVector2* uvs, S32 v
     }
 }
 
-void LLRender::vertexBatchPreTransformed(LLVector3* verts, LLVector2* uvs, LLColor4U* colors, S32 vert_count)
+void LLRender::vertexBatchPreTransformed(LLVector4a* verts, LLVector2* uvs, LLColor4U* colors, S32 vert_count)
 {
     if (mCount + vert_count > 4094)
     {
@@ -1880,7 +1880,7 @@ void LLRender::vertex3fv(const GLfloat* v)
 
 void LLRender::texCoord2f(const GLfloat& x, const GLfloat& y)
 {
-    mTexcoordsp[mCount] = LLVector2(x,y);
+    mTexcoordsp[mCount].set(x,y);
 }
 
 void LLRender::texCoord2i(const GLint& x, const GLint& y)
@@ -1897,7 +1897,7 @@ void LLRender::color4ub(const GLubyte& r, const GLubyte& g, const GLubyte& b, co
 {
     if (!LLGLSLShader::sCurBoundShaderPtr || LLGLSLShader::sCurBoundShaderPtr->mAttributeMask & LLVertexBuffer::MAP_COLOR)
     {
-        mColorsp[mCount] = LLColor4U(r,g,b,a);
+        mColorsp[mCount].set(r,g,b,a);
     }
     else
     { //not using shaders or shader reads color from a uniform

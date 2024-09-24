@@ -449,9 +449,9 @@ public:
     void diffuseColor4ubv(const U8* c);
     void diffuseColor4ub(U8 r, U8 g, U8 b, U8 a);
 
-    void vertexBatchPreTransformed(LLVector3* verts, S32 vert_count);
-    void vertexBatchPreTransformed(LLVector3* verts, LLVector2* uvs, S32 vert_count);
-    void vertexBatchPreTransformed(LLVector3* verts, LLVector2* uvs, LLColor4U*, S32 vert_count);
+    void vertexBatchPreTransformed(LLVector4a* verts, S32 vert_count);
+    void vertexBatchPreTransformed(LLVector4a* verts, LLVector2* uvs, S32 vert_count);
+    void vertexBatchPreTransformed(LLVector4a* verts, LLVector2* uvs, LLColor4U*, S32 vert_count);
 
     void setColorMask(bool writeColor, bool writeAlpha);
     void setColorMask(bool writeColorR, bool writeColorG, bool writeColorB, bool writeAlpha);
@@ -513,7 +513,7 @@ private:
     bool                mCurrColorMask[4];
 
     LLPointer<LLVertexBuffer>   mBuffer;
-    LLStrider<LLVector3>        mVerticesp;
+    LLStrider<LLVector4a>       mVerticesp;
     LLStrider<LLVector2>        mTexcoordsp;
     LLStrider<LLColor4U>        mColorsp;
     std::array<LLTexUnit, LL_NUM_TEXTURE_LAYERS> mTexUnits;

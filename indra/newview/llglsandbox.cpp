@@ -68,7 +68,7 @@
 #include <vector>
 
 // Height of the yellow selection highlight posts for land
-const F32 PARCEL_POST_HEIGHT = 0.666f;
+constexpr F32 PARCEL_POST_HEIGHT = 0.666f;
 
 // Returns true if you got at least one object
 void LLToolSelectRect::handleRectangleSelection(S32 x, S32 y, MASK mask)
@@ -178,27 +178,27 @@ void LLToolSelectRect::handleRectangleSelection(S32 x, S32 y, MASK mask)
     {
         std::vector<LLDrawable*> potentials;
 
-        for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin();
-            iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
+        for (LLViewerRegion* region : LLWorld::getInstance()->getRegionList())
         {
-            LLViewerRegion* region = *iter;
             for (U32 i = 0; i < LLViewerRegion::NUM_PARTITIONS; i++)
             {
-                LLSpatialPartition* part = region->getSpatialPartition(i);
-                if (part)
+                if (LLSpatialPartition* part = region->getSpatialPartition(i))
                 {
                     part->cull(*LLViewerCamera::getInstance(), &potentials, true);
                 }
             }
         }
 
-        for (std::vector<LLDrawable*>::iterator iter = potentials.begin();
-             iter != potentials.end(); iter++)
+        for (LLDrawable* drawable : potentials)
         {
-            LLDrawable* drawable = *iter;
+            if (!drawable)
+            {
+                continue;
+            }
+
             LLViewerObject* vobjp = drawable->getVObj();
 
-            if (!drawable || !vobjp ||
+            if (!vobjp ||
                 vobjp->getPCode() != LL_PCODE_VOLUME ||
                 vobjp->isAttachment() ||
                 (deselect && !vobjp->isSelected()))
@@ -244,7 +244,7 @@ void LLToolSelectRect::handleRectangleSelection(S32 x, S32 y, MASK mask)
     gViewerWindow->setup3DRender();
 }
 
-const F32 WIND_RELATIVE_ALTITUDE            = 25.f;
+constexpr F32 WIND_RELATIVE_ALTITUDE = 25.f;
 
 void LLWind::renderVectors()
 {
@@ -266,14 +266,14 @@ void LLWind::renderVectors()
             x = mVelX[i + j*mSize] * WIND_SCALE_HACK;
             y = mVelY[i + j*mSize] * WIND_SCALE_HACK;
             gGL.pushMatrix();
-            gGL.translatef((F32)i * region_width_meters/mSize, (F32)j * region_width_meters/mSize, 0.0);
-            gGL.color3f(0,1,0);
+            gGL.translatef((F32)i * region_width_meters/mSize, (F32)j * region_width_meters/mSize, 0.f);
+            gGL.color3f(0.f, 1.f, 0.f);
             gGL.begin(LLRender::POINTS);
-                gGL.vertex3f(0,0,0);
+                gGL.vertex3f(0.f, 0.f, 0.f);
             gGL.end();
-            gGL.color3f(1,0,0);
+            gGL.color3f(1.f, 0.f, 0.f);
             gGL.begin(LLRender::LINES);
-                gGL.vertex3f(x * 0.1f, y * 0.1f ,0.f);
+                gGL.vertex3f(x * 0.1f, y * 0.1f, 0.f);
                 gGL.vertex3f(x, y, 0.f);
             gGL.end();
             gGL.popMatrix();
@@ -287,7 +287,7 @@ void LLWind::renderVectors()
 
 // Used by lltoolselectland
 void LLViewerParcelMgr::renderRect(const LLVector3d &west_south_bottom_global,
-                                   const LLVector3d &east_north_top_global )
+                                   const LLVector3d &east_north_top_global)
 {
     LLGLSUIDefault gls_ui;
     gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
@@ -355,92 +355,6 @@ void LLViewerParcelMgr::renderRect(const LLVector3d &west_south_bottom_global,
 
     LLUI::setLineWidth(1.f);
 }
-
-/*
-void LLViewerParcelMgr::renderParcel(LLParcel* parcel )
-{
-    S32 i;
-    S32 count = parcel->getBoxCount();
-    for (i = 0; i < count; i++)
-    {
-        const LLParcelBox& box = parcel->getBox(i);
-
-        F32 west = box.mMin.mV[VX];
-        F32 south = box.mMin.mV[VY];
-
-        F32 east = box.mMax.mV[VX];
-        F32 north = box.mMax.mV[VY];
-
-        // HACK: At edge of last region of world, we need to make sure the region
-        // resolves correctly so we can get a height value.
-        const F32 FUDGE = 0.01f;
-
-        F32 sw_bottom = LLWorld::getInstance()->resolveLandHeightAgent( LLVector3( west, south, 0.f ) );
-        F32 se_bottom = LLWorld::getInstance()->resolveLandHeightAgent( LLVector3( east-FUDGE, south, 0.f ) );
-        F32 ne_bottom = LLWorld::getInstance()->resolveLandHeightAgent( LLVector3( east-FUDGE, north-FUDGE, 0.f ) );
-        F32 nw_bottom = LLWorld::getInstance()->resolveLandHeightAgent( LLVector3( west, north-FUDGE, 0.f ) );
-
-        // little hack to make nearby lines not Z-fight
-        east -= 0.1f;
-        north -= 0.1f;
-
-        F32 sw_top = sw_bottom + POST_HEIGHT;
-        F32 se_top = se_bottom + POST_HEIGHT;
-        F32 ne_top = ne_bottom + POST_HEIGHT;
-        F32 nw_top = nw_bottom + POST_HEIGHT;
-
-        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-        LLGLDepthTest gls_depth(GL_TRUE);
-
-        LLUI::setLineWidth(2.f);
-        gGL.color4f(0.f, 1.f, 1.f, 1.f);
-
-        // Cheat and give this the same pick-name as land
-        gGL.begin(LLRender::LINES);
-
-        gGL.vertex3f(west, north, nw_bottom);
-        gGL.vertex3f(west, north, nw_top);
-
-        gGL.vertex3f(east, north, ne_bottom);
-        gGL.vertex3f(east, north, ne_top);
-
-        gGL.vertex3f(east, south, se_bottom);
-        gGL.vertex3f(east, south, se_top);
-
-        gGL.vertex3f(west, south, sw_bottom);
-        gGL.vertex3f(west, south, sw_top);
-
-        gGL.end();
-
-        gGL.color4f(0.f, 1.f, 1.f, 0.2f);
-        gGL.begin(LLRender::QUADS);
-
-        gGL.vertex3f(west, north, nw_bottom);
-        gGL.vertex3f(west, north, nw_top);
-        gGL.vertex3f(east, north, ne_top);
-        gGL.vertex3f(east, north, ne_bottom);
-
-        gGL.vertex3f(east, north, ne_bottom);
-        gGL.vertex3f(east, north, ne_top);
-        gGL.vertex3f(east, south, se_top);
-        gGL.vertex3f(east, south, se_bottom);
-
-        gGL.vertex3f(east, south, se_bottom);
-        gGL.vertex3f(east, south, se_top);
-        gGL.vertex3f(west, south, sw_top);
-        gGL.vertex3f(west, south, sw_bottom);
-
-        gGL.vertex3f(west, south, sw_bottom);
-        gGL.vertex3f(west, south, sw_top);
-        gGL.vertex3f(west, north, nw_top);
-        gGL.vertex3f(west, north, nw_bottom);
-
-        gGL.end();
-
-        LLUI::setLineWidth(1.f);
-    }
-}
-*/
 
 
 // north = a wall going north/south.  Need that info to set up texture
@@ -924,7 +838,7 @@ struct ShaderProfileHelper
     }
     ~ShaderProfileHelper()
     {
-        LLGLSLShader::finishProfile(false);
+        LLGLSLShader::finishProfile();
     }
 };
 

@@ -68,7 +68,7 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-	<key>CrashHostUrl</key>
+    <key>CrashHostUrl</key>
     <map>
       <key>Comment</key>
       <string>A URL pointing to a crash report handler; overrides cluster negotiation to locate crash handler.</string>
@@ -346,7 +346,7 @@
       <key>Value</key>
       <real>0.5</real>
     </map>
-	<key>AudioStreamingMedia</key>
+    <key>AudioStreamingMedia</key>
     <map>
       <key>Comment</key>
       <string>Enable streaming</string>
@@ -1314,7 +1314,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-			<integer>0</integer>
+      <integer>0</integer>
     </map>
     <key>CameraPositionSmoothing</key>
     <map>
@@ -1952,17 +1952,17 @@
       <key>Value</key>
       <string />
     </map>
-	<key>DebugAvatarRezTime</key>
-	<map>
-		<key>Comment</key>
-		<string>Display times for avatars to resolve.</string>
-		<key>Persist</key>
-		<integer>1</integer>
-		<key>Type</key>
-		<string>Boolean</string>
-		<key>Value</key>
-		<integer>0</integer>
-	</map>
+    <key>DebugAvatarRezTime</key>
+    <map>
+        <key>Comment</key>
+        <string>Display times for avatars to resolve.</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>Boolean</string>
+        <key>Value</key>
+        <integer>0</integer>
+    </map>
   <key>DebugAvatarLocalTexLoadedTime</key>
   <map>
     <key>Comment</key>
@@ -2337,39 +2337,39 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-	<key>DefaultFemaleAvatar</key>
-	<map>
-	  <key>Comment</key>
-	  <string>Default Female Avatar</string>
-	  <key>Persist</key>
-	  <integer>1</integer>
-	  <key>Type</key>
-	  <string>String</string>
-	  <key>Value</key>
-	  <string>Female Shape &amp; Outfit</string>
-	</map>
-	<key>DefaultLoginLocation</key>
-	<map>
-		<key>Comment</key>
-		<string>Startup destination default (if not specified on command line)</string>
-		<key>Persist</key>
-		<integer>0</integer>
-		<key>Type</key>
-		<string>String</string>
-		<key>Value</key>
-		<string/>
-	</map>
-	<key>DefaultMaleAvatar</key>
-	<map>
-	  <key>Comment</key>
-	  <string>Default Male Avatar</string>
-	  <key>Persist</key>
-	  <integer>1</integer>
-	  <key>Type</key>
-	  <string>String</string>
-	  <key>Value</key>
-	  <string>Male Shape &amp; Outfit</string>
-	</map>
+    <key>DefaultFemaleAvatar</key>
+    <map>
+      <key>Comment</key>
+      <string>Default Female Avatar</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>Female Shape &amp; Outfit</string>
+    </map>
+    <key>DefaultLoginLocation</key>
+    <map>
+        <key>Comment</key>
+        <string>Startup destination default (if not specified on command line)</string>
+        <key>Persist</key>
+        <integer>0</integer>
+        <key>Type</key>
+        <string>String</string>
+        <key>Value</key>
+        <string/>
+    </map>
+    <key>DefaultMaleAvatar</key>
+    <map>
+      <key>Comment</key>
+      <string>Default Male Avatar</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>Male Shape &amp; Outfit</string>
+    </map>
     <key>DestinationGuideURL</key>
     <map>
       <key>Comment</key>
@@ -2744,7 +2744,7 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-	<key>FirstSelectedEnabledPopups</key>
+    <key>FirstSelectedEnabledPopups</key>
     <map>
       <key>Comment</key>
       <string>Return false if there is not enable popup selected in the list of floater preferences popups</string>
@@ -3566,39 +3566,39 @@
         <key>Value</key>
         <integer>0</integer>
     </map>
-	<key>InventoryLinking</key>
-	<map>
-		<key>Comment</key>
-		<string>Enable ability to create links to folders and items via "Paste as link".</string>
-		<key>Persist</key>
-		<integer>1</integer>
-		<key>Type</key>
-		<string>Boolean</string>
-		<key>Value</key>
-		<integer>1</integer>
-	</map>
-	<key>InventoryOutboxLogging</key>
-	<map>
-		<key>Comment</key>
-		<string>Enable debug output associated with the Merchant Outbox.</string>
-		<key>Persist</key>
-		<integer>1</integer>
-		<key>Type</key>
-		<string>Boolean</string>
-		<key>Value</key>
-		<integer>0</integer>
-	</map>
-	<key>InventoryOutboxMakeVisible</key>
-	<map>
-		<key>Comment</key>
-		<string>Enable making the Merchant Outbox and Inbox visible in the inventory for debug purposes.</string>
-		<key>Persist</key>
-		<integer>1</integer>
-		<key>Type</key>
-		<string>Boolean</string>
-		<key>Value</key>
-		<integer>0</integer>
-	</map>
+    <key>InventoryLinking</key>
+    <map>
+        <key>Comment</key>
+        <string>Enable ability to create links to folders and items via "Paste as link".</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>Boolean</string>
+        <key>Value</key>
+        <integer>1</integer>
+    </map>
+    <key>InventoryOutboxLogging</key>
+    <map>
+        <key>Comment</key>
+        <string>Enable debug output associated with the Merchant Outbox.</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>Boolean</string>
+        <key>Value</key>
+        <integer>0</integer>
+    </map>
+    <key>InventoryOutboxMakeVisible</key>
+    <map>
+        <key>Comment</key>
+        <string>Enable making the Merchant Outbox and Inbox visible in the inventory for debug purposes.</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>Boolean</string>
+        <key>Value</key>
+        <integer>0</integer>
+    </map>
     <key>InventoryOutboxMaxFolderCount</key>
     <map>
       <key>Comment</key>
@@ -3852,8 +3852,8 @@
       <key>Value</key>
         <real>0.25</real>
       </map>
-	<key>Jpeg2000AdvancedCompression</key>
-	  <map>
+    <key>Jpeg2000AdvancedCompression</key>
+      <map>
       <key>Comment</key>
         <string>Use advanced Jpeg2000 compression options (precincts, blocks, ordering, markers)</string>
       <key>Persist</key>
@@ -3862,9 +3862,9 @@
         <string>Boolean</string>
       <key>Value</key>
         <integer>0</integer>
-	  </map>
-	<key>Jpeg2000PrecinctsSize</key>
-	  <map>
+      </map>
+    <key>Jpeg2000PrecinctsSize</key>
+      <map>
       <key>Comment</key>
         <string>Size of image precincts. Assumed square and same for all levels. Must be power of 2.</string>
       <key>Persist</key>
@@ -3873,9 +3873,9 @@
         <string>S32</string>
       <key>Value</key>
         <integer>256</integer>
-	  </map>
-	<key>Jpeg2000BlocksSize</key>
-	  <map>
+      </map>
+    <key>Jpeg2000BlocksSize</key>
+      <map>
       <key>Comment</key>
         <string>Size of encoding blocks. Assumed square and same for all levels. Must be power of 2. Max 64, Min 4.</string>
       <key>Persist</key>
@@ -3884,7 +3884,7 @@
         <string>S32</string>
       <key>Value</key>
         <integer>64</integer>
-	  </map>
+      </map>
     <key>KeepAspectForSnapshot</key>
     <map>
       <key>Comment</key>
@@ -3961,6 +3961,78 @@
         <string>String</string>
         <key>Value</key>
         <string>Monospace</string>
+    </map>
+    <key>LuaAutorunPath</key>
+    <map>
+      <key>Comment</key>
+      <string>Directories containing scripts to autorun at viewer startup</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>LLSD</string>
+      <key>Value</key>
+      <array>
+        <string>scripts/lua/auto</string>
+      </array>
+    </map>
+    <key>LuaChunk</key>
+    <map>
+      <key>Comment</key>
+      <string>Zero or more Lua chunks to run from command line</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>LLSD</string>
+      <key>Value</key>
+      <array />
+    </map>
+    <key>LuaCommandPath</key>
+    <map>
+      <key>Comment</key>
+      <string>Directories containing scripts recognized as chat slash commands</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>LLSD</string>
+      <key>Value</key>
+      <array>
+        <string>scripts/lua</string>
+      </array>
+    </map>
+    <key>LuaFeature</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable viewer's Lua script engine.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>LuaRequirePath</key>
+    <map>
+      <key>Comment</key>
+      <string>Directories containing Lua modules loadable by require()</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>LLSD</string>
+      <key>Value</key>
+      <array>
+        <string>scripts/lua/require</string>
+      </array>
+    </map>
+    <key>LuaScript</key>
+    <map>
+      <key>Comment</key>
+      <string>Zero or more Lua script files to run from command line</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>LLSD</string>
+      <key>Value</key>
+      <array />
     </map>
     <key>GridStatusRSS</key>
     <map>
@@ -4492,17 +4564,17 @@
       <key>Value</key>
       <string />
     </map>
-	<key>MarketplaceListingsLogging</key>
-	<map>
-		<key>Comment</key>
-		<string>Enable debug output associated with the Marketplace Listings (SLM) API.</string>
-		<key>Persist</key>
-		<integer>1</integer>
-		<key>Type</key>
-		<string>Boolean</string>
-		<key>Value</key>
-		<integer>0</integer>
-	</map>
+    <key>MarketplaceListingsLogging</key>
+    <map>
+        <key>Comment</key>
+        <string>Enable debug output associated with the Marketplace Listings (SLM) API.</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>Boolean</string>
+        <key>Value</key>
+        <integer>0</integer>
+    </map>
     <key>MarketplaceURL</key>
     <map>
       <key>Comment</key>
@@ -4965,6 +5037,17 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
+  <key>MediaPluginPipeWireVolumeCatcher</key>
+  <map>
+    <key>Comment</key>
+    <string>Use PipeWire instead of PulseAudio for controlling web media volume.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
   <key>MediaControlFadeTime</key>
   <map>
     <key>Comment</key>
@@ -5388,28 +5471,28 @@
       <key>Value</key>
       <integer>1000</integer>
     </map>
-	<key>FakeInitialOutfitName</key>
-	<map>
-		<key>Comment</key>
-		<string>Pretend that this is first time login and specified name was chosen</string>
-		<key>Persist</key>
-		<integer>1</integer>
-		<key>Type</key>
+    <key>FakeInitialOutfitName</key>
+    <map>
+        <key>Comment</key>
+        <string>Pretend that this is first time login and specified name was chosen</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
         <string>String</string>
         <key>Value</key>
         <string />
-	</map>
-	<key>MyOutfitsAutofill</key>
-	<map>
-		<key>Comment</key>
-		<string>Always autofill My Outfits from library when empty (else happens just once).</string>
-		<key>Persist</key>
-		<integer>1</integer>
-		<key>Type</key>
-		<string>Boolean</string>
-		<key>Value</key>
-		<integer>0</integer>
-	</map>
+    </map>
+    <key>MyOutfitsAutofill</key>
+    <map>
+        <key>Comment</key>
+        <string>Always autofill My Outfits from library when empty (else happens just once).</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>Boolean</string>
+        <key>Value</key>
+        <integer>0</integer>
+    </map>
     <key>NearMeRange</key>
     <map>
       <key>Comment</key>
@@ -5518,7 +5601,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-	  <integer>0</integer>
+      <integer>0</integer>
     </map>
     <key>NonvisibleObjectsInMemoryTime</key>
     <map>
@@ -5529,7 +5612,7 @@
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
-			<integer>64</integer>
+            <integer>64</integer>
     </map>
     <key>NoPreload</key>
     <map>
@@ -6441,7 +6524,7 @@
       <key>Value</key>
       <real>6.0</real>
     </map>
-	<key>PreferredMaturity</key>
+    <key>PreferredMaturity</key>
     <map>
       <key>Comment</key>
       <string>Setting for the user's preferred maturity level (consts in indra_constants.h)</string>
@@ -6450,7 +6533,7 @@
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
-	  <integer>13</integer>
+      <integer>13</integer>
     </map>
   <key>PreviewAmbientColor</key>
   <map>
@@ -6620,8 +6703,8 @@
   </map>
 
   <key>PrimMediaMasterEnabled</key>
-	<map>
-	  <key>Comment</key>
+    <map>
+      <key>Comment</key>
       <string>Whether or not Media on a Prim is enabled.</string>
       <key>Persist</key>
       <integer>1</integer>
@@ -6630,9 +6713,9 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-	<key>PrimMediaControlsUseHoverControlSet</key>
-	<map>
-	  <key>Comment</key>
+    <key>PrimMediaControlsUseHoverControlSet</key>
+    <map>
+      <key>Comment</key>
       <string>Whether or not hovering over prim media uses minimal "hover" controls or the authored control set.</string>
       <key>Persist</key>
       <integer>1</integer>
@@ -6641,17 +6724,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-	<key>PrimMediaDragNDrop</key>
-	<map>
-		<key>Comment</key>
-		<string>Enable drag and drop of URLs onto prim faces</string>
-		<key>Persist</key>
-		<integer>1</integer>
-		<key>Type</key>
-		<string>Boolean</string>
-		<key>Value</key>
-		<integer>1</integer>
-	</map>
+    <key>PrimMediaDragNDrop</key>
+    <map>
+        <key>Comment</key>
+        <string>Enable drag and drop of URLs onto prim faces</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>Boolean</string>
+        <key>Value</key>
+        <integer>1</integer>
+    </map>
     <key>PrimMediaMaxRetries</key>
     <map>
       <key>Comment</key>
@@ -6685,7 +6768,7 @@
       <key>Value</key>
       <real>5.0</real>
     </map>
-	<key>PrimMediaMaxSortedQueueSize</key>
+    <key>PrimMediaMaxSortedQueueSize</key>
     <map>
       <key>Comment</key>
       <string>Maximum number of objects the viewer will load media for initially</string>
@@ -6696,7 +6779,7 @@
       <key>Value</key>
       <integer>100000</integer>
     </map>
-	<key>PrimMediaMaxRoundRobinQueueSize</key>
+    <key>PrimMediaMaxRoundRobinQueueSize</key>
     <map>
       <key>Comment</key>
       <string>Maximum number of objects the viewer will continuously update media for</string>
@@ -8855,17 +8938,17 @@
         <key>Value</key>
         <integer>1024</integer>
     </map>
-	<key>RenderHeroProbeDistance</key>
-	<map>
-		<key>Comment</key>
-		<string>Distance in meters for hero probes to render out to.</string>
-		<key>Persist</key>
-		<integer>1</integer>
-		<key>Type</key>
-		<string>F32</string>
-		<key>Value</key>
-		<real>8</real>
-	</map>
+    <key>RenderHeroProbeDistance</key>
+    <map>
+        <key>Comment</key>
+        <string>Distance in meters for hero probes to render out to.</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>F32</string>
+        <key>Value</key>
+        <real>8</real>
+    </map>
   <key>RenderHeroProbeUpdateRate</key>
   <map>
     <key>Comment</key>
@@ -9430,17 +9513,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-	<key>RenderTransparentWater</key>
-	<map>
-	  <key>Comment</key>
-	  <string>Render water as transparent.  Setting to false renders water as opaque with a simple texture applied.</string>
+    <key>RenderTransparentWater</key>
+    <map>
+      <key>Comment</key>
+      <string>Render water as transparent.  Setting to false renders water as opaque with a simple texture applied.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
-	</map>
+    </map>
     <key>RenderTreeLODFactor</key>
     <map>
       <key>Comment</key>
@@ -9733,18 +9816,18 @@
     <key>Value</key>
     <integer>1</integer>
   </map>
-	<key>RenderPreferStreamDraw</key>
-	<map>
-		<key>Comment</key>
-		<string>Use GL_STREAM_DRAW in place of GL_DYNAMIC_DRAW</string>
-		<key>Persist</key>
-		<integer>1</integer>
-		<key>Type</key>
-		<string>Boolean</string>
-		<key>Value</key>
-		<integer>0</integer>
-	</map>
-	<key>RenderVolumeLODFactor</key>
+    <key>RenderPreferStreamDraw</key>
+    <map>
+        <key>Comment</key>
+        <string>Use GL_STREAM_DRAW in place of GL_DYNAMIC_DRAW</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>Boolean</string>
+        <key>Value</key>
+        <integer>0</integer>
+    </map>
+    <key>RenderVolumeLODFactor</key>
     <map>
       <key>Comment</key>
       <string>Controls level of detail of primitives (multiplier for current screen area when calculated level of detail)</string>
@@ -9876,18 +9959,18 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-		<key>ReportBugURL</key>
-		<map>
-			<key>Comment</key>
-			<string>URL used for filing bugs from viewer</string>
-			<key>Persist</key>
-			<integer>1</integer>
-			<key>Type</key>
-			<string>String</string>
-			<key>Value</key>
-			<string>https://feedback.secondlife.com/</string>
-		</map>
-	<key>RevokePermsOnStopAnimation</key>
+        <key>ReportBugURL</key>
+        <map>
+            <key>Comment</key>
+            <string>URL used for filing bugs from viewer</string>
+            <key>Persist</key>
+            <integer>1</integer>
+            <key>Type</key>
+            <string>String</string>
+            <key>Value</key>
+            <string>https://feedback.secondlife.com/</string>
+        </map>
+    <key>RevokePermsOnStopAnimation</key>
     <map>
       <key>Comment</key>
       <string>Clear animation permssions when choosing "Stop Animating Me"</string>
@@ -10140,39 +10223,39 @@
       <key>Value</key>
       <real>400.0</real>
     </map>
-	<key>SceneLoadingMonitorEnabled</key>
-	<map>
-		<key>Comment</key>
-		<string>Enabled scene loading monitor if set</string>
-		<key>Persist</key>
-		<integer>0</integer>
-		<key>Type</key>
-		<string>Boolean</string>
-		<key>Value</key>
-		<integer>0</integer>
-	</map>
-	<key>SceneLoadingMonitorSampleTime</key>
-	<map>
-		<key>Comment</key>
-		<string>Time between screen samples when monitor scene load (seconds)</string>
-		<key>Persist</key>
-		<integer>1</integer>
-		<key>Type</key>
-		<string>F32</string>
-		<key>Value</key>
-		<real>0.25</real>
-	</map>
-	<key>SceneLoadingMonitorPixelDiffThreshold</key>
-	<map>
-		<key>Comment</key>
-		<string>Amount of pixels changed required to consider the scene as still loading (square root of fraction of pixels on screen)</string>
-		<key>Persist</key>
-		<integer>1</integer>
-		<key>Type</key>
-		<string>F32</string>
-		<key>Value</key>
-		<real>0.02</real>
-	</map>
+    <key>SceneLoadingMonitorEnabled</key>
+    <map>
+        <key>Comment</key>
+        <string>Enabled scene loading monitor if set</string>
+        <key>Persist</key>
+        <integer>0</integer>
+        <key>Type</key>
+        <string>Boolean</string>
+        <key>Value</key>
+        <integer>0</integer>
+    </map>
+    <key>SceneLoadingMonitorSampleTime</key>
+    <map>
+        <key>Comment</key>
+        <string>Time between screen samples when monitor scene load (seconds)</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>F32</string>
+        <key>Value</key>
+        <real>0.25</real>
+    </map>
+    <key>SceneLoadingMonitorPixelDiffThreshold</key>
+    <map>
+        <key>Comment</key>
+        <string>Amount of pixels changed required to consider the scene as still loading (square root of fraction of pixels on screen)</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>F32</string>
+        <key>Value</key>
+        <real>0.02</real>
+    </map>
     <key>ScriptHelpFollowsCursor</key>
     <map>
       <key>Comment</key>
@@ -10349,7 +10432,7 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-	<key>AvatarNameTagMode</key>
+    <key>AvatarNameTagMode</key>
     <map>
       <key>Comment</key>
       <string>Select Avatar Name Tag Mode</string>
@@ -10558,7 +10641,7 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-	<key>ShowScriptErrors</key>
+    <key>ShowScriptErrors</key>
     <map>
       <key>Comment</key>
       <string>Show script errors</string>
@@ -10569,7 +10652,7 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-	<key>ShowScriptErrorsLocation</key>
+    <key>ShowScriptErrorsLocation</key>
     <map>
       <key>Comment</key>
       <string>Show script error in chat (0) or window (1).</string>
@@ -10828,8 +10911,8 @@
       <string>Display results of find events that are flagged as moderate</string>
       <key>Persist</key>
       <integer>1</integer>
-	  <key>HideFromEditor</key>
-	  <integer>1</integer>
+      <key>HideFromEditor</key>
+      <integer>1</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
@@ -10841,8 +10924,8 @@
       <string>Display results of find events that are flagged as adult</string>
       <key>Persist</key>
       <integer>1</integer>
-	  <key>HideFromEditor</key>
-	  <integer>1</integer>
+      <key>HideFromEditor</key>
+      <integer>1</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
@@ -10854,8 +10937,8 @@
       <string>Display results of find land sales that are flagged as general</string>
       <key>Persist</key>
       <integer>1</integer>
-	  <key>HideFromEditor</key>
-	  <integer>1</integer>
+      <key>HideFromEditor</key>
+      <integer>1</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
@@ -10867,8 +10950,8 @@
       <string>Display results of find land sales that are flagged as moderate</string>
       <key>Persist</key>
       <integer>1</integer>
-	  <key>HideFromEditor</key>
-	  <integer>1</integer>
+      <key>HideFromEditor</key>
+      <integer>1</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
@@ -10880,8 +10963,8 @@
       <string>Display results of find land sales that are flagged as adult</string>
       <key>Persist</key>
       <integer>1</integer>
-	  <key>HideFromEditor</key>
-	  <integer>1</integer>
+      <key>HideFromEditor</key>
+      <integer>1</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
@@ -10893,8 +10976,8 @@
       <string>Display results of find places or find popular that are in general sims</string>
       <key>Persist</key>
       <integer>1</integer>
-	  <key>HideFromEditor</key>
-	  <integer>1</integer>
+      <key>HideFromEditor</key>
+      <integer>1</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
@@ -10906,8 +10989,8 @@
       <string>Display results of find places or find popular that are in moderate sims</string>
       <key>Persist</key>
       <integer>1</integer>
-	  <key>HideFromEditor</key>
-	  <integer>1</integer>
+      <key>HideFromEditor</key>
+      <integer>1</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
@@ -10919,8 +11002,8 @@
       <string>Display results of find places or find popular that are in adult sims</string>
       <key>Persist</key>
       <integer>1</integer>
-	  <key>HideFromEditor</key>
-	  <integer>1</integer>
+      <key>HideFromEditor</key>
+      <integer>1</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
@@ -11058,17 +11141,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-	<key>ShowTutorial</key>
-	<map>
-		<key>Comment</key>
-		<string>Show tutorial window on login</string>
-		<key>Persist</key>
-		<integer>1</integer>
-		<key>Type</key>
-		<string>Boolean</string>
-		<key>Value</key>
-		<integer>0</integer>
-	</map>
+    <key>ShowTutorial</key>
+    <map>
+        <key>Comment</key>
+        <string>Show tutorial window on login</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>Boolean</string>
+        <key>Value</key>
+        <integer>0</integer>
+    </map>
     <key>ShowVoiceVisualizersInCalls</key>
     <map>
       <key>Comment</key>
@@ -13719,17 +13802,17 @@
       <key>Value</key>
       <real>0.40000000596</real>
     </map>
-	<key>moapbeacon</key>
-	<map>
-		<key>Comment</key>
-		<string>Beacon / Highlight media on a prim sources</string>
-		<key>Persist</key>
-		<integer>1</integer>
-		<key>Type</key>
-		<string>Boolean</string>
-		<key>Value</key>
-		<integer>0</integer>
-	</map>
+    <key>moapbeacon</key>
+    <map>
+        <key>Comment</key>
+        <string>Beacon / Highlight media on a prim sources</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>Boolean</string>
+        <key>Value</key>
+        <integer>0</integer>
+    </map>
     <key>particlesbeacon</key>
     <map>
       <key>Comment</key>
@@ -13829,17 +13912,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-	<key>SLURLDragNDrop</key>
-	<map>
-		<key>Comment</key>
-		<string>Enable drag and drop of SLURLs onto the viewer</string>
-		<key>Persist</key>
-		<integer>1</integer>
-		<key>Type</key>
-		<string>Boolean</string>
-		<key>Value</key>
-		<integer>1</integer>
-	</map>
+    <key>SLURLDragNDrop</key>
+    <map>
+        <key>Comment</key>
+        <string>Enable drag and drop of SLURLs onto the viewer</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>Boolean</string>
+        <key>Value</key>
+        <integer>1</integer>
+    </map>
     <key>SLURLPassToOtherInstance</key>
     <map>
     <key>Comment</key>
@@ -14027,10 +14110,10 @@
       <string>LLSD</string>
       <key>Value</key>
       <array>
-	      <string>snapshot</string>
-	      <string>postcard</string>
-	      <string>mini_map</string>
-	      <string>beacons</string>
+          <string>snapshot</string>
+          <string>postcard</string>
+          <string>mini_map</string>
+          <string>beacons</string>
       </array>
     </map>
     <key>LandmarksSortedByDate</key>
@@ -14791,7 +14874,7 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-	<key>LocalTerrainAsset1</key>
+    <key>LocalTerrainAsset1</key>
     <map>
       <key>Comment</key>
       <string>If set to a non-null UUID, overrides the terrain asset locally for all regions with material assets. Local terrain assets are not visible to others. Please keep in mind that this debug setting may be temporary. Do not rely on this setting existing in future viewer builds.</string>
@@ -14802,7 +14885,7 @@
       <key>Value</key>
       <string>00000000-0000-0000-0000-000000000000</string>
     </map>
-	<key>LocalTerrainAsset2</key>
+    <key>LocalTerrainAsset2</key>
     <map>
       <key>Comment</key>
       <string>If set to a non-null UUID, overrides the terrain asset locally for all regions with material assets. Local terrain assets are not visible to others. Please keep in mind that this debug setting may be temporary. Do not rely on this setting existing in future viewer builds.</string>
@@ -14813,7 +14896,7 @@
       <key>Value</key>
       <string>00000000-0000-0000-0000-000000000000</string>
     </map>
-	<key>LocalTerrainAsset3</key>
+    <key>LocalTerrainAsset3</key>
     <map>
       <key>Comment</key>
       <string>If set to a non-null UUID, overrides the terrain asset locally for all regions with material assets. Local terrain assets are not visible to others. Please keep in mind that this debug setting may be temporary. Do not rely on this setting existing in future viewer builds.</string>
@@ -14824,7 +14907,7 @@
       <key>Value</key>
       <string>00000000-0000-0000-0000-000000000000</string>
     </map>
-	<key>LocalTerrainAsset4</key>
+    <key>LocalTerrainAsset4</key>
     <map>
       <key>Comment</key>
       <string>If set to a non-null UUID, overrides the terrain asset locally for all regions with material assets. Local terrain assets are not visible to others. Please keep in mind that this debug setting may be temporary. Do not rely on this setting existing in future viewer builds.</string>
@@ -15088,7 +15171,7 @@
       <key>Value</key>
       <integer>2048</integer>
     </map>
-	<key>PathfindingRetrieveNeighboringRegion</key>
+    <key>PathfindingRetrieveNeighboringRegion</key>
     <map>
       <key>Comment</key>
       <string>Download a neighboring region when visualizing a pathfinding navmesh (default val 99 means do not download neighbors).</string>
@@ -15097,9 +15180,9 @@
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
-	  <integer>99</integer>
+      <integer>99</integer>
     </map>
-	<key>PathfindingNavMeshClear</key>
+    <key>PathfindingNavMeshClear</key>
     <map>
       <key>Comment</key>
       <string>Background color when displaying pathfinding navmesh.</string>
@@ -15259,7 +15342,7 @@
         <real>1.0</real>
       </array>
     </map>
- 	 <key>PathfindingTestPathValidEndColor</key>
+    <key>PathfindingTestPathValidEndColor</key>
     <map>
       <key>Comment</key>
       <string>Color of the pathfinding test-pathing tool end-point when the path is valid.</string>
@@ -15291,7 +15374,7 @@
         <real>1.0</real>
       </array>
     </map>
-	 <key>PathfindingTestPathColor</key>
+    <key>PathfindingTestPathColor</key>
     <map>
       <key>Comment</key>
       <string>Color of the pathfinding test-path when the path is valid.</string>
@@ -15939,17 +16022,17 @@
     <key>Value</key>
     <real>300</real>
   </map>
-	<key>StatsReportFileInterval</key>
-	<map>
-		<key>Comment</key>
-		<string>Interval to save viewer stats file data</string>
-		<key>Persist</key>
-		<integer>1</integer>
-		<key>Type</key>
-		<string>F32</string>
-		<key>Value</key>
-		<real>0.2</real>
-	</map>
+    <key>StatsReportFileInterval</key>
+    <map>
+        <key>Comment</key>
+        <string>Interval to save viewer stats file data</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>F32</string>
+        <key>Value</key>
+        <real>0.2</real>
+    </map>
   <key>StatsReportSkipZeroDataSaves</key>
   <map>
     <key>Comment</key>
