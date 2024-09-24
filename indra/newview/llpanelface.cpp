@@ -1819,7 +1819,6 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
         LLSelectedTE::getAlphaGamma(alpha_gamma, identical_alpha_gamma);
         mComboAlphaGamma->getSelectionInterface()->selectByValue(alpha_gamma);
         mComboAlphaGamma->setEnabled(true);
-        mLabelAlphaGamma->setEnabled(true);
     }
 }
 
@@ -2846,6 +2845,8 @@ void LLPanelFace::updateVisibility(LLViewerObject* objectp /* = nullptr */)
 
     // Shared material controls
     mComboAlphaGamma->setVisible(true);
+    mComboAlphaGamma->setEnabled(true);
+    mLabelAlphaGamma->setEnabled(true);
     mCheckSyncSettings->setVisible(show_material || show_media);
     mLabelTexGen->setVisible(show_material || show_media || show_pbr_asset);
     mComboTexGen->setVisible(show_material || show_media || show_pbr_asset);
