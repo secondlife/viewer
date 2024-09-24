@@ -38,31 +38,45 @@ mat4 getObjectSkinnedTransform();
 #else
 #endif
 
-#ifndef FOR_SHADOW
+#ifdef SAMPLE_BASE_COLOR_MAP
 uniform mat4 texture_matrix0;
-
 uniform vec4[2] texture_base_color_transform;
-uniform vec4[2] texture_normal_transform;
-uniform vec4[2] texture_metallic_roughness_transform;
-uniform vec4[2] texture_emissive_transform;
 
+vec2 texture_transform(vec2 vertex_texcoord, vec4[2] khr_gltf_transform, mat4 sl_animation_transform);
+
+in vec2 texcoord0;
+out vec2 base_color_texcoord;
+#endif
+
+#ifdef SAMPLE_NORMAL_MAP
 in vec3 normal;
 in vec4 tangent;
-in vec2 texcoord0;
 
-out vec2 base_color_texcoord;
+uniform vec4[2] texture_normal_transform;
+
 out vec2 normal_texcoord;
-out vec2 metallic_roughness_texcoord;
-out vec2 emissive_texcoord;
 
 out vec3 vary_tangent;
 flat out float vary_sign;
 out vec3 vary_normal;
-out vec3 vary_position;
 
-vec2 texture_transform(vec2 vertex_texcoord, vec4[2] khr_gltf_transform, mat4 sl_animation_transform);
 vec4 tangent_space_transform(vec4 vertex_tangent, vec3 vertex_normal, vec4[2] khr_gltf_transform, mat4 sl_animation_transform);
+#endif
 
+#ifdef SAMPLE_ORM_MAP
+uniform vec4[2] texture_metallic_roughness_transform;
+
+out vec2 metallic_roughness_texcoord;
+#endif
+
+#ifdef SAMPLE_EMISSIVE_MAP
+uniform vec4[2] texture_emissive_transform;
+
+out vec2 emissive_texcoord;
+#endif
+
+#ifdef MIRROR_CLIP
+out vec3 vary_position;
 #endif
 
 layout (std140) uniform GLTFNodes
@@ -104,13 +118,16 @@ void main()
     vec3 pos = (mat*vec4(position.xyz,1.0)).xyz;
     gl_Position = projection_matrix*vec4(pos,1.0);
 
-#ifndef FOR_SHADOW
-    vary_position = pos;
+#ifdef SAMPLE_BASE_COLOR_MAP
     base_color_texcoord = texture_transform(texcoord0, texture_base_color_transform, texture_matrix0);
-    normal_texcoord = texture_transform(texcoord0, texture_normal_transform, texture_matrix0);
-    metallic_roughness_texcoord = texture_transform(texcoord0, texture_metallic_roughness_transform, texture_matrix0);
-    emissive_texcoord = texture_transform(texcoord0, texture_emissive_transform, texture_matrix0);
+#endif
 
+#ifdef MIRROR_CLIP
+    vary_position = pos;
+#endif
+
+#ifdef SAMPLE_NORMAL_MAP
+    normal_texcoord = texture_transform(texcoord0, texture_normal_transform, texture_matrix0);
     vec3 n = (mat*vec4(normal.xyz+position.xyz,1.0)).xyz-pos.xyz;
     vec3 t = (mat*vec4(tangent.xyz+position.xyz,1.0)).xyz-pos.xyz;
 
@@ -120,6 +137,14 @@ void main()
     vary_tangent = normalize(transformed_tangent.xyz);
     vary_sign = transformed_tangent.w;
     vary_normal = n;
+#endif
+
+#ifdef SAMPLE_ORM_MAP
+    metallic_roughness_texcoord = texture_transform(texcoord0, texture_metallic_roughness_transform, texture_matrix0);
+#endif
+
+#ifdef SAMPLE_EMISSIVE_MAP
+    emissive_texcoord = texture_transform(texcoord0, texture_emissive_transform, texture_matrix0);
 #endif
 }
 

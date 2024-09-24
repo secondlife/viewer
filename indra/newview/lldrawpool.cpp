@@ -767,15 +767,15 @@ void teardown_texture_matrix(LLDrawInfo& params)
     }
 }
 
-void LLRenderPass::pushGLTFBatches(U32 type, bool textured)
+void LLRenderPass::pushGLTFBatches(LLGLTFMaterial::AlphaMode alpha_mode, bool textured)
 {
     if (textured)
     {
-        pushGLTFBatches(type);
+        pushGLTFBatches(alpha_mode);
     }
     else
     {
-        pushUntexturedGLTFBatches(type);
+        pushUntexturedGLTFBatches(alpha_mode);
     }
 }
 
@@ -784,7 +784,12 @@ static glm::mat4 last_model_matrix;
 
 extern LLCullResult* sCull;
 
-void LLRenderPass::pushGLTFBatches(U32 type)
+void LLRenderPass::pushGLTFBatches(LLGLTFMaterial::AlphaMode alpha_mode)
+{
+    pushGLTFBatches(sCull->mGLTFDrawInfo[alpha_mode]);
+}
+
+void LLRenderPass::pushGLTFBatches(const std::vector<LLGLTFDrawInfo>& draw_info)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
     view_matrix = glm::make_mat4(gGLModelView);
@@ -796,7 +801,7 @@ void LLRenderPass::pushGLTFBatches(U32 type)
     size_t last_mat = 0;
     bool doublesided = false;
 
-    for (auto& params : sCull->mGLTFDrawInfo)
+    for (auto& params : draw_info)
     {
         LL_PROFILE_ZONE_NAMED_CATEGORY_DRAWPOOL("pushGLTFBatch");
         LL_PROFILE_ZONE_NUM(params.mInstanceCount);
@@ -840,7 +845,7 @@ void LLRenderPass::pushGLTFBatches(U32 type)
     glEnable(GL_CULL_FACE);
 }
 
-void LLRenderPass::pushUntexturedGLTFBatches(U32 type)
+void LLRenderPass::pushUntexturedGLTFBatches(LLGLTFMaterial::AlphaMode alpha_mode)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
     view_matrix = glm::make_mat4(gGLModelView);
@@ -853,7 +858,7 @@ void LLRenderPass::pushUntexturedGLTFBatches(U32 type)
 
     bool doublesided = false;
 
-    for (auto& params : sCull->mGLTFDrawInfo)
+    for (auto& params : sCull->mGLTFDrawInfo[alpha_mode])
     {
         LL_PROFILE_ZONE_NAMED_CATEGORY_DRAWPOOL("pushUntexturedGLTFBatch");
         LL_PROFILE_ZONE_NUM(params.mInstanceCount);
@@ -896,23 +901,9 @@ void LLRenderPass::pushUntexturedGLTFBatches(U32 type)
     glEnable(GL_CULL_FACE);
 }
 
-// static
-void LLRenderPass::pushUntexturedGLTFBatch(LLDrawInfo& params)
+void LLRenderPass::pushRiggedGLTFBatches(LLGLTFMaterial::AlphaMode alpha_mode, bool textured)
 {
-    llassert(false); //deprecated
-    auto& mat = params.mGLTFMaterial;
-
-    LLGLDisable cull_face(mat->mDoubleSided ? GL_CULL_FACE : 0);
-
-    LLGLSLShader::sCurBoundShaderPtr->uniform1i(LLShaderMgr::GLTF_NODE_ID, params.mTransformIndex);
-
-    params.mVertexBuffer->setBuffer();
-    params.mVertexBuffer->drawRangeFast(LLRender::TRIANGLES, params.mStart, params.mEnd, params.mCount, params.mOffset);
-}
-
-void LLRenderPass::pushRiggedGLTFBatches(U32 type, bool textured)
-{
-    llassert(false); //deprecated
+#if 0
     if (textured)
     {
         pushRiggedGLTFBatches(type);
@@ -921,11 +912,12 @@ void LLRenderPass::pushRiggedGLTFBatches(U32 type, bool textured)
     {
         pushUntexturedRiggedGLTFBatches(type);
     }
+#endif
 }
 
-void LLRenderPass::pushRiggedGLTFBatches(U32 type)
+void LLRenderPass::pushRiggedGLTFBatches(LLGLTFMaterial::AlphaMode alpha_mode)
 {
-    llassert(false); //deprecated, use LLGLTFDrawInfo
+#if 0
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
     const LLVOAvatar* lastAvatar = nullptr;
     U64 lastMeshId = 0;
@@ -941,12 +933,13 @@ void LLRenderPass::pushRiggedGLTFBatches(U32 type)
 
         pushRiggedGLTFBatch(params, lastAvatar, lastMeshId, skipLastSkin);
     }
+#endif
 }
 
-void LLRenderPass::pushUntexturedRiggedGLTFBatches(U32 type)
+void LLRenderPass::pushUntexturedRiggedGLTFBatches(LLGLTFMaterial::AlphaMode alpha_mode)
 {
+#if 0
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
-    llassert(false); //deprecated, use LLGLTFDrawInfo
     const LLVOAvatar* lastAvatar = nullptr;
     U64 lastMeshId = 0;
     bool skipLastSkin = false;
@@ -961,26 +954,29 @@ void LLRenderPass::pushUntexturedRiggedGLTFBatches(U32 type)
 
         pushUntexturedRiggedGLTFBatch(params, lastAvatar, lastMeshId, skipLastSkin);
     }
+#endif
 }
 
 
 // static
 void LLRenderPass::pushRiggedGLTFBatch(LLDrawInfo& params, const LLVOAvatar*& lastAvatar, U64& lastMeshId, bool& skipLastSkin)
 {
-    llassert(false); //deprecated, use LLGLTFDrawInfo
-    //if (uploadMatrixPalette(params.mAvatar, params.mSkinInfo, lastAvatar, lastMeshId, skipLastSkin))
-    //{
-    //    pushGLTFBatch(params);
-    //}
+#if 0
+    if (uploadMatrixPalette(params.mAvatar, params.mSkinInfo, lastAvatar, lastMeshId, skipLastSkin))
+    {
+        pushGLTFBatch(params);
+    }
+#endif
 }
 
 // static
 void LLRenderPass::pushUntexturedRiggedGLTFBatch(LLDrawInfo& params, const LLVOAvatar*& lastAvatar, U64& lastMeshId, bool& skipLastSkin)
 {
-    llassert(false); //deprecated, use LLGLTFDrawInfo
+#if 0
     if (uploadMatrixPalette(params.mAvatar, params.mSkinInfo, lastAvatar, lastMeshId, skipLastSkin))
     {
         pushUntexturedGLTFBatch(params);
     }
+#endif
 }
 

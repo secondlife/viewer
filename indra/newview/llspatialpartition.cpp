@@ -956,20 +956,30 @@ void LLSpatialGroup::updateTransformUBOs()
             LLVolumeFace& lhs_vf = lhs->getDrawable()->getVOVolume()->getVolume()->getVolumeFace(lhs->getTEOffset());
             LLVolumeFace& rhs_vf = rhs->getDrawable()->getVOVolume()->getVolume()->getVolumeFace(rhs->getTEOffset());
 
-            if (lhs_vf.mVertexBuffer != rhs_vf.mVertexBuffer)
+            LLGLTFMaterial* lhs_mat = lhs->getTextureEntry()->getGLTFRenderMaterial();
+            LLGLTFMaterial* rhs_mat = rhs->getTextureEntry()->getGLTFRenderMaterial();
+
+            size_t rhs_hash = lhs_mat->getBatchHash();
+            size_t lhs_hash = rhs_mat->getBatchHash();
+
+            if (lhs_hash != rhs_hash)
+            {
+                if (lhs_mat->mAlphaMode != rhs_mat->mAlphaMode)
+                {  //ensure that materials of a given alpha mode are adjacent in the list
+                    return lhs_mat->mAlphaMode < rhs_mat->mAlphaMode;
+                }
+                else
+                {
+                    return lhs_hash < rhs_hash;
+                }
+            }
+            else if (lhs_vf.mVertexBuffer != rhs_vf.mVertexBuffer)
             {
                 return lhs_vf.mVertexBuffer < rhs_vf.mVertexBuffer;
             }
-            else if (lhs_vf.mVBIndexOffset != rhs_vf.mVBIndexOffset)
-            {
-                return lhs_vf.mVBIndexOffset < rhs_vf.mVBIndexOffset;
-            }
             else
             {
-                size_t rhs_hash = rhs->getTextureEntry()->getGLTFRenderMaterial()->getBatchHash();
-                size_t lhs_hash = lhs->getTextureEntry()->getGLTFRenderMaterial()->getBatchHash();
-
-                return lhs_hash < rhs_hash;
+                return lhs_vf.mVBIndexOffset < rhs_vf.mVBIndexOffset;
             }
         }
     };
@@ -987,7 +997,10 @@ void LLSpatialGroup::updateTransformUBOs()
         LL_PROFILE_ZONE_NAMED("utubo - build instances");
         std::sort(faces.begin(), faces.end(), InstanceSort());
 
-        mGLTFDrawInfo.clear();
+        for (auto& info : mGLTFDrawInfo)
+        {
+            info.clear();
+        }
 
         LLGLTFDrawInfo* current_info = nullptr;
 
@@ -1010,7 +1023,7 @@ void LLSpatialGroup::updateTransformUBOs()
             else
             {
                 // a new instance
-                current_info = &mGLTFDrawInfo.emplace_back();
+                current_info = &mGLTFDrawInfo[gltf_mat->mAlphaMode].emplace_back();
                 current_info->mMaterialID = gltf_mat->getBatchHash();
                 current_info->mMaterial = (LLFetchedGLTFMaterial*) gltf_mat;
                 current_info->mVertexBuffer = vf.mVertexBuffer;
@@ -1055,28 +1068,31 @@ void LLSpatialGroup::updateTransformUBOs()
             mp[idx + 11] = m[14];
         }
 
-        glBindBuffer(GL_UNIFORM_BUFFER, mTransformUBO);
-        if (new_transform_ubo)
+        if (mTransformUBO != 0)
         {
-            mTransformUBOSize = transform_ubo_size;
-            glBufferData(GL_UNIFORM_BUFFER, glmp.size() * sizeof(F32), glmp.data(), GL_STREAM_DRAW);
-        }
-        else
-        {
-            glBufferSubData(GL_UNIFORM_BUFFER, 0, glmp.size() * sizeof(F32), glmp.data());
-        }
+            glBindBuffer(GL_UNIFORM_BUFFER, mTransformUBO);
+            if (new_transform_ubo)
+            {
+                mTransformUBOSize = transform_ubo_size;
+                glBufferData(GL_UNIFORM_BUFFER, glmp.size() * sizeof(F32), glmp.data(), GL_STREAM_DRAW);
+            }
+            else
+            {
+                glBufferSubData(GL_UNIFORM_BUFFER, 0, glmp.size() * sizeof(F32), glmp.data());
+            }
 
-        glBindBuffer(GL_UNIFORM_BUFFER, mInstanceMapUBO);
-        if (new_instance_map_ubo)
-        {
-            mInstanceMapUBOSize = instance_map_ubo_size;
-            glBufferData(GL_UNIFORM_BUFFER, instance_map.size()*sizeof(InstanceMapEntry), instance_map.data(), GL_STREAM_DRAW);
+            glBindBuffer(GL_UNIFORM_BUFFER, mInstanceMapUBO);
+            if (new_instance_map_ubo)
+            {
+                mInstanceMapUBOSize = instance_map_ubo_size;
+                glBufferData(GL_UNIFORM_BUFFER, instance_map.size() * sizeof(InstanceMapEntry), instance_map.data(), GL_STREAM_DRAW);
+            }
+            else
+            {
+                glBufferSubData(GL_UNIFORM_BUFFER, 0, instance_map.size() * sizeof(InstanceMapEntry), instance_map.data());
+            }
+            glBindBuffer(GL_UNIFORM_BUFFER, 0);
         }
-        else
-        {
-            glBufferSubData(GL_UNIFORM_BUFFER, 0, instance_map.size()*sizeof(InstanceMapEntry), instance_map.data());
-        }
-        glBindBuffer(GL_UNIFORM_BUFFER, 0);
     }
 }
 
@@ -4180,7 +4196,10 @@ void LLCullResult::clear()
     mVisibleBridgeSize = 0;
     mVisibleBridgeEnd = &mVisibleBridge[0];
 
-    mGLTFDrawInfo.resize(0);
+    for (auto& info : mGLTFDrawInfo)
+    {
+        info.resize(0);
+    }
 
     for (U32 i = 0; i < LLRenderPass::NUM_RENDER_TYPES; i++)
     {

@@ -398,7 +398,10 @@ public:
     LLPointer<LLVertexBuffer> mVertexBuffer;
     draw_map_t mDrawMap;
 
-    std::vector<LLGLTFDrawInfo> mGLTFDrawInfo;
+
+    // Render batches for GLTF faces in this spatial group
+    // indexed by LLGLTFMaterial::mAlphaMode
+    std::vector<LLGLTFDrawInfo> mGLTFDrawInfo[3];
 
     bridge_list_t mBridgeList;
     buffer_map_t mBufferMap; //used by volume buffers to attempt to reuse vertex buffers
@@ -615,7 +618,9 @@ public:
 
     void assertDrawMapsEmpty();
 
-    gltf_drawinfo_list_t mGLTFDrawInfo;
+    // list of GLTF draw infos
+    // indexed by LLGLTFMaterial::mAlphaMode
+    gltf_drawinfo_list_t mGLTFDrawInfo[3];
 
 private:
 

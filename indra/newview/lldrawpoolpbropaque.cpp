@@ -56,16 +56,18 @@ void LLDrawPoolGLTFPBR::renderDeferred(S32 pass)
 
     if (mRenderType == LLPipeline::RENDER_TYPE_PASS_GLTF_PBR_ALPHA_MASK)
     {
-        LL::GLTFSceneManager::instance().renderOpaque();
+        // opaque
+        LL::GLTFSceneManager::instance().render(true);
+        // opaque rigged
+        LL::GLTFSceneManager::instance().render(true, true);
     }
 
+    LLGLTFMaterial::AlphaMode alpha_mode = mRenderType == LLPipeline::RENDER_TYPE_PASS_GLTF_PBR_ALPHA_MASK ? LLGLTFMaterial::ALPHA_MODE_MASK : LLGLTFMaterial::ALPHA_MODE_OPAQUE;
     gDeferredPBROpaqueProgram.bind();
-    pushGLTFBatches(mRenderType);
-
-    LL::GLTFSceneManager::instance().render(true, true);
+    pushGLTFBatches(alpha_mode);
 
     gDeferredPBROpaqueProgram.bind(true);
-    pushRiggedGLTFBatches(mRenderType + 1);
+    pushRiggedGLTFBatches(alpha_mode);
 }
 
 S32 LLDrawPoolGLTFPBR::getNumPostDeferredPasses()
@@ -78,7 +80,7 @@ void LLDrawPoolGLTFPBR::renderPostDeferred(S32 pass)
     if (LLPipeline::sRenderingHUDs)
     {
         gHUDPBROpaqueProgram.bind();
-        pushGLTFBatches(mRenderType);
+        //pushGLTFBatches(mRenderType);
     }
     else if (mRenderType == LLPipeline::RENDER_TYPE_PASS_GLTF_PBR) // HACK -- don't render glow except for the non-alpha masked implementation
     {

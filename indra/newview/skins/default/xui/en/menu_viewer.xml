@@ -2249,6 +2249,16 @@ function="World.EnvPreset"
                  function="Advanced.ToggleRenderType"
                  parameter="pbr" />
             </menu_item_check>
+            <menu_item_check
+             label="PBR Alpha Mask"
+             name="Rendering Type PBR Alpha Mask">
+                <menu_item_check.on_check
+                 function="Advanced.CheckRenderType"
+                 parameter="pbr alpha mask" />
+                <menu_item_check.on_click
+                 function="Advanced.ToggleRenderType"
+                 parameter="pbr alpha mask" />
+            </menu_item_check>
         </menu>
         <menu
          create_jump_keys="true"

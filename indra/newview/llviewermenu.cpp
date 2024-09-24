@@ -843,6 +843,10 @@ U32 render_type_from_string(std::string_view render_type)
     {
         return LLPipeline::RENDER_TYPE_GLTF_PBR;
     }
+    else if ("pbr alpha mask" == render_type)
+    {
+        return LLPipeline::RENDER_TYPE_GLTF_PBR_ALPHA_MASK;
+    }
     else
     {
         return 0;

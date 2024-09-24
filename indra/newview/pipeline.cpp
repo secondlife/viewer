@@ -2988,10 +2988,9 @@ void LLPipeline::markMeshDirty(LLSpatialGroup* group)
 
 void LLPipeline::markTransformDirty(LLSpatialGroup* group)
 {
-    if (group && !group->hasState(LLSpatialGroup::IN_TRANSFORM_BUILD_Q))
+    if (group)
     {
         group->setState(LLSpatialGroup::IN_TRANSFORM_BUILD_Q);
-        mGroupTransformQ.push_back(group);
     }
 }
 
@@ -3585,17 +3584,19 @@ void LLPipeline::postSort(LLCamera &camera)
             }
         }
 
+        // make sure any pending transform updates are done BEFORE we add the group to the render map
+        if (group->hasState(LLSpatialGroup::IN_TRANSFORM_BUILD_Q))
+        {
+            group->updateTransformUBOs();
+            group->clearState(LLSpatialGroup::IN_TRANSFORM_BUILD_Q);
+        }
+
         // add group->mGLTFDrawInfo to end of sCull->mGLTFDrawInfo
-        sCull->mGLTFDrawInfo.insert(sCull->mGLTFDrawInfo.end(), group->mGLTFDrawInfo.begin(), group->mGLTFDrawInfo.end());
+        for (U32 i = 0; i < 3; ++i) // one for each AlphaMode
+        {
+            sCull->mGLTFDrawInfo[i].insert(sCull->mGLTFDrawInfo[i].end(), group->mGLTFDrawInfo[i].begin(), group->mGLTFDrawInfo[i].end());
+        }
     }
-
-    for (auto& group : mGroupTransformQ)
-    {
-        group->updateTransformUBOs();
-        group->clearState(LLSpatialGroup::IN_TRANSFORM_BUILD_Q);
-    }
-
-    mGroupTransformQ.clear();
 
     // pack vertex buffers for groups that chose to delay their updates
     {
@@ -3652,7 +3653,8 @@ void LLPipeline::postSort(LLCamera &camera)
                 }
             };
 
-            std::sort(sCull->mGLTFDrawInfo.begin(), sCull->mGLTFDrawInfo.end(), CompareMaterialID());
+            std::sort(sCull->mGLTFDrawInfo[LLGLTFMaterial::ALPHA_MODE_OPAQUE].begin(), sCull->mGLTFDrawInfo[LLGLTFMaterial::ALPHA_MODE_OPAQUE].end(), CompareMaterialID());
+            std::sort(sCull->mGLTFDrawInfo[LLGLTFMaterial::ALPHA_MODE_MASK].begin(), sCull->mGLTFDrawInfo[LLGLTFMaterial::ALPHA_MODE_MASK].end(), CompareMaterialID());
         }
     }
 
@@ -6732,7 +6734,7 @@ void LLPipeline::renderObjects(U32 type, bool texture, bool batch_texture, bool 
     gGLLastMatrix = NULL;
 }
 
-void LLPipeline::renderGLTFObjects(U32 type, bool texture, bool rigged)
+void LLPipeline::renderGLTFObjects(LLGLTFMaterial::AlphaMode alpha_mode, bool texture, bool rigged)
 {
     assertInitialized();
     gGL.loadMatrix(gGLModelView);
@@ -6740,24 +6742,17 @@ void LLPipeline::renderGLTFObjects(U32 type, bool texture, bool rigged)
 
     if (rigged)
     {
-        mSimplePool->pushRiggedGLTFBatches(type + 1, texture);
+        mSimplePool->pushRiggedGLTFBatches(alpha_mode, texture);
     }
     else
     {
-        mSimplePool->pushGLTFBatches(type, texture);
+        mSimplePool->pushGLTFBatches(alpha_mode, texture);
     }
 
     gGL.loadMatrix(gGLModelView);
     gGLLastMatrix = NULL;
 
-    if (!rigged)
-    {
-        LL::GLTFSceneManager::instance().renderOpaque();
-    }
-    else
-    {
-        LL::GLTFSceneManager::instance().render(true, true);
-    }
+    LL::GLTFSceneManager::instance().render(alpha_mode != LLGLTFMaterial::ALPHA_MODE_BLEND, rigged);
 }
 
 // Currently only used for shadows -Cosmic,2023-04-19
@@ -9225,7 +9220,7 @@ void LLPipeline::bindReflectionProbes(LLGLSLShader& shader)
 
 void LLPipeline::unbindReflectionProbes(LLGLSLShader& shader)
 {
-    S32 channel = shader.disableTexture(LLShaderMgr::REFLECTION_PROBES, LLTexUnit::TT_CUBE_MAP);
+    S32 channel = shader.disableTexture(LLShaderMgr::REFLECTION_PROBES, LLTexUnit::TT_CUBE_MAP_ARRAY);
     if (channel > -1 && mReflectionMapManager.mTexture.notNull())
     {
         mReflectionMapManager.mTexture->unbind();
@@ -9375,7 +9370,7 @@ void LLPipeline::renderShadow(const glm::mat4& view, const glm::mat4& proj, LLCa
         }
 
         gPBROpaqueShadowProgram.bind(rigged);
-        renderGLTFObjects(LLRenderPass::PASS_GLTF_PBR, false, rigged);
+        renderGLTFObjects(LLGLTFMaterial::ALPHA_MODE_OPAQUE, false, rigged);
 
         gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
     }
@@ -9447,27 +9442,16 @@ void LLPipeline::renderShadow(const glm::mat4& view, const glm::mat4& proj, LLCa
             }
         }
 
-#if 0
+#if 1
         for (int i = 0; i < 2; ++i)
         {
             bool rigged = i == 1;
-            gDeferredShadowGLTFAlphaMaskProgram.bind(rigged);
-            LLGLSLShader::sCurBoundShaderPtr->uniform1i(LLShaderMgr::SUN_UP_FACTOR, sun_up);
-            LLGLSLShader::sCurBoundShaderPtr->uniform1f(LLShaderMgr::DEFERRED_SHADOW_TARGET_WIDTH, (float)target_width);
+            gPBROpaqueShadowAlphaMaskProgram.bind();
 
             gGL.loadMatrix(gGLModelView);
             gGLLastMatrix = NULL;
 
-            U32 type = LLRenderPass::PASS_GLTF_PBR_ALPHA_MASK;
-
-            if (rigged)
-            {
-                mAlphaMaskPool->pushRiggedGLTFBatches(type + 1);
-            }
-            else
-            {
-                mAlphaMaskPool->pushGLTFBatches(type);
-            }
+            renderGLTFObjects(LLGLTFMaterial::ALPHA_MODE_MASK, true, rigged);
 
             gGL.loadMatrix(gGLModelView);
             gGLLastMatrix = NULL;

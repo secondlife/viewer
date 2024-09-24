@@ -31,6 +31,7 @@
 #include "v2math.h"
 #include "v3math.h"
 #include "llvertexbuffer.h"
+#include "llgltfmaterial.h"
 
 class LLFace;
 class LLViewerTexture;
@@ -359,24 +360,25 @@ public:
     void pushRiggedBatches(U32 type, bool texture = true, bool batch_textures = false);
     void pushUntexturedRiggedBatches(U32 type);
 
+    // push full GLTF batches of the given alpha mode
+    void pushGLTFBatches(LLGLTFMaterial::AlphaMode alpha_mode);
+
     // push full GLTF batches
-    // assumes draw infos of given type have valid GLTF materials
-    void pushGLTFBatches(U32 type);
+    void pushGLTFBatches(const std::vector<LLGLTFDrawInfo>& draw_info);
 
     // like pushGLTFBatches, but will not bind textures or set up texture transforms
-    void pushUntexturedGLTFBatches(U32 type);
+    void pushUntexturedGLTFBatches(LLGLTFMaterial::AlphaMode alpha_mode);
 
     // helper function for dispatching to textured or untextured pass based on bool
-    void pushGLTFBatches(U32 type, bool textured);
+    void pushGLTFBatches(LLGLTFMaterial::AlphaMode alpha_mode, bool textured);
 
 
     // rigged variants of above
-    void pushRiggedGLTFBatches(U32 type);
-    void pushRiggedGLTFBatches(U32 type, bool textured);
-    void pushUntexturedRiggedGLTFBatches(U32 type);
+    void pushRiggedGLTFBatches(LLGLTFMaterial::AlphaMode alpha_mode);
+    void pushRiggedGLTFBatches(LLGLTFMaterial::AlphaMode alpha_mode, bool textured);
+    void pushUntexturedRiggedGLTFBatches(LLGLTFMaterial::AlphaMode alpha_mode);
 
     static void pushRiggedGLTFBatch(LLDrawInfo& params, const LLVOAvatar*& lastAvatar, U64& lastMeshId, bool& skipLastSkin);
-    static void pushUntexturedGLTFBatch(LLDrawInfo& params);
     static void pushUntexturedRiggedGLTFBatch(LLDrawInfo& params, const LLVOAvatar*& lastAvatar, U64& lastMeshId, bool& skipLastSkin);
 
     void pushMaskBatches(U32 type, bool texture = true, bool batch_textures = false);
