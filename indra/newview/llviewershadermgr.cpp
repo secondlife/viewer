@@ -231,6 +231,8 @@ LLGLSLShader            gPBRGlowProgram;
 LLGLSLShader            gPBRGlowSkinnedProgram;
 LLGLSLShader            gDeferredPBROpaqueProgram;
 LLGLSLShader            gDeferredSkinnedPBROpaqueProgram;
+LLGLSLShader            gPBROpaqueShadowProgram;
+LLGLSLShader            gSkinnedPBROpaqueShadowProgram;
 LLGLSLShader            gHUDPBRAlphaProgram;
 LLGLSLShader            gDeferredPBRAlphaProgram;
 LLGLSLShader            gDeferredSkinnedPBRAlphaProgram;
@@ -439,6 +441,7 @@ void LLViewerShaderMgr::finalizeShaderList()
     mShaderList.push_back(&gDeferredDiffuseProgram);
     mShaderList.push_back(&gDeferredBumpProgram);
     mShaderList.push_back(&gDeferredPBROpaqueProgram);
+    mShaderList.push_back(&gPBROpaqueShadowProgram);
 
     if (gSavedSettings.getBOOL("GLTFEnabled"))
     {
@@ -1153,6 +1156,7 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         gHUDPBROpaqueProgram.unload();
         gPBRGlowProgram.unload();
         gDeferredPBROpaqueProgram.unload();
+        gPBROpaqueShadowProgram.unload();
         gGLTFPBRMetallicRoughnessProgram.unload();
         gDeferredSkinnedPBROpaqueProgram.unload();
         gDeferredPBRAlphaProgram.unload();
@@ -1328,6 +1332,12 @@ bool LLViewerShaderMgr::loadShadersDeferred()
     gDeferredMaterialProgram[9+LLMaterial::SHADER_COUNT].mFeatures.hasLighting = true;
     gDeferredMaterialProgram[13+LLMaterial::SHADER_COUNT].mFeatures.hasLighting = true;
 
+    U32 node_size = 16 * 3;
+    U32 max_nodes = gGLManager.mMaxUniformBlockSize / node_size;
+
+    U32 instance_map_size = 4 * 4;
+    U32 max_instances = gGLManager.mMaxUniformBlockSize / instance_map_size;
+
     if (success)
     {
         gDeferredPBROpaqueProgram.mName = "Deferred PBR Opaque Shader";
@@ -1339,10 +1349,36 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         gDeferredPBROpaqueProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
         gDeferredPBROpaqueProgram.clearPermutations();
 
+        gDeferredPBROpaqueProgram.addPermutation("MAX_NODES_PER_GLTF_OBJECT", std::to_string(max_nodes));
+        gDeferredPBROpaqueProgram.addPermutation("MAX_INSTANCES_PER_GLTF_OBJECT", std::to_string(max_instances));
+
         success = make_rigged_variant(gDeferredPBROpaqueProgram, gDeferredSkinnedPBROpaqueProgram);
         if (success)
         {
             success = gDeferredPBROpaqueProgram.createShader();
+        }
+        llassert(success);
+    }
+
+    if (success)
+    {
+        gPBROpaqueShadowProgram.mName = "PBR Opaque Shadow Shader";
+        gPBROpaqueShadowProgram.mFeatures.hasSrgb = true;
+
+        gPBROpaqueShadowProgram.mShaderFiles.clear();
+        gPBROpaqueShadowProgram.mShaderFiles.push_back(make_pair("deferred/pbropaqueV.glsl", GL_VERTEX_SHADER));
+        gPBROpaqueShadowProgram.mShaderFiles.push_back(make_pair("deferred/pbropaqueF.glsl", GL_FRAGMENT_SHADER));
+        gPBROpaqueShadowProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+        gPBROpaqueShadowProgram.clearPermutations();
+
+        gPBROpaqueShadowProgram.addPermutation("MAX_NODES_PER_GLTF_OBJECT", std::to_string(max_nodes));
+        gPBROpaqueShadowProgram.addPermutation("MAX_INSTANCES_PER_GLTF_OBJECT", std::to_string(max_instances));
+        gPBROpaqueShadowProgram.addPermutation("FOR_SHADOW", "1");
+
+        success = make_rigged_variant(gPBROpaqueShadowProgram, gSkinnedPBROpaqueShadowProgram);
+        if (success)
+        {
+            success = gPBROpaqueShadowProgram.createShader();
         }
         llassert(success);
     }

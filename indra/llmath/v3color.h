@@ -532,4 +532,11 @@ void LLColor3::write(std::vector<T>& v) const
     }
 }
 
+inline size_t hash_value(const LLColor3& c) noexcept
+{
+    size_t hash = 0;
+    boost::hash_range(hash, (F32*) c.mV, (F32*) c.mV + 2);
+    return hash;
+}
+
 #endif

@@ -437,4 +437,11 @@ inline std::ostream& operator<<(std::ostream& s, const LLVector2 &a)
     return s;
 }
 
+// For use with boost containers.
+inline size_t hash_value(const LLVector2& v) noexcept
+{
+    return boost::hash_range(v.mV, v.mV + 1);
+}
+
+
 #endif

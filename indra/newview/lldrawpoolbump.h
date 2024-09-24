@@ -31,7 +31,7 @@
 #include "llstring.h"
 #include "lltextureentry.h"
 #include "lluuid.h"
-
+#include "workqueue.h"
 #include <unordered_map>
 
 class LLImageRaw;
@@ -154,7 +154,6 @@ private:
     bump_image_map_t mDarknessEntries;
     static LL::WorkQueue::weak_t sMainQueue;
     static LL::WorkQueue::weak_t sTexUpdateQueue;
-    static LLRenderTarget sRenderTarget;
 };
 
 extern LLBumpImageList gBumpImageList;

@@ -2767,6 +2767,65 @@ bool LLVolume::cacheOptimize(bool gen_tangents)
     return true;
 }
 
+void LLVolume::createVertexBuffer()
+{
+    if (!mVolumeFaces.empty() && mVertexBuffer.isNull())
+    {
+        LL_PROFILE_ZONE_SCOPED;
+        U32 mask = LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_NORMAL | LLVertexBuffer::MAP_TEXCOORD0 | LLVertexBuffer::MAP_TANGENT;
+        U32 vert_count = 0;
+        U32 index_count = 0;
+        for (auto& face : mVolumeFaces)
+        {
+            face.mVBGeomOffset = vert_count;
+            face.mVBIndexOffset = index_count;
+
+            vert_count += face.mNumVertices;
+            index_count += face.mNumIndices;
+
+            if (face.mWeights)
+            {
+                mask |= LLVertexBuffer::MAP_WEIGHT;
+            }
+        }
+
+        llassert(vert_count < 65536);
+
+        mVertexBuffer = new LLVertexBuffer(mask);
+        mVertexBuffer->allocateBuffer(vert_count, index_count);
+
+        mVertexBuffer->bindBuffer();
+
+
+        for (auto& face : mVolumeFaces)
+        {
+            face.mVertexBuffer = mVertexBuffer;
+            mVertexBuffer->setPositionData(face.mPositions, face.mVBGeomOffset, face.mNumVertices);
+            mVertexBuffer->setNormalData(face.mNormals, face.mVBGeomOffset, face.mNumVertices);
+            mVertexBuffer->setTexCoord0Data(face.mTexCoords, face.mVBGeomOffset, face.mNumVertices);
+            mVertexBuffer->setTangentData(face.mTangents, face.mVBGeomOffset, face.mNumVertices);
+            if (face.mWeights)
+            {
+                mVertexBuffer->setWeight4Data(face.mWeights, face.mVBGeomOffset, face.mNumVertices);
+            }
+
+            if (face.mVBGeomOffset > 0)
+            {
+                static std::vector<U16> indices;
+                indices.resize(0);
+                for (S32 i = 0; i < face.mNumIndices; ++i)
+                {
+                    indices.push_back(face.mIndices[i] + face.mVBGeomOffset);
+                }
+                mVertexBuffer->setIndexData(&indices[0], face.mVBIndexOffset, face.mNumIndices);
+            }
+            else
+            {
+                mVertexBuffer->setIndexData(face.mIndices, face.mVBIndexOffset, face.mNumIndices);
+            }
+        }
+    }
+}
 
 S32 LLVolume::getNumFaces() const
 {

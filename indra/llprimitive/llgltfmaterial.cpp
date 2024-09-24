@@ -876,6 +876,33 @@ LLUUID LLGLTFMaterial::getHash() const
                             sizeof(*this) - offset);
 }
 
+size_t LLGLTFMaterial::calculateBatchHash() const
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
+    size_t hash = 0;
+    boost::hash_combine(hash, mTextureId);
+    boost::hash_combine(hash, mTextureTransform);
+    boost::hash_combine(hash, mBaseColor);
+    boost::hash_combine(hash, mEmissiveColor);
+    boost::hash_combine(hash, mMetallicFactor);
+    boost::hash_combine(hash, mRoughnessFactor);
+    boost::hash_combine(hash, mAlphaCutoff);
+    boost::hash_combine(hash, mDoubleSided);
+
+    return hash;
+}
+
+void LLGLTFMaterial::updateBatchHash()
+{
+    mBatchHash = calculateBatchHash();
+}
+
+size_t LLGLTFMaterial::getBatchHash() const
+{
+    //llassert(mBatchHash == calculateBatchHash());
+    return mBatchHash;
+}
+
 void LLGLTFMaterial::addLocalTextureTracking(const LLUUID& tracking_id, const LLUUID& tex_id)
 {
     mTrackingIdToLocalTexture[tracking_id] = tex_id;

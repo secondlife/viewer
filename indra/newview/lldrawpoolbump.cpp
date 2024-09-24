@@ -57,7 +57,7 @@
 LLStandardBumpmap gStandardBumpmapList[TEM_BUMPMAP_COUNT];
 LL::WorkQueue::weak_t LLBumpImageList::sMainQueue;
 LL::WorkQueue::weak_t LLBumpImageList::sTexUpdateQueue;
-LLRenderTarget LLBumpImageList::sRenderTarget;
+static LLRenderTarget sRenderTarget;
 
 // static
 U32 LLStandardBumpmap::sStandardBumpmapCount = 0;

@@ -40,6 +40,7 @@ class LLDrawInfo;
 class LLVOAvatar;
 class LLGLSLShader;
 class LLMeshSkinInfo;
+class LLGLTFDrawInfo;
 
 class LLDrawPool
 {
@@ -374,8 +375,6 @@ public:
     void pushRiggedGLTFBatches(U32 type, bool textured);
     void pushUntexturedRiggedGLTFBatches(U32 type);
 
-    // push a single GLTF draw call
-    static void pushGLTFBatch(LLDrawInfo& params);
     static void pushRiggedGLTFBatch(LLDrawInfo& params, const LLVOAvatar*& lastAvatar, U64& lastMeshId, bool& skipLastSkin);
     static void pushUntexturedGLTFBatch(LLDrawInfo& params);
     static void pushUntexturedRiggedGLTFBatch(LLDrawInfo& params, const LLVOAvatar*& lastAvatar, U64& lastMeshId, bool& skipLastSkin);

@@ -232,6 +232,14 @@ const LLMatrix4& LLDrawable::getRenderMatrix() const
     return isRoot() ? getWorldMatrix() : getParent()->getWorldMatrix();
 }
 
+const LLMatrix4& LLDrawable::getGLTFRenderMatrix()
+{
+    LLMatrix4 scale;
+    mGLTFRenderMatrix.initScale(mVObjp->getScale());
+    mGLTFRenderMatrix *= getWorldMatrix();
+    return mGLTFRenderMatrix;
+}
+
 bool LLDrawable::isLight() const
 {
     LLViewerObject* objectp = mVObjp;
@@ -701,7 +709,6 @@ F32 LLDrawable::updateXform(bool undamped)
             ((dist_vec_squared(old_pos, target_pos) > 0.f)
             || (1.f - dot(old_rot, target_rot)) > 0.f))
     { //fix for BUG-840, MAINT-2275, MAINT-1742, MAINT-2247
-        mVObjp->shrinkWrap();
         gPipeline.markRebuild(this, LLDrawable::REBUILD_POSITION);
     }
     else if (!getVOVolume() && !isAvatar())
@@ -718,6 +725,11 @@ F32 LLDrawable::updateXform(bool undamped)
     {
         mVObjp->getControlAvatar()->matchVolumeTransform();
     }
+
+    // update GLTF render matrix
+    getGLTFRenderMatrix();
+
+    gPipeline.markTransformDirty(getSpatialGroup());
 
     if (mSpatialBridge)
     {

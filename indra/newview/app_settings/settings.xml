@@ -7070,7 +7070,7 @@
     <key>Type</key>
     <string>S32</string>
     <key>Value</key>
-    <integer>3</integer>
+    <integer>16</integer>
   </map>
 
   <key>OctreeAlphaDistanceFactor</key>
@@ -9516,7 +9516,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>1</integer>
+      <integer>0</integer>
     </map>
     <key>RenderAvatarFriendsOnly</key>
     <map>

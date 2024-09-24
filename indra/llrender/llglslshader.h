@@ -148,10 +148,11 @@ public:
 
     enum UniformBlock : GLuint
     {
-        UB_REFLECTION_PROBES,   // "ReflectionProbes"
-        UB_GLTF_JOINTS,         // "GLTFJoints"
-        UB_GLTF_NODES,          // "GLTFNodes"
-        UB_GLTF_MATERIALS,      // "GLTFMaterials"
+        UB_REFLECTION_PROBES,       // "ReflectionProbes"
+        UB_GLTF_JOINTS,             // "GLTFJoints"
+        UB_GLTF_NODES,              // "GLTFNodes"
+        UB_GLTF_NODE_INSTANCE_MAP,  // "GLTFNodeInstanceMap"
+        UB_GLTF_MATERIALS,          // "GLTFMaterials"
         NUM_UNIFORM_BLOCKS
     };
 

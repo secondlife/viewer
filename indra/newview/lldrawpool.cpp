@@ -779,73 +779,140 @@ void LLRenderPass::pushGLTFBatches(U32 type, bool textured)
     }
 }
 
+static glm::mat4 view_matrix;
+static glm::mat4 last_model_matrix;
+
+extern LLCullResult* sCull;
+
 void LLRenderPass::pushGLTFBatches(U32 type)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
-    auto* begin = gPipeline.beginRenderMap(type);
-    auto* end = gPipeline.endRenderMap(type);
-    for (LLCullResult::drawinfo_iterator i = begin; i != end; )
+    view_matrix = glm::make_mat4(gGLModelView);
+    gGL.matrixMode(LLRender::MM_MODELVIEW);
+    gGL.loadMatrix(gGLModelView);
+    gGL.syncMatrices();
+
+    U32 transform_ubo = 0;
+    size_t last_mat = 0;
+    bool doublesided = false;
+
+    for (auto& params : sCull->mGLTFDrawInfo)
     {
         LL_PROFILE_ZONE_NAMED_CATEGORY_DRAWPOOL("pushGLTFBatch");
-        LLDrawInfo& params = **i;
-        LLCullResult::increment_iterator(i, end);
+        LL_PROFILE_ZONE_NUM(params.mInstanceCount);
+        llassert(params.mTransformUBO != 0);
 
-        pushGLTFBatch(params);
+        if (params.mTransformUBO != transform_ubo)
+        {
+            glBindBufferBase(GL_UNIFORM_BUFFER, LLGLSLShader::UB_GLTF_NODES, params.mTransformUBO);
+            glBindBufferBase(GL_UNIFORM_BUFFER, LLGLSLShader::UB_GLTF_NODE_INSTANCE_MAP, params.mInstanceMapUBO);
+            transform_ubo = params.mTransformUBO;
+        }
+
+        if (!last_mat || params.mMaterialID != last_mat)
+        {
+            last_mat = params.mMaterialID;
+            auto& mat = params.mMaterial;
+            mat->bind();
+            if (mat->mDoubleSided != doublesided)
+            {
+                doublesided = mat->mDoubleSided;
+                if (doublesided)
+                {
+                    glDisable(GL_CULL_FACE);
+                }
+                else
+                {
+                    glEnable(GL_CULL_FACE);
+                }
+            }
+        }
+
+        LLGLSLShader::sCurBoundShaderPtr->uniform1i(LLShaderMgr::GLTF_BASE_INSTANCE, params.mBaseInstance);
+
+        params.mVertexBuffer->setBuffer();
+
+        glDrawElementsInstanced(GL_TRIANGLES, params.mElementCount,
+            params.mVertexBuffer->mIndicesType, (GLvoid*)(params.mElementOffset * (size_t)params.mVertexBuffer->mIndicesStride),
+            params.mInstanceCount);
     }
+
+    glEnable(GL_CULL_FACE);
 }
 
 void LLRenderPass::pushUntexturedGLTFBatches(U32 type)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
-    auto* begin = gPipeline.beginRenderMap(type);
-    auto* end = gPipeline.endRenderMap(type);
-    for (LLCullResult::drawinfo_iterator i = begin; i != end; )
+    view_matrix = glm::make_mat4(gGLModelView);
+    gGL.matrixMode(LLRender::MM_MODELVIEW);
+    gGL.loadMatrix(gGLModelView);
+    gGL.syncMatrices();
+
+    U32 transform_ubo = 0;
+    size_t last_mat = 0;
+
+    bool doublesided = false;
+
+    for (auto& params : sCull->mGLTFDrawInfo)
     {
-        LL_PROFILE_ZONE_NAMED_CATEGORY_DRAWPOOL("pushGLTFBatch");
-        LLDrawInfo& params = **i;
-        LLCullResult::increment_iterator(i, end);
+        LL_PROFILE_ZONE_NAMED_CATEGORY_DRAWPOOL("pushUntexturedGLTFBatch");
+        LL_PROFILE_ZONE_NUM(params.mInstanceCount);
+        llassert(params.mTransformUBO != 0);
 
-        pushUntexturedGLTFBatch(params);
+        if (params.mTransformUBO != transform_ubo)
+        {
+            glBindBufferBase(GL_UNIFORM_BUFFER, LLGLSLShader::UB_GLTF_NODES, params.mTransformUBO);
+            glBindBufferBase(GL_UNIFORM_BUFFER, LLGLSLShader::UB_GLTF_NODE_INSTANCE_MAP, params.mInstanceMapUBO);
+            transform_ubo = params.mTransformUBO;
+        }
+
+        if (!last_mat || params.mMaterialID != last_mat)
+        {
+            last_mat = params.mMaterialID;
+            auto& mat = params.mMaterial;
+            if (mat->mDoubleSided != doublesided)
+            {
+                doublesided = mat->mDoubleSided;
+                if (doublesided)
+                {
+                    glDisable(GL_CULL_FACE);
+                }
+                else
+                {
+                    glEnable(GL_CULL_FACE);
+                }
+            }
+        }
+
+        LLGLSLShader::sCurBoundShaderPtr->uniform1i(LLShaderMgr::GLTF_BASE_INSTANCE, params.mBaseInstance);
+
+        params.mVertexBuffer->setBuffer();
+
+        glDrawElementsInstanced(GL_TRIANGLES, params.mElementCount,
+            params.mVertexBuffer->mIndicesType, (GLvoid*)(params.mElementOffset * (size_t)params.mVertexBuffer->mIndicesStride),
+            params.mInstanceCount);
     }
-}
 
-// static
-void LLRenderPass::pushGLTFBatch(LLDrawInfo& params)
-{
-    auto& mat = params.mGLTFMaterial;
-
-    if (mat.notNull())
-    {
-        mat->bind(params.mTexture);
-    }
-
-    LLGLDisable cull_face(mat.notNull() && mat->mDoubleSided ? GL_CULL_FACE : 0);
-
-    setup_texture_matrix(params);
-
-    applyModelMatrix(params);
-
-    params.mVertexBuffer->setBuffer();
-    params.mVertexBuffer->drawRange(LLRender::TRIANGLES, params.mStart, params.mEnd, params.mCount, params.mOffset);
-
-    teardown_texture_matrix(params);
+    glEnable(GL_CULL_FACE);
 }
 
 // static
 void LLRenderPass::pushUntexturedGLTFBatch(LLDrawInfo& params)
 {
+    llassert(false); //deprecated
     auto& mat = params.mGLTFMaterial;
 
     LLGLDisable cull_face(mat->mDoubleSided ? GL_CULL_FACE : 0);
 
-    applyModelMatrix(params);
+    LLGLSLShader::sCurBoundShaderPtr->uniform1i(LLShaderMgr::GLTF_NODE_ID, params.mTransformIndex);
 
     params.mVertexBuffer->setBuffer();
-    params.mVertexBuffer->drawRange(LLRender::TRIANGLES, params.mStart, params.mEnd, params.mCount, params.mOffset);
+    params.mVertexBuffer->drawRangeFast(LLRender::TRIANGLES, params.mStart, params.mEnd, params.mCount, params.mOffset);
 }
 
 void LLRenderPass::pushRiggedGLTFBatches(U32 type, bool textured)
 {
+    llassert(false); //deprecated
     if (textured)
     {
         pushRiggedGLTFBatches(type);
@@ -858,6 +925,7 @@ void LLRenderPass::pushRiggedGLTFBatches(U32 type, bool textured)
 
 void LLRenderPass::pushRiggedGLTFBatches(U32 type)
 {
+    llassert(false); //deprecated, use LLGLTFDrawInfo
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
     const LLVOAvatar* lastAvatar = nullptr;
     U64 lastMeshId = 0;
@@ -878,6 +946,7 @@ void LLRenderPass::pushRiggedGLTFBatches(U32 type)
 void LLRenderPass::pushUntexturedRiggedGLTFBatches(U32 type)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
+    llassert(false); //deprecated, use LLGLTFDrawInfo
     const LLVOAvatar* lastAvatar = nullptr;
     U64 lastMeshId = 0;
     bool skipLastSkin = false;
@@ -898,15 +967,17 @@ void LLRenderPass::pushUntexturedRiggedGLTFBatches(U32 type)
 // static
 void LLRenderPass::pushRiggedGLTFBatch(LLDrawInfo& params, const LLVOAvatar*& lastAvatar, U64& lastMeshId, bool& skipLastSkin)
 {
-    if (uploadMatrixPalette(params.mAvatar, params.mSkinInfo, lastAvatar, lastMeshId, skipLastSkin))
-    {
-        pushGLTFBatch(params);
-    }
+    llassert(false); //deprecated, use LLGLTFDrawInfo
+    //if (uploadMatrixPalette(params.mAvatar, params.mSkinInfo, lastAvatar, lastMeshId, skipLastSkin))
+    //{
+    //    pushGLTFBatch(params);
+    //}
 }
 
 // static
 void LLRenderPass::pushUntexturedRiggedGLTFBatch(LLDrawInfo& params, const LLVOAvatar*& lastAvatar, U64& lastMeshId, bool& skipLastSkin)
 {
+    llassert(false); //deprecated, use LLGLTFDrawInfo
     if (uploadMatrixPalette(params.mAvatar, params.mSkinInfo, lastAvatar, lastMeshId, skipLastSkin))
     {
         pushUntexturedGLTFBatch(params);

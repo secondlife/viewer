@@ -507,10 +507,12 @@ bool LLGLTFPreviewTexture::render()
         gPipeline.bindDeferredShader(shader);
         fixup_shader_constants(shader);
 
+#if 0
         for (PreviewSpherePart& part : preview_sphere)
         {
             LLRenderPass::pushGLTFBatch(*part->mDrawInfo);
         }
+#endif
 
         gPipeline.unbindDeferredShader(shader);
 

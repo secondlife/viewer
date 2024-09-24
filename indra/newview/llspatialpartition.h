@@ -82,7 +82,7 @@ public:
         return *this;
     }
 
-    // return a hash of this LLDrawInfo as a debug color
+    // return a hash of this LLDrawInfo address as a debug color
     LLColor4U getDebugColor() const;
 
     LLDrawInfo(U16 start, U16 end, U32 count, U32 offset,
@@ -100,6 +100,10 @@ public:
     U16 mEnd = 0;
     U32 mCount = 0;
     U32 mOffset = 0;
+
+    // UBO and index for transform data
+    U32 mTransformUBO = 0;
+    S32 mTransformIndex = -1;
 
     LLPointer<LLViewerTexture>     mTexture;
     LLPointer<LLViewerTexture> mSpecularMap;
@@ -123,7 +127,7 @@ public:
 
     std::vector<LLPointer<LLViewerTexture> > mTextureList;
 
-    LLUUID mMaterialID; // id of LLGLTFMaterial or LLMaterial applied to this draw info
+    size_t mMaterialID; // result of getBatchHash of LLGLTFMaterial or LLMaterial (plus diffuse texture id) applied to this draw info
 
     U32 mShaderMask = 0;
     F32  mEnvIntensity = 0.f;
@@ -196,6 +200,47 @@ public:
                         && (lhs.isNull() || (rhs.notNull() && lhs->mBump > rhs->mBump));
         }
     };
+
+    struct CompareMaterialID
+    {
+        bool operator()(const LLDrawInfo* lhs, const LLDrawInfo* rhs)
+        {
+            // sort by mMaterialID, lhs and rhs must never be null
+            // DO NOT ADD NULL CHECKS HERE, this is a performance critical path
+            // If you suspect a null dereference here, add assertions around insertions to the container
+            // that uses this comparator
+            return lhs->mMaterialID < rhs->mMaterialID;
+        }
+    };
+
+    struct InstanceSort
+    {
+        bool operator()(const LLDrawInfo* lhs, const LLDrawInfo* rhs)
+        {
+            // sort by mMaterialID first, vertex buffer second
+            return lhs->mMaterialID < rhs->mMaterialID ||
+                lhs->mVertexBuffer < rhs->mVertexBuffer;
+        }
+    };
+};
+
+class LLGLTFDrawInfo
+{
+public:
+    // put mMaterialID and mVertexBuffer first for cache coherency during sorts
+    size_t mMaterialID;
+
+    // use raw pointers to avoid refcounting overhead during vector operations
+    // NOTE: if these pointers are freed while still in use, something has gone wrong in LLSpatialGroup.
+    // The bug is there, not here.
+    LLVertexBuffer* mVertexBuffer;
+    LLFetchedGLTFMaterial* mMaterial;
+    U32 mElementCount;
+    U32 mElementOffset;
+    U32 mInstanceCount;
+    U32 mBaseInstance;
+    U32 mTransformUBO;
+    U32 mInstanceMapUBO;
 };
 
 LL_ALIGN_PREFIX(16)
@@ -275,6 +320,8 @@ public:
         NEW_DRAWINFO            = (MESH_DIRTY << 1),
         IN_BUILD_Q1             = (NEW_DRAWINFO << 1),
         IN_BUILD_Q2             = (IN_BUILD_Q1 << 1),
+        HAS_GLTF                = (IN_BUILD_Q2 << 1),
+        IN_TRANSFORM_BUILD_Q    = (HAS_GLTF << 1),
         STATE_MASK              = 0x0000FFFF,
     } eSpatialState;
 
@@ -337,6 +384,9 @@ public:
     // LLViewerOctreeGroup
     virtual void rebound();
 
+    // cache mDrawInfo transforms in UBOs and set LLDrawInfo mTransformUBO and mTransformIndex
+    void updateTransformUBOs();
+
 public:
     LL_ALIGN_16(LLVector4a mViewAngle);
     LL_ALIGN_16(LLVector4a mLastUpdateViewAngle);
@@ -347,6 +397,8 @@ protected:
 public:
     LLPointer<LLVertexBuffer> mVertexBuffer;
     draw_map_t mDrawMap;
+
+    std::vector<LLGLTFDrawInfo> mGLTFDrawInfo;
 
     bridge_list_t mBridgeList;
     buffer_map_t mBufferMap; //used by volume buffers to attempt to reuse vertex buffers
@@ -367,6 +419,14 @@ public:
     //used by LLVOAVatar to set render order in alpha draw pool to preserve legacy render order behavior
     LLVOAvatar* mAvatarp = nullptr;
     U32 mRenderOrder = 0;
+
+    // UBO for transform data
+    U32 mTransformUBO = 0;
+    U32 mTransformUBOSize = 0;
+    // UBO for instance map
+    U32 mInstanceMapUBO = 0;
+    U32 mInstanceMapUBOSize = 0;
+
     // Reflection Probe associated with this node (if any)
     LLPointer<LLReflectionMap> mReflectionProbe = nullptr;
 } LL_ALIGN_POSTFIX(16);
@@ -485,6 +545,7 @@ public:
     typedef std::vector<LLDrawable*> drawable_list_t;
     typedef std::vector<LLSpatialBridge*> bridge_list_t;
     typedef std::vector<LLDrawInfo*> drawinfo_list_t;
+    typedef std::vector<LLGLTFDrawInfo> gltf_drawinfo_list_t;
 
     typedef LLSpatialGroup** sg_iterator;
     typedef LLSpatialBridge** bridge_iterator;
@@ -554,6 +615,8 @@ public:
 
     void assertDrawMapsEmpty();
 
+    gltf_drawinfo_list_t mGLTFDrawInfo;
+
 private:
 
     template <class T, class V> void pushBack(T &head, U32& count, V* val);
@@ -593,7 +656,6 @@ private:
     drawinfo_list_t     mRenderMap[LLRenderPass::NUM_RENDER_TYPES];
     U32                 mRenderMapAllocated[LLRenderPass::NUM_RENDER_TYPES];
     drawinfo_iterator mRenderMapEnd[LLRenderPass::NUM_RENDER_TYPES];
-
 };
 
 
@@ -680,6 +742,7 @@ class LLVolumeGeometryManager: public LLGeometryManager
     virtual void addGeometryCount(LLSpatialGroup* group, U32& vertex_count, U32& index_count);
     U32 genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace** faces, U32 face_count, bool distance_sort = false, bool batch_textures = false, bool rigged = false);
     void registerFace(LLSpatialGroup* group, LLFace* facep, U32 type);
+    void registerGLTFFace(LLSpatialGroup* group, LLFace* facep);
 
 private:
     void allocateFaces(U32 pMaxFaceCount);

@@ -336,7 +336,7 @@ F32     LLPipeline::sDistortionWaterClipPlaneMargin = 1.0125f;
 // EventHost API LLPipeline listener.
 static LLPipelineListener sPipelineListener;
 
-static LLCullResult* sCull = NULL;
+LLCullResult* sCull = NULL;
 
 void validate_framebuffer_object();
 
@@ -591,6 +591,7 @@ void LLPipeline::cleanup()
     assertInitialized();
 
     mGroupQ1.clear() ;
+    mGroupTransformQ.clear();
 
     for(pool_set_t::iterator iter = mPools.begin();
         iter != mPools.end(); )
@@ -2985,6 +2986,15 @@ void LLPipeline::markMeshDirty(LLSpatialGroup* group)
     mMeshDirtyGroup.push_back(group);
 }
 
+void LLPipeline::markTransformDirty(LLSpatialGroup* group)
+{
+    if (group && !group->hasState(LLSpatialGroup::IN_TRANSFORM_BUILD_Q))
+    {
+        group->setState(LLSpatialGroup::IN_TRANSFORM_BUILD_Q);
+        mGroupTransformQ.push_back(group);
+    }
+}
+
 void LLPipeline::markRebuild(LLSpatialGroup* group)
 {
     if (group && !group->isDead() && group->getSpatialPartition())
@@ -3221,18 +3231,15 @@ void LLPipeline::stateSort(LLDrawable* drawablep, LLCamera& camera)
 
     if (LLViewerCamera::sCurCameraID == LLViewerCamera::CAMERA_WORLD && !gCubeSnapshot)
     {
-        //if (drawablep->isVisible()) isVisible() check here is redundant, if it wasn't visible, it wouldn't be here
+        if (!drawablep->isActive())
         {
-            if (!drawablep->isActive())
-            {
-                bool force_update = false;
-                drawablep->updateDistance(camera, force_update);
-            }
-            else if (drawablep->isAvatar())
-            {
-                bool force_update = false;
-                drawablep->updateDistance(camera, force_update); // calls vobj->updateLOD() which calls LLVOAvatar::updateVisibility()
-            }
+            bool force_update = false;
+            drawablep->updateDistance(camera, force_update);
+        }
+        else if (drawablep->isAvatar())
+        {
+            bool force_update = false;
+            drawablep->updateDistance(camera, force_update); // calls vobj->updateLOD() which calls LLVOAvatar::updateVisibility()
         }
     }
 
@@ -3577,22 +3584,18 @@ void LLPipeline::postSort(LLCamera &camera)
                 }
             }
         }
+
+        // add group->mGLTFDrawInfo to end of sCull->mGLTFDrawInfo
+        sCull->mGLTFDrawInfo.insert(sCull->mGLTFDrawInfo.end(), group->mGLTFDrawInfo.begin(), group->mGLTFDrawInfo.end());
     }
 
-    /*bool use_transform_feedback = gTransformPositionProgram.mProgramObject && !mMeshDirtyGroup.empty();
+    for (auto& group : mGroupTransformQ)
+    {
+        group->updateTransformUBOs();
+        group->clearState(LLSpatialGroup::IN_TRANSFORM_BUILD_Q);
+    }
 
-    if (use_transform_feedback)
-    { //place a query around potential transform feedback code for synchronization
-        mTransformFeedbackPrimitives = 0;
-
-        if (!mMeshDirtyQueryObject)
-        {
-            glGenQueries(1, &mMeshDirtyQueryObject);
-        }
-
-
-        glBeginQuery(GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN, mMeshDirtyQueryObject);
-    }*/
+    mGroupTransformQ.clear();
 
     // pack vertex buffers for groups that chose to delay their updates
     {
@@ -3602,11 +3605,6 @@ void LLPipeline::postSort(LLCamera &camera)
             (*iter)->rebuildMesh();
         }
     }
-
-    /*if (use_transform_feedback)
-    {
-        glEndQuery(GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN);
-    }*/
 
     mMeshDirtyGroup.clear();
 
@@ -3618,6 +3616,46 @@ void LLPipeline::postSort(LLCamera &camera)
         // order rigged alpha groups by avatar attachment order
         std::sort(sCull->beginRiggedAlphaGroups(), sCull->endRiggedAlphaGroups(), LLSpatialGroup::CompareRenderOrder());
     }
+
+    { // sort LLDrawInfos that have an associated material ID by material
+        LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("postSort - material sort");
+        U32 material_batch_types[] = {
+            RENDER_TYPE_GLTF_PBR,
+            RENDER_TYPE_GLTF_PBR_ALPHA_MASK,
+            LLRenderPass::PASS_MATERIAL,
+            LLRenderPass::PASS_MATERIAL_ALPHA_MASK,
+            LLRenderPass::PASS_MATERIAL_ALPHA_EMISSIVE,
+            LLRenderPass::PASS_SPECMAP,
+            LLRenderPass::PASS_SPECMAP_MASK,
+            LLRenderPass::PASS_SPECMAP_EMISSIVE,
+            LLRenderPass::PASS_NORMMAP,
+            LLRenderPass::PASS_NORMMAP_MASK,
+            LLRenderPass::PASS_NORMMAP_EMISSIVE,
+            LLRenderPass::PASS_NORMSPEC,
+            LLRenderPass::PASS_NORMSPEC_MASK,
+            LLRenderPass::PASS_NORMSPEC_EMISSIVE,
+        };
+
+        for (auto& render_type : material_batch_types)
+        {
+            std::sort(sCull->beginRenderMap(render_type), sCull->endRenderMap(render_type), LLDrawInfo::CompareMaterialID());
+        }
+
+        {
+            LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("postSort - gltf instance sort");
+
+            struct CompareMaterialID
+            {
+                bool operator()(const LLGLTFDrawInfo& lhs, const LLGLTFDrawInfo& rhs) const
+                {
+                    return lhs.mMaterialID < rhs.mMaterialID;
+                }
+            };
+
+            std::sort(sCull->mGLTFDrawInfo.begin(), sCull->mGLTFDrawInfo.end(), CompareMaterialID());
+        }
+    }
+
 
     LL_PUSH_CALLSTACKS();
     // only render if the flag is set. The flag is only set if we are in edit mode or the toggle is set in the menus
@@ -3730,6 +3768,7 @@ void LLPipeline::postSort(LLCamera &camera)
             }
         }
     }
+
 
     LLVertexBuffer::flushBuffers();
     // LLSpatialGroup::sNoDelete = false;
@@ -6784,7 +6823,9 @@ void LLPipeline::renderAlphaObjects(bool rigged)
                 LLGLSLShader::sCurBoundShaderPtr->uniform1i(LLShaderMgr::SUN_UP_FACTOR, sun_up);
                 LLGLSLShader::sCurBoundShaderPtr->uniform1f(LLShaderMgr::DEFERRED_SHADOW_TARGET_WIDTH, (float)target_width);
                 LLGLSLShader::sCurBoundShaderPtr->setMinimumAlpha(ALPHA_BLEND_CUTOFF);
+#if 0
                 LLRenderPass::pushGLTFBatch(*pparams);
+#endif
             }
             else
             {
@@ -9308,15 +9349,6 @@ void LLPipeline::renderShadow(const glm::mat4& view, const glm::mat4& proj, LLCa
 
     stop_glerror();
 
-    struct CompareVertexBuffer
-    {
-        bool operator()(const LLDrawInfo* const& lhs, const LLDrawInfo* const& rhs)
-        {
-            return lhs->mVertexBuffer > rhs->mVertexBuffer;
-        }
-    };
-
-
     LLVertexBuffer::unbind();
     for (int j = 0; j < 2; ++j) // 0 -- static, 1 -- rigged
     {
@@ -9342,6 +9374,7 @@ void LLPipeline::renderShadow(const glm::mat4& view, const glm::mat4& proj, LLCa
             renderObjects(type, false, false, rigged);
         }
 
+        gPBROpaqueShadowProgram.bind(rigged);
         renderGLTFObjects(LLRenderPass::PASS_GLTF_PBR, false, rigged);
 
         gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
@@ -9414,6 +9447,7 @@ void LLPipeline::renderShadow(const glm::mat4& view, const glm::mat4& proj, LLCa
             }
         }
 
+#if 0
         for (int i = 0; i < 2; ++i)
         {
             bool rigged = i == 1;
@@ -9438,6 +9472,7 @@ void LLPipeline::renderShadow(const glm::mat4& view, const glm::mat4& proj, LLCa
             gGL.loadMatrix(gGLModelView);
             gGLLastMatrix = NULL;
         }
+#endif
     }
 
     gDeferredShadowCubeProgram.bind();

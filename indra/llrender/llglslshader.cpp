@@ -999,10 +999,11 @@ bool LLGLSLShader::mapUniforms()
     // See slide 35 and more of https://docs.huihoo.com/apple/wwdc/2011/session_420__advances_in_opengl_for_mac_os_x_lion.pdf
     const char* ubo_names[] =
     {
-        "ReflectionProbes", // UB_REFLECTION_PROBES
-        "GLTFJoints",       // UB_GLTF_JOINTS
-        "GLTFNodes",        // UB_GLTF_NODES
-        "GLTFMaterials",    // UB_GLTF_MATERIALS
+        "ReflectionProbes",     // UB_REFLECTION_PROBES
+        "GLTFJoints",           // UB_GLTF_JOINTS
+        "GLTFNodes",            // UB_GLTF_NODES
+        "GLTFNodeInstanceMap",  // UB_GLTF_NODE_INSTANCE_MAP
+        "GLTFMaterials",        // UB_GLTF_MATERIALS
     };
 
     llassert(LL_ARRAY_SIZE(ubo_names) == NUM_UNIFORM_BLOCKS);

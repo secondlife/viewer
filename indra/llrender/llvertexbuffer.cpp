@@ -43,7 +43,8 @@
 U32 nhpo2(U32 v)
 {
     U32 r = 1;
-    while (r < v) {
+    while (r < v)
+    {
         r *= 2;
     }
     return r;
@@ -258,7 +259,7 @@ static GLWorkQueue* sQueue = nullptr;
 // Pool of reusable VertexBuffer state
 
 // batch calls to glGenBuffers
-static GLuint gen_buffer()
+GLuint ll_gl_gen_buffer()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VERTEX;
 
@@ -289,7 +290,7 @@ static GLuint gen_buffer()
     return ret;
 }
 
-static void delete_buffers(S32 count, GLuint* buffers)
+void ll_gl_delete_buffers(S32 count, GLuint* buffers)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VERTEX;
     // wait a few frames before actually deleting the buffers to avoid
@@ -375,7 +376,7 @@ public:
         STOP_GLERROR;
         if (name)
         {
-            delete_buffers(1, &name);
+            ll_gl_delete_buffers(1, &name);
         }
         STOP_GLERROR;
     }
@@ -448,7 +449,7 @@ public:
             LL_PROFILE_GPU_ZONE("vbo alloc");
 
             mMisses++;
-            name = gen_buffer();
+            name = ll_gl_gen_buffer();
             glBindBuffer(type, name);
             glBufferData(type, size, nullptr, GL_DYNAMIC_DRAW);
             if (type == GL_ELEMENT_ARRAY_BUFFER)
@@ -546,7 +547,7 @@ public:
                     LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("vbo cache timeout");
                     auto& entry = entries.back();
                     ll_aligned_free_16(entry.mData);
-                    delete_buffers(1, &entry.mGLName);
+                    ll_gl_delete_buffers(1, &entry.mGLName);
                     llassert(mReserved >= iter->first);
                     mReserved -= iter->first;
                     entries.pop_back();
@@ -582,7 +583,7 @@ public:
             for (auto& entry : entries.second)
             {
                 ll_aligned_free_16(entry.mData);
-                delete_buffers(1, &entry.mGLName);
+                ll_gl_delete_buffers(1, &entry.mGLName);
             }
         }
 
@@ -591,7 +592,7 @@ public:
             for (auto& entry : entries.second)
             {
                 ll_aligned_free_16(entry.mData);
-                delete_buffers(1, &entry.mGLName);
+                ll_gl_delete_buffers(1, &entry.mGLName);
             }
         }
 
@@ -698,7 +699,7 @@ static const std::string vb_type_name[] =
     "TYPE_INDEX",
 };
 
-const U32 LLVertexBuffer::sGLMode[LLRender::NUM_MODES] =
+static const GLenum sGLMode[LLRender::NUM_MODES] =
 {
     GL_TRIANGLES,
     GL_TRIANGLE_STRIP,
@@ -1408,9 +1409,9 @@ void LLVertexBuffer::_unmapBuffer()
         {
             if (mGLBuffer)
             {
-                delete_buffers(1, &mGLBuffer);
+                ll_gl_delete_buffers(1, &mGLBuffer);
             }
-            mGLBuffer = gen_buffer();
+            mGLBuffer = ll_gl_gen_buffer();
             glBindBuffer(GL_ARRAY_BUFFER, mGLBuffer);
             sGLRenderBuffer = mGLBuffer;
             glBufferData(GL_ARRAY_BUFFER, mSize, mMappedData, GL_STATIC_DRAW);
@@ -1426,10 +1427,10 @@ void LLVertexBuffer::_unmapBuffer()
         {
             if (mGLIndices)
             {
-                delete_buffers(1, &mGLIndices);
+                ll_gl_delete_buffers(1, &mGLIndices);
             }
 
-            mGLIndices = gen_buffer();
+            mGLIndices = ll_gl_gen_buffer();
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mGLIndices);
             sGLRenderIndices = mGLIndices;
 
@@ -1631,8 +1632,6 @@ bool LLVertexBuffer::getClothWeightStrider(LLStrider<LLVector4>& strider, U32 in
 // Set for rendering
 void LLVertexBuffer::setBuffer()
 {
-    STOP_GLERROR;
-
     if (mMapped)
     {
         LL_WARNS_ONCE() << "Missing call to unmapBuffer or flushBuffers" << LL_ENDL;
@@ -1675,6 +1674,21 @@ void LLVertexBuffer::setBuffer()
     STOP_GLERROR;
 }
 
+void LLVertexBuffer::bindBuffer()
+{
+    sLastMask = 0;
+    if (sGLRenderBuffer != mGLBuffer)
+    {
+        glBindBuffer(GL_ARRAY_BUFFER, mGLBuffer);
+        sGLRenderBuffer = mGLBuffer;
+    }
+
+    if (mGLIndices != sGLRenderIndices)
+    {
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mGLIndices);
+        sGLRenderIndices = mGLIndices;
+    }
+}
 
 // virtual (default)
 void LLVertexBuffer::setupVertexBuffer()

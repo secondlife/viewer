@@ -118,6 +118,17 @@ public:
     // get a UUID based on a hash of this LLGLTFMaterial
     LLUUID getHash() const;
 
+    // calculate the batch hash and return it
+    // does not update mBatchHash
+    size_t calculateBatchHash() const;
+
+    // get the most recent batch hash for this LLGLTFMaterial
+    // may asserts that the cached hash is up to date
+    size_t getBatchHash() const;
+
+    // update mBatchHash to reflect the current state of this LLGLTFMaterial
+    void updateBatchHash();
+
     //setters for various members (will clamp to acceptable ranges)
     // for_override - set to true if this value is being set as part of an override (important for handling override to default value)
 
@@ -237,6 +248,8 @@ protected:
     void updateLocalTexDataDigest();
 
 public:
+
+    size_t mBatchHash = 0;
     // *TODO: If/when we implement additional GLTF extensions, they may not be
     // compatible with our GLTF terrain implementation. We may want to disallow
     // materials with some features from being set on terrain, if their
@@ -276,3 +289,12 @@ public:
     bool mOverrideDoubleSided = false;
     bool mOverrideAlphaMode = false;
 };
+
+
+inline size_t hash_value(const LLGLTFMaterial::TextureTransform& t) noexcept
+{
+    size_t hash = hash_value(t.mOffset);
+    boost::hash_combine(hash, t.mRotation);
+    boost::hash_combine(hash, t.mScale);
+    return hash;
+}

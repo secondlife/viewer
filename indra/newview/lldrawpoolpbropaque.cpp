@@ -82,12 +82,14 @@ void LLDrawPoolGLTFPBR::renderPostDeferred(S32 pass)
     }
     else if (mRenderType == LLPipeline::RENDER_TYPE_PASS_GLTF_PBR) // HACK -- don't render glow except for the non-alpha masked implementation
     {
+#if 0
         gGL.setColorMask(false, true);
         gPBRGlowProgram.bind();
         pushGLTFBatches(LLRenderPass::PASS_GLTF_GLOW);
 
         gPBRGlowProgram.bind(true);
         pushRiggedGLTFBatches(LLRenderPass::PASS_GLTF_GLOW_RIGGED);
+#endif
 
         gGL.setColorMask(true, false);
     }

@@ -26,12 +26,20 @@
 /*[EXTRA_CODE_HERE]*/
 
 
+#ifdef FOR_SHADOW
+out vec4 frag_color;
+void main()
+{
+    frag_color = vec4(1,1,1,1);
+}
+#else
 #ifndef IS_HUD
 
 // deferred opaque implementation
 
 uniform sampler2D diffuseMap;  //always in sRGB space
 
+uniform vec4 baseColorFactor;
 uniform float metallicFactor;
 uniform float roughnessFactor;
 uniform vec3 emissiveColor;
@@ -42,7 +50,6 @@ uniform sampler2D specularMap; // Packed: Occlusion, Metal, Roughness
 out vec4 frag_data[4];
 
 in vec3 vary_position;
-in vec4 vertex_color;
 in vec3 vary_normal;
 in vec3 vary_tangent;
 flat in float vary_sign;
@@ -71,7 +78,7 @@ void main()
     vec4 basecolor = texture(diffuseMap, base_color_texcoord.xy).rgba;
     basecolor.rgb = srgb_to_linear(basecolor.rgb);
 
-    basecolor *= vertex_color;
+    basecolor *= baseColorFactor;
 
     if (basecolor.a < minimum_alpha)
     {
@@ -161,3 +168,4 @@ void main()
 
 #endif
 
+#endif

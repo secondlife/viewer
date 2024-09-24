@@ -27,17 +27,15 @@
 #ifndef LL_LLVERTEXBUFFER_H
 #define LL_LLVERTEXBUFFER_H
 
-#include "llgl.h"
+#include "llpointer.h"
+#include "llglheaders.h"
 #include "v2math.h"
 #include "v3math.h"
 #include "v4math.h"
 #include "v4coloru.h"
 #include "llstrider.h"
 #include "llrender.h"
-#include "lltrace.h"
-#include <set>
 #include <vector>
-#include <list>
 #include <glm/gtc/matrix_transform.hpp>
 
 #define LL_MAX_VERTEX_ATTRIB_LOCATION 64
@@ -55,6 +53,13 @@
 // base class
 class LLPrivateMemoryPool;
 class LLVertexBuffer;
+class LLWindow;
+
+// Equivalent to glGenBuffers, but batches creation of buffers to reduce overhead
+GLuint ll_gl_gen_buffer();
+
+// Equivalent to glDeleteBuffers, but batches deletion of buffers to reduce overhead
+void ll_gl_delete_buffers(S32 count, GLuint* buffers);
 
 class LLVertexBufferData
 {
@@ -86,7 +91,6 @@ public:
     glm::mat4 mModelView;
     glm::mat4 mTexture0;
 };
-typedef std::list<LLVertexBufferData> buffer_data_list_t;
 
 class LLVertexBuffer final : public LLRefCount
 {
@@ -208,6 +212,10 @@ public:
     //      - This buffer has sufficient attributes within it to satisfy the needs of the currently bound shader
     void    setBuffer();
 
+    // bind the buffer for setting data (not rendering)
+    // does not set vertex attributes for rendering
+    void bindBuffer();
+
     // Only call each getVertexPointer, etc, once before calling unmapBuffer()
     // call unmapBuffer() after calls to getXXXStrider() before any calls to setBuffer()
     // example:
@@ -284,13 +292,14 @@ public:
 
     void clone(LLVertexBuffer& target) const;
 
+    U32     mIndicesType = GL_UNSIGNED_SHORT; // type of indices in index buffer
+    U32     mIndicesStride = 2;     // size of each index in bytes
+
 protected:
     U32     mGLBuffer = 0;      // GL VBO handle
     U32     mGLIndices = 0;     // GL IBO handle
     U32     mNumVerts = 0;      // Number of vertices allocated
     U32     mNumIndices = 0;    // Number of indices allocated
-    U32     mIndicesType = GL_UNSIGNED_SHORT; // type of indices in index buffer
-    U32     mIndicesStride = 2;     // size of each index in bytes
     U32     mOffsets[TYPE_MAX]; // byte offsets into mMappedData of each attribute
 
     U8* mMappedData = nullptr;  // pointer to currently mapped data (NULL if unmapped)
@@ -332,7 +341,6 @@ public:
 
     static U64 getBytesAllocated();
     static const U32 sTypeSize[TYPE_MAX];
-    static const U32 sGLMode[LLRender::NUM_MODES];
     static U32 sGLRenderBuffer;
     static U32 sGLRenderIndices;
     static U32 sLastMask;
