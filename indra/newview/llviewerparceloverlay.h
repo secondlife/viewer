@@ -116,7 +116,7 @@ private:
 
     struct Edge
     {
-        std::vector<LLVector3> vertices;
+        std::vector<LLVector3> vertices[2]; // 0 - detailized, 1 - simplified
         LLColor4U color;
     };
 
