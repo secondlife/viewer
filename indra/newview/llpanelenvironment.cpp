@@ -287,7 +287,7 @@ void LLPanelEnvironmentInfo::refresh()
     F32Hours daylength(mCurrentEnvironment->mDayLength);
     F32Hours dayoffset(mCurrentEnvironment->mDayOffset);
 
-    if (dayoffset.value() > 12.0f)
+    while (dayoffset.value() >= daylength.value())
         dayoffset -= daylength;
 
     mSliderDayLength->setValue(daylength.value());
@@ -734,8 +734,8 @@ void LLPanelEnvironmentInfo::onSldDayOffsetChanged(F32 value)
     {
         F32Hours dayoffset(value);
 
-        if (dayoffset.value() <= 0.0f)
-            // if day cycle is 5 hours long, we want -1h offset to result in 4h
+        // server only allows positive values
+        while (dayoffset.value() <= 0.0f)
             dayoffset += mCurrentEnvironment->mDayLength;
 
         mCurrentEnvironment->mDayOffset = dayoffset;
