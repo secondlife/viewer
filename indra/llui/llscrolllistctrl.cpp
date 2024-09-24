@@ -1975,7 +1975,7 @@ bool LLScrollListCtrl::handleRightMouseDown(S32 x, S32 y, MASK mask)
             // set up the callbacks for all of the avatar/group menu items
             // (N.B. callbacks don't take const refs as id is local scope)
             bool is_group = (mContextMenuType == MENU_GROUP);
-            LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+            ScopedRegistrarHelper registrar;
             registrar.add("Url.ShowProfile", boost::bind(&LLScrollListCtrl::showProfile, id, is_group));
             registrar.add("Url.SendIM", boost::bind(&LLScrollListCtrl::sendIM, id));
             registrar.add("Url.AddFriend", boost::bind(&LLScrollListCtrl::addFriend, id));

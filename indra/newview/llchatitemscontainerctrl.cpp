@@ -188,6 +188,7 @@ void LLFloaterIMNearbyChatToastPanel::init(LLSD& notification)
 
     int sType = notification["source"].asInteger();
     mSourceType = (EChatSourceType)sType;
+    mIsFromScript = notification["is_lua"].asBoolean();
 
     std::string color_name = notification["text_color"].asString();
 
@@ -215,7 +216,7 @@ void LLFloaterIMNearbyChatToastPanel::init(LLSD& notification)
     {
         std::string str_sender;
 
-        str_sender = fromName;
+        str_sender = mIsFromScript ? LLTrans::getString("ScriptBy") + fromName : fromName;
 
         str_sender+=" ";
 
@@ -397,7 +398,7 @@ void LLFloaterIMNearbyChatToastPanel::draw()
             else if(mSourceType == CHAT_SOURCE_SYSTEM)
                 icon->setValue(LLSD("SL_Logo"));
             else if(mSourceType == CHAT_SOURCE_AGENT)
-                icon->setValue(mFromID);
+                icon->setValue(mIsFromScript ? LLSD("Inv_Script") : LLSD(mFromID));
             else if(!mFromID.isNull())
                 icon->setValue(mFromID);
         }

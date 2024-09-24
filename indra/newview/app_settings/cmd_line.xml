@@ -195,7 +195,33 @@
       <string>LogPerformance</string>
     </map>
 
-    <key>multiple</key>		  
+    <key>lua</key>
+    <map>
+      <key>desc</key>
+      <string>Run specified Lua chunk</string>
+      <key>count</key>
+      <integer>1</integer>
+      <!-- you can specify multiple such chunks -->
+      <key>compose</key>
+      <boolean>true</boolean>
+      <key>map-to</key>
+      <string>LuaChunk</string>
+    </map>
+
+    <key>luafile</key>
+    <map>
+      <key>desc</key>
+      <string>Run specified Lua script</string>
+      <key>count</key>
+      <integer>1</integer>
+      <!-- you can specify multiple such scripts -->
+      <key>compose</key>
+      <boolean>true</boolean>
+      <key>map-to</key>
+      <string>LuaScript</string>
+    </map>
+
+    <key>multiple</key>
     <map>
       <key>desc</key>
       <string>Allow multiple viewers.</string>

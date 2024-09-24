@@ -2422,8 +2422,11 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 
         bool ircstyle = false;
 
+        auto [message, is_script] = LLStringUtil::withoutPrefix(mesg, LUA_PREFIX);
+        chat.mIsScript = is_script;
+
         // Look for IRC-style emotes here so chatbubbles work
-        std::string prefix = mesg.substr(0, 4);
+        std::string prefix = message.substr(0, 4);
         if (prefix == "/me " || prefix == "/me'")
         {
             ircstyle = true;
@@ -2465,18 +2468,24 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
         else
         {
             chat.mText = "";
+            auto [msg_without_prefix, is_lua] = LLStringUtil::withoutPrefix(mesg, LUA_PREFIX);
+            std::string prefix;
+            if (is_lua)
+            {
+                prefix = LUA_PREFIX;
+            }
             switch(chat.mChatType)
             {
             case CHAT_TYPE_WHISPER:
-                chat.mText = LLTrans::getString("whisper") + " ";
+                prefix += LLTrans::getString("whisper") + " ";
+                break;
+            case CHAT_TYPE_SHOUT:
+                prefix += LLTrans::getString("shout") + " ";
                 break;
             case CHAT_TYPE_DEBUG_MSG:
             case CHAT_TYPE_OWNER:
             case CHAT_TYPE_NORMAL:
             case CHAT_TYPE_DIRECT:
-                break;
-            case CHAT_TYPE_SHOUT:
-                chat.mText = LLTrans::getString("shout") + " ";
                 break;
             case CHAT_TYPE_START:
             case CHAT_TYPE_STOP:
@@ -2487,7 +2496,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
                 break;
             }
 
-            chat.mText += mesg;
+            chat.mText = prefix + msg_without_prefix;
         }
 
         // We have a real utterance now, so can stop showing "..." and proceed.
@@ -2568,6 +2577,11 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
             msg_notify["from_id"] = chat.mFromID;
             msg_notify["source_type"] = chat.mSourceType;
             on_new_message(msg_notify);
+
+
+            msg_notify["chat_type"] = chat.mChatType;
+            msg_notify["message"] = mesg;
+            LLEventPumps::instance().obtain("LLNearbyChat").post(msg_notify);
         }
 
     }
@@ -2713,7 +2727,7 @@ public:
     virtual ~LLPostTeleportNotifiers();
 
     //function to be called at the supplied frequency
-    virtual bool tick();
+    bool tick() override;
 };
 
 LLPostTeleportNotifiers::LLPostTeleportNotifiers() : LLEventTimer( 2.0 )

@@ -1243,7 +1243,7 @@ LLNotifications::LLNotifications()
     mIgnoreAllNotifications(false)
 {
         mListener.reset(new LLNotificationsListener(*this));
-    LLUICtrl::CommitCallbackRegistry::currentRegistrar().add("Notification.Show", boost::bind(&LLNotifications::addFromCallback, this, _2));
+    LLUICtrl::CommitCallbackRegistry::currentRegistrar().add("Notification.Show", { boost::bind(&LLNotifications::addFromCallback, this, _2) });
 
     // touch the instance tracker for notification channels, so that it will still be around in our destructor
     LLInstanceTracker<LLNotificationChannel, std::string>::instanceCount();

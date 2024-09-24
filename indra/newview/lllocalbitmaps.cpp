@@ -996,17 +996,12 @@ LLLocalBitmapTimer::~LLLocalBitmapTimer()
 
 void LLLocalBitmapTimer::startTimer()
 {
-    mEventTimer.start();
+    start();
 }
 
 void LLLocalBitmapTimer::stopTimer()
 {
-    mEventTimer.stop();
-}
-
-bool LLLocalBitmapTimer::isRunning()
-{
-    return mEventTimer.getStarted();
+    stop();
 }
 
 bool LLLocalBitmapTimer::tick()

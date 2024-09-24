@@ -86,10 +86,10 @@ public:
     LLFloaterLinkReplace(const LLSD& key);
     virtual ~LLFloaterLinkReplace();
 
-    bool postBuild();
-    virtual void onOpen(const LLSD& key);
+    bool postBuild() override;
+    void onOpen(const LLSD& key) override;
 
-    virtual bool tick();
+    bool tick() override;
 
 private:
     void checkEnableStart();

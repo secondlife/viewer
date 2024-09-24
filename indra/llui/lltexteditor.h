@@ -34,6 +34,7 @@
 #include "llstyle.h"
 #include "lleditmenuhandler.h"
 #include "llviewborder.h" // for params
+#include "llstring.h"
 #include "lltextbase.h"
 #include "lltextvalidate.h"
 
@@ -249,7 +250,9 @@ protected:
     // Undoable operations
     void            addChar(llwchar c); // at mCursorPos
     S32             addChar(S32 pos, llwchar wc);
+public:
     void            addLineBreakChar(bool group_together = false);
+protected:
     S32             overwriteChar(S32 pos, llwchar wc);
     void            removeChar();
     S32             removeChar(S32 pos);
@@ -305,8 +308,17 @@ private:
     //
     void            pasteHelper(bool is_primary);
     void            cleanStringForPaste(LLWString & clean_string);
-    void            pasteTextWithLinebreaks(LLWString & clean_string);
 
+public:
+    template <typename STRINGTYPE>
+    void            pasteTextWithLinebreaks(const STRINGTYPE& clean_string)
+    {
+        pasteTextWithLinebreaks<LLWString>(ll_convert(clean_string));
+    }
+    template <>
+    void            pasteTextWithLinebreaks<LLWString>(const LLWString & clean_string);
+
+private:
     void            onKeyStroke();
 
     // Concrete TextCmd sub-classes used by the LLTextEditor base class

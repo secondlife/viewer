@@ -66,7 +66,7 @@
 *   Helper classes
 *****************************************************************************/
 // This is a listener to receive results from lllogin.
-class LoginListener: public LLEventTrackable
+class LoginListener
 {
     std::string mName;
     LLSD mLastEvent;
@@ -137,7 +137,7 @@ public:
     }
 };
 
-class LLXMLRPCListener: public LLEventTrackable
+class LLXMLRPCListener
 {
     std::string mName;
     LLSD mEvent;

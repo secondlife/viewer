@@ -169,8 +169,7 @@ mHelpImpl(NULL)
 
     LLFontGL::sShadowColor = LLUIColorTable::instance().getColor("ColorDropShadow");
 
-    LLUICtrl::CommitCallbackRegistry::Registrar& reg = LLUICtrl::CommitCallbackRegistry::defaultRegistrar();
-
+    LLUICtrl::CommitRegistrarHelper reg(LLUICtrl::CommitCallbackRegistry::defaultRegistrar());
     // Callbacks for associating controls with floater visibility:
     reg.add("Floater.Toggle", [](LLUICtrl* ctrl, const LLSD& param) -> void { LLFloaterReg::toggleInstance(param.asStringRef()); });
     reg.add("Floater.ToggleOrBringToFront", [](LLUICtrl* ctrl, const LLSD& param) -> void { LLFloaterReg::toggleInstanceOrBringToFront(param.asStringRef()); });

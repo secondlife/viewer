@@ -32,8 +32,11 @@ using Lock  = LLCoros::LockType;
 LL::WorkQueueBase::WorkQueueBase(const std::string& name):
     super(makeName(name))
 {
-    // TODO: register for "LLApp" events so we can implicitly close() on
-    // viewer shutdown.
+    // Register for status change events so we'll implicitly close() on viewer
+    // shutdown.
+    mStopListener = LLCoros::getStopListener(
+        "WorkQueue:" + getKey(),
+        [this](const LLSD&){ close(); });
 }
 
 void LL::WorkQueueBase::runUntilClose()

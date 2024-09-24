@@ -1282,6 +1282,10 @@ void LLInventoryModel::collectDescendentsIf(const LLUUID& id,
     {
         for (auto& cat : *cat_array)
         {
+            if (add.exceedsLimit())
+            {
+                break;
+            }
             if(add(cat,NULL))
             {
                 cats.push_back(cat);
@@ -1297,6 +1301,10 @@ void LLInventoryModel::collectDescendentsIf(const LLUUID& id,
     {
         for (auto& item : *item_array)
         {
+            if (add.exceedsLimit())
+            {
+                break;
+            }
             if(add(NULL, item))
             {
                 items.push_back(item);
@@ -4823,6 +4831,17 @@ std::string LLInventoryModel::getFullPath(const LLInventoryObject *obj) const
     std::string result = "/" + boost::algorithm::join(path_elts, delim);
     return result;
 }
+
+/*
+const LLInventoryObject* LLInventoryModel::findByFullPath(const std::string& path)
+{
+    vector<std::string> path_elts;
+    boost::algorithm::split(path_elts, path, boost::is_any_of("/"));
+    for(path_elts, auto e)
+    {
+    }
+}
+*/
 
 ///----------------------------------------------------------------------------
 /// Local function definitions

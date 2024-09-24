@@ -36,9 +36,9 @@
 LLFloaterVoiceEffect::LLFloaterVoiceEffect(const LLSD& key)
     : LLFloater(key)
 {
-    mCommitCallbackRegistrar.add("VoiceEffect.Record",  boost::bind(&LLFloaterVoiceEffect::onClickRecord, this));
-    mCommitCallbackRegistrar.add("VoiceEffect.Play",    boost::bind(&LLFloaterVoiceEffect::onClickPlay, this));
-    mCommitCallbackRegistrar.add("VoiceEffect.Stop",    boost::bind(&LLFloaterVoiceEffect::onClickStop, this));
+    mCommitCallbackRegistrar.add("VoiceEffect.Record", { boost::bind(&LLFloaterVoiceEffect::onClickRecord, this) });
+    mCommitCallbackRegistrar.add("VoiceEffect.Play", { boost::bind(&LLFloaterVoiceEffect::onClickPlay, this) });
+    mCommitCallbackRegistrar.add("VoiceEffect.Stop", { boost::bind(&LLFloaterVoiceEffect::onClickStop, this) });
 //  mCommitCallbackRegistrar.add("VoiceEffect.Activate", boost::bind(&LLFloaterVoiceEffect::onClickActivate, this));
 }
 

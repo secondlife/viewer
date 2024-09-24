@@ -1588,6 +1588,66 @@
         <key>name</key>
         <string>llphysicsextensions_tpv</string>
       </map>
+      <key>luau</key>
+      <map>
+        <key>platforms</key>
+        <map>
+          <key>darwin64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>e48f291e2eeb1dbab39f26db5ac9b4c2b2d1c57d</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://github.com/secondlife/3p-luau/releases/download/v0.638-r2/luau-0.638.0-r2-darwin64-10356321602.tar.zst</string>
+            </map>
+            <key>name</key>
+            <string>darwin64</string>
+          </map>
+          <key>linux64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>3a797d8dae685b25ca787111a370b99d9e57d77c</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://github.com/secondlife/3p-luau/releases/download/v0.638-r2/luau-0.638.0-r2-linux64-10356321602.tar.zst</string>
+            </map>
+            <key>name</key>
+            <string>linux64</string>
+          </map>
+          <key>windows64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>a8857313496622134b00899141bbe6542f754164</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://github.com/secondlife/3p-luau/releases/download/v0.638-r2/luau-0.638.0-r2-windows64-10356321602.tar.zst</string>
+            </map>
+            <key>name</key>
+            <string>windows64</string>
+          </map>
+        </map>
+        <key>license</key>
+        <string>MIT</string>
+        <key>license_file</key>
+        <string>LICENSES/luau.txt</string>
+        <key>copyright</key>
+        <string>Copyright (c) 2019-2023 Roblox Corporation, Copyright (c) 1994–2019 Lua.org, PUC-Rio.</string>
+        <key>version</key>
+        <string>0.638.0-r2</string>
+        <key>name</key>
+        <string>luau</string>
+        <key>description</key>
+        <string>Luau is a fast, small, safe, gradually typed embeddable scripting language derived from Lua.</string>
+      </map>
       <key>mesa</key>
       <map>
         <key>platforms</key>

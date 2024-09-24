@@ -119,8 +119,8 @@ LLSnapshotModel::ESnapshotType LLPanelSnapshotInventoryBase::getSnapshotType()
 
 LLPanelSnapshotInventory::LLPanelSnapshotInventory()
 {
-    mCommitCallbackRegistrar.add("Inventory.Save",      boost::bind(&LLPanelSnapshotInventory::onSend,      this));
-    mCommitCallbackRegistrar.add("Inventory.Cancel",    boost::bind(&LLPanelSnapshotInventory::cancel,      this));
+    mCommitCallbackRegistrar.add("Inventory.Save", { boost::bind(&LLPanelSnapshotInventory::onSend, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Inventory.Cancel", { boost::bind(&LLPanelSnapshotInventory::cancel, this), cb_info::UNTRUSTED_BLOCK });
 }
 
 // virtual
@@ -190,8 +190,8 @@ void LLPanelSnapshotInventoryBase::onSend()
 
 LLPanelOutfitSnapshotInventory::LLPanelOutfitSnapshotInventory()
 {
-    mCommitCallbackRegistrar.add("Inventory.SaveOutfitPhoto", boost::bind(&LLPanelOutfitSnapshotInventory::onSend, this));
-    mCommitCallbackRegistrar.add("Inventory.SaveOutfitCancel", boost::bind(&LLPanelOutfitSnapshotInventory::cancel, this));
+    mCommitCallbackRegistrar.add("Inventory.SaveOutfitPhoto", { boost::bind(&LLPanelOutfitSnapshotInventory::onSend, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Inventory.SaveOutfitCancel", { boost::bind(&LLPanelOutfitSnapshotInventory::cancel, this), cb_info::UNTRUSTED_BLOCK });
 }
 
 // virtual

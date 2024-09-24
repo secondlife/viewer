@@ -458,10 +458,10 @@ void LLLandmarksPanel::initLandmarksPanel(LLPlacesInventoryPanel* inventory_list
 // List Commands Handlers
 void LLLandmarksPanel::initListCommandsHandlers()
 {
-    mCommitCallbackRegistrar.add("Places.LandmarksGear.Add.Action", boost::bind(&LLLandmarksPanel::onAddAction, this, _2));
-    mCommitCallbackRegistrar.add("Places.LandmarksGear.CopyPaste.Action", boost::bind(&LLLandmarksPanel::onClipboardAction, this, _2));
-    mCommitCallbackRegistrar.add("Places.LandmarksGear.Custom.Action", boost::bind(&LLLandmarksPanel::onCustomAction, this, _2));
-    mCommitCallbackRegistrar.add("Places.LandmarksGear.Folding.Action", boost::bind(&LLLandmarksPanel::onFoldingAction, this, _2));
+    mCommitCallbackRegistrar.add("Places.LandmarksGear.Add.Action", { boost::bind(&LLLandmarksPanel::onAddAction, this, _2) });
+    mCommitCallbackRegistrar.add("Places.LandmarksGear.CopyPaste.Action", { boost::bind(&LLLandmarksPanel::onClipboardAction, this, _2) });
+    mCommitCallbackRegistrar.add("Places.LandmarksGear.Custom.Action", { boost::bind(&LLLandmarksPanel::onCustomAction, this, _2) });
+    mCommitCallbackRegistrar.add("Places.LandmarksGear.Folding.Action", { boost::bind(&LLLandmarksPanel::onFoldingAction, this, _2)} );
     mEnableCallbackRegistrar.add("Places.LandmarksGear.Check", boost::bind(&LLLandmarksPanel::isActionChecked, this, _2));
     mEnableCallbackRegistrar.add("Places.LandmarksGear.Enable", boost::bind(&LLLandmarksPanel::isActionEnabled, this, _2));
     mGearLandmarkMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_places_gear_landmark.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());

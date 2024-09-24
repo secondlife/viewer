@@ -402,7 +402,7 @@ LLTeleportHistoryPanel::~LLTeleportHistoryPanel()
 
 bool LLTeleportHistoryPanel::postBuild()
 {
-    mCommitCallbackRegistrar.add("TeleportHistory.GearMenu.Action", boost::bind(&LLTeleportHistoryPanel::onGearMenuAction, this, _2));
+    mCommitCallbackRegistrar.add("TeleportHistory.GearMenu.Action", { boost::bind(&LLTeleportHistoryPanel::onGearMenuAction, this, _2), cb_info::UNTRUSTED_THROTTLE });
     mEnableCallbackRegistrar.add("TeleportHistory.GearMenu.Enable", boost::bind(&LLTeleportHistoryPanel::isActionEnabled, this, _2));
 
     // init menus before list, since menus are passed to list
@@ -939,10 +939,9 @@ void LLTeleportHistoryPanel::onAccordionTabRightClick(LLView *view, S32 x, S32 y
 
     // set up the callbacks for all of the avatar menu items
     // (N.B. callbacks don't take const refs as mID is local scope)
-    LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
-
-    registrar.add("TeleportHistory.TabOpen",    boost::bind(&LLTeleportHistoryPanel::onAccordionTabOpen, this, tab));
-    registrar.add("TeleportHistory.TabClose",   boost::bind(&LLTeleportHistoryPanel::onAccordionTabClose, this, tab));
+    ScopedRegistrarHelper registrar;
+    registrar.add("TeleportHistory.TabOpen", boost::bind(&LLTeleportHistoryPanel::onAccordionTabOpen, this, tab));
+    registrar.add("TeleportHistory.TabClose", boost::bind(&LLTeleportHistoryPanel::onAccordionTabClose, this, tab));
 
     // create the context menu from the XUI
     llassert(LLMenuGL::sMenuContainer != NULL);

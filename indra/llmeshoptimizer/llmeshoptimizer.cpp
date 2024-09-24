@@ -57,7 +57,7 @@ void LLMeshOptimizer::generateShadowIndexBufferU32(U32 *destination,
     S32 index = 0;
     if (vertex_positions)
     {
-        streams[index].data = (const float*)vertex_positions;
+        streams[index].data = vertex_positions->getF32ptr();
         // Despite being LLVector4a, only x, y and z are in use
         streams[index].size = sizeof(F32) * 3;
         streams[index].stride = sizeof(F32) * 4;
@@ -65,14 +65,14 @@ void LLMeshOptimizer::generateShadowIndexBufferU32(U32 *destination,
     }
     if (normals)
     {
-        streams[index].data = (const float*)normals;
+        streams[index].data = normals->getF32ptr();
         streams[index].size = sizeof(F32) * 3;
         streams[index].stride = sizeof(F32) * 4;
         index++;
     }
     if (text_coords)
     {
-        streams[index].data = (const float*)text_coords;
+        streams[index].data = text_coords->mV;
         streams[index].size = sizeof(F32) * 2;
         streams[index].stride = sizeof(F32) * 2;
         index++;
@@ -108,21 +108,21 @@ void LLMeshOptimizer::generateShadowIndexBufferU16(U16 *destination,
     S32 index = 0;
     if (vertex_positions)
     {
-        streams[index].data = (const float*)vertex_positions;
+        streams[index].data = vertex_positions->getF32ptr();
         streams[index].size = sizeof(F32) * 3;
         streams[index].stride = sizeof(F32) * 4;
         index++;
     }
     if (normals)
     {
-        streams[index].data = (const float*)normals;
+        streams[index].data = normals->getF32ptr();
         streams[index].size = sizeof(F32) * 3;
         streams[index].stride = sizeof(F32) * 4;
         index++;
     }
     if (text_coords)
     {
-        streams[index].data = (const float*)text_coords;
+        streams[index].data = text_coords->mV;
         streams[index].size = sizeof(F32) * 2;
         streams[index].stride = sizeof(F32) * 2;
         index++;
@@ -162,9 +162,9 @@ size_t LLMeshOptimizer::generateRemapMultiU32(
     U64 vertex_count)
 {
     meshopt_Stream streams[] = {
-       {(const float*)vertex_positions, sizeof(F32) * 3, sizeof(F32) * 4},
-       {(const float*)normals, sizeof(F32) * 3, sizeof(F32) * 4},
-       {(const float*)text_coords, sizeof(F32) * 2, sizeof(F32) * 2},
+       {vertex_positions->getF32ptr(), sizeof(F32) * 3, sizeof(F32) * 4},
+       {normals->getF32ptr(), sizeof(F32) * 3, sizeof(F32) * 4},
+       {text_coords->mV, sizeof(F32) * 2, sizeof(F32) * 2},
     };
 
     // Remap can function without indices,
@@ -236,7 +236,7 @@ void LLMeshOptimizer::remapPositionsBuffer(LLVector4a * destination_vertices,
     U64 vertex_count,
     const unsigned int* remap)
 {
-    meshopt_remapVertexBuffer((float*)destination_vertices, (const float*)vertex_positions, vertex_count, sizeof(LLVector4a), remap);
+    meshopt_remapVertexBuffer(destination_vertices->getF32ptr(), vertex_positions->getF32ptr(), vertex_count, sizeof(LLVector4a), remap);
 }
 
 void LLMeshOptimizer::remapNormalsBuffer(LLVector4a * destination_normalss,
@@ -244,7 +244,7 @@ void LLMeshOptimizer::remapNormalsBuffer(LLVector4a * destination_normalss,
     U64 mormals_count,
     const unsigned int* remap)
 {
-    meshopt_remapVertexBuffer((float*)destination_normalss, (const float*)normals, mormals_count, sizeof(LLVector4a), remap);
+    meshopt_remapVertexBuffer(destination_normalss->getF32ptr(), normals->getF32ptr(), mormals_count, sizeof(LLVector4a), remap);
 }
 
 void LLMeshOptimizer::remapUVBuffer(LLVector2 * destination_uvs,
@@ -252,7 +252,7 @@ void LLMeshOptimizer::remapUVBuffer(LLVector2 * destination_uvs,
     U64 uv_count,
     const unsigned int* remap)
 {
-    meshopt_remapVertexBuffer((float*)destination_uvs, (const float*)uv_positions, uv_count, sizeof(LLVector2), remap);
+    meshopt_remapVertexBuffer(destination_uvs->mV, uv_positions->mV, uv_count, sizeof(LLVector2), remap);
 }
 
 //static
@@ -273,7 +273,7 @@ U64 LLMeshOptimizer::simplifyU32(U32 *destination,
         return meshopt_simplifySloppy<unsigned int>(destination,
             indices,
             index_count,
-            (const float*)vertex_positions,
+            vertex_positions->getF32ptr(),
             vertex_count,
             vertex_positions_stride,
             target_index_count,
@@ -286,7 +286,7 @@ U64 LLMeshOptimizer::simplifyU32(U32 *destination,
         return meshopt_simplify<unsigned int>(destination,
             indices,
             index_count,
-            (const float*)vertex_positions,
+            vertex_positions->getF32ptr(),
             vertex_count,
             vertex_positions_stride,
             target_index_count,
@@ -315,7 +315,7 @@ U64 LLMeshOptimizer::simplify(U16 *destination,
         return meshopt_simplifySloppy<unsigned short>(destination,
             indices,
             index_count,
-            (const float*)vertex_positions,
+            vertex_positions->getF32ptr(),
             vertex_count,
             vertex_positions_stride,
             target_index_count,
@@ -328,7 +328,7 @@ U64 LLMeshOptimizer::simplify(U16 *destination,
         return meshopt_simplify<unsigned short>(destination,
             indices,
             index_count,
-            (const float*)vertex_positions,
+            vertex_positions->getF32ptr(),
             vertex_count,
             vertex_positions_stride,
             target_index_count,

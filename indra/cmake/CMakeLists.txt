@@ -40,6 +40,7 @@ set(cmake_SOURCE_FILES
         LLTestCommand.cmake
         LLWindow.cmake
         Linking.cmake
+        Lualibs.cmake
         Meshoptimizer.cmake
         NDOF.cmake
         OPENAL.cmake

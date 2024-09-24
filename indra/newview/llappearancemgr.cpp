@@ -31,6 +31,7 @@
 #include "llagent.h"
 #include "llagentcamera.h"
 #include "llagentwearables.h"
+#include "llappearancelistener.h"
 #include "llappearancemgr.h"
 #include "llattachmentsmgr.h"
 #include "llcommandhandler.h"
@@ -48,6 +49,7 @@
 #include "lloutfitslist.h"
 #include "llselectmgr.h"
 #include "llsidepanelappearance.h"
+#include "lltransutil.h"
 #include "llviewerobjectlist.h"
 #include "llvoavatar.h"
 #include "llvoavatarself.h"
@@ -65,6 +67,8 @@
 #include "lluiusage.h"
 
 #include "llavatarpropertiesprocessor.h"
+
+LLAppearanceListener sAppearanceListener;
 
 namespace
 {
@@ -113,26 +117,16 @@ public:
     LLOutfitUnLockTimer(F32 period) : LLEventTimer(period)
     {
         // restart timer on BOF changed event
-        LLOutfitObserver::instance().addBOFChangedCallback(boost::bind(
-                &LLOutfitUnLockTimer::reset, this));
+        LLOutfitObserver::instance().addBOFChangedCallback([this]{ start(); });
         stop();
     }
 
-    /*virtual*/
-    bool tick()
+    bool tick() override
     {
-        if(mEventTimer.hasExpired())
-        {
-            LLAppearanceMgr::instance().setOutfitLocked(false);
-        }
+        LLAppearanceMgr::instance().setOutfitLocked(false);
         return false;
     }
-    void stop() { mEventTimer.stop(); }
-    void start() { mEventTimer.start(); }
-    void reset() { mEventTimer.reset(); }
-    bool getStarted() { return mEventTimer.getStarted(); }
-
-    LLTimer&  getEventTimer() { return mEventTimer;}
+    bool getStarted() { return isRunning(); }
 };
 
 // support for secondlife:///app/appearance SLapps
@@ -327,7 +321,7 @@ public:
 
     // virtual
     // Will be deleted after returning true - only safe to do this if all callbacks have fired.
-    bool tick()
+    bool tick() override
     {
         // mPendingRequests will be zero if all requests have been
         // responded to.  mWaitTimes.empty() will be true if we have
@@ -620,8 +614,8 @@ void LLBrokenLinkObserver::changed(U32 mask)
             if (id == mUUID)
             {
                 // Might not be processed yet and it is not a
-                // good idea to update appearane here, postpone.
-                doOnIdleOneTime([this]()
+                // good idea to update appearance here, postpone.
+                doOnIdleOneTime([this]
                                 {
                                     postProcess();
                                 });
@@ -1707,7 +1701,6 @@ void LLAppearanceMgr::setOutfitLocked(bool locked)
     mOutfitLocked = locked;
     if (locked)
     {
-        mUnlockOutfitTimer->reset();
         mUnlockOutfitTimer->start();
     }
     else
@@ -2906,8 +2899,18 @@ void LLAppearanceMgr::wearInventoryCategoryOnAvatar( LLInventoryCategory* catego
     LLAppearanceMgr::changeOutfit(true, category->getUUID(), append);
 }
 
-// FIXME do we really want to search entire inventory for matching name?
-void LLAppearanceMgr::wearOutfitByName(const std::string& name)
+bool LLAppearanceMgr::wearOutfitByName(const std::string& name, bool append)
+{
+    std::string error_msg;
+    if(!wearOutfitByName(name, error_msg, append))
+    {
+        LL_WARNS() << error_msg << LL_ENDL;
+        return false;
+    }
+    return true;
+}
+
+bool LLAppearanceMgr::wearOutfitByName(const std::string& name, std::string& error_msg, bool append)
 {
     LL_INFOS("Avatar") << self_av_string() << "Wearing category " << name << LL_ENDL;
 
@@ -2940,15 +2943,38 @@ void LLAppearanceMgr::wearOutfitByName(const std::string& name)
         }
     }
 
-    if(cat)
+    return wearOutfit(stringize(std::quoted(name)), cat, error_msg, copy_items, append);
+}
+
+bool LLAppearanceMgr::wearOutfit(const LLUUID &cat_id, std::string &error_msg, bool append)
+{
+    LLViewerInventoryCategory *cat = gInventory.getCategory(cat_id);
+    return wearOutfit(stringize(cat_id), cat, error_msg, false, append);
+}
+
+bool LLAppearanceMgr::wearOutfit(const std::string &desc, LLInventoryCategory* cat,
+                                 std::string &error_msg, bool copy_items, bool append)
+{
+    if (!cat)
     {
-        LLAppearanceMgr::wearInventoryCategory(cat, copy_items, false);
+        error_msg = stringize(LLTrans::getString("OutfitNotFound"), desc);
+        return false;
     }
-    else
+    // don't allow wearing a system folder
+    if (LLFolderType::lookupIsProtectedType(cat->getPreferredType()))
     {
-        LL_WARNS() << "Couldn't find outfit " <<name<< " in wearOutfitByName()"
-                << LL_ENDL;
+        error_msg = stringize(LLTrans::getString("SystemFolderNotWorn"), std::quoted(cat->getName()));
+        return false;
     }
+    bool can_wear = append ? getCanAddToCOF(cat->getUUID()) : getCanReplaceCOF(cat->getUUID());
+    if (!can_wear)
+    {
+        std::string msg = append ? LLTrans::getString("OutfitNotAdded") : LLTrans::getString("OutfitNotReplaced");
+        error_msg =  stringize(msg, std::quoted(cat->getName()), " , id: ", cat->getUUID());
+        return false;
+    }
+    wearInventoryCategory(cat, copy_items, append);
+    return true;
 }
 
 bool areMatchingWearables(const LLViewerInventoryItem *a, const LLViewerInventoryItem *b)

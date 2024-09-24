@@ -45,12 +45,12 @@
 LLFloaterPreferenceGraphicsAdvanced::LLFloaterPreferenceGraphicsAdvanced(const LLSD& key)
     : LLFloater(key)
 {
-    mCommitCallbackRegistrar.add("Pref.RenderOptionUpdate",            boost::bind(&LLFloaterPreferenceGraphicsAdvanced::onRenderOptionEnable, this));
-    mCommitCallbackRegistrar.add("Pref.UpdateIndirectMaxNonImpostors", boost::bind(&LLFloaterPreferenceGraphicsAdvanced::updateMaxNonImpostors,this));
-    mCommitCallbackRegistrar.add("Pref.UpdateIndirectMaxComplexity",   boost::bind(&LLFloaterPreferenceGraphicsAdvanced::updateMaxComplexity,this));
+    mCommitCallbackRegistrar.add("Pref.RenderOptionUpdate",            { boost::bind(&LLFloaterPreferenceGraphicsAdvanced::onRenderOptionEnable, this) });
+    mCommitCallbackRegistrar.add("Pref.UpdateIndirectMaxNonImpostors", { boost::bind(&LLFloaterPreferenceGraphicsAdvanced::updateMaxNonImpostors,this) });
+    mCommitCallbackRegistrar.add("Pref.UpdateIndirectMaxComplexity",   { boost::bind(&LLFloaterPreferenceGraphicsAdvanced::updateMaxComplexity,this) });
 
-    mCommitCallbackRegistrar.add("Pref.Cancel", boost::bind(&LLFloaterPreferenceGraphicsAdvanced::onBtnCancel, this, _2));
-    mCommitCallbackRegistrar.add("Pref.OK",     boost::bind(&LLFloaterPreferenceGraphicsAdvanced::onBtnOK, this, _2));
+    mCommitCallbackRegistrar.add("Pref.Cancel", { boost::bind(&LLFloaterPreferenceGraphicsAdvanced::onBtnCancel, this, _2), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.OK",     { boost::bind(&LLFloaterPreferenceGraphicsAdvanced::onBtnOK, this, _2), cb_info::UNTRUSTED_BLOCK });
 }
 
 LLFloaterPreferenceGraphicsAdvanced::~LLFloaterPreferenceGraphicsAdvanced()

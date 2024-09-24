@@ -470,7 +470,7 @@ LLPanelFace::LLPanelFace()
     mNeedMediaTitle(true)
 {
     USE_TEXTURE = LLTrans::getString("use_texture");
-    mCommitCallbackRegistrar.add("PanelFace.menuDoToSelected", boost::bind(&LLPanelFace::menuDoToSelected, this, _2));
+    mCommitCallbackRegistrar.add("PanelFace.menuDoToSelected", { boost::bind(&LLPanelFace::menuDoToSelected, this, _2) });
     mEnableCallbackRegistrar.add("PanelFace.menuEnable", boost::bind(&LLPanelFace::menuEnableItem, this, _2));
 }
 
