@@ -70,6 +70,7 @@ class LLWebRTCVoiceClient : public LLSingleton<LLWebRTCVoiceClient>,
     virtual ~LLWebRTCVoiceClient();
 
 public:
+    void cleanupSingleton() override;
     /// @name LLVoiceModuleInterface virtual implementations
     ///  @see LLVoiceModuleInterface
     //@{
@@ -300,6 +301,7 @@ public:
         static void for_each(sessionFunc_t func);
 
         static void reapEmptySessions();
+        static void clearSessions();
 
         bool isEmpty() { return mWebRTCConnections.empty(); }
 
@@ -319,7 +321,7 @@ public:
         participantUUIDMap mParticipantsByUUID;
 
         static bool hasSession(const std::string &sessionID)
-        { return mSessions.find(sessionID) != mSessions.end(); }
+        { return sSessions.find(sessionID) != sSessions.end(); }
 
        bool mHangupOnLastLeave;  // notify observers after the session becomes empty.
        bool mNotifyOnFirstJoin;  // notify observers when the first peer joins.
@@ -330,7 +332,7 @@ public:
 
     private:
 
-        static std::map<std::string, ptr_t> mSessions;  // canonical list of outstanding sessions.
+        static std::map<std::string, ptr_t> sSessions;  // canonical list of outstanding sessions.
 
         static void for_eachPredicate(const std::pair<std::string,
                                       LLWebRTCVoiceClient::sessionState::wptr_t> &a,
@@ -620,13 +622,18 @@ class LLVoiceWebRTCConnection :
 
     bool connectionStateMachine();
 
-    virtual bool isSpatial() = 0;
+    virtual bool isSpatial() { return false; }
 
     LLUUID getRegionID() { return mRegionID; }
 
     void shutDown()
     {
         mShutDown = true;
+    }
+
+    bool isShuttingDown()
+    {
+        return mShutDown;
     }
 
     void OnVoiceConnectionRequestSuccess(const LLSD &body);
@@ -684,6 +691,7 @@ class LLVoiceWebRTCConnection :
     LLVoiceClientStatusObserver::EStatusType mCurrentStatus;
 
     LLUUID mRegionID;
+    bool   mPrimary;
     LLUUID mViewerSession;
     std::string mChannelID;
 

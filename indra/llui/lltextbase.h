@@ -30,6 +30,7 @@
 
 #include "v4color.h"
 #include "lleditmenuhandler.h"
+#include "llfontvertexbuffer.h"
 #include "llspellcheckmenuhandler.h"
 #include "llstyle.h"
 #include "llkeywords.h"
@@ -44,6 +45,7 @@
 class LLScrollContainer;
 class LLContextMenu;
 class LLUrlMatch;
+class LLTextBase;
 
 ///
 /// A text segment is used to specify a subsection of a text string
@@ -61,6 +63,9 @@ public:
         mEnd(end)
     {}
     virtual ~LLTextSegment();
+    virtual LLTextSegmentPtr clone(LLTextBase& terget) const { return new LLTextSegment(mStart, mEnd); }
+    static LLStyleSP cloneStyle(LLTextBase& target, const LLStyle* source);
+
     bool                        getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const;
 
     virtual bool                getDimensionsF32(S32 first_char, S32 num_chars, F32& width, S32& height) const;
@@ -127,10 +132,12 @@ public:
     LLNormalTextSegment( LLStyleConstSP style, S32 start, S32 end, LLTextBase& editor );
     LLNormalTextSegment( const LLUIColor& color, S32 start, S32 end, LLTextBase& editor, bool is_visible = true);
     virtual ~LLNormalTextSegment();
+    /*virtual*/ LLTextSegmentPtr clone(LLTextBase& target) const;
 
     /*virtual*/ bool                getDimensionsF32(S32 first_char, S32 num_chars, F32& width, S32& height) const;
     /*virtual*/ S32                 getOffset(S32 segment_local_x_coord, S32 start_offset, S32 num_chars, bool round) const;
     /*virtual*/ S32                 getNumChars(S32 num_pixels, S32 segment_offset, S32 line_offset, S32 max_chars, S32 line_ind) const;
+    /*virtual*/ void                updateLayout(const class LLTextBase& editor);
     /*virtual*/ F32                 draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRectf& draw_rect);
     /*virtual*/ bool                canEdit() const { return true; }
     /*virtual*/ const LLUIColor&     getColor() const                    { return mStyle->getColor(); }
@@ -149,6 +156,7 @@ public:
     /*virtual*/ bool                handleToolTip(S32 x, S32 y, MASK mask);
 
 protected:
+    virtual bool        useFontBuffers() const { return true; }
     F32                 drawClippedSegment(S32 seg_start, S32 seg_end, S32 selection_start, S32 selection_end, LLRectf rect);
 
     virtual     const LLWString&    getWText()  const;
@@ -161,6 +169,12 @@ protected:
     LLKeywordToken*     mToken;
     std::string         mTooltip;
     boost::signals2::connection mImageLoadedConnection;
+
+    // font rendering
+    LLFontVertexBuffer  mFontBufferPreSelection;
+    LLFontVertexBuffer  mFontBufferSelection;
+    LLFontVertexBuffer  mFontBufferPostSelection;
+    S32                 mLastGeneration = -1;
 };
 
 // This text segment is the same as LLNormalTextSegment, the only difference
@@ -171,6 +185,7 @@ class LLLabelTextSegment : public LLNormalTextSegment
 public:
     LLLabelTextSegment( LLStyleConstSP style, S32 start, S32 end, LLTextBase& editor );
     LLLabelTextSegment( const LLUIColor& color, S32 start, S32 end, LLTextBase& editor, bool is_visible = true);
+    /*virtual*/ LLTextSegmentPtr clone(LLTextBase& target) const;
 
 protected:
 
@@ -185,6 +200,7 @@ class LLEmojiTextSegment : public LLNormalTextSegment
 public:
     LLEmojiTextSegment(LLStyleConstSP style, S32 start, S32 end, LLTextBase& editor);
     LLEmojiTextSegment(const LLUIColor& color, S32 start, S32 end, LLTextBase& editor, bool is_visible = true);
+    /*virtual*/ LLTextSegmentPtr clone(LLTextBase& target) const override;
 
     bool canEdit() const override { return false; }
     bool handleToolTip(S32 x, S32 y, MASK mask) override;
@@ -195,6 +211,7 @@ class LLOnHoverChangeableTextSegment : public LLNormalTextSegment
 {
 public:
     LLOnHoverChangeableTextSegment( LLStyleConstSP style, LLStyleConstSP normal_style, S32 start, S32 end, LLTextBase& editor );
+    /*virtual*/ LLTextSegmentPtr clone(LLTextBase& target) const;
     /*virtual*/ F32 draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRectf& draw_rect);
     /*virtual*/ bool handleHover(S32 x, S32 y, MASK mask);
 protected:
@@ -209,6 +226,7 @@ class LLIndexSegment : public LLTextSegment
 {
 public:
     LLIndexSegment() : LLTextSegment(0, 0) {}
+    /*virtual*/ LLTextSegmentPtr clone(LLTextBase& target) const { return new LLIndexSegment(); }
 };
 
 class LLInlineViewSegment : public LLTextSegment
@@ -226,6 +244,8 @@ public:
 
     LLInlineViewSegment(const Params& p, S32 start, S32 end);
     ~LLInlineViewSegment();
+    /*virtual*/ LLTextSegmentPtr clone(LLTextBase& target) const;
+
     /*virtual*/ bool        getDimensionsF32(S32 first_char, S32 num_chars, F32& width, S32& height) const;
     /*virtual*/ S32         getNumChars(S32 num_pixels, S32 segment_offset, S32 line_offset, S32 max_chars, S32 line_ind) const;
     /*virtual*/ void        updateLayout(const class LLTextBase& editor);
@@ -250,6 +270,7 @@ public:
     LLLineBreakTextSegment(LLStyleConstSP style,S32 pos);
     LLLineBreakTextSegment(S32 pos);
     ~LLLineBreakTextSegment();
+    /*virtual*/ LLTextSegmentPtr clone(LLTextBase& target) const;
     /*virtual*/ bool        getDimensionsF32(S32 first_char, S32 num_chars, F32& width, S32& height) const;
     S32         getNumChars(S32 num_pixels, S32 segment_offset, S32 line_offset, S32 max_chars, S32 line_ind) const;
     F32         draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRectf& draw_rect);
@@ -263,6 +284,8 @@ class LLImageTextSegment : public LLTextSegment
 public:
     LLImageTextSegment(LLStyleConstSP style,S32 pos,class LLTextBase& editor);
     ~LLImageTextSegment();
+    /*virtual*/ LLTextSegmentPtr clone(LLTextBase& target) const;
+
     /*virtual*/ bool        getDimensionsF32(S32 first_char, S32 num_chars, F32& width, S32& height) const;
     S32         getNumChars(S32 num_pixels, S32 segment_offset, S32 char_offset, S32 max_chars, S32 line_ind) const;
     F32         draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRectf& draw_rect);
@@ -432,6 +455,7 @@ public:
     // wide-char versions
     void                    setWText(const LLWString& text);
     const LLWString&        getWText() const;
+    S32                     getTextGeneration() const;
 
     void                    appendText(const std::string &new_text, bool prepend_newline, const LLStyle::Params& input_params = LLStyle::Params());
 
@@ -475,7 +499,7 @@ public:
     LLRect                  getDocRectFromDocIndex(S32 pos) const;
 
     void                    setReadOnly(bool read_only) { mReadOnly = read_only; }
-    bool                    getReadOnly() { return mReadOnly; }
+    bool                    getReadOnly() const { return mReadOnly; }
 
     void                    setSkipLinkUnderline(bool skip_link_underline) { mSkipLinkUnderline = skip_link_underline; }
     bool                    getSkipLinkUnderline() { return mSkipLinkUnderline;  }
@@ -500,6 +524,7 @@ public:
 
     const LLFontGL*         getFont() const override { return mFont; }
 
+    virtual void            copyContents(const LLTextBase* source);
     virtual void            appendLineBreakSegment(const LLStyle::Params& style_params);
     virtual void            appendImageSegment(const LLStyle::Params& style_params);
     virtual void            appendWidget(const LLInlineViewSegment::Params& params, const std::string& text, bool allow_undo);

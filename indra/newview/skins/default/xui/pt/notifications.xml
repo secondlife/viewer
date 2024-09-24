@@ -2441,10 +2441,6 @@ Se você é um Membro Premium, [[PREMIUM_URL] clique aqui] para receber o seu ap
 [[URL] Clique aqui] para renovar o serviço. 
 
 Se você é um Membro Premium, [[PREMIUM_URL] clique aqui] para receber o seu app de distorção de voz.</notification>
-	<notification name="VoiceEffectsWillExpire">Uma ou mais das suas distorções de voz tem vencimento em menos de [INTERVAL] dias. 
-[[URL] Clique aqui] para renovar o serviço. 
-
-Se você é um Membro Premium, [[PREMIUM_URL] clique aqui] para receber o seu app de distorção de voz.</notification>
 	<notification name="VoiceEffectsNew">Novas Distorções de voz!</notification>
 	<notification name="Cannot enter parcel: not a group member">Só membros de um grupo podem acessar esta área.</notification>
 	<notification name="Cannot enter parcel: banned">Você não pode entrar nessa terra, você foi banido.</notification>

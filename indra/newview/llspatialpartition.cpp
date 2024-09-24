@@ -29,7 +29,6 @@
 #include "llspatialpartition.h"
 
 #include "llappviewer.h"
-#include "llcallstack.h"
 #include "lltexturecache.h"
 #include "lltexturefetch.h"
 #include "llimageworker.h"
@@ -301,7 +300,7 @@ bool LLSpatialGroup::addObject(LLDrawable *drawablep)
     }
     {
         drawablep->setGroup(this);
-        setState(OBJECT_DIRTY | GEOM_DIRTY);
+        setState(static_cast<U32>(OBJECT_DIRTY) | static_cast<U32>(GEOM_DIRTY));
         setOcclusionState(LLSpatialGroup::DISCARD_QUERY, LLSpatialGroup::STATE_MODE_ALL_CAMERAS);
         gPipeline.markRebuild(this);
         if (drawablep->isSpatialBridge())
@@ -731,7 +730,7 @@ bool LLSpatialGroup::changeLOD()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SPATIAL;
 
-    if (hasState(ALPHA_DIRTY | OBJECT_DIRTY))
+    if (hasState(static_cast<U32>(ALPHA_DIRTY) | static_cast<U32>(OBJECT_DIRTY)))
     {
         //a rebuild is going to happen, update distance and LoD
         return true;
@@ -755,14 +754,6 @@ bool LLSpatialGroup::changeLOD()
 
         if (fabsf(ratio) >= getSpatialPartition()->mSlopRatio)
         {
-            LL_DEBUGS("RiggedBox") << "changeLOD true because of ratio compare "
-                                   << fabsf(ratio) << " " << getSpatialPartition()->mSlopRatio << LL_ENDL;
-            LL_DEBUGS("RiggedBox") << "sg " << this << "\nmDistance " << mDistance
-                                   << " mLastUpdateDistance " << mLastUpdateDistance
-                                   << " mRadius " << mRadius
-                                   << " fab ratio " << fabsf(ratio)
-                                   << " slop " << getSpatialPartition()->mSlopRatio << LL_ENDL;
-
             return true;
         }
     }
@@ -1676,8 +1667,9 @@ void renderOctree(LLSpatialGroup* group)
             glLineWidth(1.f);
             gGL.flush();
 
-            LLVOAvatar* lastAvatar = nullptr;
+            const LLVOAvatar* lastAvatar = nullptr;
             U64 lastMeshId = 0;
+            bool skipLastSkin = false;
 
             for (LLSpatialGroup::element_iter i = group->getDataBegin(); i != group->getDataEnd(); ++i)
             {
@@ -1706,15 +1698,9 @@ void renderOctree(LLSpatialGroup* group)
                 {
                     gGL.pushMatrix();
                     gGL.loadMatrix(gGLModelView);
-                    if (lastAvatar != face->mAvatar ||
-                        lastMeshId != face->mSkinInfo->mHash)
+                    if (!LLRenderPass::uploadMatrixPalette(face->mAvatar, face->mSkinInfo, lastAvatar, lastMeshId, skipLastSkin))
                     {
-                        if (!LLRenderPass::uploadMatrixPalette(face->mAvatar, face->mSkinInfo))
-                        {
-                            continue;
-                        }
-                        lastAvatar = face->mAvatar;
-                        lastMeshId = face->mSkinInfo->mHash;
+                        continue;
                     }
                 }
                 for (S32 j = 0; j < drawable->getNumFaces(); j++)

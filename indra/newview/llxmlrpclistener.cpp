@@ -34,10 +34,6 @@
 // STL headers
 #include <map>
 #include <set>
-// std headers
-// external library headers
-#include <boost/scoped_ptr.hpp>
-#include <boost/range.hpp>          // boost::begin(), boost::end()
 
 #include "curl/curl.h"
 
@@ -334,7 +330,7 @@ public:
         // need to wake up the loginCoro now
         llcoro::suspend();
 
-        // Because mTransaction is a boost::scoped_ptr, deleting this object
+        // Because mTransaction is a std::unique_ptr, deleting this object
         // frees our LLXMLRPCTransaction object.
         // Because mBoundListener is an LLTempBoundListener, deleting this
         // object disconnects it from "mainloop".

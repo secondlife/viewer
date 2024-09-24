@@ -390,10 +390,10 @@ void notify_of_message(const LLSD& msg, bool is_dnd_msg)
                 }
                 else
                 {
-            LLAvatarNameCache::get(participant_id, boost::bind(&on_avatar_name_cache_toast, _1, _2, msg));
+                    LLAvatarNameCache::get(participant_id, boost::bind(&on_avatar_name_cache_toast, _1, _2, msg));
+                }
+            }
         }
-    }
-}
     }
     if (store_dnd_message)
     {
@@ -3551,6 +3551,7 @@ void LLIMMgr::inviteToSession(
             && voice_invite && "VoiceInviteQuestionDefault" == question_type)
         {
             LL_INFOS("IMVIEW") << "Rejecting voice call from initiating muted resident " << caller_name << LL_ENDL;
+            payload["voice_channel_info"] = voice_channel_info;
             LLIncomingCallDialog::processCallResponse(1, payload);
             return;
         }
@@ -3599,6 +3600,7 @@ void LLIMMgr::inviteToSession(
                 send_do_not_disturb_message(gMessageSystem, caller_id, session_id);
             }
             // silently decline the call
+            payload["voice_channel_info"] = voice_channel_info;
             LLIncomingCallDialog::processCallResponse(1, payload);
             return;
         }
@@ -3860,6 +3862,11 @@ bool LLIMMgr::startCall(const LLUUID& session_id, LLVoiceChannel::EDirection dir
     if (voice_channel_info.isDefined() && voice_channel_info.isMap() && voice_channel_info.size() > 0)
     {
         voice_channel->setChannelInfo(voice_channel_info);
+    }
+    else if (voice_channel->getState() < LLVoiceChannel::STATE_READY)
+    {
+        // restart if there wa an error or it was hang up
+        voice_channel->resetChannelInfo();
     }
     voice_channel->setCallDirection(direction);
     voice_channel->activate();
@@ -4173,11 +4180,16 @@ public:
         }
         if (input["body"]["info"].has("voice_channel_info"))
         {
+            // new voice channel info incoming, update and re-activate call
+            // if currently in a call.
             LLIMModel::LLIMSession* session = LLIMModel::getInstance()->findIMSession(session_id);
             if (session)
             {
-                session->initVoiceChannel(input["body"]["info"]["voice_channel_info"]);
-                session->mVoiceChannel->activate();
+                if (session->mVoiceChannel && session->mVoiceChannel->callStarted())
+                {
+                    session->initVoiceChannel(input["body"]["info"]["voice_channel_info"]);
+                    session->mVoiceChannel->activate();
+                }
             }
         }
     }

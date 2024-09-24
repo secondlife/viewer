@@ -31,8 +31,7 @@
 #include "llerror.h"
 
 #if LL_WINDOWS
-    #define WIN32_LEAN_AND_MEAN
-    #include <winsock2.h>
+    #include <llwin32headers.h>
 #else
     #include <netdb.h>
     #include <netinet/in.h> // ntonl()

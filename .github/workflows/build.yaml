@@ -202,23 +202,32 @@ jobs:
           [[ "$arch" == "MINGW6" ]] && arch=CYGWIN
           export AUTOBUILD="$(which autobuild)"
 
-          # determine the viewer channel from the branch name
+          # determine the viewer channel from the branch or tag name
+          # trigger an EDU build by including "edu" in the tag
+          edu=${{ github.ref_type == 'tag' && contains(github.ref_name, 'edu') }}
+          echo "ref_type=${{ github.ref_type }}, ref_name=${{ github.ref_name }}, edu='$edu'"
           branch=$AUTOBUILD_VCS_BRANCH
-          IFS='/' read -ra ba <<< "$branch"
-          prefix=${ba[0]}
-          if [ "$prefix" == "project" ]; then
-              IFS='_' read -ra prj <<< "${ba[1]}"
-              # uppercase first letter of each word
-              export viewer_channel="Second Life Project ${prj[*]^}"
-          elif  [[ "$prefix" == "release" || "$prefix" == "main" ]];
+          if [[ "$edu" == "true" ]]
           then
-              export viewer_channel="Second Life Release"
+              export viewer_channel="Second Life Release edu"
           elif  [[ "$branch" == "develop" ]];
           then
               export viewer_channel="Second Life Develop"
           else
-              export viewer_channel="Second Life Test"
+              IFS='/' read -ra ba <<< "$branch"
+              prefix=${ba[0]}
+              if [ "$prefix" == "project" ]; then
+                  IFS='_' read -ra prj <<< "${ba[1]}"
+                  # uppercase first letter of each word
+                  export viewer_channel="Second Life Project ${prj[*]^}"
+              elif  [[ "$prefix" == "release" || "$prefix" == "main" ]];
+              then
+                  export viewer_channel="Second Life Release"
+              else
+                  export viewer_channel="Second Life Test"
+              fi
           fi
+          echo "viewer_channel=$viewer_channel"
           echo "viewer_channel=$viewer_channel" >> "$GITHUB_OUTPUT"
           # On windows we need to point the build to the correct python
           # as neither CMake's FindPython nor our custom Python.cmake module
@@ -263,6 +272,7 @@ jobs:
       # The other upload of nontrivial size is the symbol file. Use a distinct
       # artifact for that too.
       - name: Upload symbol file
+        if: steps.build.outputs.symbolfile
         uses: actions/upload-artifact@v4
         with:
           name: "${{ steps.build.outputs.artifact }}-symbols"

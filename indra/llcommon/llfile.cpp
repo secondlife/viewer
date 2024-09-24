@@ -34,7 +34,7 @@
 #include "stringize.h"
 
 #if LL_WINDOWS
-#include "llwin32headerslean.h"
+#include "llwin32headers.h"
 #include <stdlib.h>                 // Windows errno
 #include <vector>
 #else
@@ -293,7 +293,7 @@ int LLFile::rename(const std::string& filename, const std::string& newname, int 
     return warnif(STRINGIZE("rename to '" << newname << "' from"), filename, rc, supress_error);
 }
 
-bool LLFile::copy(const std::string from, const std::string to)
+bool LLFile::copy(const std::string& from, const std::string& to)
 {
     bool copied = false;
     LLFILE* in = LLFile::fopen(from, "rb");     /* Flawfinder: ignore */
@@ -424,7 +424,7 @@ LLFILE *    LLFile::_Fiopen(const std::string& filename,
 
     if (valid[n] == 0)
         return (0); // no valid mode
-    else if (norepflag && mode & (ios_base::out || ios_base::app)
+    else if (norepflag && mode & (ios_base::out | ios_base::app)
         && (fp = LLFile::fopen(filename, "r")) != 0)    /* Flawfinder: ignore */
         {   // file must not exist, close and fail
         fclose(fp);

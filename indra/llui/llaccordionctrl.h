@@ -57,8 +57,8 @@ public:
     class LLTabComparator
     {
     public:
-        LLTabComparator() {};
-        virtual ~LLTabComparator() {};
+        LLTabComparator() = default;
+        virtual ~LLTabComparator() = default;
 
         /** Returns true if tab1 < tab2, false otherwise */
         virtual bool compare(const LLAccordionCtrlTab* tab1, const LLAccordionCtrlTab* tab2) const = 0;
@@ -103,8 +103,8 @@ public:
     // Call reshape after changing splitter's size
     virtual void reshape(S32 width, S32 height, bool called_from_parent = true);
 
-    void addCollapsibleCtrl(LLView* view);
-    void removeCollapsibleCtrl(LLView* view);
+    void addCollapsibleCtrl(LLAccordionCtrlTab* accordion_tab);
+    void removeCollapsibleCtrl(LLAccordionCtrlTab* accordion_tab);
     void arrange();
 
 
@@ -180,20 +180,20 @@ private:
 
 private:
     LLRect          mInnerRect;
-    LLScrollbar*    mScrollbar;
-    bool            mSingleExpansion;
-    bool            mFitParent;
-    bool            mAutoScrolling;
-    F32             mAutoScrollRate;
-    LLTextBox*      mNoVisibleTabsHelpText;
+    LLScrollbar*    mScrollbar = nullptr;
+    bool            mSingleExpansion = false;
+    bool            mFitParent = false;
+    bool            mAutoScrolling = false;
+    F32             mAutoScrollRate = 0.f;
+    LLTextBox*      mNoVisibleTabsHelpText = nullptr;
 
-    bool            mSkipScrollToChild;
+    bool            mSkipScrollToChild = false;
 
     std::string     mNoMatchedTabsOrigString;
     std::string     mNoVisibleTabsOrigString;
 
-    LLAccordionCtrlTab*     mSelectedTab;
-    const LLTabComparator*  mTabComparator;
+    LLAccordionCtrlTab*     mSelectedTab = nullptr;
+    const LLTabComparator*  mTabComparator = nullptr;
 };
 
 

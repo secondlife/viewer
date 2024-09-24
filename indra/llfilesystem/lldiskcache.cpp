@@ -51,7 +51,7 @@ static const std::string CACHE_FILENAME_PREFIX("sl_cache");
 
 std::string LLDiskCache::sCacheDir;
 
-LLDiskCache::LLDiskCache(const std::string cache_dir,
+LLDiskCache::LLDiskCache(const std::string& cache_dir,
                          const uintmax_t max_size_bytes,
                          const bool enable_cache_debug_info) :
     mMaxSizeBytes(max_size_bytes),
@@ -196,59 +196,9 @@ void LLDiskCache::purge()
     }
 }
 
-const std::string LLDiskCache::assetTypeToString(LLAssetType::EType at)
+const std::string LLDiskCache::metaDataToFilepath(const LLUUID& id, LLAssetType::EType at)
 {
-    /**
-     * Make use of the handy C++17  feature that allows
-     * for inline initialization of an std::map<>
-     */
-    typedef std::map<LLAssetType::EType, std::string> asset_type_to_name_t;
-    asset_type_to_name_t asset_type_to_name =
-    {
-        { LLAssetType::AT_TEXTURE, "TEXTURE" },
-        { LLAssetType::AT_SOUND, "SOUND" },
-        { LLAssetType::AT_CALLINGCARD, "CALLINGCARD" },
-        { LLAssetType::AT_LANDMARK, "LANDMARK" },
-        { LLAssetType::AT_SCRIPT, "SCRIPT" },
-        { LLAssetType::AT_CLOTHING, "CLOTHING" },
-        { LLAssetType::AT_OBJECT, "OBJECT" },
-        { LLAssetType::AT_NOTECARD, "NOTECARD" },
-        { LLAssetType::AT_CATEGORY, "CATEGORY" },
-        { LLAssetType::AT_LSL_TEXT, "LSL_TEXT" },
-        { LLAssetType::AT_LSL_BYTECODE, "LSL_BYTECODE" },
-        { LLAssetType::AT_TEXTURE_TGA, "TEXTURE_TGA" },
-        { LLAssetType::AT_BODYPART, "BODYPART" },
-        { LLAssetType::AT_SOUND_WAV, "SOUND_WAV" },
-        { LLAssetType::AT_IMAGE_TGA, "IMAGE_TGA" },
-        { LLAssetType::AT_IMAGE_JPEG, "IMAGE_JPEG" },
-        { LLAssetType::AT_ANIMATION, "ANIMATION" },
-        { LLAssetType::AT_GESTURE, "GESTURE" },
-        { LLAssetType::AT_SIMSTATE, "SIMSTATE" },
-        { LLAssetType::AT_LINK, "LINK" },
-        { LLAssetType::AT_LINK_FOLDER, "LINK_FOLDER" },
-        { LLAssetType::AT_MARKETPLACE_FOLDER, "MARKETPLACE_FOLDER" },
-        { LLAssetType::AT_WIDGET, "WIDGET" },
-        { LLAssetType::AT_PERSON, "PERSON" },
-        { LLAssetType::AT_MESH, "MESH" },
-        { LLAssetType::AT_SETTINGS, "SETTINGS" },
-        { LLAssetType::AT_MATERIAL, "MATERIAL" },
-        { LLAssetType::AT_GLTF, "GLTF" },
-        { LLAssetType::AT_GLTF_BIN, "GLTF_BIN" },
-        { LLAssetType::AT_UNKNOWN, "UNKNOWN" }
-    };
-
-    asset_type_to_name_t::iterator iter = asset_type_to_name.find(at);
-    if (iter != asset_type_to_name.end())
-    {
-        return iter->second;
-    }
-
-    return std::string("UNKNOWN");
-}
-
-const std::string LLDiskCache::metaDataToFilepath(const std::string& id, LLAssetType::EType at)
-{
-    return llformat("%s%s%s_%s_0.asset", sCacheDir.c_str(), gDirUtilp->getDirDelimiter().c_str(), CACHE_FILENAME_PREFIX.c_str(), id.c_str());
+    return llformat("%s%s%s_%s_0.asset", sCacheDir.c_str(), gDirUtilp->getDirDelimiter().c_str(), CACHE_FILENAME_PREFIX.c_str(), id.asString().c_str());
 }
 
 const std::string LLDiskCache::getCacheInfo()
@@ -335,7 +285,7 @@ void LLDiskCache::removeOldVFSFiles()
     }
 }
 
-uintmax_t LLDiskCache::dirFileSize(const std::string dir)
+uintmax_t LLDiskCache::dirFileSize(const std::string& dir)
 {
     uintmax_t total_file_size = 0;
 

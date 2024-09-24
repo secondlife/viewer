@@ -31,71 +31,9 @@
 
 #include <string>
 #include <map>
-//#include <boost/intrusive_ptr.hpp>
-//#include <boost/shared_ptr.hpp>
 
-//#include "llframetimer.h"
 #include "lliopipe.h"
 #include "llchainio.h"
-
-#if 0
-class LLServiceCreator;
-/**
- * intrusive pointer support
- */
-namespace boost
-{
-    void intrusive_ptr_add_ref(LLServiceCreator* p);
-    void intrusive_ptr_release(LLServiceCreator* p);
-};
-#endif
-
-/**
- * @class LLServiceCreator
- * @brief This class is an abstract base class for classes which create
- * new <code>LLService</code> instances.
- *
- * Derive classes from this class which appropriately implement the
- * <code>operator()</code> and destructor.
- * @see LLService
- */
-#if 0
-class LLServiceCreator
-{
-public:
-    typedef boost::intrusive_ptr<LLService> service_t;
-    virtual ~LLServiceCreator() {}
-    virtual service_t activate() = 0;
-    virtual void discard() = 0;
-
-protected:
-    LLServiceCreator() : mReferenceCount(0)
-    {
-    }
-
-private:
-    friend void boost::intrusive_ptr_add_ref(LLServiceCreator* p);
-    friend void boost::intrusive_ptr_release(LLServiceCreator* p);
-    U32 mReferenceCount;
-};
-#endif
-
-#if 0
-namespace boost
-{
-    inline void intrusive_ptr_add_ref(LLServiceCreator* p)
-    {
-        ++p->mReferenceCount;
-    }
-    inline void intrusive_ptr_release(LLServiceCreator* p)
-    {
-        if(p && 0 == --p->mReferenceCount)
-        {
-            delete p;
-        }
-    }
-};
-#endif
 
 /**
  * @class LLService
@@ -114,8 +52,6 @@ namespace boost
 class LLService : public LLIOPipe
 {
 public:
-    //typedef boost::intrusive_ptr<LLServiceCreator> creator_t;
-    //typedef boost::intrusive_ptr<LLService> service_t;
     typedef std::shared_ptr<LLChainIOFactory> creator_t;
 
     /**

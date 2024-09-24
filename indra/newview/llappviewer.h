@@ -44,7 +44,6 @@
 #define LL_LLAPPVIEWER_H
 
 #include "llapp.h"
-#include "llallocator.h"
 #include "llapr.h"
 #include "llcontrol.h"
 #include "llsys.h"          // for LLOSInfo
@@ -194,8 +193,6 @@ public:
     // *NOTE:Mani Fix this for login abstraction!!
     void handleLoginComplete();
 
-    LLAllocator & getAllocator() { return mAlloc; }
-
     // On LoginCompleted callback
     typedef boost::signals2::signal<void (void)> login_completed_signal_t;
     login_completed_signal_t mOnLoginCompleted;
@@ -325,8 +322,6 @@ private:
     bool mQuitRequested;                // User wants to quit, may have modified documents open.
     bool mClosingFloaters;
     bool mLogoutRequestSent;            // Disconnect message sent to simulator, no longer safe to send messages to the sim.
-    U32 mLastAgentControlFlags;
-    F32 mLastAgentForceUpdate;
     struct SettingsFiles* mSettingsLocationList;
 
     LLWatchdogTimeout* mMainloopTimeout;
@@ -338,17 +333,11 @@ private:
     bool mAgentRegionLastAlive;
     LLUUID mAgentRegionLastID;
 
-    LLAllocator mAlloc;
-
     // llcorehttp library init/shutdown helper
     LLAppCoreHttp mAppCoreHttp;
 
     bool mIsFirstRun;
 };
-
-// consts from viewer.h
-const S32 AGENT_UPDATES_PER_SECOND  = 125; // Value derived experimentally to avoid Input Delays with latest PBR-Capable Viewers when viewer FPS is highly volatile.
-const S32 AGENT_FORCE_UPDATES_PER_SECOND  = 1;
 
 // Globals with external linkage. From viewer.h
 // *NOTE:Mani - These will be removed as the Viewer App Cleanup project continues.
@@ -412,8 +401,6 @@ extern LLVector3 gWindVec;
 extern LLVector3 gRelativeWindVec;
 extern U32  gPacketsIn;
 extern bool gPrintMessagesThisFrame;
-
-extern LLUUID gBlackSquareID;
 
 extern bool gRandomizeFramerate;
 extern bool gPeriodicSlowFrame;

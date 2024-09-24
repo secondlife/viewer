@@ -278,6 +278,8 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface, public webrtc::AudioDeviceS
     // enables/disables capture via the capture device
     void setRecording(bool recording);
 
+    void setPlayout(bool playing);
+
   protected:
     LLWebRTCLogSink*                                           mLogSink;
 

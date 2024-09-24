@@ -2064,6 +2064,9 @@ void LLViewerWindow::initBase()
     mPopupView = main_view->getChild<LLPopupView>("popup_holder");
     mHintHolder = main_view->getChild<LLView>("hint_holder")->getHandle();
     mLoginPanelHolder = main_view->getChild<LLView>("login_panel_holder")->getHandle();
+    mStatusBarContainer = main_view->getChild<LLPanel>("status_bar_container");
+    mNavBarContainer = mStatusBarContainer->getChild<LLView>("nav_bar_container");
+    mTopInfoContainer = main_view->getChild<LLPanel>("topinfo_bar_container");
 
     // Create the toolbar view
     // Get a pointer to the toolbar view holder
@@ -2079,6 +2082,8 @@ void LLViewerWindow::initBase()
     // Hide the toolbars for the moment: we'll make them visible after logging in world (see LLViewerWindow::initWorldUI())
     gToolBarView->setVisible(false);
 
+    mFloaterSnapRegion = gToolBarView->getChild<LLView>("floater_snap_region");
+    mChicletContainer = gToolBarView->getChild<LLPanel>("chiclet_container");
     // Constrain floaters to inside the menu and status bar regions.
     gFloaterView = main_view->getChild<LLFloaterView>("Floater View");
     for (S32 i = 0; i < LLToolBarEnums::TOOLBAR_COUNT; ++i)
@@ -2089,7 +2094,7 @@ void LLViewerWindow::initBase()
             toolbarp->getCenterLayoutPanel()->setReshapeCallback(boost::bind(&LLFloaterView::setToolbarRect, gFloaterView, _1, _2));
         }
     }
-    gFloaterView->setFloaterSnapView(main_view->getChild<LLView>("floater_snap_region")->getHandle());
+    gFloaterView->setFloaterSnapView(mFloaterSnapRegion->getHandle());
     gSnapshotFloaterView = main_view->getChild<LLSnapshotFloaterView>("Snapshot Floater View");
 
     const F32 CHAT_PERSIST_TIME = 20.f;
@@ -2155,12 +2160,11 @@ void LLViewerWindow::initWorldUI()
 
     if (!gNonInteractive)
     {
-        LLPanel* chiclet_container = getRootView()->getChild<LLPanel>("chiclet_container");
         LLChicletBar* chiclet_bar = LLChicletBar::getInstance();
-        chiclet_bar->setShape(chiclet_container->getLocalRect());
+        chiclet_bar->setShape(mChicletContainer->getLocalRect());
         chiclet_bar->setFollowsAll();
-        chiclet_container->addChild(chiclet_bar);
-        chiclet_container->setVisible(true);
+        mChicletContainer->addChild(chiclet_bar);
+        mChicletContainer->setVisible(true);
     }
 
     LLRect morph_view_rect = full_window;
@@ -2185,30 +2189,25 @@ void LLViewerWindow::initWorldUI()
     if (!gStatusBar)
     {
         // Status bar
-        LLPanel* status_bar_container = getRootView()->getChild<LLPanel>("status_bar_container");
-        gStatusBar = new LLStatusBar(status_bar_container->getLocalRect());
+        gStatusBar = new LLStatusBar(mStatusBarContainer->getLocalRect());
         gStatusBar->setFollows(FOLLOWS_LEFT | FOLLOWS_TOP | FOLLOWS_RIGHT);
-        gStatusBar->setShape(status_bar_container->getLocalRect());
+        gStatusBar->setShape(mStatusBarContainer->getLocalRect());
         // sync bg color with menu bar
         gStatusBar->setBackgroundColor(gMenuBarView->getBackgroundColor());
         // add InBack so that gStatusBar won't be drawn over menu
-        status_bar_container->addChildInBack(gStatusBar, 2/*tab order, after menu*/);
-        status_bar_container->setVisible(true);
+        mStatusBarContainer->addChildInBack(gStatusBar, 2/*tab order, after menu*/);
+        mStatusBarContainer->setVisible(true);
 
         // Navigation bar
-        LLView* nav_bar_container = getRootView()->getChild<LLView>("nav_bar_container");
-
-        navbar->setShape(nav_bar_container->getLocalRect());
+        navbar->setShape(mNavBarContainer->getLocalRect());
         navbar->setBackgroundColor(gMenuBarView->getBackgroundColor());
-        nav_bar_container->addChild(navbar);
-        nav_bar_container->setVisible(true);
+        mNavBarContainer->addChild(navbar);
+        mNavBarContainer->setVisible(true);
     }
     else
     {
-        LLPanel* status_bar_container = getRootView()->getChild<LLPanel>("status_bar_container");
-        LLView* nav_bar_container = getRootView()->getChild<LLView>("nav_bar_container");
-        status_bar_container->setVisible(true);
-        nav_bar_container->setVisible(true);
+        mStatusBarContainer->setVisible(true);
+        mNavBarContainer->setVisible(true);
     }
 
     if (!gSavedSettings.getBOOL("ShowNavbarNavigationPanel"))
@@ -2222,13 +2221,11 @@ void LLViewerWindow::initWorldUI()
 
 
     // Top Info bar
-    LLPanel* topinfo_bar_container = getRootView()->getChild<LLPanel>("topinfo_bar_container");
     LLPanelTopInfoBar* topinfo_bar = LLPanelTopInfoBar::getInstance();
+    topinfo_bar->setShape(mTopInfoContainer->getLocalRect());
 
-    topinfo_bar->setShape(topinfo_bar_container->getLocalRect());
-
-    topinfo_bar_container->addChild(topinfo_bar);
-    topinfo_bar_container->setVisible(true);
+    mTopInfoContainer->addChild(topinfo_bar);
+    mTopInfoContainer->setVisible(true);
 
     if (!gSavedSettings.getBOOL("ShowMiniLocationPanel"))
     {
@@ -2248,7 +2245,7 @@ void LLViewerWindow::initWorldUI()
         getRootView()->sendChildToBack(gHUDView);
     }
 
-    LLPanel* panel_ssf_container = getRootView()->getChild<LLPanel>("state_management_buttons_container");
+    LLPanel* panel_ssf_container = gToolBarView->getChild<LLPanel>("state_management_buttons_container");
 
     LLPanelStandStopFlying* panel_stand_stop_flying = LLPanelStandStopFlying::getInstance();
     panel_ssf_container->addChild(panel_stand_stop_flying);
@@ -2571,12 +2568,11 @@ void LLViewerWindow::setNormalControlsVisible( bool visible )
         gStatusBar->setEnabled( visible );
     }
 
-    LLNavigationBar* navbarp = LLUI::getInstance()->getRootView()->findChild<LLNavigationBar>("navigation_bar");
-    if (navbarp)
+    if (mNavBarContainer)
     {
         // when it's time to show navigation bar we need to ensure that the user wants to see it
         // i.e. ShowNavbarNavigationPanel option is true
-        navbarp->setVisible( visible && gSavedSettings.getBOOL("ShowNavbarNavigationPanel") );
+        mNavBarContainer->setVisible( visible && gSavedSettings.getBOOL("ShowNavbarNavigationPanel") );
     }
 }
 
@@ -3780,19 +3776,21 @@ void LLViewerWindow::updateUI()
 
 void LLViewerWindow::updateLayout()
 {
-    LLTool* tool = LLToolMgr::getInstance()->getCurrentTool();
+    LLToolMgr* tool_mgr = LLToolMgr::getInstance();
+    LLTool* tool = tool_mgr->getCurrentTool();
+    LLCachedControl<bool> freeze_time(gSavedSettings, "FreezeTime");
     if (gFloaterTools != NULL
         && tool != NULL
         && tool != gToolNull
         && tool != LLToolCompInspect::getInstance()
         && tool != LLToolDragAndDrop::getInstance()
-        && !gSavedSettings.getBOOL("FreezeTime"))
+        && !freeze_time())
     {
         // Suppress the toolbox view if our source tool was the pie tool,
         // and we've overridden to something else.
         bool suppress_toolbox =
-            (LLToolMgr::getInstance()->getBaseTool() == LLToolPie::getInstance()) &&
-            (LLToolMgr::getInstance()->getCurrentTool() != LLToolPie::getInstance());
+            (tool_mgr->getBaseTool() == LLToolPie::getInstance()) &&
+            (tool_mgr->getCurrentTool() != LLToolPie::getInstance());
 
         LLMouseHandler *captor = gFocusMgr.getMouseCapture();
         // With the null, inspect, or drag and drop tool, don't muck
@@ -3802,7 +3800,7 @@ void LLViewerWindow::updateLayout()
             ||  (tool != LLToolPie::getInstance()                       // not default tool
                 && tool != LLToolCompGun::getInstance()                 // not coming out of mouselook
                 && !suppress_toolbox                                    // not override in third person
-                && LLToolMgr::getInstance()->getCurrentToolset()->isShowFloaterTools()
+                && tool_mgr->getCurrentToolset()->isShowFloaterTools()
                 && (!captor || dynamic_cast<LLView*>(captor) != NULL)))                     // not dragging
         {
             // Force floater tools to be visible (unless minimized)
@@ -3892,7 +3890,9 @@ void LLViewerWindow::updateKeyboardFocus()
     LLUICtrl* cur_focus = dynamic_cast<LLUICtrl*>(gFocusMgr.getKeyboardFocus());
     if (cur_focus)
     {
-        if (!cur_focus->isInVisibleChain() || !cur_focus->isInEnabledChain())
+        bool is_in_visible_chain = cur_focus->isInVisibleChain();
+        bool is_in_enabled_chain = cur_focus->isInEnabledChain();
+        if (!is_in_visible_chain || !is_in_enabled_chain)
         {
             // don't release focus, just reassign so that if being given
             // to a sibling won't call onFocusLost on all the ancestors
@@ -3903,11 +3903,19 @@ void LLViewerWindow::updateKeyboardFocus()
             bool new_focus_found = false;
             while(parent)
             {
+                if (!is_in_visible_chain)
+                {
+                    is_in_visible_chain = parent->isInVisibleChain();
+                }
+                if (!is_in_enabled_chain)
+                {
+                    is_in_enabled_chain = parent->isInEnabledChain();
+                }
                 if (parent->isCtrl()
                     && (parent->hasTabStop() || parent == focus_root)
                     && !parent->getIsChrome()
-                    && parent->isInVisibleChain()
-                    && parent->isInEnabledChain())
+                    && is_in_visible_chain
+                    && is_in_enabled_chain)
                 {
                     if (!parent->focusFirstItem())
                     {
@@ -4249,15 +4257,15 @@ void LLViewerWindow::pickAsync( S32 x,
                                 bool pick_unselectable,
                                 bool pick_reflection_probes)
 {
+    static LLCachedControl<bool> select_invisible_objects(gSavedSettings, "SelectInvisibleObjects");
     // "Show Debug Alpha" means no object actually transparent
     bool in_build_mode = LLFloaterReg::instanceVisible("build");
-    if (LLDrawPoolAlpha::sShowDebugAlpha
-        || (in_build_mode && gSavedSettings.getBOOL("SelectInvisibleObjects")))
+    if (LLDrawPoolAlpha::sShowDebugAlpha || (in_build_mode && select_invisible_objects))
     {
         pick_transparent = true;
     }
 
-    LLPickInfo pick_info(LLCoordGL(x, y_from_bot), mask, pick_transparent, pick_rigged, false, pick_reflection_probes, pick_unselectable, true, callback);
+    LLPickInfo pick_info(LLCoordGL(x, y_from_bot), mask, pick_transparent, pick_rigged, false, pick_reflection_probes, true, pick_unselectable, callback);
     schedulePick(pick_info);
 }
 
@@ -4280,7 +4288,6 @@ void LLViewerWindow::schedulePick(LLPickInfo& pick_info)
     // until the pick triggered in handleMouseDown has been processed, for example
     mWindow->delayInputProcessing();
 }
-
 
 void LLViewerWindow::performPick()
 {
@@ -4315,8 +4322,9 @@ void LLViewerWindow::returnEmptyPicks()
 // Performs the GL object/land pick.
 LLPickInfo LLViewerWindow::pickImmediate(S32 x, S32 y_from_bot, bool pick_transparent, bool pick_rigged, bool pick_particle, bool pick_unselectable, bool pick_reflection_probe)
 {
+    static LLCachedControl<bool> select_invisible_objects(gSavedSettings, "SelectInvisibleObjects");
     bool in_build_mode = LLFloaterReg::instanceVisible("build");
-    if ((in_build_mode && gSavedSettings.getBOOL("SelectInvisibleObjects")) || LLDrawPoolAlpha::sShowDebugAlpha)
+    if ((in_build_mode && select_invisible_objects) || LLDrawPoolAlpha::sShowDebugAlpha)
     {
         // build mode allows interaction with all transparent objects
         // "Show Debug Alpha" means no object actually transparent
@@ -4324,7 +4332,7 @@ LLPickInfo LLViewerWindow::pickImmediate(S32 x, S32 y_from_bot, bool pick_transp
     }
 
     // shortcut queueing in mPicks and just update mLastPick in place
-    MASK    key_mask = gKeyboard->currentMask(true);
+    MASK key_mask = gKeyboard->currentMask(true);
     mLastPick = LLPickInfo(LLCoordGL(x, y_from_bot), key_mask, pick_transparent, pick_rigged, pick_particle, pick_reflection_probe, true, false, NULL);
     mLastPick.fetchResults();
 
@@ -5362,8 +5370,8 @@ bool LLViewerWindow::cubeSnapshot(const LLVector3& origin, LLCubeMapArray* cubea
     LLViewerCamera* camera = LLViewerCamera::getInstance();
 
     LLViewerCamera saved_camera = LLViewerCamera::instance();
-    glh::matrix4f saved_proj = get_current_projection();
-    glh::matrix4f saved_mod = get_current_modelview();
+    glm::mat4 saved_proj = get_current_projection();
+    glm::mat4 saved_mod = get_current_modelview();
 
     // camera constants for the square, cube map capture image
     camera->setAspect(1.0); // must set aspect ratio first to avoid undesirable clamping of vertical FoV
@@ -5954,23 +5962,20 @@ LLRect LLViewerWindow::getChatConsoleRect()
 
 void LLViewerWindow::reshapeStatusBarContainer()
 {
-    LLPanel* status_bar_container = getRootView()->getChild<LLPanel>("status_bar_container");
-    LLView* nav_bar_container = getRootView()->getChild<LLView>("nav_bar_container");
-
-    S32 new_height = status_bar_container->getRect().getHeight();
-    S32 new_width = status_bar_container->getRect().getWidth();
+    S32 new_height = mStatusBarContainer->getRect().getHeight();
+    S32 new_width = mStatusBarContainer->getRect().getWidth();
 
     if (gSavedSettings.getBOOL("ShowNavbarNavigationPanel"))
     {
         // Navigation bar is outside visible area, expand status_bar_container to show it
-        new_height += nav_bar_container->getRect().getHeight();
+        new_height += mNavBarContainer->getRect().getHeight();
     }
     else
     {
         // collapse status_bar_container
-        new_height -= nav_bar_container->getRect().getHeight();
+        new_height -= mNavBarContainer->getRect().getHeight();
     }
-    status_bar_container->reshape(new_width, new_height, true);
+    mStatusBarContainer->reshape(new_width, new_height, true);
 }
 
 void LLViewerWindow::resetStatusBarContainer()
@@ -5979,12 +5984,10 @@ void LLViewerWindow::resetStatusBarContainer()
     if (gSavedSettings.getBOOL("ShowNavbarNavigationPanel") || navbar->getVisible())
     {
         // was previously showing navigation bar
-        LLView* nav_bar_container = getRootView()->getChild<LLView>("nav_bar_container");
-        LLPanel* status_bar_container = getRootView()->getChild<LLPanel>("status_bar_container");
-        S32 new_height = status_bar_container->getRect().getHeight();
-        S32 new_width = status_bar_container->getRect().getWidth();
-        new_height -= nav_bar_container->getRect().getHeight();
-        status_bar_container->reshape(new_width, new_height, true);
+        S32 new_height = mStatusBarContainer->getRect().getHeight();
+        S32 new_width = mStatusBarContainer->getRect().getWidth();
+        new_height -= mNavBarContainer->getRect().getHeight();
+        mStatusBarContainer->reshape(new_width, new_height, true);
     }
 }
 //----------------------------------------------------------------------------
@@ -6011,7 +6014,7 @@ void LLViewerWindow::setUIVisibility(bool visible)
 
     LLNavigationBar::getInstance()->setVisible(visible ? gSavedSettings.getBOOL("ShowNavbarNavigationPanel") : false);
     LLPanelTopInfoBar::getInstance()->setVisible(visible? gSavedSettings.getBOOL("ShowMiniLocationPanel") : false);
-    mRootView->getChildView("status_bar_container")->setVisible(visible);
+    mStatusBarContainer->setVisible(visible);
 }
 
 bool LLViewerWindow::getUIVisibility()
@@ -6049,14 +6052,14 @@ LLPickInfo::LLPickInfo(const LLCoordGL& mouse_pos,
     bool pick_rigged,
     bool pick_particle,
     bool pick_reflection_probe,
-    bool pick_uv_coords,
+    bool pick_surface_info,
     bool pick_unselectable,
     void (*pick_callback)(const LLPickInfo& pick_info))
     : mMousePt(mouse_pos),
     mKeyMask(keyboard_mask),
     mPickCallback(pick_callback),
     mPickType(PICK_INVALID),
-    mWantSurfaceInfo(pick_uv_coords),
+    mWantSurfaceInfo(pick_surface_info),
     mObjectFace(-1),
     mUVCoords(-1.f, -1.f),
     mSTCoords(-1.f, -1.f),

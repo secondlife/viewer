@@ -242,20 +242,6 @@ void LLPanel::draw()
 
 void LLPanel::updateDefaultBtn()
 {
-    if( mDefaultBtn)
-    {
-        if (gFocusMgr.childHasKeyboardFocus( this ) && mDefaultBtn->getEnabled())
-        {
-            LLButton* buttonp = dynamic_cast<LLButton*>(gFocusMgr.getKeyboardFocus());
-            bool focus_is_child_button = buttonp && buttonp->getCommitOnReturn();
-            // only enable default button when current focus is not a return-capturing button
-            mDefaultBtn->setBorderEnabled(!focus_is_child_button);
-        }
-        else
-        {
-            mDefaultBtn->setBorderEnabled(false);
-        }
-    }
 }
 
 void LLPanel::refresh()
@@ -266,15 +252,7 @@ void LLPanel::refresh()
 
 void LLPanel::setDefaultBtn(LLButton* btn)
 {
-    if (mDefaultBtn && mDefaultBtn->getEnabled())
-    {
-        mDefaultBtn->setBorderEnabled(false);
-    }
     mDefaultBtn = btn;
-    if (mDefaultBtn)
-    {
-        mDefaultBtn->setBorderEnabled(true);
-    }
 }
 
 void LLPanel::setDefaultBtn(std::string_view id)

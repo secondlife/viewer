@@ -28,6 +28,26 @@
 
 #include "llphysicsshapebuilderutil.h"
 
+#include "llmeshrepository.h"
+
+bool LLPhysicsVolumeParams::hasDecomposition() const
+ {
+    if (!isMeshSculpt())
+    {
+        return false;
+    }
+
+    LLUUID mesh_id = getSculptID();
+    if (mesh_id.isNull())
+    {
+        return false;
+    }
+
+    LLModel::Decomposition* decomp = gMeshRepo.getDecomposition(mesh_id);
+
+    return decomp != NULL;
+}
+
 /* static */
 void LLPhysicsShapeBuilderUtil::determinePhysicsShape( const LLPhysicsVolumeParams& volume_params, const LLVector3& scale, PhysicsShapeSpecification& specOut)
 {
@@ -200,19 +220,32 @@ void LLPhysicsShapeBuilderUtil::determinePhysicsShape( const LLPhysicsVolumePara
     {
         specOut.mType = PhysicsShapeSpecification::PRIM_CONVEX;
     }
-    else if (volume_params.isMeshSculpt() &&
-             // Check overall dimensions, not individual triangles.
-             (scale.mV[0] < SHAPE_BUILDER_USER_MESH_CONVEXIFICATION_SIZE ||
-              scale.mV[1] < SHAPE_BUILDER_USER_MESH_CONVEXIFICATION_SIZE ||
-              scale.mV[2] < SHAPE_BUILDER_USER_MESH_CONVEXIFICATION_SIZE
-              ) )
+    else if (volume_params.isMeshSculpt())
     {
-        // Server distinguishes between user-specified or default convex mesh, vs server's thin-triangle override, but we don't.
-        specOut.mType = PhysicsShapeSpecification::PRIM_CONVEX;
+        // Check overall dimensions, not individual triangles.
+        if (scale.mV[0] < SHAPE_BUILDER_USER_MESH_CONVEXIFICATION_SIZE
+            || scale.mV[1] < SHAPE_BUILDER_USER_MESH_CONVEXIFICATION_SIZE
+            || scale.mV[2] < SHAPE_BUILDER_USER_MESH_CONVEXIFICATION_SIZE
+            )
+        {
+            if (volume_params.hasDecomposition())
+            {
+                specOut.mType = PhysicsShapeSpecification::USER_MESH;
+            }
+            else
+            {
+                // Server distinguishes between user-specified or default convex mesh, vs server's thin-triangle override, but we don't.
+                specOut.mType = PhysicsShapeSpecification::PRIM_CONVEX;
+            }
+        }
+        else
+        {
+            specOut.mType = PhysicsShapeSpecification::USER_MESH;
+        }
     }
-    else if ( volume_params.isSculpt() ) // Is a sculpt of any kind (mesh or legacy)
+    else if ( volume_params.isSculpt() )
     {
-        specOut.mType = volume_params.isMeshSculpt() ? PhysicsShapeSpecification::USER_MESH : PhysicsShapeSpecification::SCULPT;
+        specOut.mType = PhysicsShapeSpecification::SCULPT;
     }
     else // Resort to mesh
     {
