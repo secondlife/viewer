@@ -8860,6 +8860,21 @@ If you are a Premium Member, [[PREMIUM_URL] click here] to receive your voice mo
 
   <notification
    icon="notify.tga"
+   name="VoiceEffectsWillExpire"
+   sound="UISndAlert"
+   persist="true"
+   type="notify">
+    <unique/>    
+One or more of your Voice Morphs will expire in less than [INTERVAL] days.
+[[URL] Click here] to renew your subscription.
+
+If you are a Premium Member, [[PREMIUM_URL] click here] to receive your voice morphing perk.
+  <tag>fail</tag>
+    <tag>voice</tag>
+  </notification>
+
+  <notification
+   icon="notify.tga"
    name="VoiceEffectsNew"
    sound="UISndAlert"
    persist="true"
