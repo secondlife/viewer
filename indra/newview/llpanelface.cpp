@@ -421,7 +421,7 @@ bool LLPanelFace::postBuild()
 
     getChildSetCommitCallback(mCheckFullbright, "checkbox fullbright", [&](LLUICtrl*, const LLSD&) { onCommitFullbright(); });
 
-    mLabelTexGen = getChild<LLTextBox>("alpha gamma");
+    mLabelAlphaGamma = getChild<LLTextBox>("alpha gamma");
     getChildSetCommitCallback(mComboAlphaGamma, "combobox alpha gamma", [&](LLUICtrl *, const LLSD &) { onCommitAlphaGamma(); });
     mComboAlphaGamma->setFollows(FOLLOWS_LEFT | FOLLOWS_TOP);
 
@@ -2846,6 +2846,7 @@ void LLPanelFace::updateVisibility(LLViewerObject* objectp /* = nullptr */)
     // Shared material controls
     mComboAlphaGamma->setVisible(true);
     mComboAlphaGamma->setEnabled(true);
+    mLabelAlphaGamma->setEnabled(true);
     mCheckSyncSettings->setVisible(show_material || show_media);
     mLabelTexGen->setVisible(show_material || show_media || show_pbr_asset);
     mComboTexGen->setVisible(show_material || show_media || show_pbr_asset);
