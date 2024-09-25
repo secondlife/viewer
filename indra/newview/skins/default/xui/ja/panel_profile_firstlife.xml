@@ -1,2 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="プロフィール" name="panel_profile_firstlife"/>
+<panel name="panel_profile_firstlife" label="プロフィール">
+	<button name="fl_upload_image" label="画像をアップロード"/>
+	<button name="fl_change_image" label="画像を変更"/>
+	<button name="fl_remove_image" label="画像を削除"/>
+	<button name="fl_save_changes" label="save"/>
+	<button name="fl_discard_changes" label="処分する"/>
+</panel>

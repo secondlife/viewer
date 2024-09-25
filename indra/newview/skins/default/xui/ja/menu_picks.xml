@@ -3,8 +3,6 @@
 	<menu_item_call label="テレポート" name="pick_teleport"/>
 	<menu_item_call label="ピックの情報" name="pick_info"/>
 	<menu_item_call label="ピックを編集" name="pick_edit"/>
-	<menu_item_call label="テレポート" name="pick_teleport"/>
 	<menu_item_call label="マップに表示" name="pick_map"/>
-	<menu_item_separator name="pick_separator"/>
 	<menu_item_call label="削除" name="pick_delete"/>
 </context_menu>

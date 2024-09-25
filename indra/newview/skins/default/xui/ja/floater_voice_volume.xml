@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater_voice_volume" title="ボイス音量">
-	<slider name="volume_slider" tool_tip="ボイス音量" value="0.5"/>
+	<text name="avatar_name" value="テスト文字列 無視してください"/>
+	<slider name="volume_slider" tool_tip="ボイス音量"/>
 </floater>

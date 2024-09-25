@@ -3,4 +3,5 @@
 	<menu_item_call label="脱ぐ" name="take_off"/>
 	<menu_item_call label="編集" name="edit"/>
 	<menu_item_call label="着替える" name="replace"/>
+	<menu_item_call label="新規作成" name="create_new"/>
 </context_menu>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel name="Outfits" label="モノ">
+<panel name="Outfits" label="もの">
 	<panel.string name="wear_outfit_tooltip">
 		選択したアウトフィットに着替える
 	</panel.string>
@@ -9,7 +9,7 @@
 	<tab_container name="appearance_tabs">
 		<panel name="outfit_gallery_tab" label="アウトフィットギャラリー"/>
 		<panel name="outfitslist_tab" label="自分のアウトフィット"/>
-		<panel name="cof_tab" label="着用中"/>
+		<panel label="着用中" name="cof_tab"/>
 	</tab_container>
 	<panel name="bottom_panel">
 		<layout_stack name="bottom_panel_ls">
@@ -17,7 +17,7 @@
 				<button label="変更を保存" name="save_btn"/>
 			</layout_panel>
 			<layout_panel name="save_as_btn_lp">
-				<button label="名前をつけて保存…" name="save_as_btn"/>
+				<button label="名前をつけて保存..." name="save_as_btn"/>
 			</layout_panel>
 			<layout_panel name="wear_btn_lp">
 				<button label="着用" name="wear_btn"/>

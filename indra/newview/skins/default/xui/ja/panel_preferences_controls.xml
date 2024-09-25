@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="操作設定" name="controls">
 	<combo_box name="key_mode">
-		<combo_box.item label="三人称視点のとき" name="third_person" value="1"/>
-		<combo_box.item label="一人称視点のとき（マウスルック）" name="first_person" value="0"/>
-		<combo_box.item label="アバター編集時" name="edit_avatar" value="2"/>
-		<combo_box.item label="着席時" name="sitting" value="3"/>
+		<combo_box.item label="三人称視点のとき" name="third_person"/>
+		<combo_box.item label="一人称視点のとき(マウスルック)" name="first_person"/>
+		<combo_box.item label="アバター編集時" name="edit_avatar"/>
+		<combo_box.item label="着席時" name="sitting"/>
 	</combo_box>
-	<button label="デフォルトに戻す" tool_tip="すべての操作設定をデフォルト値に戻します。" name="restore_defaults"/>
-	<scroll_list name="controls_list"/>
+	<button label="デフォルトに戻す" tool_tip="全ての操作設定をデフォルト値に戻します。" name="restore_defaults"/>
 </panel>

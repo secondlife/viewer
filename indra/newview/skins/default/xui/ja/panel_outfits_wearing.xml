@@ -5,15 +5,9 @@
 	</panel.string>
 	<accordion name="wearables_accordion">
 		<accordion_tab name="tab_wearables" title="着用物"/>
-		<accordion_tab name="cof_items_list" title="一時的な装着物">
-			<scroll_list name="temp_attachments_list">
-				<scroll_list.columns name="icon"/>
-				<scroll_list.columns name="text"/>
-			</scroll_list>
-		</accordion_tab>
+		<accordion_tab name="tab_temp_attachments" title="一時的な装着物"/>
 	</accordion>
 	<panel name="bottom_panel">
-		<menu_button name="options_gear_btn" tool_tip="オプションを表示します。"/>
-		<icon name="dummy_icon"/>
+		<menu_button name="options_gear_btn" tool_tip="追加オプションを表示"/>
 	</panel>
 </panel>

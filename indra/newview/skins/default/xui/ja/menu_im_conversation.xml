@@ -4,13 +4,13 @@
 	<menu_item_call label="フレンド登録" name="Add Friend"/>
 	<menu_item_call label="フレンドを削除" name="remove_friend"/>
 	<menu_item_call label="テレポートをオファー" name="offer_teleport"/>
-	<menu_item_call label="グループに招待…" name="invite_to_group"/>
-	<menu_item_call label="チャットの履歴…" name="chat_history"/>
+	<menu_item_call label="グループに招待..." name="invite_to_group"/>
+	<menu_item_call label="チャットの履歴..." name="chat_history"/>
 	<menu_item_call label="ズームイン" name="zoom_in"/>
 	<menu_item_call label="マップ" name="map"/>
 	<menu_item_call label="共有" name="Share"/>
-	<menu_item_call label="支払い" name="Pay"/>
-	<menu_item_call label="迷惑行為の報告" name="Report Abuse"/>
-	<menu_item_check label="ボイスのブロック／解除" name="Block/Unblock"/>
+	<menu_item_call label="支払う" name="Pay"/>
+	<menu_item_call label="嫌がらせの報告" name="Report Abuse"/>
+	<menu_item_check label="ボイスをブロック・解除" name="Block/Unblock"/>
 	<menu_item_check label="テキストをブロックする" name="MuteText"/>
 </toggleable_menu>

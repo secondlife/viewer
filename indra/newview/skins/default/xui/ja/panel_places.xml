@@ -20,13 +20,7 @@
 				<layout_panel name="add_btn_panel">
 					<menu_button name="add_menu_btn" tool_tip="新しいランドマークかフォルダを追加"/>
 				</layout_panel>
-				<layout_panel name="trash_btn_panel">
-					<dnd_button name="trash_btn"/>
-				</layout_panel>
 			</layout_stack>
-			<tab_container name="Places Tabs"/>
-			<panel name="panel_place_profile"/>
-			<panel name="panel_landmark_info"/>
 		</layout_panel>
 		<layout_panel auto_resize="false" layout="topleft" height="25" name="button_layout_panel">
 			<panel name="button_panel">
@@ -34,7 +28,7 @@
 					<layout_panel name="lp1">
 						<layout_stack name="bottom_bar_ls1">
 							<layout_panel name="teleport_btn_lp">
-								<button label="テレポート" name="teleport_btn" tool_tip="該当するエリアにテレポートする"/>
+								<button label="テレポート" name="teleport_btn" tool_tip="該当するエリアにテレポート"/>
 							</layout_panel>
 							<layout_panel name="chat_btn_lp">
 								<button label="マップ" name="map_btn" tool_tip="ワールドマップに該当するエリアを表示"/>

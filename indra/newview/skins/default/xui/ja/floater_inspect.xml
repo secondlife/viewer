@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="inspect" title="オブジェクトの調査">
 	<floater.string name="timeStamp">
-		[year,datetime,slt]年[mth,datetime,slt]月[day,datetime,slt]日（[wkday,datetime,slt]）　[hour,datetime,slt]：[min,datetime,slt]：[second,datetime,slt]
+		[year,datetime,local]年[mth,datetime,local]月[day,datetime,local]日([wkday,datetime,local]) [hour,datetime,local]:[min,datetime,local]:[second,datetime,local]
 	</floater.string>
 	<scroll_list name="object_list" tool_tip="このリストからオブジェクトを選択して、インワールドでハイライトします。">
 		<scroll_list.columns label="オブジェクト名" name="object_name"/>
@@ -10,6 +10,6 @@
 		<scroll_list.columns label="制作日" name="creation_date"/>
 		<scroll_list.commit_callback function="Inspect.SelectObject"/>
 	</scroll_list>
-	<button label="所有者のプロフィール…" name="button owner" tool_tip="ハイライトされたオブジェクトの所有者のプロフィールを見る"/>
-	<button label="制作者のプロフィール…" name="button creator" tool_tip="ハイライトされたオブジェクトの元の作成者のプロフィールを見る"/>
+	<button label="所有者のプロフィール..." name="button owner" tool_tip="ハイライトされたオブジェクトの所有者のプロフィールを見る"/>
+	<button label="制作者のプロフィール..." name="button creator" tool_tip="ハイライトされたオブジェクトの元の作成者のプロフィールを見る"/>
 </floater>

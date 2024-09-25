@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater label="イベント" name="Event" title="イベントの情報">
 	<floater.string name="loading_text">
-		読み込んでいます…
+		読込中...
 	</floater.string>
 	<floater.string name="done_text">
 		完了
 	</floater.string>
-	<web_browser name="browser"/>
-	<text name="status_text"/>
 </floater>

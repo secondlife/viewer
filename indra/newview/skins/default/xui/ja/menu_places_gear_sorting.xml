@@ -2,6 +2,5 @@
 <toggleable_menu name="menu_sorter_gear">
 	<menu_item_call label="全てのフォルダを開く" name="expand_all"/>
 	<menu_item_call label="全てのフォルダを閉じる" name="collapse_all"/>
-	<menu_item_separator/>
 	<menu_item_check label="日付でソート" name="sort_by_date"/>
 </toggleable_menu>

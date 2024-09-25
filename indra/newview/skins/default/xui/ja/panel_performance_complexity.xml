@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_performance_complexity">
-	<button name="back_btn"/>
 	<text name="back_lbl">
 		戻る
 	</text>
@@ -16,9 +15,4 @@
 	<text name="attachments_desc3">
 		不要な重い装着物を削除すると解決することがあります。
 	</text>
-	<name_list name="obj_list">
-		<name_list.columns label="" name="complex_visual"/>
-		<name_list.columns label="" name="complex_value"/>
-		<name_list.columns label="" name="name"/>
-	</name_list>
 </panel>

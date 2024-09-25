@@ -9,7 +9,6 @@
 	<text name="Preset">
 		プリセットを選択
 	</text>
-	<combo_box name="preset_combo"/>
 	<button label="削除" name="delete"/>
 	<button label="キャンセル" name="cancel"/>
 </floater>

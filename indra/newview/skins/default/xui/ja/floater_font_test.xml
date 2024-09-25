@@ -7,7 +7,7 @@
 		普通の大きさのサンセリフ
 	</text>
 	<text type="string" length="1" bottom_delta="20" follows="left|top|right" font="SansSerif" height="16" layout="topleft" left="16">
-		サンセリフ。スタイル設定無し（普通の大きさと同じ）
+		サンセリフ スタイル設定無し(普通の大きさと同じ)
 	</text>
 	<text type="string" length="1" bottom_delta="20" follows="left|top|right" font="SansSerifLarge" height="16" layout="topleft" left="16">
 		大きいサンセリフ
@@ -34,7 +34,7 @@
 		ボールドのサンセリフ
 	</text>
 	<text type="string" length="1" bottom_delta="20" follows="left|top|right" font="SansSerif" font.style="BOLD" height="16" layout="topleft" left="16">
-		サンセリフ style=BOLD（ボールドのサンセリフと一緒）
+		サンセリフ style=BOLD(ボールドのサンセリフと一緒)
 	</text>
 	<text type="string" length="1" bottom_delta="20" follows="left|top|right" font="SansSerif" font.style="ITALIC" height="16" layout="topleft" left="16">
 		サンセリフ style=ITALIC
@@ -54,34 +54,14 @@
 	<text type="string" length="1" bottom_delta="20" follows="left|top|right" font="SansSerif" height="16" layout="topleft" left="16">
 		サンセリフ shadow=soft
 	</text>
-	<text type="string" length="1" bottom_delta="20" follows="left|top|right" font="DejaVu" height="16" layout="topleft" left="16">
-		DejaVu
-	</text>
-	<text type="string" length="1" bottom_delta="20" follows="left|top|right" font="DejaVu" font.style="BOLD" height="16" layout="topleft" left="16">
-		DejaVu style=BOLD
-	</text>
-	<text type="string" length="1" bottom_delta="20" follows="left|top|right" font="DejaVu" font.style="ITALIC" height="16" layout="topleft" left="16">
-		DejaVu style=ITALIC
-	</text>
-	<text type="string" length="1" bottom_delta="20" follows="left|top|right" font="DejaVu" font.style="BOLD|ITALIC" height="16" layout="topleft" left="16">
-		DejaVu style=BOLD|ITALIC
-	</text>
-	<text type="string" length="1" bottom_delta="20" follows="left|top|right" font="DejaVu" font.size="Large" font.style="BOLD|ITALIC" height="16" layout="topleft" left="16">
-		DejaVu size=Large style=BOLD|ITALIC
-	</text>
-	<text type="string" length="1" bottom_delta="20" follows="left|top|right" font="Helvetica" height="16" layout="topleft" left="16">
-		Helvetica
-	</text>
-	<text type="string" length="1" bottom_delta="20" follows="left|top|right" font="Helvetica" font.style="BOLD" height="16" layout="topleft" left="16">
-		Helvetica style=BOLD
-	</text>
-	<text type="string" length="1" bottom_delta="20" follows="left|top|right" font="Helvetica" font.style="ITALIC" height="16" layout="topleft" left="16">
-		Helvetica style=ITALIC
-	</text>
-	<text type="string" length="1" bottom_delta="20" follows="left|top|right" font="Helvetica" font.style="BOLD|ITALIC" height="16" layout="topleft" left="16">
-		Helvetica style=BOLD|ITALIC
-	</text>
-	<text type="string" length="1" bottom_delta="20" follows="left|top|right" font="Helvetica" font.size="Large" font.style="BOLD|ITALIC" height="16" layout="topleft" left="16">
-		Helvetica size=Large style=BOLD|ITALIC
-	</text>
+	<text type="string" length="1" bottom_delta="20" follows="left|top|right" font="DejaVu" height="16" layout="topleft" left="16"/>
+	<text type="string" length="1" bottom_delta="20" follows="left|top|right" font="DejaVu" font.style="BOLD" height="16" layout="topleft" left="16"/>
+	<text type="string" length="1" bottom_delta="20" follows="left|top|right" font="DejaVu" font.style="ITALIC" height="16" layout="topleft" left="16"/>
+	<text type="string" length="1" bottom_delta="20" follows="left|top|right" font="DejaVu" font.style="BOLD|ITALIC" height="16" layout="topleft" left="16"/>
+	<text type="string" length="1" bottom_delta="20" follows="left|top|right" font="DejaVu" font.size="Large" font.style="BOLD|ITALIC" height="16" layout="topleft" left="16"/>
+	<text type="string" length="1" bottom_delta="20" follows="left|top|right" font="Helvetica" height="16" layout="topleft" left="16"/>
+	<text type="string" length="1" bottom_delta="20" follows="left|top|right" font="Helvetica" font.style="BOLD" height="16" layout="topleft" left="16"/>
+	<text type="string" length="1" bottom_delta="20" follows="left|top|right" font="Helvetica" font.style="ITALIC" height="16" layout="topleft" left="16"/>
+	<text type="string" length="1" bottom_delta="20" follows="left|top|right" font="Helvetica" font.style="BOLD|ITALIC" height="16" layout="topleft" left="16"/>
+	<text type="string" length="1" bottom_delta="20" follows="left|top|right" font="Helvetica" font.size="Large" font.style="BOLD|ITALIC" height="16" layout="topleft" left="16"/>
 </floater>

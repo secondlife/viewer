@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <context_menu name="Mute Particle Pie">
-	<menu_item_call label="パーティクル所有者をブロック" name="Mute Particle"/>
+	<menu_item_call label="パーティクルの所有者をブロック" name="Mute Particle"/>
 </context_menu>

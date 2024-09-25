@@ -2,5 +2,6 @@
 <toggleable_menu name="Teleport History Item Menu">
 	<menu_item_call label="テレポート" name="Teleport"/>
 	<menu_item_call label="より詳細な情報" name="More Information"/>
+	<menu_item_call label="テレポート" name="show_on_map"/>
 	<menu_item_call label="SLurlをコピー" name="CopyToClipboard"/>
 </toggleable_menu>

@@ -1,39 +1,42 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <menu_bar name="Login Menu">
-	<menu label="私" name="File">
-		<menu_item_call label="初期設定…" name="Preferences..."/>
+	<menu label="ミー" name="File">
+		<menu_item_call label="初期設定..." name="Preferences..."/>
 		<menu_item_call label="ウィンドウを閉じる" name="Close Window"/>
-		<menu_item_check label="グリッドピッカーを表示する" name="Show Grid Picker"/>
-		<menu_item_call label="[APP_NAME]を終了" name="Quit"/>
+		<menu_item_check label="グリッドピッカーを表示" name="Show Grid Picker"/>
+		<menu_item_call label="[APP_NAME] を終了" name="Quit"/>
 	</menu>
 	<menu label="ヘルプ" name="Help">
-		<menu_item_call label="ハウツー…" name="How To"/>
-		<menu_item_call label="クイックスタート" name="Quickstart"/>
+		<menu_item_call label="ガイドブック" name="How To"/>
 		<menu_item_call label="ナレッジベース" name="Knowledge Base"/>
-		<menu_item_call label="Wiki" name="Wiki"/>
-		<menu_item_call label="コミュニティ フォーラム" name="Community Forums"/>
+		<menu_item_call label="コミュニティフォーラム" name="Community Forums"/>
 		<menu_item_call label="日本語サポートページ" name="Support portal"/>
-		<menu_item_call label="[SECOND_LIFE]ニュース" name="Second Life News"/>
-		<menu_item_call label="[SECOND_LIFE]ブログ" name="Second Life Blogs"/>
-		<menu_item_call label="バグを報告する" name="Report Bug"/>
-		<menu_item_call label="[APP_NAME]について" name="About Second Life"/>
+		<menu_item_call label="[SECOND_LIFE] ニュース" name="Second Life News"/>
+		<menu_item_call label="[SECOND_LIFE] ブログ" name="Second Life Blogs"/>
+		<menu_item_call label="バグを報告" name="Report Bug"/>
+		<menu_item_call label="[APP_NAME] について" name="About Second Life"/>
 	</menu>
-	<menu_item_check label="デバッグメニューを表示する" name="Show Debug Menu"/>
+	<menu_item_check label="デバッグメニューを表示" name="Show Debug Menu"/>
 	<menu label="デバッグ" name="Debug">
 		<menu_item_call label="デバッグ設定を表示" name="Debug Settings"/>
 		<menu_item_call label="XUIプレビューツール" name="UI Preview Tool"/>
-		<menu label="UI テスト" name="UI Tests"/>
-		<menu_item_call label="ウィンドウのサイズを設定…" name="Set Window Size..."/>
+		<menu label="UIテスト" name="UI Tests">
+			<menu_item_call label="テキストBOX" name="Textbox"/>
+			<menu_item_call label="テキストエディタ" name="Text Editor"/>
+			<menu_item_call label="ウィジェット" name="Widgets"/>
+			<menu_item_call label="インスペクター" name="Inspectors"/>
+		</menu>
+		<menu_item_call label="ウィンドウサイズ設定..." name="Set Window Size..."/>
 		<menu_item_call label="利用規約を表示" name="TOS"/>
 		<menu_item_call label="クリティカルメッセージを表示" name="Critical"/>
 		<menu_item_call label="メディアブラウザ" name="Media Browser"/>
 		<menu label="ログレベルを設定" name="Set Logging Level">
-			<menu_item_check label="デバッグ" name="Debug"/>
-			<menu_item_check label="情報" name="Info"/>
-			<menu_item_check label="警告" name="Warning"/>
-			<menu_item_check label="エラー" name="Error"/>
-			<menu_item_check label="なし" name="None"/>
+			<menu_item_check name="Debug" label="デバッグ"/>
+			<menu_item_check name="Info" label="情報"/>
+			<menu_item_check name="Warning" label="警告"/>
+			<menu_item_check name="Error" label="エラー"/>
+			<menu_item_check name="None" label="なし"/>
 		</menu>
-		<menu_item_call label="通知コンソールを表示する" name="Show Notifications Console"/>
+		<menu_item_call label="通知コンソールを表示" name="Show Notifications Console"/>
 	</menu>
 </menu_bar>

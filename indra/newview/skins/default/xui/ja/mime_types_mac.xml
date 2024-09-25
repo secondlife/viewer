@@ -1,236 +1,502 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <mimetypes name="default">
 	<defaultlabel>
-		（不明）
+		(不明)
 	</defaultlabel>
 	<defaultwidget>
 		なし
 	</defaultwidget>
+	<defaultimpl>
+		media_plugin_cef
+	</defaultimpl>
 	<widgetset name="web">
 		<label name="web_label">
 			Webコンテンツ
 		</label>
+		<default_type>
+			text/html
+		</default_type>
 		<tooltip name="web_tooltip">
-			この場所には、Webコンテンツが含まれています。
+			この場所にはWebコンテンツが含まれています。
 		</tooltip>
 		<playtip name="web_playtip">
-			Web コンテンツを表示する
+			Webコンテンツを表示
 		</playtip>
+		<allow_resize>
+			TRUE
+		</allow_resize>
+		<allow_looping>
+			FALSE
+		</allow_looping>
 	</widgetset>
 	<widgetset name="movie">
 		<label name="movie_label">
 			ムービー
 		</label>
+		<default_type>
+			video/*
+		</default_type>
 		<tooltip name="movie_tooltip">
-			この場所には、ムービーがあります。
+			この場所にはムービーがあります
 		</tooltip>
 		<playtip name="movie_playtip">
-			ムービーを再生する
+			ムービーを再生
 		</playtip>
+		<allow_resize>
+			FALSE
+		</allow_resize>
+		<allow_looping>
+			TRUE
+		</allow_looping>
 	</widgetset>
 	<widgetset name="image">
 		<label name="image_label">
 			画像
 		</label>
+		<default_type>
+			image/*
+		</default_type>
 		<tooltip name="image_tooltip">
-			この場所には、画像があります
+			この場所には画像があります
 		</tooltip>
 		<playtip name="image_playtip">
 			この場所の画像を表示する
 		</playtip>
+		<allow_resize>
+			FALSE
+		</allow_resize>
+		<allow_looping>
+			FALSE
+		</allow_looping>
 	</widgetset>
 	<widgetset name="audio">
 		<label name="audio_label">
 			オーディオ
 		</label>
+		<default_type>
+			audio/*
+		</default_type>
 		<tooltip name="audio_tooltip">
-			この場所には、オーディオがあります。
+			この場所にはオーディオがあります
 		</tooltip>
 		<playtip name="audio_playtip">
 			この場所のオーディオを再生する
 		</playtip>
+		<allow_resize>
+			FALSE
+		</allow_resize>
+		<allow_looping>
+			TRUE
+		</allow_looping>
 	</widgetset>
 	<widgetset name="none">
 		<label name="none_label">
 			コンテンツなし
 		</label>
+		<default_type>
+			NONE/NONE
+		</default_type>
 		<tooltip name="none_tooltip">
-			この場所には、メディアがありません。
+			この場所にはメディアがありません。
 		</tooltip>
+		<allow_resize>
+			FALSE
+		</allow_resize>
+		<allow_looping>
+			FALSE
+		</allow_looping>
 	</widgetset>
 	<scheme name="rtsp">
 		<label name="rtsp_label">
 			リアルタイム・ストリーミング
 		</label>
+		<widgettype>
+			ムービー
+		</widgettype>
+		<impl>
+			media_plugin_libvlc
+		</impl>
 	</scheme>
 	<mimetype name="blank">
 		<label name="blank_label">
-			─なし─
+			- なし -
 		</label>
+		<widgettype>
+			NONE
+		</widgettype>
+		<impl>
+			media_plugin_libvlc
+		</impl>
 	</mimetype>
 	<mimetype name="none/none">
 		<label name="none/none_label">
-			─なし─
+			- なし -
 		</label>
+		<widgettype>
+			NONE
+		</widgettype>
+		<impl>
+			media_plugin_cef
+		</impl>
 	</mimetype>
 	<mimetype name="audio/*">
 		<label name="audio2_label">
 			オーディオ
 		</label>
+		<widgettype>
+			オーディオ
+		</widgettype>
+		<impl>
+			media_plugin_libvlc
+		</impl>
 	</mimetype>
 	<mimetype name="video/*">
 		<label name="video2_label">
 			ビデオ
 		</label>
+		<widgettype>
+			ムービー
+		</widgettype>
+		<impl>
+			media_plugin_libvlc
+		</impl>
 	</mimetype>
 	<mimetype name="image/*">
 		<label name="image2_label">
 			画像
 		</label>
+		<widgettype>
+			画像
+		</widgettype>
+		<impl>
+			media_plugin_cef
+		</impl>
 	</mimetype>
 	<mimetype name="video/vnd.secondlife.qt.legacy">
 		<label name="vnd.secondlife.qt.legacy_label">
-			ムービー（QuickTime）
+			ムービー(QuickTime)
 		</label>
+		<widgettype>
+			ムービー
+		</widgettype>
+		<impl>
+			media_plugin_libvlc
+		</impl>
 	</mimetype>
 	<mimetype name="application/javascript">
 		<label name="application/javascript_label">
 			JavasScript
 		</label>
+		<widgettype>
+			WEB
+		</widgettype>
+		<impl>
+			media_plugin_cef
+		</impl>
 	</mimetype>
 	<mimetype name="application/ogg">
 		<label name="application/ogg_label">
-			Oggオーディオ／ビデオ
+			Oggオーディオ/ビデオ
 		</label>
+		<widgettype>
+			オーディオ
+		</widgettype>
+		<impl>
+			media_plugin_libvlc
+		</impl>
 	</mimetype>
 	<mimetype name="application/pdf">
 		<label name="application/pdf_label">
-			PDFドキュメント
+			PDFキュメント
 		</label>
+		<widgettype>
+			画像
+		</widgettype>
+		<impl>
+			media_plugin_cef
+		</impl>
 	</mimetype>
 	<mimetype name="application/postscript">
 		<label name="application/postscript_label">
 			PostScriptドキュメント
 		</label>
+		<widgettype>
+			画像
+		</widgettype>
+		<impl>
+			media_plugin_cef
+		</impl>
 	</mimetype>
 	<mimetype name="application/rtf">
 		<label name="application/rtf_label">
-			リッチテキスト（RTF）
+			リッチテキスト(RTF)
 		</label>
+		<widgettype>
+			画像
+		</widgettype>
+		<impl>
+			media_plugin_cef
+		</impl>
 	</mimetype>
 	<mimetype name="application/smil">
 		<label name="application/smil_label">
-			同期マルチメディア統合言語（SMIL）
+			同期マルチメディア統合言語(SMIL)
 		</label>
+		<widgettype>
+			ムービー
+		</widgettype>
+		<impl>
+			media_plugin_cef
+		</impl>
 	</mimetype>
 	<mimetype name="application/xhtml+xml">
 		<label name="application/xhtml+xml_label">
-			Webページ（XHTML）
+			Webページ(XHTML)
 		</label>
+		<widgettype>
+			WEB
+		</widgettype>
+		<impl>
+			media_plugin_cef
+		</impl>
 	</mimetype>
 	<mimetype name="application/x-director">
 		<label name="application/x-director_label">
-			Macromedia Director
+			マクロメディアディレクター
 		</label>
+		<widgettype>
+			画像
+		</widgettype>
+		<impl>
+			media_plugin_cef
+		</impl>
 	</mimetype>
 	<mimetype name="application/octet-stream">
 		<label name="application/octet-stream_label">
 			ストリーム
 		</label>
+		<widgettype>
+			ムービー
+		</widgettype>
+		<impl>
+			media_plugin_libvlc
+		</impl>
 	</mimetype>
 	<mimetype name="audio/mid">
 		<label name="audio/mid_label">
-			オーディオ（MIDI）
+			オーディオ(MIDI)
 		</label>
+		<widgettype>
+			オーディオ
+		</widgettype>
+		<impl>
+			media_plugin_libvlc
+		</impl>
 	</mimetype>
 	<mimetype name="audio/mpeg">
 		<label name="audio/mpeg_label">
-			オーディオ（MP3）
+			オーディオ(MP3)
 		</label>
+		<widgettype>
+			オーディオ
+		</widgettype>
+		<impl>
+			media_plugin_libvlc
+		</impl>
 	</mimetype>
 	<mimetype name="audio/x-aiff">
 		<label name="audio/x-aiff_label">
-			オーディオ（AIFF）
+			オーディオ(AIFF)
 		</label>
+		<widgettype>
+			オーディオ
+		</widgettype>
+		<impl>
+			media_plugin_libvlc
+		</impl>
 	</mimetype>
 	<mimetype name="audio/x-wav">
 		<label name="audio/x-wav_label">
-			オーディオ（WAV）
+			オーディオ(WAV)
 		</label>
+		<widgettype>
+			オーディオ
+		</widgettype>
+		<impl>
+			media_plugin_libvlc
+		</impl>
 	</mimetype>
 	<mimetype name="image/bmp">
 		<label name="image/bmp_label">
-			画像（BMP）
+			画像(BMP)
 		</label>
+		<widgettype>
+			画像
+		</widgettype>
+		<impl>
+			media_plugin_cef
+		</impl>
 	</mimetype>
 	<mimetype name="image/gif">
 		<label name="image/gif_label">
-			画像（GIF）
+			画像(GIF)
 		</label>
+		<widgettype>
+			画像
+		</widgettype>
+		<impl>
+			media_plugin_cef
+		</impl>
 	</mimetype>
 	<mimetype name="image/jpeg">
 		<label name="image/jpeg_label">
-			画像（JPEG）
+			画像(JPEG)
 		</label>
+		<widgettype>
+			画像
+		</widgettype>
+		<impl>
+			media_plugin_cef
+		</impl>
 	</mimetype>
 	<mimetype name="image/png">
 		<label name="image/png_label">
-			画像（PNG）
+			画像(PNG)
 		</label>
+		<widgettype>
+			画像
+		</widgettype>
+		<impl>
+			media_plugin_cef
+		</impl>
 	</mimetype>
 	<mimetype name="image/svg+xml">
 		<label name="image/svg+xml_label">
-			画像（SVG）
+			画像(SVG)
 		</label>
+		<widgettype>
+			画像
+		</widgettype>
+		<impl>
+			media_plugin_cef
+		</impl>
 	</mimetype>
 	<mimetype name="image/tiff">
 		<label name="image/tiff_label">
-			画像（TIFF）
+			画像(TIFF)
 		</label>
+		<widgettype>
+			画像
+		</widgettype>
+		<impl>
+			media_plugin_cef
+		</impl>
 	</mimetype>
 	<mimetype name="text/html">
 		<label name="text/html_label">
 			Webページ
 		</label>
+		<widgettype>
+			WEB
+		</widgettype>
+		<impl>
+			media_plugin_cef
+		</impl>
 	</mimetype>
 	<mimetype name="text/plain">
 		<label name="text/plain_label">
 			テキスト
 		</label>
+		<widgettype>
+			テキスト
+		</widgettype>
+		<impl>
+			media_plugin_cef
+		</impl>
 	</mimetype>
 	<mimetype name="text/xml">
-		<label name="text/xml_label">
-			XML
-		</label>
+		<widgettype>
+			テキスト
+		</widgettype>
+		<impl>
+			media_plugin_cef
+		</impl>
 	</mimetype>
 	<mimetype name="video/mpeg">
 		<label name="video/mpeg_label">
-			ムービー（MPEG）
+			ムービー(MPEG)
 		</label>
+		<widgettype>
+			ムービー
+		</widgettype>
+		<impl>
+			media_plugin_libvlc
+		</impl>
 	</mimetype>
 	<mimetype name="video/mp4">
 		<label name="video/mp4_label">
-			ムービー（MP4）
+			ムービー(MP4)
 		</label>
+		<widgettype>
+			ムービー
+		</widgettype>
+		<impl>
+			media_plugin_libvlc
+		</impl>
+	</mimetype>
+	<mimetype name="video/x-flv">
+		<label name="video/x-flv_label">
+			ムービー(FLV)
+		</label>
+		<widgettype>
+			ムービー
+		</widgettype>
+		<impl>
+			media_plugin_libvlc
+		</impl>
 	</mimetype>
 	<mimetype name="video/quicktime">
 		<label name="video/quicktime_label">
-			ムービー（QuickTime）
+			ムービー(QuickTime)
 		</label>
+		<widgettype>
+			ムービー
+		</widgettype>
+		<impl>
+			media_plugin_libvlc
+		</impl>
 	</mimetype>
 	<mimetype name="video/x-ms-asf">
 		<label name="video/x-ms-asf_label">
-			ムービー（Windows Media ASF）
+			ムービー(Windows Media ASF)
 		</label>
+		<widgettype>
+			ムービー
+		</widgettype>
+		<impl>
+			media_plugin_libvlc
+		</impl>
 	</mimetype>
 	<mimetype name="video/x-ms-wmv">
 		<label name="video/x-ms-wmv_label">
-			ムービー（Windows Media WMV）
+			ムービー(Windows Media WMV)
 		</label>
+		<widgettype>
+			ムービー
+		</widgettype>
+		<impl>
+			media_plugin_libvlc
+		</impl>
 	</mimetype>
 	<mimetype name="video/x-msvideo">
 		<label name="video/x-msvideo_label">
-			ムービー（AVI）
+			ムービー(AVI)
 		</label>
+		<widgettype>
+			ムービー
+		</widgettype>
+		<impl>
+			media_plugin_libvlc
+		</impl>
 	</mimetype>
 </mimetypes>

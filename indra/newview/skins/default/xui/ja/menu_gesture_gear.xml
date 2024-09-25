@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<menu name="menu_gesture_gear">
-	<menu_item_call label="選択したジェスチャーの有効化／無効化" name="activate"/>
+<toggleable_menu name="menu_gesture_gear">
+	<menu_item_call label="選択したジェスチャーのアクティベートの有無" name="activate"/>
 	<menu_item_call label="名前変更" name="rename"/>
 	<menu_item_call label="コピー" name="copy_gesture"/>
 	<menu_item_call label="ペースト" name="paste"/>
-	<menu_item_call label="ＵＵＩＤをコピー" name="copy_uuid"/>
-	<menu_item_call label="現在のアウトフィットに保存" name="save_to_outfit"/>
+	<menu_item_call label="UUIDをコピー" name="copy_uuid"/>
+	<menu_item_call label="このアウトフィットに保存" name="save_to_outfit"/>
 	<menu_item_call label="編集" name="edit_gesture"/>
-	<menu_item_call label="調べる" name="inspect"/>
-</menu>
+</toggleable_menu>
