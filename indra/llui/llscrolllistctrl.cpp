@@ -490,12 +490,12 @@ std::vector<LLScrollListItem*> LLScrollListCtrl::getAllData() const
 // returns first matching item
 LLScrollListItem* LLScrollListCtrl::getItem(const LLSD& sd) const
 {
-    const std::string& string_val = sd.asStringRef();
+    std::string string_val = sd.asString();
 
     for (LLScrollListItem* item : mItemList)
     {
         // assumes string representation is good enough for comparison
-        if (item->getValue().asStringRef() == string_val)
+        if (item->getValue().asString() == string_val)
         {
             return item;
         }
