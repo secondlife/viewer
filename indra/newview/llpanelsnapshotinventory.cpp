@@ -42,77 +42,33 @@
 /**
  * The panel provides UI for saving snapshot as an inventory texture.
  */
-class LLPanelSnapshotInventoryBase
-    : public LLPanelSnapshot
-{
-    LOG_CLASS(LLPanelSnapshotInventoryBase);
-
-public:
-    LLPanelSnapshotInventoryBase();
-
-    /*virtual*/ bool postBuild();
-protected:
-    void onSend();
-    /*virtual*/ LLSnapshotModel::ESnapshotType getSnapshotType();
-};
-
 class LLPanelSnapshotInventory
-    : public LLPanelSnapshotInventoryBase
+    : public LLPanelSnapshot
 {
     LOG_CLASS(LLPanelSnapshotInventory);
 
 public:
     LLPanelSnapshotInventory();
-    /*virtual*/ bool postBuild();
-    /*virtual*/ void onOpen(const LLSD& key);
+    bool postBuild() override;
+    void onOpen(const LLSD& key) override;
 
     void onResolutionCommit(LLUICtrl* ctrl);
 
 private:
-    /*virtual*/ std::string getWidthSpinnerName() const     { return "inventory_snapshot_width"; }
-    /*virtual*/ std::string getHeightSpinnerName() const    { return "inventory_snapshot_height"; }
-    /*virtual*/ std::string getAspectRatioCBName() const    { return "inventory_keep_aspect_check"; }
-    /*virtual*/ std::string getImageSizeComboName() const   { return "texture_size_combo"; }
-    /*virtual*/ std::string getImageSizePanelName() const   { return LLStringUtil::null; }
-    /*virtual*/ void updateControls(const LLSD& info);
+    std::string getWidthSpinnerName() const override   { return "inventory_snapshot_width"; }
+    std::string getHeightSpinnerName() const override  { return "inventory_snapshot_height"; }
+    std::string getAspectRatioCBName() const override  { return "inventory_keep_aspect_check"; }
+    std::string getImageSizeComboName() const override { return "texture_size_combo"; }
+    std::string getImageSizePanelName() const override { return LLStringUtil::null; }
+    LLSnapshotModel::ESnapshotType getSnapshotType() override;
+    void updateControls(const LLSD& info) override;
 
-};
-
-class LLPanelOutfitSnapshotInventory
-    : public LLPanelSnapshotInventoryBase
-{
-    LOG_CLASS(LLPanelOutfitSnapshotInventory);
-
-public:
-    LLPanelOutfitSnapshotInventory();
-        /*virtual*/ bool postBuild();
-        /*virtual*/ void onOpen(const LLSD& key);
-
-private:
-    /*virtual*/ std::string getWidthSpinnerName() const     { return ""; }
-    /*virtual*/ std::string getHeightSpinnerName() const    { return ""; }
-    /*virtual*/ std::string getAspectRatioCBName() const    { return ""; }
-    /*virtual*/ std::string getImageSizeComboName() const   { return "texture_size_combo"; }
-    /*virtual*/ std::string getImageSizePanelName() const   { return LLStringUtil::null; }
-    /*virtual*/ void updateControls(const LLSD& info);
-
-    /*virtual*/ void cancel();
+    void onSend();
 };
 
 static LLPanelInjector<LLPanelSnapshotInventory> panel_class1("llpanelsnapshotinventory");
 
-static LLPanelInjector<LLPanelOutfitSnapshotInventory> panel_class2("llpaneloutfitsnapshotinventory");
-
-LLPanelSnapshotInventoryBase::LLPanelSnapshotInventoryBase()
-{
-}
-
-bool LLPanelSnapshotInventoryBase::postBuild()
-{
-    return LLPanelSnapshot::postBuild();
-}
-
-LLSnapshotModel::ESnapshotType LLPanelSnapshotInventoryBase::getSnapshotType()
+LLSnapshotModel::ESnapshotType LLPanelSnapshotInventory::getSnapshotType()
 {
     return LLSnapshotModel::SNAPSHOT_TEXTURE;
 }
@@ -130,7 +86,7 @@ bool LLPanelSnapshotInventory::postBuild()
     getChild<LLSpinCtrl>(getHeightSpinnerName())->setAllowEdit(false);
 
     getChild<LLUICtrl>(getImageSizeComboName())->setCommitCallback(boost::bind(&LLPanelSnapshotInventory::onResolutionCommit, this, _1));
-    return LLPanelSnapshotInventoryBase::postBuild();
+    return LLPanelSnapshot::postBuild();
 }
 
 // virtual
@@ -153,7 +109,7 @@ void LLPanelSnapshotInventory::onResolutionCommit(LLUICtrl* ctrl)
     getChild<LLSpinCtrl>(getHeightSpinnerName())->setVisible(!current_window_selected);
 }
 
-void LLPanelSnapshotInventoryBase::onSend()
+void LLPanelSnapshotInventory::onSend()
 {
     S32 w = 0;
     S32 h = 0;
@@ -185,39 +141,5 @@ void LLPanelSnapshotInventoryBase::onSend()
         {
             mSnapshotFloater->inventorySaveFailed();
         }
-    }
-}
-
-LLPanelOutfitSnapshotInventory::LLPanelOutfitSnapshotInventory()
-{
-    mCommitCallbackRegistrar.add("Inventory.SaveOutfitPhoto", { boost::bind(&LLPanelOutfitSnapshotInventory::onSend, this), cb_info::UNTRUSTED_BLOCK });
-    mCommitCallbackRegistrar.add("Inventory.SaveOutfitCancel", { boost::bind(&LLPanelOutfitSnapshotInventory::cancel, this), cb_info::UNTRUSTED_BLOCK });
-}
-
-// virtual
-bool LLPanelOutfitSnapshotInventory::postBuild()
-{
-    return LLPanelSnapshotInventoryBase::postBuild();
-}
-
-// virtual
-void LLPanelOutfitSnapshotInventory::onOpen(const LLSD& key)
-{
-    getChild<LLUICtrl>("hint_lbl")->setTextArg("[UPLOAD_COST]", llformat("%d", LLAgentBenefitsMgr::current().getTextureUploadCost()));
-    LLPanelSnapshot::onOpen(key);
-}
-
-// virtual
-void LLPanelOutfitSnapshotInventory::updateControls(const LLSD& info)
-{
-    const bool have_snapshot = info.has("have-snapshot") ? info["have-snapshot"].asBoolean() : true;
-    getChild<LLUICtrl>("save_btn")->setEnabled(have_snapshot);
-}
-
-void LLPanelOutfitSnapshotInventory::cancel()
-{
-    if (mSnapshotFloater)
-    {
-        mSnapshotFloater->closeFloater();
     }
 }

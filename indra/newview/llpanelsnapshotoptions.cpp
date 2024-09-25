@@ -47,8 +47,8 @@ class LLPanelSnapshotOptions
 public:
     LLPanelSnapshotOptions();
     ~LLPanelSnapshotOptions();
-    /*virtual*/ bool postBuild();
-    /*virtual*/ void onOpen(const LLSD& key);
+    bool postBuild() override;
+    void onOpen(const LLSD& key) override;
 
 private:
     void updateUploadCost();
