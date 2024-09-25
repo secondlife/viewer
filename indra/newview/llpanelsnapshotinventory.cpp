@@ -64,6 +64,8 @@ private:
     void updateControls(const LLSD& info) override;
 
     void onSend();
+    void updateUploadCost();
+    S32 calculateUploadCost();
 };
 
 static LLPanelInjector<LLPanelSnapshotInventory> panel_class1("llpanelsnapshotinventory");
@@ -92,6 +94,8 @@ bool LLPanelSnapshotInventory::postBuild()
 // virtual
 void LLPanelSnapshotInventory::onOpen(const LLSD& key)
 {
+    updateUploadCost();
+
     LLPanelSnapshot::onOpen(key);
 }
 
@@ -100,6 +104,8 @@ void LLPanelSnapshotInventory::updateControls(const LLSD& info)
 {
     const bool have_snapshot = info.has("have-snapshot") ? info["have-snapshot"].asBoolean() : true;
     getChild<LLUICtrl>("save_btn")->setEnabled(have_snapshot);
+
+    updateUploadCost();
 }
 
 void LLPanelSnapshotInventory::onResolutionCommit(LLUICtrl* ctrl)
@@ -111,19 +117,7 @@ void LLPanelSnapshotInventory::onResolutionCommit(LLUICtrl* ctrl)
 
 void LLPanelSnapshotInventory::onSend()
 {
-    S32 w = 0;
-    S32 h = 0;
-
-    if( mSnapshotFloater )
-    {
-        LLSnapshotLivePreview* preview = mSnapshotFloater->getPreviewView();
-        if( preview )
-        {
-            preview->getSize(w, h);
-        }
-    }
-
-    S32 expected_upload_cost = LLAgentBenefitsMgr::current().getTextureUploadCost(w, h);
+    S32 expected_upload_cost = calculateUploadCost();
     if (can_afford_transaction(expected_upload_cost))
     {
         if (mSnapshotFloater)
@@ -142,4 +136,26 @@ void LLPanelSnapshotInventory::onSend()
             mSnapshotFloater->inventorySaveFailed();
         }
     }
+}
+
+void LLPanelSnapshotInventory::updateUploadCost()
+{
+    getChild<LLUICtrl>("hint_lbl")->setTextArg("[UPLOAD_COST]", llformat("%d", calculateUploadCost()));
+}
+
+S32 LLPanelSnapshotInventory::calculateUploadCost()
+{
+    S32 w = 0;
+    S32 h = 0;
+
+    if (mSnapshotFloater)
+    {
+        if (LLSnapshotLivePreview* preview = mSnapshotFloater->getPreviewView())
+        {
+            w = preview->getEncodedImageWidth();
+            h = preview->getEncodedImageHeight();
+        }
+    }
+
+    return LLAgentBenefitsMgr::current().getTextureUploadCost(w, h);
 }
