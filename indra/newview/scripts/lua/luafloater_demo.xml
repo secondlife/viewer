@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ height="300"
+ layout="topleft"
+ name="lua_demo"
+ title="LUA"
+ width="320">
+    <check_box
+     height="16"
+     label="Disable button"
+     layout="topleft"
+     top_pad="35"
+     left="5"
+     name="disable_ctrl"
+     width="146" />
+    <line_editor
+     border_style="line"
+     border_thickness="1"
+     follows="left|bottom"
+     font="SansSerif"
+     height="20"
+     layout="topleft"
+     max_length_bytes="50"
+     name="openfloater_cmd"
+     top_delta="25"
+     width="100" />
+    <button
+     follows="left|bottom"
+     height="23"
+     label="Open floater"
+     layout="topleft"
+     name="open_btn"
+     top_delta="25"
+     width="100" >
+    </button>
+    <text
+     type="string"
+     follows="left|top"
+     height="10"
+     layout="topleft"
+     top="30"
+     left_delta="170"
+     name="title_lbl">
+      Select title
+    </text> 
+    <combo_box
+     follows="top|left"
+     height="23"
+     name="title_cmb"
+     top_pad="5"
+     width="100">
+        <combo_box.item
+         label="LUA"
+         value="LUA" />
+        <combo_box.item
+         label="LUA floater"
+         value="LUA floater" />
+        <combo_box.item
+         label="LUA-U title"
+         value="LUA-U title" />
+    </combo_box>
+    <text
+     type="string"
+     follows="left|bottom"
+     height="10"
+     layout="topleft"
+     top_delta="50"
+     name="show_time_lbl">
+       Double click me
+    </text>
+    <text
+     type="string"
+     follows="left|top"
+     height="10"
+     layout="topleft"
+     top_pad="15"
+     font="SansSerif"
+     text_color="white"
+     left_delta="15"
+     name="time_lbl"/>
+    <text_editor
+     follows="top|left"
+     font="SansSerif"
+     height="140"
+     left="5"
+     enabled="false"
+     name="events_editor"
+     top_pad="15"
+     word_wrap="true"
+     max_length="65536"
+     width="310"/>
+</floater>

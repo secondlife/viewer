@@ -89,8 +89,7 @@ public:
 public:
     void startTimer();
     void stopTimer();
-    bool isRunning();
-    bool tick();
+    bool tick() override;
 };
 
 class LLLocalGLTFMaterialMgr : public LLSingleton<LLLocalGLTFMaterialMgr>

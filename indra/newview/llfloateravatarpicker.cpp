@@ -111,7 +111,7 @@ LLFloaterAvatarPicker::LLFloaterAvatarPicker(const LLSD& key)
     mContextConeOutAlpha(CONTEXT_CONE_OUT_ALPHA),
     mContextConeFadeTime(CONTEXT_CONE_FADE_TIME)
 {
-    mCommitCallbackRegistrar.add("Refresh.FriendList", boost::bind(&LLFloaterAvatarPicker::populateFriend, this));
+    mCommitCallbackRegistrar.add("Refresh.FriendList", { boost::bind(&LLFloaterAvatarPicker::populateFriend, this), cb_info::UNTRUSTED_THROTTLE });
 }
 
 bool LLFloaterAvatarPicker::postBuild()

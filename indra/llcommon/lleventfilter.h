@@ -29,13 +29,13 @@
 #if ! defined(LL_LLEVENTFILTER_H)
 #define LL_LLEVENTFILTER_H
 
+#include "llcallbacklist.h"
 #include "llevents.h"
-#include "stdtypes.h"
-#include "lltimer.h"
 #include "llsdutil.h"
-#include <boost/function.hpp>
+#include "lltimer.h"
+#include "stdtypes.h"
+#include <functional>
 
-class LLEventTimer;
 class LLDate;
 
 /**
@@ -78,22 +78,27 @@ private:
 
 /**
  * Wait for an event to be posted. If no such event arrives within a specified
- * time, take a specified action. See LLEventTimeout for production
- * implementation.
+ * time, take a specified action.
  *
- * @NOTE This is an abstract base class so that, for testing, we can use an
- * alternate "timer" that doesn't actually consume real time.
+ * @NOTE: Caution should be taken when using the LLEventTimeout(LLEventPump &)
+ * constructor to ensure that the upstream event pump is not an LLEventMaildrop
+ * or any other kind of store and forward pump which may have events outstanding.
+ * Using this constructor will cause the upstream event pump to fire any pending
+ * events and could result in the invocation of a virtual method before the timeout
+ * has been fully constructed. The timeout should instead be constructed separately
+ * from the event pump and attached using the listen method.
+ * See llcoro::suspendUntilEventOnWithTimeout() for an example.
  */
-class LL_COMMON_API LLEventTimeoutBase: public LLEventFilter
+class LL_COMMON_API LLEventTimeout: public LLEventFilter
 {
 public:
     /// construct standalone
-    LLEventTimeoutBase();
+    LLEventTimeout();
     /// construct and connect
-    LLEventTimeoutBase(LLEventPump& source);
+    LLEventTimeout(LLEventPump& source);
 
     /// Callable, can be constructed with boost::bind()
-    typedef boost::function<void()> Action;
+    typedef std::function<void()> Action;
 
     /**
      * Start countdown timer for the specified number of @a seconds. Forward
@@ -120,8 +125,8 @@ public:
      * @endcode
      *
      * @NOTE
-     * The implementation relies on frequent events on the LLEventPump named
-     * "mainloop".
+     * The implementation relies on frequent calls to
+     * gIdleCallbacks.callFunctions().
      */
     void actionAfter(F32 seconds, const Action& action);
 
@@ -134,7 +139,7 @@ public:
      * Instantiate an LLEventTimeout listening to that API and call
      * errorAfter() on each async request with a timeout comfortably longer
      * than the API's time guarantee (much longer than the anticipated
-     * "mainloop" granularity).
+     * gIdleCallbacks.callFunctions() granularity).
      *
      * Then if the async API breaks its promise, the program terminates with
      * the specified LL_ERRS @a message. The client of the async API can
@@ -184,55 +189,9 @@ public:
     /// Is this timer currently running?
     bool running() const;
 
-protected:
-    virtual void setCountdown(F32 seconds) = 0;
-    virtual bool countdownElapsed() const = 0;
-
 private:
-    bool tick(const LLSD&);
-
-    LLTempBoundListener mMainloop;
-    Action mAction;
-};
-
-/**
- * Production implementation of LLEventTimoutBase.
- *
- * @NOTE: Caution should be taken when using the LLEventTimeout(LLEventPump &)
- * constructor to ensure that the upstream event pump is not an LLEventMaildrop
- * or any other kind of store and forward pump which may have events outstanding.
- * Using this constructor will cause the upstream event pump to fire any pending
- * events and could result in the invocation of a virtual method before the timeout
- * has been fully constructed. The timeout should instead be connected upstream
- * from the event pump and attached using the listen method.
- * See llcoro::suspendUntilEventOnWithTimeout() for an example.
- */
-
-class LL_COMMON_API LLEventTimeout: public LLEventTimeoutBase
-{
-public:
-    LLEventTimeout();
-    LLEventTimeout(LLEventPump& source);
-
-    /// using LLEventTimeout as namespace for free functions
-    /// Post event to specified LLEventPump every period seconds. Delete
-    /// returned LLEventTimer* to cancel.
-    static LLEventTimer* post_every(F32 period, const std::string& pump, const LLSD& data);
-    /// Post event to specified LLEventPump at specified future time. Call
-    /// LLEventTimer::getInstance(returned pointer) to check whether it's still
-    /// pending; if so, delete the pointer to cancel.
-    static LLEventTimer* post_at(const LLDate& time, const std::string& pump, const LLSD& data);
-    /// Post event to specified LLEventPump after specified interval. Call
-    /// LLEventTimer::getInstance(returned pointer) to check whether it's still
-    /// pending; if so, delete the pointer to cancel.
-    static LLEventTimer* post_after(F32 interval, const std::string& pump, const LLSD& data);
-
-protected:
-    virtual void setCountdown(F32 seconds);
-    virtual bool countdownElapsed() const;
-
-private:
-    LLTimer mTimer;
+    // Use a temp_handle_t so it's canceled on destruction.
+    LL::Timers::temp_handle_t mTimer;
 };
 
 /**
@@ -264,7 +223,7 @@ private:
 };
 
 /**
- * LLEventThrottleBase: construct with a time interval. Regardless of how
+ * LLEventThrottle: construct with a time interval. Regardless of how
  * frequently you call post(), LLEventThrottle will pass on an event to
  * its listeners no more often than once per specified interval.
  *
@@ -297,13 +256,13 @@ private:
  * alternate "timer" that doesn't actually consume real time. See
  * LLEventThrottle.
  */
-class LL_COMMON_API LLEventThrottleBase: public LLEventFilter
+class LL_COMMON_API LLEventThrottle: public LLEventFilter
 {
 public:
     // pass time interval
-    LLEventThrottleBase(F32 interval);
+    LLEventThrottle(F32 interval);
     // construct and connect
-    LLEventThrottleBase(LLEventPump& source, F32 interval);
+    LLEventThrottle(LLEventPump& source, F32 interval);
 
     // force out any deferred events
     void flush();
@@ -324,45 +283,24 @@ public:
     // time until next event would be passed through, 0.0 if now
     F32 getDelay() const;
 
-protected:
-    // Implement these time-related methods for a valid LLEventThrottleBase
-    // subclass (see LLEventThrottle). For testing, we use a subclass that
-    // doesn't involve actual elapsed time.
-    virtual void alarmActionAfter(F32 interval, const LLEventTimeoutBase::Action& action) = 0;
-    virtual bool alarmRunning() const = 0;
-    virtual void alarmCancel() = 0;
-    virtual void timerSet(F32 interval) = 0;
-    virtual F32  timerGetRemaining() const = 0;
-
 private:
-    // remember throttle interval
-    F32 mInterval;
-    // count post() calls since last flush()
-    std::size_t mPosts;
+    void alarmActionAfter(F32 interval, const LLEventTimeout::Action& action);
+    bool alarmRunning() const;
+    void alarmCancel();
+    void timerSet(F32 interval);
+    F32  timerGetRemaining() const;
+
     // pending event data from most recent deferred event
     LLSD mPending;
-};
-
-/**
- * Production implementation of LLEventThrottle.
- */
-class LLEventThrottle: public LLEventThrottleBase
-{
-public:
-    LLEventThrottle(F32 interval);
-    LLEventThrottle(LLEventPump& source, F32 interval);
-
-private:
-    virtual void alarmActionAfter(F32 interval, const LLEventTimeoutBase::Action& action) /*override*/;
-    virtual bool alarmRunning() const /*override*/;
-    virtual void alarmCancel() /*override*/;
-    virtual void timerSet(F32 interval) /*override*/;
-    virtual F32  timerGetRemaining() const /*override*/;
-
-    // use this to arrange a deferred flush() call
-    LLEventTimeout mAlarm;
     // use this to track whether we're within mInterval of last flush()
     LLTimer mTimer;
+    // count post() calls since last flush()
+    std::size_t mPosts;
+    // remember throttle interval
+    F32 mInterval;
+
+    // use this to arrange a deferred flush() call
+    LL::Timers::handle_t mAlarm;
 };
 
 /**
@@ -521,7 +459,7 @@ public:
     LLEventLogProxy(LLEventPump& source, const std::string& name, bool tweak=false);
 
     /// register a new listener
-    LLBoundListener listen_impl(const std::string& name, const LLEventListener& target,
+    LLBoundListener listen_impl(const std::string& name, const LLAwareListener& target,
                                 const NameList& after, const NameList& before);
 
     /// Post an event to all listeners
@@ -531,8 +469,9 @@ private:
     /// This method intercepts each call to any target listener. We pass it
     /// the listener name and the caller's intended target listener plus the
     /// posted LLSD event.
-    bool listener(const std::string& name,
-                  const LLEventListener& target,
+    bool listener(const LLBoundListener& conn,
+                  const std::string& name,
+                  const LLAwareListener& target,
                   const LLSD& event) const;
 
     LLEventPump& mPump;

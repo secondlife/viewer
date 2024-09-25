@@ -460,7 +460,7 @@ void LLStatBar::draw()
                     max_value = 0.f;
 
                 gGL.color4f(1.f, 0.f, 0.f, 1.f);
-                gGL.begin( LLRender::QUADS );
+                gGL.begin(LLRender::TRIANGLES);
                 const S32 max_frame = llmin(num_frames, num_values);
                 U32 num_samples = 0;
                 for (S32 i = 1; i <= max_frame; i++)
@@ -498,6 +498,9 @@ void LLStatBar::draw()
                         gGL.vertex2f((F32)bar_rect.mRight - offset, max);
                         gGL.vertex2f((F32)bar_rect.mRight - offset, min);
                         gGL.vertex2f((F32)bar_rect.mRight - offset - 1, min);
+
+                        gGL.vertex2f((F32)bar_rect.mRight - offset, max);
+                        gGL.vertex2f((F32)bar_rect.mRight - offset - 1, min);
                         gGL.vertex2f((F32)bar_rect.mRight - offset - 1, max);
                     }
                     else
@@ -505,7 +508,10 @@ void LLStatBar::draw()
                         gGL.vertex2f(min, (F32)bar_rect.mBottom + offset + 1);
                         gGL.vertex2f(min, (F32)bar_rect.mBottom + offset);
                         gGL.vertex2f(max, (F32)bar_rect.mBottom + offset);
-                        gGL.vertex2f(max, (F32)bar_rect.mBottom + offset + 1 );
+
+                        gGL.vertex2f(min, (F32)bar_rect.mBottom + offset + 1);
+                        gGL.vertex2f(max, (F32)bar_rect.mBottom + offset);
+                        gGL.vertex2f(max, (F32)bar_rect.mBottom + offset + 1);
                     }
                 }
                 gGL.end();

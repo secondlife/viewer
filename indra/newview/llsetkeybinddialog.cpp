@@ -46,14 +46,12 @@ public:
         :LLEventTimer(period),
         mMask(mask),
         mCallback(cb)
-    {
-        mEventTimer.start();
-    }
+    {}
 
     virtual ~Updater(){}
 
 protected:
-    bool tick()
+    bool tick() override
     {
         mCallback(mMask);
         // Deletes itseft after execution

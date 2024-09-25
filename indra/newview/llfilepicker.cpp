@@ -65,6 +65,7 @@ LLFilePicker LLFilePicker::sInstance;
 #define MATERIAL_TEXTURES_FILTER L"GLTF Import (*.gltf; *.glb; *.tga; *.bmp; *.jpg; *.jpeg; *.png)\0*.gltf;*.glb;*.tga;*.bmp;*.jpg;*.jpeg;*.png\0"
 #define SCRIPT_FILTER L"Script files (*.lsl)\0*.lsl\0"
 #define DICTIONARY_FILTER L"Dictionary files (*.dic; *.xcu)\0*.dic;*.xcu\0"
+#define LUA_FILTER L"Script files (*.lua)\0*.lua\0"
 #endif
 
 #ifdef LL_DARWIN
@@ -239,6 +240,10 @@ bool LLFilePicker::setupFilter(ELoadFilter filter)
         break;
     case FFLOAD_DICTIONARY:
         mOFN.lpstrFilter = DICTIONARY_FILTER \
+            L"\0";
+        break;
+    case FFLOAD_LUA:
+        mOFN.lpstrFilter = LUA_FILTER \
             L"\0";
         break;
     default:

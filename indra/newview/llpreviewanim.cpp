@@ -46,7 +46,7 @@ const S32 ADVANCED_VPAD = 3;
 LLPreviewAnim::LLPreviewAnim(const LLSD& key)
     : LLPreview( key )
 {
-    mCommitCallbackRegistrar.add("PreviewAnim.Play", boost::bind(&LLPreviewAnim::play, this, _2));
+    mCommitCallbackRegistrar.add("PreviewAnim.Play", { boost::bind(&LLPreviewAnim::play, this, _2) });
 }
 
 // virtual

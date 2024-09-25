@@ -42,9 +42,18 @@ public:
         mEditor(editor),
         mStyle(style),
         mExpanderLabel(utf8str_to_wstring(more_text))
-    {}
+    {
+    }
 
-    /*virtual*/ bool    getDimensionsF32(S32 first_char, S32 num_chars, F32& width, S32& height) const
+    /*virtual*/ LLTextSegmentPtr clone(LLTextBase& target) const
+    {
+        LLStyleSP sp((&target == &mEditor) ? mStyle : mStyle->clone());
+        LLExpanderSegment* copy = new LLExpanderSegment(sp, mStart, mEnd, LLStringUtil::null, target);
+        copy->mExpanderLabel = mExpanderLabel;
+        return copy;
+    }
+
+    /*virtual*/ bool getDimensionsF32(S32 first_char, S32 num_chars, F32& width, S32& height) const
     {
         // more label always spans width of text box
         if (num_chars == 0)
@@ -59,11 +68,13 @@ public:
         }
         return true;
     }
-    /*virtual*/ S32     getOffset(S32 segment_local_x_coord, S32 start_offset, S32 num_chars, bool round) const
+
+    /*virtual*/ S32 getOffset(S32 segment_local_x_coord, S32 start_offset, S32 num_chars, bool round) const
     {
         return start_offset;
     }
-    /*virtual*/ S32     getNumChars(S32 num_pixels, S32 segment_offset, S32 line_offset, S32 max_chars, S32 line_ind) const
+
+    /*virtual*/ S32 getNumChars(S32 num_pixels, S32 segment_offset, S32 line_offset, S32 max_chars, S32 line_ind) const
     {
         // require full line to ourselves
         if (line_offset == 0)
@@ -77,7 +88,8 @@ public:
             return 0;
         }
     }
-    /*virtual*/ F32     draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRectf& draw_rect)
+
+    /*virtual*/ F32 draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRectf& draw_rect)
     {
         F32 right_x;
         mStyle->getFont()->render(mExpanderLabel, start,
@@ -91,6 +103,7 @@ public:
                                     mEditor.getUseEllipses(), mEditor.getUseColor());
         return right_x;
     }
+
     /*virtual*/ bool    canEdit() const { return false; }
     // eat handleMouseDown event so we get the mouseup event
     /*virtual*/ bool    handleMouseDown(S32 x, S32 y, MASK mask) { return true; }
@@ -100,6 +113,7 @@ public:
         LLUI::getInstance()->getWindow()->setCursor(UI_CURSOR_HAND);
         return true;
     }
+
 private:
     LLTextBase& mEditor;
     LLStyleSP   mStyle;

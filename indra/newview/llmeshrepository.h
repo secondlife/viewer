@@ -641,10 +641,12 @@ public:
     LLMeshRepository();
 
     void init();
+    void unregisterAllMeshes();
     void shutdown();
     S32 update();
 
-    void unregisterMesh(LLVOVolume* volume);
+    void unregisterMesh(LLVOVolume* vobj, const LLVolumeParams& mesh_params, S32 detail);
+    void unregisterSkinInfo(const LLUUID& mesh_id, LLVOVolume* vobj);
     //mesh management functions
     S32 loadMesh(LLVOVolume* volume, const LLVolumeParams& mesh_params, S32 detail = 0, S32 last_lod = -1);
 
