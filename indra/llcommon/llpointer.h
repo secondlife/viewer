@@ -28,6 +28,7 @@
 
 #include "llerror.h"    // *TODO: consider eliminating this
 #include "llmutex.h"
+#include <utility>                  // std::swap()
 
 //----------------------------------------------------------------------------
 // RefCount objects should generally only be accessed by way of LLPointer<>'s
@@ -118,24 +119,26 @@ public:
 
     LLPointer<Type>& operator =(Type* ptr)
     {
-        assign(ptr);
+        // copy-and-swap idiom, see http://gotw.ca/gotw/059.htm
+        LLPointer temp(ptr);
+        using std::swap;            // per Swappable convention
+        swap(*this, temp);
         return *this;
     }
 
     LLPointer<Type>& operator =(const LLPointer<Type>& ptr)
     {
-        assign(ptr);
+        LLPointer temp(ptr);
+        using std::swap;            // per Swappable convention
+        swap(*this, temp);
         return *this;
     }
 
     LLPointer<Type>& operator =(LLPointer<Type>&& ptr)
     {
-        if (mPointer != ptr.mPointer)
-        {
-            unref();
-            mPointer = ptr.mPointer;
-            ptr.mPointer = nullptr;
-        }
+        LLPointer temp(std::move(ptr));
+        using std::swap;            // per Swappable convention
+        swap(*this, temp);
         return *this;
     }
 
@@ -143,28 +146,32 @@ public:
     template<typename Subclass>
     LLPointer<Type>& operator =(const LLPointer<Subclass>& ptr)
     {
-        assign(ptr.get());
+        LLPointer temp(ptr);
+        using std::swap;            // per Swappable convention
+        swap(*this, temp);
         return *this;
     }
 
     template<typename Subclass>
     LLPointer<Type>& operator =(LLPointer<Subclass>&& ptr)
     {
-        if (mPointer != ptr.mPointer)
-        {
-            unref();
-            mPointer = ptr.mPointer;
-            ptr.mPointer = nullptr;
-        }
+        LLPointer temp(std::move(ptr));
+        using std::swap;            // per Swappable convention
+        swap(*this, temp);
         return *this;
     }
 
     // Just exchange the pointers, which will not change the reference counts.
     static void swap(LLPointer<Type>& a, LLPointer<Type>& b)
     {
-        Type* temp = a.mPointer;
-        a.mPointer = b.mPointer;
-        b.mPointer = temp;
+        using std::swap;            // per Swappable convention
+        swap(a.mPointer, b.mPointer);
+    }
+
+    // Put swap() overload in the global namespace, per Swappable convention
+    friend void swap(LLPointer<Type>& a, LLPointer<Type>& b)
+    {
+        LLPointer<Type>::swap(a, b);
     }
 
 protected:
@@ -195,16 +202,6 @@ protected:
         }
     }
 #endif // LL_LIBRARY_INCLUDE
-
-    void assign(const LLPointer<Type>& ptr)
-    {
-        if (mPointer != ptr.mPointer)
-        {
-            unref();
-            mPointer = ptr.mPointer;
-            ref();
-        }
-    }
 
 protected:
     Type*   mPointer;
