@@ -61,6 +61,13 @@ public:
         ref();
     }
 
+    // Even though the template constructors below accepting
+    // (const LLPointer<Subclass>&) and (LLPointer<Subclass>&&) appear to
+    // subsume these specific (const LLPointer<Type>&) and (LLPointer<Type>&&)
+    // constructors, the compiler recognizes these as The Copy Constructor and
+    // The Move Constructor, respectively. In other words, even in the
+    // presence of the LLPointer<Subclass> constructors, we still must specify
+    // the LLPointer<Type> constructors.
     LLPointer(const LLPointer<Type>& ptr) :
         mPointer(ptr.mPointer)
     {
@@ -126,6 +133,13 @@ public:
         return *this;
     }
 
+    // Even though the template assignment operators below accepting
+    // (const LLPointer<Subclass>&) and (LLPointer<Subclass>&&) appear to
+    // subsume these specific (const LLPointer<Type>&) and (LLPointer<Type>&&)
+    // assignment operators, the compiler recognizes these as Copy Assignment
+    // and Move Assignment, respectively. In other words, even in the presence
+    // of the LLPointer<Subclass> assignment operators, we still must specify
+    // the LLPointer<Type> operators.
     LLPointer<Type>& operator =(const LLPointer<Type>& ptr)
     {
         LLPointer temp(ptr);
