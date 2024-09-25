@@ -33,6 +33,7 @@
 #include "llfloaterreg.h"
 #include "llgl.h"
 #include "llrender.h"
+#include "lluicolor.h"
 #include "v4color.h"
 #include "v2math.h"
 
@@ -50,8 +51,8 @@
 #include "pipeline.h"
 
 
-static const U8  OVERLAY_IMG_COMPONENTS = 4;
-static const F32 LINE_WIDTH = 0.0625f;
+static constexpr U8  OVERLAY_IMG_COMPONENTS = 4;
+static constexpr F32 LINE_WIDTH = 0.0625f;
 
 bool LLViewerParcelOverlay::sColorSetInitialized = false;
 LLUIColor LLViewerParcelOverlay::sAvailColor;
@@ -91,7 +92,7 @@ LLViewerParcelOverlay::LLViewerParcelOverlay(LLViewerRegion* region, F32 region_
     // Initialize the GL texture with empty data.
     //
     // Create the base texture.
-    U8 *raw = mImageRaw->getData();
+    U8* raw = mImageRaw->getData();
     const S32 COUNT = mParcelGridsPerEdge * mParcelGridsPerEdge * OVERLAY_IMG_COMPONENTS;
     for (S32 i = 0; i < COUNT; i++)
     {
@@ -158,10 +159,10 @@ bool LLViewerParcelOverlay::encroachesOwned(const std::vector<LLBBox>& boxes) co
         LLVector3 min = boxes[i].getMinAgent();
         LLVector3 max = boxes[i].getMaxAgent();
 
-        S32 left   = S32(llclamp((min.mV[VX] / PARCEL_GRID_STEP_METERS), 0.f, REGION_WIDTH_METERS - 1));
-        S32 right  = S32(llclamp((max.mV[VX] / PARCEL_GRID_STEP_METERS), 0.f, REGION_WIDTH_METERS - 1));
-        S32 top    = S32(llclamp((min.mV[VY] / PARCEL_GRID_STEP_METERS), 0.f, REGION_WIDTH_METERS - 1));
-        S32 bottom = S32(llclamp((max.mV[VY] / PARCEL_GRID_STEP_METERS), 0.f, REGION_WIDTH_METERS - 1));
+        S32 left   = S32(llclamp((min.mV[VX] / PARCEL_GRID_STEP_METERS), 0.f, REGION_WIDTH_METERS - 1.f));
+        S32 right  = S32(llclamp((max.mV[VX] / PARCEL_GRID_STEP_METERS), 0.f, REGION_WIDTH_METERS - 1.f));
+        S32 top    = S32(llclamp((min.mV[VY] / PARCEL_GRID_STEP_METERS), 0.f, REGION_WIDTH_METERS - 1.f));
+        S32 bottom = S32(llclamp((max.mV[VY] / PARCEL_GRID_STEP_METERS), 0.f, REGION_WIDTH_METERS - 1.f));
 
         for (S32 row = top; row <= bottom; row++)
         {
@@ -186,10 +187,10 @@ bool LLViewerParcelOverlay::encroachesOnUnowned(const std::vector<LLBBox>& boxes
         LLVector3 min = boxes[i].getMinAgent();
         LLVector3 max = boxes[i].getMaxAgent();
 
-        S32 left   = S32(llclamp((min.mV[VX] / PARCEL_GRID_STEP_METERS), 0.f, REGION_WIDTH_METERS - 1));
-        S32 right  = S32(llclamp((max.mV[VX] / PARCEL_GRID_STEP_METERS), 0.f, REGION_WIDTH_METERS - 1));
-        S32 top    = S32(llclamp((min.mV[VY] / PARCEL_GRID_STEP_METERS), 0.f, REGION_WIDTH_METERS - 1));
-        S32 bottom = S32(llclamp((max.mV[VY] / PARCEL_GRID_STEP_METERS), 0.f, REGION_WIDTH_METERS - 1));
+        S32 left   = S32(llclamp((min.mV[VX] / PARCEL_GRID_STEP_METERS), 0.f, REGION_WIDTH_METERS - 1.f));
+        S32 right  = S32(llclamp((max.mV[VX] / PARCEL_GRID_STEP_METERS), 0.f, REGION_WIDTH_METERS - 1.f));
+        S32 top    = S32(llclamp((min.mV[VY] / PARCEL_GRID_STEP_METERS), 0.f, REGION_WIDTH_METERS - 1.f));
+        S32 bottom = S32(llclamp((max.mV[VY] / PARCEL_GRID_STEP_METERS), 0.f, REGION_WIDTH_METERS - 1.f));
 
         for (S32 row = top; row <= bottom; row++)
         {
@@ -223,10 +224,10 @@ bool LLViewerParcelOverlay::encroachesOnNearbyParcel(const std::vector<LLBBox>& 
             return true;
         }
 
-        S32 left   = S32(llclamp((min.mV[VX] / PARCEL_GRID_STEP_METERS), 0.f, REGION_WIDTH_METERS - 1));
-        S32 right  = S32(llclamp((max.mV[VX] / PARCEL_GRID_STEP_METERS), 0.f, REGION_WIDTH_METERS - 1));
-        S32 bottom = S32(llclamp((min.mV[VY] / PARCEL_GRID_STEP_METERS), 0.f, REGION_WIDTH_METERS - 1));
-        S32 top    = S32(llclamp((max.mV[VY] / PARCEL_GRID_STEP_METERS), 0.f, REGION_WIDTH_METERS - 1));
+        S32 left   = S32(llclamp((min.mV[VX] / PARCEL_GRID_STEP_METERS), 0.f, REGION_WIDTH_METERS - 1.f));
+        S32 right  = S32(llclamp((max.mV[VX] / PARCEL_GRID_STEP_METERS), 0.f, REGION_WIDTH_METERS - 1.f));
+        S32 bottom = S32(llclamp((min.mV[VY] / PARCEL_GRID_STEP_METERS), 0.f, REGION_WIDTH_METERS - 1.f));
+        S32 top    = S32(llclamp((max.mV[VY] / PARCEL_GRID_STEP_METERS), 0.f, REGION_WIDTH_METERS - 1.f));
 
         const S32 GRIDS_PER_EDGE = mParcelGridsPerEdge;
 
@@ -348,11 +349,11 @@ void LLViewerParcelOverlay::updateOverlayTexture()
     const LLColor4U auction = sAuctionColor.get();
 
     // Create the base texture.
-    U8 *raw = mImageRaw->getData();
+    U8* raw = mImageRaw->getData();
     const S32 COUNT = mParcelGridsPerEdge * mParcelGridsPerEdge;
     S32 max = mOverlayTextureIdx + mParcelGridsPerEdge;
     if (max > COUNT) max = COUNT;
-    S32 pixel_index = mOverlayTextureIdx*OVERLAY_IMG_COMPONENTS;
+    S32 pixel_index = mOverlayTextureIdx * OVERLAY_IMG_COMPONENTS;
     S32 i;
     for (i = mOverlayTextureIdx; i < max; i++)
     {
@@ -361,7 +362,7 @@ void LLViewerParcelOverlay::updateOverlayTexture()
         U8 r,g,b,a;
 
         // Color stored in low three bits
-        switch( ownership & 0x7 )
+        switch (ownership & 0x7)
         {
         case PARCEL_PUBLIC:
             r = avail.mV[VRED];
@@ -407,10 +408,10 @@ void LLViewerParcelOverlay::updateOverlayTexture()
             break;
         }
 
-        raw[pixel_index + 0] = (U8)r;
-        raw[pixel_index + 1] = (U8)g;
-        raw[pixel_index + 2] = (U8)b;
-        raw[pixel_index + 3] = (U8)a;
+        raw[pixel_index + VRED]   = (U8)r;
+        raw[pixel_index + VGREEN] = (U8)g;
+        raw[pixel_index + VBLUE]  = (U8)b;
+        raw[pixel_index + VALPHA] = (U8)a;
 
         pixel_index += OVERLAY_IMG_COMPONENTS;
     }
@@ -431,10 +432,10 @@ void LLViewerParcelOverlay::updateOverlayTexture()
     }
 }
 
-void LLViewerParcelOverlay::uncompressLandOverlay(S32 chunk, U8 *packed_overlay)
+void LLViewerParcelOverlay::uncompressLandOverlay(S32 chunk, U8* packed_overlay)
 {
     // Unpack the message data into the ownership array
-    S32 size    = mParcelGridsPerEdge * mParcelGridsPerEdge;
+    S32 size = mParcelGridsPerEdge * mParcelGridsPerEdge;
     S32 chunk_size = size / PARCEL_OVERLAY_CHUNKS;
 
     memcpy(mOwnership + chunk*chunk_size, packed_overlay, chunk_size);      /*Flawfinder: ignore*/
@@ -459,7 +460,7 @@ void LLViewerParcelOverlay::updatePropertyLines()
 
     mEdges.clear();
 
-    const F32 GRID_STEP = PARCEL_GRID_STEP_METERS;
+    constexpr F32 GRID_STEP = PARCEL_GRID_STEP_METERS;
     const S32 GRIDS_PER_EDGE = mParcelGridsPerEdge;
 
     for (S32 row = 0; row < GRIDS_PER_EDGE; row++)
@@ -556,9 +557,9 @@ void LLViewerParcelOverlay::addPropertyLine(F32 start_x, F32 start_y, F32 dx, F3
 
     auto split = [&](U32 lod, const LLVector3& start, F32 x, F32 y, F32 z, F32 part)
         {
-            F32 new_x = start.mV[0] + (x - start.mV[0]) * part;
-            F32 new_y = start.mV[1] + (y - start.mV[1]) * part;
-            F32 new_z = start.mV[2] + (z - start.mV[2]) * part;
+            F32 new_x = start.mV[VX] + (x - start.mV[VX]) * part;
+            F32 new_y = start.mV[VY] + (y - start.mV[VY]) * part;
+            F32 new_z = start.mV[VZ] + (z - start.mV[VZ]) * part;
             edge.vertices[lod].emplace_back(new_x, new_y, new_z);
         };
 
@@ -566,7 +567,7 @@ void LLViewerParcelOverlay::addPropertyLine(F32 start_x, F32 start_y, F32 dx, F3
         {
             const std::vector<LLVector3>& vertices = edge.vertices[lod];
             const LLVector3& last_outside = vertices.back();
-            F32 z0 = last_outside.mV[2];
+            F32 z0 = last_outside.mV[VZ];
             F32 z1 = outside_z;
             if ((z0 >= water_z && z1 >= water_z) || (z0 < water_z && z1 < water_z))
                 return;
@@ -589,8 +590,7 @@ void LLViewerParcelOverlay::addPropertyLine(F32 start_x, F32 start_y, F32 dx, F3
                 LLVector3 in(inside_x, inside_y, inside_z);
                 LLVector3 dist(in - out);
                 F32 coef = dist.length() / LINE_WIDTH;
-                LLVector3 new_in(out + dist / coef);
-                edge.vertices[lod].push_back(new_in);
+                edge.vertices[lod].emplace_back(out + dist / coef);
             }
             edge.vertices[lod].emplace_back(outside_x, outside_y, outside_z);
         };
@@ -607,7 +607,7 @@ void LLViewerParcelOverlay::addPropertyLine(F32 start_x, F32 start_y, F32 dx, F3
 
     // Points C, D, E
     F32 distance = 1.f - LINE_WIDTH;
-    const U32 GRID_STEP = (U32)PARCEL_GRID_STEP_METERS;
+    constexpr U32 GRID_STEP = (U32)PARCEL_GRID_STEP_METERS;
     for (U32 i = 1; i < GRID_STEP; ++i)
     {
         move(distance);
@@ -716,8 +716,8 @@ void LLViewerParcelOverlay::renderPropertyLines()
 
     bool render_hidden = LLSelectMgr::sRenderHiddenSelections && LLFloaterReg::instanceVisible("build");
 
-    const F32 PROPERTY_LINE_CLIP_DIST_SQUARED = 256.f * 256.f;
-    const F32 PROPERTY_LINE_LOD0_DIST_SQUARED = PROPERTY_LINE_CLIP_DIST_SQUARED / 25;
+    constexpr F32 PROPERTY_LINE_CLIP_DIST_SQUARED = 256.f * 256.f;
+    constexpr F32 PROPERTY_LINE_LOD0_DIST_SQUARED = PROPERTY_LINE_CLIP_DIST_SQUARED / 25.f;
 
     for (const Edge& edge : mEdges)
     {
@@ -754,7 +754,7 @@ void LLViewerParcelOverlay::renderPropertyLines()
             else
             {
                 LLVector3 visible = vertex;
-                visible.mV[2] = water_z;
+                visible.mV[VZ] = water_z;
                 gGL.vertex3fv(visible.mV);
             }
         }
@@ -768,7 +768,7 @@ void LLViewerParcelOverlay::renderPropertyLines()
             gGL.begin(LLRender::TRIANGLE_STRIP);
 
             LLColor4U color = edge.color;
-            color.mV[3] /= 4;
+            color.mV[VALPHA] /= 4;
             gGL.color4ubv(color.mV);
 
             for (const LLVector3& vertex : edge.vertices[lod])
@@ -802,7 +802,7 @@ void grid_2d_part_lines(const F32 left, const F32 top, const F32 right, const F3
     gGL.end();
 }
 
-void LLViewerParcelOverlay::renderPropertyLinesOnMinimap(F32 scale_pixels_per_meter, const F32 *parcel_outline_color)
+void LLViewerParcelOverlay::renderPropertyLinesOnMinimap(F32 scale_pixels_per_meter, const F32* parcel_outline_color)
 {
     static LLCachedControl<bool> show(gSavedSettings, "MiniMapShowPropertyLines");
 
@@ -813,8 +813,8 @@ void LLViewerParcelOverlay::renderPropertyLinesOnMinimap(F32 scale_pixels_per_me
 
     LLVector3 origin_agent     = mRegion->getOriginAgent();
     LLVector3 rel_region_pos   = origin_agent - gAgentCamera.getCameraPositionAgent();
-    F32       region_left      = rel_region_pos.mV[0] * scale_pixels_per_meter;
-    F32       region_bottom    = rel_region_pos.mV[1] * scale_pixels_per_meter;
+    F32       region_left      = rel_region_pos.mV[VX] * scale_pixels_per_meter;
+    F32       region_bottom    = rel_region_pos.mV[VY] * scale_pixels_per_meter;
     F32       map_parcel_width = PARCEL_GRID_STEP_METERS * scale_pixels_per_meter;
     const S32 GRIDS_PER_EDGE   = mParcelGridsPerEdge;
 
