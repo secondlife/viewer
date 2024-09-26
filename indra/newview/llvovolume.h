@@ -207,6 +207,7 @@ public:
     /*virtual*/ S32     setTEColor(const U8 te, const LLColor3 &color) override;
     /*virtual*/ S32     setTEColor(const U8 te, const LLColor4 &color) override;
     /*virtual*/ S32     setTEBumpmap(const U8 te, const U8 bump) override;
+    /*virtual*/ S32     setTEAlphaGamma(const U8 te, const U8 alphagamma);
     /*virtual*/ S32     setTEShiny(const U8 te, const U8 shiny) override;
     /*virtual*/ S32     setTEFullbright(const U8 te, const U8 fullbright) override;
     /*virtual*/ S32     setTEBumpShinyFullbright(const U8 te, const U8 bump) override;

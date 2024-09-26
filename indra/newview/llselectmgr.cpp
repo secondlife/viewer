@@ -1732,7 +1732,11 @@ struct LLSelectMgrAlphaGammaBypassFunctor : public LLSelectedObjectFunctor
 {
     virtual bool apply(LLViewerObject* object)
     {
-        if (object->permYouOwner())
+        if (object->permModify())
+        {
+            object->sendTEUpdate();
+        }
+        else if (object->permYouOwner())
         {
             LLSelectMgr::packAlphaGammaBypass(object);
         }
@@ -5810,7 +5814,7 @@ void LLSelectMgr::sendListToRegions(LLObjectSelectionHandle selected_handle,
 // static
 void LLSelectMgr::packAlphaGammaBypass(LLViewerObject* object)
 {
-    gMessageSystem->newMessageFast(_PRHASH_ObjectBypassModUpdate);
+    gMessageSystem->newMessageFast(_PREHASH_ObjectBypassModUpdate);
     gMessageSystem->nextBlockFast(_PREHASH_AgentData);
     gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
     gMessageSystem->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());

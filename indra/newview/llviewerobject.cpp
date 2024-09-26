@@ -5484,6 +5484,22 @@ S32 LLViewerObject::setTEBumpmap(const U8 te, const U8 bump)
     return retval;
 }
 
+S32 LLViewerObject::setTEAlphaGamma(const U8 te, const U8 gamma)
+{
+    S32 retval = 0;
+    const LLTextureEntry* tep = getTE(te);
+    if (!tep)
+    {
+        LL_WARNS() << "No texture entry for te " << (S32)te << ", object " << mID << LL_ENDL;
+    }
+    else if (gamma != tep->getAlphaGamma())
+    {
+        retval = LLPrimitive::setTEAlphaGamma(te, gamma);
+        setChanged(TEXTURE);
+    }
+    return retval;
+}
+
 S32 LLViewerObject::setTETexGen(const U8 te, const U8 texgen)
 {
     S32 retval = 0;

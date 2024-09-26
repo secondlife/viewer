@@ -2292,6 +2292,17 @@ S32 LLVOVolume::setTEBumpmap(const U8 te, const U8 bumpmap)
     return  res;
 }
 
+S32 LLVOVolume::setTEAlphaGamma(const U8 te, const U8 gamma)
+{
+    S32 res = LLViewerObject::setTEAlphaGamma(te, gamma);
+    if (res)
+    {
+        gPipeline.markTextured(mDrawable);
+        mFaceMappingChanged = true;
+    }
+    return res;
+}
+
 S32 LLVOVolume::setTETexGen(const U8 te, const U8 texgen)
 {
     S32 res = LLViewerObject::setTETexGen(te, texgen);

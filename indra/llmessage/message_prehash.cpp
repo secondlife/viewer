@@ -1402,5 +1402,5 @@ char const* const _PREHASH_HoverHeight = LLMessageStringTable::getInstance()->ge
 char const* const _PREHASH_Experience = LLMessageStringTable::getInstance()->getString("Experience");
 char const* const _PREHASH_ExperienceID = LLMessageStringTable::getInstance()->getString("ExperienceID");
 char const* const _PREHASH_LargeGenericMessage = LLMessageStringTable::getInstance()->getString("LargeGenericMessage");
-char const* const _PRHASH_ObjectBypassModUpdate      = LLMessageStringTable::getInstance()->getString("ObjectBypassModUpdate");
+char const* const _PREHASH_ObjectBypassModUpdate      = LLMessageStringTable::getInstance()->getString("ObjectBypassModUpdate");
 char const* const _PREHASH_PropertyID                      = LLMessageStringTable::getInstance()->getString("PropertyID");
