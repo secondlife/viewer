@@ -165,6 +165,7 @@ if (LINUX)
   set(CLANG_WARNINGS
       ${GCC_CLANG_COMPATIBLE_WARNINGS}
       # Put clang specific warning configuration here
+      -Wno-ambiguous-reversed-operator
   )
 
   set(GCC_WARNINGS
