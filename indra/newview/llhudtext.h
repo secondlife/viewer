@@ -68,7 +68,6 @@ protected:
         LLFontGL::StyleFlags    mStyle;
         const LLFontGL*         mFont;
         LLFontVertexBuffer      mFontBuffer;
-        LLFontVertexBuffer      mFontBufferText;
     private:
         LLWString               mText;
         std::map<const LLFontGL*, F32> mFontWidthMap;
@@ -154,7 +153,6 @@ private:
     const LLFontGL* mBoldFontp;
     LLRectf         mSoftScreenRect;
     LLVector3       mPositionAgent;
-    LLVector3       mLastRenderPosition;
     LLVector2       mPositionOffset;
     LLVector2       mTargetPositionOffset;
     F32             mMass;

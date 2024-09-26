@@ -290,15 +290,6 @@ void LLHUDNameTag::renderText()
     LLVector3 render_position = mPositionAgent
             + (x_pixel_vec * screen_offset.mV[VX])
             + (y_pixel_vec * screen_offset.mV[VY]);
-    bool reset_buffers = false;
-    const F32 treshold = 0.000001f;
-    if (abs(mLastRenderPosition.mV[VX] - render_position.mV[VX]) > treshold
-        || abs(mLastRenderPosition.mV[VY] - render_position.mV[VY]) > treshold
-        || abs(mLastRenderPosition.mV[VZ] - render_position.mV[VZ]) > treshold)
-    {
-        reset_buffers = true;
-        mLastRenderPosition = render_position;
-    }
 
     LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
     LLRect screen_rect;
@@ -322,11 +313,6 @@ void LLHUDNameTag::renderText()
         for(std::vector<LLHUDTextSegment>::iterator segment_iter = mLabelSegments.begin();
             segment_iter != mLabelSegments.end(); ++segment_iter )
         {
-            if (reset_buffers)
-            {
-                segment_iter->mFontBufferLabel.reset();
-            }
-
             // Label segments use default font
             const LLFontGL* fontp = (segment_iter->mStyle == LLFontGL::BOLD) ? mBoldFontp : mFontp;
             y_offset -= fontp->getLineHeight();
@@ -342,7 +328,7 @@ void LLHUDNameTag::renderText()
             }
 
             LLColor4 label_color(0.f, 0.f, 0.f, alpha_factor);
-            hud_render_text(segment_iter->getText(), render_position, &segment_iter->mFontBufferLabel, *fontp, segment_iter->mStyle, LLFontGL::NO_SHADOW, x_offset, y_offset, label_color, false);
+            hud_render_text(segment_iter->getText(), render_position, *fontp, segment_iter->mStyle, LLFontGL::NO_SHADOW, x_offset, y_offset, label_color, false);
         }
     }
 
@@ -364,11 +350,6 @@ void LLHUDNameTag::renderText()
         for (std::vector<LLHUDTextSegment>::iterator segment_iter = mTextSegments.begin() + start_segment;
              segment_iter != mTextSegments.end(); ++segment_iter )
         {
-            if (reset_buffers)
-            {
-                segment_iter->mFontBufferText.reset();
-            }
-
             const LLFontGL* fontp = segment_iter->mFont;
             y_offset -= fontp->getLineHeight();
             y_offset -= LINE_PADDING;
@@ -392,7 +373,7 @@ void LLHUDNameTag::renderText()
             text_color = segment_iter->mColor;
             text_color.mV[VALPHA] *= alpha_factor;
 
-            hud_render_text(segment_iter->getText(), render_position, &segment_iter->mFontBufferText, *fontp, style, shadow, x_offset, y_offset, text_color, false);
+            hud_render_text(segment_iter->getText(), render_position, *fontp, style, shadow, x_offset, y_offset, text_color, false);
         }
     }
     /// Reset the default color to white.  The renderer expects this to be the default.
