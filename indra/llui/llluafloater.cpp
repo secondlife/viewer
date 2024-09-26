@@ -301,7 +301,7 @@ void LLLuaFloater::postEvent(LLSD data, const std::string &event_name)
 void LLLuaFloater::showLuaFloater(const LLSD &data)
 {
     fsyspath fs_path(data["xml_path"].asString());
-    std::string path = fs_path.lexically_normal();
+    fsyspath path = fs_path.lexically_normal();
     if (!fs_path.is_absolute())
     {
         std::string lib_path = gDirUtilp->getExpandedFilename(LL_PATH_SCRIPTS, "lua");
