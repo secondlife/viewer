@@ -943,6 +943,57 @@
     width="260">
   </slider>
   <!-- End of Sharpening Settings-->
+  <!-- Tone Mapping Settings -->
+  <text
+    type="string"
+    length="1"
+    follows="left|top"
+    height="16"
+    layout="topleft"
+    left="420"
+    name="TonemapTypeText"
+    text_readonly_color="LabelDisabledColor"
+    top_delta="25"
+    width="128">
+    Tone Mapper:
+  </text>
+  <combo_box
+    control_name="RenderTonemapType"
+    height="18"
+    layout="topleft"
+    left_delta="130"
+    top_delta="0"
+    name="TonemapType"
+    width="150">
+     <combo_box.item
+       label="Khronos Neutral"
+       name="0"
+       value="0"/>
+     <combo_box.item
+       label="ACES"
+       name="1"
+       value="1"/>
+  </combo_box>
+  <slider
+   control_name="RenderTonemapMix"
+   decimal_digits="1"
+   follows="left|top"
+   height="16"
+   increment="0.1"
+   initial_value="1"
+   label="Tone Mapping Mix:"
+   tool_tip="Mix between linear and tone mapped colors"
+   label_width="145"
+   layout="topleft"
+   left="420"
+   min_val="0.0"
+   max_val="1.0"
+   name="TonemapMix"
+   show_text="true"
+   top_delta="22"
+   width="260">
+  </slider>
+  <!-- End of Tone Mapping Settings-->
   <!-- End of Advanced Settings block -->
 	<view_border
       bevel_style="in"

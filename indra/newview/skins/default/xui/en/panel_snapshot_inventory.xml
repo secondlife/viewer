@@ -60,7 +60,7 @@
          name="Large(512x512)"
          value="[i512,i512]" />
         <combo_box.item
-         label="Current Window(512x512)"
+         label="Current Window"
          name="CurrentWindow"
          value="[i0,i0]" />
         <combo_box.item
@@ -119,6 +119,8 @@
      type="string"
      word_wrap="true">
         To save your image as a texture select one of the square formats.
+
+Upload cost: L$[UPLOAD_COST]
     </text>
     <button
      follows="right|bottom"

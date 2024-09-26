@@ -34,12 +34,11 @@
 #include "llframetimer.h"
 #include "lluuid.h"
 #include "llviewertexture.h"
-#include "llgl.h"
-#include "lluicolor.h"
 
 class LLViewerRegion;
 class LLVector3;
 class LLColor4U;
+class LLUIColor;
 class LLVector2;
 
 class LLViewerParcelOverlay : public LLGLUpdate
@@ -65,19 +64,18 @@ public:
 
     bool            isSoundLocal(const LLVector3& pos) const;
 
-    bool            isBuildCameraAllowed(const LLVector3& pos) const;
     F32             getOwnedRatio() const;
 
     // Returns the number of vertices drawn
     void            renderPropertyLines();
     void            renderPropertyLinesOnMinimap(F32 scale_pixels_per_meter, const F32* parcel_outline_color);
 
-    U8              ownership( const LLVector3& pos) const;
-    U8              parcelLineFlags( const LLVector3& pos) const;
+    U8              ownership(const LLVector3& pos) const;
+    U8              parcelLineFlags(const LLVector3& pos) const;
     U8              parcelLineFlags(S32 row, S32 col) const;
 
     // MANIPULATE
-    void    uncompressLandOverlay(S32 chunk, U8 *compressed_overlay);
+    void    uncompressLandOverlay(S32 chunk, U8* compressed_overlay);
 
     // Indicate property lines and overlay texture need to be rebuilt.
     void    setDirty();
@@ -88,8 +86,7 @@ public:
 private:
     // This is in parcel rows and columns, not grid rows and columns
     // Stored in bottom three bits.
-    U8      ownership(S32 row, S32 col) const
-                { return parcelFlags(row, col, (U8)0x7); }
+    U8      ownership(S32 row, S32 col) const { return parcelFlags(row, col, (U8)0x7); }
 
     U8      parcelFlags(S32 row, S32 col, U8 flags) const;
 
@@ -119,7 +116,7 @@ private:
 
     struct Edge
     {
-        std::vector<LLVector3> vertices;
+        std::vector<LLVector3> vertices[2]; // 0 - detailized, 1 - simplified
         LLColor4U color;
     };
 
