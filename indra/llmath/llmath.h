@@ -358,11 +358,11 @@ inline F32 snap_to_sig_figs(F32 foo, S32 sig_figs)
     return new_foo;
 }
 
+using std::lerp;
 // Even though there's now a std::lerp() function that appears to do the same
-// as this function, for some reason MSVC likes this one better. Publishing
-// std::lerp() into the global namespace instead of defining this function
-// results in fatal argument conversion warnings.
-inline F32 lerp(F32 a, F32 b, F32 u)
+// as this function, in some cases MSVC likes this one better: some calls to
+// std::lerp() produce fatal argument conversion warnings.
+inline F32 flerp(F32 a, F32 b, F32 u)
 {
     return a + ((b - a) * u);
 }
