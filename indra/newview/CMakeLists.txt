@@ -1626,6 +1626,13 @@ set_source_files_properties(${viewer_SHADER_FILES}
                             PROPERTIES HEADER_FILE_ONLY TRUE)
 list(APPEND viewer_SOURCE_FILES ${viewer_SHADER_FILES})
 
+# Add lua script sources
+file(GLOB_RECURSE viewer_LUA_SCRIPT_FILES LIST_DIRECTORIES FALSE
+    ${CMAKE_CURRENT_SOURCE_DIR}/scripts/lua/*.lua)
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/scripts/lua PREFIX "LUA Scripts" FILES ${viewer_LUA_SCRIPT_FILES})
+set_source_files_properties(${viewer_LUA_SCRIPT_FILES} 
+                            PROPERTIES HEADER_FILE_ONLY TRUE)
+list(APPEND viewer_SOURCE_FILES ${viewer_LUA_SCRIPT_FILES})
 
 set(viewer_APPSETTINGS_FILES
     app_settings/anim.ini
