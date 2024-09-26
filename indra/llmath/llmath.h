@@ -358,10 +358,9 @@ inline F32 snap_to_sig_figs(F32 foo, S32 sig_figs)
     return new_foo;
 }
 
-inline F32 lerp(F32 a, F32 b, F32 u)
-{
-    return a + ((b - a) * u);
-}
+// We used to define a simple lerp(F32, F32, F32) that probably predated
+// std::lerp(). By now, do we need our own definition any longer?
+using std::lerp;
 
 inline F32 lerp2d(F32 x00, F32 x01, F32 x10, F32 x11, F32 u, F32 v)
 {
