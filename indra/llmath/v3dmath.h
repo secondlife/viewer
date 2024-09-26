@@ -463,7 +463,7 @@ inline F64  dist_vec_squared2D(const LLVector3d& a, const LLVector3d& b)
     return x*x + y*y;
 }
 
-inline LLVector3d lerp(const LLVector3d& a, const LLVector3d& b, const F64 u)
+inline LLVector3d ll_lerp(const LLVector3d& a, const LLVector3d& b, const F64 u)
 {
     return LLVector3d(
         a.mdV[VX] + (b.mdV[VX] - a.mdV[VX]) * u,

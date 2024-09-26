@@ -1105,11 +1105,11 @@ void LLFolderViewFolder::updateLabelRotation()
     }
     else if (isOpen())
     {
-        mControlLabelRotation = lerp(mControlLabelRotation, -90.f, LLSmoothInterpolation::getInterpolant(0.04f));
+        mControlLabelRotation = ll_lerp(mControlLabelRotation, -90.f, LLSmoothInterpolation::getInterpolant(0.04f));
     }
     else
     {
-        mControlLabelRotation = lerp(mControlLabelRotation, 0.f, LLSmoothInterpolation::getInterpolant(0.025f));
+        mControlLabelRotation = ll_lerp(mControlLabelRotation, 0.f, LLSmoothInterpolation::getInterpolant(0.025f));
     }
 }
 
@@ -1267,7 +1267,7 @@ S32 LLFolderViewFolder::arrange( S32* width, S32* height )
     // animate current height towards target height
     if (llabs(mCurHeight - mTargetHeight) > 1.f)
     {
-        mCurHeight = lerp(mCurHeight, mTargetHeight, LLSmoothInterpolation::getInterpolant(isOpen() ? FOLDER_OPEN_TIME_CONSTANT : FOLDER_CLOSE_TIME_CONSTANT));
+        mCurHeight = ll_lerp(mCurHeight, mTargetHeight, LLSmoothInterpolation::getInterpolant(isOpen() ? FOLDER_OPEN_TIME_CONSTANT : FOLDER_CLOSE_TIME_CONSTANT));
 
         requestArrange();
 

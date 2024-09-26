@@ -165,7 +165,7 @@ LLVector3 projected_vec(const LLVector3 &a, const LLVector3 &b); // Returns vect
 LLVector3 inverse_projected_vec(const LLVector3 &a, const LLVector3 &b); // Returns vector a scaled such that projected_vec(inverse_projected_vec(a, b), b) == b;
 LLVector3 parallel_component(const LLVector3 &a, const LLVector3 &b); // Returns vector a projected on vector b (same as projected_vec)
 LLVector3 orthogonal_component(const LLVector3 &a, const LLVector3 &b); // Returns component of vector a not parallel to vector b (same as projected_vec)
-LLVector3 lerp(const LLVector3 &a, const LLVector3 &b, F32 u); // Returns a vector that is a linear interpolation between a and b
+LLVector3 ll_lerp(const LLVector3 &a, const LLVector3 &b, F32 u); // Returns a vector that is a linear interpolation between a and b
 LLVector3 point_to_box_offset(LLVector3& pos, const LLVector3* box); // Displacement from query point to nearest point on bounding box.
 bool box_valid_and_non_zero(const LLVector3* box);
 
@@ -530,7 +530,7 @@ inline LLVector3 orthogonal_component(const LLVector3 &a, const LLVector3 &b)
 }
 
 
-inline LLVector3 lerp(const LLVector3 &a, const LLVector3 &b, F32 u)
+inline LLVector3 ll_lerp(const LLVector3 &a, const LLVector3 &b, F32 u)
 {
     return LLVector3(
         a.mV[VX] + (b.mV[VX] - a.mV[VX]) * u,

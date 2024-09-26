@@ -345,7 +345,7 @@ void LLAgentCamera::resetView(bool reset_camera, bool change_camera)
             LLVector3 agent_at_axis = gAgent.getAtAxis();
             agent_at_axis -= projected_vec(agent_at_axis, gAgent.getReferenceUpVector());
             agent_at_axis.normalize();
-            gAgent.resetAxes(lerp(gAgent.getAtAxis(), agent_at_axis, LLSmoothInterpolation::getInterpolant(0.3f)));
+            gAgent.resetAxes(ll_lerp(gAgent.getAtAxis(), agent_at_axis, LLSmoothInterpolation::getInterpolant(0.3f)));
         }
 
         setFocusOnAvatar(true, ANIMATE);
@@ -560,7 +560,7 @@ LLVector3 LLAgentCamera::calcFocusOffset(LLViewerObject *object, LLVector3 origi
         {
             // perform magic number biasing of focus point towards surface vs. planar center
             bias = clamp_rescale(relDist/viewDist, 0.1f, 0.7f, 0.0f, 1.0f);
-            obj_rel = lerp(focus_offset_from_object_center, obj_rel, bias);
+            obj_rel = ll_lerp(focus_offset_from_object_center, obj_rel, bias);
         }
 
         focus_offset_from_object_center = obj_rel;
@@ -1309,7 +1309,7 @@ void LLAgentCamera::updateCamera()
     gAgentCamera.clearPanKeys();
 
     // lerp camera focus offset
-    mCameraFocusOffset = lerp(mCameraFocusOffset, mCameraFocusOffsetTarget, LLSmoothInterpolation::getInterpolant(CAMERA_FOCUS_HALF_LIFE));
+    mCameraFocusOffset = ll_lerp(mCameraFocusOffset, mCameraFocusOffsetTarget, LLSmoothInterpolation::getInterpolant(CAMERA_FOCUS_HALF_LIFE));
 
     if ( mCameraMode == CAMERA_MODE_FOLLOW )
     {
@@ -1386,8 +1386,8 @@ void LLAgentCamera::updateCamera()
 
             // ...adjust position for animation
             F32 smooth_fraction_of_animation = llsmoothstep(0.0f, 1.0f, fraction_of_animation);
-            camera_pos_global = lerp(mAnimationCameraStartGlobal, camera_target_global, smooth_fraction_of_animation);
-            mFocusGlobal = lerp(mAnimationFocusStartGlobal, focus_target_global, smooth_fraction_of_animation);
+            camera_pos_global = ll_lerp(mAnimationCameraStartGlobal, camera_target_global, smooth_fraction_of_animation);
+            mFocusGlobal = ll_lerp(mAnimationFocusStartGlobal, focus_target_global, smooth_fraction_of_animation);
         }
         else
         {
@@ -1437,7 +1437,7 @@ void LLAgentCamera::updateCamera()
                 LLVector3d delta = camera_pos_agent - mCameraSmoothingLastPositionAgent;
                 if (delta.magVec() < MAX_CAMERA_SMOOTH_DISTANCE)  // only smooth over short distances please
                 {
-                    camera_pos_agent = lerp(mCameraSmoothingLastPositionAgent, camera_pos_agent, smoothing);
+                    camera_pos_agent = ll_lerp(mCameraSmoothingLastPositionAgent, camera_pos_agent, smoothing);
                     camera_pos_global = camera_pos_agent + agent_pos;
                 }
             }
@@ -1446,7 +1446,7 @@ void LLAgentCamera::updateCamera()
                 LLVector3d delta = camera_pos_global - mCameraSmoothingLastPositionGlobal;
                 if (delta.magVec() < MAX_CAMERA_SMOOTH_DISTANCE) // only smooth over short distances please
                 {
-                    camera_pos_global = lerp(mCameraSmoothingLastPositionGlobal, camera_pos_global, smoothing);
+                    camera_pos_global = ll_lerp(mCameraSmoothingLastPositionGlobal, camera_pos_global, smoothing);
                 }
             }
         }
@@ -1457,7 +1457,7 @@ void LLAgentCamera::updateCamera()
     }
 
 
-    mCameraCurrentFOVZoomFactor = lerp(mCameraCurrentFOVZoomFactor, mCameraFOVZoomFactor, LLSmoothInterpolation::getInterpolant(FOV_ZOOM_HALF_LIFE));
+    mCameraCurrentFOVZoomFactor = ll_lerp(mCameraCurrentFOVZoomFactor, mCameraFOVZoomFactor, LLSmoothInterpolation::getInterpolant(FOV_ZOOM_HALF_LIFE));
 
 //  LL_INFOS() << "Current FOV Zoom: " << mCameraCurrentFOVZoomFactor << " Target FOV Zoom: " << mCameraFOVZoomFactor << " Object penetration: " << mFocusObjectDist << LL_ENDL;
 
@@ -1891,7 +1891,7 @@ LLVector3d LLAgentCamera::calcCameraPositionTargetGlobal(bool *hit_limit)
             {
                 F32 camera_lerp_amt = LLSmoothInterpolation::getInterpolant(CAMERA_ZOOM_HALF_LIFE);
 
-                mCurrentCameraDistance = lerp(mCurrentCameraDistance, mTargetCameraDistance, camera_lerp_amt);
+                mCurrentCameraDistance = ll_lerp(mCurrentCameraDistance, mTargetCameraDistance, camera_lerp_amt);
             }
 
             // Make the camera distance current
@@ -1935,7 +1935,7 @@ LLVector3d LLAgentCamera::calcCameraPositionTargetGlobal(bool *hit_limit)
                         target_lag = vel * dynamic_camera_strength / 30.f;
                     }
 
-                    mCameraLag = lerp(mCameraLag, target_lag, lag_interp);
+                    mCameraLag = ll_lerp(mCameraLag, target_lag, lag_interp);
 
                     F32 lag_dist = mCameraLag.magVec();
                     if (lag_dist > MAX_CAMERA_LAG)
@@ -1952,7 +1952,7 @@ LLVector3d LLAgentCamera::calcCameraPositionTargetGlobal(bool *hit_limit)
                 }
                 else
                 {
-                    mCameraLag = lerp(mCameraLag, LLVector3::zero, LLSmoothInterpolation::getInterpolant(0.15f));
+                    mCameraLag = ll_lerp(mCameraLag, LLVector3::zero, LLSmoothInterpolation::getInterpolant(0.15f));
                 }
 
                 camera_lag_d.setVec(mCameraLag);

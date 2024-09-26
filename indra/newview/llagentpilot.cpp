@@ -313,8 +313,8 @@ void LLAgentPilot::moveCamera()
         Action& start = mActions[start_index];
         Action& end = mActions[end_index];
 
-        F32 view = lerp(start.mCameraView, end.mCameraView, t);
-        LLVector3 origin = lerp(start.mCameraOrigin, end.mCameraOrigin, t);
+        F32 view = ll_lerp(start.mCameraView, end.mCameraView, t);
+        LLVector3 origin = ll_lerp(start.mCameraOrigin, end.mCameraOrigin, t);
         LLQuaternion start_quat(start.mCameraXAxis, start.mCameraYAxis, start.mCameraZAxis);
         LLQuaternion end_quat(end.mCameraXAxis, end.mCameraYAxis, end.mCameraZAxis);
         LLQuaternion quat = nlerp(t, start_quat, end_quat);

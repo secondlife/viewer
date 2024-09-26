@@ -143,22 +143,22 @@ void LLSettingsBase::lerpSettings(LLSettingsBase &other, F64 mix)
 
 void LLSettingsBase::lerpVector2(LLVector2& a, const LLVector2& b, F32 mix)
 {
-    a.mV[0] = lerp(a.mV[0], b.mV[0], mix);
-    a.mV[1] = lerp(a.mV[1], b.mV[1], mix);
+    a.mV[0] = ll_lerp(a.mV[0], b.mV[0], mix);
+    a.mV[1] = ll_lerp(a.mV[1], b.mV[1], mix);
 }
 
 void LLSettingsBase::lerpVector3(LLVector3& a, const LLVector3& b, F32 mix)
 {
-    a.mV[0] = lerp(a.mV[0], b.mV[0], mix);
-    a.mV[1] = lerp(a.mV[1], b.mV[1], mix);
-    a.mV[2] = lerp(a.mV[2], b.mV[2], mix);
+    a.mV[0] = ll_lerp(a.mV[0], b.mV[0], mix);
+    a.mV[1] = ll_lerp(a.mV[1], b.mV[1], mix);
+    a.mV[2] = ll_lerp(a.mV[2], b.mV[2], mix);
 }
 
 void LLSettingsBase::lerpColor(LLColor3& a, const LLColor3& b, F32 mix)
 {
-    a.mV[0] = lerp(a.mV[0], b.mV[0], mix);
-    a.mV[1] = lerp(a.mV[1], b.mV[1], mix);
-    a.mV[2] = lerp(a.mV[2], b.mV[2], mix);
+    a.mV[0] = ll_lerp(a.mV[0], b.mV[0], mix);
+    a.mV[1] = ll_lerp(a.mV[1], b.mV[1], mix);
+    a.mV[2] = ll_lerp(a.mV[2], b.mV[2], mix);
 }
 
 LLSD LLSettingsBase::combineSDMaps(const LLSD &settings, const LLSD &other)
@@ -349,11 +349,11 @@ LLSD LLSettingsBase::interpolateSDValue(const std::string& key_name, const LLSD 
     {
         case LLSD::TypeInteger:
             // lerp between the two values rounding the result to the nearest integer.
-            new_value = LLSD::Integer(llroundf(lerp((F32)value.asReal(), (F32)other_value.asReal(), (F32)mix)));
+            new_value = LLSD::Integer(llroundf(ll_lerp((F32)value.asReal(), (F32)other_value.asReal(), (F32)mix)));
             break;
         case LLSD::TypeReal:
             // lerp between the two values.
-            new_value = LLSD::Real(lerp((F32)value.asReal(), (F32)other_value.asReal(), (F32)mix));
+            new_value = LLSD::Real(ll_lerp((F32)value.asReal(), (F32)other_value.asReal(), (F32)mix));
             break;
         case LLSD::TypeMap:
             // deep copy.
@@ -379,7 +379,7 @@ LLSD LLSettingsBase::interpolateSDValue(const std::string& key_name, const LLSD 
                 for (size_t i = 0; i < len; ++i)
                 {
 
-                    new_array[i] = lerp((F32)value[i].asReal(), (F32)other_value[i].asReal(), (F32)mix);
+                    new_array[i] = ll_lerp((F32)value[i].asReal(), (F32)other_value[i].asReal(), (F32)mix);
                 }
             }
 

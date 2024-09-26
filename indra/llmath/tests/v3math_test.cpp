@@ -498,7 +498,7 @@ namespace tut
         val2 = y1 + (y2 - y1)* val;
         val3 = z1 + (z2 - z1)* val;
         LLVector3 vec3(x1,y1,z1),vec3a(x2,y2,z2);
-        LLVector3 vec3b = lerp(vec3,vec3a,val);
+        LLVector3 vec3b = ll_lerp(vec3,vec3a,val);
         ensure("1:lerp failed", ((val1 ==vec3b.mV[VX])&& (val2 ==vec3b.mV[VY]) && (val3 ==vec3b.mV[VZ])));
     }
 

@@ -326,7 +326,7 @@ void LLSnapshotLivePreview::draw()
         {
             if (mFlashAlpha < 1.f)
             {
-                mFlashAlpha = lerp(mFlashAlpha, 1.f, LLCriticalDamp::getInterpolant(0.02f));
+                mFlashAlpha = ll_lerp(mFlashAlpha, 1.f, LLCriticalDamp::getInterpolant(0.02f));
             }
             else
             {
@@ -335,7 +335,7 @@ void LLSnapshotLivePreview::draw()
         }
         else
         {
-            mFlashAlpha = lerp(mFlashAlpha, 0.f, LLCriticalDamp::getInterpolant(0.15f));
+            mFlashAlpha = ll_lerp(mFlashAlpha, 0.f, LLCriticalDamp::getInterpolant(0.15f));
         }
 
         // Draw shining animation if appropriate.

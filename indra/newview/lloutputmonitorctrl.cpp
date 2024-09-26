@@ -229,7 +229,7 @@ void LLOutputMonitorCtrl::draw()
     //      // Use overdriven color if the power exceeds overdriven level.
     //      if (frac > 1.0f)
     //          frac = 1.0f;
-    //      rect_color = lerp(sColorNormal, sColorOverdriven, frac);
+    //      rect_color = ll_lerp(sColorNormal, sColorOverdriven, frac);
     //  }
 
     //  // Draw rectangle filled with the color.

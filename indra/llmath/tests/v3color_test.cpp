@@ -276,7 +276,7 @@ namespace tut
         val1 = r1 + (r2 - r1)* val;
         val2 = g1 + (g2 - g1)* val;
         val3 = b1 + (b2 - b1)* val;
-        LLColor3 llcolor3b = lerp(llcolor3,llcolor3a,val);
+        LLColor3 llcolor3b = ll_lerp(llcolor3,llcolor3a,val);
         ensure("lerp failed ", ((val1 ==llcolor3b.mV[0])&& (val2 ==llcolor3b.mV[1]) && (val3 ==llcolor3b.mV[2])));
     }
 

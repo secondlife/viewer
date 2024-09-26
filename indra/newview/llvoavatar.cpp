@@ -3290,7 +3290,7 @@ void LLVOAvatar::idleUpdateWindEffect()
         LLVector3 velocity = getVelocity();
         F32 speed = velocity.length();
         //RN: velocity varies too much frame to frame for this to work
-        mRippleAccel.clearVec();//lerp(mRippleAccel, (velocity - mLastVel) * time_delta, LLSmoothInterpolation::getInterpolant(0.02f));
+        mRippleAccel.clearVec();//ll_lerp(mRippleAccel, (velocity - mLastVel) * time_delta, LLSmoothInterpolation::getInterpolant(0.02f));
         mLastVel = velocity;
         LLVector4 wind;
         wind.setVec(getRegion()->mWind.getVelocityNoisy(getPositionAgent(), 4.f) - velocity);
@@ -3319,10 +3319,10 @@ void LLVOAvatar::idleUpdateWindEffect()
         {
             interp = LLSmoothInterpolation::getInterpolant(0.4f);
         }
-        mWindVec = lerp(mWindVec, wind, interp);
+        mWindVec = ll_lerp(mWindVec, wind, interp);
 
         F32 wind_freq = hover_strength + llclamp(8.f + (speed * 0.7f) + (noise1(mRipplePhase) * 4.f), 8.f, 25.f);
-        mWindFreq = lerp(mWindFreq, wind_freq, interp);
+        mWindFreq = ll_lerp(mWindFreq, wind_freq, interp);
 
         if (mBelowWater)
         {
@@ -3609,8 +3609,8 @@ void LLVOAvatar::idleUpdateNameTagText(bool new_name)
         static const LLUIColor user_chat_color = LLUIColorTable::instance().getColor("UserChatColor");
         static const LLUIColor agent_chat_color = LLUIColorTable::instance().getColor("AgentChatColor");
         const LLColor4& new_chat = isSelf() ? user_chat_color : agent_chat_color;
-        LLColor4 normal_chat = lerp(new_chat, LLColor4(0.8f, 0.8f, 0.8f, 1.f), 0.7f);
-        LLColor4 old_chat = lerp(normal_chat, LLColor4(0.6f, 0.6f, 0.6f, 1.f), 0.7f);
+        LLColor4 normal_chat = ll_lerp(new_chat, LLColor4(0.8f, 0.8f, 0.8f, 1.f), 0.7f);
+        LLColor4 old_chat = ll_lerp(normal_chat, LLColor4(0.6f, 0.6f, 0.6f, 1.f), 0.7f);
         if (mTyping && mChats.size() >= MAX_BUBBLE_CHAT_UTTERANCES)
         {
             ++chat_iter;
@@ -3635,12 +3635,12 @@ void LLVOAvatar::idleUpdateNameTagText(bool new_name)
             if (chat_fade_amt < 1.f)
             {
                 F32 u = clamp_rescale(chat_fade_amt, 0.9f, 1.f, 0.f, 1.f);
-                mNameText->addLine(chat_iter->mText, lerp(new_chat, normal_chat, u), style);
+                mNameText->addLine(chat_iter->mText, ll_lerp(new_chat, normal_chat, u), style);
             }
             else if (chat_fade_amt < 2.f)
             {
                 F32 u = clamp_rescale(chat_fade_amt, 1.9f, 2.f, 0.f, 1.f);
-                mNameText->addLine(chat_iter->mText, lerp(normal_chat, old_chat, u), style);
+                mNameText->addLine(chat_iter->mText, ll_lerp(normal_chat, old_chat, u), style);
             }
             else if (chat_fade_amt < 3.f)
             {
@@ -3758,7 +3758,7 @@ LLVector3 LLVOAvatar::idleCalcNameTagPosition(const LLVector3 &root_pos_last)
         mTargetRootToHeadOffset = head_offset;
     }
 
-    mCurRootToHeadOffset = lerp(mCurRootToHeadOffset, mTargetRootToHeadOffset, LLSmoothInterpolation::getInterpolant(0.2f));
+    mCurRootToHeadOffset = ll_lerp(mCurRootToHeadOffset, mTargetRootToHeadOffset, LLSmoothInterpolation::getInterpolant(0.2f));
 
     LLVector3 name_position = mRoot->getLastWorldPosition() + (mCurRootToHeadOffset * root_rot);
     name_position += (local_camera_up * root_rot) - (projected_vec(local_camera_at * root_rot, camera_to_av));
@@ -4369,7 +4369,7 @@ void LLVOAvatar::updateOrientation(LLAgent& agent, F32 speed, F32 delta_time)
                     velDir *= -1.0f;
                 }
             }
-            LLVector3 fwdDir = lerp(primDir, velDir, clamp_rescale(speed, 0.5f, 2.0f, 0.0f, 1.0f));
+            LLVector3 fwdDir = ll_lerp(primDir, velDir, clamp_rescale(speed, 0.5f, 2.0f, 0.0f, 1.0f));
             if (isSelf() && gAgentCamera.cameraMouselook())
             {
                 // make sure fwdDir stays in same general direction as primdir
@@ -4904,7 +4904,7 @@ void LLVOAvatar::updateHeadOffset()
     else
     {
         F32 u = llmax(0.f, HEAD_MOVEMENT_AVG_TIME - (1.f / gFPSClamped));
-        mHeadOffset = lerp(midEyePt, mHeadOffset,  u);
+        mHeadOffset = ll_lerp(midEyePt, mHeadOffset,  u);
     }
 }
 
@@ -11580,7 +11580,7 @@ void LLVOAvatar::calcMutedAVColor()
         S32 spectrum_index_2  = spectrum_index_1 + 1;                  //    and before this index (inclusive)
         F32 fractBetween = spectrum - (F32)(spectrum_index_1);  // distance between the two indexes (0-1)
 
-        new_color = lerp(*spectrum_color[spectrum_index_1], *spectrum_color[spectrum_index_2], fractBetween);
+        new_color = ll_lerp(*spectrum_color[spectrum_index_1], *spectrum_color[spectrum_index_2], fractBetween);
         new_color.normalize();
         new_color *= 0.28f;            // Tone it down
     }

@@ -151,7 +151,7 @@ public:
     inline void exp();  // Do an exponential on the color
 };
 
-LLColor3 lerp(const LLColor3 &a, const LLColor3 &b, F32 u);
+LLColor3 ll_lerp(const LLColor3 &a, const LLColor3 &b, F32 u);
 
 
 void LLColor3::clamp()
@@ -474,7 +474,7 @@ inline F32      distVec_squared(const LLColor3 &a, const LLColor3 &b)
     return x*x + y*y + z*z;
 }
 
-inline LLColor3 lerp(const LLColor3 &a, const LLColor3 &b, F32 u)
+inline LLColor3 ll_lerp(const LLColor3 &a, const LLColor3 &b, F32 u)
 {
     return LLColor3(
         a.mV[VX] + (b.mV[VX] - a.mV[VX]) * u,

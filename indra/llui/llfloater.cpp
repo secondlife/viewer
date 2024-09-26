@@ -2303,11 +2303,11 @@ void LLFloater::drawConeToOwner(F32 &context_cone_opacity,
 
     if (gFocusMgr.childHasMouseCapture(getDragHandle()))
     {
-        context_cone_opacity = lerp(context_cone_opacity, max_cone_opacity, LLSmoothInterpolation::getInterpolant(fade_time));
+        context_cone_opacity = ll_lerp(context_cone_opacity, max_cone_opacity, LLSmoothInterpolation::getInterpolant(fade_time));
     }
     else
     {
-        context_cone_opacity = lerp(context_cone_opacity, 0.f, LLSmoothInterpolation::getInterpolant(fade_time));
+        context_cone_opacity = ll_lerp(context_cone_opacity, 0.f, LLSmoothInterpolation::getInterpolant(fade_time));
     }
 }
 

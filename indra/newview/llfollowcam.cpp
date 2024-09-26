@@ -322,10 +322,10 @@ void LLFollowCam::update()
             */
 
             F32 focusLagLerp = LLSmoothInterpolation::getInterpolant( mFocusLag );
-            focus_pt_agent = lerp( focus_pt_agent, whereFocusWantsToBe, focusLagLerp );
+            focus_pt_agent = ll_lerp( focus_pt_agent, whereFocusWantsToBe, focusLagLerp );
             mSimulatedFocusGlobal = gAgent.getPosGlobalFromAgent(focus_pt_agent);
         }
-        mRelativeFocus = lerp(mRelativeFocus, (focus_pt_agent - mSubjectPosition) * ~mSubjectRotation, LLSmoothInterpolation::getInterpolant(0.05f));
+        mRelativeFocus = ll_lerp(mRelativeFocus, (focus_pt_agent - mSubjectPosition) * ~mSubjectRotation, LLSmoothInterpolation::getInterpolant(0.05f));
     }// if focus is not locked ---------------------------------------------
 
 
@@ -409,7 +409,7 @@ void LLFollowCam::update()
         if ( distanceFromPositionToIdealPosition > mPositionThreshold )
         {
             F32 positionPullLerp = LLSmoothInterpolation::getInterpolant( mPositionLag );
-            simulated_pos_agent = lerp( simulated_pos_agent, whereCameraPositionWantsToBe, positionPullLerp );
+            simulated_pos_agent = ll_lerp( simulated_pos_agent, whereCameraPositionWantsToBe, positionPullLerp );
         }
 
         //--------------------------------------------------------------------
@@ -428,7 +428,7 @@ void LLFollowCam::update()
         updateBehindnessConstraint(gAgent.getPosAgentFromGlobal(mSimulatedFocusGlobal), simulated_pos_agent);
         mSimulatedPositionGlobal = gAgent.getPosGlobalFromAgent(simulated_pos_agent);
 
-        mRelativePos = lerp(mRelativePos, (simulated_pos_agent - mSubjectPosition) * ~mSubjectRotation, LLSmoothInterpolation::getInterpolant(0.05f));
+        mRelativePos = ll_lerp(mRelativePos, (simulated_pos_agent - mSubjectPosition) * ~mSubjectRotation, LLSmoothInterpolation::getInterpolant(0.05f));
     } // if position is not locked -----------------------------------------------------------
 
 

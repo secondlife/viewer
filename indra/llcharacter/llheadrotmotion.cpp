@@ -212,7 +212,7 @@ bool LLHeadRotMotion::onUpdate(F32 time, U8* joint_mask)
                 root_at.mV[VZ] = 0.f;
                 root_at.normVec();
 
-                headLookAt = lerp(headLookAt, root_at, 0.4f);
+                headLookAt = ll_lerp(headLookAt, root_at, 0.4f);
                 headLookAt.normVec();
 
                 left = root_up % headLookAt;

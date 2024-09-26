@@ -149,7 +149,7 @@ void LLViewBorder::drawOnePixelLines()
         top_color = gFocusMgr.getFocusColor();
         bottom_color = top_color;
 
-        LLUI::setLineWidth(lerp(1.f, 3.f, gFocusMgr.getFocusFlashAmt()));
+        LLUI::setLineWidth(ll_lerp(1.f, 3.f, gFocusMgr.getFocusFlashAmt()));
     }
 
     S32 left    = 0;

@@ -200,7 +200,7 @@ void LLNetMap::draw()
 
     if (auto_centering || mCentering)
     {
-        mCurPan = lerp(mCurPan, LLVector2(0.0f, 0.0f) , LLSmoothInterpolation::getInterpolant(0.1f));
+        mCurPan = ll_lerp(mCurPan, LLVector2(0.0f, 0.0f) , LLSmoothInterpolation::getInterpolant(0.1f));
     }
     bool centered = abs(mCurPan.mV[VX]) < 0.5f && abs(mCurPan.mV[VY]) < 0.5f;
     if (centered)

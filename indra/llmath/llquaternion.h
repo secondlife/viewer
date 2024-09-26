@@ -142,8 +142,8 @@ public:
 
     // Non-standard operators
     friend F32 dot(const LLQuaternion &a, const LLQuaternion &b);
-    friend LLQuaternion lerp(F32 t, const LLQuaternion &p, const LLQuaternion &q);      // linear interpolation (t = 0 to 1) from p to q
-    friend LLQuaternion lerp(F32 t, const LLQuaternion &q);                             // linear interpolation (t = 0 to 1) from identity to q
+    friend LLQuaternion ll_lerp(F32 t, const LLQuaternion &p, const LLQuaternion &q);      // linear interpolation (t = 0 to 1) from p to q
+    friend LLQuaternion ll_lerp(F32 t, const LLQuaternion &q);                             // linear interpolation (t = 0 to 1) from identity to q
     friend LLQuaternion slerp(F32 t, const LLQuaternion &p, const LLQuaternion &q);     // spherical linear interpolation from p to q
     friend LLQuaternion slerp(F32 t, const LLQuaternion &q);                            // spherical linear interpolation from identity to q
     friend LLQuaternion nlerp(F32 t, const LLQuaternion &p, const LLQuaternion &q);     // normalized linear interpolation from p to q

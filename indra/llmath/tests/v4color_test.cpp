@@ -323,7 +323,7 @@ namespace tut
         F32 r1 = 0x20, g1 = 0xFFFF, b1 = 0xFF, val = 0x20;
         F32 r2 = 0xABF, g2 = 0xFB, b2 = 0xFFF;
         LLColor4 llcolor4a(r1,g1,b1),llcolor4b(r2,g2,b2),llcolor4c;
-        llcolor4c = lerp(llcolor4a,llcolor4b,val);
+        llcolor4c = ll_lerp(llcolor4a,llcolor4b,val);
         ensure("lerp:Fail ",  (is_approx_equal(r1 + (r2 - r1)* val,llcolor4c.mV[VRED]) && is_approx_equal(g1 + (g2 - g1)* val,llcolor4c.mV[VGREEN]) && is_approx_equal(b1 + (b2 - b1)* val,llcolor4c.mV[VBLUE])));
     }
 

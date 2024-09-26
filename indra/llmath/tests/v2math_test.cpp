@@ -417,7 +417,7 @@ namespace tut
         F32 x1 =1.f, y1 = 2.f, x2 = -.32f, y2 = .2234f,fVal = .0121f;
         F32 val1, val2;
         LLVector2 vec2(x1, y1),vec3(x2, y2);
-        LLVector2 vec4 = lerp(vec2, vec3, fVal);
+        LLVector2 vec4 = ll_lerp(vec2, vec3, fVal);
         val1 = x1 + (x2 - x1) * fVal;
         val2 = y1 + (y2 - y1) * fVal;
         ensure("lerp values are not equal", ((val1 == vec4.mV[VX]) && (val2 == vec4.mV[VY])));

@@ -202,7 +202,7 @@ void LLVolumeImplFlexible::remapSections(LLFlexibleObjectSection *source, S32 so
             for (S32 step=1; step<num_steps; ++step)
             {
                 dest[section+step].mScale =
-                    lerp(last_source_section->mScale, source_section->mScale, t);
+                    ll_lerp(last_source_section->mScale, source_section->mScale, t);
                 dest[section+step].mAxisRotation =
                     slerp(t, last_source_section->mAxisRotation, source_section->mAxisRotation);
 
@@ -211,9 +211,9 @@ void LLVolumeImplFlexible::remapSections(LLFlexibleObjectSection *source, S32 so
                 dest[section+step].mPosition = t_sq*(t*A + B) + t*C + D;
                 dest[section+step].mRotation =
                     slerp(t, last_source_section->mRotation, source_section->mRotation);
-                dest[section+step].mVelocity = lerp(last_source_section->mVelocity, source_section->mVelocity, t);
-                dest[section+step].mDirection = lerp(last_source_section->mDirection, source_section->mDirection, t);
-                dest[section+step].mdPosition = lerp(last_source_section->mdPosition, source_section->mdPosition, t);
+                dest[section+step].mVelocity = ll_lerp(last_source_section->mVelocity, source_section->mVelocity, t);
+                dest[section+step].mDirection = ll_lerp(last_source_section->mDirection, source_section->mDirection, t);
+                dest[section+step].mdPosition = ll_lerp(last_source_section->mdPosition, source_section->mdPosition, t);
                 dest[section+num_steps] = *source_section;
                 t += t_inc;
             }
@@ -276,10 +276,10 @@ void LLVolumeImplFlexible::setAttributesOfAllSections(LLVector3* inScale)
 
     for ( int i=1; i<= num_sections; i++)
     {
-        mSection[i].mAxisRotation.setQuat(lerp(begin_rot,end_rot,t),0,0,1);
+        mSection[i].mAxisRotation.setQuat(ll_lerp(begin_rot,end_rot,t),0,0,1);
         mSection[i].mScale = LLVector2(
-            scale.mV[VX] * lerp(bottom_scale.mV[0], top_scale.mV[0], t),
-            scale.mV[VY] * lerp(bottom_scale.mV[1], top_scale.mV[1], t));
+            scale.mV[VX] * ll_lerp(bottom_scale.mV[0], top_scale.mV[0], t),
+            scale.mV[VY] * ll_lerp(bottom_scale.mV[1], top_scale.mV[1], t));
         t += t_inc;
     }
 }//-----------------------------------------------------------------------------------

@@ -629,7 +629,7 @@ SamplerState PointSampler { Filter = MIN_MAG_MIP_POINT; AddressU = Clamp; Addres
 #endif
 #define SMAA_FLATTEN
 #define SMAA_BRANCH
-#define lerp(a, b, t) mix(a, b, t)
+#define ll_lerp(a, b, t) mix(a, b, t)
 #define saturate(a) clamp(a, 0.0, 1.0)
 #if defined(SMAA_GLSL_4)
 #define mad(a, b, c) fma(a, b, c)
@@ -1435,12 +1435,12 @@ float4 SMAAResolvePS(float2 texcoord,
     float weight = 0.5 * saturate(1.0 - sqrt(delta) * SMAA_REPROJECTION_WEIGHT_SCALE);
 
     // Blend the pixels according to the calculated weight:
-    return lerp(current, previous, weight);
+    return ll_lerp(current, previous, weight);
     #else
     // Just blend the pixels:
     float4 current = SMAASamplePoint(currentColorTex, texcoord);
     float4 previous = SMAASamplePoint(previousColorTex, texcoord);
-    return lerp(current, previous, 0.5);
+    return ll_lerp(current, previous, 0.5);
     #endif
 }
 

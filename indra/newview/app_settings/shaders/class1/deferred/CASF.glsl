@@ -956,10 +956,10 @@ vec3 linear_to_srgb(vec3 cl);
  AF3 AFractF3(AF3 x){return x-floor(x);}
  AF4 AFractF4(AF4 x){return x-floor(x);}
 //------------------------------------------------------------------------------------------------------------------------------
- AF1 ALerpF1(AF1 x,AF1 y,AF1 a){return lerp(x,y,a);}
- AF2 ALerpF2(AF2 x,AF2 y,AF2 a){return lerp(x,y,a);}
- AF3 ALerpF3(AF3 x,AF3 y,AF3 a){return lerp(x,y,a);}
- AF4 ALerpF4(AF4 x,AF4 y,AF4 a){return lerp(x,y,a);}
+ AF1 ALerpF1(AF1 x,AF1 y,AF1 a){return ll_lerp(x,y,a);}
+ AF2 ALerpF2(AF2 x,AF2 y,AF2 a){return ll_lerp(x,y,a);}
+ AF3 ALerpF3(AF3 x,AF3 y,AF3 a){return ll_lerp(x,y,a);}
+ AF4 ALerpF4(AF4 x,AF4 y,AF4 a){return ll_lerp(x,y,a);}
 //------------------------------------------------------------------------------------------------------------------------------
  AF1 AMax3F1(AF1 x,AF1 y,AF1 z){return max(x,max(y,z));}
  AF2 AMax3F2(AF2 x,AF2 y,AF2 z){return max(x,max(y,z));}
@@ -1076,10 +1076,10 @@ vec3 linear_to_srgb(vec3 cl);
   AD3 AFractD3(AD3 a){return a-floor(a);}
   AD4 AFractD4(AD4 a){return a-floor(a);}
 //------------------------------------------------------------------------------------------------------------------------------
-  AD1 ALerpD1(AD1 x,AD1 y,AD1 a){return lerp(x,y,a);}
-  AD2 ALerpD2(AD2 x,AD2 y,AD2 a){return lerp(x,y,a);}
-  AD3 ALerpD3(AD3 x,AD3 y,AD3 a){return lerp(x,y,a);}
-  AD4 ALerpD4(AD4 x,AD4 y,AD4 a){return lerp(x,y,a);}
+  AD1 ALerpD1(AD1 x,AD1 y,AD1 a){return ll_lerp(x,y,a);}
+  AD2 ALerpD2(AD2 x,AD2 y,AD2 a){return ll_lerp(x,y,a);}
+  AD3 ALerpD3(AD3 x,AD3 y,AD3 a){return ll_lerp(x,y,a);}
+  AD4 ALerpD4(AD4 x,AD4 y,AD4 a){return ll_lerp(x,y,a);}
 //------------------------------------------------------------------------------------------------------------------------------
   AD1 ARcpD1(AD1 x){return rcp(x);}
   AD2 ARcpD2(AD2 x){return rcp(x);}

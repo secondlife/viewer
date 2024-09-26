@@ -1001,7 +1001,7 @@ void LLTexLayer::calculateTexLayerColor(const param_color_list_t &param_list, LL
                 net_color = net_color * param_net;
                 break;
             case LLTexLayerParamColor::OP_BLEND:
-                net_color = lerp(net_color, param_net, param->getWeight());
+                net_color = ll_lerp(net_color, param_net, param->getWeight());
                 break;
             default:
                 llassert(0);

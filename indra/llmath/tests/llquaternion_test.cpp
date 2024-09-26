@@ -215,17 +215,17 @@ namespace tut
         LLQuaternion quat2(4.0f, 3.0f, 6.5f, 9.7f);
         LLQuaternion res_lerp, res_slerp, res_nlerp;
 
-        //test case for lerp(F32 t, const LLQuaternion &q) fn.
-        res_lerp = lerp(value1, quat1);
-        ensure("1. LLQuaternion lerp(F32 t, const LLQuaternion &q) failed",
+        //test case for ll_lerp(F32 t, const LLQuaternion &q) fn.
+        res_lerp = ll_lerp(value1, quat1);
+        ensure("1. LLQuaternion ll_lerp(F32 t, const LLQuaternion &q) failed",
                                         is_approx_equal_fraction(0.181355f, res_lerp.mQ[0], 16) &&
                                         is_approx_equal_fraction(0.362711f, res_lerp.mQ[1], 16) &&
                                         is_approx_equal_fraction(0.725423f, res_lerp.mQ[2], 16) &&
                                         is_approx_equal_fraction(0.556158f, res_lerp.mQ[3], 16));
 
-        //test case for lerp(F32 t, const LLQuaternion &p, const LLQuaternion &q) fn.
-        res_lerp = lerp(value1, quat1, quat2);
-        ensure("2. LLQuaternion lerp(F32 t, const LLQuaternion &p, const LLQuaternion &q) failed",
+        //test case for ll_lerp(F32 t, const LLQuaternion &p, const LLQuaternion &q) fn.
+        res_lerp = ll_lerp(value1, quat1, quat2);
+        ensure("2. LLQuaternion ll_lerp(F32 t, const LLQuaternion &p, const LLQuaternion &q) failed",
                                         is_approx_equal_fraction(0.314306f, res_lerp.mQ[0], 16) &&
                                         is_approx_equal_fraction(0.116156f, res_lerp.mQ[1], 16) &&
                                         is_approx_equal_fraction(0.283559f, res_lerp.mQ[2], 16) &&
@@ -264,9 +264,9 @@ namespace tut
                                         is_approx_equal_fraction(0.737673f, res_nlerp1.mQ[2], 16) &&
                                         is_approx_equal_fraction(0.604892f, res_nlerp1.mQ[3], 16));
 
-        //test case for lerp(F32 t, const LLQuaternion &q) fn.
-        res_lerp = lerp(value1, quat2);
-        ensure("7. LLQuaternion lerp(F32 t, const LLQuaternion &q) failed",
+        //test case for ll_lerp(F32 t, const LLQuaternion &q) fn.
+        res_lerp = ll_lerp(value1, quat2);
+        ensure("7. LLQuaternion ll_lerp(F32 t, const LLQuaternion &q) failed",
                                         is_approx_equal_fraction(0.404867f, res_lerp.mQ[0], 16) &&
                                         is_approx_equal_fraction(0.303650f, res_lerp.mQ[1], 16) &&
                                         is_approx_equal_fraction(0.657909f, res_lerp.mQ[2], 16) &&

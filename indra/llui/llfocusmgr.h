@@ -101,7 +101,7 @@ public:
     void            setKeystrokesOnly(bool keystrokes_only) { mKeystrokesOnly = keystrokes_only; }
 
     F32             getFocusFlashAmt() const;
-    S32             getFocusFlashWidth() const { return ll_round(lerp(1.f, 3.f, getFocusFlashAmt())); }
+    S32             getFocusFlashWidth() const { return ll_round(ll_lerp(1.f, 3.f, getFocusFlashAmt())); }
     LLColor4        getFocusColor() const;
     void            triggerFocusFlash();
     bool            getAppHasFocus() const { return mAppHasFocus; }

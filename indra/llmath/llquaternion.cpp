@@ -609,7 +609,7 @@ F32 dot(const LLQuaternion &a, const LLQuaternion &b)
 // it should look more like the lerp below
 #if 0
 // linear interpolation
-LLQuaternion lerp(F32 t, const LLQuaternion &p, const LLQuaternion &q)
+LLQuaternion ll_lerp(F32 t, const LLQuaternion &p, const LLQuaternion &q)
 {
     LLQuaternion r;
     r = t * (q - p) + p;
@@ -619,7 +619,7 @@ LLQuaternion lerp(F32 t, const LLQuaternion &p, const LLQuaternion &q)
 #endif
 
 // lerp from identity to q
-LLQuaternion lerp(F32 t, const LLQuaternion &q)
+LLQuaternion ll_lerp(F32 t, const LLQuaternion &q)
 {
     LLQuaternion r;
     r.mQ[VX] = t * q.mQ[VX];
@@ -630,7 +630,7 @@ LLQuaternion lerp(F32 t, const LLQuaternion &q)
     return r;
 }
 
-LLQuaternion lerp(F32 t, const LLQuaternion &p, const LLQuaternion &q)
+LLQuaternion ll_lerp(F32 t, const LLQuaternion &p, const LLQuaternion &q)
 {
     LLQuaternion r;
     F32 inv_t;
@@ -701,7 +701,7 @@ LLQuaternion nlerp(F32 t, const LLQuaternion &a, const LLQuaternion &b)
     }
     else
     {
-        return lerp(t, a, b);
+        return ll_lerp(t, a, b);
     }
 }
 
@@ -713,7 +713,7 @@ LLQuaternion nlerp(F32 t, const LLQuaternion &q)
     }
     else
     {
-        return lerp(t, q);
+        return ll_lerp(t, q);
     }
 }
 

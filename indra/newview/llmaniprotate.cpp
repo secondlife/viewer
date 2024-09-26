@@ -231,7 +231,7 @@ void LLManipRotate::render()
 
         if (mManipPart == LL_ROT_Z)
         {
-            mManipulatorScales = lerp(mManipulatorScales, LLVector4(1.f, 1.f, SELECTED_MANIPULATOR_SCALE, 1.f), LLSmoothInterpolation::getInterpolant(MANIPULATOR_SCALE_HALF_LIFE));
+            mManipulatorScales = ll_lerp(mManipulatorScales, LLVector4(1.f, 1.f, SELECTED_MANIPULATOR_SCALE, 1.f), LLSmoothInterpolation::getInterpolant(MANIPULATOR_SCALE_HALF_LIFE));
             gGL.pushMatrix();
             {
                 // selected part
@@ -242,7 +242,7 @@ void LLManipRotate::render()
         }
         else if (mManipPart == LL_ROT_Y)
         {
-            mManipulatorScales = lerp(mManipulatorScales, LLVector4(1.f, SELECTED_MANIPULATOR_SCALE, 1.f, 1.f), LLSmoothInterpolation::getInterpolant(MANIPULATOR_SCALE_HALF_LIFE));
+            mManipulatorScales = ll_lerp(mManipulatorScales, LLVector4(1.f, SELECTED_MANIPULATOR_SCALE, 1.f, 1.f), LLSmoothInterpolation::getInterpolant(MANIPULATOR_SCALE_HALF_LIFE));
             gGL.pushMatrix();
             {
                 gGL.rotatef( 90.f, 1.f, 0.f, 0.f );
@@ -253,7 +253,7 @@ void LLManipRotate::render()
         }
         else if (mManipPart == LL_ROT_X)
         {
-            mManipulatorScales = lerp(mManipulatorScales, LLVector4(SELECTED_MANIPULATOR_SCALE, 1.f, 1.f, 1.f), LLSmoothInterpolation::getInterpolant(MANIPULATOR_SCALE_HALF_LIFE));
+            mManipulatorScales = ll_lerp(mManipulatorScales, LLVector4(SELECTED_MANIPULATOR_SCALE, 1.f, 1.f, 1.f), LLSmoothInterpolation::getInterpolant(MANIPULATOR_SCALE_HALF_LIFE));
             gGL.pushMatrix();
             {
                 gGL.rotatef( 90.f, 0.f, 1.f, 0.f );
@@ -264,13 +264,13 @@ void LLManipRotate::render()
         }
         else if (mManipPart == LL_ROT_ROLL)
         {
-            mManipulatorScales = lerp(mManipulatorScales, LLVector4(1.f, 1.f, 1.f, SELECTED_MANIPULATOR_SCALE), LLSmoothInterpolation::getInterpolant(MANIPULATOR_SCALE_HALF_LIFE));
+            mManipulatorScales = ll_lerp(mManipulatorScales, LLVector4(1.f, 1.f, 1.f, SELECTED_MANIPULATOR_SCALE), LLSmoothInterpolation::getInterpolant(MANIPULATOR_SCALE_HALF_LIFE));
         }
         else if (mManipPart == LL_NO_PART)
         {
             if (mHighlightedPart == LL_NO_PART)
             {
-                mManipulatorScales = lerp(mManipulatorScales, LLVector4(1.f, 1.f, 1.f, 1.f), LLSmoothInterpolation::getInterpolant(MANIPULATOR_SCALE_HALF_LIFE));
+                mManipulatorScales = ll_lerp(mManipulatorScales, LLVector4(1.f, 1.f, 1.f, 1.f), LLSmoothInterpolation::getInterpolant(MANIPULATOR_SCALE_HALF_LIFE));
             }
 
             LLGLEnable cull_face(GL_CULL_FACE);
@@ -286,7 +286,7 @@ void LLManipRotate::render()
                 {
                     if (mHighlightedPart == LL_ROT_Z)
                     {
-                        mManipulatorScales = lerp(mManipulatorScales, LLVector4(1.f, 1.f, SELECTED_MANIPULATOR_SCALE, 1.f), LLSmoothInterpolation::getInterpolant(MANIPULATOR_SCALE_HALF_LIFE));
+                        mManipulatorScales = ll_lerp(mManipulatorScales, LLVector4(1.f, 1.f, SELECTED_MANIPULATOR_SCALE, 1.f), LLSmoothInterpolation::getInterpolant(MANIPULATOR_SCALE_HALF_LIFE));
                         gGL.scalef(mManipulatorScales.mV[VZ], mManipulatorScales.mV[VZ], mManipulatorScales.mV[VZ]);
                         // hovering over part
                         gl_ring( mRadiusMeters, width_meters, LLColor4( 0.f, 0.f, 1.f, 1.f ), LLColor4( 0.f, 0.f, 1.f, 0.5f ), CIRCLE_STEPS, i);
@@ -304,7 +304,7 @@ void LLManipRotate::render()
                     gGL.rotatef( 90.f, 1.f, 0.f, 0.f );
                     if (mHighlightedPart == LL_ROT_Y)
                     {
-                        mManipulatorScales = lerp(mManipulatorScales, LLVector4(1.f, SELECTED_MANIPULATOR_SCALE, 1.f, 1.f), LLSmoothInterpolation::getInterpolant(MANIPULATOR_SCALE_HALF_LIFE));
+                        mManipulatorScales = ll_lerp(mManipulatorScales, LLVector4(1.f, SELECTED_MANIPULATOR_SCALE, 1.f, 1.f), LLSmoothInterpolation::getInterpolant(MANIPULATOR_SCALE_HALF_LIFE));
                         gGL.scalef(mManipulatorScales.mV[VY], mManipulatorScales.mV[VY], mManipulatorScales.mV[VY]);
                         // hovering over part
                         gl_ring( mRadiusMeters, width_meters, LLColor4( 0.f, 1.f, 0.f, 1.f ), LLColor4( 0.f, 1.f, 0.f, 0.5f ), CIRCLE_STEPS, i);
@@ -322,7 +322,7 @@ void LLManipRotate::render()
                     gGL.rotatef( 90.f, 0.f, 1.f, 0.f );
                     if (mHighlightedPart == LL_ROT_X)
                     {
-                        mManipulatorScales = lerp(mManipulatorScales, LLVector4(SELECTED_MANIPULATOR_SCALE, 1.f, 1.f, 1.f), LLSmoothInterpolation::getInterpolant(MANIPULATOR_SCALE_HALF_LIFE));
+                        mManipulatorScales = ll_lerp(mManipulatorScales, LLVector4(SELECTED_MANIPULATOR_SCALE, 1.f, 1.f, 1.f), LLSmoothInterpolation::getInterpolant(MANIPULATOR_SCALE_HALF_LIFE));
                         gGL.scalef(mManipulatorScales.mV[VX], mManipulatorScales.mV[VX], mManipulatorScales.mV[VX]);
 
                         // hovering over part
@@ -338,7 +338,7 @@ void LLManipRotate::render()
 
                 if (mHighlightedPart == LL_ROT_ROLL)
                 {
-                    mManipulatorScales = lerp(mManipulatorScales, LLVector4(1.f, 1.f, 1.f, SELECTED_MANIPULATOR_SCALE), LLSmoothInterpolation::getInterpolant(MANIPULATOR_SCALE_HALF_LIFE));
+                    mManipulatorScales = ll_lerp(mManipulatorScales, LLVector4(1.f, 1.f, 1.f, SELECTED_MANIPULATOR_SCALE), LLSmoothInterpolation::getInterpolant(MANIPULATOR_SCALE_HALF_LIFE));
                 }
 
             }

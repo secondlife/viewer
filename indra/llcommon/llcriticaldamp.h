@@ -45,7 +45,7 @@ public:
     static F32 getInterpolant(F32SecondsImplicit time_constant, bool use_cache = true);
 
     template<typename T>
-    static T lerp(T a, T b, F32SecondsImplicit time_constant, bool use_cache = true)
+    static T ll_lerp(T a, T b, F32SecondsImplicit time_constant, bool use_cache = true)
     {
         F32 interpolant = getInterpolant(time_constant, use_cache);
         return ((a * (1.f - interpolant))

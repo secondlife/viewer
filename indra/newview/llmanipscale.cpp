@@ -551,11 +551,11 @@ void LLManipScale::highlightManipulators(S32 x, S32 y)
     {
         if (mHighlightedPart == MANIPULATOR_IDS[i])
         {
-            mManipulatorScales[i] = lerp(mManipulatorScales[i], SELECTED_MANIPULATOR_SCALE, LLSmoothInterpolation::getInterpolant(MANIPULATOR_SCALE_HALF_LIFE));
+            mManipulatorScales[i] = ll_lerp(mManipulatorScales[i], SELECTED_MANIPULATOR_SCALE, LLSmoothInterpolation::getInterpolant(MANIPULATOR_SCALE_HALF_LIFE));
         }
         else
         {
-            mManipulatorScales[i] = lerp(mManipulatorScales[i], 1.f, LLSmoothInterpolation::getInterpolant(MANIPULATOR_SCALE_HALF_LIFE));
+            mManipulatorScales[i] = ll_lerp(mManipulatorScales[i], 1.f, LLSmoothInterpolation::getInterpolant(MANIPULATOR_SCALE_HALF_LIFE));
         }
     }
 
@@ -838,7 +838,7 @@ void LLManipScale::dragCorner( S32 x, S32 y )
     {
         return;
     }
-    mDragPointGlobal = lerp(mDragStartCenterGlobal, mDragStartPointGlobal, t);
+    mDragPointGlobal = ll_lerp(mDragStartCenterGlobal, mDragStartPointGlobal, t);
 
     LLBBox bbox      = LLSelectMgr::getInstance()->getBBoxOfSelection();
     F32 scale_factor = 1.f;

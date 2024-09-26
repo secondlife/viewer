@@ -2228,11 +2228,11 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume, bool wireframe
     LLColor4 color;
     if ( normalizedCost <= 0.5f )
     {
-        color = lerp( low, mid, 2.f * normalizedCost );
+        color = ll_lerp( low, mid, 2.f * normalizedCost );
     }
     else
     {
-        color = lerp( mid, high, 2.f * ( normalizedCost - 0.5f ) );
+        color = ll_lerp( mid, high, 2.f * ( normalizedCost - 0.5f ) );
     }
 
     if (wireframe)
@@ -2624,7 +2624,7 @@ void renderTexturePriority(LLDrawable* drawable)
 
             F32 t = vsize/sLastMaxTexPriority;
 
-            LLVector4 col = lerp(cold, hot, t);
+            LLVector4 col = ll_lerp(cold, hot, t);
             gGL.diffuseColor4fv(col.mV);
         }
         //else
@@ -2645,7 +2645,7 @@ void renderTexturePriority(LLDrawable* drawable)
         if (boost>LLGLTexture::BOOST_NONE)
         {
             F32 t = (F32) boost / (F32) (LLGLTexture::BOOST_MAX_LEVEL-1);
-            LLVector4 col = lerp(boost_cold, boost_hot, t);
+            LLVector4 col = ll_lerp(boost_cold, boost_hot, t);
             LLGLEnable blend_on(GL_BLEND);
             gGL.blendFunc(GL_SRC_ALPHA, GL_ONE);
             gGL.diffuseColor4fv(col.mV);
@@ -3569,7 +3569,7 @@ void LLSpatialPartition::renderDebug()
 
     if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TEXTURE_PRIORITY))
     {
-        //sLastMaxTexPriority = lerp(sLastMaxTexPriority, sCurMaxTexPriority, gFrameIntervalSeconds);
+        //sLastMaxTexPriority = ll_lerp(sLastMaxTexPriority, sCurMaxTexPriority, gFrameIntervalSeconds);
         sLastMaxTexPriority = (F32) LLViewerCamera::getInstance()->getScreenPixelArea();
         sCurMaxTexPriority = 0.f;
     }

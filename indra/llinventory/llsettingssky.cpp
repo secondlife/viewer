@@ -550,21 +550,21 @@ bool lerp_legacy_float(F32& a, bool& a_has_legacy, F32 b, bool b_has_legacy, F32
     {
         if (a_has_legacy)
         {
-            a = lerp(a, b, mix);
+            a = ll_lerp(a, b, mix);
         }
         else
         {
-            a = lerp(def, b, mix);
+            a = ll_lerp(def, b, mix);
             a_has_legacy = true;
         }
     }
     else if (!a_has_legacy)
     {
-        a = lerp(a, b, mix);
+        a = ll_lerp(a, b, mix);
     }
     else
     {
-        a = lerp(a, def, mix);
+        a = ll_lerp(a, def, mix);
     }
     return a_has_legacy;
 }
@@ -584,19 +584,19 @@ void LLSettingsSky::blend(LLSettingsBase::ptr_t &end, F64 blendf)
             // If there is no cloud texture in destination, reduce coverage to imitate disappearance
             // See LLDrawPoolWLSky::renderSkyClouds... we don't blend present texture with null
             // Note: Probably can be done by shader
-            mCloudShadow = lerp(mCloudShadow, 0.f, (F32)blendf);
+            mCloudShadow = ll_lerp(mCloudShadow, 0.f, (F32)blendf);
             cloud_noise_id_next = cloud_noise_id;
         }
         else if (cloud_noise_id.isNull() && !cloud_noise_id_next.isNull())
         {
             // Source has no cloud texture, reduce initial coverage to imitate appearance
             // use same texture as destination
-            mCloudShadow = lerp(0.f, mCloudShadow, (F32)blendf);
+            mCloudShadow = ll_lerp(0.f, mCloudShadow, (F32)blendf);
             setCloudNoiseTextureId(cloud_noise_id_next);
         }
         else
         {
-            mCloudShadow = lerp(mCloudShadow, (F32)other->mCloudShadow, (F32)blendf);
+            mCloudShadow = ll_lerp(mCloudShadow, (F32)other->mCloudShadow, (F32)blendf);
         }
 
         mSettingFlags |= other->mSettingFlags;
@@ -607,28 +607,28 @@ void LLSettingsSky::blend(LLSettingsBase::ptr_t &end, F64 blendf)
         mMoonRotation = slerp((F32)blendf, mMoonRotation, other->mMoonRotation);
         lerpColor(mSunlightColor, other->mSunlightColor, (F32)blendf);
         lerpColor(mGlow, other->mGlow, (F32)blendf);
-        mReflectionProbeAmbiance = lerp(mReflectionProbeAmbiance, other->mReflectionProbeAmbiance, (F32)blendf);
-        mSunScale = lerp(mSunScale, other->mSunScale, (F32)blendf);
-        mStarBrightness = lerp(mStarBrightness, other->mStarBrightness, (F32)blendf);
-        mMoonBrightness = lerp(mMoonBrightness, other->mMoonBrightness, (F32)blendf);
-        mMoonScale = lerp(mMoonScale, other->mMoonScale, (F32)blendf);
-        mMaxY = lerp(mMaxY, other->mMaxY, (F32)blendf);
-        mGamma = lerp(mGamma, other->mGamma, (F32)blendf);
-        mCloudVariance = lerp(mCloudVariance, other->mCloudVariance, (F32)blendf);
-        mCloudShadow = lerp(mCloudShadow, other->mCloudShadow, (F32)blendf);
-        mCloudScale = lerp(mCloudScale, other->mCloudScale, (F32)blendf);
+        mReflectionProbeAmbiance = ll_lerp(mReflectionProbeAmbiance, other->mReflectionProbeAmbiance, (F32)blendf);
+        mSunScale = ll_lerp(mSunScale, other->mSunScale, (F32)blendf);
+        mStarBrightness = ll_lerp(mStarBrightness, other->mStarBrightness, (F32)blendf);
+        mMoonBrightness = ll_lerp(mMoonBrightness, other->mMoonBrightness, (F32)blendf);
+        mMoonScale = ll_lerp(mMoonScale, other->mMoonScale, (F32)blendf);
+        mMaxY = ll_lerp(mMaxY, other->mMaxY, (F32)blendf);
+        mGamma = ll_lerp(mGamma, other->mGamma, (F32)blendf);
+        mCloudVariance = ll_lerp(mCloudVariance, other->mCloudVariance, (F32)blendf);
+        mCloudShadow = ll_lerp(mCloudShadow, other->mCloudShadow, (F32)blendf);
+        mCloudScale = ll_lerp(mCloudScale, other->mCloudScale, (F32)blendf);
         lerpVector2(mScrollRate, other->mScrollRate, (F32)blendf);
         lerpColor(mCloudPosDensity1, other->mCloudPosDensity1, (F32)blendf);
         lerpColor(mCloudPosDensity2, other->mCloudPosDensity2, (F32)blendf);
         lerpColor(mCloudColor, other->mCloudColor, (F32)blendf);
 
-        mSunArcRadians = lerp(mSunArcRadians, other->mSunArcRadians, (F32)blendf);
-        mSkyTopRadius = lerp(mSkyTopRadius, other->mSkyTopRadius, (F32)blendf);
-        mSkyBottomRadius = lerp(mSkyBottomRadius, other->mSkyBottomRadius, (F32)blendf);
-        mSkyMoistureLevel = lerp(mSkyMoistureLevel, other->mSkyMoistureLevel, (F32)blendf);
-        mSkyDropletRadius = lerp(mSkyDropletRadius, other->mSkyDropletRadius, (F32)blendf);
-        mSkyIceLevel = lerp(mSkyIceLevel, other->mSkyIceLevel, (F32)blendf);
-        mPlanetRadius = lerp(mPlanetRadius, other->mPlanetRadius, (F32)blendf);
+        mSunArcRadians = ll_lerp(mSunArcRadians, other->mSunArcRadians, (F32)blendf);
+        mSkyTopRadius = ll_lerp(mSkyTopRadius, other->mSkyTopRadius, (F32)blendf);
+        mSkyBottomRadius = ll_lerp(mSkyBottomRadius, other->mSkyBottomRadius, (F32)blendf);
+        mSkyMoistureLevel = ll_lerp(mSkyMoistureLevel, other->mSkyMoistureLevel, (F32)blendf);
+        mSkyDropletRadius = ll_lerp(mSkyDropletRadius, other->mSkyDropletRadius, (F32)blendf);
+        mSkyIceLevel = ll_lerp(mSkyIceLevel, other->mSkyIceLevel, (F32)blendf);
+        mPlanetRadius = ll_lerp(mPlanetRadius, other->mPlanetRadius, (F32)blendf);
 
         // Legacy settings
 

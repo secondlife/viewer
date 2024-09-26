@@ -1128,7 +1128,7 @@ void LLBVHLoader::optimize()
                     LLVector3 test_pos(ki_prev->mPos);
                     LLVector3 last_good_pos(ki_last_good_pos->mPos);
                     LLVector3 current_pos(ki->mPos);
-                    LLVector3 interp_pos = lerp(current_pos, last_good_pos, 1.f / (F32)numPosFramesConsidered);
+                    LLVector3 interp_pos = ll_lerp(current_pos, last_good_pos, 1.f / (F32)numPosFramesConsidered);
 
                     if (dist_vec_squared(current_pos, first_frame_pos) > POSITION_MOTION_THRESHOLD_SQUARED)
                     {
@@ -1167,7 +1167,7 @@ void LLBVHLoader::optimize()
                     LLQuaternion test_rot = mayaQ( ki_prev->mRot[0], ki_prev->mRot[1], ki_prev->mRot[2], order);
                     LLQuaternion last_good_rot = mayaQ( ki_last_good_rot->mRot[0], ki_last_good_rot->mRot[1], ki_last_good_rot->mRot[2], order);
                     LLQuaternion current_rot = mayaQ( ki->mRot[0], ki->mRot[1], ki->mRot[2], order);
-                    LLQuaternion interp_rot = lerp(1.f / (F32)numRotFramesConsidered, current_rot, last_good_rot);
+                    LLQuaternion interp_rot = ll_lerp(1.f / (F32)numRotFramesConsidered, current_rot, last_good_rot);
 
                     F32 x_delta;
                     F32 y_delta;

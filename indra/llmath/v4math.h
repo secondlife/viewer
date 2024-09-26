@@ -142,7 +142,7 @@ F32 dist_vec(const LLVector4 &a, const LLVector4 &b);           // Returns dista
 F32 dist_vec_squared(const LLVector4 &a, const LLVector4 &b);   // Returns distance squared between a and b
 LLVector3   vec4to3(const LLVector4 &vec);
 LLVector4   vec3to4(const LLVector3 &vec);
-LLVector4 lerp(const LLVector4 &a, const LLVector4 &b, F32 u); // Returns a vector that is a linear interpolation between a and b
+LLVector4 ll_lerp(const LLVector4 &a, const LLVector4 &b, F32 u); // Returns a vector that is a linear interpolation between a and b
 
 // Constructors
 
@@ -478,7 +478,7 @@ inline F32  dist_vec_squared(const LLVector4 &a, const LLVector4 &b)
     return (vec.lengthSquared());
 }
 
-inline LLVector4 lerp(const LLVector4 &a, const LLVector4 &b, F32 u)
+inline LLVector4 ll_lerp(const LLVector4 &a, const LLVector4 &b, F32 u)
 {
     return LLVector4(
         a.mV[VX] + (b.mV[VX] - a.mV[VX]) * u,

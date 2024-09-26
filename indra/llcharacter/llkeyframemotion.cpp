@@ -204,7 +204,7 @@ LLVector3 LLKeyframeMotion::ScaleCurve::interp(F32 u, ScaleKey& before, ScaleKey
     default:
     case IT_LINEAR:
     case IT_SPLINE:
-        return lerp(before.mScale, after.mScale, u);
+        return ll_lerp(before.mScale, after.mScale, u);
     }
 }
 
@@ -367,7 +367,7 @@ LLVector3 LLKeyframeMotion::PositionCurve::interp(F32 u, PositionKey& before, Po
     default:
     case IT_LINEAR:
     case IT_SPLINE:
-        return lerp(before.mPosition, after.mPosition, u);
+        return ll_lerp(before.mPosition, after.mPosition, u);
     }
 }
 
@@ -1038,11 +1038,11 @@ void LLKeyframeMotion::applyConstraint(JointConstraint* constraint, F32 time, U8
     if (constraint->mSharedData->mChainLength != 0 &&
         dist_vec_squared(root_pos, target_pos) * 0.95f > constraint->mTotalLength * constraint->mTotalLength)
     {
-        constraint->mWeight = LLSmoothInterpolation::lerp(constraint->mWeight, 0.f, 0.1f);
+        constraint->mWeight = LLSmoothInterpolation::ll_lerp(constraint->mWeight, 0.f, 0.1f);
     }
     else
     {
-        constraint->mWeight = LLSmoothInterpolation::lerp(constraint->mWeight, 1.f, 0.3f);
+        constraint->mWeight = LLSmoothInterpolation::ll_lerp(constraint->mWeight, 1.f, 0.3f);
     }
 
     F32 weight = constraint->mWeight * ((shared_data->mEaseOutStopTime == 0.f) ? 1.f :
@@ -1070,7 +1070,7 @@ void LLKeyframeMotion::applyConstraint(JointConstraint* constraint, F32 time, U8
         LLQuaternion end_rot = end_joint->getWorldRotation();
 
         // slam start and end of chain to the proper positions (rest of chain stays put)
-        positions[0] = lerp(keyframe_source_pos, target_pos, weight);
+        positions[0] = ll_lerp(keyframe_source_pos, target_pos, weight);
         positions[shared_data->mChainLength] = root_pos;
 
         // grab keyframe-specified positions of joints
@@ -1090,7 +1090,7 @@ void LLKeyframeMotion::applyConstraint(JointConstraint* constraint, F32 time, U8
             positions[joint_num] = ( constraint->mPositions[joint_num] * mPelvisp->getWorldRotation()) + mPelvisp->getWorldPosition();
             F32 time_constant = 1.f / clamp_rescale(constraint->mFixupDistanceRMS, 0.f, 0.5f, 0.2f, 8.f);
 //          LL_INFOS() << "Interpolant " << LLSmoothInterpolation::getInterpolant(time_constant, false) << " and fixup distance " << constraint->mFixupDistanceRMS << " on " << mCharacter->findCollisionVolume(shared_data->mSourceConstraintVolume)->getName() << LL_ENDL;
-            positions[joint_num] = lerp(positions[joint_num], kinematic_position,
+            positions[joint_num] = ll_lerp(positions[joint_num], kinematic_position,
                 LLSmoothInterpolation::getInterpolant(time_constant, false));
         }
 

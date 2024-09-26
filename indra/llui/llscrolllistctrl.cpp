@@ -1639,7 +1639,7 @@ void LLScrollListCtrl::drawItems()
                 {
                     if(item->getHighlighted())  // if it's highlighted, average the colors
                     {
-                        select_color = lerp(mBgSelectedColor.get(), mHighlightedColor.get(), 0.5f);
+                        select_color = ll_lerp(mBgSelectedColor.get(), mHighlightedColor.get(), 0.5f);
                     }
                     else                        // otherwise just select-highlight it
                     {
@@ -1652,7 +1652,7 @@ void LLScrollListCtrl::drawItems()
                 {
                     if(item->getHighlighted())  // if it's highlighted, average the colors
                     {
-                        hover_color = lerp(mHoveredColor.get(), mHighlightedColor.get(), 0.5f);
+                        hover_color = ll_lerp(mHoveredColor.get(), mHighlightedColor.get(), 0.5f);
                     }
                     else                        // otherwise just hover-highlight it
                     {

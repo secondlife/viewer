@@ -354,7 +354,7 @@ namespace tut
         val2 = y1 + (y2 - y1)* val;
         val3 = z1 + (z2 - z1)* val;
         val4 = w1 + (w2 - w1)* val;
-        LLVector4 vec4b = lerp(vec4,vec4a,val);
+        LLVector4 vec4b = ll_lerp(vec4,vec4a,val);
         LLVector4 check(val1, val2, val3, val4);
         ensure_equals("lerp failed", check, vec4b);
     }

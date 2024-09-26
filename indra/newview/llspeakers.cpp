@@ -470,7 +470,7 @@ void LLSpeakerMgr::update(bool resort_ok)
         // color code recent speakers who are not currently speaking
         if (speakerp->mStatus == LLSpeaker::STATUS_HAS_SPOKEN)
         {
-            speakerp->mDotColor = lerp(speaking_color, ACTIVE_COLOR, clamp_rescale((F32)recent_speaker_count, -2.f, 3.f, 0.f, 1.f));
+            speakerp->mDotColor = ll_lerp(speaking_color, ACTIVE_COLOR, clamp_rescale((F32)recent_speaker_count, -2.f, 3.f, 0.f, 1.f));
             recent_speaker_count++;
         }
 

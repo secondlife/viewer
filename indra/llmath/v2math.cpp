@@ -103,7 +103,7 @@ F32 dist_vec_squared2D(const LLVector2 &a, const LLVector2 &b)
     return x*x + y*y;
 }
 
-LLVector2 lerp(const LLVector2 &a, const LLVector2 &b, F32 u)
+LLVector2 ll_lerp(const LLVector2 &a, const LLVector2 &b, F32 u)
 {
     return LLVector2(
         a.mV[VX] + (b.mV[VX] - a.mV[VX]) * u,

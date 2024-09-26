@@ -358,7 +358,7 @@ inline F32 snap_to_sig_figs(F32 foo, S32 sig_figs)
     return new_foo;
 }
 
-inline F32 lerp(F32 a, F32 b, F32 u)
+inline F32 ll_lerp(F32 a, F32 b, F32 u)
 {
     return a + ((b - a) * u);
 }
@@ -378,7 +378,7 @@ inline F32 ramp(F32 x, F32 a, F32 b)
 
 inline F32 rescale(F32 x, F32 x1, F32 x2, F32 y1, F32 y2)
 {
-    return lerp(y1, y2, ramp(x, x1, x2));
+    return ll_lerp(y1, y2, ramp(x, x1, x2));
 }
 
 inline F32 clamp_rescale(F32 x, F32 x1, F32 x2, F32 y1, F32 y2)

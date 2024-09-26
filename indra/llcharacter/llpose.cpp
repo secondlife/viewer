@@ -319,7 +319,7 @@ void LLJointStateBlender::blendJointStates(bool apply_now)
                     F32 new_weight_sum = llmin(1.f, current_weight + sum_weights[POS_WEIGHT]);
 
                     // blend positions from both
-                    blended_pos = lerp(jsp->getPosition(), blended_pos, sum_weights[POS_WEIGHT] / new_weight_sum);
+                    blended_pos = ll_lerp(jsp->getPosition(), blended_pos, sum_weights[POS_WEIGHT] / new_weight_sum);
                     sum_weights[POS_WEIGHT] = new_weight_sum;
                 }
                 else
@@ -338,7 +338,7 @@ void LLJointStateBlender::blendJointStates(bool apply_now)
                     F32 new_weight_sum = llmin(1.f, current_weight + sum_weights[SCALE_WEIGHT]);
 
                     // blend scales from both
-                    blended_scale = lerp(jsp->getScale(), blended_scale, sum_weights[SCALE_WEIGHT] / new_weight_sum);
+                    blended_scale = ll_lerp(jsp->getScale(), blended_scale, sum_weights[SCALE_WEIGHT] / new_weight_sum);
                     sum_weights[SCALE_WEIGHT] = new_weight_sum;
                 }
                 else
@@ -417,8 +417,8 @@ void LLJointStateBlender::interpolate(F32 u)
     }
 
     // SL-315
-    target_joint->setPosition(lerp(target_joint->getPosition(), mJointCache.getPosition(), u));
-    target_joint->setScale(lerp(target_joint->getScale(), mJointCache.getScale(), u));
+    target_joint->setPosition(ll_lerp(target_joint->getPosition(), mJointCache.getPosition(), u));
+    target_joint->setScale(ll_lerp(target_joint->getScale(), mJointCache.getScale(), u));
     target_joint->setRotation(nlerp(u, target_joint->getRotation(), mJointCache.getRotation()));
 }
 

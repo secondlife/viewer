@@ -44,7 +44,7 @@
 
 ///////////////////////////////////
 
-template<class T> inline T LERP(T a, T b, F32 factor)
+template<class T> inline T ll_lerp(T a, T b, F32 factor)
 {
     return a + (b - a) * factor;
 }

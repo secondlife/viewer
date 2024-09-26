@@ -238,7 +238,7 @@ F32     distVec(const LLColor4 &a, const LLColor4 &b);          // Returns dista
 F32     distVec_squared(const LLColor4 &a, const LLColor4 &b);  // Returns distance squared between a and b
 LLColor3    vec4to3(const LLColor4 &vec);
 LLColor4    vec3to4(const LLColor3 &vec);
-LLColor4 lerp(const LLColor4 &a, const LLColor4 &b, F32 u);
+LLColor4 ll_lerp(const LLColor4 &a, const LLColor4 &b, F32 u);
 
 inline LLColor4::LLColor4(void)
 {
@@ -611,7 +611,7 @@ inline F32      distVec_squared(const LLColor4 &a, const LLColor4 &b)
     return (vec.lengthSquared());
 }
 
-inline LLColor4 lerp(const LLColor4 &a, const LLColor4 &b, F32 u)
+inline LLColor4 ll_lerp(const LLColor4 &a, const LLColor4 &b, F32 u)
 {
     return LLColor4(
         a.mV[VRED] + (b.mV[VRED] - a.mV[VRED]) * u,

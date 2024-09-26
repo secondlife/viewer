@@ -728,8 +728,8 @@ void LLHUDNameTag::updateSize()
     height += VERTICAL_PADDING;
 
     // *TODO: Could do a timer-based resize here
-    //mWidth = llmax(width, lerp(mWidth, (F32)width, u));
-    //mHeight = llmax(height, lerp(mHeight, (F32)height, u));
+    //mWidth = llmax(width, ll_lerp(mWidth, (F32)width, u));
+    //mHeight = llmax(height, ll_lerp(mHeight, (F32)height, u));
     mWidth = width;
     mHeight = height;
 }
@@ -815,7 +815,7 @@ void LLHUDNameTag::updateAll()
                     F32 dst_center_y = dst_textp->mSoftScreenRect.getCenterY();
                     F32 intersect_center_x = intersect_rect.getCenterX();
                     F32 intersect_center_y = intersect_rect.getCenterY();
-                    LLVector2 force = lerp(LLVector2(dst_center_x - intersect_center_x, dst_center_y - intersect_center_y),
+                    LLVector2 force = ll_lerp(LLVector2(dst_center_x - intersect_center_x, dst_center_y - intersect_center_y),
                                         LLVector2(intersect_center_x - src_center_x, intersect_center_y - src_center_y),
                                         0.5f);
                     force.setVec(dst_center_x - src_center_x, dst_center_y - src_center_y);
@@ -851,7 +851,7 @@ void LLHUDNameTag::updateAll()
     VisibleTextObjectIterator this_object_it;
     for (this_object_it = sVisibleTextObjects.begin(); this_object_it != sVisibleTextObjects.end(); ++this_object_it)
     {
-        (*this_object_it)->mPositionOffset = lerp((*this_object_it)->mPositionOffset, (*this_object_it)->mTargetPositionOffset, LLSmoothInterpolation::getInterpolant(POSITION_DAMPING_TC));
+        (*this_object_it)->mPositionOffset = ll_lerp((*this_object_it)->mPositionOffset, (*this_object_it)->mTargetPositionOffset, LLSmoothInterpolation::getInterpolant(POSITION_DAMPING_TC));
     }
 }
 

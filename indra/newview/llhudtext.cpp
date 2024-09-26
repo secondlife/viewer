@@ -513,8 +513,8 @@ void LLHUDText::updateSize()
 
     // *TODO: Could do some sort of timer-based resize logic here
     F32 u = 1.f;
-    mWidth = llmax(width, lerp(mWidth, (F32)width, u));
-    mHeight = llmax(height, lerp(mHeight, (F32)height, u));
+    mWidth = llmax(width, ll_lerp(mWidth, (F32)width, u));
+    mHeight = llmax(height, ll_lerp(mHeight, (F32)height, u));
 }
 
 void LLHUDText::updateAll()
