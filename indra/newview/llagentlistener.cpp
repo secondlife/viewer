@@ -87,7 +87,7 @@ LLAgentListener::LLAgentListener(LLAgent &agent)
     add("startAutoPilot",
         "Start the autopilot system using the following parameters:\n"
         "[\"target_global\"]: array of target global {x, y, z} position\n"
-        "[\"stop_distance\"]: target maximum distance from target [default: autopilot guess]\n"
+        "[\"stop_distance\"]: maximum stop distance from target [default: autopilot guess]\n"
         "[\"target_rotation\"]: array of [x, y, z, w] quaternion values [default: no target]\n"
         "[\"rotation_threshold\"]: target maximum angle from target facing rotation [default: 0.03 radians]\n"
         "[\"behavior_name\"]: name of the autopilot behavior [default: \"\"]\n"
@@ -100,7 +100,7 @@ LLAgentListener::LLAgentListener(LLAgent &agent)
         "[\"enabled\"]: boolean indicating whether or not autopilot is enabled\n"
         "[\"target_global\"]: array of target global {x, y, z} position\n"
         "[\"leader_id\"]: uuid of target autopilot is following\n"
-        "[\"stop_distance\"]: target maximum distance from target\n"
+        "[\"stop_distance\"]: maximum stop distance from target\n"
         "[\"target_distance\"]: last known distance from target\n"
         "[\"use_rotation\"]: boolean indicating if autopilot has a target facing rotation\n"
         "[\"target_facing\"]: array of {x, y} target direction to face\n"
@@ -112,7 +112,7 @@ LLAgentListener::LLAgentListener(LLAgent &agent)
         "[\"leader_id\"]: uuid of target to follow using the autopilot system (optional with avatar_name)\n"
         "[\"avatar_name\"]: avatar name to follow using the autopilot system (optional with leader_id)\n"
         "[\"allow_flying\"]: allow flying during autopilot [default: True]\n"
-        "[\"stop_distance\"]: target maximum distance from target [default: autopilot guess]",
+        "[\"stop_distance\"]: maximum stop distance from target [default: autopilot guess]",
         &LLAgentListener::startFollowPilot,
         llsd::map("reply", LLSD()));
     add("setAutoPilotTarget",
@@ -496,7 +496,7 @@ void LLAgentListener::startFollowPilot(LLSD const & event_data)
 
     if (!gObjectList.findObject(target_id))
     {
-        std::string target_info = event_data.has("leader_id") ? event_data["target_id"] : event_data["avatar_name"];
+        std::string target_info = event_data.has("leader_id") ? event_data["leader_id"] : event_data["avatar_name"];
         return response.error(stringize("Target ", std::quoted(target_info), " was not found"));
     }
 

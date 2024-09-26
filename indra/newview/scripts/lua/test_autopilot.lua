@@ -7,7 +7,7 @@ pos[2]+=5  -- delta y
 LLAgent.requestStand()
 LLAgent.startAutoPilot{target_global=pos,allow_flying=false,stop_distance=1}
 
-local listener = LLListener()
+local listener = LLListener(LLAgent.autoPilotPump)
 
 function listener:handleMessages(event_data)
     if event_data.success then
@@ -19,4 +19,4 @@ function listener:handleMessages(event_data)
     return false
 end
 
-listener:start(LLAgent.autoPilotPump)
+listener:start()

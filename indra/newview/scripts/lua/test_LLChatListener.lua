@@ -22,7 +22,7 @@ function openOrEcho(message)
     end
 end
 
-local listener = LLListener()
+local listener = LLListener(LLChat.nearbyChatPump)
 
 function listener:handleMessages(event_data)
     if string.find(event_data.message, '[LUA]') then
@@ -36,4 +36,4 @@ function listener:handleMessages(event_data)
     return true
 end
 
-listener:start(LLChat.nearbyChatPump)
+listener:start()
