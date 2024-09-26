@@ -358,9 +358,14 @@ inline F32 snap_to_sig_figs(F32 foo, S32 sig_figs)
     return new_foo;
 }
 
-// We used to define a simple lerp(F32, F32, F32) that probably predated
-// std::lerp(). By now, do we need our own definition any longer?
-using std::lerp;
+// Even though there's now a std::lerp() function that appears to do the same
+// as this function, for some reason MSVC likes this one better. Publishing
+// std::lerp() into the global namespace instead of defining this function
+// results in fatal argument conversion warnings.
+inline F32 lerp(F32 a, F32 b, F32 u)
+{
+    return a + ((b - a) * u);
+}
 
 inline F32 lerp2d(F32 x00, F32 x01, F32 x10, F32 x11, F32 u, F32 v)
 {

@@ -30,7 +30,7 @@
 #include "llviewercontrol.h"        // LLControlGroup
 
 #include "llviewertexturelist.h"
-#include "math.h"   // log()
+#include <cmath>   // log()
 
 // Turn this on to output tile stats in the standard output
 #define DEBUG_TILES_STAT 0

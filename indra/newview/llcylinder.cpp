@@ -29,7 +29,7 @@
 #include "llcylinder.h"
 
 #include "llerror.h"
-#include "math.h"
+#include <cmath>
 #include "llmath.h"
 #include "noise.h"
 #include "v3math.h"
