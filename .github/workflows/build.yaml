@@ -50,7 +50,7 @@ jobs:
         configuration: ${{ fromJSON(needs.setup.outputs.configurations) }}
         include:
         - runner: linux-large
-          continue-on-error: true 
+          continue-on-error: true
           configuration: ReleaseOS
     runs-on: ${{ matrix.runner }}
     outputs:
