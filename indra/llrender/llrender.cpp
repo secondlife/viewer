@@ -1279,9 +1279,7 @@ void LLRender::translateUI(F32 x, F32 y, F32 z)
         LL_ERRS() << "Need to push a UI translation frame before offsetting" << LL_ENDL;
     }
 
-    mUIOffset.back().mV[0] += x;
-    mUIOffset.back().mV[1] += y;
-    mUIOffset.back().mV[2] += z;
+    mUIOffset.back().add(LLVector4a(x, y, z));
 }
 
 void LLRender::scaleUI(F32 x, F32 y, F32 z)
@@ -1291,14 +1289,14 @@ void LLRender::scaleUI(F32 x, F32 y, F32 z)
         LL_ERRS() << "Need to push a UI transformation frame before scaling." << LL_ENDL;
     }
 
-    mUIScale.back().scaleVec(LLVector3(x,y,z));
+    mUIScale.back().mul(LLVector4a(x, y, z));
 }
 
 void LLRender::pushUIMatrix()
 {
     if (mUIOffset.empty())
     {
-        mUIOffset.emplace_back(0.f,0.f,0.f);
+        mUIOffset.emplace_back(0.f);
     }
     else
     {
@@ -1307,7 +1305,7 @@ void LLRender::pushUIMatrix()
 
     if (mUIScale.empty())
     {
-        mUIScale.emplace_back(1.f,1.f,1.f);
+        mUIScale.emplace_back(1.f);
     }
     else
     {
@@ -1329,18 +1327,20 @@ LLVector3 LLRender::getUITranslation()
 {
     if (mUIOffset.empty())
     {
-        return LLVector3(0,0,0);
+        return LLVector3::zero;
     }
-    return mUIOffset.back();
+
+    return LLVector3(mUIOffset.back().getF32ptr());
 }
 
 LLVector3 LLRender::getUIScale()
 {
     if (mUIScale.empty())
     {
-        return LLVector3(1,1,1);
+        return LLVector3::all_one;
     }
-    return mUIScale.back();
+
+    return LLVector3(mUIScale.back().getF32ptr());
 }
 
 
@@ -1350,8 +1350,9 @@ void LLRender::loadUIIdentity()
     {
         LL_ERRS() << "Need to push UI translation frame before clearing offset." << LL_ENDL;
     }
-    mUIOffset.back().setVec(0,0,0);
-    mUIScale.back().setVec(1,1,1);
+
+    mUIOffset.back().clear();
+    mUIScale.back().splat(1);
 }
 
 void LLRender::setColorMask(bool writeColor, bool writeAlpha)
@@ -1772,23 +1773,64 @@ void LLRender::vertex3f(const GLfloat& x, const GLfloat& y, const GLfloat& z)
         return;
     }
 
-    if (mUIOffset.empty())
-    {
-        mVerticesp[mCount].set(x,y,z);
-    }
-    else
-    {
-        LLVector3 vert = (LLVector3(x,y,z)+mUIOffset.back()).scaledVec(mUIScale.back());
-        mVerticesp[mCount].set(vert.mV[VX], vert.mV[VY], vert.mV[VZ]);
-    }
+    LLVector4a vert(x, y, z);
+    transform(vert);
+    mVerticesp[mCount] = vert;
 
     mCount++;
-    mVerticesp[mCount] = mVerticesp[mCount-1];
+    mVerticesp[mCount] = vert;
     mColorsp[mCount] = mColorsp[mCount-1];
     mTexcoordsp[mCount] = mTexcoordsp[mCount-1];
 }
 
-void LLRender::vertexBatchPreTransformed(LLVector4a* verts, S32 vert_count)
+void LLRender::transform(LLVector3& vert)
+{
+    if (!mUIOffset.empty())
+    {
+        vert += LLVector3(mUIOffset.back().getF32ptr());
+        vert *= LLVector3(mUIScale.back().getF32ptr());
+    }
+}
+
+void LLRender::transform(LLVector4a& vert)
+{
+    if (!mUIOffset.empty())
+    {
+        vert.add(mUIOffset.back());
+        vert.mul(mUIScale.back());
+    }
+}
+
+void LLRender::untransform(LLVector3& vert)
+{
+    if (!mUIOffset.empty())
+    {
+        vert /= LLVector3(mUIScale.back().getF32ptr());
+        vert -= LLVector3(mUIOffset.back().getF32ptr());
+    }
+}
+
+void LLRender::batchTransform(LLVector4a* verts, U32 vert_count)
+{
+    if (!mUIOffset.empty())
+    {
+        const LLVector4a& offset = mUIOffset.back();
+        const LLVector4a& scale = mUIScale.back();
+
+        for (U32 i = 0; i < vert_count; ++i)
+        {
+            verts[i].add(offset);
+            verts[i].mul(scale);
+        }
+    }
+}
+
+void LLRender::vertexBatchPreTransformed(const std::vector<LLVector4a>& verts)
+{
+    vertexBatchPreTransformed(verts.data(), verts.size());
+}
+
+void LLRender::vertexBatchPreTransformed(const LLVector4a* verts, std::size_t vert_count)
 {
     if (mCount + vert_count > 4094)
     {
@@ -1809,7 +1851,7 @@ void LLRender::vertexBatchPreTransformed(LLVector4a* verts, S32 vert_count)
         mVerticesp[mCount] = mVerticesp[mCount-1];
 }
 
-void LLRender::vertexBatchPreTransformed(LLVector4a* verts, LLVector2* uvs, S32 vert_count)
+void LLRender::vertexBatchPreTransformed(const LLVector4a* verts, const LLVector2* uvs, std::size_t vert_count)
 {
     if (mCount + vert_count > 4094)
     {
@@ -1833,7 +1875,7 @@ void LLRender::vertexBatchPreTransformed(LLVector4a* verts, LLVector2* uvs, S32 
     }
 }
 
-void LLRender::vertexBatchPreTransformed(LLVector4a* verts, LLVector2* uvs, LLColor4U* colors, S32 vert_count)
+void LLRender::vertexBatchPreTransformed(const LLVector4a* verts, const LLVector2* uvs, const LLColor4U* colors, std::size_t vert_count)
 {
     if (mCount + vert_count > 4094)
     {
