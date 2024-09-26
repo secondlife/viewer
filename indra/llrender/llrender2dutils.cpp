@@ -423,8 +423,8 @@ void gl_draw_scaled_image_with_border(S32 x, S32 y, S32 width, S32 height, LLTex
 
             const F32 border_shrink_scale = 1.f - llmax(shrink_width_ratio, shrink_height_ratio);
             draw_center_rect.mLeft *= border_shrink_scale;
-            draw_center_rect.mTop = lerp((F32)height, (F32)draw_center_rect.mTop, border_shrink_scale);
-            draw_center_rect.mRight = lerp((F32)width, (F32)draw_center_rect.mRight, border_shrink_scale);
+            draw_center_rect.mTop = ll_lerp((F32)height, (F32)draw_center_rect.mTop, border_shrink_scale);
+            draw_center_rect.mRight = ll_lerp((F32)width, (F32)draw_center_rect.mRight, border_shrink_scale);
             draw_center_rect.mBottom *= border_shrink_scale;
         }
         else
@@ -1806,7 +1806,7 @@ void LLRender2D::setLineWidth(F32 width)
     {
         glGetFloatv(GL_SMOOTH_LINE_WIDTH_RANGE, range);
     }
-    width *= lerp(LLRender::sUIGLScaleFactor.mV[VX], LLRender::sUIGLScaleFactor.mV[VY], 0.5f);
+    width *= ll_lerp(LLRender::sUIGLScaleFactor.mV[VX], LLRender::sUIGLScaleFactor.mV[VY], 0.5f);
     glLineWidth(llclamp(width, range[0], range[1]));
 }
 

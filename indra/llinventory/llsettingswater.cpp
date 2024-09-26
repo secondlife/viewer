@@ -239,15 +239,15 @@ void LLSettingsWater::blend(LLSettingsBase::ptr_t &end, F64 blendf)
     {
         mSettingFlags |= other->mSettingFlags;
 
-        mBlurMultiplier = lerp((F32)blendf, mBlurMultiplier, other->mBlurMultiplier);
+        mBlurMultiplier = ll_lerp((F32)blendf, mBlurMultiplier, other->mBlurMultiplier);
         lerpColor(mWaterFogColor, other->mWaterFogColor, (F32)blendf);
-        mWaterFogDensity = lerp((F32)blendf, mWaterFogDensity, other->mWaterFogDensity);
-        mFogMod = lerp((F32)blendf, mFogMod, other->mFogMod);
-        mFresnelOffset = lerp((F32)blendf, mFresnelOffset, other->mFresnelOffset);
-        mFresnelScale = lerp((F32)blendf, mFresnelScale, other->mFresnelScale);
+        mWaterFogDensity = ll_lerp((F32)blendf, mWaterFogDensity, other->mWaterFogDensity);
+        mFogMod = ll_lerp((F32)blendf, mFogMod, other->mFogMod);
+        mFresnelOffset = ll_lerp((F32)blendf, mFresnelOffset, other->mFresnelOffset);
+        mFresnelScale = ll_lerp((F32)blendf, mFresnelScale, other->mFresnelScale);
         lerpVector3(mNormalScale, other->mNormalScale, (F32)blendf);
-        mScaleAbove = lerp((F32)blendf, mScaleAbove, other->mScaleAbove);
-        mScaleBelow = lerp((F32)blendf, mScaleBelow, other->mScaleBelow);
+        mScaleAbove = ll_lerp((F32)blendf, mScaleAbove, other->mScaleAbove);
+        mScaleBelow = ll_lerp((F32)blendf, mScaleBelow, other->mScaleBelow);
         lerpVector2(mWave1Dir, other->mWave1Dir, (F32)blendf);
         lerpVector2(mWave2Dir, other->mWave2Dir, (F32)blendf);
 

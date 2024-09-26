@@ -1290,21 +1290,21 @@ void LLPath::genNGon(const LLPathParams& params, S32 sides, F32 startOff, F32 en
     F32 t   = params.getBegin();
     pt      = mPath.append(1);
     ang     = 2.0f*F_PI*revolutions * t;
-    s       = sin(ang)*lerp(radius_start, radius_end, t);
-    c       = cos(ang)*lerp(radius_start, radius_end, t);
+    s       = sin(ang)*ll_lerp(radius_start, radius_end, t);
+    c       = cos(ang)*ll_lerp(radius_start, radius_end, t);
 
 
-    pt->mPos.set(0 + lerp(0,params.getShear().mV[0],s)
-                      + lerp(-skew ,skew, t) * 0.5f,
-                    c + lerp(0,params.getShear().mV[1],s),
+    pt->mPos.set(0 + ll_lerp(0,params.getShear().mV[0],s)
+                      + ll_lerp(-skew ,skew, t) * 0.5f,
+                    c + ll_lerp(0,params.getShear().mV[1],s),
                     s);
-    pt->mScale.set(hole_x * lerp(taper_x_begin, taper_x_end, t),
-        hole_y * lerp(taper_y_begin, taper_y_end, t),
+    pt->mScale.set(hole_x * ll_lerp(taper_x_begin, taper_x_end, t),
+        hole_y * ll_lerp(taper_y_begin, taper_y_end, t),
         0,1);
     pt->mTexT  = t;
 
     // Twist rotates the path along the x,y plane (I think) - DJS 04/05/02
-    twist.setQuat  (lerp(twist_begin,twist_end,t) * 2.f * F_PI - F_PI,0,0,1);
+    twist.setQuat  (ll_lerp(twist_begin,twist_end,t) * 2.f * F_PI - F_PI,0,0,1);
     // Rotate the point around the circle's center.
     qang.setQuat   (ang,path_axis);
 
@@ -1324,21 +1324,21 @@ void LLPath::genNGon(const LLPathParams& params, S32 sides, F32 startOff, F32 en
         pt      = mPath.append(1);
 
         ang = 2.0f*F_PI*revolutions * t;
-        c   = cos(ang)*lerp(radius_start, radius_end, t);
-        s   = sin(ang)*lerp(radius_start, radius_end, t);
+        c   = cos(ang)*ll_lerp(radius_start, radius_end, t);
+        s   = sin(ang)*ll_lerp(radius_start, radius_end, t);
 
-        pt->mPos.set(0 + lerp(0,params.getShear().mV[0],s)
-                          + lerp(-skew ,skew, t) * 0.5f,
-                        c + lerp(0,params.getShear().mV[1],s),
+        pt->mPos.set(0 + ll_lerp(0,params.getShear().mV[0],s)
+                          + ll_lerp(-skew ,skew, t) * 0.5f,
+                        c + ll_lerp(0,params.getShear().mV[1],s),
                         s);
 
-        pt->mScale.set(hole_x * lerp(taper_x_begin, taper_x_end, t),
-                    hole_y * lerp(taper_y_begin, taper_y_end, t),
+        pt->mScale.set(hole_x * ll_lerp(taper_x_begin, taper_x_end, t),
+                    hole_y * ll_lerp(taper_y_begin, taper_y_end, t),
                     0,1);
         pt->mTexT  = t;
 
         // Twist rotates the path along the x,y plane (I think) - DJS 04/05/02
-        twist.setQuat  (lerp(twist_begin,twist_end,t) * 2.f * F_PI - F_PI,0,0,1);
+        twist.setQuat  (ll_lerp(twist_begin,twist_end,t) * 2.f * F_PI - F_PI,0,0,1);
         // Rotate the point around the circle's center.
         qang.setQuat   (ang,path_axis);
         LLMatrix3 tmp(twist*qang);
@@ -1351,20 +1351,20 @@ void LLPath::genNGon(const LLPathParams& params, S32 sides, F32 startOff, F32 en
     t = params.getEnd();
     pt      = mPath.append(1);
     ang = 2.0f*F_PI*revolutions * t;
-    c   = cos(ang)*lerp(radius_start, radius_end, t);
-    s   = sin(ang)*lerp(radius_start, radius_end, t);
+    c   = cos(ang)*ll_lerp(radius_start, radius_end, t);
+    s   = sin(ang)*ll_lerp(radius_start, radius_end, t);
 
-    pt->mPos.set(0 + lerp(0,params.getShear().mV[0],s)
-                      + lerp(-skew ,skew, t) * 0.5f,
-                    c + lerp(0,params.getShear().mV[1],s),
+    pt->mPos.set(0 + ll_lerp(0,params.getShear().mV[0],s)
+                      + ll_lerp(-skew ,skew, t) * 0.5f,
+                    c + ll_lerp(0,params.getShear().mV[1],s),
                     s);
-    pt->mScale.set(hole_x * lerp(taper_x_begin, taper_x_end, t),
-                   hole_y * lerp(taper_y_begin, taper_y_end, t),
+    pt->mScale.set(hole_x * ll_lerp(taper_x_begin, taper_x_end, t),
+                   hole_y * ll_lerp(taper_y_begin, taper_y_end, t),
                    0,1);
     pt->mTexT  = t;
 
     // Twist rotates the path along the x,y plane (I think) - DJS 04/05/02
-    twist.setQuat  (lerp(twist_begin,twist_end,t) * 2.f * F_PI - F_PI,0,0,1);
+    twist.setQuat  (ll_lerp(twist_begin,twist_end,t) * 2.f * F_PI - F_PI,0,0,1);
     // Rotate the point around the circle's center.
     qang.setQuat   (ang,path_axis);
     LLMatrix3 tmp(twist*qang);
@@ -1493,16 +1493,16 @@ bool LLPath::generate(const LLPathParams& params, F32 detail, S32 split,
 
             for (S32 i=0;i<np;i++)
             {
-                F32 t = lerp(params.getBegin(),params.getEnd(),(F32)i * mStep);
-                mPath[i].mPos.set(lerp(0,params.getShear().mV[0],t),
-                                     lerp(0,params.getShear().mV[1],t),
+                F32 t = ll_lerp(params.getBegin(),params.getEnd(),(F32)i * mStep);
+                mPath[i].mPos.set(ll_lerp(0,params.getShear().mV[0],t),
+                                     ll_lerp(0,params.getShear().mV[1],t),
                                      t - 0.5f);
                 LLQuaternion quat;
-                quat.setQuat(lerp(F_PI * params.getTwistBegin(),F_PI * params.getTwist(),t),0,0,1);
+                quat.setQuat(ll_lerp(F_PI * params.getTwistBegin(),F_PI * params.getTwist(),t),0,0,1);
                 LLMatrix3 tmp(quat);
                 mPath[i].mRot.loadu(tmp);
-                mPath[i].mScale.set(lerp(start_scale.mV[0],end_scale.mV[0],t),
-                                    lerp(start_scale.mV[1],end_scale.mV[1],t),
+                mPath[i].mScale.set(ll_lerp(start_scale.mV[0],end_scale.mV[0],t),
+                                    ll_lerp(start_scale.mV[1],end_scale.mV[1],t),
                                     0,1);
                 mPath[i].mTexT        = t;
             }
@@ -1559,10 +1559,10 @@ bool LLPath::generate(const LLPathParams& params, F32 detail, S32 split,
         {
             F32 t = (F32)i * mStep;
             mPath[i].mPos.set(0,
-                                lerp(0,   -sin(F_PI*params.getTwist()*t)*0.5f,t),
-                                lerp(-0.5f, cos(F_PI*params.getTwist()*t)*0.5f,t));
-            mPath[i].mScale.set(lerp(1,params.getScale().mV[0],t),
-                                lerp(1,params.getScale().mV[1],t), 0,1);
+                                ll_lerp(0,   -sin(F_PI*params.getTwist()*t)*0.5f,t),
+                                ll_lerp(-0.5f, cos(F_PI*params.getTwist()*t)*0.5f,t));
+            mPath[i].mScale.set(ll_lerp(1,params.getScale().mV[0],t),
+                                ll_lerp(1,params.getScale().mV[1],t), 0,1);
             mPath[i].mTexT  = t;
             LLQuaternion quat;
             quat.setQuat(F_PI * params.getTwist() * t,1,0,0);

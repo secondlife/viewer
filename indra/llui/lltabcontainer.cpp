@@ -431,7 +431,7 @@ void LLTabContainer::draw()
         }
     }
 
-    setScrollPosPixels((S32)lerp((F32)getScrollPosPixels(), (F32)target_pixel_scroll, LLSmoothInterpolation::getInterpolant(0.08f)));
+    setScrollPosPixels((S32)ll_lerp((F32)getScrollPosPixels(), (F32)target_pixel_scroll, LLSmoothInterpolation::getInterpolant(0.08f)));
 
     bool has_scroll_arrows = !mHideScrollArrows && !getTabsHidden() && ((mMaxScrollPos > 0) || (mScrollPosPixels > 0));
     if (!mIsVertical)

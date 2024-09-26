@@ -505,11 +505,11 @@ void LLScrollbar::draw()
     bool hovered = getEnabled() && !other_captor && (hasMouseCapture() || mThumbRect.pointInRect(local_mouse_x, local_mouse_y));
     if (hovered)
     {
-        mCurGlowStrength = lerp(mCurGlowStrength, mHoverGlowStrength, LLSmoothInterpolation::getInterpolant(0.05f));
+        mCurGlowStrength = ll_lerp(mCurGlowStrength, mHoverGlowStrength, LLSmoothInterpolation::getInterpolant(0.05f));
     }
     else
     {
-        mCurGlowStrength = lerp(mCurGlowStrength, 0.f, LLSmoothInterpolation::getInterpolant(0.05f));
+        mCurGlowStrength = ll_lerp(mCurGlowStrength, 0.f, LLSmoothInterpolation::getInterpolant(0.05f));
     }
 
     // Draw background and thumb.

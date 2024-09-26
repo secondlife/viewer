@@ -631,8 +631,8 @@ void LLStatBar::drawTicks( F32 min, F32 max, F32 value_scale, LLRect &bar_rect )
     if (!llisnan(min) && (mAutoScaleMax || mAutoScaleMin))
     {
         F32 u = LLSmoothInterpolation::getInterpolant(10.f);
-        mFloatingTargetMinBar = llmin(min, lerp(mFloatingTargetMinBar, min, u));
-        mFloatingTargetMaxBar = llmax(max, lerp(mFloatingTargetMaxBar, max, u));
+        mFloatingTargetMinBar = llmin(min, ll_lerp(mFloatingTargetMinBar, min, u));
+        mFloatingTargetMaxBar = llmax(max, ll_lerp(mFloatingTargetMaxBar, max, u));
         F32 range_min = mAutoScaleMin ? mFloatingTargetMinBar : mTargetMinBar;
         F32 range_max = mAutoScaleMax ? mFloatingTargetMaxBar : mTargetMaxBar;
         F32 tick_value = 0.f;

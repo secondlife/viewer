@@ -1130,13 +1130,13 @@ void LLFastTimerView::drawLineGraph()
     }
 
     //interpolate towards new maximum
-    max_time = (F32Seconds)lerp(max_time.value(), cur_max.value(), LLSmoothInterpolation::getInterpolant(0.1f));
+    max_time = (F32Seconds)ll_lerp(max_time.value(), cur_max.value(), LLSmoothInterpolation::getInterpolant(0.1f));
     if (llabs((max_time - cur_max).value()) <= 1)
     {
         max_time = llmax(F32Microseconds(1.f), F32Microseconds(cur_max));
     }
 
-    max_calls = ll_round(lerp((F32)max_calls, (F32) cur_max_calls, LLSmoothInterpolation::getInterpolant(0.1f)));
+    max_calls = ll_round(ll_lerp((F32)max_calls, (F32) cur_max_calls, LLSmoothInterpolation::getInterpolant(0.1f)));
     if (llabs((S32)(max_calls - cur_max_calls)) <= 1)
     {
         max_calls = cur_max_calls;
@@ -1146,7 +1146,7 @@ void LLFastTimerView::drawLineGraph()
     F32 alpha_target = (max_time > cur_max)
         ? llmin(max_time / cur_max - 1.f,1.f)
         : llmin(cur_max/ max_time - 1.f,1.f);
-    alpha_interp = lerp(alpha_interp, alpha_target, LLSmoothInterpolation::getInterpolant(0.1f));
+    alpha_interp = ll_lerp(alpha_interp, alpha_target, LLSmoothInterpolation::getInterpolant(0.1f));
 
     if (mHoverID != NULL)
     {

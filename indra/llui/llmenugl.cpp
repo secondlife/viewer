@@ -3145,8 +3145,8 @@ bool LLMenuGL::handleHover( S32 x, S32 y, MASK mask )
     LLVector2 mouse_avg_dir((F32)mMouseVelX, (F32)mMouseVelY);
     mouse_avg_dir.normVec();
     F32 interp = 0.5f * (llclamp(mouse_dir * mouse_avg_dir, 0.f, 1.f));
-    mMouseVelX = ll_round(lerp((F32)mouse_delta_x, (F32)mMouseVelX, interp));
-    mMouseVelY = ll_round(lerp((F32)mouse_delta_y, (F32)mMouseVelY, interp));
+    mMouseVelX = ll_round(ll_lerp((F32)mouse_delta_x, (F32)mMouseVelX, interp));
+    mMouseVelY = ll_round(ll_lerp((F32)mouse_delta_y, (F32)mMouseVelY, interp));
     mLastMouseX = x;
     mLastMouseY = y;
 
@@ -3979,7 +3979,7 @@ void LLTearOffMenu::draw()
     if (getRect().getHeight() != mTargetHeight)
     {
         // animate towards target height
-        reshape(getRect().getWidth(), llceil(lerp((F32)getRect().getHeight(), (F32)mTargetHeight, LLSmoothInterpolation::getInterpolant(0.05f))));
+        reshape(getRect().getWidth(), llceil(ll_lerp((F32)getRect().getHeight(), (F32)mTargetHeight, LLSmoothInterpolation::getInterpolant(0.05f))));
     }
     mMenu->needsArrange();
     LLFloater::draw();

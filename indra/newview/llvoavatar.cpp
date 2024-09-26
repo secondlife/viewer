@@ -3322,7 +3322,7 @@ void LLVOAvatar::idleUpdateWindEffect()
         mWindVec = lerp(mWindVec, wind, interp);
 
         F32 wind_freq = hover_strength + llclamp(8.f + (speed * 0.7f) + (noise1(mRipplePhase) * 4.f), 8.f, 25.f);
-        mWindFreq = lerp(mWindFreq, wind_freq, interp);
+        mWindFreq = ll_lerp(mWindFreq, wind_freq, interp);
 
         if (mBelowWater)
         {

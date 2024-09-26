@@ -276,10 +276,10 @@ void LLVolumeImplFlexible::setAttributesOfAllSections(LLVector3* inScale)
 
     for ( int i=1; i<= num_sections; i++)
     {
-        mSection[i].mAxisRotation.setQuat(lerp(begin_rot,end_rot,t),0,0,1);
+        mSection[i].mAxisRotation.setQuat(ll_lerp(begin_rot,end_rot,t),0,0,1);
         mSection[i].mScale = LLVector2(
-            scale.mV[VX] * lerp(bottom_scale.mV[0], top_scale.mV[0], t),
-            scale.mV[VY] * lerp(bottom_scale.mV[1], top_scale.mV[1], t));
+            scale.mV[VX] * ll_lerp(bottom_scale.mV[0], top_scale.mV[0], t),
+            scale.mV[VY] * ll_lerp(bottom_scale.mV[1], top_scale.mV[1], t));
         t += t_inc;
     }
 }//-----------------------------------------------------------------------------------

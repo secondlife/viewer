@@ -843,18 +843,18 @@ void LLButton::draw()
     if (hasFocus())
     {
         F32 lerp_amt = gFocusMgr.getFocusFlashAmt();
-        drawBorder(imagep, gFocusMgr.getFocusColor() % alpha, ll_round(lerp(1.f, 3.f, lerp_amt)));
+        drawBorder(imagep, gFocusMgr.getFocusColor() % alpha, ll_round(ll_lerp(1.f, 3.f, lerp_amt)));
     }
 
     if (use_glow_effect)
     {
-        mCurGlowStrength = lerp(mCurGlowStrength,
+        mCurGlowStrength = ll_lerp(mCurGlowStrength,
                     mFlashing ? (mFlashingTimer->isCurrentlyHighlighted() || !mFlashingTimer->isFlashingInProgress() || mNeedsHighlight? 1.f : 0.f) : mHoverGlowStrength,
                     LLSmoothInterpolation::getInterpolant(0.05f));
     }
     else
     {
-        mCurGlowStrength = lerp(mCurGlowStrength, 0.f, LLSmoothInterpolation::getInterpolant(0.05f));
+        mCurGlowStrength = ll_lerp(mCurGlowStrength, 0.f, LLSmoothInterpolation::getInterpolant(0.05f));
     }
 
     // Draw button image, if available.
