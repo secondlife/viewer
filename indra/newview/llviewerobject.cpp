@@ -2325,6 +2325,12 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 
         // Set the rotation of the object followed by adjusting for the accumulated angular velocity (llSetTargetOmega)
         setRotation(new_rot * mAngularVelocityRot);
+        if ((mFlags & FLAGS_SERVER_AUTOPILOT) && asAvatar() && asAvatar()->isSelf())
+        {
+            gAgent.resetAxes();
+            gAgent.rotate(new_rot);
+            gAgentCamera.resetView();
+        }
         setChanged(ROTATED | SILHOUETTE);
     }
 
