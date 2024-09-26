@@ -250,7 +250,7 @@ protected:
 public:
 
     size_t mBatchHash = 0;
-    // *TODO: If/when we implement additional GLTF extensions, they may not be
+#// *TODO: If/when we implement additional GLTF extensions, they may not be
     // compatible with our GLTF terrain implementation. We may want to disallow
     // materials with some features from being set on terrain, if their
     // implementation on terrain is not compliant with the spec:

@@ -3595,6 +3595,7 @@ void LLPipeline::postSort(LLCamera &camera)
         for (U32 i = 0; i < 3; ++i) // one for each AlphaMode
         {
             sCull->mGLTFDrawInfo[i].insert(sCull->mGLTFDrawInfo[i].end(), group->mGLTFDrawInfo[i].begin(), group->mGLTFDrawInfo[i].end());
+            sCull->mSkinnedGLTFDrawInfo[i].insert(sCull->mSkinnedGLTFDrawInfo[i].end(), group->mSkinnedGLTFDrawInfo[i].begin(), group->mSkinnedGLTFDrawInfo[i].end());
         }
     }
 
@@ -3655,6 +3656,8 @@ void LLPipeline::postSort(LLCamera &camera)
 
             std::sort(sCull->mGLTFDrawInfo[LLGLTFMaterial::ALPHA_MODE_OPAQUE].begin(), sCull->mGLTFDrawInfo[LLGLTFMaterial::ALPHA_MODE_OPAQUE].end(), CompareMaterialID());
             std::sort(sCull->mGLTFDrawInfo[LLGLTFMaterial::ALPHA_MODE_MASK].begin(), sCull->mGLTFDrawInfo[LLGLTFMaterial::ALPHA_MODE_MASK].end(), CompareMaterialID());
+
+            // TODO: sort SkinnedGLTFDrawInfo by avatar and skinhash (and use UBOs for joints)
         }
     }
 
@@ -6770,9 +6773,9 @@ void LLPipeline::renderAlphaObjects(bool rigged)
     U64 lastMeshId = 0;
     bool skipLastSkin;
     // for gDeferredShadowGLTFAlphaBlendProgram
-    const LLVOAvatar* lastAvatarGLTF = nullptr;
-    U64 lastMeshIdGLTF = 0;
-    bool skipLastSkinGLTF;
+    //const LLVOAvatar* lastAvatarGLTF = nullptr;
+    //U64 lastMeshIdGLTF = 0;
+    //bool skipLastSkinGLTF;
     auto* begin = gPipeline.beginRenderMap(type);
     auto* end = gPipeline.endRenderMap(type);
 
@@ -6796,7 +6799,7 @@ void LLPipeline::renderAlphaObjects(bool rigged)
                 LLGLSLShader::sCurBoundShaderPtr->uniform1i(LLShaderMgr::SUN_UP_FACTOR, sun_up);
                 LLGLSLShader::sCurBoundShaderPtr->uniform1f(LLShaderMgr::DEFERRED_SHADOW_TARGET_WIDTH, (float)target_width);
                 LLGLSLShader::sCurBoundShaderPtr->setMinimumAlpha(ALPHA_BLEND_CUTOFF);
-                LLRenderPass::pushRiggedGLTFBatch(*pparams, lastAvatarGLTF, lastMeshIdGLTF, skipLastSkinGLTF);
+                //LLRenderPass::pushRiggedGLTFBatch(*pparams, lastAvatarGLTF, lastMeshIdGLTF, skipLastSkinGLTF);
             }
             else
             {
@@ -9442,11 +9445,10 @@ void LLPipeline::renderShadow(const glm::mat4& view, const glm::mat4& proj, LLCa
             }
         }
 
-#if 1
         for (int i = 0; i < 2; ++i)
         {
             bool rigged = i == 1;
-            gPBROpaqueShadowAlphaMaskProgram.bind();
+            gPBROpaqueShadowAlphaMaskProgram.bind(rigged);
 
             gGL.loadMatrix(gGLModelView);
             gGLLastMatrix = NULL;
@@ -9456,7 +9458,6 @@ void LLPipeline::renderShadow(const glm::mat4& view, const glm::mat4& proj, LLCa
             gGL.loadMatrix(gGLModelView);
             gGLLastMatrix = NULL;
         }
-#endif
     }
 
     gDeferredShadowCubeProgram.bind();

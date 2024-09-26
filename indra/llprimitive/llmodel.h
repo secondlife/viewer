@@ -65,7 +65,7 @@ public:
     // cached multiply of mBindShapeMatrix and mInvBindMatrix
     matrix_list_t mBindPoseMatrix;
 
-    LL_ALIGN_16(LLMatrix4a mBindShapeMatrix);
+    LLMatrix4a mBindShapeMatrix;
 
     float mPelvisOffset;
     bool mLockScaleIfJointPosition;

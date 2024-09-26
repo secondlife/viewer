@@ -42,6 +42,7 @@ class LLVOAvatar;
 class LLGLSLShader;
 class LLMeshSkinInfo;
 class LLGLTFDrawInfo;
+class LLSkinnedGLTFDrawInfo;
 
 class LLDrawPool
 {
@@ -378,8 +379,10 @@ public:
     void pushRiggedGLTFBatches(LLGLTFMaterial::AlphaMode alpha_mode, bool textured);
     void pushUntexturedRiggedGLTFBatches(LLGLTFMaterial::AlphaMode alpha_mode);
 
-    static void pushRiggedGLTFBatch(LLDrawInfo& params, const LLVOAvatar*& lastAvatar, U64& lastMeshId, bool& skipLastSkin);
-    static void pushUntexturedRiggedGLTFBatch(LLDrawInfo& params, const LLVOAvatar*& lastAvatar, U64& lastMeshId, bool& skipLastSkin);
+    static void pushGLTFBatch(const LLGLTFDrawInfo& params);
+    static void pushUntexturedGLTFBatch(const LLGLTFDrawInfo& params);
+    static void pushRiggedGLTFBatch(const LLSkinnedGLTFDrawInfo& params, const LLVOAvatar*& lastAvatar, U64& lastMeshId, bool& skipLastSkin);
+    static void pushUntexturedRiggedGLTFBatch(const LLSkinnedGLTFDrawInfo& params, const LLVOAvatar*& lastAvatar, U64& lastMeshId, bool& skipLastSkin);
 
     void pushMaskBatches(U32 type, bool texture = true, bool batch_textures = false);
     void pushRiggedMaskBatches(U32 type, bool texture = true, bool batch_textures = false);

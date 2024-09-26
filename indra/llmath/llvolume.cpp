@@ -2785,7 +2785,7 @@ void LLVolume::createVertexBuffer()
 
             if (face.mWeights)
             {
-                mask |= LLVertexBuffer::MAP_WEIGHT;
+                mask |= LLVertexBuffer::MAP_WEIGHT4;
             }
         }
 

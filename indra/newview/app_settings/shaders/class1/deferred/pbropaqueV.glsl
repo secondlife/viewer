@@ -111,7 +111,8 @@ void main()
 {
     mat4 mat = getGLTFTransform();
 #ifdef HAS_SKIN
-    mat *= getObjectSkinnedTransform();
+    // mat should be the BindShapeMatrix for rigged objects
+    mat = getObjectSkinnedTransform() * mat;
 #endif
 
     mat = modelview_matrix * mat;

@@ -243,6 +243,14 @@ public:
     U32 mInstanceMapUBO;
 };
 
+class LLSkinnedGLTFDrawInfo : public LLGLTFDrawInfo
+{
+public:
+    LLPointer<LLVOAvatar> mAvatar = nullptr;
+    LLMeshSkinInfo* mSkinInfo = nullptr;
+};
+
+
 LL_ALIGN_PREFIX(16)
 class LLSpatialGroup : public LLOcclusionCullingGroup
 {
@@ -398,10 +406,10 @@ public:
     LLPointer<LLVertexBuffer> mVertexBuffer;
     draw_map_t mDrawMap;
 
-
     // Render batches for GLTF faces in this spatial group
     // indexed by LLGLTFMaterial::mAlphaMode
-    std::vector<LLGLTFDrawInfo> mGLTFDrawInfo[3];
+    std::array<std::vector<LLGLTFDrawInfo>, 3> mGLTFDrawInfo;
+    std::array<std::vector<LLSkinnedGLTFDrawInfo>, 3> mSkinnedGLTFDrawInfo;
 
     bridge_list_t mBridgeList;
     buffer_map_t mBufferMap; //used by volume buffers to attempt to reuse vertex buffers
@@ -549,6 +557,7 @@ public:
     typedef std::vector<LLSpatialBridge*> bridge_list_t;
     typedef std::vector<LLDrawInfo*> drawinfo_list_t;
     typedef std::vector<LLGLTFDrawInfo> gltf_drawinfo_list_t;
+    typedef std::vector<LLSkinnedGLTFDrawInfo> skinned_gltf_drawinfo_list_t;
 
     typedef LLSpatialGroup** sg_iterator;
     typedef LLSpatialBridge** bridge_iterator;
@@ -620,7 +629,8 @@ public:
 
     // list of GLTF draw infos
     // indexed by LLGLTFMaterial::mAlphaMode
-    gltf_drawinfo_list_t mGLTFDrawInfo[3];
+    std::array<gltf_drawinfo_list_t, 3> mGLTFDrawInfo;
+    std::array<skinned_gltf_drawinfo_list_t, 3> mSkinnedGLTFDrawInfo;
 
 private:
 

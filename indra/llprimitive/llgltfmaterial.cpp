@@ -79,6 +79,11 @@ LLGLTFMaterial::LLGLTFMaterial()
     mAlphaMode = ALPHA_MODE_OPAQUE;    // This is 0
     mOverrideDoubleSided = mOverrideAlphaMode = false;
 #endif
+
+    llassert(mAlphaMode == 0);
+    llassert(!mOverrideDoubleSided);
+    llassert(!mDoubleSided);
+    llassert(!mOverrideAlphaMode);
 }
 
 void LLGLTFMaterial::TextureTransform::getPacked(Pack& packed) const
@@ -107,6 +112,7 @@ bool LLGLTFMaterial::TextureTransform::operator==(const TextureTransform& other)
 }
 
 LLGLTFMaterial::LLGLTFMaterial(const LLGLTFMaterial& rhs)
+    : LLGLTFMaterial() // call default constructor to zero out padding bytes
 {
     *this = rhs;
 }
@@ -880,6 +886,13 @@ size_t LLGLTFMaterial::calculateBatchHash() const
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
     size_t hash = 0;
+    char* begin = (char*)&mTextureId;
+    char* end = (char*)&mDoubleSided+1;
+#if 1
+    // boost::hash_range
+    hash = boost::hash_range(begin, end - 1);
+#elif 0
+    // boost::hash_combine
     boost::hash_combine(hash, mTextureId);
     boost::hash_combine(hash, mTextureTransform);
     boost::hash_combine(hash, mBaseColor);
@@ -888,6 +901,13 @@ size_t LLGLTFMaterial::calculateBatchHash() const
     boost::hash_combine(hash, mRoughnessFactor);
     boost::hash_combine(hash, mAlphaCutoff);
     boost::hash_combine(hash, mDoubleSided);
+#else
+    // xxh64
+    HBXXH64 hasher;
+    hasher.update(begin, (U32)((char*)end - (char*)begin));
+    hasher.finalize();
+    hash = hasher.digest();
+#endif
 
     return hash;
 }
@@ -899,7 +919,7 @@ void LLGLTFMaterial::updateBatchHash()
 
 size_t LLGLTFMaterial::getBatchHash() const
 {
-    //llassert(mBatchHash == calculateBatchHash());
+    llassert(mBatchHash == calculateBatchHash());
     return mBatchHash;
 }
 

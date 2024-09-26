@@ -34,11 +34,24 @@
 class LLMatrix4a
 {
 public:
-    LL_ALIGN_16(LLVector4a mMatrix[4]);
+    union
+    {
+        LLVector4a mMatrix[4];
+        LLMatrix4 mMatrix4;
+    };
 
     LLMatrix4a()
     {
 
+    }
+
+    ~LLMatrix4a()
+    {
+    }
+
+    LLMatrix4a(const LLMatrix4a& rhs)
+    {
+        *this = rhs;
     }
 
     explicit LLMatrix4a(const LLMatrix4& val)
@@ -49,6 +62,16 @@ public:
     explicit LLMatrix4a(const F32* val)
     {
         loadu(val);
+    }
+
+    inline const LLMatrix4a& operator=(const LLMatrix4a& rhs)
+    {
+        mMatrix[0] = rhs.mMatrix[0];
+        mMatrix[1] = rhs.mMatrix[1];
+        mMatrix[2] = rhs.mMatrix[2];
+        mMatrix[3] = rhs.mMatrix[3];
+
+        return *this;
     }
 
     static const LLMatrix4a& identity()
