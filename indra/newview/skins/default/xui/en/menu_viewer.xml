@@ -3436,8 +3436,8 @@ function="World.EnvPreset"
                  parameter="RenderAttachedParticles" />
             </menu_item_check>
             <menu_item_check
-             label="Collect Font Vertex Buffer"
-             name="Collect Font Vertex Buffer">
+             label="Collect Font Vertex Buffers"
+             name="Collect Font Vertex Buffers">
                 <menu_item_check.on_check
                  function="CheckControl"
                  parameter="CollectFontVertexBuffers" />
