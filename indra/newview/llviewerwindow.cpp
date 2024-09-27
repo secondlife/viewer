@@ -195,7 +195,6 @@
 #include "llviewerjoystick.h"
 #include "llviewermenufile.h" // LLFilePickerReplyThread
 #include "llviewernetwork.h"
-#include "llpostprocess.h"
 #include "llfloaterimnearbychat.h"
 #include "llagentui.h"
 #include "llwearablelist.h"
@@ -5761,11 +5760,6 @@ void LLViewerWindow::stopGL()
         }
 
         gBox.cleanupGL();
-
-        if(gPostProcess)
-        {
-            gPostProcess->invalidate();
-        }
 
         gTextureList.destroyGL();
         stop_glerror();
