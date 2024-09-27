@@ -783,13 +783,17 @@ static glm::mat4 view_matrix;
 static glm::mat4 last_model_matrix;
 static U32 transform_ubo = 0;
 static size_t last_mat = 0;
-static bool doublesided = false;
 
 extern LLCullResult* sCull;
 
 void LLRenderPass::pushGLTFBatches(LLGLTFMaterial::AlphaMode alpha_mode)
 {
-    pushGLTFBatches(sCull->mGLTFDrawInfo[alpha_mode]);
+    pushGLTFBatches(sCull->mGLTFBatches.mDrawInfo[alpha_mode][0]);
+
+    {
+        LLGLDisable cull(GL_CULL_FACE);
+        pushGLTFBatches(sCull->mGLTFBatches.mDrawInfo[alpha_mode][1]);
+    }
 }
 
 void LLRenderPass::pushGLTFBatches(const std::vector<LLGLTFDrawInfo>& draw_info)
@@ -802,17 +806,10 @@ void LLRenderPass::pushGLTFBatches(const std::vector<LLGLTFDrawInfo>& draw_info)
 
     transform_ubo = 0;
     last_mat = 0;
-    doublesided = false;
 
     for (auto& params : draw_info)
     {
         pushGLTFBatch(params);
-    }
-
-    // restore GL_CULL_FACE before returning if it was disabled
-    if (doublesided)
-    {
-        glEnable(GL_CULL_FACE);
     }
 }
 
@@ -835,18 +832,6 @@ void LLRenderPass::pushGLTFBatch(const LLGLTFDrawInfo& params)
         last_mat = params.mMaterialID;
         auto& mat = params.mMaterial;
         mat->bind();
-        if (mat->mDoubleSided != doublesided)
-        {
-            doublesided = mat->mDoubleSided;
-            if (doublesided)
-            {
-                glDisable(GL_CULL_FACE);
-            }
-            else
-            {
-                glEnable(GL_CULL_FACE);
-            }
-        }
     }
 
     LLGLSLShader::sCurBoundShaderPtr->uniform1i(LLShaderMgr::GLTF_BASE_INSTANCE, params.mBaseInstance);
@@ -868,17 +853,19 @@ void LLRenderPass::pushUntexturedGLTFBatches(LLGLTFMaterial::AlphaMode alpha_mod
 
     transform_ubo = 0;
     last_mat = 0;
-    doublesided = false;
 
-    for (auto& params : sCull->mGLTFDrawInfo[alpha_mode])
+    for (auto& params : sCull->mGLTFBatches.mDrawInfo[alpha_mode][0])
     {
         pushUntexturedGLTFBatch(params);
     }
 
-    // restore GL_CULL_FACE before returning if it was disabled
-    if (doublesided)
-    {
-        glEnable(GL_CULL_FACE);
+    { // double sided
+        LLGLDisable cull(GL_CULL_FACE);
+
+        for (auto& params : sCull->mGLTFBatches.mDrawInfo[alpha_mode][1])
+        {
+            pushUntexturedGLTFBatch(params);
+        }
     }
 }
 
@@ -894,24 +881,6 @@ void LLRenderPass::pushUntexturedGLTFBatch(const LLGLTFDrawInfo& params)
         glBindBufferBase(GL_UNIFORM_BUFFER, LLGLSLShader::UB_GLTF_NODES, params.mTransformUBO);
         glBindBufferBase(GL_UNIFORM_BUFFER, LLGLSLShader::UB_GLTF_NODE_INSTANCE_MAP, params.mInstanceMapUBO);
         transform_ubo = params.mTransformUBO;
-    }
-
-    if (!last_mat || params.mMaterialID != last_mat)
-    {
-        last_mat = params.mMaterialID;
-        auto& mat = params.mMaterial;
-        if (mat->mDoubleSided != doublesided)
-        {
-            doublesided = mat->mDoubleSided;
-            if (doublesided)
-            {
-                glDisable(GL_CULL_FACE);
-            }
-            else
-            {
-                glEnable(GL_CULL_FACE);
-            }
-        }
     }
 
     LLGLSLShader::sCurBoundShaderPtr->uniform1i(LLShaderMgr::GLTF_BASE_INSTANCE, params.mBaseInstance);
@@ -944,15 +913,25 @@ void LLRenderPass::pushRiggedGLTFBatches(LLGLTFMaterial::AlphaMode alpha_mode)
     gGL.loadMatrix(gGLModelView);
     gGL.syncMatrices();
 
+    transform_ubo = 0;
+    last_mat = 0;
+
     const LLVOAvatar* lastAvatar = nullptr;
     U64 lastMeshId = 0;
     bool skipLastSkin = false;
 
-    for (auto& params : sCull->mSkinnedGLTFDrawInfo[alpha_mode])
+    for (auto& params : sCull->mGLTFBatches.mSkinnedDrawInfo[alpha_mode][0])
     {
-        LL_PROFILE_ZONE_NAMED_CATEGORY_DRAWPOOL("pushRiggedGLTFBatch");
-
         pushRiggedGLTFBatch(params, lastAvatar, lastMeshId, skipLastSkin);
+    }
+
+    { // double sided
+        LLGLDisable cull(GL_CULL_FACE);
+
+        for (auto& params : sCull->mGLTFBatches.mSkinnedDrawInfo[alpha_mode][1])
+        {
+            pushRiggedGLTFBatch(params, lastAvatar, lastMeshId, skipLastSkin);
+        }
     }
 }
 
@@ -964,15 +943,25 @@ void LLRenderPass::pushUntexturedRiggedGLTFBatches(LLGLTFMaterial::AlphaMode alp
     gGL.loadMatrix(gGLModelView);
     gGL.syncMatrices();
 
+    transform_ubo = 0;
+    last_mat = 0;
+
     const LLVOAvatar* lastAvatar = nullptr;
     U64 lastMeshId = 0;
     bool skipLastSkin = false;
 
-    for (auto& params : sCull->mSkinnedGLTFDrawInfo[alpha_mode])
+    for (auto& params : sCull->mGLTFBatches.mSkinnedDrawInfo[alpha_mode][0])
     {
-        LL_PROFILE_ZONE_NAMED_CATEGORY_DRAWPOOL("pushRiggedGLTFBatch");
-
         pushUntexturedRiggedGLTFBatch(params, lastAvatar, lastMeshId, skipLastSkin);
+    }
+
+    { // double sided
+        LLGLDisable cull(GL_CULL_FACE);
+
+        for (auto& params : sCull->mGLTFBatches.mSkinnedDrawInfo[alpha_mode][1])
+        {
+            pushUntexturedRiggedGLTFBatch(params, lastAvatar, lastMeshId, skipLastSkin);
+        }
     }
 }
 

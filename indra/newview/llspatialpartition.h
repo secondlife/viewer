@@ -241,6 +241,7 @@ public:
     U32 mBaseInstance;
     U32 mTransformUBO;
     U32 mInstanceMapUBO;
+
 };
 
 class LLSkinnedGLTFDrawInfo : public LLGLTFDrawInfo
@@ -249,6 +250,55 @@ public:
     LLPointer<LLVOAvatar> mAvatar = nullptr;
     LLMeshSkinInfo* mSkinInfo = nullptr;
 };
+
+class LLGLTFBatches
+{
+public:
+    typedef std::vector<LLGLTFDrawInfo> gltf_drawinfo_list_t[3][2];
+    typedef std::vector<LLSkinnedGLTFDrawInfo> skinned_gltf_drawinfo_list_t[3][2];
+
+    // collections of GLTFDrawInfo
+    // indexed by [LLGLTFMaterial::mAlphaMode][Planar Projection]
+    gltf_drawinfo_list_t mDrawInfo;
+    skinned_gltf_drawinfo_list_t mSkinnedDrawInfo;
+
+    // clear all draw infos
+    void clear();
+
+    // add a draw info to the appropriate list
+    LLGLTFDrawInfo* create(LLGLTFMaterial::AlphaMode alpha_mode, bool double_sided = false);
+
+    // add a sikinned draw info to the appropriate list
+    LLSkinnedGLTFDrawInfo* createSkinned(LLGLTFMaterial::AlphaMode alpha_mode, bool double_sided = false);
+
+    // add the given LLGLTFBatches to these LLGLTFBatches
+    void add(const LLGLTFBatches& other);
+
+    template <typename T>
+    void sort(LLGLTFMaterial::AlphaMode mode, T comparator)
+    {
+        for (U32 i = 0; i < 3; ++i)
+        {
+            for (U32 j = 0; j < 2; ++j)
+            {
+                std::sort(mDrawInfo[i][j].begin(), mDrawInfo[i][j].end(), comparator);
+            }
+        }
+    }
+
+    template <typename T>
+    void sortSkinned(LLGLTFMaterial::AlphaMode mode, T comparator)
+    {
+        for (U32 i = 0; i < 3; ++i)
+        {
+            for (U32 j = 0; j < 2; ++j)
+            {
+                std::sort(mDrawInfo[i][j].begin(), mDrawInfo[i][j].end(), comparator);
+            }
+        }
+    }
+};
+
 
 
 LL_ALIGN_PREFIX(16)
@@ -406,10 +456,7 @@ public:
     LLPointer<LLVertexBuffer> mVertexBuffer;
     draw_map_t mDrawMap;
 
-    // Render batches for GLTF faces in this spatial group
-    // indexed by LLGLTFMaterial::mAlphaMode
-    std::array<std::vector<LLGLTFDrawInfo>, 3> mGLTFDrawInfo;
-    std::array<std::vector<LLSkinnedGLTFDrawInfo>, 3> mSkinnedGLTFDrawInfo;
+    LLGLTFBatches mGLTFBatches;
 
     bridge_list_t mBridgeList;
     buffer_map_t mBufferMap; //used by volume buffers to attempt to reuse vertex buffers
@@ -628,9 +675,7 @@ public:
     void assertDrawMapsEmpty();
 
     // list of GLTF draw infos
-    // indexed by LLGLTFMaterial::mAlphaMode
-    std::array<gltf_drawinfo_list_t, 3> mGLTFDrawInfo;
-    std::array<skinned_gltf_drawinfo_list_t, 3> mSkinnedGLTFDrawInfo;
+    LLGLTFBatches mGLTFBatches;
 
 private:
 

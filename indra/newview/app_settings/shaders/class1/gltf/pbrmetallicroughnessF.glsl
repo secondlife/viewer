@@ -49,7 +49,7 @@ void unpackMaterial()
         emissiveColor = gltf_material_data[idx+10].rgb;
         roughnessFactor = gltf_material_data[idx+11].g;
         metallicFactor = gltf_material_data[idx+11].b;
-        minimum_alpha -= gltf_material_data[idx+11].a;
+        minimum_alpha = gltf_material_data[idx+11].a;
     }
 }
 

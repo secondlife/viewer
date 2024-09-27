@@ -876,12 +876,14 @@ void LLSpatialGroup::updateTransformUBOs()
     // Each LLSpatialGroup will provide two UBOs to the shader:
     //  mTransformUBO: a UBO containing a transform from LLVolume space to agent space for each drawable in the group
     //  mInstanceMapUBO: a UBO mapping gl_InstanceID to the index of the transform in mTransformUBO
-    // mGLTFDrawInfo will be a vector of LLGLTFDrawInfo instances, one for each set of unique material and vertex buffer combination
+
     LL_PROFILE_ZONE_SCOPED;
     static std::vector<const LLMatrix4*> transforms;
     transforms.resize(0);
 
     U32 max_transforms = LLSkinningUtil::getMaxGLTFJointCount();
+
+    mGLTFBatches.clear();
 
     static std::vector<LLFace*> faces;
     faces.clear();
@@ -925,8 +927,14 @@ void LLSpatialGroup::updateTransformUBOs()
         }
     }
 
+    struct InstanceMapEntry
+    {
+        U32 transform_index;
+        U32 padding[3];
+    };
+
     U32 transform_ubo_size = (U32)(transforms.size() * 12 * sizeof(F32));
-    U32 instance_map_ubo_size = (U32)(faces.size() * sizeof(U32) * 4);
+    U32 instance_map_ubo_size = (U32)(faces.size() * sizeof(InstanceMapEntry));
 
     bool new_transform_ubo = transform_ubo_size > mTransformUBOSize || transform_ubo_size < mTransformUBOSize / 2;
     bool new_instance_map_ubo = instance_map_ubo_size > mInstanceMapUBOSize || instance_map_ubo_size < mInstanceMapUBOSize / 2;
@@ -950,17 +958,6 @@ void LLSpatialGroup::updateTransformUBOs()
 
         mInstanceMapUBO = ll_gl_gen_buffer();
     }
-
-    for (auto& info : mGLTFDrawInfo)
-    {
-        info.clear();
-    }
-
-    for (auto& info : mSkinnedGLTFDrawInfo)
-    {
-        info.clear();
-    }
-
 
     if (mTransformUBO != 0 && mInstanceMapUBO != 0 && transform_ubo_size > 0 && instance_map_ubo_size > 0)
     {
@@ -998,12 +995,6 @@ void LLSpatialGroup::updateTransformUBOs()
                     return lhs_vf.mVBIndexOffset < rhs_vf.mVBIndexOffset;
                 }
             }
-        };
-
-        struct InstanceMapEntry
-        {
-            U32 transform_index;
-            U32 padding[3];
         };
 
         static std::vector<InstanceMapEntry> instance_map;
@@ -1044,7 +1035,7 @@ void LLSpatialGroup::updateTransformUBOs()
 
                     if (current_skin_hash)
                     {
-                        auto* info = &mSkinnedGLTFDrawInfo[gltf_mat->mAlphaMode].emplace_back();
+                        auto* info = mGLTFBatches.createSkinned(gltf_mat->mAlphaMode, gltf_mat->mDoubleSided);
                         current_info = info;
 
                         info->mAvatar = current_avatar;
@@ -1052,7 +1043,7 @@ void LLSpatialGroup::updateTransformUBOs()
                     }
                     else
                     {
-                        current_info = &mGLTFDrawInfo[gltf_mat->mAlphaMode].emplace_back();
+                        current_info = mGLTFBatches.create(gltf_mat->mAlphaMode, gltf_mat->mDoubleSided);
                     }
 
                     avatar = current_avatar;
@@ -4156,6 +4147,47 @@ U64 LLDrawInfo::getSkinHash()
     return mSkinInfo ? mSkinInfo->mHash : 0;
 }
 
+void LLGLTFBatches::clear()
+{
+    for (auto& list : mDrawInfo)
+    {
+        for (auto& sublist : list)
+        {
+            sublist.clear();
+        }
+    }
+
+    for (auto& list : mSkinnedDrawInfo)
+    {
+        for (auto& sublist : list)
+        {
+            sublist.clear();
+        }
+    }
+}
+
+LLGLTFDrawInfo* LLGLTFBatches::create(LLGLTFMaterial::AlphaMode alpha_mode, bool double_sided)
+{
+    return &mDrawInfo[alpha_mode][double_sided].emplace_back();
+}
+
+LLSkinnedGLTFDrawInfo* LLGLTFBatches::createSkinned(LLGLTFMaterial::AlphaMode alpha_mode, bool double_sided)
+{
+    return &mSkinnedDrawInfo[alpha_mode][double_sided].emplace_back();
+}
+
+void LLGLTFBatches::add(const LLGLTFBatches& other)
+{
+    for (U32 i = 0; i < 3; i++)
+    {
+        for (U32 j = 0; j < 2; j++)
+        {
+            mDrawInfo[i][j].insert(mDrawInfo[i][j].end(), other.mDrawInfo[i][j].begin(), other.mDrawInfo[i][j].end());
+            mSkinnedDrawInfo[i][j].insert(mSkinnedDrawInfo[i][j].end(), other.mSkinnedDrawInfo[i][j].begin(), other.mSkinnedDrawInfo[i][j].end());
+        }
+    }
+}
+
 LLCullResult::LLCullResult()
 {
     mVisibleGroupsAllocated = 0;
@@ -4230,15 +4262,7 @@ void LLCullResult::clear()
     mVisibleBridgeSize = 0;
     mVisibleBridgeEnd = &mVisibleBridge[0];
 
-    for (auto& info : mGLTFDrawInfo)
-    {
-        info.resize(0);
-    }
-
-    for (auto& info : mSkinnedGLTFDrawInfo)
-    {
-        info.resize(0);
-    }
+    mGLTFBatches.clear();
 
     for (U32 i = 0; i < LLRenderPass::NUM_RENDER_TYPES; i++)
     {

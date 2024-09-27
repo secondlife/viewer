@@ -3591,12 +3591,8 @@ void LLPipeline::postSort(LLCamera &camera)
             group->clearState(LLSpatialGroup::IN_TRANSFORM_BUILD_Q);
         }
 
-        // add group->mGLTFDrawInfo to end of sCull->mGLTFDrawInfo
-        for (U32 i = 0; i < 3; ++i) // one for each AlphaMode
-        {
-            sCull->mGLTFDrawInfo[i].insert(sCull->mGLTFDrawInfo[i].end(), group->mGLTFDrawInfo[i].begin(), group->mGLTFDrawInfo[i].end());
-            sCull->mSkinnedGLTFDrawInfo[i].insert(sCull->mSkinnedGLTFDrawInfo[i].end(), group->mSkinnedGLTFDrawInfo[i].begin(), group->mSkinnedGLTFDrawInfo[i].end());
-        }
+        // add group->mGLTFBatches to sCull->mGLTFBatches
+        sCull->mGLTFBatches.add(group->mGLTFBatches);
     }
 
     // pack vertex buffers for groups that chose to delay their updates
@@ -3654,8 +3650,8 @@ void LLPipeline::postSort(LLCamera &camera)
                 }
             };
 
-            std::sort(sCull->mGLTFDrawInfo[LLGLTFMaterial::ALPHA_MODE_OPAQUE].begin(), sCull->mGLTFDrawInfo[LLGLTFMaterial::ALPHA_MODE_OPAQUE].end(), CompareMaterialID());
-            std::sort(sCull->mGLTFDrawInfo[LLGLTFMaterial::ALPHA_MODE_MASK].begin(), sCull->mGLTFDrawInfo[LLGLTFMaterial::ALPHA_MODE_MASK].end(), CompareMaterialID());
+            sCull->mGLTFBatches.sort(LLGLTFMaterial::ALPHA_MODE_OPAQUE, CompareMaterialID());
+            sCull->mGLTFBatches.sort(LLGLTFMaterial::ALPHA_MODE_MASK, CompareMaterialID());
 
             // TODO: sort SkinnedGLTFDrawInfo by avatar and skinhash (and use UBOs for joints)
         }
