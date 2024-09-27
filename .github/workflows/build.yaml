@@ -53,6 +53,7 @@ jobs:
           continue-on-error: true
           configuration: ReleaseOS
     runs-on: ${{ matrix.runner }}
+    continue-on-error: ${{ matrix.continue-on-error }}
     outputs:
       viewer_channel: ${{ steps.build.outputs.viewer_channel }}
       viewer_version: ${{ steps.build.outputs.viewer_version }}
