@@ -148,6 +148,25 @@ inline bool operator != (LLViewerShaderMgr::shader_iter const & a, LLViewerShade
     return a.mIter != b.mIter;
 }
 
+// shader pack for use with GLTF materials
+class LLGLTFShaderPack
+{
+public:
+    // variants are indexed by [Alpha Mode][Double Sided]
+    LLGLSLShader mShader[3][2];
+    LLGLSLShader mSkinnedShader[3][2];
+
+    LLGLSLShader mShadowShader[3][2];
+    LLGLSLShader mSkinnedShadowShader[3][2];
+
+    // unload all shaders in this pack
+    void unload();
+
+    // push shaders that need WL params into shader_list
+    void registerWLShaders(std::vector<LLGLSLShader*>& shader_list);
+};
+
+
 extern LLVector4            gShinyOrigin;
 
 //utility shaders
@@ -290,12 +309,10 @@ extern LLGLSLShader         gDeferredBufferVisualProgram;
 extern LLGLSLShader         gDeferredMaterialProgram[LLMaterial::SHADER_COUNT*2];
 
 extern LLGLSLShader         gHUDPBROpaqueProgram;
-extern LLGLSLShader         gPBRGlowProgram;
-extern LLGLSLShader         gDeferredPBROpaqueProgram;
-extern LLGLSLShader         gPBROpaqueShadowProgram;
-extern LLGLSLShader         gPBROpaqueShadowAlphaMaskProgram;
-extern LLGLSLShader         gDeferredPBRAlphaProgram;
 extern LLGLSLShader         gHUDPBRAlphaProgram;
+extern LLGLSLShader         gPBRGlowProgram;
+extern LLGLTFShaderPack     gGLTFPBRShaderPack;
+
 
 // GLTF shaders
 extern LLGLSLShader         gGLTFPBRMetallicRoughnessProgram;

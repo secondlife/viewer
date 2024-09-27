@@ -361,28 +361,22 @@ public:
     void pushRiggedBatches(U32 type, bool texture = true, bool batch_textures = false);
     void pushUntexturedRiggedBatches(U32 type);
 
-    // push full GLTF batches of the given alpha mode
-    void pushGLTFBatches(LLGLTFMaterial::AlphaMode alpha_mode);
-
     // push full GLTF batches
-    void pushGLTFBatches(const std::vector<LLGLTFDrawInfo>& draw_info);
+    static void pushGLTFBatches(const std::vector<LLGLTFDrawInfo>& draw_info);
 
-    // like pushGLTFBatches, but will not bind textures or set up texture transforms
-    void pushUntexturedGLTFBatches(LLGLTFMaterial::AlphaMode alpha_mode);
+    // push full skinned GLTF batches
+    static void pushRiggedGLTFBatches(const std::vector<LLSkinnedGLTFDrawInfo>& draw_info);
 
-    // helper function for dispatching to textured or untextured pass based on bool
-    void pushGLTFBatches(LLGLTFMaterial::AlphaMode alpha_mode, bool textured);
+    // push shadow pass GLTF batches
+    static void pushShadowGLTFBatches(const std::vector<LLGLTFDrawInfo>& draw_info);
 
-
-    // rigged variants of above
-    void pushRiggedGLTFBatches(LLGLTFMaterial::AlphaMode alpha_mode);
-    void pushRiggedGLTFBatches(LLGLTFMaterial::AlphaMode alpha_mode, bool textured);
-    void pushUntexturedRiggedGLTFBatches(LLGLTFMaterial::AlphaMode alpha_mode);
+    // push shadow pass skinned GLTF batches
+    static void pushRiggedShadowGLTFBatches(const std::vector<LLSkinnedGLTFDrawInfo>& draw_info);
 
     static void pushGLTFBatch(const LLGLTFDrawInfo& params);
-    static void pushUntexturedGLTFBatch(const LLGLTFDrawInfo& params);
+    static void pushShadowGLTFBatch(const LLGLTFDrawInfo& params);
     static void pushRiggedGLTFBatch(const LLSkinnedGLTFDrawInfo& params, const LLVOAvatar*& lastAvatar, U64& lastMeshId, bool& skipLastSkin);
-    static void pushUntexturedRiggedGLTFBatch(const LLSkinnedGLTFDrawInfo& params, const LLVOAvatar*& lastAvatar, U64& lastMeshId, bool& skipLastSkin);
+    static void pushRiggedShadowGLTFBatch(const LLSkinnedGLTFDrawInfo& params, const LLVOAvatar*& lastAvatar, U64& lastMeshId, bool& skipLastSkin);
 
     void pushMaskBatches(U32 type, bool texture = true, bool batch_textures = false);
     void pushRiggedMaskBatches(U32 type, bool texture = true, bool batch_textures = false);

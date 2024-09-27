@@ -350,6 +350,11 @@ void LLGLSLShader::unload()
     mFeatures = LLShaderFeatures();
 
     unloadInternal();
+
+    if (mRiggedVariant && mRiggedVariant != this)
+    {
+        mRiggedVariant->unload();
+    }
 }
 
 void LLGLSLShader::unloadInternal()

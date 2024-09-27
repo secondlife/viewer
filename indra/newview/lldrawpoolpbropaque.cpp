@@ -32,6 +32,8 @@
 #include "pipeline.h"
 #include "gltfscenemanager.h"
 
+extern LLCullResult* sCull;
+
 LLDrawPoolGLTFPBR::LLDrawPoolGLTFPBR(U32 type) :
     LLRenderPass(type)
 {
@@ -63,11 +65,21 @@ void LLDrawPoolGLTFPBR::renderDeferred(S32 pass)
     }
 
     LLGLTFMaterial::AlphaMode alpha_mode = mRenderType == LLPipeline::RENDER_TYPE_PASS_GLTF_PBR_ALPHA_MASK ? LLGLTFMaterial::ALPHA_MODE_MASK : LLGLTFMaterial::ALPHA_MODE_OPAQUE;
-    gDeferredPBROpaqueProgram.bind();
-    pushGLTFBatches(alpha_mode);
 
-    gDeferredPBROpaqueProgram.bind(true);
-    pushRiggedGLTFBatches(alpha_mode);
+    gGLTFPBRShaderPack.mShader[alpha_mode][0].bind();
+    pushGLTFBatches(sCull->mGLTFBatches.mDrawInfo[alpha_mode][0]);
+
+    gGLTFPBRShaderPack.mShader[alpha_mode][0].bind(true);
+    pushRiggedGLTFBatches(sCull->mGLTFBatches.mSkinnedDrawInfo[alpha_mode][0]);
+
+    { // double sided
+        LLGLDisable cull(GL_CULL_FACE);
+        gGLTFPBRShaderPack.mShader[alpha_mode][1].bind();
+        pushGLTFBatches(sCull->mGLTFBatches.mDrawInfo[alpha_mode][1]);
+
+        gGLTFPBRShaderPack.mShader[alpha_mode][1].bind(true);
+        pushRiggedGLTFBatches(sCull->mGLTFBatches.mSkinnedDrawInfo[alpha_mode][1]);
+    }
 }
 
 S32 LLDrawPoolGLTFPBR::getNumPostDeferredPasses()

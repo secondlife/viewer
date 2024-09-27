@@ -6733,27 +6733,6 @@ void LLPipeline::renderObjects(U32 type, bool texture, bool batch_texture, bool 
     gGLLastMatrix = NULL;
 }
 
-void LLPipeline::renderGLTFObjects(LLGLTFMaterial::AlphaMode alpha_mode, bool texture, bool rigged)
-{
-    assertInitialized();
-    gGL.loadMatrix(gGLModelView);
-    gGLLastMatrix = NULL;
-
-    if (rigged)
-    {
-        mSimplePool->pushRiggedGLTFBatches(alpha_mode, texture);
-    }
-    else
-    {
-        mSimplePool->pushGLTFBatches(alpha_mode, texture);
-    }
-
-    gGL.loadMatrix(gGLModelView);
-    gGLLastMatrix = NULL;
-
-    LL::GLTFSceneManager::instance().render(alpha_mode != LLGLTFMaterial::ALPHA_MODE_BLEND, rigged);
-}
-
 // Currently only used for shadows -Cosmic,2023-04-19
 void LLPipeline::renderAlphaObjects(bool rigged)
 {
@@ -9368,8 +9347,30 @@ void LLPipeline::renderShadow(const glm::mat4& view, const glm::mat4& proj, LLCa
             renderObjects(type, false, false, rigged);
         }
 
-        gPBROpaqueShadowProgram.bind(rigged);
-        renderGLTFObjects(LLGLTFMaterial::ALPHA_MODE_OPAQUE, false, rigged);
+        gGLTFPBRShaderPack.mShader[LLGLTFMaterial::ALPHA_MODE_OPAQUE][0].bind(rigged);
+        if (rigged)
+        {
+            LLRenderPass::pushRiggedGLTFBatches(sCull->mGLTFBatches.mSkinnedDrawInfo[LLGLTFMaterial::ALPHA_MODE_OPAQUE][0]);
+        }
+        else
+        {
+            LLRenderPass::pushGLTFBatches(sCull->mGLTFBatches.mDrawInfo[LLGLTFMaterial::ALPHA_MODE_OPAQUE][0]);
+        }
+
+
+        {
+            LLGLDisable cull(GL_CULL_FACE);
+            gGLTFPBRShaderPack.mShader[LLGLTFMaterial::ALPHA_MODE_OPAQUE][1].bind(rigged);
+
+            if (rigged)
+            {
+                LLRenderPass::pushRiggedGLTFBatches(sCull->mGLTFBatches.mSkinnedDrawInfo[LLGLTFMaterial::ALPHA_MODE_OPAQUE][1]);
+            }
+            else
+            {
+                LLRenderPass::pushGLTFBatches(sCull->mGLTFBatches.mDrawInfo[LLGLTFMaterial::ALPHA_MODE_OPAQUE][1]);
+            }
+        }
 
         gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
     }
@@ -9444,15 +9445,32 @@ void LLPipeline::renderShadow(const glm::mat4& view, const glm::mat4& proj, LLCa
         for (int i = 0; i < 2; ++i)
         {
             bool rigged = i == 1;
-            gPBROpaqueShadowAlphaMaskProgram.bind(rigged);
 
-            gGL.loadMatrix(gGLModelView);
-            gGLLastMatrix = NULL;
+            gGLTFPBRShaderPack.mShader[LLGLTFMaterial::ALPHA_MODE_MASK][0].bind(rigged);
+            if (rigged)
+            {
+                LLRenderPass::pushRiggedGLTFBatches(sCull->mGLTFBatches.mSkinnedDrawInfo[LLGLTFMaterial::ALPHA_MODE_MASK][0]);
+            }
+            else
+            {
+                LLRenderPass::pushGLTFBatches(sCull->mGLTFBatches.mDrawInfo[LLGLTFMaterial::ALPHA_MODE_MASK][0]);
+            }
 
-            renderGLTFObjects(LLGLTFMaterial::ALPHA_MODE_MASK, true, rigged);
+            {
+                LLGLDisable cull(GL_CULL_FACE);
+                gGLTFPBRShaderPack.mShader[LLGLTFMaterial::ALPHA_MODE_MASK][1].bind(rigged);
 
-            gGL.loadMatrix(gGLModelView);
-            gGLLastMatrix = NULL;
+                if (rigged)
+                {
+                    LLRenderPass::pushRiggedGLTFBatches(sCull->mGLTFBatches.mSkinnedDrawInfo[LLGLTFMaterial::ALPHA_MODE_MASK][1]);
+                }
+                else
+                {
+                    LLRenderPass::pushGLTFBatches(sCull->mGLTFBatches.mDrawInfo[LLGLTFMaterial::ALPHA_MODE_MASK][1]);
+                }
+            }
+
+            LL::GLTFSceneManager::instance().render(false, rigged);
         }
     }
 

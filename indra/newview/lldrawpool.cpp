@@ -767,49 +767,40 @@ void teardown_texture_matrix(LLDrawInfo& params)
     }
 }
 
-void LLRenderPass::pushGLTFBatches(LLGLTFMaterial::AlphaMode alpha_mode, bool textured)
-{
-    if (textured)
-    {
-        pushGLTFBatches(alpha_mode);
-    }
-    else
-    {
-        pushUntexturedGLTFBatches(alpha_mode);
-    }
-}
-
-static glm::mat4 view_matrix;
 static glm::mat4 last_model_matrix;
 static U32 transform_ubo = 0;
 static size_t last_mat = 0;
 
 extern LLCullResult* sCull;
 
-void LLRenderPass::pushGLTFBatches(LLGLTFMaterial::AlphaMode alpha_mode)
+static void pre_push_gltf_batches()
 {
-    pushGLTFBatches(sCull->mGLTFBatches.mDrawInfo[alpha_mode][0]);
-
-    {
-        LLGLDisable cull(GL_CULL_FACE);
-        pushGLTFBatches(sCull->mGLTFBatches.mDrawInfo[alpha_mode][1]);
-    }
+    gGL.matrixMode(LLRender::MM_MODELVIEW);
+    gGL.loadMatrix(gGLModelView);
+    gGL.syncMatrices();
+    transform_ubo = 0;
+    last_mat = 0;
 }
 
 void LLRenderPass::pushGLTFBatches(const std::vector<LLGLTFDrawInfo>& draw_info)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
-    view_matrix = glm::make_mat4(gGLModelView);
-    gGL.matrixMode(LLRender::MM_MODELVIEW);
-    gGL.loadMatrix(gGLModelView);
-    gGL.syncMatrices();
-
-    transform_ubo = 0;
-    last_mat = 0;
+    pre_push_gltf_batches();
 
     for (auto& params : draw_info)
     {
         pushGLTFBatch(params);
+    }
+}
+
+void LLRenderPass::pushShadowGLTFBatches(const std::vector<LLGLTFDrawInfo>& draw_info)
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
+    pre_push_gltf_batches();
+
+    for (auto& params : draw_info)
+    {
+        pushShadowGLTFBatch(params);
     }
 }
 
@@ -843,34 +834,8 @@ void LLRenderPass::pushGLTFBatch(const LLGLTFDrawInfo& params)
         params.mInstanceCount);
 }
 
-void LLRenderPass::pushUntexturedGLTFBatches(LLGLTFMaterial::AlphaMode alpha_mode)
-{
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
-    view_matrix = glm::make_mat4(gGLModelView);
-    gGL.matrixMode(LLRender::MM_MODELVIEW);
-    gGL.loadMatrix(gGLModelView);
-    gGL.syncMatrices();
-
-    transform_ubo = 0;
-    last_mat = 0;
-
-    for (auto& params : sCull->mGLTFBatches.mDrawInfo[alpha_mode][0])
-    {
-        pushUntexturedGLTFBatch(params);
-    }
-
-    { // double sided
-        LLGLDisable cull(GL_CULL_FACE);
-
-        for (auto& params : sCull->mGLTFBatches.mDrawInfo[alpha_mode][1])
-        {
-            pushUntexturedGLTFBatch(params);
-        }
-    }
-}
-
 // static
-void LLRenderPass::pushUntexturedGLTFBatch(const LLGLTFDrawInfo& params)
+void LLRenderPass::pushShadowGLTFBatch(const LLGLTFDrawInfo& params)
 {
     LL_PROFILE_ZONE_NAMED_CATEGORY_DRAWPOOL("pushUntexturedGLTFBatch");
     LL_PROFILE_ZONE_NUM(params.mInstanceCount);
@@ -892,79 +857,37 @@ void LLRenderPass::pushUntexturedGLTFBatch(const LLGLTFDrawInfo& params)
         params.mInstanceCount);
 }
 
-
-void LLRenderPass::pushRiggedGLTFBatches(LLGLTFMaterial::AlphaMode alpha_mode, bool textured)
-{
-    if (textured)
-    {
-        pushRiggedGLTFBatches(alpha_mode);
-    }
-    else
-    {
-        pushUntexturedRiggedGLTFBatches(alpha_mode);
-    }
-}
-
-void LLRenderPass::pushRiggedGLTFBatches(LLGLTFMaterial::AlphaMode alpha_mode)
+void LLRenderPass::pushRiggedGLTFBatches(const std::vector<LLSkinnedGLTFDrawInfo>& draw_info)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
-    view_matrix = glm::make_mat4(gGLModelView);
-    gGL.matrixMode(LLRender::MM_MODELVIEW);
-    gGL.loadMatrix(gGLModelView);
-    gGL.syncMatrices();
 
-    transform_ubo = 0;
-    last_mat = 0;
+    pre_push_gltf_batches();
 
     const LLVOAvatar* lastAvatar = nullptr;
     U64 lastMeshId = 0;
     bool skipLastSkin = false;
 
-    for (auto& params : sCull->mGLTFBatches.mSkinnedDrawInfo[alpha_mode][0])
+    for (auto& params : draw_info)
     {
         pushRiggedGLTFBatch(params, lastAvatar, lastMeshId, skipLastSkin);
     }
-
-    { // double sided
-        LLGLDisable cull(GL_CULL_FACE);
-
-        for (auto& params : sCull->mGLTFBatches.mSkinnedDrawInfo[alpha_mode][1])
-        {
-            pushRiggedGLTFBatch(params, lastAvatar, lastMeshId, skipLastSkin);
-        }
-    }
 }
 
-void LLRenderPass::pushUntexturedRiggedGLTFBatches(LLGLTFMaterial::AlphaMode alpha_mode)
+void LLRenderPass::pushRiggedShadowGLTFBatches(const std::vector<LLSkinnedGLTFDrawInfo>& draw_info)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
-    view_matrix = glm::make_mat4(gGLModelView);
-    gGL.matrixMode(LLRender::MM_MODELVIEW);
-    gGL.loadMatrix(gGLModelView);
-    gGL.syncMatrices();
 
-    transform_ubo = 0;
-    last_mat = 0;
+    pre_push_gltf_batches();
 
     const LLVOAvatar* lastAvatar = nullptr;
     U64 lastMeshId = 0;
     bool skipLastSkin = false;
 
-    for (auto& params : sCull->mGLTFBatches.mSkinnedDrawInfo[alpha_mode][0])
+    for (auto& params : draw_info)
     {
-        pushUntexturedRiggedGLTFBatch(params, lastAvatar, lastMeshId, skipLastSkin);
-    }
-
-    { // double sided
-        LLGLDisable cull(GL_CULL_FACE);
-
-        for (auto& params : sCull->mGLTFBatches.mSkinnedDrawInfo[alpha_mode][1])
-        {
-            pushUntexturedRiggedGLTFBatch(params, lastAvatar, lastMeshId, skipLastSkin);
-        }
+        pushRiggedShadowGLTFBatch(params, lastAvatar, lastMeshId, skipLastSkin);
     }
 }
-
 
 // static
 void LLRenderPass::pushRiggedGLTFBatch(const LLSkinnedGLTFDrawInfo& params, const LLVOAvatar*& lastAvatar, U64& lastMeshId, bool& skipLastSkin)
@@ -976,11 +899,11 @@ void LLRenderPass::pushRiggedGLTFBatch(const LLSkinnedGLTFDrawInfo& params, cons
 }
 
 // static
-void LLRenderPass::pushUntexturedRiggedGLTFBatch(const LLSkinnedGLTFDrawInfo& params, const LLVOAvatar*& lastAvatar, U64& lastMeshId, bool& skipLastSkin)
+void LLRenderPass::pushRiggedShadowGLTFBatch(const LLSkinnedGLTFDrawInfo& params, const LLVOAvatar*& lastAvatar, U64& lastMeshId, bool& skipLastSkin)
 {
     if (uploadMatrixPalette(params.mAvatar, params.mSkinInfo, lastAvatar, lastMeshId, skipLastSkin))
     {
-        pushUntexturedGLTFBatch(params);
+        pushShadowGLTFBatch(params);
     }
 }
 
