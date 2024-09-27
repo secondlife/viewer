@@ -283,7 +283,7 @@ namespace Rlv
         else if (mForConsole)
             return; // Only show console feedback on successful commands when there's an informational notice
 
-        std::string& strResult = mCommandResults[isReturnCodeSuccess(eRet) ? ECmdRet::Success : (ECmdRet::Retained == eRet ? ECmdRet::Retained : ECmdRet::Failed)];
+        std::string& strResult = mCommandResults[isReturnCodeSuccess(eRet) ? ECmdRet::Succeeded : (ECmdRet::Retained == eRet ? ECmdRet::Retained : ECmdRet::Failed)];
         if (!strResult.empty())
             strResult.append(", ");
         strResult.append(strCmd);
@@ -308,7 +308,7 @@ namespace Rlv
                 };
             if (!mForConsole)
                 result << ": @" << mOrigCmd;
-            appendResult(ECmdRet::Success, !mForConsole ? "RlvDebugExecuted" : "RlvConsoleExecuted");
+            appendResult(ECmdRet::Succeeded, !mForConsole ? "RlvDebugExecuted" : "RlvConsoleExecuted");
             appendResult(ECmdRet::Failed, !mForConsole ? "RlvDebugFailed" : "RlvConsoleFailed");
             appendResult(ECmdRet::Retained, !mForConsole ? "RlvDebugRetained" : "RlvConsoleRetained");
         }
@@ -320,7 +320,7 @@ namespace Rlv
     {
         switch (eRet)
         {
-            case ECmdRet::Success:
+            case ECmdRet::Succeeded:
                 return LLTrans::getString("RlvDebugExecuted");
             case ECmdRet::Failed:
                 return LLTrans::getString("RlvDebugFailed");
@@ -372,7 +372,7 @@ namespace Rlv
                 return LLTrans::getString("RlvReturnCodeNoProcessor");
             // The following are identified by the chat verb
             case ECmdRet::Retained:
-            case ECmdRet::Success:
+            case ECmdRet::Succeeded:
             case ECmdRet::Failed:
                 return LLStringUtil::null;
             // The following shouldn't occur

@@ -102,7 +102,7 @@ namespace Rlv
 
     enum class EBehaviourOptionType
     {
-        None,                               // Behaviour takes no parameters
+        EmptyOrException,                   // Behaviour takes no parameters
         Exception,                          // Behaviour requires an exception as a parameter
         NoneOrException,                    // Behaviour takes either no parameters or an exception
     };
@@ -120,7 +120,7 @@ namespace Rlv
     enum class ECmdRet {
         Unknown = 0x0000,               // Unknown error (should only be used internally)
         Retained,                       // Command was retained
-        Success = 0x0100,               // Command executed successfully
+        Succeeded = 0x0100,             // Command executed successfully
         SuccessUnset,                   // Command executed successfully (RLV_TYPE_REMOVE for an unrestricted behaviour)
         SuccessDuplicate,               // Command executed successfully (RLV_TYPE_ADD for an already restricted behaviour)
         SuccessDeprecated,              // Command executed successfully but has been marked as deprecated
@@ -163,7 +163,7 @@ namespace Rlv
 
     constexpr bool isReturnCodeSuccess(ECmdRet eRet)
     {
-        return (to_underlying(eRet) & to_underlying(ECmdRet::Success)) == to_underlying(ECmdRet::Success);
+        return (to_underlying(eRet) & to_underlying(ECmdRet::Succeeded)) == to_underlying(ECmdRet::Succeeded);
     }
 
     constexpr bool isReturnCodeFailed(ECmdRet eRet)
