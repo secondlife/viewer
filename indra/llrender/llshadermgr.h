@@ -301,13 +301,7 @@ public:
         SUN_SIZE,                           //  "sun_size"
         FOG_COLOR,                          //  "fog_color"
 
-        // precomputed textures
-        TRANSMITTANCE_TEX,                  //  "transmittance_texture"
-        SCATTER_TEX,                        //  "scattering_texture"
-        SINGLE_MIE_SCATTER_TEX,             //  "single_mie_scattering_texture"
-        ILLUMINANCE_TEX,                    //  "irradiance_texture"
         BLEND_FACTOR,                       //  "blend_factor"
-
         MOISTURE_LEVEL,                     //  "moisture_level"
         DROPLET_RADIUS,                     //  "droplet_radius"
         ICE_LEVEL,                          //  "ice_level"

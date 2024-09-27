@@ -1450,10 +1450,6 @@ void LLShaderMgr::initAttribsAndUniforms()
     mReservedUniforms.push_back("sun_size");
     mReservedUniforms.push_back("fog_color");
 
-    mReservedUniforms.push_back("transmittance_texture");
-    mReservedUniforms.push_back("scattering_texture");
-    mReservedUniforms.push_back("single_mie_scattering_texture");
-    mReservedUniforms.push_back("irradiance_texture");
     mReservedUniforms.push_back("blend_factor");
     mReservedUniforms.push_back("moisture_level");
     mReservedUniforms.push_back("droplet_radius");

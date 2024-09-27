@@ -8151,34 +8151,6 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_
 
     bindReflectionProbes(shader);
 
-    if (gAtmosphere)
-    {
-        // bind precomputed textures necessary for calculating sun and sky luminance
-        channel = shader.enableTexture(LLShaderMgr::TRANSMITTANCE_TEX, LLTexUnit::TT_TEXTURE);
-        if (channel > -1)
-        {
-            shader.bindTexture(LLShaderMgr::TRANSMITTANCE_TEX, gAtmosphere->getTransmittance());
-        }
-
-        channel = shader.enableTexture(LLShaderMgr::SCATTER_TEX, LLTexUnit::TT_TEXTURE_3D);
-        if (channel > -1)
-        {
-            shader.bindTexture(LLShaderMgr::SCATTER_TEX, gAtmosphere->getScattering());
-        }
-
-        channel = shader.enableTexture(LLShaderMgr::SINGLE_MIE_SCATTER_TEX, LLTexUnit::TT_TEXTURE_3D);
-        if (channel > -1)
-        {
-            shader.bindTexture(LLShaderMgr::SINGLE_MIE_SCATTER_TEX, gAtmosphere->getMieScattering());
-        }
-
-        channel = shader.enableTexture(LLShaderMgr::ILLUMINANCE_TEX, LLTexUnit::TT_TEXTURE);
-        if (channel > -1)
-        {
-            shader.bindTexture(LLShaderMgr::ILLUMINANCE_TEX, gAtmosphere->getIlluminance());
-        }
-    }
-
     /*if (gCubeSnapshot)
     { // we only really care about the first two values, but the shader needs increasing separation between clip planes
         shader.uniform4f(LLShaderMgr::DEFERRED_SHADOW_CLIP, 1.f, 64.f, 128.f, 256.f);
