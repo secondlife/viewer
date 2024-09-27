@@ -7435,7 +7435,8 @@ void LLPipeline::generateSMAABuffers(LLRenderTarget* src)
             LLGLSLShader& edge_shader = gSMAAEdgeDetectProgram[fsaa_quality];
 
             dest.bindTarget();
-            dest.invalidate(GL_COLOR_BUFFER_BIT);
+            // SMAA utilizes discard, so the background color matters
+            dest.clear(GL_COLOR_BUFFER_BIT);
 
             edge_shader.bind();
             edge_shader.uniform4fv(sSmaaRTMetrics, 1, rt_metrics);
