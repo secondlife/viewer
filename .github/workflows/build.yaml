@@ -155,6 +155,7 @@ jobs:
         env:
           AUTOBUILD_VCS_BRANCH: ${{ steps.which-branch.outputs.branch }}
           RUNNER_OS: ${{ runner.os }}
+        continue-on-error: ${{ matrix.continue-on-error }}
         run: |
           # set up things the viewer's build.sh script expects
           set -x
