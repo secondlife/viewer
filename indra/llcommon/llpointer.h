@@ -26,8 +26,8 @@
 #ifndef LLPOINTER_H
 #define LLPOINTER_H
 
-#include "llerror.h"    // *TODO: consider eliminating this
-#include "llmutex.h"
+#include <boost/functional/hash.hpp>
+#include <string_view>
 #include <utility>                  // std::swap()
 
 //----------------------------------------------------------------------------
@@ -43,8 +43,18 @@
 
 //----------------------------------------------------------------------------
 
+class LLPointerBase
+{
+protected:
+    // alert the coder that a referenced type's destructor did something very
+    // strange -- this is in a non-template base class so we can hide the
+    // implementation in llpointer.cpp
+    static void wild_dtor(std::string_view msg);
+};
+
 // Note: relies on Type having ref() and unref() methods
-template <class Type> class LLPointer
+template <class Type>
+class LLPointer: public LLPointerBase
 {
 public:
     template<typename Subclass>
@@ -106,7 +116,6 @@ public:
     const Type& operator*() const               { return *mPointer; }
     Type&   operator*()                         { return *mPointer; }
 
-    operator BOOL() const                       { return (mPointer != nullptr); }
     operator bool() const                       { return (mPointer != nullptr); }
     bool operator!() const                      { return (mPointer == nullptr); }
     bool isNull() const                         { return (mPointer == nullptr); }
@@ -206,7 +215,7 @@ protected:
             temp->unref();
             if (mPointer != nullptr)
             {
-                LL_WARNS() << "Unreference did assignment to non-NULL because of destructor" << LL_ENDL;
+                wild_dtor("Unreference did assignment to non-NULL because of destructor");
                 unref();
             }
         }
