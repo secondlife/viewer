@@ -68,6 +68,7 @@ set(llcommon_SOURCE_FILES
     llmetricperformancetester.cpp
     llmortician.cpp
     llmutex.cpp
+    llpointer.cpp
     llptrto.cpp 
     llpredicate.cpp
     llprocess.cpp

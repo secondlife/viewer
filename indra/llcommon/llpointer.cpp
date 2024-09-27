@@ -1,10 +1,12 @@
- /**
- * @file lltexturemanagerbridge.cpp
- * @brief Defined a null texture manager bridge.  Applications must provide their own bridge implementaton.
+/**
+ * @file   llpointer.cpp
+ * @author Nat Goodspeed
+ * @date   2024-09-26
+ * @brief  Implementation for llpointer.
  *
- * $LicenseInfo:firstyear=2012&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2024&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2024, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -24,11 +26,18 @@
  * $/LicenseInfo$
  */
 
+// Precompiled header
 #include "linden_common.h"
+// associated header
+#include "llpointer.h"
+// STL headers
+// std headers
+// external library headers
+// other Linden headers
+#include "llerror.h"
 
-#include "lltexturemanagerbridge.h"
-
-// Define a null texture manager bridge.  Applications must provide their own bridge implementaton.
-LLTextureManagerBridge* gTextureManagerBridgep = NULL;
-
-
+void LLPointerBase::wild_dtor(std::string_view msg)
+{
+//  LL_WARNS() << msg << LL_ENDL;
+    llassert_msg(false, msg);
+}
