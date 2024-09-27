@@ -270,7 +270,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 
     const LLFontGlyphInfo* next_glyph = NULL;
 
-    static constexpr S32 GLYPH_BATCH_SIZE = 30;
+    static constexpr U32 GLYPH_BATCH_SIZE = 30;
     static thread_local LLVector4a vertices[GLYPH_BATCH_SIZE * 6];
     static thread_local LLVector2 uvs[GLYPH_BATCH_SIZE * 6];
     static thread_local LLColor4U colors[GLYPH_BATCH_SIZE * 6];
@@ -281,7 +281,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
     LLColor4U emoji_color(255, 255, 255, text_color.mV[VALPHA]);
 
     std::pair<EFontGlyphType, S32> bitmap_entry = std::make_pair(EFontGlyphType::Grayscale, -1);
-    S32 glyph_count = 0;
+    U32 glyph_count = 0;
     for (i = begin_offset; i < begin_offset + length; i++)
     {
         llwchar wch = wstr[i];
@@ -1262,7 +1262,7 @@ void LLFontGL::renderTriangle(LLVector4a* vertex_out, LLVector2* uv_out, LLColor
     colors_out[index] = color;
 }
 
-void LLFontGL::drawGlyph(S32& glyph_count, LLVector4a* vertex_out, LLVector2* uv_out, LLColor4U* colors_out, const LLRectf& screen_rect, const LLRectf& uv_rect, const LLColor4U& color, U8 style, ShadowType shadow, F32 drop_shadow_strength) const
+void LLFontGL::drawGlyph(U32& glyph_count, LLVector4a* vertex_out, LLVector2* uv_out, LLColor4U* colors_out, const LLRectf& screen_rect, const LLRectf& uv_rect, const LLColor4U& color, U8 style, ShadowType shadow, F32 drop_shadow_strength) const
 {
     F32 slant_offset;
     slant_offset = ((style & ITALIC) ? ( -mFontFreetype->getAscenderHeight() * 0.2f) : 0.f);

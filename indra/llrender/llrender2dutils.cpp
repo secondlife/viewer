@@ -450,7 +450,7 @@ void gl_draw_scaled_image_with_border(S32 x, S32 y, S32 width, S32 height, LLTex
 
         gGL.color4fv(color.mV);
 
-        constexpr S32 NUM_VERTICES = 9 * 2 * 3; // 9 quads, 2 triangles per quad, 3 vertices per triangle
+        constexpr U32 NUM_VERTICES = 9 * 2 * 3; // 9 quads, 2 triangles per quad, 3 vertices per triangle
         static thread_local LLVector2 uv[NUM_VERTICES];
         static thread_local LLVector4a pos[NUM_VERTICES];
 

@@ -459,10 +459,17 @@ inline const LLVector3& operator*=(LLVector3 &a, const LLVector3 &b)
 
 inline const LLVector3& operator/=(LLVector3 &a, F32 k)
 {
-    F32 t = 1.f / k;
-    a.mV[0] *= t;
-    a.mV[1] *= t;
-    a.mV[2] *= t;
+    a.mV[0] /= k;
+    a.mV[1] /= k;
+    a.mV[2] /= k;
+    return a;
+}
+
+inline const LLVector3& operator/=(LLVector3& a, const LLVector3& b)
+{
+    a.mV[0] /= b.mV[0];
+    a.mV[1] /= b.mV[1];
+    a.mV[2] /= b.mV[2];
     return a;
 }
 
