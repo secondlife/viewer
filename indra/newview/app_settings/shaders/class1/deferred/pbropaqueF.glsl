@@ -83,10 +83,13 @@ void main()
 
     basecolor *= baseColorFactor;
 
+#ifdef ALPHA_MASK
     if (basecolor.a < minimum_alpha)
     {
         discard;
     }
+#endif
+
 #endif
 
 #ifdef SAMPLE_NORMAL_MAP
@@ -98,7 +101,11 @@ void main()
 
     vec3 vB = sign * cross(vN, vT);
     vec3 tnorm = normalize( vNt.x * vT + vNt.y * vB + vNt.z * vN );
+
+#ifdef DOUBLE_SIDED
     tnorm *= gl_FrontFacing ? 1.0 : -1.0;
+#endif
+
 #endif
 
 #ifdef SAMPLE_ORM_MAP
