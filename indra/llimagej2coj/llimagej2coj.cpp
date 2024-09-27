@@ -417,7 +417,7 @@ public:
             parameters.irreversible = 1;
         }
 
-        comment_text = { comment_text_in? comment_text_in : "no comment" };
+        comment_text.assign(comment_text_in? comment_text_in : "no comment");
 
         // Because comment_text is a member declared before parameters,
         // it will outlive parameters, so we can safely store in parameters a
