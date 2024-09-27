@@ -576,6 +576,7 @@ void LLPipeline::init()
     connectRefreshCachedSettingsSafe("RenderScreenSpaceReflectionAdaptiveStepMultiplier");
     connectRefreshCachedSettingsSafe("RenderScreenSpaceReflectionGlossySamples");
     connectRefreshCachedSettingsSafe("RenderBufferVisualization");
+    connectRefreshCachedSettingsSafe("RenderBufferClearOnInvalidate");
     connectRefreshCachedSettingsSafe("RenderMirrors");
     connectRefreshCachedSettingsSafe("RenderHeroProbeUpdateRate");
     connectRefreshCachedSettingsSafe("RenderHeroProbeConservativeUpdateMultiplier");
@@ -1084,6 +1085,7 @@ void LLPipeline::refreshCachedSettings()
     RenderScreenSpaceReflectionAdaptiveStepMultiplier = gSavedSettings.getF32("RenderScreenSpaceReflectionAdaptiveStepMultiplier");
     RenderScreenSpaceReflectionGlossySamples = gSavedSettings.getS32("RenderScreenSpaceReflectionGlossySamples");
     RenderBufferVisualization = gSavedSettings.getS32("RenderBufferVisualization");
+    LLRenderTarget::sClearOnInvalidate = gSavedSettings.getBOOL("RenderBufferClearOnInvalidate");
     RenderMirrors = gSavedSettings.getBOOL("RenderMirrors");
     RenderHeroProbeUpdateRate = gSavedSettings.getS32("RenderHeroProbeUpdateRate");
     RenderHeroProbeConservativeUpdateMultiplier = gSavedSettings.getS32("RenderHeroProbeConservativeUpdateMultiplier");
@@ -7147,7 +7149,7 @@ void LLPipeline::copyScreenSpaceReflections(LLRenderTarget* src, LLRenderTarget*
         LLRenderTarget& depth_src = mRT->deferredScreen;
 
         dst->bindTarget();
-        dst->clear();
+        dst->invalidate();
         gCopyDepthProgram.bind();
 
         S32 diff_map = gCopyDepthProgram.getTextureChannel(LLShaderMgr::DIFFUSE_MAP);
@@ -7334,7 +7336,7 @@ void LLPipeline::applyFXAA(LLRenderTarget* src, LLRenderTarget* dst)
 
             // bake out texture2D with RGBL for FXAA shader
             mFXAAMap.bindTarget();
-            mFXAAMap.clear(GL_COLOR_BUFFER_BIT);
+            mFXAAMap.invalidate(GL_COLOR_BUFFER_BIT);
 
             shader = &gGlowCombineFXAAProgram;
             shader->bind();
@@ -7433,7 +7435,7 @@ void LLPipeline::generateSMAABuffers(LLRenderTarget* src)
             LLGLSLShader& edge_shader = gSMAAEdgeDetectProgram[fsaa_quality];
 
             dest.bindTarget();
-            dest.clear(GL_COLOR_BUFFER_BIT);
+            dest.invalidate(GL_COLOR_BUFFER_BIT);
 
             edge_shader.bind();
             edge_shader.uniform4fv(sSmaaRTMetrics, 1, rt_metrics);
@@ -7476,7 +7478,7 @@ void LLPipeline::generateSMAABuffers(LLRenderTarget* src)
             LLGLSLShader& blend_weights_shader = gSMAABlendWeightsProgram[fsaa_quality];
 
             dest.bindTarget();
-            dest.clear(GL_COLOR_BUFFER_BIT);
+            dest.invalidate(GL_COLOR_BUFFER_BIT);
 
             blend_weights_shader.bind();
             blend_weights_shader.uniform4fv(sSmaaRTMetrics, 1, rt_metrics);
@@ -7552,7 +7554,7 @@ void LLPipeline::applySMAA(LLRenderTarget* src, LLRenderTarget* dst)
             LLGLSLShader& blend_shader = gSMAANeighborhoodBlendProgram[fsaa_quality];
 
             bound_target->bindTarget();
-            bound_target->clear(GL_COLOR_BUFFER_BIT);
+            bound_target->invalidate(GL_COLOR_BUFFER_BIT);
 
             blend_shader.bind();
             blend_shader.uniform4fv(sSmaaRTMetrics, 1, rt_metrics);
@@ -8330,9 +8332,7 @@ void LLPipeline::renderDeferredLighting()
                 LLGLSLShader& sun_shader = gCubeSnapshot ? gDeferredSunProbeProgram : gDeferredSunProgram;
                 bindDeferredShader(sun_shader, deferred_light_target);
                 mScreenTriangleVB->setBuffer();
-                glClearColor(1, 1, 1, 1);
-                deferred_light_target->clear(GL_COLOR_BUFFER_BIT);
-                glClearColor(0, 0, 0, 0);
+                deferred_light_target->invalidate(GL_COLOR_BUFFER_BIT);
 
                 sun_shader.uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES,
                                               (GLfloat)deferred_light_target->getWidth(),
@@ -8356,9 +8356,7 @@ void LLPipeline::renderDeferredLighting()
             LL_PROFILE_GPU_ZONE("soften shadow");
             // blur lightmap
             screen_target->bindTarget();
-            glClearColor(1, 1, 1, 1);
-            screen_target->clear(GL_COLOR_BUFFER_BIT);
-            glClearColor(0, 0, 0, 0);
+            screen_target->invalidate(GL_COLOR_BUFFER_BIT);
 
             bindDeferredShader(gDeferredBlurLightProgram);
 
@@ -8410,11 +8408,8 @@ void LLPipeline::renderDeferredLighting()
             deferred_light_target->flush();
             unbindDeferredShader(gDeferredBlurLightProgram);
         }
-
         screen_target->bindTarget();
-        // clear color buffer here - zeroing alpha (glow) is important or it will accumulate against sky
-        glClearColor(0, 0, 0, 0);
-        screen_target->clear(GL_COLOR_BUFFER_BIT);
+        screen_target->invalidate(GL_COLOR_BUFFER_BIT);
 
         if (RenderDeferredAtmospheric)
         {  // apply sunlight contribution
