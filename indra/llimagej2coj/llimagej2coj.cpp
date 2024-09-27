@@ -31,7 +31,7 @@
 #include "openjpeg.h"
 #include "event.h"
 #include "cio.h"
-#include <memory>                   // std::unique_ptr
+#include "owning_ptr.h"
 #include <string>
 
 #define MAX_ENCODED_DISCARD_LEVELS 5
@@ -243,42 +243,42 @@ public:
     {
         parameters.flags |= OPJ_DPARAMETERS_DUMP_FLAG;
 
-        decoder.reset(opj_create_decompress(OPJ_CODEC_J2K));
+        decoder = opj_create_decompress(OPJ_CODEC_J2K);
 
-        if (!opj_setup_decoder(decoder.get(), &parameters))
+        if (!opj_setup_decoder(decoder, &parameters))
         {
             return false;
         }
 
-        stream.reset(opj_stream_create(dataSize, true));
+        stream = opj_stream_create(dataSize, true);
         if (!stream)
         {
             return false;
         }
 
-        opj_stream_set_user_data(stream.get(), this, opj_free_user_data);
-        opj_stream_set_user_data_length(stream.get(), dataSize);
-        opj_stream_set_read_function(stream.get(), opj_read);
-        opj_stream_set_write_function(stream.get(), opj_write);
-        opj_stream_set_skip_function(stream.get(), opj_skip);
-        opj_stream_set_seek_function(stream.get(), opj_seek);
+        opj_stream_set_user_data(stream, this, opj_free_user_data);
+        opj_stream_set_user_data_length(stream, dataSize);
+        opj_stream_set_read_function(stream, opj_read);
+        opj_stream_set_write_function(stream, opj_write);
+        opj_stream_set_skip_function(stream, opj_skip);
+        opj_stream_set_seek_function(stream, opj_seek);
 
         buffer = data;
         size = dataSize;
         offset = 0;
 
         // enable decoding partially loaded images
-        opj_decoder_set_strict_mode(decoder.get(), OPJ_FALSE);
+        opj_decoder_set_strict_mode(decoder, OPJ_FALSE);
 
         /* Read the main header of the codestream and if necessary the JP2 boxes*/
         opj_image_t* img;
-        if (!opj_read_header(stream.get(), decoder.get(), &img))
+        if (!opj_read_header(stream, decoder, &img))
         {
             return false;
         }
-        image.reset(img);
+        image = img;
 
-        codestream_info.reset(opj_get_cstr_info(decoder.get()));
+        codestream_info = opj_get_cstr_info(decoder);
         if (!codestream_info)
         {
             return false;
@@ -308,44 +308,44 @@ public:
     {
         parameters.flags &= ~OPJ_DPARAMETERS_DUMP_FLAG;
 
-        decoder.reset(opj_create_decompress(OPJ_CODEC_J2K));
-        opj_setup_decoder(decoder.get(), &parameters);
+        decoder = opj_create_decompress(OPJ_CODEC_J2K);
+        opj_setup_decoder(decoder, &parameters);
 
-        opj_set_info_handler(decoder.get(), opj_info, this);
-        opj_set_warning_handler(decoder.get(), opj_warn, this);
-        opj_set_error_handler(decoder.get(), opj_error, this);
+        opj_set_info_handler(decoder, opj_info, this);
+        opj_set_warning_handler(decoder, opj_warn, this);
+        opj_set_error_handler(decoder, opj_error, this);
 
-        stream.reset(opj_stream_create(dataSize, true));
+        stream = opj_stream_create(dataSize, true);
         if (!stream)
         {
             return false;
         }
 
-        opj_stream_set_user_data(stream.get(), this, opj_free_user_data);
-        opj_stream_set_user_data_length(stream.get(), dataSize);
-        opj_stream_set_read_function(stream.get(), opj_read);
-        opj_stream_set_write_function(stream.get(), opj_write);
-        opj_stream_set_skip_function(stream.get(), opj_skip);
-        opj_stream_set_seek_function(stream.get(), opj_seek);
+        opj_stream_set_user_data(stream, this, opj_free_user_data);
+        opj_stream_set_user_data_length(stream, dataSize);
+        opj_stream_set_read_function(stream, opj_read);
+        opj_stream_set_write_function(stream, opj_write);
+        opj_stream_set_skip_function(stream, opj_skip);
+        opj_stream_set_seek_function(stream, opj_seek);
 
         buffer = data;
         size = dataSize;
         offset = 0;
 
-        image.reset();
+        image = nullptr;
 
         // needs to happen before opj_read_header and opj_decode...
-        opj_set_decoded_resolution_factor(decoder.get(), discard_level);
+        opj_set_decoded_resolution_factor(decoder, discard_level);
 
         // enable decoding partially loaded images
-        opj_decoder_set_strict_mode(decoder.get(), OPJ_FALSE);
+        opj_decoder_set_strict_mode(decoder, OPJ_FALSE);
 
         opj_image_t* img;
-        if (!opj_read_header(stream.get(), decoder.get(), &img))
+        if (!opj_read_header(stream, decoder, &img))
         {
             return false;
         }
-        image.reset(img);
+        image = img;
 
         // needs to happen before decode which may fail
         if (channels)
@@ -353,36 +353,32 @@ public:
             *channels = image->numcomps;
         }
 
-        OPJ_BOOL decoded = opj_decode(decoder.get(), stream.get(), image.get());
+        OPJ_BOOL decoded = opj_decode(decoder, stream, image);
 
         // count was zero.  The latter is just a sanity check before we
         // dereference the array.
         bool result = (decoded && image && image->numcomps);
-        opj_end_decompress(decoder.get(), stream.get());
+        opj_end_decompress(decoder, stream);
         return result;
     }
 
-    opj_image_t* getImage() { return image.get(); }
+    opj_image_t* getImage() { return image; }
 
 private:
-    // opj_destroy_cstr_info(opj_codestream_info_v2_t**) requires a pointer to
-    // pointer, which is too bad because otherwise we could directly pass that
-    // function as the unique_ptr's deleter.
-    static void cstr_info_deleter(opj_codestream_info_v2_t* doomed)
-    {
-        opj_destroy_cstr_info(&doomed);
-    }
-
     opj_dparameters_t         parameters;
     opj_event_mgr_t           event_mgr;
-    std::unique_ptr<opj_codestream_info_v2_t, decltype(cstr_info_deleter)*>
-                              codestream_info{ nullptr, cstr_info_deleter };
-    std::unique_ptr<opj_stream_t, decltype(opj_stream_destroy)*>
-                              stream{ nullptr, opj_stream_destroy };
-    std::unique_ptr<opj_image_t, decltype(opj_image_destroy)*>
-                              image{ nullptr, opj_image_destroy };
-    std::unique_ptr<opj_codec_t, decltype(opj_destroy_codec)*>
-                              decoder{ nullptr, opj_destroy_codec };
+    owning_ptr<opj_codestream_info_v2_t> codestream_info{
+        nullptr,
+        // opj_destroy_cstr_info(opj_codestream_info_v2_t**) requires a
+        // pointer to pointer, which is too bad because otherwise we could
+        // directly pass that function as the owning_ptr's deleter.
+        [](opj_codestream_info_v2_t* doomed)
+        {
+            opj_destroy_cstr_info(&doomed);
+        }};
+    owning_ptr<opj_stream_t>  stream{ nullptr, opj_stream_destroy };
+    owning_ptr<opj_image_t>   image{ nullptr, opj_image_destroy };
+    owning_ptr<opj_codec_t>   decoder{ nullptr, opj_destroy_codec };
 };
 
 class JPEG2KEncode : public JPEG2KBase
@@ -437,7 +433,7 @@ public:
 
         setImage(rawImageIn);
 
-        encoder.reset(opj_create_compress(OPJ_CODEC_J2K));
+        encoder = opj_create_compress(OPJ_CODEC_J2K);
 
         parameters.tcp_mct = (image->numcomps >= 3) ? 1 : 0;
         parameters.cod_format = OPJ_CODEC_J2K;
@@ -488,14 +484,14 @@ public:
             parameters.max_cs_size = max_cs_size;
         }
 
-        if (!opj_setup_encoder(encoder.get(), &parameters, image.get()))
+        if (!opj_setup_encoder(encoder, &parameters, image))
         {
             return false;
         }
 
-        opj_set_info_handler(encoder.get(), opj_info, this);
-        opj_set_warning_handler(encoder.get(), opj_warn, this);
-        opj_set_error_handler(encoder.get(), opj_error, this);
+        opj_set_info_handler(encoder, opj_info, this);
+        opj_set_warning_handler(encoder, opj_warn, this);
+        opj_set_error_handler(encoder, opj_error, this);
 
         U32 tile_count = (rawImageIn.getWidth() >> 6) * (rawImageIn.getHeight() >> 6);
         U32 data_size_guess = tile_count * TILE_SIZE;
@@ -507,32 +503,32 @@ public:
 
         memset(buffer, 0, data_size_guess);
 
-        stream.reset(opj_stream_create(data_size_guess, false));
+        stream = opj_stream_create(data_size_guess, false);
         if (!stream)
         {
             return false;
         }
 
-        opj_stream_set_user_data(stream.get(), this, opj_free_user_data_write);
-        opj_stream_set_user_data_length(stream.get(), data_size_guess);
-        opj_stream_set_read_function(stream.get(), opj_read);
-        opj_stream_set_write_function(stream.get(), opj_write);
-        opj_stream_set_skip_function(stream.get(), opj_skip);
-        opj_stream_set_seek_function(stream.get(), opj_seek);
+        opj_stream_set_user_data(stream, this, opj_free_user_data_write);
+        opj_stream_set_user_data_length(stream, data_size_guess);
+        opj_stream_set_read_function(stream, opj_read);
+        opj_stream_set_write_function(stream, opj_write);
+        opj_stream_set_skip_function(stream, opj_skip);
+        opj_stream_set_seek_function(stream, opj_seek);
 
-        OPJ_BOOL started = opj_start_compress(encoder.get(), image.get(), stream.get());
+        OPJ_BOOL started = opj_start_compress(encoder, image, stream);
 
         if (!started)
         {
             return false;
         }
 
-        if (!opj_encode(encoder.get(), stream.get()))
+        if (!opj_encode(encoder, stream))
         {
             return false;
         }
 
-        OPJ_BOOL encoded = opj_end_compress(encoder.get(), stream.get());
+        OPJ_BOOL encoded = opj_end_compress(encoder, stream);
 
         // if we successfully encoded, then stream out the compressed data...
         if (encoded)
@@ -565,7 +561,7 @@ public:
             cmptparm[c].h = height;
         }
 
-        image.reset(opj_image_create(numcomps, &cmptparm[0], OPJ_CLRSPC_SRGB));
+        image = opj_image_create(numcomps, &cmptparm[0], OPJ_CLRSPC_SRGB);
 
         image->x1 = width;
         image->y1 = height;
@@ -680,18 +676,15 @@ public:
         }*/
     }
 
-    opj_image_t* getImage() { return image.get(); }
+    opj_image_t* getImage() { return image; }
 
 private:
-    std::string         comment_text;
-    opj_cparameters_t   parameters;
-    opj_event_mgr_t     event_mgr;
-    std::unique_ptr<opj_stream_t, decltype(opj_stream_destroy)*>
-                        stream{ nullptr,   opj_stream_destroy };
-    std::unique_ptr<opj_image_t, decltype(opj_image_destroy)*>
-                        image{ nullptr,   opj_image_destroy };
-    std::unique_ptr<opj_codec_t, decltype(opj_destroy_codec)*>
-                        encoder{ nullptr, opj_destroy_codec };
+    std::string              comment_text;
+    opj_cparameters_t        parameters;
+    opj_event_mgr_t          event_mgr;
+    owning_ptr<opj_stream_t> stream{ nullptr,  opj_stream_destroy };
+    owning_ptr<opj_image_t>  image{ nullptr,   opj_image_destroy };
+    owning_ptr<opj_codec_t>  encoder{ nullptr, opj_destroy_codec };
 };
 
 
