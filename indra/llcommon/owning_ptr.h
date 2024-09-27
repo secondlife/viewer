@@ -65,7 +65,7 @@ public:
     T* operator->() const { return mPtr.operator->(); }
 
 private:
-    std::unique_ptr<T, std::function<void(T*)>> mPtr;
+    std::unique_ptr<T, deleter> mPtr;
 };
 
 #endif /* ! defined(LL_OWNING_PTR_H) */
