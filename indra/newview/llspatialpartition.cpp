@@ -901,6 +901,10 @@ void LLSpatialGroup::updateTransformUBOs()
     static std::vector<LLVector4a> material_data;
     material_data.clear();
 
+    static std::vector<LLVector4a> prim_scales;
+    prim_scales.clear();
+
+
     {
         LL_PROFILE_ZONE_NAMED("utubo - collect transforms");
         for (OctreeNode::const_element_iter i = getDataBegin(); i != getDataEnd(); ++i)
@@ -914,6 +918,9 @@ void LLSpatialGroup::updateTransformUBOs()
                 llassert(transforms.size() < max_transforms);
                 U32 transform_index = (U32)transforms.size();
                 transforms.push_back(&drawable->getGLTFRenderMatrix());
+
+                const LLVector3& scale = drawable->getScale();
+                prim_scales.push_back(LLVector4a(scale.mV[0], scale.mV[1], scale.mV[2], 0.f));
 
                 LLVolume* volume = drawable->getVOVolume()->getVolume();
                 volume->createVertexBuffer();
@@ -979,6 +986,14 @@ void LLSpatialGroup::updateTransformUBOs()
         }
 
         mTransformUBO = ll_gl_gen_buffer();
+
+        // prim scales are 1:1 with prim transforms, so we can use the same flag for recreation
+        if (mPrimScaleUBO)
+        {
+            ll_gl_delete_buffers(1, &mPrimScaleUBO);
+        }
+
+        mPrimScaleUBO = ll_gl_gen_buffer();
     }
 
     if (new_instance_map_ubo)
@@ -1044,6 +1059,7 @@ void LLSpatialGroup::updateTransformUBOs()
         instance_map.resize(faces.size());
         LLVOAvatar* avatar = nullptr;
         U64 skin_hash = 0;
+        bool planar = false;
 
         {
             LL_PROFILE_ZONE_NAMED("utubo - build instances");
@@ -1054,6 +1070,8 @@ void LLSpatialGroup::updateTransformUBOs()
             for (U32 i = 0; i < faces.size(); ++i)
             {
                 LLFace* facep = faces[i];
+                const LLTextureEntry* te = facep->getTextureEntry();
+                bool face_planar = te->getTexGen() != LLTextureEntry::TEX_GEN_DEFAULT;
                 LLGLTFMaterial* gltf_mat = facep->getTextureEntry()->getGLTFRenderMaterial();
                 LLVolumeFace& vf = facep->getDrawable()->getVOVolume()->getVolume()->getVolumeFace(facep->getTEOffset());
                 U64 current_skin_hash = facep->getSkinHash();
@@ -1068,7 +1086,8 @@ void LLSpatialGroup::updateTransformUBOs()
                     current_info->mVertexBuffer == vf.mVertexBuffer &&
                     current_info->mElementOffset == vf.mVBIndexOffset &&
                     current_avatar == avatar &&
-                    current_skin_hash == skin_hash)
+                    current_skin_hash == skin_hash &&
+                    planar == face_planar)
                 { // another instance of the same LLVolumeFace and material
                     current_info->mInstanceCount++;
                 }
@@ -1077,9 +1096,11 @@ void LLSpatialGroup::updateTransformUBOs()
                     // a new instance
                     llassert(gltf_mat->mAlphaMode >= 0 && gltf_mat->mAlphaMode <= 2);
 
+                    planar = face_planar;
+
                     if (current_skin_hash)
                     {
-                        auto* info = mGLTFBatches.createSkinned(gltf_mat->mAlphaMode, gltf_mat->mDoubleSided);
+                        auto* info = mGLTFBatches.createSkinned(gltf_mat->mAlphaMode, gltf_mat->mDoubleSided, planar);
                         current_info = info;
 
                         info->mAvatar = current_avatar;
@@ -1087,7 +1108,7 @@ void LLSpatialGroup::updateTransformUBOs()
                     }
                     else
                     {
-                        current_info = mGLTFBatches.create(gltf_mat->mAlphaMode, gltf_mat->mDoubleSided);
+                        current_info = mGLTFBatches.create(gltf_mat->mAlphaMode, gltf_mat->mDoubleSided, planar);
                     }
 
                     avatar = current_avatar;
@@ -1099,6 +1120,7 @@ void LLSpatialGroup::updateTransformUBOs()
                     current_info->mElementOffset = vf.mVBIndexOffset;
                     current_info->mElementCount = vf.mNumIndices;
                     current_info->mTransformUBO = mTransformUBO;
+                    current_info->mPrimScaleUBO = mPrimScaleUBO;
                     current_info->mInstanceMapUBO = mInstanceMapUBO;
                     current_info->mMaterialUBO = mMaterialUBO;
                     current_info->mBaseInstance = i;
@@ -1148,6 +1170,16 @@ void LLSpatialGroup::updateTransformUBOs()
             else
             {
                 glBufferSubData(GL_UNIFORM_BUFFER, 0, glmp.size() * sizeof(F32), glmp.data());
+            }
+
+            glBindBuffer(GL_UNIFORM_BUFFER, mPrimScaleUBO);
+            if (new_transform_ubo)
+            {
+                glBufferData(GL_UNIFORM_BUFFER, prim_scales.size() * sizeof(LLVector4a), prim_scales.data(), GL_STREAM_DRAW);
+            }
+            else
+            {
+                glBufferSubData(GL_UNIFORM_BUFFER, 0, prim_scales.size() * sizeof(LLVector4a), prim_scales.data());
             }
 
             glBindBuffer(GL_UNIFORM_BUFFER, mInstanceMapUBO);
@@ -4205,31 +4237,27 @@ U64 LLDrawInfo::getSkinHash()
 
 void LLGLTFBatches::clear()
 {
-    for (auto& list : mDrawInfo)
+    for (U32 i = 0; i < 3; i++)
     {
-        for (auto& sublist : list)
+        for (U32 j = 0; j < 2; j++)
         {
-            sublist.clear();
-        }
-    }
-
-    for (auto& list : mSkinnedDrawInfo)
-    {
-        for (auto& sublist : list)
-        {
-            sublist.clear();
+            for (U32 k = 0; k < 2; ++k)
+            {
+                mDrawInfo[i][j][k].clear();
+                mSkinnedDrawInfo[i][j][k].clear();
+            }
         }
     }
 }
 
-LLGLTFDrawInfo* LLGLTFBatches::create(LLGLTFMaterial::AlphaMode alpha_mode, bool double_sided)
+LLGLTFDrawInfo* LLGLTFBatches::create(LLGLTFMaterial::AlphaMode alpha_mode, bool double_sided, bool planar)
 {
-    return &mDrawInfo[alpha_mode][double_sided].emplace_back();
+    return &mDrawInfo[alpha_mode][double_sided][planar].emplace_back();
 }
 
-LLSkinnedGLTFDrawInfo* LLGLTFBatches::createSkinned(LLGLTFMaterial::AlphaMode alpha_mode, bool double_sided)
+LLSkinnedGLTFDrawInfo* LLGLTFBatches::createSkinned(LLGLTFMaterial::AlphaMode alpha_mode, bool double_sided, bool planar)
 {
-    return &mSkinnedDrawInfo[alpha_mode][double_sided].emplace_back();
+    return &mSkinnedDrawInfo[alpha_mode][double_sided][planar].emplace_back();
 }
 
 void LLGLTFBatches::add(const LLGLTFBatches& other)
@@ -4238,8 +4266,11 @@ void LLGLTFBatches::add(const LLGLTFBatches& other)
     {
         for (U32 j = 0; j < 2; j++)
         {
-            mDrawInfo[i][j].insert(mDrawInfo[i][j].end(), other.mDrawInfo[i][j].begin(), other.mDrawInfo[i][j].end());
-            mSkinnedDrawInfo[i][j].insert(mSkinnedDrawInfo[i][j].end(), other.mSkinnedDrawInfo[i][j].begin(), other.mSkinnedDrawInfo[i][j].end());
+            for (U32 k = 0; k < 2; ++k)
+            {
+                mDrawInfo[i][j][k].insert(mDrawInfo[i][j][k].end(), other.mDrawInfo[i][j][k].begin(), other.mDrawInfo[i][j][k].end());
+                mSkinnedDrawInfo[i][j][k].insert(mSkinnedDrawInfo[i][j][k].end(), other.mSkinnedDrawInfo[i][j][k].begin(), other.mSkinnedDrawInfo[i][j][k].end());
+            }
         }
     }
 }

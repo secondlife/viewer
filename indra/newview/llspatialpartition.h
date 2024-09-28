@@ -242,7 +242,7 @@ public:
     U32 mTransformUBO;
     U32 mInstanceMapUBO;
     U32 mMaterialUBO;
-
+    U32 mPrimScaleUBO;
 };
 
 class LLSkinnedGLTFDrawInfo : public LLGLTFDrawInfo
@@ -255,11 +255,11 @@ public:
 class LLGLTFBatches
 {
 public:
-    typedef std::vector<LLGLTFDrawInfo> gltf_drawinfo_list_t[3][2];
-    typedef std::vector<LLSkinnedGLTFDrawInfo> skinned_gltf_drawinfo_list_t[3][2];
+    typedef std::vector<LLGLTFDrawInfo> gltf_drawinfo_list_t[3][2][2];
+    typedef std::vector<LLSkinnedGLTFDrawInfo> skinned_gltf_drawinfo_list_t[3][2][2];
 
     // collections of GLTFDrawInfo
-    // indexed by [LLGLTFMaterial::mAlphaMode][Planar Projection]
+    // indexed by [LLGLTFMaterial::mAlphaMode][Double Sided][Planar Projection]
     gltf_drawinfo_list_t mDrawInfo;
     skinned_gltf_drawinfo_list_t mSkinnedDrawInfo;
 
@@ -267,10 +267,10 @@ public:
     void clear();
 
     // add a draw info to the appropriate list
-    LLGLTFDrawInfo* create(LLGLTFMaterial::AlphaMode alpha_mode, bool double_sided = false);
+    LLGLTFDrawInfo* create(LLGLTFMaterial::AlphaMode alpha_mode, bool double_sided = false, bool planar = false);
 
     // add a sikinned draw info to the appropriate list
-    LLSkinnedGLTFDrawInfo* createSkinned(LLGLTFMaterial::AlphaMode alpha_mode, bool double_sided = false);
+    LLSkinnedGLTFDrawInfo* createSkinned(LLGLTFMaterial::AlphaMode alpha_mode, bool double_sided = false, bool planar = false);
 
     // add the given LLGLTFBatches to these LLGLTFBatches
     void add(const LLGLTFBatches& other);
@@ -282,7 +282,10 @@ public:
         {
             for (U32 j = 0; j < 2; ++j)
             {
-                std::sort(mDrawInfo[i][j].begin(), mDrawInfo[i][j].end(), comparator);
+                for (U32 k = 0; k < 2; ++k)
+                {
+                    std::sort(mDrawInfo[i][j][k].begin(), mDrawInfo[i][j][k].end(), comparator);
+                }
             }
         }
     }
@@ -294,7 +297,10 @@ public:
         {
             for (U32 j = 0; j < 2; ++j)
             {
-                std::sort(mDrawInfo[i][j].begin(), mDrawInfo[i][j].end(), comparator);
+                for (U32 k = 0; k < 2; ++k)
+                {
+                    std::sort(mSkinnedDrawInfo[i][j][k].begin(), mSkinnedDrawInfo[i][j][k].end(), comparator);
+                }
             }
         }
     }
@@ -443,7 +449,7 @@ public:
     // LLViewerOctreeGroup
     virtual void rebound();
 
-    // cache mDrawInfo transforms in UBOs and set LLDrawInfo mTransformUBO and mTransformIndex
+    // Update UBOs
     void updateTransformUBOs();
 
 public:
@@ -480,14 +486,22 @@ public:
     U32 mRenderOrder = 0;
 
     // UBO for transform data
+    // One transform for each Drawable, indexed by gltf_node_id in the shader
     U32 mTransformUBO = 0;
     U32 mTransformUBOSize = 0;
     // UBO for instance map
+    //  Indexed by instance id + base instance
+    //  stores gltf_node_id and material_id
     U32 mInstanceMapUBO = 0;
     U32 mInstanceMapUBOSize = 0;
     // UBO for materials
+    //  Indexed by material_id
     U32 mMaterialUBO = 0;
     U32 mMaterialUBOSize = 0;
+    // UBO for prim scales
+    //  Used for planar projection, indexed by gltf_node_id
+    U32 mPrimScaleUBO = 0;
+    U32 mPrimScaleUBOSize = 0;
 
     // Reflection Probe associated with this node (if any)
     LLPointer<LLReflectionMap> mReflectionProbe = nullptr;

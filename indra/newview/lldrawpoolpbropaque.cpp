@@ -66,19 +66,22 @@ void LLDrawPoolGLTFPBR::renderDeferred(S32 pass)
 
     LLGLTFMaterial::AlphaMode alpha_mode = mRenderType == LLPipeline::RENDER_TYPE_PASS_GLTF_PBR_ALPHA_MASK ? LLGLTFMaterial::ALPHA_MODE_MASK : LLGLTFMaterial::ALPHA_MODE_OPAQUE;
 
-    gGLTFPBRShaderPack.mShader[alpha_mode][0].bind();
-    pushGLTFBatches(sCull->mGLTFBatches.mDrawInfo[alpha_mode][0]);
+    for (U32 planar = 0; planar < 2; ++planar)
+    {
+        gGLTFPBRShaderPack.mShader[alpha_mode][0][planar].bind();
+        pushGLTFBatches(sCull->mGLTFBatches.mDrawInfo[alpha_mode][0][planar], planar);
 
-    gGLTFPBRShaderPack.mShader[alpha_mode][0].bind(true);
-    pushRiggedGLTFBatches(sCull->mGLTFBatches.mSkinnedDrawInfo[alpha_mode][0]);
+        gGLTFPBRShaderPack.mShader[alpha_mode][0][planar].bind(true);
+        pushRiggedGLTFBatches(sCull->mGLTFBatches.mSkinnedDrawInfo[alpha_mode][0][planar], planar);
 
-    { // double sided
-        LLGLDisable cull(GL_CULL_FACE);
-        gGLTFPBRShaderPack.mShader[alpha_mode][1].bind();
-        pushGLTFBatches(sCull->mGLTFBatches.mDrawInfo[alpha_mode][1]);
+        { // double sided
+            LLGLDisable cull(GL_CULL_FACE);
+            gGLTFPBRShaderPack.mShader[alpha_mode][1][planar].bind();
+            pushGLTFBatches(sCull->mGLTFBatches.mDrawInfo[alpha_mode][1][planar], planar);
 
-        gGLTFPBRShaderPack.mShader[alpha_mode][1].bind(true);
-        pushRiggedGLTFBatches(sCull->mGLTFBatches.mSkinnedDrawInfo[alpha_mode][1]);
+            gGLTFPBRShaderPack.mShader[alpha_mode][1][planar].bind(true);
+            pushRiggedGLTFBatches(sCull->mGLTFBatches.mSkinnedDrawInfo[alpha_mode][1][planar], planar);
+        }
     }
 }
 

@@ -56,6 +56,9 @@ flat out float vary_sign;
 out vec3 vary_normal;
 
 vec4 tangent_space_transform(vec4 vertex_tangent, vec3 vertex_normal, vec4[2] khr_gltf_transform, mat4 sl_animation_transform);
+#elif PLANAR_PROJECTION
+// still need normal for planar projection
+in vec3 normal;
 #endif
 
 #ifdef SAMPLE_ORM_MAP
@@ -85,6 +88,54 @@ layout (std140) uniform GLTFNodeInstanceMap
     // .y - gltf_material_id
     ivec4 gltf_node_instance_map[MAX_INSTANCES_PER_GLTF_OBJECT];
 };
+
+
+#ifdef PLANAR_PROJECTION
+// scale of a primitive (used for planar projection)
+// indexed by gltf_node_id
+layout (std140) uniform PrimScales
+{
+    vec4 prim_scales[MAX_UBO_VEC4S];
+};
+
+vec3 prim_scale;
+
+void planarProjection(inout vec2 tc)
+{
+    vec3 binormal;
+    vec3 vec = position * prim_scale;
+
+    float d = normal.x;
+
+    if (d >= 0.5 || d <= -0.5)
+    {
+        if (d < 0.0)
+        {
+            binormal = vec3(0,-1,0);
+        }
+        else
+        {
+            binormal = vec3(0, 1, 0);
+        }
+    }
+    else
+    {
+        if (normal.y > 0)
+        {
+            binormal = vec3(-1,0,0);
+        }
+        else
+        {
+            binormal = vec3(1,0,0);
+        }
+    }
+    vec3 tangent;
+    tangent = cross(binormal, normal);
+
+    tc.y = -(dot(tangent,vec)*2.0 - 0.5);
+    tc.x = 1.0+(dot(binormal, vec)*2.0 - 0.5);
+}
+#endif
 
 uniform int gltf_base_instance;
 
@@ -159,6 +210,9 @@ mat4 getGLTFTransform()
 
     ret[3] = vec4(src[0].w, src[1].w, src[2].w, 1);
 
+#ifdef PLANAR_PROJECTION
+    prim_scale = prim_scales[gltf_node_id].xyz;
+#endif
     return ret;
 }
 
@@ -175,7 +229,11 @@ void main()
     gl_Position = projection_matrix*vec4(pos,1.0);
 
 #ifdef SAMPLE_BASE_COLOR_MAP
-    base_color_texcoord = texture_transform(texcoord0, texture_base_color_transform, texture_matrix0);
+    vec2 tc0 = texcoord0;
+#ifdef PLANAR_PROJECTION
+    planarProjection(tc0);
+#endif
+    base_color_texcoord = texture_transform(tc0, texture_base_color_transform, texture_matrix0);
 #endif
 
 #ifdef MIRROR_CLIP
@@ -183,7 +241,7 @@ void main()
 #endif
 
 #ifdef SAMPLE_NORMAL_MAP
-    normal_texcoord = texture_transform(texcoord0, texture_normal_transform, texture_matrix0);
+    normal_texcoord = texture_transform(tc0, texture_normal_transform, texture_matrix0);
     vec3 n = (mat*vec4(normal.xyz+position.xyz,1.0)).xyz-pos.xyz;
     vec3 t = (mat*vec4(tangent.xyz+position.xyz,1.0)).xyz-pos.xyz;
 
@@ -196,10 +254,10 @@ void main()
 #endif
 
 #ifdef SAMPLE_ORM_MAP
-    metallic_roughness_texcoord = texture_transform(texcoord0, texture_metallic_roughness_transform, texture_matrix0);
+    metallic_roughness_texcoord = texture_transform(tc0, texture_metallic_roughness_transform, texture_matrix0);
 #endif
 
 #ifdef SAMPLE_EMISSIVE_MAP
-    emissive_texcoord = texture_transform(texcoord0, texture_emissive_transform, texture_matrix0);
+    emissive_texcoord = texture_transform(tc0, texture_emissive_transform, texture_matrix0);
 #endif
 }

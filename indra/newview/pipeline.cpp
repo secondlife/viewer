@@ -9365,27 +9365,30 @@ void LLPipeline::renderShadow(const glm::mat4& view, const glm::mat4& proj, LLCa
             renderObjects(type, false, false, rigged);
         }
 
-        gGLTFPBRShaderPack.mShadowShader[LLGLTFMaterial::ALPHA_MODE_OPAQUE][0].bind(rigged);
-        if (rigged)
+        for (U32 planar = 0; planar < 2; ++planar)
         {
-            LLRenderPass::pushRiggedShadowGLTFBatches(sCull->mGLTFBatches.mSkinnedDrawInfo[LLGLTFMaterial::ALPHA_MODE_OPAQUE][0]);
-        }
-        else
-        {
-            LLRenderPass::pushShadowGLTFBatches(sCull->mGLTFBatches.mDrawInfo[LLGLTFMaterial::ALPHA_MODE_OPAQUE][0]);
-        }
-
-        {
-            LLGLDisable cull(GL_CULL_FACE);
-            gGLTFPBRShaderPack.mShadowShader[LLGLTFMaterial::ALPHA_MODE_OPAQUE][1].bind(rigged);
-
+            gGLTFPBRShaderPack.mShadowShader[LLGLTFMaterial::ALPHA_MODE_OPAQUE][0][planar].bind(rigged);
             if (rigged)
             {
-                LLRenderPass::pushRiggedShadowGLTFBatches(sCull->mGLTFBatches.mSkinnedDrawInfo[LLGLTFMaterial::ALPHA_MODE_OPAQUE][1]);
+                LLRenderPass::pushRiggedShadowGLTFBatches(sCull->mGLTFBatches.mSkinnedDrawInfo[LLGLTFMaterial::ALPHA_MODE_OPAQUE][0][planar]);
             }
             else
             {
-                LLRenderPass::pushShadowGLTFBatches(sCull->mGLTFBatches.mDrawInfo[LLGLTFMaterial::ALPHA_MODE_OPAQUE][1]);
+                LLRenderPass::pushShadowGLTFBatches(sCull->mGLTFBatches.mDrawInfo[LLGLTFMaterial::ALPHA_MODE_OPAQUE][0][planar]);
+            }
+
+            {
+                LLGLDisable cull(GL_CULL_FACE);
+                gGLTFPBRShaderPack.mShadowShader[LLGLTFMaterial::ALPHA_MODE_OPAQUE][1][planar].bind(rigged);
+
+                if (rigged)
+                {
+                    LLRenderPass::pushRiggedShadowGLTFBatches(sCull->mGLTFBatches.mSkinnedDrawInfo[LLGLTFMaterial::ALPHA_MODE_OPAQUE][1][planar]);
+                }
+                else
+                {
+                    LLRenderPass::pushShadowGLTFBatches(sCull->mGLTFBatches.mDrawInfo[LLGLTFMaterial::ALPHA_MODE_OPAQUE][1][planar]);
+                }
             }
         }
 
@@ -9464,28 +9467,30 @@ void LLPipeline::renderShadow(const glm::mat4& view, const glm::mat4& proj, LLCa
         for (int i = 0; i < 2; ++i)
         {
             bool rigged = i == 1;
-
-            gGLTFPBRShaderPack.mShadowShader[LLGLTFMaterial::ALPHA_MODE_MASK][0].bind(rigged);
-            if (rigged)
+            for (int planar = 0; planar < 2; ++planar)
             {
-                LLRenderPass::pushRiggedGLTFBatches(sCull->mGLTFBatches.mSkinnedDrawInfo[LLGLTFMaterial::ALPHA_MODE_MASK][0]);
-            }
-            else
-            {
-                LLRenderPass::pushGLTFBatches(sCull->mGLTFBatches.mDrawInfo[LLGLTFMaterial::ALPHA_MODE_MASK][0]);
-            }
-
-            {
-                LLGLDisable cull(GL_CULL_FACE);
-                gGLTFPBRShaderPack.mShadowShader[LLGLTFMaterial::ALPHA_MODE_MASK][1].bind(rigged);
-
+                gGLTFPBRShaderPack.mShadowShader[LLGLTFMaterial::ALPHA_MODE_MASK][0][planar].bind(rigged);
                 if (rigged)
                 {
-                    LLRenderPass::pushRiggedGLTFBatches(sCull->mGLTFBatches.mSkinnedDrawInfo[LLGLTFMaterial::ALPHA_MODE_MASK][1]);
+                    LLRenderPass::pushRiggedGLTFBatches(sCull->mGLTFBatches.mSkinnedDrawInfo[LLGLTFMaterial::ALPHA_MODE_MASK][0][planar], planar);
                 }
                 else
                 {
-                    LLRenderPass::pushGLTFBatches(sCull->mGLTFBatches.mDrawInfo[LLGLTFMaterial::ALPHA_MODE_MASK][1]);
+                    LLRenderPass::pushGLTFBatches(sCull->mGLTFBatches.mDrawInfo[LLGLTFMaterial::ALPHA_MODE_MASK][0][planar], planar);
+                }
+
+                {
+                    LLGLDisable cull(GL_CULL_FACE);
+                    gGLTFPBRShaderPack.mShadowShader[LLGLTFMaterial::ALPHA_MODE_MASK][1][planar].bind(rigged);
+
+                    if (rigged)
+                    {
+                        LLRenderPass::pushRiggedGLTFBatches(sCull->mGLTFBatches.mSkinnedDrawInfo[LLGLTFMaterial::ALPHA_MODE_MASK][1][planar], planar);
+                    }
+                    else
+                    {
+                        LLRenderPass::pushGLTFBatches(sCull->mGLTFBatches.mDrawInfo[LLGLTFMaterial::ALPHA_MODE_MASK][1][planar], planar);
+                    }
                 }
             }
 

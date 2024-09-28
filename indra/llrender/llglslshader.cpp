@@ -1009,6 +1009,7 @@ bool LLGLSLShader::mapUniforms()
         "GLTFNodes",            // UB_GLTF_NODES
         "GLTFNodeInstanceMap",  // UB_GLTF_NODE_INSTANCE_MAP
         "GLTFMaterials",        // UB_GLTF_MATERIALS
+        "PrimScales",           // UB_PRIM_SCALES
     };
 
     llassert(LL_ARRAY_SIZE(ubo_names) == NUM_UNIFORM_BLOCKS);
