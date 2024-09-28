@@ -276,6 +276,7 @@ public:
     U32 mLastTextureUpdate = 0;
 
     U32         mTransformIndex = 0xFFFFFFFF;    // index of transform in LLSpatialGroup's transform UBO
+    U32         mMaterialIndex = 0xFFFFFFFF;     // index of material in LLSpatialGroup's material UBO
 
 private:
     LLPointer<LLVertexBuffer> mVertexBuffer;

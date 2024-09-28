@@ -877,6 +877,16 @@ void LLSpatialGroup::updateTransformUBOs()
     //  mTransformUBO: a UBO containing a transform from LLVolume space to agent space for each drawable in the group
     //  mInstanceMapUBO: a UBO mapping gl_InstanceID to the index of the transform in mTransformUBO
 
+    struct MaterialRecord
+    {
+        U32 id;
+        LLGLTFMaterial* material;
+    };
+
+    U32 mat_id = 0;
+
+    std::unordered_map<size_t, MaterialRecord> materials;
+
     LL_PROFILE_ZONE_SCOPED;
     static std::vector<const LLMatrix4*> transforms;
     transforms.resize(0);
@@ -887,6 +897,9 @@ void LLSpatialGroup::updateTransformUBOs()
 
     static std::vector<LLFace*> faces;
     faces.clear();
+
+    static std::vector<LLVector4a> material_data;
+    material_data.clear();
 
     {
         LL_PROFILE_ZONE_NAMED("utubo - collect transforms");
@@ -919,8 +932,24 @@ void LLSpatialGroup::updateTransformUBOs()
                             transforms[transforms.size() - 1] = &facep->mSkinInfo->mBindShapeMatrix.mMatrix4;
                         }
                         gltf_mat->updateBatchHash();
+
+                        const auto& iter = materials.find(gltf_mat->getBatchHash());
+                        U32 id = 0;
+                        if (iter == materials.end())
+                        {
+                            id = mat_id;
+                            materials[gltf_mat->getBatchHash()] = { mat_id++, gltf_mat };
+
+                            gltf_mat->packOnto(material_data);
+                        }
+                        else
+                        {
+                            id = iter->second.id;
+                        }
+
                         faces.push_back(facep);
                         facep->mTransformIndex = transform_index;
+                        facep->mMaterialIndex = id;
                     }
                 }
             }
@@ -930,14 +959,17 @@ void LLSpatialGroup::updateTransformUBOs()
     struct InstanceMapEntry
     {
         U32 transform_index;
-        U32 padding[3];
+        U32 material_index;
+        U32 padding[2];
     };
 
     U32 transform_ubo_size = (U32)(transforms.size() * 12 * sizeof(F32));
     U32 instance_map_ubo_size = (U32)(faces.size() * sizeof(InstanceMapEntry));
+    U32 material_ubo_size = (U32) (material_data.size() * sizeof(LLVector4a));
 
     bool new_transform_ubo = transform_ubo_size > mTransformUBOSize || transform_ubo_size < mTransformUBOSize / 2;
     bool new_instance_map_ubo = instance_map_ubo_size > mInstanceMapUBOSize || instance_map_ubo_size < mInstanceMapUBOSize / 2;
+    bool new_material_ubo = material_ubo_size > mMaterialUBOSize || material_ubo_size < mMaterialUBOSize / 2;
 
     if (new_transform_ubo)
     {
@@ -959,7 +991,18 @@ void LLSpatialGroup::updateTransformUBOs()
         mInstanceMapUBO = ll_gl_gen_buffer();
     }
 
-    if (mTransformUBO != 0 && mInstanceMapUBO != 0 && transform_ubo_size > 0 && instance_map_ubo_size > 0)
+    if (new_material_ubo)
+    {
+        if (mMaterialUBO)
+        {
+            ll_gl_delete_buffers(1, &mMaterialUBO);
+        }
+
+        mMaterialUBO = ll_gl_gen_buffer();
+    }
+
+    if (mTransformUBO != 0 && mInstanceMapUBO != 0 && mMaterialUBO != 0 &&
+        transform_ubo_size > 0 && instance_map_ubo_size > 0 && material_ubo_size > 0)
     {
         struct InstanceSort
         {
@@ -1017,6 +1060,7 @@ void LLSpatialGroup::updateTransformUBOs()
                 LLVOAvatar* current_avatar = current_skin_hash ? facep->getDrawable()->getVObj()->getAvatar() : nullptr;
 
                 instance_map[i].transform_index = facep->mTransformIndex;
+                instance_map[i].material_index = facep->mMaterialIndex;
 
                 if (current_info &&
                     vf.mVertexBuffer.notNull() &&
@@ -1056,6 +1100,7 @@ void LLSpatialGroup::updateTransformUBOs()
                     current_info->mElementCount = vf.mNumIndices;
                     current_info->mTransformUBO = mTransformUBO;
                     current_info->mInstanceMapUBO = mInstanceMapUBO;
+                    current_info->mMaterialUBO = mMaterialUBO;
                     current_info->mBaseInstance = i;
                     current_info->mInstanceCount = 1;
                 }
@@ -1116,6 +1161,17 @@ void LLSpatialGroup::updateTransformUBOs()
                 glBufferSubData(GL_UNIFORM_BUFFER, 0, instance_map.size() * sizeof(InstanceMapEntry), instance_map.data());
             }
             glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+            glBindBuffer(GL_UNIFORM_BUFFER, mMaterialUBO);
+            if (new_material_ubo)
+            {
+                mMaterialUBOSize = material_ubo_size;
+                glBufferData(GL_UNIFORM_BUFFER, material_data.size() * sizeof(LLVector4a), material_data.data(), GL_STREAM_DRAW);
+            }
+            else
+            {
+                glBufferSubData(GL_UNIFORM_BUFFER, 0, material_data.size() * sizeof(LLVector4a), material_data.data());
+            }
         }
     }
 }

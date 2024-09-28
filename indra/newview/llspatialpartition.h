@@ -241,6 +241,7 @@ public:
     U32 mBaseInstance;
     U32 mTransformUBO;
     U32 mInstanceMapUBO;
+    U32 mMaterialUBO;
 
 };
 
@@ -484,6 +485,9 @@ public:
     // UBO for instance map
     U32 mInstanceMapUBO = 0;
     U32 mInstanceMapUBOSize = 0;
+    // UBO for materials
+    U32 mMaterialUBO = 0;
+    U32 mMaterialUBOSize = 0;
 
     // Reflection Probe associated with this node (if any)
     LLPointer<LLReflectionMap> mReflectionProbe = nullptr;

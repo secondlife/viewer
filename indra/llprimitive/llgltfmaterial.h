@@ -74,6 +74,7 @@ public:
         using PackTight = F32[PACK_TIGHT_SIZE];
         void getPacked(Pack& packed) const;
         void getPackedTight(PackTight& packed) const;
+        void getPackedUBO(F32* packed) const;
 
         bool operator==(const TextureTransform& other) const;
         bool operator!=(const TextureTransform& other) const { return !(*this == other); }
@@ -225,6 +226,10 @@ public:
     bool hasLocalTextures() { return !mTrackingIdToLocalTexture.empty(); }
     virtual bool replaceLocalTexture(const LLUUID& tracking_id, const LLUUID &old_id, const LLUUID& new_id);
     virtual void updateTextureTracking();
+
+    // pack onto the end of the given vector for use in a UBO (see pbropaqueV.glsl)
+    void packOnto(std::vector<LLVector4a>& data);
+
 protected:
     static LLVector2 vec2FromJson(const std::map<std::string, tinygltf::Value>& object, const char* key, const LLVector2& default_value);
     static F32 floatFromJson(const std::map<std::string, tinygltf::Value>& object, const char* key, const F32 default_value);

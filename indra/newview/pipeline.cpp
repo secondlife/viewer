@@ -3583,6 +3583,33 @@ void LLPipeline::postSort(LLCamera &camera)
                 }
             }
         }
+    }
+
+    // pack vertex buffers for groups that chose to delay their updates
+    {
+        LL_PROFILE_GPU_ZONE("rebuildMesh");
+        for (LLSpatialGroup::sg_vector_t::iterator iter = mMeshDirtyGroup.begin(); iter != mMeshDirtyGroup.end(); ++iter)
+        {
+            (*iter)->rebuildMesh();
+        }
+    }
+
+    // build GLTF render map
+    for (LLCullResult::sg_iterator i = sCull->beginVisibleGroups(); i != sCull->endVisibleGroups(); ++i)
+    {
+        LLSpatialGroup* group = *i;
+
+        if (group->isDead())
+        {
+            continue;
+        }
+
+        if ((sUseOcclusion && group->isOcclusionState(LLSpatialGroup::OCCLUDED)) ||
+            (RenderAutoHideSurfaceAreaLimit > 0.f &&
+                group->mSurfaceArea > RenderAutoHideSurfaceAreaLimit * llmax(group->mObjectBoxSize, 10.f)))
+        {
+            continue;
+        }
 
         // make sure any pending transform updates are done BEFORE we add the group to the render map
         if (group->hasState(LLSpatialGroup::IN_TRANSFORM_BUILD_Q))
@@ -3593,15 +3620,6 @@ void LLPipeline::postSort(LLCamera &camera)
 
         // add group->mGLTFBatches to sCull->mGLTFBatches
         sCull->mGLTFBatches.add(group->mGLTFBatches);
-    }
-
-    // pack vertex buffers for groups that chose to delay their updates
-    {
-        LL_PROFILE_GPU_ZONE("rebuildMesh");
-        for (LLSpatialGroup::sg_vector_t::iterator iter = mMeshDirtyGroup.begin(); iter != mMeshDirtyGroup.end(); ++iter)
-        {
-            (*iter)->rebuildMesh();
-        }
     }
 
     mMeshDirtyGroup.clear();
@@ -9347,28 +9365,27 @@ void LLPipeline::renderShadow(const glm::mat4& view, const glm::mat4& proj, LLCa
             renderObjects(type, false, false, rigged);
         }
 
-        gGLTFPBRShaderPack.mShader[LLGLTFMaterial::ALPHA_MODE_OPAQUE][0].bind(rigged);
+        gGLTFPBRShaderPack.mShadowShader[LLGLTFMaterial::ALPHA_MODE_OPAQUE][0].bind(rigged);
         if (rigged)
         {
-            LLRenderPass::pushRiggedGLTFBatches(sCull->mGLTFBatches.mSkinnedDrawInfo[LLGLTFMaterial::ALPHA_MODE_OPAQUE][0]);
+            LLRenderPass::pushRiggedShadowGLTFBatches(sCull->mGLTFBatches.mSkinnedDrawInfo[LLGLTFMaterial::ALPHA_MODE_OPAQUE][0]);
         }
         else
         {
-            LLRenderPass::pushGLTFBatches(sCull->mGLTFBatches.mDrawInfo[LLGLTFMaterial::ALPHA_MODE_OPAQUE][0]);
+            LLRenderPass::pushShadowGLTFBatches(sCull->mGLTFBatches.mDrawInfo[LLGLTFMaterial::ALPHA_MODE_OPAQUE][0]);
         }
-
 
         {
             LLGLDisable cull(GL_CULL_FACE);
-            gGLTFPBRShaderPack.mShader[LLGLTFMaterial::ALPHA_MODE_OPAQUE][1].bind(rigged);
+            gGLTFPBRShaderPack.mShadowShader[LLGLTFMaterial::ALPHA_MODE_OPAQUE][1].bind(rigged);
 
             if (rigged)
             {
-                LLRenderPass::pushRiggedGLTFBatches(sCull->mGLTFBatches.mSkinnedDrawInfo[LLGLTFMaterial::ALPHA_MODE_OPAQUE][1]);
+                LLRenderPass::pushRiggedShadowGLTFBatches(sCull->mGLTFBatches.mSkinnedDrawInfo[LLGLTFMaterial::ALPHA_MODE_OPAQUE][1]);
             }
             else
             {
-                LLRenderPass::pushGLTFBatches(sCull->mGLTFBatches.mDrawInfo[LLGLTFMaterial::ALPHA_MODE_OPAQUE][1]);
+                LLRenderPass::pushShadowGLTFBatches(sCull->mGLTFBatches.mDrawInfo[LLGLTFMaterial::ALPHA_MODE_OPAQUE][1]);
             }
         }
 
@@ -9442,11 +9459,13 @@ void LLPipeline::renderShadow(const glm::mat4& view, const glm::mat4& proj, LLCa
             }
         }
 
+        // alpha mask GLTF
+        // NOTE: don't use "shadow" push here -- "shadow" push ignores material, but alpha mask shaders need the baseColor map
         for (int i = 0; i < 2; ++i)
         {
             bool rigged = i == 1;
 
-            gGLTFPBRShaderPack.mShader[LLGLTFMaterial::ALPHA_MODE_MASK][0].bind(rigged);
+            gGLTFPBRShaderPack.mShadowShader[LLGLTFMaterial::ALPHA_MODE_MASK][0].bind(rigged);
             if (rigged)
             {
                 LLRenderPass::pushRiggedGLTFBatches(sCull->mGLTFBatches.mSkinnedDrawInfo[LLGLTFMaterial::ALPHA_MODE_MASK][0]);
@@ -9458,7 +9477,7 @@ void LLPipeline::renderShadow(const glm::mat4& view, const glm::mat4& proj, LLCa
 
             {
                 LLGLDisable cull(GL_CULL_FACE);
-                gGLTFPBRShaderPack.mShader[LLGLTFMaterial::ALPHA_MODE_MASK][1].bind(rigged);
+                gGLTFPBRShaderPack.mShadowShader[LLGLTFMaterial::ALPHA_MODE_MASK][1].bind(rigged);
 
                 if (rigged)
                 {

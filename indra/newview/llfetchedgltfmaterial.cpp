@@ -64,15 +64,13 @@ LLFetchedGLTFMaterial& LLFetchedGLTFMaterial::operator=(const LLFetchedGLTFMater
 void LLFetchedGLTFMaterial::bind(LLViewerTexture* media_tex)
 {
     LL_PROFILE_ZONE_SCOPED;
+    bindTextures(media_tex);
+
     // glTF 2.0 Specification 3.9.4. Alpha Coverage
     // mAlphaCutoff is only valid for LLGLTFMaterial::ALPHA_MODE_MASK
     F32 min_alpha = -1.0;
 
     LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
-
-    // override emissive and base color textures with media tex if present
-    LLViewerTexture* baseColorTex = media_tex ? media_tex : mBaseColorTexture;
-    LLViewerTexture* emissiveTex = media_tex ? media_tex : mEmissiveTexture;
 
     if (mAlphaMode == LLGLTFMaterial::ALPHA_MODE_MASK)
     {
@@ -83,6 +81,41 @@ void LLFetchedGLTFMaterial::bind(LLViewerTexture* media_tex)
         shader->uniform1f(LLShaderMgr::MINIMUM_ALPHA, min_alpha);
     }
 
+    F32 base_color_packed[8];
+    mTextureTransform[GLTF_TEXTURE_INFO_BASE_COLOR].getPacked(base_color_packed);
+    shader->uniform4fv(LLShaderMgr::TEXTURE_BASE_COLOR_TRANSFORM, 2, (F32*)base_color_packed);
+    shader->uniform4fv(LLShaderMgr::BASE_COLOR_FACTOR, 1, mBaseColor.mV);
+
+    if (!LLPipeline::sShadowRender)
+    {
+        shader->uniform1f(LLShaderMgr::ROUGHNESS_FACTOR, mRoughnessFactor);
+        shader->uniform1f(LLShaderMgr::METALLIC_FACTOR, mMetallicFactor);
+        shader->uniform3fv(LLShaderMgr::EMISSIVE_COLOR, 1, mEmissiveColor.mV);
+
+        F32 normal_packed[8];
+        mTextureTransform[GLTF_TEXTURE_INFO_NORMAL].getPacked(normal_packed);
+        shader->uniform4fv(LLShaderMgr::TEXTURE_NORMAL_TRANSFORM, 2, (F32*)normal_packed);
+
+        F32 metallic_roughness_packed[8];
+        mTextureTransform[GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS].getPacked(metallic_roughness_packed);
+        shader->uniform4fv(LLShaderMgr::TEXTURE_METALLIC_ROUGHNESS_TRANSFORM, 2, (F32*)metallic_roughness_packed);
+
+        F32 emissive_packed[8];
+        mTextureTransform[GLTF_TEXTURE_INFO_EMISSIVE].getPacked(emissive_packed);
+        shader->uniform4fv(LLShaderMgr::TEXTURE_EMISSIVE_TRANSFORM, 2, (F32*)emissive_packed);
+    }
+}
+
+void LLFetchedGLTFMaterial::bindTextures(LLViewerTexture* media_tex)
+{
+    LL_PROFILE_ZONE_SCOPED;
+
+    LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
+
+    // override emissive and base color textures with media tex if present
+    LLViewerTexture* baseColorTex = media_tex ? media_tex : mBaseColorTexture;
+    LLViewerTexture* emissiveTex = media_tex ? media_tex : mEmissiveTexture;
+
     if (baseColorTex != nullptr)
     {
         shader->bindTexture(LLShaderMgr::DIFFUSE_MAP, baseColorTex);
@@ -91,11 +124,6 @@ void LLFetchedGLTFMaterial::bind(LLViewerTexture* media_tex)
     {
         shader->bindTexture(LLShaderMgr::DIFFUSE_MAP, LLViewerFetchedTexture::sWhiteImagep);
     }
-
-    F32 base_color_packed[8];
-    mTextureTransform[GLTF_TEXTURE_INFO_BASE_COLOR].getPacked(base_color_packed);
-    shader->uniform4fv(LLShaderMgr::TEXTURE_BASE_COLOR_TRANSFORM, 2, (F32*)base_color_packed);
-    shader->uniform4fv(LLShaderMgr::BASE_COLOR_FACTOR, 1, mBaseColor.mV);
 
     if (!LLPipeline::sShadowRender)
     {
@@ -125,24 +153,9 @@ void LLFetchedGLTFMaterial::bind(LLViewerTexture* media_tex)
         {
             shader->bindTexture(LLShaderMgr::EMISSIVE_MAP, LLViewerFetchedTexture::sWhiteImagep);
         }
-
-        shader->uniform1f(LLShaderMgr::ROUGHNESS_FACTOR, mRoughnessFactor);
-        shader->uniform1f(LLShaderMgr::METALLIC_FACTOR, mMetallicFactor);
-        shader->uniform3fv(LLShaderMgr::EMISSIVE_COLOR, 1, mEmissiveColor.mV);
-
-        F32 normal_packed[8];
-        mTextureTransform[GLTF_TEXTURE_INFO_NORMAL].getPacked(normal_packed);
-        shader->uniform4fv(LLShaderMgr::TEXTURE_NORMAL_TRANSFORM, 2, (F32*)normal_packed);
-
-        F32 metallic_roughness_packed[8];
-        mTextureTransform[GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS].getPacked(metallic_roughness_packed);
-        shader->uniform4fv(LLShaderMgr::TEXTURE_METALLIC_ROUGHNESS_TRANSFORM, 2, (F32*)metallic_roughness_packed);
-
-        F32 emissive_packed[8];
-        mTextureTransform[GLTF_TEXTURE_INFO_EMISSIVE].getPacked(emissive_packed);
-        shader->uniform4fv(LLShaderMgr::TEXTURE_EMISSIVE_TRANSFORM, 2, (F32*)emissive_packed);
     }
 }
+
 
 LLViewerFetchedTexture* fetch_texture(const LLUUID& id)
 {

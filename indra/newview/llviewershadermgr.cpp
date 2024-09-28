@@ -1329,6 +1329,7 @@ bool LLViewerShaderMgr::loadShadersDeferred()
     U32 instance_map_size = 4 * 4;
     U32 max_instances = gGLManager.mMaxUniformBlockSize / instance_map_size;
 
+    U32 max_vec4s = gGLManager.mMaxUniformBlockSize / sizeof(LLVector4a);
     if (success)
     {
         std::string alpha_mode_names[3] = { "Opaque", "Alpha Mask", "Alpha Blend" };
@@ -1362,11 +1363,13 @@ bool LLViewerShaderMgr::loadShadersDeferred()
 
                     shader.addPermutation("MAX_NODES_PER_GLTF_OBJECT", std::to_string(max_nodes));
                     shader.addPermutation("MAX_INSTANCES_PER_GLTF_OBJECT", std::to_string(max_instances));
+                    shader.addPermutation("MAX_UBO_VEC4S", std::to_string(max_vec4s));
 
                     shader.addPermutation("SAMPLE_BASE_COLOR_MAP", "1");
                     shader.addPermutation("SAMPLE_ORM_MAP", "1");
                     shader.addPermutation("SAMPLE_NORMAL_MAP", "1");
                     shader.addPermutation("SAMPLE_EMISSIVE_MAP", "1");
+                    shader.addPermutation("SAMPLE_MATERIALS_UBO", "1");
 
                     if (alpha_mode == LLGLTFMaterial::ALPHA_MODE_MASK)
                     {
@@ -1400,7 +1403,6 @@ bool LLViewerShaderMgr::loadShadersDeferred()
                     LLGLSLShader& skinned_shader = gGLTFPBRShaderPack.mSkinnedShadowShader[i][j];
 
                     shader.mName = name;
-                    shader.mFeatures.hasSrgb = true;
 
                     shader.mShaderFiles.clear();
 
@@ -1411,12 +1413,14 @@ bool LLViewerShaderMgr::loadShadersDeferred()
 
                     shader.addPermutation("MAX_NODES_PER_GLTF_OBJECT", std::to_string(max_nodes));
                     shader.addPermutation("MAX_INSTANCES_PER_GLTF_OBJECT", std::to_string(max_instances));
+                    shader.addPermutation("MAX_UBO_VEC4S", std::to_string(max_vec4s));
 
                     shader.addPermutation("OUTPUT_BASE_COLOR_ONLY", "1");
 
                     if (alpha_mode != LLGLTFMaterial::ALPHA_MODE_OPAQUE)
                     {
                         shader.addPermutation("ALPHA_MASK", "1");
+                        shader.addPermutation("SAMPLE_MATERIALS_UBO", "1");
                     }
 
                     if (double_sided)
@@ -1490,6 +1494,7 @@ bool LLViewerShaderMgr::loadShadersDeferred()
 
         gHUDPBROpaqueProgram.addPermutation("MAX_NODES_PER_GLTF_OBJECT", std::to_string(max_nodes));
         gHUDPBROpaqueProgram.addPermutation("MAX_INSTANCES_PER_GLTF_OBJECT", std::to_string(max_instances));
+        gHUDPBROpaqueProgram.addPermutation("MAX_UBO_VEC4S", std::to_string(max_vec4s));
         gHUDPBROpaqueProgram.addPermutation("OUTPUT_BASE_COLOR_ONLY", "1");
         gHUDPBROpaqueProgram.addPermutation("SAMPLE_BASE_COLOR_MAP", "1");
         gHUDPBROpaqueProgram.addPermutation("SAMPLE_EMISSIVE_MAP", "1");
@@ -1567,6 +1572,8 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         shader->clearPermutations();
         shader->addPermutation("MAX_NODES_PER_GLTF_OBJECT", std::to_string(max_nodes));
         shader->addPermutation("MAX_INSTANCES_PER_GLTF_OBJECT", std::to_string(max_instances));
+        shader->addPermutation("MAX_UBO_VEC4S", std::to_string(max_vec4s));
+
         shader->addPermutation("OUTPUT_BASE_COLOR_ONLY", "1");
         shader->addPermutation("SAMPLE_BASE_COLOR_MAP", "1");
         shader->addPermutation("SAMPLE_EMISSIVE_MAP", "1");

@@ -815,6 +815,7 @@ void LLRenderPass::pushGLTFBatch(const LLGLTFDrawInfo& params)
     {
         glBindBufferBase(GL_UNIFORM_BUFFER, LLGLSLShader::UB_GLTF_NODES, params.mTransformUBO);
         glBindBufferBase(GL_UNIFORM_BUFFER, LLGLSLShader::UB_GLTF_NODE_INSTANCE_MAP, params.mInstanceMapUBO);
+        glBindBufferBase(GL_UNIFORM_BUFFER, LLGLSLShader::UB_GLTF_MATERIALS, params.mMaterialUBO);
         transform_ubo = params.mTransformUBO;
     }
 
@@ -822,7 +823,7 @@ void LLRenderPass::pushGLTFBatch(const LLGLTFDrawInfo& params)
     {
         last_mat = params.mMaterialID;
         auto& mat = params.mMaterial;
-        mat->bind();
+        mat->bindTextures();
     }
 
     LLGLSLShader::sCurBoundShaderPtr->uniform1i(LLShaderMgr::GLTF_BASE_INSTANCE, params.mBaseInstance);
@@ -845,6 +846,7 @@ void LLRenderPass::pushShadowGLTFBatch(const LLGLTFDrawInfo& params)
     {
         glBindBufferBase(GL_UNIFORM_BUFFER, LLGLSLShader::UB_GLTF_NODES, params.mTransformUBO);
         glBindBufferBase(GL_UNIFORM_BUFFER, LLGLSLShader::UB_GLTF_NODE_INSTANCE_MAP, params.mInstanceMapUBO);
+        // NOTE: don't bind the material UBO here, it's not used in shadow pass
         transform_ubo = params.mTransformUBO;
     }
 

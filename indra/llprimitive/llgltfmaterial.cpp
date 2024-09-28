@@ -106,6 +106,15 @@ void LLGLTFMaterial::TextureTransform::getPackedTight(PackTight& packed) const
     packed[4] = mOffset.mV[VY];
 }
 
+void LLGLTFMaterial::TextureTransform::getPackedUBO(F32* packed) const
+{
+    packed[0] = mScale.mV[VX];
+    packed[1] = mScale.mV[VY];
+    packed[2] = mRotation;
+    packed[3] = mOffset.mV[VX];
+    packed[4] = mOffset.mV[VY];
+}
+
 bool LLGLTFMaterial::TextureTransform::operator==(const TextureTransform& other) const
 {
     return mOffset == other.mOffset && mScale == other.mScale && mRotation == other.mRotation;
@@ -970,3 +979,38 @@ void LLGLTFMaterial::updateTextureTracking()
     // setTEGLTFMaterialOverride is responsible for tracking
     // for material overrides editor will set it
 }
+
+void LLGLTFMaterial::packOnto(std::vector<LLVector4a>& data)
+{
+    size_t idx = data.size();
+    data.resize(data.size() + 8);
+
+    F32* ptr = (F32*)&data[idx];
+
+    F32* base_color = ptr;
+    F32* normal = base_color + 8;
+    F32* metallic_roughness = normal + 8;
+    F32* emissive = metallic_roughness + 8;
+
+    for (U32 i = 0; i < GLTF_TEXTURE_INFO_COUNT; ++i)
+    {
+        mTextureTransform[i].getPackedUBO(ptr);
+        ptr += 8;
+    }
+
+    base_color[5] = mBaseColor.mV[0];
+    base_color[6] = mBaseColor.mV[1];
+    base_color[7] = mBaseColor.mV[2];
+
+    normal[5] = mBaseColor.mV[3];
+    normal[6] = mAlphaCutoff;
+
+    emissive[5] = mEmissiveColor.mV[0];
+    emissive[6] = mEmissiveColor.mV[1];
+    emissive[7] = mEmissiveColor.mV[2];
+
+    metallic_roughness[5] = mRoughnessFactor;
+    metallic_roughness[6] = mMetallicFactor;
+}
+
+

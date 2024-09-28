@@ -23,11 +23,6 @@
  * $/LicenseInfo$
  */
 
-
-#ifndef IS_HUD
-
-//deferred opaque implementation
-
 uniform mat4 modelview_matrix;
 uniform mat4 projection_matrix;
 
@@ -40,7 +35,7 @@ mat4 getObjectSkinnedTransform();
 
 #ifdef SAMPLE_BASE_COLOR_MAP
 uniform mat4 texture_matrix0;
-uniform vec4[2] texture_base_color_transform;
+vec4[2] texture_base_color_transform;
 
 vec2 texture_transform(vec2 vertex_texcoord, vec4[2] khr_gltf_transform, mat4 sl_animation_transform);
 
@@ -52,7 +47,7 @@ out vec2 base_color_texcoord;
 in vec3 normal;
 in vec4 tangent;
 
-uniform vec4[2] texture_normal_transform;
+vec4[2] texture_normal_transform;
 
 out vec2 normal_texcoord;
 
@@ -64,13 +59,13 @@ vec4 tangent_space_transform(vec4 vertex_tangent, vec3 vertex_normal, vec4[2] kh
 #endif
 
 #ifdef SAMPLE_ORM_MAP
-uniform vec4[2] texture_metallic_roughness_transform;
+vec4[2] texture_metallic_roughness_transform;
 
 out vec2 metallic_roughness_texcoord;
 #endif
 
 #ifdef SAMPLE_EMISSIVE_MAP
-uniform vec4[2] texture_emissive_transform;
+vec4[2] texture_emissive_transform;
 
 out vec2 emissive_texcoord;
 #endif
@@ -86,15 +81,75 @@ layout (std140) uniform GLTFNodes
 
 layout (std140) uniform GLTFNodeInstanceMap
 {
+    // .x - gltf_node_id
+    // .y - gltf_material_id
     ivec4 gltf_node_instance_map[MAX_INSTANCES_PER_GLTF_OBJECT];
 };
 
-
 uniform int gltf_base_instance;
+
+#ifdef SAMPLE_MATERIALS_UBO
+layout (std140) uniform GLTFMaterials
+{
+    // index by gltf_material_id*8
+
+    // [gltf_material_id + [0-1]] -  base color transform
+    // [gltf_material_id + [2-3]] -  normal transform
+    // [gltf_material_id + [4-5]] -  metallic roughness transform
+    // [gltf_material_id + [6-7]] -  emissive transform
+
+    // Transforms are packed as follows
+    // packed[0] = vec4(scale.x, scale.y, rotation, offset.x)
+    // packed[1] = vec4(offset.y, *, *, *)
+
+    // packed[1].yzw varies:
+    //   base color transform -- base color factor
+    //   metallic roughness transform -- .y - roughness factor, .z - metallic factor
+    //   emissive transform -- emissive factor
+    //   normal transform -- .y - alpha factor, .z - minimum alpha
+
+    vec4 gltf_material_data[MAX_UBO_VEC4S];
+};
+
+flat out int gltf_material_id;
+
+void unpackTextureTransforms()
+{
+    gltf_material_id = gltf_node_instance_map[gl_InstanceID+gltf_base_instance].y;
+
+    int idx = gltf_material_id*8;
+
+#ifdef SAMPLE_BASE_COLOR_MAP
+    texture_base_color_transform[0] = gltf_material_data[idx+0];
+    texture_base_color_transform[1] = vec4(gltf_material_data[idx+0].w, gltf_material_data[idx+1].x, 0, 0);
+#endif
+
+#ifdef SAMPLE_NORMAL_MAP
+    texture_normal_transform[0] = gltf_material_data[idx+2];
+    texture_normal_transform[1] = vec4(gltf_material_data[idx+2].w, gltf_material_data[idx+3].x, 0, 0);
+#endif
+
+#ifdef SAMPLE_ORM_MAP
+    texture_metallic_roughness_transform[0] = gltf_material_data[idx+4];
+    texture_metallic_roughness_transform[1] = vec4(gltf_material_data[idx+4].w, gltf_material_data[idx+5].x, 0, 0);
+#endif
+
+#ifdef SAMPLE_EMISSIVE_MAP
+    texture_emissive_transform[0] = gltf_material_data[idx+6];
+    texture_emissive_transform[1] = vec4(gltf_material_data[idx+6].w, gltf_material_data[idx+7].x, 0, 0);
+#endif
+}
+#else // SAMPLE_MATERIALS_UBO
+void unpackTextureTransforms()
+{
+}
+#endif
 
 mat4 getGLTFTransform()
 {
+    unpackTextureTransforms();
     int gltf_node_id = gltf_node_instance_map[gl_InstanceID+gltf_base_instance].x;
+
     mat4 ret;
     mat3x4 src = gltf_nodes[gltf_node_id];
 
@@ -148,35 +203,3 @@ void main()
     emissive_texcoord = texture_transform(texcoord0, texture_emissive_transform, texture_matrix0);
 #endif
 }
-
-#else
-
-// fullbright HUD implementation
-
-uniform mat4 modelview_projection_matrix;
-
-uniform mat4 texture_matrix0;
-
-uniform vec4[2] texture_base_color_transform;
-uniform vec4[2] texture_emissive_transform;
-
-in vec3 position;
-in vec2 texcoord0;
-
-out vec2 base_color_texcoord;
-out vec2 emissive_texcoord;
-
-vec2 texture_transform(vec2 vertex_texcoord, vec4[2] khr_gltf_transform, mat4 sl_animation_transform);
-
-void main()
-{
-    //transform vertex
-    gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0);
-
-    base_color_texcoord = texture_transform(texcoord0, texture_base_color_transform, texture_matrix0);
-    emissive_texcoord = texture_transform(texcoord0, texture_emissive_transform, texture_matrix0);
-}
-
-#endif
-
-

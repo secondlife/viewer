@@ -30,14 +30,14 @@
 
 #ifdef SAMPLE_BASE_COLOR_MAP
 uniform sampler2D diffuseMap;  //always in sRGB space
-uniform vec4 baseColorFactor;
+vec4 baseColorFactor;
 in vec2 base_color_texcoord;
-uniform float minimum_alpha; // PBR alphaMode: MASK, See: mAlphaCutoff, setAlphaCutoff()
+float minimum_alpha; // PBR alphaMode: MASK, See: mAlphaCutoff, setAlphaCutoff()
 #endif
 
 #ifdef SAMPLE_ORM_MAP
-uniform float metallicFactor;
-uniform float roughnessFactor;
+float metallicFactor;
+float roughnessFactor;
 uniform sampler2D specularMap; // Packed: Occlusion, Metal, Roughness
 in vec2 metallic_roughness_texcoord;
 #endif
@@ -51,7 +51,7 @@ in vec2 normal_texcoord;
 #endif
 
 #ifdef SAMPLE_EMISSIVE_MAP
-uniform vec3 emissiveColor;
+vec3 emissiveColor;
 uniform sampler2D emissiveMap;
 in vec2 emissive_texcoord;
 #endif
@@ -70,8 +70,59 @@ void mirrorClip(vec3 pos);
 vec3 linear_to_srgb(vec3 c);
 vec3 srgb_to_linear(vec3 c);
 
+#ifdef SAMPLE_MATERIALS_UBO
+layout (std140) uniform GLTFMaterials
+{
+    // index by gltf_material_id*8
+
+    // [gltf_material_id + [0-1]] -  base color transform
+    // [gltf_material_id + [2-3]] -  normal transform
+    // [gltf_material_id + [4-5]] -  metallic roughness transform
+    // [gltf_material_id + [6-7]] -  emissive transform
+
+    // Transforms are packed as follows
+    // packed[0] = vec4(scale.x, scale.y, rotation, offset.x)
+    // packed[1] = vec4(offset.y, *, *, *)
+
+    // packed[1].yzw varies:
+    //   base color transform -- base color factor
+    //   normal transform -- .y - alpha factor, .z - minimum alpha
+    //   metallic roughness transform -- .y - roughness factor, .z - metallic factor
+    //   emissive transform -- emissive factor
+
+
+    vec4 gltf_material_data[MAX_UBO_VEC4S];
+};
+
+flat in int gltf_material_id;
+
+void unpackMaterial()
+{
+    int idx = gltf_material_id*8;
+#ifdef SAMPLE_BASE_COLOR_MAP
+    baseColorFactor.rgb = gltf_material_data[idx+1].yzw;
+    baseColorFactor.a = gltf_material_data[idx+3].y;
+    minimum_alpha = gltf_material_data[idx+3].z;
+#endif
+
+#ifdef SAMPLE_ORM_MAP
+    roughnessFactor = gltf_material_data[idx+5].y;
+    metallicFactor = gltf_material_data[idx+5].z;
+#endif
+
+#ifdef SAMPLE_EMISSIVE_MAP
+    emissiveColor = gltf_material_data[idx+7].yzw;
+#endif
+}
+#else // SAMPLE_MATERIALS_UBO
+void unpackMaterial()
+{
+}
+#endif
+
 void main()
 {
+    unpackMaterial();
 #ifdef MIRROR_CLIP
     mirrorClip(vary_position);
 #endif
