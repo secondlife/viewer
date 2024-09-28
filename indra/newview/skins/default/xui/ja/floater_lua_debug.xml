@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="LUA debug" title="ＬＵＡデバッグ">
+	<text name="editor_path_label">
+		ＬＵＡ文字列：
+	</text>
+	<line_editor name="lua_cmd"/>
+	<button label="実行" name="execute_btn"/>
+	<text_editor name="result_text"/>
+	<text name="path_label">
+		ファイルパス：
+	</text>
+	<line_editor name="script_path"/>
+	<button label="参照…" label_selected="参照…" name="browse_btn"/>
+	<button label="走らせる" label_selected="走らせる" name="run_btn"/>
+</floater>

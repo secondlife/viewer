@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="LUA scripts" title="ＬＵＡスクリプト">
+	<scroll_list name="scripts_list">
+		<scroll_list.columns label="名前" name="script_name"/>
+		<scroll_list.columns label="パス" name="script_path"/>
+	</scroll_list>
+</floater>
