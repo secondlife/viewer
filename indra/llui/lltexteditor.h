@@ -313,10 +313,9 @@ public:
     template <typename STRINGTYPE>
     void            pasteTextWithLinebreaks(const STRINGTYPE& clean_string)
     {
-        pasteTextWithLinebreaks<LLWString>(ll_convert(clean_string));
+        pasteTextWithLinebreaksImpl(ll_convert(clean_string));
     }
-    template <>
-    void            pasteTextWithLinebreaks<LLWString>(const LLWString & clean_string);
+    void            pasteTextWithLinebreaksImpl(const LLWString & clean_string);
 
 private:
     void            onKeyStroke();
