@@ -170,6 +170,8 @@ extern bool gShaderProfileFrame;
 // Globals
 //
 
+LLUIListener sUIListener;
+
 LLMenuBarGL     *gMenuBarView = NULL;
 LLViewerMenuHolderGL    *gMenuHolder = NULL;
 LLMenuGL        *gPopupMenuView = NULL;
@@ -341,8 +343,6 @@ private:
 };
 
 static LLMenuParcelObserver* gMenuParcelObserver = NULL;
-
-static LLUIListener sUIListener;
 
 LLMenuParcelObserver::LLMenuParcelObserver()
 {
@@ -9164,80 +9164,89 @@ class LLToolsSelectTool : public view_listener_t
 };
 
 /// WINDLIGHT callbacks
-class LLWorldEnvSettings : public view_listener_t
+void defocusEnvFloaters()
 {
-    void defocusEnvFloaters()
+    // currently there is only one instance of each floater
+    std::vector<std::string> env_floaters_names = {"env_edit_extdaycycle", "env_fixed_environmentent_water",
+                                                   "env_fixed_environmentent_sky"};
+    for (std::vector<std::string>::const_iterator it = env_floaters_names.begin(); it != env_floaters_names.end(); ++it)
     {
-        //currently there is only one instance of each floater
-        std::vector<std::string> env_floaters_names = { "env_edit_extdaycycle", "env_fixed_environmentent_water", "env_fixed_environmentent_sky" };
-        for (std::vector<std::string>::const_iterator it = env_floaters_names.begin(); it != env_floaters_names.end(); ++it)
+        LLFloater *env_floater = LLFloaterReg::findTypedInstance<LLFloater>(*it);
+        if (env_floater)
         {
-            LLFloater* env_floater = LLFloaterReg::findTypedInstance<LLFloater>(*it);
-            if (env_floater)
-            {
-                env_floater->setFocus(false);
-            }
+            env_floater->setFocus(false);
         }
     }
+}
 
+bool handle_env_setting_event(std::string event_name)
+{
+    if (event_name == "sunrise")
+    {
+        LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_LOCAL, LLEnvironment::KNOWN_SKY_SUNRISE,
+                                                 LLEnvironment::TRANSITION_INSTANT);
+        LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL, LLEnvironment::TRANSITION_INSTANT);
+        defocusEnvFloaters();
+    }
+    else if (event_name == "noon")
+    {
+        LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_LOCAL, LLEnvironment::KNOWN_SKY_MIDDAY,
+                                                 LLEnvironment::TRANSITION_INSTANT);
+        LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL, LLEnvironment::TRANSITION_INSTANT);
+        defocusEnvFloaters();
+    }
+    else if (event_name == "legacy noon")
+    {
+        LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_LOCAL, LLEnvironment::KNOWN_SKY_LEGACY_MIDDAY, LLEnvironment::TRANSITION_INSTANT);
+        LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL, LLEnvironment::TRANSITION_INSTANT);
+        defocusEnvFloaters();
+    }
+    else if (event_name == "sunset")
+    {
+        LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_LOCAL, LLEnvironment::KNOWN_SKY_SUNSET,
+                                                 LLEnvironment::TRANSITION_INSTANT);
+        LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL, LLEnvironment::TRANSITION_INSTANT);
+        defocusEnvFloaters();
+    }
+    else if (event_name == "midnight")
+    {
+        LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_LOCAL, LLEnvironment::KNOWN_SKY_MIDNIGHT,
+                                                 LLEnvironment::TRANSITION_INSTANT);
+        LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL, LLEnvironment::TRANSITION_INSTANT);
+        defocusEnvFloaters();
+    }
+    else if (event_name == "region")
+    {
+        // reset probe data when reverting back to region sky setting
+        gPipeline.mReflectionMapManager.reset();
+
+        LLEnvironment::instance().clearEnvironment(LLEnvironment::ENV_LOCAL);
+        LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL, LLEnvironment::TRANSITION_INSTANT);
+        defocusEnvFloaters();
+    }
+    else if (event_name == "pause_clouds")
+    {
+        if (LLEnvironment::instance().isCloudScrollPaused())
+            LLEnvironment::instance().resumeCloudScroll();
+        else
+            LLEnvironment::instance().pauseCloudScroll();
+    }
+    else if (event_name == "adjust_tool")
+    {
+        LLFloaterReg::showInstance("env_adjust_snapshot");
+    }
+    else if (event_name == "my_environs")
+    {
+        LLFloaterReg::showInstance("my_environments");
+    }
+    return true;
+}
+
+class LLWorldEnvSettings : public view_listener_t
+{
     bool handleEvent(const LLSD& userdata)
     {
-        std::string event_name = userdata.asString();
-
-        if (event_name == "sunrise")
-        {
-            LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_LOCAL, LLEnvironment::KNOWN_SKY_SUNRISE, LLEnvironment::TRANSITION_INSTANT);
-            LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL, LLEnvironment::TRANSITION_INSTANT);
-            defocusEnvFloaters();
-        }
-        else if (event_name == "noon")
-        {
-            LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_LOCAL, LLEnvironment::KNOWN_SKY_MIDDAY, LLEnvironment::TRANSITION_INSTANT);
-            LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL, LLEnvironment::TRANSITION_INSTANT);
-            defocusEnvFloaters();
-        }
-        else if (event_name == "legacy noon")
-        {
-            LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_LOCAL, LLEnvironment::KNOWN_SKY_LEGACY_MIDDAY, LLEnvironment::TRANSITION_INSTANT);
-            LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL, LLEnvironment::TRANSITION_INSTANT);
-            defocusEnvFloaters();
-        }
-        else if (event_name == "sunset")
-        {
-            LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_LOCAL, LLEnvironment::KNOWN_SKY_SUNSET, LLEnvironment::TRANSITION_INSTANT);
-            LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL, LLEnvironment::TRANSITION_INSTANT);
-            defocusEnvFloaters();
-        }
-        else if (event_name == "midnight")
-        {
-            LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_LOCAL, LLEnvironment::KNOWN_SKY_MIDNIGHT, LLEnvironment::TRANSITION_INSTANT);
-            LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL, LLEnvironment::TRANSITION_INSTANT);
-            defocusEnvFloaters();
-        }
-        else if (event_name == "region")
-        {
-            // reset probe data when reverting back to region sky setting
-            gPipeline.mReflectionMapManager.reset();
-
-            LLEnvironment::instance().clearEnvironment(LLEnvironment::ENV_LOCAL);
-            LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL, LLEnvironment::TRANSITION_INSTANT);
-            defocusEnvFloaters();
-        }
-        else if (event_name == "pause_clouds")
-        {
-            if (LLEnvironment::instance().isCloudScrollPaused())
-                LLEnvironment::instance().resumeCloudScroll();
-        else
-                LLEnvironment::instance().pauseCloudScroll();
-        }
-        else if (event_name == "adjust_tool")
-        {
-            LLFloaterReg::showInstance("env_adjust_snapshot");
-        }
-        else if (event_name == "my_environs")
-        {
-            LLFloaterReg::showInstance("my_environments");
-        }
+        handle_env_setting_event(userdata.asString());
 
         return true;
     }
@@ -9342,17 +9351,6 @@ class LLWorldEnableEnvPreset : public view_listener_t
     {
 
         return false;
-    }
-};
-
-
-/// Post-Process callbacks
-class LLWorldPostProcess : public view_listener_t
-{
-    bool handleEvent(const LLSD& userdata)
-    {
-        LLFloaterReg::showInstance("env_post_process");
-        return true;
     }
 };
 
@@ -9523,16 +9521,18 @@ void initialize_edit_menu()
 
 }
 
+typedef LLUICtrl::CommitCallbackInfo cb_info;
+
 void initialize_spellcheck_menu()
 {
-    LLUICtrl::CommitCallbackRegistry::Registrar& commit = LLUICtrl::CommitCallbackRegistry::currentRegistrar();
+    LLUICtrl::CommitRegistrarHelper registrar(LLUICtrl::CommitCallbackRegistry::defaultRegistrar());
     LLUICtrl::EnableCallbackRegistry::Registrar& enable = LLUICtrl::EnableCallbackRegistry::currentRegistrar();
 
-    commit.add("SpellCheck.ReplaceWithSuggestion", boost::bind(&handle_spellcheck_replace_with_suggestion, _1, _2));
+    registrar.add("SpellCheck.ReplaceWithSuggestion", boost::bind(&handle_spellcheck_replace_with_suggestion, _1, _2), cb_info::UNTRUSTED_BLOCK);
     enable.add("SpellCheck.VisibleSuggestion", boost::bind(&visible_spellcheck_suggestion, _1, _2));
-    commit.add("SpellCheck.AddToDictionary", boost::bind(&handle_spellcheck_add_to_dictionary, _1));
+    registrar.add("SpellCheck.AddToDictionary", boost::bind(&handle_spellcheck_add_to_dictionary, _1), cb_info::UNTRUSTED_BLOCK);
     enable.add("SpellCheck.EnableAddToDictionary", boost::bind(&enable_spellcheck_add_to_dictionary, _1));
-    commit.add("SpellCheck.AddToIgnore", boost::bind(&handle_spellcheck_add_to_ignore, _1));
+    registrar.add("SpellCheck.AddToIgnore", boost::bind(&handle_spellcheck_add_to_ignore, _1), cb_info::UNTRUSTED_BLOCK);
     enable.add("SpellCheck.EnableAddToIgnore", boost::bind(&enable_spellcheck_add_to_ignore, _1));
 }
 
@@ -9556,8 +9556,8 @@ void initialize_menus()
         bool mMult;
     };
 
+    LLUICtrl::CommitRegistrarHelper registrar(LLUICtrl::CommitCallbackRegistry::currentRegistrar());
     LLUICtrl::EnableCallbackRegistry::Registrar& enable = LLUICtrl::EnableCallbackRegistry::currentRegistrar();
-    LLUICtrl::CommitCallbackRegistry::Registrar& commit = LLUICtrl::CommitCallbackRegistry::currentRegistrar();
 
     // Generic enable and visible
     // Don't prepend MenuName.Foo because these can be used in any menu.
@@ -9572,15 +9572,15 @@ void initialize_menus()
     enable.add("Conversation.IsConversationLoggingAllowed", boost::bind(&LLFloaterIMContainer::isConversationLoggingAllowed));
 
     // Agent
-    commit.add("Agent.toggleFlying", boost::bind(&LLAgent::toggleFlying));
+    registrar.add("Agent.toggleFlying", boost::bind(&LLAgent::toggleFlying));
     enable.add("Agent.enableFlyLand", boost::bind(&enable_fly_land));
-    commit.add("Agent.PressMicrophone", boost::bind(&LLAgent::pressMicrophone, _2));
-    commit.add("Agent.ReleaseMicrophone", boost::bind(&LLAgent::releaseMicrophone, _2));
-    commit.add("Agent.ToggleMicrophone", boost::bind(&LLAgent::toggleMicrophone, _2));
+    registrar.add("Agent.PressMicrophone", boost::bind(&LLAgent::pressMicrophone, _2), cb_info::UNTRUSTED_BLOCK);
+    registrar.add("Agent.ReleaseMicrophone", boost::bind(&LLAgent::releaseMicrophone, _2), cb_info::UNTRUSTED_BLOCK);
+    registrar.add("Agent.ToggleMicrophone", boost::bind(&LLAgent::toggleMicrophone, _2), cb_info::UNTRUSTED_BLOCK);
     enable.add("Agent.IsMicrophoneOn", boost::bind(&LLAgent::isMicrophoneOn, _2));
     enable.add("Agent.IsActionAllowed", boost::bind(&LLAgent::isActionAllowed, _2));
-    commit.add("Agent.ToggleHearMediaSoundFromAvatar", boost::bind(&LLAgent::toggleHearMediaSoundFromAvatar));
-    commit.add("Agent.ToggleHearVoiceFromAvatar", boost::bind(&LLAgent::toggleHearVoiceFromAvatar));
+    registrar.add("Agent.ToggleHearMediaSoundFromAvatar", boost::bind(&LLAgent::toggleHearMediaSoundFromAvatar), cb_info::UNTRUSTED_BLOCK);
+    registrar.add("Agent.ToggleHearVoiceFromAvatar", boost::bind(&LLAgent::toggleHearVoiceFromAvatar), cb_info::UNTRUSTED_BLOCK);
 
     // File menu
     init_menu_file();
@@ -9590,12 +9590,12 @@ void initialize_menus()
     view_listener_t::addMenu(new LLEnableEditShape(), "Edit.EnableEditShape");
     view_listener_t::addMenu(new LLEnableHoverHeight(), "Edit.EnableHoverHeight");
     view_listener_t::addMenu(new LLEnableEditPhysics(), "Edit.EnableEditPhysics");
-    commit.add("CustomizeAvatar", boost::bind(&handle_customize_avatar));
-    commit.add("NowWearing", boost::bind(&handle_now_wearing));
-    commit.add("EditOutfit", boost::bind(&handle_edit_outfit));
-    commit.add("EditShape", boost::bind(&handle_edit_shape));
-    commit.add("HoverHeight", boost::bind(&handle_hover_height));
-    commit.add("EditPhysics", boost::bind(&handle_edit_physics));
+    registrar.add("CustomizeAvatar", boost::bind(&handle_customize_avatar));
+    registrar.add("NowWearing", boost::bind(&handle_now_wearing));
+    registrar.add("EditOutfit", boost::bind(&handle_edit_outfit));
+    registrar.add("EditShape", boost::bind(&handle_edit_shape));
+    registrar.add("HoverHeight", boost::bind(&handle_hover_height));
+    registrar.add("EditPhysics", boost::bind(&handle_edit_physics));
 
     // View menu
     view_listener_t::addMenu(new LLViewMouselook(), "View.Mouselook");
@@ -9648,7 +9648,6 @@ void initialize_menus()
     view_listener_t::addMenu(new LLWorldEnableEnvSettings(), "World.EnableEnvSettings");
     view_listener_t::addMenu(new LLWorldEnvPreset(), "World.EnvPreset");
     view_listener_t::addMenu(new LLWorldEnableEnvPreset(), "World.EnableEnvPreset");
-    view_listener_t::addMenu(new LLWorldPostProcess(), "World.PostProcess");
     view_listener_t::addMenu(new LLWorldCheckBanLines() , "World.CheckBanLines");
     view_listener_t::addMenu(new LLWorldShowBanLines() , "World.ShowBanLines");
 
@@ -9665,14 +9664,14 @@ void initialize_menus()
     view_listener_t::addMenu(new LLToolsSnapObjectXY(), "Tools.SnapObjectXY");
     view_listener_t::addMenu(new LLToolsUseSelectionForGrid(), "Tools.UseSelectionForGrid");
     view_listener_t::addMenu(new LLToolsSelectNextPartFace(), "Tools.SelectNextPart");
-    commit.add("Tools.Link", boost::bind(&handle_link_objects));
-    commit.add("Tools.Unlink", boost::bind(&LLSelectMgr::unlinkObjects, LLSelectMgr::getInstance()));
+    registrar.add("Tools.Link", boost::bind(&handle_link_objects));
+    registrar.add("Tools.Unlink", boost::bind(&LLSelectMgr::unlinkObjects, LLSelectMgr::getInstance()));
     view_listener_t::addMenu(new LLToolsStopAllAnimations(), "Tools.StopAllAnimations");
     view_listener_t::addMenu(new LLToolsReleaseKeys(), "Tools.ReleaseKeys");
     view_listener_t::addMenu(new LLToolsEnableReleaseKeys(), "Tools.EnableReleaseKeys");
-    commit.add("Tools.LookAtSelection", boost::bind(&handle_look_at_selection, _2));
-    commit.add("Tools.BuyOrTake", boost::bind(&handle_buy_or_take));
-    commit.add("Tools.TakeCopy", boost::bind(&handle_take_copy));
+    registrar.add("Tools.LookAtSelection", boost::bind(&handle_look_at_selection, _2));
+    registrar.add("Tools.BuyOrTake", boost::bind(&handle_buy_or_take), cb_info::UNTRUSTED_THROTTLE);
+    registrar.add("Tools.TakeCopy", boost::bind(&handle_take_copy), cb_info::UNTRUSTED_THROTTLE);
     view_listener_t::addMenu(new LLToolsSaveToObjectInventory(), "Tools.SaveToObjectInventory");
     view_listener_t::addMenu(new LLToolsSelectedScriptAction(), "Tools.SelectedScriptAction");
 
@@ -9723,7 +9722,7 @@ void initialize_menus()
     view_listener_t::addMenu(new LLAdvancedToggleInfoDisplay(), "Advanced.ToggleInfoDisplay");
     view_listener_t::addMenu(new LLAdvancedCheckInfoDisplay(), "Advanced.CheckInfoDisplay");
     view_listener_t::addMenu(new LLAdvancedSelectedTextureInfo(), "Advanced.SelectedTextureInfo");
-    commit.add("Advanced.SelectedMaterialInfo", boost::bind(&handle_selected_material_info));
+    registrar.add("Advanced.SelectedMaterialInfo", boost::bind(&handle_selected_material_info));
     view_listener_t::addMenu(new LLAdvancedToggleWireframe(), "Advanced.ToggleWireframe");
     view_listener_t::addMenu(new LLAdvancedCheckWireframe(), "Advanced.CheckWireframe");
     // Develop > Render
@@ -9736,13 +9735,14 @@ void initialize_menus()
     view_listener_t::addMenu(new LLAdvancedClickRenderShadowOption(), "Advanced.ClickRenderShadowOption");
     view_listener_t::addMenu(new LLAdvancedClickRenderProfile(), "Advanced.ClickRenderProfile");
     view_listener_t::addMenu(new LLAdvancedClickRenderBenchmark(), "Advanced.ClickRenderBenchmark");
-    view_listener_t::addMenu(new LLAdvancedClickHDRIPreview(), "Advanced.ClickHDRIPreview");
-    view_listener_t::addMenu(new LLAdvancedClickGLTFOpen(), "Advanced.ClickGLTFOpen");
-    view_listener_t::addMenu(new LLAdvancedClickGLTFSaveAs(), "Advanced.ClickGLTFSaveAs");
-    view_listener_t::addMenu(new LLAdvancedClickGLTFUpload(), "Advanced.ClickGLTFUpload");
-    view_listener_t::addMenu(new LLAdvancedClickGLTFEdit(), "Advanced.ClickGLTFEdit");
-    view_listener_t::addMenu(new LLAdvancedClickResizeWindow(), "Advanced.ClickResizeWindow");
-    view_listener_t::addMenu(new LLAdvancedPurgeShaderCache(), "Advanced.ClearShaderCache");
+    view_listener_t::addMenu(new LLAdvancedClickHDRIPreview(), "Advanced.ClickHDRIPreview", cb_info::UNTRUSTED_BLOCK);
+    view_listener_t::addMenu(new LLAdvancedClickGLTFOpen(), "Advanced.ClickGLTFOpen", cb_info::UNTRUSTED_BLOCK);
+    view_listener_t::addMenu(new LLAdvancedClickGLTFSaveAs(), "Advanced.ClickGLTFSaveAs", cb_info::UNTRUSTED_BLOCK);
+    view_listener_t::addMenu(new LLAdvancedClickGLTFUpload(), "Advanced.ClickGLTFUpload", cb_info::UNTRUSTED_BLOCK);
+    view_listener_t::addMenu(new LLAdvancedClickGLTFEdit(), "Advanced.ClickGLTFEdit", cb_info::UNTRUSTED_BLOCK);
+    view_listener_t::addMenu(new LLAdvancedClickResizeWindow(), "Advanced.ClickResizeWindow", cb_info::UNTRUSTED_BLOCK);
+    view_listener_t::addMenu(new LLAdvancedPurgeShaderCache(), "Advanced.ClearShaderCache", cb_info::UNTRUSTED_BLOCK);
+    view_listener_t::addMenu(new LLAdvancedRebuildTerrain(), "Advanced.RebuildTerrain", cb_info::UNTRUSTED_BLOCK);
 
     #ifdef TOGGLE_HACKED_GODLIKE_VIEWER
     view_listener_t::addMenu(new LLAdvancedHandleToggleHackedGodmode(), "Advanced.HandleToggleHackedGodmode");
@@ -9765,15 +9765,15 @@ void initialize_menus()
     view_listener_t::addMenu(new LLAdvancedTerrainDeleteLocalPaintMap(), "Advanced.TerrainDeleteLocalPaintMap");
 
     // Advanced > UI
-    commit.add("Advanced.WebBrowserTest", boost::bind(&handle_web_browser_test, _2));   // sigh! this one opens the MEDIA browser
-    commit.add("Advanced.WebContentTest", boost::bind(&handle_web_content_test, _2));   // this one opens the Web Content floater
-    commit.add("Advanced.ShowURL", boost::bind(&handle_show_url, _2));
-    commit.add("Advanced.ReportBug", boost::bind(&handle_report_bug, _2));
+    registrar.add("Advanced.WebBrowserTest", boost::bind(&handle_web_browser_test, _2));  // sigh! this one opens the MEDIA browser
+    registrar.add("Advanced.WebContentTest", boost::bind(&handle_web_content_test, _2));  // this one opens the Web Content floater
+    registrar.add("Advanced.ShowURL", boost::bind(&handle_show_url, _2));
+    registrar.add("Advanced.ReportBug", boost::bind(&handle_report_bug, _2));
     view_listener_t::addMenu(new LLAdvancedBuyCurrencyTest(), "Advanced.BuyCurrencyTest");
     view_listener_t::addMenu(new LLAdvancedDumpSelectMgr(), "Advanced.DumpSelectMgr");
     view_listener_t::addMenu(new LLAdvancedDumpInventory(), "Advanced.DumpInventory");
-    commit.add("Advanced.DumpTimers", boost::bind(&handle_dump_timers) );
-    commit.add("Advanced.DumpFocusHolder", boost::bind(&handle_dump_focus) );
+    registrar.add("Advanced.DumpTimers", boost::bind(&handle_dump_timers), cb_info::UNTRUSTED_THROTTLE);
+    registrar.add("Advanced.DumpFocusHolder", boost::bind(&handle_dump_focus));
     view_listener_t::addMenu(new LLAdvancedPrintSelectedObjectInfo(), "Advanced.PrintSelectedObjectInfo");
     view_listener_t::addMenu(new LLAdvancedPrintAgentInfo(), "Advanced.PrintAgentInfo");
     view_listener_t::addMenu(new LLAdvancedToggleDebugClicks(), "Advanced.ToggleDebugClicks");
@@ -9794,11 +9794,11 @@ void initialize_menus()
     view_listener_t::addMenu(new LLAdvancedCheckDebugWindowProc(), "Advanced.CheckDebugWindowProc");
 
     // Advanced > XUI
-    commit.add("Advanced.ReloadColorSettings", boost::bind(&LLUIColorTable::loadFromSettings, LLUIColorTable::getInstance()));
+    registrar.add("Advanced.ReloadColorSettings", boost::bind(&LLUIColorTable::loadFromSettings, LLUIColorTable::getInstance()));
     view_listener_t::addMenu(new LLAdvancedToggleXUINames(), "Advanced.ToggleXUINames");
     view_listener_t::addMenu(new LLAdvancedCheckXUINames(), "Advanced.CheckXUINames");
     view_listener_t::addMenu(new LLAdvancedSendTestIms(), "Advanced.SendTestIMs");
-    commit.add("Advanced.FlushNameCaches", boost::bind(&handle_flush_name_caches));
+    registrar.add("Advanced.FlushNameCaches", boost::bind(&handle_flush_name_caches), cb_info::UNTRUSTED_BLOCK);
 
     // Advanced > Character > Grab Baked Texture
     view_listener_t::addMenu(new LLAdvancedGrabBakedTexture(), "Advanced.GrabBakedTexture");
@@ -9809,8 +9809,8 @@ void initialize_menus()
     view_listener_t::addMenu(new LLAdvancedEnableAppearanceToXML(), "Advanced.EnableAppearanceToXML");
     view_listener_t::addMenu(new LLAdvancedToggleCharacterGeometry(), "Advanced.ToggleCharacterGeometry");
 
-    view_listener_t::addMenu(new LLAdvancedTestMale(), "Advanced.TestMale");
-    view_listener_t::addMenu(new LLAdvancedTestFemale(), "Advanced.TestFemale");
+    view_listener_t::addMenu(new LLAdvancedTestMale(), "Advanced.TestMale", cb_info::UNTRUSTED_THROTTLE);
+    view_listener_t::addMenu(new LLAdvancedTestFemale(), "Advanced.TestFemale", cb_info::UNTRUSTED_THROTTLE);
 
     // Advanced > Character > Animation Speed
     view_listener_t::addMenu(new LLAdvancedAnimTenFaster(), "Advanced.AnimTenFaster");
@@ -9842,7 +9842,7 @@ void initialize_menus()
     view_listener_t::addMenu(new LLAdvancedDropPacket(), "Advanced.DropPacket");
 
     // Advanced > Cache
-    view_listener_t::addMenu(new LLAdvancedPurgeDiskCache(), "Advanced.PurgeDiskCache");
+    view_listener_t::addMenu(new LLAdvancedPurgeDiskCache(), "Advanced.PurgeDiskCache", cb_info::UNTRUSTED_BLOCK);
 
     // Advanced > Recorder
     view_listener_t::addMenu(new LLAdvancedAgentPilot(), "Advanced.AgentPilot");
@@ -9851,25 +9851,25 @@ void initialize_menus()
     view_listener_t::addMenu(new LLAdvancedViewerEventRecorder(), "Advanced.EventRecorder");
 
     // Advanced > Debugging
-    view_listener_t::addMenu(new LLAdvancedForceErrorBreakpoint(), "Advanced.ForceErrorBreakpoint");
-    view_listener_t::addMenu(new LLAdvancedForceErrorLlerror(), "Advanced.ForceErrorLlerror");
-    view_listener_t::addMenu(new LLAdvancedForceErrorLlerrorMsg(), "Advanced.ForceErrorLlerrorMsg");
-    view_listener_t::addMenu(new LLAdvancedForceErrorBadMemoryAccess(), "Advanced.ForceErrorBadMemoryAccess");
-    view_listener_t::addMenu(new LLAdvancedForceErrorBadMemoryAccessCoro(), "Advanced.ForceErrorBadMemoryAccessCoro");
-    view_listener_t::addMenu(new LLAdvancedForceErrorInfiniteLoop(), "Advanced.ForceErrorInfiniteLoop");
-    view_listener_t::addMenu(new LLAdvancedForceErrorSoftwareException(), "Advanced.ForceErrorSoftwareException");
-    view_listener_t::addMenu(new LLAdvancedForceOSException(), "Advanced.ForceErrorOSException");
-    view_listener_t::addMenu(new LLAdvancedForceErrorSoftwareExceptionCoro(), "Advanced.ForceErrorSoftwareExceptionCoro");
-    view_listener_t::addMenu(new LLAdvancedForceErrorDriverCrash(), "Advanced.ForceErrorDriverCrash");
-    view_listener_t::addMenu(new LLAdvancedForceErrorCoroutineCrash(), "Advanced.ForceErrorCoroutineCrash");
-    view_listener_t::addMenu(new LLAdvancedForceErrorThreadCrash(), "Advanced.ForceErrorThreadCrash");
-    view_listener_t::addMenu(new LLAdvancedForceErrorDisconnectViewer(), "Advanced.ForceErrorDisconnectViewer");
+    view_listener_t::addMenu(new LLAdvancedForceErrorBreakpoint(), "Advanced.ForceErrorBreakpoint", cb_info::UNTRUSTED_BLOCK);
+    view_listener_t::addMenu(new LLAdvancedForceErrorLlerror(), "Advanced.ForceErrorLlerror", cb_info::UNTRUSTED_BLOCK);
+    view_listener_t::addMenu(new LLAdvancedForceErrorLlerrorMsg(), "Advanced.ForceErrorLlerrorMsg", cb_info::UNTRUSTED_BLOCK);
+    view_listener_t::addMenu(new LLAdvancedForceErrorBadMemoryAccess(), "Advanced.ForceErrorBadMemoryAccess", cb_info::UNTRUSTED_BLOCK);
+    view_listener_t::addMenu(new LLAdvancedForceErrorBadMemoryAccessCoro(), "Advanced.ForceErrorBadMemoryAccessCoro", cb_info::UNTRUSTED_BLOCK);
+    view_listener_t::addMenu(new LLAdvancedForceErrorInfiniteLoop(), "Advanced.ForceErrorInfiniteLoop", cb_info::UNTRUSTED_BLOCK);
+    view_listener_t::addMenu(new LLAdvancedForceErrorSoftwareException(), "Advanced.ForceErrorSoftwareException", cb_info::UNTRUSTED_BLOCK);
+    view_listener_t::addMenu(new LLAdvancedForceOSException(), "Advanced.ForceErrorOSException", cb_info::UNTRUSTED_BLOCK);
+    view_listener_t::addMenu(new LLAdvancedForceErrorSoftwareExceptionCoro(), "Advanced.ForceErrorSoftwareExceptionCoro", cb_info::UNTRUSTED_BLOCK);
+    view_listener_t::addMenu(new LLAdvancedForceErrorDriverCrash(), "Advanced.ForceErrorDriverCrash", cb_info::UNTRUSTED_BLOCK);
+    view_listener_t::addMenu(new LLAdvancedForceErrorCoroutineCrash(), "Advanced.ForceErrorCoroutineCrash", cb_info::UNTRUSTED_BLOCK);
+    view_listener_t::addMenu(new LLAdvancedForceErrorThreadCrash(), "Advanced.ForceErrorThreadCrash", cb_info::UNTRUSTED_BLOCK);
+    view_listener_t::addMenu(new LLAdvancedForceErrorDisconnectViewer(), "Advanced.ForceErrorDisconnectViewer", cb_info::UNTRUSTED_BLOCK);
 
     // Advanced (toplevel)
     view_listener_t::addMenu(new LLAdvancedToggleShowObjectUpdates(), "Advanced.ToggleShowObjectUpdates");
     view_listener_t::addMenu(new LLAdvancedCheckShowObjectUpdates(), "Advanced.CheckShowObjectUpdates");
     view_listener_t::addMenu(new LLAdvancedCompressImage(), "Advanced.CompressImage");
-    view_listener_t::addMenu(new LLAdvancedCompressFileTest(), "Advanced.CompressFileTest");
+    view_listener_t::addMenu(new LLAdvancedCompressFileTest(), "Advanced.CompressFileTest", cb_info::UNTRUSTED_BLOCK);
     view_listener_t::addMenu(new LLAdvancedShowDebugSettings(), "Advanced.ShowDebugSettings");
     view_listener_t::addMenu(new LLAdvancedEnableViewAdminOptions(), "Advanced.EnableViewAdminOptions");
     view_listener_t::addMenu(new LLAdvancedToggleViewAdminOptions(), "Advanced.ToggleViewAdminOptions");
@@ -9884,11 +9884,11 @@ void initialize_menus()
     view_listener_t::addMenu(new LLDevelopSetLoggingLevel(), "Develop.SetLoggingLevel");
 
     //Develop (clear cache immediately)
-    commit.add("Develop.ClearCache", boost::bind(&handle_cache_clear_immediately) );
+    registrar.add("Develop.ClearCache", boost::bind(&handle_cache_clear_immediately), cb_info::UNTRUSTED_BLOCK);
 
     // Develop (Fonts debugging)
-    commit.add("Develop.Fonts.Dump", boost::bind(&LLFontGL::dumpFonts));
-    commit.add("Develop.Fonts.DumpTextures", boost::bind(&LLFontGL::dumpFontTextures));
+    registrar.add("Develop.Fonts.Dump", boost::bind(&LLFontGL::dumpFonts), cb_info::UNTRUSTED_THROTTLE);
+    registrar.add("Develop.Fonts.DumpTextures", boost::bind(&LLFontGL::dumpFontTextures), cb_info::UNTRUSTED_THROTTLE);
 
     // Admin >Object
     view_listener_t::addMenu(new LLAdminForceTakeCopy(), "Admin.ForceTakeCopy");
@@ -9925,20 +9925,20 @@ void initialize_menus()
     view_listener_t::addMenu(new LLObjectMute(), "Avatar.Mute");
     view_listener_t::addMenu(new LLAvatarAddFriend(), "Avatar.AddFriend");
     view_listener_t::addMenu(new LLAvatarAddContact(), "Avatar.AddContact");
-    commit.add("Avatar.Freeze", boost::bind(&handle_avatar_freeze, LLSD()));
+    registrar.add("Avatar.Freeze", boost::bind(&handle_avatar_freeze, LLSD()));
     view_listener_t::addMenu(new LLAvatarDebug(), "Avatar.Debug");
     view_listener_t::addMenu(new LLAvatarVisibleDebug(), "Avatar.VisibleDebug");
     view_listener_t::addMenu(new LLAvatarInviteToGroup(), "Avatar.InviteToGroup");
-    commit.add("Avatar.Eject", boost::bind(&handle_avatar_eject, LLSD()));
-    commit.add("Avatar.ShowInspector", boost::bind(&handle_avatar_show_inspector));
+    registrar.add("Avatar.Eject", boost::bind(&handle_avatar_eject, LLSD()));
+    registrar.add("Avatar.ShowInspector", boost::bind(&handle_avatar_show_inspector));
     view_listener_t::addMenu(new LLAvatarSendIM(), "Avatar.SendIM");
-    view_listener_t::addMenu(new LLAvatarCall(), "Avatar.Call");
+    view_listener_t::addMenu(new LLAvatarCall(), "Avatar.Call", cb_info::UNTRUSTED_BLOCK);
     enable.add("Avatar.EnableCall", boost::bind(&LLAvatarActions::canCall));
-    view_listener_t::addMenu(new LLAvatarReportAbuse(), "Avatar.ReportAbuse");
+    view_listener_t::addMenu(new LLAvatarReportAbuse(), "Avatar.ReportAbuse", cb_info::UNTRUSTED_THROTTLE);
     view_listener_t::addMenu(new LLAvatarToggleMyProfile(), "Avatar.ToggleMyProfile");
     view_listener_t::addMenu(new LLAvatarTogglePicks(), "Avatar.TogglePicks");
     view_listener_t::addMenu(new LLAvatarToggleSearch(), "Avatar.ToggleSearch");
-    view_listener_t::addMenu(new LLAvatarResetSkeleton(), "Avatar.ResetSkeleton");
+    view_listener_t::addMenu(new LLAvatarResetSkeleton(), "Avatar.ResetSkeleton", cb_info::UNTRUSTED_THROTTLE);
     view_listener_t::addMenu(new LLAvatarEnableResetSkeleton(), "Avatar.EnableResetSkeleton");
     view_listener_t::addMenu(new LLAvatarResetSkeletonAndAnimations(), "Avatar.ResetSkeletonAndAnimations");
     view_listener_t::addMenu(new LLAvatarResetSelfSkeleton(), "Avatar.ResetSelfSkeleton");
@@ -9946,22 +9946,22 @@ void initialize_menus()
     enable.add("Avatar.IsMyProfileOpen", boost::bind(&my_profile_visible));
     enable.add("Avatar.IsPicksTabOpen", boost::bind(&picks_tab_visible));
 
-    commit.add("Avatar.OpenMarketplace", boost::bind(&LLWeb::loadURLExternal, gSavedSettings.getString("MarketplaceURL")));
+    registrar.add("Avatar.OpenMarketplace", boost::bind(&LLWeb::loadURLExternal, gSavedSettings.getString("MarketplaceURL")));
 
     view_listener_t::addMenu(new LLAvatarEnableAddFriend(), "Avatar.EnableAddFriend");
     enable.add("Avatar.EnableFreezeEject", boost::bind(&enable_freeze_eject, _2));
 
     // Object pie menu
     view_listener_t::addMenu(new LLObjectBuild(), "Object.Build");
-    commit.add("Object.Touch", boost::bind(&handle_object_touch));
-    commit.add("Object.ShowOriginal", boost::bind(&handle_object_show_original));
-    commit.add("Object.SitOrStand", boost::bind(&handle_object_sit_or_stand));
-    commit.add("Object.Delete", boost::bind(&handle_object_delete));
+    registrar.add("Object.Touch", boost::bind(&handle_object_touch));
+    registrar.add("Object.ShowOriginal", boost::bind(&handle_object_show_original));
+    registrar.add("Object.SitOrStand", boost::bind(&handle_object_sit_or_stand));
+    registrar.add("Object.Delete", boost::bind(&handle_object_delete));
     view_listener_t::addMenu(new LLObjectAttachToAvatar(true), "Object.AttachToAvatar");
     view_listener_t::addMenu(new LLObjectAttachToAvatar(false), "Object.AttachAddToAvatar");
     view_listener_t::addMenu(new LLObjectReturn(), "Object.Return");
-    commit.add("Object.Duplicate", boost::bind(&LLSelectMgr::duplicate, LLSelectMgr::getInstance()));
-    view_listener_t::addMenu(new LLObjectReportAbuse(), "Object.ReportAbuse");
+    registrar.add("Object.Duplicate", boost::bind(&LLSelectMgr::duplicate, LLSelectMgr::getInstance()));
+    view_listener_t::addMenu(new LLObjectReportAbuse(), "Object.ReportAbuse", cb_info::UNTRUSTED_THROTTLE);
     view_listener_t::addMenu(new LLObjectMute(), "Object.Mute");
 
     enable.add("Object.VisibleTake", boost::bind(&visible_take_object));
@@ -9970,15 +9970,15 @@ void initialize_menus()
     enable.add("Object.EnableTakeMultiple", boost::bind(&enable_take_objects));
     enable.add("Object.VisibleBuy", boost::bind(&visible_buy_object));
 
-    commit.add("Object.Buy", boost::bind(&handle_buy));
-    commit.add("Object.Edit", boost::bind(&handle_object_edit));
-    commit.add("Object.EditGLTFMaterial", boost::bind(&handle_object_edit_gltf_material));
-    commit.add("Object.Inspect", boost::bind(&handle_object_inspect));
-    commit.add("Object.Open", boost::bind(&handle_object_open));
-    commit.add("Object.Take", boost::bind(&handle_take, false));
-    commit.add("Object.TakeSeparate", boost::bind(&handle_take, true));
-    commit.add("Object.TakeSeparateCopy", boost::bind(&handle_take_separate_copy));
-    commit.add("Object.ShowInspector", boost::bind(&handle_object_show_inspector));
+    registrar.add("Object.Buy", boost::bind(&handle_buy), cb_info::UNTRUSTED_THROTTLE);
+    registrar.add("Object.Edit", boost::bind(&handle_object_edit));
+    registrar.add("Object.EditGLTFMaterial", boost::bind(&handle_object_edit_gltf_material));
+    registrar.add("Object.Inspect", boost::bind(&handle_object_inspect));
+    registrar.add("Object.Open", boost::bind(&handle_object_open));
+    registrar.add("Object.Take", boost::bind(&handle_take, false));
+    registrar.add("Object.TakeSeparate", boost::bind(&handle_take, true));
+    registrar.add("Object.TakeSeparateCopy", boost::bind(&handle_take_separate_copy));
+    registrar.add("Object.ShowInspector", boost::bind(&handle_object_show_inspector));
     enable.add("Object.EnableInspect", boost::bind(&enable_object_inspect));
     enable.add("Object.EnableEditGLTFMaterial", boost::bind(&enable_object_edit_gltf_material));
     enable.add("Object.EnableOpen", boost::bind(&enable_object_open));
@@ -9997,7 +9997,7 @@ void initialize_menus()
     enable.add("Object.EnableMute", boost::bind(&enable_object_mute));
     enable.add("Object.EnableUnmute", boost::bind(&enable_object_unmute));
     enable.add("Object.EnableBuy", boost::bind(&enable_buy_object));
-    commit.add("Object.ZoomIn", boost::bind(&handle_look_at_selection, "zoom"));
+    registrar.add("Object.ZoomIn", boost::bind(&handle_look_at_selection, "zoom"));
 
     // Attachment pie menu
     enable.add("Attachment.Label", boost::bind(&onEnableAttachmentLabel, _1, _2));
@@ -10019,14 +10019,14 @@ void initialize_menus()
     view_listener_t::addMenu(new LLMuteParticle(), "Particle.Mute");
 
     view_listener_t::addMenu(new LLLandEnableBuyPass(), "Land.EnableBuyPass");
-    commit.add("Land.Buy", boost::bind(&handle_buy_land));
+    registrar.add("Land.Buy", boost::bind(&handle_buy_land), cb_info::UNTRUSTED_THROTTLE);
 
     // Generic actions
-    commit.add("ReportAbuse", boost::bind(&handle_report_abuse));
-    commit.add("BuyCurrency", boost::bind(&handle_buy_currency));
+    registrar.add("ReportAbuse", boost::bind(&handle_report_abuse), cb_info::UNTRUSTED_THROTTLE);
+    registrar.add("BuyCurrency", boost::bind(&handle_buy_currency), cb_info::UNTRUSTED_THROTTLE);
     view_listener_t::addMenu(new LLShowHelp(), "ShowHelp");
     view_listener_t::addMenu(new LLToggleHelp(), "ToggleHelp");
-    view_listener_t::addMenu(new LLToggleSpeak(), "ToggleSpeak");
+    view_listener_t::addMenu(new LLToggleSpeak(), "ToggleSpeak", cb_info::UNTRUSTED_BLOCK);
     view_listener_t::addMenu(new LLPromptShowURL(), "PromptShowURL");
     view_listener_t::addMenu(new LLShowAgentProfile(), "ShowAgentProfile");
     view_listener_t::addMenu(new LLShowAgentProfilePicks(), "ShowAgentProfilePicks");
@@ -10035,18 +10035,18 @@ void initialize_menus()
     view_listener_t::addMenu(new LLToggleShaderControl(), "ToggleShaderControl");
     view_listener_t::addMenu(new LLCheckControl(), "CheckControl");
     view_listener_t::addMenu(new LLGoToObject(), "GoToObject");
-    commit.add("PayObject", boost::bind(&handle_give_money_dialog));
+    registrar.add("PayObject", boost::bind(&handle_give_money_dialog));
 
-    commit.add("Inventory.NewWindow", boost::bind(&LLPanelMainInventory::newWindow));
+    registrar.add("Inventory.NewWindow", boost::bind(&LLPanelMainInventory::newWindow), cb_info::UNTRUSTED_THROTTLE);
 
     enable.add("EnablePayObject", boost::bind(&enable_pay_object));
     enable.add("EnablePayAvatar", boost::bind(&enable_pay_avatar));
     enable.add("EnableEdit", boost::bind(&enable_object_edit));
     enable.add("EnableMuteParticle", boost::bind(&enable_mute_particle));
-    commit.add("Pathfinding.Linksets.Select", boost::bind(&LLFloaterPathfindingLinksets::openLinksetsWithSelectedObjects));
+    registrar.add("Pathfinding.Linksets.Select", boost::bind(&LLFloaterPathfindingLinksets::openLinksetsWithSelectedObjects));
     enable.add("EnableSelectInPathfindingLinksets", boost::bind(&enable_object_select_in_pathfinding_linksets));
     enable.add("VisibleSelectInPathfindingLinksets", boost::bind(&visible_object_select_in_pathfinding_linksets));
-    commit.add("Pathfinding.Characters.Select", boost::bind(&LLFloaterPathfindingCharacters::openCharactersWithSelectedObjects));
+    registrar.add("Pathfinding.Characters.Select", boost::bind(&LLFloaterPathfindingCharacters::openCharactersWithSelectedObjects));
     enable.add("EnableSelectInPathfindingCharacters", boost::bind(&enable_object_select_in_pathfinding_characters));
     enable.add("Advanced.EnableErrorOSException", boost::bind(&enable_os_exception));
     enable.add("EnableGLTF", boost::bind(&enable_gltf));

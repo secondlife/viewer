@@ -181,7 +181,6 @@
 #include "llnamelistctrl.h"
 #include "llnamebox.h"
 #include "llnameeditor.h"
-#include "llpostprocess.h"
 #include "llagentlanguage.h"
 #include "llwearable.h"
 #include "llinventorybridge.h"
@@ -403,10 +402,10 @@ bool idle_startup()
         static bool first_call = true;
         if (first_call)
         {
+            first_call = false;
             // Other phases get handled when startup state changes,
             // need to capture the initial state as well.
             LLStartUp::getPhases().startPhase(LLStartUp::getStartupStateString());
-            first_call = false;
         }
 
         gViewerWindow->showCursor();
@@ -1290,10 +1289,6 @@ bool idle_startup()
         display_startup();
 
         LLDrawable::initClass();
-        display_startup();
-
-        // init the shader managers
-        LLPostProcess::initClass();
         display_startup();
 
         LLAvatarAppearance::initClass("avatar_lad.xml","avatar_skeleton.xml");

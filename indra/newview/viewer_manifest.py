@@ -168,6 +168,8 @@ class ViewerManifest(LLManifest):
                         self.path("*/*/*/*.js")
                         self.path("*/*/*.html")
 
+            self.path('scripts/lua')
+
             #build_data.json.  Standard with exception handling is fine.  If we can't open a new file for writing, we have worse problems
             #platform is computed above with other arg parsing
             build_data_dict = {"Type":"viewer","Version":'.'.join(self.args['version']),

@@ -1,11 +1,9 @@
 /**
- * @file llerrorlegacy.h
- * @date   January 2007
- * @brief old things from the older error system
+ * @file llappearancelistener.h
  *
- * $LicenseInfo:firstyear=2007&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2024&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2024, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -25,8 +23,24 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLERRORLEGACY_H
-#define LL_LLERRORLEGACY_H
 
+#ifndef LL_LLAPPEARANCELISTENER_H
+#define LL_LLAPPEARANCELISTENER_H
 
-#endif // LL_LLERRORLEGACY_H
+#include "lleventapi.h"
+
+class LLAppearanceListener : public LLEventAPI
+{
+public:
+    LLAppearanceListener();
+
+private:
+    void wearOutfit(LLSD const &data);
+    void wearItems(LLSD const &data);
+    void detachItems(LLSD const &data);
+    void getOutfitsList(LLSD const &data);
+    void getOutfitItems(LLSD const &data);
+};
+
+#endif // LL_LLAPPEARANCELISTENER_H
+

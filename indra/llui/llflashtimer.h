@@ -46,7 +46,7 @@ public:
     LLFlashTimer(callback_t cb = NULL, S32 count = 0, F32 period = 0.0);
     ~LLFlashTimer() {};
 
-    /*virtual*/ bool tick();
+    bool tick() override;
 
     void startFlashing();
     void stopFlashing();

@@ -13,6 +13,7 @@
 #if ! defined(LL_THREADPOOL_H)
 #define LL_THREADPOOL_H
 
+#include "llcoros.h"
 #include "threadpool_fwd.h"
 #include "workqueue.h"
 #include <memory>                   // std::unique_ptr
@@ -52,8 +53,8 @@ namespace LL
         void start();
 
         /**
-         * ThreadPool listens for application shutdown messages on the "LLApp"
-         * LLEventPump. Call close() to shut down this ThreadPool early.
+         * ThreadPool listens for application shutdown events. Call close() to
+         * shut down this ThreadPool early.
          */
         virtual void close();
 
@@ -95,6 +96,7 @@ namespace LL
 
         std::string mName;
         size_t mThreadCount;
+        LLTempBoundListener mStopListener;
     };
 
     /**

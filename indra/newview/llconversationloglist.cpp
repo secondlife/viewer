@@ -47,11 +47,11 @@ LLConversationLogList::LLConversationLogList(const Params& p)
     LLConversationLog::instance().addObserver(this);
 
     // Set up context menu.
-    LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+    ScopedRegistrarHelper registrar;
     LLUICtrl::EnableCallbackRegistry::ScopedRegistrar check_registrar;
     LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
 
-    registrar.add       ("Calllog.Action",  boost::bind(&LLConversationLogList::onCustomAction, this, _2));
+    registrar.add       ("Calllog.Action",  boost::bind(&LLConversationLogList::onCustomAction, this, _2), cb_info::UNTRUSTED_BLOCK);
     check_registrar.add ("Calllog.Check",   boost::bind(&LLConversationLogList::isActionChecked,this, _2));
     enable_registrar.add("Calllog.Enable",  boost::bind(&LLConversationLogList::isActionEnabled,this, _2));
 

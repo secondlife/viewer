@@ -195,7 +195,6 @@
 #include "llviewerjoystick.h"
 #include "llviewermenufile.h" // LLFilePickerReplyThread
 #include "llviewernetwork.h"
-#include "llpostprocess.h"
 #include "llfloaterimnearbychat.h"
 #include "llagentui.h"
 #include "llwearablelist.h"
@@ -4853,7 +4852,7 @@ bool LLViewerWindow::saveSnapshot(const std::string& filepath, S32 image_width, 
     LL_INFOS() << "Saving snapshot to: " << filepath << LL_ENDL;
 
     LLPointer<LLImageRaw> raw = new LLImageRaw;
-    bool success = rawSnapshot(raw, image_width, image_height, true, false, show_ui, show_hud, do_rebuild);
+    bool success = rawSnapshot(raw, image_width, image_height, true, false, show_ui, show_hud, do_rebuild, 0, type);
 
     if (success)
     {
@@ -5761,11 +5760,6 @@ void LLViewerWindow::stopGL()
         }
 
         gBox.cleanupGL();
-
-        if(gPostProcess)
-        {
-            gPostProcess->invalidate();
-        }
 
         gTextureList.destroyGL();
         stop_glerror();

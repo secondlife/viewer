@@ -151,7 +151,8 @@ void LLTexUnit::refreshState(void)
 
 void LLTexUnit::activate(void)
 {
-    if (mIndex < 0) return;
+    if (mIndex < 0)
+        return;
 
     if ((S32)gGL.mCurrTextureUnitIndex != mIndex || gGL.mDirty)
     {
@@ -163,7 +164,8 @@ void LLTexUnit::activate(void)
 
 void LLTexUnit::enable(eTextureType type)
 {
-    if (mIndex < 0) return;
+    if (mIndex < 0)
+        return;
 
     if ( (mCurrTexType != type || gGL.mDirty) && (type != TT_NONE) )
     {
@@ -180,7 +182,8 @@ void LLTexUnit::enable(eTextureType type)
 
 void LLTexUnit::disable(void)
 {
-    if (mIndex < 0) return;
+    if (mIndex < 0)
+        return;
 
     if (mCurrTexType != TT_NONE)
     {
@@ -216,7 +219,7 @@ bool LLTexUnit::bind(LLTexture* texture, bool for_rendering, bool forceBind)
     {
         gGL.flush();
 
-        LLImageGL* gl_tex = NULL ;
+        LLImageGL* gl_tex = NULL;
 
         if (texture != NULL && (gl_tex = texture->getGLTexture()))
         {
@@ -231,8 +234,8 @@ bool LLTexUnit::bind(LLTexture* texture, bool for_rendering, bool forceBind)
                     glBindTexture(sGLTextureType[gl_tex->getTarget()], mCurrTexture);
                     if(gl_tex->updateBindStats())
                     {
-                        texture->setActive() ;
-                        texture->updateBindStatsForTester() ;
+                        texture->setActive();
+                        texture->updateBindStatsForTester();
                     }
                     mHasMipMaps = gl_tex->mHasMipMaps;
                     if (gl_tex->mTexOptionsDirty)
@@ -246,9 +249,9 @@ bool LLTexUnit::bind(LLTexture* texture, bool for_rendering, bool forceBind)
             else
             {
                 //if deleted, will re-generate it immediately
-                texture->forceImmediateUpdate() ;
+                texture->forceImmediateUpdate();
 
-                gl_tex->forceUpdateBindStats() ;
+                gl_tex->forceUpdateBindStats();
                 return texture->bindDefaultImage(mIndex);
             }
         }
@@ -276,24 +279,27 @@ bool LLTexUnit::bind(LLTexture* texture, bool for_rendering, bool forceBind)
 bool LLTexUnit::bind(LLImageGL* texture, bool for_rendering, bool forceBind, S32 usename)
 {
     stop_glerror();
-    if (mIndex < 0) return false;
+    if (mIndex < 0)
+    {
+        return false;
+    }
 
     U32 texname = usename ? usename : texture->getTexName();
 
-    if(!texture)
+    if (!texture)
     {
         LL_DEBUGS() << "NULL LLTexUnit::bind texture" << LL_ENDL;
         return false;
     }
 
-    if(!texname)
+    if (!texname)
     {
         if(LLImageGL::sDefaultGLTexture && LLImageGL::sDefaultGLTexture->getTexName())
         {
-            return bind(LLImageGL::sDefaultGLTexture) ;
+            return bind(LLImageGL::sDefaultGLTexture);
         }
         stop_glerror();
-        return false ;
+        return false;
     }
 
     if ((mCurrTexture != texname) || forceBind)
@@ -326,7 +332,10 @@ bool LLTexUnit::bind(LLImageGL* texture, bool for_rendering, bool forceBind, S32
 
 bool LLTexUnit::bind(LLCubeMap* cubeMap)
 {
-    if (mIndex < 0) return false;
+    if (mIndex < 0)
+    {
+        return false;
+    }
 
     gGL.flush();
 
@@ -366,7 +375,10 @@ bool LLTexUnit::bind(LLCubeMap* cubeMap)
 // LLRenderTarget is unavailible on the mapserver since it uses FBOs.
 bool LLTexUnit::bind(LLRenderTarget* renderTarget, bool bindDepth)
 {
-    if (mIndex < 0) return false;
+    if (mIndex < 0)
+    {
+        return false;
+    }
 
     gGL.flush();
 
@@ -391,7 +403,7 @@ bool LLTexUnit::bindManual(eTextureType type, U32 texture, bool hasMips)
         return false;
     }
 
-    if(mCurrTexture != texture)
+    if (mCurrTexture != texture)
     {
         gGL.flush();
 
@@ -401,6 +413,7 @@ bool LLTexUnit::bindManual(eTextureType type, U32 texture, bool hasMips)
         glBindTexture(sGLTextureType[type], texture);
         mHasMipMaps = hasMips;
     }
+
     return true;
 }
 
@@ -408,7 +421,8 @@ void LLTexUnit::unbind(eTextureType type)
 {
     stop_glerror();
 
-    if (mIndex < 0) return;
+    if (mIndex < 0)
+        return;
 
     //always flush and activate for consistency
     //   some code paths assume unbind always flushes and sets the active texture
@@ -454,7 +468,8 @@ void LLTexUnit::unbindFast(eTextureType type)
 
 void LLTexUnit::setTextureAddressMode(eTextureAddressMode mode)
 {
-    if (mIndex < 0 || mCurrTexture == 0) return;
+    if (mIndex < 0 || mCurrTexture == 0)
+        return;
 
     gGL.flush();
 
@@ -470,7 +485,8 @@ void LLTexUnit::setTextureAddressMode(eTextureAddressMode mode)
 
 void LLTexUnit::setTextureFilteringOption(LLTexUnit::eTextureFilterOptions option)
 {
-    if (mIndex < 0 || mCurrTexture == 0 || mCurrTexType == LLTexUnit::TT_MULTISAMPLE_TEXTURE) return;
+    if (mIndex < 0 || mCurrTexture == 0 || mCurrTexType == LLTexUnit::TT_MULTISAMPLE_TEXTURE)
+        return;
 
     gGL.flush();
 
@@ -525,7 +541,7 @@ void LLTexUnit::setTextureFilteringOption(LLTexUnit::eTextureFilterOptions optio
 
 GLint LLTexUnit::getTextureSource(eTextureBlendSrc src)
 {
-    switch(src)
+    switch (src)
     {
         // All four cases should return the same value.
         case TBS_PREV_COLOR:
@@ -563,14 +579,14 @@ GLint LLTexUnit::getTextureSource(eTextureBlendSrc src)
 
 GLint LLTexUnit::getTextureSourceType(eTextureBlendSrc src, bool isAlpha)
 {
-    switch(src)
+    switch (src)
     {
         // All four cases should return the same value.
         case TBS_PREV_COLOR:
         case TBS_TEX_COLOR:
         case TBS_VERT_COLOR:
         case TBS_CONST_COLOR:
-            return (isAlpha) ? GL_SRC_ALPHA: GL_SRC_COLOR;
+            return isAlpha ? GL_SRC_ALPHA : GL_SRC_COLOR;
 
         // All four cases should return the same value.
         case TBS_PREV_ALPHA:
@@ -584,7 +600,7 @@ GLint LLTexUnit::getTextureSourceType(eTextureBlendSrc src, bool isAlpha)
         case TBS_ONE_MINUS_TEX_COLOR:
         case TBS_ONE_MINUS_VERT_COLOR:
         case TBS_ONE_MINUS_CONST_COLOR:
-            return (isAlpha) ? GL_ONE_MINUS_SRC_ALPHA : GL_ONE_MINUS_SRC_COLOR;
+            return isAlpha ? GL_ONE_MINUS_SRC_ALPHA : GL_ONE_MINUS_SRC_COLOR;
 
         // All four cases should return the same value.
         case TBS_ONE_MINUS_PREV_ALPHA:
@@ -595,7 +611,7 @@ GLint LLTexUnit::getTextureSourceType(eTextureBlendSrc src, bool isAlpha)
 
         default:
             LL_WARNS() << "Unknown eTextureBlendSrc: " << src << ".  Using Source Color or Alpha instead." << LL_ENDL;
-            return (isAlpha) ? GL_SRC_ALPHA: GL_SRC_COLOR;
+            return isAlpha ? GL_SRC_ALPHA : GL_SRC_COLOR;
     }
 }
 
@@ -605,7 +621,7 @@ void LLTexUnit::setColorScale(S32 scale)
     {
         mCurrColorScale = scale;
         gGL.flush();
-        glTexEnvi( GL_TEXTURE_ENV, GL_RGB_SCALE, scale );
+        glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE, scale);
     }
 }
 
@@ -615,7 +631,7 @@ void LLTexUnit::setAlphaScale(S32 scale)
     {
         mCurrAlphaScale = scale;
         gGL.flush();
-        glTexEnvi( GL_TEXTURE_ENV, GL_ALPHA_SCALE, scale );
+        glTexEnvi(GL_TEXTURE_ENV, GL_ALPHA_SCALE, scale);
     }
 }
 
@@ -623,7 +639,8 @@ void LLTexUnit::setAlphaScale(S32 scale)
 // texture unit based on the currently set active texture in opengl.
 void LLTexUnit::debugTextureUnit(void)
 {
-    if (mIndex < 0) return;
+    if (mIndex < 0)
+        return;
 
     GLint activeTexture;
     glGetIntegerv(GL_ACTIVE_TEXTURE, &activeTexture);
@@ -645,16 +662,16 @@ LLLightState::LLLightState(S32 index)
 {
     if (mIndex == 0)
     {
-        mDiffuse.set(1,1,1,1);
-        mDiffuseB.set(0,0,0,0);
-        mSpecular.set(1,1,1,1);
+        mDiffuse.set(1, 1, 1, 1);
+        mDiffuseB.set(0, 0, 0, 0);
+        mSpecular.set(1, 1, 1, 1);
     }
 
     mSunIsPrimary = true;
 
-    mAmbient.set(0,0,0,1);
-    mPosition.set(0,0,1,0);
-    mSpotDirection.set(0,0,-1);
+    mAmbient.set(0, 0, 0, 1);
+    mPosition.set(0, 0, 1, 0);
+    mSpotDirection.set(0, 0, -1);
 }
 
 void LLLightState::enable()
@@ -886,6 +903,7 @@ bool LLRender::init(bool needs_vertex_buffer)
     {
         initVertexBuffer();
     }
+
     return true;
 }
 
@@ -1119,7 +1137,6 @@ void LLRender::syncMatrices()
             }
         }
 
-
         if (shader->mFeatures.hasLighting || shader->mFeatures.calculatesLighting || shader->mFeatures.calculatesAtmospherics)
         { //also sync light state
             syncLightState();
@@ -1132,91 +1149,78 @@ void LLRender::translatef(const GLfloat& x, const GLfloat& y, const GLfloat& z)
 {
     flush();
 
-    {
-        mMatrix[mMatrixMode][mMatIdx[mMatrixMode]] = glm::translate(mMatrix[mMatrixMode][mMatIdx[mMatrixMode]], glm::vec3(x, y, z));
-        mMatHash[mMatrixMode]++;
-    }
+    mMatrix[mMatrixMode][mMatIdx[mMatrixMode]] = glm::translate(mMatrix[mMatrixMode][mMatIdx[mMatrixMode]], glm::vec3(x, y, z));
+    mMatHash[mMatrixMode]++;
 }
 
 void LLRender::scalef(const GLfloat& x, const GLfloat& y, const GLfloat& z)
 {
     flush();
 
-    {
-        mMatrix[mMatrixMode][mMatIdx[mMatrixMode]] = glm::scale(mMatrix[mMatrixMode][mMatIdx[mMatrixMode]], glm::vec3(x, y, z));
-        mMatHash[mMatrixMode]++;
-    }
+    mMatrix[mMatrixMode][mMatIdx[mMatrixMode]] = glm::scale(mMatrix[mMatrixMode][mMatIdx[mMatrixMode]], glm::vec3(x, y, z));
+    mMatHash[mMatrixMode]++;
 }
 
 void LLRender::ortho(F32 left, F32 right, F32 bottom, F32 top, F32 zNear, F32 zFar)
 {
     flush();
 
-    {
-        mMatrix[mMatrixMode][mMatIdx[mMatrixMode]] *= glm::ortho(left, right, bottom, top, zNear, zFar);
-        mMatHash[mMatrixMode]++;
-    }
+    mMatrix[mMatrixMode][mMatIdx[mMatrixMode]] *= glm::ortho(left, right, bottom, top, zNear, zFar);
+    mMatHash[mMatrixMode]++;
 }
 
 void LLRender::rotatef(const GLfloat& a, const GLfloat& x, const GLfloat& y, const GLfloat& z)
 {
     flush();
 
-    {
-        mMatrix[mMatrixMode][mMatIdx[mMatrixMode]] = glm::rotate(mMatrix[mMatrixMode][mMatIdx[mMatrixMode]], glm::radians(a), glm::vec3(x,y,z));
-        mMatHash[mMatrixMode]++;
-    }
+    mMatrix[mMatrixMode][mMatIdx[mMatrixMode]] = glm::rotate(mMatrix[mMatrixMode][mMatIdx[mMatrixMode]], glm::radians(a), glm::vec3(x,y,z));
+    mMatHash[mMatrixMode]++;
 }
 
 void LLRender::pushMatrix()
 {
     flush();
 
+    if (mMatIdx[mMatrixMode] < LL_MATRIX_STACK_DEPTH-1)
     {
-        if (mMatIdx[mMatrixMode] < LL_MATRIX_STACK_DEPTH-1)
-        {
-            mMatrix[mMatrixMode][mMatIdx[mMatrixMode]+1] = mMatrix[mMatrixMode][mMatIdx[mMatrixMode]];
-            ++mMatIdx[mMatrixMode];
-        }
-        else
-        {
-            LL_WARNS() << "Matrix stack overflow." << LL_ENDL;
-        }
+        mMatrix[mMatrixMode][mMatIdx[mMatrixMode]+1] = mMatrix[mMatrixMode][mMatIdx[mMatrixMode]];
+        ++mMatIdx[mMatrixMode];
+    }
+    else
+    {
+        LL_WARNS() << "Matrix stack overflow." << LL_ENDL;
     }
 }
 
 void LLRender::popMatrix()
 {
     flush();
+
+    if (mMatIdx[mMatrixMode] > 0)
     {
-        if (mMatIdx[mMatrixMode] > 0)
-        {
-            --mMatIdx[mMatrixMode];
-            mMatHash[mMatrixMode]++;
-        }
-        else
-        {
-            LL_WARNS() << "Matrix stack underflow." << LL_ENDL;
-        }
+        --mMatIdx[mMatrixMode];
+        mMatHash[mMatrixMode]++;
+    }
+    else
+    {
+        LL_WARNS() << "Matrix stack underflow." << LL_ENDL;
     }
 }
 
 void LLRender::loadMatrix(const GLfloat* m)
 {
     flush();
-    {
-        mMatrix[mMatrixMode][mMatIdx[mMatrixMode]] = glm::make_mat4((GLfloat*) m);
-        mMatHash[mMatrixMode]++;
-    }
+
+    mMatrix[mMatrixMode][mMatIdx[mMatrixMode]] = glm::make_mat4((GLfloat*) m);
+    mMatHash[mMatrixMode]++;
 }
 
 void LLRender::multMatrix(const GLfloat* m)
 {
     flush();
-    {
-        mMatrix[mMatrixMode][mMatIdx[mMatrixMode]] *= glm::make_mat4(m);
-        mMatHash[mMatrixMode]++;
-    }
+
+    mMatrix[mMatrixMode][mMatIdx[mMatrixMode]] *= glm::make_mat4(m);
+    mMatHash[mMatrixMode]++;
 }
 
 void LLRender::matrixMode(eMatrixMode mode)
@@ -1254,12 +1258,10 @@ void LLRender::loadIdentity()
 {
     flush();
 
-    {
-        llassert_always(mMatrixMode < NUM_MATRIX_MODES) ;
+    llassert_always(mMatrixMode < NUM_MATRIX_MODES);
 
-        mMatrix[mMatrixMode][mMatIdx[mMatrixMode]] = glm::identity<glm::mat4>();
-        mMatHash[mMatrixMode]++;
-    }
+    mMatrix[mMatrixMode][mMatIdx[mMatrixMode]] = glm::identity<glm::mat4>();
+    mMatHash[mMatrixMode]++;
 }
 
 const glm::mat4& LLRender::getModelviewMatrix()
@@ -1279,9 +1281,7 @@ void LLRender::translateUI(F32 x, F32 y, F32 z)
         LL_ERRS() << "Need to push a UI translation frame before offsetting" << LL_ENDL;
     }
 
-    mUIOffset.back().mV[0] += x;
-    mUIOffset.back().mV[1] += y;
-    mUIOffset.back().mV[2] += z;
+    mUIOffset.back().add(LLVector4a(x, y, z));
 }
 
 void LLRender::scaleUI(F32 x, F32 y, F32 z)
@@ -1291,14 +1291,14 @@ void LLRender::scaleUI(F32 x, F32 y, F32 z)
         LL_ERRS() << "Need to push a UI transformation frame before scaling." << LL_ENDL;
     }
 
-    mUIScale.back().scaleVec(LLVector3(x,y,z));
+    mUIScale.back().mul(LLVector4a(x, y, z));
 }
 
 void LLRender::pushUIMatrix()
 {
     if (mUIOffset.empty())
     {
-        mUIOffset.emplace_back(0.f,0.f,0.f);
+        mUIOffset.emplace_back(0.f);
     }
     else
     {
@@ -1307,7 +1307,7 @@ void LLRender::pushUIMatrix()
 
     if (mUIScale.empty())
     {
-        mUIScale.emplace_back(1.f,1.f,1.f);
+        mUIScale.emplace_back(1.f);
     }
     else
     {
@@ -1329,18 +1329,20 @@ LLVector3 LLRender::getUITranslation()
 {
     if (mUIOffset.empty())
     {
-        return LLVector3(0,0,0);
+        return LLVector3::zero;
     }
-    return mUIOffset.back();
+
+    return LLVector3(mUIOffset.back().getF32ptr());
 }
 
 LLVector3 LLRender::getUIScale()
 {
     if (mUIScale.empty())
     {
-        return LLVector3(1,1,1);
+        return LLVector3::all_one;
     }
-    return mUIScale.back();
+
+    return LLVector3(mUIScale.back().getF32ptr());
 }
 
 
@@ -1350,8 +1352,9 @@ void LLRender::loadUIIdentity()
     {
         LL_ERRS() << "Need to push UI translation frame before clearing offset." << LL_ENDL;
     }
-    mUIOffset.back().setVec(0,0,0);
-    mUIScale.back().setVec(1,1,1);
+
+    mUIOffset.back().clear();
+    mUIScale.back().splat(1);
 }
 
 void LLRender::setColorMask(bool writeColor, bool writeAlpha)
@@ -1445,7 +1448,7 @@ void LLRender::blendFunc(eBlendFactor color_sfactor, eBlendFactor color_dfactor,
         flush();
 
         glBlendFuncSeparate(sGLBlendFactor[color_sfactor], sGLBlendFactor[color_dfactor],
-                           sGLBlendFactor[alpha_sfactor], sGLBlendFactor[alpha_dfactor]);
+                            sGLBlendFactor[alpha_sfactor], sGLBlendFactor[alpha_dfactor]);
     }
 }
 
@@ -1455,11 +1458,9 @@ LLTexUnit* LLRender::getTexUnit(U32 index)
     {
         return &mTexUnits[index];
     }
-    else
-    {
-        LL_DEBUGS() << "Non-existing texture unit layer requested: " << index << LL_ENDL;
-        return &mDummyTexUnit;
-    }
+
+    LL_DEBUGS() << "Non-existing texture unit layer requested: " << index << LL_ENDL;
+    return &mDummyTexUnit;
 }
 
 LLLightState* LLRender::getLight(U32 index)
@@ -1488,11 +1489,9 @@ bool LLRender::verifyTexUnitActive(U32 unitToVerify)
     {
         return true;
     }
-    else
-    {
-        LL_WARNS() << "TexUnit currently active: " << mCurrTextureUnitIndex << " (expecting " << unitToVerify << ")" << LL_ENDL;
-        return false;
-    }
+
+    LL_WARNS() << "TexUnit currently active: " << mCurrTextureUnitIndex << " (expecting " << unitToVerify << ")" << LL_ENDL;
+    return false;
 }
 
 void LLRender::clearErrors()
@@ -1509,6 +1508,7 @@ void LLRender::beginList(std::list<LLVertexBufferData> *list)
     {
         LL_ERRS() << "beginList called while another list is open." << LL_ENDL;
     }
+
     llassert(LLGLSLShader::sCurBoundShaderPtr == &gUIProgram);
     flush();
     sBufferDataList = list;
@@ -1581,7 +1581,7 @@ void LLRender::flush()
 
         if (mMode == LLRender::TRIANGLES)
         {
-            if (mCount%3 != 0)
+            if (mCount % 3 != 0)
             {
             count -= (mCount % 3);
             LL_WARNS() << "Incomplete triangle requested." << LL_ENDL;
@@ -1590,7 +1590,7 @@ void LLRender::flush()
 
         if (mMode == LLRender::LINES)
         {
-            if (mCount%2 != 0)
+            if (mCount % 2 != 0)
             {
                 count -= (mCount % 2);
                 LL_WARNS() << "Incomplete line requested." << LL_ENDL;
@@ -1601,7 +1601,6 @@ void LLRender::flush()
 
         if (mBuffer)
         {
-
             LLVertexBuffer *vb;
 
             U32 attribute_mask = LLGLSLShader::sCurBoundShaderPtr->mAttributeMask;
@@ -1708,6 +1707,7 @@ LLVertexBuffer* LLRender::bufferfromCache(U32 attribute_mask, U32 count)
             }
         }
     }
+
     return vb;
 }
 
@@ -1755,14 +1755,26 @@ void LLRender::resetStriders(S32 count)
 
 void LLRender::vertex3f(const GLfloat& x, const GLfloat& y, const GLfloat& z)
 {
-    //the range of mVerticesp, mColorsp and mTexcoordsp is [0, 4095]
+    // the range of mVerticesp, mColorsp and mTexcoordsp is [0, 4095]
     if (mCount > 2048)
-    { //break when buffer gets reasonably full to keep GL command buffers happy and avoid overflow below
+    { // break when buffer gets reasonably full to keep GL command buffers happy and avoid overflow below
         switch (mMode)
         {
-            case LLRender::POINTS: flush(); break;
-            case LLRender::TRIANGLES: if (mCount%3==0) flush(); break;
-            case LLRender::LINES: if (mCount%2 == 0) flush(); break;
+            case LLRender::POINTS:
+                flush();
+                break;
+            case LLRender::TRIANGLES:
+                if (mCount % 3 == 0)
+                {
+                    flush();
+                }
+                break;
+            case LLRender::LINES:
+                if (mCount % 2 == 0)
+                {
+                    flush();
+                }
+                break;
         }
     }
 
@@ -1772,23 +1784,64 @@ void LLRender::vertex3f(const GLfloat& x, const GLfloat& y, const GLfloat& z)
         return;
     }
 
-    if (mUIOffset.empty())
-    {
-        mVerticesp[mCount].set(x,y,z);
-    }
-    else
-    {
-        LLVector3 vert = (LLVector3(x,y,z)+mUIOffset.back()).scaledVec(mUIScale.back());
-        mVerticesp[mCount].set(vert.mV[VX], vert.mV[VY], vert.mV[VZ]);
-    }
+    LLVector4a vert(x, y, z);
+    transform(vert);
+    mVerticesp[mCount] = vert;
 
     mCount++;
-    mVerticesp[mCount] = mVerticesp[mCount-1];
+    mVerticesp[mCount] = vert;
     mColorsp[mCount] = mColorsp[mCount-1];
     mTexcoordsp[mCount] = mTexcoordsp[mCount-1];
 }
 
-void LLRender::vertexBatchPreTransformed(LLVector4a* verts, S32 vert_count)
+void LLRender::transform(LLVector3& vert)
+{
+    if (!mUIOffset.empty())
+    {
+        vert += LLVector3(mUIOffset.back().getF32ptr());
+        vert *= LLVector3(mUIScale.back().getF32ptr());
+    }
+}
+
+void LLRender::transform(LLVector4a& vert)
+{
+    if (!mUIOffset.empty())
+    {
+        vert.add(mUIOffset.back());
+        vert.mul(mUIScale.back());
+    }
+}
+
+void LLRender::untransform(LLVector3& vert)
+{
+    if (!mUIOffset.empty())
+    {
+        vert /= LLVector3(mUIScale.back().getF32ptr());
+        vert -= LLVector3(mUIOffset.back().getF32ptr());
+    }
+}
+
+void LLRender::batchTransform(LLVector4a* verts, U32 vert_count)
+{
+    if (!mUIOffset.empty())
+    {
+        const LLVector4a& offset = mUIOffset.back();
+        const LLVector4a& scale = mUIScale.back();
+
+        for (U32 i = 0; i < vert_count; ++i)
+        {
+            verts[i].add(offset);
+            verts[i].mul(scale);
+        }
+    }
+}
+
+void LLRender::vertexBatchPreTransformed(const std::vector<LLVector4a>& verts)
+{
+    vertexBatchPreTransformed(verts.data(), verts.size());
+}
+
+void LLRender::vertexBatchPreTransformed(const LLVector4a* verts, std::size_t vert_count)
 {
     if (mCount + vert_count > 4094)
     {
@@ -1801,15 +1854,17 @@ void LLRender::vertexBatchPreTransformed(LLVector4a* verts, S32 vert_count)
         mVerticesp[mCount] = verts[i];
 
         mCount++;
-        mTexcoordsp[mCount] = mTexcoordsp[mCount-1];
-        mColorsp[mCount] = mColorsp[mCount-1];
+        mTexcoordsp[mCount] = mTexcoordsp[mCount - 1];
+        mColorsp[mCount] = mColorsp[mCount - 1];
     }
 
-    if( mCount > 0 ) // ND: Guard against crashes if mCount is zero, yes it can happen
-        mVerticesp[mCount] = mVerticesp[mCount-1];
+    if (mCount > 0) // ND: Guard against crashes if mCount is zero, yes it can happen
+    {
+        mVerticesp[mCount] = mVerticesp[mCount - 1];
+    }
 }
 
-void LLRender::vertexBatchPreTransformed(LLVector4a* verts, LLVector2* uvs, S32 vert_count)
+void LLRender::vertexBatchPreTransformed(const LLVector4a* verts, const LLVector2* uvs, std::size_t vert_count)
 {
     if (mCount + vert_count > 4094)
     {
@@ -1833,7 +1888,7 @@ void LLRender::vertexBatchPreTransformed(LLVector4a* verts, LLVector2* uvs, S32 
     }
 }
 
-void LLRender::vertexBatchPreTransformed(LLVector4a* verts, LLVector2* uvs, LLColor4U* colors, S32 vert_count)
+void LLRender::vertexBatchPreTransformed(const LLVector4a* verts, const LLVector2* uvs, const LLColor4U* colors, std::size_t vert_count)
 {
     if (mCount + vert_count > 4094)
     {
@@ -1860,22 +1915,22 @@ void LLRender::vertexBatchPreTransformed(LLVector4a* verts, LLVector2* uvs, LLCo
 
 void LLRender::vertex2i(const GLint& x, const GLint& y)
 {
-    vertex3f((GLfloat) x, (GLfloat) y, 0);
+    vertex3f((GLfloat)x, (GLfloat)y, 0);
 }
 
 void LLRender::vertex2f(const GLfloat& x, const GLfloat& y)
 {
-    vertex3f(x,y,0);
+    vertex3f(x, y, 0);
 }
 
 void LLRender::vertex2fv(const GLfloat* v)
 {
-    vertex3f(v[0], v[1], 0);
+    vertex3f(v[VX], v[VY], 0);
 }
 
 void LLRender::vertex3fv(const GLfloat* v)
 {
-    vertex3f(v[0], v[1], v[2]);
+    vertex3f(v[VX], v[VY], v[VZ]);
 }
 
 void LLRender::texCoord2f(const GLfloat& x, const GLfloat& y)
@@ -1890,46 +1945,47 @@ void LLRender::texCoord2i(const GLint& x, const GLint& y)
 
 void LLRender::texCoord2fv(const GLfloat* tc)
 {
-    texCoord2f(tc[0], tc[1]);
+    texCoord2f(tc[VX], tc[VY]);
 }
 
 void LLRender::color4ub(const GLubyte& r, const GLubyte& g, const GLubyte& b, const GLubyte& a)
 {
-    if (!LLGLSLShader::sCurBoundShaderPtr || LLGLSLShader::sCurBoundShaderPtr->mAttributeMask & LLVertexBuffer::MAP_COLOR)
+    if (!LLGLSLShader::sCurBoundShaderPtr ||
+        LLGLSLShader::sCurBoundShaderPtr->mAttributeMask & LLVertexBuffer::MAP_COLOR)
     {
-        mColorsp[mCount].set(r,g,b,a);
+        mColorsp[mCount].set(r, g, b, a);
     }
     else
     { //not using shaders or shader reads color from a uniform
-        diffuseColor4ub(r,g,b,a);
+        diffuseColor4ub(r, g, b, a);
     }
 }
 void LLRender::color4ubv(const GLubyte* c)
 {
-    color4ub(c[0], c[1], c[2], c[3]);
+    color4ub(c[VX], c[VY], c[VZ], c[VW]);
 }
 
 void LLRender::color4f(const GLfloat& r, const GLfloat& g, const GLfloat& b, const GLfloat& a)
 {
-    color4ub((GLubyte) (llclamp(r, 0.f, 1.f)*255),
-        (GLubyte) (llclamp(g, 0.f, 1.f)*255),
-        (GLubyte) (llclamp(b, 0.f, 1.f)*255),
-        (GLubyte) (llclamp(a, 0.f, 1.f)*255));
+    color4ub((GLubyte) (llclamp(r, 0.f, 1.f) * 255),
+        (GLubyte) (llclamp(g, 0.f, 1.f) * 255),
+        (GLubyte) (llclamp(b, 0.f, 1.f) * 255),
+        (GLubyte) (llclamp(a, 0.f, 1.f) * 255));
 }
 
 void LLRender::color4fv(const GLfloat* c)
 {
-    color4f(c[0],c[1],c[2],c[3]);
+    color4f(c[VX], c[VY], c[VZ], c[VW]);
 }
 
 void LLRender::color3f(const GLfloat& r, const GLfloat& g, const GLfloat& b)
 {
-    color4f(r,g,b,1);
+    color4f(r, g, b, 1);
 }
 
 void LLRender::color3fv(const GLfloat* c)
 {
-    color4f(c[0],c[1],c[2],1);
+    color4f(c[VX], c[VY], c[VZ], 1);
 }
 
 void LLRender::diffuseColor3f(F32 r, F32 g, F32 b)
@@ -1939,7 +1995,7 @@ void LLRender::diffuseColor3f(F32 r, F32 g, F32 b)
 
     if (shader)
     {
-        shader->uniform4f(LLShaderMgr::DIFFUSE_COLOR, r,g,b,1.f);
+        shader->uniform4f(LLShaderMgr::DIFFUSE_COLOR, r, g, b, 1.f);
     }
 }
 
@@ -1950,7 +2006,7 @@ void LLRender::diffuseColor3fv(const F32* c)
 
     if (shader)
     {
-        shader->uniform4f(LLShaderMgr::DIFFUSE_COLOR, c[0], c[1], c[2], 1.f);
+        shader->uniform4f(LLShaderMgr::DIFFUSE_COLOR, c[VX], c[VY], c[VZ], 1.f);
     }
 }
 
@@ -1961,7 +2017,7 @@ void LLRender::diffuseColor4f(F32 r, F32 g, F32 b, F32 a)
 
     if (shader)
     {
-        shader->uniform4f(LLShaderMgr::DIFFUSE_COLOR, r,g,b,a);
+        shader->uniform4f(LLShaderMgr::DIFFUSE_COLOR, r, g, b, a);
     }
 }
 
@@ -1983,7 +2039,7 @@ void LLRender::diffuseColor4ubv(const U8* c)
 
     if (shader)
     {
-        shader->uniform4f(LLShaderMgr::DIFFUSE_COLOR, c[0]/255.f, c[1]/255.f, c[2]/255.f, c[3]/255.f);
+        shader->uniform4f(LLShaderMgr::DIFFUSE_COLOR, c[0] / 255.f, c[1] / 255.f, c[2] / 255.f, c[3] / 255.f);
     }
 }
 
@@ -1994,10 +2050,9 @@ void LLRender::diffuseColor4ub(U8 r, U8 g, U8 b, U8 a)
 
     if (shader)
     {
-        shader->uniform4f(LLShaderMgr::DIFFUSE_COLOR, r/255.f, g/255.f, b/255.f, a/255.f);
+        shader->uniform4f(LLShaderMgr::DIFFUSE_COLOR, r / 255.f, g / 255.f, b / 255.f, a / 255.f);
     }
 }
-
 
 void LLRender::debugTexUnits(void)
 {
@@ -2009,7 +2064,7 @@ void LLRender::debugTexUnits(void)
         {
             if (i == mCurrTextureUnitIndex) active_enabled = "true";
             LL_INFOS("TextureUnit") << "TexUnit: " << i << " Enabled" << LL_ENDL;
-            LL_INFOS("TextureUnit") << "Enabled As: " ;
+            LL_INFOS("TextureUnit") << "Enabled As: ";
             switch (getTexUnit(i)->mCurrTexType)
             {
                 case LLTexUnit::TT_TEXTURE:
@@ -2094,10 +2149,10 @@ glm::vec3 mul_mat4_vec3(const glm::mat4& mat, const glm::vec3& vec)
     y.splat(vec.y);
     z.splat(vec.z);
 
-    s.splat<3>(mat[0].data);
-    t.splat<3>(mat[1].data);
-    p.splat<3>(mat[2].data);
-    q.splat<3>(mat[3].data);
+    s.splat<3>(mat[VX].data);
+    t.splat<3>(mat[VY].data);
+    p.splat<3>(mat[VZ].data);
+    q.splat<3>(mat[VW].data);
 
     s.mul(x);
     t.mul(y);
@@ -2106,12 +2161,12 @@ glm::vec3 mul_mat4_vec3(const glm::mat4& mat, const glm::vec3& vec)
     t.add(p);
     q.add(t);
 
-    x.mul(mat[0].data);
-    y.mul(mat[1].data);
-    z.mul(mat[2].data);
+    x.mul(mat[VX].data);
+    y.mul(mat[VY].data);
+    z.mul(mat[VZ].data);
 
     x.add(y);
-    z.add(mat[3].data);
+    z.add(mat[VW].data);
     LLVector4a res;
     res.load3(glm::value_ptr(vec));
     res.setAdd(x, z);

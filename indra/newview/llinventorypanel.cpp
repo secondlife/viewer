@@ -177,15 +177,15 @@ LLInventoryPanel::LLInventoryPanel(const LLInventoryPanel::Params& p) :
     }
 
     // context menu callbacks
-    mCommitCallbackRegistrar.add("Inventory.DoToSelected", boost::bind(&LLInventoryPanel::doToSelected, this, _2));
-    mCommitCallbackRegistrar.add("Inventory.EmptyTrash", boost::bind(&LLInventoryModel::emptyFolderType, &gInventory, "ConfirmEmptyTrash", LLFolderType::FT_TRASH));
-    mCommitCallbackRegistrar.add("Inventory.EmptyLostAndFound", boost::bind(&LLInventoryModel::emptyFolderType, &gInventory, "ConfirmEmptyLostAndFound", LLFolderType::FT_LOST_AND_FOUND));
-    mCommitCallbackRegistrar.add("Inventory.DoCreate", boost::bind(&LLInventoryPanel::doCreate, this, _2));
-    mCommitCallbackRegistrar.add("Inventory.AttachObject", boost::bind(&LLInventoryPanel::attachObject, this, _2));
-    mCommitCallbackRegistrar.add("Inventory.BeginIMSession", boost::bind(&LLInventoryPanel::beginIMSession, this));
-    mCommitCallbackRegistrar.add("Inventory.Share",  boost::bind(&LLAvatarActions::shareWithAvatars, this));
-    mCommitCallbackRegistrar.add("Inventory.FileUploadLocation", boost::bind(&LLInventoryPanel::fileUploadLocation, this, _2));
-    mCommitCallbackRegistrar.add("Inventory.OpenNewFolderWindow", boost::bind(&LLInventoryPanel::openSingleViewInventory, this, LLUUID()));
+    mCommitCallbackRegistrar.add("Inventory.DoToSelected", { boost::bind(&LLInventoryPanel::doToSelected, this, _2), LLUICtrl::cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Inventory.EmptyTrash", { boost::bind(&LLInventoryModel::emptyFolderType, &gInventory, "ConfirmEmptyTrash", LLFolderType::FT_TRASH), LLUICtrl::cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Inventory.EmptyLostAndFound", { boost::bind(&LLInventoryModel::emptyFolderType, &gInventory, "ConfirmEmptyLostAndFound", LLFolderType::FT_LOST_AND_FOUND), LLUICtrl::cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Inventory.DoCreate", { boost::bind(&LLInventoryPanel::doCreate, this, _2), LLUICtrl::cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Inventory.AttachObject", { boost::bind(&LLInventoryPanel::attachObject, this, _2), LLUICtrl::cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Inventory.BeginIMSession", { boost::bind(&LLInventoryPanel::beginIMSession, this), LLUICtrl::cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Inventory.Share",  { boost::bind(&LLAvatarActions::shareWithAvatars, this), LLUICtrl::cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Inventory.FileUploadLocation", { boost::bind(&LLInventoryPanel::fileUploadLocation, this, _2), LLUICtrl::cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Inventory.OpenNewFolderWindow", { boost::bind(&LLInventoryPanel::openSingleViewInventory, this, LLUUID()), LLUICtrl::cb_info::UNTRUSTED_THROTTLE });
 }
 
 LLFolderView * LLInventoryPanel::createFolderRoot(LLUUID root_id )
@@ -2214,9 +2214,9 @@ LLInventorySingleFolderPanel::LLInventorySingleFolderPanel(const Params& params)
     getFilter().setEmptyLookupMessage("InventorySingleFolderNoMatches");
     getFilter().setDefaultEmptyLookupMessage("InventorySingleFolderEmpty");
 
-    mCommitCallbackRegistrar.replace("Inventory.DoToSelected", boost::bind(&LLInventorySingleFolderPanel::doToSelected, this, _2));
-    mCommitCallbackRegistrar.replace("Inventory.DoCreate", boost::bind(&LLInventorySingleFolderPanel::doCreate, this, _2));
-    mCommitCallbackRegistrar.replace("Inventory.Share", boost::bind(&LLInventorySingleFolderPanel::doShare, this));
+    mCommitCallbackRegistrar.replace("Inventory.DoToSelected", { boost::bind(&LLInventorySingleFolderPanel::doToSelected, this, _2), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.replace("Inventory.DoCreate", { boost::bind(&LLInventorySingleFolderPanel::doCreate, this, _2), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.replace("Inventory.Share", { boost::bind(&LLInventorySingleFolderPanel::doShare, this), cb_info::UNTRUSTED_BLOCK });
 }
 
 LLInventorySingleFolderPanel::~LLInventorySingleFolderPanel()

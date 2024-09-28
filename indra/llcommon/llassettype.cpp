@@ -30,6 +30,7 @@
 #include "lldictionary.h"
 #include "llmemory.h"
 #include "llsingleton.h"
+#include "llsd.h"
 
 ///----------------------------------------------------------------------------
 /// Class LLAssetType
@@ -245,4 +246,20 @@ bool LLAssetType::lookupIsAssetIDKnowable(EType asset_type)
         return entry->mCanKnow;
     }
     return false;
+}
+
+LLSD LLAssetType::getTypeNames()
+{
+    LLSD type_names;
+    const LLAssetDictionary *dict = LLAssetDictionary::getInstance();
+    for (S32 type = 0; type < AT_COUNT; ++type)
+    {
+        const AssetEntry *entry = dict->lookup(LLAssetType::EType(type));
+        // skip llassettype_bad_lookup
+        if (entry)
+        {
+            type_names.append(entry->mTypeName);
+        }
+    }
+    return type_names;
 }

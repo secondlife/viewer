@@ -465,24 +465,6 @@
           <menu_item_check.on_click
            function="World.AlwaysRun" />
         </menu_item_check>
-        <menu_item_check
-          label="Hear Media and Sound from Avatar"
-          name="Hear Media and Sound from Avatar">
-          <menu_item_check.on_check
-           control="MediaSoundsEarLocation" />
-          <menu_item_check.on_click
-           function="Agent.ToggleHearMediaSoundFromAvatar" />
-        </menu_item_check>
-        <menu_item_check
-          label="Hear Voice from Avatar"
-          name="Hear Voice from Avatar">
-          <menu_item_check.on_check
-           control="VoiceEarLocation" />
-          <menu_item_check.on_click
-           function="Agent.ToggleHearVoiceFromAvatar" />
-          <menu_item_call.on_enable
-           control="EnableVoiceChat" />
-        </menu_item_check>
       <menu_item_separator/>
       <menu_item_check
        label="Gestures..."
@@ -577,6 +559,25 @@
             <menu_item_check.on_click
              function="Floater.Toggle"
              parameter="conversation" />
+        </menu_item_check>
+        <menu_item_separator/>
+        <menu_item_check
+          label="Hear Media and Sound from Avatar"
+          name="Hear Media and Sound from Avatar">
+            <menu_item_check.on_check
+             control="MediaSoundsEarLocation" />
+            <menu_item_check.on_click
+             function="Agent.ToggleHearMediaSoundFromAvatar" />
+        </menu_item_check>
+        <menu_item_check
+          label="Hear Voice from Avatar"
+          name="Hear Voice from Avatar">
+            <menu_item_check.on_check
+             control="VoiceEarLocation" />
+            <menu_item_check.on_click
+             function="Agent.ToggleHearVoiceFromAvatar" />
+            <menu_item_call.on_enable
+             control="EnableVoiceChat" />
         </menu_item_check>
         <menu_item_separator/>
         <menu_item_check
@@ -2583,6 +2584,37 @@ function="World.EnvPreset"
                parameter="scene monitor" />
             </menu_item_check>
             <menu_item_separator/>
+            <menu_item_check
+               label="LUA Debug Console"
+               name="LUA Debug Console">
+              <menu_item_check.on_check
+               function="Floater.Visible"
+               parameter="lua_debug" />
+              <menu_item_check.on_click
+               function="Floater.Toggle"
+               parameter="lua_debug" />
+              <menu_item_check.on_visible
+               function="CheckControl"
+               parameter="LuaFeature" />
+            </menu_item_check>
+            <menu_item_check
+               label="LUA Scripts Info"
+               name="LUA Scripts">
+              <menu_item_check.on_check
+               function="Floater.Visible"
+               parameter="lua_scripts" />
+              <menu_item_check.on_click
+               function="Floater.Toggle"
+               parameter="lua_scripts" />
+              <menu_item_check.on_visible
+               function="CheckControl"
+               parameter="LuaFeature" />
+            </menu_item_check>
+            <menu_item_separator>
+              <menu_item_separator.on_visible
+               function="CheckControl"
+               parameter="LuaFeature"/>
+            </menu_item_separator>
 
             <menu_item_call
              label="Region Info to Debug Console"

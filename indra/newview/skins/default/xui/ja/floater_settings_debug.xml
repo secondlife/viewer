@@ -5,6 +5,7 @@
 		<scroll_list.columns name="changed_setting"/>
 		<scroll_list.columns label="設定" name="setting"/>
 	</scroll_list>
+	<button name="copy_btn" tool_tip="クリップボードにコピー"/>
 	<text name="setting_name_txt">
 		デバッグ設定名
 	</text>

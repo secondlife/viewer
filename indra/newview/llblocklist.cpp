@@ -50,7 +50,7 @@ LLBlockList::LLBlockList(const Params& p)
     mMuteListSize = static_cast<U32>(LLMuteList::getInstance()->getMutes().size());
 
     // Set up context menu.
-    LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+    ScopedRegistrarHelper registrar;
     LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
 
     registrar.add       ("Block.Action",    boost::bind(&LLBlockList::onCustomAction,   this, _2));

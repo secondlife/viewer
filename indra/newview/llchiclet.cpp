@@ -210,9 +210,9 @@ void LLNotificationChiclet::createMenu()
         return;
     }
 
-    LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+    ScopedRegistrarHelper registrar;
     registrar.add("NotificationWellChicletMenu.Action",
-        boost::bind(&LLNotificationChiclet::onMenuItemClicked, this, _2));
+        boost::bind(&LLNotificationChiclet::onMenuItemClicked, this, _2), cb_info::UNTRUSTED_BLOCK);
 
     LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
     enable_registrar.add("NotificationWellChicletMenu.EnableItem",
@@ -1132,8 +1132,8 @@ void LLScriptChiclet::createPopupMenu()
     if(!canCreateMenu())
         return;
 
-    LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
-    registrar.add("ScriptChiclet.Action", boost::bind(&LLScriptChiclet::onMenuItemClicked, this, _2));
+    ScopedRegistrarHelper registrar;
+    registrar.add("ScriptChiclet.Action", boost::bind(&LLScriptChiclet::onMenuItemClicked, this, _2), cb_info::UNTRUSTED_BLOCK);
 
     LLMenuGL* menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>
         ("menu_script_chiclet.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
@@ -1215,8 +1215,8 @@ void LLInvOfferChiclet::createPopupMenu()
     if(!canCreateMenu())
         return;
 
-    LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
-    registrar.add("InvOfferChiclet.Action", boost::bind(&LLInvOfferChiclet::onMenuItemClicked, this, _2));
+    ScopedRegistrarHelper registrar;
+    registrar.add("InvOfferChiclet.Action", boost::bind(&LLInvOfferChiclet::onMenuItemClicked, this, _2), cb_info::UNTRUSTED_BLOCK);
 
     LLMenuGL* menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>
         ("menu_inv_offer_chiclet.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());

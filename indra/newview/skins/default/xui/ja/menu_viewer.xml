@@ -62,8 +62,6 @@
 		<menu_item_call label="アニメーション停止" name="Stop Animating My Avatar"/>
 		<menu_item_check label="歩行／走行／飛行…" name="WalkRunFly"/>
 		<menu_item_check label="常時走行" name="Always Run" shortcut="control|R"/>
-		<menu_item_check label="アバターからのメディアとサウンドを聞く" name="Hear Media and Sound from Avatar"/>
-		<menu_item_check label="アバターからのボイスを聞く" name="Hear Voice from Avatar"/>
 		<menu_item_separator/>
 		<menu_item_check label="ジェスチャー…" name="Gestures" shortcut="control|G"/>
 		<menu_item_separator/>
@@ -78,6 +76,8 @@
 		<menu_item_check label="近くのチャット…" name="Nearby Chat"/>
 		<menu_item_check label="ボイスチャット" name="Speak"/>
 		<menu_item_check label="会話ログ…" name="Conversation Log..."/>
+		<menu_item_check label="アバターからのメディアとサウンドを聞く" name="Hear Media and Sound from Avatar"/>
+		<menu_item_check label="アバターからのボイスを聞く" name="Hear Voice from Avatar"/>
 		<menu_item_check label="ジェスチャー…" name="Gestures"/>
 		<menu_item_separator/>
 		<menu_item_check label="喋る" name="Speak"/>
@@ -336,6 +336,9 @@
 			<menu_item_check label="メモリ" name="Memory"/>
 			<menu_item_check label="シーンの統計" name="Scene Statistics"/>
 			<menu_item_check label="シーンの読み込みモニター" name="Scene Loading Monitor"/>
+			<menu_item_separator/>
+			<menu_item_check label="ＬＵＡデバックコンソール" name="LUA Debug Console"/>
+			<menu_item_check label="ＬＵＡスクリプト情報" name="LUA Scripts"/>
 			<menu_item_separator/>
 			<menu_item_check label="リージョンのデバッグコンソール" name="Region Debug Console"/>
 			<menu_item_call label="リージョン情報をデバッグコンソールへ" name="Region Info to Debug Console"/>

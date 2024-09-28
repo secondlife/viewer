@@ -59,10 +59,10 @@
 		アンチエイリアスの品質
 	</text>
 	<combo_box label="アンチエイリアシングの品質" name="fsaa quality">
-		<combo_box.item label="低" name="Low" value="0" />
-		<combo_box.item label="中" name="Medium" value="1" />
-		<combo_box.item label="高" name="High" value="2" />
-		<combo_box.item label="最高" name="Ultra" value="3" />
+		<combo_box.item label="低" name="Low" value="0"/>
+		<combo_box.item label="中" name="Medium" value="1"/>
+		<combo_box.item label="高" name="High" value="2"/>
+		<combo_box.item label="最高" name="Ultra" value="3"/>
 	</combo_box>
 	<text name="MeshText">
 		メッシュ
@@ -143,6 +143,14 @@
 		<combo_box.item label="ウルトラ" name="0" value="1"/>
 	</combo_box>
 	<slider label="画像の先鋭化量：" name="RenderSharpness"/>
+	<text name="TonemapTypeText">
+		トーンマッパ：
+	</text>
+	<combo_box name="TonemapType">
+		<combo_box.item label="Khronosナチュラル" name="0" value="0"/>
+		<combo_box.item label="ＡＣＥＳ" name="1" value="1"/>
+	</combo_box>
+	<slider label="トーンマップミックス：" tool_tip="リニアカラーとトーンマップカラーをミックスします。" name="TonemapMix"/>
 	<view_border name="horiz_border"/>
 	<button label="推奨設定値にリセット" name="Defaults"/>
 	<button label="ＯＫ" label_selected="ＯＫ" name="OK"/>

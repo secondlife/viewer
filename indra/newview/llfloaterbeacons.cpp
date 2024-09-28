@@ -49,7 +49,7 @@ LLFloaterBeacons::LLFloaterBeacons(const LLSD& seed)
     LLPipeline::setRenderHighlights(          gSavedSettings.getBOOL("renderhighlights"));
     LLPipeline::setRenderBeacons(             gSavedSettings.getBOOL("renderbeacons"));
     LLPipeline::setRenderMOAPBeacons(         gSavedSettings.getBOOL("moapbeacon"));
-    mCommitCallbackRegistrar.add("Beacons.UICheck", boost::bind(&LLFloaterBeacons::onClickUICheck, this,_1));
+    mCommitCallbackRegistrar.add("Beacons.UICheck", { boost::bind(&LLFloaterBeacons::onClickUICheck, this,_1) });
 }
 
 bool LLFloaterBeacons::postBuild()

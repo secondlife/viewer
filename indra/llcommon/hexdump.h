@@ -25,7 +25,7 @@ namespace LL
 class hexdump
 {
 public:
-    hexdump(const std::string_view& data):
+    hexdump(std::string_view data):
         hexdump(data.data(), data.length())
     {}
 
@@ -66,7 +66,7 @@ private:
 class hexmix
 {
 public:
-    hexmix(const std::string_view& data):
+    hexmix(std::string_view data):
         mData(data)
     {}
 

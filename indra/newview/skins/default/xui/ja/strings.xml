@@ -1148,6 +1148,8 @@ support@secondlife.com にお問い合わせください。
 	<string name="ChangeEnvSettings">
 		自然環境の設定を変更する
 	</string>
+	<string name="ScriptBy" value="以下によるスクリプト："/>
+	<string name="ScriptStr" value="スクリプト： "/>
 	<string name="NotConnected">
 		接続されていません
 	</string>
@@ -6868,6 +6870,10 @@ https://secondlife.com/support/downloads/ からビューアを再インスト�
 	<string name="EmptyOutfitText">
 		このアウトフィットにはアイテムがありません。
 	</string>
+	<string name="OutfitNotFound" value="アウトフィットを見つけることができません。"/>
+	<string name="OutfitNotAdded" value="ＣＯＦをアウトフィットに追加することはできません。"/>
+	<string name="OutfitNotReplaced" value="ＣＯＦをアウトフィットに置き換えることはできません。"/>
+	<string name="SystemFolderNotWorn" value="システムフォルダを着用することはできません。"/>
 	<string name="ExternalEditorNotSet">
 		ExternalEditor 設定を使ってエディターを選択します。
 	</string>
@@ -6981,16 +6987,16 @@ https://secondlife.com/support/downloads/ からビューアを再インスト�
 		F12
 	</string>
 	<string name="Add">
-		追加
+		+
 	</string>
 	<string name="Subtract">
-		減算
+		-
 	</string>
 	<string name="Multiply">
-		乗算
+		*
 	</string>
 	<string name="Divide">
-		除算
+		/
 	</string>
 	<string name="PAD_DIVIDE">
 		PAD_DIVIDE

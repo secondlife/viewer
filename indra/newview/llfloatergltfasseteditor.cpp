@@ -46,8 +46,8 @@ LLFloaterGLTFAssetEditor::LLFloaterGLTFAssetEditor(const LLSD& key)
 {
     setTitle("GLTF Asset Editor (WIP)");
 
-    mCommitCallbackRegistrar.add("PanelObject.menuDoToSelected", [this](LLUICtrl* ctrl, const LLSD& data) { onMenuDoToSelected(data); });
-    mEnableCallbackRegistrar.add("PanelObject.menuEnable", [this](LLUICtrl* ctrl, const LLSD& data) { return onMenuEnableItem(data); });
+    mCommitCallbackRegistrar.add("PanelObject.menuDoToSelected", { [this](LLUICtrl* ctrl, const LLSD& data) { onMenuDoToSelected(data); }});
+    mEnableCallbackRegistrar.add("PanelObject.menuEnable", { [this](LLUICtrl* ctrl, const LLSD& data) { return onMenuEnableItem(data); }});
 }
 
 LLFloaterGLTFAssetEditor::~LLFloaterGLTFAssetEditor()

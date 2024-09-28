@@ -14,23 +14,25 @@
 // associated header
 #include "llleap.h"
 // STL headers
-#include <sstream>
 #include <algorithm>
+#include <memory>
+#include <sstream>
 // std headers
 // external library headers
 // other Linden headers
 #include "llerror.h"
-#include "llstring.h"
-#include "llprocess.h"
-#include "llevents.h"
-#include "stringize.h"
-#include "llsdutil.h"
-#include "llsdserialize.h"
 #include "llerrorcontrol.h"
+#include "llevents.h"
+#include "llexception.h"
+#include "llleaplistener.h"
+#include "llprocess.h"
+#include "llsdserialize.h"
+#include "llsdutil.h"
+#include "llstring.h"
 #include "lltimer.h"
 #include "lluuid.h"
-#include "llleaplistener.h"
-#include "llexception.h"
+#include "scriptcommand.h"
+#include "stringize.h"
 
 #if LL_MSVC
 #pragma warning (disable : 4355) // 'this' used in initializer list: yes, intentionally
@@ -50,20 +52,19 @@ public:
         // We expect multiple LLLeapImpl instances. Definitely tweak
         // mDonePump's name for uniqueness.
         mDonePump("LLLeap", true),
-        // Troubling thought: what if one plugin intentionally messes with
-        // another plugin? LLEventPump names are in a single global namespace.
-        // Try to make that more difficult by generating a UUID for the reply-
-        // pump name -- so it should NOT need tweaking for uniqueness.
-        mReplyPump(LLUUID::generateNewID().asString()),
         mExpect(0),
         // Instantiate a distinct LLLeapListener for this plugin. (Every
         // plugin will want its own collection of managed listeners, etc.)
-        // Pass it a callback to our connect() method, so it can send events
+        // Pass it our wstdin() method as its callback, so it can send events
         // from a particular LLEventPump to the plugin without having to know
         // this class or method name.
-        mListener(new LLLeapListener(
-                      [this](LLEventPump& pump, const std::string& listener)
-                      { return connect(pump, listener); }))
+        mListener(
+            new LLLeapListener(
+                "LLLeap",
+                // Serialize any reply event to our child's stdin, suitably
+                // enriched with the pump name on which it was received.
+                [this](const std::string& pump, const LLSD& data)
+                { return wstdin(pump, data); }))
     {
         // Rule out unpopulated Params block
         if (! cparams.executable.isProvided())
@@ -107,7 +108,7 @@ public:
         // If that didn't work, no point in keeping this LLLeap object.
         if (! mChild)
         {
-            LLTHROW(Error(STRINGIZE("failed to run " << mDesc)));
+            LLTHROW(Error(stringize("failed to run ", mDesc)));
         }
 
         // Okay, launch apparently worked. Change our mDonePump listener.
@@ -121,9 +122,6 @@ public:
             &childerr(mChild->getReadPipe(LLProcess::STDERR));
         childout.setLimit(20);
         childerr.setLimit(20);
-
-        // Serialize any event received on mReplyPump to our child's stdin.
-        mStdinConnection = connect(mReplyPump, "LLLeap");
 
         // Listening on stdout is stateful. In general, we're either waiting
         // for the length prefix or waiting for the specified length of data.
@@ -146,7 +144,7 @@ public:
 
         // Send child a preliminary event reporting our own reply-pump name --
         // which would otherwise be pretty tricky to guess!
-        wstdin(mReplyPump.getName(),
+        wstdin(mListener->getReplyPump().getName(),
                LLSDMap
                ("command", mListener->getName())
                // Include LLLeap features -- this may be important for child to
@@ -193,7 +191,7 @@ public:
         return false;
     }
 
-    // Listener for events on mReplyPump: send to child stdin
+    // Listener for reply events: send to child stdin
     bool wstdin(const std::string& pump, const LLSD& data)
     {
         LLSD packet(LLSDMap("pump", pump)("data", data));
@@ -344,7 +342,7 @@ public:
                     {
                         // The LLSD object we got from our stream contains the
                         // keys we need.
-                        LLEventPumps::instance().obtain(data["pump"]).post(data["data"]);
+                        LLEventPumps::instance().post(data["pump"], data["data"]);
                     }
                     catch (const std::exception& err)
                     {
@@ -355,7 +353,7 @@ public:
                         // request, send a reply. We happen to know who originated
                         // this request, and the reply LLEventPump of interest.
                         // Not our problem if the plugin ignores the reply event.
-                        data["reply"] = mReplyPump.getName();
+                        data["reply"] = mListener->getReplyPump().getName();
                         sendReply(llsd::map("error",
                                             stringize(LLError::Log::classname(err), ": ", err.what())),
                                   data);
@@ -423,7 +421,7 @@ public:
             LLSD event;
             event["type"] = "error";
             event["error"] = error;
-            mReplyPump.post(event);
+            mListener->getReplyPump().post(event);
 
             // All the above really accomplished was to buffer the serialized
             // event in our WritePipe. Have to pump mainloop a couple times to
@@ -440,24 +438,10 @@ public:
     }
 
 private:
-    /// We always want to listen on mReplyPump with wstdin(); under some
-    /// circumstances we'll also echo other LLEventPumps to the plugin.
-    LLBoundListener connect(LLEventPump& pump, const std::string& listener)
-    {
-        // Serialize any event received on the specified LLEventPump to our
-        // child's stdin, suitably enriched with the pump name on which it was
-        // received.
-        return pump.listen(listener,
-                           [this, name=pump.getName()](const LLSD& data)
-                           { return wstdin(name, data); });
-    }
-
     std::string mDesc;
     LLEventStream mDonePump;
-    LLEventStream mReplyPump;
     LLProcessPtr mChild;
-    LLTempBoundListener
-        mStdinConnection, mStdoutConnection, mStderrConnection;
+    LLTempBoundListener mStdoutConnection, mStderrConnection;
     LLProcess::ReadPipe::size_type mExpect;
     LLError::RecorderPtr mRecorder;
     std::unique_ptr<LLLeapListener> mListener;
@@ -501,12 +485,24 @@ LLLeap* LLLeap::create(const std::string& desc, const std::vector<std::string>& 
 
 LLLeap* LLLeap::create(const std::string& desc, const std::string& plugin, bool exc)
 {
-    // Use LLStringUtil::getTokens() to parse the command line
-    return create(desc,
-                  LLStringUtil::getTokens(plugin,
-                                          " \t\r\n", // drop_delims
-                                          "",        // no keep_delims
-                                          "\"'",     // either kind of quotes
-                                          "\\"),     // backslash escape
-                  exc);
+    // Use ScriptCommand to parse the command line
+    ScriptCommand command(plugin);
+    auto error = command.error();
+    if (! error.empty())
+    {
+        if (exc)
+        {
+            LLTHROW(Error(error));
+        }
+        return nullptr;
+    }
+
+    LLProcess::Params params;
+    params.desc = desc;
+    params.executable = command.script;
+    for (const auto& arg : command.args)
+    {
+        params.args.add(arg);
+    }
+    return create(params, exc);
 }
