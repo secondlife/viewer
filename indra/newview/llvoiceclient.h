@@ -38,7 +38,6 @@ class LLVOAvatar;
 #include "llcallingcard.h"   // for LLFriendObserver
 #include "llsecapi.h"
 #include "llcontrol.h"
-#include <boost/shared_ptr.hpp>
 
 // devices
 
@@ -133,7 +132,7 @@ class LLVoiceP2PIncomingCallInterface
     virtual void declineInvite() = 0;
 };
 
-typedef boost::shared_ptr<LLVoiceP2PIncomingCallInterface> LLVoiceP2PIncomingCallInterfacePtr;
+typedef std::shared_ptr<LLVoiceP2PIncomingCallInterface> LLVoiceP2PIncomingCallInterfacePtr;
 
 //////////////////////////////////
 /// @class LLVoiceModuleInterface
@@ -281,7 +280,8 @@ public:
     virtual void removeObserver(LLVoiceClientParticipantObserver* observer)=0;
     //@}
 
-    virtual std::string sipURIFromID(const LLUUID &id)=0;
+    virtual std::string sipURIFromID(const LLUUID &id) const=0;
+    virtual LLSD getP2PChannelInfoTemplate(const LLUUID& id) const=0;
     //@}
 
 };
@@ -451,8 +451,8 @@ public:
 
     /////////////////////////////
     // Accessors for data related to nearby speakers
-    bool getVoiceEnabled(const LLUUID& id);     // true if we've received data for this avatar
-    std::string getDisplayName(const LLUUID& id);
+    bool getVoiceEnabled(const LLUUID& id) const;     // true if we've received data for this avatar
+    std::string getDisplayName(const LLUUID& id) const;
     bool isOnlineSIP(const LLUUID &id);
     bool isParticipantAvatar(const LLUUID &id);
     bool getIsSpeaking(const LLUUID& id);
@@ -462,8 +462,8 @@ public:
     F32 getUserVolume(const LLUUID& id);
 
     /////////////////////////////
-    void getParticipantList(std::set<LLUUID> &participants);
-    bool isParticipant(const LLUUID& speaker_id);
+    void getParticipantList(std::set<LLUUID> &participants) const;
+    bool isParticipant(const LLUUID& speaker_id) const;
 
     //////////////////////////
     /// @name text chat
@@ -481,14 +481,15 @@ public:
 
     void onRegionChanged();
 
-    void addObserver(LLVoiceClientStatusObserver* observer);
-    void removeObserver(LLVoiceClientStatusObserver* observer);
-    void addObserver(LLFriendObserver* observer);
-    void removeObserver(LLFriendObserver* observer);
-    void addObserver(LLVoiceClientParticipantObserver* observer);
-    void removeObserver(LLVoiceClientParticipantObserver* observer);
+    static void addObserver(LLVoiceClientStatusObserver* observer);
+    static void removeObserver(LLVoiceClientStatusObserver* observer);
+    static void addObserver(LLFriendObserver* observer);
+    static void removeObserver(LLFriendObserver* observer);
+    static void addObserver(LLVoiceClientParticipantObserver* observer);
+    static void removeObserver(LLVoiceClientParticipantObserver* observer);
 
-    std::string sipURIFromID(const LLUUID &id);
+    std::string sipURIFromID(const LLUUID &id) const;
+    LLSD getP2PChannelInfoTemplate(const LLUUID& id) const;
 
     //////////////////////////
     /// @name Voice effects

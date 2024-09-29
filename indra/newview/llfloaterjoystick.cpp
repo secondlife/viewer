@@ -93,8 +93,9 @@ BOOL CALLBACK di8_list_devices_callback(LPCDIDEVICEINSTANCE device_instance_ptr,
 #endif
 
 LLFloaterJoystick::LLFloaterJoystick(const LLSD& data)
-    : LLFloater(data),
-    mHasDeviceList(false)
+    : LLFloater(data)
+    , mHasDeviceList(false)
+    , mJoystickInitialized(false)
 {
     if (!LLViewerJoystick::getInstance()->isJoystickInitialized())
     {
@@ -108,7 +109,10 @@ void LLFloaterJoystick::draw()
 {
     LLViewerJoystick* joystick(LLViewerJoystick::getInstance());
     bool joystick_inited = joystick->isJoystickInitialized();
-    if (joystick_inited != mHasDeviceList)
+    if (!mHasDeviceList
+        || mJoystickInitialized != joystick_inited
+        || (joystick->isDeviceUUIDSet() && joystick->getDeviceUUID().asUUID() != mCurrentDeviceId)
+        || (!joystick->isDeviceUUIDSet() && mCurrentDeviceId.notNull()))
     {
         refreshListOfDevices();
     }
@@ -290,15 +294,16 @@ void LLFloaterJoystick::refreshListOfDevices()
         mHasDeviceList = true;
     }
 
-    bool is_device_id_set = LLViewerJoystick::getInstance()->isDeviceUUIDSet();
+    LLViewerJoystick* joystick = LLViewerJoystick::getInstance();
+    bool is_device_id_set = joystick->isDeviceUUIDSet();
 
-    if (LLViewerJoystick::getInstance()->isJoystickInitialized() &&
+    if (joystick->isJoystickInitialized() &&
         (!mHasDeviceList || !is_device_id_set))
     {
 #if LL_WINDOWS && !LL_MESA_HEADLESS
         LL_WARNS() << "NDOF connected to device without using SL provided handle" << LL_ENDL;
 #endif
-        std::string desc = LLViewerJoystick::getInstance()->getDescription();
+        std::string desc = joystick->getDescription();
         if (!desc.empty())
         {
             LLSD value = LLSD::Integer(1); // value for selection
@@ -311,11 +316,13 @@ void LLFloaterJoystick::refreshListOfDevices()
     {
         if (is_device_id_set)
         {
-            LLSD guid = LLViewerJoystick::getInstance()->getDeviceUUID();
+            LLSD guid = joystick->getDeviceUUID();
+            mCurrentDeviceId = guid.asUUID();
             mJoysticksCombo->selectByValue(guid);
         }
         else
         {
+            mCurrentDeviceId.setNull();
             mJoysticksCombo->selectByValue(LLSD::Integer(1));
         }
     }
@@ -323,6 +330,18 @@ void LLFloaterJoystick::refreshListOfDevices()
     {
         mJoysticksCombo->selectByValue(LLSD::Integer(0));
     }
+
+    // Update tracking
+    if (is_device_id_set)
+    {
+        LLSD guid = joystick->getDeviceUUID();
+        mCurrentDeviceId = guid.asUUID();
+    }
+    else
+    {
+        mCurrentDeviceId.setNull();
+    }
+    mJoystickInitialized = joystick->isJoystickInitialized();
 }
 
 void LLFloaterJoystick::cancel()

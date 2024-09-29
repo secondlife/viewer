@@ -296,7 +296,7 @@ LLPanelObject::LLPanelObject()
     mHasClipboardRot(false),
     mSizeChanged(false)
 {
-    mCommitCallbackRegistrar.add("PanelObject.menuDoToSelected", boost::bind(&LLPanelObject::menuDoToSelected, this, _2));
+    mCommitCallbackRegistrar.add("PanelObject.menuDoToSelected", { boost::bind(&LLPanelObject::menuDoToSelected, this, _2) });
     mEnableCallbackRegistrar.add("PanelObject.menuEnable", boost::bind(&LLPanelObject::menuEnableItem, this, _2));
 }
 

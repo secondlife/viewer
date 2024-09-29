@@ -48,7 +48,6 @@ static LLDefaultChildRegistry::Register<LLFolderViewItem> r("folder_view_item");
 // statics
 std::map<U8, LLFontGL*> LLFolderViewItem::sFonts; // map of styles to fonts
 
-bool LLFolderViewItem::sColorSetInitialized = false;
 LLUIColor LLFolderViewItem::sFgColor;
 LLUIColor LLFolderViewItem::sHighlightBgColor;
 LLUIColor LLFolderViewItem::sFlashBgColor;
@@ -58,6 +57,10 @@ LLUIColor LLFolderViewItem::sFilterBGColor;
 LLUIColor LLFolderViewItem::sFilterTextColor;
 LLUIColor LLFolderViewItem::sSuffixColor;
 LLUIColor LLFolderViewItem::sSearchStatusColor;
+S32 LLFolderViewItem::sTopPad = 0;
+LLUIImagePtr LLFolderViewItem::sFolderArrowImg;
+LLUIImagePtr LLFolderViewItem::sSelectionImg;
+LLFontGL* LLFolderViewItem::sSuffixFont = nullptr;
 
 // only integers can be initialized in header
 const F32 LLFolderViewItem::FOLDER_CLOSE_TIME_CONSTANT = 0.02f;
@@ -83,15 +86,42 @@ LLFontGL* LLFolderViewItem::getLabelFontForStyle(U8 style)
     return rtn;
 }
 
+
+const LLFontGL* LLFolderViewItem::getLabelFont()
+{
+    if (!pLabelFont)
+    {
+        pLabelFont = getLabelFontForStyle(mLabelStyle);
+    }
+    return pLabelFont;
+}
 //static
 void LLFolderViewItem::initClass()
 {
+    const Params& default_params = LLUICtrlFactory::getDefaultParams<LLFolderViewItem>();
+    sTopPad = default_params.item_top_pad;
+    sFolderArrowImg = default_params.folder_arrow_image;
+    sSelectionImg = default_params.selection_image;
+    sSuffixFont = getLabelFontForStyle(LLFontGL::NORMAL);
+
+    sFgColor = LLUIColorTable::instance().getColor("MenuItemEnabledColor", DEFAULT_WHITE);
+    sHighlightBgColor = LLUIColorTable::instance().getColor("MenuItemHighlightBgColor", DEFAULT_WHITE);
+    sFlashBgColor = LLUIColorTable::instance().getColor("MenuItemFlashBgColor", DEFAULT_WHITE);
+    sFocusOutlineColor = LLUIColorTable::instance().getColor("InventoryFocusOutlineColor", DEFAULT_WHITE);
+    sMouseOverColor = LLUIColorTable::instance().getColor("InventoryMouseOverColor", DEFAULT_WHITE);
+    sFilterBGColor = LLUIColorTable::instance().getColor("FilterBackgroundColor", DEFAULT_WHITE);
+    sFilterTextColor = LLUIColorTable::instance().getColor("FilterTextColor", DEFAULT_WHITE);
+    sSuffixColor = LLUIColorTable::instance().getColor("InventoryItemLinkColor", DEFAULT_WHITE);
+    sSearchStatusColor = LLUIColorTable::instance().getColor("InventorySearchStatusColor", DEFAULT_WHITE);
 }
 
 //static
 void LLFolderViewItem::cleanupClass()
 {
     sFonts.clear();
+    sFolderArrowImg = nullptr;
+    sSelectionImg = nullptr;
+    sSuffixFont = nullptr;
 }
 
 
@@ -134,6 +164,7 @@ LLFolderViewItem::LLFolderViewItem(const LLFolderViewItem::Params& p)
     mIsItemCut(false),
     mCutGeneration(0),
     mLabelStyle( LLFontGL::NORMAL ),
+    pLabelFont(nullptr),
     mHasVisibleChildren(false),
     mLocalIndentation(p.folder_indentation),
     mIndentation(0),
@@ -158,20 +189,6 @@ LLFolderViewItem::LLFolderViewItem(const LLFolderViewItem::Params& p)
     mMaxFolderItemOverlap(p.max_folder_item_overlap),
     mDoubleClickOverride(p.double_click_override)
 {
-    if (!sColorSetInitialized)
-    {
-        sFgColor = LLUIColorTable::instance().getColor("MenuItemEnabledColor", DEFAULT_WHITE);
-        sHighlightBgColor = LLUIColorTable::instance().getColor("MenuItemHighlightBgColor", DEFAULT_WHITE);
-        sFlashBgColor = LLUIColorTable::instance().getColor("MenuItemFlashBgColor", DEFAULT_WHITE);
-        sFocusOutlineColor = LLUIColorTable::instance().getColor("InventoryFocusOutlineColor", DEFAULT_WHITE);
-        sMouseOverColor = LLUIColorTable::instance().getColor("InventoryMouseOverColor", DEFAULT_WHITE);
-        sFilterBGColor = LLUIColorTable::instance().getColor("FilterBackgroundColor", DEFAULT_WHITE);
-        sFilterTextColor = LLUIColorTable::instance().getColor("FilterTextColor", DEFAULT_WHITE);
-        sSuffixColor = LLUIColorTable::instance().getColor("InventoryItemLinkColor", DEFAULT_WHITE);
-        sSearchStatusColor = LLUIColorTable::instance().getColor("InventorySearchStatusColor", DEFAULT_WHITE);
-        sColorSetInitialized = true;
-    }
-
     if (mViewModelItem)
     {
         mViewModelItem->setFolderViewItem(this);
@@ -307,6 +324,7 @@ void LLFolderViewItem::refresh()
     LLFolderViewModelItem& vmi = *getViewModelItem();
 
     mLabel = utf8str_to_wstring(vmi.getDisplayName());
+    mLabelFontBuffer.reset();
     setToolTip(vmi.getName());
     // icons are slightly expensive to get, can be optimized
     // see LLInventoryIcon::getIcon()
@@ -319,7 +337,9 @@ void LLFolderViewItem::refresh()
         // Very Expensive!
         // Can do a number of expensive checks, like checking active motions, wearables or friend list
         mLabelStyle = vmi.getLabelStyle();
+        pLabelFont = nullptr; // refresh can be called from a coro, don't use getLabelFontForStyle, coro trips font list tread safety
         mLabelSuffix = utf8str_to_wstring(vmi.getLabelSuffix());
+        mSuffixFontBuffer.reset();
     }
 
     // Dirty the filter flag of the model from the view (CHUI-849)
@@ -344,6 +364,7 @@ void LLFolderViewItem::refreshSuffix()
         // Very Expensive!
         // Can do a number of expensive checks, like checking active motions, wearables or friend list
         mLabelStyle = vmi->getLabelStyle();
+        pLabelFont = nullptr;
         mLabelSuffix = utf8str_to_wstring(vmi->getLabelSuffix());
     }
 
@@ -736,19 +757,17 @@ bool LLFolderViewItem::handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
     return handled;
 }
 
-void LLFolderViewItem::drawOpenFolderArrow(const Params& default_params, const LLUIColor& fg_color)
+void LLFolderViewItem::drawOpenFolderArrow()
 {
     //--------------------------------------------------------------------------------//
     // Draw open folder arrow
     //
-    const S32 TOP_PAD = default_params.item_top_pad;
 
     if (hasVisibleChildren() || !isFolderComplete())
     {
-        LLUIImage* arrow_image = default_params.folder_arrow_image;
         gl_draw_scaled_rotated_image(
-            mIndentation, getRect().getHeight() - mArrowSize - mTextPad - TOP_PAD,
-            mArrowSize, mArrowSize, mControlLabelRotation, arrow_image->getImage(), fg_color);
+            mIndentation, getRect().getHeight() - mArrowSize - mTextPad - sTopPad,
+            mArrowSize, mArrowSize, mControlLabelRotation, sFolderArrowImg->getImage(), sFgColor);
     }
 }
 
@@ -764,7 +783,7 @@ void LLFolderViewItem::drawOpenFolderArrow(const Params& default_params, const L
 
 /*virtual*/ bool LLFolderViewItem::isFadeItem()
 {
-    LLClipboard& clipboard = LLClipboard::instance();
+    static const LLClipboard& clipboard = LLClipboard::instance(); // Make it a 'simpleton'?
     if (mCutGeneration != clipboard.getGeneration())
     {
         mCutGeneration = clipboard.getGeneration();
@@ -775,8 +794,9 @@ void LLFolderViewItem::drawOpenFolderArrow(const Params& default_params, const L
     return mIsItemCut;
 }
 
-void LLFolderViewItem::drawHighlight(const bool showContent, const bool hasKeyboardFocus, const LLUIColor &selectColor, const LLUIColor &flashColor,
-                                                        const LLUIColor &focusOutlineColor, const LLUIColor &mouseOverColor)
+void LLFolderViewItem::drawHighlight(bool showContent, bool hasKeyboardFocus,
+    const LLUIColor& selectColor, const LLUIColor& flashColor,
+    const LLUIColor& focusOutlineColor, const LLUIColor& mouseOverColor)
 {
     const S32 focus_top = getRect().getHeight();
     const S32 focus_bottom = getRect().getHeight() - mItemHeight;
@@ -784,7 +804,7 @@ void LLFolderViewItem::drawHighlight(const bool showContent, const bool hasKeybo
     const S32 FOCUS_LEFT = 1;
 
     // Determine which background color to use for highlighting
-    LLUIColor bgColor = (isFlashing() ? flashColor : selectColor);
+    const LLUIColor& bgColor = isFlashing() ? flashColor : selectColor;
 
     //--------------------------------------------------------------------------------//
     // Draw highlight for selected items
@@ -792,7 +812,6 @@ void LLFolderViewItem::drawHighlight(const bool showContent, const bool hasKeybo
     // items if mShowSingleSelection is false.
     //
     if (isHighlightAllowed())
-
     {
         gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
@@ -801,7 +820,7 @@ void LLFolderViewItem::drawHighlight(const bool showContent, const bool hasKeybo
         {
             LLColor4 bg_color = bgColor;
             // do time-based fade of extra objects
-            F32 fade_time = (getRoot() ? getRoot()->getSelectionFadeElapsedTime() : 0.0f);
+            F32 fade_time = getRoot() ? getRoot()->getSelectionFadeElapsedTime() : 0.f;
             if (getRoot() && getRoot()->getShowSingleSelection())
             {
                 // fading out
@@ -890,7 +909,7 @@ void LLFolderViewItem::drawLabel(const LLFontGL * font, const F32 x, const F32 y
     //--------------------------------------------------------------------------------//
     // Draw the actual label text
     //
-    font->render(mLabel, 0, x, y, color,
+    mLabelFontBuffer.render(font, mLabel, 0, x, y, color,
         LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
         S32_MAX, getRect().getWidth() - (S32) x - mLabelPaddingRight, &right_x, /*use_ellipses*/true);
 }
@@ -900,16 +919,14 @@ void LLFolderViewItem::draw()
     const bool show_context = (getRoot() ? getRoot()->getShowSelectionContext() : false);
     const bool filled = show_context || (getRoot() ? getRoot()->getParentPanel()->hasFocus() : false); // If we have keyboard focus, draw selection filled
 
-    const Params& default_params = LLUICtrlFactory::getDefaultParams<LLFolderViewItem>();
-    const S32 TOP_PAD = default_params.item_top_pad;
-
-    const LLFontGL* font = getLabelFontForStyle(mLabelStyle);
+    const LLFontGL* font = getLabelFont();
+    S32 line_height = font->getLineHeight();
 
     getViewModelItem()->update();
 
-    if(!mSingleFolderMode)
+    if (!mSingleFolderMode)
     {
-        drawOpenFolderArrow(default_params, sFgColor);
+        drawOpenFolderArrow();
     }
 
     drawHighlight(show_context, filled, sHighlightBgColor, sFlashBgColor, sFocusOutlineColor, sMouseOverColor);
@@ -918,18 +935,19 @@ void LLFolderViewItem::draw()
     // Draw open icon
     //
     const S32 icon_x = mIndentation + mArrowSize + mTextPad;
+    const S32 rect_height = getRect().getHeight();
     if (!mIconOpen.isNull() && (llabs(mControlLabelRotation) > 80)) // For open folders
     {
-        mIconOpen->draw(icon_x, getRect().getHeight() - mIconOpen->getHeight() - TOP_PAD + 1);
+        mIconOpen->draw(icon_x, rect_height - mIconOpen->getHeight() - sTopPad + 1);
     }
     else if (mIcon)
     {
-        mIcon->draw(icon_x, getRect().getHeight() - mIcon->getHeight() - TOP_PAD + 1);
+        mIcon->draw(icon_x, rect_height - mIcon->getHeight() - sTopPad + 1);
     }
 
     if (mIconOverlay && getRoot()->showItemLinkOverlays())
     {
-        mIconOverlay->draw(icon_x, getRect().getHeight() - mIcon->getHeight() - TOP_PAD + 1);
+        mIconOverlay->draw(icon_x, rect_height - mIcon->getHeight() - sTopPad + 1);
     }
 
     //--------------------------------------------------------------------------------//
@@ -940,26 +958,24 @@ void LLFolderViewItem::draw()
         return;
     }
 
-    auto filter_string_length = mViewModelItem->hasFilterStringMatch() ? static_cast<S32>(mViewModelItem->getFilterStringSize()) : 0;
+    S32 filter_string_length = mViewModelItem->hasFilterStringMatch() ? (S32)mViewModelItem->getFilterStringSize() : 0;
     F32 right_x  = 0;
-    F32 y = (F32)getRect().getHeight() - font->getLineHeight() - (F32)mTextPad - (F32)TOP_PAD;
+    F32 y = (F32)rect_height - line_height - (F32)mTextPad - (F32)sTopPad;
     F32 text_left = (F32)getLabelXPos();
     LLWString combined_string = mLabel + mLabelSuffix;
 
-    const LLFontGL* suffix_font = getLabelFontForStyle(LLFontGL::NORMAL);
     S32 filter_offset = static_cast<S32>(mViewModelItem->getFilterStringOffset());
     if (filter_string_length > 0)
     {
-        S32 bottom = getRect().getHeight() - font->getLineHeight() - 3 - TOP_PAD;
-        S32 top = getRect().getHeight() - TOP_PAD;
-        if(mLabelSuffix.empty() || (font == suffix_font))
+        S32 bottom = rect_height - line_height - 3 - sTopPad;
+        S32 top = rect_height - sTopPad;
+        if(mLabelSuffix.empty() || (font == sSuffixFont))
         {
-        S32 left = ll_round(text_left) + font->getWidth(combined_string.c_str(), 0, static_cast<S32>(mViewModelItem->getFilterStringOffset())) - 2;
-        S32 right = left + font->getWidth(combined_string.c_str(), static_cast<S32>(mViewModelItem->getFilterStringOffset()), filter_string_length) + 2;
+            S32 left = ll_round(text_left) + font->getWidth(combined_string.c_str(), 0, filter_offset) - 2;
+            S32 right = left + font->getWidth(combined_string.c_str(), filter_offset, filter_string_length) + 2;
 
-        LLUIImage* box_image = default_params.selection_image;
-        LLRect box_rect(left, top, right, bottom);
-        box_image->draw(box_rect, sFilterBGColor);
+            LLRect box_rect(left, top, right, bottom);
+            sSelectionImg->draw(box_rect, sFilterBGColor);
         }
         else
         {
@@ -968,19 +984,17 @@ void LLFolderViewItem::draw()
             {
                 S32 left = (S32)(ll_round(text_left) + font->getWidthF32(mLabel.c_str(), 0, llmin(filter_offset, (S32)mLabel.size()))) - 2;
                 S32 right = left + (S32)font->getWidthF32(mLabel.c_str(), filter_offset, label_filter_length) + 2;
-                LLUIImage* box_image = default_params.selection_image;
                 LLRect box_rect(left, top, right, bottom);
-                box_image->draw(box_rect, sFilterBGColor);
+                sSelectionImg->draw(box_rect, sFilterBGColor);
             }
             S32 suffix_filter_length = label_filter_length > 0 ? filter_string_length - label_filter_length : filter_string_length;
             if(suffix_filter_length > 0)
             {
                 S32 suffix_offset = llmax(0, filter_offset - (S32)mLabel.size());
-                S32 left = (S32)(ll_round(text_left) + font->getWidthF32(mLabel.c_str(), 0, static_cast<S32>(mLabel.size())) + suffix_font->getWidthF32(mLabelSuffix.c_str(), 0, suffix_offset)) - 2;
-                S32 right = left + (S32)suffix_font->getWidthF32(mLabelSuffix.c_str(), suffix_offset, suffix_filter_length) + 2;
-                LLUIImage* box_image = default_params.selection_image;
+                S32 left = (S32)(ll_round(text_left) + font->getWidthF32(mLabel.c_str(), 0, static_cast<S32>(mLabel.size())) + sSuffixFont->getWidthF32(mLabelSuffix.c_str(), 0, suffix_offset)) - 2;
+                S32 right = left + (S32)sSuffixFont->getWidthF32(mLabelSuffix.c_str(), suffix_offset, suffix_filter_length) + 2;
                 LLRect box_rect(left, top, right, bottom);
-                box_image->draw(box_rect, sFilterBGColor);
+                sSelectionImg->draw(box_rect, sFilterBGColor);
             }
         }
     }
@@ -999,9 +1013,9 @@ void LLFolderViewItem::draw()
     //
     if (!mLabelSuffix.empty())
     {
-        suffix_font->render( mLabelSuffix, 0, right_x, y, isFadeItem() ? color : (LLColor4)sSuffixColor,
-                          LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
-                          S32_MAX, S32_MAX, &right_x);
+        mSuffixFontBuffer.render(sSuffixFont, mLabelSuffix, 0, right_x, y, isFadeItem() ? color : sSuffixColor.get(),
+            LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
+            S32_MAX, S32_MAX, &right_x);
     }
 
     //--------------------------------------------------------------------------------//
@@ -1009,10 +1023,10 @@ void LLFolderViewItem::draw()
     //
     if (filter_string_length > 0)
     {
-        if(mLabelSuffix.empty() || (font == suffix_font))
+        if(mLabelSuffix.empty() || (font == sSuffixFont))
         {
             F32 match_string_left = text_left + font->getWidthF32(combined_string.c_str(), 0, filter_offset + filter_string_length) - font->getWidthF32(combined_string.c_str(), filter_offset, filter_string_length);
-            F32 yy = (F32)getRect().getHeight() - font->getLineHeight() - (F32)mTextPad - (F32)TOP_PAD;
+            F32 yy = (F32)rect_height - line_height - (F32)mTextPad - (F32)sTopPad;
             font->render(combined_string, filter_offset, match_string_left, yy,
                 sFilterTextColor, LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
                 filter_string_length, S32_MAX, &right_x);
@@ -1023,7 +1037,7 @@ void LLFolderViewItem::draw()
             if(label_filter_length > 0)
             {
                 F32 match_string_left = text_left + font->getWidthF32(mLabel.c_str(), 0, filter_offset + label_filter_length) - font->getWidthF32(mLabel.c_str(), filter_offset, label_filter_length);
-                F32 yy = (F32)getRect().getHeight() - font->getLineHeight() - (F32)mTextPad - (F32)TOP_PAD;
+                F32 yy = (F32)rect_height - line_height - (F32)mTextPad - (F32)sTopPad;
                 font->render(mLabel, filter_offset, match_string_left, yy,
                     sFilterTextColor, LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
                     label_filter_length, S32_MAX, &right_x);
@@ -1033,9 +1047,9 @@ void LLFolderViewItem::draw()
             if(suffix_filter_length > 0)
             {
                 S32 suffix_offset = llmax(0, filter_offset - (S32)mLabel.size());
-                F32 match_string_left = text_left + font->getWidthF32(mLabel.c_str(), 0, static_cast<S32>(mLabel.size())) + suffix_font->getWidthF32(mLabelSuffix.c_str(), 0, suffix_offset + suffix_filter_length) - suffix_font->getWidthF32(mLabelSuffix.c_str(), suffix_offset, suffix_filter_length);
-                F32 yy = (F32)getRect().getHeight() - suffix_font->getLineHeight() - (F32)mTextPad - (F32)TOP_PAD;
-                suffix_font->render(mLabelSuffix, suffix_offset, match_string_left, yy, sFilterTextColor,
+                F32 match_string_left = text_left + font->getWidthF32(mLabel.c_str(), 0, static_cast<S32>(mLabel.size())) + sSuffixFont->getWidthF32(mLabelSuffix.c_str(), 0, suffix_offset + suffix_filter_length) - sSuffixFont->getWidthF32(mLabelSuffix.c_str(), suffix_offset, suffix_filter_length);
+                F32 yy = (F32)rect_height - sSuffixFont->getLineHeight() - (F32)mTextPad - (F32)sTopPad;
+                sSuffixFont->render(mLabelSuffix, suffix_offset, match_string_left, yy, sFilterTextColor,
                     LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
                     suffix_filter_length, S32_MAX, &right_x);
             }

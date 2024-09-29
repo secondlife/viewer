@@ -33,6 +33,10 @@
 #include "lluiimage.h"
 
 class LLFontGL;
+class LLStyle;
+
+typedef LLPointer<LLStyle> LLStyleSP;
+typedef LLPointer<const LLStyle> LLStyleConstSP;
 
 class LLStyle : public LLRefCount
 {
@@ -44,6 +48,7 @@ public:
         Optional<LLUIColor>             color,
                                         readonly_color,
                                         selected_color;
+        Optional<F32>                   alpha;
         Optional<const LLFontGL*>       font;
         Optional<LLUIImage*>            image;
         Optional<std::string>           link_href;
@@ -51,6 +56,9 @@ public:
         Params();
     };
     LLStyle(const Params& p = Params());
+    LLStyleSP clone() const { return makeCopy(); }
+    LLStyleConstSP cloneConst() const { return makeCopy(); }
+
 public:
     const LLUIColor& getColor() const { return mColor; }
     void setColor(const LLUIColor &color) { mColor = color; }
@@ -60,6 +68,9 @@ public:
 
     const LLUIColor& getSelectedColor() const { return mSelectedColor; }
     void setSelectedColor(const LLUIColor& color) { mSelectedColor = color; }
+
+    F32 getAlpha() const { return mAlpha; }
+    void setAlpha(F32 alpha) { mAlpha = alpha; }
 
     bool isVisible() const;
     void setVisible(bool is_visible);
@@ -89,7 +100,8 @@ public:
             && mFont == rhs.mFont
             && mLink == rhs.mLink
             && mImagep == rhs.mImagep
-            && mDropShadow == rhs.mDropShadow;
+            && mDropShadow == rhs.mDropShadow
+            && mAlpha == rhs.mAlpha;
     }
 
     bool operator!=(const LLStyle& rhs) const { return !(*this == rhs); }
@@ -98,21 +110,20 @@ public:
     LLFontGL::ShadowType        mDropShadow;
 
 protected:
-    ~LLStyle() { }
+    ~LLStyle() = default;
+    LLStyle* makeCopy() const;
 
 private:
-    bool                mVisible;
+    std::string         mFontName;
+    std::string         mLink;
     LLUIColor           mColor;
     LLUIColor           mReadOnlyColor;
     LLUIColor           mSelectedColor;
-    std::string         mFontName;
     const LLFontGL*     mFont;
-    std::string         mLink;
-    bool                mIsLink;
     LLPointer<LLUIImage> mImagep;
+    F32                 mAlpha;
+    bool                mVisible;
+    bool                mIsLink;
 };
-
-typedef LLPointer<LLStyle> LLStyleSP;
-typedef LLPointer<const LLStyle> LLStyleConstSP;
 
 #endif  // LL_LLSTYLE_H

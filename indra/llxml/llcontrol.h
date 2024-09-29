@@ -36,32 +36,8 @@
 
 #include <vector>
 
-// *NOTE: boost::visit_each<> generates warning 4675 on .net 2003
-// Disable the warning for the boost includes.
-#if LL_WINDOWS
-# if (_MSC_VER >= 1300 && _MSC_VER < 1400)
-#   pragma warning(push)
-#   pragma warning( disable : 4675 )
-# endif
-#endif
-
 #include <boost/bind.hpp>
-
-#if LL_WINDOWS
-    #pragma warning (push)
-    #pragma warning (disable : 4263) // boost::signals2::expired_slot::what() has const mismatch
-    #pragma warning (disable : 4264)
-#endif
 #include <boost/signals2.hpp>
-#if LL_WINDOWS
-    #pragma warning (pop)
-#endif
-
-#if LL_WINDOWS
-# if (_MSC_VER >= 1300 && _MSC_VER < 1400)
-#   pragma warning(pop)
-# endif
-#endif
 
 class LLVector3;
 class LLVector3d;
@@ -143,7 +119,7 @@ public:
     LLSD getDefault()   const   { return mValues.front(); }
     LLSD getSaveValue() const;
 
-    void set(const LLSD& val)   { setValue(val); }
+    void set(const LLSD& val, bool saved_value = true)  { setValue(val, saved_value); }
     void setValue(const LLSD& value, bool saved_value = true);
     void setDefaultValue(const LLSD& value);
     void setPersist(ePersist);
@@ -278,7 +254,7 @@ public:
     void    setLLSD(std::string_view name, const LLSD& val);
 
     // type agnostic setter that takes LLSD
-    void    setUntypedValue(std::string_view name, const LLSD& val);
+    void    setUntypedValue(std::string_view name, const LLSD& val, bool saved_value = true);
 
     // generic setter
     template<typename T> void set(std::string_view name, const T& val)

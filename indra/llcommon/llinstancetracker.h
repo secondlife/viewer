@@ -41,6 +41,7 @@
 #include <boost/iterator/indirect_iterator.hpp>
 #include <boost/iterator/filter_iterator.hpp>
 
+#include "llprofiler.h"
 #include "lockstatic.h"
 #include "stringize.h"
 
@@ -52,7 +53,7 @@ namespace LLInstanceTrackerPrivate
     struct StaticBase
     {
         // We need to be able to lock static data while manipulating it.
-        std::mutex mMutex;
+        LL_PROFILE_MUTEX_NAMED(std::mutex, mMutex, "InstanceTracker Data");
     };
 
     void logerrs(const char* cls, const std::string&, const std::string&, const std::string&);
@@ -80,6 +81,8 @@ class LLInstanceTracker
     {
         InstanceMap mMap;
     };
+    // Unfortunately there's no umbrella class that owns all LLInstanceTracker
+    // instances, so there's no good place to call LockStatic::cleanup().
     typedef llthread::LockStatic<StaticData> LockStatic;
 
 public:
@@ -101,7 +104,8 @@ public:
 
     static size_t instanceCount()
     {
-        return LockStatic()->mMap.size();
+        LockStatic lock; LL_PROFILE_MUTEX_LOCK(lock->mMutex);
+        return lock->mMap.size();
     }
 
     // snapshot of std::pair<const KEY, std::shared_ptr<SUBCLASS>> pairs, for
@@ -169,23 +173,7 @@ public:
         }
 
         // lock static data during construction
-#if ! LL_WINDOWS
         LockStatic mLock;
-#else  // LL_WINDOWS
-        // We want to be able to use (e.g.) our instance_snapshot subclass as:
-        // for (auto& inst : T::instance_snapshot()) ...
-        // But when this snapshot base class directly contains LockStatic, as
-        // above, Visual Studio 2017 requires us to code instead:
-        // for (auto& inst : std::move(T::instance_snapshot())) ...
-        // nat thinks this should be unnecessary, as an anonymous class
-        // instance is already a temporary. It shouldn't need to be cast to
-        // rvalue reference (the role of std::move()). clang evidently agrees,
-        // as the short form works fine with Xcode on Mac.
-        // To support the succinct usage, instead of directly storing
-        // LockStatic, store std::shared_ptr<LockStatic>, which is copyable.
-        std::shared_ptr<LockStatic> mLockp{std::make_shared<LockStatic>()};
-        LockStatic& mLock{*mLockp};
-#endif // LL_WINDOWS
         VectorType mData;
     };
     using snapshot = snapshot_of<T>;
@@ -236,7 +224,7 @@ public:
 
     static ptr_t getInstance(const KEY& k)
     {
-        LockStatic lock;
+        LockStatic lock; LL_PROFILE_MUTEX_LOCK(lock->mMutex);
         const InstanceMap& map(lock->mMap);
         typename InstanceMap::const_iterator found = map.find(k);
         return (found == map.end()) ? NULL : found->second;
@@ -252,19 +240,19 @@ protected:
         ptr_t ptr(static_cast<T*>(this), [](T*){});
         // save corresponding weak_ptr for future reference
         mSelf = ptr;
-        LockStatic lock;
+        LockStatic lock; LL_PROFILE_MUTEX_LOCK(lock->mMutex);
         add_(lock, key, ptr);
     }
 public:
     virtual ~LLInstanceTracker()
     {
-        LockStatic lock;
+        LockStatic lock; LL_PROFILE_MUTEX_LOCK(lock->mMutex);
         remove_(lock);
     }
 protected:
     virtual void setKey(KEY key)
     {
-        LockStatic lock;
+        LockStatic lock; LL_PROFILE_MUTEX_LOCK(lock->mMutex);
         // Even though the shared_ptr we store in our map has a no-op deleter
         // for T itself, letting the use count decrement to 0 will still
         // delete the use-count object. Capture the shared_ptr we just removed
@@ -274,6 +262,35 @@ protected:
     }
 public:
     virtual const KEY& getKey() const { return mInstanceKey; }
+
+    /// for use ONLY for an object we're sure resides on the heap!
+    static bool erase(const KEY& key)
+    {
+        return erase(getInstance(key));
+    }
+
+    /// for use ONLY for an object we're sure resides on the heap!
+    static bool erase(const weak_t& ptr)
+    {
+        return erase(ptr.lock());
+    }
+
+    /// for use ONLY for an object we're sure resides on the heap!
+    static bool erase(const ptr_t& ptr)
+    {
+        if (! ptr)
+        {
+            return false;
+        }
+
+        // Because we store and return ptr_t instances with no-op deleters,
+        // merely resetting the last pointer doesn't destroy the referenced
+        // object. Don't even bother resetting 'ptr'. Just extract its raw
+        // pointer and delete that.
+        auto raw{ ptr.get() };
+        delete raw;
+        return true;
+    }
 
 private:
     LLInstanceTracker( const LLInstanceTracker& ) = delete;
@@ -355,6 +372,7 @@ class LLInstanceTracker<T, void, KEY_COLLISION_BEHAVIOR>
     {
         InstanceSet mSet;
     };
+    // see LockStatic comment in the above specialization for non-void KEY
     typedef llthread::LockStatic<StaticData> LockStatic;
 
 public:
@@ -376,7 +394,8 @@ public:
 
     static size_t instanceCount()
     {
-        return LockStatic()->mSet.size();
+        LockStatic lock; LL_PROFILE_MUTEX_LOCK(lock->mMutex);
+        return lock->mSet.size();
     }
 
     // snapshot of std::shared_ptr<SUBCLASS> pointers
@@ -432,23 +451,7 @@ public:
         }
 
         // lock static data during construction
-#if ! LL_WINDOWS
         LockStatic mLock;
-#else  // LL_WINDOWS
-        // We want to be able to use our instance_snapshot subclass as:
-        // for (auto& inst : T::instance_snapshot()) ...
-        // But when this snapshot base class directly contains LockStatic, as
-        // above, Visual Studio 2017 requires us to code instead:
-        // for (auto& inst : std::move(T::instance_snapshot())) ...
-        // nat thinks this should be unnecessary, as an anonymous class
-        // instance is already a temporary. It shouldn't need to be cast to
-        // rvalue reference (the role of std::move()). clang evidently agrees,
-        // as the short form works fine with Xcode on Mac.
-        // To support the succinct usage, instead of directly storing
-        // LockStatic, store std::shared_ptr<LockStatic>, which is copyable.
-        std::shared_ptr<LockStatic> mLockp{std::make_shared<LockStatic>()};
-        LockStatic& mLock{*mLockp};
-#endif // LL_WINDOWS
         VectorType mData;
     };
     using snapshot = snapshot_of<T>;
@@ -479,6 +482,29 @@ public:
     template <typename SUBCLASS>
     using key_snapshot_of = instance_snapshot_of<SUBCLASS>;
 
+    /// for use ONLY for an object we're sure resides on the heap!
+    static bool erase(const weak_t& ptr)
+    {
+        return erase(ptr.lock());
+    }
+
+    /// for use ONLY for an object we're sure resides on the heap!
+    static bool erase(const ptr_t& ptr)
+    {
+        if (! ptr)
+        {
+            return false;
+        }
+
+        // Because we store and return ptr_t instances with no-op deleters,
+        // merely resetting the last pointer doesn't destroy the referenced
+        // object. Don't even bother resetting 'ptr'. Just extract its raw
+        // pointer and delete that.
+        auto raw{ ptr.get() };
+        delete raw;
+        return true;
+    }
+
 protected:
     LLInstanceTracker()
     {
@@ -488,14 +514,16 @@ protected:
         // save corresponding weak_ptr for future reference
         mSelf = ptr;
         // Also store it in our class-static set to track this instance.
-        LockStatic()->mSet.emplace(ptr);
+        LockStatic lock; LL_PROFILE_MUTEX_LOCK(lock->mMutex);
+        lock->mSet.emplace(ptr);
     }
 public:
     virtual ~LLInstanceTracker()
     {
         // convert weak_ptr to shared_ptr because that's what we store in our
         // InstanceSet
-        LockStatic()->mSet.erase(mSelf.lock());
+        LockStatic lock; LL_PROFILE_MUTEX_LOCK(lock->mMutex);
+        lock->mSet.erase(mSelf.lock());
     }
 protected:
     LLInstanceTracker(const LLInstanceTracker& other):

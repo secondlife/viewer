@@ -24,10 +24,8 @@
  * $/LicenseInfo$
  */
 
-#if LL_MSVC
-#pragma warning (disable : 4263)
-#pragma warning (disable : 4264)
-#endif
+#include "linden_common.h"
+
 #include "dae.h"
 #include "dom/domAsset.h"
 #include "dom/domBind_material.h"
@@ -48,16 +46,13 @@
 #include "dom/domScale.h"
 #include "dom/domTranslate.h"
 #include "dom/domVisual_scene.h"
-#if LL_MSVC
-#pragma warning (default : 4263)
-#pragma warning (default : 4264)
-#endif
 
 #include "lldaeloader.h"
 #include "llsdserialize.h"
 #include "lljoint.h"
 
-#include "glh/glh_linear.h"
+#include "glm/mat4x4.hpp"
+#include "glm/gtc/type_ptr.hpp"
 #include "llmatrix4a.h"
 
 #include <boost/regex.hpp>
@@ -1222,9 +1217,9 @@ void LLDAELoader::processDomModel(LLModel* model, DAE* dae, daeElement* root, do
         mesh_scale *= normalized_transformation;
         normalized_transformation = mesh_scale;
 
-        glh::matrix4f inv_mat((F32*) normalized_transformation.mMatrix);
-        inv_mat = inv_mat.inverse();
-        LLMatrix4 inverse_normalized_transformation(inv_mat.m);
+        glm::mat4 inv_mat = glm::make_mat4((F32*)normalized_transformation.mMatrix);
+        inv_mat = glm::inverse(inv_mat);
+        LLMatrix4 inverse_normalized_transformation(glm::value_ptr(inv_mat));
 
         domSkin::domBind_shape_matrix* bind_mat = skin->getBind_shape_matrix();
 

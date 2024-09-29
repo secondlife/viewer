@@ -584,9 +584,8 @@ void LLTextBase::drawCursor()
 
             if (LL_KIM_OVERWRITE == gKeyboard->getInsertMode() && !hasSelection() && text[mCursorPos] != '\n')
             {
-                LLColor4 text_color;
                 const LLFontGL* fontp;
-                text_color = segmentp->getColor();
+                const LLColor4& text_color = segmentp->getColor();
                 fontp = segmentp->getStyle()->getFont();
                 fontp->render(text, mCursorPos, cursor_rect,
                     LLColor4(1.f - text_color.mV[VRED], 1.f - text_color.mV[VGREEN], 1.f - text_color.mV[VBLUE], alpha),
@@ -887,7 +886,7 @@ S32 LLTextBase::insertStringNoUndo(S32 pos, const LLWString &wstr, LLTextBase::s
     }
 
     // shift remaining segments to right
-    for(;seg_iter != mSegments.end(); ++seg_iter)
+    for (;seg_iter != mSegments.end(); ++seg_iter)
     {
         LLTextSegmentPtr segmentp = *seg_iter;
         segmentp->setStart(segmentp->getStart() + insert_len);
@@ -914,22 +913,29 @@ S32 LLTextBase::insertStringNoUndo(S32 pos, const LLWString &wstr, LLTextBase::s
     // Insert special segments where necessary (insertSegment takes care of splitting normal text segments around them for us)
     if (mUseEmoji)
     {
-        LLStyleSP emoji_style;
         LLEmojiDictionary* ed = LLEmojiDictionary::instanceExists() ? LLEmojiDictionary::getInstance() : NULL;
-        for (S32 text_kitty = 0, text_len = static_cast<S32>(wstr.size()); text_kitty < text_len; text_kitty++)
+        for (std::size_t i = 0; i < wstr.size(); ++i)
         {
-            llwchar code = wstr[text_kitty];
+            llwchar code = wstr[i];
             bool isEmoji = ed ? ed->isEmoji(code) : LLStringOps::isEmoji(code);
             if (isEmoji)
             {
-                if (!emoji_style)
+                S32 new_seg_start = pos + (S32)i;
+                segment_set_t::iterator cur_seg_iter = getSegIterContaining(new_seg_start);
+                LLStyleSP new_style;
+                if (cur_seg_iter != mSegments.end()) // Should be 100%
                 {
-                    emoji_style = new LLStyle(getStyleParams());
-                    emoji_style->setFont(LLFontGL::getFontEmojiLarge());
+                    // Use font EmojiLarge but preserve the target font style
+                    new_style = (*cur_seg_iter)->getStyle()->clone();
+                    U8 font_style = new_style->getFont()->getFontDesc().getStyle();
+                    new_style->setFont(LLFontGL::getFont(LLFontDescriptor("Emoji", "Large", font_style)));
                 }
-
-                S32 new_seg_start = pos + text_kitty;
-                insertSegment(new LLEmojiTextSegment(emoji_style, new_seg_start, new_seg_start + 1, *this));
+                else // Very unlikely
+                {
+                    new_style = new LLStyle(getStyleParams());
+                    new_style->setFont(LLFontGL::getFontEmojiLarge());
+                }
+                insertSegment(new LLEmojiTextSegment(new_style, new_seg_start, new_seg_start + 1, *this));
             }
         }
     }
@@ -949,7 +955,6 @@ S32 LLTextBase::insertStringNoUndo(S32 pos, const LLWString &wstr, LLTextBase::s
 
 S32 LLTextBase::removeStringNoUndo(S32 pos, S32 length)
 {
-
     beforeValueChange();
     segment_set_t::iterator seg_iter = getSegIterContaining(pos);
     while(seg_iter != mSegments.end())
@@ -1061,14 +1066,18 @@ void LLTextBase::insertSegment(LLTextSegmentPtr segment_to_insert)
             S32 old_segment_end = cur_segmentp->getEnd();
             // split old at start point for new segment
             cur_segmentp->setEnd(segment_to_insert->getStart());
-            // advance to next segment
-            // insert remainder of old segment
-            LLStyleConstSP sp = cur_segmentp->getStyle();
-            LLTextSegmentPtr remainder_segment = new LLNormalTextSegment( sp, segment_to_insert->getStart(), old_segment_end, *this);
-            mSegments.insert(cur_seg_iter, remainder_segment);
-            remainder_segment->linkToDocument(this);
             // insert new segment before remainder of old segment
             mSegments.insert(cur_seg_iter, segment_to_insert);
+            // advance to next segment
+            // insert remainder of old segment
+            if (segment_to_insert->getEnd() < old_segment_end)
+            {
+                LLTextSegmentPtr remainder_segment = cur_segmentp->clone(*this);
+                remainder_segment->setStart(segment_to_insert->getEnd());
+                remainder_segment->setEnd(old_segment_end);
+                mSegments.insert(cur_seg_iter, remainder_segment);
+                remainder_segment->linkToDocument(this);
+            }
 
             segment_to_insert->linkToDocument(this);
             // at this point, there will be two overlapping segments owning the text
@@ -1082,7 +1091,7 @@ void LLTextBase::insertSegment(LLTextSegmentPtr segment_to_insert)
 
         // now delete/truncate remaining segments as necessary
         // cur_seg_iter points to segment before incoming segment
-        while(cur_seg_iter != mSegments.end())
+        while (cur_seg_iter != mSegments.end())
         {
             cur_segmentp = *cur_seg_iter;
             if (cur_segmentp == segment_to_insert)
@@ -1326,6 +1335,7 @@ void LLTextBase::reshape(S32 width, S32 height, bool called_from_parent)
 //virtual
 void LLTextBase::draw()
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
     // reflow if needed, on demand
     reflow();
 
@@ -1368,7 +1378,7 @@ void LLTextBase::draw()
         {
             bg_rect.intersectWith(text_rect);
         }
-        LLColor4 bg_color = mReadOnly
+        const LLColor4& bg_color = mReadOnly
                             ? mReadOnlyBgColor.get()
                             : hasFocus()
                                 ? mFocusBgColor.get()
@@ -1379,7 +1389,7 @@ void LLTextBase::draw()
     // Draw highlighted if needed
     if( ll::ui::SearchableControl::getHighlighted() )
     {
-        LLColor4 bg_color = ll::ui::SearchableControl::getHighlightColor();
+        const LLColor4& bg_color = ll::ui::SearchableControl::getHighlightColor();
         LLRect bg_rect = mVisibleTextRect;
         if( mScroller )
             bg_rect.intersectWith( text_rect );
@@ -1412,14 +1422,14 @@ void LLTextBase::draw()
 
 
 //virtual
-void LLTextBase::setColor( const LLColor4& c )
+void LLTextBase::setColor( const LLUIColor& c )
 {
     mFgColor = c;
     mStyleDirty = true;
 }
 
 //virtual
-void LLTextBase::setReadOnlyColor(const LLColor4 &c)
+void LLTextBase::setReadOnlyColor(const LLUIColor &c)
 {
     mReadOnlyFgColor = c;
     mStyleDirty = true;
@@ -1967,7 +1977,7 @@ void LLTextBase::updateSegments()
     createDefaultSegment();
 }
 
-void LLTextBase::getSegmentAndOffset( S32 startpos, segment_set_t::const_iterator* seg_iter, S32* offsetp ) const
+void LLTextBase::getSegmentAndOffset(S32 startpos, segment_set_t::const_iterator* seg_iter, S32* offsetp) const
 {
     *seg_iter = getSegIterContaining(startpos);
     if (*seg_iter == mSegments.end())
@@ -1980,7 +1990,7 @@ void LLTextBase::getSegmentAndOffset( S32 startpos, segment_set_t::const_iterato
     }
 }
 
-void LLTextBase::getSegmentAndOffset( S32 startpos, segment_set_t::iterator* seg_iter, S32* offsetp )
+void LLTextBase::getSegmentAndOffset(S32 startpos, segment_set_t::iterator* seg_iter, S32* offsetp)
 {
     *seg_iter = getSegIterContaining(startpos);
     if (*seg_iter == mSegments.end())
@@ -1998,7 +2008,8 @@ LLTextBase::segment_set_t::iterator LLTextBase::getEditableSegIterContaining(S32
     segment_set_t::iterator it = getSegIterContaining(index);
     segment_set_t::iterator orig_it = it;
 
-    if (it == mSegments.end()) return it;
+    if (it == mSegments.end())
+        return it;
 
     if (!(*it)->canEdit()
         && index == (*it)->getStart()
@@ -2010,6 +2021,7 @@ LLTextBase::segment_set_t::iterator LLTextBase::getEditableSegIterContaining(S32
             return it;
         }
     }
+
     return orig_it;
 }
 
@@ -2017,7 +2029,8 @@ LLTextBase::segment_set_t::const_iterator LLTextBase::getEditableSegIterContaini
 {
     segment_set_t::const_iterator it = getSegIterContaining(index);
     segment_set_t::const_iterator orig_it = it;
-    if (it == mSegments.end()) return it;
+    if (it == mSegments.end())
+        return it;
 
     if (!(*it)->canEdit()
         && index == (*it)->getStart()
@@ -2029,6 +2042,7 @@ LLTextBase::segment_set_t::const_iterator LLTextBase::getEditableSegIterContaini
             return it;
         }
     }
+
     return orig_it;
 }
 
@@ -2037,7 +2051,10 @@ LLTextBase::segment_set_t::iterator LLTextBase::getSegIterContaining(S32 index)
     static LLPointer<LLIndexSegment> index_segment = new LLIndexSegment();
 
     // when there are no segments, we return the end iterator, which must be checked by caller
-    if (mSegments.size() <= 1) { return mSegments.begin(); }
+    if (mSegments.size() <= 1)
+    {
+        return mSegments.begin();
+    }
 
     index_segment->setStart(index);
     index_segment->setEnd(index);
@@ -2050,7 +2067,10 @@ LLTextBase::segment_set_t::const_iterator LLTextBase::getSegIterContaining(S32 i
     static LLPointer<LLIndexSegment> index_segment = new LLIndexSegment();
 
     // when there are no segments, we return the end iterator, which must be checked by caller
-    if (mSegments.size() <= 1) { return mSegments.begin(); }
+    if (mSegments.size() <= 1)
+    {
+        return mSegments.begin();
+    }
 
     index_segment->setStart(index);
     index_segment->setEnd(index);
@@ -2059,7 +2079,7 @@ LLTextBase::segment_set_t::const_iterator LLTextBase::getSegIterContaining(S32 i
 }
 
 // Finds the text segment (if any) at the give local screen position
-LLTextSegmentPtr LLTextBase::getSegmentAtLocalPos( S32 x, S32 y, bool hit_past_end_of_line)
+LLTextSegmentPtr LLTextBase::getSegmentAtLocalPos(S32 x, S32 y, bool hit_past_end_of_line)
 {
     // Find the cursor position at the requested local screen position
     S32 offset = getDocIndexFromLocalCoord( x, y, false, hit_past_end_of_line);
@@ -2068,10 +2088,8 @@ LLTextSegmentPtr LLTextBase::getSegmentAtLocalPos( S32 x, S32 y, bool hit_past_e
     {
         return *seg_iter;
     }
-    else
-    {
-        return LLTextSegmentPtr();
-    }
+
+    return LLTextSegmentPtr();
 }
 
 void LLTextBase::createUrlContextMenu(S32 x, S32 y, const std::string &in_url)
@@ -2079,7 +2097,7 @@ void LLTextBase::createUrlContextMenu(S32 x, S32 y, const std::string &in_url)
     // work out the XUI menu file to use for this url
     LLUrlMatch match;
     std::string url = in_url;
-    if (! LLUrlRegistry::instance().findUrl(url, match))
+    if (!LLUrlRegistry::instance().findUrl(url, match))
     {
         return;
     }
@@ -2092,7 +2110,7 @@ void LLTextBase::createUrlContextMenu(S32 x, S32 y, const std::string &in_url)
 
     // set up the callbacks for all of the potential menu items, N.B. we
     // don't use const ref strings in callbacks in case url goes out of scope
-    LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+    CommitRegistrarHelper registrar(LLUICtrl::CommitCallbackRegistry::currentRegistrar());
     registrar.add("Url.Open", boost::bind(&LLUrlAction::openURL, url));
     registrar.add("Url.OpenInternal", boost::bind(&LLUrlAction::openURLInternal, url));
     registrar.add("Url.OpenExternal", boost::bind(&LLUrlAction::openURLExternal, url));
@@ -2193,30 +2211,28 @@ static LLUIImagePtr image_from_icon_name(const std::string& icon_name)
     {
         return LLUI::getUIImageByID( LLUUID(icon_name) );
     }
-    else
-    {
-        return LLUI::getUIImage(icon_name);
-    }
+
+    return LLUI::getUIImage(icon_name);
 }
 
 
 void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Params& input_params)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
-    LLStyle::Params style_params(input_params);
-    style_params.fillFrom(getStyleParams());
+    LLStyle::Params style_params(getStyleParams());
+    style_params.overwriteFrom(input_params);
 
-    S32 part = (S32)LLTextParser::WHOLE;
+    LLTextParser::EHighlightPosition part = LLTextParser::WHOLE;
     if (mParseHTML && !style_params.is_link) // Don't search for URLs inside a link segment (STORM-358).
     {
-        S32 start=0,end=0;
+        U32 next = 0;
         LLUrlMatch match;
         std::string text = new_text;
         while (LLUrlRegistry::instance().findUrl(text, match,
                 boost::bind(&LLTextBase::replaceUrl, this, _1, _2, _3), isContentTrusted() || mAlwaysShowIcons))
         {
-            start = match.getStart();
-            end = match.getEnd()+1;
+            U32 start = match.getStart();
+            next = match.getEnd() + 1;
 
             LLStyle::Params link_params(style_params);
             link_params.overwriteFrom(match.getStyle());
@@ -2224,16 +2240,16 @@ void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Para
             // output the text before the Url
             if (start > 0)
             {
-                if (part == (S32)LLTextParser::WHOLE ||
-                    part == (S32)LLTextParser::START)
+                if (part == LLTextParser::WHOLE ||
+                    part == LLTextParser::START)
                 {
-                    part = (S32)LLTextParser::START;
+                    part = LLTextParser::START;
                 }
                 else
                 {
-                    part = (S32)LLTextParser::MIDDLE;
+                    part = LLTextParser::MIDDLE;
                 }
-                std::string subtext=text.substr(0,start);
+                std::string subtext = text.substr(0, start);
                 appendAndHighlightText(subtext, part, style_params);
             }
 
@@ -2245,14 +2261,8 @@ void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Para
             }
 
             // output the styled Url
-            appendAndHighlightTextImpl(match.getLabel(), part, link_params, match.underlineOnHoverOnly());
-            bool tooltip_required =  !match.getTooltip().empty();
-
-            // set the tooltip for the Url label
-            if (tooltip_required)
-            {
-                setLastSegmentToolTip(match.getTooltip());
-            }
+            appendAndHighlightTextImpl(match.getLabel(), part, link_params, match.underlineOnHoverOnly(), match.getTooltip());
+            bool tooltip_required = !match.getTooltip().empty();
 
             // show query part of url with gray color only for LLUrlEntryHTTP url entries
             std::string label = match.getQuery();
@@ -2260,31 +2270,27 @@ void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Para
             {
                 link_params.color = LLColor4::grey;
                 link_params.readonly_color = LLColor4::grey;
-                appendAndHighlightTextImpl(label, part, link_params, match.underlineOnHoverOnly());
-
-                // set the tooltip for the query part of url
-                if (tooltip_required)
-                {
-                    setLastSegmentToolTip(match.getTooltip());
-                }
+                appendAndHighlightTextImpl(label, part, link_params, match.underlineOnHoverOnly(), match.getTooltip());
             }
+
+            if (next >= text.length())
+                break;
 
             // move on to the rest of the text after the Url
-            if (end < (S32)text.length())
-            {
-                text = text.substr(end,text.length() - end);
-                end=0;
-                part=(S32)LLTextParser::END;
-            }
-            else
-            {
-                break;
-            }
+            text = text.substr(next, text.length() - next);
+            next = 0;
+            part = LLTextParser::END;
         }
-        if (part != (S32)LLTextParser::WHOLE)
-            part=(S32)LLTextParser::END;
-        if (end < (S32)text.length())
+
+        if (part != LLTextParser::WHOLE)
+        {
+            part = LLTextParser::END;
+        }
+
+        if (next < text.length())
+        {
             appendAndHighlightText(text, part, style_params);
+        }
     }
     else
     {
@@ -2308,7 +2314,7 @@ void LLTextBase::appendText(const std::string &new_text, bool prepend_newline, c
     if (new_text.empty())
         return;
 
-    if(prepend_newline)
+    if (prepend_newline)
         appendLineBreakSegment(input_params);
     appendTextImpl(new_text,input_params);
 }
@@ -2366,7 +2372,36 @@ S32 LLTextBase::removeFirstLine()
         removeStringNoUndo(0, length);
         return length;
     }
+
     return 0;
+}
+
+// virtual
+void LLTextBase::copyContents(const LLTextBase* source)
+{
+    llassert(source);
+    if (!source)
+        return;
+
+    beforeValueChange();
+    deselect();
+
+    mSegments.clear();
+    for (const LLTextSegmentPtr& segp : source->mSegments)
+    {
+        mSegments.emplace(segp->clone(*this));
+    }
+
+    mLineInfoList.clear();
+    for (const line_info& li : mLineInfoList)
+    {
+        mLineInfoList.push_back(line_info(li));
+    }
+
+    getViewModel()->setDisplay(source->getViewModel()->getDisplay());
+
+    onValueChange(0, getLength());
+    needsReflow();
 }
 
 void LLTextBase::appendLineBreakSegment(const LLStyle::Params& style_params)
@@ -2380,10 +2415,11 @@ void LLTextBase::appendLineBreakSegment(const LLStyle::Params& style_params)
 
 void LLTextBase::appendImageSegment(const LLStyle::Params& style_params)
 {
-    if(getPlainText())
+    if (getPlainText())
     {
         return;
     }
+
     segment_vec_t segments;
     LLStyleConstSP sp(new LLStyle(style_params));
     segments.push_back(new LLImageTextSegment(sp, getLength(),*this));
@@ -2400,7 +2436,8 @@ void LLTextBase::appendWidget(const LLInlineViewSegment::Params& params, const s
     insertStringNoUndo(getLength(), widget_wide_text, &segments);
 }
 
-void LLTextBase::appendAndHighlightTextImpl(const std::string &new_text, S32 highlight_part, const LLStyle::Params& style_params, bool underline_on_hover_only)
+void LLTextBase::appendAndHighlightTextImpl(const std::string &new_text, LLTextParser::EHighlightPosition highlight_part,
+    const LLStyle::Params& style_params, bool underline_on_hover_only, std::string tooltip)
 {
     // Save old state
     S32 selection_start = mSelectionStart;
@@ -2418,16 +2455,14 @@ void LLTextBase::appendAndHighlightTextImpl(const std::string &new_text, S32 hig
     {
         LLStyle::Params highlight_params(style_params);
 
-        LLSD pieces = LLTextParser::instance().parsePartialLineHighlights(new_text, highlight_params.color(), (LLTextParser::EHighlightPosition)highlight_part);
+        auto pieces = LLTextParser::instance().parsePartialLineHighlights(new_text, highlight_params.color, highlight_part);
         for (S32 i = 0; i < pieces.size(); i++)
         {
-            LLSD color_llsd = pieces[i]["color"];
-            LLColor4 lcolor;
-            lcolor.setValue(color_llsd);
-            highlight_params.color = lcolor;
+            const auto& piece_pair = pieces[i];
+            highlight_params.color = piece_pair.second;
 
             LLWString wide_text;
-            wide_text = utf8str_to_wstring(pieces[i]["text"].asString());
+            wide_text = utf8str_to_wstring(piece_pair.first);
 
             S32 cur_length = getLength();
             LLStyleConstSP sp(new LLStyle(highlight_params));
@@ -2442,8 +2477,13 @@ void LLTextBase::appendAndHighlightTextImpl(const std::string &new_text, S32 hig
             {
                 segmentp = new LLNormalTextSegment(sp, cur_length, cur_length + static_cast<S32>(wide_text.size()), *this);
             }
-            segment_vec_t segments;
-            segments.push_back(segmentp);
+
+            if (!tooltip.empty())
+            {
+                segmentp->setToolTip(tooltip);
+            }
+
+            segment_vec_t segments = { segmentp };
             insertStringNoUndo(cur_length, wide_text, &segments);
         }
     }
@@ -2452,22 +2492,28 @@ void LLTextBase::appendAndHighlightTextImpl(const std::string &new_text, S32 hig
         LLWString wide_text;
         wide_text = utf8str_to_wstring(new_text);
 
-        segment_vec_t segments;
         S32 segment_start = old_length;
         S32 segment_end = old_length + static_cast<S32>(wide_text.size());
         LLStyleConstSP sp(new LLStyle(style_params));
+        LLTextSegmentPtr segmentp;
         if (underline_on_hover_only || mSkipLinkUnderline)
         {
             LLStyle::Params normal_style_params(style_params);
             normal_style_params.font.style("NORMAL");
             LLStyleConstSP normal_sp(new LLStyle(normal_style_params));
-            segments.push_back(new LLOnHoverChangeableTextSegment(sp, normal_sp, segment_start, segment_end, *this));
+            segmentp = new LLOnHoverChangeableTextSegment(sp, normal_sp, segment_start, segment_end, *this);
         }
         else
         {
-            segments.push_back(new LLNormalTextSegment(sp, segment_start, segment_end, *this));
+            segmentp = new LLNormalTextSegment(sp, segment_start, segment_end, *this);
         }
 
+        if (!tooltip.empty())
+        {
+            segmentp->setToolTip(tooltip);
+        }
+
+        segment_vec_t segments = { segmentp };
         insertStringNoUndo(getLength(), wide_text, &segments);
     }
 
@@ -2490,7 +2536,9 @@ void LLTextBase::appendAndHighlightTextImpl(const std::string &new_text, S32 hig
     }
 }
 
-void LLTextBase::appendAndHighlightText(const std::string &new_text, S32 highlight_part, const LLStyle::Params& style_params, bool underline_on_hover_only)
+void LLTextBase::appendAndHighlightText(const std::string &new_text,
+    LLTextParser::EHighlightPosition highlight_part,
+    const LLStyle::Params& style_params, bool underline_on_hover_only)
 {
     if (new_text.empty())
     {
@@ -2502,13 +2550,15 @@ void LLTextBase::appendAndHighlightText(const std::string &new_text, S32 highlig
 
     while (pos != std::string::npos)
     {
-        if (pos != start)
+        if (pos > start)
         {
-            std::string str = std::string(new_text,start,pos-start);
+            std::string str = std::string(new_text, start, pos - start);
             appendAndHighlightTextImpl(str, highlight_part, style_params, underline_on_hover_only);
         }
         appendLineBreakSegment(style_params);
-        start = pos+1;
+        start = pos + 1;
+        if (start >= new_text.length())
+            return;
         pos = new_text.find("\n", start);
     }
 
@@ -2587,6 +2637,11 @@ void LLTextBase::setWText(const LLWString& text)
 const LLWString& LLTextBase::getWText() const
 {
     return getViewModel()->getDisplay();
+}
+
+S32 LLTextBase::getTextGeneration() const
+{
+    return getViewModel()->getDisplayGeneration();
 }
 
 // If round is true, if the position is on the right half of a character, the cursor
@@ -3229,7 +3284,8 @@ boost::signals2::connection LLTextBase::setIsObjectBlockedCallback(const is_bloc
 //
 
 LLTextSegment::~LLTextSegment()
-{}
+{
+}
 
 bool LLTextSegment::getDimensionsF32(S32 first_char, S32 num_chars, F32& width, S32& height) const { width = 0; height = 0; return false; }
 bool LLTextSegment::getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const
@@ -3247,8 +3303,8 @@ F32 LLTextSegment::draw(S32 start, S32 end, S32 selection_start, S32 selection_e
 bool LLTextSegment::canEdit() const { return false; }
 void LLTextSegment::unlinkFromDocument(LLTextBase*) {}
 void LLTextSegment::linkToDocument(LLTextBase*) {}
-const LLColor4& LLTextSegment::getColor() const { return LLColor4::white; }
-//void LLTextSegment::setColor(const LLColor4 &color) {}
+const LLUIColor& LLTextSegment::getColor() const { static const LLUIColor white = LLUIColorTable::instance().getColor("White", LLColor4::white); return white; }
+//void LLTextSegment::setColor(const LLUIColor &color) {}
 LLStyleConstSP LLTextSegment::getStyle() const {static LLStyleConstSP sp(new LLStyle()); return sp; }
 void LLTextSegment::setStyle(LLStyleConstSP style) {}
 void LLTextSegment::setToken( LLKeywordToken* token ) {}
@@ -3283,7 +3339,8 @@ LLNormalTextSegment::LLNormalTextSegment( LLStyleConstSP style, S32 start, S32 e
 :   LLTextSegment(start, end),
     mStyle( style ),
     mToken(NULL),
-    mEditor(editor)
+    mEditor(editor),
+    mLastGeneration(-1)
 {
     mFontHeight = mStyle->getFont()->getLineHeight();
 
@@ -3294,10 +3351,11 @@ LLNormalTextSegment::LLNormalTextSegment( LLStyleConstSP style, S32 start, S32 e
     }
 }
 
-LLNormalTextSegment::LLNormalTextSegment( const LLColor4& color, S32 start, S32 end, LLTextBase& editor, bool is_visible)
+LLNormalTextSegment::LLNormalTextSegment( const LLUIColor& color, S32 start, S32 end, LLTextBase& editor, bool is_visible)
 :   LLTextSegment(start, end),
     mToken(NULL),
-    mEditor(editor)
+    mEditor(editor),
+    mLastGeneration(-1)
 {
     mStyle = new LLStyle(LLStyle::Params().visible(is_visible).color(color));
 
@@ -3316,25 +3374,41 @@ F32 LLNormalTextSegment::draw(S32 start, S32 end, S32 selection_start, S32 selec
     {
         return drawClippedSegment( getStart() + start, getStart() + end, selection_start, selection_end, draw_rect);
     }
+    else
+    {
+        mFontBufferPreSelection.reset();
+        mFontBufferSelection.reset();
+        mFontBufferPostSelection.reset();
+    }
     return draw_rect.mLeft;
 }
 
 // Draws a single text segment, reversing the color for selection if needed.
 F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 selection_start, S32 selection_end, LLRectf rect)
 {
-    F32 alpha = LLViewDrawContext::getCurrentContext().mAlpha;
-
-    const LLWString &text = getWText();
-
     F32 right_x = rect.mLeft;
     if (!mStyle->isVisible())
     {
         return right_x;
     }
 
-    const LLFontGL* font = mStyle->getFont();
+    F32 alpha = LLViewDrawContext::getCurrentContext().mAlpha;
 
-    LLColor4 color = (mEditor.getReadOnly() ? mStyle->getReadOnlyColor() : mStyle->getColor())  % alpha;
+    const LLWString& text = getWText();
+    S32 text_gen = mEditor.getTextGeneration();
+
+    if (text_gen != mLastGeneration)
+    {
+        mLastGeneration = text_gen;
+
+        mFontBufferPreSelection.reset();
+        mFontBufferSelection.reset();
+        mFontBufferPostSelection.reset();
+    }
+
+    const LLFontGL* font = mStyle->getFont();
+    LLColor4 color = (mEditor.getReadOnly() ? mStyle->getReadOnlyColor() : mStyle->getColor())  % (alpha * mStyle->getAlpha());
+    bool use_font_buffers = useFontBuffers();
 
     if( selection_start > seg_start )
     {
@@ -3342,16 +3416,40 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
         S32 start = seg_start;
         S32 end = llmin( selection_start, seg_end );
         S32 length =  end - start;
-        font->render(text, start,
-                 rect,
-                 color,
-                 LLFontGL::LEFT, mEditor.mTextVAlign,
-                 LLFontGL::NORMAL,
-                 mStyle->getShadowType(),
-                 length,
-                 &right_x,
-                 mEditor.getUseEllipses(),
-                 mEditor.getUseColor());
+        if (use_font_buffers)
+        {
+            mFontBufferPreSelection.render(
+                font,
+                text, start,
+                rect,
+                color,
+                LLFontGL::LEFT, mEditor.mTextVAlign,
+                LLFontGL::NORMAL,
+                mStyle->getShadowType(),
+                length,
+                &right_x,
+                mEditor.getUseEllipses(),
+                mEditor.getUseColor());
+        }
+        else
+        {
+            // Font buffer doesn't do well with changes and huge notecard with a bunch
+            // of segments will see a lot of buffer updates, so instead use derect
+            // rendering to cache.
+            // Todo: instead of mLastGeneration make buffer invalidation more fine grained
+            // like string hash of a given segment.
+            font->render(
+                text, start,
+                rect,
+                color,
+                LLFontGL::LEFT, mEditor.mTextVAlign,
+                LLFontGL::NORMAL,
+                mStyle->getShadowType(),
+                length,
+                &right_x,
+                mEditor.getUseEllipses(),
+                mEditor.getUseColor());
+        }
     }
     rect.mLeft = right_x;
 
@@ -3362,16 +3460,35 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
         S32 end = llmin( selection_end, seg_end );
         S32 length = end - start;
 
-        font->render(text, start,
-                 rect,
-                 mStyle->getSelectedColor().get(),
-                 LLFontGL::LEFT, mEditor.mTextVAlign,
-                 LLFontGL::NORMAL,
-                 LLFontGL::NO_SHADOW,
-                 length,
-                 &right_x,
-                 mEditor.getUseEllipses(),
-                 mEditor.getUseColor());
+        if (use_font_buffers)
+        {
+            mFontBufferSelection.render(
+                font,
+                text, start,
+                rect,
+                mStyle->getSelectedColor().get(),
+                LLFontGL::LEFT, mEditor.mTextVAlign,
+                LLFontGL::NORMAL,
+                LLFontGL::NO_SHADOW,
+                length,
+                &right_x,
+                mEditor.getUseEllipses(),
+                mEditor.getUseColor());
+        }
+        else
+        {
+            font->render(
+                text, start,
+                rect,
+                mStyle->getSelectedColor().get(),
+                LLFontGL::LEFT, mEditor.mTextVAlign,
+                LLFontGL::NORMAL,
+                LLFontGL::NO_SHADOW,
+                length,
+                &right_x,
+                mEditor.getUseEllipses(),
+                mEditor.getUseColor());
+        }
     }
     rect.mLeft = right_x;
     if( selection_end < seg_end )
@@ -3380,16 +3497,36 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
         S32 start = llmax( selection_end, seg_start );
         S32 end = seg_end;
         S32 length = end - start;
-        font->render(text, start,
-                 rect,
-                 color,
-                 LLFontGL::LEFT, mEditor.mTextVAlign,
-                 LLFontGL::NORMAL,
-                 mStyle->getShadowType(),
-                 length,
-                 &right_x,
-                 mEditor.getUseEllipses(),
-                 mEditor.getUseColor());
+        if (use_font_buffers)
+        {
+            mFontBufferPostSelection.render(
+                font,
+                text, start,
+                rect,
+                color,
+                LLFontGL::LEFT, mEditor.mTextVAlign,
+                LLFontGL::NORMAL,
+                mStyle->getShadowType(),
+                length,
+                &right_x,
+                mEditor.getUseEllipses(),
+                mEditor.getUseColor());
+        }
+        else
+        {
+            font->render(
+                text, start,
+                rect,
+                color,
+                LLFontGL::LEFT, mEditor.mTextVAlign,
+                LLFontGL::NORMAL,
+                mStyle->getShadowType(),
+                length,
+                &right_x,
+                mEditor.getUseEllipses(),
+                mEditor.getUseColor());
+
+        }
     }
     return right_x;
 }
@@ -3485,12 +3622,27 @@ void LLNormalTextSegment::setToolTip(const std::string& tooltip)
     // we cannot replace a keyword tooltip that's loaded from a file
     if (mToken)
     {
-        LL_WARNS() << "LLTextSegment::setToolTip: cannot replace keyword tooltip." << LL_ENDL;
+        LL_WARNS() << "Cannot replace keyword tooltip." << LL_ENDL;
         return;
     }
     mTooltip = tooltip;
 }
 
+LLStyleConstSP LLNormalTextSegment::cloneStyle(LLTextBase& target, const LLStyle* source) const
+{
+    return (&target == &mEditor) ? mStyle : mStyle->cloneConst();
+}
+
+// virtual
+LLTextSegmentPtr LLNormalTextSegment::clone(LLTextBase& target) const
+{
+    LLStyleConstSP sp(cloneStyle(target, mStyle));
+    LLNormalTextSegment* copy = new LLNormalTextSegment(sp, mStart, mEnd, target);
+    copy->mTooltip = mTooltip;
+    return copy;
+}
+
+// virtual
 bool LLNormalTextSegment::getDimensionsF32(S32 first_char, S32 num_chars, F32& width, S32& height) const
 {
     height = 0;
@@ -3576,6 +3728,15 @@ S32 LLNormalTextSegment::getNumChars(S32 num_pixels, S32 segment_offset, S32 lin
     return num_chars;
 }
 
+void LLNormalTextSegment::updateLayout(const class LLTextBase& editor)
+{
+    LLTextSegment::updateLayout(editor);
+
+    mFontBufferPreSelection.reset();
+    mFontBufferSelection.reset();
+    mFontBufferPostSelection.reset();
+}
+
 void LLNormalTextSegment::dump() const
 {
     LL_INFOS() << "Segment [" <<
@@ -3604,9 +3765,16 @@ LLLabelTextSegment::LLLabelTextSegment( LLStyleConstSP style, S32 start, S32 end
 {
 }
 
-LLLabelTextSegment::LLLabelTextSegment( const LLColor4& color, S32 start, S32 end, LLTextBase& editor, bool is_visible)
+LLLabelTextSegment::LLLabelTextSegment( const LLUIColor& color, S32 start, S32 end, LLTextBase& editor, bool is_visible)
 :   LLNormalTextSegment(color, start, end, editor, is_visible)
 {
+}
+
+// virtual
+LLTextSegmentPtr LLLabelTextSegment::clone(LLTextBase& target) const
+{
+    LLStyleConstSP sp(cloneStyle(target, mStyle));
+    return new LLLabelTextSegment(sp, mStart, mEnd, target);
 }
 
 /*virtual*/
@@ -3628,9 +3796,16 @@ LLEmojiTextSegment::LLEmojiTextSegment(LLStyleConstSP style, S32 start, S32 end,
 {
 }
 
-LLEmojiTextSegment::LLEmojiTextSegment(const LLColor4& color, S32 start, S32 end, LLTextBase& editor, bool is_visible)
+LLEmojiTextSegment::LLEmojiTextSegment(const LLUIColor& color, S32 start, S32 end, LLTextBase& editor, bool is_visible)
     : LLNormalTextSegment(color, start, end, editor, is_visible)
 {
+}
+
+// virtual
+LLTextSegmentPtr LLEmojiTextSegment::clone(LLTextBase& target) const
+{
+    LLStyleConstSP sp(cloneStyle(target, mStyle));
+    return new LLEmojiTextSegment(sp, mStart, mEnd, target);
 }
 
 bool LLEmojiTextSegment::handleToolTip(S32 x, S32 y, MASK mask)
@@ -3655,6 +3830,14 @@ LLOnHoverChangeableTextSegment::LLOnHoverChangeableTextSegment( LLStyleConstSP s
       LLNormalTextSegment(normal_style, start, end, editor),
       mHoveredStyle(style),
       mNormalStyle(normal_style){}
+
+// virtual
+LLTextSegmentPtr LLOnHoverChangeableTextSegment::clone(LLTextBase& target) const
+{
+    LLStyleConstSP hsp(cloneStyle(target, mHoveredStyle));
+    LLStyleConstSP nsp(cloneStyle(target, mNormalStyle));
+    return new LLOnHoverChangeableTextSegment(hsp, nsp, mStart, mEnd, target);
+}
 
 /*virtual*/
 F32 LLOnHoverChangeableTextSegment::draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRectf& draw_rect)
@@ -3693,6 +3876,13 @@ LLInlineViewSegment::LLInlineViewSegment(const Params& p, S32 start, S32 end)
 LLInlineViewSegment::~LLInlineViewSegment()
 {
     mView->die();
+}
+
+// virtual
+LLTextSegmentPtr LLInlineViewSegment::clone(LLTextBase& target) const
+{
+    llassert_always_msg(false, "NOT SUPPORTED");
+    return nullptr;
 }
 
 bool LLInlineViewSegment::getDimensionsF32(S32 first_char, S32 num_chars, F32& width, S32& height) const
@@ -3782,6 +3972,14 @@ LLLineBreakTextSegment::LLLineBreakTextSegment(LLStyleConstSP style,S32 pos):LLT
 LLLineBreakTextSegment::~LLLineBreakTextSegment()
 {
 }
+
+// virtual
+LLTextSegmentPtr LLLineBreakTextSegment::clone(LLTextBase& target) const
+{
+    LLLineBreakTextSegment* copy = new LLLineBreakTextSegment(mStart);
+    copy->mFontHeight = mFontHeight;
+    return copy;
+}
 bool LLLineBreakTextSegment::getDimensionsF32(S32 first_char, S32 num_chars, F32& width, S32& height) const
 {
     width = 0;
@@ -3809,8 +4007,16 @@ LLImageTextSegment::~LLImageTextSegment()
 {
 }
 
+// virtual
+LLTextSegmentPtr LLImageTextSegment::clone(LLTextBase& target) const
+{
+    LLStyleConstSP sp((&target == &mEditor) ? mStyle : mStyle->cloneConst());
+    return new LLImageTextSegment(sp, mStart, target);
+}
+
 static const S32 IMAGE_HPAD = 3;
 
+// virtual
 bool LLImageTextSegment::getDimensionsF32(S32 first_char, S32 num_chars, F32& width, S32& height) const
 {
     width = 0;

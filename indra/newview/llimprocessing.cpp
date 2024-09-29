@@ -58,10 +58,6 @@
 #include "llworld.h"
 
 #include "boost/lexical_cast.hpp"
-#if LL_MSVC
-// disable boost::lexical_cast warning
-#pragma warning (disable:4702)
-#endif
 
 extern void on_new_message(const LLSD& msg);
 
@@ -492,7 +488,7 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
         case IM_NOTHING_SPECIAL:    // p2p IM
             // Don't show dialog, just do IM
             if (!gAgent.isGodlike()
-                && gAgent.getRegion()->isPrelude()
+                && gAgent.inPrelude()
                 && to_id.isNull())
             {
                 // do nothing -- don't distract newbies in

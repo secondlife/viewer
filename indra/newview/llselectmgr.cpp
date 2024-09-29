@@ -103,20 +103,12 @@ LLViewerObject* getSelectedParentObject(LLViewerObject *object) ;
 // Consts
 //
 
-const F32 SILHOUETTE_UPDATE_THRESHOLD_SQUARED = 0.02f;
-const S32 MAX_SILS_PER_FRAME = 50;
-const S32 MAX_OBJECTS_PER_PACKET = 254;
+constexpr F32 SILHOUETTE_UPDATE_THRESHOLD_SQUARED = 0.02f;
+constexpr S32 MAX_SILS_PER_FRAME = 50;
+constexpr S32 MAX_OBJECTS_PER_PACKET = 254;
 // For linked sets
-const S32 MAX_CHILDREN_PER_TASK = 255;
+constexpr S32 MAX_CHILDREN_PER_TASK = 255;
 
-//
-// Globals
-//
-
-//bool gDebugSelectMgr = false;
-
-//bool gHideSelectedObjects = false;
-//bool gAllowSelectAvatar = false;
 
 bool LLSelectMgr::sRectSelectInclusive = true;
 bool LLSelectMgr::sRenderHiddenSelections = true;
@@ -128,12 +120,12 @@ F32 LLSelectMgr::sHighlightAlpha = 0.f;
 F32 LLSelectMgr::sHighlightAlphaTest = 0.f;
 F32 LLSelectMgr::sHighlightUAnim = 0.f;
 F32 LLSelectMgr::sHighlightVAnim = 0.f;
-LLColor4 LLSelectMgr::sSilhouetteParentColor;
-LLColor4 LLSelectMgr::sSilhouetteChildColor;
-LLColor4 LLSelectMgr::sHighlightInspectColor;
-LLColor4 LLSelectMgr::sHighlightParentColor;
-LLColor4 LLSelectMgr::sHighlightChildColor;
-LLColor4 LLSelectMgr::sContextSilhouetteColor;
+LLUIColor LLSelectMgr::sSilhouetteParentColor;
+LLUIColor LLSelectMgr::sSilhouetteChildColor;
+LLUIColor LLSelectMgr::sHighlightInspectColor;
+LLUIColor LLSelectMgr::sHighlightParentColor;
+LLUIColor LLSelectMgr::sHighlightChildColor;
+LLUIColor LLSelectMgr::sContextSilhouetteColor;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // struct LLDeRezInfo
@@ -6437,8 +6429,10 @@ void LLSelectMgr::renderSilhouettes(bool for_hud)
     bool wireframe_selection = (gFloaterTools && gFloaterTools->getVisible()) || LLSelectMgr::sRenderHiddenSelections;
     F32 fogCfx = (F32)llclamp((LLSelectMgr::getInstance()->getSelectionCenterGlobal() - gAgentCamera.getCameraPositionGlobal()).magVec() / (LLSelectMgr::getInstance()->getBBoxOfSelection().getExtentLocal().magVec() * 4), 0.0, 1.0);
 
-    static LLColor4 sParentColor = LLColor4(sSilhouetteParentColor[VRED], sSilhouetteParentColor[VGREEN], sSilhouetteParentColor[VBLUE], LLSelectMgr::sHighlightAlpha);
-    static LLColor4 sChildColor = LLColor4(sSilhouetteChildColor[VRED], sSilhouetteChildColor[VGREEN], sSilhouetteChildColor[VBLUE], LLSelectMgr::sHighlightAlpha);
+    LLColor4 sParentColor = sSilhouetteParentColor;
+    sParentColor.mV[VALPHA] = LLSelectMgr::sHighlightAlpha;
+    LLColor4 sChildColor = sSilhouetteChildColor;
+    sChildColor.mV[VALPHA] = LLSelectMgr::sHighlightAlpha;
 
     auto renderMeshSelection_f = [fogCfx, wireframe_selection](LLSelectNode* node, LLViewerObject* objectp, LLColor4 hlColor)
     {
@@ -8006,12 +8000,9 @@ S32 LLObjectSelection::getSelectedObjectRenderCost()
                    cost += object->getRenderCost(textures);
                    computed_objects.insert(object->getID());
 
-                   const_child_list_t children = object->getChildren();
-                   for (const_child_list_t::const_iterator child_iter = children.begin();
-                         child_iter != children.end();
-                         ++child_iter)
+                   const const_child_list_t& children = object->getChildren();
+                   for (LLViewerObject* child_obj : children)
                    {
-                       LLViewerObject* child_obj = *child_iter;
                        LLVOVolume *child = dynamic_cast<LLVOVolume*>( child_obj );
                        if (child)
                        {

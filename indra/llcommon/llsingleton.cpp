@@ -27,11 +27,12 @@
 #include "linden_common.h"
 #include "llsingleton.h"
 
+#include "llcoros.h"
+#include "lldependencies.h"
 #include "llerror.h"
 #include "llerrorcontrol.h"
-#include "lldependencies.h"
 #include "llexception.h"
-#include "llcoros.h"
+#include "llmainthreadtask.h"
 #include <algorithm>
 #include <iostream>                 // std::cerr in dire emergency
 #include <sstream>
@@ -59,9 +60,8 @@ private:
     // it's safe to log -- which involves querying a different LLSingleton --
     // which requires accessing the master list.
     typedef std::recursive_mutex mutex_t;
-    typedef std::unique_lock<mutex_t> lock_t;
-
-    mutex_t mMutex;
+    LL_PROFILE_MUTEX_NAMED(mutex_t, mMutex, "Singleton MasterList");
+    typedef std::unique_lock<decltype(mMutex)> lock_t;
 
 public:
     // Instantiate this to both obtain a reference to MasterList::instance()
@@ -271,17 +271,29 @@ void LLSingletonBase::reset_initializing(list_t::size_type size)
 
 void LLSingletonBase::MasterList::LockedInitializing::log(const char* verb, const char* name)
 {
-        LL_DEBUGS("LLSingleton") << verb << ' ' << demangle(name) << ';';
-        if (mList)
+    LL_DEBUGS("LLSingleton") << verb << ' ' << demangle(name) << ';';
+    if (mList)
+    {
+        for (list_t::const_reverse_iterator ri(mList->rbegin()), rend(mList->rend());
+             ri != rend; ++ri)
         {
-            for (list_t::const_reverse_iterator ri(mList->rbegin()), rend(mList->rend());
-                 ri != rend; ++ri)
-            {
-                LLSingletonBase* sb(*ri);
-                LL_CONT << ' ' << classname(sb);
-            }
+            LLSingletonBase* sb(*ri);
+            LL_CONT << ' ' << classname(sb);
         }
-        LL_ENDL;
+    }
+    LL_ENDL;
+}
+
+void LLSingletonBase::capture_dependency(LLSingletonBase* sb)
+{
+    // If we're called very late during application shutdown, the Boost.Fibers
+    // library may have shut down, and MasterList::mInitializing.get() might
+    // blow up. But if we're called that late, there's really no point in
+    // trying to capture this dependency.
+    if (boost::fibers::context::active())
+    {
+        sb->capture_dependency();
+    }
 }
 
 void LLSingletonBase::capture_dependency()
@@ -484,4 +496,30 @@ void LLSingletonBase::logerrs(const string_params& args)
 std::string LLSingletonBase::demangle(const char* mangled)
 {
     return LLError::Log::demangle(mangled);
+}
+
+LLSingletonBase* LLSingletonBase::getInstanceForSecondaryThread(
+    const std::string& name,
+    const std::string& method,
+    const std::function<LLSingletonBase*()>& getInstance)
+{
+    // Normally it would be the height of folly to reference-bind args into a
+    // lambda to be executed on some other thread! By the time that thread
+    // executed the lambda, the references would all be dangling, and Bad
+    // Things would result. But LLMainThreadTask::dispatch() promises to block
+    // the calling thread until the passed task has completed. So in this case
+    // we know the references will remain valid until the lambda has run, so
+    // we dare to bind references.
+    return LLMainThreadTask::dispatch(
+        [&name, &method, &getInstance](){
+            // VERY IMPORTANT to call getInstance() on the main thread,
+            // rather than going straight to constructSingleton()!
+            // During the time window before mInitState is INITIALIZED,
+            // multiple requests might be queued. It's essential that, as
+            // the main thread processes them, only the FIRST such request
+            // actually constructs the instance -- every subsequent one
+            // simply returns the existing instance.
+            loginfos({name, "::", method, " on main thread"});
+            return getInstance();
+        });
 }

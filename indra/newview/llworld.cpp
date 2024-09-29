@@ -768,6 +768,7 @@ void LLWorld::updateParticles()
 
 void LLWorld::renderPropertyLines()
 {
+    LL_PROFILE_ZONE_SCOPED;
     for (region_list_t::iterator iter = mVisibleRegionList.begin();
          iter != mVisibleRegionList.end(); ++iter)
     {
@@ -1320,35 +1321,32 @@ void LLWorld::getAvatars(uuid_vec_t* avatar_ids, std::vector<LLVector3d>* positi
     }
     // get the list of avatars from the character list first, so distances are correct
     // when agent is above 1020m and other avatars are nearby
-    for (std::vector<LLCharacter*>::iterator iter = LLCharacter::sInstances.begin();
-        iter != LLCharacter::sInstances.end(); ++iter)
+    for (LLCharacter* character : LLCharacter::sInstances)
     {
-        LLVOAvatar* pVOAvatar = (LLVOAvatar*) *iter;
-
-        if (!pVOAvatar->isDead() && !pVOAvatar->mIsDummy && !pVOAvatar->isOrphaned())
+        LLVOAvatar* avatar = (LLVOAvatar*)character;
+        if (!avatar->isDead() && !avatar->mIsDummy && !avatar->isOrphaned())
         {
-            LLVector3d pos_global = pVOAvatar->getPositionGlobal();
-            LLUUID uuid = pVOAvatar->getID();
+            LLVector3d pos_global = avatar->getPositionGlobal();
+            LLUUID uuid = avatar->getID();
 
             if (!uuid.isNull()
                 && dist_vec_squared(pos_global, relative_to) <= radius_squared)
             {
-                if(positions != NULL)
+                if (positions != NULL)
                 {
                     positions->push_back(pos_global);
                 }
-                if(avatar_ids !=NULL)
+                if (avatar_ids != NULL)
                 {
                     avatar_ids->push_back(uuid);
                 }
             }
         }
     }
+
     // region avatars added for situations where radius is greater than RenderFarClip
-    for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin();
-        iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
+    for (const LLViewerRegion* regionp : LLWorld::getInstance()->getRegionList())
     {
-        LLViewerRegion* regionp = *iter;
         const LLVector3d& origin_global = regionp->getOriginGlobal();
         auto count = regionp->mMapAvatars.size();
         for (size_t i = 0; i < count; i++)
@@ -1371,33 +1369,31 @@ void LLWorld::getAvatars(uuid_vec_t* avatar_ids, std::vector<LLVector3d>* positi
     }
 }
 
-F32 LLWorld::getNearbyAvatarsAndMaxGPUTime(std::vector<LLCharacter*> &valid_nearby_avs)
+F32 LLWorld::getNearbyAvatarsAndMaxGPUTime(std::vector<LLVOAvatar*> &valid_nearby_avs)
 {
     static LLCachedControl<F32> render_far_clip(gSavedSettings, "RenderFarClip", 64);
+
     F32 nearby_max_complexity = 0;
     F32 radius = render_far_clip * render_far_clip;
-    std::vector<LLCharacter*>::iterator char_iter = LLCharacter::sInstances.begin();
-    while (char_iter != LLCharacter::sInstances.end())
-    {
-        LLVOAvatar* avatar = dynamic_cast<LLVOAvatar*>(*char_iter);
-        if (avatar && !avatar->isDead() && !avatar->isControlAvatar())
-        {
-            if ((dist_vec_squared(avatar->getPositionGlobal(), gAgent.getPositionGlobal()) > radius) &&
-                (dist_vec_squared(avatar->getPositionGlobal(), gAgentCamera.getCameraPositionGlobal()) > radius))
-            {
-                char_iter++;
-                continue;
-            }
 
-            if (!avatar->isTooSlow())
+    for (LLCharacter* character : LLCharacter::sInstances)
+    {
+        LLVOAvatar* avatar = (LLVOAvatar*)character;
+        if (!avatar->isDead() && !avatar->isControlAvatar())
+        {
+            if ((dist_vec_squared(avatar->getPositionGlobal(), gAgent.getPositionGlobal()) <= radius) ||
+                (dist_vec_squared(avatar->getPositionGlobal(), gAgentCamera.getCameraPositionGlobal()) <= radius))
             {
-                gPipeline.profileAvatar(avatar);
+                if (!avatar->isTooSlow())
+                {
+                    gPipeline.profileAvatar(avatar);
+                }
+                nearby_max_complexity = llmax(nearby_max_complexity, avatar->getGPURenderTime());
+                valid_nearby_avs.push_back(avatar);
             }
-            nearby_max_complexity = llmax(nearby_max_complexity, avatar->getGPURenderTime());
-            valid_nearby_avs.push_back(*char_iter);
         }
-        char_iter++;
     }
+
     return nearby_max_complexity;
 }
 

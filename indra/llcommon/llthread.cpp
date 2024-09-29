@@ -269,6 +269,7 @@ void LLThread::shutdown()
             mStatus = STOPPED;
             return;
         }
+        delete mThreadp;
         mThreadp = NULL;
     }
 
@@ -299,6 +300,7 @@ void LLThread::start()
     {
         mThreadp = new std::thread(std::bind(&LLThread::threadRun, this));
         mNativeHandle = mThreadp->native_handle();
+        mThreadp->detach();
     }
     catch (std::system_error& ex)
     {

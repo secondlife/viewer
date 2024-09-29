@@ -323,13 +323,6 @@ void LLTextureBar::draw()
 
     {
         LLGLSUIDefault gls_ui;
-        // draw the packet data
-//      {
-//          std::string num_str = llformat("%3d/%3d", mImagep->mLastPacket+1, mImagep->mPackets);
-//          LLFontGL::getFontMonospace()->renderUTF8(num_str, 0, bar_left + 100, getRect().getHeight(), color,
-//                                           LLFontGL::LEFT, LLFontGL::TOP);
-//      }
-
         // draw the image size at the end
         {
             std::string num_str = llformat("%3dx%3d (%2d) %7d", mImagep->getWidth(), mImagep->getHeight(),
@@ -422,12 +415,14 @@ void LLAvatarTexBar::draw()
                                                  text_color, LLFontGL::LEFT, LLFontGL::TOP); //, LLFontGL::BOLD, LLFontGL::DROP_SHADOW_SOFT);
         line_num++;
     }
+    const U32 texture_timeout = gSavedSettings.getU32("AvatarBakedTextureUploadTimeout");
     const U32 override_tex_discard_level = gSavedSettings.getU32("TextureDiscardLevel");
 
     LLColor4 header_color(1.f, 1.f, 1.f, 0.9f);
 
+    const std::string texture_timeout_str = texture_timeout ? llformat("%d", texture_timeout) : "Disabled";
     const std::string override_tex_discard_level_str = override_tex_discard_level ? llformat("%d",override_tex_discard_level) : "Disabled";
-    std::string header_text = llformat("[ Timeout:60 ] [ LOD_Override('TextureDiscardLevel'):%s ]", override_tex_discard_level_str.c_str());
+    std::string header_text = llformat("[ Timeout('AvatarBakedTextureUploadTimeout'):%s ] [ LOD_Override('TextureDiscardLevel'):%s ]", texture_timeout_str.c_str(), override_tex_discard_level_str.c_str());
     LLFontGL::getFontMonospace()->renderUTF8(header_text, 0, l_offset, v_offset + line_height*line_num,
                                              header_color, LLFontGL::LEFT, LLFontGL::TOP); //, LLFontGL::BOLD, LLFontGL::DROP_SHADOW_SOFT);
     line_num++;
@@ -530,9 +525,9 @@ void LLGLTexMemBar::draw()
    F64 raw_image_bytes_MB = raw_image_bytes / (1024.0 * 1024.0);
    F64 saved_raw_image_bytes_MB = saved_raw_image_bytes / (1024.0 * 1024.0);
    F64 aux_raw_image_bytes_MB = aux_raw_image_bytes / (1024.0 * 1024.0);
-   F64 texture_bytes_alloc = LLImageGL::getTextureBytesAllocated() / 1024.0 / 1024.0 * 1.3333f; // add 33% for mipmaps
-   F64 vertex_bytes_alloc = LLVertexBuffer::getBytesAllocated() / 1024.0 / 1024.0;
-   F64 render_bytes_alloc = LLRenderTarget::sBytesAllocated / 1024.0 / 1024.0;
+   F64 texture_bytes_alloc = LLImageGL::getTextureBytesAllocated() / 1024.0 / 512.0;
+   F64 vertex_bytes_alloc = LLVertexBuffer::getBytesAllocated() / 1024.0 / 512.0;
+   F64 render_bytes_alloc = LLRenderTarget::sBytesAllocated / 1024.0 / 512.0;
 
     //----------------------------------------------------------------------------
     LLGLSUIDefault gls_ui;
@@ -584,7 +579,7 @@ void LLGLTexMemBar::draw()
                     texture_bytes_alloc,
                     vertex_bytes_alloc,
                     render_bytes_alloc,
-        texture_bytes_alloc+vertex_bytes_alloc+render_bytes_alloc);
+        texture_bytes_alloc+vertex_bytes_alloc);
     LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, v_offset + line_height * 6,
         text_color, LLFontGL::LEFT, LLFontGL::TOP);
 
@@ -620,10 +615,9 @@ void LLGLTexMemBar::draw()
 
     //----------------------------------------------------------------------------
 
-    text = llformat("Textures: %d Fetch: %d(%d) Pkts:%d(%d) Cache R/W: %d/%d LFS:%d RAW:%d HTP:%d DEC:%d CRE:%d ",
+    text = llformat("Textures: %d Fetch: %d(%d) Cache R/W: %d/%d LFS:%d RAW:%d HTP:%d DEC:%d CRE:%d ",
                     gTextureList.getNumImages(),
                     LLAppViewer::getTextureFetch()->getNumRequests(), LLAppViewer::getTextureFetch()->getNumDeletes(),
-                    LLAppViewer::getTextureFetch()->mPacketCount, LLAppViewer::getTextureFetch()->mBadPacketCount,
                     LLAppViewer::getTextureCache()->getNumReads(), LLAppViewer::getTextureCache()->getNumWrites(),
                     LLLFSThread::sLocal->getPending(),
                     LLImageRaw::sRawImageCount,
@@ -842,7 +836,7 @@ void LLTextureView::draw()
         for (LLViewerTextureList::image_list_t::iterator iter = gTextureList.mImageList.begin();
              iter != gTextureList.mImageList.end(); )
         {
-            LLPointer<LLViewerFetchedTexture> imagep = *iter++;
+            LLViewerFetchedTexture* imagep = *iter++;
             if(!imagep->hasFetcher())
             {
                 continue ;

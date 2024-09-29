@@ -103,7 +103,6 @@
 #include "llfloaterperms.h"
 #include "llvocache.h"
 #include "llcleanup.h"
-#include "llcallstack.h"
 #include "llmeshrepository.h"
 #include "llgltfmateriallist.h"
 #include "llgl.h"
@@ -151,7 +150,6 @@ LLViewerObject *LLViewerObject::createObject(const LLUUID &id, const LLPCode pco
 {
     LL_PROFILE_ZONE_SCOPED;
     LL_DEBUGS("ObjectUpdate") << "creating " << id << LL_ENDL;
-    dumpStack("ObjectUpdateStack");
 
     LLViewerObject *res = NULL;
 
@@ -1165,7 +1163,6 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
     LL_DEBUGS_ONCE("SceneLoadTiming") << "Received viewer object data" << LL_ENDL;
 
     LL_DEBUGS("ObjectUpdate") << " mesgsys " << mesgsys << " dp " << dp << " id " << getID() << " update_type " << (S32) update_type << LL_ENDL;
-    dumpStack("ObjectUpdateStack");
 
     // The new OBJECTDATA_FIELD_SIZE_124, OBJECTDATA_FIELD_SIZE_140, OBJECTDATA_FIELD_SIZE_80
     // and OBJECTDATA_FIELD_SIZE_64 lengths should be supported in the existing cases below.
@@ -1521,7 +1518,12 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
                 S32 size = mesgsys->getSizeFast(_PREHASH_ObjectData, block_num, _PREHASH_ExtraParams);
                 if (size > 0)
                 {
-                    U8 *buffer = new U8[size];
+                    U8 *buffer = new(std::nothrow) U8[size];
+                    if (!buffer)
+                    {
+                        LLError::LLUserWarningMsg::showOutOfMemory();
+                        LL_ERRS() << "Bad memory allocation for buffer, size: " << size << LL_ENDL;
+                    }
                     mesgsys->getBinaryDataFast(_PREHASH_ObjectData, _PREHASH_ExtraParams, buffer, size, block_num);
                     LLDataPackerBinaryBuffer dp(buffer, size);
 
@@ -2323,6 +2325,12 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 
         // Set the rotation of the object followed by adjusting for the accumulated angular velocity (llSetTargetOmega)
         setRotation(new_rot * mAngularVelocityRot);
+        if ((mFlags & FLAGS_SERVER_AUTOPILOT) && asAvatar() && asAvatar()->isSelf())
+        {
+            gAgent.resetAxes();
+            gAgent.rotate(new_rot);
+            gAgentCamera.resetView();
+        }
         setChanged(ROTATED | SILHOUETTE);
     }
 
@@ -5233,8 +5241,7 @@ void LLViewerObject::updateTEMaterialTextures(U8 te)
     LLUUID mat_id = getRenderMaterialID(te);
     if (mat == nullptr && mat_id.notNull())
     {
-        mat = (LLFetchedGLTFMaterial*) gGLTFMaterialList.getMaterial(mat_id);
-        llassert(mat == nullptr || dynamic_cast<LLFetchedGLTFMaterial*>(gGLTFMaterialList.getMaterial(mat_id)) != nullptr);
+        mat = gGLTFMaterialList.getMaterial(mat_id);
         if (mat->isFetching())
         { // material is not loaded yet, rebuild draw info when the object finishes loading
             mat->onMaterialComplete([id=getID()]
@@ -5886,7 +5893,8 @@ LLBBox LLViewerObject::getBoundingBoxAgent() const
     }
 
     if (avatar_parent && avatar_parent->isAvatar() &&
-        root_edit && root_edit->mDrawable.notNull() && root_edit->mDrawable->getXform()->getParent())
+        root_edit && root_edit->mDrawable.notNull() && !root_edit->mDrawable->isDead() &&
+        root_edit->mDrawable->getXform()->getParent())
     {
         LLXform* parent_xform = root_edit->mDrawable->getXform()->getParent();
         position_agent = (getPositionEdit() * parent_xform->getWorldRotation()) + parent_xform->getWorldPosition();
@@ -6155,6 +6163,7 @@ bool LLViewerObject::isParticleSource() const
 
 void LLViewerObject::setParticleSource(const LLPartSysData& particle_parameters, const LLUUID& owner_id)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VIEWER;
     if (mPartSourcep)
     {
         deleteParticleSource();
@@ -6186,6 +6195,7 @@ void LLViewerObject::setParticleSource(const LLPartSysData& particle_parameters,
 
 void LLViewerObject::unpackParticleSource(const S32 block_num, const LLUUID& owner_id)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VIEWER;
     if (!mPartSourcep.isNull() && mPartSourcep->isDead())
     {
         mPartSourcep = NULL;
@@ -6221,7 +6231,7 @@ void LLViewerObject::unpackParticleSource(const S32 block_num, const LLUUID& own
             LLViewerTexture* image;
             if (mPartSourcep->mPartSysData.mPartImageID == LLUUID::null)
             {
-                image = LLViewerTextureManager::getFetchedTextureFromFile("pixiesmall.j2c");
+                image = LLViewerFetchedTexture::sDefaultParticleImagep;
             }
             else
             {
@@ -6234,6 +6244,7 @@ void LLViewerObject::unpackParticleSource(const S32 block_num, const LLUUID& own
 
 void LLViewerObject::unpackParticleSource(LLDataPacker &dp, const LLUUID& owner_id, bool legacy)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VIEWER;
     if (!mPartSourcep.isNull() && mPartSourcep->isDead())
     {
         mPartSourcep = NULL;
@@ -6268,7 +6279,7 @@ void LLViewerObject::unpackParticleSource(LLDataPacker &dp, const LLUUID& owner_
             LLViewerTexture* image;
             if (mPartSourcep->mPartSysData.mPartImageID == LLUUID::null)
             {
-                image = LLViewerTextureManager::getFetchedTextureFromFile("pixiesmall.j2c");
+                image = LLViewerFetchedTexture::sDefaultParticleImagep;
             }
             else
             {
@@ -7412,6 +7423,7 @@ const std::string& LLViewerObject::getAttachmentItemName() const
 //virtual
 LLVOAvatar* LLViewerObject::getAvatar() const
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
     if (getControlAvatar())
     {
         return getControlAvatar();

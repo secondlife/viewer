@@ -96,6 +96,8 @@
 #include "llfloaterlandholdings.h"
 #include "llfloaterlinkreplace.h"
 #include "llfloaterloadprefpreset.h"
+#include "llfloaterluadebug.h"
+#include "llfloaterluascripts.h"
 #include "llfloatermap.h"
 #include "llfloatermarketplacelistings.h"
 #include "llfloatermediasettings.h"
@@ -116,7 +118,6 @@
 #include "llfloaterpay.h"
 #include "llfloaterperformance.h"
 #include "llfloaterperms.h"
-#include "llfloaterpostprocess.h"
 #include "llfloaterpreference.h"
 #include "llfloaterpreferencesgraphicsadvanced.h"
 #include "llfloaterpreferenceviewadvanced.h"
@@ -134,6 +135,7 @@
 #include "llfloaterscriptlimits.h"
 #include "llfloatersearch.h"
 #include "llfloatersellland.h"
+#include "llfloatersettingscolor.h"
 #include "llfloatersettingsdebug.h"
 #include "llfloatersidepanelcontainer.h"
 #include "llfloatersnapshot.h"
@@ -241,7 +243,7 @@ public:
                 "avatar_picker",
                 "camera",
                 "camera_presets",
-                "change_item_thumbnail"
+                "change_item_thumbnail",
                 "classified",
                 "add_landmark",
                 "delete_pref_preset",
@@ -360,7 +362,6 @@ void LLViewerFloaterReg::registerFloaters()
 
     LLFloaterReg::add("emoji_picker", "floater_emoji_picker.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterEmojiPicker>);
     LLFloaterReg::add("emoji_complete", "floater_emoji_complete.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterEmojiComplete>);
-    LLFloaterReg::add("env_post_process", "floater_post_process.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterPostProcess>);
 
     LLFloaterReg::add("env_fixed_environmentent_water", "floater_fixedenvironment.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterFixedEnvironmentWater>);
     LLFloaterReg::add("env_fixed_environmentent_sky", "floater_fixedenvironment.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterFixedEnvironmentSky>);
@@ -410,6 +411,9 @@ void LLViewerFloaterReg::registerFloaters()
     LLFloaterReg::add("land_holdings", "floater_land_holdings.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterLandHoldings>);
     LLFloaterReg::add("linkreplace", "floater_linkreplace.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterLinkReplace>);
     LLFloaterReg::add("load_pref_preset", "floater_load_pref_preset.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterLoadPrefPreset>);
+
+    LLFloaterReg::add("lua_debug", "floater_lua_debug.xml", (LLFloaterBuildFunc) &LLFloaterReg::build<LLFloaterLUADebug>);
+    LLFloaterReg::add("lua_scripts", "floater_lua_scripts.xml", (LLFloaterBuildFunc) &LLFloaterReg::build<LLFloaterLUAScripts>);
 
     LLFloaterReg::add("mem_leaking", "floater_mem_leaking.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterMemLeak>);
 
@@ -486,6 +490,7 @@ void LLViewerFloaterReg::registerFloaters()
     LLFloaterReg::add("script_limits", "floater_script_limits.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterScriptLimits>);
     LLFloaterReg::add("my_scripts", "floater_my_scripts.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterMyScripts>);
     LLFloaterReg::add("sell_land", "floater_sell_land.xml", &LLFloaterSellLand::buildFloater);
+    LLFloaterReg::add("settings_color", "floater_settings_color.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterSettingsColor>);
     LLFloaterReg::add("settings_debug", "floater_settings_debug.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterSettingsDebug>);
     LLFloaterReg::add("sound_devices", "floater_sound_devices.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterSoundDevices>);
     LLFloaterReg::add("stats", "floater_stats.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloater>);

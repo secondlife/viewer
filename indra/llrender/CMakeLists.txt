@@ -17,12 +17,12 @@ set(llrender_SOURCE_FILES
     llfontfreetype.cpp
     llfontfreetypesvg.cpp
     llfontgl.cpp
+    llfontvertexbuffer.cpp
     llfontregistry.cpp
     llgl.cpp
     llglslshader.cpp
     llgltexture.cpp
     llimagegl.cpp
-    llpostprocess.cpp
     llrender.cpp
     llrender2dutils.cpp
     llrendernavprim.cpp
@@ -43,6 +43,7 @@ set(llrender_HEADER_FILES
     llcubemap.h
     llcubemaparray.h
     llfontgl.h
+    llfontvertexbuffer.h
     llfontfreetype.h
     llfontfreetypesvg.h
     llfontbitmapcache.h
@@ -54,7 +55,6 @@ set(llrender_HEADER_FILES
     llgltexture.h
     llgltypes.h
     llimagegl.h
-    llpostprocess.h
     llrender.h
     llrender2dutils.h
     llrendernavprim.h

@@ -30,6 +30,7 @@
 // newview includes
 #include "llagent.h"    // gAgent
 #include "llslurl.h"
+#include "lltrans.h"
 #include "lluicolor.h"
 #include "lluicolortable.h"
 #include "llviewercontrol.h" // gSavedSettings
@@ -41,7 +42,7 @@
 LLViewerChat::font_change_signal_t LLViewerChat::sChatFontChangedSignal;
 
 //static
-void LLViewerChat::getChatColor(const LLChat& chat, LLColor4& r_color)
+void LLViewerChat::getChatColor(const LLChat& chat, LLUIColor& r_color, F32& r_color_alpha)
 {
     if(chat.mMuted)
     {
@@ -90,7 +91,7 @@ void LLViewerChat::getChatColor(const LLChat& chat, LLColor4& r_color)
                 }
                 break;
             default:
-                r_color.setToWhite();
+                r_color = LLUIColorTable::instance().getColor("White");
         }
 
         if (!chat.mPosAgent.isExactlyZero())
@@ -101,7 +102,11 @@ void LLViewerChat::getChatColor(const LLChat& chat, LLColor4& r_color)
             if (distance_squared > dist_near_chat * dist_near_chat)
             {
                 // diminish far-off chat
-                r_color.mV[VALPHA] = 0.8f;
+                r_color_alpha = 0.8f;
+            }
+            else
+            {
+                r_color_alpha = 1.0f;
             }
         }
     }
@@ -216,8 +221,7 @@ S32 LLViewerChat::getChatFontSize()
 //static
 void LLViewerChat::formatChatMsg(const LLChat& chat, std::string& formated_msg)
 {
-    std::string tmpmsg = chat.mText;
-
+    std::string tmpmsg = without_LUA_PREFIX(chat.mText, chat.mIsScript);
     if(chat.mChatStyle == CHAT_STYLE_IRC)
     {
         formated_msg = chat.mFromName + tmpmsg.substr(3);
@@ -225,6 +229,11 @@ void LLViewerChat::formatChatMsg(const LLChat& chat, std::string& formated_msg)
     else
     {
         formated_msg = tmpmsg;
+    }
+
+    if (chat.mIsScript)
+    {
+        formated_msg = LLTrans::getString("ScriptStr") + formated_msg;
     }
 
 }

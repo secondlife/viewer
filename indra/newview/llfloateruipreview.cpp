@@ -64,7 +64,6 @@
 
 // Boost (for linux/unix command-line execv)
 #include <boost/tokenizer.hpp>
-#include <boost/shared_ptr.hpp>
 
 // External utility
 #include <string>
@@ -254,7 +253,7 @@ class LLFadeEventTimer : public LLEventTimer
 {
 public:
     LLFadeEventTimer(F32 refresh, LLGUIPreviewLiveFile* parent);
-    bool tick();
+    bool tick() override;
     LLGUIPreviewLiveFile* mParent;
 private:
     bool mFadingOut;            // fades in then out; this is toggled in between

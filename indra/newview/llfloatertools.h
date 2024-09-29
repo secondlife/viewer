@@ -148,6 +148,11 @@ public:
     LLButton    *mBtnDuplicate;
     LLButton    *mBtnDuplicateInPlace;
 
+    LLTextBox*  mTextSelectionCount = nullptr;
+    LLTextBox*  mTextSelectionEmpty = nullptr;
+    LLTextBox*  mTextSelectionFaces = nullptr;
+    LLSlider*   mSliderZoom = nullptr;
+
     // Create buttons
     LLCheckBoxCtrl  *mCheckSticky;
     LLCheckBoxCtrl  *mCheckCopySelection;
@@ -155,9 +160,12 @@ public:
     LLCheckBoxCtrl  *mCheckCopyRotates;
 
     // Land buttons
-    LLRadioGroup*   mRadioGroupLand;
-    LLSlider        *mSliderDozerSize;
-    LLSlider        *mSliderDozerForce;
+    LLRadioGroup*   mRadioGroupLand = nullptr;
+    LLSlider        *mSliderDozerSize = nullptr;
+    LLSlider        *mSliderDozerForce = nullptr;
+    LLTextBox*      mTextBulldozer = nullptr;
+    LLTextBox*      mTextDozerSize = nullptr;
+    LLTextBox*      mTextDozerStrength = nullptr;
 
     LLButton        *mBtnApplyToSelection;
 

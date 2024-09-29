@@ -794,8 +794,8 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
             size_t name_len = strlen(display_device.DeviceName  );
             size_t desc_len = strlen(display_device.DeviceString);
 
-            CHAR *name = name_len ? display_device.DeviceName   : "???";
-            CHAR *desc = desc_len ? display_device.DeviceString : "???";
+            const CHAR *name = name_len ? display_device.DeviceName   : "???";
+            const CHAR *desc = desc_len ? display_device.DeviceString : "???";
 
             sprintf(text, "Display Device %d: %s, %s", display_index, name, desc);
             LL_INFOS("Window") << text << LL_ENDL;
@@ -1619,9 +1619,11 @@ const   S32   max_format  = (S32)num_formats - 1;
     }
     else
     {
-        LLError::LLUserWarningMsg::show(mCallbacks->translateString("MBVideoDrvErr"));
-        // mWindowHandle is 0, going to crash either way
-        LL_ERRS("Window") << "No wgl_ARB_pixel_format extension!" << LL_ENDL;
+        LL_WARNS("Window") << "No wgl_ARB_pixel_format extension!" << LL_ENDL;
+        // cannot proceed without wgl_ARB_pixel_format extension, shutdown same as any other gGLManager.initGL() failure
+        OSMessageBox(mCallbacks->translateString("MBVideoDrvErr"), mCallbacks->translateString("MBError"), OSMB_OK);
+        close();
+        return false;
     }
 
     // Verify what pixel format we actually received.
@@ -3699,6 +3701,10 @@ S32 OSMessageBoxWin32(const std::string& text, const std::string& caption, U32 t
     //
     // "This is why I'm doing it this way, instead of what you would think would be more obvious..."
     // (C) Nat Goodspeed
+    if (!IsWindow(sWindowHandleForMessageBox))
+    {
+        sWindowHandleForMessageBox = NULL;
+    }
     int retval_win = MessageBoxW(sWindowHandleForMessageBox, // HWND
                                  ll_convert_string_to_wide(text).c_str(),
                                  ll_convert_string_to_wide(caption).c_str(),
@@ -3727,6 +3733,23 @@ S32 OSMessageBoxWin32(const std::string& text, const std::string& caption, U32 t
     return retval;
 }
 
+void shell_open(const std::string &file, bool async)
+{
+    std::wstring url_utf16 = ll_convert(file);
+
+    // let the OS decide what to use to open the URL
+    SHELLEXECUTEINFO sei = {sizeof(sei)};
+    // NOTE: this assumes that SL will stick around long enough to complete the DDE message exchange
+    // necessary for ShellExecuteEx to complete
+    if (async)
+    {
+        sei.fMask = SEE_MASK_ASYNCOK;
+    }
+    sei.nShow  = SW_SHOWNORMAL;
+    sei.lpVerb = L"open";
+    sei.lpFile = url_utf16.c_str();
+    ShellExecuteEx(&sei);
+}
 
 void LLWindowWin32::spawnWebBrowser(const std::string& escaped_url, bool async)
 {
@@ -3752,22 +3775,12 @@ void LLWindowWin32::spawnWebBrowser(const std::string& escaped_url, bool async)
     // replaced ShellExecute code with ShellExecuteEx since ShellExecute doesn't work
     // reliablly on Vista.
 
-    // this is madness.. no, this is..
-    LLWString url_wstring = utf8str_to_wstring( escaped_url );
-    llutf16string url_utf16 = wstring_to_utf16str( url_wstring );
+    shell_open(escaped_url, async);
+}
 
-    // let the OS decide what to use to open the URL
-    SHELLEXECUTEINFO sei = { sizeof( sei ) };
-    // NOTE: this assumes that SL will stick around long enough to complete the DDE message exchange
-    // necessary for ShellExecuteEx to complete
-    if (async)
-    {
-        sei.fMask = SEE_MASK_ASYNCOK;
-    }
-    sei.nShow = SW_SHOWNORMAL;
-    sei.lpVerb = L"open";
-    sei.lpFile = url_utf16.c_str();
-    ShellExecuteEx( &sei );
+void LLWindowWin32::openFolder(const std::string &path)
+{
+    shell_open(path, false);
 }
 
 /*
@@ -4627,6 +4640,12 @@ void LLWindowWin32::LLWindowWin32Thread::checkDXMem()
 {
     if (!mGLReady || mGotGLBuffer) { return; }
 
+    if ((gGLManager.mHasAMDAssociations || gGLManager.mHasNVXGpuMemoryInfo) && gGLManager.mVRAM != 0)
+    { // OpenGL already told us the memory budget, don't ask DX
+        mGotGLBuffer = true;
+        return;
+    }
+
     IDXGIFactory4* p_factory = nullptr;
 
     HRESULT res = CreateDXGIFactory1(__uuidof(IDXGIFactory4), (void**)&p_factory);
@@ -4723,7 +4742,7 @@ void LLWindowWin32::LLWindowWin32Thread::run()
     {
         LL_PROFILE_ZONE_SCOPED_CATEGORY_WIN32;
 
-        // Check memory budget using DirectX
+        // Check memory budget using DirectX if OpenGL doesn't have the means to tell us
         checkDXMem();
 
         if (mWindowHandleThrd != 0)

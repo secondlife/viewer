@@ -30,7 +30,6 @@
 #include "llpanel.h"
 #include "llpointer.h"          // LLPointer<>
 #include "llmediactrl.h"    // LLMediaCtrlObserver
-#include <boost/scoped_ptr.hpp>
 
 class LLLineEditor;
 class LLUIImage;
@@ -86,7 +85,7 @@ public:
     static bool getShowFavorites();
 
     // extract name from cred in a format apropriate for username field
-    static std::string getUserName(LLPointer<LLCredential> &cred);
+    static std::string getUserName(const LLPointer<LLCredential> &cred);
 
 private:
     friend class LLPanelLoginListener;

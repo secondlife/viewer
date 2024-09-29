@@ -69,6 +69,54 @@ namespace llwebrtc
 
 class LLWebRTCPeerConnectionImpl;
 
+class LLWebRTCLogSink : public rtc::LogSink {
+public:
+    LLWebRTCLogSink(LLWebRTCLogCallback* callback) :
+    mCallback(callback)
+    {
+    }
+
+    // Destructor: close the log file
+    ~LLWebRTCLogSink() override
+    {
+    }
+
+    void OnLogMessage(const std::string& msg,
+                      rtc::LoggingSeverity severity) override
+    {
+        if (mCallback)
+        {
+            switch(severity)
+            {
+                case rtc::LS_VERBOSE:
+                    mCallback->LogMessage(LLWebRTCLogCallback::LOG_LEVEL_VERBOSE, msg);
+                    break;
+                case rtc::LS_INFO:
+                    mCallback->LogMessage(LLWebRTCLogCallback::LOG_LEVEL_VERBOSE, msg);
+                    break;
+                case rtc::LS_WARNING:
+                    mCallback->LogMessage(LLWebRTCLogCallback::LOG_LEVEL_VERBOSE, msg);
+                    break;
+                case rtc::LS_ERROR:
+                    mCallback->LogMessage(LLWebRTCLogCallback::LOG_LEVEL_VERBOSE, msg);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    void OnLogMessage(const std::string& message) override
+    {
+        if (mCallback)
+        {
+            mCallback->LogMessage(LLWebRTCLogCallback::LOG_LEVEL_VERBOSE, message);
+        }
+    }
+
+private:
+    LLWebRTCLogCallback* mCallback;
+};
 
 // Implements a class allowing capture of audio data
 // to determine audio level of the microphone.
@@ -139,8 +187,11 @@ class LLCustomProcessor : public webrtc::CustomProcessing
 class LLWebRTCImpl : public LLWebRTCDeviceInterface, public webrtc::AudioDeviceSink
 {
   public:
-    LLWebRTCImpl();
-    ~LLWebRTCImpl() {}
+    LLWebRTCImpl(LLWebRTCLogCallback* logCallback);
+    ~LLWebRTCImpl()
+    {
+        delete mLogSink;
+    }
 
     void init();
     void terminate();
@@ -227,7 +278,11 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface, public webrtc::AudioDeviceS
     // enables/disables capture via the capture device
     void setRecording(bool recording);
 
+    void setPlayout(bool playing);
+
   protected:
+    LLWebRTCLogSink*                                           mLogSink;
+
     // The native webrtc threads
     std::unique_ptr<rtc::Thread>                               mNetworkThread;
     std::unique_ptr<rtc::Thread>                               mWorkerThread;

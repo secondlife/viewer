@@ -28,6 +28,8 @@
 #define LL_LLVLCOMPOSITION_H
 
 #include "llviewerlayer.h"
+#include "llviewershadermgr.h"
+#include "llviewertexture.h"
 #include "llpointer.h"
 
 #include "llimage.h"
@@ -44,6 +46,7 @@ public:
     virtual const LLGLTFMaterial* getMaterialOverride(S32 asset) const = 0;
 };
 
+// The subset of the composition used by local terrain debug materials (gLocalTerrainMaterials)
 class LLTerrainMaterials : public LLModifyRegion
 {
 public:
@@ -79,6 +82,12 @@ public:
     // strict = false -> at least one material must be loaded
     bool makeMaterialsReady(bool boost, bool strict);
 
+    // See TerrainPaintType
+    U32 getPaintType() const { return mPaintType; }
+    void setPaintType(U32 paint_type) { mPaintType = paint_type; }
+    LLViewerTexture* getPaintMap();
+    void setPaintMap(LLViewerTexture* paint_map);
+
 protected:
     void unboost();
     static bool makeTextureReady(LLPointer<LLViewerFetchedTexture>& tex, bool boost);
@@ -93,6 +102,9 @@ protected:
     LLPointer<LLGLTFMaterial> mDetailMaterialOverrides[ASSET_COUNT];
     LLPointer<LLFetchedGLTFMaterial> mDetailRenderMaterials[ASSET_COUNT];
     bool mMaterialTexturesSet[ASSET_COUNT];
+
+    U32 mPaintType = TERRAIN_PAINT_TYPE_HEIGHTMAP_WITH_NOISE;
+    LLPointer<LLViewerTexture> mPaintMap;
 };
 
 // Local materials to override all regions

@@ -132,7 +132,6 @@ namespace {
 //=========================================================================
 const std::string LLFloaterEditExtDayCycle::KEY_EDIT_CONTEXT("edit_context");
 const std::string LLFloaterEditExtDayCycle::KEY_DAY_LENGTH("day_length");
-const std::string LLFloaterEditExtDayCycle::KEY_CANMOD("canmod");
 
 const std::string LLFloaterEditExtDayCycle::VALUE_CONTEXT_INVENTORY("inventory");
 const std::string LLFloaterEditExtDayCycle::VALUE_CONTEXT_PARCEL("parcel");
@@ -184,9 +183,8 @@ LLFloaterEditExtDayCycle::LLFloaterEditExtDayCycle(const LLSD &key) :
     mLoadTrack(nullptr),
     mClearTrack(nullptr)
 {
-
-    mCommitCallbackRegistrar.add(EVNT_DAYTRACK, [this](LLUICtrl *ctrl, const LLSD &data) { onTrackSelectionCallback(data); });
-    mCommitCallbackRegistrar.add(EVNT_PLAY, [this](LLUICtrl *ctrl, const LLSD &data) { onPlayActionCallback(data); });
+    mCommitCallbackRegistrar.add(EVNT_DAYTRACK, { [this](LLUICtrl *ctrl, const LLSD &data) { onTrackSelectionCallback(data); }});
+    mCommitCallbackRegistrar.add(EVNT_PLAY, { [this](LLUICtrl *ctrl, const LLSD &data) { onPlayActionCallback(data); }});
 
     mScratchSky = LLSettingsVOSky::buildDefaultSky();
     mScratchWater = LLSettingsVOWater::buildDefaultWater();
@@ -205,8 +203,8 @@ LLFloaterEditExtDayCycle::~LLFloaterEditExtDayCycle()
 // virtual
 bool LLFloaterEditExtDayCycle::postBuild()
 {
-    getChild<LLLineEditor>(TXT_DAY_NAME)->setKeystrokeCallback(boost::bind(&LLFloaterEditExtDayCycle::onCommitName, this, _1, _2), NULL);
-
+    mNameEditor = getChild<LLLineEditor>(TXT_DAY_NAME, true);
+    mCancelButton = getChild<LLButton>(BTN_CANCEL, true);
     mAddFrameButton = getChild<LLButton>(BTN_ADDFRAME, true);
     mDeleteFrameButton = getChild<LLButton>(BTN_DELFRAME, true);
     mTimeSlider = getChild<LLMultiSliderCtrl>(SLDR_TIME);
@@ -221,24 +219,24 @@ bool LLFloaterEditExtDayCycle::postBuild()
     mClearTrack = getChild<LLButton>(BTN_CLEARTRACK, true);
 
     mFlyoutControl = new LLFlyoutComboBtnCtrl(this, BTN_SAVE, BTN_FLYOUT, XML_FLYOUTMENU_FILE, false);
-    mFlyoutControl->setAction([this](LLUICtrl *ctrl, const LLSD &data) { onButtonApply(ctrl, data); });
+    mFlyoutControl->setAction([this](LLUICtrl *ctrl, const LLSD&) { onButtonApply(ctrl); });
 
-    getChild<LLButton>(BTN_CANCEL, true)->setCommitCallback([this](LLUICtrl *ctrl, const LLSD &data) { onClickCloseBtn(); });
-    mTimeSlider->setCommitCallback([this](LLUICtrl *ctrl, const LLSD &data) { onTimeSliderCallback(); });
-    mAddFrameButton->setCommitCallback([this](LLUICtrl *ctrl, const LLSD &data) { onAddFrame(); });
-    mDeleteFrameButton->setCommitCallback([this](LLUICtrl *ctrl, const LLSD &data) { onRemoveFrame(); });
-    mImportButton->setCommitCallback([this](LLUICtrl *, const LLSD &){ onButtonImport(); });
-    mLoadFrame->setCommitCallback([this](LLUICtrl *, const LLSD &){ onButtonLoadFrame(); });
+    mNameEditor->setKeystrokeCallback([this](LLLineEditor*, void*) { onNameKeystroke(); }, NULL);
+    mCancelButton->setCommitCallback([this](LLUICtrl*, const LLSD&) { onClickCloseBtn(); });
+    mTimeSlider->setCommitCallback([this](LLUICtrl*, const LLSD&) { onTimeSliderCallback(); });
+    mAddFrameButton->setCommitCallback([this](LLUICtrl*, const LLSD&) { onAddFrame(); });
+    mDeleteFrameButton->setCommitCallback([this](LLUICtrl*, const LLSD&) { onRemoveFrame(); });
+    mImportButton->setCommitCallback([this](LLUICtrl*, const LLSD&) { onButtonImport(); });
+    mLoadFrame->setCommitCallback([this](LLUICtrl*, const LLSD&) { onButtonLoadFrame(); });
 
-    mCloneTrack->setCommitCallback([this](LLUICtrl *, const LLSD&){ onCloneTrack(); });
-    mLoadTrack->setCommitCallback([this](LLUICtrl *, const LLSD&){  onLoadTrack();});
-    mClearTrack->setCommitCallback([this](LLUICtrl *, const LLSD&){ onClearTrack(); });
+    mCloneTrack->setCommitCallback([this](LLUICtrl*, const LLSD&) { onCloneTrack(); });
+    mLoadTrack->setCommitCallback([this](LLUICtrl*, const LLSD&) { onLoadTrack();});
+    mClearTrack->setCommitCallback([this](LLUICtrl*, const LLSD&) { onClearTrack(); });
 
-
-    mFramesSlider->setCommitCallback([this](LLUICtrl *, const LLSD &data) { onFrameSliderCallback(data); });
-    mFramesSlider->setDoubleClickCallback([this](LLUICtrl*, S32 x, S32 y, MASK mask){ onFrameSliderDoubleClick(x, y, mask); });
-    mFramesSlider->setMouseDownCallback([this](LLUICtrl*, S32 x, S32 y, MASK mask){ onFrameSliderMouseDown(x, y, mask); });
-    mFramesSlider->setMouseUpCallback([this](LLUICtrl*, S32 x, S32 y, MASK mask){ onFrameSliderMouseUp(x, y, mask); });
+    mFramesSlider->setCommitCallback([this](LLUICtrl*, const LLSD &data) { onFrameSliderCallback(data); });
+    mFramesSlider->setDoubleClickCallback([this](LLUICtrl*, S32 x, S32 y, MASK mask) { onFrameSliderDoubleClick(x, y, mask); });
+    mFramesSlider->setMouseDownCallback([this](LLUICtrl*, S32 x, S32 y, MASK mask) { onFrameSliderMouseDown(x, y, mask); });
+    mFramesSlider->setMouseUpCallback([this](LLUICtrl*, S32 x, S32 y, MASK mask) { onFrameSliderMouseUp(x, y, mask); });
 
     mTimeSlider->addSlider(0);
 
@@ -287,11 +285,6 @@ void LLFloaterEditExtDayCycle::onOpen(const LLSD& key)
             mEditContext = CONTEXT_REGION;
     }
 
-    if (key.has(KEY_CANMOD))
-    {
-        mCanMod = key[KEY_CANMOD].asBoolean();
-    }
-
     if (mEditContext == CONTEXT_UNKNOWN)
     {
         LL_WARNS("ENVDAYEDIT") << "Unknown editing context!" << LL_ENDL;
@@ -299,6 +292,7 @@ void LLFloaterEditExtDayCycle::onOpen(const LLSD& key)
 
     if (key.has(KEY_INVENTORY_ID))
     {
+        // mCanMod is initialized inside this call
         loadInventoryItem(key[KEY_INVENTORY_ID].asUUID());
     }
     else
@@ -431,11 +425,9 @@ void LLFloaterEditExtDayCycle::refresh()
 {
     if (mEditDay)
     {
-        LLLineEditor* name_field = getChild<LLLineEditor>(TXT_DAY_NAME);
-        name_field->setText(mEditDay->getName());
-        name_field->setEnabled(mCanMod);
+        mNameEditor->setText(mEditDay->getName());
+        mNameEditor->setEnabled(mCanMod && mCanSave && mInventoryId.notNull());
     }
-
 
     bool is_inventory_avail = canUseInventory();
 
@@ -461,7 +453,7 @@ void LLFloaterEditExtDayCycle::refresh()
     mFlyoutControl->setMenuItemVisible(ACTION_APPLY_REGION, show_apply);
 
     mFlyoutControl->setMenuItemEnabled(ACTION_COMMIT, show_commit && !mCommitSignal.empty());
-    mFlyoutControl->setMenuItemEnabled(ACTION_SAVE, is_inventory_avail && mCanMod && !mInventoryId.isNull() && mCanSave);
+    mFlyoutControl->setMenuItemEnabled(ACTION_SAVE, is_inventory_avail && mCanMod && mCanSave && mInventoryId.notNull());
     mFlyoutControl->setMenuItemEnabled(ACTION_SAVEAS, is_inventory_avail && mCanCopy && mCanSave);
     mFlyoutControl->setMenuItemEnabled(ACTION_APPLY_LOCAL, true);
     mFlyoutControl->setMenuItemEnabled(ACTION_APPLY_PARCEL, canApplyParcel() && show_apply);
@@ -522,14 +514,20 @@ void LLFloaterEditExtDayCycle::setEditDefaultDayCycle()
 std::string LLFloaterEditExtDayCycle::getEditName() const
 {
     if (mEditDay)
+    {
         return mEditDay->getName();
+    }
+
     return "new";
 }
 
 void LLFloaterEditExtDayCycle::setEditName(const std::string &name)
 {
     if (mEditDay)
+    {
         mEditDay->setName(name);
+    }
+
     getChild<LLLineEditor>(TXT_DAY_NAME)->setText(name);
 }
 
@@ -551,13 +549,13 @@ bool LLFloaterEditExtDayCycle::handleKeyUp(KEY key, MASK mask, bool called_from_
             keymap_t::iterator it = mSliderKeyMap.find(curslider);
             if (it != mSliderKeyMap.end())
             {
-                if (mEditDay->moveTrackKeyframe(mCurrentTrack, (*it).second.mFrame, sliderpos))
+                if (mEditDay->moveTrackKeyframe(mCurrentTrack, it->second.mFrame, sliderpos))
                 {
-                    (*it).second.mFrame = sliderpos;
+                    it->second.mFrame = sliderpos;
                 }
                 else
                 {
-                    mFramesSlider->setCurSliderValue((*it).second.mFrame);
+                    mFramesSlider->setCurSliderValue(it->second.mFrame);
                 }
             }
             else
@@ -569,7 +567,7 @@ bool LLFloaterEditExtDayCycle::handleKeyUp(KEY key, MASK mask, bool called_from_
     return LLFloater::handleKeyUp(key, mask, called_from_parent);
 }
 
-void LLFloaterEditExtDayCycle::onButtonApply(LLUICtrl *ctrl, const LLSD &data)
+void LLFloaterEditExtDayCycle::onButtonApply(LLUICtrl *ctrl)
 {
     std::string ctrl_action = ctrl->getName();
 
@@ -832,7 +830,7 @@ void LLFloaterEditExtDayCycle::onClearTrack()
     refresh();
 }
 
-void LLFloaterEditExtDayCycle::onCommitName(class LLLineEditor* caller, void* user_data)
+void LLFloaterEditExtDayCycle::onNameKeystroke()
 {
     if (!mEditDay)
     {
@@ -840,7 +838,7 @@ void LLFloaterEditExtDayCycle::onCommitName(class LLLineEditor* caller, void* us
         return;
     }
 
-    mEditDay->setName(caller->getText());
+    mEditDay->setName(mNameEditor->getText());
 }
 
 void LLFloaterEditExtDayCycle::onTrackSelectionCallback(const LLSD& user_data)

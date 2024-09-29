@@ -28,7 +28,7 @@ if (WINDOWS)
   set_target_properties(
     media_plugin_example
     PROPERTIES
-    LINK_FLAGS "/MANIFEST:NO /SAFESEH:NO /LTCG /NODEFAULTLIB:LIBCMT"
+    LINK_FLAGS "/MANIFEST:NO /NODEFAULTLIB:LIBCMT"
     )
 endif (WINDOWS)
 

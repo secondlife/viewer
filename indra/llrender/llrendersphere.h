@@ -45,6 +45,7 @@ public:
 
 private:
     std::vector< std::vector<LLVector3> > mSpherePoints;
+    LLPointer<LLVertexBuffer> mVertexBuffer;
 };
 
 extern LLRenderSphere gSphere;

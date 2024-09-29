@@ -28,8 +28,8 @@
 #include "llavatarappearancedefines.h"
 #include "indra_constants.h"
 
-const S32 LLAvatarAppearanceDefines::SCRATCH_TEX_WIDTH = 1024;
-const S32 LLAvatarAppearanceDefines::SCRATCH_TEX_HEIGHT = 1024;
+const S32 LLAvatarAppearanceDefines::SCRATCH_TEX_WIDTH = 2048;
+const S32 LLAvatarAppearanceDefines::SCRATCH_TEX_HEIGHT = 2048;
 
 using namespace LLAvatarAppearanceDefines;
 
@@ -252,6 +252,7 @@ LLAvatarAppearanceDictionary::BakedEntry::BakedEntry(ETextureIndex tex_index,
         LLWearableType::EType t = (LLWearableType::EType)va_arg(argp,int);
         mWearables.push_back(t);
     }
+    va_end(argp);
 }
 
 ETextureIndex LLAvatarAppearanceDictionary::bakedToLocalTextureIndex(EBakedTextureIndex index) const

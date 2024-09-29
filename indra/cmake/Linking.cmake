@@ -7,6 +7,7 @@ set(ARCH_PREBUILT_DIRS ${AUTOBUILD_INSTALL_DIR}/lib)
 set(ARCH_PREBUILT_DIRS_PLUGINS ${AUTOBUILD_INSTALL_DIR}/plugins)
 set(ARCH_PREBUILT_DIRS_RELEASE ${AUTOBUILD_INSTALL_DIR}/lib/release)
 set(ARCH_PREBUILT_DIRS_DEBUG ${AUTOBUILD_INSTALL_DIR}/lib/debug)
+
 if (WINDOWS OR DARWIN )
   # Kludge for older cmake versions, 3.20+ is needed to use a genex in add_custom_command( OUTPUT <var> ... )
   # Using this will work okay-ish, as Debug is not supported anyway. But for property multi config and also
@@ -19,6 +20,7 @@ if (WINDOWS OR DARWIN )
     endif()
   else()
     set(SHARED_LIB_STAGING_DIR ${CMAKE_BINARY_DIR}/sharedlibs/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>)
+    set(SYMBOLS_STAGING_DIR ${CMAKE_BINARY_DIR}/symbols/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>/${VIEWER_CHANNEL})
   endif()
 
   if( DARWIN )

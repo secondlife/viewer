@@ -242,20 +242,6 @@ void LLPanel::draw()
 
 void LLPanel::updateDefaultBtn()
 {
-    if( mDefaultBtn)
-    {
-        if (gFocusMgr.childHasKeyboardFocus( this ) && mDefaultBtn->getEnabled())
-        {
-            LLButton* buttonp = dynamic_cast<LLButton*>(gFocusMgr.getKeyboardFocus());
-            bool focus_is_child_button = buttonp && buttonp->getCommitOnReturn();
-            // only enable default button when current focus is not a return-capturing button
-            mDefaultBtn->setBorderEnabled(!focus_is_child_button);
-        }
-        else
-        {
-            mDefaultBtn->setBorderEnabled(false);
-        }
-    }
 }
 
 void LLPanel::refresh()
@@ -266,15 +252,7 @@ void LLPanel::refresh()
 
 void LLPanel::setDefaultBtn(LLButton* btn)
 {
-    if (mDefaultBtn && mDefaultBtn->getEnabled())
-    {
-        mDefaultBtn->setBorderEnabled(false);
-    }
     mDefaultBtn = btn;
-    if (mDefaultBtn)
-    {
-        mDefaultBtn->setBorderEnabled(true);
-    }
 }
 
 void LLPanel::setDefaultBtn(std::string_view id)
@@ -490,8 +468,8 @@ void LLPanel::initFromParams(const LLPanel::Params& p)
 
     setBackgroundVisible(p.background_visible);
     setBackgroundOpaque(p.background_opaque);
-    setBackgroundColor(p.bg_opaque_color().get());
-    setTransparentColor(p.bg_alpha_color().get());
+    setBackgroundColor(p.bg_opaque_color);
+    setTransparentColor(p.bg_alpha_color);
     mBgOpaqueImage = p.bg_opaque_image();
     mBgAlphaImage = p.bg_alpha_image();
     mBgOpaqueImageOverlay = p.bg_opaque_image_overlay;
@@ -693,7 +671,7 @@ void LLPanel::childSetCommitCallback(std::string_view id, boost::function<void (
     }
 }
 
-void LLPanel::childSetColor(std::string_view id, const LLColor4& color)
+void LLPanel::childSetColor(std::string_view id, const LLUIColor& color)
 {
     LLUICtrl* child = findChild<LLUICtrl>(id);
     if (child)

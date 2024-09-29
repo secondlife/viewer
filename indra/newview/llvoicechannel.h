@@ -72,10 +72,11 @@ public:
     virtual void handleError(EStatusType status);
     virtual void deactivate();
     virtual void activate();
-    virtual void setChannelInfo(const LLSD &channelInfo);
+    virtual void setChannelInfo(const LLSD& channelInfo);
+    virtual void resetChannelInfo();
     virtual void requestChannelInfo();
-    virtual bool isActive();
-    virtual bool callStarted();
+    virtual bool isActive() const;
+    virtual bool callStarted() const;
 
     // Session name is a UI label used for feedback about which person,
     // group, or phone number you are talking to
@@ -170,7 +171,7 @@ class LLVoiceChannelProximal : public LLVoiceChannel, public LLSingleton<LLVoice
     void onChange(EStatusType status, const LLSD &channelInfo, bool proximal) override;
     void handleStatusChange(EStatusType status) override;
     void handleError(EStatusType status) override;
-    bool isActive() override;
+    bool isActive() const override;
     void activate() override;
     void deactivate() override;
 };
@@ -189,6 +190,7 @@ class LLVoiceChannelP2P : public LLVoiceChannelGroup
     void requestChannelInfo() override;
     void deactivate() override;
     void setChannelInfo(const LLSD& channel_info) override;
+    void resetChannelInfo() override;
 
   protected:
     void setState(EState state) override;

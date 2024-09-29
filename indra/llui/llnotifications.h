@@ -87,6 +87,7 @@
 #include <boost/type_traits.hpp>
 #include <boost/signals2.hpp>
 #include <boost/range.hpp>
+#include <boost/intrusive_ptr.hpp>
 
 #include "llevents.h"
 #include "llfunctorregistry.h"
@@ -734,7 +735,7 @@ typedef std::multimap<std::string, LLNotificationPtr> LLNotificationMap;
 // all of the built-in tests should attach to the "Visible" channel
 //
 class LLNotificationChannelBase :
-    public LLEventTrackable,
+    public boost::signals2::trackable,
     public LLRefCount
 {
     LOG_CLASS(LLNotificationChannelBase);

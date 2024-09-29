@@ -32,11 +32,8 @@
 #include <iostream>
 #include <sstream>
 
-#include "llwin32headerslean.h"
-#pragma warning (push)
-#pragma warning (disable:4091) // a microsoft header has warnings. Very nice.
+#include "llwin32headers.h"
 #include <dbghelp.h>
-#pragma warning (pop)
 
 typedef USHORT NTAPI RtlCaptureStackBackTrace_Function(
     IN ULONG frames_to_skip,

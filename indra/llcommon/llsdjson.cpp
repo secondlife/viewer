@@ -35,16 +35,7 @@
 #include "llerror.h"
 #include "../llmath/llmath.h"
 
-#if LL_WINDOWS
-#pragma warning (push)
-#pragma warning (disable : 4702) // compiler thinks unreachable code
-#endif
 #include <boost/json/src.hpp>
-#if LL_WINDOWS
-#pragma warning (pop)
-#endif
-
-
 
 //=========================================================================
 LLSD LlsdFromJson(const boost::json::value& val)
@@ -70,12 +61,20 @@ LLSD LlsdFromJson(const boost::json::value& val)
         result = LLSD(val.as_bool());
         break;
     case boost::json::kind::array:
+    {
         result = LLSD::emptyArray();
-        for (const auto &element : val.as_array())
+        auto& array = val.as_array();
+        // allocate elements 0 .. (size() - 1) to avoid incremental allocation
+        if (! array.empty())
+        {
+            result[array.size() - 1] = LLSD();
+        }
+        for (const auto &element : array)
         {
             result.append(LlsdFromJson(element));
         }
         break;
+    }
     case boost::json::kind::object:
         result = LLSD::emptyMap();
         for (const auto& element : val.as_object())
@@ -115,6 +114,7 @@ boost::json::value LlsdToJson(const LLSD &val)
     case LLSD::TypeMap:
     {
         boost::json::object& obj = result.emplace_object();
+        obj.reserve(val.size());
         for (const auto& llsd_dat : llsd::inMap(val))
         {
             obj[llsd_dat.first] = LlsdToJson(llsd_dat.second);
@@ -124,6 +124,7 @@ boost::json::value LlsdToJson(const LLSD &val)
     case LLSD::TypeArray:
     {
         boost::json::array& json_array = result.emplace_array();
+        json_array.reserve(val.size());
         for (const auto& llsd_dat : llsd::inArray(val))
         {
             json_array.push_back(LlsdToJson(llsd_dat));
@@ -132,7 +133,8 @@ boost::json::value LlsdToJson(const LLSD &val)
     }
     case LLSD::TypeBinary:
     default:
-        LL_ERRS("LlsdToJson") << "Unsupported conversion to JSON from LLSD type (" << val.type() << ")." << LL_ENDL;
+        LL_ERRS("LlsdToJson") << "Unsupported conversion to JSON from LLSD type ("
+                              << val.type() << ")." << LL_ENDL;
         break;
     }
 

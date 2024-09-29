@@ -1449,10 +1449,10 @@ void LLManipTranslate::renderSnapGuides()
                 std::string help_text = LLTrans::getString("manip_hint1");
                 LLColor4 help_text_color = LLColor4::white;
                 help_text_color.mV[VALPHA] = clamp_rescale(mHelpTextTimer.getElapsedTimeF32(), sHelpTextVisibleTime, sHelpTextVisibleTime + sHelpTextFadeTime, line_alpha, 0.f);
-                hud_render_utf8text(help_text, help_text_pos, *big_fontp, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, -0.5f * big_fontp->getWidthF32(help_text), 3.f, help_text_color, false);
+                hud_render_utf8text(help_text, help_text_pos, nullptr, *big_fontp, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, -0.5f * big_fontp->getWidthF32(help_text), 3.f, help_text_color, false);
                 help_text = LLTrans::getString("manip_hint2");
                 help_text_pos -= LLViewerCamera::getInstance()->getUpAxis() * mSnapOffsetMeters * 0.2f;
-                hud_render_utf8text(help_text, help_text_pos, *big_fontp, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, -0.5f * big_fontp->getWidthF32(help_text), 3.f, help_text_color, false);
+                hud_render_utf8text(help_text, help_text_pos, nullptr, *big_fontp, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, -0.5f * big_fontp->getWidthF32(help_text), 3.f, help_text_color, false);
             }
         }
     }
@@ -1676,9 +1676,9 @@ void LLManipTranslate::highlightIntersection(LLVector3 normal,
             normal = -normal;
         }
         F32 d = -(selection_center * normal);
-        glh::vec4f plane(normal.mV[0], normal.mV[1], normal.mV[2], d );
+        glm::vec4 plane(normal.mV[0], normal.mV[1], normal.mV[2], d );
 
-        gGL.getModelviewMatrix().inverse().mult_vec_matrix(plane);
+        plane = glm::inverse(gGL.getModelviewMatrix()) * plane;
 
         static LLStaticHashedString sClipPlane("clip_plane");
         gClipProgram.uniform4fv(sClipPlane, 1, plane.v);

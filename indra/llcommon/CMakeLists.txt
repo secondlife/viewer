@@ -16,10 +16,10 @@ include(Tracy)
 set(llcommon_SOURCE_FILES
     apply.cpp
     commoncontrol.cpp
+    coro_scheduler.cpp
+    hbxxh.cpp
     indra_constants.cpp
     lazyeventapi.cpp
-    llallocator.cpp
-    llallocator_heap_profile.cpp
     llapp.cpp
     llapr.cpp
     llassettype.cpp
@@ -28,7 +28,6 @@ set(llcommon_SOURCE_FILES
     llbase64.cpp
     llbitpack.cpp
     llcallbacklist.cpp
-    llcallstack.cpp
     llcleanup.cpp
     llcommon.cpp
     llcommonutils.cpp
@@ -56,8 +55,8 @@ set(llcommon_SOURCE_FILES
     llframetimer.cpp
     llheartbeat.cpp
     llheteromap.cpp
-    llinitparam.cpp
     llinitdestroyclass.cpp
+    llinitparam.cpp
     llinstancetracker.cpp
     llkeybind.cpp
     llleap.cpp
@@ -67,15 +66,15 @@ set(llcommon_SOURCE_FILES
     llmd5.cpp
     llmemory.cpp
     llmemorystream.cpp
-    llmetrics.cpp
     llmetricperformancetester.cpp
+    llmetrics.cpp
     llmortician.cpp
     llmutex.cpp
-    llptrto.cpp 
     llpredicate.cpp
     llprocess.cpp
     llprocessor.cpp
     llprocinfo.cpp
+    llptrto.cpp 
     llqueuedthread.cpp
     llrand.cpp
     llrefcount.cpp
@@ -105,9 +104,14 @@ set(llcommon_SOURCE_FILES
     lluriparser.cpp
     lluuid.cpp
     llworkerthread.cpp
-    hbxxh.cpp
-    u64.cpp
+    lockstatic.cpp
+    lua_function.cpp
+    lualistener.cpp
+    resultset.cpp
+    scriptcommand.cpp
     threadpool.cpp
+    throttle.cpp
+    u64.cpp
     workqueue.cpp
     StackWalker.cpp
     )
@@ -120,15 +124,16 @@ set(llcommon_HEADER_FILES
     chrono.h
     classic_callback.h
     commoncontrol.h
+    coro_scheduler.h
     ctype_workaround.h
     fix_macros.h
+    fsyspath.h
     function_types.h
+    hbxxh.h
     indra_constants.h
     lazyeventapi.h
     linden_common.h
     llalignedarray.h
-    llallocator.h
-    llallocator_heap_profile.h
     llapp.h
     llapr.h
     llassettype.h
@@ -138,12 +143,12 @@ set(llcommon_HEADER_FILES
     llbitpack.h
     llboost.h
     llcallbacklist.h
-    llcallstack.h
     llcleanup.h
     llcommon.h
     llcommonutils.h
     llcond.h
     llcoros.h
+    llcoromutex.h
     llcrc.h
     llcriticaldamp.h
     lldate.h
@@ -160,9 +165,9 @@ set(llcommon_HEADER_FILES
     lleventapi.h
     lleventcoro.h
     lleventdispatcher.h
+    lleventemitter.h
     lleventfilter.h
     llevents.h
-    lleventemitter.h
     llexception.h
     llfasttimer.h
     llfile.h
@@ -179,6 +184,7 @@ set(llcommon_HEADER_FILES
     llinitparam.h
     llinstancetracker.h
     llinstancetrackersubclass.h
+    llinttracker.h
     llkeybind.h
     llkeythrottle.h
     llleap.h
@@ -189,14 +195,12 @@ set(llcommon_HEADER_FILES
     llmd5.h
     llmemory.h
     llmemorystream.h
-    llmetrics.h
     llmetricperformancetester.h
+    llmetrics.h
     llmortician.h
     llmutex.h
     llnametable.h
     llpointer.h
-    llprofiler.h
-    llprofilercategories.h
     llpounceable.h
     llpredicate.h
     llpreprocessor.h
@@ -204,6 +208,8 @@ set(llcommon_HEADER_FILES
     llprocess.h
     llprocessor.h
     llprocinfo.h
+    llprofiler.h
+    llprofilercategories.h
     llptrto.h
     llqueuedthread.h
     llrand.h
@@ -221,14 +227,14 @@ set(llcommon_HEADER_FILES
     llsimplehash.h
     llsingleton.h
     llstacktrace.h
+    llstaticstringtable.h
+    llstatsaccumulator.h
     llstl.h
     llstreamqueue.h
     llstreamtools.h
     llstrider.h
     llstring.h
     llstringtable.h
-    llstaticstringtable.h
-    llstatsaccumulator.h
     llsys.h
     lltempredirect.h
     llthread.h
@@ -246,15 +252,19 @@ set(llcommon_HEADER_FILES
     lluriparser.h
     lluuid.h
     llwin32headers.h
-    llwin32headerslean.h
     llworkerthread.h
-    hbxxh.h
     lockstatic.h
+    lua_function.h
+    lualistener.h
+    resultset.h
+    scriptcommand.h
     stdtypes.h
     stringize.h
+    tempset.h
     threadpool.h
     threadpool_fwd.h
     threadsafeschedule.h
+    throttle.h
     timer.h
     tuple.h
     u64.h
@@ -266,6 +276,10 @@ if (DARWIN)
   list(APPEND llcommon_HEADER_FILES llsys_objc.h)
   list(APPEND llcommon_SOURCE_FILES llsys_objc.mm)
 endif (DARWIN)
+
+if (USE_TRACY)
+  list(APPEND llcommon_SOURCE_FILES llprofiler.cpp)
+endif ()
 
 list(APPEND llcommon_SOURCE_FILES ${llcommon_HEADER_FILES})
 

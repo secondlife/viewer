@@ -440,7 +440,7 @@ void LLMultiSliderCtrl::setEnabled(bool b)
 
     if( mLabelBox )
     {
-        mLabelBox->setColor( b ? mTextEnabledColor.get() : mTextDisabledColor.get() );
+        mLabelBox->setColor( b ? mTextEnabledColor : mTextDisabledColor );
     }
 
     mMultiSlider->setEnabled( b );
@@ -452,7 +452,7 @@ void LLMultiSliderCtrl::setEnabled(bool b)
 
     if( mTextBox )
     {
-        mTextBox->setColor( b ? mTextEnabledColor.get() : mTextDisabledColor.get() );
+        mTextBox->setColor( b ? mTextEnabledColor : mTextDisabledColor );
     }
 }
 

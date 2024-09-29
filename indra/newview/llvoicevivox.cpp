@@ -298,7 +298,6 @@ LLVivoxVoiceClient::LLVivoxVoiceClient() :
     mDevicesListUpdated(false),
 
     mAudioSession(), // TBD - should be NULL
-    mAudioSessionChanged(false),
     mNextAudioSession(),
 
     mCurrentParcelLocalID(0),
@@ -1644,7 +1643,6 @@ bool LLVivoxVoiceClient::addAndJoinSession(const sessionStatePtr_t &nextSession)
     LL_INFOS("Voice") << "Adding or joining voice session " << nextSession->mHandle << LL_ENDL;
 
     mAudioSession = nextSession;
-    mAudioSessionChanged = true;
     if (!mAudioSession || !mAudioSession->mReconnect)
     {
         mNextAudioSession.reset();
@@ -1901,9 +1899,8 @@ bool LLVivoxVoiceClient::terminateAudioSession(bool wait)
 
         sessionStatePtr_t oldSession = mAudioSession;
 
+        notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_LEFT_CHANNEL); // needs mAudioSession for uri
         mAudioSession.reset();
-        // We just notified status observers about this change.  Don't do it again.
-        mAudioSessionChanged = false;
 
         // The old session may now need to be deleted.
         reapSession(oldSession);
@@ -1911,9 +1908,9 @@ bool LLVivoxVoiceClient::terminateAudioSession(bool wait)
     else
     {
         LL_WARNS("Voice") << "terminateAudioSession(" << wait << ") with NULL mAudioSession" << LL_ENDL;
+        notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_LEFT_CHANNEL);
     }
 
-    notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_LEFT_CHANNEL);
 
     // Always reset the terminate request flag when we get here.
     // Some slower PCs have a race condition where they can switch to an incoming  P2P call faster than the state machine leaves
@@ -2155,7 +2152,6 @@ bool LLVivoxVoiceClient::runSession(const sessionStatePtr_t &session)
 
     mIsInChannel = true;
     mMuteMicDirty = true;
-    mSessionTerminateRequested = false;
 
     while (!sShuttingDown
            && mVoiceEnabled
@@ -3835,7 +3831,6 @@ void LLVivoxVoiceClient::joinedAudioSession(const sessionStatePtr_t &session)
         sessionStatePtr_t oldSession = mAudioSession;
 
         mAudioSession = session;
-        mAudioSessionChanged = true;
 
         // The old session may now need to be deleted.
         reapSession(oldSession);
@@ -4981,7 +4976,7 @@ void LLVivoxVoiceClient::hangup() { leaveChannel(); }
 
 LLVoiceP2PIncomingCallInterfacePtr LLVivoxVoiceClient::getIncomingCallInterface(const LLSD &voice_call_info)
 {
-    return boost::make_shared<LLVivoxVoiceP2PIncomingCall>(voice_call_info);
+    return std::make_shared<LLVivoxVoiceP2PIncomingCall>(voice_call_info);
 }
 
 bool LLVivoxVoiceClient::answerInvite(const std::string &sessionHandle)
@@ -5017,8 +5012,7 @@ bool LLVivoxVoiceClient::isVoiceWorking() const
     //Added stateSessionTerminated state to avoid problems with call in parcels with disabled voice (EXT-4758)
     // Condition with joining spatial num was added to take into account possible problems with connection to voice
     // server(EXT-4313). See bug descriptions and comments for MAX_NORMAL_JOINING_SPATIAL_NUM for more info.
-    return (mSpatialJoiningNum < MAX_NORMAL_JOINING_SPATIAL_NUM) && mIsProcessingChannels;
-//  return (mSpatialJoiningNum < MAX_NORMAL_JOINING_SPATIAL_NUM) && (stateLoggedIn <= mState) && (mState <= stateSessionTerminated);
+    return (mSpatialJoiningNum < MAX_NORMAL_JOINING_SPATIAL_NUM) && mIsLoggedIn;
 }
 
 // Returns true if the indicated participant in the current audio session is really an SL avatar.
@@ -5105,7 +5099,9 @@ void LLVivoxVoiceClient::processChannels(bool process)
 
 bool LLVivoxVoiceClient::isCurrentChannel(const LLSD &channelInfo)
 {
-    if (!mProcessChannels || (channelInfo.has("voice_server_type") && channelInfo["voice_server_type"].asString() != VIVOX_VOICE_SERVER_TYPE))
+    if (!mProcessChannels
+        || (channelInfo.has("voice_server_type") && channelInfo["voice_server_type"].asString() != VIVOX_VOICE_SERVER_TYPE)
+        || mSessionTerminateRequested)
     {
         return false;
     }
@@ -5145,7 +5141,7 @@ bool LLVivoxVoiceClient::inProximalChannel()
     return result;
 }
 
-std::string LLVivoxVoiceClient::sipURIFromID(const LLUUID &id)
+std::string LLVivoxVoiceClient::sipURIFromID(const LLUUID &id) const
 {
     std::string result;
     result = "sip:";
@@ -5153,6 +5149,14 @@ std::string LLVivoxVoiceClient::sipURIFromID(const LLUUID &id)
     result += "@";
     result += mVoiceSIPURIHostName;
 
+    return result;
+}
+
+LLSD LLVivoxVoiceClient::getP2PChannelInfoTemplate(const LLUUID& id) const
+{
+    LLSD result;
+    result["channel_uri"] = sipURIFromID(id);
+    result["voice_server_type"] = VIVOX_VOICE_SERVER_TYPE;
     return result;
 }
 
@@ -5170,7 +5174,7 @@ std::string LLVivoxVoiceClient::sipURIFromAvatar(LLVOAvatar *avatar)
     return result;
 }
 
-std::string LLVivoxVoiceClient::nameFromID(const LLUUID &uuid)
+std::string LLVivoxVoiceClient::nameFromID(const LLUUID &uuid) const
 {
     std::string result;
 
@@ -5434,8 +5438,8 @@ void LLVivoxVoiceClient::leaveChannel(void)
     {
         LL_DEBUGS("Voice") << "leaving channel for teleport/logout" << LL_ENDL;
         mChannelName.clear();
-        sessionTerminate();
     }
+    sessionTerminate();
 }
 
 void LLVivoxVoiceClient::setMuteMic(bool muted)
@@ -6150,7 +6154,6 @@ void LLVivoxVoiceClient::deleteSession(const sessionStatePtr_t &session)
     if(mAudioSession == session)
     {
         mAudioSession.reset();
-        mAudioSessionChanged = true;
     }
 
     // ditto for the next audio session
@@ -6259,9 +6262,10 @@ void LLVivoxVoiceClient::notifyStatusObservers(LLVoiceClientStatusObserver::ESta
         }
     }
 
+    LLSD channel_info = getAudioSessionChannelInfo();
     LL_DEBUGS("Voice")
         << " " << LLVoiceClientStatusObserver::status2string(status)
-        << ", session channelInfo " << getAudioSessionChannelInfo()
+        << ", session channelInfo " << channel_info
         << ", proximal is " << inSpatialChannel()
         << LL_ENDL;
 
@@ -6276,7 +6280,7 @@ void LLVivoxVoiceClient::notifyStatusObservers(LLVoiceClientStatusObserver::ESta
         )
     {
         LLVoiceClientStatusObserver* observer = *it;
-        observer->onChange(status, getAudioSessionChannelInfo(), inSpatialChannel());
+        observer->onChange(status, channel_info, inSpatialChannel());
         // In case onError() deleted an entry.
         it = mStatusObservers.upper_bound(observer);
     }
@@ -6455,7 +6459,6 @@ LLVivoxVoiceClient::voiceFontEntry::voiceFontEntry(LLUUID& id) :
     mIsNew(false)
 {
     mExpiryTimer.stop();
-    mExpiryWarningTimer.stop();
 }
 
 LLVivoxVoiceClient::voiceFontEntry::~voiceFontEntry()
@@ -6566,20 +6569,6 @@ void LLVivoxVoiceClient::addVoiceFont(const S32 font_index,
             font->mExpiryTimer.start();
             font->mExpiryTimer.setExpiryAt(expiration_date.secondsSinceEpoch() - VOICE_FONT_EXPIRY_INTERVAL);
 
-            // Set the warning timer to some interval before actual expiry.
-            S32 warning_time = gSavedSettings.getS32("VoiceEffectExpiryWarningTime");
-            if (warning_time != 0)
-            {
-                font->mExpiryWarningTimer.start();
-                F64 expiry_time = (expiration_date.secondsSinceEpoch() - (F64)warning_time);
-                font->mExpiryWarningTimer.setExpiryAt(expiry_time - VOICE_FONT_EXPIRY_INTERVAL);
-            }
-            else
-            {
-                // Disable the warning timer.
-                font->mExpiryWarningTimer.stop();
-            }
-
              // Only flag new session fonts after the first time we have fetched the list.
             if (mVoiceFontsReceived)
             {
@@ -6621,7 +6610,6 @@ void LLVivoxVoiceClient::expireVoiceFonts()
     // than checking each font individually.
 
     bool have_expired = false;
-    bool will_expire = false;
     bool expired_in_use = false;
 
     LLUUID current_effect = LLVoiceClient::instance().getVoiceEffectDefault();
@@ -6631,7 +6619,6 @@ void LLVivoxVoiceClient::expireVoiceFonts()
     {
         voiceFontEntry* voice_font = iter->second;
         LLFrameTimer& expiry_timer  = voice_font->mExpiryTimer;
-        LLFrameTimer& warning_timer = voice_font->mExpiryWarningTimer;
 
         // Check for expired voice fonts
         if (expiry_timer.getStarted() && expiry_timer.hasExpired())
@@ -6647,14 +6634,6 @@ void LLVivoxVoiceClient::expireVoiceFonts()
             LL_DEBUGS("Voice") << "Voice Font " << voice_font->mName << " has expired." << LL_ENDL;
             deleteVoiceFont(voice_font->mID);
             have_expired = true;
-        }
-
-        // Check for voice fonts that will expire in less that the warning time
-        if (warning_timer.getStarted() && warning_timer.hasExpired())
-        {
-            LL_DEBUGS("VoiceFont") << "Voice Font " << voice_font->mName << " will expire soon." << LL_ENDL;
-            will_expire = true;
-            warning_timer.stop();
         }
     }
 
@@ -6676,15 +6655,6 @@ void LLVivoxVoiceClient::expireVoiceFonts()
 
         // Refresh voice font lists in the UI.
         notifyVoiceFontObservers();
-    }
-
-    // Give a warning notification if any voice fonts are due to expire.
-    if (will_expire)
-    {
-        S32Seconds seconds(gSavedSettings.getS32("VoiceEffectExpiryWarningTime"));
-        args["INTERVAL"] = llformat("%d", LLUnit<S32, LLUnits::Days>(seconds).value());
-
-        LLNotificationsUtil::add("VoiceEffectsWillExpire", args);
     }
 }
 

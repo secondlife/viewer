@@ -17,6 +17,7 @@ include(LLImage)
 include(LLWindow)
 include(UI)
 include(ViewerMiscLibs)
+include(GLM)
 
 set(llwindow_SOURCE_FILES
     llcursortypes.cpp
@@ -54,10 +55,11 @@ set(llwindow_LINK_LIBRARIES
         llrender
         llfilesystem
         llxml
-        ll::glh_linear
+        ll::glm
         ll::glext
         ll::uilibraries
         ll::SDL
+        ll::zlib-ng
         )
 
 # Libraries on which this library depends, needed for Linux builds

@@ -152,7 +152,6 @@ protected:
     toast_list_t m_toast_pool;
 
     bool    mStopProcessing;
-    bool    mChannelRect;
 };
 
 
@@ -287,7 +286,7 @@ void LLFloaterIMNearbyChatScreenChannel::addChat(LLSD& chat)
 
     if (mFloaterSnapRegion == NULL)
     {
-        mFloaterSnapRegion = gViewerWindow->getRootView()->getChildView("floater_snap_region");
+        mFloaterSnapRegion = gViewerWindow->getFloaterSnapRegion();
     }
     LLRect channel_rect;
     mFloaterSnapRegion->localRectToOtherView(mFloaterSnapRegion->getLocalRect(), &channel_rect, gFloaterView);
@@ -301,12 +300,13 @@ void LLFloaterIMNearbyChatScreenChannel::addChat(LLSD& chat)
     {
         LLUUID fromID = chat["from_id"].asUUID();       // agent id or object id
         std::string from = chat["from"].asString();
+        bool is_lua = chat["is_lua"].asBoolean();
         LLToast* toast = m_active_toasts[0].get();
         if (toast)
         {
             LLFloaterIMNearbyChatToastPanel* panel = dynamic_cast<LLFloaterIMNearbyChatToastPanel*>(toast->getPanel());
 
-            if (panel && panel->messageID() == fromID && panel->getFromName() == from && panel->canAddText())
+            if (panel && panel->messageID() == fromID && panel->getFromName() == from && panel->isFromScript() == is_lua && panel->canAddText())
             {
                 panel->addMessage(chat);
                 toast->reshapeToPanel();
@@ -377,7 +377,7 @@ void LLFloaterIMNearbyChatScreenChannel::arrangeToasts()
 
     if (mFloaterSnapRegion == NULL)
     {
-        mFloaterSnapRegion = gViewerWindow->getRootView()->getChildView("floater_snap_region");
+        mFloaterSnapRegion = gViewerWindow->getFloaterSnapRegion();
     }
 
     if (!getParent())
@@ -535,14 +535,13 @@ void LLFloaterIMNearbyChatHandler::processChat(const LLChat& chat_msg,
 
         if (gSavedSettings.getS32("ShowScriptErrorsLocation") == 1)// show error in window //("ScriptErrorsAsChat"))
         {
-
-            LLColor4 txt_color;
-
-            LLViewerChat::getChatColor(chat_msg,txt_color);
+            LLUIColor txt_color;
+            F32 alpha = 1.f;
+            LLViewerChat::getChatColor(chat_msg, txt_color, alpha);
 
             LLFloaterScriptDebug::addScriptLine(chat_msg.mText,
                                                 chat_msg.mFromName,
-                                                txt_color,
+                                                txt_color % alpha,
                                                 chat_msg.mFromID);
             return;
         }
@@ -598,17 +597,22 @@ void LLFloaterIMNearbyChatHandler::processChat(const LLChat& chat_msg,
     {
         // Handle IRC styled messages.
         std::string toast_msg;
+        std::string msg_text = without_LUA_PREFIX(chat_msg.mText, chat_msg.mIsScript);
         if (chat_msg.mChatStyle == CHAT_STYLE_IRC)
         {
+            if (chat_msg.mIsScript)
+            {
+                toast_msg += LLTrans::getString("ScriptStr");
+            }
             if (!chat_msg.mFromName.empty())
             {
                 toast_msg += chat_msg.mFromName;
             }
-            toast_msg += chat_msg.mText.substr(3);
+            toast_msg += msg_text.substr(3);
         }
         else
         {
-            toast_msg = chat_msg.mText;
+            toast_msg = msg_text;
         }
 
         bool chat_overlaps = false;
@@ -668,6 +672,7 @@ void LLFloaterIMNearbyChatHandler::processChat(const LLChat& chat_msg,
             chat["color_alpha"] = r_color_alpha;
             chat["font_size"] = (S32)LLViewerChat::getChatFontSize() ;
             chat["message"] = toast_msg;
+            chat["is_lua"] = chat_msg.mIsScript;
             channel->addChat(chat);
         }
 

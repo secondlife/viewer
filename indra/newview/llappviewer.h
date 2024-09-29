@@ -44,7 +44,6 @@
 #define LL_LLAPPVIEWER_H
 
 #include "llapp.h"
-#include "llallocator.h"
 #include "llapr.h"
 #include "llcontrol.h"
 #include "llsys.h"          // for LLOSInfo
@@ -184,17 +183,15 @@ public:
     // For thread debugging.
     // llstartup needs to control init.
     // llworld, send_agent_pause() also controls pause/resume.
-    void initMainloopTimeout(const std::string& state, F32 secs = -1.0f);
+    void initMainloopTimeout(std::string_view state, F32 secs = -1.0f);
     void destroyMainloopTimeout();
     void pauseMainloopTimeout();
-    void resumeMainloopTimeout(const std::string& state = "", F32 secs = -1.0f);
-    void pingMainloopTimeout(const std::string& state, F32 secs = -1.0f);
+    void resumeMainloopTimeout(std::string_view state = "", F32 secs = -1.0f);
+    void pingMainloopTimeout(std::string_view state, F32 secs = -1.0f);
 
     // Handle the 'login completed' event.
     // *NOTE:Mani Fix this for login abstraction!!
     void handleLoginComplete();
-
-    LLAllocator & getAllocator() { return mAlloc; }
 
     // On LoginCompleted callback
     typedef boost::signals2::signal<void (void)> login_completed_signal_t;
@@ -229,6 +226,12 @@ public:
 
     // post given work to the "mainloop" work queue for handling on the main thread
     void postToMainCoro(const LL::WorkQueue::Work& work);
+
+    // Attempt a 'soft' quit with disconnect and saving of settings/cache.
+    // Intended to be thread safe.
+    // Good chance of viewer crashing either way, but better than alternatives.
+    // Note: mQuitRequested can be aborted by user.
+    void outOfMemorySoftQuit();
 
 protected:
     virtual bool initWindow(); // Initialize the viewer's window.
@@ -317,9 +320,8 @@ private:
     boost::optional<U32> mForceGraphicsLevel;
 
     bool mQuitRequested;                // User wants to quit, may have modified documents open.
+    bool mClosingFloaters;
     bool mLogoutRequestSent;            // Disconnect message sent to simulator, no longer safe to send messages to the sim.
-    U32 mLastAgentControlFlags;
-    F32 mLastAgentForceUpdate;
     struct SettingsFiles* mSettingsLocationList;
 
     LLWatchdogTimeout* mMainloopTimeout;
@@ -331,17 +333,11 @@ private:
     bool mAgentRegionLastAlive;
     LLUUID mAgentRegionLastID;
 
-    LLAllocator mAlloc;
-
     // llcorehttp library init/shutdown helper
     LLAppCoreHttp mAppCoreHttp;
 
     bool mIsFirstRun;
 };
-
-// consts from viewer.h
-const S32 AGENT_UPDATES_PER_SECOND  = 125; // Value derived experimentally to avoid Input Delays with latest PBR-Capable Viewers when viewer FPS is highly volatile.
-const S32 AGENT_FORCE_UPDATES_PER_SECOND  = 1;
 
 // Globals with external linkage. From viewer.h
 // *NOTE:Mani - These will be removed as the Viewer App Cleanup project continues.
@@ -405,8 +401,6 @@ extern LLVector3 gWindVec;
 extern LLVector3 gRelativeWindVec;
 extern U32  gPacketsIn;
 extern bool gPrintMessagesThisFrame;
-
-extern LLUUID gBlackSquareID;
 
 extern bool gRandomizeFramerate;
 extern bool gPeriodicSlowFrame;

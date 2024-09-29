@@ -146,7 +146,7 @@ public:
 
     virtual F32  getMaxVirtualSize() ;
 
-    LLFrameTimer* getLastReferencedTimer() {return &mLastReferencedTimer ;}
+    LLFrameTimer* getLastReferencedTimer() { return &mLastReferencedTimer; }
 
     S32 getFullWidth() const { return mFullWidth; }
     S32 getFullHeight() const { return mFullHeight; }
@@ -339,11 +339,6 @@ public:
 
     void setBoostLevel(S32 level) override;
     bool updateFetch();
-    bool setDebugFetching(S32 debug_level);
-    bool isInDebug() const { return mInDebug; }
-
-    void setUnremovable(bool value) { mUnremovable = value; }
-    bool isUnremovable() const { return mUnremovable; }
 
     void clearFetchedResults(); //clear all fetched results, for debug use.
 
@@ -378,10 +373,6 @@ public:
     const std::string& getUrl() const {return mUrl;}
     //---------------
     bool isDeleted() ;
-    bool isInactive() ;
-    bool isDeletionCandidate();
-    void setDeletionCandidate() ;
-    void setInactive() ;
     bool getUseDiscard() const { return mUseMipMaps && !mDontDiscard; }
     //---------------
 
@@ -434,8 +425,6 @@ private:
 
 private:
     bool  mFullyLoaded;
-    bool  mInDebug;
-    bool  mUnremovable;
     bool  mInFastCacheList;
     bool  mForceCallbackFetch;
 
@@ -518,6 +507,7 @@ public:
     static LLPointer<LLViewerFetchedTexture> sDefaultImagep; // "Default" texture for error cases, the only case of fetched texture which is generated in local.
     static LLPointer<LLViewerFetchedTexture> sFlatNormalImagep; // Flat normal map denoting no bumpiness on a surface
     static LLPointer<LLViewerFetchedTexture> sDefaultIrradiancePBRp; // PBR: irradiance
+    static LLPointer<LLViewerFetchedTexture> sDefaultParticleImagep; // Default particle texture
 
     // not sure why, but something is iffy about the loading of this particular texture, use the accessor instead of accessing directly
     static LLPointer<LLViewerFetchedTexture> sSmokeImagep; // Old "Default" translucent texture
@@ -585,7 +575,8 @@ public:
     /*virtual*/ void addFace(U32 ch, LLFace* facep) ;
     /*virtual*/ void removeFace(U32 ch, LLFace* facep) ;
 
-    /*virtual*/ F32  getMaxVirtualSize() ;
+    /*virtual*/ F32  getMaxVirtualSize();
+
 private:
     void switchTexture(U32 ch, LLFace* facep) ;
     bool findFaces() ;

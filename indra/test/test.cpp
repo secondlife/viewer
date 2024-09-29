@@ -35,14 +35,15 @@
  */
 
 #include "linden_common.h"
-#include "llerrorcontrol.h"
 #include "llexception.h"
-#include "lltut.h"
 #include "chained_callback.h"
-#include "stringize.h"
-#include "namedtempfile.h"
+#include "fsyspath.h"
+#include "llerrorcontrol.h"
 #include "lltrace.h"
 #include "lltracethreadrecorder.h"
+#include "lltut.h"
+#include "namedtempfile.h"
+#include "stringize.h"
 
 #include "apr_pools.h"
 #include "apr_getopt.h"
@@ -54,15 +55,8 @@
 #   include "ctype_workaround.h"
 #endif
 
-#if LL_MSVC
-#pragma warning (push)
-#pragma warning (disable : 4702) // warning C4702: unreachable code
-#endif
 #include <boost/iostreams/tee.hpp>
 #include <boost/iostreams/stream.hpp>
-#if LL_MSVC
-#pragma warning (pop)
-#endif
 
 #include <fstream>
 
@@ -531,6 +525,29 @@ int main(int argc, char **argv)
 
     // LOGTEST overrides default, but can be overridden by --debug.
     const char* LOGTEST = getenv("LOGTEST");
+
+    // Sometimes we must rebuild much of the viewer before we get to the
+    // specific test we want to monitor, and some viewer integration tests are
+    // quite verbose. In addition to noticing plain LOGTEST= (for all tests),
+    // also notice LOGTEST_progname= (for a specific test).
+    // (Why doesn't MSVC notice fsyspath::operator std::string()?
+    // Why must we explicitly call fsyspath::string()?)
+    std::string basename(fsyspath(argv[0]).stem().string());
+    // don't make user set LOGTEST_INTEGRATION_TEST_progname or (worse)
+    // LOGTEST_PROJECT_foo_TEST_bar -- only LOGTEST_progname or LOGTEST_bar
+    auto _TEST_ = basename.find("_TEST_");
+    if (_TEST_ != std::string::npos)
+    {
+        basename.erase(0, _TEST_+6);
+    }
+    std::string LOGTEST_prog_key("LOGTEST_" + basename);
+    const char* LOGTEST_prog = getenv(LOGTEST_prog_key.c_str());
+//  std::cout << LOGTEST_prog_key << "='" << (LOGTEST_prog? LOGTEST_prog : "") << "'" << std::endl;
+    if (LOGTEST_prog && *LOGTEST_prog)
+    {
+        LOGTEST = LOGTEST_prog;
+        std::cout << "LOGTEST='" << LOGTEST << "' from " << LOGTEST_prog_key << std::endl;
+    }
 
     // values used for options parsing
     apr_status_t apr_err;

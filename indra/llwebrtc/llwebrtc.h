@@ -56,6 +56,20 @@
 namespace llwebrtc
 {
 
+class LLWebRTCLogCallback
+{
+public:
+    typedef enum {
+        LOG_LEVEL_VERBOSE = 0,
+        LOG_LEVEL_INFO,
+        LOG_LEVEL_WARNING,
+        LOG_LEVEL_ERROR
+    } LogLevel;
+
+    virtual void LogMessage(LogLevel level, const std::string& message) = 0;
+};
+
+
 // LLWebRTCVoiceDevice is a simple representation of the
 // components of a device, used to communicate this
 // information to the viewer.
@@ -230,7 +244,7 @@ class LLWebRTCSignalingObserver
 // allows for management of this peer connection.
 class LLWebRTCPeerConnectionInterface
 {
-public:
+  public:
 
     struct InitOptions
     {
@@ -262,7 +276,7 @@ public:
 // exports.
 
 // This library must be initialized before use.
-LLSYMEXPORT void init();
+LLSYMEXPORT void init(LLWebRTCLogCallback* logSink);
 
 // And should be terminated as part of shutdown.
 LLSYMEXPORT void terminate();

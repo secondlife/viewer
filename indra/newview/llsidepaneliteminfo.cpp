@@ -351,7 +351,7 @@ void LLSidepanelItemInfo::refreshFromItem(LLViewerInventoryItem* item)
 
     // Style for creator and owner links
     LLStyle::Params style_params;
-    LLColor4 link_color = LLUIColorTable::instance().getColor("HTMLLinkColor");
+    LLUIColor link_color = LLUIColorTable::instance().getColor("HTMLLinkColor");
     style_params.color = link_color;
     style_params.readonly_color = link_color;
     style_params.is_link = true; // link will be added later

@@ -28,6 +28,11 @@
 #ifndef LLSECHANDLER_BASIC
 #define LLSECHANDLER_BASIC
 
+#ifdef LL_WINDOWS
+#pragma warning (push)
+#pragma warning(disable:4250)
+#endif // LL_WINDOWS
+
 #include "llsecapi.h"
 #include <vector>
 #include <openssl/x509.h>
@@ -345,6 +350,10 @@ protected:
 };
 
 bool valueCompareLLSD(const LLSD& lhs, const LLSD& rhs);
+
+#ifdef LL_WINDOWS
+#pragma warning (pop)
+#endif // LL_WINDOWS
 
 #endif // LLSECHANDLER_BASIC
 

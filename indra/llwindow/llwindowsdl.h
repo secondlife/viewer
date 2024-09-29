@@ -68,7 +68,7 @@ public:
     bool setSizeImpl(LLCoordScreen size) override;
     bool setSizeImpl(LLCoordWindow size) override;
 
-    bool switchContext(bool fullscreen, const LLCoordScreen &size, bool disable_vsync,
+    bool switchContext(bool fullscreen, const LLCoordScreen &size, bool enable_vsync,
                                    const LLCoordScreen *const posp = NULL) override;
 
     bool setCursorPosition(LLCoordWindow position) override;
@@ -168,7 +168,7 @@ public:
 protected:
     LLWindowSDL(LLWindowCallbacks *callbacks,
                 const std::string &title, int x, int y, int width, int height, U32 flags,
-                bool fullscreen, bool clearBg, bool disable_vsync, bool use_gl,
+                bool fullscreen, bool clearBg, bool enable_vsync, bool use_gl,
                 bool ignore_pixel_depth, U32 fsaa_samples);
 
     ~LLWindowSDL();
@@ -196,7 +196,7 @@ protected:
     //
 
     // create or re-create the GL context/window.  Called from the constructor and switchContext().
-    bool createContext(int x, int y, int width, int height, int bits, bool fullscreen, bool disable_vsync);
+    bool createContext(int x, int y, int width, int height, int bits, bool fullscreen, bool enable_vsync);
     void destroyContext();
 
     void setupFailure(const std::string &text, const std::string &caption, U32 type);

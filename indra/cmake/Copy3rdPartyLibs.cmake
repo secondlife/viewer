@@ -54,20 +54,12 @@ if(WINDOWS)
     set(release_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
     set(release_files
         openjp2.dll
-        libapr-1.dll
-        libaprutil-1.dll
-        nghttp2.dll
-        libhunspell.dll
         )
 
-    # OpenSSL
-    if(ADDRESS_SIZE EQUAL 64)
-        set(release_files ${release_files} libcrypto-1_1-x64.dll)
-        set(release_files ${release_files} libssl-1_1-x64.dll)
-    else(ADDRESS_SIZE EQUAL 64)
-        set(release_files ${release_files} libcrypto-1_1.dll)
-        set(release_files ${release_files} libssl-1_1.dll)
-    endif(ADDRESS_SIZE EQUAL 64)
+    if(LLCOMMON_LINK_SHARED)
+        set(release_files ${release_files} libapr-1.dll)
+        set(release_files ${release_files} libaprutil-1.dll)
+    endif()
 
     # Filenames are different for 32/64 bit BugSplat file and we don't
     # have any control over them so need to branch.
@@ -163,10 +155,6 @@ if(WINDOWS)
             MESSAGE(STATUS "Redist lib ${release_msvc_file} not found")
         endif()
     endforeach()
-    MESSAGE(STATUS "Will copy redist files for MSVC ${MSVC_VER}:")
-    foreach(target ${third_party_targets})
-        MESSAGE(STATUS "${target}")
-    endforeach()
 
 elseif(DARWIN)
     set(vivox_lib_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
@@ -180,16 +168,17 @@ elseif(DARWIN)
        )
     set(release_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
     set(release_files
-        libapr-1.0.dylib
-        libapr-1.dylib
-        libaprutil-1.0.dylib
-        libaprutil-1.dylib
-        ${EXPAT_COPY}
-        libhunspell-1.3.0.dylib
         libndofdev.dylib
-        libnghttp2.dylib
-        libnghttp2.14.dylib
        )
+
+    if(LLCOMMON_LINK_SHARED)
+        set(release_files ${release_files}
+            libapr-1.0.dylib
+            libapr-1.dylib
+            libaprutil-1.0.dylib
+            libaprutil-1.dylib
+            )
+    endif()
 
     if (TARGET ll::openal)
       list(APPEND release_files libalut.dylib libopenal.dylib)
@@ -221,15 +210,20 @@ elseif(LINUX)
     set(release_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
     # *FIX - figure out what to do with duplicate libalut.so here -brad
     set(release_files
-            ${EXPAT_COPY}
-            )
+       )
 
      if( USE_AUTOBUILD_3P )
          list( APPEND release_files
                  libapr-1.so.0
                  libaprutil-1.so.0
-                 libhunspell-1.3.so.0.0.0
                  )
+
+        if(LLCOMMON_LINK_SHARED)
+            set(release_files ${release_files}
+                libapr-1.so.0
+                libaprutil-1.so.0
+                )
+        endif()
      endif()
 
 else(WINDOWS)

@@ -138,8 +138,10 @@ void LLHUDText::renderText()
     mOffsetY = lltrunc(mHeight * ((mVertAlignment == ALIGN_VERT_CENTER) ? 0.5f : 1.f));
 
     // *TODO: make this a per-text setting
-    LLColor4 bg_color = LLUIColorTable::instance().getColor("ObjectBubbleColor");
-    bg_color.setAlpha(gSavedSettings.getF32("ChatBubbleOpacity") * alpha_factor);
+    static LLCachedControl<F32> bubble_opacity(gSavedSettings, "ChatBubbleOpacity");
+    static LLUIColor nametag_bg_color = LLUIColorTable::instance().getColor("ObjectBubbleColor");
+    LLColor4 bg_color = nametag_bg_color;
+    bg_color.setAlpha(bubble_opacity * alpha_factor);
 
     const S32 border_height = 16;
     const S32 border_width = 16;
@@ -229,7 +231,7 @@ void LLHUDText::renderText()
             }
             text_color.mV[VALPHA] *= alpha_factor;
 
-            hud_render_text(segment_iter->getText(), render_position, *fontp, style, shadow, x_offset, y_offset, text_color, mOnHUDAttachment);
+            hud_render_text(segment_iter->getText(), render_position, &mFontBuffer, *fontp, style, shadow, x_offset, y_offset, text_color, mOnHUDAttachment);
         }
     }
     /// Reset the default color to white.  The renderer expects this to be the default.

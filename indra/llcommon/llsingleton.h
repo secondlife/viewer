@@ -25,16 +25,19 @@
 #ifndef LLSINGLETON_H
 #define LLSINGLETON_H
 
+#include <boost/call_traits.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/unordered_set.hpp>
+#include <functional>
 #include <initializer_list>
 #include <list>
 #include <typeinfo>
 #include <vector>
 #include "mutex.h"
 #include "lockstatic.h"
+#include "apply.h"
+#include "llprofiler.h"
 #include "llthread.h"               // on_main_thread()
-#include "llmainthreadtask.h"
 
 #ifdef LL_WINDOWS
 #pragma warning(push)
@@ -115,6 +118,8 @@ protected:
     // If a given call to B::getInstance() happens during either A::A() or
     // A::initSingleton(), record that A directly depends on B.
     void capture_dependency();
+    // trampoline to non-static member function
+    static void capture_dependency(LLSingletonBase*);
 
     // delegate logging calls to llsingleton.cpp
 public:
@@ -138,6 +143,17 @@ protected:
 
     // internal wrapper around calls to cleanupSingleton()
     void cleanup_();
+
+    // This method is where we dispatch to LLMainThreadTask to acquire the
+    // subclass LLSingleton instance when the first getInstance() call is from
+    // a secondary thread. We delegate to the .cpp file to untangle header
+    // circularity. It accepts a std::function referencing the subclass
+    // getInstance() method -- which can't be virtual because it's static; we
+    // don't yet have an instance! For messaging, it also accepts the name of
+    // the subclass and the subclass method.
+    static LLSingletonBase* getInstanceForSecondaryThread(
+        const std::string& name, const std::string& method,
+        const std::function<LLSingletonBase*()>& getInstance);
 
     // deleteSingleton() isn't -- and shouldn't be -- a virtual method. It's a
     // class static. However, given only Foo*, deleteAll() does need to be
@@ -194,7 +210,7 @@ struct LLSingleton_manage_master
     }
     void capture_dependency(LLSingletonBase* sb)
     {
-        sb->capture_dependency();
+        LLSingletonBase::capture_dependency(sb);
     }
 };
 
@@ -298,7 +314,7 @@ private:
         // Use a recursive_mutex in case of constructor circularity. With a
         // non-recursive mutex, that would result in deadlock.
         typedef std::recursive_mutex mutex_t;
-        mutex_t mMutex;             // LockStatic looks for mMutex
+        LL_PROFILE_MUTEX_NAMED(mutex_t, mMutex, "Singleton Data"); // LockStatic looks for mMutex
 
         EInitState      mInitState{UNINITIALIZED};
         DERIVED_TYPE*   mInstance{nullptr};
@@ -420,12 +436,17 @@ protected:
         // deleteSingleton() to defend against manual deletion. When we moved
         // cleanup to deleteSingleton(), we hit crashes due to dangling
         // pointers in the MasterList.
-        LockStatic lk;
+        LockStatic lk; LL_PROFILE_MUTEX_LOCK(lk->mMutex);
         lk->mInstance  = nullptr;
         lk->mInitState = DELETED;
 
         // Remove this instance from the master list.
         LLSingleton_manage_master<DERIVED_TYPE>().remove(this);
+        // We should no longer need our LockStatic -- but the fact that we can
+        // query or even resurrect a deleted LLSingleton means we basically
+        // have to shrug and leak our SingletonData. It's not large, and this
+        // only happens at shutdown anyway.
+//      lk.cleanup();
     }
 
 public:
@@ -448,7 +469,7 @@ public:
         // Hold the lock while we call cleanupSingleton() and the destructor.
         // Our destructor also instantiates LockStatic, requiring a recursive
         // mutex.
-        LockStatic lk;
+        LockStatic lk; LL_PROFILE_MUTEX_LOCK(lk->mMutex);
         // of course, only cleanup and delete if there's something there
         if (lk->mInstance)
         {
@@ -505,7 +526,7 @@ public:
         { // nested scope for 'lk'
             // In case racing threads call getInstance() at the same moment,
             // serialize the calls.
-            LockStatic lk;
+            LockStatic lk; LL_PROFILE_MUTEX_LOCK(lk->mMutex);
 
             switch (lk->mInitState)
             {
@@ -561,19 +582,11 @@ public:
         // Per the comment block above, dispatch to the main thread.
         loginfos({classname<DERIVED_TYPE>(),
                  "::getInstance() dispatching to main thread"});
-        auto instance = LLMainThreadTask::dispatch(
-            [](){
-                // VERY IMPORTANT to call getInstance() on the main thread,
-                // rather than going straight to constructSingleton()!
-                // During the time window before mInitState is INITIALIZED,
-                // multiple requests might be queued. It's essential that, as
-                // the main thread processes them, only the FIRST such request
-                // actually constructs the instance -- every subsequent one
-                // simply returns the existing instance.
-                loginfos({classname<DERIVED_TYPE>(),
-                         "::getInstance() on main thread"});
-                return getInstance();
-            });
+        auto instance = static_cast<DERIVED_TYPE*>(
+            getInstanceForSecondaryThread(
+                classname<DERIVED_TYPE>(),
+                "getInstance()",
+                getInstance));
         // record the dependency chain tracked on THIS thread, not the main
         // thread (consider a getInstance() overload with a tag param that
         // suppresses dep tracking when dispatched to the main thread)
@@ -595,7 +608,7 @@ public:
     static bool instanceExists()
     {
         // defend any access to sData from racing threads
-        LockStatic lk;
+        LockStatic lk; LL_PROFILE_MUTEX_LOCK(lk->mMutex);
         return lk->mInitState == INITIALIZED;
     }
 
@@ -605,7 +618,7 @@ public:
     static bool wasDeleted()
     {
         // defend any access to sData from racing threads
-        LockStatic lk;
+        LockStatic lk; LL_PROFILE_MUTEX_LOCK(lk->mMutex);
         return lk->mInitState == DELETED;
     }
 };
@@ -638,13 +651,19 @@ private:
 
     // Passes arguments to DERIVED_TYPE's constructor and sets appropriate
     // states, returning a pointer to the new instance.
+    // If we just let initParamSingleton_() infer its argument types, the
+    // compiler has trouble passing int and string literals. Use
+    // boost::call_traits::param_type to smooth parameter passing. This
+    // construction requires, though, that each invocation of this method
+    // explicitly specify template arguments, instead of inferring them.
     template <typename... Args>
-    static DERIVED_TYPE* initParamSingleton_(Args&&... args)
+    static LLSingletonBase* initParamSingleton_(
+        typename boost::call_traits<Args>::param_type... args)
     {
         // In case racing threads both call initParamSingleton() at the same
         // time, serialize them. One should initialize; the other should see
         // mInitState already set.
-        LockStatic lk;
+        LockStatic lk; LL_PROFILE_MUTEX_LOCK(lk->mMutex);
         // For organizational purposes this function shouldn't be called twice
         if (lk->mInitState != super::UNINITIALIZED)
         {
@@ -658,7 +677,7 @@ private:
             // on the main thread, simply construct instance while holding lock
             super::logdebugs({super::template classname<DERIVED_TYPE>(),
                              "::initParamSingleton()"});
-            super::constructSingleton(lk, std::forward<Args>(args)...);
+            super::constructSingleton(lk, args...);
             return lk->mInstance;
         }
         else
@@ -671,20 +690,19 @@ private:
             lk.unlock();
             super::loginfos({super::template classname<DERIVED_TYPE>(),
                             "::initParamSingleton() dispatching to main thread"});
-            // Normally it would be the height of folly to reference-bind
-            // 'args' into a lambda to be executed on some other thread! By
-            // the time that thread executed the lambda, the references would
-            // all be dangling, and Bad Things would result. But
-            // LLMainThreadTask::dispatch() promises to block until the passed
-            // task has completed. So in this case we know the references will
-            // remain valid until the lambda has run, so we dare to bind
-            // references.
-            auto instance = LLMainThreadTask::dispatch(
-                [&](){
-                    super::loginfos({super::template classname<DERIVED_TYPE>(),
-                                    "::initParamSingleton() on main thread"});
-                    return initParamSingleton_(std::forward<Args>(args)...);
-                });
+            auto instance = static_cast<DERIVED_TYPE*>(
+                super::getInstanceForSecondaryThread(
+                    super::template classname<DERIVED_TYPE>(),
+                    "initParamSingleton()",
+                    // This lambda does what std::bind() is supposed to do --
+                    // but when the actual parameter is (e.g.) a string
+                    // literal, type inference makes it fail. Apply param_type
+                    // to each incoming type to make it work.
+                    [args=std::tuple<typename boost::call_traits<Args>::param_type...>(args...)]
+                    ()
+                    {
+                        return LL::apply(initParamSingleton_<Args...>, args);
+                    }));
             super::loginfos({super::template classname<DERIVED_TYPE>(),
                             "::initParamSingleton() returning on requesting thread"});
             return instance;
@@ -701,14 +719,14 @@ public:
     template <typename... Args>
     static DERIVED_TYPE& initParamSingleton(Args&&... args)
     {
-        return *initParamSingleton_(std::forward<Args>(args)...);
+        return *static_cast<DERIVED_TYPE*>(initParamSingleton_<Args...>(args...));
     }
 
     static DERIVED_TYPE* getInstance()
     {
         // In case racing threads call getInstance() at the same moment as
         // initParamSingleton(), serialize the calls.
-        LockStatic lk;
+        LockStatic lk; LL_PROFILE_MUTEX_LOCK(lk->mMutex);
 
         switch (lk->mInitState)
         {

@@ -43,7 +43,6 @@
 #include "stringize.h"
 #include <typeinfo>
 #include <map>
-#include <boost/scoped_ptr.hpp>
 #include <boost/bind.hpp>
 
 LLWindowListener::LLWindowListener(LLViewerWindow *window, const KeyboardGetter& kbgetter)
@@ -55,7 +54,7 @@ LLWindowListener::LLWindowListener(LLViewerWindow *window, const KeyboardGetter&
         "Given [\"keysym\"], [\"keycode\"] or [\"char\"], inject the specified ";
     std::string keyExplain =
         "(integer keycode values, or keysym string from any addKeyName() call in\n"
-        "http://bitbucket.org/lindenlab/viewer-release/src/tip/indra/llwindow/llkeyboard.cpp )\n";
+        "https://github.com/secondlife/viewer/blob/main/indra/llwindow/llkeyboard.cpp#L68-L124)\n";
     std::string mask =
         "Specify optional [\"mask\"] as an array containing any of \"CTL\", \"ALT\",\n"
         "\"SHIFT\" or \"MAC_CONTROL\"; the corresponding modifier bits will be combined\n"

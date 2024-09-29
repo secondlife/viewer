@@ -40,6 +40,8 @@ class LLGroupList;
 class LLMenuButton;
 class LLTabContainer;
 class LLNetMap;
+class LLAccordionCtrl;
+class LLAccordionCtrlTab;
 
 class LLPanelPeople
     : public LLPanel
@@ -120,7 +122,7 @@ private:
 
     void                    onFriendsAccordionExpandedCollapsed(LLUICtrl* ctrl, const LLSD& param, LLAvatarList* avatar_list);
 
-    void                    showAccordion(const std::string name, bool show);
+    void                    showAccordion(LLAccordionCtrlTab* tab, bool show);
 
     void                    showFriendsAccordionsIfNeeded();
 
@@ -138,6 +140,10 @@ private:
     LLAvatarList*           mRecentList;
     LLGroupList*            mGroupList;
     LLNetMap*               mMiniMap;
+
+    LLAccordionCtrl* mFriendsAccordion = nullptr;
+    LLAccordionCtrlTab*     mFriendsAllTab = nullptr;
+    LLAccordionCtrlTab*     mFriendsOnlineTab = nullptr;
 
     LLButton*               mNearbyGearBtn = nullptr;
     LLButton*               mFriendsGearBtn = nullptr;

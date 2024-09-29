@@ -134,8 +134,8 @@ void LLFloaterIMNearbyChatToastPanel::addMessage(LLSD& notification)
 
     std::string color_name = notification["text_color"].asString();
 
-    LLColor4 textColor = LLUIColorTable::instance().getColor(color_name);
-    textColor.mV[VALPHA] = (F32)notification["color_alpha"].asReal();
+    LLUIColor textColor = LLUIColorTable::instance().getColor(color_name);
+    F32 textAlpha = (F32)notification["color_alpha"].asReal();
 
     S32 font_size = notification["font_size"].asInteger();
 
@@ -152,6 +152,7 @@ void LLFloaterIMNearbyChatToastPanel::addMessage(LLSD& notification)
     {
         LLStyle::Params style_params;
         style_params.color(textColor);
+        style_params.alpha(textAlpha);
         std::string font_name = LLFontGL::nameFromFont(messageFont);
         std::string font_style_size = LLFontGL::sizeFromFont(messageFont);
         style_params.font.name(font_name);
@@ -187,11 +188,12 @@ void LLFloaterIMNearbyChatToastPanel::init(LLSD& notification)
 
     int sType = notification["source"].asInteger();
     mSourceType = (EChatSourceType)sType;
+    mIsFromScript = notification["is_lua"].asBoolean();
 
     std::string color_name = notification["text_color"].asString();
 
-    LLColor4 textColor = LLUIColorTable::instance().getColor(color_name);
-    textColor.mV[VALPHA] = (F32)notification["color_alpha"].asReal();
+    LLUIColor textColor = LLUIColorTable::instance().getColor(color_name);
+    F32 textAlpha = (F32)notification["color_alpha"].asReal();
 
     S32 font_size = notification["font_size"].asInteger();
 
@@ -214,7 +216,7 @@ void LLFloaterIMNearbyChatToastPanel::init(LLSD& notification)
     {
         std::string str_sender;
 
-        str_sender = fromName;
+        str_sender = mIsFromScript ? LLTrans::getString("ScriptBy") + fromName : fromName;
 
         str_sender+=" ";
 
@@ -222,14 +224,9 @@ void LLFloaterIMNearbyChatToastPanel::init(LLSD& notification)
         if (mSourceType == CHAT_SOURCE_AGENT || mSourceType == CHAT_SOURCE_OBJECT)
         {
             LLStyle::Params style_params_name;
-
-            LLColor4 user_name_color = LLUIColorTable::instance().getColor("HTMLLinkColor");
-            style_params_name.color(user_name_color);
-
-            std::string font_name = LLFontGL::nameFromFont(messageFont);
-            std::string font_style_size = LLFontGL::sizeFromFont(messageFont);
-            style_params_name.font.name(font_name);
-            style_params_name.font.size(font_style_size);
+            style_params_name.color = LLUIColorTable::instance().getColor("HTMLLinkColor");
+            style_params_name.font.name = LLFontGL::nameFromFont(messageFont);
+            style_params_name.font.size = LLFontGL::sizeFromFont(messageFont);
 
             style_params_name.link_href = notification["sender_slurl"].asString();
             style_params_name.is_link = true;
@@ -274,6 +271,7 @@ void LLFloaterIMNearbyChatToastPanel::init(LLSD& notification)
     {
         LLStyle::Params style_params;
         style_params.color(textColor);
+        style_params.alpha(textAlpha);
         std::string font_name = LLFontGL::nameFromFont(messageFont);
         std::string font_style_size = LLFontGL::sizeFromFont(messageFont);
         style_params.font.name(font_name);
@@ -400,7 +398,7 @@ void LLFloaterIMNearbyChatToastPanel::draw()
             else if(mSourceType == CHAT_SOURCE_SYSTEM)
                 icon->setValue(LLSD("SL_Logo"));
             else if(mSourceType == CHAT_SOURCE_AGENT)
-                icon->setValue(mFromID);
+                icon->setValue(mIsFromScript ? LLSD("Inv_Script") : LLSD(mFromID));
             else if(!mFromID.isNull())
                 icon->setValue(mFromID);
         }

@@ -129,14 +129,14 @@ LLInspectObject::LLInspectObject(const LLSD& sd)
 {
     // can't make the properties request until the widgets are constructed
     // as it might return immediately, so do it in postBuild.
-    mCommitCallbackRegistrar.add("InspectObject.Buy",   boost::bind(&LLInspectObject::onClickBuy, this));
-    mCommitCallbackRegistrar.add("InspectObject.Pay",   boost::bind(&LLInspectObject::onClickPay, this));
-    mCommitCallbackRegistrar.add("InspectObject.TakeFreeCopy",  boost::bind(&LLInspectObject::onClickTakeFreeCopy, this));
-    mCommitCallbackRegistrar.add("InspectObject.Touch", boost::bind(&LLInspectObject::onClickTouch, this));
-    mCommitCallbackRegistrar.add("InspectObject.Sit",   boost::bind(&LLInspectObject::onClickSit, this));
-    mCommitCallbackRegistrar.add("InspectObject.Open",  boost::bind(&LLInspectObject::onClickOpen, this));
-    mCommitCallbackRegistrar.add("InspectObject.MoreInfo",  boost::bind(&LLInspectObject::onClickMoreInfo, this));
-    mCommitCallbackRegistrar.add("InspectObject.ZoomIn", boost::bind(&LLInspectObject::onClickZoomIn, this));
+    mCommitCallbackRegistrar.add("InspectObject.Buy",   {boost::bind(&LLInspectObject::onClickBuy, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("InspectObject.Pay",   {boost::bind(&LLInspectObject::onClickPay, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("InspectObject.TakeFreeCopy",  {boost::bind(&LLInspectObject::onClickTakeFreeCopy, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("InspectObject.Touch", {boost::bind(&LLInspectObject::onClickTouch, this), cb_info::UNTRUSTED_BLOCK});
+    mCommitCallbackRegistrar.add("InspectObject.Sit",   {boost::bind(&LLInspectObject::onClickSit, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("InspectObject.Open",  {boost::bind(&LLInspectObject::onClickOpen, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("InspectObject.MoreInfo",  {boost::bind(&LLInspectObject::onClickMoreInfo, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("InspectObject.ZoomIn", {boost::bind(&LLInspectObject::onClickZoomIn, this), cb_info::UNTRUSTED_BLOCK});
 }
 
 

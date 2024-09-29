@@ -220,10 +220,10 @@ void LLUICtrl::initFromParams(const Params& p)
         }
         else
         {
-            commit_callback_t* initfunc = (CommitCallbackRegistry::getValue(p.init_callback.function_name));
-            if (initfunc)
+            LLUICtrl::CommitCallbackInfo *info = (CommitCallbackRegistry::getValue(p.init_callback.function_name));
+            if (info && info->callback_func)
             {
-                (*initfunc)(this, p.init_callback.parameter);
+                (info->callback_func)(this, p.init_callback.parameter);
             }
         }
     }
@@ -283,13 +283,13 @@ LLUICtrl::commit_signal_t::slot_type LLUICtrl::initCommitCallback(const CommitCa
     {
         std::string function_name = cb.function_name;
         setFunctionName(function_name);
-        commit_callback_t* func = (CommitCallbackRegistry::getValue(function_name));
-        if (func)
+        LLUICtrl::CommitCallbackInfo *info = (CommitCallbackRegistry::getValue(function_name));
+        if (info && info->callback_func)
         {
             if (cb.parameter.isProvided())
-                return boost::bind((*func), _1, cb.parameter);
+                return boost::bind((info->callback_func), _1, cb.parameter);
             else
-                return commit_signal_t::slot_type(*func);
+                return commit_signal_t::slot_type(info->callback_func);
         }
         else if (!function_name.empty())
         {
@@ -1023,7 +1023,7 @@ bool LLUICtrl::getTentative() const
 }
 
 // virtual
-void LLUICtrl::setColor(const LLColor4& color)
+void LLUICtrl::setColor(const LLUIColor& color)
 { }
 
 F32 LLUICtrl::getCurrentTransparency()

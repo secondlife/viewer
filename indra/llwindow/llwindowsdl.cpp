@@ -433,7 +433,7 @@ LLWindowSDL::LLWindowSDL(LLWindowCallbacks* callbacks,
                          const std::string& title, S32 x, S32 y, S32 width,
                          S32 height, U32 flags,
                          bool fullscreen, bool clearBg,
-                         bool disable_vsync, bool use_gl,
+                         bool enable_vsync, bool use_gl,
                          bool ignore_pixel_depth, U32 fsaa_samples)
         : LLWindow(callbacks, fullscreen, flags),
         Lock_Display(nullptr),
@@ -454,7 +454,7 @@ LLWindowSDL::LLWindowSDL(LLWindowCallbacks* callbacks,
         mWindowTitle = title;
 
     // Create the GL context and set it up for windowed or fullscreen, as appropriate.
-    if(createContext(x, y, width, height, 32, fullscreen, disable_vsync))
+    if(createContext(x, y, width, height, 32, fullscreen, enable_vsync))
     {
         gGLManager.initGL();
 
@@ -549,7 +549,7 @@ void LLWindowSDL::tryFindFullscreenSize( int &width, int &height )
     }
 }
 
-bool LLWindowSDL::createContext(int x, int y, int width, int height, int bits, bool fullscreen, bool disable_vsync)
+bool LLWindowSDL::createContext(int x, int y, int width, int height, int bits, bool fullscreen, bool enable_vsync)
 {
 
     LL_INFOS() << "createContext, fullscreen=" << fullscreen << " size=" << width << "x" << height << LL_ENDL;
@@ -803,7 +803,7 @@ bool LLWindowSDL::createContext(int x, int y, int width, int height, int bits, b
 }
 
 // changing fullscreen resolution, or switching between windowed and fullscreen mode.
-bool LLWindowSDL::switchContext(bool fullscreen, const LLCoordScreen &size, bool disable_vsync, const LLCoordScreen * const posp)
+bool LLWindowSDL::switchContext(bool fullscreen, const LLCoordScreen &size, bool enable_vsync, const LLCoordScreen * const posp)
 {
     const bool needsRebuild = true;  // Just nuke the context and start over.
     bool result = true;
@@ -813,7 +813,7 @@ bool LLWindowSDL::switchContext(bool fullscreen, const LLCoordScreen &size, bool
     if(needsRebuild)
     {
         destroyContext();
-        result = createContext(0, 0, size.mX, size.mY, 0, fullscreen, disable_vsync);
+        result = createContext(0, 0, size.mX, size.mY, 0, fullscreen, enable_vsync);
         if (result)
         {
             gGLManager.initGL();

@@ -144,7 +144,7 @@ void LLToolBar::createContextMenu()
     {
         // Setup bindings specific to this instance for the context menu options
 
-        LLUICtrl::CommitCallbackRegistry::ScopedRegistrar commit_reg;
+        CommitRegistrarHelper commit_reg(LLUICtrl::CommitCallbackRegistry::currentRegistrar());
         commit_reg.add("Toolbars.EnableSetting", boost::bind(&LLToolBar::onSettingEnable, this, _2));
         commit_reg.add("Toolbars.RemoveSelectedCommand", boost::bind(&LLToolBar::onRemoveSelectedCommand, this));
 
@@ -1073,7 +1073,7 @@ bool LLToolBar::handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
             int orig_rank = getRankFromPosition(dragged_command);
             mDragRank = getRankFromPosition(x, y);
             // Don't DaD if we're dragging a command on itself
-            mDragAndDropTarget = ((orig_rank != RANK_NONE) && ((mDragRank == orig_rank) || ((mDragRank - 1) == orig_rank)));
+            mDragAndDropTarget = (orig_rank == RANK_NONE) || ((mDragRank != orig_rank) && ((mDragRank - 1) != orig_rank));
             //LL_INFOS() << "Merov debug : DaD, rank = " << mDragRank << ", dragged uui = " << inv_item->getUUID() << LL_ENDL;
             /* Do the following if you want to animate the button itself
             LLCommandId dragged_command(inv_item->getUUID());

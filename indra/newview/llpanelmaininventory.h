@@ -49,6 +49,8 @@ class LLSidepanelInventory;
 class LLToggleableMenu;
 class LLFloater;
 class LLFloaterSidePanelContainer;
+class LLSidepanelInventory;
+class LLPanelMarketplaceInbox;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLPanelMainInventory
@@ -101,7 +103,7 @@ public:
 
     void onFilterEdit(const std::string& search_string );
 
-    void setFocusFilterEditor();
+    void setFocusOnFilterEditor();
 
     static LLFloaterSidePanelContainer* newWindow();
     static void newFolderWindow(LLUUID folder_id = LLUUID(), LLUUID item_to_select = LLUUID());
@@ -136,6 +138,9 @@ public:
     std::string getLocalizedRootName();
 
     LLInventoryFilter& getCurrentFilter();
+
+    void setParentSidepanel(LLSidepanelInventory* parent_sidepanel) { mParentSidepanel = parent_sidepanel; }
+    void setInboxPanel(LLPanelMarketplaceInbox* inbox_panel) { mInboxPanel = inbox_panel; }
 
 protected:
     //
@@ -177,6 +182,13 @@ protected:
     LLSidepanelInventory* getParentSidepanelInventory();
 
 private:
+    enum class EFetchState
+    {
+        Unknown,
+        Fetching,
+        Complete
+    };
+
     LLFloaterInventoryFinder* getFinder();
 
     LLFilterEditor*             mFilterEditor;
@@ -191,11 +203,13 @@ private:
     LLSaveFolderState*          mSavedFolderState;
     std::string                 mFilterText;
     std::string                 mFilterSubString;
-    S32                         mItemCount;
+    S32                         mItemCount = 0;
+    std::string                 mLastFilterText;
     std::string                 mItemCountString;
-    S32                         mCategoryCount;
+    S32                         mCategoryCount = 0;
     std::string                 mCategoryCountString;
     LLComboBox*                 mSearchTypeCombo;
+    EFetchState                 mLastFetchState{ EFetchState::Unknown };
 
     LLButton* mBackBtn;
     LLButton* mForwardBtn;
@@ -244,6 +258,9 @@ protected:
     void setUploadCostIfNeeded();
     void disableAddIfNeeded();
 private:
+    LLSidepanelInventory*       mParentSidepanel = nullptr;
+    LLPanelMarketplaceInbox*    mInboxPanel = nullptr;
+
     LLToggleableMenu*           mMenuGearDefault;
     LLToggleableMenu*           mMenuViewDefault;
     LLToggleableMenu*           mMenuVisibility;

@@ -42,15 +42,18 @@
 #include "llpointer.h"
 #include "llglheaders.h"
 #include "llmatrix4a.h"
-#include "glh/glh_linear.h"
+#include "glm/mat4x4.hpp"
 
 #include <array>
+#include <list>
+#include <vector>
 
 class LLVertexBuffer;
 class LLCubeMap;
 class LLImageGL;
 class LLRenderTarget;
-class LLTexture ;
+class LLTexture;
+class LLVertexBufferData;
 
 #define LL_MATRIX_STACK_DEPTH 32
 
@@ -219,17 +222,12 @@ public:
 
     void setHasMipMaps(bool hasMips) { mHasMipMaps = hasMips; }
 
-    void setTextureColorSpace(eTextureColorSpace space);
-
-    eTextureColorSpace getCurrColorSpace() { return mTexColorSpace; }
-
 protected:
     friend class LLRender;
 
     S32                 mIndex;
     U32                 mCurrTexture;
     eTextureType        mCurrTexType;
-    eTextureColorSpace  mTexColorSpace;
     S32                 mCurrColorScale;
     S32                 mCurrAlphaScale;
     bool                mHasMipMaps;
@@ -293,15 +291,18 @@ public:
 
     enum eTexIndex : U8
     {
-        DIFFUSE_MAP           = 0,
-        ALTERNATE_DIFFUSE_MAP = 1,
-        NORMAL_MAP            = 1,
-        SPECULAR_MAP          = 2,
-        BASECOLOR_MAP         = 3,
+        // Channels for material textures
+        DIFFUSE_MAP            = 0,
+        ALTERNATE_DIFFUSE_MAP  = 1,
+        NORMAL_MAP             = 1,
+        SPECULAR_MAP           = 2,
+        // Channels for PBR textures
+        BASECOLOR_MAP          = 3,
         METALLIC_ROUGHNESS_MAP = 4,
-        GLTF_NORMAL_MAP           = 5,
-        EMISSIVE_MAP          = 6,
-        NUM_TEXTURE_CHANNELS  = 7,
+        GLTF_NORMAL_MAP        = 5,
+        EMISSIVE_MAP           = 6,
+        // Total number of channels
+        NUM_TEXTURE_CHANNELS   = 7,
     };
 
     enum eVolumeTexIndex : U8
@@ -319,7 +320,6 @@ public:
         POINTS,
         LINES,
         LINE_STRIP,
-        QUADS,
         LINE_LOOP,
         NUM_MODES
     };
@@ -401,8 +401,8 @@ public:
     void matrixMode(eMatrixMode mode);
     eMatrixMode getMatrixMode();
 
-    const glh::matrix4f& getModelviewMatrix();
-    const glh::matrix4f& getProjectionMatrix();
+    const glm::mat4& getModelviewMatrix();
+    const glm::mat4& getProjectionMatrix();
 
     void syncMatrices();
     void syncLightState();
@@ -417,8 +417,15 @@ public:
 
     void flush();
 
+    // if list is set, will store buffers in list for later use, if list isn't set, will use cache
+    void beginList(std::list<LLVertexBufferData> *list);
+    void endList();
+
     void begin(const GLuint& mode);
     void end();
+
+    U8 getMode() const { return mMode; }
+
     void vertex2i(const GLint& x, const GLint& y);
     void vertex2f(const GLfloat& x, const GLfloat& y);
     void vertex3f(const GLfloat& x, const GLfloat& y, const GLfloat& z);
@@ -443,9 +450,16 @@ public:
     void diffuseColor4ubv(const U8* c);
     void diffuseColor4ub(U8 r, U8 g, U8 b, U8 a);
 
-    void vertexBatchPreTransformed(LLVector3* verts, S32 vert_count);
-    void vertexBatchPreTransformed(LLVector3* verts, LLVector2* uvs, S32 vert_count);
-    void vertexBatchPreTransformed(LLVector3* verts, LLVector2* uvs, LLColor4U*, S32 vert_count);
+    void transform(LLVector3& vert);
+    void transform(LLVector4a& vert);
+    void untransform(LLVector3& vert);
+
+    void batchTransform(LLVector4a* verts, U32 vert_count);
+
+    void vertexBatchPreTransformed(const std::vector<LLVector4a>& verts);
+    void vertexBatchPreTransformed(const LLVector4a* verts, std::size_t vert_count);
+    void vertexBatchPreTransformed(const LLVector4a* verts, const LLVector2* uvs, std::size_t vert_count);
+    void vertexBatchPreTransformed(const LLVector4a* verts, const LLVector2* uvs, const LLColor4U*, std::size_t vert_count);
 
     void setColorMask(bool writeColor, bool writeAlpha);
     void setColorMask(bool writeColorR, bool writeColorG, bool writeColorB, bool writeAlpha);
@@ -487,23 +501,27 @@ public:
 private:
     friend class LLLightState;
 
+    LLVertexBuffer* bufferfromCache(U32 attribute_mask, U32 count);
+    LLVertexBuffer* genBuffer(U32 attribute_mask, S32 count);
+    void drawBuffer(LLVertexBuffer* vb, U32 mode, S32 count);
+    void resetStriders(S32 count);
+
     eMatrixMode mMatrixMode;
     U32 mMatIdx[NUM_MATRIX_MODES];
     U32 mMatHash[NUM_MATRIX_MODES];
-    glh::matrix4f mMatrix[NUM_MATRIX_MODES][LL_MATRIX_STACK_DEPTH];
+    glm::mat4 mMatrix[NUM_MATRIX_MODES][LL_MATRIX_STACK_DEPTH];
     U32 mCurMatHash[NUM_MATRIX_MODES];
     U32 mLightHash;
     LLColor4 mAmbientLightColor;
 
     bool            mDirty;
-    U32             mQuadCycle;
     U32             mCount;
     U32             mMode;
     U32             mCurrTextureUnitIndex;
     bool                mCurrColorMask[4];
 
     LLPointer<LLVertexBuffer>   mBuffer;
-    LLStrider<LLVector3>        mVerticesp;
+    LLStrider<LLVector4a>       mVerticesp;
     LLStrider<LLVector2>        mTexcoordsp;
     LLStrider<LLColor4U>        mColorsp;
     std::array<LLTexUnit, LL_NUM_TEXTURE_LAYERS> mTexUnits;
@@ -515,9 +533,8 @@ private:
     eBlendFactor mCurrBlendAlphaSFactor;
     eBlendFactor mCurrBlendAlphaDFactor;
 
-    std::vector<LLVector3> mUIOffset;
-    std::vector<LLVector3> mUIScale;
-
+    std::vector<LLVector4a> mUIOffset;
+    std::vector<LLVector4a> mUIScale;
 };
 
 extern F32 gGLModelView[16];
@@ -525,8 +542,8 @@ extern F32 gGLLastModelView[16];
 extern F32 gGLLastProjection[16];
 extern F32 gGLProjection[16];
 extern S32 gGLViewport[4];
-extern F32 gGLDeltaModelView[16];
-extern F32 gGLInverseDeltaModelView[16];
+extern glm::mat4 gGLDeltaModelView;
+extern glm::mat4 gGLInverseDeltaModelView;
 
 extern thread_local LLRender gGL;
 
@@ -537,19 +554,20 @@ const F32 OGL_TO_CFR_ROTATION[16] = {  0.f,  0.f, -1.f,  0.f,   // -Z becomes X
                                        0.f,  1.f,  0.f,  0.f,   //  Y becomes Z
                                        0.f,  0.f,  0.f,  1.f };
 
-glh::matrix4f copy_matrix(F32* src);
-glh::matrix4f get_current_modelview();
-glh::matrix4f get_current_projection();
-glh::matrix4f get_last_modelview();
-glh::matrix4f get_last_projection();
+glm::mat4 copy_matrix(F32* src);
+glm::mat4 get_current_modelview();
+glm::mat4 get_current_projection();
+glm::mat4 get_last_modelview();
+glm::mat4 get_last_projection();
 
-void copy_matrix(const glh::matrix4f& src, F32* dst);
-void set_current_modelview(const glh::matrix4f& mat);
-void set_current_projection(glh::matrix4f& mat);
+void copy_matrix(const glm::mat4& src, F32* dst);
+void set_current_modelview(const glm::mat4& mat);
+void set_current_projection(const glm::mat4& mat);
+void set_last_modelview(const glm::mat4& mat);
+void set_last_projection(const glm::mat4& mat);
 
-glh::matrix4f gl_ortho(GLfloat left, GLfloat right, GLfloat bottom, GLfloat top, GLfloat znear, GLfloat zfar);
-glh::matrix4f gl_perspective(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar);
-glh::matrix4f gl_lookat(LLVector3 eye, LLVector3 center, LLVector3 up);
+// glh compat
+glm::vec3 mul_mat4_vec3(const glm::mat4& mat, const glm::vec3& vec);
 
 #define LL_SHADER_LOADING_WARNS(...) LL_WARNS()
 

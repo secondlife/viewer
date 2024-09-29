@@ -38,6 +38,7 @@
 #include <set>
 #include <vector>
 #include <list>
+#include <glm/gtc/matrix_transform.hpp>
 
 #define LL_MAX_VERTEX_ATTRIB_LOCATION 64
 
@@ -53,6 +54,40 @@
 //============================================================================
 // base class
 class LLPrivateMemoryPool;
+class LLVertexBuffer;
+
+class LLVertexBufferData
+{
+public:
+    LLVertexBufferData()
+        : mVB(nullptr)
+        , mMode(0)
+        , mCount(0)
+        , mTexName(0)
+        , mProjection(glm::identity<glm::mat4>())
+        , mModelView(glm::identity<glm::mat4>())
+        , mTexture0(glm::identity<glm::mat4>())
+    {}
+    LLVertexBufferData(LLVertexBuffer* buffer, U8 mode, U32 count, U32 tex_name, const glm::mat4& model_view, const glm::mat4& projection, const glm::mat4& texture0)
+        : mVB(buffer)
+        , mMode(mode)
+        , mCount(count)
+        , mTexName(tex_name)
+        , mProjection(model_view)
+        , mModelView(projection)
+        , mTexture0(texture0)
+    {}
+    void draw();
+    LLPointer<LLVertexBuffer> mVB;
+    U8 mMode;
+    U32 mCount;
+    U32 mTexName;
+    glm::mat4 mProjection;
+    glm::mat4 mModelView;
+    glm::mat4 mTexture0;
+};
+typedef std::list<LLVertexBufferData> buffer_data_list_t;
+
 class LLVertexBuffer final : public LLRefCount
 {
 public:
@@ -88,6 +123,9 @@ public:
     //fill offsets with the offset of each vertex component array into the buffer
     // indexed by the following enum
     static U32 calcOffsets(const U32& typemask, U32* offsets, U32 num_vertices);
+
+    // flush any pending mapped buffers
+    static void flushBuffers();
 
     //WARNING -- when updating these enums you MUST
     // 1 - update LLVertexBuffer::sTypeSize
@@ -159,17 +197,19 @@ public:
     // map for data access (see also getFooStrider below)
     U8*     mapVertexBuffer(AttributeType type, U32 index, S32 count = -1);
     U8*     mapIndexBuffer(U32 index, S32 count = -1);
+
+    // synonym for flushBuffers
     void    unmapBuffer();
 
     // set for rendering
     // assumes (and will assert on) the following:
-    //      - this buffer has no pending unampBuffer call
+    //      - this buffer has no pending unmapBuffer call
     //      - a shader is currently bound
     //      - This buffer has sufficient attributes within it to satisfy the needs of the currently bound shader
     void    setBuffer();
 
     // Only call each getVertexPointer, etc, once before calling unmapBuffer()
-    // call unmapBuffer() after calls to getXXXStrider() before any cals to setBuffer()
+    // call unmapBuffer() after calls to getXXXStrider() before any calls to setBuffer()
     // example:
     //   vb->getVertexBuffer(verts);
     //   vb->getNormalStrider(norms);
@@ -218,12 +258,12 @@ public:
     U32 getNumIndices() const               { return mNumIndices; }
 
     U32 getTypeMask() const                 { return mTypeMask; }
-    bool hasDataType(AttributeType type) const      { return ((1 << type) & getTypeMask()); }
+    bool hasDataType(AttributeType type) const { return ((1 << type) & getTypeMask()); }
     U32 getSize() const                     { return mSize; }
     U32 getIndicesSize() const              { return mIndicesSize; }
     U8* getMappedData() const               { return mMappedData; }
     U8* getMappedIndices() const            { return mMappedIndexData; }
-    U32 getOffset(AttributeType type) const         { return mOffsets[type]; }
+    U32 getOffset(AttributeType type) const { return mOffsets[type]; }
 
     // these functions assume (and assert on) the current VBO being bound
     // Detailed error checking can be enabled by setting gDebugGL to true
@@ -242,6 +282,7 @@ public:
     void setLabel(const char* label);
     #endif
 
+    void clone(LLVertexBuffer& target) const;
 
 protected:
     U32     mGLBuffer = 0;      // GL VBO handle
@@ -279,6 +320,13 @@ private:
     {}
 
     bool    allocateBuffer(S32 nverts, S32 nindices, bool create) { return allocateBuffer(nverts, nindices); }
+
+    // actually unmap buffer
+    void _unmapBuffer();
+
+    // add to set of mapped buffers
+    void _mapBuffer();
+    bool mMapped = false;
 
 public:
 

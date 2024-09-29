@@ -68,8 +68,7 @@ extern "C"
 #include "breakpad/common/linux/http_upload.h"
 #include "lldir.h"
 #include "../llcrashlogger/llcrashlogger.h"
-#include "jsoncpp/reader.h" // JSON
-
+#include "boost/json.hpp"
 #endif
 
 #define VIEWERAPI_SERVICE "com.secondlife.ViewerAppAPIService"
@@ -181,26 +180,28 @@ void setupBreadpad()
         return;
     }
 
-    Json::Reader reader;
-    Json::Value build_data;
-    if(!reader.parse(inf, build_data, false))
+    boost::json::error_code ec;
+    boost::json::value build_data = boost::json::parse(inf, ec);
+    if(ec.failed())
     {
         LL_WARNS("BUGSPLAT") << "Can't initialize BugSplat, can't parse '" << build_data_fname << "': "
-                             << reader.getFormatedErrorMessages() << LL_ENDL;
+                             << ec.what() << LL_ENDL;
         return;
     }
 
-    Json::Value BugSplat_DB = build_data["BugSplat DB"];
-    if(!BugSplat_DB)
+    if (!build_data.is_object() || !build_data.as_object().contains("BugSplat DB"))
     {
         LL_WARNS("BUGSPLAT") << "Can't initialize BugSplat, no 'BugSplat DB' entry in '" << build_data_fname
                              << "'" << LL_ENDL;
         return;
     }
+
     gVersion = STRINGIZE(
             LL_VIEWER_VERSION_MAJOR << '.' << LL_VIEWER_VERSION_MINOR << '.' << LL_VIEWER_VERSION_PATCH
                                     << '.' << LL_VIEWER_VERSION_BUILD);
-    gBugsplatDB = BugSplat_DB.asString();
+
+    boost::json::value BugSplat_DB = build_data.at("BugSplat DB");
+    gBugsplatDB = boost::json::value_to<std::string>(BugSplat_DB);
 
     LL_INFOS("BUGSPLAT") << "Initializing with crash logger: " << gCrashLogger << " database: " << gBugsplatDB << " version: " << gVersion << LL_ENDL;
 

@@ -49,6 +49,7 @@ set(llui_SOURCE_FILES
     lllineeditor.cpp
     llloadingindicator.cpp
     lllocalcliprect.cpp
+    llluafloater.cpp
     llmenubutton.cpp
     llmenugl.cpp
     llmodaldialog.cpp
@@ -164,6 +165,7 @@ set(llui_HEADER_FILES
     lllineeditor.h
     llloadingindicator.h
     lllocalcliprect.h
+    llluafloater.h
     llmenubutton.h
     llmenugl.h
     llmodaldialog.h

@@ -59,7 +59,7 @@
 using namespace llsd;
 
 #if LL_WINDOWS
-#   include "llwin32headerslean.h"
+#   include "llwin32headers.h"
 #   include <psapi.h>               // GetPerformanceInfo() et al.
 #   include <VersionHelpers.h>
 #elif LL_DARWIN
@@ -1107,6 +1107,14 @@ LLSD LLMemoryInfo::loadStatsMap()
                 LLSD::String key(matched[1].first, matched[1].second);
                 LLSD::String value_str(matched[2].first, matched[2].second);
                 LLSD::Integer value(0);
+
+                // Skip over VmallocTotal. It's just a fixed and huge number on (modern) systems. "34359738367 kB"
+                // https://unix.stackexchange.com/questions/700724/why-is-vmalloctotal-34359738367-kb
+                // If not skipped converting it to a LLSD::integer (32 bit) will fail and spam the logs (this function
+                // is called quite frequently).
+                if( key == "VmallocTotal")
+                    continue;
+
                 try
                 {
                     value = boost::lexical_cast<LLSD::Integer>(value_str);

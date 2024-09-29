@@ -36,8 +36,8 @@ LLFloaterScriptEdPrefs::LLFloaterScriptEdPrefs(const LLSD& key)
 :   LLFloater(key)
 ,   mEditor(NULL)
 {
-    mCommitCallbackRegistrar.add("ScriptPref.applyUIColor", boost::bind(&LLFloaterScriptEdPrefs::applyUIColor, this ,_1, _2));
-    mCommitCallbackRegistrar.add("ScriptPref.getUIColor",   boost::bind(&LLFloaterScriptEdPrefs::getUIColor, this ,_1, _2));
+    mCommitCallbackRegistrar.add("ScriptPref.applyUIColor", { boost::bind(&LLFloaterScriptEdPrefs::applyUIColor, this ,_1, _2) });
+    mCommitCallbackRegistrar.add("ScriptPref.getUIColor",   { boost::bind(&LLFloaterScriptEdPrefs::getUIColor, this ,_1, _2) });
 }
 
 bool LLFloaterScriptEdPrefs::postBuild()
@@ -54,8 +54,6 @@ bool LLFloaterScriptEdPrefs::postBuild()
 void LLFloaterScriptEdPrefs::applyUIColor(LLUICtrl* ctrl, const LLSD& param)
 {
     LLUIColorTable::instance().setColor(param.asString(), LLColor4(ctrl->getValue()));
-    mEditor->initKeywords();
-    mEditor->loadKeywords();
 }
 
 void LLFloaterScriptEdPrefs::getUIColor(LLUICtrl* ctrl, const LLSD& param)

@@ -54,6 +54,7 @@
 #include "llmenubutton.h"
 #include "llloadingindicator.h"
 #include "llwindow.h"
+#include "llspellcheck.h"
 
 // for registration
 #include "llfiltereditor.h"
@@ -156,7 +157,8 @@ mWindow(NULL), // set later in startup
 mRootView(NULL),
 mHelpImpl(NULL)
 {
-    LLRender2D::initParamSingleton(image_provider);
+    LLRender2D::createInstance(image_provider);
+    LLSpellChecker::createInstance();
 
     if ((get_ptr_in_map(mSettingGroups, std::string("config")) == NULL) ||
         (get_ptr_in_map(mSettingGroups, std::string("floater")) == NULL) ||
@@ -167,8 +169,7 @@ mHelpImpl(NULL)
 
     LLFontGL::sShadowColor = LLUIColorTable::instance().getColor("ColorDropShadow");
 
-    LLUICtrl::CommitCallbackRegistry::Registrar& reg = LLUICtrl::CommitCallbackRegistry::defaultRegistrar();
-
+    LLUICtrl::CommitRegistrarHelper reg(LLUICtrl::CommitCallbackRegistry::defaultRegistrar());
     // Callbacks for associating controls with floater visibility:
     reg.add("Floater.Toggle", [](LLUICtrl* ctrl, const LLSD& param) -> void { LLFloaterReg::toggleInstance(param.asStringRef()); });
     reg.add("Floater.ToggleOrBringToFront", [](LLUICtrl* ctrl, const LLSD& param) -> void { LLFloaterReg::toggleInstanceOrBringToFront(param.asStringRef()); });
@@ -194,6 +195,12 @@ mHelpImpl(NULL)
 
     // Parse the master list of commands
     LLCommandManager::load();
+}
+
+LLUI::~LLUI()
+{
+    LLSpellChecker::deleteSingleton();
+    LLRender2D::deleteSingleton();
 }
 
 void LLUI::setPopupFuncs(const add_popup_t& add_popup, const remove_popup_t& remove_popup,  const clear_popups_t& clear_popups)

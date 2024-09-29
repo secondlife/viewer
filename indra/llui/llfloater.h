@@ -363,6 +363,7 @@ public:
 //  }
 
     static void     onClickClose(LLFloater* floater);
+    static void     onClickClose(LLFloater* floater, bool app_quitting);
     static void     onClickMinimize(LLFloater* floater);
     static void     onClickTearOff(LLFloater* floater);
     static void     onClickDock(LLFloater* floater);

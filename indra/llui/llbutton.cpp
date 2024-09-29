@@ -43,6 +43,8 @@
 #include "llfloater.h"
 #include "llfloaterreg.h"
 #include "llfocusmgr.h"
+#include "llfontgl.h"
+#include "llfontvertexbuffer.h"
 #include "llwindow.h"
 #include "llnotificationsutil.h"
 #include "llrender.h"
@@ -120,11 +122,10 @@ LLButton::Params::Params()
 
 
 LLButton::LLButton(const LLButton::Params& p)
-:   LLUICtrl(p),
+    : LLUICtrl(p),
     LLBadgeOwner(getHandle()),
     mMouseDownFrame(0),
     mMouseHeldDownCount(0),
-    mBorderEnabled( false ),
     mFlashing( false ),
     mCurGlowStrength(0.f),
     mNeedsHighlight(false),
@@ -329,6 +330,30 @@ void LLButton::onCommit()
     LLUICtrl::onCommit();
 }
 
+void LLButton::setUnselectedLabelColor(const LLUIColor& c)
+{
+    mUnselectedLabelColor = c;
+    mFontBuffer.reset();
+}
+
+void LLButton::setSelectedLabelColor(const LLUIColor& c)
+{
+    mSelectedLabelColor = c;
+    mFontBuffer.reset();
+}
+
+void LLButton::setUseEllipses(bool use_ellipses)
+{
+    mUseEllipses = use_ellipses;
+    mFontBuffer.reset();
+}
+
+void LLButton::setUseFontColor(bool use_font_color)
+{
+    mUseFontColor = use_font_color;
+    mFontBuffer.reset();
+}
+
 boost::signals2::connection LLButton::setClickedCallback(const CommitCallbackParam& cb)
 {
     return setClickedCallback(initCommitCallback(cb));
@@ -394,6 +419,18 @@ bool LLButton::postBuild()
     addBadgeToParentHolder();
 
     return LLUICtrl::postBuild();
+}
+
+void LLButton::onVisibilityChange(bool new_visibility)
+{
+    mFontBuffer.reset();
+    return LLUICtrl::onVisibilityChange(new_visibility);
+}
+
+void LLButton::dirtyRect()
+{
+    LLUICtrl::dirtyRect();
+    mFontBuffer.reset();
 }
 
 bool LLButton::handleUnicodeCharHere(llwchar uni_char)
@@ -582,19 +619,25 @@ void LLButton::onMouseLeave(S32 x, S32 y, MASK mask)
 {
     LLUICtrl::onMouseLeave(x, y, mask);
 
-    mNeedsHighlight = false;
+    setHighlight(false);
 }
 
 void LLButton::setHighlight(bool b)
 {
-    mNeedsHighlight = b;
+    if (mNeedsHighlight != b)
+    {
+        mNeedsHighlight = b;
+        mFontBuffer.reset();
+    }
 }
 
 bool LLButton::handleHover(S32 x, S32 y, MASK mask)
 {
     if (isInEnabledChain()
         && (!gFocusMgr.getMouseCapture() || gFocusMgr.getMouseCapture() == this))
-        mNeedsHighlight = true;
+    {
+        setHighlight(true);
+    }
 
     if (!childrenHandleHover(x, y, mask))
     {
@@ -954,7 +997,7 @@ void LLButton::draw()
         // LLFontGL::render expects S32 max_chars variable but process in a separate way -1 value.
         // Due to U32_MAX is equal to S32 -1 value I have rest this value for non-ellipses mode.
         // Not sure if it is really needed. Probably S32_MAX should be always passed as max_chars.
-        mLastDrawCharsCount = mGLFont->render(label, 0,
+        mLastDrawCharsCount = mFontBuffer.render(mGLFont, label, 0,
             (F32)x,
             (F32)(getRect().getHeight() / 2 + mBottomVPad),
             label_color % alpha,
@@ -996,6 +1039,7 @@ void LLButton::setToggleState(bool b)
         setFlashing(false); // stop flash state whenever the selected/unselected state if reset
         // Unselected label assignments
         autoResize();
+        mFontBuffer.reset();
     }
 }
 
@@ -1025,11 +1069,13 @@ bool LLButton::toggleState()
 void LLButton::setLabel( const std::string& label )
 {
     mUnselectedLabel = mSelectedLabel = label;
+    mFontBuffer.reset();
 }
 
 void LLButton::setLabel( const LLUIString& label )
 {
     mUnselectedLabel = mSelectedLabel = label;
+    mFontBuffer.reset();
 }
 
 void LLButton::setLabel( const LLStringExplicit& label )
@@ -1043,17 +1089,32 @@ bool LLButton::setLabelArg( const std::string& key, const LLStringExplicit& text
 {
     mUnselectedLabel.setArg(key, text);
     mSelectedLabel.setArg(key, text);
+    mFontBuffer.reset();
     return true;
 }
 
 void LLButton::setLabelUnselected( const LLStringExplicit& label )
 {
     mUnselectedLabel = label;
+    mFontBuffer.reset();
 }
 
 void LLButton::setLabelSelected( const LLStringExplicit& label )
 {
     mSelectedLabel = label;
+    mFontBuffer.reset();
+}
+
+void LLButton::setDisabledLabelColor(const LLUIColor& c)
+{
+    mDisabledLabelColor = c;
+    mFontBuffer.reset();
+}
+
+void LLButton::setFont(const LLFontGL* font)
+{
+    mGLFont = (font ? font : LLFontGL::getFontSansSerif());
+    mFontBuffer.reset();
 }
 
 bool LLButton::labelIsTruncated() const
@@ -1064,6 +1125,12 @@ bool LLButton::labelIsTruncated() const
 const LLUIString& LLButton::getCurrentLabel() const
 {
     return getToggleState() ? mSelectedLabel : mUnselectedLabel;
+}
+
+void LLButton::setDropShadowedText(bool b)
+{
+    mDropShadowedText = b;
+    mFontBuffer.reset();
 }
 
 void LLButton::setImageUnselected(LLPointer<LLUIImage> image)
@@ -1127,12 +1194,12 @@ void LLButton::setImageSelected(LLPointer<LLUIImage> image)
     mImageSelected = image;
 }
 
-void LLButton::setImageColor(const LLColor4& c)
+void LLButton::setImageColor(const LLUIColor& c)
 {
     mImageColor = c;
 }
 
-void LLButton::setColor(const LLColor4& color)
+void LLButton::setColor(const LLUIColor& color)
 {
     setImageColor(color);
 }
@@ -1149,6 +1216,7 @@ void LLButton::setImageDisabledSelected(LLPointer<LLUIImage> image)
     mImageDisabledSelected = image;
     mDisabledImageColor = mImageColor;
     mFadeWhenDisabled = true;
+    mFontBuffer.reset();
 }
 
 void LLButton::setImagePressed(LLPointer<LLUIImage> image)

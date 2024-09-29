@@ -172,11 +172,11 @@ void LLCheckBoxCtrl::setEnabled(bool b)
 
     if (b)
     {
-        mLabel->setColor( mTextEnabledColor.get() );
+        mLabel->setColor( mTextEnabledColor );
     }
     else
     {
-        mLabel->setColor( mTextDisabledColor.get() );
+        mLabel->setColor( mTextDisabledColor );
     }
 }
 

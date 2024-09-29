@@ -227,6 +227,7 @@ public:
 
                 void    setTexture(const S32 face);
                 S32     getIndexInTex(U32 ch) const {return mIndexInTex[ch];}
+                void    unregisterOldMeshAndSkin();
     /*virtual*/ bool    setVolume(const LLVolumeParams &volume_params, const S32 detail, bool unique_volume = false) override;
                 void    updateSculptTexture();
                 void    setIndexInTex(U32 ch, S32 index) { mIndexInTex[ch] = index ;}
@@ -304,11 +305,11 @@ public:
     bool setReflectionProbeIsMirror(bool is_mirror);
 
     bool isReflectionProbe() const override;
-    F32 getReflectionProbeAmbiance() const;
-    F32 getReflectionProbeNearClip() const;
+    F32 getReflectionProbeAmbiance() const override;
+    F32 getReflectionProbeNearClip() const override;
     bool getReflectionProbeIsBox() const override;
-    bool getReflectionProbeIsDynamic() const;
-    bool getReflectionProbeIsMirror() const;
+    bool getReflectionProbeIsDynamic() const override;
+    bool getReflectionProbeIsMirror() const override;
 
     // Flexible Objects
     U32 getVolumeInterfaceID() const;
@@ -451,6 +452,7 @@ public:
 private:
     friend class LLDrawable;
     friend class LLFace;
+    friend class LLViewerFetchedTexture;
 
     bool        mFaceMappingChanged;
     LLFrameTimer mTextureUpdateTimer;

@@ -81,10 +81,10 @@ LLFloaterMyEnvironment::LLFloaterMyEnvironment(const LLSD& key) :
     mTypeFilter((0x01 << static_cast<U64>(LLSettingsType::ST_DAYCYCLE)) | (0x01 << static_cast<U64>(LLSettingsType::ST_SKY)) | (0x01 << static_cast<U64>(LLSettingsType::ST_WATER))),
     mSelectedAsset()
 {
-    mCommitCallbackRegistrar.add(ACTION_DOCREATE, [this](LLUICtrl *, const LLSD &userdata) { onDoCreate(userdata); });
-    mCommitCallbackRegistrar.add(ACTION_DOEDIT, [this](LLUICtrl *, const LLSD &userdata) { mInventoryList->openSelected(); });
-    mCommitCallbackRegistrar.add(ACTION_DOAPPLY, [this](LLUICtrl *, const LLSD &userdata) { onDoApply(userdata.asString()); });
-    mCommitCallbackRegistrar.add(ACTION_COPYPASTE, [this](LLUICtrl *, const LLSD &userdata) { mInventoryList->doToSelected(userdata.asString()); });
+    mCommitCallbackRegistrar.add(ACTION_DOCREATE, { [this](LLUICtrl *, const LLSD &userdata) { onDoCreate(userdata); } });
+    mCommitCallbackRegistrar.add(ACTION_DOEDIT, { [this](LLUICtrl *, const LLSD &userdata) { mInventoryList->openSelected(); } });
+    mCommitCallbackRegistrar.add(ACTION_DOAPPLY, { [this](LLUICtrl *, const LLSD &userdata) { onDoApply(userdata.asString()); } });
+    mCommitCallbackRegistrar.add(ACTION_COPYPASTE, { [this](LLUICtrl *, const LLSD &userdata) { mInventoryList->doToSelected(userdata.asString()); } });
 
     mEnableCallbackRegistrar.add(ENABLE_ACTION, [this](LLUICtrl *, const LLSD &userdata) { return canAction(userdata.asString()); });
     mEnableCallbackRegistrar.add(ENABLE_CANAPPLY, [this](LLUICtrl *, const LLSD &userdata) { return canApply(userdata.asString()); });
@@ -334,6 +334,8 @@ bool LLFloaterMyEnvironment::canAction(const std::string &context)
     else if (context == PARAMETER_PASTE)
     {
         if (!LLClipboard::instance().hasContents())
+            return false;
+        if (gInventory.isObjectDescendentOf(selected.front(), gInventory.getLibraryRootFolderID()))
             return false;
 
         std::vector<LLUUID> ids;

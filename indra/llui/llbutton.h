@@ -34,7 +34,6 @@
 #include "lluictrl.h"
 #include "v4color.h"
 #include "llframetimer.h"
-#include "llfontgl.h"
 #include "lluiimage.h"
 #include "lluistring.h"
 
@@ -55,6 +54,8 @@ S32 round_up(S32 grid, S32 value);
 
 
 class LLUICtrlFactory;
+class LLFontGL;
+class LLFontVertexBuffer;
 
 //
 // Classes
@@ -156,26 +157,29 @@ public:
 
     void            addImageAttributeToXML(LLXMLNodePtr node, const std::string& imageName,
                                         const LLUUID&   imageID,const std::string&  xmlTagName) const;
-    virtual bool    handleUnicodeCharHere(llwchar uni_char);
-    virtual bool    handleKeyHere(KEY key, MASK mask);
-    virtual bool    handleMouseDown(S32 x, S32 y, MASK mask);
-    virtual bool    handleMouseUp(S32 x, S32 y, MASK mask);
-    virtual bool    handleHover(S32 x, S32 y, MASK mask);
-    virtual bool    handleRightMouseDown(S32 x, S32 y, MASK mask);
-    virtual bool    handleRightMouseUp(S32 x, S32 y, MASK mask);
-    virtual bool    handleDoubleClick(S32 x, S32 y, MASK mask);
-    virtual void    draw();
-    /*virtual*/ bool postBuild();
+    virtual bool    handleUnicodeCharHere(llwchar uni_char) override;
+    virtual bool    handleKeyHere(KEY key, MASK mask) override;
+    virtual bool    handleMouseDown(S32 x, S32 y, MASK mask) override;
+    virtual bool    handleMouseUp(S32 x, S32 y, MASK mask) override;
+    virtual bool    handleHover(S32 x, S32 y, MASK mask) override;
+    virtual bool    handleRightMouseDown(S32 x, S32 y, MASK mask) override;
+    virtual bool    handleRightMouseUp(S32 x, S32 y, MASK mask) override;
+    virtual bool    handleDoubleClick(S32 x, S32 y, MASK mask) override;
+    virtual void    draw() override;
+    /*virtual*/ bool postBuild()  override;
 
-    virtual void    onMouseLeave(S32 x, S32 y, MASK mask);
-    virtual void    onMouseCaptureLost();
+    void onVisibilityChange(bool visible) override;
+    void dirtyRect() override;
 
-    virtual void    onCommit();
+    virtual void    onMouseLeave(S32 x, S32 y, MASK mask) override;
+    virtual void    onMouseCaptureLost() override;
 
-    void            setUnselectedLabelColor( const LLColor4& c )        { mUnselectedLabelColor = c; }
-    void            setSelectedLabelColor( const LLColor4& c )          { mSelectedLabelColor = c; }
-    void            setUseEllipses( bool use_ellipses )                 { mUseEllipses = use_ellipses; }
-    void            setUseFontColor( bool use_font_color)               { mUseFontColor = use_font_color; }
+    virtual void    onCommit() override;
+
+    void            setUnselectedLabelColor(const LLUIColor& c);
+    void            setSelectedLabelColor(const LLUIColor& c);
+    void            setUseEllipses(bool use_ellipses);
+    void            setUseFontColor(bool use_font_color);
 
 
     boost::signals2::connection setClickedCallback(const CommitCallbackParam& cb);
@@ -223,15 +227,14 @@ public:
     const std::string   getLabelUnselected() const { return wstring_to_utf8str(mUnselectedLabel); }
     const std::string   getLabelSelected() const { return wstring_to_utf8str(mSelectedLabel); }
 
-    void            setImageColor(const std::string& color_control);
-    void            setImageColor(const LLColor4& c);
-    /*virtual*/ void    setColor(const LLColor4& c);
+    void            setImageColor(const LLUIColor& c);
+    /*virtual*/ void    setColor(const LLUIColor& c) override;
 
     void            setImages(const std::string &image_name, const std::string &selected_name);
 
-    void            setDisabledImageColor(const LLColor4& c)        { mDisabledImageColor = c; }
+    void            setDisabledImageColor(const LLUIColor& c)        { mDisabledImageColor = c; }
 
-    void            setDisabledSelectedLabelColor( const LLColor4& c )  { mDisabledSelectedLabelColor = c; }
+    void            setDisabledSelectedLabelColor( const LLUIColor& c )  { mDisabledSelectedLabelColor = c; }
 
     void            setImageOverlay(const std::string& image_name, LLFontGL::HAlign alignment = LLFontGL::HCENTER, const LLColor4& color = LLColor4::white);
     void            setImageOverlay(const LLUUID& image_id, LLFontGL::HAlign alignment = LLFontGL::HCENTER, const LLColor4& color = LLColor4::white);
@@ -243,15 +246,14 @@ public:
     void            setLabel(const std::string& label);
     void            setLabel(const LLUIString& label);
     void            setLabel( const LLStringExplicit& label);
-    virtual bool    setLabelArg( const std::string& key, const LLStringExplicit& text );
+    virtual bool    setLabelArg( const std::string& key, const LLStringExplicit& text ) override;
     void            setLabelUnselected(const LLStringExplicit& label);
     void            setLabelSelected(const LLStringExplicit& label);
-    void            setDisabledLabelColor( const LLColor4& c )      { mDisabledLabelColor = c; }
+    void            setDisabledLabelColor(const LLUIColor& c);
 
-    void            setFont(const LLFontGL *font)
-        { mGLFont = ( font ? font : LLFontGL::getFontSansSerif()); }
-    const LLFontGL* getFont() const { return mGLFont; }
-    const std::string& getText() const { return getCurrentLabel().getString(); }
+    void            setFont(const LLFontGL* font);
+    const LLFontGL* getFont() const override { return mGLFont; }
+    const std::string& getText() const override { return getCurrentLabel().getString(); }
 
     S32             getLastDrawCharsCount() const { return mLastDrawCharsCount; }
     bool            labelIsTruncated() const;
@@ -260,9 +262,7 @@ public:
     void            setScaleImage(bool scale)           { mScaleImage = scale; }
     bool            getScaleImage() const               { return mScaleImage; }
 
-    void            setDropShadowedText(bool b)         { mDropShadowedText = b; }
-
-    void            setBorderEnabled(bool b)                    { mBorderEnabled = b; }
+    void            setDropShadowedText(bool b);
 
     void            setHoverGlowStrength(F32 strength) { mHoverGlowStrength = strength; }
 
@@ -278,7 +278,6 @@ public:
     void            setCommitOnReturn(bool commit) { mCommitOnReturn = commit; }
     bool            getCommitOnReturn() const { return mCommitOnReturn; }
 
-    static void     onHeldDown(void *userdata);  // to be called by gIdleCallbacks
     static void     toggleFloaterAndSetToggleState(LLUICtrl* ctrl, const LLSD& sdname);
     static void     setFloaterToggle(LLUICtrl* ctrl, const LLSD& sdname);
     static void     setDockableFloaterToggle(LLUICtrl* ctrl, const LLSD& sdname);
@@ -304,8 +303,6 @@ protected:
     commit_signal_t*            mMouseDownSignal;
     commit_signal_t*            mMouseUpSignal;
     commit_signal_t*            mHeldDownSignal;
-
-    const LLFontGL*             mGLFont;
 
     S32                         mMouseDownFrame;
     S32                         mMouseHeldDownCount;    // Counter for parameter passed to held-down callback
@@ -358,7 +355,6 @@ protected:
     bool                        mAutoResize;
     bool                        mUseEllipses;
     bool                        mUseFontColor;
-    bool                        mBorderEnabled;
     bool                        mFlashing;
 
     LLFontGL::HAlign            mHAlign;
@@ -390,8 +386,12 @@ protected:
     bool                        mForceFlashing; // Stick flashing color even if button is pressed
     bool                        mHandleRightMouse;
 
+private:
+    const LLFontGL* mGLFont;
+    LLFontVertexBuffer          mFontBuffer;
+
 protected:
-    virtual std::string _getSearchText() const
+    virtual std::string _getSearchText() const override
     {
         return getLabelUnselected() + getToolTip();
     }

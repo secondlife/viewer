@@ -312,44 +312,44 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
         registered_dialog = true;
     }
 
-    mCommitCallbackRegistrar.add("Pref.Cancel",             boost::bind(&LLFloaterPreference::onBtnCancel, this, _2));
-    mCommitCallbackRegistrar.add("Pref.OK",                 boost::bind(&LLFloaterPreference::onBtnOK, this, _2));
+    mCommitCallbackRegistrar.add("Pref.Cancel", { boost::bind(&LLFloaterPreference::onBtnCancel, this, _2), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.OK", { boost::bind(&LLFloaterPreference::onBtnOK, this, _2), cb_info::UNTRUSTED_BLOCK });
 
-    mCommitCallbackRegistrar.add("Pref.ClearCache",             boost::bind(&LLFloaterPreference::onClickClearCache, this));
-    mCommitCallbackRegistrar.add("Pref.WebClearCache",          boost::bind(&LLFloaterPreference::onClickBrowserClearCache, this));
-    mCommitCallbackRegistrar.add("Pref.SetCache",               boost::bind(&LLFloaterPreference::onClickSetCache, this));
-    mCommitCallbackRegistrar.add("Pref.ResetCache",             boost::bind(&LLFloaterPreference::onClickResetCache, this));
-    mCommitCallbackRegistrar.add("Pref.ClickSkin",              boost::bind(&LLFloaterPreference::onClickSkin, this,_1, _2));
-    mCommitCallbackRegistrar.add("Pref.SelectSkin",             boost::bind(&LLFloaterPreference::onSelectSkin, this));
-    mCommitCallbackRegistrar.add("Pref.SetSounds",              boost::bind(&LLFloaterPreference::onClickSetSounds, this));
-    mCommitCallbackRegistrar.add("Pref.ClickEnablePopup",       boost::bind(&LLFloaterPreference::onClickEnablePopup, this));
-    mCommitCallbackRegistrar.add("Pref.ClickDisablePopup",      boost::bind(&LLFloaterPreference::onClickDisablePopup, this));
-    mCommitCallbackRegistrar.add("Pref.LogPath",                boost::bind(&LLFloaterPreference::onClickLogPath, this));
-    mCommitCallbackRegistrar.add("Pref.RenderExceptions",       boost::bind(&LLFloaterPreference::onClickRenderExceptions, this));
-    mCommitCallbackRegistrar.add("Pref.AutoAdjustments",         boost::bind(&LLFloaterPreference::onClickAutoAdjustments, this));
-    mCommitCallbackRegistrar.add("Pref.HardwareDefaults",       boost::bind(&LLFloaterPreference::setHardwareDefaults, this));
-    mCommitCallbackRegistrar.add("Pref.AvatarImpostorsEnable",  boost::bind(&LLFloaterPreference::onAvatarImpostorsEnable, this));
-    mCommitCallbackRegistrar.add("Pref.UpdateIndirectMaxNonImpostors", boost::bind(&LLFloaterPreference::updateMaxNonImpostors, this));
-    mCommitCallbackRegistrar.add("Pref.UpdateIndirectMaxComplexity",    boost::bind(&LLFloaterPreference::updateMaxComplexity, this));
-    mCommitCallbackRegistrar.add("Pref.RenderOptionUpdate",     boost::bind(&LLFloaterPreference::onRenderOptionEnable, this));
-    mCommitCallbackRegistrar.add("Pref.WindowedMod",            boost::bind(&LLFloaterPreference::onCommitWindowedMode, this));
-    mCommitCallbackRegistrar.add("Pref.UpdateSliderText",       boost::bind(&LLFloaterPreference::refreshUI,this));
-    mCommitCallbackRegistrar.add("Pref.QualityPerformance",     boost::bind(&LLFloaterPreference::onChangeQuality, this, _2));
-    mCommitCallbackRegistrar.add("Pref.applyUIColor",           boost::bind(&LLFloaterPreference::applyUIColor, this ,_1, _2));
-    mCommitCallbackRegistrar.add("Pref.getUIColor",             boost::bind(&LLFloaterPreference::getUIColor, this ,_1, _2));
-    mCommitCallbackRegistrar.add("Pref.MaturitySettings",       boost::bind(&LLFloaterPreference::onChangeMaturity, this));
-    mCommitCallbackRegistrar.add("Pref.BlockList",              boost::bind(&LLFloaterPreference::onClickBlockList, this));
-    mCommitCallbackRegistrar.add("Pref.Proxy",                  boost::bind(&LLFloaterPreference::onClickProxySettings, this));
-    mCommitCallbackRegistrar.add("Pref.TranslationSettings",    boost::bind(&LLFloaterPreference::onClickTranslationSettings, this));
-    mCommitCallbackRegistrar.add("Pref.AutoReplace",            boost::bind(&LLFloaterPreference::onClickAutoReplace, this));
-    mCommitCallbackRegistrar.add("Pref.PermsDefault",           boost::bind(&LLFloaterPreference::onClickPermsDefault, this));
-    mCommitCallbackRegistrar.add("Pref.RememberedUsernames",    boost::bind(&LLFloaterPreference::onClickRememberedUsernames, this));
-    mCommitCallbackRegistrar.add("Pref.SpellChecker",           boost::bind(&LLFloaterPreference::onClickSpellChecker, this));
-    mCommitCallbackRegistrar.add("Pref.Advanced",               boost::bind(&LLFloaterPreference::onClickAdvanced, this));
+    mCommitCallbackRegistrar.add("Pref.ClearCache", { boost::bind(&LLFloaterPreference::onClickClearCache, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.WebClearCache", { boost::bind(&LLFloaterPreference::onClickBrowserClearCache, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.SetCache", { boost::bind(&LLFloaterPreference::onClickSetCache, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.ResetCache", { boost::bind(&LLFloaterPreference::onClickResetCache, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.ClickSkin", { boost::bind(&LLFloaterPreference::onClickSkin, this,_1, _2), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.SelectSkin", { boost::bind(&LLFloaterPreference::onSelectSkin, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.SetSounds", { boost::bind(&LLFloaterPreference::onClickSetSounds, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.ClickEnablePopup", { boost::bind(&LLFloaterPreference::onClickEnablePopup, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.ClickDisablePopup", { boost::bind(&LLFloaterPreference::onClickDisablePopup, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.LogPath", { boost::bind(&LLFloaterPreference::onClickLogPath, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.RenderExceptions", { boost::bind(&LLFloaterPreference::onClickRenderExceptions, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.AutoAdjustments", { boost::bind(&LLFloaterPreference::onClickAutoAdjustments, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.HardwareDefaults", { boost::bind(&LLFloaterPreference::setHardwareDefaults, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.AvatarImpostorsEnable", { boost::bind(&LLFloaterPreference::onAvatarImpostorsEnable, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.UpdateIndirectMaxNonImpostors", { boost::bind(&LLFloaterPreference::updateMaxNonImpostors, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.UpdateIndirectMaxComplexity", { boost::bind(&LLFloaterPreference::updateMaxComplexity, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.RenderOptionUpdate", { boost::bind(&LLFloaterPreference::onRenderOptionEnable, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.WindowedMod", { boost::bind(&LLFloaterPreference::onCommitWindowedMode, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.UpdateSliderText", { boost::bind(&LLFloaterPreference::refreshUI,this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.QualityPerformance", { boost::bind(&LLFloaterPreference::onChangeQuality, this, _2), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.applyUIColor", { boost::bind(&LLFloaterPreference::applyUIColor, this ,_1, _2), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.getUIColor", { boost::bind(&LLFloaterPreference::getUIColor, this ,_1, _2), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.MaturitySettings", { boost::bind(&LLFloaterPreference::onChangeMaturity, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.BlockList", { boost::bind(&LLFloaterPreference::onClickBlockList, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.Proxy", { boost::bind(&LLFloaterPreference::onClickProxySettings, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.TranslationSettings", { boost::bind(&LLFloaterPreference::onClickTranslationSettings, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.AutoReplace", { boost::bind(&LLFloaterPreference::onClickAutoReplace, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.PermsDefault", { boost::bind(&LLFloaterPreference::onClickPermsDefault, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.RememberedUsernames", { boost::bind(&LLFloaterPreference::onClickRememberedUsernames, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.SpellChecker", { boost::bind(&LLFloaterPreference::onClickSpellChecker, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.Advanced", { boost::bind(&LLFloaterPreference::onClickAdvanced, this), cb_info::UNTRUSTED_BLOCK });
 
     sSkin = gSavedSettings.getString("SkinCurrent");
 
-    mCommitCallbackRegistrar.add("Pref.ClickActionChange",      boost::bind(&LLFloaterPreference::onClickActionChange, this));
+    mCommitCallbackRegistrar.add("Pref.ClickActionChange", { boost::bind(&LLFloaterPreference::onClickActionChange, this), cb_info::UNTRUSTED_BLOCK });
 
     gSavedSettings.getControl("NameTagShowUsernames")->getCommitSignal()->connect(boost::bind(&handleNameTagOptionChanged,  _2));
     gSavedSettings.getControl("NameTagShowFriends")->getCommitSignal()->connect(boost::bind(&handleNameTagOptionChanged,  _2));
@@ -363,9 +363,9 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
     mComplexityChangedSignal = gSavedSettings.getControl("RenderAvatarMaxComplexity")->getCommitSignal()->connect(boost::bind(&LLFloaterPreference::updateComplexityText, this));
     mImpostorsChangedSignal = gSavedSettings.getControl("RenderAvatarMaxNonImpostors")->getSignal()->connect(boost::bind(&LLFloaterPreference::updateIndirectMaxNonImpostors, this, _2));
 
-    mCommitCallbackRegistrar.add("Pref.ClearLog",               boost::bind(&LLConversationLog::onClearLog, &LLConversationLog::instance()));
-    mCommitCallbackRegistrar.add("Pref.DeleteTranscripts",      boost::bind(&LLFloaterPreference::onDeleteTranscripts, this));
-    mCommitCallbackRegistrar.add("UpdateFilter", boost::bind(&LLFloaterPreference::onUpdateFilterTerm, this, false)); // <FS:ND/> Hook up for filtering
+    mCommitCallbackRegistrar.add("Pref.ClearLog", { boost::bind(&LLConversationLog::onClearLog, &LLConversationLog::instance()), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.DeleteTranscripts", { boost::bind(&LLFloaterPreference::onDeleteTranscripts, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("UpdateFilter", { boost::bind(&LLFloaterPreference::onUpdateFilterTerm, this, false), cb_info::UNTRUSTED_BLOCK }); // <FS:ND/> Hook up for filtering
 }
 
 void LLFloaterPreference::processProperties( void* pData, EAvatarProcessorType type )
@@ -432,6 +432,13 @@ void LLFloaterPreference::saveAvatarPropertiesCoro(const std::string cap_url, bo
 
 bool LLFloaterPreference::postBuild()
 {
+    mDeleteTranscriptsBtn = getChild<LLButton>("delete_transcripts");
+
+    mEnabledPopups = getChild<LLScrollListCtrl>("enabled_popups");
+    mDisabledPopups = getChild<LLScrollListCtrl>("disabled_popups");
+    mEnablePopupBtn = getChild<LLButton>("enable_this_popup");
+    mDisablePopupBtn = getChild<LLButton>("disable_this_popup");
+
     gSavedSettings.getControl("ChatFontSize")->getSignal()->connect(boost::bind(&LLFloaterIMSessionTab::processChatHistoryStyleUpdate, false));
 
     gSavedSettings.getControl("ChatFontSize")->getSignal()->connect(boost::bind(&LLViewerChat::signalChatFontChanged));
@@ -521,7 +528,7 @@ bool LLFloaterPreference::postBuild()
 
 void LLFloaterPreference::updateDeleteTranscriptsButton()
 {
-    getChild<LLButton>("delete_transcripts")->setEnabled(LLLogChat::transcriptFilesExist());
+    mDeleteTranscriptsBtn->setEnabled(LLLogChat::transcriptFilesExist());
 }
 
 void LLFloaterPreference::onDoNotDisturbResponseChanged()
@@ -543,11 +550,11 @@ LLFloaterPreference::~LLFloaterPreference()
 
 void LLFloaterPreference::draw()
 {
-    bool has_first_selected = (getChildRef<LLScrollListCtrl>("disabled_popups").getFirstSelected()!=NULL);
-    gSavedSettings.setBOOL("FirstSelectedDisabledPopups", has_first_selected);
+    bool has_first_selected = (mDisabledPopups->getFirstSelected()!=NULL);
+    mEnablePopupBtn->setEnabled(has_first_selected);
 
-    has_first_selected = (getChildRef<LLScrollListCtrl>("enabled_popups").getFirstSelected()!=NULL);
-    gSavedSettings.setBOOL("FirstSelectedEnabledPopups", has_first_selected);
+    has_first_selected = (mEnabledPopups->getFirstSelected()!=NULL);
+    mDisablePopupBtn->setEnabled(has_first_selected);
 
     LLFloater::draw();
 }
@@ -1174,13 +1181,8 @@ void LLFloaterPreference::refreshSkin(void* data)
 
 void LLFloaterPreference::buildPopupLists()
 {
-    LLScrollListCtrl& disabled_popups =
-        getChildRef<LLScrollListCtrl>("disabled_popups");
-    LLScrollListCtrl& enabled_popups =
-        getChildRef<LLScrollListCtrl>("enabled_popups");
-
-    disabled_popups.deleteAllItems();
-    enabled_popups.deleteAllItems();
+    mDisabledPopups->deleteAllItems();
+    mEnabledPopups->deleteAllItems();
 
     for (LLNotifications::TemplateMap::const_iterator iter = LLNotifications::instance().templatesBegin();
          iter != LLNotifications::instance().templatesEnd();
@@ -1222,11 +1224,11 @@ void LLFloaterPreference::buildPopupLists()
                     }
                 }
             }
-            item = disabled_popups.addElement(row);
+            item = mDisabledPopups->addElement(row);
         }
         else
         {
-            item = enabled_popups.addElement(row);
+            item = mEnabledPopups->addElement(row);
         }
 
         if (item)
@@ -1238,11 +1240,6 @@ void LLFloaterPreference::buildPopupLists()
 
 void LLFloaterPreference::refreshEnabledState()
 {
-    LLCheckBoxCtrl* ctrl_pbr = getChild<LLCheckBoxCtrl>("UsePBRShaders");
-
-    //PBR
-    ctrl_pbr->setEnabled(true);
-
     // Cannot have floater active until caps have been received
     getChild<LLButton>("default_creation_permissions")->setEnabled(LLStartUp::getStartupState() >= STATE_STARTED);
 
@@ -1330,9 +1327,7 @@ void LLFloaterPreference::onClickSetSounds()
 
 void LLFloaterPreference::onClickEnablePopup()
 {
-    LLScrollListCtrl& disabled_popups = getChildRef<LLScrollListCtrl>("disabled_popups");
-
-    std::vector<LLScrollListItem*> items = disabled_popups.getAllSelected();
+    std::vector<LLScrollListItem*> items = mDisabledPopups->getAllSelected();
     std::vector<LLScrollListItem*>::iterator itor;
     for (itor = items.begin(); itor != items.end(); ++itor)
     {
@@ -1351,9 +1346,7 @@ void LLFloaterPreference::onClickEnablePopup()
 
 void LLFloaterPreference::onClickDisablePopup()
 {
-    LLScrollListCtrl& enabled_popups = getChildRef<LLScrollListCtrl>("enabled_popups");
-
-    std::vector<LLScrollListItem*> items = enabled_popups.getAllSelected();
+    std::vector<LLScrollListItem*> items = mEnabledPopups->getAllSelected();
     std::vector<LLScrollListItem*>::iterator itor;
     for (itor = items.begin(); itor != items.end(); ++itor)
     {
@@ -1840,11 +1833,9 @@ void LLFloaterPreference::onDeleteTranscriptsResponse(const LLSD& notification, 
 
 void LLFloaterPreference::onLogChatHistorySaved()
 {
-    LLButton * delete_transcripts_buttonp = getChild<LLButton>("delete_transcripts");
-
-    if (!delete_transcripts_buttonp->getEnabled())
+    if (!mDeleteTranscriptsBtn->getEnabled())
     {
-        delete_transcripts_buttonp->setEnabled(true);
+        mDeleteTranscriptsBtn->setEnabled(true);
     }
 }
 
@@ -2004,7 +1995,7 @@ public:
     :LLEventTimer(period),
      mCallback(cb)
     {
-        mEventTimer.stop();
+        stop();
     }
 
     virtual ~Updater(){}
@@ -2012,15 +2003,15 @@ public:
     void update(const LLSD& new_value)
     {
         mNewValue = new_value;
-        mEventTimer.start();
+        start();
     }
 
 protected:
 
-    bool tick()
+    bool tick() override
     {
         mCallback(mNewValue);
-        mEventTimer.stop();
+        stop();
 
         return false;
     }
@@ -2036,11 +2027,11 @@ LLPanelPreference::LLPanelPreference()
 : LLPanel(),
   mBandWidthUpdater(NULL)
 {
-    mCommitCallbackRegistrar.add("Pref.setControlFalse",    boost::bind(&LLPanelPreference::setControlFalse,this, _2));
-    mCommitCallbackRegistrar.add("Pref.updateMediaAutoPlayCheckbox",    boost::bind(&LLPanelPreference::updateMediaAutoPlayCheckbox, this, _1));
-    mCommitCallbackRegistrar.add("Pref.PrefDelete", boost::bind(&LLPanelPreference::deletePreset, this, _2));
-    mCommitCallbackRegistrar.add("Pref.PrefSave",   boost::bind(&LLPanelPreference::savePreset, this, _2));
-    mCommitCallbackRegistrar.add("Pref.PrefLoad",   boost::bind(&LLPanelPreference::loadPreset, this, _2));
+    mCommitCallbackRegistrar.add("Pref.setControlFalse", { boost::bind(&LLPanelPreference::setControlFalse,this, _2), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.updateMediaAutoPlayCheckbox", { boost::bind(&LLPanelPreference::updateMediaAutoPlayCheckbox, this, _1), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.PrefDelete", { boost::bind(&LLPanelPreference::deletePreset, this, _2), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.PrefSave", { boost::bind(&LLPanelPreference::savePreset, this, _2), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.PrefLoad", { boost::bind(&LLPanelPreference::loadPreset, this, _2), cb_info::UNTRUSTED_BLOCK });
 }
 
 //virtual
@@ -2378,7 +2369,6 @@ bool LLPanelPreferenceGraphics::postBuild()
 
 void LLPanelPreferenceGraphics::draw()
 {
-    setPresetText();
     LLPanelPreference::draw();
 }
 
@@ -3141,9 +3131,9 @@ LLFloaterPreferenceProxy::LLFloaterPreferenceProxy(const LLSD& key)
     : LLFloater(key),
       mSocksSettingsDirty(false)
 {
-    mCommitCallbackRegistrar.add("Proxy.OK",                boost::bind(&LLFloaterPreferenceProxy::onBtnOk, this));
-    mCommitCallbackRegistrar.add("Proxy.Cancel",            boost::bind(&LLFloaterPreferenceProxy::onBtnCancel, this));
-    mCommitCallbackRegistrar.add("Proxy.Change",            boost::bind(&LLFloaterPreferenceProxy::onChangeSocksSettings, this));
+    mCommitCallbackRegistrar.add("Proxy.OK", { boost::bind(&LLFloaterPreferenceProxy::onBtnOk, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Proxy.Cancel", { boost::bind(&LLFloaterPreferenceProxy::onBtnCancel, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Proxy.Change", { boost::bind(&LLFloaterPreferenceProxy::onChangeSocksSettings, this), cb_info::UNTRUSTED_BLOCK });
 }
 
 LLFloaterPreferenceProxy::~LLFloaterPreferenceProxy()
@@ -3359,8 +3349,8 @@ void LLFloaterPreference::onUpdateFilterTerm(bool force)
 
 void LLFloaterPreference::filterIgnorableNotifications()
 {
-    bool visible = getChildRef<LLScrollListCtrl>("enabled_popups").highlightMatchingItems(mFilterEdit->getValue());
-    visible |= getChildRef<LLScrollListCtrl>("disabled_popups").highlightMatchingItems(mFilterEdit->getValue());
+    bool visible = mEnabledPopups->highlightMatchingItems(mFilterEdit->getValue());
+    visible |= mDisabledPopups->highlightMatchingItems(mFilterEdit->getValue());
 
     if (visible)
     {

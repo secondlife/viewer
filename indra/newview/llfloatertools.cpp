@@ -284,6 +284,15 @@ bool    LLFloaterTools::postBuild()
     // the setting stores the actual force multiplier, but the slider is logarithmic, so we convert here
     getChild<LLUICtrl>("slider force")->setValue(log10(gSavedSettings.getF32("LandBrushForce")));
 
+    mTextBulldozer = getChild<LLTextBox>("Bulldozer:");
+    mTextDozerSize = getChild<LLTextBox>("Dozer Size:");
+    mTextDozerStrength = getChild<LLTextBox>("Strength:");
+    mSliderZoom = getChild<LLSlider>("slider zoom");
+
+    mTextSelectionCount = getChild<LLTextBox>("selection_count");
+    mTextSelectionEmpty = getChild<LLTextBox>("selection_empty");
+    mTextSelectionFaces = getChild<LLTextBox>("selection_faces");
+
     mCostTextBorder = getChild<LLViewBorder>("cost_text_border");
 
     mTab = getChild<LLTabContainer>("Object Info Tabs");
@@ -378,21 +387,21 @@ LLFloaterTools::LLFloaterTools(const LLSD& key)
     mFactoryMap["Contents"] = LLCallbackMap(createPanelContents, this);//LLPanelContents
     mFactoryMap["land info panel"] = LLCallbackMap(createPanelLandInfo, this);//LLPanelLandInfo
 
-    mCommitCallbackRegistrar.add("BuildTool.setTool",           boost::bind(&LLFloaterTools::setTool,this, _2));
-    mCommitCallbackRegistrar.add("BuildTool.commitZoom",        boost::bind(&commit_slider_zoom, _1));
-    mCommitCallbackRegistrar.add("BuildTool.commitRadioFocus",  boost::bind(&commit_radio_group_focus, _1));
-    mCommitCallbackRegistrar.add("BuildTool.commitRadioMove",   boost::bind(&commit_radio_group_move,_1));
-    mCommitCallbackRegistrar.add("BuildTool.commitRadioEdit",   boost::bind(&commit_radio_group_edit,_1));
+    mCommitCallbackRegistrar.add("BuildTool.setTool",           { boost::bind(&LLFloaterTools::setTool,this, _2) });
+    mCommitCallbackRegistrar.add("BuildTool.commitZoom",        { boost::bind(&commit_slider_zoom, _1), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("BuildTool.commitRadioFocus",  { boost::bind(&commit_radio_group_focus, _1), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("BuildTool.commitRadioMove",   { boost::bind(&commit_radio_group_move,_1), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("BuildTool.commitRadioEdit",   { boost::bind(&commit_radio_group_edit,_1), cb_info::UNTRUSTED_BLOCK });
 
-    mCommitCallbackRegistrar.add("BuildTool.gridMode",          boost::bind(&commit_grid_mode,_1));
-    mCommitCallbackRegistrar.add("BuildTool.selectComponent",   boost::bind(&commit_select_component, this));
-    mCommitCallbackRegistrar.add("BuildTool.gridOptions",       boost::bind(&LLFloaterTools::onClickGridOptions,this));
-    mCommitCallbackRegistrar.add("BuildTool.applyToSelection",  boost::bind(&click_apply_to_selection, this));
-    mCommitCallbackRegistrar.add("BuildTool.commitRadioLand",   boost::bind(&commit_radio_group_land,_1));
-    mCommitCallbackRegistrar.add("BuildTool.LandBrushForce",    boost::bind(&commit_slider_dozer_force,_1));
+    mCommitCallbackRegistrar.add("BuildTool.gridMode",          { boost::bind(&commit_grid_mode,_1), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("BuildTool.selectComponent",   { boost::bind(&commit_select_component, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("BuildTool.gridOptions",       { boost::bind(&LLFloaterTools::onClickGridOptions,this) });
+    mCommitCallbackRegistrar.add("BuildTool.applyToSelection",  { boost::bind(&click_apply_to_selection, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("BuildTool.commitRadioLand",   { boost::bind(&commit_radio_group_land,_1), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("BuildTool.LandBrushForce",    { boost::bind(&commit_slider_dozer_force,_1), cb_info::UNTRUSTED_BLOCK });
 
-    mCommitCallbackRegistrar.add("BuildTool.LinkObjects",       boost::bind(&LLSelectMgr::linkObjects, LLSelectMgr::getInstance()));
-    mCommitCallbackRegistrar.add("BuildTool.UnlinkObjects",     boost::bind(&LLSelectMgr::unlinkObjects, LLSelectMgr::getInstance()));
+    mCommitCallbackRegistrar.add("BuildTool.LinkObjects",       { boost::bind(&LLSelectMgr::linkObjects, LLSelectMgr::getInstance()) });
+    mCommitCallbackRegistrar.add("BuildTool.UnlinkObjects",     { boost::bind(&LLSelectMgr::unlinkObjects, LLSelectMgr::getInstance()) });
 
     mLandImpactsObserver = new LLLandImpactsObserver();
     LLViewerParcelMgr::getInstance()->addObserver(mLandImpactsObserver);
@@ -450,10 +459,10 @@ void LLFloaterTools::refresh()
     {
         std::string obj_count_string;
         LLResMgr::getInstance()->getIntegerString(obj_count_string, LLSelectMgr::getInstance()->getSelection()->getRootObjectCount());
-        getChild<LLUICtrl>("selection_count")->setTextArg("[OBJ_COUNT]", obj_count_string);
+        mTextSelectionCount->setTextArg("[OBJ_COUNT]", obj_count_string);
         std::string prim_count_string;
         LLResMgr::getInstance()->getIntegerString(prim_count_string, LLSelectMgr::getInstance()->getSelection()->getObjectCount());
-        getChild<LLUICtrl>("selection_count")->setTextArg("[PRIM_COUNT]", prim_count_string);
+        mTextSelectionCount->setTextArg("[PRIM_COUNT]", prim_count_string);
 
         // calculate selection rendering cost
         if (sShowObjectCost)
@@ -521,23 +530,18 @@ void LLFloaterTools::refresh()
                     }
                 }
             }
-
-            childSetTextArg("selection_faces", "[FACES_STRING]", faces_str);
+            mTextSelectionFaces->setTextArg("[FACES_STRING]", faces_str);
         }
 
         bool show_faces = (object_count == 1)
                           && LLToolFace::getInstance() == LLToolMgr::getInstance()->getCurrentTool();
-        getChildView("selection_faces")->setVisible(show_faces);
+        mTextSelectionFaces->setVisible(show_faces);
 
         LLStringUtil::format_map_t selection_args;
         selection_args["OBJ_COUNT"] = llformat("%.1d", link_count);
         selection_args["LAND_IMPACT"] = llformat("%.1d", (S32)link_cost);
 
-        std::ostringstream selection_info;
-
-        selection_info << getString("status_selectcount", selection_args);
-
-        getChild<LLTextBox>("selection_count")->setText(selection_info.str());
+        mTextSelectionCount->setText(getString("status_selectcount", selection_args));
     }
 
 
@@ -618,8 +622,9 @@ void LLFloaterTools::updatePopup(LLCoordGL center, MASK mask)
     mBtnFocus   ->setToggleState( focus_visible );
 
     mRadioGroupFocus->setVisible( focus_visible );
-    getChildView("slider zoom")->setVisible( focus_visible);
-    getChildView("slider zoom")->setEnabled(gCameraBtnZoom);
+
+    mSliderZoom->setVisible( focus_visible);
+    mSliderZoom->setEnabled(gCameraBtnZoom);
 
     if (!gCameraBtnOrbit &&
         !gCameraBtnPan &&
@@ -644,7 +649,7 @@ void LLFloaterTools::updatePopup(LLCoordGL center, MASK mask)
     }
 
     // multiply by correction factor because volume sliders go [0, 0.5]
-    getChild<LLUICtrl>("slider zoom")->setValue(gAgentCamera.getCameraZoomFraction() * 0.5f);
+    mSliderZoom->setValue(gAgentCamera.getCameraZoomFraction() * 0.5f);
 
     // Move buttons
     bool move_visible = (tool == LLToolGrab::getInstance());
@@ -832,22 +837,22 @@ void LLFloaterTools::updatePopup(LLCoordGL center, MASK mask)
     }
     if (mSliderDozerSize)
     {
-        mSliderDozerSize    ->setVisible( land_visible );
-        getChildView("Bulldozer:")->setVisible( land_visible);
-        getChildView("Dozer Size:")->setVisible( land_visible);
+        mSliderDozerSize->setVisible( land_visible );
+        mTextBulldozer->setVisible( land_visible);
+        mTextDozerSize->setVisible( land_visible);
     }
     if (mSliderDozerForce)
     {
-        mSliderDozerForce   ->setVisible( land_visible );
-        getChildView("Strength:")->setVisible( land_visible);
+        mSliderDozerForce->setVisible( land_visible );
+        mTextDozerStrength->setVisible( land_visible);
     }
 
     bool have_selection = !LLSelectMgr::getInstance()->getSelection()->isEmpty();
 
-    getChildView("selection_count")->setVisible(!land_visible && have_selection);
-    getChildView("selection_faces")->setVisible(LLToolFace::getInstance() == LLToolMgr::getInstance()->getCurrentTool()
+    mTextSelectionCount->setVisible(!land_visible && have_selection);
+    mTextSelectionFaces->setVisible(LLToolFace::getInstance() == LLToolMgr::getInstance()->getCurrentTool()
                                                 && LLSelectMgr::getInstance()->getSelection()->getObjectCount() == 1);
-    getChildView("selection_empty")->setVisible(!land_visible && !have_selection);
+    mTextSelectionEmpty->setVisible(!land_visible && !have_selection);
 
     mTab->setVisible(!land_visible);
     mPanelLandInfo->setVisible(land_visible);

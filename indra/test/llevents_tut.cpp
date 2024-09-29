@@ -44,7 +44,6 @@
 #include <typeinfo>
 // external library headers
 #include <boost/bind.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/assign/list_of.hpp>
 // other Linden headers
 #include "tests/listener.h"             // must PRECEDE lltut.h
@@ -429,7 +428,7 @@ void events_object::test<9>()
 {
     set_test_name("listen(boost::bind(...TempListener...))");
     // listen() can't do anything about a plain TempListener instance:
-    // it's not managed with shared_ptr, nor is it an LLEventTrackable subclass
+    // it's not managed with shared_ptr
     bool live = false;
     LLEventPump& heaptest(pumps.obtain("heaptest"));
     LLBoundListener connection;
@@ -451,62 +450,6 @@ void events_object::test<9>()
     ensure("misleadingly connected", connection.connected());
     // then disconnect by hand.
     heaptest.stopListening("temp");
-}
-
-class TempTrackableListener: public TempListener, public LLEventTrackable
-{
-public:
-    TempTrackableListener(const std::string& name, bool& liveFlag):
-        TempListener(name, liveFlag)
-    {}
-};
-
-template<> template<>
-void events_object::test<10>()
-{
-    set_test_name("listen(boost::bind(...TempTrackableListener ref...))");
-    bool live = false;
-    LLEventPump& heaptest(pumps.obtain("heaptest"));
-    LLBoundListener connection;
-    {
-        TempTrackableListener tempListener("temp", live);
-        ensure("TempTrackableListener constructed", live);
-        connection = heaptest.listen(tempListener.getName(),
-                                     boost::bind(&TempTrackableListener::call,
-                                                 boost::ref(tempListener), _1));
-        heaptest.post(1);
-        check_listener("received", tempListener, 1);
-    } // presumably this will make tempListener go away?
-    // verify that
-    ensure("TempTrackableListener destroyed", ! live);
-    ensure("implicit disconnect", ! connection.connected());
-    // now just make sure we don't blow up trying to access a freed object!
-    heaptest.post(2);
-}
-
-template<> template<>
-void events_object::test<11>()
-{
-    set_test_name("listen(boost::bind(...TempTrackableListener pointer...))");
-    bool live = false;
-    LLEventPump& heaptest(pumps.obtain("heaptest"));
-    LLBoundListener connection;
-    {
-        TempTrackableListener* newListener(new TempTrackableListener("temp", live));
-        ensure("TempTrackableListener constructed", live);
-        connection = heaptest.listen(newListener->getName(),
-                                     boost::bind(&TempTrackableListener::call,
-                                                 newListener, _1));
-        heaptest.post(1);
-        check_listener("received", *newListener, 1);
-        // explicitly destroy newListener
-        delete newListener;
-    }
-    // verify that
-    ensure("TempTrackableListener destroyed", ! live);
-    ensure("implicit disconnect", ! connection.connected());
-    // now just make sure we don't blow up trying to access a freed object!
-    heaptest.post(2);
 }
 
 } // namespace tut

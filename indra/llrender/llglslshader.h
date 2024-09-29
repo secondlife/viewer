@@ -30,6 +30,7 @@
 #include "llgl.h"
 #include "llrender.h"
 #include "llstaticstringtable.h"
+#include <boost/json.hpp>
 #include <unordered_map>
 
 class LLShaderFeatures
@@ -169,14 +170,14 @@ public:
     static U32 sMaxGLTFNodes;
 
     static void initProfile();
-    static void finishProfile(bool emit_report = true);
+    static void finishProfile(boost::json::value& stats=sDefaultStats);
 
     static void startProfile();
     static void stopProfile();
 
     void unload();
     void clearStats();
-    void dumpStats();
+    void dumpStats(boost::json::object& stats);
 
     // place query objects for profiling if profiling is enabled
     // if for_runtime is true, will place timer query only whether or not profiling is enabled
@@ -208,6 +209,7 @@ public:
     void uniform2fv(U32 index, U32 count, const GLfloat* v);
     void uniform3fv(U32 index, U32 count, const GLfloat* v);
     void uniform4fv(U32 index, U32 count, const GLfloat* v);
+    void uniform4uiv(U32 index, U32 count, const GLuint* v);
     void uniform2i(const LLStaticHashedString& uniform, GLint i, GLint j);
     void uniformMatrix2fv(U32 index, U32 count, GLboolean transpose, const GLfloat* v);
     void uniformMatrix3fv(U32 index, U32 count, GLboolean transpose, const GLfloat* v);
@@ -223,6 +225,7 @@ public:
     void uniform2fv(const LLStaticHashedString& uniform, U32 count, const GLfloat* v);
     void uniform3fv(const LLStaticHashedString& uniform, U32 count, const GLfloat* v);
     void uniform4fv(const LLStaticHashedString& uniform, U32 count, const GLfloat* v);
+    void uniform4uiv(const LLStaticHashedString& uniform, U32 count, const GLuint* v);
     void uniformMatrix4fv(const LLStaticHashedString& uniform, U32 count, GLboolean transpose, const GLfloat* v);
 
     void setMinimumAlpha(F32 minimum);
@@ -239,6 +242,10 @@ public:
 
     void clearPermutations();
     void addPermutation(std::string name, std::string value);
+    void addPermutations(const std::map<std::string, std::string>& defines)
+    {
+        mDefines.insert(defines.begin(), defines.end());
+    }
     void removePermutation(std::string name);
 
     void addConstant(const LLGLSLShader::eShaderConsts shader_const);
@@ -247,16 +254,16 @@ public:
     //if given texture uniform is active in the shader,
     //the corresponding channel will be active upon return
     //returns channel texture is enabled in from [0-MAX)
-    S32 enableTexture(S32 uniform, LLTexUnit::eTextureType mode = LLTexUnit::TT_TEXTURE, LLTexUnit::eTextureColorSpace space = LLTexUnit::TCS_LINEAR);
-    S32 disableTexture(S32 uniform, LLTexUnit::eTextureType mode = LLTexUnit::TT_TEXTURE, LLTexUnit::eTextureColorSpace space = LLTexUnit::TCS_LINEAR);
+    S32 enableTexture(S32 uniform, LLTexUnit::eTextureType mode = LLTexUnit::TT_TEXTURE);
+    S32 disableTexture(S32 uniform, LLTexUnit::eTextureType mode = LLTexUnit::TT_TEXTURE);
 
     // get the texture channel of the given uniform, or -1 if uniform is not used as a texture
     S32 getTextureChannel(S32 uniform) const;
 
     // bindTexture returns the texture unit we've bound the texture to.
     // You can reuse the return value to unbind a texture when required.
-    S32 bindTexture(const std::string& uniform, LLTexture* texture, LLTexUnit::eTextureType mode = LLTexUnit::TT_TEXTURE, LLTexUnit::eTextureColorSpace space = LLTexUnit::TCS_LINEAR);
-    S32 bindTexture(S32 uniform, LLTexture* texture, LLTexUnit::eTextureType mode = LLTexUnit::TT_TEXTURE, LLTexUnit::eTextureColorSpace space = LLTexUnit::TCS_LINEAR);
+    S32 bindTexture(const std::string& uniform, LLTexture* texture, LLTexUnit::eTextureType mode = LLTexUnit::TT_TEXTURE);
+    S32 bindTexture(S32 uniform, LLTexture* texture, LLTexUnit::eTextureType mode = LLTexUnit::TT_TEXTURE);
     S32 bindTexture(const std::string& uniform, LLRenderTarget* texture, bool depth = false, LLTexUnit::eTextureFilterOptions mode = LLTexUnit::TFO_BILINEAR);
     S32 bindTexture(S32 uniform, LLRenderTarget* texture, bool depth = false, LLTexUnit::eTextureFilterOptions mode = LLTexUnit::TFO_BILINEAR, U32 index = 0);
     S32 unbindTexture(const std::string& uniform, LLTexUnit::eTextureType mode = LLTexUnit::TT_TEXTURE);
@@ -357,6 +364,11 @@ public:
 
 private:
     void unloadInternal();
+    // This must be static because finishProfile() is called at least once
+    // within a __try block. If we default its stats parameter to a temporary
+    // json::value, that temporary must be destroyed when the stack is
+    // unwound, which __try forbids.
+    static boost::json::value sDefaultStats;
 };
 
 //UI shader (declared here so llui_libtest will link properly)

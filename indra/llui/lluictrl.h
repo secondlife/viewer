@@ -216,7 +216,7 @@ public:
     // selected radio button, etc.).  Defaults to no-op.
     virtual void    clear();
 
-    virtual void    setColor(const LLColor4& color);
+    virtual void    setColor(const LLUIColor& color);
 
     // Ansariel: Changed to virtual. We might want to change the transparency ourself!
     virtual F32 getCurrentTransparency();
@@ -274,11 +274,56 @@ public:
 
     template <typename F, typename DERIVED> class CallbackRegistry : public LLRegistrySingleton<std::string, F, DERIVED >
     {};
+    struct CommitCallbackInfo
+    {
+        enum EUntrustedCall
+        {
+            UNTRUSTED_ALLOW,
+            UNTRUSTED_BLOCK,
+            UNTRUSTED_THROTTLE
+        };
 
-    class CommitCallbackRegistry : public CallbackRegistry<commit_callback_t, CommitCallbackRegistry>
+        CommitCallbackInfo(commit_callback_t func = {}, EUntrustedCall handle_untrusted = UNTRUSTED_ALLOW) :
+            callback_func(func),
+            handle_untrusted(handle_untrusted)
+        {
+        }
+
+      public:
+        commit_callback_t callback_func;
+        EUntrustedCall    handle_untrusted;
+    };
+    typedef LLUICtrl::CommitCallbackInfo cb_info;
+    class CommitCallbackRegistry : public CallbackRegistry<CommitCallbackInfo, CommitCallbackRegistry>
     {
         LLSINGLETON_EMPTY_CTOR(CommitCallbackRegistry);
     };
+
+    class CommitRegistrarHelper
+    {
+      public:
+        CommitRegistrarHelper(LLUICtrl::CommitCallbackRegistry::Registrar &registrar) : mRegistrar(registrar) {}
+
+        template <typename... ARGS> void add(const std::string &name, ARGS &&...args)
+        {
+            mRegistrar.add(name, {std::forward<ARGS>(args)...});
+        }
+      private:
+        LLUICtrl::CommitCallbackRegistry::Registrar &mRegistrar;
+    };
+
+    class ScopedRegistrarHelper
+    {
+      public:
+        template <typename... ARGS> void add(const std::string &name, ARGS &&...args)
+        {
+            mRegistrar.add(name, {std::forward<ARGS>(args)...});
+        }
+
+      private:
+        LLUICtrl::CommitCallbackRegistry::ScopedRegistrar mRegistrar;
+    };
+
     // the enable callback registry is also used for visiblity callbacks
     class EnableCallbackRegistry : public CallbackRegistry<enable_callback_t, EnableCallbackRegistry>
     {

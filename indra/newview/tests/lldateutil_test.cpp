@@ -57,12 +57,12 @@ std::string LLTrans::getString(const std::string_view xml_desc, const LLStringUt
     return {};
 }
 
-std::string LLTrans::getCountString(const std::string& language, const std::string& xml_desc, S32 count)
+std::string LLTrans::getCountString(std::string_view language, std::string_view xml_desc, S32 count)
 {
     count_string_t key(xml_desc, count);
     if (gCountString.find(key) == gCountString.end())
     {
-        return std::string("Couldn't find ") + xml_desc;
+        return std::string("Couldn't find ") + static_cast<std::string>(xml_desc);
     }
     return gCountString[ count_string_t(xml_desc, count) ];
 }
