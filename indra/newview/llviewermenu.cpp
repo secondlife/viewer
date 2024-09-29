@@ -9471,12 +9471,7 @@ void lua_run_script(const LLSD& userdata)
         LL_WARNS() << "Script name is not specified" << LL_ENDL;
         return;
     }
-    fsyspath fs_script_path(script_path);
-    script_path = fs_script_path.lexically_normal().u8string();
-    if (!fs_script_path.is_absolute())
-    {
-        script_path = (fsyspath(gDirUtilp->getExpandedFilename(LL_PATH_SCRIPTS, "lua")) / script_path).u8string();
-    }
+
     LLLUAmanager::runScriptFile(script_path);
 }
 
