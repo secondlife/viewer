@@ -709,26 +709,37 @@ LLWindowSDL::~LLWindowSDL()
 
 void LLWindowSDL::show()
 {
-    // *FIX: What to do with SDL?
+    if (mWindow)
+    {
+        SDL_ShowWindow(mWindow);
+    }
 }
 
 void LLWindowSDL::hide()
 {
-    // *FIX: What to do with SDL?
+    if (mWindow)
+    {
+        SDL_HideWindow(mWindow);
+    }
 }
 
 //virtual
 void LLWindowSDL::minimize()
 {
-    // *FIX: What to do with SDL?
+    if (mWindow)
+    {
+        SDL_MinimizeWindow(mWindow);
+    }
 }
 
 //virtual
 void LLWindowSDL::restore()
 {
-    // *FIX: What to do with SDL?
+    if (mWindow)
+    {
+        SDL_RestoreWindow(mWindow);
+    }
 }
-
 
 // close() destroys all OS-specific code associated with a window.
 // Usually called from LLWindowManager::destroyWindow()
@@ -755,44 +766,54 @@ bool LLWindowSDL::isValid()
 bool LLWindowSDL::getVisible()
 {
     bool result = false;
-
-    // *FIX: This isn't really right...
-    // Then what is?
     if (mWindow)
     {
-        result = true;
+        Uint32 flags = SDL_GetWindowFlags(mWindow);
+        if (flags & SDL_WINDOW_SHOWN)
+        {
+            result = TRUE;
+        }
     }
-
-    return(result);
+    return result;
 }
 
 bool LLWindowSDL::getMinimized()
 {
     bool result = false;
-
-    if (mWindow && (1 == mIsMinimized))
+    if (mWindow)
     {
-        result = true;
+        Uint32 flags = SDL_GetWindowFlags(mWindow);
+        if (flags & SDL_WINDOW_MINIMIZED)
+        {
+            result = true;
+        }
     }
-    return(result);
+    return result;
 }
 
 bool LLWindowSDL::getMaximized()
 {
     bool result = false;
-
     if (mWindow)
     {
-        // TODO
+        Uint32 flags = SDL_GetWindowFlags(mWindow);
+        if (flags & SDL_WINDOW_MAXIMIZED)
+        {
+            result = true;
+        }
     }
 
-    return(result);
+    return result;
 }
 
 bool LLWindowSDL::maximize()
 {
-    // TODO
-    return false;
+    if (mWindow)
+    {
+        SDL_MaximizeWindow(mWindow);
+        return TRUE;
+    }
+    return FALSE;
 }
 
 bool LLWindowSDL::getFullscreen()
@@ -802,10 +823,12 @@ bool LLWindowSDL::getFullscreen()
 
 bool LLWindowSDL::getPosition(LLCoordScreen *position)
 {
-    // *FIX: can anything be done with this?
-    position->mX = 0;
-    position->mY = 0;
-    return true;
+    if (mWindow)
+    {
+        SDL_GetWindowPosition(mWindow, &position->mX, &position->mY);
+        return true;
+    }
+    return false;
 }
 
 bool LLWindowSDL::getSize(LLCoordScreen *size)
@@ -834,13 +857,13 @@ bool LLWindowSDL::getSize(LLCoordWindow *size)
 
 bool LLWindowSDL::setPosition(const LLCoordScreen position)
 {
-    if(mWindow)
+    if (mWindow)
     {
-        // *FIX: (?)
-        //MacMoveWindow(mWindow, position.mX, position.mY, false);
+        SDL_SetWindowPosition(mWindow, position.mX, position.mY);
+        return true;
     }
 
-    return true;
+    return false;
 }
 
 template< typename T > bool setSizeImpl( const T& newSize, SDL_Window *pWin )
@@ -897,22 +920,33 @@ void LLWindowSDL::setFSAASamples(const U32 samples)
 
 F32 LLWindowSDL::getGamma()
 {
-    return 1/mGamma;
+    return 1.f / mGamma;
 }
 
 bool LLWindowSDL::restoreGamma()
 {
-    //CGDisplayRestoreColorSyncSettings();
-    // SDL_SetGamma(1.0f, 1.0f, 1.0f);
+    if (mWindow)
+    {
+        Uint16 ramp[256];
+        SDL_CalculateGammaRamp(1.f, ramp);
+        SDL_SetWindowGammaRamp(mWindow, ramp, ramp, ramp);
+    }
     return true;
 }
 
 bool LLWindowSDL::setGamma(const F32 gamma)
 {
-    mGamma = gamma;
-    if (mGamma == 0) mGamma = 0.1f;
-    mGamma = 1/mGamma;
-    // SDL_SetGamma(mGamma, mGamma, mGamma);
+    if (mWindow)
+    {
+        Uint16 ramp[256];
+
+        mGamma = gamma;
+        if (mGamma == 0) mGamma = 0.1f;
+        mGamma = 1.f / mGamma;
+
+        SDL_CalculateGammaRamp(mGamma, ramp);
+        SDL_SetWindowGammaRamp(mWindow, ramp, ramp, ramp);
+    }
     return true;
 }
 
@@ -921,10 +955,8 @@ bool LLWindowSDL::isCursorHidden()
     return mCursorHidden;
 }
 
-
-
 // Constrains the mouse to the window.
-void LLWindowSDL::setMouseClipping( bool b )
+void LLWindowSDL::setMouseClipping(bool b)
 {
     //SDL_WM_GrabInput(b ? SDL_GRAB_ON : SDL_GRAB_OFF);
 }
@@ -934,18 +966,10 @@ void LLWindowSDL::setMinSize(U32 min_width, U32 min_height, bool enforce_immedia
 {
     LLWindow::setMinSize(min_width, min_height, enforce_immediately);
 
-#if LL_X11
-    // Set the minimum size limits for X11 window
-    // so the window manager doesn't allow resizing below those limits.
-    XSizeHints* hints = XAllocSizeHints();
-    hints->flags |= PMinSize;
-    hints->min_width = mMinWindowWidth;
-    hints->min_height = mMinWindowHeight;
-
-    XSetWMNormalHints(mSDL_Display, mSDL_XWindowID, hints);
-
-    XFree(hints);
-#endif
+    if (mWindow && min_width > 0 && min_height > 0)
+    {
+        SDL_SetWindowMinimumSize(mWindow, mMinWindowWidth, mMinWindowHeight);
+    }
 }
 
 bool LLWindowSDL::setCursorPosition(const LLCoordWindow position)
@@ -1832,10 +1856,13 @@ void LLWindowSDL::updateCursor()
                 sdlcursor = mSDLCursors[UI_CURSOR_ARROW];
             if (sdlcursor)
                 SDL_SetCursor(sdlcursor);
-        } else {
+
+            mCurrentCursor = mNextCursor;
+        }
+        else
+        {
             LL_WARNS() << "Tried to set invalid cursor number " << mNextCursor << LL_ENDL;
         }
-        mCurrentCursor = mNextCursor;
     }
 }
 
@@ -1845,24 +1872,24 @@ void LLWindowSDL::initCursors()
     // Blank the cursor pointer array for those we may miss.
     for (i=0; i<UI_CURSOR_COUNT; ++i)
     {
-        mSDLCursors[i] = NULL;
+        mSDLCursors[i] = nullptr;
     }
     // Pre-make an SDL cursor for each of the known cursor types.
     // We hardcode the hotspots - to avoid that we'd have to write
     // a .cur file loader.
     // NOTE: SDL doesn't load RLE-compressed BMP files.
-    mSDLCursors[UI_CURSOR_ARROW] = makeSDLCursorFromBMP("llarrow.BMP",0,0);
-    mSDLCursors[UI_CURSOR_WAIT] = makeSDLCursorFromBMP("wait.BMP",12,15);
-    mSDLCursors[UI_CURSOR_HAND] = makeSDLCursorFromBMP("hand.BMP",7,10);
-    mSDLCursors[UI_CURSOR_IBEAM] = makeSDLCursorFromBMP("ibeam.BMP",15,16);
-    mSDLCursors[UI_CURSOR_CROSS] = makeSDLCursorFromBMP("cross.BMP",16,14);
-    mSDLCursors[UI_CURSOR_SIZENWSE] = makeSDLCursorFromBMP("sizenwse.BMP",14,17);
-    mSDLCursors[UI_CURSOR_SIZENESW] = makeSDLCursorFromBMP("sizenesw.BMP",17,17);
-    mSDLCursors[UI_CURSOR_SIZEWE] = makeSDLCursorFromBMP("sizewe.BMP",16,14);
-    mSDLCursors[UI_CURSOR_SIZENS] = makeSDLCursorFromBMP("sizens.BMP",17,16);
-    mSDLCursors[UI_CURSOR_SIZEALL] = makeSDLCursorFromBMP("sizeall.BMP", 17, 17);
-    mSDLCursors[UI_CURSOR_NO] = makeSDLCursorFromBMP("llno.BMP",8,8);
-    mSDLCursors[UI_CURSOR_WORKING] = makeSDLCursorFromBMP("working.BMP",12,15);
+    mSDLCursors[UI_CURSOR_ARROW] = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW);
+    mSDLCursors[UI_CURSOR_WAIT] = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_WAIT);
+    mSDLCursors[UI_CURSOR_HAND] = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+    mSDLCursors[UI_CURSOR_IBEAM] = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_IBEAM);
+    mSDLCursors[UI_CURSOR_CROSS] = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_CROSSHAIR);
+    mSDLCursors[UI_CURSOR_SIZENWSE] = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZENWSE);
+    mSDLCursors[UI_CURSOR_SIZENESW] = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZENESW);
+    mSDLCursors[UI_CURSOR_SIZEWE] = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZEWE);
+    mSDLCursors[UI_CURSOR_SIZENS] = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZENS);
+    mSDLCursors[UI_CURSOR_SIZEALL] = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZEALL);
+    mSDLCursors[UI_CURSOR_NO] = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_NO);
+    mSDLCursors[UI_CURSOR_WORKING] = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_WAITARROW);
     mSDLCursors[UI_CURSOR_TOOLGRAB] = makeSDLCursorFromBMP("lltoolgrab.BMP",2,13);
     mSDLCursors[UI_CURSOR_TOOLLAND] = makeSDLCursorFromBMP("lltoolland.BMP",1,6);
     mSDLCursors[UI_CURSOR_TOOLFOCUS] = makeSDLCursorFromBMP("lltoolfocus.BMP",8,5);
@@ -1949,7 +1976,7 @@ void LLWindowSDL::hideCursor()
         // LL_INFOS() << "hideCursor: hiding" << LL_ENDL;
         mCursorHidden = true;
         mHideCursorPermanent = true;
-        SDL_ShowCursor(0);
+        SDL_ShowCursor(SDL_DISABLE);
     }
     else
     {
@@ -1964,7 +1991,7 @@ void LLWindowSDL::showCursor()
         // LL_INFOS() << "showCursor: showing" << LL_ENDL;
         mCursorHidden = false;
         mHideCursorPermanent = false;
-        SDL_ShowCursor(1);
+        SDL_ShowCursor(SDL_ENABLE);
     }
     else
     {
@@ -2123,15 +2150,10 @@ void LLWindowSDL::bringToFront()
     // This is currently used when we are 'launched' to a specific
     // map position externally.
     LL_INFOS() << "bringToFront" << LL_ENDL;
-#if LL_X11
-    if (mSDL_Display && !mFullscreen)
+    if (mWindow && !mFullscreen)
     {
-        maybe_lock_display();
-        XRaiseWindow(mSDL_Display, mSDL_XWindowID);
-        XSync(mSDL_Display, False);
-        maybe_unlock_display();
+        SDL_RaiseWindow(mWindow);
     }
-#endif // LL_X11
 }
 
 //static
