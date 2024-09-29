@@ -59,9 +59,6 @@ extern bool gDebugWindowProc;
 
 const S32 MAX_NUM_RESOLUTIONS = 200;
 
-// static variable for ATI mouse cursor crash work-around:
-static bool ATIbug = false;
-
 //
 // LLWindowSDL
 //
@@ -1717,10 +1714,10 @@ void LLWindowSDL::gatherInput()
                 {
                     mCallbacks->handleMiddleMouseDown(this, openGlCoord, mask);
                 }
-                else 
-				{
+                else
+                {
                     mCallbacks->handleOtherMouseDown(this, openGlCoord, mask, event.button.button);
-				}
+                }
 
                 break;
             }
@@ -1744,10 +1741,10 @@ void LLWindowSDL::gatherInput()
                 {
                     mCallbacks->handleMiddleMouseUp(this, openGlCoord, mask);
                 }
-                else 
-				{
+                else
+                {
                     mCallbacks->handleOtherMouseUp(this, openGlCoord, mask, event.button.button);
-				}
+                }
 
                 break;
             }
@@ -1895,12 +1892,6 @@ static SDL_Cursor *makeSDLCursorFromBMP(const char *filename, int hotx, int hoty
 
 void LLWindowSDL::updateCursor()
 {
-    if (ATIbug) {
-        // cursor-updating is very flaky when this bug is
-        // present; do nothing.
-        return;
-    }
-
     if (mCurrentCursor != mNextCursor)
     {
         if (mNextCursor < UI_CURSOR_COUNT)
@@ -1978,11 +1969,6 @@ void LLWindowSDL::initCursors()
     mSDLCursors[UI_CURSOR_TOOLPATHFINDING_PATH_END] = makeSDLCursorFromBMP("lltoolpathfindingpathend.BMP", 16, 16);
     mSDLCursors[UI_CURSOR_TOOLPATHFINDING_PATH_END_ADD] = makeSDLCursorFromBMP("lltoolpathfindingpathendadd.BMP", 16, 16);
     mSDLCursors[UI_CURSOR_TOOLNO] = makeSDLCursorFromBMP("llno.BMP",8,8);
-
-    if (getenv("LL_ATI_MOUSE_CURSOR_BUG") != NULL) {
-        LL_INFOS() << "Disabling cursor updating due to LL_ATI_MOUSE_CURSOR_BUG" << LL_ENDL;
-        ATIbug = true;
-    }
 }
 
 void LLWindowSDL::quitCursors()
