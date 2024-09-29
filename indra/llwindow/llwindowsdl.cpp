@@ -114,7 +114,7 @@ Display* LLWindowSDL::get_SDL_Display(void)
 #endif // LL_X11
 
 LLWindowSDL::LLWindowSDL(LLWindowCallbacks* callbacks,
-                         const std::string& title, S32 x, S32 y, S32 width,
+                         const std::string& title, const std::string& name, S32 x, S32 y, S32 width,
                          S32 height, U32 flags,
                          bool fullscreen, bool clearBg,
                          bool enable_vsync, bool use_gl,
@@ -148,7 +148,7 @@ LLWindowSDL::LLWindowSDL(LLWindowCallbacks* callbacks,
     mOriginalAspectRatio = 1024.0 / 768.0;
 
     if (title.empty())
-        mWindowTitle = "SDL Window";  // *FIX: (?)
+        mWindowTitle = "Second Life";
     else
         mWindowTitle = title;
 
@@ -445,6 +445,10 @@ bool LLWindowSDL::createContext(int x, int y, int width, int height, int bits, b
         width = 1024;
     if (height == 0)
         width = 768;
+    if (x == 0)
+        x = SDL_WINDOWPOS_UNDEFINED;
+    if (y == 0)
+        y = SDL_WINDOWPOS_UNDEFINED;
 
     mFullscreen = fullscreen;
 
@@ -458,51 +462,71 @@ bool LLWindowSDL::createContext(int x, int y, int width, int height, int bits, b
 
     mSDLFlags = sdlflags;
 
+    // Setup default backing colors
     GLint redBits{8}, greenBits{8}, blueBits{8}, alphaBits{8};
-
     GLint depthBits{(bits <= 16) ? 16 : 24}, stencilBits{8};
 
     if (getenv("LL_GL_NO_STENCIL"))
         stencilBits = 0;
 
-    SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, alphaBits);
     SDL_GL_SetAttribute(SDL_GL_RED_SIZE,   redBits);
     SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, greenBits);
     SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,  blueBits);
-    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, depthBits );
+    SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, alphaBits);
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, depthBits);
 
     // We need stencil support for a few (minor) things.
     if (stencilBits)
         SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, stencilBits);
-    // *FIX: try to toggle vsync here?
 
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
-    if (mFSAASamples > 0)
+    if (LLRender::sGLCoreProfile)
     {
-        SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-        SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, mFSAASamples);
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
     }
 
+    // This is requesting a minimum context version
+    int major_gl_version = 3;
+    int minor_gl_version = 2;
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, major_gl_version);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, minor_gl_version);
+
+    U32 context_flags = 0;
+    if (gDebugGL)
+    {
+        context_flags |= SDL_GL_CONTEXT_DEBUG_FLAG;
+    }
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, context_flags);
     SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, 1);
-    mWindow = SDL_CreateWindow( mWindowTitle.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, mSDLFlags );
 
-    if( mWindow )
+    // Create the window
+    mWindow = SDL_CreateWindow(mWindowTitle.c_str(), x, y, width, height, mSDLFlags);
+    if (mWindow == nullptr)
     {
-        mContext = SDL_GL_CreateContext( mWindow );
-
-        if( mContext == 0 )
-        {
-            LL_WARNS() << "Cannot create GL context " << SDL_GetError() << LL_ENDL;
-            setupFailure("GL Context creation error creation error", "Error", OSMB_OK);
-            return false;
-        }
-        // SDL_GL_SetSwapInterval(1);
-        mSurface = SDL_GetWindowSurface( mWindow );
+        LL_WARNS() << "Window creation failure. SDL: " << SDL_GetError() << LL_ENDL;
+        setupFailure("Window creation error", "Error", OSMB_OK);
+        return FALSE;
     }
 
+    // Create the context
+    mContext = SDL_GL_CreateContext(mWindow);
+    if(!mContext)
+    {
+        LL_WARNS() << "Cannot create GL context " << SDL_GetError() << LL_ENDL;
+        setupFailure("GL Context creation error", "Error", OSMB_OK);
+        return false;
+    }
 
-    if( mFullscreen )
+    if (SDL_GL_MakeCurrent(mWindow, mContext) != 0)
+    {
+        LL_WARNS() << "Failed to make context current. SDL: " << SDL_GetError() << LL_ENDL;
+        setupFailure("GL Context failed to set current failure", "Error", OSMB_OK);
+        return FALSE;
+    }
+
+    mSurface = SDL_GetWindowSurface(mWindow);
+    if(mFullscreen)
     {
         if (mSurface)
         {
@@ -543,40 +567,6 @@ bool LLWindowSDL::createContext(int x, int y, int width, int height, int bits, b
         }
     }
 
-    // Set the application icon.
-    SDL_Surface *bmpsurface;
-    bmpsurface = Load_BMP_Resource("ll_icon.BMP");
-    if (bmpsurface)
-    {
-        SDL_SetWindowIcon(mWindow, bmpsurface);
-        SDL_FreeSurface(bmpsurface);
-        bmpsurface = NULL;
-    }
-
-    // Detect video memory size.
-# if LL_X11
-    gGLManager.mVRAM = x11_detect_VRAM_kb() / 1024;
-    if (gGLManager.mVRAM != 0)
-    {
-        LL_INFOS() << "X11 log-parser detected " << gGLManager.mVRAM << "MB VRAM." << LL_ENDL;
-    } else
-# endif // LL_X11
-    {
-        // fallback to letting SDL detect VRAM.
-        // note: I've not seen SDL's detection ever actually find
-        // VRAM != 0, but if SDL *does* detect it then that's a bonus.
-        gGLManager.mVRAM = 0;
-        if (gGLManager.mVRAM != 0)
-        {
-            LL_INFOS() << "SDL detected " << gGLManager.mVRAM << "MB VRAM." << LL_ENDL;
-        }
-    }
-    // If VRAM is not detected, that is handled later
-
-    // *TODO: Now would be an appropriate time to check for some
-    // explicitly unsupported cards.
-    //const char* RENDERER = (const char*) glGetString(GL_RENDERER);
-
     SDL_GL_GetAttribute(SDL_GL_RED_SIZE, &redBits);
     SDL_GL_GetAttribute(SDL_GL_GREEN_SIZE, &greenBits);
     SDL_GL_GetAttribute(SDL_GL_BLUE_SIZE, &blueBits);
@@ -610,6 +600,20 @@ bool LLWindowSDL::createContext(int x, int y, int width, int height, int bits, b
         return false;
     }
 
+    LL_PROFILER_GPU_CONTEXT;
+
+    // Enable vertical sync
+    toggleVSync(enable_vsync);
+
+    // Set the application icon.
+    SDL_Surface* bmpsurface = Load_BMP_Resource("ll_icon.BMP");
+    if (bmpsurface)
+    {
+        SDL_SetWindowIcon(mWindow, bmpsurface);
+        SDL_FreeSurface(bmpsurface);
+        bmpsurface = NULL;
+    }
+
 #if LL_X11
     /* Grab the window manager specific information */
     SDL_SysWMinfo info;
@@ -635,6 +639,25 @@ bool LLWindowSDL::createContext(int x, int y, int width, int height, int bits, b
     }
 #endif // LL_X11
 
+    // Detect video memory size.
+# if LL_X11
+    gGLManager.mVRAM = x11_detect_VRAM_kb() / 1024;
+    if (gGLManager.mVRAM != 0)
+    {
+        LL_INFOS() << "X11 log-parser detected " << gGLManager.mVRAM << "MB VRAM." << LL_ENDL;
+    } else
+# endif // LL_X11
+    {
+        // fallback to letting SDL detect VRAM.
+        // note: I've not seen SDL's detection ever actually find
+        // VRAM != 0, but if SDL *does* detect it then that's a bonus.
+        gGLManager.mVRAM = 0;
+        if (gGLManager.mVRAM != 0)
+        {
+            LL_INFOS() << "SDL detected " << gGLManager.mVRAM << "MB VRAM." << LL_ENDL;
+        }
+    }
+    // If VRAM is not detected, that is handled later
 
     SDL_StartTextInput();
     //make sure multisampling is disabled by default
@@ -644,6 +667,43 @@ bool LLWindowSDL::createContext(int x, int y, int width, int height, int bits, b
     return true;
 }
 
+void* LLWindowSDL::createSharedContext()
+{
+    SDL_GLContext pContext = SDL_GL_CreateContext(mWindow);
+    if (pContext)
+    {
+        LL_DEBUGS() << "Creating shared OpenGL context successful!" << LL_ENDL;
+        return (void*)pContext;
+    }
+
+    LL_WARNS() << "Creating shared OpenGL context failed!" << LL_ENDL;
+    return nullptr;
+}
+
+void LLWindowSDL::makeContextCurrent(void* contextPtr)
+{
+    SDL_GL_MakeCurrent(mWindow, contextPtr);
+    LL_PROFILER_GPU_CONTEXT;
+}
+
+void LLWindowSDL::destroySharedContext(void* contextPtr)
+{
+    SDL_GL_DeleteContext(contextPtr);
+}
+
+void LLWindowSDL::toggleVSync(bool enable_vsync)
+{
+    if (!enable_vsync)
+    {
+        LL_INFOS("Window") << "Disabling vertical sync" << LL_ENDL;
+        SDL_GL_SetSwapInterval(0);
+    }
+    else
+    {
+        LL_INFOS("Window") << "Enabling vertical sync" << LL_ENDL;
+        SDL_GL_SetSwapInterval(1);
+    }
+}
 
 // changing fullscreen resolution, or switching between windowed and fullscreen mode.
 bool LLWindowSDL::switchContext(bool fullscreen, const LLCoordScreen &size, bool enable_vsync, const LLCoordScreen * const posp)
@@ -656,7 +716,7 @@ bool LLWindowSDL::switchContext(bool fullscreen, const LLCoordScreen &size, bool
     if(needsRebuild)
     {
         destroyContext();
-        result = createContext(0, 0, size.mX, size.mY, 0, fullscreen, enable_vsync);
+        result = createContext(0, 0, size.mX, size.mY, 32, fullscreen, enable_vsync);
         if (result)
         {
             gGLManager.initGL();
@@ -2251,44 +2311,6 @@ std::vector<std::string> LLWindowSDL::getDynamicFallbackFontList()
 
     rtns.push_back(final_fallback);
     return rtns;
-}
-
-
-void* LLWindowSDL::createSharedContext()
-{
-    auto *pContext = SDL_GL_CreateContext(mWindow);
-    if ( pContext)
-    {
-        SDL_GL_SetSwapInterval(0);
-        SDL_GL_MakeCurrent(mWindow, mContext);
-
-        LLCoordScreen size;
-        if (getSize(&size))
-            setSize(size);
-
-        LL_DEBUGS() << "Creating shared OpenGL context successful!" << LL_ENDL;
-
-        return (void*)pContext;
-    }
-
-    LL_WARNS() << "Creating shared OpenGL context failed!" << LL_ENDL;
-
-    return nullptr;
-}
-
-void LLWindowSDL::makeContextCurrent(void* contextPtr)
-{
-    LL_PROFILER_GPU_CONTEXT;
-    SDL_GL_MakeCurrent( mWindow, contextPtr );
-}
-
-void LLWindowSDL::destroySharedContext(void* contextPtr)
-{
-    SDL_GL_DeleteContext( contextPtr );
-}
-
-void LLWindowSDL::toggleVSync(bool enable_vsync)
-{
 }
 
 void LLWindowSDL::setLanguageTextInput(const LLCoordGL& position)

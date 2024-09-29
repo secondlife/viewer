@@ -209,7 +209,7 @@ public:
 
 protected:
     LLWindowSDL(LLWindowCallbacks *callbacks,
-                const std::string &title, int x, int y, int width, int height, U32 flags,
+                const std::string &title, const std::string& name, int x, int y, int width, int height, U32 flags,
                 bool fullscreen, bool clearBg, bool enable_vsync, bool use_gl,
                 bool ignore_pixel_depth, U32 fsaa_samples);
 
