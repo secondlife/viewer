@@ -569,7 +569,7 @@ template<typename SAME>
 const SAME& ll_convert_to(const SAME& in)
 {
     return in;
-}    
+}
 
 template<typename TO,
          typename FROM,
