@@ -676,7 +676,13 @@ void LLWindowSDL::destroyContext()
 {
     LL_INFOS() << "destroyContext begins" << LL_ENDL;
 
+    // Stop unicode input
     SDL_StopTextInput();
+
+    // Clean up remaining GL state before blowing away window
+    LL_INFOS() << "shutdownGL begins" << LL_ENDL;
+    gGLManager.shutdownGL();
+
 #if LL_X11
     mSDL_Display = NULL;
     mSDL_XWindowID = None;
@@ -684,18 +690,38 @@ void LLWindowSDL::destroyContext()
     Unlock_Display = NULL;
 #endif // LL_X11
 
-    // Clean up remaining GL state before blowing away window
-    LL_INFOS() << "shutdownGL begins" << LL_ENDL;
-    gGLManager.shutdownGL();
+    LL_INFOS() << "Destroying SDL cursors" << LL_ENDL;
+    quitCursors();
+
+    if (mContext)
+    {
+        LL_INFOS() << "Destroying SDL GL Context" << LL_ENDL;
+        SDL_GL_DeleteContext(mContext);
+        mContext = nullptr;
+    }
+    else
+    {
+        LL_INFOS() << "SDL GL Context already destroyed" << LL_ENDL;
+    }
+
+    if (mWindow)
+    {
+        LL_INFOS() << "Destroying SDL Window" << LL_ENDL;
+        SDL_DestroyWindow(mWindow);
+        mWindow = nullptr;
+    }
+    else
+    {
+        LL_INFOS() << "SDL Window already destroyed" << LL_ENDL;
+    }
+    LL_INFOS() << "destroyContext end" << LL_ENDL;
+
     LL_INFOS() << "SDL_QuitSS/VID begins" << LL_ENDL;
     SDL_QuitSubSystem(SDL_INIT_VIDEO);  // *FIX: this might be risky...
-
-    mWindow = NULL;
 }
 
 LLWindowSDL::~LLWindowSDL()
 {
-    quitCursors();
     destroyContext();
 
     if(mSupportedResolutions != NULL)
@@ -904,8 +930,9 @@ void LLWindowSDL::swapBuffers()
 {
     if (mWindow)
     {
-        SDL_GL_SwapWindow( mWindow );
+        SDL_GL_SwapWindow(mWindow);
     }
+    LL_PROFILER_GPU_COLLECT;
 }
 
 U32 LLWindowSDL::getFSAASamples()
