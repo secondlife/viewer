@@ -113,248 +113,6 @@ Display* LLWindowSDL::get_SDL_Display(void)
 }
 #endif // LL_X11
 
-#if LL_X11
-
-// Clipboard handing via native X11, base on the implementation in Cool VL by Henri Beauchamp
-
-namespace
-{
-    std::array<Atom, 3> gSupportedAtoms;
-
-    Atom XA_CLIPBOARD;
-    Atom XA_TARGETS;
-    Atom PVT_PASTE_BUFFER;
-    long const MAX_PASTE_BUFFER_SIZE = 16383;
-
-    void filterSelectionRequest( XEvent aEvent )
-    {
-        auto *display = LLWindowSDL::getSDLDisplay();
-        auto &request = aEvent.xselectionrequest;
-
-        XSelectionEvent reply { SelectionNotify, aEvent.xany.serial, aEvent.xany.send_event, display,
-                                request.requestor, request.selection, request.target,
-                                request.property,request.time };
-
-        if (request.target == XA_TARGETS)
-        {
-            XChangeProperty(display, request.requestor, request.property,
-                            XA_ATOM, 32, PropModeReplace,
-                            (unsigned char *) &gSupportedAtoms.front(), gSupportedAtoms.size());
-        }
-        else if (std::find(gSupportedAtoms.begin(), gSupportedAtoms.end(), request.target) !=
-                 gSupportedAtoms.end())
-        {
-            std::string utf8;
-            if (request.selection == XA_PRIMARY)
-                utf8 = wstring_to_utf8str(gWindowImplementation->getPrimaryText());
-            else
-                utf8 = wstring_to_utf8str(gWindowImplementation->getSecondaryText());
-
-            XChangeProperty(display, request.requestor, request.property,
-                            request.target, 8, PropModeReplace,
-                            (unsigned char *) utf8.c_str(), utf8.length());
-        }
-        else if (request.selection == XA_CLIPBOARD)
-        {
-            // Did not have what they wanted, so no property set
-            reply.property = None;
-        }
-        else
-            return;
-
-        XSendEvent(request.display, request.requestor, False, NoEventMask, (XEvent *) &reply);
-        XSync(display, False);
-    }
-
-    void filterSelectionClearRequest( XEvent aEvent )
-    {
-        auto &request = aEvent.xselectionrequest;
-        if (request.selection == XA_PRIMARY)
-            gWindowImplementation->clearPrimaryText();
-        else if (request.selection == XA_CLIPBOARD)
-            gWindowImplementation->clearSecondaryText();
-    }
-
-    int x11_clipboard_filter(void*, SDL_Event *evt)
-    {
-        Display *display = LLWindowSDL::getSDLDisplay();
-        if (!display)
-            return 1;
-
-        if (evt->type != SDL_SYSWMEVENT)
-            return 1;
-
-        auto xevent = evt->syswm.msg->msg.x11.event;
-
-        if (xevent.type == SelectionRequest)
-            filterSelectionRequest( xevent );
-        else if (xevent.type == SelectionClear)
-            filterSelectionClearRequest( xevent );
-        return 1;
-    }
-
-    bool grab_property(Display* display, Window window, Atom selection, Atom target)
-    {
-        if( !display )
-            return false;
-
-        maybe_lock_display();
-
-        XDeleteProperty(display, window, PVT_PASTE_BUFFER);
-        XFlush(display);
-
-        XConvertSelection(display, selection, target, PVT_PASTE_BUFFER, window,  CurrentTime);
-
-        // Unlock the connection so that the SDL event loop may function
-        maybe_unlock_display();
-
-        const auto start{ SDL_GetTicks() };
-        const auto end{ start + 1000 };
-
-        XEvent xevent {};
-        bool response = false;
-
-        do
-        {
-            SDL_Event event {};
-
-            // Wait for an event
-            SDL_WaitEvent(&event);
-
-            // If the event is a window manager event
-            if (event.type == SDL_SYSWMEVENT)
-            {
-                xevent = event.syswm.msg->msg.x11.event;
-
-                if (xevent.type == SelectionNotify && xevent.xselection.requestor == window)
-                    response = true;
-            }
-        } while (!response && SDL_GetTicks() < end );
-
-        return response && xevent.xselection.property != None;
-    }
-}
-
-void LLWindowSDL::initialiseX11Clipboard()
-{
-    if (!mSDL_Display)
-        return;
-
-    SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
-    SDL_SetEventFilter(x11_clipboard_filter, nullptr);
-
-    maybe_lock_display();
-
-    XA_CLIPBOARD = XInternAtom(mSDL_Display, "CLIPBOARD", False);
-
-    gSupportedAtoms[0] = XInternAtom(mSDL_Display, "UTF8_STRING", False);
-    gSupportedAtoms[1] = XInternAtom(mSDL_Display, "COMPOUND_TEXT", False);
-    gSupportedAtoms[2] = XA_STRING;
-
-    // TARGETS atom
-    XA_TARGETS = XInternAtom(mSDL_Display, "TARGETS", False);
-
-    // SL_PASTE_BUFFER atom
-    PVT_PASTE_BUFFER = XInternAtom(mSDL_Display, "FS_PASTE_BUFFER", False);
-
-    maybe_unlock_display();
-}
-
-bool LLWindowSDL::getSelectionText( Atom aSelection, Atom aType, LLWString &text )
-{
-    if( !mSDL_Display )
-        return false;
-
-    if( !grab_property(mSDL_Display, mSDL_XWindowID, aSelection,aType ) )
-        return false;
-
-    maybe_lock_display();
-
-    Atom type;
-    int format{};
-    unsigned long len{},remaining {};
-    unsigned char* data = nullptr;
-    int res = XGetWindowProperty(mSDL_Display, mSDL_XWindowID,
-                                 PVT_PASTE_BUFFER, 0, MAX_PASTE_BUFFER_SIZE, False,
-                                 AnyPropertyType, &type, &format, &len,
-                                 &remaining, &data);
-    if (data && len)
-    {
-        text = LLWString(
-                utf8str_to_wstring(reinterpret_cast< char const *>( data ) )
-        );
-        XFree(data);
-    }
-
-    maybe_unlock_display();
-    return res == Success;
-}
-
-bool LLWindowSDL::getSelectionText(Atom selection, LLWString& text)
-{
-    if (!mSDL_Display)
-        return false;
-
-    maybe_lock_display();
-
-    Window owner = XGetSelectionOwner(mSDL_Display, selection);
-    if (owner == None)
-    {
-        if (selection == XA_PRIMARY)
-        {
-            owner = DefaultRootWindow(mSDL_Display);
-            selection = XA_CUT_BUFFER0;
-        }
-        else
-        {
-            maybe_unlock_display();
-            return false;
-        }
-    }
-
-    maybe_unlock_display();
-
-    for( Atom atom : gSupportedAtoms )
-    {
-        if(getSelectionText(selection, atom, text ) )
-            return true;
-    }
-
-    return false;
-}
-
-bool LLWindowSDL::setSelectionText(Atom selection, const LLWString& text)
-{
-    maybe_lock_display();
-
-    if (selection == XA_PRIMARY)
-    {
-        std::string utf8 = wstring_to_utf8str(text);
-        XStoreBytes(mSDL_Display, utf8.c_str(), utf8.length() + 1);
-        mPrimaryClipboard = text;
-    }
-    else
-        mSecondaryClipboard = text;
-
-    XSetSelectionOwner(mSDL_Display, selection, mSDL_XWindowID, CurrentTime);
-
-    auto owner = XGetSelectionOwner(mSDL_Display, selection);
-
-    maybe_unlock_display();
-
-    return owner == mSDL_XWindowID;
-}
-
-Display* LLWindowSDL::getSDLDisplay()
-{
-    if (gWindowImplementation)
-        return gWindowImplementation->mSDL_Display;
-    return nullptr;
-}
-
-#endif
-
-
 LLWindowSDL::LLWindowSDL(LLWindowCallbacks* callbacks,
                          const std::string& title, S32 x, S32 y, S32 width,
                          S32 height, U32 flags,
@@ -409,10 +167,7 @@ LLWindowSDL::LLWindowSDL(LLWindowCallbacks* callbacks,
     // Stash an object pointer for OSMessageBox()
     gWindowImplementation = this;
 
-#if LL_X11
     mFlashing = false;
-    initialiseX11Clipboard();
-#endif // LL_X11
 
     mKeyVirtualKey = 0;
     mKeyModifiers = KMOD_NONE;
@@ -1333,85 +1088,70 @@ void LLWindowSDL::afterDialog()
     }
 }
 
-
-#if LL_X11
-// set/reset the XWMHints flag for 'urgency' that usually makes the icon flash
-void LLWindowSDL::x11_set_urgent(bool urgent)
-{
-    if (mSDL_Display && !mFullscreen)
-    {
-        XWMHints *wm_hints;
-
-        LL_INFOS() << "X11 hint for urgency, " << urgent << LL_ENDL;
-
-        maybe_lock_display();
-        wm_hints = XGetWMHints(mSDL_Display, mSDL_XWindowID);
-        if (!wm_hints)
-            wm_hints = XAllocWMHints();
-
-        if (urgent)
-            wm_hints->flags |= XUrgencyHint;
-        else
-            wm_hints->flags &= ~XUrgencyHint;
-
-        XSetWMHints(mSDL_Display, mSDL_XWindowID, wm_hints);
-        XFree(wm_hints);
-        XSync(mSDL_Display, False);
-        maybe_unlock_display();
-    }
-}
-#endif // LL_X11
-
 void LLWindowSDL::flashIcon(F32 seconds)
 {
-    if (getMinimized())
-    {
-#if !LL_X11
-        LL_INFOS() << "Stub LLWindowSDL::flashIcon(" << seconds << ")" << LL_ENDL;
-#else
-        LL_INFOS() << "X11 LLWindowSDL::flashIcon(" << seconds << ")" << LL_ENDL;
+    LL_INFOS() << "LLWindowSDL::flashIcon(" << seconds << ")" << LL_ENDL;
 
-        F32 remaining_time = mFlashTimer.getRemainingTimeF32();
-        if (remaining_time < seconds)
-            remaining_time = seconds;
-        mFlashTimer.reset();
-        mFlashTimer.setTimerExpirySec(remaining_time);
+    F32 remaining_time = mFlashTimer.getRemainingTimeF32();
+    if (remaining_time < seconds)
+        remaining_time = seconds;
+    mFlashTimer.reset();
+    mFlashTimer.setTimerExpirySec(remaining_time);
 
-        x11_set_urgent(true);
-        mFlashing = true;
-#endif // LL_X11
-    }
+    SDL_FlashWindow(mWindow, SDL_FLASH_UNTIL_FOCUSED);
+    mFlashing = true;
 }
 
 bool LLWindowSDL::isClipboardTextAvailable()
 {
-    return mSDL_Display && XGetSelectionOwner(mSDL_Display, XA_CLIPBOARD) != None;
+    return SDL_HasClipboardText() == SDL_TRUE;
 }
 
 bool LLWindowSDL::pasteTextFromClipboard(LLWString &dst)
 {
-    return getSelectionText(XA_CLIPBOARD, dst);
+    if (isClipboardTextAvailable())
+    {
+        char* data = SDL_GetClipboardText();
+        if (data)
+        {
+            dst = LLWString(utf8str_to_wstring(data));
+            SDL_free(data);
+            return true;
+        }
+    }
+    return false;
 }
 
-bool LLWindowSDL::copyTextToClipboard(const LLWString &s)
+bool LLWindowSDL::copyTextToClipboard(const LLWString& text)
 {
-    return setSelectionText(XA_CLIPBOARD, s);
+    const std::string utf8 = wstring_to_utf8str(text);
+    return SDL_SetClipboardText(utf8.c_str()) == 0; // success == 0
 }
 
 bool LLWindowSDL::isPrimaryTextAvailable()
 {
-    LLWString text;
-    return getSelectionText(XA_PRIMARY, text) && !text.empty();
+    return SDL_HasPrimarySelectionText() == SDL_TRUE;
 }
 
 bool LLWindowSDL::pasteTextFromPrimary(LLWString &dst)
 {
-    return getSelectionText(XA_PRIMARY, dst);
+    if (isPrimaryTextAvailable())
+    {
+        char* data = SDL_GetPrimarySelectionText();
+        if (data)
+        {
+            dst = LLWString(utf8str_to_wstring(data));
+            SDL_free(data);
+            return true;
+        }
+    }
+    return false;
 }
 
-bool LLWindowSDL::copyTextToPrimary(const LLWString &s)
+bool LLWindowSDL::copyTextToPrimary(const LLWString& text)
 {
-    return setSelectionText(XA_PRIMARY, s);
+    const std::string utf8 = wstring_to_utf8str(text);
+    return SDL_SetPrimarySelectionText(utf8.c_str()) == 0; // success == 0
 }
 
 LLWindow::LLWindowResolution* LLWindowSDL::getSupportedResolutions(S32 &num_resolutions)
@@ -1511,9 +1251,6 @@ bool LLWindowSDL::convertCoords(LLCoordGL from, LLCoordScreen *to)
 
     return(convertCoords(from, &window_coord) && convertCoords(window_coord, to));
 }
-
-
-
 
 void LLWindowSDL::setupFailure(const std::string& text, const std::string& caption, U32 type)
 {
@@ -1719,7 +1456,7 @@ void check_vm_bloat()
         last_rss_size = this_rss_size;
         last_vm_size = this_vm_size;
 
-        finally:
+finally:
         if (NULL != ptr)
         {
             free(ptr);
@@ -1993,20 +1730,18 @@ void LLWindowSDL::gatherInput()
 
     updateCursor();
 
-#if LL_X11
     // This is a good time to stop flashing the icon if our mFlashTimer has
     // expired.
     if (mFlashing && mFlashTimer.hasExpired())
     {
-        x11_set_urgent(false);
+        SDL_FlashWindow(mWindow, SDL_FLASH_CANCEL);
         mFlashing = false;
     }
-#endif // LL_X11
 }
 
 static SDL_Cursor *makeSDLCursorFromBMP(const char *filename, int hotx, int hoty)
 {
-    SDL_Cursor *sdlcursor = NULL;
+    SDL_Cursor *sdlcursor = nullptr;
     SDL_Surface *bmpsurface;
 
     // Load cursor pixel data from BMP file
@@ -2347,62 +2082,6 @@ LLSD LLWindowSDL::getNativeKeyData()
     return result;
 }
 
-#if LL_LINUX || LL_SOLARIS
-// extracted from spawnWebBrowser for clarity and to eliminate
-//  compiler confusion regarding close(int fd) vs. LLWindow::close()
-void exec_cmd(const std::string& cmd, const std::string& arg)
-{
-    char* const argv[] = {(char*)cmd.c_str(), (char*)arg.c_str(), NULL};
-    fflush(NULL);
-    pid_t pid = fork();
-    if (pid == 0)
-    { // child
-        // disconnect from stdin/stdout/stderr, or child will
-        // keep our output pipe undesirably alive if it outlives us.
-        // close(0);
-        // close(1);
-        // close(2);
-        // <FS:TS> Reopen stdin, stdout, and stderr to /dev/null.
-        //         It's good practice to always have those file
-        //         descriptors open to something, lest the exec'd
-        //         program actually try to use them.
-        FILE *result;
-        result = freopen("/dev/null","r",stdin);
-        if (result == NULL)
-        {
-            LL_WARNS() << "Error reopening stdin for web browser: "
-                       << strerror(errno) << LL_ENDL;
-        }
-        result = freopen("/dev/null","w",stdout);
-        if (result == NULL)
-        {
-            LL_WARNS() << "Error reopening stdout for web browser: "
-                       << strerror(errno) << LL_ENDL;
-        }
-        result = freopen("/dev/null","w",stderr);
-        if (result == NULL)
-        {
-            LL_WARNS() << "Error reopening stderr for web browser: "
-                       << strerror(errno) << LL_ENDL;
-        }
-        // end ourself by running the command
-        execv(cmd.c_str(), argv);   /* Flawfinder: ignore */
-        // if execv returns at all, there was a problem.
-        LL_WARNS() << "execv failure when trying to start " << cmd << LL_ENDL;
-        _exit(1); // _exit because we don't want atexit() clean-up!
-    } else {
-        if (pid > 0)
-        {
-            // parent - wait for child to die
-            int childExitStatus;
-            waitpid(pid, &childExitStatus, 0);
-        } else {
-            LL_WARNS() << "fork failure." << LL_ENDL;
-        }
-    }
-}
-#endif
-
 // Open a URL with the user's default web browser.
 // Must begin with protocol identifier.
 void LLWindowSDL::spawnWebBrowser(const std::string& escaped_url, bool async)
@@ -2426,33 +2105,12 @@ void LLWindowSDL::spawnWebBrowser(const std::string& escaped_url, bool async)
 
     LL_INFOS() << "spawn_web_browser: " << escaped_url << LL_ENDL;
 
-#if LL_LINUX
-# if LL_X11
-    if (mSDL_Display)
+    if (SDL_OpenURL(escaped_url.c_str()) != 0)
     {
-        maybe_lock_display();
-        // Just in case - before forking.
-        XSync(mSDL_Display, False);
-        maybe_unlock_display();
+        LL_WARNS() << "spawn_web_browser failed with error: " << SDL_GetError() << LL_ENDL;
     }
-# endif // LL_X11
-
-    std::string cmd, arg;
-    cmd  = gDirUtilp->getAppRODataDir();
-    cmd += gDirUtilp->getDirDelimiter();
-    cmd += "etc";
-    cmd += gDirUtilp->getDirDelimiter();
-    cmd += "launch_url.sh";
-    arg = escaped_url;
-    exec_cmd(cmd, arg);
-#endif // LL_LINUX
 
     LL_INFOS() << "spawn_web_browser returning." << LL_ENDL;
-}
-
-void LLWindowSDL::openFile(const std::string& file_name)
-{
-    spawnWebBrowser("file://"+file_name,true);
 }
 
 void *LLWindowSDL::getPlatformWindow()
