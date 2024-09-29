@@ -49,10 +49,10 @@ extern "C" {
 #if LL_LINUX
 // not necessarily available on random SDL platforms, so #if LL_LINUX
 // for execv(), waitpid(), fork()
-# include <unistd.h>
-# include <sys/types.h>
-# include <sys/wait.h>
-# include <stdio.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <stdio.h>
 #endif // LL_LINUX
 
 extern bool gDebugWindowProc;
@@ -66,7 +66,7 @@ static bool ATIbug = false;
 // LLWindowSDL
 //
 
-# include <X11/Xutil.h>
+#include <X11/Xutil.h>
 
 // TOFU HACK -- (*exactly* the same hack as LLWindowMacOSX for a similar
 // set of reasons): Stash a pointer to the LLWindowSDL object here and
@@ -338,6 +338,97 @@ Display* LLWindowSDL::getSDLDisplay()
     return nullptr;
 }
 
+/*
+ * In wayland a window does not have a state of "minimized" or gets messages that it got minimized [1]
+ * There's two ways to approach this challenge:
+ *   1) Ignore it, this would mean even if minimized/not visible the viewer will always fun at full fps
+ *   2) Try to detect something like "minimized", the best way I found so far is to as for frame_done events. Those will
+ *   only happen if parts of the viewer are visible. As such it is not the same a "minimized" but rather "this window
+ *   is not fully hidden behind another window or minimized". That's (I guess) still better than nothing and running
+ *   full tilt even if hidden.
+ *
+ * [1] As of 2024-09, maybe in the future we get nice things
+*/
+#ifdef ND_WAYLAND
+#include <wayland-client-protocol.h>
+
+void LLWindowSDL::detectHiddenState()
+{
+    if( Wayland != mServerProtocol || mWaylandData.mLastFrameEvent == 0 )
+        return;
+
+    auto oldState = mWindowState;
+    auto currentTime = LLTimer::getTotalTime();
+    if( (currentTime - mWaylandData.mLastFrameEvent) > 250000 )
+        mWindowState = Minimized;
+    else if( mWindowState == Minimized )
+        mWindowState = Normal;
+
+    if( oldState != mWindowState )
+    {
+        LL_INFOS() << "SDL window state state switched to " << (U32)mWindowState << LL_ENDL;
+    }
+}
+
+void LLWindowSDL::waylandFrameDoneCB(void *data, struct wl_callback *cb, uint32_t time)
+{
+    static uint32_t frame_count {0};
+    static F64SecondsImplicit lastInfo{0};
+
+    ++frame_count;
+
+    wl_callback_destroy(cb);
+    auto pThis = reinterpret_cast<LLWindowSDL*>(data);
+    pThis->mWaylandData.mLastFrameEvent = LLTimer::getTotalTime();
+
+    if( pThis->mWindowState == Minimized)
+        pThis->mWindowState = Normal;
+
+    auto now = LLTimer::getElapsedSeconds();
+    if( lastInfo > 0)
+    {
+        auto diff = now.value() - lastInfo.value();
+        constexpr double FPS_INFO_INTERVAL = 60.f * 5.f;
+        if( diff >= FPS_INFO_INTERVAL)
+        {
+            double fFPS = frame_count;
+            fFPS /= diff;
+            LL_INFOS() << "Wayland: FPS " << fFPS << " fps, " << frame_count << " #frames time " << (diff) << LL_ENDL;
+            frame_count = 0;
+            lastInfo = now;
+        }
+    }
+    else
+        lastInfo = now;
+
+    pThis->setupWaylandFrameCallback(); // ask for a new frame
+}
+
+void LLWindowSDL::setupWaylandFrameCallback()
+{
+//    if( !isWaylandUsable() )
+//    {
+//        LL_WARNS() << "On Wayland, but libwayland-client is not usable (symbols not resolved). Try to preload wayland-client" << LL_ENDL;
+//        return;
+//    }
+
+    static  wl_callback_listener frame_listener { nullptr };
+    frame_listener.done = &LLWindowSDL::waylandFrameDoneCB;
+
+    auto cb = wl_surface_frame(mWaylandData.mSurface);
+    wl_callback_add_listener(cb, &frame_listener, this);
+}
+#else
+void LLWindowSDL::detectHiddenState()
+{
+}
+void LLWindowSDL::setupWaylandFrameCallback()
+{
+    LL_WARNS() << "Viewer is running under Wayland, but was not compiled with full wayland support!" << LL_ENDL;
+}
+#endif
+
+#include <dlfcn.h>
 LLWindowSDL::LLWindowSDL(LLWindowCallbacks* callbacks,
                          const std::string& title, S32 x, S32 y, S32 width,
                          S32 height, U32 flags,
@@ -351,6 +442,8 @@ LLWindowSDL::LLWindowSDL(LLWindowCallbacks* callbacks,
     // Initialize the keyboard
     gKeyboard = new LLKeyboardSDL();
     gKeyboard->setCallbacks(callbacks);
+
+    dlopen("libwayland-client.so", RTLD_NOW|RTLD_GLOBAL);
 
     // Assume 4:3 aspect ratio until we know better
     mOriginalAspectRatio = 1024.0 / 768.0;
@@ -679,14 +772,17 @@ bool LLWindowSDL::createContext(int x, int y, int width, int height, int bits, b
         }
 	    else if ( info.subsystem == SDL_SYSWM_WAYLAND )
         {
-	        mServerProtocol = Wayland;
+            mWaylandData.mSurface = info.info.wl.surface;
+            mServerProtocol = Wayland;
+            setupWaylandFrameCallback();
 
             // If set (XWayland) remove DISPLAY, this will prompt dullahan to also use Wayland
             if( getenv("DISPLAY") )
                 unsetenv("DISPLAY");
 
 	        LL_INFOS() << "Running under Wayland" << LL_ENDL;
-            LL_WARNS() << "Be aware that with at least SDL2 the window will not receive minimizing events, thus getMinimized, will always return false, also setting the appliction icon via SDL_SetWindowIcon does not work." << LL_ENDL;
+            LL_WARNS() << "Be aware that with at least SDL2 the window will not receive minimizing events, thus minimized state can only be estimated."
+                          "also setting the application icon via SDL_SetWindowIcon does not work." << LL_ENDL;
         }
         else
         {
@@ -820,6 +916,7 @@ bool LLWindowSDL::getVisible()
 
 bool LLWindowSDL::getMinimized()
 {
+    detectHiddenState();
     if (mWindow && mWindowState == Minimized )
        return true;
 

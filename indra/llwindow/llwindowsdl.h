@@ -48,7 +48,7 @@ public:
     void show() override;
     void hide() override;
     void restore() override;
- 
+
     void close() override;
 
     bool getVisible() override;
@@ -226,7 +226,7 @@ protected:
     U32 mFSAASamples = 0;
 
     int mHaveInputFocus = -1; /* 0=no, 1=yes, else unknown */
- 
+
     enum WindowState{ Normal, Minimized, Maximized };
     WindowState mWindowState = Normal;
 
@@ -247,7 +247,21 @@ private:
         Display *mDisplay = nullptr;
     } mX11Data;
 
+    // Wayland
+    struct {
+        wl_surface *mSurface = nullptr;
+        uint64_t mLastFrameEvent = 0;
+    } mWaylandData;
+
+    //bool isSurfaceDrawOn();
+    void detectHiddenState();
+
+    void setupWaylandFrameCallback();
+    static void waylandFrameDoneCB(void *data, struct wl_callback *cb, uint32_t time);
+    //
+
 public:
+
     static Display *getSDLDisplay();
 
     LLWString const &getPrimaryText() const { return mPrimaryClipboard; }
