@@ -198,7 +198,7 @@ ECmdRet ReplyHandler<EBehaviour::GetCommand>::onCommand(const RlvCommand& rlvCmd
     std::list<std::string> cmdList;
     if (BehaviourDictionary::instance().getCommands(!optionList.empty() ? optionList[0] : LLStringUtil::null, eType, cmdList))
         strReply = boost::algorithm::join(cmdList, optionList.size() >= 3 ? optionList[2] : Constants::OptionSeparator);
-    return ECmdRet::Success;
+    return ECmdRet::Succeeded;
 }
 
 // Handles: @version=<chnannel> and @versionnew=<channel>
@@ -206,7 +206,7 @@ template<> template<>
 ECmdRet VersionReplyHandler::onCommand(const RlvCommand& rlvCmd, std::string& strReply)
 {
     strReply = Strings::getVersion(EBehaviour::Version == rlvCmd.getBehaviourType());
-    return ECmdRet::Success;
+    return ECmdRet::Succeeded;
 }
 
 // Handles: @versionnum[:impl]=<channel>
@@ -219,7 +219,7 @@ ECmdRet ReplyHandler<EBehaviour::VersionNum>::onCommand(const RlvCommand& rlvCmd
         strReply = Strings::getVersionImplNum();
     else
         return ECmdRet::FailedOption;
-    return ECmdRet::Success;
+    return ECmdRet::Succeeded;
 }
 
 // ============================================================================
