@@ -48,11 +48,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>691fef2ddd57d7b6c26e87fc82d9ace3f54e078c</string>
+              <string>4211d1a29fa407e68bc6e95707b02f34b30f3a12</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-fltk/releases/download/v1.3.9-r1/fltk-1.3.9.8556992788-linux64-8556992788.tar.zst</string>
+              <string>https://github.com/AiraYumi/3p-fltk/releases/download/v1.4.x-20240927-84eeac58/fltk-1.4.0.11101359206-linux64-11101359206.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux</string>
