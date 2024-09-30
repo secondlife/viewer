@@ -994,9 +994,6 @@ LLGLManager::LLGLManager() :
     mIsAMD(false),
     mIsNVIDIA(false),
     mIsIntel(false),
-#if LL_DARWIN
-    mIsMobileGF(false),
-#endif
     mHasRequirements(true),
     mDriverVersionMajor(1),
     mDriverVersionMinor(0),
