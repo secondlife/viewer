@@ -330,12 +330,6 @@ F32 LLGLTexture::getTimePassedSinceLastBound()
 
     return mGLTexturep->getTimePassedSinceLastBound() ;
 }
-bool LLGLTexture::getMissed() const
-{
-    llassert(mGLTexturep.notNull()) ;
-
-    return mGLTexturep->getMissed() ;
-}
 
 bool LLGLTexture::isJustBound() const
 {

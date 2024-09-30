@@ -3633,6 +3633,54 @@ void LLPipeline::postSort(LLCamera &camera)
         std::sort(sCull->beginRiggedAlphaGroups(), sCull->endRiggedAlphaGroups(), LLSpatialGroup::CompareRenderOrder());
     }
 
+    {
+        LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("postSort - gltf sort");
+
+        struct CompareMaterialVAO
+        {
+            bool operator()(const LLGLTFDrawInfo& lhs, const LLGLTFDrawInfo& rhs)
+            {
+                if (rhs.mMaterialID != lhs.mMaterialID)
+                {
+                    return lhs.mMaterialID < rhs.mMaterialID;
+                }
+                else
+                {
+                    return lhs.mVAO < rhs.mVAO;
+                }
+            }
+        };
+
+        struct CompareSkinnedMaterialVAO
+        {
+            bool operator()(const LLSkinnedGLTFDrawInfo& lhs, const LLSkinnedGLTFDrawInfo& rhs)
+            {
+                if (rhs.mAvatar != lhs.mAvatar)
+                {
+                    return lhs.mAvatar < rhs.mAvatar;
+                }
+                else if (rhs.mSkinInfo->mHash != rhs.mSkinInfo->mHash)
+                {
+                    return lhs.mSkinInfo->mHash < rhs.mSkinInfo->mHash;
+                }
+                else if (rhs.mMaterialID != lhs.mMaterialID)
+                {
+                    return lhs.mMaterialID < rhs.mMaterialID;
+                }
+                else
+                {
+                    return lhs.mVAO < rhs.mVAO;
+                }
+            }
+        };
+
+        sCull->mGLTFBatches.sort(LLGLTFMaterial::ALPHA_MODE_OPAQUE, CompareMaterialVAO());
+        sCull->mGLTFBatches.sort(LLGLTFMaterial::ALPHA_MODE_MASK, CompareMaterialVAO());
+        sCull->mGLTFBatches.sortSkinned(LLGLTFMaterial::ALPHA_MODE_OPAQUE, CompareSkinnedMaterialVAO());
+        sCull->mGLTFBatches.sortSkinned(LLGLTFMaterial::ALPHA_MODE_MASK, CompareSkinnedMaterialVAO());
+    }
+
+
     { // sort LLDrawInfos that have an associated material ID by material
         LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("postSort - material sort");
         U32 material_batch_types[] = {

@@ -227,14 +227,17 @@ public:
 class LLGLTFDrawInfo
 {
 public:
-    // put mMaterialID and mVertexBuffer first for cache coherency during sorts
+    // put mMaterialID first for cache coherency during sorts
     size_t mMaterialID;
 
-    // use raw pointers to avoid refcounting overhead during vector operations
-    // NOTE: if these pointers are freed while still in use, something has gone wrong in LLSpatialGroup.
+    // Use direct values of VAO and texture names to avoid dereferencing pointers
+    // NOTE: if these GL resources are freed while still in use, something has gone wrong in LLVertexBuffer/LLImageGL
     // The bug is there, not here.
-    LLVertexBuffer* mVertexBuffer;
-    LLFetchedGLTFMaterial* mMaterial;
+    U32 mVAO;
+    U32 mBaseColorMap;
+    U32 mNormalMap;
+    U32 mMetallicRoughnessMap;
+    U32 mEmissiveMap;
     U32 mElementCount;
     U32 mElementOffset;
     U32 mInstanceCount;
@@ -276,7 +279,7 @@ public:
     void add(const LLGLTFBatches& other);
 
     template <typename T>
-    void sort(LLGLTFMaterial::AlphaMode mode, T comparator)
+    void sort(LLGLTFMaterial::AlphaMode i, T comparator)
     {
         for (U32 i = 0; i < 3; ++i)
         {
@@ -291,16 +294,13 @@ public:
     }
 
     template <typename T>
-    void sortSkinned(LLGLTFMaterial::AlphaMode mode, T comparator)
+    void sortSkinned(LLGLTFMaterial::AlphaMode i, T comparator)
     {
-        for (U32 i = 0; i < 3; ++i)
+        for (U32 j = 0; j < 2; ++j)
         {
-            for (U32 j = 0; j < 2; ++j)
+            for (U32 k = 0; k < 2; ++k)
             {
-                for (U32 k = 0; k < 2; ++k)
-                {
-                    std::sort(mSkinnedDrawInfo[i][j][k].begin(), mSkinnedDrawInfo[i][j][k].end(), comparator);
-                }
+                std::sort(mSkinnedDrawInfo[i][j][k].begin(), mSkinnedDrawInfo[i][j][k].end(), comparator);
             }
         }
     }

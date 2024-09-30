@@ -1083,7 +1083,7 @@ void LLSpatialGroup::updateTransformUBOs()
                 if (current_info &&
                     vf.mVertexBuffer.notNull() &&
                     current_info->mMaterialID == gltf_mat->getBatchHash() &&
-                    current_info->mVertexBuffer == vf.mVertexBuffer &&
+                    current_info->mVAO == vf.mVertexBuffer->mGLVAO &&
                     current_info->mElementOffset == vf.mVBIndexOffset &&
                     current_avatar == avatar &&
                     current_skin_hash == skin_hash &&
@@ -1114,9 +1114,36 @@ void LLSpatialGroup::updateTransformUBOs()
                     avatar = current_avatar;
                     skin_hash = current_skin_hash;
 
+                    LLFetchedGLTFMaterial* mat = (LLFetchedGLTFMaterial*)gltf_mat;
+
+                    auto* basecolor = mat->mBaseColorTexture.get();
+                    if (!basecolor)
+                    {
+                        basecolor = LLViewerFetchedTexture::sWhiteImagep.get();
+                    }
+                    auto* normal = mat->mNormalTexture.get();
+                    if (!normal)
+                    {
+                        normal = LLViewerFetchedTexture::sFlatNormalImagep.get();
+                    }
+                    auto* metallic = mat->mMetallicRoughnessTexture.get();
+                    if (!metallic)
+                    {
+                        metallic = LLViewerFetchedTexture::sWhiteImagep.get();
+                    }
+                    auto* emissive = mat->mEmissiveTexture.get();
+                    if (!emissive)
+                    {
+                        emissive = LLViewerFetchedTexture::sWhiteImagep.get();
+                    }
+
                     current_info->mMaterialID = gltf_mat->getBatchHash();
-                    current_info->mMaterial = (LLFetchedGLTFMaterial*)gltf_mat;
-                    current_info->mVertexBuffer = vf.mVertexBuffer;
+                    current_info->mBaseColorMap = basecolor->getTexName();
+                    current_info->mNormalMap = normal->getTexName();
+                    current_info->mMetallicRoughnessMap = metallic->getTexName();
+                    current_info->mEmissiveMap = emissive->getTexName();
+
+                    current_info->mVAO = vf.mVertexBuffer->mGLVAO;
                     current_info->mElementOffset = vf.mVBIndexOffset;
                     current_info->mElementCount = vf.mNumIndices;
                     current_info->mTransformUBO = mTransformUBO;

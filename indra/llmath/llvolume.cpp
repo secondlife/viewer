@@ -2767,6 +2767,8 @@ bool LLVolume::cacheOptimize(bool gen_tangents)
     return true;
 }
 
+extern U32 ll_gl_gen_arrays();
+
 void LLVolume::createVertexBuffer()
 {
     if (!mVolumeFaces.empty() && mVertexBuffer.isNull())
@@ -2824,6 +2826,8 @@ void LLVolume::createVertexBuffer()
                 mVertexBuffer->setIndexData(face.mIndices, face.mVBIndexOffset, face.mNumIndices);
             }
         }
+
+        mVertexBuffer->setupVAO();
     }
 }
 

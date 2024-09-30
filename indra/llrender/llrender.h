@@ -196,6 +196,9 @@ public:
     // (automatically enables the tex unit for the given texture type)
     bool bindManual(eTextureType type, U32 texture, bool hasMips = false);
 
+    // Manually binds a texture to the texture unit doing absolute minimal work
+    void bindManualFast(LLTexUnit::eTextureType type, U32 texture);
+
     // Unbinds the currently bound texture of the given type
     // (only if there's a texture of the given type currently bound)
     void unbind(eTextureType type);

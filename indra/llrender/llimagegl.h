@@ -173,8 +173,6 @@ public:
 
     bool getIsAlphaMask() const;
 
-    bool getIsResident(bool test_now = false); // not const
-
     void setTarget(const LLGLenum target, const LLTexUnit::eTextureType bind_target);
 
     LLTexUnit::eTextureType getTarget(void) const { return mBindTarget; }
@@ -259,8 +257,6 @@ protected:
     bool mHasMipMaps;
     S32 mMipLevels;
 
-    LLGLboolean mIsResident;
-
     S8 mComponents;
     S8 mMaxDiscardLevel;
 
@@ -289,12 +285,6 @@ public:
     static LLImageGL* sDefaultGLTexture ;
     static bool sAutomatedTest;
     static bool sCompressTextures;          //use GL texture compression
-#if DEBUG_MISS
-    bool mMissed; // Missed on last bind?
-    bool getMissed() const { return mMissed; };
-#else
-    bool getMissed() const { return false; };
-#endif
 
 public:
     static void initClass(LLWindow* window, S32 num_catagories, bool skip_analyze_alpha = false, bool thread_texture_loads = false, bool thread_media_updates = false);

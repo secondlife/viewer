@@ -38,6 +38,9 @@
 #include "llmemory.h"
 #include <glm/gtc/type_ptr.hpp>
 
+U32 LLVertexBuffer::sDefaultVAO = 0;
+
+
 //Next Highest Power Of Two
 //helper function, returns first number > v that is a power of 2, or v if v is already a power of 2
 U32 nhpo2(U32 v)
@@ -316,6 +319,64 @@ void ll_gl_delete_buffers(S32 count, GLuint* buffers)
     }
 }
 
+
+// batch calls to glGenBuffers
+GLuint ll_gl_gen_arrays()
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VERTEX;
+
+    GLuint ret = 0;
+    constexpr U32 pool_size = 1024;
+
+    thread_local static GLuint sNamePool[pool_size];
+    thread_local static U32 sIndex = 0;
+
+    if (sIndex == 0)
+    {
+        LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("gen buffer");
+        sIndex = pool_size;
+        if (!gGLManager.mIsAMD)
+        {
+            glGenVertexArrays(pool_size, sNamePool);
+        }
+        else
+        { // work around for AMD driver bug
+            for (U32 i = 0; i < pool_size; ++i)
+            {
+                glGenVertexArrays(1, sNamePool + i);
+            }
+        }
+    }
+
+    ret = sNamePool[--sIndex];
+    return ret;
+}
+
+void ll_gl_delete_arrays(S32 count, GLuint* buffers)
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VERTEX;
+    // wait a few frames before actually deleting the buffers to avoid
+    // synchronization issues with the GPU
+    static std::vector<GLuint> sFreeList[4];
+
+    if (gGLManager.mInited)
+    {
+        U32 idx = LLImageGL::sFrameCount % 4;
+
+        for (S32 i = 0; i < count; ++i)
+        {
+            sFreeList[idx].push_back(buffers[i]);
+        }
+
+        idx = (LLImageGL::sFrameCount + 3) % 4;
+
+        if (!sFreeList[idx].empty())
+        {
+            glDeleteVertexArrays((GLsizei)sFreeList[idx].size(), sFreeList[idx].data());
+            sFreeList[idx].resize(0);
+        }
+    }
+}
 
 #define ANALYZE_VBO_POOL 0
 
@@ -656,6 +717,7 @@ U64 LLVertexBuffer::getBytesAllocated()
 //static
 U32 LLVertexBuffer::sGLRenderBuffer = 0;
 U32 LLVertexBuffer::sGLRenderIndices = 0;
+U32 LLVertexBuffer::sGLRenderVAO = 0;
 U32 LLVertexBuffer::sLastMask = 0;
 U32 LLVertexBuffer::sVertexCount = 0;
 
@@ -947,11 +1009,26 @@ void LLVertexBuffer::initClass(LLWindow* window)
 void LLVertexBuffer::unbind()
 {
     STOP_GLERROR;
+    if (sGLRenderVAO != sDefaultVAO)
+    {
+        glBindVertexArray(sDefaultVAO);
+        sGLRenderVAO = sDefaultVAO;
+    }
+
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     STOP_GLERROR;
     sGLRenderBuffer = 0;
     sGLRenderIndices = 0;
+}
+
+void LLVertexBuffer::bindVAO(U32 vao)
+{
+    if (sGLRenderVAO != vao)
+    {
+        glBindVertexArray(vao);
+        sGLRenderVAO = vao;
+    }
 }
 
 //static
@@ -992,6 +1069,13 @@ LLVertexBuffer::LLVertexBuffer(U32 typemask)
 // list of mapped buffers
 // NOTE: must not be LLPointer<LLVertexBuffer> to avoid breaking non-ref-counted LLVertexBuffer instances
 static std::vector<LLVertexBuffer*> sMappedBuffers;
+
+//static
+void LLVertexBuffer::updateClass()
+{
+    ll_gl_delete_arrays(0, nullptr);
+    ll_gl_delete_buffers(0, nullptr);
+}
 
 //static
 void LLVertexBuffer::flushBuffers()
@@ -1058,6 +1142,11 @@ LLVertexBuffer::~LLVertexBuffer()
 
     destroyGLBuffer();
     destroyGLIndices();
+
+    if (mGLVAO)
+    {
+        ll_gl_delete_arrays(1, &mGLVAO);
+    }
 
     if (mMappedData)
     {
@@ -1632,6 +1721,8 @@ bool LLVertexBuffer::getClothWeightStrider(LLStrider<LLVector4>& strider, U32 in
 // Set for rendering
 void LLVertexBuffer::setBuffer()
 {
+    llassert(sGLRenderVAO == sDefaultVAO);
+
     if (mMapped)
     {
         LL_WARNS_ONCE() << "Missing call to unmapBuffer or flushBuffers" << LL_ENDL;
@@ -1694,10 +1785,14 @@ void LLVertexBuffer::bindBuffer()
 void LLVertexBuffer::setupVertexBuffer()
 {
     STOP_GLERROR;
-    U8* base = nullptr;
-
     U32 data_mask = LLGLSLShader::sCurBoundShaderPtr->mAttributeMask;
 
+    setupVertexBuffer(data_mask);
+}
+
+void LLVertexBuffer::setupVertexBuffer(U32 data_mask)
+{
+    U8* base = nullptr;
     if (data_mask & MAP_NORMAL)
     {
         AttributeType loc = TYPE_NORMAL;
@@ -1790,6 +1885,34 @@ void LLVertexBuffer::setupVertexBuffer()
         glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_VERTEX], ptr);
     }
     STOP_GLERROR;
+}
+
+void LLVertexBuffer::setupVAO()
+{
+    llassert(sGLRenderVAO == sDefaultVAO); // no other VAO may be bound
+    llassert(mGLVAO == 0); // VAO should be set up exactly once for the lifetime of an LLVertexBuffer
+
+    mGLVAO = ll_gl_gen_arrays();
+
+    U32 lastMask = sLastMask;
+
+    bindVAO();
+    sLastMask = 0;
+
+    glBindBuffer(GL_ARRAY_BUFFER, mGLBuffer);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mGLIndices);
+
+    setupClientArrays(mTypeMask);
+    setupVertexBuffer(mTypeMask);
+
+    // restore default state
+    bindVAO(sDefaultVAO);
+    sLastMask = lastMask;
+}
+
+void LLVertexBuffer::bindVAO()
+{
+    bindVAO(mGLVAO);
 }
 
 void LLVertexBuffer::setPositionData(const LLVector4a* data)

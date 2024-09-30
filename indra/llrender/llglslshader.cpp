@@ -1174,6 +1174,18 @@ S32 LLGLSLShader::bindTexture(S32 uniform, LLRenderTarget* texture, bool depth, 
     return uniform;
 }
 
+S32 LLGLSLShader::bindTexture(S32 uniform, U32 texName, LLTexUnit::eTextureType mode)
+{
+    uniform = mTexture[uniform];
+
+    if (uniform > -1)
+    {
+        gGL.getTexUnit(uniform)->bindManualFast(mode, texName);
+    }
+
+    return uniform;
+}
+
 S32 LLGLSLShader::bindTexture(const std::string& uniform, LLRenderTarget* texture, bool depth, LLTexUnit::eTextureFilterOptions mode)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
@@ -1294,6 +1306,12 @@ void LLGLSLShader::uniform1i(U32 index, GLint x)
             }
         }
     }
+}
+
+void LLGLSLShader::uniform1iFast(U32 index, GLint i)
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
+    glUniform1i(mUniform[index], i);
 }
 
 void LLGLSLShader::uniform1f(U32 index, GLfloat x)
