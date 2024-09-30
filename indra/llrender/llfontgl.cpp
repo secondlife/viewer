@@ -404,7 +404,6 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
     {
         // recursively render ellipses at end of string
         // we've already reserved enough room
-        gGL.pushUIMatrix();
         static LLWString elipses_wstr(utf8string_to_wstring(std::string("...")));
         render(elipses_wstr,
                 0,
@@ -417,7 +416,6 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
                 right_x,
                 false,
                 use_color);
-        gGL.popUIMatrix();
     }
 
     gGL.popUIMatrix();
