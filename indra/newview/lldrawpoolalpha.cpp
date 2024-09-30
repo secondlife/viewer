@@ -732,15 +732,6 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
                     {// If we need shaders, and we're not ALREADY using the proper shader, then bind it
                     // (this way we won't rebind shaders unnecessarily).
                         gPipeline.bindDeferredShaderFast(*target_shader);
-
-                        if (params.mFullbright)
-                        { // make sure the bind the exposure map for fullbright shaders so they can cancel out exposure
-                            S32 channel = target_shader->enableTexture(LLShaderMgr::EXPOSURE_MAP);
-                            if (channel > -1)
-                            {
-                                gGL.getTexUnit(channel)->bind(&gPipeline.mExposureMap);
-                            }
-                        }
                     }
 
                     LLVector4 spec_color(1, 1, 1, 1);
