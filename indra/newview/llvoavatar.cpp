@@ -113,6 +113,7 @@
 #include "llskinningutil.h"
 
 #include "llperfstats.h"
+#include "lleventapi.h"
 
 #include <boost/lexical_cast.hpp>
 
@@ -2406,8 +2407,6 @@ void LLVOAvatar::updateMeshData()
 {
     if (mDrawable.notNull())
     {
-        stop_glerror();
-
         S32 f_num = 0 ;
         const U32 VERTEX_NUMBER_THRESHOLD = 128 ;//small number of this means each part of an avatar has its own vertex buffer.
         const auto num_parts = mMeshLOD.size();
@@ -2534,7 +2533,6 @@ void LLVOAvatar::updateMeshData()
                 }
             }
 
-            stop_glerror();
             buff->unmapBuffer();
 
             if(!f_num)
@@ -5427,14 +5425,6 @@ U32 LLVOAvatar::renderImpostor(LLColor4U color, S32 diffuse_channel)
         gGL.setSceneBlendType(LLRender::BT_ADD);
         gGL.getTexUnit(diffuse_channel)->unbind(LLTexUnit::TT_TEXTURE);
 
-        // gGL.begin(LLRender::QUADS);
-        // gGL.vertex3fv((pos+left-up).mV);
-        // gGL.vertex3fv((pos-left-up).mV);
-        // gGL.vertex3fv((pos-left+up).mV);
-        // gGL.vertex3fv((pos+left+up).mV);
-        // gGL.end();
-
-
         gGL.begin(LLRender::LINES);
         gGL.color4f(1.f,1.f,1.f,1.f);
         F32 thickness = llmax(F32(5.0f-5.0f*(gFrameTimeSeconds-mLastImpostorUpdateFrameTime)),1.0f);
@@ -5455,15 +5445,22 @@ U32 LLVOAvatar::renderImpostor(LLColor4U color, S32 diffuse_channel)
 
     gGL.color4ubv(color.mV);
     gGL.getTexUnit(diffuse_channel)->bind(&mImpostor);
-    gGL.begin(LLRender::QUADS);
-    gGL.texCoord2f(0,0);
-    gGL.vertex3fv((pos+left-up).mV);
-    gGL.texCoord2f(1,0);
-    gGL.vertex3fv((pos-left-up).mV);
-    gGL.texCoord2f(1,1);
-    gGL.vertex3fv((pos-left+up).mV);
-    gGL.texCoord2f(0,1);
-    gGL.vertex3fv((pos+left+up).mV);
+    gGL.begin(LLRender::TRIANGLES);
+    {
+        gGL.texCoord2f(0.f, 0.f);
+        gGL.vertex3fv((pos + left - up).mV);
+        gGL.texCoord2f(1.f, 0.f);
+        gGL.vertex3fv((pos - left - up).mV);
+        gGL.texCoord2f(1.f, 1.f);
+        gGL.vertex3fv((pos - left + up).mV);
+
+        gGL.texCoord2f(0.f, 0.f);
+        gGL.vertex3fv((pos + left - up).mV);
+        gGL.texCoord2f(1.f, 1.f);
+        gGL.vertex3fv((pos - left + up).mV);
+        gGL.texCoord2f(0.f, 1.f);
+        gGL.vertex3fv((pos + left + up).mV);
+    }
     gGL.end();
     gGL.flush();
     }
@@ -10754,9 +10751,8 @@ void LLVOAvatar::updateRiggingInfo()
     getAssociatedVolumes(volumes);
 
     {
-        LL_PROFILE_ZONE_NAMED_CATEGORY_AVATAR("update rig info - get key")
-        HBXXH128 hash;
-
+        LL_PROFILE_ZONE_NAMED_CATEGORY_AVATAR("update rig info - get key");
+        size_t hash = 0;
         // Get current rigging info key
         for (LLVOVolume* vol : volumes)
         {
@@ -10765,22 +10761,20 @@ void LLVOAvatar::updateRiggingInfo()
                 const LLUUID& mesh_id = vol->getVolume()->getParams().getSculptID();
                 S32 max_lod = llmax(vol->getLOD(), vol->mLastRiggingInfoLOD);
 
-                hash.update(mesh_id.mData, sizeof(mesh_id.mData));
-                hash.update(&max_lod, sizeof(max_lod));
+                boost::hash_combine(hash, mesh_id);
+                boost::hash_combine(hash, max_lod);
             }
         }
 
-        LLUUID curr_rigging_info_key = hash.digest();
-
         // Check for key change, which indicates some change in volume composition or LOD.
-        if (curr_rigging_info_key == mLastRiggingInfoKey)
+        if (hash == mLastRiggingInfoKey)
         {
             return;
         }
 
 
         // Something changed. Update.
-        mLastRiggingInfoKey = curr_rigging_info_key;
+        mLastRiggingInfoKey = hash;
     }
 
     mJointRiggingInfoTab.clear();
@@ -11824,3 +11818,33 @@ bool LLVOAvatar::isBuddy() const
     return is_friend;
 }
 
+class LLVOAvatarListener : public LLEventAPI
+{
+  public:
+    LLVOAvatarListener() : LLEventAPI("LLVOAvatar", "LLVOAvatar listener to retrieve avatar info")
+    {
+        add("getSpeed",
+            "Return the avatar movement speed in the XY plane",
+            &LLVOAvatarListener::getSpeed,
+            LLSD().with("reply", LLSD()));
+        add("isInAir",
+            "Return the info whether avatar is in the air, and if so the time in the air",
+            &LLVOAvatarListener::isInAir,
+            LLSD().with("reply", LLSD()));
+    }
+
+  private:
+    void getSpeed(const LLSD &request) const
+    {
+        LLVector3 avatar_velocity = gAgentAvatarp->getCharacterVelocity() * gAgentAvatarp->getTimeDilation();
+        avatar_velocity.mV[VZ] = 0.f;
+        Response response(llsd::map("value", avatar_velocity.magVec()), request);
+    }
+    void isInAir(const LLSD &request) const
+    {
+        Response response(llsd::map("value", gAgentAvatarp->mInAir,
+                                    "duration", gAgentAvatarp->mInAir ? gAgentAvatarp->mTimeInAir.getElapsedTimeF32() : 0), request);
+    }
+};
+
+static LLVOAvatarListener VOAvatarListener;

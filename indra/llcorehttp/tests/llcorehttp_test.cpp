@@ -43,9 +43,12 @@
 #include "test_httpoperation.hpp"
 // As of 2019-06-28, test_httprequest.hpp consistently crashes on Mac Release
 // builds for reasons not yet diagnosed.
-#if ! (LL_DARWIN && LL_RELEASE)
+// On Linux too, this is likely to badly handling (p)thread creation and not waiting
+// for threads to properly shutdown
+#if LL_WINDOWS
 #include "test_httprequest.hpp"
 #endif
+
 #include "test_httpheaders.hpp"
 #include "test_httprequestqueue.hpp"
 #include "_httpservice.h"

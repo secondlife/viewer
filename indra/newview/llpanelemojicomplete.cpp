@@ -68,6 +68,9 @@ LLPanelEmojiComplete::LLPanelEmojiComplete(const LLPanelEmojiComplete::Params& p
     {
         LLScrollbar::Params sbparams;
         sbparams.orientation(LLScrollbar::VERTICAL);
+        sbparams.doc_size((S32)mTotalEmojis);
+        sbparams.doc_pos(0);
+        sbparams.page_size((S32)mVisibleEmojis);
         sbparams.change_callback([this](S32 index, LLScrollbar*) { onScrollbarChange(index); });
         mScrollbar = LLUICtrlFactory::create<LLScrollbar>(sbparams);
         addChild(mScrollbar);
@@ -280,8 +283,7 @@ void LLPanelEmojiComplete::onCommit()
 {
     if (mCurSelected < mTotalEmojis)
     {
-        LLSD value(wstring_to_utf8str(LLWString(1, mEmojis[mCurSelected].Character)));
-        setValue(value);
+        setValue(ll_convert_to<std::string>(mEmojis[mCurSelected].Character));
         LLUICtrl::onCommit();
     }
 }

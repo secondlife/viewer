@@ -735,7 +735,7 @@ typedef std::multimap<std::string, LLNotificationPtr> LLNotificationMap;
 // all of the built-in tests should attach to the "Visible" channel
 //
 class LLNotificationChannelBase :
-    public LLEventTrackable,
+    public boost::signals2::trackable,
     public LLRefCount
 {
     LOG_CLASS(LLNotificationChannelBase);

@@ -1297,7 +1297,8 @@ bool LLFloaterSnapshotBase::ImplBase::updatePreviewList(bool initialized)
 
 void LLFloaterSnapshotBase::ImplBase::updateLivePreview()
 {
-    if (ImplBase::updatePreviewList(true) && mFloater)
+    // don't update preview for hidden floater
+    if (mFloater && mFloater->isInVisibleChain() && ImplBase::updatePreviewList(true))
     {
         LL_DEBUGS() << "changed" << LL_ENDL;
         updateControls(mFloater);

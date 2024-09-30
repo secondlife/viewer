@@ -2758,6 +2758,19 @@ bool LLNameCategoryCollector::operator()(
     return false;
 }
 
+bool LLNameItemCollector::operator()(
+    LLInventoryCategory* cat, LLInventoryItem* item)
+{
+    if(item)
+    {
+        if (!LLStringUtil::compareInsensitive(mName, item->getName()))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 bool LLFindCOFValidItems::operator()(LLInventoryCategory* cat,
                                      LLInventoryItem* item)
 {

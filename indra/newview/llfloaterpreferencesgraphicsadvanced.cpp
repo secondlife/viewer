@@ -45,12 +45,12 @@
 LLFloaterPreferenceGraphicsAdvanced::LLFloaterPreferenceGraphicsAdvanced(const LLSD& key)
     : LLFloater(key)
 {
-    mCommitCallbackRegistrar.add("Pref.RenderOptionUpdate",            boost::bind(&LLFloaterPreferenceGraphicsAdvanced::onRenderOptionEnable, this));
-    mCommitCallbackRegistrar.add("Pref.UpdateIndirectMaxNonImpostors", boost::bind(&LLFloaterPreferenceGraphicsAdvanced::updateMaxNonImpostors,this));
-    mCommitCallbackRegistrar.add("Pref.UpdateIndirectMaxComplexity",   boost::bind(&LLFloaterPreferenceGraphicsAdvanced::updateMaxComplexity,this));
+    mCommitCallbackRegistrar.add("Pref.RenderOptionUpdate",            { boost::bind(&LLFloaterPreferenceGraphicsAdvanced::onRenderOptionEnable, this) });
+    mCommitCallbackRegistrar.add("Pref.UpdateIndirectMaxNonImpostors", { boost::bind(&LLFloaterPreferenceGraphicsAdvanced::updateMaxNonImpostors,this) });
+    mCommitCallbackRegistrar.add("Pref.UpdateIndirectMaxComplexity",   { boost::bind(&LLFloaterPreferenceGraphicsAdvanced::updateMaxComplexity,this) });
 
-    mCommitCallbackRegistrar.add("Pref.Cancel", boost::bind(&LLFloaterPreferenceGraphicsAdvanced::onBtnCancel, this, _2));
-    mCommitCallbackRegistrar.add("Pref.OK",     boost::bind(&LLFloaterPreferenceGraphicsAdvanced::onBtnOK, this, _2));
+    mCommitCallbackRegistrar.add("Pref.Cancel", { boost::bind(&LLFloaterPreferenceGraphicsAdvanced::onBtnCancel, this, _2), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.OK",     { boost::bind(&LLFloaterPreferenceGraphicsAdvanced::onBtnOK, this, _2), cb_info::UNTRUSTED_BLOCK });
 }
 
 LLFloaterPreferenceGraphicsAdvanced::~LLFloaterPreferenceGraphicsAdvanced()
@@ -247,8 +247,8 @@ void LLFloaterPreferenceGraphicsAdvanced::updateIndirectMaxNonImpostors(const LL
     if ((value != 0) && (value != gSavedSettings.getU32("IndirectMaxNonImpostors")))
     {
         gSavedSettings.setU32("IndirectMaxNonImpostors", value);
-        setMaxNonImpostorsText(value, getChild<LLTextBox>("IndirectMaxNonImpostorsText"));
     }
+    setMaxNonImpostorsText(value, getChild<LLTextBox>("IndirectMaxNonImpostorsText"));
 }
 
 void LLFloaterPreferenceGraphicsAdvanced::setMaxNonImpostorsText(U32 value, LLTextBox* text_box)

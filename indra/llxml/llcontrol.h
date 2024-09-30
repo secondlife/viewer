@@ -119,7 +119,7 @@ public:
     LLSD getDefault()   const   { return mValues.front(); }
     LLSD getSaveValue() const;
 
-    void set(const LLSD& val)   { setValue(val); }
+    void set(const LLSD& val, bool saved_value = true)  { setValue(val, saved_value); }
     void setValue(const LLSD& value, bool saved_value = true);
     void setDefaultValue(const LLSD& value);
     void setPersist(ePersist);
@@ -254,7 +254,7 @@ public:
     void    setLLSD(std::string_view name, const LLSD& val);
 
     // type agnostic setter that takes LLSD
-    void    setUntypedValue(std::string_view name, const LLSD& val);
+    void    setUntypedValue(std::string_view name, const LLSD& val, bool saved_value = true);
 
     // generic setter
     template<typename T> void set(std::string_view name, const T& val)

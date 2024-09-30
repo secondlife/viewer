@@ -58,12 +58,6 @@
 #include "llmeshrepository.h"
 #include "llskinningutil.h"
 
-#if LL_LINUX
-// Work-around spurious used before init warning on Vector4a
-//
-#pragma GCC diagnostic ignored "-Wuninitialized"
-#endif
-
 #define LL_MAX_INDICES_COUNT 1000000
 
 static LLStaticHashedString sTextureIndexIn("texture_index_in");
@@ -842,7 +836,6 @@ bool LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
         //VECTORIZE THIS
         LLMatrix4a mat_vert;
         mat_vert.loadu(mat_vert_in);
-        LLVector4a new_extents[2];
 
         llassert(less_than_max_mag(face.mExtents[0]));
         llassert(less_than_max_mag(face.mExtents[1]));
@@ -2267,6 +2260,14 @@ bool LLFace::calcPixelArea(F32& cos_angle_to_view_dir, F32& radius)
         center.setAdd(mRiggedExtents[1], mRiggedExtents[0]);
         center.mul(0.5f);
         size.setSub(mRiggedExtents[1], mRiggedExtents[0]);
+    }
+    else if (mDrawablep && mVObjp.notNull() && mVObjp->getPartitionType() == LLViewerRegion::PARTITION_PARTICLE && mDrawablep->getSpatialGroup())
+    { // use box of spatial group for particles (over approximates size, but we don't actually have a good size per particle)
+        LLSpatialGroup* group = mDrawablep->getSpatialGroup();
+        const LLVector4a* extents = group->getExtents();
+        size.setSub(extents[1], extents[0]);
+        center.setAdd(extents[1], extents[0]);
+        center.mul(0.5f);
     }
     else
     {

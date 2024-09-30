@@ -906,16 +906,22 @@ class LLFileEnableCloseAllWindows : public view_listener_t
     }
 };
 
+void close_all_windows()
+{
+    bool app_quitting = false;
+    gFloaterView->closeAllChildren(app_quitting);
+    LLFloaterSnapshot *floater_snapshot = LLFloaterSnapshot::findInstance();
+    if (floater_snapshot)
+        floater_snapshot->closeFloater(app_quitting);
+    if (gMenuHolder)
+        gMenuHolder->hideMenus();
+}
+
 class LLFileCloseAllWindows : public view_listener_t
 {
     bool handleEvent(const LLSD& userdata)
     {
-        bool app_quitting = false;
-        gFloaterView->closeAllChildren(app_quitting);
-        LLFloaterSnapshot* floater_snapshot = LLFloaterSnapshot::findInstance();
-        if (floater_snapshot)
-            floater_snapshot->closeFloater(app_quitting);
-        if (gMenuHolder) gMenuHolder->hideMenus();
+        close_all_windows();
         return true;
     }
 };

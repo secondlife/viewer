@@ -535,7 +535,9 @@ http://secondlife.com/support for help fixing this problem.
 	<string name="ChangeYourDefaultAnimations">Change your default animations</string>
 	<string name="ForceSitAvatar">Force your avatar to sit</string>
 	<string name="ChangeEnvSettings">Change your environment settings</string>
-	
+	<string name="ScriptBy" value="Script by "/>
+	<string name="ScriptStr" value="Script: "/>
+
 	<string name="NotConnected">Not Connected</string>
 	<string name="AgentNameSubst">(You)</string> <!-- Substitution for agent name -->
 	<string name="JoinAnExperience"/><!-- intentionally blank -->
@@ -4028,6 +4030,10 @@ Please check http://status.secondlifegrid.net to see if there is a known problem
   <string name="DeleteItem">Delete selected item?</string>
 
   <string name="EmptyOutfitText">There are no items in this outfit</string>
+  <string name="OutfitNotFound" value="Couldn't find outfit "/>
+  <string name="OutfitNotAdded" value="Can't add to COF outfit "/>
+  <string name="OutfitNotReplaced" value="Can't replace COF with outfit "/>
+  <string name="SystemFolderNotWorn" value="Can't wear system folder "/>
 
  <!-- External editor status codes -->
  <string name="ExternalEditorNotSet">Select an editor by setting the environment variable LL_SCRIPT_EDITOR or the ExternalEditor setting.

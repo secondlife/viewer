@@ -27,17 +27,6 @@
 #ifndef LL_LLAPPVIEWERLINUX_H
 #define LL_LLAPPVIEWERLINUX_H
 
-extern "C" {
-# include <glib.h>
-}
-
-#if LL_DBUS_ENABLED
-extern "C" {
-# include <glib-object.h>
-# include <dbus/dbus-glib.h>
-}
-#endif
-
 #ifndef LL_LLAPPVIEWER_H
 #include "llappviewer.h"
 #endif
@@ -69,22 +58,5 @@ protected:
     virtual bool initSLURLHandler();
     virtual bool sendURLToOtherInstance(const std::string& url);
 };
-
-#if LL_DBUS_ENABLED
-typedef struct
-{
-        GObject parent;
-        DBusGConnection *connection;
-} ViewerAppAPI;
-
-extern "C" {
-    gboolean viewer_app_api_GoSLURL(ViewerAppAPI *obj, gchar *slurl, gboolean **success_rtn, GError **error);
-}
-
-#define VIEWERAPI_SERVICE "com.secondlife.ViewerAppAPIService"
-#define VIEWERAPI_PATH "/com/secondlife/ViewerAppAPI"
-#define VIEWERAPI_INTERFACE "com.secondlife.ViewerAppAPI"
-
-#endif // LL_DBUS_ENABLED
 
 #endif // LL_LLAPPVIEWERLINUX_H

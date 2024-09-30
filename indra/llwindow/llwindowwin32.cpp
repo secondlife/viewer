@@ -163,18 +163,7 @@ HGLRC SafeCreateContext(HDC &hdc)
 
 GLuint SafeChoosePixelFormat(HDC &hdc, const PIXELFORMATDESCRIPTOR *ppfd)
 {
-    __try
-    {
-        return ChoosePixelFormat(hdc, ppfd);
-    }
-    __except (EXCEPTION_EXECUTE_HANDLER)
-    {
-        // convert to C++ styled exception
-        // C exception don't allow classes, so it's a regular char array
-        char integer_string[32];
-        sprintf(integer_string, "SEH, code: %lu\n", GetExceptionCode());
-        throw std::exception(integer_string);
-    }
+    return LL::seh::catcher([hdc, ppfd]{ return ChoosePixelFormat(hdc, ppfd); });
 }
 
 //static
@@ -1630,9 +1619,11 @@ const   S32   max_format  = (S32)num_formats - 1;
     }
     else
     {
-        LLError::LLUserWarningMsg::show(mCallbacks->translateString("MBVideoDrvErr"));
-        // mWindowHandle is 0, going to crash either way
-        LL_ERRS("Window") << "No wgl_ARB_pixel_format extension!" << LL_ENDL;
+        LL_WARNS("Window") << "No wgl_ARB_pixel_format extension!" << LL_ENDL;
+        // cannot proceed without wgl_ARB_pixel_format extension, shutdown same as any other gGLManager.initGL() failure
+        OSMessageBox(mCallbacks->translateString("MBVideoDrvErr"), mCallbacks->translateString("MBError"), OSMB_OK);
+        close();
+        return false;
     }
 
     // Verify what pixel format we actually received.
@@ -3742,6 +3733,23 @@ S32 OSMessageBoxWin32(const std::string& text, const std::string& caption, U32 t
     return retval;
 }
 
+void shell_open(const std::string &file, bool async)
+{
+    std::wstring url_utf16 = ll_convert(file);
+
+    // let the OS decide what to use to open the URL
+    SHELLEXECUTEINFO sei = {sizeof(sei)};
+    // NOTE: this assumes that SL will stick around long enough to complete the DDE message exchange
+    // necessary for ShellExecuteEx to complete
+    if (async)
+    {
+        sei.fMask = SEE_MASK_ASYNCOK;
+    }
+    sei.nShow  = SW_SHOWNORMAL;
+    sei.lpVerb = L"open";
+    sei.lpFile = url_utf16.c_str();
+    ShellExecuteEx(&sei);
+}
 
 void LLWindowWin32::spawnWebBrowser(const std::string& escaped_url, bool async)
 {
@@ -3767,22 +3775,12 @@ void LLWindowWin32::spawnWebBrowser(const std::string& escaped_url, bool async)
     // replaced ShellExecute code with ShellExecuteEx since ShellExecute doesn't work
     // reliablly on Vista.
 
-    // this is madness.. no, this is..
-    LLWString url_wstring = utf8str_to_wstring( escaped_url );
-    llutf16string url_utf16 = wstring_to_utf16str( url_wstring );
+    shell_open(escaped_url, async);
+}
 
-    // let the OS decide what to use to open the URL
-    SHELLEXECUTEINFO sei = { sizeof( sei ) };
-    // NOTE: this assumes that SL will stick around long enough to complete the DDE message exchange
-    // necessary for ShellExecuteEx to complete
-    if (async)
-    {
-        sei.fMask = SEE_MASK_ASYNCOK;
-    }
-    sei.nShow = SW_SHOWNORMAL;
-    sei.lpVerb = L"open";
-    sei.lpFile = url_utf16.c_str();
-    ShellExecuteEx( &sei );
+void LLWindowWin32::openFolder(const std::string &path)
+{
+    shell_open(path, false);
 }
 
 /*

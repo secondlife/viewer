@@ -13,10 +13,9 @@
 #define LL_LLLEAPLISTENER_H
 
 #include "lleventapi.h"
+#include <functional>
 #include <map>
 #include <string>
-#include <boost/function.hpp>
-#include <boost/ptr_container/ptr_map.hpp>
 
 /// Listener class implementing LLLeap query/control operations.
 /// See https://jira.lindenlab.com/jira/browse/DEV-31978.
@@ -24,17 +23,15 @@ class LLLeapListener: public LLEventAPI
 {
 public:
     /**
-     * Decouple LLLeap by dependency injection. Certain LLLeapListener
-     * operations must be able to cause LLLeap to listen on a specified
-     * LLEventPump with the LLLeap listener that wraps incoming events in an
-     * outer (pump=, data=) map and forwards them to the plugin. Very well,
-     * define the signature for a function that will perform that, and make
-     * our constructor accept such a function.
+     * Certain LLLeapListener operations listen on a specified LLEventPump.
+     * Accept a bool(pump, data) callback from our caller for when any such
+     * event is received.
      */
-    typedef boost::function<LLBoundListener(LLEventPump&, const std::string& listener)>
-            ConnectFunc;
-    LLLeapListener(const ConnectFunc& connect);
+    using Callback = std::function<bool(const std::string& pump, const LLSD& data)>;
+    LLLeapListener(std::string_view caller, const Callback& callback);
     ~LLLeapListener();
+
+    LLEventPump& getReplyPump() { return mReplyPump; }
 
     static LLSD getFeatures();
 
@@ -48,10 +45,16 @@ private:
     void getFeatures(const LLSD&) const;
     void getFeature(const LLSD&) const;
 
+    LLBoundListener connect(LLEventPump& pump, const std::string& listener);
     void saveListener(const std::string& pump_name, const std::string& listener_name,
                       const LLBoundListener& listener);
 
-    ConnectFunc mConnect;
+    // The relative order of these next declarations is important because the
+    // constructor will initialize in this order.
+    std::string mCaller;
+    Callback mCallback;
+    LLEventStream mReplyPump;
+    LLTempBoundListener mReplyConn;
 
     // In theory, listen() could simply call the relevant LLEventPump's
     // listen() method, stoplistening() likewise. Lifespan issues make us

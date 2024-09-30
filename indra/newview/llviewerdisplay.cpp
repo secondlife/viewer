@@ -28,58 +28,69 @@
 
 #include "llviewerdisplay.h"
 
-#include "llgl.h"
-#include "llrender.h"
-#include "llglheaders.h"
-#include "llgltfmateriallist.h"
+#include "fsyspath.h"
+#include "hexdump.h"
 #include "llagent.h"
 #include "llagentcamera.h"
-#include "llviewercontrol.h"
+#include "llappviewer.h"
 #include "llcoord.h"
 #include "llcriticaldamp.h"
+#include "llcubemap.h"
 #include "lldir.h"
-#include "lldynamictexture.h"
 #include "lldrawpoolalpha.h"
+#include "lldrawpoolbump.h"
+#include "lldrawpoolwater.h"
+#include "lldynamictexture.h"
+#include "llenvironment.h"
+#include "llfasttimer.h"
 #include "llfeaturemanager.h"
-//#include "llfirstuse.h"
+#include "llfloatertools.h"
+#include "llfocusmgr.h"
+#include "llgl.h"
+#include "llglheaders.h"
+#include "llgltfmateriallist.h"
 #include "llhudmanager.h"
 #include "llimagepng.h"
+#include "llmachineid.h"
 #include "llmemory.h"
+#include "llparcel.h"
+#include "llperfstats.h"
+#include "llrender.h"
+#include "llscenemonitor.h"
+#include "llsdjson.h"
 #include "llselectmgr.h"
 #include "llsky.h"
+#include "llspatialpartition.h"
 #include "llstartup.h"
+#include "llstartup.h"
+#include "lltooldraganddrop.h"
 #include "lltoolfocus.h"
 #include "lltoolmgr.h"
-#include "lltooldraganddrop.h"
 #include "lltoolpie.h"
 #include "lltracker.h"
 #include "lltrans.h"
 #include "llui.h"
+#include "lluuid.h"
+#include "llversioninfo.h"
 #include "llviewercamera.h"
+#include "llviewercontrol.h"
+#include "llviewernetwork.h"
 #include "llviewerobjectlist.h"
 #include "llviewerparcelmgr.h"
+#include "llviewerregion.h"
+#include "llviewershadermgr.h"
+#include "llviewertexturelist.h"
 #include "llviewerwindow.h"
 #include "llvoavatarself.h"
 #include "llvograss.h"
 #include "llworld.h"
 #include "pipeline.h"
-#include "llspatialpartition.h"
-#include "llappviewer.h"
-#include "llstartup.h"
-#include "llviewershadermgr.h"
-#include "llfasttimer.h"
-#include "llfloatertools.h"
-#include "llviewertexturelist.h"
-#include "llfocusmgr.h"
-#include "llcubemap.h"
-#include "llviewerregion.h"
-#include "lldrawpoolwater.h"
-#include "lldrawpoolbump.h"
-#include "llpostprocess.h"
-#include "llscenemonitor.h"
 
-#include "llenvironment.h"
-#include "llperfstats.h"
+#include <boost/json.hpp>
+
+#include <filesystem>
+#include <iomanip>
+#include <sstream>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -88,13 +99,13 @@
 extern LLPointer<LLViewerTexture> gStartTexture;
 extern bool gShiftFrame;
 
-LLPointer<LLViewerTexture> gDisconnectedImagep = NULL;
+LLPointer<LLViewerTexture> gDisconnectedImagep = nullptr;
 
 // used to toggle renderer back on after teleport
 bool         gTeleportDisplay = false;
 LLFrameTimer gTeleportDisplayTimer;
 LLFrameTimer gTeleportArrivalTimer;
-const F32       RESTORE_GL_TIME = 5.f;  // Wait this long while reloading textures before we raise the curtain
+constexpr F32 RESTORE_GL_TIME = 5.f;  // Wait this long while reloading textures before we raise the curtain
 
 bool gForceRenderLandFence = false;
 bool gDisplaySwapBuffers = false;
@@ -108,9 +119,9 @@ bool gSnapshotNoPost = false;
 bool gShaderProfileFrame = false;
 
 // This is how long the sim will try to teleport you before giving up.
-const F32 TELEPORT_EXPIRY = 15.0f;
+constexpr F32 TELEPORT_EXPIRY = 15.0f;
 // Additional time (in seconds) to wait per attachment
-const F32 TELEPORT_EXPIRY_PER_ATTACHMENT = 3.f;
+constexpr F32 TELEPORT_EXPIRY_PER_ATTACHMENT = 3.f;
 
 U32 gRecentFrameCount = 0; // number of 'recent' frames
 LLFrameTimer gRecentFPSTime;
@@ -118,14 +129,15 @@ LLFrameTimer gRecentMemoryTime;
 LLFrameTimer gAssetStorageLogTime;
 
 // Rendering stuff
-void pre_show_depth_buffer();
-void post_show_depth_buffer();
 void render_ui(F32 zoom_factor = 1.f, int subfield = 0);
 void swap();
 void render_hud_attachments();
 void render_ui_3d();
 void render_ui_2d();
 void render_disconnected_background();
+
+void getProfileStatsContext(boost::json::object& stats);
+std::string getProfileStatsFilename();
 
 void display_startup()
 {
@@ -197,7 +209,8 @@ void display_update_camera()
     F32 final_far = gAgentCamera.mDrawDistance;
     if (gCubeSnapshot)
     {
-        final_far = gSavedSettings.getF32("RenderReflectionProbeDrawDistance");
+        static LLCachedControl<F32> reflection_probe_draw_distance(gSavedSettings, "RenderReflectionProbeDrawDistance", 64.f);
+        final_far = reflection_probe_draw_distance();
     }
     else if (CAMERA_MODE_CUSTOMIZE_AVATAR == gAgentCamera.getCameraMode())
 
@@ -218,7 +231,7 @@ void display_update_camera()
 void display_stats()
 {
     LL_PROFILE_ZONE_SCOPED;
-    const F32 FPS_LOG_FREQUENCY = 10.f;
+    constexpr F32 FPS_LOG_FREQUENCY = 10.f;
     if (gRecentFPSTime.getElapsedTimeF32() >= FPS_LOG_FREQUENCY)
     {
         LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("DS - FPS");
@@ -227,7 +240,7 @@ void display_stats()
         gRecentFrameCount = 0;
         gRecentFPSTime.reset();
     }
-    F32 mem_log_freq = gSavedSettings.getF32("MemoryLogFrequency");
+    static LLCachedControl<F32> mem_log_freq(gSavedSettings, "MemoryLogFrequency", 600.f);
     if (mem_log_freq > 0.f && gRecentMemoryTime.getElapsedTimeF32() >= mem_log_freq)
     {
         LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("DS - Memory");
@@ -237,7 +250,7 @@ void display_stats()
         LLMemory::logMemoryInfo(true) ;
         gRecentMemoryTime.reset();
     }
-    const F32 ASSET_STORAGE_LOG_FREQUENCY = 60.f;
+    constexpr F32 ASSET_STORAGE_LOG_FREQUENCY = 60.f;
     if (gAssetStorageLogTime.getElapsedTimeF32() >= ASSET_STORAGE_LOG_FREQUENCY)
     {
         LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("DS - Asset Storage");
@@ -524,8 +537,10 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
 
     LLImageGL::updateStats(gFrameTimeSeconds);
 
-    LLVOAvatar::sRenderName = gSavedSettings.getS32("AvatarNameTagMode");
-    LLVOAvatar::sRenderGroupTitles = (gSavedSettings.getBOOL("NameTagShowGroupTitles") && gSavedSettings.getS32("AvatarNameTagMode"));
+    static LLCachedControl<S32> avatar_name_tag_mode(gSavedSettings, "AvatarNameTagMode", 1);
+    static LLCachedControl<bool> name_tag_show_group_titles(gSavedSettings, "NameTagShowGroupTitles", true);
+    LLVOAvatar::sRenderName = avatar_name_tag_mode;
+    LLVOAvatar::sRenderGroupTitles = name_tag_show_group_titles && avatar_name_tag_mode > 0;
 
     gPipeline.mBackfaceCull = true;
     gFrameCount++;
@@ -748,7 +763,7 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
             }
 
             gGL.setColorMask(true, true);
-            glClearColor(0,0,0,0);
+            glClearColor(0.f, 0.f, 0.f, 0.f);
 
             LLGLState::checkStates();
 
@@ -918,7 +933,7 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
             gPipeline.mRT->deferredScreen.bindTarget();
             if (gUseWireframe)
             {
-                F32 g = 0.5f;
+                constexpr F32 g = 0.5f;
                 glClearColor(g, g, g, 1.f);
             }
             else
@@ -932,8 +947,8 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
             gPipeline.mRT->screen.bindTarget();
             if (LLPipeline::sUnderWaterRender && !gPipeline.canUseWindLightShaders())
             {
-                const LLColor4 &col = LLEnvironment::instance().getCurrentWater()->getWaterFogColor();
-                glClearColor(col.mV[0], col.mV[1], col.mV[2], 0.f);
+                const LLColor4& col = LLEnvironment::instance().getCurrentWater()->getWaterFogColor();
+                glClearColor(col.mV[VRED], col.mV[VGREEN], col.mV[VBLUE], 0.f);
             }
             gPipeline.mRT->screen.clear();
         }
@@ -948,11 +963,12 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
             LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("display - 5")
             LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_WORLD;
 
-            if (gSavedSettings.getBOOL("RenderDepthPrePass"))
+            static LLCachedControl<bool> render_depth_pre_pass(gSavedSettings, "RenderDepthPrePass", false);
+            if (render_depth_pre_pass)
             {
                 gGL.setColorMask(false, false);
 
-                static const U32 types[] = {
+                constexpr U32 types[] = {
                     LLRenderPass::PASS_SIMPLE,
                     LLRenderPass::PASS_FULLBRIGHT,
                     LLRenderPass::PASS_SHINY
@@ -1027,8 +1043,87 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
     if (gShaderProfileFrame)
     {
         gShaderProfileFrame = false;
-        LLGLSLShader::finishProfile();
+        boost::json::value stats{ boost::json::object_kind };
+        getProfileStatsContext(stats.as_object());
+        LLGLSLShader::finishProfile(stats);
+
+        auto report_name = getProfileStatsFilename();
+        std::ofstream outf(report_name);
+        if (! outf)
+        {
+            LL_WARNS() << "Couldn't write to " << std::quoted(report_name) << LL_ENDL;
+        }
+        else
+        {
+            outf << stats;
+            LL_INFOS() << "(also dumped to " << std::quoted(report_name) << ")" << LL_ENDL;
+        }
     }
+}
+
+void getProfileStatsContext(boost::json::object& stats)
+{
+    // populate the context with info from LLFloaterAbout
+    auto contextit = stats.emplace("context",
+                                   LlsdToJson(LLAppViewer::instance()->getViewerInfo())).first;
+    auto& context = contextit->value().as_object();
+
+    // then add a few more things
+    unsigned char unique_id[MAC_ADDRESS_BYTES]{};
+    LLMachineID::getUniqueID(unique_id, sizeof(unique_id));
+    context.emplace("machine", stringize(LL::hexdump(unique_id, sizeof(unique_id))));
+    context.emplace("grid", LLGridManager::instance().getGrid());
+    LLViewerRegion* region = gAgent.getRegion();
+    if (region)
+    {
+        context.emplace("regionid", stringize(region->getRegionID()));
+    }
+    LLParcel* parcel = LLViewerParcelMgr::instance().getAgentParcel();
+    if (parcel)
+    {
+        context.emplace("parcel", parcel->getName());
+        context.emplace("parcelid", parcel->getLocalID());
+    }
+    context.emplace("time", LLDate::now().toHTTPDateString("%Y-%m-%dT%H:%M:%S"));
+}
+
+std::string getProfileStatsFilename()
+{
+    std::ostringstream basebuff;
+    // viewer build
+    basebuff << "profile.v" << LLVersionInfo::instance().getBuild();
+    // machine ID: zero-initialize unique_id in case LLMachineID fails
+    unsigned char unique_id[MAC_ADDRESS_BYTES]{};
+    LLMachineID::getUniqueID(unique_id, sizeof(unique_id));
+    basebuff << ".m" << LL::hexdump(unique_id, sizeof(unique_id));
+    // region ID
+    LLViewerRegion *region = gAgent.getRegion();
+    basebuff << ".r" << (region? region->getRegionID() : LLUUID());
+    // local parcel ID
+    LLParcel* parcel = LLViewerParcelMgr::instance().getAgentParcel();
+    basebuff << ".p" << (parcel? parcel->getLocalID() : 0);
+    // date/time -- omit seconds for now
+    auto now = LLDate::now();
+    basebuff << ".t" << LLDate::now().toHTTPDateString("%Y-%m-%dT%H-%M-");
+    // put this candidate file in our logs directory
+    auto base = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, basebuff.str());
+    S32 sec;
+    now.split(nullptr, nullptr, nullptr, nullptr, nullptr, &sec);
+    // Loop over finished filename, incrementing sec until we find one that
+    // doesn't yet exist. Should rarely loop (only if successive calls within
+    // same second), may produce (e.g.) sec==61, but avoids collisions and
+    // preserves chronological filename sort order.
+    std::string name;
+    std::error_code ec;
+    do
+    {
+        // base + missing 2-digit seconds, append ".json"
+        // post-increment sec in case we have to try again
+        name = stringize(base, std::setw(2), std::setfill('0'), sec++, ".json");
+    } while (std::filesystem::exists(fsyspath(name), ec));
+    // Ignoring ec means we might potentially return a name that does already
+    // exist -- but if we can't check its existence, what more can we do?
+    return name;
 }
 
 // WIP simplified copy of display() that does minimal work
@@ -1087,7 +1182,7 @@ void display_cube_face()
 
     gGL.setColorMask(true, true);
 
-    glClearColor(0, 0, 0, 0);
+    glClearColor(0.f, 0.f, 0.f, 0.f);
     gPipeline.generateSunShadow(*LLViewerCamera::getInstance());
 
     glClear(GL_DEPTH_BUFFER_BIT); // | GL_STENCIL_BUFFER_BIT);
@@ -1123,7 +1218,7 @@ void display_cube_face()
     }
     else
     {
-        glClearColor(1, 0, 1, 1);
+        glClearColor(1.f, 0.f, 1.f, 1.f);
     }
     gPipeline.mRT->deferredScreen.clear();
 
@@ -1164,11 +1259,12 @@ void render_hud_attachments()
     {
         LLPipeline::sRenderingHUDs = true;
         LLCamera hud_cam = *LLViewerCamera::getInstance();
-        hud_cam.setOrigin(-1.f,0,0);
-        hud_cam.setAxes(LLVector3(1,0,0), LLVector3(0,1,0), LLVector3(0,0,1));
+        hud_cam.setOrigin(-1.f, 0.f, 0.f);
+        hud_cam.setAxes(LLVector3(1.f, 0.f, 0.f), LLVector3(0.f, 1.f, 0.f), LLVector3(0.f, 0.f, 1.f));
         LLViewerCamera::updateFrustumPlanes(hud_cam, true);
 
-        bool render_particles = gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_PARTICLES) && gSavedSettings.getBOOL("RenderHUDParticles");
+        static LLCachedControl<bool> render_hud_particles(gSavedSettings, "RenderHUDParticles", false);
+        bool render_particles = gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_PARTICLES) && render_hud_particles;
 
         //only render hud objects
         gPipeline.pushRenderTypeMask();
@@ -1528,10 +1624,11 @@ void render_ui_3d()
     stop_glerror();
 
     gUIProgram.bind();
-    gGL.color4f(1, 1, 1, 1);
+    gGL.color4f(1.f, 1.f, 1.f, 1.f);
 
     // Coordinate axes
-    if (gSavedSettings.getBOOL("ShowAxes"))
+    static LLCachedControl<bool> show_axes(gSavedSettings, "ShowAxes");
+    if (show_axes())
     {
         draw_axes();
     }
@@ -1591,7 +1688,7 @@ void render_ui_2d()
         gGL.pushMatrix();
         S32 half_width = (gViewerWindow->getWorldViewWidthScaled() / 2);
         S32 half_height = (gViewerWindow->getWorldViewHeightScaled() / 2);
-        gGL.scalef(LLUI::getScaleFactor().mV[0], LLUI::getScaleFactor().mV[1], 1.f);
+        gGL.scalef(LLUI::getScaleFactor().mV[VX], LLUI::getScaleFactor().mV[VY], 1.f);
         gGL.translatef((F32)half_width, (F32)half_height, 0.f);
         F32 zoom = gAgentCamera.mHUDCurZoom;
         gGL.scalef(zoom,zoom,1.f);
@@ -1613,7 +1710,7 @@ void render_ui_2d()
             gPipeline.mUIScreen.bindTarget();
             gGL.setColorMask(true, true);
             {
-                static const S32 pad = 8;
+                constexpr S32 pad = 8;
 
                 LLView::sDirtyRect.mLeft -= pad;
                 LLView::sDirtyRect.mRight += pad;
@@ -1666,8 +1763,6 @@ void render_ui_2d()
         gViewerWindow->draw();
     }
 
-
-
     // reset current origin for font rendering, in case of tiling render
     LLFontGL::sCurOrigin.set(0, 0);
 }
@@ -1676,7 +1771,7 @@ void render_disconnected_background()
 {
     gUIProgram.bind();
 
-    gGL.color4f(1,1,1,1);
+    gGL.color4f(1.f, 1.f, 1.f, 1.f);
     if (!gDisconnectedImagep && gDisconnected)
     {
         LL_INFOS() << "Loading last bitmap..." << LL_ENDL;
@@ -1716,7 +1811,7 @@ void render_disconnected_background()
 
 
         raw->expandToPowerOfTwo();
-        gDisconnectedImagep = LLViewerTextureManager::getLocalTexture(raw.get(), false );
+        gDisconnectedImagep = LLViewerTextureManager::getLocalTexture(raw.get(), false);
         gStartTexture = gDisconnectedImagep;
         gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
     }
@@ -1751,6 +1846,5 @@ void render_disconnected_background()
 
 void display_cleanup()
 {
-    gDisconnectedImagep = NULL;
+    gDisconnectedImagep = nullptr;
 }
-

@@ -23,7 +23,9 @@ struct NONL_t {};
 inline
 void print()
 {
+#ifdef LL_TEST
     std::cerr << std::endl;
+#endif
 }
 
 // print(NONL) is a no-op
@@ -35,8 +37,10 @@ void print(NONL_t)
 template <typename T, typename... ARGS>
 void print(T&& first, ARGS&&... rest)
 {
+#ifdef LL_TEST
     std::cerr << first;
     print(std::forward<ARGS>(rest)...);
+#endif
 }
 
 #endif /* ! defined(LL_PRINT_H) */

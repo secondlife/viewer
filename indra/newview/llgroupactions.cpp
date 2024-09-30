@@ -37,6 +37,7 @@
 #include "llfloatersidepanelcontainer.h"
 #include "llgroupmgr.h"
 #include "llfloaterimcontainer.h"
+#include "llfloaterimsession.h"
 #include "llimview.h" // for gIMMgr
 #include "llnotificationsutil.h"
 #include "llstartup.h"
@@ -46,7 +47,7 @@
 //
 // Globals
 //
-static GroupChatListener sGroupChatListener;
+static LLGroupChatListener sGroupChatListener;
 
 class LLGroupHandler : public LLCommandHandler
 {
@@ -519,7 +520,10 @@ void LLGroupActions::endIM(const LLUUID& group_id)
     LLUUID session_id = gIMMgr->computeSessionID(IM_SESSION_GROUP_START, group_id);
     if (session_id != LLUUID::null)
     {
-        gIMMgr->leaveSession(session_id);
+        if (LLFloaterIMSession *conversationFloater = LLFloaterIMSession::findInstance(session_id))
+        {
+            LLFloater::onClickClose(conversationFloater);
+        }
     }
 }
 

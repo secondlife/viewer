@@ -192,6 +192,8 @@ public:
     LLCommand * getCommand(const LLCommandId& commandId);
     LLCommand * getCommand(const std::string& name);
 
+    LLSD getCommandNames();
+
     static bool load();
 
 protected:

@@ -223,7 +223,7 @@ LLPanelVolume::LLPanelVolume()
 {
     setMouseOpaque(false);
 
-    mCommitCallbackRegistrar.add("PanelVolume.menuDoToSelected", boost::bind(&LLPanelVolume::menuDoToSelected, this, _2));
+    mCommitCallbackRegistrar.add("PanelVolume.menuDoToSelected", { boost::bind(&LLPanelVolume::menuDoToSelected, this, _2) });
     mEnableCallbackRegistrar.add("PanelVolume.menuEnable", boost::bind(&LLPanelVolume::menuEnableItem, this, _2));
 }
 

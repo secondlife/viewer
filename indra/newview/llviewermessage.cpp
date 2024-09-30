@@ -2425,8 +2425,11 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 
         bool ircstyle = false;
 
+        auto [message, is_script] = LLStringUtil::withoutPrefix(mesg, LUA_PREFIX);
+        chat.mIsScript = is_script;
+
         // Look for IRC-style emotes here so chatbubbles work
-        std::string prefix = mesg.substr(0, 4);
+        std::string prefix = message.substr(0, 4);
         if (prefix == "/me " || prefix == "/me'")
         {
             ircstyle = true;
@@ -2468,10 +2471,19 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
         else
         {
             chat.mText = "";
+            auto [msg_without_prefix, is_lua] = LLStringUtil::withoutPrefix(mesg, LUA_PREFIX);
+            std::string prefix;
+            if (is_lua)
+            {
+                prefix = LUA_PREFIX;
+            }
             switch(chat.mChatType)
             {
             case CHAT_TYPE_WHISPER:
-                chat.mText = LLTrans::getString("whisper") + " ";
+                prefix += LLTrans::getString("whisper") + " ";
+                break;
+            case CHAT_TYPE_SHOUT:
+                prefix += LLTrans::getString("shout") + " ";
                 break;
             case CHAT_TYPE_OWNER:
                 if (RlvActions::isRlvEnabled())
@@ -2495,9 +2507,6 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
             case CHAT_TYPE_NORMAL:
             case CHAT_TYPE_DIRECT:
                 break;
-            case CHAT_TYPE_SHOUT:
-                chat.mText = LLTrans::getString("shout") + " ";
-                break;
             case CHAT_TYPE_START:
             case CHAT_TYPE_STOP:
                 LL_WARNS("Messaging") << "Got chat type start/stop in main chat processing." << LL_ENDL;
@@ -2507,7 +2516,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
                 break;
             }
 
-            chat.mText += mesg;
+            chat.mText = prefix + msg_without_prefix;
         }
 
         // We have a real utterance now, so can stop showing "..." and proceed.
@@ -2588,6 +2597,11 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
             msg_notify["from_id"] = chat.mFromID;
             msg_notify["source_type"] = chat.mSourceType;
             on_new_message(msg_notify);
+
+
+            msg_notify["chat_type"] = chat.mChatType;
+            msg_notify["message"] = mesg;
+            LLEventPumps::instance().obtain("LLNearbyChat").post(msg_notify);
         }
 
     }
@@ -2733,7 +2747,7 @@ public:
     virtual ~LLPostTeleportNotifiers();
 
     //function to be called at the supplied frequency
-    virtual bool tick();
+    bool tick() override;
 };
 
 LLPostTeleportNotifiers::LLPostTeleportNotifiers() : LLEventTimer( 2.0 )
@@ -6759,7 +6773,8 @@ void onCovenantLoadComplete(const LLUUID& asset_uuid,
 {
     LL_DEBUGS("Messaging") << "onCovenantLoadComplete()" << LL_ENDL;
     std::string covenant_text;
-    if(0 == status)
+    std::unique_ptr<LLViewerTextEditor> editorp;
+    if (0 == status)
     {
         LLFileSystem file(asset_uuid, type, LLFileSystem::READ);
 
@@ -6780,13 +6795,13 @@ void onCovenantLoadComplete(const LLUUID& asset_uuid,
             {
                 LL_WARNS("Messaging") << "Problem importing estate covenant." << LL_ENDL;
                 covenant_text = "Problem importing estate covenant.";
+                delete editor;
             }
             else
             {
                 // Version 0 (just text, doesn't include version number)
-                covenant_text = editor->getText();
+                editorp.reset(editor); // Use covenant from editorp;
             }
-            delete editor;
         }
         else
         {
@@ -6812,17 +6827,32 @@ void onCovenantLoadComplete(const LLUUID& asset_uuid,
 
         LL_WARNS("Messaging") << "Problem loading notecard: " << status << LL_ENDL;
     }
-    LLPanelEstateCovenant::updateCovenantText(covenant_text, asset_uuid);
-    LLPanelLandCovenant::updateCovenantText(covenant_text);
-    LLFloaterBuyLand::updateCovenantText(covenant_text, asset_uuid);
 
-    LLPanelPlaceProfile* panel = LLFloaterSidePanelContainer::getPanel<LLPanelPlaceProfile>("places", "panel_place_profile");
-    if (panel)
+    if (editorp)
     {
-        panel->updateCovenantText(covenant_text);
+        LLPanelEstateCovenant::updateCovenant(editorp.get(), asset_uuid);
+        LLPanelLandCovenant::updateCovenant(editorp.get());
+        LLFloaterBuyLand::updateCovenant(editorp.get(), asset_uuid);
+    }
+    else
+    {
+        LLPanelEstateCovenant::updateCovenantText(covenant_text, asset_uuid);
+        LLPanelLandCovenant::updateCovenantText(covenant_text);
+        LLFloaterBuyLand::updateCovenantText(covenant_text, asset_uuid);
+    }
+
+    if (LLPanelPlaceProfile* panel = LLFloaterSidePanelContainer::getPanel<LLPanelPlaceProfile>("places", "panel_place_profile"))
+    {
+        if (editorp)
+        {
+            panel->updateCovenant(editorp.get());
+        }
+        else
+        {
+            panel->updateCovenantText(covenant_text);
+        }
     }
 }
-
 
 void process_feature_disabled_message(LLMessageSystem* msg, void**)
 {
