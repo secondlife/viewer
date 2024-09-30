@@ -38,7 +38,7 @@ struct SymbolToGrab
 {
     bool mRequired;
     char const *mName;
-    apr_dso_handle_sym_t *mPPFunc;
+    void **mPPFunc;
 };
 
 class SymbolGrabber
@@ -52,8 +52,7 @@ private:
     std::vector< SymbolToGrab > gSymbolsToGrab;
 
     bool sSymsGrabbed = false;
-    apr_pool_t *sSymDSOMemoryPool = nullptr;
-    std::vector<apr_dso_handle_t *> sLoadedLibraries;
+    std::vector<void *> sLoadedLibraries;
 };
 
 extern SymbolGrabber gSymbolGrabber;
@@ -63,7 +62,7 @@ extern SymbolGrabber gSymbolGrabber;
 #define LL_GRAB_SYM(SYMBOL_GRABBER, REQUIRED, SYMBOL_NAME, RETURN, ...) \
     RETURN (*ll##SYMBOL_NAME)(__VA_ARGS__) = nullptr; \
     size_t gRegistered##SYMBOL_NAME = SYMBOL_GRABBER.registerSymbol( \
-        { REQUIRED, #SYMBOL_NAME , (apr_dso_handle_sym_t*)&ll##SYMBOL_NAME} \
+        { REQUIRED, #SYMBOL_NAME , (void**)&ll##SYMBOL_NAME} \
     );
 
 #endif
