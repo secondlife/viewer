@@ -247,7 +247,6 @@ public:
     LLNotificationForm(const LLSD& sd);
     LLNotificationForm(const std::string& name, const Params& p);
 
-    void fromLLSD(const LLSD& sd);
     LLSD asLLSD() const;
 
     S32 getNumElements() { return static_cast<S32>(mFormData.size()); }
@@ -266,8 +265,8 @@ public:
     bool getIgnored();
     void setIgnored(bool ignored);
 
-    EIgnoreType getIgnoreType() { return mIgnore; }
-    std::string getIgnoreMessage() { return mIgnoreMsg; }
+    EIgnoreType getIgnoreType()const { return mIgnore; }
+    std::string getIgnoreMessage() const { return mIgnoreMsg; }
 
 private:
     LLSD                                mFormData;
@@ -970,8 +969,6 @@ public:
 private:
     /*virtual*/ void initSingleton() override;
     /*virtual*/ void cleanupSingleton() override;
-
-    void loadPersistentNotifications();
 
     bool expirationFilter(LLNotificationPtr pNotification);
     bool expirationHandler(const LLSD& payload);
