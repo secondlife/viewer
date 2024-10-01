@@ -1,0 +1,119 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 21,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "ReleaseOSBase",
+      "displayName": "ReleaseOSBase",
+      "hidden": true,
+      "environment": {
+        "AUTOBUILD_LOGLEVEL": "",
+        "AUTOBUILD_ADDRSIZE": "64"
+      },
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": {
+          "type": "STRING",
+          "value": "Release"
+        },
+        "INSTALL_PROPRIETARY": {
+          "type": "BOOL",
+          "value": "False"
+        },
+        "ADDRESS_SIZE": {
+          "type": "STRING",
+          "value": "64"
+        },
+        "ROOT_PROJECT_NAME": {
+          "type": "STRING",
+          "value": "SecondLife"
+        },
+        "LL_TESTS": {
+          "type": "BOOL",
+          "value": "Off"
+        },
+        "NDOF": {
+          "type": "BOOL",
+          "value": "Off"
+        },
+        "ENABLE_ASAN": {
+          "type": "BOOL",
+          "value": "Off"
+
+        },
+        "USE_OPENAL": {
+          "type": "BOOL",
+          "value": "On"
+        },
+        "USE_TRACY": {
+          "type": "BOOL",
+          "value": "Off"
+        }
+      }
+    },
+    {
+	  "name": "LinuxBase",
+	  "displayName": "LinuxBase",
+      "binaryDir": "${sourceDir}/../build/${presetName}/",
+	  "generator": "Ninja",
+      "hidden": true,
+      "inherits": "ReleaseOSBase",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      },
+      "environment": {
+        "LL_BUILD_DEFINES": "-DLL_RELEASE=1 -DLL_RELEASE_FOR_DOWNLOAD=1 -DLL_LINUX=1 -D_GLIBCXX_USE_CXX11_ABI=1 -DLL_OS_DRAGDROP_ENABLED=1",
+        "LL_BUILD_WARNINGS": "",
+        "LL_BUILD_BASE": "-std=c++17 -fPIC $env{LL_BUILD_WARNINGS} $env{LL_BUILD_DEFINES}"
+      }
+    },
+    {
+      "name": "LinuxReleaseOS",
+      "displayName": "LinuxReleaseOS",
+      "inherits": "LinuxBase",
+      "environment": {
+        "LL_BUILD": "-O3 -gz -g3 -gdwarf-4 -gsplit-dwarf  $env{LL_BUILD_BASE}",
+        "LL_BUILD_NOS_SPLIT_DEBUG": "-O3 -gz -g3 $env{LL_BUILD_BASE}"
+      }
+    },
+    {
+      "name": "LinuxReleaseOS_Flatpak",
+      "displayName": "LinuxReleaseOS_Flatpak",
+      "inherits": "LinuxBase",
+      "environment": {
+        "LL_BUILD": "-O3 -gz -g3 -gdwarf-4 -gsplit-dwarf  $env{LL_BUILD_BASE}",
+        "LL_BUILD_NOS_SPLIT_DEBUG": "-O3 -gz -g3 $env{LL_BUILD_BASE}"
+      }
+    },
+    {
+      "name": "LinuxReleaseOS_clang",
+      "displayName": "LinuxReleaseOS_clang",
+      "inherits": "LinuxBase",
+      "environment": {
+        "CC": "clang",
+        "CXX": "clang++",
+        "LL_BUILD": "-O3 -gz -g3 -gdwarf-4 -gsplit-dwarf  $env{LL_BUILD_BASE}",
+        "LL_BUILD_NOS_SPLIT_DEBUG": "-O3 -gz -g3 $env{LL_BUILD_BASE}"
+      }
+    }
+    ],
+  "buildPresets": [
+    {
+      "name": "LinuxReleaseOS",
+      "configurePreset": "LinuxReleaseOS"
+    },
+    {
+      "name": "LinuxReleaseOS_Flatpak",
+      "configurePreset": "LinuxReleaseOS_Flatpak"
+    },
+    {
+      "name": "LinuxReleaseOS_clang",
+      "configurePreset": "LinuxReleaseOS_clang"
+    }
+  ]
+}

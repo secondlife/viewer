@@ -49,10 +49,10 @@ extern "C" {
 #if LL_LINUX
 // not necessarily available on random SDL platforms, so #if LL_LINUX
 // for execv(), waitpid(), fork()
-# include <unistd.h>
-# include <sys/types.h>
-# include <sys/wait.h>
-# include <stdio.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <stdio.h>
 #endif // LL_LINUX
 
 extern bool gDebugWindowProc;
@@ -63,52 +63,116 @@ const S32 MAX_NUM_RESOLUTIONS = 200;
 // LLWindowSDL
 //
 
-#if LL_X11
-# include <X11/Xutil.h>
-#endif //LL_X11
+#include <X11/Xutil.h>
 
 // TOFU HACK -- (*exactly* the same hack as LLWindowMacOSX for a similar
 // set of reasons): Stash a pointer to the LLWindowSDL object here and
 // maintain in the constructor and destructor.  This assumes that there will
 // be only one object of this class at any time.  Currently this is true.
-static LLWindowSDL *gWindowImplementation = NULL;
-
+static LLWindowSDL *gWindowImplementation = nullptr;
 
 void maybe_lock_display(void)
 {
-    if (gWindowImplementation && gWindowImplementation->Lock_Display) {
+    if (gWindowImplementation && gWindowImplementation->Lock_Display)
         gWindowImplementation->Lock_Display();
-    }
 }
-
 
 void maybe_unlock_display(void)
 {
-    if (gWindowImplementation && gWindowImplementation->Unlock_Display) {
+    if (gWindowImplementation && gWindowImplementation->Unlock_Display)
         gWindowImplementation->Unlock_Display();
-    }
 }
 
 
-#if LL_X11
-// static
 Window LLWindowSDL::get_SDL_XWindowID(void)
 {
-    if (gWindowImplementation) {
-        return gWindowImplementation->mSDL_XWindowID;
-    }
+    if (gWindowImplementation)
+        return gWindowImplementation->mX11Data.mXWindowID;
     return None;
 }
 
-//static
 Display* LLWindowSDL::get_SDL_Display(void)
 {
-    if (gWindowImplementation) {
-        return gWindowImplementation->mSDL_Display;
-    }
-    return NULL;
+    if (gWindowImplementation)
+        return gWindowImplementation->mX11Data.mDisplay;
+    return nullptr;
 }
-#endif // LL_X11
+
+/*
+ * In wayland a window does not have a state of "minimized" or gets messages that it got minimized [1]
+ * There's two ways to approach this challenge:
+ *   1) Ignore it, this would mean even if minimized/not visible the viewer will always fun at full fps
+ *   2) Try to detect something like "minimized", the best way I found so far is to as for frame_done events. Those will
+ *   only happen if parts of the viewer are visible. As such it is not the same a "minimized" but rather "this window
+ *   is not fully hidden behind another window or minimized". That's (I guess) still better than nothing and running
+ *   full tilt even if hidden.
+ *
+ * [1] As of 2024-09, maybe in the future we get nice things
+*/
+#ifdef ND_WAYLAND
+#include <wayland-client-protocol.h>
+
+bool LLWindowSDL::isWaylandWindowNotDrawing()
+{
+    if( Wayland != mServerProtocol || mWaylandData.mLastFrameEvent == 0 )
+        return false;
+
+    auto currentTime = LLTimer::getTotalTime();
+    if( (currentTime - mWaylandData.mLastFrameEvent) > 250000 )
+        return true;
+
+    return false;
+}
+
+void LLWindowSDL::waylandFrameDoneCB(void *data, struct wl_callback *cb, uint32_t time)
+{
+    static uint32_t frame_count {0};
+    static F64SecondsImplicit lastInfo{0};
+
+    ++frame_count;
+
+    wl_callback_destroy(cb);
+    auto pThis = reinterpret_cast<LLWindowSDL*>(data);
+    pThis->mWaylandData.mLastFrameEvent = LLTimer::getTotalTime();
+
+    auto now = LLTimer::getElapsedSeconds();
+    if( lastInfo > 0)
+    {
+        auto diff = now.value() - lastInfo.value();
+        constexpr double FPS_INFO_INTERVAL = 60.f * 5.f;
+        if( diff >= FPS_INFO_INTERVAL)
+        {
+            double fFPS = frame_count;
+            fFPS /= diff;
+            LL_INFOS() << "Wayland: FPS " << fFPS << " fps, " << frame_count << " #frames time " << (diff) << LL_ENDL;
+            frame_count = 0;
+            lastInfo = now;
+        }
+    }
+    else
+        lastInfo = now;
+
+    pThis->setupWaylandFrameCallback(); // ask for a new frame
+}
+
+void LLWindowSDL::setupWaylandFrameCallback()
+{
+    static  wl_callback_listener frame_listener { nullptr };
+    frame_listener.done = &LLWindowSDL::waylandFrameDoneCB;
+
+    auto cb = wl_surface_frame(mWaylandData.mSurface);
+    wl_callback_add_listener(cb, &frame_listener, this);
+}
+#else
+bool LLWindowSDL::isWaylandWindowNotDrawing()
+{
+    return false;
+}
+void LLWindowSDL::setupWaylandFrameCallback()
+{
+    LL_WARNS() << "Viewer is running under Wayland, but was not compiled with full wayland support!" << LL_ENDL;
+}
+#endif
 
 LLWindowSDL::LLWindowSDL(LLWindowCallbacks* callbacks,
                          const std::string& title, const std::string& name, S32 x, S32 y, S32 width,
@@ -117,29 +181,12 @@ LLWindowSDL::LLWindowSDL(LLWindowCallbacks* callbacks,
                          bool enable_vsync, bool use_gl,
                          bool ignore_pixel_depth, U32 fsaa_samples)
         : LLWindow(callbacks, fullscreen, flags),
-        Lock_Display(NULL),
-        Unlock_Display(NULL), mGamma(1.0f)
+        Lock_Display(nullptr),
+        Unlock_Display(nullptr), mGamma(1.0f)
 {
     // Initialize the keyboard
     gKeyboard = new LLKeyboardSDL();
     gKeyboard->setCallbacks(callbacks);
-    // Note that we can't set up key-repeat until after SDL has init'd video
-
-    // Ignore use_gl for now, only used for drones on PC
-    mWindow = NULL;
-    mContext = {};
-    mNeedsResize = false;
-    mOverrideAspectRatio = 0.f;
-    mGrabbyKeyFlags = 0;
-    mReallyCapturedCount = 0;
-    mHaveInputFocus = -1;
-    mIsMinimized = -1;
-    mFSAASamples = fsaa_samples;
-
-#if LL_X11
-    mSDL_XWindowID = None;
-    mSDL_Display = nullptr;
-#endif // LL_X11
 
     // Assume 4:3 aspect ratio until we know better
     mOriginalAspectRatio = 1024.0 / 768.0;
@@ -166,8 +213,6 @@ LLWindowSDL::LLWindowSDL(LLWindowCallbacks* callbacks,
 
     mFlashing = false;
 
-    mKeyVirtualKey = 0;
-    mKeyModifiers = KMOD_NONE;
 }
 
 static SDL_Surface *Load_BMP_Resource(const char *basename)
@@ -186,144 +231,10 @@ static SDL_Surface *Load_BMP_Resource(const char *basename)
     return SDL_LoadBMP(path_buffer);
 }
 
-#if LL_X11
-// This is an XFree86/XOrg-specific hack for detecting the amount of Video RAM
-// on this machine.  It works by searching /var/log/var/log/Xorg.?.log or
-// /var/log/XFree86.?.log for a ': (VideoRAM ?|Memory): (%d+) kB' regex, where
-// '?' is the X11 display number derived from $DISPLAY
-static int x11_detect_VRAM_kb_fp(FILE *fp, const char *prefix_str)
+static U32 detectVRAM() // Return the available amount of VRAM in MB
 {
-    const int line_buf_size = 1000;
-    char line_buf[line_buf_size];
-    while (fgets(line_buf, line_buf_size, fp))
-    {
-        //LL_DEBUGS() << "XLOG: " << line_buf << LL_ENDL;
-
-        // Why the ad-hoc parser instead of using a regex?  Our
-        // favourite regex implementation - libboost_regex - is
-        // quite a heavy and troublesome dependency for the client, so
-        // it seems a shame to introduce it for such a simple task.
-        // *FIXME: libboost_regex is a dependency now anyway, so we may
-        // as well use it instead of this hand-rolled nonsense.
-        const char *part1_template = prefix_str;
-        const char part2_template[] = " kB";
-        char *part1 = strstr(line_buf, part1_template);
-        if (part1) // found start of matching line
-        {
-            part1 = &part1[strlen(part1_template)]; // -> after
-            char *part2 = strstr(part1, part2_template);
-            if (part2) // found end of matching line
-            {
-                // now everything between part1 and part2 is
-                // supposed to be numeric, describing the
-                // number of kB of Video RAM supported
-                int rtn = 0;
-                for (; part1 < part2; ++part1)
-                {
-                    if (*part1 < '0' || *part1 > '9')
-                    {
-                        // unexpected char, abort parse
-                        rtn = 0;
-                        break;
-                    }
-                    rtn *= 10;
-                    rtn += (*part1) - '0';
-                }
-                if (rtn > 0)
-                {
-                    // got the kB number.  return it now.
-                    return rtn;
-                }
-            }
-        }
-    }
-    return 0; // 'could not detect'
+   return 0;
 }
-
-static int x11_detect_VRAM_kb()
-{
-    std::string x_log_location("/var/log/");
-    std::string fname;
-    int rtn = 0; // 'could not detect'
-    int display_num = 0;
-    FILE *fp;
-    char *display_env = getenv("DISPLAY"); // e.g. :0 or :0.0 or :1.0 etc
-    // parse DISPLAY number so we can go grab the right log file
-    if (display_env[0] == ':' &&
-        display_env[1] >= '0' && display_env[1] <= '9')
-    {
-        display_num = display_env[1] - '0';
-    }
-
-    // *TODO: we could be smarter and see which of Xorg/XFree86 has the
-    // freshest time-stamp.
-
-    // Try Xorg log first
-    fname = x_log_location;
-    fname += "Xorg.";
-    fname += ('0' + display_num);
-    fname += ".log";
-    fp = fopen(fname.c_str(), "r");
-    if (fp)
-    {
-        LL_INFOS() << "Looking in " << fname
-                   << " for VRAM info..." << LL_ENDL;
-        rtn = x11_detect_VRAM_kb_fp(fp, ": VideoRAM: ");
-        fclose(fp);
-        if (0 == rtn)
-        {
-            fp = fopen(fname.c_str(), "r");
-            if (fp)
-            {
-                rtn = x11_detect_VRAM_kb_fp(fp, ": Video RAM: ");
-                fclose(fp);
-                if (0 == rtn)
-                {
-                    fp = fopen(fname.c_str(), "r");
-                    if (fp)
-                    {
-                        rtn = x11_detect_VRAM_kb_fp(fp, ": Memory: ");
-                        fclose(fp);
-                    }
-                }
-            }
-        }
-    }
-    else
-    {
-        LL_INFOS() << "Could not open " << fname
-                   << " - skipped." << LL_ENDL;
-        // Try old XFree86 log otherwise
-        fname = x_log_location;
-        fname += "XFree86.";
-        fname += ('0' + display_num);
-        fname += ".log";
-        fp = fopen(fname.c_str(), "r");
-        if (fp)
-        {
-            LL_INFOS() << "Looking in " << fname
-                       << " for VRAM info..." << LL_ENDL;
-            rtn = x11_detect_VRAM_kb_fp(fp, ": VideoRAM: ");
-            fclose(fp);
-            if (0 == rtn)
-            {
-                fp = fopen(fname.c_str(), "r");
-                if (fp)
-                {
-                    rtn = x11_detect_VRAM_kb_fp(fp, ": Memory: ");
-                    fclose(fp);
-                }
-            }
-        }
-        else
-        {
-            LL_INFOS() << "Could not open " << fname
-                       << " - skipped." << LL_ENDL;
-        }
-    }
-    return rtn;
-}
-#endif // LL_X11
 
 void LLWindowSDL::setTitle(const std::string title)
 {
@@ -335,7 +246,7 @@ void LLWindowSDL::tryFindFullscreenSize( int &width, int &height )
     LL_INFOS() << "createContext: setting up fullscreen " << width << "x" << height << LL_ENDL;
 
     // If the requested width or height is 0, find the best default for the monitor.
-    if((width == 0) || (height == 0))
+    if(width == 0 || height == 0)
     {
         // Scan through the list of modes, looking for one which has:
         //      height between 700 and 800
@@ -343,16 +254,15 @@ void LLWindowSDL::tryFindFullscreenSize( int &width, int &height )
         S32 resolutionCount = 0;
         LLWindowResolution *resolutionList = getSupportedResolutions(resolutionCount);
 
-        if(resolutionList != NULL)
+        if(resolutionList != nullptr)
         {
             F32 closestAspect = 0;
             U32 closestHeight = 0;
             U32 closestWidth = 0;
-            int i;
 
             LL_INFOS() << "createContext: searching for a display mode, original aspect is " << mOriginalAspectRatio << LL_ENDL;
 
-            for(i=0; i < resolutionCount; i++)
+            for(S32 i=0; i < resolutionCount; i++)
             {
                 F32 aspect = (F32)resolutionList[i].mWidth / (F32)resolutionList[i].mHeight;
 
@@ -375,7 +285,7 @@ void LLWindowSDL::tryFindFullscreenSize( int &width, int &height )
         }
     }
 
-    if((width == 0) || (height == 0))
+    if(width == 0 || height == 0)
     {
         // Mode search failed for some reason.  Use the old-school default.
         width = 1024;
@@ -385,14 +295,11 @@ void LLWindowSDL::tryFindFullscreenSize( int &width, int &height )
 
 bool LLWindowSDL::createContext(int x, int y, int width, int height, int bits, bool fullscreen, bool enable_vsync)
 {
-    //bool          glneedsinit = false;
 
-    LL_INFOS() << "createContext, fullscreen=" << fullscreen <<
-               " size=" << width << "x" << height << LL_ENDL;
+    LL_INFOS() << "createContext, fullscreen=" << fullscreen << " size=" << width << "x" << height << LL_ENDL;
 
     // captures don't survive contexts
     mGrabbyKeyFlags = 0;
-    mReallyCapturedCount = 0;
 
     std::initializer_list<std::tuple< char const*, char const * > > hintList =
             {
@@ -421,7 +328,6 @@ bool LLWindowSDL::createContext(int x, int y, int width, int height, int bits, b
 
             if( std::get<2>(subSystem))
                 setupFailure("SDL_Init() failure", "error", OSMB_OK);
-
         }
     }
 
@@ -449,15 +355,6 @@ bool LLWindowSDL::createContext(int x, int y, int width, int height, int bits, b
 
     mFullscreen = fullscreen;
 
-    int sdlflags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;
-
-    if( mFullscreen )
-    {
-        sdlflags |= SDL_WINDOW_FULLSCREEN;
-        tryFindFullscreenSize( width, height );
-    }
-
-    mSDLFlags = sdlflags;
 
     // Setup default backing colors
     GLint redBits{8}, greenBits{8}, blueBits{8}, alphaBits{8};
@@ -497,13 +394,19 @@ bool LLWindowSDL::createContext(int x, int y, int width, int height, int bits, b
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, context_flags);
     SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, 1);
 
-    // Create the window
-    mWindow = SDL_CreateWindow(mWindowTitle.c_str(), x, y, width, height, mSDLFlags);
+    int sdlflags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;
+
+    if( mFullscreen )
+    {
+        sdlflags |= SDL_WINDOW_FULLSCREEN;
+        tryFindFullscreenSize( width, height );
+    }
+
+    mWindow = SDL_CreateWindow( mWindowTitle.c_str(), x, y, width, height, sdlflags );
     if (mWindow == nullptr)
     {
         LL_WARNS() << "Window creation failure. SDL: " << SDL_GetError() << LL_ENDL;
         setupFailure("Window creation error", "Error", OSMB_OK);
-        return FALSE;
     }
 
     // Create the context
@@ -512,14 +415,12 @@ bool LLWindowSDL::createContext(int x, int y, int width, int height, int bits, b
     {
         LL_WARNS() << "Cannot create GL context " << SDL_GetError() << LL_ENDL;
         setupFailure("GL Context creation error", "Error", OSMB_OK);
-        return false;
     }
 
     if (SDL_GL_MakeCurrent(mWindow, mContext) != 0)
     {
         LL_WARNS() << "Failed to make context current. SDL: " << SDL_GetError() << LL_ENDL;
         setupFailure("GL Context failed to set current failure", "Error", OSMB_OK);
-        return FALSE;
     }
 
     mSurface = SDL_GetWindowSurface(mWindow);
@@ -542,7 +443,7 @@ bool LLWindowSDL::createContext(int x, int y, int width, int height, int bits, b
         else
         {
             LL_WARNS() << "createContext: fullscreen creation failure. SDL: " << SDL_GetError() << LL_ENDL;
-            // No fullscreen support
+
             mFullscreen = false;
             mFullscreenWidth   = -1;
             mFullscreenHeight  = -1;
@@ -550,8 +451,7 @@ bool LLWindowSDL::createContext(int x, int y, int width, int height, int bits, b
             mFullscreenRefresh = -1;
 
             std::string error = llformat("Unable to run fullscreen at %d x %d.\nRunning in window.", width, height);
-            OSMessageBox(error, "Error", OSMB_OK);
-            return false;
+            setupFailure( error, "Error", OSMB_OK );
         }
     }
     else
@@ -560,7 +460,6 @@ bool LLWindowSDL::createContext(int x, int y, int width, int height, int bits, b
         {
             LL_WARNS() << "createContext: window creation failure. SDL: " << SDL_GetError() << LL_ENDL;
             setupFailure("Window creation error", "Error", OSMB_OK);
-            return false;
         }
     }
 
@@ -594,7 +493,6 @@ bool LLWindowSDL::createContext(int x, int y, int width, int height, int bits, b
                 "will automatically adjust the screen each time it runs.",
                 "Error",
                 OSMB_OK);
-        return false;
     }
 
     LL_PROFILER_GPU_CONTEXT;
@@ -608,10 +506,9 @@ bool LLWindowSDL::createContext(int x, int y, int width, int height, int bits, b
     {
         SDL_SetWindowIcon(mWindow, bmpsurface);
         SDL_FreeSurface(bmpsurface);
-        bmpsurface = NULL;
+        bmpsurface = nullptr;
     }
 
-#if LL_X11
     /* Grab the window manager specific information */
     SDL_SysWMinfo info;
     SDL_VERSION(&info.version);
@@ -620,25 +517,38 @@ bool LLWindowSDL::createContext(int x, int y, int width, int height, int bits, b
         /* Save the information for later use */
         if ( info.subsystem == SDL_SYSWM_X11 )
         {
-            mSDL_Display = info.info.x11.display;
-            mSDL_XWindowID = info.info.x11.window;
+            mX11Data.mDisplay = info.info.x11.display;
+            mX11Data.mXWindowID = info.info.x11.window;
+	        mServerProtocol = X11;
+	        LL_INFOS() << "Running under X11" << LL_ENDL;
+        }
+	    else if ( info.subsystem == SDL_SYSWM_WAYLAND )
+        {
+            mWaylandData.mSurface = info.info.wl.surface;
+            mServerProtocol = Wayland;
+            setupWaylandFrameCallback();
+
+            // If set (XWayland) remove DISPLAY, this will prompt dullahan to also use Wayland
+            if( getenv("DISPLAY") )
+                unsetenv("DISPLAY");
+
+	        LL_INFOS() << "Running under Wayland" << LL_ENDL;
+            LL_WARNS() << "Be aware that with at least SDL2 the window will not receive minimizing events, thus minimized state can only be estimated."
+                          "also setting the application icon via SDL_SetWindowIcon does not work." << LL_ENDL;
         }
         else
         {
-            LL_WARNS() << "We're not running under X11?  Wild."
-                       << LL_ENDL;
+            LL_WARNS() << "We're not running under X11 or Wayland?  Wild." << LL_ENDL;
         }
     }
     else
     {
-        LL_WARNS() << "We're not running under any known WM.  Wild."
-                   << LL_ENDL;
+        LL_WARNS() << "We're not running under any known WM. Wild." << LL_ENDL;
     }
-#endif // LL_X11
 
     // Detect video memory size.
 # if LL_X11
-    gGLManager.mVRAM = x11_detect_VRAM_kb() / 1024;
+    gGLManager.mVRAM = detectVRAM();
     if (gGLManager.mVRAM != 0)
     {
         LL_INFOS() << "X11 log-parser detected " << gGLManager.mVRAM << "MB VRAM." << LL_ENDL;
@@ -655,7 +565,6 @@ bool LLWindowSDL::createContext(int x, int y, int width, int height, int bits, b
         }
     }
     // If VRAM is not detected, that is handled later
-
     SDL_StartTextInput();
     //make sure multisampling is disabled by default
     glDisable(GL_MULTISAMPLE_ARB);
@@ -740,12 +649,11 @@ void LLWindowSDL::destroyContext()
     LL_INFOS() << "shutdownGL begins" << LL_ENDL;
     gGLManager.shutdownGL();
 
-#if LL_X11
-    mSDL_Display = NULL;
-    mSDL_XWindowID = None;
-    Lock_Display = NULL;
-    Unlock_Display = NULL;
-#endif // LL_X11
+    mX11Data.mDisplay = nullptr;
+    mX11Data.mXWindowID = None;
+    Lock_Display = nullptr;
+    Unlock_Display = nullptr;
+    mServerProtocol = Unknown;
 
     LL_INFOS() << "Destroying SDL cursors" << LL_ENDL;
     quitCursors();
@@ -781,12 +689,9 @@ LLWindowSDL::~LLWindowSDL()
 {
     destroyContext();
 
-    if(mSupportedResolutions != NULL)
-    {
-        delete []mSupportedResolutions;
-    }
+    delete []mSupportedResolutions;
 
-    gWindowImplementation = NULL;
+    gWindowImplementation = nullptr;
 }
 
 
@@ -806,7 +711,6 @@ void LLWindowSDL::hide()
     }
 }
 
-//virtual
 void LLWindowSDL::minimize()
 {
     if (mWindow)
@@ -815,7 +719,6 @@ void LLWindowSDL::minimize()
     }
 }
 
-//virtual
 void LLWindowSDL::restore()
 {
     if (mWindow)
@@ -828,12 +731,6 @@ void LLWindowSDL::restore()
 // Usually called from LLWindowManager::destroyWindow()
 void LLWindowSDL::close()
 {
-    // Is window is already closed?
-    //  if (!mWindow)
-    //  {
-    //      return;
-    //  }
-
     // Make sure cursor is visible and we haven't mangled the clipping state.
     setMouseClipping(false);
     showCursor();
@@ -843,7 +740,7 @@ void LLWindowSDL::close()
 
 bool LLWindowSDL::isValid()
 {
-    return (mWindow != NULL);
+    return mWindow != nullptr;
 }
 
 bool LLWindowSDL::getVisible()
@@ -862,6 +759,9 @@ bool LLWindowSDL::getVisible()
 
 bool LLWindowSDL::getMinimized()
 {
+    if( isWaylandWindowNotDrawing() )
+        return true;
+
     bool result = false;
     if (mWindow)
     {
@@ -894,9 +794,9 @@ bool LLWindowSDL::maximize()
     if (mWindow)
     {
         SDL_MaximizeWindow(mWindow);
-        return TRUE;
+        return true;
     }
-    return FALSE;
+    return false;
 }
 
 bool LLWindowSDL::getFullscreen()
@@ -920,10 +820,10 @@ bool LLWindowSDL::getSize(LLCoordScreen *size)
     {
         size->mX = mSurface->w;
         size->mY = mSurface->h;
-        return (true);
+        return true;
     }
 
-    return (false);
+    return false;
 }
 
 bool LLWindowSDL::getSize(LLCoordWindow *size)
@@ -932,10 +832,10 @@ bool LLWindowSDL::getSize(LLCoordWindow *size)
     {
         size->mX = mSurface->w;
         size->mY = mSurface->h;
-        return (true);
+        return true;
     }
 
-    return (false);
+    return false;
 }
 
 bool LLWindowSDL::setPosition(const LLCoordScreen position)
@@ -958,7 +858,6 @@ template< typename T > bool setSizeImpl( const T& newSize, SDL_Window *pWin )
 
     if( nFlags & SDL_WINDOW_MAXIMIZED )
         SDL_RestoreWindow( pWin );
-
 
     SDL_SetWindowSize( pWin, newSize.mX, newSize.mY );
     SDL_Event event;
@@ -1025,7 +924,8 @@ bool LLWindowSDL::setGamma(const F32 gamma)
         Uint16 ramp[256];
 
         mGamma = gamma;
-        if (mGamma == 0) mGamma = 0.1f;
+        if (mGamma == 0)
+			mGamma = 0.1f;
         mGamma = 1.f / mGamma;
 
         SDL_CalculateGammaRamp(mGamma, ramp);
@@ -1042,7 +942,8 @@ bool LLWindowSDL::isCursorHidden()
 // Constrains the mouse to the window.
 void LLWindowSDL::setMouseClipping(bool b)
 {
-    //SDL_WM_GrabInput(b ? SDL_GRAB_ON : SDL_GRAB_OFF);
+    if( mWindow )
+        SDL_SetWindowGrab( mWindow, b?SDL_TRUE:SDL_FALSE );
 }
 
 // virtual
@@ -1062,16 +963,10 @@ bool LLWindowSDL::setCursorPosition(const LLCoordWindow position)
     LLCoordScreen screen_pos;
 
     if (!convertCoords(position, &screen_pos))
-    {
         return false;
-    }
-
-    //LL_INFOS() << "setCursorPosition(" << screen_pos.mX << ", " << screen_pos.mY << ")" << LL_ENDL;
 
     // do the actual forced cursor move.
     SDL_WarpMouseInWindow(mWindow, screen_pos.mX, screen_pos.mY);
-
-    //LL_INFOS() << llformat("llcw %d,%d -> scr %d,%d", position.mX, position.mY, screen_pos.mX, screen_pos.mY) << LL_ENDL;
 
     return result;
 }
@@ -1089,7 +984,6 @@ bool LLWindowSDL::getCursorPosition(LLCoordWindow *position)
 
     return convertCoords(screen_pos, position);
 }
-
 
 F32 LLWindowSDL::getNativeAspectRatio()
 {
@@ -1111,9 +1005,7 @@ F32 LLWindowSDL::getNativeAspectRatio()
     // switching, and stashes it in mOriginalAspectRatio.  Here, we just return it.
 
     if (mOverrideAspectRatio > 0.f)
-    {
         return mOverrideAspectRatio;
-    }
 
     return mOriginalAspectRatio;
 }
@@ -1125,9 +1017,7 @@ F32 LLWindowSDL::getPixelAspectRatio()
     {
         LLCoordScreen screen_size;
         if (getSize(&screen_size))
-        {
             pixel_aspect = getNativeAspectRatio() * (F32)screen_size.mY / (F32)screen_size.mX;
-        }
     }
 
     return pixel_aspect;
@@ -1138,61 +1028,34 @@ F32 LLWindowSDL::getPixelAspectRatio()
 // dialogs are still usable in fullscreen.
 void LLWindowSDL::beforeDialog()
 {
-    bool running_x11 = false;
-#if LL_X11
-    running_x11 = (mSDL_XWindowID != None);
-#endif //LL_X11
-
     LL_INFOS() << "LLWindowSDL::beforeDialog()" << LL_ENDL;
 
     if (SDLReallyCaptureInput(false)) // must ungrab input so popup works!
     {
-        if (mFullscreen)
-        {
-            // need to temporarily go non-fullscreen; bless SDL
-            // for providing a SDL_WM_ToggleFullScreen() - though
-            // it only works in X11
-            if (running_x11 && mWindow)
-            {
-                SDL_SetWindowFullscreen( mWindow, 0 );
-            }
-        }
+        if (mFullscreen && mWindow )
+            SDL_SetWindowFullscreen( mWindow, 0 );
     }
 
-#if LL_X11
-    if (mSDL_Display)
+    if (mServerProtocol == X11 && mX11Data.mDisplay)
     {
         // Everything that we/SDL asked for should happen before we
         // potentially hand control over to GTK.
         maybe_lock_display();
-        XSync(mSDL_Display, False);
+        XSync(mX11Data.mDisplay, False);
         maybe_unlock_display();
     }
-#endif // LL_X11
 
     maybe_lock_display();
 }
 
 void LLWindowSDL::afterDialog()
 {
-    bool running_x11 = false;
-#if LL_X11
-    running_x11 = (mSDL_XWindowID != None);
-#endif //LL_X11
-
     LL_INFOS() << "LLWindowSDL::afterDialog()" << LL_ENDL;
 
     maybe_unlock_display();
 
-    if (mFullscreen)
-    {
-        // need to restore fullscreen mode after dialog - only works
-        // in X11
-        if (running_x11 && mWindow)
-        {
-            SDL_SetWindowFullscreen( mWindow, 0 );
-        }
-    }
+    if (mFullscreen && mWindow )
+        SDL_SetWindowFullscreen( mWindow, 0 );
 }
 
 void LLWindowSDL::flashIcon(F32 seconds)
@@ -1207,6 +1070,15 @@ void LLWindowSDL::flashIcon(F32 seconds)
 
     SDL_FlashWindow(mWindow, SDL_FLASH_UNTIL_FOCUSED);
     mFlashing = true;
+}
+
+void LLWindowSDL::maybeStopFlashIcon()
+{
+    if (mFlashing && mFlashTimer.hasExpired())
+    {
+        mFlashing = false;
+        SDL_FlashWindow( mWindow, SDL_FLASH_CANCEL );
+    }
 }
 
 bool LLWindowSDL::isClipboardTextAvailable()
@@ -1276,9 +1148,7 @@ LLWindow::LLWindowResolution* LLWindowSDL::getSupportedResolutions(S32 &num_reso
         {
             SDL_DisplayMode mode = { SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, 0 };
             if (SDL_GetDisplayMode( 0 , i, &mode) != 0)
-            {
                 continue;
-            }
 
             int w = mode.w;
             int h = mode.h;
@@ -1331,7 +1201,7 @@ bool LLWindowSDL::convertCoords(LLCoordScreen from, LLCoordWindow* to)
     // In the fullscreen case, window and screen coordinates are the same.
     to->mX = from.mX;
     to->mY = from.mY;
-    return (true);
+    return true;
 }
 
 bool LLWindowSDL::convertCoords(LLCoordWindow from, LLCoordScreen *to)
@@ -1342,21 +1212,21 @@ bool LLWindowSDL::convertCoords(LLCoordWindow from, LLCoordScreen *to)
     // In the fullscreen case, window and screen coordinates are the same.
     to->mX = from.mX;
     to->mY = from.mY;
-    return (true);
+    return true;
 }
 
 bool LLWindowSDL::convertCoords(LLCoordScreen from, LLCoordGL *to)
 {
     LLCoordWindow window_coord;
 
-    return(convertCoords(from, &window_coord) && convertCoords(window_coord, to));
+    return convertCoords(from, &window_coord) && convertCoords(window_coord, to);
 }
 
 bool LLWindowSDL::convertCoords(LLCoordGL from, LLCoordScreen *to)
 {
     LLCoordWindow window_coord;
 
-    return(convertCoords(from, &window_coord) && convertCoords(window_coord, to));
+    return convertCoords(from, &window_coord) && convertCoords(window_coord, to);
 }
 
 void LLWindowSDL::setupFailure(const std::string& text, const std::string& caption, U32 type)
@@ -1364,78 +1234,17 @@ void LLWindowSDL::setupFailure(const std::string& text, const std::string& capti
     destroyContext();
 
     OSMessageBox(text, caption, type);
+
+    // This is so catastrophic > bail as fast as possible. Otherwise the viewer can be stuck in a perpetual state of startup pain
+    std::terminate();
 }
 
 bool LLWindowSDL::SDLReallyCaptureInput(bool capture)
 {
-    // note: this used to be safe to call nestedly, but in the
-    // end that's not really a wise usage pattern, so don't.
+    if (!mFullscreen && mWindow ) /* only bother if we're windowed anyway */
+        SDL_SetWindowGrab( mWindow, capture?SDL_TRUE:SDL_FALSE);
 
-    if (capture)
-        mReallyCapturedCount = 1;
-    else
-        mReallyCapturedCount = 0;
-
-    bool wantGrab;
-    if (mReallyCapturedCount <= 0) // uncapture
-    {
-        wantGrab = false;
-    } else // capture
-    {
-        wantGrab = true;
-    }
-
-    if (mReallyCapturedCount < 0) // yuck, imbalance.
-    {
-        mReallyCapturedCount = 0;
-        LL_WARNS() << "ReallyCapture count was < 0" << LL_ENDL;
-    }
-
-    bool newGrab = wantGrab;
-
-#if LL_X11
-    if (!mFullscreen) /* only bother if we're windowed anyway */
-    {
-        if (mSDL_Display)
-        {
-            /* we dirtily mix raw X11 with SDL so that our pointer
-               isn't (as often) constrained to the limits of the
-               window while grabbed, which feels nicer and
-               hopefully eliminates some reported 'sticky pointer'
-               problems.  We use raw X11 instead of
-               SDL_WM_GrabInput() because the latter constrains
-               the pointer to the window and also steals all
-               *keyboard* input from the window manager, which was
-               frustrating users. */
-            int result;
-            if (wantGrab == true)
-            {
-                maybe_lock_display();
-                result = XGrabPointer(mSDL_Display, mSDL_XWindowID,
-                                      True, 0, GrabModeAsync,
-                                      GrabModeAsync,
-                                      None, None, CurrentTime);
-                maybe_unlock_display();
-                if (GrabSuccess == result)
-                    newGrab = true;
-                else
-                    newGrab = false;
-            }
-            else
-            {
-                newGrab = false;
-
-                maybe_lock_display();
-                XUngrabPointer(mSDL_Display, CurrentTime);
-                // Make sure the ungrab happens RIGHT NOW.
-                XSync(mSDL_Display, False);
-                maybe_unlock_display();
-            }
-        }
-    }
-#endif // LL_X11
-    // return boolean success for whether we ended up in the desired state
-    return capture == newGrab;
+    return capture;
 }
 
 U32 LLWindowSDL::SDLCheckGrabbyKeys(U32 keysym, bool gain)
@@ -1482,7 +1291,6 @@ U32 LLWindowSDL::SDLCheckGrabbyKeys(U32 keysym, bool gain)
 
 void check_vm_bloat()
 {
-#if LL_LINUX
     // watch our own VM and RSS sizes, warn if we bloated rapidly
     static const std::string STATS_FILE = "/proc/self/stat";
     FILE *fp = fopen(STATS_FILE.c_str(), "r");
@@ -1497,7 +1305,7 @@ void check_vm_bloat()
 
         ssize_t res;
         size_t dummy;
-        char *ptr = NULL;
+        char *ptr = nullptr;
         for (int i=0; i<22; ++i) // parse past the values we don't want
         {
             res = getdelim(&ptr, &dummy, ' ', fp);
@@ -1507,7 +1315,7 @@ void check_vm_bloat()
                 goto finally;
             }
             free(ptr);
-            ptr = NULL;
+            ptr = nullptr;
         }
         // 23rd space-delimited entry is vsize
         res = getdelim(&ptr, &dummy, ' ', fp);
@@ -1519,7 +1327,7 @@ void check_vm_bloat()
         }
         this_vm_size = atoll(ptr);
         free(ptr);
-        ptr = NULL;
+        ptr = nullptr;
         // 24th space-delimited entry is RSS
         res = getdelim(&ptr, &dummy, ' ', fp);
         llassert(ptr);
@@ -1530,12 +1338,11 @@ void check_vm_bloat()
         }
         this_rss_size = getpagesize() * atoll(ptr);
         free(ptr);
-        ptr = NULL;
+        ptr = nullptr;
 
         LL_INFOS() << "VM SIZE IS NOW " << (this_vm_size/(1024*1024)) << " MB, RSS SIZE IS NOW " << (this_rss_size/(1024*1024)) << " MB" << LL_ENDL;
 
-        if (llabs(last_vm_size - this_vm_size) >
-            significant_vm_difference)
+        if (llabs(last_vm_size - this_vm_size) > significant_vm_difference)
         {
             if (this_vm_size > last_vm_size)
             {
@@ -1547,8 +1354,7 @@ void check_vm_bloat()
             }
         }
 
-        if (llabs(last_rss_size - this_rss_size) >
-            significant_rss_difference)
+        if (llabs(last_rss_size - this_rss_size) > significant_rss_difference)
         {
             if (this_rss_size > last_rss_size)
             {
@@ -1564,21 +1370,16 @@ void check_vm_bloat()
         last_vm_size = this_vm_size;
 
 finally:
-        if (NULL != ptr)
-        {
+        if (ptr)
             free(ptr);
-            ptr = NULL;
-        }
         fclose(fp);
     }
-#endif // LL_LINUX
 }
 
 
 // virtual
 void LLWindowSDL::processMiscNativeEvents()
 {
-#if LL_GLIB
     // Pump until we've nothing left to do or passed 1/15th of a
     // second pumping for this frame.
     static LLTimer pump_timer;
@@ -1588,18 +1389,15 @@ void LLWindowSDL::processMiscNativeEvents()
     {
         g_main_context_iteration(g_main_context_default(), false);
     } while( g_main_context_pending(g_main_context_default()) && !pump_timer.hasExpired());
-#endif
 
     // hack - doesn't belong here - but this is just for debugging
     if (getenv("LL_DEBUG_BLOAT"))
-    {
         check_vm_bloat();
-    }
 }
 
 void LLWindowSDL::gatherInput()
 {
-    SDL_Event event;
+   SDL_Event event;
 
     // Handle all outstanding SDL events
     while (SDL_PollEvent(&event))
@@ -1633,7 +1431,7 @@ void LLWindowSDL::gatherInput()
             {
                 auto string = utf8str_to_utf16str( event.text.text );
                 mKeyModifiers = gKeyboard->currentMask( false );
-                mInputType = "textinput";
+
                 for( auto key: string )
                 {
                     mKeyVirtualKey = key;
@@ -1649,13 +1447,10 @@ void LLWindowSDL::gatherInput()
             case SDL_KEYDOWN:
                 mKeyVirtualKey = event.key.keysym.sym;
                 mKeyModifiers = event.key.keysym.mod;
-                mInputType = "keydown";
 
                 // treat all possible Enter/Return keys the same
                 if (mKeyVirtualKey == SDLK_RETURN2 || mKeyVirtualKey == SDLK_KP_ENTER)
-                {
                     mKeyVirtualKey = SDLK_RETURN;
-                }
 
                 gKeyboard->handleKeyDown(mKeyVirtualKey, mKeyModifiers );
 
@@ -1678,13 +1473,10 @@ void LLWindowSDL::gatherInput()
             case SDL_KEYUP:
                 mKeyVirtualKey = event.key.keysym.sym;
                 mKeyModifiers = event.key.keysym.mod;
-                mInputType = "keyup";
 
                 // treat all possible Enter/Return keys the same
                 if (mKeyVirtualKey == SDLK_RETURN2 || mKeyVirtualKey == SDLK_KP_ENTER)
-                {
                     mKeyVirtualKey = SDLK_RETURN;
-                }
 
                 if (SDLCheckGrabbyKeys(mKeyVirtualKey, false) == 0)
                     SDLReallyCaptureInput(false); // part of the fix for SL-13243
@@ -1706,7 +1498,7 @@ void LLWindowSDL::gatherInput()
                     else
                         mCallbacks->handleMouseDown(this, openGlCoord, mask);
                 }
-                else if (event.button.button == SDL_BUTTON_RIGHT)  // right
+                else if (event.button.button == SDL_BUTTON_RIGHT)
                 {
                     mCallbacks->handleRightMouseDown(this, openGlCoord, mask);
                 }
@@ -1836,12 +1628,12 @@ static SDL_Cursor *makeSDLCursorFromBMP(const char *filename, int hotx, int hoty
                                            SDL_SwapLE32(0xFF00U),
                                            SDL_SwapLE32(0xFF0000U),
                                            SDL_SwapLE32(0xFF000000U));
-        SDL_FillRect(cursurface, NULL, SDL_SwapLE32(0x00000000U));
+        SDL_FillRect(cursurface, nullptr, SDL_SwapLE32(0x00000000U));
 
         // Blit the cursor pixel data onto a 32-bit RGBA surface so we
         // only have to cope with processing one type of pixel format.
-        if (0 == SDL_BlitSurface(bmpsurface, NULL,
-                                 cursurface, NULL))
+        if (0 == SDL_BlitSurface(bmpsurface, nullptr,
+                                 cursurface, nullptr))
         {
             // n.b. we already checked that width is a multiple of 8.
             const int bitmap_bytes = (cursurface->w * cursurface->h) / 8;
@@ -1915,12 +1707,10 @@ void LLWindowSDL::updateCursor()
 
 void LLWindowSDL::initCursors()
 {
-    int i;
     // Blank the cursor pointer array for those we may miss.
-    for (i=0; i<UI_CURSOR_COUNT; ++i)
-    {
+    for ( int i=0; i<UI_CURSOR_COUNT; ++i)
         mSDLCursors[i] = nullptr;
-    }
+
     // Pre-make an SDL cursor for each of the known cursor types.
     // We hardcode the hotspots - to avoid that we'd have to write
     // a .cur file loader.
@@ -1973,23 +1763,24 @@ void LLWindowSDL::initCursors()
 
 void LLWindowSDL::quitCursors()
 {
-    int i;
     if (mWindow)
     {
-        for (i=0; i<UI_CURSOR_COUNT; ++i)
+        for (int i=0; i<UI_CURSOR_COUNT; ++i)
         {
             if (mSDLCursors[i])
             {
                 SDL_FreeCursor(mSDLCursors[i]);
-                mSDLCursors[i] = NULL;
+                mSDLCursors[i] = nullptr;
             }
         }
-    } else {
+    }
+    else
+    {
         // SDL doesn't refcount cursors, so if the window has
         // already been destroyed then the cursors have gone with it.
         LL_INFOS() << "Skipping quitCursors: mWindow already gone." << LL_ENDL;
-        for (i=0; i<UI_CURSOR_COUNT; ++i)
-            mSDLCursors[i] = NULL;
+        for (int i=0; i<UI_CURSOR_COUNT; ++i)
+            mSDLCursors[i] = nullptr;
     }
 }
 
@@ -2117,7 +1908,7 @@ S32 OSMessageBoxSDL(const std::string& text, const std::string& caption, U32 typ
 
 bool LLWindowSDL::dialogColorPicker( F32 *r, F32 *g, F32 *b)
 {
-    return (false);
+    return false;
 }
 
 /*
@@ -2147,7 +1938,6 @@ LLSD LLWindowSDL::getNativeKeyData()
     result["virtual_key"] = (S32)mKeyVirtualKey;
     result["virtual_key_win"] = (S32)LLKeyboardSDL::mapSDL2toWin( mKeyVirtualKey );
     result["modifiers"] = (S32)modifiers;
-    result["input_type"] = mInputType;
     return result;
 }
 
@@ -2184,7 +1974,7 @@ void LLWindowSDL::spawnWebBrowser(const std::string& escaped_url, bool async)
 
 void *LLWindowSDL::getPlatformWindow()
 {
-    return NULL;
+    return nullptr;
 }
 
 void LLWindowSDL::bringToFront()
@@ -2218,8 +2008,8 @@ std::vector<std::string> LLWindowSDL::getDynamicFallbackFontList()
     // to use some of the fonts we want it to.
     const bool elide_unicode_coverage = true;
     std::vector<std::string> rtns;
-    FcFontSet *fs = NULL;
-    FcPattern *sortpat = NULL;
+    FcFontSet *fs = nullptr;
+    FcPattern *sortpat = nullptr;
 
     LL_INFOS() << "Getting system font list from FontConfig..." << LL_ENDL;
 
@@ -2228,7 +2018,7 @@ std::vector<std::string> LLWindowSDL::getDynamicFallbackFontList()
     // of languages that can be displayed, but ensures that their
     // preferred language is rendered from a single consistent font where
     // possible.
-    FL_Locale *locale = NULL;
+    FL_Locale *locale = nullptr;
     FL_Success success = FL_FindLocale(&locale, FL_MESSAGES);
     if (success != 0)
     {
@@ -2259,8 +2049,7 @@ std::vector<std::string> LLWindowSDL::getDynamicFallbackFontList()
     {
         // Sort the list of system fonts from most-to-least-desirable.
         FcResult result;
-        fs = FcFontSort(NULL, sortpat, elide_unicode_coverage,
-                        NULL, &result);
+        fs = FcFontSort(nullptr, sortpat, elide_unicode_coverage, nullptr, &result);
         FcPatternDestroy(sortpat);
     }
 
@@ -2273,10 +2062,7 @@ std::vector<std::string> LLWindowSDL::getDynamicFallbackFontList()
         for (int i=0; i<fs->nfont; ++i)
         {
             FcChar8 *filename;
-            if (FcResultMatch == FcPatternGetString(fs->fonts[i],
-                                                    FC_FILE, 0,
-                                                    &filename)
-                && filename)
+            if (FcResultMatch == FcPatternGetString(fs->fonts[i], FC_FILE, 0, &filename) && filename)
             {
                 rtns.push_back(std::string((const char*)filename));
                 if (rtns.size() >= max_font_count_cutoff)
@@ -2287,12 +2073,11 @@ std::vector<std::string> LLWindowSDL::getDynamicFallbackFontList()
     }
 
     LL_DEBUGS() << "Using font list: " << LL_ENDL;
-    for (std::vector<std::string>::iterator it = rtns.begin();
-         it != rtns.end();
-         ++it)
+    for (auto it = rtns.begin(); it != rtns.end(); ++it)
     {
         LL_DEBUGS() << "  file: " << *it << LL_ENDL;
     }
+
     LL_INFOS() << "Using " << rtns.size() << "/" << found_font_count << " system fonts." << LL_ENDL;
 
     rtns.push_back(final_fallback);
