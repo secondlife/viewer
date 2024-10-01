@@ -1162,8 +1162,14 @@ void LLViewerRegion::killCacheEntry(LLVOCacheEntry* entry, bool for_rendering)
             child = entry->getChild();
         }
     }
-    // Kill the assocaited overrides
+#if 0    // Nope: do not do this !  The object may re-rez later in the same
+         // session (e.g. for neighbour region objects, depending on draw
+         // distance, while moving or caming around) and its override may
+         // not be re-sent by the simulator, causing a loss in the override
+         // data !  HB
+    // Kill the associated overrides
     mImpl->mGLTFOverridesLLSD.erase(entry->getLocalID());
+#endif
     //will remove it from the object cache, real deletion
     entry->setState(LLVOCacheEntry::INACTIVE);
     entry->removeOctreeEntry();
