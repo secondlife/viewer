@@ -1,5 +1,6 @@
 LLInventory = require 'LLInventory'
 LLAgent = require 'LLAgent'
+Timer = (require 'timers').Timer
 
 -- Get 'Animations' folder id (you can see all folder types via LLInventory.getFolderTypeNames())
 animations_id = LLInventory.getBasicFolderID('animatn')
@@ -25,7 +26,7 @@ else
 
     -- Stop animation after 3 sec if it's looped or longer than 3 sec
     if anim_info.is_loop == 1 or anim_info.duration > 3 then
-        LL.sleep(3)
+        Timer(3, 'wait')
         print("Stop animation.")
         LLAgent.stopAnimation(random_id)
     end

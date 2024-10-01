@@ -6,7 +6,7 @@ local inspect = {Options = {}, }
 
 
 
-
+local fiber = require 'fiber'
 
 
 
@@ -213,12 +213,14 @@ local function processRecursive(process,
       local processedKey
 
       for k, v in rawpairs(processed) do
+         fiber.yield()
          processedKey = processRecursive(process, k, makePath(path, k, inspect.KEY), visited)
          if processedKey ~= nil then
             processedCopy[processedKey] = processRecursive(process, v, makePath(path, processedKey), visited)
          end
       end
 
+      fiber.yield()
       local mt = processRecursive(process, getmetatable(processed), makePath(path, inspect.METATABLE), visited)
       if type(mt) ~= 'table' then mt = nil end
       setmetatable(processedCopy, mt)

@@ -301,8 +301,10 @@ function fiber.yield()
         -- actually ready. Don't return normally.
         error('fiber.set_idle() interrupted yield() with: ' .. tostring(idle_done))
     end
-    -- We're ready! Just return to caller. In this situation we don't care
-    -- whether there are other ready fibers.
+    -- We're ready! Make sure the viewer knows we're still doing real work.
+    LL.yield()
+    -- Return to caller. In this situation we don't care whether there are
+    -- other ready fibers.
     dbg('fiber.yield() returning to %s (%sothers are ready)',
         fiber.get_name(), ((not others) and "no " or ""))
 end

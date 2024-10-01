@@ -53,15 +53,10 @@ S32 LLLUAmanager::sAutorunScriptCount = 0;
 S32 LLLUAmanager::sScriptCount = 0;
 std::map<std::string, std::string> LLLUAmanager::sScriptNames;
 
-lua_function(sleep, "sleep(seconds): pause the running coroutine")
+lua_function(yield, "yield(): allow other processing to run.")
 {
-    lua_checkdelta(L, -1);
-    lua_Number seconds = lua_tonumber(L, -1);
-    lua_pop(L, 1);
-    llcoro::suspendUntilTimeout(narrow(seconds));
-    LuaState::getParent(L).set_interrupts_counter(0);
-    return 0;
-};
+    LuaState::getParent(L).yield();
+}
 
 // This function consumes ALL Lua stack arguments and returns concatenated
 // message string

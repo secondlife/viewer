@@ -1010,6 +1010,20 @@ void LuaState::check_interrupts_counter()
     }
 }
 
+void LuaState::yield()
+{
+    // We want Lua scripts to call fiber.yield() often to avoid being killed
+    // by our infinite loop detection (above). But calling llcoro::suspend()
+    // every time would be a disincentive, since that actually pauses the C++
+    // coroutine running the Lua script for a frame. This yield() method
+    // judiciously calls llcoro::suspend() when it seems warranted.
+    if (mInterrupts >= INTERRUPTS_MAX_LIMIT/2)
+    {
+        llcoro::suspend();
+        mInterrupts = 0;
+    }
+}
+
 /*****************************************************************************
 *   atexit()
 *****************************************************************************/

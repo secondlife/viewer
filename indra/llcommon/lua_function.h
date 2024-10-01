@@ -121,6 +121,7 @@ public:
 
     void set_interrupts_counter(S32 counter);
     void check_interrupts_counter();
+    void yield();
 
 private:
     /*---------------------------- feature flag ----------------------------*/
