@@ -1050,7 +1050,7 @@ void LLGLSLShader::bind()
 
     gGL.flush();
 
-    if (this && sCurBoundShader != mProgramObject)  // Don't re-bind current shader
+    if (sCurBoundShader != mProgramObject)  // Don't re-bind current shader
     {
         if (sCurBoundShaderPtr)
         {
@@ -1064,7 +1064,7 @@ void LLGLSLShader::bind()
         LLVertexBuffer::setupClientArrays(mAttributeMask);
     }
 
-    if (this && mUniformsDirty)
+    if (mUniformsDirty)
     {
         LLShaderMgr::instance()->updateShaderUniforms(this);
         mUniformsDirty = false;
