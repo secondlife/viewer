@@ -7270,7 +7270,7 @@ void LLPipeline::generateGlow(LLRenderTarget* src)
 void LLPipeline::applyCAS(LLRenderTarget* src, LLRenderTarget* dst)
 {
     static LLCachedControl<F32> cas_sharpness(gSavedSettings, "RenderCASSharpness", 0.4f);
-    if (cas_sharpness == 0.0f)
+    if (cas_sharpness == 0.0f || !gCASProgram.isComplete())
     {
         gPipeline.copyRenderTarget(src, dst);
         return;
