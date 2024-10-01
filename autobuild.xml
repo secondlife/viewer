@@ -2992,7 +2992,6 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>-DADDRESS_SIZE:STRING=$AUTOBUILD_ADDRSIZE</string>
                   <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
                   <string>-DINSTALL_PROPRIETARY=TRUE</string>
-                  <string>-DUSE_OPENAL:BOOL=ON</string>
                 </array>
               </map>
               <key>build</key>
@@ -3034,7 +3033,6 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>-DADDRESS_SIZE:STRING=$AUTOBUILD_ADDRSIZE</string>
                   <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
                   <string>-DINSTALL_PROPRIETARY=TRUE</string>
-                  <string>-DUSE_OPENAL:BOOL=ON</string>
                 </array>
               </map>
               <key>build</key>
@@ -3237,7 +3235,6 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                 <array>
                   <string>-G</string>
                   <string>Ninja</string>
-                  <string>-DUSE_OPENAL:BOOL=ON</string>
                 </array>
               </map>
               <key>build</key>
@@ -3322,7 +3319,6 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>${AUTOBUILD_WIN_VSPLATFORM|NOTWIN}</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                   <string>-DUSE_KDU=FALSE</string>
-                  <string>-DUSE_OPENAL:BOOL=ON</string>
                 </array>
                 <key>arguments</key>
                 <array>
@@ -3396,7 +3392,6 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>-DUNATTENDED:BOOL=ON</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                   <string>-DUSE_KDU=FALSE</string>
-                  <string>-DUSE_OPENAL:BOOL=ON</string>
                 </array>
                 <key>arguments</key>
                 <array>
