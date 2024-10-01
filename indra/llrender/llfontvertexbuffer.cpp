@@ -31,6 +31,8 @@
 #include "llvertexbuffer.h"
 
 
+bool LLFontVertexBuffer::sEnableBufferCollection = true;
+
 LLFontVertexBuffer::LLFontVertexBuffer()
 {
 }
@@ -118,6 +120,11 @@ S32 LLFontVertexBuffer::render(
     if (!LLFontGL::sDisplayFont) //do not display texts
     {
         return static_cast<S32>(text.length());
+    }
+    if (!sEnableBufferCollection)
+    {
+        // For debug purposes and performance testing
+        return fontp->render(text, begin_offset, x, y, color, halign, valign, style, shadow, max_chars, max_pixels, right_x, use_ellipses, use_color);
     }
     if (mBufferList.empty())
     {

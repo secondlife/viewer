@@ -42,7 +42,6 @@
 #include <glm/gtc/type_ptr.hpp>
 
 void hud_render_utf8text(const std::string &str, const LLVector3 &pos_agent,
-                     LLFontVertexBuffer *font_buffer,
                      const LLFontGL &font,
                      const U8 style,
                      const LLFontGL::ShadowType shadow,
@@ -51,11 +50,10 @@ void hud_render_utf8text(const std::string &str, const LLVector3 &pos_agent,
                      const bool orthographic)
 {
     LLWString wstr(utf8str_to_wstring(str));
-    hud_render_text(wstr, pos_agent, font_buffer, font, style, shadow, x_offset, y_offset, color, orthographic);
+    hud_render_text(wstr, pos_agent, font, style, shadow, x_offset, y_offset, color, orthographic);
 }
 
 void hud_render_text(const LLWString &wstr, const LLVector3 &pos_agent,
-                    LLFontVertexBuffer *font_buffer,
                     const LLFontGL &font,
                     const U8 style,
                     const LLFontGL::ShadowType shadow,
@@ -128,14 +126,7 @@ void hud_render_text(const LLWString &wstr, const LLVector3 &pos_agent,
     LLUI::translate((F32) win_coord.x*1.0f/LLFontGL::sScaleX, (F32) win_coord.y*1.0f/(LLFontGL::sScaleY), -(((F32) win_coord.z*2.f)-1.f));
     F32 right_x;
 
-    if (font_buffer)
-    {
-        font_buffer->render(&font, wstr, 0, 0, 1, color, LLFontGL::LEFT, LLFontGL::BASELINE, style, shadow, static_cast<S32>(wstr.length()), 1000, &right_x, /*use_ellipses*/false, /*use_color*/true);
-    }
-    else
-    {
-        font.render(wstr, 0, 0, 1, color, LLFontGL::LEFT, LLFontGL::BASELINE, style, shadow, static_cast<S32>(wstr.length()), 1000, &right_x, /*use_ellipses*/false, /*use_color*/true);
-    }
+    font.render(wstr, 0, 0, 1, color, LLFontGL::LEFT, LLFontGL::BASELINE, style, shadow, static_cast<S32>(wstr.length()), 1000, &right_x, /*use_ellipses*/false, /*use_color*/true);
 
     LLUI::popMatrix();
     gGL.popMatrix();

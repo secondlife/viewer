@@ -519,9 +519,9 @@ void LLManip::renderTickText(const LLVector3& pos, const std::string& text, cons
     LLColor4 shadow_color = LLColor4::black;
     shadow_color.mV[VALPHA] = color.mV[VALPHA] * 0.5f;
     gViewerWindow->setup3DViewport(1, -1);
-    hud_render_utf8text(text, render_pos, nullptr, *big_fontp, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,  -0.5f * big_fontp->getWidthF32(text), 3.f, shadow_color, mObjectSelection->getSelectType() == SELECT_TYPE_HUD);
+    hud_render_utf8text(text, render_pos, *big_fontp, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,  -0.5f * big_fontp->getWidthF32(text), 3.f, shadow_color, mObjectSelection->getSelectType() == SELECT_TYPE_HUD);
     gViewerWindow->setup3DViewport();
-    hud_render_utf8text(text, render_pos, nullptr, *big_fontp, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, -0.5f * big_fontp->getWidthF32(text), 3.f, color, mObjectSelection->getSelectType() == SELECT_TYPE_HUD);
+    hud_render_utf8text(text, render_pos, *big_fontp, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, -0.5f * big_fontp->getWidthF32(text), 3.f, color, mObjectSelection->getSelectType() == SELECT_TYPE_HUD);
 
     gGL.popMatrix();
 }
@@ -578,12 +578,12 @@ void LLManip::renderTickValue(const LLVector3& pos, F32 value, const std::string
         {
             fraction_string = llformat("%c%02d%s", LLResMgr::getInstance()->getDecimalPoint(), fractional_portion, suffix.c_str());
 
-            hud_render_utf8text(val_string, render_pos, nullptr, *big_fontp, LLFontGL::NORMAL, LLFontGL::DROP_SHADOW, -1.f * big_fontp->getWidthF32(val_string), 3.f, color, hud_selection);
-            hud_render_utf8text(fraction_string, render_pos, nullptr, *small_fontp, LLFontGL::NORMAL, LLFontGL::DROP_SHADOW, 1.f, 3.f, color, hud_selection);
+            hud_render_utf8text(val_string, render_pos, *big_fontp, LLFontGL::NORMAL, LLFontGL::DROP_SHADOW, -1.f * big_fontp->getWidthF32(val_string), 3.f, color, hud_selection);
+            hud_render_utf8text(fraction_string, render_pos, *small_fontp, LLFontGL::NORMAL, LLFontGL::DROP_SHADOW, 1.f, 3.f, color, hud_selection);
         }
         else
         {
-            hud_render_utf8text(val_string, render_pos, nullptr, *big_fontp, LLFontGL::NORMAL, LLFontGL::DROP_SHADOW, -0.5f * big_fontp->getWidthF32(val_string), 3.f, color, hud_selection);
+            hud_render_utf8text(val_string, render_pos, *big_fontp, LLFontGL::NORMAL, LLFontGL::DROP_SHADOW, -0.5f * big_fontp->getWidthF32(val_string), 3.f, color, hud_selection);
         }
     }
     gGL.popMatrix();
