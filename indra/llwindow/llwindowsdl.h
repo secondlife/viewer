@@ -176,8 +176,6 @@ public:
 
     void spawnWebBrowser(const std::string &escaped_url, bool async) override;
 
-    void openFile(const std::string &file_name);
-
     void setTitle(const std::string title) override;
 
     static std::vector<std::string> getDynamicFallbackFontList();
@@ -211,7 +209,7 @@ public:
 
 protected:
     LLWindowSDL(LLWindowCallbacks *callbacks,
-                const std::string &title, int x, int y, int width, int height, U32 flags,
+                const std::string &title, const std::string& name, int x, int y, int width, int height, U32 flags,
                 bool fullscreen, bool clearBg, bool enable_vsync, bool use_gl,
                 bool ignore_pixel_depth, U32 fsaa_samples);
 
@@ -247,8 +245,6 @@ protected:
 
     void setupFailure(const std::string &text, const std::string &caption, U32 type);
 
-    void fixWindowSize(void);
-
     U32 SDLCheckGrabbyKeys(U32 keysym, bool gain);
 
     bool SDLReallyCaptureInput(bool capture);
@@ -280,45 +276,15 @@ protected:
     friend class LLWindowManager;
 
 private:
-#if LL_X11
-
-    void x11_set_urgent(bool urgent);
-
     bool mFlashing;
     LLTimer mFlashTimer;
-#endif //LL_X11
-
     U32 mKeyVirtualKey;
     U32 mKeyModifiers;
     std::string mInputType;
 
-public:
-#if LL_X11
-
-    static Display *getSDLDisplay();
-
-    LLWString const &getPrimaryText() const { return mPrimaryClipboard; }
-
-    LLWString const &getSecondaryText() const { return mSecondaryClipboard; }
-
-    void clearPrimaryText() { mPrimaryClipboard.clear(); }
-
-    void clearSecondaryText() { mSecondaryClipboard.clear(); }
 
 private:
     void tryFindFullscreenSize(int &aWidth, int &aHeight);
-
-    void initialiseX11Clipboard();
-
-    bool getSelectionText(Atom selection, LLWString &text);
-
-    bool getSelectionText(Atom selection, Atom type, LLWString &text);
-
-    bool setSelectionText(Atom selection, const LLWString &text);
-
-#endif
-    LLWString mPrimaryClipboard;
-    LLWString mSecondaryClipboard;
 };
 
 class LLSplashScreenSDL : public LLSplashScreen

@@ -550,7 +550,13 @@ private:
 public:
     ll_convert(const FROM& ref): mRef(ref) {}
 
-    template <typename TO>
+    inline operator const FROM&() const
+    {
+        return mRef;
+    }
+
+    template <typename TO,
+              std::enable_if_t<! std::is_same_v<std::decay_t<TO>, std::decay_t<FROM>>, bool> =true>
     inline operator TO() const
     {
         return ll_convert_impl<TO, std::decay_t<const FROM>>()(mRef);
@@ -559,7 +565,15 @@ public:
 
 // When the TO type must be explicit, use a function template to get
 // ll_convert_to<TO>(from_value) API.
-template<typename TO, typename FROM>
+template<typename SAME>
+const SAME& ll_convert_to(const SAME& in)
+{
+    return in;
+}
+
+template<typename TO,
+         typename FROM,
+         std::enable_if_t<! std::is_same_v<std::decay_t<TO>, std::decay_t<FROM>>, bool> =true>
 TO ll_convert_to(const FROM& in)
 {
     return ll_convert_impl<TO, std::decay_t<const FROM>>()(in);
