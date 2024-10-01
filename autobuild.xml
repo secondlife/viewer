@@ -2112,11 +2112,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>191e4ef07a35f7147708415465191ce7622e3012</string>
+              <string>32371131845ad85bf35e89f7a8ec073b89eeb3f1</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-openal-soft/releases/download/v1.23.1-8668009/openal-1.23.1-darwin64-8979520327.tar.zst</string>
+              <string>https://github.com/secondlife/3p-openal-soft/releases/download/v1.23.1-0247dd8/openal-1.23.1-darwin64-11115781501.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2126,11 +2126,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>3bd8c9028ef42bdb43c7422e7d324e213fdb081e</string>
+              <string>14856fb33e205138731865b2d1bb680104f83dd3</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-openal-soft/releases/download/v1.23.1-8668009/openal-1.23.1-linux64-8979520327.tar.zst</string>
+              <string>https://github.com/secondlife/3p-openal-soft/releases/download/v1.23.1-0247dd8/openal-1.23.1-linux64-11115781501.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -2140,11 +2140,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4b849609abec790e89be5fad8ddee3717ee301c4</string>
+              <string>c84665726c23fa6f5d25c7a46f5e9d0153834a2a</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-openal-soft/releases/download/v1.23.1-8668009/openal-1.23.1-windows64-8979520327.tar.zst</string>
+              <string>https://github.com/secondlife/3p-openal-soft/releases/download/v1.23.1-0247dd8/openal-1.23.1-windows64-11115781501.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
