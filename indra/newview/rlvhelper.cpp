@@ -57,7 +57,7 @@ BehaviourDictionary::BehaviourDictionary()
     // Populate mString2InfoMap (the tuple <behaviour, type> should be unique)
     for (const BehaviourInfo* bhvr_info_p : mBhvrInfoList)
     {
-        RLV_VERIFY(mString2InfoMap.insert(std::make_pair(std::make_pair(bhvr_info_p->getBehaviour(), static_cast<EParamType>(bhvr_info_p->getParamTypeMask())), bhvr_info_p)).second);
+        mString2InfoMap.insert(std::make_pair(std::make_pair(bhvr_info_p->getBehaviour(), static_cast<EParamType>(bhvr_info_p->getParamTypeMask())), bhvr_info_p));
     }
 
     // Populate m_Bhvr2InfoMap (there can be multiple entries per ERlvBehaviour)

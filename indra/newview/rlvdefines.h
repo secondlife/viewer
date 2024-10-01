@@ -38,7 +38,6 @@
 #define RLV_ENDL		LL_ENDL
 #define RLV_VERIFY(f)	(f)
 
-#define RLV_DEBUG
 #if LL_RELEASE_WITH_DEBUG_INFO || LL_DEBUG
     // Make sure we halt execution on errors
     #define RLV_ERRS				LL_ERRS("RLV")
