@@ -520,7 +520,7 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
      check_curl_easy_setopt(mCurlHandle, CURLOPT_ENCODING, "");
 #endif
 
-  check_curl_easy_setopt(mCurlHandle, CURLOPT_AUTOREFERER, 1);
+    check_curl_easy_setopt(mCurlHandle, CURLOPT_AUTOREFERER, 1);
     check_curl_easy_setopt(mCurlHandle, CURLOPT_MAXREDIRS, HTTP_REDIRECTS_DEFAULT);
     check_curl_easy_setopt(mCurlHandle, CURLOPT_WRITEFUNCTION, writeCallback);
     check_curl_easy_setopt(mCurlHandle, CURLOPT_WRITEDATA, getHandle());
@@ -608,7 +608,12 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
     case HOR_POST:
         {
             check_curl_easy_setopt(mCurlHandle, CURLOPT_POST, 1);
+
+#if LIBCURL_VERSION_MAJOR > 7
+            check_curl_easy_setopt(mCurlHandle, CURLOPT_ENCODING, nullptr);
+#else
             check_curl_easy_setopt(mCurlHandle, CURLOPT_ENCODING, "");
+#endif
             long data_size(0);
             if (mReqBody)
             {
