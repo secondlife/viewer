@@ -17,7 +17,7 @@ if (LINUX)
   pkg_check_modules(WAYLAND_CLIENT wayland-client)
 
   if( WAYLAND_CLIENT_FOUND )
-      #target_link_libraries( ll::uilibraries INTERFACE ${WAYLAND_CLIENT_LIBRARIES} )
+      target_link_libraries( ll::uilibraries INTERFACE ${WAYLAND_CLIENT_LIBRARIES} )
       target_compile_definitions( ll::uilibraries INTERFACE ND_WAYLAND=1)
   else()
       message("pkgconfig could not find wayland client, compiling without full wayland support")
@@ -25,6 +25,11 @@ if (LINUX)
 
   target_link_libraries( ll::uilibraries INTERFACE
           fltk
+          wayland-cursor
+          cairo
+          pango-1.0
+          pangocairo-1.0
+          xkbcommon
           Xrender
           Xcursor
           Xfixes
