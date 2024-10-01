@@ -655,14 +655,14 @@ void GLTFSceneManager::render(Asset& asset, U8 variant)
 
             if (!shader_bound)
             { // don't bind the shader until we know we have somthing to render
-                if (opaque)
-                {
-                    gGLTFPBRMetallicRoughnessProgram.bind(variant);
-                }
-                else
-                { // alpha shaders need all the shadow map setup etc
-                    gPipeline.bindDeferredShader(gGLTFPBRMetallicRoughnessProgram.mGLTFVariants[variant]);
-                }
+                //if (opaque)
+                //{
+                //    gGLTFPBRMetallicRoughnessProgram.bind(variant);
+                //}
+                //else
+                //{ // alpha shaders need all the shadow map setup etc
+                //    gPipeline.bindDeferredShader(gGLTFPBRMetallicRoughnessProgram.mGLTFVariants[variant]);
+                //}
 
                 if (!rigged)
                 {
