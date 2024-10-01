@@ -19,7 +19,7 @@
 local printf = require 'printf'
 local function dbg(...) end
 -- local dbg = printf
-local coro = require 'coro'
+local util = require 'util'
 
 local fiber = {}
 
@@ -258,8 +258,8 @@ local function scheduler()
                 return others or next(waiting)
             end
             -- not main, but some other ready coroutine:
-            -- use coro.resume() so we'll propagate any error encountered
-            coro.resume(co)
+            -- use util.callok() so we'll propagate any error encountered
+            util.callok(coroutine.resume(co))
             prune_waiting()
         end
         -- Here there are no ready fibers. Are there any waiting fibers?

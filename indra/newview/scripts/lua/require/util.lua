@@ -2,6 +2,23 @@
 
 local util = {}
 
+-- Check errors from pcall(), xpcall() or coroutine.resume().
+-- pcall() et al. are defined to return either:
+-- * true followed by all return values of the function or coroutine
+-- * false with an error object (i.e. message).
+-- Callers are therefore encouraged to check the initial bool. If it's false
+-- they must handle the error; if true they can process the remaining return
+-- values. This function encapsulates that responsibility, e.g.:
+-- local a, b, c = util.callok(pcall(func, 'some args'))
+function util.callok(ok, err, ...)
+    if not ok then
+        -- associate the error with our caller
+        error(err, 2)
+    end
+    -- return everything except the initial bool 'ok'
+    return err, ...
+end
+
 -- Allow MyClass(ctor args...) equivalent to MyClass:new(ctor args...)
 -- Usage:
 -- local MyClass = {}
