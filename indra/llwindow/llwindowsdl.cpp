@@ -186,145 +186,6 @@ static SDL_Surface *Load_BMP_Resource(const char *basename)
     return SDL_LoadBMP(path_buffer);
 }
 
-#if LL_X11
-// This is an XFree86/XOrg-specific hack for detecting the amount of Video RAM
-// on this machine.  It works by searching /var/log/var/log/Xorg.?.log or
-// /var/log/XFree86.?.log for a ': (VideoRAM ?|Memory): (%d+) kB' regex, where
-// '?' is the X11 display number derived from $DISPLAY
-static int x11_detect_VRAM_kb_fp(FILE *fp, const char *prefix_str)
-{
-    const int line_buf_size = 1000;
-    char line_buf[line_buf_size];
-    while (fgets(line_buf, line_buf_size, fp))
-    {
-        //LL_DEBUGS() << "XLOG: " << line_buf << LL_ENDL;
-
-        // Why the ad-hoc parser instead of using a regex?  Our
-        // favourite regex implementation - libboost_regex - is
-        // quite a heavy and troublesome dependency for the client, so
-        // it seems a shame to introduce it for such a simple task.
-        // *FIXME: libboost_regex is a dependency now anyway, so we may
-        // as well use it instead of this hand-rolled nonsense.
-        const char *part1_template = prefix_str;
-        const char part2_template[] = " kB";
-        char *part1 = strstr(line_buf, part1_template);
-        if (part1) // found start of matching line
-        {
-            part1 = &part1[strlen(part1_template)]; // -> after
-            char *part2 = strstr(part1, part2_template);
-            if (part2) // found end of matching line
-            {
-                // now everything between part1 and part2 is
-                // supposed to be numeric, describing the
-                // number of kB of Video RAM supported
-                int rtn = 0;
-                for (; part1 < part2; ++part1)
-                {
-                    if (*part1 < '0' || *part1 > '9')
-                    {
-                        // unexpected char, abort parse
-                        rtn = 0;
-                        break;
-                    }
-                    rtn *= 10;
-                    rtn += (*part1) - '0';
-                }
-                if (rtn > 0)
-                {
-                    // got the kB number.  return it now.
-                    return rtn;
-                }
-            }
-        }
-    }
-    return 0; // 'could not detect'
-}
-
-static int x11_detect_VRAM_kb()
-{
-    std::string x_log_location("/var/log/");
-    std::string fname;
-    int rtn = 0; // 'could not detect'
-    int display_num = 0;
-    FILE *fp;
-    char *display_env = getenv("DISPLAY"); // e.g. :0 or :0.0 or :1.0 etc
-    // parse DISPLAY number so we can go grab the right log file
-    if (display_env[0] == ':' &&
-        display_env[1] >= '0' && display_env[1] <= '9')
-    {
-        display_num = display_env[1] - '0';
-    }
-
-    // *TODO: we could be smarter and see which of Xorg/XFree86 has the
-    // freshest time-stamp.
-
-    // Try Xorg log first
-    fname = x_log_location;
-    fname += "Xorg.";
-    fname += ('0' + display_num);
-    fname += ".log";
-    fp = fopen(fname.c_str(), "r");
-    if (fp)
-    {
-        LL_INFOS() << "Looking in " << fname
-                   << " for VRAM info..." << LL_ENDL;
-        rtn = x11_detect_VRAM_kb_fp(fp, ": VideoRAM: ");
-        fclose(fp);
-        if (0 == rtn)
-        {
-            fp = fopen(fname.c_str(), "r");
-            if (fp)
-            {
-                rtn = x11_detect_VRAM_kb_fp(fp, ": Video RAM: ");
-                fclose(fp);
-                if (0 == rtn)
-                {
-                    fp = fopen(fname.c_str(), "r");
-                    if (fp)
-                    {
-                        rtn = x11_detect_VRAM_kb_fp(fp, ": Memory: ");
-                        fclose(fp);
-                    }
-                }
-            }
-        }
-    }
-    else
-    {
-        LL_INFOS() << "Could not open " << fname
-                   << " - skipped." << LL_ENDL;
-        // Try old XFree86 log otherwise
-        fname = x_log_location;
-        fname += "XFree86.";
-        fname += ('0' + display_num);
-        fname += ".log";
-        fp = fopen(fname.c_str(), "r");
-        if (fp)
-        {
-            LL_INFOS() << "Looking in " << fname
-                       << " for VRAM info..." << LL_ENDL;
-            rtn = x11_detect_VRAM_kb_fp(fp, ": VideoRAM: ");
-            fclose(fp);
-            if (0 == rtn)
-            {
-                fp = fopen(fname.c_str(), "r");
-                if (fp)
-                {
-                    rtn = x11_detect_VRAM_kb_fp(fp, ": Memory: ");
-                    fclose(fp);
-                }
-            }
-        }
-        else
-        {
-            LL_INFOS() << "Could not open " << fname
-                       << " - skipped." << LL_ENDL;
-        }
-    }
-    return rtn;
-}
-#endif // LL_X11
-
 void LLWindowSDL::setTitle(const std::string title)
 {
     SDL_SetWindowTitle( mWindow, title.c_str() );
@@ -635,26 +496,6 @@ bool LLWindowSDL::createContext(int x, int y, int width, int height, int bits, b
                    << LL_ENDL;
     }
 #endif // LL_X11
-
-    // Detect video memory size.
-# if LL_X11
-    gGLManager.mVRAM = x11_detect_VRAM_kb() / 1024;
-    if (gGLManager.mVRAM != 0)
-    {
-        LL_INFOS() << "X11 log-parser detected " << gGLManager.mVRAM << "MB VRAM." << LL_ENDL;
-    } else
-# endif // LL_X11
-    {
-        // fallback to letting SDL detect VRAM.
-        // note: I've not seen SDL's detection ever actually find
-        // VRAM != 0, but if SDL *does* detect it then that's a bonus.
-        gGLManager.mVRAM = 0;
-        if (gGLManager.mVRAM != 0)
-        {
-            LL_INFOS() << "SDL detected " << gGLManager.mVRAM << "MB VRAM." << LL_ENDL;
-        }
-    }
-    // If VRAM is not detected, that is handled later
 
     SDL_StartTextInput();
     //make sure multisampling is disabled by default
@@ -1393,47 +1234,24 @@ bool LLWindowSDL::SDLReallyCaptureInput(bool capture)
 
     bool newGrab = wantGrab;
 
-#if LL_X11
     if (!mFullscreen) /* only bother if we're windowed anyway */
     {
-        if (mSDL_Display)
+        int result;
+        if (wantGrab == true)
         {
-            /* we dirtily mix raw X11 with SDL so that our pointer
-               isn't (as often) constrained to the limits of the
-               window while grabbed, which feels nicer and
-               hopefully eliminates some reported 'sticky pointer'
-               problems.  We use raw X11 instead of
-               SDL_WM_GrabInput() because the latter constrains
-               the pointer to the window and also steals all
-               *keyboard* input from the window manager, which was
-               frustrating users. */
-            int result;
-            if (wantGrab == true)
-            {
-                maybe_lock_display();
-                result = XGrabPointer(mSDL_Display, mSDL_XWindowID,
-                                      True, 0, GrabModeAsync,
-                                      GrabModeAsync,
-                                      None, None, CurrentTime);
-                maybe_unlock_display();
-                if (GrabSuccess == result)
-                    newGrab = true;
-                else
-                    newGrab = false;
-            }
+            result = SDL_CaptureMouse(SDL_TRUE);
+            if (0 == result)
+                newGrab = true;
             else
-            {
                 newGrab = false;
-
-                maybe_lock_display();
-                XUngrabPointer(mSDL_Display, CurrentTime);
-                // Make sure the ungrab happens RIGHT NOW.
-                XSync(mSDL_Display, False);
-                maybe_unlock_display();
-            }
+        }
+        else
+        {
+            newGrab = false;
+            result = SDL_CaptureMouse(SDL_FALSE);
         }
     }
-#endif // LL_X11
+
     // return boolean success for whether we ended up in the desired state
     return capture == newGrab;
 }
