@@ -421,7 +421,7 @@ LLWindow* LLWindowManager::createWindow(
             fullscreen, clearBg, enable_vsync, use_gl, ignore_pixel_depth);
 #elif LL_SDL
         new_window = new LLWindowSDL(callbacks,
-            title, x, y, width, height, flags,
+            title, name, x, y, width, height, flags,
             fullscreen, clearBg, enable_vsync, use_gl, ignore_pixel_depth, fsaa_samples);
 #elif LL_WINDOWS
         new_window = new LLWindowWin32(callbacks,
