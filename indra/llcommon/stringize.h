@@ -180,14 +180,4 @@ T destringize(std::basic_string<CHARTYPE> const & str)
     return val;
 }
 
-/**
- * destringize_f(str, functor)
- */
-template <typename CHARTYPE, typename Functor>
-void destringize_f(std::basic_string<CHARTYPE> const & str, Functor const & f)
-{
-    std::basic_istringstream<CHARTYPE> in(str);
-    f(in);
-}
-
 #endif /* ! defined(LL_STRINGIZE_H) */
