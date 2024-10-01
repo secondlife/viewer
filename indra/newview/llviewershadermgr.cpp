@@ -37,7 +37,6 @@
 #include "llrender.h"
 #include "llenvironment.h"
 #include "llerrorcontrol.h"
-#include "llatmosphere.h"
 #include "llworld.h"
 #include "llsky.h"
 
@@ -730,14 +729,6 @@ std::string LLViewerShaderMgr::loadBasicShaders()
     // All of these have to load for any shaders to function
 
     S32 sum_lights_class = 3;
-
-#if LL_DARWIN
-    // Work around driver crashes on older Macs when using deferred rendering
-    // NORSPEC-59
-    //
-    if (gGLManager.mIsMobileGF)
-        sum_lights_class = 3;
-#endif
 
     // Use the feature table to mask out the max light level to use.  Also make sure it's at least 1.
     S32 max_light_class = gSavedSettings.getS32("RenderShaderLightingMaxLevel");
