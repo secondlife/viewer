@@ -148,8 +148,6 @@ public:
 
     void spawnWebBrowser(const std::string &escaped_url, bool async) override;
 
-    void openFile(const std::string &file_name);
-
     void setTitle(const std::string title) override;
 
     static std::vector<std::string> getDynamicFallbackFontList();
@@ -167,7 +165,7 @@ public:
 
 protected:
     LLWindowSDL(LLWindowCallbacks *callbacks,
-                const std::string &title, int x, int y, int width, int height, U32 flags,
+                const std::string &title, const std::string& name, int x, int y, int width, int height, U32 flags,
                 bool fullscreen, bool clearBg, bool enable_vsync, bool use_gl,
                 bool ignore_pixel_depth, U32 fsaa_samples);
 
@@ -201,8 +199,6 @@ protected:
 
     void setupFailure(const std::string &text, const std::string &caption, U32 type);
 
-    void fixWindowSize(void);
-
     U32 SDLCheckGrabbyKeys(U32 keysym, bool gain);
 
     bool SDLReallyCaptureInput(bool capture);
@@ -227,15 +223,11 @@ protected:
 
     int mHaveInputFocus = -1; /* 0=no, 1=yes, else unknown */
 
-    enum WindowState{ Normal, Minimized, Maximized };
-    WindowState mWindowState = Normal;
-
     friend class LLWindowManager;
 
 private:
     bool mFlashing = false;
     LLTimer mFlashTimer;
-
     U32 mKeyVirtualKey = 0;
     U32 mKeyModifiers = KMOD_NONE;
 
@@ -253,33 +245,14 @@ private:
         uint64_t mLastFrameEvent = 0;
     } mWaylandData;
 
-    //bool isSurfaceDrawOn();
-    void detectHiddenState();
+    bool isWaylandWindowNotDrawing();
 
     void setupWaylandFrameCallback();
     static void waylandFrameDoneCB(void *data, struct wl_callback *cb, uint32_t time);
     //
 
-public:
-
-    static Display *getSDLDisplay();
-
-    LLWString const &getPrimaryText() const { return mPrimaryClipboard; }
-    LLWString const &getSecondaryText() const { return mSecondaryClipboard; }
-    void clearPrimaryText() { mPrimaryClipboard.clear(); }
-    void clearSecondaryText() { mSecondaryClipboard.clear(); }
-
 private:
     void tryFindFullscreenSize(int &aWidth, int &aHeight);
-
-    void initialiseX11Clipboard();
-
-    bool getSelectionText(Atom selection, LLWString &text);
-    bool getSelectionText(Atom selection, Atom type, LLWString &text);
-    bool setSelectionText(Atom selection, const LLWString &text);
-
-    LLWString mPrimaryClipboard;
-    LLWString mSecondaryClipboard;
 };
 
 class LLSplashScreenSDL : public LLSplashScreen
