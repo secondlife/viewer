@@ -7932,6 +7932,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>RenderDebugTextureLabel</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable texture labels via glObjectLabel. Requires restart for some features.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
   <key>RenderDelayCreation</key>
   <map>
     <key>Comment</key>
