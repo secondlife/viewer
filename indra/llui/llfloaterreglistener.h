@@ -30,7 +30,6 @@
 #define LL_LLFLOATERREGLISTENER_H
 
 #include "lleventapi.h"
-#include <string>
 
 class LLSD;
 
