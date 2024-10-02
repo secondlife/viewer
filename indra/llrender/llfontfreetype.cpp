@@ -844,7 +844,8 @@ U8 const* LLFontManager::loadFont( std::string const &aFilename, long &a_Size)
     if( itr != m_LoadedFonts.end() )
     {
         ++itr->second->mRefs;
-        a_Size = itr->second->mSize;
+        // A possible overflow cannot happen here, as it is asserted that the size is less than std::numeric_limits<long>::max() a few lines below.
+        a_Size = static_cast<long>(itr->second->mSize);
         return reinterpret_cast<U8 const*>(itr->second->mAddress.c_str());
     }
 
