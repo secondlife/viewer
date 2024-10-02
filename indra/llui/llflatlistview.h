@@ -126,7 +126,8 @@ public:
     /** Returns full rect of child panel */
     const LLRect& getItemsRect() const;
 
-    LLRect getRequiredRect() const { return getItemsRect(); }
+    //LLRect getRequiredRect() const { return getItemsRect(); }
+    LLRect getRequiredRect() { return getItemsRect(); }
 
     /** Returns distance between items */
     const S32 getItemsPad() const { return mItemPad; }
