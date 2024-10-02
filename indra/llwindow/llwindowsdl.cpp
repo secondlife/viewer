@@ -514,10 +514,10 @@ bool LLWindowSDL::createContext(int x, int y, int width, int height, int bits, b
         {
             mX11Data.mDisplay = info.info.x11.display;
             mX11Data.mXWindowID = info.info.x11.window;
-	        mServerProtocol = X11;
-	        LL_INFOS() << "Running under X11" << LL_ENDL;
+            mServerProtocol = X11;
+            LL_INFOS() << "Running under X11" << LL_ENDL;
         }
-	    else if ( info.subsystem == SDL_SYSWM_WAYLAND )
+        else if ( info.subsystem == SDL_SYSWM_WAYLAND )
         {
             mWaylandData.mSurface = info.info.wl.surface;
             mServerProtocol = Wayland;
@@ -527,7 +527,7 @@ bool LLWindowSDL::createContext(int x, int y, int width, int height, int bits, b
             if( getenv("DISPLAY") )
                 unsetenv("DISPLAY");
 
-	        LL_INFOS() << "Running under Wayland" << LL_ENDL;
+            LL_INFOS() << "Running under Wayland" << LL_ENDL;
             LL_WARNS() << "Be aware that with at least SDL2 the window will not receive minimizing events, thus minimized state can only be estimated."
                           "also setting the application icon via SDL_SetWindowIcon does not work." << LL_ENDL;
         }
@@ -901,7 +901,7 @@ bool LLWindowSDL::setGamma(const F32 gamma)
 
         mGamma = gamma;
         if (mGamma == 0)
-			mGamma = 0.1f;
+            mGamma = 0.1f;
         mGamma = 1.f / mGamma;
 
         SDL_CalculateGammaRamp(mGamma, ramp);
