@@ -46,32 +46,32 @@ protected:
     friend class LLUICtrlFactory;
 
 public:
-    virtual ~LLTextBox();
+    ~LLTextBox() override;
 
-    /*virtual*/ bool handleMouseDown(S32 x, S32 y, MASK mask);
-    /*virtual*/ bool handleMouseUp(S32 x, S32 y, MASK mask);
-    /*virtual*/ bool handleHover(S32 x, S32 y, MASK mask);
+    bool handleMouseDown(S32 x, S32 y, MASK mask) override;
+    bool handleMouseUp(S32 x, S32 y, MASK mask) override;
+    bool handleHover(S32 x, S32 y, MASK mask) override;
 
-    /*virtual*/ void setEnabled(bool enabled);
+    void setEnabled(bool enabled) override;
 
-    /*virtual*/ void setText( const LLStringExplicit& text, const LLStyle::Params& input_params = LLStyle::Params() );
+    void setText(const LLStringExplicit& text, const LLStyle::Params& input_params = LLStyle::Params()) override;
 
-    void            setRightAlign()                         { mHAlign = LLFontGL::RIGHT; }
-    void            setHAlign( LLFontGL::HAlign align )     { mHAlign = align; }
-    void            setClickedCallback( boost::function<void (void*)> cb, void* userdata = NULL );
+    void setRightAlign() { mHAlign = LLFontGL::RIGHT; }
+    void setHAlign(LLFontGL::HAlign align) { mHAlign = align; }
+    void setClickedCallback(boost::function<void(void*)> cb, void* userdata = NULL);
 
-    void            reshapeToFitText(bool called_from_parent = false);
+    void reshapeToFitText(bool called_from_parent = false);
 
-    S32             getTextPixelWidth();
-    S32             getTextPixelHeight();
+    S32 getTextPixelWidth();
+    S32 getTextPixelHeight();
 
-    /*virtual*/ LLSD    getValue() const;
-    /*virtual*/ bool    setTextArg( const std::string& key, const LLStringExplicit& text );
+    LLSD getValue() const override;
+    bool setTextArg(const std::string& key, const LLStringExplicit& text) override;
 
-    void            setShowCursorHand(bool show_cursor) { mShowCursorHand = show_cursor; }
+    void setShowCursorHand(bool show_cursor) { mShowCursorHand = show_cursor; }
 
 protected:
-    void            onUrlLabelUpdated(const std::string &url, const std::string &label);
+    void onUrlLabelUpdated(const std::string& url, const std::string& label);
 
     LLUIString          mText;
     callback_t          mClickedCallback;
