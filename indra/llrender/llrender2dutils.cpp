@@ -1693,10 +1693,10 @@ void gl_segmented_rect_3d_tex(const LLRectf& clip_rect, const LLRectf& center_uv
         gGL.vertex3fv((center_draw_rect.mLeft * width_vec + height_vec).mV);
 
         gGL.texCoord2f(clip_rect.mLeft, center_uv_rect.mTop);
-        gGL.vertex3fv((center_draw_rect.mTop* height_vec).mV);
+        gGL.vertex3fv((center_draw_rect.mTop * height_vec).mV);
 
-        gGL.texCoord2f(center_uv_rect.mLeft, center_uv_rect.mTop);
-        gGL.vertex3fv((center_draw_rect.mLeft* width_vec + center_draw_rect.mTop * height_vec).mV);
+        gGL.texCoord2f(center_uv_rect.mLeft, clip_rect.mTop);
+        gGL.vertex3fv((center_draw_rect.mLeft * width_vec + height_vec).mV);
 
         gGL.texCoord2f(clip_rect.mLeft, clip_rect.mTop);
         gGL.vertex3fv((height_vec).mV);
