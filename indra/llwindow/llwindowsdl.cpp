@@ -231,11 +231,6 @@ static SDL_Surface *Load_BMP_Resource(const char *basename)
     return SDL_LoadBMP(path_buffer);
 }
 
-static U32 detectVRAM() // Return the available amount of VRAM in MB
-{
-   return 0;
-}
-
 void LLWindowSDL::setTitle(const std::string title)
 {
     SDL_SetWindowTitle( mWindow, title.c_str() );
@@ -546,25 +541,6 @@ bool LLWindowSDL::createContext(int x, int y, int width, int height, int bits, b
         LL_WARNS() << "We're not running under any known WM. Wild." << LL_ENDL;
     }
 
-    // Detect video memory size.
-# if LL_X11
-    gGLManager.mVRAM = detectVRAM();
-    if (gGLManager.mVRAM != 0)
-    {
-        LL_INFOS() << "X11 log-parser detected " << gGLManager.mVRAM << "MB VRAM." << LL_ENDL;
-    } else
-# endif // LL_X11
-    {
-        // fallback to letting SDL detect VRAM.
-        // note: I've not seen SDL's detection ever actually find
-        // VRAM != 0, but if SDL *does* detect it then that's a bonus.
-        gGLManager.mVRAM = 0;
-        if (gGLManager.mVRAM != 0)
-        {
-            LL_INFOS() << "SDL detected " << gGLManager.mVRAM << "MB VRAM." << LL_ENDL;
-        }
-    }
-    // If VRAM is not detected, that is handled later
     SDL_StartTextInput();
     //make sure multisampling is disabled by default
     glDisable(GL_MULTISAMPLE_ARB);
@@ -1244,7 +1220,43 @@ bool LLWindowSDL::SDLReallyCaptureInput(bool capture)
     if (!mFullscreen && mWindow ) /* only bother if we're windowed anyway */
         SDL_SetWindowGrab( mWindow, capture?SDL_TRUE:SDL_FALSE);
 
-    return capture;
+    bool wantGrab;
+    if (mReallyCapturedCount <= 0) // uncapture
+    {
+        wantGrab = false;
+    } else // capture
+    {
+        wantGrab = true;
+    }
+
+    if (mReallyCapturedCount < 0) // yuck, imbalance.
+    {
+        mReallyCapturedCount = 0;
+        LL_WARNS() << "ReallyCapture count was < 0" << LL_ENDL;
+    }
+
+    bool newGrab = wantGrab;
+
+    if (!mFullscreen) /* only bother if we're windowed anyway */
+    {
+        int result;
+        if (wantGrab == true)
+        {
+            result = SDL_CaptureMouse(SDL_TRUE);
+            if (0 == result)
+                newGrab = true;
+            else
+                newGrab = false;
+        }
+        else
+        {
+            newGrab = false;
+            result = SDL_CaptureMouse(SDL_FALSE);
+        }
+    }
+
+    // return boolean success for whether we ended up in the desired state
+    return capture == newGrab;
 }
 
 U32 LLWindowSDL::SDLCheckGrabbyKeys(U32 keysym, bool gain)

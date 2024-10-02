@@ -231,7 +231,7 @@ void LLHUDText::renderText()
             }
             text_color.mV[VALPHA] *= alpha_factor;
 
-            hud_render_text(segment_iter->getText(), render_position, &mFontBuffer, *fontp, style, shadow, x_offset, y_offset, text_color, mOnHUDAttachment);
+            hud_render_text(segment_iter->getText(), render_position, *fontp, style, shadow, x_offset, y_offset, text_color, mOnHUDAttachment);
         }
     }
     /// Reset the default color to white.  The renderer expects this to be the default.

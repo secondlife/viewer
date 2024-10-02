@@ -3204,7 +3204,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                 <array>
                   <string>-G</string>
                   <string>Ninja</string>
-                  <string>-DLL_TESTS=Off</string>
+                  <string>-DUSE_OPENAL:BOOL=ON</string>
                 </array>
                 <key>arguments</key>
                 <array>
@@ -3229,8 +3229,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                 <array>
                   <string>-G</string>
                   <string>Ninja</string>
-                  <string>-DLL_TESTS=Off</string>
-                  <string>-DUSE_OPENAL=On</string>
+                  <string>-DUSE_OPENAL:BOOL=ON</string>
                 </array>
               </map>
               <key>build</key>

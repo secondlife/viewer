@@ -155,30 +155,11 @@ if (LINUX)
       -fvisibility=hidden
   )
 
-  set(GCC_CLANG_COMPATIBLE_WARNINGS
-      -Wno-parentheses
-      -Wno-deprecated
-      -Wno-c++20-compat
-      -Wno-pessimizing-move
-  )
-
-  set(CLANG_WARNINGS
-      ${GCC_CLANG_COMPATIBLE_WARNINGS}
-      # Put clang specific warning configuration here
-  )
-
-  set(GCC_WARNINGS
-      ${GCC_CLANG_COMPATIBLE_WARNINGS}
-  )
-
   add_link_options(
           -Wl,--no-keep-memory
           -Wl,--build-id
           -Wl,--no-undefined
   )
-  if (NOT GCC_DISABLE_FATAL_WARNINGS)
-    add_compile_options( -Werror )
-  endif (NOT GCC_DISABLE_FATAL_WARNINGS)
 
   # this stops us requiring a really recent glibc at runtime
   add_compile_options(-fno-stack-protector)
@@ -189,9 +170,6 @@ if (LINUX)
             -lstdc++
             -lm
     )
-    add_compile_options(${CLANG_WARNINGS})
-  else()
-    add_compile_options(${GCC_WARNINGS})
   endif()
 endif (LINUX)
 
@@ -209,22 +187,26 @@ if (DARWIN)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  ${DARWIN_extra_cstar_flags}")
   # NOTE: it's critical that the optimization flag is put in front.
   # NOTE: it's critical to have both CXX_FLAGS and C_FLAGS covered.
-## Really?? On developer machines too?
-##set(ENABLE_SIGNING TRUE)
-##set(SIGNING_IDENTITY "Developer ID Application: Linden Research, Inc.")
+  ## Really?? On developer machines too?
+  ##set(ENABLE_SIGNING TRUE)
+  ##set(SIGNING_IDENTITY "Developer ID Application: Linden Research, Inc.")
 
   # required for clang-15/xcode-15 since our boost package still uses deprecated std::unary_function/binary_function
   # see https://developer.apple.com/documentation/xcode-release-notes/xcode-15-release-notes#C++-Standard-Library
   add_compile_definitions(_LIBCPP_ENABLE_CXX17_REMOVED_UNARY_BINARY_FUNCTION)
+endif(DARWIN)
 
-  set(GCC_WARNINGS -Wall -Wno-sign-compare -Wno-trigraphs)
+if(LINUX OR DARWIN)
+  add_compile_options(-Wall -Wno-sign-compare -Wno-trigraphs -Wno-reorder -Wno-unused-but-set-variable -Wno-unused-variable)
 
-  list(APPEND GCC_WARNINGS -Wno-reorder -Wno-non-virtual-dtor )
-
-  if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 13)
-    list(APPEND GCC_WARNINGS -Wno-unused-but-set-variable -Wno-unused-variable )
+  if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    add_compile_options(-Wno-stringop-truncation -Wno-parentheses -Wno-c++20-compat)
   endif()
+
+  if (NOT GCC_DISABLE_FATAL_WARNINGS)
+    add_compile_options(-Werror)
+  endif ()
 
   add_compile_options(${GCC_WARNINGS})
   add_compile_options(-m${ADDRESS_SIZE})
-endif ()
+endif (LINUX OR DARWIN)
