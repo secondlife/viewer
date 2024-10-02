@@ -1940,10 +1940,10 @@ bool LLVOAvatar::lineSegmentIntersect(const LLVector4a& start, const LLVector4a&
 
             if (linesegment_sphere(LLVector3(glm::value_ptr(p1)), LLVector3(glm::value_ptr(p2)), LLVector3(0,0,0), 1.f, position, norm))
             {
-                glm::vec3 res_pos(glm::make_vec3(position.mV));
+                glm::vec3 res_pos(glm::make_vec3(LLVector4(position).mV));
                 res_pos = mul_mat4_vec3(mat, res_pos);
 
-                 glm::vec3 res_norm(glm::make_vec3(norm.mV));
+                 glm::vec3 res_norm(glm::make_vec3(LLVector4(norm).mV));
                 res_norm = glm::normalize(res_norm);
                 res_norm = glm::mat3(norm_mat) * res_norm;
 

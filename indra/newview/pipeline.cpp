@@ -35,6 +35,7 @@
 #include "llviewercontrol.h"
 #include "llfasttimer.h"
 #include "llfontgl.h"
+#include "llfontvertexbuffer.h"
 #include "llnamevalue.h"
 #include "llpointer.h"
 #include "llprimitive.h"
@@ -571,7 +572,16 @@ void LLPipeline::init()
     connectRefreshCachedSettingsSafe("RenderMirrors");
     connectRefreshCachedSettingsSafe("RenderHeroProbeUpdateRate");
     connectRefreshCachedSettingsSafe("RenderHeroProbeConservativeUpdateMultiplier");
-    gSavedSettings.getControl("RenderAutoHideSurfaceAreaLimit")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
+    connectRefreshCachedSettingsSafe("RenderAutoHideSurfaceAreaLimit");
+
+    LLPointer<LLControlVariable> cntrl_ptr = gSavedSettings.getControl("CollectFontVertexBuffers");
+    if (cntrl_ptr.notNull())
+    {
+        cntrl_ptr->getCommitSignal()->connect([](LLControlVariable* control, const LLSD& value, const LLSD& previous)
+        {
+            LLFontVertexBuffer::enableBufferCollection(control->getValue().asBoolean());
+        });
+    }
 }
 
 LLPipeline::~LLPipeline()
@@ -1085,6 +1095,8 @@ void LLPipeline::refreshCachedSettings()
         LLVOAvatar::sMaxNonImpostors = 1;
         LLVOAvatar::updateImpostorRendering(LLVOAvatar::sMaxNonImpostors);
     }
+
+    LLFontVertexBuffer::enableBufferCollection(gSavedSettings.getBOOL("CollectFontVertexBuffers"));
 }
 
 void LLPipeline::releaseGLBuffers()
@@ -7258,7 +7270,7 @@ void LLPipeline::generateGlow(LLRenderTarget* src)
 void LLPipeline::applyCAS(LLRenderTarget* src, LLRenderTarget* dst)
 {
     static LLCachedControl<F32> cas_sharpness(gSavedSettings, "RenderCASSharpness", 0.4f);
-    if (cas_sharpness == 0.0f)
+    if (cas_sharpness == 0.0f || !gCASProgram.isComplete())
     {
         gPipeline.copyRenderTarget(src, dst);
         return;
@@ -8599,13 +8611,12 @@ void LLPipeline::renderDeferredLighting()
                     LLDrawable* drawablep = *iter;
                     LLVOVolume* volume = drawablep->getVOVolume();
                     LLVector3   center = drawablep->getPositionAgent();
-                    F32* c = center.mV;
                     F32         light_size_final = volume->getLightRadius() * 1.5f;
                     F32         light_falloff_final = volume->getLightFalloff(DEFERRED_LIGHT_FALLOFF);
 
                     sVisibleLightCount++;
 
-                    glm::vec3 tc(glm::make_vec3(c));
+                    glm::vec3 tc(glm::make_vec3(LLVector4(center).mV));
                     tc = mul_mat4_vec3(mat, tc);
 
                     setupSpotLight(gDeferredMultiSpotLightProgram, drawablep);
@@ -10145,7 +10156,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
                         view[j] = glm::inverse(view[j]);
                         //llassert(origin.isFinite());
 
-                        glm::vec3 origin_agent(glm::make_vec3(origin.mV));
+                        glm::vec3 origin_agent(glm::make_vec3(LLVector4(origin).mV));
 
                         //translate view to origin
                         origin_agent = mul_mat4_vec3(view[j], origin_agent);
