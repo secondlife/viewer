@@ -188,6 +188,8 @@ LLWindowSDL::LLWindowSDL(LLWindowCallbacks* callbacks,
     gKeyboard = new LLKeyboardSDL();
     gKeyboard->setCallbacks(callbacks);
 
+    mReallyCapturedCount = 0;
+
     // Assume 4:3 aspect ratio until we know better
     mOriginalAspectRatio = 1024.0 / 768.0;
 
@@ -295,6 +297,7 @@ bool LLWindowSDL::createContext(int x, int y, int width, int height, int bits, b
 
     // captures don't survive contexts
     mGrabbyKeyFlags = 0;
+    mReallyCapturedCount = 0;
 
     std::initializer_list<std::tuple< char const*, char const * > > hintList =
             {
@@ -1219,6 +1222,11 @@ bool LLWindowSDL::SDLReallyCaptureInput(bool capture)
 {
     if (!mFullscreen && mWindow ) /* only bother if we're windowed anyway */
         SDL_SetWindowGrab( mWindow, capture?SDL_TRUE:SDL_FALSE);
+
+    if (capture)
+        mReallyCapturedCount = 1;
+    else
+        mReallyCapturedCount = 0;
 
     bool wantGrab;
     if (mReallyCapturedCount <= 0) // uncapture
