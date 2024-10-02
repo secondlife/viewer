@@ -13,12 +13,13 @@ if (LINUX)
     return()
   endif()
 
-  if( COMPILE_WAYLAND_SUPPORT )
-      include(FindPkgConfig)
-      pkg_check_modules(WAYLAND_CLIENT REQUIRED wayland-client)
+  include(FindPkgConfig)
+  pkg_check_modules(WAYLAND_CLIENT wayland-client)
 
-      target_link_libraries( ll::uilibraries INTERFACE ${WAYLAND_CLIENT_LIBRARIES} )
+  if( WAYLAND_CLIENT_FOUND )
       target_compile_definitions( ll::uilibraries INTERFACE LL_WAYLAND=1)
+  else()
+      message("pkgconfig could not find wayland client, compiling without full wayland support")
   endif()
 
   target_link_libraries( ll::uilibraries INTERFACE

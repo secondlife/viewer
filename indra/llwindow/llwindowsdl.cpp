@@ -111,6 +111,7 @@ Display* LLWindowSDL::get_SDL_Display(void)
 */
 #ifdef LL_WAYLAND
 #include <wayland-client-protocol.h>
+#include <dlfcn.h>
 
 bool LLWindowSDL::isWaylandWindowNotDrawing()
 {
@@ -124,6 +125,59 @@ bool LLWindowSDL::isWaylandWindowNotDrawing()
     return false;
 }
 
+uint32_t (*ll_wl_proxy_get_version)(struct wl_proxy *proxy);
+void (*ll_wl_proxy_destroy)(struct wl_proxy *proxy);
+int (*ll_wl_proxy_add_listener)(struct wl_proxy *proxy, void (**implementation)(void), void *data);
+
+wl_interface  *ll_wl_callback_interface;
+
+int ll_wl_callback_add_listener(struct wl_callback *wl_callback,
+                         const struct wl_callback_listener *listener, void *data)
+{
+    return ll_wl_proxy_add_listener((struct wl_proxy *) wl_callback,
+                                 (void (**)(void)) listener, data);
+}
+
+struct wl_proxy* (*ll_wl_proxy_marshal_flags)(struct wl_proxy *proxy, uint32_t opcode,
+                       const struct wl_interface *interface,
+                       uint32_t version,
+                       uint32_t flags, ...);
+
+
+bool loadWaylandClient()
+{
+    auto *pSO = dlopen( "libwayland-client.so", RTLD_NOW);
+    if( !pSO )
+        return false;
+
+
+    ll_wl_callback_interface = (wl_interface*)dlsym(pSO, "wl_callback_interface");
+    *(void**)&ll_wl_proxy_marshal_flags = dlsym(pSO, "wl_proxy_marshal_flags");
+    *(void**)&ll_wl_proxy_get_version = dlsym(pSO, "wl_proxy_get_version");
+    *(void**)&ll_wl_proxy_destroy = dlsym(pSO, "wl_proxy_destroy");
+    *(void**)&ll_wl_proxy_add_listener = dlsym(pSO, "wl_proxy_add_listener");
+
+    return ll_wl_callback_interface != nullptr && ll_wl_proxy_marshal_flags != nullptr &&
+            ll_wl_proxy_get_version != nullptr && ll_wl_proxy_destroy != nullptr &&
+            ll_wl_proxy_add_listener != nullptr;
+}
+
+struct wl_callback* ll_wl_surface_frame(struct wl_surface *wl_surface)
+{
+    auto version = ll_wl_proxy_get_version((struct wl_proxy *) wl_surface);
+
+    auto callback = ll_wl_proxy_marshal_flags((struct wl_proxy *) wl_surface,
+                                      WL_SURFACE_FRAME, ll_wl_callback_interface, version,
+                                      0, nullptr);
+
+    return (struct wl_callback *) callback;
+}
+
+void ll_wl_callback_destroy(struct wl_callback *wl_callback)
+{
+    ll_wl_proxy_destroy((struct wl_proxy *) wl_callback);
+}
+
 void LLWindowSDL::waylandFrameDoneCB(void *data, struct wl_callback *cb, uint32_t time)
 {
     static uint32_t frame_count {0};
@@ -131,7 +185,7 @@ void LLWindowSDL::waylandFrameDoneCB(void *data, struct wl_callback *cb, uint32_
 
     ++frame_count;
 
-    wl_callback_destroy(cb);
+    ll_wl_callback_destroy(cb);
     auto pThis = reinterpret_cast<LLWindowSDL*>(data);
     pThis->mWaylandData.mLastFrameEvent = LLTimer::getTotalTime();
 
@@ -160,8 +214,8 @@ void LLWindowSDL::setupWaylandFrameCallback()
     static  wl_callback_listener frame_listener { nullptr };
     frame_listener.done = &LLWindowSDL::waylandFrameDoneCB;
 
-    auto cb = wl_surface_frame(mWaylandData.mSurface);
-    wl_callback_add_listener(cb, &frame_listener, this);
+    auto cb = ll_wl_surface_frame(mWaylandData.mSurface);
+    ll_wl_callback_add_listener(cb, &frame_listener, this);
 }
 #else
 bool LLWindowSDL::isWaylandWindowNotDrawing()
@@ -520,6 +574,9 @@ bool LLWindowSDL::createContext(int x, int y, int width, int height, int bits, b
         else if ( info.subsystem == SDL_SYSWM_WAYLAND )
         {
 #ifdef LL_WAYLAND
+            if( !loadWaylandClient() )
+                LL_ERRS() << "Failed to load wayland-client.so or grab required functions" << LL_ENDL;
+
             mWaylandData.mSurface = info.info.wl.surface;
             mServerProtocol = Wayland;
             setupWaylandFrameCallback();
