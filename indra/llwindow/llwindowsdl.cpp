@@ -109,7 +109,7 @@ Display* LLWindowSDL::get_SDL_Display(void)
  *
  * [1] As of 2024-09, maybe in the future we get nice things
 */
-#ifdef ND_WAYLAND
+#ifdef LL_WAYLAND
 #include <wayland-client-protocol.h>
 
 bool LLWindowSDL::isWaylandWindowNotDrawing()
@@ -524,6 +524,7 @@ bool LLWindowSDL::createContext(int x, int y, int width, int height, int bits, b
         }
 	    else if ( info.subsystem == SDL_SYSWM_WAYLAND )
         {
+#ifdef LL_WAYLAND
             mWaylandData.mSurface = info.info.wl.surface;
             mServerProtocol = Wayland;
             setupWaylandFrameCallback();
@@ -535,6 +536,9 @@ bool LLWindowSDL::createContext(int x, int y, int width, int height, int bits, b
 	        LL_INFOS() << "Running under Wayland" << LL_ENDL;
             LL_WARNS() << "Be aware that with at least SDL2 the window will not receive minimizing events, thus minimized state can only be estimated."
                           "also setting the application icon via SDL_SetWindowIcon does not work." << LL_ENDL;
+#else
+            setupFailure("Viewer is running under Wayland, but was not compiled with full wayland support!\nYou can compile the viewer with wayland prelimiary support using COMPILE_WAYLAND_SUPPORT", "Error", OSMB_OK);
+#endif
         }
         else
         {
