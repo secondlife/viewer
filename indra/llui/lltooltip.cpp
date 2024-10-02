@@ -390,22 +390,22 @@ void LLToolTip::draw()
     }
 }
 
-bool LLToolTip::isFading()
+bool LLToolTip::isFading() const
 {
     return mFadeTimer.getStarted();
 }
 
-F32 LLToolTip::getVisibleTime()
+F32 LLToolTip::getVisibleTime() const
 {
     return mVisibleTimer.getStarted() ? mVisibleTimer.getElapsedTimeF32() : 0.f;
 }
 
-bool LLToolTip::hasClickCallback()
+bool LLToolTip::hasClickCallback() const
 {
     return mHasClickCallback;
 }
 
-void LLToolTip::getToolTipMessage(std::string & message)
+void LLToolTip::getToolTipMessage(std::string& message) const
 {
     if (mTextBox)
     {

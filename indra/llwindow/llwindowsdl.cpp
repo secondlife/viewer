@@ -364,7 +364,7 @@ bool LLWindowSDL::createContext(int x, int y, int width, int height, int bits, b
     {
         LL_WARNS() << "Window creation failure. SDL: " << SDL_GetError() << LL_ENDL;
         setupFailure("Window creation error", "Error", OSMB_OK);
-        return FALSE;
+        return false;
     }
 
     // Create the context
