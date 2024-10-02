@@ -43,7 +43,7 @@ typedef struct FT_FaceRec_* LLFT_Face;
 struct FT_StreamRec_;
 typedef struct FT_StreamRec_ LLFT_Stream;
 
-namespace nd
+namespace ll
 {
     namespace fonts
     {
@@ -64,7 +64,7 @@ private:
     ~LLFontManager();
 
     void unloadAllFonts();
-    std::map< std::string, std::shared_ptr<nd::fonts::LoadedFont> > m_LoadedFonts;
+    std::map< std::string, std::shared_ptr<ll::fonts::LoadedFont> > m_LoadedFonts;
 };
 
 struct LLFontGlyphInfo

@@ -815,7 +815,7 @@ void LLFontFreetype::setSubImageLuminanceAlpha(U32 x, U32 y, U32 bitmap_num, U32
 }
 
 
-namespace nd
+namespace ll
 {
     namespace fonts
     {
@@ -840,7 +840,7 @@ namespace nd
 U8 const* LLFontManager::loadFont( std::string const &aFilename, long &a_Size)
 {
     a_Size = 0;
-    std::map< std::string, std::shared_ptr<nd::fonts::LoadedFont> >::iterator itr = m_LoadedFonts.find( aFilename );
+    std::map< std::string, std::shared_ptr<ll::fonts::LoadedFont> >::iterator itr = m_LoadedFonts.find( aFilename );
     if( itr != m_LoadedFonts.end() )
     {
         ++itr->second->mRefs;
@@ -858,7 +858,7 @@ U8 const* LLFontManager::loadFont( std::string const &aFilename, long &a_Size)
 
     a_Size = static_cast<long>(strContent.size());
 
-    auto pCache = std::make_shared<nd::fonts::LoadedFont>( aFilename,  strContent, a_Size );
+    auto pCache = std::make_shared<ll::fonts::LoadedFont>( aFilename,  strContent, a_Size );
     itr = m_LoadedFonts.insert( std::make_pair( aFilename, pCache ) ).first;
 
     return reinterpret_cast<U8 const*>(itr->second->mAddress.c_str());
