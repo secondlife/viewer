@@ -54,6 +54,7 @@
 #include "llviewershadermgr.h"
 #include "llcontrolavatar.h"
 #include "llskinningutil.h"
+#include "llviewertextureanim.h"
 
 extern bool gShiftFrame;
 
@@ -891,6 +892,9 @@ void LLSpatialGroup::updateTransformUBOs()
     static std::vector<const LLMatrix4*> transforms;
     transforms.resize(0);
 
+    static std::vector<const LLMatrix4*> texture_transforms;
+    texture_transforms.resize(0);
+
     U32 max_transforms = LLSkinningUtil::getMaxGLTFJointCount();
 
     mGLTFBatches.clear();
@@ -918,6 +922,8 @@ void LLSpatialGroup::updateTransformUBOs()
                 llassert(transforms.size() < max_transforms);
                 U32 transform_index = (U32)transforms.size();
                 transforms.push_back(&drawable->getGLTFRenderMatrix());
+
+                LLVOVolume* vobj = drawable->getVOVolume();
 
                 const LLVector3& scale = drawable->getScale();
                 prim_scales.push_back(LLVector4a(scale.mV[0], scale.mV[1], scale.mV[2], 0.f));
@@ -954,6 +960,16 @@ void LLSpatialGroup::updateTransformUBOs()
                             id = iter->second.id;
                         }
 
+                        if (facep->mTextureMatrix != nullptr)
+                        {
+                            texture_transforms.push_back(facep->mTextureMatrix);
+                            facep->mTextureTransformIndex = (U32)texture_transforms.size() - 1;
+                        }
+                        else
+                        {
+                            facep->mTextureTransformIndex = 0xFFFFFFFF;
+                        }
+
                         faces.push_back(facep);
                         facep->mTransformIndex = transform_index;
                         facep->mMaterialIndex = id;
@@ -967,16 +983,19 @@ void LLSpatialGroup::updateTransformUBOs()
     {
         U32 transform_index;
         U32 material_index;
-        U32 padding[2];
+        U32 texture_transform_index;
+        U32 padding;
     };
 
     U32 transform_ubo_size = (U32)(transforms.size() * 12 * sizeof(F32));
     U32 instance_map_ubo_size = (U32)(faces.size() * sizeof(InstanceMapEntry));
     U32 material_ubo_size = (U32) (material_data.size() * sizeof(LLVector4a));
+    U32 texture_transform_ubo_size = (U32)(texture_transforms.size() * 12 * sizeof(F32));
 
     bool new_transform_ubo = transform_ubo_size > mTransformUBOSize || transform_ubo_size < mTransformUBOSize / 2;
     bool new_instance_map_ubo = instance_map_ubo_size > mInstanceMapUBOSize || instance_map_ubo_size < mInstanceMapUBOSize / 2;
     bool new_material_ubo = material_ubo_size > mMaterialUBOSize || material_ubo_size < mMaterialUBOSize / 2;
+    bool new_texture_transform_ubo = texture_transform_ubo_size > mTextureTransformUBOSize || texture_transform_ubo_size < mTextureTransformUBOSize / 2;
 
     if (new_transform_ubo)
     {
@@ -994,6 +1013,23 @@ void LLSpatialGroup::updateTransformUBOs()
         }
 
         mPrimScaleUBO = ll_gl_gen_buffer();
+    }
+
+    if (new_texture_transform_ubo)
+    {
+        if (mTextureTransformUBO)
+        {
+            ll_gl_delete_buffers(1, &mTextureTransformUBO);
+        }
+
+        if (texture_transform_ubo_size > 0)
+        {
+            mTextureTransformUBO = ll_gl_gen_buffer();
+        }
+        else
+        {
+            mTextureTransformUBO = 0;
+        }
     }
 
     if (new_instance_map_ubo)
@@ -1077,8 +1113,11 @@ void LLSpatialGroup::updateTransformUBOs()
                 U64 current_skin_hash = facep->getSkinHash();
                 LLVOAvatar* current_avatar = current_skin_hash ? facep->getDrawable()->getVObj()->getAvatar() : nullptr;
 
+                bool tex_anim = facep->mTextureMatrix != nullptr;
+
                 instance_map[i].transform_index = facep->mTransformIndex;
                 instance_map[i].material_index = facep->mMaterialIndex;
+                instance_map[i].texture_transform_index = facep->mTextureTransformIndex;
 
                 if (current_info &&
                     vf.mVertexBuffer.notNull() &&
@@ -1087,7 +1126,8 @@ void LLSpatialGroup::updateTransformUBOs()
                     current_info->mElementOffset == vf.mVBIndexOffset &&
                     current_avatar == avatar &&
                     current_skin_hash == skin_hash &&
-                    planar == face_planar)
+                    planar == face_planar &&
+                    !tex_anim)
                 { // another instance of the same LLVolumeFace and material
                     current_info->mInstanceCount++;
                 }
@@ -1100,7 +1140,7 @@ void LLSpatialGroup::updateTransformUBOs()
 
                     if (current_skin_hash)
                     {
-                        auto* info = mGLTFBatches.createSkinned(gltf_mat->mAlphaMode, gltf_mat->mDoubleSided, planar);
+                        auto* info = mGLTFBatches.createSkinned(gltf_mat->mAlphaMode, gltf_mat->mDoubleSided, planar, tex_anim);
                         current_info = info;
 
                         info->mAvatar = current_avatar;
@@ -1108,7 +1148,7 @@ void LLSpatialGroup::updateTransformUBOs()
                     }
                     else
                     {
-                        current_info = mGLTFBatches.create(gltf_mat->mAlphaMode, gltf_mat->mDoubleSided, planar);
+                        current_info = mGLTFBatches.create(gltf_mat->mAlphaMode, gltf_mat->mDoubleSided, planar, tex_anim);
                     }
 
                     avatar = current_avatar;
@@ -1147,6 +1187,7 @@ void LLSpatialGroup::updateTransformUBOs()
                     current_info->mElementOffset = vf.mVBIndexOffset;
                     current_info->mElementCount = vf.mNumIndices;
                     current_info->mTransformUBO = mTransformUBO;
+                    current_info->mTextureTransformUBO = mTextureTransformUBO;
                     current_info->mPrimScaleUBO = mPrimScaleUBO;
                     current_info->mInstanceMapUBO = mInstanceMapUBO;
                     current_info->mMaterialUBO = mMaterialUBO;
@@ -1159,45 +1200,56 @@ void LLSpatialGroup::updateTransformUBOs()
         {
             LL_PROFILE_ZONE_NAMED("utubo - update UBO data");
 
-            static std::vector<F32> glmp;
+            auto pack_transforms = [](const std::vector<const LLMatrix4*>& src, U32 ubo, U32& old_size, U32 new_size, bool new_ubo)
+                {
+                    if (ubo)
+                    {
+                        static std::vector<F32> glmp;
+                        glmp.resize(src.size() * 12);
 
-            glmp.resize(transforms.size() * 12);
+                        F32* mp = glmp.data();
 
-            F32* mp = glmp.data();
+                        for (U32 i = 0; i < src.size(); ++i)
+                        {
+                            const F32* m = &src[i]->mMatrix[0][0];
 
-            for (U32 i = 0; i < transforms.size(); ++i)
-            {
-                const F32* m = &transforms[i]->mMatrix[0][0];
+                            U32 idx = i * 12;
 
-                U32 idx = i * 12;
+                            mp[idx + 0] = m[0];
+                            mp[idx + 1] = m[1];
+                            mp[idx + 2] = m[2];
+                            mp[idx + 3] = m[12];
 
-                mp[idx + 0] = m[0];
-                mp[idx + 1] = m[1];
-                mp[idx + 2] = m[2];
-                mp[idx + 3] = m[12];
+                            mp[idx + 4] = m[4];
+                            mp[idx + 5] = m[5];
+                            mp[idx + 6] = m[6];
+                            mp[idx + 7] = m[13];
 
-                mp[idx + 4] = m[4];
-                mp[idx + 5] = m[5];
-                mp[idx + 6] = m[6];
-                mp[idx + 7] = m[13];
+                            mp[idx + 8] = m[8];
+                            mp[idx + 9] = m[9];
+                            mp[idx + 10] = m[10];
+                            mp[idx + 11] = m[14];
+                        }
 
-                mp[idx + 8] = m[8];
-                mp[idx + 9] = m[9];
-                mp[idx + 10] = m[10];
-                mp[idx + 11] = m[14];
-            }
+                        glBindBuffer(GL_UNIFORM_BUFFER, ubo);
+                        size_t data_size = glmp.size() * sizeof(F32);
 
+                        if (new_ubo)
+                        {
+                            old_size = new_size;
+                            llassert(data_size <= old_size);
+                            glBufferData(GL_UNIFORM_BUFFER, data_size, glmp.data(), GL_STREAM_DRAW);
+                        }
+                        else
+                        {
+                            llassert(data_size <= old_size);
+                            glBufferSubData(GL_UNIFORM_BUFFER, 0, data_size, glmp.data());
+                        }
+                    }
+                };
 
-            glBindBuffer(GL_UNIFORM_BUFFER, mTransformUBO);
-            if (new_transform_ubo)
-            {
-                mTransformUBOSize = transform_ubo_size;
-                glBufferData(GL_UNIFORM_BUFFER, glmp.size() * sizeof(F32), glmp.data(), GL_STREAM_DRAW);
-            }
-            else
-            {
-                glBufferSubData(GL_UNIFORM_BUFFER, 0, glmp.size() * sizeof(F32), glmp.data());
-            }
+            pack_transforms(transforms, mTransformUBO, mTransformUBOSize, transform_ubo_size, new_transform_ubo);
+            pack_transforms(texture_transforms, mTextureTransformUBO, mTextureTransformUBOSize, texture_transform_ubo_size, new_texture_transform_ubo);
 
             glBindBuffer(GL_UNIFORM_BUFFER, mPrimScaleUBO);
             if (new_transform_ubo)
@@ -4270,21 +4322,24 @@ void LLGLTFBatches::clear()
         {
             for (U32 k = 0; k < 2; ++k)
             {
-                mDrawInfo[i][j][k].clear();
-                mSkinnedDrawInfo[i][j][k].clear();
+                for (U32 l = 0; l < 2; ++l)
+                {
+                    mDrawInfo[i][j][k][l].clear();
+                    mSkinnedDrawInfo[i][j][k][l].clear();
+                }
             }
         }
     }
 }
 
-LLGLTFDrawInfo* LLGLTFBatches::create(LLGLTFMaterial::AlphaMode alpha_mode, bool double_sided, bool planar)
+LLGLTFDrawInfo* LLGLTFBatches::create(LLGLTFMaterial::AlphaMode alpha_mode, bool double_sided, bool planar, bool tex_anim)
 {
-    return &mDrawInfo[alpha_mode][double_sided][planar].emplace_back();
+    return &mDrawInfo[alpha_mode][double_sided][planar][tex_anim].emplace_back();
 }
 
-LLSkinnedGLTFDrawInfo* LLGLTFBatches::createSkinned(LLGLTFMaterial::AlphaMode alpha_mode, bool double_sided, bool planar)
+LLSkinnedGLTFDrawInfo* LLGLTFBatches::createSkinned(LLGLTFMaterial::AlphaMode alpha_mode, bool double_sided, bool planar, bool tex_anim)
 {
-    return &mSkinnedDrawInfo[alpha_mode][double_sided][planar].emplace_back();
+    return &mSkinnedDrawInfo[alpha_mode][double_sided][planar][tex_anim].emplace_back();
 }
 
 void LLGLTFBatches::add(const LLGLTFBatches& other)
@@ -4295,8 +4350,11 @@ void LLGLTFBatches::add(const LLGLTFBatches& other)
         {
             for (U32 k = 0; k < 2; ++k)
             {
-                mDrawInfo[i][j][k].insert(mDrawInfo[i][j][k].end(), other.mDrawInfo[i][j][k].begin(), other.mDrawInfo[i][j][k].end());
-                mSkinnedDrawInfo[i][j][k].insert(mSkinnedDrawInfo[i][j][k].end(), other.mSkinnedDrawInfo[i][j][k].begin(), other.mSkinnedDrawInfo[i][j][k].end());
+                for (U32 l = 0; l < 2; ++l)
+                {
+                    mDrawInfo[i][j][k][l].insert(mDrawInfo[i][j][k][l].end(), other.mDrawInfo[i][j][k][l].begin(), other.mDrawInfo[i][j][k][l].end());
+                    mSkinnedDrawInfo[i][j][k][l].insert(mSkinnedDrawInfo[i][j][k][l].end(), other.mSkinnedDrawInfo[i][j][k][l].begin(), other.mSkinnedDrawInfo[i][j][k][l].end());
+                }
             }
         }
     }

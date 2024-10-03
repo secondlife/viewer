@@ -246,6 +246,7 @@ public:
     U32 mInstanceMapUBO;
     U32 mMaterialUBO;
     U32 mPrimScaleUBO;
+    U32 mTextureTransformUBO;
 };
 
 class LLSkinnedGLTFDrawInfo : public LLGLTFDrawInfo
@@ -255,14 +256,15 @@ public:
     LLMeshSkinInfo* mSkinInfo = nullptr;
 };
 
+
 class LLGLTFBatches
 {
 public:
-    typedef std::vector<LLGLTFDrawInfo> gltf_drawinfo_list_t[3][2][2];
-    typedef std::vector<LLSkinnedGLTFDrawInfo> skinned_gltf_drawinfo_list_t[3][2][2];
+    typedef std::vector<LLGLTFDrawInfo> gltf_drawinfo_list_t[3][2][2][2];
+    typedef std::vector<LLSkinnedGLTFDrawInfo> skinned_gltf_drawinfo_list_t[3][2][2][2];
 
     // collections of GLTFDrawInfo
-    // indexed by [LLGLTFMaterial::mAlphaMode][Double Sided][Planar Projection]
+    // indexed by [LLGLTFMaterial::mAlphaMode][Double Sided][Planar Projection][Texture Animation]
     gltf_drawinfo_list_t mDrawInfo;
     skinned_gltf_drawinfo_list_t mSkinnedDrawInfo;
 
@@ -270,10 +272,10 @@ public:
     void clear();
 
     // add a draw info to the appropriate list
-    LLGLTFDrawInfo* create(LLGLTFMaterial::AlphaMode alpha_mode, bool double_sided = false, bool planar = false);
+    LLGLTFDrawInfo* create(LLGLTFMaterial::AlphaMode alpha_mode, bool double_sided = false, bool planar = false, bool tex_anim = false);
 
     // add a sikinned draw info to the appropriate list
-    LLSkinnedGLTFDrawInfo* createSkinned(LLGLTFMaterial::AlphaMode alpha_mode, bool double_sided = false, bool planar = false);
+    LLSkinnedGLTFDrawInfo* createSkinned(LLGLTFMaterial::AlphaMode alpha_mode, bool double_sided = false, bool planar = false, bool  tex_anim = false);
 
     // add the given LLGLTFBatches to these LLGLTFBatches
     void add(const LLGLTFBatches& other);
@@ -281,13 +283,13 @@ public:
     template <typename T>
     void sort(LLGLTFMaterial::AlphaMode i, T comparator)
     {
-        for (U32 i = 0; i < 3; ++i)
+        for (U32 j = 0; j < 2; ++j)
         {
-            for (U32 j = 0; j < 2; ++j)
+            for (U32 k = 0; k < 2; ++k)
             {
-                for (U32 k = 0; k < 2; ++k)
+                for (U32 l = 0; l < 2; ++l)
                 {
-                    std::sort(mDrawInfo[i][j][k].begin(), mDrawInfo[i][j][k].end(), comparator);
+                    std::sort(mDrawInfo[i][j][k][l].begin(), mDrawInfo[i][j][k][l].end(), comparator);
                 }
             }
         }
@@ -300,7 +302,10 @@ public:
         {
             for (U32 k = 0; k < 2; ++k)
             {
-                std::sort(mSkinnedDrawInfo[i][j][k].begin(), mSkinnedDrawInfo[i][j][k].end(), comparator);
+                for (U32 l = 0; l < 2; ++l)
+                {
+                    std::sort(mSkinnedDrawInfo[i][j][k][l].begin(), mSkinnedDrawInfo[i][j][k][l].end(), comparator);
+                }
             }
         }
     }
@@ -502,6 +507,9 @@ public:
     //  Used for planar projection, indexed by gltf_node_id
     U32 mPrimScaleUBO = 0;
     U32 mPrimScaleUBOSize = 0;
+    // UBO used for texture animation transforms
+    U32 mTextureTransformUBO = 0;
+    U32 mTextureTransformUBOSize = 0;
 
     // Reflection Probe associated with this node (if any)
     LLPointer<LLReflectionMap> mReflectionProbe = nullptr;

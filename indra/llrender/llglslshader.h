@@ -154,6 +154,7 @@ public:
         UB_GLTF_NODE_INSTANCE_MAP,  // "GLTFNodeInstanceMap"
         UB_GLTF_MATERIALS,          // "GLTFMaterials"
         UB_PRIM_SCALES,             // "PrimScales"
+        UB_TEXTURE_TRANSFORM,       // "TextureTransform"
         NUM_UNIFORM_BLOCKS
     };
 

@@ -808,14 +808,14 @@ static void pre_push_gltf_batches()
     }
 }
 
-void LLRenderPass::pushGLTFBatches(const std::vector<LLGLTFDrawInfo>& draw_info, bool planar)
+void LLRenderPass::pushGLTFBatches(const std::vector<LLGLTFDrawInfo>& draw_info, bool planar, bool tex_anim)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
     pre_push_gltf_batches();
 
     for (auto& params : draw_info)
     {
-        pushGLTFBatch(params, planar);
+        pushGLTFBatch(params, planar, tex_anim);
     }
 
     LLVertexBuffer::unbind();
@@ -835,7 +835,7 @@ void LLRenderPass::pushShadowGLTFBatches(const std::vector<LLGLTFDrawInfo>& draw
 }
 
 // static
-void LLRenderPass::pushGLTFBatch(const LLGLTFDrawInfo& params, bool planar)
+void LLRenderPass::pushGLTFBatch(const LLGLTFDrawInfo& params, bool planar, bool tex_anim)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
     LL_PROFILE_ZONE_NUM(params.mInstanceCount);
@@ -849,6 +849,10 @@ void LLRenderPass::pushGLTFBatch(const LLGLTFDrawInfo& params, bool planar)
         if (planar)
         {
             glBindBufferBase(GL_UNIFORM_BUFFER, LLGLSLShader::UB_PRIM_SCALES, params.mPrimScaleUBO);
+        }
+        if (tex_anim)
+        {
+            glBindBufferBase(GL_UNIFORM_BUFFER, LLGLSLShader::UB_TEXTURE_TRANSFORM, params.mTextureTransformUBO);
         }
         transform_ubo = params.mTransformUBO;
     }
@@ -904,7 +908,6 @@ void LLRenderPass::pushShadowGLTFBatch(const LLGLTFDrawInfo& params)
     LL_PROFILE_ZONE_NUM(params.mInstanceCount);
     llassert(params.mTransformUBO != 0);
 
-
     if (params.mTransformUBO != transform_ubo)
     {
         glBindBufferBase(GL_UNIFORM_BUFFER, LLGLSLShader::UB_GLTF_NODES, params.mTransformUBO);
@@ -921,7 +924,7 @@ void LLRenderPass::pushShadowGLTFBatch(const LLGLTFDrawInfo& params)
         params.mInstanceCount);
 }
 
-void LLRenderPass::pushRiggedGLTFBatches(const std::vector<LLSkinnedGLTFDrawInfo>& draw_info, bool planar)
+void LLRenderPass::pushRiggedGLTFBatches(const std::vector<LLSkinnedGLTFDrawInfo>& draw_info, bool planar, bool tex_anim)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
 
@@ -933,7 +936,7 @@ void LLRenderPass::pushRiggedGLTFBatches(const std::vector<LLSkinnedGLTFDrawInfo
 
     for (auto& params : draw_info)
     {
-        pushRiggedGLTFBatch(params, lastAvatar, lastMeshId, skipLastSkin, planar);
+        pushRiggedGLTFBatch(params, lastAvatar, lastMeshId, skipLastSkin, planar, tex_anim);
     }
 
     LLVertexBuffer::unbind();
@@ -958,11 +961,11 @@ void LLRenderPass::pushRiggedShadowGLTFBatches(const std::vector<LLSkinnedGLTFDr
 }
 
 // static
-void LLRenderPass::pushRiggedGLTFBatch(const LLSkinnedGLTFDrawInfo& params, const LLVOAvatar*& lastAvatar, U64& lastMeshId, bool& skipLastSkin, bool planar)
+void LLRenderPass::pushRiggedGLTFBatch(const LLSkinnedGLTFDrawInfo& params, const LLVOAvatar*& lastAvatar, U64& lastMeshId, bool& skipLastSkin, bool planar, bool tex_anim)
 {
     if (uploadMatrixPalette(params.mAvatar, params.mSkinInfo, lastAvatar, lastMeshId, skipLastSkin))
     {
-        pushGLTFBatch(params, planar);
+        pushGLTFBatch(params, planar, tex_anim);
     }
 }
 

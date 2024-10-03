@@ -66,21 +66,20 @@ void LLDrawPoolGLTFPBR::renderDeferred(S32 pass)
 
     LLGLTFMaterial::AlphaMode alpha_mode = mRenderType == LLPipeline::RENDER_TYPE_PASS_GLTF_PBR_ALPHA_MASK ? LLGLTFMaterial::ALPHA_MODE_MASK : LLGLTFMaterial::ALPHA_MODE_OPAQUE;
 
-    for (U32 planar = 0; planar < 2; ++planar)
+    for (U32 double_sided = 0; double_sided < 2; ++double_sided)
     {
-        gGLTFPBRShaderPack.mShader[alpha_mode][0][planar].bind();
-        pushGLTFBatches(sCull->mGLTFBatches.mDrawInfo[alpha_mode][0][planar], planar);
+        LLGLDisable cull(double_sided ? GL_CULL_FACE : 0);
+        for (U32 planar = 0; planar < 2; ++planar)
+        {
+            for (U32 tex_anim = 0; tex_anim < 2; ++tex_anim)
+            {
+                LLGLSLShader& shader = gGLTFPBRShaderPack.mShader[alpha_mode][double_sided][planar][tex_anim];
+                shader.bind();
+                pushGLTFBatches(sCull->mGLTFBatches.mDrawInfo[alpha_mode][double_sided][planar][tex_anim], planar, tex_anim);
 
-        gGLTFPBRShaderPack.mShader[alpha_mode][0][planar].bind(true);
-        pushRiggedGLTFBatches(sCull->mGLTFBatches.mSkinnedDrawInfo[alpha_mode][0][planar], planar);
-
-        { // double sided
-            LLGLDisable cull(GL_CULL_FACE);
-            gGLTFPBRShaderPack.mShader[alpha_mode][1][planar].bind();
-            pushGLTFBatches(sCull->mGLTFBatches.mDrawInfo[alpha_mode][1][planar], planar);
-
-            gGLTFPBRShaderPack.mShader[alpha_mode][1][planar].bind(true);
-            pushRiggedGLTFBatches(sCull->mGLTFBatches.mSkinnedDrawInfo[alpha_mode][1][planar], planar);
+                shader.bind(true);
+                pushRiggedGLTFBatches(sCull->mGLTFBatches.mSkinnedDrawInfo[alpha_mode][double_sided][planar][tex_anim], planar, tex_anim);
+            }
         }
     }
 }

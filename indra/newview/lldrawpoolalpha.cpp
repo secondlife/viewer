@@ -190,7 +190,7 @@ void LLDrawPoolAlpha::renderPostDeferred(S32 pass)
 
     pbr_shader =
         (LLPipeline::sRenderingHUDs) ? &gHUDPBRAlphaProgram :
-        &gGLTFPBRShaderPack.mShader[LLGLTFMaterial::ALPHA_MODE_BLEND][1][0];
+        &gGLTFPBRShaderPack.mShader[LLGLTFMaterial::ALPHA_MODE_BLEND][1][0][0];
 
     prepare_alpha_shader(pbr_shader, true, water_sign);
 

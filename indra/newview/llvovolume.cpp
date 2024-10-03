@@ -589,6 +589,7 @@ void LLVOVolume::onDrawableUpdateFromServer()
 
 void LLVOVolume::animateTextures()
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_FACE;
     if (!mDead)
     {
         //shrinkWrap();
@@ -659,6 +660,38 @@ void LLVOVolume::animateTextures()
                 tex_mat *= mat;
 
                 tex_mat.translate(trans);
+
+                if (facep->mTextureTransformIndex != 0xFFFFFFFF)
+                {
+                    // update texture transform UBO
+                    LLSpatialGroup* group = mDrawable->getSpatialGroup();
+                    if (group && group->mTextureTransformUBO != 0)
+                    {
+                        LL_PROFILE_ZONE_NAMED_CATEGORY_FACE("animateTextures - update UBO");
+                        F32 mp[12];
+                        const F32* m = (const F32*) &tex_mat.mMatrix[0][0];
+
+                        mp[0] = m[0];
+                        mp[1] = m[1];
+                        mp[2] = m[2];
+                        mp[3] = m[12];
+
+                        mp[4] = m[4];
+                        mp[5] = m[5];
+                        mp[6] = m[6];
+                        mp[7] = m[13];
+
+                        mp[8] = m[8];
+                        mp[9] = m[9];
+                        mp[10] = m[10];
+                        mp[11] = m[14];
+
+                        glBindBuffer(GL_UNIFORM_BUFFER, group->mTextureTransformUBO);
+                        glBufferSubData(GL_UNIFORM_BUFFER, facep->mTextureTransformIndex * 48, 48, mp);
+                        glBindBuffer(GL_UNIFORM_BUFFER, 0);
+                    }
+                }
+
             }
         }
         else

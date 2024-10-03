@@ -34,11 +34,9 @@ mat4 getObjectSkinnedTransform();
 #endif
 
 #ifdef SAMPLE_BASE_COLOR_MAP
-uniform mat4 texture_matrix0;
+mat4 tex_mat;
 vec4[2] texture_base_color_transform;
-
 vec2 texture_transform(vec2 vertex_texcoord, vec4[2] khr_gltf_transform, mat4 sl_animation_transform);
-
 in vec2 texcoord0;
 out vec2 base_color_texcoord;
 #endif
@@ -82,10 +80,18 @@ layout (std140) uniform GLTFNodes
     mat3x4 gltf_nodes[MAX_NODES_PER_GLTF_OBJECT];
 };
 
+#ifdef TEX_ANIM
+layout (std140) uniform TextureTransform
+{
+    mat3x4 texture_matrix[MAX_NODES_PER_GLTF_OBJECT];
+};
+#endif
+
 layout (std140) uniform GLTFNodeInstanceMap
 {
     // .x - gltf_node_id
     // .y - gltf_material_id
+    // .z - texture_matrix_id
     ivec4 gltf_node_instance_map[MAX_INSTANCES_PER_GLTF_OBJECT];
 };
 
@@ -168,6 +174,7 @@ void unpackTextureTransforms()
 {
     gltf_material_id = gltf_node_instance_map[gl_InstanceID+gltf_base_instance].y;
 
+
     int idx = gltf_material_id*8;
 
 #ifdef SAMPLE_BASE_COLOR_MAP
@@ -229,11 +236,26 @@ void main()
     gl_Position = projection_matrix*vec4(pos,1.0);
 
 #ifdef SAMPLE_BASE_COLOR_MAP
+
+#ifdef TEX_ANIM
+    mat3x4 src = texture_matrix[gltf_node_instance_map[gl_InstanceID+gltf_base_instance].z];
+
+    tex_mat[0] = vec4(src[0].xyz, 0);
+    tex_mat[1] = vec4(src[1].xyz, 0);
+    tex_mat[2] = vec4(src[2].xyz, 0);
+    tex_mat[3] = vec4(src[0].w, src[1].w, src[2].w, 1);
+#else
+    tex_mat[0] = vec4(1,0,0,0);
+    tex_mat[1] = vec4(0,1,0,0);
+    tex_mat[2] = vec4(0,0,1,0);
+    tex_mat[3] = vec4(0,0,0,1);
+#endif
+
     vec2 tc0 = texcoord0;
 #ifdef PLANAR_PROJECTION
     planarProjection(tc0);
 #endif
-    base_color_texcoord = texture_transform(tc0, texture_base_color_transform, texture_matrix0);
+    base_color_texcoord = texture_transform(tc0, texture_base_color_transform, tex_mat);
 #endif
 
 #ifdef MIRROR_CLIP
@@ -241,23 +263,23 @@ void main()
 #endif
 
 #ifdef SAMPLE_NORMAL_MAP
-    normal_texcoord = texture_transform(tc0, texture_normal_transform, texture_matrix0);
+    normal_texcoord = texture_transform(tc0, texture_normal_transform, tex_mat);
     vec3 n = (mat*vec4(normal.xyz+position.xyz,1.0)).xyz-pos.xyz;
     vec3 t = (mat*vec4(tangent.xyz+position.xyz,1.0)).xyz-pos.xyz;
 
     n = normalize(n);
 
-    vec4 transformed_tangent = tangent_space_transform(vec4(t, tangent.w), n, texture_normal_transform, texture_matrix0);
+    vec4 transformed_tangent = tangent_space_transform(vec4(t, tangent.w), n, texture_normal_transform, tex_mat);
     vary_tangent = normalize(transformed_tangent.xyz);
     vary_sign = transformed_tangent.w;
     vary_normal = n;
 #endif
 
 #ifdef SAMPLE_ORM_MAP
-    metallic_roughness_texcoord = texture_transform(tc0, texture_metallic_roughness_transform, texture_matrix0);
+    metallic_roughness_texcoord = texture_transform(tc0, texture_metallic_roughness_transform, tex_mat);
 #endif
 
 #ifdef SAMPLE_EMISSIVE_MAP
-    emissive_texcoord = texture_transform(tc0, texture_emissive_transform, texture_matrix0);
+    emissive_texcoord = texture_transform(tc0, texture_emissive_transform, tex_mat);
 #endif
 }

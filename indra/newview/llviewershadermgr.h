@@ -152,12 +152,12 @@ inline bool operator != (LLViewerShaderMgr::shader_iter const & a, LLViewerShade
 class LLGLTFShaderPack
 {
 public:
-    // variants are indexed by [Alpha Mode][Double Sided][Planar Projection]
-    LLGLSLShader mShader[3][2][2];
-    LLGLSLShader mSkinnedShader[3][2][2];
+    // variants are indexed by [Alpha Mode][Double Sided][Planar Projection][Texture Animation]
+    LLGLSLShader mShader[3][2][2][2];
+    LLGLSLShader mSkinnedShader[3][2][2][2];
 
-    LLGLSLShader mShadowShader[3][2][2];
-    LLGLSLShader mSkinnedShadowShader[3][2][2];
+    LLGLSLShader mShadowShader[3][2][2][2];
+    LLGLSLShader mSkinnedShadowShader[3][2][2][2];
 
     // unload all shaders in this pack
     void unload();
