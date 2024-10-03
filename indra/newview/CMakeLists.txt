@@ -1870,7 +1870,7 @@ else (WINDOWS)
         # Linux
     set_target_properties(${VIEWER_BINARY_NAME}
         PROPERTIES
-        LINK_FLAGS_RELEASE "${LINK_FLAGS_RELEASE} -Wl,--Map=${VIEWER_BINARY_NAME}.MAP"
+        LINK_FLAGS_RELEASE "${LINK_FLAGS_RELEASE} -no-pie -Wl,--Map=${VIEWER_BINARY_NAME}.MAP"
         )
 endif (WINDOWS)
 
