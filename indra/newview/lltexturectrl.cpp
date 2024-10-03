@@ -1029,8 +1029,11 @@ void LLFloaterTexturePicker::onBtnCancel(void* userdata)
 void LLFloaterTexturePicker::onBtnSelect(void* userdata)
 {
     LLFloaterTexturePicker* self = (LLFloaterTexturePicker*) userdata;
-    if (self->mOnFloaterCommitCallback)
+    if (self->mViewModel->isDirty() && self->mOnFloaterCommitCallback)
     {
+        // If nothing changed, don't commit.
+        // ex: can overwrite multiple original textures with a single one.
+        // or resubmit something thus overriding some other source of change
         self->commitCallback(LLTextureCtrl::TEXTURE_SELECT);
     }
     self->closeFloater();
@@ -1067,8 +1070,18 @@ void LLFloaterTexturePicker::onSelectionChange(const std::deque<LLFolderViewItem
             {
                 mNoCopyTextureSelected = true;
             }
+            bool was_dirty = mViewModel->isDirty();
             setImageIDFromItem(itemp, false);
-            mViewModel->setDirty(); // *TODO: shouldn't we be using setValue() here?
+            if (user_action)
+            {
+                mViewModel->setDirty(); // *TODO: shouldn't we be using setValue() here?
+                setTentative( false );
+            }
+            else if (!was_dirty)
+            {
+                // setImageIDFromItem could have dropped the flag
+                mViewModel->resetDirty();
+            }
 
             if(!mPreviewSettingChanged)
             {
