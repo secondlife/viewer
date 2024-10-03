@@ -8342,7 +8342,9 @@ void LLPipeline::renderDeferredLighting()
             unbindDeferredShader(gDeferredBlurLightProgram);
         }
         screen_target->bindTarget();
-        screen_target->invalidate(GL_COLOR_BUFFER_BIT);
+        // clear color buffer here - zeroing alpha (glow) is important or it will accumulate against sky
+        glClearColor(0, 0, 0, 0);
+        screen_target->clear(GL_COLOR_BUFFER_BIT);
 
         if (RenderDeferredAtmospheric)
         {  // apply sunlight contribution
