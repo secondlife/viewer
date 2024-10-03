@@ -647,7 +647,7 @@ void LLFloaterPreference::cancel(const std::vector<std::string> settings_to_skip
     {
         if (LLPanelPreference* panel = dynamic_cast<LLPanelPreference*>(view))
         {
-            panel->cancel();
+            panel->cancel(settings_to_skip);
         }
     }
     // hide joystick pref floater
@@ -3223,8 +3223,6 @@ void LLPanelPreferenceGameControl::saveSettings()
     };
 
     // Use string formatting functions provided by class LLGameControl:
-    // stringifyAnalogMappings(), stringifyBinaryMappings(), stringifyFlycamMappings()
-
     if (LLControlVariable* analogMappings = gSavedSettings.getControl("AnalogChannelMappings"))
     {
         analogMappings->set(LLGameControl::stringifyAnalogMappings(getChannel));
@@ -3496,6 +3494,7 @@ void LLPanelPreferenceGameControl::onCommitNumericValue()
             deviceOptions.getAxisOptions()[row_index].mOffset = (S16)value;
         }
         setNumericLabel(row->getColumn(column_index), value);
+        LLGameControl::setDeviceOptions(mSelectedDeviceGUID, deviceOptions);
     }
 }
 

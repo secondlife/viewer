@@ -4989,6 +4989,7 @@ static S32 g_deltaFrame { 0 };
 
 void LLAgent::applyExternalActionFlags(U32 outer_flags)
 {
+    llassert(LLCoros::on_main_thread_main_coro());
     assert(LLGameControl::isEnabled() && LLGameControl::willControlAvatar());
     mExternalActionFlags = outer_flags;
 

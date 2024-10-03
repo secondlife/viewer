@@ -55,7 +55,7 @@ class LLWindowCallbacks;
 class LLKeyboard
 {
 public:
-#ifdef LL_LINUX
+#ifdef LL_USE_SDL_KEYBOARD
     // linux relies on SDL2 which uses U32 for its native key type
     typedef U32 NATIVE_KEY_TYPE;
 #else

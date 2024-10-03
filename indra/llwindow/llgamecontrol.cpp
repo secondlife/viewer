@@ -41,11 +41,6 @@
 
 namespace std
 {
-    string to_string(const char* text)
-    {
-        return text ? string(text) : LLStringUtil::null;
-    }
-
     string to_string(const SDL_JoystickGUID& guid)
     {
         char buffer[33] = { 0 };
@@ -149,7 +144,7 @@ namespace std
         SDL_JoystickGUID guid = SDL_JoystickGetGUID(joystick);
         ss << ",guid:'" << guid << "'";
         ss << ",type:'" << SDL_JoystickGetType(joystick) << "'";
-        ss << ",name:'" << std::to_string(SDL_JoystickName(joystick)) << "'";
+        ss << ",name:'" << ll_safe_string(SDL_JoystickName(joystick)) << "'";
         ss << ",vendor:" << SDL_JoystickGetVendor(joystick);
         ss << ",product:" << SDL_JoystickGetProduct(joystick);
         if (U16 version = SDL_JoystickGetProductVersion(joystick))
@@ -179,7 +174,7 @@ namespace std
         stringstream ss;
 
         ss << "{type:'" << SDL_GameControllerGetType(controller) << "'";
-        ss << ",name:'" << std::to_string(SDL_GameControllerName(controller)) << "'";
+        ss << ",name:'" << ll_safe_string(SDL_GameControllerName(controller)) << "'";
         ss << ",vendor:" << SDL_GameControllerGetVendor(controller);
         ss << ",product:" << SDL_GameControllerGetProduct(controller);
         if (U16 version = SDL_GameControllerGetProductVersion(controller))
@@ -1411,7 +1406,7 @@ void onJoystickDeviceAdded(const SDL_Event& event)
 {
     SDL_JoystickGUID guid(SDL_JoystickGetDeviceGUID(event.cdevice.which));
     SDL_JoystickType type(SDL_JoystickGetDeviceType(event.cdevice.which));
-    std::string name(std::to_string(SDL_JoystickNameForIndex(event.cdevice.which)));
+    std::string name(ll_safe_string(SDL_JoystickNameForIndex(event.cdevice.which)));
 
     LL_INFOS("SDL2") << "joystick {id:" << event.cdevice.which
         << ",guid:'" << guid << "'"
@@ -1438,7 +1433,7 @@ void onControllerDeviceAdded(const SDL_Event& event)
 {
     std::string guid(std::to_string(SDL_JoystickGetDeviceGUID(event.cdevice.which)));
     SDL_GameControllerType type(SDL_GameControllerTypeForIndex(event.cdevice.which));
-    std::string name(std::to_string(SDL_GameControllerNameForIndex(event.cdevice.which)));
+    std::string name(ll_safe_string(SDL_GameControllerNameForIndex(event.cdevice.which)));
 
     LL_INFOS("SDL2") << "controller {id:" << event.cdevice.which
         << ",guid:'" << guid << "'"
@@ -1514,6 +1509,7 @@ bool LLGameControl::isInitialized()
 }
 
 // static
+// TODO: find a cleaner way to provide callbacks to LLGameControl
 void LLGameControl::init(const std::string& gamecontrollerdb_path,
     std::function<bool(const std::string&)> loadBoolean,
     std::function<void(const std::string&, bool)> saveBoolean,

@@ -51,7 +51,7 @@ void LLFlycam::getTransform(LLVector3& position_out, LLQuaternion& rotation_out)
 // 'view' is expected to be in radians
 void LLFlycam::setView(F32 view)
 {
-    mView = std::min(std::max(view, MIN_FIELD_OF_VIEW), MAX_FIELD_OF_VIEW);
+    mView = std::clamp(view, MIN_FIELD_OF_VIEW, MAX_FIELD_OF_VIEW);
 }
 
 
@@ -126,7 +126,7 @@ void LLFlycam::integrate(F32 delta_time)
     {
         // Note: we subtract the delta because "positive" zoom (e.g. "zoom in")
         // produces smaller view angle
-        mView = std::min(std::max(mView - delta_time * mZoomRate, MIN_FIELD_OF_VIEW), MAX_FIELD_OF_VIEW);
+        mView = std::clamp(mView - delta_time * mZoomRate, MIN_FIELD_OF_VIEW, MAX_FIELD_OF_VIEW);
     }
 
     if (needs_renormalization)

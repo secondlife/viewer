@@ -447,38 +447,38 @@ private:
     void resetButtonMappingsToDefaults();
 
     // Above the tab container
-    LLCheckBoxCtrl* mCheckGameControlToServer; // send game_control data to server
-    LLCheckBoxCtrl* mCheckGameControlToAgent;  // use game_control data to move avatar
-    LLCheckBoxCtrl* mCheckAgentToGameControl;  // translate external avatar actions to game_control data
+    LLCheckBoxCtrl* mCheckGameControlToServer { nullptr }; // send game_control data to server
+    LLCheckBoxCtrl* mCheckGameControlToAgent { nullptr };  // use game_control data to move avatar
+    LLCheckBoxCtrl* mCheckAgentToGameControl { nullptr };  // translate external avatar actions to game_control data
 
     // 1st tab "Channel mappings"
-    LLPanel* mTabChannelMappings;
-    LLScrollListCtrl* mActionTable;
+    LLPanel* mTabChannelMappings { nullptr };
+    LLScrollListCtrl* mActionTable { nullptr };
 
     // 2nd tab "Device settings"
-    LLPanel* mTabDeviceSettings;
-    LLTextBox* mNoDeviceMessage;
-    LLTextBox* mDevicePrompt;
-    LLTextBox* mSingleDevice;
-    LLComboBox* mDeviceList;
-    LLCheckBoxCtrl* mCheckShowAllDevices;
-    LLPanel* mPanelDeviceSettings;
-    LLPanel* mTabAxisOptions;
-    LLScrollListCtrl* mAxisOptions;
-    LLPanel* mTabAxisMappings;
-    LLScrollListCtrl* mAxisMappings;
-    LLPanel* mTabButtonMappings;
-    LLScrollListCtrl* mButtonMappings;
+    LLPanel* mTabDeviceSettings { nullptr };
+    LLTextBox* mNoDeviceMessage { nullptr };
+    LLTextBox* mDevicePrompt { nullptr };
+    LLTextBox* mSingleDevice { nullptr };
+    LLComboBox* mDeviceList { nullptr };
+    LLCheckBoxCtrl* mCheckShowAllDevices { nullptr };
+    LLPanel* mPanelDeviceSettings { nullptr };
+    LLPanel* mTabAxisOptions { nullptr };
+    LLScrollListCtrl* mAxisOptions { nullptr };
+    LLPanel* mTabAxisMappings { nullptr };
+    LLScrollListCtrl* mAxisMappings { nullptr };
+    LLPanel* mTabButtonMappings { nullptr };
+    LLScrollListCtrl* mButtonMappings { nullptr };
 
-    LLButton* mResetToDefaults;
+    LLButton* mResetToDefaults { nullptr };
 
     // Numeric value editor
-    LLSpinCtrl* mNumericValueEditor;
+    LLSpinCtrl* mNumericValueEditor { nullptr };
 
     // Channel selectors
-    LLComboBox* mAnalogChannelSelector;
-    LLComboBox* mBinaryChannelSelector;
-    LLComboBox* mAxisSelector;
+    LLComboBox* mAnalogChannelSelector { nullptr };
+    LLComboBox* mBinaryChannelSelector { nullptr };
+    LLComboBox* mAxisSelector { nullptr };
 
     struct DeviceOptions
     {
