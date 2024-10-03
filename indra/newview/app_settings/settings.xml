@@ -9362,35 +9362,35 @@
   <key>RenderDynamicExposureEVOffset</key>
   <map>
     <key>Comment</key>
-    <string>Luminance coefficient for dynamic exposure</string>
+    <string>"Pivot" for dynamic exposure.</string>
     <key>Persist</key>
     <integer>0</integer>
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>0.0</real>
+    <real>1.0</real>
   </map>
   <key>RenderDynamicExposureEVMinimum</key>
   <map>
     <key>Comment</key>
-    <string>Luminance coefficient for dynamic exposure</string>
+    <string>Negative offset from the EV offset.  Must be a positive value.</string>
     <key>Persist</key>
     <integer>0</integer>
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>0.0</real>
+    <real>0.5</real>
   </map>
   <key>RenderDynamicExposureEVMaximum</key>
   <map>
     <key>Comment</key>
-    <string>Luminance coefficient for dynamic exposure</string>
+    <string>Positive offset from the EV offset.  Must be a positive value.</string>
     <key>Persist</key>
     <integer>0</integer>
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>0.0</real>
+    <real>2.0</real>
   </map>
   <key>RenderDynamicExposureSpeed</key>
   <map>

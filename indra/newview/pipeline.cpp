@@ -7021,9 +7021,9 @@ void LLPipeline::generateExposure(LLRenderTarget* src, LLRenderTarget* dst, bool
         static LLCachedControl<bool> should_auto_adjust(gSavedSettings, "RenderSkyAutoAdjustLegacy", true);
         static LLCachedControl<bool> dynamic_exposure_enabled(gSavedSettings, "RenderDynamicExposureEnabled", true);
         static LLCachedControl<F32> dynamic_exposure_coefficient(gSavedSettings, "RenderDynamicExposureCoefficient", 0.175f);
-        static LLCachedControl<F32> dynamic_exposure_ev_offset(gSavedSettings, "RenderDynamicExposureEVOffset", 0.f);
-        static LLCachedControl<F32> dynamic_exposure_ev_min(gSavedSettings, "RenderDynamicExposureEVMinimum", 0.f);
-        static LLCachedControl<F32> dynamic_exposure_ev_max(gSavedSettings, "RenderDynamicExposureEVMaximum", 0.f);
+        static LLCachedControl<F32> dynamic_exposure_ev_offset(gSavedSettings, "RenderDynamicExposureEVOffset", 1.f);
+        static LLCachedControl<F32> dynamic_exposure_ev_min(gSavedSettings, "RenderDynamicExposureEVMinimum", 0.5f);
+        static LLCachedControl<F32> dynamic_exposure_ev_max(gSavedSettings, "RenderDynamicExposureEVMaximum", 2.f);
         static LLCachedControl<F32> dynamic_exposure_speed_error(gSavedSettings, "RenderDynamicExposureSpeedError", 0.1f);
         static LLCachedControl<F32> dynamic_exposure_speed_target(gSavedSettings, "RenderDynamicExposureSpeedTarget", 2.f);
 
@@ -7035,13 +7035,8 @@ void LLPipeline::generateExposure(LLRenderTarget* src, LLRenderTarget* dst, bool
 
         if (probe_ambiance > 0.f)
         {
-            F32 hdr_scale = sqrtf(LLEnvironment::instance().getCurrentSky()->getGamma()) * 2.f;
-
-            if (hdr_scale > 1.f)
-            {
-                exp_min = 1.f / hdr_scale;
-                exp_max = hdr_scale;
-            }
+            exp_min = dynamic_exposure_ev_offset - dynamic_exposure_ev_min;
+            exp_max = dynamic_exposure_ev_offset + dynamic_exposure_ev_max;
         }
         shader->uniform1f(dt, gFrameIntervalSeconds);
         shader->uniform2f(noiseVec, ll_frand() * 2.0f - 1.0f, ll_frand() * 2.0f - 1.0f);
