@@ -170,6 +170,10 @@ void LLWindowCallbacks::handleWindowUnblock(LLWindow *window)
 {
 }
 
+void LLWindowCallbacks::handleXRManagerInit(LLXRManager* xr_manager)
+{
+}
+
 void LLWindowCallbacks::handleDataCopy(LLWindow *window, S32 data_type, void *data)
 {
 }

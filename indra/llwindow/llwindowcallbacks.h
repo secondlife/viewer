@@ -28,6 +28,7 @@
 
 #include "llcoord.h"
 class LLWindow;
+class LLXRManager;
 
 class LLWindowCallbacks
 {
@@ -70,6 +71,7 @@ public:
     virtual bool handleDeviceChange(LLWindow *window);
     virtual bool handleDPIChanged(LLWindow *window, F32 ui_scale_factor, S32 window_width, S32 window_height);
     virtual bool handleWindowDidChangeScreen(LLWindow *window);
+    virtual void handleXRManagerInit(LLXRManager* xr_manager);
 
     enum DragNDropAction {
         DNDA_START_TRACKING = 0,// Start tracking an incoming drag

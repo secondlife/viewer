@@ -37,6 +37,7 @@
 class LLSplashScreen;
 class LLPreeditor;
 class LLWindowCallbacks;
+class LLXRManager;
 
 // Refer to llwindow_test in test/common/llwindow for usage example
 
@@ -60,6 +61,7 @@ public:
         // currently unused
     };
 public:
+    LLXRManager* mXRManager = nullptr;
     virtual void show() = 0;
     virtual void hide() = 0;
     virtual void close() = 0;
@@ -239,6 +241,7 @@ protected:
     S32         mMinWindowWidth;
     S32         mMinWindowHeight;
     S32         mRefreshRate;
+
 
     // Handle a UTF-16 encoding unit received from keyboard.
     // Converting the series of UTF-16 encoding units to UTF-32 data,

@@ -226,6 +226,7 @@ public:
     /*virtual*/ bool handleDeviceChange(LLWindow *window);
     /*virtual*/ bool handleDPIChanged(LLWindow *window, F32 ui_scale_factor, S32 window_width, S32 window_height);
     /*virtual*/ bool handleWindowDidChangeScreen(LLWindow *window);
+    /*virtual*/ void handleXRManagerInit(LLXRManager* xr_manager);
 
     /*virtual*/ void handlePingWatchdog(LLWindow *window, const char * msg);
     /*virtual*/ void handlePauseWatchdog(LLWindow *window);
@@ -560,6 +561,7 @@ private:
 //
 
 extern LLViewerWindow*  gViewerWindow;
+extern LLXRManager*     gXRManager;
 
 extern LLFrameTimer     gAwayTimer;             // tracks time before setting the avatar away state to true
 extern LLFrameTimer     gAwayTriggerTimer;      // how long the avatar has been away

@@ -86,6 +86,7 @@
 #include "llvograss.h"
 #include "llworld.h"
 #include "pipeline.h"
+#include "llxrmanager.h"
 
 #include <boost/json.hpp>
 
@@ -479,6 +480,12 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
 
     gViewerWindow->checkSettings();
 
+    gXRManager->handleSessionState();
+
+    gXRManager->updateXRSession();
+
+    gXRManager->startFrame();
+
     {
         LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("Picking");
         gViewerWindow->performPick();
@@ -616,8 +623,17 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
     LLAppViewer::instance()->pingMainloopTimeout("Display:Camera");
     if (LLViewerCamera::instanceExists())
     {
-        LLViewerCamera::getInstance()->setZoomParameters(zoom_factor, subfield);
-        LLViewerCamera::getInstance()->setNear(MIN_NEAR_PLANE);
+        if (gXRManager->xrState() == LLXRManager::XR_STATE_RUNNING)
+        {
+            LLVector3 agentPos = gAgent.getPositionAgent();
+            LLViewerCamera::getInstance()->mOrigin = agentPos + gXRManager->getHeadPosition();
+            LLViewerCamera::getInstance()->setAxes(gXRManager->getHeadOrientation());
+        }
+        else
+        {
+            LLViewerCamera::getInstance()->setZoomParameters(zoom_factor, subfield);
+            LLViewerCamera::getInstance()->setNear(MIN_NEAR_PLANE);
+        }
     }
 
     //////////////////////////
@@ -1034,6 +1050,9 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
     stop_glerror();
 
     display_stats();
+
+    // Inform the XR manager that we've finished a frame.
+    gXRManager->endFrame();
 
     LLAppViewer::instance()->pingMainloopTimeout("Display:Done");
 

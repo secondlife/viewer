@@ -232,6 +232,7 @@ extern bool gCubeSnapshot;
 extern bool gSnapshotNoPost;
 
 LLViewerWindow  *gViewerWindow = NULL;
+LLXRManager     *gXRManager    = NULL;
 
 LLFrameTimer    gAwayTimer;
 LLFrameTimer    gAwayTriggerTimer;
@@ -1700,6 +1701,11 @@ void LLViewerWindow::handleWindowBlock(LLWindow *window)
 void LLViewerWindow::handleWindowUnblock(LLWindow *window)
 {
     send_agent_resume();
+}
+
+void LLViewerWindow::handleXRManagerInit(LLXRManager* xr_manager)
+{
+    gXRManager = xr_manager;
 }
 
 void LLViewerWindow::handleDataCopy(LLWindow *window, S32 data_type, void *data)

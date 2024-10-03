@@ -48,6 +48,7 @@
 #include "llthreadsafequeue.h"
 #include "stringize.h"
 #include "llframetimer.h"
+#include "llxrmanager.h"
 
 // System includes
 #include <commdlg.h>
@@ -1392,6 +1393,21 @@ bool LLWindowWin32::switchContext(bool fullscreen, const LLCoordScreen& size, bo
     }
 
     LL_INFOS("Window") << "Drawing context is created." << LL_ENDL ;
+
+    {
+        // Initialize the XR manager.
+        mXRManager = new LLXRManager();
+        mXRManager->initInstance();
+
+        XrGraphicsBindingOpenGLWin32KHR graphicsBinding = { XR_TYPE_GRAPHICS_BINDING_OPENGL_WIN32_KHR };
+        graphicsBinding.hDC                             = mhDC;
+        graphicsBinding.hGLRC                           = mhRC;
+
+        mXRManager->createSession(graphicsBinding);
+        mXRManager->setupPlaySpace();
+
+        mCallbacks->handleXRManagerInit(mXRManager);
+    }
 
     gGLManager.initWGL();
 
