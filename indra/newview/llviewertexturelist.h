@@ -220,7 +220,7 @@ public:
     struct NameElement
     {
         NameElement(LLViewerFetchedTexture* tex, const std::string& prefix) : mTex(tex), mPrefix(prefix) {}
-        LLPointer<LLViewerFetchedTexture> mTex;
+        LLViewerFetchedTexture* mTex;
         std::string mPrefix;
     };
     std::vector<NameElement> mNameTextureList;

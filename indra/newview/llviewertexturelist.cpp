@@ -447,7 +447,7 @@ LLViewerFetchedTexture* LLViewerTextureList::getImageFromFile(const std::string&
     std::string url = "file://" + full_path;
 
     LLViewerFetchedTexture* tex = getImageFromUrl(url, f_type, usemipmaps, boost_priority, texture_type, internal_format, primary_format, force_id);
-    static LLCachedControl<bool> debug_texture_label(gSavedSettings, "RenderDebugTextureLabel", false);
+    static LLCachedControl<bool> debug_texture_label(gSavedSettings, "RenderDebugTextureLabelLocalFiles", false);
     if (debug_texture_label())
     {
         gTextureList.mNameTextureList.push_back(LLViewerTextureList::NameElement(tex, filename));
@@ -1160,12 +1160,24 @@ void LLViewerTextureList::updateImagesNameTextures()
     auto it = mNameTextureList.begin();
     while (it != mNameTextureList.end()) // For ALL textures needing names
     {
-        if (it->mTex->hasGLTexture())
+        LLViewerFetchedTexture* tex = it->mTex;
+        // Check that the texture is in the list first (otherwise it may be a dead pointer)
+        // A raw pointer ensures textures are cleaned up when this code isn't running.
+        const bool alive = mImageList.find(tex) != mImageList.end();
+
+        if (alive)
         {
-            if(it->mTex->getTexName())
+            if (tex->hasGLTexture())
             {
-                it->mTex->setGLObjectLabel(it->mPrefix, true);
-                it = mNameTextureList.erase(it); // Assume no rename needed
+                if(tex->getTexName())
+                {
+                    tex->setGLObjectLabel(it->mPrefix, true);
+                    it = mNameTextureList.erase(it); // Assume no rename needed
+                }
+                else
+                {
+                    ++it; // Not ready
+                }
             }
             else
             {
@@ -1174,7 +1186,7 @@ void LLViewerTextureList::updateImagesNameTextures()
         }
         else
         {
-            ++it; // Not ready
+            it = mNameTextureList.erase(it); // Remove dead pointer
         }
     }
 }
@@ -1190,9 +1202,8 @@ void LLViewerTextureList::labelAll()
 
     std::string label;
     bool error;
-    for (image_list_t::iterator it = mImageList.begin(); it != mImageList.end(); ++it)
+    for (LLViewerFetchedTexture* image : mImageList)
     {
-        LLViewerFetchedTexture* image = *it;
         image->getGLObjectLabel(label, error);
         if (!error && label.empty())
         {

@@ -170,6 +170,13 @@ bool LLGLTexture::createGLTexture(S32 discard_level, const LLImageRaw* imageraw,
 
 void LLGLTexture::getGLObjectLabel(std::string& label, bool& error) const
 {
+    // GL_VERSION_4_3
+    if (gGLManager.mGLVersion < 4.29f)
+    {
+        error = true;
+        label.clear();
+        return;
+    }
     if (!mGLTexturep)
     {
         error = true;
@@ -194,6 +201,8 @@ void LLGLTexture::getGLObjectLabel(std::string& label, bool& error) const
 
 std::string LLGLTexture::setGLObjectLabel(const std::string& prefix, bool append_texname) const
 {
+    if (gGLManager.mGLVersion < 4.29f) { return ""; } // GL_VERSION_4_3
+
     llassert(mGLTexturep);
     if (mGLTexturep)
     {
