@@ -342,6 +342,9 @@ public:
 
     void clearFetchedResults(); //clear all fetched results, for debug use.
 
+    // called by corresponding LLImageGL whenever LLImageGL::mTexName changes
+    void handleTexNameChanged(const LLImageGL* image_gl, U32 old_texname);
+
     // Override the computation of discard levels if we know the exact output
     // size of the image.  Used for UI textures to not decode, even if we have
     // more data.

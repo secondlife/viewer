@@ -2990,10 +2990,20 @@ void LLViewerMediaImpl::doMediaTexUpdate(LLViewerMediaTexture* media_tex, U8* da
     // updated textures by the OpenGL implementation. (Windows 10/Nvidia)
     // -Cosmic,2023-04-04
     // Allocate GL texture based on LLImageRaw but do NOT copy to GL
-    media_tex->createGLTexture(0, raw, 0, true, LLGLTexture::OTHER, true);
+    LLGLuint tex_name = 0;
+    media_tex->createGLTexture(0, raw, 0, true, LLGLTexture::OTHER, true, &tex_name);
 
     // copy just the subimage covered by the image raw to GL
-    media_tex->setSubImage(data, data_width, data_height, x_pos, y_pos, width, height);
+    media_tex->setSubImage(data, data_width, data_height, x_pos, y_pos, width, height, tex_name);
+
+    if (sync)
+    {
+        media_tex->getGLTexture()->syncToMainThread(tex_name);
+    }
+    else
+    {
+        media_tex->getGLTexture()->syncTexName(tex_name);
+    }
 
     // release the data pointer before freeing raw so LLImageRaw destructor doesn't
     // free memory at data pointer

@@ -1152,6 +1152,7 @@ void LLDrawable::setGroup(LLViewerOctreeGroup *groupp)
             if (LLFace* facep = getFace(i))
             {
                 facep->clearVertexBuffer();
+                facep->mGLTFDrawInfo.clear();
             }
         }
     }

@@ -2554,6 +2554,16 @@ LLViewerTexture* LLFace::getTexture(U32 ch) const
     return mTexture[ch] ;
 }
 
+void LLFace::handleTexNameChanged(const LLImageGL* image, U32 old_texname)
+{
+    if (mGLTFDrawInfo)
+    {
+        llassert(mDrawablep && mDrawablep->getSpatialGroup());
+
+        mGLTFDrawInfo->handleTexNameChanged(image, old_texname);
+    }
+}
+
 void LLFace::setVertexBuffer(LLVertexBuffer* buffer)
 {
     if (buffer)

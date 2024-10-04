@@ -219,6 +219,11 @@ public:
     // only works for GL_TEXTURE_2D target
     bool scaleDown(S32 desired_discard);
 
+    void notifyTexNameChanged(U32 old_texname) const;
+
+    // called when mTexName is changed
+    // parameters are calling LLImageGL and old texname
+    std::function<void(const LLImageGL*, U32)> mTexNameChangedCallback;
 public:
     // Various GL/Rendering options
     S64Bytes mTextureMemory;
@@ -309,7 +314,7 @@ public:
     void setCategory(S32 category) {mCategory = category;}
     S32  getCategory()const {return mCategory;}
 
-    void setTexName(GLuint texName) { mTexName = texName; }
+    void setTexName(GLuint texName);
 
     //similar to setTexName, but will call deleteTextures on mTexName if mTexName is not 0 or texname
     void syncTexName(LLGLuint texname);

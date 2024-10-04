@@ -39,6 +39,7 @@
 #include "llvertexbuffer.h"
 #include "llviewertexture.h"
 #include "lldrawable.h"
+#include "llgltfdrawinfo.h"
 
 class LLFacePool;
 class LLVolume;
@@ -219,6 +220,8 @@ public:
 
     bool        switchTexture() ;
 
+    void        handleTexNameChanged(const LLImageGL* image, U32 old_texname);
+
     //vertex buffer tracking
     void setVertexBuffer(LLVertexBuffer* buffer);
     void clearVertexBuffer(); //sets mVertexBuffer to NULL
@@ -278,6 +281,8 @@ public:
     U32         mTransformIndex = 0xFFFFFFFF;    // index of transform in LLSpatialGroup's transform UBO
     U32         mMaterialIndex = 0xFFFFFFFF;     // index of material in LLSpatialGroup's material UBO
     U32         mTextureTransformIndex = 0xFFFFFFFF; // index of texture transform in LLSpatialGroup's texture transform UBO
+
+    LLGLTFDrawInfoHandle mGLTFDrawInfo;   // handle to GLTF draw info for this face.
 
 private:
     LLPointer<LLVertexBuffer> mVertexBuffer;

@@ -934,7 +934,7 @@ void LLSpatialGroup::updateTransformUBOs()
                 for (S32 i = 0; i < drawable->getNumFaces(); ++i)
                 {
                     LLFace* facep = drawable->getFace(i);
-
+                    facep->mGLTFDrawInfo.clear();
                     LLVolumeFace& vf = volume->getVolumeFace(i);
 
                     LLGLTFMaterial* gltf_mat = facep->getTextureEntry()->getGLTFRenderMaterial();
@@ -1102,6 +1102,7 @@ void LLSpatialGroup::updateTransformUBOs()
             std::sort(faces.begin(), faces.end(), InstanceSort());
 
             LLGLTFDrawInfo* current_info = nullptr;
+            LLGLTFDrawInfoHandle current_handle;
 
             for (U32 i = 0; i < faces.size(); ++i)
             {
@@ -1140,7 +1141,7 @@ void LLSpatialGroup::updateTransformUBOs()
 
                     if (current_skin_hash)
                     {
-                        auto* info = mGLTFBatches.createSkinned(gltf_mat->mAlphaMode, gltf_mat->mDoubleSided, planar, tex_anim);
+                        auto* info = mGLTFBatches.createSkinned(gltf_mat->mAlphaMode, gltf_mat->mDoubleSided, planar, tex_anim, &current_handle);
                         current_info = info;
 
                         info->mAvatar = current_avatar;
@@ -1148,7 +1149,7 @@ void LLSpatialGroup::updateTransformUBOs()
                     }
                     else
                     {
-                        current_info = mGLTFBatches.create(gltf_mat->mAlphaMode, gltf_mat->mDoubleSided, planar, tex_anim);
+                        current_info = mGLTFBatches.create(gltf_mat->mAlphaMode, gltf_mat->mDoubleSided, planar, tex_anim, &current_handle);
                     }
 
                     avatar = current_avatar;
@@ -1194,6 +1195,7 @@ void LLSpatialGroup::updateTransformUBOs()
                     current_info->mBaseInstance = i;
                     current_info->mInstanceCount = 1;
                 }
+                facep->mGLTFDrawInfo = current_handle;
             }
         }
 
@@ -4314,64 +4316,6 @@ U64 LLDrawInfo::getSkinHash()
     return mSkinInfo ? mSkinInfo->mHash : 0;
 }
 
-void LLGLTFBatches::clear()
-{
-    mBatchList.clear();
-    mSkinnedBatchList.clear();
-
-    for (U32 i = 0; i < 3; i++)
-    {
-        for (U32 j = 0; j < 2; j++)
-        {
-            for (U32 k = 0; k < 2; ++k)
-            {
-                for (U32 l = 0; l < 2; ++l)
-                {
-                    mDrawInfo[i][j][k][l].clear();
-                    mSkinnedDrawInfo[i][j][k][l].clear();
-                }
-            }
-        }
-    }
-}
-
-LLGLTFDrawInfo* LLGLTFBatches::create(LLGLTFMaterial::AlphaMode alpha_mode, bool double_sided, bool planar, bool tex_anim)
-{
-    auto& draw_info = mDrawInfo[alpha_mode][double_sided][planar][tex_anim];
-
-    if (draw_info.empty())
-    {
-        mBatchList.push_back({ alpha_mode, double_sided, planar, tex_anim, &draw_info });
-    }
-
-    return &draw_info.emplace_back();
-}
-
-LLSkinnedGLTFDrawInfo* LLGLTFBatches::createSkinned(LLGLTFMaterial::AlphaMode alpha_mode, bool double_sided, bool planar, bool tex_anim)
-{
-    auto& draw_info = mSkinnedDrawInfo[alpha_mode][double_sided][planar][tex_anim];
-
-    if (draw_info.empty())
-    {
-        mSkinnedBatchList.push_back({ alpha_mode, double_sided, planar, tex_anim, &draw_info });
-    }
-    return &draw_info.emplace_back();
-}
-
-void LLGLTFBatches::add(const LLGLTFBatches& other)
-{
-    for (auto& batch : other.mBatchList)
-    {
-        auto& draw_info = mDrawInfo[batch.alpha_mode][batch.double_sided][batch.planar][batch.tex_anim];
-        draw_info.insert(draw_info.end(), batch.draw_info->begin(), batch.draw_info->end());
-    }
-
-    for (auto& batch : other.mSkinnedBatchList)
-    {
-        auto& draw_info = mSkinnedDrawInfo[batch.alpha_mode][batch.double_sided][batch.planar][batch.tex_anim];
-        draw_info.insert(draw_info.end(), batch.draw_info->begin(), batch.draw_info->end());
-    }
-}
 
 LLCullResult::LLCullResult()
 {
@@ -4672,6 +4616,29 @@ void LLCullResult::assertDrawMapsEmpty()
             LL_ERRS() << "Stale LLDrawInfo's in LLCullResult!"
                 << " (mRenderMapSize[" << i << "] = " << mRenderMapSize[i] << ")" << LL_ENDL;
         }
+    }
+}
+
+void LLGLTFDrawInfo::handleTexNameChanged(const LLImageGL* image, U32 old_texname)
+{
+    if (mBaseColorMap == old_texname)
+    {
+        mBaseColorMap = image->getTexName();
+    }
+
+    if (mMetallicRoughnessMap == old_texname)
+    {
+        mMetallicRoughnessMap = image->getTexName();
+    }
+
+    if (mNormalMap == old_texname)
+    {
+        mNormalMap = image->getTexName();
+    }
+
+    if (mEmissiveMap== old_texname)
+    {
+        mEmissiveMap = image->getTexName();
     }
 }
 
