@@ -750,7 +750,7 @@ struct ObjResultSet : public LL::ResultSet
     LLSD getSingle(int index) const override
     {
         auto obj = mObjects[index];
-        return llsd::map("id", obj->getID(), 
+        return llsd::map("id", obj->getID(),
                          "global_pos", ll_sd_from_vector3d(obj->getPositionGlobal()),
                          "region_pos", ll_sd_from_vector3(obj->getPositionRegion()));
     }
