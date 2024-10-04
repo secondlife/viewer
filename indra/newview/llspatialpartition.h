@@ -260,13 +260,37 @@ public:
 class LLGLTFBatches
 {
 public:
-    typedef std::vector<LLGLTFDrawInfo> gltf_drawinfo_list_t[3][2][2][2];
-    typedef std::vector<LLSkinnedGLTFDrawInfo> skinned_gltf_drawinfo_list_t[3][2][2][2];
+    typedef std::vector<LLGLTFDrawInfo> gltf_draw_info_list_t;
+    typedef std::vector<LLSkinnedGLTFDrawInfo> skinned_gltf_draw_info_list_t;
+    typedef gltf_draw_info_list_t gltf_draw_info_map_t[3][2][2][2];
+    typedef skinned_gltf_draw_info_list_t skinned_gltf_draw_info_map_t[3][2][2][2];
 
     // collections of GLTFDrawInfo
     // indexed by [LLGLTFMaterial::mAlphaMode][Double Sided][Planar Projection][Texture Animation]
-    gltf_drawinfo_list_t mDrawInfo;
-    skinned_gltf_drawinfo_list_t mSkinnedDrawInfo;
+    gltf_draw_info_map_t mDrawInfo;
+    skinned_gltf_draw_info_map_t mSkinnedDrawInfo;
+
+    struct BatchList
+    {
+        LLGLTFMaterial::AlphaMode alpha_mode;
+        bool double_sided;
+        bool planar;
+        bool tex_anim;
+        gltf_draw_info_list_t* draw_info;
+    };
+
+    struct SkinnedBatchList
+    {
+        LLGLTFMaterial::AlphaMode alpha_mode;
+        bool double_sided;
+        bool planar;
+        bool tex_anim;
+        skinned_gltf_draw_info_list_t* draw_info;
+    };
+
+    // collections that point to non-empty collections in mDrawInfo to accelerate iteration over all draw infos
+    std::vector<BatchList> mBatchList;
+    std::vector<SkinnedBatchList> mSkinnedBatchList;
 
     // clear all draw infos
     void clear();

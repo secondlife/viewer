@@ -3483,6 +3483,7 @@ void LLPipeline::postSort(LLCamera &camera)
 
     if (!gCubeSnapshot)
     {
+        LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("postSort - rebuild groups");
         // rebuild drawable geometry
         for (LLCullResult::sg_iterator i = sCull->beginDrawableGroups(); i != sCull->endDrawableGroups(); ++i)
         {
@@ -3506,80 +3507,83 @@ void LLPipeline::postSort(LLCamera &camera)
     LL_PUSH_CALLSTACKS();
 
     // build render map
-    for (LLCullResult::sg_iterator i = sCull->beginVisibleGroups(); i != sCull->endVisibleGroups(); ++i)
     {
-        LLSpatialGroup *group = *i;
-
-        if (group->isDead())
+        LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("postSort - build render map");
+        for (LLCullResult::sg_iterator i = sCull->beginVisibleGroups(); i != sCull->endVisibleGroups(); ++i)
         {
-            continue;
-        }
+            LLSpatialGroup* group = *i;
 
-        if ((sUseOcclusion && group->isOcclusionState(LLSpatialGroup::OCCLUDED)) ||
-            (RenderAutoHideSurfaceAreaLimit > 0.f &&
-             group->mSurfaceArea > RenderAutoHideSurfaceAreaLimit * llmax(group->mObjectBoxSize, 10.f)))
-        {
-            continue;
-        }
-
-        if (group->hasState(LLSpatialGroup::NEW_DRAWINFO) && group->hasState(LLSpatialGroup::GEOM_DIRTY) && !gCubeSnapshot)
-        {  // no way this group is going to be drawable without a rebuild
-            group->rebuildGeom();
-        }
-
-        for (LLSpatialGroup::draw_map_t::iterator j = group->mDrawMap.begin(); j != group->mDrawMap.end(); ++j)
-        {
-            LLSpatialGroup::drawmap_elem_t &src_vec = j->second;
-            if (!hasRenderType(j->first))
+            if (group->isDead())
             {
                 continue;
             }
 
-            for (LLSpatialGroup::drawmap_elem_t::iterator k = src_vec.begin(); k != src_vec.end(); ++k)
+            if ((sUseOcclusion && group->isOcclusionState(LLSpatialGroup::OCCLUDED)) ||
+                (RenderAutoHideSurfaceAreaLimit > 0.f &&
+                    group->mSurfaceArea > RenderAutoHideSurfaceAreaLimit * llmax(group->mObjectBoxSize, 10.f)))
             {
-                LLDrawInfo *info = *k;
-
-                sCull->pushDrawInfo(j->first, info);
-                if (!sShadowRender && !sReflectionRender && !gCubeSnapshot)
-                {
-                    addTrianglesDrawn(info->mCount);
-                }
+                continue;
             }
-        }
 
-        if (hasRenderType(LLPipeline::RENDER_TYPE_PASS_ALPHA))
-        {
-            LLSpatialGroup::draw_map_t::iterator alpha = group->mDrawMap.find(LLRenderPass::PASS_ALPHA);
+            if (group->hasState(LLSpatialGroup::NEW_DRAWINFO) && group->hasState(LLSpatialGroup::GEOM_DIRTY) && !gCubeSnapshot)
+            {  // no way this group is going to be drawable without a rebuild
+                group->rebuildGeom();
+            }
 
-            if (alpha != group->mDrawMap.end())
-            {  // store alpha groups for sorting
-                LLSpatialBridge *bridge = group->getSpatialPartition()->asBridge();
-                if (LLViewerCamera::sCurCameraID == LLViewerCamera::CAMERA_WORLD && !gCubeSnapshot)
+            for (LLSpatialGroup::draw_map_t::iterator j = group->mDrawMap.begin(); j != group->mDrawMap.end(); ++j)
+            {
+                LLSpatialGroup::drawmap_elem_t& src_vec = j->second;
+                if (!hasRenderType(j->first))
                 {
-                    if (bridge)
-                    {
-                        LLCamera trans_camera = bridge->transformCamera(camera);
-                        group->updateDistance(trans_camera);
-                    }
-                    else
-                    {
-                        group->updateDistance(camera);
-                    }
+                    continue;
                 }
 
-                if (hasRenderType(LLDrawPool::POOL_ALPHA))
+                for (LLSpatialGroup::drawmap_elem_t::iterator k = src_vec.begin(); k != src_vec.end(); ++k)
                 {
-                    sCull->pushAlphaGroup(group);
+                    LLDrawInfo* info = *k;
+
+                    sCull->pushDrawInfo(j->first, info);
+                    if (!sShadowRender && !sReflectionRender && !gCubeSnapshot)
+                    {
+                        addTrianglesDrawn(info->mCount);
+                    }
                 }
             }
 
-            LLSpatialGroup::draw_map_t::iterator rigged_alpha = group->mDrawMap.find(LLRenderPass::PASS_ALPHA_RIGGED);
+            if (hasRenderType(LLPipeline::RENDER_TYPE_PASS_ALPHA))
+            {
+                LLSpatialGroup::draw_map_t::iterator alpha = group->mDrawMap.find(LLRenderPass::PASS_ALPHA);
 
-            if (rigged_alpha != group->mDrawMap.end())
-            {  // store rigged alpha groups for LLDrawPoolAlpha prepass (skip distance update, rigged attachments use depth buffer)
-                if (hasRenderType(LLDrawPool::POOL_ALPHA))
-                {
-                    sCull->pushRiggedAlphaGroup(group);
+                if (alpha != group->mDrawMap.end())
+                {  // store alpha groups for sorting
+                    LLSpatialBridge* bridge = group->getSpatialPartition()->asBridge();
+                    if (LLViewerCamera::sCurCameraID == LLViewerCamera::CAMERA_WORLD && !gCubeSnapshot)
+                    {
+                        if (bridge)
+                        {
+                            LLCamera trans_camera = bridge->transformCamera(camera);
+                            group->updateDistance(trans_camera);
+                        }
+                        else
+                        {
+                            group->updateDistance(camera);
+                        }
+                    }
+
+                    if (hasRenderType(LLDrawPool::POOL_ALPHA))
+                    {
+                        sCull->pushAlphaGroup(group);
+                    }
+                }
+
+                LLSpatialGroup::draw_map_t::iterator rigged_alpha = group->mDrawMap.find(LLRenderPass::PASS_ALPHA_RIGGED);
+
+                if (rigged_alpha != group->mDrawMap.end())
+                {  // store rigged alpha groups for LLDrawPoolAlpha prepass (skip distance update, rigged attachments use depth buffer)
+                    if (hasRenderType(LLDrawPool::POOL_ALPHA))
+                    {
+                        sCull->pushRiggedAlphaGroup(group);
+                    }
                 }
             }
         }
@@ -3587,6 +3591,7 @@ void LLPipeline::postSort(LLCamera &camera)
 
     // pack vertex buffers for groups that chose to delay their updates
     {
+        LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("postSort - rebuild mesh");
         LL_PROFILE_GPU_ZONE("rebuildMesh");
         for (LLSpatialGroup::sg_vector_t::iterator iter = mMeshDirtyGroup.begin(); iter != mMeshDirtyGroup.end(); ++iter)
         {
@@ -3595,37 +3600,42 @@ void LLPipeline::postSort(LLCamera &camera)
     }
 
     // build GLTF render map
-    for (LLCullResult::sg_iterator i = sCull->beginVisibleGroups(); i != sCull->endVisibleGroups(); ++i)
     {
-        LLSpatialGroup* group = *i;
+        LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("postSort - build GLTF render map");
 
-        if (group->isDead())
+        for (LLCullResult::sg_iterator i = sCull->beginVisibleGroups(); i != sCull->endVisibleGroups(); ++i)
         {
-            continue;
-        }
+            LLSpatialGroup* group = *i;
 
-        if ((sUseOcclusion && group->isOcclusionState(LLSpatialGroup::OCCLUDED)) ||
-            (RenderAutoHideSurfaceAreaLimit > 0.f &&
-                group->mSurfaceArea > RenderAutoHideSurfaceAreaLimit * llmax(group->mObjectBoxSize, 10.f)))
-        {
-            continue;
-        }
+            if (group->isDead())
+            {
+                continue;
+            }
 
-        // make sure any pending transform updates are done BEFORE we add the group to the render map
-        if (group->hasState(LLSpatialGroup::IN_TRANSFORM_BUILD_Q))
-        {
-            group->updateTransformUBOs();
-            group->clearState(LLSpatialGroup::IN_TRANSFORM_BUILD_Q);
-        }
+            if ((sUseOcclusion && group->isOcclusionState(LLSpatialGroup::OCCLUDED)) ||
+                (RenderAutoHideSurfaceAreaLimit > 0.f &&
+                    group->mSurfaceArea > RenderAutoHideSurfaceAreaLimit * llmax(group->mObjectBoxSize, 10.f)))
+            {
+                continue;
+            }
 
-        // add group->mGLTFBatches to sCull->mGLTFBatches
-        sCull->mGLTFBatches.add(group->mGLTFBatches);
+            // make sure any pending transform updates are done BEFORE we add the group to the render map
+            if (group->hasState(LLSpatialGroup::IN_TRANSFORM_BUILD_Q))
+            {
+                group->updateTransformUBOs();
+                group->clearState(LLSpatialGroup::IN_TRANSFORM_BUILD_Q);
+            }
+
+            // add group->mGLTFBatches to sCull->mGLTFBatches
+            sCull->mGLTFBatches.add(group->mGLTFBatches);
+        }
     }
 
     mMeshDirtyGroup.clear();
 
     if (!sShadowRender)
     {
+        LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("postSort - alpha sort");
         // order alpha groups by distance
         std::sort(sCull->beginAlphaGroups(), sCull->endAlphaGroups(), LLSpatialGroup::CompareDepthGreater());
 
@@ -3709,6 +3719,7 @@ void LLPipeline::postSort(LLCamera &camera)
     // only render if the flag is set. The flag is only set if we are in edit mode or the toggle is set in the menus
     if (LLFloaterReg::instanceVisible("beacons") && !sShadowRender && !gCubeSnapshot)
     {
+        LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("postSort - beacons");
         if (sRenderScriptedTouchBeacons)
         {
             // Only show the beacon on the root object.

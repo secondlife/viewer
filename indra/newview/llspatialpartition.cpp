@@ -4316,6 +4316,9 @@ U64 LLDrawInfo::getSkinHash()
 
 void LLGLTFBatches::clear()
 {
+    mBatchList.clear();
+    mSkinnedBatchList.clear();
+
     for (U32 i = 0; i < 3; i++)
     {
         for (U32 j = 0; j < 2; j++)
@@ -4334,29 +4337,39 @@ void LLGLTFBatches::clear()
 
 LLGLTFDrawInfo* LLGLTFBatches::create(LLGLTFMaterial::AlphaMode alpha_mode, bool double_sided, bool planar, bool tex_anim)
 {
-    return &mDrawInfo[alpha_mode][double_sided][planar][tex_anim].emplace_back();
+    auto& draw_info = mDrawInfo[alpha_mode][double_sided][planar][tex_anim];
+
+    if (draw_info.empty())
+    {
+        mBatchList.push_back({ alpha_mode, double_sided, planar, tex_anim, &draw_info });
+    }
+
+    return &draw_info.emplace_back();
 }
 
 LLSkinnedGLTFDrawInfo* LLGLTFBatches::createSkinned(LLGLTFMaterial::AlphaMode alpha_mode, bool double_sided, bool planar, bool tex_anim)
 {
-    return &mSkinnedDrawInfo[alpha_mode][double_sided][planar][tex_anim].emplace_back();
+    auto& draw_info = mSkinnedDrawInfo[alpha_mode][double_sided][planar][tex_anim];
+
+    if (draw_info.empty())
+    {
+        mSkinnedBatchList.push_back({ alpha_mode, double_sided, planar, tex_anim, &draw_info });
+    }
+    return &draw_info.emplace_back();
 }
 
 void LLGLTFBatches::add(const LLGLTFBatches& other)
 {
-    for (U32 i = 0; i < 3; i++)
+    for (auto& batch : other.mBatchList)
     {
-        for (U32 j = 0; j < 2; j++)
-        {
-            for (U32 k = 0; k < 2; ++k)
-            {
-                for (U32 l = 0; l < 2; ++l)
-                {
-                    mDrawInfo[i][j][k][l].insert(mDrawInfo[i][j][k][l].end(), other.mDrawInfo[i][j][k][l].begin(), other.mDrawInfo[i][j][k][l].end());
-                    mSkinnedDrawInfo[i][j][k][l].insert(mSkinnedDrawInfo[i][j][k][l].end(), other.mSkinnedDrawInfo[i][j][k][l].begin(), other.mSkinnedDrawInfo[i][j][k][l].end());
-                }
-            }
-        }
+        auto& draw_info = mDrawInfo[batch.alpha_mode][batch.double_sided][batch.planar][batch.tex_anim];
+        draw_info.insert(draw_info.end(), batch.draw_info->begin(), batch.draw_info->end());
+    }
+
+    for (auto& batch : other.mSkinnedBatchList)
+    {
+        auto& draw_info = mSkinnedDrawInfo[batch.alpha_mode][batch.double_sided][batch.planar][batch.tex_anim];
+        draw_info.insert(draw_info.end(), batch.draw_info->begin(), batch.draw_info->end());
     }
 }
 

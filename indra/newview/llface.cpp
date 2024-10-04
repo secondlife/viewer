@@ -1148,6 +1148,7 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
                                 bool no_debug_assert,
                                 bool rebuild_for_gltf)
 {
+#if 0
     LL_PROFILE_ZONE_SCOPED_CATEGORY_FACE;
     llassert(verify());
 
@@ -2095,7 +2096,7 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
         mTexExtents[1][1] *= et ;
     }
 
-
+#endif
     return true;
 }
 

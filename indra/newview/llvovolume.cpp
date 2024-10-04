@@ -5262,6 +5262,7 @@ void LLVolumeGeometryManager::freeFaces()
 
 void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep, U32 type)
 {
+#if 0
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
     if (   type == LLRenderPass::PASS_ALPHA
         && facep->getTextureEntry()->getMaterialParams().notNull()
@@ -5541,6 +5542,7 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
     llassert(type != LLRenderPass::PASS_BUMP || (info->mVertexBuffer->getTypeMask() & LLVertexBuffer::MAP_TANGENT) != 0);
     llassert(type != LLRenderPass::PASS_NORMSPEC || info->mNormalMap.notNull());
     llassert(type != LLRenderPass::PASS_SPECMAP || (info->mVertexBuffer->getTypeMask() & LLVertexBuffer::MAP_TEXCOORD2) != 0);
+#endif
 }
 
 void LLVolumeGeometryManager::registerGLTFFace(LLSpatialGroup* group, LLFace* facep)
@@ -5822,6 +5824,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
             bool any_rigged_face = false;
 
             //for each face
+            drawablep->clearState(LLDrawable::HAS_GLTF);
             for (S32 i = 0; i < drawablep->getNumFaces(); i++)
             {
                 LLFace* facep = drawablep->getFace(i);
@@ -5835,6 +5838,8 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 
                 if (is_pbr)
                 {
+                    drawablep->setState(LLDrawable::HAS_GLTF);
+                    gPipeline.markTransformDirty(group);
                     // tell texture streaming system to ignore blinn-phong textures
                     facep->setTexture(LLRender::DIFFUSE_MAP, nullptr);
                     facep->setTexture(LLRender::NORMAL_MAP, nullptr);
@@ -6297,6 +6302,7 @@ struct CompareBatchBreakerRigged
 
 U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace** faces, U32 face_count, bool distance_sort, bool batch_textures, bool rigged)
 {
+#if 0
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
 
     U32 geometryBytes = 0;
@@ -6950,8 +6956,10 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
     {
         group->mBufferMap[mask][i->first] = i->second;
     }
-
     return geometryBytes;
+#else
+    return 0;
+#endif
 }
 
 void LLVolumeGeometryManager::addGeometryCount(LLSpatialGroup* group, U32& vertex_count, U32& index_count)
