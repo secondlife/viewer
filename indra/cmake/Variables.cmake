@@ -12,14 +12,24 @@
 # Switches set here and in 00-Common.cmake must agree with
 # https://bitbucket.org/lindenlab/viewer-build-variables/src/tip/variables
 # Reading $LL_BUILD is an attempt to directly use those switches.
-if ("$ENV{LL_BUILD}" STREQUAL "" AND "${LL_BUILD_ENV}" STREQUAL "" )
-  message(FATAL_ERROR "Environment variable LL_BUILD must be set")
-elseif("$ENV{LL_BUILD}" STREQUAL "")
-  set( ENV{LL_BUILD} "${LL_BUILD_ENV}" )
-  message( "Setting ENV{LL_BUILD} to cached variable ${LL_BUILD_ENV}" )
+if ("$ENV{LL_BUILD_RELEASE}" STREQUAL "" AND "${LL_BUILD_RELEASE_ENV}" STREQUAL "" )
+  message(FATAL_ERROR "Environment variable LL_BUILD_RELEASE must be set")
+elseif("$ENV{LL_BUILD_RELEASE}" STREQUAL "")
+  set( ENV{LL_BUILD_RELEASE} "${LL_BUILD_RELEASE_ENV}" )
+  message( "Setting ENV{LL_BUILD_RELEASE} to cached variable ${LL_BUILD_RELEASE_ENV}" )
 else()
-  set( LL_BUILD_ENV "$ENV{LL_BUILD}" CACHE STRING "Save environment" FORCE )
+  set( LL_BUILD_RELEASE_ENV "$ENV{LL_BUILD_RELEASE}" CACHE STRING "Save environment RELEASE" FORCE )
 endif ()
+
+if ("$ENV{LL_BUILD_RELWITHDEBINFO}" STREQUAL "" AND "${LL_BUILD_RELWITHDEBINFO_ENV}" STREQUAL "" )
+  message(FATAL_ERROR "Environment variable LL_BUILD_RELWITHDEBINFO must be set")
+elseif("$ENV{LL_BUILD_RELWITHDEBINFO}" STREQUAL "")
+  set( ENV{LL_BUILD_RELWITHDEBINFO} "${LL_BUILD_RELWITHDEBINFO_ENV}" )
+  message( "Setting ENV{LL_BUILD_RELWITHDEBINFO} to cached variable ${LL_BUILD_RELWITHDEBINFO_ENV}" )
+else()
+  set( LL_BUILD_RELWITHDEBINFO_ENV "$ENV{LL_BUILD_RELWITHDEBINFO}" CACHE STRING "Save environment RELWITHDEBINFO" FORCE )
+endif ()
+
 include_guard()
 
 # Relative and absolute paths to subtrees.
@@ -67,7 +77,7 @@ set(TEMPLATE_VERIFIER_MASTER_URL "https://github.com/secondlife/master-message-t
 
 if (NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING
-      "Build type.  One of: Debug Release RelWithDebInfo" FORCE)
+      "Build type.  One of: Release RelWithDebInfo" FORCE)
 endif (NOT CMAKE_BUILD_TYPE)
 
 # If someone has specified an address size, use that to determine the
