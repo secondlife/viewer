@@ -192,7 +192,7 @@ void LLGLTexture::getGLObjectLabel(std::string& label, bool& error) const
     }
 
 #if LL_DARWIN
-    // apple doesn't support GL after so 4.1 should have hit the above early out, but make the compiler happy here
+    // apple doesn't support GL after 4.1 so should have hit the above early out, but make the compiler happy here
     error = true;
     label.clear();
     return;
