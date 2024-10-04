@@ -16,11 +16,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c53cf6b787a59d3c11ff7d398f91a8d27f132e6b</string>
+              <string>24c50d30f15345441ea8cb553847fd00112c258b</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/AiraYumi/3p-sdl2/releases/download/v2.30.7-with-libdecor/SDL2-2.30.7-linux64-11146760750.tar.zst</string>
+              <string>https://github.com/AiraYumi/3p-sdl2/releases/download/v2.30.8-with-libdecor/SDL2-2.30.8-linux64-11179302145.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -48,11 +48,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>df6143fde8be747c76d0a890827429a7d6c8815e</string>
+              <string>51c4df129bbdc627726e73474c9a7a058e4bcbae</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/AiraYumi/3p-fltk/releases/download/v1.4.x-20240927-84eeac58-r2/fltk-1.4.0.11124445870-linux64-11124445870.tar.zst</string>
+              <string>https://github.com/AiraYumi/3p-fltk/releases/download/v1.4.x-20241004-f348e2bd/fltk-1.4.0.11179223855-linux64-11179223855.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -2080,11 +2080,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>44885a082b9d13cf45fb06d7ce08d88df96d8dca</string>
+              <string>35a49c60d47c357ae6dbbcd95bf1c279062f248f</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/AiraYumi/3p-open-libndofdev/releases/download/v1.14-with-libdecor/open_libndofdev-0.14.11147080548-linux64-11147080548.tar.zst</string>
+              <string>https://github.com/AiraYumi/3p-open-libndofdev/releases/download/v1.14-with-libdecor-r2/open_libndofdev-0.14.11179408873-linux64-11179408873.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
