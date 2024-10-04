@@ -888,11 +888,11 @@
               <key>creds</key>
               <string>github</string>
               <key>hash</key>
-              <string>ae2c2a215b1bc2e3f37a67e301926dc405902d1a</string>
+              <string>1648aeb68395cba38f9326c671609d6730cbcc28</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/3p-havok-source/releases/assets/136778143</string>
+              <string>https://api.github.com/repos/secondlife/3p-havok-source/releases/assets/196725921</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -904,11 +904,11 @@
               <key>creds</key>
               <string>github</string>
               <key>hash</key>
-              <string>ebfb82b6143874e7938b9d1e8a70d0a2e28aa818</string>
+              <string>702ad28b6dbace2a68260d69f6d1768d163b5a6f</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/3p-havok-source/releases/assets/108912599</string>
+              <string>https://api.github.com/repos/secondlife/3p-havok-source/releases/assets/196725902</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -920,11 +920,11 @@
               <key>creds</key>
               <string>github</string>
               <key>hash</key>
-              <string>0393dd75c58f7046bed47e62a8884a78cb02a5c3</string>
+              <string>ea980f372981fe7685f91a111da2785825d473ed</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/3p-havok-source/releases/assets/136778145</string>
+              <string>https://api.github.com/repos/secondlife/3p-havok-source/releases/assets/196725911</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -1457,11 +1457,11 @@
               <key>creds</key>
               <string>github</string>
               <key>hash</key>
-              <string>9e59c93c7110e87b4ff3db330f11a23c50e5000f</string>
+              <string>7facda95e2f00c260513f3d4db42588fa8ba703c</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/llphysicsextensions_source/releases/assets/178910560</string>
+              <string>https://api.github.com/repos/secondlife/llphysicsextensions_source/releases/assets/196289774</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1473,11 +1473,11 @@
               <key>creds</key>
               <string>github</string>
               <key>hash</key>
-              <string>7ed994db5bafa9a7ad09a1b53da850a84715c65e</string>
+              <string>01d08f13c7bc8d1b95b0330fa6833b7d8274e4d0</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/llphysicsextensions_source/releases/assets/178910561</string>
+              <string>https://api.github.com/repos/secondlife/llphysicsextensions_source/releases/assets/196289775</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -1489,11 +1489,11 @@
               <key>creds</key>
               <string>github</string>
               <key>hash</key>
-              <string>66824c02e0e5eabbfbe37bfb173360195f89697c</string>
+              <string>6d00345c7d3471bc5f7c1218e014dd0f1a2c069b</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/llphysicsextensions_source/releases/assets/178910562</string>
+              <string>https://api.github.com/repos/secondlife/llphysicsextensions_source/releases/assets/196289778</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -1506,7 +1506,7 @@
         <key>copyright</key>
         <string>Copyright (c) 2010, Linden Research, Inc.</string>
         <key>version</key>
-        <string>1.0.66e6919</string>
+        <string>1.0.11137145495</string>
         <key>name</key>
         <string>llphysicsextensions_source</string>
       </map>
@@ -2138,11 +2138,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>191e4ef07a35f7147708415465191ce7622e3012</string>
+              <string>32371131845ad85bf35e89f7a8ec073b89eeb3f1</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-openal-soft/releases/download/v1.23.1-8668009/openal-1.23.1-darwin64-8979520327.tar.zst</string>
+              <string>https://github.com/secondlife/3p-openal-soft/releases/download/v1.23.1-0247dd8/openal-1.23.1-darwin64-11115781501.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2152,11 +2152,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>3bd8c9028ef42bdb43c7422e7d324e213fdb081e</string>
+              <string>14856fb33e205138731865b2d1bb680104f83dd3</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-openal-soft/releases/download/v1.23.1-8668009/openal-1.23.1-linux64-8979520327.tar.zst</string>
+              <string>https://github.com/secondlife/3p-openal-soft/releases/download/v1.23.1-0247dd8/openal-1.23.1-linux64-11115781501.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -2166,11 +2166,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4b849609abec790e89be5fad8ddee3717ee301c4</string>
+              <string>c84665726c23fa6f5d25c7a46f5e9d0153834a2a</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-openal-soft/releases/download/v1.23.1-8668009/openal-1.23.1-windows64-8979520327.tar.zst</string>
+              <string>https://github.com/secondlife/3p-openal-soft/releases/download/v1.23.1-0247dd8/openal-1.23.1-windows64-11115781501.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -3018,7 +3018,6 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>-DADDRESS_SIZE:STRING=$AUTOBUILD_ADDRSIZE</string>
                   <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
                   <string>-DINSTALL_PROPRIETARY=TRUE</string>
-                  <string>-DUSE_OPENAL:BOOL=ON</string>
                 </array>
               </map>
               <key>build</key>
@@ -3060,7 +3059,6 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>-DADDRESS_SIZE:STRING=$AUTOBUILD_ADDRSIZE</string>
                   <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
                   <string>-DINSTALL_PROPRIETARY=TRUE</string>
-                  <string>-DUSE_OPENAL:BOOL=ON</string>
                 </array>
               </map>
               <key>build</key>
@@ -3229,8 +3227,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>Ninja</string>
-                  <string>-DUSE_OPENAL:BOOL=ON</string>
+                  <string>Unix Makefiles</string>
                 </array>
                 <key>arguments</key>
                 <array>
@@ -3240,7 +3237,16 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
               <key>build</key>
               <map>
                 <key>command</key>
-                <string>ninja</string>
+                <string>cmake</string>
+                <key>options</key>
+                <array>
+                  <string>--build</string>
+                  <string>.</string>
+                  <string>--config</string>
+                  <string>Release</string>
+                  <string>--parallel</string>
+                  <string>$AUTOBUILD_CPU_COUNT</string>
+                </array>
               </map>
               <key>default</key>
               <string>True</string>
@@ -3254,14 +3260,22 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>Ninja</string>
-                  <string>-DUSE_OPENAL:BOOL=ON</string>
+                  <string>Unix Makefiles</string>
                 </array>
               </map>
               <key>build</key>
               <map>
                 <key>command</key>
-                <string>ninja</string>
+                <string>cmake</string>
+                <key>options</key>
+                <array>
+                  <string>--build</string>
+                  <string>.</string>
+                  <string>--config</string>
+                  <string>Release</string>
+                  <string>--parallel</string>
+                  <string>$AUTOBUILD_CPU_COUNT</string>
+                </array>
               </map>
               <key>name</key>
               <string>ReleaseOS</string>
@@ -3303,15 +3317,15 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
               <key>build</key>
               <map>
                 <key>command</key>
-                <string>devenv</string>
+                <string>cmake</string>
                 <key>options</key>
                 <array>
-                  <string>/build</string>
-                  <string>RelWithDebInfo|${AUTOBUILD_WIN_VSPLATFORM|NOTWIN}</string>
-                </array>
-                <key>arguments</key>
-                <array>
-                  <string>SecondLife.sln</string>
+                  <string>--build</string>
+                  <string>.</string>
+                  <string>--config</string>
+                  <string>RelWithDebInfo</string>
+                  <string>--parallel</string>
+                  <string>$AUTOBUILD_CPU_COUNT</string>
                 </array>
               </map>
               <key>default</key>
@@ -3331,7 +3345,6 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>${AUTOBUILD_WIN_VSPLATFORM|NOTWIN}</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                   <string>-DUSE_KDU=FALSE</string>
-                  <string>-DUSE_OPENAL:BOOL=ON</string>
                 </array>
                 <key>arguments</key>
                 <array>
@@ -3378,15 +3391,15 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
               <key>build</key>
               <map>
                 <key>command</key>
-                <string>devenv</string>
+                <string>cmake</string>
                 <key>options</key>
                 <array>
-                  <string>/build</string>
-                  <string>Release|${AUTOBUILD_WIN_VSPLATFORM|NOTWIN}</string>
-                </array>
-                <key>arguments</key>
-                <array>
-                  <string>SecondLife.sln</string>
+                  <string>--build</string>
+                  <string>.</string>
+                  <string>--config</string>
+                  <string>Release</string>
+                  <string>--parallel</string>
+                  <string>$AUTOBUILD_CPU_COUNT</string>
                 </array>
               </map>
               <key>name</key>
@@ -3405,7 +3418,6 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>-DUNATTENDED:BOOL=ON</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                   <string>-DUSE_KDU=FALSE</string>
-                  <string>-DUSE_OPENAL:BOOL=ON</string>
                 </array>
                 <key>arguments</key>
                 <array>

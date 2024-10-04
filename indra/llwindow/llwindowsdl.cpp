@@ -281,33 +281,16 @@ bool LLWindowSDL::createContext(int x, int y, int width, int height, int bits, b
 
     // Setup default backing colors
     GLint redBits{8}, greenBits{8}, blueBits{8}, alphaBits{8};
-    GLint depthBits{(bits <= 16) ? 16 : 24}, stencilBits{8};
-
-    if (getenv("LL_GL_NO_STENCIL"))
-        stencilBits = 0;
+    GLint depthBits{24}, stencilBits{8};
 
     SDL_GL_SetAttribute(SDL_GL_RED_SIZE,   redBits);
     SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, greenBits);
     SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,  blueBits);
     SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, alphaBits);
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, depthBits);
-
-    // We need stencil support for a few (minor) things.
-    if (stencilBits)
-        SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, stencilBits);
+    SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, stencilBits);
 
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-
-    if (LLRender::sGLCoreProfile)
-    {
-        SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-    }
-
-    // This is requesting a minimum context version
-    int major_gl_version = 3;
-    int minor_gl_version = 2;
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, major_gl_version);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, minor_gl_version);
 
     U32 context_flags = 0;
     if (gDebugGL)
@@ -339,7 +322,7 @@ bool LLWindowSDL::createContext(int x, int y, int width, int height, int bits, b
     {
         LL_WARNS() << "Failed to make context current. SDL: " << SDL_GetError() << LL_ENDL;
         setupFailure("GL Context failed to set current failure", "Error", OSMB_OK);
-        return FALSE;
+        return false;
     }
 
     mSurface = SDL_GetWindowSurface(mWindow);
@@ -654,7 +637,7 @@ bool LLWindowSDL::getVisible() const
         Uint32 flags = SDL_GetWindowFlags(mWindow);
         if (flags & SDL_WINDOW_SHOWN)
         {
-            result = TRUE;
+            result = true;
         }
     }
     return result;
@@ -694,9 +677,9 @@ bool LLWindowSDL::maximize()
     if (mWindow)
     {
         SDL_MaximizeWindow(mWindow);
-        return TRUE;
+        return true;
     }
-    return FALSE;
+    return false;
 }
 
 bool LLWindowSDL::getPosition(LLCoordScreen *position) const
