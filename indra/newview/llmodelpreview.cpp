@@ -3626,6 +3626,7 @@ bool LLModelPreview::render()
                         {
                             auto num_models = mVertexBuffer[LLModel::LOD_PHYSICS][model].size();
                             if (pass > 0)
+                            {
                                 for (size_t i = 0; i < num_models; ++i)
                                 {
                                     gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
