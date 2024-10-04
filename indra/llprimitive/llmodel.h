@@ -206,7 +206,7 @@ public:
     void remapVolumeFaces();
     void optimizeVolumeFaces();
     void offsetMesh( const LLVector3& pivotPoint );
-    void getNormalizedScaleTranslation(LLVector3& scale_out, LLVector3& translation_out);
+    void getNormalizedScaleTranslation(LLVector3& scale_out, LLVector3& translation_out) const;
     LLVector3 getTransformedCenter(const LLMatrix4& mat);
 
     //reorder face list based on mMaterialList in this and reference so
