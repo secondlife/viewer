@@ -258,50 +258,6 @@ bool LLWindowSDL::createContext(int x, int y, int width, int height, int bits, b
     mGrabbyKeyFlags = 0;
     mReallyCapturedCount = 0;
 
-    std::initializer_list<std::tuple< char const*, char const * > > hintList =
-            {
-                    {SDL_HINT_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR,"0"},
-                    {SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH,"1"},
-                    {SDL_HINT_IME_INTERNAL_EDITING,"1"}
-            };
-
-    for( auto hint: hintList )
-    {
-        SDL_SetHint( std::get<0>(hint), std::get<1>(hint));
-    }
-
-    std::initializer_list<std::tuple<uint32_t, char const*, bool>> initList=
-            { {SDL_INIT_VIDEO,"SDL_INIT_VIDEO", true},
-              {SDL_INIT_AUDIO,"SDL_INIT_AUDIO", false},
-              {SDL_INIT_GAMECONTROLLER,"SDL_INIT_GAMECONTROLLER", false},
-              {SDL_INIT_SENSOR,"SDL_INIT_SENSOR", false}
-            };
-
-    for( auto subSystem : initList)
-    {
-        if( SDL_InitSubSystem( std::get<0>(subSystem) ) < 0 )
-        {
-            LL_WARNS() << "SDL_InitSubSystem for " << std::get<1>(subSystem) << " failed " << SDL_GetError() << LL_ENDL;
-
-            if( std::get<2>(subSystem))
-                setupFailure("SDL_Init() failure", "error", OSMB_OK);
-
-        }
-    }
-
-    SDL_version c_sdl_version;
-    SDL_VERSION(&c_sdl_version);
-    LL_INFOS() << "Compiled against SDL "
-               << int(c_sdl_version.major) << "."
-               << int(c_sdl_version.minor) << "."
-               << int(c_sdl_version.patch) << LL_ENDL;
-    SDL_version r_sdl_version;
-    SDL_GetVersion(&r_sdl_version);
-    LL_INFOS() << " Running against SDL "
-               << int(r_sdl_version.major) << "."
-               << int(r_sdl_version.minor) << "."
-               << int(r_sdl_version.patch) << LL_ENDL;
-
     if (width == 0)
         width = 1024;
     if (height == 0)
