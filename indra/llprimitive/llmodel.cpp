@@ -97,7 +97,7 @@ void LLModel::offsetMesh(const LLVector3& pivotPoint)
 
     for (LLVolumeFace& face : mVolumeFaces)
     {
-        for (U32 i = 0; i < face.mNumVertices; ++i)
+        for (S32 i = 0; i < face.mNumVertices; ++i)
         {
             face.mPositions[i].add(pivot);
         }
