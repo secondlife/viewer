@@ -47,8 +47,9 @@ jobs:
     continue-on-error: ${{ matrix.experimental }}
     strategy:
       matrix:
-        runner: [windows-large, macos-12-xl, linux-large]
+        runner: [windows-large, macos-12-xl]
         configuration: ${{ fromJSON(needs.setup.outputs.configurations) }}
+        experimental: [false]
         include:
         - runner: linux-large
           experimental: true
