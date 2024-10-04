@@ -190,6 +190,13 @@ void LLGLTexture::getGLObjectLabel(std::string& label, bool& error) const
         label.clear();
         return;
     }
+
+#if LL_DARWIN
+    // apple doesn't support GL after so 4.1 should have hit the above early out, but make the compiler happy here
+    error = true;
+    label.clear();
+    return;
+#else
     static GLsizei max_length = 0;
     if (max_length == 0) { glGetIntegerv(GL_MAX_LABEL_LENGTH, &max_length); }
     static char * clabel = new char[max_length+1];
@@ -197,12 +204,13 @@ void LLGLTexture::getGLObjectLabel(std::string& label, bool& error) const
     glGetObjectLabel(GL_TEXTURE, texname, max_length+1, &length, clabel);
     error = false;
     label.assign(clabel, length);
+#endif
 }
 
 std::string LLGLTexture::setGLObjectLabel(const std::string& prefix, bool append_texname) const
 {
+#ifndef LL_DARWIN // apple doesn't support GL > 4.1
     if (gGLManager.mGLVersion < 4.29f) { return ""; } // GL_VERSION_4_3
-
     llassert(mGLTexturep);
     if (mGLTexturep)
     {
@@ -236,6 +244,7 @@ std::string LLGLTexture::setGLObjectLabel(const std::string& prefix, bool append
             }
         }
     }
+#endif
     return "";
 }
 
