@@ -46,7 +46,7 @@ jobs:
     needs: setup
     strategy:
       matrix:
-        runner: [windows-large, macos-12-xl, linux-large]
+        runner: [windows-large, macos-14-xlarge, linux-large]
         configuration: ${{ fromJSON(needs.setup.outputs.configurations) }}
         include:
         - runner: linux-large
@@ -250,7 +250,7 @@ jobs:
                   export viewer_channel="Second Life Test"
               fi
           fi
-          echo "viewer_channel=$viewer_channel"
+          echo "::notice::$RUNNER_OS viewer_channel=$viewer_channel"
           echo "viewer_channel=$viewer_channel" >> "$GITHUB_OUTPUT"
           # On windows we need to point the build to the correct python
           # as neither CMake's FindPython nor our custom Python.cmake module
