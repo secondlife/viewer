@@ -149,6 +149,7 @@
 #include "llviewershadermgr.h"
 #include "gltfscenemanager.h"
 #include "gltf/asset.h"
+#include "rlvcommon.h"
 
 using namespace LLAvatarAppearanceDefines;
 
@@ -6248,6 +6249,8 @@ void show_debug_menus()
 
         gMenuBarView->setItemVisible("Advanced", debug);
 //      gMenuBarView->setItemEnabled("Advanced", debug); // Don't disable Advanced keyboard shortcuts when hidden
+
+        Rlv::Util::menuToggleVisible();
 
         gMenuBarView->setItemVisible("Debug", qamode);
         gMenuBarView->setItemEnabled("Debug", qamode);

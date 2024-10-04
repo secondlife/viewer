@@ -732,6 +732,11 @@ set(viewer_SOURCE_FILES
     llxmlrpctransaction.cpp
     noise.cpp
     pipeline.cpp
+    rlvactions.cpp
+    rlvcommon.cpp
+    rlvfloaters.cpp
+    rlvhelper.cpp
+    rlvhandler.cpp
     )
 
 set(VIEWER_BINARY_NAME "secondlife-bin" CACHE STRING
@@ -1396,6 +1401,12 @@ set(viewer_HEADER_FILES
     llxmlrpctransaction.h
     noise.h
     pipeline.h
+    rlvdefines.h
+    rlvactions.h
+    rlvcommon.h
+    rlvfloaters.h
+    rlvhelper.h
+    rlvhandler.h
     roles_constants.h
     VertexCache.h
     VorbisFramework.h

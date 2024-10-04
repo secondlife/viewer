@@ -60,6 +60,7 @@ Disk cache: [DISK_CACHE_INFO]
 HiDPI display mode: [HIDPI]
 	</string>
 	<string name="AboutLibs">
+RestrainedLove API: [RLV_VERSION]
 J2C Decoder Version: [J2C_VERSION]
 Audio Driver Version: [AUDIO_DRIVER_VERSION]
 [LIBCEF_VERSION]
@@ -4380,5 +4381,32 @@ and report the problem.
 
 [https://community.secondlife.com/knowledgebase/english/error-messages-r520/#Section__3 Knowledge Base]
   </string>
+
+  <!-- RLVa -->
+  <string name="RlvConsoleDisable">RLVa is disabled</string>
+  <string name="RlvConsoleInvalidCmd">Invalid command</string>
+  <string name="RlvConsoleExecuted">INFO</string>
+  <string name="RlvConsoleFailed">ERR</string>
+  <string name="RlvConsoleRetained">RET</string>
+  <string name="RlvDebugExecuted">executed</string>
+  <string name="RlvDebugFailed">failed</string>
+  <string name="RlvDebugRetained">retained</string>
+  <string name="RlvReturnCodeUnset">unset</string>
+  <string name="RlvReturnCodeDuplicate">duplicate</string>
+  <string name="RlvReturnCodeDelayed">delayed</string>
+  <string name="RlvReturnCodeDeprecated">deprecated</string>
+  <string name="RlvReturnCodeSyntax">thingy error</string>
+  <string name="RlvReturnCodeOption">invalid option</string>
+  <string name="RlvReturnCodeParam">invalid param</string>
+  <string name="RlvReturnCodeLock">locked command</string>
+  <string name="RlvReturnCodeDisabled">disabled command</string>
+  <string name="RlvReturnCodeUnknown">unknown command</string>
+  <string name="RlvReturnCodeNoSharedRoot">missing #RLV</string>
+  <string name="RlvReturnCodeDeprecatedAndDisabled">deprecated and disabled</string>
+  <string name="RlvReturnCodeNoBehaviour">no active behaviours</string>
+  <string name="RlvReturnCodeUnheldBehaviour">base behaviour not held</string>
+  <string name="RlvReturnCodeBlocked">blocked object</string>
+  <string name="RlvReturnCodeThrottled">throttled</string>
+  <string name="RlvReturnCodeNoProcessor">no command processor found</string>
 
 </strings>

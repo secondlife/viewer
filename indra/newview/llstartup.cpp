@@ -204,6 +204,7 @@
 #include "threadpool.h"
 #include "llperfstats.h"
 
+#include "rlvhandler.h"
 
 #if LL_WINDOWS
 #include "lldxhardware.h"
@@ -874,6 +875,8 @@ bool idle_startup()
             LLStartUp::setStartupState(STATE_LOGIN_SHOW);
             return false;
         }
+
+        RlvHandler::setEnabled(gSavedSettings.get<bool>(Rlv::Settings::Main));
 
         // reset the values that could have come in from a slurl
         // DEV-42215: Make sure they're not empty -- gUserCredential
