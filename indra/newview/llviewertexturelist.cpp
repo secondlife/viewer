@@ -447,8 +447,7 @@ LLViewerFetchedTexture* LLViewerTextureList::getImageFromFile(const std::string&
     std::string url = "file://" + full_path;
 
     LLViewerFetchedTexture* tex = getImageFromUrl(url, f_type, usemipmaps, boost_priority, texture_type, internal_format, primary_format, force_id);
-    static LLCachedControl<bool> debug_texture_label(gSavedSettings, "RenderDebugTextureLabelLocalFiles", false);
-    if (debug_texture_label())
+    if (gDebugTextureLabelLocalFilesSession)
     {
         gTextureList.mNameTextureList.push_back(LLViewerTextureList::NameElement(tex, filename));
     }

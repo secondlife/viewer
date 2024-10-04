@@ -2860,6 +2860,14 @@ bool LLAppViewer::initConfiguration()
         gSavedSettings.setBOOL("RenderDebugGLSession", false);
     }
 
+    if (gSavedSettings.getBOOL("RenderDebugTextureLabelLocalFilesSession"))
+    {
+        gDebugTextureLabelLocalFilesSession = true;
+        // Texture label accounting for local files takes up memory in the
+        // background, so don't persist.
+        gSavedSettings.setBOOL("RenderDebugTextureLabelLocalFilesSession", false);
+    }
+
     const LLControlVariable* skinfolder = gSavedSettings.getControl("SkinCurrent");
     if (skinfolder && LLStringUtil::null != skinfolder->getValue().asString())
     {

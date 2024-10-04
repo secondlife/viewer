@@ -7943,10 +7943,10 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>RenderDebugTextureLabelLocalFiles</key>
+    <key>RenderDebugTextureLabelLocalFilesSession</key>
     <map>
       <key>Comment</key>
-      <string>Enumerate textures with local file names. Doesn't do anything until RenderDebugTextureLabel is set to true. Requires restart.</string>
+      <string>Enumerate textures with local file names. Doesn't do anything until RenderDebugTextureLabel is set to true. Requires restart AND applies on the next session only.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
