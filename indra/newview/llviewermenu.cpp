@@ -78,6 +78,7 @@
 #include "llfloatertools.h"
 #include "llfloaterworldmap.h"
 #include "llfloaterbuildoptions.h"
+#include "fsyspath.h"
 #include "llavataractions.h"
 #include "lllandmarkactions.h"
 #include "llgroupmgr.h"
@@ -90,6 +91,7 @@
 #include "llinventorybridge.h"
 #include "llinventorydefines.h"
 #include "llinventoryfunctions.h"
+#include "llluamanager.h"
 #include "llpanellogin.h"
 #include "llpanelblockedlist.h"
 #include "llpanelmaininventory.h"
@@ -9354,17 +9356,6 @@ class LLWorldEnableEnvPreset : public view_listener_t
     }
 };
 
-
-/// Post-Process callbacks
-class LLWorldPostProcess : public view_listener_t
-{
-    bool handleEvent(const LLSD& userdata)
-    {
-        LLFloaterReg::showInstance("env_post_process");
-        return true;
-    }
-};
-
 class LLWorldCheckBanLines : public view_listener_t
 {
     bool handleEvent(const LLSD& userdata)
@@ -9470,6 +9461,18 @@ void LLUploadCostCalculator::calculateCost(const std::string& asset_type_str)
         LL_WARNS() << "Unable to find upload cost for asset_type_str " << asset_type_str << LL_ENDL;
     }
     mCostStr = std::to_string(upload_cost);
+}
+
+void lua_run_script(const LLSD& userdata)
+{
+    std::string script_path = userdata.asString();
+    if (script_path.empty())
+    {
+        LL_WARNS() << "Script name is not specified" << LL_ENDL;
+        return;
+    }
+
+    LLLUAmanager::runScriptFile(script_path);
 }
 
 void show_navbar_context_menu(LLView* ctrl, S32 x, S32 y)
@@ -9659,7 +9662,6 @@ void initialize_menus()
     view_listener_t::addMenu(new LLWorldEnableEnvSettings(), "World.EnableEnvSettings");
     view_listener_t::addMenu(new LLWorldEnvPreset(), "World.EnvPreset");
     view_listener_t::addMenu(new LLWorldEnableEnvPreset(), "World.EnableEnvPreset");
-    view_listener_t::addMenu(new LLWorldPostProcess(), "World.PostProcess");
     view_listener_t::addMenu(new LLWorldCheckBanLines() , "World.CheckBanLines");
     view_listener_t::addMenu(new LLWorldShowBanLines() , "World.ShowBanLines");
 
@@ -10074,4 +10076,6 @@ void initialize_menus()
     view_listener_t::addMenu(new LLEditableSelected(), "EditableSelected");
     view_listener_t::addMenu(new LLEditableSelectedMono(), "EditableSelectedMono");
     view_listener_t::addMenu(new LLToggleUIHints(), "ToggleUIHints");
+
+    registrar.add("Lua.RunScript", boost::bind(&lua_run_script, _2), cb_info::UNTRUSTED_BLOCK);
 }
