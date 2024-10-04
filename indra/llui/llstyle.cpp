@@ -66,9 +66,9 @@ LLStyle* LLStyle::makeCopy() const
     copy->mDropShadow = mDropShadow;
     copy->mFontName = mFontName;
     copy->mLink = mLink;
-    copy->mColor = mColor;
-    copy->mReadOnlyColor = mReadOnlyColor;
-    copy->mSelectedColor = mSelectedColor;
+    copy->mColor.set(mColor.get());
+    copy->mReadOnlyColor.set(mReadOnlyColor.get());
+    copy->mSelectedColor.set(mSelectedColor.get());
     copy->mFont = mFont;
     copy->mImagep = mImagep;
     copy->mAlpha = mAlpha;

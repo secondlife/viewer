@@ -365,7 +365,7 @@ void LLComboBox::setValue(const LLSD& value)
     if (LLScrollListItem* item = mList->getFirstSelected())
     {
         LLSD item_value = item->getValue();
-        if (item_value.asStringRef() == value.asStringRef())
+        if (item_value.asString() == value.asString())
             return;
     }
 

@@ -288,7 +288,7 @@ void LLPanelEnvironmentInfo::refresh()
     F32Hours dayoffset(mCurrentEnvironment->mDayOffset);
 
     if (dayoffset.value() > 12.0f)
-        dayoffset -= daylength;
+        dayoffset -= F32Hours(24.0);
 
     mSliderDayLength->setValue(daylength.value());
     mSliderDayOffset->setValue(dayoffset.value());
@@ -717,11 +717,6 @@ void LLPanelEnvironmentInfo::onSldDayLengthChanged(F32 value)
         F32Hours daylength(value);
 
         mCurrentEnvironment->mDayLength = daylength;
-        F32 offset = (F32)mSliderDayOffset->getValue().asReal();
-        if (offset <= 0.0f)
-        {
-            onSldDayOffsetChanged(offset);
-        }
         setDirtyFlag(DIRTY_FLAG_DAYLENGTH);
 
         udpateApparentTimeOfDay();
@@ -735,8 +730,7 @@ void LLPanelEnvironmentInfo::onSldDayOffsetChanged(F32 value)
         F32Hours dayoffset(value);
 
         if (dayoffset.value() <= 0.0f)
-            // if day cycle is 5 hours long, we want -1h offset to result in 4h
-            dayoffset += mCurrentEnvironment->mDayLength;
+            dayoffset += F32Hours(24.0);
 
         mCurrentEnvironment->mDayOffset = dayoffset;
         setDirtyFlag(DIRTY_FLAG_DAYOFFSET);
@@ -928,7 +922,7 @@ void LLPanelEnvironmentInfo::udpateApparentTimeOfDay()
 {
     static const F32 SECONDSINDAY(24.0 * 60.0 * 60.0);
 
-    if ((!mCurrentEnvironment) || (mCurrentEnvironment->mDayLength.value() < 1.0))
+    if ((!mCurrentEnvironment) || (mCurrentEnvironment->mDayLength.value() < 1.0) || (mCurrentEnvironment->mDayOffset.value() < 1.0))
     {
         mLabelApparentTime->setVisible(false);
         return;

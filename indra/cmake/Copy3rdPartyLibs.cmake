@@ -106,7 +106,8 @@ if(WINDOWS)
         else(ADDRESS_SIZE EQUAL 32)
             set(redist_find_path "$ENV{VCTOOLSREDISTDIR}x64\\Microsoft.VC${MSVC_TOOLSET_VER}.CRT")
         endif(ADDRESS_SIZE EQUAL 32)
-        get_filename_component(redist_path "${redist_find_path}" ABSOLUTE)
+        get_filename_component(redist_path_component "${redist_find_path}" ABSOLUTE)
+        set(redist_path ${redist_path_component} CACHE INTERNAL "MSVC Redist Path" FORCE)
         MESSAGE(STATUS "VC Runtime redist path: ${redist_path}")
     endif (MSVC_TOOLSET_VER AND DEFINED ENV{VCTOOLSREDISTDIR})
 
@@ -132,12 +133,11 @@ if(WINDOWS)
             msvcp${MSVC_VER}_2.dll
             msvcp${MSVC_VER}_atomic_wait.dll
             msvcp${MSVC_VER}_codecvt_ids.dll
-            msvcr${MSVC_VER}.dll
             vcruntime${MSVC_VER}.dll
             vcruntime${MSVC_VER}_1.dll
             vcruntime${MSVC_VER}_threads.dll
             )
-        if(redist_path AND EXISTS "${redist_path}/${release_msvc_file}")
+        if(DEFINED redist_path AND EXISTS "${redist_path}/${release_msvc_file}")
             MESSAGE(STATUS "Copying redist file from ${redist_path}/${release_msvc_file}")
             to_staging_dirs(
                 ${redist_path}

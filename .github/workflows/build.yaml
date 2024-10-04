@@ -46,12 +46,11 @@ jobs:
     needs: setup
     strategy:
       matrix:
-        runner: [windows-large, macos-14-xlarge]
+        runner: [windows-large, macos-12-xl, linux-large]
         configuration: ${{ fromJSON(needs.setup.outputs.configurations) }}
         include:
         - runner: linux-large
           continue-on-error: true
-          configuration: ReleaseOS
     runs-on: ${{ matrix.runner }}
     outputs:
       viewer_channel: ${{ steps.build.outputs.viewer_channel }}

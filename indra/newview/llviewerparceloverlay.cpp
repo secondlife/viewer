@@ -555,51 +555,52 @@ void LLViewerParcelOverlay::addPropertyLine(F32 start_x, F32 start_y, F32 dx, F3
             inside_z = land.resolveHeightRegion(inside_x, inside_y);
         };
 
-    auto split = [&](U32 lod, const LLVector3& start, F32 x, F32 y, F32 z, F32 part)
+    auto split = [&](U32 lod, const LLVector4a& start, F32 x, F32 y, F32 z, F32 part)
         {
-            F32 new_x = start.mV[VX] + (x - start.mV[VX]) * part;
-            F32 new_y = start.mV[VY] + (y - start.mV[VY]) * part;
-            F32 new_z = start.mV[VZ] + (z - start.mV[VZ]) * part;
-            edge.vertices[lod].emplace_back(new_x, new_y, new_z);
+            F32 new_x = start[VX] + (x - start[VX]) * part;
+            F32 new_y = start[VY] + (y - start[VY]) * part;
+            F32 new_z = start[VZ] + (z - start[VZ]) * part;
+            edge.pushVertex(lod, new_x, new_y, new_z, water_z);
         };
 
     auto checkForSplit = [&](U32 lod)
         {
-            const std::vector<LLVector3>& vertices = edge.vertices[lod];
-            const LLVector3& last_outside = vertices.back();
-            F32 z0 = last_outside.mV[VZ];
+            const std::vector<LLVector4a>& vertices = edge.verticesUnderWater[lod];
+            const LLVector4a& last_outside = vertices.back();
+            F32 z0 = last_outside[VZ];
             F32 z1 = outside_z;
             if ((z0 >= water_z && z1 >= water_z) || (z0 < water_z && z1 < water_z))
                 return;
             F32 part = (water_z - z0) / (z1 - z0);
-            const LLVector3& last_inside = vertices[vertices.size() - 2];
+            const LLVector4a& last_inside = vertices[vertices.size() - 2];
             split(lod, last_inside, inside_x, inside_y, inside_z, part);
             split(lod, last_outside, outside_x, outside_y, outside_z, part);
         };
 
     auto pushTwoVertices = [&](U32 lod)
         {
+            LLVector3 out(outside_x, outside_y, outside_z);
+            LLVector3 in(inside_x, inside_y, inside_z);
             if (fabs(inside_z - outside_z) < LINE_WIDTH / 5)
             {
-                edge.vertices[lod].emplace_back(inside_x, inside_y, inside_z);
+                edge.pushVertex(lod, inside_x, inside_y, inside_z, water_z);
             }
             else
             {
                 // Make the line thinner if heights differ too much
-                LLVector3 out(outside_x, outside_y, outside_z);
-                LLVector3 in(inside_x, inside_y, inside_z);
                 LLVector3 dist(in - out);
                 F32 coef = dist.length() / LINE_WIDTH;
-                edge.vertices[lod].emplace_back(out + dist / coef);
+                LLVector3 new_in(out + dist / coef);
+                edge.pushVertex(lod, new_in[VX], new_in[VY], new_in[VZ], water_z);
             }
-            edge.vertices[lod].emplace_back(outside_x, outside_y, outside_z);
+            edge.pushVertex(lod, outside_x, outside_y, outside_z, water_z);
         };
 
     // Point A simplified (first two vertices)
     pushTwoVertices(1);
 
     // Point A detailized (only one vertex)
-    edge.vertices[0].emplace_back(outside_x, outside_y, outside_z);
+    edge.pushVertex(0, outside_x, outside_y, outside_z, water_z);
 
     // Point B (two vertices)
     move(LINE_WIDTH);
@@ -627,7 +628,23 @@ void LLViewerParcelOverlay::addPropertyLine(F32 start_x, F32 start_y, F32 dx, F3
     pushTwoVertices(1);
 
     // Point G detailized (only one vertex)
-    edge.vertices[0].emplace_back(outside_x, outside_y, outside_z);
+    edge.pushVertex(0, outside_x, outside_y, outside_z, water_z);
+}
+
+void LLViewerParcelOverlay::Edge::pushVertex(U32 lod, F32 x, F32 y, F32 z, F32 water_z)
+{
+    verticesUnderWater[lod].emplace_back(x, y, z);
+    gGL.transform(verticesUnderWater[lod].back());
+
+    if (z >= water_z)
+    {
+        verticesAboveWater[lod].push_back(verticesUnderWater[lod].back());
+    }
+    else
+    {
+        verticesAboveWater[lod].emplace_back(x, y, water_z);
+        gGL.transform(verticesAboveWater[lod].back());
+    }
 }
 
 void LLViewerParcelOverlay::setDirty()
@@ -707,6 +724,8 @@ void LLViewerParcelOverlay::renderPropertyLines()
 
     // Stomp the camera into two dimensions
     LLVector3 camera_region = mRegion->getPosRegionFromGlobal( gAgentCamera.getCameraPositionGlobal() );
+    bool draw_underwater = camera_region.mV[VZ] < water_z ||
+        !gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_WATER);
 
     // Set up a cull plane 2 * PARCEL_GRID_STEP_METERS behind
     // the camera.  The cull plane normal is the camera's at axis.
@@ -714,17 +733,22 @@ void LLViewerParcelOverlay::renderPropertyLines()
     cull_plane_point *= -2.f * PARCEL_GRID_STEP_METERS;
     cull_plane_point += camera_region;
 
-    bool render_hidden = LLSelectMgr::sRenderHiddenSelections && LLFloaterReg::instanceVisible("build");
+    bool render_hidden = !draw_underwater &&
+        LLSelectMgr::sRenderHiddenSelections &&
+        LLFloaterReg::instanceVisible("build");
 
     constexpr F32 PROPERTY_LINE_CLIP_DIST_SQUARED = 256.f * 256.f;
     constexpr F32 PROPERTY_LINE_LOD0_DIST_SQUARED = PROPERTY_LINE_CLIP_DIST_SQUARED / 25.f;
 
     for (const Edge& edge : mEdges)
     {
-        const std::vector<LLVector3>& vertices0 = edge.vertices[0];
-        LLVector3 center = (vertices0.front() + vertices0.back()) / 2;
-        F32 dist_squared = dist_vec_squared(center, camera_region);
+        const std::vector<LLVector4a>& vertices0 = edge.verticesAboveWater[0];
+        const F32* first = vertices0.front().getF32ptr();
+        const F32* last = vertices0.back().getF32ptr();
+        LLVector3 center((first[VX] + last[VX]) / 2, (first[VY] + last[VY]) / 2, (first[VZ] + last[VZ]) / 2);
+        gGL.untransform(center);
 
+        F32 dist_squared = dist_vec_squared(center, camera_region);
         if (dist_squared > PROPERTY_LINE_CLIP_DIST_SQUARED)
         {
             continue;
@@ -745,39 +769,27 @@ void LLViewerParcelOverlay::renderPropertyLines()
 
         gGL.color4ubv(edge.color.mV);
 
-        for (const LLVector3& vertex : edge.vertices[lod])
+        if (draw_underwater)
         {
-            if (render_hidden || camera_z < water_z || vertex.mV[2] >= water_z)
+            gGL.vertexBatchPreTransformed(edge.verticesUnderWater[lod]);
+        }
+        else
+        {
+            gGL.vertexBatchPreTransformed(edge.verticesAboveWater[lod]);
+
+            if (render_hidden)
             {
-                gGL.vertex3fv(vertex.mV);
-            }
-            else
-            {
-                LLVector3 visible = vertex;
-                visible.mV[VZ] = water_z;
-                gGL.vertex3fv(visible.mV);
+                LLGLDepthTest depth(GL_TRUE, GL_FALSE, GL_GREATER);
+
+                LLColor4U color = edge.color;
+                color.mV[VALPHA] /= 4;
+                gGL.color4ubv(color.mV);
+
+                gGL.vertexBatchPreTransformed(edge.verticesUnderWater[lod]);
             }
         }
 
         gGL.end();
-
-        if (render_hidden)
-        {
-            LLGLDepthTest depth(GL_TRUE, GL_FALSE, GL_GREATER);
-
-            gGL.begin(LLRender::TRIANGLE_STRIP);
-
-            LLColor4U color = edge.color;
-            color.mV[VALPHA] /= 4;
-            gGL.color4ubv(color.mV);
-
-            for (const LLVector3& vertex : edge.vertices[lod])
-            {
-                gGL.vertex3fv(vertex.mV);
-            }
-
-            gGL.end();
-        }
     }
 
     gGL.popMatrix();
