@@ -46,7 +46,7 @@ jobs:
     needs: setup
     strategy:
       matrix:
-        runner: [windows-large, macos-12-xl, linux-large]
+        runner: [windows-large, macos-14-xlarge, linux-large]
         configuration: ${{ fromJSON(needs.setup.outputs.configurations) }}
         include:
         - runner: linux-large
