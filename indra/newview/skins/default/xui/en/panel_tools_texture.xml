@@ -691,9 +691,42 @@
              height="10"
              layout="topleft"
              left="10"
+             name="alpha gamma"
+             text_readonly_color="LabelDisabledColor"
+             top_pad="45"
+             width="140">
+                Alpha Gamma
+            </text>
+            <combo_box
+             height="23"
+             layout="topleft"
+             left_pad="0"
+             name="combobox alpha gamma"
+             top_pad="-13"
+             width="125">
+                <combo_box.item
+                 label="Linear"
+                 name="Linear"
+                 value="100" />
+                <combo_box.item
+                 label="Inverse Gamma"
+                 name="Inverse Gamma"
+                 value="45" />
+                <combo_box.item
+                 label="Gamma"
+                 name="Gamma"
+                 value="220" />
+            </combo_box>
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="10"
+             layout="topleft"
+             left="10"
              name="tex gen"
              text_readonly_color="LabelDisabledColor"
-             top_pad="46"
+             top_pad="4"
              width="140">
                 Mapping
             </text>
@@ -926,7 +959,7 @@
              left="7"
              name="checkbox planar align"
              tool_tip="Align textures on all selected faces with the last selected face. Requires Planar texture mapping."
-             top_delta="20"
+             top_delta="16"
              width="260" />
 			<button
              follows="left|top"
@@ -963,7 +996,7 @@
              min_val="-100"
              max_val="100"
              name="gltfTextureScaleU"
-             top_delta="34"
+             top_delta="64"
              width="265" />
             <spinner
              follows="left|top"

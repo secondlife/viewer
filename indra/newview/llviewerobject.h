@@ -381,6 +381,7 @@ public:
     /*virtual*/ S32     setTEOffsetT(const U8 te, const F32 t);
     /*virtual*/ S32     setTERotation(const U8 te, const F32 r);
     /*virtual*/ S32     setTEBumpmap(const U8 te, const U8 bump );
+    /*virtual*/ S32     setTEAlphaGamma(const U8 te, const U8 alphagamma);
     /*virtual*/ S32     setTETexGen(const U8 te, const U8 texgen );
     /*virtual*/ S32     setTEMediaTexGen(const U8 te, const U8 media ); // *FIXME: this confusingly acts upon a superset of setTETexGen's flags without absorbing its semantics
     /*virtual*/ S32     setTEShiny(const U8 te, const U8 shiny );
