@@ -3134,7 +3134,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <map>
           <key>configurations</key>
           <map>
-            <key>Release</key>
+            <key>RelWithDebInfo</key>
             <map>
               <key>configure</key>
               <map>
@@ -3165,6 +3165,64 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
               <key>default</key>
               <string>True</string>
               <key>name</key>
+              <string>RelWithDebInfo</string>
+            </map>
+            <key>RelWithDebInfoOS</key>
+            <map>
+              <key>configure</key>
+              <map>
+                <key>options</key>
+                <array>
+                  <string>-G</string>
+                  <string>Unix Makefiles</string>
+                </array>
+              </map>
+              <key>build</key>
+              <map>
+                <key>command</key>
+                <string>cmake</string>
+                <key>options</key>
+                <array>
+                  <string>--build</string>
+                  <string>.</string>
+                  <string>--config</string>
+                  <string>Release</string>
+                  <string>--parallel</string>
+                  <string>$AUTOBUILD_CPU_COUNT</string>
+                </array>
+              </map>
+              <key>name</key>
+              <string>RelWithDebInfoOS</string>
+            </map>
+            <key>Release</key>
+            <map>
+              <key>configure</key>
+              <map>
+                <key>options</key>
+                <array>
+                  <string>-G</string>
+                  <string>Unix Makefiles</string>
+                </array>
+                <key>arguments</key>
+                <array>
+                  <string>../indra</string>
+                </array>
+              </map>
+              <key>build</key>
+              <map>
+                <key>command</key>
+                <string>cmake</string>
+                <key>options</key>
+                <array>
+                  <string>--build</string>
+                  <string>.</string>
+                  <string>--config</string>
+                  <string>Release</string>
+                  <string>--parallel</string>
+                  <string>$AUTOBUILD_CPU_COUNT</string>
+                </array>
+              </map>
+              <key>name</key>
               <string>Release</string>
             </map>
             <key>ReleaseOS</key>
@@ -3193,14 +3251,6 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
               </map>
               <key>name</key>
               <string>ReleaseOS</string>
-            </map>
-            <key>default</key>
-            <map>
-              <key>build</key>
-              <map>
-              </map>
-              <key>name</key>
-              <string>default</string>
             </map>
           </map>
           <key>build_directory</key>
