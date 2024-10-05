@@ -23,8 +23,11 @@ include(SDL3)
 
 set(llwindow_SOURCE_FILES
     llcursortypes.cpp
+    llgamecontrol.cpp
+    llgamecontroltranslator.cpp
     llkeyboard.cpp
     llkeyboardheadless.cpp
+    llsdl.cpp
     llwindowheadless.cpp
     llwindowcallbacks.cpp
     llwindow.cpp
@@ -34,8 +37,11 @@ set(llwindow_HEADER_FILES
     CMakeLists.txt
 
     llcursortypes.h
+    llgamecontrol.h
+    llgamecontroltranslator.h
     llkeyboard.h
     llkeyboardheadless.h
+    llsdl.h
     llwindowheadless.h
     llwindowcallbacks.h
     )
@@ -103,6 +109,7 @@ set(llwindow_LINK_LIBRARIES
         ll::glm
         ll::glext
         ll::uilibraries
+        ll::SDL3
         )
 
 if (USE_SDL_WINDOW)
@@ -191,7 +198,7 @@ if (BUILD_HEADLESS)
   dl
   )
   target_include_directories(llwindowheadless INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
-  
+
   if (USE_PRECOMPILED_HEADERS)
     target_precompile_headers(llwindowheadless REUSE_FROM llprecompiled)
   endif ()

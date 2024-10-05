@@ -1406,3 +1406,5 @@ char const* const _PREHASH_Experience = LLMessageStringTable::getInstance()->get
 char const* const _PREHASH_ExperienceID = LLMessageStringTable::getInstance()->getString("ExperienceID");
 char const* const _PREHASH_LargeGenericMessage = LLMessageStringTable::getInstance()->getString("LargeGenericMessage");
 char const* const _PREHASH_MetaData = LLMessageStringTable::getInstance()->getString("MetaData");
+char const* const _PREHASH_GameControlInput = LLMessageStringTable::getInstance()->getString("GameControlInput");
+char const* const _PREHASH_AxisData = LLMessageStringTable::getInstance()->getString("AxisData");
