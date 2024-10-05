@@ -207,7 +207,6 @@ protected:
     // Platform specific variables
     //
     U32 mGrabbyKeyFlags = 0;
-    int mReallyCapturedCount;
 
     SDL_Window *mWindow = nullptr;
     SDL_Surface *mSurface;

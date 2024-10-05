@@ -242,8 +242,6 @@ LLWindowSDL::LLWindowSDL(LLWindowCallbacks* callbacks,
     gKeyboard = new LLKeyboardSDL();
     gKeyboard->setCallbacks(callbacks);
 
-    mReallyCapturedCount = 0;
-
     // Assume 4:3 aspect ratio until we know better
     mOriginalAspectRatio = 1024.0 / 768.0;
 
@@ -351,7 +349,6 @@ bool LLWindowSDL::createContext(int x, int y, int width, int height, int bits, b
 
     // captures don't survive contexts
     mGrabbyKeyFlags = 0;
-    mReallyCapturedCount = 0;
 
     std::initializer_list<std::tuple< char const*, char const * > > hintList =
             {
@@ -443,7 +440,6 @@ bool LLWindowSDL::createContext(int x, int y, int width, int height, int bits, b
     {
         LL_WARNS() << "Window creation failure. SDL: " << SDL_GetError() << LL_ENDL;
         setupFailure("Window creation error", "Error", OSMB_OK);
-        return false;
     }
 
     // Create the context
@@ -458,7 +454,6 @@ bool LLWindowSDL::createContext(int x, int y, int width, int height, int bits, b
     {
         LL_WARNS() << "Failed to make context current. SDL: " << SDL_GetError() << LL_ENDL;
         setupFailure("GL Context failed to set current failure", "Error", OSMB_OK);
-        return false;
     }
 
     mSurface = SDL_GetWindowSurface(mWindow);
