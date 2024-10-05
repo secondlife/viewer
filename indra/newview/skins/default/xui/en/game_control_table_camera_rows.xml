@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<contents>
+    <rows
+     enabled="false"
+     name="camera_actions"
+     value="">
+        <columns
+         type="icontext"
+         column="action"
+         font="SansSerif"
+         halign="left"
+         label="Camera"
+         name="action"
+         value="Cam_FreeCam_Off" />
+    </rows>
+    <rows
+     name="advance"
+     value="advance">
+        <columns
+         column="action"
+         font="SansSerif"
+         halign="left"
+         name="action"
+         tool_tip="Camera move forward/backward"
+         value="Forward/Backward" />
+    </rows>
+    <rows
+     name="pan"
+     value="pan">
+        <columns
+         column="action"
+         font="SansSerif"
+         halign="left"
+         name="action"
+         tool_tip="Camera pan left/right"
+         value="Pan Left/Right" />
+    </rows>
+    <rows
+     name="rise"
+     value="rise">
+        <columns
+         column="action"
+         font="SansSerif"
+         halign="left"
+         name="action"
+         tool_tip="Camera rise/fall"
+         value="Rise Up/Down" />
+    </rows>
+    <rows
+     name="pitch"
+     value="pitch">
+        <columns
+         column="action"
+         font="SansSerif"
+         halign="left"
+         name="action"
+         tool_tip="Camera adjust pitch"
+         value="Pitch Up/Down" />
+    </rows>
+    <rows
+     name="yaw"
+     value="yaw">
+        <columns
+         column="action"
+         font="SansSerif"
+         halign="left"
+         name="action"
+         tool_tip="Camera turn left/right"
+         value="Yaw CCW/CW" />
+    </rows>
+    <rows
+     name="zoom"
+     value="zoom">
+        <columns
+         column="action"
+         font="SansSerif"
+         halign="left"
+         name="action"
+         tool_tip="Camera zoom in/out"
+         value="Zoom In/Out" />
+    </rows>
+    <!--
+    <rows
+     name="roll_ccw"
+     value="roll_ccw">
+        <columns
+         column="action"
+         font="SansSerif"
+         halign="left"
+         name="action"
+         tool_tip="Camera roll counterclockwise"
+         value="Roll Counterclockwise" />
+    </rows>
+    <rows
+     name="roll_cw"
+     value="roll_cw">
+        <columns
+         column="action"
+         font="SansSerif"
+         halign="left"
+         name="action"
+         tool_tip="Camera roll clockwise"
+         value="Roll Clockwise" />
+    </rows>
+    -->
+</contents>

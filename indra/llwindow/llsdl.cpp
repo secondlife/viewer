@@ -111,19 +111,7 @@ void init_sdl(const std::string& app_name)
     std::initializer_list<std::tuple<uint32_t, char const*, bool>> initList=
             {
                 {SDL_INIT_VIDEO,"SDL_INIT_VIDEO", true},
-                {SDL_INIT_JOYSTICK,"SDL_INIT_JOYSTICK", true},
-                {SDL_INIT_GAMEPAD,"SDL_INIT_GAMEPAD", true},
             };
-#else
-    // For non-linux platforms we still SDL_INIT_VIDEO because it is a pre-requisite
-    // for SDL_INIT_GAMECONTROLLER.
-    std::initializer_list<std::tuple<uint32_t, char const*, bool>> initList=
-            {
-                {SDL_INIT_VIDEO,"SDL_INIT_VIDEO", false},
-            };
-#endif // LL_LINUX
-    // We SDL_INIT_GAMECONTROLLER later in the startup process to make it
-    // more likely we'll catch initial SDL_CONTROLLERDEVICEADDED events.
 
     for (auto subSystem : initList)
     {
@@ -138,6 +126,9 @@ void init_sdl(const std::string& app_name)
             }
         }
     }
+#endif // LL_SDL_WINDOW
+    // We SDL_INIT_GAMECONTROLLER later in the startup process to make it
+    // more likely we'll catch initial SDL_CONTROLLERDEVICEADDED events.
 }
 
 void quit_sdl()

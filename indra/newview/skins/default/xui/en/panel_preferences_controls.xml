@@ -6,7 +6,7 @@
  label="Controls"
  layout="topleft"
  left="102"
- name="controls"
+ name="controls_panel"
  top="1"
  width="517">
   <combo_box
