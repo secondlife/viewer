@@ -3,9 +3,9 @@
  legacy_header_height="18"
  height="500"
  layout="topleft"
- name="Joystick"
+ name="3Dconnexion Device"
  help_topic="Viewerhelp:Joystick_Configuration"
- title="JOYSTICK CONFIGURATION"
+ title="3DCONNEXION DEVICE CONFIGURATION"
  width="569">
     <floater.string
      name="JoystickDisabled">
@@ -22,7 +22,7 @@
      width="50"
      mouse_opaque="false"
      name="joystick_lbl">
-      Joystick:
+      Device:
     </text>
     <combo_box
      allow_text_entry="false"
@@ -35,7 +35,7 @@
     <spinner
      bottom="56"
      height="10"
-     control_name="JoystickAxis1"
+     control_name="Axis1"
      decimal_digits="0"
      increment="1"
      label="X Axis Mapping"
@@ -44,12 +44,12 @@
      left="20"
      max_val="5"
      min_val="-1"
-     name="JoystickAxis1"
+     name="Axis1"
      width="140" />
     <spinner
      bottom_delta="0"
      height="10"     
-     control_name="JoystickAxis2"
+     control_name="Axis2"
      decimal_digits="0"
      increment="1"
      label="Y Axis Mapping"
@@ -58,12 +58,12 @@
      left="190"
      max_val="5"
      min_val="-1"
-     name="JoystickAxis2"
+     name="Axis2"
      width="140" />
     <spinner
      bottom_delta="0"
      height="10"     
-     control_name="JoystickAxis0"
+     control_name="Axis0"
      decimal_digits="0"
      increment="1"
      label="Z Axis Mapping"
@@ -72,12 +72,12 @@
      left="360"
      max_val="5"
      min_val="-1"
-     name="JoystickAxis0"
+     name="Axis0"
      width="140" />
     <spinner
      bottom="76"
      height="10"     
-     control_name="JoystickAxis4"
+     control_name="Axis4"
      decimal_digits="0"
      increment="1"
      label="Pitch Mapping"
@@ -86,12 +86,12 @@
      left="20"
      max_val="5"
      min_val="-1"
-     name="JoystickAxis4"
+     name="Axis4"
      width="140" />
     <spinner
      bottom_delta="0"
      height="10"     
-     control_name="JoystickAxis5"
+     control_name="Axis5"
      decimal_digits="0"
      increment="1"
      label="Yaw Mapping"
@@ -100,12 +100,12 @@
      left="190"
      max_val="5"
      min_val="-1"
-     name="JoystickAxis5"
+     name="Axis5"
      width="140" />
     <spinner
      bottom_delta="0"
      height="10"     
-     control_name="JoystickAxis3"
+     control_name="Axis3"
      decimal_digits="0"
      increment="1"
      label="Roll Mapping"
@@ -114,12 +114,12 @@
      left="360"
      max_val="5"
      min_val="-1"
-     name="JoystickAxis3"
+     name="Axis3"
      width="140" />
     <spinner
      bottom="96"
      height="10"     
-     control_name="JoystickAxis6"
+     control_name="Axis6"
      decimal_digits="0"
      increment="1"
      label="Zoom Mapping"
@@ -128,7 +128,7 @@
      left="20"
      max_val="5"
      min_val="-1"
-     name="JoystickAxis6"
+     name="Axis6"
      width="140" />
     <check_box
      bottom_delta="18"
@@ -203,7 +203,7 @@
      width="60" />
     <stat_view
      height="270"
-     label="Joystick Monitor"
+     label="Axis Monitor"
      layout="topleft"
      left="359"
      name="axis_view"

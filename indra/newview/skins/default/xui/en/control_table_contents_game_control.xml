@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<contents>
+    <rows
+     enabled="false"
+     name="game_control_buttons"
+     value="">
+        <columns
+         type="icontext"
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         label="Game Control Buttons"
+         name="lst_action"
+         value="Dpad" />
+    </rows>
+    <rows
+     name="game_control_button_0"
+     value="game_control_button_0">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="BUTTON_0" />
+    </rows>
+    <rows
+     name="game_control_button_1"
+     value="game_control_button_1">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="BUTTON_1" />
+    </rows>
+    <rows
+     name="game_control_button_2"
+     value="game_control_button_2">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="BUTTON_2" />
+    </rows>
+    <rows
+     name="game_control_button_3"
+     value="game_control_button_3">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="BUTTON_3" />
+    </rows>
+    <rows
+     name="game_control_button_4"
+     value="game_control_button_4">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="BUTTON_4" />
+    </rows>
+    <rows
+     name="game_control_button_5"
+     value="game_control_button_5">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="BUTTON_5" />
+    </rows>
+    <rows
+     name="game_control_button_6"
+     value="game_control_button_6">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="BUTTON_6" />
+    </rows>
+    <rows
+     name="game_control_button_7"
+     value="game_control_button_7">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="BUTTON_7" />
+    </rows>
+    <rows
+     name="game_control_button_8"
+     value="game_control_button_8">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="BUTTON_8" />
+    </rows>
+    <rows
+     name="game_control_button_9"
+     value="game_control_button_9">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="BUTTON_9" />
+    </rows>
+    <rows
+     name="game_control_button_10"
+     value="game_control_button_10">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="BUTTON_10" />
+    </rows>
+    <rows
+     name="game_control_button_11"
+     value="game_control_button_11">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="BUTTON_11" />
+    </rows>
+    <rows
+     name="game_control_button_12"
+     value="game_control_button_12">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="BUTTON_12" />
+    </rows>
+    <rows
+     name="game_control_button_13"
+     value="game_control_button_13">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="BUTTON_13" />
+    </rows>
+    <rows
+     name="game_control_button_14"
+     value="game_control_button_14">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="BUTTON_14" />
+    </rows>
+    <rows
+     name="game_control_button_15"
+     value="game_control_button_15">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="BUTTON_15" />
+    </rows>
+    <rows
+     name="game_control_button_16"
+     value="game_control_button_16">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="BUTTON_16" />
+    </rows>
+    <rows
+     name="game_control_button_17"
+     value="game_control_button_17">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="BUTTON_17" />
+    </rows>
+    <rows
+     name="game_control_button_18"
+     value="game_control_button_18">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="BUTTON_18" />
+    </rows>
+    <rows
+     name="game_control_button_19"
+     value="game_control_button_19">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="BUTTON_19" />
+    </rows>
+    <rows
+     name="game_control_button_21"
+     value="game_control_button_21">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="BUTTON_21" />
+    </rows>
+    <rows
+     name="game_control_button_22"
+     value="game_control_button_22">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="BUTTON_22" />
+    </rows>
+    <rows
+     name="game_control_button_23"
+     value="game_control_button_23">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="BUTTON_23" />
+    </rows>
+    <rows
+     name="game_control_button_24"
+     value="game_control_button_24">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="BUTTON_24" />
+    </rows>
+    <rows
+     name="game_control_button_25"
+     value="game_control_button_25">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="BUTTON_25" />
+    </rows>
+    <rows
+     name="game_control_button_26"
+     value="game_control_button_26">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="BUTTON_26" />
+    </rows>
+    <rows
+     name="game_control_button_27"
+     value="game_control_button_27">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="BUTTON_27" />
+    </rows>
+    <rows
+     name="game_control_button_28"
+     value="game_control_button_28">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="BUTTON_28" />
+    </rows>
+    <rows
+     name="game_control_button_29"
+     value="game_control_button_29">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="BUTTON_29" />
+    </rows>
+    <rows
+     name="game_control_button_30"
+     value="game_control_button_30">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="BUTTON_30" />
+    </rows>
+    <rows
+     name="game_control_button_31"
+     value="game_control_button_31">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="BUTTON_31" />
+    </rows>
+</contents>

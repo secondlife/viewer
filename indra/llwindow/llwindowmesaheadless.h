@@ -38,16 +38,16 @@ public:
     void show() override {};
     void hide() override {};
     void close() override {};
-    bool getVisible() override {return false;};
-    bool getMinimized() override {return false;};
-    bool getMaximized() override {return false;};
+    bool getVisible() const override {return false;};
+    bool getMinimized() const override {return false;};
+    bool getMaximized() const override {return false;};
     bool maximize() override {return false;};
     void minimize() override {};
     void restore() override {};
-    bool getFullscreen() {return false;};
-    bool getPosition(LLCoordScreen *position) override {return false;};
-    bool getSize(LLCoordScreen *size) override {return false;};
-    bool getSize(LLCoordWindow *size) override {return false;};
+    bool getFullscreen() const override {return false;};
+    bool getPosition(LLCoordScreen *position) const override {return false;};
+    bool getSize(LLCoordScreen *size) const override {return false;};
+    bool getSize(LLCoordWindow *size) const override {return false;};
     bool setPosition(LLCoordScreen position) override {return false;};
     bool setSizeImpl(LLCoordScreen size) override {return false;};
     bool switchContext(bool fullscreen, const LLCoordScreen &size, bool disable_vsync, const LLCoordScreen * const posp = NULL) override {return false;};
@@ -60,7 +60,7 @@ public:
     void hideCursorUntilMouseMove() override {};
     bool isCursorHidden() override {return false;};
     void updateCursor() override {};
-    //virtual ECursorType getCursor() override { return mCurrentCursor; };
+    //ECursorType getCursor() override { return mCurrentCursor; };
     void captureMouse() override {};
     void releaseMouse() override {};
     void setMouseClipping( bool b ) override {};
@@ -68,13 +68,13 @@ public:
     bool pasteTextFromClipboard(LLWString &dst) override {return false; };
     bool copyTextToClipboard(const LLWString &src) override {return false; };
     void flashIcon(F32 seconds) override {};
-    F32 getGamma() override {return 1.0f; };
+    F32 getGamma() const override {return 1.0f; };
     bool setGamma(const F32 gamma) override {return false; }; // Set the gamma
     bool restoreGamma() override {return false; };   // Restore original gamma table (before updating gamma)
     void setFSAASamples(const U32 fsaa_samples) override { /* FSAA not supported yet on Mesa headless.*/ }
-    U32  getFSAASamples() override { return 0; }
-    //virtual ESwapMethod getSwapMethod() override { return mSwapMethod; }
-    void gatherInput() override {};
+    U32  getFSAASamples() const override { return 0; }
+    //ESwapMethod getSwapMethod() override { return mSwapMethod; }
+    void gatherInput(bool app_has_focus) override {};
     void delayInputProcessing() override {};
     void swapBuffers() override;
 
@@ -85,19 +85,19 @@ public:
     bool setSizeImpl(LLCoordWindow size) override { return false; };
 
     // handy coordinate space conversion routines
-    bool convertCoords(LLCoordScreen from, LLCoordWindow *to) override { return false; };
-    bool convertCoords(LLCoordWindow from, LLCoordScreen *to) override { return false; };
-    bool convertCoords(LLCoordWindow from, LLCoordGL *to) override { return false; };
-    bool convertCoords(LLCoordGL from, LLCoordWindow *to) override { return false; };
-    bool convertCoords(LLCoordScreen from, LLCoordGL *to) override { return false; };
-    bool convertCoords(LLCoordGL from, LLCoordScreen *to) override { return false; };
+    bool convertCoords(LLCoordScreen from, LLCoordWindow *to) const override { return false; };
+    bool convertCoords(LLCoordWindow from, LLCoordScreen *to) const override { return false; };
+    bool convertCoords(LLCoordWindow from, LLCoordGL *to) const override { return false; };
+    bool convertCoords(LLCoordGL from, LLCoordWindow *to) const override { return false; };
+    bool convertCoords(LLCoordScreen from, LLCoordGL *to) const override { return false; };
+    bool convertCoords(LLCoordGL from, LLCoordScreen *to) const override { return false; };
 
     LLWindowResolution* getSupportedResolutions(S32 &num_resolutions) override { return NULL; };
     F32 getNativeAspectRatio() override { return 1.0f; };
     F32 getPixelAspectRatio() override { return 1.0f; };
     void setNativeAspectRatio(F32 ratio) override {}
 
-    void *getPlatformWindow() override { return 0; };
+    void *getPlatformWindow() const override { return nullptr; };
     void bringToFront() override {};
 
     LLWindowMesaHeadless(LLWindowCallbacks* callbacks,

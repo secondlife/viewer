@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<contents>
+    <rows
+     enabled="false"
+     name="move_actions"
+     value="">
+        <columns
+         type="icontext"
+         column="action"
+         font="SansSerif"
+         halign="left"
+         label="Move Actions"
+         name="action"
+         value="Move_Walk_Off" />
+    </rows>
+    <rows
+     name="push"
+     value="push">
+        <columns
+         column="action"
+         font="SansSerif"
+         halign="left"
+         name="action"
+         value="Forward/Backward" />
+    </rows>
+    <rows
+     name="slide"
+     value="slide">
+        <columns
+         column="action"
+         font="SansSerif"
+         halign="left"
+         name="action"
+         value="Strafe" />
+    </rows>
+    <rows
+     name="jump"
+     value="jump">
+        <columns
+         column="action"
+         font="SansSerif"
+         halign="left"
+         name="action"
+         value="Jump Up" />
+    </rows>
+    <rows
+     name="turn"
+     value="turn">
+        <columns
+         column="action"
+         font="SansSerif"
+         halign="left"
+         name="action"
+         value="Turn" />
+    </rows>
+    <rows
+     name="look"
+     value="look">
+        <columns
+         column="action"
+         font="SansSerif"
+         halign="left"
+         name="action"
+         value="Look Up/Down" />
+    </rows>
+    <rows
+     name="stop"
+     value="stop">
+        <columns
+         column="action"
+         font="SansSerif"
+         halign="left"
+         name="action"
+         value="Stop" />
+    </rows>
+    <rows
+     name="toggle_run"
+     value="toggle_run">
+        <columns
+         column="action"
+         font="SansSerif"
+         halign="left"
+         name="action"
+         value="Run" />
+    </rows>
+    <rows
+     name="toggle_fly"
+     value="toggle_fly">
+        <columns
+         column="action"
+         font="SansSerif"
+         halign="left"
+         name="action"
+         value="Fly" />
+    </rows>
+    <rows
+     name="toggle_flycam"
+     value="toggle_flycam">
+        <columns
+         column="action"
+         font="SansSerif"
+         halign="left"
+         name="action"
+         value="Flycam" />
+    </rows>
+</contents>

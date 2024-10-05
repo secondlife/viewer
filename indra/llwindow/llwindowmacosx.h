@@ -42,16 +42,15 @@ public:
     void show() override;
     void hide() override;
     void close() override;
-    bool getVisible() override;
-    bool getMinimized() override;
-    bool getMaximized() override;
+    bool getVisible() const override;
+    bool getMinimized() const override;
+    bool getMaximized() const override;
     bool maximize() override;
     void minimize() override;
     void restore() override;
-    bool getFullscreen();
-    bool getPosition(LLCoordScreen *position) override;
-    bool getSize(LLCoordScreen *size) override;
-    bool getSize(LLCoordWindow *size) override;
+    bool getPosition(LLCoordScreen *position) const override;
+    bool getSize(LLCoordScreen *size) const override;
+    bool getSize(LLCoordWindow *size) const override;
     bool setPosition(LLCoordScreen position) override;
     bool setSizeImpl(LLCoordScreen size) override;
     bool setSizeImpl(LLCoordWindow size) override;
@@ -73,23 +72,22 @@ public:
     bool pasteTextFromClipboard(LLWString &dst) override;
     bool copyTextToClipboard(const LLWString & src) override;
     void flashIcon(F32 seconds) override;
-    F32 getGamma() override;
+    F32 getGamma() const override;
     bool setGamma(const F32 gamma) override; // Set the gamma
-    U32 getFSAASamples() override;
+    U32 getFSAASamples() const override;
     void setFSAASamples(const U32 fsaa_samples) override;
     bool restoreGamma() override;           // Restore original gamma table (before updating gamma)
-    ESwapMethod getSwapMethod() override { return mSwapMethod; }
-    void gatherInput() override;
+    void gatherInput(bool app_has_focus) override;
     void delayInputProcessing() override {};
     void swapBuffers() override;
 
     // handy coordinate space conversion routines
-    bool convertCoords(LLCoordScreen from, LLCoordWindow *to) override;
-    bool convertCoords(LLCoordWindow from, LLCoordScreen *to) override;
-    bool convertCoords(LLCoordWindow from, LLCoordGL *to) override;
-    bool convertCoords(LLCoordGL from, LLCoordWindow *to) override;
-    bool convertCoords(LLCoordScreen from, LLCoordGL *to) override;
-    bool convertCoords(LLCoordGL from, LLCoordScreen *to) override;
+    bool convertCoords(LLCoordScreen from, LLCoordWindow *to) const override;
+    bool convertCoords(LLCoordWindow from, LLCoordScreen *to) const override;
+    bool convertCoords(LLCoordWindow from, LLCoordGL *to) const override;
+    bool convertCoords(LLCoordGL from, LLCoordWindow *to) const override;
+    bool convertCoords(LLCoordScreen from, LLCoordGL *to) const override;
+    bool convertCoords(LLCoordGL from, LLCoordScreen *to) const override;
 
     LLWindowResolution* getSupportedResolutions(S32 &num_resolutions) override;
     F32 getNativeAspectRatio() override;
@@ -101,13 +99,13 @@ public:
 
     bool dialogColorPicker(F32 *r, F32 *g, F32 *b) override;
 
-    void *getPlatformWindow() override;
+    void *getPlatformWindow() const override;
     void bringToFront() override {};
 
     void allowLanguageTextInput(LLPreeditor *preeditor, bool b) override;
     void interruptLanguageTextInput() override;
     void spawnWebBrowser(const std::string& escaped_url, bool async) override;
-    F32 getSystemUISize() override;
+    F32 getSystemUISize() const override;
 
     bool getInputDevices(U32 device_type_filter,
                          std::function<bool(std::string&, LLSD&, void*)> osx_callback,
@@ -119,14 +117,14 @@ public:
     static std::vector<std::string> getDynamicFallbackFontList();
 
     // Provide native key event data
-    LLSD getNativeKeyData() override;
+    LLSD getNativeKeyData() const override;
 
     void* getWindow() { return mWindow; }
     LLWindowCallbacks* getCallbacks() { return mCallbacks; }
     LLPreeditor* getPreeditor() { return mPreeditor; }
 
     void updateMouseDeltas(float* deltas);
-    void getMouseDeltas(float* delta);
+    void getMouseDeltas(float* delta) const;
 
     void handleDragNDrop(std::string url, LLWindowCallbacks::DragNDropAction action);
 

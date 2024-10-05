@@ -39,7 +39,7 @@
 
 #include "llerror.h"
 #include "llkeyboard.h"
-#if LL_SDL_WINDOW && !defined(LL_MESA_HEADLESS)
+#if !defined(LL_MESA_HEADLESS)
 #include "llsdl.h"
 #endif
 #include "llwindowcallbacks.h"
@@ -417,7 +417,7 @@ LLWindow* LLWindowManager::createWindow(
 {
     LLWindow* new_window;
 
-#if LL_SDL_WINDOW && !defined(LL_MESA_HEADLESS)
+#if !defined(LL_MESA_HEADLESS)
     init_sdl(name);
 #endif
 
@@ -470,7 +470,7 @@ bool LLWindowManager::destroyWindow(LLWindow* window)
     window->close();
 
     sWindowList.erase(window);
-#if LL_SDL_WINDOW && !defined(LL_MESA_HEADLESS)
+#if !defined(LL_MESA_HEADLESS)
     quit_sdl();
 #endif
 
