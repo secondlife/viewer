@@ -51,11 +51,6 @@ if [ "$XMODIFIERS" = "" ]; then
     export XMODIFIERS="@im=fcitx"
 fi
 
-## If you are using wayland environment, use wayland instead of xwayland.
-if [ "$XDG_SESSION_TYPE" = "wayland" ]; then
-    export SDL_VIDEODRIVER="wayland"
-fi
-
 ## Nothing worth editing below this line.
 ##-------------------------------------------------------------------
 
