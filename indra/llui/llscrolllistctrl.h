@@ -291,6 +291,7 @@ public:
     // iterate over all items
     LLScrollListItem*   getFirstData() const;
     LLScrollListItem*   getLastData() const;
+    LLScrollListItem*   getNthData(size_t index) const;
     std::vector<LLScrollListItem*>  getAllData() const;
 
     LLScrollListItem*   getItem(const LLSD& sd) const;
