@@ -354,7 +354,7 @@ void LLInterpAttractor<Type>::update(const F32 time)
 
 //////////////////////////////
 //
-// LLInterpFucn derived class implementation.
+// LLInterpFunc derived class implementation.
 //
 
 

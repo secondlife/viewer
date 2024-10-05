@@ -61,7 +61,7 @@ public:
     //LLCoordFrame(const F32 *origin, const F32 *rotation); // Assumes "origin" is 1x3 and "rotation" is 1x9 array
     //LLCoordFrame(const F32 *origin_and_rotation);         // Assumes "origin_and_rotation" is 1x12 array
 
-    bool isFinite() { return mOrigin.isFinite() && mXAxis.isFinite() && mYAxis.isFinite() && mZAxis.isFinite(); }
+    bool isFinite() const { return mOrigin.isFinite() && mXAxis.isFinite() && mYAxis.isFinite() && mZAxis.isFinite(); }
 
     void reset();
     void resetAxes();
@@ -118,8 +118,6 @@ public:
     // Same as above, except it also includes the translation of the LLFrame
     //      LLMatrix4 getMatrix4() const;               // Returns position and axes in 4x4 matrix
 
-    // Returns matrix which expresses point in local frame in the parent frame
-    void getMatrixToParent(LLMatrix4 &mat) const;
     // Returns matrix which expresses point in parent frame in the local frame
     void getMatrixToLocal(LLMatrix4 &mat) const; // Returns matrix which expresses point in parent frame in the local frame
 
