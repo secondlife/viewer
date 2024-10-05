@@ -134,10 +134,7 @@ jobs:
             libxcursor-dev libxfixes-dev libgstreamer1.0-dev \
             libgstreamer-plugins-base1.0-dev ninja-build libxft-dev \
             llvm mold libpipewire-0.3-dev \
-            libpango1.0-dev libpangocairo-1.0-0 \
-            libwayland-dev wayland-protocols \
-            libxkbcommon-dev \
-            libglew-dev libdecor-0-dev
+            libwayland-dev libdecor-0-dev
 
       - name: Install windows dependencies
         if: runner.os == 'Windows'

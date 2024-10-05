@@ -24,12 +24,6 @@ if (LINUX)
 
   target_link_libraries( ll::uilibraries INTERFACE
           fltk
-          ${WAYLAND_CLIENT_LIBRARIES} # Need FLTK
-          wayland-cursor
-          cairo
-          pango-1.0
-          pangocairo-1.0
-          xkbcommon
           Xrender
           Xcursor
           Xfixes
