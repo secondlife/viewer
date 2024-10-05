@@ -35,7 +35,7 @@
 #include "lltrans.h"
 #include "llwindow.h"   // beforeDialog()
 #include "llviewercontrol.h"
-#include "llwin32headerslean.h"
+#include "llwin32headers.h"
 
 #if LL_LINUX || LL_DARWIN
 # include "llfilepicker.h"

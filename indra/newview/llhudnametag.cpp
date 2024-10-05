@@ -229,35 +229,20 @@ void LLHUDNameTag::render()
     if (sDisplayText)
     {
         LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
-        //LLGLDisable gls_stencil(GL_STENCIL_TEST);
-        renderText(false);
+        renderText();
     }
 }
 
-void LLHUDNameTag::renderText(bool for_select)
+void LLHUDNameTag::renderText()
 {
     if (!mVisible || mHidden)
     {
         return;
     }
 
-    // don't pick text that isn't bound to a viewerobject
-    if (for_select &&
-        (!mSourceObject || mSourceObject->mDrawable.isNull()))
-    {
-        return;
-    }
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
 
-    if (for_select)
-    {
-        gGL.getTexUnit(0)->disable();
-    }
-    else
-    {
-        gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
-    }
-
-    LLGLState gls_blend(GL_BLEND, !for_select);
+    gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
 
     LLColor4 shadow_color(0.f, 0.f, 0.f, 1.f);
     F32 alpha_factor = 1.f;
@@ -393,10 +378,6 @@ void LLHUDNameTag::renderText(bool for_select)
     }
     /// Reset the default color to white.  The renderer expects this to be the default.
     gGL.color4f(1.0f, 1.0f, 1.0f, 1.0f);
-    if (for_select)
-    {
-        gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
-    }
 }
 
 void LLHUDNameTag::setString(const std::string &text_utf8)

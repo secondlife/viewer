@@ -63,6 +63,7 @@ U64 LLGLSLShader::sTotalTimeElapsed = 0;
 U32 LLGLSLShader::sTotalTrianglesDrawn = 0;
 U64 LLGLSLShader::sTotalSamplesDrawn = 0;
 U32 LLGLSLShader::sTotalBinds = 0;
+boost::json::value LLGLSLShader::sDefaultStats;
 
 //UI shader -- declared here so llui_libtest will link properly
 LLGLSLShader    gUIProgram;
@@ -101,9 +102,9 @@ void LLGLSLShader::initProfile()
     sTotalSamplesDrawn = 0;
     sTotalBinds = 0;
 
-    for (std::set<LLGLSLShader*>::iterator iter = sInstances.begin(); iter != sInstances.end(); ++iter)
+    for (auto ptr : sInstances)
     {
-        (*iter)->clearStats();
+        ptr->clearStats();
     }
 }
 
@@ -117,45 +118,57 @@ struct LLGLSLShaderCompareTimeElapsed
 };
 
 //static
-void LLGLSLShader::finishProfile(bool emit_report)
+void LLGLSLShader::finishProfile(boost::json::value& statsv)
 {
     sProfileEnabled = false;
 
-    if (emit_report)
+    if (! statsv.is_null())
     {
-        std::vector<LLGLSLShader*> sorted;
-
-        for (std::set<LLGLSLShader*>::iterator iter = sInstances.begin(); iter != sInstances.end(); ++iter)
-        {
-            sorted.push_back(*iter);
-        }
-
+        std::vector<LLGLSLShader*> sorted(sInstances.begin(), sInstances.end());
         std::sort(sorted.begin(), sorted.end(), LLGLSLShaderCompareTimeElapsed());
 
+        auto& stats = statsv.as_object();
+        auto shadersit = stats.emplace("shaders", boost::json::array_kind).first;
+        auto& shaders = shadersit->value().as_array();
         bool unbound = false;
-        for (std::vector<LLGLSLShader*>::iterator iter = sorted.begin(); iter != sorted.end(); ++iter)
+        for (auto ptr : sorted)
         {
-            (*iter)->dumpStats();
-            if ((*iter)->mBinds == 0)
+            if (ptr->mBinds == 0)
             {
                 unbound = true;
             }
+            else
+            {
+                auto& shaderit = shaders.emplace_back(boost::json::object_kind);
+                ptr->dumpStats(shaderit.as_object());
+            }
         }
 
+        constexpr float mega = 1'000'000.f;
+        float totalTimeMs = sTotalTimeElapsed / mega;
         LL_INFOS() << "-----------------------------------" << LL_ENDL;
-        LL_INFOS() << "Total rendering time: " << llformat("%.4f ms", sTotalTimeElapsed / 1000000.f) << LL_ENDL;
-        LL_INFOS() << "Total samples drawn: " << llformat("%.4f million", sTotalSamplesDrawn / 1000000.f) << LL_ENDL;
-        LL_INFOS() << "Total triangles drawn: " << llformat("%.3f million", sTotalTrianglesDrawn / 1000000.f) << LL_ENDL;
+        LL_INFOS() << "Total rendering time: " << llformat("%.4f ms", totalTimeMs) << LL_ENDL;
+        LL_INFOS() << "Total samples drawn: " << llformat("%.4f million", sTotalSamplesDrawn / mega) << LL_ENDL;
+        LL_INFOS() << "Total triangles drawn: " << llformat("%.3f million", sTotalTrianglesDrawn / mega) << LL_ENDL;
         LL_INFOS() << "-----------------------------------" << LL_ENDL;
+        auto totalsit = stats.emplace("totals", boost::json::object_kind).first;
+        auto& totals = totalsit->value().as_object();
+        totals.emplace("time", totalTimeMs / 1000.0);
+        totals.emplace("binds", sTotalBinds);
+        totals.emplace("samples", sTotalSamplesDrawn);
+        totals.emplace("triangles", sTotalTrianglesDrawn);
 
+        auto unusedit = stats.emplace("unused", boost::json::array_kind).first;
+        auto& unused = unusedit->value().as_array();
         if (unbound)
         {
             LL_INFOS() << "The following shaders were unused: " << LL_ENDL;
-            for (std::vector<LLGLSLShader*>::iterator iter = sorted.begin(); iter != sorted.end(); ++iter)
+            for (auto ptr : sorted)
             {
-                if ((*iter)->mBinds == 0)
+                if (ptr->mBinds == 0)
                 {
-                    LL_INFOS() << (*iter)->mName << LL_ENDL;
+                    LL_INFOS() << ptr->mName << LL_ENDL;
+                    unused.emplace_back(ptr->mName);
                 }
             }
         }
@@ -170,36 +183,43 @@ void LLGLSLShader::clearStats()
     mBinds = 0;
 }
 
-void LLGLSLShader::dumpStats()
+void LLGLSLShader::dumpStats(boost::json::object& stats)
 {
-    if (mBinds > 0)
+    stats.emplace("name", mName);
+    auto filesit = stats.emplace("files", boost::json::array_kind).first;
+    auto& files = filesit->value().as_array();
+    LL_INFOS() << "=============================================" << LL_ENDL;
+    LL_INFOS() << mName << LL_ENDL;
+    for (U32 i = 0; i < mShaderFiles.size(); ++i)
     {
-        LL_INFOS() << "=============================================" << LL_ENDL;
-        LL_INFOS() << mName << LL_ENDL;
-        for (U32 i = 0; i < mShaderFiles.size(); ++i)
-        {
-            LL_INFOS() << mShaderFiles[i].first << LL_ENDL;
-        }
-        LL_INFOS() << "=============================================" << LL_ENDL;
-
-        F32 ms = mTimeElapsed / 1000000.f;
-        F32 seconds = ms / 1000.f;
-
-        F32 pct_tris = (F32)mTrianglesDrawn / (F32)sTotalTrianglesDrawn * 100.f;
-        F32 tris_sec = (F32)(mTrianglesDrawn / 1000000.0);
-        tris_sec /= seconds;
-
-        F32 pct_samples = (F32)((F64)mSamplesDrawn / (F64)sTotalSamplesDrawn) * 100.f;
-        F32 samples_sec = (F32)(mSamplesDrawn / 1000000000.0);
-        samples_sec /= seconds;
-
-        F32 pct_binds = (F32)mBinds / (F32)sTotalBinds * 100.f;
-
-        LL_INFOS() << "Triangles Drawn: " << mTrianglesDrawn << " " << llformat("(%.2f pct of total, %.3f million/sec)", pct_tris, tris_sec) << LL_ENDL;
-        LL_INFOS() << "Binds: " << mBinds << " " << llformat("(%.2f pct of total)", pct_binds) << LL_ENDL;
-        LL_INFOS() << "SamplesDrawn: " << mSamplesDrawn << " " << llformat("(%.2f pct of total, %.3f billion/sec)", pct_samples, samples_sec) << LL_ENDL;
-        LL_INFOS() << "Time Elapsed: " << mTimeElapsed << " " << llformat("(%.2f pct of total, %.5f ms)\n", (F32)((F64)mTimeElapsed / (F64)sTotalTimeElapsed) * 100.f, ms) << LL_ENDL;
+        LL_INFOS() << mShaderFiles[i].first << LL_ENDL;
+        files.emplace_back(mShaderFiles[i].first);
     }
+    LL_INFOS() << "=============================================" << LL_ENDL;
+
+    constexpr float  mega = 1'000'000.f;
+    constexpr double giga = 1'000'000'000.0;
+    F32 ms = mTimeElapsed / mega;
+    F32 seconds = ms / 1000.f;
+
+    F32 pct_tris = (F32)mTrianglesDrawn / (F32)sTotalTrianglesDrawn * 100.f;
+    F32 tris_sec = (F32)(mTrianglesDrawn / mega);
+    tris_sec /= seconds;
+
+    F32 pct_samples = (F32)((F64)mSamplesDrawn / (F64)sTotalSamplesDrawn) * 100.f;
+    F32 samples_sec = (F32)(mSamplesDrawn / giga);
+    samples_sec /= seconds;
+
+    F32 pct_binds = (F32)mBinds / (F32)sTotalBinds * 100.f;
+
+    LL_INFOS() << "Triangles Drawn: " << mTrianglesDrawn << " " << llformat("(%.2f pct of total, %.3f million/sec)", pct_tris, tris_sec) << LL_ENDL;
+    LL_INFOS() << "Binds: " << mBinds << " " << llformat("(%.2f pct of total)", pct_binds) << LL_ENDL;
+    LL_INFOS() << "SamplesDrawn: " << mSamplesDrawn << " " << llformat("(%.2f pct of total, %.3f billion/sec)", pct_samples, samples_sec) << LL_ENDL;
+    LL_INFOS() << "Time Elapsed: " << mTimeElapsed << " " << llformat("(%.2f pct of total, %.5f ms)\n", (F32)((F64)mTimeElapsed / (F64)sTotalTimeElapsed) * 100.f, ms) << LL_ENDL;
+    stats.emplace("time", seconds);
+    stats.emplace("binds", mBinds);
+    stats.emplace("samples", mSamplesDrawn);
+    stats.emplace("triangles", mTrianglesDrawn);
 }
 
 //static
@@ -1087,17 +1107,17 @@ void LLGLSLShader::unbind(void)
     sCurBoundShaderPtr = NULL;
 }
 
-S32 LLGLSLShader::bindTexture(const std::string& uniform, LLTexture* texture, LLTexUnit::eTextureType mode, LLTexUnit::eTextureColorSpace colorspace)
+S32 LLGLSLShader::bindTexture(const std::string& uniform, LLTexture* texture, LLTexUnit::eTextureType mode)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
 
     S32 channel = 0;
     channel = getUniformLocation(uniform);
 
-    return bindTexture(channel, texture, mode, colorspace);
+    return bindTexture(channel, texture, mode);
 }
 
-S32 LLGLSLShader::bindTexture(S32 uniform, LLTexture* texture, LLTexUnit::eTextureType mode, LLTexUnit::eTextureColorSpace colorspace)
+S32 LLGLSLShader::bindTexture(S32 uniform, LLTexture* texture, LLTexUnit::eTextureType mode)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
 
@@ -1113,7 +1133,6 @@ S32 LLGLSLShader::bindTexture(S32 uniform, LLTexture* texture, LLTexUnit::eTextu
     if (uniform > -1)
     {
         gGL.getTexUnit(uniform)->bindFast(texture);
-        gGL.getTexUnit(uniform)->setTextureColorSpace(colorspace);
     }
 
     return uniform;
@@ -1194,7 +1213,7 @@ S32 LLGLSLShader::getTextureChannel(S32 uniform) const
     return mTexture[uniform];
 }
 
-S32 LLGLSLShader::enableTexture(S32 uniform, LLTexUnit::eTextureType mode, LLTexUnit::eTextureColorSpace space)
+S32 LLGLSLShader::enableTexture(S32 uniform, LLTexUnit::eTextureType mode)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
 
@@ -1211,12 +1230,11 @@ S32 LLGLSLShader::enableTexture(S32 uniform, LLTexUnit::eTextureType mode, LLTex
     {
         gGL.getTexUnit(index)->activate();
         gGL.getTexUnit(index)->enable(mode);
-        gGL.getTexUnit(index)->setTextureColorSpace(space);
     }
     return index;
 }
 
-S32 LLGLSLShader::disableTexture(S32 uniform, LLTexUnit::eTextureType mode, LLTexUnit::eTextureColorSpace space)
+S32 LLGLSLShader::disableTexture(S32 uniform, LLTexUnit::eTextureType mode)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
 
@@ -1229,7 +1247,7 @@ S32 LLGLSLShader::disableTexture(S32 uniform, LLTexUnit::eTextureType mode, LLTe
     S32 index = mTexture[uniform];
     if (index != -1 && gGL.getTexUnit(index)->getCurrType() != LLTexUnit::TT_NONE)
     {
-        if (gDebugGL && gGL.getTexUnit(index)->getCurrType() != mode && gGL.getTexUnit(index)->getCurrColorSpace() != space)
+        if (gDebugGL && gGL.getTexUnit(index)->getCurrType() != mode)
         {
             if (gDebugSession)
             {
@@ -1546,6 +1564,34 @@ void LLGLSLShader::uniform4fv(U32 index, U32 count, const GLfloat* v)
             {
                 LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
                 glUniform4fv(mUniform[index], count, v);
+                mValue[mUniform[index]] = vec;
+            }
+        }
+    }
+}
+
+void LLGLSLShader::uniform4uiv(U32 index, U32 count, const GLuint* v)
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
+    llassert(sCurBoundShaderPtr == this);
+
+    if (mProgramObject)
+    {
+        if (mUniform.size() <= index)
+        {
+            LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << index << LL_ENDL;
+            llassert(false);
+            return;
+        }
+
+        if (mUniform[index] >= 0)
+        {
+            const auto& iter = mValue.find(mUniform[index]);
+            LLVector4 vec((F32)v[0], (F32)v[1], (F32)v[2], (F32)v[3]);
+            if (iter == mValue.end() || shouldChange(iter->second, vec) || count != 1)
+            {
+                LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
+                glUniform4uiv(mUniform[index], count, v);
                 mValue[mUniform[index]] = vec;
             }
         }
@@ -1881,6 +1927,24 @@ void LLGLSLShader::uniform4fv(const LLStaticHashedString& uniform, U32 count, co
         {
             LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
             glUniform4fv(location, count, v);
+            mValue[location] = vec;
+        }
+    }
+}
+
+void LLGLSLShader::uniform4uiv(const LLStaticHashedString& uniform, U32 count, const GLuint* v)
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
+    GLint location = getUniformLocation(uniform);
+
+    if (location >= 0)
+    {
+        LLVector4 vec((F32)v[0], (F32)v[1], (F32)v[2], (F32)v[3]);
+        const auto& iter = mValue.find(location);
+        if (iter == mValue.end() || shouldChange(iter->second, vec) || count != 1)
+        {
+            LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
+            glUniform4uiv(location, count, v);
             mValue[location] = vec;
         }
     }

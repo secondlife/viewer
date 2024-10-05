@@ -27,6 +27,8 @@
 #define LLBADGE_CPP
 #include "llbadge.h"
 
+#include "llfontgl.h"
+#include "llfontvertexbuffer.h"
 #include "llscrollcontainer.h"
 #include "lluictrlfactory.h"
 
@@ -202,13 +204,13 @@ void renderBadgeBackground(F32 centerX, F32 centerY, F32 width, F32 height, cons
                         (F32)ll_round(x) + width,
                         (F32)ll_round(y) + height);
 
-    LLVector3 vertices[4];
-    vertices[0] = LLVector3(screen_rect.mRight, screen_rect.mTop,    1.0f);
-    vertices[1] = LLVector3(screen_rect.mLeft,  screen_rect.mTop,    1.0f);
-    vertices[2] = LLVector3(screen_rect.mLeft,  screen_rect.mBottom, 1.0f);
-    vertices[3] = LLVector3(screen_rect.mRight, screen_rect.mBottom, 1.0f);
+    LLVector4a vertices[4];
+    vertices[0].set(screen_rect.mLeft,  screen_rect.mTop,    1.0f);
+    vertices[1].set(screen_rect.mRight, screen_rect.mTop,    1.0f);
+    vertices[2].set(screen_rect.mLeft,  screen_rect.mBottom, 1.0f);
+    vertices[3].set(screen_rect.mRight, screen_rect.mBottom, 1.0f);
 
-    gGL.begin(LLRender::QUADS);
+    gGL.begin(LLRender::TRIANGLE_STRIP);
     {
         gGL.vertexBatchPreTransformed(vertices, 4);
     }
@@ -351,17 +353,17 @@ void LLBadge::draw()
             //
             // Draw the label
             //
-
-            mGLFont->render(mLabel.getWString(),
-                            badge_label_begin_offset,
-                            badge_center_x + mLabelOffsetHoriz,
-                            badge_center_y + mLabelOffsetVert,
-                            mLabelColor % alpha,
-                            LLFontGL::HCENTER, LLFontGL::VCENTER, // centered around the position
-                            LLFontGL::NORMAL, // normal text (not bold, italics, etc.)
-                            LLFontGL::DROP_SHADOW_SOFT,
-                            badge_char_length, badge_pixel_length,
-                            right_position_out, do_not_use_ellipses);
+            mFontBuffer.render(mGLFont,
+                               mLabel.getWString(),
+                               badge_label_begin_offset,
+                               badge_center_x + mLabelOffsetHoriz,
+                               badge_center_y + mLabelOffsetVert,
+                               mLabelColor % alpha,
+                               LLFontGL::HCENTER, LLFontGL::VCENTER, // centered around the position
+                               LLFontGL::NORMAL, // normal text (not bold, italics, etc.)
+                               LLFontGL::DROP_SHADOW_SOFT,
+                               badge_char_length, badge_pixel_length,
+                               right_position_out, do_not_use_ellipses);
         }
     }
 }

@@ -119,6 +119,7 @@ set(llcommon_HEADER_FILES
     commoncontrol.h
     ctype_workaround.h
     fix_macros.h
+    fsyspath.h
     function_types.h
     indra_constants.h
     lazyeventapi.h
@@ -240,7 +241,6 @@ set(llcommon_HEADER_FILES
     lluriparser.h
     lluuid.h
     llwin32headers.h
-    llwin32headerslean.h
     llworkerthread.h
     hbxxh.h
     lockstatic.h
