@@ -48,6 +48,7 @@
 extern bool gDebugGL;
 extern bool gDebugSession;
 extern bool gDebugGLSession;
+extern bool gDebugTextureLabelLocalFilesSession;
 extern llofstream gFailLog;
 
 #define LL_GL_ERRS LL_ERRS("RenderState")

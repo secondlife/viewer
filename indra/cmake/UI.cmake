@@ -30,9 +30,10 @@ if (LINUX)
           Xext
           Xft
           Xinerama
+          X11
           ll::fontconfig
           ll::freetype
-          ll::SDL
+          ll::SDL2
           ll::glib
           ll::gio
   )

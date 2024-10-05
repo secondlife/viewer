@@ -3,14 +3,11 @@
 include(Variables)
 include(GLEXT)
 include(Prebuilt)
+include(SDL2)
 
 include_guard()
-add_library( ll::SDL INTERFACE IMPORTED )
 
 if (LINUX)
-  #Must come first as use_system_binary can exit this file early
-  target_compile_definitions( ll::SDL INTERFACE LL_SDL_VERSION=2 LL_SDL)
-
-  use_prebuilt_binary(SDL2)
-  target_link_libraries( ll::SDL INTERFACE SDL2 X11)
+  # linux uses SDL2 for window and keyboard
+  target_compile_definitions( ll::SDL2 INTERFACE LL_USE_SDL_KEYBOARD=1 )
 endif (LINUX)

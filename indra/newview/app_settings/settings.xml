@@ -82,10 +82,10 @@
     <key>AFKTimeout</key>
     <map>
       <key>Comment</key>
-            <string>
-                Time before automatically setting AFK (away from keyboard) mode (seconds, 0=never).
-                Valid values are: 0, 120, 300, 600, 1800
-</string>
+      <string>
+        Time before automatically setting AFK (away from keyboard) mode (seconds, 0=never).
+        Valid values are: 0, 120, 300, 600, 1800
+      </string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -379,7 +379,7 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-  <key>AutoAcceptNewInventory</key>
+    <key>AutoAcceptNewInventory</key>
     <map>
       <key>Comment</key>
       <string>Automatically accept new notecards/textures/landmarks</string>
@@ -2611,6 +2611,94 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
+    </map>
+    <key>EnableGameControl</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable GameControl feature</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>GameControlToServer</key>
+    <map>
+      <key>Comment</key>
+      <string>Transmit game controller data to server</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>GameControlToAgent</key>
+    <map>
+      <key>Comment</key>
+      <string>GameControl data moves avatar/flycam</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>AgentToGameControl</key>
+    <map>
+      <key>Comment</key>
+      <string>Avatar/flycam movement produces GameControl data</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>AnalogChannelMappings</key>
+    <map>
+        <key>Comment</key>
+        <string>GameControl analog button to channel mappings</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>String</string>
+        <key>Value</key>
+        <string>push:AXIS_1+,slide:AXIS_0+,jump:AXIS_4+,turn:AXIS_2+,look:AXIS_3+</string>
+    </map>
+    <key>BinaryChannelMappings</key>
+    <map>
+        <key>Comment</key>
+        <string>GameControl binary button to channel mappings</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>String</string>
+        <key>Value</key>
+        <string>toggle_run:BUTTON_9,toggle_fly:BUTTON_11,toggle_flycam:BUTTON_10,stop:BUTTON_7</string>
+    </map>
+    <key>FlycamChannelMappings</key>
+    <map>
+        <key>Comment</key>
+        <string>GameControl flycam button to channel mappings</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>String</string>
+        <key>Value</key>
+        <string>advance:AXIS_1+,pan:AXIS_0+,rise:AXIS_5+,pitch:AXIS_3-,yaw:AXIS_2+</string>
+    </map>
+    <key>KnownGameControllers</key>
+    <map>
+        <key>Comment</key>
+        <string>Map of controller device-specific options.</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>LLSD</string>
+        <key>Value</key>
+        <map/>
     </map>
     <key>EnableGestureSounds</key>
     <map>
@@ -7925,6 +8013,28 @@
     <map>
       <key>Comment</key>
       <string>Enable texture bind performance test.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>RenderDebugTextureLabel</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable texture labels via glObjectLabel.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>RenderDebugTextureLabelLocalFilesSession</key>
+    <map>
+      <key>Comment</key>
+      <string>Enumerate textures with local file names. Doesn't do anything until RenderDebugTextureLabel is set to true. Requires restart AND applies on the next session only.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
