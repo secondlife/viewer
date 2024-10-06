@@ -9,13 +9,7 @@
 	<text name="subject_label">
 		件名：
 	</text>
-	<line_editor label="件名をここに入力してください。" name="subject_form"/>
-	<text name="msg_label">
-		メッセージ：
-	</text>
 	<text_editor name="msg_form">
 		メッセージをここに入力してください。
 	</text_editor>
-	<button label="キャンセル" name="cancel_btn"/>
-	<button label="送信" name="send_btn"/>
 </panel>

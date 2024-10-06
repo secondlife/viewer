@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<contents>
+	<rows name="move_actions">
+		<columns label="移動アクション" name="action"/>
+	</rows>
+	<rows name="push">
+		<columns name="action" value="前進／後退"/>
+	</rows>
+	<rows name="slide">
+		<columns name="action" value="平行移動"/>
+	</rows>
+	<rows name="jump">
+		<columns name="action" value="ジャンプ"/>
+	</rows>
+	<rows name="turn">
+		<columns name="action" value="転回"/>
+	</rows>
+	<rows name="look">
+		<columns name="action" value="上下を見る"/>
+	</rows>
+	<rows name="stop">
+		<columns name="action" value="止まる"/>
+	</rows>
+	<rows name="toggle_run">
+		<columns name="action" value="走行切り替え"/>
+	</rows>
+	<rows name="toggle_fly">
+		<columns name="action" value="飛行切り替え"/>
+	</rows>
+	<rows name="toggle_flycam">
+		<columns name="action" value="フライカム切り替え"/>
+	</rows>
+</contents>

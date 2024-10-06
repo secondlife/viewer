@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Display Name" title="表示名を変更">
+<floater name="Display Name" title="表示名の変更">
 	<text name="info_text">
 		アバターにつけた名前があなたの表示名になります。表示名は週に一回まで変更することができます。
 	</text>

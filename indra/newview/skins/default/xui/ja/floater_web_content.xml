@@ -6,13 +6,12 @@
 			<button name="forward" tool_tip="次へ"/>
 			<button name="stop" tool_tip="ナビゲーションを停止"/>
 			<button name="reload" tool_tip="ページを更新"/>
-			<combo_box name="address" tool_tip="ここに URL を入力"/>
+			<combo_box name="address" tool_tip="ここにＵＲＬを入力"/>
 			<icon name="media_secure_lock_flag" tool_tip="安全な閲覧"/>
-			<button name="popexternal" tool_tip="この URL をブラウザで開く"/>
+			<button name="popexternal" tool_tip="このＵＲＬをブラウザで開く"/>
 		</layout_panel>
 		<layout_panel name="debug_controls">
-			<button name="web_test_home_page" tool_tip="Web テストのホームページ"/>
-			<button name="VLC Plugin Test" tool_tip="MPEG4 ビデオテスト"/>
+			<button name="web_test_home_page" tool_tip="Webテストのホームページ"/>
 		</layout_panel>
 	</layout_stack>
 </floater>
