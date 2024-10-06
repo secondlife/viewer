@@ -44,13 +44,15 @@ jobs:
           fi
   build:
     needs: setup
+    continue-on-error: ${{ matrix.experimental }}
     strategy:
       matrix:
         runner: [windows-large, macos-12-xl]
         configuration: ${{ fromJSON(needs.setup.outputs.configurations) }}
+        experimental: [false]
         include:
         - runner: linux-large
-          configuration: ReleaseOS
+          experimental: true
     runs-on: ${{ matrix.runner }}
     outputs:
       viewer_channel: ${{ steps.build.outputs.viewer_channel }}

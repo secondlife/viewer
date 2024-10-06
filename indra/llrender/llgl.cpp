@@ -65,6 +65,7 @@
 
 bool gDebugSession = false;
 bool gDebugGLSession = false;
+bool gDebugTextureLabelLocalFilesSession = false;
 bool gClothRipple = false;
 bool gHeadlessClient = false;
 bool gNonInteractive = false;
@@ -994,9 +995,6 @@ LLGLManager::LLGLManager() :
     mIsAMD(false),
     mIsNVIDIA(false),
     mIsIntel(false),
-#if LL_DARWIN
-    mIsMobileGF(false),
-#endif
     mHasRequirements(true),
     mDriverVersionMajor(1),
     mDriverVersionMinor(0),
@@ -1038,7 +1036,6 @@ void LLGLManager::initWGL()
         GLH_EXT_NAME(wglGetGPUIDsAMD) = (PFNWGLGETGPUIDSAMDPROC)GLH_EXT_GET_PROC_ADDRESS("wglGetGPUIDsAMD");
         GLH_EXT_NAME(wglGetGPUInfoAMD) = (PFNWGLGETGPUINFOAMDPROC)GLH_EXT_GET_PROC_ADDRESS("wglGetGPUInfoAMD");
     }
-    mHasNVXGpuMemoryInfo = ExtensionExists("GL_NVX_gpu_memory_info", gGLHExts.mSysExts);
 
     if (ExtensionExists("WGL_EXT_swap_control", gGLHExts.mSysExts))
     {
@@ -1144,7 +1141,11 @@ bool LLGLManager::initGL()
     // Trailing space necessary to keep "nVidia Corpor_ati_on" cards
     // from being recognized as ATI.
     // NOTE: AMD has been pretty good about not breaking this check, do not rename without good reason
-    if (mGLVendor.substr(0,4) == "ATI ")
+    if (mGLVendor.substr(0,4) == "ATI "
+#if LL_LINUX
+         || mGLVendor.find("AMD") != std::string::npos
+#endif //LL_LINUX
+         )
     {
         mGLVendorShort = "AMD";
         // *TODO: Fix this?
@@ -1210,8 +1211,10 @@ bool LLGLManager::initGL()
         {
             LL_WARNS("RenderInit") << "VRAM Detected (AMDAssociations):" << mVRAM << LL_ENDL;
         }
-    }
-    else if (mHasNVXGpuMemoryInfo)
+    } else
+#endif
+#if LL_WINDOWS || LL_LINUX
+    if (mHasNVXGpuMemoryInfo)
     {
         GLint mem_kb = 0;
         glGetIntegerv(GL_GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX, &mem_kb);
@@ -1428,6 +1431,10 @@ void LLGLManager::initExtensions()
     mHasCubeMapArray = mGLVersion >= 3.99f;
     mHasTransformFeedback = mGLVersion >= 3.99f;
     mHasDebugOutput = mGLVersion >= 4.29f;
+
+#if LL_WINDOWS || LL_LINUX
+    mHasNVXGpuMemoryInfo = ExtensionExists("GL_NVX_gpu_memory_info", gGLHExts.mSysExts);
+#endif
 
     // Misc
     glGetIntegerv(GL_MAX_ELEMENTS_VERTICES, (GLint*) &mGLMaxVertexRange);

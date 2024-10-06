@@ -52,6 +52,7 @@
 #include "llagentui.h"
 #include "llagentwearables.h"
 #include "llagentpilot.h"
+#include "llavataractions.h"
 #include "llcompilequeue.h"
 #include "llconsole.h"
 #include "lldebugview.h"
@@ -71,6 +72,7 @@
 #include "llfloaterpathfindingcharacters.h"
 #include "llfloaterpathfindinglinksets.h"
 #include "llfloaterpay.h"
+#include "llfloaterpreference.h"
 #include "llfloaterreporter.h"
 #include "llfloatersearch.h"
 #include "llfloaterscriptdebug.h"
@@ -78,9 +80,10 @@
 #include "llfloatertools.h"
 #include "llfloaterworldmap.h"
 #include "llfloaterbuildoptions.h"
-#include "llavataractions.h"
-#include "lllandmarkactions.h"
+#include "fsyspath.h"
+#include "llgamecontrol.h"
 #include "llgroupmgr.h"
+#include "lllandmarkactions.h"
 #include "lltooltip.h"
 #include "lltoolface.h"
 #include "llhints.h"
@@ -90,6 +93,7 @@
 #include "llinventorybridge.h"
 #include "llinventorydefines.h"
 #include "llinventoryfunctions.h"
+#include "llluamanager.h"
 #include "llpanellogin.h"
 #include "llpanelblockedlist.h"
 #include "llpanelmaininventory.h"
@@ -941,17 +945,46 @@ class LLAdvancedToggleFeature : public view_listener_t
 class LLAdvancedCheckFeature : public view_listener_t
 {
     bool handleEvent(const LLSD& userdata)
-{
-    U32 feature = feature_from_string( userdata.asString() );
-    bool new_value = false;
-
-    if ( feature != 0 )
     {
-        new_value = LLPipeline::toggleRenderDebugFeatureControl( feature );
-    }
+        U32 feature = feature_from_string( userdata.asString() );
+        bool new_value = false;
 
-    return new_value;
-}
+        if ( feature != 0 )
+        {
+            new_value = LLPipeline::toggleRenderDebugFeatureControl( feature );
+        }
+
+        return new_value;
+    }
+};
+
+class LLAdvancedToggleExperiment : public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata)
+    {
+        std::string feature = userdata.asString();
+        if (feature == "GameControl")
+        {
+            LLGameControl::setEnabled(! LLGameControl::isEnabled());
+            LLFloaterPreference::refreshInstance();
+            return true;
+        }
+        return false;
+    }
+};
+
+class LLAdvancedCheckExperiment : public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata)
+    {
+        bool value = false;
+        std::string feature = userdata.asString();
+        if (feature == "GameControl")
+        {
+            value = LLGameControl::isEnabled();
+        }
+        return value;
+    }
 };
 
 class LLAdvancedCheckDisplayTextureDensity : public view_listener_t
@@ -9461,6 +9494,18 @@ void LLUploadCostCalculator::calculateCost(const std::string& asset_type_str)
     mCostStr = std::to_string(upload_cost);
 }
 
+void lua_run_script(const LLSD& userdata)
+{
+    std::string script_path = userdata.asString();
+    if (script_path.empty())
+    {
+        LL_WARNS() << "Script name is not specified" << LL_ENDL;
+        return;
+    }
+
+    LLLUAmanager::runScriptFile(script_path);
+}
+
 void show_navbar_context_menu(LLView* ctrl, S32 x, S32 y)
 {
     static LLMenuGL*    show_navbar_context_menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_hide_navbar.xml",
@@ -9714,6 +9759,9 @@ void initialize_menus()
     //// Advanced > Render > Features
     view_listener_t::addMenu(new LLAdvancedToggleFeature(), "Advanced.ToggleFeature");
     view_listener_t::addMenu(new LLAdvancedCheckFeature(), "Advanced.CheckFeature");
+
+    view_listener_t::addMenu(new LLAdvancedToggleExperiment(), "Advanced.ToggleExperiment");
+    view_listener_t::addMenu(new LLAdvancedCheckExperiment(), "Advanced.CheckExperiment");
 
     view_listener_t::addMenu(new LLAdvancedCheckDisplayTextureDensity(), "Advanced.CheckDisplayTextureDensity");
     view_listener_t::addMenu(new LLAdvancedSetDisplayTextureDensity(), "Advanced.SetDisplayTextureDensity");
@@ -10062,4 +10110,6 @@ void initialize_menus()
     view_listener_t::addMenu(new LLEditableSelected(), "EditableSelected");
     view_listener_t::addMenu(new LLEditableSelectedMono(), "EditableSelectedMono");
     view_listener_t::addMenu(new LLToggleUIHints(), "ToggleUIHints");
+
+    registrar.add("Lua.RunScript", boost::bind(&lua_run_script, _2), cb_info::UNTRUSTED_BLOCK);
 }

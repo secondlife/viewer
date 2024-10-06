@@ -29,6 +29,7 @@
 
 // Simple Directmedia Layer (http://libsdl.org/) implementation of LLWindow class
 
+#if LL_LINUX
 #include "llwindow.h"
 #include "lltimer.h"
 
@@ -54,11 +55,11 @@ public:
 
     void close() override;
 
-    bool getVisible() override;
+    bool getVisible() const override;
 
-    bool getMinimized() override;
+    bool getMinimized() const override;
 
-    bool getMaximized() override;
+    bool getMaximized() const override;
 
     bool maximize() override;
 
@@ -66,13 +67,11 @@ public:
 
     void restore() override;
 
-    bool getFullscreen();
+    bool getPosition(LLCoordScreen *position) const override;
 
-    bool getPosition(LLCoordScreen *position) override;
+    bool getSize(LLCoordScreen *size) const override;
 
-    bool getSize(LLCoordScreen *size) override;
-
-    bool getSize(LLCoordWindow *size) override;
+    bool getSize(LLCoordWindow *size) const override;
 
     bool setPosition(LLCoordScreen position) override;
 
@@ -121,19 +120,19 @@ public:
 
     void flashIcon(F32 seconds) override;
 
-    F32 getGamma() override;
+    F32 getGamma() const override;
 
     bool setGamma(const F32 gamma) override; // Set the gamma
-    U32 getFSAASamples() override;
+
+    U32 getFSAASamples() const override;
 
     void setFSAASamples(const U32 samples) override;
 
     bool restoreGamma() override;            // Restore original gamma table (before updating gamma)
-    ESwapMethod getSwapMethod()  override { return mSwapMethod; }
 
     void processMiscNativeEvents() override;
 
-    void gatherInput() override;
+    void gatherInput(bool app_has_focus) override;
 
     void swapBuffers() override;
 
@@ -142,17 +141,17 @@ public:
     void delayInputProcessing()  override {};
 
     // handy coordinate space conversion routines
-    bool convertCoords(LLCoordScreen from, LLCoordWindow *to) override;
+    bool convertCoords(LLCoordScreen from, LLCoordWindow *to) const override;
 
-    bool convertCoords(LLCoordWindow from, LLCoordScreen *to) override;
+    bool convertCoords(LLCoordWindow from, LLCoordScreen *to) const override;
 
-    bool convertCoords(LLCoordWindow from, LLCoordGL *to) override;
+    bool convertCoords(LLCoordWindow from, LLCoordGL *to) const override;
 
-    bool convertCoords(LLCoordGL from, LLCoordWindow *to) override;
+    bool convertCoords(LLCoordGL from, LLCoordWindow *to) const override;
 
-    bool convertCoords(LLCoordScreen from, LLCoordGL *to) override;
+    bool convertCoords(LLCoordScreen from, LLCoordGL *to) const override;
 
-    bool convertCoords(LLCoordGL from, LLCoordScreen *to) override;
+    bool convertCoords(LLCoordGL from, LLCoordScreen *to) const override;
 
     LLWindowResolution *getSupportedResolutions(S32 &num_resolutions) override;
 
@@ -175,8 +174,6 @@ public:
     void setLanguageTextInput(const LLCoordGL& pos) override;
 
     void spawnWebBrowser(const std::string &escaped_url, bool async) override;
-
-    void openFile(const std::string &file_name);
 
     void setTitle(const std::string title) override;
 
@@ -211,7 +208,7 @@ public:
 
 protected:
     LLWindowSDL(LLWindowCallbacks *callbacks,
-                const std::string &title, int x, int y, int width, int height, U32 flags,
+                const std::string &title, const std::string& name, int x, int y, int width, int height, U32 flags,
                 bool fullscreen, bool clearBg, bool enable_vsync, bool use_gl,
                 bool ignore_pixel_depth, U32 fsaa_samples);
 
@@ -219,7 +216,7 @@ protected:
 
     bool isValid() override;
 
-    LLSD getNativeKeyData() override;
+    LLSD getNativeKeyData() const override;
 
     void initCursors();
 
@@ -246,8 +243,6 @@ protected:
     void destroyContext();
 
     void setupFailure(const std::string &text, const std::string &caption, U32 type);
-
-    void fixWindowSize(void);
 
     U32 SDLCheckGrabbyKeys(U32 keysym, bool gain);
 
@@ -280,45 +275,15 @@ protected:
     friend class LLWindowManager;
 
 private:
-#if LL_X11
-
-    void x11_set_urgent(bool urgent);
-
     bool mFlashing;
     LLTimer mFlashTimer;
-#endif //LL_X11
-
     U32 mKeyVirtualKey;
     U32 mKeyModifiers;
     std::string mInputType;
 
-public:
-#if LL_X11
-
-    static Display *getSDLDisplay();
-
-    LLWString const &getPrimaryText() const { return mPrimaryClipboard; }
-
-    LLWString const &getSecondaryText() const { return mSecondaryClipboard; }
-
-    void clearPrimaryText() { mPrimaryClipboard.clear(); }
-
-    void clearSecondaryText() { mSecondaryClipboard.clear(); }
 
 private:
     void tryFindFullscreenSize(int &aWidth, int &aHeight);
-
-    void initialiseX11Clipboard();
-
-    bool getSelectionText(Atom selection, LLWString &text);
-
-    bool getSelectionText(Atom selection, Atom type, LLWString &text);
-
-    bool setSelectionText(Atom selection, const LLWString &text);
-
-#endif
-    LLWString mPrimaryClipboard;
-    LLWString mSecondaryClipboard;
 };
 
 class LLSplashScreenSDL : public LLSplashScreen
@@ -334,4 +299,5 @@ public:
 
 S32 OSMessageBoxSDL(const std::string& text, const std::string& caption, U32 type);
 
+#endif //LL_LINUX
 #endif //LL_LLWINDOWSDL_H

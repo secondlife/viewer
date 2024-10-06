@@ -87,7 +87,7 @@ boost::fibers::context* scheduler::pick_next() noexcept
 
         /*------------------------- logging stuff --------------------------*/
         // Unless this log tag is enabled, don't even bother posting.
-        LL_DEBUGS("LLCoros.scheduler");
+        LL_DEBUGS("LLCoros.scheduler") << " ";
         // This feature is inherently hard to verify. The logging in the
         // lambda below seems useful, but also seems like a lot of overhead
         // for a coroutine context switch. Try posting the logging lambda to a

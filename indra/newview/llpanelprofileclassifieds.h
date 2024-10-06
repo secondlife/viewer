@@ -157,17 +157,17 @@ public:
 
     void setParcelId(const LLUUID& id) { mParcelId = id; }
 
-    LLUUID getParcelId() { return mParcelId; }
+    LLUUID getParcelId() const { return mParcelId; }
 
     void setSimName(const std::string& sim_name) { mSimName = sim_name; }
 
-    std::string getSimName() { return mSimName; }
+    std::string getSimName() const { return mSimName; }
 
     void setFromSearch(bool val) { mFromSearch = val; }
 
-    bool fromSearch() { return mFromSearch; }
+    bool fromSearch() const { return mFromSearch; }
 
-    bool getInfoLoaded() { return mInfoLoaded; }
+    bool getInfoLoaded() const { return mInfoLoaded; }
 
     void setInfoLoaded(bool loaded) { mInfoLoaded = loaded; }
 
@@ -175,9 +175,9 @@ public:
 
     void resetDirty() override;
 
-    bool isNew() { return mIsNew; }
+    bool isNew() const { return mIsNew; }
 
-    bool isNewWithErrors() { return mIsNewWithErrors; }
+    bool isNewWithErrors() const { return mIsNewWithErrors; }
 
     bool canClose();
 
@@ -191,10 +191,10 @@ public:
 
     bool getAutoRenew();
 
-    S32 getPriceForListing() { return mPriceForListing; }
+    S32 getPriceForListing() const { return mPriceForListing; }
 
     void setEditMode(bool edit_mode);
-    bool getEditMode() {return mEditMode;}
+    bool getEditMode() const { return mEditMode; }
 
     static void setClickThrough(
         const LLUUID& classified_id,
