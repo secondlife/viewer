@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Joystick" title="ジョイスティックの設定">
+<floater name="3Dconnexion Device" title="３Ｄ操作デバイスの設定">
 	<floater.string name="JoystickDisabled">
 		なし
 	</floater.string>
 	<text name="joystick_lbl" width="112">
-		ジョイスティック：
+		デバイス：
 	</text>
-	<spinner label="Ｘ軸マッピング" name="JoystickAxis1"/>
-	<spinner label="Ｙ軸マッピング" name="JoystickAxis2"/>
-	<spinner label="Ｚ軸マッピング" name="JoystickAxis0"/>
-	<spinner label="ピッチ・マッピング" name="JoystickAxis4"/>
-	<spinner label="ヨー・マッピング" name="JoystickAxis5"/>
-	<spinner label="ロール・マッピング" name="JoystickAxis3"/>
-	<spinner label="ズーム・マッピング" name="JoystickAxis6"/>
+	<spinner label="Ｘ軸マッピング" name="Axis1"/>
+	<spinner label="Ｙ軸マッピング" name="Axis2"/>
+	<spinner label="Ｚ軸マッピング" name="Axis0"/>
+	<spinner label="ピッチ・マッピング" name="Axis4"/>
+	<spinner label="ヨー・マッピング" name="Axis5"/>
+	<spinner label="ロール・マッピング" name="Axis3"/>
+	<spinner label="ズーム・マッピング" name="Axis6"/>
 	<check_box label="直接ズーム" name="ZoomDirect"/>
 	<check_box label="３Ｄカーソル" name="Cursor3D"/>
 	<check_box label="自動レベル" name="AutoLeveling"/>
@@ -22,7 +22,7 @@
 	<check_box label="アバター" name="JoystickAvatarEnabled"/>
 	<check_box label="ビルド" name="JoystickBuildEnabled"/>
 	<check_box label="フライカム" name="JoystickFlycamEnabled"/>
-	<stat_view label="ジョイスティック・モニター" name="axis_view">
+	<stat_view label="軸モニター" name="axis_view">
 		<stat_bar label="軸０" name="axis0"/>
 		<stat_bar label="軸１" name="axis1"/>
 		<stat_bar label="軸２" name="axis2"/>

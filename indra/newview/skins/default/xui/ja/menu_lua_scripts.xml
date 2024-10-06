@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<context_menu name="スクリプト">
+<context_menu name="Scripts">
 	<menu_item_call label="格納フォルダを開く" name="open_folder"/>
 	<menu_item_separator/>
 	<menu_item_call label="スクリプトを停止する" name="terminate"/>

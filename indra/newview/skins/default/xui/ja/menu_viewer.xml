@@ -328,6 +328,9 @@
 		<menu_item_check label="開発メニューを表示" name="Debug Mode"/>
 	</menu>
 	<menu label="開発" name="Develop">
+		<menu label="実験的な機能" name="Experimental Features">
+			<menu_item_check label="ゲーム操作" name="ToggleGameControl"/>
+		</menu>
 		<menu label="コンソール" name="Consoles">
 			<menu_item_check label="テクスチャのコンソール" name="Texture Console"/>
 			<menu_item_check label="デバッグコンソール" name="Debug Console"/>
@@ -450,6 +453,7 @@
 			<menu_item_check label="フル解像度テクスチャ" name="Rull Res Textures"/>
 			<menu_item_check label="装着された光源を描画する" name="Render Attached Lights"/>
 			<menu_item_check label="取り付けられたパーティクルを描画する" name="Render Attached Particles"/>
+			<menu_item_check label="フォント頂点バッファを収集する" name="Collect Font Vertex Buffers"/>
 			<menu_item_separator/>
 			<menu_item_check label="シェーダーキャッシュを有効化" name="Enable Shader Cache"/>
 			<menu_item_call label="シェーダーキャッシュをクリア" name="Shader Cache Clear"/>
