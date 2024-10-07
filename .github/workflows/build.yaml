@@ -52,6 +52,7 @@ jobs:
         experimental: [false]
         include:
         - runner: linux-large
+          configuration: ReleaseOS
           experimental: true
     runs-on: ${{ matrix.runner }}
     outputs:
