@@ -3171,22 +3171,32 @@ bool LLViewerShaderMgr::loadShadersInterface()
         }
     }
 
-    if (success)
+    if (gSavedSettings.getBOOL("LocalTerrainPaintEnabled"))
     {
-        LLGLSLShader* shader = &gTerrainStampProgram;
-        U32 bit_depth = gSavedSettings.getU32("TerrainPaintBitDepth");
-        // LLTerrainPaintMap currently uses an RGB8 texture internally
-        bit_depth = llclamp(bit_depth, 1, 8);
-        shader->mName = llformat("Terrain Stamp Shader RGB%o", bit_depth);
+        if (success)
+        {
+            LLGLSLShader* shader = &gTerrainStampProgram;
+            U32 bit_depth = gSavedSettings.getU32("TerrainPaintBitDepth");
+            // LLTerrainPaintMap currently uses an RGB8 texture internally
+            bit_depth = llclamp(bit_depth, 1, 8);
+            shader->mName = llformat("Terrain Stamp Shader RGB%o", bit_depth);
 
-        shader->mShaderFiles.clear();
-        shader->mShaderFiles.push_back(make_pair("interface/terrainStampV.glsl", GL_VERTEX_SHADER));
-        shader->mShaderFiles.push_back(make_pair("interface/terrainStampF.glsl", GL_FRAGMENT_SHADER));
-        shader->mShaderLevel = mShaderLevel[SHADER_INTERFACE];
-        const U32 value_range = (1 << bit_depth) - 1;
-        shader->addPermutation("TERRAIN_PAINT_PRECISION", llformat("%d", value_range));
-        success = success && shader->createShader();
-        llassert(success);
+            shader->mShaderFiles.clear();
+            shader->mShaderFiles.push_back(make_pair("interface/terrainStampV.glsl", GL_VERTEX_SHADER));
+            shader->mShaderFiles.push_back(make_pair("interface/terrainStampF.glsl", GL_FRAGMENT_SHADER));
+            shader->mShaderLevel = mShaderLevel[SHADER_INTERFACE];
+            const U32 value_range = (1 << bit_depth) - 1;
+            shader->addPermutation("TERRAIN_PAINT_PRECISION", llformat("%d", value_range));
+            success = success && shader->createShader();
+            //llassert(success);
+            if (!success)
+            {
+                LL_WARNS() << "Failed to create shader '" << shader->mName << "', disabling!" << LL_ENDL;
+                gSavedSettings.setBOOL("RenderCanUseTerrainBakeShaders", false);
+                // continue as if this shader never happened
+                success = true;
+            }
+        }
     }
 
     if (success)
