@@ -573,7 +573,7 @@ LLTerrainPaintQueue LLTerrainPaintMap::convertPaintQueueRGBAToRGB(LLViewerTextur
             paint_out->mStartY = paint_in->mStartY;
             paint_out->mWidthX = paint_in->mWidthX;
             paint_out->mWidthY = paint_in->mWidthY;
-            paint_out->mBitDepth = 8; // Will be reduced to 5 bits later
+            paint_out->mBitDepth = 8; // Will be reduced to TerrainPaintBitDepth bits later
             paint_out->mComponents = LLTerrainPaint::RGB;
 #ifdef SHOW_ASSERT
             paint_out->assert_confined_to(tex);
@@ -602,7 +602,8 @@ LLTerrainPaintQueue LLTerrainPaintMap::convertPaintQueueRGBAToRGB(LLViewerTextur
         // round-trip which will reduce the bit depth, making the
         // pre-conversion step not necessary.
         queue_out.enqueue(paint_out);
-        queue_out.convertBitDepths(queue_out.size()-1, 5);
+        LLCachedControl<U32> bit_depth(gSavedSettings, "TerrainPaintBitDepth");
+        queue_out.convertBitDepths(queue_out.size()-1, bit_depth);
     }
 
     queue_in.clear();
@@ -775,7 +776,7 @@ LLTerrainPaintQueue LLTerrainPaintMap::convertBrushQueueToPaintRGB(const LLViewe
             const F32 dY = brush_start_y - F32(paint_out->mStartY);
             paint_out->mWidthX = U16(ceil(brush_width_x + dX));
             paint_out->mWidthY = U16(ceil(brush_width_y + dY));
-            paint_out->mBitDepth = 8; // Will be reduced to 5 bits later
+            paint_out->mBitDepth = 8; // Will be reduced to TerrainPaintBitDepth bits later
             paint_out->mComponents = LLTerrainPaint::RGB;
             // The brush strokes are expected to sometimes partially venture
             // outside of the paintmap bounds.
@@ -803,7 +804,8 @@ LLTerrainPaintQueue LLTerrainPaintMap::convertBrushQueueToPaintRGB(const LLViewe
         // round-trip which will reduce the bit depth, making the
         // pre-conversion step not necessary.
         queue_out.enqueue(paint_out);
-        queue_out.convertBitDepths(queue_out.size()-1, 5);
+        LLCachedControl<U32> bit_depth(gSavedSettings, "TerrainPaintBitDepth");
+        queue_out.convertBitDepths(queue_out.size()-1, bit_depth);
     }
 
     queue_in.clear();
