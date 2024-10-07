@@ -873,10 +873,13 @@ void LLSpatialGroup::updateTransformUBOs()
 
     // build transform UBO and transform intance map UBO
     // Each LLVolumeFace contains an LLVertexBuffer of that face's geometry
-    // It's common for there to be many instances of an LLFace with the same material witin a given spatial group
-    // Each LLSpatialGroup will provide two UBOs to the shader:
+    // It's common for there to be many instances of an LLFace with the same material within a given spatial group
+    // Each LLSpatialGroup will provide several UBOs to the shader:
     //  mTransformUBO: a UBO containing a transform from LLVolume space to agent space for each drawable in the group
     //  mInstanceMapUBO: a UBO mapping gl_InstanceID to the index of the transform in mTransformUBO
+    //  mMaterialUBO: a UBO containing material data for each material used by the group
+    //  mTextureTransformUBO: a UBO containing texture transform data for each texture transform used by the group (if animated textures are present)
+    //  mPrimScaleUBO: a UBO containing the scale of each primitive in the group
 
     struct MaterialRecord
     {
@@ -908,7 +911,6 @@ void LLSpatialGroup::updateTransformUBOs()
     static std::vector<LLVector4a> prim_scales;
     prim_scales.clear();
 
-
     {
         LL_PROFILE_ZONE_NAMED("utubo - collect transforms");
         for (OctreeNode::const_element_iter i = getDataBegin(); i != getDataEnd(); ++i)
@@ -916,64 +918,66 @@ void LLSpatialGroup::updateTransformUBOs()
             LLDrawable* drawable = (LLDrawable*)(*i)->getDrawable();
             llassert(drawable); // octree nodes are not allowed to contain null drawables
 
-            if (drawable->isState(LLDrawable::HAS_GLTF))
+            // TODO: split transform UBOs when we blow past the UBO size limit
+            llassert(transforms.size() < max_transforms);
+            U32 transform_index = (U32)transforms.size();
+            transforms.push_back(&drawable->getGLTFRenderMatrix());
+
+            LLVOVolume* vobj = drawable->getVOVolume();
+
+            if (!vobj || vobj->isDead())
             {
-                // TODO: split transform UBOs when we blow past the UBO size limit
-                llassert(transforms.size() < max_transforms);
-                U32 transform_index = (U32)transforms.size();
-                transforms.push_back(&drawable->getGLTFRenderMatrix());
+                continue;
+            }
 
-                LLVOVolume* vobj = drawable->getVOVolume();
+            const LLVector3& scale = drawable->getScale();
+            prim_scales.push_back(LLVector4a(scale.mV[0], scale.mV[1], scale.mV[2], 0.f));
 
-                const LLVector3& scale = drawable->getScale();
-                prim_scales.push_back(LLVector4a(scale.mV[0], scale.mV[1], scale.mV[2], 0.f));
+            LLVolume* volume = drawable->getVOVolume()->getVolume();
+            volume->createVertexBuffer();
 
-                LLVolume* volume = drawable->getVOVolume()->getVolume();
-                volume->createVertexBuffer();
+            for (S32 i = 0; i < drawable->getNumFaces(); ++i)
+            {
+                LLFace* facep = drawable->getFace(i);
+                facep->mGLTFDrawInfo.clear();
+                LLVolumeFace& vf = volume->getVolumeFace(i);
 
-                for (S32 i = 0; i < drawable->getNumFaces(); ++i)
+                LLGLTFMaterial* gltf_mat = facep->getTextureEntry()->getGLTFRenderMaterial();
+                if (gltf_mat && vf.mVertexBuffer.notNull())
                 {
-                    LLFace* facep = drawable->getFace(i);
-                    facep->mGLTFDrawInfo.clear();
-                    LLVolumeFace& vf = volume->getVolumeFace(i);
-
-                    LLGLTFMaterial* gltf_mat = facep->getTextureEntry()->getGLTFRenderMaterial();
-                    if (gltf_mat && vf.mVertexBuffer.notNull())
+                    if (facep->isState(LLFace::RIGGED) && facep->getSkinHash() != 0)
                     {
-                        if (facep->isState(LLFace::RIGGED) && facep->getSkinHash() != 0)
-                        {
-                            transforms[transforms.size() - 1] = &facep->mSkinInfo->mBindShapeMatrix.mMatrix4;
-                        }
-                        gltf_mat->updateBatchHash();
-
-                        const auto& iter = materials.find(gltf_mat->getBatchHash());
-                        U32 id = 0;
-                        if (iter == materials.end())
-                        {
-                            id = mat_id;
-                            materials[gltf_mat->getBatchHash()] = { mat_id++, gltf_mat };
-
-                            gltf_mat->packOnto(material_data);
-                        }
-                        else
-                        {
-                            id = iter->second.id;
-                        }
-
-                        if (facep->mTextureMatrix != nullptr)
-                        {
-                            texture_transforms.push_back(facep->mTextureMatrix);
-                            facep->mTextureTransformIndex = (U32)texture_transforms.size() - 1;
-                        }
-                        else
-                        {
-                            facep->mTextureTransformIndex = 0xFFFFFFFF;
-                        }
-
-                        faces.push_back(facep);
-                        facep->mTransformIndex = transform_index;
-                        facep->mMaterialIndex = id;
+                        transforms[transforms.size() - 1] = &facep->mSkinInfo->mBindShapeMatrix.mMatrix4;
                     }
+                    gltf_mat->updateBatchHash();
+
+                    const auto& iter = materials.find(gltf_mat->getBatchHash());
+                    U32 id = 0;
+                    if (iter == materials.end())
+                    {
+                        id = mat_id;
+                        materials[gltf_mat->getBatchHash()] = { mat_id++, gltf_mat };
+
+                        gltf_mat->packOnto(material_data);
+                    }
+                    else
+                    {
+                        id = iter->second.id;
+                    }
+
+                    if (facep->mTextureMatrix != nullptr)
+                    {
+                        texture_transforms.push_back(facep->mTextureMatrix);
+                        facep->mTextureTransformIndex = (U32)texture_transforms.size() - 1;
+                    }
+                    else
+                    {
+                        facep->mTextureTransformIndex = 0xFFFFFFFF;
+                    }
+
+                    faces.push_back(facep);
+                    facep->mTransformIndex = transform_index;
+                    facep->mMaterialIndex = id;
                 }
             }
         }
@@ -1103,6 +1107,7 @@ void LLSpatialGroup::updateTransformUBOs()
 
             LLGLTFDrawInfo* current_info = nullptr;
             LLGLTFDrawInfoHandle current_handle;
+            current_handle.mSpatialGroup = this;
 
             for (U32 i = 0; i < faces.size(); ++i)
             {

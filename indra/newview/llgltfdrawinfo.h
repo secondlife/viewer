@@ -28,6 +28,8 @@
 
 #include "llvoavatar.h"
 
+class LLSpatialGroup;
+
 class LLGLTFDrawInfo
 {
 public:
@@ -154,28 +156,15 @@ public:
         LLGLTFBatches::skinned_gltf_draw_info_list_t* mSkinnedContainer = nullptr;
     };
 
+    LLSpatialGroup* mSpatialGroup = nullptr;
+
     // whether this is a skinned or non-skinned draw info
     bool mSkinned = false;
 
     // index into that vector
     S32 mIndex = -1;
 
-    LLGLTFDrawInfo* get()
-    {
-        if (mIndex == -1)
-        {
-            return nullptr;
-        }
-
-        if (mSkinned)
-        {
-            return &mSkinnedContainer->at(mIndex);
-        }
-        else
-        {
-            return &mContainer->at(mIndex);
-        }
-    }
+    LLGLTFDrawInfo* get();
 
     LLGLTFDrawInfo* operator->()
     {
@@ -184,13 +173,12 @@ public:
 
     operator bool() const
     {
-        return mIndex != -1;
+        llassert(mIndex < 0 ||
+            (mContainer != nullptr &&
+                mSkinned ? (mSkinnedContainer->size() > mIndex) :
+                (mContainer->size() > mIndex)));
+        return mIndex >= 0;
     }
 
-    void clear()
-    {
-        mContainer = nullptr;
-        mSkinnedContainer = nullptr;
-        mIndex = -1;
-    }
+    void clear();
 };

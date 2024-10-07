@@ -2320,6 +2320,7 @@ bool LLVolume::unpackVolumeFaces(U8* in_data, S32 size)
 bool LLVolume::unpackVolumeFacesInternal(const LLSD& mdl)
 {
     {
+        mVertexBuffer = nullptr;
         auto face_count = mdl.size();
 
         if (face_count == 0)
@@ -2764,14 +2765,40 @@ bool LLVolume::cacheOptimize(bool gen_tangents)
             return false;
         }
     }
+
     return true;
 }
 
 extern U32 ll_gl_gen_arrays();
 
+static bool validate_vertex_buffer(LLVolume* volume)
+{
+    if (volume->mVertexBuffer.isNull())
+    {
+        // allowed to be null
+        return true;
+    }
+
+    U32 num_verts = 0;
+    U32 num_indices = 0;
+    for (auto& face: volume->getVolumeFaces())
+    {
+        num_verts += face.mNumVertices;
+        num_indices += face.mNumIndices;
+    }
+
+    bool same_verts = num_verts == volume->mVertexBuffer->getNumVerts();
+    bool same_indices = num_indices == volume->mVertexBuffer->getNumIndices();
+
+    llassert(same_verts);
+    llassert(same_indices);
+
+    return same_verts && same_indices;
+}
+
 void LLVolume::createVertexBuffer()
 {
-    if (!mVolumeFaces.empty() && mVertexBuffer.isNull())
+    if (mIsMeshAssetLoaded && !mVolumeFaces.empty() && mVertexBuffer.isNull())
     {
         LL_PROFILE_ZONE_SCOPED;
         U32 mask = LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_NORMAL | LLVertexBuffer::MAP_TEXCOORD0 | LLVertexBuffer::MAP_TANGENT;
@@ -2829,6 +2856,8 @@ void LLVolume::createVertexBuffer()
 
         mVertexBuffer->setupVAO();
     }
+
+    llassert(validate_vertex_buffer(this));
 }
 
 S32 LLVolume::getNumFaces() const

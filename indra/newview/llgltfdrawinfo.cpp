@@ -125,3 +125,30 @@ void LLGLTFBatches::add(const LLGLTFBatches& other)
     }
 }
 
+LLGLTFDrawInfo* LLGLTFDrawInfoHandle::get()
+{
+    if (mIndex == -1)
+    {
+        return nullptr;
+    }
+
+    if (mSkinned)
+    {
+        llassert(mIndex >= 0 && mIndex < mSkinnedContainer->size());
+        return &mSkinnedContainer->at(mIndex);
+    }
+    else
+    {
+        llassert(mIndex >= 0 && mIndex < mContainer->size());
+        return &mContainer->at(mIndex);
+    }
+}
+
+void LLGLTFDrawInfoHandle::clear()
+{
+    mContainer = nullptr;
+    mSkinnedContainer = nullptr;
+    mIndex = -1;
+    mSpatialGroup = nullptr;
+}
+
