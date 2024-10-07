@@ -162,7 +162,7 @@ Linking
 
     *  Update the autobuild.xml of ALL consumers of the library.  In
     the case of zlib, that meant updating freetype, libpng, openssl,
-    libxml2, fontconfig, curl, Boost, SDL, llqtwebkit, google-mock and
+    libxml2, fontconfig, curl, Boost, SDL2, llqtwebkit, google-mock and
     colladadom.
 
     *  Confirm by test and observation that the consumers actually use

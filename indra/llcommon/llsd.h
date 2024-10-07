@@ -420,6 +420,7 @@ public:
         bool isBinary() const       { return type() == TypeBinary; }
         bool isMap() const          { return type() == TypeMap; }
         bool isArray() const        { return type() == TypeArray; }
+        bool isEmpty() const;
     //@}
 
     /** @name Automatic Cast Protection

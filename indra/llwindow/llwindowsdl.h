@@ -28,6 +28,7 @@
 
 // Simple Directmedia Layer (http://libsdl.org/) implementation of LLWindow class
 
+#if LL_LINUX
 #include "llwindow.h"
 #include "lltimer.h"
 
@@ -51,21 +52,25 @@ public:
 
     void close() override;
 
-    bool getVisible() override;
-    bool getMinimized() override;
-    bool getMaximized() override;
-    bool getFullscreen();
+    bool getVisible() const override;
+
+    bool getMinimized() const override;
+
+    bool getMaximized() const override;
 
     bool maximize() override;
     void minimize() override;
 
-    bool getPosition(LLCoordScreen *position) override;
+    bool getPosition(LLCoordScreen *position) const override;
+
+    bool getSize(LLCoordScreen *size) const override;
+
+    bool getSize(LLCoordWindow *size) const override;
+
     bool setPosition(LLCoordScreen position) override;
 
-    bool getSize(LLCoordScreen *size) override;
-    bool getSize(LLCoordWindow *size) override;
-
     bool setSizeImpl(LLCoordScreen size) override;
+
     bool setSizeImpl(LLCoordWindow size) override;
 
     bool switchContext(bool fullscreen, const LLCoordScreen &size, bool enable_vsync,
@@ -101,31 +106,35 @@ public:
     void flashIcon(F32 seconds) override;
     void maybeStopFlashIcon();
 
-    F32 getGamma() override;
+    F32 getGamma() const override;
     bool setGamma(const F32 gamma) override; // Set the gamma
     bool restoreGamma() override;            // Restore original gamma table (before updating gamma)
 
-    U32 getFSAASamples() override;
+    U32 getFSAASamples() const override;
     void setFSAASamples(const U32 samples) override;
-
-    ESwapMethod getSwapMethod()  override { return mSwapMethod; }
-    void swapBuffers() override;
 
     void processMiscNativeEvents() override;
 
-    void gatherInput() override;
+    void gatherInput(bool app_has_focus) override;
+
+    void swapBuffers() override;
 
     void restoreGLContext() {};
 
     void delayInputProcessing()  override {};
 
     // handy coordinate space conversion routines
-    bool convertCoords(LLCoordScreen from, LLCoordWindow *to) override;
-    bool convertCoords(LLCoordWindow from, LLCoordScreen *to) override;
-    bool convertCoords(LLCoordWindow from, LLCoordGL *to) override;
-    bool convertCoords(LLCoordGL from, LLCoordWindow *to) override;
-    bool convertCoords(LLCoordScreen from, LLCoordGL *to) override;
-    bool convertCoords(LLCoordGL from, LLCoordScreen *to) override;
+    bool convertCoords(LLCoordScreen from, LLCoordWindow *to) const override;
+
+    bool convertCoords(LLCoordWindow from, LLCoordScreen *to) const override;
+
+    bool convertCoords(LLCoordWindow from, LLCoordGL *to) const override;
+
+    bool convertCoords(LLCoordGL from, LLCoordWindow *to) const override;
+
+    bool convertCoords(LLCoordScreen from, LLCoordGL *to) const override;
+
+    bool convertCoords(LLCoordGL from, LLCoordScreen *to) const override;
 
     LLWindowResolution *getSupportedResolutions(S32 &num_resolutions) override;
 
@@ -173,7 +182,7 @@ protected:
 
     bool isValid() override;
 
-    LLSD getNativeKeyData() override;
+    LLSD getNativeKeyData() const override;
 
     void initCursors();
     void quitCursors();
@@ -245,7 +254,7 @@ private:
         uint64_t mLastFrameEvent = 0;
     } mWaylandData;
 
-    bool isWaylandWindowNotDrawing();
+    bool isWaylandWindowNotDrawing() const;
 
     void setupWaylandFrameCallback();
     static void waylandFrameDoneCB(void *data, struct wl_callback *cb, uint32_t time);
@@ -268,4 +277,5 @@ public:
 
 S32 OSMessageBoxSDL(const std::string& text, const std::string& caption, U32 type);
 
+#endif //LL_LINUX
 #endif //LL_LLWINDOWSDL_H

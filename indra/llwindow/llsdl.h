@@ -1,8 +1,8 @@
 /**
- * @file camera.h
- * @brief Legacy wrapper header.
+ * @file llsdl.h
+ * @brief SDL2 initialization
  *
- * $LicenseInfo:firstyear=2000&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
  *
@@ -24,4 +24,7 @@
  * $/LicenseInfo$
  */
 
-#include "llcamera.h"
+#pragma once
+
+void init_sdl();
+void quit_sdl();
