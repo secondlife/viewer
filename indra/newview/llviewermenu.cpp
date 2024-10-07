@@ -1430,6 +1430,12 @@ class LLAdvancedTerrainCreateLocalPaintMap : public view_listener_t
             return false;
         }
 
+        // This calls gLocalTerrainMaterials.setPaintType
+        // It also ensures the terrain bake shader is compiled (handleSetShaderChanged), so call this first
+        // *TODO: Fix compile errors in shader so it can be used for all platforms. Then we can unhide the shader from behind this setting and remove the hook to handleSetShaderChanged. This advanced setting is intended to be used as a local setting for testing terrain, not a feature flag, but it is currently used like a feature flag as a temporary hack.
+        // *TODO: Ideally we would call setPaintType *after* the paint map is well-defined. The terrain draw pool should be able to handle an undefined paint map in the meantime.
+        gSavedSettings.setBOOL("LocalTerrainPaintEnabled", true);
+
         U16 dim = (U16)gSavedSettings.getU32("TerrainPaintResolution");
         // Ensure a reasonable image size of power two
         const U32 max_resolution = gSavedSettings.getU32("RenderMaxTextureResolution");
@@ -1439,8 +1445,6 @@ class LLAdvancedTerrainCreateLocalPaintMap : public view_listener_t
         LLPointer<LLImageRaw> image_raw = new LLImageRaw(dim,dim,3);
         LLPointer<LLViewerTexture> tex = LLViewerTextureManager::getLocalTexture(image_raw.get(), true);
         const bool success = LLTerrainPaintMap::bakeHeightNoiseIntoPBRPaintMapRGB(*region, *tex);
-        // This calls gLocalTerrainMaterials.setPaintType
-        gSavedSettings.setBOOL("LocalTerrainPaintEnabled", true);
         // If baking the paintmap failed, set the paintmap to nullptr. This
         // causes LLDrawPoolTerrain to use a blank paintmap instead.
         if (!success) { tex = nullptr; }

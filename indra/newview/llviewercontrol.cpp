@@ -911,6 +911,7 @@ void settings_setup_listeners()
     setting_setup_signal_listener(gSavedSettings, "AutoTuneImpostorByDistEnabled", handleUserImpostorByDistEnabledChanged);
     setting_setup_signal_listener(gSavedSettings, "TuningFPSStrategy", handleFPSTuningStrategyChanged);
     {
+        setting_setup_signal_listener(gSavedSettings, "LocalTerrainPaintEnabled", handleSetShaderChanged);
         setting_setup_signal_listener(gSavedSettings, "LocalTerrainPaintEnabled", handleLocalTerrainChanged);
         const char* transform_suffixes[] = {
             "ScaleU",

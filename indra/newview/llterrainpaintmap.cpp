@@ -447,7 +447,7 @@ LLTerrainPaintQueue LLTerrainPaintMap::convertPaintQueueRGBAToRGB(LLViewerTextur
     // View matrix
     // Coordinates should be in pixels. 1.0f = 1 pixel on the framebuffer.
     // Camera is centered in the middle of the framebuffer.
-    glh::matrix4f view((GLfloat *) OGL_TO_CFR_ROTATION);
+    glm::mat4 view(glm::make_mat4((GLfloat*) OGL_TO_CFR_ROTATION));
     {
         LLViewerCamera camera;
         const LLVector3 camera_origin(target_half_width, target_half_height, 0.5f);
@@ -456,7 +456,7 @@ LLTerrainPaintQueue LLTerrainPaintMap::convertPaintQueueRGBAToRGB(LLViewerTextur
         camera.setAspect(F32(scratch_target.getHeight()) / F32(scratch_target.getWidth()));
         GLfloat ogl_matrix[16];
         camera.getOpenGLTransform(ogl_matrix);
-        view *= glh::matrix4f(ogl_matrix);
+        view *= glm::make_mat4(ogl_matrix);
     }
 
     LLGLDisable stencil(GL_STENCIL_TEST);
@@ -471,14 +471,14 @@ LLTerrainPaintQueue LLTerrainPaintMap::convertPaintQueueRGBAToRGB(LLViewerTextur
 
     // First, apply the paint map as the background
     {
-        glh::matrix4f model;
+        glm::mat4 model;
         {
-            model.set_scale(glh::vec3f((F32)tex.getWidth(), (F32)tex.getHeight(), 1.0f));
-            model.set_translate(glh::vec3f(0.0f, 0.0f, 0.0f));
+            model = glm::scale(model, glm::vec3((F32)tex.getWidth(), (F32)tex.getHeight(), 1.0f));
+            model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
         }
-        glh::matrix4f modelview = view * model;
+        glm::mat4 modelview = view * model;
         gGL.matrixMode(LLRender::MM_MODELVIEW);
-        gGL.loadMatrix(modelview.m);
+        gGL.loadMatrix(glm::value_ptr(modelview));
 
         shader.bindTexture(LLShaderMgr::DIFFUSE_MAP, &tex);
         // We care about the whole paintmap, which is already a power of two.
@@ -505,14 +505,14 @@ LLTerrainPaintQueue LLTerrainPaintMap::convertPaintQueueRGBAToRGB(LLViewerTextur
         // Modelview matrix for the current paint
         // View matrix is already computed. Just need the model matrix.
         // Orthographic projection matrix is already updated
-        glh::matrix4f model;
+        glm::mat4 model;
         {
-            model.set_scale(glh::vec3f(paint_in->mWidthX, paint_in->mWidthY, 1.0f));
-            model.set_translate(glh::vec3f(paint_in->mStartX, paint_in->mStartY, 0.0f));
+            model = glm::scale(model, glm::vec3(paint_in->mWidthX, paint_in->mWidthY, 1.0f));
+            model = glm::translate(model, glm::vec3(paint_in->mStartX, paint_in->mStartY, 0.0f));
         }
-        glh::matrix4f modelview = view * model;
+        glm::mat4 modelview = view * model;
         gGL.matrixMode(LLRender::MM_MODELVIEW);
-        gGL.loadMatrix(modelview.m);
+        gGL.loadMatrix(glm::value_ptr(modelview));
 
         // Generate temporary stamp texture from paint contents.
         // Our stamp image needs to be a power of two.
@@ -663,7 +663,7 @@ LLTerrainPaintQueue LLTerrainPaintMap::convertBrushQueueToPaintRGB(const LLViewe
     // View matrix
     // Coordinates should be in pixels. 1.0f = 1 pixel on the framebuffer.
     // Camera is centered in the middle of the framebuffer.
-    glh::matrix4f view((GLfloat *) OGL_TO_CFR_ROTATION);
+    glm::mat4 view(glm::make_mat4((GLfloat*)OGL_TO_CFR_ROTATION));
     {
         LLViewerCamera camera;
         const LLVector3 camera_origin(target_half_width, target_half_height, 0.5f);
@@ -672,7 +672,7 @@ LLTerrainPaintQueue LLTerrainPaintMap::convertBrushQueueToPaintRGB(const LLViewe
         camera.setAspect(F32(scratch_target.getHeight()) / F32(scratch_target.getWidth()));
         GLfloat ogl_matrix[16];
         camera.getOpenGLTransform(ogl_matrix);
-        view *= glh::matrix4f(ogl_matrix);
+        view *= glm::make_mat4(ogl_matrix);
     }
 
     LLGLDisable stencil(GL_STENCIL_TEST);
@@ -687,14 +687,14 @@ LLTerrainPaintQueue LLTerrainPaintMap::convertBrushQueueToPaintRGB(const LLViewe
 
     // First, apply the paint map as the background
     {
-        glh::matrix4f model;
+        glm::mat4 model;
         {
-            model.set_scale(glh::vec3f((F32)tex.getWidth(), (F32)tex.getHeight(), 1.0f));
-            model.set_translate(glh::vec3f(0.0f, 0.0f, 0.0f));
+            model = glm::scale(model, glm::vec3((F32)tex.getWidth(), (F32)tex.getHeight(), 1.0f));
+            model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
         }
-        glh::matrix4f modelview = view * model;
+        glm::mat4 modelview = view * model;
         gGL.matrixMode(LLRender::MM_MODELVIEW);
-        gGL.loadMatrix(modelview.m);
+        gGL.loadMatrix(glm::value_ptr(modelview));
 
         shader.bindTexture(LLShaderMgr::DIFFUSE_MAP, &tex);
         // We care about the whole paintmap, which is already a power of two.
@@ -748,14 +748,14 @@ LLTerrainPaintQueue LLTerrainPaintMap::convertBrushQueueToPaintRGB(const LLViewe
             brush_start_x *= tex.getWidth()  / region.getWidth();
             brush_start_y *= tex.getHeight() / region.getWidth();
         }
-        glh::matrix4f model;
+        glm::mat4 model;
         {
-            model.set_scale(glh::vec3f(brush_width_x, brush_width_y, 1.0f));
-            model.set_translate(glh::vec3f(brush_start_x, brush_start_y, 0.0f));
+            model = glm::scale(model, glm::vec3(brush_width_x, brush_width_y, 1.0f));
+            model = glm::translate(model, glm::vec3(brush_start_x, brush_start_y, 0.0f));
         }
-        glh::matrix4f modelview = view * model;
+        glm::mat4 modelview = view * model;
         gGL.matrixMode(LLRender::MM_MODELVIEW);
-        gGL.loadMatrix(modelview.m);
+        gGL.loadMatrix(glm::value_ptr(modelview));
 
         // Apply the "brush" to the render target
         {
@@ -842,11 +842,11 @@ template<typename T>
 bool LLTerrainQueue<T>::enqueue(std::vector<std::shared_ptr<T>>& list)
 {
     constexpr bool dry_run = true;
-    for (T::ptr_t& t : list)
+    for (auto& t : list)
     {
         if (!enqueue(t), dry_run) { return false; }
     }
-    for (T::ptr_t& t : list)
+    for (auto& t : list)
     {
         enqueue(t);
     }
