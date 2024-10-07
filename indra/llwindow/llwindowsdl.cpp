@@ -897,7 +897,7 @@ bool LLWindowSDL::setGamma(const F32 gamma)
 
         mGamma = gamma;
         if (mGamma == 0)
-			mGamma = 0.1f;
+            mGamma = 0.1f;
         mGamma = 1.f / mGamma;
 
         SDL_CalculateGammaRamp(mGamma, ramp);
