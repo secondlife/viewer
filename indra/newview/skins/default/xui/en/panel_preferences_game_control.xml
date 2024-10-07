@@ -62,6 +62,7 @@
                     label="Action"
                     relative_width="0.25" />
                 <scroll_list.columns
+                    name="channel"
                     label="Channel"
                     relative_width="0.75" />
             </scroll_list>
@@ -81,6 +82,7 @@
                 right="-1"
                 bottom="-1">No device</text>
             <panel
+                name="device_selection_panel"
                 layout="topleft"
                 follows="top|left|right"
                 top="1"
@@ -156,15 +158,19 @@
                             selection_type="header"
                             fg_disable_color="ScrollUnselectedColor">
                             <scroll_list.columns
+                                name="axis"
                                 label="Axis"
                                 relative_width="0.5"/>
                             <scroll_list.columns
+                                name="invert"
                                 label="Invert"
                                 relative_width="0.1"/>
                             <scroll_list.columns
+                                name="dead_zone"
                                 label="Dead Zone"
                                 relative_width="0.2"/>
                             <scroll_list.columns
+                                name="offset"
                                 label="Offset"
                                 relative_width="0.2"/>
                         </scroll_list>
@@ -212,6 +218,7 @@
         </panel>
     </tab_container>
     <panel
+        name="reset_to_defaults_panel"
         layout="topleft"
         follows="top|left"
         top="405"
@@ -237,13 +244,13 @@
         name="axis_selector"
         width="250"
         height="18">
-        <combo_box.item label="AXIS_0 (Left stick: tilt left/right)"/>
-        <combo_box.item label="AXIS_1 (Left stick: tilt forward/back)"/>
-        <combo_box.item label="AXIS_2 (Right stick: tilt left/right)"/>
-        <combo_box.item label="AXIS_3 (Right stick: tilt forward/back)"/>
-        <combo_box.item label="AXIS_4 (Left trigger: push/release)"/>
-        <combo_box.item label="AXIS_5 (Right trigger: push/release)"/>
-        <combo_box.item label="NONE (No mapping)"/>
+        <combo_box.item name="axis_0" label="AXIS_0 (Left stick: tilt left/right)"/>
+        <combo_box.item name="axis_1" label="AXIS_1 (Left stick: tilt forward/back)"/>
+        <combo_box.item name="axis_2" label="AXIS_2 (Right stick: tilt left/right)"/>
+        <combo_box.item name="axis_3" label="AXIS_3 (Right stick: tilt forward/back)"/>
+        <combo_box.item name="axis_4" label="AXIS_4 (Left trigger: push/release)"/>
+        <combo_box.item name="axis_5" label="AXIS_5 (Right trigger: push/release)"/>
+        <combo_box.item name="axis_none" label="NONE (No mapping)"/>
     </combo_box>
     <combo_box
         name="analog_channel_selector"

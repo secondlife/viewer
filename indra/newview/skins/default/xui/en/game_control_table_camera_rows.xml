@@ -22,7 +22,7 @@
          halign="left"
          name="action"
          tool_tip="Camera move forward/backward"
-         value="Advance Forward" />
+         value="Forward/Backward" />
     </rows>
     <rows
      name="pan"
@@ -33,7 +33,7 @@
          halign="left"
          name="action"
          tool_tip="Camera pan left/right"
-         value="Pan Left" />
+         value="Pan Left/Right" />
     </rows>
     <rows
      name="rise"
@@ -44,7 +44,7 @@
          halign="left"
          name="action"
          tool_tip="Camera rise/fall"
-         value="Rise Up" />
+         value="Rise Up/Down" />
     </rows>
     <rows
      name="pitch"
@@ -55,7 +55,7 @@
          halign="left"
          name="action"
          tool_tip="Camera adjust pitch"
-         value="Pitch Down" />
+         value="Pitch Up/Down" />
     </rows>
     <rows
      name="yaw"
@@ -66,7 +66,7 @@
          halign="left"
          name="action"
          tool_tip="Camera turn left/right"
-         value="Yaw CCW" />
+         value="Yaw CCW/CW" />
     </rows>
     <rows
      name="zoom"
@@ -77,7 +77,7 @@
          halign="left"
          name="action"
          tool_tip="Camera zoom in/out"
-         value="Zoom In" />
+         value="Zoom In/Out" />
     </rows>
     <!--
     <rows
