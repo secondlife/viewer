@@ -35,7 +35,7 @@
     <spinner
      bottom="56"
      height="10"
-     control_name="Axis1"
+     control_name="JoystickAxis1"
      decimal_digits="0"
      increment="1"
      label="X Axis Mapping"
@@ -44,12 +44,12 @@
      left="20"
      max_val="5"
      min_val="-1"
-     name="Axis1"
+     name="JoystickAxis1"
      width="140" />
     <spinner
      bottom_delta="0"
-     height="10"     
-     control_name="Axis2"
+     height="10"
+     control_name="JoystickAxis2"
      decimal_digits="0"
      increment="1"
      label="Y Axis Mapping"
@@ -58,12 +58,12 @@
      left="190"
      max_val="5"
      min_val="-1"
-     name="Axis2"
+     name="JoystickAxis2"
      width="140" />
     <spinner
      bottom_delta="0"
-     height="10"     
-     control_name="Axis0"
+     height="10"
+     control_name="JoystickAxis0"
      decimal_digits="0"
      increment="1"
      label="Z Axis Mapping"
@@ -72,12 +72,12 @@
      left="360"
      max_val="5"
      min_val="-1"
-     name="Axis0"
+     name="JoystickAxis0"
      width="140" />
     <spinner
      bottom="76"
-     height="10"     
-     control_name="Axis4"
+     height="10"
+     control_name="JoystickAxis4"
      decimal_digits="0"
      increment="1"
      label="Pitch Mapping"
@@ -86,12 +86,12 @@
      left="20"
      max_val="5"
      min_val="-1"
-     name="Axis4"
+     name="JoystickAxis4"
      width="140" />
     <spinner
      bottom_delta="0"
-     height="10"     
-     control_name="Axis5"
+     height="10"
+     control_name="JoystickAxis5"
      decimal_digits="0"
      increment="1"
      label="Yaw Mapping"
@@ -100,12 +100,12 @@
      left="190"
      max_val="5"
      min_val="-1"
-     name="Axis5"
+     name="JoystickAxis5"
      width="140" />
     <spinner
      bottom_delta="0"
-     height="10"     
-     control_name="Axis3"
+     height="10"
+     control_name="JoystickAxis3"
      decimal_digits="0"
      increment="1"
      label="Roll Mapping"
@@ -114,12 +114,12 @@
      left="360"
      max_val="5"
      min_val="-1"
-     name="Axis3"
+     name="JoystickAxis3"
      width="140" />
     <spinner
      bottom="96"
-     height="10"     
-     control_name="Axis6"
+     height="10"
+     control_name="JoystickAxis6"
      decimal_digits="0"
      increment="1"
      label="Zoom Mapping"
@@ -128,7 +128,7 @@
      left="20"
      max_val="5"
      min_val="-1"
-     name="Axis6"
+     name="JoystickAxis6"
      width="140" />
     <check_box
      bottom_delta="18"
@@ -141,7 +141,7 @@
      width="60" />
     <check_box
      bottom_delta="0"
-     height="10"     
+     height="10"
      control_name="Cursor3D"
      label="3D Cursor"
      layout="topleft"
@@ -150,7 +150,7 @@
      width="60" />
     <check_box
      bottom_delta="0"
-     height="10"     
+     height="10"
      control_name="AutoLeveling"
      label="Auto Level"
      layout="topleft"
@@ -173,7 +173,7 @@
     </text>
     <check_box
      bottom="134"
-     height="10"     
+     height="10"
      control_name="JoystickAvatarEnabled"
      halign="center"
      label="Avatar"
@@ -183,7 +183,7 @@
      width="60" />
     <check_box
      bottom_delta="0"
-     height="10"     
+     height="10"
      control_name="JoystickBuildEnabled"
      halign="center"
      label="Build"
@@ -193,7 +193,7 @@
      width="60" />
     <check_box
      bottom_delta="0"
-     height="10"     
+     height="10"
      control_name="JoystickFlycamEnabled"
      halign="center"
      label="Flycam"
@@ -213,7 +213,7 @@
         <stat_bar
          bar_max="2"
          bar_min="-2"
-				 show_bar="true"
+         show_bar="true"
          label="Axis 0"
          label_spacing="1"
          layout="topleft"
@@ -225,7 +225,7 @@
         <stat_bar
          bar_max="2"
          bar_min="-2"
-				 show_bar="true"
+         show_bar="true"
          label="Axis 1"
          label_spacing="1"
          layout="topleft"
@@ -234,7 +234,7 @@
         <stat_bar
          bar_max="2"
          bar_min="-2"
-				 show_bar="true"
+         show_bar="true"
          label="Axis 2"
          label_spacing="1"
          layout="topleft"
@@ -243,7 +243,7 @@
         <stat_bar
          bar_max="2"
          bar_min="-2"
-				 show_bar="true"
+         show_bar="true"
          label="Axis 3"
          label_spacing="1"
          layout="topleft"
@@ -252,7 +252,7 @@
         <stat_bar
          bar_max="2"
          bar_min="-2"
-				 show_bar="true"
+         show_bar="true"
          label="Axis 4"
          label_spacing="1"
          layout="topleft"
@@ -262,7 +262,7 @@
          bar_max="2"
          bar_min="-2"
          label="Axis 5"
-				 show_bar="true"				 
+         show_bar="true"
          label_spacing="1"
          layout="topleft"
          name="axis5"
@@ -281,7 +281,7 @@
     </text>
     <spinner
      bottom_delta="0"
-     height="10"     
+     height="10"
      control_name="AvatarAxisScale1"
      decimal_digits="2"
      label_width="0"
@@ -293,7 +293,7 @@
      width="56" />
     <spinner
      bottom_delta="0"
-     height="10"     
+     height="10"
      control_name="BuildAxisScale1"
      decimal_digits="2"
      label_width="0"
@@ -305,7 +305,7 @@
      width="56" />
     <spinner
      bottom_delta="0"
-     height="10"     
+     height="10"
      control_name="FlycamAxisScale1"
      decimal_digits="2"
      label_width="0"
@@ -328,7 +328,7 @@
     </text>
     <spinner
      bottom_delta="0"
-     height="10"     
+     height="10"
      control_name="AvatarAxisScale2"
      decimal_digits="2"
      label_width="0"
@@ -340,7 +340,7 @@
      width="56" />
     <spinner
      bottom_delta="0"
-     height="10"     
+     height="10"
      control_name="BuildAxisScale2"
      decimal_digits="2"
      label_width="0"
@@ -352,7 +352,7 @@
      width="56" />
     <spinner
      bottom_delta="0"
-     height="10"     
+     height="10"
      control_name="FlycamAxisScale2"
      decimal_digits="2"
      label_width="0"
@@ -375,7 +375,7 @@
     </text>
     <spinner
      bottom_delta="0"
-     height="10"     
+     height="10"
      control_name="AvatarAxisScale0"
      decimal_digits="2"
      label_width="0"
@@ -387,7 +387,7 @@
      width="56" />
     <spinner
      bottom_delta="0"
-     height="10"     
+     height="10"
      control_name="BuildAxisScale0"
      decimal_digits="2"
      label_width="0"
@@ -399,7 +399,7 @@
      width="56" />
     <spinner
      bottom_delta="0"
-     height="10"     
+     height="10"
      control_name="FlycamAxisScale0"
      decimal_digits="2"
      label_width="0"
@@ -422,7 +422,7 @@
     </text>
     <spinner
      bottom_delta="0"
-     height="10"     
+     height="10"
      control_name="AvatarAxisScale4"
      decimal_digits="2"
      label_width="0"
@@ -434,7 +434,7 @@
      width="56" />
     <spinner
      bottom_delta="0"
-     height="10"     
+     height="10"
      control_name="BuildAxisScale4"
      decimal_digits="2"
      label_width="0"
@@ -446,7 +446,7 @@
      width="56" />
     <spinner
      bottom_delta="0"
-     height="10"     
+     height="10"
      control_name="FlycamAxisScale4"
      decimal_digits="2"
      label_width="0"
@@ -595,7 +595,7 @@
     </text>
     <spinner
      bottom_delta="0"
-     height="10"     
+     height="10"
      control_name="AvatarAxisDeadZone2"
      decimal_digits="2"
      increment="0.01"
