@@ -846,7 +846,7 @@ bool LLTerrainQueue<T>::enqueue(std::vector<std::shared_ptr<T>>& list)
     constexpr bool dry_run = true;
     for (auto& t : list)
     {
-        if (!enqueue(t), dry_run) { return false; }
+        if (!enqueue(t, dry_run)) { return false; }
     }
     for (auto& t : list)
     {
