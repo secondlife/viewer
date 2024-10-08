@@ -27,7 +27,6 @@
 #include "linden_common.h"
 
 #include <cmath>
-//#include "vmath.h"
 #include "v3math.h"
 #include "llquaternion.h"
 #include "m3math.h"

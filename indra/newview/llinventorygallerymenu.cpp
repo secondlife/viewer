@@ -598,20 +598,23 @@ void LLInventoryGalleryContextMenu::updateMenuItemsVisibility(LLContextMenu* men
     bool has_children = false;
     bool is_full_perm_item = false;
     bool is_copyable = false;
-    LLViewerInventoryItem* selected_item = gInventory.getItem(selected_id);
+
+    LLViewerInventoryCategory* selected_category = nullptr;
+    LLViewerInventoryItem* selected_item = nullptr;
 
     if(is_folder)
     {
-        LLInventoryCategory* category = gInventory.getCategory(selected_id);
-        if (category)
+        selected_category = dynamic_cast<LLViewerInventoryCategory*>(obj);
+        if (selected_category)
         {
-            folder_type = category->getPreferredType();
+            folder_type = selected_category->getPreferredType();
             is_system_folder = LLFolderType::lookupIsProtectedType(folder_type);
             has_children = (gInventory.categoryHasChildren(selected_id) != LLInventoryModel::CHILDREN_NO);
         }
     }
     else
     {
+        selected_item = dynamic_cast<LLViewerInventoryItem*>(obj);
         if (selected_item)
         {
             is_full_perm_item = selected_item->getIsFullPerm();
@@ -730,8 +733,7 @@ void LLInventoryGalleryContextMenu::updateMenuItemsVisibility(LLContextMenu* men
     {
         if (is_agent_inventory && !is_inbox && !is_cof && !is_in_favorites && !is_outfits)
         {
-            LLViewerInventoryCategory* category = gInventory.getCategory(selected_id);
-            if (!category || !LLFriendCardsManager::instance().isCategoryInFriendFolder(category))
+            if (!selected_category || !LLFriendCardsManager::instance().isCategoryInFriendFolder(selected_category))
             {
                 items.push_back(std::string("New Folder"));
             }
@@ -759,6 +761,26 @@ void LLInventoryGalleryContextMenu::updateMenuItemsVisibility(LLContextMenu* men
             if (inventory_linking)
             {
                 items.push_back(std::string("Paste As Link"));
+
+                if (selected_item)
+                {
+                    if (!LLAssetType::lookupCanLink(selected_item->getActualType()))
+                    {
+                        disabled_items.push_back(std::string("Paste As Link"));
+                    }
+                    else if (gInventory.isObjectDescendentOf(selected_item->getUUID(), gInventory.getLibraryRootFolderID()))
+                    {
+                        disabled_items.push_back(std::string("Paste As Link"));
+                    }
+                    else if (selected_item->getAssetUUID().isNull())
+                    {
+                        disabled_items.push_back(std::string("Paste As Link"));
+                    }
+                }
+                else if (selected_category && LLFolderType::lookupIsProtectedType(selected_category->getPreferredType()))
+                {
+                    disabled_items.push_back(std::string("Paste As Link"));
+                }
             }
         }
         if (is_folder && is_agent_inventory)
@@ -979,9 +1001,8 @@ void LLInventoryGalleryContextMenu::updateMenuItemsVisibility(LLContextMenu* men
         {
             if (is_folder)
             {
-                LLViewerInventoryCategory* cat = gInventory.getCategory(selected_id);
-                if (cat
-                    && !LLFolderType::lookupIsProtectedType(cat->getPreferredType())
+                if (selected_category
+                    && !LLFolderType::lookupIsProtectedType(selected_category->getPreferredType())
                     && gInventory.isObjectDescendentOf(selected_id, gInventory.getRootFolderID()))
                 {
                     can_list = true;

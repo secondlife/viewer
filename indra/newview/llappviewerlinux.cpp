@@ -129,7 +129,7 @@ int main( int argc, char **argv )
         return -1;
     }
 
-        // Run the application main loop
+    // Run the application main loop
     while (! viewer_app_ptr->frame())
     {}
 

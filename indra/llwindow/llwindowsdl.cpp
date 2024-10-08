@@ -37,6 +37,7 @@
 #include "llstring.h"
 #include "lldir.h"
 #include "llfindlocale.h"
+#include "llgamecontrol.h"
 
 #ifdef LL_GLIB
 #include <glib.h>
@@ -246,58 +247,16 @@ void LLWindowSDL::tryFindFullscreenSize( int &width, int &height )
 
 bool LLWindowSDL::createContext(int x, int y, int width, int height, int bits, bool fullscreen, bool enable_vsync)
 {
-    //bool          glneedsinit = false;
-
+    if (width == 0)
+        width = 1024;
+    if (height == 0)
+        width = 768;
     LL_INFOS() << "createContext, fullscreen=" << fullscreen <<
                " size=" << width << "x" << height << LL_ENDL;
 
     // captures don't survive contexts
     mGrabbyKeyFlags = 0;
     mReallyCapturedCount = 0;
-
-    std::initializer_list<std::tuple< char const*, char const * > > hintList =
-            {
-                    {SDL_HINT_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR,"0"},
-                    {SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH,"1"},
-                    {SDL_HINT_IME_INTERNAL_EDITING,"1"}
-            };
-
-    for( auto hint: hintList )
-    {
-        SDL_SetHint( std::get<0>(hint), std::get<1>(hint));
-    }
-
-    std::initializer_list<std::tuple<uint32_t, char const*, bool>> initList=
-            { {SDL_INIT_VIDEO,"SDL_INIT_VIDEO", true},
-              {SDL_INIT_AUDIO,"SDL_INIT_AUDIO", false},
-              {SDL_INIT_GAMECONTROLLER,"SDL_INIT_GAMECONTROLLER", false},
-              {SDL_INIT_SENSOR,"SDL_INIT_SENSOR", false}
-            };
-
-    for( auto subSystem : initList)
-    {
-        if( SDL_InitSubSystem( std::get<0>(subSystem) ) < 0 )
-        {
-            LL_WARNS() << "SDL_InitSubSystem for " << std::get<1>(subSystem) << " failed " << SDL_GetError() << LL_ENDL;
-
-            if( std::get<2>(subSystem))
-                setupFailure("SDL_Init() failure", "error", OSMB_OK);
-
-        }
-    }
-
-    SDL_version c_sdl_version;
-    SDL_VERSION(&c_sdl_version);
-    LL_INFOS() << "Compiled against SDL "
-               << int(c_sdl_version.major) << "."
-               << int(c_sdl_version.minor) << "."
-               << int(c_sdl_version.patch) << LL_ENDL;
-    SDL_version r_sdl_version;
-    SDL_GetVersion(&r_sdl_version);
-    LL_INFOS() << " Running against SDL "
-               << int(r_sdl_version.major) << "."
-               << int(r_sdl_version.minor) << "."
-               << int(r_sdl_version.patch) << LL_ENDL;
 
     if (width == 0)
         width = 1024;
@@ -670,7 +629,7 @@ bool LLWindowSDL::isValid()
     return (mWindow != NULL);
 }
 
-bool LLWindowSDL::getVisible()
+bool LLWindowSDL::getVisible() const
 {
     bool result = false;
     if (mWindow)
@@ -684,7 +643,7 @@ bool LLWindowSDL::getVisible()
     return result;
 }
 
-bool LLWindowSDL::getMinimized()
+bool LLWindowSDL::getMinimized() const
 {
     bool result = false;
     if (mWindow)
@@ -698,7 +657,7 @@ bool LLWindowSDL::getMinimized()
     return result;
 }
 
-bool LLWindowSDL::getMaximized()
+bool LLWindowSDL::getMaximized() const
 {
     bool result = false;
     if (mWindow)
@@ -723,12 +682,7 @@ bool LLWindowSDL::maximize()
     return false;
 }
 
-bool LLWindowSDL::getFullscreen()
-{
-    return mFullscreen;
-}
-
-bool LLWindowSDL::getPosition(LLCoordScreen *position)
+bool LLWindowSDL::getPosition(LLCoordScreen *position) const
 {
     if (mWindow)
     {
@@ -738,7 +692,7 @@ bool LLWindowSDL::getPosition(LLCoordScreen *position)
     return false;
 }
 
-bool LLWindowSDL::getSize(LLCoordScreen *size)
+bool LLWindowSDL::getSize(LLCoordScreen *size) const
 {
     if (mSurface)
     {
@@ -750,7 +704,7 @@ bool LLWindowSDL::getSize(LLCoordScreen *size)
     return (false);
 }
 
-bool LLWindowSDL::getSize(LLCoordWindow *size)
+bool LLWindowSDL::getSize(LLCoordWindow *size) const
 {
     if (mSurface)
     {
@@ -816,7 +770,7 @@ void LLWindowSDL::swapBuffers()
     LL_PROFILER_GPU_COLLECT;
 }
 
-U32 LLWindowSDL::getFSAASamples()
+U32 LLWindowSDL::getFSAASamples() const
 {
     return mFSAASamples;
 }
@@ -826,7 +780,7 @@ void LLWindowSDL::setFSAASamples(const U32 samples)
     mFSAASamples = samples;
 }
 
-F32 LLWindowSDL::getGamma()
+F32 LLWindowSDL::getGamma() const
 {
     return 1.f / mGamma;
 }
@@ -1125,7 +1079,7 @@ LLWindow::LLWindowResolution* LLWindowSDL::getSupportedResolutions(S32 &num_reso
     return mSupportedResolutions;
 }
 
-bool LLWindowSDL::convertCoords(LLCoordGL from, LLCoordWindow *to)
+bool LLWindowSDL::convertCoords(LLCoordGL from, LLCoordWindow *to) const
 {
     if (!to)
         return false;
@@ -1136,7 +1090,7 @@ bool LLWindowSDL::convertCoords(LLCoordGL from, LLCoordWindow *to)
     return true;
 }
 
-bool LLWindowSDL::convertCoords(LLCoordWindow from, LLCoordGL* to)
+bool LLWindowSDL::convertCoords(LLCoordWindow from, LLCoordGL* to) const
 {
     if (!to)
         return false;
@@ -1147,7 +1101,7 @@ bool LLWindowSDL::convertCoords(LLCoordWindow from, LLCoordGL* to)
     return true;
 }
 
-bool LLWindowSDL::convertCoords(LLCoordScreen from, LLCoordWindow* to)
+bool LLWindowSDL::convertCoords(LLCoordScreen from, LLCoordWindow* to) const
 {
     if (!to)
         return false;
@@ -1158,7 +1112,7 @@ bool LLWindowSDL::convertCoords(LLCoordScreen from, LLCoordWindow* to)
     return (true);
 }
 
-bool LLWindowSDL::convertCoords(LLCoordWindow from, LLCoordScreen *to)
+bool LLWindowSDL::convertCoords(LLCoordWindow from, LLCoordScreen *to) const
 {
     if (!to)
         return false;
@@ -1169,14 +1123,14 @@ bool LLWindowSDL::convertCoords(LLCoordWindow from, LLCoordScreen *to)
     return (true);
 }
 
-bool LLWindowSDL::convertCoords(LLCoordScreen from, LLCoordGL *to)
+bool LLWindowSDL::convertCoords(LLCoordScreen from, LLCoordGL *to) const
 {
     LLCoordWindow window_coord;
 
     return(convertCoords(from, &window_coord) && convertCoords(window_coord, to));
 }
 
-bool LLWindowSDL::convertCoords(LLCoordGL from, LLCoordScreen *to)
+bool LLWindowSDL::convertCoords(LLCoordGL from, LLCoordScreen *to) const
 {
     LLCoordWindow window_coord;
 
@@ -1398,7 +1352,7 @@ void LLWindowSDL::processMiscNativeEvents()
     }
 }
 
-void LLWindowSDL::gatherInput()
+void LLWindowSDL::gatherInput(bool app_has_focus)
 {
     SDL_Event event;
 
@@ -1601,7 +1555,7 @@ void LLWindowSDL::gatherInput()
                 }
                 break;
             default:
-                //LL_INFOS() << "Unhandled SDL event type " << event.type << LL_ENDL;
+                LLGameControl::handleEvent(event, app_has_focus);
                 break;
         }
     }
@@ -1925,7 +1879,7 @@ bool LLWindowSDL::dialogColorPicker( F32 *r, F32 *g, F32 *b)
         Make the raw keyboard data available - used to poke through to LLQtWebKit so
         that Qt/Webkit has access to the virtual keycodes etc. that it needs
 */
-LLSD LLWindowSDL::getNativeKeyData()
+LLSD LLWindowSDL::getNativeKeyData() const
 {
     LLSD result = LLSD::emptyMap();
 

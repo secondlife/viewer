@@ -30,7 +30,6 @@
 
 #include "v3dmath.h"
 
-//#include "vmath.h"
 #include "v4math.h"
 #include "m4math.h"
 #include "m3math.h"
