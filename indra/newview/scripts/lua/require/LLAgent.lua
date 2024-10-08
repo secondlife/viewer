@@ -131,6 +131,15 @@ function LLAgent.getNearbyObjectsList(...)
     return result(leap.request('LLAgent', args))
 end
 
+-- Get screen position of your own avatar or any other (if "avatar_id is specified)
+-- reply contains "x", "y" coordinates and "onscreen" flag to indicate if it's actually in within the current window
+-- avatar render position is used as the point
+function LLAgent.getAgentScreenPos(...)
+    local args = mapargs('avatar_id', ...)
+    args.op = 'getAgentScreenPos'
+    return leap.request('LLAgent', args)
+end
+
 -- ***************************************************************************
 --  Autopilot
 -- ***************************************************************************

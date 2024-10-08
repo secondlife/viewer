@@ -49,7 +49,7 @@
 #include "llsdutil_math.h"
 #include "lltoolgrab.h"
 #include "llhudeffectlookat.h"
-#include "llagentcamera.h"
+#include "llviewercamera.h"
 #include "resultset.h"
 #include <functional>
 
@@ -198,6 +198,13 @@ LLAgentListener::LLAgentListener(LLAgent &agent)
         "if [\"dist\"] is not specified, 'RenderFarClip' setting is used\n"
         "reply contains \"result\" table with \"id\", \"global_pos\", \"region_pos\" fields",
         &LLAgentListener::getNearbyObjectsList,
+        llsd::map("reply", LLSD()));
+
+    add("getAgentScreenPos",
+        "Return screen position of the [\"avatar_id\"] avatar or own avatar if not specified\n"
+        "reply contains \"x\", \"y\" coordinates and \"onscreen\" flag to indicate if it's actually in within the current window\n"
+        "avatar render position is used as the point",
+        &LLAgentListener::getAgentScreenPos,
         llsd::map("reply", LLSD()));
 }
 
@@ -809,4 +816,31 @@ void LLAgentListener::getNearbyObjectsList(LLSD const& event_data)
         }
     }
     response["result"] = objresult->getKeyLength();
+}
+
+void LLAgentListener::getAgentScreenPos(LLSD const& event_data)
+{
+    Response response(LLSD(), event_data);
+    LLVector3 render_pos;
+    if (event_data.has("avatar_id"))
+    {
+        LLUUID avatar_id(event_data["avatar_id"]);
+        for (LLCharacter* character : LLCharacter::sInstances)
+        {
+            LLVOAvatar* avatar = (LLVOAvatar*)character;
+            if (!avatar->isDead() && (avatar->getID() == avatar_id))
+            {
+                render_pos = avatar->getRenderPosition();
+                break;
+            }
+        }
+    }
+    else if (gAgentAvatarp.notNull() && gAgentAvatarp->isValid())
+    {
+        render_pos = gAgentAvatarp->getRenderPosition();
+    }
+    LLCoordGL screen_pos;
+    response["onscreen"] = LLViewerCamera::getInstance()->projectPosAgentToScreen(render_pos, screen_pos, false);
+    response["x"] = screen_pos.mX;
+    response["y"] = screen_pos.mY;
 }
