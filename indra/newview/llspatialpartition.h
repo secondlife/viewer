@@ -382,6 +382,7 @@ public:
     draw_map_t mDrawMap;
 
     LLGLTFBatches mGLTFBatches;
+    LLGLTFBatches mBPBatches;
 
     bridge_list_t mBridgeList;
     buffer_map_t mBufferMap; //used by volume buffers to attempt to reuse vertex buffers
@@ -416,10 +417,20 @@ public:
     //  Indexed by material_id
     U32 mMaterialUBO = 0;
     U32 mMaterialUBOSize = 0;
+
+    // UBO for blinn-phong materials
+    U32 mBPMaterialUBO = 0;
+    U32 mBPMaterialUBOSize = 0;
+
+    // UBO for blinn-phong instance map
+    U32 mBPInstanceMapUBO = 0;
+    U32 mBPInstanceMapUBOSize = 0;
+
     // UBO for prim scales
     //  Used for planar projection, indexed by gltf_node_id
     U32 mPrimScaleUBO = 0;
     U32 mPrimScaleUBOSize = 0;
+
     // UBO used for texture animation transforms
     U32 mTextureTransformUBO = 0;
     U32 mTextureTransformUBOSize = 0;

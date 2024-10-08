@@ -1175,7 +1175,7 @@ S32 LLGLSLShader::bindTexture(S32 uniform, LLRenderTarget* texture, bool depth, 
     return uniform;
 }
 
-S32 LLGLSLShader::bindTexture(S32 uniform, U32 texName, LLTexUnit::eTextureType mode)
+S32 LLGLSLShader::bindTexName(S32 uniform, U32 texName, LLTexUnit::eTextureType mode)
 {
     uniform = mTexture[uniform];
 

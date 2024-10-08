@@ -887,9 +887,17 @@ void LLSpatialGroup::updateTransformUBOs()
         LLGLTFMaterial* material;
     };
 
+    struct BPMaterialRecord
+    {
+        U32 id;
+        LLFace* facep;
+    };
+
     U32 mat_id = 0;
+    U32 bp_mat_id = 0;
 
     std::unordered_map<size_t, MaterialRecord> materials;
+    std::unordered_map<size_t, BPMaterialRecord> bp_materials;
 
     LL_PROFILE_ZONE_SCOPED;
     static std::vector<const LLMatrix4*> transforms;
@@ -901,6 +909,7 @@ void LLSpatialGroup::updateTransformUBOs()
     U32 max_transforms = LLSkinningUtil::getMaxGLTFJointCount();
 
     mGLTFBatches.clear();
+    mBPBatches.clear();
 
     static std::vector<LLFace*> faces;
     faces.clear();
@@ -910,6 +919,12 @@ void LLSpatialGroup::updateTransformUBOs()
 
     static std::vector<LLVector4a> prim_scales;
     prim_scales.clear();
+
+    static std::vector<LLFace*> bp_faces;
+    bp_faces.clear();
+
+    static std::vector<LLVector4a> bp_material_data;
+    bp_material_data.clear();
 
     {
         LL_PROFILE_ZONE_NAMED("utubo - collect transforms");
@@ -942,21 +957,40 @@ void LLSpatialGroup::updateTransformUBOs()
                 facep->mGLTFDrawInfo.clear();
                 LLVolumeFace& vf = volume->getVolumeFace(i);
 
-                LLGLTFMaterial* gltf_mat = facep->getTextureEntry()->getGLTFRenderMaterial();
-                if (gltf_mat && vf.mVertexBuffer.notNull())
+                if (vf.mVertexBuffer.isNull())
                 {
-                    if (facep->isState(LLFace::RIGGED) && facep->getSkinHash() != 0)
-                    {
-                        transforms[transforms.size() - 1] = &facep->mSkinInfo->mBindShapeMatrix.mMatrix4;
-                    }
-                    gltf_mat->updateBatchHash();
+                    continue;
+                }
 
-                    const auto& iter = materials.find(gltf_mat->getBatchHash());
-                    U32 id = 0;
+                if (facep->isState(LLFace::RIGGED) && facep->getSkinHash() != 0)
+                {
+                    transforms[transforms.size() - 1] = &facep->mSkinInfo->mBindShapeMatrix.mMatrix4;
+                }
+
+                facep->mTransformIndex = transform_index;
+
+                if (facep->mTextureMatrix != nullptr)
+                {
+                    texture_transforms.push_back(facep->mTextureMatrix);
+                    facep->mTextureTransformIndex = (U32)texture_transforms.size() - 1;
+                }
+                else
+                {
+                    facep->mTextureTransformIndex = 0xFFFFFFFF;
+                }
+
+                facep->updateBatchHash();
+
+                LLGLTFMaterial* gltf_mat = facep->getTextureEntry()->getGLTFRenderMaterial();
+                U32 id = 0;
+
+                if (gltf_mat)
+                {
+                    const auto& iter = materials.find(facep->mBatchHash);
                     if (iter == materials.end())
                     {
                         id = mat_id;
-                        materials[gltf_mat->getBatchHash()] = { mat_id++, gltf_mat };
+                        materials[facep->mBatchHash] = { mat_id++, gltf_mat };
 
                         gltf_mat->packOnto(material_data);
                     }
@@ -965,20 +999,28 @@ void LLSpatialGroup::updateTransformUBOs()
                         id = iter->second.id;
                     }
 
-                    if (facep->mTextureMatrix != nullptr)
+                    faces.push_back(facep);
+                }
+                else
+                {
+                    const auto& iter = bp_materials.find(facep->mBatchHash);
+                    if (iter == bp_materials.end())
                     {
-                        texture_transforms.push_back(facep->mTextureMatrix);
-                        facep->mTextureTransformIndex = (U32)texture_transforms.size() - 1;
+                        id = bp_mat_id;
+                        bp_materials[facep->mBatchHash] = { bp_mat_id++, facep };
+
+                        facep->packMaterialOnto(material_data);
                     }
                     else
                     {
-                        facep->mTextureTransformIndex = 0xFFFFFFFF;
+                        id = iter->second.id;
                     }
 
-                    faces.push_back(facep);
-                    facep->mTransformIndex = transform_index;
-                    facep->mMaterialIndex = id;
+                    bp_faces.push_back(facep);
                 }
+
+                facep->mMaterialIndex = id;
+
             }
         }
     }
@@ -994,12 +1036,16 @@ void LLSpatialGroup::updateTransformUBOs()
     U32 transform_ubo_size = (U32)(transforms.size() * 12 * sizeof(F32));
     U32 instance_map_ubo_size = (U32)(faces.size() * sizeof(InstanceMapEntry));
     U32 material_ubo_size = (U32) (material_data.size() * sizeof(LLVector4a));
+    U32 bp_material_ubo_size = (U32) (bp_material_data.size() * sizeof(LLVector4a));
+    U32 bp_instance_map_ubo_size = (U32) bp_faces.size()*sizeof(InstanceMapEntry);
     U32 texture_transform_ubo_size = (U32)(texture_transforms.size() * 12 * sizeof(F32));
 
     bool new_transform_ubo = transform_ubo_size > mTransformUBOSize || transform_ubo_size < mTransformUBOSize / 2;
     bool new_instance_map_ubo = instance_map_ubo_size > mInstanceMapUBOSize || instance_map_ubo_size < mInstanceMapUBOSize / 2;
     bool new_material_ubo = material_ubo_size > mMaterialUBOSize || material_ubo_size < mMaterialUBOSize / 2;
     bool new_texture_transform_ubo = texture_transform_ubo_size > mTextureTransformUBOSize || texture_transform_ubo_size < mTextureTransformUBOSize / 2;
+    bool new_bp_material_ubo = bp_material_ubo_size > mBPMaterialUBOSize || bp_material_ubo_size < mBPMaterialUBOSize / 2;
+    bool new_bp_instance_map_ubo = bp_instance_map_ubo_size > mBPInstanceMapUBOSize || bp_instance_map_ubo_size < mBPInstanceMapUBOSize / 2;
 
     if (new_transform_ubo)
     {
@@ -1056,8 +1102,29 @@ void LLSpatialGroup::updateTransformUBOs()
         mMaterialUBO = ll_gl_gen_buffer();
     }
 
-    if (mTransformUBO != 0 && mInstanceMapUBO != 0 && mMaterialUBO != 0 &&
-        transform_ubo_size > 0 && instance_map_ubo_size > 0 && material_ubo_size > 0)
+    if (new_bp_instance_map_ubo)
+    {
+        if (mBPInstanceMapUBO)
+        {
+            ll_gl_delete_buffers(1, &mBPInstanceMapUBO);
+        }
+
+        mBPInstanceMapUBO = ll_gl_gen_buffer();
+    }
+
+    if (new_bp_material_ubo)
+    {
+        if (mBPMaterialUBO)
+        {
+            ll_gl_delete_buffers(1, &mBPMaterialUBO);
+        }
+
+        mBPMaterialUBO = ll_gl_gen_buffer();
+    }
+
+
+    if (mTransformUBO != 0 && mInstanceMapUBO != 0 &&
+        transform_ubo_size > 0 && instance_map_ubo_size > 0)
     {
         struct InstanceSort
         {
@@ -1067,17 +1134,14 @@ void LLSpatialGroup::updateTransformUBOs()
                 LLVolumeFace& lhs_vf = lhs->getDrawable()->getVOVolume()->getVolume()->getVolumeFace(lhs->getTEOffset());
                 LLVolumeFace& rhs_vf = rhs->getDrawable()->getVOVolume()->getVolume()->getVolumeFace(rhs->getTEOffset());
 
-                LLGLTFMaterial* lhs_mat = lhs->getTextureEntry()->getGLTFRenderMaterial();
-                LLGLTFMaterial* rhs_mat = rhs->getTextureEntry()->getGLTFRenderMaterial();
-
-                size_t rhs_hash = lhs_mat->getBatchHash();
-                size_t lhs_hash = rhs_mat->getBatchHash();
+                size_t rhs_hash = rhs->mBatchHash;
+                size_t lhs_hash = lhs->mBatchHash;
 
                 if (lhs_hash != rhs_hash)
                 {
-                    if (lhs_mat->mAlphaMode != rhs_mat->mAlphaMode)
+                    if (lhs->mAlphaMode != rhs->mAlphaMode)
                     {  //ensure that materials of a given alpha mode are adjacent in the list
-                        return lhs_mat->mAlphaMode < rhs_mat->mAlphaMode;
+                        return lhs->mAlphaMode < rhs->mAlphaMode;
                     }
                     else
                     {
@@ -1097,13 +1161,14 @@ void LLSpatialGroup::updateTransformUBOs()
 
         static std::vector<InstanceMapEntry> instance_map;
         instance_map.resize(faces.size());
-        LLVOAvatar* avatar = nullptr;
-        U64 skin_hash = 0;
-        bool planar = false;
 
         {
             LL_PROFILE_ZONE_NAMED("utubo - build instances");
             std::sort(faces.begin(), faces.end(), InstanceSort());
+
+            LLVOAvatar* avatar = nullptr;
+            U64 skin_hash = 0;
+            bool planar = false;
 
             LLGLTFDrawInfo* current_info = nullptr;
             LLGLTFDrawInfoHandle current_handle;
@@ -1188,6 +1253,108 @@ void LLSpatialGroup::updateTransformUBOs()
                     current_info->mNormalMap = normal->getTexName();
                     current_info->mMetallicRoughnessMap = metallic->getTexName();
                     current_info->mEmissiveMap = emissive->getTexName();
+
+                    current_info->mVAO = vf.mVertexBuffer->mGLVAO;
+                    current_info->mElementOffset = vf.mVBIndexOffset;
+                    current_info->mElementCount = vf.mNumIndices;
+                    current_info->mTransformUBO = mTransformUBO;
+                    current_info->mTextureTransformUBO = mTextureTransformUBO;
+                    current_info->mPrimScaleUBO = mPrimScaleUBO;
+                    current_info->mInstanceMapUBO = mInstanceMapUBO;
+                    current_info->mMaterialUBO = mMaterialUBO;
+                    current_info->mBaseInstance = i;
+                    current_info->mInstanceCount = 1;
+                }
+                facep->mGLTFDrawInfo = current_handle;
+            }
+        }
+
+        static std::vector<InstanceMapEntry> bp_instance_map;
+        bp_instance_map.resize(bp_faces.size());
+
+        {
+
+            std::sort(bp_faces.begin(), bp_faces.end(), InstanceSort());
+
+            LLVOAvatar* avatar = nullptr;
+            U64 skin_hash = 0;
+            bool planar = false;
+
+            LLGLTFDrawInfo* current_info = nullptr;
+            LLGLTFDrawInfoHandle current_handle;
+            current_handle.mSpatialGroup = this;
+
+            for (U32 i = 0; i < bp_faces.size(); ++i)
+            {
+                LLFace* facep = bp_faces[i];
+                const LLTextureEntry* te = facep->getTextureEntry();
+                bool face_planar = te->getTexGen() != LLTextureEntry::TEX_GEN_DEFAULT;
+                LLVolumeFace& vf = facep->getDrawable()->getVOVolume()->getVolume()->getVolumeFace(facep->getTEOffset());
+                U64 current_skin_hash = facep->getSkinHash();
+                LLVOAvatar* current_avatar = current_skin_hash ? facep->getDrawable()->getVObj()->getAvatar() : nullptr;
+
+                bool tex_anim = facep->mTextureMatrix != nullptr;
+
+                bp_instance_map[i].transform_index = facep->mTransformIndex;
+                bp_instance_map[i].material_index = facep->mMaterialIndex;
+                bp_instance_map[i].texture_transform_index = facep->mTextureTransformIndex;
+
+                if (current_info &&
+                    vf.mVertexBuffer.notNull() &&
+                    current_info->mMaterialID == facep->mBatchHash &&
+                    current_info->mVAO == vf.mVertexBuffer->mGLVAO &&
+                    current_info->mElementOffset == vf.mVBIndexOffset &&
+                    current_avatar == avatar &&
+                    current_skin_hash == skin_hash &&
+                    planar == face_planar &&
+                    !tex_anim)
+                { // another instance of the same LLVolumeFace and material
+                    current_info->mInstanceCount++;
+                }
+                else
+                {
+                    // a new instance
+                    llassert(facep->mAlphaMode >= 0 && facep->mAlphaMode <= 2);
+
+                    planar = face_planar;
+
+                    if (current_skin_hash)
+                    {
+                        auto* info = mBPBatches.createSkinned(facep->mAlphaMode, planar, tex_anim, &current_handle);
+                        current_info = info;
+
+                        info->mAvatar = current_avatar;
+                        info->mSkinInfo = facep->mSkinInfo;
+                    }
+                    else
+                    {
+                        current_info = mBPBatches.create(facep->mAlphaMode, planar, tex_anim, &current_handle);
+                    }
+
+                    avatar = current_avatar;
+                    skin_hash = current_skin_hash;
+
+                    // TODO: get actual diffuse/normal/specular
+                    LLViewerTexture* diffuse = nullptr;
+                    if (!diffuse)
+                    {
+                        diffuse = LLViewerFetchedTexture::sWhiteImagep.get();
+                    }
+                    LLViewerTexture* normal = nullptr;
+                    if (!normal)
+                    {
+                        normal = LLViewerFetchedTexture::sFlatNormalImagep.get();
+                    }
+                    LLViewerTexture* specular = nullptr;
+                    if (!specular)
+                    {
+                        specular = LLViewerFetchedTexture::sWhiteImagep.get();
+                    }
+
+                    current_info->mMaterialID = facep->mBatchHash;
+                    current_info->mDiffuseMap = diffuse->getTexName();
+                    current_info->mNormalMap = normal->getTexName();
+                    current_info->mSpecularMap = specular->getTexName();
 
                     current_info->mVAO = vf.mVertexBuffer->mGLVAO;
                     current_info->mElementOffset = vf.mVBIndexOffset;
@@ -1289,6 +1456,29 @@ void LLSpatialGroup::updateTransformUBOs()
             else
             {
                 glBufferSubData(GL_UNIFORM_BUFFER, 0, material_data.size() * sizeof(LLVector4a), material_data.data());
+            }
+
+            glBindBuffer(GL_UNIFORM_BUFFER, mBPInstanceMapUBO);
+            if (new_instance_map_ubo)
+            {
+                mBPInstanceMapUBOSize = bp_instance_map_ubo_size;
+                glBufferData(GL_UNIFORM_BUFFER, bp_instance_map.size() * sizeof(InstanceMapEntry), bp_instance_map.data(), GL_STREAM_DRAW);
+            }
+            else
+            {
+                glBufferSubData(GL_UNIFORM_BUFFER, 0, bp_instance_map.size() * sizeof(InstanceMapEntry), bp_instance_map.data());
+            }
+            glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+            glBindBuffer(GL_UNIFORM_BUFFER, mBPMaterialUBO);
+            if (new_material_ubo)
+            {
+                mBPMaterialUBOSize = bp_material_ubo_size;
+                glBufferData(GL_UNIFORM_BUFFER, bp_material_data.size() * sizeof(LLVector4a), bp_material_data.data(), GL_STREAM_DRAW);
+            }
+            else
+            {
+                glBufferSubData(GL_UNIFORM_BUFFER, 0, bp_material_data.size() * sizeof(LLVector4a), bp_material_data.data());
             }
         }
     }
@@ -4621,29 +4811,6 @@ void LLCullResult::assertDrawMapsEmpty()
             LL_ERRS() << "Stale LLDrawInfo's in LLCullResult!"
                 << " (mRenderMapSize[" << i << "] = " << mRenderMapSize[i] << ")" << LL_ENDL;
         }
-    }
-}
-
-void LLGLTFDrawInfo::handleTexNameChanged(const LLImageGL* image, U32 old_texname)
-{
-    if (mBaseColorMap == old_texname)
-    {
-        mBaseColorMap = image->getTexName();
-    }
-
-    if (mMetallicRoughnessMap == old_texname)
-    {
-        mMetallicRoughnessMap = image->getTexName();
-    }
-
-    if (mNormalMap == old_texname)
-    {
-        mNormalMap = image->getTexName();
-    }
-
-    if (mEmissiveMap== old_texname)
-    {
-        mEmissiveMap = image->getTexName();
     }
 }
 

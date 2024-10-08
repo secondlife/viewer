@@ -30,6 +30,9 @@
 
 class LLSpatialGroup;
 
+// Draw call information that fits on a cache line (64 bytes)
+// Called LLGLTFDrawInfo, but also used for Blinn-phong but with different data meaning
+// Unions used to clarify what means what in which context
 class LLGLTFDrawInfo
 {
 public:
@@ -40,9 +43,17 @@ public:
     // NOTE: if these GL resources are freed while still in use, something has gone wrong in LLVertexBuffer/LLImageGL
     // The bug is there, not here.
     U32 mVAO;
-    U32 mBaseColorMap;
+    union
+    {
+        U32 mBaseColorMap;
+        U32 mDiffuseMap;
+    };
     U32 mNormalMap;
-    U32 mMetallicRoughnessMap;
+    union
+    {
+        U32 mMetallicRoughnessMap;
+        U32 mSpecularMap;
+    };
     U32 mEmissiveMap;
     U32 mElementCount;
     U32 mElementOffset;

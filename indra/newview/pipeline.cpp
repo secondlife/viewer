@@ -3669,7 +3669,7 @@ void LLPipeline::postSort(LLCamera &camera)
                 {
                     return lhs.mAvatar < rhs.mAvatar;
                 }
-                else if (rhs.mSkinInfo->mHash != rhs.mSkinInfo->mHash)
+                else if (rhs.mSkinInfo->mHash != lhs.mSkinInfo->mHash)
                 {
                     return lhs.mSkinInfo->mHash < rhs.mSkinInfo->mHash;
                 }

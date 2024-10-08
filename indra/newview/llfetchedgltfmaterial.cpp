@@ -122,27 +122,27 @@ void LLFetchedGLTFMaterial::bindTextures(LLViewerTexture* media_tex)
     }
     else
     {
-        shader->bindTexture(LLShaderMgr::DIFFUSE_MAP, LLViewerFetchedTexture::sWhiteImagep);
+        shader->bindTexture(LLShaderMgr::DIFFUSE_MAP, LLViewerFetchedTexture::sWhiteImagep.get());
     }
 
     if (!LLPipeline::sShadowRender)
     {
         if (mNormalTexture.notNull() && mNormalTexture->getDiscardLevel() <= 4)
         {
-            shader->bindTexture(LLShaderMgr::BUMP_MAP, mNormalTexture);
+            shader->bindTexture(LLShaderMgr::BUMP_MAP, mNormalTexture.get());
         }
         else
         {
-            shader->bindTexture(LLShaderMgr::BUMP_MAP, LLViewerFetchedTexture::sFlatNormalImagep);
+            shader->bindTexture(LLShaderMgr::BUMP_MAP, LLViewerFetchedTexture::sFlatNormalImagep.get());
         }
 
         if (mMetallicRoughnessTexture.notNull())
         {
-            shader->bindTexture(LLShaderMgr::SPECULAR_MAP, mMetallicRoughnessTexture); // PBR linear packed Occlusion, Roughness, Metal.
+            shader->bindTexture(LLShaderMgr::SPECULAR_MAP, mMetallicRoughnessTexture.get()); // PBR linear packed Occlusion, Roughness, Metal.
         }
         else
         {
-            shader->bindTexture(LLShaderMgr::SPECULAR_MAP, LLViewerFetchedTexture::sWhiteImagep);
+            shader->bindTexture(LLShaderMgr::SPECULAR_MAP, LLViewerFetchedTexture::sWhiteImagep.get());
         }
 
         if (emissiveTex != nullptr)
@@ -151,7 +151,7 @@ void LLFetchedGLTFMaterial::bindTextures(LLViewerTexture* media_tex)
         }
         else
         {
-            shader->bindTexture(LLShaderMgr::EMISSIVE_MAP, LLViewerFetchedTexture::sWhiteImagep);
+            shader->bindTexture(LLShaderMgr::EMISSIVE_MAP, LLViewerFetchedTexture::sWhiteImagep.get());
         }
     }
 }

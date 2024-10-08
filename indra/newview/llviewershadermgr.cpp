@@ -233,6 +233,7 @@ LLGLSLShader            gPBRGlowProgram;
 LLGLSLShader            gPBRGlowSkinnedProgram;
 
 LLGLTFShaderPack        gGLTFPBRShaderPack;
+LLBPShaderPack          gBPShaderPack;
 
 LLGLSLShader            gDeferredPBRTerrainProgram[TERRAIN_PAINT_TYPE_COUNT];
 
@@ -456,6 +457,7 @@ void LLViewerShaderMgr::finalizeShaderList()
     mShaderList.push_back(&gDeferredTreeProgram);
 
     gGLTFPBRShaderPack.registerWLShaders(mShaderList);
+    gBPShaderPack.registerWLShaders(mShaderList);
 
     // make sure there are no redundancies
     llassert(no_redundant_shaders(mShaderList));
@@ -1151,6 +1153,7 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         gHUDPBROpaqueProgram.unload();
         gPBRGlowProgram.unload();
         gGLTFPBRShaderPack.unload();
+        gBPShaderPack.unload();
         gGLTFPBRMetallicRoughnessProgram.unload();
         for (U32 paint_type = 0; paint_type < TERRAIN_PAINT_TYPE_COUNT; ++paint_type)
         {
@@ -1354,7 +1357,7 @@ bool LLViewerShaderMgr::loadShadersDeferred()
                         bool tex_anim = l == 1;
                         if (success)
                         { // main view shader
-                            std::string name = llformat("GLTF PBR %s %s %s %s Shader", alpha_mode_names[i].c_str(), double_sided_names[j].c_str(), planar_names[k].c_str(), tex_anim_names[l]);
+                            std::string name = llformat("GLTF PBR %s %s %s %s Shader", alpha_mode_names[i].c_str(), double_sided_names[j].c_str(), planar_names[k].c_str(), tex_anim_names[l].c_str());
 
                             LLGLSLShader& shader = gGLTFPBRShaderPack.mShader[i][j][k][l];
                             LLGLSLShader& skinned_shader = gGLTFPBRShaderPack.mSkinnedShader[i][j][k][l];
@@ -1463,6 +1466,129 @@ bool LLViewerShaderMgr::loadShadersDeferred()
                             }
                             llassert(success);
                         }
+                    }
+                }
+            }
+        }
+    }
+
+    if (success)
+    {
+        std::string alpha_mode_names[3] = { "Opaque", "Alpha Blend", "Alpha Mask" };
+        std::string planar_names[2] = { "Non-Planar", "Planar" };
+        std::string tex_anim_names[2] = { "No Tex Anim", "Tex Anim" };
+
+        for (U32 i = 0; i < 3; ++i)
+        {
+            LLGLTFMaterial::AlphaMode alpha_mode = (LLGLTFMaterial::AlphaMode)i;
+
+            for (U32 k = 0; k < 2; ++k)
+            {
+                bool planar_projection = k == 1;
+
+                for (U32 l = 0; l < 2; ++l)
+                {
+                    bool tex_anim = l == 1;
+                    if (success)
+                    { // main view shader
+                        std::string name = llformat("Blinn-Phong %s %s %s Shader", alpha_mode_names[i].c_str(), planar_names[k].c_str(), tex_anim_names[l].c_str());
+
+                        LLGLSLShader& shader = gBPShaderPack.mShader[i][k][l];
+                        LLGLSLShader& skinned_shader = gBPShaderPack.mSkinnedShader[i][k][l];
+
+                        shader.mName = name;
+                        shader.mFeatures.hasSrgb = true;
+
+                        shader.mShaderFiles.clear();
+
+                        shader.mShaderFiles.push_back(make_pair("deferred/blinnphongV.glsl", GL_VERTEX_SHADER));
+                        shader.mShaderFiles.push_back(make_pair("deferred/blinnphongF.glsl", GL_FRAGMENT_SHADER));
+                        shader.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+                        shader.clearPermutations();
+
+                        shader.addPermutation("MAX_NODES_PER_GLTF_OBJECT", std::to_string(max_nodes));
+                        shader.addPermutation("MAX_INSTANCES_PER_GLTF_OBJECT", std::to_string(max_instances));
+                        shader.addPermutation("MAX_UBO_VEC4S", std::to_string(max_vec4s));
+
+                        shader.addPermutation("SAMPLE_DIFFUSE_MAP", "1");
+                        shader.addPermutation("SAMPLE_SPECULAR_MAP", "1");
+                        shader.addPermutation("SAMPLE_NORMAL_MAP", "1");
+                        shader.addPermutation("SAMPLE_MATERIALS_UBO", "1");
+
+                        if (alpha_mode == LLGLTFMaterial::ALPHA_MODE_MASK)
+                        {
+                            shader.addPermutation("ALPHA_MASK", "1");
+                        }
+
+                        if (planar_projection)
+                        {
+                            shader.addPermutation("PLANAR_PROJECTION", "1");
+                        }
+
+                        if (tex_anim)
+                        {
+                            shader.addPermutation("TEX_ANIM", "1");
+                        }
+
+                        if (gSavedSettings.getBOOL("RenderMirrors"))
+                        {
+                            shader.addPermutation("MIRROR_CLIP", "1");
+                        }
+
+                        success = make_rigged_variant(shader, skinned_shader);
+                        if (success)
+                        {
+                            success = shader.createShader();
+                        }
+                        llassert(success);
+                    }
+
+                    if (success)
+                    { // shadow shader
+                        std::string name = llformat("Blinn-Phong %s %s %s Shadow Shader", alpha_mode_names[i].c_str(),
+                                                    planar_names[k].c_str(),
+                                                    tex_anim_names[l].c_str());
+
+                        LLGLSLShader& shader = gBPShaderPack.mShadowShader[i][k][l];
+                        LLGLSLShader& skinned_shader = gBPShaderPack.mSkinnedShadowShader[i][k][l];
+
+                        shader.mName = name;
+
+                        shader.mShaderFiles.clear();
+
+                        shader.mShaderFiles.push_back(make_pair("deferred/blinnphongV.glsl", GL_VERTEX_SHADER));
+                        shader.mShaderFiles.push_back(make_pair("deferred/blinnphongF.glsl", GL_FRAGMENT_SHADER));
+                        shader.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+                        shader.clearPermutations();
+
+                        shader.addPermutation("MAX_NODES_PER_GLTF_OBJECT", std::to_string(max_nodes));
+                        shader.addPermutation("MAX_INSTANCES_PER_GLTF_OBJECT", std::to_string(max_instances));
+                        shader.addPermutation("MAX_UBO_VEC4S", std::to_string(max_vec4s));
+
+                        shader.addPermutation("OUTPUT_DIFFUSE_ONLY", "1");
+
+                        if (alpha_mode != LLGLTFMaterial::ALPHA_MODE_OPAQUE)
+                        {
+                            shader.addPermutation("ALPHA_MASK", "1");
+                            shader.addPermutation("SAMPLE_MATERIALS_UBO", "1");
+
+                            if (planar_projection)
+                            {
+                                shader.addPermutation("PLANAR_PROJECTION", "1");
+                            }
+                        }
+
+                        if (tex_anim)
+                        {
+                            shader.addPermutation("TEX_ANIM", "1");
+                        }
+
+                        success = make_rigged_variant(shader, skinned_shader);
+                        if (success)
+                        {
+                            success = shader.createShader();
+                        }
+                        llassert(success);
                     }
                 }
             }
@@ -3401,7 +3527,7 @@ LLViewerShaderMgr::shader_iter LLViewerShaderMgr::endShaders() const
     return mShaderList.end();
 }
 
-inline void LLGLTFShaderPack::unload()
+void LLGLTFShaderPack::unload()
 {
     for (U32 i = 0; i < 3; i++)
     {
@@ -3421,6 +3547,7 @@ inline void LLGLTFShaderPack::unload()
     }
 }
 
+
 void LLGLTFShaderPack::registerWLShaders(std::vector<LLGLSLShader*>& shader_list)
 {
     for (U32 double_sided = 0; double_sided < 2; ++double_sided)
@@ -3435,3 +3562,30 @@ void LLGLTFShaderPack::registerWLShaders(std::vector<LLGLSLShader*>& shader_list
     }
 }
 
+void LLBPShaderPack::unload()
+{
+    for (U32 i = 0; i < 3; i++)
+    {
+        for (U32 j = 0; j < 2; j++)
+        {
+            for (U32 k = 0; k < 2; ++k)
+            {
+                mShader[i][j][k].unload();
+                mSkinnedShader[i][j][k].unload();
+                mShadowShader[i][j][k].unload();
+                mSkinnedShadowShader[i][j][k].unload();
+            }
+        }
+    }
+}
+
+void LLBPShaderPack::registerWLShaders(std::vector<LLGLSLShader*>& shader_list)
+{
+    for (U32 planar = 0; planar < 2; ++planar)
+    {
+        for (U32 tex_anim = 0; tex_anim < 2; ++tex_anim)
+        {
+            shader_list.push_back(&mShader[LLGLTFMaterial::ALPHA_MODE_BLEND][planar][tex_anim]);
+        }
+    }
+}

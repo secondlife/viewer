@@ -323,18 +323,18 @@ void LLDrawPoolWLSky::renderSkyCloudsDeferred(const LLVector3& camPosLocal, F32 
             if (cloud_noise && (!cloud_noise_next || (cloud_noise == cloud_noise_next)))
             {
                 // Bind current and next sun textures
-                cloudshader->bindTexture(LLShaderMgr::CLOUD_NOISE_MAP, cloud_noise, LLTexUnit::TT_TEXTURE);
+                cloudshader->bindTexture(LLShaderMgr::CLOUD_NOISE_MAP, cloud_noise.get(), LLTexUnit::TT_TEXTURE);
                 blend_factor = 0;
             }
             else if (cloud_noise_next && !cloud_noise)
             {
-                cloudshader->bindTexture(LLShaderMgr::CLOUD_NOISE_MAP, cloud_noise_next, LLTexUnit::TT_TEXTURE);
+                cloudshader->bindTexture(LLShaderMgr::CLOUD_NOISE_MAP, cloud_noise_next.get(), LLTexUnit::TT_TEXTURE);
                 blend_factor = 0;
             }
             else if (cloud_noise_next != cloud_noise)
             {
-                cloudshader->bindTexture(LLShaderMgr::CLOUD_NOISE_MAP, cloud_noise, LLTexUnit::TT_TEXTURE);
-                cloudshader->bindTexture(LLShaderMgr::CLOUD_NOISE_MAP_NEXT, cloud_noise_next, LLTexUnit::TT_TEXTURE);
+                cloudshader->bindTexture(LLShaderMgr::CLOUD_NOISE_MAP, cloud_noise.get(), LLTexUnit::TT_TEXTURE);
+                cloudshader->bindTexture(LLShaderMgr::CLOUD_NOISE_MAP_NEXT, cloud_noise_next.get(), LLTexUnit::TT_TEXTURE);
             }
         }
 
@@ -388,18 +388,18 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
                 if (tex_a && (!tex_b || (tex_a == tex_b)))
                 {
                     // Bind current and next sun textures
-                    sun_shader->bindTexture(LLShaderMgr::DIFFUSE_MAP, tex_a, LLTexUnit::TT_TEXTURE);
+                    sun_shader->bindTexture(LLShaderMgr::DIFFUSE_MAP, tex_a.get(), LLTexUnit::TT_TEXTURE);
                     blend_factor = 0;
                 }
                 else if (tex_b && !tex_a)
                 {
-                    sun_shader->bindTexture(LLShaderMgr::DIFFUSE_MAP, tex_b, LLTexUnit::TT_TEXTURE);
+                    sun_shader->bindTexture(LLShaderMgr::DIFFUSE_MAP, tex_b.get(), LLTexUnit::TT_TEXTURE);
                     blend_factor = 0;
                 }
                 else if (tex_b != tex_a)
                 {
-                    sun_shader->bindTexture(LLShaderMgr::DIFFUSE_MAP, tex_a, LLTexUnit::TT_TEXTURE);
-                    sun_shader->bindTexture(LLShaderMgr::ALTERNATE_DIFFUSE_MAP, tex_b, LLTexUnit::TT_TEXTURE);
+                    sun_shader->bindTexture(LLShaderMgr::DIFFUSE_MAP, tex_a.get(), LLTexUnit::TT_TEXTURE);
+                    sun_shader->bindTexture(LLShaderMgr::ALTERNATE_DIFFUSE_MAP, tex_b.get(), LLTexUnit::TT_TEXTURE);
                 }
 
                 LLColor4 color(gSky.mVOSkyp->getSun().getInterpColor());

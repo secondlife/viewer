@@ -166,6 +166,24 @@ public:
     void registerWLShaders(std::vector<LLGLSLShader*>& shader_list);
 };
 
+// Blinn-Phong Shader Pack
+class LLBPShaderPack
+{
+public:
+    // variants are indexed by [Alpha Mode][Planar Projection][Texture Animation]
+    LLGLSLShader mShader[3][2][2];
+    LLGLSLShader mSkinnedShader[3][2][2];
+
+    LLGLSLShader mShadowShader[3][2][2];
+    LLGLSLShader mSkinnedShadowShader[3][2][2];
+
+    // unload all shaders in this pack
+    void unload();
+
+    // push shaders that need WL params into shader_list
+    void registerWLShaders(std::vector<LLGLSLShader*>& shader_list);
+
+};
 
 extern LLVector4            gShinyOrigin;
 
@@ -312,7 +330,7 @@ extern LLGLSLShader         gHUDPBROpaqueProgram;
 extern LLGLSLShader         gHUDPBRAlphaProgram;
 extern LLGLSLShader         gPBRGlowProgram;
 extern LLGLTFShaderPack     gGLTFPBRShaderPack;
-
+extern LLBPShaderPack       gBPShaderPack;
 
 // GLTF shaders
 extern LLGLSLShader         gGLTFPBRMetallicRoughnessProgram;
