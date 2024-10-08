@@ -21,7 +21,7 @@
          font="SansSerif"
          halign="left"
          name="action"
-         value="Walk Forward" />
+         value="Forward/Backward" />
     </rows>
     <rows
      name="slide"
@@ -31,7 +31,7 @@
          font="SansSerif"
          halign="left"
          name="action"
-         value="Strafe Left" />
+         value="Strafe" />
     </rows>
     <rows
      name="jump"
@@ -51,7 +51,7 @@
          font="SansSerif"
          halign="left"
          name="action"
-         value="Turn Left" />
+         value="Turn" />
     </rows>
     <rows
      name="look"
@@ -61,7 +61,7 @@
          font="SansSerif"
          halign="left"
          name="action"
-         value="Look Down" />
+         value="Look Up/Down" />
     </rows>
     <rows
      name="stop"
