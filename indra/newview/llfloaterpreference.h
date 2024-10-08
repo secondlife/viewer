@@ -36,9 +36,13 @@
 #include "llfloater.h"
 #include "llavatarpropertiesprocessor.h"
 #include "llconversationlog.h"
+#include "llgamecontrol.h"
+#include "llkeyconflict.h"
+#include "llscrolllistcell.h"
+#include "llscrolllistctrl.h"
 #include "llsearcheditor.h"
 #include "llsetkeybinddialog.h"
-#include "llkeyconflict.h"
+#include "llspinctrl.h"
 
 class LLConversationLogObserver;
 class LLPanelPreference;
@@ -51,6 +55,7 @@ class LLScrollListCell;
 class LLSliderCtrl;
 class LLSD;
 class LLTextBox;
+class LLPanelPreferenceGameControl;
 
 namespace ll
 {
@@ -80,12 +85,14 @@ public:
 
     void apply();
     void cancel(const std::vector<std::string> settings_to_skip = {});
-    /*virtual*/ void draw();
-    /*virtual*/ bool postBuild();
-    /*virtual*/ void onOpen(const LLSD& key);
-    /*virtual*/ void onClose(bool app_quitting);
-    /*virtual*/ void changed();
-    /*virtual*/ void changed(const LLUUID& session_id, U32 mask) {};
+    virtual void draw() override;
+    virtual bool postBuild() override;
+    virtual void onOpen(const LLSD& key) override;
+    virtual void onClose(bool app_quitting) override;
+    virtual void changed() override;
+    virtual void changed(const LLUUID& session_id, U32 mask) override {};
+
+    static void refreshInstance();
 
     // static data update, called from message handler
     static void updateUserInfo(const std::string& visibility);
@@ -99,7 +106,7 @@ public:
     // update Show Favorites checkbox
     static void updateShowFavoritesCheckbox(bool val);
 
-    void processProperties( void* pData, EAvatarProcessorType type );
+    void processProperties( void* pData, EAvatarProcessorType type ) override;
     void saveAvatarProperties( void );
     static void saveAvatarPropertiesCoro(const std::string url, bool allow_publish);
     void selectPrivacyPanel();
@@ -167,7 +174,7 @@ public:
     void setPersonalInfo(const std::string& visibility);
     void refreshEnabledState();
     void onCommitWindowedMode();
-    void refresh(); // Refresh enable/disable
+    void refresh() override; // Refresh enable/disable
     // if the quality radio buttons are changed
     void onChangeQuality(const LLSD& data);
 
@@ -196,6 +203,7 @@ public:
     void buildPopupLists();
     static void refreshSkin(void* data);
     void selectPanel(const LLSD& name);
+    void setPanelVisibility(const LLSD& name, bool visible);
     void saveGraphicsPreset(std::string& preset);
 
     void setRecommendedSettings();
@@ -251,7 +259,7 @@ class LLPanelPreference : public LLPanel
 {
 public:
     LLPanelPreference();
-    /*virtual*/ bool postBuild();
+    virtual bool postBuild() override;
 
     virtual ~LLPanelPreference();
 
@@ -297,12 +305,12 @@ private:
 class LLPanelPreferenceGraphics : public LLPanelPreference
 {
 public:
-    bool postBuild();
-    void draw();
-    void cancel(const std::vector<std::string> settings_to_skip = {});
-    void saveSettings();
+    bool postBuild() override;
+    void draw() override;
+    void cancel(const std::vector<std::string> settings_to_skip = {}) override;
+    void saveSettings() override;
     void resetDirtyChilds();
-    void setHardwareDefaults();
+    void setHardwareDefaults() override;
     void setPresetText();
 
 protected:
@@ -320,11 +328,13 @@ public:
     LLPanelPreferenceControls();
     virtual ~LLPanelPreferenceControls();
 
-    bool postBuild();
+    bool postBuild() override;
 
-    void apply();
-    void cancel(const std::vector<std::string> settings_to_skip = {});
-    void saveSettings();
+    void refresh() override;
+
+    void apply() override;
+    void cancel(const std::vector<std::string> settings_to_skip = {}) override;
+    void saveSettings() override;
     void resetDirtyChilds();
 
     void onListCommit();
@@ -340,9 +350,12 @@ public:
     void updateAndApply();
 
     // from interface
-    /*virtual*/ bool onSetKeyBind(EMouseClickType click, KEY key, MASK mask, bool all_modes);
-    /*virtual*/ void onDefaultKeyBind(bool all_modes);
-    /*virtual*/ void onCancelKeyBind();
+    bool onSetKeyBind(EMouseClickType click, KEY key, MASK mask, bool all_modes) override;
+    void onDefaultKeyBind(bool all_modes) override;
+    void onCancelKeyBind() override;
+
+    // Cleans content and then adds content from xml files according to current mEditingMode
+    void populateControlTable();
 
 private:
     // reloads settings, discards current changes, updates table
@@ -353,9 +366,6 @@ private:
     bool addControlTableRows(const std::string &filename);
     void addControlTableSeparator();
 
-    // Cleans content and then adds content from xml files according to current mEditingMode
-    void populateControlTable();
-
     // Updates keybindings from storage to table
     void updateTable();
 
@@ -365,6 +375,118 @@ private:
     std::string mEditingControl;
     S32 mEditingColumn;
     S32 mEditingMode;
+};
+
+class LLPanelPreferenceGameControl : public LLPanelPreference
+{
+    LOG_CLASS(LLPanelPreferenceGameControl);
+public:
+
+    enum InputType
+    {
+        TYPE_AXIS,
+        TYPE_BUTTON,
+        TYPE_NONE
+    };
+
+    static void updateDeviceList();
+
+    LLPanelPreferenceGameControl();
+    ~LLPanelPreferenceGameControl();
+
+    void onOpen(const LLSD& key) override;
+
+    // This function squirrels away the current values of the controls so that
+    // cancel() can restore them.
+    void saveSettings() override;
+
+    void updateDeviceListInternal();
+
+    void onGridSelect(LLUICtrl* ctrl);
+    void onCommitInputChannel(LLUICtrl* ctrl);
+
+    void onAxisOptionsSelect();
+    void onCommitNumericValue();
+
+    static bool isWaitingForInputChannel();
+    static void applyGameControlInput();
+
+protected:
+    bool postBuild() override;
+
+    void populateActionTableRows(const std::string& filename);
+    void populateActionTableCells();
+    static bool parseXmlFile(LLScrollListCtrl::Contents& contents,
+        const std::string& filename, const std::string& what);
+
+    void populateDeviceTitle();
+    void populateDeviceSettings(const std::string& guid);
+    void populateOptionsTableRows();
+    void populateOptionsTableCells();
+    void populateMappingTableRows(LLScrollListCtrl* target,
+        const LLComboBox* source, size_t row_count);
+    void populateMappingTableCells(LLScrollListCtrl* target,
+        const std::vector<U8>& mappings, const LLComboBox* source);
+    LLGameControl::Options& getSelectedDeviceOptions();
+
+    static std::string getChannelLabel(const std::string& channelName,
+        const std::vector<LLScrollListItem*>& items);
+    static void setNumericLabel(LLScrollListCell* cell, S32 value);
+    static void fitInRect(LLUICtrl* ctrl, LLScrollListCtrl* grid, S32 row_index, S32 col_index);
+
+private:
+    bool initCombobox(LLScrollListItem* item, LLScrollListCtrl* grid);
+    void clearSelectionState();
+    void addActionTableSeparator();
+    void updateEnable();
+    void updateActionTableState();
+    void onResetToDefaults();
+    void resetChannelMappingsToDefaults();
+    void resetAxisOptionsToDefaults();
+    void resetAxisMappingsToDefaults();
+    void resetButtonMappingsToDefaults();
+
+    // Above the tab container
+    LLCheckBoxCtrl* mCheckGameControlToServer { nullptr }; // send game_control data to server
+    LLCheckBoxCtrl* mCheckGameControlToAgent { nullptr };  // use game_control data to move avatar
+    LLCheckBoxCtrl* mCheckAgentToGameControl { nullptr };  // translate external avatar actions to game_control data
+
+    // 1st tab "Channel mappings"
+    LLPanel* mTabChannelMappings { nullptr };
+    LLScrollListCtrl* mActionTable { nullptr };
+
+    // 2nd tab "Device settings"
+    LLPanel* mTabDeviceSettings { nullptr };
+    LLTextBox* mNoDeviceMessage { nullptr };
+    LLTextBox* mDevicePrompt { nullptr };
+    LLTextBox* mSingleDevice { nullptr };
+    LLComboBox* mDeviceList { nullptr };
+    LLCheckBoxCtrl* mCheckShowAllDevices { nullptr };
+    LLPanel* mPanelDeviceSettings { nullptr };
+    LLPanel* mTabAxisOptions { nullptr };
+    LLScrollListCtrl* mAxisOptions { nullptr };
+    LLPanel* mTabAxisMappings { nullptr };
+    LLScrollListCtrl* mAxisMappings { nullptr };
+    LLPanel* mTabButtonMappings { nullptr };
+    LLScrollListCtrl* mButtonMappings { nullptr };
+
+    LLButton* mResetToDefaults { nullptr };
+
+    // Numeric value editor
+    LLSpinCtrl* mNumericValueEditor { nullptr };
+
+    // Channel selectors
+    LLComboBox* mAnalogChannelSelector { nullptr };
+    LLComboBox* mBinaryChannelSelector { nullptr };
+    LLComboBox* mAxisSelector { nullptr };
+
+    struct DeviceOptions
+    {
+        std::string name, settings;
+        LLGameControl::Options options;
+    };
+    std::map<std::string, DeviceOptions> mDeviceOptions;
+    std::string mSelectedDeviceGUID;
 };
 
 class LLAvatarComplexityControls
@@ -391,13 +513,13 @@ public:
     void cancel();
 
 protected:
-    bool postBuild();
-    void onOpen(const LLSD& key);
-    void onClose(bool app_quitting);
+    bool postBuild() override;
+    void onOpen(const LLSD& key) override;
+    void onClose(bool app_quitting) override;
     void saveSettings();
     void onBtnOk();
     void onBtnCancel();
-    void onClickCloseBtn(bool app_quitting = false);
+    void onClickCloseBtn(bool app_quitting = false) override;
 
     void onChangeSocksSettings();
 

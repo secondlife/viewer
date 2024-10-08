@@ -28,7 +28,6 @@
 
 #include "v3math.h"
 
-//#include "vmath.h"
 #include "v2math.h"
 #include "v4math.h"
 #include "m4math.h"

@@ -65,6 +65,7 @@
 
 bool gDebugSession = false;
 bool gDebugGLSession = false;
+bool gDebugTextureLabelLocalFilesSession = false;
 bool gClothRipple = false;
 bool gHeadlessClient = false;
 bool gNonInteractive = false;

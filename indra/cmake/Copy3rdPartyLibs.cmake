@@ -54,6 +54,7 @@ if(WINDOWS)
     set(release_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
     set(release_files
         openjp2.dll
+        SDL2.dll
         )
 
     if(LLCOMMON_LINK_SHARED)
@@ -169,6 +170,8 @@ elseif(DARWIN)
     set(release_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
     set(release_files
         libndofdev.dylib
+        libSDL2.dylib
+        libSDL2-2.0.dylib
        )
 
     if(LLCOMMON_LINK_SHARED)
@@ -197,6 +200,7 @@ elseif(LINUX)
         libortp.so
         libvivoxoal.so.1
         libvivoxsdk.so
+        libSDL2.so
         )
     set(slvoice_files SLVoice)
 

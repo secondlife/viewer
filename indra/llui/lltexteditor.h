@@ -314,6 +314,7 @@ public:
     void            pasteTextWithLinebreaksImpl(const LLWString& clean_string);
 
 private:
+    void            pasteTextWithLinebreaksInternal(const LLWString & clean_string);
     void            onKeyStroke();
 
     // Concrete TextCmd sub-classes used by the LLTextEditor base class
