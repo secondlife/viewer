@@ -1211,6 +1211,14 @@ void LLTextEditor::showEmojiHelper()
     LLEmojiHelper::instance().showHelper(this, cursorRect.mLeft, cursorRect.mTop, LLStringUtil::null, cb);
 }
 
+void LLTextEditor::hideEmojiHelper()
+{
+    if (mShowEmojiHelper)
+    {
+        LLEmojiHelper::instance().hideHelper(this);
+    }
+}
+
 void LLTextEditor::tryToShowEmojiHelper()
 {
     if (mReadOnly || !mShowEmojiHelper)
