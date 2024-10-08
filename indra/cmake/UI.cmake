@@ -22,7 +22,6 @@ if (LINUX)
   endif()
 
   target_link_libraries( ll::uilibraries INTERFACE
-          fltk
           Xrender
           Xcursor
           Xfixes
