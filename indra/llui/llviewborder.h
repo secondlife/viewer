@@ -92,7 +92,6 @@ public:
 private:
     void        drawOnePixelLines();
     void        drawTwoPixelLines();
-    void        drawTextures();
 
     EBevel      mBevel;
     EStyle      mStyle;

@@ -30,7 +30,6 @@
 
 #include "v3dmath.h"
 
-//#include "vmath.h"
 #include "v4math.h"
 #include "m4math.h"
 #include "m3math.h"
@@ -57,13 +56,13 @@ bool LLVector3d::clamp(F64 min, F64 max)
 {
     bool ret{ false };
 
-    if (mdV[0] < min) { mdV[0] = min; ret = true; }
-    if (mdV[1] < min) { mdV[1] = min; ret = true; }
-    if (mdV[2] < min) { mdV[2] = min; ret = true; }
+    if (mdV[VX] < min) { mdV[VX] = min; ret = true; }
+    if (mdV[VY] < min) { mdV[VY] = min; ret = true; }
+    if (mdV[VZ] < min) { mdV[VZ] = min; ret = true; }
 
-    if (mdV[0] > max) { mdV[0] = max; ret = true; }
-    if (mdV[1] > max) { mdV[1] = max; ret = true; }
-    if (mdV[2] > max) { mdV[2] = max; ret = true; }
+    if (mdV[VX] > max) { mdV[VX] = max; ret = true; }
+    if (mdV[VY] > max) { mdV[VY] = max; ret = true; }
+    if (mdV[VZ] > max) { mdV[VZ] = max; ret = true; }
 
     return ret;
 }
@@ -74,9 +73,9 @@ bool LLVector3d::abs()
 {
     bool ret{ false };
 
-    if (mdV[0] < 0.0) { mdV[0] = -mdV[0]; ret = true; }
-    if (mdV[1] < 0.0) { mdV[1] = -mdV[1]; ret = true; }
-    if (mdV[2] < 0.0) { mdV[2] = -mdV[2]; ret = true; }
+    if (mdV[VX] < 0.0) { mdV[VX] = -mdV[VX]; ret = true; }
+    if (mdV[VY] < 0.0) { mdV[VY] = -mdV[VY]; ret = true; }
+    if (mdV[VZ] < 0.0) { mdV[VZ] = -mdV[VZ]; ret = true; }
 
     return ret;
 }
@@ -89,9 +88,9 @@ std::ostream& operator<<(std::ostream& s, const LLVector3d &a)
 
 const LLVector3d& LLVector3d::operator=(const LLVector4 &a)
 {
-    mdV[0] = a.mV[0];
-    mdV[1] = a.mV[1];
-    mdV[2] = a.mV[2];
+    mdV[VX] = a.mV[VX];
+    mdV[VY] = a.mV[VY];
+    mdV[VZ] = a.mV[VZ];
     return *this;
 }
 

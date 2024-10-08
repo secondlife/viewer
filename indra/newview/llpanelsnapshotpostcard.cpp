@@ -56,18 +56,18 @@ class LLPanelSnapshotPostcard
 
 public:
     LLPanelSnapshotPostcard();
-    /*virtual*/ bool postBuild();
-    /*virtual*/ void onOpen(const LLSD& key);
+    bool postBuild() override;
+    void onOpen(const LLSD& key) override;
 
 private:
-    /*virtual*/ std::string getWidthSpinnerName() const     { return "postcard_snapshot_width"; }
-    /*virtual*/ std::string getHeightSpinnerName() const    { return "postcard_snapshot_height"; }
-    /*virtual*/ std::string getAspectRatioCBName() const    { return "postcard_keep_aspect_check"; }
-    /*virtual*/ std::string getImageSizeComboName() const   { return "postcard_size_combo"; }
-    /*virtual*/ std::string getImageSizePanelName() const   { return "postcard_image_size_lp"; }
-    /*virtual*/ LLSnapshotModel::ESnapshotFormat getImageFormat() const { return LLSnapshotModel::SNAPSHOT_FORMAT_JPEG; }
-    /*virtual*/ LLSnapshotModel::ESnapshotType getSnapshotType();
-    /*virtual*/ void updateControls(const LLSD& info);
+    std::string getWidthSpinnerName() const override   { return "postcard_snapshot_width"; }
+    std::string getHeightSpinnerName() const override  { return "postcard_snapshot_height"; }
+    std::string getAspectRatioCBName() const override  { return "postcard_keep_aspect_check"; }
+    std::string getImageSizeComboName() const override { return "postcard_size_combo"; }
+    std::string getImageSizePanelName() const override { return "postcard_image_size_lp"; }
+    LLSnapshotModel::ESnapshotFormat getImageFormat() const override { return LLSnapshotModel::SNAPSHOT_FORMAT_JPEG; }
+    LLSnapshotModel::ESnapshotType getSnapshotType() override;
+    void updateControls(const LLSD& info) override;
 
     bool missingSubjMsgAlertCallback(const LLSD& notification, const LLSD& response);
     static void sendPostcardFinished(LLSD result);
@@ -86,8 +86,8 @@ static LLPanelInjector<LLPanelSnapshotPostcard> panel_class("llpanelsnapshotpost
 LLPanelSnapshotPostcard::LLPanelSnapshotPostcard()
 :   mHasFirstMsgFocus(false)
 {
-    mCommitCallbackRegistrar.add("Postcard.Send",       boost::bind(&LLPanelSnapshotPostcard::onSend,   this));
-    mCommitCallbackRegistrar.add("Postcard.Cancel",     boost::bind(&LLPanelSnapshotPostcard::cancel,   this));
+    mCommitCallbackRegistrar.add("Postcard.Send",       { boost::bind(&LLPanelSnapshotPostcard::onSend,   this), cb_info::UNTRUSTED_THROTTLE });
+    mCommitCallbackRegistrar.add("Postcard.Cancel",     { boost::bind(&LLPanelSnapshotPostcard::cancel,   this), cb_info::UNTRUSTED_THROTTLE });
 
 }
 

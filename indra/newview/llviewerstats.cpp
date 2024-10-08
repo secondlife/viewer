@@ -66,6 +66,7 @@
 #include "llinventorymodel.h"
 #include "lluiusage.h"
 #include "lltranslate.h"
+#include "llluamanager.h"
 
 // "Minimal Vulkan" to get max API Version
 
@@ -620,6 +621,10 @@ void send_viewer_stats(bool include_preferences)
 
     system["shader_level"] = shader_level;
 
+    LLSD &scripts = body["scripts"];
+    scripts["lua_scripts"] = LLLUAmanager::sScriptCount;
+    scripts["lua_auto_scripts"] = LLLUAmanager::sAutorunScriptCount;
+
     LLSD &download = body["downloads"];
 
     download["world_kbytes"] = F64Kilobytes(gTotalWorldData).value();
@@ -774,7 +779,9 @@ void send_viewer_stats(bool include_preferences)
 
 
     LL_INFOS("LogViewerStatsPacket") << "Sending viewer statistics: " << body << LL_ENDL;
-    LL_DEBUGS("LogViewerStatsPacket");
+
+    // <ND> Do those lines even do anything sane in regard of debug logging?
+    LL_DEBUGS("LogViewerStatsPacket") << " ";
     std::string filename("viewer_stats_packet.xml");
     llofstream of(filename.c_str());
     LLSDSerialize::toPrettyXML(body,of);

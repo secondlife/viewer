@@ -35,7 +35,6 @@
 #include <boost/fiber/fss.hpp>
 #include <boost/function_types/is_member_function_pointer.hpp>
 #include <boost/function_types/is_nonmember_callable_builtin.hpp>
-#include <boost/hof/is_invocable.hpp> // until C++17, when we get std::is_invocable
 #include <boost/iterator/transform_iterator.hpp>
 #include <functional>               // std::function
 #include <memory>                   // std::unique_ptr
@@ -48,6 +47,7 @@
 #include "llevents.h"
 #include "llptrto.h"
 #include "llsdutil.h"
+#include "stringize.h"
 
 class LLSD;
 
@@ -99,7 +99,7 @@ public:
 
     template <typename CALLABLE,
               typename=typename std::enable_if<
-                  boost::hof::is_invocable<CALLABLE, LLSD>::value
+                  std::is_invocable<CALLABLE, LLSD>::value
              >::type>
     void add(const std::string& name,
              const std::string& desc,
@@ -296,7 +296,7 @@ public:
      */
     template <typename CALLABLE,
               typename=typename std::enable_if<
-                  ! boost::hof::is_invocable<CALLABLE, LLSD>()
+                  ! std::is_invocable<CALLABLE, LLSD>()
              >::type>
     void add(const std::string& name,
              const std::string& desc,
@@ -338,7 +338,7 @@ public:
     template<typename Function,
              typename = typename std::enable_if<
                  boost::function_types::is_nonmember_callable_builtin<Function>::value &&
-                 ! boost::hof::is_invocable<Function, LLSD>::value
+                 ! std::is_invocable<Function, LLSD>::value
              >::type>
     void add(const std::string& name, const std::string& desc, Function f,
              const LLSD& params, const LLSD& defaults=LLSD());
@@ -851,8 +851,12 @@ public:
                        ARGS&&... args);
     virtual ~LLDispatchListener() {}
 
+    std::string getPumpName() const { return getName(); }
+
+protected:
+    virtual bool process(const LLSD& event) const;
+
 private:
-    bool process(const LLSD& event) const;
     void call_one(const LLSD& name, const LLSD& event) const;
     void call_map(const LLSD& reqmap, const LLSD& event) const;
     void call_array(const LLSD& reqarray, const LLSD& event) const;

@@ -377,7 +377,7 @@ LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
     addChild(mParcelIcon[SEE_AVATARS_ICON]);
 
     // Register callbacks and load the location field context menu (NB: the order matters).
-    LLUICtrl::CommitCallbackRegistry::currentRegistrar().add("Navbar.Action", boost::bind(&LLLocationInputCtrl::onLocationContextMenuItemClicked, this, _2));
+    LLUICtrl::CommitCallbackRegistry::currentRegistrar().add("Navbar.Action", { boost::bind(&LLLocationInputCtrl::onLocationContextMenuItemClicked, this, _2) });
     LLUICtrl::EnableCallbackRegistry::currentRegistrar().add("Navbar.EnableMenuItem", boost::bind(&LLLocationInputCtrl::onLocationContextMenuItemEnabled, this, _2));
 
     setPrearrangeCallback(boost::bind(&LLLocationInputCtrl::onLocationPrearrange, this, _2));

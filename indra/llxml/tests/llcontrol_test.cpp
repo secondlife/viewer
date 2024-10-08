@@ -97,7 +97,7 @@ namespace tut
     template<> template<>
     void control_group_t::test<1>()
     {
-        int results = mCG->loadFromFile(mTestConfigFile.c_str());
+        int results = mCG->loadFromFile(mTestConfigFile);
         ensure("number of settings", (results == 1));
         ensure("value of setting", (mCG->getU32("TestSetting") == 12));
     }
@@ -106,14 +106,14 @@ namespace tut
     template<> template<>
     void control_group_t::test<2>()
     {
-        int results = mCG->loadFromFile(mTestConfigFile.c_str());
+        int results = mCG->loadFromFile(mTestConfigFile);
         mCG->setU32("TestSetting", 13);
         ensure_equals("value of changed setting", mCG->getU32("TestSetting"), 13);
         LLControlGroup test_cg("foo2");
         std::string temp_test_file = (mTestConfigDir + "setting_llsd_temp.xml");
         mCleanups.push_back(temp_test_file);
         mCG->saveToFile(temp_test_file.c_str(), true);
-        results = test_cg.loadFromFile(temp_test_file.c_str());
+        results = test_cg.loadFromFile(temp_test_file);
         ensure("number of changed settings loaded", (results == 1));
         ensure("value of changed settings loaded", (test_cg.getU32("TestSetting") == 13));
     }
@@ -126,7 +126,7 @@ namespace tut
         // a default settings file that declares variables, rather than a user
         // settings file. When loadFromFile() encounters an unrecognized user
         // settings variable, it forcibly preserves it (CHOP-962).
-        int results = mCG->loadFromFile(mTestConfigFile.c_str(), true);
+        int results = mCG->loadFromFile(mTestConfigFile, true);
         LLControlVariable* control = mCG->getControl("TestSetting");
         LLSD new_value = 13;
         control->setValue(new_value, false);
@@ -135,7 +135,7 @@ namespace tut
         std::string temp_test_file = (mTestConfigDir + "setting_llsd_persist_temp.xml");
         mCleanups.push_back(temp_test_file);
         mCG->saveToFile(temp_test_file.c_str(), true);
-        results = test_cg.loadFromFile(temp_test_file.c_str());
+        results = test_cg.loadFromFile(temp_test_file);
         //If we haven't changed any settings, then we shouldn't have any settings to load
         ensure("number of non-persisted changed settings loaded", (results == 0));
     }
@@ -144,7 +144,7 @@ namespace tut
     template<> template<>
     void control_group_t::test<4>()
     {
-        int results = mCG->loadFromFile(mTestConfigFile.c_str());
+        int results = mCG->loadFromFile(mTestConfigFile);
         ensure("number of settings", (results == 1));
         mCG->getControl("TestSetting")->getSignal()->connect(boost::bind(&this->handleListenerTest));
         mCG->setU32("TestSetting", 13);

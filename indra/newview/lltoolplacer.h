@@ -50,6 +50,10 @@ public:
     static void setObjectType( LLPCode type )       { sObjectType = type; }
     static LLPCode getObjectType()                  { return sObjectType; }
 
+//  static bool addObject(LLPCode pcode, S32 x, S32 y, U8 use_physics);
+    static bool rezNewObject(LLPCode pcode, LLViewerObject* hit_obj, S32 hit_face, bool b_hit_land, LLVector3 ray_start_region,
+                             LLVector3 ray_end_region, LLViewerRegion *regionp, U8 use_physics);
+
 protected:
     static LLPCode  sObjectType;
 

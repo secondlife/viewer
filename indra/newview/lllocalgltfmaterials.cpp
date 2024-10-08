@@ -294,17 +294,12 @@ LLLocalGLTFMaterialTimer::~LLLocalGLTFMaterialTimer()
 
 void LLLocalGLTFMaterialTimer::startTimer()
 {
-    mEventTimer.start();
+    start();
 }
 
 void LLLocalGLTFMaterialTimer::stopTimer()
 {
-    mEventTimer.stop();
-}
-
-bool LLLocalGLTFMaterialTimer::isRunning()
-{
-    return mEventTimer.getStarted();
+    stop();
 }
 
 bool LLLocalGLTFMaterialTimer::tick()

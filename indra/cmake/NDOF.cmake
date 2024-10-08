@@ -19,6 +19,6 @@ if (NDOF)
     target_link_libraries( ll::ndof INTERFACE ndofdev)
   endif (WINDOWS)
   target_compile_definitions( ll::ndof INTERFACE LIB_NDOF=1)
+else()
+  add_compile_options(-ULIB_NDOF)
 endif (NDOF)
-
-

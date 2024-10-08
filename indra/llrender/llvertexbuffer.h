@@ -82,6 +82,7 @@ public:
         , mModelView(projection)
         , mTexture0(texture0)
     {}
+    void drawWithMatrix();
     void draw();
     LLPointer<LLVertexBuffer> mVB;
     U8 mMode;

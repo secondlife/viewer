@@ -46,24 +46,24 @@ class LLMultiFloater;
 class LLFloater;
 
 
-const bool RESIZE_YES = true;
-const bool RESIZE_NO = false;
+constexpr bool RESIZE_YES = true;
+constexpr bool RESIZE_NO = false;
 
-const bool DRAG_ON_TOP = false;
-const bool DRAG_ON_LEFT = true;
+constexpr bool DRAG_ON_TOP = false;
+constexpr bool DRAG_ON_LEFT = true;
 
-const bool MINIMIZE_YES = true;
-const bool MINIMIZE_NO = false;
+constexpr bool MINIMIZE_YES = true;
+constexpr bool MINIMIZE_NO = false;
 
-const bool CLOSE_YES = true;
-const bool CLOSE_NO = false;
+constexpr bool CLOSE_YES = true;
+constexpr bool CLOSE_NO = false;
 
-const bool ADJUST_VERTICAL_YES = true;
-const bool ADJUST_VERTICAL_NO = false;
+constexpr bool ADJUST_VERTICAL_YES = true;
+constexpr bool ADJUST_VERTICAL_NO = false;
 
-const F32 CONTEXT_CONE_IN_ALPHA = 0.f;
-const F32 CONTEXT_CONE_OUT_ALPHA = 1.f;
-const F32 CONTEXT_CONE_FADE_TIME = .08f;
+constexpr F32 CONTEXT_CONE_IN_ALPHA = 0.f;
+constexpr F32 CONTEXT_CONE_OUT_ALPHA = 1.f;
+constexpr F32 CONTEXT_CONE_FADE_TIME = .08f;
 
 namespace LLFloaterEnums
 {
@@ -228,7 +228,7 @@ public:
     /*virtual*/ void setIsChrome(bool is_chrome);
     /*virtual*/ void setRect(const LLRect &rect);
                 void setIsSingleInstance(bool is_single_instance);
-                bool getIsSingleInstance() { return mSingleInstance; }
+                bool getIsSingleInstance() const { return mSingleInstance; }
 
     void            initFloater(const Params& p);
 
@@ -274,17 +274,17 @@ public:
     static bool     isShown(const LLFloater* floater);
     static bool     isVisible(const LLFloater* floater);
     static bool     isMinimized(const LLFloater* floater);
-    bool            isFirstLook() { return mFirstLook; } // EXT-2653: This function is necessary to prevent overlapping for secondary showed toasts
+    bool            isFirstLook() const { return mFirstLook; } // EXT-2653: This function is necessary to prevent overlapping for secondary showed toasts
     virtual bool    isFrontmost();
-    bool            isDependent()                   { return !mDependeeHandle.isDead(); }
+    bool            isDependent() const { return !mDependeeHandle.isDead(); }
     void            setCanMinimize(bool can_minimize);
     void            setCanClose(bool can_close);
     void            setCanTearOff(bool can_tear_off);
     virtual void    setCanResize(bool can_resize);
     void            setCanDrag(bool can_drag);
-    bool            getCanDrag();
+    bool            getCanDrag() const;
     void            setHost(LLMultiFloater* host);
-    bool            isResizable() const             { return mResizable; }
+    bool            isResizable() const { return mResizable; }
     void            setResizeLimits( S32 min_width, S32 min_height );
     void            getResizeLimits( S32* min_width, S32* min_height ) { *min_width = mMinWidth; *min_height = mMinHeight; }
 
@@ -347,7 +347,7 @@ public:
     virtual void    setDocked(bool docked, bool pop_on_undock = true);
 
     virtual void    setTornOff(bool torn_off) { mTornOff = torn_off; }
-    bool isTornOff() {return mTornOff;}
+    bool isTornOff() const { return mTornOff; }
     void setOpenPositioning(LLFloaterEnums::EOpenPositioning pos) {mPositioning = pos;}
 
 
@@ -423,7 +423,6 @@ protected:
 private:
     void            setForeground(bool b);  // called only by floaterview
     void            cleanupHandles(); // remove handles to dead floaters
-    void            createMinimizeButton();
     void            buildButtons(const Params& p);
 
     // Images and tooltips are named in the XML, but we want to look them

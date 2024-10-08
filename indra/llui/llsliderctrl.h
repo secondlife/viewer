@@ -132,7 +132,6 @@ public:
 
     static void     onEditorCommit(LLUICtrl* ctrl, const LLSD& userdata);
     static void     onEditorGainFocus(LLFocusableElement* caller, void *userdata);
-    static void     onEditorChangeFocus(LLUICtrl* caller, S32 direction, void *userdata);
 
 protected:
     virtual std::string _getSearchText() const

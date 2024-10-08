@@ -26,7 +26,6 @@
 
 #include "linden_common.h"
 
-//#include "vmath.h"
 #include "v3math.h"
 #include "v4math.h"
 #include "m4math.h"
@@ -36,13 +35,13 @@
 // LLVector4
 
 // Axis-Angle rotations
-const LLVector4&    LLVector4::rotVec(const LLMatrix4 &mat)
+const LLVector4&    LLVector4::rotVec(const LLMatrix4& mat)
 {
     *this = *this * mat;
     return *this;
 }
 
-const LLVector4&    LLVector4::rotVec(const LLQuaternion &q)
+const LLVector4&    LLVector4::rotVec(const LLQuaternion& q)
 {
     *this = *this * q;
     return *this;
@@ -64,16 +63,16 @@ bool LLVector4::abs()
 {
     bool ret{ false };
 
-    if (mV[0] < 0.f) { mV[0] = -mV[0]; ret = true; }
-    if (mV[1] < 0.f) { mV[1] = -mV[1]; ret = true; }
-    if (mV[2] < 0.f) { mV[2] = -mV[2]; ret = true; }
-    if (mV[3] < 0.f) { mV[3] = -mV[3]; ret = true; }
+    if (mV[VX] < 0.f) { mV[VX] = -mV[VX]; ret = true; }
+    if (mV[VY] < 0.f) { mV[VY] = -mV[VY]; ret = true; }
+    if (mV[VZ] < 0.f) { mV[VZ] = -mV[VZ]; ret = true; }
+    if (mV[VW] < 0.f) { mV[VW] = -mV[VW]; ret = true; }
 
     return ret;
 }
 
 
-std::ostream& operator<<(std::ostream& s, const LLVector4 &a)
+std::ostream& operator<<(std::ostream& s, const LLVector4& a)
 {
     s << "{ " << a.mV[VX] << ", " << a.mV[VY] << ", " << a.mV[VZ] << ", " << a.mV[VW] << " }";
     return s;
@@ -108,12 +107,12 @@ bool are_parallel(const LLVector4 &a, const LLVector4 &b, F32 epsilon)
 }
 
 
-LLVector3 vec4to3(const LLVector4 &vec)
+LLVector3 vec4to3(const LLVector4& vec)
 {
     return LLVector3( vec.mV[VX], vec.mV[VY], vec.mV[VZ] );
 }
 
-LLVector4 vec3to4(const LLVector3 &vec)
+LLVector4 vec3to4(const LLVector3& vec)
 {
     return LLVector4(vec.mV[VX], vec.mV[VY], vec.mV[VZ]);
 }

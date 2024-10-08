@@ -183,8 +183,8 @@ LLFloaterEditExtDayCycle::LLFloaterEditExtDayCycle(const LLSD &key) :
     mLoadTrack(nullptr),
     mClearTrack(nullptr)
 {
-    mCommitCallbackRegistrar.add(EVNT_DAYTRACK, [this](LLUICtrl *ctrl, const LLSD &data) { onTrackSelectionCallback(data); });
-    mCommitCallbackRegistrar.add(EVNT_PLAY, [this](LLUICtrl *ctrl, const LLSD &data) { onPlayActionCallback(data); });
+    mCommitCallbackRegistrar.add(EVNT_DAYTRACK, { [this](LLUICtrl *ctrl, const LLSD &data) { onTrackSelectionCallback(data); }});
+    mCommitCallbackRegistrar.add(EVNT_PLAY, { [this](LLUICtrl *ctrl, const LLSD &data) { onPlayActionCallback(data); }});
 
     mScratchSky = LLSettingsVOSky::buildDefaultSky();
     mScratchWater = LLSettingsVOWater::buildDefaultWater();

@@ -259,8 +259,8 @@ bool LLFloaterRegionInfo::postBuild()
 
     panel = new LLPanelRegionGeneralInfo;
     mInfoPanels.push_back(panel);
-    panel->getCommitCallbackRegistrar().add("RegionInfo.ManageTelehub", boost::bind(&LLPanelRegionInfo::onClickManageTelehub, panel));
-    panel->getCommitCallbackRegistrar().add("RegionInfo.ManageRestart", boost::bind(&LLPanelRegionInfo::onClickManageRestartSchedule, panel));
+    panel->getCommitCallbackRegistrar().add("RegionInfo.ManageTelehub", { boost::bind(&LLPanelRegionInfo::onClickManageTelehub, panel) });
+    panel->getCommitCallbackRegistrar().add("RegionInfo.ManageRestart", { boost::bind(&LLPanelRegionInfo::onClickManageRestartSchedule, panel) });
     panel->buildFromFile("panel_region_general.xml");
     mTab->addTabPanel(panel);
 
@@ -4339,7 +4339,6 @@ void LLPanelRegionEnvironment::onChkAllowOverride(bool value)
     setDirtyFlag(DIRTY_FLAG_OVERRIDE);
     mAllowOverrideRestore = mAllowOverride;
     mAllowOverride = value;
-
 
     std::string notification("EstateParcelEnvironmentOverride");
     if (LLPanelEstateInfo::isLindenEstate())

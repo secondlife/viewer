@@ -32,7 +32,6 @@
 #include "llface.h"
 #include "llimage.h"
 #include "llrender.h"
-#include "llatmosphere.h"
 #include "llenvironment.h"
 #include "llglslshader.h"
 #include "llgl.h"

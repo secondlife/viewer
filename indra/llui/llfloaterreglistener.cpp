@@ -37,6 +37,8 @@
 #include "llfloaterreg.h"
 #include "llfloater.h"
 #include "llbutton.h"
+#include "llluafloater.h"
+#include "resultset.h"
 
 LLFloaterRegListener::LLFloaterRegListener():
     LLEventAPI("LLFloaterReg",
@@ -72,6 +74,18 @@ LLFloaterRegListener::LLFloaterRegListener():
         "Simulate clicking the named [\"button\"] in the visible floater named in [\"name\"]",
         &LLFloaterRegListener::clickButton,
         requiredNameButton);
+
+    add("showLuaFloater",
+        "Open the new floater using XML file specified in [\"xml_path\"] with ID in [\"reqid\"]",
+        &LLLuaFloater::showLuaFloater, {llsd::map("xml_path", LLSD(), "reqid", LLSD())});
+    add("getFloaterEvents",
+        "Return the table of Lua Floater events which are send to the script",
+        &LLFloaterRegListener::getLuaFloaterEvents);
+
+    add("getFloaterNames",
+        "Return result set key [\"floaters\"] for names of all registered floaters",
+        &LLFloaterRegListener::getFloaterNames,
+        llsd::map("reply", LLSD::String()));
 }
 
 void LLFloaterRegListener::getBuildMap(const LLSD& event) const
@@ -111,6 +125,24 @@ void LLFloaterRegListener::instanceVisible(const LLSD& event) const
 {
     sendReply(LLSDMap("visible", LLFloaterReg::instanceVisible(event["name"].asString(), event["key"])),
               event);
+}
+
+struct NameResultSet: public LL::ResultSet
+{
+    NameResultSet():
+        LL::ResultSet("floaters"),
+        mNames(LLFloaterReg::getFloaterNames())
+    {}
+    LLSD mNames;
+
+    int getLength() const override { return narrow(mNames.size()); }
+    LLSD getSingle(int index) const override { return mNames[index]; }
+};
+
+void LLFloaterRegListener::getFloaterNames(const LLSD &event) const
+{
+    auto nameresult = new NameResultSet;
+    sendReply(llsd::map("floaters", nameresult->getKeyLength()), event);
 }
 
 void LLFloaterRegListener::clickButton(const LLSD& event) const
@@ -153,4 +185,9 @@ void LLFloaterRegListener::clickButton(const LLSD& event) const
     {
         LLEventPumps::instance().obtain(replyPump).post(reply);
     }
+}
+
+void LLFloaterRegListener::getLuaFloaterEvents(const LLSD &event) const
+{
+    Response response(llsd::map("events", LLLuaFloater::getEventsData()), event);
 }

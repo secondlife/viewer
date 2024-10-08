@@ -37,9 +37,9 @@ LLFloaterTestInspectors::LLFloaterTestInspectors(const LLSD& seed)
 :   LLFloater(seed)
 {
     mCommitCallbackRegistrar.add("ShowAvatarInspector",
-        boost::bind(&LLFloaterTestInspectors::showAvatarInspector, this, _1, _2));
+        { boost::bind(&LLFloaterTestInspectors::showAvatarInspector, this, _1, _2) });
     mCommitCallbackRegistrar.add("ShowObjectInspector",
-        boost::bind(&LLFloaterTestInspectors::showObjectInspector, this, _1, _2));
+        { boost::bind(&LLFloaterTestInspectors::showObjectInspector, this, _1, _2) });
 }
 
 LLFloaterTestInspectors::~LLFloaterTestInspectors()

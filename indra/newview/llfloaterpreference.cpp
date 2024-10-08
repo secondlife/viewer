@@ -54,6 +54,7 @@
 #include "llfloaterperformance.h"
 #include "llfloatersidepanelcontainer.h"
 #include "llfloaterimsession.h"
+#include "llgamecontrol.h"
 #include "llkeyboard.h"
 #include "llmodaldialog.h"
 #include "llnavigationbar.h"
@@ -312,43 +313,44 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
         registered_dialog = true;
     }
 
-    mCommitCallbackRegistrar.add("Pref.Cancel",             boost::bind(&LLFloaterPreference::onBtnCancel, this, _2));
-    mCommitCallbackRegistrar.add("Pref.OK",                 boost::bind(&LLFloaterPreference::onBtnOK, this, _2));
+    mCommitCallbackRegistrar.add("Pref.Cancel", { boost::bind(&LLFloaterPreference::onBtnCancel, this, _2), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.OK", { boost::bind(&LLFloaterPreference::onBtnOK, this, _2), cb_info::UNTRUSTED_BLOCK });
 
-    mCommitCallbackRegistrar.add("Pref.ClearCache",             boost::bind(&LLFloaterPreference::onClickClearCache, this));
-    mCommitCallbackRegistrar.add("Pref.WebClearCache",          boost::bind(&LLFloaterPreference::onClickBrowserClearCache, this));
-    mCommitCallbackRegistrar.add("Pref.SetCache",               boost::bind(&LLFloaterPreference::onClickSetCache, this));
-    mCommitCallbackRegistrar.add("Pref.ResetCache",             boost::bind(&LLFloaterPreference::onClickResetCache, this));
-    mCommitCallbackRegistrar.add("Pref.ClickSkin",              boost::bind(&LLFloaterPreference::onClickSkin, this,_1, _2));
-    mCommitCallbackRegistrar.add("Pref.SelectSkin",             boost::bind(&LLFloaterPreference::onSelectSkin, this));
-    mCommitCallbackRegistrar.add("Pref.SetSounds",              boost::bind(&LLFloaterPreference::onClickSetSounds, this));
-    mCommitCallbackRegistrar.add("Pref.ClickEnablePopup",       boost::bind(&LLFloaterPreference::onClickEnablePopup, this));
-    mCommitCallbackRegistrar.add("Pref.ClickDisablePopup",      boost::bind(&LLFloaterPreference::onClickDisablePopup, this));
-    mCommitCallbackRegistrar.add("Pref.LogPath",                boost::bind(&LLFloaterPreference::onClickLogPath, this));
-    mCommitCallbackRegistrar.add("Pref.RenderExceptions",       boost::bind(&LLFloaterPreference::onClickRenderExceptions, this));
-    mCommitCallbackRegistrar.add("Pref.AutoAdjustments",         boost::bind(&LLFloaterPreference::onClickAutoAdjustments, this));
-    mCommitCallbackRegistrar.add("Pref.HardwareDefaults",       boost::bind(&LLFloaterPreference::setHardwareDefaults, this));
-    mCommitCallbackRegistrar.add("Pref.AvatarImpostorsEnable",  boost::bind(&LLFloaterPreference::onAvatarImpostorsEnable, this));
-    mCommitCallbackRegistrar.add("Pref.UpdateIndirectMaxComplexity",    boost::bind(&LLFloaterPreference::updateMaxComplexity, this));
-    mCommitCallbackRegistrar.add("Pref.RenderOptionUpdate",     boost::bind(&LLFloaterPreference::onRenderOptionEnable, this));
-    mCommitCallbackRegistrar.add("Pref.WindowedMod",            boost::bind(&LLFloaterPreference::onCommitWindowedMode, this));
-    mCommitCallbackRegistrar.add("Pref.UpdateSliderText",       boost::bind(&LLFloaterPreference::refreshUI,this));
-    mCommitCallbackRegistrar.add("Pref.QualityPerformance",     boost::bind(&LLFloaterPreference::onChangeQuality, this, _2));
-    mCommitCallbackRegistrar.add("Pref.applyUIColor",           boost::bind(&LLFloaterPreference::applyUIColor, this ,_1, _2));
-    mCommitCallbackRegistrar.add("Pref.getUIColor",             boost::bind(&LLFloaterPreference::getUIColor, this ,_1, _2));
-    mCommitCallbackRegistrar.add("Pref.MaturitySettings",       boost::bind(&LLFloaterPreference::onChangeMaturity, this));
-    mCommitCallbackRegistrar.add("Pref.BlockList",              boost::bind(&LLFloaterPreference::onClickBlockList, this));
-    mCommitCallbackRegistrar.add("Pref.Proxy",                  boost::bind(&LLFloaterPreference::onClickProxySettings, this));
-    mCommitCallbackRegistrar.add("Pref.TranslationSettings",    boost::bind(&LLFloaterPreference::onClickTranslationSettings, this));
-    mCommitCallbackRegistrar.add("Pref.AutoReplace",            boost::bind(&LLFloaterPreference::onClickAutoReplace, this));
-    mCommitCallbackRegistrar.add("Pref.PermsDefault",           boost::bind(&LLFloaterPreference::onClickPermsDefault, this));
-    mCommitCallbackRegistrar.add("Pref.RememberedUsernames",    boost::bind(&LLFloaterPreference::onClickRememberedUsernames, this));
-    mCommitCallbackRegistrar.add("Pref.SpellChecker",           boost::bind(&LLFloaterPreference::onClickSpellChecker, this));
-    mCommitCallbackRegistrar.add("Pref.Advanced",               boost::bind(&LLFloaterPreference::onClickAdvanced, this));
+    mCommitCallbackRegistrar.add("Pref.ClearCache", { boost::bind(&LLFloaterPreference::onClickClearCache, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.WebClearCache", { boost::bind(&LLFloaterPreference::onClickBrowserClearCache, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.SetCache", { boost::bind(&LLFloaterPreference::onClickSetCache, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.ResetCache", { boost::bind(&LLFloaterPreference::onClickResetCache, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.ClickSkin", { boost::bind(&LLFloaterPreference::onClickSkin, this,_1, _2), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.SelectSkin", { boost::bind(&LLFloaterPreference::onSelectSkin, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.SetSounds", { boost::bind(&LLFloaterPreference::onClickSetSounds, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.ClickEnablePopup", { boost::bind(&LLFloaterPreference::onClickEnablePopup, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.ClickDisablePopup", { boost::bind(&LLFloaterPreference::onClickDisablePopup, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.LogPath", { boost::bind(&LLFloaterPreference::onClickLogPath, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.RenderExceptions", { boost::bind(&LLFloaterPreference::onClickRenderExceptions, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.AutoAdjustments", { boost::bind(&LLFloaterPreference::onClickAutoAdjustments, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.HardwareDefaults", { boost::bind(&LLFloaterPreference::setHardwareDefaults, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.AvatarImpostorsEnable", { boost::bind(&LLFloaterPreference::onAvatarImpostorsEnable, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.UpdateIndirectMaxNonImpostors", { boost::bind(&LLFloaterPreference::updateMaxNonImpostors, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.UpdateIndirectMaxComplexity", { boost::bind(&LLFloaterPreference::updateMaxComplexity, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.RenderOptionUpdate", { boost::bind(&LLFloaterPreference::onRenderOptionEnable, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.WindowedMod", { boost::bind(&LLFloaterPreference::onCommitWindowedMode, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.UpdateSliderText", { boost::bind(&LLFloaterPreference::refreshUI,this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.QualityPerformance", { boost::bind(&LLFloaterPreference::onChangeQuality, this, _2), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.applyUIColor", { boost::bind(&LLFloaterPreference::applyUIColor, this ,_1, _2), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.getUIColor", { boost::bind(&LLFloaterPreference::getUIColor, this ,_1, _2), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.MaturitySettings", { boost::bind(&LLFloaterPreference::onChangeMaturity, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.BlockList", { boost::bind(&LLFloaterPreference::onClickBlockList, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.Proxy", { boost::bind(&LLFloaterPreference::onClickProxySettings, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.TranslationSettings", { boost::bind(&LLFloaterPreference::onClickTranslationSettings, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.AutoReplace", { boost::bind(&LLFloaterPreference::onClickAutoReplace, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.PermsDefault", { boost::bind(&LLFloaterPreference::onClickPermsDefault, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.RememberedUsernames", { boost::bind(&LLFloaterPreference::onClickRememberedUsernames, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.SpellChecker", { boost::bind(&LLFloaterPreference::onClickSpellChecker, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.Advanced", { boost::bind(&LLFloaterPreference::onClickAdvanced, this), cb_info::UNTRUSTED_BLOCK });
 
     sSkin = gSavedSettings.getString("SkinCurrent");
 
-    mCommitCallbackRegistrar.add("Pref.ClickActionChange",      boost::bind(&LLFloaterPreference::onClickActionChange, this));
+    mCommitCallbackRegistrar.add("Pref.ClickActionChange", { boost::bind(&LLFloaterPreference::onClickActionChange, this), cb_info::UNTRUSTED_BLOCK });
 
     gSavedSettings.getControl("NameTagShowUsernames")->getCommitSignal()->connect(boost::bind(&handleNameTagOptionChanged,  _2));
     gSavedSettings.getControl("NameTagShowFriends")->getCommitSignal()->connect(boost::bind(&handleNameTagOptionChanged,  _2));
@@ -360,10 +362,11 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
     LLAvatarPropertiesProcessor::getInstance()->addObserver( gAgent.getID(), this );
 
     mComplexityChangedSignal = gSavedSettings.getControl("RenderAvatarMaxComplexity")->getCommitSignal()->connect(boost::bind(&LLFloaterPreference::updateComplexityText, this));
+    mImpostorsChangedSignal = gSavedSettings.getControl("RenderAvatarMaxNonImpostors")->getSignal()->connect(boost::bind(&LLFloaterPreference::updateIndirectMaxNonImpostors, this, _2));
 
-    mCommitCallbackRegistrar.add("Pref.ClearLog",               boost::bind(&LLConversationLog::onClearLog, &LLConversationLog::instance()));
-    mCommitCallbackRegistrar.add("Pref.DeleteTranscripts",      boost::bind(&LLFloaterPreference::onDeleteTranscripts, this));
-    mCommitCallbackRegistrar.add("UpdateFilter", boost::bind(&LLFloaterPreference::onUpdateFilterTerm, this, false)); // <FS:ND/> Hook up for filtering
+    mCommitCallbackRegistrar.add("Pref.ClearLog", { boost::bind(&LLConversationLog::onClearLog, &LLConversationLog::instance()), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.DeleteTranscripts", { boost::bind(&LLFloaterPreference::onDeleteTranscripts, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("UpdateFilter", { boost::bind(&LLFloaterPreference::onUpdateFilterTerm, this, false), cb_info::UNTRUSTED_BLOCK }); // <FS:ND/> Hook up for filtering
 }
 
 void LLFloaterPreference::processProperties( void* pData, EAvatarProcessorType type )
@@ -399,6 +402,7 @@ void LLFloaterPreference::saveAvatarProperties( void )
     }
 }
 
+// static
 void LLFloaterPreference::saveAvatarPropertiesCoro(const std::string cap_url, bool allow_publish)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
@@ -436,6 +440,7 @@ bool LLFloaterPreference::postBuild()
     mDisabledPopups = getChild<LLScrollListCtrl>("disabled_popups");
     mEnablePopupBtn = getChild<LLButton>("enable_this_popup");
     mDisablePopupBtn = getChild<LLButton>("disable_this_popup");
+    setPanelVisibility("game_control", LLGameControl::isEnabled());
 
     gSavedSettings.getControl("ChatFontSize")->getSignal()->connect(boost::bind(&LLFloaterIMSessionTab::processChatHistoryStyleUpdate, false));
 
@@ -543,6 +548,7 @@ LLFloaterPreference::~LLFloaterPreference()
 {
     LLConversationLog::instance().removeObserver(this);
     mComplexityChangedSignal.disconnect();
+    mImpostorsChangedSignal.disconnect();
 }
 
 void LLFloaterPreference::draw()
@@ -559,21 +565,19 @@ void LLFloaterPreference::draw()
 void LLFloaterPreference::saveSettings()
 {
     LLTabContainer* tabcontainer = getChild<LLTabContainer>("pref core");
-    child_list_t::const_iterator iter = tabcontainer->getChildList()->begin();
-    child_list_t::const_iterator end = tabcontainer->getChildList()->end();
-    for ( ; iter != end; ++iter)
+    for (LLView* view : *tabcontainer->getChildList())
     {
-        LLView* view = *iter;
-        LLPanelPreference* panel = dynamic_cast<LLPanelPreference*>(view);
-        if (panel)
+        if (LLPanelPreference* panel = dynamic_cast<LLPanelPreference*>(view))
+        {
             panel->saveSettings();
+        }
     }
     saveIgnoredNotifications();
 }
 
 void LLFloaterPreference::apply()
 {
-    LLAvatarPropertiesProcessor::getInstance()->addObserver( gAgent.getID(), this );
+    LLAvatarPropertiesProcessor::getInstance()->addObserver(gAgent.getID(), this);
 
     LLTabContainer* tabcontainer = getChild<LLTabContainer>("pref core");
     if (sSkin != gSavedSettings.getString("SkinCurrent"))
@@ -581,14 +585,14 @@ void LLFloaterPreference::apply()
         LLNotificationsUtil::add("ChangeSkin");
         refreshSkin(this);
     }
+
     // Call apply() on all panels that derive from LLPanelPreference
-    for (child_list_t::const_iterator iter = tabcontainer->getChildList()->begin();
-         iter != tabcontainer->getChildList()->end(); ++iter)
+    for (LLView* view : *tabcontainer->getChildList())
     {
-        LLView* view = *iter;
-        LLPanelPreference* panel = dynamic_cast<LLPanelPreference*>(view);
-        if (panel)
+        if (LLPanelPreference* panel = dynamic_cast<LLPanelPreference*>(view))
+        {
             panel->apply();
+        }
     }
 
     gViewerWindow->requestResolutionUpdate(); // for UIScaleFactor
@@ -602,7 +606,7 @@ void LLFloaterPreference::apply()
 
     LLViewerMedia::getInstance()->setCookiesEnabled(getChild<LLUICtrl>("cookies_enabled")->getValue());
 
-    if (hasChild("web_proxy_enabled", true) &&hasChild("web_proxy_editor", true) && hasChild("web_proxy_port", true))
+    if (hasChild("web_proxy_enabled", true) && hasChild("web_proxy_editor", true) && hasChild("web_proxy_port", true))
     {
         bool proxy_enable = getChild<LLUICtrl>("web_proxy_enabled")->getValue();
         std::string proxy_address = getChild<LLUICtrl>("web_proxy_editor")->getValue();
@@ -639,13 +643,12 @@ void LLFloaterPreference::cancel(const std::vector<std::string> settings_to_skip
 {
     LLTabContainer* tabcontainer = getChild<LLTabContainer>("pref core");
     // Call cancel() on all panels that derive from LLPanelPreference
-    for (child_list_t::const_iterator iter = tabcontainer->getChildList()->begin();
-        iter != tabcontainer->getChildList()->end(); ++iter)
+    for (LLView* view : *tabcontainer->getChildList())
     {
-        LLView* view = *iter;
-        LLPanelPreference* panel = dynamic_cast<LLPanelPreference*>(view);
-        if (panel)
+        if (LLPanelPreference* panel = dynamic_cast<LLPanelPreference*>(view))
+        {
             panel->cancel(settings_to_skip);
+        }
     }
     // hide joystick pref floater
     LLFloaterReg::hideInstance("pref_joystick");
@@ -674,7 +677,7 @@ void LLFloaterPreference::cancel(const std::vector<std::string> settings_to_skip
     }
     //Need to reload the navmesh if the pathing console is up
     LLHandle<LLFloaterPathfindingConsole> pathfindingConsoleHandle = LLFloaterPathfindingConsole::getInstanceHandle();
-    if ( !pathfindingConsoleHandle.isDead() )
+    if (!pathfindingConsoleHandle.isDead())
     {
         LLFloaterPathfindingConsole* pPathfindingConsole = pathfindingConsoleHandle.get();
         pPathfindingConsole->onRegionBoundaryCross();
@@ -691,6 +694,15 @@ void LLFloaterPreference::cancel(const std::vector<std::string> settings_to_skip
 
 void LLFloaterPreference::onOpen(const LLSD& key)
 {
+    LLTabContainer* tabcontainer = getChild<LLTabContainer>("pref core");
+    for (LLView* view : *tabcontainer->getChildList())
+    {
+        if (LLPanelPreference* panel = dynamic_cast<LLPanelPreference*>(view))
+        {
+            panel->onOpen(key);
+        }
+    }
+
     // this variable and if that follows it are used to properly handle do not disturb mode response message
     static bool initialized = false;
     // if user is logged in and we haven't initialized do not disturb mode response yet, do it
@@ -758,8 +770,7 @@ void LLFloaterPreference::onOpen(const LLSD& key)
     // while preferences floater was closed.
     buildPopupLists();
 
-
-    //get the options that were checked
+    // get the options that were checked
     onNotificationsChange("FriendIMOptions");
     onNotificationsChange("NonFriendIMOptions");
     onNotificationsChange("ConferenceIMOptions");
@@ -771,8 +782,7 @@ void LLFloaterPreference::onOpen(const LLSD& key)
     refresh();
 
     // Make sure the current state of prefs are saved away when
-    // when the floater is opened.  That will make cancel do its
-    // job
+    // the floater is opened.  That will make cancel() do its job
     saveSettings();
 
     // Make sure there is a default preference file
@@ -972,9 +982,9 @@ void LLFloaterPreference::onBtnOK(const LLSD& userdata)
         }
 
         //Conversation transcript and log path changed so reload conversations based on new location
-        if(mPriorInstantMessageLogPath.length())
+        if (mPriorInstantMessageLogPath.length())
         {
-            if(moveTranscriptsAndLog())
+            if (moveTranscriptsAndLog())
             {
                 //When floaters are empty but have a chat history files, reload chat history into them
                 LLFloaterIMSessionTab::reloadEmptyFloaters();
@@ -991,11 +1001,14 @@ void LLFloaterPreference::onBtnOK(const LLSD& userdata)
         LLUIColorTable::instance().saveUserSettings();
         gSavedSettings.saveToFile(gSavedSettings.getString("ClientSettingsFile"), true);
 
-        //Only save once logged in and loaded per account settings
-        if(mGotPersonalInfo)
+        // save current config to settings
+        LLGameControl::saveToSettings();
+
+        // Only save once logged in and loaded per account settings
+        if (mGotPersonalInfo)
         {
             gSavedPerAccountSettings.saveToFile(gSavedSettings.getString("PerAccountSettingsFile"), true);
-    }
+        }
     }
     else
     {
@@ -1036,28 +1049,38 @@ void LLFloaterPreference::onBtnCancel(const LLSD& userdata)
         cancel();
         closeFloater();
     }
+
+    // restore config from settings
+    LLGameControl::loadFromSettings();
+}
+
+//static
+void LLFloaterPreference::refreshInstance()
+{
+    if (LLFloaterPreference* instance = LLFloaterReg::findTypedInstance<LLFloaterPreference>("preferences"))
+    {
+        instance->refresh();
+    }
 }
 
 // static
 void LLFloaterPreference::updateUserInfo(const std::string& visibility)
 {
-    LLFloaterPreference* instance = LLFloaterReg::findTypedInstance<LLFloaterPreference>("preferences");
-    if (instance)
+    if (LLFloaterPreference* instance = LLFloaterReg::findTypedInstance<LLFloaterPreference>("preferences"))
     {
         instance->setPersonalInfo(visibility);
     }
 }
 
+// static
 void LLFloaterPreference::refreshEnabledGraphics()
 {
-    LLFloaterPreference* instance = LLFloaterReg::findTypedInstance<LLFloaterPreference>("preferences");
-    if (instance)
+    if (LLFloaterPreference* instance = LLFloaterReg::findTypedInstance<LLFloaterPreference>("preferences"))
     {
         instance->refresh();
     }
 
-    LLFloater* advanced = LLFloaterReg::findTypedInstance<LLFloater>("prefs_graphics_advanced");
-    if (advanced)
+    if (LLFloater* advanced = LLFloaterReg::findTypedInstance<LLFloater>("prefs_graphics_advanced"))
     {
         advanced->refresh();
     }
@@ -1092,7 +1115,7 @@ void LLFloaterPreference::onNotificationsChange(const std::string& OptionName)
     bool show_notifications_alert = true;
     for (notifications_map::iterator it_notification = mNotificationOptions.begin(); it_notification != mNotificationOptions.end(); it_notification++)
     {
-        if(it_notification->second != "No action")
+        if (it_notification->second != "No action")
         {
             show_notifications_alert = false;
             break;
@@ -1104,8 +1127,7 @@ void LLFloaterPreference::onNotificationsChange(const std::string& OptionName)
 
 void LLFloaterPreference::onNameTagOpacityChange(const LLSD& newvalue)
 {
-    LLColorSwatchCtrl* color_swatch = findChild<LLColorSwatchCtrl>("background");
-    if (color_swatch)
+    if (LLColorSwatchCtrl* color_swatch = findChild<LLColorSwatchCtrl>("background"))
     {
         LLColor4 new_color = color_swatch->get();
         color_swatch->set(new_color.setAlpha((F32)newvalue.asReal()));
@@ -1286,13 +1308,25 @@ void LLAvatarComplexityControls::setIndirectMaxArc()
 
 void LLFloaterPreference::refresh()
 {
-    LLPanel::refresh();
+    setPanelVisibility("game_control", LLGameControl::isEnabled());
+    LLTabContainer* tabcontainer = getChild<LLTabContainer>("pref core");
+    for (LLView* view : *tabcontainer->getChildList())
+    {
+        if (LLPanelPreferenceControls* panel = dynamic_cast<LLPanelPreferenceControls*>(view))
+        {
+            panel->refresh();
+            break;
+        }
+    }
+    LLFloater::refresh();
+    setMaxNonImpostorsText(
+        gSavedSettings.getU32("RenderAvatarMaxNonImpostors"),
+        getChild<LLTextBox>("IndirectMaxNonImpostorsText", true));
     LLAvatarComplexityControls::setText(
         gSavedSettings.getU32("RenderAvatarMaxComplexity"),
         getChild<LLTextBox>("IndirectMaxComplexityText", true));
     refreshEnabledState();
-    LLFloater* advanced = LLFloaterReg::findTypedInstance<LLFloater>("prefs_graphics_advanced");
-    if (advanced)
+    if (LLFloater* advanced = LLFloaterReg::findTypedInstance<LLFloater>("prefs_graphics_advanced"))
     {
         advanced->refresh();
     }
@@ -1306,7 +1340,7 @@ void LLFloaterPreference::onCommitWindowedMode()
 
 void LLFloaterPreference::onChangeQuality(const LLSD& data)
 {
-    U32 level = (U32)(data.asReal());
+    U32 level = (U32)data.asReal();
     LLFeatureManager::getInstance()->setGraphicsLevel(level, true);
     refreshEnabledGraphics();
     refresh();
@@ -1386,7 +1420,6 @@ void LLFloaterPreference::onClickLogPath()
     std::string proposed_name(gSavedPerAccountSettings.getString("InstantMessageLogPath"));
     mPriorInstantMessageLogPath.clear();
 
-
     (new LLDirPickerThread(boost::bind(&LLFloaterPreference::changeLogPath, this, _1, _2), proposed_name))->getFile();
 }
 
@@ -1411,10 +1444,10 @@ bool LLFloaterPreference::moveTranscriptsAndLog()
     bool madeDirectory = false;
 
     //Does the directory really exist, if not then make it
-    if(!LLFile::isdir(chatLogPath))
+    if (!LLFile::isdir(chatLogPath))
     {
         //mkdir success is defined as zero
-        if(LLFile::mkdir(chatLogPath) != 0)
+        if (LLFile::mkdir(chatLogPath) != 0)
         {
             return false;
         }
@@ -1424,10 +1457,10 @@ bool LLFloaterPreference::moveTranscriptsAndLog()
     std::string originalConversationLogDir = LLConversationLog::instance().getFileName();
     std::string targetConversationLogDir = gDirUtilp->add(chatLogPath, "conversation.log");
     //Try to move the conversation log
-    if(!LLConversationLog::instance().moveLog(originalConversationLogDir, targetConversationLogDir))
+    if (!LLConversationLog::instance().moveLog(originalConversationLogDir, targetConversationLogDir))
     {
         //Couldn't move the log and created a new directory so remove the new directory
-        if(madeDirectory)
+        if (madeDirectory)
         {
             LLFile::rmdir(chatLogPath);
         }
@@ -1440,7 +1473,7 @@ bool LLFloaterPreference::moveTranscriptsAndLog()
 
     LLLogChat::getListOfTranscriptFiles(listOfTranscripts);
 
-    if(!LLLogChat::moveTranscripts(gDirUtilp->getChatLogsDir(),
+    if (!LLLogChat::moveTranscripts(gDirUtilp->getChatLogsDir(),
                                     instantMessageLogPath,
                                     listOfTranscripts,
                                     listOfFilesMoved))
@@ -1453,7 +1486,7 @@ bool LLFloaterPreference::moveTranscriptsAndLog()
         //Move the conversation log back
         LLConversationLog::instance().moveLog(targetConversationLogDir, originalConversationLogDir);
 
-        if(madeDirectory)
+        if (madeDirectory)
         {
             LLFile::rmdir(chatLogPath);
         }
@@ -1499,7 +1532,6 @@ void LLFloaterPreference::setPersonalInfo(const std::string& visibility)
     getChild<LLUICtrl>("voice_call_friends_only_check")->setEnabled(true);
     getChild<LLUICtrl>("voice_call_friends_only_check")->setValue(gSavedPerAccountSettings.getBOOL("VoiceCallsFriendsOnly"));
 }
-
 
 void LLFloaterPreference::refreshUI()
 {
@@ -1558,6 +1590,44 @@ void LLAvatarComplexityControls::setRenderTimeText(F32 value, LLTextBox* text_bo
     else
     {
         text_box->setText(llformat("%.0f", value));
+    }
+}
+
+void LLFloaterPreference::updateMaxNonImpostors()
+{
+    // Called when the IndirectMaxNonImpostors control changes
+    // Responsible for fixing the slider label (IndirectMaxNonImpostorsText) and setting RenderAvatarMaxNonImpostors
+    LLSliderCtrl* ctrl = getChild<LLSliderCtrl>("IndirectMaxNonImpostors", true);
+    U32 value = ctrl->getValue().asInteger();
+
+    if (0 == value || LLVOAvatar::NON_IMPOSTORS_MAX_SLIDER <= value)
+    {
+        value = 0;
+    }
+    gSavedSettings.setU32("RenderAvatarMaxNonImpostors", value);
+    LLVOAvatar::updateImpostorRendering(value); // make it effective immediately
+    setMaxNonImpostorsText(value, getChild<LLTextBox>("IndirectMaxNonImpostorsText"));
+}
+
+void LLFloaterPreference::updateIndirectMaxNonImpostors(const LLSD& newvalue)
+{
+    U32 value = newvalue.asInteger();
+    if ((value != 0) && (value != gSavedSettings.getU32("IndirectMaxNonImpostors")))
+    {
+        gSavedSettings.setU32("IndirectMaxNonImpostors", value);
+    }
+    setMaxNonImpostorsText(value, getChild<LLTextBox>("IndirectMaxNonImpostorsText"));
+}
+
+void LLFloaterPreference::setMaxNonImpostorsText(U32 value, LLTextBox* text_box)
+{
+    if (0 == value)
+    {
+        text_box->setText(LLTrans::getString("no_limit"));
+    }
+    else
+    {
+        text_box->setText(llformat("%d", value));
     }
 }
 
@@ -1746,8 +1816,7 @@ void LLFloaterPreference::onClickActionChange()
 
 void LLFloaterPreference::onAtmosShaderChange()
 {
-    LLCheckBoxCtrl* ctrl_alm = getChild<LLCheckBoxCtrl>("UseLightShaders");
-    if(ctrl_alm)
+    if (LLCheckBoxCtrl* ctrl_alm = getChild<LLCheckBoxCtrl>("UseLightShaders"))
     {
         //Deferred/SSAO/Shadows
         bool bumpshiny = LLCubeMap::sUseCubeMaps && LLFeatureManager::getInstance()->isFeatureAvailable("RenderObjectBump") && gSavedSettings.getBOOL("RenderObjectBump");
@@ -1808,12 +1877,9 @@ void LLFloaterPreference::updateClickActionControls()
     // In such case we won't need to do this 'dynamic_cast' nightmare.
     // updateTable() can also be avoided
     LLTabContainer* tabcontainer = getChild<LLTabContainer>("pref core");
-    for (child_list_t::const_iterator iter = tabcontainer->getChildList()->begin();
-        iter != tabcontainer->getChildList()->end(); ++iter)
+    for (LLView* view : *tabcontainer->getChildList())
     {
-        LLView* view = *iter;
-        LLPanelPreferenceControls* panel = dynamic_cast<LLPanelPreferenceControls*>(view);
-        if (panel)
+        if (LLPanelPreferenceControls* panel = dynamic_cast<LLPanelPreferenceControls*>(view))
         {
             panel->setKeyBind("walk_to",
                               EMouseClickType::CLICK_LEFT,
@@ -1847,12 +1913,9 @@ void LLFloaterPreference::updateClickActionViews()
     // Todo: This is a very ugly way to get access to keybindings.
     // Reconsider possible options.
     LLTabContainer* tabcontainer = getChild<LLTabContainer>("pref core");
-    for (child_list_t::const_iterator iter = tabcontainer->getChildList()->begin();
-        iter != tabcontainer->getChildList()->end(); ++iter)
+    for (LLView* view : *tabcontainer->getChildList())
     {
-        LLView* view = *iter;
-        LLPanelPreferenceControls* panel = dynamic_cast<LLPanelPreferenceControls*>(view);
-        if (panel)
+        if (LLPanelPreferenceControls* panel = dynamic_cast<LLPanelPreferenceControls*>(view))
         {
             click_to_walk = panel->canKeyBindHandle("walk_to",
                 EMouseClickType::CLICK_LEFT,
@@ -1908,6 +1971,16 @@ void LLFloaterPreference::selectPanel(const LLSD& name)
     }
 }
 
+void LLFloaterPreference::setPanelVisibility(const LLSD& name, bool visible)
+{
+    LLTabContainer * tab_containerp = getChild<LLTabContainer>("pref core");
+    LLPanel * panel = tab_containerp->getPanelByName(name.asStringRef());
+    if (NULL != panel)
+    {
+        tab_containerp->setTabVisibility(panel, visible);
+    }
+}
+
 void LLFloaterPreference::selectPrivacyPanel()
 {
     selectPanel("im");
@@ -1924,7 +1997,6 @@ void LLFloaterPreference::changed()
 
     // set 'enable' property for 'Delete transcripts...' button
     updateDeleteTranscriptsButton();
-
 }
 
 void LLFloaterPreference::saveGraphicsPreset(std::string& preset)
@@ -1951,7 +2023,7 @@ public:
     :LLEventTimer(period),
      mCallback(cb)
     {
-        mEventTimer.stop();
+        stop();
     }
 
     virtual ~Updater(){}
@@ -1959,15 +2031,15 @@ public:
     void update(const LLSD& new_value)
     {
         mNewValue = new_value;
-        mEventTimer.start();
+        start();
     }
 
 protected:
 
-    bool tick()
+    bool tick() override
     {
         mCallback(mNewValue);
-        mEventTimer.stop();
+        stop();
 
         return false;
     }
@@ -1983,11 +2055,11 @@ LLPanelPreference::LLPanelPreference()
 : LLPanel(),
   mBandWidthUpdater(NULL)
 {
-    mCommitCallbackRegistrar.add("Pref.setControlFalse",    boost::bind(&LLPanelPreference::setControlFalse,this, _2));
-    mCommitCallbackRegistrar.add("Pref.updateMediaAutoPlayCheckbox",    boost::bind(&LLPanelPreference::updateMediaAutoPlayCheckbox, this, _1));
-    mCommitCallbackRegistrar.add("Pref.PrefDelete", boost::bind(&LLPanelPreference::deletePreset, this, _2));
-    mCommitCallbackRegistrar.add("Pref.PrefSave",   boost::bind(&LLPanelPreference::savePreset, this, _2));
-    mCommitCallbackRegistrar.add("Pref.PrefLoad",   boost::bind(&LLPanelPreference::loadPreset, this, _2));
+    mCommitCallbackRegistrar.add("Pref.setControlFalse", { boost::bind(&LLPanelPreference::setControlFalse,this, _2), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.updateMediaAutoPlayCheckbox", { boost::bind(&LLPanelPreference::updateMediaAutoPlayCheckbox, this, _1), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.PrefDelete", { boost::bind(&LLPanelPreference::deletePreset, this, _2), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.PrefSave", { boost::bind(&LLPanelPreference::savePreset, this, _2), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Pref.PrefLoad", { boost::bind(&LLPanelPreference::loadPreset, this, _2), cb_info::UNTRUSTED_BLOCK });
 }
 
 //virtual
@@ -2032,7 +2104,6 @@ bool LLPanelPreference::postBuild()
     if (hasChild("media_enabled", true))
     {
         bool media_enabled = gSavedSettings.getBOOL("AudioStreamingMedia");
-
         getChild<LLCheckBoxCtrl>("media_enabled")->set(media_enabled);
         getChild<LLCheckBoxCtrl>("autoplay_enabled")->setEnabled(media_enabled);
     }
@@ -2089,41 +2160,41 @@ LLPanelPreference::~LLPanelPreference()
         delete mBandWidthUpdater;
     }
 }
+
+// virtual
 void LLPanelPreference::apply()
 {
     // no-op
 }
 
+// virtual
 void LLPanelPreference::saveSettings()
 {
-    LLFloater* advanced = LLFloaterReg::findTypedInstance<LLFloater>("prefs_graphics_advanced");
-
     // Save the value of all controls in the hierarchy
     mSavedValues.clear();
     std::list<LLView*> view_stack;
     view_stack.push_back(this);
-    if (advanced)
+    // Search for 'Advanced' panel and add it if found
+    if (LLFloater* advanced = LLFloaterReg::findTypedInstance<LLFloater>("prefs_graphics_advanced"))
     {
         view_stack.push_back(advanced);
     }
-    while(!view_stack.empty())
+
+    while (!view_stack.empty())
     {
         // Process view on top of the stack
         LLView* curview = view_stack.front();
         view_stack.pop_front();
 
-        LLColorSwatchCtrl* color_swatch = dynamic_cast<LLColorSwatchCtrl *>(curview);
-        if (color_swatch)
+        if (LLColorSwatchCtrl* color_swatch = dynamic_cast<LLColorSwatchCtrl*>(curview))
         {
             mSavedColors[color_swatch->getName()] = color_swatch->get();
         }
         else
         {
-            LLUICtrl* ctrl = dynamic_cast<LLUICtrl*>(curview);
-            if (ctrl)
+            if (LLUICtrl* ctrl = dynamic_cast<LLUICtrl*>(curview))
             {
-                LLControlVariable* control = ctrl->getControlVariable();
-                if (control)
+                if (LLControlVariable* control = ctrl->getControlVariable())
                 {
                     mSavedValues[control] = control->getValue();
                 }
@@ -2131,10 +2202,9 @@ void LLPanelPreference::saveSettings()
         }
 
         // Push children onto the end of the work stack
-        for (child_list_t::const_iterator iter = curview->getChildList()->begin();
-             iter != curview->getChildList()->end(); ++iter)
+        for (LLView* view : *curview->getChildList())
         {
-            view_stack.push_back(*iter);
+            view_stack.push_back(view);
         }
     }
 
@@ -2276,7 +2346,7 @@ public:
         mAccountIndependentSettings.push_back("AutoDisengageMic");
     }
 
-    /*virtual*/ void saveSettings()
+    void saveSettings() override
     {
         LLPanelPreference::saveSettings();
 
@@ -2291,7 +2361,7 @@ public:
                 if (find(mAccountIndependentSettings.begin(),
                     mAccountIndependentSettings.end(), setting) == mAccountIndependentSettings.end())
                 {
-                    mSavedValues.erase(it++);
+                    it = mSavedValues.erase(it);
                 }
                 else
                 {
@@ -2455,9 +2525,11 @@ void LLPanelPreferenceGraphics::cancel(const std::vector<std::string> settings_t
 {
     LLPanelPreference::cancel(settings_to_skip);
 }
+
 void LLPanelPreferenceGraphics::saveSettings()
 {
     resetDirtyChilds();
+
     std::string preset_graphic_active = gSavedSettings.getString("PresetGraphicActive");
     if (preset_graphic_active.empty())
     {
@@ -2468,8 +2540,10 @@ void LLPanelPreferenceGraphics::saveSettings()
             instance->saveGraphicsPreset(preset_graphic_active);
         }
     }
+
     LLPanelPreference::saveSettings();
 }
+
 void LLPanelPreferenceGraphics::setHardwareDefaults()
 {
     resetDirtyChilds();
@@ -2492,6 +2566,12 @@ LLPanelPreferenceControls::LLPanelPreferenceControls()
 
 LLPanelPreferenceControls::~LLPanelPreferenceControls()
 {
+}
+
+void LLPanelPreferenceControls::refresh()
+{
+    populateControlTable();
+    LLPanelPreference::refresh();
 }
 
 bool LLPanelPreferenceControls::postBuild()
@@ -2565,12 +2645,9 @@ bool LLPanelPreferenceControls::addControlTableRows(const std::string &filename)
     cell_params.column = "";
     cell_params.value = "";
 
-
-    for (LLInitParam::ParamIterator<LLScrollListItem::Params>::const_iterator row_it = contents.rows.begin();
-        row_it != contents.rows.end();
-        ++row_it)
+    for (LLScrollListItem::Params& row_params : contents.rows)
     {
-        std::string control = row_it->value.getValue().asString();
+        std::string control = row_params.value.getValue().asString();
         if (!control.empty() && control != "menu_separator")
         {
             bool show = true;
@@ -2589,7 +2666,7 @@ bool LLPanelPreferenceControls::addControlTableRows(const std::string &filename)
             if (show)
             {
                 // At the moment viewer is hardcoded to assume that columns are named as lst_ctrl%d
-                LLScrollListItem::Params item_params(*row_it);
+                LLScrollListItem::Params item_params(row_params);
                 item_params.enabled.setValue(enabled);
 
                 S32 num_columns = pControlsTable->getNumColumns();
@@ -2614,7 +2691,7 @@ bool LLPanelPreferenceControls::addControlTableRows(const std::string &filename)
             //   value = "menu_separator"
             //   column = "lst_action" / >
             //</rows>
-            pControlsTable->addRow(*row_it, EAddPosition::ADD_BOTTOM);
+            pControlsTable->addRow(row_params, EAddPosition::ADD_BOTTOM);
         }
     }
     return true;
@@ -2674,6 +2751,11 @@ void LLPanelPreferenceControls::populateControlTable()
         addControlTableRows("control_table_contents_movement.xml");
         addControlTableSeparator();
         addControlTableRows("control_table_contents_media.xml");
+        addControlTableSeparator();
+        if (LLGameControl::isEnabled())
+        {
+            addControlTableRows("control_table_contents_game_control.xml");
+        }
     }
     // MODE_THIRD_PERSON; MODE_EDIT_AVATAR; MODE_SITTING
     else if (mEditingMode < LLKeyConflictHandler::MODE_SAVED_SETTINGS)
@@ -2690,6 +2772,12 @@ void LLPanelPreferenceControls::populateControlTable()
         addControlTableSeparator();
 
         addControlTableRows("control_table_contents_media.xml");
+        addControlTableSeparator();
+
+        if (LLGameControl::isEnabled())
+        {
+            addControlTableRows("control_table_contents_game_control.xml");
+        }
     }
     else
     {
@@ -3065,6 +3153,7 @@ void LLPanelPreferenceControls::onDefaultKeyBind(bool all_modes)
             mConflictHandler[mEditingMode].saveToSettings(true);
         }
     }
+
     updateTable();
 
     if (mEditingMode == LLKeyConflictHandler::MODE_THIRD_PERSON || all_modes)
@@ -3083,13 +3172,930 @@ void LLPanelPreferenceControls::onCancelKeyBind()
     pControlsTable->deselectAllItems();
 }
 
+//------------------------LLPanelPreferenceGameControl--------------------------------
+
+// LLPanelPreferenceGameControl is effectively a singleton, so we track its instance
+static LLPanelPreferenceGameControl* gGameControlPanel { nullptr };
+static LLScrollListCtrl* gSelectedGrid { nullptr };
+static LLScrollListItem* gSelectedItem { nullptr };
+static LLScrollListCell* gSelectedCell { nullptr };
+
+// static
+void LLPanelPreferenceGameControl::updateDeviceList()
+{
+    if (gGameControlPanel)
+    {
+        gGameControlPanel->updateDeviceListInternal();
+    }
+}
+
+LLPanelPreferenceGameControl::LLPanelPreferenceGameControl()
+{
+    gGameControlPanel = this;
+}
+
+LLPanelPreferenceGameControl::~LLPanelPreferenceGameControl()
+{
+    gGameControlPanel = nullptr;
+}
+
+static LLPanelInjector<LLPanelPreferenceGameControl> t_pref_game_control("panel_preference_game_control");
+
+// Collect all UI control values into mSavedValues
+void LLPanelPreferenceGameControl::saveSettings()
+{
+    LLPanelPreference::saveSettings();
+
+    std::vector<LLScrollListItem*> items = mActionTable->getAllData();
+
+    // Find the channel visually associated with the specified action
+    LLGameControl::getChannel_t getChannel =
+    [&](const std::string& action) -> LLGameControl::InputChannel
+    {
+        for (LLScrollListItem* item : items)
+        {
+            if (action == item->getValue() && (item->getNumColumns() >= 2))
+            {
+                return LLGameControl::getChannelByName(item->getColumn(1)->getValue());
+            }
+        }
+        return LLGameControl::InputChannel();
+    };
+
+    // Use string formatting functions provided by class LLGameControl:
+    if (LLControlVariable* analogMappings = gSavedSettings.getControl("AnalogChannelMappings"))
+    {
+        analogMappings->set(LLGameControl::stringifyAnalogMappings(getChannel));
+        mSavedValues[analogMappings] = analogMappings->getValue();
+    }
+
+    if (LLControlVariable* binaryMappings = gSavedSettings.getControl("BinaryChannelMappings"))
+    {
+        binaryMappings->set(LLGameControl::stringifyBinaryMappings(getChannel));
+        mSavedValues[binaryMappings] = binaryMappings->getValue();
+    }
+
+    if (LLControlVariable* flycamMappings = gSavedSettings.getControl("FlycamChannelMappings"))
+    {
+        flycamMappings->set(LLGameControl::stringifyFlycamMappings(getChannel));
+        mSavedValues[flycamMappings] = flycamMappings->getValue();
+    }
+
+    if (LLControlVariable* knownControllers = gSavedSettings.getControl("KnownGameControllers"))
+    {
+        LLSD deviceOptions(LLSD::emptyMap());
+        for (auto& pair : mDeviceOptions)
+        {
+            pair.second.settings = pair.second.options.saveToString(pair.second.name);
+            if (!pair.second.settings.empty())
+            {
+                deviceOptions.insert(pair.first, pair.second.settings);
+            }
+        }
+        knownControllers->set(deviceOptions);
+        mSavedValues[knownControllers] = deviceOptions;
+    }
+}
+
+void LLPanelPreferenceGameControl::onGridSelect(LLUICtrl* ctrl)
+{
+    clearSelectionState();
+
+    LLScrollListCtrl* table = dynamic_cast<LLScrollListCtrl*>(ctrl);
+    if (!table || !table->getEnabled())
+        return;
+
+    if (LLScrollListItem* item = table->getFirstSelected())
+    {
+        if (initCombobox(item, table))
+            return;
+
+        table->deselectAllItems();
+    }
+}
+
+bool LLPanelPreferenceGameControl::initCombobox(LLScrollListItem* item, LLScrollListCtrl* grid)
+{
+    if (item->getSelectedCell() != 1)
+        return false;
+
+    LLScrollListText* cell = dynamic_cast<LLScrollListText*>(item->getColumn(1));
+    if (!cell)
+        return false;
+
+    LLComboBox* combobox = nullptr;
+    if (grid == mActionTable)
+    {
+    std::string action = item->getValue();
+    LLGameControl::ActionNameType actionNameType = LLGameControl::getActionNameType(action);
+        combobox =
+        actionNameType == LLGameControl::ACTION_NAME_ANALOG ? mAnalogChannelSelector :
+        actionNameType == LLGameControl::ACTION_NAME_BINARY ? mBinaryChannelSelector :
+        actionNameType == LLGameControl::ACTION_NAME_FLYCAM ? mAnalogChannelSelector :
+        nullptr;
+    }
+    else if (grid == mAxisMappings)
+    {
+        combobox = mAxisSelector;
+    }
+    else if (grid == mButtonMappings)
+    {
+        combobox = mBinaryChannelSelector;
+    }
+    if (!combobox)
+        return false;
+
+    // compute new rect for combobox
+    S32 row_index = grid->getItemIndex(item);
+    fitInRect(combobox, grid, row_index, 1);
+
+    std::string channel_name = "NONE";
+    std::string cell_value = cell->getValue();
+    std::vector<LLScrollListItem*> items = combobox->getAllData();
+    for (const LLScrollListItem* item : items)
+    {
+        if (item->getColumn(0)->getValue().asString() == cell_value)
+        {
+            channel_name = item->getValue().asString();
+            break;
+        }
+    }
+
+    std::string value;
+    LLGameControl::InputChannel channel = LLGameControl::getChannelByName(channel_name);
+    if (!channel.isNone())
+    {
+        std::string channel_name = channel.getLocalName();
+        std::string channel_label = getChannelLabel(channel_name, combobox->getAllData());
+        if (combobox->itemExists(channel_label))
+        {
+            value = channel_name;
+        }
+    }
+    if (value.empty())
+    {
+        // Assign the last element in the dropdown list which is "NONE"
+        value = combobox->getAllData().back()->getValue().asString();
+    }
+
+    combobox->setValue(value);
+    combobox->setVisible(true);
+    combobox->showList();
+
+    gSelectedGrid = grid;
+    gSelectedItem = item;
+    gSelectedCell = cell;
+
+    return true;
+}
+
+void LLPanelPreferenceGameControl::onCommitInputChannel(LLUICtrl* ctrl)
+{
+    if (!gSelectedGrid || !gSelectedItem || !gSelectedCell)
+        return;
+
+    LLComboBox* combobox = dynamic_cast<LLComboBox*>(ctrl);
+    llassert(combobox);
+    if (!combobox)
+        return;
+
+    if (gSelectedGrid == mActionTable)
+    {
+        std::string value = combobox->getValue();
+        std::string label = (value == "NONE") ?
+            LLStringUtil::null : combobox->getSelectedItemLabel();
+    gSelectedCell->setValue(label);
+    }
+    else
+    {
+        S32 chosen_index = combobox->getCurrentIndex();
+        if (chosen_index >= 0)
+        {
+            int row_index = gSelectedGrid->getItemIndex(gSelectedItem);
+            llassert(row_index >= 0);
+            LLGameControl::Options& deviceOptions = getSelectedDeviceOptions();
+            std::vector<U8>& map = gSelectedGrid == mAxisMappings ?
+                deviceOptions.getAxisMap() : deviceOptions.getButtonMap();
+            if (chosen_index >= map.size())
+            {
+                chosen_index = row_index;
+            }
+            std::string label = chosen_index == row_index ?
+                LLStringUtil::null : combobox->getSelectedItemLabel();
+            gSelectedCell->setValue(label);
+            map[row_index] = chosen_index;
+        }
+    }
+    gSelectedGrid->deselectAllItems();
+    clearSelectionState();
+}
+
+bool LLPanelPreferenceGameControl::isWaitingForInputChannel()
+{
+    return gSelectedCell != nullptr;
+}
+
+// static
+void LLPanelPreferenceGameControl::applyGameControlInput()
+{
+    if (!gGameControlPanel || !gSelectedGrid || !gSelectedCell)
+        return;
+
+    LLComboBox* combobox;
+    LLGameControl::InputChannel::Type expectedType;
+    if (gGameControlPanel->mAnalogChannelSelector->getVisible())
+    {
+        combobox = gGameControlPanel->mAnalogChannelSelector;
+        expectedType = LLGameControl::InputChannel::TYPE_AXIS;
+    }
+    else if (gGameControlPanel->mBinaryChannelSelector->getVisible())
+    {
+        combobox = gGameControlPanel->mBinaryChannelSelector;
+        expectedType = LLGameControl::InputChannel::TYPE_BUTTON;
+    }
+    else
+    {
+        return;
+    }
+
+    LLGameControl::InputChannel channel = LLGameControl::getActiveInputChannel();
+    if (channel.mType == expectedType)
+    {
+        std::string channel_name = channel.getLocalName();
+        std::string channel_label = LLPanelPreferenceGameControl::getChannelLabel(channel_name, combobox->getAllData());
+        gSelectedCell->setValue(channel_label);
+        gSelectedGrid->deselectAllItems();
+        gGameControlPanel->clearSelectionState();
+    }
+}
+
+void LLPanelPreferenceGameControl::onAxisOptionsSelect()
+{
+    clearSelectionState();
+
+    if (LLScrollListItem* row = mAxisOptions->getFirstSelected())
+    {
+        LLGameControl::Options& options = getSelectedDeviceOptions();
+        S32 row_index = mAxisOptions->getItemIndex(row);
+
+        {
+            // always update invert checkbox value because even though it may have been clicked
+            // the row does not know its cell has been selected
+            constexpr S32 invert_checkbox_column = 1;
+            bool invert = row->getColumn(invert_checkbox_column)->getValue().asBoolean();
+            options.getAxisOptions()[row_index].mMultiplier = invert ? -1 : 1;
+        }
+
+        S32 column_index = row->getSelectedCell();
+        if (column_index == 2 || column_index == 3)
+        {
+            fitInRect(mNumericValueEditor, mAxisOptions, row_index, column_index);
+            if (column_index == 2)
+            {
+                mNumericValueEditor->setMinValue(0);
+                mNumericValueEditor->setMaxValue(LLGameControl::MAX_AXIS_DEAD_ZONE);
+                mNumericValueEditor->setValue(options.getAxisOptions()[row_index].mDeadZone);
+            }
+            else // column_index == 3
+            {
+                mNumericValueEditor->setMinValue(-LLGameControl::MAX_AXIS_OFFSET);
+                mNumericValueEditor->setMaxValue(LLGameControl::MAX_AXIS_OFFSET);
+                mNumericValueEditor->setValue(options.getAxisOptions()[row_index].mOffset);
+            }
+            mNumericValueEditor->setVisible(true);
+        }
+
+        initCombobox(row, mAxisOptions);
+
+        LLGameControl::setDeviceOptions(mSelectedDeviceGUID, options);
+    }
+}
+
+void LLPanelPreferenceGameControl::onCommitNumericValue()
+{
+    if (LLScrollListItem* row = mAxisOptions->getFirstSelected())
+    {
+        LLGameControl::Options& deviceOptions = getSelectedDeviceOptions();
+        S32 value = mNumericValueEditor->getValue().asInteger();
+        S32 row_index = mAxisOptions->getItemIndex(row);
+        S32 column_index = row->getSelectedCell();
+        llassert(column_index == 2 || column_index == 3);
+        if (column_index < 2 || column_index > 3)
+            return;
+
+        if (column_index == 2)
+        {
+            value = std::clamp<S32>(value, 0, LLGameControl::MAX_AXIS_DEAD_ZONE);
+            deviceOptions.getAxisOptions()[row_index].mDeadZone = (U16)value;
+        }
+        else  // column_index == 3
+        {
+            value = std::clamp<S32>(value, -LLGameControl::MAX_AXIS_OFFSET, LLGameControl::MAX_AXIS_OFFSET);
+            deviceOptions.getAxisOptions()[row_index].mOffset = (S16)value;
+        }
+        setNumericLabel(row->getColumn(column_index), value);
+        LLGameControl::setDeviceOptions(mSelectedDeviceGUID, deviceOptions);
+    }
+}
+
+bool LLPanelPreferenceGameControl::postBuild()
+{
+    // Above the tab container
+    mCheckGameControlToServer = getChild<LLCheckBoxCtrl>("game_control_to_server");
+    mCheckGameControlToAgent = getChild<LLCheckBoxCtrl>("game_control_to_agent");
+    mCheckAgentToGameControl = getChild<LLCheckBoxCtrl>("agent_to_game_control");
+
+    mCheckGameControlToServer->setCommitCallback([this](LLUICtrl*, const LLSD&)
+        {
+            LLGameControl::setSendToServer(mCheckGameControlToServer->getValue());
+            updateActionTableState();
+        });
+    mCheckGameControlToAgent->setCommitCallback([this](LLUICtrl*, const LLSD&)
+        {
+            LLGameControl::setControlAgent(mCheckGameControlToAgent->getValue());
+            updateActionTableState();
+        });
+    mCheckAgentToGameControl->setCommitCallback([this](LLUICtrl*, const LLSD&)
+        {
+            LLGameControl::setTranslateAgentActions(mCheckAgentToGameControl->getValue());
+            updateActionTableState();
+        });
+
+    getChild<LLTabContainer>("game_control_tabs")->setCommitCallback([this](LLUICtrl*, const LLSD&) { clearSelectionState(); });
+    getChild<LLTabContainer>("device_settings_tabs")->setCommitCallback([this](LLUICtrl*, const LLSD&) { clearSelectionState(); });
+
+    // 1st tab "Channel mappings"
+    mTabChannelMappings = getChild<LLPanel>("tab_channel_mappings");
+    mActionTable = getChild<LLScrollListCtrl>("action_table");
+    mActionTable->setCommitCallback([this](LLUICtrl* ctrl, const LLSD&) { onGridSelect(ctrl); });
+
+    // 2nd tab "Device settings"
+    mTabDeviceSettings = getChild<LLPanel>("tab_device_settings");
+    mNoDeviceMessage = getChild<LLTextBox>("nodevice_message");
+    mDevicePrompt = getChild<LLTextBox>("device_prompt");
+    mSingleDevice = getChild<LLTextBox>("single_device");
+    mDeviceList = getChild<LLComboBox>("device_list");
+    mCheckShowAllDevices = getChild<LLCheckBoxCtrl>("show_all_known_devices");
+    mPanelDeviceSettings = getChild<LLPanel>("device_settings");
+
+    mCheckShowAllDevices->setCommitCallback([this](LLUICtrl*, const LLSD&) { populateDeviceTitle(); });
+    mDeviceList->setCommitCallback([this](LLUICtrl*, const LLSD& value) { populateDeviceSettings(value); });
+
+    mTabAxisOptions = getChild<LLPanel>("tab_axis_options");
+    mAxisOptions = getChild<LLScrollListCtrl>("axis_options");
+    mAxisOptions->setCommitCallback([this](LLUICtrl*, const LLSD&) { onAxisOptionsSelect(); });
+
+    mTabAxisMappings = getChild<LLPanel>("tab_axis_mappings");
+    mAxisMappings = getChild<LLScrollListCtrl>("axis_mappings");
+    mAxisMappings->setCommitCallback([this](LLUICtrl* ctrl, const LLSD&) { onGridSelect(ctrl); });
+
+    mTabButtonMappings = getChild<LLPanel>("tab_button_mappings");
+    mButtonMappings = getChild<LLScrollListCtrl>("button_mappings");
+    mButtonMappings->setCommitCallback([this](LLUICtrl* ctrl, const LLSD&) { onGridSelect(ctrl); });
+
+    mResetToDefaults = getChild<LLButton>("reset_to_defaults");
+    mResetToDefaults->setCommitCallback([this](LLUICtrl* ctrl, const LLSD&) { onResetToDefaults(); });
+
+    // Numeric value editor
+    mNumericValueEditor = getChild<LLSpinCtrl>("numeric_value_editor");
+    mNumericValueEditor->setCommitCallback([this](LLUICtrl*, const LLSD&) { onCommitNumericValue(); });
+
+    // Channel selectors
+    mAnalogChannelSelector = getChild<LLComboBox>("analog_channel_selector");
+    mAnalogChannelSelector->setCommitCallback([this](LLUICtrl* ctrl, const LLSD&) { onCommitInputChannel(ctrl); });
+
+    mBinaryChannelSelector = getChild<LLComboBox>("binary_channel_selector");
+    mBinaryChannelSelector->setCommitCallback([this](LLUICtrl* ctrl, const LLSD&) { onCommitInputChannel(ctrl); });
+
+    mAxisSelector = getChild<LLComboBox>("axis_selector");
+    mAxisSelector->setCommitCallback([this](LLUICtrl* ctrl, const LLSD&) { onCommitInputChannel(ctrl); });
+
+    // Setup the 1st tab
+    populateActionTableRows("game_control_table_rows.xml");
+    addActionTableSeparator();
+    populateActionTableRows("game_control_table_camera_rows.xml");
+
+    // Setup the 2nd tab
+    populateOptionsTableRows();
+    populateMappingTableRows(mAxisMappings, mAxisSelector, LLGameControl::NUM_AXES);
+    populateMappingTableRows(mButtonMappings, mBinaryChannelSelector, LLGameControl::NUM_BUTTONS);
+
+    // Workaround for the common bug:
+    // LLScrollListCtrl with draw_heading="true" initially has incorrect mTop (17 px higher)
+    LLRect rect = mAxisOptions->getRect();
+    rect.mTop = mAxisOptions->getParent()->getRect().getHeight() - 1;
+    mAxisOptions->setRect(rect);
+    mAxisOptions->updateLayout();
+
+    return true;
+}
+
+// Update all UI control values from real objects
+// This function is called before floater is shown
+void LLPanelPreferenceGameControl::onOpen(const LLSD& key)
+{
+    mCheckGameControlToServer->setValue(LLGameControl::getSendToServer());
+    mCheckGameControlToAgent->setValue(LLGameControl::getControlAgent());
+    mCheckAgentToGameControl->setValue(LLGameControl::getTranslateAgentActions());
+
+    clearSelectionState();
+
+    // Setup the 1st tab
+    populateActionTableCells();
+    updateActionTableState();
+
+    updateDeviceListInternal();
+    updateEnable();
+}
+
+void LLPanelPreferenceGameControl::updateDeviceListInternal()
+{
+    // Setup the 2nd tab
+    mDeviceOptions.clear();
+    for (const auto& pair : LLGameControl::getDeviceOptions())
+    {
+        DeviceOptions deviceOptions = { LLStringUtil::null, pair.second, LLGameControl::Options() };
+        deviceOptions.options.loadFromString(deviceOptions.name, deviceOptions.settings);
+        mDeviceOptions.emplace(pair.first, deviceOptions);
+    }
+    // Add missing device settings/options even if they are default
+    for (const auto& device : LLGameControl::getDevices())
+    {
+        if (mDeviceOptions.find(device.getGUID()) == mDeviceOptions.end())
+        {
+            mDeviceOptions[device.getGUID()] = { device.getName(), device.saveOptionsToString(true), device.getOptions() };
+        }
+    }
+    mCheckShowAllDevices->setValue(false);
+    populateDeviceTitle();
+}
+
+void LLPanelPreferenceGameControl::populateActionTableRows(const std::string& filename)
+{
+    LLScrollListCtrl::Contents contents;
+    if (!parseXmlFile(contents, filename, "rows"))
+        return;
+
+    // init basic cell params
+    LLScrollListCell::Params second_cell_params;
+    second_cell_params.font = LLFontGL::getFontSansSerif();
+    second_cell_params.font_halign = LLFontGL::LEFT;
+    second_cell_params.column = mActionTable->getColumn(1)->mName;
+    second_cell_params.value = ""; // Actual value is assigned in populateActionTableCells
+
+    for (const LLScrollListItem::Params& row_params : contents.rows)
+    {
+        std::string name = row_params.value.getValue().asString();
+        if (!name.empty() && name != "menu_separator")
+        {
+            LLScrollListItem::Params new_params(row_params);
+            new_params.enabled.setValue(true);
+            // item_params should already have one column that was defined
+            // in XUI config file, and now we want to add one more
+            if (new_params.columns.size() == 1)
+            {
+                new_params.columns.add(second_cell_params);
+            }
+            mActionTable->addRow(new_params, EAddPosition::ADD_BOTTOM);
+        }
+        else
+        {
+            mActionTable->addRow(row_params, EAddPosition::ADD_BOTTOM);
+        }
+    }
+}
+
+void LLPanelPreferenceGameControl::populateActionTableCells()
+{
+    std::vector<LLScrollListItem*> rows = mActionTable->getAllData();
+    std::vector<LLScrollListItem*> axes = mAnalogChannelSelector->getAllData();
+    std::vector<LLScrollListItem*> btns = mBinaryChannelSelector->getAllData();
+
+    for (LLScrollListItem* row : rows)
+    {
+        if (row->getNumColumns() >= 2) // Skip separators
+        {
+            std::string name = row->getValue().asString();
+            if (!name.empty() && name != "menu_separator")
+            {
+                LLGameControl::InputChannel channel = LLGameControl::getChannelByAction(name);
+                std::string channel_name = channel.getLocalName();
+                std::string channel_label =
+                    channel.isAxis() ? getChannelLabel(channel_name, axes) :
+                    channel.isButton() ? getChannelLabel(channel_name, btns) :
+                    LLStringUtil::null;
+                row->getColumn(1)->setValue(channel_label);
+            }
+        }
+    }
+}
+
+// static
+bool LLPanelPreferenceGameControl::parseXmlFile(LLScrollListCtrl::Contents& contents,
+    const std::string& filename, const std::string& what)
+{
+    LLXMLNodePtr xmlNode;
+    if (!LLUICtrlFactory::getLayeredXMLNode(filename, xmlNode))
+    {
+        LL_WARNS("Preferences") << "Failed to populate " << what << " from '" << filename << "'" << LL_ENDL;
+        return false;
+    }
+
+    LLXUIParser parser;
+    parser.readXUI(xmlNode, contents, filename);
+    if (!contents.validateBlock())
+    {
+        LL_WARNS("Preferences") << "Failed to parse " << what << " from '" << filename << "'" << LL_ENDL;
+        return false;
+    }
+
+    return true;
+}
+
+void LLPanelPreferenceGameControl::populateDeviceTitle()
+{
+    mSelectedDeviceGUID.clear();
+
+    bool showAllDevices = mCheckShowAllDevices->getValue().asBoolean();
+    std::size_t deviceCount = showAllDevices ? mDeviceOptions.size() : LLGameControl::getDevices().size();
+
+    mNoDeviceMessage->setVisible(!deviceCount);
+    mDevicePrompt->setVisible(deviceCount);
+    mSingleDevice->setVisible(deviceCount == 1);
+    mDeviceList->setVisible(deviceCount > 1);
+    mPanelDeviceSettings->setVisible(deviceCount);
+
+    auto makeTitle = [](const std::string& guid, const std::string& name) -> std::string
+    {
+        return guid + ", " + name;
+    };
+
+    if (deviceCount == 1)
+    {
+        if (showAllDevices)
+        {
+            const std::pair<std::string, DeviceOptions>& pair = *mDeviceOptions.begin();
+            mSingleDevice->setValue(makeTitle(pair.first, pair.second.name));
+            populateDeviceSettings(pair.first);
+        }
+        else
+        {
+            const LLGameControl::Device& device = LLGameControl::getDevices().front();
+            mSingleDevice->setValue(makeTitle(device.getGUID(), device.getName()));
+            populateDeviceSettings(device.getGUID());
+        }
+    }
+    else if (deviceCount)
+    {
+        mDeviceList->clear();
+        mDeviceList->clearRows();
+
+        auto makeListItem = [](const std::string& guid, const std::string& title)
+        {
+            return LLSD().with("value", guid).with("columns", LLSD().with("label", title));
+        };
+
+        if (showAllDevices)
+        {
+            for (const auto& pair : mDeviceOptions)
+            {
+                mDeviceList->addElement(makeListItem(pair.first, makeTitle(pair.first, pair.second.name)));
+            }
+        }
+        else
+        {
+            for (const LLGameControl::Device& device : LLGameControl::getDevices())
+            {
+                mDeviceList->addElement(makeListItem(device.getGUID(), makeTitle(device.getGUID(), device.getName())));
+            }
+        }
+
+        mDeviceList->selectNthItem(0);
+        populateDeviceSettings(mDeviceList->getValue());
+    }
+}
+
+void LLPanelPreferenceGameControl::populateDeviceSettings(const std::string& guid)
+{
+    LL_INFOS() << "guid: '" << guid << "'" << LL_ENDL;
+
+    mSelectedDeviceGUID = guid;
+    auto options_it = mDeviceOptions.find(guid);
+    llassert_always(options_it != mDeviceOptions.end());
+    const DeviceOptions& deviceOptions = options_it->second;
+
+    populateOptionsTableCells();
+    populateMappingTableCells(mAxisMappings, deviceOptions.options.getAxisMap(), mAxisSelector);
+    populateMappingTableCells(mButtonMappings, deviceOptions.options.getButtonMap(), mBinaryChannelSelector);
+}
+
+void LLPanelPreferenceGameControl::populateOptionsTableRows()
+{
+    mAxisOptions->clearRows();
+
+    std::vector<LLScrollListItem*> items = mAnalogChannelSelector->getAllData();
+
+    LLScrollListItem::Params row_params;
+    LLScrollListCell::Params cell_params;
+    cell_params.font = LLFontGL::getFontMonospace();
+    for (size_t i = 0; i < mAxisOptions->getNumColumns(); ++i)
+    {
+        row_params.columns.add(cell_params);
+    }
+
+    row_params.columns(1).type = "checkbox";
+    row_params.columns(2).font_halign = "right";
+    row_params.columns(3).font_halign = "right";
+
+    for (size_t i = 0; i < LLGameControl::NUM_AXES; ++i)
+    {
+        LLScrollListItem* row = mAxisOptions->addRow(row_params);
+        row->getColumn(0)->setValue(items[i]->getColumn(0)->getValue());
+    }
+}
+
+void LLPanelPreferenceGameControl::populateOptionsTableCells()
+{
+    std::vector<LLScrollListItem*> rows = mAxisOptions->getAllData();
+    const auto& all_axis_options = getSelectedDeviceOptions().getAxisOptions();
+    llassert(rows.size() == all_axis_options.size());
+
+    for (size_t i = 0; i < rows.size(); ++i)
+    {
+        LLScrollListItem* row = rows[i];
+        const LLGameControl::Options::AxisOptions& axis_options = all_axis_options[i];
+        row->getColumn(1)->setValue(axis_options.mMultiplier == -1 ? true : false);
+        setNumericLabel(row->getColumn(2), axis_options.mDeadZone);
+        setNumericLabel(row->getColumn(3), axis_options.mOffset);
+    }
+}
+
+void LLPanelPreferenceGameControl::populateMappingTableRows(LLScrollListCtrl* target,
+    const LLComboBox* source, size_t row_count)
+{
+    target->clearRows();
+
+    std::vector<LLScrollListItem*> items = source->getAllData();
+
+    LLScrollListItem::Params row_params;
+    LLScrollListCell::Params cell_params;
+    cell_params.font = LLFontGL::getFontMonospace();
+    for (size_t i = 0; i < target->getNumColumns(); ++i)
+    {
+        row_params.columns.add(cell_params);
+    }
+
+    for (size_t i = 0; i < row_count; ++i)
+    {
+        LLScrollListItem* row = target->addRow(row_params);
+        row->getColumn(0)->setValue(items[i]->getColumn(0)->getValue());
+    }
+}
+
+void LLPanelPreferenceGameControl::populateMappingTableCells(LLScrollListCtrl* target,
+    const std::vector<U8>& mappings, const LLComboBox* source)
+{
+    std::vector<LLScrollListItem*> rows = target->getAllData();
+    std::vector<LLScrollListItem*> items = source->getAllData();
+    llassert(rows.size() == mappings.size());
+
+    for (size_t i = 0; i < rows.size(); ++i)
+    {
+        U8 mapping = mappings[i];
+        llassert(mapping < items.size());
+        // Default values should look as empty cells
+        rows[i]->getColumn(1)->setValue(mapping == i ? LLSD() :
+            items[mapping]->getColumn(0)->getValue());
+    }
+}
+
+LLGameControl::Options& LLPanelPreferenceGameControl::getSelectedDeviceOptions()
+{
+    auto options_it = mDeviceOptions.find(mSelectedDeviceGUID);
+    llassert_always(options_it != mDeviceOptions.end());
+    return options_it->second.options;
+}
+
+// static
+std::string LLPanelPreferenceGameControl::getChannelLabel(const std::string& channel_name,
+    const std::vector<LLScrollListItem*>& items)
+{
+    if (!channel_name.empty() && channel_name != "NONE")
+    {
+        for (LLScrollListItem* item : items)
+        {
+            if (item->getValue().asString() == channel_name)
+            {
+                if (item->getNumColumns())
+                {
+                    return item->getColumn(0)->getValue().asString();
+                }
+                break;
+            }
+        }
+    }
+    return LLStringUtil::null;
+}
+
+// static
+void LLPanelPreferenceGameControl::setNumericLabel(LLScrollListCell* cell, S32 value)
+{
+    // Default values should look as empty cells
+    cell->setValue(value ? llformat("%d ", value) : LLStringUtil::null);
+}
+
+void LLPanelPreferenceGameControl::fitInRect(LLUICtrl* ctrl, LLScrollListCtrl* grid, S32 row_index, S32 col_index)
+{
+    LLRect rect(grid->getCellRect(row_index, col_index));
+    LLView* parent = grid->getParent();
+    while (parent && parent != ctrl->getParent())
+    {
+        rect.translate(parent->getRect().mLeft, parent->getRect().mBottom);
+        parent = parent->getParent();
+    }
+
+    ctrl->setRect(rect);
+    rect.translate(-rect.mLeft, -rect.mBottom);
+    for (LLView* child : *ctrl->getChildList())
+    {
+        LLRect childRect(child->getRect());
+        childRect.intersectWith(rect);
+        if (childRect.mRight < rect.mRight &&
+            childRect.mRight > (rect.mLeft + rect.mRight) / 2)
+        {
+            childRect.mRight = rect.mRight;
+        }
+        child->setRect(childRect);
+    }
+}
+
+void LLPanelPreferenceGameControl::clearSelectionState()
+{
+    gSelectedGrid = nullptr;
+    gSelectedItem = nullptr;
+    gSelectedCell = nullptr;
+    mNumericValueEditor->setVisible(false);
+    mAnalogChannelSelector->setVisible(false);
+    mBinaryChannelSelector->setVisible(false);
+    mAxisSelector->setVisible(false);
+}
+
+void LLPanelPreferenceGameControl::addActionTableSeparator()
+{
+    LLScrollListItem::Params separator_params;
+    separator_params.enabled(false);
+    LLScrollListCell::Params column_params;
+    column_params.type = "icon";
+    column_params.value = "menu_separator";
+    column_params.column = "action";
+    column_params.color = LLColor4(0.f, 0.f, 0.f, 0.7f);
+    column_params.font_halign = LLFontGL::HCENTER;
+    separator_params.columns.add(column_params);
+    mActionTable->addRow(separator_params, EAddPosition::ADD_BOTTOM);
+}
+
+void LLPanelPreferenceGameControl::updateEnable()
+{
+    bool enabled = LLGameControl::isEnabled();
+    LLGameControl::setEnabled(enabled);
+
+    mCheckGameControlToServer->setEnabled(enabled);
+    mCheckGameControlToAgent->setEnabled(enabled);
+    mCheckAgentToGameControl->setEnabled(enabled);
+
+    mActionTable->setEnabled(enabled);
+    mAxisOptions->setEnabled(enabled);
+    mAxisMappings->setEnabled(enabled);
+    mButtonMappings->setEnabled(enabled);
+    mDeviceList->setEnabled(enabled);
+
+    if (!enabled)
+    {
+        //mActionTable->deselectAllItems();
+        mAnalogChannelSelector->setVisible(false);
+        mBinaryChannelSelector->setVisible(false);
+        clearSelectionState();
+    }
+}
+
+void LLPanelPreferenceGameControl::updateActionTableState()
+{
+    // Enable the table if at least one of the GameControl<-->Agent options is enabled
+    bool enable_table = LLGameControl::isEnabled() && (mCheckGameControlToAgent->get() || mCheckAgentToGameControl->get());
+
+    mActionTable->deselectAllItems();
+    mActionTable->setEnabled(enable_table);
+    mAnalogChannelSelector->setVisible(false);
+    mBinaryChannelSelector->setVisible(false);
+}
+
+void LLPanelPreferenceGameControl::onResetToDefaults()
+{
+    clearSelectionState();
+    if (mTabChannelMappings->getVisible())
+    {
+        resetChannelMappingsToDefaults();
+    }
+    else if (mTabDeviceSettings->getVisible() && !mSelectedDeviceGUID.empty())
+    {
+        if (mTabAxisOptions->getVisible())
+        {
+            resetAxisOptionsToDefaults();
+        }
+        else if (mTabAxisMappings->getVisible())
+        {
+            resetAxisMappingsToDefaults();
+        }
+        else if (mTabButtonMappings->getVisible())
+        {
+            resetButtonMappingsToDefaults();
+        }
+    }
+}
+
+void LLPanelPreferenceGameControl::resetChannelMappingsToDefaults()
+{
+    std::vector<std::pair<std::string, LLGameControl::InputChannel>> mappings;
+    LLGameControl::getDefaultMappings(mappings);
+    std::vector<LLScrollListItem*> rows = mActionTable->getAllData();
+    std::vector<LLScrollListItem*> axes = mAnalogChannelSelector->getAllData();
+    std::vector<LLScrollListItem*> btns = mBinaryChannelSelector->getAllData();
+    for (LLScrollListItem* row : rows)
+    {
+        if (row->getNumColumns() >= 2) // Skip separators
+        {
+            std::string action_name = row->getValue().asString();
+            if (!action_name.empty() && action_name != "menu_separator")
+            {
+                std::string channel_label;
+                for (const auto& mapping : mappings)
+                {
+                    if (mapping.first == action_name)
+                    {
+                        std::string channel_name = mapping.second.getLocalName();
+                        channel_label =
+                            mapping.second.isAxis() ? getChannelLabel(channel_name, axes) :
+                            mapping.second.isButton() ? getChannelLabel(channel_name, btns) :
+                            LLStringUtil::null;
+                        break;
+                    }
+                }
+                row->getColumn(1)->setValue(channel_label);
+            }
+        }
+    }
+}
+
+void LLPanelPreferenceGameControl::resetAxisOptionsToDefaults()
+{
+    std::vector<LLScrollListItem*> rows = mAxisOptions->getAllData();
+    llassert(rows.size() == LLGameControl::NUM_AXES);
+    LLGameControl::Options& options = getSelectedDeviceOptions();
+    llassert(options.getAxisOptions().size() == LLGameControl::NUM_AXES);
+    for (U8 i = 0; i < LLGameControl::NUM_AXES; ++i)
+    {
+        rows[i]->getColumn(1)->setValue(false);
+        rows[i]->getColumn(2)->setValue(LLStringUtil::null);
+        rows[i]->getColumn(3)->setValue(LLStringUtil::null);
+        options.getAxisOptions()[i].resetToDefaults();
+    }
+}
+
+void LLPanelPreferenceGameControl::resetAxisMappingsToDefaults()
+{
+    std::vector<LLScrollListItem*> rows = mAxisMappings->getAllData();
+    llassert(rows.size() == LLGameControl::NUM_AXES);
+    LLGameControl::Options& options = getSelectedDeviceOptions();
+    llassert(options.getAxisMap().size() == LLGameControl::NUM_AXES);
+    for (U8 i = 0; i < LLGameControl::NUM_AXES; ++i)
+    {
+        rows[i]->getColumn(1)->setValue(LLStringUtil::null);
+        options.getAxisMap()[i] = i;
+    }
+}
+
+void LLPanelPreferenceGameControl::resetButtonMappingsToDefaults()
+{
+    std::vector<LLScrollListItem*> rows = mButtonMappings->getAllData();
+    llassert(rows.size() == LLGameControl::NUM_BUTTONS);
+    LLGameControl::Options& options = getSelectedDeviceOptions();
+    llassert(options.getButtonMap().size() == LLGameControl::NUM_BUTTONS);
+    for (U8 i = 0; i < LLGameControl::NUM_BUTTONS; ++i)
+    {
+        rows[i]->getColumn(1)->setValue(LLStringUtil::null);
+        options.getButtonMap()[i] = i;
+    }
+}
+
+//------------------------LLFloaterPreferenceProxy--------------------------------
+
 LLFloaterPreferenceProxy::LLFloaterPreferenceProxy(const LLSD& key)
     : LLFloater(key),
       mSocksSettingsDirty(false)
 {
-    mCommitCallbackRegistrar.add("Proxy.OK",                boost::bind(&LLFloaterPreferenceProxy::onBtnOk, this));
-    mCommitCallbackRegistrar.add("Proxy.Cancel",            boost::bind(&LLFloaterPreferenceProxy::onBtnCancel, this));
-    mCommitCallbackRegistrar.add("Proxy.Change",            boost::bind(&LLFloaterPreferenceProxy::onChangeSocksSettings, this));
+    mCommitCallbackRegistrar.add("Proxy.OK", { boost::bind(&LLFloaterPreferenceProxy::onBtnOk, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Proxy.Cancel", { boost::bind(&LLFloaterPreferenceProxy::onBtnCancel, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Proxy.Change", { boost::bind(&LLFloaterPreferenceProxy::onChangeSocksSettings, this), cb_info::UNTRUSTED_BLOCK });
 }
 
 LLFloaterPreferenceProxy::~LLFloaterPreferenceProxy()
@@ -3126,7 +4132,7 @@ void LLFloaterPreferenceProxy::onOpen(const LLSD& key)
 
 void LLFloaterPreferenceProxy::onClose(bool app_quitting)
 {
-    if(app_quitting)
+    if (app_quitting)
     {
         cancel();
     }
@@ -3150,7 +4156,7 @@ void LLFloaterPreferenceProxy::saveSettings()
     mSavedValues.clear();
     std::list<LLView*> view_stack;
     view_stack.push_back(this);
-    while(!view_stack.empty())
+    while (!view_stack.empty())
     {
         // Process view on top of the stack
         LLView* curview = view_stack.front();
@@ -3237,13 +4243,9 @@ void LLFloaterPreferenceProxy::onClickCloseBtn(bool app_quitting)
 
 void LLFloaterPreferenceProxy::cancel()
 {
-
-    for (control_values_map_t::iterator iter =  mSavedValues.begin();
-            iter !=  mSavedValues.end(); ++iter)
+    for (const auto& iter : mSavedValues)
     {
-        LLControlVariable* control = iter->first;
-        LLSD ctrl_value = iter->second;
-        control->set(ctrl_value);
+        iter.first->set(iter.second);
     }
     mSocksSettingsDirty = false;
     closeFloater();
@@ -3268,21 +4270,20 @@ void LLFloaterPreferenceProxy::onChangeSocksSettings()
     // Check for invalid states for the other HTTP proxy radio
     LLRadioGroup* otherHttpProxy = getChild<LLRadioGroup>("other_http_proxy_type");
     if ((otherHttpProxy->getSelectedValue().asString() == "Socks" &&
-            !getChild<LLCheckBoxCtrl>("socks_proxy_enabled")->get())||(
+            getChild<LLCheckBoxCtrl>("socks_proxy_enabled")->get() == false )||(
                     otherHttpProxy->getSelectedValue().asString() == "Web" &&
-                    !getChild<LLCheckBoxCtrl>("web_proxy_enabled")->get()))
+                    getChild<LLCheckBoxCtrl>("web_proxy_enabled")->get() == false ) )
     {
         otherHttpProxy->selectFirstItem();
     }
-
 }
 
 void LLFloaterPreference::onUpdateFilterTerm(bool force)
 {
-    LLWString seachValue = utf8str_to_wstring(mFilterEdit->getValue());
-    LLWStringUtil::toLower(seachValue);
+    LLWString seachValue = utf8str_to_wstring( mFilterEdit->getValue() );
+    LLWStringUtil::toLower( seachValue );
 
-    if (!mSearchData || (mSearchData->mLastFilter == seachValue && !force))
+    if( !mSearchData || (mSearchData->mLastFilter == seachValue && !force))
         return;
 
     if (mSearchDataDirty)
@@ -3293,7 +4294,7 @@ void LLFloaterPreference::onUpdateFilterTerm(bool force)
 
     mSearchData->mLastFilter = seachValue;
 
-    if (!mSearchData->mRootTab)
+    if( !mSearchData->mRootTab )
         return;
 
     mSearchData->mRootTab->hightlightAndHide( seachValue );
@@ -3316,10 +4317,10 @@ void LLFloaterPreference::filterIgnorableNotifications()
 
 void collectChildren( LLView const *aView, ll::prefs::PanelDataPtr aParentPanel, ll::prefs::TabContainerDataPtr aParentTabContainer )
 {
-    if (!aView)
+    if( !aView )
         return;
 
-    llassert_always(aParentPanel || aParentTabContainer);
+    llassert_always( aParentPanel || aParentTabContainer );
 
     for (LLView* pView : *aView->getChildList())
     {
@@ -3329,56 +4330,56 @@ void collectChildren( LLView const *aView, ll::prefs::PanelDataPtr aParentPanel,
         ll::prefs::PanelDataPtr pCurPanelData = aParentPanel;
         ll::prefs::TabContainerDataPtr pCurTabContainer = aParentTabContainer;
 
-        LLPanel const *pPanel = dynamic_cast<LLPanel const*>(pView);
-        LLTabContainer const *pTabContainer = dynamic_cast<LLTabContainer const*>(pView);
-        ll::ui::SearchableControl const *pSCtrl = dynamic_cast<ll::ui::SearchableControl const*>( pView );
+        LLPanel const *pPanel = dynamic_cast< LLPanel const *>( pView );
+        LLTabContainer const *pTabContainer = dynamic_cast< LLTabContainer const *>( pView );
+        ll::ui::SearchableControl const *pSCtrl = dynamic_cast< ll::ui::SearchableControl const *>( pView );
 
-        if (pTabContainer)
+        if( pTabContainer )
         {
             pCurPanelData.reset();
 
-            pCurTabContainer = ll::prefs::TabContainerDataPtr(new ll::prefs::TabContainerData);
-            pCurTabContainer->mTabContainer = const_cast< LLTabContainer *>(pTabContainer);
+            pCurTabContainer = ll::prefs::TabContainerDataPtr( new ll::prefs::TabContainerData );
+            pCurTabContainer->mTabContainer = const_cast< LLTabContainer *>( pTabContainer );
             pCurTabContainer->mLabel = pTabContainer->getLabel();
             pCurTabContainer->mPanel = 0;
 
-            if (aParentPanel)
-                aParentPanel->mChildPanel.push_back(pCurTabContainer);
-            if (aParentTabContainer)
-                aParentTabContainer->mChildPanel.push_back(pCurTabContainer);
+            if( aParentPanel )
+                aParentPanel->mChildPanel.push_back( pCurTabContainer );
+            if( aParentTabContainer )
+                aParentTabContainer->mChildPanel.push_back( pCurTabContainer );
         }
-        else if (pPanel)
+        else if( pPanel )
         {
             pCurTabContainer.reset();
 
-            pCurPanelData = ll::prefs::PanelDataPtr(new ll::prefs::PanelData);
+            pCurPanelData = ll::prefs::PanelDataPtr( new ll::prefs::PanelData );
             pCurPanelData->mPanel = pPanel;
             pCurPanelData->mLabel = pPanel->getLabel();
 
             llassert_always( aParentPanel || aParentTabContainer );
 
-            if (aParentTabContainer)
-                aParentTabContainer->mChildPanel.push_back(pCurPanelData);
-            else if (aParentPanel)
-                aParentPanel->mChildPanel.push_back(pCurPanelData);
+            if( aParentTabContainer )
+                aParentTabContainer->mChildPanel.push_back( pCurPanelData );
+            else if( aParentPanel )
+                aParentPanel->mChildPanel.push_back( pCurPanelData );
         }
-        else if (pSCtrl && pSCtrl->getSearchText().size())
+        else if( pSCtrl && pSCtrl->getSearchText().size() )
         {
-            ll::prefs::SearchableItemPtr item = ll::prefs::SearchableItemPtr(new ll::prefs::SearchableItem());
+            ll::prefs::SearchableItemPtr item = ll::prefs::SearchableItemPtr( new ll::prefs::SearchableItem() );
             item->mView = pView;
             item->mCtrl = pSCtrl;
 
-            item->mLabel = utf8str_to_wstring(pSCtrl->getSearchText());
-            LLWStringUtil::toLower(item->mLabel);
+            item->mLabel = utf8str_to_wstring( pSCtrl->getSearchText() );
+            LLWStringUtil::toLower( item->mLabel );
 
-            llassert_always(aParentPanel || aParentTabContainer);
+            llassert_always( aParentPanel || aParentTabContainer );
 
-            if (aParentPanel)
-                aParentPanel->mChildren.push_back(item);
-            if (aParentTabContainer)
-                aParentTabContainer->mChildren.push_back(item);
+            if( aParentPanel )
+                aParentPanel->mChildren.push_back( item );
+            if( aParentTabContainer )
+                aParentTabContainer->mChildren.push_back( item );
         }
-        collectChildren(pView, pCurPanelData, pCurTabContainer);
+        collectChildren( pView, pCurPanelData, pCurTabContainer );
     }
 }
 

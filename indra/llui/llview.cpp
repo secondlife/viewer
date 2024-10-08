@@ -642,10 +642,10 @@ void LLView::onVisibilityChange ( bool new_visibility )
 
         if(log_visibility_change)
         {
-        if (old_visibility!=new_visibility)
-        {
-            LLViewerEventRecorder::instance().logVisibilityChange( viewp->getPathname(), viewp->getName(), new_visibility,"widget");
-        }
+            if (old_visibility!=new_visibility)
+            {
+                LLViewerEventRecorder::instance().logVisibilityChange( viewp->getPathname(), viewp->getName(), new_visibility,"widget");
+            }
         }
 
         if (old_visibility)
@@ -1370,8 +1370,10 @@ void LLView::drawDebugRect()
 
             y = rect_height - LINE_HEIGHT * (depth % lines + 1);
 
-            std::string debug_text = llformat("%s (%d x %d)", getName().c_str(),
-                                        debug_rect.getWidth(), debug_rect.getHeight());
+            std::string debug_text = llformat("%s [%d, %d] + (%d x %d) = [%d, %d]", getName().c_str(),
+                    debug_rect.mLeft, mParentView->getRect().getHeight() - debug_rect.mTop,
+                    debug_rect.getWidth(), debug_rect.getHeight(),
+                    debug_rect.mRight, mParentView->getRect().getHeight() - debug_rect.mBottom);
             LLFontGL::getFontSansSerifSmall()->renderUTF8(debug_text, 0, (F32)x, (F32)y, border_color,
                     LLFontGL::HCENTER, LLFontGL::BASELINE, LLFontGL::NORMAL, LLFontGL::NO_SHADOW);
         }

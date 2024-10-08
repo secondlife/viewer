@@ -118,6 +118,9 @@ public:
     LLGLuint   getTexName() const ;
     bool       createGLTexture() ;
 
+    void getGLObjectLabel(std::string& label, bool& error) const;
+    std::string setGLObjectLabel(const std::string& prefix, bool append_texname = false) const;
+
     // Create a GL Texture from an image raw
     // discard_level - mip level, 0 for highest resultion mip
     // imageraw - the image to copy from
