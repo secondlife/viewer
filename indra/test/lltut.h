@@ -143,7 +143,7 @@ namespace tut
     template <class T,class Q>
     void ensure_not_equals(const Q& actual,const T& expected)
     {
-        ensure_not_equals(NULL, actual, expected);
+        ensure_not_equals("", actual, expected);
     }
 }
 
