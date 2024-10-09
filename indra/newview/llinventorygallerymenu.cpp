@@ -772,7 +772,9 @@ void LLInventoryGalleryContextMenu::updateMenuItemsVisibility(LLContextMenu* men
                     {
                         disabled_items.push_back(std::string("Paste As Link"));
                     }
-                    else if (selected_item->getAssetUUID().isNull())
+                    else if (selected_item->getAssetUUID().isNull()
+                             && (selected_item->getActualType() == LLAssetType::AT_NOTECARD
+                                 || selected_item->getActualType() == LLAssetType::AT_MATERIAL))
                     {
                         disabled_items.push_back(std::string("Paste As Link"));
                     }
