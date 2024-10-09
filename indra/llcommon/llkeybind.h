@@ -64,8 +64,8 @@ public:
     LLKeyBind() {}
     LLKeyBind(const LLSD &key_bind);
 
-    bool operator==(const LLKeyBind& rhs);
-    bool operator!=(const LLKeyBind& rhs);
+    bool operator==(const LLKeyBind& rhs) const;
+    bool operator!=(const LLKeyBind& rhs) const;
     bool isEmpty() const;
     bool empty() const { return isEmpty(); };
 

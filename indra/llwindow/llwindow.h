@@ -24,8 +24,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLWINDOW_H
-#define LL_LLWINDOW_H
+#pragma once
 
 #include "llrect.h"
 #include "llcoord.h"
@@ -33,6 +32,7 @@
 #include "llcursortypes.h"
 #include "llinstancetracker.h"
 #include "llsd.h"
+#include "llsdl.h"
 
 class LLSplashScreen;
 class LLPreeditor;
@@ -63,16 +63,16 @@ public:
     virtual void show() = 0;
     virtual void hide() = 0;
     virtual void close() = 0;
-    virtual bool getVisible() = 0;
-    virtual bool getMinimized() = 0;
-    virtual bool getMaximized() = 0;
+    virtual bool getVisible() const = 0;
+    virtual bool getMinimized() const = 0;
+    virtual bool getMaximized() const = 0;
     virtual bool maximize() = 0;
     virtual void minimize() = 0;
     virtual void restore() = 0;
-    bool getFullscreen()    { return mFullscreen; };
-    virtual bool getPosition(LLCoordScreen *position) = 0;
-    virtual bool getSize(LLCoordScreen *size) = 0;
-    virtual bool getSize(LLCoordWindow *size) = 0;
+    virtual bool getFullscreen() const { return mFullscreen; };
+    virtual bool getPosition(LLCoordScreen *position) const = 0;
+    virtual bool getSize(LLCoordScreen *size) const = 0;
+    virtual bool getSize(LLCoordWindow *size) const = 0;
     virtual bool setPosition(LLCoordScreen position) = 0;
     bool setSize(LLCoordScreen size);
     bool setSize(LLCoordWindow size);
@@ -93,7 +93,7 @@ public:
     virtual bool setCursorPosition(LLCoordWindow position) = 0;
     virtual bool getCursorPosition(LLCoordWindow *position) = 0;
 #if LL_WINDOWS
-    virtual bool getCursorDelta(LLCoordCommon* delta) = 0;
+    virtual bool getCursorDelta(LLCoordCommon* delta) const = 0;
 #endif
     virtual void showCursor() = 0;
     virtual void hideCursor() = 0;
@@ -135,14 +135,14 @@ public:
     virtual bool copyTextToPrimary(const LLWString &src);
 
     virtual void flashIcon(F32 seconds) = 0;
-    virtual F32 getGamma() = 0;
+    virtual F32 getGamma() const = 0;
     virtual bool setGamma(const F32 gamma) = 0; // Set the gamma
     virtual void setFSAASamples(const U32 fsaa_samples) = 0; //set number of FSAA samples
-    virtual U32  getFSAASamples() = 0;
+    virtual U32  getFSAASamples() const = 0;
     virtual bool restoreGamma() = 0;            // Restore original gamma table (before updating gamma)
-    virtual ESwapMethod getSwapMethod() { return mSwapMethod; }
+    ESwapMethod getSwapMethod() { return mSwapMethod; }
     virtual void processMiscNativeEvents();
-    virtual void gatherInput() = 0;
+    virtual void gatherInput(bool app_has_focus) = 0;
     virtual void delayInputProcessing() = 0;
     virtual void swapBuffers() = 0;
     virtual void bringToFront() = 0;
@@ -151,12 +151,12 @@ public:
     // handy coordinate space conversion routines
     // NB: screen to window and vice verse won't work on width/height coordinate pairs,
     // as the conversion must take into account left AND right border widths, etc.
-    virtual bool convertCoords( LLCoordScreen from, LLCoordWindow *to) = 0;
-    virtual bool convertCoords( LLCoordWindow from, LLCoordScreen *to) = 0;
-    virtual bool convertCoords( LLCoordWindow from, LLCoordGL *to) = 0;
-    virtual bool convertCoords( LLCoordGL from, LLCoordWindow *to) = 0;
-    virtual bool convertCoords( LLCoordScreen from, LLCoordGL *to) = 0;
-    virtual bool convertCoords( LLCoordGL from, LLCoordScreen *to) = 0;
+    virtual bool convertCoords( LLCoordScreen from, LLCoordWindow *to) const = 0;
+    virtual bool convertCoords( LLCoordWindow from, LLCoordScreen *to) const = 0;
+    virtual bool convertCoords( LLCoordWindow from, LLCoordGL *to) const = 0;
+    virtual bool convertCoords( LLCoordGL from, LLCoordWindow *to) const = 0;
+    virtual bool convertCoords( LLCoordScreen from, LLCoordGL *to) const = 0;
+    virtual bool convertCoords( LLCoordGL from, LLCoordScreen *to) const = 0;
 
     // query supported resolutions
     virtual LLWindowResolution* getSupportedResolutions(S32 &num_resolutions) = 0;
@@ -189,7 +189,7 @@ public:
     static std::vector<std::string> getDynamicFallbackFontList();
 
     // Provide native key event data
-    virtual LLSD getNativeKeyData() { return LLSD::emptyMap(); }
+    virtual LLSD getNativeKeyData() const { return LLSD::emptyMap(); }
 
     // Get system UI size based on DPI (for 96 DPI UI size should be 1.0)
     virtual F32 getSystemUISize() { return 1.0; }
@@ -206,7 +206,7 @@ public:
         return false;
     };
 
-    virtual S32 getRefreshRate() { return mRefreshRate; }
+    virtual S32 getRefreshRate() const { return mRefreshRate; }
 protected:
     LLWindow(LLWindowCallbacks* callbacks, bool fullscreen, U32 flags);
     virtual ~LLWindow();
@@ -328,4 +328,3 @@ extern const S32 gURLProtocolWhitelistCount;
 extern const std::string gURLProtocolWhitelist[];
 //extern const std::string gURLProtocolWhitelistHandler[];
 
-#endif // _LL_window_h_

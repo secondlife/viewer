@@ -691,6 +691,11 @@ bool LLInvFVBridge::isClipboardPasteableAsLink() const
             {
                 return false;
             }
+            if (item->getAssetUUID().isNull())
+            {
+                // otehrwise AIS will return 'Cannot link to items with a NULL asset_id.'
+                return false;
+            }
         }
         const LLViewerInventoryCategory *cat = model->getCategory(item_id);
         if (cat && LLFolderType::lookupIsProtectedType(cat->getPreferredType()))

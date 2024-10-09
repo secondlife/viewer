@@ -175,7 +175,7 @@ LLKeyBind::LLKeyBind(const LLSD &key_bind)
     }
 }
 
-bool LLKeyBind::operator==(const LLKeyBind& rhs)
+bool LLKeyBind::operator==(const LLKeyBind& rhs) const
 {
     auto size = mData.size();
     if (size != rhs.mData.size()) return false;
@@ -188,7 +188,7 @@ bool LLKeyBind::operator==(const LLKeyBind& rhs)
     return true;
 }
 
-bool LLKeyBind::operator!=(const LLKeyBind& rhs)
+bool LLKeyBind::operator!=(const LLKeyBind& rhs) const
 {
     auto size = mData.size();
     if (size != rhs.mData.size()) return true;
