@@ -691,7 +691,9 @@ bool LLInvFVBridge::isClipboardPasteableAsLink() const
             {
                 return false;
             }
-            if (item->getAssetUUID().isNull())
+            if (item->getAssetUUID().isNull()
+                && (item->getActualType() == LLAssetType::AT_NOTECARD
+                    || item->getActualType() == LLAssetType::AT_MATERIAL))
             {
                 // otehrwise AIS will return 'Cannot link to items with a NULL asset_id.'
                 return false;
