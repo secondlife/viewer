@@ -340,8 +340,7 @@ jobs:
     steps:
       - name: Sign and package Windows viewer
         if: env.AZURE_KEY_VAULT_URI && env.AZURE_CERT_NAME && env.AZURE_CLIENT_ID && env.AZURE_CLIENT_SECRET && env.AZURE_TENANT_ID
-        # test new sign.py that suppresses unconditional warning spam
-        uses: secondlife/viewer-build-util/sign-pkg-windows@nat/no-expir-msg
+        uses: secondlife/viewer-build-util/sign-pkg-windows@v2
         with:
           vault_uri: "${{ env.AZURE_KEY_VAULT_URI }}"
           cert_name: "${{ env.AZURE_CERT_NAME }}"
