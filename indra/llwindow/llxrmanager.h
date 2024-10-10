@@ -15,30 +15,98 @@
 #include "v3math.h"
 #include "llquaternion.h"
 #include <vector>
+#include <glm/glm.hpp>
+#include <glm/gtc/quaternion.hpp>
+#include "llrender.h"
+
+glm::quat quatFromXrQuaternion(XrQuaternionf quat);
+glm::vec3    vec3FromXrVector3(XrVector3f vec);
+
+class LLRenderTarget;
 
 class LLXRManager
 {
-    XrInstance                              mXRInstance = XR_NULL_HANDLE;
-    XrSystemId                              mSystemID = XR_NULL_SYSTEM_ID;
-    XrSession                               mSession = XR_NULL_HANDLE;
-    XrSessionState                          mSessionState = XR_SESSION_STATE_UNKNOWN;
 
+    struct LLImageViewCreateInfo
+    {
+        void* image;
+        enum class Type
+        {
+            RTV,
+            DSV,
+            SRV,
+            UAV
+        } type;
+        enum class View
+        {
+            TYPE_1D,
+            TYPE_2D,
+            TYPE_3D,
+            TYPE_CUBE,
+            TYPE_1D_ARRAY,
+            TYPE_2D_ARRAY,
+            TYPE_CUBE_ARRAY,
+        } view;
+        U32 format;
+        enum class Aspect
+        {
+            COLOR_BIT   = 0x01,
+            DEPTH_BIT   = 0x02,
+            STENCIL_BIT = 0x04
+        } aspect;
+        U32 baseMipLevel;
+        U32 levelCount;
+        U32 baseArrayLayer;
+        U32 layerCount;
+        U32 width;
+        U32 height;
+    };
+
+    XrInstance                                          mXRInstance = XR_NULL_HANDLE;
+    XrSystemId                                          mSystemID = XR_NULL_SYSTEM_ID;
+    XrSession                                           mSession = XR_NULL_HANDLE;
+    XrSessionState                                      mSessionState = XR_SESSION_STATE_UNKNOWN;
+    XrViewConfigurationType                             mViewConfig = XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO;
     // This will be the space that we're using from OpenXR.
     // - Local is akin to a "sitting" mode.
     // - Stage is akin to a "standing" or "roomscale" mode.
     // Should probably be set based upon the HMD's capabilities.
-    XrReferenceSpaceType                    mAppSpace     = XR_REFERENCE_SPACE_TYPE_STAGE;
+    XrReferenceSpaceType                                mAppSpace     = XR_REFERENCE_SPACE_TYPE_STAGE;
+    XrFrameState                                        mFrameState     = { XR_TYPE_FRAME_STATE };
+    XrViewState                                         mViewState      = { XR_TYPE_VIEW_STATE };
+    XrSpace                                             mReferenceSpace = XR_NULL_HANDLE;
+    XrSpace                                             mViewSpace      = XR_NULL_HANDLE;
+    std::vector<XrViewConfigurationView>                mViewConfigViews;
+    std::vector<XrView>                                 mViews;
+    std::vector<XrCompositionLayerProjectionView>       mProjectionViews;
+    std::vector<const char*>                            mActiveAPILayers;
+    std::vector<const char*>                            mActiveInstanceExtensions;
+    std::vector<std::string>                            mRequestedAPILayers;
+    std::vector<std::string>                            mRequestedInstanceExtensions;
+    std::vector<XrEnvironmentBlendMode>                 mSupportedBlendModes;
+    std::vector<XrEnvironmentBlendMode>                 mApplicationEnvironmentBlendModes = { XR_ENVIRONMENT_BLEND_MODE_OPAQUE,
+                                                                                               XR_ENVIRONMENT_BLEND_MODE_ADDITIVE };
+    XrEnvironmentBlendMode                              mEnvironmentBlendMode             = XR_ENVIRONMENT_BLEND_MODE_OPAQUE;
+    bool                                                mSessionRunning = false;
+    enum class SwapchainType : uint8_t
+    {
+        COLOR,
+        DEPTH
+    };
 
-    XrSpace                                 mReferenceSpace = XR_NULL_HANDLE;
-    XrSpace                                 mViewSpace      = XR_NULL_HANDLE;
-    std::vector<XrViewConfigurationView>    mViewConfigs;
-    std::vector<XrView>                     mViews;
-    std::vector<XrCompositionLayerProjectionView> mProjectionViews;
-    std::vector<const char*>                mActiveAPILayers;
-    std::vector<const char*>                mActiveInstanceExtensions;
-    std::vector<const char*>                mRequestedAPILayers;
-    std::vector<const char*>                mRequestedInstanceExtensions;
-    bool                                    mSessionRunning = false;
+    std::map<XrSwapchain, std::pair<SwapchainType, std::vector<XrSwapchainImageOpenGLKHR>>> mSwapchainImageMap;
+    std::vector<XrViewConfigurationType> mAppViewConfigurations = { XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO,
+                                                                             XR_VIEW_CONFIGURATION_TYPE_PRIMARY_MONO };
+    std::vector<XrViewConfigurationType> mViewConfigs;
+
+    std::unordered_map<GLuint, LLImageViewCreateInfo> mImageViews;
+    struct LLSwapchainInfo
+    {
+        XrSwapchain        swapchain       = XR_NULL_HANDLE;
+        U32            swapchainFormat = 0;
+        std::vector<LLRenderTarget*> imageViews;
+    };
+    std::vector<LLSwapchainInfo> mColorSwapchainInfos = {};
 
     XrDebugUtilsMessengerEXT                mDebugMessenger;
 
@@ -47,12 +115,7 @@ class LLXRManager
     XrFormFactor                            mFormFactor = XR_FORM_FACTOR_HEAD_MOUNTED_DISPLAY;
     XrSystemProperties                      mSystemProperties = { XR_TYPE_SYSTEM_PROPERTIES };
 
-    // Change this to go between mono and stereo rendering.  In the future we'll likely have this change based upon what your HMD supports.
-    // Some examples of this are:
-    // - Foveated rendering
-    // - Varjo's weird quad display system
-    // - Generally future display tech in HMDs
-    XrViewConfigurationType                 mViewConfigType   = XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO;
+    U32 mSwapchainLength = 1;
 
   public:
     typedef enum
@@ -60,6 +123,7 @@ class LLXRManager
         XR_STATE_UNINITIALIZED,
         XR_STATE_INSTANCE_CREATED,
         XR_STATE_SESSION_CREATED,
+        XR_STATE_SWAPCHAINS_CREATED,
         XR_STATE_RUNNING,
         XR_STATE_PAUSED,
         XR_STATE_DESTROYED
@@ -68,12 +132,33 @@ class LLXRManager
   private:
     LLXRState mInitialized = XR_STATE_UNINITIALIZED;
 
-    LLVector3 mHeadPosition;
-    LLQuaternion mHeadOrientation;
+    glm::vec3 mHeadPosition;
+    glm::quat mHeadOrientation;
+
+    std::vector<glm::quat>  mEyeRotations;
+    std::vector<glm::vec3>  mEyePositions;
+    std::vector<glm::mat4>  mEyeProjections;
+    std::vector<glm::mat4>  mEyeViews;
+
+    void* getSwapchainImage(XrSwapchain swapchain, U32 index)
+    {
+        return (XrSwapchainImageBaseHeader*)&mSwapchainImageMap[swapchain].second[index];
+    }
+
+    LLRenderTarget* createImageView(LLImageViewCreateInfo& info);
+
 
   public:
     // This should always be called prior to attempting to create a session.
     void initInstance();
+
+    void getInstanceProperties();
+
+    void getSystemID();
+
+    void getEnvironmentBlendModes();
+
+    void getConfigurationViews();
 
     // This should only be called after initializing an instance.
     // Note that you will need platform specific bindings. OpenXR generally makes this pretty eays to do.
@@ -84,6 +169,8 @@ class LLXRManager
 #elif LL_DARWIN
     void createSession(XrGraphicsRequirementsMetalKHR bindings);
 #endif
+
+    void createSwapchains();
     // This should be called when the viewer is shutting down.
     // This will destroy the session and instance, and set the XR manager to an uninitialized state.
     void shutdown();
@@ -100,9 +187,27 @@ class LLXRManager
     // This is where we get pose data, etc.
     void updateXRSession();
 
+    typedef enum
+    {
+        XR_EYE_LEFT = 0,
+        XR_EYE_RIGHT
+    } LLXREye;
+
+    // This will update the framebuffer for the given eye.
+    void updateFrame(LLRenderTarget* target, LLXREye eye);
+
     void endFrame();
 
     LLXRState xrState() { return mInitialized; }
-    LLVector3 getHeadPosition() { return mHeadPosition; }
-    LLQuaternion getHeadOrientation() { return mHeadOrientation; }
+    glm::vec3 getHeadPosition() { return mHeadPosition; }
+    glm::quat getHeadOrientation() { return mHeadOrientation; }
+    std::vector<glm::quat> getEyeRotations() { return mEyeRotations; }
+    std::vector<glm::vec3>    getEyePositions() { return mEyePositions; }
+    std::vector<glm::mat4>    getEyeProjections() { return mEyeProjections; }
+    std::vector<glm::mat4>    getEyeViews() { return mEyeViews; }
+    U32                       getSwapchainLength() { return mSwapchainLength; }
+
+    U32 mCurrentEye = 0;
+    F32 mZNear      = 0.1f;
+    F32 mZFar       = 1000.0f;
 };

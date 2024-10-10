@@ -51,6 +51,7 @@
 #include "llwindow.h"           // getPixelAspectRatio()
 #include "lltracerecording.h"
 #include "llenvironment.h"
+#include "llxrmanager.h"
 
 // System includes
 #include <iomanip> // for setprecision
@@ -59,6 +60,8 @@ LLTrace::CountStatHandle<> LLViewerCamera::sVelocityStat("camera_velocity");
 LLTrace::CountStatHandle<> LLViewerCamera::sAngularVelocityStat("camera_angular_velocity");
 
 LLViewerCamera::eCameraID LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_WORLD;
+
+extern bool gCubeSnapshot;
 
 LLViewerCamera::LLViewerCamera() : LLCamera()
 {
@@ -288,6 +291,12 @@ void LLViewerCamera::setPerspective(bool for_selection,
     }
     aspect = getAspect();
 
+    if (gXRManager)
+    {
+        gXRManager->mZFar = z_far;
+        gXRManager->mZNear = z_near;
+    }
+
     // Load camera view matrix
     gGL.matrixMode(LLRender::MM_PROJECTION);
     gGL.loadIdentity();
@@ -347,7 +356,14 @@ void LLViewerCamera::setPerspective(bool for_selection,
 
     calcProjection(z_far); // Update the projection matrix cache
 
-    proj_mat *= glm::perspective(fov_y,aspect,z_near,z_far);
+    if (gXRManager && sCurCameraID == CAMERA_WORLD && !gCubeSnapshot)
+    {
+        proj_mat = gXRManager->getEyeProjections()[gXRManager->mCurrentEye];
+    }
+    else
+    {
+        proj_mat *= glm::perspective(fov_y, aspect, z_near, z_far);
+    }
 
     gGL.loadMatrix(glm::value_ptr(proj_mat));
 

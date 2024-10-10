@@ -80,7 +80,7 @@ public:
     // color_fmt - GL color format (e.g. GL_RGB)
     // depth - if true, allocate a depth buffer
     // usage - deprecated, should always be TT_TEXTURE
-    bool allocate(U32 resx, U32 resy, U32 color_fmt, bool depth = false, LLTexUnit::eTextureType usage = LLTexUnit::TT_TEXTURE, LLTexUnit::eTextureMipGeneration generateMipMaps = LLTexUnit::TMG_NONE);
+    bool allocate(U32 resx, U32 resy, U32 color_fmt, bool depth = false, LLTexUnit::eTextureType usage = LLTexUnit::TT_TEXTURE, LLTexUnit::eTextureMipGeneration generateMipMaps = LLTexUnit::TMG_NONE, U32 bufferCount = 1);
 
     //resize existing attachments to use new resolution and color format
     // CAUTION: if the GL runs out of memory attempting to resize, this render target will be undefined

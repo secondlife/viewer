@@ -1394,22 +1394,8 @@ bool LLWindowWin32::switchContext(bool fullscreen, const LLCoordScreen& size, bo
 
     LL_INFOS("Window") << "Drawing context is created." << LL_ENDL ;
 
-    {
-        // Initialize the XR manager.
-        mXRManager = new LLXRManager();
-        mXRManager->initInstance();
-
-        XrGraphicsBindingOpenGLWin32KHR graphicsBinding = { XR_TYPE_GRAPHICS_BINDING_OPENGL_WIN32_KHR };
-        graphicsBinding.hDC                             = mhDC;
-        graphicsBinding.hGLRC                           = mhRC;
-
-        mXRManager->createSession(graphicsBinding);
-        mXRManager->setupPlaySpace();
-
-        mCallbacks->handleXRManagerInit(mXRManager);
-    }
-
     gGLManager.initWGL();
+
 
     if (wglChoosePixelFormatARB && wglGetPixelFormatAttribivARB)
     {
@@ -1720,6 +1706,25 @@ const   S32   max_format  = (S32)num_formats - 1;
         glClearColor(0.0f, 0.0f, 0.0f, 0.f);
         glClear(GL_COLOR_BUFFER_BIT);
         swapBuffers();
+    }
+
+    {
+        // Initialize the XR manager.
+        mXRManager = new LLXRManager();
+        mXRManager->initInstance();
+        mXRManager->getInstanceProperties();
+        mXRManager->getSystemID();
+        mXRManager->getConfigurationViews();
+        mXRManager->getEnvironmentBlendModes();
+
+        XrGraphicsBindingOpenGLWin32KHR graphicsBinding = { XR_TYPE_GRAPHICS_BINDING_OPENGL_WIN32_KHR };
+        graphicsBinding.hDC                             = mhDC;
+        graphicsBinding.hGLRC                           = mhRC;
+
+        mXRManager->createSession(graphicsBinding);
+        mXRManager->setupPlaySpace();
+
+        mCallbacks->handleXRManagerInit(mXRManager);
     }
 
     LL_PROFILER_GPU_CONTEXT;

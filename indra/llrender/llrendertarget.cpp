@@ -102,7 +102,7 @@ void LLRenderTarget::resize(U32 resx, U32 resy)
 }
 
 
-bool LLRenderTarget::allocate(U32 resx, U32 resy, U32 color_fmt, bool depth, LLTexUnit::eTextureType usage, LLTexUnit::eTextureMipGeneration generateMipMaps)
+bool LLRenderTarget::allocate(U32 resx, U32 resy, U32 color_fmt, bool depth, LLTexUnit::eTextureType usage, LLTexUnit::eTextureMipGeneration generateMipMaps, U32 bufferCount)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
     llassert(usage == LLTexUnit::TT_TEXTURE);
@@ -135,7 +135,7 @@ bool LLRenderTarget::allocate(U32 resx, U32 resy, U32 color_fmt, bool depth, LLT
         }
     }
 
-    glGenFramebuffers(1, (GLuint *) &mFBO);
+    glGenFramebuffers(bufferCount, (GLuint *) &mFBO);
 
     if (mDepth)
     {

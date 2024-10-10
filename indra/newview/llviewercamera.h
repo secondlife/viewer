@@ -125,6 +125,7 @@ protected:
     S32                 mScreenPixelArea; // Pixel area of entire window
     F32                 mZoomFactor;
     S16                 mZoomSubregion;
+    bool                mIsVRCamera;
 
     boost::signals2::connection mCameraAngleChangedSignal;
 

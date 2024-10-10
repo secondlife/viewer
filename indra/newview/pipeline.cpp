@@ -121,6 +121,8 @@
 #include "SMAAAreaTex.h"
 #include "SMAASearchTex.h"
 
+#include "llxrmanager.h"
+
 #ifndef LL_WINDOWS
 #define A_GCC 1
 #pragma GCC diagnostic ignored "-Wunused-function"
