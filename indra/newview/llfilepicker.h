@@ -174,14 +174,6 @@ private:
                                  void *userdata);
 #endif
 
-#if LL_FLTK
-    enum EType
-    {
-     eSaveFile, eOpenFile, eOpenMultiple
-    };
-    bool openFileDialog( int32_t filter, bool blocking, EType aType );
-#endif
-
     std::vector<std::string> mFiles;
     S32 mCurrentFile;
     bool mLocked;
