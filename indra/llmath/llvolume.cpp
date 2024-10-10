@@ -2825,7 +2825,6 @@ void LLVolume::createVertexBuffer()
 
         mVertexBuffer->bindBuffer();
 
-
         for (auto& face : mVolumeFaces)
         {
             face.mVertexBuffer = mVertexBuffer;
@@ -2854,6 +2853,9 @@ void LLVolume::createVertexBuffer()
             }
         }
 
+#if LL_DARWIN
+        mVertexBuffer->unmapBuffer();
+#endif
         mVertexBuffer->setupVAO();
     }
 

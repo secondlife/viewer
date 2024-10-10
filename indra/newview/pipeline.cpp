@@ -3624,6 +3624,7 @@ void LLPipeline::postSort(LLCamera &camera)
 
             // add group->mGLTFBatches to sCull->mGLTFBatches
             sCull->mGLTFBatches.add(group->mGLTFBatches);
+            sCull->mBPBatches.add(group->mBPBatches);
         }
     }
 

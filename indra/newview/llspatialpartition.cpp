@@ -4587,6 +4587,7 @@ void LLCullResult::clear()
     mVisibleBridgeEnd = &mVisibleBridge[0];
 
     mGLTFBatches.clear();
+    mBPBatches.clear();
 
     for (U32 i = 0; i < LLRenderPass::NUM_RENDER_TYPES; i++)
     {

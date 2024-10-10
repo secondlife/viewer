@@ -627,6 +627,9 @@ public:
     // list of GLTF draw infos
     LLGLTFBatches mGLTFBatches;
 
+    // list of blinn-phong draw infos
+    LLGLTFBatches mBPBatches;
+
 private:
 
     template <class T, class V> void pushBack(T &head, U32& count, V* val);
