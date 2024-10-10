@@ -39,6 +39,7 @@
 #include "llvertexbuffer.h"
 #include "llviewertexture.h"
 #include "lldrawable.h"
+#include "llgltfdrawinfo.h"
 
 class LLFacePool;
 class LLVolume;
@@ -219,6 +220,8 @@ public:
 
     bool        switchTexture() ;
 
+    void        handleTexNameChanged(const LLImageGL* image, U32 old_texname);
+
     //vertex buffer tracking
     void setVertexBuffer(LLVertexBuffer* buffer);
     void clearVertexBuffer(); //sets mVertexBuffer to NULL
@@ -274,6 +277,21 @@ public:
     bool mInFrustum = false;
     // value of gFrameCount the last time the face was touched by LLViewerTextureList::updateImageDecodePriority
     U32 mLastTextureUpdate = 0;
+
+    U32         mTransformIndex = 0xFFFFFFFF;    // index of transform in LLSpatialGroup's transform UBO
+    U32         mMaterialIndex = 0xFFFFFFFF;     // index of material in LLSpatialGroup's material UBO
+    U32         mTextureTransformIndex = 0xFFFFFFFF; // index of texture transform in LLSpatialGroup's texture transform UBO
+
+    LLGLTFDrawInfoHandle mGLTFDrawInfo;   // handle to GLTF draw info for this face.
+
+    // hash of material for use in render batch sorting
+    U64 mBatchHash = 0;
+
+    // cached alpha mode that matches mBatchHash for use in render batch sorting
+    LLGLTFMaterial::AlphaMode mAlphaMode = LLGLTFMaterial::ALPHA_MODE_OPAQUE;
+
+    void updateBatchHash();
+    void packMaterialOnto(std::vector<LLVector4a>& dst);
 
 private:
     LLPointer<LLVertexBuffer> mVertexBuffer;

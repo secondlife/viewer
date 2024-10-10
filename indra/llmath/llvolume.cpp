@@ -2320,6 +2320,7 @@ bool LLVolume::unpackVolumeFaces(U8* in_data, S32 size)
 bool LLVolume::unpackVolumeFacesInternal(const LLSD& mdl)
 {
     {
+        mVertexBuffer = nullptr;
         auto face_count = mdl.size();
 
         if (face_count == 0)
@@ -2764,9 +2765,102 @@ bool LLVolume::cacheOptimize(bool gen_tangents)
             return false;
         }
     }
+
     return true;
 }
 
+extern U32 ll_gl_gen_arrays();
+
+static bool validate_vertex_buffer(LLVolume* volume)
+{
+    if (volume->mVertexBuffer.isNull())
+    {
+        // allowed to be null
+        return true;
+    }
+
+    U32 num_verts = 0;
+    U32 num_indices = 0;
+    for (auto& face: volume->getVolumeFaces())
+    {
+        num_verts += face.mNumVertices;
+        num_indices += face.mNumIndices;
+    }
+
+    bool same_verts = num_verts == volume->mVertexBuffer->getNumVerts();
+    bool same_indices = num_indices == volume->mVertexBuffer->getNumIndices();
+
+    llassert(same_verts);
+    llassert(same_indices);
+
+    return same_verts && same_indices;
+}
+
+void LLVolume::createVertexBuffer()
+{
+    if (mIsMeshAssetLoaded && !mVolumeFaces.empty() && mVertexBuffer.isNull())
+    {
+        LL_PROFILE_ZONE_SCOPED;
+        U32 mask = LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_NORMAL | LLVertexBuffer::MAP_TEXCOORD0 | LLVertexBuffer::MAP_TANGENT;
+        U32 vert_count = 0;
+        U32 index_count = 0;
+        for (auto& face : mVolumeFaces)
+        {
+            face.mVBGeomOffset = vert_count;
+            face.mVBIndexOffset = index_count;
+
+            vert_count += face.mNumVertices;
+            index_count += face.mNumIndices;
+
+            if (face.mWeights)
+            {
+                mask |= LLVertexBuffer::MAP_WEIGHT4;
+            }
+        }
+
+        llassert(vert_count < 65536);
+
+        mVertexBuffer = new LLVertexBuffer(mask);
+        mVertexBuffer->allocateBuffer(vert_count, index_count);
+
+        mVertexBuffer->bindBuffer();
+
+        for (auto& face : mVolumeFaces)
+        {
+            face.mVertexBuffer = mVertexBuffer;
+            mVertexBuffer->setPositionData(face.mPositions, face.mVBGeomOffset, face.mNumVertices);
+            mVertexBuffer->setNormalData(face.mNormals, face.mVBGeomOffset, face.mNumVertices);
+            mVertexBuffer->setTexCoord0Data(face.mTexCoords, face.mVBGeomOffset, face.mNumVertices);
+            mVertexBuffer->setTangentData(face.mTangents, face.mVBGeomOffset, face.mNumVertices);
+            if (face.mWeights)
+            {
+                mVertexBuffer->setWeight4Data(face.mWeights, face.mVBGeomOffset, face.mNumVertices);
+            }
+
+            if (face.mVBGeomOffset > 0)
+            {
+                static std::vector<U16> indices;
+                indices.resize(0);
+                for (S32 i = 0; i < face.mNumIndices; ++i)
+                {
+                    indices.push_back(face.mIndices[i] + face.mVBGeomOffset);
+                }
+                mVertexBuffer->setIndexData(&indices[0], face.mVBIndexOffset, face.mNumIndices);
+            }
+            else
+            {
+                mVertexBuffer->setIndexData(face.mIndices, face.mVBIndexOffset, face.mNumIndices);
+            }
+        }
+
+#if LL_DARWIN
+        mVertexBuffer->unmapBuffer();
+#endif
+        mVertexBuffer->setupVAO();
+    }
+
+    llassert(validate_vertex_buffer(this));
+}
 
 S32 LLVolume::getNumFaces() const
 {

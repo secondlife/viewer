@@ -474,3 +474,18 @@ LLUUID LLMaterial::getHash() const
     return id;
 }
 
+size_t LLMaterial::getBatchHash() const
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
+    size_t hash = 0;
+    boost::hash_combine(hash, mSpecularLightColor);
+    boost::hash_combine(hash, mSpecularLightExponent);
+    boost::hash_combine(hash, mEnvironmentIntensity);
+    boost::hash_combine(hash, mDiffuseAlphaMode);
+    boost::hash_combine(hash, mAlphaMaskCutoff);
+    boost::hash_combine(hash, mNormalID);
+    boost::hash_combine(hash, mSpecularID);
+    boost::hash_combine(hash, mAlphaMaskCutoff);
+    return hash;
+}
+

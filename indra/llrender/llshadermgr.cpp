@@ -1188,6 +1188,7 @@ void LLShaderMgr::initAttribsAndUniforms()
     mReservedUniforms.push_back("occlusion_texcoord"); // (GLTF)
     mReservedUniforms.push_back("gltf_node_id"); // (GLTF)
     mReservedUniforms.push_back("gltf_material_id"); // (GLTF)
+    mReservedUniforms.push_back("gltf_base_instance"); // (GLTF)
 
     mReservedUniforms.push_back("terrain_texture_transforms"); // (GLTF)
 
@@ -1226,6 +1227,7 @@ void LLShaderMgr::initAttribsAndUniforms()
 
     mReservedUniforms.push_back("color");
     mReservedUniforms.push_back("emissiveColor");
+    mReservedUniforms.push_back("baseColorFactor");
     mReservedUniforms.push_back("metallicFactor");
     mReservedUniforms.push_back("roughnessFactor");
     mReservedUniforms.push_back("mirror_flag");

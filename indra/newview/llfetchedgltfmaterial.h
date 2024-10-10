@@ -50,6 +50,9 @@ public:
     //   media_tex - optional media texture that may override the base color texture
     void bind(LLViewerTexture* media_tex = nullptr);
 
+    // bind textureso only (for use when parameters are stored in a UBO)
+    void bindTextures(LLViewerTexture* media_tex = nullptr);
+
     bool isFetching() const { return mFetching; }
     bool isLoaded() const { return !mFetching && mFetchSuccess; }
 

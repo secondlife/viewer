@@ -994,6 +994,7 @@ void LLVOCachePartition::selectBackObjects(LLCamera &camera, F32 pixel_threshold
 #ifndef LL_TEST
 S32 LLVOCachePartition::cull(LLCamera &camera, bool do_occlusion)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SPATIAL;
     static LLCachedControl<bool> use_object_cache_occlusion(gSavedSettings,"UseObjectCacheOcclusion");
 
     if(!LLViewerRegion::sVOCacheCullingEnabled)

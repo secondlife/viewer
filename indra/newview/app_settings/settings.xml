@@ -7241,7 +7241,7 @@
     <key>Type</key>
     <string>S32</string>
     <key>Value</key>
-    <integer>3</integer>
+    <integer>16</integer>
   </map>
 
   <key>OctreeAlphaDistanceFactor</key>
@@ -8737,7 +8737,7 @@
       <key>Comment</key>
       <string>Allow OpenGL to use multiple render contexts for loading textures (may reduce frame stutters, doesn't play nice with Intel drivers).</string>
       <key>Persist</key>
-      <integer>1</integer>
+      <integer>0</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
@@ -8748,7 +8748,7 @@
       <key>Comment</key>
       <string>Allow OpenGL to use multiple render contexts for playing media (may reduce frame stutters, doesn't play nice with Intel drivers)</string>
       <key>Persist</key>
-      <integer>1</integer>
+      <integer>0</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
@@ -9720,7 +9720,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>1</integer>
+      <integer>0</integer>
     </map>
     <key>RenderAvatarFriendsOnly</key>
     <map>

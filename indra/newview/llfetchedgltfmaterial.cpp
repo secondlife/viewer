@@ -63,17 +63,16 @@ LLFetchedGLTFMaterial& LLFetchedGLTFMaterial::operator=(const LLFetchedGLTFMater
 
 void LLFetchedGLTFMaterial::bind(LLViewerTexture* media_tex)
 {
+    LL_PROFILE_ZONE_SCOPED;
+    bindTextures(media_tex);
+
     // glTF 2.0 Specification 3.9.4. Alpha Coverage
     // mAlphaCutoff is only valid for LLGLTFMaterial::ALPHA_MODE_MASK
     F32 min_alpha = -1.0;
 
     LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
 
-    // override emissive and base color textures with media tex if present
-    LLViewerTexture* baseColorTex = media_tex ? media_tex : mBaseColorTexture;
-    LLViewerTexture* emissiveTex = media_tex ? media_tex : mEmissiveTexture;
-
-    if (!LLPipeline::sShadowRender || (mAlphaMode == LLGLTFMaterial::ALPHA_MODE_MASK))
+    if (mAlphaMode == LLGLTFMaterial::ALPHA_MODE_MASK)
     {
         if (mAlphaMode == LLGLTFMaterial::ALPHA_MODE_MASK)
         {
@@ -82,50 +81,13 @@ void LLFetchedGLTFMaterial::bind(LLViewerTexture* media_tex)
         shader->uniform1f(LLShaderMgr::MINIMUM_ALPHA, min_alpha);
     }
 
-    if (baseColorTex != nullptr)
-    {
-        shader->bindTexture(LLShaderMgr::DIFFUSE_MAP, baseColorTex);
-    }
-    else
-    {
-        shader->bindTexture(LLShaderMgr::DIFFUSE_MAP, LLViewerFetchedTexture::sWhiteImagep);
-    }
-
     F32 base_color_packed[8];
     mTextureTransform[GLTF_TEXTURE_INFO_BASE_COLOR].getPacked(base_color_packed);
     shader->uniform4fv(LLShaderMgr::TEXTURE_BASE_COLOR_TRANSFORM, 2, (F32*)base_color_packed);
+    shader->uniform4fv(LLShaderMgr::BASE_COLOR_FACTOR, 1, mBaseColor.mV);
 
     if (!LLPipeline::sShadowRender)
     {
-        if (mNormalTexture.notNull() && mNormalTexture->getDiscardLevel() <= 4)
-        {
-            shader->bindTexture(LLShaderMgr::BUMP_MAP, mNormalTexture);
-        }
-        else
-        {
-            shader->bindTexture(LLShaderMgr::BUMP_MAP, LLViewerFetchedTexture::sFlatNormalImagep);
-        }
-
-        if (mMetallicRoughnessTexture.notNull())
-        {
-            shader->bindTexture(LLShaderMgr::SPECULAR_MAP, mMetallicRoughnessTexture); // PBR linear packed Occlusion, Roughness, Metal.
-        }
-        else
-        {
-            shader->bindTexture(LLShaderMgr::SPECULAR_MAP, LLViewerFetchedTexture::sWhiteImagep);
-        }
-
-        if (emissiveTex != nullptr)
-        {
-            shader->bindTexture(LLShaderMgr::EMISSIVE_MAP, emissiveTex);  // PBR sRGB Emissive
-        }
-        else
-        {
-            shader->bindTexture(LLShaderMgr::EMISSIVE_MAP, LLViewerFetchedTexture::sWhiteImagep);
-        }
-
-        // NOTE: base color factor is baked into vertex stream
-
         shader->uniform1f(LLShaderMgr::ROUGHNESS_FACTOR, mRoughnessFactor);
         shader->uniform1f(LLShaderMgr::METALLIC_FACTOR, mMetallicFactor);
         shader->uniform3fv(LLShaderMgr::EMISSIVE_COLOR, 1, mEmissiveColor.mV);
@@ -143,6 +105,57 @@ void LLFetchedGLTFMaterial::bind(LLViewerTexture* media_tex)
         shader->uniform4fv(LLShaderMgr::TEXTURE_EMISSIVE_TRANSFORM, 2, (F32*)emissive_packed);
     }
 }
+
+void LLFetchedGLTFMaterial::bindTextures(LLViewerTexture* media_tex)
+{
+    LL_PROFILE_ZONE_SCOPED;
+
+    LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
+
+    // override emissive and base color textures with media tex if present
+    LLViewerTexture* baseColorTex = media_tex ? media_tex : mBaseColorTexture;
+    LLViewerTexture* emissiveTex = media_tex ? media_tex : mEmissiveTexture;
+
+    if (baseColorTex != nullptr)
+    {
+        shader->bindTexture(LLShaderMgr::DIFFUSE_MAP, baseColorTex);
+    }
+    else
+    {
+        shader->bindTexture(LLShaderMgr::DIFFUSE_MAP, LLViewerFetchedTexture::sWhiteImagep.get());
+    }
+
+    if (!LLPipeline::sShadowRender)
+    {
+        if (mNormalTexture.notNull() && mNormalTexture->getDiscardLevel() <= 4)
+        {
+            shader->bindTexture(LLShaderMgr::BUMP_MAP, mNormalTexture.get());
+        }
+        else
+        {
+            shader->bindTexture(LLShaderMgr::BUMP_MAP, LLViewerFetchedTexture::sFlatNormalImagep.get());
+        }
+
+        if (mMetallicRoughnessTexture.notNull())
+        {
+            shader->bindTexture(LLShaderMgr::SPECULAR_MAP, mMetallicRoughnessTexture.get()); // PBR linear packed Occlusion, Roughness, Metal.
+        }
+        else
+        {
+            shader->bindTexture(LLShaderMgr::SPECULAR_MAP, LLViewerFetchedTexture::sWhiteImagep.get());
+        }
+
+        if (emissiveTex != nullptr)
+        {
+            shader->bindTexture(LLShaderMgr::EMISSIVE_MAP, emissiveTex);  // PBR sRGB Emissive
+        }
+        else
+        {
+            shader->bindTexture(LLShaderMgr::EMISSIVE_MAP, LLViewerFetchedTexture::sWhiteImagep.get());
+        }
+    }
+}
+
 
 LLViewerFetchedTexture* fetch_texture(const LLUUID& id)
 {

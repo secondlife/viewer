@@ -495,4 +495,10 @@ inline void LLColor4U::fromRGBA(U32 aVal)
     mV[3] = aVal & 0xFF;
 }
 
+// For use with boost containers.
+inline size_t hash_value(const LLColor4U& c) noexcept
+{
+    return (size_t) *((U32*)c.mV);
+}
+
 #endif

@@ -1,4 +1,4 @@
-/**
+ /**
  * @file llface.cpp
  * @brief LLFace class implementation
  *
@@ -752,6 +752,7 @@ static void xform(LLVector2 &tex_coord, F32 cosAng, F32 sinAng, F32 offS, F32 of
     tex_coord.mV[1] = t;
 }
 
+#if 0
 // Transform the texture coordinates for this face.
 static void xform4a(LLVector4a &tex_coord, const LLVector4a& trans, const LLVector4Logical& mask, const LLVector4a& rot0, const LLVector4a& rot1, const LLVector4a& offset, const LLVector4a& scale)
 {
@@ -794,7 +795,7 @@ static void xform4a(LLVector4a &tex_coord, const LLVector4a& trans, const LLVect
     // Then offset
     tex_coord.setAdd(st, offset);
 }
-
+#endif
 
 bool less_than_max_mag(const LLVector4a& vec)
 {
@@ -1141,6 +1142,7 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
                                 bool no_debug_assert,
                                 bool rebuild_for_gltf)
 {
+#if 0
     LL_PROFILE_ZONE_SCOPED_CATEGORY_FACE;
     llassert(verify());
 
@@ -2088,7 +2090,7 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
         mTexExtents[1][1] *= et ;
     }
 
-
+#endif
     return true;
 }
 
@@ -2546,6 +2548,16 @@ LLViewerTexture* LLFace::getTexture(U32 ch) const
     return mTexture[ch] ;
 }
 
+void LLFace::handleTexNameChanged(const LLImageGL* image, U32 old_texname)
+{
+    if (mGLTFDrawInfo)
+    {
+        llassert(mDrawablep && mDrawablep->getSpatialGroup());
+        llassert(mGLTFDrawInfo.mSpatialGroup == mDrawablep->getSpatialGroup());
+        mGLTFDrawInfo->handleTexNameChanged(image, old_texname);
+    }
+}
+
 void LLFace::setVertexBuffer(LLVertexBuffer* buffer)
 {
     if (buffer)
@@ -2587,6 +2599,34 @@ S32 LLFace::getRiggedIndex(U32 type) const
 U64 LLFace::getSkinHash()
 {
     return mSkinInfo ? mSkinInfo->mHash : 0;
+}
+
+void LLFace::updateBatchHash()
+{
+    auto* gltf_mat = getTextureEntry()->getGLTFRenderMaterial();
+    if (gltf_mat)
+    {
+        gltf_mat->updateBatchHash();
+        mBatchHash = gltf_mat->getBatchHash();
+        mAlphaMode = gltf_mat->mAlphaMode;
+    }
+    else
+    {
+        // TODO : calculate blinn-phong batch hash and alpha mode
+        mBatchHash = 0;
+    }
+}
+
+void LLFace::packMaterialOnto(std::vector<LLVector4a>& dst)
+{
+    auto* gltf_mat = getTextureEntry()->getGLTFRenderMaterial();
+    if (gltf_mat)
+    {
+        gltf_mat->packOnto(dst);
+    }
+    {
+        // TODO: pack blinn-phong material
+    }
 }
 
 bool LLFace::isInAlphaPool() const

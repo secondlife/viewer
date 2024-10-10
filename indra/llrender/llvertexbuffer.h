@@ -27,17 +27,15 @@
 #ifndef LL_LLVERTEXBUFFER_H
 #define LL_LLVERTEXBUFFER_H
 
-#include "llgl.h"
+#include "llpointer.h"
+#include "llglheaders.h"
 #include "v2math.h"
 #include "v3math.h"
 #include "v4math.h"
 #include "v4coloru.h"
 #include "llstrider.h"
 #include "llrender.h"
-#include "lltrace.h"
-#include <set>
 #include <vector>
-#include <list>
 #include <glm/gtc/matrix_transform.hpp>
 
 #define LL_MAX_VERTEX_ATTRIB_LOCATION 64
@@ -55,6 +53,13 @@
 // base class
 class LLPrivateMemoryPool;
 class LLVertexBuffer;
+class LLWindow;
+
+// Equivalent to glGenBuffers, but batches creation of buffers to reduce overhead
+GLuint ll_gl_gen_buffer();
+
+// Equivalent to glDeleteBuffers, but batches deletion of buffers to reduce overhead
+void ll_gl_delete_buffers(S32 count, GLuint* buffers);
 
 class LLVertexBufferData
 {
@@ -87,11 +92,13 @@ public:
     glm::mat4 mModelView;
     glm::mat4 mTexture0;
 };
-typedef std::list<LLVertexBufferData> buffer_data_list_t;
 
 class LLVertexBuffer final : public LLRefCount
 {
 public:
+    // default VAO to bind for vertex buffers that have no VAO
+    static U32 sDefaultVAO;
+
     struct MappedRegion
     {
         U32 mStart;
@@ -117,6 +124,9 @@ public:
 
     static void unbind(); //unbind any bound vertex buffer
 
+    // bind specified VAO for rendering
+    static void bindVAO(U32 vao);
+
     //get the size of a vertex with the given typemask
     static U32 calcVertexSize(const U32& typemask);
 
@@ -124,6 +134,9 @@ public:
     //fill offsets with the offset of each vertex component array into the buffer
     // indexed by the following enum
     static U32 calcOffsets(const U32& typemask, U32* offsets, U32 num_vertices);
+
+    // call once per frame to flush pending deletes
+    static void updateClass();
 
     // flush any pending mapped buffers
     static void flushBuffers();
@@ -180,6 +193,8 @@ protected:
 
     void setupVertexBuffer();
 
+    void setupVertexBuffer(U32 data_mask);
+
     void    genBuffer(U32 size);
     void    genIndices(U32 size);
     bool    createGLBuffer(U32 size);
@@ -208,6 +223,21 @@ public:
     //      - a shader is currently bound
     //      - This buffer has sufficient attributes within it to satisfy the needs of the currently bound shader
     void    setBuffer();
+
+    // bind the buffer for setting data (not rendering)
+    // does not set vertex attributes for rendering
+    void bindBuffer();
+
+    // create and set up a VAO for this vertex buffer
+    // must be called no more than once for the lifetime of the buffer
+    // once called, bindVAO may be used in lieu of setBuffer to bind this buffer for
+    // rendering and may provide a performance improvement, but also may make
+    // performance worse if the number of VAOs becomes excessive
+    void setupVAO();
+
+    // bind the VAO for rendering
+    // MUST call LLVertexBuffer::unbind before calling setBuffer after calling bindVAO
+    void bindVAO();
 
     // Only call each getVertexPointer, etc, once before calling unmapBuffer()
     // call unmapBuffer() after calls to getXXXStrider() before any calls to setBuffer()
@@ -285,13 +315,16 @@ public:
 
     void clone(LLVertexBuffer& target) const;
 
+    U32     mIndicesType = GL_UNSIGNED_SHORT; // type of indices in index buffer
+    U32     mIndicesStride = 2;     // size of each index in bytes
+
+    U32     mGLVAO = 0;         // GL VAO handle
+
 protected:
     U32     mGLBuffer = 0;      // GL VBO handle
     U32     mGLIndices = 0;     // GL IBO handle
     U32     mNumVerts = 0;      // Number of vertices allocated
     U32     mNumIndices = 0;    // Number of indices allocated
-    U32     mIndicesType = GL_UNSIGNED_SHORT; // type of indices in index buffer
-    U32     mIndicesStride = 2;     // size of each index in bytes
     U32     mOffsets[TYPE_MAX]; // byte offsets into mMappedData of each attribute
 
     U8* mMappedData = nullptr;  // pointer to currently mapped data (NULL if unmapped)
@@ -333,9 +366,9 @@ public:
 
     static U64 getBytesAllocated();
     static const U32 sTypeSize[TYPE_MAX];
-    static const U32 sGLMode[LLRender::NUM_MODES];
     static U32 sGLRenderBuffer;
     static U32 sGLRenderIndices;
+    static U32 sGLRenderVAO;
     static U32 sLastMask;
     static U32 sVertexCount;
 };

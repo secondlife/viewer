@@ -1,7 +1,7 @@
 /**
- * @file pbropaqueV.glsl
+ * @file blinnphongV.glsl
  *
- * $LicenseInfo:firstyear=2022&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2024&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2022, Linden Research, Inc.
  *
@@ -33,12 +33,12 @@ mat4 getObjectSkinnedTransform();
 #else
 #endif
 
-#ifdef SAMPLE_BASE_COLOR_MAP
+#ifdef SAMPLE_DIFFUSE_MAP
 mat4 tex_mat;
-vec4[2] texture_base_color_transform;
+vec4[2] texture_diffuse_transform;
 vec2 texture_transform(vec2 vertex_texcoord, vec4[2] khr_gltf_transform, mat4 sl_animation_transform);
 in vec2 texcoord0;
-out vec2 base_color_texcoord;
+out vec2 diffuse_texcoord;
 #endif
 
 #ifdef SAMPLE_NORMAL_MAP
@@ -61,16 +61,10 @@ in vec3 normal;
 #endif
 #endif
 
-#ifdef SAMPLE_ORM_MAP
-vec4[2] texture_metallic_roughness_transform;
+#ifdef SAMPLE_SPECULAR_MAP
+vec4[2] texture_specular_transform;
 
-out vec2 metallic_roughness_texcoord;
-#endif
-
-#ifdef SAMPLE_EMISSIVE_MAP
-vec4[2] texture_emissive_transform;
-
-out vec2 emissive_texcoord;
+out vec2 specular_texcoord;
 #endif
 
 #ifdef MIRROR_CLIP
@@ -179,9 +173,9 @@ void unpackTextureTransforms()
 
     int idx = gltf_material_id*8;
 
-#ifdef SAMPLE_BASE_COLOR_MAP
-    texture_base_color_transform[0] = gltf_material_data[idx+0];
-    texture_base_color_transform[1] = vec4(gltf_material_data[idx+0].w, gltf_material_data[idx+1].x, 0, 0);
+#ifdef SAMPLE_DIFFUSE_MAP
+    texture_diffuse_transform[0] = gltf_material_data[idx+0];
+    texture_diffuse_transform[1] = vec4(gltf_material_data[idx+0].w, gltf_material_data[idx+1].x, 0, 0);
 #endif
 
 #ifdef SAMPLE_NORMAL_MAP
@@ -189,14 +183,9 @@ void unpackTextureTransforms()
     texture_normal_transform[1] = vec4(gltf_material_data[idx+2].w, gltf_material_data[idx+3].x, 0, 0);
 #endif
 
-#ifdef SAMPLE_ORM_MAP
-    texture_metallic_roughness_transform[0] = gltf_material_data[idx+4];
-    texture_metallic_roughness_transform[1] = vec4(gltf_material_data[idx+4].w, gltf_material_data[idx+5].x, 0, 0);
-#endif
-
-#ifdef SAMPLE_EMISSIVE_MAP
-    texture_emissive_transform[0] = gltf_material_data[idx+6];
-    texture_emissive_transform[1] = vec4(gltf_material_data[idx+6].w, gltf_material_data[idx+7].x, 0, 0);
+#ifdef SAMPLE_SPECULAR_MAP
+    texture_specular_transform[0] = gltf_material_data[idx+4];
+    texture_specular_transform[1] = vec4(gltf_material_data[idx+4].w, gltf_material_data[idx+5].x, 0, 0);
 #endif
 }
 #else // SAMPLE_MATERIALS_UBO
@@ -237,7 +226,7 @@ void main()
     vec3 pos = (mat*vec4(position.xyz,1.0)).xyz;
     gl_Position = projection_matrix*vec4(pos,1.0);
 
-#ifdef SAMPLE_BASE_COLOR_MAP
+#ifdef SAMPLE_DIFFUSE_MAP
 
 #ifdef TEX_ANIM
     mat3x4 src = texture_matrix[gltf_node_instance_map[gl_InstanceID+gltf_base_instance].z];
@@ -257,7 +246,7 @@ void main()
 #ifdef PLANAR_PROJECTION
     planarProjection(tc0);
 #endif
-    base_color_texcoord = texture_transform(tc0, texture_base_color_transform, tex_mat);
+    diffuse_texcoord = texture_transform(tc0, texture_diffuse_transform, tex_mat);
 #endif
 
 #ifdef MIRROR_CLIP
@@ -277,11 +266,7 @@ void main()
     vary_normal = n;
 #endif
 
-#ifdef SAMPLE_ORM_MAP
-    metallic_roughness_texcoord = texture_transform(tc0, texture_metallic_roughness_transform, tex_mat);
-#endif
-
-#ifdef SAMPLE_EMISSIVE_MAP
-    emissive_texcoord = texture_transform(tc0, texture_emissive_transform, tex_mat);
+#ifdef SAMPLE_SPECULAR_MAP
+    specular_texcoord = texture_transform(tc0, texture_specular_transform, tex_mat);
 #endif
 }

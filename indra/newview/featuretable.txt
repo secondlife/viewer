@@ -71,7 +71,7 @@ RenderFSAASamples			1	3
 RenderMaxTextureIndex		1	16
 RenderGLContextCoreProfile         1   1
 RenderGLMultiThreadedTextures      1   0
-RenderGLMultiThreadedMedia         1   1
+RenderGLMultiThreadedMedia         1   0
 RenderReflectionProbeResolution 1 128
 RenderScreenSpaceReflections 1  1
 RenderMirrors				1	1
