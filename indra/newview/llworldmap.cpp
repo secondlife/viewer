@@ -118,6 +118,7 @@ LLVector3d LLSimInfo::getGlobalOrigin() const
 {
     return from_region_handle(mHandle);
 }
+
 LLVector3 LLSimInfo::getLocalPos(LLVector3d global_pos) const
 {
     LLVector3d sim_origin = from_region_handle(mHandle);
