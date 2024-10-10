@@ -239,17 +239,12 @@ namespace LLError
 
         ~CallSite();
 
-#ifdef LL_LIBRARY_INCLUDE
-        bool shouldLog();
-#else // LL_LIBRARY_INCLUDE
         bool shouldLog()
         {
             return mCached
                     ? mShouldLog
                     : Log::shouldLog(*this);
         }
-            // this member function needs to be in-line for efficiency
-#endif // LL_LIBRARY_INCLUDE
 
         void invalidate();
 
