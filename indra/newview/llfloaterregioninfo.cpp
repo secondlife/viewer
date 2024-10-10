@@ -504,6 +504,18 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
     panel->getChildView("access_combo")->setEnabled(gAgent.isGodlike() || (region && region->canManageEstate() && !teen_grid));
     panel->setCtrlsEnabled(allow_modify);
 
+    panel->getChild<LLLineEditor>("estate_id")->setValue((S32)region_info.mEstateID);
+
+    if (region)
+    {
+        panel->getChild<LLLineEditor>("grid_position_x")->setValue((S32)(region->getOriginGlobal()[VX] / 256));
+        panel->getChild<LLLineEditor>("grid_position_y")->setValue((S32)(region->getOriginGlobal()[VY] / 256));
+    }
+    else
+    {
+        panel->getChild<LLLineEditor>("grid_position_x")->setDefaultText();
+        panel->getChild<LLLineEditor>("grid_position_y")->setDefaultText();
+    }
 
     // DEBUG PANEL
     panel = tab->getChild<LLPanel>("Debug");
@@ -863,6 +875,9 @@ bool LLPanelRegionGeneralInfo::refreshFromRegion(LLViewerRegion* region, ERefres
     getChildView("apply_btn")->setEnabled(false);
     getChildView("access_text")->setEnabled(allow_modify);
     // getChildView("access_combo")->setEnabled(allow_modify);
+    getChildView("estate_id")->setEnabled(false);
+    getChildView("grid_position_x")->setEnabled(false);
+    getChildView("grid_position_y")->setEnabled(false);
     // now set in processRegionInfo for teen grid detection
     getChildView("kick_btn")->setEnabled(allow_modify);
     getChildView("kick_all_btn")->setEnabled(allow_modify);
