@@ -475,6 +475,8 @@ bool LLFloaterPreference::postBuild()
     getChild<LLUICtrl>("log_path_string")->setEnabled(false); // make it read-only but selectable
 
     getChild<LLComboBox>("language_combobox")->setCommitCallback(boost::bind(&LLFloaterPreference::onLanguageChange, this));
+    mTimeFormatCombobox = getChild<LLComboBox>("time_format_combobox");
+    mTimeFormatCombobox->setCommitCallback(boost::bind(&LLFloaterPreference::onTimeFormatChange, this));
 
     getChild<LLComboBox>("FriendIMOptions")->setCommitCallback(boost::bind(&LLFloaterPreference::onNotificationsChange, this,"FriendIMOptions"));
     getChild<LLComboBox>("NonFriendIMOptions")->setCommitCallback(boost::bind(&LLFloaterPreference::onNotificationsChange, this,"NonFriendIMOptions"));
@@ -1103,6 +1105,13 @@ void LLFloaterPreference::onLanguageChange()
     }
 }
 
+void LLFloaterPreference::onTimeFormatChange()
+{
+    std::string val = mTimeFormatCombobox->getValue();
+    gSavedSettings.setBOOL("Use24HourClock", val == "1");
+    onLanguageChange();
+}
+
 void LLFloaterPreference::onNotificationsChange(const std::string& OptionName)
 {
     mNotificationOptions[OptionName] = getChild<LLComboBox>(OptionName)->getSelectedItemLabel();
@@ -1318,6 +1327,8 @@ void LLFloaterPreference::refresh()
         advanced->refresh();
     }
     updateClickActionViews();
+
+    mTimeFormatCombobox->selectByValue(gSavedSettings.getBOOL("Use24HourClock") ? "1" : "0");
 }
 
 void LLFloaterPreference::onCommitWindowedMode()
