@@ -1,0 +1,39 @@
+name: Review Validity Check
+
+on:
+  pull_request:
+    types: [synchronize]
+
+permissions:
+  pull-requests: write
+
+jobs:
+  dismiss_approved_reviews:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dismiss Approved Reviews
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const prNumber = context.payload.pull_request.number;
+
+            const reviews = await github.paginate(
+              github.rest.pulls.listReviews,
+              {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: prNumber,
+              }
+            );
+
+            for (const review of reviews) {
+              if (review.state === "APPROVED") {
+                await github.rest.pulls.dismissReview({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  pull_number: prNumber,
+                  review_id: review.id,
+                  message: "Automatically dismissed because new commits were added.",
+                });
+              }
+            }
