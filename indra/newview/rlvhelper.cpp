@@ -95,12 +95,12 @@ void BehaviourDictionary::addEntry(const BehaviourInfo* entry_p)
     }
 
     // Sanity check for duplicate entries
-#ifndef LL_RELEASE_FOR_DOWNLOAD
+#if LL_RELEASE_WITH_DEBUG_INFO || LL_DEBUG
     std::for_each(mBhvrInfoList.begin(), mBhvrInfoList.end(),
         [&entry_p](const BehaviourInfo* bhvr_info_p) {
             RLV_ASSERT_DBG((bhvr_info_p->getBehaviour() != entry_p->getBehaviour()) || ((bhvr_info_p->getParamTypeMask() & entry_p->getParamTypeMask()) == 0));
         });
-#endif // LL_RELEASE_FOR_DOWNLOAD
+#endif // LL_RELEASE_WITH_DEBUG_INFO || LL_DEBUG
 
     mBhvrInfoList.push_back(entry_p);
 }
