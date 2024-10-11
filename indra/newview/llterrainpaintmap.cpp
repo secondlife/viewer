@@ -982,3 +982,6 @@ bool LLTerrainBrushQueue::enqueue(LLTerrainBrushQueue& queue)
 {
     return LLTerrainQueue<LLTerrainBrush>::enqueue(queue.mList);
 }
+
+template class LLTerrainQueue<LLTerrainPaint>;
+template class LLTerrainQueue<LLTerrainBrush>;

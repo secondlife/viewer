@@ -27,6 +27,10 @@
 #pragma once
 
 #include <memory>
+#include <vector>
+
+#include "stdtypes.h"
+#include "v2math.h"
 
 class LLTexture;
 class LLViewerRegion;
