@@ -12,7 +12,7 @@
 	<panel.string name="owner_can">
 		Ejer kan:
 	</panel.string>
-	<panel.string name="acquiredDate24">
+	<panel.string name="acquiredDate">
 		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
 	</panel.string>
   <panel.string name="acquiredDateAMPM">
