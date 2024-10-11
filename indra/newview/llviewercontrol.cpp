@@ -76,6 +76,7 @@
 #include "llslurl.h"
 #include "llstartup.h"
 #include "llperfstats.h"
+#include "rlvcommon.h"
 
 // Third party library includes
 #include <boost/algorithm/string.hpp>
@@ -932,6 +933,8 @@ void settings_setup_listeners()
     setting_setup_signal_listener(gSavedSettings, "TerrainPaintBitDepth", handleSetShaderChanged);
 
     setting_setup_signal_listener(gSavedPerAccountSettings, "AvatarHoverOffsetZ", handleAvatarHoverOffsetChanged);
+
+    setting_setup_signal_listener(gSavedSettings, Rlv::Settings::TopLevelMenu, Rlv::Util::menuToggleVisible);
 }
 
 #if TEST_CACHED_CONTROL
