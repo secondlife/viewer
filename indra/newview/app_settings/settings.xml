@@ -2469,6 +2469,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>UseGroupMemberPagination</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable pagination of group memeber list 50 members at a time.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>DisplayTimecode</key>
     <map>
       <key>Comment</key>
