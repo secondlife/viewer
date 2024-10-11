@@ -3,6 +3,8 @@ name: Review Validity Check
 on:
   pull_request:
     types: [synchronize]
+    branches:
+      - develop
 
 permissions:
   pull-requests: write
