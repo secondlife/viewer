@@ -9627,8 +9627,6 @@ void initialize_menus()
     registrar.add("Agent.ToggleMicrophone", boost::bind(&LLAgent::toggleMicrophone, _2), cb_info::UNTRUSTED_BLOCK);
     enable.add("Agent.IsMicrophoneOn", boost::bind(&LLAgent::isMicrophoneOn, _2));
     enable.add("Agent.IsActionAllowed", boost::bind(&LLAgent::isActionAllowed, _2));
-    registrar.add("Agent.ToggleHearMediaSoundFromAvatar", boost::bind(&LLAgent::toggleHearMediaSoundFromAvatar), cb_info::UNTRUSTED_BLOCK);
-    registrar.add("Agent.ToggleHearVoiceFromAvatar", boost::bind(&LLAgent::toggleHearVoiceFromAvatar), cb_info::UNTRUSTED_BLOCK);
 
     // File menu
     init_menu_file();
