@@ -312,6 +312,11 @@ void LLXRManager::createSwapchains()
         mSwapchainImages.resize(mViewConfigViews.size());
     }
 
+    if (mImages.empty())
+    {
+        mImages.resize(mViewConfigViews.size());
+    }
+
     // Per view, create a color and depth swapchain, and their associated image views.
     for (size_t i = 0; i < mViewConfigViews.size(); i++)
     {
@@ -354,9 +359,13 @@ void LLXRManager::createSwapchains()
 
         for (U32 j = 0; j < colorSwapchainImageCount; j++)
         {
-            GLuint colorImageView;
-            glGenFramebuffers(1, &colorImageView);
-            mColorTextures[i].push_back(colorImageView);
+            LLRenderTarget* target = new LLRenderTarget();
+            target->allocate(swapchainCI.width, swapchainCI.height, 0);
+            LLImageGL* image = new LLImageGL(swapchainCI.width, swapchainCI.height, 4);
+            image->setTexName(mSwapchainImages[i][j].image);
+            target->setColorAttachment(image, mSwapchainImages[i][j].image);
+            mColorTextures[i].push_back(target);
+            mImages[i].push_back(image);
         }
 
         mSwapchains[i] = colorSwapchain;
@@ -369,7 +378,13 @@ void LLXRManager::destroySwapchains()
     {
         for (auto& colorTexture : mColorTextures)
         {
-            glDeleteTextures((GLsizei)colorTexture.size(), colorTexture.data());
+            for (auto& texture : colorTexture)
+            {
+                texture->clear();
+                delete texture;
+            }
+
+            colorTexture.clear();
         }
     }
 
@@ -754,26 +769,35 @@ void LLXRManager::updateXRSession()
     }
 }
 
-void LLXRManager::updateFrame(LLRenderTarget* target, LLXREye eye)
+void LLXRManager::bindSwapTarget(U32 eye)
 {
     if (mXRState != XR_STATE_RUNNING)
     {
         return;
     }
 
-    XrSwapchain chain = mSwapchains[eye];
-    auto        chainImages = mSwapchainImages[eye];
+    XrSwapchain chain         = mSwapchains[eye];
+    auto        chainImages   = mSwapchainImages[eye];
     auto        colorTextures = mColorTextures[eye];
 
-    U32 colorImageIdx = 0;
 
     XrSwapchainImageAcquireInfo acquireInfo{ XR_TYPE_SWAPCHAIN_IMAGE_ACQUIRE_INFO };
-    xrAcquireSwapchainImage(chain, &acquireInfo, &colorImageIdx);
-
+    xrAcquireSwapchainImage(chain, &acquireInfo, &mCurSwapTarget);
 
     XrSwapchainImageWaitInfo waitInfo = { XR_TYPE_SWAPCHAIN_IMAGE_WAIT_INFO };
     waitInfo.timeout                  = XR_INFINITE_DURATION;
     xrWaitSwapchainImage(chain, &waitInfo);
+
+    mColorTextures[eye][mCurSwapTarget]->bindTarget(false);
+}
+
+void LLXRManager::updateFrame(LLXREye eye)
+{
+    if (mXRState != XR_STATE_RUNNING)
+    {
+        return;
+    }
+
 
     U32 viewWidth   = mViewConfigViews[eye].recommendedImageRectWidth;
     U32 viewHeight  = mViewConfigViews[eye].recommendedImageRectHeight;
@@ -785,23 +809,23 @@ void LLXRManager::updateFrame(LLRenderTarget* target, LLXREye eye)
     mProjectionViews[eye].subImage.imageRect.extent.width  = viewWidth;
     mProjectionViews[eye].subImage.imageRect.extent.height = viewHeight;
     mProjectionViews[eye].subImage.imageArrayIndex         = eye;
-    
-    // Pretty much we need to copy the texture to the swapchain.
-    glBindFramebuffer(GL_FRAMEBUFFER, colorTextures[colorImageIdx]);
-    glScissor(0, 0, viewWidth, viewHeight);
-    glViewport(0, 0, viewWidth, viewHeight);
-    glFramebufferTexture2D(GL_FRAMEBUFFER,
-                           GL_COLOR_ATTACHMENT0,
-                           GL_TEXTURE_2D, colorTextures[colorImageIdx],
-                           0);
 
-    glClearColor(.0f, 0.0f, 0.2f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glBlitFramebuffer(target->getTexture(), 0, target->getWidth(), target->getHeight(), 0, 0, viewWidth, viewHeight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+
+    glClearColor(1.f, 0.0f, 1.f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+}
+
+void LLXRManager::flushSwapTarget(U32 eye)
+{
+    if (mXRState != XR_STATE_RUNNING)
+    {
+        return;
+    }
+
+    mColorTextures[eye][mCurSwapTarget]->flush();
 
     XrSwapchainImageReleaseInfo releaseInfo = { XR_TYPE_SWAPCHAIN_IMAGE_RELEASE_INFO };
-    S32                         err         = xrReleaseSwapchainImage(chain, &releaseInfo);
-    
+    S32                         err         = xrReleaseSwapchainImage(mSwapchains[eye], &releaseInfo);
 }
 
 void LLXRManager::endFrame()

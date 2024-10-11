@@ -94,7 +94,8 @@ class LLXRManager
         DEPTH
     };
 
-    std::vector<std::vector<GLuint>>                    mColorTextures;
+    std::vector<std::vector<LLRenderTarget*>>           mColorTextures;
+    std::vector<std::vector<LLImageGL*>>                mImages;
     std::vector<std::vector<XrSwapchainImageOpenGLKHR>> mSwapchainImages;
     std::vector<XrSwapchain>                            mSwapchains;
 
@@ -140,6 +141,8 @@ class LLXRManager
 
     GLuint createImageView(LLImageViewCreateInfo& info);
 
+    U32 mCurSwapTarget = 0;
+
 
   public:
     // This should always be called prior to attempting to create a session.
@@ -182,6 +185,10 @@ class LLXRManager
     // This is where we get pose data, etc.
     void updateXRSession();
 
+    void bindSwapTarget(U32 eye);
+
+    void flushSwapTarget(U32 eye);
+
     typedef enum
     {
         XR_EYE_LEFT = 0,
@@ -189,7 +196,7 @@ class LLXRManager
     } LLXREye;
 
     // This will update the framebuffer for the given eye.
-    void updateFrame(LLRenderTarget* target, LLXREye eye);
+    void updateFrame(LLXREye eye);
 
     void endFrame();
 

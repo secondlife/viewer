@@ -153,6 +153,7 @@ public:
     void bindScreenToTexture();
     void renderFinalize();
     void copyScreenSpaceReflections(LLRenderTarget* src, LLRenderTarget* dst);
+    void copyFrameBufferToXR(LLRenderTarget* src);
     void generateLuminance(LLRenderTarget* src, LLRenderTarget* dst);
     void generateExposure(LLRenderTarget* src, LLRenderTarget* dst, bool use_history = true);
     void tonemap(LLRenderTarget* src, LLRenderTarget* dst);

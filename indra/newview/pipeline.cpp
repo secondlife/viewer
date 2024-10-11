@@ -7140,6 +7140,25 @@ void LLPipeline::gammaCorrect(LLRenderTarget* src, LLRenderTarget* dst)
     dst->flush();
 }
 
+void LLPipeline::copyFrameBufferToXR(LLRenderTarget* src)
+{
+    if (gXRManager)
+    {
+        LLRenderTarget& depth_src = mRT->deferredScreen;
+
+        gXRManager->bindSwapTarget(gXRManager->mCurrentEye);
+
+        gCopyProgram.bind();
+        gGL.getTexUnit(0)->bind(src);
+
+        mScreenTriangleVB->setBuffer();
+        mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
+
+        gXRManager->updateFrame((LLXRManager::LLXREye)gXRManager->mCurrentEye);
+        gXRManager->flushSwapTarget(gXRManager->mCurrentEye);
+    }
+}
+
 void LLPipeline::copyScreenSpaceReflections(LLRenderTarget* src, LLRenderTarget* dst)
 {
 
@@ -7882,6 +7901,8 @@ void LLPipeline::renderFinalize()
         finalBuffer = &mPostMap;
     }
 
+    copyFrameBufferToXR(finalBuffer);
+
     if (RenderBufferVisualization > -1)
     {
         switch (RenderBufferVisualization)
@@ -7951,11 +7972,6 @@ void LLPipeline::renderFinalize()
     LLVertexBuffer::unbind();
 
     LLGLState::checkStates();
-
-    if (gXRManager)
-    {
-        gXRManager->updateFrame(finalBuffer, (LLXRManager::LLXREye)gXRManager->mCurrentEye);
-    }
 
     // flush calls made to "addTrianglesDrawn" so far to stats machinery
     recordTrianglesDrawn();
@@ -9193,7 +9209,7 @@ void LLPipeline::bindReflectionProbes(LLGLSLShader& shader)
 
 void LLPipeline::unbindReflectionProbes(LLGLSLShader& shader)
 {
-    S32 channel = shader.disableTexture(LLShaderMgr::REFLECTION_PROBES, LLTexUnit::TT_CUBE_MAP);
+    S32 channel = shader.disableTexture(LLShaderMgr::REFLECTION_PROBES, LLTexUnit::TT_CUBE_MAP_ARRAY);
     if (channel > -1 && mReflectionMapManager.mTexture.notNull())
     {
         mReflectionMapManager.mTexture->unbind();
