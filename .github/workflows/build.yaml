@@ -48,7 +48,7 @@ jobs:
     strategy:
       matrix:
         runner: [windows-large, macos-14-xlarge]
-        configuration: [${{ needs.setup.outputs.config }}]
+        configuration: ${{ needs.setup.outputs.config }}
         experimental: [false]
         include:
         - runner: linux-large
