@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       release_run: ${{ steps.setvar.outputs.release_run }}
-      configurations: ${{ steps.setvar.outputs.configurations }}
+      configuration: ${{ steps.setvar.outputs.configuration }}
       bugsplat_db: ${{ steps.setvar.outputs.bugsplat_db }}
     env:
       # Build with a tag like "Second_Life#abcdef0" to generate a release page
@@ -36,10 +36,10 @@ jobs:
 
           if [[ "$FROM_FORK" == "true" ]]; then
             # PR from fork; don't build with Bugsplat, proprietary libs
-            echo 'configurations=["ReleaseOS"]' >> $GITHUB_OUTPUT
+            echo "configuration=ReleaseOS" >> $GITHUB_OUTPUT
             echo "bugsplat_db=" >> $GITHUB_OUTPUT
           else
-            echo 'configurations=["Release"]' >> $GITHUB_OUTPUT
+            echo "configuration=Release" >> $GITHUB_OUTPUT
             echo "bugsplat_db=SecondLife_Viewer_2018" >> $GITHUB_OUTPUT
           fi
   build:
@@ -48,10 +48,11 @@ jobs:
     strategy:
       matrix:
         runner: [windows-large, macos-14-xlarge]
-        configuration: ${{ fromJSON(needs.setup.outputs.configurations) }}
+        configuration: ${{ needs.setup.outputs.configuration }}
         experimental: [false]
         include:
         - runner: linux-large
+          configuration: ${{ needs.setup.outputs.configuration }}
           experimental: true
     runs-on: ${{ matrix.runner }}
     outputs:
