@@ -35,6 +35,7 @@
 // std headers
 // external library headers
 // other Linden headers
+#include "llcallbacklist.h"
 #include "llviewerwindow.h"
 
 LLViewerWindowListener::LLViewerWindowListener(LLViewerWindow* llviewerwindow):
@@ -46,8 +47,7 @@ LLViewerWindowListener::LLViewerWindowListener(LLViewerWindow* llviewerwindow):
     add("saveSnapshot",
         "Save screenshot: [\"filename\"] (extension may be specified: bmp, jpeg, png)\n"
         "[\"width\"], [\"height\"], [\"showui\"], [\"showhud\"], [\"rebuild\"], [\"type\"]\n"
-        "type: \"COLOR\", \"DEPTH\"\n"
-        "Post on [\"reply\"] an event containing [\"result\"]",
+        "type: \"COLOR\", \"DEPTH\"\n",
         &LLViewerWindowListener::saveSnapshot,
         llsd::map("filename", LLSD::String(), "reply", LLSD()));
     add("requestReshape",
@@ -117,7 +117,10 @@ void LLViewerWindowListener::saveSnapshot(const LLSD& event) const
     {
         return response.error(stringize("Unrecognized format. [\"png\"], [\"jpeg\"] or [\"bmp\"] is expected."));
     }
-    response["result"] = mViewerWindow->saveSnapshot(filename, width, height, showui, showhud, rebuild, type, format);
+    // take snapshot on the main coro
+    doOnIdleOneTime([this, filename, width, height, showui, showhud, rebuild, type, format]()
+                    { mViewerWindow->saveSnapshot(filename, width, height, showui, showhud, rebuild, type, format); });
+
 }
 
 void LLViewerWindowListener::requestReshape(LLSD const & event_data) const
