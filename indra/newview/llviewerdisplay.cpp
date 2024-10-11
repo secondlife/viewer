@@ -200,8 +200,6 @@ void display_startup()
     gViewerWindow->getWindow()->swapBuffers();
 
     glClear(GL_DEPTH_BUFFER_BIT);
-
-    gXRManager->createSwapchains();
 }
 
 void display_update_camera()
@@ -1559,10 +1557,6 @@ void swap()
     LL_PROFILE_GPU_ZONE("swap");
     if (gDisplaySwapBuffers)
     {
-        if (gXRManager)
-        {
-            gXRManager->updateFrame(&gPipeline.mMainRT.screen, (LLXRManager::LLXREye)gXRManager->mCurrentEye);
-        }
         gViewerWindow->getWindow()->swapBuffers();
     }
     gDisplaySwapBuffers = true;

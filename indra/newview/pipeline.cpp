@@ -771,6 +771,8 @@ LLPipeline::eFBOStatus LLPipeline::doAllocateScreenBuffer(U32 resX, U32 resY)
         LL_WARNS() << "Unable to allocate screen buffer at any resolution!" << LL_ENDL;
     }
 
+    gXRManager->createSwapchains();
+
     return ret;
 }
 
@@ -7949,6 +7951,11 @@ void LLPipeline::renderFinalize()
     LLVertexBuffer::unbind();
 
     LLGLState::checkStates();
+
+    if (gXRManager)
+    {
+        gXRManager->updateFrame(finalBuffer, (LLXRManager::LLXREye)gXRManager->mCurrentEye);
+    }
 
     // flush calls made to "addTrianglesDrawn" so far to stats machinery
     recordTrianglesDrawn();

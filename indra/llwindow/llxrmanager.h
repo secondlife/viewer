@@ -94,19 +94,13 @@ class LLXRManager
         DEPTH
     };
 
-    std::map<XrSwapchain, std::pair<SwapchainType, std::vector<XrSwapchainImageOpenGLKHR>>> mSwapchainImageMap;
+    std::vector<std::vector<GLuint>>                    mColorTextures;
+    std::vector<std::vector<XrSwapchainImageOpenGLKHR>> mSwapchainImages;
+    std::vector<XrSwapchain>                            mSwapchains;
+
     std::vector<XrViewConfigurationType> mAppViewConfigurations = { XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO,
                                                                              XR_VIEW_CONFIGURATION_TYPE_PRIMARY_MONO };
     std::vector<XrViewConfigurationType> mViewConfigs;
-
-    std::unordered_map<GLuint, LLImageViewCreateInfo> mImageViews;
-    struct LLSwapchainInfo
-    {
-        XrSwapchain        swapchain       = XR_NULL_HANDLE;
-        U32            swapchainFormat = 0;
-        std::vector<LLRenderTarget*> imageViews;
-    };
-    std::vector<LLSwapchainInfo> mColorSwapchainInfos = {};
 
     XrDebugUtilsMessengerEXT                mDebugMessenger;
 
@@ -120,7 +114,7 @@ class LLXRManager
   public:
     typedef enum
     {
-        XR_STATE_UNINITIALIZED,
+        XR_STATE_UNINITIALIZED = 0,
         XR_STATE_INSTANCE_CREATED,
         XR_STATE_SESSION_CREATED,
         XR_STATE_SWAPCHAINS_CREATED,
@@ -130,7 +124,7 @@ class LLXRManager
     } LLXRState;
 
   private:
-    LLXRState mInitialized = XR_STATE_UNINITIALIZED;
+    LLXRState mXRState = XR_STATE_UNINITIALIZED;
 
     glm::vec3 mHeadPosition;
     glm::quat mHeadOrientation;
@@ -140,12 +134,11 @@ class LLXRManager
     std::vector<glm::mat4>  mEyeProjections;
     std::vector<glm::mat4>  mEyeViews;
 
-    void* getSwapchainImage(XrSwapchain swapchain, U32 index)
-    {
-        return (XrSwapchainImageBaseHeader*)&mSwapchainImageMap[swapchain].second[index];
+    void* getSwapchainImage(U32 eye, U32 index)
+    { return (XrSwapchainImageBaseHeader*)&mSwapchainImages[eye][index];
     }
 
-    LLRenderTarget* createImageView(LLImageViewCreateInfo& info);
+    GLuint createImageView(LLImageViewCreateInfo& info);
 
 
   public:
@@ -171,6 +164,8 @@ class LLXRManager
 #endif
 
     void createSwapchains();
+
+    void destroySwapchains();
     // This should be called when the viewer is shutting down.
     // This will destroy the session and instance, and set the XR manager to an uninitialized state.
     void shutdown();
@@ -198,7 +193,7 @@ class LLXRManager
 
     void endFrame();
 
-    LLXRState xrState() { return mInitialized; }
+    LLXRState xrState() { return mXRState; }
     glm::vec3 getHeadPosition() { return mHeadPosition; }
     glm::quat getHeadOrientation() { return mHeadOrientation; }
     std::vector<glm::quat> getEyeRotations() { return mEyeRotations; }

@@ -224,7 +224,7 @@ void LLXRManager::initInstance()
     return;
 #endif
 
-    mInitialized = XR_STATE_INSTANCE_CREATED;
+    mXRState = XR_STATE_INSTANCE_CREATED;
 }
 
 #ifdef LL_WINDOWS
@@ -240,7 +240,7 @@ void LLXRManager::createSession(XrGraphicsRequirementsMetalKHR graphicsBinding)
     return;
 #endif
 
-    if (mInitialized != XR_STATE_INSTANCE_CREATED)
+    if (mXRState != XR_STATE_INSTANCE_CREATED)
     {
         LL_ERRS("XRManager") << "Cannot create session without an instance." << LL_ENDL;
         return;
@@ -282,41 +282,46 @@ void LLXRManager::createSession(XrGraphicsRequirementsMetalKHR graphicsBinding)
         return;
     }
 
-    mInitialized = XR_STATE_SESSION_CREATED;
+    mXRState = XR_STATE_SESSION_CREATED;
 }
 
-LLRenderTarget* LLXRManager::createImageView(LLImageViewCreateInfo& info)
+GLuint LLXRManager::createImageView(LLImageViewCreateInfo& info)
 {
-    LLRenderTarget* target    = new LLRenderTarget();
+    GLuint fbo;
+    glGenFramebuffers(1, &fbo);
 
-    target->allocate(info.width, info.height, info.format);
-
-    mImageViews[target->getTexture()] = info;
-
-    return target;
+    return fbo;
 }
 
 void LLXRManager::createSwapchains()
 {
-    if (mInitialized == XR_STATE_SWAPCHAINS_CREATED || mInitialized == XR_STATE_RUNNING)
+    destroySwapchains();
+
+    if (mSwapchains.empty())
     {
-        return;
+        mSwapchains.resize(mViewConfigViews.size());
     }
 
-    U32 depthFormat = GL_DEPTH_COMPONENT24;
+    if (mColorTextures.empty())
+    {
+        mColorTextures.resize(mViewConfigViews.size());
+    }
 
-    mColorSwapchainInfos.resize(mViewConfigViews.size());
+    if (mSwapchainImages.empty())
+    {
+        mSwapchainImages.resize(mViewConfigViews.size());
+    }
 
     // Per view, create a color and depth swapchain, and their associated image views.
     for (size_t i = 0; i < mViewConfigViews.size(); i++)
     {
-        LLSwapchainInfo& colorSwapchainInfo = mColorSwapchainInfos[i];
+        XrSwapchain colorSwapchain;
 
         XrSwapchainCreateInfo swapchainCI{ XR_TYPE_SWAPCHAIN_CREATE_INFO };
         swapchainCI.createFlags = 0;
         swapchainCI.usageFlags  = XR_SWAPCHAIN_USAGE_SAMPLED_BIT | XR_SWAPCHAIN_USAGE_COLOR_ATTACHMENT_BIT;
         swapchainCI.format =
-            getSwapchainFormat(mXRInstance, mSession, GL_SRGB8_ALPHA8_EXT);
+            getSwapchainFormat(mXRInstance, mSession, GL_SRGB8_ALPHA8);
         swapchainCI.sampleCount =
             mViewConfigViews[i].recommendedSwapchainSampleCount; // Use the recommended values from the XrViewConfigurationView.
         swapchainCI.width     = mViewConfigViews[i].recommendedImageRectWidth;
@@ -325,31 +330,23 @@ void LLXRManager::createSwapchains()
         swapchainCI.arraySize = 1;
         swapchainCI.mipCount  = 1;
 
-        if (XR_FAILED(xrCreateSwapchain(mSession, &swapchainCI, &colorSwapchainInfo.swapchain)))
+        if (XR_FAILED(xrCreateSwapchain(mSession, &swapchainCI, &colorSwapchain)))
         {
             LL_ERRS("XRManager") << "Failed to create Color Swapchain." << LL_ENDL;
             return;
         }
 
-        colorSwapchainInfo.swapchainFormat = (U32)swapchainCI.format; // Save the swapchain format for later use.
-
         U32 colorSwapchainImageCount = 0;
-        if (XR_FAILED(xrEnumerateSwapchainImages(colorSwapchainInfo.swapchain, 0, &colorSwapchainImageCount, nullptr)))
+        if (XR_FAILED(xrEnumerateSwapchainImages(colorSwapchain, 0, &colorSwapchainImageCount, nullptr)))
         {
             LL_ERRS("XRManager") << "Failed to enumerate Color Swapchain Images." << LL_ENDL;
             return;
         }
 
-        mSwapchainImageMap[colorSwapchainInfo.swapchain].first = SwapchainType::COLOR;
-        mSwapchainImageMap[colorSwapchainInfo.swapchain].second.resize(colorSwapchainImageCount, { XR_TYPE_SWAPCHAIN_IMAGE_OPENGL_KHR });
+        mSwapchainImages[i].resize(colorSwapchainImageCount, { XR_TYPE_SWAPCHAIN_IMAGE_OPENGL_KHR, nullptr});
 
-        XrSwapchainImageBaseHeader* colorSwapchainImages =
-            reinterpret_cast<XrSwapchainImageBaseHeader*>(mSwapchainImageMap[colorSwapchainInfo.swapchain].second.data());
-
-        if (XR_FAILED(xrEnumerateSwapchainImages(colorSwapchainInfo.swapchain,
-                                                 colorSwapchainImageCount,
-                                                 &colorSwapchainImageCount,
-                                                 colorSwapchainImages)))
+        if (XR_FAILED(xrEnumerateSwapchainImages(colorSwapchain, colorSwapchainImageCount, &colorSwapchainImageCount,
+                                                 (XrSwapchainImageBaseHeader*)mSwapchainImages[i].data())))
         {
             LL_ERRS("XRManager") << "Failed to enumerate Color Swapchain Images." << LL_ENDL;
             return;
@@ -357,23 +354,36 @@ void LLXRManager::createSwapchains()
 
         for (U32 j = 0; j < colorSwapchainImageCount; j++)
         {
-            LLImageViewCreateInfo colorImageViewCreateInfo;
-            colorImageViewCreateInfo.image          = getSwapchainImage(colorSwapchainInfo.swapchain, j);
-            colorImageViewCreateInfo.type           = LLImageViewCreateInfo::Type::RTV;
-            colorImageViewCreateInfo.view           = LLImageViewCreateInfo::View::TYPE_2D;
-            colorImageViewCreateInfo.format         = (U32)colorSwapchainInfo.swapchainFormat;
-            colorImageViewCreateInfo.aspect         = LLImageViewCreateInfo::Aspect::COLOR_BIT;
-            colorImageViewCreateInfo.baseMipLevel   = 0;
-            colorImageViewCreateInfo.levelCount     = 1;
-            colorImageViewCreateInfo.baseArrayLayer = 0;
-            colorImageViewCreateInfo.layerCount     = 1;
-            colorImageViewCreateInfo.width          = swapchainCI.width;
-            colorImageViewCreateInfo.height         = swapchainCI.height;
-            colorSwapchainInfo.imageViews.push_back(createImageView(colorImageViewCreateInfo));
+            GLuint colorImageView;
+            glGenFramebuffers(1, &colorImageView);
+            mColorTextures[i].push_back(colorImageView);
+        }
+
+        mSwapchains[i] = colorSwapchain;
+    }
+}
+
+void LLXRManager::destroySwapchains()
+{
+    if (!mColorTextures.empty())
+    {
+        for (auto& colorTexture : mColorTextures)
+        {
+            glDeleteTextures((GLsizei)colorTexture.size(), colorTexture.data());
         }
     }
 
-    mInitialized = XR_STATE_SWAPCHAINS_CREATED;
+    if (!mSwapchains.empty())
+    {
+        for (auto& swapchain : mSwapchains)
+        {
+            xrDestroySwapchain(swapchain);
+        }
+    }
+
+    mSwapchainImages.clear();
+    mColorTextures.clear();
+    mSwapchains.clear();
 }
 
 void LLXRManager::getInstanceProperties()
@@ -502,20 +512,21 @@ void LLXRManager::getConfigurationViews()
         return;
     }
 
-    mViews.resize(viewConfigurationViewCount, { XR_TYPE_VIEW });
+    mViews.resize(viewConfigurationViewCount, { XR_TYPE_VIEW, nullptr });
     mEyeRotations.resize(viewConfigurationViewCount);
     mEyePositions.resize(viewConfigurationViewCount);
     mEyeProjections.resize(viewConfigurationViewCount);
     mEyeViews.resize(viewConfigurationViewCount);
+    mProjectionViews.resize(viewConfigurationViewCount);
 }
 
 void LLXRManager::shutdown()
 {
-    if (mInitialized != XR_STATE_DESTROYED && mInitialized != XR_STATE_UNINITIALIZED)
+    if (mXRState != XR_STATE_DESTROYED && mXRState != XR_STATE_UNINITIALIZED)
     {
         xrDestroySession(mSession);
         xrDestroyInstance(mXRInstance);
-        mInitialized = XR_STATE_DESTROYED;
+        mXRState = XR_STATE_DESTROYED;
     }
 }
 
@@ -523,7 +534,7 @@ static XrPosef identity_pose = { { 0, 0, 0, 1.0 }, { 0, 0, 0 } };
 
 void LLXRManager::setupPlaySpace()
 {
-    if (mInitialized != XR_STATE_SESSION_CREATED)
+    if (mXRState != XR_STATE_SESSION_CREATED)
     {
         LL_ERRS("XRManager") << "Cannot setup reference space without a session." << LL_ENDL;
         return;
@@ -560,7 +571,7 @@ void LLXRManager::setupPlaySpace()
 
 void LLXRManager::startFrame()
 {
-    if (mInitialized != XR_STATE_RUNNING)
+    if (mXRState != XR_STATE_RUNNING)
     {
         return;
     }
@@ -571,7 +582,7 @@ void LLXRManager::startFrame()
 
 void LLXRManager::handleSessionState()
 {
-    if (mInitialized != XR_STATE_RUNNING && mInitialized != XR_STATE_SESSION_CREATED && mInitialized != XR_STATE_PAUSED)
+    if (mXRState != XR_STATE_RUNNING && mXRState != XR_STATE_SESSION_CREATED && mXRState != XR_STATE_PAUSED)
     {
         return;
     }
@@ -597,7 +608,7 @@ void LLXRManager::handleSessionState()
                     case XR_SESSION_STATE_READY:
                     {
                         LL_INFOS("XRManager") << "Session state changed to READY." << LL_ENDL;
-                        if (mInitialized != XR_STATE_RUNNING && mInitialized != XR_STATE_PAUSED)
+                        if (mXRState != XR_STATE_RUNNING && mXRState != XR_STATE_PAUSED)
                         {
                             XrSessionBeginInfo beginInfo           = { XR_TYPE_SESSION_BEGIN_INFO };
                             beginInfo.next                         = nullptr;
@@ -611,7 +622,7 @@ void LLXRManager::handleSessionState()
                                 return;
                             }
 
-                            mInitialized = XR_STATE_RUNNING;
+                            mXRState = XR_STATE_RUNNING;
                         }
 
                         break;
@@ -620,9 +631,9 @@ void LLXRManager::handleSessionState()
                     case XR_SESSION_STATE_VISIBLE:
                     case XR_SESSION_STATE_FOCUSED:
                     {
-                        if (mInitialized == XR_STATE_PAUSED)
+                        if (mXRState == XR_STATE_PAUSED)
                         {
-                            mInitialized = XR_STATE_RUNNING;
+                            mXRState = XR_STATE_RUNNING;
                         }
 
                         LL_INFOS("XRManager") << "Session state changed to FOCUSED." << LL_ENDL;
@@ -632,7 +643,7 @@ void LLXRManager::handleSessionState()
                     {
                         LL_INFOS("XRManager") << "Session state changed to STOPPING." << LL_ENDL;
 
-                        if (mInitialized == XR_STATE_RUNNING)
+                        if (mXRState == XR_STATE_RUNNING)
                         {
                             S32 err = xrEndSession(mSession);
                             if (XR_FAILED(err))
@@ -694,7 +705,7 @@ void LLXRManager::handleSessionState()
 
 void LLXRManager::updateXRSession()
 {
-    if (mInitialized != XR_STATE_RUNNING)
+    if (mXRState != XR_STATE_RUNNING)
     {
         return;
     }
@@ -745,22 +756,24 @@ void LLXRManager::updateXRSession()
 
 void LLXRManager::updateFrame(LLRenderTarget* target, LLXREye eye)
 {
-    if (mInitialized != XR_STATE_RUNNING)
+    if (mXRState != XR_STATE_RUNNING)
     {
         return;
     }
-    /*
-    LLSwapchainInfo &colorSwapchainInfo = mColorSwapchainInfos[eye];
+
+    XrSwapchain chain = mSwapchains[eye];
+    auto        chainImages = mSwapchainImages[eye];
+    auto        colorTextures = mColorTextures[eye];
 
     U32 colorImageIdx = 0;
 
     XrSwapchainImageAcquireInfo acquireInfo{ XR_TYPE_SWAPCHAIN_IMAGE_ACQUIRE_INFO };
-    xrAcquireSwapchainImage(colorSwapchainInfo.swapchain, &acquireInfo, &colorImageIdx);
+    xrAcquireSwapchainImage(chain, &acquireInfo, &colorImageIdx);
 
 
     XrSwapchainImageWaitInfo waitInfo = { XR_TYPE_SWAPCHAIN_IMAGE_WAIT_INFO };
     waitInfo.timeout                  = XR_INFINITE_DURATION;
-    xrWaitSwapchainImage(colorSwapchainInfo.swapchain, &waitInfo);
+    xrWaitSwapchainImage(chain, &waitInfo);
 
     U32 viewWidth   = mViewConfigViews[eye].recommendedImageRectWidth;
     U32 viewHeight  = mViewConfigViews[eye].recommendedImageRectHeight;
@@ -772,30 +785,28 @@ void LLXRManager::updateFrame(LLRenderTarget* target, LLXREye eye)
     mProjectionViews[eye].subImage.imageRect.extent.width  = viewWidth;
     mProjectionViews[eye].subImage.imageRect.extent.height = viewHeight;
     mProjectionViews[eye].subImage.imageArrayIndex         = eye;
-    /*
+    
     // Pretty much we need to copy the texture to the swapchain.
-    glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)(U64)colorSwapchainInfo.imageViews[colorImageIdx]);
+    glBindFramebuffer(GL_FRAMEBUFFER, colorTextures[colorImageIdx]);
     glScissor(0, 0, viewWidth, viewHeight);
     glViewport(0, 0, viewWidth, viewHeight);
     glFramebufferTexture2D(GL_FRAMEBUFFER,
                            GL_COLOR_ATTACHMENT0,
-                           GL_TEXTURE_2D,
-                           (GLuint)(U64)colorSwapchainInfo.imageViews[colorImageIdx],
+                           GL_TEXTURE_2D, colorTextures[colorImageIdx],
                            0);
 
-    //glClearColor(.0f, 0.0f, 0.2f, 1.0f);
-    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    //glBlitFramebuffer(target->getTexture(), 0, target->getWidth(), target->getHeight(), 0, 0, viewWidth, viewHeight, GL_COLOR_BUFFER_BIT,
-    GL_LINEAR);
+    glClearColor(.0f, 0.0f, 0.2f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glBlitFramebuffer(target->getTexture(), 0, target->getWidth(), target->getHeight(), 0, 0, viewWidth, viewHeight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
 
     XrSwapchainImageReleaseInfo releaseInfo = { XR_TYPE_SWAPCHAIN_IMAGE_RELEASE_INFO };
-    S32 err = xrReleaseSwapchainImage(colorSwapchainInfo.swapchain, &releaseInfo);
-    */
+    S32                         err         = xrReleaseSwapchainImage(chain, &releaseInfo);
+    
 }
 
 void LLXRManager::endFrame()
 {
-    if (mInitialized != XR_STATE_RUNNING)
+    if (mXRState != XR_STATE_RUNNING)
     {
         return;
     }
@@ -820,4 +831,10 @@ void LLXRManager::endFrame()
     frameEndInfo.environmentBlendMode = XR_ENVIRONMENT_BLEND_MODE_OPAQUE;
     frameEndInfo.displayTime          = mFrameState.predictedDisplayTime;
     S32 err                           = xrEndFrame(mSession, &frameEndInfo);
+
+    if (XR_FAILED(err))
+    {
+        LL_ERRS("XRManager") << "Failed to end frame.  Error code: " << err << LL_ENDL;
+        return;
+    }
 }
