@@ -9579,8 +9579,6 @@ void initialize_menus()
     commit.add("Agent.ToggleMicrophone", boost::bind(&LLAgent::toggleMicrophone, _2));
     enable.add("Agent.IsMicrophoneOn", boost::bind(&LLAgent::isMicrophoneOn, _2));
     enable.add("Agent.IsActionAllowed", boost::bind(&LLAgent::isActionAllowed, _2));
-    commit.add("Agent.ToggleHearMediaSoundFromAvatar", boost::bind(&LLAgent::toggleHearMediaSoundFromAvatar));
-    commit.add("Agent.ToggleHearVoiceFromAvatar", boost::bind(&LLAgent::toggleHearVoiceFromAvatar));
 
     // File menu
     init_menu_file();
