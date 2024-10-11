@@ -25,7 +25,7 @@
         Owner can:
     </floater.string>
     <floater.string
-     name="acquiredDate24">
+     name="acquiredDate">
         [wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
     </floater.string>
     <floater.string

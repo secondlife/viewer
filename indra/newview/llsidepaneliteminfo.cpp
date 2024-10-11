@@ -484,7 +484,7 @@ void LLSidepanelItemInfo::refreshFromItem(LLViewerInventoryItem* item)
     else
     {
         static bool use_24h = gSavedSettings.getBOOL("Use24HourClock");
-        std::string timeStr = use_24h ? getString("acquiredDate24") : getString("acquiredDateAMPM");
+        std::string timeStr = use_24h ? getString("acquiredDate") : getString("acquiredDateAMPM");
         LLSD substitution;
         substitution["datetime"] = (S32) time_utc;
         LLStringUtil::format (timeStr, substitution);
