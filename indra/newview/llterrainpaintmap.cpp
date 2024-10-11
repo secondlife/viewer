@@ -56,15 +56,15 @@ void check_tex(const LLViewerTexture& tex)
     llassert(tex.getPrimaryFormat() == GL_RGB);
     llassert(tex.getGLTexture());
 }
+#else
+#define check_tex(tex)
 #endif
 } // namespace
 
 // static
 bool LLTerrainPaintMap::bakeHeightNoiseIntoPBRPaintMapRGB(const LLViewerRegion& region, LLViewerTexture& tex)
 {
-#ifdef SHOW_ASSERT
     check_tex(tex);
-#endif
 
     const LLSurface& surface = region.getLand();
     const U32 patch_count = surface.getPatchesPerEdge();
@@ -309,9 +309,7 @@ void LLTerrainPaintMap::applyPaintQueueRGB(LLViewerTexture& tex, LLTerrainPaintQ
 {
     if (queue.empty()) { return; }
 
-#ifdef SHOW_ASSERT
     check_tex(tex);
-#endif
 
     gGL.getTexUnit(0)->bind(tex.getGLTexture(), false, true);
 
@@ -362,7 +360,7 @@ namespace
 // plane.
 // *NOTE: Because we know the vertex XY coordinates go from 0 to 1
 // pre-transform, UVs can be calculated from the vertices
-LLVertexBuffer& get_paint_triangle_buffer()
+LLVertexBuffer* get_paint_triangle_buffer()
 {
     static LLPointer<LLVertexBuffer> buf = new LLVertexBuffer(LLVertexBuffer::MAP_VERTEX);
     static bool initialized = false;
@@ -395,7 +393,7 @@ LLVertexBuffer& get_paint_triangle_buffer()
         *(indices++) = 2;
         buf->unmapBuffer();
     }
-    return *buf;
+    return buf.get();
 }
 
 };
@@ -403,9 +401,7 @@ LLVertexBuffer& get_paint_triangle_buffer()
 // static
 LLTerrainPaintQueue LLTerrainPaintMap::convertPaintQueueRGBAToRGB(LLViewerTexture& tex, LLTerrainPaintQueue& queue_in)
 {
-#ifdef SHOW_ASSERT
     check_tex(tex);
-#endif
     llassert(queue_in.getComponents() == LLTerrainPaint::RGBA);
 
     // TODO: Avoid allocating a scratch render buffer and use mAuxillaryRT instead
@@ -429,7 +425,7 @@ LLTerrainPaintQueue LLTerrainPaintMap::convertPaintQueueRGBAToRGB(LLViewerTextur
     const F32 target_half_width = (F32)scratch_target.getWidth() / 2.0f;
     const F32 target_half_height = (F32)scratch_target.getHeight() / 2.0f;
 
-    LLVertexBuffer* buf = &get_paint_triangle_buffer();
+    LLVertexBuffer* buf = get_paint_triangle_buffer();
 
     // Update projection matrix and viewport
     // *NOTE: gl_state_for_2d also sets the modelview matrix. This will be overridden later.
@@ -621,9 +617,7 @@ LLTerrainPaintQueue LLTerrainPaintMap::convertPaintQueueRGBAToRGB(LLViewerTextur
 // static
 LLTerrainPaintQueue LLTerrainPaintMap::convertBrushQueueToPaintRGB(const LLViewerRegion& region, LLViewerTexture& tex, LLTerrainBrushQueue& queue_in)
 {
-#ifdef SHOW_ASSERT
     check_tex(tex);
-#endif
 
     // TODO: Avoid allocating a scratch render buffer and use mAuxillaryRT instead
     // TODO: even if it means performing extra render operations to apply the brushes, in rare cases where the paints can't all fit within an area that can be represented by the buffer
@@ -646,7 +640,7 @@ LLTerrainPaintQueue LLTerrainPaintMap::convertBrushQueueToPaintRGB(const LLViewe
     const F32 target_half_width = (F32)scratch_target.getWidth() / 2.0f;
     const F32 target_half_height = (F32)scratch_target.getHeight() / 2.0f;
 
-    LLVertexBuffer* buf = &get_paint_triangle_buffer();
+    LLVertexBuffer* buf = get_paint_triangle_buffer();
 
     // Update projection matrix and viewport
     // *NOTE: gl_state_for_2d also sets the modelview matrix. This will be overridden later.

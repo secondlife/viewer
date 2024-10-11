@@ -26,7 +26,7 @@
 
 #pragma once
 
-#include "llviewerprecompiledheaders.h"
+#include <memory>
 
 class LLTexture;
 class LLViewerRegion;
@@ -90,8 +90,8 @@ struct LLTerrainPaint
     U16 mWidthY;
     U8 mBitDepth;
     U8 mComponents;
-    const static U8 RGB = 3;
-    const static U8 RGBA = 4;
+    static constexpr U8 RGB = 3;
+    static constexpr U8 RGBA = 4;
     std::vector<U8> mData;
 
     // Asserts that this paint's start/width fit within the bounds of the

@@ -27,8 +27,6 @@
 #ifndef LL_LLVLCOMPOSITION_H
 #define LL_LLVLCOMPOSITION_H
 
-#include <memory>
-
 #include "llviewerlayer.h"
 #include "llviewershadermgr.h"
 #include "llviewertexture.h"
