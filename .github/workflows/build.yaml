@@ -140,7 +140,7 @@ jobs:
             libxcursor-dev libxfixes-dev libgstreamer1.0-dev \
             libgstreamer-plugins-base1.0-dev ninja-build libxft-dev \
             llvm mold libpipewire-0.3-dev \
-            libwayland-dev libdecor-0-dev
+            libwayland-client0 libdecor-0-dev
 
       - name: Install windows dependencies
         if: runner.os == 'Windows'
