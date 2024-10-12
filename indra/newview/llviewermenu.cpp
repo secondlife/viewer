@@ -88,6 +88,7 @@
 #include "lltoolface.h"
 #include "llhints.h"
 #include "llhudeffecttrail.h"
+#include "llhudeffectresetskeleton.h"
 #include "llhudmanager.h"
 #include "llimview.h"
 #include "llinventorybridge.h"
@@ -6620,7 +6621,17 @@ class LLAvatarResetSkeleton : public view_listener_t
     {
         if (LLVOAvatar* avatar = find_avatar_from_object(LLSelectMgr::getInstance()->getSelection()->getPrimaryObject()))
         {
-            avatar->resetSkeleton(false);
+            if(avatar->getID() == gAgentID)
+            {
+                LLHUDEffectResetSkeleton* effectp = (LLHUDEffectResetSkeleton*)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_RESET_SKELETON, true);
+                effectp->setSourceObject(gAgentAvatarp);
+                effectp->setTargetObject((LLViewerObject*)avatar);
+                effectp->setResetAnimations(false);
+            }
+            else
+            {
+                avatar->resetSkeleton(false);
+            }
         }
         return true;
     }
@@ -6644,7 +6655,17 @@ class LLAvatarResetSkeletonAndAnimations : public view_listener_t
     {
         if (LLVOAvatar* avatar = find_avatar_from_object(LLSelectMgr::getInstance()->getSelection()->getPrimaryObject()))
         {
-            avatar->resetSkeleton(true);
+            if(avatar->getID() == gAgentID)
+            {
+                LLHUDEffectResetSkeleton* effectp = (LLHUDEffectResetSkeleton*)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_RESET_SKELETON, true);
+                effectp->setSourceObject(gAgentAvatarp);
+                effectp->setTargetObject((LLViewerObject*)avatar);
+                effectp->setResetAnimations(true);
+            }
+            else
+            {
+                avatar->resetSkeleton(true);
+            }
         }
         return true;
     }
@@ -6672,11 +6693,24 @@ class LLAvatarResetSelfSkeletonAndAnimations : public view_listener_t
     {
         if (LLVOAvatar* avatar = find_avatar_from_object(LLSelectMgr::getInstance()->getSelection()->getPrimaryObject()))
         {
-            avatar->resetSkeleton(true);
+            if(avatar->getID() == gAgentID)
+            {
+                LLHUDEffectResetSkeleton* effectp = (LLHUDEffectResetSkeleton*)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_RESET_SKELETON, true);
+                effectp->setSourceObject(gAgentAvatarp);
+                effectp->setTargetObject((LLViewerObject*)avatar);
+                effectp->setResetAnimations(true);
+            }
+            else
+            {
+                avatar->resetSkeleton(true);
+            }
         }
         else
         {
-            gAgentAvatarp->resetSkeleton(true);
+            LLHUDEffectResetSkeleton* effectp = (LLHUDEffectResetSkeleton*)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_RESET_SKELETON, true);
+            effectp->setSourceObject(gAgentAvatarp);
+            effectp->setTargetObject(gAgentAvatarp);
+            effectp->setResetAnimations(true);
         }
         return true;
     }
