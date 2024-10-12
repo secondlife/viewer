@@ -83,6 +83,13 @@ public:
         FILTER_ONLY_THUMBNAILS
     };
 
+    enum EFilterFavorite
+    {
+        FILTER_INCLUDE_FAVORITES,
+        FILTER_EXCLUDE_FAVORITES,
+        FILTER_ONLY_FAVORITES
+    };
+
     enum ESortOrderType
     {
         SO_NAME = 0,                        // Sort inventory by name
@@ -149,6 +156,7 @@ public:
             Optional<PermissionMask>    permissions;
             Optional<EFilterCreatorType> creator_type;
             Optional<EFilterThumbnail> thumbnails;
+            Optional<EFilterFavorite> favorites;
 
             Params()
             :   types("filter_types", FILTERTYPE_OBJECT),
@@ -156,6 +164,7 @@ public:
                 wearable_types("wearable_types", 0xffffFFFFffffFFFFULL),
                 settings_types("settings_types", 0xffffFFFFffffFFFFULL),
                 thumbnails("thumbnails", FILTER_INCLUDE_THUMBNAILS),
+                favorites("favorites", FILTER_INCLUDE_FAVORITES),
                 category_types("category_types", 0xffffFFFFffffFFFFULL),
                 links("links", FILTERLINK_INCLUDE_LINKS),
                 search_visibility("search_visibility", 0xFFFFFFFF),
@@ -177,6 +186,7 @@ public:
                         mFilterWearableTypes,
                         mFilterSettingsTypes, // for _SETTINGS
                         mFilterThumbnails,
+                        mFilterFavorites,
                         mFilterLinks,
                         mFilterCategoryTypes; // For _CATEGORY
         LLUUID          mFilterUUID;          // for UUID
@@ -220,6 +230,7 @@ public:
     U64                 getFilterSettingsTypes() const;
     U64                 getSearchVisibilityTypes() const;
     U64                 getFilterThumbnails() const;
+    U64                 getFilterFavorites() const;
 
     bool                isFilterObjectTypesWith(LLInventoryType::EType t) const;
     void                setFilterObjectTypes(U64 types);
@@ -235,6 +246,7 @@ public:
     void                setFilterMarketplaceListingFolders(bool select_only_listing_folders);
     void                setFilterNoMarketplaceFolder();
     void                setFilterThumbnails(U64 filter_thumbnails);
+    void                setFilterFavorites(U64 filter_favorites);
     void                updateFilterTypes(U64 types, U64& current_types);
     void                setSearchType(ESearchType type);
     ESearchType         getSearchType() { return mSearchType; }
@@ -339,6 +351,7 @@ public:
     LLInventoryFilter& operator =(const LLInventoryFilter& other);
 
     bool checkAgainstFilterThumbnails(const LLUUID& object_id) const;
+    bool checkAgainstFilterFavorites(const LLUUID& object_id) const;
 
 private:
     bool                areDateLimitsSet() const;

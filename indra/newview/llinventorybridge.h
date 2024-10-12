@@ -86,6 +86,7 @@ public:
     //--------------------------------------------------------------------
     virtual const LLUUID& getUUID() const { return mUUID; }
     virtual const LLUUID& getThumbnailUUID() const { return LLUUID::null; }
+    virtual bool getIsFavorite() const { return false; }
     virtual void clearDisplayName() { mDisplayName.clear(); }
     virtual void restoreItem() {}
     virtual void restoreToWorld() {}
@@ -259,6 +260,7 @@ public:
 
     LLViewerInventoryItem* getItem() const;
     virtual const LLUUID& getThumbnailUUID() const;
+    virtual bool getIsFavorite() const;
 
 protected:
     bool confirmRemoveItem(const LLSD& notification, const LLSD& response);
@@ -301,6 +303,7 @@ public:
     virtual std::string getLabelSuffix() const;
     virtual LLFontGL::StyleFlags getLabelStyle() const;
     virtual const LLUUID& getThumbnailUUID() const;
+    virtual bool getIsFavorite() const;
 
     void setShowDescendantsCount(bool show_count) {mShowDescendantsCount = show_count;}
 
