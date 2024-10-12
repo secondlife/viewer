@@ -179,7 +179,7 @@ void LLTexturePreviewView::setImageFromAssetId(const LLUUID& idAsset)
 void LLTexturePreviewView::setImageFromItemId(const LLUUID& idItem)
 {
     const LLViewerInventoryItem* pItem = gInventory.getItem(idItem);
-    setImageFromAssetId( (pItem) ? pItem->getAssetUUID() : LLUUID::null );
+    setImageFromAssetId( (pItem) ? pItem->getAssetUUID() : LLUUID::null);
 }
 
 // ============================================================================

@@ -112,6 +112,7 @@ private:
     //--------------------------------------------------------------------
 public:
     void switchCameraPreset(ECameraPreset preset);
+    ECameraPreset getCameraPreset() const { return mCameraPreset; }
     /** Determines default camera offset depending on the current camera preset */
     LLVector3 getCameraOffsetInitial();
     /** Determines default focus offset depending on the current camera preset */

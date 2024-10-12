@@ -231,7 +231,8 @@ public:
     std::set<LLUUID>        mActiveOverrideMeshes;
     virtual void            onActiveOverrideMeshesChanged();
 
-    /*virtual*/ const LLUUID&   getID() const;
+/*virtual*/ const LLUUID&   getID() const;
+    /*virtual*/ std::string     getDebugName() const;
     /*virtual*/ void            addDebugText(const std::string& text);
     /*virtual*/ F32             getTimeDilation();
     /*virtual*/ void            getGround(const LLVector3 &inPos, LLVector3 &outPos, LLVector3 &outNorm);
@@ -329,16 +330,16 @@ public:
 
 
     // avatar render cost
-    U32             getVisualComplexity()           { return mVisualComplexity;             };
+    U32             getVisualComplexity()           { return mVisualComplexity; };
 
     // surface area calculation
-    F32             getAttachmentSurfaceArea()      { return mAttachmentSurfaceArea;        };
+    F32             getAttachmentSurfaceArea()      { return mAttachmentSurfaceArea; };
 
-    U32             getReportedVisualComplexity()                   { return mReportedVisualComplexity;             };  // Numbers as reported by the SL server
-    void            setReportedVisualComplexity(U32 value)          { mReportedVisualComplexity = value;            };
+    U32             getReportedVisualComplexity()                   { return mReportedVisualComplexity; };  // Numbers as reported by the SL server
+    void            setReportedVisualComplexity(U32 value)          { mReportedVisualComplexity = value; };
 
-    S32             getUpdatePeriod()               { return mUpdatePeriod;         };
-    const LLColor4 &  getMutedAVColor()             { return mMutedAVColor;         };
+    S32             getUpdatePeriod()               { return mUpdatePeriod; };
+    const LLColor4 &  getMutedAVColor()             { return mMutedAVColor; };
     static void     updateImpostorRendering(U32 newMaxNonImpostorsValue);
 
     void            idleUpdateBelowWater();

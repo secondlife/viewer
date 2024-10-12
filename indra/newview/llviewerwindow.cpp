@@ -66,6 +66,7 @@
 #include "llchatentry.h"
 #include "indra_constants.h"
 #include "llassetstorage.h"
+#include "lldate.h"
 #include "llerrorcontrol.h"
 #include "llfontgl.h"
 #include "llmousehandler.h"
@@ -4803,22 +4804,19 @@ void LLViewerWindow::saveImageLocal(LLImageFormatted *image, const snapshot_save
     }
 
     // Look for an unused file name
-    bool is_snapshot_name_loc_set = isSnapshotLocSet();
+    auto is_snapshot_name_loc_set = isSnapshotLocSet();
     std::string filepath;
-    S32 i = 1;
-    S32 err = 0;
-    std::string extension("." + image->getExtension());
+    auto i = 1;
+    auto err = 0;
+    auto extension("." + image->getExtension());
+    auto now = LLDate::now();
     do
     {
         filepath = sSnapshotDir;
         filepath += gDirUtilp->getDirDelimiter();
         filepath += sSnapshotBaseName;
-
-        if (is_snapshot_name_loc_set)
-        {
-            filepath += llformat("_%.3d",i);
-        }
-
+        filepath += now.toLocalDateString("_%Y-%m-%d_%H%M%S");
+        filepath += llformat("%.2d", i);
         filepath += extension;
 
         llstat stat_info;

@@ -576,7 +576,7 @@ private:
     // joint states to be animated
     //-------------------------------------------------------------------------
     LLPointer<LLJointState> mPelvisState;
-    LLCharacter*        mCharacter;
+    LLCharacter* mCharacter;
 };
 
 /**
@@ -777,11 +777,9 @@ std::string LLVOAvatar::avString() const
     {
         return " " + getFullname() + " ";
     }
-    else
-    {
-        std::string viz_string = LLVOAvatar::rezStatusToString(getRezzedStatus());
-        return " Avatar '" + getFullname() + "' " + viz_string + " ";
-    }
+
+    std::string status = LLVOAvatar::rezStatusToString(getRezzedStatus());
+    return " Avatar '" + getDebugName() + "' " + status + " ";
 }
 
 void LLVOAvatar::debugAvatarRezTime(std::string notification_name, std::string comment)
@@ -804,10 +802,10 @@ void LLVOAvatar::debugAvatarRezTime(std::string notification_name, std::string c
     if (gSavedSettings.getBOOL("DebugAvatarRezTime"))
     {
         LLSD args;
-        args["EXISTENCE"] = llformat("%d",(U32)mDebugExistenceTimer.getElapsedTimeF32());
-        args["TIME"] = llformat("%d",(U32)mRuthDebugTimer.getElapsedTimeF32());
+        args["EXISTENCE"] = llformat("%d", (U32)mDebugExistenceTimer.getElapsedTimeF32());
+        args["TIME"] = llformat("%d", (U32)mRuthDebugTimer.getElapsedTimeF32());
         args["NAME"] = getFullname();
-        LLNotificationsUtil::add(notification_name,args);
+        LLNotificationsUtil::add(notification_name, args);
     }
 }
 
@@ -820,14 +818,14 @@ LLVOAvatar::~LLVOAvatar()
 
     if (!mFullyLoaded)
     {
-        debugAvatarRezTime("AvatarRezLeftCloudNotification","left after ruth seconds as cloud");
+        debugAvatarRezTime("AvatarRezLeftCloudNotification", "left after ruth seconds as cloud");
     }
     else
     {
-        debugAvatarRezTime("AvatarRezLeftNotification","left sometime after declouding");
+        debugAvatarRezTime("AvatarRezLeftNotification", "left sometime after declouding");
     }
 
-    if(mTuned)
+    if (mTuned)
     {
         LLPerfStats::tunedAvatars--;
         mTuned = false;
@@ -2827,11 +2825,11 @@ void LLVOAvatar::idleUpdate(LLAgent &agent, const F64 &time)
     S32 compl_upd_freq = 20;
     if (isControlAvatar())
     {
-        // animeshes do not (or won't) have impostors nor change outfis,
+        // animeshes do not (or won't) have impostors nor change outfis,F
         // no need for high frequency
         compl_upd_freq = 100;
     }
-    else if (mLastRezzedStatus <= 0) //cloud or  init
+    else if (mLastRezzedStatus <= 0) // cloud or initial
     {
         compl_upd_freq = 60;
     }
@@ -2839,11 +2837,11 @@ void LLVOAvatar::idleUpdate(LLAgent &agent, const F64 &time)
     {
         compl_upd_freq = 5;
     }
-    else if (mLastRezzedStatus == 1) //'grey', not fully loaded
+    else if (mLastRezzedStatus == 1) // 'gray', not fully loaded
     {
         compl_upd_freq = 40;
     }
-    else if (isInMuteList()) //cheap, buffers value from search
+    else if (isInMuteList()) // cheap, buffers value from search
     {
         compl_upd_freq = 100;
     }
@@ -2965,7 +2963,7 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
     LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
     if (LLVOAvatar::sJointDebug)
     {
-        LL_INFOS() << getFullname() << ": joint touches: " << LLJoint::sNumTouches << " updates: " << LLJoint::sNumUpdates << LL_ENDL;
+        LL_INFOS() << getDebugName() << ": joint touches: " << LLJoint::sNumTouches << " updates: " << LLJoint::sNumUpdates << LL_ENDL;
     }
 
     LLJoint::sNumUpdates = 0;
@@ -6177,8 +6175,11 @@ void LLVOAvatar::resetAnimations()
     flushAllMotions();
 }
 
-// Override selectively based on avatar sex and whether we're using new
-// animations.
+//-----------------------------------------------------------------------------
+// remapMotionID()
+// Override selectively based on avatar sex and whether we're using new animations.
+//-----------------------------------------------------------------------------
+// virtual
 LLUUID LLVOAvatar::remapMotionID(const LLUUID& id)
 {
     static LLCachedControl<bool> use_new_walk_run(gSavedSettings, "UseNewWalkRun");
@@ -6228,7 +6229,6 @@ LLUUID LLVOAvatar::remapMotionID(const LLUUID& id)
     }
 
     return result;
-
 }
 
 //-----------------------------------------------------------------------------
@@ -6297,6 +6297,7 @@ void LLVOAvatar::stopMotionFromSource(const LLUUID& source_id)
 //-----------------------------------------------------------------------------
 // addDebugText()
 //-----------------------------------------------------------------------------
+// virtual
 void LLVOAvatar::addDebugText(const std::string& text)
 {
     mDebugText.append(1, '\n');
@@ -6304,8 +6305,22 @@ void LLVOAvatar::addDebugText(const std::string& text)
 }
 
 //-----------------------------------------------------------------------------
+// getDebugName()
+//-----------------------------------------------------------------------------
+// virtual
+std::string LLVOAvatar::getDebugName() const
+{
+#if LL_RELEASE_WITH_DEBUG_INFO
+    return getFullname();
+#else
+    return getID().asString();
+#endif // LL_RELEASE_WITH_DEBUG_INFO
+}
+
+//-----------------------------------------------------------------------------
 // getID()
 //-----------------------------------------------------------------------------
+// virtual
 const LLUUID& LLVOAvatar::getID() const
 {
     return mID;
@@ -6315,6 +6330,7 @@ const LLUUID& LLVOAvatar::getID() const
 // getJoint()
 //-----------------------------------------------------------------------------
 // RN: avatar joints are multi-rooted to include screen-based attachments
+// virtual
 LLJoint *LLVOAvatar::getJoint( const std::string &name )
 {
     joint_map_t::iterator iter = mJointMap.find(name);
@@ -6583,11 +6599,11 @@ void LLVOAvatar::updateAttachmentOverrides()
             }
         }
         pelvis_fixups = mPelvisFixups;
-        //dumpArchetypeXML(getFullname() + "_paranoid_updated");
+        //dumpArchetypeXML(getDebugName() + "_paranoid_updated");
 
         // Rebuild and compare
         rebuildAttachmentOverrides();
-        //dumpArchetypeXML(getFullname() + "_paranoid_rebuilt");
+        //dumpArchetypeXML(getDebugName() + "_paranoid_rebuilt");
         bool mismatched = false;
         for (S32 joint_num = 0; joint_num < LL_CHARACTER_MAX_ANIMATED_JOINTS; joint_num++)
         {
@@ -6816,22 +6832,22 @@ void LLVOAvatar::showAttachmentOverrides(bool verbose) const
     {
         std::stringstream ss;
         std::copy(pos_names.begin(), pos_names.end(), std::ostream_iterator<std::string>(ss, ","));
-        LL_INFOS() << getFullname() << " attachment positions defined for joints: " << ss.str() << "\n" << LL_ENDL;
+        LL_INFOS() << avString() << " attachment positions defined for joints: " << ss.str() << "\n" << LL_ENDL;
     }
     else
     {
-        LL_DEBUGS("Avatar") << getFullname() << " no attachment positions defined for any joints" << "\n" << LL_ENDL;
+        LL_DEBUGS("Avatar") << avString() << " no attachment positions defined for any joints" << "\n" << LL_ENDL;
     }
 
     if (scale_names.size())
     {
         std::stringstream ss;
         std::copy(scale_names.begin(), scale_names.end(), std::ostream_iterator<std::string>(ss, ","));
-        LL_INFOS() << getFullname() << " attachment scales defined for joints: " << ss.str() << "\n" << LL_ENDL;
+        LL_INFOS() << getDebugName() << " attachment scales defined for joints: " << ss.str() << "\n" << LL_ENDL;
     }
     else
     {
-        LL_INFOS() << getFullname() << " no attachment scales defined for any joints" << "\n" << LL_ENDL;
+        LL_INFOS() << getDebugName() << " no attachment scales defined for any joints" << "\n" << LL_ENDL;
     }
 
     if (!verbose)
@@ -8390,7 +8406,7 @@ bool LLVOAvatar::updateIsFullyLoaded()
                    // avatars are more time-sensitive than textures and can't wait that long.
                    || (mLoadedCallbackTextures < mCallbackTextureList.size() && mLastTexCallbackAddedTime.getElapsedTimeF32() < MAX_TEXTURE_WAIT_TIME_SEC)
                    || !mPendingAttachment.empty()
-                   || (rez_status < 3 && !isFullyBaked())
+                   || (rez_status < 4 && !isFullyBaked())
                    || hasPendingAttachedMeshes()
                   );
 
@@ -8451,21 +8467,22 @@ void LLVOAvatar::updateRuthTimer(bool loading)
 
 bool LLVOAvatar::processFullyLoadedChange(bool loading)
 {
-    // We wait a little bit before giving the 'all clear', to let things to
-    // settle down: models to snap into place, textures to get first packets,
-    // LODs to load.
-    const F32 LOADED_DELAY = 1.f;
-
     if (loading)
     {
         mFullyLoadedTimer.reset();
+        mFullyLoaded = false;
     }
-
-    if (mFirstFullyVisible)
+    else if (!mFullyLoaded)
     {
-        F32 first_use_delay = FIRST_APPEARANCE_CLOUD_MIN_DELAY;
-        if (!isSelf() && loading)
+        // We wait a little bit before giving the 'all clear', to let things to settle down:
+        // models to snap into place, textures to get first packets, LODs to load.
+        const F32 LOADED_DELAY = 1.f;
+
+        if (mFirstFullyVisible)
         {
+            F32 first_use_delay = FIRST_APPEARANCE_CLOUD_MIN_DELAY;
+            if (!isSelf() && loading)
+            {
                 // Note that textures can causes 60s delay on thier own
                 // so this delay might end up on top of textures' delay
                 first_use_delay = llclamp(
@@ -8479,12 +8496,13 @@ bool LLVOAvatar::processFullyLoadedChange(bool loading)
                     // let them stay cloud longer
                     first_use_delay *= FIRST_APPEARANCE_CLOUD_IMPOSTOR_MODIFIER;
                 }
+            }
+            mFullyLoaded = (mFullyLoadedTimer.getElapsedTimeF32() > first_use_delay);
         }
-        mFullyLoaded = (mFullyLoadedTimer.getElapsedTimeF32() > first_use_delay);
-    }
-    else
-    {
-        mFullyLoaded = (mFullyLoadedTimer.getElapsedTimeF32() > LOADED_DELAY);
+        else
+        {
+            mFullyLoaded = (mFullyLoadedTimer.getElapsedTimeF32() > LOADED_DELAY);
+        }
     }
 
     if (!mPreviousFullyLoaded && !loading && mFullyLoaded)
@@ -9406,12 +9424,12 @@ void dump_visual_param(apr_file_t* file, LLVisualParam* viewer_param, F32 value)
 void LLVOAvatar::dumpAppearanceMsgParams( const std::string& dump_prefix,
     const LLAppearanceMessageContents& contents)
 {
-    std::string outfilename = get_sequential_numbered_file_name(dump_prefix,".xml");
+    std::string outfilename = get_sequential_numbered_file_name(dump_prefix, ".xml");
     const std::vector<F32>& params_for_dump = contents.mParamWeights;
     const LLTEContents& tec = contents.mTEContents;
 
     LLAPRFile outfile;
-    std::string fullpath = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,outfilename);
+    std::string fullpath = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, outfilename);
     outfile.open(fullpath, LL_APR_WB );
     apr_file_t* file = outfile.getFileHandle();
     if (!file)
@@ -9624,7 +9642,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
     static LLCachedControl<bool> enable_verbose_dumps(gSavedSettings, "DebugAvatarAppearanceMessage");
     static LLCachedControl<bool> block_avatar_appearance_messages(gSavedSettings, "BlockAvatarAppearanceMessages");
 
-    std::string dump_prefix = getFullname() + "_" + (isSelf()?"s":"o") + "_";
+    std::string dump_prefix = getDebugName() + (isSelf() ? "_s_" : "_o_");
     if (block_avatar_appearance_messages)
     {
         LL_WARNS() << "Blocking AvatarAppearance message" << LL_ENDL;
@@ -10258,7 +10276,7 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
     std::string outprefix(prefix);
     if (outprefix.empty())
     {
-        outprefix = getFullname() + (isSelf()?"_s":"_o");
+        outprefix = getDebugName() + (isSelf()?"_s":"_o");
     }
     if (outprefix.empty())
     {
@@ -10754,7 +10772,7 @@ void LLVOAvatar::updateRiggingInfo()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
 
-    LL_DEBUGS("RigSpammish") << getFullname() << " updating rig tab" << LL_ENDL;
+    LL_DEBUGS("RigSpammish") << getDebugName() << " updating rig tab" << LL_ENDL;
 
     // use a local static for scratch space to avoid reallocation here
     static std::vector<LLVOVolume*> volumes;
@@ -10798,7 +10816,7 @@ void LLVOAvatar::updateRiggingInfo()
 
     //LL_INFOS() << "done update rig count is " << countRigInfoTab(mJointRiggingInfoTab) << LL_ENDL;
     // Remove debug only stuff on hot path
-    // LL_DEBUGS("RigSpammish") << getFullname() << " after update rig tab:" << LL_ENDL;
+    // LL_DEBUGS("RigSpammish") << getDebugName() << " after update rig tab:" << LL_ENDL;
     // S32 joint_count, box_count;
     // showRigInfoTabExtents(this, mJointRiggingInfoTab, joint_count, box_count);
     // LL_DEBUGS("RigSpammish") << "uses " << joint_count << " joints " << " nonzero boxes: " << box_count << LL_ENDL;

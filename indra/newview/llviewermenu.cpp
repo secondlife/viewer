@@ -1879,7 +1879,6 @@ class LLAdvancedAppearanceToXML : public view_listener_t
 {
     bool handleEvent(const LLSD& userdata)
     {
-        std::string emptyname;
         LLViewerObject *obj = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
         LLVOAvatar *avatar = NULL;
         if (obj)
@@ -1906,7 +1905,7 @@ class LLAdvancedAppearanceToXML : public view_listener_t
         }
         if (avatar)
         {
-            avatar->dumpArchetypeXML(emptyname);
+            avatar->dumpArchetypeXML(LLStringUtil::null);
         }
         return true;
     }

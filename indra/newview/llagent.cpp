@@ -1448,14 +1448,22 @@ LLVector3 LLAgent::getReferenceUpVector()
     return up_vector;
 }
 
-
 // Radians, positive is downward toward ground
 //-----------------------------------------------------------------------------
 // pitch()
 //-----------------------------------------------------------------------------
 void LLAgent::pitch(F32 angle)
 {
-    // don't let user pitch if pointed almost all the way down or up
+    if (fabs(angle) <= 1e-4)
+        return;
+
+    LLCoordFrame newCoordFrame(mFrameAgent);
+    newCoordFrame.pitch(angle);
+
+    // don't let user pitch if rotated 180 degree around the vertical axis
+    if ((newCoordFrame.getXAxis()[VX] * mFrameAgent.getXAxis()[VX] < 0) &&
+        (newCoordFrame.getXAxis()[VY] * mFrameAgent.getXAxis()[VY] < 0))
+        return;
 
     // A dot B = mag(A) * mag(B) * cos(angle between A and B)
     // so... cos(angle between A and B) = A dot B / mag(A) / mag(B)

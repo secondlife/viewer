@@ -56,7 +56,7 @@ namespace LL
          * ThreadPool listens for application shutdown events. Call close() to
          * shut down this ThreadPool early.
          */
-        virtual void close();
+        void close();
 
         std::string getName() const { return mName; }
         size_t getWidth() const { return mThreads.size(); }
