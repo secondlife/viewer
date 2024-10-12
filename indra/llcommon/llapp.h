@@ -216,13 +216,6 @@ public:
     // soon as the application status changes away from APP_STATUS_RUNNING
     // (isRunning()).
     //
-    // sleep() returns true if it sleeps undisturbed for the entire specified
-    // duration. The idea is that you can code 'while sleep(duration) ...',
-    // which will break the loop once shutdown begins.
-    //
-    // Since any time-based LLUnit should be implicitly convertible to
-    // F32Milliseconds, accept that specific type as a proxy.
-    static bool sleep(F32Milliseconds duration);
     // Allow any duration defined in terms of <chrono>.
     // One can imagine a wonderfully general bidirectional conversion system
     // between any type derived from LLUnits::LLUnit<T, LLUnits::Seconds> and
@@ -262,7 +255,7 @@ public:
     void setDebugFileNames(const std::string &path);
 
     // Return the Google Breakpad minidump filename after a crash.
-    char *getMiniDumpFilename() { return mMinidumpPath; }
+    char* getMiniDumpFilename() { return mMinidumpPath; }
     std::string* getStaticDebugFile() { return &mStaticDebugFileName; }
     std::string* getDynamicDebugFile() { return &mDynamicDebugFileName; }
 
@@ -339,8 +332,12 @@ private:
     friend void default_unix_signal_handler(int signum, siginfo_t *info, void *);
 #endif
 
-public:
-    static bool sLogInSignal;
+private:
+#ifdef LL_RELEASE_FOR_DOWNLOAD
+    static constexpr bool sLogInSignal = false;
+#else
+    static constexpr bool sLogInSignal = true;
+#endif
 };
 
 #endif // LL_LLAPP_H

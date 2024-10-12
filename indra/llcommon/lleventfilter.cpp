@@ -33,20 +33,19 @@
 // STL headers
 // std headers
 // external library headers
-#include <boost/bind.hpp>
 // other Linden headers
+#include "lldate.h"
 #include "llerror.h"                // LL_ERRS
+#include "lleventtimer.h"
 #include "llsdutil.h"               // llsd_matches()
 #include "stringize.h"
-#include "lleventtimer.h"
-#include "lldate.h"
 
 /*****************************************************************************
 *   LLEventFilter
 *****************************************************************************/
 LLEventFilter::LLEventFilter(LLEventPump& source, const std::string& name, bool tweak):
     LLEventStream(name, tweak),
-    mSource(source.listen(getName(), boost::bind(&LLEventFilter::post, this, _1)))
+    mSource(source.listen(getName(), [this](const LLSD& event){ return post(event); }))
 {
 }
 
@@ -74,136 +73,52 @@ bool LLEventMatching::post(const LLSD& event)
 }
 
 /*****************************************************************************
-*   LLEventTimeoutBase
+*   LLEventTimeout
 *****************************************************************************/
-LLEventTimeoutBase::LLEventTimeoutBase():
+LLEventTimeout::LLEventTimeout():
     LLEventFilter("timeout")
 {
 }
 
-LLEventTimeoutBase::LLEventTimeoutBase(LLEventPump& source):
+LLEventTimeout::LLEventTimeout(LLEventPump& source):
     LLEventFilter(source, "timeout")
 {
 }
 
-void LLEventTimeoutBase::actionAfter(F32 seconds, const Action& action)
+void LLEventTimeout::actionAfter(F32 seconds, const Action& action)
 {
-    setCountdown(seconds);
-    mAction = action;
-    if (! mMainloop.connected())
-    {
-        LLEventPump& mainloop(LLEventPumps::instance().obtain("mainloop"));
-        mMainloop = mainloop.listen(getName(), boost::bind(&LLEventTimeoutBase::tick, this, _1));
-    }
+    mTimer = LL::Timers::instance().scheduleAfter(action, seconds);
 }
 
-class ErrorAfter
+void LLEventTimeout::errorAfter(F32 seconds, const std::string& message)
 {
-public:
-    ErrorAfter(const std::string& message): mMessage(message) {}
-
-    void operator()()
-    {
-        LL_ERRS("LLEventTimeout") << mMessage << LL_ENDL;
-    }
-
-private:
-    std::string mMessage;
-};
-
-void LLEventTimeoutBase::errorAfter(F32 seconds, const std::string& message)
-{
-    actionAfter(seconds, ErrorAfter(message));
+    actionAfter(
+        seconds,
+        [message=message]
+        {
+            LL_ERRS("LLEventTimeout") << message << LL_ENDL;
+        });
 }
 
-class EventAfter
+void LLEventTimeout::eventAfter(F32 seconds, const LLSD& event)
 {
-public:
-    EventAfter(LLEventPump& pump, const LLSD& event):
-        mPump(pump),
-        mEvent(event)
-    {}
-
-    void operator()()
-    {
-        mPump.post(mEvent);
-    }
-
-private:
-    LLEventPump& mPump;
-    LLSD mEvent;
-};
-
-void LLEventTimeoutBase::eventAfter(F32 seconds, const LLSD& event)
-{
-    actionAfter(seconds, EventAfter(*this, event));
+    actionAfter(seconds, [this, event]{ post(event); });
 }
 
-bool LLEventTimeoutBase::post(const LLSD& event)
+bool LLEventTimeout::post(const LLSD& event)
 {
     cancel();
     return LLEventStream::post(event);
 }
 
-void LLEventTimeoutBase::cancel()
+void LLEventTimeout::cancel()
 {
-    mMainloop.disconnect();
+    mTimer.cancel();
 }
 
-bool LLEventTimeoutBase::tick(const LLSD&)
+bool LLEventTimeout::running() const
 {
-    if (countdownElapsed())
-    {
-        cancel();
-        mAction();
-    }
-    return false;                   // show event to other listeners
-}
-
-bool LLEventTimeoutBase::running() const
-{
-    return mMainloop.connected();
-}
-
-/*****************************************************************************
-*   LLEventTimeout
-*****************************************************************************/
-LLEventTimeout::LLEventTimeout() {}
-
-LLEventTimeout::LLEventTimeout(LLEventPump& source):
-    LLEventTimeoutBase(source)
-{
-}
-
-void LLEventTimeout::setCountdown(F32 seconds)
-{
-    mTimer.setTimerExpirySec(seconds);
-}
-
-bool LLEventTimeout::countdownElapsed() const
-{
-    return mTimer.hasExpired();
-}
-
-LLEventTimer* LLEventTimeout::post_every(F32 period, const std::string& pump, const LLSD& data)
-{
-    return LLEventTimer::run_every(
-        period,
-        [pump, data](){ LLEventPumps::instance().obtain(pump).post(data); });
-}
-
-LLEventTimer* LLEventTimeout::post_at(const LLDate& time, const std::string& pump, const LLSD& data)
-{
-    return LLEventTimer::run_at(
-        time,
-        [pump, data](){ LLEventPumps::instance().obtain(pump).post(data); });
-}
-
-LLEventTimer* LLEventTimeout::post_after(F32 interval, const std::string& pump, const LLSD& data)
-{
-    return LLEventTimer::run_after(
-        interval,
-        [pump, data](){ LLEventPumps::instance().obtain(pump).post(data); });
+    return LL::Timers::instance().isRunning(mTimer);
 }
 
 /*****************************************************************************
@@ -246,21 +161,21 @@ void LLEventBatch::setSize(std::size_t size)
 }
 
 /*****************************************************************************
-*   LLEventThrottleBase
+*   LLEventThrottle
 *****************************************************************************/
-LLEventThrottleBase::LLEventThrottleBase(F32 interval):
+LLEventThrottle::LLEventThrottle(F32 interval):
     LLEventFilter("throttle"),
     mInterval(interval),
     mPosts(0)
 {}
 
-LLEventThrottleBase::LLEventThrottleBase(LLEventPump& source, F32 interval):
+LLEventThrottle::LLEventThrottle(LLEventPump& source, F32 interval):
     LLEventFilter(source, "throttle"),
     mInterval(interval),
     mPosts(0)
 {}
 
-void LLEventThrottleBase::flush()
+void LLEventThrottle::flush()
 {
     // flush() is a no-op unless there's something pending.
     // Don't test mPending because there's no requirement that the consumer
@@ -281,12 +196,12 @@ void LLEventThrottleBase::flush()
     }
 }
 
-LLSD LLEventThrottleBase::pending() const
+LLSD LLEventThrottle::pending() const
 {
     return mPending;
 }
 
-bool LLEventThrottleBase::post(const LLSD& event)
+bool LLEventThrottle::post(const LLSD& event)
 {
     // Always capture most recent post() event data. If caller wants to
     // aggregate multiple events, let them retrieve pending() and modify
@@ -311,13 +226,13 @@ bool LLEventThrottleBase::post(const LLSD& event)
             // timeRemaining tells us how much longer it will be until
             // mInterval seconds since the last flush() call. At that time,
             // flush() deferred events.
-            alarmActionAfter(timeRemaining, boost::bind(&LLEventThrottleBase::flush, this));
+            alarmActionAfter(timeRemaining, [this]{ flush(); });
         }
     }
     return false;
 }
 
-void LLEventThrottleBase::setInterval(F32 interval)
+void LLEventThrottle::setInterval(F32 interval)
 {
     F32 oldInterval = mInterval;
     mInterval = interval;
@@ -349,41 +264,30 @@ void LLEventThrottleBase::setInterval(F32 interval)
             // and if mAlarm is running, reset that too
             if (alarmRunning())
             {
-                alarmActionAfter(timeRemaining, boost::bind(&LLEventThrottleBase::flush, this));
+                alarmActionAfter(timeRemaining, [this](){ flush(); });
             }
         }
     }
 }
 
-F32 LLEventThrottleBase::getDelay() const
+F32 LLEventThrottle::getDelay() const
 {
     return timerGetRemaining();
 }
 
-/*****************************************************************************
-*   LLEventThrottle implementation
-*****************************************************************************/
-LLEventThrottle::LLEventThrottle(F32 interval):
-    LLEventThrottleBase(interval)
-{}
-
-LLEventThrottle::LLEventThrottle(LLEventPump& source, F32 interval):
-    LLEventThrottleBase(source, interval)
-{}
-
-void LLEventThrottle::alarmActionAfter(F32 interval, const LLEventTimeoutBase::Action& action)
+void LLEventThrottle::alarmActionAfter(F32 interval, const LLEventTimeout::Action& action)
 {
-    mAlarm.actionAfter(interval, action);
+    mAlarm = LL::Timers::instance().scheduleAfter(action, interval);
 }
 
 bool LLEventThrottle::alarmRunning() const
 {
-    return mAlarm.running();
+    return LL::Timers::instance().isRunning(mAlarm);
 }
 
 void LLEventThrottle::alarmCancel()
 {
-    return mAlarm.cancel();
+    LL::Timers::instance().cancel(mAlarm);
 }
 
 void LLEventThrottle::timerSet(F32 interval)
@@ -461,21 +365,22 @@ bool LLEventLogProxy::post(const LLSD& event) /* override */
 }
 
 LLBoundListener LLEventLogProxy::listen_impl(const std::string& name,
-                                             const LLEventListener& target,
+                                             const LLAwareListener& target,
                                              const NameList& after,
                                              const NameList& before)
 {
     LL_DEBUGS("LogProxy") << "LLEventLogProxy('" << getName() << "').listen('"
                           << name << "')" << LL_ENDL;
     return mPump.listen(name,
-                        [this, name, target](const LLSD& event)->bool
-                        { return listener(name, target, event); },
+                        [this, name, target](const LLBoundListener& conn, const LLSD& event)
+                        { return listener(conn, name, target, event); },
                         after,
                         before);
 }
 
-bool LLEventLogProxy::listener(const std::string& name,
-                               const LLEventListener& target,
+bool LLEventLogProxy::listener(const LLBoundListener& conn,
+                               const std::string& name,
+                               const LLAwareListener& target,
                                const LLSD& event) const
 {
     auto eventminus = event;
@@ -487,7 +392,7 @@ bool LLEventLogProxy::listener(const std::string& name,
     }
     std::string hdr{STRINGIZE(getName() << " to " << name << " " << counter)};
     LL_INFOS("LogProxy") << hdr << ": " << eventminus << LL_ENDL;
-    bool result = target(eventminus);
+    bool result = target(conn, eventminus);
     LL_INFOS("LogProxy") << hdr << " => " << result << LL_ENDL;
     return result;
 }

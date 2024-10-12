@@ -39,6 +39,7 @@
 #include "llchicletbar.h"
 #include "lldraghandle.h"
 #include "llemojidictionary.h"
+#include "llemojihelper.h"
 #include "llfloaterreg.h"
 #include "llfloateremojipicker.h"
 #include "llfloaterimsession.h"
@@ -82,7 +83,7 @@ LLFloaterIMSessionTab::LLFloaterIMSessionTab(const LLSD& session_id)
     mSession = LLIMModel::getInstance()->findIMSession(mSessionID);
 
     mCommitCallbackRegistrar.add("IMSession.Menu.Action",
-            boost::bind(&LLFloaterIMSessionTab::onIMSessionMenuItemClicked,  this, _2));
+            { boost::bind(&LLFloaterIMSessionTab::onIMSessionMenuItemClicked,  this, _2) });
     mEnableCallbackRegistrar.add("IMSession.Menu.CompactExpandedModes.CheckItem",
             boost::bind(&LLFloaterIMSessionTab::onIMCompactExpandedMenuItemCheck, this, _2));
     mEnableCallbackRegistrar.add("IMSession.Menu.ShowModes.CheckItem",
@@ -93,8 +94,8 @@ LLFloaterIMSessionTab::LLFloaterIMSessionTab(const LLSD& session_id)
     // Right click menu handling
     mEnableCallbackRegistrar.add("Avatar.CheckItem",  boost::bind(&LLFloaterIMSessionTab::checkContextMenuItem, this, _2));
     mEnableCallbackRegistrar.add("Avatar.EnableItem", boost::bind(&LLFloaterIMSessionTab::enableContextMenuItem, this, _2));
-    mCommitCallbackRegistrar.add("Avatar.DoToSelected", boost::bind(&LLFloaterIMSessionTab::doToSelected, this, _2));
-    mCommitCallbackRegistrar.add("Group.DoToSelected", boost::bind(&cb_group_do_nothing));
+    mCommitCallbackRegistrar.add("Avatar.DoToSelected", { boost::bind(&LLFloaterIMSessionTab::doToSelected, this, _2) });
+    mCommitCallbackRegistrar.add("Group.DoToSelected", { boost::bind(&cb_group_do_nothing) });
 
     mMinFloaterHeight = getMinHeight();
 }
@@ -298,6 +299,8 @@ bool LLFloaterIMSessionTab::postBuild()
 
     mEmojiPickerShowBtn = getChild<LLButton>("emoji_picker_show_btn");
     mEmojiPickerShowBtn->setClickedCallback([this](LLUICtrl*, const LLSD&) { onEmojiPickerShowBtnClicked(); });
+    mEmojiPickerShowBtn->setMouseDownCallback([this](LLUICtrl*, const LLSD&) { onEmojiPickerShowBtnDown(); });
+    mEmojiCloseConn = LLEmojiHelper::instance().setCloseCallback([this](LLUICtrl*, const LLSD&) { onEmojiPickerClosed(); });
 
     mGearBtn = getChild<LLButton>("gear_btn");
     mAddBtn = getChild<LLButton>("add_btn");
@@ -450,7 +453,8 @@ void LLFloaterIMSessionTab::enableDisableCallBtn()
         else
         {
             // We allow to start call from this state only
-            if (mSession->mVoiceChannel->getState() == LLVoiceChannel::STATE_NO_CHANNEL_INFO &&
+            if (mSession->mVoiceChannel  &&
+                !mSession->mVoiceChannel->callStarted() &&
                 LLVoiceClient::instanceExists())
             {
                 LLVoiceClient* client = LLVoiceClient::getInstance();
@@ -494,10 +498,7 @@ void LLFloaterIMSessionTab::onCallButtonClicked()
     }
     else
     {
-        LLVoiceChannel::EState channel_state = mSession && mSession->mVoiceChannel ?
-            mSession->mVoiceChannel->getState() : LLVoiceChannel::STATE_NO_CHANNEL_INFO;
-        // We allow to start call from this state only
-        if (channel_state == LLVoiceChannel::STATE_NO_CHANNEL_INFO)
+        if (mSession->mVoiceChannel && !mSession->mVoiceChannel->callStarted())
         {
             gIMMgr->startCall(mSessionID);
         }
@@ -528,8 +529,43 @@ void LLFloaterIMSessionTab::onEmojiRecentPanelToggleBtnClicked()
 
 void LLFloaterIMSessionTab::onEmojiPickerShowBtnClicked()
 {
-    mInputEditor->setFocus(true);
-    mInputEditor->showEmojiHelper();
+    if (!mEmojiPickerShowBtn->getToggleState())
+    {
+        mInputEditor->hideEmojiHelper();
+        mInputEditor->setFocus(true);
+        mInputEditor->showEmojiHelper();
+        mEmojiPickerShowBtn->setToggleState(true); // in case hideEmojiHelper closed a visible instance
+    }
+    else
+    {
+        mInputEditor->hideEmojiHelper();
+        mEmojiPickerShowBtn->setToggleState(false);
+    }
+}
+
+void LLFloaterIMSessionTab::onEmojiPickerShowBtnDown()
+{
+    if (mEmojiHelperLastCallbackFrame == LLFrameTimer::getFrameCount())
+    {
+        // Helper gets closed by focus lost event on Down before before onEmojiPickerShowBtnDown
+        // triggers.
+        // If this condition is true, user pressed button and it was 'toggled' during press,
+        // restore 'toggled' state so that button will not reopen helper.
+        mEmojiPickerShowBtn->setToggleState(true);
+    }
+}
+
+void LLFloaterIMSessionTab::onEmojiPickerClosed()
+{
+    if (mEmojiPickerShowBtn->getToggleState())
+    {
+        mEmojiPickerShowBtn->setToggleState(false);
+        // Helper gets closed by focus lost event on Down before onEmojiPickerShowBtnDown
+        // triggers. If mEmojiHelperLastCallbackFrame is set and matches Down, means close
+        // was triggered by user's press.
+        // A bit hacky, but I can't think of a better way to handle this without rewriting helper.
+        mEmojiHelperLastCallbackFrame = LLFrameTimer::getFrameCount();
+    }
 }
 
 void LLFloaterIMSessionTab::initEmojiRecentPanel()
@@ -593,8 +629,19 @@ void LLFloaterIMSessionTab::deleteAllChildren()
 
 std::string LLFloaterIMSessionTab::appendTime()
 {
-    std::string timeStr = "[" + LLTrans::getString("TimeHour") + "]:"
-                          "[" + LLTrans::getString("TimeMin") + "]";
+    std::string timeStr;
+    static bool use_24h = gSavedSettings.getBOOL("Use24HourClock");
+    if (use_24h)
+    {
+        timeStr = "[" + LLTrans::getString("TimeHour") + "]:"
+            "[" + LLTrans::getString("TimeMin") + "]";
+    }
+    else
+    {
+        timeStr = "[" + LLTrans::getString("TimeHour12") + "]:"
+            "[" + LLTrans::getString("TimeMin") + "] ["
+            + LLTrans::getString("TimeAMPM") + "]";
+    }
 
     LLSD substitution;
     substitution["datetime"] = (S32)time_corrected();

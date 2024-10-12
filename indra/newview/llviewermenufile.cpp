@@ -906,16 +906,22 @@ class LLFileEnableCloseAllWindows : public view_listener_t
     }
 };
 
+void close_all_windows()
+{
+    bool app_quitting = false;
+    gFloaterView->closeAllChildren(app_quitting);
+    LLFloaterSnapshot *floater_snapshot = LLFloaterSnapshot::findInstance();
+    if (floater_snapshot)
+        floater_snapshot->closeFloater(app_quitting);
+    if (gMenuHolder)
+        gMenuHolder->hideMenus();
+}
+
 class LLFileCloseAllWindows : public view_listener_t
 {
     bool handleEvent(const LLSD& userdata)
     {
-        bool app_quitting = false;
-        gFloaterView->closeAllChildren(app_quitting);
-        LLFloaterSnapshot* floater_snapshot = LLFloaterSnapshot::findInstance();
-        if (floater_snapshot)
-            floater_snapshot->closeFloater(app_quitting);
-        if (gMenuHolder) gMenuHolder->hideMenus();
+        close_all_windows();
         return true;
     }
 };
@@ -990,7 +996,7 @@ class LLFileQuit : public view_listener_t
 };
 
 
-void handle_compress_image(void*)
+void handle_compress_image()
 {
     LLFilePicker& picker = LLFilePicker::instance();
     if (picker.getMultipleOpenFiles(LLFilePicker::FFLOAD_IMAGE))
@@ -1040,7 +1046,7 @@ size_t get_file_size(std::string &filename)
     return file_length;
 }
 
-void handle_compress_file_test(void*)
+void handle_compress_file_test()
 {
     LLFilePicker& picker = LLFilePicker::instance();
     if (picker.getOpenFile())

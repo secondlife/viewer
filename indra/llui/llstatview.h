@@ -29,7 +29,6 @@
 
 #include "llstatbar.h"
 #include "llcontainerview.h"
-#include <vector>
 
 class LLStatBar;
 

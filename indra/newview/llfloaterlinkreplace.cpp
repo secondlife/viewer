@@ -45,7 +45,7 @@ LLFloaterLinkReplace::LLFloaterLinkReplace(const LLSD& key)
     mTargetUUID(LLUUID::null),
     mBatchSize(gSavedSettings.getU32("LinkReplaceBatchSize"))
 {
-    mEventTimer.stop();
+    stop();
 }
 
 LLFloaterLinkReplace::~LLFloaterLinkReplace()
@@ -202,7 +202,7 @@ void LLFloaterLinkReplace::onStartClickedResponse(const LLSD& notification, cons
                 mStartBtn->setEnabled(false);
                 mRefreshBtn->setEnabled(false);
 
-                mEventTimer.start();
+                start();
                 tick();
             }
             else
@@ -298,7 +298,7 @@ void LLFloaterLinkReplace::decreaseOpenItemCount()
         mStatusText->setText(getString("ReplaceFinished"));
         mStartBtn->setEnabled(true);
         mRefreshBtn->setEnabled(true);
-        mEventTimer.stop();
+        stop();
         LL_INFOS() << "Inventory link replace finished." << LL_ENDL;
     }
     else
@@ -320,7 +320,7 @@ bool LLFloaterLinkReplace::tick()
     {
         if (!mRemainingInventoryItems.size())
         {
-            mEventTimer.stop();
+            stop();
             break;
         }
 

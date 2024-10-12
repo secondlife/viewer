@@ -85,11 +85,6 @@ endif (ENABLE_MEDIA_PLUGINS)
 if (LINUX)
   # need to put this behind a special llappearanceutility flag
   add_subdirectory(${VIEWER_PREFIX}llappearanceutility)
-elseif (WINDOWS)
-  # cmake EXISTS requires an absolute path, see indra/cmake/Variables.cmake
-  if (EXISTS ${VIEWER_DIR}win_setup)
-    add_subdirectory(${VIEWER_DIR}win_setup)
-  endif (EXISTS ${VIEWER_DIR}win_setup)
 endif (LINUX)
 
 if (WINDOWS)

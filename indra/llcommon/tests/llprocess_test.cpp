@@ -259,6 +259,7 @@ public:
     }
 
     std::string getName() const { return mPath.string(); }
+    std::string getNormalName() const { return mPath.lexically_normal().make_preferred().string(); }
 
 private:
     boost::filesystem::path mPath;
@@ -590,7 +591,7 @@ namespace tut
                                  "    f.write(os.path.normcase(os.path.normpath(os.getcwd())))\n");
         // Before running, call setWorkingDirectory()
         py.mParams.cwd = tempdir.getName();
-        std::string expected{ tempdir.getName() };
+        std::string expected{ tempdir.getNormalName() };
 #if LL_WINDOWS
         // SIGH, don't get tripped up by "C:" != "c:" --
         // but on the Mac, using tolower() fails because "/users" != "/Users"!

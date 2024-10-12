@@ -1258,7 +1258,6 @@ void LLTabContainer::removeTabPanel(LLPanel* child)
 
     bool has_focus = gFocusMgr.childHasKeyboardFocus(this);
 
-    // If the tab being deleted is the selected one, select a different tab.
     for(std::vector<LLTabTuple*>::iterator iter = mTabList.begin(); iter != mTabList.end(); ++iter)
     {
         LLTabTuple* tuple = *iter;
@@ -1296,6 +1295,7 @@ void LLTabContainer::removeTabPanel(LLPanel* child)
     // make sure we don't have more locked tabs than we have tabs
     mLockedTabCount = llmin(getTabCount(), mLockedTabCount);
 
+    // If the tab being deleted is the selected one, select a different tab.
     if (mCurrentTabIdx >= (S32)mTabList.size())
     {
         mCurrentTabIdx = static_cast<S32>(mTabList.size()) - 1;
@@ -1370,17 +1370,17 @@ LLPanel* LLTabContainer::getCurrentPanel()
     return NULL;
 }
 
-S32 LLTabContainer::getCurrentPanelIndex()
+S32 LLTabContainer::getCurrentPanelIndex() const
 {
     return mCurrentTabIdx;
 }
 
-S32 LLTabContainer::getTabCount()
+S32 LLTabContainer::getTabCount() const
 {
     return static_cast<S32>(mTabList.size());
 }
 
-LLPanel* LLTabContainer::getPanelByIndex(S32 index)
+LLPanel* LLTabContainer::getPanelByIndex(S32 index) const
 {
     if (index >= 0 && index < (S32)mTabList.size())
     {
@@ -1389,7 +1389,7 @@ LLPanel* LLTabContainer::getPanelByIndex(S32 index)
     return NULL;
 }
 
-S32 LLTabContainer::getIndexForPanel(LLPanel* panel)
+S32 LLTabContainer::getIndexForPanel(LLPanel* panel) const
 {
     for (S32 index = 0; index < (S32)mTabList.size(); index++)
     {
@@ -1401,7 +1401,7 @@ S32 LLTabContainer::getIndexForPanel(LLPanel* panel)
     return -1;
 }
 
-S32 LLTabContainer::getPanelIndexByTitle(std::string_view title)
+S32 LLTabContainer::getPanelIndexByTitle(std::string_view title) const
 {
     for (S32 index = 0 ; index < (S32)mTabList.size(); index++)
     {
@@ -1723,7 +1723,7 @@ void LLTabContainer::reshapeTuple(LLTabTuple* tuple)
     {
         S32 image_overlay_width = 0;
 
-        if(mCustomIconCtrlUsed)
+        if (mCustomIconCtrlUsed)
         {
             LLCustomButtonIconCtrl* button = dynamic_cast<LLCustomButtonIconCtrl*>(tuple->mButton);
             LLIconCtrl* icon_ctrl = button ? button->getIconCtrl() : NULL;
@@ -2173,12 +2173,22 @@ S32 LLTabContainer::getTotalTabWidth() const
 
 void LLTabContainer::setTabVisibility( LLPanel const *aPanel, bool aVisible )
 {
-    for( tuple_list_t::const_iterator itr = mTabList.begin(); itr != mTabList.end(); ++itr )
+    S32 num_tabs = S32(mTabList.size());
+    for (S32 i = 0; i < num_tabs; ++i)
     {
-        LLTabTuple const *pTT = *itr;
-        if( pTT->mTabPanel == aPanel )
+        LLTabTuple* tuple = mTabList[i];
+        if( tuple->mTabPanel == aPanel )
         {
-            pTT->mVisible = aVisible;
+            if (tuple->mVisible != aVisible)
+            {
+                tuple->mVisible = aVisible;
+                if (aVisible)
+                {
+                    this->selectTab(i);
+                    this->setVisible(true);
+                }
+                updateMaxScrollPos();
+            }
             break;
         }
     }
@@ -2194,11 +2204,7 @@ void LLTabContainer::setTabVisibility( LLPanel const *aPanel, bool aVisible )
             break;
         }
     }
-
-    if( foundTab )
-        this->setVisible( true );
-    else
-        this->setVisible( false );
+    this->setVisible( foundTab );
 
     updateMaxScrollPos();
 }

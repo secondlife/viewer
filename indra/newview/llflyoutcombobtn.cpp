@@ -41,7 +41,7 @@ LLFlyoutComboBtnCtrl::LLFlyoutComboBtnCtrl(LLPanel* parent,
 {
     // register action mapping before creating menu
     LLUICtrl::CommitCallbackRegistry::ScopedRegistrar save_registar;
-    save_registar.add("FlyoutCombo.Button.Action", [this](LLUICtrl *ctrl, const LLSD &data) { onFlyoutItemSelected(ctrl, data); });
+    save_registar.add("FlyoutCombo.Button.Action", { [this](LLUICtrl *ctrl, const LLSD &data) { onFlyoutItemSelected(ctrl, data); } });
     LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enabled_rgistar;
     enabled_rgistar.add("FlyoutCombo.Button.Check", [this](LLUICtrl *ctrl, const LLSD &data) { return onFlyoutItemCheck(ctrl, data); });
 

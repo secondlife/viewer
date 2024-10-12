@@ -75,13 +75,13 @@ LLFloaterWebContent::LLFloaterWebContent( const Params& params )
     mDisplayURL(""),
     mDevelopMode(params.dev_mode) // if called from "Develop" Menu, set a flag and change things to be more useful for devs
 {
-    mCommitCallbackRegistrar.add( "WebContent.Back", boost::bind( &LLFloaterWebContent::onClickBack, this ));
-    mCommitCallbackRegistrar.add( "WebContent.Forward", boost::bind( &LLFloaterWebContent::onClickForward, this ));
-    mCommitCallbackRegistrar.add( "WebContent.Reload", boost::bind( &LLFloaterWebContent::onClickReload, this ));
-    mCommitCallbackRegistrar.add( "WebContent.Stop", boost::bind( &LLFloaterWebContent::onClickStop, this ));
-    mCommitCallbackRegistrar.add( "WebContent.EnterAddress", boost::bind( &LLFloaterWebContent::onEnterAddress, this ));
-    mCommitCallbackRegistrar.add( "WebContent.PopExternal", boost::bind(&LLFloaterWebContent::onPopExternal, this));
-    mCommitCallbackRegistrar.add( "WebContent.TestURL", boost::bind(&LLFloaterWebContent::onTestURL, this, _2));
+    mCommitCallbackRegistrar.add( "WebContent.Back", { boost::bind( &LLFloaterWebContent::onClickBack, this ), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add( "WebContent.Forward", { boost::bind( &LLFloaterWebContent::onClickForward, this ), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add( "WebContent.Reload", { boost::bind( &LLFloaterWebContent::onClickReload, this ), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add( "WebContent.Stop", { boost::bind( &LLFloaterWebContent::onClickStop, this ), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add( "WebContent.EnterAddress", { boost::bind( &LLFloaterWebContent::onEnterAddress, this ), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add( "WebContent.PopExternal", { boost::bind(&LLFloaterWebContent::onPopExternal, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add( "WebContent.TestURL", { boost::bind(&LLFloaterWebContent::onTestURL, this, _2), cb_info::UNTRUSTED_BLOCK });
 }
 
 bool LLFloaterWebContent::postBuild()

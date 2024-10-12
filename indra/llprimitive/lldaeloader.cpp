@@ -51,7 +51,8 @@
 #include "llsdserialize.h"
 #include "lljoint.h"
 
-#include "glh/glh_linear.h"
+#include "glm/mat4x4.hpp"
+#include "glm/gtc/type_ptr.hpp"
 #include "llmatrix4a.h"
 
 #include <boost/regex.hpp>
@@ -1216,9 +1217,9 @@ void LLDAELoader::processDomModel(LLModel* model, DAE* dae, daeElement* root, do
         mesh_scale *= normalized_transformation;
         normalized_transformation = mesh_scale;
 
-        glh::matrix4f inv_mat((F32*) normalized_transformation.mMatrix);
-        inv_mat = inv_mat.inverse();
-        LLMatrix4 inverse_normalized_transformation(inv_mat.m);
+        glm::mat4 inv_mat = glm::make_mat4((F32*)normalized_transformation.mMatrix);
+        inv_mat = glm::inverse(inv_mat);
+        LLMatrix4 inverse_normalized_transformation(glm::value_ptr(inv_mat));
 
         domSkin::domBind_shape_matrix* bind_mat = skin->getBind_shape_matrix();
 

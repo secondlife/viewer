@@ -17,11 +17,16 @@ include(LLImage)
 include(LLWindow)
 include(UI)
 include(ViewerMiscLibs)
+include(GLM)
+include(SDL2)
 
 set(llwindow_SOURCE_FILES
     llcursortypes.cpp
+    llgamecontrol.cpp
+    llgamecontroltranslator.cpp
     llkeyboard.cpp
     llkeyboardheadless.cpp
+    llsdl.cpp
     llwindowheadless.cpp
     llwindowcallbacks.cpp
     llwindow.cpp
@@ -31,8 +36,11 @@ set(llwindow_HEADER_FILES
     CMakeLists.txt
 
     llcursortypes.h
+    llgamecontrol.h
+    llgamecontroltranslator.h
     llkeyboard.h
     llkeyboardheadless.h
+    llsdl.h
     llwindowheadless.h
     llwindowcallbacks.h
     )
@@ -54,10 +62,10 @@ set(llwindow_LINK_LIBRARIES
         llrender
         llfilesystem
         llxml
-        ll::glh_linear
+        ll::glm
         ll::glext
         ll::uilibraries
-        ll::SDL
+        ll::SDL2
         ll::zlib-ng
         )
 
@@ -172,11 +180,11 @@ endif (llwindow_HEADER_FILES)
     ${viewer_SOURCE_FILES}
     )
 
-if (SDL_FOUND)
+if (SDL2_FOUND)
   set_property(TARGET llwindow
     PROPERTY COMPILE_DEFINITIONS LL_SDL=1
     )
-endif (SDL_FOUND)
+endif (SDL2_FOUND)
 
   target_link_libraries (llwindow ${llwindow_LINK_LIBRARIES})
   target_include_directories(llwindow INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})

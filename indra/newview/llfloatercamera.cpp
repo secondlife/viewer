@@ -169,11 +169,11 @@ static LLPanelInjector<LLPanelCameraZoom> t_camera_zoom_panel("camera_zoom_panel
 
 void LLPanelCameraZoom::onCreate()
 {
-    mCommitCallbackRegistrar.add("Zoom.minus", boost::bind(&LLPanelCameraZoom::onZoomMinusHeldDown, this));
-    mCommitCallbackRegistrar.add("Zoom.plus", boost::bind(&LLPanelCameraZoom::onZoomPlusHeldDown, this));
-    mCommitCallbackRegistrar.add("Slider.value_changed", boost::bind(&LLPanelCameraZoom::onSliderValueChanged, this));
-    mCommitCallbackRegistrar.add("Camera.track", boost::bind(&LLPanelCameraZoom::onCameraTrack, this));
-    mCommitCallbackRegistrar.add("Camera.rotate", boost::bind(&LLPanelCameraZoom::onCameraRotate, this));
+    mCommitCallbackRegistrar.add("Zoom.minus", { boost::bind(&LLPanelCameraZoom::onZoomMinusHeldDown, this) });
+    mCommitCallbackRegistrar.add("Zoom.plus", { boost::bind(&LLPanelCameraZoom::onZoomPlusHeldDown, this) });
+    mCommitCallbackRegistrar.add("Slider.value_changed", { boost::bind(&LLPanelCameraZoom::onSliderValueChanged, this) });
+    mCommitCallbackRegistrar.add("Camera.track", { boost::bind(&LLPanelCameraZoom::onCameraTrack, this) });
+    mCommitCallbackRegistrar.add("Camera.rotate", { boost::bind(&LLPanelCameraZoom::onCameraRotate, this) });
 }
 
 bool LLPanelCameraZoom::postBuild()
@@ -461,9 +461,9 @@ LLFloaterCamera::LLFloaterCamera(const LLSD& val)
     mPrevMode(CAMERA_CTRL_MODE_PAN)
 {
     LLHints::getInstance()->registerHintTarget("view_popup", getHandle());
-    mCommitCallbackRegistrar.add("CameraPresets.ChangeView", boost::bind(&LLFloaterCamera::onClickCameraItem, _2));
-    mCommitCallbackRegistrar.add("CameraPresets.Save", boost::bind(&LLFloaterCamera::onSavePreset, this));
-    mCommitCallbackRegistrar.add("CameraPresets.ShowPresetsList", boost::bind(&LLFloaterReg::showInstance, "camera_presets", LLSD(), false));
+    mCommitCallbackRegistrar.add("CameraPresets.ChangeView", {boost::bind(&LLFloaterCamera::onClickCameraItem, _2)});
+    mCommitCallbackRegistrar.add("CameraPresets.Save", {boost::bind(&LLFloaterCamera::onSavePreset, this)});
+    mCommitCallbackRegistrar.add("CameraPresets.ShowPresetsList", {boost::bind(&LLFloaterReg::showInstance, "camera_presets", LLSD(), false)});
 }
 
 // virtual

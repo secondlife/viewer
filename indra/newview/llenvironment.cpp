@@ -54,7 +54,6 @@
 
 #include "llregioninfomodel.h"
 
-#include "llatmosphere.h"
 #include "llagent.h"
 #include "roles_constants.h"
 #include "llestateinfomodel.h"
@@ -453,11 +452,11 @@ namespace
 
         void applyInjections(LLSettingsBase::Seconds delta)
         {
-            this->mSettings = this->mSource->getSettings();
+            LLSD settings = this->mSource->cloneSettings();
 
             for (auto ito = mOverrideValues.beginMap(); ito != mOverrideValues.endMap(); ++ito)
             {
-                this->mSettings[(*ito).first] = (*ito).second;
+                settings[(*ito).first] = (*ito).second;
             }
 
             const LLSettingsBase::stringset_t &slerps = this->getSlerpKeys();
@@ -469,7 +468,7 @@ namespace
             {
                 std::string key_name = (*it)->mKeyName;
 
-                LLSD value = this->mSettings[key_name];
+                LLSD value = settings[key_name];
                 LLSD target = (*it)->mValue;
 
                 if ((*it)->mFirstTime)
@@ -485,11 +484,11 @@ namespace
                     {
                         mOverrideValues[key_name] = target;
                         mOverrideExps[key_name] = (*it)->mExperience;
-                        this->mSettings[key_name] = target;
+                        settings[key_name] = target;
                     }
                     else
                     {
-                        this->mSettings.erase(key_name);
+                        settings.erase(key_name);
                     }
                 }
                 else if (specials.find(key_name) != specials.end())
@@ -500,8 +499,8 @@ namespace
                 {
                     if (!(*it)->mBlendIn)
                         mix = 1.0 - mix;
-                    (*it)->mLastValue = this->interpolateSDValue(key_name, value, target, this->getParameterMap(), mix, slerps);
-                    this->mSettings[key_name] = (*it)->mLastValue;
+                    (*it)->mLastValue = this->interpolateSDValue(key_name, value, target, this->getParameterMap(), mix, skips, slerps);
+                    settings[key_name] = (*it)->mLastValue;
                 }
             }
 
@@ -520,7 +519,7 @@ namespace
             {
                 mInjections.erase(mInjections.begin(), mInjections.end());
             }
-
+            this->setSettings(settings);
         }
 
         bool hasInjections() const
@@ -685,7 +684,8 @@ namespace
             if (!injection->mBlendIn)
                 mix = 1.0 - mix;
             stringset_t dummy;
-            F64 value = this->mSettings[injection->mKeyName].asReal();
+            LLSD settings = this->cloneSettings();
+            F64 value = settings[injection->mKeyName].asReal();
             if (this->getCloudNoiseTextureId().isNull())
             {
                 value = 0; // there was no texture so start from zero coverage
@@ -695,7 +695,8 @@ namespace
             // with different transitions, don't ignore it
             F64 result = lerp((F32)value, (F32)injection->mValue.asReal(), (F32)mix);
             injection->mLastValue = LLSD::Real(result);
-            this->mSettings[injection->mKeyName] = injection->mLastValue;
+            settings[injection->mKeyName] = injection->mLastValue;
+            this->setSettings(settings);
         }
 
         // Unfortunately I don't have a per texture blend factor.  We'll just pick the one that is furthest along.
@@ -961,54 +962,6 @@ LLSettingsWater::ptr_t LLEnvironment::getCurrentWater() const
         }
     }
     return pwater;
-}
-
-void LayerConfigToDensityLayer(const LLSD& layerConfig, DensityLayer& layerOut)
-{
-    layerOut.constant_term  = (F32)layerConfig[LLSettingsSky::SETTING_DENSITY_PROFILE_CONSTANT_TERM].asReal();
-    layerOut.exp_scale      = (F32)layerConfig[LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR].asReal();
-    layerOut.exp_term       = (F32)layerConfig[LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_TERM].asReal();
-    layerOut.linear_term    = (F32)layerConfig[LLSettingsSky::SETTING_DENSITY_PROFILE_LINEAR_TERM].asReal();
-    layerOut.width          = (F32)layerConfig[LLSettingsSky::SETTING_DENSITY_PROFILE_WIDTH].asReal();
-}
-
-void LLEnvironment::getAtmosphericModelSettings(AtmosphericModelSettings& settingsOut, const LLSettingsSky::ptr_t &psky)
-{
-    settingsOut.m_skyBottomRadius   = psky->getSkyBottomRadius();
-    settingsOut.m_skyTopRadius      = psky->getSkyTopRadius();
-    settingsOut.m_sunArcRadians     = psky->getSunArcRadians();
-    settingsOut.m_mieAnisotropy     = psky->getMieAnisotropy();
-
-    LLSD rayleigh = psky->getRayleighConfigs();
-    settingsOut.m_rayleighProfile.clear();
-    for (LLSD::array_iterator itf = rayleigh.beginArray(); itf != rayleigh.endArray(); ++itf)
-    {
-        DensityLayer layer;
-        LLSD& layerConfig = (*itf);
-        LayerConfigToDensityLayer(layerConfig, layer);
-        settingsOut.m_rayleighProfile.push_back(layer);
-    }
-
-    LLSD mie = psky->getMieConfigs();
-    settingsOut.m_mieProfile.clear();
-    for (LLSD::array_iterator itf = mie.beginArray(); itf != mie.endArray(); ++itf)
-    {
-        DensityLayer layer;
-        LLSD& layerConfig = (*itf);
-        LayerConfigToDensityLayer(layerConfig, layer);
-        settingsOut.m_mieProfile.push_back(layer);
-    }
-    settingsOut.m_mieAnisotropy = psky->getMieAnisotropy();
-
-    LLSD absorption = psky->getAbsorptionConfigs();
-    settingsOut.m_absorptionProfile.clear();
-    for (LLSD::array_iterator itf = absorption.beginArray(); itf != absorption.endArray(); ++itf)
-    {
-        DensityLayer layer;
-        LLSD& layerConfig = (*itf);
-        LayerConfigToDensityLayer(layerConfig, layer);
-        settingsOut.m_absorptionProfile.push_back(layer);
-    }
 }
 
 bool LLEnvironment::canAgentUpdateParcelEnvironment() const
@@ -1740,90 +1693,9 @@ void LLEnvironment::updateGLVariablesForSettings(LLShaderUniforms* uniforms, con
     {
         uniforms[i].clear();
     }
-
-    LLShaderUniforms* shader = &uniforms[LLGLSLShader::SG_ANY];
-    //_WARNS("RIDER") << "----------------------------------------------------------------" << LL_ENDL;
-    LLSettingsBase::parammapping_t params = psetting->getParameterMap();
-    for (auto &it: params)
-    {
-        LLSD value;
-        // legacy first since it contains ambient color and we prioritize value from legacy, see getAmbientColor()
-        if (psetting->mSettings.has(LLSettingsSky::SETTING_LEGACY_HAZE) && psetting->mSettings[LLSettingsSky::SETTING_LEGACY_HAZE].has(it.first))
-        {
-            value = psetting->mSettings[LLSettingsSky::SETTING_LEGACY_HAZE][it.first];
-        }
-        else if (psetting->mSettings.has(it.first))
-        {
-            value = psetting->mSettings[it.first];
-        }
-        else
-        {
-            // We need to reset shaders, use defaults
-            value = it.second.getDefaultValue();
-        }
-
-        LLSD::Type setting_type = value.type();
-        stop_glerror();
-        switch (setting_type)
-        {
-        case LLSD::TypeInteger:
-            shader->uniform1i(it.second.getShaderKey(), value.asInteger());
-            //_WARNS("RIDER") << "pushing '" << (*it).first << "' as " << value << LL_ENDL;
-            break;
-        case LLSD::TypeReal:
-            shader->uniform1f(it.second.getShaderKey(), (F32)value.asReal());
-            //_WARNS("RIDER") << "pushing '" << (*it).first << "' as " << value << LL_ENDL;
-            break;
-
-        case LLSD::TypeBoolean:
-            shader->uniform1i(it.second.getShaderKey(), value.asBoolean() ? 1 : 0);
-            //_WARNS("RIDER") << "pushing '" << (*it).first << "' as " << value << LL_ENDL;
-            break;
-
-        case LLSD::TypeArray:
-        {
-            LLVector4 vect4(value);
-            // always identify as a radiance pass if desaturating irradiance is disabled
-            static LLCachedControl<bool> desaturate_irradiance(gSavedSettings, "RenderDesaturateIrradiance", true);
-
-            if (desaturate_irradiance && gCubeSnapshot && !gPipeline.mReflectionMapManager.isRadiancePass())
-            { // maximize and remove tinting if this is an irradiance map render pass and the parameter feeds into the sky background color
-                auto max_vec = [](LLVector4 col)
-                {
-                    LLColor3 color(col);
-                    F32 h, s, l;
-                    color.calcHSL(&h, &s, &l);
-
-                    col.mV[0] = col.mV[1] = col.mV[2] = l;
-                    return col;
-                };
-
-                switch (it.second.getShaderKey())
-                {
-                case LLShaderMgr::BLUE_HORIZON:
-                case LLShaderMgr::BLUE_DENSITY:
-                    vect4 = max_vec(vect4);
-                        break;
-                }
-            }
-
-            //_WARNS("RIDER") << "pushing '" << (*it).first << "' as " << vect4 << LL_ENDL;
-            shader->uniform3fv(it.second.getShaderKey(), LLVector3(vect4.mV) );
-            break;
-        }
-
-        //  case LLSD::TypeMap:
-        //  case LLSD::TypeString:
-        //  case LLSD::TypeUUID:
-        //  case LLSD::TypeURI:
-        //  case LLSD::TypeBinary:
-        //  case LLSD::TypeDate:
-        default:
-            break;
-        }
-    }
     //_WARNS("RIDER") << "----------------------------------------------------------------" << LL_ENDL;
 
+    psetting->applyToUniforms(uniforms);
     psetting->applySpecial(uniforms);
 }
 
@@ -2822,13 +2694,6 @@ bool LLEnvironment::DayInstance::setSky(const LLSettingsSky::ptr_t &psky)
     mSky->mReplaced |= different_sky;
     mSky->update();
     mBlenderSky.reset();
-
-    if (gAtmosphere)
-    {
-        AtmosphericModelSettings settings;
-        LLEnvironment::getAtmosphericModelSettings(settings, psky);
-        gAtmosphere->configureAtmosphericModel(settings);
-    }
 
     return changed;
 }

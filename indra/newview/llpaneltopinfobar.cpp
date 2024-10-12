@@ -133,7 +133,7 @@ bool LLPanelTopInfoBar::handleRightMouseDown(S32 x, S32 y, MASK mask)
     if(!LLUICtrl::CommitCallbackRegistry::getValue("TopInfoBar.Action"))
     {
         LLUICtrl::CommitCallbackRegistry::currentRegistrar()
-                .add("TopInfoBar.Action", boost::bind(&LLPanelTopInfoBar::onContextMenuItemClicked, this, _2));
+                .add("TopInfoBar.Action", { boost::bind(&LLPanelTopInfoBar::onContextMenuItemClicked, this, _2) });
     }
     show_topinfobar_context_menu(this, x, y);
     return true;

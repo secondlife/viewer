@@ -24,9 +24,10 @@
  */
 
 
-#include "llviewereventrecorder.h"
-#include "llui.h"
 #include "llleap.h"
+#include "llstring.h"
+#include "llui.h"
+#include "llviewereventrecorder.h"
 
 LLViewerEventRecorder::LLViewerEventRecorder() {
 
@@ -247,11 +248,9 @@ void LLViewerEventRecorder::logKeyUnicodeEvent(llwchar uni_char) {
   // keycode...or
   // char
 
-  LL_DEBUGS() << "Wrapped in conversion to wstring " <<  wstring_to_utf8str(LLWString( 1, uni_char)) << "\n" << LL_ENDL;
+  LL_DEBUGS() << "Wrapped in conversion to wstring " <<  ll_convert_to<std::string>(uni_char) << "\n" << LL_ENDL;
 
-  event.insert("char",
-           LLSD(  wstring_to_utf8str(LLWString( 1,uni_char))  )
-           );
+  event.insert("char", LLSD(ll_convert_to<std::string>(uni_char)));
 
   // path (optional) - for now we are not recording path for key events during record - should not be needed for full record and playback of recorded steps
   // as a vita script - it does become useful if you edit the resulting vita script and wish to remove some steps leading to a key event - that sort of edit might
@@ -261,7 +260,7 @@ void LLViewerEventRecorder::logKeyUnicodeEvent(llwchar uni_char) {
 
   event.insert("event",LLSD("keyDown"));
 
-  LL_DEBUGS()  << "[VITA] unicode key: " << uni_char   << LL_ENDL;
+  LL_DEBUGS()  << "[VITA] unicode key: " << (int)uni_char   << LL_ENDL;
   LL_DEBUGS()  << "[VITA] dumpxml " << LLSDXMLStreamer(event) << "\n" << LL_ENDL;
 
 

@@ -43,46 +43,26 @@ LLToastLifeTimer::LLToastLifeTimer(LLToast* toast, F32 period)
 {
 }
 
-/*virtual*/
 bool LLToastLifeTimer::tick()
 {
-    if (mEventTimer.hasExpired())
-    {
-        mToast->expire();
-    }
+    mToast->expire();
     return false;
-}
-
-void LLToastLifeTimer::stop()
-{
-    mEventTimer.stop();
-}
-
-void LLToastLifeTimer::start()
-{
-    mEventTimer.start();
 }
 
 void LLToastLifeTimer::restart()
 {
-    mEventTimer.reset();
+    // start() discards any previously-running mTimer
+    start();
 }
 
 bool LLToastLifeTimer::getStarted()
 {
-    return mEventTimer.getStarted();
+    return isRunning();
 }
 
 void LLToastLifeTimer::setPeriod(F32 period)
 {
     mPeriod = period;
-}
-
-F32 LLToastLifeTimer::getRemainingTimeF32()
-{
-    F32 et = mEventTimer.getElapsedTimeF32();
-    if (!getStarted() || et > mPeriod) return 0.0f;
-    return mPeriod - et;
 }
 
 //--------------------------------------------------------------------------
@@ -337,7 +317,7 @@ void LLToast::setFading(bool transparent)
 
 F32 LLToast::getTimeLeftToLive()
 {
-    F32 time_to_live = mTimer->getRemainingTimeF32();
+    F32 time_to_live = mTimer->getRemaining();
 
     if (!mIsFading)
     {

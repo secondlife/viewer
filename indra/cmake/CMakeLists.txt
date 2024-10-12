@@ -25,6 +25,7 @@ set(cmake_SOURCE_FILES
         FreeType.cmake
         GLEXT.cmake
         GLH.cmake
+        GLM.cmake
         Havok.cmake
         Hunspell.cmake
         LLAddBuildTest.cmake
@@ -39,6 +40,7 @@ set(cmake_SOURCE_FILES
         LLTestCommand.cmake
         LLWindow.cmake
         Linking.cmake
+        Lualibs.cmake
         Meshoptimizer.cmake
         NDOF.cmake
         OPENAL.cmake
@@ -50,6 +52,7 @@ set(cmake_SOURCE_FILES
         Prebuilt.cmake
         PulseAudio.cmake
         Python.cmake
+        SDL2.cmake
         TemplateCheck.cmake
         TinyEXR.cmake
         TinyGLTF.cmake

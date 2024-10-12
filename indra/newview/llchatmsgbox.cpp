@@ -41,6 +41,16 @@ public:
         mEditor(NULL)
     {}
 
+    /*virtual*/ LLTextSegmentPtr clone(LLTextBase& target) const
+    {
+        ChatSeparator* copy = new ChatSeparator(mStart, mEnd);
+        if (mEditor)
+        {
+            copy->mEditor = &target;
+        }
+        return copy;
+    }
+
     /*virtual*/ void linkToDocument(class LLTextBase* editor)
     {
         mEditor = editor;

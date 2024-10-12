@@ -289,6 +289,8 @@ public:
         LLEventAPI::add("teleport",
                         "Teleport to specified [\"regionname\"] at\n"
                         "specified region-relative [\"x\"], [\"y\"], [\"z\"].\n"
+                        "If [\"regionname\"] is \"home\", ignore [\"x\"], [\"y\"], [\"z\"]\n"
+                        "and teleport home.\n"
                         "If [\"regionname\"] omitted, teleport to GLOBAL\n"
                         "coordinates [\"x\"], [\"y\"], [\"z\"].",
                         &LLTeleportHandler::from_event);
@@ -328,7 +330,12 @@ public:
     void from_event(const LLSD& params) const
     {
         Response response(LLSD(), params);
-        if (params.has("regionname"))
+        if (params["regionname"].asString() == "home")
+        {
+            gAgent.teleportHome();
+            response["message"] = "Teleporting home";
+        }
+        else if (params.has("regionname"))
         {
             // region specified, coordinates (if any) are region-local
             LLVector3 local_pos(

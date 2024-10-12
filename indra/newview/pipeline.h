@@ -345,7 +345,7 @@ public:
 
     void renderHighlight(const LLViewerObject* obj, F32 fade);
 
-    void renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera& camera, LLCullResult& result, bool depth_clamp);
+    void renderShadow(const glm::mat4& view, const glm::mat4& proj, LLCamera& camera, LLCullResult& result, bool depth_clamp);
     void renderSelectedFaces(const LLColor4& color);
     void renderHighlights();
     void renderDebug();
@@ -737,6 +737,9 @@ public:
     // downres scratch space for GPU downscaling of textures
     LLRenderTarget          mDownResMap;
 
+    // 2k bom scratch target
+    LLRenderTarget          mBakeMap;
+
     LLCullResult            mSky;
     LLCullResult            mReflectedObjects;
     LLCullResult            mRefractedObjects;
@@ -760,10 +763,10 @@ public:
     LLCamera                mShadowCamera[8];
     LLVector3               mShadowExtents[4][2];
     // TODO : separate Sun Shadow and Spot Shadow matrices
-    glh::matrix4f           mSunShadowMatrix[6];
-    glh::matrix4f           mShadowModelview[6];
-    glh::matrix4f           mShadowProjection[6];
-    glh::matrix4f           mReflectionModelView;
+    glm::mat4               mSunShadowMatrix[6];
+    glm::mat4               mShadowModelview[6];
+    glm::mat4               mShadowProjection[6];
+    glm::mat4               mReflectionModelView;
 
     LLPointer<LLDrawable>   mShadowSpotLight[2];
     F32                     mSpotLightFade[2];
@@ -776,7 +779,7 @@ public:
     //water distortion texture (refraction)
     LLRenderTarget              mWaterDis;
 
-    static const U32 MAX_BAKE_WIDTH;
+    static const U32 MAX_PREVIEW_WIDTH;
 
     //texture for making the glow
     LLRenderTarget              mGlow[3];
@@ -997,7 +1000,6 @@ public:
     //cached settings
     static bool WindLightUseAtmosShaders;
     static bool RenderDeferred;
-    static F32 RenderDeferredSunWash;
     static U32 RenderFSAAType;
     static U32 RenderResolutionDivisor;
     static bool RenderUIBuffer;
@@ -1039,7 +1041,6 @@ public:
     static F32 CameraFNumber;
     static F32 CameraFocalLength;
     static F32 CameraFieldOfView;
-    static F32 RenderShadowNoise;
     static F32 RenderShadowBlurSize;
     static F32 RenderSSAOScale;
     static U32 RenderSSAOMaxScale;
@@ -1052,8 +1053,6 @@ public:
     static F32 RenderSpotShadowOffset;
     static F32 RenderSpotShadowBias;
     static LLDrawable* RenderSpotLight;
-    static F32 RenderEdgeDepthCutoff;
-    static F32 RenderEdgeNormCutoff;
     static LLVector3 RenderShadowGaussian;
     static F32 RenderShadowBlurDistFactor;
     static bool RenderDeferredAtmospheric;

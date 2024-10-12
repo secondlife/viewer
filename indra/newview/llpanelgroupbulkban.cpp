@@ -68,35 +68,26 @@ bool LLPanelGroupBulkBan::postBuild()
         mImplementation->mBulkAgentList->setCommitCallback(LLPanelGroupBulkImpl::callbackSelect, mImplementation);
     }
 
-    LLButton* button = getChild<LLButton>("add_button", recurse);
-    if ( button )
+    mImplementation->mAddButton = getChild<LLButton>("add_button", recurse);
+    // default to opening avatarpicker automatically
+    mImplementation->mAddButton->setClickedCallback(
+        [this](LLUICtrl* ctrl, const LLSD& param)
     {
-        // default to opening avatarpicker automatically
-        // (*impl::callbackClickAdd)((void*)this);
-        button->setClickedCallback(LLPanelGroupBulkImpl::callbackClickAdd, this);
-    }
+        mImplementation->callbackClickAdd(this);
+    });
 
     mImplementation->mRemoveButton =
         getChild<LLButton>("remove_button", recurse);
-    if ( mImplementation->mRemoveButton )
-    {
-        mImplementation->mRemoveButton->setClickedCallback(LLPanelGroupBulkImpl::callbackClickRemove, mImplementation);
-        mImplementation->mRemoveButton->setEnabled(false);
-    }
+    mImplementation->mRemoveButton->setClickedCallback(LLPanelGroupBulkImpl::callbackClickRemove, mImplementation);
+    mImplementation->mRemoveButton->setEnabled(false);
 
     mImplementation->mOKButton =
         getChild<LLButton>("ban_button", recurse);
-    if ( mImplementation->mOKButton )
-    {
-        mImplementation->mOKButton->setClickedCallback(LLPanelGroupBulkBan::callbackClickSubmit, this);
-        mImplementation->mOKButton->setEnabled(false);
-    }
+    mImplementation->mOKButton->setClickedCallback(LLPanelGroupBulkBan::callbackClickSubmit, this);
+    mImplementation->mOKButton->setEnabled(false);
 
-    button = getChild<LLButton>("cancel_button", recurse);
-    if ( button )
-    {
-        button->setClickedCallback(LLPanelGroupBulkImpl::callbackClickCancel, mImplementation);
-    }
+    LLButton* button = getChild<LLButton>("cancel_button", recurse);
+    button->setClickedCallback(LLPanelGroupBulkImpl::callbackClickCancel, mImplementation);
 
     mImplementation->mTooManySelected = getString("ban_selection_too_large");
     mImplementation->mBanNotPermitted = getString("ban_not_permitted");

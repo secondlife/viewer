@@ -72,6 +72,7 @@ class ViewerManifest(LLManifest):
                 self.exclude("logcontrol.xml")
                 self.exclude("logcontrol-dev.xml")
                 self.path("*.ini")
+                self.path("*.txt")
                 self.path("*.xml")
 
                 # include the entire shaders directory recursively
@@ -167,6 +168,8 @@ class ViewerManifest(LLManifest):
                     with self.prefix(src="*/html", dst="*/html"):
                         self.path("*/*/*/*.js")
                         self.path("*/*/*.html")
+
+            self.path('scripts/lua')
 
             #build_data.json.  Standard with exception handling is fine.  If we can't open a new file for writing, we have worse problems
             #platform is computed above with other arg parsing
@@ -582,6 +585,9 @@ class Windows_x86_64_Manifest(ViewerManifest):
             self.path("vivoxsdk_x64.dll")
             self.path("ortp_x64.dll")
 
+            # SDL2
+            self.path("SDL2.dll")
+
             # BugSplat
             if self.args.get('bugsplat'):
                 self.path("BsSndRpt64.exe")
@@ -926,6 +932,7 @@ class Darwin_x86_64_Manifest(ViewerManifest):
 
                 with self.prefix(src=relpkgdir, dst=""):
                     self.path("libndofdev.dylib")
+                    self.path("libSDL2-*.dylib")
 
                 with self.prefix(src_dst="cursors_mac"):
                     self.path("*.tif")
@@ -1409,7 +1416,7 @@ class Linux_x86_64_Manifest(LinuxManifest):
             pkgdir = self.args['package_dir']
 
         relpkgdir = os.path.join(pkgdir, "lib", "release")
-        debpkgdir = os.path.join(pkgdir, "lib", "debug")
+        #debpkgdir = os.path.join(pkgdir, "lib", "debug")
 
         with self.prefix(src=relpkgdir, dst="lib"):
             self.path("libapr-1.so*")

@@ -1045,15 +1045,47 @@ void sub_image_lines(U32 target, S32 miplevel, S32 x_offset, S32 y_offset, S32 w
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 
+    LL_PROFILE_ZONE_NUM(width);
+    LL_PROFILE_ZONE_NUM(height);
+
     U32 components = LLImageGL::dataFormatComponents(pixformat);
     U32 type_width = type_width_from_pixtype(pixtype);
 
     const U32 line_width = data_width * components * type_width;
     const U32 y_offset_end = y_offset + height;
-    for (U32 y_pos = y_offset; y_pos < y_offset_end; ++y_pos)
+
+    if (width == data_width && height % 32 == 0)
     {
-        glTexSubImage2D(target, miplevel, x_offset, y_pos, width, 1, pixformat, pixtype, src);
-        src += line_width;
+        LL_PROFILE_ZONE_NAMED_CATEGORY_TEXTURE("subimage - batched lines");
+
+        // full width, batch multiple lines at a time
+        // set batch size based on width
+        U32 batch_size = 32;
+
+        if (width > 1024)
+        {
+            batch_size = 8;
+        }
+        else if (width > 512)
+        {
+            batch_size = 16;
+        }
+
+        // full width texture, do 32 lines at a time
+        for (U32 y_pos = y_offset; y_pos < y_offset_end; y_pos += batch_size)
+        {
+            glTexSubImage2D(target, miplevel, x_offset, y_pos, width, batch_size, pixformat, pixtype, src);
+            src += line_width * batch_size;
+        }
+    }
+    else
+    {
+        // partial width or strange height
+        for (U32 y_pos = y_offset; y_pos < y_offset_end; y_pos += 1)
+        {
+            glTexSubImage2D(target, miplevel, x_offset, y_pos, width, 1, pixformat, pixtype, src);
+            src += line_width;
+        }
     }
 }
 
@@ -2139,6 +2171,8 @@ void LLImageGL::analyzeAlpha(const void* data_in, U32 w, U32 h)
         return ;
     }
 
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
+
     U32 length = w * h;
     U32 alphatotal = 0;
 
@@ -2150,15 +2184,15 @@ void LLImageGL::analyzeAlpha(const void* data_in, U32 w, U32 h)
     // this will mid-skew the data (and thus increase the chances of not
     // being used as a mask) from high-frequency alpha maps which
     // suffer the worst from aliasing when used as alpha masks.
-    if (w >= 2 && h >= 2)
+    if (w >= 4 && h >= 4)
     {
-        llassert(w%2 == 0);
-        llassert(h%2 == 0);
+        llassert(w%4 == 0);
+        llassert(h%4 == 0);
         const GLubyte* rowstart = ((const GLubyte*) data_in) + mAlphaOffset;
-        for (U32 y = 0; y < h; y+=2)
+        for (U32 y = 0; y < h; y+=4)
         {
             const GLubyte* current = rowstart;
-            for (U32 x = 0; x < w; x+=2)
+            for (U32 x = 0; x < w; x+=4)
             {
                 const U32 s1 = current[0];
                 alphatotal += s1;
@@ -2182,7 +2216,7 @@ void LLImageGL::analyzeAlpha(const void* data_in, U32 w, U32 h)
             }
 
 
-            rowstart += 2 * w * mAlphaStride;
+            rowstart += 4 * w * mAlphaStride;
         }
         length *= 2; // we sampled everything twice, essentially
     }

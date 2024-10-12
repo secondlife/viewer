@@ -77,9 +77,7 @@ private:
 
 #if LL_LINUX || LL_DARWIN
     // On Linux we just implement LLDirPicker on top of LLFilePicker
-#ifndef LL_FLTK
     LLFilePicker *mFilePicker;
-#endif
 #endif
 
 

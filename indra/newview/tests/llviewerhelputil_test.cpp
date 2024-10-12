@@ -79,6 +79,8 @@ bool LLAgent::isGodlike() const { return false; }
 
 LLAgent gAgent;
 
+LLFlycam::LLFlycam() { }
+
 std::string LLWeb::expandURLSubstitutions(const std::string &url,
                                           const LLSD &default_subs)
 {

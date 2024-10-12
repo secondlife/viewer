@@ -28,11 +28,13 @@ include(LLKDU)
 include(LLPhysicsExtensions)
 include(LLPrimitive)
 include(LLWindow)
+include(SDL2)
 include(NDOF)
 include(NVAPI)
 include(OPENAL)
 include(OpenGL)
 include(OpenSSL)
+include(OpenXR)
 include(PNG)
 include(TemplateCheck)
 include(TinyEXR)
@@ -45,6 +47,7 @@ include(VisualLeakDetector)
 include(VulkanGltf)
 include(ZLIBNG)
 include(LLPrimitive)
+include(Lualibs)
 
 if (NOT HAVOK_TPV)
    # When using HAVOK_TPV, the library is precompiled, so no need for this
@@ -91,6 +94,7 @@ set(viewer_SOURCE_FILES
     llagentwearables.cpp
     llanimstatelabels.cpp
     llappcorehttp.cpp
+    llappearancelistener.cpp
     llappearancemgr.cpp
     llappviewer.cpp
     llappviewerlistener.cpp
@@ -244,6 +248,8 @@ set(viewer_SOURCE_FILES
     llfloaterlandholdings.cpp
     llfloaterlinkreplace.cpp
     llfloaterloadprefpreset.cpp
+    llfloaterluadebug.cpp
+    llfloaterluascripts.cpp
     llfloatermarketplacelistings.cpp
     llfloatermap.cpp
     llfloatermediasettings.cpp
@@ -266,7 +272,6 @@ set(viewer_SOURCE_FILES
     llfloaterpay.cpp
     llfloaterperformance.cpp
     llfloaterperms.cpp
-    llfloaterpostprocess.cpp
     llfloaterprofile.cpp
     llfloaterpreference.cpp
     llfloaterpreferencesgraphicsadvanced.cpp
@@ -312,6 +317,7 @@ set(viewer_SOURCE_FILES
     llfollowcam.cpp
     llfriendcard.cpp
     llflyoutcombobtn.cpp
+    llflycam.cpp
     llgesturelistener.cpp
     llgesturemgr.cpp
     llgiveinventory.cpp
@@ -358,6 +364,7 @@ set(viewer_SOURCE_FILES
     llinventorygallerymenu.cpp
     llinventoryicon.cpp
     llinventoryitemslist.cpp
+    llinventorylistener.cpp
     llinventorylistitem.cpp
     llinventorymodel.cpp
     llinventorymodelbackgroundfetch.cpp
@@ -377,6 +384,7 @@ set(viewer_SOURCE_FILES
     lllogchat.cpp
     llloginhandler.cpp
     lllogininstance.cpp
+    llluamanager.cpp
     llmachineid.cpp
     llmanip.cpp
     llmaniprotate.cpp
@@ -726,6 +734,11 @@ set(viewer_SOURCE_FILES
     llxmlrpctransaction.cpp
     noise.cpp
     pipeline.cpp
+    rlvactions.cpp
+    rlvcommon.cpp
+    rlvfloaters.cpp
+    rlvhelper.cpp
+    rlvhandler.cpp
     )
 
 set(VIEWER_BINARY_NAME "secondlife-bin" CACHE STRING
@@ -758,6 +771,7 @@ set(viewer_HEADER_FILES
     llanimstatelabels.h
     llappcorehttp.h
     llappearance.h
+    llappearancelistener.h
     llappearancemgr.h
     llappviewer.h
     llappviewerlistener.h
@@ -914,6 +928,8 @@ set(viewer_HEADER_FILES
     llfloaterlandholdings.h
     llfloaterlinkreplace.h
     llfloaterloadprefpreset.h
+    llfloaterluadebug.h
+    llfloaterluascripts.h
     llfloatermap.h
     llfloatermarketplacelistings.h
     llfloatermediasettings.h
@@ -936,7 +952,6 @@ set(viewer_HEADER_FILES
     llfloaterpay.h
     llfloaterperformance.h
     llfloaterperms.h
-    llfloaterpostprocess.h
     llfloaterprofile.h
     llfloaterpreference.h
     llfloaterpreferencesgraphicsadvanced.h
@@ -982,6 +997,7 @@ set(viewer_HEADER_FILES
     llfollowcam.h
     llfriendcard.h
     llflyoutcombobtn.h
+    llflycam.h
     llgesturelistener.h
     llgesturemgr.h
     llgiveinventory.h
@@ -1026,6 +1042,7 @@ set(viewer_HEADER_FILES
     llinventorygallerymenu.h
     llinventoryicon.h
     llinventoryitemslist.h
+    llinventorylistener.h
     llinventorylistitem.h
     llinventorymodel.h
     llinventorymodelbackgroundfetch.h
@@ -1045,6 +1062,7 @@ set(viewer_HEADER_FILES
     lllogchat.h
     llloginhandler.h
     lllogininstance.h
+    llluamanager.h
     llmachineid.h
     llmanip.h
     llmaniprotate.h
@@ -1386,6 +1404,12 @@ set(viewer_HEADER_FILES
     llxmlrpctransaction.h
     noise.h
     pipeline.h
+    rlvdefines.h
+    rlvactions.h
+    rlvcommon.h
+    rlvfloaters.h
+    rlvhelper.h
+    rlvhandler.h
     roles_constants.h
     VertexCache.h
     VorbisFramework.h
@@ -1614,6 +1638,13 @@ set_source_files_properties(${viewer_SHADER_FILES}
                             PROPERTIES HEADER_FILE_ONLY TRUE)
 list(APPEND viewer_SOURCE_FILES ${viewer_SHADER_FILES})
 
+# Add lua script sources
+file(GLOB_RECURSE viewer_LUA_SCRIPT_FILES LIST_DIRECTORIES FALSE
+    ${CMAKE_CURRENT_SOURCE_DIR}/scripts/lua/*.lua)
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/scripts/lua PREFIX "LUA Scripts" FILES ${viewer_LUA_SCRIPT_FILES})
+set_source_files_properties(${viewer_LUA_SCRIPT_FILES} 
+                            PROPERTIES HEADER_FILE_ONLY TRUE)
+list(APPEND viewer_SOURCE_FILES ${viewer_LUA_SCRIPT_FILES})
 
 set(viewer_APPSETTINGS_FILES
     app_settings/anim.ini
@@ -1635,6 +1666,7 @@ set(viewer_APPSETTINGS_FILES
     app_settings/toolbars.xml
     app_settings/trees.xml
     app_settings/viewerart.xml
+    app_settings/gamecontrollerdb.txt
     ${CMAKE_SOURCE_DIR}/../etc/message.xml
     ${CMAKE_SOURCE_DIR}/../scripts/messages/message_template.msg
     packages-info.txt
@@ -1728,7 +1760,7 @@ if (WINDOWS)
     # And of course it's straightforward to read a text file in Python.
 
     set(COPY_INPUT_DEPENDENCIES
-      # The following commented dependencies are determined at variably at build time. Can't do this here.
+      # The following commented dependencies are determined variably at build time. Can't do this here.
       ${CMAKE_SOURCE_DIR}/../etc/message.xml
       ${CMAKE_SOURCE_DIR}/../scripts/messages/message_template.msg
       ${SHARED_LIB_STAGING_DIR}/openjp2.dll
@@ -1814,20 +1846,6 @@ if (WINDOWS)
 
     if (PACKAGE)
       add_custom_command(
-        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/event_host.tar.xz
-        COMMAND ${PYTHON_EXECUTABLE}
-        ARGS
-          ${CMAKE_CURRENT_SOURCE_DIR}/event_host_manifest.py
-          ${CMAKE_CURRENT_SOURCE_DIR}/..
-          ${CMAKE_CURRENT_BINARY_DIR}
-          ${CMAKE_CFG_INTDIR}
-        DEPENDS
-          lleventhost
-          ${EVENT_HOST_SCRIPTS}
-          ${CMAKE_CURRENT_SOURCE_DIR}/event_host_manifest.py
-        )
-
-      add_custom_command(
         OUTPUT ${CMAKE_CFG_INTDIR}/touched.bat
         COMMAND ${PYTHON_EXECUTABLE}
         ARGS
@@ -1856,9 +1874,6 @@ if (WINDOWS)
       add_custom_target(llpackage ALL DEPENDS
               ${CMAKE_CFG_INTDIR}/touched.bat
         )
-        # temporarily disable packaging of event_host until hg subrepos get
-        # sorted out on the parabuild cluster...
-        #${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/event_host.tar.xz)
 
     endif (PACKAGE)
 elseif (DARWIN)
@@ -1870,7 +1885,7 @@ else (WINDOWS)
         # Linux
     set_target_properties(${VIEWER_BINARY_NAME}
         PROPERTIES
-        LINK_FLAGS_RELEASE "${LINK_FLAGS_RELEASE} -Wl,--Map=${VIEWER_BINARY_NAME}.MAP"
+        LINK_FLAGS_RELEASE "${LINK_FLAGS_RELEASE} -no-pie -Wl,--Map=${VIEWER_BINARY_NAME}.MAP"
         )
 endif (WINDOWS)
 
@@ -1920,13 +1935,15 @@ target_link_libraries(${VIEWER_BINARY_NAME}
         llcommon
         llmeshoptimizer
         llwebrtc
-        ll::ndof
         lllogin
         llprimitive
         llappearance
         ${LLPHYSICSEXTENSIONS_LIBRARIES}
         ll::bugsplat
+        ll::lualibs
+        ll::ndof
         ll::tracy
+        ll::openxr
         )
 
 if( TARGET ll::intel_memops )
@@ -2243,6 +2260,7 @@ if (LL_TESTS)
           lllogin
           llplugin
           llappearance
+          ll::SDL2
     )
 
   set_source_files_properties(
@@ -2294,11 +2312,17 @@ if (LL_TESTS)
           lllogin
           llprimitive
           lllogin
+          ll::SDL2
           )
 
   LL_ADD_INTEGRATION_TEST(cppfeatures
     ""
     "${test_libs}"
+    )
+
+  LL_ADD_INTEGRATION_TEST(llluamanager
+    "llluamanager.cpp"
+    "${test_libs};ll::lualibs"
     )
 
   LL_ADD_INTEGRATION_TEST(llsechandler_basic

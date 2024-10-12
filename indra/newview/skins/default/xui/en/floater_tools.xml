@@ -2774,7 +2774,7 @@ even though the user gets a free copy.
              label="New Script"
              label_selected="New Script"
              layout="topleft"
-             left="10"
+             left="8"
              name="button new script"
              top="10"
              width="134" />
@@ -2786,16 +2786,28 @@ even though the user gets a free copy.
              left_pad="8"
              name="button permissions"
              width="134" />
-            <panel_inventory_object
+            <filter_editor
+             follows="left|top|right"
+             label="Enter filter text"
+             layout="topleft"
+             top="40"
+             left="10"
+             text_pad_left="10"
+             max_length_chars="300"
+             highlight_text_field="true"
+             name="contents_filter"
+             height="23"
+             width="275" />
+           <panel_inventory_object
              border="true"
              border_visible="true"
              bevel_style="in"
              follows="left|top|right"
-             height="387"
+             height="367"
              layout="topleft"
              left="10"
              name="contents_inventory"
-             top="50"
+             top="70"
              width="275" />
 		</panel>
         </tab_container>
