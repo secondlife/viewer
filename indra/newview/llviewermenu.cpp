@@ -5643,6 +5643,38 @@ class LLToolsEnablePathfindingRebakeRegion : public view_listener_t
     }
 };
 
+class LLToolsCheckSelectionLODMode : public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata)
+    {
+        std::string param = userdata.asString();
+        static LLCachedControl<S32> debug_selection_lods(gSavedSettings, "DebugSelectionLODs", 0);
+        if ("default" == param)
+        {
+            return debug_selection_lods() < 0;
+        }
+        else if ("high" == param)
+        {
+            return debug_selection_lods() == 3;
+        }
+        else if ("medium" == param)
+        {
+            return debug_selection_lods() == 2;
+        }
+        else if ("low" == param)
+        {
+            return debug_selection_lods() == 1;
+        }
+        else if ("lowest" == param)
+        {
+            return debug_selection_lods() == 0;
+        }
+
+        return false;
+    }
+};
+
+
 // Round the position of all root objects to the grid
 class LLToolsSnapObjectXY : public view_listener_t
 {
@@ -8502,6 +8534,36 @@ class LLToolsSelectBySurrounding : public view_listener_t
     }
 };
 
+class LLToolsSelectionLODMode : public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata)
+    {
+        std::string param = userdata.asString();
+        if ("default" == param)
+        {
+            gSavedSettings.setS32("DebugSelectionLODs", -1);
+        }
+        else if ("high" == param)
+        {
+            gSavedSettings.setS32("DebugSelectionLODs", 3);
+        }
+        else if ("medium" == param)
+        {
+            gSavedSettings.setS32("DebugSelectionLODs", 2);
+        }
+        else if ("low" == param)
+        {
+            gSavedSettings.setS32("DebugSelectionLODs", 1);
+        }
+        else if ("lowest" == param)
+        {
+            gSavedSettings.setS32("DebugSelectionLODs", 0);
+        }
+
+        return true;
+    }
+};
+
 class LLToolsShowHiddenSelection : public view_listener_t
 {
     bool handleEvent(const LLSD& userdata)
@@ -9737,6 +9799,7 @@ void initialize_menus()
     view_listener_t::addMenu(new LLToolsSelectInvisibleObjects(), "Tools.SelectInvisibleObjects");
     view_listener_t::addMenu(new LLToolsSelectReflectionProbes(), "Tools.SelectReflectionProbes");
     view_listener_t::addMenu(new LLToolsSelectBySurrounding(), "Tools.SelectBySurrounding");
+    view_listener_t::addMenu(new LLToolsSelectionLODMode(), "Tools.SelectionLODMode");
     view_listener_t::addMenu(new LLToolsShowHiddenSelection(), "Tools.ShowHiddenSelection");
     view_listener_t::addMenu(new LLToolsShowSelectionLightRadius(), "Tools.ShowSelectionLightRadius");
     view_listener_t::addMenu(new LLToolsEditLinkedParts(), "Tools.EditLinkedParts");
@@ -9769,6 +9832,7 @@ void initialize_menus()
     view_listener_t::addMenu(new LLToolsEnablePathfindingView(), "Tools.EnablePathfindingView");
     view_listener_t::addMenu(new LLToolsDoPathfindingRebakeRegion(), "Tools.DoPathfindingRebakeRegion");
     view_listener_t::addMenu(new LLToolsEnablePathfindingRebakeRegion(), "Tools.EnablePathfindingRebakeRegion");
+    view_listener_t::addMenu(new LLToolsCheckSelectionLODMode(), "Tools.ToolsCheckSelectionLODMode");
 
     // Help menu
     // most items use the ShowFloater method

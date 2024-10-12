@@ -1535,10 +1535,15 @@ bool LLVOVolume::calcLOD()
 
     mLODAdjustedDistance = distance;
 
+    static LLCachedControl<S32> debug_selection_lods(gSavedSettings, "DebugSelectionLODs", 0);
     if (isHUDAttachment())
     {
         // HUDs always show at highest detail
         cur_detail = 3;
+    }
+    else if (isSelected() && debug_selection_lods() >= 0)
+    {
+        cur_detail = llmin(debug_selection_lods(), 3);
     }
     else
     {

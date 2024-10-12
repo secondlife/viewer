@@ -31,11 +31,12 @@
 #include "llfolderviewitem.h"
 #include "llfolderview.h"
 #include "llfolderviewmodel.h"
-#include "llpanel.h"
 #include "llcallbacklist.h"
 #include "llcriticaldamp.h"
 #include "llclipboard.h"
 #include "llfocusmgr.h"     // gFocusMgr
+#include "llnotificationsutil.h"
+#include "llpanel.h"
 #include "lltrans.h"
 #include "llwindow.h"
 
@@ -139,7 +140,7 @@ LLFolderViewItem::Params::Params()
     item_height("item_height"),
     item_top_pad("item_top_pad"),
     creation_date(),
-    allow_wear("allow_wear", true),
+    marketplace_item("marketplace_item", false),
     allow_drop("allow_drop", true),
     font_color("font_color"),
     font_highlight_color("font_highlight_color"),
@@ -181,7 +182,7 @@ LLFolderViewItem::LLFolderViewItem(const LLFolderViewItem::Params& p)
     mRoot(p.root),
     mViewModelItem(p.listener),
     mIsMouseOverTitle(false),
-    mAllowWear(p.allow_wear),
+    mMarketplaceItem(p.marketplace_item),
     mAllowDrop(p.allow_drop),
     mFontColor(p.font_color),
     mFontHighlightColor(p.font_highlight_color),
@@ -568,9 +569,14 @@ void LLFolderViewItem::buildContextMenu(LLMenuGL& menu, U32 flags)
 
 void LLFolderViewItem::openItem( void )
 {
-    if (mAllowWear || !getViewModelItem()->isItemWearable())
+    if (!mMarketplaceItem || !getViewModelItem()->isItemWearable())
     {
         getViewModelItem()->openItem();
+    }
+    else if (mMarketplaceItem)
+    {
+        // Wearing an object from any listing, active or not, is verbotten
+        LLNotificationsUtil::add("AlertMerchantListingCannotWear");
     }
 }
 

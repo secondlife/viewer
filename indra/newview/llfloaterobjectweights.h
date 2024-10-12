@@ -65,6 +65,8 @@ public:
     /*virtual*/ void onWeightsUpdate(const SelectionCost& selection_cost);
     /*virtual*/ void setErrorStatus(S32 status, const std::string& reason);
 
+    void draw();
+
     void updateLandImpacts(const LLParcel* parcel);
     void refresh();
 
@@ -73,6 +75,7 @@ private:
 
     void toggleWeightsLoadingIndicators(bool visible);
     void toggleLandImpactsLoadingIndicators(bool visible);
+    void toggleRenderLoadingIndicators(bool visible);
 
     void updateIfNothingSelected();
 
@@ -88,6 +91,10 @@ private:
     LLTextBox       *mRezzedOnLand;
     LLTextBox       *mRemainingCapacity;
     LLTextBox       *mTotalCapacity;
+
+    LLTextBox       *mLodLevel;
+    LLTextBox       *mTrianglesShown;
+    LLTextBox       *mPixelArea;
 };
 
 #endif //LL_LLFLOATEROBJECTWEIGHTS_H

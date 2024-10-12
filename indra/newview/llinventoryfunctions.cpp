@@ -3325,7 +3325,7 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
 
                 for (LLInventoryModel::item_array_t::value_type& item : items)
                 {
-                    if (get_is_item_worn(item))
+                    if (!item->getIsLinkType() && get_is_item_worn(item))
                     {
                         has_worn = true;
                         LLWearableType::EType type = item->getWearableType();
@@ -3345,7 +3345,7 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
                 }
             }
             LLViewerInventoryItem* item = gInventory.getItem(obj_id);
-            if (item && get_is_item_worn(item))
+            if (item && !item->getIsLinkType() && get_is_item_worn(item))
             {
                 has_worn = true;
                 LLWearableType::EType type = item->getWearableType();
