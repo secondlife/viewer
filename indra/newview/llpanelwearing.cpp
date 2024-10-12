@@ -113,7 +113,7 @@ protected:
                       boost::bind(&LLAppearanceMgr::removeItemsFromAvatar, LLAppearanceMgr::getInstance(), mUUIDs, no_op));
         registrar.add("Wearing.Detach",
                       boost::bind(&LLAppearanceMgr::removeItemsFromAvatar, LLAppearanceMgr::getInstance(), mUUIDs, no_op));
-        registrar.add("Wearing.Favorite", boost::bind(toggle_linked_favorite, mUUIDs.front()));
+        registrar.add("Wearing.Favorite", boost::bind(toggle_favorite, mUUIDs.front()));
         LLContextMenu* menu = createFromFile("menu_wearing_tab.xml");
 
         updateMenuItemsVisibility(menu);

@@ -42,11 +42,13 @@ class LLOutfitGalleryItem;
 class LLOutfitListGearMenuBase;
 class LLOutfitGalleryGearMenu;
 class LLOutfitGalleryContextMenu;
+class LLOutfitGallerySortMenu;
 
 class LLOutfitGallery : public LLOutfitListBase
 {
 public:
     friend class LLOutfitGalleryGearMenu;
+    friend class LLOutfitGallerySortMenu;
     friend class LLOutfitGalleryContextMenu;
     friend class LLUpdateGalleryOnPhotoLinked;
 
@@ -135,6 +137,7 @@ private:
     void reArrangeRows(S32 row_diff = 0);
     void updateRowsIfNeeded();
     void updateGalleryWidth();
+    void handleInvFavColorChange();
 
     LLOutfitGalleryItem* buildGalleryItem(std::string name, LLUUID outfit_id, bool is_favorite);
     LLOutfitGalleryItem* getSelectedItem() const;
@@ -178,6 +181,7 @@ private:
     int mGalleryWidthFactor;
 
     LLListContextMenu* mOutfitGalleryMenu;
+    LLOutfitGallerySortMenu* mSortMenu;
 
     typedef std::map<LLUUID, LLOutfitGalleryItem*>      outfit_map_t;
     typedef outfit_map_t::value_type                    outfit_map_value_t;
@@ -189,6 +193,8 @@ private:
 
 
     LLInventoryCategoriesObserver*  mOutfitsObserver;
+
+    boost::signals2::connection mSavedSettingInvFavColor;
 };
 class LLOutfitGalleryContextMenu : public LLOutfitContextMenu
 {
@@ -215,8 +221,6 @@ public:
 protected:
     /*virtual*/ void onUpdateItemsVisibility();
 private:
-    /*virtual*/ void onChangeSortOrder();
-
     bool hasDefaultImage();
 };
 
@@ -253,6 +257,7 @@ public:
 
     std::string getItemName() {return mOutfitName;}
     bool isDefaultImage() {return mDefaultImage;}
+    bool isFavorite() { return mFavorite; }
 
     bool isHidden() {return mHidden;}
     void setHidden(bool hidden) {mHidden = hidden;}
@@ -277,6 +282,23 @@ private:
     static bool sColorSetInitialized;
     static LLUIColor sDefaultTextColor;
     static LLUIColor sDefaultFavoriteColor;
+};
+
+class LLOutfitGallerySortMenu
+{
+public:
+    LLOutfitGallerySortMenu(LLOutfitListBase* parent_panel);
+
+    LLToggleableMenu* getMenu();
+    void updateItemsVisibility();
+
+private:
+    void onUpdateItemsVisibility();
+    bool onEnable(LLSD::String param);
+    void onSort(LLSD::String param);
+
+    LLToggleableMenu* mMenu;
+    LLHandle<LLPanel> mPanelHandle;
 };
 
 #endif  // LL_LLOUTFITGALLERYCTRL_H

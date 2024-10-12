@@ -784,7 +784,6 @@ void LLOutfitsList::onOutfitRightClick(LLUICtrl* ctrl, S32 x, S32 y, const LLUUI
     }
 }
 
-
 void LLOutfitsList::handleInvFavColorChange()
 {
     for (outfits_map_t::iterator iter = mOutfitsMap.begin();
@@ -1463,10 +1462,6 @@ bool LLOutfitListGearMenuBase::onEnable(LLSD::String param)
     {
         return LLAppearanceMgr::instance().getCanReplaceCOF(mOutfitList->getSelectedOutfitUUID());
     }
-    if ("sort_by_image" == param)
-    {
-        return !gSavedSettings.getBOOL("OutfitGallerySortByName");
-    }
 
     return mOutfitList->isActionEnabled(param);
 }
@@ -1547,7 +1542,7 @@ LLOutfitListSortMenu::LLOutfitListSortMenu(LLOutfitListBase* parent_panel)
     enable_registrar.add("Sort.OnEnable", boost::bind(&LLOutfitListSortMenu::onEnable, this, _2));
 
     mMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>(
-        "menu_outfit_sort.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+        "menu_outfit_list_sort.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
     llassert(mMenu);
 }
 
@@ -1581,10 +1576,10 @@ bool LLOutfitListSortMenu::onEnable(LLSD::String param)
     else if ("show_entire_outfit" == param)
     {
         LLCachedControl<bool> filter_mode(gSavedSettings, "OutfitListFilterFullList", 0);
-        return !filter_mode;
+        return filter_mode;
     }
 
-    return true;
+    return false;
 }
 
 

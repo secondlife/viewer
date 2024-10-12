@@ -81,9 +81,16 @@ LLOutfitGallery::LLOutfitGallery(const LLOutfitGallery::Params& p)
       mItemsInRow(p.items_in_row),
       mRowPanWidthFactor(p.row_panel_width_factor),
       mGalleryWidthFactor(p.gallery_width_factor),
-      mTextureSelected(NULL)
+      mTextureSelected(NULL),
+      mSortMenu(nullptr)
 {
     updateGalleryWidth();
+
+    LLControlVariable* ctrl = gSavedSettings.getControl("InventoryFavoritesColorText");
+    if (ctrl)
+    {
+        mSavedSettingInvFavColor = ctrl->getSignal()->connect(boost::bind(&LLOutfitGallery::handleInvFavColorChange, this));
+    }
 }
 
 LLOutfitGallery::Params::Params()
@@ -414,19 +421,28 @@ void LLOutfitGallery::updateRowsIfNeeded()
 
 bool compareGalleryItem(LLOutfitGalleryItem* item1, LLOutfitGalleryItem* item2)
 {
-    static LLCachedControl<bool> outfit_gallery_sort_by_name(gSavedSettings, "OutfitGallerySortByName");
-    if(outfit_gallery_sort_by_name ||
-            ((item1->isDefaultImage() && item2->isDefaultImage()) || (!item1->isDefaultImage() && !item2->isDefaultImage())))
+    LLCachedControl<S32> sort_by_name(gSavedSettings, "OutfitGallerySortOrder", 0);
+    switch (sort_by_name())
     {
-        std::string name1 = item1->getItemName();
-        std::string name2 = item2->getItemName();
+    case 2:
+        if (item1->isFavorite() != item2->isFavorite())
+        {
+            return item1->isFavorite();
+        }
+        break;
+    case 1:
+        if (item1->isDefaultImage() != item2->isDefaultImage())
+        {
+            return item2->isDefaultImage();
+        }
+        break;
+    default:
+        break;
+    }
 
-        return (LLStringUtil::compareDict(name1, name2) < 0);
-    }
-    else
-    {
-        return item2->isDefaultImage();
-    }
+    std::string name1 = item1->getItemName();
+    std::string name2 = item2->getItemName();
+    return (LLStringUtil::compareDict(name1, name2) < 0);
 }
 
 void LLOutfitGallery::reArrangeRows(S32 row_diff)
@@ -467,6 +483,20 @@ void LLOutfitGallery::updateGalleryWidth()
 {
     mRowPanelWidth = mRowPanWidthFactor * mItemsInRow - mItemHorizontalGap;
     mGalleryWidth = mGalleryWidthFactor * mItemsInRow - mItemHorizontalGap;
+}
+
+void LLOutfitGallery::handleInvFavColorChange()
+{
+    for (outfit_map_t::iterator iter = mOutfitMap.begin();
+        iter != mOutfitMap.end();
+        ++iter)
+    {
+        if (!iter->second) continue;
+        LLOutfitGalleryItem* item = (LLOutfitGalleryItem*)iter->second;
+
+        // refresh font color
+        item->setOutfitFavorite(item->isFavorite());
+    }
 }
 
 LLPanel* LLOutfitGallery::addLastRow()
@@ -1014,7 +1044,8 @@ void LLOutfitGalleryItem::draw()
         }
     }
 
-    if(mFavorite)
+    static LLUICachedControl<bool> draw_star("InventoryFavoritesUseStar", true);
+    if(mFavorite && draw_star())
     {
         const S32 HPAD = 3;
         const S32 VPAD = 6; // includes padding for text and for the image
@@ -1037,7 +1068,9 @@ void LLOutfitGalleryItem::setOutfitName(std::string name)
 void LLOutfitGalleryItem::setOutfitFavorite(bool is_favorite)
 {
     mFavorite = is_favorite;
-    mOutfitNameText->setReadOnlyColor(mFavorite ? sDefaultFavoriteColor.get() : sDefaultTextColor.get());
+
+    LLCachedControl<bool> use_color(gSavedSettings, "InventoryFavoritesColorText");
+    mOutfitNameText->setReadOnlyColor((mFavorite && use_color()) ? sDefaultFavoriteColor.get() : sDefaultTextColor.get());
 }
 
 void LLOutfitGalleryItem::setOutfitWorn(bool value)
@@ -1046,11 +1079,13 @@ void LLOutfitGalleryItem::setOutfitWorn(bool value)
     LLStringUtil::format_map_t worn_string_args;
     std::string worn_string = getString("worn_string", worn_string_args);
     mOutfitWornText->setReadOnlyColor(sDefaultTextColor.get());
-    mOutfitNameText->setReadOnlyColor(mFavorite ? sDefaultFavoriteColor.get() : sDefaultTextColor.get());
     mOutfitWornText->setFont(value ? LLFontGL::getFontSansSerifBold() : LLFontGL::getFontSansSerifSmall());
     mOutfitNameText->setFont(value ? LLFontGL::getFontSansSerifBold() : LLFontGL::getFontSansSerifSmall());
     mOutfitWornText->setValue(value ? worn_string : "");
     mOutfitNameText->setText(mOutfitName); // refresh LLTextViewModel to pick up font changes
+
+    LLCachedControl<bool> use_color(gSavedSettings, "InventoryFavoritesColorText");
+    mOutfitNameText->setReadOnlyColor((mFavorite && use_color()) ? sDefaultFavoriteColor.get() : sDefaultTextColor.get());
 }
 
 void LLOutfitGalleryItem::setSelected(bool value)
@@ -1250,17 +1285,6 @@ void LLOutfitGalleryGearMenu::onUpdateItemsVisibility()
     LLOutfitListGearMenuBase::onUpdateItemsVisibility();
 }
 
-void LLOutfitGalleryGearMenu::onChangeSortOrder()
-{
-    bool sort_by_name = !gSavedSettings.getBOOL("OutfitGallerySortByName");
-    gSavedSettings.setBOOL("OutfitGallerySortByName", sort_by_name);
-    LLOutfitGallery* gallery = dynamic_cast<LLOutfitGallery*>(mOutfitList);
-    if (gallery)
-    {
-        gallery->reArrangeRows();
-    }
-}
-
 bool LLOutfitGalleryGearMenu::hasDefaultImage()
 {
     LLOutfitGallery* gallery = dynamic_cast<LLOutfitGallery*>(mOutfitList);
@@ -1379,7 +1403,11 @@ void LLOutfitGallery::refreshOutfit(const LLUUID& category_id)
 
 LLToggleableMenu* LLOutfitGallery::getSortMenu()
 {
-    return nullptr;
+    if (!mSortMenu)
+    {
+        mSortMenu = new LLOutfitGallerySortMenu(this);
+    }
+    return mSortMenu->getMenu();
 }
 
 LLUUID LLOutfitGallery::getPhotoAssetId(const LLUUID& outfit_id)
@@ -1395,5 +1423,86 @@ LLUUID LLOutfitGallery::getPhotoAssetId(const LLUUID& outfit_id)
 LLUUID LLOutfitGallery::getDefaultPhoto()
 {
     return LLUUID();
+}
+
+
+//////////////////// LLOutfitGallerySortMenu ////////////////////
+
+LLOutfitGallerySortMenu::LLOutfitGallerySortMenu(LLOutfitListBase* parent_panel)
+    : mPanelHandle(parent_panel->getHandle())
+{
+    LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+    LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
+
+    registrar.add("Sort.OnSort", { boost::bind(&LLOutfitGallerySortMenu::onSort, this, _2) });
+    enable_registrar.add("Sort.OnEnable", boost::bind(&LLOutfitGallerySortMenu::onEnable, this, _2));
+
+    mMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>(
+        "menu_outfit_gallery_sort.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+    llassert(mMenu);
+}
+
+
+LLToggleableMenu* LLOutfitGallerySortMenu::getMenu()
+{
+    return mMenu;
+}
+
+void LLOutfitGallerySortMenu::updateItemsVisibility()
+{
+    onUpdateItemsVisibility();
+}
+
+void LLOutfitGallerySortMenu::onUpdateItemsVisibility()
+{
+    if (!mMenu) return;
+}
+
+bool LLOutfitGallerySortMenu::onEnable(LLSD::String param)
+{
+    LLCachedControl<S32> sort_order(gSavedSettings, "OutfitGallerySortOrder", 0);
+    if ("favorites_to_top" == param)
+    {
+        return sort_order == 2;
+    }
+    else if ("images_to_top" == param)
+    {
+        return sort_order == 1;
+    }
+    else if ("by_name" == param)
+    {
+        return sort_order == 0;
+    }
+
+    return false;
+}
+
+void LLOutfitGallerySortMenu::onSort(LLSD::String param)
+{
+    S32 sort_order = gSavedSettings.getS32("OutfitGallerySortOrder");
+    S32 new_sort_order = 0;
+    if ("favorites_to_top" == param)
+    {
+        new_sort_order = 2;
+    }
+    else if ("images_to_top" == param)
+    {
+        new_sort_order = 1;
+    }
+    else if ("by_name" == param)
+    {
+        new_sort_order = 0;
+    }
+    if (sort_order == new_sort_order)
+    {
+        new_sort_order = sort_order ? 0 : 1;
+    }
+    gSavedSettings.setS32("OutfitGallerySortOrder", new_sort_order);
+
+    LLOutfitGallery* gallery = dynamic_cast<LLOutfitGallery*>(mPanelHandle.get());
+    if (gallery)
+    {
+        gallery->reArrangeRows();
+    }
 }
 

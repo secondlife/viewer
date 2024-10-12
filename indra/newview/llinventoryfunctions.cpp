@@ -2427,16 +2427,31 @@ public:
     /* virtual */ void fire(const LLUUID& inv_item_id) override
     {
         gInventory.addChangedMask(LLInventoryObserver::UPDATE_FAVORITE, mInvItemID);
+
+        LLInventoryModel::item_array_t items;
+        LLInventoryModel::cat_array_t cat_array;
+        LLLinkedItemIDMatches matches(mInvItemID);
+        gInventory.collectDescendentsIf(gInventory.getRootFolderID(),
+            cat_array,
+            items,
+            LLInventoryModel::INCLUDE_TRASH,
+            matches);
+
+        std::set<LLUUID> link_ids;
+        for (LLInventoryModel::item_array_t::iterator it = items.begin(); it != items.end(); ++it)
+        {
+            LLPointer<LLViewerInventoryItem> item = *it;
+
+            gInventory.addChangedMask(LLInventoryObserver::UPDATE_FAVORITE, item->getUUID());
+        }
+
         gInventory.notifyObservers();
     }
 private:
     LLUUID mInvItemID;
 };
 
-void set_favorite(const LLUUID& obj_id, bool favorite)
-{
-    LLInventoryObject* obj = gInventory.getObject(obj_id);
-    if (obj->getIsFavorite() != favorite)
+void favorite_send(LLInventoryObject* obj, const LLUUID& obj_id, bool favorite)
     {
         LLSD val;
         if (favorite)
@@ -2467,51 +2482,57 @@ void set_favorite(const LLUUID& obj_id, bool favorite)
             update_inventory_item(obj_id, updates, cb);
         }
     }
+
+bool get_is_favorite(const LLInventoryObject* object)
+{
+    if (object->getIsLinkType())
+    {
+        LLInventoryObject* obj = gInventory.getObject(object->getLinkedUUID());
+        return obj && obj->getIsFavorite();
+    }
+
+    return object->getIsFavorite();
+}
+
+bool get_is_favorite(const LLUUID& obj_id)
+{
+    LLInventoryObject* object = gInventory.getObject(obj_id);
+    if (object && object->getIsLinkType())
+    {
+        LLInventoryObject* obj = gInventory.getObject(object->getLinkedUUID());
+        return obj && obj->getIsFavorite();
+    }
+
+    return object->getIsFavorite();
+}
+
+void set_favorite(const LLUUID& obj_id, bool favorite)
+{
+    LLInventoryObject* obj = gInventory.getObject(obj_id);
+
+    if (obj && obj->getIsLinkType())
+    {
+        obj = gInventory.getObject(obj_id);
+    }
+
+    if (obj && obj->getIsFavorite() != favorite)
+    {
+        favorite_send(obj, obj_id, favorite);
+    }
 }
 
 void toggle_favorite(const LLUUID& obj_id)
 {
     LLInventoryObject* obj = gInventory.getObject(obj_id);
-    if (!obj)
+    if (obj && obj->getIsLinkType())
     {
-        return;
+        obj = gInventory.getObject(obj_id);
     }
 
-    LLSD updates;
-    if (!obj->getIsFavorite())
+    if (obj)
     {
-        updates["favorite"] = LLSD().with("toggled", true);
+        favorite_send(obj, obj_id, !obj->getIsFavorite());
     }
-    else
-    {
-        updates["favorite"] = LLSD();
-    }
-
-    LLPointer<LLInventoryCallback> cb = new LLUpdateFavorite(obj_id);
-
-    LLViewerInventoryCategory* view_folder = dynamic_cast<LLViewerInventoryCategory*>(obj);
-    if (view_folder)
-    {
-        update_inventory_category(obj_id, updates, cb);
-    }
-    LLViewerInventoryItem* view_item = dynamic_cast<LLViewerInventoryItem*>(obj);
-    if (view_item)
-    {
-        update_inventory_item(obj_id, updates, cb);
-    }
-}
-
-void toggle_linked_favorite(const LLUUID& obj_id)
-{
-    LLViewerInventoryItem* item = gInventory.getItem(obj_id);
-    if (!item)
-    {
-        LL_WARNS() << "Invalid item" << LL_ENDL;
-        return;
-    }
-
-    LLUUID linked_id = item->getLinkedUUID();
-    toggle_favorite(linked_id);
 }
 
 std::string get_searchable_description(LLInventoryModel* model, const LLUUID& item_id)

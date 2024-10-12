@@ -628,10 +628,11 @@ void LLInventoryPanel::itemChanged(const LLUUID& item_id, U32 mask, const LLInve
     {
         if (view_item)
         {
+            view_item->refresh();
             LLFolderViewFolder* parent = view_item->getParentFolder();
             if (parent)
             {
-                parent->updateHasFavorites(view_item->isFavorite());
+                parent->updateHasFavorites(get_is_favorite(model_item));
             }
         }
     }
@@ -664,7 +665,8 @@ void LLInventoryPanel::itemChanged(const LLUUID& item_id, U32 mask, const LLInve
                 setSelection(item_id, false);
             }
             updateFolderLabel(model_item->getParentUUID());
-            if (model_item->getIsFavorite())
+
+            if (get_is_favorite(model_item))
             {
                 LLFolderViewFolder* new_parent = (LLFolderViewFolder*)getItemByID(model_item->getParentUUID());
                 if (new_parent)
@@ -2423,6 +2425,7 @@ void LLInventoryFavoritesItemsPanel::itemChanged(const LLUUID& id, U32 mask, con
         LLInventoryObserver::ADD |
         LLInventoryObserver::REMOVE))
     {
+        // specifically exlude links and not get_is_favorite(model_item)
         if (model_item && model_item->getIsFavorite())
         {
             LLFolderViewItem* view_item = getItemByID(id);

@@ -4,8 +4,8 @@
  can_minimize="true"
  can_resize="false"
  save_rect="true"
- height="460"
- width="460"
+ height="483"
+ width="483"
  name="inventory_settings"
  title="INVENTORY SETTINGS">
  <icon
@@ -210,8 +210,21 @@
    left="60"
    width="300"
    height="18"
-   label="Star"
+   label="Star on favorite items"
    name="favorite_star"
+   label_text.text_color="White"
+   initial_value="false"/>
+  <check_box
+   control_name="InventoryFavoritesUseHollowStar"
+   follows="left|top"
+   top_pad="5"
+   layout="topleft"
+   font="SansSerifMedium"
+   left="60"
+   width="150"
+   height="18"
+   label="Star on folders containing a favorite"
+   name="favorite_hollow_star"
    label_text.text_color="White"
    initial_value="false"/>
   <check_box
