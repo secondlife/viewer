@@ -421,7 +421,7 @@ void LLOutfitGallery::updateRowsIfNeeded()
 
 bool compareGalleryItem(LLOutfitGalleryItem* item1, LLOutfitGalleryItem* item2)
 {
-    LLCachedControl<S32> sort_by_name(gSavedSettings, "OutfitGallerySortOrder", 0);
+    static LLCachedControl<S32> sort_by_name(gSavedSettings, "OutfitGallerySortOrder", 0);
     switch (sort_by_name())
     {
     case 2:
@@ -1069,7 +1069,7 @@ void LLOutfitGalleryItem::setOutfitFavorite(bool is_favorite)
 {
     mFavorite = is_favorite;
 
-    LLCachedControl<bool> use_color(gSavedSettings, "InventoryFavoritesColorText");
+    static LLCachedControl<bool> use_color(gSavedSettings, "InventoryFavoritesColorText");
     mOutfitNameText->setReadOnlyColor((mFavorite && use_color()) ? sDefaultFavoriteColor.get() : sDefaultTextColor.get());
 }
 
@@ -1084,7 +1084,7 @@ void LLOutfitGalleryItem::setOutfitWorn(bool value)
     mOutfitWornText->setValue(value ? worn_string : "");
     mOutfitNameText->setText(mOutfitName); // refresh LLTextViewModel to pick up font changes
 
-    LLCachedControl<bool> use_color(gSavedSettings, "InventoryFavoritesColorText");
+    static LLCachedControl<bool> use_color(gSavedSettings, "InventoryFavoritesColorText");
     mOutfitNameText->setReadOnlyColor((mFavorite && use_color()) ? sDefaultFavoriteColor.get() : sDefaultTextColor.get());
 }
 
@@ -1460,7 +1460,7 @@ void LLOutfitGallerySortMenu::onUpdateItemsVisibility()
 
 bool LLOutfitGallerySortMenu::onEnable(LLSD::String param)
 {
-    LLCachedControl<S32> sort_order(gSavedSettings, "OutfitGallerySortOrder", 0);
+    static LLCachedControl<S32> sort_order(gSavedSettings, "OutfitGallerySortOrder", 0);
     if ("favorites_to_top" == param)
     {
         return sort_order == 2;

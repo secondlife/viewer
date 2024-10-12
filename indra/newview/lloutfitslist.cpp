@@ -225,7 +225,7 @@ void LLOutfitsList::updateAddedCategory(LLUUID cat_id)
     tab->setDropDownStateChangedCallback(boost::bind(&LLOutfitsList::resetItemSelection, this, list, cat_id));
 
     // Depending on settings, force showing list items that don't match current filter(EXT-7158)
-    LLCachedControl<bool> list_filter(gSavedSettings, "OutfitListFilterFullList");
+    static LLCachedControl<bool> list_filter(gSavedSettings, "OutfitListFilterFullList");
     list->setForceShowingUnmatchedItems(list_filter(), false);
 
     // Setting list commit callback to monitor currently selected wearable item.
@@ -567,7 +567,7 @@ void LLOutfitsList::onFilterSubStringChanged(const std::string& new_string, cons
         LLWearableItemsList* list = dynamic_cast<LLWearableItemsList*>(tab->getAccordionView());
         if (list)
         {
-            list->setFilterSubString(new_string, tab->getDisplayChildren());
+            list->setFilterSubString(new_string, true);
         }
 
         if (old_string.empty())
@@ -1570,12 +1570,12 @@ bool LLOutfitListSortMenu::onEnable(LLSD::String param)
 {
     if ("favorites_to_top" == param)
     {
-        LLCachedControl<S32> sort_order(gSavedSettings, "OutfitListSortOrder", 0);
+        static LLCachedControl<S32> sort_order(gSavedSettings, "OutfitListSortOrder", 0);
         return sort_order == 1;
     }
     else if ("show_entire_outfit" == param)
     {
-        LLCachedControl<bool> filter_mode(gSavedSettings, "OutfitListFilterFullList", 0);
+        static LLCachedControl<bool> filter_mode(gSavedSettings, "OutfitListFilterFullList", 0);
         return filter_mode;
     }
 
