@@ -143,8 +143,10 @@ public:
     virtual bool    canDoDelete() const;
     virtual void    selectAll();
     virtual bool    canSelectAll()  const;
+    virtual void    deselect();
 
     void            selectByCursorPosition(S32 prev_cursor_pos, S32 next_cursor_pos);
+    void            setSelectAllOnFocusReceived(bool b);
 
     virtual bool    canLoadOrSaveToFile();
 
@@ -342,6 +344,8 @@ private:
     bool            mEnableTooltipPaste;
     bool            mPassDelete;
     bool            mKeepSelectionOnReturn; // disabling of removing selected text after pressing of Enter
+    bool            mSelectAllOnFocusReceived;
+    bool            mSelectedOnFocusReceived;
 
     LLUUID          mSourceID;
 

@@ -2004,7 +2004,21 @@ void LLFloaterPreference::selectChatPanel()
 
 void LLFloaterPreference::changed()
 {
-    getChild<LLButton>("clear_log")->setEnabled(LLConversationLog::instance().getConversations().size() > 0);
+    if (LLConversationLog::instance().getIsLoggingEnabled())
+    {
+        getChild<LLButton>("clear_log")->setEnabled(LLConversationLog::instance().getConversations().size() > 0);
+    }
+    else
+    {
+        // onClearLog clears list, then notifies changed() and only then clears file,
+        // so check presence of conversations before checking file, file will cleared later.
+        llstat st;
+        bool has_logs = LLConversationLog::instance().getConversations().size() > 0
+                        && LLFile::stat(LLConversationLog::instance().getFileName(), &st) == 0
+                        && S_ISREG(st.st_mode)
+                        && st.st_size > 0;
+        getChild<LLButton>("clear_log")->setEnabled(has_logs);
+    }
 
     // set 'enable' property for 'Delete transcripts...' button
     updateDeleteTranscriptsButton();

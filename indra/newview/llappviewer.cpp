@@ -461,11 +461,20 @@ void idle_afk_check()
 {
     // check idle timers
     F32 current_idle = gAwayTriggerTimer.getElapsedTimeF32();
-    F32 afk_timeout  = (F32)gSavedSettings.getS32("AFKTimeout");
-    if (afk_timeout && (current_idle > afk_timeout) && ! gAgent.getAFK())
+    LLCachedControl<S32> afk_timeout(gSavedSettings, "AFKTimeout", 300);
+    if (afk_timeout() && (current_idle > afk_timeout()))
     {
-        LL_INFOS("IdleAway") << "Idle more than " << afk_timeout << " seconds: automatically changing to Away status" << LL_ENDL;
-        gAgent.setAFK();
+        if (!gAgent.getAFK())
+        {
+            LL_INFOS("IdleAway") << "Idle more than " << afk_timeout << " seconds: automatically changing to Away status" << LL_ENDL;
+            gAgent.setAFK();
+        }
+        else
+        {
+            // Refresh timer so that random one click or hover won't clear the status.
+            // But expanding the window still should lift afk status
+            gAwayTimer.reset();
+        }
     }
 }
 
