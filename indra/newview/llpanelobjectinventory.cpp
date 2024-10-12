@@ -129,6 +129,7 @@ public:
     virtual void navigateToFolder(bool new_window = false, bool change_mode = false) {}
     virtual bool isItemRenameable() const;
     virtual bool renameItem(const std::string& new_name);
+    virtual bool isFavorite() const { return false; }
     virtual bool isItemMovable() const;
     virtual bool isItemRemovable(bool check_worn = true) const;
     virtual bool removeItem();

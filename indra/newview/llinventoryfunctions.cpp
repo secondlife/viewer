@@ -2418,6 +2418,102 @@ void ungroup_folder_items(const LLUUID& folder_id)
     gInventory.notifyObservers();
 }
 
+class LLUpdateFavorite : public LLInventoryCallback
+{
+public:
+    LLUpdateFavorite(const LLUUID& inv_item_id)
+        : mInvItemID(inv_item_id)
+    {}
+    /* virtual */ void fire(const LLUUID& inv_item_id) override
+    {
+        gInventory.addChangedMask(LLInventoryObserver::UPDATE_FAVORITE, mInvItemID);
+        gInventory.notifyObservers();
+    }
+private:
+    LLUUID mInvItemID;
+};
+
+void set_favorite(const LLUUID& obj_id, bool favorite)
+{
+    LLInventoryObject* obj = gInventory.getObject(obj_id);
+    if (obj->getIsFavorite() != favorite)
+    {
+        LLSD val;
+        if (favorite)
+        {
+            val = true;
+        } // else leave undefined to remove unneeded metadata field
+
+        LLSD updates;
+        if (favorite)
+        {
+            updates["favorite"] = LLSD().with("toggled", true);
+        }
+        else
+        {
+            updates["favorite"] = LLSD();
+        }
+
+        LLPointer<LLInventoryCallback> cb = new LLUpdateFavorite(obj_id);
+
+        LLViewerInventoryCategory* view_folder = dynamic_cast<LLViewerInventoryCategory*>(obj);
+        if (view_folder)
+        {
+            update_inventory_category(obj_id, updates, cb);
+        }
+        LLViewerInventoryItem* view_item = dynamic_cast<LLViewerInventoryItem*>(obj);
+        if (view_item)
+        {
+            update_inventory_item(obj_id, updates, cb);
+        }
+    }
+}
+
+void toggle_favorite(const LLUUID& obj_id)
+{
+    LLInventoryObject* obj = gInventory.getObject(obj_id);
+    if (!obj)
+    {
+        return;
+    }
+
+    LLSD updates;
+    if (!obj->getIsFavorite())
+    {
+        updates["favorite"] = LLSD().with("toggled", true);
+    }
+    else
+    {
+        updates["favorite"] = LLSD();
+    }
+
+    LLPointer<LLInventoryCallback> cb = new LLUpdateFavorite(obj_id);
+
+    LLViewerInventoryCategory* view_folder = dynamic_cast<LLViewerInventoryCategory*>(obj);
+    if (view_folder)
+    {
+        update_inventory_category(obj_id, updates, cb);
+    }
+    LLViewerInventoryItem* view_item = dynamic_cast<LLViewerInventoryItem*>(obj);
+    if (view_item)
+    {
+        update_inventory_item(obj_id, updates, cb);
+    }
+}
+
+void toggle_linked_favorite(const LLUUID& obj_id)
+{
+    LLViewerInventoryItem* item = gInventory.getItem(obj_id);
+    if (!item)
+    {
+        LL_WARNS() << "Invalid item" << LL_ENDL;
+        return;
+    }
+
+    LLUUID linked_id = item->getLinkedUUID();
+    toggle_favorite(linked_id);
+}
+
 std::string get_searchable_description(LLInventoryModel* model, const LLUUID& item_id)
 {
     if (model)
@@ -2693,6 +2789,20 @@ bool LLIsTypeWithPermissions::operator()(LLInventoryCategory* cat, LLInventoryIt
                 return true;
             }
         }
+    }
+    return false;
+}
+
+bool LLFavoritesCollector::operator()(LLInventoryCategory* cat,
+    LLInventoryItem* item)
+{
+    if (item && item->getIsFavorite())
+    {
+        return true;
+    }
+    if (cat && cat->getIsFavorite())
+    {
+        return true;
     }
     return false;
 }
@@ -3479,6 +3589,20 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
                 data.append(bridge->getUUID());
             }
             LLFloaterReg::showInstance("change_item_thumbnail", data);
+        }
+    }
+    else if ("add_to_favorites" == action)
+    {
+        for (const LLUUID& id : ids)
+        {
+            set_favorite(id, true);
+        }
+    }
+    else if ("remove_from_favorites" == action)
+    {
+        for (const LLUUID& id : ids)
+        {
+            set_favorite(id, false);
         }
     }
     else

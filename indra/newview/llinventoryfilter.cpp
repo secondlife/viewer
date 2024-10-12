@@ -160,6 +160,7 @@ bool LLInventoryFilter::check(const LLFolderViewModelItem* item)
     passed = passed && checkAgainstCreator(listener);
     passed = passed && checkAgainstSearchVisibility(listener);
 
+    passed = passed && checkAgainstFilterFavorites(listener->getUUID());
     passed = passed && checkAgainstFilterThumbnails(listener->getUUID());
 
     return passed;
@@ -222,6 +223,19 @@ bool LLInventoryFilter::checkFolder(const LLUUID& folder_id) const
         return false;
     }
 
+    const LLViewerInventoryCategory* cat = gInventory.getCategory(folder_id);
+    if (cat && cat->getIsFavorite())
+    {
+        if (mFilterOps.mFilterFavorites == FILTER_ONLY_FAVORITES)
+        {
+            return true;
+        }
+        if (mFilterOps.mFilterFavorites == FILTER_EXCLUDE_FAVORITES)
+        {
+            return false;
+        }
+    }
+
     // Marketplace folder filtering
     const U32 filterTypes = mFilterOps.mFilterTypes;
     const U32 marketplace_filter = FILTERTYPE_MARKETPLACE_ACTIVE | FILTERTYPE_MARKETPLACE_INACTIVE |
@@ -271,6 +285,16 @@ bool LLInventoryFilter::checkFolder(const LLUUID& folder_id) const
                     return false;
                 }
             }
+        }
+    }
+
+    if (filterTypes & FILTERTYPE_NO_TRASH_ITEMS)
+    {
+        const LLUUID trash_uuid = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
+        // If not a descendant of the marketplace listings root, then the nesting depth is -1 by definition
+        if (gInventory.isObjectDescendentOf(folder_id, trash_uuid))
+        {
+            return false;
         }
     }
 
@@ -618,10 +642,12 @@ bool LLInventoryFilter::checkAgainstFilterFavorites(const LLUUID& object_id) con
     if (!object) return true;
 
     const bool is_favorite = object->getIsFavorite();
+
     if (is_favorite && (mFilterOps.mFilterFavorites == FILTER_EXCLUDE_FAVORITES))
         return false;
     if (!is_favorite && (mFilterOps.mFilterFavorites == FILTER_ONLY_FAVORITES))
         return false;
+
     return true;
 }
 
@@ -961,6 +987,11 @@ void LLInventoryFilter::toggleSearchVisibilityLibrary()
     {
         setModified(hide_library ? FILTER_MORE_RESTRICTIVE : FILTER_LESS_RESTRICTIVE);
     }
+}
+
+void LLInventoryFilter::setFilterNoTrashFolder()
+{
+    mFilterOps.mFilterTypes |= FILTERTYPE_NO_TRASH_ITEMS;
 }
 
 void LLInventoryFilter::setFilterNoMarketplaceFolder()

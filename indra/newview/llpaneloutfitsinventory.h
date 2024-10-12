@@ -30,11 +30,13 @@
 
 #include "llpanel.h"
 
+class LLButton;
 class LLOutfitGallery;
 class LLOutfitsList;
 class LLOutfitListGearMenuBase;
 class LLPanelAppearanceTab;
 class LLPanelWearing;
+class LLMenuButton;
 class LLMenuGL;
 class LLSidepanelAppearance;
 class LLTabContainer;
@@ -62,6 +64,13 @@ public:
     void openApearanceTab(const std::string& tab_name);
 
     bool isCOFPanelActive() const;
+
+    void setMenuButtons(
+        LLMenuButton* gear_menu,
+        LLMenuButton* sort_menu,
+        LLButton* trash_btn,
+        LLPanel* sort_menu_panel,
+        LLPanel* trash_menu_panel);
 
 protected:
     void updateVerbs();
@@ -94,6 +103,7 @@ protected:
     void onWearButtonClick();
     void showGearMenu();
     void onTrashButtonClick();
+    void onGearMouseDown();
     bool isActionEnabled(const LLSD& userdata);
     void setWearablesLoading(bool val);
     void onWearablesLoaded();
@@ -106,6 +116,16 @@ private:
     //////////////////////////////////////////////////////////////////////////////////
 
     bool mInitialized;
+
+    // not owned items
+    LLMenuButton* mGearMenu;
+    LLMenuButton* mSortMenu;
+    LLButton* mTrashBtn;
+    LLPanel* mSortMenuPanel;
+    LLPanel* mTrashMenuPanel;
+    boost::signals2::connection mGearMenuConnection;
+    boost::signals2::connection mSortMenuConnection;
+    boost::signals2::connection mTrashMenuConnection;
 };
 
 #endif //LL_LLPANELOUTFITSINVENTORY_H

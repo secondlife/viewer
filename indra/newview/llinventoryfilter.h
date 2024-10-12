@@ -61,6 +61,7 @@ public:
         FILTERTYPE_NO_MARKETPLACE_ITEMS = 0x1 << 10,         // pass iff folder is not under the marketplace
         FILTERTYPE_WORN = 0x1 << 11,     // pass if item is worn
         FILTERTYPE_SETTINGS = 0x1 << 12,    // pass if the item is a settings object
+        FILTERTYPE_NO_TRASH_ITEMS = 0x1 << 13,         // pass iff folder is not under the marketplace
     };
 
     enum EFilterDateDirection
@@ -244,6 +245,7 @@ public:
     void                setFilterMarketplaceInactiveFolders();
     void                setFilterMarketplaceUnassociatedFolders();
     void                setFilterMarketplaceListingFolders(bool select_only_listing_folders);
+    void                setFilterNoTrashFolder();
     void                setFilterNoMarketplaceFolder();
     void                setFilterThumbnails(U64 filter_thumbnails);
     void                setFilterFavorites(U64 filter_favorites);

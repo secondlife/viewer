@@ -126,6 +126,22 @@
          parameter="thumbnail" />
     </menu_item_call>
     <menu_item_call
+     label="Add to favorites"
+     layout="topleft"
+     name="favorites_add">
+        <menu_item_call.on_click
+         function="Inventory.DoToSelected"
+         parameter="favorite" />
+    </menu_item_call>
+  <menu_item_call
+   label="Remove from favorites"
+   layout="topleft"
+   name="favorites_remove">
+    <menu_item_call.on_click
+     function="Inventory.DoToSelected"
+     parameter="favorite" />
+  </menu_item_call>
+    <menu_item_call
      label="Copy Asset UUID"
      layout="topleft"
      name="Copy Asset UUID">
@@ -669,6 +685,22 @@
     <menu_item_call.on_click
      function="Inventory.DoToSelected"
      parameter="ungroup_folder_items" />
+  </menu_item_call>
+  <menu_item_call
+   label="Add to Favorites"
+   layout="topleft"
+   name="Add to Favorites">
+    <menu_item_call.on_click
+     function="Inventory.DoToSelected"
+     parameter="add_to_favorites" />
+  </menu_item_call>
+  <menu_item_call
+   label="Remove from Favorites"
+   layout="topleft"
+   name="Remove from Favorites">
+    <menu_item_call.on_click
+     function="Inventory.DoToSelected"
+     parameter="remove_from_favorites" />
   </menu_item_call>
   <menu
    label="Use as default for"

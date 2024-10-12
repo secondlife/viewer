@@ -1439,7 +1439,8 @@ void update_inventory_category(
     if(obj)
     {
         if (LLFolderType::lookupIsProtectedType(obj->getPreferredType())
-            && (updates.size() != 1 || !updates.has("thumbnail")))
+            && (updates.size() != 1
+                || !(updates.has("thumbnail") || updates.has("favorite"))))
         {
             LLNotificationsUtil::add("CannotModifyProtectedCategories");
             return;

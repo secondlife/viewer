@@ -4,8 +4,8 @@
  can_minimize="true"
  can_resize="false"
  save_rect="true"
- height="370"
- width="370"
+ height="460"
+ width="460"
  name="inventory_settings"
  title="INVENTORY SETTINGS">
  <icon
@@ -16,7 +16,7 @@
   left="18"
   mouse_opaque="true"
   name="multi_folder_icon"
-  top="25"
+  top="20"
   width="18" />
  <text
    type="string"
@@ -40,10 +40,10 @@
   font="SansSerifMedium"
   left="60"
   width="300"
-  height="70"
+  height="66"
   name="multi_double_click_setting">
      <radio_item
-      height="20"
+      height="18"
       label="Expands &amp; collapses folder"
       label_text.text_color="White"
       follows="left|top"
@@ -51,24 +51,24 @@
       name="0"
       width="200"/>
      <radio_item
-      height="20"
+      height="18"
       follows="left|top"
       label="Opens a new window"
       label_text.text_color="White"
       layout="topleft"
       left_delta="0"
       name="1"
-      top_pad ="5"
+      top_pad ="3"
       width="200" />
      <radio_item
-      height="20"
+      height="18"
       follows="left|top"
       label="Switches view"
       label_text.text_color="White"
       layout="topleft"
       left_delta="0"
       name="2"
-      top_pad ="5"
+      top_pad ="3"
       width="200" />
  </radio_group>
  <icon
@@ -79,7 +79,7 @@
   left="18"
   mouse_opaque="true"
   name="single_folder_icon"
-  top_pad="30"
+  top_pad="19"
   width="18" />
  <text
    type="string"
@@ -103,10 +103,10 @@
   font="SansSerifMedium"
   left="60"
   width="300"
-  height="45"
+  height="44"
   name="single_double_click_setting">
      <radio_item
-      height="20"
+      height="18"
       label="Stays in current window"
       label_text.text_color="White"
       follows="left|top"
@@ -114,27 +114,37 @@
       name="false"
       width="200"/>
      <radio_item
-      height="20"
+      height="18"
       follows="left|top"
       label="Opens a new window"
       label_text.text_color="White"
       layout="topleft"
       left_delta="0"
       name="true"
-      top_pad ="5"
+      top_pad ="3"
       width="200" />
  </radio_group>
+  <icon
+   follows="top|left"
+   height="15"
+   image_name="Icon_Pointer"
+   layout="topleft"
+   left="20"
+   mouse_opaque="true"
+   name="single_folder_icon"
+   top_pad="20"
+   width="15" />
  <text
    type="string"
    length="1"
    follows="left|top|right"
    height="13"
    layout="topleft"
-   left="48"
+   left_pad="13"
    name="find_original_txt"
    font="SansSerifMedium"
    text_color="White"
-   top_pad="30"
+   top_delta="1"
    width="300">
    Clicking on "Show in inventory" or "Find original"
  </text>
@@ -146,10 +156,10 @@
   font="SansSerifMedium"
   left="60"
   width="300"
-  height="45"
+  height="44"
   name="find_original_settings">
      <radio_item
-      height="20"
+      height="18"
       label="Shows item in main inventory window"
       label_text.text_color="White"
       follows="left|top"
@@ -157,23 +167,123 @@
       name="false"
       width="200"/>
      <radio_item
-      height="20"
+      height="18"
       follows="left|top"
       label="Opens a new single-folder window"
       label_text.text_color="White"
       layout="topleft"
       left_delta="0"
       name="true"
-      top_pad ="5"
+      top_pad ="3"
       width="200" />
  </radio_group>
- <button
-  height="20"
-  label="OK"
-  layout="topleft"
-  left="140"
-  bottom="-20"
-  name="ok_btn"
-  label_color="White"
-  width="90" />
+  <icon
+   follows="top|left"
+   height="18"
+   image_name="Inv_Favorite_Star_Full"
+   layout="topleft"
+   left="18"
+   mouse_opaque="true"
+   name="favorites_icon"
+   top_pad="19"
+   width="18" />
+  <text
+   type="string"
+   length="1"
+   layout="topleft"
+   follows="left|top|right"
+   height="13"
+   left_pad="12"
+   top_delta="2"
+   name="favorites_txt"
+   font="SansSerifMedium"
+   text_color="White"
+   width="300">
+   Favorites
+  </text>
+  <check_box
+   control_name="InventoryFavoritesUseStar"
+   layout="topleft"
+   follows="left|top"
+   top_pad="8"
+   font="SansSerifMedium"
+   left="60"
+   width="300"
+   height="18"
+   label="Star"
+   name="favorite_star"
+   label_text.text_color="White"
+   initial_value="false"/>
+  <check_box
+   control_name="InventoryFavoritesColorText"
+   follows="left|top"
+   top_pad="5"
+   layout="topleft"
+   font="SansSerifMedium"
+   left="60"
+   width="150"
+   height="18"
+   label="Colored text"
+   name="favorites_color"
+   label_text.text_color="White"
+   initial_value="false"/>
+  <color_swatch
+   can_apply_immediately="true"
+   follows="left|top"
+   layout="topleft"
+   height="24"
+   label_height="0"
+   left_pad="40"
+   name="favorites_swatch"
+   top_delta="-6"
+   width="44" >
+    <color_swatch.init_callback
+     function="ScriptPref.getUIColor"
+     parameter="InventoryFavoriteColor" />
+    <color_swatch.commit_callback
+     function="ScriptPref.applyUIColor"
+     parameter="InventoryFavoriteColor" />
+  </color_swatch>
+  <icon
+   follows="top|left"
+   height="18"
+   image_name="Inv_Object"
+   layout="topleft"
+   left="18"
+   mouse_opaque="true"
+   name="obj_icon"
+   top_pad="19"
+   width="18" />
+  <text
+   type="string"
+   length="1"
+   follows="left|top|right"
+   height="13"
+   layout="topleft"
+   left_pad="12"
+   top_delta="2"
+   name="single_folder_txt"
+   font="SansSerifMedium"
+   text_color="White"
+   width="300">
+   Pressing return on an avatar attachment
+  </text>
+  <combo_box
+   control_name="InventoryAddAttachmentBehavior"
+   layout="topleft"
+   follows="left|top"
+   top_pad="8"
+   height="24"
+   left="60"
+   name="attach_combo"
+   width="300">
+    <combo_box.item
+      label="Adds attachment (recommended)"
+      name="0"
+      value="0"/>
+    <combo_box.item
+      label="Wear (removes attachment at that point)"
+      name="1"
+      value="1"/>
+  </combo_box>
 </floater>

@@ -951,6 +951,22 @@
      function="Inventory.DoToSelected"
      parameter="ungroup_folder_items" />
   </menu_item_call>
+  <menu_item_call
+   label="Add to Favorites"
+   layout="topleft"
+   name="Add to Favorites">
+    <menu_item_call.on_click
+     function="Inventory.DoToSelected"
+     parameter="add_to_favorites" />
+  </menu_item_call>
+  <menu_item_call
+   label="Remove from Favorites"
+   layout="topleft"
+   name="Remove from Favorites">
+    <menu_item_call.on_click
+     function="Inventory.DoToSelected"
+     parameter="remove_from_favorites" />
+  </menu_item_call>
   <menu
    label="Use as default for"
    layout="topleft"
