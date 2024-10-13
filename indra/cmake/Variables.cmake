@@ -129,11 +129,11 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
   if (INSTALL_PROPRIETARY)
     # Only turn on headless if we can find osmesa libraries.
-    include(FindPkgConfig)
-    #pkg_check_modules(OSMESA osmesa)
-    #if (OSMESA_FOUND)
-    #  set(BUILD_HEADLESS ON CACHE BOOL "Build headless libraries.")
-    #endif (OSMESA_FOUND)
+    find_package(PkgConfig)
+    pkg_check_modules(OSMESA osmesa IMPORTED_TARGET GLOBAL)
+    if (OSMESA_FOUND)
+     set(BUILD_HEADLESS ON CACHE BOOL "Build headless libraries.")
+    endif (OSMESA_FOUND)
   endif (INSTALL_PROPRIETARY)
 
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")

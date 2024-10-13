@@ -264,7 +264,7 @@ std::vector<std::string> LLWindow::getDynamicFallbackFontList()
     return LLWindowWin32::getDynamicFallbackFontList();
 #elif LL_DARWIN
     return LLWindowMacOSX::getDynamicFallbackFontList();
-#elif LL_LINUX
+#elif LL_LINUX && !defined(LL_MESA)
     return LLWindowSDL::getDynamicFallbackFontList();
 #else
     return std::vector<std::string>();
@@ -416,7 +416,9 @@ LLWindow* LLWindowManager::createWindow(
 
     if (use_gl)
     {
+#ifndef LL_MESA_HEADLESS
         init_sdl();
+#endif
 #if LL_WINDOWS
         new_window = new LLWindowWin32(callbacks,
             title, name, x, y, width, height, flags,
@@ -464,7 +466,9 @@ bool LLWindowManager::destroyWindow(LLWindow* window)
     window->close();
 
     sWindowList.erase(window);
+#ifndef LL_MESA_HEADLESS
     quit_sdl();
+#endif
 
     delete window;
 

@@ -1265,36 +1265,6 @@
         <key>description</key>
         <string>PNG Reference library</string>
       </map>
-      <key>libuuid</key>
-      <map>
-        <key>platforms</key>
-        <map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>fb89f1281dd54d8b99b339fc5b712b27</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/p64_3p-libuuid/rev/314269/arch/Linux/installer/libuuid-1.6.2-linux64-314269.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux64</string>
-          </map>
-        </map>
-        <key>license</key>
-        <string>UUID</string>
-        <key>license_file</key>
-        <string>LICENSES/uuid.txt</string>
-        <key>copyright</key>
-        <string>Copyright (c) 2004-2008 The OSSP Project &lt;http://www.ossp.org/&gt;</string>
-        <key>version</key>
-        <string>1.6.2</string>
-        <key>name</key>
-        <string>libuuid</string>
-        <key>description</key>
-        <string>OSSP uuid is a ISO-C:1999 application programming interface (API) and corresponding command line interface (CLI) for the generation of DCE 1.1, ISO/IEC 11578:1996 and RFC 4122 compliant Universally Unique Identifier (UUID). </string>
-      </map>
       <key>libxml2</key>
       <map>
         <key>platforms</key>
@@ -1643,32 +1613,6 @@
         <string>luau</string>
         <key>description</key>
         <string>Luau is a fast, small, safe, gradually typed embeddable scripting language derived from Lua.</string>
-      </map>
-      <key>mesa</key>
-      <map>
-        <key>platforms</key>
-        <map>
-          <key>linux</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>22c50a5d362cad311b4f413cfcffbba2</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/mesa_3p-update-mesa/rev/297294/arch/Linux/installer/mesa-7.11.1.297294-linux-297294.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux</string>
-          </map>
-        </map>
-        <key>license</key>
-        <string>mesa</string>
-        <key>license_file</key>
-        <string>LICENSES/mesa.txt</string>
-        <key>version</key>
-        <string>7.11.1.297294</string>
-        <key>name</key>
-        <string>mesa</string>
       </map>
       <key>meshoptimizer</key>
       <map>
