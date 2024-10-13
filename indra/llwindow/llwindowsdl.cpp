@@ -1369,7 +1369,7 @@ void LLWindowSDL::processMiscNativeEvents()
 
 void LLWindowSDL::gatherInput(bool app_has_focus)
 {
-   SDL_Event event;
+    SDL_Event event;
 
     // Handle all outstanding SDL events
     while (SDL_PollEvent(&event))
