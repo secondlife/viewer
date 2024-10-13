@@ -10,8 +10,6 @@ include(LLImage)
 include(LLMath)
 include(LLWindow)
 include(Linking)
-#include(GooglePerfTools)
-
 
 set(appearance_utility_SOURCE_FILES
     appearance_utility.cpp
@@ -65,10 +63,6 @@ target_link_libraries(appearance-utility-bin
     llxml
     )
 
-add_custom_target(appearance-utility-bin-target ALL
-                  DEPENDS appearance-utility-bin)
-
-
 if (BUILD_HEADLESS)
   add_executable(appearance-utility-headless-bin ${appearance_utility_SOURCE_FILES})
   
@@ -80,8 +74,5 @@ if (BUILD_HEADLESS)
     llrenderheadless
     llxml
     )
-  
-  add_custom_target(appearance-utility-headless-bin-target ALL
-                    DEPENDS appearance-utility-headless-bin)
 endif (BUILD_HEADLESS)
 

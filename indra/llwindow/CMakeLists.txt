@@ -121,6 +121,7 @@ if (WINDOWS)
        lldragdropwin32.h
        )
   list(APPEND llwindow_LINK_LIBRARIES
+       wbemuuid
        comdlg32     # Common Dialogs for ChooseColor
        ole32
        dxgi
