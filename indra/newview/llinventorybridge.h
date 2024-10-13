@@ -823,7 +823,7 @@ private:
 
 void rez_attachment(LLViewerInventoryItem* item,
                     LLViewerJointAttachment* attachment,
-                    bool replace = false);
+                    bool replace);
 
 // Move items from an in-world object's "Contents" folder to a specified
 // folder in agent inventory.

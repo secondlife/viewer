@@ -489,22 +489,7 @@ void LLInventoryGalleryContextMenu::onRename(const LLSD& notification, const LLS
 void LLInventoryGalleryContextMenu::fileUploadLocation(const LLSD& userdata)
 {
     const std::string param = userdata.asString();
-    if (param == "model")
-    {
-        gSavedPerAccountSettings.setString("ModelUploadFolder", mUUIDs.front().asString());
-    }
-    else if (param == "texture")
-    {
-        gSavedPerAccountSettings.setString("TextureUploadFolder", mUUIDs.front().asString());
-    }
-    else if (param == "sound")
-    {
-        gSavedPerAccountSettings.setString("SoundUploadFolder", mUUIDs.front().asString());
-    }
-    else if (param == "animation")
-    {
-        gSavedPerAccountSettings.setString("AnimationUploadFolder", mUUIDs.front().asString());
-    }
+    LLInventoryAction::fileUploadLocation(mUUIDs.front(), param);
 }
 
 bool LLInventoryGalleryContextMenu::canSetUploadLocation(const LLSD& userdata)
@@ -801,6 +786,7 @@ void LLInventoryGalleryContextMenu::updateMenuItemsVisibility(LLContextMenu* men
                 {
                     items.push_back(std::string("New Folder"));
                 }
+                items.push_back(std::string("upload_options"));
                 items.push_back(std::string("upload_def"));
             }
 
@@ -1013,6 +999,7 @@ void LLInventoryGalleryContextMenu::updateMenuItemsVisibility(LLContextMenu* men
             }
 
             disabled_items.push_back(std::string("New Folder"));
+            disabled_items.push_back(std::string("upload_options"));
             disabled_items.push_back(std::string("upload_def"));
             disabled_items.push_back(std::string("create_new"));
         }

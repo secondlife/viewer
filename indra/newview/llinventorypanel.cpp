@@ -1788,26 +1788,8 @@ bool LLInventoryPanel::beginIMSession()
 void LLInventoryPanel::fileUploadLocation(const LLSD& userdata)
 {
     const std::string param = userdata.asString();
-    if (param == "model")
-    {
-        gSavedPerAccountSettings.setString("ModelUploadFolder", LLFolderBridge::sSelf.get()->getUUID().asString());
-    }
-    else if (param == "texture")
-    {
-        gSavedPerAccountSettings.setString("TextureUploadFolder", LLFolderBridge::sSelf.get()->getUUID().asString());
-    }
-    else if (param == "sound")
-    {
-        gSavedPerAccountSettings.setString("SoundUploadFolder", LLFolderBridge::sSelf.get()->getUUID().asString());
-    }
-    else if (param == "animation")
-    {
-        gSavedPerAccountSettings.setString("AnimationUploadFolder", LLFolderBridge::sSelf.get()->getUUID().asString());
-    }
-    else if (param == "pbr_material")
-    {
-        gSavedPerAccountSettings.setString("PBRUploadFolder", LLFolderBridge::sSelf.get()->getUUID().asString());
-    }
+    const LLUUID dest = LLFolderBridge::sSelf.get()->getUUID();
+    LLInventoryAction::fileUploadLocation(dest, param);
 }
 
 void LLInventoryPanel::openSingleViewInventory(LLUUID folder_id)

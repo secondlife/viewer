@@ -222,7 +222,6 @@ private:
     LLVector3d mPosGlobal;
 };
 
-
 class LLTeleportRequestViaLocationLookAt : public LLTeleportRequestViaLocation
 {
 public:
@@ -842,7 +841,6 @@ void LLAgent::movePitch(F32 mag)
     }
 }
 
-
 // Does this parcel allow you to fly?
 bool LLAgent::canFly()
 {
@@ -922,7 +920,6 @@ void LLAgent::setFlying(bool fly, bool fail_sound)
     LLFloaterMove::setFlyingMode(fly);
 }
 
-
 // UI based mechanism of setting fly state
 //-----------------------------------------------------------------------------
 // toggleFlying()
@@ -1000,7 +997,6 @@ void LLAgent::capabilityReceivedCallback(const LLUUID &region_id, LLViewerRegion
         }
     }
 }
-
 
 //-----------------------------------------------------------------------------
 // setRegion()
@@ -1107,7 +1103,6 @@ void LLAgent::setRegion(LLViewerRegion *regionp)
     mRegionChangedSignal();
 }
 
-
 //-----------------------------------------------------------------------------
 // getRegion()
 //-----------------------------------------------------------------------------
@@ -1115,7 +1110,6 @@ LLViewerRegion *LLAgent::getRegion() const
 {
     return mRegionp;
 }
-
 
 LLHost LLAgent::getRegionHost() const
 {
@@ -1147,7 +1141,6 @@ bool LLAgent::inPrelude()
     return mRegionp && mRegionp->isPrelude();
 }
 
-
 std::string LLAgent::getRegionCapability(const std::string &name)
 {
     if (!mRegionp)
@@ -1155,7 +1148,6 @@ std::string LLAgent::getRegionCapability(const std::string &name)
 
     return mRegionp->getCapability(name);
 }
-
 
 //-----------------------------------------------------------------------------
 // canManageEstate()
@@ -1183,7 +1175,6 @@ void LLAgent::sendMessage()
     }
     gMessageSystem->sendMessage(mRegionp->getHost());
 }
-
 
 //-----------------------------------------------------------------------------
 // sendReliableMessage()
@@ -1217,7 +1208,6 @@ LLVector3 LLAgent::getVelocity() const
         return LLVector3::zero;
     }
 }
-
 
 //-----------------------------------------------------------------------------
 // setPositionAgent()
@@ -1287,11 +1277,10 @@ const LLVector3 &LLAgent::getPositionAgent()
             mFrameAgent.setOrigin(gAgentAvatarp->getPositionAgent());
         }
         else
-    {
-        mFrameAgent.setOrigin(gAgentAvatarp->getRenderPosition());
+        {
+            mFrameAgent.setOrigin(gAgentAvatarp->getRenderPosition());
+        }
     }
-    }
-
 
     return mFrameAgent.getOrigin();
 }
@@ -1300,7 +1289,6 @@ boost::signals2::connection LLAgent::whenPositionChanged(position_signal_t::slot
 {
     return mOnPositionChanged.connect(fn);
 }
-
 
 //-----------------------------------------------------------------------------
 // getRegionsVisited()
@@ -1318,7 +1306,6 @@ F64 LLAgent::getDistanceTraveled() const
     return mDistanceTraveled;
 }
 
-
 //-----------------------------------------------------------------------------
 // getPosAgentFromGlobal()
 //-----------------------------------------------------------------------------
@@ -1328,7 +1315,6 @@ LLVector3 LLAgent::getPosAgentFromGlobal(const LLVector3d &pos_global) const
     pos_agent.setVec(pos_global - mAgentOriginGlobal);
     return pos_agent;
 }
-
 
 //-----------------------------------------------------------------------------
 // getPosGlobalFromAgent()
@@ -1345,7 +1331,6 @@ void LLAgent::sitDown()
     setControlFlags(AGENT_CONTROL_SIT_ON_GROUND);
 }
 
-
 //-----------------------------------------------------------------------------
 // resetAxes()
 //-----------------------------------------------------------------------------
@@ -1353,7 +1338,6 @@ void LLAgent::resetAxes()
 {
     mFrameAgent.resetAxes();
 }
-
 
 // Copied from LLCamera::setOriginAndLookAt
 // Look_at must be unit vector
@@ -1383,7 +1367,6 @@ void LLAgent::resetAxes(const LLVector3 &look_at)
     mFrameAgent.setAxes(look_at, left, up);
 }
 
-
 //-----------------------------------------------------------------------------
 // rotate()
 //-----------------------------------------------------------------------------
@@ -1391,7 +1374,6 @@ void LLAgent::rotate(F32 angle, const LLVector3 &axis)
 {
     mFrameAgent.rotate(angle, axis);
 }
-
 
 //-----------------------------------------------------------------------------
 // rotate()
@@ -1401,7 +1383,6 @@ void LLAgent::rotate(F32 angle, F32 x, F32 y, F32 z)
     mFrameAgent.rotate(angle, x, y, z);
 }
 
-
 //-----------------------------------------------------------------------------
 // rotate()
 //-----------------------------------------------------------------------------
@@ -1410,7 +1391,6 @@ void LLAgent::rotate(const LLMatrix3 &matrix)
     mFrameAgent.rotate(matrix);
 }
 
-
 //-----------------------------------------------------------------------------
 // rotate()
 //-----------------------------------------------------------------------------
@@ -1418,7 +1398,6 @@ void LLAgent::rotate(const LLQuaternion &quaternion)
 {
     mFrameAgent.rotate(quaternion);
 }
-
 
 //-----------------------------------------------------------------------------
 // getReferenceUpVector()
@@ -1454,48 +1433,64 @@ LLVector3 LLAgent::getReferenceUpVector()
 //-----------------------------------------------------------------------------
 void LLAgent::pitch(F32 angle)
 {
-    if (fabs(angle) <= 1e-4)
-        return;
-
-    LLCoordFrame newCoordFrame(mFrameAgent);
-    newCoordFrame.pitch(angle);
-
-    // don't let user pitch if rotated 180 degree around the vertical axis
-    if ((newCoordFrame.getXAxis()[VX] * mFrameAgent.getXAxis()[VX] < 0) &&
-        (newCoordFrame.getXAxis()[VY] * mFrameAgent.getXAxis()[VY] < 0))
-        return;
-
-    // A dot B = mag(A) * mag(B) * cos(angle between A and B)
-    // so... cos(angle between A and B) = A dot B / mag(A) / mag(B)
-    //                                  = A dot B for unit vectors
-
-    LLVector3 skyward = getReferenceUpVector();
-
-    // SL-19286 Avatar is upside down when viewed from below
-    // after left-clicking the mouse on the avatar and dragging down
-    //
-    // The issue is observed on angle below 10 degrees
-    const F32 look_down_limit = 179.f * DEG_TO_RAD;
-    const F32 look_up_limit = 10.f * DEG_TO_RAD;
-
-    F32 angle_from_skyward = acos(mFrameAgent.getAtAxis() * skyward);
-
-    // clamp pitch to limits
-    if ((angle >= 0.f) && (angle_from_skyward + angle > look_down_limit))
+    if (gAgentCamera.getCameraMode() == CAMERA_MODE_THIRD_PERSON ||
+        gAgentCamera.getCameraMode() == CAMERA_MODE_MOUSELOOK)
     {
-        angle = look_down_limit - angle_from_skyward;
+        // Backup the current orientation
+        LLCoordFrame saved_frame_agent(mFrameAgent);
+
+        // Optimistic rotation up/down (vertical angle can reach and exceed 0 or 180)
+        mFrameAgent.pitch(angle);
+
+        // Cosine of the angle between current agent At and Up directions
+        F32 agent_at_to_up_now_cos = saved_frame_agent.mXAxis * gAgentCamera.getCameraUpVector();
+        bool pitch_away_from_horizont = (angle < 0) ^ (agent_at_to_up_now_cos < 0);
+        // We always allow to pitch in direction to horizont (from zenith or from nadir)
+        if (!pitch_away_from_horizont)
+            return;
+
+        // Current angle between agent At and Up directions
+        F32 agent_at_to_up_now = acos(agent_at_to_up_now_cos);
+        // Requested angle between agent At and Up directions
+        F32 agent_at_to_up_new = agent_at_to_up_now + angle;
+        F32 agent_at_to_up_new_sin = sin(agent_at_to_up_new);
+        // Overpitched? Then rollback
+        if (agent_at_to_up_new_sin < 1e-4)
+        {
+            mFrameAgent = saved_frame_agent;
+            return;
+        }
+
+        if (gAgentCamera.getCameraMode() == CAMERA_MODE_THIRD_PERSON ||
+            (isAgentAvatarValid() && gAgentAvatarp->getParent()))
+        {
+            // Camera sight relative to agent frame (focus - offset)
+            LLVector3 camera_offset(gAgentCamera.getCameraOffsetInitial());
+            LLVector3 camera_focus(gAgentCamera.getFocusOffsetInitial());
+            LLVector3 camera_sight(camera_focus - camera_offset);
+            // 2D projection of the camera sight to the XZ plane
+            LLVector2 camera_sight_2d_vert(1, camera_sight[VZ]);
+            camera_sight_2d_vert.normalize();
+            // Cosine of the 2D angle between initial camera At and X axis (in the XZ plane)
+            F32 camera_sight_to_at_2d_vert_cos = camera_sight_2d_vert * LLVector2(LLVector3::x_axis);
+            F32 camera_sight_to_at_2d_vert = acos(camera_sight_to_at_2d_vert_cos);
+            // Requested angle between camera At and Up directions
+            F32 camera_at_to_up_new = agent_at_to_up_new - camera_sight_to_at_2d_vert;
+            F32 camera_at_to_up_new_sin = sin(camera_at_to_up_new);
+            // Overpitched? Then rollback
+            if (camera_at_to_up_new_sin < 1e-4)
+            {
+                mFrameAgent = saved_frame_agent;
+                return;
+            }
+        }
     }
-    else if ((angle < 0.f) && (angle_from_skyward + angle < look_up_limit))
+    else
     {
-        angle = look_up_limit - angle_from_skyward;
-    }
-
-    if (fabs(angle) > 1e-4)
-    {
+        // No limitations in other modes
         mFrameAgent.pitch(angle);
     }
 }
-
 
 //-----------------------------------------------------------------------------
 // roll()
@@ -1504,7 +1499,6 @@ void LLAgent::roll(F32 angle)
 {
     mFrameAgent.roll(angle);
 }
-
 
 //-----------------------------------------------------------------------------
 // yaw()
@@ -1516,7 +1510,6 @@ void LLAgent::yaw(F32 angle)
         mFrameAgent.rotate(angle, getReferenceUpVector());
     }
 }
-
 
 // Returns a quat that represents the rotation of the agent in the absolute frame
 //-----------------------------------------------------------------------------
@@ -1542,7 +1535,6 @@ void LLAgent::setControlFlags(U32 mask)
 {
     mControlFlags |= mask;
 }
-
 
 //-----------------------------------------------------------------------------
 // clearControlFlags()
@@ -1630,7 +1622,6 @@ bool LLAgent::isDoNotDisturb() const
 {
     return mIsDoNotDisturb;
 }
-
 
 //-----------------------------------------------------------------------------
 // startAutoPilotGlobal()
@@ -1737,7 +1728,6 @@ void LLAgent::startAutoPilotGlobal(
     mAutoPilotNoProgressFrameCount = 0;
 }
 
-
 //-----------------------------------------------------------------------------
 // setAutoPilotTargetGlobal
 //-----------------------------------------------------------------------------
@@ -1791,7 +1781,6 @@ void LLAgent::startFollowPilot(const LLUUID &leader_id, bool allow_flying, F32 s
                          allow_flying);
 }
 
-
 //-----------------------------------------------------------------------------
 // stopAutoPilot()
 //-----------------------------------------------------------------------------
@@ -1832,7 +1821,6 @@ void LLAgent::stopAutoPilot(bool user_cancel)
         }
     }
 }
-
 
 // Returns necessary agent pitch and yaw changes, radians.
 //-----------------------------------------------------------------------------
@@ -2022,7 +2010,6 @@ void LLAgent::autoPilot(F32 *delta_yaw)
     }
 }
 
-
 //-----------------------------------------------------------------------------
 // propagate()
 //-----------------------------------------------------------------------------
@@ -2043,18 +2030,19 @@ void LLAgent::propagate(const F32 dt)
     }
 
     // handle rotation based on keyboard levels
-    constexpr F32 YAW_RATE = 90.f * DEG_TO_RAD;                // radians per second
-    F32 angle = YAW_RATE * gAgentCamera.getYawKey() * dt;
-    if (fabs(angle) > 0.0f)
+    if (fabs(dt) > 1e-6)
     {
-        yaw(angle);
-    }
+        if (fabs(gAgentCamera.getYawKey()) > 1e-6)
+        {
+            static const F32 YAW_RATE = 90.f * DEG_TO_RAD;   // radians per second
+            yaw(YAW_RATE * gAgentCamera.getYawKey() * dt);
+        }
 
-    constexpr F32 PITCH_RATE = 90.f * DEG_TO_RAD;            // radians per second
-    angle = PITCH_RATE * gAgentCamera.getPitchKey() * dt;
-    if (fabs(angle) > 0.0f)
-    {
-        pitch(angle);
+        if (fabs(gAgentCamera.getPitchKey()) > 1e-6)
+        {
+            static const F32 PITCH_RATE = 90.f * DEG_TO_RAD; // radians per second
+            pitch(PITCH_RATE * gAgentCamera.getPitchKey() * dt);
+        }
     }
 
     // handle auto-land behavior
@@ -2216,7 +2204,6 @@ void LLAgent::clearRenderState(U8 clearstate)
     mRenderState &= ~clearstate;
 }
 
-
 //-----------------------------------------------------------------------------
 // getRenderState()
 //-----------------------------------------------------------------------------
@@ -2258,6 +2245,7 @@ void LLAgent::endAnimationUpdateUI()
     {
         return;
     }
+
     if (gAgentCamera.getCameraMode() == gAgentCamera.getLastCameraMode())
     {
         // We're already done endAnimationUpdateUI for this transition.
@@ -2323,9 +2311,8 @@ void LLAgent::endAnimationUpdateUI()
             mViewsPushed = false;
         }
 
-
         gAgentCamera.setLookAt(LOOKAT_TARGET_CLEAR);
-        if( gMorphView )
+        if (gMorphView)
         {
             gMorphView->setVisible( false );
         }
@@ -2333,7 +2320,7 @@ void LLAgent::endAnimationUpdateUI()
         // Disable mouselook-specific animations
         if (isAgentAvatarValid())
         {
-            if( gAgentAvatarp->isAnyAnimationSignaled(AGENT_GUN_AIM_ANIMS, NUM_AGENT_GUN_AIM_ANIMS) )
+            if (gAgentAvatarp->isAnyAnimationSignaled(AGENT_GUN_AIM_ANIMS, NUM_AGENT_GUN_AIM_ANIMS))
             {
                 if (gAgentAvatarp->mSignaledAnimations.find(ANIM_AGENT_AIM_RIFLE_R) != gAgentAvatarp->mSignaledAnimations.end())
                 {
@@ -2952,7 +2939,6 @@ void LLAgent::sendMaturityPreferenceToServer(U8 pPreferredMaturity)
     }
 }
 
-
 void LLAgent::processMaturityPreferenceFromServer(const LLSD &result, U8 perferredMaturity)
 {
     U8 maturity = SIM_ACCESS_MIN;
@@ -3021,7 +3007,6 @@ void LLAgent::changeInterestListMode(const std::string &new_mode)
         LL_DEBUGS("360Capture") << "Agent interest list mode is already set to " << mInterestListMode << LL_ENDL;
     }
 }
-
 
 bool LLAgent::requestPostCapability(const std::string &capName, LLSD &postData, httpCallback_t cbSuccess, httpCallback_t cbFailure)
 {
@@ -3348,7 +3333,6 @@ void LLAgent::sendAnimationStateReset()
     msg->addBinaryDataFast(_PREHASH_TypeData, NULL, 0);
     sendReliableMessage();
 }
-
 
 // Send a message to the region to revoke sepecified permissions on ALL scripts in the region
 // If the target is an object in the region, permissions in scripts on that object are cleared.
@@ -4279,7 +4263,6 @@ void LLAgent::onCapabilitiesReceivedAfterTeleport()
     check_merchant_status();
 }
 
-
 void LLAgent::teleportRequest(
     const U64& region_handle,
     const LLVector3& pos_local,
@@ -4378,7 +4361,6 @@ void LLAgent::doTeleportViaLure(const LLUUID& lure_id, bool godlike)
         sendReliableMessage();
     }
 }
-
 
 // James Cook, July 28, 2005
 void LLAgent::teleportCancel()
@@ -4504,7 +4486,6 @@ LLAgent::ETeleportState LLAgent::getTeleportState() const
         TELEPORT_NONE : mTeleportState;
 }
 
-
 void LLAgent::setTeleportState(ETeleportState state)
 {
     if (mTeleportRequest && (state != TELEPORT_NONE) && (mTeleportRequest->getStatus() == LLTeleportRequest::kFailed))
@@ -4548,7 +4529,6 @@ void LLAgent::setTeleportState(ETeleportState state)
             break;
     }
 }
-
 
 void LLAgent::stopCurrentAnimations()
 {
@@ -4663,7 +4643,6 @@ void LLAgent::stopFidget()
 
     gAgent.sendAnimationRequests(anims, ANIM_REQUEST_STOP);
 }
-
 
 void LLAgent::requestEnterGodMode()
 {
@@ -4784,7 +4763,6 @@ void LLAgent::sendAgentUpdateUserInfo(const std::string& directory_visibility)
         sendAgentUpdateUserInfoMessage(directory_visibility);
     }
 }
-
 
 void LLAgent::updateAgentUserInfoCoro(std::string capurl, std::string directory_visibility)
 {

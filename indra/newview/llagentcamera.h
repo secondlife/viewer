@@ -146,6 +146,7 @@ public:
     bool            calcCameraMinDistance(F32 &obj_min_distance);
     F32             getCurrentCameraBuildOffset()   { return (F32)mCameraFocusOffset.length(); }
     void            clearCameraLag() { mCameraLag.clearVec(); }
+    const LLVector3& getCameraUpVector() const { return mCameraUpVector; }
 private:
     LLVector3       getAvatarRootPosition();
 
@@ -155,7 +156,6 @@ private:
     F32             mCameraCurrentFOVZoomFactor;    // Interpolated fov zoom
     LLVector4       mCameraCollidePlane;            // Colliding plane for camera
     F32             mCameraZoomFraction;            // Mousewheel driven fraction of zoom
-    LLVector3       mCameraPositionAgent;           // Camera position in agent coordinates
     LLVector3       mCameraVirtualPositionAgent;    // Camera virtual position (target) before performing FOV zoom
     LLVector3d      mCameraSmoothingLastPositionGlobal;
     LLVector3d      mCameraSmoothingLastPositionAgent;
@@ -279,7 +279,7 @@ public:
     F32             getAgentHUDTargetZoom();
 
     void            resetCameraZoomFraction();
-    F32             getCurrentCameraZoomFraction() { return mCameraZoomFraction; }
+    F32             getCurrentCameraZoomFraction() const { return mCameraZoomFraction; }
 
     //--------------------------------------------------------------------
     // Pan

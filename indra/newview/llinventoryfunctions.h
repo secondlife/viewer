@@ -620,6 +620,7 @@ struct LLInventoryAction
     static void callback_copySelected(const LLSD& notification, const LLSD& response, class LLInventoryModel* model, class LLFolderView* root, const std::string& action);
     static void onItemsRemovalConfirmation(const LLSD& notification, const LLSD& response, LLHandle<LLFolderView> root);
     static void removeItemFromDND(LLFolderView* root);
+    static void fileUploadLocation(const LLUUID& dest_id, const std::string& action);
 
     static void saveMultipleTextures(const std::vector<std::string>& filenames, std::set<LLFolderViewItem*> selected_items, LLInventoryModel* model);
 

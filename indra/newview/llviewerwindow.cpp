@@ -3008,7 +3008,8 @@ bool LLViewerWindow::handleKey(KEY key, MASK mask)
     {
         if ((focusedFloaterName == "nearby_chat") || (focusedFloaterName == "im_container") || (focusedFloaterName == "impanel"))
         {
-            if (gSavedSettings.getBOOL("ArrowKeysAlwaysMove"))
+            LLCachedControl<bool> key_move(gSavedSettings, "ArrowKeysAlwaysMove");
+            if (key_move())
             {
                 // let Control-Up and Control-Down through for chat line history,
                 if (!(key == KEY_UP && mask == MASK_CONTROL)
@@ -3022,10 +3023,9 @@ bool LLViewerWindow::handleKey(KEY key, MASK mask)
                     case KEY_RIGHT:
                     case KEY_UP:
                     case KEY_DOWN:
-                    case KEY_PAGE_UP:
-                    case KEY_PAGE_DOWN:
-                    case KEY_HOME:
-                    case KEY_END:
+                    case KEY_PAGE_UP: //jump
+                    case KEY_PAGE_DOWN: // down
+                    case KEY_HOME: // toggle fly
                         // when chatbar is empty or ArrowKeysAlwaysMove set,
                         // pass arrow keys on to avatar...
                         return false;

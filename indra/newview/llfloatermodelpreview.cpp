@@ -349,14 +349,14 @@ void LLFloaterModelPreview::initModelPreview()
 }
 
 //static
-bool LLFloaterModelPreview::showModelPreview()
+void LLFloaterModelPreview::showModelPreview(const LLUUID& dest_folder)
 {
     LLFloaterModelPreview* fmp = (LLFloaterModelPreview*)LLFloaterReg::getInstance("upload_model");
     if (fmp && !fmp->isModelLoading())
     {
+        fmp->setUploadDestination(dest_folder);
         fmp->loadHighLodModel();
     }
-    return true;
 }
 
 void LLFloaterModelPreview::onUploadOptionChecked(LLUICtrl* ctrl)
@@ -505,7 +505,7 @@ void LLFloaterModelPreview::onClickCalculateBtn()
     gMeshRepo.uploadModel(mModelPreview->mUploadData, mModelPreview->mPreviewScale,
                           childGetValue("upload_textures").asBoolean(),
                           upload_skinweights, upload_joint_positions, lock_scale_if_joint_position,
-                          mUploadModelUrl, false,
+                          mUploadModelUrl, mDestinationFolderId, false,
                           getWholeModelFeeObserverHandle());
 
     toggleCalculateButton(false);
@@ -1660,7 +1660,7 @@ void LLFloaterModelPreview::onUpload(void* user_data)
     gMeshRepo.uploadModel(mp->mModelPreview->mUploadData, mp->mModelPreview->mPreviewScale,
                           mp->childGetValue("upload_textures").asBoolean(),
                           upload_skinweights, upload_joint_positions, lock_scale_if_joint_position,
-                          mp->mUploadModelUrl,
+                          mp->mUploadModelUrl, mp->mDestinationFolderId,
                           true, LLHandle<LLWholeModelFeeObserver>(), mp->getWholeModelUploadObserverHandle());
 }
 

@@ -638,6 +638,14 @@ public:
     {
         getCPUIDInfo();
         uint64_t frequency = getSysctlInt64("hw.cpufrequency");
+        if (!frequency)
+        {
+            auto tbfrequency = getSysctlInt64("hw.tbfrequency");
+            struct clockinfo clockrate;
+            auto clockrate_len = sizeof(clockrate);
+            if (!sysctlbyname("kern.clockrate", &clockrate, &clockrate_len, NULL, 0))
+                frequency = tbfrequency * clockrate.hz;
+        }
         setInfo(eFrequency, (F64)frequency  / (F64)1000000);
     }
 

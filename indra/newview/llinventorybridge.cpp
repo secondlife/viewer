@@ -4348,6 +4348,7 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
         }
 
         disabled_items.push_back(std::string("New Folder"));
+        disabled_items.push_back(std::string("upload_options"));
         disabled_items.push_back(std::string("upload_def"));
         disabled_items.push_back(std::string("create_new"));
     }
@@ -4373,6 +4374,7 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
     {
         disabled_items.push_back(std::string("New Folder"));
         disabled_items.push_back(std::string("New Listing Folder"));
+        disabled_items.push_back(std::string("upload_options"));
         disabled_items.push_back(std::string("upload_def"));
         disabled_items.push_back(std::string("create_new"));
     }
@@ -4439,6 +4441,7 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
                 }
                 if (!isMarketplaceListingsFolder())
                 {
+                    items.push_back(std::string("upload_options"));
                     items.push_back(std::string("upload_def"));
                     items.push_back(std::string("create_new"));
                     items.push_back(std::string("New Script"));
@@ -6988,7 +6991,7 @@ void LLObjectBridge::performAction(LLInventoryModel* model, std::string action)
         else if(item && item->isFinished())
         {
             // must be in library. copy it to our inventory and put it on.
-            LLPointer<LLInventoryCallback> cb = new LLBoostFuncInventoryCallback(boost::bind(rez_attachment_cb, _1, (LLViewerJointAttachment*)0));
+            LLPointer<LLInventoryCallback> cb = new LLBoostFuncInventoryCallback(boost::bind(rez_attachment_cb, _1, (LLViewerJointAttachment*)0, true));
             copy_inventory_item(
                 gAgent.getID(),
                 item->getPermissions().getOwner(),

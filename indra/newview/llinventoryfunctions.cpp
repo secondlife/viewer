@@ -51,6 +51,7 @@
 #include "lldirpicker.h"
 #include "lldonotdisturbnotificationstorage.h"
 #include "llfloatermarketplacelistings.h"
+#include "llfloatermodelpreview.h"
 #include "llfloatersidepanelcontainer.h"
 #include "llfocusmgr.h"
 #include "llfolderview.h"
@@ -62,6 +63,7 @@
 #include "llinventorymodel.h"
 #include "llinventorypanel.h"
 #include "lllineeditor.h"
+#include "llmaterialeditor.h"
 #include "llmarketplacenotifications.h"
 #include "llmarketplacefunctions.h"
 #include "llmenugl.h"
@@ -86,6 +88,7 @@
 #include "llviewermessage.h"
 #include "llviewerfoldertype.h"
 #include "llviewerobjectlist.h"
+#include "llviewermenufile.h"
 #include "llviewerregion.h"
 #include "llviewerwindow.h"
 #include "llvoavatarself.h"
@@ -3716,6 +3719,55 @@ void LLInventoryAction::removeItemFromDND(LLFolderView* root)
                 LLDoNotDisturbNotificationStorage::instance().removeNotification(LLDoNotDisturbNotificationStorage::offerName, viewModel->getUUID());
             }
         }
+    }
+}
+
+void LLInventoryAction::fileUploadLocation(const LLUUID& dest_id, const std::string& action)
+{
+    if (action == "def_model")
+    {
+        gSavedPerAccountSettings.setString("ModelUploadFolder", dest_id.asString());
+    }
+    else if (action == "def_texture")
+    {
+        gSavedPerAccountSettings.setString("TextureUploadFolder", dest_id.asString());
+    }
+    else if (action == "def_sound")
+    {
+        gSavedPerAccountSettings.setString("SoundUploadFolder", dest_id.asString());
+    }
+    else if (action == "def_animation")
+    {
+        gSavedPerAccountSettings.setString("AnimationUploadFolder", dest_id.asString());
+    }
+    else if (action == "def_pbr_material")
+    {
+        gSavedPerAccountSettings.setString("PBRUploadFolder", dest_id.asString());
+    }
+    else if (action == "upload_texture")
+    {
+        LLFilePickerReplyThread::startPicker(boost::bind(&upload_single_file, _1, _2, dest_id), LLFilePicker::FFLOAD_IMAGE, false);
+    }
+    else if (action == "upload_sound")
+    {
+        LLFilePickerReplyThread::startPicker(boost::bind(&upload_single_file, _1, _2, dest_id), LLFilePicker::FFLOAD_WAV, false);
+    }
+    else if (action == "upload_animation")
+    {
+        LLFilePickerReplyThread::startPicker(boost::bind(&upload_single_file, _1, _2, dest_id), LLFilePicker::FFLOAD_ANIM, false);
+    }
+    else if (action == "upload_model")
+    {
+        LLFloaterModelPreview::showModelPreview(dest_id);
+    }
+    else if (action == "upload_pbr_material")
+    {
+        LLMaterialEditor::importMaterial(dest_id);
+    }
+    else if (action == "upload_bulk")
+    {
+        //LLFilePickerReplyThread::startPicker(boost::bind(&upload_bulk, _1, _2, dest_id), LLFilePicker::FFLOAD_ALL, true);
+        LLFilePickerReplyThread::startPicker(boost::bind(&upload_bulk, _1, _2, true), LLFilePicker::FFLOAD_ALL, true); // TODO: merge conflict; fix this
     }
 }
 
