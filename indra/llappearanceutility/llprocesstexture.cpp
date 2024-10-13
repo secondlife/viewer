@@ -98,7 +98,7 @@ static LLPointer<LLImageRaw> create_texture_from_stream(std::istream& input,
     {
         throw LLAppException(RV_UNABLE_TO_DECODE, " Unable to validate J2C: " + LLImage::getLastThreadError());
     }
-    if (!(j2c->getWidth() * j2c->getHeight() * j2c->getComponents()))
+    if (!(j2c->getWidth() * j2c->getHeight() * j2c->getComponents() > 0))
     {
         throw LLAppException(RV_UNABLE_TO_DECODE, " Invalid dimensions.");
     }
