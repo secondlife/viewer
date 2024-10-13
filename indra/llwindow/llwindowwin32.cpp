@@ -1708,28 +1708,37 @@ const   S32   max_format  = (S32)num_formats - 1;
         swapBuffers();
     }
 
-    {
-        // Initialize the XR manager.
-        mXRManager = new LLXRManager();
-        mXRManager->initInstance();
-        mXRManager->getInstanceProperties();
-        mXRManager->getSystemID();
-        mXRManager->getConfigurationViews();
-        mXRManager->getEnvironmentBlendModes();
-
-        XrGraphicsBindingOpenGLWin32KHR graphicsBinding = { XR_TYPE_GRAPHICS_BINDING_OPENGL_WIN32_KHR };
-        graphicsBinding.hDC                             = mhDC;
-        graphicsBinding.hGLRC                           = mhRC;
-
-        mXRManager->createSession(graphicsBinding);
-        mXRManager->setupPlaySpace();
-
-        mCallbacks->handleXRManagerInit(mXRManager);
-    }
-
     LL_PROFILER_GPU_CONTEXT;
 
     return true;
+}
+
+bool LLWindowWin32::createXRSession()
+{
+    // Initialize the XR manager.
+    mXRManager = new LLXRManager();
+
+    XrGraphicsBindingOpenGLWin32KHR graphicsBinding = { XR_TYPE_GRAPHICS_BINDING_OPENGL_WIN32_KHR };
+    graphicsBinding.hDC                             = mhDC;
+    graphicsBinding.hGLRC                           = mhRC;
+
+    mXRManager->createSession(graphicsBinding);
+    mXRManager->setupPlaySpace();
+
+    mXRManager->createSwapchains();
+
+    mCallbacks->handleXRManagerInit(mXRManager);
+
+    return true;
+}
+
+void LLWindowWin32::destroyXRSession()
+{
+    if (mXRManager)
+    {
+        delete mXRManager;
+        mXRManager = nullptr;
+    }
 }
 
 void LLWindowWin32::recreateWindow(RECT window_rect, DWORD dw_ex_style, DWORD dw_style)

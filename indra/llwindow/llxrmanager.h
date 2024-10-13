@@ -121,7 +121,7 @@ class LLXRManager
         XR_STATE_SWAPCHAINS_CREATED,
         XR_STATE_RUNNING,
         XR_STATE_PAUSED,
-        XR_STATE_DESTROYED
+        XR_STATE_DESTROYED = -1
     } LLXRState;
 
   private:
@@ -145,6 +145,8 @@ class LLXRManager
 
 
   public:
+    LLXRManager();
+    ~LLXRManager();
     // This should always be called prior to attempting to create a session.
     void initInstance();
 

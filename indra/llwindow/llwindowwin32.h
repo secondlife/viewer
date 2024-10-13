@@ -119,6 +119,8 @@ public:
     /*virtual*/ void updateLanguageTextInputArea();
     /*virtual*/ void interruptLanguageTextInput();
     /*virtual*/ void spawnWebBrowser(const std::string& escaped_url, bool async);
+    /*virtual*/ bool createXRSession() override;
+    /*virtual*/ void destroyXRSession() override;
 
     /*virtual*/ F32 getSystemUISize();
 

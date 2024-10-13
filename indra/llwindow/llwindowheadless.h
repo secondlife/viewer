@@ -104,6 +104,9 @@ public:
     /*virtual*/ void *getPlatformWindow() override { return 0; }
     /*virtual*/ void bringToFront() override {}
 
+    /*virtual*/ bool createXRSession() override { return false; }
+    /*virtual*/ void destroyXRSession() override {}
+
     LLWindowHeadless(LLWindowCallbacks* callbacks,
         const std::string& title, const std::string& name,
         S32 x, S32 y,

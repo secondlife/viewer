@@ -80,6 +80,8 @@ public:
     bool setSize(LLCoordWindow size);
     virtual void setMinSize(U32 min_width, U32 min_height, bool enforce_immediately = true);
     virtual bool switchContext(bool fullscreen, const LLCoordScreen &size, bool enable_vsync, const LLCoordScreen * const posp = NULL) = 0;
+    virtual bool createXRSession() = 0;
+    virtual void destroyXRSession() = 0;
 
     //create a new GL context that shares a namespace with this Window's main GL context and make it current on the current thread
     // returns a pointer to be handed back to destroySharedConext/makeContextCurrent

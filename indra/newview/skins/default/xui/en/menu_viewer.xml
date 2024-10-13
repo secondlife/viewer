@@ -2878,6 +2878,24 @@ function="World.EnvPreset"
            function="Advanced.ClickGLTFEdit" />
         </menu_item_call>
       </menu>
+        <menu
+         create_jump_keys="true"
+         label="VR"
+         name="VR"
+         tear_off="true">
+            <menu_item_call
+             label="Start OpenXR Session"
+             name="Start OpenXR Session">
+                <menu_item_call.on_click
+                 function="Advanced.ClickStartOpenXR" />
+            </menu_item_call>
+            <menu_item_call
+             label="End OpenXR Session"
+             name="End OpenXR Session">
+                <menu_item_call.on_click
+                 function="Advanced.ClickEndOpenXR" />
+            </menu_item_call>
+        </menu>
       <menu
          create_jump_keys="true"
          label="Video"

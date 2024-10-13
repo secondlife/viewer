@@ -105,6 +105,21 @@ S64 getSwapchainFormat(XrInstance instance, XrSession session, S64 preferredForm
 
 static PFN_xrGetOpenGLGraphicsRequirementsKHR pfnGetOpenGLGraphicsRequirementsKHR = nullptr;
 
+LLXRManager::LLXRManager()
+{
+    initInstance();
+    getInstanceProperties();
+    getSystemID();
+    getConfigurationViews();
+    getEnvironmentBlendModes();
+}
+
+LLXRManager::~LLXRManager()
+{
+    destroySwapchains();
+    shutdown();
+}
+
 void LLXRManager::initInstance()
 {
     // A lot of this uses Monado's OpenGL example which can be found here:
@@ -586,7 +601,7 @@ void LLXRManager::setupPlaySpace()
 
 void LLXRManager::startFrame()
 {
-    if (mXRState != XR_STATE_RUNNING)
+    if (mXRState < XR_STATE_RUNNING)
     {
         return;
     }
@@ -720,7 +735,7 @@ void LLXRManager::handleSessionState()
 
 void LLXRManager::updateXRSession()
 {
-    if (mXRState != XR_STATE_RUNNING)
+    if (mXRState < XR_STATE_RUNNING)
     {
         return;
     }
@@ -771,7 +786,7 @@ void LLXRManager::updateXRSession()
 
 void LLXRManager::bindSwapTarget(U32 eye)
 {
-    if (mXRState != XR_STATE_RUNNING)
+    if (mXRState < XR_STATE_RUNNING && mSwapchains.size() < 1)
     {
         return;
     }
@@ -788,12 +803,12 @@ void LLXRManager::bindSwapTarget(U32 eye)
     waitInfo.timeout                  = XR_INFINITE_DURATION;
     xrWaitSwapchainImage(chain, &waitInfo);
 
-    mColorTextures[eye][mCurSwapTarget]->bindTarget(false);
+    glBindFramebuffer(GL_FRAMEBUFFER, colorTextures[mCurSwapTarget]->getTexture());
 }
 
 void LLXRManager::updateFrame(LLXREye eye)
 {
-    if (mXRState != XR_STATE_RUNNING)
+    if (mXRState < XR_STATE_RUNNING && mSwapchains.size() < 1)
     {
         return;
     }
@@ -811,18 +826,20 @@ void LLXRManager::updateFrame(LLXREye eye)
     mProjectionViews[eye].subImage.imageArrayIndex         = eye;
 
 
-    glClearColor(1.f, 0.0f, 1.f, 1.0f);
+    glClearColor(0.4f, 0.0f, 1.f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 }
 
 void LLXRManager::flushSwapTarget(U32 eye)
 {
-    if (mXRState != XR_STATE_RUNNING)
+    if (mXRState < XR_STATE_RUNNING && mSwapchains.size() < 1)
     {
         return;
     }
 
-    mColorTextures[eye][mCurSwapTarget]->flush();
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    //mColorTextures[eye][mCurSwapTarget]->flush();
 
     XrSwapchainImageReleaseInfo releaseInfo = { XR_TYPE_SWAPCHAIN_IMAGE_RELEASE_INFO };
     S32                         err         = xrReleaseSwapchainImage(mSwapchains[eye], &releaseInfo);
@@ -830,7 +847,7 @@ void LLXRManager::flushSwapTarget(U32 eye)
 
 void LLXRManager::endFrame()
 {
-    if (mXRState != XR_STATE_RUNNING)
+    if (mXRState < XR_STATE_RUNNING && mSwapchains.size() < 1)
     {
         return;
     }
@@ -850,8 +867,8 @@ void LLXRManager::endFrame()
     }
 
     XrFrameEndInfo frameEndInfo = { XR_TYPE_FRAME_END_INFO };
-    // frameEndInfo.layerCount           = submittedLayerCount;
-    // frameEndInfo.layers               = submittedLayers;
+    frameEndInfo.layerCount           = submittedLayerCount;
+    frameEndInfo.layers               = submittedLayers;
     frameEndInfo.environmentBlendMode = XR_ENVIRONMENT_BLEND_MODE_OPAQUE;
     frameEndInfo.displayTime          = mFrameState.predictedDisplayTime;
     S32 err                           = xrEndFrame(mSession, &frameEndInfo);

@@ -147,6 +147,7 @@
 #include "llviewershadermgr.h"
 #include "gltfscenemanager.h"
 #include "gltf/asset.h"
+#include "llxrmanager.h"
 
 using namespace LLAvatarAppearanceDefines;
 
@@ -8086,6 +8087,24 @@ class LLAdvancedClickGLTFEdit : public view_listener_t
     }
 };
 
+class LLAdvancedClickStartOpenXR : public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata)
+    {
+        gViewerWindow->getWindow()->createXRSession();
+        return true;
+    }
+};
+
+class LLAdvancedClickEndOpenXR : public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata)
+    {
+        gViewerWindow->getWindow()->destroyXRSession();
+        return true;
+    }
+};
+
 class LLAdvancedClickResizeWindow : public view_listener_t
 {
     bool handleEvent(const LLSD& userdata)
@@ -9741,6 +9760,8 @@ void initialize_menus()
     view_listener_t::addMenu(new LLAdvancedClickGLTFSaveAs(), "Advanced.ClickGLTFSaveAs");
     view_listener_t::addMenu(new LLAdvancedClickGLTFUpload(), "Advanced.ClickGLTFUpload");
     view_listener_t::addMenu(new LLAdvancedClickGLTFEdit(), "Advanced.ClickGLTFEdit");
+    view_listener_t::addMenu(new LLAdvancedClickStartOpenXR(), "Advanced.ClickStartOpenXR");
+    view_listener_t::addMenu(new LLAdvancedClickEndOpenXR(), "Advanced.ClickEndOpenXR");
     view_listener_t::addMenu(new LLAdvancedClickResizeWindow(), "Advanced.ClickResizeWindow");
     view_listener_t::addMenu(new LLAdvancedPurgeShaderCache(), "Advanced.ClearShaderCache");
 

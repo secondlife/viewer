@@ -480,11 +480,14 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
 
     gViewerWindow->checkSettings();
 
-    gXRManager->handleSessionState();
+    if (gXRManager)
+    {
+        gXRManager->handleSessionState();
 
-    gXRManager->updateXRSession();
+        gXRManager->updateXRSession();
 
-    gXRManager->startFrame();
+        gXRManager->startFrame();
+    }
 
     {
         LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("Picking");
@@ -623,7 +626,7 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
     LLAppViewer::instance()->pingMainloopTimeout("Display:Camera");
     if (LLViewerCamera::instanceExists())
     {
-        if (gXRManager->xrState() == LLXRManager::XR_STATE_RUNNING)
+        if (gXRManager && gXRManager->xrState() == LLXRManager::XR_STATE_RUNNING)
         {
             LLVector3 agentPos = gAgent.getPositionAgent();
             LLViewerCamera::getInstance()->mOrigin = agentPos + LLVector3(glm::value_ptr(gXRManager->getHeadPosition()));
