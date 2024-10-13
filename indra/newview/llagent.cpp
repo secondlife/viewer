@@ -120,8 +120,8 @@ const F32 MIN_FIDGET_TIME = 8.f; // seconds
 const F32 MAX_FIDGET_TIME = 20.f; // seconds
 
 const S32 UI_FEATURE_VERSION = 1;
-// For version 1: 1 - inventory, 2 - gltf
-const S32 UI_FEATURE_FLAGS = 3;
+// For version 1, flag holds: 1 - inventory thumbnails, 2 - gltf, 4 - inventory favorites
+const S32 UI_FEATURE_FLAGS = 7;
 
 // The agent instance.
 LLAgent gAgent;
@@ -602,7 +602,7 @@ void LLAgent::getFeatureVersionAndFlags(S32& version, S32& flags)
     if (feature_version.isInteger())
     {
         version = feature_version.asInteger();
-        flags = 1; // inventory flag
+        flags = 3; // show 'favorites' notification
     }
     else if (feature_version.isMap())
     {
@@ -628,13 +628,8 @@ void LLAgent::showLatestFeatureNotification(const std::string key)
 
         if (key == "inventory")
         {
-            // Notify user about new thumbnail support
-            flag = 1;
-        }
-
-        if (key == "gltf")
-        {
-            flag = 2;
+            // Notify user about new favorites support
+            flag = 4;
         }
 
         if ((flags & flag) == 0)

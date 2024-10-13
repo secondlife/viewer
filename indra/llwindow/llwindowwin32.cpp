@@ -344,7 +344,12 @@ struct LLWindowWin32::LLWindowWin32Thread : public LL::ThreadPool
 
     void run() override;
 
-    // closes queue, wakes thread, waits until thread closes
+    // Detroys handles and window
+    // Either post to or call from window thread
+    void destroyWindow();
+
+    // Closes queue, wakes thread, waits until thread closes.
+    // Call from main thread
     bool wakeAndDestroy();
 
     void glReady()
@@ -401,8 +406,16 @@ struct LLWindowWin32::LLWindowWin32Thread : public LL::ThreadPool
     // *HACK: Attempt to prevent startup crashes by deferring memory accounting
     // until after some graphics setup. See SL-20177. -Cosmic,2023-09-18
     bool mGLReady = false;
-    bool mDeleteOnExit = false;
     bool mGotGLBuffer = false;
+    LLAtomicBool mDeleteOnExit = false;
+    // best guess at available video memory in MB
+    std::atomic<U32> mAvailableVRAM;
+
+    U32 mMaxVRAM = 0; // maximum amount of vram to allow in the "budget", or 0 for no maximum (see updateVRAMUsage)
+
+    IDXGIAdapter3* mDXGIAdapter = nullptr;
+    LPDIRECT3D9 mD3D = nullptr;
+    LPDIRECT3DDEVICE9 mD3DDevice = nullptr;
 };
 
 
@@ -846,6 +859,7 @@ LLWindowWin32::~LLWindowWin32()
     }
 
     delete mDragDrop;
+    mDragDrop = NULL;
 
     delete [] mWindowTitle;
     mWindowTitle = NULL;
@@ -857,6 +871,7 @@ LLWindowWin32::~LLWindowWin32()
     mWindowClassName = NULL;
 
     delete mWindowThread;
+    mWindowThread = NULL;
 }
 
 void LLWindowWin32::show()
@@ -4783,10 +4798,41 @@ void LLWindowWin32::LLWindowWin32Thread::run()
 #endif
     }
 
+    destroyWindow();
+
     if (mDeleteOnExit)
     {
         delete this;
     }
+}
+
+void LLWindowWin32::LLWindowWin32Thread::destroyWindow()
+{
+    if (mWindowHandleThrd != NULL && IsWindow(mWindowHandleThrd))
+    {
+        if (mhDCThrd)
+        {
+            if (!ReleaseDC(mWindowHandleThrd, mhDCThrd))
+            {
+                LL_WARNS("Window") << "Release of ghDC failed!" << LL_ENDL;
+            }
+            mhDCThrd = NULL;
+        }
+
+        // This causes WM_DESTROY to be sent *immediately*
+        if (!destroy_window_handler(mWindowHandleThrd))
+        {
+            LL_WARNS("Window") << "Failed to destroy Window! " << std::hex << GetLastError() << LL_ENDL;
+        }
+    }
+    else
+    {
+        // Something killed the window while we were busy destroying gl or handle somehow got broken
+        LL_WARNS("Window") << "Failed to destroy Window, invalid handle!" << LL_ENDL;
+    }
+    mWindowHandleThrd = NULL;
+    mhDCThrd = NULL;
+    mGLReady = false;
 }
 
 bool LLWindowWin32::LLWindowWin32Thread::wakeAndDestroy()
@@ -4804,35 +4850,6 @@ bool LLWindowWin32::LLWindowWin32Thread::wakeAndDestroy()
 
     // Schedule destruction
     HWND old_handle = mWindowHandleThrd;
-    post([this]()
-         {
-             if (IsWindow(mWindowHandleThrd))
-             {
-                 if (mhDCThrd)
-                 {
-                     if (!ReleaseDC(mWindowHandleThrd, mhDCThrd))
-                     {
-                         LL_WARNS("Window") << "Release of ghDC failed!" << LL_ENDL;
-                     }
-                     mhDCThrd = NULL;
-                 }
-
-                 // This causes WM_DESTROY to be sent *immediately*
-                 if (!destroy_window_handler(mWindowHandleThrd))
-                 {
-                     LL_WARNS("Window") << "Failed to destroy Window! " << std::hex << GetLastError() << LL_ENDL;
-                 }
-             }
-             else
-             {
-                 // Something killed the window while we were busy destroying gl or handle somehow got broken
-                 LL_WARNS("Window") << "Failed to destroy Window, invalid handle!" << LL_ENDL;
-             }
-             mWindowHandleThrd = NULL;
-             mhDCThrd = NULL;
-             mGLReady = false;
-         });
-
     mDeleteOnExit = true;
     SetWindowLongPtr(old_handle, GWLP_USERDATA, NULL);
 

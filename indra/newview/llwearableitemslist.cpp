@@ -933,7 +933,7 @@ LLContextMenu* LLWearableItemsList::ContextMenu::createMenu()
     // Register handlers for attachments.
     registrar.add("Attachment.Detach",
                   boost::bind(&LLAppearanceMgr::removeItemsFromAvatar, LLAppearanceMgr::getInstance(), ids, no_op));
-    registrar.add("Attachment.Favorite", boost::bind(toggle_favorite, selected_id));
+    registrar.add("Attachment.Favorite", boost::bind(toggle_favorites, ids));
     registrar.add("Attachment.Touch", boost::bind(handle_attachment_touch, selected_id));
     registrar.add("Attachment.Profile", boost::bind(show_item_profile, selected_id));
     registrar.add("Object.Attach", boost::bind(LLViewerAttachMenu::attachObjects, ids, _2));

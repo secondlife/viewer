@@ -2515,12 +2515,19 @@ void set_favorite(const LLUUID& obj_id, bool favorite)
 
     if (obj && obj->getIsLinkType())
     {
-        obj = gInventory.getObject(obj_id);
+        if (!favorite && obj->getIsFavorite())
+        {
+            // Links currently aren't supposed to be favorites,
+            // instead should show state of the original
+            LL_INFOS("Inventory") << "Recovering proper 'favorites' state of a link " << obj_id << LL_ENDL;
+            favorite_send(obj, obj_id, false);
+        }
+        obj = gInventory.getObject(obj->getLinkedUUID());
     }
 
     if (obj && obj->getIsFavorite() != favorite)
     {
-        favorite_send(obj, obj_id, favorite);
+        favorite_send(obj, obj->getUUID(), favorite);
     }
 }
 
@@ -2529,12 +2536,31 @@ void toggle_favorite(const LLUUID& obj_id)
     LLInventoryObject* obj = gInventory.getObject(obj_id);
     if (obj && obj->getIsLinkType())
     {
-        obj = gInventory.getObject(obj_id);
+        obj = gInventory.getObject(obj->getLinkedUUID());
     }
 
     if (obj)
     {
-        favorite_send(obj, obj_id, !obj->getIsFavorite());
+        favorite_send(obj, obj->getUUID(), !obj->getIsFavorite());
+    }
+}
+
+void toggle_favorites(const uuid_vec_t& ids)
+{
+    if (ids.size() == 0)
+    {
+        return;
+    }
+    if (ids.size() == 1)
+    {
+        toggle_favorite(ids[0]);
+        return;
+    }
+
+    bool new_val = !get_is_favorite(ids.front());
+    for (uuid_vec_t::const_iterator it = ids.begin(); it != ids.end(); ++it)
+    {
+        set_favorite(*it, new_val);
     }
 }
 

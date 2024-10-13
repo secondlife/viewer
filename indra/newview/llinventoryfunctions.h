@@ -120,6 +120,7 @@ bool get_is_favorite(const LLInventoryObject* object);
 bool get_is_favorite(const LLUUID& obj_id);
 void set_favorite(const LLUUID& obj_id, bool favorite);
 void toggle_favorite(const LLUUID& obj_id);
+void toggle_favorites(const uuid_vec_t& ids);
 std::string get_searchable_description(LLInventoryModel* model, const LLUUID& item_id);
 std::string get_searchable_creator_name(LLInventoryModel* model, const LLUUID& item_id);
 std::string get_searchable_UUID(LLInventoryModel* model, const LLUUID& item_id);
@@ -333,9 +334,6 @@ protected:
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLFavoritesCollector
-//
-// Simple class that collects calling cards that are not null, and not
-// the agent. Duplicates are possible.
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 class LLFavoritesCollector : public LLInventoryCollectFunctor
 {

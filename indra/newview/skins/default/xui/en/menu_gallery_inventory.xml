@@ -126,22 +126,6 @@
          parameter="thumbnail" />
     </menu_item_call>
     <menu_item_call
-     label="Add to favorites"
-     layout="topleft"
-     name="favorites_add">
-        <menu_item_call.on_click
-         function="Inventory.DoToSelected"
-         parameter="favorite" />
-    </menu_item_call>
-  <menu_item_call
-   label="Remove from favorites"
-   layout="topleft"
-   name="favorites_remove">
-    <menu_item_call.on_click
-     function="Inventory.DoToSelected"
-     parameter="favorite" />
-  </menu_item_call>
-    <menu_item_call
      label="Copy Asset UUID"
      layout="topleft"
      name="Copy Asset UUID">
