@@ -73,13 +73,13 @@ if (BUILD_HEADLESS)
   add_executable(appearance-utility-headless-bin ${appearance_utility_SOURCE_FILES})
   
   target_link_libraries(appearance-utility-headless-bin
-      ${LLAPPEARANCE_HEADLESS_LIBRARIES}
-      ${LLWINDOW_HEADLESS_LIBRARIES}
-      ${BOOST_COROUTINE_LIBRARY}
-      ${BOOST_CONTEXT_LIBRARY}
-      ${BOOST_SYSTEM_LIBRARY}
-      ${TCMALLOC_LIBRARIES}
-      )
+    llcharacter
+    llinventory
+    llappearanceheadless
+    llwindowheadless
+    llrenderheadless
+    llxml
+    )
   
   add_custom_target(appearance-utility-headless-bin-target ALL
                     DEPENDS appearance-utility-headless-bin)

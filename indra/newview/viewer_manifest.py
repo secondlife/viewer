@@ -1234,7 +1234,8 @@ class LinuxManifest(ViewerManifest):
         app_util = os.path.join(self.args['build'], '../llappearanceutility')
         if os.path.isdir(app_util):
             with self.prefix(app_util):
-                self.path("appearance-utility-bin", "appearance-utility-bin")
+                self.path("appearance-utility-bin")
+                self.path("appearance-utility-headless-bin")
 
         # recurses, packaged again
         self.path("res-sdl")
