@@ -285,7 +285,7 @@ public:
     LLGLTFDrawInfoHandle mGLTFDrawInfo;   // handle to GLTF draw info for this face.
 
     // hash of material for use in render batch sorting
-    U64 mBatchHash = 0;
+    size_t mBatchHash = 0;
 
     // cached alpha mode that matches mBatchHash for use in render batch sorting
     LLGLTFMaterial::AlphaMode mAlphaMode = LLGLTFMaterial::ALPHA_MODE_OPAQUE;

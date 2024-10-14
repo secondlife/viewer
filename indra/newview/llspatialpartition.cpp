@@ -871,6 +871,7 @@ void LLSpatialGroup::updateTransformUBOs()
         return;
     }
 
+    STOP_GLERROR;
     // build transform UBO and transform intance map UBO
     // Each LLVolumeFace contains an LLVertexBuffer of that face's geometry
     // It's common for there to be many instances of an LLFace with the same material within a given spatial group
@@ -881,23 +882,12 @@ void LLSpatialGroup::updateTransformUBOs()
     //  mTextureTransformUBO: a UBO containing texture transform data for each texture transform used by the group (if animated textures are present)
     //  mPrimScaleUBO: a UBO containing the scale of each primitive in the group
 
-    struct MaterialRecord
-    {
-        U32 id;
-        LLGLTFMaterial* material;
-    };
-
-    struct BPMaterialRecord
-    {
-        U32 id;
-        LLFace* facep;
-    };
-
     U32 mat_id = 0;
     U32 bp_mat_id = 0;
 
-    std::unordered_map<size_t, MaterialRecord> materials;
-    std::unordered_map<size_t, BPMaterialRecord> bp_materials;
+    // map of face mBatchHash to material index in UBO
+    std::unordered_map<size_t, U32> materials;
+    std::unordered_map<size_t, U32> bp_materials;
 
     LL_PROFILE_ZONE_SCOPED;
     static std::vector<const LLMatrix4*> transforms;
@@ -990,13 +980,13 @@ void LLSpatialGroup::updateTransformUBOs()
                     if (iter == materials.end())
                     {
                         id = mat_id;
-                        materials[facep->mBatchHash] = { mat_id++, gltf_mat };
+                        materials[facep->mBatchHash] = mat_id++;
 
                         gltf_mat->packOnto(material_data);
                     }
                     else
                     {
-                        id = iter->second.id;
+                        id = iter->second;
                     }
 
                     faces.push_back(facep);
@@ -1007,20 +997,19 @@ void LLSpatialGroup::updateTransformUBOs()
                     if (iter == bp_materials.end())
                     {
                         id = bp_mat_id;
-                        bp_materials[facep->mBatchHash] = { bp_mat_id++, facep };
+                        bp_materials[facep->mBatchHash] = bp_mat_id++;
 
-                        facep->packMaterialOnto(material_data);
+                        facep->packMaterialOnto(bp_material_data);
                     }
                     else
                     {
-                        id = iter->second.id;
+                        id = iter->second;
                     }
 
                     bp_faces.push_back(facep);
                 }
 
                 facep->mMaterialIndex = id;
-
             }
         }
     }
@@ -1034,97 +1023,54 @@ void LLSpatialGroup::updateTransformUBOs()
     };
 
     U32 transform_ubo_size = (U32)(transforms.size() * 12 * sizeof(F32));
+    U32 prim_scales_ubo_size = (U32)(prim_scales.size() * sizeof(LLVector4a));
     U32 instance_map_ubo_size = (U32)(faces.size() * sizeof(InstanceMapEntry));
     U32 material_ubo_size = (U32) (material_data.size() * sizeof(LLVector4a));
     U32 bp_material_ubo_size = (U32) (bp_material_data.size() * sizeof(LLVector4a));
     U32 bp_instance_map_ubo_size = (U32) bp_faces.size()*sizeof(InstanceMapEntry);
     U32 texture_transform_ubo_size = (U32)(texture_transforms.size() * 12 * sizeof(F32));
 
-    bool new_transform_ubo = transform_ubo_size > mTransformUBOSize || transform_ubo_size < mTransformUBOSize / 2;
-    bool new_instance_map_ubo = instance_map_ubo_size > mInstanceMapUBOSize || instance_map_ubo_size < mInstanceMapUBOSize / 2;
-    bool new_material_ubo = material_ubo_size > mMaterialUBOSize || material_ubo_size < mMaterialUBOSize / 2;
-    bool new_texture_transform_ubo = texture_transform_ubo_size > mTextureTransformUBOSize || texture_transform_ubo_size < mTextureTransformUBOSize / 2;
-    bool new_bp_material_ubo = bp_material_ubo_size > mBPMaterialUBOSize || bp_material_ubo_size < mBPMaterialUBOSize / 2;
-    bool new_bp_instance_map_ubo = bp_instance_map_ubo_size > mBPInstanceMapUBOSize || bp_instance_map_ubo_size < mBPInstanceMapUBOSize / 2;
-
-    if (new_transform_ubo)
+    auto alloc_ubo = [&](U32& ubo, bool& new_ubo, U32& new_size, U32& old_size)
     {
-        if (mTransformUBO)
+        new_ubo = new_size > old_size || new_size < old_size / 2;
+
+        if (new_ubo)
         {
-            ll_gl_delete_buffers(1, &mTransformUBO);
+            if (ubo)
+            {
+                ll_gl_delete_buffers(1, &ubo);
+            }
+
+            if (new_size > 0)
+            {
+                ubo = ll_gl_gen_buffer();
+            }
+            else
+            {
+                ubo = 0;
+            }
         }
 
-        mTransformUBO = ll_gl_gen_buffer();
+    };
 
-        // prim scales are 1:1 with prim transforms, so we can use the same flag for recreation
-        if (mPrimScaleUBO)
-        {
-            ll_gl_delete_buffers(1, &mPrimScaleUBO);
-        }
-
-        mPrimScaleUBO = ll_gl_gen_buffer();
-    }
-
-    if (new_texture_transform_ubo)
-    {
-        if (mTextureTransformUBO)
-        {
-            ll_gl_delete_buffers(1, &mTextureTransformUBO);
-        }
-
-        if (texture_transform_ubo_size > 0)
-        {
-            mTextureTransformUBO = ll_gl_gen_buffer();
-        }
-        else
-        {
-            mTextureTransformUBO = 0;
-        }
-    }
-
-    if (new_instance_map_ubo)
-    {
-        if (mInstanceMapUBO)
-        {
-            ll_gl_delete_buffers(1, &mInstanceMapUBO);
-        }
-
-        mInstanceMapUBO = ll_gl_gen_buffer();
-    }
-
-    if (new_material_ubo)
-    {
-        if (mMaterialUBO)
-        {
-            ll_gl_delete_buffers(1, &mMaterialUBO);
-        }
-
-        mMaterialUBO = ll_gl_gen_buffer();
-    }
-
-    if (new_bp_instance_map_ubo)
-    {
-        if (mBPInstanceMapUBO)
-        {
-            ll_gl_delete_buffers(1, &mBPInstanceMapUBO);
-        }
-
-        mBPInstanceMapUBO = ll_gl_gen_buffer();
-    }
-
-    if (new_bp_material_ubo)
-    {
-        if (mBPMaterialUBO)
-        {
-            ll_gl_delete_buffers(1, &mBPMaterialUBO);
-        }
-
-        mBPMaterialUBO = ll_gl_gen_buffer();
-    }
+    bool new_transform_ubo;
+    bool new_prim_scales_ubo;
+    bool new_instance_map_ubo;
+    bool new_material_ubo;
+    bool new_texture_transform_ubo;
+    bool new_bp_material_ubo;
+    bool new_bp_instance_map_ubo;
 
 
-    if (mTransformUBO != 0 && mInstanceMapUBO != 0 &&
-        transform_ubo_size > 0 && instance_map_ubo_size > 0)
+    alloc_ubo(mTransformUBO,        new_transform_ubo,          transform_ubo_size,         mTransformUBOSize);
+    alloc_ubo(mPrimScaleUBO,        new_prim_scales_ubo,        prim_scales_ubo_size,       mPrimScaleUBOSize);
+    alloc_ubo(mInstanceMapUBO,      new_instance_map_ubo,       instance_map_ubo_size,      mInstanceMapUBOSize);
+    alloc_ubo(mMaterialUBO,         new_material_ubo,           material_ubo_size,          mMaterialUBOSize);
+    alloc_ubo(mBPInstanceMapUBO,    new_bp_instance_map_ubo,    bp_instance_map_ubo_size,   mBPInstanceMapUBOSize);
+    alloc_ubo(mBPMaterialUBO,       new_bp_material_ubo,        bp_material_ubo_size,       mBPMaterialUBOSize);
+    alloc_ubo(mTextureTransformUBO, new_texture_transform_ubo,  texture_transform_ubo_size, mTextureTransformUBOSize);
+
+    if (mTransformUBO != 0 && transform_ubo_size > 0)
     {
         struct InstanceSort
         {
@@ -1192,7 +1138,7 @@ void LLSpatialGroup::updateTransformUBOs()
 
                 if (current_info &&
                     vf.mVertexBuffer.notNull() &&
-                    current_info->mMaterialID == gltf_mat->getBatchHash() &&
+                    current_info->mMaterialID == facep->mBatchHash &&
                     current_info->mVAO == vf.mVertexBuffer->mGLVAO &&
                     current_info->mElementOffset == vf.mVBIndexOffset &&
                     current_avatar == avatar &&
@@ -1334,18 +1280,19 @@ void LLSpatialGroup::updateTransformUBOs()
                     avatar = current_avatar;
                     skin_hash = current_skin_hash;
 
+                    const LLTextureEntry* te = facep->getTextureEntry();
                     // TODO: get actual diffuse/normal/specular
-                    LLViewerTexture* diffuse = nullptr;
+                    LLViewerTexture* diffuse = facep->getTexture();
                     if (!diffuse)
                     {
                         diffuse = LLViewerFetchedTexture::sWhiteImagep.get();
                     }
-                    LLViewerTexture* normal = nullptr;
+                    LLViewerTexture* normal = facep->getTexture(LLRender::NORMAL_MAP);
                     if (!normal)
                     {
                         normal = LLViewerFetchedTexture::sFlatNormalImagep.get();
                     }
-                    LLViewerTexture* specular = nullptr;
+                    LLViewerTexture* specular = facep->getTexture(LLRender::SPECULAR_MAP);
                     if (!specular)
                     {
                         specular = LLViewerFetchedTexture::sWhiteImagep.get();
@@ -1362,8 +1309,8 @@ void LLSpatialGroup::updateTransformUBOs()
                     current_info->mTransformUBO = mTransformUBO;
                     current_info->mTextureTransformUBO = mTextureTransformUBO;
                     current_info->mPrimScaleUBO = mPrimScaleUBO;
-                    current_info->mInstanceMapUBO = mInstanceMapUBO;
-                    current_info->mMaterialUBO = mMaterialUBO;
+                    current_info->mInstanceMapUBO = mBPInstanceMapUBO;
+                    current_info->mMaterialUBO = mBPMaterialUBO;
                     current_info->mBaseInstance = i;
                     current_info->mInstanceCount = 1;
                 }
@@ -1372,6 +1319,7 @@ void LLSpatialGroup::updateTransformUBOs()
         }
 
         {
+            STOP_GLERROR;
             LL_PROFILE_ZONE_NAMED("utubo - update UBO data");
 
             auto pack_transforms = [](const std::vector<const LLMatrix4*>& src, U32 ubo, U32& old_size, U32 new_size, bool new_ubo)
@@ -1405,6 +1353,7 @@ void LLSpatialGroup::updateTransformUBOs()
                             mp[idx + 11] = m[14];
                         }
 
+                        STOP_GLERROR;
                         glBindBuffer(GL_UNIFORM_BUFFER, ubo);
                         size_t data_size = glmp.size() * sizeof(F32);
 
@@ -1419,69 +1368,44 @@ void LLSpatialGroup::updateTransformUBOs()
                             llassert(data_size <= old_size);
                             glBufferSubData(GL_UNIFORM_BUFFER, 0, data_size, glmp.data());
                         }
+                        STOP_GLERROR;
                     }
                 };
 
             pack_transforms(transforms, mTransformUBO, mTransformUBOSize, transform_ubo_size, new_transform_ubo);
             pack_transforms(texture_transforms, mTextureTransformUBO, mTextureTransformUBOSize, texture_transform_ubo_size, new_texture_transform_ubo);
 
-            glBindBuffer(GL_UNIFORM_BUFFER, mPrimScaleUBO);
-            if (new_transform_ubo)
+            auto pack_ubo = [&](U32 ubo, bool new_ubo, U32 new_size, U32& old_size, void* data)
             {
-                glBufferData(GL_UNIFORM_BUFFER, prim_scales.size() * sizeof(LLVector4a), prim_scales.data(), GL_STREAM_DRAW);
-            }
-            else
-            {
-                glBufferSubData(GL_UNIFORM_BUFFER, 0, prim_scales.size() * sizeof(LLVector4a), prim_scales.data());
-            }
+                if (ubo)
+                {
+                    glBindBuffer(GL_UNIFORM_BUFFER, ubo);
+                    size_t data_size = new_size;
 
-            glBindBuffer(GL_UNIFORM_BUFFER, mInstanceMapUBO);
-            if (new_instance_map_ubo)
-            {
-                mInstanceMapUBOSize = instance_map_ubo_size;
-                glBufferData(GL_UNIFORM_BUFFER, instance_map.size() * sizeof(InstanceMapEntry), instance_map.data(), GL_STREAM_DRAW);
-            }
-            else
-            {
-                glBufferSubData(GL_UNIFORM_BUFFER, 0, instance_map.size() * sizeof(InstanceMapEntry), instance_map.data());
-            }
-            glBindBuffer(GL_UNIFORM_BUFFER, 0);
+                    if (new_ubo)
+                    {
+                        old_size = new_size;
+                        llassert(data_size <= old_size);
+                        glBufferData(GL_UNIFORM_BUFFER, data_size, data, GL_STREAM_DRAW);
+                    }
+                    else
+                    {
+                        llassert(data_size <= old_size);
+                        glBufferSubData(GL_UNIFORM_BUFFER, 0, data_size, data);
+                    }
+                    STOP_GLERROR;
+                }
+            };
 
-            glBindBuffer(GL_UNIFORM_BUFFER, mMaterialUBO);
-            if (new_material_ubo)
-            {
-                mMaterialUBOSize = material_ubo_size;
-                glBufferData(GL_UNIFORM_BUFFER, material_data.size() * sizeof(LLVector4a), material_data.data(), GL_STREAM_DRAW);
-            }
-            else
-            {
-                glBufferSubData(GL_UNIFORM_BUFFER, 0, material_data.size() * sizeof(LLVector4a), material_data.data());
-            }
-
-            glBindBuffer(GL_UNIFORM_BUFFER, mBPInstanceMapUBO);
-            if (new_instance_map_ubo)
-            {
-                mBPInstanceMapUBOSize = bp_instance_map_ubo_size;
-                glBufferData(GL_UNIFORM_BUFFER, bp_instance_map.size() * sizeof(InstanceMapEntry), bp_instance_map.data(), GL_STREAM_DRAW);
-            }
-            else
-            {
-                glBufferSubData(GL_UNIFORM_BUFFER, 0, bp_instance_map.size() * sizeof(InstanceMapEntry), bp_instance_map.data());
-            }
-            glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-            glBindBuffer(GL_UNIFORM_BUFFER, mBPMaterialUBO);
-            if (new_material_ubo)
-            {
-                mBPMaterialUBOSize = bp_material_ubo_size;
-                glBufferData(GL_UNIFORM_BUFFER, bp_material_data.size() * sizeof(LLVector4a), bp_material_data.data(), GL_STREAM_DRAW);
-            }
-            else
-            {
-                glBufferSubData(GL_UNIFORM_BUFFER, 0, bp_material_data.size() * sizeof(LLVector4a), bp_material_data.data());
-            }
+            pack_ubo(mPrimScaleUBO, new_prim_scales_ubo, prim_scales_ubo_size, mPrimScaleUBOSize, prim_scales.data());
+            pack_ubo(mInstanceMapUBO, new_instance_map_ubo, instance_map_ubo_size, mInstanceMapUBOSize, instance_map.data());
+            pack_ubo(mMaterialUBO, new_material_ubo, material_ubo_size, mMaterialUBOSize, material_data.data());
+            pack_ubo(mBPInstanceMapUBO, new_bp_instance_map_ubo, bp_instance_map_ubo_size, mBPInstanceMapUBOSize, bp_instance_map.data());
+            pack_ubo(mBPMaterialUBO, new_bp_material_ubo, bp_material_ubo_size, mBPMaterialUBOSize, bp_material_data.data());
         }
     }
+
+    STOP_GLERROR;
 }
 
 

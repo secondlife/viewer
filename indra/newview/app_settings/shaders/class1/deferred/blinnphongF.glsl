@@ -66,23 +66,20 @@ vec3 srgb_to_linear(vec3 c);
 #ifdef SAMPLE_MATERIALS_UBO
 layout (std140) uniform GLTFMaterials
 {
-    // index by gltf_material_id*8
+    // index by gltf_material_id*6
 
-    // [gltf_material_id + [0-1]] -  base color transform
+    // [gltf_material_id + [0-1]] -  diffuse transform
     // [gltf_material_id + [2-3]] -  normal transform
-    // [gltf_material_id + [4-5]] -  metallic roughness transform
-    // [gltf_material_id + [6-7]] -  emissive transform
+    // [gltf_material_id + [4-5]] -  specular transform
 
     // Transforms are packed as follows
     // packed[0] = vec4(scale.x, scale.y, rotation, offset.x)
     // packed[1] = vec4(offset.y, *, *, *)
 
     // packed[1].yzw varies:
-    //   base color transform -- base color factor
+    //   diffuse transform -- diffuse color
+    //   specular transform -- specular color
     //   normal transform -- .y - alpha factor, .z - minimum alpha
-    //   metallic roughness transform -- .y - roughness factor, .z - metallic factor
-    //   emissive transform -- emissive factor
-
 
     vec4 gltf_material_data[MAX_UBO_VEC4S];
 };
@@ -91,8 +88,10 @@ flat in int gltf_material_id;
 
 void unpackMaterial()
 {
-    int idx = gltf_material_id*8;
+    int idx = gltf_material_id*6;
 #ifdef SAMPLE_DIFFUSE_MAP
+    diffuseColor = vec4(1);
+    minimum_alpha = 0;
     diffuseColor.rgb = gltf_material_data[idx+1].yzw;
     diffuseColor.a = gltf_material_data[idx+3].y;
     minimum_alpha = gltf_material_data[idx+3].z;

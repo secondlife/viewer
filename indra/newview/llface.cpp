@@ -26,6 +26,8 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include <boost/functional/hash.hpp>
+
 #include "lldrawable.h" // lldrawable needs to be included before llface
 #include "llface.h"
 #include "llviewertextureanim.h"
@@ -2613,7 +2615,23 @@ void LLFace::updateBatchHash()
     else
     {
         // TODO : calculate blinn-phong batch hash and alpha mode
+        const LLTextureEntry* te = getTextureEntry();
+
         mBatchHash = 0;
+
+        boost::hash_combine(mBatchHash, te->getColor());
+        boost::hash_combine(mBatchHash, te->getScaleS());
+        boost::hash_combine(mBatchHash, te->getScaleT());
+        boost::hash_combine(mBatchHash, te->getRotation());
+        boost::hash_combine(mBatchHash, te->getOffsetS());
+        boost::hash_combine(mBatchHash, te->getOffsetT());
+
+        boost::hash_combine(mBatchHash, te->getID());
+        const auto& mat = te->getMaterialParams();
+        if (mat.notNull())
+        {
+            boost::hash_combine(mBatchHash, mat->getBatchHash());
+        }
     }
 }
 
@@ -2626,6 +2644,21 @@ void LLFace::packMaterialOnto(std::vector<LLVector4a>& dst)
     }
     {
         // TODO: pack blinn-phong material
+        dst.resize(dst.size()+6);
+        LLVector4a* data = &dst[dst.size()-6];
+
+        const LLTextureEntry* te = getTextureEntry();
+
+        LLColor4 col = te->getColor();
+
+        data[0].set(te->getScaleS(), te->getScaleT(), te->getRotation(), te->getOffsetS());
+        data[1].set(te->getOffsetT(), col.mV[0], col.mV[1], col.mV[2]);
+
+        data[2].set(1, 1, 0, 0);
+        data[3].set(0, col.mV[3], 0, 0);
+
+        data[4].set(1,1, 0, 0);
+        data[5].set(1, 0, 0, 0);
     }
 }
 

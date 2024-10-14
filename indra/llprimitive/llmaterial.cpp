@@ -485,7 +485,6 @@ size_t LLMaterial::getBatchHash() const
     boost::hash_combine(hash, mAlphaMaskCutoff);
     boost::hash_combine(hash, mNormalID);
     boost::hash_combine(hash, mSpecularID);
-    boost::hash_combine(hash, mAlphaMaskCutoff);
     return hash;
 }
 
