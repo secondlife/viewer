@@ -6610,7 +6610,6 @@ void process_initiate_download(LLMessageSystem* msg, void**)
         (void**)new std::string(viewer_filename));
 }
 
-
 void process_script_teleport_request(LLMessageSystem* msg, void**)
 {
     if (!gSavedSettings.getBOOL("ScriptsCanShowUI")) return;
@@ -6624,6 +6623,11 @@ void process_script_teleport_request(LLMessageSystem* msg, void**)
     msg->getString("Data", "SimName", sim_name);
     msg->getVector3("Data", "SimPosition", pos);
     msg->getVector3("Data", "LookAt", look_at);
+    U32 flags = (BEACON_SHOW_MAP | BEACON_FOCUS_MAP);
+    if (msg->has("Options"))
+    {
+        msg->getU32("Options", "Flags", flags);
+    }
 
     LLFloaterWorldMap* instance = LLFloaterWorldMap::getInstance();
     if(instance)
@@ -6634,7 +6638,17 @@ void process_script_teleport_request(LLMessageSystem* msg, void**)
             << LL_ENDL;
 
         instance->trackURL(sim_name, (S32)pos.mV[VX], (S32)pos.mV[VY], (S32)pos.mV[VZ]);
-        LLFloaterReg::showInstance("world_map", "center");
+        if (flags & BEACON_SHOW_MAP)
+        {
+            bool old_auto_focus = instance->getAutoFocus();
+            instance->setAutoFocus(false);
+            instance->openFloater("center");
+            if (flags & BEACON_FOCUS_MAP)
+            {
+                instance->setFocus(true);
+            }
+            instance->setAutoFocus(old_auto_focus);
+        }
     }
 
     // remove above two lines and replace with below line
