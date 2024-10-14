@@ -6641,12 +6641,8 @@ void process_script_teleport_request(LLMessageSystem* msg, void**)
         if (flags & BEACON_SHOW_MAP)
         {
             bool old_auto_focus = instance->getAutoFocus();
-            instance->setAutoFocus(false);
+            instance->setAutoFocus(flags & BEACON_FOCUS_MAP);
             instance->openFloater("center");
-            if (flags & BEACON_FOCUS_MAP)
-            {
-                instance->setFocus(true);
-            }
             instance->setAutoFocus(old_auto_focus);
         }
     }
