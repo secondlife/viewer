@@ -687,7 +687,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
     mLoadedCallbacksPaused(false),
     mLoadedCallbackTextures(0),
     mRenderUnloadedAvatar(LLCachedControl<bool>(gSavedSettings, "RenderUnloadedAvatar", false)),
-    mLastRezzedStatus(AV_REZZED_UNKNOWN),
+    mLastRezzedStatus(-1),
     mIsEditingAppearance(false),
     mUseLocalAppearance(false),
     mLastUpdateRequestCOFVersion(-1),
@@ -921,15 +921,16 @@ bool LLVOAvatar::hasGray() const
     return !getIsCloud() && !isFullyTextured();
 }
 
-ERezzedStatus LLVOAvatar::getRezzedStatus() const
+S32 LLVOAvatar::getRezzedStatus() const
 {
-    if (getIsCloud())
-        return AV_REZZED_CLOUD;
-    if (!isFullyTextured())
-        return AV_REZZED_GRAY;
-    if (!allBakedTexturesCompletelyDownloaded())
-        return AV_REZZED_TEXTURED; // "downloading"
-    return AV_REZZED_FULL;
+    if (getIsCloud()) return 0;
+    bool textured = isFullyTextured();
+    bool all_baked_loaded = allBakedTexturesCompletelyDownloaded();
+    if (textured && all_baked_loaded && getAttachmentCount() == mSimAttachments.size()) return 4;
+    if (textured && all_baked_loaded) return 3;
+    if (textured) return 2;
+    llassert(hasGray());
+    return 1; // gray
 }
 
 void LLVOAvatar::deleteLayerSetCaches(bool clearAll)
@@ -2827,7 +2828,7 @@ void LLVOAvatar::idleUpdate(LLAgent &agent, const F64 &time)
         // no need for high frequency
         compl_upd_freq = 100;
     }
-    else if (mLastRezzedStatus <= AV_REZZED_CLOUD) // cloud or initial
+    else if (mLastRezzedStatus <= 0) //cloud or  init
     {
         compl_upd_freq = 60;
     }
@@ -2835,11 +2836,11 @@ void LLVOAvatar::idleUpdate(LLAgent &agent, const F64 &time)
     {
         compl_upd_freq = 5;
     }
-    else if (mLastRezzedStatus == AV_REZZED_GRAY) // 'gray', not fully loaded
+    else if (mLastRezzedStatus == 1) //'grey', not fully loaded
     {
         compl_upd_freq = 40;
     }
-    else if (isInMuteList()) // cheap, buffers value from search
+    else if (isInMuteList()) //cheap, buffers value from search
     {
         compl_upd_freq = 100;
     }
@@ -3182,7 +3183,7 @@ void LLVOAvatar::idleUpdateLipSync(bool voice_enabled)
 {
     // Use the Lipsync_Ooh and Lipsync_Aah morphs for lip sync
     if (voice_enabled
-        && mLastRezzedStatus > AV_REZZED_CLOUD // no point updating lip-sync for clouds
+        && mLastRezzedStatus > 0 // no point updating lip-sync for clouds
         && LLVoiceVisualizer::getLipSyncEnabled()
         && LLVoiceClient::getInstance()->getIsSpeaking(mID))
     {
@@ -4285,8 +4286,8 @@ void LLVOAvatar::computeUpdatePeriod()
     {
         const LLVector4a* ext = mDrawable->getSpatialExtents();
         LLVector4a size;
-        size.setSub(ext[1],ext[0]);
-        F32 mag = size.getLength3().getF32()*0.5f;
+        size.setSub(ext[1], ext[0]);
+        F32 mag = size.getLength3().getF32() * 0.5f;
 
         const S32 UPDATE_RATE_SLOW = 64;
         const S32 UPDATE_RATE_MED = 48;
@@ -4296,8 +4297,8 @@ void LLVOAvatar::computeUpdatePeriod()
         {   // visually muted avatars update at lowest rate
             mUpdatePeriod = UPDATE_RATE_SLOW;
         }
-        else if (! shouldImpostor()
-                 || mDrawable->mDistanceWRTCamera < 1.f + mag)
+        else if (!shouldImpostor()
+            || mDrawable->mDistanceWRTCamera < 1.f + mag)
         {   // first 25% of max visible avatars are not impostored
             // also, don't impostor avatars whose bounding box may be penetrating the
             // impostor camera near clip plane
@@ -4307,7 +4308,7 @@ void LLVOAvatar::computeUpdatePeriod()
         { //background avatars are REALLY slow updating impostors
             mUpdatePeriod = UPDATE_RATE_SLOW;
         }
-        else if (mLastRezzedStatus <= AV_REZZED_CLOUD)
+        else if (mLastRezzedStatus <= 0)
         {
             // Don't update cloud avatars too often
             mUpdatePeriod = UPDATE_RATE_SLOW;
@@ -8206,10 +8207,10 @@ bool LLVOAvatar::getIsCloud() const
             );
 }
 
-void LLVOAvatar::updateRezzedStatusTimers(ERezzedStatus rez_status)
+void LLVOAvatar::updateRezzedStatusTimers(S32 rez_status)
 {
-    // State machine for rezzed status.
-    // Statuses are -1 on startup, 0 = cloud, 1 = gray, 2 = downloading, 3 = waiting for attachments, 4 = full.
+    // State machine for rezzed status. Statuses are -1 on startup, 0
+    // = cloud, 1 = gray, 2 = downloading, 3 = waiting for attachments, 4 = full.
     // Purpose is to collect time data for each it takes avatar to reach
     // various loading landmarks: gray, textured (partial), textured fully.
 
@@ -8217,10 +8218,10 @@ void LLVOAvatar::updateRezzedStatusTimers(ERezzedStatus rez_status)
     {
         LL_DEBUGS("Avatar") << avString() << "rez state change: " << mLastRezzedStatus << " -> " << rez_status << LL_ENDL;
 
-        if (mLastRezzedStatus == AV_REZZED_UNKNOWN && rez_status != AV_REZZED_UNKNOWN)
+        if (mLastRezzedStatus == -1 && rez_status != -1)
         {
             // First time initialization, start all timers.
-            for (ERezzedStatus i = AV_REZZED_GRAY; i <= AV_REZZED_FULL; ++(S32&)i)
+            for (S32 i = 1; i < 4; i++)
             {
                 startPhase("load_" + LLVOAvatar::rezStatusToString(i));
                 startPhase("first_load_" + LLVOAvatar::rezStatusToString(i));
@@ -8229,7 +8230,7 @@ void LLVOAvatar::updateRezzedStatusTimers(ERezzedStatus rez_status)
         if (rez_status < mLastRezzedStatus)
         {
             // load level has decreased. start phase timers for higher load levels.
-            for (ERezzedStatus i = next(rez_status); i <= mLastRezzedStatus; ++(S32&)i)
+            for (S32 i = rez_status + 1; i <= mLastRezzedStatus; i++)
             {
                 startPhase("load_" + LLVOAvatar::rezStatusToString(i));
             }
@@ -8237,12 +8238,12 @@ void LLVOAvatar::updateRezzedStatusTimers(ERezzedStatus rez_status)
         else if (rez_status > mLastRezzedStatus)
         {
             // load level has increased. stop phase timers for lower and equal load levels.
-            for (ERezzedStatus i = llmax(next(mLastRezzedStatus), AV_REZZED_GRAY); i <= rez_status; ++(S32&)i)
+            for (S32 i = llmax(mLastRezzedStatus + 1, 1); i <= rez_status; i++)
             {
                 stopPhase("load_" + LLVOAvatar::rezStatusToString(i));
                 stopPhase("first_load_" + LLVOAvatar::rezStatusToString(i), false);
             }
-            if (rez_status == AV_REZZED_FULL)
+            if (rez_status == 4)
             {
                 // "fully loaded", mark any pending appearance change complete.
                 selfStopPhase("update_appearance_from_cof");
@@ -8252,7 +8253,6 @@ void LLVOAvatar::updateRezzedStatusTimers(ERezzedStatus rez_status)
                 updateVisualComplexity();
             }
         }
-
         mLastRezzedStatus = rez_status;
 
         static LLUICachedControl<bool> show_rez_status("NameTagDebugAVRezState", false);
@@ -8387,20 +8387,20 @@ void LLVOAvatar::logMetricsTimerRecord(const std::string& phase_name, F32 elapse
 // returns true if the value has changed.
 bool LLVOAvatar::updateIsFullyLoaded()
 {
-    ERezzedStatus rez_status = getRezzedStatus();
-    bool loading = getIsCloud();
+    S32 rez_status = getRezzedStatus();
+    bool loading = rez_status == 0;
     if (mFirstFullyVisible && !mIsControlAvatar)
     {
-        loading = ((rez_status < AV_REZZED_TEXTURED)
-                   // Wait at least 60s for unfinished textures to finish on first load,
-                   // don't wait forever, it might fail. Even if it will eventually load by
-                   // itself and update mLoadedCallbackTextures (or fail and clean the list),
-                   // avatars are more time-sensitive than textures and can't wait that long.
-                   || (mLoadedCallbackTextures < mCallbackTextureList.size() && mLastTexCallbackAddedTime.getElapsedTimeF32() < MAX_TEXTURE_WAIT_TIME_SEC)
-                   || !mPendingAttachment.empty()
-                   || (rez_status < AV_REZZED_FULL && !isFullyBaked())
-                   || hasPendingAttachedMeshes()
-                  );
+        loading = ((rez_status < 2)
+            // Wait at least 60s for unfinished textures to finish on first load,
+            // don't wait forever, it might fail. Even if it will eventually load by
+            // itself and update mLoadedCallbackTextures (or fail and clean the list),
+            // avatars are more time-sensitive than textures and can't wait that long.
+            || (mLoadedCallbackTextures < mCallbackTextureList.size() && mLastTexCallbackAddedTime.getElapsedTimeF32() < MAX_TEXTURE_WAIT_TIME_SEC)
+            || !mPendingAttachment.empty()
+            || (rez_status < 3 && !isFullyBaked())
+            || hasPendingAttachedMeshes()
+            );
 
         // compare amount of attachments to one reported by simulator
         if (!loading && !isSelf() && rez_status < 4 && mLastCloudAttachmentCount < mSimAttachments.size())
@@ -8472,8 +8472,9 @@ bool LLVOAvatar::processFullyLoadedChange(bool loading)
     }
     else if (!mFullyLoaded)
     {
-        // We wait a little bit before giving the 'all clear', to let things to settle down:
-        // models to snap into place, textures to get first packets, LODs to load.
+        // We wait a little bit before giving the 'all clear', to let things to
+        // settle down: models to snap into place, textures to get first packets,
+        // LODs to load.
         const F32 LOADED_DELAY = 1.f;
 
     if (mFirstFullyVisible)

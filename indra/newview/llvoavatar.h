@@ -80,15 +80,6 @@ const F32 MAX_AVATAR_LOD_FACTOR = 1.0f;
 
 extern U32 gFrameCount;
 
-enum ERezzedStatus : S32
-{
-    AV_REZZED_UNKNOWN = -1,
-    AV_REZZED_CLOUD = 0,
-    AV_REZZED_GRAY = 1,
-    AV_REZZED_TEXTURED = 2, // "downloading"
-    AV_REZZED_FULL = 3
-};
-
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // LLVOAvatar
 //
@@ -355,8 +346,6 @@ public:
 
     static void updateNearbyAvatarCount();
 
-    static ERezzedStatus next(ERezzedStatus status) { return (ERezzedStatus)++(S32&)status; }
-
     LLVector3 idleCalcNameTagPosition(const LLVector3 &root_pos_last);
 
     //--------------------------------------------------------------------
@@ -413,10 +402,10 @@ public:
     virtual bool    getIsCloud() const;
     bool            isFullyTextured() const;
     bool            hasGray() const;
-    ERezzedStatus   getRezzedStatus() const;
-    void            updateRezzedStatusTimers(ERezzedStatus status);
+    S32             getRezzedStatus() const; // 0 = cloud, 1 = gray, 2 = textured, 3 = waiting for attachments, 4 = full.
+    void            updateRezzedStatusTimers(S32 status);
 
-    ERezzedStatus   mLastRezzedStatus;
+    S32             mLastRezzedStatus;
 
     void            startPhase(const std::string& phase_name);
     void            stopPhase(const std::string& phase_name, bool err_check = true);
