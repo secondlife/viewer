@@ -144,7 +144,7 @@ uniform int gltf_base_instance;
 #ifdef SAMPLE_MATERIALS_UBO
 layout (std140) uniform GLTFMaterials
 {
-    // index by gltf_material_id*6
+    // index by gltf_material_id
 
     // [gltf_material_id + [0-1]] -  diffuse transform
     // [gltf_material_id + [2-3]] -  normal transform
@@ -168,7 +168,7 @@ void unpackTextureTransforms()
 {
     gltf_material_id = gltf_node_instance_map[gl_InstanceID+gltf_base_instance].y;
 
-    int idx = gltf_material_id*6;
+    int idx = gltf_material_id;
 
 #ifdef SAMPLE_DIFFUSE_MAP
     texture_diffuse_transform[0] = gltf_material_data[idx+0];
@@ -243,7 +243,7 @@ void main()
 #ifdef PLANAR_PROJECTION
     planarProjection(tc0);
 #endif
-    diffuse_texcoord = texture_transform(tc0, texture_diffuse_transform, tex_mat);
+    diffuse_texcoord = tc0; //texture_transform(tc0, texture_diffuse_transform, tex_mat);
 #endif
 
 #ifdef MIRROR_CLIP

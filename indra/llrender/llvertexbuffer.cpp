@@ -1088,6 +1088,24 @@ LLVertexBuffer::LLVertexBuffer(U32 typemask)
     }
 }
 
+
+void LLVertexBuffer::setIndicesType(U32 type)
+{
+    llassert(getNumVerts() == 0);
+    llassert(getNumIndices() == 0);
+    llassert(type == GL_UNSIGNED_SHORT || type == GL_UNSIGNED_INT);
+
+    mIndicesType = type;
+
+    if (mIndicesType == GL_UNSIGNED_SHORT)
+    {
+        mIndicesStride = 2;
+    }
+    else
+    {
+        mIndicesStride = 4;
+    }
+}
 // list of mapped buffers
 // NOTE: must not be LLPointer<LLVertexBuffer> to avoid breaking non-ref-counted LLVertexBuffer instances
 static std::vector<LLVertexBuffer*> sMappedBuffers;
@@ -1317,7 +1335,7 @@ bool LLVertexBuffer::updateNumIndices(U32 nindices)
 
     bool success = true;
 
-    U32 needed_size = sizeof(U16) * nindices;
+    U32 needed_size = (mIndicesType == GL_UNSIGNED_INT ? sizeof(U32) : sizeof(U16)) * nindices;
 
     if (needed_size != mIndicesSize)
     {
@@ -2035,17 +2053,26 @@ void LLVertexBuffer::setJointData(const U64* data, U32 offset, U32 count)
 
 void LLVertexBuffer::setIndexData(const U16* data, U32 offset, U32 count)
 {
-    flush_vbo(GL_ELEMENT_ARRAY_BUFFER, offset * sizeof(U16), (offset + count) * sizeof(U16) - 1, (U8*)data, mMappedIndexData);
+    if (mIndicesType == GL_UNSIGNED_INT)
+    { // implicitly convert input to 32-bit indices
+        U32* temp = new U32[count];
+        for (U32 i = 0; i < count; ++i)
+        {
+            temp[i] = data[i];
+        }
+        flush_vbo(GL_ELEMENT_ARRAY_BUFFER, offset * sizeof(U32), (offset + count) * sizeof(U32) - 1, (U8*)temp, mMappedIndexData);
+        delete[] temp;
+    }
+    else
+    {
+        flush_vbo(GL_ELEMENT_ARRAY_BUFFER, offset * sizeof(U16), (offset + count) * sizeof(U16) - 1, (U8*)data, mMappedIndexData);
+    }
 }
 
 void LLVertexBuffer::setIndexData(const U32* data, U32 offset, U32 count)
 {
-    if (mIndicesType != GL_UNSIGNED_INT)
-    { // HACK -- vertex buffers are initialized as 16-bit indices, but can be switched to 32-bit indices
-        mIndicesType = GL_UNSIGNED_INT;
-        mIndicesStride = 4;
-        mNumIndices /= 2;
-    }
+    llassert(mIndicesType == GL_UNSIGNED_INT);
+    llassert(mIndicesStride == 4);
     flush_vbo(GL_ELEMENT_ARRAY_BUFFER, offset * sizeof(U32), (offset + count) * sizeof(U32) - 1, (U8*)data, mMappedIndexData);
 }
 

@@ -283,6 +283,10 @@ public:
     static U32 sFrameCount;
     static F32 sLastFrameTime;
 
+    // Texture name reference checking callback.  Called just before a texture name is deleted so app can verify that the name
+    // is not referenced.
+    static std::function<void(U32)> sTexNameReferenceCheck;
+
     // Global memory statistics
     static U32 sBindCount;                  // Tracks number of texture binds for current frame
     static U32 sUniqueCount;                // Tracks number of unique texture binds for current frame
@@ -314,7 +318,7 @@ public:
     void setCategory(S32 category) {mCategory = category;}
     S32  getCategory()const {return mCategory;}
 
-    void setTexName(GLuint texName);
+    void setTexName(GLuint texName, bool delete_old = false);
 
     //similar to setTexName, but will call deleteTextures on mTexName if mTexName is not 0 or texname
     void syncTexName(LLGLuint texname);

@@ -73,7 +73,7 @@ vec3 srgb_to_linear(vec3 c);
 #ifdef SAMPLE_MATERIALS_UBO
 layout (std140) uniform GLTFMaterials
 {
-    // index by gltf_material_id*8
+    // index by gltf_material_id
 
     // [gltf_material_id + [0-1]] -  base color transform
     // [gltf_material_id + [2-3]] -  normal transform
@@ -98,7 +98,7 @@ flat in int gltf_material_id;
 
 void unpackMaterial()
 {
-    int idx = gltf_material_id*8;
+    int idx = gltf_material_id;
 #ifdef SAMPLE_BASE_COLOR_MAP
     baseColorFactor.rgb = gltf_material_data[idx+1].yzw;
     baseColorFactor.a = gltf_material_data[idx+3].y;

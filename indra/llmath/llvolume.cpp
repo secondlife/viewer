@@ -2790,17 +2790,15 @@ static bool validate_vertex_buffer(LLVolume* volume)
     bool same_verts = num_verts == volume->mVertexBuffer->getNumVerts();
     bool same_indices = num_indices == volume->mVertexBuffer->getNumIndices();
 
-    llassert(same_verts);
-    llassert(same_indices);
-
     return same_verts && same_indices;
 }
 
 void LLVolume::createVertexBuffer()
 {
-    if (mIsMeshAssetLoaded && !mVolumeFaces.empty() && mVertexBuffer.isNull())
+    if (getNumFaces() && (mVertexBuffer.isNull() || !validate_vertex_buffer(this)))
     {
         LL_PROFILE_ZONE_SCOPED;
+
         U32 mask = LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_NORMAL | LLVertexBuffer::MAP_TEXCOORD0 | LLVertexBuffer::MAP_TANGENT;
         U32 vert_count = 0;
         U32 index_count = 0;
@@ -2818,9 +2816,14 @@ void LLVolume::createVertexBuffer()
             }
         }
 
-        llassert(vert_count < 65536);
+        bool large_indices = vert_count >= 65536;
+
 
         mVertexBuffer = new LLVertexBuffer(mask);
+        if (large_indices)
+        {
+            mVertexBuffer->setIndicesType(GL_UNSIGNED_INT);
+        }
         mVertexBuffer->allocateBuffer(vert_count, index_count);
 
         mVertexBuffer->bindBuffer();
@@ -2828,6 +2831,8 @@ void LLVolume::createVertexBuffer()
         for (auto& face : mVolumeFaces)
         {
             face.mVertexBuffer = mVertexBuffer;
+            // ensure tangents have been created
+            face.createTangents();
             mVertexBuffer->setPositionData(face.mPositions, face.mVBGeomOffset, face.mNumVertices);
             mVertexBuffer->setNormalData(face.mNormals, face.mVBGeomOffset, face.mNumVertices);
             mVertexBuffer->setTexCoord0Data(face.mTexCoords, face.mVBGeomOffset, face.mNumVertices);
@@ -2858,8 +2863,6 @@ void LLVolume::createVertexBuffer()
 #endif
         mVertexBuffer->setupVAO();
     }
-
-    llassert(validate_vertex_buffer(this));
 }
 
 S32 LLVolume::getNumFaces() const

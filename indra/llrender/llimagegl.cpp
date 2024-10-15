@@ -59,11 +59,14 @@ U32 wpo2(U32 i);
 
 U32 LLImageGL::sFrameCount = 0;
 
+std::function<void(U32)> LLImageGL::sTexNameReferenceCheck = [](U32) {};
 
 // texture memory accounting (for macOS)
 static LLMutex sTexMemMutex;
 static std::unordered_map<U32, U64> sTextureAllocs;
 static U64 sTextureBytes = 0;
+
+
 
 // track a texture alloc on the currently bound texture.
 // asserts that no currently tracked alloc exists
@@ -185,9 +188,9 @@ void LLImageGL::checkTexSize(bool forced) const
         GLint texname;
         glGetIntegerv(GL_TEXTURE_BINDING_2D, &texname);
         bool error = false;
-        if (texname != mTexName)
+        if (texname != getTexName())
         {
-            LL_INFOS() << "Bound: " << texname << " Should bind: " << mTexName << " Default: " << LLImageGL::sDefaultGLTexture->getTexName() << LL_ENDL;
+            LL_INFOS() << "Bound: " << texname << " Should bind: " << getTexName() << " Default: " << LLImageGL::sDefaultGLTexture->getTexName() << LL_ENDL;
 
             error = true;
             if (gDebugSession)
@@ -476,7 +479,8 @@ LLImageGL::LLImageGL(
     LLTexUnit::eTextureAddressMode addressMode)
 {
     init(false, true);
-    mTexName = texName;
+    llassert(!gDebugGL || glIsTexture(texName));
+    setTexName(texName);
     mTarget = target;
     mComponents = components;
     mAddressMode = addressMode;
@@ -522,7 +526,7 @@ void LLImageGL::init(bool usemipmaps, bool allow_compression)
     mAlphaOffset = 0;
 
     mGLTextureCreated = false;
-    mTexName = 0;
+    setTexName(0);
     mWidth = 0;
     mHeight = 0;
     mCurrentDiscardLevel = -1;
@@ -651,7 +655,7 @@ void LLImageGL::dump()
         << LL_ENDL;
 
     LL_INFOS() << " mTextureMemory " << mTextureMemory
-        << " mTexNames " << mTexName
+        << " mTexNames " << getTexName()
         << LL_ENDL;
 }
 
@@ -663,7 +667,7 @@ void LLImageGL::forceUpdateBindStats(void) const
 
 bool LLImageGL::updateBindStats() const
 {
-    if (mTexName != 0)
+    if (getTexName() != 0)
     {
 #ifdef DEBUG_MISS
         mMissed = !getIsResident(true);
@@ -1093,7 +1097,7 @@ bool LLImageGL::setSubImage(const U8* datap, S32 data_width, S32 data_height, S3
     {
         return true;
     }
-    LLGLuint tex_name = use_name != 0 ? use_name : mTexName;
+    LLGLuint tex_name = use_name != 0 ? use_name : getTexName();
     if (0 == tex_name)
     {
         // *TODO: Re-enable warning?  Ran into thread locking issues? DK 2011-02-18
@@ -1267,6 +1271,11 @@ void LLImageGL::deleteTextures(S32 numTextures, const U32* textures)
         for (S32 i = 0; i < numTextures; ++i)
         {
             sFreeList[idx].push_back(textures[i]);
+
+            if (gDebugGL)
+            {
+                sTexNameReferenceCheck(textures[i]);
+            }
         }
 
         idx = (sFrameCount + 3) % 4;
@@ -1501,17 +1510,12 @@ bool LLImageGL::createGLTexture()
     llassert(gGLManager.mInited);
     stop_glerror();
 
-    U32 old_texname = mTexName;
-    if (mTexName)
-    {
-        LLImageGL::deleteTextures(1, (reinterpret_cast<GLuint*>(&mTexName)));
-        mTexName = 0;
-    }
+    U32 tmp_texname = 0;
+    LLImageGL::generateTextures(1, &tmp_texname);
+    setTexName(tmp_texname, true);
 
-    LLImageGL::generateTextures(1, &mTexName);
-    notifyTexNameChanged(old_texname);
     stop_glerror();
-    if (!mTexName)
+    if (!getTexName())
     {
         LL_WARNS() << "LLImageGL::createGLTexture failed to make an empty texture" << LL_ENDL;
         return false;
@@ -1647,18 +1651,18 @@ bool LLImageGL::createGLTexture(S32 discard_level, const U8* data_in, bool data_
 
     if (main_thread // <--- always force creation of new_texname when not on main thread ...
         && !defer_copy // <--- ... or defer copy is set
-        && mTexName != 0 && discard_level == mCurrentDiscardLevel)
+        && getTexName() != 0 && discard_level == mCurrentDiscardLevel)
     {
         LL_PROFILE_ZONE_NAMED("cglt - early setImage");
         // This will only be true if the size has not changed
         if (tex_name != nullptr)
         {
-            *tex_name = mTexName;
+            *tex_name = getTexName();
         }
         return setImage(data_in, data_hasmips);
     }
 
-    GLuint old_texname = mTexName;
+    GLuint old_texname = getTexName();
     GLuint new_texname = 0;
     if (usename != 0)
     {
@@ -1712,13 +1716,7 @@ bool LLImageGL::createGLTexture(S32 discard_level, const U8* data_in, bool data_
         }
         else
         {
-            //not on background thread, immediately set mTexName
-            if (old_texname != 0 && old_texname != new_texname)
-            {
-                LLImageGL::deleteTextures(1, &old_texname);
-            }
-            mTexName = new_texname;
-            notifyTexNameChanged(old_texname);
+            setTexName(new_texname, true);
         }
     }
 
@@ -1787,13 +1785,19 @@ void LLImageGL::syncToMainThread(LLGLuint new_tex_name)
 }
 
 
-void LLImageGL::setTexName(GLuint texName)
+void LLImageGL::setTexName(GLuint texName, bool delete_old)
 {
-    if (texName != mTexName)
+    if (texName != getTexName())
     {
         U32 old_texname = mTexName;
         mTexName = texName;
         notifyTexNameChanged(old_texname);
+
+        //not on background thread, immediately set mTexName
+        if (delete_old && old_texname)
+        {
+            LLImageGL::deleteTextures(1, &old_texname);
+        }
     }
 }
 
@@ -1801,13 +1805,7 @@ void LLImageGL::syncTexName(LLGLuint texname)
 {
     if (texname != 0)
     {
-        if (mTexName != 0 && mTexName != texname)
-        {
-            LLImageGL::deleteTextures(1, &mTexName);
-        }
-        U32 old_texname = mTexName;
-        mTexName = texname;
-        notifyTexNameChanged(old_texname);
+        setTexName(texname, true);
     }
 }
 
@@ -1820,7 +1818,7 @@ bool LLImageGL::readBackRaw(S32 discard_level, LLImageRaw* imageraw, bool compre
         discard_level = mCurrentDiscardLevel;
     }
 
-    if (mTexName == 0 || discard_level < mCurrentDiscardLevel || discard_level > mMaxDiscardLevel)
+    if (getTexName() == 0 || discard_level < mCurrentDiscardLevel || discard_level > mMaxDiscardLevel)
     {
         return false;
     }
@@ -1829,7 +1827,7 @@ bool LLImageGL::readBackRaw(S32 discard_level, LLImageRaw* imageraw, bool compre
 
     //explicitly unbind texture
     gGL.getTexUnit(0)->unbind(mBindTarget);
-    llverify(gGL.getTexUnit(0)->bindManual(mBindTarget, mTexName));
+    llverify(gGL.getTexUnit(0)->bindManual(mBindTarget, getTexName()));
 
     //debug code, leave it there commented.
     //checkTexSize() ;
@@ -1927,16 +1925,16 @@ void LLImageGL::destroyGLTexture()
 {
     checkActiveThread();
 
-    if (mTexName != 0)
+    if (getTexName() != 0)
     {
         if (mTextureMemory != S64Bytes(0))
         {
             mTextureMemory = (S64Bytes)0;
         }
 
-        LLImageGL::deleteTextures(1, &mTexName);
         mCurrentDiscardLevel = -1; //invalidate mCurrentDiscardLevel.
-        mTexName = 0;
+
+        setTexName(0, true);
         mGLTextureCreated = false;
     }
 }
@@ -1945,7 +1943,7 @@ void LLImageGL::destroyGLTexture()
 void LLImageGL::forceToInvalidateGLTexture()
 {
     checkActiveThread();
-    if (mTexName != 0)
+    if (getTexName() != 0)
     {
         destroyGLTexture();
     }
@@ -1965,7 +1963,7 @@ void LLImageGL::setAddressMode(LLTexUnit::eTextureAddressMode mode)
         mAddressMode = mode;
     }
 
-    if (gGL.getTexUnit(gGL.getCurrentTexUnitIndex())->getCurrTexture() == mTexName)
+    if (gGL.getTexUnit(gGL.getCurrentTexUnitIndex())->getCurrTexture() == getTexName())
     {
         gGL.getTexUnit(gGL.getCurrentTexUnitIndex())->setTextureAddressMode(mode);
         mTexOptionsDirty = false;
@@ -1980,7 +1978,7 @@ void LLImageGL::setFilteringOption(LLTexUnit::eTextureFilterOptions option)
         mFilterOption = option;
     }
 
-    if (mTexName != 0 && gGL.getTexUnit(gGL.getCurrentTexUnitIndex())->getCurrTexture() == mTexName)
+    if (getTexName() != 0 && gGL.getTexUnit(gGL.getCurrentTexUnitIndex())->getCurrTexture() == getTexName())
     {
         gGL.getTexUnit(gGL.getCurrentTexUnitIndex())->setTextureFilteringOption(option);
         mTexOptionsDirty = false;
@@ -2478,10 +2476,8 @@ bool LLImageGL::scaleDown(S32 desired_discard)
         gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
         // delete old texture and assign new texture name
-        U32 old_texname = mTexName;
-        deleteTextures(1, &mTexName);
-        mTexName = temp_texname;
-        notifyTexNameChanged(old_texname);
+        setTexName(temp_texname, true);
+
         if (mHasMipMaps)
         { // generate mipmaps if needed
             LL_PROFILE_ZONE_NAMED_CATEGORY_TEXTURE("scaleDown - glGenerateMipmap");

@@ -993,6 +993,35 @@ void LLViewerTexture::updateBindStatsForTester()
     }
 }
 
+void LLViewerTexture::installTexNameChangedCallback()
+{
+    llassert(mGLTexturep.notNull());
+
+    auto callback = [this](const LLImageGL* src, U32 old_texname)
+        {
+            handleTexNameChanged(src, old_texname);
+        };
+
+    mGLTexturep->mTexNameChangedCallback = callback;
+}
+
+void LLViewerTexture::handleTexNameChanged(const LLImageGL* image_gl, U32 old_texname)
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
+
+    // tex name changed, let all faces know
+    for (U32 j = 0; j < LLRender::NUM_TEXTURE_CHANNELS; ++j)
+    {
+        llassert(mNumFaces[j] <= mFaceList[j].size());
+
+        for (U32 i = 0; i < mNumFaces[j]; i++)
+        {
+            mFaceList[j][i]->handleTexNameChanged(image_gl, old_texname);
+        }
+    }
+}
+
+
 //----------------------------------------------------------------------------------------------
 //end of LLViewerTexture
 //----------------------------------------------------------------------------------------------
@@ -1046,13 +1075,6 @@ LLViewerFetchedTexture::LLViewerFetchedTexture(const LLUUID& id, FTType f_type, 
         LL_WARNS() << "Unsupported fetch type " << mFTType << LL_ENDL;
     }
     generateGLTexture();
-
-    auto callback = [this](const LLImageGL* src, U32 old_texname)
-        {
-            handleTexNameChanged(src, old_texname);
-        };
-
-    mGLTexturep->mTexNameChangedCallback = callback;
 }
 
 LLViewerFetchedTexture::LLViewerFetchedTexture(const LLImageRaw* raw, FTType f_type, bool usemipmaps)
@@ -1613,23 +1635,6 @@ void LLViewerFetchedTexture::scheduleCreateTexture()
             }
         }
     }
-}
-
-void LLViewerFetchedTexture::handleTexNameChanged(const LLImageGL* image_gl, U32 old_texname)
-{
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
-
-    // tex name changed, let all faces know
-    for (U32 j = 0; j < LLRender::NUM_TEXTURE_CHANNELS; ++j)
-    {
-        llassert(mNumFaces[j] <= mFaceList[j].size());
-
-        for (U32 i = 0; i < mNumFaces[j]; i++)
-        {
-            mFaceList[j][i]->handleTexNameChanged(image_gl, old_texname);
-        }
-    }
-
 }
 
 // Call with 0,0 to turn this feature off.

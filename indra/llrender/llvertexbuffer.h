@@ -207,6 +207,13 @@ protected:
 public:
     LLVertexBuffer(U32 typemask);
 
+    // set the type of indices in the index buffer
+    // MUST be called before allocateBuffer
+    // MUST NOT be called after allocateBuffer
+    // type MUST be either GL_UNSIGNED_SHORT or GL_UNSIGNED_INT
+    // default is GL_UNSIGNED_SHORT
+    void setIndicesType(U32 type);
+
     // allocate buffer
     bool    allocateBuffer(U32 nverts, U32 nindices);
 

@@ -211,6 +211,7 @@ void LLFace::destroy()
             {
                 group->dirtyGeom();
                 gPipeline.markRebuild(group);
+                gPipeline.markTransformDirty(group);
             }
         }
     }
@@ -285,6 +286,11 @@ void LLFace::setTexture(U32 ch, LLViewerTexture* tex)
     }
 
     mTexture[ch] = tex ;
+
+    if (mGLTFDrawInfo)
+    {
+        gPipeline.markTransformDirty(mDrawablep->getSpatialGroup());
+    }
 }
 
 void LLFace::setTexture(LLViewerTexture* tex)
@@ -2614,7 +2620,7 @@ void LLFace::updateBatchHash()
     }
     else
     {
-        // TODO : calculate blinn-phong batch hash and alpha mode
+        // WIP - calculate blinn-phong batch hash and alpha mode
         const LLTextureEntry* te = getTextureEntry();
 
         mBatchHash = 0;
@@ -2631,6 +2637,35 @@ void LLFace::updateBatchHash()
         if (mat.notNull())
         {
             boost::hash_combine(mBatchHash, mat->getBatchHash());
+
+            if (mat->getDiffuseAlphaMode() == LLMaterial::DIFFUSE_ALPHA_MODE_MASK)
+            {
+                boost::hash_combine(mBatchHash, mat->getAlphaMaskCutoff());
+            }
+
+            switch (mat->getDiffuseAlphaMode())
+            {
+            case LLMaterial::DIFFUSE_ALPHA_MODE_BLEND:
+                mAlphaMode = LLGLTFMaterial::ALPHA_MODE_BLEND;
+                break;
+            case LLMaterial::DIFFUSE_ALPHA_MODE_MASK:
+                mAlphaMode = LLGLTFMaterial::ALPHA_MODE_MASK;
+                break;
+            default:
+                mAlphaMode = LLGLTFMaterial::ALPHA_MODE_OPAQUE;
+                break;
+            };
+        }
+        else
+        {
+            if (te->getAlpha() < 1.f)
+            {
+                mAlphaMode = LLGLTFMaterial::ALPHA_MODE_BLEND;
+            }
+            else
+            {
+                mAlphaMode = LLGLTFMaterial::ALPHA_MODE_OPAQUE;
+            }
         }
     }
 }
@@ -2643,22 +2678,53 @@ void LLFace::packMaterialOnto(std::vector<LLVector4a>& dst)
         gltf_mat->packOnto(dst);
     }
     {
-        // TODO: pack blinn-phong material
+        // WIP -- pack blinn-phong material
+
+        const LLTextureEntry* te = getTextureEntry();
+
+        F32 env_intensity = 0.f;
+        LLColor3 spec = LLColor3::black;
+
+        const LLMaterial* mat = te->getMaterialParams().get();
+
         dst.resize(dst.size()+6);
         LLVector4a* data = &dst[dst.size()-6];
 
-        const LLTextureEntry* te = getTextureEntry();
+        F32 min_alpha = 0.f;
 
         LLColor4 col = te->getColor();
 
         data[0].set(te->getScaleS(), te->getScaleT(), te->getRotation(), te->getOffsetS());
         data[1].set(te->getOffsetT(), col.mV[0], col.mV[1], col.mV[2]);
 
-        data[2].set(1, 1, 0, 0);
-        data[3].set(0, col.mV[3], 0, 0);
+        if (mat)
+        {
+            env_intensity = mat->getEnvironmentIntensity();
+            spec = mat->getSpecularLightColor();
 
-        data[4].set(1,1, 0, 0);
-        data[5].set(1, 0, 0, 0);
+            if (mat->getDiffuseAlphaMode() == LLMaterial::DIFFUSE_ALPHA_MODE_MASK)
+            {
+                min_alpha = mat->getAlphaMaskCutoff()/255.f;
+            }
+
+            data[2].set(mat->getNormalRepeatX(), mat->getNormalRepeatY(), mat->getNormalRotation(), mat->getNormalOffsetX());
+            data[3].set(mat->getNormalOffsetY(), col.mV[3], min_alpha, env_intensity);
+
+            data[4].set(mat->getSpecularRepeatX(), mat->getSpecularRepeatY(), mat->getSpecularRotation(), mat->getSpecularOffsetX());
+            data[5].set(mat->getSpecularOffsetY(), spec.mV[0], spec.mV[1], spec.mV[2]);
+        }
+        else
+        {
+            F32 v[] = { 0.f, 0.25f, 0.5f, 0.75f };
+            env_intensity = v[llclamp(te->getShiny(), 0, 4)];
+            spec.set(env_intensity, env_intensity, env_intensity);
+
+            data[2].set(1, 1, 0, 0);
+            data[3].set(0, col.mV[3], min_alpha, env_intensity);
+
+            data[4].set(1, 1, 0, 0);
+            data[5].set(1, spec.mV[0], spec.mV[1], spec.mV[2]);
+        }
     }
 }
 

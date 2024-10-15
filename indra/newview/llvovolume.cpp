@@ -5857,13 +5857,14 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
                     continue;
                 }
 
+                gPipeline.markTransformDirty(group);
+
                 LLFetchedGLTFMaterial *gltf_mat = (LLFetchedGLTFMaterial*) facep->getTextureEntry()->getGLTFRenderMaterial();
                 bool is_pbr = gltf_mat != nullptr;
 
                 if (is_pbr)
                 {
                     drawablep->setState(LLDrawable::HAS_GLTF);
-                    gPipeline.markTransformDirty(group);
                     // tell texture streaming system to ignore blinn-phong textures
                     facep->setTexture(LLRender::DIFFUSE_MAP, nullptr);
                     facep->setTexture(LLRender::NORMAL_MAP, nullptr);

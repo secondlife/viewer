@@ -66,6 +66,8 @@ public:
     U32 mTextureTransformUBO;
 
     void handleTexNameChanged(const LLImageGL* image, U32 old_texname);
+
+    void texNameCheck(U32 texName);
 };
 
 class LLSkinnedGLTFDrawInfo : public LLGLTFDrawInfo
@@ -116,10 +118,10 @@ public:
     void clear();
 
     // add a draw info to the appropriate list
-    LLGLTFDrawInfo* create(LLGLTFMaterial::AlphaMode alpha_mode, bool double_sided = false, bool planar = false, bool tex_anim = false, LLGLTFDrawInfoHandle* handle = nullptr);
+    LLGLTFDrawInfo* create(LLGLTFMaterial::AlphaMode alpha_mode, bool double_sided, bool planar, bool tex_anim, LLGLTFDrawInfoHandle& handle);
 
     // add a sikinned draw info to the appropriate list
-    LLSkinnedGLTFDrawInfo* createSkinned(LLGLTFMaterial::AlphaMode alpha_mode, bool double_sided = false, bool planar = false, bool  tex_anim = false, LLGLTFDrawInfoHandle* handle = nullptr);
+    LLSkinnedGLTFDrawInfo* createSkinned(LLGLTFMaterial::AlphaMode alpha_mode, bool double_sided, bool planar, bool tex_anim, LLGLTFDrawInfoHandle& handle);
 
     // add the given LLGLTFBatches to these LLGLTFBatches
     void add(const LLGLTFBatches& other);
@@ -153,10 +155,12 @@ public:
             }
         }
     }
+
+    void texNameCheck(U32 texName);
 };
 
 // handle to a GLTFDrawInfo
-// Can be invalidated if mContainer is destroyed
+// Can be invalidated if mContainer is destroyed or resized
 class LLGLTFDrawInfoHandle
 {
 public:
@@ -175,6 +179,9 @@ public:
     // index into that vector
     S32 mIndex = -1;
 
+    // get the LLGLTFDrawInfo this handle points to
+    // Makes an attempt to assert pointer is valid, but does not guarantee safety
+    // MUST NOT be called unless you are certain the handle is valid
     LLGLTFDrawInfo* get();
 
     LLGLTFDrawInfo* operator->()
@@ -182,14 +189,15 @@ public:
         return get();
     }
 
+    // return true if this handle was set to a valid draw info at some point
+    // DOES NOT indicate pointer returned by get() is valid
+    // MAY be called on an invalid handle
     operator bool() const
     {
-        llassert(mIndex < 0 ||
-            (mContainer != nullptr &&
-                mSkinned ? (mSkinnedContainer->size() > mIndex) :
-                (mContainer->size() > mIndex)));
         return mIndex >= 0;
     }
 
+    // Clear the handle
+    // Sets mIndex to -1, but maintains other state for debugging
     void clear();
 };

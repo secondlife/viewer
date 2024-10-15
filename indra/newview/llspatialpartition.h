@@ -418,10 +418,6 @@ public:
     U32 mMaterialUBO = 0;
     U32 mMaterialUBOSize = 0;
 
-    // UBO for blinn-phong materials
-    U32 mBPMaterialUBO = 0;
-    U32 mBPMaterialUBOSize = 0;
-
     // UBO for blinn-phong instance map
     U32 mBPInstanceMapUBO = 0;
     U32 mBPInstanceMapUBOSize = 0;
@@ -499,6 +495,7 @@ public:
 
     bool getVisibleExtents(LLCamera& camera, LLVector3& visMin, LLVector3& visMax);
 
+    void checkTexNameReferences(U32 texname);
 public:
     LLSpatialBridge* mBridge; // NULL for non-LLSpatialBridge instances, otherwise, mBridge == this
                             // use a pointer instead of making "isBridge" and "asBridge" virtual so it's safe

@@ -393,6 +393,29 @@ void LLPipeline::connectRefreshCachedSettingsSafe(const std::string name)
 
 void LLPipeline::init()
 {
+    LLImageGL::sTexNameReferenceCheck = [](U32 texName)
+        {
+            if (!gDebugGL)
+            { // expensive check, do not run unless we're debugging GL
+                return;
+            }
+
+            for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin();
+                iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
+            {
+                LLViewerRegion* region = *iter;
+
+                for (U32 i = 0; i < LLViewerRegion::NUM_PARTITIONS; i++)
+                {
+                    LLSpatialPartition* part = region->getSpatialPartition(i);
+                    if (part)
+                    {
+                        part->checkTexNameReferences(texName);
+                    }
+                }
+            }
+        };
+
     refreshCachedSettings();
 
     mRT = &mMainRT;
@@ -2989,7 +3012,7 @@ void LLPipeline::markMeshDirty(LLSpatialGroup* group)
 
 void LLPipeline::markTransformDirty(LLSpatialGroup* group)
 {
-    if (group)
+    if (group && group->getSpatialPartition()->mDrawableType == LLPipeline::RENDER_TYPE_VOLUME)
     {
         group->setState(LLSpatialGroup::IN_TRANSFORM_BUILD_Q);
     }
@@ -3597,7 +3620,7 @@ void LLPipeline::postSort(LLCamera &camera)
 
     // build GLTF render map
     {
-        LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("postSort - build GLTF render map");
+        LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("postSort - build render map");
 
         for (LLCullResult::sg_iterator i = sCull->beginVisibleGroups(); i != sCull->endVisibleGroups(); ++i)
         {
@@ -3641,8 +3664,6 @@ void LLPipeline::postSort(LLCamera &camera)
     }
 
     {
-        LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("postSort - gltf sort");
-
         struct CompareMaterialVAO
         {
             bool operator()(const LLGLTFDrawInfo& lhs, const LLGLTFDrawInfo& rhs)
@@ -3681,10 +3702,21 @@ void LLPipeline::postSort(LLCamera &camera)
             }
         };
 
-        sCull->mGLTFBatches.sort(LLGLTFMaterial::ALPHA_MODE_OPAQUE, CompareMaterialVAO());
-        sCull->mGLTFBatches.sort(LLGLTFMaterial::ALPHA_MODE_MASK, CompareMaterialVAO());
-        sCull->mGLTFBatches.sortSkinned(LLGLTFMaterial::ALPHA_MODE_OPAQUE, CompareSkinnedMaterialVAO());
-        sCull->mGLTFBatches.sortSkinned(LLGLTFMaterial::ALPHA_MODE_MASK, CompareSkinnedMaterialVAO());
+        {
+            LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("postSort - gltf sort");
+            sCull->mGLTFBatches.sort(LLGLTFMaterial::ALPHA_MODE_OPAQUE, CompareMaterialVAO());
+            sCull->mGLTFBatches.sort(LLGLTFMaterial::ALPHA_MODE_MASK, CompareMaterialVAO());
+            sCull->mGLTFBatches.sortSkinned(LLGLTFMaterial::ALPHA_MODE_OPAQUE, CompareSkinnedMaterialVAO());
+            sCull->mGLTFBatches.sortSkinned(LLGLTFMaterial::ALPHA_MODE_MASK, CompareSkinnedMaterialVAO());
+        }
+
+        {
+            LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("postSort - bp sort");
+            sCull->mBPBatches.sort(LLGLTFMaterial::ALPHA_MODE_OPAQUE, CompareMaterialVAO());
+            sCull->mBPBatches.sort(LLGLTFMaterial::ALPHA_MODE_MASK, CompareMaterialVAO());
+            sCull->mBPBatches.sortSkinned(LLGLTFMaterial::ALPHA_MODE_OPAQUE, CompareSkinnedMaterialVAO());
+            sCull->mBPBatches.sortSkinned(LLGLTFMaterial::ALPHA_MODE_MASK, CompareSkinnedMaterialVAO());
+        }
     }
 
 

@@ -729,6 +729,7 @@ F32 LLDrawable::updateXform(bool undamped)
     // update GLTF render matrix
     getGLTFRenderMatrix();
 
+    // TODO: update transform directly in UBO instead of rebuilding the whole spatial group
     gPipeline.markTransformDirty(getSpatialGroup());
 
     if (mSpatialBridge)
@@ -1144,6 +1145,8 @@ void LLDrawable::setGroup(LLViewerOctreeGroup *groupp)
 
     if (cur_groupp != groupp && getVOVolume())
     {
+        gPipeline.markTransformDirty(cur_groupp);
+        gPipeline.markTransformDirty((LLSpatialGroup*) groupp);
         //NULL out vertex buffer references for volumes on spatial group change to maintain
         //requirement that every face vertex buffer is either NULL or points to a vertex buffer
         //contained by its drawable's spatial group

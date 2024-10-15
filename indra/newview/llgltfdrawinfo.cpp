@@ -30,6 +30,8 @@
 
 void LLGLTFBatches::clear()
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
+
     mBatchList.clear();
     mSkinnedBatchList.clear();
 
@@ -72,7 +74,15 @@ void LLGLTFDrawInfo::handleTexNameChanged(const LLImageGL* image, U32 old_texnam
     }
 }
 
-LLGLTFDrawInfo* LLGLTFBatches::create(LLGLTFMaterial::AlphaMode alpha_mode, bool double_sided, bool planar, bool tex_anim, LLGLTFDrawInfoHandle* handle)
+void LLGLTFDrawInfo::texNameCheck(U32 texName)
+{
+    llassert(mBaseColorMap != texName);
+    llassert(mMetallicRoughnessMap != texName);
+    llassert(mNormalMap != texName);
+    llassert(mEmissiveMap != texName);
+}
+
+LLGLTFDrawInfo* LLGLTFBatches::create(LLGLTFMaterial::AlphaMode alpha_mode, bool double_sided, bool planar, bool tex_anim, LLGLTFDrawInfoHandle &handle)
 {
     auto& draw_info = mDrawInfo[alpha_mode][double_sided][planar][tex_anim];
 
@@ -81,17 +91,14 @@ LLGLTFDrawInfo* LLGLTFBatches::create(LLGLTFMaterial::AlphaMode alpha_mode, bool
         mBatchList.push_back({ alpha_mode, double_sided, planar, tex_anim, &draw_info });
     }
 
-    if (handle)
-    {
-        handle->mSkinned = false;
-        handle->mContainer = &draw_info;
-        handle->mIndex = (S32)draw_info.size();
-    }
+    handle.mSkinned = false;
+    handle.mContainer = &draw_info;
+    handle.mIndex = (S32)draw_info.size();
 
     return &draw_info.emplace_back();
 }
 
-LLSkinnedGLTFDrawInfo* LLGLTFBatches::createSkinned(LLGLTFMaterial::AlphaMode alpha_mode, bool double_sided, bool planar, bool tex_anim, LLGLTFDrawInfoHandle* handle)
+LLSkinnedGLTFDrawInfo* LLGLTFBatches::createSkinned(LLGLTFMaterial::AlphaMode alpha_mode, bool double_sided, bool planar, bool tex_anim, LLGLTFDrawInfoHandle& handle)
 {
     auto& draw_info = mSkinnedDrawInfo[alpha_mode][double_sided][planar][tex_anim];
 
@@ -100,12 +107,9 @@ LLSkinnedGLTFDrawInfo* LLGLTFBatches::createSkinned(LLGLTFMaterial::AlphaMode al
         mSkinnedBatchList.push_back({ alpha_mode, double_sided, planar, tex_anim, &draw_info });
     }
 
-    if (handle)
-    {
-        handle->mSkinned = true;
-        handle->mSkinnedContainer = &draw_info;
-        handle->mIndex = (S32)draw_info.size();
-    }
+    handle.mSkinned = true;
+    handle.mSkinnedContainer = &draw_info;
+    handle.mIndex = (S32)draw_info.size();
 
     return &draw_info.emplace_back();
 }
@@ -122,6 +126,25 @@ void LLGLTFBatches::add(const LLGLTFBatches& other)
     {
         auto& draw_info = mSkinnedDrawInfo[batch.alpha_mode][batch.double_sided][batch.planar][batch.tex_anim];
         draw_info.insert(draw_info.end(), batch.draw_info->begin(), batch.draw_info->end());
+    }
+}
+
+void LLGLTFBatches::texNameCheck(U32 texName)
+{
+    for (auto& batch : mBatchList)
+    {
+        for (auto& draw_info : *batch.draw_info)
+        {
+            draw_info.texNameCheck(texName);
+        }
+    }
+
+    for (auto& batch : mSkinnedBatchList)
+    {
+        for (auto& draw_info : *batch.draw_info)
+        {
+            draw_info.texNameCheck(texName);
+        }
     }
 }
 
@@ -146,9 +169,6 @@ LLGLTFDrawInfo* LLGLTFDrawInfoHandle::get()
 
 void LLGLTFDrawInfoHandle::clear()
 {
-    mContainer = nullptr;
-    mSkinnedContainer = nullptr;
     mIndex = -1;
-    mSpatialGroup = nullptr;
 }
 

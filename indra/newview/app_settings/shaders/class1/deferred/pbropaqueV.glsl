@@ -150,7 +150,7 @@ uniform int gltf_base_instance;
 #ifdef SAMPLE_MATERIALS_UBO
 layout (std140) uniform GLTFMaterials
 {
-    // index by gltf_material_id*8
+    // index by gltf_material_id
 
     // [gltf_material_id + [0-1]] -  base color transform
     // [gltf_material_id + [2-3]] -  normal transform
@@ -176,8 +176,7 @@ void unpackTextureTransforms()
 {
     gltf_material_id = gltf_node_instance_map[gl_InstanceID+gltf_base_instance].y;
 
-
-    int idx = gltf_material_id*8;
+    int idx = gltf_material_id;
 
 #ifdef SAMPLE_BASE_COLOR_MAP
     texture_base_color_transform[0] = gltf_material_data[idx+0];

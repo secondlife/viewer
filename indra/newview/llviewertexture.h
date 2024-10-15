@@ -171,6 +171,12 @@ public:
 
     /*virtual*/ void updateBindStatsForTester() ;
 
+    // Ensure corresponding ImageGL has a tex name change callback installed
+    void installTexNameChangedCallback();
+
+    // called by corresponding LLImageGL whenever LLImageGL::mTexName changes
+    void handleTexNameChanged(const LLImageGL* image_gl, U32 old_texname);
+
     struct MaterialEntry
     {
         S32 mIndex = LL::GLTF::INVALID_INDEX;
@@ -341,9 +347,6 @@ public:
     bool updateFetch();
 
     void clearFetchedResults(); //clear all fetched results, for debug use.
-
-    // called by corresponding LLImageGL whenever LLImageGL::mTexName changes
-    void handleTexNameChanged(const LLImageGL* image_gl, U32 old_texname);
 
     // Override the computation of discard levels if we know the exact output
     // size of the image.  Used for UI textures to not decode, even if we have

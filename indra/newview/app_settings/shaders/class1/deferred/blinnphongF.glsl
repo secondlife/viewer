@@ -47,6 +47,7 @@ in vec3 vary_normal;
 in vec3 vary_tangent;
 flat in float vary_sign;
 in vec2 normal_texcoord;
+float env_intensity;
 #endif
 
 #ifdef OUTPUT_DIFFUSE_ONLY
@@ -66,7 +67,7 @@ vec3 srgb_to_linear(vec3 c);
 #ifdef SAMPLE_MATERIALS_UBO
 layout (std140) uniform GLTFMaterials
 {
-    // index by gltf_material_id*6
+    // index by gltf_material_id
 
     // [gltf_material_id + [0-1]] -  diffuse transform
     // [gltf_material_id + [2-3]] -  normal transform
@@ -78,8 +79,8 @@ layout (std140) uniform GLTFMaterials
 
     // packed[1].yzw varies:
     //   diffuse transform -- diffuse color
+    //   normal transform -- .y - alpha factor, .z - minimum alpha, .w - environment intensity
     //   specular transform -- specular color
-    //   normal transform -- .y - alpha factor, .z - minimum alpha
 
     vec4 gltf_material_data[MAX_UBO_VEC4S];
 };
@@ -88,19 +89,21 @@ flat in int gltf_material_id;
 
 void unpackMaterial()
 {
-    int idx = gltf_material_id*6;
+    int idx = gltf_material_id;
+
 #ifdef SAMPLE_DIFFUSE_MAP
-    diffuseColor = vec4(1);
-    minimum_alpha = 0;
     diffuseColor.rgb = gltf_material_data[idx+1].yzw;
     diffuseColor.a = gltf_material_data[idx+3].y;
     minimum_alpha = gltf_material_data[idx+3].z;
 #endif
 
+#ifdef SAMPLE_NORMAL_MAP
+    env_intensity = gltf_material_data[idx+3].w;
+#endif
+
 #ifdef SAMPLE_SPECULAR_MAP
     specularColor = gltf_material_data[idx+5].yzw;
 #endif
-
 }
 #else // SAMPLE_MATERIALS_UBO
 void unpackMaterial()
@@ -154,11 +157,17 @@ void main()
 #endif
     frag_color = diffuse;
 #else
+    diffuse.rgb = vec3(0.85);
+    spec.rgb = vec3(0);
+    env_intensity = 0;
+    float emissive = 0.0;
+    float glossiness = 0;
+
     // See: C++: addDeferredAttachments(), GLSL: softenLightF
-    frag_data[0] = max(vec4(diffuse.rgb, 0.0), vec4(0));
-    frag_data[1] = max(vec4(spec.rgb,0.0), vec4(0));
-    frag_data[2] = vec4(tnorm, GBUFFER_FLAG_HAS_PBR);
-    frag_data[3] = max(vec4(0), vec4(0));
+    frag_data[0] = max(vec4(diffuse.rgb, emissive), vec4(0));
+    frag_data[1] = max(vec4(spec.rgb,glossiness), vec4(0));
+    frag_data[2] = vec4(tnorm, GBUFFER_FLAG_HAS_ATMOS);
+    frag_data[3] = max(vec4(env_intensity, 0, 0, 0), vec4(0));
 #endif
 }
 
