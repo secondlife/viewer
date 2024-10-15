@@ -11,7 +11,6 @@
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
  *
- * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
@@ -36,10 +35,8 @@
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_endian.h"
 
-#if LL_X11
 // get X11-specific headers for use in low-level stuff like copy-and-paste support
 #include "SDL2/SDL_syswm.h"
-#endif
 
 // AssertMacros.h does bad things.
 #include "fix_macros.h"
@@ -50,8 +47,8 @@
 class LLWindowSDL : public LLWindow {
 public:
     void show() override;
-
     void hide() override;
+    void restore() override;
 
     void close() override;
 
@@ -62,10 +59,7 @@ public:
     bool getMaximized() const override;
 
     bool maximize() override;
-
     void minimize() override;
-
-    void restore() override;
 
     bool getPosition(LLCoordScreen *position) const override;
 
@@ -87,48 +81,37 @@ public:
     bool getCursorPosition(LLCoordWindow *position) override;
 
     void showCursor() override;
-
     void hideCursor() override;
+    bool isCursorHidden() override;
 
     void showCursorFromMouseMove() override;
-
     void hideCursorUntilMouseMove() override;
-
-    bool isCursorHidden() override;
 
     void updateCursor() override;
 
     void captureMouse() override;
-
     void releaseMouse() override;
 
     void setMouseClipping(bool b) override;
 
-       void setMinSize(U32 min_width, U32 min_height, bool enforce_immediately = true) override;
+    void setMinSize(U32 min_width, U32 min_height, bool enforce_immediately = true) override;
 
     bool isClipboardTextAvailable() override;
-
     bool pasteTextFromClipboard(LLWString &dst) override;
-
     bool copyTextToClipboard(const LLWString &src) override;
-
     bool isPrimaryTextAvailable() override;
-
     bool pasteTextFromPrimary(LLWString &dst) override;
-
     bool copyTextToPrimary(const LLWString &src) override;
 
     void flashIcon(F32 seconds) override;
+    void maybeStopFlashIcon();
 
     F32 getGamma() const override;
-
     bool setGamma(const F32 gamma) override; // Set the gamma
+    bool restoreGamma() override;            // Restore original gamma table (before updating gamma)
 
     U32 getFSAASamples() const override;
-
     void setFSAASamples(const U32 samples) override;
-
-    bool restoreGamma() override;            // Restore original gamma table (before updating gamma)
 
     void processMiscNativeEvents() override;
 
@@ -162,7 +145,6 @@ public:
     void setNativeAspectRatio(F32 ratio)  override { mOverrideAspectRatio = ratio; }
 
     void beforeDialog() override;
-
     void afterDialog() override;
 
     bool dialogColorPicker(F32 *r, F32 *g, F32 *b) override;
@@ -179,31 +161,15 @@ public:
 
     static std::vector<std::string> getDynamicFallbackFontList();
 
-    // Not great that these are public, but they have to be accessible
-    // by non-class code and it's better than making them global.
-#if LL_X11
-    Window mSDL_XWindowID;
-    Display *mSDL_Display;
-#endif
-
-    void (*Lock_Display)(void);
-
-    void (*Unlock_Display)(void);
-
-#if LL_X11
+    void (*Lock_Display)(void) = nullptr;
+    void (*Unlock_Display)(void) = nullptr;
 
     static Window get_SDL_XWindowID(void);
-
     static Display *get_SDL_Display(void);
 
-#endif // LL_X11
-
     void *createSharedContext() override;
-
     void makeContextCurrent(void *context) override;
-
     void destroySharedContext(void *context) override;
-
     void toggleVSync(bool enable_vsync) override;
 
 protected:
@@ -219,7 +185,6 @@ protected:
     LLSD getNativeKeyData() const override;
 
     void initCursors();
-
     void quitCursors();
 
     void moveWindow(const LLCoordScreen &position, const LLCoordScreen &size);
@@ -239,7 +204,6 @@ protected:
 
     // create or re-create the GL context/window.  Called from the constructor and switchContext().
     bool createContext(int x, int y, int width, int height, int bits, bool fullscreen, bool enable_vsync);
-
     void destroyContext();
 
     void setupFailure(const std::string &text, const std::string &caption, U32 type);
@@ -251,36 +215,50 @@ protected:
     //
     // Platform specific variables
     //
-    U32 mGrabbyKeyFlags;
-    int mReallyCapturedCount;
+    U32 mGrabbyKeyFlags = 0;
 
-    SDL_Window *mWindow;
+    SDL_Window *mWindow = nullptr;
     SDL_Surface *mSurface;
     SDL_GLContext mContext;
     SDL_Cursor *mSDLCursors[UI_CURSOR_COUNT];
 
     std::string mWindowTitle;
-    double mOriginalAspectRatio;
-    bool mNeedsResize;        // Constructor figured out the window is too big, it needs a resize.
+    double mOriginalAspectRatio = 1.0f;
+    bool mNeedsResize = false;        // Constructor figured out the window is too big, it needs a resize.
     LLCoordScreen mNeedsResizeSize;
-    F32 mOverrideAspectRatio;
-    F32 mGamma;
-    U32 mFSAASamples;
+    F32 mOverrideAspectRatio = 0.0f;
+    F32 mGamma = 0.0f;
+    U32 mFSAASamples = 0;
 
-    int mSDLFlags;
-
-    int mHaveInputFocus; /* 0=no, 1=yes, else unknown */
-    int mIsMinimized; /* 0=no, 1=yes, else unknown */
+    int mHaveInputFocus = -1; /* 0=no, 1=yes, else unknown */
 
     friend class LLWindowManager;
 
 private:
-    bool mFlashing;
+    bool mFlashing = false;
     LLTimer mFlashTimer;
-    U32 mKeyVirtualKey;
-    U32 mKeyModifiers;
-    std::string mInputType;
+    U32 mKeyVirtualKey = 0;
+    U32 mKeyModifiers = KMOD_NONE;
 
+    enum EServerProtocol{ X11, Wayland, Unknown };
+    EServerProtocol mServerProtocol = Unknown;
+
+    struct {
+        Window mXWindowID = None;
+        Display *mDisplay = nullptr;
+    } mX11Data;
+
+    // Wayland
+    struct {
+        wl_surface *mSurface = nullptr;
+        uint64_t mLastFrameEvent = 0;
+    } mWaylandData;
+
+    bool isWaylandWindowNotDrawing() const;
+
+    void setupWaylandFrameCallback();
+    static void waylandFrameDoneCB(void *data, struct wl_callback *cb, uint32_t time);
+    //
 
 private:
     void tryFindFullscreenSize(int &aWidth, int &aHeight);

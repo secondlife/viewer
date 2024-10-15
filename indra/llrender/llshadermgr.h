@@ -67,6 +67,7 @@ public:
         GLTF_MATERIAL_ID,                     //  "gltf_material_id" (GLTF)
 
         TERRAIN_TEXTURE_TRANSFORMS,           //  "terrain_texture_transforms" (GLTF)
+        TERRAIN_STAMP_SCALE,                  //  "terrain_stamp_scale"
 
         VIEWPORT,                           //  "viewport"
         LIGHT_POSITION,                     //  "light_position"

@@ -65,36 +65,6 @@
           </map>
         </map>
       </map>
-      <key>fltk</key>
-      <map>
-        <key>platforms</key>
-        <map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>691fef2ddd57d7b6c26e87fc82d9ace3f54e078c</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
-              <key>url</key>
-              <string>https://github.com/secondlife/3p-fltk/releases/download/v1.3.9-r1/fltk-1.3.9.8556992788-linux64-8556992788.tar.zst</string>
-            </map>
-            <key>name</key>
-            <string>linux</string>
-          </map>
-        </map>
-        <key>license</key>
-        <string>LGPL/fltk</string>
-        <key>license_file</key>
-        <string>LICENSES/fltk.txt</string>
-        <key>copyright</key>
-        <string>Copyright (C) fltk project</string>
-        <key>version</key>
-        <string>1.3.5</string>
-        <key>name</key>
-        <string>fltk</string>
-      </map>
       <key>apr_suite</key>
       <map>
         <key>platforms</key>
