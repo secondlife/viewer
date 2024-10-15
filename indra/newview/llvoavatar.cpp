@@ -8510,7 +8510,6 @@ bool LLVOAvatar::processFullyLoadedChange(bool loading)
         ((mFullyLoaded != mPreviousFullyLoaded) ||         // if the value is different from the previous call
             (!mFullyLoadedInitialized) ||                     // if we've never been called before
             (mFullyLoadedFrameCounter % UPDATE_RATE == 0));   // every now and then issue a change
-    bool fully_loaded_changed = (mFullyLoaded != mPreviousFullyLoaded);
 
     mPreviousFullyLoaded = mFullyLoaded;
     mFullyLoadedInitialized = true;

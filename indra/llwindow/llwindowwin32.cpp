@@ -351,6 +351,10 @@ struct LLWindowWin32::LLWindowWin32Thread : public LL::ThreadPool
 
     void run() override;
 
+    // Detroys handles and window
+    // Either post to or call from window thread
+    void destroyWindow();
+
     // Closes queue, wakes thread, waits until thread closes.
     // Call from main thread
     bool wakeAndDestroy();
@@ -410,7 +414,7 @@ struct LLWindowWin32::LLWindowWin32Thread : public LL::ThreadPool
     // until after some graphics setup. See SL-20177. -Cosmic,2023-09-18
     bool mGLReady = false;
     bool mGotGLBuffer = false;
-    bool mDeleteOnExit = false;
+    LLAtomicBool mDeleteOnExit = false;
 };
 
 
@@ -4802,30 +4806,17 @@ void LLWindowWin32::LLWindowWin32Thread::run()
 #endif
     }
 
+    destroyWindow();
+
     if (mDeleteOnExit)
     {
         delete this;
     }
 }
 
-bool LLWindowWin32::LLWindowWin32Thread::wakeAndDestroy()
+void LLWindowWin32::LLWindowWin32Thread::destroyWindow()
 {
-    if (mQueue->isClosed())
-    {
-        LL_WARNS() << "Tried to close Queue. Win32 thread Queue already closed." << LL_ENDL;
-        return false;
-    }
-
-    // Make sure we don't leave a blank toolbar button.
-    // Also hiding window now prevents user from suspending it
-    // via some action (like dragging it around)
-    ShowWindow(mWindowHandleThrd, SW_HIDE);
-
-    // Schedule destruction
-    HWND old_handle = mWindowHandleThrd;
-    post([this]()
-        {
-            if (IsWindow(mWindowHandleThrd))
+    if (mWindowHandleThrd != NULL && IsWindow(mWindowHandleThrd))
             {
                 if (mhDCThrd)
                 {
@@ -4849,9 +4840,24 @@ bool LLWindowWin32::LLWindowWin32Thread::wakeAndDestroy()
             }
             mWindowHandleThrd = NULL;
             mhDCThrd = NULL;
-            mGLReady = false;
-        });
+}
 
+bool LLWindowWin32::LLWindowWin32Thread::wakeAndDestroy()
+{
+    if (mQueue->isClosed())
+    {
+        LL_WARNS() << "Tried to close Queue. Win32 thread Queue already closed." <<LL_ENDL;
+        return false;
+    }
+
+    // Make sure we don't leave a blank toolbar button.
+    // Also hiding window now prevents user from suspending it
+    // via some action (like dragging it around)
+    ShowWindow(mWindowHandleThrd, SW_HIDE);
+            mGLReady = false;
+
+    // Schedule destruction
+    HWND old_handle = mWindowHandleThrd;
     mDeleteOnExit = true;
     SetWindowLongPtr(old_handle, GWLP_USERDATA, NULL);
 
