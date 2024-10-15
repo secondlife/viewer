@@ -91,19 +91,15 @@ std::string LLModel::getStatusString(U32 status)
 }
 
 
-void LLModel::offsetMesh( const LLVector3& pivotPoint )
+void LLModel::offsetMesh(const LLVector3& pivotPoint)
 {
-    LLVector4a pivot( pivotPoint[VX], pivotPoint[VY], pivotPoint[VZ] );
+    LLVector4a pivot(pivotPoint[VX], pivotPoint[VY], pivotPoint[VZ]);
 
-    for (std::vector<LLVolumeFace>::iterator faceIt = mVolumeFaces.begin(); faceIt != mVolumeFaces.end(); )
+    for (LLVolumeFace& face : mVolumeFaces)
     {
-        std::vector<LLVolumeFace>:: iterator currentFaceIt = faceIt++;
-        LLVolumeFace& face = *currentFaceIt;
-        LLVector4a *pos = (LLVector4a*) face.mPositions;
-
-        for (S32 i=0; i<face.mNumVertices; ++i )
+        for (S32 i = 0; i < face.mNumVertices; ++i)
         {
-            pos[i].add( pivot );
+            face.mPositions[i].add(pivot);
         }
     }
 }
@@ -338,7 +334,7 @@ void LLModel::normalizeVolumeFaces()
     }
 }
 
-void LLModel::getNormalizedScaleTranslation(LLVector3& scale_out, LLVector3& translation_out)
+void LLModel::getNormalizedScaleTranslation(LLVector3& scale_out, LLVector3& translation_out) const
 {
     scale_out = mNormalizedScale;
     translation_out = mNormalizedTranslation;
@@ -1545,6 +1541,13 @@ void LLMeshSkinInfo::fromLLSD(LLSD& skin)
     else
     {
         mLockScaleIfJointPosition = false;
+    }
+
+    // combine mBindShapeMatrix and mInvBindMatrix into mBindPoseMatrix
+    mBindPoseMatrix.resize(mInvBindMatrix.size());
+    for (U32 i = 0; i < mInvBindMatrix.size(); ++i)
+    {
+        matMul(mBindShapeMatrix, mInvBindMatrix[i], mBindPoseMatrix[i]);
     }
 
     updateHash();

@@ -159,8 +159,6 @@ private:
     void sendParticipantsAddedNotification(const uuid_vec_t& uuids);
     bool canAddSelectedToChat(const uuid_vec_t& uuids);
 
-    void onCallButtonClicked();
-
     void onVoiceChannelChanged(const LLUUID &session_id);
 
     void boundVoiceChannel();

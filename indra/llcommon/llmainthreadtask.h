@@ -89,10 +89,10 @@ private:
         }
         // Given arbitrary CALLABLE, which might be a lambda, how are we
         // supposed to obtain its signature for std::packaged_task? It seems
-        // redundant to have to add an argument list to engage result_of, then
+        // redundant to have to add an argument list to engage invoke_result_t, then
         // add the argument list again to complete the signature. At least we
         // only support a nullary CALLABLE.
-        std::packaged_task<typename std::result_of<CALLABLE()>::type()> mTask;
+        std::packaged_task<std::invoke_result_t<CALLABLE>()> mTask;
     };
 };
 

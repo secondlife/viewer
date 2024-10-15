@@ -48,11 +48,8 @@
 #include "llvoavatarself.h"
 #include "llworld.h"
 
-// Globals
-//extern bool gAllowSelectAvatar;
-
-const F32 SELECTION_ROTATION_TRESHOLD = 0.1f;
-const F32 SELECTION_SITTING_ROTATION_TRESHOLD = 3.2f; //radian
+constexpr F32 SELECTION_ROTATION_TRESHOLD = 0.1f;
+constexpr F32 SELECTION_SITTING_ROTATION_TRESHOLD = 3.2f; //radian
 
 LLToolSelect::LLToolSelect( LLToolComposite* composite )
 :   LLTool( std::string("Select"), composite ),

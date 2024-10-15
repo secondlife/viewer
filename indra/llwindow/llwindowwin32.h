@@ -28,7 +28,7 @@
 #define LL_LLWINDOWWIN32_H
 
 // Limit Windows API to small and manageable set.
-#include "llwin32headerslean.h"
+#include "llwin32headers.h"
 
 #include "llwindow.h"
 #include "llwindowcallbacks.h"

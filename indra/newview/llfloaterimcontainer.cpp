@@ -306,6 +306,9 @@ bool LLFloaterIMContainer::postBuild()
     mParticipantRefreshTimer.setTimerExpirySec(0);
     mParticipantRefreshTimer.start();
 
+    mGeneralTitleInUse = true; // avoid reseting strings on idle
+    setTitle(mGeneralTitle);
+
     return true;
 }
 
@@ -521,7 +524,12 @@ void LLFloaterIMContainer::idleUpdate()
 
             // Update floater's title as required by the currently selected session or use the default title
             LLFloaterIMSession * conversation_floaterp = LLFloaterIMSession::findInstance(current_session->getUUID());
-            setTitle(conversation_floaterp && conversation_floaterp->needsTitleOverwrite() ? conversation_floaterp->getTitle() : mGeneralTitle);
+            bool needs_override = conversation_floaterp && conversation_floaterp->needsTitleOverwrite();
+            if (mGeneralTitleInUse == needs_override)
+            {
+                mGeneralTitleInUse = !needs_override;
+                setTitle(needs_override ? conversation_floaterp->getTitle() : mGeneralTitle);
+            }
         }
 
         mParticipantRefreshTimer.setTimerExpirySec(1.0f);

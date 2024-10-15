@@ -232,7 +232,7 @@ protected:
 private:
     void onAvatarNameCache(const LLUUID& id, const LLAvatarName& av_name);
 
-    typedef std::map<LLUUID, boost::signals2::connection> avatar_name_cache_connection_map_t;
+    typedef std::multimap<LLUUID, boost::signals2::connection> avatar_name_cache_connection_map_t;
     avatar_name_cache_connection_map_t mAvatarNameCacheConnections;
 };
 
@@ -264,7 +264,7 @@ protected:
 private:
     void onAvatarNameCache(const LLUUID& id, const LLAvatarName& av_name);
 
-    typedef std::map<LLUUID, boost::signals2::connection> avatar_name_cache_connection_map_t;
+    typedef std::multimap<LLUUID, boost::signals2::connection> avatar_name_cache_connection_map_t;
     avatar_name_cache_connection_map_t mAvatarNameCacheConnections;
 };
 

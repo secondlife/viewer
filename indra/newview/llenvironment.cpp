@@ -453,11 +453,11 @@ namespace
 
         void applyInjections(LLSettingsBase::Seconds delta)
         {
-            this->mSettings = this->mSource->getSettings();
+            LLSD settings = this->mSource->cloneSettings();
 
             for (auto ito = mOverrideValues.beginMap(); ito != mOverrideValues.endMap(); ++ito)
             {
-                this->mSettings[(*ito).first] = (*ito).second;
+                settings[(*ito).first] = (*ito).second;
             }
 
             const LLSettingsBase::stringset_t &slerps = this->getSlerpKeys();
@@ -469,7 +469,7 @@ namespace
             {
                 std::string key_name = (*it)->mKeyName;
 
-                LLSD value = this->mSettings[key_name];
+                LLSD value = settings[key_name];
                 LLSD target = (*it)->mValue;
 
                 if ((*it)->mFirstTime)
@@ -485,11 +485,11 @@ namespace
                     {
                         mOverrideValues[key_name] = target;
                         mOverrideExps[key_name] = (*it)->mExperience;
-                        this->mSettings[key_name] = target;
+                        settings[key_name] = target;
                     }
                     else
                     {
-                        this->mSettings.erase(key_name);
+                        settings.erase(key_name);
                     }
                 }
                 else if (specials.find(key_name) != specials.end())
@@ -500,8 +500,8 @@ namespace
                 {
                     if (!(*it)->mBlendIn)
                         mix = 1.0 - mix;
-                    (*it)->mLastValue = this->interpolateSDValue(key_name, value, target, this->getParameterMap(), mix, slerps);
-                    this->mSettings[key_name] = (*it)->mLastValue;
+                    (*it)->mLastValue = this->interpolateSDValue(key_name, value, target, this->getParameterMap(), mix, skips, slerps);
+                    settings[key_name] = (*it)->mLastValue;
                 }
             }
 
@@ -520,7 +520,7 @@ namespace
             {
                 mInjections.erase(mInjections.begin(), mInjections.end());
             }
-
+            this->setSettings(settings);
         }
 
         bool hasInjections() const
@@ -685,7 +685,8 @@ namespace
             if (!injection->mBlendIn)
                 mix = 1.0 - mix;
             stringset_t dummy;
-            F64 value = this->mSettings[injection->mKeyName].asReal();
+            LLSD settings = this->cloneSettings();
+            F64 value = settings[injection->mKeyName].asReal();
             if (this->getCloudNoiseTextureId().isNull())
             {
                 value = 0; // there was no texture so start from zero coverage
@@ -695,7 +696,8 @@ namespace
             // with different transitions, don't ignore it
             F64 result = lerp((F32)value, (F32)injection->mValue.asReal(), (F32)mix);
             injection->mLastValue = LLSD::Real(result);
-            this->mSettings[injection->mKeyName] = injection->mLastValue;
+            settings[injection->mKeyName] = injection->mLastValue;
+            this->setSettings(settings);
         }
 
         // Unfortunately I don't have a per texture blend factor.  We'll just pick the one that is furthest along.
@@ -1051,8 +1053,8 @@ bool LLEnvironment::isExtendedEnvironmentEnabled() const
 
 bool LLEnvironment::isInventoryEnabled() const
 {
-    return (!gAgent.getRegionCapability("UpdateSettingsAgentInventory").empty() &&
-        !gAgent.getRegionCapability("UpdateSettingsTaskInventory").empty());
+    return !gAgent.getRegionCapability("UpdateSettingsAgentInventory").empty() &&
+           !gAgent.getRegionCapability("UpdateSettingsTaskInventory").empty();
 }
 
 void LLEnvironment::onRegionChange()
@@ -1079,9 +1081,8 @@ void LLEnvironment::onRegionChange()
 void LLEnvironment::onParcelChange()
 {
     S32 parcel_id(INVALID_PARCEL_ID);
-    LLParcel* parcel = LLViewerParcelMgr::instance().getAgentParcel();
 
-    if (parcel)
+    if (LLParcel* parcel = LLViewerParcelMgr::instance().getAgentParcel())
     {
         parcel_id = parcel->getLocalID();
     }
@@ -1092,7 +1093,8 @@ void LLEnvironment::onParcelChange()
 //-------------------------------------------------------------------------
 F32 LLEnvironment::getCamHeight() const
 {
-    return (mCurrentEnvironment->getSky()->getDomeOffset() * mCurrentEnvironment->getSky()->getDomeRadius());
+    auto sky = mCurrentEnvironment ? mCurrentEnvironment->getSky() : nullptr;
+    return sky ? sky->getDomeOffset() * sky->getDomeRadius() : 0;
 }
 
 F32 LLEnvironment::getWaterHeight() const
@@ -1103,16 +1105,14 @@ F32 LLEnvironment::getWaterHeight() const
 
 bool LLEnvironment::getIsSunUp() const
 {
-    if (!mCurrentEnvironment || !mCurrentEnvironment->getSky())
-        return false;
-    return mCurrentEnvironment->getSky()->getIsSunUp();
+    auto sky = mCurrentEnvironment ? mCurrentEnvironment->getSky() : nullptr;
+    return sky && sky->getIsSunUp();
 }
 
 bool LLEnvironment::getIsMoonUp() const
 {
-    if (!mCurrentEnvironment || !mCurrentEnvironment->getSky())
-        return false;
-    return mCurrentEnvironment->getSky()->getIsMoonUp();
+    auto sky = mCurrentEnvironment ? mCurrentEnvironment->getSky() : nullptr;
+    return sky && sky->getIsMoonUp();
 }
 
 //-------------------------------------------------------------------------
@@ -1139,13 +1139,19 @@ LLEnvironment::DayInstance::ptr_t LLEnvironment::getEnvironmentInstance(LLEnviro
     if (create)
     {
         if (environment)
+        {
             environment = environment->clone();
+        }
         else
         {
             if (env == ENV_PUSH)
+            {
                 environment = std::make_shared<DayInjection>(env);
+            }
             else
+            {
                 environment = std::make_shared<DayInstance>(env);
+            }
         }
         mEnvironments[env] = environment;
     }
@@ -1172,7 +1178,9 @@ void LLEnvironment::setEnvironment(LLEnvironment::EnvSelection_t env, const LLSe
     environment->animate();
 
     if (!mSignalEnvChanged.empty())
+    {
         mSignalEnvChanged(env, env_version);
+    }
 }
 
 void LLEnvironment::setCurrentEnvironmentSelection(LLEnvironment::EnvSelection_t env)
@@ -1282,7 +1290,9 @@ void LLEnvironment::setEnvironment(LLEnvironment::EnvSelection_t env, LLEnvironm
     }
 
     if (!mSignalEnvChanged.empty())
+    {
         mSignalEnvChanged(env, env_version);
+    }
 }
 
 void LLEnvironment::setEnvironment(LLEnvironment::EnvSelection_t env, const LLSettingsBase::ptr_t &settings, S32 env_version)
@@ -1375,7 +1385,9 @@ void LLEnvironment::clearEnvironment(LLEnvironment::EnvSelection_t env)
     mEnvironments[env].reset();
 
     if (!mSignalEnvChanged.empty())
+    {
         mSignalEnvChanged(env, VERSION_CLEANUP);
+    }
 }
 
 void LLEnvironment::logEnvironment(EnvSelection_t env, const LLSettingsBase::ptr_t &settings, S32 env_version)
@@ -1415,10 +1427,10 @@ LLSettingsDay::ptr_t LLEnvironment::getEnvironmentDay(LLEnvironment::EnvSelectio
         return LLSettingsDay::ptr_t();
     }
 
-    DayInstance::ptr_t environment = getEnvironmentInstance(env);
-
-    if (environment)
+    if (DayInstance::ptr_t environment = getEnvironmentInstance(env))
+    {
         return environment->getDayCycle();
+    }
 
     return LLSettingsDay::ptr_t();
 }
@@ -1431,10 +1443,10 @@ LLSettingsDay::Seconds LLEnvironment::getEnvironmentDayLength(EnvSelection_t env
         return LLSettingsDay::Seconds(0);
     }
 
-    DayInstance::ptr_t environment = getEnvironmentInstance(env);
-
-    if (environment)
+    if (DayInstance::ptr_t environment = getEnvironmentInstance(env))
+    {
         return environment->getDayLength();
+    }
 
     return LLSettingsDay::Seconds(0);
 }
@@ -1447,9 +1459,10 @@ LLSettingsDay::Seconds LLEnvironment::getEnvironmentDayOffset(EnvSelection_t env
         return LLSettingsDay::Seconds(0);
     }
 
-    DayInstance::ptr_t environment = getEnvironmentInstance(env);
-    if (environment)
+    if (DayInstance::ptr_t environment = getEnvironmentInstance(env))
+    {
         return environment->getDayOffset();
+    }
 
     return LLSettingsDay::Seconds(0);
 }
@@ -1479,7 +1492,9 @@ LLEnvironment::fixedEnvironment_t LLEnvironment::getEnvironmentFixed(LLEnvironme
         }
 
         if (!fixed.first || !fixed.second)
+        {
             LL_WARNS("ENVIRONMENT") << "Can not construct complete fixed environment.  Missing Sky and/or Water." << LL_ENDL;
+        }
 
         return fixed;
     }
@@ -1490,10 +1505,10 @@ LLEnvironment::fixedEnvironment_t LLEnvironment::getEnvironmentFixed(LLEnvironme
         return fixedEnvironment_t();
     }
 
-    DayInstance::ptr_t environment = getEnvironmentInstance(env);
-
-    if (environment)
+    if (DayInstance::ptr_t environment = getEnvironmentInstance(env))
+    {
         return fixedEnvironment_t(environment->getSky(), environment->getWater());
+    }
 
     return fixedEnvironment_t();
 }
@@ -1503,7 +1518,9 @@ LLEnvironment::DayInstance::ptr_t LLEnvironment::getSelectedEnvironmentInstance(
     for (S32 idx = mSelectedEnvironment; idx < ENV_DEFAULT; ++idx)
     {
         if (mEnvironments[idx])
+        {
             return mEnvironments[idx];
+        }
     }
 
     return mEnvironments[ENV_DEFAULT];
@@ -1514,7 +1531,9 @@ LLEnvironment::DayInstance::ptr_t LLEnvironment::getSharedEnvironmentInstance()
     for (S32 idx = ENV_PARCEL; idx < ENV_DEFAULT; ++idx)
     {
         if (mEnvironments[idx])
+        {
             return mEnvironments[idx];
+        }
     }
 
     return mEnvironments[ENV_DEFAULT];
@@ -1673,21 +1692,19 @@ void LLEnvironment::update(const LLViewerCamera * cam)
 
     updateSettingsUniforms();
 
+    LLViewerShaderMgr::shader_iter shaders_iter, end_shaders;
+    end_shaders = LLViewerShaderMgr::instance()->endShaders();
+    for (shaders_iter = LLViewerShaderMgr::instance()->beginShaders(); shaders_iter != end_shaders; ++shaders_iter)
     {
-        LLViewerShaderMgr::shader_iter shaders_iter, end_shaders;
-        end_shaders = LLViewerShaderMgr::instance()->endShaders();
-        for (shaders_iter = LLViewerShaderMgr::instance()->beginShaders(); shaders_iter != end_shaders; ++shaders_iter)
+        shaders_iter->mUniformsDirty = true;
+        if (shaders_iter->mRiggedVariant)
         {
-            shaders_iter->mUniformsDirty = true;
-            if (shaders_iter->mRiggedVariant)
-            {
-                shaders_iter->mRiggedVariant->mUniformsDirty = true;
-            }
+            shaders_iter->mRiggedVariant->mUniformsDirty = true;
+        }
 
-            for (auto& variant : shaders_iter->mGLTFVariants)
-            {
-                variant.mUniformsDirty = true;
-            }
+        for (auto& variant : shaders_iter->mGLTFVariants)
+        {
+            variant.mUniformsDirty = true;
         }
     }
 }
@@ -1725,90 +1742,9 @@ void LLEnvironment::updateGLVariablesForSettings(LLShaderUniforms* uniforms, con
     {
         uniforms[i].clear();
     }
-
-    LLShaderUniforms* shader = &uniforms[LLGLSLShader::SG_ANY];
-    //_WARNS("RIDER") << "----------------------------------------------------------------" << LL_ENDL;
-    LLSettingsBase::parammapping_t params = psetting->getParameterMap();
-    for (auto &it: params)
-    {
-        LLSD value;
-        // legacy first since it contains ambient color and we prioritize value from legacy, see getAmbientColor()
-        if (psetting->mSettings.has(LLSettingsSky::SETTING_LEGACY_HAZE) && psetting->mSettings[LLSettingsSky::SETTING_LEGACY_HAZE].has(it.first))
-        {
-            value = psetting->mSettings[LLSettingsSky::SETTING_LEGACY_HAZE][it.first];
-        }
-        else if (psetting->mSettings.has(it.first))
-        {
-            value = psetting->mSettings[it.first];
-        }
-        else
-        {
-            // We need to reset shaders, use defaults
-            value = it.second.getDefaultValue();
-        }
-
-        LLSD::Type setting_type = value.type();
-        stop_glerror();
-        switch (setting_type)
-        {
-        case LLSD::TypeInteger:
-            shader->uniform1i(it.second.getShaderKey(), value.asInteger());
-            //_WARNS("RIDER") << "pushing '" << (*it).first << "' as " << value << LL_ENDL;
-            break;
-        case LLSD::TypeReal:
-            shader->uniform1f(it.second.getShaderKey(), (F32)value.asReal());
-            //_WARNS("RIDER") << "pushing '" << (*it).first << "' as " << value << LL_ENDL;
-            break;
-
-        case LLSD::TypeBoolean:
-            shader->uniform1i(it.second.getShaderKey(), value.asBoolean() ? 1 : 0);
-            //_WARNS("RIDER") << "pushing '" << (*it).first << "' as " << value << LL_ENDL;
-            break;
-
-        case LLSD::TypeArray:
-        {
-            LLVector4 vect4(value);
-            // always identify as a radiance pass if desaturating irradiance is disabled
-            static LLCachedControl<bool> desaturate_irradiance(gSavedSettings, "RenderDesaturateIrradiance", true);
-
-            if (desaturate_irradiance && gCubeSnapshot && !gPipeline.mReflectionMapManager.isRadiancePass())
-            { // maximize and remove tinting if this is an irradiance map render pass and the parameter feeds into the sky background color
-                auto max_vec = [](LLVector4 col)
-                {
-                    LLColor3 color(col);
-                    F32 h, s, l;
-                    color.calcHSL(&h, &s, &l);
-
-                    col.mV[0] = col.mV[1] = col.mV[2] = l;
-                    return col;
-                };
-
-                switch (it.second.getShaderKey())
-                {
-                case LLShaderMgr::BLUE_HORIZON:
-                case LLShaderMgr::BLUE_DENSITY:
-                    vect4 = max_vec(vect4);
-                        break;
-                }
-            }
-
-            //_WARNS("RIDER") << "pushing '" << (*it).first << "' as " << vect4 << LL_ENDL;
-            shader->uniform3fv(it.second.getShaderKey(), LLVector3(vect4.mV) );
-            break;
-        }
-
-        //  case LLSD::TypeMap:
-        //  case LLSD::TypeString:
-        //  case LLSD::TypeUUID:
-        //  case LLSD::TypeURI:
-        //  case LLSD::TypeBinary:
-        //  case LLSD::TypeDate:
-        default:
-            break;
-        }
-    }
     //_WARNS("RIDER") << "----------------------------------------------------------------" << LL_ENDL;
 
+    psetting->applyToUniforms(uniforms);
     psetting->applySpecial(uniforms);
 }
 
@@ -1971,7 +1907,6 @@ void LLEnvironment::updateRegion(const LLSettingsWater::ptr_t &pwater, S32 day_l
     updateParcel(INVALID_PARCEL_ID, pwater, day_length, day_offset, altitudes, cb);
 }
 
-
 void LLEnvironment::resetRegion(environment_apply_fn cb)
 {
     resetParcel(INVALID_PARCEL_ID, cb);
@@ -1996,7 +1931,10 @@ void LLEnvironment::requestParcel(S32 parcel_id, environment_apply_fn cb)
             LLEnvironmentRequest::initiate(cb);
         }
         else if (cb)
+        {
             cb(parcel_id, EnvironmentInfo::ptr_t());
+        }
+
         return;
     }
 
@@ -2006,16 +1944,14 @@ void LLEnvironment::requestParcel(S32 parcel_id, environment_apply_fn cb)
         cb = [this, transition](S32 pid, EnvironmentInfo::ptr_t envinfo) { recordEnvironment(pid, envinfo, transition); };
     }
 
-    std::string coroname =
-        LLCoros::instance().launch("LLEnvironment::coroRequestEnvironment",
+    LLCoros::instance().launch("LLEnvironment::coroRequestEnvironment",
         [this, parcel_id, cb]() { coroRequestEnvironment(parcel_id, cb); });
 }
 
 void LLEnvironment::updateParcel(S32 parcel_id, const LLUUID &asset_id, std::string display_name, S32 track_num, S32 day_length, S32 day_offset, U32 flags, LLEnvironment::altitudes_vect_t altitudes, environment_apply_fn cb)
 {
     UpdateInfo::ptr_t updates(std::make_shared<UpdateInfo>(asset_id, display_name, day_length, day_offset, altitudes, flags));
-    std::string coroname =
-        LLCoros::instance().launch("LLEnvironment::coroUpdateEnvironment",
+    LLCoros::instance().launch("LLEnvironment::coroUpdateEnvironment",
         [this, parcel_id, track_num, updates, cb]() { coroUpdateEnvironment(parcel_id, track_num, updates, cb); });
 }
 
@@ -2031,7 +1967,9 @@ void LLEnvironment::onUpdateParcelAssetLoaded(LLUUID asset_id, LLSettingsBase::p
     LLSettingsDay::ptr_t pday;
 
     if (settings->getSettingsType() == "daycycle")
+    {
         pday = std::static_pointer_cast<LLSettingsDay>(settings);
+    }
     else
     {
         pday = createDayCycleFromEnvironment( (parcel_id == INVALID_PARCEL_ID) ? ENV_REGION : ENV_PARCEL, settings);
@@ -2065,8 +2003,7 @@ void LLEnvironment::updateParcel(S32 parcel_id, const LLSettingsDay::ptr_t &pday
 {
     UpdateInfo::ptr_t updates(std::make_shared<UpdateInfo>(pday, day_length, day_offset, altitudes));
 
-    std::string coroname =
-        LLCoros::instance().launch("LLEnvironment::coroUpdateEnvironment",
+    LLCoros::instance().launch("LLEnvironment::coroUpdateEnvironment",
         [this, parcel_id, track_num, updates, cb]() { coroUpdateEnvironment(parcel_id, track_num, updates, cb); });
 }
 
@@ -2075,12 +2012,9 @@ void LLEnvironment::updateParcel(S32 parcel_id, const LLSettingsDay::ptr_t &pday
     updateParcel(parcel_id, pday, NO_TRACK, day_length, day_offset, altitudes, cb);
 }
 
-
-
 void LLEnvironment::resetParcel(S32 parcel_id, environment_apply_fn cb)
 {
-    std::string coroname =
-        LLCoros::instance().launch("LLEnvironment::coroResetEnvironment",
+    LLCoros::instance().launch("LLEnvironment::coroResetEnvironment",
         [this, parcel_id, cb]() { coroResetEnvironment(parcel_id, NO_TRACK, cb); });
 }
 
@@ -2130,7 +2064,6 @@ void LLEnvironment::coroRequestEnvironment(S32 parcel_id, LLEnvironment::environ
                 });
         }
     }
-
 }
 
 void LLEnvironment::coroUpdateEnvironment(S32 parcel_id, S32 track_no, UpdateInfo::ptr_t updates, environment_apply_fn apply)
@@ -2150,9 +2083,14 @@ void LLEnvironment::coroUpdateEnvironment(S32 parcel_id, S32 track_no, UpdateInf
     if (track_no == NO_TRACK)
     {   // day length and offset are only applicable if we are addressing the entire day cycle.
         if (updates->mDayLength > 0)
+        {
             body[KEY_ENVIRONMENT][KEY_DAYLENGTH] = updates->mDayLength;
+        }
+
         if (updates->mDayOffset > 0)
+        {
             body[KEY_ENVIRONMENT][KEY_DAYOFFSET] = updates->mDayOffset;
+        }
 
         if ((parcel_id == INVALID_PARCEL_ID) && (updates->mAltitudes.size() == 3))
         {   // only test for altitude changes if we are changing the region.
@@ -2165,12 +2103,16 @@ void LLEnvironment::coroUpdateEnvironment(S32 parcel_id, S32 track_no, UpdateInf
     }
 
     if (updates->mDayp)
+    {
         body[KEY_ENVIRONMENT][KEY_DAYCYCLE] = updates->mDayp->getSettings();
+    }
     else if (!updates->mSettingsAsset.isNull())
     {
         body[KEY_ENVIRONMENT][KEY_DAYASSET] = updates->mSettingsAsset;
         if (!updates->mDayName.empty())
+        {
             body[KEY_ENVIRONMENT][KEY_DAYNAME] = updates->mDayName;
+        }
     }
 
     body[KEY_ENVIRONMENT][KEY_FLAGS] = LLSD::Integer(updates->mFlags);
@@ -2188,22 +2130,27 @@ void LLEnvironment::coroUpdateEnvironment(S32 parcel_id, S32 track_no, UpdateInf
             if (track_no != NO_TRACK)
                 query << "&";
         }
+
         if (track_no != NO_TRACK)
         {
             query << "trackno=" << track_no;
         }
+
         url += query.str();
     }
 
     LLSD result = httpAdapter->putAndSuspend(httpRequest, url, body);
     // results that come back may contain the new settings
 
+    if (LLApp::isExiting())
+        return;
+
     LLSD notify;
 
     LLSD httpResults = result["http_result"];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
-    if ((!status) || !result["success"].asBoolean())
+    if (!status || !result["success"].asBoolean())
     {
         LL_WARNS("ENVIRONMENT") << "Couldn't update Windlight settings for " << ((parcel_id == INVALID_PARCEL_ID) ? ("region!") : ("parcel!")) << LL_ENDL;
 
@@ -2217,10 +2164,6 @@ void LLEnvironment::coroUpdateEnvironment(S32 parcel_id, S32 track_no, UpdateInf
         {
             notify["FAIL_REASON"] = reason;
         }
-    }
-    else if (LLApp::isExiting())
-    {
-        return;
     }
     else
     {
@@ -2272,34 +2215,26 @@ void LLEnvironment::coroResetEnvironment(S32 parcel_id, S32 track_no, environmen
     LLSD result = httpAdapter->deleteAndSuspend(httpRequest, url);
     // results that come back may contain the new settings
 
+    if (LLApp::isExiting())
+        return;
+
     LLSD notify;
 
     LLSD httpResults = result["http_result"];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
-    if ((!status) || !result["success"].asBoolean())
+    if (!status || !result["success"].asBoolean())
     {
         LL_WARNS("ENVIRONMENT") << "Couldn't reset Windlight settings in " << ((parcel_id == INVALID_PARCEL_ID) ? ("region!") : ("parcel!")) << LL_ENDL;
 
         notify = LLSD::emptyMap();
         std::string reason = result["message"].asString();
-        if (reason.empty())
-        {
-            notify["FAIL_REASON"] = status.toString();
-        }
-        else
-        {
-            notify["FAIL_REASON"] = reason;
-        }
+        notify["FAIL_REASON"] = reason.empty() ? status.toString() : reason;
     }
-    else if (LLApp::isExiting())
+    else if (apply)
     {
-        return;
-    }
-    else
-    {
-       LLSD environment = result[KEY_ENVIRONMENT];
-        if (environment.isDefined() && apply)
+        LLSD environment = result[KEY_ENVIRONMENT];
+        if (environment.isDefined())
         {
             EnvironmentInfo::ptr_t envinfo = LLEnvironment::EnvironmentInfo::extract(environment);
             apply(parcel_id, envinfo);
@@ -2311,7 +2246,6 @@ void LLEnvironment::coroResetEnvironment(S32 parcel_id, S32 track_no, environmen
         LLNotificationsUtil::add("WLRegionApplyFail", notify);
         //LLEnvManagerNew::instance().onRegionSettingsApplyResponse(false);
     }
-
 }
 
 

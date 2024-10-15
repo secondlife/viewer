@@ -327,8 +327,9 @@ void LLDrawPoolAlpha::renderAlphaHighlight()
 {
     for (int pass = 0; pass < 2; ++pass)
     { //two passes, one rigged and one not
-        LLVOAvatar* lastAvatar = nullptr;
+        const LLVOAvatar* lastAvatar = nullptr;
         U64 lastMeshId = 0;
+        bool skipLastSkin = false;
 
         LLCullResult::sg_iterator begin = pass == 0 ? gPipeline.beginAlphaGroups() : gPipeline.beginRiggedAlphaGroups();
         LLCullResult::sg_iterator end = pass == 0 ? gPipeline.endAlphaGroups() : gPipeline.endRiggedAlphaGroups();
@@ -347,22 +348,16 @@ void LLDrawPoolAlpha::renderAlphaHighlight()
 
                     bool rigged = (params.mAvatar != nullptr);
                     gHighlightProgram.bind(rigged);
-                    gGL.diffuseColor4f(1, 0, 0, 1);
 
                     if (rigged)
                     {
-                        if (lastAvatar != params.mAvatar ||
-                            lastMeshId != params.mSkinInfo->mHash)
-                        {
-                            if (!uploadMatrixPalette(params))
-                            {
-                                continue;
-                            }
-                            lastAvatar = params.mAvatar;
-                            lastMeshId = params.mSkinInfo->mHash;
+                        if (!uploadMatrixPalette(params.mAvatar, params.mSkinInfo, lastAvatar, lastMeshId, skipLastSkin))
+                        { // failed to upload matrix palette, skip rendering
+                            continue;
                         }
                     }
 
+                    gGL.diffuseColor4f(1, 0, 0, 1);
                     LLRenderPass::applyModelMatrix(params);
                     params.mVertexBuffer->setBuffer();
                     params.mVertexBuffer->drawRange(LLRender::TRIANGLES, params.mStart, params.mEnd, params.mCount, params.mOffset);
@@ -526,25 +521,20 @@ void LLDrawPoolAlpha::renderRiggedEmissives(std::vector<LLDrawInfo*>& emissives)
     shader->bind();
     shader->uniform1f(LLShaderMgr::EMISSIVE_BRIGHTNESS, 1.f);
 
-    LLVOAvatar* lastAvatar = nullptr;
+    const LLVOAvatar* lastAvatar = nullptr;
     U64 lastMeshId = 0;
+    bool skipLastSkin = false;
 
     for (LLDrawInfo* draw : emissives)
     {
         LL_PROFILE_ZONE_NAMED_CATEGORY_DRAWPOOL("Emissives");
 
-        bool tex_setup = TexSetup(draw, false);
-        if (lastAvatar != draw->mAvatar || lastMeshId != draw->mSkinInfo->mHash)
+        if (uploadMatrixPalette(draw->mAvatar, draw->mSkinInfo, lastAvatar, lastMeshId, skipLastSkin))
         {
-            if (!uploadMatrixPalette(*draw))
-            { // failed to upload matrix palette, skip rendering
-                continue;
-            }
-            lastAvatar = draw->mAvatar;
-            lastMeshId = draw->mSkinInfo->mHash;
+            bool tex_setup = TexSetup(draw, false);
+            drawEmissive(draw);
+            RestoreTexSetup(tex_setup);
         }
-        drawEmissive(draw);
-        RestoreTexSetup(tex_setup);
     }
 }
 
@@ -553,19 +543,15 @@ void LLDrawPoolAlpha::renderRiggedPbrEmissives(std::vector<LLDrawInfo*>& emissiv
     LLGLDepthTest depth(GL_TRUE, GL_FALSE); //disable depth writes since "emissive" is additive so sorting doesn't matter
     pbr_emissive_shader->bind(true);
 
-    LLVOAvatar* lastAvatar = nullptr;
+    const LLVOAvatar* lastAvatar = nullptr;
     U64 lastMeshId = 0;
+    bool skipLastSkin = false;
 
     for (LLDrawInfo* draw : emissives)
     {
-        if (lastAvatar != draw->mAvatar || lastMeshId != draw->mSkinInfo->mHash)
-        {
-            if (!uploadMatrixPalette(*draw))
-            { // failed to upload matrix palette, skip rendering
-                continue;
-            }
-            lastAvatar = draw->mAvatar;
-            lastMeshId = draw->mSkinInfo->mHash;
+        if (!uploadMatrixPalette(draw->mAvatar, draw->mSkinInfo, lastAvatar, lastMeshId, skipLastSkin))
+        { // failed to upload matrix palette, skip rendering
+            continue;
         }
 
         LLGLDisable cull_face(draw->mGLTFMaterial->mDoubleSided ? GL_CULL_FACE : 0);
@@ -581,9 +567,10 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
     bool initialized_lighting = false;
     bool light_enabled = true;
 
-    LLVOAvatar* lastAvatar = nullptr;
+    const LLVOAvatar* lastAvatar = nullptr;
     U64 lastMeshId = 0;
-    LLGLSLShader* lastAvatarShader = nullptr;
+    const LLGLSLShader* lastAvatarShader = nullptr;
+    bool skipLastSkin = false;
 
     LLCullResult::sg_iterator begin;
     LLCullResult::sg_iterator end;
@@ -770,26 +757,15 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
 
                     if (current_shader)
                     {
-                        current_shader->uniform4f(LLShaderMgr::SPECULAR_COLOR, spec_color.mV[0], spec_color.mV[1], spec_color.mV[2], spec_color.mV[3]);
+                        current_shader->uniform4f(LLShaderMgr::SPECULAR_COLOR, spec_color.mV[VRED], spec_color.mV[VGREEN], spec_color.mV[VBLUE], spec_color.mV[VALPHA]);
                         current_shader->uniform1f(LLShaderMgr::ENVIRONMENT_INTENSITY, env_intensity);
                         current_shader->uniform1f(LLShaderMgr::EMISSIVE_BRIGHTNESS, brightness);
                     }
                 }
 
-                if (params.mAvatar != nullptr)
+                if (params.mAvatar && !uploadMatrixPalette(params.mAvatar, params.mSkinInfo, lastAvatar, lastMeshId, lastAvatarShader, skipLastSkin))
                 {
-                    if (lastAvatar != params.mAvatar ||
-                        lastMeshId != params.mSkinInfo->mHash ||
-                        lastAvatarShader != LLGLSLShader::sCurBoundShaderPtr)
-                    {
-                        if (!uploadMatrixPalette(params))
-                        {
-                            continue;
-                        }
-                        lastAvatar = params.mAvatar;
-                        lastMeshId = params.mSkinInfo->mHash;
-                        lastAvatarShader = LLGLSLShader::sCurBoundShaderPtr;
-                    }
+                    continue;
                 }
 
                 bool tex_setup = TexSetup(&params, (mat != nullptr));
@@ -911,27 +887,4 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
     {
         gPipeline.enableLightsDynamic();
     }
-}
-
-bool LLDrawPoolAlpha::uploadMatrixPalette(const LLDrawInfo& params)
-{
-    if (params.mAvatar.isNull())
-    {
-        return false;
-    }
-    const LLVOAvatar::MatrixPaletteCache& mpc = params.mAvatar.get()->updateSkinInfoMatrixPalette(params.mSkinInfo);
-    U32 count = static_cast<U32>(mpc.mMatrixPalette.size());
-
-    if (count == 0)
-    {
-        //skin info not loaded yet, don't render
-        return false;
-    }
-
-    LLGLSLShader::sCurBoundShaderPtr->uniformMatrix3x4fv(LLViewerShaderMgr::AVATAR_MATRIX,
-        count,
-        false,
-        (GLfloat*)&(mpc.mGLMp[0]));
-
-    return true;
 }

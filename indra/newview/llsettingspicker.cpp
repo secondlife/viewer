@@ -98,7 +98,7 @@ bool LLFloaterSettingsPicker::postBuild()
     setTitle(prefix + " " + label);
 
     mFilterEdit = getChild<LLFilterEditor>(FLT_INVENTORY_SEARCH);
-    mFilterEdit->setCommitCallback([this](LLUICtrl*, const LLSD& param){ onFilterEdit(param.asString()); });
+    mFilterEdit->setCommitCallback([this](LLUICtrl*, const LLSD& param) { onFilterEdit(param.asString()); });
 
     mInventoryPanel = getChild<LLInventoryPanel>(PNL_INVENTORY);
     if (mInventoryPanel)
@@ -203,7 +203,6 @@ void LLFloaterSettingsPicker::draw()
     LLFloater::draw();
 }
 
-
 //=========================================================================
 void LLFloaterSettingsPicker::onFilterEdit(const std::string& search_string)
 {
@@ -224,7 +223,6 @@ void LLFloaterSettingsPicker::onFilterEdit(const std::string& search_string)
         LLOpenFoldersWithSelection opener;
         mInventoryPanel->getRootFolder()->applyFunctorRecursively(opener);
         mInventoryPanel->getRootFolder()->scrollToShowSelection();
-
     }
     else if (mInventoryPanel->getFilterSubString().empty())
     {
@@ -269,6 +267,7 @@ void LLFloaterSettingsPicker::onSelectionChange(const LLFloaterSettingsPicker::i
             }
         }
     }
+
     bool track_picker_enabled = mTrackMode != TRACK_NONE;
 
     getChild<LLView>(CMB_TRACK_SELECTION)->setEnabled(is_item && track_picker_enabled && mSettingAssetID == asset_id);
@@ -304,13 +303,14 @@ void LLFloaterSettingsPicker::onAssetLoaded(LLUUID asset_id, LLSettingsBase::ptr
     LLComboBox* track_selection = getChild<LLComboBox>(CMB_TRACK_SELECTION);
     track_selection->clear();
     track_selection->removeall();
+
     if (!settings)
     {
         LL_WARNS() << "Failed to load asset " << asset_id << LL_ENDL;
         return;
     }
-    LLSettingsDay::ptr_t pday = std::dynamic_pointer_cast<LLSettingsDay>(settings);
 
+    LLSettingsDay::ptr_t pday = std::dynamic_pointer_cast<LLSettingsDay>(settings);
     if (!pday)
     {
         LL_WARNS() << "Wrong asset type received by id " << asset_id << LL_ENDL;
@@ -349,6 +349,11 @@ void LLFloaterSettingsPicker::onButtonCancel()
 
 void LLFloaterSettingsPicker::onButtonSelect()
 {
+    applySelectedItemAndCloseFloater();
+}
+
+void LLFloaterSettingsPicker::applySelectedItemAndCloseFloater()
+{
     if (mCommitSignal)
     {
         LLSD res;
@@ -378,14 +383,7 @@ bool LLFloaterSettingsPicker::handleDoubleClick(S32 x, S32 y, MASK mask)
                 if (target_rect.pointInRect(x, y))
                 {
                     // Quick-apply
-                    if (mCommitSignal)
-                    {
-                        LLSD res;
-                        res["ItemId"] = mSettingItemID;
-                        res["Track"] = getChild<LLComboBox>(CMB_TRACK_SELECTION)->getValue();
-                        (*mCommitSignal)(this, res);
-                    }
-                    closeFloater();
+                    applySelectedItemAndCloseFloater();
                     // hit inside panel on selected item, double click should do nothing
                     result = true;
                 }
@@ -408,14 +406,7 @@ bool LLFloaterSettingsPicker::handleKeyHere(KEY key, MASK mask)
         if (item_viewp && item_viewp->getIsCurSelection() && item_viewp->getVisible())
         {
             // Quick-apply
-            if (mCommitSignal)
-            {
-                LLSD res;
-                res["ItemId"] = mSettingItemID;
-                res["Track"] = getChild<LLComboBox>(CMB_TRACK_SELECTION)->getValue();
-                (*mCommitSignal)(this, res);
-            }
-            closeFloater();
+            applySelectedItemAndCloseFloater();
             return true;
         }
     }
@@ -466,6 +457,9 @@ void LLFloaterSettingsPicker::setSettingsItemId(const LLUUID &settings_id, bool 
 
 LLInventoryItem* LLFloaterSettingsPicker::findItem(const LLUUID& asset_id, bool copyable_only, bool ignore_library)
 {
+    if (asset_id.isNull())
+        return nullptr;
+
     LLViewerInventoryCategory::cat_array_t cats;
     LLViewerInventoryItem::item_array_t items;
     LLAssetIDMatches asset_id_matches(asset_id);

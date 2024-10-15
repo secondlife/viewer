@@ -475,21 +475,17 @@ public:
     void            setControlFlags(U32 mask);      // Performs bitwise mControlFlags |= mask
     void            clearControlFlags(U32 mask);    // Performs bitwise mControlFlags &= ~mask
     bool            controlFlagsDirty() const;
-    void            enableControlFlagReset();
     void            resetControlFlags();
     bool            anyControlGrabbed() const;      // True iff a script has taken over a control
     bool            isControlGrabbed(S32 control_index) const;
     // Send message to simulator to force grabbed controls to be
     // released, in case of a poorly written script.
     void            forceReleaseControls();
-    void            setFlagsDirty() { mbFlagsDirty = true; }
 
 private:
     S32             mControlsTakenCount[TOTAL_CONTROLS];
     S32             mControlsTakenPassedOnCount[TOTAL_CONTROLS];
     U32             mControlFlags;                  // Replacement for the mFooKey's
-    bool            mbFlagsDirty;
-    bool            mbFlagsNeedReset;               // ! HACK ! For preventing incorrect flags sent when crossing region boundaries
 
     //--------------------------------------------------------------------
     // Animations

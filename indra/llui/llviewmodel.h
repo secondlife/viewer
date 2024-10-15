@@ -105,7 +105,8 @@ public:
     // New functions
     /// Get the stored value in string form
     const LLWString& getDisplay() const { return mDisplay; }
-    LLWString& getEditableDisplay() { mDirty = true; mUpdateFromDisplay = true; return mDisplay; }
+    S32 getDisplayGeneration() const { return mDisplayGeneration; }
+    LLWString& getEditableDisplay();
 
     /**
      * Set the display string directly (see LLTextEditor). What the user is
@@ -120,6 +121,7 @@ private:
     /// To avoid converting every widget's stored value from LLSD to LLWString
     /// every frame, cache the converted value
     LLWString mDisplay;
+    S32 mDisplayGeneration = -1;
 
     /// As the user edits individual characters (setDisplay()), defer
     /// LLWString-to-UTF8 conversions until s/he's done.

@@ -80,6 +80,9 @@ void load_exr(const std::string& filename)
         gGL.getTexUnit(0)->bind(gEXRImage);
 
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGBA, GL_FLOAT, out);
+
+        LLImageGLMemory::alloc_tex_image(width, height, GL_RGB16F, 1);
+
         free(out); // release memory of image data
 
         glGenerateMipmap(GL_TEXTURE_2D);
