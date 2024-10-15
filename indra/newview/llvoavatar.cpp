@@ -8474,8 +8474,9 @@ bool LLVOAvatar::processFullyLoadedChange(bool loading)
     }
     else if (!mFullyLoaded)
     {
-        // We wait a little bit before giving the 'all clear', to let things to settle down:
-        // models to snap into place, textures to get first packets, LODs to load.
+        // We wait a little bit before giving the 'all clear', to let things to
+        // settle down: models to snap into place, textures to get first packets,
+        // LODs to load.
         const F32 LOADED_DELAY = 1.f;
 
         if (mFirstFullyVisible)
@@ -8503,11 +8504,11 @@ bool LLVOAvatar::processFullyLoadedChange(bool loading)
         {
             mFullyLoaded = (mFullyLoadedTimer.getElapsedTimeF32() > LOADED_DELAY);
         }
-    }
 
-    if (!mPreviousFullyLoaded && !loading && mFullyLoaded)
-    {
-        debugAvatarRezTime("AvatarRezNotification", "fully loaded");
+        if (!mPreviousFullyLoaded && !loading && mFullyLoaded)
+        {
+            debugAvatarRezTime("AvatarRezNotification", "fully loaded");
+        }
     }
 
     // did our loading state "change" from last call?

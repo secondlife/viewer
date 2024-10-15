@@ -402,7 +402,7 @@ public:
     virtual bool    getIsCloud() const;
     bool            isFullyTextured() const;
     bool            hasGray() const;
-    S32             getRezzedStatus() const; // 0 = cloud, 1 = gray, 2 = textured, 3 = textured and fully downloaded.
+    S32             getRezzedStatus() const; // 0 = cloud, 1 = gray, 2 = textured, 3 = waiting for attachments, 4 = full.
     void            updateRezzedStatusTimers(S32 status);
 
     S32             mLastRezzedStatus;
