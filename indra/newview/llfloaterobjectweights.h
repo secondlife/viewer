@@ -65,13 +65,13 @@ public:
     void onWeightsUpdate(const SelectionCost& selection_cost) override;
     void setErrorStatus(S32 status, const std::string& reason) override;
 
-    void draw();
+    void draw() override;
 
     void updateLandImpacts(const LLParcel* parcel);
-    void refresh();
+    void refresh() override;
 
 private:
-    /*virtual*/ void generateTransactionID();
+    void generateTransactionID() override;
 
     void toggleWeightsLoadingIndicators(bool visible);
     void toggleLandImpactsLoadingIndicators(bool visible);
