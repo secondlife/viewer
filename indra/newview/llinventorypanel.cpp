@@ -2356,6 +2356,8 @@ void LLInventoryFavoritesItemsPanel::findAndInitRootContent(const LLUUID& id)
             }
         }
     }
+
+    mInventory->unlockDirectDescendentArrays(id);
 }
 
 void LLInventoryFavoritesItemsPanel::initRootContent()
