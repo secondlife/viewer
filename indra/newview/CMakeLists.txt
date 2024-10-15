@@ -1434,6 +1434,7 @@ if (DARWIN)
   set_source_files_properties(
     llappdelegate-objc.mm
     PROPERTIES
+    SKIP_PRECOMPILE_HEADERS TRUE
     COMPILE_DEFINITIONS "${VIEWER_CHANNEL_VERSION_DEFINES}"
     # BugsplatMac is a module, imported with @import. That language feature
     # demands these -f switches.
