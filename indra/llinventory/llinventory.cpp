@@ -1029,7 +1029,7 @@ bool LLInventoryItem::fromLLSD(const LLSD& sd, bool is_new)
                 <integer> 1 </key>
             */
           continue;
-      }
+        }
 
         if (i->first == INV_THUMBNAIL_ID_LABEL)
         {

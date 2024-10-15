@@ -344,12 +344,7 @@ struct LLWindowWin32::LLWindowWin32Thread : public LL::ThreadPool
 
     void run() override;
 
-    // Detroys handles and window
-    // Either post to or call from window thread
-    void destroyWindow();
-
-    // Closes queue, wakes thread, waits until thread closes.
-    // Call from main thread
+    // closes queue, wakes thread, waits until thread closes
     bool wakeAndDestroy();
 
     void glReady()
@@ -407,7 +402,7 @@ struct LLWindowWin32::LLWindowWin32Thread : public LL::ThreadPool
     // until after some graphics setup. See SL-20177. -Cosmic,2023-09-18
     bool mGLReady = false;
     bool mGotGLBuffer = false;
-    LLAtomicBool mDeleteOnExit = false;
+    bool mDeleteOnExit = false;
 };
 
 
@@ -4790,48 +4785,17 @@ void LLWindowWin32::LLWindowWin32Thread::run()
 #endif
     }
 
-    destroyWindow();
-
     if (mDeleteOnExit)
     {
         delete this;
     }
 }
 
-void LLWindowWin32::LLWindowWin32Thread::destroyWindow()
-{
-    if (mWindowHandleThrd != NULL && IsWindow(mWindowHandleThrd))
-    {
-        if (mhDCThrd)
-        {
-            if (!ReleaseDC(mWindowHandleThrd, mhDCThrd))
-            {
-                LL_WARNS("Window") << "Release of ghDC failed!" << LL_ENDL;
-            }
-            mhDCThrd = NULL;
-        }
-
-        // This causes WM_DESTROY to be sent *immediately*
-        if (!destroy_window_handler(mWindowHandleThrd))
-        {
-            LL_WARNS("Window") << "Failed to destroy Window! " << std::hex << GetLastError() << LL_ENDL;
-        }
-    }
-    else
-    {
-        // Something killed the window while we were busy destroying gl or handle somehow got broken
-        LL_WARNS("Window") << "Failed to destroy Window, invalid handle!" << LL_ENDL;
-    }
-    mWindowHandleThrd = NULL;
-    mhDCThrd = NULL;
-    mGLReady = false;
-}
-
 bool LLWindowWin32::LLWindowWin32Thread::wakeAndDestroy()
 {
     if (mQueue->isClosed())
     {
-        LL_WARNS() << "Tried to close Queue. Win32 thread Queue already closed." <<LL_ENDL;
+        LL_WARNS() << "Tried to close Queue. Win32 thread Queue already closed." << LL_ENDL;
         return false;
     }
 
@@ -4842,6 +4806,35 @@ bool LLWindowWin32::LLWindowWin32Thread::wakeAndDestroy()
 
     // Schedule destruction
     HWND old_handle = mWindowHandleThrd;
+    post([this]()
+         {
+             if (IsWindow(mWindowHandleThrd))
+             {
+                 if (mhDCThrd)
+                 {
+                     if (!ReleaseDC(mWindowHandleThrd, mhDCThrd))
+                     {
+                         LL_WARNS("Window") << "Release of ghDC failed!" << LL_ENDL;
+                     }
+                     mhDCThrd = NULL;
+                 }
+
+                 // This causes WM_DESTROY to be sent *immediately*
+                 if (!destroy_window_handler(mWindowHandleThrd))
+                 {
+                     LL_WARNS("Window") << "Failed to destroy Window! " << std::hex << GetLastError() << LL_ENDL;
+                 }
+             }
+             else
+             {
+                 // Something killed the window while we were busy destroying gl or handle somehow got broken
+                 LL_WARNS("Window") << "Failed to destroy Window, invalid handle!" << LL_ENDL;
+             }
+             mWindowHandleThrd = NULL;
+             mhDCThrd = NULL;
+             mGLReady = false;
+         });
+
     mDeleteOnExit = true;
     SetWindowLongPtr(old_handle, GWLP_USERDATA, NULL);
 
@@ -4865,47 +4858,6 @@ bool LLWindowWin32::LLWindowWin32Thread::wakeAndDestroy()
         PostMessage(old_handle, WM_DUMMY_, wparam, 0x1337);
     }
 
-    // There are cases where window will refuse to close,
-    // can't wait forever on join, check state instead
-    LLTimer timeout;
-    timeout.setTimerExpirySec(2.0);
-    while (!getQueue().done() && !timeout.hasExpired() && mWindowHandleThrd)
-    {
-        ms_sleep(100);
-    }
-
-    if (getQueue().done() || mWindowHandleThrd == NULL)
-    {
-        // Window is closed, started closing or is cleaning up
-        // now wait for our single thread to die.
-        if (mWindowHandleThrd)
-        {
-            LL_INFOS("Window") << "Window is closing, waiting on pool's thread to join, time since post: " << timeout.getElapsedSeconds() << "s" << LL_ENDL;
-        }
-        else
-        {
-            LL_DEBUGS("Window") << "Waiting on pool's thread, time since post: " << timeout.getElapsedSeconds() << "s" << LL_ENDL;
-        }
-        for (auto& pair : mThreads)
-        {
-            pair.second.join();
-        }
-    }
-    else
-    {
-        // Something suspended window thread, can't afford to wait forever
-        // so kill thread instead
-        // Ex: This can happen if user starts dragging window arround (if it
-        // was visible) or a modal notification pops up
-        LL_WARNS("Window") << "Window is frozen, couldn't perform clean exit" << LL_ENDL;
-
-        for (auto& pair : mThreads)
-        {
-            // very unsafe
-            TerminateThread(pair.second.native_handle(), 0);
-            pair.second.detach();
-        }
-    }
     LL_DEBUGS("Window") << "thread pool shutdown complete" << LL_ENDL;
     return true;
 }

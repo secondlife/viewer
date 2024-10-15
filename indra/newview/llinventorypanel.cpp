@@ -755,10 +755,10 @@ void LLInventoryPanel::itemChanged(const LLUUID& item_id, U32 mask, const LLInve
                     {
                         updateFolderLabel(viewmodel_folder->getUUID());
                     }
-                    if (view_item->isFavorite())
-                    {
-                        parent->updateHasFavorites(false); // favorite was removed
-                    }
+                }
+                if (view_item->isFavorite())
+                {
+                    parent->updateHasFavorites(false); // favorite was removed
                 }
             }
         }

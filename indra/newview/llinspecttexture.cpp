@@ -115,7 +115,6 @@ public:
 
 protected:
     LLPointer<LLViewerFetchedTexture> m_Image;
-    S32         mImageBoostLevel = LLGLTexture::BOOST_NONE;
     std::string mLoadingText;
 };
 
@@ -128,11 +127,7 @@ LLTexturePreviewView::LLTexturePreviewView(const LLView::Params& p)
 
 LLTexturePreviewView::~LLTexturePreviewView()
 {
-    if (m_Image)
-    {
-        m_Image->setBoostLevel(mImageBoostLevel);
-        m_Image = nullptr;
-    }
+    m_Image = nullptr;
 }
 
 void LLTexturePreviewView::draw()
@@ -153,19 +148,19 @@ void LLTexturePreviewView::draw()
         bool isLoading = (!m_Image->isFullyLoaded()) && (m_Image->getDiscardLevel() > 0);
         if (isLoading)
             LLFontGL::getFontSansSerif()->renderUTF8(mLoadingText, 0, rctClient.mLeft + 3, rctClient.mTop - 25, LLColor4::white, LLFontGL::LEFT, LLFontGL::BASELINE, LLFontGL::DROP_SHADOW);
-        m_Image->addTextureStats((isLoading) ? MAX_IMAGE_AREA : (F32)(rctClient.getWidth() * rctClient.getHeight()));
+
+        m_Image->setKnownDrawSize(MAX_IMAGE_SIZE, MAX_IMAGE_SIZE);
     }
 }
 
 void LLTexturePreviewView::setImageFromAssetId(const LLUUID& idAsset)
 {
-    m_Image = LLViewerTextureManager::getFetchedTexture(idAsset, FTT_DEFAULT, MIPMAP_TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+    m_Image = LLViewerTextureManager::getFetchedTexture(idAsset, FTT_DEFAULT, MIPMAP_TRUE, LLGLTexture::BOOST_THUMBNAIL);
     if (m_Image)
     {
-        mImageBoostLevel = m_Image->getBoostLevel();
-        m_Image->setBoostLevel(LLGLTexture::BOOST_PREVIEW);
         m_Image->forceToSaveRawImage(0);
-        if ( (!m_Image->isFullyLoaded()) && (!m_Image->hasFetcher()) )
+        m_Image->setKnownDrawSize(MAX_IMAGE_SIZE, MAX_IMAGE_SIZE);
+        if ((!m_Image->isFullyLoaded()) && (!m_Image->hasFetcher()))
         {
             if (m_Image->isInFastCacheList())
             {

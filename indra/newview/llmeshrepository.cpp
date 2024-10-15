@@ -2309,8 +2309,8 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, std::vector<std::string>& 
     LLSD res;
     if (mDestinationFolderId.isNull())
     {
-    result["folder_id"] = gInventory.findUserDefinedCategoryUUIDForType(LLFolderType::FT_OBJECT);
-    result["texture_folder_id"] = gInventory.findUserDefinedCategoryUUIDForType(LLFolderType::FT_TEXTURE);
+        result["folder_id"] = gInventory.findUserDefinedCategoryUUIDForType(LLFolderType::FT_OBJECT);
+        result["texture_folder_id"] = gInventory.findUserDefinedCategoryUUIDForType(LLFolderType::FT_TEXTURE);
     }
     else
     {

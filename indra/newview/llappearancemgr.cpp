@@ -2062,7 +2062,7 @@ bool LLAppearanceMgr::canAddWearables(const uuid_vec_t& item_ids, bool warn_on_t
         {
             if (warn_on_type_mismatch)
             {
-            LL_WARNS() << "Unexpected wearable type" << LL_ENDL;
+                LL_WARNS() << "Unexpected wearable type" << LL_ENDL;
             }
             return false;
         }

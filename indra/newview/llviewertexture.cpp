@@ -2057,6 +2057,7 @@ bool LLViewerFetchedTexture::updateFetch()
             LL_PROFILE_ZONE_NAMED_CATEGORY_TEXTURE("vftuf - request created");
             mHasFetcher = true;
             mIsFetching = true;
+            mLastWorkerDiscardLevel = worker_discard;
             // in some cases createRequest can modify discard, as an example
             // bake textures are always at discard 0
             mRequestedDiscardLevel = llmin(desired_discard, worker_discard);
@@ -2652,6 +2653,8 @@ void LLViewerFetchedTexture::saveRawImage()
         return;
     }
 
+    LLImageDataSharedLock lock(mRawImage);
+
     mSavedRawDiscardLevel = mRawDiscardLevel;
     if (mBoostLevel == LLGLTexture::BOOST_ICON)
     {
@@ -2667,13 +2670,25 @@ void LLViewerFetchedTexture::saveRawImage()
             mSavedRawImage = new LLImageRaw(mRawImage->getData(), mRawImage->getWidth(), mRawImage->getHeight(), mRawImage->getComponents());
         }
     }
+    else if (mBoostLevel == LLGLTexture::BOOST_THUMBNAIL)
+    {
+        if (mRawImage->getWidth() > DEFAULT_THUMBNAIL_DIMENSIONS || mRawImage->getHeight() > DEFAULT_THUMBNAIL_DIMENSIONS)
+        {
+            mSavedRawImage = new LLImageRaw(DEFAULT_THUMBNAIL_DIMENSIONS, DEFAULT_THUMBNAIL_DIMENSIONS, mRawImage->getComponents());
+            mSavedRawImage->copyScaled(mRawImage);
+        }
+        else
+        {
+            mSavedRawImage = new LLImageRaw(mRawImage->getData(), mRawImage->getWidth(), mRawImage->getHeight(), mRawImage->getComponents());
+        }
+    }
     else if (mBoostLevel == LLGLTexture::BOOST_SCULPTED)
     {
         S32 expected_width = mKnownDrawWidth > 0 ? mKnownDrawWidth : sMaxSculptRez;
         S32 expected_height = mKnownDrawHeight > 0 ? mKnownDrawHeight : sMaxSculptRez;
         if (mRawImage->getWidth() > expected_width || mRawImage->getHeight() > expected_height)
         {
-            mSavedRawImage = new LLImageRaw(DEFAULT_THUMBNAIL_DIMENSIONS, DEFAULT_THUMBNAIL_DIMENSIONS, mRawImage->getComponents());
+            mSavedRawImage = new LLImageRaw(expected_width, expected_height, mRawImage->getComponents());
             mSavedRawImage->copyScaled(mRawImage);
         }
         else

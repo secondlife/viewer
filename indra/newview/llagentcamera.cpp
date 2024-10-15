@@ -1231,7 +1231,7 @@ void LLAgentCamera::updateCamera()
     }
 
     //NOTE - this needs to be integrated into a general upVector system here within llAgent.
-    if ( camera_mode == CAMERA_MODE_FOLLOW && mFocusOnAvatar )
+    if (camera_mode == CAMERA_MODE_FOLLOW && mFocusOnAvatar)
     {
         mCameraUpVector = mFollowCam.getUpVector();
     }

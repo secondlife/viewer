@@ -212,7 +212,7 @@ inline void LLVector2::setVec(const F32 *vec)
 
 inline F32 LLVector2::length() const
 {
-    return (F32) sqrt(lengthSquared());
+    return sqrt(lengthSquared());
 }
 
 inline F32 LLVector2::lengthSquared() const
@@ -304,7 +304,7 @@ inline LLVector2 operator-(const LLVector2& a, const LLVector2& b)
 
 inline F32 operator*(const LLVector2& a, const LLVector2& b)
 {
-    return (a.mV[VX]*b.mV[VX] + a.mV[VY]*b.mV[VY]);
+    return a.mV[VX]*b.mV[VX] + a.mV[VY]*b.mV[VY];
 }
 
 inline LLVector2 operator%(const LLVector2& a, const LLVector2& b)

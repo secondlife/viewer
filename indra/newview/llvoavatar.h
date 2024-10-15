@@ -741,7 +741,7 @@ protected:
     LLViewerTexLayerSet*  getTexLayerSet(const U32 index) const { return dynamic_cast<LLViewerTexLayerSet*>(mBakedTextureDatas[index].mTexLayerSet);    }
 
 
-    LLLoadedCallbackEntry::source_callback_list_t mCallbackTextureList ;
+    LLLoadedCallbackEntry::source_callback_list_t mCallbackTextureList;
     bool mLoadedCallbacksPaused;
     S32 mLoadedCallbackTextures; // count of 'loaded' baked textures, filled from mCallbackTextureList
     LLFrameTimer mLastTexCallbackAddedTime;

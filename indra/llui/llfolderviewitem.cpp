@@ -200,10 +200,6 @@ LLFolderViewItem::LLFolderViewItem(const LLFolderViewItem::Params& p)
     {
         mViewModelItem->setFolderViewItem(this);
     }
-    if (mViewModelItem)
-    {
-        mViewModelItem->setFolderViewItem(this);
-    }
 }
 
 // Destroys the object

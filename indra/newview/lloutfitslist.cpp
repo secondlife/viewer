@@ -1151,12 +1151,6 @@ void LLOutfitListBase::ChangeOutfitSelection(LLWearableItemsList* list, const LL
 
 bool LLOutfitListBase::postBuild()
 {
-    mGearMenu = createGearMenu();
-
-    LLMenuButton* menu_gear_btn = getChild<LLMenuButton>("options_gear_btn");
-
-    menu_gear_btn->setMouseDownCallback(boost::bind(&LLOutfitListGearMenuBase::updateItemsVisibility, mGearMenu));
-    menu_gear_btn->setMenu(mGearMenu->getMenu());
     return true;
 }
 
@@ -1515,16 +1509,8 @@ LLOutfitListGearMenu::~LLOutfitListGearMenu()
 void LLOutfitListGearMenu::onUpdateItemsVisibility()
 {
     if (!mMenu) return;
-    mMenu->setItemVisible("expand", true);
-    mMenu->setItemVisible("collapse", true);
     mMenu->setItemVisible("thumbnail", getSelectedOutfitID().notNull());
     mMenu->setItemVisible("favorite", getSelectedOutfitID().notNull());
-    mMenu->setItemVisible("inventory_settings", true);
-    mMenu->setItemVisible("inv_settings_separator", true);
-    mMenu->setItemVisible("sort_order_separator", false);
-    mMenu->setItemVisible("sort_order_by_image", false);
-    mMenu->setItemVisible("sepatator3", false);
-    mMenu->setItemVisible("sort_folders_by_name", false);
     LLOutfitListGearMenuBase::onUpdateItemsVisibility();
 }
 

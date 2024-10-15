@@ -58,12 +58,12 @@ public:
     LLFloaterObjectWeights(const LLSD& key);
     ~LLFloaterObjectWeights();
 
-    /*virtual*/ bool postBuild();
+    bool postBuild() override;
 
-    /*virtual*/ void onOpen(const LLSD& key);
+    void onOpen(const LLSD& key) override;
 
-    /*virtual*/ void onWeightsUpdate(const SelectionCost& selection_cost);
-    /*virtual*/ void setErrorStatus(S32 status, const std::string& reason);
+    void onWeightsUpdate(const SelectionCost& selection_cost) override;
+    void setErrorStatus(S32 status, const std::string& reason) override;
 
     void draw();
 

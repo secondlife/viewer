@@ -298,7 +298,7 @@ inline void LLVector4::setVec(const F32* vec)
 
 inline F32      LLVector4::length() const
 {
-    return (F32) sqrt(lengthSquared());
+    return sqrt(lengthSquared());
 }
 
 inline F32      LLVector4::lengthSquared() const
@@ -436,7 +436,7 @@ inline LLVector4 lerp(const LLVector4& a, const LLVector4& b, F32 u)
 
 inline F32      LLVector4::normalize()
 {
-    F32 mag = (F32) sqrt(mV[VX]*mV[VX] + mV[VY]*mV[VY] + mV[VZ]*mV[VZ]);
+    F32 mag = sqrt(mV[VX]*mV[VX] + mV[VY]*mV[VY] + mV[VZ]*mV[VZ]);
 
     if (mag > FP_MAG_THRESHOLD)
     {

@@ -233,7 +233,7 @@ inline void LLVector3::set(F32 x, F32 y, F32 z)
 
 inline void LLVector3::set(const LLVector3& vec)
 {
-    set(vec.mV[0], vec.mV[1], vec.mV[2]);
+    set(vec.mV[VX], vec.mV[VY], vec.mV[VZ]);
 }
 
 inline void LLVector3::set(const F32* vec)
@@ -285,10 +285,10 @@ inline F32 LLVector3::normVec()
 
 inline F32 LLVector3::length() const
 {
-    return (F32) sqrt(lengthSquared());
+    return sqrt(lengthSquared());
 }
 
-inline F32  LLVector3::lengthSquared(void) const
+inline F32 LLVector3::lengthSquared() const
 {
     return mV[VX]*mV[VX] + mV[VY]*mV[VY] + mV[VZ]*mV[VZ];
 }
@@ -412,9 +412,7 @@ inline const LLVector3& operator*=(LLVector3& a, const LLVector3& b)
 
 inline const LLVector3& operator/=(LLVector3& a, F32 k)
 {
-    a.mV[VX] /= k;
-    a.mV[VY] /= k;
-    a.mV[VZ] /= k;
+    a *= 1.f / k;
     return a;
 }
 
