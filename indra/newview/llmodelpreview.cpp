@@ -3322,7 +3322,6 @@ bool LLModelPreview::render()
             fmp->setViewOptionEnabled("show_skin_weight", show_skin_weight);
         }
     }
-    //if (this) return TRUE;
 
     if (upload_skin && !has_skin_weights)
     { //can't upload skin weights if model has no skin weights

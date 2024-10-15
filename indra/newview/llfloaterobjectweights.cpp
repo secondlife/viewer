@@ -114,7 +114,7 @@ bool LLFloaterObjectWeights::postBuild()
     mTrianglesShown = getChild<LLTextBox>("triangles_shown");
     mPixelArea = getChild<LLTextBox>("pixel_area");
 
-    return TRUE;
+    return true;
 }
 
 // virtual

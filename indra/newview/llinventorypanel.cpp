@@ -2435,7 +2435,7 @@ void LLInventoryFavoritesItemsPanel::itemChanged(const LLUUID& id, U32 mask, con
                         LLFavoritesCollector is_favorite;
                         LLInventoryModel::cat_array_t cat_array;
                         LLInventoryModel::item_array_t item_array;
-                        gInventory.collectDescendentsIf(id, cat_array, item_array, FALSE, is_favorite);
+                        gInventory.collectDescendentsIf(id, cat_array, item_array, false, is_favorite);
                         for (LLInventoryModel::cat_array_t::const_iterator it = cat_array.begin(); it != cat_array.end(); ++it)
                         {
                             removeFavorite((*it)->getUUID(), *it);
