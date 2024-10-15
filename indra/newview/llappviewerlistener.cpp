@@ -35,6 +35,7 @@
 // external library headers
 // other Linden headers
 #include "llappviewer.h"
+#include "workqueue.h"
 
 LLAppViewerListener::LLAppViewerListener(const LLAppViewerGetter& getter):
     LLEventAPI("LLAppViewer",
@@ -42,6 +43,9 @@ LLAppViewerListener::LLAppViewerListener(const LLAppViewerGetter& getter):
     mAppViewerGetter(getter)
 {
     // add() every method we want to be able to invoke via this event API.
+    add("userQuit",
+        "Ask to quit with user confirmation prompt",
+        &LLAppViewerListener::userQuit);
     add("requestQuit",
         "Ask to quit nicely",
         &LLAppViewerListener::requestQuit);
@@ -50,14 +54,26 @@ LLAppViewerListener::LLAppViewerListener(const LLAppViewerGetter& getter):
         &LLAppViewerListener::forceQuit);
 }
 
+void LLAppViewerListener::userQuit(const LLSD& event)
+{
+    LL_INFOS() << "Listener requested user quit" << LL_ENDL;
+    // Trying to engage this from (e.g.) a Lua-hosting C++ coroutine runs
+    // afoul of an assert in the logging machinery that LLMutex must be locked
+    // only from the main coroutine.
+    LL::WorkQueue::getInstance("mainloop")->post(
+        [appviewer=mAppViewerGetter()]{ appviewer->userQuit(); });
+}
+
 void LLAppViewerListener::requestQuit(const LLSD& event)
 {
     LL_INFOS() << "Listener requested quit" << LL_ENDL;
-    mAppViewerGetter()->requestQuit();
+    LL::WorkQueue::getInstance("mainloop")->post(
+        [appviewer=mAppViewerGetter()]{ appviewer->requestQuit(); });
 }
 
 void LLAppViewerListener::forceQuit(const LLSD& event)
 {
     LL_INFOS() << "Listener requested force quit" << LL_ENDL;
-    mAppViewerGetter()->forceQuit();
+    LL::WorkQueue::getInstance("mainloop")->post(
+        [appviewer=mAppViewerGetter()]{ appviewer->forceQuit(); });
 }

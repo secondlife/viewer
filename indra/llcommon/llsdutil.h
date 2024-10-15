@@ -365,15 +365,14 @@ private:
     // subject function has returned, so we must ensure that any constructed
     // LLSDParam<T> lives just as long as this LLSDParam<LLSD> does. Putting
     // each LLSDParam<T> on the heap and capturing a smart pointer in a vector
-    // works. We would have liked to use std::unique_ptr, but vector entries
-    // must be copyable.
+    // works.
     // (Alternatively we could assume that every instance of LLSDParam<LLSD>
     // will be asked for at most ONE conversion. We could store a scalar
     // std::unique_ptr and, when constructing an new LLSDParam<T>, assert that
     // the unique_ptr is empty. But some future change in usage patterns, and
     // consequent failure of that assertion, would be very mysterious. Instead
     // of explaining how to fix it, just fix it now.)
-    mutable std::vector<std::shared_ptr<LLSDParamBase>> converters_;
+    mutable std::vector<std::unique_ptr<LLSDParamBase>> converters_;
 
 public:
     LLSDParam(const LLSD& value): value_(value) {}
@@ -389,9 +388,9 @@ public:
     {
         // capture 'ptr' with the specific subclass type because converters_
         // only stores LLSDParamBase pointers
-        auto ptr{ std::make_shared<LLSDParam<std::decay_t<T>>>(value_) };
+        auto ptr{ new LLSDParam<std::decay_t<T>>(value_) };
         // keep the new converter alive until we ourselves are destroyed
-        converters_.push_back(ptr);
+        converters_.emplace_back(ptr);
         return *ptr;
     }
 };
@@ -474,12 +473,12 @@ public:
     }
 };
 
-namespace llsd
-{
-
 /*****************************************************************************
 *   range-based for-loop helpers for LLSD
 *****************************************************************************/
+namespace llsd
+{
+
 /// Usage: for (LLSD item : inArray(someLLSDarray)) { ... }
 class inArray
 {
@@ -525,7 +524,70 @@ private:
 
 } // namespace llsd
 
+/*****************************************************************************
+*   LLSDParam<std::vector<T>>
+*****************************************************************************/
+// Given an LLSD array, return a const std::vector<T>&, where T is a type
+// supported by LLSDParam. Bonus: if the LLSD value is actually a scalar,
+// return a single-element vector containing the converted value.
+template <typename T>
+class LLSDParam<std::vector<T>>: public LLSDParamBase
+{
+public:
+    LLSDParam(const LLSD& array)
+    {
+        // treat undefined "array" as empty vector
+        if (array.isDefined())
+        {
+            // what if it's a scalar?
+            if (! array.isArray())
+            {
+                v.push_back(LLSDParam<T>(array));
+            }
+            else                        // really is an array
+            {
+                // reserve space for the array entries
+                v.reserve(array.size());
+                for (const auto& item : llsd::inArray(array))
+                {
+                    v.push_back(LLSDParam<T>(item));
+                }
+            }
+        }
+    }
 
+    operator const std::vector<T>&() const { return v; }
+
+private:
+    std::vector<T> v;
+};
+
+/*****************************************************************************
+*   LLSDParam<std::map<std::string, T>>
+*****************************************************************************/
+// Given an LLSD map, return a const std::map<std::string, T>&, where T is a
+// type supported by LLSDParam.
+template <typename T>
+class LLSDParam<std::map<std::string, T>>: public LLSDParamBase
+{
+public:
+    LLSDParam(const LLSD& map)
+    {
+        for (const auto& pair : llsd::inMap(map))
+        {
+            m[pair.first] = LLSDParam<T>(pair.second);
+        }
+    }
+
+    operator const std::map<std::string, T>&() const { return m; }
+
+private:
+    std::map<std::string, T> m;
+};
+
+/*****************************************************************************
+*   deep and shallow clone
+*****************************************************************************/
 // Creates a deep clone of an LLSD object.  Maps, Arrays and binary objects
 // are duplicated, atomic primitives (Boolean, Integer, Real, etc) simply
 // use a shared reference.
@@ -553,6 +615,60 @@ LLSD shallow(LLSD value, LLSD filter=LLSD()) { return llsd_shallow(value, filter
 
 } // namespace llsd
 
+/*****************************************************************************
+*   toArray(), toMap()
+*****************************************************************************/
+namespace llsd
+{
+
+// For some T convertible to LLSD, given std::vector<T> myVec,
+// toArray(myVec) returns an LLSD array whose entries correspond to the
+// items in myVec.
+// For some U convertible to LLSD, given function U xform(const T&),
+// toArray(myVec, xform) returns an LLSD array whose every entry is
+// xform(item) of the corresponding item in myVec.
+// toArray() actually works with any container<C> usable with range
+// 'for', not just std::vector.
+// (Once we get C++20 we can use std::identity instead of this default lambda.)
+template <typename C, typename FUNC>
+LLSD toArray(const C& container, FUNC&& func=[](const auto& arg){ return arg; })
+{
+    LLSD array;
+    for (const auto& item : container)
+    {
+        array.append(std::forward<FUNC>(func)(item));
+    }
+    return array;
+}
+
+// For some T convertible to LLSD, given std::map<std::string, T> myMap,
+// toMap(myMap) returns an LLSD map whose entries correspond to the
+// (key, value) pairs in myMap.
+// For some U convertible to LLSD, given function
+// std::pair<std::string, U> xform(const std::pair<std::string, T>&),
+// toMap(myMap, xform) returns an LLSD map whose every entry is
+// xform(pair) of the corresponding (key, value) pair in myMap.
+// toMap() actually works with any container usable with range 'for', not
+// just std::map. It need not even be an associative container, as long as
+// you pass an xform function that returns std::pair<std::string, U>.
+// (Once we get C++20 we can use std::identity instead of this default lambda.)
+template <typename C, typename FUNC>
+LLSD toMap(const C& container, FUNC&& func=[](const auto& arg){ return arg; })
+{
+    LLSD map;
+    for (const auto& pair : container)
+    {
+        const auto& [key, value] = std::forward<FUNC>(func)(pair);
+        map[key] = value;
+    }
+    return map;
+}
+
+} // namespace llsd
+
+/*****************************************************************************
+*   boost::hash<LLSD>
+*****************************************************************************/
 // Specialization for generating a hash value from an LLSD block.
 namespace boost
 {

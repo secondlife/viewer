@@ -128,7 +128,7 @@ LLNetMap::~LLNetMap()
 
 bool LLNetMap::postBuild()
 {
-    LLUICtrl::CommitCallbackRegistry::ScopedRegistrar commitRegistrar;
+    LLUICtrl::ScopedRegistrarHelper commitRegistrar;
     LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enableRegistrar;
 
     enableRegistrar.add("Minimap.Zoom.Check", boost::bind(&LLNetMap::isZoomChecked, this, _2));
@@ -298,15 +298,22 @@ void LLNetMap::draw()
 
             // Draw using texture.
             gGL.getTexUnit(0)->bind(regionp->getLand().getSTexture());
-            gGL.begin(LLRender::QUADS);
+            gGL.begin(LLRender::TRIANGLES);
+            {
                 gGL.texCoord2f(0.f, 1.f);
                 gGL.vertex2f(left, top);
                 gGL.texCoord2f(0.f, 0.f);
                 gGL.vertex2f(left, bottom);
                 gGL.texCoord2f(1.f, 0.f);
                 gGL.vertex2f(right, bottom);
+
+                gGL.texCoord2f(0.f, 1.f);
+                gGL.vertex2f(left, top);
+                gGL.texCoord2f(1.f, 0.f);
+                gGL.vertex2f(right, bottom);
                 gGL.texCoord2f(1.f, 1.f);
                 gGL.vertex2f(right, top);
+            }
             gGL.end();
 
             gGL.flush();
@@ -347,15 +354,22 @@ void LLNetMap::draw()
         F32 image_half_width = 0.5f*mObjectMapPixels;
         F32 image_half_height = 0.5f*mObjectMapPixels;
 
-        gGL.begin(LLRender::QUADS);
+        gGL.begin(LLRender::TRIANGLES);
+        {
             gGL.texCoord2f(0.f, 1.f);
             gGL.vertex2f(map_center_agent.mV[VX] - image_half_width, image_half_height + map_center_agent.mV[VY]);
             gGL.texCoord2f(0.f, 0.f);
             gGL.vertex2f(map_center_agent.mV[VX] - image_half_width, map_center_agent.mV[VY] - image_half_height);
             gGL.texCoord2f(1.f, 0.f);
             gGL.vertex2f(image_half_width + map_center_agent.mV[VX], map_center_agent.mV[VY] - image_half_height);
+
+            gGL.texCoord2f(0.f, 1.f);
+            gGL.vertex2f(map_center_agent.mV[VX] - image_half_width, image_half_height + map_center_agent.mV[VY]);
+            gGL.texCoord2f(1.f, 0.f);
+            gGL.vertex2f(image_half_width + map_center_agent.mV[VX], map_center_agent.mV[VY] - image_half_height);
             gGL.texCoord2f(1.f, 1.f);
             gGL.vertex2f(image_half_width + map_center_agent.mV[VX], image_half_height + map_center_agent.mV[VY]);
+        }
         gGL.end();
 
         for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin();

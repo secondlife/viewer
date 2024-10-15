@@ -40,6 +40,8 @@ public:
 
 private:
     void onClickConnect(const LLSD&) const;
+    void login(const LLSD&) const;
+    LLSD savedLogins(const LLSD&) const;
 
     LLPanelLogin* mPanel;
 };

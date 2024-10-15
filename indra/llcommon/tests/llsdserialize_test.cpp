@@ -44,19 +44,17 @@ typedef U32 uint32_t;
 #include "llstring.h"
 #endif
 
-#include "boost/range.hpp"
-
 #include "llsd.h"
 #include "llsdserialize.h"
 #include "llsdutil.h"
 #include "llformat.h"
 #include "llmemorystream.h"
 
-#include "../test/hexdump.h"
+#include "hexdump.h"
+#include "StringVec.h"
 #include "../test/lltut.h"
 #include "../test/namedtempfile.h"
 #include "stringize.h"
-#include "StringVec.h"
 #include <functional>
 
 typedef std::function<void(const LLSD& data, std::ostream& str)> FormatterFunction;
@@ -1921,12 +1919,12 @@ namespace tut
             int bufflen{ static_cast<int>(buffstr.length()) };
             out.write(reinterpret_cast<const char*>(&bufflen), sizeof(bufflen));
             LL_DEBUGS() << "Wrote length: "
-                        << hexdump(reinterpret_cast<const char*>(&bufflen),
-                                   sizeof(bufflen))
+                        << LL::hexdump(reinterpret_cast<const char*>(&bufflen),
+                                       sizeof(bufflen))
                         << LL_ENDL;
             out.write(buffstr.c_str(), buffstr.length());
             LL_DEBUGS() << "Wrote data:   "
-                        << hexmix(buffstr.c_str(), buffstr.length())
+                        << LL::hexmix(buffstr.c_str(), buffstr.length())
                         << LL_ENDL;
         }
     }
@@ -2097,7 +2095,8 @@ namespace tut
         NamedTempFile file("llsd", "");
 
         python("Python " + pyformatter,
-               [&](std::ostream& out){ out <<
+               [pyformatter, &file](std::ostream& out) {
+               out <<
                import_llsd <<
                "import struct\n"
                "lenformat = struct.Struct('i')\n"

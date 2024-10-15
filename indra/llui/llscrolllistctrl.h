@@ -165,7 +165,6 @@ public:
     void            deleteAllItems() { clearRows(); }
 
     // Sets an array of column descriptors
-    void            setColumnHeadings(const LLSD& headings);
     void            sortByColumnIndex(U32 column, bool ascending);
 
     // LLCtrlListInterface functions
@@ -291,6 +290,7 @@ public:
     // iterate over all items
     LLScrollListItem*   getFirstData() const;
     LLScrollListItem*   getLastData() const;
+    LLScrollListItem*   getNthData(size_t index) const;
     std::vector<LLScrollListItem*>  getAllData() const;
 
     LLScrollListItem*   getItem(const LLSD& sd) const;
@@ -318,7 +318,7 @@ public:
     void setAllowKeyboardMovement(bool b)       { mAllowKeyboardMovement = b; }
 
     void            setMaxSelectable(U32 max_selected) { mMaxSelectable = max_selected; }
-    S32             getMaxSelectable() { return mMaxSelectable; }
+    S32             getMaxSelectable() const { return mMaxSelectable; }
 
 
     virtual S32     getScrollPos() const;
@@ -334,7 +334,7 @@ public:
     // support right-click context menus for avatar/group lists
     enum ContextMenuType { MENU_NONE, MENU_AVATAR, MENU_GROUP };
     void setContextMenu(const ContextMenuType &menu) { mContextMenuType = menu; }
-    ContextMenuType getContextMenuType() { return mContextMenuType; }
+    ContextMenuType getContextMenuType() const { return mContextMenuType; }
 
     // Overridden from LLView
     /*virtual*/ void    draw();
@@ -362,7 +362,6 @@ public:
     virtual void    fitContents(S32 max_width, S32 max_height);
 
     virtual LLRect  getRequiredRect();
-    static  bool    rowPreceeds(LLScrollListItem *new_row, LLScrollListItem *test_row);
 
     LLRect          getItemListRect() { return mItemListRect; }
 
@@ -384,7 +383,6 @@ public:
      * then display all items.
      */
     void setPageLines(S32 page_lines );
-    void setCollapseEmptyColumns(bool collapse);
 
     LLScrollListItem*   hitItem(S32 x,S32 y);
     virtual void        scrollToShowSelected();
@@ -401,7 +399,7 @@ public:
 
     void            setNumDynamicColumns(S32 num) { mNumDynamicWidthColumns = num; }
     void            updateStaticColumnWidth(LLScrollListColumn* col, S32 new_width);
-    S32             getTotalStaticColumnWidth() { return mTotalStaticColumnWidth; }
+    S32             getTotalStaticColumnWidth() const { return mTotalStaticColumnWidth; }
 
     std::string     getSortColumnName();
     bool            getSortAscending() { return mSortColumns.empty() ? true : mSortColumns.back().second; }

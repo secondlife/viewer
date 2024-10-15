@@ -49,6 +49,7 @@ set(llui_SOURCE_FILES
     lllineeditor.cpp
     llloadingindicator.cpp
     lllocalcliprect.cpp
+    llluafloater.cpp
     llmenubutton.cpp
     llmenugl.cpp
     llmodaldialog.cpp
@@ -164,6 +165,7 @@ set(llui_HEADER_FILES
     lllineeditor.h
     llloadingindicator.h
     lllocalcliprect.h
+    llluafloater.h
     llmenubutton.h
     llmenugl.h
     llmodaldialog.h
@@ -268,12 +270,13 @@ target_link_libraries(llui
         llmath
         ll::hunspell
         llcommon
+        ll::SDL2
     )
 
 # Add tests
 if(LL_TESTS)
   include(LLAddBuildTest)
-  set(test_libs llmessage llcorehttp llxml llrender llcommon ll::hunspell)
+  set(test_libs llmessage llcorehttp llxml llrender llcommon ll::hunspell ll::SDL2)
 
   SET(llui_TEST_SOURCE_FILES
       llurlmatch.cpp
@@ -283,7 +286,7 @@ if(LL_TESTS)
   # INTEGRATION TESTS
 
   if(NOT LINUX)
-    set(test_libs llui llmessage llcorehttp llxml llrender llcommon ll::hunspell )
+      set(test_libs llui llmessage llcorehttp llxml llrender llcommon ll::hunspell ll::SDL2)
     LL_ADD_INTEGRATION_TEST(llurlentry llurlentry.cpp "${test_libs}")
   endif(NOT LINUX)
 endif(LL_TESTS)

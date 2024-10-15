@@ -47,18 +47,18 @@ class LLPanelSnapshotLocal
 
 public:
     LLPanelSnapshotLocal();
-    /*virtual*/ bool postBuild();
-    /*virtual*/ void onOpen(const LLSD& key);
+    bool postBuild() override;
+    void onOpen(const LLSD& key) override;
 
 private:
-    /*virtual*/ std::string getWidthSpinnerName() const     { return "local_snapshot_width"; }
-    /*virtual*/ std::string getHeightSpinnerName() const    { return "local_snapshot_height"; }
-    /*virtual*/ std::string getAspectRatioCBName() const    { return "local_keep_aspect_check"; }
-    /*virtual*/ std::string getImageSizeComboName() const   { return "local_size_combo"; }
-    /*virtual*/ std::string getImageSizePanelName() const   { return "local_image_size_lp"; }
-    /*virtual*/ LLSnapshotModel::ESnapshotFormat getImageFormat() const;
-    /*virtual*/ LLSnapshotModel::ESnapshotType getSnapshotType();
-    /*virtual*/ void updateControls(const LLSD& info);
+    std::string getWidthSpinnerName() const  override  { return "local_snapshot_width"; }
+    std::string getHeightSpinnerName() const override  { return "local_snapshot_height"; }
+    std::string getAspectRatioCBName() const override  { return "local_keep_aspect_check"; }
+    std::string getImageSizeComboName() const override { return "local_size_combo"; }
+    std::string getImageSizePanelName() const override { return "local_image_size_lp"; }
+    LLSnapshotModel::ESnapshotFormat getImageFormat() const override;
+    LLSnapshotModel::ESnapshotType getSnapshotType() override;
+    void updateControls(const LLSD& info) override;
 
     S32 mLocalFormat;
 
@@ -75,7 +75,7 @@ static LLPanelInjector<LLPanelSnapshotLocal> panel_class("llpanelsnapshotlocal")
 LLPanelSnapshotLocal::LLPanelSnapshotLocal()
 {
     mLocalFormat = gSavedSettings.getS32("SnapshotFormat");
-    mCommitCallbackRegistrar.add("Local.Cancel",    boost::bind(&LLPanelSnapshotLocal::cancel,      this));
+    mCommitCallbackRegistrar.add("Local.Cancel",   { boost::bind(&LLPanelSnapshotLocal::cancel, this) });
 }
 
 // virtual

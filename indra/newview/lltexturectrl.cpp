@@ -185,7 +185,8 @@ LLFloaterTexturePicker::LLFloaterTexturePicker(
     mSetImageAssetIDCallback(NULL),
     mOnUpdateImageStatsCallback(NULL),
     mBakeTextureEnabled(false),
-    mInventoryPickType(pick_type)
+    mInventoryPickType(pick_type),
+    mSelectionSource(PICKER_UNKNOWN)
 {
     mCanApplyImmediately = can_apply_immediately;
     buildFromFile("floater_texture_ctrl.xml");
@@ -203,6 +204,7 @@ void LLFloaterTexturePicker::setImageID(const LLUUID& image_id, bool set_selecti
         mNoCopyTextureSelected = false;
         mViewModel->setDirty(); // *TODO: shouldn't we be using setValue() here?
         mImageAssetID = image_id;
+        mSelectionSource = PICKER_UNKNOWN;
 
         if (LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::isBakedImageId(mImageAssetID))
         {
@@ -211,6 +213,7 @@ void LLFloaterTexturePicker::setImageID(const LLUUID& image_id, bool set_selecti
                 mModeSelector->selectByValue(2);
                 onModeSelect(0,this);
             }
+            mSelectionSource = PICKER_BAKE;
         }
         else
         {
@@ -257,6 +260,7 @@ void LLFloaterTexturePicker::setImageID(const LLUUID& image_id, bool set_selecti
                     getChild<LLUICtrl>("apply_immediate_check")->setValue(false);
                     mNoCopyTextureSelected = true;
                 }
+                mSelectionSource = PICKER_INVENTORY;
             }
 
             if (set_selection)
@@ -276,6 +280,7 @@ void LLFloaterTexturePicker::setImageIDFromItem(const LLInventoryItem* itemp, bo
         asset_id = BLANK_MATERIAL_ASSET_ID;
     }
     setImageID(asset_id, set_selection);
+    mSelectionSource = PICKER_INVENTORY;
 }
 
 void LLFloaterTexturePicker::setActive( bool active )
@@ -890,10 +895,15 @@ void LLFloaterTexturePicker::commitCallback(LLTextureCtrl::ETexturePickOp op)
     {
         return;
     }
+
     LLUUID asset_id = mImageAssetID;
     LLUUID inventory_id;
     LLUUID tracking_id;
-    LLPickerSource mode = (LLPickerSource)mModeSelector->getValue().asInteger();
+    LLPickerSource mode = mSelectionSource;
+    if (mode == PICKER_UNKNOWN)
+    {
+        mode = (LLPickerSource)mModeSelector->getValue().asInteger();
+    }
 
     switch (mode)
     {
@@ -919,11 +929,13 @@ void LLFloaterTexturePicker::commitCallback(LLTextureCtrl::ETexturePickOp op)
                     }
                     else
                     {
+                        // Item's asset id changed?
                         mode = PICKER_UNKNOWN; // source of id unknown
                     }
                 }
                 else
                 {
+                    // Item could have been removed from inventory
                     mode = PICKER_UNKNOWN; // source of id unknown
                 }
                 break;
@@ -947,6 +959,7 @@ void LLFloaterTexturePicker::commitCallback(LLTextureCtrl::ETexturePickOp op)
                 }
                 else
                 {
+                    // List could have been emptied, with local image still selected
                     asset_id = mImageAssetID;
                     mode = PICKER_UNKNOWN; // source of id unknown
                 }
@@ -1000,18 +1013,6 @@ void LLFloaterTexturePicker::onBtnNone(void* userdata)
     self->commitIfImmediateSet();
 }
 
-/*
-// static
-void LLFloaterTexturePicker::onBtnRevert(void* userdata)
-{
-    LLFloaterTexturePicker* self = (LLFloaterTexturePicker*) userdata;
-    self->setImageID( self->mOriginalImageAssetID );
-    // TODO: Change this to tell the owner to cancel.  It needs to be
-    // smart enough to restore multi-texture selections.
-    self->mOwner->onFloaterCommit();
-    self->mViewModel->resetDirty();
-}*/
-
 // static
 void LLFloaterTexturePicker::onBtnCancel(void* userdata)
 {
@@ -1029,8 +1030,11 @@ void LLFloaterTexturePicker::onBtnCancel(void* userdata)
 void LLFloaterTexturePicker::onBtnSelect(void* userdata)
 {
     LLFloaterTexturePicker* self = (LLFloaterTexturePicker*) userdata;
-    if (self->mOnFloaterCommitCallback)
+    if (self->mViewModel->isDirty() && self->mOnFloaterCommitCallback)
     {
+        // If nothing changed, don't commit.
+        // ex: can overwrite multiple original textures with a single one.
+        // or resubmit something thus overriding some other source of change
         self->commitCallback(LLTextureCtrl::TEXTURE_SELECT);
     }
     self->closeFloater();
@@ -1067,8 +1071,18 @@ void LLFloaterTexturePicker::onSelectionChange(const std::deque<LLFolderViewItem
             {
                 mNoCopyTextureSelected = true;
             }
+            bool was_dirty = mViewModel->isDirty();
             setImageIDFromItem(itemp, false);
-            mViewModel->setDirty(); // *TODO: shouldn't we be using setValue() here?
+            if (user_action)
+            {
+                mViewModel->setDirty(); // *TODO: shouldn't we be using setValue() here?
+                setTentative( false );
+            }
+            else if (!was_dirty)
+            {
+                // setImageIDFromItem could have dropped the flag
+                mViewModel->resetDirty();
+            }
 
             if(!mPreviewSettingChanged)
             {
@@ -1215,6 +1229,8 @@ void LLFloaterTexturePicker::onLocalScrollCommit(LLUICtrl* ctrl, void* userdata)
             inworld_id = LLLocalBitmapMgr::getInstance()->getWorldID(tracking_id);
         }
 
+        self->mSelectionSource = PICKER_LOCAL;
+
         if (self->mSetImageAssetIDCallback)
         {
             self->mSetImageAssetIDCallback(inworld_id);
@@ -1312,6 +1328,7 @@ void LLFloaterTexturePicker::onBakeTextureSelect(LLUICtrl* ctrl, void *user_data
         // only commit intentional selections, not implicit ones
         self->commitIfImmediateSet();
     }
+    self->mSelectionSource = PICKER_BAKE;
 }
 
 void LLFloaterTexturePicker::setCanApply(bool can_preview, bool can_apply, bool inworld_image)
@@ -1627,6 +1644,7 @@ void LLFloaterTexturePicker::onTextureSelect( const LLTextureEntry& te )
             // no copy texture
             mNoCopyTextureSelected = true;
         }
+        mSelectionSource = PICKER_INVENTORY;
 
         commitIfImmediateSet();
     }

@@ -39,9 +39,6 @@ uniform sampler2D lightMap;
 
 uniform sampler2D     lightFunc;
 
-uniform float blur_size;
-uniform float blur_fidelity;
-
 #if defined(HAS_SSAO)
 uniform float ssao_irradiance_scale;
 uniform float ssao_irradiance_max;

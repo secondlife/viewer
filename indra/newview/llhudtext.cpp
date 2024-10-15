@@ -185,6 +185,15 @@ void LLHUDText::renderText()
     LLVector3 render_position = mPositionAgent
             + (x_pixel_vec * screen_offset.mV[VX])
             + (y_pixel_vec * screen_offset.mV[VY]);
+    bool reset_buffers = false;
+    const F32 treshold = 0.000001f;
+    if (abs(mLastRenderPosition.mV[VX] - render_position.mV[VX]) > treshold
+        || abs(mLastRenderPosition.mV[VY] - render_position.mV[VY]) > treshold
+        || abs(mLastRenderPosition.mV[VZ] - render_position.mV[VZ]) > treshold)
+    {
+        reset_buffers = true;
+        mLastRenderPosition = render_position;
+    }
 
     F32 y_offset = (F32)mOffsetY;
 
@@ -208,6 +217,11 @@ void LLHUDText::renderText()
         for (std::vector<LLHUDTextSegment>::iterator segment_iter = mTextSegments.begin() + start_segment;
              segment_iter != mTextSegments.end(); ++segment_iter )
         {
+            if (reset_buffers)
+            {
+                segment_iter->mFontBufferText.reset();
+            }
+
             const LLFontGL* fontp = segment_iter->mFont;
             y_offset -= fontp->getLineHeight() - 1; // correction factor to match legacy font metrics
 
@@ -231,7 +245,7 @@ void LLHUDText::renderText()
             }
             text_color.mV[VALPHA] *= alpha_factor;
 
-            hud_render_text(segment_iter->getText(), render_position, &mFontBuffer, *fontp, style, shadow, x_offset, y_offset, text_color, mOnHUDAttachment);
+            hud_render_text(segment_iter->getText(), render_position, &segment_iter->mFontBufferText, *fontp, style, shadow, x_offset, y_offset, text_color, mOnHUDAttachment);
         }
     }
     /// Reset the default color to white.  The renderer expects this to be the default.

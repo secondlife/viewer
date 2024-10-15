@@ -28,8 +28,7 @@
 #define LL_LLDEFERREDSOUNDS_H
 
 #include "llsingleton.h"
-
-struct SoundData;
+#include "llaudioengine.h"
 
 class LLDeferredSounds : public LLSingleton<LLDeferredSounds>
 {

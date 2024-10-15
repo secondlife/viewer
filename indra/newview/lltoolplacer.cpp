@@ -164,13 +164,17 @@ bool LLToolPlacer::addObject( LLPCode pcode, S32 x, S32 y, U8 use_physics )
     bool b_hit_land = false;
     S32 hit_face = -1;
     LLViewerObject* hit_obj = NULL;
-    U8 state = 0;
     bool success = raycastForNewObjPos( x, y, &hit_obj, &hit_face, &b_hit_land, &ray_start_region, &ray_end_region, &regionp );
     if( !success )
     {
         return false;
     }
+    return rezNewObject(pcode,hit_obj, hit_face, b_hit_land, ray_start_region, ray_end_region, regionp, use_physics);
+}
 
+bool LLToolPlacer::rezNewObject(LLPCode pcode, LLViewerObject * hit_obj, S32 hit_face, bool b_hit_land, LLVector3 ray_start_region,
+    LLVector3 ray_end_region, LLViewerRegion* regionp, U8 use_physics)
+{
     if( hit_obj && (hit_obj->isAvatar() || hit_obj->isAttachment()) )
     {
         // Can't create objects on avatars or attachments
@@ -194,6 +198,8 @@ bool LLToolPlacer::addObject( LLPCode pcode, S32 x, S32 y, U8 use_physics )
     U8              material = LL_MCODE_WOOD;
     bool            create_selected = false;
     LLVolumeParams  volume_params;
+
+    U8 state = 0;
 
     switch (pcode)
     {

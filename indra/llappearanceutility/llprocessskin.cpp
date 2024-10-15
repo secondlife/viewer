@@ -84,7 +84,7 @@ void LLProcessSkin::process(std::ostream& output)
                 {
                     for (U32 k = 0; k < 4; k++)
                     {
-                        mat.mMatrix[j][k] = (*iter)[j*4+k].asReal();
+                        mat.mMatrix[j][k] = static_cast<F32>((*iter)[j*4+k].asReal());
                     }
                 }
                 joint_offsets.append( ll_sd_from_vector3( mat.getTranslation() ));

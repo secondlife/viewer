@@ -2454,6 +2454,10 @@ Se sei un membro Premium, [[PREMIUM_URL] fai clic qui] per ricevere in regalo la
 [[URL] Fai clic qui] per rinnovare l'abbonamento. 
 
 Se sei un membro Premium, [[PREMIUM_URL] fai clic qui] per ricevere in regalo la manipolazione vocale.</notification>
+	<notification name="VoiceEffectsWillExpire">Almeno una delle tue manipolazioni vocali scadrà tra meno di [INTERVAL] giorni. 
+[[URL] Fai clic qui] per rinnovare l'abbonamento. 
+
+Se sei un membro Premium, [[PREMIUM_URL] fai clic qui] per ricevere in regalo la manipolazione vocale.</notification>
 	<notification name="VoiceEffectsNew">Sono disponibili nuove manipolazioni vocali.</notification>
 	<notification name="Cannot enter parcel: not a group member">Soltanto i membri di un determinato gruppo possono visitare questa zona.</notification>
 	<notification name="Cannot enter parcel: banned">Non puoi entrare nel terreno, sei stato bloccato.</notification>

@@ -56,12 +56,12 @@ LLFloaterBulkPermission::LLFloaterBulkPermission(const LLSD& seed)
     mDone(false)
 {
     mID.generate();
-    mCommitCallbackRegistrar.add("BulkPermission.Ok",       boost::bind(&LLFloaterBulkPermission::onOkBtn, this));
-    mCommitCallbackRegistrar.add("BulkPermission.Apply",    boost::bind(&LLFloaterBulkPermission::onApplyBtn, this));
-    mCommitCallbackRegistrar.add("BulkPermission.Close",    boost::bind(&LLFloaterBulkPermission::onCloseBtn, this));
-    mCommitCallbackRegistrar.add("BulkPermission.CheckAll", boost::bind(&LLFloaterBulkPermission::onCheckAll, this));
-    mCommitCallbackRegistrar.add("BulkPermission.UncheckAll",   boost::bind(&LLFloaterBulkPermission::onUncheckAll, this));
-    mCommitCallbackRegistrar.add("BulkPermission.CommitCopy",   boost::bind(&LLFloaterBulkPermission::onCommitCopy, this));
+    mCommitCallbackRegistrar.add("BulkPermission.Ok",       { boost::bind(&LLFloaterBulkPermission::onOkBtn, this) });
+    mCommitCallbackRegistrar.add("BulkPermission.Apply",    { boost::bind(&LLFloaterBulkPermission::onApplyBtn, this) });
+    mCommitCallbackRegistrar.add("BulkPermission.Close",    { boost::bind(&LLFloaterBulkPermission::onCloseBtn, this) });
+    mCommitCallbackRegistrar.add("BulkPermission.CheckAll", { boost::bind(&LLFloaterBulkPermission::onCheckAll, this) });
+    mCommitCallbackRegistrar.add("BulkPermission.UncheckAll",   { boost::bind(&LLFloaterBulkPermission::onUncheckAll, this) });
+    mCommitCallbackRegistrar.add("BulkPermission.CommitCopy",   { boost::bind(&LLFloaterBulkPermission::onCommitCopy, this) });
 }
 
 bool LLFloaterBulkPermission::postBuild()

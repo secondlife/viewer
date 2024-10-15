@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+
+exe="$1"
+
+if [[ -z "$exe" ]]
+then
+    # this script lives in scripts/perf
+    base="$(dirname "$0")/../.."
+    case $OSTYPE in
+        darwin*)
+            # Don't assume a build type (e.g. RelWithDebInfo). Collect all of
+            # both, and pick the most recent build.
+            exe="$(ls -t "$base"/build-darwin-x86_64/newview/*/"Second Life"*.app/Contents/MacOS/"Second Life"* | head -1)"
+            ;;
+
+        cygwin)
+            exe="$(ls -t "$base"/build-*/newview/*/secondlife-bin.exe | head -1)"
+            ;;
+
+        linux-gnu)
+            exe="$(ls -t "$base"/build-linux-*/newview/packaged/secondlife | head -1)"
+            ;;
+
+        *)
+            stderr "Unknown platform $OSTYPE"
+            exit 1
+            ;;
+    esac
+fi
+
+if [ -z "$exe" ]
+then stderr "No viewer package build found"
+     exit 1
+fi
+
+# If a Mac user specified the .app bundle itself, dig in for the executable.
+if [[ "$OSTYPE" == darwin* && -d "$exe" && "$exe" == *.app ]]
+then
+    exe="$(ls "$exe/Contents/MacOS/Second Life "*)"
+fi
+
+"$exe" --autologin --luafile 'frame_profile_quit.lua 228 232 26' \
+     http://maps.secondlife.com/secondlife/Bug%20Island/220/224/27

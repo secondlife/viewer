@@ -17,7 +17,7 @@ Given the constraints with GitHub runners, we instead utilize Behavior-Driven De
 
 1. **Baking Textures**:
     ```sh
-    appearance-utility-bin --agent-id de494a4f-f01a-47a4-98cf-c94ef9ecca38 --texture /viewer/indra/llappearanceutility/tests/texture.llsd > /viewer/indra/llappearanceutility/tests/texture.llsd.output
+    appearance-utility-bin --agent-id de494a4f-f01a-47a4-98cf-c94ef9ecca38 --texture /viewer/indra/llappearanceutility/tests/texture.llsd.binary > /viewer/indra/llappearanceutility/tests/texture.llsd.output
     ```
 
 2. **Generating Bake Parameters**:

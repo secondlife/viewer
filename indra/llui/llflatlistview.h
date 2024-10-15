@@ -129,7 +129,7 @@ public:
     LLRect getRequiredRect() { return getItemsRect(); }
 
     /** Returns distance between items */
-    const S32 getItemsPad() { return mItemPad; }
+    const S32 getItemsPad() const { return mItemPad; }
 
     /**
      * Adds and item and LLSD value associated with it to the list at specified position
@@ -264,7 +264,7 @@ public:
     void setCommitOnSelectionChange(bool b)     { mCommitOnSelectionChange = b; }
 
     /** Get number of selected items in the list */
-    U32 numSelected() const {return static_cast<U32>(mSelectedItemPairs.size()); }
+    U32 numSelected() const { return static_cast<U32>(mSelectedItemPairs.size()); }
 
     /** Get number of (visible) items in the list */
     U32 size(const bool only_visible_items = true) const;
@@ -294,8 +294,8 @@ public:
 
     void scrollToShowFirstSelectedItem();
 
-    void selectFirstItem    ();
-    void selectLastItem     ();
+    void selectFirstItem();
+    void selectLastItem();
 
     virtual S32 notify(const LLSD& info) ;
 
@@ -478,7 +478,7 @@ public:
     void setNoItemsMsg(const std::string& msg) { mNoItemsMsg = msg; }
     void setNoFilteredItemsMsg(const std::string& msg) { mNoFilteredItemsMsg = msg; }
 
-    bool getForceShowingUnmatchedItems();
+    bool getForceShowingUnmatchedItems() const;
 
     void setForceShowingUnmatchedItems(bool show);
 
@@ -486,7 +486,7 @@ public:
      * Sets up new filter string and filters the list.
      */
     void setFilterSubString(const std::string& filter_str, bool notify_parent);
-    std::string getFilterSubString() { return mFilterSubString; }
+    std::string getFilterSubString() const { return mFilterSubString; }
 
     /**
      * Filters the list, rearranges and notifies parent about shape changes.

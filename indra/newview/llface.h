@@ -234,7 +234,13 @@ public:
     // return true if this face is in an alpha draw pool
     bool isInAlphaPool() const;
 public: //aligned members
+
+    // bounding box of face in drawable space
     LLVector4a      mExtents[2];
+
+    // cached bounding box of rigged face in world space
+    // calculated on-demand by LLFace::calcPixelArea and may not be up-to-date
+    LLVector4a  mRiggedExtents[2] = { LLVector4a(0,0,0), LLVector4a(0,0,0) };
 
 private:
     friend class LLViewerTextureList;
@@ -301,7 +307,14 @@ private:
     S32         mReferenceIndex;
     std::vector<S32> mRiggedIndex;
 
+    // gFrameTimeSeconds when mPixelArea was last updated
+    F32         mLastPixelAreaUpdate = 0.f;
+
+    // virtual size of face in texture area  (mPixelArea adjusted by texture repeats)
+    // used to determine desired resolution of texture
     F32         mVSize;
+
+    // pixel area face covers on screen
     F32         mPixelArea;
 
     //importance factor, in the range [0, 1.0].

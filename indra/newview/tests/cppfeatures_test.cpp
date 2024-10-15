@@ -283,7 +283,7 @@ void cpp_features_test_object_t::test<8>()
     ensure("init member inline 1", ii.mFoo==10);
 
     InitInlineWithConstructor iici;
-    ensure("init member inline 2", iici.mFoo=10);
+    ensure("init member inline 2", iici.mFoo==10);
     ensure("init member inline 3", iici.mBar==25);
 }
 

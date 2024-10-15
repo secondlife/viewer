@@ -1543,6 +1543,13 @@ void LLMeshSkinInfo::fromLLSD(LLSD& skin)
         mLockScaleIfJointPosition = false;
     }
 
+    // combine mBindShapeMatrix and mInvBindMatrix into mBindPoseMatrix
+    mBindPoseMatrix.resize(mInvBindMatrix.size());
+    for (U32 i = 0; i < mInvBindMatrix.size(); ++i)
+    {
+        matMul(mBindShapeMatrix, mInvBindMatrix[i], mBindPoseMatrix[i]);
+    }
+
     updateHash();
 }
 

@@ -4,15 +4,8 @@
 ## These options are for self-assisted troubleshooting during this beta
 ## testing phase; you should not usually need to touch them.
 
-## - Avoids using any FMOD STUDIO audio driver.
-#export LL_BAD_FMODSTUDIO_DRIVER=x
 ## - Avoids using any OpenAL audio driver.
 #export LL_BAD_OPENAL_DRIVER=x
-
-## - Avoids using the FMOD Studio or FMOD Ex PulseAudio audio driver.
-#export LL_BAD_FMOD_PULSEAUDIO=x
-## - Avoids using the FMOD Studio or FMOD Ex ALSA audio driver.
-#export LL_BAD_FMOD_ALSA=x
 
 ## - Avoids the optional OpenGL extensions which have proven most problematic
 ##   on some hardware.  Disabling this option may cause BETTER PERFORMANCE but
@@ -34,15 +27,9 @@
 ##   LL_GL_BLACKLIST which solves your problems.
 #export LL_GL_BLACKLIST=abcdefghijklmno
 
-## - Some ATI/Radeon users report random X server crashes when the mouse
-##   cursor changes shape.  If you suspect that you are a victim of this
-##   driver bug, try enabling this option and report whether it helps:
-#export LL_ATI_MOUSE_CURSOR_BUG=x
-
 if [ "`uname -m`" = "x86_64" ]; then
     echo '64-bit Linux detected.'
 fi
-
 
 ## Everything below this line is just for advanced troubleshooters.
 ##-------------------------------------------------------------------
@@ -55,9 +42,6 @@ fi
 #export LL_WRAPPER='gdb --args'
 #export LL_WRAPPER='valgrind --smc-check=all --error-limit=no --log-file=secondlife.vg --leak-check=full --suppressions=/usr/lib/valgrind/glibc-2.5.supp --suppressions=secondlife-i686.supp'
 
-## - Avoids an often-buggy X feature that doesn't really benefit us anyway.
-export SDL_VIDEO_X11_DGAMOUSE=0
-
 ## - The 'scim' GTK IM module widely crashes the viewer.  Avoid it.
 if [ "$GTK_IM_MODULE" = "scim" ]; then
     export GTK_IM_MODULE=xim
@@ -66,13 +50,6 @@ if [ "$XMODIFIERS" = "" ]; then
     ## IME is valid only for fcitx, not when using ibus
     export XMODIFIERS="@im=fcitx"
 fi
-
-## - Automatically work around the ATI mouse cursor crash bug:
-## (this workaround is disabled as most fglrx users do not see the bug)
-#if lsmod | grep fglrx &>/dev/null ; then
-#	export LL_ATI_MOUSE_CURSOR_BUG=x
-#fi
-
 
 ## Nothing worth editing below this line.
 ##-------------------------------------------------------------------

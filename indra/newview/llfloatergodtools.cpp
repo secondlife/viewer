@@ -431,15 +431,15 @@ const F32 PRICE_PER_METER_DEFAULT = 1.f;
 LLPanelRegionTools::LLPanelRegionTools()
 :   LLPanel()
 {
-    mCommitCallbackRegistrar.add("RegionTools.ChangeAnything",  boost::bind(&LLPanelRegionTools::onChangeAnything, this));
-    mCommitCallbackRegistrar.add("RegionTools.ChangePrelude",   boost::bind(&LLPanelRegionTools::onChangePrelude, this));
-    mCommitCallbackRegistrar.add("RegionTools.BakeTerrain",     boost::bind(&LLPanelRegionTools::onBakeTerrain, this));
-    mCommitCallbackRegistrar.add("RegionTools.RevertTerrain",   boost::bind(&LLPanelRegionTools::onRevertTerrain, this));
-    mCommitCallbackRegistrar.add("RegionTools.SwapTerrain",     boost::bind(&LLPanelRegionTools::onSwapTerrain, this));
-    mCommitCallbackRegistrar.add("RegionTools.Refresh",         boost::bind(&LLPanelRegionTools::onRefresh, this));
-    mCommitCallbackRegistrar.add("RegionTools.ApplyChanges",    boost::bind(&LLPanelRegionTools::onApplyChanges, this));
-    mCommitCallbackRegistrar.add("RegionTools.SelectRegion",    boost::bind(&LLPanelRegionTools::onSelectRegion, this));
-    mCommitCallbackRegistrar.add("RegionTools.SaveState",       boost::bind(&LLPanelRegionTools::onSaveState, this));
+    mCommitCallbackRegistrar.add("RegionTools.ChangeAnything",  { boost::bind(&LLPanelRegionTools::onChangeAnything, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("RegionTools.ChangePrelude",   { boost::bind(&LLPanelRegionTools::onChangePrelude, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("RegionTools.BakeTerrain",     { boost::bind(&LLPanelRegionTools::onBakeTerrain, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("RegionTools.RevertTerrain",   { boost::bind(&LLPanelRegionTools::onRevertTerrain, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("RegionTools.SwapTerrain",     { boost::bind(&LLPanelRegionTools::onSwapTerrain, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("RegionTools.Refresh",         { boost::bind(&LLPanelRegionTools::onRefresh, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("RegionTools.ApplyChanges",    { boost::bind(&LLPanelRegionTools::onApplyChanges, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("RegionTools.SelectRegion",    { boost::bind(&LLPanelRegionTools::onSelectRegion, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("RegionTools.SaveState",       { boost::bind(&LLPanelRegionTools::onSaveState, this), cb_info::UNTRUSTED_BLOCK });
 }
 
 bool LLPanelRegionTools::postBuild()
@@ -854,7 +854,8 @@ void LLPanelRegionTools::onSelectRegion()
 LLPanelGridTools::LLPanelGridTools() :
     LLPanel()
 {
-    mCommitCallbackRegistrar.add("GridTools.FlushMapVisibilityCaches",      boost::bind(&LLPanelGridTools::onClickFlushMapVisibilityCaches, this));
+    mCommitCallbackRegistrar.add("GridTools.FlushMapVisibilityCaches",
+        { boost::bind(&LLPanelGridTools::onClickFlushMapVisibilityCaches, this), cb_info::UNTRUSTED_BLOCK });
 }
 
 // Destroys the object
@@ -929,15 +930,15 @@ LLPanelObjectTools::LLPanelObjectTools()
     :   LLPanel(),
         mTargetAvatar()
 {
-    mCommitCallbackRegistrar.add("ObjectTools.ChangeAnything",      boost::bind(&LLPanelObjectTools::onChangeAnything, this));
-    mCommitCallbackRegistrar.add("ObjectTools.DeletePublicOwnedBy", boost::bind(&LLPanelObjectTools::onClickDeletePublicOwnedBy, this));
-    mCommitCallbackRegistrar.add("ObjectTools.DeleteAllScriptedOwnedBy",        boost::bind(&LLPanelObjectTools::onClickDeleteAllScriptedOwnedBy, this));
-    mCommitCallbackRegistrar.add("ObjectTools.DeleteAllOwnedBy",        boost::bind(&LLPanelObjectTools::onClickDeleteAllOwnedBy, this));
-    mCommitCallbackRegistrar.add("ObjectTools.ApplyChanges",        boost::bind(&LLPanelObjectTools::onApplyChanges, this));
-    mCommitCallbackRegistrar.add("ObjectTools.Set",     boost::bind(&LLPanelObjectTools::onClickSet, this));
-    mCommitCallbackRegistrar.add("ObjectTools.GetTopColliders",     boost::bind(&LLPanelObjectTools::onGetTopColliders, this));
-    mCommitCallbackRegistrar.add("ObjectTools.GetTopScripts",       boost::bind(&LLPanelObjectTools::onGetTopScripts, this));
-    mCommitCallbackRegistrar.add("ObjectTools.GetScriptDigest",     boost::bind(&LLPanelObjectTools::onGetScriptDigest, this));
+    mCommitCallbackRegistrar.add("ObjectTools.ChangeAnything",      { boost::bind(&LLPanelObjectTools::onChangeAnything, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("ObjectTools.DeletePublicOwnedBy", { boost::bind(&LLPanelObjectTools::onClickDeletePublicOwnedBy, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("ObjectTools.DeleteAllScriptedOwnedBy",        { boost::bind(&LLPanelObjectTools::onClickDeleteAllScriptedOwnedBy, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("ObjectTools.DeleteAllOwnedBy",        { boost::bind(&LLPanelObjectTools::onClickDeleteAllOwnedBy, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("ObjectTools.ApplyChanges",        { boost::bind(&LLPanelObjectTools::onApplyChanges, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("ObjectTools.Set",     { boost::bind(&LLPanelObjectTools::onClickSet, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("ObjectTools.GetTopColliders",     { boost::bind(&LLPanelObjectTools::onGetTopColliders, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("ObjectTools.GetTopScripts",       { boost::bind(&LLPanelObjectTools::onGetTopScripts, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("ObjectTools.GetScriptDigest",     { boost::bind(&LLPanelObjectTools::onGetScriptDigest, this), cb_info::UNTRUSTED_BLOCK });
 }
 
 // Destroys the object
@@ -1224,7 +1225,7 @@ const std::string AGENT_REGION = "Agent Region";
 LLPanelRequestTools::LLPanelRequestTools():
     LLPanel()
 {
-    mCommitCallbackRegistrar.add("GodTools.Request",        boost::bind(&LLPanelRequestTools::onClickRequest, this));
+    mCommitCallbackRegistrar.add("GodTools.Request", {boost::bind(&LLPanelRequestTools::onClickRequest, this), cb_info::UNTRUSTED_BLOCK });
 }
 
 LLPanelRequestTools::~LLPanelRequestTools()

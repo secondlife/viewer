@@ -88,13 +88,13 @@ struct gstringize_impl
 };
 
 // partially specialize for a single STRING argument -
-// note that ll_convert<T>(T) already handles the trivial case
+// note that ll_convert_to<T>(T) already handles the trivial case
 template <typename OUTCHAR, typename INCHAR>
 struct gstringize_impl<OUTCHAR, std::basic_string<INCHAR>>
 {
     auto operator()(const std::basic_string<INCHAR>& arg)
     {
-        return ll_convert<std::basic_string<OUTCHAR>>(arg);
+        return ll_convert_to<std::basic_string<OUTCHAR>>(arg);
     }
 };
 
@@ -105,7 +105,7 @@ struct gstringize_impl<OUTCHAR, INCHAR*>
 {
     auto operator()(const INCHAR* arg)
     {
-        return ll_convert<std::basic_string<OUTCHAR>>(arg);
+        return ll_convert_to<std::basic_string<OUTCHAR>>(arg);
     }
 };
 
@@ -189,17 +189,5 @@ void destringize_f(std::basic_string<CHARTYPE> const & str, Functor const & f)
     std::basic_istringstream<CHARTYPE> in(str);
     f(in);
 }
-
-/**
- * DESTRINGIZE(str, item1 >> item2 >> item3 ...) effectively expands to the
- * following:
- * @code
- * std::istringstream in(str);
- * in >> item1 >> item2 >> item3 ... ;
- * @endcode
- */
-#define DESTRINGIZE(STR, EXPRESSION) (destringize_f((STR), [&](auto& in){in >> EXPRESSION;}))
-// legacy name, just use DESTRINGIZE() going forward
-#define DEWSTRINGIZE(STR, EXPRESSION) DESTRINGIZE(STR, EXPRESSION)
 
 #endif /* ! defined(LL_STRINGIZE_H) */

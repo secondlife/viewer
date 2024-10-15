@@ -53,15 +53,11 @@ public:
     LLToastLifeTimer(LLToast* toast, F32 period);
 
     /*virtual*/
-    bool tick();
-    void stop();
-    void start();
+    bool tick() override;
     void restart();
     bool getStarted();
     void setPeriod(F32 period);
-    F32 getRemainingTimeF32();
 
-    LLTimer&  getEventTimer() { return mEventTimer;}
 private :
     LLToast* mToast;
 };

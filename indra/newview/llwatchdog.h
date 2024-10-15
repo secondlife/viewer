@@ -56,14 +56,14 @@ public:
     LLWatchdogTimeout();
     virtual ~LLWatchdogTimeout();
 
-    /* virtual */ bool isAlive() const;
-    /* virtual */ void reset();
-    /* virtual */ void start() { start(""); }
-    /* virtual */ void stop();
+    bool isAlive() const override;
+    void reset() override;
+    void start() override { start(""); }
+    void stop() override;
 
-    void start(const std::string& state);
+    void start(std::string_view state);
     void setTimeout(F32 d);
-    void ping(const std::string& state);
+    void ping(std::string_view state);
     const std::string& getState() {return mPingState; }
 
 private:

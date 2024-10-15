@@ -30,6 +30,7 @@
 // newview includes
 #include "llagent.h"    // gAgent
 #include "llslurl.h"
+#include "lltrans.h"
 #include "lluicolor.h"
 #include "lluicolortable.h"
 #include "llviewercontrol.h" // gSavedSettings
@@ -220,8 +221,7 @@ S32 LLViewerChat::getChatFontSize()
 //static
 void LLViewerChat::formatChatMsg(const LLChat& chat, std::string& formated_msg)
 {
-    std::string tmpmsg = chat.mText;
-
+    std::string tmpmsg = without_LUA_PREFIX(chat.mText, chat.mIsScript);
     if(chat.mChatStyle == CHAT_STYLE_IRC)
     {
         formated_msg = chat.mFromName + tmpmsg.substr(3);
@@ -229,6 +229,11 @@ void LLViewerChat::formatChatMsg(const LLChat& chat, std::string& formated_msg)
     else
     {
         formated_msg = tmpmsg;
+    }
+
+    if (chat.mIsScript)
+    {
+        formated_msg = LLTrans::getString("ScriptStr") + formated_msg;
     }
 
 }

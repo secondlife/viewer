@@ -18,6 +18,7 @@
 // external library headers
 // other Linden headers
 #include "commoncontrol.h"
+#include "llcoros.h"
 #include "llerror.h"
 #include "llevents.h"
 #include "llsd.h"
@@ -90,20 +91,14 @@ void LL::ThreadPoolBase::start()
         return;
     }
 
-    // Listen on "LLApp", and when the app is shutting down, close the queue
-    // and join the workers.
-    LLEventPumps::instance().obtain("LLApp").listen(
+    // When the app is shutting down, close the queue and join the workers.
+    mStopListener = LLCoros::getStopListener(
         mName,
-        [this](const LLSD& stat)
+        [this](const LLSD& status)
         {
-            std::string status(stat["status"]);
-            if (status != "running")
-            {
-                // viewer is starting shutdown -- proclaim the end is nigh!
-                LL_DEBUGS("ThreadPool") << mName << " saw " << status << LL_ENDL;
-                close();
-            }
-            return false;
+            // viewer is starting shutdown -- proclaim the end is nigh!
+            LL_DEBUGS("ThreadPool") << mName << " saw " << status << LL_ENDL;
+            close();
         });
 }
 
@@ -118,20 +113,19 @@ LL::ThreadPoolBase::~ThreadPoolBase()
 
 void LL::ThreadPoolBase::close()
 {
-    if (! mQueue->isClosed())
+    // mQueue might have been closed already, but in any case we must join or
+    // detach each of our threads before destroying the mThreads vector.
+    LL_DEBUGS("ThreadPool") << mName << " closing queue and joining threads" << LL_ENDL;
+    mQueue->close();
+    for (auto& pair: mThreads)
     {
-        LL_DEBUGS("ThreadPool") << mName << " closing queue and joining threads" << LL_ENDL;
-        mQueue->close();
-        for (auto& pair: mThreads)
+        if (pair.second.joinable())
         {
-            if (pair.second.joinable())
-            {
-                LL_DEBUGS("ThreadPool") << mName << " waiting on thread " << pair.first << LL_ENDL;
-                pair.second.join();
-            }
+            LL_DEBUGS("ThreadPool") << mName << " waiting on thread " << pair.first << LL_ENDL;
+            pair.second.join();
         }
-        LL_DEBUGS("ThreadPool") << mName << " shutdown complete" << LL_ENDL;
     }
+    LL_DEBUGS("ThreadPool") << mName << " shutdown complete" << LL_ENDL;
 }
 
 void LL::ThreadPoolBase::run(const std::string& name)

@@ -286,43 +286,45 @@ const LLWearable* LLWearableData::getWearable(const LLWearableType::EType type, 
 
 LLWearable* LLWearableData::getTopWearable(const LLWearableType::EType type)
 {
-    U32 count = getWearableCount(type);
-    if ( count == 0)
+    wearableentry_map_t::const_iterator wearable_iter = mWearableDatas.find(type);
+    if (wearable_iter == mWearableDatas.end())
     {
         return NULL;
     }
+    const wearableentry_vec_t& wearable_vec = wearable_iter->second;
 
-    return getWearable(type, count-1);
+    size_t size = wearable_vec.size();
+    if (size == 0)
+    {
+        return NULL;
+    }
+    return wearable_vec[size - 1];
 }
 
 const LLWearable* LLWearableData::getTopWearable(const LLWearableType::EType type) const
 {
-    U32 count = getWearableCount(type);
-    if ( count == 0)
+    wearableentry_map_t::const_iterator wearable_iter = mWearableDatas.find(type);
+    if (wearable_iter == mWearableDatas.end())
     {
         return NULL;
     }
+    const wearableentry_vec_t& wearable_vec = wearable_iter->second;
 
-    return getWearable(type, count-1);
+    size_t size = wearable_vec.size();
+    if (size == 0)
+    {
+        return NULL;
+    }
+    return wearable_vec[size - 1];
 }
 
 LLWearable* LLWearableData::getBottomWearable(const LLWearableType::EType type)
 {
-    if (getWearableCount(type) == 0)
-    {
-        return NULL;
-    }
-
     return getWearable(type, 0);
 }
 
 const LLWearable* LLWearableData::getBottomWearable(const LLWearableType::EType type) const
 {
-    if (getWearableCount(type) == 0)
-    {
-        return NULL;
-    }
-
     return getWearable(type, 0);
 }
 

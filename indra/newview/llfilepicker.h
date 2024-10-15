@@ -79,6 +79,7 @@ public:
         FFLOAD_MATERIAL = 15,
         FFLOAD_MATERIAL_TEXTURE = 16,
         FFLOAD_HDRI = 17,
+        FFLOAD_LUA = 18,
     };
 
     enum ESaveFilter
@@ -171,14 +172,6 @@ private:
                                  const std::string& filename,
                                  void (*callback)(bool, std::string&, void*),
                                  void *userdata);
-#endif
-
-#if LL_FLTK
-    enum EType
-    {
-     eSaveFile, eOpenFile, eOpenMultiple
-    };
-    bool openFileDialog( int32_t filter, bool blocking, EType aType );
 #endif
 
     std::vector<std::string> mFiles;

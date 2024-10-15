@@ -168,6 +168,86 @@ bool LLGLTexture::createGLTexture(S32 discard_level, const LLImageRaw* imageraw,
     return ret ;
 }
 
+void LLGLTexture::getGLObjectLabel(std::string& label, bool& error) const
+{
+    // GL_VERSION_4_3
+    if (gGLManager.mGLVersion < 4.29f)
+    {
+        error = true;
+        label.clear();
+        return;
+    }
+    if (!mGLTexturep)
+    {
+        error = true;
+        label.clear();
+        return;
+    }
+    LLGLuint texname = mGLTexturep->getTexName();
+    if (!texname)
+    {
+        error = true;
+        label.clear();
+        return;
+    }
+
+#if LL_DARWIN
+    // apple doesn't support GL after 4.1 so should have hit the above early out, but make the compiler happy here
+    error = true;
+    label.clear();
+    return;
+#else
+    static GLsizei max_length = 0;
+    if (max_length == 0) { glGetIntegerv(GL_MAX_LABEL_LENGTH, &max_length); }
+    static char * clabel = new char[max_length+1];
+    GLsizei length;
+    glGetObjectLabel(GL_TEXTURE, texname, max_length+1, &length, clabel);
+    error = false;
+    label.assign(clabel, length);
+#endif
+}
+
+std::string LLGLTexture::setGLObjectLabel(const std::string& prefix, bool append_texname) const
+{
+#ifndef LL_DARWIN // apple doesn't support GL > 4.1
+    if (gGLManager.mGLVersion < 4.29f) { return ""; } // GL_VERSION_4_3
+    llassert(mGLTexturep);
+    if (mGLTexturep)
+    {
+        LLGLuint texname = mGLTexturep->getTexName();
+        llassert(texname);
+        if (texname)
+        {
+            static GLsizei max_length = 0;
+            if (max_length == 0) { glGetIntegerv(GL_MAX_LABEL_LENGTH, &max_length); }
+
+            if (append_texname)
+            {
+                std::string label_with_texname = prefix + "_" + std::to_string(texname);
+                label_with_texname.resize(std::min(size_t(max_length), label_with_texname.size()));
+                glObjectLabel(GL_TEXTURE, texname, (GLsizei)label_with_texname.size(), label_with_texname.c_str());
+                return label_with_texname;
+            }
+            else
+            {
+                if (prefix.size() <= max_length)
+                {
+                    glObjectLabel(GL_TEXTURE, texname, (GLsizei)prefix.size(), prefix.c_str());
+                    return prefix;
+                }
+                else
+                {
+                    const std::string label(prefix.c_str(), max_length);
+                    glObjectLabel(GL_TEXTURE, texname, (GLsizei)label.size(), label.c_str());
+                    return label;
+                }
+            }
+        }
+    }
+#endif
+    return "";
+}
+
 void LLGLTexture::setExplicitFormat(LLGLint internal_format, LLGLenum primary_format, LLGLenum type_format, bool swap_bytes)
 {
     llassert(mGLTexturep.notNull()) ;

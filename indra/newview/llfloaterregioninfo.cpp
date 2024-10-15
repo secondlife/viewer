@@ -148,40 +148,6 @@ public:
     static LLSD getIDs( sparam_t::const_iterator it, sparam_t::const_iterator end, S32 count );
 };
 
-
-/*
-void unpack_request_params(
-    LLMessageSystem* msg,
-    LLDispatcher::sparam_t& strings,
-    LLDispatcher::iparam_t& integers)
-{
-    char str_buf[MAX_STRING];
-    S32 str_count = msg->getNumberOfBlocksFast(_PREHASH_StringData);
-    S32 i;
-    for (i = 0; i < str_count; ++i)
-    {
-        // we treat the SParam as binary data (since it might be an
-        // LLUUID in compressed form which may have embedded \0's,)
-        str_buf[0] = '\0';
-        S32 data_size = msg->getSizeFast(_PREHASH_StringData, i, _PREHASH_SParam);
-        if (data_size >= 0)
-        {
-            msg->getBinaryDataFast(_PREHASH_StringData, _PREHASH_SParam,
-                                   str_buf, data_size, i, MAX_STRING - 1);
-            strings.push_back(std::string(str_buf, data_size));
-        }
-    }
-
-    U32 int_buf;
-    S32 int_count = msg->getNumberOfBlocksFast(_PREHASH_IntegerData);
-    for (i = 0; i < int_count; ++i)
-    {
-        msg->getU32("IntegerData", "IParam", int_buf, i);
-        integers.push_back(int_buf);
-    }
-}
-*/
-
 class LLPanelRegionEnvironment : public LLPanelEnvironmentInfo
 {
 public:
@@ -259,8 +225,8 @@ bool LLFloaterRegionInfo::postBuild()
 
     panel = new LLPanelRegionGeneralInfo;
     mInfoPanels.push_back(panel);
-    panel->getCommitCallbackRegistrar().add("RegionInfo.ManageTelehub", boost::bind(&LLPanelRegionInfo::onClickManageTelehub, panel));
-    panel->getCommitCallbackRegistrar().add("RegionInfo.ManageRestart", boost::bind(&LLPanelRegionInfo::onClickManageRestartSchedule, panel));
+    panel->getCommitCallbackRegistrar().add("RegionInfo.ManageTelehub", { boost::bind(&LLPanelRegionInfo::onClickManageTelehub, panel) });
+    panel->getCommitCallbackRegistrar().add("RegionInfo.ManageRestart", { boost::bind(&LLPanelRegionInfo::onClickManageRestartSchedule, panel) });
     panel->buildFromFile("panel_region_general.xml");
     mTab->addTabPanel(panel);
 
@@ -268,7 +234,7 @@ bool LLFloaterRegionInfo::postBuild()
     mInfoPanels.push_back(panel);
     static LLCachedControl<bool> feature_pbr_terrain_enabled(gSavedSettings, "RenderTerrainPBREnabled", false);
     static LLCachedControl<bool> feature_pbr_terrain_transforms_enabled(gSavedSettings, "RenderTerrainPBRTransformsEnabled", false);
-    if (!feature_pbr_terrain_transforms_enabled || !feature_pbr_terrain_enabled)
+    if (!feature_pbr_terrain_transforms_enabled() || !feature_pbr_terrain_enabled())
     {
         panel->buildFromFile("panel_region_terrain.xml");
     }
@@ -326,8 +292,8 @@ void LLFloaterRegionInfo::onOpen(const LLSD& key)
         disableTabCtrls();
         return;
     }
-    refreshFromRegion(gAgent.getRegion());
-    requestRegionInfo();
+    refreshFromRegion(gAgent.getRegion(), ERefreshFromRegionPhase::BeforeRequestRegionInfo);
+    requestRegionInfo(true);
 
     if (!mGodLevelChangeSlot.connected())
     {
@@ -347,12 +313,14 @@ void LLFloaterRegionInfo::onRegionChanged()
 {
     if (getVisible()) //otherwise onOpen will do request
     {
-        requestRegionInfo();
+        requestRegionInfo(false);
     }
 }
 
-void LLFloaterRegionInfo::requestRegionInfo()
+void LLFloaterRegionInfo::requestRegionInfo(bool is_opening)
 {
+    mIsRegionInfoRequestedFromOpening = is_opening;
+
     LLTabContainer* tab = findChild<LLTabContainer>("region_panels");
     if (tab)
     {
@@ -523,8 +491,7 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
 
     panel->getChild<LLSpinCtrl>("agent_limit_spin")->setMaxValue((F32)hard_agent_limit);
 
-    LLPanelRegionGeneralInfo* panel_general = LLFloaterRegionInfo::getPanelGeneral();
-    if (panel)
+    if (LLPanelRegionGeneralInfo* panel_general = LLFloaterRegionInfo::getPanelGeneral())
     {
         panel_general->setObjBonusFactor(object_bonus_factor);
     }
@@ -561,21 +528,25 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
     {
         // Note: region info also causes LLRegionInfoModel::instance().update(msg); -> requestRegion(); -> changed message
         // we need to know env version here and in update(msg) to know when to request and when not to, when to filter 'changed'
-        floater->refreshFromRegion(gAgent.getRegion());
+        ERefreshFromRegionPhase phase = floater->mIsRegionInfoRequestedFromOpening ?
+            ERefreshFromRegionPhase::AfterRequestRegionInfo :
+            ERefreshFromRegionPhase::NotFromFloaterOpening;
+        floater->refreshFromRegion(gAgent.getRegion(), phase);
     } // else will rerequest on onOpen either way
 }
 
 // static
-void LLFloaterRegionInfo::sRefreshFromRegion(LLViewerRegion* region)
+void LLFloaterRegionInfo::refreshFromRegion(LLViewerRegion* region)
 {
-    if (region != gAgent.getRegion()) { return; }
+    if (region != gAgent.getRegion())
+        return;
 
-    LLFloaterRegionInfo* floater = LLFloaterReg::getTypedInstance<LLFloaterRegionInfo>("region_info");
-    if (!floater) { return; }
-
-    if (floater->getVisible() && region == gAgent.getRegion())
+    if (LLFloaterRegionInfo* floater = LLFloaterReg::getTypedInstance<LLFloaterRegionInfo>("region_info"))
     {
-        floater->refreshFromRegion(region);
+        if (floater->getVisible() && region == gAgent.getRegion())
+        {
+            floater->refreshFromRegion(region, ERefreshFromRegionPhase::NotFromFloaterOpening);
+        }
     }
 }
 
@@ -682,7 +653,7 @@ void LLFloaterRegionInfo::onTabSelected(const LLSD& param)
     active_panel->onOpen(LLSD());
 }
 
-void LLFloaterRegionInfo::refreshFromRegion(LLViewerRegion* region)
+void LLFloaterRegionInfo::refreshFromRegion(LLViewerRegion* region, ERefreshFromRegionPhase phase)
 {
     if (!region)
     {
@@ -692,7 +663,7 @@ void LLFloaterRegionInfo::refreshFromRegion(LLViewerRegion* region)
     // call refresh from region on all panels
     for (const auto& infoPanel : mInfoPanels)
     {
-        infoPanel->refreshFromRegion(region);
+        infoPanel->refreshFromRegion(region, phase);
     }
     mEnvironmentPanel->refreshFromRegion(region);
 }
@@ -725,7 +696,7 @@ void LLFloaterRegionInfo::onGodLevelChange(U8 god_level)
     LLFloaterRegionInfo* floater = LLFloaterReg::getTypedInstance<LLFloaterRegionInfo>("region_info");
     if (floater && floater->getVisible())
     {
-        refreshFromRegion(gAgent.getRegion());
+        refreshFromRegion(gAgent.getRegion(), ERefreshFromRegionPhase::NotFromFloaterOpening);
     }
 }
 
@@ -795,7 +766,7 @@ void LLPanelRegionInfo::updateChild(LLUICtrl* child_ctr)
 }
 
 // virtual
-bool LLPanelRegionInfo::refreshFromRegion(LLViewerRegion* region)
+bool LLPanelRegionInfo::refreshFromRegion(LLViewerRegion* region, ERefreshFromRegionPhase phase)
 {
     if (region) mHost = region->getHost();
     return true;
@@ -823,12 +794,10 @@ void LLPanelRegionInfo::sendEstateOwnerMessage(
     }
     else
     {
-        strings_t::const_iterator it = strings.begin();
-        strings_t::const_iterator end = strings.end();
-        for(; it != end; ++it)
+        for (const std::string& string : strings)
         {
             msg->nextBlock("ParamList");
-            msg->addString("Parameter", *it);
+            msg->addString("Parameter", string);
         }
     }
     msg->sendReliable(mHost);
@@ -887,7 +856,7 @@ void LLPanelRegionInfo::onClickManageRestartSchedule()
 /////////////////////////////////////////////////////////////////////////////
 // LLPanelRegionGeneralInfo
 //
-bool LLPanelRegionGeneralInfo::refreshFromRegion(LLViewerRegion* region)
+bool LLPanelRegionGeneralInfo::refreshFromRegion(LLViewerRegion* region, ERefreshFromRegionPhase phase)
 {
     bool allow_modify = gAgent.isGodlike() || (region && region->canManageEstate());
     setCtrlsEnabled(allow_modify);
@@ -904,7 +873,7 @@ bool LLPanelRegionGeneralInfo::refreshFromRegion(LLViewerRegion* region)
 
     // Data gets filled in by processRegionInfo
 
-    return LLPanelRegionInfo::refreshFromRegion(region);
+    return LLPanelRegionInfo::refreshFromRegion(region, phase);
 }
 
 bool LLPanelRegionGeneralInfo::postBuild()
@@ -1173,7 +1142,7 @@ bool LLPanelRegionDebugInfo::postBuild()
 }
 
 // virtual
-bool LLPanelRegionDebugInfo::refreshFromRegion(LLViewerRegion* region)
+bool LLPanelRegionDebugInfo::refreshFromRegion(LLViewerRegion* region, ERefreshFromRegionPhase phase)
 {
     bool allow_modify = gAgent.isGodlike() || (region && region->canManageEstate());
     setCtrlsEnabled(allow_modify);
@@ -1191,7 +1160,7 @@ bool LLPanelRegionDebugInfo::refreshFromRegion(LLViewerRegion* region)
     getChildView("cancel_restart_btn")->setEnabled(allow_modify);
     getChildView("region_debug_console_btn")->setEnabled(allow_modify);
 
-    return LLPanelRegionInfo::refreshFromRegion(region);
+    return LLPanelRegionInfo::refreshFromRegion(region, phase);
 }
 
 // virtual
@@ -1233,7 +1202,7 @@ void LLPanelRegionDebugInfo::callbackAvatarID(const uuid_vec_t& ids, const std::
     if (ids.empty() || names.empty()) return;
     mTargetAvatar = ids[0];
     getChild<LLUICtrl>("target_avatar_name")->setValue(LLSD(names[0].getCompleteName()));
-    refreshFromRegion( gAgent.getRegion() );
+    refreshFromRegion(gAgent.getRegion(), ERefreshFromRegionPhase::NotFromFloaterOpening);
 }
 
 // static
@@ -1675,7 +1644,7 @@ void LLPanelRegionTerrainInfo::updateForMaterialType()
 }
 
 // virtual
-bool LLPanelRegionTerrainInfo::refreshFromRegion(LLViewerRegion* region)
+bool LLPanelRegionTerrainInfo::refreshFromRegion(LLViewerRegion* region, ERefreshFromRegionPhase phase)
 {
     bool owner_or_god = gAgent.isGodlike()
                         || (region && (region->getOwner() == gAgent.getID()));
@@ -1694,7 +1663,7 @@ bool LLPanelRegionTerrainInfo::refreshFromRegion(LLViewerRegion* region)
         static LLCachedControl<bool> feature_pbr_terrain_enabled(gSavedSettings, "RenderTerrainPBREnabled", false);
 
         const bool textures_ready = compp->makeTexturesReady(false, false);
-        const bool materials_ready = feature_pbr_terrain_enabled && compp->makeMaterialsReady(false, false);
+        const bool materials_ready = feature_pbr_terrain_enabled() && compp->makeMaterialsReady(false, false);
 
         bool set_texture_swatches;
         bool set_material_swatches;
@@ -1724,7 +1693,7 @@ bool LLPanelRegionTerrainInfo::refreshFromRegion(LLViewerRegion* region)
         {
             material_type_to_ctrl(mMaterialTypeCtrl, material_type);
             updateForMaterialType();
-            mMaterialTypeCtrl->setVisible(feature_pbr_terrain_enabled);
+            mMaterialTypeCtrl->setVisible(feature_pbr_terrain_enabled());
         }
 
         if (set_texture_swatches)
@@ -1819,7 +1788,7 @@ bool LLPanelRegionTerrainInfo::refreshFromRegion(LLViewerRegion* region)
     getChildView("upload_raw_btn")->setEnabled(owner_or_god);
     getChildView("bake_terrain_btn")->setEnabled(owner_or_god);
 
-    return LLPanelRegionInfo::refreshFromRegion(region);
+    return LLPanelRegionInfo::refreshFromRegion(region, phase);
 }
 
 
@@ -1938,7 +1907,7 @@ bool LLPanelRegionTerrainInfo::sendUpdate()
     // POST to ModifyRegion endpoint, if enabled
 
     static LLCachedControl<bool> feature_pbr_terrain_transforms_enabled(gSavedSettings, "RenderTerrainPBRTransformsEnabled", false);
-    if (material_type == LLTerrainMaterials::Type::PBR && feature_pbr_terrain_transforms_enabled)
+    if (material_type == LLTerrainMaterials::Type::PBR && feature_pbr_terrain_transforms_enabled())
     {
         LLTerrainMaterials composition;
         for (S32 i = 0; i < LLTerrainMaterials::ASSET_COUNT; ++i)
@@ -2289,25 +2258,27 @@ void LLPanelEstateInfo::updateControls(LLViewerRegion* region)
     refresh();
 }
 
-bool LLPanelEstateInfo::refreshFromRegion(LLViewerRegion* region)
+bool LLPanelEstateInfo::refreshFromRegion(LLViewerRegion* region, ERefreshFromRegionPhase phase)
 {
     updateControls(region);
 
     // let the parent class handle the general data collection.
-    bool rv = LLPanelRegionInfo::refreshFromRegion(region);
+    bool rv = LLPanelRegionInfo::refreshFromRegion(region, phase);
 
-    // We want estate info. To make sure it works across region
-    // boundaries and multiple packets, we add a serial number to the
-    // integers and track against that on update.
-    strings_t strings;
-    //integers_t integers;
-    //LLFloaterRegionInfo::incrementSerial();
-    LLFloaterRegionInfo::nextInvoice();
-    LLUUID invoice(LLFloaterRegionInfo::getLastInvoice());
-    //integers.push_back(LLFloaterRegionInfo::());::getPanelEstate();
+    if (phase != ERefreshFromRegionPhase::BeforeRequestRegionInfo)
+    {
+        // We want estate info. To make sure it works across region
+        // boundaries and multiple packets, we add a serial number to the
+        // integers and track against that on update.
+        strings_t strings;
+        //integers_t integers;
+        //LLFloaterRegionInfo::incrementSerial();
+        LLFloaterRegionInfo::nextInvoice();
+        LLUUID invoice(LLFloaterRegionInfo::getLastInvoice());
+        //integers.push_back(LLFloaterRegionInfo::());::getPanelEstate();
 
-
-    sendEstateOwnerMessage(gMessageSystem, "getinfo", invoice, strings);
+        sendEstateOwnerMessage(gMessageSystem, "getinfo", invoice, strings);
+    }
 
     refresh();
 
@@ -2528,7 +2499,7 @@ LLPanelEstateCovenant::LLPanelEstateCovenant()
 }
 
 // virtual
-bool LLPanelEstateCovenant::refreshFromRegion(LLViewerRegion* region)
+bool LLPanelEstateCovenant::refreshFromRegion(LLViewerRegion* region, ERefreshFromRegionPhase phase)
 {
     LLTextBox* region_name = getChild<LLTextBox>("region_name_text");
     if (region_name)
@@ -2574,13 +2545,17 @@ bool LLPanelEstateCovenant::refreshFromRegion(LLViewerRegion* region)
     getChild<LLButton>("reset_covenant")->setEnabled(gAgent.isGodlike() || (region && region->canManageEstate()));
 
     // let the parent class handle the general data collection.
-    bool rv = LLPanelRegionInfo::refreshFromRegion(region);
-    LLMessageSystem *msg = gMessageSystem;
-    msg->newMessage("EstateCovenantRequest");
-    msg->nextBlockFast(_PREHASH_AgentData);
-    msg->addUUIDFast(_PREHASH_AgentID,  gAgent.getID());
-    msg->addUUIDFast(_PREHASH_SessionID,gAgent.getSessionID());
-    msg->sendReliable(region->getHost());
+    bool rv = LLPanelRegionInfo::refreshFromRegion(region, phase);
+
+    if (phase != ERefreshFromRegionPhase::AfterRequestRegionInfo)
+    {
+        gMessageSystem->newMessage("EstateCovenantRequest");
+        gMessageSystem->nextBlockFast(_PREHASH_AgentData);
+        gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+        gMessageSystem->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+        gMessageSystem->sendReliable(region->getHost());
+    }
+
     return rv;
 }
 
@@ -2817,6 +2792,16 @@ std::string LLPanelEstateCovenant::getEstateName() const
 void LLPanelEstateCovenant::setEstateName(const std::string& name)
 {
     mEstateNameText->setText(name);
+}
+
+// static
+void LLPanelEstateCovenant::updateCovenant(const LLTextBase* source, const LLUUID& asset_id)
+{
+    if (LLPanelEstateCovenant* panelp = LLFloaterRegionInfo::getPanelCovenant())
+    {
+        panelp->mEditor->copyContents(source);
+        panelp->setCovenantID(asset_id);
+    }
 }
 
 // static
@@ -3118,7 +3103,7 @@ std::string LLPanelRegionExperiences::regionCapabilityQuery(LLViewerRegion* regi
     return region->getCapability(cap);
 }
 
-bool LLPanelRegionExperiences::refreshFromRegion(LLViewerRegion* region)
+bool LLPanelRegionExperiences::refreshFromRegion(LLViewerRegion* region, ERefreshFromRegionPhase phase)
 {
     bool allow_modify = gAgent.isGodlike() || (region && region->canManageEstate());
 
@@ -3141,10 +3126,13 @@ bool LLPanelRegionExperiences::refreshFromRegion(LLViewerRegion* region)
     mTrusted->loading();
     mTrusted->setReadonly(!allow_modify);
 
-    LLExperienceCache::instance().getRegionExperiences(boost::bind(&LLPanelRegionExperiences::regionCapabilityQuery, region, _1),
-        boost::bind(&LLPanelRegionExperiences::infoCallback, getDerivedHandle<LLPanelRegionExperiences>(), _1));
+    if (phase != ERefreshFromRegionPhase::AfterRequestRegionInfo)
+    {
+        LLExperienceCache::instance().getRegionExperiences(boost::bind(&LLPanelRegionExperiences::regionCapabilityQuery, region, _1),
+            boost::bind(&LLPanelRegionExperiences::infoCallback, getDerivedHandle<LLPanelRegionExperiences>(), _1));
+    }
 
-    return LLPanelRegionInfo::refreshFromRegion(region);
+    return LLPanelRegionInfo::refreshFromRegion(region, phase);
 }
 
 LLSD LLPanelRegionExperiences::addIds(LLPanelExperienceListEditor* panel)
@@ -4171,35 +4159,32 @@ void LLPanelEstateAccess::copyListToClipboard(std::string list_name)
 {
     LLPanelEstateAccess* panel = LLFloaterRegionInfo::getPanelAccess();
     if (!panel) return;
-    LLNameListCtrl* name_list = panel->getChild<LLNameListCtrl>(list_name);
-    if (!name_list) return;
 
+    LLNameListCtrl* name_list = panel->getChild<LLNameListCtrl>(list_name);
     std::vector<LLScrollListItem*> list_vector = name_list->getAllData();
-    if (list_vector.size() == 0) return;
+    if (list_vector.empty())
+        return;
 
     LLSD::String list_to_copy;
-    for (std::vector<LLScrollListItem*>::const_iterator iter = list_vector.begin();
-         iter != list_vector.end();
-         iter++)
+    for (LLScrollListItem* item : list_vector)
     {
-        LLScrollListItem *item = (*iter);
         if (item)
         {
+            if (!list_to_copy.empty())
+            {
+                list_to_copy += "\n";
+            }
             list_to_copy += item->getColumn(0)->getValue().asString();
-        }
-        if (std::next(iter) != list_vector.end())
-        {
-            list_to_copy += "\n";
         }
     }
 
     LLClipboard::instance().copyToClipboard(utf8str_to_wstring(list_to_copy), 0, static_cast<S32>(list_to_copy.length()));
 }
 
-bool LLPanelEstateAccess::refreshFromRegion(LLViewerRegion* region)
+bool LLPanelEstateAccess::refreshFromRegion(LLViewerRegion* region, ERefreshFromRegionPhase phase)
 {
     updateLists();
-    return LLPanelRegionInfo::refreshFromRegion(region);
+    return LLPanelRegionInfo::refreshFromRegion(region, phase);
 }
 
 //=========================================================================

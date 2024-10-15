@@ -125,6 +125,9 @@
              name="no_selection_text">
                 No parcel selected.
             </panel.string>
+            <panel.string name="time_stamp_template_ampm">
+              [wkday,datetime,slt] [mth,datetime,slt] [day,datetime,slt] [hour12,datetime,slt]:[min,datetime,slt]:[second,datetime,slt] [ampm,datetime,slt] [year,datetime,slt]
+            </panel.string>
             <panel.string name="time_stamp_template">
               [wkday,datetime,slt] [mth,datetime,slt] [day,datetime,slt] [hour,datetime,slt]:[min,datetime,slt]:[second,datetime,slt] [year,datetime,slt]
             </panel.string>

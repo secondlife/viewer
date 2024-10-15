@@ -49,17 +49,17 @@ class LLPanelSnapshotProfile
 public:
     LLPanelSnapshotProfile();
 
-    /*virtual*/ bool postBuild();
-    /*virtual*/ void onOpen(const LLSD& key);
+    bool postBuild() override;
+    void onOpen(const LLSD& key) override;
 
 private:
-    /*virtual*/ std::string getWidthSpinnerName() const     { return "profile_snapshot_width"; }
-    /*virtual*/ std::string getHeightSpinnerName() const    { return "profile_snapshot_height"; }
-    /*virtual*/ std::string getAspectRatioCBName() const    { return "profile_keep_aspect_check"; }
-    /*virtual*/ std::string getImageSizeComboName() const   { return "profile_size_combo"; }
-    /*virtual*/ std::string getImageSizePanelName() const   { return "profile_image_size_lp"; }
-    /*virtual*/ LLSnapshotModel::ESnapshotFormat getImageFormat() const { return LLSnapshotModel::SNAPSHOT_FORMAT_PNG; }
-    /*virtual*/ void updateControls(const LLSD& info);
+    std::string getWidthSpinnerName() const override   { return "profile_snapshot_width"; }
+    std::string getHeightSpinnerName() const override  { return "profile_snapshot_height"; }
+    std::string getAspectRatioCBName() const override  { return "profile_keep_aspect_check"; }
+    std::string getImageSizeComboName() const override { return "profile_size_combo"; }
+    std::string getImageSizePanelName() const override { return "profile_image_size_lp"; }
+    LLSnapshotModel::ESnapshotFormat getImageFormat() const override { return LLSnapshotModel::SNAPSHOT_FORMAT_PNG; }
+    void updateControls(const LLSD& info) override;
 
     void onSend();
 };
@@ -68,8 +68,8 @@ static LLPanelInjector<LLPanelSnapshotProfile> panel_class("llpanelsnapshotprofi
 
 LLPanelSnapshotProfile::LLPanelSnapshotProfile()
 {
-    mCommitCallbackRegistrar.add("PostToProfile.Send",      boost::bind(&LLPanelSnapshotProfile::onSend,        this));
-    mCommitCallbackRegistrar.add("PostToProfile.Cancel",    boost::bind(&LLPanelSnapshotProfile::cancel,        this));
+    mCommitCallbackRegistrar.add("PostToProfile.Send",      { boost::bind(&LLPanelSnapshotProfile::onSend, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("PostToProfile.Cancel",    { boost::bind(&LLPanelSnapshotProfile::cancel, this), cb_info::UNTRUSTED_BLOCK });
 }
 
 // virtual

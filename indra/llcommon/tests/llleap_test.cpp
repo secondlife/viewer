@@ -18,6 +18,7 @@
 #include <functional>
 // external library headers
 // other Linden headers
+#include "StringVec.h"
 #include "../test/lltut.h"
 #include "../test/namedtempfile.h"
 #include "../test/catch_and_store_what_in.h"
@@ -26,7 +27,6 @@
 #include "llprocess.h"
 #include "llstring.h"
 #include "stringize.h"
-#include "StringVec.h"
 
 #if defined(LL_WINDOWS)
 #define sleep(secs) _sleep((secs) * 1000)
@@ -300,8 +300,8 @@ namespace tut
         std::string threw = catch_what<LLLeap::Error>([&BADPYTHON](){
                 LLLeap::create("bad exe", BADPYTHON);
             });
-        ensure_contains("LLLeap::create() didn't throw", threw, "failed");
-        log.messageWith("failed");
+        ensure_contains("LLLeap::create() didn't throw", threw, "Can't find");
+        log.messageWith("Can't find");
         log.messageWith(BADPYTHON);
         // try the suppress-exception variant
         ensure("bad launch returned non-NULL", ! LLLeap::create("bad exe", BADPYTHON, false));
@@ -385,8 +385,7 @@ namespace tut
                                 "result = '' if resp == dict(pump=replypump(), data='ack')\\\n"
                                 "            else 'bad: ' + str(resp)\n"
                                 "send(pump='" << result.getName() << "', data=result)\n";});
-        waitfor(LLLeap::create(get_test_name(),
-                               StringVec{PYTHON, script.getName()}));
+        waitfor(LLLeap::create(get_test_name(), StringVec{PYTHON, script.getName()}));
         result.ensure();
     }
 

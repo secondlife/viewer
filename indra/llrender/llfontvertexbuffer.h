@@ -78,6 +78,8 @@ public:
         F32* right_x = NULL,
         bool use_ellipses = false,
         bool use_color = true);
+
+    static void enableBufferCollection(bool enable) { sEnableBufferCollection = enable; }
 private:
 
     void genBuffers(const LLFontGL* fontp,
@@ -114,6 +116,8 @@ private:
     F32 mLastScaleX = 1.f;
     F32 mLastScaleY = 1.f;
     LLCoordGL mLastOrigin;
+
+    static bool sEnableBufferCollection;
 };
 
 #endif

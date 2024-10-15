@@ -31,7 +31,6 @@
 //#include "linden_common.h"
 
 #include <string>
-#include <vector>
 #include "llstyle.h"
 
 ///

@@ -642,8 +642,8 @@ LLPanelEditWearable::LLPanelEditWearable()
         , mWearablePtr(NULL)
         , mWearableItem(NULL)
 {
-        mCommitCallbackRegistrar.add("ColorSwatch.Commit", boost::bind(&LLPanelEditWearable::onColorSwatchCommit, this, _1));
-        mCommitCallbackRegistrar.add("TexturePicker.Commit", boost::bind(&LLPanelEditWearable::onTexturePickerCommit, this, _1));
+        mCommitCallbackRegistrar.add("ColorSwatch.Commit", { boost::bind(&LLPanelEditWearable::onColorSwatchCommit, this, _1) });
+        mCommitCallbackRegistrar.add("TexturePicker.Commit", { boost::bind(&LLPanelEditWearable::onTexturePickerCommit, this, _1) });
 }
 
 //virtual

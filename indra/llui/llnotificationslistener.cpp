@@ -204,7 +204,7 @@ void LLNotificationsListener::ignore(const LLSD& params) const
     }
 }
 
-class LLNotificationsListener::Forwarder: public LLEventTrackable
+class LLNotificationsListener::Forwarder: public boost::signals2::trackable
 {
     LOG_CLASS(LLNotificationsListener::Forwarder);
 public:
@@ -213,8 +213,10 @@ public:
         mRespond(false)
     {
         // Connect to the specified channel on construction. Because
-        // LLEventTrackable is a base, we should automatically disconnect when
-        // destroyed.
+        // boost::signals2::trackable is a base, because we use boost::bind()
+        // below, and because connectPassedFilter() directly calls
+        // boost::signals2::signal::connect(), we should automatically
+        // disconnect when destroyed.
         LLNotificationChannelPtr channelptr(llnotifications.getChannel(channel));
         if (channelptr)
         {
@@ -252,10 +254,10 @@ void LLNotificationsListener::forward(const LLSD& params)
     if (! forward)
     {
         // This is a request to stop forwarding notifications on the specified
-        // channel. The rest of the params don't matter.
-        // Because mForwarders contains scoped_ptrs, erasing the map entry
-        // DOES delete the heap Forwarder object. Because Forwarder derives
-        // from LLEventTrackable, destroying it disconnects it from the
+        // channel. The rest of the params don't matter. Because mForwarders
+        // contains scoped_ptrs, erasing the map entry DOES delete the heap
+        // Forwarder object. Because Forwarder derives from
+        // boost::signals2::trackable, destroying it disconnects it from the
         // channel.
         mForwarders.erase(channel);
         return;

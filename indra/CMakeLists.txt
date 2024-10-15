@@ -34,7 +34,7 @@ include(BuildVersion)
 
 if (NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING
-      "Build type.  One of: Debug Release RelWithDebInfo" FORCE)
+      "Build type.  One of: Release RelWithDebInfo" FORCE)
 endif (NOT CMAKE_BUILD_TYPE)
 
 add_subdirectory(cmake)
@@ -82,15 +82,7 @@ if (ENABLE_MEDIA_PLUGINS)
 add_subdirectory(${LIBS_OPEN_PREFIX}media_plugins)
 endif (ENABLE_MEDIA_PLUGINS)
 
-if (LINUX)
-  # need to put this behind a special llappearanceutility flag
-  add_subdirectory(${VIEWER_PREFIX}llappearanceutility)
-elseif (WINDOWS)
-  # cmake EXISTS requires an absolute path, see indra/cmake/Variables.cmake
-  if (EXISTS ${VIEWER_DIR}win_setup)
-    add_subdirectory(${VIEWER_DIR}win_setup)
-  endif (EXISTS ${VIEWER_DIR}win_setup)
-endif (LINUX)
+add_subdirectory(${VIEWER_PREFIX}llappearanceutility)
 
 if (WINDOWS)
     # cmake EXISTS requires an absolute path, see indra/cmake/Variables.cmake

@@ -28,6 +28,7 @@
 #define LL_MESH_REPOSITORY_H
 
 #include <unordered_map>
+#include <unordered_set>
 #include "llassettype.h"
 #include "llmodel.h"
 #include "lluuid.h"
@@ -341,7 +342,7 @@ public:
     std::deque<UUIDBasedRequest> mSkinRequests;
 
     // list of completed skin info requests
-    std::deque<LLMeshSkinInfo*> mSkinInfoQ;
+    std::deque<LLPointer<LLMeshSkinInfo>> mSkinInfoQ;
 
     // list of skin info requests that have failed or are unavailaibe
     std::deque<UUIDBasedRequest> mSkinUnavailableQ;
@@ -368,8 +369,16 @@ public:
     std::deque<LoadedMesh> mLoadedQ;
 
     //map of pending header requests and currently desired LODs
-    typedef boost::unordered_map<LLUUID, std::vector<S32> > pending_lod_map;
+    typedef std::unordered_map<LLUUID, std::vector<S32> > pending_lod_map;
     pending_lod_map mPendingLOD;
+
+    // map of mesh ID to skin info (mirrors LLMeshRepository::mSkinMap)
+    /// NOTE: LLMeshRepository::mSkinMap is accessed very frequently, so maintain a copy here to avoid mutex overhead
+    typedef std::unordered_map<LLUUID, LLPointer<LLMeshSkinInfo>> skin_map;
+    skin_map mSkinMap;
+
+    // workqueue for processing generic requests
+    LL::WorkQueue mWorkQueue;
 
     // llcorehttp library interface objects.
     LLCore::HttpStatus                  mHttpStatus;
@@ -380,7 +389,7 @@ public:
     LLCore::HttpRequest::policy_t       mHttpPolicyClass;
     LLCore::HttpRequest::policy_t       mHttpLargePolicyClass;
 
-    typedef std::set<LLCore::HttpHandler::ptr_t> http_request_set;
+    typedef std::unordered_set<LLCore::HttpHandler::ptr_t> http_request_set;
     http_request_set                    mHttpRequestSet;            // Outstanding HTTP requests
 
     std::string mGetMeshCapability;
@@ -632,10 +641,12 @@ public:
     LLMeshRepository();
 
     void init();
+    void unregisterAllMeshes();
     void shutdown();
     S32 update();
 
-    void unregisterMesh(LLVOVolume* volume);
+    void unregisterMesh(LLVOVolume* vobj, const LLVolumeParams& mesh_params, S32 detail);
+    void unregisterSkinInfo(const LLUUID& mesh_id, LLVOVolume* vobj);
     //mesh management functions
     S32 loadMesh(LLVOVolume* volume, const LLVolumeParams& mesh_params, S32 detail = 0, S32 last_lod = -1);
 
@@ -696,13 +707,13 @@ public:
     std::queue<LLUUID> mPendingSkinRequests;
 
     //list of mesh ids awaiting decompositions
-    std::set<LLUUID> mLoadingDecompositions;
+    std::unordered_set<LLUUID> mLoadingDecompositions;
 
     //list of mesh ids that need to send decomposition fetch requests
     std::queue<LLUUID> mPendingDecompositionRequests;
 
     //list of mesh ids awaiting physics shapes
-    std::set<LLUUID> mLoadingPhysicsShapes;
+    std::unordered_set<LLUUID> mLoadingPhysicsShapes;
 
     //list of mesh ids that need to send physics shape fetch requests
     std::queue<LLUUID> mPendingPhysicsShapeRequests;

@@ -56,11 +56,14 @@ public:
     LLUUID mMeshID;
     std::vector<std::string> mJointNames;
     mutable std::vector<S32> mJointNums;
-    typedef std::vector<LLMatrix4a, boost::alignment::aligned_allocator<LLMatrix4a, 16>> matrix_list_t;
+    typedef std::vector<LLMatrix4a> matrix_list_t;
     matrix_list_t mInvBindMatrix;
 
     // bones/joints position overrides
     matrix_list_t mAlternateBindMatrix;
+
+    // cached multiply of mBindShapeMatrix and mInvBindMatrix
+    matrix_list_t mBindPoseMatrix;
 
     LL_ALIGN_16(LLMatrix4a mBindShapeMatrix);
 

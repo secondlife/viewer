@@ -300,13 +300,6 @@ void LLDrawPoolBump::beginFullbrightShiny()
         shader = shader->mRiggedVariant;
     }
 
-    // bind exposure map so fullbright shader can cancel out exposure
-    S32 channel = shader->enableTexture(LLShaderMgr::EXPOSURE_MAP);
-    if (channel > -1)
-    {
-        gGL.getTexUnit(channel)->bind(&gPipeline.mExposureMap);
-    }
-
     LLCubeMap* cube_map = gSky.mVOSkyp ? gSky.mVOSkyp->getCubeMap() : NULL;
 
     if (cube_map && !LLPipeline::sReflectionProbesEnabled)

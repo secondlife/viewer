@@ -219,7 +219,7 @@ protected:
     {
     public:
         RetryTimer(F32 time, Request::ptr_t);
-        virtual bool tick();
+        bool tick() override;
     private:
         // back-pointer
         Request::ptr_t mRequest;
@@ -286,7 +286,7 @@ private:
     {
     public:
         QueueTimer(F32 time, LLMediaDataClient *mdc);
-        virtual bool tick();
+        bool tick() override;
     private:
         // back-pointer
         LLPointer<LLMediaDataClient> mMDC;

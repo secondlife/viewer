@@ -189,6 +189,8 @@ public:
     virtual ~LLInventoryCollectFunctor(){};
     virtual bool operator()(LLInventoryCategory* cat, LLInventoryItem* item) = 0;
 
+    virtual bool exceedsLimit() { return false; }
+
     static bool itemTransferCommonlyAllowed(const LLInventoryItem* item);
 };
 
@@ -385,6 +387,22 @@ class LLNameCategoryCollector : public LLInventoryCollectFunctor
 public:
     LLNameCategoryCollector(const std::string& name) : mName(name) {}
     virtual ~LLNameCategoryCollector() {}
+    virtual bool operator()(LLInventoryCategory* cat,
+                            LLInventoryItem* item);
+protected:
+    std::string mName;
+};
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Class LLNameItemCollector
+//
+// Collects items based on case-insensitive match of prefix
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+class LLNameItemCollector : public LLInventoryCollectFunctor
+{
+public:
+    LLNameItemCollector(const std::string& name) : mName(name) {}
+    virtual ~LLNameItemCollector() {}
     virtual bool operator()(LLInventoryCategory* cat,
                             LLInventoryItem* item);
 protected:

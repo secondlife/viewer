@@ -800,7 +800,7 @@ void LLDispatchListener::call_one(const LLSD& name, const LLSD& event) const
     {
         result = (*this)(event);
     }
-    catch (const DispatchError& err)
+    catch (const std::exception& err)
     {
         if (! event.has(mReplyKey))
         {
@@ -810,7 +810,10 @@ void LLDispatchListener::call_one(const LLSD& name, const LLSD& event) const
 
         // Here there was an error and the incoming event has mReplyKey. Reply
         // with a map containing an "error" key explaining the problem.
-        return reply(llsd::map("error", err.what()), event);
+        return reply(llsd::map("error",
+                               stringize(LLError::Log::classname(err),
+                                         ": ", err.what())),
+                     event);
     }
 
     // We seem to have gotten a valid result. But we don't know whether the
@@ -846,7 +849,7 @@ void LLDispatchListener::call_map(const LLSD& reqmap, const LLSD& event) const
         {
             // in case of errors, tell user the dispatch key, the fact that
             // we're processing a request map and the current key in that map
-            SetState(this, '[', key, '[', name, "]]");
+            SetState transient(this, '[', key, '[', name, "]]");
             // With this form, capture return value even if undefined:
             // presence of the key in the response map can be used to detect
             // which request keys succeeded.
@@ -869,7 +872,7 @@ void LLDispatchListener::call_map(const LLSD& reqmap, const LLSD& event) const
         if (! event.has(mReplyKey))
         {
             // can't send reply, throw
-            sCallFail<DispatchError>(error);
+            callFail<DispatchError>(error);
         }
         else
         {
@@ -923,7 +926,7 @@ void LLDispatchListener::call_array(const LLSD& reqarray, const LLSD& event) con
             // in case of errors, tell user the dispatch key, the fact that
             // we're processing a request array, the current entry in that
             // array and the corresponding callable name
-            SetState(this, '[', key, '[', i, "]=", name, ']');
+            SetState transient(this, '[', key, '[', i, "]=", name, ']');
             // With this form, capture return value even if undefined
             results.append((*this)(name, args));
         }
@@ -944,7 +947,7 @@ void LLDispatchListener::call_array(const LLSD& reqarray, const LLSD& event) con
         if (! event.has(mReplyKey))
         {
             // can't send reply, throw
-            sCallFail<DispatchError>(error);
+            callFail<DispatchError>(error);
         }
         else
         {

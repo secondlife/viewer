@@ -315,7 +315,7 @@ bool LLPanelPlaces::postBuild()
         , _7 // EAcceptance* accept
     ));
 
-    LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+    ScopedRegistrarHelper registrar;
     registrar.add("Places.OverflowMenu.Action",  boost::bind(&LLPanelPlaces::onOverflowMenuItemClicked, this, _2));
     LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
     enable_registrar.add("Places.OverflowMenu.Enable",  boost::bind(&LLPanelPlaces::onOverflowMenuItemEnable, this, _2));

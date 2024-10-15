@@ -2466,6 +2466,10 @@ Wenn Sie Premium-Mitglied sind, [[PREMIUM_URL] klicken Sie hier], um Ihren Voice
 [[URL] Klicken Sie hier], um Ihr Abo zu erneuern. 
 
 Wenn Sie Premium-Mitglied sind, [[PREMIUM_URL] klicken Sie hier], um Ihren Voice-Morphing-Vorteil zu nutzen.</notification>
+	<notification name="VoiceEffectsWillExpire">Ein oder mehrere Ihrer Voice-Morph-Abos laufen in weniger als [INTERVAL] Tagen ab. 
+[[URL] Klicken Sie hier], um Ihr Abo zu erneuern. 
+
+Wenn Sie Premium-Mitglied sind, [[PREMIUM_URL] klicken Sie hier], um Ihren Voice-Morphing-Vorteil zu nutzen.</notification>
 	<notification name="VoiceEffectsNew">Neue Voice-Morph-Effekte sind erhältlich!</notification>
 	<notification name="Cannot enter parcel: not a group member">Nur Mitglieder einer bestimmten Gruppe dürfen diesen Bereich betreten.</notification>
 	<notification name="Cannot enter parcel: banned">Zugang zur Parzelle verweigert. Sie wurden verbannt.</notification>

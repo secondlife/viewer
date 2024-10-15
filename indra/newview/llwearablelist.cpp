@@ -36,6 +36,7 @@
 #include "llnotificationsutil.h"
 #include "llinventorymodel.h"
 #include "lltrans.h"
+#include "llappviewer.h"
 
 // Callback struct
 struct LLWearableArrivedData
@@ -97,6 +98,22 @@ void LLWearableList::getAsset(const LLAssetID& assetID, const std::string& weara
 // static
 void LLWearableList::processGetAssetReply( const char* filename, const LLAssetID& uuid, void* userdata, S32 status, LLExtStat ext_status )
 {
+    if (!LLCoros::on_main_coro())
+    {
+        // if triggered from a coroutine, dispatch to main thread before accessing app state
+        std::string filename_in = filename;
+        LLUUID uuid_in = uuid;
+
+        LLAppViewer::instance()->postToMainCoro([=]()
+            {
+                processGetAssetReply(filename_in.c_str(), uuid_in, userdata, status, ext_status);
+            });
+
+        return;
+    }
+
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
+
     bool isNewWearable = false;
     LLWearableArrivedData* data = (LLWearableArrivedData*) userdata;
     LLViewerWearable* wearable = NULL; // NULL indicates failure

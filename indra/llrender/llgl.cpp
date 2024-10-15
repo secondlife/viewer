@@ -50,6 +50,10 @@
 #include "llglheaders.h"
 #include "llglslshader.h"
 
+#include "glm/glm.hpp"
+#include <glm/gtc/matrix_access.hpp>
+#include "glm/gtc/type_ptr.hpp"
+
 #if LL_WINDOWS
 #include "lldxhardware.h"
 #endif
@@ -61,6 +65,7 @@
 
 bool gDebugSession = false;
 bool gDebugGLSession = false;
+bool gDebugTextureLabelLocalFilesSession = false;
 bool gClothRipple = false;
 bool gHeadlessClient = false;
 bool gNonInteractive = false;
@@ -990,9 +995,6 @@ LLGLManager::LLGLManager() :
     mIsAMD(false),
     mIsNVIDIA(false),
     mIsIntel(false),
-#if LL_DARWIN
-    mIsMobileGF(false),
-#endif
     mHasRequirements(true),
     mDriverVersionMajor(1),
     mDriverVersionMinor(0),
@@ -1139,7 +1141,11 @@ bool LLGLManager::initGL()
     // Trailing space necessary to keep "nVidia Corpor_ati_on" cards
     // from being recognized as ATI.
     // NOTE: AMD has been pretty good about not breaking this check, do not rename without good reason
-    if (mGLVendor.substr(0,4) == "ATI ")
+    if (mGLVendor.substr(0,4) == "ATI "
+#if LL_LINUX
+         || mGLVendor.find("AMD") != std::string::npos
+#endif //LL_LINUX
+         )
     {
         mGLVendorShort = "AMD";
         // *TODO: Fix this?
@@ -1160,6 +1166,11 @@ bool LLGLManager::initGL()
     {
         mGLVendorShort = "INTEL";
         mIsIntel = true;
+    }
+    else if (mGLVendor.find("APPLE") != std::string::npos)
+    {
+        mGLVendorShort = "APPLE";
+        mIsApple = true;
     }
     else
     {
@@ -1199,6 +1210,19 @@ bool LLGLManager::initGL()
         if (mVRAM != 0)
         {
             LL_WARNS("RenderInit") << "VRAM Detected (AMDAssociations):" << mVRAM << LL_ENDL;
+        }
+    } else
+#endif
+#if LL_WINDOWS || LL_LINUX
+    if (mHasNVXGpuMemoryInfo)
+    {
+        GLint mem_kb = 0;
+        glGetIntegerv(GL_GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX, &mem_kb);
+        mVRAM = mem_kb / 1024;
+
+        if (mVRAM != 0)
+        {
+            LL_WARNS("RenderInit") << "VRAM Detected (NVXGpuMemoryInfo):" << mVRAM << LL_ENDL;
         }
     }
 #endif
@@ -1407,6 +1431,13 @@ void LLGLManager::initExtensions()
     mHasCubeMapArray = mGLVersion >= 3.99f;
     mHasTransformFeedback = mGLVersion >= 3.99f;
     mHasDebugOutput = mGLVersion >= 4.29f;
+
+#if LL_WINDOWS || LL_LINUX
+    if( gGLHExts.mSysExts )
+        mHasNVXGpuMemoryInfo = ExtensionExists("GL_NVX_gpu_memory_info", gGLHExts.mSysExts);
+    else
+        LL_WARNS() << "gGLHExts.mSysExts is not set.?" << LL_ENDL;
+#endif
 
     // Misc
     glGetIntegerv(GL_MAX_ELEMENTS_VERTICES, (GLint*) &mGLMaxVertexRange);
@@ -2266,6 +2297,35 @@ void flush_glerror()
     glGetError();
 }
 
+const std::string getGLErrorString(GLenum error)
+{
+    switch(error)
+    {
+    case GL_NO_ERROR:
+        return "No Error";
+    case GL_INVALID_ENUM:
+        return "Invalid Enum";
+    case GL_INVALID_VALUE:
+        return "Invalid Value";
+    case GL_INVALID_OPERATION:
+        return "Invalid Operation";
+    case GL_INVALID_FRAMEBUFFER_OPERATION:
+        return "Invalid Framebuffer Operation";
+    case GL_OUT_OF_MEMORY:
+        return "Out of Memory";
+    case GL_STACK_UNDERFLOW:
+        return "Stack Underflow";
+    case GL_STACK_OVERFLOW:
+        return "Stack Overflow";
+#ifdef GL_TABLE_TOO_LARGE
+    case GL_TABLE_TOO_LARGE:
+        return "Table too large";
+#endif
+    default:
+        return "UNKNOWN ERROR";
+    }
+}
+
 //this function outputs gl error to the log file, does not crash the code.
 void log_glerror()
 {
@@ -2278,17 +2338,8 @@ void log_glerror()
     error = glGetError();
     while (LL_UNLIKELY(error))
     {
-        GLubyte const * gl_error_msg = gluErrorString(error);
-        if (NULL != gl_error_msg)
-        {
-            LL_WARNS() << "GL Error: " << error << " GL Error String: " << gl_error_msg << LL_ENDL ;
-        }
-        else
-        {
-            // gluErrorString returns NULL for some extensions' error codes.
-            // you'll probably have to grep for the number in glext.h.
-            LL_WARNS() << "GL Error: UNKNOWN 0x" << std::hex << error << std::dec << LL_ENDL;
-        }
+        std::string gl_error_msg = getGLErrorString(error);
+        LL_WARNS() << "GL Error: 0x" << std::hex << error << std::dec << " GL Error String: " << gl_error_msg << LL_ENDL;
         error = glGetError();
     }
 }
@@ -2302,27 +2353,12 @@ void do_assert_glerror()
     if (LL_UNLIKELY(error))
     {
         quit = true;
-        GLubyte const * gl_error_msg = gluErrorString(error);
-        if (NULL != gl_error_msg)
+        std::string gl_error_msg = getGLErrorString(error);
+        LL_WARNS("RenderState") << "GL Error: 0x" << std::hex << error << std::dec << LL_ENDL;
+        LL_WARNS("RenderState") << "GL Error String: " << gl_error_msg << LL_ENDL;
+        if (gDebugSession)
         {
-            LL_WARNS("RenderState") << "GL Error:" << error<< LL_ENDL;
-            LL_WARNS("RenderState") << "GL Error String:" << gl_error_msg << LL_ENDL;
-
-            if (gDebugSession)
-            {
-                gFailLog << "GL Error:" << gl_error_msg << std::endl;
-            }
-        }
-        else
-        {
-            // gluErrorString returns NULL for some extensions' error codes.
-            // you'll probably have to grep for the number in glext.h.
-            LL_WARNS("RenderState") << "GL Error: UNKNOWN 0x" << std::hex << error << std::dec << LL_ENDL;
-
-            if (gDebugSession)
-            {
-                gFailLog << "GL Error: UNKNOWN 0x" << std::hex << error << std::dec << std::endl;
-            }
+            gFailLog << "GL Error: 0x" << std::hex << error << std::dec << " GL Error String: " << gl_error_msg << std::endl;
         }
     }
 
@@ -2679,7 +2715,7 @@ void parse_glsl_version(S32& major, S32& minor)
     LLStringUtil::convertToS32(minor_str, minor);
 }
 
-LLGLUserClipPlane::LLGLUserClipPlane(const LLPlane& p, const glh::matrix4f& modelview, const glh::matrix4f& projection, bool apply)
+LLGLUserClipPlane::LLGLUserClipPlane(const LLPlane& p, const glm::mat4& modelview, const glm::mat4& projection, bool apply)
 {
     mApply = apply;
 
@@ -2706,13 +2742,12 @@ void LLGLUserClipPlane::disable()
 
 void LLGLUserClipPlane::setPlane(F32 a, F32 b, F32 c, F32 d)
 {
-    glh::matrix4f& P = mProjection;
-    glh::matrix4f& M = mModelview;
+    const glm::mat4& P = mProjection;
+    const glm::mat4& M = mModelview;
 
-    glh::matrix4f invtrans_MVP = (P * M).inverse().transpose();
-    glh::vec4f oplane(a,b,c,d);
-    glh::vec4f cplane;
-    invtrans_MVP.mult_matrix_vec(oplane, cplane);
+    glm::mat4 invtrans_MVP = glm::transpose(glm::inverse(P*M));
+    glm::vec4 oplane(a,b,c,d);
+    glm::vec4 cplane = invtrans_MVP * oplane;
 
     cplane /= fabs(cplane[2]); // normalize such that depth is not scaled
     cplane[3] -= 1;
@@ -2720,13 +2755,13 @@ void LLGLUserClipPlane::setPlane(F32 a, F32 b, F32 c, F32 d)
     if(cplane[2] < 0)
         cplane *= -1;
 
-    glh::matrix4f suffix;
-    suffix.set_row(2, cplane);
-    glh::matrix4f newP = suffix * P;
+    glm::mat4 suffix;
+    suffix = glm::row(suffix, 2, cplane);
+    glm::mat4 newP = suffix * P;
     gGL.matrixMode(LLRender::MM_PROJECTION);
     gGL.pushMatrix();
-    gGL.loadMatrix(newP.m);
-    gGLObliqueProjectionInverse = LLMatrix4(newP.inverse().transpose().m);
+    gGL.loadMatrix(glm::value_ptr(newP));
+    gGLObliqueProjectionInverse = LLMatrix4(glm::value_ptr(glm::transpose(glm::inverse(newP))));
     gGL.matrixMode(LLRender::MM_MODELVIEW);
 }
 
@@ -2823,31 +2858,27 @@ void LLGLDepthTest::checkState()
 
 LLGLSquashToFarClip::LLGLSquashToFarClip()
 {
-    glh::matrix4f proj = get_current_projection();
+    glm::mat4 proj = get_current_projection();
     setProjectionMatrix(proj, 0);
 }
 
-LLGLSquashToFarClip::LLGLSquashToFarClip(glh::matrix4f& P, U32 layer)
+LLGLSquashToFarClip::LLGLSquashToFarClip(const glm::mat4& P, U32 layer)
 {
     setProjectionMatrix(P, layer);
 }
 
-
-void LLGLSquashToFarClip::setProjectionMatrix(glh::matrix4f& projection, U32 layer)
+void LLGLSquashToFarClip::setProjectionMatrix(glm::mat4 projection, U32 layer)
 {
-
     F32 depth = 0.99999f - 0.0001f * layer;
 
-    for (U32 i = 0; i < 4; i++)
-    {
-        projection.element(2, i) = projection.element(3, i) * depth;
-    }
+    glm::vec4 P_row_3 = glm::row(projection, 3) * depth;
+    projection = glm::row(projection, 2, P_row_3);
 
     LLRender::eMatrixMode last_matrix_mode = gGL.getMatrixMode();
 
     gGL.matrixMode(LLRender::MM_PROJECTION);
     gGL.pushMatrix();
-    gGL.loadMatrix(projection.m);
+    gGL.loadMatrix(glm::value_ptr(projection));
 
     gGL.matrixMode(last_matrix_mode);
 }

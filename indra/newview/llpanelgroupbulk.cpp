@@ -56,6 +56,7 @@ LLPanelGroupBulkImpl::LLPanelGroupBulkImpl(const LLUUID& group_id) :
     mGroupID(group_id),
     mBulkAgentList(NULL),
     mOKButton(NULL),
+    mAddButton(nullptr),
     mRemoveButton(NULL),
     mGroupName(NULL),
     mLoadingText(),
@@ -79,29 +80,18 @@ LLPanelGroupBulkImpl::~LLPanelGroupBulkImpl()
     }
 }
 
-// static
-void LLPanelGroupBulkImpl::callbackClickAdd(void* userdata)
+void LLPanelGroupBulkImpl::callbackClickAdd(LLPanelGroupBulk* panelp)
 {
-    if (LLPanelGroupBulk* panelp = (LLPanelGroupBulk*)userdata)
-    {
-        // Right now this is hard coded with some knowledge that it is part
-        // of a floater since the avatar picker needs to be added as a dependent
-        // floater to the parent floater.
-        // Soon the avatar picker will be embedded into this panel
-        // instead of being it's own separate floater.  But that is next week.
-        // This will do for now. -jwolk May 10, 2006
-        LLView* button = panelp->findChild<LLButton>("add_button");
-        LLFloater* root_floater = gFloaterView->getParentFloater(panelp);
-        LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(
-            [&](const uuid_vec_t& agent_ids, const std::vector<LLAvatarName>&)
-            {
-                panelp->mImplementation->addUsers(agent_ids);
-            }, true, false, false, root_floater->getName(), button);
-        if (picker)
+    LLFloater* root_floater = gFloaterView->getParentFloater(panelp);
+    LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(
+        [this](const uuid_vec_t& agent_ids, const std::vector<LLAvatarName>&)
         {
-            root_floater->addDependentFloater(picker);
-            LLGroupMgr::getInstance()->sendCapGroupMembersRequest(panelp->mImplementation->mGroupID);
-        }
+            addUsers(agent_ids);
+        }, true, false, false, root_floater->getName(), mAddButton);
+    if (picker)
+    {
+        root_floater->addDependentFloater(picker);
+        LLGroupMgr::getInstance()->sendCapGroupMembersRequest(mGroupID);
     }
 }
 

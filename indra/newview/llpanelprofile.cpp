@@ -772,7 +772,7 @@ void LLPanelProfileSecondLife::onOpen(const LLSD& key)
     }
 
     // Init menu, menu needs to be created in scope of a registar to work correctly.
-    LLUICtrl::CommitCallbackRegistry::ScopedRegistrar commit;
+    ScopedRegistrarHelper commit;
     commit.add("Profile.Commit", [this](LLUICtrl*, const LLSD& userdata) { onCommitMenu(userdata); });
 
     LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable;

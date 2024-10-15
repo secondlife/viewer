@@ -98,7 +98,7 @@ bool LLFloaterSettingsPicker::postBuild()
     setTitle(prefix + " " + label);
 
     mFilterEdit = getChild<LLFilterEditor>(FLT_INVENTORY_SEARCH);
-    mFilterEdit->setCommitCallback([this](LLUICtrl*, const LLSD& param){ onFilterEdit(param.asString()); });
+    mFilterEdit->setCommitCallback([this](LLUICtrl*, const LLSD& param) { onFilterEdit(param.asString()); });
 
     mInventoryPanel = getChild<LLInventoryPanel>(PNL_INVENTORY);
     if (mInventoryPanel)
@@ -203,7 +203,6 @@ void LLFloaterSettingsPicker::draw()
     LLFloater::draw();
 }
 
-
 //=========================================================================
 void LLFloaterSettingsPicker::onFilterEdit(const std::string& search_string)
 {
@@ -224,7 +223,6 @@ void LLFloaterSettingsPicker::onFilterEdit(const std::string& search_string)
         LLOpenFoldersWithSelection opener;
         mInventoryPanel->getRootFolder()->applyFunctorRecursively(opener);
         mInventoryPanel->getRootFolder()->scrollToShowSelection();
-
     }
     else if (mInventoryPanel->getFilterSubString().empty())
     {
@@ -269,6 +267,7 @@ void LLFloaterSettingsPicker::onSelectionChange(const LLFloaterSettingsPicker::i
             }
         }
     }
+
     bool track_picker_enabled = mTrackMode != TRACK_NONE;
 
     getChild<LLView>(CMB_TRACK_SELECTION)->setEnabled(is_item && track_picker_enabled && mSettingAssetID == asset_id);
@@ -304,13 +303,14 @@ void LLFloaterSettingsPicker::onAssetLoaded(LLUUID asset_id, LLSettingsBase::ptr
     LLComboBox* track_selection = getChild<LLComboBox>(CMB_TRACK_SELECTION);
     track_selection->clear();
     track_selection->removeall();
+
     if (!settings)
     {
         LL_WARNS() << "Failed to load asset " << asset_id << LL_ENDL;
         return;
     }
-    LLSettingsDay::ptr_t pday = std::dynamic_pointer_cast<LLSettingsDay>(settings);
 
+    LLSettingsDay::ptr_t pday = std::dynamic_pointer_cast<LLSettingsDay>(settings);
     if (!pday)
     {
         LL_WARNS() << "Wrong asset type received by id " << asset_id << LL_ENDL;

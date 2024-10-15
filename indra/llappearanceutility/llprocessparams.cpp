@@ -237,7 +237,7 @@ bool LLProcessParams::processInputDataForJointInfo( LLBakingAvatar& avatar )
         //  pelvisOffset = skin["pelvis_offset"].asReal();
         //}
         // Now apply the extracted joint data to the avatar
-        U32 jointCount = jointNames.size();
+        U32 jointCount = narrow(jointNames.size());
 
         if ( jointOffsets.size() < jointCount )
         {

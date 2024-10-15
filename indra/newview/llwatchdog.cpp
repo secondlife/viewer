@@ -29,7 +29,7 @@
 #include "llwatchdog.h"
 #include "llthread.h"
 
-const U32 WATCHDOG_SLEEP_TIME_USEC = 1000000;
+constexpr U32 WATCHDOG_SLEEP_TIME_USEC = 1000000U;
 
 // This class runs the watchdog timing thread.
 class LLWatchdogTimerThread : public LLThread
@@ -51,7 +51,7 @@ public:
         mSleepMsecs = 1;
     }
 
-    /* virtual */ void run()
+    void run() override
     {
         while(!mStopping)
         {
@@ -83,7 +83,7 @@ void LLWatchdogEntry::start()
 void LLWatchdogEntry::stop()
 {
     // this can happen very late in the shutdown sequence
-    if (! LLWatchdog::wasDeleted())
+    if (!LLWatchdog::wasDeleted())
     {
         LLWatchdog::getInstance()->remove(this);
     }
@@ -117,7 +117,7 @@ void LLWatchdogTimeout::setTimeout(F32 d)
     mTimeout = d;
 }
 
-void LLWatchdogTimeout::start(const std::string& state)
+void LLWatchdogTimeout::start(std::string_view state)
 {
     if (mTimeout == 0)
     {
@@ -139,9 +139,9 @@ void LLWatchdogTimeout::stop()
     mTimer.stop();
 }
 
-void LLWatchdogTimeout::ping(const std::string& state)
+void LLWatchdogTimeout::ping(std::string_view state)
 {
-    if(!state.empty())
+    if (!state.empty())
     {
         mPingState = state;
     }
@@ -151,7 +151,7 @@ void LLWatchdogTimeout::ping(const std::string& state)
 // LLWatchdog
 LLWatchdog::LLWatchdog()
     :mSuspectsAccessMutex()
-    ,mTimer(NULL)
+    ,mTimer(nullptr)
     ,mLastClockCount(0)
 {
 }
@@ -176,7 +176,7 @@ void LLWatchdog::remove(LLWatchdogEntry* e)
 
 void LLWatchdog::init()
 {
-    if(!mSuspectsAccessMutex && !mTimer)
+    if (!mSuspectsAccessMutex && !mTimer)
     {
         mSuspectsAccessMutex = new LLMutex();
         mTimer = new LLWatchdogTimerThread();
@@ -191,17 +191,17 @@ void LLWatchdog::init()
 
 void LLWatchdog::cleanup()
 {
-    if(mTimer)
+    if (mTimer)
     {
         mTimer->stop();
         delete mTimer;
-        mTimer = NULL;
+        mTimer = nullptr;
     }
 
-    if(mSuspectsAccessMutex)
+    if (mSuspectsAccessMutex)
     {
         delete mSuspectsAccessMutex;
-        mSuspectsAccessMutex = NULL;
+        mSuspectsAccessMutex = nullptr;
     }
 
     mLastClockCount = 0;
@@ -214,12 +214,12 @@ void LLWatchdog::run()
     // Check the time since the last call to run...
     // If the time elapsed is two times greater than the regualr sleep time
     // reset the active timeouts.
-    const U32 TIME_ELAPSED_MULTIPLIER = 2;
+    constexpr U32 TIME_ELAPSED_MULTIPLIER = 2;
     U64 current_time = LLTimer::getTotalTime();
     U64 current_run_delta = current_time - mLastClockCount;
     mLastClockCount = current_time;
 
-    if(current_run_delta > (WATCHDOG_SLEEP_TIME_USEC * TIME_ELAPSED_MULTIPLIER))
+    if (current_run_delta > (WATCHDOG_SLEEP_TIME_USEC * TIME_ELAPSED_MULTIPLIER))
     {
         LL_INFOS() << "Watchdog thread delayed: resetting entries." << LL_ENDL;
         for (const auto& suspect : mSuspects)
@@ -233,7 +233,7 @@ void LLWatchdog::run()
             std::find_if(mSuspects.begin(),
                 mSuspects.end(),
                 [](const LLWatchdogEntry* suspect){ return ! suspect->isAlive(); });
-        if(result != mSuspects.end())
+        if (result != mSuspects.end())
         {
             // error!!!
             if(mTimer)
@@ -251,7 +251,7 @@ void LLWatchdog::run()
 
 void LLWatchdog::lockThread()
 {
-    if(mSuspectsAccessMutex != NULL)
+    if (mSuspectsAccessMutex)
     {
         mSuspectsAccessMutex->lock();
     }
@@ -259,7 +259,7 @@ void LLWatchdog::lockThread()
 
 void LLWatchdog::unlockThread()
 {
-    if(mSuspectsAccessMutex != NULL)
+    if (mSuspectsAccessMutex)
     {
         mSuspectsAccessMutex->unlock();
     }

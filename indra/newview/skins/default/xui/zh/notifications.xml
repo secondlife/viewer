@@ -3216,6 +3216,12 @@ SHA1 指紋：[MD5_DIGEST]
 
 付費用戶請[[PREMIUM_URL] 點按這裡]領取免費變聲工具。
 	</notification>
+	<notification name="VoiceEffectsWillExpire">
+		至少一個你訂用的變聲效果將在 [INTERVAL] 天後到期。
+[[URL] 點按這裡]繼續訂用。
+
+付費用戶請[[PREMIUM_URL] 點按這裡]領取免費變聲工具。
+	</notification>
 	<notification name="VoiceEffectsNew">
 		新的變聲效果上市了！
 	</notification>
