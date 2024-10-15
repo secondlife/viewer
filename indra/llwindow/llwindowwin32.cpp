@@ -411,14 +411,6 @@ struct LLWindowWin32::LLWindowWin32Thread : public LL::ThreadPool
     bool mGLReady = false;
     bool mGotGLBuffer = false;
     LLAtomicBool mDeleteOnExit = false;
-    // best guess at available video memory in MB
-    std::atomic<U32> mAvailableVRAM;
-
-    U32 mMaxVRAM = 0; // maximum amount of vram to allow in the "budget", or 0 for no maximum (see updateVRAMUsage)
-
-    IDXGIAdapter3* mDXGIAdapter = nullptr;
-    LPDIRECT3D9 mD3D = nullptr;
-    LPDIRECT3DDEVICE9 mD3DDevice = nullptr;
 };
 
 
