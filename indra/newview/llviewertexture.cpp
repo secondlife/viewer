@@ -43,6 +43,7 @@
 #include "message.h"
 #include "lltimer.h"
 #include "v4coloru.h"
+#include "llnotificationsutil.h"
 
 // viewer includes
 #include "llimagegl.h"
@@ -110,6 +111,18 @@ const U32 DESIRED_NORMAL_TEXTURE_SIZE = (U32)LLViewerFetchedTexture::MAX_IMAGE_S
 #else
 const U32 DESIRED_NORMAL_TEXTURE_SIZE = (U32)LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT;
 #endif
+
+namespace
+{
+void onClickDisableDiscard(const LLSD& notification, const LLSD& response)
+{
+    if (response["Cancel_okcancelignore"].asBoolean())
+    {
+        LL_INFOS() << "User chose to disable texture discard on backgrounding." << LL_ENDL;
+        gSavedSettings.setF32("TextureDiscardBackgroundedTime", -1.f);
+    }
+}
+}  // namespace
 
 //----------------------------------------------------------------------------------------------
 //namespace: LLViewerTextureAccess
@@ -560,16 +573,21 @@ void LLViewerTexture::updateClass()
     // set to max discard bias if the window has been backgrounded for a while
     static bool was_backgrounded = false;
     static LLFrameTimer backgrounded_timer;
+    static F32 last_desired_discard_bias = 1.f;
+    static LLCachedControl<F32> backgrounded_discard_time(gSavedSettings, "TextureDiscardBackgroundedTime", 60.f);
 
     bool in_background = (gViewerWindow && !gViewerWindow->getWindow()->getVisible()) || !gFocusMgr.getAppHasFocus();
 
     if (in_background)
     {
-        if (backgrounded_timer.getElapsedTimeF32() > 10.f)
+        F32 background_elapsed = backgrounded_timer.getElapsedTimeF32();
+        if (backgrounded_discard_time > 0.f && background_elapsed > backgrounded_discard_time)
         {
             if (!was_backgrounded)
             {
-                LL_INFOS() << "Viewer is backgrounded, freeing up video memory." << LL_ENDL;
+                LL_INFOS() << "Viewer is backgrounded for " <<  backgrounded_discard_time << "s, freeing up video memory." << LL_ENDL;
+                LLNotificationsUtil::add("TextureDiscardBackgrounded", llsd::map("DELAY", backgrounded_discard_time), LLSD(), &onClickDisableDiscard);
+                last_desired_discard_bias = sDesiredDiscardBias;
             }
             was_backgrounded = true;
             sDesiredDiscardBias = 4.f;
@@ -582,7 +600,7 @@ void LLViewerTexture::updateClass()
         { // if the viewer was backgrounded
             LL_INFOS() << "Viewer is no longer backgrounded, resuming normal texture usage." << LL_ENDL;
             was_backgrounded = false;
-            sDesiredDiscardBias = 1.f;
+            sDesiredDiscardBias = last_desired_discard_bias;
         }
     }
 
