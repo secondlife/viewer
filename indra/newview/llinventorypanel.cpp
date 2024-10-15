@@ -975,18 +975,7 @@ void LLInventoryPanel::initializeViews(F64 max_time)
     mBuildViewsEndTime = curent_time + max_time;
 
     // init everything
-    LLUUID root_id = getRootFolderID();
-    if (root_id.notNull())
-    {
-        buildNewViews(getRootFolderID());
-    }
-    else
-    {
-        // Default case: always add "My Inventory" root first, "Library" root second
-        // If we run out of time, this still should create root folders
-        buildNewViews(gInventory.getRootFolderID());        // My Inventory
-        buildNewViews(gInventory.getLibraryRootFolderID()); // Library
-    }
+    initRootContent();
 
     if (mBuildViewsQueue.empty() && mBuildRootQueue.empty())
     {
@@ -1019,6 +1008,21 @@ void LLInventoryPanel::initializeViews(F64 max_time)
     }
 }
 
+void LLInventoryPanel::initRootContent()
+{
+    LLUUID root_id = getRootFolderID();
+    if (root_id.notNull())
+    {
+        buildNewViews(getRootFolderID());
+    }
+    else
+    {
+        // Default case: always add "My Inventory" root first, "Library" root second
+        // If we run out of time, this still should create root folders
+        buildNewViews(gInventory.getRootFolderID());        // My Inventory
+        buildNewViews(gInventory.getLibraryRootFolderID()); // Library
+    }
+}
 
 LLFolderViewFolder * LLInventoryPanel::createFolderViewFolder(LLInvFVBridge * bridge, bool allow_drop)
 {
@@ -2264,6 +2268,7 @@ protected:
     friend class LLUICtrlFactory;
 
     void findAndInitRootContent(const LLUUID& folder_id) override;
+    void initRootContent() override;
 
     bool removeFavorite(const LLUUID& id, const LLInventoryObject* model_item);
     void itemChanged(const LLUUID& item_id, U32 mask, const LLInventoryObject* model_item) override;
@@ -2351,6 +2356,11 @@ void LLInventoryFavoritesItemsPanel::findAndInitRootContent(const LLUUID& id)
             }
         }
     }
+}
+
+void LLInventoryFavoritesItemsPanel::initRootContent()
+{
+    findAndInitRootContent(gInventory.getRootFolderID()); // My Inventory
 }
 
 bool LLInventoryFavoritesItemsPanel::removeFavorite(const LLUUID& id, const LLInventoryObject* model_item)

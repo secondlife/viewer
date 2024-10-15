@@ -150,6 +150,8 @@ protected:
     LLInventoryPanel(const Params&);
     void initFromParams(const Params&);
 
+    virtual void initRootContent();
+
     friend class LLUICtrlFactory;
 public:
     virtual ~LLInventoryPanel();
