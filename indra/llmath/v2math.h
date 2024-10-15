@@ -212,7 +212,7 @@ inline void LLVector2::setVec(const F32 *vec)
 
 inline F32 LLVector2::length(void) const
 {
-    return (F32) sqrt(lengthSquared());
+    return sqrt(lengthSquared());
 }
 
 inline F32 LLVector2::lengthSquared(void) const

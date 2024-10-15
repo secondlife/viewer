@@ -1275,8 +1275,6 @@ void LLOutfitGalleryGearMenu::onUpdateItemsVisibility()
 {
     if (!mMenu) return;
     bool have_selection = getSelectedOutfitID().notNull();
-    mMenu->setItemVisible("expand", false);
-    mMenu->setItemVisible("collapse", false);
     mMenu->setItemVisible("thumbnail", have_selection);
     mMenu->setItemVisible("sepatator3", true);
     mMenu->setItemVisible("sort_folders_by_name", true);

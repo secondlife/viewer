@@ -325,10 +325,10 @@ inline F32 LLVector3::normVec(void)
 
 inline F32 LLVector3::length(void) const
 {
-    return (F32) sqrt(lengthSquared());
+    return sqrt(lengthSquared());
 }
 
-inline F32 LLVector3::lengthSquared(void) const
+inline F32 LLVector3::lengthSquared() const
 {
     return mV[0]*mV[0] + mV[1]*mV[1] + mV[2]*mV[2];
 }

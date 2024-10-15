@@ -263,10 +263,6 @@ bool LLPanelWearing::postBuild()
     mTempItemsList->setFgUnselectedColor(LLColor4::white);
     mTempItemsList->setRightMouseDownCallback(boost::bind(&LLPanelWearing::onTempAttachmentsListRightClick, this, _1, _2, _3));
 
-    LLMenuButton* menu_gear_btn = getChild<LLMenuButton>("options_gear_btn");
-
-    menu_gear_btn->setMenu(mGearMenu->getMenu());
-
     return true;
 }
 

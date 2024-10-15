@@ -410,7 +410,7 @@ struct LLWindowWin32::LLWindowWin32Thread : public LL::ThreadPool
     // until after some graphics setup. See SL-20177. -Cosmic,2023-09-18
     bool mGLReady = false;
     bool mGotGLBuffer = false;
-    LLAtomicBool mDeleteOnExit = false;
+    bool mDeleteOnExit = false;
 };
 
 
@@ -4852,6 +4852,15 @@ bool LLWindowWin32::LLWindowWin32Thread::wakeAndDestroy()
             mGLReady = false;
         });
 
+    mDeleteOnExit = true;
+    SetWindowLongPtr(old_handle, GWLP_USERDATA, NULL);
+
+    // Let thread finish on its own and don't block main thread.
+    for (auto& pair : mThreads)
+    {
+        pair.second.detach();
+    }
+
     LL_DEBUGS("Window") << "Closing window's pool queue" << LL_ENDL;
     mQueue->close();
 
@@ -4866,47 +4875,6 @@ bool LLWindowWin32::LLWindowWin32Thread::wakeAndDestroy()
         PostMessage(old_handle, WM_DUMMY_, wparam, 0x1337);
     }
 
-    // There are cases where window will refuse to close,
-    // can't wait forever on join, check state instead
-    LLTimer timeout;
-    timeout.setTimerExpirySec(2.0);
-    while (!getQueue().done() && !timeout.hasExpired() && mWindowHandleThrd)
-    {
-        ms_sleep(100);
-    }
-
-    if (getQueue().done() || mWindowHandleThrd == NULL)
-    {
-        // Window is closed, started closing or is cleaning up
-        // now wait for our single thread to die.
-        if (mWindowHandleThrd)
-        {
-            LL_INFOS("Window") << "Window is closing, waiting on pool's thread to join, time since post: " << timeout.getElapsedSeconds() << "s" << LL_ENDL;
-        }
-        else
-        {
-            LL_DEBUGS("Window") << "Waiting on pool's thread, time since post: " << timeout.getElapsedSeconds() << "s" << LL_ENDL;
-        }
-        for (auto& pair : mThreads)
-        {
-            pair.second.join();
-        }
-    }
-    else
-    {
-        // Something suspended window thread, can't afford to wait forever
-        // so kill thread instead
-        // Ex: This can happen if user starts dragging window arround (if it
-        // was visible) or a modal notification pops up
-        LL_WARNS("Window") << "Window is frozen, couldn't perform clean exit" << LL_ENDL;
-
-        for (auto& pair : mThreads)
-        {
-            // very unsafe
-            TerminateThread(pair.second.native_handle(), 0);
-            pair.second.detach();
-        }
-    }
     LL_DEBUGS("Window") << "thread pool shutdown complete" << LL_ENDL;
     return true;
 }
