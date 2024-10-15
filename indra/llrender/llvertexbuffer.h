@@ -127,6 +127,9 @@ public:
     // bind specified VAO for rendering
     static void bindVAO(U32 vao);
 
+    // bind specified VBO (and IBO) for rendering
+    static void bindVBO(U32 vbo, U32 ibo, U32 vertex_count);
+
     //get the size of a vertex with the given typemask
     static U32 calcVertexSize(const U32& typemask);
 
@@ -326,10 +329,11 @@ public:
     U32     mIndicesStride = 2;     // size of each index in bytes
 
     U32     mGLVAO = 0;         // GL VAO handle
-
-protected:
     U32     mGLBuffer = 0;      // GL VBO handle
     U32     mGLIndices = 0;     // GL IBO handle
+
+protected:
+
     U32     mNumVerts = 0;      // Number of vertices allocated
     U32     mNumIndices = 0;    // Number of indices allocated
     U32     mOffsets[TYPE_MAX]; // byte offsets into mMappedData of each attribute

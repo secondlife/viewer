@@ -157,8 +157,8 @@ void main()
 #endif
     frag_color = diffuse;
 #else
-    diffuse.rgb = vec3(0.85);
-    spec.rgb = vec3(0);
+    //diffuse.rgb = vec3(0.85);
+    //spec.rgb = vec3(0);
     env_intensity = 0;
     float emissive = 0.0;
     float glossiness = 0;

@@ -1272,10 +1272,12 @@ void LLImageGL::deleteTextures(S32 numTextures, const U32* textures)
         {
             sFreeList[idx].push_back(textures[i]);
 
+#if 1 //enable for paranoia check on deleting texNames
             if (gDebugGL)
             {
                 sTexNameReferenceCheck(textures[i]);
             }
+#endif
         }
 
         idx = (sFrameCount + 3) % 4;

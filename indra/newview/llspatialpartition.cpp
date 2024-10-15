@@ -883,7 +883,6 @@ void LLSpatialGroup::updateTransformUBOs()
     //  mInstanceMapUBO: a UBO mapping gl_InstanceID to the index of the transform in mTransformUBO
     //  mMaterialUBO: a UBO containing material data for each material used by the group
     //  mTextureTransformUBO: a UBO containing texture transform data for each texture transform used by the group (if animated textures are present)
-    //  mPrimScaleUBO: a UBO containing the scale of each primitive in the group
 
     U32 mat_id = 0;
     U32 bp_mat_id = 0;
@@ -909,9 +908,6 @@ void LLSpatialGroup::updateTransformUBOs()
     static std::vector<LLVector4a> material_data;
     material_data.clear();
 
-    static std::vector<LLVector4a> prim_scales;
-    prim_scales.clear();
-
     static std::vector<LLFace*> bp_faces;
     bp_faces.clear();
 
@@ -922,11 +918,6 @@ void LLSpatialGroup::updateTransformUBOs()
             LLDrawable* drawable = (LLDrawable*)(*i)->getDrawable();
             llassert(drawable); // octree nodes are not allowed to contain null drawables
 
-            // TODO: split transform UBOs when we blow past the UBO size limit
-            llassert(transforms.size() < max_transforms);
-            U32 transform_index = (U32)transforms.size();
-            transforms.push_back(&drawable->getGLTFRenderMatrix());
-
             LLVOVolume* vobj = drawable->getVOVolume();
 
             if (!vobj || vobj->isDead())
@@ -934,8 +925,14 @@ void LLSpatialGroup::updateTransformUBOs()
                 continue;
             }
 
+            // TODO: split transform UBOs when we blow past the UBO size limit
+            llassert(transforms.size() < max_transforms);
+            U32 transform_index = (U32)transforms.size();
+            transforms.push_back(&drawable->getGLTFRenderMatrix());
+
+            U32 prim_scale_index = (U32)material_data.size();
             const LLVector3& scale = drawable->getScale();
-            prim_scales.push_back(LLVector4a(scale.mV[0], scale.mV[1], scale.mV[2], 0.f));
+            material_data.push_back(LLVector4a(scale.mV[0], scale.mV[1], scale.mV[2], 0.f));
 
             LLVolume* volume = drawable->getVOVolume()->getVolume();
             volume->createVertexBuffer();
@@ -957,6 +954,7 @@ void LLSpatialGroup::updateTransformUBOs()
                 }
 
                 facep->mTransformIndex = transform_index;
+                facep->mPrimScaleIndex = prim_scale_index;
 
                 if (facep->mTextureMatrix != nullptr)
                 {
@@ -1015,11 +1013,10 @@ void LLSpatialGroup::updateTransformUBOs()
         U32 transform_index;
         U32 material_index;
         U32 texture_transform_index;
-        U32 padding;
+        U32 prim_scale_index;
     };
 
     U32 transform_ubo_size = (U32)(transforms.size() * 12 * sizeof(F32));
-    U32 prim_scales_ubo_size = (U32)(prim_scales.size() * sizeof(LLVector4a));
     U32 instance_map_ubo_size = (U32)(faces.size() * sizeof(InstanceMapEntry));
     U32 material_ubo_size = (U32) (material_data.size() * sizeof(LLVector4a));
     U32 bp_instance_map_ubo_size = (U32) bp_faces.size()*sizeof(InstanceMapEntry);
@@ -1049,7 +1046,6 @@ void LLSpatialGroup::updateTransformUBOs()
     };
 
     bool new_transform_ubo;
-    bool new_prim_scales_ubo;
     bool new_instance_map_ubo;
     bool new_material_ubo;
     bool new_texture_transform_ubo;
@@ -1057,7 +1053,6 @@ void LLSpatialGroup::updateTransformUBOs()
 
 
     alloc_ubo(mTransformUBO,        new_transform_ubo,          transform_ubo_size,         mTransformUBOSize);
-    alloc_ubo(mPrimScaleUBO,        new_prim_scales_ubo,        prim_scales_ubo_size,       mPrimScaleUBOSize);
     alloc_ubo(mInstanceMapUBO,      new_instance_map_ubo,       instance_map_ubo_size,      mInstanceMapUBOSize);
     alloc_ubo(mMaterialUBO,         new_material_ubo,           material_ubo_size,          mMaterialUBOSize);
     alloc_ubo(mBPInstanceMapUBO,    new_bp_instance_map_ubo,    bp_instance_map_ubo_size,   mBPInstanceMapUBOSize);
@@ -1128,6 +1123,7 @@ void LLSpatialGroup::updateTransformUBOs()
                 instance_map[i].transform_index = facep->mTransformIndex;
                 instance_map[i].material_index = facep->mMaterialIndex;
                 instance_map[i].texture_transform_index = facep->mTextureTransformIndex;
+                instance_map[i].prim_scale_index = facep->mPrimScaleIndex;
 
                 if (current_info &&
                     vf.mVertexBuffer.notNull() &&
@@ -1201,11 +1197,15 @@ void LLSpatialGroup::updateTransformUBOs()
                     current_info->mEmissiveMap = emissive->getTexName();
 
                     current_info->mVAO = vf.mVertexBuffer->mGLVAO;
+                    current_info->mVBO = vf.mVertexBuffer->mGLBuffer;
+                    current_info->mIBO = vf.mVertexBuffer->mGLIndices;
+                    current_info->mVBOVertexCount = vf.mVertexBuffer->getNumVerts();
+
+                    current_info->mIndicesSize = vf.mVertexBuffer->mIndicesType == GL_UNSIGNED_INT ? 1 : 0;
                     current_info->mElementOffset = vf.mVBIndexOffset;
                     current_info->mElementCount = vf.mNumIndices;
                     current_info->mTransformUBO = mTransformUBO;
                     current_info->mTextureTransformUBO = mTextureTransformUBO;
-                    current_info->mPrimScaleUBO = mPrimScaleUBO;
                     current_info->mInstanceMapUBO = mInstanceMapUBO;
                     current_info->mMaterialUBO = mMaterialUBO;
                     current_info->mBaseInstance = i;
@@ -1249,6 +1249,7 @@ void LLSpatialGroup::updateTransformUBOs()
                 bp_instance_map[i].transform_index = facep->mTransformIndex;
                 bp_instance_map[i].material_index = facep->mMaterialIndex;
                 bp_instance_map[i].texture_transform_index = facep->mTextureTransformIndex;
+                bp_instance_map[i].prim_scale_index = facep->mPrimScaleIndex;
 
                 if (current_info &&
                     vf.mVertexBuffer.notNull() &&
@@ -1315,11 +1316,15 @@ void LLSpatialGroup::updateTransformUBOs()
                     current_info->mEmissiveMap = 0; // not strictly necessary but helps with debugging at minimal cost
 
                     current_info->mVAO = vf.mVertexBuffer->mGLVAO;
+                    current_info->mVBO = vf.mVertexBuffer->mGLBuffer;
+                    current_info->mIBO = vf.mVertexBuffer->mGLIndices;
+                    current_info->mVBOVertexCount = vf.mVertexBuffer->getNumVerts();
+
+                    current_info->mIndicesSize = vf.mVertexBuffer->mIndicesType == GL_UNSIGNED_INT ? 1 : 0;
                     current_info->mElementOffset = vf.mVBIndexOffset;
                     current_info->mElementCount = vf.mNumIndices;
                     current_info->mTransformUBO = mTransformUBO;
                     current_info->mTextureTransformUBO = mTextureTransformUBO;
-                    current_info->mPrimScaleUBO = mPrimScaleUBO;
                     current_info->mInstanceMapUBO = mBPInstanceMapUBO;
                     current_info->mMaterialUBO = mMaterialUBO;
                     current_info->mBaseInstance = i;
@@ -1413,7 +1418,6 @@ void LLSpatialGroup::updateTransformUBOs()
                 }
             };
 
-            pack_ubo(mPrimScaleUBO, new_prim_scales_ubo, prim_scales_ubo_size, mPrimScaleUBOSize, prim_scales.data());
             pack_ubo(mInstanceMapUBO, new_instance_map_ubo, instance_map_ubo_size, mInstanceMapUBOSize, instance_map.data());
             pack_ubo(mMaterialUBO, new_material_ubo, material_ubo_size, mMaterialUBOSize, material_data.data());
             pack_ubo(mBPInstanceMapUBO, new_bp_instance_map_ubo, bp_instance_map_ubo_size, mBPInstanceMapUBOSize, bp_instance_map.data());

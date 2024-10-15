@@ -93,13 +93,6 @@ layout (std140) uniform GLTFNodeInstanceMap
 
 
 #ifdef PLANAR_PROJECTION
-// scale of a primitive (used for planar projection)
-// indexed by gltf_node_id
-layout (std140) uniform PrimScales
-{
-    vec4 prim_scales[MAX_UBO_VEC4S];
-};
-
 vec3 prim_scale;
 
 void planarProjection(inout vec2 tc)
@@ -206,7 +199,7 @@ mat4 getGLTFTransform()
     ret[3] = vec4(src[0].w, src[1].w, src[2].w, 1);
 
 #ifdef PLANAR_PROJECTION
-    prim_scale = prim_scales[gltf_node_id].xyz;
+    prim_scale = gltf_material_data[gltf_node_instance_map[gl_InstanceID+gltf_base_instance].w].xyz;
 #endif
     return ret;
 }

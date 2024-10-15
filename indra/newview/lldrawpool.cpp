@@ -55,6 +55,11 @@
 
 S32 LLDrawPool::sNumDrawPools = 0;
 
+#define USE_VAO 0
+
+static U32 gl_indices_type[] = { GL_UNSIGNED_SHORT, GL_UNSIGNED_INT };
+static U32 gl_indices_size[] = { sizeof(U16), sizeof(U32) };
+
 //=============================
 // Draw Pool Implementation
 //=============================
@@ -783,6 +788,7 @@ static S32 cur_orm_tex = 0;
 static S32 cur_emis_tex = 0;
 static S32 cur_diffuse_tex = 0;
 static S32 cur_specular_tex = 0;
+static S32 base_instance_index = 0;
 
 extern LLCullResult* sCull;
 
@@ -799,6 +805,8 @@ static void pre_push_gltf_batches()
     norm_tu = LLGLSLShader::sCurBoundShaderPtr->getTextureChannel(LLShaderMgr::BUMP_MAP);
     orm_tu = LLGLSLShader::sCurBoundShaderPtr->getTextureChannel(LLShaderMgr::SPECULAR_MAP);
     emis_tu = LLGLSLShader::sCurBoundShaderPtr->getTextureChannel(LLShaderMgr::EMISSIVE_MAP);
+
+    base_instance_index = LLGLSLShader::sCurBoundShaderPtr->getUniformLocation(LLShaderMgr::GLTF_BASE_INSTANCE);
 
     cur_emis_tex = cur_orm_tex = cur_norm_tex = cur_base_tex = 0;
 
@@ -852,10 +860,6 @@ void LLRenderPass::pushGLTFBatch(const LLGLTFDrawInfo& params, bool planar, bool
         glBindBufferBase(GL_UNIFORM_BUFFER, LLGLSLShader::UB_GLTF_NODES, params.mTransformUBO);
         glBindBufferBase(GL_UNIFORM_BUFFER, LLGLSLShader::UB_GLTF_NODE_INSTANCE_MAP, params.mInstanceMapUBO);
         glBindBufferBase(GL_UNIFORM_BUFFER, LLGLSLShader::UB_GLTF_MATERIALS, params.mMaterialUBO);
-        if (planar)
-        {
-            glBindBufferBase(GL_UNIFORM_BUFFER, LLGLSLShader::UB_PRIM_SCALES, params.mPrimScaleUBO);
-        }
         if (tex_anim)
         {
             glBindBufferBase(GL_UNIFORM_BUFFER, LLGLSLShader::UB_TEXTURE_TRANSFORM, params.mTextureTransformUBO);
@@ -865,7 +869,6 @@ void LLRenderPass::pushGLTFBatch(const LLGLTFDrawInfo& params, bool planar, bool
 
     if (!last_mat || params.mMaterialID != last_mat)
     {
-        LL_PROFILE_ZONE_NAMED_CATEGORY_DRAWPOOL("pb - bind gltf tex");
         last_mat = params.mMaterialID;
         if (base_tu != -1 && cur_base_tex != params.mBaseColorMap)
         {
@@ -899,12 +902,16 @@ void LLRenderPass::pushGLTFBatch(const LLGLTFDrawInfo& params, bool planar, bool
         }
     }
 
-    LLGLSLShader::sCurBoundShaderPtr->uniform1iFast(LLShaderMgr::GLTF_BASE_INSTANCE, params.mBaseInstance);
+    glUniform1i(base_instance_index, params.mBaseInstance);
 
     STOP_GLERROR;
+#if USE_VAO
     LLVertexBuffer::bindVAO(params.mVAO);
+#else
+    LLVertexBuffer::bindVBO(params.mVBO, params.mIBO, params.mVBOVertexCount);
+#endif
     glDrawElementsInstanced(GL_TRIANGLES, params.mElementCount,
-        GL_UNSIGNED_SHORT, (GLvoid*)(size_t)(params.mElementOffset * 2),
+        gl_indices_type[params.mIndicesSize], (GLvoid*)(size_t)(params.mElementOffset * gl_indices_size[params.mIndicesSize]),
         params.mInstanceCount);
     STOP_GLERROR;
 }
@@ -912,7 +919,7 @@ void LLRenderPass::pushGLTFBatch(const LLGLTFDrawInfo& params, bool planar, bool
 // static
 void LLRenderPass::pushShadowGLTFBatch(const LLGLTFDrawInfo& params)
 {
-    LL_PROFILE_ZONE_NAMED_CATEGORY_DRAWPOOL("pushUntexturedGLTFBatch");
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
     LL_PROFILE_ZONE_NUM(params.mInstanceCount);
     llassert(params.mTransformUBO != 0);
 
@@ -924,11 +931,15 @@ void LLRenderPass::pushShadowGLTFBatch(const LLGLTFDrawInfo& params)
         transform_ubo = params.mTransformUBO;
     }
 
-    LLGLSLShader::sCurBoundShaderPtr->uniform1iFast(LLShaderMgr::GLTF_BASE_INSTANCE, params.mBaseInstance);
+    glUniform1i(base_instance_index, params.mBaseInstance);
 
+#if USE_VAO
     LLVertexBuffer::bindVAO(params.mVAO);
+#else
+    LLVertexBuffer::bindVBO(params.mVBO, params.mIBO, params.mVBOVertexCount);
+#endif
     glDrawElementsInstanced(GL_TRIANGLES, params.mElementCount,
-        GL_UNSIGNED_SHORT, (GLvoid*)(size_t)(params.mElementOffset * 2),
+        gl_indices_type[params.mIndicesSize], (GLvoid*)(size_t)(params.mElementOffset * gl_indices_size[params.mIndicesSize]),
         params.mInstanceCount);
 }
 
@@ -999,6 +1010,8 @@ static void pre_push_bp_batches()
     norm_tu = LLGLSLShader::sCurBoundShaderPtr->getTextureChannel(LLShaderMgr::BUMP_MAP);
     specular_tu = LLGLSLShader::sCurBoundShaderPtr->getTextureChannel(LLShaderMgr::SPECULAR_MAP);
 
+    base_instance_index = LLGLSLShader::sCurBoundShaderPtr->getUniformLocation(LLShaderMgr::GLTF_BASE_INSTANCE);
+
      cur_specular_tex = cur_norm_tex = cur_diffuse_tex = 0;
 
     S32 tex[] = { diffuse_tu, norm_tu, specular_tu };
@@ -1050,10 +1063,6 @@ void LLRenderPass::pushBPBatch(const LLGLTFDrawInfo& params, bool planar, bool t
         glBindBufferBase(GL_UNIFORM_BUFFER, LLGLSLShader::UB_GLTF_NODES, params.mTransformUBO);
         glBindBufferBase(GL_UNIFORM_BUFFER, LLGLSLShader::UB_GLTF_NODE_INSTANCE_MAP, params.mInstanceMapUBO);
         glBindBufferBase(GL_UNIFORM_BUFFER, LLGLSLShader::UB_GLTF_MATERIALS, params.mMaterialUBO);
-        if (planar)
-        {
-            glBindBufferBase(GL_UNIFORM_BUFFER, LLGLSLShader::UB_PRIM_SCALES, params.mPrimScaleUBO);
-        }
         if (tex_anim)
         {
             glBindBufferBase(GL_UNIFORM_BUFFER, LLGLSLShader::UB_TEXTURE_TRANSFORM, params.mTextureTransformUBO);
@@ -1063,7 +1072,6 @@ void LLRenderPass::pushBPBatch(const LLGLTFDrawInfo& params, bool planar, bool t
 
     if (!last_mat || params.mMaterialID != last_mat)
     {
-        LL_PROFILE_ZONE_NAMED_CATEGORY_DRAWPOOL("pb - bind gltf tex");
         last_mat = params.mMaterialID;
         if (diffuse_tu != -1 && cur_diffuse_tex != params.mDiffuseMap)
         {
@@ -1090,18 +1098,22 @@ void LLRenderPass::pushBPBatch(const LLGLTFDrawInfo& params, bool planar, bool t
         }
     }
 
-    LLGLSLShader::sCurBoundShaderPtr->uniform1iFast(LLShaderMgr::GLTF_BASE_INSTANCE, params.mBaseInstance);
+    glUniform1i(base_instance_index, params.mBaseInstance);
 
+#if USE_VAO
     LLVertexBuffer::bindVAO(params.mVAO);
+#else
+    LLVertexBuffer::bindVBO(params.mVBO, params.mIBO, params.mVBOVertexCount);
+#endif
     glDrawElementsInstanced(GL_TRIANGLES, params.mElementCount,
-        GL_UNSIGNED_SHORT, (GLvoid*)(size_t)(params.mElementOffset * 2),
+        gl_indices_type[params.mIndicesSize], (GLvoid*)(size_t)(params.mElementOffset * gl_indices_size[params.mIndicesSize]),
         params.mInstanceCount);
 }
 
 // static
 void LLRenderPass::pushShadowBPBatch(const LLGLTFDrawInfo& params)
 {
-    LL_PROFILE_ZONE_NAMED_CATEGORY_DRAWPOOL("pushUntexturedGLTFBatch");
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
     LL_PROFILE_ZONE_NUM(params.mInstanceCount);
     llassert(params.mTransformUBO != 0);
 
@@ -1113,11 +1125,15 @@ void LLRenderPass::pushShadowBPBatch(const LLGLTFDrawInfo& params)
         transform_ubo = params.mTransformUBO;
     }
 
-    LLGLSLShader::sCurBoundShaderPtr->uniform1iFast(LLShaderMgr::GLTF_BASE_INSTANCE, params.mBaseInstance);
+    glUniform1i(base_instance_index, params.mBaseInstance);
 
+#if USE_VAO
     LLVertexBuffer::bindVAO(params.mVAO);
+#else
+    LLVertexBuffer::bindVBO(params.mVBO, params.mIBO, params.mVBOVertexCount);
+#endif
     glDrawElementsInstanced(GL_TRIANGLES, params.mElementCount,
-        GL_UNSIGNED_SHORT, (GLvoid*)(size_t)(params.mElementOffset * 2),
+        gl_indices_type[params.mIndicesSize], (GLvoid*)(size_t)(params.mElementOffset * gl_indices_size[params.mIndicesSize]),
         params.mInstanceCount);
 }
 

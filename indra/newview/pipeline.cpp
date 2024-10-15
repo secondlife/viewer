@@ -3015,6 +3015,8 @@ void LLPipeline::markTransformDirty(LLSpatialGroup* group)
     if (group && group->getSpatialPartition()->mDrawableType == LLPipeline::RENDER_TYPE_VOLUME)
     {
         group->setState(LLSpatialGroup::IN_TRANSFORM_BUILD_Q);
+        group->mBPBatches.clear();
+        group->mGLTFBatches.clear();
     }
 }
 

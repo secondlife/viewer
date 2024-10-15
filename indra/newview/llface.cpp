@@ -2562,7 +2562,14 @@ void LLFace::handleTexNameChanged(const LLImageGL* image, U32 old_texname)
     {
         llassert(mDrawablep && mDrawablep->getSpatialGroup());
         llassert(mGLTFDrawInfo.mSpatialGroup == mDrawablep->getSpatialGroup());
-        mGLTFDrawInfo->handleTexNameChanged(image, old_texname);
+        if (mGLTFDrawInfo.mSpatialGroup->hasState(LLSpatialGroup::IN_TRANSFORM_BUILD_Q))
+        { // handle is no longer valid
+            mGLTFDrawInfo.clear();
+        }
+        else
+        {
+            mGLTFDrawInfo->handleTexNameChanged(image, old_texname);
+        }
     }
 }
 

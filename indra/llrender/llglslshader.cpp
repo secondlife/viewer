@@ -1009,7 +1009,6 @@ bool LLGLSLShader::mapUniforms()
         "GLTFNodes",            // UB_GLTF_NODES
         "GLTFNodeInstanceMap",  // UB_GLTF_NODE_INSTANCE_MAP
         "GLTFMaterials",        // UB_GLTF_MATERIALS
-        "PrimScales",           // UB_PRIM_SCALES
         "TextureTransform",     // UB_TEXTURE_TRANSFORM
     };
 
@@ -1311,7 +1310,6 @@ void LLGLSLShader::uniform1i(U32 index, GLint x)
 
 void LLGLSLShader::uniform1iFast(U32 index, GLint i)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
     glUniform1i(mUniform[index], i);
 }
 

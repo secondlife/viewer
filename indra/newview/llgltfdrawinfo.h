@@ -43,6 +43,9 @@ public:
     // NOTE: if these GL resources are freed while still in use, something has gone wrong in LLVertexBuffer/LLImageGL
     // The bug is there, not here.
     U32 mVAO;
+    U32 mVBO;
+    U32 mIBO;
+    U32 mVBOVertexCount;
     union
     {
         U32 mBaseColorMap;
@@ -57,13 +60,13 @@ public:
     U32 mEmissiveMap;
     U32 mElementCount;
     U32 mElementOffset;
-    U32 mInstanceCount;
-    U32 mBaseInstance;
     U32 mTransformUBO;
     U32 mInstanceMapUBO;
     U32 mMaterialUBO;
-    U32 mPrimScaleUBO;
     U32 mTextureTransformUBO;
+    U16 mInstanceCount;
+    U16 mBaseInstance;
+    U8 mIndicesSize;  // 0 - 2 bytes, 1 - 4 bytes
 
     void handleTexNameChanged(const LLImageGL* image, U32 old_texname);
 

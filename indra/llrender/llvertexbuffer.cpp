@@ -1048,6 +1048,7 @@ void LLVertexBuffer::bindVAO(U32 vao)
 {
     if (sGLRenderVAO != vao)
     {
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_VERTEX;
         glBindVertexArray(vao);
         sGLRenderVAO = vao;
     }
@@ -1925,6 +1926,67 @@ void LLVertexBuffer::setupVertexBuffer(U32 data_mask)
         glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_VERTEX], ptr);
     }
     STOP_GLERROR;
+}
+
+//static
+void LLVertexBuffer::bindVBO(U32 vbo, U32 ibo, U32 vcount)
+{
+    if (sGLRenderBuffer == vbo)
+    {
+        return;
+    }
+
+    // NOTE: this only works for VertexBuffers allocated from inside LLVolume that all have the same attribute mask
+
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    sGLRenderBuffer = vbo;
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+    sGLRenderIndices = ibo;
+
+    U32 data_mask = LLGLSLShader::sCurBoundShaderPtr->mAttributeMask;
+
+    U8* base = nullptr;
+
+    U32 offsets[TYPE_MAX];
+
+    U32 offset = 0;
+    offsets[TYPE_VERTEX] = offset;  offset += sTypeSize[TYPE_VERTEX] * vcount;      offset = (offset + 0xF) & ~0xF;
+    offsets[TYPE_NORMAL] = offset;  offset += sTypeSize[TYPE_NORMAL] * vcount;      offset = (offset + 0xF) & ~0xF;
+    offsets[TYPE_TEXCOORD0] = offset; offset += sTypeSize[TYPE_TEXCOORD0] * vcount; offset = (offset + 0xF) & ~0xF;
+    offsets[TYPE_TANGENT] = offset; offset += sTypeSize[TYPE_TANGENT] * vcount;     offset = (offset + 0xF) & ~0xF;
+    offsets[TYPE_WEIGHT4] = offset; offset += sTypeSize[TYPE_WEIGHT4] * vcount;     offset = (offset + 0xF) & ~0xF;
+
+    if (data_mask & MAP_NORMAL)
+    {
+        AttributeType loc = TYPE_NORMAL;
+        void* ptr = (void*)(base + offsets[TYPE_NORMAL]);
+        glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_NORMAL], ptr);
+    }
+    if (data_mask & MAP_TANGENT)
+    {
+        AttributeType loc = TYPE_TANGENT;
+        void* ptr = (void*)(base + offsets[TYPE_TANGENT]);
+        glVertexAttribPointer(loc, 4, GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_TANGENT], ptr);
+    }
+    if (data_mask & MAP_TEXCOORD0)
+    {
+        AttributeType loc = TYPE_TEXCOORD0;
+        void* ptr = (void*)(base + offsets[TYPE_TEXCOORD0]);
+        glVertexAttribPointer(loc, 2, GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_TEXCOORD0], ptr);
+    }
+    if (data_mask & MAP_WEIGHT4)
+    {
+        AttributeType loc = TYPE_WEIGHT4;
+        void* ptr = (void*)(base + offsets[TYPE_WEIGHT4]);
+        glVertexAttribPointer(loc, 4, GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_WEIGHT4], ptr);
+    }
+
+    {
+        AttributeType loc = TYPE_VERTEX;
+        void* ptr = (void*)(base + offsets[TYPE_VERTEX]);
+        glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_VERTEX], ptr);
+    }
 }
 
 void LLVertexBuffer::setupVAO()
