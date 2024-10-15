@@ -54,7 +54,7 @@ public:
         U32 groupPerms,
         U32 everyonePerms,
         S32 expectedCost,
-        const LLUUID &destFolderId = LLUUID::null,
+        const LLUUID& destFolderId = LLUUID::null,
         bool showInventory = true);
 
     virtual ~LLResourceUploadInfo()
@@ -157,7 +157,7 @@ public:
         U32 groupPerms,
         U32 everyonePerms,
         S32 expectedCost,
-        const LLUUID &destFolderId = LLUUID::null,
+        const LLUUID& destFolderId = LLUUID::null,
         bool show_inventory = true);
 
     virtual LLSD        prepareUpload();

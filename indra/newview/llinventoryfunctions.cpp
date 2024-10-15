@@ -3792,8 +3792,7 @@ void LLInventoryAction::fileUploadLocation(const LLUUID& dest_id, const std::str
     }
     else if (action == "upload_bulk")
     {
-        //LLFilePickerReplyThread::startPicker(boost::bind(&upload_bulk, _1, _2, dest_id), LLFilePicker::FFLOAD_ALL, true);
-        LLFilePickerReplyThread::startPicker(boost::bind(&upload_bulk, _1, _2, true), LLFilePicker::FFLOAD_ALL, true); // TODO: merge conflict; fix this
+        LLFilePickerReplyThread::startPicker(boost::bind(&upload_bulk, _1, _2, true, dest_id), LLFilePicker::FFLOAD_ALL, true);
     }
 }
 

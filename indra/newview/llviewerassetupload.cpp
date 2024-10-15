@@ -301,16 +301,19 @@ void LLResourceUploadInfo::assignDefaults()
         mDescription = "(No Description)";
     }
 
-    if (mAssetType == LLAssetType::AT_GLTF ||
-        mAssetType == LLAssetType::AT_GLTF_BIN)
+    if (mFolderId.isNull())
     {
-        mFolderId = LLUUID::null;
-    }
-    else
-    {
-        mFolderId = gInventory.findUserDefinedCategoryUUIDForType(
-            (mDestinationFolderType == LLFolderType::FT_NONE) ?
-            (LLFolderType::EType)mAssetType : mDestinationFolderType);
+        if (mAssetType == LLAssetType::AT_GLTF ||
+            mAssetType == LLAssetType::AT_GLTF_BIN)
+        {
+            mFolderId = LLUUID::null;
+        }
+        else
+        {
+            mFolderId = gInventory.findUserDefinedCategoryUUIDForType(
+                (mDestinationFolderType == LLFolderType::FT_NONE) ?
+                (LLFolderType::EType)mAssetType : mDestinationFolderType);
+        }
     }
 }
 

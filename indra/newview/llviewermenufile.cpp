@@ -529,7 +529,7 @@ void upload_single_file(
     return;
 }
 
-void do_bulk_upload(std::vector<std::string> filenames, bool allow_2k)
+void do_bulk_upload(std::vector<std::string> filenames, bool allow_2k, const LLUUID& dest)
 {
     for (std::vector<std::string>::const_iterator in_iter = filenames.begin(); in_iter != filenames.end(); ++in_iter)
     {
@@ -576,7 +576,8 @@ void do_bulk_upload(std::vector<std::string> filenames, bool allow_2k)
                     LLFloaterPerms::getNextOwnerPerms("Uploads"),
                     LLFloaterPerms::getGroupPerms("Uploads"),
                     LLFloaterPerms::getEveryonePerms("Uploads"),
-                    expected_upload_cost);
+                    expected_upload_cost,
+                    dest);
 
                 if (!allow_2k)
                 {
@@ -601,14 +602,14 @@ void do_bulk_upload(std::vector<std::string> filenames, bool allow_2k)
                     // Todo:
                     // 1. Decouple bulk upload from material editor
                     // 2. Take into account possiblity of identical textures
-                    LLMaterialEditor::uploadMaterialFromModel(filename, model, i);
+                    LLMaterialEditor::uploadMaterialFromModel(filename, model, i, dest);
                 }
             }
         }
     }
 }
 
-void do_bulk_upload(std::vector<std::string> filenames, bool allow_2k, const LLSD& notification, const LLSD& response)
+void do_bulk_upload(std::vector<std::string> filenames, bool allow_2k, const LLSD& notification, const LLSD& response, const LLUUID& dest)
 {
     S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
     if (option != 0)
@@ -617,7 +618,7 @@ void do_bulk_upload(std::vector<std::string> filenames, bool allow_2k, const LLS
         return;
     }
 
-    do_bulk_upload(filenames, allow_2k);
+    do_bulk_upload(filenames, allow_2k, dest);
 }
 
 bool get_bulk_upload_expected_cost(
@@ -715,7 +716,7 @@ bool get_bulk_upload_expected_cost(
     return file_count > 0;
 }
 
-const void upload_bulk(const std::vector<std::string>& filtered_filenames, bool allow_2k)
+const void upload_bulk(const std::vector<std::string>& filtered_filenames, bool allow_2k, const LLUUID& dest)
 {
     S32 expected_upload_cost;
     S32 expected_upload_count;
@@ -727,6 +728,7 @@ const void upload_bulk(const std::vector<std::string>& filtered_filenames, bool 
         key["upload_cost"] = expected_upload_cost;
         key["upload_count"] = expected_upload_count;
         key["has_2k_textures"] = (textures_2k_count > 0);
+        key["dest"] = dest;
 
         LLSD array;
         for (const std::string& str : filtered_filenames)
@@ -760,7 +762,7 @@ const void upload_bulk(const std::vector<std::string>& filtered_filenames, bool 
 
 }
 
-void upload_bulk(const std::vector<std::string>& filenames, LLFilePicker::ELoadFilter type, bool allow_2k)
+void upload_bulk(const std::vector<std::string>& filenames, LLFilePicker::ELoadFilter type, bool allow_2k, const LLUUID& dest)
 {
     // TODO:
     // Check user balance for entire cost
@@ -782,7 +784,7 @@ void upload_bulk(const std::vector<std::string>& filenames, LLFilePicker::ELoadF
             filtered_filenames.push_back(filename);
         }
     }
-    upload_bulk(filtered_filenames, allow_2k);
+    upload_bulk(filtered_filenames, allow_2k, dest);
 }
 
 class LLFileUploadImage : public view_listener_t
@@ -851,7 +853,7 @@ class LLFileUploadBulk : public view_listener_t
             gAgentCamera.changeCameraToDefault();
         }
 
-        LLFilePickerReplyThread::startPicker(boost::bind(&upload_bulk, _1, _2, true), LLFilePicker::FFLOAD_ALL, true);
+        LLFilePickerReplyThread::startPicker(boost::bind(&upload_bulk, _1, _2, true, LLUUID::null), LLFilePicker::FFLOAD_ALL, true);
 
         return true;
     }
