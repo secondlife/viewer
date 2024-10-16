@@ -67,6 +67,7 @@ public:
         GLTF_MATERIAL_ID,                     //  "gltf_material_id" (GLTF)
 
         TERRAIN_TEXTURE_TRANSFORMS,           //  "terrain_texture_transforms" (GLTF)
+        TERRAIN_STAMP_SCALE,                  //  "terrain_stamp_scale"
 
         VIEWPORT,                           //  "viewport"
         LIGHT_POSITION,                     //  "light_position"
@@ -158,9 +159,6 @@ public:
         DEFERRED_SHADOW_MATRIX,             //  "shadow_matrix"
         DEFERRED_ENV_MAT,                   //  "env_mat"
         DEFERRED_SHADOW_CLIP,               //  "shadow_clip"
-        DEFERRED_SUN_WASH,                  //  "sun_wash"
-        DEFERRED_SHADOW_NOISE,              //  "shadow_noise"
-        DEFERRED_BLUR_SIZE,                 //  "blur_size"
         DEFERRED_SSAO_RADIUS,               //  "ssao_radius"
         DEFERRED_SSAO_MAX_RADIUS,           //  "ssao_max_radius"
         DEFERRED_SSAO_FACTOR,               //  "ssao_factor"
@@ -176,8 +174,6 @@ public:
         DEFERRED_MOON_DIR,                  //  "moon_dir"
         DEFERRED_SHADOW_RES,                //  "shadow_res"
         DEFERRED_PROJ_SHADOW_RES,           //  "proj_shadow_res"
-        DEFERRED_DEPTH_CUTOFF,              //  "depth_cutoff"
-        DEFERRED_NORM_CUTOFF,               //  "norm_cutoff"
         DEFERRED_SHADOW_TARGET_WIDTH,       //  "shadow_target_width"
 
         DEFERRED_SSR_ITR_COUNT,             //  "iterationCount"
@@ -222,9 +218,7 @@ public:
         DEFERRED_NOISE,                     //  "noiseMap"
         DEFERRED_LIGHTFUNC,                 //  "lightFunc"
         DEFERRED_LIGHT,                     //  "lightMap"
-        DEFERRED_BLOOM,                     //  "bloomMap"
         DEFERRED_PROJECTION,                //  "projectionMap"
-        DEFERRED_NORM_MATRIX,               //  "norm_mat"
         SPECULAR_COLOR,                     //  "specular_color"
         ENVIRONMENT_INTENSITY,              //  "env_intensity"
 
@@ -302,13 +296,7 @@ public:
         SUN_SIZE,                           //  "sun_size"
         FOG_COLOR,                          //  "fog_color"
 
-        // precomputed textures
-        TRANSMITTANCE_TEX,                  //  "transmittance_texture"
-        SCATTER_TEX,                        //  "scattering_texture"
-        SINGLE_MIE_SCATTER_TEX,             //  "single_mie_scattering_texture"
-        ILLUMINANCE_TEX,                    //  "irradiance_texture"
         BLEND_FACTOR,                       //  "blend_factor"
-
         MOISTURE_LEVEL,                     //  "moisture_level"
         DROPLET_RADIUS,                     //  "droplet_radius"
         ICE_LEVEL,                          //  "ice_level"

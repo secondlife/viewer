@@ -12,6 +12,10 @@
  title="INSPECT OBJECTS"
  width="400">
     <floater.string
+     name="timeStampAMPM">
+      [wkday,datetime,slt] [mth,datetime,slt] [day,datetime,slt] [hour12,datetime,slt]:[min,datetime,slt]:[second,datetime,slt] [ampm,datetime,slt] [year,datetime,slt]
+    </floater.string>
+    <floater.string
      name="timeStamp">
         [wkday,datetime,slt] [mth,datetime,slt] [day,datetime,slt] [hour,datetime,slt]:[min,datetime,slt]:[second,datetime,slt] [year,datetime,slt]
     </floater.string>

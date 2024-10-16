@@ -55,7 +55,6 @@
 #include "llmemory.h"
 #include "llparcel.h"
 #include "llperfstats.h"
-#include "llpostprocess.h"
 #include "llrender.h"
 #include "llscenemonitor.h"
 #include "llsdjson.h"

@@ -733,7 +733,8 @@ void LLPanelLandGeneral::refresh()
 
             // Display claim date
             time_t claim_date = parcel->getClaimDate();
-            std::string claim_date_str = getString("time_stamp_template");
+            static bool use_24h = gSavedSettings.getBOOL("Use24HourClock");
+            std::string claim_date_str = use_24h ? getString("time_stamp_template") : getString("time_stamp_template_ampm");
             LLSD substitution;
             substitution["datetime"] = (S32) claim_date;
             LLStringUtil::format (claim_date_str, substitution);

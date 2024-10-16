@@ -486,8 +486,11 @@ void LLFloaterWorldMap::onOpen(const LLSD& key)
         const LLUUID landmark_folder_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_LANDMARK);
         LLInventoryModelBackgroundFetch::instance().start(landmark_folder_id);
 
-        mLocationEditor->setFocus( true);
-        gFocusMgr.triggerFocusFlash();
+        if (hasFocus())
+        {
+            mLocationEditor->setFocus( true);
+            gFocusMgr.triggerFocusFlash();
+        }
 
         buildAvatarIDList();
         buildLandmarkIDLists();

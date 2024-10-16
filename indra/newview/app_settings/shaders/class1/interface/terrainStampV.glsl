@@ -1,10 +1,9 @@
 /**
- * @file coordframe.h
- * @brief Legacy wrapper header.
+ * @file terrainStampV.glsl
  *
- * $LicenseInfo:firstyear=2000&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2024, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -24,4 +23,17 @@
  * $/LicenseInfo$
  */
 
-#include "llcoordframe.h"
+uniform mat4 modelview_projection_matrix;
+uniform vec2 terrain_stamp_scale;
+
+in vec3 position;
+
+out vec2 vary_texcoord0;
+
+void main()
+{
+    gl_Position = modelview_projection_matrix * vec4(position, 1.0);
+    // Positions without transforms are treated as UVs for the purpose of this shader.
+    vary_texcoord0.xy = terrain_stamp_scale * position.xy;
+}
+

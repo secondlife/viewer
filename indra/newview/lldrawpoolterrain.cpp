@@ -296,7 +296,7 @@ void LLDrawPoolTerrain::renderFullShaderTextures()
     // GL_BLEND disabled by default
     drawLoop();
 
-    // Disable multitexture
+    // Disable textures
     sShader->disableTexture(LLViewerShaderMgr::TERRAIN_ALPHARAMP);
     sShader->disableTexture(LLViewerShaderMgr::TERRAIN_DETAIL0);
     sShader->disableTexture(LLViewerShaderMgr::TERRAIN_DETAIL1);
@@ -557,7 +557,7 @@ void LLDrawPoolTerrain::renderFullShaderPBR(bool use_local_materials)
     // GL_BLEND disabled by default
     drawLoop();
 
-    // Disable multitexture
+    // Disable textures
 
     if (paint_type == TERRAIN_PAINT_TYPE_HEIGHTMAP_WITH_NOISE)
     {
@@ -769,7 +769,7 @@ void LLDrawPoolTerrain::renderFull4TU()
     }
 
     LLVertexBuffer::unbind();
-    // Disable multitexture
+    // Disable textures
     gGL.getTexUnit(3)->unbind(LLTexUnit::TT_TEXTURE);
     gGL.getTexUnit(3)->disable();
     gGL.getTexUnit(3)->activate();
@@ -949,7 +949,7 @@ void LLDrawPoolTerrain::renderFull2TU()
     // Restore blend state
     gGL.setSceneBlendType(LLRender::BT_ALPHA);
 
-    // Disable multitexture
+    // Disable textures
 
     gGL.getTexUnit(1)->unbind(LLTexUnit::TT_TEXTURE);
     gGL.getTexUnit(1)->disable();

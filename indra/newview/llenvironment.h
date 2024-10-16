@@ -36,8 +36,6 @@
 #include "llsettingswater.h"
 #include "llsettingsdaycycle.h"
 
-#include "llatmosphere.h"
-
 #include "llglslshader.h"
 
 #include <boost/signals2.hpp>
@@ -130,8 +128,6 @@ public:
     LLSettingsDay::ptr_t        getCurrentDay() const { return mCurrentEnvironment->getDayCycle(); }
     LLSettingsSky::ptr_t        getCurrentSky() const;
     LLSettingsWater::ptr_t      getCurrentWater() const;
-
-    static void                 getAtmosphericModelSettings(AtmosphericModelSettings& settingsOut, const LLSettingsSky::ptr_t &psky);
 
     void                        update(const LLViewerCamera * cam);
 

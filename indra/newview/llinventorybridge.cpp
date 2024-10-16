@@ -4189,6 +4189,32 @@ void LLFolderBridge::pasteLinkFromClipboard()
         std::vector<LLUUID> objects;
         LLClipboard::instance().pasteFromClipboard(objects);
 
+        if (objects.size() == 0)
+        {
+            LLClipboard::instance().setCutMode(false);
+            return;
+        }
+
+        LLUUID& first_id = objects[0];
+        LLInventoryItem* item = model->getItem(first_id);
+        if (item && item->getAssetUUID().isNull())
+        {
+            if (item->getActualType() == LLAssetType::AT_NOTECARD)
+            {
+                // otehrwise AIS will return 'Cannot link to items with a NULL asset_id.'
+                LLNotificationsUtil::add("CantLinkNotecard");
+                LLClipboard::instance().setCutMode(false);
+                return;
+            }
+            else if (item->getActualType() == LLAssetType::AT_MATERIAL)
+            {
+                LLNotificationsUtil::add("CantLinkMaterial");
+                LLClipboard::instance().setCutMode(false);
+                return;
+            }
+        }
+
+
         LLPointer<LLInventoryCallback> cb = NULL;
         LLInventoryPanel* panel = mInventoryPanel.get();
         if (panel->getRootFolder()->isSingleFolderMode())

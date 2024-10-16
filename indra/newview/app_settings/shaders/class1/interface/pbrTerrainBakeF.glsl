@@ -1,5 +1,5 @@
 /**
- * @file terrainBakeF.glsl
+ * @file pbrTerrainBakeF.glsl
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code

@@ -27,8 +27,6 @@
 #ifndef LL_LLSPRITE_H
 #define LL_LLSPRITE_H
 
-////#include "vmath.h"
-//#include "llmath.h"
 #include "v3math.h"
 #include "v4math.h"
 #include "v4color.h"

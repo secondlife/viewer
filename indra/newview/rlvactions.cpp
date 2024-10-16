@@ -1,10 +1,11 @@
 /**
- * @file camera.h
- * @brief Legacy wrapper header.
+ * @file rlvactions.cpp
+ * @author Kitty Barnett
+ * @brief RLVa public facing helper class to easily make RLV checks
  *
- * $LicenseInfo:firstyear=2000&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2024&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2024, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -24,4 +25,18 @@
  * $/LicenseInfo$
  */
 
-#include "llcamera.h"
+#include "llviewerprecompiledheaders.h"
+
+#include "rlvactions.h"
+#include "rlvhandler.h"
+
+// ============================================================================
+// Helper functions
+//
+
+bool RlvActions::isRlvEnabled()
+{
+    return RlvHandler::isEnabled();
+}
+
+// ============================================================================

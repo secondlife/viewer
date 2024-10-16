@@ -30,8 +30,6 @@ out vec4 frag_color;
 uniform sampler2D diffuseRect;
 uniform sampler2D depthMap;
 
-uniform float depth_cutoff;
-uniform float norm_cutoff;
 uniform float focal_distance;
 uniform float blur_constant;
 uniform float tan_pixel_angle;

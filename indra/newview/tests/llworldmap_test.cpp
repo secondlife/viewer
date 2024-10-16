@@ -28,6 +28,7 @@
 // Dependencies
 #include "linden_common.h"
 #include "llapr.h"
+#include "llcontrol.h"      // LLControlGroup
 #include "llsingleton.h"
 #include "lltrans.h"
 #include "lluistring.h"
@@ -70,6 +71,8 @@ std::string LLTrans::getString(std::string_view, const LLStringUtil::format_map_
 void LLUIString::updateResult() const { }
 void LLUIString::setArg(const std::string& , const std::string& ) { }
 void LLUIString::assign(const std::string& ) { }
+
+LLControlGroup gSavedSettings("Global");    // saved at end of session
 
 // End Stubbing
 // -------------------------------------------------------------------------------------------
@@ -131,6 +134,7 @@ namespace tut
         // Constructor and destructor of the test wrapper
         worldmap_test()
         {
+            gSavedSettings.declareBOOL("Use24HourClock", true, "", LLControlVariable::PERSIST_NO);
             mWorld = LLWorldMap::getInstance();
         }
         ~worldmap_test()
