@@ -225,7 +225,6 @@ LLGLSLShader            gDeferredBufferVisualProgram;
 
 
 // Deferred materials shaders
-LLGLSLShader            gDeferredMaterialProgram[LLMaterial::SHADER_COUNT*2];
 LLGLSLShader            gHUDPBROpaqueProgram;
 LLGLSLShader            gHUDPBRAlphaProgram;
 LLGLSLShader            gPBRGlowProgram;
@@ -1136,11 +1135,6 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         gDeferredGenBrdfLutProgram.unload();
         gDeferredBufferVisualProgram.unload();
 
-        for (U32 i = 0; i < LLMaterial::SHADER_COUNT*2; ++i)
-        {
-            gDeferredMaterialProgram[i].unload();
-        }
-
         gHUDPBROpaqueProgram.unload();
         gPBRGlowProgram.unload();
         gGLTFPBRShaderPack.unload();
@@ -1224,98 +1218,6 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         success = success && gDeferredBumpProgram.createShader();
         llassert(success);
     }
-
-    gDeferredMaterialProgram[1].mFeatures.hasLighting = false;
-    gDeferredMaterialProgram[5].mFeatures.hasLighting = false;
-    gDeferredMaterialProgram[9].mFeatures.hasLighting = false;
-    gDeferredMaterialProgram[13].mFeatures.hasLighting = false;
-    gDeferredMaterialProgram[1+LLMaterial::SHADER_COUNT].mFeatures.hasLighting = false;
-    gDeferredMaterialProgram[5+LLMaterial::SHADER_COUNT].mFeatures.hasLighting = false;
-    gDeferredMaterialProgram[9+LLMaterial::SHADER_COUNT].mFeatures.hasLighting = false;
-    gDeferredMaterialProgram[13+LLMaterial::SHADER_COUNT].mFeatures.hasLighting = false;
-
-    for (U32 i = 0; i < LLMaterial::SHADER_COUNT*2; ++i)
-    {
-        if (success)
-        {
-            bool has_skin = i & 0x10;
-
-            if (!has_skin)
-            {
-                mShaderList.push_back(&gDeferredMaterialProgram[i]);
-                gDeferredMaterialProgram[i].mName = llformat("Material Shader %d", i);
-            }
-            else
-            {
-                gDeferredMaterialProgram[i].mName = llformat("Skinned Material Shader %d", i);
-            }
-
-            U32 alpha_mode = i & 0x3;
-
-            gDeferredMaterialProgram[i].mShaderFiles.clear();
-            gDeferredMaterialProgram[i].mShaderFiles.push_back(make_pair("deferred/materialV.glsl", GL_VERTEX_SHADER));
-            gDeferredMaterialProgram[i].mShaderFiles.push_back(make_pair("deferred/materialF.glsl", GL_FRAGMENT_SHADER));
-            gDeferredMaterialProgram[i].mShaderLevel = mShaderLevel[SHADER_DEFERRED];
-
-            gDeferredMaterialProgram[i].clearPermutations();
-
-            bool has_normal_map   = (i & 0x8) > 0;
-            bool has_specular_map = (i & 0x4) > 0;
-
-            if (has_normal_map)
-            {
-                gDeferredMaterialProgram[i].addPermutation("HAS_NORMAL_MAP", "1");
-            }
-
-            if (has_specular_map)
-            {
-                gDeferredMaterialProgram[i].addPermutation("HAS_SPECULAR_MAP", "1");
-            }
-
-            gDeferredMaterialProgram[i].addPermutation("DIFFUSE_ALPHA_MODE", llformat("%d", alpha_mode));
-
-            if (alpha_mode != 0)
-            {
-                gDeferredMaterialProgram[i].mFeatures.hasAlphaMask = true;
-                gDeferredMaterialProgram[i].addPermutation("HAS_ALPHA_MASK", "1");
-            }
-
-            if (use_sun_shadow)
-            {
-                gDeferredMaterialProgram[i].addPermutation("HAS_SUN_SHADOW", "1");
-            }
-
-
-            gDeferredMaterialProgram[i].mFeatures.hasSrgb = true;
-            gDeferredMaterialProgram[i].mFeatures.calculatesAtmospherics = true;
-            gDeferredMaterialProgram[i].mFeatures.hasAtmospherics = true;
-            gDeferredMaterialProgram[i].mFeatures.hasGamma = true;
-            gDeferredMaterialProgram[i].mFeatures.hasShadows = use_sun_shadow;
-            gDeferredMaterialProgram[i].mFeatures.hasReflectionProbes = true;
-
-            if (has_skin)
-            {
-                gDeferredMaterialProgram[i].addPermutation("HAS_SKIN", "1");
-                gDeferredMaterialProgram[i].mFeatures.hasObjectSkinning = true;
-            }
-            else
-            {
-                gDeferredMaterialProgram[i].mRiggedVariant = &gDeferredMaterialProgram[i + 0x10];
-            }
-
-            success = gDeferredMaterialProgram[i].createShader();
-            llassert(success);
-        }
-    }
-
-    gDeferredMaterialProgram[1].mFeatures.hasLighting = true;
-    gDeferredMaterialProgram[5].mFeatures.hasLighting = true;
-    gDeferredMaterialProgram[9].mFeatures.hasLighting = true;
-    gDeferredMaterialProgram[13].mFeatures.hasLighting = true;
-    gDeferredMaterialProgram[1+LLMaterial::SHADER_COUNT].mFeatures.hasLighting = true;
-    gDeferredMaterialProgram[5+LLMaterial::SHADER_COUNT].mFeatures.hasLighting = true;
-    gDeferredMaterialProgram[9+LLMaterial::SHADER_COUNT].mFeatures.hasLighting = true;
-    gDeferredMaterialProgram[13+LLMaterial::SHADER_COUNT].mFeatures.hasLighting = true;
 
     U32 node_size = 16 * 3;
     U32 max_nodes = gGLManager.mMaxUniformBlockSize / node_size;

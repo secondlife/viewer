@@ -4543,9 +4543,6 @@ F32 LLVOVolume::getBinRadius()
     S32 size_factor = llmax((S32)octree_size_factor, 1);
     LLVector3 alpha_distance_factor = octree_alpha_distance_factor;
 
-    //const LLVector4a* ext = mDrawable->getSpatialExtents();
-
-    bool shrink_wrap = mShouldShrinkWrap || mDrawable->isAnimating();
     bool alpha_wrap = false;
 
     if (!isHUDAttachment() && mDrawable->mDistanceWRTCamera < alpha_distance_factor[2])
@@ -4562,10 +4559,6 @@ F32 LLVOVolume::getBinRadius()
             }
         }
     }
-    else
-    {
-        shrink_wrap = false;
-    }
 
     if (alpha_wrap)
     {
@@ -4574,14 +4567,10 @@ F32 LLVOVolume::getBinRadius()
         radius = llmin(radius, bounds.mV[0]);
         radius *= 0.5f;
     }
-    else if (shrink_wrap)
-    {
-        radius = mDrawable->getRadius() * 0.25f;
-    }
     else
     {
         F32 szf = (F32)size_factor;
-        radius = (F32) nhpo2(llmax((S32)mDrawable->getRadius(), 4));
+        radius = (F32) nhpo2(llmax((S32)mDrawable->getRadius(), 8));
     }
 
     return llclamp(radius, 0.5f, 256.f);

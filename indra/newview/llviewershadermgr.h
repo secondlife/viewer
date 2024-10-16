@@ -323,9 +323,6 @@ extern LLGLSLShader         gNormalMapGenProgram;
 extern LLGLSLShader         gDeferredGenBrdfLutProgram;
 extern LLGLSLShader         gDeferredBufferVisualProgram;
 
-// Deferred materials shaders
-extern LLGLSLShader         gDeferredMaterialProgram[LLMaterial::SHADER_COUNT*2];
-
 extern LLGLSLShader         gHUDPBROpaqueProgram;
 extern LLGLSLShader         gHUDPBRAlphaProgram;
 extern LLGLSLShader         gPBRGlowProgram;

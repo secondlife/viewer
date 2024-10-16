@@ -39,10 +39,9 @@ public:
     // put mMaterialID first for cache coherency during sorts
     size_t mMaterialID;
 
-    // Use direct values of VAO and texture names to avoid dereferencing pointers
+    // Use direct values of VBO/IBO and texture names to avoid dereferencing pointers
     // NOTE: if these GL resources are freed while still in use, something has gone wrong in LLVertexBuffer/LLImageGL
     // The bug is there, not here.
-    U32 mVAO;
     U32 mVBO;
     U32 mIBO;
     U32 mVBOVertexCount;

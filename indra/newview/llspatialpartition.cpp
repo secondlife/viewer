@@ -1128,7 +1128,7 @@ void LLSpatialGroup::updateTransformUBOs()
                 if (current_info &&
                     vf.mVertexBuffer.notNull() &&
                     current_info->mMaterialID == facep->mBatchHash &&
-                    current_info->mVAO == vf.mVertexBuffer->mGLVAO &&
+                    current_info->mVBO == vf.mVertexBuffer->mGLBuffer &&
                     current_info->mElementOffset == vf.mVBIndexOffset &&
                     current_avatar == avatar &&
                     current_skin_hash == skin_hash &&
@@ -1196,7 +1196,6 @@ void LLSpatialGroup::updateTransformUBOs()
                     current_info->mMetallicRoughnessMap = metallic->getTexName();
                     current_info->mEmissiveMap = emissive->getTexName();
 
-                    current_info->mVAO = vf.mVertexBuffer->mGLVAO;
                     current_info->mVBO = vf.mVertexBuffer->mGLBuffer;
                     current_info->mIBO = vf.mVertexBuffer->mGLIndices;
                     current_info->mVBOVertexCount = vf.mVertexBuffer->getNumVerts();
@@ -1254,7 +1253,7 @@ void LLSpatialGroup::updateTransformUBOs()
                 if (current_info &&
                     vf.mVertexBuffer.notNull() &&
                     current_info->mMaterialID == facep->mBatchHash &&
-                    current_info->mVAO == vf.mVertexBuffer->mGLVAO &&
+                    current_info->mVBO == vf.mVertexBuffer->mGLBuffer &&
                     current_info->mElementOffset == vf.mVBIndexOffset &&
                     current_avatar == avatar &&
                     current_skin_hash == skin_hash &&
@@ -1315,7 +1314,6 @@ void LLSpatialGroup::updateTransformUBOs()
                     current_info->mSpecularMap = specular->getTexName();
                     current_info->mEmissiveMap = 0; // not strictly necessary but helps with debugging at minimal cost
 
-                    current_info->mVAO = vf.mVertexBuffer->mGLVAO;
                     current_info->mVBO = vf.mVertexBuffer->mGLBuffer;
                     current_info->mIBO = vf.mVertexBuffer->mGLIndices;
                     current_info->mVBOVertexCount = vf.mVertexBuffer->getNumVerts();

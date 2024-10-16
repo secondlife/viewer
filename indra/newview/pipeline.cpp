@@ -3620,9 +3620,9 @@ void LLPipeline::postSort(LLCamera &camera)
         }
     }
 
-    // build GLTF render map
+    // build render map
     {
-        LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("postSort - build render map");
+        LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("postSort - build GLTF/BP render map");
 
         for (LLCullResult::sg_iterator i = sCull->beginVisibleGroups(); i != sCull->endVisibleGroups(); ++i)
         {
@@ -3666,7 +3666,7 @@ void LLPipeline::postSort(LLCamera &camera)
     }
 
     {
-        struct CompareMaterialVAO
+        struct CompareMaterialVBO
         {
             bool operator()(const LLGLTFDrawInfo& lhs, const LLGLTFDrawInfo& rhs)
             {
@@ -3676,12 +3676,12 @@ void LLPipeline::postSort(LLCamera &camera)
                 }
                 else
                 {
-                    return lhs.mVAO < rhs.mVAO;
+                    return lhs.mVBO < rhs.mVBO;
                 }
             }
         };
 
-        struct CompareSkinnedMaterialVAO
+        struct CompareSkinnedMaterialVBO
         {
             bool operator()(const LLSkinnedGLTFDrawInfo& lhs, const LLSkinnedGLTFDrawInfo& rhs)
             {
@@ -3699,49 +3699,25 @@ void LLPipeline::postSort(LLCamera &camera)
                 }
                 else
                 {
-                    return lhs.mVAO < rhs.mVAO;
+                    return lhs.mVBO < rhs.mVBO;
                 }
             }
         };
 
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("postSort - gltf sort");
-            sCull->mGLTFBatches.sort(LLGLTFMaterial::ALPHA_MODE_OPAQUE, CompareMaterialVAO());
-            sCull->mGLTFBatches.sort(LLGLTFMaterial::ALPHA_MODE_MASK, CompareMaterialVAO());
-            sCull->mGLTFBatches.sortSkinned(LLGLTFMaterial::ALPHA_MODE_OPAQUE, CompareSkinnedMaterialVAO());
-            sCull->mGLTFBatches.sortSkinned(LLGLTFMaterial::ALPHA_MODE_MASK, CompareSkinnedMaterialVAO());
+            sCull->mGLTFBatches.sort(LLGLTFMaterial::ALPHA_MODE_OPAQUE, CompareMaterialVBO());
+            sCull->mGLTFBatches.sort(LLGLTFMaterial::ALPHA_MODE_MASK, CompareMaterialVBO());
+            sCull->mGLTFBatches.sortSkinned(LLGLTFMaterial::ALPHA_MODE_OPAQUE, CompareSkinnedMaterialVBO());
+            sCull->mGLTFBatches.sortSkinned(LLGLTFMaterial::ALPHA_MODE_MASK, CompareSkinnedMaterialVBO());
         }
 
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("postSort - bp sort");
-            sCull->mBPBatches.sort(LLGLTFMaterial::ALPHA_MODE_OPAQUE, CompareMaterialVAO());
-            sCull->mBPBatches.sort(LLGLTFMaterial::ALPHA_MODE_MASK, CompareMaterialVAO());
-            sCull->mBPBatches.sortSkinned(LLGLTFMaterial::ALPHA_MODE_OPAQUE, CompareSkinnedMaterialVAO());
-            sCull->mBPBatches.sortSkinned(LLGLTFMaterial::ALPHA_MODE_MASK, CompareSkinnedMaterialVAO());
-        }
-    }
-
-
-    { // sort LLDrawInfos that have an associated material ID by material
-        LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("postSort - material sort");
-        U32 material_batch_types[] = {
-            LLRenderPass::PASS_MATERIAL,
-            LLRenderPass::PASS_MATERIAL_ALPHA_MASK,
-            LLRenderPass::PASS_MATERIAL_ALPHA_EMISSIVE,
-            LLRenderPass::PASS_SPECMAP,
-            LLRenderPass::PASS_SPECMAP_MASK,
-            LLRenderPass::PASS_SPECMAP_EMISSIVE,
-            LLRenderPass::PASS_NORMMAP,
-            LLRenderPass::PASS_NORMMAP_MASK,
-            LLRenderPass::PASS_NORMMAP_EMISSIVE,
-            LLRenderPass::PASS_NORMSPEC,
-            LLRenderPass::PASS_NORMSPEC_MASK,
-            LLRenderPass::PASS_NORMSPEC_EMISSIVE,
-        };
-
-        for (auto& render_type : material_batch_types)
-        {
-            std::sort(sCull->beginRenderMap(render_type), sCull->endRenderMap(render_type), LLDrawInfo::CompareMaterialID());
+            sCull->mBPBatches.sort(LLGLTFMaterial::ALPHA_MODE_OPAQUE, CompareMaterialVBO());
+            sCull->mBPBatches.sort(LLGLTFMaterial::ALPHA_MODE_MASK, CompareMaterialVBO());
+            sCull->mBPBatches.sortSkinned(LLGLTFMaterial::ALPHA_MODE_OPAQUE, CompareSkinnedMaterialVBO());
+            sCull->mBPBatches.sortSkinned(LLGLTFMaterial::ALPHA_MODE_MASK, CompareSkinnedMaterialVBO());
         }
     }
 
@@ -9396,6 +9372,19 @@ void LLPipeline::renderShadow(const glm::mat4& view, const glm::mat4& proj, LLCa
                     {
                         LLRenderPass::pushShadowGLTFBatches(sCull->mGLTFBatches.mDrawInfo[LLGLTFMaterial::ALPHA_MODE_OPAQUE][double_sided][planar][tex_anim]);
                     }
+
+                    if (!double_sided)
+                    { // push BP batches
+                        gBPShaderPack.mShadowShader[LLGLTFMaterial::ALPHA_MODE_OPAQUE][planar][tex_anim].bind(rigged);
+                        if (rigged)
+                        {
+                            LLRenderPass::pushRiggedShadowBPBatches(sCull->mBPBatches.mSkinnedDrawInfo[LLGLTFMaterial::ALPHA_MODE_OPAQUE][double_sided][planar][tex_anim]);
+                        }
+                        else
+                        {
+                            LLRenderPass::pushShadowBPBatches(sCull->mBPBatches.mDrawInfo[LLGLTFMaterial::ALPHA_MODE_OPAQUE][double_sided][planar][tex_anim]);
+                        }
+                    }
                 }
             }
         }
@@ -9489,6 +9478,19 @@ void LLPipeline::renderShadow(const glm::mat4& view, const glm::mat4& proj, LLCa
                         else
                         {
                             LLRenderPass::pushGLTFBatches(sCull->mGLTFBatches.mDrawInfo[LLGLTFMaterial::ALPHA_MODE_MASK][double_sided][planar][tex_anim], planar);
+                        }
+
+                        if (!double_sided)
+                        { // push alpha mask BP batches
+                            gBPShaderPack.mShadowShader[LLGLTFMaterial::ALPHA_MODE_MASK][planar][tex_anim].bind((bool)rigged);
+                            if (rigged)
+                            {
+                                LLRenderPass::pushRiggedBPBatches(sCull->mBPBatches.mSkinnedDrawInfo[LLGLTFMaterial::ALPHA_MODE_MASK][double_sided][planar][tex_anim], planar);
+                            }
+                            else
+                            {
+                                LLRenderPass::pushBPBatches(sCull->mBPBatches.mDrawInfo[LLGLTFMaterial::ALPHA_MODE_MASK][double_sided][planar][tex_anim], planar);
+                            }
                         }
                     }
                 }
