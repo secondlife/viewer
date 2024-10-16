@@ -87,7 +87,7 @@ public:
 
     LLDrawInfo(U16 start, U16 end, U32 count, U32 offset,
                 LLViewerTexture* image, LLVertexBuffer* buffer,
-                bool fullbright = false, U8 bump = 0);
+                bool fullbright = false, U8 bump = 0, U8 alpha_gamma = 100);
 
 
     void validate();
@@ -134,6 +134,7 @@ public:
     U8   mDiffuseAlphaMode = 0;
     U8   mBump = 0;
     U8   mShiny = 0;
+    U8   mAlphaGamma = 100;
     bool mFullbright = false;
     bool mHasGlow = false;
 

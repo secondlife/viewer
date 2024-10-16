@@ -99,6 +99,7 @@ public:
     S32 setMediaTexGen(const U8 index, const U8 media);
     S32 setBumpMap(const U8 index, const U8 bump);
     S32 setBumpShiny(const U8 index, const U8 bump_shiny);
+    S32 setAlphaGamma(const U8 index, const U8 gamma);
     S32 setTexGen(const U8 index, const U8 texgen);
     S32 setShiny(const U8 index, const U8 shiny);
     S32 setFullbright(const U8 index, const U8 t);

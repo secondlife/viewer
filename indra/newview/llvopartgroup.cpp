@@ -845,6 +845,9 @@ void LLParticlePartition::getGeometry(LLSpatialGroup* group)
         S32 idx = static_cast<S32>(draw_vec.size()) - 1;
 
         bool fullbright = facep->isState(LLFace::FULLBRIGHT);
+        U8   alpha_gamma = 100;
+        if (facep->getTextureEntry())
+            alpha_gamma = facep->getTextureEntry()->getAlphaGamma();
 
         bool batched = false;
 
@@ -862,7 +865,8 @@ void LLParticlePartition::getGeometry(LLSpatialGroup* group)
                 info->mHasGlow == has_glow &&
                 info->mFullbright == fullbright &&
                 info->mBlendFuncDst == bf_dst &&
-                info->mBlendFuncSrc == bf_src)
+                info->mBlendFuncSrc == bf_src &&
+                info->mAlphaGamma == alpha_gamma)
             {
                 if (draw_vec[idx]->mEnd == facep->getGeomIndex()-1)
                 {
@@ -887,7 +891,7 @@ void LLParticlePartition::getGeometry(LLSpatialGroup* group)
             U32 offset = facep->getIndicesStart();
             U32 count = facep->getIndicesCount();
             LLDrawInfo* info = new LLDrawInfo(start,end,count,offset,facep->getTexture(),
-                buffer, fullbright);
+                buffer, fullbright, 0, alpha_gamma);
 
             info->mBlendFuncDst = bf_dst;
             info->mBlendFuncSrc = bf_src;
