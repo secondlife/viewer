@@ -370,6 +370,9 @@ public:
     // Update UBOs
     void updateTransformUBOs();
 
+    // update the transform UBO for a single drawable
+    void updateTransform(LLDrawable* drawablep);
+
 public:
     LL_ALIGN_16(LLVector4a mViewAngle);
     LL_ALIGN_16(LLVector4a mLastUpdateViewAngle);

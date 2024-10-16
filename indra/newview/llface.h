@@ -278,8 +278,6 @@ public:
     // value of gFrameCount the last time the face was touched by LLViewerTextureList::updateImageDecodePriority
     U32 mLastTextureUpdate = 0;
 
-    U32         mTransformIndex = 0xFFFFFFFF;    // index of transform in LLSpatialGroup's transform UBO
-    U32         mPrimScaleIndex = 0xFFFFFFFF;  // index of prim scale in LLSpatialGroup's material UBO
     U32         mMaterialIndex = 0xFFFFFFFF;     // index of material in LLSpatialGroup's material UBO
     U32         mTextureTransformIndex = 0xFFFFFFFF; // index of texture transform in LLSpatialGroup's texture transform UBO
 

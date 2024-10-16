@@ -375,6 +375,7 @@ void GLTFSceneManager::onGLTFBinLoadComplete(const LLUUID& id, LLAssetType::ETyp
 {
     LLAppViewer::instance()->postToMainCoro([=]()
         {
+            LL_PROFILE_ZONE_NAMED("GLTF Bin Load Complete");
             LLViewerObject* obj = (LLViewerObject*)user_data;
             llassert(asset_type == LLAssetType::AT_GLTF_BIN);
 
@@ -504,6 +505,7 @@ void GLTFSceneManager::update()
                 LLAppViewer::instance()->postToMainCoro(
                     [=]()
                     {
+                        LL_PROFILE_ZONE_NAMED("GLTF Json Upload Finish");
                         if (mUploadingAsset)
                         {
                             // HACK: save buffer to cache to emulate a successful upload

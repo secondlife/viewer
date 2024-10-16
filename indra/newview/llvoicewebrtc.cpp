@@ -428,7 +428,12 @@ void LLWebRTCVoiceClient::notifyStatusObservers(LLVoiceClientStatusObserver::ESt
 
         if (voice_status)
         {
-            LLAppViewer::instance()->postToMainCoro([=]() { LLFirstUse::speak(true); });
+            LLAppViewer::instance()->postToMainCoro([=]()
+                {
+                    LL_PROFILE_ZONE_NAMED("LLFirstUse::speak");
+                    LLFirstUse::speak(true);
+                });
+
         }
     }
 }
@@ -466,7 +471,6 @@ void LLWebRTCVoiceClient::voiceConnectionCoro()
         LLMuteList::getInstance()->addObserver(this);
         while (!sShuttingDown)
         {
-            LL_PROFILE_ZONE_NAMED_CATEGORY_VOICE("voiceConnectionCoroLoop")
             // TODO: Doing some measurement and calculation here,
             // we could reduce the timeout to take into account the
             // time spent on the previous loop to have the loop
@@ -476,93 +480,97 @@ void LLWebRTCVoiceClient::voiceConnectionCoro()
             // voice when we're busy.
             llcoro::suspendUntilTimeout(UPDATE_THROTTLE_SECONDS);
             if (sShuttingDown) return; // 'this' migh already be invalid
-            bool voiceEnabled = mVoiceEnabled;
 
-            if (!isAgentAvatarValid())
             {
-                continue;
-            }
+                LL_PROFILE_ZONE_NAMED_CATEGORY_VOICE("voiceConnectionCoroLoop")
+                    bool voiceEnabled = mVoiceEnabled;
 
-            LLViewerRegion *regionp = gAgent.getRegion();
-            if (!regionp)
-            {
-                continue;
-            }
-
-            if (!mProcessChannels)
-            {
-                // we've switched away from webrtc voice, so shut all channels down.
-                // leave channel can be called again and again without adverse effects.
-                // it merely tells channels to shut down if they're not already doing so.
-                leaveChannel(false);
-            }
-            else if (inSpatialChannel())
-            {
-                bool useEstateVoice = true;
-                // add session for region or parcel voice.
-                if (!regionp || regionp->getRegionID().isNull())
+                if (!isAgentAvatarValid())
                 {
-                    // no region, no voice.
                     continue;
                 }
 
-                voiceEnabled = voiceEnabled && regionp->isVoiceEnabled();
-
-                if (voiceEnabled)
+                LLViewerRegion* regionp = gAgent.getRegion();
+                if (!regionp)
                 {
-                    LLParcel *parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
-                    // check to see if parcel changed.
-                    if (parcel && parcel->getLocalID() != INVALID_PARCEL_ID)
-                    {
-                        // parcel voice
-                        if (!parcel->getParcelFlagAllowVoice())
-                        {
-                            voiceEnabled = false;
-                        }
-                        else if (!parcel->getParcelFlagUseEstateVoiceChannel())
-                        {
-                            // use the parcel-specific voice channel.
-                            S32         parcel_local_id = parcel->getLocalID();
-                            std::string channelID       = regionp->getRegionID().asString() + "-" + std::to_string(parcel->getLocalID());
+                    continue;
+                }
 
-                            useEstateVoice = false;
-                            if (!inOrJoiningChannel(channelID))
+                if (!mProcessChannels)
+                {
+                    // we've switched away from webrtc voice, so shut all channels down.
+                    // leave channel can be called again and again without adverse effects.
+                    // it merely tells channels to shut down if they're not already doing so.
+                    leaveChannel(false);
+                }
+                else if (inSpatialChannel())
+                {
+                    bool useEstateVoice = true;
+                    // add session for region or parcel voice.
+                    if (!regionp || regionp->getRegionID().isNull())
+                    {
+                        // no region, no voice.
+                        continue;
+                    }
+
+                    voiceEnabled = voiceEnabled && regionp->isVoiceEnabled();
+
+                    if (voiceEnabled)
+                    {
+                        LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
+                        // check to see if parcel changed.
+                        if (parcel && parcel->getLocalID() != INVALID_PARCEL_ID)
+                        {
+                            // parcel voice
+                            if (!parcel->getParcelFlagAllowVoice())
                             {
-                                startParcelSession(channelID, parcel_local_id);
+                                voiceEnabled = false;
+                            }
+                            else if (!parcel->getParcelFlagUseEstateVoiceChannel())
+                            {
+                                // use the parcel-specific voice channel.
+                                S32         parcel_local_id = parcel->getLocalID();
+                                std::string channelID = regionp->getRegionID().asString() + "-" + std::to_string(parcel->getLocalID());
+
+                                useEstateVoice = false;
+                                if (!inOrJoiningChannel(channelID))
+                                {
+                                    startParcelSession(channelID, parcel_local_id);
+                                }
                             }
                         }
+                        if (voiceEnabled && useEstateVoice && !inEstateChannel())
+                        {
+                            // estate voice
+                            startEstateSession();
+                        }
                     }
-                    if (voiceEnabled && useEstateVoice && !inEstateChannel())
+                    if (!voiceEnabled)
                     {
-                        // estate voice
-                        startEstateSession();
+                        // voice is disabled, so leave and disable PTT
+                        leaveChannel(true);
+                    }
+                    else
+                    {
+                        // we're in spatial voice, and voice is enabled, so determine positions in order
+                        // to send position updates.
+                        updatePosition();
                     }
                 }
-                if (!voiceEnabled)
-                {
-                    // voice is disabled, so leave and disable PTT
-                    leaveChannel(true);
-                }
-                else
-                {
-                    // we're in spatial voice, and voice is enabled, so determine positions in order
-                    // to send position updates.
-                    updatePosition();
-                }
+                LL::WorkQueue::postMaybe(mMainQueue,
+                    [=] {
+                        if (sShuttingDown)
+                        {
+                            return;
+                        }
+                        sessionState::processSessionStates();
+                        if (mProcessChannels && voiceEnabled && !mHidden)
+                        {
+                            sendPositionUpdate(false);
+                            updateOwnVolume();
+                        }
+                    });
             }
-            LL::WorkQueue::postMaybe(mMainQueue,
-                [=] {
-                    if  (sShuttingDown)
-                    {
-                        return;
-                    }
-                    sessionState::processSessionStates();
-                    if (mProcessChannels && voiceEnabled && !mHidden)
-                    {
-                        sendPositionUpdate(false);
-                        updateOwnVolume();
-                    }
-            });
         }
     }
     catch (const LLCoros::Stop&)

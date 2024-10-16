@@ -863,6 +863,25 @@ void LLSpatialGroup::rebound()
     }
 }
 
+// pack a given LLMatrix4 into a mat4x3 for GLSL
+static void pack_transform(const LLMatrix4& mat, F32* mp)
+{
+    const F32* m = &mat.mMatrix[0][0];
+    mp[0] = m[0];
+    mp[1] = m[1];
+    mp[2] = m[2];
+    mp[3] = m[12];
+
+    mp[4] = m[4];
+    mp[5] = m[5];
+    mp[6] = m[6];
+    mp[7] = m[13];
+
+    mp[8] = m[8];
+    mp[9] = m[9];
+    mp[10] = m[10];
+    mp[11] = m[14];
+}
 
 void LLSpatialGroup::updateTransformUBOs()
 {
@@ -934,6 +953,9 @@ void LLSpatialGroup::updateTransformUBOs()
             const LLVector3& scale = drawable->getScale();
             material_data.push_back(LLVector4a(scale.mV[0], scale.mV[1], scale.mV[2], 0.f));
 
+            drawable->mTransformIndex = transform_index;
+            drawable->mPrimScaleIndex = prim_scale_index;
+
             LLVolume* volume = drawable->getVOVolume()->getVolume();
             volume->createVertexBuffer();
 
@@ -953,8 +975,6 @@ void LLSpatialGroup::updateTransformUBOs()
                     transforms[transforms.size() - 1] = &facep->mSkinInfo->mBindShapeMatrix.mMatrix4;
                 }
 
-                facep->mTransformIndex = transform_index;
-                facep->mPrimScaleIndex = prim_scale_index;
 
                 if (facep->mTextureMatrix != nullptr)
                 {
@@ -1120,10 +1140,10 @@ void LLSpatialGroup::updateTransformUBOs()
 
                 bool tex_anim = facep->mTextureMatrix != nullptr;
 
-                instance_map[i].transform_index = facep->mTransformIndex;
+                instance_map[i].transform_index = facep->getDrawable()->mTransformIndex;
                 instance_map[i].material_index = facep->mMaterialIndex;
                 instance_map[i].texture_transform_index = facep->mTextureTransformIndex;
-                instance_map[i].prim_scale_index = facep->mPrimScaleIndex;
+                instance_map[i].prim_scale_index = facep->getDrawable()->mPrimScaleIndex;
 
                 if (current_info &&
                     vf.mVertexBuffer.notNull() &&
@@ -1245,10 +1265,10 @@ void LLSpatialGroup::updateTransformUBOs()
 
                 bool tex_anim = facep->mTextureMatrix != nullptr;
 
-                bp_instance_map[i].transform_index = facep->mTransformIndex;
+                bp_instance_map[i].transform_index = facep->getDrawable()->mTransformIndex;
                 bp_instance_map[i].material_index = facep->mMaterialIndex;
                 bp_instance_map[i].texture_transform_index = facep->mTextureTransformIndex;
-                bp_instance_map[i].prim_scale_index = facep->mPrimScaleIndex;
+                bp_instance_map[i].prim_scale_index = facep->getDrawable()->mPrimScaleIndex;
 
                 if (current_info &&
                     vf.mVertexBuffer.notNull() &&
@@ -1353,24 +1373,9 @@ void LLSpatialGroup::updateTransformUBOs()
 
                         for (U32 i = 0; i < src.size(); ++i)
                         {
-                            const F32* m = &src[i]->mMatrix[0][0];
-
                             U32 idx = i * 12;
 
-                            mp[idx + 0] = m[0];
-                            mp[idx + 1] = m[1];
-                            mp[idx + 2] = m[2];
-                            mp[idx + 3] = m[12];
-
-                            mp[idx + 4] = m[4];
-                            mp[idx + 5] = m[5];
-                            mp[idx + 6] = m[6];
-                            mp[idx + 7] = m[13];
-
-                            mp[idx + 8] = m[8];
-                            mp[idx + 9] = m[9];
-                            mp[idx + 10] = m[10];
-                            mp[idx + 11] = m[14];
+                            pack_transform(*src[i], mp + idx);
                         }
 
                         STOP_GLERROR;
@@ -1424,6 +1429,49 @@ void LLSpatialGroup::updateTransformUBOs()
     }
 
     STOP_GLERROR;
+}
+
+void LLSpatialGroup::updateTransform(LLDrawable* drawablep)
+{
+    if (!drawablep->isState(LLDrawable::RIGGED) &&
+        getSpatialPartition()->mDrawableType == LLPipeline::RENDER_TYPE_VOLUME &&
+        !hasState(LLSpatialGroup::IN_TRANSFORM_BUILD_Q))
+    {
+        U32 offset = drawablep->mTransformIndex * 3 * sizeof(LLVector4a);
+
+        if (drawablep->mTransformIndex == 0xFFFFFFFF ||
+            (offset + 3 * sizeof(LLVector4a)) > mTransformUBOSize)
+        {
+            // slow path, schedule a full rebuild of UBOs
+            gPipeline.markTransformDirty(this);
+        }
+        else
+        {
+            LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("updateTransform -- pack ubo");
+            // ?fast? path, just update the transform for this drawable
+            F32 mat[12];
+            pack_transform(drawablep->getGLTFRenderMatrix(), mat);
+
+            glBindBuffer(GL_UNIFORM_BUFFER, mTransformUBO);
+            glBufferSubData(GL_UNIFORM_BUFFER, offset, sizeof(F32) * 12, mat);
+            glBindBuffer(GL_UNIFORM_BUFFER, 0);
+        }
+
+        // update child transforms as well
+        LLViewerObject* vobj = drawablep->getVObj();
+        for (auto& child : vobj->getChildren())
+        {
+            LLDrawable* child_drawable = child->mDrawable;
+            if (child_drawable)
+            {
+                LLSpatialGroup* group = child_drawable->getSpatialGroup();
+                if (group)
+                {
+                    group->updateTransform(child_drawable);
+                }
+            }
+        }
+    }
 }
 
 

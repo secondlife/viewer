@@ -730,7 +730,11 @@ F32 LLDrawable::updateXform(bool undamped)
     getGLTFRenderMatrix();
 
     // TODO: update transform directly in UBO instead of rebuilding the whole spatial group
-    gPipeline.markTransformDirty(getSpatialGroup());
+    LLSpatialGroup* group = getSpatialGroup();
+    if (group)
+    {
+        group->updateTransform(this);
+    }
 
     if (mSpatialBridge)
     {

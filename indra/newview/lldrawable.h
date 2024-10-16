@@ -295,6 +295,9 @@ public:
     LLXformMatrix       mXform;
     LLMatrix4           mGLTFRenderMatrix;
 
+    U32         mTransformIndex = 0xFFFFFFFF;    // index of transform in LLSpatialGroup's transform UBO
+    U32         mPrimScaleIndex = 0xFFFFFFFF;  // index of prim scale in LLSpatialGroup's material UBO
+
     // vis data
     LLPointer<LLDrawable> mParent;
 

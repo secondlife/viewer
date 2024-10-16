@@ -333,6 +333,7 @@ void set_flags_and_update_appearance()
     // in non-thread-safe classes, post to main loop
     auto work = []()
         {
+            LL_PROFILE_ZONE_NAMED("set_flags_and_update_appearance");
             LLAppearanceMgr::instance().setAttachmentInvLinkEnable(true);
             LLAppearanceMgr::instance().updateAppearanceFromCOF(true, true, no_op);
 
