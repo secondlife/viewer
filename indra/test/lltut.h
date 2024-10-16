@@ -30,8 +30,10 @@
 #define LL_LLTUT_H
 
 #include "is_approx_equal_fraction.h" // instead of llmath.h
+#include "stringize.h"
 #include <cstring>
 #include <string>
+#include <string_view>
 #include <vector>
 
 class LLDate;
@@ -89,49 +91,38 @@ namespace tut
 // The functions BELOW this point actually consume tut.hpp functionality.
 namespace tut
 {
-    inline void ensure_approximately_equals(const char* msg, F64 actual, F64 expected, U32 frac_bits)
+    template <typename F>           // replace with C++20 floating-point concept
+    inline void ensure_approximately_equals(std::string_view msg, F actual, F expected, U32 frac_bits)
     {
         if(!is_approx_equal_fraction(actual, expected, frac_bits))
         {
-            std::stringstream ss;
-            ss << (msg?msg:"") << (msg?": ":"") << "not equal actual: " << actual << " expected: " << expected;
-            throw tut::failure(ss.str().c_str());
+            throw tut::failure(stringize(msg, (msg.empty()?"":": "), "not equal actual: ",
+                                         actual, " expected: ", expected));
         }
     }
 
-    inline void ensure_approximately_equals(const char* msg, F32 actual, F32 expected, U32 frac_bits)
+    template <typename F>           // replace with C++20 floating-point concept
+    inline void ensure_approximately_equals(F actual, F expected, U32 frac_bits)
     {
-        if(!is_approx_equal_fraction(actual, expected, frac_bits))
-        {
-            std::stringstream ss;
-            ss << (msg?msg:"") << (msg?": ":"") << "not equal actual: " << actual << " expected: " << expected;
-            throw tut::failure(ss.str().c_str());
-        }
+        ensure_approximately_equals("", actual, expected, frac_bits);
     }
 
-    inline void ensure_approximately_equals(F32 actual, F32 expected, U32 frac_bits)
-    {
-        ensure_approximately_equals(NULL, actual, expected, frac_bits);
-    }
-
-    inline void ensure_approximately_equals_range(const char *msg, F32 actual, F32 expected, F32 delta)
+    template <typename F>           // replace with C++20 floating-point concept
+    inline void ensure_approximately_equals_range(std::string_view msg, F actual, F expected, F delta)
     {
         if (fabs(actual-expected)>delta)
         {
-            std::stringstream ss;
-            ss << (msg?msg:"") << (msg?": ":"") << "not equal actual: " << actual << " expected: " << expected << " tolerance: " << delta;
-            throw tut::failure(ss.str().c_str());
+            throw tut::failure(stringize(msg, (msg.empty()?"":": "), "not equal actual: ",
+                                         actual, " expected: ", expected, " tolerance: ", delta));
         }
     }
 
-    inline void ensure_memory_matches(const char* msg,const void* actual, U32 actual_len, const void* expected,U32 expected_len)
+    inline void ensure_memory_matches(std::string_view msg,const void* actual, U32 actual_len, const void* expected,U32 expected_len)
     {
         if((expected_len != actual_len) ||
             (std::memcmp(actual, expected, actual_len) != 0))
         {
-            std::stringstream ss;
-            ss << (msg?msg:"") << (msg?": ":"") << "not equal";
-            throw tut::failure(ss.str().c_str());
+            throw tut::failure(stringize(msg, (msg.empty()?"":": "), "not equal"));
         }
     }
 
@@ -141,20 +132,18 @@ namespace tut
     }
 
     template <class T,class Q>
-    void ensure_not_equals(const char* msg,const Q& actual,const T& expected)
+    void ensure_not_equals(std::string_view msg,const Q& actual,const T& expected)
     {
         if( expected == actual )
         {
-            std::stringstream ss;
-            ss << (msg?msg:"") << (msg?": ":"") << "both equal " << expected;
-            throw tut::failure(ss.str().c_str());
+            throw tut::failure(stringize(msg, (msg.empty()?"":": "), "both equal ", expected));
         }
     }
 
     template <class T,class Q>
     void ensure_not_equals(const Q& actual,const T& expected)
     {
-        ensure_not_equals(NULL, actual, expected);
+        ensure_not_equals("", actual, expected);
     }
 }
 

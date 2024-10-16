@@ -1331,12 +1331,16 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
             { //GL_ALPHA is deprecated, convert to RGBA
                 if (pixels != nullptr)
                 {
-                    scratch.reset(new(std::nothrow) U32[width * height]);
-                    if (!scratch)
+                    try
+                    {
+                        scratch.reset(new U32[width * height]);
+                    }
+                    catch (std::bad_alloc)
                     {
                         LLError::LLUserWarningMsg::showOutOfMemory();
                         LL_ERRS() << "Failed to allocate " << (U32)(width * height * sizeof(U32))
-                            << " bytes for a manual image W" << width << " H" << height << LL_ENDL;
+                            << " bytes for a manual image W" << width << " H" << height
+                            << " Pixformat: GL_ALPHA, pixtype: GL_UNSIGNED_BYTE" << LL_ENDL;
                     }
 
                     U32 pixel_count = (U32)(width * height);
@@ -1358,12 +1362,16 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
             { //GL_LUMINANCE_ALPHA is deprecated, convert to RGBA
                 if (pixels != nullptr)
                 {
-                    scratch.reset(new(std::nothrow) U32[width * height]);
-                    if (!scratch)
+                    try
+                    {
+                        scratch.reset(new U32[width * height]);
+                    }
+                    catch (std::bad_alloc)
                     {
                         LLError::LLUserWarningMsg::showOutOfMemory();
                         LL_ERRS() << "Failed to allocate " << (U32)(width * height * sizeof(U32))
-                            << " bytes for a manual image W" << width << " H" << height << LL_ENDL;
+                            << " bytes for a manual image W" << width << " H" << height
+                            << " Pixformat: GL_LUMINANCE_ALPHA, pixtype: GL_UNSIGNED_BYTE" << LL_ENDL;
                     }
 
                     U32 pixel_count = (U32)(width * height);
@@ -1388,12 +1396,16 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
             { //GL_LUMINANCE_ALPHA is deprecated, convert to RGB
                 if (pixels != nullptr)
                 {
-                    scratch.reset(new(std::nothrow) U32[width * height]);
-                    if (!scratch)
+                    try
+                    {
+                        scratch.reset(new U32[width * height]);
+                    }
+                    catch (std::bad_alloc)
                     {
                         LLError::LLUserWarningMsg::showOutOfMemory();
                         LL_ERRS() << "Failed to allocate " << (U32)(width * height * sizeof(U32))
-                            << " bytes for a manual image W" << width << " H" << height << LL_ENDL;
+                            << " bytes for a manual image W" << width << " H" << height
+                            << " Pixformat: GL_LUMINANCE, pixtype: GL_UNSIGNED_BYTE" << LL_ENDL;
                     }
 
                     U32 pixel_count = (U32)(width * height);

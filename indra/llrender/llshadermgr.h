@@ -68,6 +68,7 @@ public:
         GLTF_BASE_INSTANCE,                   //  "gltf_base_instance" (GLTF)
 
         TERRAIN_TEXTURE_TRANSFORMS,           //  "terrain_texture_transforms" (GLTF)
+        TERRAIN_STAMP_SCALE,                  //  "terrain_stamp_scale"
 
         VIEWPORT,                           //  "viewport"
         LIGHT_POSITION,                     //  "light_position"
