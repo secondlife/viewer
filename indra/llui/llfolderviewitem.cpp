@@ -61,6 +61,8 @@ LLUIColor LLFolderViewItem::sSearchStatusColor;
 S32 LLFolderViewItem::sTopPad = 0;
 LLUIImagePtr LLFolderViewItem::sFolderArrowImg;
 LLUIImagePtr LLFolderViewItem::sSelectionImg;
+LLUIImagePtr LLFolderViewItem::sFavoriteImg;
+LLUIImagePtr LLFolderViewItem::sFavoriteContentImg;
 LLFontGL* LLFolderViewItem::sSuffixFont = nullptr;
 LLUIColor LLFolderViewItem::sFavoriteColor;
 bool LLFolderViewItem::sColorSetInitialized = false;
@@ -105,6 +107,8 @@ void LLFolderViewItem::initClass()
     sTopPad = default_params.item_top_pad;
     sFolderArrowImg = default_params.folder_arrow_image;
     sSelectionImg = default_params.selection_image;
+    sFavoriteImg = default_params.favorite_image;
+    sFavoriteContentImg = default_params.favorite_content_image;
     sSuffixFont = getLabelFontForStyle(LLFontGL::NORMAL);
 
     sFgColor = LLUIColorTable::instance().getColor("MenuItemEnabledColor", DEFAULT_WHITE);
@@ -124,6 +128,8 @@ void LLFolderViewItem::cleanupClass()
     sFonts.clear();
     sFolderArrowImg = nullptr;
     sSelectionImg = nullptr;
+    sFavoriteImg = nullptr;
+    sFavoriteContentImg = nullptr;
     sSuffixFont = nullptr;
 }
 
@@ -802,29 +808,29 @@ void LLFolderViewItem::drawOpenFolderArrow()
     }
 }
 
-void LLFolderViewItem::drawFavoriteIcon(const Params& default_params, const LLUIColor& fg_color)
+void LLFolderViewItem::drawFavoriteIcon()
 {
     static LLUICachedControl<bool> draw_star("InventoryFavoritesUseStar", true);
     static LLUICachedControl<bool> draw_hollow_star("InventoryFavoritesUseHollowStar", true);
 
-    LLUIImage* favorite_image = NULL;
+    LLUIImage* favorite_image = nullptr;
     if (draw_star && mIsFavorite)
     {
-        favorite_image = default_params.favorite_image;
+        favorite_image = sFavoriteImg;
     }
     else if (draw_hollow_star && mHasFavorites && !isOpen())
     {
-        favorite_image = default_params.favorite_content_image;
+        favorite_image = sFavoriteContentImg;
     }
 
     if (favorite_image)
     {
-        const S32 PAD = 3;
-        const S32 image_size = 14;
+        constexpr S32 PAD = 3;
+        constexpr S32 image_size = 14;
 
         gl_draw_scaled_image(
             getRect().getWidth() - image_size - PAD, getRect().getHeight() - mItemHeight + PAD,
-            image_size, image_size, favorite_image->getImage(), fg_color);
+            image_size, image_size, favorite_image->getImage(), sFgColor);
     }
 }
 
@@ -985,9 +991,7 @@ void LLFolderViewItem::draw()
     {
         drawOpenFolderArrow();
     }
-
-    const Params& default_params = LLUICtrlFactory::getDefaultParams<LLFolderViewItem>();
-    drawFavoriteIcon(default_params, sFgColor);
+    drawFavoriteIcon();
 
     drawHighlight(show_context, filled, sHighlightBgColor, sFlashBgColor, sFocusOutlineColor, sMouseOverColor);
 
