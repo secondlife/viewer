@@ -342,10 +342,10 @@ void LLSidepanelItemInfo::refreshFromItem(LLViewerInventoryItem* item)
                                                GP_OBJECT_MANIPULATE)
         && is_obj_modify && is_complete && not_in_trash;
 
-    getChildView("LabelItemNameTitle")->setEnabled(TRUE);
+    getChildView("LabelItemNameTitle")->setEnabled(true);
     getChildView("LabelItemName")->setEnabled(is_modifiable && !is_calling_card); // for now, don't allow rename of calling cards
     getChild<LLUICtrl>("LabelItemName")->setValue(item->getName());
-    getChildView("LabelItemDescTitle")->setEnabled(TRUE);
+    getChildView("LabelItemDescTitle")->setEnabled(true);
     getChild<LLUICtrl>("item_thumbnail")->setValue(item->getThumbnailUUID());
 
     // Asset upload substitutes empty description with a (No Description) placeholder

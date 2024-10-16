@@ -684,6 +684,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
     mPreviousFullyLoaded(false),
     mFullyLoadedInitialized(false),
     mLastCloudAttachmentCount(0),
+    mFullyLoadedFrameCounter(0),
     mVisualComplexity(VISUAL_COMPLEXITY_UNKNOWN),
     mLoadedCallbacksPaused(false),
     mLoadedCallbackTextures(0),
@@ -967,7 +968,7 @@ bool LLVOAvatar::areAllNearbyInstancesBaked(S32& grey_avatars)
             ++grey_avatars;
         }
     }
-    return !grey_avatars;
+    return grey_avatars == 0;
 }
 
 // static
@@ -3183,17 +3184,17 @@ F32 LLVOAvatar::calcMorphAmount() const
 void LLVOAvatar::idleUpdateLipSync(bool voice_enabled)
 {
     // Use the Lipsync_Ooh and Lipsync_Aah morphs for lip sync
-    if ( voice_enabled
+    if (voice_enabled
         && mLastRezzedStatus > 0 // no point updating lip-sync for clouds
         && LLVoiceVisualizer::getLipSyncEnabled()
-        && LLVoiceClient::getInstance()->getIsSpeaking( mID ) )
+        && LLVoiceClient::getInstance()->getIsSpeaking(mID))
     {
         F32 ooh_morph_amount = 0.0f;
         F32 aah_morph_amount = 0.0f;
 
         mVoiceVisualizer->lipSyncOohAah( ooh_morph_amount, aah_morph_amount );
 
-        if( mOohMorph )
+        if (mOohMorph)
         {
             F32 ooh_weight = mOohMorph->getMinWeight()
                 + ooh_morph_amount * (mOohMorph->getMaxWeight() - mOohMorph->getMinWeight());
@@ -3201,7 +3202,7 @@ void LLVOAvatar::idleUpdateLipSync(bool voice_enabled)
             mOohMorph->setWeight( ooh_weight);
         }
 
-        if( mAahMorph )
+        if (mAahMorph)
         {
             F32 aah_weight = mAahMorph->getMinWeight()
                 + aah_morph_amount * (mAahMorph->getMaxWeight() - mAahMorph->getMinWeight());
@@ -8218,7 +8219,7 @@ bool LLVOAvatar::getIsCloud() const
 void LLVOAvatar::updateRezzedStatusTimers(S32 rez_status)
 {
     // State machine for rezzed status. Statuses are -1 on startup, 0
-    // = cloud, 1 = gray, 2 = downloading, 3 = waiting for attachments, 4 = full.
+    // Statuses are -1 on startup, 0 = cloud, 1 = gray, 2 = downloading, 3 = waiting for attachments, 4 = full.
     // Purpose is to collect time data for each it takes avatar to reach
     // various loading landmarks: gray, textured (partial), textured fully.
 
@@ -8406,7 +8407,7 @@ bool LLVOAvatar::updateIsFullyLoaded()
                    // avatars are more time-sensitive than textures and can't wait that long.
                    || (mLoadedCallbackTextures < mCallbackTextureList.size() && mLastTexCallbackAddedTime.getElapsedTimeF32() < MAX_TEXTURE_WAIT_TIME_SEC)
                    || !mPendingAttachment.empty()
-                   || (rez_status < 4 && !isFullyBaked())
+                   || (rez_status < 3 && !isFullyBaked())
                    || hasPendingAttachedMeshes()
                   );
 
@@ -8467,48 +8468,45 @@ void LLVOAvatar::updateRuthTimer(bool loading)
 
 bool LLVOAvatar::processFullyLoadedChange(bool loading)
 {
+    // We wait a little bit before giving the 'all clear', to let things to
+    // settle down: models to snap into place, textures to get first packets,
+    // LODs to load.
+    const F32 LOADED_DELAY = 1.f;
+
     if (loading)
     {
         mFullyLoadedTimer.reset();
-        mFullyLoaded = false;
     }
-    else if (!mFullyLoaded)
+
+    if (mFirstFullyVisible)
     {
-        // We wait a little bit before giving the 'all clear', to let things to
-        // settle down: models to snap into place, textures to get first packets,
-        // LODs to load.
-        const F32 LOADED_DELAY = 1.f;
-
-        if (mFirstFullyVisible)
+        F32 first_use_delay = FIRST_APPEARANCE_CLOUD_MIN_DELAY;
+        if (!isSelf() && loading)
         {
-            F32 first_use_delay = FIRST_APPEARANCE_CLOUD_MIN_DELAY;
-            if (!isSelf() && loading)
+            // Note that textures can causes 60s delay on thier own
+            // so this delay might end up on top of textures' delay
+            first_use_delay = llclamp(
+                mFirstAppearanceMessageTimer.getElapsedTimeF32(),
+                FIRST_APPEARANCE_CLOUD_MIN_DELAY,
+                FIRST_APPEARANCE_CLOUD_MAX_DELAY);
+
+            if (shouldImpostor())
             {
-                // Note that textures can causes 60s delay on thier own
-                // so this delay might end up on top of textures' delay
-                first_use_delay = llclamp(
-                    mFirstAppearanceMessageTimer.getElapsedTimeF32(),
-                    FIRST_APPEARANCE_CLOUD_MIN_DELAY,
-                    FIRST_APPEARANCE_CLOUD_MAX_DELAY);
-
-                if (shouldImpostor())
-                {
-                    // Impostors are less of a priority,
-                    // let them stay cloud longer
-                    first_use_delay *= FIRST_APPEARANCE_CLOUD_IMPOSTOR_MODIFIER;
-                }
+                // Impostors are less of a priority,
+                // let them stay cloud longer
+                first_use_delay *= FIRST_APPEARANCE_CLOUD_IMPOSTOR_MODIFIER;
             }
-            mFullyLoaded = (mFullyLoadedTimer.getElapsedTimeF32() > first_use_delay);
         }
-        else
-        {
-            mFullyLoaded = (mFullyLoadedTimer.getElapsedTimeF32() > LOADED_DELAY);
-        }
+        mFullyLoaded = (mFullyLoadedTimer.getElapsedTimeF32() > first_use_delay);
+    }
+    else
+    {
+        mFullyLoaded = (mFullyLoadedTimer.getElapsedTimeF32() > LOADED_DELAY);
+    }
 
-        if (!mPreviousFullyLoaded && !loading && mFullyLoaded)
-        {
-            debugAvatarRezTime("AvatarRezNotification", "fully loaded");
-        }
+    if (!mPreviousFullyLoaded && !loading && mFullyLoaded)
+    {
+        debugAvatarRezTime("AvatarRezNotification", "fully loaded");
     }
 
     // did our loading state "change" from last call?
@@ -8517,8 +8515,8 @@ bool LLVOAvatar::processFullyLoadedChange(bool loading)
     const S32 UPDATE_RATE = 30;
     bool changed =
         ((mFullyLoaded != mPreviousFullyLoaded) ||         // if the value is different from the previous call
-         (!mFullyLoadedInitialized) ||                     // if we've never been called before
-         (mFullyLoadedFrameCounter % UPDATE_RATE == 0));   // every now and then issue a change
+            (!mFullyLoadedInitialized) ||                     // if we've never been called before
+            (mFullyLoadedFrameCounter % UPDATE_RATE == 0));   // every now and then issue a change
     bool fully_loaded_changed = (mFullyLoaded != mPreviousFullyLoaded);
 
     mPreviousFullyLoaded = mFullyLoaded;

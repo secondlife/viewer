@@ -1273,15 +1273,7 @@ void LLOutfitGalleryGearMenu::onUpdateItemsVisibility()
 {
     if (!mMenu) return;
     bool have_selection = getSelectedOutfitID().notNull();
-    mMenu->setItemVisible("expand", false);
-    mMenu->setItemVisible("collapse", false);
     mMenu->setItemVisible("thumbnail", have_selection);
-    mMenu->setItemVisible("inventory_settings", false);
-    mMenu->setItemVisible("inv_settings_separator", false);
-    mMenu->setItemVisible("sort_order_separator", true);
-    mMenu->setItemVisible("sort_order_by_image", true);
-    mMenu->setItemVisible("sepatator3", true);
-    mMenu->setItemVisible("sort_folders_by_name", true);
     LLOutfitListGearMenuBase::onUpdateItemsVisibility();
 }
 

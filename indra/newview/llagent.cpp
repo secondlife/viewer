@@ -5028,7 +5028,7 @@ void LLAgent::applyExternalActionFlags(U32 outer_flags)
                 if( delta_time > FLY_TIME
                     && delta_frames > FLY_FRAMES)
                 {
-                    setFlying(TRUE);
+                    setFlying(true);
                 }
             }
         }

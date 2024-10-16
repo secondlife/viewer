@@ -101,7 +101,6 @@ protected:
     void initListCommandsHandlers();
     void updateListCommands();
     void onWearButtonClick();
-    void showGearMenu();
     void onTrashButtonClick();
     void onGearMouseDown();
     bool isActionEnabled(const LLSD& userdata);
@@ -110,7 +109,6 @@ protected:
     void onWearablesLoading();
 private:
     LLPanel*                    mListCommands;
-    LLMenuGL*                   mMenuAdd;
     LLButton*                   mWearBtn = nullptr;
     // List Commands                                                                //
     //////////////////////////////////////////////////////////////////////////////////

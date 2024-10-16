@@ -645,10 +645,10 @@ bool LLInventoryFilter::checkAgainstFilterFavorites(const LLUUID& object_id) con
     if (mFilterOps.mFilterFavorites != FILTER_INCLUDE_FAVORITES)
     {
         bool is_favorite = get_is_favorite(object);
-    if (is_favorite && (mFilterOps.mFilterFavorites == FILTER_EXCLUDE_FAVORITES))
-        return false;
-    if (!is_favorite && (mFilterOps.mFilterFavorites == FILTER_ONLY_FAVORITES))
-        return false;
+        if (is_favorite && (mFilterOps.mFilterFavorites == FILTER_EXCLUDE_FAVORITES))
+            return false;
+        if (!is_favorite && (mFilterOps.mFilterFavorites == FILTER_ONLY_FAVORITES))
+            return false;
     }
 
     return true;
