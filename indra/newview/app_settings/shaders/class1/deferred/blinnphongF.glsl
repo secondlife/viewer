@@ -33,12 +33,15 @@ uniform sampler2D diffuseMap;  //always in sRGB space
 vec4 diffuseColor;
 in vec2 diffuse_texcoord;
 float minimum_alpha; // PBR alphaMode: MASK, See: mAlphaCutoff, setAlphaCutoff()
+float emissive;
+float emissive_mask;
 #endif
 
 #ifdef SAMPLE_SPECULAR_MAP
 vec3 specularColor;
 uniform sampler2D specularMap; // Packed: Occlusion, Metal, Roughness
 in vec2 specular_texcoord;
+float glossiness;
 #endif
 
 #ifdef SAMPLE_NORMAL_MAP
@@ -72,7 +75,7 @@ layout (std140) uniform GLTFMaterials
     // [gltf_material_id + [0-1]] -  diffuse transform
     // [gltf_material_id + [2-3]] -  normal transform
     // [gltf_material_id + [4-5]] -  specular transform
-
+    // [gltf_material_id + 6] - .x - emissive factor, .y - emissive mask, .z - glossiness, .w - unused
     // Transforms are packed as follows
     // packed[0] = vec4(scale.x, scale.y, rotation, offset.x)
     // packed[1] = vec4(offset.y, *, *, *)
@@ -81,6 +84,7 @@ layout (std140) uniform GLTFMaterials
     //   diffuse transform -- diffuse color
     //   normal transform -- .y - alpha factor, .z - minimum alpha, .w - environment intensity
     //   specular transform -- specular color
+
 
     vec4 gltf_material_data[MAX_UBO_VEC4S];
 };
@@ -95,10 +99,13 @@ void unpackMaterial()
     diffuseColor.rgb = gltf_material_data[idx+1].yzw;
     diffuseColor.a = gltf_material_data[idx+3].y;
     minimum_alpha = gltf_material_data[idx+3].z;
+    emissive = gltf_material_data[idx+6].x;
+    emissive_mask = gltf_material_data[idx+6].y;
 #endif
 
 #ifdef SAMPLE_NORMAL_MAP
     env_intensity = gltf_material_data[idx+3].w;
+    glossiness = gltf_material_data[idx+6].z;
 #endif
 
 #ifdef SAMPLE_SPECULAR_MAP
@@ -124,6 +131,7 @@ void main()
     diffuse *= diffuseColor;
     diffuse.rgb = srgb_to_linear(diffuse.rgb);
 
+    emissive = max(emissive, emissive_mask * diffuse.a);
 #ifdef ALPHA_MASK
     if (diffuse.a < minimum_alpha)
     {
@@ -159,10 +167,7 @@ void main()
 #else
     //diffuse.rgb = vec3(0.85);
     //spec.rgb = vec3(0);
-    env_intensity = 0;
-    float emissive = 0.0;
-    float glossiness = 0;
-
+    //env_intensity = 0;
     // See: C++: addDeferredAttachments(), GLSL: softenLightF
     frag_data[0] = max(vec4(diffuse.rgb, emissive), vec4(0));
     frag_data[1] = max(vec4(spec.rgb,glossiness), vec4(0));

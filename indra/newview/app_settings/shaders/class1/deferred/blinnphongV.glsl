@@ -236,7 +236,7 @@ void main()
 #ifdef PLANAR_PROJECTION
     planarProjection(tc0);
 #endif
-    diffuse_texcoord = tc0; //texture_transform(tc0, texture_diffuse_transform, tex_mat);
+    diffuse_texcoord = texture_transform(tc0, texture_diffuse_transform, tex_mat);
 #endif
 
 #ifdef MIRROR_CLIP

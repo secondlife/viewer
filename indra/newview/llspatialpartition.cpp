@@ -1293,10 +1293,11 @@ void LLSpatialGroup::updateTransformUBOs()
                         diffuse = LLViewerFetchedTexture::sWhiteImagep.get();
                     }
                     LLViewerTexture* normal = facep->getTexture(LLRender::NORMAL_MAP);
-                    if (!normal)
+                    if (!normal || (te->getMaterialParams() && te->getMaterialParams()->getNormalID().isNull()))
                     {
                         normal = LLViewerFetchedTexture::sFlatNormalImagep.get();
                     }
+
                     LLViewerTexture* specular = facep->getTexture(LLRender::SPECULAR_MAP);
                     if (!specular)
                     {

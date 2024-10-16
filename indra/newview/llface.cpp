@@ -2674,6 +2674,8 @@ void LLFace::updateBatchHash()
                 mAlphaMode = LLGLTFMaterial::ALPHA_MODE_OPAQUE;
             }
         }
+
+        boost::hash_combine(mBatchHash, te->getFullbright());
     }
 }
 
@@ -2694,10 +2696,13 @@ void LLFace::packMaterialOnto(std::vector<LLVector4a>& dst)
 
         const LLMaterial* mat = te->getMaterialParams().get();
 
-        dst.resize(dst.size()+6);
-        LLVector4a* data = &dst[dst.size()-6];
+        dst.resize(dst.size()+7);
+        LLVector4a* data = &dst[dst.size()-7];
 
         F32 min_alpha = 0.f;
+        F32 glossiness = 0.f;
+        F32 emissive = 0.f;
+        F32 emissive_mask = 0.f;
 
         LLColor4 col = te->getColor();
 
@@ -2706,7 +2711,7 @@ void LLFace::packMaterialOnto(std::vector<LLVector4a>& dst)
 
         if (mat)
         {
-            env_intensity = mat->getEnvironmentIntensity();
+            env_intensity = mat->getEnvironmentIntensity()/255.f;
             spec = mat->getSpecularLightColor();
 
             if (mat->getDiffuseAlphaMode() == LLMaterial::DIFFUSE_ALPHA_MODE_MASK)
@@ -2719,6 +2724,13 @@ void LLFace::packMaterialOnto(std::vector<LLVector4a>& dst)
 
             data[4].set(mat->getSpecularRepeatX(), mat->getSpecularRepeatY(), mat->getSpecularRotation(), mat->getSpecularOffsetX());
             data[5].set(mat->getSpecularOffsetY(), spec.mV[0], spec.mV[1], spec.mV[2]);
+
+            glossiness = mat->getSpecularLightExponent() / 255.f;
+
+            if (mat->getDiffuseAlphaMode() == LLMaterial::DIFFUSE_ALPHA_MODE_EMISSIVE)
+            {
+                emissive_mask = 1.f;
+            }
         }
         else
         {
@@ -2732,6 +2744,13 @@ void LLFace::packMaterialOnto(std::vector<LLVector4a>& dst)
             data[4].set(1, 1, 0, 0);
             data[5].set(1, spec.mV[0], spec.mV[1], spec.mV[2]);
         }
+
+        if (te->getFullbright())
+        {
+            emissive = 1.f;
+        }
+
+        data[6].set(emissive, emissive_mask, glossiness, 0.f);
     }
 }
 
