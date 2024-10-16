@@ -40,11 +40,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>6bbad9b30ee93749e4701313c537d5bac0850e2b</string>
+              <string>24c50d30f15345441ea8cb553847fd00112c258b</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-sdl2/releases/download/v2.30.6-r1/SDL2-2.30.6-linux64-10323260130.tar.zst</string>
+              <string>https://github.com/AiraYumi/3p-sdl2/releases/download/v2.30.8-with-libdecor/SDL2-2.30.8-linux64-11179302145.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -2076,11 +2076,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>da16445129cc82d23d01709a912c99fd74388395</string>
+              <string>35a49c60d47c357ae6dbbcd95bf1c279062f248f</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-open-libndofdev/releases/download/v1.14-r3/open_libndofdev-0.14.10326946482-linux64-10326946482.tar.zst</string>
+              <string>https://github.com/AiraYumi/3p-open-libndofdev/releases/download/v1.14-with-libdecor-r2/open_libndofdev-0.14.11179408873-linux64-11179408873.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
