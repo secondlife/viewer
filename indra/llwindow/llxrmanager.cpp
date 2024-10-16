@@ -378,6 +378,8 @@ void LLXRManager::createSwapchains()
             target->allocate(swapchainCI.width, swapchainCI.height, 0);
             LLImageGL* image = new LLImageGL(swapchainCI.width, swapchainCI.height, 4);
             image->setTexName(mSwapchainImages[i][j].image);
+            image->setExplicitFormat(GL_SRGB8_ALPHA8, GL_SRGB_ALPHA);
+            image->setSize(swapchainCI.width, swapchainCI.height, 4);
             target->setColorAttachment(image, mSwapchainImages[i][j].image);
             mColorTextures[i].push_back(target);
             mImages[i].push_back(image);
@@ -411,9 +413,21 @@ void LLXRManager::destroySwapchains()
         }
     }
 
+    if (!mImages.empty())
+    {
+        for (auto images : mImages)
+        {
+            for (auto img : images)
+            {
+                img->cleanup();
+            }
+        }
+    }
+
     mSwapchainImages.clear();
     mColorTextures.clear();
     mSwapchains.clear();
+    mImages.clear();
 }
 
 void LLXRManager::getInstanceProperties()
@@ -797,13 +811,22 @@ void LLXRManager::bindSwapTarget(U32 eye)
 
 
     XrSwapchainImageAcquireInfo acquireInfo{ XR_TYPE_SWAPCHAIN_IMAGE_ACQUIRE_INFO };
-    xrAcquireSwapchainImage(chain, &acquireInfo, &mCurSwapTarget);
+
+    if (XR_FAILED(xrAcquireSwapchainImage(chain, &acquireInfo, &mCurSwapTarget)))
+    {
+        LL_ERRS("XRManager") << "Failed to acquire swapchain image." << LL_ENDL;
+        return;
+    }
 
     XrSwapchainImageWaitInfo waitInfo = { XR_TYPE_SWAPCHAIN_IMAGE_WAIT_INFO };
     waitInfo.timeout                  = XR_INFINITE_DURATION;
-    xrWaitSwapchainImage(chain, &waitInfo);
+    if (XR_FAILED(xrWaitSwapchainImage(chain, &waitInfo)))
+    {
+        LL_ERRS("XRManager") << "Failed to wait for swapchain image." << LL_ENDL;
+        return;
+    }
 
-    glBindFramebuffer(GL_FRAMEBUFFER, colorTextures[mCurSwapTarget]->getTexture());
+    colorTextures[mCurSwapTarget]->bindTarget();
 }
 
 void LLXRManager::updateFrame(LLXREye eye)
@@ -825,9 +848,7 @@ void LLXRManager::updateFrame(LLXREye eye)
     mProjectionViews[eye].subImage.imageRect.extent.height = viewHeight;
     mProjectionViews[eye].subImage.imageArrayIndex         = eye;
 
-
-    glClearColor(0.4f, 0.0f, 1.f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
+    mColorTextures[eye][mCurSwapTarget]->clear();
 }
 
 void LLXRManager::flushSwapTarget(U32 eye)
@@ -837,12 +858,15 @@ void LLXRManager::flushSwapTarget(U32 eye)
         return;
     }
 
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-    //mColorTextures[eye][mCurSwapTarget]->flush();
+    mColorTextures[eye][mCurSwapTarget]->flush();
 
     XrSwapchainImageReleaseInfo releaseInfo = { XR_TYPE_SWAPCHAIN_IMAGE_RELEASE_INFO };
-    S32                         err         = xrReleaseSwapchainImage(mSwapchains[eye], &releaseInfo);
+
+    if (XR_FAILED(xrReleaseSwapchainImage(mSwapchains[eye], &releaseInfo)))
+    {
+        LL_ERRS("XRManager") << "Failed to release swapchain image." << LL_ENDL;
+        return;
+    }
 }
 
 void LLXRManager::endFrame()
