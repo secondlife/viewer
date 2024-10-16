@@ -45,7 +45,7 @@ if (USE_KDU)
   # ND: llkdu tests are very strange as they include stubs for KDU classes/methods
   # if not having access to the right KDU version this test will fail to compile, incidentally I do not
   # have access to a matching version of KDU and thus cannot get this tests to compile
-  if (LL_TESTS_KDU)
+  if (LL_TESTS)
     include(LLAddBuildTest)
     include(Tut)
     SET(llkdu_TEST_SOURCE_FILES
@@ -62,6 +62,6 @@ if (USE_KDU)
     set_property( SOURCE ${llkdu_TEST_SOURCE_FILES} PROPERTY LL_TEST_ADDITIONAL_INCLUDE_DIRS ${llimage_include_dir})
 
     LL_ADD_PROJECT_UNIT_TESTS(llkdu "${llkdu_TEST_SOURCE_FILES}")
-  endif (LL_TESTS_KDU)
+  endif (LL_TESTS)
 
 endif (USE_KDU)
