@@ -24,11 +24,11 @@ function openOrEcho(message)
 end
 
 local listener = LLListener(LLChat.nearbyChatPump)
-local ageint_id = LLAgent.getID()
+local agent_id = LLAgent.getID()
 
 function listener:handleMessages(event_data)
     -- ignore messages and commands from other avatars
-    if event_data.from_id ~= ageint_id then
+    if event_data.from_id ~= agent_id then
       return true
     elseif string.find(event_data.message, '[LUA]') then
       return true

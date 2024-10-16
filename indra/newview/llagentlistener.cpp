@@ -189,14 +189,14 @@ LLAgentListener::LLAgentListener(LLAgent &agent)
     add("getNearbyAvatarsList",
         "Return result set key [\"result\"] for nearby avatars in a range of [\"dist\"]\n"
         "if [\"dist\"] is not specified, 'RenderFarClip' setting is used\n"
-        "reply contains \"result\" table with \"id\", \"name\", \"global_pos\", \"region_pos\" fields",
+        "reply contains \"result\" table with \"id\", \"name\", \"global_pos\", \"region_pos\", \"region_id\" fields",
         &LLAgentListener::getNearbyAvatarsList,
         llsd::map("reply", LLSD()));
 
     add("getNearbyObjectsList",
         "Return result set key [\"result\"] for nearby objects in a range of [\"dist\"]\n"
         "if [\"dist\"] is not specified, 'RenderFarClip' setting is used\n"
-        "reply contains \"result\" table with \"id\", \"global_pos\", \"region_pos\" fields",
+        "reply contains \"result\" table with \"id\", \"global_pos\", \"region_pos\", \"region_id\" fields",
         &LLAgentListener::getNearbyObjectsList,
         llsd::map("reply", LLSD()));
 
@@ -732,7 +732,7 @@ void LLAgentListener::getID(LLSD const& event_data)
 struct AvResultSet : public LL::ResultSet
 {
     AvResultSet() : LL::ResultSet("nearby_avatars") {}
-    std::vector<LLCharacter*> mAvatars;
+    std::vector<LLVOAvatar*> mAvatars;
 
     int getLength() const override { return narrow(mAvatars.size()); }
     LLSD getSingle(int index) const override
@@ -744,7 +744,8 @@ struct AvResultSet : public LL::ResultSet
         return llsd::map("id", av->getID(),
                          "global_pos", ll_sd_from_vector3d(av->getPosGlobalFromAgent(region_pos)),
                          "region_pos", ll_sd_from_vector3(region_pos),
-                         "name", av_name.getUserName());
+                         "name", av_name.getUserName(),
+                         "region_id", av->getRegion()->getRegionID());
     }
 };
 
@@ -759,7 +760,8 @@ struct ObjResultSet : public LL::ResultSet
         auto obj = mObjects[index];
         return llsd::map("id", obj->getID(),
                          "global_pos", ll_sd_from_vector3d(obj->getPositionGlobal()),
-                         "region_pos", ll_sd_from_vector3(obj->getPositionRegion()));
+                         "region_pos", ll_sd_from_vector3(obj->getPositionRegion()),
+                         "region_id", obj->getRegion()->getRegionID());
     }
 };
 
@@ -822,7 +824,7 @@ void LLAgentListener::getAgentScreenPos(LLSD const& event_data)
 {
     Response response(LLSD(), event_data);
     LLVector3 render_pos;
-    if (event_data.has("avatar_id"))
+    if (event_data.has("avatar_id") && (event_data["avatar_id"] != gAgentID))
     {
         LLUUID avatar_id(event_data["avatar_id"]);
         for (LLCharacter* character : LLCharacter::sInstances)

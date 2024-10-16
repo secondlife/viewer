@@ -60,7 +60,7 @@ bool LLFloaterLUADebug::postBuild()
                 {
                     LLCachedControl<bool> show_source_info(gSavedSettings, "LuaDebugShowSource", false);
                     std::string source_info = show_source_info ? data["source_info"].asString() : "";
-                    mResultOutput->pasteTextWithLinebreaks(data["level"].asString() + source_info + data["msg"].asString());
+                    mResultOutput->pasteTextWithLinebreaks(stringize(data["level"].asString(), source_info, data["msg"].asString()));
                     mResultOutput->addLineBreakChar(true);
                     return false;
                 });

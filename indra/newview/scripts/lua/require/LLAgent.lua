@@ -116,7 +116,7 @@ end
 -- Get the nearby avatars in a range of provided "dist",
 -- if "dist" is not specified, "RenderFarClip" setting is used
 -- reply will contain "result" table with following fields:
--- "id", "global_pos", "region_pos",  "name"
+-- "id", "global_pos", "region_pos",  "name", "region_id"
 function LLAgent.getNearbyAvatarsList(...)
     local args = mapargs('dist', ...)
     args.op = 'getNearbyAvatarsList'
@@ -124,14 +124,14 @@ function LLAgent.getNearbyAvatarsList(...)
 end
 
 -- reply will contain "result" table with following fields:
--- "id", "global_pos", "region_pos"
+-- "id", "global_pos", "region_pos", "region_id"
 function LLAgent.getNearbyObjectsList(...)
     local args = mapargs('dist', ...)
     args.op = 'getNearbyObjectsList'
     return result(leap.request('LLAgent', args))
 end
 
--- Get screen position of your own avatar or any other (if "avatar_id is specified)
+-- Get screen position of your own avatar or any other (if "avatar_id" is specified)
 -- reply contains "x", "y" coordinates and "onscreen" flag to indicate if it's actually in within the current window
 -- avatar render position is used as the point
 function LLAgent.getAgentScreenPos(...)
