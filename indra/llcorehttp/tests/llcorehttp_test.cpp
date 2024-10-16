@@ -41,13 +41,7 @@
 #include "test_httpstatus.hpp"
 #include "test_refcounted.hpp"
 #include "test_httpoperation.hpp"
-// As of 2019-06-28, test_httprequest.hpp consistently crashes on Mac Release
-// builds for reasons not yet diagnosed.
-// On Linux too, this is likely to badly handling (p)thread creation and not waiting
-// for threads to properly shutdown
-#if LL_WINDOWS
 #include "test_httprequest.hpp"
-#endif
 
 #include "test_httpheaders.hpp"
 #include "test_httprequestqueue.hpp"
@@ -55,9 +49,6 @@
 
 #include "llproxy.h"
 #include "llcleanup.h"
-
-void ssl_thread_id_callback(CRYPTO_THREADID*);
-void ssl_locking_callback(int mode, int type, const char * file, int line);
 
 #if 0   // lltut provides main and runner
 
@@ -83,26 +74,9 @@ int main()
 
 #endif // 0
 
-int ssl_mutex_count(0);
-LLCoreInt::HttpMutex ** ssl_mutex_list = NULL;
-
 void init_curl()
 {
     curl_global_init(CURL_GLOBAL_ALL);
-
-    ssl_mutex_count = CRYPTO_num_locks();
-    if (ssl_mutex_count > 0)
-    {
-        ssl_mutex_list = new LLCoreInt::HttpMutex * [ssl_mutex_count];
-
-        for (int i(0); i < ssl_mutex_count; ++i)
-        {
-            ssl_mutex_list[i] = new LLCoreInt::HttpMutex;
-        }
-
-        CRYPTO_set_locking_callback(ssl_locking_callback);
-        CRYPTO_THREADID_set_callback(ssl_thread_id_callback);
-    }
 
     LLProxy::getInstance();
 }
@@ -111,39 +85,6 @@ void init_curl()
 void term_curl()
 {
     SUBSYSTEM_CLEANUP(LLProxy);
-
-    CRYPTO_set_locking_callback(NULL);
-    for (int i(0); i < ssl_mutex_count; ++i)
-    {
-        delete ssl_mutex_list[i];
-    }
-    delete [] ssl_mutex_list;
-}
-
-
-void ssl_thread_id_callback(CRYPTO_THREADID* pthreadid)
-{
-#if defined(WIN32)
-    CRYPTO_THREADID_set_pointer(pthreadid, GetCurrentThread());
-#else
-    CRYPTO_THREADID_set_pointer(pthreadid, pthread_self());
-#endif
-}
-
-
-void ssl_locking_callback(int mode, int type, const char * /* file */, int /* line */)
-{
-    if (type >= 0 && type < ssl_mutex_count)
-    {
-        if (mode & CRYPTO_LOCK)
-        {
-            ssl_mutex_list[type]->lock();
-        }
-        else
-        {
-            ssl_mutex_list[type]->unlock();
-        }
-    }
 }
 
 
