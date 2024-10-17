@@ -15,7 +15,6 @@ set(cmake_SOURCE_FILES
         CEFPlugin.cmake
         CEFPlugin.cmake
         CMakeCopyIfDifferent.cmake
-        ConfigurePkgConfig.cmake
         CURL.cmake
         Copy3rdPartyLibs.cmake
         DBusGlib.cmake
@@ -23,14 +22,12 @@ set(cmake_SOURCE_FILES
         DragDrop.cmake
         EXPAT.cmake
         FindAutobuild.cmake
-        FMODSTUDIO.cmake
         FreeType.cmake
         GLEXT.cmake
         GLH.cmake
-        GoogleMock.cmake
+        GLM.cmake
         Havok.cmake
         Hunspell.cmake
-        JsonCpp.cmake
         LLAddBuildTest.cmake
         LLAppearance.cmake
         LLAudio.cmake
@@ -43,6 +40,7 @@ set(cmake_SOURCE_FILES
         LLTestCommand.cmake
         LLWindow.cmake
         Linking.cmake
+        Lualibs.cmake
         Meshoptimizer.cmake
         NDOF.cmake
         OPENAL.cmake
@@ -54,18 +52,18 @@ set(cmake_SOURCE_FILES
         Prebuilt.cmake
         PulseAudio.cmake
         Python.cmake
+        SDL2.cmake
         TemplateCheck.cmake
         TinyEXR.cmake
         TinyGLTF.cmake
         Tut.cmake
         UI.cmake
         UnixInstall.cmake
-        URIPARSER.cmake
         Variables.cmake
         ViewerMiscLibs.cmake
         VisualLeakDetector.cmake
         LibVLCPlugin.cmake
-        XmlRpcEpi.cmake
+        WebRTC.cmake
         xxHash.cmake
         ZLIBNG.cmake
         )

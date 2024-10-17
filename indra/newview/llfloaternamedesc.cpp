@@ -64,8 +64,8 @@ const S32 PREVIEW_HPAD = PREVIEW_RESIZE_HANDLE_SIZE;
 //-----------------------------------------------------------------------------
 LLFloaterNameDesc::LLFloaterNameDesc(const LLSD& args)
     : LLFloater(args)
-    , mIsAudio(FALSE)
-    , mIsText(FALSE)
+    , mIsAudio(false)
+    , mIsText(false)
 {
     if (args.isString())
     {
@@ -82,7 +82,7 @@ LLFloaterNameDesc::LLFloaterNameDesc(const LLSD& args)
 //-----------------------------------------------------------------------------
 // postBuild()
 //-----------------------------------------------------------------------------
-BOOL LLFloaterNameDesc::postBuild()
+bool LLFloaterNameDesc::postBuild()
 {
     LLRect r;
 
@@ -144,7 +144,7 @@ BOOL LLFloaterNameDesc::postBuild()
 
     setDefaultBtn("ok_btn");
 
-    return TRUE;
+    return true;
 }
 
 S32 LLFloaterNameDesc::getExpectedUploadCost() const
@@ -195,7 +195,7 @@ void LLFloaterNameDesc::doCommit()
 //-----------------------------------------------------------------------------
 void LLFloaterNameDesc::onBtnOK( )
 {
-    getChildView("ok_btn")->setEnabled(FALSE); // don't allow inadvertent extra uploads
+    getChildView("ok_btn")->setEnabled(false); // don't allow inadvertent extra uploads
 
     LLAssetStorage::LLStoreAssetCallback callback;
     S32 expected_upload_cost = getExpectedUploadCost();
@@ -243,17 +243,17 @@ void LLFloaterNameDesc::onBtnCancel()
 LLFloaterSoundPreview::LLFloaterSoundPreview(const LLSD& args )
     : LLFloaterNameDesc(args)
 {
-    mIsAudio = TRUE;
+    mIsAudio = true;
 }
 
-BOOL LLFloaterSoundPreview::postBuild()
+bool LLFloaterSoundPreview::postBuild()
 {
     if (!LLFloaterNameDesc::postBuild())
     {
-        return FALSE;
+        return false;
     }
     getChild<LLUICtrl>("ok_btn")->setCommitCallback(boost::bind(&LLFloaterNameDesc::onBtnOK, this));
-    return TRUE;
+    return true;
 }
 
 
@@ -266,14 +266,14 @@ LLFloaterAnimPreview::LLFloaterAnimPreview(const LLSD& args )
 {
 }
 
-BOOL LLFloaterAnimPreview::postBuild()
+bool LLFloaterAnimPreview::postBuild()
 {
     if (!LLFloaterNameDesc::postBuild())
     {
-        return FALSE;
+        return false;
     }
     getChild<LLUICtrl>("ok_btn")->setCommitCallback(boost::bind(&LLFloaterNameDesc::onBtnOK, this));
-    return TRUE;
+    return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -283,15 +283,15 @@ BOOL LLFloaterAnimPreview::postBuild()
 LLFloaterScriptPreview::LLFloaterScriptPreview(const LLSD& args )
     : LLFloaterNameDesc(args)
 {
-    mIsText = TRUE;
+    mIsText = true;
 }
 
-BOOL LLFloaterScriptPreview::postBuild()
+bool LLFloaterScriptPreview::postBuild()
 {
     if (!LLFloaterNameDesc::postBuild())
     {
-        return FALSE;
+        return false;
     }
     getChild<LLUICtrl>("ok_btn")->setCommitCallback(boost::bind(&LLFloaterNameDesc::onBtnOK, this));
-    return TRUE;
+    return true;
 }

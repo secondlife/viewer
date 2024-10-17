@@ -32,6 +32,7 @@
 #include "llsingleton.h"
 
 // newview
+#include "llinventoryfunctions.h"
 #include "llinventoryitemslist.h"
 #include "llinventorylistitem.h"
 #include "lllistcontextmenu.h"
@@ -83,8 +84,8 @@ public:
         Params();
     };
 
-    BOOL postBuild();
-    BOOL handleDoubleClick(S32 x, S32 y, MASK mask);
+    bool postBuild();
+    bool handleDoubleClick(S32 x, S32 y, MASK mask);
 
     static LLPanelWearableOutfitItem* create(LLViewerInventoryItem* item,
                                              bool worn_indication_enabled,
@@ -104,6 +105,8 @@ protected:
                               bool worn_indication_enabled, const Params& params, bool show_widgets = false);
 
 private:
+    LLButton* mAddWearableBtn = nullptr;
+    LLButton* mRemoveWearableBtn = nullptr;
     bool    mWornIndicationEnabled;
     bool mShowWidgets;
 };
@@ -124,7 +127,7 @@ public:
 
     virtual ~LLPanelDeletableWearableListItem() {};
 
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
 
     /**
      * Make button visible during mouse over event.
@@ -177,7 +180,7 @@ public:
 
     virtual ~LLPanelClothingListItem();
 
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
 
     /**
      * Make button visible during mouse over event.
@@ -212,7 +215,7 @@ public:
 
     virtual ~LLPanelBodyPartsListItem();
 
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
 
     /**
     * Make button visible during mouse over event.
@@ -241,7 +244,7 @@ public:
     };
     static LLPanelDummyClothingListItem* create(LLWearableType::EType w_type);
 
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
     LLWearableType::EType getWearableType() const;
 
 protected:
@@ -503,6 +506,13 @@ protected:
     ESortOrder      mSortOrder;
 
     LLWearableType::EType mMenuWearableType;
+};
+
+struct LLFindOutfitItems : public LLInventoryCollectFunctor
+{
+    LLFindOutfitItems() {}
+    virtual ~LLFindOutfitItems() {}
+    virtual bool operator()(LLInventoryCategory *cat, LLInventoryItem *item);
 };
 
 #endif //LL_LLWEARABLEITEMSLIST_H

@@ -33,6 +33,8 @@
 #include "llcharacter.h"
 #include "llcoordframe.h"           // for mFrameAgent
 #include "llavatarappearancedefines.h"
+#include "llflycam.h"
+#include "llkeyboard.h"
 #include "llpermissionsflags.h"
 #include "llevents.h"
 #include "v3dmath.h"
@@ -40,10 +42,9 @@
 #include "llcorehttputil.h"
 
 #include <boost/function.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/signals2.hpp>
 
-extern const BOOL   ANIMATE;
+extern const bool   ANIMATE;
 extern const U8     AGENT_STATE_TYPING;  // Typing indication
 extern const U8     AGENT_STATE_EDITING; // Set when agent has objects selected
 
@@ -78,8 +79,8 @@ struct LLGroupData
     LLUUID mID;
     LLUUID mInsigniaID;
     U64 mPowers;
-    BOOL mAcceptNotices;
-    BOOL mListInProfile;
+    bool mAcceptNotices;
+    bool mListInProfile;
     S32 mContribution;
     std::string mName;
 };
@@ -118,7 +119,7 @@ private:
 public:
     void            onAppFocusGained();
     void            setFirstLogin(bool b);
-    // Return TRUE if the database reported this login as the first for this particular user.
+    // Return true if the database reported this login as the first for this particular user.
     bool            isFirstLogin() const    { return mFirstLogin; }
     bool            isInitialized() const   { return mInitialized; }
 
@@ -169,10 +170,10 @@ public:
     // On the very first login, outfit needs to be chosen by some
     // mechanism, usually by loading the requested initial outfit.  We
     // don't render the avatar until the choice is made.
-    BOOL            isOutfitChosen() const  { return mOutfitChosen; }
-    void            setOutfitChosen(BOOL b) { mOutfitChosen = b; }
+    bool            isOutfitChosen() const  { return mOutfitChosen; }
+    void            setOutfitChosen(bool b) { mOutfitChosen = b; }
 private:
-    BOOL            mOutfitChosen;
+    bool            mOutfitChosen;
 
 /**                    Identity
  **                                                                            **
@@ -238,13 +239,13 @@ private:
 public:
     void            setStartPosition(U32 location_id); // Marks current location as start, sends information to servers
     void            setHomePosRegion(const U64& region_handle, const LLVector3& pos_region);
-    BOOL            getHomePosGlobal(LLVector3d* pos_global);
+    bool            getHomePosGlobal(LLVector3d* pos_global);
     bool            isInHomeRegion();
 
 private:
     void            setStartPositionSuccess(const LLSD &result);
 
-    BOOL            mHaveHomePosition;
+    bool            mHaveHomePosition;
     U64             mHomeRegionHandle;
     LLVector3       mHomePosRegion;
 
@@ -271,7 +272,7 @@ public:
     void            setRegion(LLViewerRegion *regionp);
     LLViewerRegion  *getRegion() const;
     LLHost          getRegionHost() const;
-    BOOL            inPrelude();
+    bool            inPrelude();
 
     // Capability
     std::string     getRegionCapability(const std::string &name); // short hand for if (getRegion()) { getRegion()->getCapability(name) }
@@ -352,11 +353,11 @@ private:
     // Fly
     //--------------------------------------------------------------------
 public:
-    BOOL            getFlying() const;
-    void            setFlying(BOOL fly, BOOL fail_sound = FALSE);
+    bool            getFlying() const;
+    void            setFlying(bool fly, bool fail_sound = false);
     static void     toggleFlying();
     static bool     enableFlying();
-    BOOL            canFly();           // Does this parcel allow you to fly?
+    bool            canFly();           // Does this parcel allow you to fly?
     static bool     isSitting();
 
     //--------------------------------------------------------------------
@@ -409,7 +410,7 @@ private:
 public:
     void            setAFK();
     void            clearAFK();
-    BOOL            getAFK() const;
+    bool            getAFK() const;
     static const F32 MIN_AFK_TIME;
 
     //--------------------------------------------------------------------
@@ -461,12 +462,12 @@ private:
     // Grab
     //--------------------------------------------------------------------
 public:
-    BOOL            leftButtonGrabbed() const;
-    BOOL            rotateGrabbed() const;
-    BOOL            forwardGrabbed() const;
-    BOOL            backwardGrabbed() const;
-    BOOL            upGrabbed() const;
-    BOOL            downGrabbed() const;
+    bool            leftButtonGrabbed() const;
+    bool            rotateGrabbed() const;
+    bool            forwardGrabbed() const;
+    bool            backwardGrabbed() const;
+    bool            upGrabbed() const;
+    bool            downGrabbed() const;
 
     //--------------------------------------------------------------------
     // Controls
@@ -475,22 +476,51 @@ public:
     U32             getControlFlags();
     void            setControlFlags(U32 mask);      // Performs bitwise mControlFlags |= mask
     void            clearControlFlags(U32 mask);    // Performs bitwise mControlFlags &= ~mask
-    BOOL            controlFlagsDirty() const;
-    void            enableControlFlagReset();
+    bool            controlFlagsDirty() const;
     void            resetControlFlags();
-    BOOL            anyControlGrabbed() const;      // True iff a script has taken over a control
-    BOOL            isControlGrabbed(S32 control_index) const;
+    bool            anyControlGrabbed() const;      // True iff a script has taken over a control
+    bool            isControlGrabbed(S32 control_index) const;
+    bool            isUsingFlycam() const { return mUsingFlycam; }
     // Send message to simulator to force grabbed controls to be
     // released, in case of a poorly written script.
     void            forceReleaseControls();
-    void            setFlagsDirty() { mbFlagsDirty = TRUE; }
 
 private:
     S32             mControlsTakenCount[TOTAL_CONTROLS];
     S32             mControlsTakenPassedOnCount[TOTAL_CONTROLS];
-    U32             mControlFlags;                  // Replacement for the mFooKey's
-    BOOL            mbFlagsDirty;
-    BOOL            mbFlagsNeedReset;               // ! HACK ! For preventing incorrect flags sent when crossing region boundaries
+    // mControlFlags is a bitmask of behavior instructions for compact
+    // transmission to the server.  It does NOT represent "input", rather
+    // the consequences of it, which will sometimes depend on "state".
+    U32             mControlFlags;
+
+    //--------------------------------------------------------------------
+    // GameControls
+    //--------------------------------------------------------------------
+public:
+    // ActionFlags are similar to, but not the same as, ControlFlags!
+    // An 'ActionFlags' bitmask stores 'simplified input' from key/button
+    // presses that correspond to avatar/camera movement actions
+    // whereas 'mControlFlags' are a more complicated set of behavior bits
+    // computed as a function of input and state, and are sent to the server
+    // to steer its character controller for the avatar.
+    //
+    void applyExternalActionFlags(U32 flags);
+    void updateFlycam();
+
+    void pressGameControlButton(U8 button);
+    void releaseGameControlButton(U8 button);
+    U32 getGameControlButtonsFromKeys() const { return mGameControlButtonsFromKeys; }
+
+private:
+
+    U64 mLastFlycamUpdate { 0 };
+    U32 mExternalActionFlags { 0 };
+    U32 mGameControlButtonsFromKeys { 0 };
+    LLFlycam mFlycam;
+    bool mToggleFly { true };
+    bool mToggleRun { true };
+    bool mToggleFlycam { true };
+    bool mUsingFlycam { false };
 
     //--------------------------------------------------------------------
     // Animations
@@ -506,8 +536,8 @@ public:
 
     void            endAnimationUpdateUI();
     void            unpauseAnimation() { mPauseRequest = NULL; }
-    BOOL            getCustomAnim() const { return mCustomAnim; }
-    void            setCustomAnim(BOOL anim) { mCustomAnim = anim; }
+    bool            getCustomAnim() const { return mCustomAnim; }
+    void            setCustomAnim(bool anim) { mCustomAnim = anim; }
 
     typedef boost::signals2::signal<void ()> camera_signal_t;
     boost::signals2::connection setMouselookModeInCallback( const camera_signal_t::slot_type& cb );
@@ -516,9 +546,9 @@ public:
 private:
     camera_signal_t* mMouselookModeInSignal;
     camera_signal_t* mMouselookModeOutSignal;
-    BOOL            mCustomAnim;        // Current animation is ANIM_AGENT_CUSTOMIZE ?
+    bool            mCustomAnim;        // Current animation is ANIM_AGENT_CUSTOMIZE ?
     LLPointer<LLPauseRequestHandle> mPauseRequest;
-    BOOL            mViewsPushed;       // Keep track of whether or not we have pushed views
+    bool            mViewsPushed;       // Keep track of whether or not we have pushed views
 
 /**                    Animation
  **                                                                            **
@@ -544,8 +574,8 @@ public:
     void            moveYaw(F32 mag, bool reset_view = true);
     void            movePitch(F32 mag);
 
-    BOOL            isMovementLocked() const                { return mMovementKeysLocked; }
-    void            setMovementLocked(BOOL set_locked)  { mMovementKeysLocked = set_locked; }
+    bool            isMovementLocked() const                { return mMovementKeysLocked; }
+    void            setMovementLocked(bool set_locked)  { mMovementKeysLocked = set_locked; }
 
     //--------------------------------------------------------------------
     // Move the avatar's frame
@@ -564,12 +594,12 @@ public:
     // Autopilot
     //--------------------------------------------------------------------
 public:
-    BOOL            getAutoPilot() const                { return mAutoPilot; }
+    bool            getAutoPilot() const                { return mAutoPilot; }
     LLVector3d      getAutoPilotTargetGlobal() const    { return mAutoPilotTargetGlobal; }
     LLUUID          getAutoPilotLeaderID() const        { return mLeaderID; }
     F32             getAutoPilotStopDistance() const    { return mAutoPilotStopDistance; }
     F32             getAutoPilotTargetDist() const      { return mAutoPilotTargetDist; }
-    BOOL            getAutoPilotUseRotation() const     { return mAutoPilotUseRotation; }
+    bool            getAutoPilotUseRotation() const     { return mAutoPilotUseRotation; }
     LLVector3       getAutoPilotTargetFacing() const    { return mAutoPilotTargetFacing; }
     F32             getAutoPilotRotationThreshold() const   { return mAutoPilotRotationThreshold; }
     std::string     getAutoPilotBehaviorName() const    { return mAutoPilotBehaviorName; }
@@ -577,30 +607,30 @@ public:
     void            startAutoPilotGlobal(const LLVector3d &pos_global,
                                          const std::string& behavior_name = std::string(),
                                          const LLQuaternion *target_rotation = NULL,
-                                         void (*finish_callback)(BOOL, void *) = NULL, void *callback_data = NULL,
+                                         void (*finish_callback)(bool, void *) = NULL, void *callback_data = NULL,
                                          F32 stop_distance = 0.f, F32 rotation_threshold = 0.03f,
-                                         BOOL allow_flying = TRUE);
-    void            startFollowPilot(const LLUUID &leader_id, BOOL allow_flying = TRUE, F32 stop_distance = 0.5f);
-    void            stopAutoPilot(BOOL user_cancel = FALSE);
+                                         bool allow_flying = true);
+    void            startFollowPilot(const LLUUID &leader_id, bool allow_flying = true, F32 stop_distance = 0.5f);
+    void            stopAutoPilot(bool user_cancel = false);
     void            setAutoPilotTargetGlobal(const LLVector3d &target_global);
     void            autoPilot(F32 *delta_yaw);          // Autopilot walking action, angles in radians
     void            renderAutoPilotTarget();
 private:
-    BOOL            mAutoPilot;
-    BOOL            mAutoPilotFlyOnStop;
-    BOOL            mAutoPilotAllowFlying;
+    bool            mAutoPilot;
+    bool            mAutoPilotFlyOnStop;
+    bool            mAutoPilotAllowFlying;
     LLVector3d      mAutoPilotTargetGlobal;
     F32             mAutoPilotStopDistance;
-    BOOL            mAutoPilotUseRotation;
+    bool            mAutoPilotUseRotation;
     LLVector3       mAutoPilotTargetFacing;
     F32             mAutoPilotTargetDist;
     S32             mAutoPilotNoProgressFrameCount;
     F32             mAutoPilotRotationThreshold;
     std::string     mAutoPilotBehaviorName;
-    void            (*mAutoPilotFinishedCallback)(BOOL, void *);
+    void            (*mAutoPilotFinishedCallback)(bool, void *);
     void*           mAutoPilotCallbackData;
     LLUUID          mLeaderID;
-    BOOL            mMovementKeysLocked;
+    bool            mMovementKeysLocked;
 
 /**                    Movement
  **                                                                            **
@@ -644,7 +674,7 @@ private:
 public:
     void            teleportViaLandmark(const LLUUID& landmark_id);         // Teleport to a landmark
     void            teleportHome()  { teleportViaLandmark(LLUUID::null); }  // Go home
-    void            teleportViaLure(const LLUUID& lure_id, BOOL godlike);   // To an invited location
+    void            teleportViaLure(const LLUUID& lure_id, bool godlike);   // To an invited location
     void            teleportViaLocation(const LLVector3d& pos_global);      // To a global location - this will probably need to be deprecated
     void            teleportViaLocationLookAt(const LLVector3d& pos_global);// To a global location, preserving camera rotation
     void            teleportCancel();                                       // May or may not be allowed by server
@@ -690,7 +720,7 @@ private:
                                     const LLVector3& pos_local,             // Go to a named location home
                                     bool look_at_from_camera = false);
     void            doTeleportViaLandmark(const LLUUID& landmark_id);           // Teleport to a landmark
-    void            doTeleportViaLure(const LLUUID& lure_id, BOOL godlike); // To an invited location
+    void            doTeleportViaLure(const LLUUID& lure_id, bool godlike); // To an invited location
     void            doTeleportViaLocation(const LLVector3d& pos_global);        // To a global location - this will probably need to be deprecated
     void            doTeleportViaLocationLookAt(const LLVector3d& pos_global);// To a global location, preserving camera rotation
 
@@ -738,14 +768,14 @@ private:
 
 public:
     // Checks if agent can modify an object based on the permissions and the agent's proxy status.
-    BOOL            isGrantedProxy(const LLPermissions& perm);
-    BOOL            allowOperation(PermissionBit op,
+    bool            isGrantedProxy(const LLPermissions& perm);
+    bool            allowOperation(PermissionBit op,
                                    const LLPermissions& perm,
                                    U64 group_proxy_power = 0,
                                    U8 god_minimum = GOD_MAINTENANCE);
     const LLAgentAccess& getAgentAccess();
-    BOOL            canManageEstate() const;
-    BOOL            getAdminOverride() const;
+    bool            canManageEstate() const;
+    bool            getAdminOverride() const;
 private:
     LLAgentAccess * mAgentAccess;
 
@@ -756,7 +786,7 @@ public:
     bool            isGodlike() const;
     bool            isGodlikeWithoutAdminMenuFakery() const;
     U8              getGodLevel() const;
-    void            setAdminOverride(BOOL b);
+    void            setAdminOverride(bool b);
     void            setGodLevel(U8 god_level);
     void            requestEnterGodMode();
     void            requestLeaveGodMode();
@@ -827,13 +857,13 @@ private:
 
 public:
     LLQuaternion    getHeadRotation();
-    BOOL            needsRenderAvatar(); // TRUE when camera mode is such that your own avatar should draw
-    BOOL            needsRenderHead();
-    void            setShowAvatar(BOOL show) { mShowAvatar = show; }
-    BOOL            getShowAvatar() const { return mShowAvatar; }
+    bool            needsRenderAvatar(); // true when camera mode is such that your own avatar should draw
+    bool            needsRenderHead();
+    void            setShowAvatar(bool show) { mShowAvatar = show; }
+    bool            getShowAvatar() const { return mShowAvatar; }
 
 private:
-    BOOL            mShowAvatar;        // Should we render the avatar?
+    bool            mShowAvatar;        // Should we render the avatar?
 
     //--------------------------------------------------------------------
     // Rendering state bitmap helpers
@@ -865,15 +895,15 @@ private:
 
 public:
     const LLUUID    &getGroupID() const         { return mGroupID; }
-    // Get group information by group_id, or FALSE if not in group.
-    BOOL            getGroupData(const LLUUID& group_id, LLGroupData& data) const;
+    // Get group information by group_id, or false if not in group.
+    bool            getGroupData(const LLUUID& group_id, LLGroupData& data) const;
     // Get just the agent's contribution to the given group.
     S32             getGroupContribution(const LLUUID& group_id) const;
     // Update internal datastructures and update the server.
-    BOOL            setGroupContribution(const LLUUID& group_id, S32 contribution);
-    BOOL            setUserGroupFlags(const LLUUID& group_id, BOOL accept_notices, BOOL list_in_profile);
+    bool            setGroupContribution(const LLUUID& group_id, S32 contribution);
+    bool            setUserGroupFlags(const LLUUID& group_id, bool accept_notices, bool list_in_profile);
     const std::string &getGroupName() const     { return mGroupName; }
-    BOOL            canJoinGroups() const;
+    bool            canJoinGroups() const;
 private:
     std::string     mGroupName;
     LLUUID          mGroupID;
@@ -883,10 +913,10 @@ private:
     //--------------------------------------------------------------------
 public:
     // Checks against all groups in the entire agent group list.
-    BOOL            isInGroup(const LLUUID& group_id, BOOL ingnore_God_mod = FALSE) const;
+    bool            isInGroup(const LLUUID& group_id, bool ingnore_God_mod = false) const;
 protected:
     // Only used for building titles.
-    BOOL            isGroupMember() const       { return !mGroupID.isNull(); }
+    bool            isGroupMember() const       { return !mGroupID.isNull(); }
 public:
     std::vector<LLGroupData> mGroups;
 
@@ -894,18 +924,18 @@ public:
     // Group Title
     //--------------------------------------------------------------------
 public:
-    void            setHideGroupTitle(BOOL hide)    { mHideGroupTitle = hide; }
-    BOOL            isGroupTitleHidden() const      { return mHideGroupTitle; }
+    void            setHideGroupTitle(bool hide)    { mHideGroupTitle = hide; }
+    bool            isGroupTitleHidden() const      { return mHideGroupTitle; }
 private:
     std::string     mGroupTitle;                    // Honorific, like "Sir"
-    BOOL            mHideGroupTitle;
+    bool            mHideGroupTitle;
 
     //--------------------------------------------------------------------
     // Group Powers
     //--------------------------------------------------------------------
 public:
-    BOOL            hasPowerInGroup(const LLUUID& group_id, U64 power) const;
-    BOOL            hasPowerInActiveGroup(const U64 power) const;
+    bool            hasPowerInGroup(const LLUUID& group_id, U64 power) const;
+    bool            hasPowerInActiveGroup(const U64 power) const;
     U64             getPowerInGroup(const LLUUID& group_id) const;
     U64             mGroupPowers;
 

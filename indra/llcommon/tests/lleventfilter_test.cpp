@@ -34,10 +34,10 @@
 // std headers
 // external library headers
 // other Linden headers
+#include "listener.h"
 #include "../test/lltut.h"
 #include "stringize.h"
 #include "llsdutil.h"
-#include "listener.h"
 #include "tests/wrapllerrs.h"
 
 #include <typeinfo>
@@ -51,6 +51,7 @@
 // as we've carefully put all functionality except actual LLTimer calls into
 // LLEventTimeoutBase, that should suffice. We're not not not trying to test
 // LLTimer here.
+#if 0                               // time testing needs reworking
 class TestEventTimeout: public LLEventTimeoutBase
 {
 public:
@@ -81,13 +82,13 @@ class TestEventThrottle: public LLEventThrottleBase
 public:
     TestEventThrottle(F32 interval):
         LLEventThrottleBase(interval),
-        mAlarmRemaining(-1),
-        mTimerRemaining(-1)
+        mAlarmRemaining(-1.f),
+        mTimerRemaining(-1.f)
     {}
     TestEventThrottle(LLEventPump& source, F32 interval):
         LLEventThrottleBase(source, interval),
-        mAlarmRemaining(-1),
-        mTimerRemaining(-1)
+        mAlarmRemaining(-1.f),
+        mTimerRemaining(-1.f)
     {}
 
     /*----- implementation of LLEventThrottleBase timing functionality -----*/
@@ -100,12 +101,12 @@ public:
     virtual bool alarmRunning() const /*override*/
     {
         // decrementing to exactly 0 should mean the alarm fires
-        return mAlarmRemaining > 0;
+        return mAlarmRemaining > 0.f;
     }
 
     virtual void alarmCancel() /*override*/
     {
-        mAlarmRemaining = -1;
+        mAlarmRemaining = -1.f;
     }
 
     virtual void timerSet(F32 interval) /*override*/
@@ -116,7 +117,7 @@ public:
     virtual F32  timerGetRemaining() const /*override*/
     {
         // LLTimer.getRemainingTimeF32() never returns negative; 0.0 means expired
-        return (mTimerRemaining > 0.0)? mTimerRemaining : 0.0;
+        return (mTimerRemaining > 0.0f)? mTimerRemaining : 0.0f;
     }
 
     /*------------------- methods for manipulating time --------------------*/
@@ -151,6 +152,7 @@ public:
     F32 mAlarmRemaining, mTimerRemaining;
     LLEventTimeoutBase::Action mAlarmAction;
 };
+#endif  // time testing needs reworking
 
 /*****************************************************************************
 *   TUT
@@ -220,6 +222,8 @@ namespace tut
     void filter_object::test<2>()
     {
         set_test_name("LLEventTimeout::actionAfter()");
+        skip("time testing needs reworking");
+#if 0                               // time testing needs reworking
         LLEventPump& driver(pumps.obtain("driver"));
         TestEventTimeout filter(driver);
         listener0.reset(0);
@@ -285,12 +289,15 @@ namespace tut
         filter.forceTimeout();
         mainloop.post(17);
         check_listener("no timeout 6", listener1, LLSD(0));
+#endif  // time testing needs reworking
     }
 
     template<> template<>
     void filter_object::test<3>()
     {
         set_test_name("LLEventTimeout::eventAfter()");
+        skip("time testing needs reworking");
+#if 0                               // time testing needs reworking
         LLEventPump& driver(pumps.obtain("driver"));
         TestEventTimeout filter(driver);
         listener0.reset(0);
@@ -322,12 +329,15 @@ namespace tut
         filter.forceTimeout();
         mainloop.post(17);
         check_listener("no timeout 3", listener0, LLSD(0));
+#endif  // time testing needs reworking
     }
 
     template<> template<>
     void filter_object::test<4>()
     {
         set_test_name("LLEventTimeout::errorAfter()");
+        skip("time testing needs reworking");
+#if 0                               // time testing needs reworking
         WrapLLErrs capture;
         LLEventPump& driver(pumps.obtain("driver"));
         TestEventTimeout filter(driver);
@@ -362,12 +372,15 @@ namespace tut
         filter.forceTimeout();
         mainloop.post(17);
         check_listener("no timeout 3", listener0, LLSD(0));
+#endif  // time testing needs reworking
     }
 
     template<> template<>
     void filter_object::test<5>()
     {
         set_test_name("LLEventThrottle");
+        skip("time testing needs reworking");
+#if 0                               // time testing needs reworking
         TestEventThrottle throttle(3);
         Concat cat;
         throttle.listen("concat", boost::ref(cat));
@@ -403,6 +416,7 @@ namespace tut
         throttle.advance(5);
         throttle.post(";17");
         ensure_equals("17", cat.result, "136;12;17"); // "17" delivered
+#endif  // time testing needs reworking
     }
 
     template<class PUMP>

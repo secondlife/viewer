@@ -118,7 +118,7 @@ namespace
             }
             else
             {
-                img = LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+                img = LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, true, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
             }
         }
         if (img)
@@ -185,7 +185,7 @@ namespace
 };  // namespace
 
 LLGLTFPreviewTexture::LLGLTFPreviewTexture(LLPointer<LLFetchedGLTFMaterial> material, S32 width)
-    : LLViewerDynamicTexture(width, width, 4, EOrder::ORDER_MIDDLE, FALSE)
+    : LLViewerDynamicTexture(width, width, 4, EOrder::ORDER_MIDDLE, false)
     , mGLTFMaterial(material)
 {
 }
@@ -193,10 +193,10 @@ LLGLTFPreviewTexture::LLGLTFPreviewTexture(LLPointer<LLFetchedGLTFMaterial> mate
 // static
 LLPointer<LLGLTFPreviewTexture> LLGLTFPreviewTexture::create(LLPointer<LLFetchedGLTFMaterial> material)
 {
-    return new LLGLTFPreviewTexture(material, LLPipeline::MAX_BAKE_WIDTH);
+    return new LLGLTFPreviewTexture(material, LLPipeline::MAX_PREVIEW_WIDTH);
 }
 
-BOOL LLGLTFPreviewTexture::needsRender()
+bool LLGLTFPreviewTexture::needsRender()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
 
@@ -211,7 +211,7 @@ BOOL LLGLTFPreviewTexture::needsRender()
     return false;
 }
 
-void LLGLTFPreviewTexture::preRender(BOOL clear_depth)
+void LLGLTFPreviewTexture::preRender(bool clear_depth)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
 
@@ -393,7 +393,7 @@ void fixup_shader_constants(LLGLSLShader& shader)
         const S32 channel = shader.getTextureChannel(LLShaderMgr::DEFERRED_SHADOW0+i);
         if (channel != -1)
         {
-            gGL.getTexUnit(channel)->bind(LLViewerFetchedTexture::sWhiteImagep, TRUE);
+            gGL.getTexUnit(channel)->bind(LLViewerFetchedTexture::sWhiteImagep, true);
         }
     }
 }
@@ -419,11 +419,11 @@ struct SetTemporarily
 
 }; // namespace
 
-BOOL LLGLTFPreviewTexture::render()
+bool LLGLTFPreviewTexture::render()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
 
-    if (!mShouldRender) { return FALSE; }
+    if (!mShouldRender) { return false; }
 
     glClearColor(0, 0, 0, 0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -434,7 +434,7 @@ BOOL LLGLTFPreviewTexture::render()
     SetTemporarily<bool> no_dof(&LLPipeline::RenderDepthOfField, false);
     SetTemporarily<bool> no_glow(&LLPipeline::sRenderGlow, false);
     SetTemporarily<bool> no_ssr(&LLPipeline::RenderScreenSpaceReflections, false);
-    SetTemporarily<U32> no_fxaa(&LLPipeline::RenderFSAASamples, U32(0));
+    SetTemporarily<U32> no_aa(&LLPipeline::RenderFSAAType, U32(0));
     SetTemporarily<LLPipeline::RenderTargetPack*> use_auxiliary_render_target(&gPipeline.mRT, &gPipeline.mAuxillaryRT);
 
     LLVector3 light_dir3(1.0f, 1.0f, 1.0f);
@@ -462,19 +462,19 @@ BOOL LLGLTFPreviewTexture::render()
     // Set up camera and viewport
     const LLVector3 origin(0.0, 0.0, 0.0);
     camera.lookAt(origin, object_position);
-    camera.setAspect(mFullHeight / mFullWidth);
+    camera.setAspect((F32)(mFullHeight / mFullWidth));
     const LLRect texture_rect(0, mFullHeight, mFullWidth, 0);
-    camera.setPerspective(NOT_FOR_SELECTION, texture_rect.mLeft, texture_rect.mBottom, texture_rect.getWidth(), texture_rect.getHeight(), FALSE, camera.getNear(), MAX_FAR_CLIP*2.f);
+    camera.setPerspective(NOT_FOR_SELECTION, texture_rect.mLeft, texture_rect.mBottom, texture_rect.getWidth(), texture_rect.getHeight(), false, camera.getNear(), MAX_FAR_CLIP*2.f);
 
     // Generate sphere object on-the-fly. Discard afterwards. (Vertex buffer is
     // discarded, but the sphere should be cached in LLVolumeMgr.)
     PreviewSphere& preview_sphere = get_preview_sphere(mGLTFMaterial, object_transform);
 
     gPipeline.setupHWLights();
-    glh::matrix4f mat = copy_matrix(gGLModelView);
-    glh::vec4f transformed_light_dir(light_dir.mV);
-    mat.mult_matrix_vec(transformed_light_dir);
-    SetTemporarily<LLVector4> force_sun_direction_high_graphics(&gPipeline.mTransformedSunDir, LLVector4(transformed_light_dir.v));
+    glm::mat4 mat = get_current_modelview();
+    glm::vec4 transformed_light_dir = glm::make_vec4(light_dir.mV);
+    transformed_light_dir = mat * transformed_light_dir;
+    SetTemporarily<LLVector4> force_sun_direction_high_graphics(&gPipeline.mTransformedSunDir, LLVector4(glm::value_ptr(transformed_light_dir)));
     // Override lights to ensure the sun is always shining from a certain direction (low graphics)
     // See also force_sun_direction_high_graphics and fixup_shader_constants
     {
@@ -554,10 +554,10 @@ BOOL LLGLTFPreviewTexture::render()
     gPipeline.mReflectionMapManager.forceDefaultProbeAndUpdateUniforms(false);
     gSavedSettings.set<S32>("RenderLocalLightCount", old_local_light_count);
 
-    return TRUE;
+    return true;
 }
 
-void LLGLTFPreviewTexture::postRender(BOOL success)
+void LLGLTFPreviewTexture::postRender(bool success)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
 

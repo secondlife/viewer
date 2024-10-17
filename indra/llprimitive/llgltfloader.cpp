@@ -51,7 +51,6 @@
 #include "llsdserialize.h"
 #include "lljoint.h"
 
-#include "glh/glh_linear.h"
 #include "llmatrix4a.h"
 
 #include <boost/regex.hpp>
@@ -231,7 +230,7 @@ bool LLGLTFLoader::parseMaterials()
         image.numChannels     = in_image.component;
         image.bytesPerChannel = in_image.bits >> 3;     // Convert bits to bytes
         image.pixelType       = in_image.pixel_type;    // Maps exactly, i.e. TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE == GL_UNSIGNED_BYTE, etc
-        image.size            = in_image.image.size();
+        image.size            = static_cast<U32>(in_image.image.size());
         image.height          = in_image.height;
         image.width           = in_image.width;
         image.data            = in_image.image.data();

@@ -53,7 +53,7 @@ public:
 
         //Get the ID
         LLUUID id;
-        if (!id.set( params[0], FALSE ))
+        if (!id.set( params[0], false ))
         {
             return false;
         }

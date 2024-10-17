@@ -56,7 +56,7 @@ LLSysWellChiclet::Params::Params()
     , max_displayed_count("max_displayed_count", 99)
 {
     button.name = "button";
-    button.tab_stop = FALSE;
+    button.tab_stop = false;
     button.label = LLStringUtil::null;
 }
 
@@ -114,7 +114,7 @@ boost::signals2::connection LLSysWellChiclet::setClickCallback(
     return mButton->setClickedCallback(cb);
 }
 
-void LLSysWellChiclet::setToggleState(BOOL toggled) {
+void LLSysWellChiclet::setToggleState(bool toggled) {
     mButton->setToggleState(toggled);
 }
 
@@ -148,7 +148,7 @@ void LLSysWellChiclet::updateWidget(bool is_window_empty)
     }
 }
 // virtual
-BOOL LLSysWellChiclet::handleRightMouseDown(S32 x, S32 y, MASK mask)
+bool LLSysWellChiclet::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
     LLContextMenu* menu_avatar = mContextMenuHandle.get();
     if(!menu_avatar)
@@ -161,7 +161,7 @@ BOOL LLSysWellChiclet::handleRightMouseDown(S32 x, S32 y, MASK mask)
         menu_avatar->show(x, y);
         LLMenuGL::showPopup(this, menu_avatar, x, y);
     }
-    return TRUE;
+    return true;
 }
 
 /************************************************************************/
@@ -210,9 +210,9 @@ void LLNotificationChiclet::createMenu()
         return;
     }
 
-    LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+    ScopedRegistrarHelper registrar;
     registrar.add("NotificationWellChicletMenu.Action",
-        boost::bind(&LLNotificationChiclet::onMenuItemClicked, this, _2));
+        boost::bind(&LLNotificationChiclet::onMenuItemClicked, this, _2), cb_info::UNTRUSTED_BLOCK);
 
     LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
     enable_registrar.add("NotificationWellChicletMenu.EnableItem",
@@ -284,11 +284,11 @@ boost::signals2::connection LLChiclet::setLeftButtonClickCallback(
     return setCommitCallback(cb);
 }
 
-BOOL LLChiclet::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLChiclet::handleMouseDown(S32 x, S32 y, MASK mask)
 {
     onCommit();
     childrenHandleMouseDown(x,y,mask);
-    return TRUE;
+    return true;
 }
 
 boost::signals2::connection LLChiclet::setChicletSizeChangedCallback(
@@ -339,12 +339,12 @@ LLIMChiclet::~LLIMChiclet()
 }
 
 /* virtual*/
-BOOL LLIMChiclet::postBuild()
+bool LLIMChiclet::postBuild()
 {
     mChicletButton = getChild<LLButton>("chiclet_button");
     mChicletButton->setCommitCallback(boost::bind(&LLIMChiclet::onMouseDown, this));
     mChicletButton->setDoubleClickCallback(boost::bind(&LLIMChiclet::onMouseDown, this));
-    return TRUE;
+    return true;
 }
 
 void LLIMChiclet::enableCounterControl(bool enable)
@@ -387,7 +387,7 @@ void LLIMChiclet::setToggleState(bool toggle)
     mChicletButton->setToggleState(toggle);
 }
 
-BOOL LLIMChiclet::handleRightMouseDown(S32 x, S32 y, MASK mask)
+bool LLIMChiclet::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
     auto menu = static_cast<LLMenuGL*>(mPopupMenuHandle.get());
     if(!menu)
@@ -403,7 +403,7 @@ BOOL LLIMChiclet::handleRightMouseDown(S32 x, S32 y, MASK mask)
         LLMenuGL::showPopup(this, menu, x, y);
     }
 
-    return TRUE;
+    return true;
 }
 
 void LLIMChiclet::hidePopupMenu()
@@ -411,7 +411,7 @@ void LLIMChiclet::hidePopupMenu()
     auto menu = mPopupMenuHandle.get();
     if (menu)
     {
-        menu->setVisible(FALSE);
+        menu->setVisible(false);
     }
 }
 
@@ -503,7 +503,7 @@ void LLChicletPanel::objectChicletCallback(const LLSD& data)
     }
 }
 
-BOOL LLChicletPanel::postBuild()
+bool LLChicletPanel::postBuild()
 {
     LLPanel::postBuild();
     LLIMModel::instance().addNewMsgCallback(boost::bind(&LLChicletPanel::onMessageCountChanged, this, _1));
@@ -525,7 +525,7 @@ BOOL LLChicletPanel::postBuild()
     mRightScrollButton->setHeldDownCallback(boost::bind(&LLChicletPanel::onRightScrollHeldDown,this));
     mRightScrollButton->setEnabled(false);
 
-    return TRUE;
+    return true;
 }
 
 void LLChicletPanel::onCurrentVoiceChannelChanged(const LLUUID& session_id)
@@ -711,7 +711,7 @@ void LLChicletPanel::scrollToChiclet(const LLChiclet* chiclet)
     }
 }
 
-void LLChicletPanel::reshape(S32 width, S32 height, BOOL called_from_parent )
+void LLChicletPanel::reshape(S32 width, S32 height, bool called_from_parent )
 {
     LLPanel::reshape(width,height,called_from_parent);
 
@@ -999,7 +999,7 @@ boost::signals2::connection LLChicletPanel::setChicletClickedCallback(
     return setCommitCallback(cb);
 }
 
-BOOL LLChicletPanel::handleScrollWheel(S32 x, S32 y, S32 clicks)
+bool LLChicletPanel::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
     if(clicks > 0)
     {
@@ -1009,7 +1009,7 @@ BOOL LLChicletPanel::handleScrollWheel(S32 x, S32 y, S32 clicks)
     {
         scrollLeft();
     }
-    return TRUE;
+    return true;
 }
 
 bool LLChicletPanel::isAnyIMFloaterDoked()
@@ -1132,8 +1132,8 @@ void LLScriptChiclet::createPopupMenu()
     if(!canCreateMenu())
         return;
 
-    LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
-    registrar.add("ScriptChiclet.Action", boost::bind(&LLScriptChiclet::onMenuItemClicked, this, _2));
+    ScopedRegistrarHelper registrar;
+    registrar.add("ScriptChiclet.Action", boost::bind(&LLScriptChiclet::onMenuItemClicked, this, _2), cb_info::UNTRUSTED_BLOCK);
 
     LLMenuGL* menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>
         ("menu_script_chiclet.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
@@ -1215,8 +1215,8 @@ void LLInvOfferChiclet::createPopupMenu()
     if(!canCreateMenu())
         return;
 
-    LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
-    registrar.add("InvOfferChiclet.Action", boost::bind(&LLInvOfferChiclet::onMenuItemClicked, this, _2));
+    ScopedRegistrarHelper registrar;
+    registrar.add("InvOfferChiclet.Action", boost::bind(&LLInvOfferChiclet::onMenuItemClicked, this, _2), cb_info::UNTRUSTED_BLOCK);
 
     LLMenuGL* menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>
         ("menu_inv_offer_chiclet.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());

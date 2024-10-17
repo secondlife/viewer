@@ -90,7 +90,7 @@ const F32 DEFAULT_GRAVITY_MULTIPLIER = 1.f;
 const F32 DEFAULT_DENSITY = 1000.f;
 
 // "Features" Tab
-BOOL    LLPanelVolume::postBuild()
+bool    LLPanelVolume::postBuild()
 {
     // Flexible Objects Parameters
     {
@@ -151,6 +151,7 @@ BOOL    LLPanelVolume::postBuild()
     {
         childSetCommitCallback("Reflection Probe", onCommitIsReflectionProbe, this);
         childSetCommitCallback("Probe Update Type", onCommitProbe, this);
+        childSetCommitCallback("Probe Dynamic", onCommitProbe, this);
         childSetCommitCallback("Probe Volume Type", onCommitProbe, this);
         childSetCommitCallback("Probe Ambiance", onCommitProbe, this);
         childSetCommitCallback("Probe Near Clip", onCommitProbe, this);
@@ -213,16 +214,16 @@ BOOL    LLPanelVolume::postBuild()
     // Start with everyone disabled
     clearCtrls();
 
-    return TRUE;
+    return true;
 }
 
 LLPanelVolume::LLPanelVolume()
     : LLPanel(),
       mComboMaterialItemCount(0)
 {
-    setMouseOpaque(FALSE);
+    setMouseOpaque(false);
 
-    mCommitCallbackRegistrar.add("PanelVolume.menuDoToSelected", boost::bind(&LLPanelVolume::menuDoToSelected, this, _2));
+    mCommitCallbackRegistrar.add("PanelVolume.menuDoToSelected", { boost::bind(&LLPanelVolume::menuDoToSelected, this, _2) });
     mEnableCallbackRegistrar.add("PanelVolume.menuEnable", boost::bind(&LLPanelVolume::menuEnableItem, this, _2));
 }
 
@@ -285,10 +286,10 @@ void LLPanelVolume::getState( )
     LLSelectMgr::getInstance()->selectGetOwner(owner_id, owner_name);
 
     // BUG? Check for all objects being editable?
-    BOOL editable = root_objectp->permModify() && !root_objectp->isPermanentEnforced();
-    BOOL single_volume = LLSelectMgr::getInstance()->selectionAllPCode( LL_PCODE_VOLUME )
+    bool editable = root_objectp->permModify() && !root_objectp->isPermanentEnforced();
+    bool single_volume = LLSelectMgr::getInstance()->selectionAllPCode( LL_PCODE_VOLUME )
         && LLSelectMgr::getInstance()->getSelection()->getObjectCount() == 1;
-    BOOL single_root_volume = LLSelectMgr::getInstance()->selectionAllPCode( LL_PCODE_VOLUME ) &&
+    bool single_root_volume = LLSelectMgr::getInstance()->selectionAllPCode( LL_PCODE_VOLUME ) &&
         LLSelectMgr::getInstance()->getSelection()->getRootObjectCount() == 1;
 
     // Select Single Message
@@ -306,26 +307,26 @@ void LLPanelVolume::getState( )
     }
 
     // Light properties
-    BOOL is_light = volobjp && volobjp->getIsLight();
+    bool is_light = volobjp && volobjp->getIsLight();
     getChild<LLUICtrl>("Light Checkbox Ctrl")->setValue(is_light);
     getChildView("Light Checkbox Ctrl")->setEnabled(editable && single_volume && volobjp);
 
     if (is_light && editable && single_volume)
     {
-        //mLabelColor        ->setEnabled( TRUE );
+        //mLabelColor        ->setEnabled( true );
         LLColorSwatchCtrl* LightColorSwatch = getChild<LLColorSwatchCtrl>("colorswatch");
         if(LightColorSwatch)
         {
-            LightColorSwatch->setEnabled( TRUE );
-            LightColorSwatch->setValid( TRUE );
+            LightColorSwatch->setEnabled( true );
+            LightColorSwatch->setValid( true );
             LightColorSwatch->set(volobjp->getLightSRGBBaseColor());
         }
 
         LLTextureCtrl* LightTextureCtrl = getChild<LLTextureCtrl>("light texture control");
         if (LightTextureCtrl)
         {
-            LightTextureCtrl->setEnabled(TRUE);
-            LightTextureCtrl->setValid(TRUE);
+            LightTextureCtrl->setEnabled(true);
+            LightTextureCtrl->setValid(true);
             LightTextureCtrl->setImageAssetID(volobjp->getLightTextureID());
         }
 
@@ -357,14 +358,14 @@ void LLPanelVolume::getState( )
         LLColorSwatchCtrl* LightColorSwatch = getChild<LLColorSwatchCtrl>("colorswatch");
         if(LightColorSwatch)
         {
-            LightColorSwatch->setEnabled( FALSE );
-            LightColorSwatch->setValid( FALSE );
+            LightColorSwatch->setEnabled( false );
+            LightColorSwatch->setValid( false );
         }
         LLTextureCtrl* LightTextureCtrl = getChild<LLTextureCtrl>("light texture control");
         if (LightTextureCtrl)
         {
-            LightTextureCtrl->setEnabled(FALSE);
-            LightTextureCtrl->setValid(FALSE);
+            LightTextureCtrl->setEnabled(false);
+            LightTextureCtrl->setValid(false);
 
             if (objectp->isAttachment())
             {
@@ -386,7 +387,7 @@ void LLPanelVolume::getState( )
     }
 
     // Reflection Probe
-    BOOL is_probe = volobjp && volobjp->isReflectionProbe();
+    bool is_probe = volobjp && volobjp->isReflectionProbe();
     bool is_mirror = volobjp && volobjp->getReflectionProbeIsMirror();
     getChild<LLUICtrl>("Reflection Probe")->setValue(is_probe);
     getChildView("Reflection Probe")->setEnabled(editable && single_volume && volobjp && !volobjp->isMesh());
@@ -412,6 +413,7 @@ void LLPanelVolume::getState( )
         getChild<LLSpinCtrl>("Probe Ambiance", true)->clear();
         getChild<LLSpinCtrl>("Probe Near Clip", true)->clear();
         getChild<LLComboBox>("Probe Update Type", true)->clear();
+        getChild<LLUICtrl>("Probe Dynamic")->setValue(false);
     }
     else
     {
@@ -442,19 +444,17 @@ void LLPanelVolume::getState( )
             update_type = "Dynamic Mirror";
         }
 
-        getChildView("Probe Ambiance")->setEnabled(!is_mirror);
-        getChildView("Probe Near Clip")->setEnabled(!is_mirror);
-
         getChild<LLComboBox>("Probe Volume Type", true)->setValue(volume_type);
         getChild<LLSpinCtrl>("Probe Ambiance", true)->setValue(volobjp->getReflectionProbeAmbiance());
         getChild<LLSpinCtrl>("Probe Near Clip", true)->setValue(volobjp->getReflectionProbeNearClip());
         getChild<LLComboBox>("Probe Update Type", true)->setValue(update_type);
+        getChild<LLUICtrl>("Probe Dynamic")->setValue(volobjp->getReflectionProbeIsDynamic());
     }
 
     // Animated Mesh
-    BOOL is_animated_mesh = single_root_volume && root_volobjp && root_volobjp->isAnimatedObject();
+    bool is_animated_mesh = single_root_volume && root_volobjp && root_volobjp->isAnimatedObject();
     getChild<LLUICtrl>("Animated Mesh Checkbox Ctrl")->setValue(is_animated_mesh);
-    BOOL enabled_animated_object_box = FALSE;
+    bool enabled_animated_object_box = false;
     if (root_volobjp && root_volobjp == volobjp)
     {
         enabled_animated_object_box = single_root_volume && root_volobjp && root_volobjp->canBeAnimatedObject() && editable;
@@ -502,7 +502,7 @@ void LLPanelVolume::getState( )
     }
 
     // Flexible properties
-    BOOL is_flexible = volobjp && volobjp->isFlexible();
+    bool is_flexible = volobjp && volobjp->isFlexible();
     getChild<LLUICtrl>("Flexible1D Checkbox Ctrl")->setValue(is_flexible);
     if (is_flexible || (volobjp && volobjp->canBeFlexible()))
     {
@@ -580,7 +580,7 @@ void LLPanelVolume::getState( )
     std::string LEGACY_FULLBRIGHT_DESC = LLTrans::getString("Fullbright");
     if (editable && single_volume && material_same)
     {
-        mComboMaterial->setEnabled( TRUE );
+        mComboMaterial->setEnabled( true );
         if (material_code == LL_MCODE_LIGHT)
         {
             if (mComboMaterial->getItemCount() == mComboMaterialItemCount)
@@ -601,7 +601,7 @@ void LLPanelVolume::getState( )
     }
     else
     {
-        mComboMaterial->setEnabled( FALSE );
+        mComboMaterial->setEnabled( false );
     }
 
     // Physics properties
@@ -622,7 +622,7 @@ void LLPanelVolume::getState( )
     mComboPhysicsShapeType->removeall();
     mComboPhysicsShapeType->add(getString("None"), LLSD(1));
 
-    BOOL isMesh = FALSE;
+    bool isMesh = false;
     LLSculptParams *sculpt_params = (LLSculptParams *)objectp->getParameterEntry(LLNetworkData::PARAMS_SCULPT);
     if (sculpt_params)
     {
@@ -663,7 +663,7 @@ void LLPanelVolume::getState( )
 bool LLPanelVolume::precommitValidate( const LLSD& data )
 {
     // TODO: Richard will fill this in later.
-    return TRUE; // FALSE means that validation failed and new value should not be commited.
+    return true; // false means that validation failed and new value should not be commited.
 }
 
 
@@ -719,14 +719,14 @@ void LLPanelVolume::clearCtrls()
     LLColorSwatchCtrl* LightColorSwatch = getChild<LLColorSwatchCtrl>("colorswatch");
     if(LightColorSwatch)
     {
-        LightColorSwatch->setEnabled( FALSE );
-        LightColorSwatch->setValid( FALSE );
+        LightColorSwatch->setEnabled( false );
+        LightColorSwatch->setValid( false );
     }
     LLTextureCtrl* LightTextureCtrl = getChild<LLTextureCtrl>("light texture control");
     if(LightTextureCtrl)
     {
-        LightTextureCtrl->setEnabled( FALSE );
-        LightTextureCtrl->setValid( FALSE );
+        LightTextureCtrl->setEnabled( false );
+        LightTextureCtrl->setValid( false );
     }
 
     getChildView("Light Intensity")->setEnabled(false);
@@ -736,6 +736,7 @@ void LLPanelVolume::clearCtrls()
     getChildView("Reflection Probe")->setEnabled(false);;
     getChildView("Probe Volume Type")->setEnabled(false);
     getChildView("Probe Update Type")->setEnabled(false);
+    getChildView("Probe Dynamic")->setEnabled(false);
     getChildView("Probe Ambiance")->setEnabled(false);
     getChildView("Probe Near Clip")->setEnabled(false);
     getChildView("Animated Mesh Checkbox Ctrl")->setEnabled(false);
@@ -749,12 +750,12 @@ void LLPanelVolume::clearCtrls()
     getChildView("FlexForceY")->setEnabled(false);
     getChildView("FlexForceZ")->setEnabled(false);
 
-    mSpinPhysicsGravity->setEnabled(FALSE);
-    mSpinPhysicsFriction->setEnabled(FALSE);
-    mSpinPhysicsDensity->setEnabled(FALSE);
-    mSpinPhysicsRestitution->setEnabled(FALSE);
+    mSpinPhysicsGravity->setEnabled(false);
+    mSpinPhysicsFriction->setEnabled(false);
+    mSpinPhysicsDensity->setEnabled(false);
+    mSpinPhysicsRestitution->setEnabled(false);
 
-    mComboMaterial->setEnabled( FALSE );
+    mComboMaterial->setEnabled( false );
 }
 
 //
@@ -770,7 +771,7 @@ void LLPanelVolume::sendIsLight()
     }
     LLVOVolume *volobjp = (LLVOVolume *)objectp;
 
-    BOOL value = getChild<LLUICtrl>("Light Checkbox Ctrl")->getValue();
+    bool value = getChild<LLUICtrl>("Light Checkbox Ctrl")->getValue();
     volobjp->setIsLight(value);
     LL_INFOS() << "update light sent" << LL_ENDL;
 }
@@ -792,8 +793,8 @@ void LLPanelVolume::sendIsReflectionProbe()
     }
     LLVOVolume* volobjp = (LLVOVolume*)objectp;
 
-    BOOL value = getChild<LLUICtrl>("Reflection Probe")->getValue();
-    BOOL old_value = volobjp->isReflectionProbe();
+    bool value = getChild<LLUICtrl>("Reflection Probe")->getValue();
+    bool old_value = volobjp->isReflectionProbe();
 
     if (value && value != old_value)
     { // defer to notification util as to whether or not we *really* make this object a reflection probe
@@ -812,7 +813,7 @@ void LLPanelVolume::sendIsReflectionProbe()
             if (in_linkeset)
             {
                 // In linkset with a phantom flag
-                objectp->setFlags(FLAGS_PHANTOM, FALSE);
+                objectp->setFlags(FLAGS_PHANTOM, false);
             }
         }
         volobjp->setIsReflectionProbe(value);
@@ -865,8 +866,8 @@ void LLPanelVolume::sendIsFlexible()
     }
     LLVOVolume *volobjp = (LLVOVolume *)objectp;
 
-    BOOL is_flexible = getChild<LLUICtrl>("Flexible1D Checkbox Ctrl")->getValue();
-    //BOOL is_flexible = mCheckFlexible1D->get();
+    bool is_flexible = getChild<LLUICtrl>("Flexible1D Checkbox Ctrl")->getValue();
+    //bool is_flexible = mCheckFlexible1D->get();
 
     if (is_flexible)
     {
@@ -898,25 +899,25 @@ void LLPanelVolume::sendPhysicsShapeType(LLUICtrl* ctrl, void* userdata)
 
 void LLPanelVolume::sendPhysicsGravity(LLUICtrl* ctrl, void* userdata)
 {
-    F32 val = ctrl->getValue().asReal();
+    F32 val = (F32)ctrl->getValue().asReal();
     LLSelectMgr::getInstance()->selectionSetGravity(val);
 }
 
 void LLPanelVolume::sendPhysicsFriction(LLUICtrl* ctrl, void* userdata)
 {
-    F32 val = ctrl->getValue().asReal();
+    F32 val = (F32)ctrl->getValue().asReal();
     LLSelectMgr::getInstance()->selectionSetFriction(val);
 }
 
 void LLPanelVolume::sendPhysicsRestitution(LLUICtrl* ctrl, void* userdata)
 {
-    F32 val = ctrl->getValue().asReal();
+    F32 val = (F32)ctrl->getValue().asReal();
     LLSelectMgr::getInstance()->selectionSetRestitution(val);
 }
 
 void LLPanelVolume::sendPhysicsDensity(LLUICtrl* ctrl, void* userdata)
 {
-    F32 val = ctrl->getValue().asReal();
+    F32 val = (F32)ctrl->getValue().asReal();
     LLSelectMgr::getInstance()->selectionSetDensity(val);
 }
 
@@ -1084,10 +1085,10 @@ void LLPanelVolume::onPasteFeatures()
     bool is_root = objectp->isRoot();
 
     // Not sure if phantom should go under physics, but doesn't fit elsewhere
-    BOOL is_phantom = clipboard["is_phantom"].asBoolean() && is_root;
+    bool is_phantom = clipboard["is_phantom"].asBoolean() && is_root;
     LLSelectMgr::getInstance()->selectionUpdatePhantom(is_phantom);
 
-    BOOL is_physical = clipboard["is_physical"].asBoolean() && is_root;
+    bool is_physical = clipboard["is_physical"].asBoolean() && is_root;
     LLSelectMgr::getInstance()->selectionUpdatePhysics(is_physical);
 
     if (clipboard.has("physics"))
@@ -1098,11 +1099,11 @@ void LLPanelVolume::onPasteFeatures()
 
         objectp->setMaterial(material);
         objectp->sendMaterialUpdate();
-        objectp->setPhysicsGravity(clipboard["physics"]["gravity"].asReal());
-        objectp->setPhysicsFriction(clipboard["physics"]["friction"].asReal());
-        objectp->setPhysicsDensity(clipboard["physics"]["density"].asReal());
-        objectp->setPhysicsRestitution(clipboard["physics"]["restitution"].asReal());
-        objectp->updateFlags(TRUE);
+        objectp->setPhysicsGravity((F32)clipboard["physics"]["gravity"].asReal());
+        objectp->setPhysicsFriction((F32)clipboard["physics"]["friction"].asReal());
+        objectp->setPhysicsDensity((F32)clipboard["physics"]["density"].asReal());
+        objectp->setPhysicsRestitution((F32)clipboard["physics"]["restitution"].asReal());
+        objectp->updateFlags(true);
     }
 
     // Flexible
@@ -1110,7 +1111,7 @@ void LLPanelVolume::onPasteFeatures()
     if (is_flexible && volobjp->canBeFlexible())
     {
         LLVOVolume *volobjp = (LLVOVolume *)objectp;
-        BOOL update_shape = FALSE;
+        bool update_shape = false;
 
         // do before setParameterEntry or it will think that it is already flexi
         update_shape = volobjp->setIsFlexible(is_flexible);
@@ -1126,10 +1127,10 @@ void LLPanelVolume::onPasteFeatures()
             LLFlexibleObjectData new_attributes;
             new_attributes = *attributes;
             new_attributes.setSimulateLOD(clipboard["flex"]["lod"].asInteger());
-            new_attributes.setGravity(clipboard["flex"]["gav"].asReal());
-            new_attributes.setTension(clipboard["flex"]["ten"].asReal());
-            new_attributes.setAirFriction(clipboard["flex"]["fri"].asReal());
-            new_attributes.setWindSensitivity(clipboard["flex"]["sen"].asReal());
+            new_attributes.setGravity((F32)clipboard["flex"]["gav"].asReal());
+            new_attributes.setTension((F32)clipboard["flex"]["ten"].asReal());
+            new_attributes.setAirFriction((F32)clipboard["flex"]["fri"].asReal());
+            new_attributes.setWindSensitivity((F32)clipboard["flex"]["sen"].asReal());
             F32 fx = (F32)clipboard["flex"]["forx"].asReal();
             F32 fy = (F32)clipboard["flex"]["fory"].asReal();
             F32 fz = (F32)clipboard["flex"]["forz"].asReal();
@@ -1230,7 +1231,7 @@ void LLPanelVolume::onPasteLight()
     {
         if (clipboard.has("light"))
         {
-            volobjp->setIsLight(TRUE);
+            volobjp->setIsLight(true);
             volobjp->setLightIntensity((F32)clipboard["light"]["intensity"].asReal());
             volobjp->setLightRadius((F32)clipboard["light"]["radius"].asReal());
             volobjp->setLightFalloff((F32)clipboard["light"]["falloff"].asReal());
@@ -1241,7 +1242,7 @@ void LLPanelVolume::onPasteLight()
         }
         else
         {
-            volobjp->setIsLight(FALSE);
+            volobjp->setIsLight(false);
         }
 
         if (clipboard.has("spot"))
@@ -1256,7 +1257,7 @@ void LLPanelVolume::onPasteLight()
 
         if (clipboard.has("reflection_probe"))
         {
-            volobjp->setIsReflectionProbe(TRUE);
+            volobjp->setIsReflectionProbe(true);
             volobjp->setReflectionProbeIsBox(clipboard["reflection_probe"]["is_box"].asBoolean());
             volobjp->setReflectionProbeAmbiance((F32)clipboard["reflection_probe"]["ambiance"].asReal());
             volobjp->setReflectionProbeNearClip((F32)clipboard["reflection_probe"]["near_clip"].asReal());
@@ -1272,7 +1273,7 @@ void LLPanelVolume::onPasteLight()
                 if (in_linkeset)
                 {
                     // In linkset with a phantom flag
-                    objectp->setFlags(FLAGS_PHANTOM, FALSE);
+                    objectp->setFlags(FLAGS_PHANTOM, false);
                 }
             }
 
@@ -1408,9 +1409,9 @@ void LLPanelVolume::onCommitLight( LLUICtrl* ctrl, void* userdata )
         else if (volobjp->isLightSpotlight())
         { //no longer a spot light
             setLightTextureID(id, item_id, volobjp);
-            //self->getChildView("Light FOV")->setEnabled(FALSE);
-            //self->getChildView("Light Focus")->setEnabled(FALSE);
-            //self->getChildView("Light Ambiance")->setEnabled(FALSE);
+            //self->getChildView("Light FOV")->setEnabled(false);
+            //self->getChildView("Light Focus")->setEnabled(false);
+            //self->getChildView("Light Ambiance")->setEnabled(false);
         }
     }
 
@@ -1431,15 +1432,26 @@ void LLPanelVolume::onCommitProbe(LLUICtrl* ctrl, void* userdata)
     volobjp->setReflectionProbeAmbiance((F32)self->getChild<LLUICtrl>("Probe Ambiance")->getValue().asReal());
     volobjp->setReflectionProbeNearClip((F32)self->getChild<LLUICtrl>("Probe Near Clip")->getValue().asReal());
 
-    std::string update_type = self->getChild<LLUICtrl>("Probe Update Type")->getValue().asString();
+    bool mirrors_enabled = LLPipeline::RenderMirrors;
+    bool is_mirror = false;
 
-    bool is_mirror = update_type.find("Mirror") != std::string::npos;
+    if (mirrors_enabled)
+    {
+        std::string update_type = self->getChild<LLUICtrl>("Probe Update Type")->getValue().asString();
+
+        is_mirror = update_type.find("Mirror") != std::string::npos;
+
+        volobjp->setReflectionProbeIsDynamic(update_type.find("Dynamic") != std::string::npos);
+        volobjp->setReflectionProbeIsMirror(is_mirror);
+    }
+    else
+    {
+        is_mirror = volobjp->getReflectionProbeIsMirror();
+        bool is_dynamic = self->getChild<LLUICtrl>("Probe Dynamic")->getValue().asBoolean();
+        volobjp->setReflectionProbeIsDynamic(is_dynamic);
+    }
 
     self->getChildView("Probe Volume Type")->setEnabled(!is_mirror);
-
-    volobjp->setReflectionProbeIsDynamic(update_type.find("Dynamic") != std::string::npos);
-    volobjp->setReflectionProbeIsMirror(is_mirror);
-
     self->getChildView("Probe Ambiance")->setEnabled(!is_mirror);
     self->getChildView("Probe Near Clip")->setEnabled(!is_mirror);
 
@@ -1464,7 +1476,7 @@ void LLPanelVolume::onCommitProbe(LLUICtrl* ctrl, void* userdata)
             path = LL_PCODE_PATH_CIRCLE;
 
             F32 scale = volobjp->getScale().mV[0];
-            volobjp->setScale(LLVector3(scale, scale, scale), FALSE);
+            volobjp->setScale(LLVector3(scale, scale, scale), false);
             LLSelectMgr::getInstance()->sendMultipleUpdate(UPD_ROTATION | UPD_POSITION | UPD_SCALE);
         }
         else
@@ -1498,7 +1510,7 @@ void LLPanelVolume::setLightTextureID(const LLUUID &asset_id, const LLUUID &item
         if (item && volobjp->isAttachment())
         {
             const LLPermissions& perm = item->getPermissions();
-            BOOL unrestricted = ((perm.getMaskBase() & PERM_ITEM_UNRESTRICTED) == PERM_ITEM_UNRESTRICTED) ? TRUE : FALSE;
+            bool unrestricted = (perm.getMaskBase() & PERM_ITEM_UNRESTRICTED) == PERM_ITEM_UNRESTRICTED;
             if (!unrestricted)
             {
                 // Attachments are in world and in inventory simultaneously,
@@ -1511,6 +1523,7 @@ void LLPanelVolume::setLightTextureID(const LLUUID &asset_id, const LLUUID &item
         {
             LLToolDragAndDrop::handleDropMaterialProtections(volobjp, item, LLToolDragAndDrop::SOURCE_AGENT, LLUUID::null);
         }
+
         volobjp->setLightTextureID(asset_id);
     }
 }
@@ -1568,7 +1581,7 @@ void LLPanelVolume::onCommitAnimatedMeshCheckbox(LLUICtrl *, void*)
         return;
     }
     LLVOVolume *volobjp = (LLVOVolume *)objectp;
-    BOOL animated_mesh = getChild<LLUICtrl>("Animated Mesh Checkbox Ctrl")->getValue();
+    bool animated_mesh = getChild<LLUICtrl>("Animated Mesh Checkbox Ctrl")->getValue();
     U32 flags = volobjp->getExtendedMeshFlags();
     U32 new_flags = flags;
     if (animated_mesh)
@@ -1627,6 +1640,6 @@ void LLPanelVolume::handleResponseChangeToFlexible(const LLSD &pNotification, co
     }
     else
     {
-        getChild<LLUICtrl>("Flexible1D Checkbox Ctrl")->setValue(FALSE);
+        getChild<LLUICtrl>("Flexible1D Checkbox Ctrl")->setValue(false);
     }
 }

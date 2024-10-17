@@ -60,7 +60,7 @@ LLFloaterConversationPreview::~LLFloaterConversationPreview()
 {
 }
 
-BOOL LLFloaterConversationPreview::postBuild()
+bool LLFloaterConversationPreview::postBuild()
 {
     mChatHistory = getChild<LLChatHistory>("chat_history");
 
@@ -108,11 +108,11 @@ void LLFloaterConversationPreview::setPages(std::list<LLSD>* messages, const std
             delete mMessages; // Clean up temporary message list with "Loading..." text
         }
         mMessages = messages;
-        mCurrentPage = (mMessages->size() ? (mMessages->size() - 1) / mPageSize : 0);
+        mCurrentPage = (mMessages->size() ? (static_cast<int>(mMessages->size()) - 1) / mPageSize : 0);
 
         mPageSpinner->setEnabled(true);
-        mPageSpinner->setMaxValue(mCurrentPage+1);
-        mPageSpinner->set(mCurrentPage+1);
+        mPageSpinner->setMaxValue((F32)(mCurrentPage+1));
+        mPageSpinner->set((F32)(mCurrentPage+1));
 
         std::string total_page_num = llformat("/ %d", mCurrentPage+1);
         getChild<LLTextBox>("page_num_label")->setValue(total_page_num);

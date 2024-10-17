@@ -202,6 +202,8 @@ public:
     static bool isExiting(); // Either quitting or error (app is exiting, cleanly or not)
     static int getPid();
 
+    static void notifyOutOfDiskSpace();
+
     //
     // Sleep for specified time while still running
     //
@@ -214,13 +216,6 @@ public:
     // soon as the application status changes away from APP_STATUS_RUNNING
     // (isRunning()).
     //
-    // sleep() returns true if it sleeps undisturbed for the entire specified
-    // duration. The idea is that you can code 'while sleep(duration) ...',
-    // which will break the loop once shutdown begins.
-    //
-    // Since any time-based LLUnit should be implicitly convertible to
-    // F32Milliseconds, accept that specific type as a proxy.
-    static bool sleep(F32Milliseconds duration);
     // Allow any duration defined in terms of <chrono>.
     // One can imagine a wonderfully general bidirectional conversion system
     // between any type derived from LLUnits::LLUnit<T, LLUnits::Seconds> and
@@ -260,7 +255,7 @@ public:
     void setDebugFileNames(const std::string &path);
 
     // Return the Google Breakpad minidump filename after a crash.
-    char *getMiniDumpFilename() { return mMinidumpPath; }
+    char* getMiniDumpFilename() { return mMinidumpPath; }
     std::string* getStaticDebugFile() { return &mStaticDebugFileName; }
     std::string* getDynamicDebugFile() { return &mDynamicDebugFileName; }
 
@@ -291,7 +286,7 @@ protected:
 
     static void setStatus(EAppStatus status);       // Use this to change the application status.
     static LLScalarCond<EAppStatus> sStatus; // Reflects current application status
-    static BOOL sDisableCrashlogger; // Let the OS handle crashes for us.
+    static bool sDisableCrashlogger; // Let the OS handle crashes for us.
     std::wstring mCrashReportPipeStr;  //Name of pipe to use for crash reporting.
 
     std::string mDumpPath;  //output path for google breakpad.  Dependency workaround.
@@ -300,6 +295,8 @@ protected:
       * @brief This method is called once a frame to do once a frame tasks.
       */
     void stepFrame();
+
+    virtual void sendOutOfDiskSpaceNotification();
 
 private:
     // Contains the filename of the minidump file after a crash.
@@ -335,8 +332,12 @@ private:
     friend void default_unix_signal_handler(int signum, siginfo_t *info, void *);
 #endif
 
-public:
-    static BOOL sLogInSignal;
+private:
+#ifdef LL_RELEASE_FOR_DOWNLOAD
+    static constexpr bool sLogInSignal = false;
+#else
+    static constexpr bool sLogInSignal = true;
+#endif
 };
 
 #endif // LL_LLAPP_H

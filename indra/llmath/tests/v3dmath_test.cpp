@@ -128,15 +128,15 @@ namespace tut
         LLVector3d vec3D(x,y,z);
         vec3D.abs();
         ensure("1:abs:Fail  ", ((-x == vec3D.mdV[VX]) && (y == vec3D.mdV[VY]) && (-z == vec3D.mdV[VZ])));
-        ensure("2:isNull():Fail ", (FALSE == vec3D.isNull()));
+        ensure("2:isNull():Fail ", (false == vec3D.isNull()));
         vec3D.clearVec();
         x =.00000001, y = .000001001, z = .000001001;
         vec3D.setVec(x,y,z);
-        ensure("3:isNull():Fail ", (TRUE == vec3D.isNull()));
-        ensure("4:isExactlyZero():Fail ", (FALSE == vec3D.isExactlyZero()));
+        ensure("3:isNull():Fail ", (true == vec3D.isNull()));
+        ensure("4:isExactlyZero():Fail ", (false == vec3D.isExactlyZero()));
         x =.0000000, y = .00000000, z = .00000000;
         vec3D.setVec(x,y,z);
-        ensure("5:isExactlyZero():Fail ", (TRUE == vec3D.isExactlyZero()));
+        ensure("5:isExactlyZero():Fail ", (true == vec3D.isExactlyZero()));
     }
 
     template<> template<>
@@ -353,7 +353,7 @@ namespace tut
     {
         F64 x1 = 1., y1 = 2., z1 = -1.1;
         LLVector3d vec3D(x1,y1,z1), vec3Da;
-        ensure("1:operator!= failed",(TRUE == (vec3D !=vec3Da)));
+        ensure("1:operator!= failed",(true == (vec3D !=vec3Da)));
         vec3Da = vec3D;
         ensure("2:operator== failed",(vec3D ==vec3Da));
         vec3D.clearVec();
@@ -362,7 +362,7 @@ namespace tut
         vec3D.setVec(x1,y1,z1);
         vec3Da.setVec(x1,y1,z1);
         ensure("3:operator== failed",(vec3D ==vec3Da));
-        ensure("4:operator!= failed",(FALSE == (vec3D !=vec3Da)));
+        ensure("4:operator!= failed",(false == (vec3D !=vec3Da)));
     }
 
     template<> template<>
@@ -482,10 +482,10 @@ namespace tut
         F64 x = 2.32, y = 1.212, z = -.12;
         F64 min = 0.0001, max = 3.0;
         LLVector3d vec3d(x,y,z);
-        ensure("1:clamp:Fail ", (TRUE == (vec3d.clamp(min, max))));
+        ensure("1:clamp:Fail ", (true == (vec3d.clamp(min, max))));
         x = 0.000001f, z = 5.3f;
         vec3d.setVec(x,y,z);
-        ensure("2:clamp:Fail ", (TRUE == (vec3d.clamp(min, max))));
+        ensure("2:clamp:Fail ", (true == (vec3d.clamp(min, max))));
     }
 
     template<> template<>
@@ -494,24 +494,21 @@ namespace tut
         F64 x = 10., y = 20., z = -15.;
         F64 epsilon = .23425;
         LLVector3d vec3Da(x,y,z), vec3Db(x,y,z);
-        ensure("1:are_parallel: Fail ", (TRUE == are_parallel(vec3Da,vec3Db,epsilon)));
+        ensure("1:are_parallel: Fail ", (true == are_parallel(vec3Da,vec3Db,epsilon)));
         F64 x1 = -12., y1 = -20., z1 = -100.;
         vec3Db.clearVec();
         vec3Db.setVec(x1,y1,z1);
-        ensure("2:are_parallel: Fail ", (FALSE == are_parallel(vec3Da,vec3Db,epsilon)));
+        ensure("2:are_parallel: Fail ", (false == are_parallel(vec3Da,vec3Db,epsilon)));
     }
 
     template<> template<>
     void v3dmath_object::test<24>()
     {
-#if LL_WINDOWS && _MSC_VER < 1400
-        skip("This fails on VS2003!");
-#else
         F64 x = 10., y = 20., z = -15.;
         F64 angle1, angle2;
         LLVector3d vec3Da(x,y,z), vec3Db(x,y,z);
         angle1 = angle_between(vec3Da, vec3Db);
-        ensure("1:angle_between: Fail ", (0 == angle1));
+        ensure_approximately_equals_range("1:angle_between: Fail ", angle1, 0., 1.5e-8);
         F64 x1 = -1., y1 = -20., z1 = -1.;
         vec3Da.clearVec();
         vec3Da.setVec(x1,y1,z1);
@@ -520,12 +517,6 @@ namespace tut
         vec3Da.normVec();
         F64 angle = vec3Db*vec3Da;
         angle = acos(angle);
-#if LL_WINDOWS && _MSC_VER > 1900
-        skip("This fails on VS2017!");
-#else
-        ensure("2:angle_between: Fail ", (angle == angle2));
-#endif
-
-#endif
+        ensure_equals("2:angle_between: Fail ", angle, angle2);
     }
 }

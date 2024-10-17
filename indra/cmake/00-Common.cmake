@@ -15,6 +15,7 @@
 include_guard()
 
 include(Variables)
+include(Linker)
 
 # We go to some trouble to set LL_BUILD to the set of relevant compiler flags.
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} $ENV{LL_BUILD}")
@@ -31,6 +32,10 @@ add_compile_definitions( ADDRESS_SIZE=${ADDRESS_SIZE})
 # to avoid that or BOOST_BIND_GLOBAL_PLACEHOLDERS to state that we require it
 # -- which we do. Without one or the other, we get a ton of Boost warnings.
 add_compile_definitions(BOOST_BIND_GLOBAL_PLACEHOLDERS)
+
+# Force enable SSE2 instructions in GLM per the manual
+# https://github.com/g-truc/glm/blob/master/manual.md#section2_10
+add_compile_definitions(GLM_FORCE_DEFAULT_ALIGNED_GENTYPES=1 GLM_FORCE_SSE2=1)
 
 # Configure crash reporting
 set(RELEASE_CRASH_REPORTING OFF CACHE BOOL "Enable use of crash reporting in release builds")
@@ -60,15 +65,16 @@ if (WINDOWS)
   # http://www.cmake.org/pipermail/cmake/2009-September/032143.html
   string(REPLACE "/Zm1000" " " CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
 
-  # zlib has assembly-language object files incompatible with SAFESEH
   add_link_options(/LARGEADDRESSAWARE
-          /SAFESEH:NO
           /NODEFAULTLIB:LIBCMT
           /IGNORE:4099)
 
-  add_definitions(
-      -DNOMINMAX
-#      /DDOM_DYNAMIC            # For shared library colladadom
+  add_compile_definitions(
+      WIN32_LEAN_AND_MEAN
+      NOMINMAX
+#     DOM_DYNAMIC                     # For shared library colladadom
+      _CRT_SECURE_NO_WARNINGS         # Allow use of sprintf etc
+      _WINSOCK_DEPRECATED_NO_WARNINGS # Disable deprecated WinSock API warnings
       )
   add_compile_options(
           /Zo
@@ -81,6 +87,7 @@ if (WINDOWS)
           /Oy-
           /fp:fast
           /MP
+          /permissive-
       )
 
   # Nicky: x64 implies SSE2
@@ -103,64 +110,75 @@ if (WINDOWS)
     string(REPLACE "/Zi" "/Z7" CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO}")
     string(REPLACE "/Zi" "/Z7" CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
   endif()
-
-  # workaround for github runner image breakage:
-  # https://github.com/actions/runner-images/issues/10004#issuecomment-2153445161
-  # can be removed after the above issue is resolved and deployed across GHA
-  add_compile_definitions(_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR)
 endif (WINDOWS)
 
-
 if (LINUX)
-  set(CMAKE_SKIP_RPATH TRUE)
+  set( CMAKE_BUILD_WITH_INSTALL_RPATH TRUE )
+  set( CMAKE_INSTALL_RPATH $ORIGIN $ORIGIN/../lib )
+  set(CMAKE_EXE_LINKER_FLAGS "-Wl,--exclude-libs,ALL")
 
-   # EXTERNAL_TOS
-   # force this platform to accept TOS via external browser
+  find_program(CCACHE_EXE ccache)
+  if(CCACHE_EXE AND NOT DISABLE_CCACHE)
+    set(CMAKE_C_COMPILER_LAUNCHER ${CCACHE_EXE} )
+    set(CMAKE_CXX_COMPILER_LAUNCHER ${CCACHE_EXE} )
+  endif()
 
-   # LL_IGNORE_SIGCHLD
-   # don't catch SIGCHLD in our base application class for the viewer - some of
-   # our 3rd party libs may need their *own* SIGCHLD handler to work. Sigh! The
-   # viewer doesn't need to catch SIGCHLD anyway.
+  # LL_IGNORE_SIGCHLD
+  # don't catch SIGCHLD in our base application class for the viewer - some of
+  # our 3rd party libs may need their *own* SIGCHLD handler to work. Sigh! The
+  # viewer doesn't need to catch SIGCHLD anyway.
 
   add_compile_definitions(
           _REENTRANT
-          _FORTIFY_SOURCE=2
-          EXTERNAL_TOS
           APPID=secondlife
           LL_IGNORE_SIGCHLD
   )
+
+  if( ENABLE_ASAN )
+      add_compile_options(-U_FORTIFY_SOURCE
+        -fsanitize=address
+        --param asan-stack=0
+      )
+      add_link_options(-fsanitize=address)
+  else()
+   add_compile_definitions( _FORTIFY_SOURCE=2 )
+  endif()
+
   add_compile_options(
-          -fexceptions
-          -fno-math-errno
-          -fno-strict-aliasing
-          -fsigned-char
-          -msse2
-          -mfpmath=sse
-          -pthread
-          -Wno-parentheses
-          -Wno-deprecated
-          -fvisibility=hidden
+      -fexceptions
+      -fno-math-errno
+      -fno-strict-aliasing
+      -fsigned-char
+      -msse2
+      -mfpmath=sse
+      -pthread
+      -fvisibility=hidden
   )
 
-  if (ADDRESS_SIZE EQUAL 32)
-    add_compile_options(-march=pentium4)
-  endif (ADDRESS_SIZE EQUAL 32)
+  add_link_options(
+          -Wl,--no-keep-memory
+          -Wl,--build-id
+          -Wl,--no-undefined
+  )
 
   # this stops us requiring a really recent glibc at runtime
   add_compile_options(-fno-stack-protector)
-  # linking can be very memory-hungry, especially the final viewer link
-  set(CMAKE_CXX_LINK_FLAGS "-Wl,--no-keep-memory")
 
-  set(CMAKE_CXX_FLAGS_DEBUG "-fno-inline ${CMAKE_CXX_FLAGS_DEBUG}")
+  if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    # ND: clang is a bit more picky than GCC, the latter seems to auto include -lstdc++ and -lm. The former not so and thus fails to link
+    add_link_options(
+            -lstdc++
+            -lm
+    )
+  endif()
 endif (LINUX)
-
 
 if (DARWIN)
   # Warnings should be fatal -- thanks, Nicky Perian, for spotting reversed default
   set(CLANG_DISABLE_FATAL_WARNINGS OFF)
   set(CMAKE_CXX_LINK_FLAGS "-Wl,-headerpad_max_install_names,-search_paths_first")
   set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_CXX_LINK_FLAGS}")
-  set(DARWIN_extra_cstar_flags "-Wno-unused-local-typedef -Wno-deprecated-declarations")
+  set(DARWIN_extra_cstar_flags "-Wno-deprecated-declarations")
   # Ensure that CMAKE_CXX_FLAGS has the correct -g debug information format --
   # see Variables.cmake.
   string(REPLACE "-gdwarf-2" "-g${CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT}"
@@ -169,27 +187,26 @@ if (DARWIN)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  ${DARWIN_extra_cstar_flags}")
   # NOTE: it's critical that the optimization flag is put in front.
   # NOTE: it's critical to have both CXX_FLAGS and C_FLAGS covered.
-## Really?? On developer machines too?
-##set(ENABLE_SIGNING TRUE)
-##set(SIGNING_IDENTITY "Developer ID Application: Linden Research, Inc.")
+  ## Really?? On developer machines too?
+  ##set(ENABLE_SIGNING TRUE)
+  ##set(SIGNING_IDENTITY "Developer ID Application: Linden Research, Inc.")
 
   # required for clang-15/xcode-15 since our boost package still uses deprecated std::unary_function/binary_function
   # see https://developer.apple.com/documentation/xcode-release-notes/xcode-15-release-notes#C++-Standard-Library
   add_compile_definitions(_LIBCPP_ENABLE_CXX17_REMOVED_UNARY_BINARY_FUNCTION)
-endif (DARWIN)
+endif(DARWIN)
 
-if (LINUX OR DARWIN)
-  set(GCC_WARNINGS -Wall -Wno-sign-compare -Wno-trigraphs)
+if(LINUX OR DARWIN)
+  add_compile_options(-Wall -Wno-sign-compare -Wno-trigraphs -Wno-reorder -Wno-unused-but-set-variable -Wno-unused-variable -Wno-unused-local-typedef)
+
+  if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    add_compile_options(-Wno-stringop-truncation -Wno-parentheses -Wno-c++20-compat)
+  endif()
 
   if (NOT GCC_DISABLE_FATAL_WARNINGS)
-    list(APPEND GCC_WARNINGS -Werror)
-  endif (NOT GCC_DISABLE_FATAL_WARNINGS)
-
-  list(APPEND GCC_WARNINGS -Wno-reorder -Wno-non-virtual-dtor )
+    add_compile_options(-Werror)
+  endif ()
 
   add_compile_options(${GCC_WARNINGS})
   add_compile_options(-m${ADDRESS_SIZE})
 endif (LINUX OR DARWIN)
-
-
-

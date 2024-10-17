@@ -28,13 +28,14 @@
 #ifndef LLSECAPI_H
 #define LLSECAPI_H
 #include <vector>
-#include "llwin32headerslean.h"
+#include "llwin32headers.h"
 #include <openssl/x509.h>
 #include <ostream>
 #include "llpointer.h"
 #include "llexception.h"
 
 #ifdef LL_WINDOWS
+#pragma warning (push)
 #pragma warning(disable:4250)
 #endif // LL_WINDOWS
 
@@ -311,7 +312,7 @@ public:
         mIdentifier = identifier;
         mAuthenticator = authenticator;
     }
-    virtual LLSD getIdentifier() { return mIdentifier; }
+    virtual LLSD getIdentifier() const { return mIdentifier; }
     virtual void identifierType(std::string& idType);
     virtual LLSD getAuthenticator() { return mAuthenticator; }
     virtual void authenticatorType(std::string& authType);
@@ -549,5 +550,8 @@ void registerSecHandler(const std::string& handler_type,
 
 extern LLPointer<LLSecAPIHandler> gSecAPIHandler;
 
+#ifdef LL_WINDOWS
+#pragma warning (pop)
+#endif // LL_WINDOWS
 
 #endif // LL_SECAPI_H

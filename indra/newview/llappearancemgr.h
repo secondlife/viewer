@@ -59,7 +59,9 @@ public:
     void wearInventoryCategory(LLInventoryCategory* category, bool copy, bool append);
     void wearInventoryCategoryOnAvatar(LLInventoryCategory* category, bool append);
     void wearCategoryFinal(const LLUUID& cat_id, bool copy_items, bool append);
-    void wearOutfitByName(const std::string& name);
+    bool wearOutfit(const LLUUID &cat_id, std::string &error_msg, bool append = false);
+    bool wearOutfitByName(const std::string &name, std::string &error_msg, bool append = false);
+    bool wearOutfitByName(const std::string &name, bool append = false);
     void changeOutfit(bool proceed, const LLUUID& category, bool append);
     void replaceCurrentOutfit(const LLUUID& new_outfit);
     void renameOutfit(const LLUUID& outfit_id);
@@ -87,7 +89,7 @@ public:
                              LLPointer<LLInventoryCallback> cb);
 
     // Return whether this folder contains minimal contents suitable for making a full outfit.
-    BOOL getCanMakeFolderIntoOutfit(const LLUUID& folder_id);
+    bool getCanMakeFolderIntoOutfit(const LLUUID& folder_id);
 
     // Determine whether a given outfit can be removed.
     bool getCanRemoveOutfit(const LLUUID& outfit_cat_id);
@@ -261,6 +263,10 @@ private:
 
     static void onOutfitRename(const LLSD& notification, const LLSD& response);
 
+    // used by both wearOutfit(LLUUID) and wearOutfitByName(std::string)
+    bool wearOutfit(const std::string &desc, LLInventoryCategory* cat,
+                    std::string &error_msg, bool copy_items, bool append);
+
     bool mAttachmentInvLinkEnabled;
     bool mOutfitIsDirty;
     bool mIsInUpdateAppearanceFromCOF; // to detect recursive calls.
@@ -292,7 +298,7 @@ private:
     // Item-specific convenience functions
 public:
     // Is this in the COF?
-    BOOL getIsInCOF(const LLUUID& obj_id) const;
+    bool getIsInCOF(const LLUUID& obj_id) const;
     bool getIsInCOF(const LLInventoryObject* obj) const;
     // Is this in the COF and can the user delete it from the COF?
     bool getIsProtectedCOFItem(const LLUUID& obj_id) const;

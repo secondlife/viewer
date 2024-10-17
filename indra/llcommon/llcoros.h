@@ -29,29 +29,16 @@
 #if ! defined(LL_LLCOROS_H)
 #define LL_LLCOROS_H
 
+#include "llcoromutex.h"
+#include "llevents.h"
 #include "llexception.h"
-#include <boost/fiber/fss.hpp>
-#include <boost/fiber/future/promise.hpp>
-#include <boost/fiber/future/future.hpp>
-#include "mutex.h"
-#include "llsingleton.h"
 #include "llinstancetracker.h"
-#include <boost/function.hpp>
-#include <string>
+#include "llsingleton.h"
+#include <boost/fiber/fss.hpp>
 #include <exception>
+#include <functional>
 #include <queue>
-
-// e.g. #include LLCOROS_MUTEX_HEADER
-#define LLCOROS_MUTEX_HEADER   <boost/fiber/mutex.hpp>
-#define LLCOROS_CONDVAR_HEADER <boost/fiber/condition_variable.hpp>
-
-namespace boost {
-    namespace fibers {
-        class mutex;
-        enum class cv_status;
-        class condition_variable;
-    }
-}
+#include <string>
 
 /**
  * Registry of named Boost.Coroutine instances
@@ -94,6 +81,16 @@ class LL_COMMON_API LLCoros: public LLSingleton<LLCoros>
 
     void cleanupSingleton() override;
 public:
+    // For debugging, return true if on the main coroutine for the current thread
+    // Code that should not be executed from a coroutine should be protected by
+    // llassert(LLCoros::on_main_coro())
+    static bool on_main_coro();
+
+    // For debugging, return true if on the main thread and not in a coroutine
+    // Non-thread-safe code in the main loop should be protected by
+    // llassert(LLCoros::on_main_thread_main_coro())
+    static bool on_main_thread_main_coro();
+
     /// The viewer's use of the term "coroutine" became deeply embedded before
     /// the industry term "fiber" emerged to distinguish userland threads from
     /// simpler, more transient kinds of coroutines. Semantically they've
@@ -101,7 +98,7 @@ public:
     /// stuck with the term "coroutine."
     typedef boost::fibers::fiber coro;
     /// Canonical callable type
-    typedef boost::function<void()> callable_t;
+    typedef std::function<void()> callable_t;
 
     /**
      * Create and start running a new coroutine with specified name. The name
@@ -143,13 +140,13 @@ public:
     std::string launch(const std::string& prefix, const callable_t& callable);
 
     /**
-     * Abort a running coroutine by name. Normally, when a coroutine either
+     * Ask the named coroutine to abort. Normally, when a coroutine either
      * runs to completion or terminates with an exception, LLCoros quietly
      * cleans it up. This is for use only when you must explicitly interrupt
      * one prematurely. Returns @c true if the specified name was found and
      * still running at the time.
      */
-//  bool kill(const std::string& name);
+    bool killreq(const std::string& name);
 
     /**
      * From within a coroutine, look up the (tweaked) name string by which
@@ -251,15 +248,21 @@ public:
     /// thrown by checkStop()
     // It may sound ironic that Stop is derived from LLContinueError, but the
     // point is that LLContinueError is the category of exception that should
-    // not immediately crash the viewer. Stop and its subclasses are to notify
-    // coroutines that the viewer intends to shut down. The expected response
-    // is to terminate the coroutine, rather than abort the viewer.
+    // not immediately crash the viewer. Stop and its subclasses are to tell
+    // coroutines to terminate, e.g. because the viewer is shutting down. We
+    // do not want any such exception to crash the viewer.
     struct Stop: public LLContinueError
     {
         Stop(const std::string& what): LLContinueError(what) {}
     };
 
-    /// early stages
+    /// someone wants to kill this specific coroutine
+    struct Killed: public Stop
+    {
+        Killed(const std::string& what): Stop(what) {}
+    };
+
+    /// early shutdown stages
     struct Stopping: public Stop
     {
         Stopping(const std::string& what): Stop(what) {}
@@ -278,28 +281,50 @@ public:
     };
 
     /// Call this intermittently if there's a chance your coroutine might
-    /// continue running into application shutdown. Throws Stop if LLCoros has
-    /// been cleaned up.
-    static void checkStop();
+    /// still be running at application shutdown. Throws one of the Stop
+    /// subclasses if the caller needs to terminate. Pass a cleanup function
+    /// if you need to execute that cleanup before terminating.
+    /// Of course, if your cleanup function throws, that will be the exception
+    /// propagated by checkStop().
+    static void checkStop(callable_t cleanup={});
+
+    /// Call getStopListener() at the source end of a queue, promise or other
+    /// resource on which coroutines will wait, so that shutdown can wake up
+    /// consuming coroutines. @a caller should distinguish who's calling. The
+    /// passed @a cleanup function must close the queue, break the promise or
+    /// otherwise cause waiting consumers to wake up in an abnormal way. It's
+    /// advisable to store the returned LLBoundListener in an
+    /// LLTempBoundListener, or otherwise arrange to disconnect it.
+    static LLBoundListener getStopListener(const std::string& caller, LLVoidListener cleanup);
+
+    /// This getStopListener() overload is like the two-argument one, for use
+    /// when we know the name of the only coroutine that will wait on the
+    /// resource in question. Pass @a consumer as the empty string if the
+    /// consumer coroutine is the same as the calling coroutine. Unlike the
+    /// two-argument getStopListener(), this one also responds to
+    /// killreq(target).
+    static LLBoundListener getStopListener(const std::string& caller,
+                                           const std::string& consumer,
+                                           LLVoidListener cleanup);
 
     /**
-     * Aliases for promise and future. An older underlying future implementation
-     * required us to wrap future; that's no longer needed. However -- if it's
-     * important to restore kill() functionality, we might need to provide a
-     * proxy, so continue using the aliases.
+     * LLCoros aliases for promise and future, for backwards compatibility.
+     * These have been hoisted out to the llcoro namespace.
      */
     template <typename T>
-    using Promise = boost::fibers::promise<T>;
+    using Promise = llcoro::Promise<T>;
     template <typename T>
-    using Future = boost::fibers::future<T>;
+    using Future = llcoro::Future<T>;
     template <typename T>
     static Future<T> getFuture(Promise<T>& promise) { return promise.get_future(); }
 
     // use mutex, lock, condition_variable suitable for coroutines
-    using Mutex = boost::fibers::mutex;
-    using LockType = std::unique_lock<Mutex>;
-    using cv_status = boost::fibers::cv_status;
-    using ConditionVariable = boost::fibers::condition_variable;
+    using Mutex = llcoro::Mutex;
+    using RMutex = llcoro::RMutex;
+    // LockType is deprecated; see llcoromutex.h
+    using LockType = llcoro::LockType;
+    using cv_status = llcoro::cv_status;
+    using ConditionVariable = llcoro::ConditionVariable;
 
     /// for data local to each running coroutine
     template <typename T>
@@ -311,6 +336,8 @@ private:
     struct CoroData;
     static CoroData& get_CoroData(const std::string& caller);
     void saveException(const std::string& name, std::exception_ptr exc);
+
+    LLTempBoundListener mConn;
 
     struct ExceptionData
     {
@@ -335,8 +362,10 @@ private:
 
         // tweaked name of the current coroutine
         const std::string mName;
-        // set_consuming() state
-        bool mConsuming;
+        // set_consuming() state -- don't consume events unless specifically directed
+        bool mConsuming{ false };
+        // killed by which coroutine
+        std::string mKilledBy;
         // setStatus() state
         std::string mStatus;
         F64 mCreationTime; // since epoch

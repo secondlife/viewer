@@ -30,7 +30,6 @@
 
 #include "llquaternion.h"
 
-//#include "vmath.h"
 #include "v3math.h"
 #include "v3dmath.h"
 #include "v4math.h"
@@ -653,14 +652,14 @@ LLQuaternion slerp( F32 u, const LLQuaternion &a, const LLQuaternion &b )
     F32 cos_t = a.mQ[0]*b.mQ[0] + a.mQ[1]*b.mQ[1] + a.mQ[2]*b.mQ[2] + a.mQ[3]*b.mQ[3];
 
     // if b is on opposite hemisphere from a, use -a instead
-    int bflip;
+    bool bflip;
     if (cos_t < 0.0f)
     {
         cos_t = -cos_t;
-        bflip = TRUE;
+        bflip = true;
     }
     else
-        bflip = FALSE;
+        bflip = false;
 
     // if B is (within precision limits) the same as A,
     // just linear interpolate between A and B.
@@ -959,11 +958,11 @@ void LLQuaternion::unpackFromVector3( const LLVector3& vec )
     }
 }
 
-BOOL LLQuaternion::parseQuat(const std::string& buf, LLQuaternion* value)
+bool LLQuaternion::parseQuat(const std::string& buf, LLQuaternion* value)
 {
     if( buf.empty() || value == NULL)
     {
-        return FALSE;
+        return false;
     }
 
     LLQuaternion quat;
@@ -971,10 +970,10 @@ BOOL LLQuaternion::parseQuat(const std::string& buf, LLQuaternion* value)
     if( 4 == count )
     {
         value->set( quat );
-        return TRUE;
+        return true;
     }
 
-    return FALSE;
+    return false;
 }
 
 

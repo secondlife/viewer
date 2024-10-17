@@ -34,11 +34,11 @@
 #include "llframetimer.h"
 #include "lluuid.h"
 #include "llviewertexture.h"
-#include "llgl.h"
 
 class LLViewerRegion;
 class LLVector3;
 class LLColor4U;
+class LLUIColor;
 class LLVector2;
 
 class LLViewerParcelOverlay : public LLGLUpdate
@@ -50,10 +50,10 @@ public:
     // ACCESS
     LLViewerTexture*        getTexture() const      { return mTexture; }
 
-    BOOL            isOwned(const LLVector3& pos) const;
-    BOOL            isOwnedSelf(const LLVector3& pos) const;
-    BOOL            isOwnedGroup(const LLVector3& pos) const;
-    BOOL            isOwnedOther(const LLVector3& pos) const;
+    bool            isOwned(const LLVector3& pos) const;
+    bool            isOwnedSelf(const LLVector3& pos) const;
+    bool            isOwnedGroup(const LLVector3& pos) const;
+    bool            isOwnedOther(const LLVector3& pos) const;
 
     // "encroaches" means the prim hangs over the parcel, but its center
     // might be in another parcel. for now, we simply test axis aligned
@@ -62,21 +62,20 @@ public:
     bool encroachesOnUnowned(const std::vector<LLBBox>& boxes) const;
     bool encroachesOnNearbyParcel(const std::vector<LLBBox>& boxes) const;
 
-    BOOL            isSoundLocal(const LLVector3& pos) const;
+    bool            isSoundLocal(const LLVector3& pos) const;
 
-    BOOL            isBuildCameraAllowed(const LLVector3& pos) const;
     F32             getOwnedRatio() const;
 
     // Returns the number of vertices drawn
     void            renderPropertyLines();
     void            renderPropertyLinesOnMinimap(F32 scale_pixels_per_meter, const F32* parcel_outline_color);
 
-    U8              ownership( const LLVector3& pos) const;
-    U8              parcelLineFlags( const LLVector3& pos) const;
+    U8              ownership(const LLVector3& pos) const;
+    U8              parcelLineFlags(const LLVector3& pos) const;
     U8              parcelLineFlags(S32 row, S32 col) const;
 
     // MANIPULATE
-    void    uncompressLandOverlay(S32 chunk, U8 *compressed_overlay);
+    void    uncompressLandOverlay(S32 chunk, U8* compressed_overlay);
 
     // Indicate property lines and overlay texture need to be rebuilt.
     void    setDirty();
@@ -87,8 +86,7 @@ public:
 private:
     // This is in parcel rows and columns, not grid rows and columns
     // Stored in bottom three bits.
-    U8      ownership(S32 row, S32 col) const
-                { return parcelFlags(row, col, (U8)0x7); }
+    U8      ownership(S32 row, S32 col) const { return parcelFlags(row, col, (U8)0x7); }
 
     U8      parcelFlags(S32 row, S32 col, U8 flags) const;
 
@@ -112,17 +110,28 @@ private:
     U8              *mOwnership;
 
     // Update propery lines and overlay texture
-    BOOL            mDirty;
+    bool            mDirty;
     LLFrameTimer    mTimeSinceLastUpdate;
     S32             mOverlayTextureIdx;
 
     struct Edge
     {
-        std::vector<LLVector3> vertices;
+        void pushVertex(U32 lod, F32 x, F32 y, F32 z, F32 water_z);
+        // LOD: 0 - detailized, 1 - simplified
+        std::vector<LLVector4a> verticesAboveWater[2];
+        std::vector<LLVector4a> verticesUnderWater[2];
         LLColor4U color;
     };
 
     std::vector<Edge> mEdges;
+
+    static bool sColorSetInitialized;
+    static LLUIColor sAvailColor;
+    static LLUIColor sOwnedColor;
+    static LLUIColor sGroupColor;
+    static LLUIColor sSelfColor;
+    static LLUIColor sForSaleColor;
+    static LLUIColor sAuctionColor;
 };
 
 #endif

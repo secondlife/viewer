@@ -38,7 +38,6 @@
 #include "llregionhandle.h"
 #include "llsurface.h"
 #include "message.h"
-//#include "vmath.h"
 #include "v3math.h"
 #include "v4math.h"
 
@@ -55,6 +54,7 @@
 #include "llfloaterregioninfo.h"
 #include "llgltfmateriallist.h"
 #include "llhttpnode.h"
+#include "llpbrterrainfeatures.h"
 #include "llregioninfomodel.h"
 #include "llsdutil.h"
 #include "llstartup.h"
@@ -80,7 +80,6 @@
 #include "llcoros.h"
 #include "lleventcoro.h"
 #include "llcorehttputil.h"
-#include "llcallstack.h"
 #include "llsettingsdaycycle.h"
 
 #include <boost/regex.hpp>
@@ -100,13 +99,10 @@
 const S32 MAX_CAP_REQUEST_ATTEMPTS = 30;
 const U32 DEFAULT_MAX_REGION_WIDE_PRIM_COUNT = 15000;
 
-BOOL LLViewerRegion::sVOCacheCullingEnabled = FALSE;
+bool LLViewerRegion::sVOCacheCullingEnabled = false;
 S32  LLViewerRegion::sLastCameraUpdated = 0;
 S32  LLViewerRegion::sNewObjectCreationThrottle = -1;
 LLViewerRegion::vocache_entry_map_t LLViewerRegion::sRegionCacheCleanup;
-
-const std::string LLViewerRegion::IL_MODE_DEFAULT = "default";
-const std::string LLViewerRegion::IL_MODE_360     = "360";
 
 typedef std::map<std::string, std::string> CapabilityMap;
 
@@ -139,7 +135,7 @@ public:
     bool handle(const LLSD& params, const LLSD& query_map, const std::string& grid, LLMediaCtrl* web)
     {
         // make sure that we at least have a region name
-        int num_params = params.size();
+        auto num_params = params.size();
         if (num_params < 1)
         {
             return false;
@@ -153,7 +149,7 @@ public:
         }
         boost::regex name_rx("[A-Za-z0-9()_%]+");
         boost::regex coord_rx("[0-9]+");
-        for (int i = 0; i < num_params; i++)
+        for (size_t i = 0; i < num_params; i++)
         {
             if (i > 0)
             {
@@ -348,11 +344,10 @@ void LLViewerRegionImpl::requestBaseCapabilitiesCoro(U64 regionHandle)
 
         impl = regionp->getRegionImplNC();
 
-        ++(impl->mSeedCapAttempts);
-
         if (!result.isMap() || result.has("error"))
         {
             LL_WARNS("AppInit", "Capabilities") << "Malformed response" << LL_ENDL;
+            ++(impl->mSeedCapAttempts);
             // setup for retry.
             continue;
         }
@@ -362,6 +357,7 @@ void LLViewerRegionImpl::requestBaseCapabilitiesCoro(U64 regionHandle)
         if (!status)
         {
             LL_WARNS("AppInit", "Capabilities") << "HttpStatus error " << LL_ENDL;
+            ++(impl->mSeedCapAttempts);
             // setup for retry.
             continue;
         }
@@ -372,6 +368,7 @@ void LLViewerRegionImpl::requestBaseCapabilitiesCoro(U64 regionHandle)
         if (id != impl->mHttpResponderID) // region is no longer referring to this request
         {
             LL_WARNS("AppInit", "Capabilities") << "Received results for a stale capabilities request!" << LL_ENDL;
+            ++(impl->mSeedCapAttempts);
             // setup for retry.
             continue;
         }
@@ -626,7 +623,7 @@ LLViewerRegion::LLViewerRegion(const U64 &handle,
     mTimeDilation(1.0f),
     mName(""),
     mZoning(""),
-    mIsEstateManager(FALSE),
+    mIsEstateManager(false),
     mRegionFlags( REGION_FLAGS_DEFAULT ),
     mRegionProtocols( 0 ),
     mSimAccess( SIM_ACCESS_MIN ),
@@ -639,17 +636,17 @@ LLViewerRegion::LLViewerRegion(const U64 &handle,
     mProductSKU("unknown"),
     mProductName("unknown"),
     mViewerAssetUrl(""),
-    mCacheLoaded(FALSE),
-    mCacheDirty(FALSE),
-    mReleaseNotesRequested(FALSE),
+    mCacheLoaded(false),
+    mCacheDirty(false),
+    mReleaseNotesRequested(false),
     mCapabilitiesState(CAPABILITIES_STATE_INIT),
     mSimulatorFeaturesReceived(false),
     mBitsReceived(0.f),
     mPacketsReceived(0.f),
-    mDead(FALSE),
+    mDead(false),
     mLastVisitedEntry(NULL),
     mInvisibilityCheckHistory(-1),
-    mPaused(FALSE),
+    mPaused(false),
     mRegionCacheHitCount(0),
     mRegionCacheMissCount(0),
     mInterestListMode(IL_MODE_DEFAULT)
@@ -725,7 +722,7 @@ static LLTrace::BlockTimerStatHandle FTM_SAVE_REGION_CACHE("Save Region Cache");
 LLViewerRegion::~LLViewerRegion()
 {
     LL_PROFILE_ZONE_SCOPED;
-    mDead = TRUE;
+    mDead = true;
     mImpl->mActiveSet.clear();
     mImpl->mVisibleEntries.clear();
     mImpl->mVisibleGroups.clear();
@@ -789,7 +786,7 @@ void LLViewerRegion::loadObjectCache()
     }
 
     // Presume success.  If it fails, we don't want to try again.
-    mCacheLoaded = TRUE;
+    mCacheLoaded = true;
 
     if(LLVOCache::instanceExists())
     {
@@ -800,7 +797,7 @@ void LLViewerRegion::loadObjectCache()
 
         if (mImpl->mCacheMap.empty())
         {
-            mCacheDirty = TRUE;
+            mCacheDirty = true;
         }
     }
 }
@@ -827,7 +824,7 @@ void LLViewerRegion::saveObjectCache()
 
         instance.writeToCache(mHandle, mImpl->mCacheID, mImpl->mCacheMap, mCacheDirty, removal_enabled);
         instance.writeGenericExtrasToCache(mHandle, mImpl->mCacheID, mImpl->mGLTFOverridesLLSD, mCacheDirty, removal_enabled);
-        mCacheDirty = FALSE;
+        mCacheDirty = false;
     }
 
     if (LLAppViewer::instance()->isQuitting())
@@ -863,7 +860,7 @@ F32 LLViewerRegion::getWaterHeight() const
     return mImpl->mLandp->getWaterHeight();
 }
 
-BOOL LLViewerRegion::isVoiceEnabled() const
+bool LLViewerRegion::isVoiceEnabled() const
 {
     return getRegionFlag(REGION_FLAGS_ALLOW_VOICE);
 }
@@ -926,7 +923,7 @@ const LLUUID& LLViewerRegion::getOwner() const
 void LLViewerRegion::setRegionNameAndZone   (const std::string& name_zone)
 {
     std::string::size_type pipe_pos = name_zone.find('|');
-    S32 length   = name_zone.size();
+    auto length   = name_zone.size();
     if (pipe_pos != std::string::npos)
     {
         mName   = name_zone.substr(0, pipe_pos);
@@ -942,7 +939,7 @@ void LLViewerRegion::setRegionNameAndZone   (const std::string& name_zone)
     LLStringUtil::stripNonprintable(mZoning);
 }
 
-BOOL LLViewerRegion::canManageEstate() const
+bool LLViewerRegion::canManageEstate() const
 {
     return gAgent.isGodlike()
         || isEstateManager()
@@ -1169,7 +1166,7 @@ void LLViewerRegion::killCacheEntry(LLVOCacheEntry* entry, bool for_rendering)
     //will remove it from the object cache, real deletion
     entry->setState(LLVOCacheEntry::INACTIVE);
     entry->removeOctreeEntry();
-    entry->setValid(FALSE);
+    entry->setValid(false);
 
 }
 
@@ -1181,7 +1178,7 @@ void LLViewerRegion::killCacheEntry(U32 local_id)
 
 U32 LLViewerRegion::getNumOfActiveCachedObjects() const
 {
-    return  mImpl->mActiveSet.size();
+    return static_cast<U32>(mImpl->mActiveSet.size());
 }
 
 void LLViewerRegion::addActiveCacheEntry(LLVOCacheEntry* entry)
@@ -1268,11 +1265,15 @@ bool LLViewerRegion::addVisibleGroup(LLViewerOctreeGroup* group)
 
 U32 LLViewerRegion::getNumOfVisibleGroups() const
 {
-    return mImpl ? mImpl->mVisibleGroups.size() : 0;
+    return mImpl ? static_cast<U32>(mImpl->mVisibleGroups.size()) : 0;
 }
 
-void LLViewerRegion::updateReflectionProbes()
+void LLViewerRegion::updateReflectionProbes(bool full_update)
 {
+    if (!full_update && mReflectionMaps.empty())
+    {
+        return;
+    }
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
     const F32 probe_spacing = 32.f;
     const F32 probe_radius = sqrtf((probe_spacing * 0.5f) * (probe_spacing * 0.5f) * 3.f);
@@ -1280,7 +1281,7 @@ void LLViewerRegion::updateReflectionProbes()
 
     F32 start = probe_spacing * 0.5f;
 
-    U32 grid_width = REGION_WIDTH_METERS / probe_spacing;
+    U32 grid_width = (U32)(REGION_WIDTH_METERS / probe_spacing);
 
     mReflectionMaps.resize(grid_width * grid_width);
 
@@ -1497,12 +1498,12 @@ void LLViewerRegion::createVisibleObjects(F32 max_time)
     }
     if(mImpl->mWaitingList.empty())
     {
-        mImpl->mVOCachePartition->setCullHistory(FALSE);
+        mImpl->mVOCachePartition->setCullHistory(false);
         return;
     }
 
     S32 throttle = sNewObjectCreationThrottle;
-    BOOL has_new_obj = FALSE;
+    bool has_new_obj = false;
     LLTimer update_timer;
     for(LLVOCacheEntry::vocache_entry_priority_list_t::iterator iter = mImpl->mWaitingList.begin();
         iter != mImpl->mWaitingList.end(); ++iter)
@@ -1512,7 +1513,7 @@ void LLViewerRegion::createVisibleObjects(F32 max_time)
         if(vo_entry->getState() < LLVOCacheEntry::WAITING)
         {
             addNewObject(vo_entry);
-            has_new_obj = TRUE;
+            has_new_obj = true;
             if(throttle > 0 && !(--throttle) && update_timer.getElapsedTimeF32() > max_time)
             {
                 break;
@@ -1532,7 +1533,7 @@ void LLViewerRegion::clearCachedVisibleObjects()
 
     //reset all occluders
     mImpl->mVOCachePartition->resetOccluders();
-    mPaused = TRUE;
+    mPaused = true;
 
     //clean visible entries
     for(LLVOCacheEntry::vocache_entry_set_t::iterator iter = mImpl->mVisibleEntries.begin(); iter != mImpl->mVisibleEntries.end();)
@@ -1644,7 +1645,7 @@ void LLViewerRegion::idleUpdate(F32 max_update_time)
     }
     if(mPaused)
     {
-        mPaused = FALSE; //unpause.
+        mPaused = false; //unpause.
     }
 
     LLViewerCamera::eCameraID old_camera_id = LLViewerCamera::sCurCameraID;
@@ -1717,7 +1718,7 @@ void LLViewerRegion::calcNewObjectCreationThrottle()
     LLVOCacheEntry::updateDebugSettings();
 }
 
-BOOL LLViewerRegion::isViewerCameraStatic()
+bool LLViewerRegion::isViewerCameraStatic()
 {
     return sLastCameraUpdated < LLViewerOctreeEntryData::getCurrentFrame();
 }
@@ -1756,7 +1757,7 @@ void LLViewerRegion::killInvisibleObjects(F32 max_time)
     }
 
     std::vector<LLDrawable*> delete_list;
-    S32 update_counter = llmin(max_update, mImpl->mActiveSet.size());
+    auto update_counter = llmin(max_update, mImpl->mActiveSet.size());
     LLVOCacheEntry::vocache_entry_set_t::iterator iter = mImpl->mActiveSet.upper_bound(mLastVisitedEntry);
 
     for(; update_counter > 0; --update_counter, ++iter)
@@ -1795,10 +1796,9 @@ void LLViewerRegion::killInvisibleObjects(F32 max_time)
     if(!delete_list.empty())
     {
         mInvisibilityCheckHistory |= 1;
-        S32 count = delete_list.size();
-        for(S32 i = 0; i < count; i++)
+        for (auto drawable : delete_list)
         {
-            gObjectList.killObject(delete_list[i]->getVObj());
+            gObjectList.killObject(drawable->getVObj());
         }
         delete_list.clear();
     }
@@ -2138,27 +2138,27 @@ S32 LLViewerRegion::getHttpResponderID() const
     return mImpl->mHttpResponderID;
 }
 
-BOOL LLViewerRegion::pointInRegionGlobal(const LLVector3d &point_global) const
+bool LLViewerRegion::pointInRegionGlobal(const LLVector3d &point_global) const
 {
     LLVector3 pos_region = getPosRegionFromGlobal(point_global);
 
     if (pos_region.mV[VX] < 0)
     {
-        return FALSE;
+        return false;
     }
     if (pos_region.mV[VX] >= mWidth)
     {
-        return FALSE;
+        return false;
     }
     if (pos_region.mV[VY] < 0)
     {
-        return FALSE;
+        return false;
     }
     if (pos_region.mV[VY] >= mWidth)
     {
-        return FALSE;
+        return false;
     }
-    return TRUE;
+    return true;
 }
 
 LLVector3 LLViewerRegion::getPosRegionFromGlobal(const LLVector3d &point_global) const
@@ -2197,24 +2197,24 @@ bool LLViewerRegion::isAlive()
     return mAlive;
 }
 
-BOOL LLViewerRegion::isOwnedSelf(const LLVector3& pos)
+bool LLViewerRegion::isOwnedSelf(const LLVector3& pos)
 {
     if (mParcelOverlay)
     {
         return mParcelOverlay->isOwnedSelf(pos);
     } else {
-        return FALSE;
+        return false;
     }
 }
 
 // Owned by a group you belong to?  (officer or member)
-BOOL LLViewerRegion::isOwnedGroup(const LLVector3& pos)
+bool LLViewerRegion::isOwnedGroup(const LLVector3& pos)
 {
     if (mParcelOverlay)
     {
         return mParcelOverlay->isOwnedGroup(pos);
     } else {
-        return FALSE;
+        return false;
     }
 }
 
@@ -2259,7 +2259,7 @@ public:
         LLSD::array_iterator
             locs_it = locs.beginArray(),
             agents_it = agents.beginArray();
-        BOOL has_agent_data = input["body"].has("AgentData");
+        bool has_agent_data = input["body"].has("AgentData");
 
         for(int i=0;
             locs_it != locs.endArray();
@@ -2327,7 +2327,7 @@ void LLViewerRegion::updateCoarseLocations(LLMessageSystem* msg)
     msg->getS16Fast(_PREHASH_Index, _PREHASH_You, agent_index);
     msg->getS16Fast(_PREHASH_Index, _PREHASH_Prey, target_index);
 
-    BOOL has_agent_data = msg->has(_PREHASH_AgentData);
+    bool has_agent_data = msg->has(_PREHASH_AgentData);
     S32 count = msg->getNumberOfBlocksFast(_PREHASH_Location);
     for(S32 i = 0; i < count; i++)
     {
@@ -2484,13 +2484,39 @@ void LLViewerRegion::setSimulatorFeatures(const LLSD& sim_features)
             {
                 gSavedSettings.setBOOL("UIPreviewMaterial", false);
             }
+
+            if (features.has("GLTFEnabled"))
+            {
+                bool enabled = features["GLTFEnabled"];
+
+                // call setShaders the first time GLTFEnabled is received as true (causes GLTF specific shaders to be loaded)
+                if (enabled != gSavedSettings.getBOOL("GLTFEnabled"))
+                {
+                    gSavedSettings.setBOOL("GLTFEnabled", enabled);
+                    if (enabled)
+                    {
+                        LLViewerShaderMgr::instance()->setShaders();
+                    }
+                }
+            }
+            else
+            {
+                gSavedSettings.setBOOL("GLTFEnabled", false);
+            }
+
+            if (features.has("PBRTerrainTransformsEnabled"))
+            {
+                bool enabled = features["PBRTerrainTransformsEnabled"];
+                gSavedSettings.setBOOL("RenderTerrainPBRTransformsEnabled", enabled);
+            }
+            else
+            {
+                gSavedSettings.setBOOL("RenderTerrainPBRTransformsEnabled", false);
+            }
         };
 
-    auto workqueue = LL::WorkQueue::getInstance("mainloop");
-    if (workqueue)
-    {
-        LL::WorkQueue::postMaybe(workqueue, work);
-    }
+
+    LLAppViewer::instance()->postToMainCoro(work);
 }
 
 //this is called when the parent is not cacheable.
@@ -2659,10 +2685,9 @@ void LLViewerRegion::decodeBoundingInfo(LLVOCacheEntry* entry)
         if(iter != mOrphanMap.end())
         {
             std::vector<U32>* orphans = &mOrphanMap[entry->getLocalID()];
-            S32 size = orphans->size();
-            for(S32 i = 0; i < size; i++)
+            for (U32 orphan : *orphans)
             {
-                LLVOCacheEntry* child = getCacheEntry((*orphans)[i]);
+                LLVOCacheEntry* child = getCacheEntry(orphan);
                 if(child)
                 {
                     entry->addChild(child);
@@ -2699,7 +2724,6 @@ LLViewerRegion::eCacheUpdateResult LLViewerRegion::cacheFullUpdate(LLDataPackerB
         if (entry->getCRC() == crc)
         {
             LL_DEBUGS("AnimatedObjects") << " got dupe for local_id " << local_id << LL_ENDL;
-            dumpStack("AnimatedObjectsStack");
 
             // Record a hit
             entry->recordDupe();
@@ -2708,7 +2732,6 @@ LLViewerRegion::eCacheUpdateResult LLViewerRegion::cacheFullUpdate(LLDataPackerB
         else //CRC changed
         {
             LL_DEBUGS("AnimatedObjects") << " got update for local_id " << local_id << LL_ENDL;
-            dumpStack("AnimatedObjectsStack");
 
             // Update the cache entry
             entry->updateEntry(crc, dp);
@@ -2721,7 +2744,6 @@ LLViewerRegion::eCacheUpdateResult LLViewerRegion::cacheFullUpdate(LLDataPackerB
     else
     {
         LL_DEBUGS("AnimatedObjects") << " got first notification for local_id " << local_id << LL_ENDL;
-        dumpStack("AnimatedObjectsStack");
 
         // we haven't seen this object before
         // Create new entry and add to map
@@ -2892,7 +2914,7 @@ void LLViewerRegion::requestCacheMisses()
     }
 
     LLMessageSystem* msg = gMessageSystem;
-    BOOL start_new_message = TRUE;
+    bool start_new_message = true;
     S32 blocks = 0;
 
     //send requests for all cache-missed objects
@@ -2904,7 +2926,7 @@ void LLViewerRegion::requestCacheMisses()
             msg->nextBlockFast(_PREHASH_AgentData);
             msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
             msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-            start_new_message = FALSE;
+            start_new_message = false;
         }
 
         msg->nextBlockFast(_PREHASH_ObjectData);
@@ -2918,7 +2940,7 @@ void LLViewerRegion::requestCacheMisses()
         if (blocks >= 255)
         {
             sendReliableMessage();
-            start_new_message = TRUE;
+            start_new_message = true;
             blocks = 0;
         }
     }
@@ -2929,9 +2951,9 @@ void LLViewerRegion::requestCacheMisses()
         sendReliableMessage();
     }
 
-    mCacheDirty = TRUE ;
+    mCacheDirty = true ;
     // LL_INFOS() << "KILLDEBUG Sent cache miss full " << full_count << " crc " << crc_count << LL_ENDL;
-    LLViewerStatsRecorder::instance().requestCacheMissesEvent(mCacheMissList.size());
+    LLViewerStatsRecorder::instance().requestCacheMissesEvent(static_cast<S32>(mCacheMissList.size()));
 
     mCacheMissList.clear();
 }
@@ -2990,7 +3012,7 @@ void LLViewerRegion::unpackRegionHandshake()
     U8 sim_access;
     std::string sim_name;
     LLUUID sim_owner;
-    BOOL is_estate_manager;
+    bool is_estate_manager;
     F32 water_height;
     F32 billable_factor;
     LLUUID cache_id;
@@ -3129,6 +3151,25 @@ void LLViewerRegion::unpackRegionHandshake()
         {
             compp->setParamsReady();
         }
+
+        std::string cap = getCapability("ModifyRegion"); // needed for queueQuery
+        if (cap.empty())
+        {
+            LLFloaterRegionInfo::refreshFromRegion(this);
+        }
+        else
+        {
+            LLPBRTerrainFeatures::queueQuery(*this, [](LLUUID region_id, bool success, const LLModifyRegion& composition_changes)
+            {
+                if (!success) { return; }
+                LLViewerRegion* region = LLWorld::getInstance()->getRegionFromID(region_id);
+                if (!region) { return; }
+                LLVLComposition* compp = region->getComposition();
+                if (!compp) { return; }
+                compp->apply(composition_changes);
+                LLFloaterRegionInfo::refreshFromRegion(region);
+            });
+        }
     }
 
 
@@ -3194,6 +3235,7 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
     capabilityNames.append("FetchInventory2");
     capabilityNames.append("FetchInventoryDescendents2");
     capabilityNames.append("IncrementCOFVersion");
+    capabilityNames.append("RequestTaskInventory");
     AISAPI::getCapNames(capabilityNames);
 
     capabilityNames.append("InterestList");
@@ -3226,6 +3268,7 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
     capabilityNames.append("MapLayerGod");
     capabilityNames.append("MeshUploadFlag");
     capabilityNames.append("ModifyMaterialParams");
+    capabilityNames.append("ModifyRegion");
     capabilityNames.append("NavMeshGenerationStatus");
     capabilityNames.append("NewFileAgentInventory");
     capabilityNames.append("ObjectAnimation");
@@ -3236,8 +3279,10 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
     capabilityNames.append("ParcelVoiceInfoRequest");
     capabilityNames.append("ProductInfoRequest");
     capabilityNames.append("ProvisionVoiceAccountRequest");
+    capabilityNames.append("VoiceSignalingRequest");
     capabilityNames.append("ReadOfflineMsgs"); // Requires to respond reliably: AcceptFriendship, AcceptGroupInvite, DeclineFriendship, DeclineGroupInvite
     capabilityNames.append("RegionObjects");
+    capabilityNames.append("RegionSchedule");
     capabilityNames.append("RemoteParcelRequest");
     capabilityNames.append("RenderMaterials");
     capabilityNames.append("RequestTextureDownload");
@@ -3538,7 +3583,7 @@ void LLViewerRegion::setInterestListMode(const std::string &new_mode)
     {
         mInterestListMode = new_mode;
 
-        if (mInterestListMode != std::string(IL_MODE_DEFAULT) && mInterestListMode != std::string(IL_MODE_360))
+        if (mInterestListMode != IL_MODE_DEFAULT && mInterestListMode != IL_MODE_360)
         {
             LL_WARNS("360Capture") << "Region " << getRegionID() << " setInterestListMode() invalid interest list mode: "
                 << mInterestListMode << ", setting to default" << LL_ENDL;
@@ -3646,12 +3691,12 @@ void LLViewerRegion::showReleaseNotes()
     if (url.empty()) {
         // HACK haven't received the capability yet, we'll wait until
         // it arives.
-        mReleaseNotesRequested = TRUE;
+        mReleaseNotesRequested = true;
         return;
     }
 
     LLWeb::loadURL(url);
-    mReleaseNotesRequested = FALSE;
+    mReleaseNotesRequested = false;
 }
 
 std::string LLViewerRegion::getDescription() const
@@ -3709,7 +3754,7 @@ void LLViewerRegion::resetMaterialsCapThrottle()
     if (   mSimulatorFeatures.has("RenderMaterialsCapability")
         && mSimulatorFeatures["RenderMaterialsCapability"].isReal() )
     {
-        requests_per_sec = mSimulatorFeatures["RenderMaterialsCapability"].asReal();
+        requests_per_sec = (F32)mSimulatorFeatures["RenderMaterialsCapability"].asReal();
         if ( requests_per_sec == 0.0f )
         {
             requests_per_sec = 1.0f;

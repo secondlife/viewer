@@ -35,8 +35,8 @@
 #include "lltrace.h"
 
 class LLViewerObject;
-const BOOL FOR_SELECTION = TRUE;
-const BOOL NOT_FOR_SELECTION = FALSE;
+const bool FOR_SELECTION = true;
+const bool NOT_FOR_SELECTION = false;
 
 class alignas(16) LLViewerCamera : public LLCamera, public LLSimpleton<LLViewerCamera>
 {
@@ -65,17 +65,17 @@ public:
                                 const LLVector3 &up_direction,
                                 const LLVector3 &point_of_interest);
 
-    static void updateFrustumPlanes(LLCamera& camera, BOOL ortho = FALSE, BOOL zflip = FALSE, BOOL no_hacks = FALSE);
+    static void updateFrustumPlanes(LLCamera& camera, bool ortho = false, bool zflip = false, bool no_hacks = false);
     void updateCameraAngle(const LLSD& value);
-    void setPerspective(BOOL for_selection, S32 x, S32 y_from_bot, S32 width, S32 height, BOOL limit_select_distance, F32 z_near = 0, F32 z_far = 0);
+    void setPerspective(bool for_selection, S32 x, S32 y_from_bot, S32 width, S32 height, bool limit_select_distance, F32 z_near = 0, F32 z_far = 0);
 
     const LLMatrix4 &getProjection() const;
     const LLMatrix4 &getModelview() const;
 
     // Warning!  These assume the current global matrices are correct
     void projectScreenToPosAgent(const S32 screen_x, const S32 screen_y, LLVector3* pos_agent ) const;
-    BOOL projectPosAgentToScreen(const LLVector3 &pos_agent, LLCoordGL &out_point, const BOOL clamp = TRUE) const;
-    BOOL projectPosAgentToScreenEdge(const LLVector3 &pos_agent, LLCoordGL &out_point) const;
+    bool projectPosAgentToScreen(const LLVector3 &pos_agent, LLCoordGL &out_point, const bool clamp = true) const;
+    bool projectPosAgentToScreenEdge(const LLVector3 &pos_agent, LLCoordGL &out_point) const;
 
     LLVector3 getVelocityDir() const { return mVelocityDir; }
     static LLTrace::CountStatHandle<>* getVelocityStat() { return &sVelocityStat; }
@@ -93,10 +93,10 @@ public:
     void setDefaultFOV(F32 fov);
     F32 getDefaultFOV() const { return mCameraFOVDefault; }
 
-    BOOL isDefaultFOVChanged();
+    bool isDefaultFOVChanged();
 
-    BOOL cameraUnderWater() const;
-    BOOL areVertsVisible(LLViewerObject* volumep, BOOL all_verts);
+    bool cameraUnderWater() const;
+    bool areVertsVisible(LLViewerObject* volumep, bool all_verts);
 
     const LLVector3& getPointOfInterest() const { return mLastPointOfInterest; }
     F32 getPixelMeterRatio() const              { return mPixelMeterRatio; }

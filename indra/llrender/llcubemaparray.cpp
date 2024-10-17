@@ -42,6 +42,8 @@
 
 //#pragma optimize("", off)
 
+using namespace LLImageGLMemory;
+
 // MUST match order of OpenGL face-layers
 GLenum LLCubeMapArray::sTargets[6] =
 {
@@ -107,7 +109,7 @@ LLCubeMapArray::~LLCubeMapArray()
 {
 }
 
-void LLCubeMapArray::allocate(U32 resolution, U32 components, U32 count, BOOL use_mips)
+void LLCubeMapArray::allocate(U32 resolution, U32 components, U32 count, bool use_mips)
 {
     U32 texname = 0;
     mWidth = resolution;
@@ -123,23 +125,25 @@ void LLCubeMapArray::allocate(U32 resolution, U32 components, U32 count, BOOL us
     mImage->setHasMipMaps(use_mips);
 
     bind(0);
+    free_cur_tex_image();
 
     U32 format = components == 4 ? GL_RGBA16F : GL_RGB16F;
-
     U32 mip = 0;
-
-    while (resolution >= 1)
+    U32 mip_resolution = resolution;
+    while (mip_resolution >= 1)
     {
-        glTexImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, mip, format, resolution, resolution, count * 6, 0,
+        glTexImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, mip, format, mip_resolution, mip_resolution, count * 6, 0,
             GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 
         if (!use_mips)
         {
             break;
         }
-        resolution /= 2;
+        mip_resolution /= 2;
         ++mip;
     }
+
+    alloc_tex_image(resolution, resolution, format, count * 6);
 
     mImage->setAddressMode(LLTexUnit::TAM_CLAMP);
 

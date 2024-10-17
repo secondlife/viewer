@@ -82,7 +82,7 @@ public:
     LLOutfitListBase();
     virtual ~LLOutfitListBase();
 
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
     /*virtual*/ void onOpen(const LLSD& info);
 
     void refreshList(const LLUUID& category_id);
@@ -260,7 +260,7 @@ public:
     };
 
     virtual void draw();
-    virtual BOOL handleToolTip(S32 x, S32 y, MASK mask);
+    virtual bool handleToolTip(S32 x, S32 y, MASK mask);
 
     void setFavorite(bool is_favorite);
     bool getFavorite() const { return mIsFavorite; }
@@ -298,7 +298,7 @@ public:
     LLOutfitsList();
     virtual ~LLOutfitsList();
 
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
     void initComparator();
 
     /*virtual*/ void onOpen(const LLSD& info);
@@ -336,7 +336,7 @@ public:
     */
     void onExpandAllFolders();
 
-    /*virtual*/ bool getHasExpandableFolders() { return TRUE; }
+    /*virtual*/ bool getHasExpandableFolders() { return true; }
 
     /*virtual*/ void onChangeSortOrder(const LLSD& userdata);
     virtual LLToggleableMenu* getSortMenu();
@@ -431,7 +431,7 @@ private:
     // Used to monitor COF changes for updating items worn state. See EXT-8636.
     uuid_vec_t                      mCOFLinkedItems;
 
-    LLOutfitListSortMenu*           mSortMenu;
+    LLOutfitListSortMenu*         mSortMenu;
 
     //bool                          mIsInitialized;
     /**

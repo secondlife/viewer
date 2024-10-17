@@ -77,11 +77,12 @@ public:
 
     // LLFloater overrides
     /*virtual*/ void onOpen(const LLSD& key);
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
     /*virtual*/ void draw();
-    /*virtual*/ void setVisible(BOOL visible);
-    /*virtual*/ void setFocus(BOOL focus);
+    /*virtual*/ void setVisible(bool visible);
+    /*virtual*/ void setFocus(bool focus);
     /*virtual*/ void closeFloater(bool app_quitting = false);
+    /*virtual*/ void deleteAllChildren();
 
     // Handle the left hand participant list widgets
     void addConversationViewParticipant(LLConversationItem* item, bool update_view = true);
@@ -97,7 +98,7 @@ public:
     virtual void updateMessages() {}
     LLConversationItem* getCurSelectedViewModelItem();
     void forceReshape();
-    virtual BOOL handleKeyHere( KEY key, MASK mask );
+    virtual bool handleKeyHere( KEY key, MASK mask );
     bool isMessagePaneExpanded(){return mMessagePaneExpanded;}
     void setMessagePaneExpanded(bool expanded){mMessagePaneExpanded = expanded;}
     void restoreFloater();
@@ -147,7 +148,7 @@ protected:
     std::string appendTime();
     void assignResizeLimits();
 
-    void updateUsedEmojis(LLWString text);
+    void updateUsedEmojis(LLWStringView text);
 
     S32  mFloaterExtraWidth;
 
@@ -164,6 +165,7 @@ protected:
     LLConversationViewParticipant* createConversationViewParticipant(LLConversationItem* item);
 
     LLUUID mSessionID;
+    LLView* mContentsView;
     LLLayoutStack* mBodyStack;
     LLLayoutStack* mParticipantListAndHistoryStack;
     LLLayoutPanel* mParticipantListPanel;   // add the widgets to that see mConversationsListPanel
@@ -196,6 +198,11 @@ protected:
     LLButton* mAddBtn;
     LLButton* mVoiceButton;
 
+    // Since mVoiceButton can work in one of two modes, "Start call" or "Hang up",
+    // (with different images and tooltips depending on the currently chosen mode)
+    // we should track the mode we're currently using to react on click accordingly
+    bool mVoiceButtonHangUpMode { false };
+
 private:
     // Handling selection and contextual menu
     void doToSelected(const LLSD& userdata);
@@ -214,10 +221,14 @@ private:
      */
     void reshapeChatLayoutPanel();
 
+    void onCallButtonClicked();
+
     void onInputEditorClicked();
 
     void onEmojiRecentPanelToggleBtnClicked();
     void onEmojiPickerShowBtnClicked();
+    void onEmojiPickerShowBtnDown();
+    void onEmojiPickerClosed();
     void initEmojiRecentPanel();
     void onEmojiRecentPanelFocusReceived();
     void onEmojiRecentPanelFocusLost();
@@ -232,6 +243,9 @@ private:
     S32 mInputEditorPad;
     S32 mChatLayoutPanelHeight;
     S32 mFloaterHeight;
+
+    boost::signals2::connection mEmojiCloseConn;
+    U32 mEmojiHelperLastCallbackFrame = { 0 };
 };
 
 

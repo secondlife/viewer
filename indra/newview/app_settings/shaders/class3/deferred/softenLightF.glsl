@@ -29,7 +29,6 @@ out vec4 frag_color;
 
 uniform sampler2D diffuseRect;
 uniform sampler2D specularRect;
-uniform sampler2D normalMap;
 uniform sampler2D emissiveRect; // PBR linear packed Occlusion, Roughness, Metal. See: pbropaqueF.glsl
 
 const float M_PI = 3.14159265;
@@ -38,11 +37,7 @@ const float M_PI = 3.14159265;
 uniform sampler2D lightMap;
 #endif
 
-uniform sampler2D depthMap;
 uniform sampler2D     lightFunc;
-
-uniform float blur_size;
-uniform float blur_fidelity;
 
 #if defined(HAS_SSAO)
 uniform float ssao_irradiance_scale;
@@ -71,7 +66,7 @@ vec3  scaleSoftClipFragLinear(vec3 l);
 // reflection probe interface
 void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv,
     vec2 tc, vec3 pos, vec3 norm, float glossiness, bool transparent, vec3 amblit_linear);
-void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout vec3 legacyenv,
+void sampleReflectionProbesLegacy(out vec3 ambenv, out vec3 glossenv, out vec3 legacyenv,
         vec2 tc, vec3 pos, vec3 norm, float glossiness, float envIntensity, bool transparent, vec3 amblit_linear);
 void applyGlossEnv(inout vec3 color, vec3 glossenv, vec4 spec, vec3 pos, vec3 norm);
 void applyLegacyEnv(inout vec3 color, vec3 legacyenv, vec4 spec, vec3 pos, vec3 norm, float envIntensity);
@@ -105,8 +100,8 @@ vec3 pbrBaseLight(vec3 diffuseColor,
                   vec3 additive,
                   vec3 atten);
 
-vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor, 
-                    float perceptualRoughness, 
+vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor,
+                    float perceptualRoughness,
                     float metallic,
                     vec3 n, // normal
                     vec3 v, // surface point to camera
@@ -169,15 +164,15 @@ void main()
 
     if (GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_PBR))
     {
-        vec3 orm = spec.rgb; 
+        vec3 orm = spec.rgb;
         float perceptualRoughness = orm.g;
         float metallic = orm.b;
         float ao = orm.r;
 
-        
+
         // PBR IBL
         float gloss      = 1.0 - perceptualRoughness;
-        
+
         sampleReflectionProbes(irradiance, radiance, tc, pos.xyz, norm.xyz, gloss, false, amblit_linear);
 
         adjustIrradiance(irradiance, ambocc);
@@ -205,7 +200,7 @@ void main()
     {
         // legacy shaders are still writng sRGB to gbuffer
         baseColor.rgb = srgb_to_linear(baseColor.rgb);
-        
+
         spec.rgb = srgb_to_linear(spec.rgb);
 
         float da          = clamp(dot(norm.xyz, light_dir.xyz), 0.0, 1.0);
@@ -224,7 +219,7 @@ void main()
         vec3 sun_contrib = min(da, scol) * sunlit_linear;
         color.rgb += sun_contrib;
         color.rgb *= baseColor.rgb;
-        
+
         vec3 refnormpersp = reflect(pos.xyz, norm.xyz);
 
         if (spec.a > 0.0)
@@ -254,7 +249,7 @@ void main()
         }
 
         color.rgb = mix(color.rgb, baseColor.rgb, baseColor.a);
-        
+
         if (envIntensity > 0.0)
         {  // add environment map
             applyLegacyEnv(color, legacyenv, spec, pos.xyz, norm.xyz, envIntensity);

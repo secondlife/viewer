@@ -32,86 +32,77 @@
 class LLWindowHeadless : public LLWindow
 {
 public:
-    /*virtual*/ void show() override {}
-    /*virtual*/ void hide() override {}
-    /*virtual*/ void close() override {}
-    /*virtual*/ BOOL getVisible() override {return FALSE;}
-    /*virtual*/ BOOL getMinimized() override {return FALSE;}
-    /*virtual*/ BOOL getMaximized() override {return FALSE;}
-    /*virtual*/ BOOL maximize() override {return FALSE;}
-    /*virtual*/ void minimize() override {}
-    /*virtual*/ void restore() override {}
-    // TODO: LLWindow::getFullscreen() is (intentionally?) NOT virtual.
-    // Apparently the coder of LLWindowHeadless didn't realize that. Is it a
-    // mistake to shadow the base-class method with an LLWindowHeadless
-    // override when called on the subclass, yet call the base-class method
-    // when indirecting through a polymorphic pointer or reference?
-    BOOL getFullscreen() {return FALSE;}
-    /*virtual*/ BOOL getPosition(LLCoordScreen *position) override {return FALSE;}
-    /*virtual*/ BOOL getSize(LLCoordScreen *size) override {return FALSE;}
-    /*virtual*/ BOOL getSize(LLCoordWindow *size) override {return FALSE;}
-    /*virtual*/ BOOL setPosition(LLCoordScreen position) override {return FALSE;}
-    /*virtual*/ BOOL setSizeImpl(LLCoordScreen size) override {return FALSE;}
-    /*virtual*/ BOOL setSizeImpl(LLCoordWindow size) override {return FALSE;}
-    /*virtual*/ BOOL switchContext(BOOL fullscreen, const LLCoordScreen &size, BOOL enable_vsync, const LLCoordScreen * const posp = NULL) override {return FALSE;}
+    void show() override {}
+    void hide() override {}
+    void close() override {}
+    bool getVisible() const override {return false;}
+    bool getMinimized() const override {return false;}
+    bool getMaximized() const override {return false;}
+    bool maximize() override {return false;}
+    void minimize() override {}
+    void restore() override {}
+    bool getFullscreen() const override {return false;};
+    bool getPosition(LLCoordScreen *position) const override {return false;}
+    bool getSize(LLCoordScreen *size) const override {return false;}
+    bool getSize(LLCoordWindow *size) const override {return false;}
+    bool setPosition(LLCoordScreen position) override {return false;}
+    bool setSizeImpl(LLCoordScreen size) override {return false;}
+    bool setSizeImpl(LLCoordWindow size) override {return false;}
+    bool switchContext(bool fullscreen, const LLCoordScreen &size, bool enable_vsync, const LLCoordScreen * const posp = NULL) override {return false;}
     void* createSharedContext() override  { return nullptr; }
     void makeContextCurrent(void*) override  {}
     void destroySharedContext(void*) override  {}
-    /*virtual*/ void toggleVSync(bool enable_vsync) override { }
-    /*virtual*/ BOOL setCursorPosition(LLCoordWindow position) override {return FALSE;}
-    /*virtual*/ BOOL getCursorPosition(LLCoordWindow *position) override {return FALSE;}
+    void toggleVSync(bool enable_vsync) override { }
+    bool setCursorPosition(LLCoordWindow position) override {return false;}
+    bool getCursorPosition(LLCoordWindow *position) override {return false;}
 #if LL_WINDOWS
-    /*virtual*/ BOOL getCursorDelta(LLCoordCommon* delta) override { return FALSE; }
+    bool getCursorDelta(LLCoordCommon* delta) const override { return false; }
 #endif
-    /*virtual*/ void showCursor() override {}
-    /*virtual*/ void hideCursor() override {}
-    /*virtual*/ void showCursorFromMouseMove() override {}
-    /*virtual*/ void hideCursorUntilMouseMove() override {}
-    /*virtual*/ BOOL isCursorHidden() override {return FALSE;}
-    /*virtual*/ void updateCursor() override {}
-    //virtual ECursorType getCursor() override { return mCurrentCursor; }
-    /*virtual*/ void captureMouse() override {}
-    /*virtual*/ void releaseMouse() override {}
-    /*virtual*/ void setMouseClipping( BOOL b ) override {}
-    /*virtual*/ BOOL isClipboardTextAvailable() override {return FALSE; }
-    /*virtual*/ BOOL pasteTextFromClipboard(LLWString &dst) override {return FALSE; }
-    /*virtual*/ BOOL copyTextToClipboard(const LLWString &src) override {return FALSE; }
-    /*virtual*/ void flashIcon(F32 seconds) override {}
-    /*virtual*/ F32 getGamma() override {return 1.0f; }
-    /*virtual*/ BOOL setGamma(const F32 gamma) override {return FALSE; } // Set the gamma
-    /*virtual*/ void setFSAASamples(const U32 fsaa_samples) override { }
-    /*virtual*/ U32 getFSAASamples() override { return 0; }
-    /*virtual*/ BOOL restoreGamma() override {return FALSE; }   // Restore original gamma table (before updating gamma)
-    //virtual ESwapMethod getSwapMethod() override { return mSwapMethod; }
-    /*virtual*/ void gatherInput() override {}
-    /*virtual*/ void delayInputProcessing() override {}
-    /*virtual*/ void swapBuffers() override;
+    void showCursor() override {}
+    void hideCursor() override {}
+    void showCursorFromMouseMove() override {}
+    void hideCursorUntilMouseMove() override {}
+    bool isCursorHidden() override {return false;}
+    void updateCursor() override {}
+    void captureMouse() override {}
+    void releaseMouse() override {}
+    void setMouseClipping( bool b ) override {}
+    bool isClipboardTextAvailable() override {return false; }
+    bool pasteTextFromClipboard(LLWString &dst) override {return false; }
+    bool copyTextToClipboard(const LLWString &src) override {return false; }
+    void flashIcon(F32 seconds) override {}
+    F32 getGamma() const override {return 1.0f; }
+    bool setGamma(const F32 gamma) override {return false; } // Set the gamma
+    void setFSAASamples(const U32 fsaa_samples) override { }
+    U32 getFSAASamples() const override { return 0; }
+    bool restoreGamma() override {return false; }   // Restore original gamma table (before updating gamma)
+    void gatherInput(bool app_has_focus) override {}
+    void delayInputProcessing() override {}
+    void swapBuffers() override;
 
 
     // handy coordinate space conversion routines
-    /*virtual*/ BOOL convertCoords(LLCoordScreen from, LLCoordWindow *to) override { return FALSE; }
-    /*virtual*/ BOOL convertCoords(LLCoordWindow from, LLCoordScreen *to) override { return FALSE; }
-    /*virtual*/ BOOL convertCoords(LLCoordWindow from, LLCoordGL *to) override { return FALSE; }
-    /*virtual*/ BOOL convertCoords(LLCoordGL from, LLCoordWindow *to) override { return FALSE; }
-    /*virtual*/ BOOL convertCoords(LLCoordScreen from, LLCoordGL *to) override { return FALSE; }
-    /*virtual*/ BOOL convertCoords(LLCoordGL from, LLCoordScreen *to) override { return FALSE; }
+    bool convertCoords(LLCoordScreen from, LLCoordWindow *to) const override { return false; }
+    bool convertCoords(LLCoordWindow from, LLCoordScreen *to) const override { return false; }
+    bool convertCoords(LLCoordWindow from, LLCoordGL *to) const override { return false; }
+    bool convertCoords(LLCoordGL from, LLCoordWindow *to) const override { return false; }
+    bool convertCoords(LLCoordScreen from, LLCoordGL *to) const override { return false; }
+    bool convertCoords(LLCoordGL from, LLCoordScreen *to) const override { return false; }
 
-    /*virtual*/ LLWindowResolution* getSupportedResolutions(S32 &num_resolutions) override { return NULL; }
-    /*virtual*/ F32 getNativeAspectRatio() override { return 1.0f; }
-    /*virtual*/ F32 getPixelAspectRatio() override { return 1.0f; }
-    /*virtual*/ void setNativeAspectRatio(F32 ratio) override {}
+    LLWindowResolution* getSupportedResolutions(S32 &num_resolutions) override { return NULL; }
+    F32 getNativeAspectRatio() override { return 1.0f; }
+    F32 getPixelAspectRatio() override { return 1.0f; }
+    void setNativeAspectRatio(F32 ratio) override {}
 
-    U32 getAvailableVRAMMegabytes() override { return 4096; }
-
-    /*virtual*/ void *getPlatformWindow() override { return 0; }
-    /*virtual*/ void bringToFront() override {}
+    void *getPlatformWindow() override { return 0; }
+    void bringToFront() override {}
 
     LLWindowHeadless(LLWindowCallbacks* callbacks,
         const std::string& title, const std::string& name,
         S32 x, S32 y,
         S32 width, S32 height,
-        U32 flags,  BOOL fullscreen, BOOL clear_background,
-        BOOL enable_vsync, BOOL use_gl, BOOL ignore_pixel_depth);
+        U32 flags,  bool fullscreen, bool clear_background,
+        bool enable_vsync, bool use_gl, bool ignore_pixel_depth);
     virtual ~LLWindowHeadless();
 
 private:

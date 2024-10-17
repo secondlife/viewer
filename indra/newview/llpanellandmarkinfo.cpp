@@ -41,6 +41,7 @@
 #include "lllandmarkactions.h"
 #include "llparcel.h"
 #include "llslurl.h"
+#include "llviewercontrol.h"
 #include "llviewerinventory.h"
 #include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
@@ -69,7 +70,7 @@ LLPanelLandmarkInfo::~LLPanelLandmarkInfo()
 {}
 
 // virtual
-BOOL LLPanelLandmarkInfo::postBuild()
+bool LLPanelLandmarkInfo::postBuild()
 {
     LLPanelPlaceInfo::postBuild();
 
@@ -86,7 +87,7 @@ BOOL LLPanelLandmarkInfo::postBuild()
     icon_m = getString("icon_M");
     icon_r = getString("icon_R");
 
-    return TRUE;
+    return true;
 }
 
 // virtual
@@ -134,9 +135,9 @@ void LLPanelLandmarkInfo::setInfoType(EInfoType type, const LLUUID &folder_id)
         {
             mCurrentTitle = getString("title_create_landmark");
 
-            mLandmarkTitle->setVisible(FALSE);
-            mLandmarkTitleEditor->setVisible(TRUE);
-            mNotesEditor->setEnabled(TRUE);
+            mLandmarkTitle->setVisible(false);
+            mLandmarkTitleEditor->setVisible(true);
+            mNotesEditor->setEnabled(true);
 
             LLViewerParcelMgr* parcel_mgr = LLViewerParcelMgr::getInstance();
             LLParcel* parcel = parcel_mgr->getAgentParcel();
@@ -203,16 +204,16 @@ void LLPanelLandmarkInfo::setInfoType(EInfoType type, const LLUUID &folder_id)
         default:
             mCurrentTitle = getString("title_landmark");
 
-            mLandmarkTitle->setVisible(TRUE);
-            mLandmarkTitleEditor->setVisible(FALSE);
-            mNotesEditor->setEnabled(FALSE);
+            mLandmarkTitle->setVisible(true);
+            mLandmarkTitleEditor->setVisible(false);
+            mNotesEditor->setEnabled(false);
         break;
     }
 
     populateFoldersList();
 
     // Prevent the floater from losing focus (if the sidepanel is undocked).
-    setFocus(TRUE);
+    setFocus(true);
 
     LLPanelPlaceInfo::setInfoType(type);
 }
@@ -326,7 +327,8 @@ void LLPanelLandmarkInfo::displayItemInfo(const LLInventoryItem* pItem)
     }
     else
     {
-        std::string timeStr = getString("acquired_date");
+        static bool use_24h = gSavedSettings.getBOOL("Use24HourClock");
+        std::string timeStr = use_24h ? getString("acquired_date") : getString("acquired_date_ampm");
         LLSD substitution;
         substitution["datetime"] = (S32) time_utc;
         LLStringUtil::format (timeStr, substitution);
@@ -338,7 +340,7 @@ void LLPanelLandmarkInfo::displayItemInfo(const LLInventoryItem* pItem)
     mNotesEditor->setText(pItem->getDescription());
 }
 
-void LLPanelLandmarkInfo::toggleLandmarkEditMode(BOOL enabled)
+void LLPanelLandmarkInfo::toggleLandmarkEditMode(bool enabled)
 {
     // If switching to edit mode while creating landmark
     // the "Create Landmark" title remains.
@@ -353,7 +355,7 @@ void LLPanelLandmarkInfo::toggleLandmarkEditMode(BOOL enabled)
         mLandmarkTitle->setText(mLandmarkTitleEditor->getText());
     }
 
-    if (mNotesEditor->getReadOnly() ==  (enabled == TRUE))
+    if (mNotesEditor->getReadOnly() == enabled)
     {
         mLandmarkTitle->setVisible(!enabled);
         mLandmarkTitleEditor->setVisible(enabled);
@@ -368,10 +370,10 @@ void LLPanelLandmarkInfo::toggleLandmarkEditMode(BOOL enabled)
     }
 
     // Prevent the floater from losing focus (if the sidepanel is undocked).
-    setFocus(TRUE);
+    setFocus(true);
 }
 
-void LLPanelLandmarkInfo::setCanEdit(BOOL enabled)
+void LLPanelLandmarkInfo::setCanEdit(bool enabled)
 {
     getChild<LLButton>("edit_btn")->setEnabled(enabled);
 }
@@ -391,7 +393,7 @@ const LLUUID LLPanelLandmarkInfo::getLandmarkFolder() const
     return mFolderCombo->getValue().asUUID();
 }
 
-BOOL LLPanelLandmarkInfo::setLandmarkFolder(const LLUUID& id)
+bool LLPanelLandmarkInfo::setLandmarkFolder(const LLUUID& id)
 {
     return mFolderCombo->setCurrentByID(id);
 }
@@ -545,7 +547,7 @@ void LLPanelLandmarkInfo::collectLandmarkFolders(LLInventoryModel::cat_array_t& 
     gInventory.accountForUpdate(update);
 
     mItem->setParent(mNewParentId);
-    mItem->updateParentOnServer(FALSE);
+    mItem->updateParentOnServer(false);
 
     gInventory.updateItem(mItem);
     gInventory.notifyObservers();

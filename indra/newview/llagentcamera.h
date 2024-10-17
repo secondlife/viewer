@@ -89,14 +89,14 @@ private:
     //--------------------------------------------------------------------
 public:
     void            changeCameraToDefault();
-    void            changeCameraToMouselook(BOOL animate = TRUE);
-    void            changeCameraToThirdPerson(BOOL animate = TRUE);
+    void            changeCameraToMouselook(bool animate = true);
+    void            changeCameraToThirdPerson(bool animate = true);
     void            changeCameraToCustomizeAvatar(); // Trigger transition animation
-    void            changeCameraToFollow(BOOL animate = TRUE);  // Ventrella
-    BOOL            cameraThirdPerson() const       { return (mCameraMode == CAMERA_MODE_THIRD_PERSON && mLastCameraMode == CAMERA_MODE_THIRD_PERSON); }
-    BOOL            cameraMouselook() const         { return (mCameraMode == CAMERA_MODE_MOUSELOOK && mLastCameraMode == CAMERA_MODE_MOUSELOOK); }
-    BOOL            cameraCustomizeAvatar() const   { return (mCameraMode == CAMERA_MODE_CUSTOMIZE_AVATAR /*&& !mCameraAnimating*/); }
-    BOOL            cameraFollow() const            { return (mCameraMode == CAMERA_MODE_FOLLOW && mLastCameraMode == CAMERA_MODE_FOLLOW); }
+    void            changeCameraToFollow(bool animate = true);  // Ventrella
+    bool            cameraThirdPerson() const       { return (mCameraMode == CAMERA_MODE_THIRD_PERSON && mLastCameraMode == CAMERA_MODE_THIRD_PERSON); }
+    bool            cameraMouselook() const         { return (mCameraMode == CAMERA_MODE_MOUSELOOK && mLastCameraMode == CAMERA_MODE_MOUSELOOK); }
+    bool            cameraCustomizeAvatar() const   { return (mCameraMode == CAMERA_MODE_CUSTOMIZE_AVATAR /*&& !mCameraAnimating*/); }
+    bool            cameraFollow() const            { return (mCameraMode == CAMERA_MODE_FOLLOW && mLastCameraMode == CAMERA_MODE_FOLLOW); }
     ECameraMode     getCameraMode() const           { return mCameraMode; }
     ECameraMode     getLastCameraMode() const       { return mLastCameraMode; }
     void            updateCamera();                 // Call once per frame to update camera location/orientation
@@ -140,10 +140,10 @@ private:
 public:
     LLVector3d      getCameraPositionGlobal() const;
     const LLVector3& getCameraPositionAgent() const;
-    LLVector3d      calcCameraPositionTargetGlobal(BOOL *hit_limit = NULL); // Calculate the camera position target
+    LLVector3d      calcCameraPositionTargetGlobal(bool *hit_limit = NULL); // Calculate the camera position target
     F32             getCameraMinOffGround();        // Minimum height off ground for this mode, meters
     void            setCameraCollidePlane(const LLVector4 &plane) { mCameraCollidePlane = plane; }
-    BOOL            calcCameraMinDistance(F32 &obj_min_distance);
+    bool            calcCameraMinDistance(F32 &obj_min_distance);
     F32             getCurrentCameraBuildOffset() const { return (F32)mCameraFocusOffset.length(); }
     void            clearCameraLag() { mCameraLag.clearVec(); }
     const LLVector3& getCameraUpVector() const { return mCameraUpVector; }
@@ -176,12 +176,12 @@ private:
     //--------------------------------------------------------------------
 public:
     void            setupSitCamera();
-    BOOL            sitCameraEnabled()      { return mSitCameraEnabled; }
+    bool            sitCameraEnabled()      { return mSitCameraEnabled; }
     void            setSitCamera(const LLUUID &object_id,
                                  const LLVector3 &camera_pos = LLVector3::zero, const LLVector3 &camera_focus = LLVector3::zero);
 private:
     LLPointer<LLViewerObject> mSitCameraReferenceObject; // Object to which camera is related when sitting
-    BOOL            mSitCameraEnabled;      // Use provided camera information when sitting?
+    bool            mSitCameraEnabled;      // Use provided camera information when sitting?
     LLVector3       mSitCameraPos;          // Root relative camera pos when sitting
     LLVector3       mSitCameraFocus;        // Root relative camera target when sitting
 
@@ -189,15 +189,15 @@ private:
     // Animation
     //--------------------------------------------------------------------
 public:
-    void            setCameraAnimating(BOOL b) { mCameraAnimating = b; }
-    BOOL            getCameraAnimating() const { return mCameraAnimating; }
+    void            setCameraAnimating(bool b)          { mCameraAnimating = b; }
+    bool            getCameraAnimating()                { return mCameraAnimating; }
     void            setAnimationDuration(F32 seconds);
     void            startCameraAnimation();
     void            stopCameraAnimation();
 private:
     LLFrameTimer    mAnimationTimer;    // Seconds that transition animation has been active
     F32             mAnimationDuration; // In seconds
-    BOOL            mCameraAnimating;                   // Camera is transitioning from one mode to another
+    bool            mCameraAnimating;                   // Camera is transitioning from one mode to another
     LLVector3d      mAnimationCameraStartGlobal;        // Camera start position, global coords
     LLVector3d      mAnimationFocusStartGlobal;         // Camera focus point, global coords
 
@@ -207,43 +207,43 @@ private:
 public:
     LLVector3d      calcFocusPositionTargetGlobal();
     LLVector3       calcFocusOffset(LLViewerObject *object, LLVector3 pos_agent, S32 x, S32 y);
-    BOOL            getFocusOnAvatar() const        { return mFocusOnAvatar; }
+    bool            getFocusOnAvatar() const        { return mFocusOnAvatar; }
     LLPointer<LLViewerObject>&  getFocusObject()    { return mFocusObject; }
     F32             getFocusObjectDist() const      { return mFocusObjectDist; }
     void            updateFocusOffset();
     void            validateFocusObject();
     void            setFocusGlobal(const LLPickInfo& pick);
     void            setFocusGlobal(const LLVector3d &focus, const LLUUID &object_id = LLUUID::null);
-    void            setFocusOnAvatar(BOOL focus, BOOL animate, BOOL reset_axes = TRUE);
+    void            setFocusOnAvatar(bool focus, bool animate, bool reset_axes = true);
     void            setCameraPosAndFocusGlobal(const LLVector3d& pos, const LLVector3d& focus, const LLUUID &object_id);
     void            clearFocusObject();
     void            setFocusObject(LLViewerObject* object);
-    void            setAllowChangeToFollow(BOOL focus)  { mAllowChangeToFollow = focus; }
-    void            setObjectTracking(BOOL track)   { mTrackFocusObject = track; }
+    void            setAllowChangeToFollow(bool focus)  { mAllowChangeToFollow = focus; }
+    void            setObjectTracking(bool track)   { mTrackFocusObject = track; }
     const LLVector3d &getFocusGlobal() const        { return mFocusGlobal; }
     const LLVector3d &getFocusTargetGlobal() const  { return mFocusTargetGlobal; }
 private:
     LLVector3d      mCameraFocusOffset;             // Offset from focus point in build mode
     LLVector3d      mCameraFocusOffsetTarget;       // Target towards which we are lerping the camera's focus offset
-    BOOL            mFocusOnAvatar;
-    BOOL            mAllowChangeToFollow;
+    bool            mFocusOnAvatar;
+    bool            mAllowChangeToFollow;
     LLVector3d      mFocusGlobal;
     LLVector3d      mFocusTargetGlobal;
     LLPointer<LLViewerObject> mFocusObject;
     F32             mFocusObjectDist;
     LLVector3       mFocusObjectOffset;
-    BOOL            mTrackFocusObject;
+    bool            mTrackFocusObject;
 
     //--------------------------------------------------------------------
     // Lookat / Pointat
     //--------------------------------------------------------------------
 public:
     void            updateLookAt(const S32 mouse_x, const S32 mouse_y);
-    BOOL            setLookAt(ELookAtType target_type, LLViewerObject *object = NULL, LLVector3 position = LLVector3::zero);
+    bool            setLookAt(ELookAtType target_type, LLViewerObject *object = NULL, LLVector3 position = LLVector3::zero);
     ELookAtType     getLookAtType();
     void            lookAtLastChat();
     void            slamLookAt(const LLVector3 &look_at); // Set the physics data
-    BOOL            setPointAt(EPointAtType target_type, LLViewerObject *object = NULL, LLVector3 position = LLVector3::zero);
+    bool            setPointAt(EPointAtType target_type, LLViewerObject *object = NULL, LLVector3 position = LLVector3::zero);
     EPointAtType    getPointAtType();
 public:
     LLPointer<LLHUDEffectLookAt> mLookAt;
@@ -295,7 +295,7 @@ public:
     //--------------------------------------------------------------------
 public:
     // Called whenever the agent moves.  Puts camera back in default position, deselects items, etc.
-    void            resetView(BOOL reset_camera = TRUE, BOOL change_camera = FALSE);
+    void            resetView(bool reset_camera = true, bool change_camera = false);
     // Called on camera movement.  Unlocks camera from the default position behind the avatar.
     void            unlockView();
 public:
@@ -305,10 +305,10 @@ public:
     // Mouselook
     //--------------------------------------------------------------------
 public:
-    BOOL            getForceMouselook() const           { return mForceMouselook; }
-    void            setForceMouselook(BOOL mouselook)   { mForceMouselook = mouselook; }
+    bool            getForceMouselook() const           { return mForceMouselook; }
+    void            setForceMouselook(bool mouselook)   { mForceMouselook = mouselook; }
 private:
-    BOOL            mForceMouselook;
+    bool            mForceMouselook;
 
     //--------------------------------------------------------------------
     // HUD

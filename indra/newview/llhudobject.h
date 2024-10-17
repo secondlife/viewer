@@ -58,7 +58,7 @@ public:
     void setPositionGlobal(const LLVector3d &position_global);
     void setPositionAgent(const LLVector3 &position_agent);
 
-    BOOL isVisible() const { return mVisible; }
+    bool isVisible() const { return mVisible; }
 
     U8 getType() const { return mType; }
 
@@ -110,8 +110,8 @@ protected:
 
 protected:
     U8              mType;
-    BOOL            mDead;
-    BOOL            mVisible;
+    bool            mDead;
+    bool            mVisible;
     LLVector3d      mPositionGlobal;
     LLPointer<LLViewerObject> mSourceObject;
     LLPointer<LLViewerObject> mTargetObject;

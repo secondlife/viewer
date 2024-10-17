@@ -63,7 +63,7 @@ void LLUIColorTable::insertFromParams(const Params& p, string_color_map_t& table
         ColorEntryParams color_entry = *it;
         if(color_entry.color.value.isChosen())
         {
-            setColor(color_entry.name, color_entry.color.value, table);
+            setColor(color_entry.name(), color_entry.color.value, table);
         }
         else
         {
@@ -176,7 +176,7 @@ void LLUIColorTable::clear()
     clearTable(mUserSetColors);
 }
 
-LLUIColor LLUIColorTable::getColor(const std::string& name, const LLColor4& default_color) const
+LLUIColor LLUIColorTable::getColor(std::string_view name, const LLColor4& default_color) const
 {
     string_color_map_t::const_iterator iter = mUserSetColors.find(name);
 
@@ -196,9 +196,63 @@ LLUIColor LLUIColorTable::getColor(const std::string& name, const LLColor4& defa
 }
 
 // update user color, loaded colors are parsed on initialization
-void LLUIColorTable::setColor(const std::string& name, const LLColor4& color)
+void LLUIColorTable::setColor(std::string_view name, const LLColor4& color)
 {
-    setColor(name, color, mUserSetColors);
+    auto it = mUserSetColors.lower_bound(name);
+    if(it != mUserSetColors.end() && !(mUserSetColors.key_comp()(name, it->first)))
+    {
+        it->second = color;
+    }
+    else
+    {
+        string_color_map_t::iterator base_iter = mLoadedColors.find(name);
+        if (base_iter != mLoadedColors.end())
+        {
+            LLColor4 original_color = base_iter->second.get();
+            auto color_handle = mLoadedColors.extract(base_iter);
+            auto new_color_pair = mUserSetColors.insert(std::move(color_handle));
+            new_color_pair.position->second = color;
+            mLoadedColors.emplace(name, LLUIColor(original_color));
+        }
+        else
+        {
+            mUserSetColors.insert(it, std::make_pair(name, color));
+        }
+    }
+}
+
+bool LLUIColorTable::isDefault(std::string_view name) const
+{
+    string_color_map_t::const_iterator base_iter = mLoadedColors.find(name);
+    string_color_map_t::const_iterator user_iter = mUserSetColors.find(name);
+    if (base_iter != mLoadedColors.end())
+    {
+        if(user_iter != mUserSetColors.end())
+            return user_iter->second == base_iter->second;
+
+        return true;
+    }
+    else if (user_iter != mUserSetColors.end()) // user only color ???
+    {
+        return true;
+    }
+
+    return false;
+}
+
+void LLUIColorTable::resetToDefault(std::string_view name)
+{
+    string_color_map_t::iterator iter = mUserSetColors.find(name);
+
+    if (iter != mUserSetColors.end())
+    {
+        auto default_iter = mLoadedColors.find(name);
+
+        if (default_iter != mLoadedColors.end())
+        {
+            iter->second = default_iter->second.get();
+        }
+    }
 }
 
 bool LLUIColorTable::loadFromSettings()
@@ -223,18 +277,16 @@ void LLUIColorTable::saveUserSettings() const
 {
     Params params;
 
-    for(string_color_map_t::const_iterator it = mUserSetColors.begin();
-        it != mUserSetColors.end();
-        ++it)
+    for (const auto& color_pair : mUserSetColors)
     {
         // Compare user color value with the default value, skip if equal
-        string_color_map_t::const_iterator itd = mLoadedColors.find(it->first);
-        if(itd != mLoadedColors.end() && itd->second == it->second)
+        string_color_map_t::const_iterator itd = mLoadedColors.find(color_pair.first);
+        if(itd != mLoadedColors.end() && itd->second == color_pair.second)
             continue;
 
         ColorEntryParams color_entry;
-        color_entry.name = it->first;
-        color_entry.color.value = it->second;
+        color_entry.name = color_pair.first;
+        color_entry.color.value = color_pair.second;
 
         params.color_entries.add(color_entry);
     }
@@ -258,7 +310,7 @@ void LLUIColorTable::saveUserSettings() const
     }
 }
 
-bool LLUIColorTable::colorExists(const std::string& color_name) const
+bool LLUIColorTable::colorExists(std::string_view color_name) const
 {
     return ((mLoadedColors.find(color_name) != mLoadedColors.end())
          || (mUserSetColors.find(color_name) != mUserSetColors.end()));
@@ -276,7 +328,7 @@ void LLUIColorTable::clearTable(string_color_map_t& table)
 
 // this method inserts a color into the table if it does not exist
 // if the color already exists it changes the color
-void LLUIColorTable::setColor(const std::string& name, const LLColor4& color, string_color_map_t& table)
+void LLUIColorTable::setColor(std::string_view name, const LLColor4& color, string_color_map_t& table)
 {
     string_color_map_t::iterator it = table.lower_bound(name);
     if(it != table.end()

@@ -45,7 +45,7 @@ static LLDefaultChildRegistry::Register<LLCheckBoxCtrl> r("check_box");
 
 // Compiler optimization, generate extern template
 template class LLCheckBoxCtrl* LLView::getChild<class LLCheckBoxCtrl>(
-    const std::string& name, BOOL recurse) const;
+    std::string_view name, bool recurse) const;
 
 void LLCheckBoxCtrl::WordWrap::declareValues()
 {
@@ -77,7 +77,7 @@ LLCheckBoxCtrl::LLCheckBoxCtrl(const LLCheckBoxCtrl::Params& p)
     static LLUICachedControl<S32> llcheckboxctrl_vpad ("UICheckboxctrlVPad", 0);
 
     // must be big enough to hold all children
-    setUseBoundingRect(TRUE);
+    setUseBoundingRect(true);
 
     // *HACK Get rid of this with SL-55508...
     // this allows blank check boxes and radio boxes for now
@@ -160,32 +160,32 @@ void LLCheckBoxCtrl::onCommit()
 {
     if( getEnabled() )
     {
-        setTentative(FALSE);
+        setTentative(false);
         setControlValue(getValue());
         LLUICtrl::onCommit();
     }
 }
 
-void LLCheckBoxCtrl::setEnabled(BOOL b)
+void LLCheckBoxCtrl::setEnabled(bool b)
 {
     LLView::setEnabled(b);
 
     if (b)
     {
-        mLabel->setColor( mTextEnabledColor.get() );
+        mLabel->setColor( mTextEnabledColor );
     }
     else
     {
-        mLabel->setColor( mTextDisabledColor.get() );
+        mLabel->setColor( mTextDisabledColor );
     }
 }
 
 void LLCheckBoxCtrl::clear()
 {
-    setValue( FALSE );
+    setValue( false );
 }
 
-void LLCheckBoxCtrl::reshape(S32 width, S32 height, BOOL called_from_parent)
+void LLCheckBoxCtrl::reshape(S32 width, S32 height, bool called_from_parent)
 {
     LLRect rect = getRect();
     S32 delta_width = width - rect.getWidth();
@@ -205,10 +205,10 @@ void LLCheckBoxCtrl::reshape(S32 width, S32 height, BOOL called_from_parent)
 
     LLRect label_rect = mLabel->getRect();
     S32 new_width = rect.getWidth() - label_rect.mLeft;
-    mLabel->reshape(new_width, label_rect.getHeight(), TRUE);
+    mLabel->reshape(new_width, label_rect.getHeight(), true);
 
     S32 label_top = label_rect.mTop;
-    mLabel->reshapeToFitText(TRUE);
+    mLabel->reshapeToFitText(true);
 
     label_rect = mLabel->getRect();
     if (label_top != label_rect.mTop && mWordWrap == WRAP_DOWN)
@@ -247,13 +247,13 @@ LLSD LLCheckBoxCtrl::getValue() const
 }
 
 //virtual
-void LLCheckBoxCtrl::setTentative(BOOL b)
+void LLCheckBoxCtrl::setTentative(bool b)
 {
     mButton->setTentative(b);
 }
 
 //virtual
-BOOL LLCheckBoxCtrl::getTentative() const
+bool LLCheckBoxCtrl::getTentative() const
 {
     return mButton->getTentative();
 }
@@ -261,7 +261,7 @@ BOOL LLCheckBoxCtrl::getTentative() const
 void LLCheckBoxCtrl::setLabel( const LLStringExplicit& label )
 {
     mLabel->setText( label );
-    reshape(getRect().getWidth(), getRect().getHeight(), FALSE);
+    reshape(getRect().getWidth(), getRect().getHeight(), false);
 }
 
 std::string LLCheckBoxCtrl::getLabel() const
@@ -269,10 +269,10 @@ std::string LLCheckBoxCtrl::getLabel() const
     return mLabel->getText();
 }
 
-BOOL LLCheckBoxCtrl::setLabelArg( const std::string& key, const LLStringExplicit& text )
+bool LLCheckBoxCtrl::setLabelArg( const std::string& key, const LLStringExplicit& text )
 {
-    BOOL res = mLabel->setTextArg(key, text);
-    reshape(getRect().getWidth(), getRect().getHeight(), FALSE);
+    bool res = mLabel->setTextArg(key, text);
+    reshape(getRect().getWidth(), getRect().getHeight(), false);
     return res;
 }
 
@@ -283,14 +283,14 @@ void LLCheckBoxCtrl::setControlName(const std::string& control_name, LLView* con
 }
 
 
-// virtual      Returns TRUE if the user has modified this control.
-BOOL     LLCheckBoxCtrl::isDirty() const
+// virtual      Returns true if the user has modified this control.
+bool     LLCheckBoxCtrl::isDirty() const
 {
     if ( mButton )
     {
         return mButton->isDirty();
     }
-    return FALSE;       // Shouldn't get here
+    return false;       // Shouldn't get here
 }
 
 

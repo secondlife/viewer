@@ -69,7 +69,7 @@ protected:
         // Hide the "Create new <WEARABLE_TYPE>" if it's irrelevant.
         if (w_type == LLWearableType::WT_NONE)
         {
-            menu_item->setVisible(FALSE);
+            menu_item->setVisible(false);
             return;
         }
 
@@ -138,7 +138,7 @@ protected:
 
     /*virtual*/ LLContextMenu* createMenu()
     {
-        LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+        LLUICtrl::ScopedRegistrarHelper registrar;
 
         registrar.add("Attachment.Touch", boost::bind(handleMultiple, handle_attachment_touch, mUUIDs));
         registrar.add("Attachment.Edit", boost::bind(handleMultiple, handle_item_edit, mUUIDs));
@@ -191,7 +191,7 @@ protected:
 
     /*virtual*/ LLContextMenu* createMenu()
     {
-        LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+        LLUICtrl::ScopedRegistrarHelper registrar;
         LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
         LLUUID selected_id = mUUIDs.back();
 
@@ -251,9 +251,9 @@ protected:
         LLUUID selected_id = mUUIDs.back();
 
         LLPanelOutfitEdit* panel_oe = dynamic_cast<LLPanelOutfitEdit*>(LLFloaterSidePanelContainer::getPanel("appearance", "panel_outfit_edit"));
-        registrar.add("BodyPart.Replace", boost::bind(&LLPanelOutfitEdit::onReplaceMenuItemClicked, panel_oe, selected_id));
-        registrar.add("BodyPart.Edit", boost::bind(LLAgentWearables::editWearable, selected_id));
-        registrar.add("BodyPart.Create", boost::bind(&CofBodyPartContextMenu::createNew, this, selected_id));
+        registrar.add("BodyPart.Replace", { boost::bind(&LLPanelOutfitEdit::onReplaceMenuItemClicked, panel_oe, selected_id) });
+        registrar.add("BodyPart.Edit", { boost::bind(LLAgentWearables::editWearable, selected_id) });
+        registrar.add("BodyPart.Create", { boost::bind(&CofBodyPartContextMenu::createNew, this, selected_id) });
 
         enable_registrar.add("BodyPart.OnEnable", boost::bind(&CofBodyPartContextMenu::onEnable, this, _2));
 
@@ -307,7 +307,7 @@ LLCOFWearables::~LLCOFWearables()
 }
 
 // virtual
-BOOL LLCOFWearables::postBuild()
+bool LLCOFWearables::postBuild()
 {
     mAttachments = getChild<LLFlatListView>("list_attachments");
     mClothing = getChild<LLFlatListView>("list_clothing");
@@ -618,13 +618,13 @@ void LLCOFWearables::populateClothingList(LLAppearanceMgr::wearables_by_type_t& 
 
     for (U32 type = LLWearableType::WT_SHIRT; type < LLWearableType::WT_COUNT; ++type)
     {
-        U32 size = clothing_by_type[type].size();
+        auto size = clothing_by_type[type].size();
         if (!size) continue;
 
         LLAppearanceMgr::sortItemsByActualDescription(clothing_by_type[type]);
 
         //clothing items are displayed in reverse order, from furthest ones to closest ones (relatively to the body)
-        for (U32 i = size; i != 0; --i)
+        for (size_t i = size; i != 0; --i)
         {
             LLViewerInventoryItem* item = clothing_by_type[type][i-1];
 
@@ -647,8 +647,8 @@ void LLCOFWearables::addClothingTypesDummies(const LLAppearanceMgr::wearables_by
 
     for (U32 type = LLWearableType::WT_SHIRT; type < LLWearableType::WT_COUNT; type++)
     {
-        U32 size = clothing_by_type[type].size();
-        if (size) continue;
+        if (clothing_by_type[type].empty())
+            continue;
 
         LLWearableType::EType w_type = static_cast<LLWearableType::EType>(type);
         LLPanelInventoryListItemBase* item_panel = LLPanelDummyClothingListItem::create(w_type);

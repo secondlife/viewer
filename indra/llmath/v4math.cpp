@@ -26,7 +26,6 @@
 
 #include "linden_common.h"
 
-//#include "vmath.h"
 #include "v3math.h"
 #include "v4math.h"
 #include "m4math.h"
@@ -36,35 +35,13 @@
 // LLVector4
 
 // Axis-Angle rotations
-
-/*
-const LLVector4&    LLVector4::rotVec(F32 angle, const LLVector4 &vec)
-{
-    if ( !vec.isExactlyZero() && angle )
-    {
-        *this = *this * LLMatrix4(angle, vec);
-    }
-    return *this;
-}
-
-const LLVector4&    LLVector4::rotVec(F32 angle, F32 x, F32 y, F32 z)
-{
-    LLVector3 vec(x, y, z);
-    if ( !vec.isExactlyZero() && angle )
-    {
-        *this = *this * LLMatrix4(angle, vec);
-    }
-    return *this;
-}
-*/
-
-const LLVector4&    LLVector4::rotVec(const LLMatrix4 &mat)
+const LLVector4&    LLVector4::rotVec(const LLMatrix4& mat)
 {
     *this = *this * mat;
     return *this;
 }
 
-const LLVector4&    LLVector4::rotVec(const LLQuaternion &q)
+const LLVector4&    LLVector4::rotVec(const LLQuaternion& q)
 {
     *this = *this * q;
     return *this;
@@ -81,21 +58,21 @@ const LLVector4&    LLVector4::scaleVec(const LLVector4& vec)
 }
 
 // Sets all values to absolute value of their original values
-// Returns TRUE if data changed
-BOOL LLVector4::abs()
+// Returns true if data changed
+bool LLVector4::abs()
 {
-    BOOL ret = FALSE;
+    bool ret{ false };
 
-    if (mV[0] < 0.f) { mV[0] = -mV[0]; ret = TRUE; }
-    if (mV[1] < 0.f) { mV[1] = -mV[1]; ret = TRUE; }
-    if (mV[2] < 0.f) { mV[2] = -mV[2]; ret = TRUE; }
-    if (mV[3] < 0.f) { mV[3] = -mV[3]; ret = TRUE; }
+    if (mV[VX] < 0.f) { mV[VX] = -mV[VX]; ret = true; }
+    if (mV[VY] < 0.f) { mV[VY] = -mV[VY]; ret = true; }
+    if (mV[VZ] < 0.f) { mV[VZ] = -mV[VZ]; ret = true; }
+    if (mV[VW] < 0.f) { mV[VW] = -mV[VW]; ret = true; }
 
     return ret;
 }
 
 
-std::ostream& operator<<(std::ostream& s, const LLVector4 &a)
+std::ostream& operator<<(std::ostream& s, const LLVector4& a)
 {
     s << "{ " << a.mV[VX] << ", " << a.mV[VY] << ", " << a.mV[VZ] << ", " << a.mV[VW] << " }";
     return s;
@@ -117,7 +94,7 @@ F32 angle_between( const LLVector4& a, const LLVector4& b )
     return angle;
 }
 
-BOOL are_parallel(const LLVector4 &a, const LLVector4 &b, F32 epsilon)
+bool are_parallel(const LLVector4 &a, const LLVector4 &b, F32 epsilon)
 {
     LLVector4 an = a;
     LLVector4 bn = b;
@@ -125,17 +102,17 @@ BOOL are_parallel(const LLVector4 &a, const LLVector4 &b, F32 epsilon)
     bn.normalize();
     F32 dot = an * bn;
     if ( (1.0f - fabs(dot)) < epsilon)
-        return TRUE;
-    return FALSE;
+        return true;
+    return false;
 }
 
 
-LLVector3 vec4to3(const LLVector4 &vec)
+LLVector3 vec4to3(const LLVector4& vec)
 {
     return LLVector3( vec.mV[VX], vec.mV[VY], vec.mV[VZ] );
 }
 
-LLVector4 vec3to4(const LLVector3 &vec)
+LLVector4 vec3to4(const LLVector3& vec)
 {
     return LLVector4(vec.mV[VX], vec.mV[VY], vec.mV[VZ]);
 }

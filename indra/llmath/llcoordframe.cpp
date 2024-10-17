@@ -26,7 +26,6 @@
 
 #include "linden_common.h"
 
-//#include "vmath.h"
 #include "v3math.h"
 #include "m3math.h"
 #include "v4math.h"
@@ -332,9 +331,9 @@ void LLCoordFrame::rotate(const LLMatrix3 &rotation_matrix)
 // Rotate 2 normalized orthogonal vectors in direction from `source` to `target`
 static void rotate2(LLVector3& source, LLVector3& target, F32 angle)
 {
-    double sx = source[VX], sy = source[VY], sz = source[VZ];
-    double tx = target[VX], ty = target[VY], tz = target[VZ];
-    double c = cos(angle), s = sin(angle);
+    F32 sx = source[VX], sy = source[VY], sz = source[VZ];
+    F32 tx = target[VX], ty = target[VY], tz = target[VZ];
+    F32 c = cos(angle), s = sin(angle);
 
     source.set(sx * c + tx * s, sy * c + ty * s, sz * c + tz * s);
     target.set(tx * c - sx * s, ty * c - sy * s, tz * c - sz * s);

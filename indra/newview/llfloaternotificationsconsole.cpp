@@ -42,7 +42,7 @@ class LLNotificationChannelPanel : public LLLayoutPanel
 public:
     LLNotificationChannelPanel(const Params& p);
     ~LLNotificationChannelPanel();
-    BOOL postBuild();
+    bool postBuild();
 
 private:
     bool update(const LLSD& payload);
@@ -72,7 +72,7 @@ LLNotificationChannelPanel::~LLNotificationChannelPanel()
     }
 }
 
-BOOL LLNotificationChannelPanel::postBuild()
+bool LLNotificationChannelPanel::postBuild()
 {
     LLButton* header_button = getChild<LLButton>("header");
     header_button->setLabel(mChannelPtr->getName());
@@ -83,7 +83,7 @@ BOOL LLNotificationChannelPanel::postBuild()
     LLScrollListCtrl* scroll = getChild<LLScrollListCtrl>("notifications_list");
     scroll->setDoubleClickCallback(onClickNotification, this);
     scroll->setRect(LLRect( getRect().mLeft, getRect().mTop, getRect().mRight, 0));
-    return TRUE;
+    return true;
 }
 
 //static
@@ -117,7 +117,7 @@ void LLNotificationChannelPanel::onClickNotification(void* user_data)
         void* data = firstselected->getUserdata();
         if (data)
         {
-            gFloaterView->getParentFloater(self)->addDependentFloater(new LLFloaterNotification((LLNotification*)data), TRUE);
+            gFloaterView->getParentFloater(self)->addDependentFloater(new LLFloaterNotification((LLNotification*)data), true);
         }
     }
 }
@@ -151,10 +151,10 @@ bool LLNotificationChannelPanel::update(const LLSD& payload)
 LLFloaterNotificationConsole::LLFloaterNotificationConsole(const LLSD& key)
 : LLFloater(key)
 {
-    mCommitCallbackRegistrar.add("ClickAdd",     boost::bind(&LLFloaterNotificationConsole::onClickAdd, this));
+    mCommitCallbackRegistrar.add("ClickAdd", { boost::bind(&LLFloaterNotificationConsole::onClickAdd, this) });
 }
 
-BOOL LLFloaterNotificationConsole::postBuild()
+bool LLFloaterNotificationConsole::postBuild()
 {
     // these are in the order of processing
     addChannel("Unexpired");
@@ -181,7 +181,7 @@ BOOL LLFloaterNotificationConsole::postBuild()
     }
     notifications->sortByName();
 
-    return TRUE;
+    return true;
 }
 
 void LLFloaterNotificationConsole::addChannel(const std::string& name, bool open)
@@ -240,7 +240,7 @@ LLFloaterNotification::LLFloaterNotification(LLNotification* note)
     buildFromFile("floater_notification.xml");
 }
 
-BOOL LLFloaterNotification::postBuild()
+bool LLFloaterNotification::postBuild()
 {
     setTitle(mNote->getName());
     getChild<LLUICtrl>("payload")->setValue(mNote->getMessage());
@@ -250,7 +250,7 @@ BOOL LLFloaterNotification::postBuild()
     LLNotificationFormPtr form(mNote->getForm());
     if(!form)
     {
-        return TRUE;
+        return true;
     }
 
     responses_combo->setCommitCallback(onCommitResponse, this);
@@ -264,7 +264,7 @@ BOOL LLFloaterNotification::postBuild()
         response_list->addSimpleElement(text);
     }
 
-    return TRUE;
+    return true;
 }
 
 void LLFloaterNotification::respond()

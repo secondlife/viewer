@@ -128,8 +128,10 @@ public:
 
         AT_SETTINGS = 56,   // Collection of settings
         AT_MATERIAL = 57,   // Render Material
+        AT_GLTF = 58,   // gltf json document
+        AT_GLTF_BIN = 59, // gltf binary data
 
-        AT_COUNT = 58,
+        AT_COUNT = 60,
 
             // +*********************************************************+
             // |  TO ADD AN ELEMENT TO THIS ENUM:                        |
@@ -162,6 +164,8 @@ public:
 
     static bool                 lookupIsAssetFetchByIDAllowed(EType asset_type); // the asset allows direct download
     static bool                 lookupIsAssetIDKnowable(EType asset_type); // asset data can be known by the viewer
+
+    static LLSD getTypeNames();
 
     static const std::string    BADLOOKUP;
 

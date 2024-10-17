@@ -1,40 +1,37 @@
-/** 
+/**
  * @file class3\deferred\spotLightF.glsl
  *
  * $LicenseInfo:firstyear=2022&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2022, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
+
 /*[EXTRA_CODE_HERE]*/
 
 out vec4 frag_color;
 
 uniform sampler2D diffuseRect;
 uniform sampler2D specularRect;
-uniform sampler2D depthMap;
-uniform sampler2D normalMap;
 uniform sampler2D emissiveRect; // PBR linear packed Occlusion, Roughness, Metal. See: pbropaqueF.glsl
 uniform samplerCube environmentMap;
 uniform sampler2D lightMap;
-uniform sampler2D projectionMap; // rgba
 uniform sampler2D lightFunc;
 
 uniform mat4 proj_mat; //screen space to light space
@@ -50,7 +47,6 @@ uniform float near_clip;
 uniform float far_clip;
 
 uniform vec3 proj_origin; //origin of projection to be used for angular attenuation
-uniform float sun_wash;
 uniform int proj_shadow_idx;
 uniform float shadow_fade;
 
@@ -83,8 +79,8 @@ vec4 getPosition(vec2 pos_screen);
 
 const float M_PI = 3.14159265;
 
-vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor, 
-                    float perceptualRoughness, 
+vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor,
+                    float perceptualRoughness,
                     float metallic,
                     vec3 n, // normal
                     vec3 v, // surface point to camera
@@ -112,13 +108,13 @@ void main()
     }
 
     float shadow = 1.0;
-    
+
     if (proj_shadow_idx >= 0)
     {
         vec4 shd = texture(lightMap, tc);
         shadow = (proj_shadow_idx==0)?shd.b:shd.a;
         shadow += shadow_fade;
-        shadow = clamp(shadow, 0.0, 1.0);        
+        shadow = clamp(shadow, 0.0, 1.0);
     }
 
     vec4 norm = getNorm(tc);
@@ -149,7 +145,7 @@ void main()
         float metallic = orm.b;
         vec3 f0 = vec3(0.04);
         vec3 baseColor = diffuse.rgb;
-        
+
         vec3 diffuseColor = baseColor.rgb*(vec3(1.0)-f0);
         diffuseColor *= 1.0 - metallic;
 
@@ -167,7 +163,7 @@ void main()
             if (nl > 0.0)
             {
                 amb_da += (nl*0.5 + 0.5) * proj_ambiance;
-                
+
                 dlit = getProjectedLightDiffuseColor( l_dist, proj_tc.xy );
 
                 vec3 intensity = dist_atten * dlit * 3.25 * shadow; // Legacy attenuation, magic number to balance with legacy materials
@@ -205,11 +201,11 @@ void main()
                 // unshadowed for consistency between forward and deferred?
                 amb_da += (nl*0.5+0.5) /* * (1.0-shadow) */ * proj_ambiance;
             }
-        
+
             amb_rgb = getProjectedLightAmbiance( amb_da, dist_atten, lit, nl, 1.0, proj_tc.xy );
             final_color += diffuse.rgb * amb_rgb * max(dot(-normalize(lv), n), 0.0);
         }
-    
+
         if (spec.a > 0.0)
         {
             dlit *= min(nl*6.0, 1.0) * dist_atten;
@@ -218,7 +214,7 @@ void main()
 
             float gtdenom = 2 * nh;
             float gt = max(0, min(gtdenom * nv / vh, gtdenom * nl / vh));
-                                
+
             if (nh > 0.0)
             {
                 float scol = fres*texture(lightFunc, vec2(nh, spec.a)).r*gt/(nh*nl);
@@ -226,26 +222,26 @@ void main()
                 speccol = clamp(speccol, vec3(0), vec3(1));
                 final_color += speccol;
             }
-        }   
+        }
 
         if (envIntensity > 0.0)
         {
             vec3 ref = reflect(normalize(pos), n);
-        
+
             //project from point pos in direction ref to plane proj_p, proj_n
             vec3 pdelta = proj_p-pos;
             float ds = dot(ref, proj_n);
-        
+
             if (ds < 0.0)
             {
                 vec3 pfinal = pos + ref * dot(pdelta, proj_n)/ds;
-            
+
                 vec4 stc = (proj_mat * vec4(pfinal.xyz, 1.0));
 
                 if (stc.z > 0.0)
                 {
                     stc /= stc.w;
-                                
+
                     if (stc.x < 1.0 &&
                         stc.y < 1.0 &&
                         stc.x > 0.0 &&

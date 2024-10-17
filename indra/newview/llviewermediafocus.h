@@ -55,11 +55,11 @@ public:
     void clearHover();
 
     bool    getFocus();
-    /*virtual*/ BOOL    handleKey(KEY key, MASK mask, BOOL called_from_parent) override;
-    /*virtual*/ BOOL    handleKeyUp(KEY key, MASK mask, BOOL called_from_parent) override;
-    /*virtual*/ BOOL    handleUnicodeChar(llwchar uni_char, BOOL called_from_parent) override;
-    BOOL handleScrollWheel(const LLVector2& texture_coords, S32 clicks_x, S32 clicks_y);
-    BOOL handleScrollWheel(S32 x, S32 y, S32 clicks_x, S32 clicks_y);
+    /*virtual*/ bool    handleKey(KEY key, MASK mask, bool called_from_parent) override;
+    /*virtual*/ bool    handleKeyUp(KEY key, MASK mask, bool called_from_parent) override;
+    /*virtual*/ bool    handleUnicodeChar(llwchar uni_char, bool called_from_parent) override;
+    bool handleScrollWheel(const LLVector2& texture_coords, S32 clicks_x, S32 clicks_y);
+    bool handleScrollWheel(S32 x, S32 y, S32 clicks_x, S32 clicks_y);
 
     void update();
 

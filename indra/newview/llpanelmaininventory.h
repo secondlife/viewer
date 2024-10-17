@@ -49,6 +49,8 @@ class LLSidepanelInventory;
 class LLToggleableMenu;
 class LLFloater;
 class LLFloaterSidePanelContainer;
+class LLSidepanelInventory;
+class LLPanelMarketplaceInbox;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLPanelMainInventory
@@ -65,7 +67,7 @@ public:
     LLPanelMainInventory(const LLPanel::Params& p = getDefaultParams());
     ~LLPanelMainInventory();
 
-    BOOL postBuild();
+    bool postBuild();
 
     enum EViewModeType
     {
@@ -74,17 +76,17 @@ public:
         MODE_COMBINATION
     };
 
-    virtual BOOL handleKeyHere(KEY key, MASK mask);
+    virtual bool handleKeyHere(KEY key, MASK mask);
 
     // Inherited functionality
-    /*virtual*/ BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+    /*virtual*/ bool handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
                                        EDragAndDropType cargo_type,
                                        void* cargo_data,
                                        EAcceptance* accept,
                                        std::string& tooltip_msg);
     /*virtual*/ void changed(U32);
     /*virtual*/ void draw();
-    /*virtual*/ void    onVisibilityChange ( BOOL new_visibility );
+    /*virtual*/ void    onVisibilityChange ( bool new_visibility );
 
     LLInventoryPanel* getPanel() { return mActivePanel; }
     LLInventoryPanel* getActivePanel() { return mActivePanel; }
@@ -101,7 +103,7 @@ public:
 
     void onFilterEdit(const std::string& search_string );
 
-    void setFocusFilterEditor();
+    void setFocusOnFilterEditor();
 
     static LLFloaterSidePanelContainer* newWindow();
     static void newFolderWindow(LLUUID folder_id = LLUUID(), LLUUID item_to_select = LLUUID());
@@ -137,6 +139,9 @@ public:
 
     LLInventoryFilter& getCurrentFilter();
 
+    void setParentSidepanel(LLSidepanelInventory* parent_sidepanel) { mParentSidepanel = parent_sidepanel; }
+    void setInboxPanel(LLPanelMarketplaceInbox* inbox_panel) { mInboxPanel = inbox_panel; }
+
 protected:
     //
     // Misc functions
@@ -144,14 +149,14 @@ protected:
     void setFilterTextFromFilter();
     void startSearch();
 
-    void onSelectionChange(LLInventoryPanel *panel, const std::deque<LLFolderViewItem*>& items, BOOL user_action);
+    void onSelectionChange(LLInventoryPanel *panel, const std::deque<LLFolderViewItem*>& items, bool user_action);
 
-    static BOOL filtersVisible(void* user_data);
+    static bool filtersVisible(void* user_data);
     void onClearSearch();
     static void onFoldersByName(void *user_data);
-    static BOOL checkFoldersByName(void *user_data);
+    static bool checkFoldersByName(void *user_data);
 
-    static BOOL incrementalFind(LLFolderViewItem* first_item, const char *find_text, BOOL backward);
+    static bool incrementalFind(LLFolderViewItem* first_item, const char *find_text, bool backward);
     void onFilterSelected();
 
     const std::string getFilterSubString();
@@ -177,6 +182,13 @@ protected:
     LLSidepanelInventory* getParentSidepanelInventory();
 
 private:
+    enum class EFetchState
+    {
+        Unknown,
+        Fetching,
+        Complete
+    };
+
     LLFloaterInventoryFinder* getFinder();
 
     LLFilterEditor*             mFilterEditor;
@@ -184,16 +196,20 @@ private:
     LLUICtrl*                   mCounterCtrl;
     LLHandle<LLFloater>         mFinderHandle;
     LLInventoryPanel*           mActivePanel;
-    LLInventoryPanel*           mWornItemsPanel;
+    LLInventoryPanel*           mAllItemsPanel = nullptr;
+    LLInventoryPanel*           mRecentPanel = nullptr;
+    LLInventoryPanel*           mWornItemsPanel = nullptr;
     bool                        mResortActivePanel;
     LLSaveFolderState*          mSavedFolderState;
     std::string                 mFilterText;
     std::string                 mFilterSubString;
-    S32                         mItemCount;
+    S32                         mItemCount = 0;
+    std::string                 mLastFilterText;
     std::string                 mItemCountString;
-    S32                         mCategoryCount;
+    S32                         mCategoryCount = 0;
     std::string                 mCategoryCountString;
     LLComboBox*                 mSearchTypeCombo;
+    EFetchState                 mLastFetchState{ EFetchState::Unknown };
 
     LLButton* mBackBtn;
     LLButton* mForwardBtn;
@@ -224,8 +240,8 @@ protected:
     void onAddButtonClick();
     void showActionMenu(LLMenuGL* menu, std::string spawning_view_name);
     void onClipboardAction(const LLSD& userdata);
-    BOOL isActionEnabled(const LLSD& command_name);
-    BOOL isActionChecked(const LLSD& userdata);
+    bool isActionEnabled(const LLSD& command_name);
+    bool isActionChecked(const LLSD& userdata);
     void onCustomAction(const LLSD& command_name);
     bool isActionVisible(const LLSD& userdata);
     static bool hasSettingsInventory();
@@ -235,13 +251,16 @@ protected:
 
     void onCombinationRootChanged(bool gallery_clicked);
     void onCombinationGallerySelectionChanged(const LLUUID& category_id);
-    void onCombinationInventorySelectionChanged(const std::deque<LLFolderViewItem*>& items, BOOL user_action);
+    void onCombinationInventorySelectionChanged(const std::deque<LLFolderViewItem*>& items, bool user_action);
     /**
      * Set upload cost in "Upload" sub menu.
      */
     void setUploadCostIfNeeded();
     void disableAddIfNeeded();
 private:
+    LLSidepanelInventory*       mParentSidepanel = nullptr;
+    LLPanelMarketplaceInbox*    mInboxPanel = nullptr;
+
     LLToggleableMenu*           mMenuGearDefault;
     LLToggleableMenu*           mMenuViewDefault;
     LLToggleableMenu*           mMenuVisibility;

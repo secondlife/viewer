@@ -313,7 +313,6 @@
   <color_swatch
    can_apply_immediately="true"
    color="0 0 0 1"
-   control_name="NameTagBackground"
    follows="left|top"
    height="24"
    label_height="0"

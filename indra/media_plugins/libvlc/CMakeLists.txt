@@ -13,13 +13,6 @@ include(LibVLCPlugin)
 
 ### media_plugin_libvlc
 
-if(NOT ADDRESS_SIZE EQUAL 32)
-  if(WINDOWS)
-    ##add_definitions(/FIXED:NO)
-  else(WINDOWS) # not windows therefore gcc LINUX and DARWIN
-    add_definitions(-fPIC)
-  endif(WINDOWS)
-endif(NOT ADDRESS_SIZE EQUAL 32)
 
 set(media_plugin_libvlc_SOURCE_FILES
     media_plugin_libvlc.cpp
@@ -39,7 +32,7 @@ if (WINDOWS)
   set_target_properties(
     media_plugin_libvlc
     PROPERTIES
-    LINK_FLAGS "/MANIFEST:NO /SAFESEH:NO /NODEFAULTLIB:LIBCMT"
+    LINK_FLAGS "/MANIFEST:NO /NODEFAULTLIB:LIBCMT"
     )
 endif (WINDOWS)
 

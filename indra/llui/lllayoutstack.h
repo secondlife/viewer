@@ -71,12 +71,9 @@ public:
     /*virtual*/ void draw();
     /*virtual*/ void deleteAllChildren();
     /*virtual*/ void removeChild(LLView*);
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
     /*virtual*/ bool addChild(LLView* child, S32 tab_group = 0);
-    /*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
-
-
-    static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr output_node = NULL);
+    /*virtual*/ void reshape(S32 width, S32 height, bool called_from_parent = true);
 
     typedef enum e_animate
     {
@@ -85,8 +82,8 @@ public:
     } EAnimate;
 
     void addPanel(LLLayoutPanel* panel, EAnimate animate = NO_ANIMATE);
-    void collapsePanel(LLPanel* panel, BOOL collapsed = TRUE);
-    S32 getNumPanels() { return mPanels.size(); }
+    void collapsePanel(LLPanel* panel, bool collapsed = true);
+    S32 getNumPanels() const { return static_cast<S32>(mPanels.size()); }
 
     void updateLayout();
 
@@ -111,7 +108,7 @@ private:
     e_panel_list_t mPanels;
 
     LLLayoutPanel* findEmbeddedPanel(LLPanel* panelp) const;
-    LLLayoutPanel* findEmbeddedPanelByName(const std::string& name) const;
+    LLLayoutPanel* findEmbeddedPanelByName(std::string_view name) const;
     void updateFractionalSizes();
     void normalizeFractionalSizes();
     void updatePanelRect( LLLayoutPanel* param1, const LLRect& new_rect );
@@ -156,10 +153,10 @@ public:
 
     void handleReshape(const LLRect& new_rect, bool by_user);
 
-    void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
+    void reshape(S32 width, S32 height, bool called_from_parent = true);
 
 
-    void setVisible(BOOL visible);
+    void setVisible(bool visible);
 
     S32 getLayoutDim() const;
     S32 getTargetDim() const;
@@ -190,7 +187,6 @@ public:
     bool isCollapsed() const { return mCollapsed;}
 
     void setOrientation(LLView::EOrientation orientation);
-    void storeOriginalDim();
 
     void setIgnoreReshape(bool ignore) { mIgnoreReshape = ignore; }
 

@@ -69,17 +69,17 @@ public:
     LLFloaterModelPreview(const LLSD& key);
     virtual ~LLFloaterModelPreview();
 
-    virtual BOOL postBuild();
-    /*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
+    virtual bool postBuild();
+    /*virtual*/ void reshape(S32 width, S32 height, bool called_from_parent = true);
 
     void initModelPreview();
     void setUploadDestination(const LLUUID& dest_folder) { mDestinationFolderId = dest_folder; }
     static void showModelPreview(const LLUUID& dest_folder = LLUUID::null);
 
-    BOOL handleMouseDown(S32 x, S32 y, MASK mask);
-    BOOL handleMouseUp(S32 x, S32 y, MASK mask);
-    BOOL handleHover(S32 x, S32 y, MASK mask);
-    BOOL handleScrollWheel(S32 x, S32 y, S32 clicks);
+    bool handleMouseDown(S32 x, S32 y, MASK mask);
+    bool handleMouseUp(S32 x, S32 y, MASK mask);
+    bool handleHover(S32 x, S32 y, MASK mask);
+    bool handleScrollWheel(S32 x, S32 y, S32 clicks);
 
     /*virtual*/ void onOpen(const LLSD& key);
     /*virtual*/ void onClose(bool app_quitting);

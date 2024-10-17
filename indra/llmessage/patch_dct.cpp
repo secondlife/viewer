@@ -27,7 +27,6 @@
 #include "linden_common.h"
 
 #include "llmath.h"
-//#include "vmath.h"
 #include "v3math.h"
 #include "patch_dct.h"
 
@@ -85,8 +84,8 @@ S32 gCopyMatrix[LARGE_PATCH_SIZE*LARGE_PATCH_SIZE];
 void build_copy_matrix(S32 size)
 {
     S32 i, j, count;
-    BOOL    b_diag = FALSE;
-    BOOL    b_right = TRUE;
+    bool    b_diag = false;
+    bool    b_right = true;
 
     i = 0;
     j = 0;
@@ -107,8 +106,8 @@ void build_copy_matrix(S32 size)
                     i++;
                 else
                     j++;
-                b_right = FALSE;
-                b_diag = TRUE;
+                b_right = false;
+                b_diag = true;
             }
             else
             {
@@ -116,8 +115,8 @@ void build_copy_matrix(S32 size)
                     j++;
                 else
                     i++;
-                b_right = TRUE;
-                b_diag = TRUE;
+                b_right = true;
+                b_diag = true;
             }
         }
         else
@@ -129,7 +128,7 @@ void build_copy_matrix(S32 size)
                 if (  (i == size - 1)
                     ||(j == 0))
                 {
-                    b_diag = FALSE;
+                    b_diag = false;
                 }
             }
             else
@@ -139,7 +138,7 @@ void build_copy_matrix(S32 size)
                 if (  (i == 0)
                     ||(j == size - 1))
                 {
-                    b_diag = FALSE;
+                    b_diag = false;
                 }
             }
         }

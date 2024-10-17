@@ -221,7 +221,7 @@ bool LLUrlRegistry::findUrl(const std::string &text, LLUrlMatch &match, const LL
         if (match_entry == mUrlEntryTrusted)
         {
             LLUriParser up(url);
-            if (up.normalize() == 0)
+            if (up.normalize())
             {
                 url = up.normalizedUri();
             }
@@ -263,9 +263,9 @@ bool LLUrlRegistry::findUrl(const LLWString &text, LLUrlMatch &match, const LLUr
         {
             return false;
         }
-        S32 end = start + wurl.size() - 1;
+        auto end = start + wurl.size() - 1;
 
-        match.setValues(start, end, match.getUrl(),
+        match.setValues(static_cast<U32>(start), static_cast<U32>(end), match.getUrl(),
                         match.getLabel(),
                         match.getQuery(),
                         match.getTooltip(),

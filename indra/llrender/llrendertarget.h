@@ -61,8 +61,9 @@
 class LLRenderTarget
 {
 public:
-    //whether or not to use FBO implementation
+    // Whether or not to use FBO implementation
     static bool sUseFBO;
+    static bool sClearOnInvalidate;
     static U32 sBytesAllocated;
     static U32 sCurFBO;
     static U32 sCurResX;
@@ -128,10 +129,16 @@ public:
     //  Asserts that this target is not currently bound in the stack
     void bindTarget();
 
-    //clear render targer, clears depth buffer if present,
+    //clear render target, clears depth buffer if present,
     //uses scissor rect if in copy-to-texture mode
     // asserts that this target is currently bound
     void clear(U32 mask = 0xFFFFFFFF);
+
+    //same as clear, except may be a no-op depending on configuration
+    //useful to indicate the buffer is about to be overwritten and we
+    //don't care about its previous contents
+    //depending on the GPU, one may be more expensive than the other
+    void invalidate(U32 mask = 0xFFFFFFFF);
 
     //get applied viewport
     void getViewport(S32* viewport);
@@ -172,6 +179,8 @@ public:
     // *HACK
     void swapFBORefs(LLRenderTarget& other);
 
+    static LLRenderTarget* sBoundTarget;
+
 protected:
     U32 mResX;
     U32 mResY;
@@ -186,8 +195,6 @@ protected:
     U32 mMipLevels;
 
     LLTexUnit::eTextureType mUsage;
-
-    static LLRenderTarget* sBoundTarget;
 };
 
 #endif

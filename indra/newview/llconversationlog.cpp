@@ -118,11 +118,21 @@ const std::string LLConversation::createTimestamp(const U64Seconds& utc_time)
     LLSD substitution;
     substitution["datetime"] = (S32)utc_time.value();
 
-    timeStr = "["+LLTrans::getString ("TimeMonth")+"]/["
-                 +LLTrans::getString ("TimeDay")+"]/["
-                 +LLTrans::getString ("TimeYear")+"] ["
-                 +LLTrans::getString ("TimeHour")+"]:["
-                 +LLTrans::getString ("TimeMin")+"]";
+    static bool use_24h = gSavedSettings.getBOOL("Use24HourClock");
+    timeStr = "[" + LLTrans::getString("TimeMonth") + "]/["
+        + LLTrans::getString("TimeDay") + "]/["
+        + LLTrans::getString("TimeYear") + "] [";
+    if (use_24h)
+    {
+        timeStr += LLTrans::getString("TimeHour") + "]:["
+            + LLTrans::getString("TimeMin") + "]";
+    }
+    else
+    {
+        timeStr += LLTrans::getString("TimeHour12") + "]:["
+            + LLTrans::getString("TimeMin") + "] ["
+            + LLTrans::getString("TimeAMPM") + "]";
+    }
 
 
     LLStringUtil::format (timeStr, substitution);
@@ -215,7 +225,7 @@ void LLConversationLog::enableLogging(S32 log_mode)
     notifyObservers();
 }
 
-void LLConversationLog::logConversation(const LLUUID& session_id, BOOL has_offline_msg)
+void LLConversationLog::logConversation(const LLUUID& session_id, bool has_offline_msg)
 {
     const LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(session_id);
     LLConversation* conversation = findConversation(session);
@@ -272,7 +282,7 @@ void LLConversationLog::updateConversationName(const LLIMModel::LLIMSession* ses
     }
 }
 
-void LLConversationLog::updateOfflineIMs(const LLIMModel::LLIMSession* session, BOOL new_messages)
+void LLConversationLog::updateOfflineIMs(const LLIMModel::LLIMSession* session, bool new_messages)
 {
     if (!session)
     {
@@ -354,7 +364,7 @@ void LLConversationLog::removeObserver(LLConversationLogObserver* observer)
     mObservers.erase(observer);
 }
 
-void LLConversationLog::sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id, BOOL has_offline_msg)
+void LLConversationLog::sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id, bool has_offline_msg)
 {
     logConversation(session_id, has_offline_msg);
 }
@@ -647,7 +657,7 @@ void LLConversationLog::onClearLogResponse(const LLSD& notification, const LLSD&
     {
         mConversations.clear();
         notifyObservers();
-        saveToFile(getFileName());
+        cache();
         deleteBackupLogs();
     }
 }

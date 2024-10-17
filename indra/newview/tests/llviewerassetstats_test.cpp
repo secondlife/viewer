@@ -43,6 +43,23 @@ namespace LLStatViewer
     LLTrace::SampleStatHandle<>     FPS_SAMPLE("fpssample");
 }
 
+void LLVOAvatar::getNearbyRezzedStats(std::vector<S32>& counts, F32& avg_cloud_time, S32& cloud_avatars)
+{
+    counts.resize(3);
+    counts[0] = 0;
+    counts[1] = 0;
+    counts[2] = 1;
+}
+
+// static
+std::string LLVOAvatar::rezStatusToString(S32 rez_status)
+{
+    if (rez_status==0) return "cloud";
+    if (rez_status==1) return "gray";
+    if (rez_status==2) return "textured";
+    return "unknown";
+}
+
 // static
 LLViewerStats::StatsAccumulator& LLViewerStats::PhaseMap::getPhaseStats(const std::string& phase_name)
 {

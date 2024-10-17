@@ -37,7 +37,7 @@ class LLFloaterPreferenceGraphicsAdvanced : public LLFloater
 public:
     LLFloaterPreferenceGraphicsAdvanced(const LLSD& key);
     ~LLFloaterPreferenceGraphicsAdvanced();
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
     void onOpen(const LLSD& key);
     void onClickCloseBtn(bool app_quitting);
     void disableUnavailableSettings();
@@ -48,6 +48,7 @@ public:
     void updateIndirectMaxNonImpostors(const LLSD& newvalue);
     void setMaxNonImpostorsText(U32 value, LLTextBox* text_box);
     void updateMaxComplexity();
+    void updateComplexityMode(const LLSD& newvalue);
     void updateComplexityText();
     void updateObjectMeshDetailText();
     void refresh();
@@ -60,8 +61,11 @@ protected:
     void        onBtnOK(const LLSD& userdata);
     void        onBtnCancel(const LLSD& userdata);
 
+    boost::signals2::connection mImpostorsChangedSignal;
     boost::signals2::connection mComplexityChangedSignal;
+    boost::signals2::connection mComplexityModeChangedSignal;
     boost::signals2::connection mLODFactorChangedSignal;
+    boost::signals2::connection mNumImpostorsChangedSignal;
 };
 
 #endif //LLFLOATERPREFERENCEGRAPHICSADVANCED_H

@@ -40,7 +40,7 @@
 #include "llagent.h"
 #include "llviewerjoystick.h"
 
-extern BOOL gDebugClicks;
+extern bool gDebugClicks;
 
 //static
 const std::string LLTool::sNameNull("null");
@@ -60,9 +60,9 @@ LLTool::~LLTool()
     }
 }
 
-BOOL LLTool::handleAnyMouseClick(S32 x, S32 y, MASK mask, EMouseClickType clicktype, BOOL down)
+bool LLTool::handleAnyMouseClick(S32 x, S32 y, MASK mask, EMouseClickType clicktype, bool down)
 {
-    BOOL result = LLMouseHandler::handleAnyMouseClick(x, y, mask, clicktype, down);
+    bool result = LLMouseHandler::handleAnyMouseClick(x, y, mask, clicktype, down);
 
     // This behavior was moved here from LLViewerWindow::handleAnyMouseClick, so it can be selectively overridden by LLTool subclasses.
     if(down && result)
@@ -76,7 +76,7 @@ BOOL LLTool::handleAnyMouseClick(S32 x, S32 y, MASK mask, EMouseClickType clickt
     return result;
 }
 
-BOOL LLTool::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLTool::handleMouseDown(S32 x, S32 y, MASK mask)
 {
     if (gDebugClicks)
     {
@@ -85,10 +85,10 @@ BOOL LLTool::handleMouseDown(S32 x, S32 y, MASK mask)
     // by default, didn't handle it
     // AGENT_CONTROL_LBUTTON_DOWN is handled by scanMouse() and scanKey()
     // LL_INFOS() << "LLTool::handleMouseDown" << LL_ENDL;
-    return FALSE;
+    return false;
 }
 
-BOOL LLTool::handleMouseUp(S32 x, S32 y, MASK mask)
+bool LLTool::handleMouseUp(S32 x, S32 y, MASK mask)
 {
     if (gDebugClicks)
     {
@@ -97,73 +97,73 @@ BOOL LLTool::handleMouseUp(S32 x, S32 y, MASK mask)
     // by default, didn't handle it
     // AGENT_CONTROL_LBUTTON_UP is handled by scanMouse() and scanKey()
     // LL_INFOS() << "LLTool::handleMouseUp" << LL_ENDL;
-    return TRUE;
+    return true;
 }
 
-BOOL LLTool::handleHover(S32 x, S32 y, MASK mask)
+bool LLTool::handleHover(S32 x, S32 y, MASK mask)
 {
     gViewerWindow->setCursor(UI_CURSOR_ARROW);
     LL_DEBUGS("UserInput") << "hover handled by a tool" << LL_ENDL;
     // by default, do nothing, say we handled it
-    return TRUE;
+    return true;
 }
 
-BOOL LLTool::handleScrollWheel(S32 x, S32 y, S32 clicks)
+bool LLTool::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
     // by default, didn't handle it
     // LL_INFOS() << "LLTool::handleScrollWheel" << LL_ENDL;
-    return FALSE;
+    return false;
 }
 
-BOOL LLTool::handleScrollHWheel(S32 x, S32 y, S32 clicks)
+bool LLTool::handleScrollHWheel(S32 x, S32 y, S32 clicks)
 {
     // by default, didn't handle it
-    return FALSE;
+    return false;
 }
 
-BOOL LLTool::handleDoubleClick(S32 x,S32 y,MASK mask)
+bool LLTool::handleDoubleClick(S32 x,S32 y,MASK mask)
 {
     // LL_INFOS() << "LLTool::handleDoubleClick" << LL_ENDL;
     // by default, pretend it's a left click
-    return FALSE;
+    return false;
 }
 
-BOOL LLTool::handleRightMouseDown(S32 x,S32 y,MASK mask)
+bool LLTool::handleRightMouseDown(S32 x,S32 y,MASK mask)
 {
     // by default, didn't handle it
     // LL_INFOS() << "LLTool::handleRightMouseDown" << LL_ENDL;
-    return FALSE;
+    return false;
 }
 
-BOOL LLTool::handleRightMouseUp(S32 x, S32 y, MASK mask)
+bool LLTool::handleRightMouseUp(S32 x, S32 y, MASK mask)
 {
     // by default, didn't handle it
     // LL_INFOS() << "LLTool::handleRightMouseDown" << LL_ENDL;
-    return FALSE;
+    return false;
 }
 
-BOOL LLTool::handleMiddleMouseDown(S32 x,S32 y,MASK mask)
+bool LLTool::handleMiddleMouseDown(S32 x,S32 y,MASK mask)
 {
     // by default, didn't handle it
     // LL_INFOS() << "LLTool::handleMiddleMouseDown" << LL_ENDL;
-    return FALSE;
+    return false;
 }
 
-BOOL LLTool::handleMiddleMouseUp(S32 x, S32 y, MASK mask)
+bool LLTool::handleMiddleMouseUp(S32 x, S32 y, MASK mask)
 {
     // by default, didn't handle it
     // LL_INFOS() << "LLTool::handleMiddleMouseUp" << LL_ENDL;
-    return FALSE;
+    return false;
 }
 
-BOOL LLTool::handleToolTip(S32 x, S32 y, MASK mask)
+bool LLTool::handleToolTip(S32 x, S32 y, MASK mask)
 {
     // by default, didn't handle it
     // LL_INFOS() << "LLTool::handleToolTip" << LL_ENDL;
-    return FALSE;
+    return false;
 }
 
-void LLTool::setMouseCapture( BOOL b )
+void LLTool::setMouseCapture( bool b )
 {
     if( b )
     {
@@ -180,14 +180,14 @@ void LLTool::setMouseCapture( BOOL b )
 void LLTool::draw()
 { }
 
-BOOL LLTool::hasMouseCapture()
+bool LLTool::hasMouseCapture()
 {
     return gFocusMgr.getMouseCapture() == (mComposite ? mComposite : this);
 }
 
-BOOL LLTool::handleKey(KEY key, MASK mask)
+bool LLTool::handleKey(KEY key, MASK mask)
 {
-    return FALSE;
+    return false;
 }
 
 LLTool* LLTool::getOverrideTool(MASK mask)

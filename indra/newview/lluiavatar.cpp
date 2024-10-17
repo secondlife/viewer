@@ -37,7 +37,7 @@
 LLUIAvatar::LLUIAvatar(const LLUUID& id, const LLPCode pcode, LLViewerRegion* regionp) :
     LLVOAvatar(id, pcode, regionp)
 {
-    mIsDummy = TRUE;
+    mIsDummy = true;
     mIsUIAvatar = true;
 }
 

@@ -42,17 +42,17 @@ public:
         LLUndoAction(): mClusterID(0) {};
         virtual ~LLUndoAction(){};
     private:
-        S32     mClusterID;
+        S32 mClusterID;
     };
 
     LLUndoBuffer( LLUndoAction (*create_func()), S32 initial_count );
     virtual ~LLUndoBuffer();
 
-    LLUndoAction *getNextAction(BOOL setClusterBegin = TRUE);
-    BOOL undoAction();
-    BOOL redoAction();
-    BOOL canUndo() { return (mNextAction != mFirstAction); }
-    BOOL canRedo() { return (mNextAction != mLastAction); }
+    LLUndoAction *getNextAction(bool setClusterBegin = true);
+    bool undoAction();
+    bool redoAction();
+    bool canUndo() const { return (mNextAction != mFirstAction); }
+    bool canRedo() const { return (mNextAction != mLastAction); }
 
     void flushActions();
 

@@ -51,10 +51,10 @@ public:
         BOOST_NONE          = 0,
         BOOST_AVATAR        ,
         BOOST_AVATAR_BAKED  ,
-        BOOST_SCULPTED      ,
         BOOST_TERRAIN       , // Needed for minimap generation for now. Lower than BOOST_HIGH so the texture stats don't get forced, i.e. texture stats are manually managed by minimap/terrain instead.
 
         BOOST_HIGH          = 10,
+        BOOST_SCULPTED      ,
         BOOST_BUMP          ,
         BOOST_UNUSED_1      , // Placeholder to avoid disrupting habits around texture debug
         BOOST_SELECTED      ,
@@ -75,7 +75,6 @@ public:
         AVATAR_SCRATCH_TEX,
         DYNAMIC_TEX,
         MEDIA,
-        ATLAS,
         OTHER,
         MAX_GL_IMAGE_CATEGORY
     };
@@ -83,8 +82,6 @@ public:
     typedef enum
     {
         DELETED = 0,         //removed from memory
-        DELETION_CANDIDATE,  //ready to be removed from memory
-        INACTIVE,            //not be used for the last certain period (i.e., 30 seconds).
         ACTIVE,              //just being used, can become inactive if not being used for a certain time (10 seconds).
         NO_DELETE = 99       //stay in memory, can not be removed.
     } LLGLTextureState;
@@ -94,9 +91,9 @@ protected:
     LOG_CLASS(LLGLTexture);
 
 public:
-    LLGLTexture(BOOL usemipmaps = TRUE);
-    LLGLTexture(const LLImageRaw* raw, BOOL usemipmaps) ;
-    LLGLTexture(const U32 width, const U32 height, const U8 components, BOOL usemipmaps) ;
+    LLGLTexture(bool usemipmaps = true);
+    LLGLTexture(const LLImageRaw* raw, bool usemipmaps) ;
+    LLGLTexture(const U32 width, const U32 height, const U8 components, bool usemipmaps) ;
 
     virtual void dump();    // debug info to LL_INFOS()
 
@@ -117,25 +114,28 @@ public:
     /*virtual*/S32         getWidth(S32 discard_level = -1) const;
     /*virtual*/S32         getHeight(S32 discard_level = -1) const;
 
-    BOOL       hasGLTexture() const ;
+    bool       hasGLTexture() const ;
     LLGLuint   getTexName() const ;
-    BOOL       createGLTexture() ;
+    bool       createGLTexture() ;
+
+    void getGLObjectLabel(std::string& label, bool& error) const;
+    std::string setGLObjectLabel(const std::string& prefix, bool append_texname = false) const;
 
     // Create a GL Texture from an image raw
     // discard_level - mip level, 0 for highest resultion mip
     // imageraw - the image to copy from
     // usename - explicit GL name override
-    // to_create - set to FALSE to force gl texture to not be created
+    // to_create - set to false to force gl texture to not be created
     // category - LLGLTexture category for this LLGLTexture
     // defer_copy - set to true to allocate GL texture but NOT initialize with imageraw data
     // tex_name - if not null, will be set to the GL name of the texture created
-    BOOL       createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S32 usename = 0, BOOL to_create = TRUE, S32 category = LLGLTexture::OTHER, bool defer_copy = false, LLGLuint* tex_name = nullptr);
+    bool       createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S32 usename = 0, bool to_create = true, S32 category = LLGLTexture::OTHER, bool defer_copy = false, LLGLuint* tex_name = nullptr);
 
     void       setFilteringOption(LLTexUnit::eTextureFilterOptions option);
-    void       setExplicitFormat(LLGLint internal_format, LLGLenum primary_format, LLGLenum type_format = 0, BOOL swap_bytes = FALSE);
+    void       setExplicitFormat(LLGLint internal_format, LLGLenum primary_format, LLGLenum type_format = 0, bool swap_bytes = false);
     void       setAddressMode(LLTexUnit::eTextureAddressMode mode);
-    BOOL       setSubImage(const LLImageRaw* imageraw, S32 x_pos, S32 y_pos, S32 width, S32 height, LLGLuint use_name = 0);
-    BOOL       setSubImage(const U8* datap, S32 data_width, S32 data_height, S32 x_pos, S32 y_pos, S32 width, S32 height, LLGLuint use_name = 0);
+    bool       setSubImage(const LLImageRaw* imageraw, S32 x_pos, S32 y_pos, S32 width, S32 height, LLGLuint use_name = 0);
+    bool       setSubImage(const U8* datap, S32 data_width, S32 data_height, S32 x_pos, S32 y_pos, S32 width, S32 height, LLGLuint use_name = 0);
     void       setGLTextureCreated (bool initialized);
     void       setCategory(S32 category) ;
     void       setTexName(LLGLuint); // for forcing w/ externally created textures only
@@ -145,21 +145,18 @@ public:
     S32        getMaxDiscardLevel() const;
     S32        getDiscardLevel() const;
     S8         getComponents() const;
-    BOOL       getBoundRecently() const;
+    bool       getBoundRecently() const;
     S32Bytes   getTextureMemory() const ;
     LLGLenum   getPrimaryFormat() const;
-    BOOL       getIsAlphaMask() const ;
+    bool       getIsAlphaMask() const ;
     LLTexUnit::eTextureType getTarget(void) const ;
-    BOOL       getMask(const LLVector2 &tc);
+    bool       getMask(const LLVector2 &tc);
     F32        getTimePassedSinceLastBound();
-    BOOL       getMissed() const ;
-    BOOL       isJustBound()const ;
+    bool       getMissed() const ;
+    bool       isJustBound()const ;
     void       forceUpdateBindStats(void) const;
 
-    U32        getTexelsInAtlas() const ;
-    U32        getTexelsInGLTexture() const ;
-    BOOL       isGLTextureCreated() const ;
-    S32        getDiscardLevelInAtlas() const ;
+    bool       isGLTextureCreated() const ;
     LLGLTextureState getTextureState() const { return mTextureState; }
 
     //---------------------------------------------------------------------------------------------
@@ -171,7 +168,7 @@ public:
     void forceActive() ;
     void setNoDelete() ;
     void dontDiscard() { mDontDiscard = 1; mTextureState = NO_DELETE; }
-    BOOL getDontDiscard() const { return mDontDiscard; }
+    bool getDontDiscard() const { return mDontDiscard; }
     //-----------------
 
 private:
@@ -188,7 +185,7 @@ protected:
     S32 mBoostLevel;                // enum describing priority level
     U32 mFullWidth;
     U32 mFullHeight;
-    BOOL mUseMipMaps;
+    bool mUseMipMaps;
     S8  mComponents;
     U32 mTexelsPerImage;            // Texels per image.
     mutable S8  mNeedsGLTexture;

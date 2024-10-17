@@ -60,7 +60,7 @@ out vec4 frag_color;
 float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen);
 #endif
 
-void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout vec3 legacyenv,
+void sampleReflectionProbesLegacy(out vec3 ambenv, out vec3 glossenv, out vec3 legacyenv,
         vec2 tc, vec3 pos, vec3 norm, float glossiness, float envIntensity, bool transparent, vec3 amblit_linear);
 void applyGlossEnv(inout vec3 color, vec3 glossenv, vec4 spec, vec3 pos, vec3 norm);
 void applyLegacyEnv(inout vec3 color, vec3 legacyenv, vec4 spec, vec3 pos, vec3 norm, float envIntensity);
@@ -77,7 +77,6 @@ uniform float is_mirror;
 
 uniform vec3 sun_dir;
 uniform vec3 moon_dir;
-in vec2 vary_fragcoord;
 
 uniform mat4 proj_mat;
 uniform mat4 inv_proj;
@@ -281,10 +280,10 @@ float getShadow(vec3 pos, vec3 norm)
     #if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
         return sampleDirectionalShadow(pos, norm, vary_texcoord0.xy);
     #else
-        return 1;
+        return 1.;
     #endif
 #else
-    return 1;
+    return 1.;
 #endif
 }
 

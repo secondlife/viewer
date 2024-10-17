@@ -13,14 +13,6 @@ include(ExamplePlugin)
 
 ### media_plugin_example
 
-if(NOT ADDRESS_SIZE EQUAL 32)
-  if(WINDOWS)
-    ##add_definitions(/FIXED:NO)
-  else(WINDOWS) # not windows therefore gcc LINUX and DARWIN
-    add_definitions(-fPIC)
-  endif(WINDOWS)
-endif(NOT ADDRESS_SIZE EQUAL 32)
-
 set(media_plugin_example_SOURCE_FILES
     media_plugin_example.cpp
     )
@@ -36,7 +28,7 @@ if (WINDOWS)
   set_target_properties(
     media_plugin_example
     PROPERTIES
-    LINK_FLAGS "/MANIFEST:NO /SAFESEH:NO /LTCG /NODEFAULTLIB:LIBCMT"
+    LINK_FLAGS "/MANIFEST:NO /NODEFAULTLIB:LIBCMT"
     )
 endif (WINDOWS)
 

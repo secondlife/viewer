@@ -114,11 +114,11 @@ public:
 public:
     U16 mType;
     virtual ~LLNetworkData() {};
-    virtual BOOL pack(LLDataPacker &dp) const = 0;
-    virtual BOOL unpack(LLDataPacker &dp) = 0;
+    virtual bool pack(LLDataPacker &dp) const = 0;
+    virtual bool unpack(LLDataPacker &dp) = 0;
     virtual bool operator==(const LLNetworkData& data) const = 0;
     virtual void copy(const LLNetworkData& data) = 0;
-    static BOOL isValid(U16 param_type, U32 size);
+    static bool isValid(U16 param_type, U32 size);
 };
 
 extern const F32 LIGHT_MIN_RADIUS;
@@ -141,8 +141,8 @@ private:
 
 public:
     LLLightParams();
-    /*virtual*/ BOOL pack(LLDataPacker &dp) const;
-    /*virtual*/ BOOL unpack(LLDataPacker &dp);
+    /*virtual*/ bool pack(LLDataPacker &dp) const;
+    /*virtual*/ bool unpack(LLDataPacker &dp);
     /*virtual*/ bool operator==(const LLNetworkData& data) const;
     /*virtual*/ void copy(const LLNetworkData& data);
     // LLSD implementations here are provided by Eddy Stryker.
@@ -196,8 +196,8 @@ protected:
 
 public:
     LLReflectionProbeParams();
-    /*virtual*/ BOOL pack(LLDataPacker& dp) const;
-    /*virtual*/ BOOL unpack(LLDataPacker& dp);
+    /*virtual*/ bool pack(LLDataPacker& dp) const;
+    /*virtual*/ bool unpack(LLDataPacker& dp);
     /*virtual*/ bool operator==(const LLNetworkData& data) const;
     /*virtual*/ void copy(const LLNetworkData& data);
     // LLSD implementations here are provided by Eddy Stryker.
@@ -258,8 +258,8 @@ extern const F32 FLEXIBLE_OBJECT_MAX_WIND_SENSITIVITY;
 extern const F32 FLEXIBLE_OBJECT_MAX_INTERNAL_TENSION_FORCE;
 
 extern const F32 FLEXIBLE_OBJECT_DEFAULT_LENGTH;
-extern const BOOL FLEXIBLE_OBJECT_DEFAULT_USING_COLLISION_SPHERE;
-extern const BOOL FLEXIBLE_OBJECT_DEFAULT_RENDERING_COLLISION_SPHERE;
+extern const bool FLEXIBLE_OBJECT_DEFAULT_USING_COLLISION_SPHERE;
+extern const bool FLEXIBLE_OBJECT_DEFAULT_RENDERING_COLLISION_SPHERE;
 
 
 class LLFlexibleObjectData : public LLNetworkData
@@ -271,8 +271,8 @@ protected:
     F32         mWindSensitivity;   // interacts with tension, air friction, and gravity
     F32         mTension;           //interacts in complex ways with other parameters
     LLVector3   mUserForce;         // custom user-defined force vector
-    //BOOL      mUsingCollisionSphere;
-    //BOOL      mRenderingCollisionSphere;
+    //bool      mUsingCollisionSphere;
+    //bool      mRenderingCollisionSphere;
 
 public:
     void        setSimulateLOD(S32 lod)         { mSimulateLOD = llclamp(lod, (S32)FLEXIBLE_OBJECT_MIN_SECTIONS, (S32)FLEXIBLE_OBJECT_MAX_SECTIONS); }
@@ -291,8 +291,8 @@ public:
 
     //------ the constructor for the structure ------------
     LLFlexibleObjectData();
-    BOOL pack(LLDataPacker &dp) const;
-    BOOL unpack(LLDataPacker &dp);
+    bool pack(LLDataPacker &dp) const;
+    bool unpack(LLDataPacker &dp);
     bool operator==(const LLNetworkData& data) const;
     void copy(const LLNetworkData& data);
     LLSD asLLSD() const;
@@ -310,8 +310,8 @@ protected:
 
 public:
     LLSculptParams();
-    /*virtual*/ BOOL pack(LLDataPacker &dp) const;
-    /*virtual*/ BOOL unpack(LLDataPacker &dp);
+    /*virtual*/ bool pack(LLDataPacker &dp) const;
+    /*virtual*/ bool unpack(LLDataPacker &dp);
     /*virtual*/ bool operator==(const LLNetworkData& data) const;
     /*virtual*/ void copy(const LLNetworkData& data);
     LLSD asLLSD() const;
@@ -331,8 +331,8 @@ protected:
 
 public:
     LLLightImageParams();
-    /*virtual*/ BOOL pack(LLDataPacker &dp) const;
-    /*virtual*/ BOOL unpack(LLDataPacker &dp);
+    /*virtual*/ bool pack(LLDataPacker &dp) const;
+    /*virtual*/ bool unpack(LLDataPacker &dp);
     /*virtual*/ bool operator==(const LLNetworkData& data) const;
     /*virtual*/ void copy(const LLNetworkData& data);
     LLSD asLLSD() const;
@@ -356,8 +356,8 @@ public:
     static const U32 ANIMATED_MESH_ENABLED_FLAG = 0x1 << 0;
 
     LLExtendedMeshParams();
-    /*virtual*/ BOOL pack(LLDataPacker &dp) const;
-    /*virtual*/ BOOL unpack(LLDataPacker &dp);
+    /*virtual*/ bool pack(LLDataPacker &dp) const;
+    /*virtual*/ bool unpack(LLDataPacker &dp);
     /*virtual*/ bool operator==(const LLNetworkData& data) const;
     /*virtual*/ void copy(const LLNetworkData& data);
     LLSD asLLSD() const;
@@ -381,8 +381,8 @@ private:
 
 public:
     LLRenderMaterialParams();
-    BOOL pack(LLDataPacker& dp) const override;
-    BOOL unpack(LLDataPacker& dp) override;
+    bool pack(LLDataPacker& dp) const override;
+    bool unpack(LLDataPacker& dp) override;
     bool operator==(const LLNetworkData& data) const override;
     void copy(const LLNetworkData& data) override;
 
@@ -395,7 +395,7 @@ public:
 
 // This code is not naming-standards compliant. Leaving it like this for
 // now to make the connection to code in
-//  BOOL packTEMessage(LLDataPacker &dp) const;
+//  bool packTEMessage(LLDataPacker &dp) const;
 // more obvious. This should be refactored to remove the duplication, at which
 // point we can fix the names as well.
 // - Vir
@@ -457,10 +457,10 @@ public:
     void setPCode(const LLPCode pcode);
     const LLVolume *getVolumeConst() const { return mVolumep; }     // HACK for Windoze confusion about ostream operator in LLVolume
     LLVolume *getVolume() const { return mVolumep; }
-    virtual BOOL setVolume(const LLVolumeParams &volume_params, const S32 detail, bool unique_volume = false);
+    virtual bool setVolume(const LLVolumeParams &volume_params, const S32 detail, bool unique_volume = false);
 
     // Modify texture entry properties
-    inline BOOL validTE(const U8 te_num) const;
+    inline bool validTE(const U8 te_num) const;
     LLTextureEntry* getTE(const U8 te_num) const;
 
     virtual void setNumTEs(const U8 num_tes);
@@ -489,17 +489,17 @@ public:
     virtual S32 setTEGlow(const U8 te, const F32 glow);
     virtual S32 setTEMaterialID(const U8 te, const LLMaterialID& pMaterialID);
     virtual S32 setTEMaterialParams(const U8 index, const LLMaterialPtr pMaterialParams);
-    virtual BOOL setMaterial(const U8 material); // returns TRUE if material changed
+    virtual bool setMaterial(const U8 material); // returns true if material changed
     virtual void setTESelected(const U8 te, bool sel);
 
     LLMaterialPtr getTEMaterialParams(const U8 index);
 
     void copyTEs(const LLPrimitive *primitive);
     S32 packTEField(U8 *cur_ptr, U8 *data_ptr, U8 data_size, U8 last_face_index, EMsgVariableType type) const;
-    BOOL packTEMessage(LLMessageSystem *mesgsys) const;
-    BOOL packTEMessage(LLDataPacker &dp) const;
+    bool packTEMessage(LLMessageSystem *mesgsys) const;
+    bool packTEMessage(LLDataPacker &dp) const;
     S32 unpackTEMessage(LLMessageSystem* mesgsys, char const* block_name, const S32 block_num); // Variable num of blocks
-    BOOL unpackTEMessage(LLDataPacker &dp);
+    S32 unpackTEMessage(LLDataPacker &dp);
     S32 parseTEMessage(LLMessageSystem* mesgsys, char const* block_name, const S32 block_num, LLTEContents& tec);
     S32 applyParsedTEMessage(LLTEContents& tec);
 
@@ -557,25 +557,26 @@ public:
     // takes the contents of other_list and clears other_list
     void takeTextureList(LLPrimTextureList& other_list);
 
-    inline BOOL isAvatar() const;
-    inline BOOL isSittingAvatar() const;
-    inline BOOL isSittingAvatarOnGround() const;
+    inline bool isAvatar() const;
+    inline bool isSittingAvatar() const;
+    inline bool isSittingAvatarOnGround() const;
     inline bool hasBumpmap() const  { return mNumBumpmapTEs > 0;}
 
     void setFlags(U32 flags) { mMiscFlags = flags; }
     void addFlags(U32 flags) { mMiscFlags |= flags; }
     void removeFlags(U32 flags) { mMiscFlags &= ~flags; }
     U32 getFlags() const { return mMiscFlags; }
+    bool checkFlags(U32 flags) const { return (mMiscFlags & flags) != 0; }
 
     static std::string pCodeToString(const LLPCode pcode);
     static LLPCode legacyToPCode(const U8 legacy);
     static U8 pCodeToLegacy(const LLPCode pcode);
     static bool getTESTAxes(const U8 face, U32* s_axis, U32* t_axis);
 
-    BOOL hasRenderMaterialParams() const;
+    bool hasRenderMaterialParams() const;
 
-    inline static BOOL isPrimitive(const LLPCode pcode);
-    inline static BOOL isApp(const LLPCode pcode);
+    inline static bool isPrimitive(const LLPCode pcode);
+    inline static bool isApp(const LLPCode pcode);
 
 private:
     void updateNumBumpmap(const U8 index, const U8 bump);
@@ -601,39 +602,37 @@ public:
     };
 };
 
-inline BOOL LLPrimitive::isAvatar() const
+inline bool LLPrimitive::isAvatar() const
 {
-    return ( LL_PCODE_LEGACY_AVATAR == mPrimitiveCode ) ? TRUE : FALSE;
+    return LL_PCODE_LEGACY_AVATAR == mPrimitiveCode;
 }
 
-inline BOOL LLPrimitive::isSittingAvatar() const
+inline bool LLPrimitive::isSittingAvatar() const
 {
     // this is only used server-side
-    return ( LL_PCODE_LEGACY_AVATAR == mPrimitiveCode
-             &&  ((getFlags() & (PRIM_FLAG_SITTING | PRIM_FLAG_SITTING_ON_GROUND)) != 0) ) ? TRUE : FALSE;
+    return isAvatar() && checkFlags(PRIM_FLAG_SITTING | PRIM_FLAG_SITTING_ON_GROUND);
 }
 
-inline BOOL LLPrimitive::isSittingAvatarOnGround() const
+inline bool LLPrimitive::isSittingAvatarOnGround() const
 {
     // this is only used server-side
-    return ( LL_PCODE_LEGACY_AVATAR == mPrimitiveCode
-             &&  ((getFlags() & PRIM_FLAG_SITTING_ON_GROUND) != 0) ) ? TRUE : FALSE;
+    return isAvatar() && checkFlags(PRIM_FLAG_SITTING_ON_GROUND);
 }
 
 // static
-inline BOOL LLPrimitive::isPrimitive(const LLPCode pcode)
+inline bool LLPrimitive::isPrimitive(const LLPCode pcode)
 {
     LLPCode base_type = pcode & LL_PCODE_BASE_MASK;
 
     if (base_type && (base_type < LL_PCODE_APP))
     {
-        return TRUE;
+        return true;
     }
-    return FALSE;
+    return false;
 }
 
 // static
-inline BOOL LLPrimitive::isApp(const LLPCode pcode)
+inline bool LLPrimitive::isApp(const LLPCode pcode)
 {
     LLPCode base_type = pcode & LL_PCODE_BASE_MASK;
 
@@ -789,7 +788,7 @@ void LLPrimitive::setAcceleration(const F32 x, const F32 y, const F32 z)
 }
 #endif // CHECK_FOR_FINITE
 
-inline BOOL LLPrimitive::validTE(const U8 te_num) const
+inline bool LLPrimitive::validTE(const U8 te_num) const
 {
     return (mNumTEs && te_num < mNumTEs);
 }

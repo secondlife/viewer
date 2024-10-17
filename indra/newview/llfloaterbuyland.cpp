@@ -163,6 +163,7 @@ public:
     void updateParcelInfo();
     void updateCovenantInfo();
     static void onChangeAgreeCovenant(LLUICtrl* ctrl, void* user_data);
+    void updateFloaterCovenant(const LLTextBase* source, const LLUUID &asset_id);
     void updateFloaterCovenantText(const std::string& string, const LLUUID &asset_id);
     void updateFloaterEstateName(const std::string& name);
     void updateFloaterLastModified(const std::string& text);
@@ -182,12 +183,12 @@ public:
 
     void refreshUI();
 
-    void startTransaction(TransactionType type, const LLXMLRPCValue& params);
+    void startTransaction(TransactionType type, const LLSD& params);
     bool checkTransaction();
 
     void tellUserError(const std::string& message, const std::string& uri);
 
-    virtual BOOL postBuild();
+    virtual bool postBuild();
 
     void startBuyPreConfirm();
     void startBuyPostConfirm(const std::string& password);
@@ -197,10 +198,12 @@ public:
      void onClickErrorWeb();
 
     virtual void draw();
-    virtual BOOL canClose();
+    virtual bool canClose();
 
     void onVisibilityChanged ( const LLSD& new_visibility );
 
+private:
+    void onCovenantTextUpdated(const LLUUID& asset_id);
 };
 
 // static
@@ -218,6 +221,15 @@ void LLFloaterBuyLand::buyLand(
     {
         ui->setForGroup(is_for_group);
         ui->setParcel(region, parcel);
+    }
+}
+
+// static
+void LLFloaterBuyLand::updateCovenant(const LLTextBase* source, const LLUUID& asset_id)
+{
+    if (LLFloaterBuyLandUI* floater = LLFloaterReg::findTypedInstance<LLFloaterBuyLandUI>("buy_land"))
+    {
+        floater->updateFloaterCovenant(source, asset_id);
     }
 }
 
@@ -306,7 +318,7 @@ void LLFloaterBuyLandUI::onClose(bool app_quitting)
     // This object holds onto observer, transactions, and parcel state.
     // Despite being single_instance, destroy it to call destructors and clean
     // everything up.
-    setVisible(FALSE);
+    setVisible(false);
     destroy();
 }
 
@@ -396,11 +408,10 @@ void LLFloaterBuyLandUI::updateParcelInfo()
     // Can't have more than region max tasks, regardless of parcel
     // object bonus factor.
     LLViewerRegion* region = LLViewerParcelMgr::getInstance()->getSelectionRegion();
-    if(region)
+    if (region)
     {
         S32 max_tasks_per_region = (S32)region->getMaxTasks();
-        mParcelSupportedObjects = llmin(
-            mParcelSupportedObjects, max_tasks_per_region);
+        mParcelSupportedObjects = llmin(mParcelSupportedObjects, max_tasks_per_region);
     }
 
     mParcelSoldWithObjects = parcel->getSellWithObjects();
@@ -423,7 +434,7 @@ void LLFloaterBuyLandUI::updateParcelInfo()
 
     // checks that we can buy the land
 
-    if(mIsForGroup && !gAgent.hasPowerInActiveGroup(GP_LAND_DEED))
+    if (mIsForGroup && !gAgent.hasPowerInActiveGroup(GP_LAND_DEED))
     {
         mCannotBuyReason = getString("cant_buy_for_group");
         return;
@@ -492,85 +503,56 @@ void LLFloaterBuyLandUI::updateParcelInfo()
 void LLFloaterBuyLandUI::updateCovenantInfo()
 {
     LLViewerRegion* region = LLViewerParcelMgr::getInstance()->getSelectionRegion();
-    if(!region) return;
+    if (!region)
+        return;
 
     U8 sim_access = region->getSimAccess();
     std::string rating = LLViewerRegion::accessToString(sim_access);
 
     LLTextBox* region_name = getChild<LLTextBox>("region_name_text");
-    if (region_name)
+    std::string region_name_txt = region->getName() + " ("+rating +")";
+    region_name->setText(region_name_txt);
+
+    LLIconCtrl* rating_icon = getChild<LLIconCtrl>("rating_icon");
+    LLRect rect = rating_icon->getRect();
+    S32 region_name_width = llmin(region_name->getRect().getWidth(), region_name->getTextBoundingRect().getWidth());
+    S32 icon_left_pad = region_name->getRect().mLeft + region_name_width + ICON_PAD;
+    region_name->setToolTip(region_name->getText());
+    rating_icon->setRect(rect.setOriginAndSize(icon_left_pad, rect.mBottom, rect.getWidth(), rect.getHeight()));
+
+    switch (sim_access)
     {
-        std::string region_name_txt = region->getName() + " ("+rating +")";
-        region_name->setText(region_name_txt);
+    case SIM_ACCESS_PG:
+        rating_icon->setValue(getString("icon_PG"));
+        break;
 
-        LLIconCtrl* rating_icon = getChild<LLIconCtrl>("rating_icon");
-        LLRect rect = rating_icon->getRect();
-        S32 region_name_width = llmin(region_name->getRect().getWidth(), region_name->getTextBoundingRect().getWidth());
-        S32 icon_left_pad = region_name->getRect().mLeft + region_name_width + ICON_PAD;
-        region_name->setToolTip(region_name->getText());
-        rating_icon->setRect(rect.setOriginAndSize(icon_left_pad, rect.mBottom, rect.getWidth(), rect.getHeight()));
+    case SIM_ACCESS_ADULT:
+        rating_icon->setValue(getString("icon_R"));
+        break;
 
-        switch(sim_access)
-        {
-        case SIM_ACCESS_PG:
-            rating_icon->setValue(getString("icon_PG"));
-            break;
-
-        case SIM_ACCESS_ADULT:
-            rating_icon->setValue(getString("icon_R"));
-            break;
-
-        default:
-            rating_icon->setValue(getString("icon_M"));
-        }
+    default:
+        rating_icon->setValue(getString("icon_M"));
     }
 
     LLTextBox* region_type = getChild<LLTextBox>("region_type_text");
-    if (region_type)
-    {
-        region_type->setText(region->getLocalizedSimProductName());
-        region_type->setToolTip(region->getLocalizedSimProductName());
-    }
+    region_type->setText(region->getLocalizedSimProductName());
+    region_type->setToolTip(region->getLocalizedSimProductName());
 
     LLTextBox* resellable_clause = getChild<LLTextBox>("resellable_clause");
-    if (resellable_clause)
-    {
-        if (region->getRegionFlag(REGION_FLAGS_BLOCK_LAND_RESELL))
-        {
-            resellable_clause->setText(getString("can_not_resell"));
-        }
-        else
-        {
-            resellable_clause->setText(getString("can_resell"));
-        }
-    }
+    const char* can_resell = region->getRegionFlag(REGION_FLAGS_BLOCK_LAND_RESELL) ? "can_not_resell" : "can_resell";
+    resellable_clause->setText(getString(can_resell));
 
     LLTextBox* changeable_clause = getChild<LLTextBox>("changeable_clause");
-    if (changeable_clause)
-    {
-        if (region->getRegionFlag(REGION_FLAGS_ALLOW_PARCEL_CHANGES))
-        {
-            changeable_clause->setText(getString("can_change"));
-        }
-        else
-        {
-            changeable_clause->setText(getString("can_not_change"));
-        }
-    }
+    const char* can_change = region->getRegionFlag(REGION_FLAGS_ALLOW_PARCEL_CHANGES) ? "can_change" : "can_not_change";
+    changeable_clause->setText(getString(can_change));
 
     LLCheckBoxCtrl* check = getChild<LLCheckBoxCtrl>("agree_covenant");
-    if(check)
-    {
-        check->set(false);
-        check->setEnabled(true);
-        check->setCommitCallback(onChangeAgreeCovenant, this);
-    }
+    check->set(false);
+    check->setEnabled(true);
+    check->setCommitCallback(onChangeAgreeCovenant, this);
 
     LLTextBox* box = getChild<LLTextBox>("covenant_text");
-    if(box)
-    {
-        box->setVisible(FALSE);
-    }
+    box->setVisible(false);
 
     // send EstateCovenantInfo message
     LLMessageSystem *msg = gMessageSystem;
@@ -584,11 +566,18 @@ void LLFloaterBuyLandUI::updateCovenantInfo()
 // static
 void LLFloaterBuyLandUI::onChangeAgreeCovenant(LLUICtrl* ctrl, void* user_data)
 {
-    LLFloaterBuyLandUI* self = (LLFloaterBuyLandUI*)user_data;
-    if(self)
+    if (user_data)
     {
-        self->refreshUI();
+        ((LLFloaterBuyLandUI*)user_data)->refreshUI();
     }
+}
+
+void LLFloaterBuyLandUI::updateFloaterCovenant(const LLTextBase* source, const LLUUID& asset_id)
+{
+    LLViewerTextEditor* editor = getChild<LLViewerTextEditor>("covenant_editor");
+    editor->copyContents(source);
+
+    onCovenantTextUpdated(asset_id);
 }
 
 void LLFloaterBuyLandUI::updateFloaterCovenantText(const std::string &string, const LLUUID& asset_id)
@@ -596,6 +585,11 @@ void LLFloaterBuyLandUI::updateFloaterCovenantText(const std::string &string, co
     LLViewerTextEditor* editor = getChild<LLViewerTextEditor>("covenant_editor");
     editor->setText(string);
 
+    onCovenantTextUpdated(asset_id);
+}
+
+void LLFloaterBuyLandUI::onCovenantTextUpdated(const LLUUID& asset_id)
+{
     LLCheckBoxCtrl* check = getChild<LLCheckBoxCtrl>("agree_covenant");
     LLTextBox* box = getChild<LLTextBox>("covenant_text");
     if (asset_id.isNull())
@@ -605,14 +599,14 @@ void LLFloaterBuyLandUI::updateFloaterCovenantText(const std::string &string, co
         refreshUI();
 
         // remove the line stating that you must agree
-        box->setVisible(FALSE);
+        box->setVisible(false);
     }
     else
     {
         check->setEnabled(true);
 
         // remove the line stating that you must agree
-        box->setVisible(TRUE);
+        box->setVisible(true);
     }
 }
 
@@ -626,13 +620,13 @@ void LLFloaterBuyLandUI::updateFloaterEstateName(const std::string& name)
 void LLFloaterBuyLandUI::updateFloaterLastModified(const std::string& text)
 {
     LLTextBox* editor = getChild<LLTextBox>("covenant_timestamp_text");
-    if (editor) editor->setText(text);
+    editor->setText(text);
 }
 
 void LLFloaterBuyLandUI::updateFloaterEstateOwnerName(const std::string& name)
 {
     LLTextBox* box = getChild<LLTextBox>("estate_owner_text");
-    if (box) box->setText(name);
+    box->setText(name);
 }
 
 void LLFloaterBuyLandUI::updateWebSiteInfo()
@@ -640,9 +634,10 @@ void LLFloaterBuyLandUI::updateWebSiteInfo()
     S32 askBillableArea = mIsForGroup ? 0 : mParcelBillableArea;
     S32 askCurrencyBuy = mCurrency.getAmount();
 
-    if (mTransaction && mTransactionType == TransactionPreflight
-    &&  mPreflightAskBillableArea == askBillableArea
-    &&  mPreflightAskCurrencyBuy == askCurrencyBuy)
+    if (mTransaction &&
+        mTransactionType == TransactionPreflight &&
+        mPreflightAskBillableArea == askBillableArea &&
+        mPreflightAskCurrencyBuy == askCurrencyBuy)
     {
         return;
     }
@@ -664,27 +659,21 @@ void LLFloaterBuyLandUI::updateWebSiteInfo()
     mSiteCurrencyEstimatedCost = 0;
 #endif
 
-    LLXMLRPCValue keywordArgs = LLXMLRPCValue::createStruct();
-    keywordArgs.appendString("agentId", gAgent.getID().asString());
-    keywordArgs.appendString(
-        "secureSessionId",
-        gAgent.getSecureSessionID().asString());
-    keywordArgs.appendString("language", LLUI::getLanguage());
-    keywordArgs.appendInt("billableArea", mPreflightAskBillableArea);
-    keywordArgs.appendInt("currencyBuy", mPreflightAskCurrencyBuy);
-
-    LLXMLRPCValue params = LLXMLRPCValue::createArray();
-    params.append(keywordArgs);
+    LLSD params = LLSD::emptyMap();
+    params["agentId"] = gAgent.getID().asString();
+    params["secureSessionId"] = gAgent.getSecureSessionID().asString();
+    params["language"] = LLUI::getLanguage();
+    params["billableArea"] = mPreflightAskBillableArea;
+    params["currencyBuy"] = mPreflightAskCurrencyBuy;
 
     startTransaction(TransactionPreflight, params);
 }
 
 void LLFloaterBuyLandUI::finishWebSiteInfo()
 {
+    const LLSD& result = mTransaction->response();
 
-    LLXMLRPCValue result = mTransaction->responseValue();
-
-    mSiteValid = result["success"].asBool();
+    mSiteValid = result["success"].asBoolean();
     if (!mSiteValid)
     {
         tellUserError(
@@ -694,31 +683,30 @@ void LLFloaterBuyLandUI::finishWebSiteInfo()
         return;
     }
 
-    LLXMLRPCValue membership = result["membership"];
-    mSiteMembershipUpgrade = membership["upgrade"].asBool();
+    const LLSD& membership = result["membership"];
+    mSiteMembershipUpgrade = membership["upgrade"].asBoolean();
     mSiteMembershipAction = membership["action"].asString();
     mSiteMembershipPlanIDs.clear();
     mSiteMembershipPlanNames.clear();
-    LLXMLRPCValue levels = membership["levels"];
-    for (LLXMLRPCValue level = levels.rewind();
-        level.isValid();
-        level = levels.next())
+    const LLSD& levels = membership["levels"];
+    for (auto it = levels.beginArray(); it != levels.endArray(); ++it)
     {
+        const LLSD& level = *it;
         mSiteMembershipPlanIDs.push_back(level["id"].asString());
         mSiteMembershipPlanNames.push_back(level["description"].asString());
     }
     mUserPlanChoice = 0;
 
-    LLXMLRPCValue landUse = result["landUse"];
-    mSiteLandUseUpgrade = landUse["upgrade"].asBool();
+    const LLSD& landUse = result["landUse"];
+    mSiteLandUseUpgrade = landUse["upgrade"].asBoolean();
     mSiteLandUseAction = landUse["action"].asString();
 
-    LLXMLRPCValue currency = result["currency"];
-    if (currency["estimatedCost"].isValid())
+    const LLSD& currency = result["currency"];
+    if (currency.has("estimatedCost"))
     {
-        mCurrency.setUSDEstimate(currency["estimatedCost"].asInt());
+        mCurrency.setUSDEstimate(currency["estimatedCost"].asInteger());
     }
-    if (currency["estimatedLocalCost"].isValid())
+    if (currency.has("estimatedLocalCost"))
     {
         mCurrency.setLocalEstimate(currency["estimatedLocalCost"].asString());
     }
@@ -733,7 +721,7 @@ void LLFloaterBuyLandUI::runWebSitePrep(const std::string& password)
         return;
     }
 
-    BOOL remove_contribution = getChild<LLUICtrl>("remove_contribution")->getValue().asBoolean();
+    bool remove_contribution = getChild<LLUICtrl>("remove_contribution")->getValue().asBoolean();
     mParcelBuyInfo = LLViewerParcelMgr::getInstance()->setupParcelBuy(gAgent.getID(), gAgent.getSessionID(),
                         gAgent.getGroupID(), mIsForGroup, mIsClaim, remove_contribution);
 
@@ -760,35 +748,30 @@ void LLFloaterBuyLandUI::runWebSitePrep(const std::string& password)
         }
     }
 
-    LLXMLRPCValue keywordArgs = LLXMLRPCValue::createStruct();
-    keywordArgs.appendString("agentId", gAgent.getID().asString());
-    keywordArgs.appendString(
-        "secureSessionId",
-        gAgent.getSecureSessionID().asString());
-    keywordArgs.appendString("language", LLUI::getLanguage());
-    keywordArgs.appendString("levelId", newLevel);
-    keywordArgs.appendInt("billableArea",
-        mIsForGroup ? 0 : mParcelBillableArea);
-    keywordArgs.appendInt("currencyBuy", mCurrency.getAmount());
-    keywordArgs.appendInt("estimatedCost", mCurrency.getUSDEstimate());
-    keywordArgs.appendString("estimatedLocalCost", mCurrency.getLocalEstimate());
-    keywordArgs.appendString("confirm", mSiteConfirm);
+    LLSD params = LLSD::emptyMap();
+    params["agentId"] = gAgent.getID().asString();
+    params["secureSessionId"] = gAgent.getSecureSessionID().asString();
+    params["language"] = LLUI::getLanguage();
+    params["levelId"] = newLevel;
+    params["billableArea"] = mIsForGroup ? 0 : mParcelBillableArea;
+    params["currencyBuy"] = mCurrency.getAmount();
+    params["estimatedCost"] = mCurrency.getUSDEstimate();
+    params["estimatedLocalCost"] = mCurrency.getLocalEstimate();
+    params["confirm"] = mSiteConfirm;
+
     if (!password.empty())
     {
-        keywordArgs.appendString("password", password);
+        params["password"] = password;
     }
-
-    LLXMLRPCValue params = LLXMLRPCValue::createArray();
-    params.append(keywordArgs);
 
     startTransaction(TransactionBuy, params);
 }
 
 void LLFloaterBuyLandUI::finishWebSitePrep()
 {
-    LLXMLRPCValue result = mTransaction->responseValue();
+    const LLSD& result = mTransaction->response();
 
-    bool success = result["success"].asBool();
+    bool success = result["success"].asBoolean();
     if (!success)
     {
         tellUserError(
@@ -850,7 +833,7 @@ void LLFloaterBuyLandUI::updateGroupName(const LLUUID& id,
     }
 }
 
-void LLFloaterBuyLandUI::startTransaction(TransactionType type, const LLXMLRPCValue& params)
+void LLFloaterBuyLandUI::startTransaction(TransactionType type, const LLSD& params)
 {
     delete mTransaction;
     mTransaction = NULL;
@@ -878,12 +861,7 @@ void LLFloaterBuyLandUI::startTransaction(TransactionType type, const LLXMLRPCVa
             return;
     }
 
-    mTransaction = new LLXMLRPCTransaction(
-        transaction_uri,
-        method,
-        params,
-        false /* don't use gzip */
-        );
+    mTransaction = new LLXMLRPCTransaction(transaction_uri, method, params);
 }
 
 bool LLFloaterBuyLandUI::checkTransaction()
@@ -929,7 +907,7 @@ void LLFloaterBuyLandUI::tellUserError(
 
 
 // virtual
-BOOL LLFloaterBuyLandUI::postBuild()
+bool LLFloaterBuyLandUI::postBuild()
 {
     setVisibleCallback(boost::bind(&LLFloaterBuyLandUI::onVisibilityChanged, this, _2));
 
@@ -941,7 +919,7 @@ BOOL LLFloaterBuyLandUI::postBuild()
 
     center();
 
-    return TRUE;
+    return true;
 }
 
 void LLFloaterBuyLandUI::setParcel(LLViewerRegion* region, LLParcelSelectionHandle parcel)
@@ -994,7 +972,7 @@ void LLFloaterBuyLandUI::draw()
 }
 
 // virtual
-BOOL LLFloaterBuyLandUI::canClose()
+bool LLFloaterBuyLandUI::canClose()
 {
     // mTransactionType check for pre-buy estimation stage and mCurrency to allow exit after transaction
     bool can_close = !mTransaction && (mTransactionType != TransactionBuy || mCurrency.canCancel());
@@ -1097,9 +1075,9 @@ void LLFloaterBuyLandUI::refreshUI()
     }
     else
     {
-        getChildView("step_error")->setVisible(FALSE);
-        getChildView("error_message")->setVisible(FALSE);
-        getChildView("error_web")->setVisible(FALSE);
+        getChildView("step_error")->setVisible(false);
+        getChildView("error_message")->setVisible(false);
+        getChildView("error_web")->setVisible(false);
     }
 
 
@@ -1134,16 +1112,16 @@ void LLFloaterBuyLandUI::refreshUI()
             levels->setCurrentByIndex(mUserPlanChoice);
         }
 
-        getChildView("step_1")->setVisible(TRUE);
-        getChildView("account_action")->setVisible(TRUE);
-        getChildView("account_reason")->setVisible(TRUE);
+        getChildView("step_1")->setVisible(true);
+        getChildView("account_action")->setVisible(true);
+        getChildView("account_reason")->setVisible(true);
     }
     else
     {
-        getChildView("step_1")->setVisible(FALSE);
-        getChildView("account_action")->setVisible(FALSE);
-        getChildView("account_reason")->setVisible(FALSE);
-        getChildView("account_level")->setVisible(FALSE);
+        getChildView("step_1")->setVisible(false);
+        getChildView("account_action")->setVisible(false);
+        getChildView("account_reason")->setVisible(false);
+        getChildView("account_level")->setVisible(false);
     }
 
     // section two: land use fees
@@ -1201,15 +1179,15 @@ void LLFloaterBuyLandUI::refreshUI()
 
         getChild<LLUICtrl>("land_use_reason")->setValue(message);
 
-        getChildView("step_2")->setVisible(TRUE);
-        getChildView("land_use_action")->setVisible(TRUE);
-        getChildView("land_use_reason")->setVisible(TRUE);
+        getChildView("step_2")->setVisible(true);
+        getChildView("land_use_action")->setVisible(true);
+        getChildView("land_use_reason")->setVisible(true);
     }
     else
     {
-        getChildView("step_2")->setVisible(FALSE);
-        getChildView("land_use_action")->setVisible(FALSE);
-        getChildView("land_use_reason")->setVisible(FALSE);
+        getChildView("step_2")->setVisible(false);
+        getChildView("land_use_action")->setVisible(false);
+        getChildView("land_use_reason")->setVisible(false);
     }
 
     // section three: purchase & currency
@@ -1281,18 +1259,18 @@ void LLFloaterBuyLandUI::refreshUI()
                             llformat("%d", minContribution));
         getChildView("remove_contribution")->setVisible( showRemoveContribution);
 
-        getChildView("step_3")->setVisible(TRUE);
-        getChildView("purchase_action")->setVisible(TRUE);
-        getChildView("currency_reason")->setVisible(TRUE);
-        getChildView("currency_balance")->setVisible(TRUE);
+        getChildView("step_3")->setVisible(true);
+        getChildView("purchase_action")->setVisible(true);
+        getChildView("currency_reason")->setVisible(true);
+        getChildView("currency_balance")->setVisible(true);
     }
     else
     {
-        getChildView("step_3")->setVisible(FALSE);
-        getChildView("purchase_action")->setVisible(FALSE);
-        getChildView("currency_reason")->setVisible(FALSE);
-        getChildView("currency_balance")->setVisible(FALSE);
-        getChildView("remove_group_donation")->setVisible(FALSE);
+        getChildView("step_3")->setVisible(false);
+        getChildView("purchase_action")->setVisible(false);
+        getChildView("currency_reason")->setVisible(false);
+        getChildView("currency_balance")->setVisible(false);
+        getChildView("remove_group_donation")->setVisible(false);
     }
 
 

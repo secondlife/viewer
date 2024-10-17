@@ -33,7 +33,6 @@
 
 #include "llagentwearables.h"
 #include "llappearancemgr.h"
-#include "llinventoryfunctions.h"
 #include "llinventoryicon.h"
 #include "llgesturemgr.h"
 #include "lltransutil.h"
@@ -41,14 +40,6 @@
 #include "llviewermenu.h"
 #include "llvoavatarself.h"
 
-class LLFindOutfitItems : public LLInventoryCollectFunctor
-{
-public:
-    LLFindOutfitItems() {}
-    virtual ~LLFindOutfitItems() {}
-    virtual bool operator()(LLInventoryCategory* cat,
-                            LLInventoryItem* item);
-};
 
 bool LLFindOutfitItems::operator()(LLInventoryCategory* cat,
                                    LLInventoryItem* item)
@@ -60,10 +51,10 @@ bool LLFindOutfitItems::operator()(LLInventoryCategory* cat,
            || (item->getType() == LLAssetType::AT_OBJECT)
            || (item->getType() == LLAssetType::AT_GESTURE))
         {
-            return TRUE;
+            return true;
         }
     }
-    return FALSE;
+    return false;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -100,25 +91,31 @@ LLPanelWearableOutfitItem::Params::Params()
 {
 }
 
-BOOL LLPanelWearableOutfitItem::postBuild()
+bool LLPanelWearableOutfitItem::postBuild()
 {
+    if (mShowWidgets)
+    {
+        mAddWearableBtn = getChild<LLButton>("add_wearable");
+        mRemoveWearableBtn = getChild<LLButton>("remove_wearable");
+    }
+
     LLPanelWearableListItem::postBuild();
 
     if(mShowWidgets)
     {
-        addWidgetToRightSide("add_wearable");
-        addWidgetToRightSide("remove_wearable");
+        addWidgetToRightSide(mAddWearableBtn);
+        addWidgetToRightSide(mRemoveWearableBtn);
 
-        childSetAction("add_wearable", boost::bind(&LLPanelWearableOutfitItem::onAddWearable, this));
-        childSetAction("remove_wearable", boost::bind(&LLPanelWearableOutfitItem::onRemoveWearable, this));
+        mAddWearableBtn->setClickedCallback(boost::bind(&LLPanelWearableOutfitItem::onAddWearable, this));
+        mRemoveWearableBtn->setClickedCallback(boost::bind(&LLPanelWearableOutfitItem::onRemoveWearable, this));
 
         setWidgetsVisible(false);
         reshapeWidgets();
     }
-    return TRUE;
+    return true;
 }
 
-BOOL LLPanelWearableOutfitItem::handleDoubleClick(S32 x, S32 y, MASK mask)
+bool LLPanelWearableOutfitItem::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
     if(!mShowWidgets)
     {
@@ -133,7 +130,7 @@ BOOL LLPanelWearableOutfitItem::handleDoubleClick(S32 x, S32 y, MASK mask)
     {
         onAddWearable();
     }
-    return TRUE;
+    return true;
 }
 
 void LLPanelWearableOutfitItem::onAddWearable()
@@ -205,12 +202,12 @@ void LLPanelWearableOutfitItem::updateItem(const std::string& name,
     }
     if(mShowWidgets)
     {
-        setShowWidget("add_wearable", !is_worn);
+        setShowWidget(mAddWearableBtn, !is_worn);
 
         // Body parts can't be removed, only replaced
         LLViewerInventoryItem* inv_item = getItem();
         bool show_remove = is_worn && inv_item && (inv_item->getType() != LLAssetType::AT_BODYPART);
-        setShowWidget("remove_wearable", show_remove);
+        setShowWidget(mRemoveWearableBtn, show_remove);
 
         if(mHovered)
         {
@@ -293,7 +290,7 @@ LLPanelClothingListItem::~LLPanelClothingListItem()
 {
 }
 
-BOOL LLPanelClothingListItem::postBuild()
+bool LLPanelClothingListItem::postBuild()
 {
     LLPanelDeletableWearableListItem::postBuild();
 
@@ -305,7 +302,7 @@ BOOL LLPanelClothingListItem::postBuild()
     setWidgetsVisible(false);
     reshapeWidgets();
 
-    return TRUE;
+    return true;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -370,7 +367,7 @@ LLPanelBodyPartsListItem::~LLPanelBodyPartsListItem()
 {
 }
 
-BOOL LLPanelBodyPartsListItem::postBuild()
+bool LLPanelBodyPartsListItem::postBuild()
 {
     LLPanelInventoryListItemBase::postBuild();
 
@@ -380,7 +377,7 @@ BOOL LLPanelBodyPartsListItem::postBuild()
     setWidgetsVisible(false);
     reshapeWidgets();
 
-    return TRUE;
+    return true;
 }
 
 static LLWidgetNameRegistry::StaticRegistrar sRegisterPanelDeletableWearableListItem(&typeid(LLPanelDeletableWearableListItem::Params), "deletable_wearable_list_item");
@@ -413,7 +410,7 @@ LLPanelDeletableWearableListItem::LLPanelDeletableWearableListItem(LLViewerInven
     setSeparatorVisible(true);
 }
 
-BOOL LLPanelDeletableWearableListItem::postBuild()
+bool LLPanelDeletableWearableListItem::postBuild()
 {
     LLPanelWearableListItem::postBuild();
 
@@ -426,7 +423,7 @@ BOOL LLPanelDeletableWearableListItem::postBuild()
     setWidgetsVisible(false);
     reshapeWidgets();
 
-    return TRUE;
+    return true;
 }
 
 
@@ -486,11 +483,11 @@ LLPanelDummyClothingListItem* LLPanelDummyClothingListItem::create(LLWearableTyp
     return list_item;
 }
 
-BOOL LLPanelDummyClothingListItem::postBuild()
+bool LLPanelDummyClothingListItem::postBuild()
 {
     addWidgetToRightSide("btn_add_panel");
 
-    setIconImage(LLInventoryIcon::getIcon(LLAssetType::AT_CLOTHING, LLInventoryType::IT_NONE, mWearableType, FALSE));
+    setIconImage(LLInventoryIcon::getIcon(LLAssetType::AT_CLOTHING, LLInventoryType::IT_NONE, mWearableType, false));
     updateItem(wearableTypeToString(mWearableType));
 
     // Make it look loke clothing item - reserve space for 'delete' button
@@ -499,7 +496,7 @@ BOOL LLPanelDummyClothingListItem::postBuild()
     setWidgetsVisible(false);
     reshapeWidgets();
 
-    return TRUE;
+    return true;
 }
 
 LLWearableType::EType LLPanelDummyClothingListItem::getWearableType() const
@@ -888,7 +885,7 @@ void LLWearableItemsList::ContextMenu::show(LLView* spawning_view, LLWearableTyp
     }
 
     LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
-    registrar.add("Wearable.CreateNew", boost::bind(createNewWearableByType, w_type));
+    registrar.add("Wearable.CreateNew", { boost::bind(createNewWearableByType, w_type), cb_info::UNTRUSTED_THROTTLE });
     menup = createFromFile("menu_wearable_list_item.xml");
     if (!menup)
     {
@@ -914,7 +911,7 @@ void LLWearableItemsList::ContextMenu::show(LLView* spawning_view, LLWearableTyp
 // virtual
 LLContextMenu* LLWearableItemsList::ContextMenu::createMenu()
 {
-    LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+    LLUICtrl::ScopedRegistrarHelper registrar;
     const uuid_vec_t& ids = mUUIDs;     // selected items IDs
     LLUUID selected_id = ids.front();   // ID of the first selected item
 
@@ -925,8 +922,8 @@ LLContextMenu* LLWearableItemsList::ContextMenu::createMenu()
     registrar.add("Wearable.CreateNew", boost::bind(createNewWearable, selected_id));
     registrar.add("Wearable.ShowOriginal", boost::bind(show_item_original, selected_id));
     registrar.add("Wearable.TakeOffDetach",
-
                   boost::bind(&LLAppearanceMgr::removeItemsFromAvatar, LLAppearanceMgr::getInstance(), ids, no_op));
+
     // Register handlers for clothing.
     registrar.add("Clothing.TakeOff",
                   boost::bind(&LLAppearanceMgr::removeItemsFromAvatar, LLAppearanceMgr::getInstance(), ids, no_op));
@@ -960,14 +957,15 @@ void LLWearableItemsList::ContextMenu::updateItemsVisibility(LLContextMenu* menu
         return;
     }
 
-    const uuid_vec_t& ids = mUUIDs; // selected items IDs
-    U32 mask = 0;                   // mask of selected items' types
-    U32 n_items = ids.size();       // number of selected items
-    U32 n_worn = 0;                 // number of worn items among the selected ones
-    U32 n_already_worn = 0;         // number of items worn of same type as selected items
-    U32 n_links = 0;                // number of links among the selected items
-    U32 n_editable = 0;             // number of editable items among the selected ones
-    U32 n_touchable = 0;            // number of touchable items among the selected ones
+    const uuid_vec_t& ids = mUUIDs;             // selected items IDs
+    U32 mask = 0;                               // mask of selected items' types
+    U32 n_items = static_cast<U32>(ids.size()); // number of selected items
+    U32 n_worn = 0;                             // number of worn items among the selected ones
+    U32 n_already_worn = 0;                     // number of items worn of same type as selected items
+    U32 n_links = 0;                            // number of links among the selected items
+    U32 n_editable = 0;                         // number of editable items among the selected ones
+    U32 n_touchable = 0;                        // number of touchable items among the selected ones
+    U32 n_favorites = 0;                        // number of favorite items among the selected ones
 
     bool can_be_worn = true;
     bool can_favorite = false;
@@ -1052,8 +1050,8 @@ void LLWearableItemsList::ContextMenu::updateItemsVisibility(LLContextMenu* menu
     setMenuItemEnabled(menu, "take_off_or_detach",  n_worn == n_items);
     setMenuItemVisible(menu, "object_profile",      !standalone);
     setMenuItemEnabled(menu, "object_profile",      n_items == 1);
-    setMenuItemVisible(menu, "--no options--",      FALSE);
-    setMenuItemEnabled(menu, "--no options--",      FALSE);
+    setMenuItemVisible(menu, "--no options--",      false);
+    setMenuItemEnabled(menu, "--no options--",      false);
 
     // Populate or hide the "Attach to..." / "Attach to HUD..." submenus.
     if (mask == MASK_ATTACHMENT && n_worn == 0)
@@ -1082,7 +1080,7 @@ void LLWearableItemsList::ContextMenu::updateItemsVisibility(LLContextMenu* menu
     }
     if (num_visible_items == 0)
     {
-        setMenuItemVisible(menu, "--no options--", TRUE);
+        setMenuItemVisible(menu, "--no options--", true);
     }
 }
 
@@ -1102,8 +1100,8 @@ void LLWearableItemsList::ContextMenu::updateItemsLabels(LLContextMenu* menu)
     menu_item->setLabel(new_label);
 }
 
-// We need this method to convert non-zero BOOL values to exactly 1 (TRUE).
-// Otherwise code relying on a BOOL value being TRUE may fail
+// We need this method to convert non-zero bool values to exactly 1 (true).
+// Otherwise code relying on a bool value being true may fail
 // (I experienced a weird assert in LLView::drawChildren() because of that.
 // static
 void LLWearableItemsList::ContextMenu::setMenuItemVisible(LLContextMenu* menu, const std::string& name, bool val)

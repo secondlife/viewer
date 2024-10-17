@@ -75,7 +75,7 @@ S32 check_for_invalid_wav_formats(const std::string& in_fname, std::string& erro
     U32 chunk_length = 0;
     U32 raw_data_length = 0;
     U32 bytes_per_sec = 0;
-    BOOL uncompressed_pcm = FALSE;
+    bool uncompressed_pcm = false;
 
     unsigned char wav_header[44];       /*Flawfinder: ignore*/
 
@@ -133,7 +133,7 @@ S32 check_for_invalid_wav_formats(const std::string& in_fname, std::string& erro
         {
             if ((wav_header[8] == 0x01) && (wav_header[9] == 0x00))
             {
-                uncompressed_pcm = TRUE;
+                uncompressed_pcm = true;
             }
             num_channels = ((U16) wav_header[11] << 8) + wav_header[10];
             sample_rate = ((U32) wav_header[15] << 24)

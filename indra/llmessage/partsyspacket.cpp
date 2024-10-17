@@ -89,7 +89,7 @@ void gSetInitDataDefaults(LLPartInitData *setMe)
         setMe->mFlags[i] = 0x00;
     }
 
-    setMe->createMe = TRUE;
+    setMe->createMe = true;
 
     setMe->maxParticles = 25;
     setMe->initialParticles = 25;
@@ -1052,7 +1052,7 @@ U32 LLPartSysCompressedPacket::readWindDiffusionFactor(LLPartInitData *in, U32 s
     return startByte;
 }
 
-BOOL LLPartSysCompressedPacket::fromLLPartInitData(LLPartInitData *in, U32 &bytesUsed)
+bool LLPartSysCompressedPacket::fromLLPartInitData(LLPartInitData *in, U32 &bytesUsed)
 {
 
     writeFlagByte(in);
@@ -1168,10 +1168,10 @@ BOOL LLPartSysCompressedPacket::fromLLPartInitData(LLPartInitData *in, U32 &byte
 
 //  llprintline("returning from \"fromLLPartInitData\" with %d bytes\n", bytesUsed);
 
-    return TRUE;
+    return true;
 }
 
-BOOL LLPartSysCompressedPacket::toLLPartInitData(LLPartInitData *out, U32 *bytesUsed)
+bool LLPartSysCompressedPacket::toLLPartInitData(LLPartInitData *out, U32 *bytesUsed)
 {
     U32 currByte = 4;
 
@@ -1259,21 +1259,21 @@ BOOL LLPartSysCompressedPacket::toLLPartInitData(LLPartInitData *out, U32 *bytes
     }
 
     *bytesUsed = currByte;
-    return TRUE;
+    return true;
 }
 
-BOOL LLPartSysCompressedPacket::fromUnsignedBytes(U8 *in, U32 bytesUsed)
+bool LLPartSysCompressedPacket::fromUnsignedBytes(U8 *in, U32 bytesUsed)
 {
     if ((in != NULL) && (bytesUsed <= sizeof(mData)))
     {
         memcpy(mData, in, bytesUsed);   /* Flawfinder: ignore */
         mNumBytes = bytesUsed;
-        return TRUE;
+        return true;
     }
     else
     {
         LL_ERRS() << "NULL input data or number of bytes exceed mData size" << LL_ENDL;
-        return FALSE;
+        return false;
     }
 }
 
@@ -1283,10 +1283,10 @@ U32 LLPartSysCompressedPacket::bufferSize()
     return mNumBytes;
 }
 
-BOOL LLPartSysCompressedPacket::toUnsignedBytes(U8 *out)
+bool LLPartSysCompressedPacket::toUnsignedBytes(U8 *out)
 {
     memcpy(out, mData, mNumBytes);      /* Flawfinder: ignore */
-    return TRUE;
+    return true;
 }
 
 U8 * LLPartSysCompressedPacket::getBytePtr()

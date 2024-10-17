@@ -30,8 +30,6 @@
 #include <boost/bind.hpp>
 #include <boost/range.hpp>
 #include <boost/utility.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/make_shared.hpp>
 
 #include "linden_common.h"
 
@@ -113,14 +111,13 @@ namespace tut
 
     void test_data::explicit_wait(std::shared_ptr<LLCoros::Promise<std::string>>& cbp)
     {
-        BEGIN
-        {
-            mSync.bump();
-            // The point of this test is to verify / illustrate suspending a
-            // coroutine for something other than an LLEventPump. In other
-            // words, this shows how to adapt to any async operation that
-            // provides a callback-style notification (and prove that it
-            // works).
+        DEBUG;
+        mSync.bump();
+        // The point of this test is to verify / illustrate suspending a
+        // coroutine for something other than an LLEventPump. In other
+        // words, this shows how to adapt to any async operation that
+        // provides a callback-style notification (and prove that it
+        // works).
 
             // Perhaps we would send a request to a remote server and arrange
             // for cbp->set_value() to be called on response.
@@ -130,13 +127,11 @@ namespace tut
             cbp = std::make_shared<LLCoros::Promise<std::string>>();
             LLCoros::Future<std::string> future = LLCoros::getFuture(*cbp);
 
-            // calling get() on the future causes us to suspend
-            debug("about to suspend");
-            stringdata = future.get();
-            mSync.bump();
-            ensure_equals("Got it", stringdata, "received");
-        }
-        END
+        // calling get() on the future causes us to suspend
+        debug("about to suspend");
+        stringdata = future.get();
+        mSync.bump();
+        ensure_equals("Got it", stringdata, "received");
     }
 
     template<> template<>
@@ -163,13 +158,9 @@ namespace tut
 
     void test_data::waitForEventOn1()
     {
-        BEGIN
-        {
-            mSync.bump();
-            result = suspendUntilEventOn("source");
-            mSync.bump();
-        }
-        END
+        mSync.bump();
+        result = suspendUntilEventOn("source");
+        mSync.bump();
     }
 
     template<> template<>
@@ -189,15 +180,11 @@ namespace tut
 
     void test_data::coroPump()
     {
-        BEGIN
-        {
-            mSync.bump();
-            LLCoroEventPump waiter;
-            replyName = waiter.getName();
-            result = waiter.suspend();
-            mSync.bump();
-        }
-        END
+        mSync.bump();
+        LLCoroEventPump waiter;
+        replyName = waiter.getName();
+        result = waiter.suspend();
+        mSync.bump();
     }
 
     template<> template<>
@@ -217,16 +204,12 @@ namespace tut
 
     void test_data::postAndWait1()
     {
-        BEGIN
-        {
-            mSync.bump();
-            result = postAndSuspend(LLSDMap("value", 17),       // request event
-                                 immediateAPI.getPump(),     // requestPump
-                                 "reply1",                   // replyPump
-                                 "reply");                   // request["reply"] = name
-            mSync.bump();
-        }
-        END
+        mSync.bump();
+        result = postAndSuspend(LLSDMap("value", 17),       // request event
+                                immediateAPI.getPump(),     // requestPump
+                                "reply1",                   // replyPump
+                                "reply");                   // request["reply"] = name
+        mSync.bump();
     }
 
     template<> template<>
@@ -240,15 +223,11 @@ namespace tut
 
     void test_data::coroPumpPost()
     {
-        BEGIN
-        {
-            mSync.bump();
-            LLCoroEventPump waiter;
-            result = waiter.postAndSuspend(LLSDMap("value", 17),
-                                        immediateAPI.getPump(), "reply");
-            mSync.bump();
-        }
-        END
+        mSync.bump();
+        LLCoroEventPump waiter;
+        result = waiter.postAndSuspend(LLSDMap("value", 17),
+                                       immediateAPI.getPump(), "reply");
+        mSync.bump();
     }
 
     template<> template<>

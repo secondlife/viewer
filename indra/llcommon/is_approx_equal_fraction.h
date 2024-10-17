@@ -43,9 +43,9 @@
  * signatures.
  */
 template <typename FTYPE>
-inline BOOL is_approx_equal_fraction_impl(FTYPE x, FTYPE y, U32 frac_bits)
+inline bool is_approx_equal_fraction_impl(FTYPE x, FTYPE y, U32 frac_bits)
 {
-    BOOL ret = TRUE;
+    bool ret = true;
     FTYPE diff = (FTYPE) fabs(x - y);
 
     S32 diffInt = (S32) diff;
@@ -58,20 +58,20 @@ inline BOOL is_approx_equal_fraction_impl(FTYPE x, FTYPE y, U32 frac_bits)
     // based on the number of bits used for packing decimal portion.
     if (diffInt != 0 || diffFracTolerance > 1)
     {
-        ret = FALSE;
+        ret = false;
     }
 
     return ret;
 }
 
 /// F32 flavor
-inline BOOL is_approx_equal_fraction(F32 x, F32 y, U32 frac_bits)
+inline bool is_approx_equal_fraction(F32 x, F32 y, U32 frac_bits)
 {
     return is_approx_equal_fraction_impl<F32>(x, y, frac_bits);
 }
 
 /// F64 flavor
-inline BOOL is_approx_equal_fraction(F64 x, F64 y, U32 frac_bits)
+inline bool is_approx_equal_fraction(F64 x, F64 y, U32 frac_bits)
 {
     return is_approx_equal_fraction_impl<F64>(x, y, frac_bits);
 }

@@ -28,7 +28,6 @@
 #define LL_LLSKY_H
 
 #include "llmath.h"
-//#include "vmath.h"
 #include "v3math.h"
 #include "v4math.h"
 #include "v4color.h"
@@ -72,7 +71,7 @@ public:
     void updateSky();
 
     S32  mLightingGeneration;
-    BOOL mUpdatedThisFrame;
+    bool mUpdatedThisFrame;
 
     void setFogRatio(const F32 fog_ratio);      // Fog distance as fraction of cull distance.
     F32 getFogRatio() const;

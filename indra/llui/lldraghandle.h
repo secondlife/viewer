@@ -61,20 +61,20 @@ public:
 
     virtual void setValue(const LLSD& value);
 
-    void            setForeground(BOOL b)       { mForeground = b; }
-    BOOL            getForeground() const       { return mForeground; }
+    void            setForeground(bool b)       { mForeground = b; }
+    bool            getForeground() const       { return mForeground; }
     void            setMaxTitleWidth(S32 max_width) {mMaxTitleWidth = llmin(max_width, mMaxTitleWidth); }
     S32             getMaxTitleWidth() const { return mMaxTitleWidth; }
     void            setButtonsRect(const LLRect& rect){ mButtonsRect = rect; }
-    LLRect          getButtonsRect() { return mButtonsRect; }
-    void            setTitleVisible(BOOL visible);
+    LLRect          getButtonsRect() const { return mButtonsRect; }
+    void            setTitleVisible(bool visible);
 
     virtual void    setTitle( const std::string& title ) = 0;
     virtual std::string getTitle() const = 0;
 
-    virtual BOOL    handleHover(S32 x, S32 y, MASK mask);
-    virtual BOOL    handleMouseDown(S32 x, S32 y, MASK mask);
-    virtual BOOL    handleMouseUp(S32 x, S32 y, MASK mask);
+    virtual bool    handleHover(S32 x, S32 y, MASK mask);
+    virtual bool    handleMouseDown(S32 x, S32 y, MASK mask);
+    virtual bool    handleMouseUp(S32 x, S32 y, MASK mask);
 
 protected:
     LLDragHandle(const Params&);
@@ -93,7 +93,7 @@ private:
     LLUIColor       mDragHighlightColor;
     LLUIColor       mDragShadowColor;
     S32             mMaxTitleWidth;
-    BOOL            mForeground;
+    bool            mForeground;
 
     // Pixels near the edge to snap floaters.
     static S32      sSnapMargin;
@@ -111,7 +111,7 @@ public:
     virtual void    setTitle( const std::string& title );
     virtual std::string getTitle() const;
     virtual void    draw();
-    virtual void    reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
+    virtual void    reshape(S32 width, S32 height, bool called_from_parent = true);
 
 private:
     void    reshapeTitleBox();
@@ -129,7 +129,7 @@ public:
     virtual void    setTitle( const std::string& title );
     virtual std::string getTitle() const;
     virtual void    draw();
-    virtual void    reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
+    virtual void    reshape(S32 width, S32 height, bool called_from_parent = true);
 
 };
 

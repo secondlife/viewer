@@ -38,14 +38,14 @@ LLFloaterCameraPresets::LLFloaterCameraPresets(const LLSD& key)
 LLFloaterCameraPresets::~LLFloaterCameraPresets()
 {}
 
-BOOL LLFloaterCameraPresets::postBuild()
+bool LLFloaterCameraPresets::postBuild()
 {
     mPresetList = getChild<LLFlatListView>("preset_list");
     mPresetList->setCommitCallback(boost::bind(&LLFloaterCameraPresets::onSelectionChange, this));
     mPresetList->setCommitOnSelectionChange(true);
     LLPresetsManager::getInstance()->setPresetListChangeCameraCallback(boost::bind(&LLFloaterCameraPresets::populateList, this));
 
-    return TRUE;
+    return true;
 }
 void LLFloaterCameraPresets::onOpen(const LLSD& key)
 {
@@ -90,8 +90,8 @@ LLCameraPresetFlatItem::LLCameraPresetFlatItem(const std::string &preset_name, b
     mPresetName(preset_name),
     mIsDefaultPrest(is_default)
 {
-    mCommitCallbackRegistrar.add("CameraPresets.Delete", boost::bind(&LLCameraPresetFlatItem::onDeleteBtnClick, this));
-    mCommitCallbackRegistrar.add("CameraPresets.Reset", boost::bind(&LLCameraPresetFlatItem::onResetBtnClick, this));
+    mCommitCallbackRegistrar.add("CameraPresets.Delete", { boost::bind(&LLCameraPresetFlatItem::onDeleteBtnClick, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("CameraPresets.Reset", { boost::bind(&LLCameraPresetFlatItem::onResetBtnClick, this), cb_info::UNTRUSTED_BLOCK });
     buildFromFile("panel_camera_preset_item.xml");
 }
 
@@ -99,7 +99,7 @@ LLCameraPresetFlatItem::~LLCameraPresetFlatItem()
 {
 }
 
-BOOL LLCameraPresetFlatItem::postBuild()
+bool LLCameraPresetFlatItem::postBuild()
 {
     mDeleteBtn = getChild<LLButton>("delete_btn");
     mDeleteBtn->setVisible(false);

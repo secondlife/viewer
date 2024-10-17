@@ -88,17 +88,17 @@ public:
     };
 
     // LLView interface
-    /*virtual*/ void        setEnabled(BOOL enabled);
-    /*virtual*/ BOOL        handleToolTip(S32 x, S32 y, MASK mask);
-    /*virtual*/ BOOL        handleKeyHere(KEY key, MASK mask);
+    /*virtual*/ void        setEnabled(bool enabled);
+    /*virtual*/ bool        handleToolTip(S32 x, S32 y, MASK mask);
+    /*virtual*/ bool        handleKeyHere(KEY key, MASK mask);
     /*virtual*/ void        onFocusReceived();
     /*virtual*/ void        onFocusLost();
     /*virtual*/ void        draw();
-    /*virtual*/ void        reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
+    /*virtual*/ void        reshape(S32 width, S32 height, bool called_from_parent = true);
     //========================================================================
 
     // LLUICtrl interface
-    /*virtual*/ void        setFocus(BOOL b);
+    /*virtual*/ void        setFocus(bool b);
     //========================================================================
 
     // LLComboBox interface

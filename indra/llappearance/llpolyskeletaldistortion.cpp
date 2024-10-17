@@ -34,7 +34,6 @@
 #include "llpolymorph.h"
 #include "llwearable.h"
 #include "llfasttimer.h"
-#include "llcallstack.h"
 
 #include "llpolyskeletaldistortion.h"
 
@@ -45,12 +44,12 @@ LLPolySkeletalDistortionInfo::LLPolySkeletalDistortionInfo()
 {
 }
 
-BOOL LLPolySkeletalDistortionInfo::parseXml(LLXmlTreeNode* node)
+bool LLPolySkeletalDistortionInfo::parseXml(LLXmlTreeNode* node)
 {
         llassert( node->hasName( "param" ) && node->getChildByName( "param_skeleton" ) );
 
         if (!LLViewerVisualParamInfo::parseXml(node))
-                return FALSE;
+                return false;
 
         LLXmlTreeNode* skeletalParam = node->getChildByName("param_skeleton");
 
@@ -58,7 +57,7 @@ BOOL LLPolySkeletalDistortionInfo::parseXml(LLXmlTreeNode* node)
         {
                 LL_WARNS() << "Failed to getChildByName(\"param_skeleton\")"
                         << LL_ENDL;
-                return FALSE;
+                return false;
         }
 
         for( LLXmlTreeNode* bone = skeletalParam->getFirstChild(); bone; bone = skeletalParam->getNextChild() )
@@ -68,7 +67,7 @@ BOOL LLPolySkeletalDistortionInfo::parseXml(LLXmlTreeNode* node)
                         std::string name;
                         LLVector3 scale;
                         LLVector3 pos;
-                        BOOL haspos = FALSE;
+                        bool haspos = false;
 
                         static LLStdStringHandle name_string = LLXmlTree::addAttributeString("name");
                         if (!bone->getFastAttributeString(name_string, name))
@@ -88,7 +87,7 @@ BOOL LLPolySkeletalDistortionInfo::parseXml(LLXmlTreeNode* node)
                         static LLStdStringHandle offset_string = LLXmlTree::addAttributeString("offset");
                         if (bone->getFastAttributeVector3(offset_string, pos))
                         {
-                                haspos = TRUE;
+                                haspos = true;
                         }
                         mBoneInfoList.push_back(LLPolySkeletalBoneInfo(name, scale, pos, haspos));
                 }
@@ -98,7 +97,7 @@ BOOL LLPolySkeletalDistortionInfo::parseXml(LLXmlTreeNode* node)
                         continue;
                 }
         }
-        return TRUE;
+        return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -133,11 +132,11 @@ LLPolySkeletalDistortion::~LLPolySkeletalDistortion()
 {
 }
 
-BOOL LLPolySkeletalDistortion::setInfo(LLPolySkeletalDistortionInfo *info)
+bool LLPolySkeletalDistortion::setInfo(LLPolySkeletalDistortionInfo *info)
 {
     if (info->mID < 0)
     {
-        return FALSE;
+        return false;
     }
     mInfo = info;
     mID = info->mID;
@@ -151,7 +150,7 @@ BOOL LLPolySkeletalDistortion::setInfo(LLPolySkeletalDistortionInfo *info)
             // There's no point continuing after this error - means
             // that either the skeleton or lad file is broken.
             LL_WARNS() << "Joint " << bone_info.mBoneName << " not found." << LL_ENDL;
-            return FALSE;
+            return false;
         }
 
         // store it
@@ -174,7 +173,7 @@ BOOL LLPolySkeletalDistortion::setInfo(LLPolySkeletalDistortionInfo *info)
             mJointOffsets[joint] = bone_info.mPositionDeformation;
         }
     }
-    return TRUE;
+    return true;
 }
 
 /*virtual*/ LLViewerVisualParam* LLPolySkeletalDistortion::cloneParam(LLWearable* wearable) const
@@ -203,11 +202,6 @@ void LLPolySkeletalDistortion::apply( ESex avatar_sex )
         //An aspect of attached mesh objects (which contain joint offsets) that need to be cleaned up when detached
         // needed?
         // joint->storeScaleForReset( newScale );
-
-        // BENTO for detailed stack tracing of params.
-        std::stringstream ostr;
-        ostr << "LLPolySkeletalDistortion::apply, id " << getID() << " " << getName() << " effective wt " << effective_weight << " last wt " << mLastWeight << " scaleDelta " << scaleDelta << " offset " << offset;
-        LLScopedContextString str(ostr.str());
 
         joint->setScale(newScale, true);
     }

@@ -61,13 +61,13 @@ public:
     LLStatBar(const Params&);
 
     virtual void draw();
-    virtual BOOL handleMouseDown(S32 x, S32 y, MASK mask);
-    virtual BOOL handleHover(S32 x, S32 y, MASK mask);
+    virtual bool handleMouseDown(S32 x, S32 y, MASK mask);
+    virtual bool handleHover(S32 x, S32 y, MASK mask);
 
     void setStat(const std::string& stat_name);
 
     void setRange(F32 bar_min, F32 bar_max);
-    void getRange(F32& bar_min, F32& bar_max) { bar_min = mTargetMinBar; bar_max = mTargetMaxBar; }
+    void getRange(F32& bar_min, F32& bar_max) const { bar_min = mTargetMinBar; bar_max = mTargetMaxBar; }
 
     /*virtual*/ LLRect getRequiredRect();   // Return the height of this object, given the set options.
 

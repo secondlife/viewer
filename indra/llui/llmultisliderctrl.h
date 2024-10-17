@@ -83,24 +83,24 @@ public:
     virtual ~LLMultiSliderCtrl();
 
     F32             getSliderValue(const std::string& name) const   { return mMultiSlider->getSliderValue(name); }
-    void            setSliderValue(const std::string& name, F32 v, BOOL from_event = FALSE);
+    void            setSliderValue(const std::string& name, F32 v, bool from_event = false);
 
     virtual void    setValue(const LLSD& value );
     virtual LLSD    getValue() const        { return mMultiSlider->getValue(); }
-    virtual BOOL    setLabelArg( const std::string& key, const LLStringExplicit& text );
+    virtual bool    setLabelArg( const std::string& key, const LLStringExplicit& text );
 
     const std::string& getCurSlider() const                 { return mMultiSlider->getCurSlider(); }
     F32             getCurSliderValue() const               { return mCurValue; }
     void            setCurSlider(const std::string& name);
     void            resetCurSlider();
-    void            setCurSliderValue(F32 val, BOOL from_event = false) { setSliderValue(mMultiSlider->getCurSlider(), val, from_event); }
+    void            setCurSliderValue(F32 val, bool from_event = false) { setSliderValue(mMultiSlider->getCurSlider(), val, from_event); }
 
     virtual void    setMinValue(const LLSD& min_value)  { setMinValue((F32)min_value.asReal()); }
     virtual void    setMaxValue(const LLSD& max_value)  { setMaxValue((F32)max_value.asReal());  }
 
-    BOOL            isMouseHeldDown();
+    bool            isMouseHeldDown();
 
-    virtual void    setEnabled( BOOL b );
+    virtual void    setEnabled( bool b );
     virtual void    clear();
     virtual void    setPrecision(S32 precision);
     void            setMinValue(F32 min_value) {mMultiSlider->setMinValue(min_value);}
@@ -124,21 +124,21 @@ public:
     F32             getMinValue() const { return mMultiSlider->getMinValue(); }
     F32             getMaxValue() const { return mMultiSlider->getMaxValue(); }
 
-    S32             getMaxNumSliders() { return mMultiSlider->getMaxNumSliders(); }
-    S32             getCurNumSliders() { return mMultiSlider->getCurNumSliders(); }
-    F32             getOverlapThreshold() { return mMultiSlider->getOverlapThreshold(); }
-    bool            canAddSliders() { return mMultiSlider->canAddSliders(); }
+    S32             getMaxNumSliders() const { return mMultiSlider->getMaxNumSliders(); }
+    S32             getCurNumSliders() const { return mMultiSlider->getCurNumSliders(); }
+    F32             getOverlapThreshold() const { return mMultiSlider->getOverlapThreshold(); }
+    bool            canAddSliders() const { return mMultiSlider->canAddSliders(); }
 
     void            setLabel(const std::string& label)              { if (mLabelBox) mLabelBox->setText(label); }
-    void            setLabelColor(const LLColor4& c)            { mTextEnabledColor = c; }
-    void            setDisabledLabelColor(const LLColor4& c)    { mTextDisabledColor = c; }
+    void            setLabelColor(const LLUIColor& c)            { mTextEnabledColor = c; }
+    void            setDisabledLabelColor(const LLUIColor& c)    { mTextDisabledColor = c; }
 
     boost::signals2::connection setSliderMouseDownCallback( const commit_signal_t::slot_type& cb );
     boost::signals2::connection setSliderMouseUpCallback( const commit_signal_t::slot_type& cb );
 
     virtual void    onTabInto();
 
-    virtual void    setTentative(BOOL b);           // marks value as tentative
+    virtual void    setTentative(bool b);           // marks value as tentative
     virtual void    onCommit();                     // mark not tentative, then commit
 
     virtual void        setControlName(const std::string& control_name, LLView* context);
@@ -147,7 +147,6 @@ public:
 
     static void     onEditorCommit(LLUICtrl* ctrl, const LLSD& userdata);
     static void     onEditorGainFocus(LLFocusableElement* caller, void *userdata);
-    static void     onEditorChangeFocus(LLUICtrl* caller, S32 direction, void *userdata);
 
 private:
     void            updateText();
@@ -155,8 +154,8 @@ private:
 
 private:
     const LLFontGL* mFont;
-    BOOL            mShowText;
-    BOOL            mCanEditText;
+    bool            mShowText;
+    bool            mCanEditText;
 
     S32             mPrecision;
     LLTextBox*      mLabelBox;

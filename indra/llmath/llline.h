@@ -33,7 +33,7 @@
 #include "stdtypes.h"
 #include "v3math.h"
 
-const F32 DEFAULT_INTERSECTION_ERROR = 0.000001f;
+constexpr F32 DEFAULT_INTERSECTION_ERROR = 0.000001f;
 
 class LLLine
 {

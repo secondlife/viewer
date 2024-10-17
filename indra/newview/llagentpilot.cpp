@@ -42,15 +42,15 @@ LLAgentPilot gAgentPilot;
 
 LLAgentPilot::LLAgentPilot() :
     mNumRuns(-1),
-    mQuitAfterRuns(FALSE),
-    mRecording(FALSE),
+    mQuitAfterRuns(false),
+    mRecording(false),
     mLastRecordTime(0.f),
-    mStarted(FALSE),
-    mPlaying(FALSE),
+    mStarted(false),
+    mPlaying(false),
     mCurrentAction(0),
-    mOverrideCamera(FALSE),
-    mLoop(TRUE),
-    mReplaySession(FALSE)
+    mOverrideCamera(false),
+    mLoop(true),
+    mReplaySession(false)
 {
 }
 
@@ -145,7 +145,7 @@ void LLAgentPilot::loadXML(const std::string& filename)
         Action action;
         action.mTime = record["time"].asReal();
         action.mType = (EActionType)record["type"].asInteger();
-        action.mCameraView = record["camera_view"].asReal();
+        action.mCameraView = (F32)record["camera_view"].asReal();
         action.mTarget = ll_vector3d_from_sd(record["target"]);
         action.mCameraOrigin = ll_vector3_from_sd(record["camera_origin"]);
         action.mCameraXAxis = ll_vector3_from_sd(record["camera_xaxis"]);
@@ -221,14 +221,14 @@ void LLAgentPilot::startRecord()
     mActions.clear();
     mTimer.reset();
     addAction(STRAIGHT);
-    mRecording = TRUE;
+    mRecording = true;
 }
 
 void LLAgentPilot::stopRecord()
 {
     gAgentPilot.addAction(STRAIGHT);
     gAgentPilot.save();
-    mRecording = FALSE;
+    mRecording = false;
 }
 
 void LLAgentPilot::addAction(enum EActionType action_type)
@@ -252,7 +252,7 @@ void LLAgentPilot::startPlayback()
 {
     if (!mPlaying)
     {
-        mPlaying = TRUE;
+        mPlaying = true;
         mCurrentAction = 0;
         mTimer.reset();
 
@@ -261,12 +261,12 @@ void LLAgentPilot::startPlayback()
             LL_INFOS() << "Starting playback, moving to waypoint 0" << LL_ENDL;
             gAgent.startAutoPilotGlobal(mActions[0].mTarget);
             moveCamera();
-            mStarted = FALSE;
+            mStarted = false;
         }
         else
         {
             LL_INFOS() << "No autopilot data, cancelling!" << LL_ENDL;
-            mPlaying = FALSE;
+            mPlaying = false;
         }
     }
 }
@@ -275,7 +275,7 @@ void LLAgentPilot::stopPlayback()
 {
     if (mPlaying)
     {
-        mPlaying = FALSE;
+        mPlaying = false;
         mCurrentAction = 0;
         mTimer.reset();
         gAgent.stopAutoPilot();
@@ -297,8 +297,8 @@ void LLAgentPilot::moveCamera()
         S32 start_index = llmax(mCurrentAction-1,0);
         S32 end_index = mCurrentAction;
         F32 t = 0.0;
-        F32 timedelta = mActions[end_index].mTime - mActions[start_index].mTime;
-        F32 tickelapsed = mTimer.getElapsedTimeF32()-mActions[start_index].mTime;
+        F32 timedelta = (F32)(mActions[end_index].mTime - mActions[start_index].mTime);
+        F32 tickelapsed = mTimer.getElapsedTimeF32()-(F32)mActions[start_index].mTime;
         if (timedelta > 0.0)
         {
             t = tickelapsed/timedelta;
@@ -345,7 +345,7 @@ void LLAgentPilot::updateTarget()
                     {
                         LL_INFOS() << "At start, beginning playback" << LL_ENDL;
                         mTimer.reset();
-                        mStarted = TRUE;
+                        mStarted = true;
                     }
                 }
             }

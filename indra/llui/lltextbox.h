@@ -46,32 +46,32 @@ protected:
     friend class LLUICtrlFactory;
 
 public:
-    virtual ~LLTextBox();
+    ~LLTextBox() override;
 
-    /*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
-    /*virtual*/ BOOL handleMouseUp(S32 x, S32 y, MASK mask);
-    /*virtual*/ BOOL handleHover(S32 x, S32 y, MASK mask);
+    bool handleMouseDown(S32 x, S32 y, MASK mask) override;
+    bool handleMouseUp(S32 x, S32 y, MASK mask) override;
+    bool handleHover(S32 x, S32 y, MASK mask) override;
 
-    /*virtual*/ void setEnabled(BOOL enabled);
+    void setEnabled(bool enabled) override;
 
-    /*virtual*/ void setText( const LLStringExplicit& text, const LLStyle::Params& input_params = LLStyle::Params() );
+    void setText(const LLStringExplicit& text, const LLStyle::Params& input_params = LLStyle::Params()) override;
 
-    void            setRightAlign()                         { mHAlign = LLFontGL::RIGHT; }
-    void            setHAlign( LLFontGL::HAlign align )     { mHAlign = align; }
-    void            setClickedCallback( boost::function<void (void*)> cb, void* userdata = NULL );
+    void setRightAlign() { mHAlign = LLFontGL::RIGHT; }
+    void setHAlign(LLFontGL::HAlign align) { mHAlign = align; }
+    void setClickedCallback(boost::function<void(void*)> cb, void* userdata = NULL);
 
-    void            reshapeToFitText(BOOL called_from_parent = FALSE);
+    void reshapeToFitText(bool called_from_parent = false);
 
-    S32             getTextPixelWidth();
-    S32             getTextPixelHeight();
+    S32 getTextPixelWidth();
+    S32 getTextPixelHeight();
 
-    /*virtual*/ LLSD    getValue() const;
-    /*virtual*/ BOOL    setTextArg( const std::string& key, const LLStringExplicit& text );
+    LLSD getValue() const override;
+    bool setTextArg(const std::string& key, const LLStringExplicit& text) override;
 
-    void            setShowCursorHand(bool show_cursor) { mShowCursorHand = show_cursor; }
+    void setShowCursorHand(bool show_cursor) { mShowCursorHand = show_cursor; }
 
 protected:
-    void            onUrlLabelUpdated(const std::string &url, const std::string &label);
+    void onUrlLabelUpdated(const std::string& url, const std::string& label);
 
     LLUIString          mText;
     callback_t          mClickedCallback;
@@ -81,7 +81,7 @@ protected:
 // Build time optimization, generate once in .cpp file
 #ifndef LLTEXTBOX_CPP
 extern template class LLTextBox* LLView::getChild<class LLTextBox>(
-    const std::string& name, BOOL recurse) const;
+    std::string_view name, bool recurse) const;
 #endif
 
 #endif

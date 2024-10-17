@@ -42,7 +42,7 @@ static LLPanelInjector<LLPanelVoiceEffect> t_panel_voice_effect("panel_voice_eff
 LLPanelVoiceEffect::LLPanelVoiceEffect()
     : mVoiceEffectCombo(NULL)
 {
-    mCommitCallbackRegistrar.add("Voice.CommitVoiceEffect", boost::bind(&LLPanelVoiceEffect::onCommitVoiceEffect, this));
+    mCommitCallbackRegistrar.add("Voice.CommitVoiceEffect", { boost::bind(&LLPanelVoiceEffect::onCommitVoiceEffect, this), cb_info::UNTRUSTED_BLOCK });
 }
 
 LLPanelVoiceEffect::~LLPanelVoiceEffect()
@@ -61,7 +61,7 @@ LLPanelVoiceEffect::~LLPanelVoiceEffect()
 }
 
 // virtual
-BOOL LLPanelVoiceEffect::postBuild()
+bool LLPanelVoiceEffect::postBuild()
 {
     mVoiceEffectCombo = getChild<LLComboBox>("voice_effect");
 
@@ -78,7 +78,7 @@ BOOL LLPanelVoiceEffect::postBuild()
 
     update(true);
 
-    return TRUE;
+    return true;
 }
 
 //////////////////////////////////////////////////////////////////////////

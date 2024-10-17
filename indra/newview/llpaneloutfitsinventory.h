@@ -48,7 +48,7 @@ public:
     LLPanelOutfitsInventory();
     virtual ~LLPanelOutfitsInventory();
 
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
     /*virtual*/ void onOpen(const LLSD& key);
 
     void onSearchEdit(const std::string& string);
@@ -109,6 +109,7 @@ protected:
     void onWearablesLoading();
 private:
     LLPanel*                    mListCommands;
+    LLButton*                   mWearBtn = nullptr;
     // List Commands                                                                //
     //////////////////////////////////////////////////////////////////////////////////
 

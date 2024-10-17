@@ -33,8 +33,9 @@
 #include <sys/param.h>  // Need PATH_MAX in APR headers...
 #endif
 
+#include <memory>
 #include <boost/noncopyable.hpp>
-#include "llwin32headerslean.h"
+#include "llwin32headers.h"
 #include "apr_thread_proc.h"
 #include "apr_getopt.h"
 #include "apr_signal.h"
@@ -78,7 +79,7 @@ bool LL_COMMON_API ll_apr_is_initialized();
 class LL_COMMON_API LLAPRPool
 {
 public:
-    LLAPRPool(apr_pool_t *parent = NULL, apr_size_t size = 0, BOOL releasePoolFlag = TRUE) ;
+    LLAPRPool(apr_pool_t *parent = NULL, apr_size_t size = 0, bool releasePoolFlag = true) ;
     virtual ~LLAPRPool() ;
 
     virtual apr_pool_t* getAPRPool() ;
@@ -93,7 +94,7 @@ protected:
     apr_pool_t*  mParent ;            //parent pool
     apr_size_t   mMaxSize ;           //max size of mPool, mPool should return memory to system if allocated memory beyond this limit. However it seems not to work.
     apr_status_t mStatus ;            //status when creating the pool
-    BOOL         mReleasePoolFlag ;   //if set, mPool is destroyed when LLAPRPool is deleted. default value is true.
+    bool         mReleasePoolFlag ;   //if set, mPool is destroyed when LLAPRPool is deleted. default value is true.
 };
 
 //
@@ -104,14 +105,14 @@ protected:
 class LL_COMMON_API LLVolatileAPRPool : public LLAPRPool
 {
 public:
-    LLVolatileAPRPool(BOOL is_local = TRUE, apr_pool_t *parent = NULL, apr_size_t size = 0, BOOL releasePoolFlag = TRUE);
+    LLVolatileAPRPool(bool is_local = true, apr_pool_t *parent = NULL, apr_size_t size = 0, bool releasePoolFlag = true);
     virtual ~LLVolatileAPRPool();
 
     /*virtual*/ apr_pool_t* getAPRPool() ; //define this virtual function to avoid any mistakenly calling LLAPRPool::getAPRPool().
     apr_pool_t* getVolatileAPRPool() ;
     void        clearVolatileAPRPool() ;
 
-    BOOL        isFull() ;
+    bool        isFull() ;
 
 private:
     S32 mNumActiveRef ; //number of active pointers pointing to the apr_pool.
@@ -158,7 +159,7 @@ public:
     ~LLAPRFile() ;
 
     apr_status_t open(const std::string& filename, apr_int32_t flags, LLVolatileAPRPool* pool = NULL, S32* sizep = NULL);
-    apr_status_t open(const std::string& filename, apr_int32_t flags, BOOL use_global_pool); //use gAPRPoolp.
+    apr_status_t open(const std::string& filename, apr_int32_t flags, bool use_global_pool); //use gAPRPoolp.
     apr_status_t close() ;
 
     // Returns actual offset, -1 if seek fails
@@ -193,7 +194,7 @@ public:
 
     // Returns bytes read/written, 0 if read/write fails:
     static S32 readEx(const std::string& filename, void *buf, S32 offset, S32 nbytes, LLVolatileAPRPool* pool = NULL);
-    static S32 writeEx(const std::string& filename, void *buf, S32 offset, S32 nbytes, LLVolatileAPRPool* pool = NULL); // offset<0 means append
+    static S32 writeEx(const std::string& filename, const void *buf, S32 offset, S32 nbytes, LLVolatileAPRPool* pool = NULL); // offset<0 means append
 //*******************************************************************************************************************************
 };
 

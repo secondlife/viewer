@@ -99,29 +99,34 @@ LLKeyConflictHandler::~LLKeyConflictHandler()
     // Note: does not reset bindings if temporary file was used
 }
 
-bool LLKeyConflictHandler::canHandleControl(const std::string &control_name, EMouseClickType mouse_ind, KEY key, MASK mask)
+bool LLKeyConflictHandler::canHandleControl(const std::string &control_name, EMouseClickType mouse_ind, KEY key, MASK mask) const
 {
-    return mControlsMap[control_name].canHandle(mouse_ind, key, mask);
+    control_map_t::const_iterator iter = mControlsMap.find(control_name);
+    if (iter != mControlsMap.end())
+    {
+        return iter->second.canHandle(mouse_ind, key, mask);
+    }
+    return false;
 }
 
-bool LLKeyConflictHandler::canHandleKey(const std::string &control_name, KEY key, MASK mask)
+bool LLKeyConflictHandler::canHandleKey(const std::string &control_name, KEY key, MASK mask) const
 {
     return canHandleControl(control_name, CLICK_NONE, key, mask);
 }
 
-bool LLKeyConflictHandler::canHandleMouse(const std::string &control_name, EMouseClickType mouse_ind, MASK mask)
+bool LLKeyConflictHandler::canHandleMouse(const std::string &control_name, EMouseClickType mouse_ind, MASK mask) const
 {
     return canHandleControl(control_name, mouse_ind, KEY_NONE, mask);
 }
 
-bool LLKeyConflictHandler::canHandleMouse(const std::string &control_name, S32 mouse_ind, MASK mask)
+bool LLKeyConflictHandler::canHandleMouse(const std::string &control_name, S32 mouse_ind, MASK mask) const
 {
     return canHandleControl(control_name, (EMouseClickType)mouse_ind, KEY_NONE, mask);
 }
 
-bool LLKeyConflictHandler::canAssignControl(const std::string &control_name)
+bool LLKeyConflictHandler::canAssignControl(const std::string &control_name) const
 {
-    control_map_t::iterator iter = mControlsMap.find(control_name);
+    control_map_t::const_iterator iter = mControlsMap.find(control_name);
     if (iter != mControlsMap.end())
     {
         return iter->second.mAssignable;
@@ -284,7 +289,7 @@ void LLKeyConflictHandler::loadFromSettings(const LLViewerInput::KeyMode& keymod
             LLKeyboard::keyFromString(it->key, &key);
         }
         LLKeyboard::maskFromString(it->mask, &mask);
-        // Note: it->command is also the name of UI element, howhever xml we are loading from
+        // Note: it->command is also the name of UI element, however xml we are loading from
         // might not know all the commands, so UI will have to know what to fill by its own
         // Assumes U32_MAX conflict mask, and is assignable by default,
         // but assignability might have been overriden by generatePlaceholders.
@@ -476,8 +481,8 @@ void LLKeyConflictHandler::saveToSettings(bool temporary)
                 // so make sure to cleanup.
                 // Also this helps in keeping file small.
                 iter->second.mKeyBind.trimEmpty();
-                U32 size = iter->second.mKeyBind.getDataCount();
-                for (U32 i = 0; i < size; ++i)
+                auto size = iter->second.mKeyBind.getDataCount();
+                for (size_t i = 0; i < size; ++i)
                 {
                     if (iter->first.empty())
                     {
@@ -491,7 +496,7 @@ void LLKeyConflictHandler::saveToSettings(bool temporary)
                         continue;
                     }
 
-                    LLKeyData data = key.mKeyBind.getKeyData(i);
+                    LLKeyData data = key.mKeyBind.getKeyData(static_cast<U32>(i));
                     // Still write empty LLKeyData to make sure we will maintain UI position
                     if (data.mKey == KEY_NONE)
                     {

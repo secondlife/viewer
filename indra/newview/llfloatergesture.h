@@ -56,7 +56,7 @@ public:
     LLFloaterGesture(const LLSD& key);
     virtual ~LLFloaterGesture();
 
-    virtual BOOL postBuild();
+    virtual bool postBuild();
     virtual void done ();
     void refreshAll();
     /**

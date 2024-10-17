@@ -10,17 +10,9 @@ include(Linking)
 include(PluginAPI)
 
 include(CEFPlugin)
-
+include(GLIB)
 
 ### media_plugin_cef
-
-if(NOT ADDRESS_SIZE EQUAL 32)
-  if(WINDOWS)
-    ##add_definitions(/FIXED:NO)
-  else(WINDOWS) # not windows therefore gcc LINUX and DARWIN
-    add_definitions(-fPIC)
-  endif(WINDOWS)
-endif(NOT ADDRESS_SIZE EQUAL 32)
 
 set(media_plugin_cef_SOURCE_FILES
     media_plugin_cef.cpp
@@ -32,10 +24,36 @@ set(media_plugin_cef_HEADER_FILES
 
 # Select which VolumeCatcher implementation to use
 if (LINUX)
-  message(FATAL_ERROR "CEF plugin has been enabled for a Linux compile.\n"
-    "  Please create a volume_catcher implementation for this platform.")
+  foreach( PULSE_FILE pulse/introspect.h pulse/context.h pulse/subscribe.h pulse/glib-mainloop.h )
+    find_path( PULSE_FILE_${PULSE_FILE}_FOUND ${PULSE_FILE} NO_CACHE)
+    if( NOT PULSE_FILE_${PULSE_FILE}_FOUND )
+      message( "Looking for ${PULSE_FILE} ... not found")
+      message( FATAL_ERROR "Pulse header not found" )
+    else()
+      message( "Looking for ${PULSE_FILE} ... found")
+    endif()
+  endforeach()
+  
+  include(FindPipeWire)
+  include_directories(SYSTEM ${PIPEWIRE_INCLUDE_DIRS} ${SPA_INCLUDE_DIRS})
+  
+  message( "Building with Linux volume catcher for PipeWire and PulseAudio" )
+
+  list(APPEND media_plugin_cef_HEADER_FILES
+    linux/volume_catcher_linux.h
+  )
+
+  set(LINUX_VOLUME_CATCHER 
+    linux/volume_catcher_linux.cpp 
+    linux/volume_catcher_pulseaudio.cpp
+    linux/volume_catcher_pipewire.cpp 
+  )
+
+  list(APPEND media_plugin_cef_SOURCE_FILES ${LINUX_VOLUME_CATCHER})
+  set(CMAKE_SHARED_LINKER_FLAGS  "-Wl,--build-id -Wl,-rpath,'$ORIGIN:$ORIGIN/../../lib'")
+  list(APPEND media_plugin_cef_LINK_LIBRARIES llwindow )
 elseif (DARWIN)
-  list(APPEND media_plugin_cef_SOURCE_FILES mac_volume_catcher_null.cpp)
+  list(APPEND media_plugin_cef_SOURCE_FILES volume_catcher_null.cpp)
   find_library(CORESERVICES_LIBRARY CoreServices)
   find_library(AUDIOUNIT_LIBRARY AudioUnit)
   set( media_plugin_cef_LINK_LIBRARIES
@@ -60,13 +78,14 @@ add_library(media_plugin_cef
 target_link_libraries(media_plugin_cef
         media_plugin_base
         ll::cef
+        ll::glib_headers
 )
 
 if (WINDOWS)
   set_target_properties(
     media_plugin_cef
     PROPERTIES
-    LINK_FLAGS "/MANIFEST:NO /SAFESEH:NO /NODEFAULTLIB:LIBCMT /IGNORE:4099"
+    LINK_FLAGS "/MANIFEST:NO /NODEFAULTLIB:LIBCMT /IGNORE:4099"
     )
 endif (WINDOWS)
 

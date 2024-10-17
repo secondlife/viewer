@@ -117,6 +117,49 @@ public:
         mQ = q;
     }
 
+    bool operator==(const LLVector4a& rhs) const
+    {
+        return equals4(rhs);
+    }
+
+    bool operator!=(const LLVector4a& rhs) const
+    {
+        return !(*this == rhs);
+    }
+
+    const LLVector4a& operator+=(const LLVector4a& rhs)
+    {
+        add(rhs);
+        return *this;
+    }
+
+    const LLVector4a& operator-=(const LLVector4a& rhs)
+    {
+        sub(rhs);
+        return *this;
+    }
+
+    LLVector4a operator+(const LLVector4a& rhs) const
+    {
+        LLVector4a result = *this;
+        result.add(rhs);
+        return result;
+    }
+
+    LLVector4a operator-(const LLVector4a& rhs) const
+    {
+        LLVector4a result = *this;
+        result.sub(rhs);
+        return result;
+    }
+
+    LLVector4a cross3(const LLVector4a& b) const
+    {
+        LLVector4a result;
+        result.setCross3(*this, b);
+        return result;
+    }
+
     ////////////////////////////////////
     // LOAD/STORE
     ////////////////////////////////////
@@ -322,7 +365,7 @@ public:
     inline operator LLQuad() const;
 
 private:
-    LLQuad mQ;
+    LLQuad mQ{};
 };
 
 inline void update_min_max(LLVector4a& min, LLVector4a& max, const LLVector4a& p)

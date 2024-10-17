@@ -86,16 +86,16 @@ LLAssetType::EType LLWearable::getAssetType() const
     return LLWearableType::getInstance()->getAssetType(mType);
 }
 
-BOOL LLWearable::exportFile(const std::string& filename) const
+bool LLWearable::exportFile(const std::string& filename) const
 {
     llofstream ofs(filename.c_str(), std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
     return ofs.is_open() && exportStream(ofs);
 }
 
 // virtual
-BOOL LLWearable::exportStream( std::ostream& output_stream ) const
+bool LLWearable::exportStream( std::ostream& output_stream ) const
 {
-    if (!output_stream.good()) return FALSE;
+    if (!output_stream.good()) return false;
 
     // header and version
     output_stream << "LLWearable version " << mDefinitionVersion  << "\n";
@@ -107,13 +107,13 @@ BOOL LLWearable::exportStream( std::ostream& output_stream ) const
     // permissions
     if( !mPermissions.exportLegacyStream( output_stream ) )
     {
-        return FALSE;
+        return false;
     }
 
     // sale info
     if( !mSaleInfo.exportLegacyStream( output_stream ) )
     {
-        return FALSE;
+        return false;
     }
 
     // wearable type
@@ -139,7 +139,7 @@ BOOL LLWearable::exportStream( std::ostream& output_stream ) const
         const LLUUID& image_id = te_pair.second->getID();
         output_stream << te << " " << image_id << "\n";
     }
-    return TRUE;
+    return true;
 }
 
 void LLWearable::createVisualParams(LLAvatarAppearance *avatarp)
@@ -307,7 +307,7 @@ LLWearable::EImportResult LLWearable::importStream( std::istream& input_stream, 
     // permissions. Thus, we read that out, and fix legacy
     // objects. It's possible this op would fail, but it should pick
     // up the vast majority of the tasks.
-    BOOL has_perm_mask = FALSE;
+    bool has_perm_mask = false;
     U32 perm_mask = 0;
     if( !mSaleInfo.importLegacyStream(input_stream, has_perm_mask, perm_mask) )
     {
@@ -469,11 +469,11 @@ LLWearable::EImportResult LLWearable::importStream( std::istream& input_stream, 
     return LLWearable::SUCCESS;
 }
 
-BOOL LLWearable::getNextPopulatedLine(std::istream& input_stream, char* buffer, U32 buffer_size)
+bool LLWearable::getNextPopulatedLine(std::istream& input_stream, char* buffer, U32 buffer_size)
 {
     if (!input_stream.good())
     {
-        return FALSE;
+        return false;
     }
 
     do
@@ -636,7 +636,7 @@ void LLWearable::addVisualParam(LLVisualParam *param)
     {
         delete mVisualParamIndexMap[param->getID()];
     }
-    param->setIsDummy(FALSE);
+    param->setIsDummy(false);
     param->setParamLocation(LOC_WEARABLE);
     mVisualParamIndexMap[param->getID()] = param;
     mSavedVisualParamMap[param->getID()] = param->getDefaultWeight();
@@ -645,9 +645,10 @@ void LLWearable::addVisualParam(LLVisualParam *param)
 
 void LLWearable::setVisualParamWeight(S32 param_index, F32 value)
 {
-    if( is_in_map(mVisualParamIndexMap, param_index ) )
+    visual_param_index_map_t::iterator found = mVisualParamIndexMap.find(param_index);
+    if (found != mVisualParamIndexMap.end())
     {
-        LLVisualParam *wearable_param = mVisualParamIndexMap[param_index];
+        LLVisualParam *wearable_param = found->second;
         wearable_param->setWeight(value);
     }
     else
@@ -658,9 +659,10 @@ void LLWearable::setVisualParamWeight(S32 param_index, F32 value)
 
 F32 LLWearable::getVisualParamWeight(S32 param_index) const
 {
-    if( is_in_map(mVisualParamIndexMap, param_index ) )
+    visual_param_index_map_t::const_iterator found = mVisualParamIndexMap.find(param_index);
+    if(found != mVisualParamIndexMap.end())
     {
-        const LLVisualParam *wearable_param = mVisualParamIndexMap.find(param_index)->second;
+        const LLVisualParam *wearable_param = found->second;
         return wearable_param->getWeight();
     }
     else
@@ -733,9 +735,9 @@ void LLWearable::writeToAvatar(LLAvatarAppearance* avatarp)
         if( (((LLViewerVisualParam*)param)->getWearableType() == mType) && (!((LLViewerVisualParam*)param)->getCrossWearable()) )
         {
             S32 param_id = param->getID();
+            // get weight from wearable and write back into character
             F32 weight = getVisualParamWeight(param_id);
-
-            avatarp->setVisualParamWeight( param_id, weight);
+            param->setWeight(weight);
         }
     }
 }
@@ -744,7 +746,7 @@ void LLWearable::writeToAvatar(LLAvatarAppearance* avatarp)
 std::string terse_F32_to_string(F32 f)
 {
     std::string r = llformat("%.2f", f);
-    S32 len = r.length();
+    auto len = r.length();
 
     // "1.20"  -> "1.2"
     // "24.00" -> "24."

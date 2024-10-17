@@ -133,7 +133,7 @@ void LLTeleportHistoryStorage::addItem(const std::string title, const LLVector3d
         // Avoid it by preserving original position.
         item.mGlobalPos = item_iter->mGlobalPos;
 
-        removed_index = item_iter - mItems.begin();
+        removed_index = (S32)(item_iter - mItems.begin());
         mItems.erase(item_iter);
     }
 

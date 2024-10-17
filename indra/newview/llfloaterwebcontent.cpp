@@ -75,16 +75,16 @@ LLFloaterWebContent::LLFloaterWebContent( const Params& params )
     mDisplayURL(""),
     mDevelopMode(params.dev_mode) // if called from "Develop" Menu, set a flag and change things to be more useful for devs
 {
-    mCommitCallbackRegistrar.add( "WebContent.Back", boost::bind( &LLFloaterWebContent::onClickBack, this ));
-    mCommitCallbackRegistrar.add( "WebContent.Forward", boost::bind( &LLFloaterWebContent::onClickForward, this ));
-    mCommitCallbackRegistrar.add( "WebContent.Reload", boost::bind( &LLFloaterWebContent::onClickReload, this ));
-    mCommitCallbackRegistrar.add( "WebContent.Stop", boost::bind( &LLFloaterWebContent::onClickStop, this ));
-    mCommitCallbackRegistrar.add( "WebContent.EnterAddress", boost::bind( &LLFloaterWebContent::onEnterAddress, this ));
-    mCommitCallbackRegistrar.add( "WebContent.PopExternal", boost::bind(&LLFloaterWebContent::onPopExternal, this));
-    mCommitCallbackRegistrar.add( "WebContent.TestURL", boost::bind(&LLFloaterWebContent::onTestURL, this, _2));
+    mCommitCallbackRegistrar.add( "WebContent.Back", { boost::bind( &LLFloaterWebContent::onClickBack, this ), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add( "WebContent.Forward", { boost::bind( &LLFloaterWebContent::onClickForward, this ), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add( "WebContent.Reload", { boost::bind( &LLFloaterWebContent::onClickReload, this ), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add( "WebContent.Stop", { boost::bind( &LLFloaterWebContent::onClickStop, this ), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add( "WebContent.EnterAddress", { boost::bind( &LLFloaterWebContent::onEnterAddress, this ), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add( "WebContent.PopExternal", { boost::bind(&LLFloaterWebContent::onPopExternal, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add( "WebContent.TestURL", { boost::bind(&LLFloaterWebContent::onTestURL, this, _2), cb_info::UNTRUSTED_BLOCK });
 }
 
-BOOL LLFloaterWebContent::postBuild()
+bool LLFloaterWebContent::postBuild()
 {
     // these are used in a bunch of places so cache them
     mWebBrowser        = getChild< LLMediaCtrl >( "webbrowser" );
@@ -111,7 +111,7 @@ BOOL LLFloaterWebContent::postBuild()
     // initialize the URL history using the system URL History manager
     initializeURLHistory();
 
-    return TRUE;
+    return true;
 }
 
 void LLFloaterWebContent::initializeURLHistory()
@@ -220,7 +220,7 @@ void LLFloaterWebContent::preCreate(LLFloaterWebContent::Params& p)
         // showInstance will open a new window.  Figure out how many web browsers are already open,
         // and close the least recently opened one if this will put us over the limit.
 
-        LLFloaterReg::const_instance_list_t &instances = LLFloaterReg::getFloaterList(p.window_class);
+        LLFloaterReg::const_instance_list_t &instances = LLFloaterReg::getFloaterList(p.window_class());
 
         if(instances.size() >= (size_t)browser_window_limit)
         {

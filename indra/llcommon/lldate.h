@@ -43,16 +43,15 @@
  */
 class LL_COMMON_API LLDate
 {
+    static constexpr F64 DATE_EPOCH = 0.0;
 public:
+    using timestamp = F64;
+
     /**
      * @brief Construct a date equal to epoch.
      */
-    LLDate();
-
-    /**
-     * @brief Construct a date equal to the source date.
-     */
-    LLDate(const LLDate& date);
+    constexpr LLDate() : mSecondsSinceEpoch(DATE_EPOCH)
+    {}
 
     /**
      * @brief Construct a date from a seconds since epoch value.
@@ -104,14 +103,14 @@ public:
      *
      * @return The number of seconds since epoch UTC.
      */
-    F64 secondsSinceEpoch() const;
+    timestamp secondsSinceEpoch() const;
 
     /**
      * @brief Set the date in seconds since epoch.
      *
      * @param seconds The number of seconds since epoch UTC.
      */
-    void secondsSinceEpoch(F64 seconds);
+    void secondsSinceEpoch(timestamp seconds);
 
     /**
      * @brief Create an LLDate object set to the current time.
@@ -148,7 +147,7 @@ public:
 
 
 private:
-    F64 mSecondsSinceEpoch;
+    timestamp mSecondsSinceEpoch;
 };
 
 // Helper function to stream out a date

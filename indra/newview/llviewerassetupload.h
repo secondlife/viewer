@@ -54,7 +54,7 @@ public:
         U32 groupPerms,
         U32 everyonePerms,
         S32 expectedCost,
-        const LLUUID &destFolderId = LLUUID::null,
+        const LLUUID& destFolderId = LLUUID::null,
         bool showInventory = true);
 
     virtual ~LLResourceUploadInfo()
@@ -157,12 +157,14 @@ public:
         U32 groupPerms,
         U32 everyonePerms,
         S32 expectedCost,
-        const LLUUID &destFolderId = LLUUID::null,
+        const LLUUID& destFolderId = LLUUID::null,
         bool show_inventory = true);
 
     virtual LLSD        prepareUpload();
 
     std::string         getFileName() const { return mFileName; };
+
+    void setMaxImageSize(U32 maxUploadSize) { mMaxImageSize = maxUploadSize; }
 
 protected:
 
@@ -170,7 +172,7 @@ protected:
 
 private:
     std::string         mFileName;
-
+    S32                 mMaxImageSize;
 };
 
 //-------------------------------------------------------------------------

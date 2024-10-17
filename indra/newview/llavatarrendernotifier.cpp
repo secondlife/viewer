@@ -70,7 +70,7 @@ mLatestOverLimitPct(0.0f),
 mShowOverLimitAgents(false),
 mNotifyOutfitLoading(false),
 mLastCofVersion(LLViewerInventoryCategory::VERSION_UNKNOWN),
-mLastOutfitRezStatus(AV_REZZED_UNKNOWN),
+mLastOutfitRezStatus(-1),
 mLastSkeletonSerialNum(-1)
 {
     mPopUpDelayTimer.resetWithExpiry(OVER_LIMIT_UPDATE_DELAY);
@@ -172,7 +172,7 @@ void LLAvatarRenderNotifier::updateNotificationRegion(U32 agentcount, U32 overLi
     // save current values for later use
     mLatestAgentsCount = agentcount > overLimit ? agentcount - 1 : agentcount; // subtract self
     mLatestOverLimitAgents = overLimit;
-    mLatestOverLimitPct = mLatestAgentsCount != 0 ? ((F32)overLimit / (F32)mLatestAgentsCount) * 100.0 : 0;
+    mLatestOverLimitPct = mLatestAgentsCount != 0 ? ((F32)overLimit / (F32)mLatestAgentsCount) * 100.0f : 0.f;
 
     if (mAgentsCount == mLatestAgentsCount
         && mOverLimitAgents == mLatestOverLimitAgents)
@@ -191,7 +191,7 @@ void LLAvatarRenderNotifier::updateNotificationRegion(U32 agentcount, U32 overLi
 
         // default timeout before next notification
         static LLCachedControl<U32> pop_up_delay(gSavedSettings, "ComplexityChangesPopUpDelay", 300);
-        mPopUpDelayTimer.resetWithExpiry(pop_up_delay);
+        mPopUpDelayTimer.resetWithExpiry((F32)pop_up_delay);
     }
 }
 
@@ -306,7 +306,7 @@ void LLHUDRenderNotifier::updateNotificationHUD(hud_complexity_list_t complexity
     }
 
     mHUDComplexityList = complexity;
-    mHUDsCount = mHUDComplexityList.size();
+    mHUDsCount = static_cast<S32>(mHUDComplexityList.size());
 
     static LLCachedControl<U32> show_my_complexity_changes(gSavedSettings, "ShowMyComplexityChanges", 20);
     if (!show_my_complexity_changes)
@@ -500,6 +500,6 @@ void LLHUDRenderNotifier::displayHUDNotification(EWarnLevel warn_type, LLUUID ob
         .name("HUDComplexityWarning")
         .expiry(expire_date)
         .substitutions(msg_args));
-    mHUDPopUpDelayTimer.resetWithExpiry(pop_up_delay);
+    mHUDPopUpDelayTimer.resetWithExpiry((F32)pop_up_delay);
 }
 

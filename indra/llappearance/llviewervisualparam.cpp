@@ -39,12 +39,12 @@
 LLViewerVisualParamInfo::LLViewerVisualParamInfo()
     :
     mWearableType( LLWearableType::WT_INVALID ),
-    mCrossWearable(FALSE),
+    mCrossWearable(false),
     mCamDist( 0.5f ),
     mCamAngle( 0.f ),
     mCamElevation( 0.f ),
     mEditGroupDisplayOrder( 0 ),
-    mShowSimple(FALSE),
+    mShowSimple(false),
     mSimpleMin(0.f),
     mSimpleMax(100.f)
 {
@@ -57,12 +57,12 @@ LLViewerVisualParamInfo::~LLViewerVisualParamInfo()
 //-----------------------------------------------------------------------------
 // parseXml()
 //-----------------------------------------------------------------------------
-BOOL LLViewerVisualParamInfo::parseXml(LLXmlTreeNode *node)
+bool LLViewerVisualParamInfo::parseXml(LLXmlTreeNode *node)
 {
     llassert( node->hasName( "param" ) );
 
     if (!LLVisualParamInfo::parseXml(node))
-        return FALSE;
+        return false;
 
     // VIEWER SPECIFIC PARAMS
 
@@ -82,7 +82,7 @@ BOOL LLViewerVisualParamInfo::parseXml(LLXmlTreeNode *node)
     static LLStdStringHandle cross_wearable_string = LLXmlTree::addAttributeString("cross_wearable");
     if (!node->getFastAttributeBOOL(cross_wearable_string, mCrossWearable))
     {
-        mCrossWearable = FALSE;
+        mCrossWearable = false;
     }
 
     // Optional camera offsets from the current joint center.  Used for generating "hints" (thumbnails).
@@ -107,7 +107,7 @@ BOOL LLViewerVisualParamInfo::parseXml(LLXmlTreeNode *node)
 
     params_loaded++;
 
-    return TRUE;
+    return true;
 }
 
 /*virtual*/ void LLViewerVisualParamInfo::toStream(std::ostream &out)
@@ -146,15 +146,15 @@ LLViewerVisualParam::~LLViewerVisualParam()
 // setInfo()
 //-----------------------------------------------------------------------------
 
-BOOL LLViewerVisualParam::setInfo(LLViewerVisualParamInfo *info)
+bool LLViewerVisualParam::setInfo(LLViewerVisualParamInfo *info)
 {
     llassert(mInfo == NULL);
     if (info->mID < 0)
-        return FALSE;
+        return false;
     mInfo = info;
     mID = info->mID;
     setWeight(getDefaultWeight());
-    return TRUE;
+    return true;
 }
 
 /*
@@ -166,14 +166,14 @@ BOOL LLViewerVisualParam::setInfo(LLViewerVisualParamInfo *info)
 //-----------------------------------------------------------------------------
 // parseData()
 //-----------------------------------------------------------------------------
-BOOL LLViewerVisualParam::parseData(LLXmlTreeNode *node)
+bool LLViewerVisualParam::parseData(LLXmlTreeNode *node)
 {
     LLViewerVisualParamInfo* info = new LLViewerVisualParamInfo;
 
     info->parseXml(node);
     if (!setInfo(info))
-        return FALSE;
+        return false;
 
-    return TRUE;
+    return true;
 }
 */

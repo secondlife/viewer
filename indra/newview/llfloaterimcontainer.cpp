@@ -76,19 +76,19 @@ LLFloaterIMContainer::LLFloaterIMContainer(const LLSD& seed, const Params& param
     mConversationEventQueue()
 {
     mEnableCallbackRegistrar.add("IMFloaterContainer.Check", boost::bind(&LLFloaterIMContainer::isActionChecked, this, _2));
-    mCommitCallbackRegistrar.add("IMFloaterContainer.Action", boost::bind(&LLFloaterIMContainer::onCustomAction,  this, _2));
+    mCommitCallbackRegistrar.add("IMFloaterContainer.Action", { boost::bind(&LLFloaterIMContainer::onCustomAction,  this, _2) });
 
     mEnableCallbackRegistrar.add("Avatar.CheckItem",  boost::bind(&LLFloaterIMContainer::checkContextMenuItem,  this, _2));
     mEnableCallbackRegistrar.add("Avatar.EnableItem", boost::bind(&LLFloaterIMContainer::enableContextMenuItem, this, _2));
     mEnableCallbackRegistrar.add("Avatar.VisibleItem", boost::bind(&LLFloaterIMContainer::visibleContextMenuItem,   this, _2));
-    mCommitCallbackRegistrar.add("Avatar.DoToSelected", boost::bind(&LLFloaterIMContainer::doToSelected, this, _2));
+    mCommitCallbackRegistrar.add("Avatar.DoToSelected", { boost::bind(&LLFloaterIMContainer::doToSelected, this, _2) });
 
-    mCommitCallbackRegistrar.add("Group.DoToSelected", boost::bind(&LLFloaterIMContainer::doToSelectedGroup, this, _2));
+    mCommitCallbackRegistrar.add("Group.DoToSelected", { boost::bind(&LLFloaterIMContainer::doToSelectedGroup, this, _2) });
 
     // Firstly add our self to IMSession observers, so we catch session events
     LLIMMgr::getInstance()->addSessionObserver(this);
 
-    mAutoResize = FALSE;
+    mAutoResize = false;
     LLTransientFloaterMgr::getInstance()->addControlView(LLTransientFloaterMgr::IM, this);
 }
 
@@ -112,9 +112,21 @@ LLFloaterIMContainer::~LLFloaterIMContainer()
     {
         LLIMMgr::getInstance()->removeSessionObserver(this);
     }
+
+    for (auto& session : mConversationsItems)
+    {
+        LLConversationItemSession* session_model = dynamic_cast<LLConversationItemSession*>(session.second.get());
+        if (session_model)
+        {
+            // Models have overcomplicated double ownership, clear
+            // and resolve '0 references' ownership now, before owned
+            // part of the models gets deleted by their owners
+            session_model->clearAndDeparentModels();
+        }
+    }
 }
 
-void LLFloaterIMContainer::sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id, BOOL has_offline_msg)
+void LLFloaterIMContainer::sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id, bool has_offline_msg)
 {
     addConversationListItem(session_id);
     LLFloaterIMSessionTab::addToHost(session_id);
@@ -182,7 +194,7 @@ void LLFloaterIMContainer::onCurrentChannelChanged(const LLUUID& session_id)
     }
 }
 
-BOOL LLFloaterIMContainer::postBuild()
+bool LLFloaterIMContainer::postBuild()
 {
     mOrigMinWidth = getMinWidth();
     mOrigMinHeight = getMinHeight();
@@ -267,7 +279,7 @@ BOOL LLFloaterIMContainer::postBuild()
         S32 conversations_panel_width = gSavedPerAccountSettings.getS32("ConversationsListPaneWidth");
         LLRect conversations_panel_rect = mConversationsPane->getRect();
         conversations_panel_rect.mRight = conversations_panel_rect.mLeft + conversations_panel_width;
-        mConversationsPane->handleReshape(conversations_panel_rect, TRUE);
+        mConversationsPane->handleReshape(conversations_panel_rect, true);
     }
 
     // Init the sort order now that the root had been created
@@ -294,7 +306,10 @@ BOOL LLFloaterIMContainer::postBuild()
     mParticipantRefreshTimer.setTimerExpirySec(0);
     mParticipantRefreshTimer.start();
 
-    return TRUE;
+    mGeneralTitleInUse = true; // avoid reseting strings on idle
+    setTitle(mGeneralTitle);
+
+    return true;
 }
 
 void LLFloaterIMContainer::onOpen(const LLSD& key)
@@ -309,7 +324,7 @@ void LLFloaterIMContainer::onOpen(const LLSD& key)
 
 // virtual
 void LLFloaterIMContainer::addFloater(LLFloater* floaterp,
-                                      BOOL select_added_floater,
+                                      bool select_added_floater,
                                       LLTabContainer::eInsertionPoint insertion_point)
 {
     if(!floaterp) return;
@@ -329,7 +344,7 @@ void LLFloaterIMContainer::addFloater(LLFloater* floaterp,
 
 
     LLIconCtrl* icon = 0;
-    bool is_in_group = gAgent.isInGroup(session_id, TRUE);
+    bool is_in_group = gAgent.isInGroup(session_id, true);
     LLUUID icon_id;
 
     if (is_in_group)
@@ -372,7 +387,7 @@ void LLFloaterIMContainer::addFloater(LLFloater* floaterp,
 void LLFloaterIMContainer::onCloseFloater(LLUUID& id)
 {
     mSessions.erase(id);
-    setFocus(TRUE);
+    setFocus(true);
 }
 
 void LLFloaterIMContainer::onNewMessageReceived(const LLSD& data)
@@ -384,8 +399,8 @@ void LLFloaterIMContainer::onNewMessageReceived(const LLSD& data)
     if(floaterp && current_floater && floaterp != current_floater)
     {
         if(LLMultiFloater::isFloaterFlashing(floaterp))
-            LLMultiFloater::setFloaterFlashing(floaterp, FALSE);
-        LLMultiFloater::setFloaterFlashing(floaterp, TRUE);
+            LLMultiFloater::setFloaterFlashing(floaterp, false);
+        LLMultiFloater::setFloaterFlashing(floaterp, true);
     }
 }
 
@@ -509,7 +524,12 @@ void LLFloaterIMContainer::idleUpdate()
 
             // Update floater's title as required by the currently selected session or use the default title
             LLFloaterIMSession * conversation_floaterp = LLFloaterIMSession::findInstance(current_session->getUUID());
-            setTitle(conversation_floaterp && conversation_floaterp->needsTitleOverwrite() ? conversation_floaterp->getTitle() : mGeneralTitle);
+            bool needs_override = conversation_floaterp && conversation_floaterp->needsTitleOverwrite();
+            if (mGeneralTitleInUse == needs_override)
+            {
+                mGeneralTitleInUse = !needs_override;
+                setTitle(needs_override ? conversation_floaterp->getTitle() : mGeneralTitle);
+            }
         }
 
         mParticipantRefreshTimer.setTimerExpirySec(1.0f);
@@ -634,7 +654,7 @@ void LLFloaterIMContainer::handleConversationModelEvent(const LLSD& event)
             {
                 participant_view = createConversationViewParticipant(participant_model);
                 participant_view->addToFolder(session_view);
-                participant_view->setVisible(TRUE);
+                participant_view->setVisible(true);
             }
         }
         // Add a participant view to the conversation floater
@@ -718,7 +738,7 @@ void LLFloaterIMContainer::returnFloaterToHost()
     floater->onTearOffClicked();
 }
 
-void LLFloaterIMContainer::setMinimized(BOOL b)
+void LLFloaterIMContainer::setMinimized(bool b)
 {
     bool was_minimized = isMinimized();
     LLMultiFloater::setMinimized(b);
@@ -741,7 +761,7 @@ void LLFloaterIMContainer::setMinimized(BOOL b)
     }
 }
 
-void LLFloaterIMContainer::setVisible(BOOL visible)
+void LLFloaterIMContainer::setVisible(bool visible)
 {
     LLFloaterIMNearbyChat* nearby_chat;
     if (visible)
@@ -823,7 +843,7 @@ void LLFloaterIMContainer::getDetachedConversationFloaters(floater_list_t& float
     }
 }
 
-void LLFloaterIMContainer::setVisibleAndFrontmost(BOOL take_focus, const LLSD& key)
+void LLFloaterIMContainer::setVisibleAndFrontmost(bool take_focus, const LLSD& key)
 {
     LLMultiFloater::setVisibleAndFrontmost(take_focus, key);
     // Do not select "Nearby Chat" conversation, since it will bring its window to front
@@ -988,11 +1008,14 @@ void LLFloaterIMContainer::onAddButtonClicked()
 {
     LLView * button = findChild<LLView>("conversations_pane_buttons_expanded")->findChild<LLButton>("add_btn");
     LLFloater* root_floater = gFloaterView->getParentFloater(this);
-    LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(boost::bind(&LLFloaterIMContainer::onAvatarPicked, this, _1), TRUE, TRUE, TRUE, root_floater->getName(), button);
-
-    if (picker && root_floater)
+    if (button && root_floater)
     {
-        root_floater->addDependentFloater(picker);
+        LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(boost::bind(&LLFloaterIMContainer::onAvatarPicked, this, _1), true, true, true, root_floater->getName(), button);
+
+        if (picker)
+        {
+            root_floater->addDependentFloater(picker);
+        }
     }
 }
 
@@ -1058,7 +1081,7 @@ void LLFloaterIMContainer::onCustomAction(const LLSD& userdata)
     }
 }
 
-BOOL LLFloaterIMContainer::isActionChecked(const LLSD& userdata)
+bool LLFloaterIMContainer::isActionChecked(const LLSD& userdata)
 {
     LLConversationSort order = mConversationViewModel.getSorter();
     std::string command = userdata.asString();
@@ -1094,7 +1117,7 @@ BOOL LLFloaterIMContainer::isActionChecked(const LLSD& userdata)
     {
         return gSavedSettings.getBOOL("TranslateChat");
     }
-    return FALSE;
+    return false;
 }
 
 void LLFloaterIMContainer::setSortOrderSessions(const LLConversationFilter::ESortOrderType order)
@@ -1706,9 +1729,9 @@ void LLFloaterIMContainer::selectNextConversationByID(const LLUUID& uuid)
 }
 
 // Synchronous select the conversation item and the conversation floater
-BOOL LLFloaterIMContainer::selectConversationPair(const LLUUID& session_id, bool select_widget, bool focus_floater/*=true*/)
+bool LLFloaterIMContainer::selectConversationPair(const LLUUID& session_id, bool select_widget, bool focus_floater/*=true*/)
 {
-    BOOL handled = TRUE;
+    bool handled = true;
     LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::findConversation(session_id);
 
     /* widget processing */
@@ -1717,7 +1740,7 @@ BOOL LLFloaterIMContainer::selectConversationPair(const LLUUID& session_id, bool
         LLFolderViewItem* widget = get_ptr_in_map(mConversationsWidgets,session_id);
         if (widget && widget->getParentFolder())
         {
-            widget->getParentFolder()->setSelection(widget, FALSE, FALSE);
+            widget->getParentFolder()->setSelection(widget, false, false);
             mConversationsRoot->scrollToShowSelection();
         }
     }
@@ -1787,8 +1810,8 @@ void LLFloaterIMContainer::setNearbyDistances()
         // Get the position of the agent
         const LLVector3d& me_pos = gAgent.getPositionGlobal();
         // For each nearby avatar, compute and update the distance
-        int avatar_count = positions.size();
-        for (int i = 0; i < avatar_count; i++)
+        auto avatar_count = positions.size();
+        for (size_t i = 0; i < avatar_count; i++)
         {
             F64 dist = dist_vec_squared(positions[i], me_pos);
             item->setDistance(avatar_ids[i],dist);
@@ -1898,10 +1921,10 @@ bool LLFloaterIMContainer::removeConversationListItem(const LLUUID& uuid, bool c
         is_widget_selected = widget->isSelected();
         if (mConversationsRoot)
         {
-            new_selection = mConversationsRoot->getNextFromChild(widget, FALSE);
+            new_selection = mConversationsRoot->getNextFromChild(widget, false);
             if (!new_selection)
             {
-                new_selection = mConversationsRoot->getPreviousFromChild(widget, FALSE);
+                new_selection = mConversationsRoot->getPreviousFromChild(widget, false);
             }
         }
 
@@ -1918,7 +1941,7 @@ bool LLFloaterIMContainer::removeConversationListItem(const LLUUID& uuid, bool c
     // Don't let the focus fall IW, select and refocus on the first conversation in the list
     if (change_focus)
     {
-        setFocus(TRUE);
+        setFocus(true);
         if (new_selection)
         {
             if (mConversationsWidgets.size() == 1)
@@ -2250,7 +2273,7 @@ void LLFloaterIMContainer::openNearbyChat()
         if (nearby_chat)
         {
             reSelectConversation();
-            nearby_chat->setOpen(TRUE);
+            nearby_chat->setOpen(true);
         }
     }
 }
@@ -2310,27 +2333,27 @@ bool LLFloaterIMContainer::isScrolledOutOfSight(LLConversationViewSession* conve
     return !mConversationsRoot->getVisibleRect().overlaps(widget_rect);
 }
 
-BOOL LLFloaterIMContainer::handleKeyHere(KEY key, MASK mask )
+bool LLFloaterIMContainer::handleKeyHere(KEY key, MASK mask )
 {
-    BOOL handled = FALSE;
+    bool handled = false;
 
     if(mask == MASK_ALT)
     {
         if (KEY_RETURN == key )
         {
             expandConversation();
-            handled = TRUE;
+            handled = true;
         }
 
         if ((KEY_DOWN == key ) || (KEY_RIGHT == key))
         {
             selectNextorPreviousConversation(true);
-            handled = TRUE;
+            handled = true;
         }
         if ((KEY_UP == key) || (KEY_LEFT == key))
         {
             selectNextorPreviousConversation(false);
-            handled = TRUE;
+            handled = true;
         }
     }
     return handled;
@@ -2358,11 +2381,11 @@ bool LLFloaterIMContainer::selectNextorPreviousConversation(bool select_next, bo
         {
             if(select_next)
             {
-                new_selection = mConversationsRoot->getNextFromChild(widget, FALSE);
+                new_selection = mConversationsRoot->getNextFromChild(widget, false);
             }
             else
             {
-                new_selection = mConversationsRoot->getPreviousFromChild(widget, FALSE);
+                new_selection = mConversationsRoot->getPreviousFromChild(widget, false);
             }
             if (new_selection)
             {
@@ -2403,12 +2426,12 @@ bool LLFloaterIMContainer::isParticipantListExpanded()
     return is_expanded;
 }
 
-// By default, if torn off session is currently frontmost, LLFloater::isFrontmost() will return FALSE, which can lead to some bugs
+// By default, if torn off session is currently frontmost, LLFloater::isFrontmost() will return false, which can lead to some bugs
 // So LLFloater::isFrontmost() is overriden here to check both selected session and the IM floater itself
 // Exclude "Nearby Chat" session from the check, as "Nearby Chat" window and "Conversations" floater can be brought
 // to front independently
 /*virtual*/
-BOOL LLFloaterIMContainer::isFrontmost()
+bool LLFloaterIMContainer::isFrontmost()
 {
     LLFloaterIMSessionTab* selected_session = LLFloaterIMSessionTab::getConversation(mSelectedSession);
     LLFloaterIMNearbyChat* nearby_chat = LLFloaterReg::findTypedInstance<LLFloaterIMNearbyChat>("nearby_chat");
@@ -2429,7 +2452,7 @@ void LLFloaterIMContainer::closeHostedFloater()
     onClickCloseBtn();
 }
 
-void LLFloaterIMContainer::closeAllConversations()
+void LLFloaterIMContainer::closeAllConversations(bool app_quitting)
 {
     std::vector<LLUUID> ids;
     for (conversations_items_map::iterator it_session = mConversationsItems.begin(); it_session != mConversationsItems.end(); it_session++)
@@ -2444,7 +2467,7 @@ void LLFloaterIMContainer::closeAllConversations()
     for (std::vector<LLUUID>::const_iterator it = ids.begin(); it != ids.end();     ++it)
     {
         LLFloaterIMSession *conversationFloater = LLFloaterIMSession::findInstance(*it);
-        LLFloater::onClickClose(conversationFloater);
+        LLFloater::onClickClose(conversationFloater, app_quitting);
     }
 }
 
@@ -2467,7 +2490,7 @@ void LLFloaterIMContainer::closeFloater(bool app_quitting/* = false*/)
 {
     if(app_quitting)
     {
-        closeAllConversations();
+        closeAllConversations(app_quitting);
         onClickCloseBtn(app_quitting);
     }
     else

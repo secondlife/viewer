@@ -44,6 +44,7 @@
 #include "llwindow.h"
 #include "llcheckboxctrl.h"
 #include "llcombobox.h"
+#include "llgamecontrol.h"
 
 #if LL_WINDOWS && !LL_MESA_HEADLESS
 // Require DirectInput version 8
@@ -78,23 +79,31 @@ BOOL CALLBACK di8_list_devices_callback(LPCDIDEVICEINSTANCE device_instance_ptr,
     // Capable of detecting devices like Oculus Rift
     if (device_instance_ptr && pvRef)
     {
+        // We always include the device if it is from 3DConnexion, otherwise
+        // if the GameControl feature is enabled then we perfer to route other devices to it.
         std::string product_name = utf16str_to_utf8str(llutf16string(device_instance_ptr->tszProductName));
-        S32 size = sizeof(GUID);
-        LLSD::Binary data; //just an std::vector
-        data.resize(size);
-        memcpy(&data[0], &device_instance_ptr->guidInstance /*POD _GUID*/, size);
+        bool include_device = LLViewerJoystick::is3DConnexionDevice(product_name) || !LLGameControl::isEnabled();
 
-        LLFloaterJoystick * floater = (LLFloaterJoystick*)pvRef;
-        LLSD value = data;
-        floater->addDevice(product_name, value);
+        if (include_device)
+        {
+            S32 size = sizeof(GUID);
+            LLSD::Binary data; //just an std::vector
+            data.resize(size);
+            memcpy(&data[0], &device_instance_ptr->guidInstance /*POD _GUID*/, size);
+
+            LLFloaterJoystick * floater = (LLFloaterJoystick*)pvRef;
+            LLSD value = data;
+            floater->addDevice(product_name, value);
+        }
     }
     return DIENUM_CONTINUE;
 }
 #endif
 
 LLFloaterJoystick::LLFloaterJoystick(const LLSD& data)
-    : LLFloater(data),
-    mHasDeviceList(false)
+    : LLFloater(data)
+    , mHasDeviceList(false)
+    , mJoystickInitialized(false)
 {
     if (!LLViewerJoystick::getInstance()->isJoystickInitialized())
     {
@@ -108,7 +117,10 @@ void LLFloaterJoystick::draw()
 {
     LLViewerJoystick* joystick(LLViewerJoystick::getInstance());
     bool joystick_inited = joystick->isJoystickInitialized();
-    if (joystick_inited != mHasDeviceList)
+    if (!mHasDeviceList
+        || mJoystickInitialized != joystick_inited
+        || (joystick->isDeviceUUIDSet() && joystick->getDeviceUUID().asUUID() != mCurrentDeviceId)
+        || (!joystick->isDeviceUUIDSet() && mCurrentDeviceId.notNull()))
     {
         refreshListOfDevices();
     }
@@ -132,7 +144,7 @@ void LLFloaterJoystick::draw()
     LLFloater::draw();
 }
 
-BOOL LLFloaterJoystick::postBuild()
+bool LLFloaterJoystick::postBuild()
 {
     center();
     F32 range = gSavedSettings.getBOOL("Cursor3D") ? 128.f : 2.f;
@@ -160,7 +172,7 @@ BOOL LLFloaterJoystick::postBuild()
 
     refresh();
     refreshListOfDevices();
-    return TRUE;
+    return true;
 }
 
 LLFloaterJoystick::~LLFloaterJoystick()
@@ -290,16 +302,22 @@ void LLFloaterJoystick::refreshListOfDevices()
         mHasDeviceList = true;
     }
 
-    bool is_device_id_set = LLViewerJoystick::getInstance()->isDeviceUUIDSet();
+    LLViewerJoystick* joystick = LLViewerJoystick::getInstance();
+    bool is_device_id_set = joystick->isDeviceUUIDSet();
 
-    if (LLViewerJoystick::getInstance()->isJoystickInitialized() &&
+    if (joystick->isJoystickInitialized() &&
         (!mHasDeviceList || !is_device_id_set))
     {
 #if LL_WINDOWS && !LL_MESA_HEADLESS
         LL_WARNS() << "NDOF connected to device without using SL provided handle" << LL_ENDL;
 #endif
+        // We always include the device if it is from 3DConnexion, otherwise we only
+        // support the device in this context when GameControl feature is disabled.
         std::string desc = LLViewerJoystick::getInstance()->getDescription();
-        if (!desc.empty())
+        bool include_device = LLViewerJoystick::is3DConnexionDevice(desc) ||
+            (!LLGameControl::isEnabled() && !desc.empty());
+
+        if (include_device)
         {
             LLSD value = LLSD::Integer(1); // value for selection
             addDevice(desc, value);
@@ -311,11 +329,13 @@ void LLFloaterJoystick::refreshListOfDevices()
     {
         if (is_device_id_set)
         {
-            LLSD guid = LLViewerJoystick::getInstance()->getDeviceUUID();
+            LLSD guid = joystick->getDeviceUUID();
+            mCurrentDeviceId = guid.asUUID();
             mJoysticksCombo->selectByValue(guid);
         }
         else
         {
+            mCurrentDeviceId.setNull();
             mJoysticksCombo->selectByValue(LLSD::Integer(1));
         }
     }
@@ -323,6 +343,18 @@ void LLFloaterJoystick::refreshListOfDevices()
     {
         mJoysticksCombo->selectByValue(LLSD::Integer(0));
     }
+
+    // Update tracking
+    if (is_device_id_set)
+    {
+        LLSD guid = joystick->getDeviceUUID();
+        mCurrentDeviceId = guid.asUUID();
+    }
+    else
+    {
+        mCurrentDeviceId.setNull();
+    }
+    mJoystickInitialized = joystick->isJoystickInitialized();
 }
 
 void LLFloaterJoystick::cancel()
@@ -416,7 +448,7 @@ void LLFloaterJoystick::onCommitJoystickEnabled(LLUICtrl*, void *joy_panel)
         joystick_enabled = true;
     }
     gSavedSettings.setBOOL("JoystickEnabled", joystick_enabled);
-    BOOL flycam_enabled = self->mCheckFlycamEnabled->get();
+    bool flycam_enabled = self->mCheckFlycamEnabled->get();
 
     if (!joystick_enabled || !flycam_enabled)
     {

@@ -56,7 +56,7 @@ public:
     void init(bool autoenable);
     void initDevice(LLSD &guid);
     bool initDevice(void * preffered_device /*LPDIRECTINPUTDEVICE8*/);
-    bool initDevice(void * preffered_device /*LPDIRECTINPUTDEVICE8*/, std::string &name, LLSD &guid);
+    bool initDevice(void * preffered_device /*LPDIRECTINPUTDEVICE8*/, const std::string &name, const LLSD &guid);
     void terminate();
 
     void updateStatus();
@@ -81,6 +81,8 @@ public:
     std::string getDescription();
     void saveDeviceIdToSettings();
 
+    static bool is3DConnexionDevice(const std::string& device_name);
+
 protected:
     void updateEnabled(bool autoenable);
     void handleRun(F32 inc);
@@ -100,18 +102,20 @@ protected:
 private:
     F32                     mAxes[6];
     long                    mBtn[16];
-    EJoystickDriverState    mDriverState;
-    NDOF_Device             *mNdofDev;
-    bool                    mResetFlag;
-    F32                     mPerfScale;
-    bool                    mCameraUpdated;
-    bool                    mOverrideCamera;
-    U32                     mJoystickRun;
+    EJoystickDriverState    mDriverState { JDS_UNINITIALIZED };
+    NDOF_Device             *mNdofDev { nullptr };
 
     // Windows: _GUID as U8 binary map
     // MacOS: long as an U8 binary map
     // Else: integer 1 for no device/ndof's default device
     LLSD                    mLastDeviceUUID;
+
+    F32                     mPerfScale;
+    U32                     mJoystickRun { 0 };
+    bool                    mResetFlag { false };
+    bool                    mCameraUpdated { true };
+    bool                    mOverrideCamera { false };
+    bool                    mDeviceIs3DConnexion { false };
 
     static F32              sLastDelta[7];
     static F32              sDelta[7];

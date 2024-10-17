@@ -7,7 +7,7 @@ include(LLCommon)
 include(LLCoreHttp)
 include(LLPhysicsExtensions)
 include(LLPrimitive)
-include(GLH)
+include(GLM)
 include(TinyGLTF)
 
 set(llprimitive_SOURCE_FILES
@@ -69,8 +69,7 @@ target_link_libraries(llprimitive
         llrender
         llphysicsextensions_impl
         ll::colladadom
-        ll::pcre
-        ll::glh_linear
+        ll::glm
         )
 
 #add unit tests

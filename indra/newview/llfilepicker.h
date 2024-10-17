@@ -54,19 +54,8 @@
 #include <commdlg.h>
 #endif
 
-extern "C" {
-// mostly for Linux, possible on others
-#if LL_GTK
-# include "gtk/gtk.h"
-#endif // LL_GTK
-}
-
 class LLFilePicker
 {
-#ifdef LL_GTK
-    friend class LLDirPicker;
-    friend void chooser_responder(GtkWidget *, gint, gpointer);
-#endif // LL_GTK
 public:
     // calling this before main() is undefined
     static LLFilePicker& instance( void ) { return sInstance; }
@@ -90,6 +79,7 @@ public:
         FFLOAD_MATERIAL = 15,
         FFLOAD_MATERIAL_TEXTURE = 16,
         FFLOAD_HDRI = 17,
+        FFLOAD_LUA = 18,
     };
 
     enum ESaveFilter
@@ -112,17 +102,17 @@ public:
     };
 
     // open the dialog. This is a modal operation
-    BOOL getSaveFile( ESaveFilter filter = FFSAVE_ALL, const std::string& filename = LLStringUtil::null, bool blocking = true);
-    BOOL getSaveFileModeless(ESaveFilter filter,
+    bool getSaveFile( ESaveFilter filter = FFSAVE_ALL, const std::string& filename = LLStringUtil::null, bool blocking = true);
+    bool getSaveFileModeless(ESaveFilter filter,
                              const std::string& filename,
                              void (*callback)(bool, std::string&, void*),
                              void *userdata);
-    BOOL getOpenFile( ELoadFilter filter = FFLOAD_ALL, bool blocking = true  );
+    bool getOpenFile( ELoadFilter filter = FFLOAD_ALL, bool blocking = true  );
     // Todo: implement getOpenFileModeless and getMultipleOpenFilesModeless
     // for windows and use directly instead of ugly LLFilePickerThread
-    BOOL getOpenFileModeless( ELoadFilter filter, void (*callback)(bool, std::vector<std::string> &, void*), void *userdata); // MAC only.
-    BOOL getMultipleOpenFiles( ELoadFilter filter = FFLOAD_ALL, bool blocking = true );
-    BOOL getMultipleOpenFilesModeless( ELoadFilter filter, void (*callback)(bool, std::vector<std::string> &, void*), void *userdata ); // MAC only
+    bool getOpenFileModeless( ELoadFilter filter, void (*callback)(bool, std::vector<std::string> &, void*), void *userdata); // MAC only.
+    bool getMultipleOpenFiles( ELoadFilter filter = FFLOAD_ALL, bool blocking = true );
+    bool getMultipleOpenFilesModeless( ELoadFilter filter, void (*callback)(bool, std::vector<std::string> &, void*), void *userdata ); // MAC only
 
     // Get the filename(s) found. getFirstFile() sets the pointer to
     // the start of the structure and allows the start of iteration.
@@ -165,7 +155,7 @@ private:
     OPENFILENAMEW mOFN;             // for open and save dialogs
     WCHAR mFilesW[FILENAME_BUFFER_SIZE];
 
-    BOOL setupFilter(ELoadFilter filter);
+    bool setupFilter(ELoadFilter filter);
 #endif
 
 #if LL_DARWIN
@@ -184,27 +174,11 @@ private:
                                  void *userdata);
 #endif
 
-#if LL_GTK
-    static void add_to_selectedfiles(gpointer data, gpointer user_data);
-    static void chooser_responder(GtkWidget *widget, gint response, gpointer user_data);
-    // we remember the last path that was accessed for a particular usage
-    std::map <std::string, std::string> mContextToPathMap;
-    std::string mCurContextName;
-    // we also remember the extension of the last added file.
-    std::string mCurrentExtension;
-#endif
-
     std::vector<std::string> mFiles;
     S32 mCurrentFile;
     bool mLocked;
 
     static LLFilePicker sInstance;
-
-protected:
-#if LL_GTK
-        GtkWindow* buildFilePicker(bool is_save, bool is_folder,
-                   std::string context = "generic");
-#endif
 
 public:
     // don't call these directly please.

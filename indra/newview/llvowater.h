@@ -60,7 +60,7 @@ public:
 
     /*virtual*/ void idleUpdate(LLAgent &agent, const F64 &time);
     /*virtual*/ LLDrawable* createDrawable(LLPipeline *pipeline);
-    /*virtual*/ BOOL        updateGeometry(LLDrawable *drawable);
+    /*virtual*/ bool        updateGeometry(LLDrawable *drawable);
     /*virtual*/ void        updateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax);
 
     /*virtual*/ void updateTextures();
@@ -68,16 +68,13 @@ public:
 
     virtual U32 getPartitionType() const;
 
-    /*virtual*/ BOOL isActive() const; // Whether this object needs to do an idleUpdate.
+    /*virtual*/ bool isActive() const; // Whether this object needs to do an idleUpdate.
 
-    void setUseTexture(const BOOL use_texture);
-    void setIsEdgePatch(const BOOL edge_patch);
-    BOOL getUseTexture() const { return mUseTexture; }
-    BOOL getIsEdgePatch() const { return mIsEdgePatch; }
+    void setIsEdgePatch(const bool edge_patch);
+    bool getIsEdgePatch() const { return mIsEdgePatch; }
 
 protected:
-    BOOL mUseTexture;
-    BOOL mIsEdgePatch;
+    bool mIsEdgePatch;
     S32  mRenderType;
 };
 

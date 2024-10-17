@@ -53,8 +53,8 @@ LLControlVariable* LLControlGroup::declareString(const std::string& name,
                    const std::string& initial_val,
                    const std::string& comment,
                    LLControlVariable::ePersist persist) {return NULL;}
-void LLControlGroup::setString(const std::string& name, const std::string& val){}
-std::string LLControlGroup::getString(const std::string& name)
+void LLControlGroup::setString(std::string_view name, const std::string& val){}
+std::string LLControlGroup::getString(std::string_view name)
 {
     if (name == "HelpURLFormat")
         return gHelpURL;
@@ -75,9 +75,11 @@ static void substitute_string(std::string &input, const std::string &search, con
 #include "../llagent.h"
 LLAgent::LLAgent() : mAgentAccess(NULL) { }
 LLAgent::~LLAgent() { }
-bool LLAgent::isGodlike() const { return FALSE; }
+bool LLAgent::isGodlike() const { return false; }
 
 LLAgent gAgent;
+
+LLFlycam::LLFlycam() { }
 
 std::string LLWeb::expandURLSubstitutions(const std::string &url,
                                           const LLSD &default_subs)

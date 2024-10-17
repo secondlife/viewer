@@ -42,19 +42,7 @@
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/regex.hpp>
-
-#if LL_MSVC
-#pragma warning(push)
-// disable warning about boost::lexical_cast unreachable code
-// when it fails to parse the string
-#pragma warning (disable:4702)
-#endif
-
 #include <boost/date_time/gregorian/gregorian.hpp>
-#if LL_MSVC
-#pragma warning(pop)   // Restore all warnings to the previous state
-#endif
-
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/date_time/local_time_adjustor.hpp>
 
@@ -90,8 +78,8 @@ const static std::string MULTI_LINE_PREFIX(" ");
  *
  * Note: "You" was used as an avatar names in viewers of previous versions
  */
-const static boost::regex TIMESTAMP_AND_STUFF("^(\\[\\d{4}/\\d{1,2}/\\d{1,2}\\s+\\d{1,2}:\\d{2}\\]\\s+|\\[\\d{1,2}:\\d{2}\\]\\s+)?(.*)$");
-const static boost::regex TIMESTAMP("^(\\[\\d{4}/\\d{1,2}/\\d{1,2}\\s+\\d{1,2}:\\d{2}\\]|\\[\\d{1,2}:\\d{2}\\]).*");
+const static boost::regex TIMESTAMP_AND_STUFF("^(\\[\\d{4}/\\d{1,2}/\\d{1,2}\\s+\\d{1,2}:\\d{2}\\s[AaPp][Mm]\\]\\s+|\\[\\d{4}/\\d{1,2}/\\d{1,2}\\s+\\d{1,2}:\\d{2}\\]\\s+|\\[\\d{1,2}:\\d{2}\\s[AaPp][Mm]\\]\\s+|\\[\\d{1,2}:\\d{2}\\]\\s+)?(.*)$");
+const static boost::regex TIMESTAMP("^(\\[\\d{4}/\\d{1,2}/\\d{1,2}\\s+\\d{1,2}:\\d{2}(\\s[AaPp][Mm])?\\]|\\[\\d{1,2}:\\d{2}(\\s[AaPp][Mm])?\\]).*");
 
 /**
  *  Regular expression suitable to match names like
@@ -162,6 +150,10 @@ public:
 
     void checkAndCutOffDate(std::string& time_str)
     {
+        if (time_str.size() < 10) // not enough space for a date
+        {
+            return;
+        }
         // Cuts off the "%Y/%m/%d" from string for todays timestamps.
         // Assume that passed string has at least "%H:%M" time format.
         date log_date(not_a_date_time);
@@ -178,20 +170,12 @@ public:
 
         if ( days_alive == zero_days )
         {
-            // Yep, today's so strip "%Y/%m/%d" info
-            ptime stripped_time(not_a_date_time);
-
-            mTimeStream.str(LLStringUtil::null);
-            mTimeStream << time_str;
-            mTimeStream >> stripped_time;
-            mTimeStream.clear();
-
-            time_str.clear();
-
-            mTimeStream.str(LLStringUtil::null);
-            mTimeStream << stripped_time;
-            mTimeStream >> time_str;
-            mTimeStream.clear();
+            size_t pos = time_str.find_first_of(' ');
+            if (pos != std::string::npos)
+            {
+                time_str.erase(0, pos + 1);
+                LLStringUtil::trim(time_str);
+            }
         }
 
         LL_DEBUGS("LLChatLogParser")
@@ -320,16 +304,22 @@ std::string LLLogChat::timestamp2LogString(U32 timestamp, bool withdate)
     std::string timeStr;
     if (withdate)
     {
-        timeStr = "[" + LLTrans::getString ("TimeYear") + "]/["
-                  + LLTrans::getString ("TimeMonth") + "]/["
-                  + LLTrans::getString ("TimeDay") + "] ["
-                  + LLTrans::getString ("TimeHour") + "]:["
-                  + LLTrans::getString ("TimeMin") + "]";
+        timeStr = "[" + LLTrans::getString("TimeYear") + "]/["
+            + LLTrans::getString("TimeMonth") + "]/["
+            + LLTrans::getString("TimeDay") + "] ";
+    }
+
+    static bool use_24h = gSavedSettings.getBOOL("Use24HourClock");
+    if (use_24h)
+    {
+        timeStr += "[" + LLTrans::getString("TimeHour") + "]:["
+            + LLTrans::getString("TimeMin") + "]";
     }
     else
     {
-        timeStr = "[" + LLTrans::getString("TimeHour") + "]:["
-                  + LLTrans::getString ("TimeMin")+"]";
+        timeStr += "[" + LLTrans::getString("TimeHour12") + "]:["
+            + LLTrans::getString("TimeMin") + "] ["
+            + LLTrans::getString("TimeAMPM") + "]";
     }
 
     LLSD substitution;
@@ -452,16 +442,16 @@ void LLLogChat::loadChatHistory(const std::string& file_name, std::list<LLSD>& m
         return;
     }
 
-    S32 save_num_messages = messages.size();
+    auto save_num_messages = messages.size();
 
     char buffer[LOG_RECALL_SIZE];       /*Flawfinder: ignore*/
     char *bptr;
-    S32 len;
-    bool firstline = TRUE;
+    size_t len;
+    bool firstline = true;
 
     if (load_all_history || fseek(fptr, (LOG_RECALL_SIZE - 1) * -1  , SEEK_END))
     {   //We need to load the whole historyFile or it's smaller than recall size, so get it all.
-        firstline = FALSE;
+        firstline = false;
         if (fseek(fptr, 0, SEEK_SET))
         {
             fclose(fptr);
@@ -476,7 +466,7 @@ void LLLogChat::loadChatHistory(const std::string& file_name, std::list<LLSD>& m
 
         if (firstline)
         {
-            firstline = FALSE;
+            firstline = false;
             continue;
         }
 
@@ -1142,7 +1132,7 @@ void LLLoadHistoryThread::run()
     if(mNewLoad)
     {
         loadHistory(mFileName, mMessages, mLoadParams);
-        int count = mMessages->size();
+        auto count = mMessages->size();
         LL_INFOS() << "mMessages->size(): " << count << LL_ENDL;
         setFinished();
     }
@@ -1189,12 +1179,12 @@ void LLLoadHistoryThread::loadHistory(const std::string& file_name, std::list<LL
     char buffer[LOG_RECALL_SIZE];       /*Flawfinder: ignore*/
 
     char *bptr;
-    S32 len;
-    bool firstline = TRUE;
+    size_t len;
+    bool firstline = true;
 
     if (load_all_history || fseek(fptr, (LOG_RECALL_SIZE - 1) * -1  , SEEK_END))
     {   //We need to load the whole historyFile or it's smaller than recall size, so get it all.
-        firstline = FALSE;
+        firstline = false;
         if (fseek(fptr, 0, SEEK_SET))
         {
             fclose(fptr);
@@ -1214,7 +1204,7 @@ void LLLoadHistoryThread::loadHistory(const std::string& file_name, std::list<LL
 
         if (firstline)
         {
-            firstline = FALSE;
+            firstline = false;
             continue;
         }
         std::string line(remove_utf8_bom(buffer));

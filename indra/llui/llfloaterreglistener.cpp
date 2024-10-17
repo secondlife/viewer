@@ -37,6 +37,8 @@
 #include "llfloaterreg.h"
 #include "llfloater.h"
 #include "llbutton.h"
+#include "llluafloater.h"
+#include "resultset.h"
 
 LLFloaterRegListener::LLFloaterRegListener():
     LLEventAPI("LLFloaterReg",
@@ -72,6 +74,18 @@ LLFloaterRegListener::LLFloaterRegListener():
         "Simulate clicking the named [\"button\"] in the visible floater named in [\"name\"]",
         &LLFloaterRegListener::clickButton,
         requiredNameButton);
+
+    add("showLuaFloater",
+        "Open the new floater using XML file specified in [\"xml_path\"] with ID in [\"reqid\"]",
+        &LLLuaFloater::showLuaFloater, {llsd::map("xml_path", LLSD(), "reqid", LLSD())});
+    add("getFloaterEvents",
+        "Return the table of Lua Floater events which are send to the script",
+        &LLFloaterRegListener::getLuaFloaterEvents);
+
+    add("getFloaterNames",
+        "Return result set key [\"floaters\"] for names of all registered floaters",
+        &LLFloaterRegListener::getFloaterNames,
+        llsd::map("reply", LLSD::String()));
 }
 
 void LLFloaterRegListener::getBuildMap(const LLSD& event) const
@@ -94,23 +108,41 @@ void LLFloaterRegListener::getBuildMap(const LLSD& event) const
 
 void LLFloaterRegListener::showInstance(const LLSD& event) const
 {
-    LLFloaterReg::showInstance(event["name"], event["key"], event["focus"]);
+    LLFloaterReg::showInstance(event["name"].asString(), event["key"], event["focus"]);
 }
 
 void LLFloaterRegListener::hideInstance(const LLSD& event) const
 {
-    LLFloaterReg::hideInstance(event["name"], event["key"]);
+    LLFloaterReg::hideInstance(event["name"].asString(), event["key"]);
 }
 
 void LLFloaterRegListener::toggleInstance(const LLSD& event) const
 {
-    LLFloaterReg::toggleInstance(event["name"], event["key"]);
+    LLFloaterReg::toggleInstance(event["name"].asString(), event["key"]);
 }
 
 void LLFloaterRegListener::instanceVisible(const LLSD& event) const
 {
-    sendReply(LLSDMap("visible", LLFloaterReg::instanceVisible(event["name"], event["key"])),
+    sendReply(LLSDMap("visible", LLFloaterReg::instanceVisible(event["name"].asString(), event["key"])),
               event);
+}
+
+struct NameResultSet: public LL::ResultSet
+{
+    NameResultSet():
+        LL::ResultSet("floaters"),
+        mNames(LLFloaterReg::getFloaterNames())
+    {}
+    LLSD mNames;
+
+    int getLength() const override { return narrow(mNames.size()); }
+    LLSD getSingle(int index) const override { return mNames[index]; }
+};
+
+void LLFloaterRegListener::getFloaterNames(const LLSD &event) const
+{
+    auto nameresult = new NameResultSet;
+    sendReply(llsd::map("floaters", nameresult->getKeyLength()), event);
 }
 
 void LLFloaterRegListener::clickButton(const LLSD& event) const
@@ -119,7 +151,7 @@ void LLFloaterRegListener::clickButton(const LLSD& event) const
     LLReqID reqID(event);
     LLSD reply(reqID.makeResponse());
 
-    LLFloater* floater = LLFloaterReg::findInstance(event["name"], event["key"]);
+    LLFloater* floater = LLFloaterReg::findInstance(event["name"].asString(), event["key"]);
     if (! LLFloater::isShown(floater))
     {
         reply["type"]  = "LLFloater";
@@ -131,7 +163,7 @@ void LLFloaterRegListener::clickButton(const LLSD& event) const
     {
         // Here 'floater' points to an LLFloater instance with the specified
         // name and key which isShown().
-        LLButton* button = floater->findChild<LLButton>(event["button"]);
+        LLButton* button = floater->findChild<LLButton>(event["button"].asString());
         if (! LLButton::isAvailable(button))
         {
             reply["type"]  = "LLButton";
@@ -153,4 +185,9 @@ void LLFloaterRegListener::clickButton(const LLSD& event) const
     {
         LLEventPumps::instance().obtain(replyPump).post(reply);
     }
+}
+
+void LLFloaterRegListener::getLuaFloaterEvents(const LLSD &event) const
+{
+    Response response(llsd::map("events", LLLuaFloater::getEventsData()), event);
 }

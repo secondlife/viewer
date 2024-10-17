@@ -71,7 +71,7 @@ void LLToolTipView::draw()
     LLView::draw();
 }
 
-BOOL LLToolTipView::handleHover(S32 x, S32 y, MASK mask)
+bool LLToolTipView::handleHover(S32 x, S32 y, MASK mask)
 {
     static S32 last_x = x;
     static S32 last_y = y;
@@ -89,7 +89,7 @@ BOOL LLToolTipView::handleHover(S32 x, S32 y, MASK mask)
     return LLView::handleHover(x, y, mask);
 }
 
-BOOL LLToolTipView::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLToolTipView::handleMouseDown(S32 x, S32 y, MASK mask)
 {
     LLToolTipMgr::instance().blockToolTips();
 
@@ -98,29 +98,29 @@ BOOL LLToolTipView::handleMouseDown(S32 x, S32 y, MASK mask)
         // If we are handling the mouse event menu holder
         // won't get a chance to close menus so do this here
         LLMenuGL::sMenuContainer->hideMenus();
-        return TRUE;
+        return true;
     }
 
-    return FALSE;
+    return false;
 }
 
-BOOL LLToolTipView::handleMiddleMouseDown(S32 x, S32 y, MASK mask)
+bool LLToolTipView::handleMiddleMouseDown(S32 x, S32 y, MASK mask)
 {
     LLToolTipMgr::instance().blockToolTips();
     return LLView::handleMiddleMouseDown(x, y, mask);
 }
 
-BOOL LLToolTipView::handleRightMouseDown(S32 x, S32 y, MASK mask)
+bool LLToolTipView::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
     LLToolTipMgr::instance().blockToolTips();
     return LLView::handleRightMouseDown(x, y, mask);
 }
 
 
-BOOL LLToolTipView::handleScrollWheel( S32 x, S32 y, S32 clicks )
+bool LLToolTipView::handleScrollWheel( S32 x, S32 y, S32 clicks )
 {
     LLToolTipMgr::instance().blockToolTips();
-    return FALSE;
+    return false;
 }
 
 void LLToolTipView::drawStickyRect()
@@ -325,14 +325,14 @@ void LLToolTip::snapToChildren()
     setShape(tooltip_rect);
 }
 
-void LLToolTip::setVisible(BOOL visible)
+void LLToolTip::setVisible(bool visible)
 {
     // fade out tooltip over time
     if (visible)
     {
         mVisibleTimer.start();
         mFadeTimer.stop();
-        LLPanel::setVisible(TRUE);
+        LLPanel::setVisible(true);
     }
     else
     {
@@ -345,7 +345,7 @@ void LLToolTip::setVisible(BOOL visible)
     }
 }
 
-BOOL LLToolTip::handleHover(S32 x, S32 y, MASK mask)
+bool LLToolTip::handleHover(S32 x, S32 y, MASK mask)
 {
     //mInfoButton->setFlashing(true);
     if(mInfoButton)
@@ -356,7 +356,7 @@ BOOL LLToolTip::handleHover(S32 x, S32 y, MASK mask)
     {
         getWindow()->setCursor(UI_CURSOR_HAND);
     }
-    return TRUE;
+    return true;
 }
 
 void LLToolTip::onMouseLeave(S32 x, S32 y, MASK mask)
@@ -390,22 +390,22 @@ void LLToolTip::draw()
     }
 }
 
-bool LLToolTip::isFading()
+bool LLToolTip::isFading() const
 {
     return mFadeTimer.getStarted();
 }
 
-F32 LLToolTip::getVisibleTime()
+F32 LLToolTip::getVisibleTime() const
 {
     return mVisibleTimer.getStarted() ? mVisibleTimer.getElapsedTimeF32() : 0.f;
 }
 
-bool LLToolTip::hasClickCallback()
+bool LLToolTip::hasClickCallback() const
 {
     return mHasClickCallback;
 }
 
-void LLToolTip::getToolTipMessage(std::string & message)
+void LLToolTip::getToolTipMessage(std::string& message) const
 {
     if (mTextBox)
     {
@@ -549,7 +549,7 @@ void LLToolTipMgr::hideToolTips()
 {
     if (mToolTip)
     {
-        mToolTip->setVisible(FALSE);
+        mToolTip->setVisible(false);
     }
 }
 

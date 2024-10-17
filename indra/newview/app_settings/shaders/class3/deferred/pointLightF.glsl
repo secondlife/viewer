@@ -1,41 +1,38 @@
-/** 
+/**
  * @file class3\deferred\pointLightF.glsl
  *
  * $LicenseInfo:firstyear=2022&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2022, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
+
 /*[EXTRA_CODE_HERE]*/
 
 out vec4 frag_color;
 
 uniform sampler2D diffuseRect;
 uniform sampler2D specularRect;
-uniform sampler2D normalMap;
 uniform sampler2D emissiveRect; // PBR linear packed Occlusion, Roughness, Metal. See: pbropaqueF.glsl
 uniform sampler2D lightFunc;
-uniform sampler2D depthMap;
 
 uniform vec3 env_mat[3];
-uniform float sun_wash;
 
 // light params
 uniform vec3 color;
@@ -48,7 +45,6 @@ in vec3 trans_center;
 uniform vec2 screen_res;
 
 uniform mat4 inv_proj;
-uniform vec4 viewport;
 
 void calcHalfVectors(vec3 lv, vec3 n, vec3 v, out vec3 h, out vec3 l, out float nh, out float nl, out float nv, out float vh, out float lightDist);
 float calcLegacyDistanceAttenuation(float distance, float falloff);
@@ -59,8 +55,8 @@ vec2 getScreenCoord(vec4 clip);
 vec3 srgb_to_linear(vec3 c);
 float getDepth(vec2 tc);
 
-vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor, 
-                    float perceptualRoughness, 
+vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor,
+                    float perceptualRoughness,
                     float metallic,
                     vec3 n, // normal
                     vec3 v, // surface point to camera
@@ -93,13 +89,13 @@ void main()
 
     if (GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_PBR))
     {
-        vec3 colorEmissive = texture(emissiveRect, tc).rgb; 
+        vec3 colorEmissive = texture(emissiveRect, tc).rgb;
         vec3 orm = spec.rgb;
         float perceptualRoughness = orm.g;
         float metallic = orm.b;
         vec3 f0 = vec3(0.04);
         vec3 baseColor = diffuse.rgb;
-        
+
         vec3 diffuseColor = baseColor.rgb*(vec3(1.0)-f0);
         diffuseColor *= 1.0 - metallic;
 
@@ -136,7 +132,7 @@ void main()
                 final_color += lit*scol*color.rgb*spec.rgb;
             }
         }
-    
+
         if (dot(final_color, final_color) <= 0.0)
         {
             discard;

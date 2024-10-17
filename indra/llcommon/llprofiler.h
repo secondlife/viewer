@@ -78,13 +78,7 @@ extern thread_local bool gProfilerEnabled;
 
 #if defined(LL_PROFILER_CONFIGURATION) && (LL_PROFILER_CONFIGURATION > LL_PROFILER_CONFIG_NONE)
     #if LL_PROFILER_CONFIGURATION == LL_PROFILER_CONFIG_TRACY || LL_PROFILER_CONFIGURATION == LL_PROFILER_CONFIG_TRACY_FAST_TIMER
-        #define TRACY_ENABLE         1
-// Normally these would be enabled but we want to be able to build any viewer with Tracy enabled and run the Tracy server on another machine
-// They must be undefined in order to work across multiple machines
-//      #define TRACY_NO_BROADCAST   1
-//      #define TRACY_ONLY_LOCALHOST 1
-        #define TRACY_ONLY_IPV4      1
-        #include "Tracy.hpp"
+        #include "tracy/Tracy.hpp"
 
         // Enable OpenGL profiling
         #define LL_PROFILER_ENABLE_TRACY_OPENGL 0
@@ -108,6 +102,12 @@ extern thread_local bool gProfilerEnabled;
         #define LL_PROFILE_ZONE_ERR(name)               LL_PROFILE_ZONE_NAMED_COLOR( name, 0XFF0000  )  // RGB yellow
         #define LL_PROFILE_ZONE_INFO(name)              LL_PROFILE_ZONE_NAMED_COLOR( name, 0X00FFFF  )  // RGB cyan
         #define LL_PROFILE_ZONE_WARN(name)              LL_PROFILE_ZONE_NAMED_COLOR( name, 0x0FFFF00 )  // RGB red
+
+        #define LL_PROFILE_MUTEX(type, varname)                     TracyLockable(type, varname)
+        #define LL_PROFILE_MUTEX_NAMED(type, varname, desc)         TracyLockableN(type, varname, desc)
+        #define LL_PROFILE_MUTEX_SHARED(type, varname)              TracySharedLockable(type, varname)
+        #define LL_PROFILE_MUTEX_SHARED_NAMED(type, varname, desc)  TracySharedLockableN(type, varname, desc)
+        #define LL_PROFILE_MUTEX_LOCK(varname) { auto& mutex = varname; LockMark(mutex); }
     #endif
     #if LL_PROFILER_CONFIGURATION == LL_PROFILER_CONFIG_FAST_TIMER
         #define LL_PROFILER_FRAME_END
@@ -124,6 +124,12 @@ extern thread_local bool gProfilerEnabled;
         #define LL_PROFILE_ZONE_ERR(name)               (void)(name); // Not supported
         #define LL_PROFILE_ZONE_INFO(name)              (void)(name); // Not supported
         #define LL_PROFILE_ZONE_WARN(name)              (void)(name); // Not supported
+
+        #define LL_PROFILE_MUTEX(type, varname) type varname
+        #define LL_PROFILE_MUTEX_NAMED(type, varname, desc) type varname
+        #define LL_PROFILE_MUTEX_SHARED(type, varname) type varname
+        #define LL_PROFILE_MUTEX_SHARED_NAMED(type, varname, desc) type varname
+        #define LL_PROFILE_MUTEX_LOCK(varname) // LL_PROFILE_MUTEX_LOCK is a no-op when Tracy is disabled
     #endif
     #if LL_PROFILER_CONFIGURATION == LL_PROFILER_CONFIG_TRACY_FAST_TIMER
         #define LL_PROFILER_FRAME_END                   FrameMark
@@ -139,6 +145,12 @@ extern thread_local bool gProfilerEnabled;
         #define LL_PROFILE_ZONE_ERR(name)               LL_PROFILE_ZONE_NAMED_COLOR( name, 0XFF0000  )  // RGB yellow
         #define LL_PROFILE_ZONE_INFO(name)              LL_PROFILE_ZONE_NAMED_COLOR( name, 0X00FFFF  )  // RGB cyan
         #define LL_PROFILE_ZONE_WARN(name)              LL_PROFILE_ZONE_NAMED_COLOR( name, 0x0FFFF00 )  // RGB red
+
+        #define LL_PROFILE_MUTEX(type, varname)                     TracyLockable(type, varname)
+        #define LL_PROFILE_MUTEX_NAMED(type, varname, desc)         TracyLockableN(type, varname, desc)
+        #define LL_PROFILE_MUTEX_SHARED(type, varname)              TracySharedLockable(type, varname)
+        #define LL_PROFILE_MUTEX_SHARED_NAMED(type, varname, desc)  TracySharedLockableN(type, varname, desc)
+        #define LL_PROFILE_MUTEX_LOCK(varname) { auto& mutex = varname; LockMark(mutex); } // see https://github.com/wolfpld/tracy/issues/575
     #endif
 #else
     #define LL_PROFILER_FRAME_END
@@ -162,7 +174,7 @@ extern thread_local bool gProfilerEnabled;
 
 #define LL_LABEL_OBJECT_GL(type, name, length, label)
 
-#if LL_PROFILER_CONFIGURATION > 1
+#if !LL_DARWIN && LL_PROFILER_CONFIGURATION > 1
 #define LL_PROFILE_ALLOC(ptr, size)             TracyAlloc(ptr, size)
 #define LL_PROFILE_FREE(ptr)                    TracyFree(ptr)
 #else

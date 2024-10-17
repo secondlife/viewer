@@ -33,6 +33,7 @@
 #include <boost/enable_shared_from_this.hpp>
 
 #include "llapr.h"
+#include "llcoromutex.h"
 #include "llprocess.h"
 #include "llpluginmessage.h"
 #include "llpluginmessagepipe.h"
@@ -68,11 +69,6 @@ public:
               const std::string &plugin_dir,
               const std::string &plugin_filename,
               bool debug);
-
-    // Creates a process
-    // returns true if process already exists or if created,
-    // false if failed to create
-    bool createPluginProcess();
 
     void idle(void);
 
@@ -168,15 +164,13 @@ private:
 
     bool accept();
 
-    void clearProcessCreationThread();
-
     LLSocket::ptr_t mListenSocket;
     LLSocket::ptr_t mSocket;
     U32 mBoundPort;
 
     LLProcess::Params mProcessParams;
     LLProcessPtr mProcess;
-    LLThread *pProcessCreationThread;
+    bool mProcessCreationRequested = false;
 
     std::string mPluginFile;
     std::string mPluginDir;
@@ -207,7 +201,7 @@ private:
     apr_pollfd_t mPollFD;
     static apr_pollset_t *sPollSet;
     static bool sPollsetNeedsRebuild;
-    static LLMutex *sInstancesMutex;
+    static llcoro::Mutex *sInstancesMutex;
     static mapInstances_t sInstances;
     static void dirtyPollSet();
     static void updatePollset();

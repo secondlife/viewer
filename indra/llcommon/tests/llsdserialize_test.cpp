@@ -44,19 +44,17 @@ typedef U32 uint32_t;
 #include "llstring.h"
 #endif
 
-#include "boost/range.hpp"
-
 #include "llsd.h"
 #include "llsdserialize.h"
 #include "llsdutil.h"
 #include "llformat.h"
 #include "llmemorystream.h"
 
-#include "../test/hexdump.h"
+#include "hexdump.h"
+#include "StringVec.h"
 #include "../test/lltut.h"
 #include "../test/namedtempfile.h"
 #include "stringize.h"
-#include "StringVec.h"
 #include <functional>
 
 typedef std::function<void(const LLSD& data, std::ostream& str)> FormatterFunction;
@@ -701,7 +699,7 @@ namespace tut
                 "<key>cam</key><real>1.23</real>"
             "</map></llsd>",
             v,
-            v.size() + 1);
+            static_cast<S32>(v.size()) + 1);
     }
 
     template<> template<>
@@ -721,7 +719,7 @@ namespace tut
                 "<key>cam</key><real>1.23</real>"
             "</map></llsd>",
             v,
-            v.size() + 1);
+            static_cast<S32>(v.size()) + 1);
 
         v.clear();
         v["amy"] = 23;
@@ -734,7 +732,7 @@ namespace tut
                 "<key>cam</key><real>1.23</real>"
             "</map></llsd>",
             v,
-            v.size() + 1);
+            static_cast<S32>(v.size()) + 1);
 
         v.clear();
         v["amy"] = 23;
@@ -751,7 +749,7 @@ namespace tut
                 "<key>cam</key><real>1.23</real>"
             "</map></llsd>",
             v,
-            v.size() + 1);
+            static_cast<S32>(v.size()) + 1);
 
         v.clear();
         v[0] = 23;
@@ -766,7 +764,7 @@ namespace tut
                 "<real>1.23</real>"
             "</array></llsd>",
             v,
-            v.size() + 1);
+            static_cast<S32>(v.size()) + 1);
 
         v.clear();
         v[0] = 23;
@@ -782,7 +780,7 @@ namespace tut
                 "<real>1.23</real>"
             "</array></llsd>",
             v,
-            v.size() + 1);
+            static_cast<S32>(v.size()) + 1);
     }
 
     template<> template<>
@@ -1405,13 +1403,13 @@ namespace tut
         uint32_t size = htonl(1);
         memcpy(&vec[1], &size, sizeof(uint32_t));
         vec.push_back('k');
-        int key_size_loc = vec.size();
+        auto key_size_loc = vec.size();
         size = htonl(1); // 1 too short
         vec.resize(vec.size() + 4);
         memcpy(&vec[key_size_loc], &size, sizeof(uint32_t));
         vec.push_back('a'); vec.push_back('m'); vec.push_back('y');
         vec.push_back('i');
-        int integer_loc = vec.size();
+        auto integer_loc = vec.size();
         vec.resize(vec.size() + 4);
         uint32_t val_int = htonl(23);
         memcpy(&vec[integer_loc], &val_int, sizeof(uint32_t));
@@ -1473,7 +1471,7 @@ namespace tut
         memcpy(&vec[1], &size, sizeof(uint32_t));
         vec.push_back('"'); vec.push_back('a'); vec.push_back('m');
         vec.push_back('y'); vec.push_back('"'); vec.push_back('i');
-        int integer_loc = vec.size();
+        auto integer_loc = vec.size();
         vec.resize(vec.size() + 4);
         uint32_t val_int = htonl(23);
         memcpy(&vec[integer_loc], &val_int, sizeof(uint32_t));
@@ -1809,7 +1807,7 @@ namespace tut
         std::string q("\"");
         std::string qPYTHON(q + PYTHON + q);
         std::string qscript(q + scriptfile.getName() + q);
-        int rc = _spawnl(_P_WAIT, PYTHON.c_str(), qPYTHON.c_str(), qscript.c_str(),
+        int rc = (int)_spawnl(_P_WAIT, PYTHON.c_str(), qPYTHON.c_str(), qscript.c_str(),
                          std::forward<ARGS>(args)..., NULL);
         if (rc == -1)
         {
@@ -1921,12 +1919,12 @@ namespace tut
             int bufflen{ static_cast<int>(buffstr.length()) };
             out.write(reinterpret_cast<const char*>(&bufflen), sizeof(bufflen));
             LL_DEBUGS() << "Wrote length: "
-                        << hexdump(reinterpret_cast<const char*>(&bufflen),
-                                   sizeof(bufflen))
+                        << LL::hexdump(reinterpret_cast<const char*>(&bufflen),
+                                       sizeof(bufflen))
                         << LL_ENDL;
             out.write(buffstr.c_str(), buffstr.length());
             LL_DEBUGS() << "Wrote data:   "
-                        << hexmix(buffstr.c_str(), buffstr.length())
+                        << LL::hexmix(buffstr.c_str(), buffstr.length())
                         << LL_ENDL;
         }
     }
@@ -2097,7 +2095,8 @@ namespace tut
         NamedTempFile file("llsd", "");
 
         python("Python " + pyformatter,
-               [&](std::ostream& out){ out <<
+               [pyformatter, &file](std::ostream& out) {
+               out <<
                import_llsd <<
                "import struct\n"
                "lenformat = struct.Struct('i')\n"

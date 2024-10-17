@@ -50,7 +50,7 @@
                     layout="topleft"
                     name="label"
                     left="15"
-                    top="5"
+                    top="8"
                     width="105">
                 Day Cycle Name:
             </text>

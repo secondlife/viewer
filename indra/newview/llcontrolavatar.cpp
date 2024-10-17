@@ -51,7 +51,7 @@ LLControlAvatar::LLControlAvatar(const LLUUID& id, const LLPCode pcode, LLViewer
     mScaleConstraintFixup(1.0),
     mRegionChanged(false)
 {
-    mIsDummy = TRUE;
+    mIsDummy = true;
     mIsControlAvatar = true;
     mEnableDefaultMotions = false;
 }
@@ -99,19 +99,11 @@ LLVOAvatar *LLControlAvatar::getAttachedAvatar()
 
 void LLControlAvatar::getNewConstraintFixups(LLVector3& new_pos_fixup, F32& new_scale_fixup) const
 {
-    F32 max_legal_offset = MAX_LEGAL_OFFSET;
-    if (gSavedSettings.getControl("AnimatedObjectsMaxLegalOffset"))
-    {
-        max_legal_offset = gSavedSettings.getF32("AnimatedObjectsMaxLegalOffset");
-    }
-    max_legal_offset = llmax(max_legal_offset,0.f);
+    static LLCachedControl<F32> anim_max_legal_offset(gSavedSettings, "AnimatedObjectsMaxLegalOffset", MAX_LEGAL_OFFSET);
+    F32 max_legal_offset = llmax(anim_max_legal_offset(), 0.f);
 
-    F32 max_legal_size = MAX_LEGAL_SIZE;
-    if (gSavedSettings.getControl("AnimatedObjectsMaxLegalSize"))
-    {
-        max_legal_size = gSavedSettings.getF32("AnimatedObjectsMaxLegalSize");
-    }
-    max_legal_size = llmax(max_legal_size, 1.f);
+    static LLCachedControl<F32> anim_max_legal_size(gSavedSettings, "AnimatedObjectsMaxLegalSize", MAX_LEGAL_SIZE);
+    F32 max_legal_size = llmax(anim_max_legal_size(), 1.f);
 
     new_pos_fixup = LLVector3();
     new_scale_fixup = 1.0f;
@@ -292,7 +284,7 @@ void LLControlAvatar::updateVolumeGeom()
         return;
     if (mRootVolp->mDrawable->isActive())
     {
-        mRootVolp->mDrawable->makeStatic(FALSE);
+        mRootVolp->mDrawable->makeStatic(false);
     }
     mRootVolp->mDrawable->makeActive();
     gPipeline.markMoved(mRootVolp->mDrawable);
@@ -419,16 +411,17 @@ bool LLControlAvatar::updateCharacter(LLAgent &agent)
 //virtual
 void LLControlAvatar::updateDebugText()
 {
-    if (gSavedSettings.getBOOL("DebugAnimatedObjects"))
+    static LLCachedControl<bool> debug_animated_objects(gSavedSettings, "DebugAnimatedObjects");
+    if (debug_animated_objects)
     {
         S32 total_linkset_count = 0;
         if (mRootVolp)
         {
-            total_linkset_count = 1 + mRootVolp->getChildren().size();
+            total_linkset_count = 1 + static_cast<S32>(mRootVolp->getChildren().size());
         }
         std::vector<LLVOVolume*> volumes;
         getAnimatedVolumes(volumes);
-        S32 animated_volume_count = volumes.size();
+        S32 animated_volume_count = static_cast<S32>(volumes.size());
         std::string active_string;
         std::string type_string;
         std::string lod_string;
@@ -616,9 +609,9 @@ void LLControlAvatar::updateAnimations()
 // virtual
 LLViewerObject* LLControlAvatar::lineSegmentIntersectRiggedAttachments(const LLVector4a& start, const LLVector4a& end,
                                       S32 face,
-                                      BOOL pick_transparent,
-                                      BOOL pick_rigged,
-                                      BOOL pick_unselectable,
+                                      bool pick_transparent,
+                                      bool pick_rigged,
+                                      bool pick_unselectable,
                                       S32* face_hit,
                                       LLVector4a* intersection,
                                       LLVector2* tex_coord,
@@ -695,7 +688,7 @@ bool LLControlAvatar::shouldRenderRigged() const
 }
 
 // virtual
-BOOL LLControlAvatar::isImpostor()
+bool LLControlAvatar::isImpostor()
 {
     // Attached animated objects should match state of their attached av.
     LLVOAvatar *attached_av = getAttachedAvatar();
@@ -706,14 +699,14 @@ BOOL LLControlAvatar::isImpostor()
     return LLVOAvatar::isImpostor();
 }
 
-//static
+// static
 void LLControlAvatar::onRegionChanged()
 {
-    std::vector<LLCharacter*>::iterator it = LLCharacter::sInstances.begin();
-    for ( ; it != LLCharacter::sInstances.end(); ++it)
+    for (LLCharacter* character : LLCharacter::sInstances)
     {
-        LLControlAvatar* cav = dynamic_cast<LLControlAvatar*>(*it);
-        if (!cav) continue;
-        cav->mRegionChanged = true;
+        if (LLControlAvatar* cav = dynamic_cast<LLControlAvatar*>(character))
+        {
+            cav->mRegionChanged = true;
+        }
     }
 }

@@ -26,70 +26,93 @@
  * $/LicenseInfo$
  */
 
-#include "../lltinygltfhelper.h"
 #include "llstrider.h"
+#include "boost/json.hpp"
+
+#include "common.h"
 
 // LL GLTF Implementation
 namespace LL
 {
     namespace GLTF
     {
-        class Asset;
-
-        constexpr S32 INVALID_INDEX = -1;
-
         class Buffer
         {
         public:
             std::vector<U8> mData;
             std::string mName;
             std::string mUri;
+            S32 mByteLength = 0;
 
-            const Buffer& operator=(const tinygltf::Buffer& src);
+            // erase the given range from this buffer.
+            // also updates all buffer views in given asset that reference this buffer
+            void erase(Asset& asset, S32 offset, S32 length);
+
+            bool prep(Asset& asset);
+
+            void serialize(boost::json::object& obj) const;
+            const Buffer& operator=(const Value& value);
+
+            bool save(Asset& asset, const std::string& folder);
         };
 
         class BufferView
         {
         public:
             S32 mBuffer = INVALID_INDEX;
-            S32 mByteLength;
-            S32 mByteOffset;
-            S32 mByteStride;
-            S32 mTarget;
-            S32 mComponentType;
+            S32 mByteLength = 0;
+            S32 mByteOffset = 0;
+            S32 mByteStride = 0;
+            S32 mTarget = -1;
 
             std::string mName;
 
-            const BufferView& operator=(const tinygltf::BufferView& src);
-            
+            void serialize(boost::json::object& obj) const;
+            const BufferView& operator=(const Value& value);
         };
-        
+
         class Accessor
         {
         public:
-            S32 mBufferView = INVALID_INDEX;
-            S32 mByteOffset;
-            S32 mComponentType;
-            S32 mCount;
-            std::vector<double> mMax;
-            std::vector<double> mMin;
-
-            enum class Type : S32
+            enum class Type : U8
             {
-                SCALAR = TINYGLTF_TYPE_SCALAR,
-                VEC2 = TINYGLTF_TYPE_VEC2,
-                VEC3 = TINYGLTF_TYPE_VEC3,
-                VEC4 = TINYGLTF_TYPE_VEC4,
-                MAT2 = TINYGLTF_TYPE_MAT2,
-                MAT3 = TINYGLTF_TYPE_MAT3,
-                MAT4 = TINYGLTF_TYPE_MAT4
+                SCALAR,
+                VEC2,
+                VEC3,
+                VEC4,
+                MAT2,
+                MAT3,
+                MAT4
             };
 
-            S32 mType;
-            bool mNormalized;
-            std::string mName;
+            enum class ComponentType : U32
+            {
+                BYTE = 5120,
+                UNSIGNED_BYTE = 5121,
+                SHORT = 5122,
+                UNSIGNED_SHORT = 5123,
+                UNSIGNED_INT = 5125,
+                FLOAT = 5126
+            };
 
-            const Accessor& operator=(const tinygltf::Accessor& src);
+            std::vector<double> mMax;
+            std::vector<double> mMin;
+            std::string mName;
+            S32 mBufferView = INVALID_INDEX;
+            S32 mByteOffset = 0;
+            ComponentType mComponentType = ComponentType::BYTE;
+            S32 mCount = 0;
+            Type mType = Type::SCALAR;
+            bool mNormalized = false;
+
+            void serialize(boost::json::object& obj) const;
+            const Accessor& operator=(const Value& value);
         };
+
+        // convert from "SCALAR", "VEC2", etc to Accessor::Type
+        Accessor::Type gltf_type_to_enum(const std::string& type);
+
+        // convert from Accessor::Type to "SCALAR", "VEC2", etc
+        std::string enum_to_gltf_type(Accessor::Type type);
     }
 }

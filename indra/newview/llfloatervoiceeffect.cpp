@@ -36,9 +36,9 @@
 LLFloaterVoiceEffect::LLFloaterVoiceEffect(const LLSD& key)
     : LLFloater(key)
 {
-    mCommitCallbackRegistrar.add("VoiceEffect.Record",  boost::bind(&LLFloaterVoiceEffect::onClickRecord, this));
-    mCommitCallbackRegistrar.add("VoiceEffect.Play",    boost::bind(&LLFloaterVoiceEffect::onClickPlay, this));
-    mCommitCallbackRegistrar.add("VoiceEffect.Stop",    boost::bind(&LLFloaterVoiceEffect::onClickStop, this));
+    mCommitCallbackRegistrar.add("VoiceEffect.Record", { boost::bind(&LLFloaterVoiceEffect::onClickRecord, this) });
+    mCommitCallbackRegistrar.add("VoiceEffect.Play", { boost::bind(&LLFloaterVoiceEffect::onClickPlay, this) });
+    mCommitCallbackRegistrar.add("VoiceEffect.Stop", { boost::bind(&LLFloaterVoiceEffect::onClickStop, this) });
 //  mCommitCallbackRegistrar.add("VoiceEffect.Activate", boost::bind(&LLFloaterVoiceEffect::onClickActivate, this));
 }
 
@@ -56,7 +56,7 @@ LLFloaterVoiceEffect::~LLFloaterVoiceEffect()
 }
 
 // virtual
-BOOL LLFloaterVoiceEffect::postBuild()
+bool LLFloaterVoiceEffect::postBuild()
 {
     setDefaultBtn("record_btn");
     getChild<LLButton>("record_btn")->setFocus(true);
@@ -81,7 +81,7 @@ BOOL LLFloaterVoiceEffect::postBuild()
     refreshEffectList();
     updateControls();
 
-    return TRUE;
+    return true;
 }
 
 // virtual

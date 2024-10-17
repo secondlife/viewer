@@ -45,8 +45,8 @@ public:
     LLFloaterCreateLandmark(const LLSD& key);
     ~LLFloaterCreateLandmark();
 
-    BOOL postBuild();
-    void onOpen(const LLSD& key);
+    bool postBuild() override;
+    void onOpen(const LLSD& key) override;
 
     void setItem(const uuid_set_t& items);
     void updateItem(const uuid_set_t& items, U32 mask);
@@ -62,13 +62,14 @@ private:
     void onSaveClicked();
     void onCancelClicked();
 
-    void folderCreatedCallback(LLUUID folder_id);
+    static void folderCreatedCallback(LLUUID folder_id);
 
     LLComboBox*     mFolderCombo;
     LLLineEditor*   mLandmarkTitleEditor;
     LLTextEditor*   mNotesEditor;
     LLUUID          mLandmarksID;
     LLUUID          mAssetID;
+    LLUUID          mParentID;
 
     LLLandmarksInventoryObserver*   mInventoryObserver;
     LLPointer<LLInventoryItem>      mItem;

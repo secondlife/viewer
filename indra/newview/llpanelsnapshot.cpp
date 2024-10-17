@@ -37,11 +37,12 @@
 
 // newview
 #include "llsidetraypanelcontainer.h"
+#include "llsnapshotlivepreview.h"
 #include "llviewercontrol.h" // gSavedSettings
 
 #include "llagentbenefits.h"
 
-const S32 MAX_TEXTURE_SIZE = 512 ; //max upload texture size 512 * 512
+constexpr S32 MAX_TEXTURE_SIZE = 2048 ; //max upload texture size 2048 * 2048
 
 S32 power_of_two(S32 sz, S32 upper)
 {
@@ -59,9 +60,11 @@ LLPanelSnapshot::LLPanelSnapshot()
 {}
 
 // virtual
-BOOL LLPanelSnapshot::postBuild()
+bool LLPanelSnapshot::postBuild()
 {
-    getChild<LLUICtrl>("save_btn")->setLabelArg("[UPLOAD_COST]", std::to_string(LLAgentBenefitsMgr::current().getTextureUploadCost()));
+    S32 w = getTypedPreviewWidth();
+    S32 h = getTypedPreviewHeight();
+    getChild<LLUICtrl>("save_btn")->setLabelArg("[UPLOAD_COST]", std::to_string(LLAgentBenefitsMgr::current().getTextureUploadCost(w, h)));
     getChild<LLUICtrl>(getImageSizeComboName())->setCommitCallback(boost::bind(&LLPanelSnapshot::onResolutionComboCommit, this, _1));
     if (!getWidthSpinnerName().empty())
     {
@@ -78,7 +81,7 @@ BOOL LLPanelSnapshot::postBuild()
     updateControls(LLSD());
 
     mSnapshotFloater = getParentByType<LLFloaterSnapshotBase>();
-    return TRUE;
+    return true;
 }
 
 // virtual
@@ -97,6 +100,17 @@ void LLPanelSnapshot::onOpen(const LLSD& key)
     {
         getParentByType<LLFloater>()->notify(LLSD().with("image-format-change", true));
     }
+
+    // If resolution is set to "Current Window", force a snapshot update
+    // each time a snapshot panel is opened to determine the correct
+    // image size (and upload fee) depending on the snapshot type.
+    if (mSnapshotFloater && getChild<LLUICtrl>(getImageSizeComboName())->getValue().asString() == "[i0,i0]")
+    {
+        if (LLSnapshotLivePreview* preview = mSnapshotFloater->getPreviewView())
+        {
+            preview->mForceUpdateSnapshot = true;
+        }
+    }
 }
 
 LLSnapshotModel::ESnapshotFormat LLPanelSnapshot::getImageFormat() const
@@ -104,7 +118,7 @@ LLSnapshotModel::ESnapshotFormat LLPanelSnapshot::getImageFormat() const
     return LLSnapshotModel::SNAPSHOT_FORMAT_JPEG;
 }
 
-void LLPanelSnapshot::enableControls(BOOL enable)
+void LLPanelSnapshot::enableControls(bool enable)
 {
     setCtrlsEnabled(enable);
 }
@@ -133,7 +147,7 @@ S32 LLPanelSnapshot::getTypedPreviewHeight() const
     return getChild<LLUICtrl>(getHeightSpinnerName())->getValue().asInteger();
 }
 
-void LLPanelSnapshot::enableAspectRatioCheckbox(BOOL enable)
+void LLPanelSnapshot::enableAspectRatioCheckbox(bool enable)
 {
     llassert(!getAspectRatioCBName().empty());
     getChild<LLUICtrl>(getAspectRatioCBName())->setEnabled(enable);
@@ -211,12 +225,12 @@ void LLPanelSnapshot::onCustomResolutionCommit()
         S32 width = widthSpinner->getValue().asInteger();
         width = power_of_two(width, MAX_TEXTURE_SIZE);
         info["w"] = width;
-        widthSpinner->setIncrement(width >> 1);
+        widthSpinner->setIncrement((F32)(width >> 1));
         widthSpinner->forceSetValue(width);
         S32 height =  heightSpinner->getValue().asInteger();
         height = power_of_two(height, MAX_TEXTURE_SIZE);
-        heightSpinner->setIncrement(height >> 1);
-        heightSpinner->forceSetValue(height);
+        heightSpinner->setIncrement((F32)(height >> 1));
+        heightSpinner->forceSetValue((F32)height);
         info["h"] = height;
     }
     else

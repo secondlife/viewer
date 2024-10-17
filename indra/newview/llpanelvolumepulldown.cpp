@@ -48,14 +48,14 @@
 // Default constructor
 LLPanelVolumePulldown::LLPanelVolumePulldown()
 {
-    mCommitCallbackRegistrar.add("Vol.setControlFalse", boost::bind(&LLPanelVolumePulldown::setControlFalse, this, _2));
-    mCommitCallbackRegistrar.add("Vol.SetSounds", boost::bind(&LLPanelVolumePulldown::onClickSetSounds, this));
-    mCommitCallbackRegistrar.add("Vol.updateCheckbox",  boost::bind(&LLPanelVolumePulldown::updateCheckbox, this, _1, _2));
-    mCommitCallbackRegistrar.add("Vol.GoAudioPrefs", boost::bind(&LLPanelVolumePulldown::onAdvancedButtonClick, this, _2));
+    mCommitCallbackRegistrar.add("Vol.setControlFalse", { boost::bind(&LLPanelVolumePulldown::setControlFalse, this, _2) });
+    mCommitCallbackRegistrar.add("Vol.SetSounds", { boost::bind(&LLPanelVolumePulldown::onClickSetSounds, this) });
+    mCommitCallbackRegistrar.add("Vol.updateCheckbox", { boost::bind(&LLPanelVolumePulldown::updateCheckbox, this, _1, _2) });
+    mCommitCallbackRegistrar.add("Vol.GoAudioPrefs", { boost::bind(&LLPanelVolumePulldown::onAdvancedButtonClick, this, _2) });
     buildFromFile( "panel_volume_pulldown.xml");
 }
 
-BOOL LLPanelVolumePulldown::postBuild()
+bool LLPanelVolumePulldown::postBuild()
 {
     return LLPanelPulldown::postBuild();
 }
@@ -63,7 +63,7 @@ BOOL LLPanelVolumePulldown::postBuild()
 void LLPanelVolumePulldown::onAdvancedButtonClick(const LLSD& user_data)
 {
     // close the global volume minicontrol, we're bringing up the big one
-    setVisible(FALSE);
+    setVisible(false);
 
     // bring up the prefs floater
     LLFloaterPreference* prefsfloater = dynamic_cast<LLFloaterPreference*>
@@ -87,7 +87,7 @@ void LLPanelVolumePulldown::setControlFalse(const LLSD& user_data)
     LLControlVariable* control = findControl(control_name);
 
     if (control)
-        control->set(LLSD(FALSE));
+        control->set(LLSD(false));
 }
 
 void LLPanelVolumePulldown::updateCheckbox(LLUICtrl* ctrl, const LLSD& user_data)

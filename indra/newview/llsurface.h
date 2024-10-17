@@ -27,7 +27,6 @@
 #ifndef LL_LLSURFACE_H
 #define LL_LLSURFACE_H
 
-//#include "vmath.h"
 #include "v3math.h"
 #include "v3dmath.h"
 #include "v4math.h"
@@ -84,7 +83,7 @@ public:
     void disconnectNeighbor(LLSurface *neighborp);
     void disconnectAllNeighbors();
 
-    virtual void decompressDCTPatch(LLBitPack &bitpack, LLGroupHeader *gopp, BOOL b_large_patch);
+    virtual void decompressDCTPatch(LLBitPack &bitpack, LLGroupHeader *gopp, bool b_large_patch);
     virtual void updatePatchVisibilities(LLAgent &agent);
 
     inline F32 getZ(const U32 k) const              { return mSurfaceZ[k]; }
@@ -110,12 +109,13 @@ public:
     LLSurfacePatch *resolvePatchRegion(const F32 x, const F32 y) const;
     LLSurfacePatch *resolvePatchRegion(const LLVector3 &position_region) const;
     LLSurfacePatch *resolvePatchGlobal(const LLVector3d &position_global) const;
+    LLSurfacePatch *getPatch(const S32 x, const S32 y) const;
 
     // Update methods (called during idle, normally)
     template<bool PBR>
     bool idleUpdate(F32 max_update_time);
 
-    BOOL containsPosition(const LLVector3 &position);
+    bool containsPosition(const LLVector3 &position);
 
     void moveZ(const S32 x, const S32 y, const F32 delta);
 
@@ -128,8 +128,8 @@ public:
     F32 getWaterHeight() const;
 
     LLViewerTexture *getSTexture();
-    LLViewerTexture *getWaterTexture();
-    BOOL hasZData() const                           { return mHasZData; }
+
+    bool hasZData() const                           { return mHasZData; }
 
     void dirtyAllPatches(); // Use this to dirty all patches when changing terrain parameters
 
@@ -171,20 +171,10 @@ public:
 
 protected:
     void createSTexture();
-    void createWaterTexture();
     void initTextures();
-    void initWater();
-
 
     void createPatchData();     // Allocates memory for patches.
     void destroyPatchData();    // Deallocates memory for patches.
-
-    BOOL generateWaterTexture(const F32 x, const F32 y,
-                        const F32 width, const F32 height);     // Generate texture from composition values.
-
-    //F32 updateTexture(LLSurfacePatch *ppatch);
-
-    LLSurfacePatch *getPatch(const S32 x, const S32 y) const;
 
 protected:
     LLVector3d  mOriginGlobal;      // In absolute frame
@@ -201,7 +191,6 @@ protected:
 
     // The textures should never be directly initialized - use the setter methods!
     LLPointer<LLViewerTexture> mSTexturep;      // Texture for surface
-    LLPointer<LLViewerTexture> mWaterTexturep;  // Water texture
 
     LLPointer<LLVOWater>    mWaterObjp;
 
@@ -214,7 +203,7 @@ protected:
 
     LLPatchVertexArray mPVArray;
 
-    BOOL        mHasZData;              // We've received any patch data for this surface.
+    bool        mHasZData;              // We've received any patch data for this surface.
     F32         mMinZ;                  // min z for this region (during the session)
     F32         mMaxZ;                  // max z for this region (during the session)
 

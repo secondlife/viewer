@@ -61,18 +61,18 @@ const S32 GALLERY_ITEMS_PER_ROW_MIN = 2;
 const S32 FAST_LOAD_THUMBNAIL_TRSHOLD = 50; // load folders below this value immediately
 
 // Helper dnd functions
-BOOL dragCategoryIntoFolder(LLUUID dest_id, LLInventoryCategory* inv_cat, BOOL drop, std::string& tooltip_msg, BOOL is_link);
-BOOL dragItemIntoFolder(LLUUID folder_id, LLInventoryItem* inv_item, BOOL drop, std::string& tooltip_msg, BOOL user_confirm);
+bool dragCategoryIntoFolder(LLUUID dest_id, LLInventoryCategory* inv_cat, bool drop, std::string& tooltip_msg, bool is_link);
+bool dragItemIntoFolder(LLUUID folder_id, LLInventoryItem* inv_item, bool drop, std::string& tooltip_msg, bool user_confirm);
 void dropToMyOutfits(LLInventoryCategory* inv_cat);
 
 class LLGalleryPanel: public LLPanel
 {
 public:
 
-    BOOL canFocusChildren() const override
+    bool canFocusChildren() const override
     {
         // Tell Tab to not focus children
-        return FALSE;
+        return false;
     }
 
 protected:
@@ -144,16 +144,14 @@ const LLInventoryGallery::Params& LLInventoryGallery::getDefaultParams()
     return LLUICtrlFactory::getDefaultParams<LLInventoryGallery>();
 }
 
-BOOL LLInventoryGallery::postBuild()
+bool LLInventoryGallery::postBuild()
 {
     mScrollPanel = getChild<LLScrollContainer>("gallery_scroll_panel");
-    LLPanel::Params params = LLPanel::getDefaultParams();
-    mGalleryPanel = LLUICtrlFactory::create<LLPanel>(params);
     mMessageTextBox = getChild<LLTextBox>("empty_txt");
     mInventoryGalleryMenu = new LLInventoryGalleryContextMenu(this);
     mRootGalleryMenu = new LLInventoryGalleryContextMenu(this);
     mRootGalleryMenu->setRootFolder(true);
-    return TRUE;
+    return true;
 }
 
 LLInventoryGallery::~LLInventoryGallery()
@@ -187,7 +185,7 @@ LLInventoryGallery::~LLInventoryGallery()
         mHiddenItems.pop_back();
         panelp->die();
     }
-    
+
 
     if (gInventory.containsObserver(mCategoriesObserver))
     {
@@ -200,7 +198,7 @@ LLInventoryGallery::~LLInventoryGallery()
         gInventory.removeObserver(mThumbnailsObserver);
     }
     delete mThumbnailsObserver;
-    
+
     LLGestureMgr::instance().removeObserver(mGestureObserver);
     delete mGestureObserver;
 }
@@ -221,9 +219,10 @@ void LLInventoryGallery::setRootFolder(const LLUUID cat_id)
 
     for (const LLUUID& id : mSelectedItemIDs)
     {
-        if (mItemMap[id])
+        LLInventoryGalleryItem* item = getItem(id);
+        if (item)
         {
-            mItemMap[id]->setSelected(FALSE);
+            item->setSelected(false);
         }
     }
 
@@ -257,13 +256,13 @@ void LLInventoryGallery::updateRootFolder()
         {
             updateRemovedItem(mItems[i]->getUUID());
         }
-        S32 hidden_count = mHiddenItems.size();
+        S32 hidden_count = static_cast<S32>(mHiddenItems.size());
         for (S32 i = hidden_count - 1; i >= 0; i--)
         {
             updateRemovedItem(mHiddenItems[i]->getUUID());
         }
         mItemBuildQuery.clear();
-        
+
         if (gInventory.containsObserver(mCategoriesObserver))
         {
             gInventory.removeObserver(mCategoriesObserver);
@@ -284,7 +283,7 @@ void LLInventoryGallery::updateRootFolder()
         mRootChangedSignal();
 
         gInventory.addObserver(mCategoriesObserver);
-        
+
         // Start observing changes in selected category.
         mCategoriesObserver->addCategory(mFolderID,
             boost::bind(&LLInventoryGallery::refreshList, this, mFolderID));
@@ -294,7 +293,7 @@ void LLInventoryGallery::updateRootFolder()
         // the observer will refresh the list as soon as the new items
         // arrive.
         category->fetch();
-        
+
         //refreshList(cat_id);
         LLInventoryModel::cat_array_t* cat_array;
         LLInventoryModel::item_array_t* item_array;
@@ -308,7 +307,7 @@ void LLInventoryGallery::updateRootFolder()
         {
             mItemBuildQuery.insert((*iter)->getUUID());
         }
-        
+
         for (LLInventoryModel::item_array_t::const_iterator iter = item_array->begin();
             iter != item_array->end();
             iter++)
@@ -343,12 +342,12 @@ void LLInventoryGallery::initGallery()
     {
         uuid_vec_t cats;
         getCurrentCategories(cats);
-        int n = cats.size();
+        int n = static_cast<int>(cats.size());
         buildGalleryPanel(n);
         mScrollPanel->addChild(mGalleryPanel);
         for (int i = 0; i < n; i++)
         {
-            addToGallery(mItemMap[cats[i]]);
+            addToGallery(getItem(cats[i]));
         }
         reArrangeRows();
         mGalleryCreated = true;
@@ -367,7 +366,7 @@ void LLInventoryGallery::draw()
     }
 }
 
-void LLInventoryGallery::onVisibilityChange(BOOL new_visibility)
+void LLInventoryGallery::onVisibilityChange(bool new_visibility)
 {
     if (new_visibility)
     {
@@ -448,7 +447,7 @@ void LLInventoryGallery::reArrangeRows(S32 row_diff)
         buf_items.push_back(*it);
     }
     mHiddenItems.clear();
-    
+
     mItemsInRow+= row_diff;
     updateGalleryWidth();
 
@@ -458,7 +457,7 @@ void LLInventoryGallery::reArrangeRows(S32 row_diff)
     {
         return compareGalleryItem(item1, item2, sort_by_date, sort_folders_by_name);
     });
-    
+
     for (std::vector<LLInventoryGalleryItem*>::const_iterator it = buf_items.begin(); it != buf_items.end(); ++it)
     {
         (*it)->setHidden(false);
@@ -619,8 +618,8 @@ void LLInventoryGallery::removeFromGalleryMiddle(LLInventoryGalleryItem* item)
         removeFromGalleryLast(mItems[i]);
     }
     removeFromGalleryLast(mItems[n]);
-    int saved_count = saved.size();
-    for (int i = 0; i < saved_count; i++)
+    size_t saved_count = saved.size();
+    for (size_t i = 0; i < saved_count; i++)
     {
         addToGallery(saved.back());
         saved.pop_back();
@@ -655,6 +654,16 @@ LLInventoryGalleryItem* LLInventoryGallery::buildGalleryItem(std::string name, L
     gitem->setAssetIDStr(get_searchable_UUID(&gInventory, item_id));
     gitem->setCreationDate(creation_date);
     return gitem;
+}
+
+LLInventoryGalleryItem* LLInventoryGallery::getItem(const LLUUID& id) const
+{
+    auto it = mItemMap.find(id);
+    if (it != mItemMap.end())
+    {
+        return it->second;
+    }
+    return nullptr;
 }
 
 void LLInventoryGallery::buildGalleryPanel(int row_count)
@@ -736,7 +745,7 @@ void LLInventoryGallery::setFilterSubString(const std::string& string)
 {
     mFilterSubString = string;
     mFilter->setFilterSubString(string);
-    
+
     //reArrangeRows();
 }
 
@@ -764,7 +773,7 @@ bool LLInventoryGallery::checkAgainstFilters(LLInventoryGalleryItem* item, const
     {
         return false;
     }
-    
+
     bool hidden = false;
 
     if(mFilter->getFilterCreatorType() == LLInventoryFilter::FILTERCREATOR_SELF)
@@ -807,7 +816,7 @@ bool LLInventoryGallery::checkAgainstFilters(LLInventoryGalleryItem* item, const
             desc = item->getItemName() + item->getItemNameSuffix();
             break;
     }
-    
+
     LLStringUtil::toUpper(desc);
 
     std::string cur_filter = filter_substring;
@@ -1019,21 +1028,22 @@ void LLInventoryGallery::updateItemThumbnail(LLUUID item_id)
         thumbnail_id = getOutfitImageID(item_id);
     }
 
-    if (mItemMap[item_id])
+    LLInventoryGalleryItem* item = getItem(item_id);
+    if (item)
     {
-        mItemMap[item_id]->setLoadImmediately(mLoadThumbnailsImmediately);
-        mItemMap[item_id]->setThumbnail(thumbnail_id);
+        item->setLoadImmediately(mLoadThumbnailsImmediately);
+        item->setThumbnail(thumbnail_id);
 
-        bool passes_filter = checkAgainstFilters(mItemMap[item_id], mFilterSubString);
-        if((mItemMap[item_id]->isHidden() && passes_filter)
-           || (!mItemMap[item_id]->isHidden() && !passes_filter))
+        bool passes_filter = checkAgainstFilters(item, mFilterSubString);
+        if((item->isHidden() && passes_filter)
+           || (!item->isHidden() && !passes_filter))
         {
             reArrangeRows();
         }
     }
 }
 
-BOOL LLInventoryGallery::handleRightMouseDown(S32 x, S32 y, MASK mask)
+bool LLInventoryGallery::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
     if (mSelectedItemIDs.size() > 0)
     {
@@ -1042,7 +1052,7 @@ BOOL LLInventoryGallery::handleRightMouseDown(S32 x, S32 y, MASK mask)
     mLastInteractedUUID = LLUUID::null;
 
     // Scroll is going to always return true
-    BOOL res = LLPanel::handleRightMouseDown(x, y, mask);
+    bool res = LLPanel::handleRightMouseDown(x, y, mask);
 
     if (mLastInteractedUUID.isNull()) // no child were hit
     {
@@ -1052,16 +1062,16 @@ BOOL LLInventoryGallery::handleRightMouseDown(S32 x, S32 y, MASK mask)
             uuid_vec_t selected_uuids;
             selected_uuids.push_back(mFolderID);
             mRootGalleryMenu->show(this, selected_uuids, x, y);
-            return TRUE;
+            return true;
         }
     }
     return res;
 }
 
 
-BOOL LLInventoryGallery::handleKeyHere(KEY key, MASK mask)
+bool LLInventoryGallery::handleKeyHere(KEY key, MASK mask)
 {
-    BOOL handled = FALSE;
+    bool handled = false;
     switch (key)
     {
         case KEY_RETURN:
@@ -1073,7 +1083,7 @@ BOOL LLInventoryGallery::handleKeyHere(KEY key, MASK mask)
                 if (category)
                 {
                     setRootFolder(*iter);
-                    handled = TRUE;
+                    handled = true;
                 }
                 else
                 {
@@ -1084,7 +1094,7 @@ BOOL LLInventoryGallery::handleKeyHere(KEY key, MASK mask)
                     }
                 }
             }
-            handled = TRUE;
+            handled = true;
             break;
         case KEY_DELETE:
 #if LL_DARWIN
@@ -1096,7 +1106,7 @@ BOOL LLInventoryGallery::handleKeyHere(KEY key, MASK mask)
             {
                 deleteSelection();
             }
-            handled = TRUE;
+            handled = true;
             break;
 
         case KEY_F2:
@@ -1105,7 +1115,7 @@ BOOL LLInventoryGallery::handleKeyHere(KEY key, MASK mask)
             {
                 mInventoryGalleryMenu->rename(mSelectedItemIDs.front());
             }
-            handled = TRUE;
+            handled = true;
             break;
 
         case KEY_PAGE_UP:
@@ -1114,7 +1124,7 @@ BOOL LLInventoryGallery::handleKeyHere(KEY key, MASK mask)
             {
                 mScrollPanel->pageUp(30);
             }
-            handled = TRUE;
+            handled = true;
             break;
 
         case KEY_PAGE_DOWN:
@@ -1123,7 +1133,7 @@ BOOL LLInventoryGallery::handleKeyHere(KEY key, MASK mask)
             {
                 mScrollPanel->pageDown(30);
             }
-            handled = TRUE;
+            handled = true;
             break;
 
         case KEY_HOME:
@@ -1132,7 +1142,7 @@ BOOL LLInventoryGallery::handleKeyHere(KEY key, MASK mask)
             {
                 mScrollPanel->goToTop();
             }
-            handled = TRUE;
+            handled = true;
             break;
 
         case KEY_END:
@@ -1141,27 +1151,27 @@ BOOL LLInventoryGallery::handleKeyHere(KEY key, MASK mask)
             {
                 mScrollPanel->goToBottom();
             }
-            handled = TRUE;
+            handled = true;
             break;
 
         case KEY_LEFT:
             moveLeft(mask);
-            handled = TRUE;
+            handled = true;
             break;
 
         case KEY_RIGHT:
             moveRight(mask);
-            handled = TRUE;
+            handled = true;
             break;
 
         case KEY_UP:
             moveUp(mask);
-            handled = TRUE;
+            handled = true;
             break;
 
         case KEY_DOWN:
             moveDown(mask);
-            handled = TRUE;
+            handled = true;
             break;
 
         default:
@@ -1182,7 +1192,7 @@ void LLInventoryGallery::moveUp(MASK mask)
 
     if (mInventoryGalleryMenu && mSelectedItemIDs.size() > 0 && mItemsAddedCount > 1)
     {
-        LLInventoryGalleryItem* item = mItemMap[mLastInteractedUUID];
+        LLInventoryGalleryItem* item = getItem(mLastInteractedUUID);
         if (item)
         {
             if (mask == MASK_NONE || mask == MASK_CONTROL)
@@ -1201,7 +1211,7 @@ void LLInventoryGallery::moveUp(MASK mask)
                     {
                         changeItemSelection(item_id, true);
                     }
-                    item->setFocus(TRUE);
+                    item->setFocus(true);
                     claimEditHandler();
                 }
             }
@@ -1213,7 +1223,7 @@ void LLInventoryGallery::moveUp(MASK mask)
                 {
                     item = mIndexToItemMap[target];
                     toggleSelectionRangeFromLast(item->getUUID());
-                    item->setFocus(TRUE);
+                    item->setFocus(true);
                     claimEditHandler();
                 }
             }
@@ -1227,7 +1237,7 @@ void LLInventoryGallery::moveDown(MASK mask)
 
     if (mInventoryGalleryMenu && mSelectedItemIDs.size() > 0 && mItemsAddedCount > 1)
     {
-        LLInventoryGalleryItem* item = mItemMap[mLastInteractedUUID];
+        LLInventoryGalleryItem* item = getItem(mLastInteractedUUID);
         if (item)
         {
             if (mask == MASK_NONE || mask == MASK_CONTROL)
@@ -1246,7 +1256,7 @@ void LLInventoryGallery::moveDown(MASK mask)
                     {
                         changeItemSelection(item_id, true);
                     }
-                    item->setFocus(TRUE);
+                    item->setFocus(true);
                     claimEditHandler();
                 }
             }
@@ -1258,7 +1268,7 @@ void LLInventoryGallery::moveDown(MASK mask)
                 {
                     item = mIndexToItemMap[target];
                     toggleSelectionRangeFromLast(item->getUUID());
-                    item->setFocus(TRUE);
+                    item->setFocus(true);
                     claimEditHandler();
                 }
             }
@@ -1272,11 +1282,7 @@ void LLInventoryGallery::moveLeft(MASK mask)
 
     if (mInventoryGalleryMenu && mSelectedItemIDs.size() > 0 && mItemsAddedCount > 1)
     {
-        LLInventoryGalleryItem* item = mItemMap[mLastInteractedUUID];
-        if (mask == MASK_SHIFT)
-        {
-            item = mItemMap[mLastInteractedUUID];
-        }
+        LLInventoryGalleryItem* item = getItem(mLastInteractedUUID);
         if (item)
         {
             // Might be better to get item from panel
@@ -1308,7 +1314,7 @@ void LLInventoryGallery::moveLeft(MASK mask)
             {
                 changeItemSelection(item_id, true);
             }
-            item->setFocus(TRUE);
+            item->setFocus(true);
             claimEditHandler();
         }
     }
@@ -1320,7 +1326,7 @@ void LLInventoryGallery::moveRight(MASK mask)
 
     if (mInventoryGalleryMenu && mSelectedItemIDs.size() > 0 && mItemsAddedCount > 1)
     {
-        LLInventoryGalleryItem* item = mItemMap[mLastInteractedUUID];
+        LLInventoryGalleryItem* item = getItem(mLastInteractedUUID);
         if (item)
         {
             S32 n = mItemIndexMap[item];
@@ -1351,7 +1357,7 @@ void LLInventoryGallery::moveRight(MASK mask)
             {
                 changeItemSelection(item_id, true);
             }
-            item->setFocus(TRUE);
+            item->setFocus(true);
             claimEditHandler();
         }
     }
@@ -1386,8 +1392,8 @@ void LLInventoryGallery::toggleSelectionRangeFromLast(const LLUUID target)
     {
         return;
     }
-    LLInventoryGalleryItem* last_item = mItemMap[mLastInteractedUUID];
-    LLInventoryGalleryItem* next_item = mItemMap[target];
+    LLInventoryGalleryItem* last_item = getItem(mLastInteractedUUID);
+    LLInventoryGalleryItem* next_item = getItem(target);
     if (last_item && next_item)
     {
         S32 last_idx = mItemIndexMap[last_item];
@@ -1430,9 +1436,10 @@ void LLInventoryGallery::onFocusLost()
 
     for (const LLUUID& id : mSelectedItemIDs)
     {
-        if (mItemMap[id])
+        LLInventoryGalleryItem* item = getItem(id);
+        if (item)
         {
-            mItemMap[id]->setSelected(false);
+            item->setSelected(false);
         }
     }
 }
@@ -1448,15 +1455,16 @@ void LLInventoryGallery::onFocusReceived()
         LLInventoryGalleryItem* focus_item = NULL;
         for (const LLUUID& id : mSelectedItemIDs)
         {
-            if (mItemMap[id] && !mItemMap[id]->isHidden())
+            LLInventoryGalleryItem* item = getItem(id);
+            if (item && !item->isHidden())
             {
-                focus_item = mItemMap[id];
+                focus_item = item;
                 focus_item->setSelected(true);
             }
         }
         if (focus_item)
         {
-            focus_item->setFocus(TRUE);
+            focus_item->setFocus(true);
         }
     }
     else if (mIndexToItemMap.size() > 0 && mItemsToSelect.empty())
@@ -1468,7 +1476,7 @@ void LLInventoryGallery::onFocusReceived()
 
         LLInventoryGalleryItem* focus_item = mIndexToItemMap[n];
         changeItemSelection(focus_item->getUUID(), true);
-        focus_item->setFocus(TRUE);
+        focus_item->setFocus(true);
     }
 
     LLPanel::onFocusReceived();
@@ -1491,9 +1499,10 @@ void LLInventoryGallery::changeItemSelection(const LLUUID& item_id, bool scroll_
 {
     for (const LLUUID& id : mSelectedItemIDs)
     {
-        if (mItemMap[id])
+        LLInventoryGalleryItem* item = getItem(id);
+        if (item)
         {
-            mItemMap[id]->setSelected(FALSE);
+            item->setSelected(false);
         }
     }
     mSelectedItemIDs.clear();
@@ -1512,9 +1521,10 @@ void LLInventoryGallery::changeItemSelection(const LLUUID& item_id, bool scroll_
         return;
     }
 
-    if (mItemMap[item_id])
+    LLInventoryGalleryItem* item = getItem(item_id);
+    if (item)
     {
-        mItemMap[item_id]->setSelected(TRUE);
+        item->setSelected(true);
     }
     mSelectedItemIDs.push_back(item_id);
     signalSelectionItemID(item_id);
@@ -1540,9 +1550,10 @@ void LLInventoryGallery::addItemSelection(const LLUUID& item_id, bool scroll_to_
         return;
     }
 
-    if (mItemMap[item_id])
+    LLInventoryGalleryItem* item = getItem(item_id);
+    if (item)
     {
-        mItemMap[item_id]->setSelected(TRUE);
+        item->setSelected(true);
     }
     mSelectedItemIDs.push_back(item_id);
     signalSelectionItemID(item_id);
@@ -1565,18 +1576,20 @@ bool LLInventoryGallery::toggleItemSelection(const LLUUID& item_id, bool scroll_
     selection_deque::iterator found = std::find(mSelectedItemIDs.begin(), mSelectedItemIDs.end(), item_id);
     if (found != mSelectedItemIDs.end())
     {
-        if (mItemMap[item_id])
+        LLInventoryGalleryItem* item = getItem(item_id);
+        if (item)
         {
-            mItemMap[item_id]->setSelected(FALSE);
+            item->setSelected(false);
         }
         mSelectedItemIDs.erase(found);
         result = false;
     }
     else
     {
-        if (mItemMap[item_id])
+        LLInventoryGalleryItem* item = getItem(item_id);
+        if (item)
         {
-            mItemMap[item_id]->setSelected(TRUE);
+            item->setSelected(true);
         }
         mSelectedItemIDs.push_back(item_id);
         signalSelectionItemID(item_id);
@@ -1593,7 +1606,7 @@ bool LLInventoryGallery::toggleItemSelection(const LLUUID& item_id, bool scroll_
 
 void LLInventoryGallery::scrollToShowItem(const LLUUID& item_id)
 {
-    LLInventoryGalleryItem* item = mItemMap[item_id];
+    LLInventoryGalleryItem* item = getItem(item_id);
     if(item)
     {
         const LLRect visible_content_rect = mScrollPanel->getVisibleContentRect();
@@ -1623,7 +1636,7 @@ LLInventoryGalleryItem* LLInventoryGallery::getFirstSelectedItem()
     if (mSelectedItemIDs.size() > 0)
     {
         selection_deque::iterator iter = mSelectedItemIDs.begin();
-        return mItemMap[*iter];
+        return getItem(*iter);
     }
     return NULL;
 }
@@ -1644,22 +1657,22 @@ void LLInventoryGallery::copy()
     mFilterSubString.clear();
 }
 
-BOOL LLInventoryGallery::canCopy() const
+bool LLInventoryGallery::canCopy() const
 {
     if (!getVisible() || !getEnabled() || mSelectedItemIDs.empty())
     {
-        return FALSE;
+        return false;
     }
 
     for (const LLUUID& id : mSelectedItemIDs)
     {
         if (!isItemCopyable(id))
         {
-            return FALSE;
+            return false;
         }
     }
 
-    return TRUE;
+    return true;
 }
 
 void LLInventoryGallery::cut()
@@ -1720,11 +1733,11 @@ bool is_category_removable(const LLUUID& folder_id, bool check_worn)
     return true;
 }
 
-BOOL LLInventoryGallery::canCut() const
+bool LLInventoryGallery::canCut() const
 {
     if (!getVisible() || !getEnabled() || mSelectedItemIDs.empty())
     {
-        return FALSE;
+        return false;
     }
 
     for (const LLUUID& id : mSelectedItemIDs)
@@ -1734,16 +1747,16 @@ BOOL LLInventoryGallery::canCut() const
         {
             if (!get_is_category_and_children_removable(&gInventory, id, true))
             {
-                return FALSE;
+                return false;
             }
         }
         else if (!get_is_item_removable(&gInventory, id, true))
         {
-            return FALSE;
+            return false;
         }
     }
 
-    return TRUE;
+    return true;
 }
 
 void LLInventoryGallery::paste()
@@ -1781,9 +1794,10 @@ void LLInventoryGallery::paste()
     {
         for (const LLUUID& id : mSelectedItemIDs)
         {
-            if (mItemMap[id])
+            LLInventoryGalleryItem* item = getItem(id);
+            if (item)
             {
-                mItemMap[id]->setSelected(FALSE);
+                item->setSelected(false);
             }
         }
         mSelectedItemIDs.clear();
@@ -1880,35 +1894,32 @@ void LLInventoryGallery::paste(const LLUUID& dest,
     LLClipboard::instance().setCutMode(false);
 }
 
-BOOL LLInventoryGallery::canPaste() const
+bool LLInventoryGallery::canPaste() const
 {
-    // Return FALSE on degenerated cases: empty clipboard, no inventory, no agent
+    // Return false on degenerated cases: empty clipboard, no inventory, no agent
     if (!LLClipboard::instance().hasContents())
     {
-        return FALSE;
+        return false;
     }
 
     // In cut mode, whatever is on the clipboard is always pastable
     if (LLClipboard::instance().isCutMode())
     {
-        return TRUE;
+        return true;
     }
 
     // In normal mode, we need to check each element of the clipboard to know if we can paste or not
-    std::vector<LLUUID> objects;
+    uuid_vec_t objects;
     LLClipboard::instance().pasteFromClipboard(objects);
-    S32 count = objects.size();
-    for (S32 i = 0; i < count; i++)
+    for (const auto& item_id : objects)
     {
-        const LLUUID& item_id = objects.at(i);
-
         // Each item must be copyable to be pastable
         if (!isItemCopyable(item_id))
         {
-            return FALSE;
+            return false;
         }
     }
-    return TRUE;
+    return true;
 }
 
 void LLInventoryGallery::onDelete(const LLSD& notification, const LLSD& response, const selection_deque selected_ids)
@@ -1931,7 +1942,7 @@ void LLInventoryGallery::onDelete(const LLSD& notification, const LLSD& response
                     LLInventoryModel::cat_array_t categories;
                     LLInventoryModel::item_array_t items;
 
-                    gInventory.collectDescendents(obj_id, categories, items, FALSE);
+                    gInventory.collectDescendents(obj_id, categories, items, false);
 
                     for (LLInventoryModel::item_array_t::value_type& item : items)
                     {
@@ -1939,21 +1950,21 @@ void LLInventoryGallery::onDelete(const LLSD& notification, const LLSD& response
                         {
                             worn.push_back(item->getUUID());
                             cat_has_worn = true;
-            }
+                        }
+                    }
                 }
-            }
                 if (cat_has_worn)
                 {
                     cat_deletion_list.push_back(obj_id);
                 }
-            else
-            {
+                else
+                {
                     gInventory.removeCategory(obj_id);
                 }
             }
             LLViewerInventoryItem* item = gInventory.getItem(obj_id);
             if (item)
-                {
+            {
                 if (has_worn && get_is_item_worn(item))
                 {
                     worn.push_back(item->getUUID());
@@ -1997,7 +2008,7 @@ void LLInventoryGallery::deleteSelection()
             LLInventoryModel::cat_array_t categories;
             LLInventoryModel::item_array_t items;
 
-            gInventory.collectDescendents(id, categories, items, FALSE);
+            gInventory.collectDescendents(id, categories, items, false);
 
             for (LLInventoryModel::item_array_t::value_type& item : items)
             {
@@ -2025,7 +2036,7 @@ void LLInventoryGallery::deleteSelection()
         if (item && !item->getIsLinkType() && get_is_item_worn(item))
         {
             has_worn = true;
-            LLWearableType::EType type = item->getWearableType();            
+            LLWearableType::EType type = item->getWearableType();
             if (type == LLWearableType::WT_SHAPE
                 || type == LLWearableType::WT_SKIN
                 || type == LLWearableType::WT_HAIR
@@ -2049,16 +2060,16 @@ void LLInventoryGallery::deleteSelection()
     }
     else
     {
-    if (!LLInventoryAction::sDeleteConfirmationDisplayed) // ask for the confirmation at least once per session
-    {
-        LLNotifications::instance().setIgnored("DeleteItems", false);
-        LLInventoryAction::sDeleteConfirmationDisplayed = true;
-    }
+        if (!LLInventoryAction::sDeleteConfirmationDisplayed) // ask for the confirmation at least once per session
+        {
+            LLNotifications::instance().setIgnored("DeleteItems", false);
+            LLInventoryAction::sDeleteConfirmationDisplayed = true;
+        }
 
-    LLSD args;
-    args["QUESTION"] = LLTrans::getString("DeleteItem");
-    LLNotificationsUtil::add("DeleteItems", args, LLSD(), boost::bind(&LLInventoryGallery::onDelete, _1, _2, mSelectedItemIDs));
-}
+        LLSD args;
+        args["QUESTION"] = LLTrans::getString("DeleteItem");
+        LLNotificationsUtil::add("DeleteItems", args, LLSD(), boost::bind(&LLInventoryGallery::onDelete, _1, _2, mSelectedItemIDs));
+    }
 }
 
 bool LLInventoryGallery::canDeleteSelection()
@@ -2107,6 +2118,30 @@ void LLInventoryGallery::pasteAsLink()
     std::vector<LLUUID> objects;
     LLClipboard::instance().pasteFromClipboard(objects);
 
+    if (objects.size() == 0)
+    {
+        LLClipboard::instance().setCutMode(false);
+        return;
+    }
+
+    LLUUID& first_id = objects[0];
+    LLInventoryItem* item = gInventory.getItem(first_id);
+    if (item && item->getAssetUUID().isNull())
+    {
+        if (item->getActualType() == LLAssetType::AT_NOTECARD)
+        {
+            LLNotificationsUtil::add("CantLinkNotecard");
+            LLClipboard::instance().setCutMode(false);
+            return;
+        }
+        else if (item->getActualType() == LLAssetType::AT_MATERIAL)
+        {
+            LLNotificationsUtil::add("CantLinkMaterial");
+            LLClipboard::instance().setCutMode(false);
+            return;
+        }
+    }
+
     bool paste_into_root = mSelectedItemIDs.empty();
     for (LLUUID& dest : mSelectedItemIDs)
     {
@@ -2124,9 +2159,10 @@ void LLInventoryGallery::pasteAsLink()
     {
         for (const LLUUID& id : mSelectedItemIDs)
         {
-            if (mItemMap[id])
+            LLInventoryGalleryItem* item = getItem(id);
+            if (item)
             {
-                mItemMap[id]->setSelected(FALSE);
+                item->setSelected(false);
             }
         }
         mSelectedItemIDs.clear();
@@ -2143,9 +2179,9 @@ void LLInventoryGallery::pasteAsLink(const LLUUID& dest,
                                      const LLUUID& marketplacelistings_id,
                                      const LLUUID& my_outifts_id)
 {
-    const BOOL move_is_into_current_outfit = (dest == current_outfit_id);
-    const BOOL move_is_into_my_outfits = (dest == my_outifts_id) || gInventory.isObjectDescendentOf(dest, my_outifts_id);
-    const BOOL move_is_into_marketplacelistings = gInventory.isObjectDescendentOf(dest, marketplacelistings_id);
+    const bool move_is_into_current_outfit = (dest == current_outfit_id);
+    const bool move_is_into_my_outfits = (dest == my_outifts_id) || gInventory.isObjectDescendentOf(dest, my_outifts_id);
+    const bool move_is_into_marketplacelistings = gInventory.isObjectDescendentOf(dest, marketplacelistings_id);
 
     if (move_is_into_marketplacelistings || move_is_into_current_outfit || move_is_into_my_outfits)
     {
@@ -2178,6 +2214,39 @@ void LLInventoryGallery::pasteAsLink(const LLUUID& dest,
         {
             link_inventory_object(dest, link_obj, cb);
         }
+    }
+}
+
+void LLInventoryGallery::doCreate(const LLUUID& dest, const LLSD& userdata)
+{
+
+    LLViewerInventoryCategory* cat = gInventory.getCategory(dest);
+    if (cat && mFolderID != dest)
+    {
+        menu_create_inventory_item(NULL, dest, userdata, LLUUID::null);
+    }
+    else
+    {
+        // todo: needs to reset current floater's filter,
+        // like reset_inventory_filter()
+
+        LLHandle<LLPanel> handle = getHandle();
+        std::function<void(const LLUUID&)> callback_cat_created =
+            [handle](const LLUUID& new_id)
+            {
+                gInventory.notifyObservers();
+                LLInventoryGallery* panel = static_cast<LLInventoryGallery*>(handle.get());
+                if (panel && new_id.notNull())
+                {
+                    panel->clearSelection();
+                    if (panel->mItemMap.count(new_id) != 0)
+                    {
+                        panel->addItemSelection(new_id, true);
+                    }
+                }
+            };
+
+        menu_create_inventory_item(NULL, mFolderID, userdata, LLUUID::null, callback_cat_created);
     }
 }
 
@@ -2368,7 +2437,7 @@ void LLInventoryGallery::onCOFChanged()
     LLCommonUtils::computeDifference(vnew, mCOFLinkedItems, vadded, vremoved);
 
     mCOFLinkedItems = vnew;
-    
+
     for (uuid_vec_t::const_iterator iter = vadded.begin();
         iter != vadded.end();
         ++iter)
@@ -2399,7 +2468,7 @@ void LLInventoryGallery::onGesturesChanged()
     LLCommonUtils::computeDifference(vnew, mActiveGestures, vadded, vremoved);
 
     mActiveGestures = vnew;
-    
+
     for (uuid_vec_t::const_iterator iter = vadded.begin();
         iter != vadded.end();
         ++iter)
@@ -2416,10 +2485,10 @@ void LLInventoryGallery::onGesturesChanged()
 void LLInventoryGallery::deselectItem(const LLUUID& category_id)
 {
     // Reset selection if the item is selected.
-    LLInventoryGalleryItem* item = mItemMap[category_id];
+    LLInventoryGalleryItem* item = getItem(category_id);
     if (item && item->isSelected())
     {
-        mItemMap[category_id]->setSelected(FALSE);
+        item->setSelected(false);
         setFocus(true);
         // Todo: support multiselect
         // signalSelectionItemID(LLUUID::null);
@@ -2436,9 +2505,10 @@ void LLInventoryGallery::clearSelection()
 {
     for (const LLUUID& id: mSelectedItemIDs)
     {
-        if (mItemMap[id])
+        LLInventoryGalleryItem* item = getItem(id);
+        if (item)
         {
-            mItemMap[id]->setSelected(FALSE);
+            item->setSelected(false);
         }
     }
     if (!mSelectedItemIDs.empty())
@@ -2540,12 +2610,12 @@ bool LLInventoryGallery::isForwardAvailable()
     return (!mForwardFolders.empty() && (mFolderID != mForwardFolders.back()));
 }
 
-BOOL LLInventoryGallery::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+bool LLInventoryGallery::handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
                                            EDragAndDropType cargo_type, void* cargo_data,
                                            EAcceptance* accept, std::string& tooltip_msg)
 {
     // have children handle it first
-    BOOL handled = LLView::handleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data,
+    bool handled = LLView::handleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data,
                                             accept, tooltip_msg);
 
     // when drop is not handled by child, it should be handled by the root folder .
@@ -2577,7 +2647,7 @@ void LLInventoryGallery::startDrag()
             ids.push_back(selected_id);
         }
 
-        const LLViewerInventoryCategory* cat = gInventory.getCategory(selected_id);        
+        const LLViewerInventoryCategory* cat = gInventory.getCategory(selected_id);
         if (cat)
         {
             if (gInventory.isObjectDescendentOf(selected_id, gInventory.getLibraryRootFolderID()))
@@ -2616,7 +2686,8 @@ bool LLInventoryGallery::hasDescendents(const LLUUID& cat_id)
 bool LLInventoryGallery::checkAgainstFilterType(const LLUUID& object_id)
 {
     const LLInventoryObject *object = gInventory.getObject(object_id);
-    if(!object) return false;
+    if (!object)
+        return false;
 
     LLInventoryType::EType object_type = LLInventoryType::IT_CATEGORY;
     LLInventoryItem* inv_item = gInventory.getItem(object_id);
@@ -2624,8 +2695,8 @@ bool LLInventoryGallery::checkAgainstFilterType(const LLUUID& object_id)
     {
         object_type = inv_item->getInventoryType();
     }
-    const U32 filterTypes = mFilter->getFilterTypes();
 
+    const U32 filterTypes = (U32)mFilter->getFilterTypes();
     if ((filterTypes & LLInventoryFilter::FILTERTYPE_OBJECT) && inv_item)
     {
         switch (object_type)
@@ -2655,7 +2726,7 @@ bool LLInventoryGallery::checkAgainstFilterType(const LLUUID& object_id)
             break;
         }
     }
-    
+
     if (filterTypes & LLInventoryFilter::FILTERTYPE_DATE)
     {
         const U16 HOURS_TO_SECONDS = 3600;
@@ -2693,7 +2764,7 @@ bool LLInventoryGallery::hasVisibleItems()
 
 void LLInventoryGallery::handleModifiedFilter()
 {
-    if(mFilter->isModified())
+    if (mFilter->isModified())
     {
         reArrangeRows();
     }
@@ -2704,7 +2775,7 @@ void LLInventoryGallery::setSortOrder(U32 order, bool update)
     bool dirty = (mSortOrder != order);
 
     mSortOrder = order;
-    if(update && dirty)
+    if (update && dirty)
     {
         mNeedsArrange = true;
         gIdleCallbacks.addFunction(onIdle, (void*)this);
@@ -2740,13 +2811,13 @@ LLInventoryGalleryItem::~LLInventoryGalleryItem()
 {
 }
 
-BOOL LLInventoryGalleryItem::postBuild()
+bool LLInventoryGalleryItem::postBuild()
 {
     mNameText = getChild<LLTextBox>("item_name");
     mTextBgPanel = getChild<LLPanel>("text_bg_panel");
     mThumbnailCtrl = getChild<LLThumbnailCtrl>("preview_thumbnail");
 
-    return TRUE;
+    return true;
 }
 
 void LLInventoryGalleryItem::setType(LLAssetType::EType type, LLInventoryType::EType inventory_type, U32 flags, bool is_link)
@@ -2756,11 +2827,11 @@ void LLInventoryGalleryItem::setType(LLAssetType::EType type, LLInventoryType::E
     mIsLink = is_link;
 
     std::string icon_name = LLInventoryIcon::getIconName(mType, inventory_type, flags);
-    if(mIsFolder)
+    if (mIsFolder)
     {
         mSortGroup = SG_NORMAL_FOLDER;
         LLUUID folder_id = mUUID;
-        if(mIsLink)
+        if (mIsLink)
         {
             LLInventoryObject* obj = gInventory.getObject(mUUID);
             if (obj)
@@ -2787,7 +2858,7 @@ void LLInventoryGalleryItem::setType(LLAssetType::EType type, LLInventoryType::E
     else
     {
         const LLInventoryItem *item = gInventory.getItem(mUUID);
-        if(item && (LLAssetType::AT_CALLINGCARD != item->getType()) && !mIsLink)
+        if (item && (LLAssetType::AT_CALLINGCARD != item->getType()) && !mIsLink)
         {
             std::string delim(" --");
             bool copy = item->getPermissions().allowCopyBy(gAgent.getID());
@@ -2826,7 +2897,7 @@ void LLInventoryGalleryItem::setFavorite(bool is_favorite)
 void LLInventoryGalleryItem::setThumbnail(LLUUID id)
 {
     mDefaultImage = id.isNull();
-    if(mDefaultImage)
+    if (mDefaultImage)
     {
         mThumbnailCtrl->clearTexture();
     }
@@ -2854,11 +2925,13 @@ void LLInventoryGalleryItem::draw()
         LLPanel::draw();
 
         // Draw border
-        LLUIColor border_color = LLUIColorTable::instance().getColor(mSelected ? "MenuItemHighlightBgColor" : "TextFgTentativeColor", LLColor4::white);
+        static LLUIColor menu_highlighted_color = LLUIColorTable::instance().getColor("MenuItemHighlightBgColor", LLColor4::white);;
+        static LLUIColor text_fg_tentative_color = LLUIColorTable::instance().getColor("TextFgTentativeColor", LLColor4::white);;
+        const LLColor4& border_color = mSelected ? menu_highlighted_color : text_fg_tentative_color;
         LLRect border = mThumbnailCtrl->getRect();
         border.mRight = border.mRight + 1;
         border.mTop = border.mTop + 1;
-        gl_rect_2d(border, border_color.get(), FALSE);
+        gl_rect_2d(border, border_color, false);
     }
 }
 
@@ -2873,17 +2946,17 @@ void LLInventoryGalleryItem::setSelected(bool value)
     mSelected = value;
     mTextBgPanel->setBackgroundVisible(value);
 
-    if(mSelected)
+    if (mSelected)
     {
         LLViewerInventoryItem* item = gInventory.getItem(mUUID);
-        if(item && !item->isFinished())
+        if (item && !item->isFinished())
         {
             LLInventoryModelBackgroundFetch::instance().start(mUUID, false);
         }
     }
 }
 
-BOOL LLInventoryGalleryItem::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLInventoryGalleryItem::handleMouseDown(S32 x, S32 y, MASK mask)
 {
     // call changeItemSelection directly, before setFocus
     // to avoid autoscroll from LLInventoryGallery::onFocusReceived()
@@ -2899,7 +2972,8 @@ BOOL LLInventoryGalleryItem::handleMouseDown(S32 x, S32 y, MASK mask)
     {
         mGallery->changeItemSelection(mUUID, false);
     }
-    setFocus(TRUE);
+
+    setFocus(true);
     mGallery->claimEditHandler();
 
     gFocusMgr.setMouseCapture(this);
@@ -2907,10 +2981,10 @@ BOOL LLInventoryGalleryItem::handleMouseDown(S32 x, S32 y, MASK mask)
     S32 screen_y;
     localPointToScreen(x, y, &screen_x, &screen_y );
     LLToolDragAndDrop::getInstance()->setDragStart(screen_x, screen_y);
-    return TRUE;
+    return true;
 }
 
-BOOL LLInventoryGalleryItem::handleRightMouseDown(S32 x, S32 y, MASK mask)
+bool LLInventoryGalleryItem::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
     if (!isSelected())
     {
@@ -2921,33 +2995,33 @@ BOOL LLInventoryGalleryItem::handleRightMouseDown(S32 x, S32 y, MASK mask)
         // refresh last interacted
         mGallery->addItemSelection(mUUID, false);
     }
-    setFocus(TRUE);
+    setFocus(true);
     mGallery->claimEditHandler();
     mGallery->showContextMenu(this, x, y, mUUID);
 
     LLUICtrl::handleRightMouseDown(x, y, mask);
-    return TRUE;
+    return true;
 }
 
-BOOL LLInventoryGalleryItem::handleMouseUp(S32 x, S32 y, MASK mask)
+bool LLInventoryGalleryItem::handleMouseUp(S32 x, S32 y, MASK mask)
 {
-    if(hasMouseCapture())
+    if (hasMouseCapture())
     {
         gFocusMgr.setMouseCapture(NULL);
-        return TRUE;
+        return true;
     }
     return LLPanel::handleMouseUp(x, y, mask);
 }
 
-BOOL LLInventoryGalleryItem::handleHover(S32 x, S32 y, MASK mask)
+bool LLInventoryGalleryItem::handleHover(S32 x, S32 y, MASK mask)
 {
-    if(hasMouseCapture())
+    if (hasMouseCapture())
     {
         S32 screen_x;
         S32 screen_y;
         localPointToScreen(x, y, &screen_x, &screen_y );
 
-        if(LLToolDragAndDrop::getInstance()->isOverThreshold(screen_x, screen_y) && mGallery)
+        if (LLToolDragAndDrop::getInstance()->isOverThreshold(screen_x, screen_y) && mGallery)
         {
             mGallery->startDrag();
             return LLToolDragAndDrop::getInstance()->handleHover(x, y, mask);
@@ -2956,7 +3030,7 @@ BOOL LLInventoryGalleryItem::handleHover(S32 x, S32 y, MASK mask)
     return LLUICtrl::handleHover(x,y,mask);
 }
 
-BOOL LLInventoryGalleryItem::handleDoubleClick(S32 x, S32 y, MASK mask)
+bool LLInventoryGalleryItem::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
     if (mIsFolder && mGallery)
     {
@@ -2966,23 +3040,23 @@ BOOL LLInventoryGalleryItem::handleDoubleClick(S32 x, S32 y, MASK mask)
         LLHandle<LLPanel> handle = mGallery->getHandle();
         LLUUID navigate_to = mUUID;
         doOnIdleOneTime([handle, navigate_to]()
-                        {
-                            LLInventoryGallery* gallery = (LLInventoryGallery*)handle.get();
-                            if (gallery)
-                            {
-                                gallery->setRootFolder(navigate_to);
-                            }
-                        });
+            {
+                LLInventoryGallery* gallery = (LLInventoryGallery*)handle.get();
+                if (gallery)
+                {
+                    gallery->setRootFolder(navigate_to);
+                }
+            });
     }
     else
     {
         LLInvFVBridgeAction::doAction(mUUID, &gInventory);
     }
 
-    return TRUE;
+    return true;
 }
 
-BOOL LLInventoryGalleryItem::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+bool LLInventoryGalleryItem::handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
                        EDragAndDropType cargo_type,
                        void* cargo_data,
                        EAcceptance* accept,
@@ -2990,19 +3064,19 @@ BOOL LLInventoryGalleryItem::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL dro
 {
     if (!mIsFolder)
     {
-        return FALSE;
+        return false;
     }
     return mGallery->baseHandleDragAndDrop(mUUID, drop, cargo_type, cargo_data, accept, tooltip_msg);
 }
 
-BOOL LLInventoryGalleryItem::handleKeyHere(KEY key, MASK mask)
+bool LLInventoryGalleryItem::handleKeyHere(KEY key, MASK mask)
 {
     if (!mGallery)
     {
-        return FALSE;
+        return false;
     }
 
-    BOOL handled = FALSE;
+    bool handled = false;
     switch (key)
     {
         case KEY_LEFT:
@@ -3051,7 +3125,7 @@ void LLInventoryGalleryItem::setWorn(bool value)
 {
     mWorn = value;
 
-    if(mWorn)
+    if (mWorn)
     {
         mWornSuffix = (mType == LLAssetType::AT_GESTURE) ? LLTrans::getString("active") : LLTrans::getString("worn");
     }
@@ -3065,7 +3139,7 @@ void LLInventoryGalleryItem::setWorn(bool value)
 
 LLFontGL* LLInventoryGalleryItem::getTextFont()
 {
-    if(mWorn)
+    if (mWorn)
     {
         return LLFontGL::getFontSansSerifSmallBold();
     }
@@ -3100,13 +3174,11 @@ bool LLInventoryGalleryItem::isFadeItem()
 void LLThumbnailsObserver::changed(U32 mask)
 {
     std::vector<LLUUID> deleted_ids;
-    for (item_map_t::iterator iter = mItemMap.begin();
-         iter != mItemMap.end();
-         ++iter)
+    for (item_map_t::value_type& it : mItemMap)
     {
-        const LLUUID& obj_id = (*iter).first;
-        LLItemData& data = (*iter).second;
-        
+        const LLUUID& obj_id = it.first;
+        LLItemData& data = it.second;
+
         LLInventoryObject* obj = gInventory.getObject(obj_id);
         if (!obj)
         {
@@ -3131,8 +3203,7 @@ void LLThumbnailsObserver::changed(U32 mask)
 
 bool LLThumbnailsObserver::addItem(const LLUUID& obj_id, callback_t cb)
 {
-    LLInventoryObject* obj = gInventory.getObject(obj_id);
-    if (obj)
+    if (LLInventoryObject* obj = gInventory.getObject(obj_id))
     {
         mItemMap.insert(item_map_value_t(obj_id, LLItemData(obj_id, obj->getThumbnailUUID(), cb)));
         return true;
@@ -3149,7 +3220,7 @@ void LLThumbnailsObserver::removeItem(const LLUUID& obj_id)
 // Helper drag&drop functions
 //-----------------------------
 
-BOOL LLInventoryGallery::baseHandleDragAndDrop(LLUUID dest_id, BOOL drop,
+bool LLInventoryGallery::baseHandleDragAndDrop(LLUUID dest_id, bool drop,
                        EDragAndDropType cargo_type,
                        void* cargo_data,
                        EAcceptance* accept,
@@ -3162,101 +3233,100 @@ BOOL LLInventoryGallery::baseHandleDragAndDrop(LLUUID dest_id, BOOL drop,
         clearSelection();
     }
 
-    BOOL accepted = FALSE;
-    switch(cargo_type)
+    bool accepted = false;
+    switch (cargo_type)
     {
-        case DAD_TEXTURE:
-        case DAD_SOUND:
-        case DAD_CALLINGCARD:
-        case DAD_LANDMARK:
-        case DAD_SCRIPT:
-        case DAD_CLOTHING:
-        case DAD_OBJECT:
-        case DAD_NOTECARD:
-        case DAD_BODYPART:
-        case DAD_ANIMATION:
-        case DAD_GESTURE:
-        case DAD_MESH:
-        case DAD_SETTINGS:
+    case DAD_TEXTURE:
+    case DAD_SOUND:
+    case DAD_CALLINGCARD:
+    case DAD_LANDMARK:
+    case DAD_SCRIPT:
+    case DAD_CLOTHING:
+    case DAD_OBJECT:
+    case DAD_NOTECARD:
+    case DAD_BODYPART:
+    case DAD_ANIMATION:
+    case DAD_GESTURE:
+    case DAD_MESH:
+    case DAD_SETTINGS:
+        accepted = dragItemIntoFolder(dest_id, inv_item, drop, tooltip_msg, true);
+        if (accepted && drop)
+        {
+            // Don't select immediately, wait for item to arrive
+            mItemsToSelect.push_back(inv_item->getUUID());
+        }
+        break;
+    case DAD_LINK:
+        // DAD_LINK type might mean one of two asset types: AT_LINK or AT_LINK_FOLDER.
+        // If we have an item of AT_LINK_FOLDER type we should process the linked
+        // category being dragged or dropped into folder.
+        if (inv_item && LLAssetType::AT_LINK_FOLDER == inv_item->getActualType())
+        {
+            LLInventoryCategory* linked_category = gInventory.getCategory(inv_item->getLinkedUUID());
+            if (linked_category)
+            {
+                accepted = dragCategoryIntoFolder(dest_id, (LLInventoryCategory*)linked_category, drop, tooltip_msg, true);
+            }
+        }
+        else
+        {
             accepted = dragItemIntoFolder(dest_id, inv_item, drop, tooltip_msg, true);
+        }
+        if (accepted && drop && inv_item)
+        {
+            mItemsToSelect.push_back(inv_item->getUUID());
+        }
+        break;
+    case DAD_CATEGORY:
+        if (LLFriendCardsManager::instance().isAnyFriendCategory(dest_id))
+        {
+            accepted = false;
+        }
+        else
+        {
+            LLInventoryCategory* cat_ptr = (LLInventoryCategory*)cargo_data;
+            accepted = dragCategoryIntoFolder(dest_id, cat_ptr, drop, tooltip_msg, false);
             if (accepted && drop)
             {
-                // Don't select immediately, wait for item to arrive
-                mItemsToSelect.push_back(inv_item->getUUID());
+                mItemsToSelect.push_back(cat_ptr->getUUID());
             }
-            break;
-        case DAD_LINK:
-            // DAD_LINK type might mean one of two asset types: AT_LINK or AT_LINK_FOLDER.
-            // If we have an item of AT_LINK_FOLDER type we should process the linked
-            // category being dragged or dropped into folder.
-            if (inv_item && LLAssetType::AT_LINK_FOLDER == inv_item->getActualType())
-            {
-                LLInventoryCategory* linked_category = gInventory.getCategory(inv_item->getLinkedUUID());
-                if (linked_category)
-                {
-                    accepted = dragCategoryIntoFolder(dest_id, (LLInventoryCategory*)linked_category, drop, tooltip_msg, TRUE);
-                }
-            }
-            else
-            {
-                accepted = dragItemIntoFolder(dest_id, inv_item, drop, tooltip_msg, TRUE);
-            }
-            if (accepted && drop && inv_item)
-            {
-                mItemsToSelect.push_back(inv_item->getUUID());
-            }
-            break;
-        case DAD_CATEGORY:
-            if (LLFriendCardsManager::instance().isAnyFriendCategory(dest_id))
-            {
-                accepted = FALSE;
-            }
-            else
-            {
-                LLInventoryCategory* cat_ptr = (LLInventoryCategory*)cargo_data;
-                accepted = dragCategoryIntoFolder(dest_id, cat_ptr, drop, tooltip_msg, FALSE);
-                if (accepted && drop)
-                {
-                    mItemsToSelect.push_back(cat_ptr->getUUID());
-                }
-            }
-            break;
-        case DAD_ROOT_CATEGORY:
-        case DAD_NONE:
-            break;
-        default:
-            LL_WARNS() << "Unhandled cargo type for drag&drop " << cargo_type << LL_ENDL;
-            break;
+        }
+        break;
+    case DAD_ROOT_CATEGORY:
+    case DAD_NONE:
+        break;
+    default:
+        LL_WARNS() << "Unhandled cargo type for drag&drop " << cargo_type << LL_ENDL;
+        break;
     }
-    if (accepted)
-    {
-        *accept = ACCEPT_YES_MULTI;
-    }
-    else
-    {
-        *accept = ACCEPT_NO;
-    }
+
+    *accept = accepted ? ACCEPT_YES_MULTI : ACCEPT_NO;
+
     return accepted;
 }
 
 // copy of LLFolderBridge::dragItemIntoFolder
-BOOL dragItemIntoFolder(LLUUID folder_id, LLInventoryItem* inv_item, BOOL drop, std::string& tooltip_msg, BOOL user_confirm)
+bool dragItemIntoFolder(LLUUID folder_id, LLInventoryItem* inv_item, bool drop, std::string& tooltip_msg, bool user_confirm)
 {
     LLViewerInventoryCategory * cat = gInventory.getCategory(folder_id);
     if (!cat)
     {
-        return FALSE;
+        return false;
     }
-    LLInventoryModel* model = &gInventory;
 
-    if (!model || !inv_item) return FALSE;
+    LLInventoryModel* model = &gInventory;
+    if (!model || !inv_item)
+        return false;
 
     // cannot drag into library
-    if((gInventory.getRootFolderID() != folder_id) && !model->isObjectDescendentOf(folder_id, gInventory.getRootFolderID()))
+    if (gInventory.getRootFolderID() != folder_id &&
+        !model->isObjectDescendentOf(folder_id, gInventory.getRootFolderID()))
     {
-        return FALSE;
+        return false;
     }
-    if (!isAgentAvatarValid()) return FALSE;
+
+    if (!isAgentAvatarValid())
+        return false;
 
     const LLUUID &current_outfit_id = model->findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
     const LLUUID &favorites_id = model->findCategoryUUIDForType(LLFolderType::FT_FAVORITE);
@@ -3264,47 +3334,50 @@ BOOL dragItemIntoFolder(LLUUID folder_id, LLInventoryItem* inv_item, BOOL drop, 
     const LLUUID &marketplacelistings_id = model->findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS);
     const LLUUID &my_outifts_id = model->findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS);
 
-    const BOOL move_is_into_current_outfit = (folder_id == current_outfit_id);
-    const BOOL move_is_into_favorites = (folder_id == favorites_id);
-    const BOOL move_is_into_my_outfits = (folder_id == my_outifts_id) || model->isObjectDescendentOf(folder_id, my_outifts_id);
-    const BOOL move_is_into_outfit = move_is_into_my_outfits || (cat && cat->getPreferredType()==LLFolderType::FT_OUTFIT);
-    const BOOL move_is_into_landmarks = (folder_id == landmarks_id) || model->isObjectDescendentOf(folder_id, landmarks_id);
-    const BOOL move_is_into_marketplacelistings = model->isObjectDescendentOf(folder_id, marketplacelistings_id);
-    const BOOL move_is_from_marketplacelistings = model->isObjectDescendentOf(inv_item->getUUID(), marketplacelistings_id);
+    const bool move_is_into_current_outfit = (folder_id == current_outfit_id);
+    const bool move_is_into_favorites = (folder_id == favorites_id);
+    const bool move_is_into_my_outfits = (folder_id == my_outifts_id) || model->isObjectDescendentOf(folder_id, my_outifts_id);
+    const bool move_is_into_outfit = move_is_into_my_outfits || (cat && cat->getPreferredType()==LLFolderType::FT_OUTFIT);
+    const bool move_is_into_landmarks = (folder_id == landmarks_id) || model->isObjectDescendentOf(folder_id, landmarks_id);
+    const bool move_is_into_marketplacelistings = model->isObjectDescendentOf(folder_id, marketplacelistings_id);
+    const bool move_is_from_marketplacelistings = model->isObjectDescendentOf(inv_item->getUUID(), marketplacelistings_id);
 
     LLToolDragAndDrop::ESource source = LLToolDragAndDrop::getInstance()->getSource();
-    BOOL accept = FALSE;
+    bool accept = false;
     LLViewerObject* object = NULL;
-    if(LLToolDragAndDrop::SOURCE_AGENT == source)
+    if (LLToolDragAndDrop::SOURCE_AGENT == source)
     {
         const LLUUID &trash_id = model->findCategoryUUIDForType(LLFolderType::FT_TRASH);
 
-        const BOOL move_is_into_trash = (folder_id == trash_id) || model->isObjectDescendentOf(folder_id, trash_id);
-        const BOOL move_is_outof_current_outfit = LLAppearanceMgr::instance().getIsInCOF(inv_item->getUUID());
+        const bool move_is_into_trash = (folder_id == trash_id) || model->isObjectDescendentOf(folder_id, trash_id);
+        const bool move_is_outof_current_outfit = LLAppearanceMgr::instance().getIsInCOF(inv_item->getUUID());
 
         //--------------------------------------------------------------------------------
         // Determine if item can be moved.
         //
 
-        BOOL is_movable = TRUE;
+        bool is_movable = true;
 
         switch (inv_item->getActualType())
         {
-            case LLAssetType::AT_CATEGORY:
-                is_movable = !LLFolderType::lookupIsProtectedType(((LLInventoryCategory*)inv_item)->getPreferredType());
-                break;
-            default:
-                break;
+        case LLAssetType::AT_CATEGORY:
+            is_movable = !LLFolderType::lookupIsProtectedType(((LLInventoryCategory*)inv_item)->getPreferredType());
+            break;
+        default:
+            break;
         }
+
         // Can't explicitly drag things out of the COF.
         if (move_is_outof_current_outfit)
         {
-            is_movable = FALSE;
+            is_movable = false;
         }
+
         if (move_is_into_trash)
         {
             is_movable &= inv_item->getIsLinkType() || !get_is_item_worn(inv_item->getUUID());
         }
+
         if (is_movable)
         {
             // Don't allow creating duplicates in the Calling Card/Friends
@@ -3317,20 +3390,20 @@ BOOL dragItemIntoFolder(LLUUID folder_id, LLInventoryItem* inv_item, BOOL drop, 
 
         //
         //--------------------------------------------------------------------------------
-        
+
         //--------------------------------------------------------------------------------
         // Determine if item can be moved & dropped
         // Note: if user_confirm is false, we already went through those accept logic test and can skip them
 
-        accept = TRUE;
+        accept = true;
 
         if (user_confirm && !is_movable)
         {
-            accept = FALSE;
+            accept = false;
         }
         else if (user_confirm && (folder_id == inv_item->getParentUUID()) && !move_is_into_favorites)
         {
-            accept = FALSE;
+            accept = false;
         }
         else if (user_confirm && (move_is_into_current_outfit || move_is_into_outfit))
         {
@@ -3343,8 +3416,8 @@ BOOL dragItemIntoFolder(LLUUID folder_id, LLInventoryItem* inv_item, BOOL drop, 
         else if (user_confirm && move_is_into_marketplacelistings)
         {
             //disable dropping in or out of marketplace for now
-            return FALSE;
-            
+            return false;
+
             /*const LLViewerInventoryCategory * master_folder = model->getFirstDescendantOf(marketplacelistings_id, folder_id);
             LLViewerInventoryCategory * dest_folder = cat;
             accept = can_move_item_to_marketplace(master_folder, dest_folder, inv_item, tooltip_msg, LLToolDragAndDrop::instance().getCargoCount() - LLToolDragAndDrop::instance().getCargoIndex());*/
@@ -3356,8 +3429,9 @@ BOOL dragItemIntoFolder(LLUUID folder_id, LLInventoryItem* inv_item, BOOL drop, 
             LLViewerInventoryCategory * dest_folder = cat;
             accept = dest_folder->acceptItem(inv_item);
         }
-        
-        LLInventoryPanel* active_panel = LLInventoryPanel::getActiveInventoryPanel(FALSE);
+
+        LLInventoryPanel* active_panel = LLInventoryPanel::getActiveInventoryPanel(false);
+
 
         if (accept && drop)
         {
@@ -3378,7 +3452,7 @@ BOOL dragItemIntoFolder(LLUUID folder_id, LLInventoryItem* inv_item, BOOL drop, 
             if (user_confirm && (move_is_from_marketplacelistings || move_is_into_marketplacelistings))
             {
                 //disable dropping in or out of marketplace for now
-                return FALSE;
+                return false;
             }
 
             //--------------------------------------------------------------------------------
@@ -3416,7 +3490,7 @@ BOOL dragItemIntoFolder(LLUUID folder_id, LLInventoryItem* inv_item, BOOL drop, 
             else if (move_is_into_marketplacelistings)
             {
                 //move_item_to_marketplacelistings(inv_item, mUUID);
-                return FALSE;
+                return false;
             }
             // NORMAL or TRASH folder
             // (move the item, restamp if into trash)
@@ -3430,7 +3504,7 @@ BOOL dragItemIntoFolder(LLUUID folder_id, LLInventoryItem* inv_item, BOOL drop, 
 
                 gInventory.changeItemParent((LLViewerInventoryItem*)inv_item, folder_id, move_is_into_trash);
             }
-            
+
             if (move_is_from_marketplacelistings)
             {
                 // If we move from an active (listed) listing, checks that it's still valid, if not, unlist
@@ -3447,7 +3521,7 @@ BOOL dragItemIntoFolder(LLUUID folder_id, LLInventoryItem* inv_item, BOOL drop, 
                         }
                     });
                 }*/
-                return FALSE;
+                return false;
             }
 
             //
@@ -3463,7 +3537,7 @@ BOOL dragItemIntoFolder(LLUUID folder_id, LLInventoryItem* inv_item, BOOL drop, 
         if (!object)
         {
             LL_INFOS() << "Object not found for drop." << LL_ENDL;
-            return FALSE;
+            return false;
         }
 
         // coming from a task. Need to figure out if the person can
@@ -3474,7 +3548,7 @@ BOOL dragItemIntoFolder(LLUUID folder_id, LLInventoryItem* inv_item, BOOL drop, 
             && perm.allowTransferTo(gAgent.getID())))
             // || gAgent.isGodlike())
         {
-            accept = TRUE;
+            accept = true;
         }
         else if(object->permYouOwner())
         {
@@ -3482,26 +3556,26 @@ BOOL dragItemIntoFolder(LLUUID folder_id, LLInventoryItem* inv_item, BOOL drop, 
             // inventory is owned by the agent, then the item can be
             // moved from the task to agent inventory.
             is_move = true;
-            accept = TRUE;
+            accept = true;
         }
 
         // Don't allow placing an original item into Current Outfit or an outfit folder
         // because they must contain only links to wearable items.
         if (move_is_into_current_outfit || move_is_into_outfit)
         {
-            accept = FALSE;
+            accept = false;
         }
         // Don't allow to move a single item to Favorites or Landmarks
         // if it is not a landmark or a link to a landmark.
         else if ((move_is_into_favorites || move_is_into_landmarks)
                  && !can_move_to_landmarks(inv_item))
         {
-            accept = FALSE;
+            accept = false;
         }
         else if (move_is_into_marketplacelistings)
         {
             tooltip_msg = LLTrans::getString("TooltipOutboxNotInInventory");
-            accept = FALSE;
+            accept = false;
         }
 
         if (accept && drop)
@@ -3512,7 +3586,7 @@ BOOL dragItemIntoFolder(LLUUID folder_id, LLInventoryItem* inv_item, BOOL drop, 
             move_inv->mMoveList.push_back(item_pair);
             move_inv->mCallback = NULL;
             move_inv->mUserData = NULL;
-            if(is_move)
+            if (is_move)
             {
                 warn_move_inventory(object, move_inv);
             }
@@ -3527,17 +3601,17 @@ BOOL dragItemIntoFolder(LLUUID folder_id, LLInventoryItem* inv_item, BOOL drop, 
             }
         }
     }
-    else if(LLToolDragAndDrop::SOURCE_NOTECARD == source)
+    else if (LLToolDragAndDrop::SOURCE_NOTECARD == source)
     {
         if (move_is_into_marketplacelistings)
         {
             tooltip_msg = LLTrans::getString("TooltipOutboxNotInInventory");
-            accept = FALSE;
+            accept = false;
         }
         else if ((inv_item->getActualType() == LLAssetType::AT_SETTINGS) && !LLEnvironment::instance().isInventoryEnabled())
         {
             tooltip_msg = LLTrans::getString("NoEnvironmentSettings");
-            accept = FALSE;
+            accept = false;
         }
         else
         {
@@ -3554,17 +3628,17 @@ BOOL dragItemIntoFolder(LLUUID folder_id, LLInventoryItem* inv_item, BOOL drop, 
                                          inv_item);
         }
     }
-    else if(LLToolDragAndDrop::SOURCE_LIBRARY == source)
+    else if (LLToolDragAndDrop::SOURCE_LIBRARY == source)
     {
         LLViewerInventoryItem* item = (LLViewerInventoryItem*)inv_item;
         if(item && item->isFinished())
         {
-            accept = TRUE;
+            accept = true;
 
             if (move_is_into_marketplacelistings)
             {
                 tooltip_msg = LLTrans::getString("TooltipOutboxNotInInventory");
-                accept = FALSE;
+                accept = false;
             }
             else if (move_is_into_current_outfit || move_is_into_outfit)
             {
@@ -3626,41 +3700,43 @@ BOOL dragItemIntoFolder(LLUUID folder_id, LLInventoryItem* inv_item, BOOL drop, 
 }
 
 // copy of LLFolderBridge::dragCategoryIntoFolder
-BOOL dragCategoryIntoFolder(LLUUID dest_id, LLInventoryCategory* inv_cat,
-                            BOOL drop, std::string& tooltip_msg, BOOL is_link)
+bool dragCategoryIntoFolder(LLUUID dest_id, LLInventoryCategory* inv_cat,
+                            bool drop, std::string& tooltip_msg, bool is_link)
 {
-    BOOL user_confirm = TRUE;
+    bool user_confirm = true;
     LLInventoryModel* model = &gInventory;
     LLViewerInventoryCategory * dest_cat = gInventory.getCategory(dest_id);
     if (!dest_cat)
     {
-        return FALSE;
+        return false;
     }
 
-    if (!inv_cat) return FALSE; // shouldn't happen, but in case item is incorrectly parented in which case inv_cat will be NULL
+    if (!inv_cat) // shouldn't happen, but in case item is incorrectly parented in which case inv_cat will be NULL
+        return false;
 
-    if (!isAgentAvatarValid()) return FALSE;
+    if (!isAgentAvatarValid())
+        return false;
+
     // cannot drag into library
-    if((gInventory.getRootFolderID() != dest_id) && !model->isObjectDescendentOf(dest_id, gInventory.getRootFolderID()))
+    if ((gInventory.getRootFolderID() != dest_id) && !model->isObjectDescendentOf(dest_id, gInventory.getRootFolderID()))
     {
-        return FALSE;
+        return false;
     }
 
     const LLUUID &cat_id = inv_cat->getUUID();
     const LLUUID &current_outfit_id = model->findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
     const LLUUID &marketplacelistings_id = model->findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS);
     //const LLUUID from_folder_uuid = inv_cat->getParentUUID();
-    
-    const BOOL move_is_into_current_outfit = (dest_id == current_outfit_id);
-    const BOOL move_is_into_marketplacelistings = model->isObjectDescendentOf(dest_id, marketplacelistings_id);
-    const BOOL move_is_from_marketplacelistings = model->isObjectDescendentOf(cat_id, marketplacelistings_id);
+    const bool move_is_into_current_outfit = (dest_id == current_outfit_id);
+    const bool move_is_into_marketplacelistings = model->isObjectDescendentOf(dest_id, marketplacelistings_id);
+    const bool move_is_from_marketplacelistings = model->isObjectDescendentOf(cat_id, marketplacelistings_id);
 
     // check to make sure source is agent inventory, and is represented there.
     LLToolDragAndDrop::ESource source = LLToolDragAndDrop::getInstance()->getSource();
-    const BOOL is_agent_inventory = (model->getCategory(cat_id) != NULL)
+    const bool is_agent_inventory = (model->getCategory(cat_id) != NULL)
         && (LLToolDragAndDrop::SOURCE_AGENT == source);
 
-    BOOL accept = FALSE;
+    bool accept = false;
 
     if (is_agent_inventory)
     {
@@ -3669,22 +3745,22 @@ BOOL dragCategoryIntoFolder(LLUUID dest_id, LLInventoryCategory* inv_cat,
         const LLUUID &my_outifts_id = model->findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS);
         const LLUUID &lost_and_found_id = model->findCategoryUUIDForType(LLFolderType::FT_LOST_AND_FOUND);
 
-        const BOOL move_is_into_trash = (dest_id == trash_id) || model->isObjectDescendentOf(dest_id, trash_id);
-        const BOOL move_is_into_my_outfits = (dest_id == my_outifts_id) || model->isObjectDescendentOf(dest_id, my_outifts_id);
-        const BOOL move_is_into_outfit = move_is_into_my_outfits || (dest_cat && dest_cat->getPreferredType()==LLFolderType::FT_OUTFIT);
-        const BOOL move_is_into_current_outfit = (dest_cat && dest_cat->getPreferredType()==LLFolderType::FT_CURRENT_OUTFIT);
-        const BOOL move_is_into_landmarks = (dest_id == landmarks_id) || model->isObjectDescendentOf(dest_id, landmarks_id);
-        const BOOL move_is_into_lost_and_found = model->isObjectDescendentOf(dest_id, lost_and_found_id);
+        const bool move_is_into_trash = (dest_id == trash_id) || model->isObjectDescendentOf(dest_id, trash_id);
+        const bool move_is_into_my_outfits = (dest_id == my_outifts_id) || model->isObjectDescendentOf(dest_id, my_outifts_id);
+        const bool move_is_into_outfit = move_is_into_my_outfits || (dest_cat && dest_cat->getPreferredType()==LLFolderType::FT_OUTFIT);
+        const bool move_is_into_current_outfit = (dest_cat && dest_cat->getPreferredType()==LLFolderType::FT_CURRENT_OUTFIT);
+        const bool move_is_into_landmarks = (dest_id == landmarks_id) || model->isObjectDescendentOf(dest_id, landmarks_id);
+        const bool move_is_into_lost_and_found = model->isObjectDescendentOf(dest_id, lost_and_found_id);
 
         //--------------------------------------------------------------------------------
         // Determine if folder can be moved.
         //
 
-        BOOL is_movable = TRUE;
+        bool is_movable = true;
 
         if (is_movable && (marketplacelistings_id == cat_id))
         {
-            is_movable = FALSE;
+            is_movable = false;
             tooltip_msg = LLTrans::getString("TooltipOutboxCannotMoveRoot");
         }
         if (is_movable && move_is_from_marketplacelistings)
@@ -3692,22 +3768,22 @@ BOOL dragCategoryIntoFolder(LLUUID dest_id, LLInventoryCategory* inv_cat,
         {
             // If the incoming folder is listed and active (and is therefore either the listing or the version folder),
             // then moving is *not* allowed
-            is_movable = FALSE;
+            is_movable = false;
             tooltip_msg = LLTrans::getString("TooltipOutboxDragActive");
         }
         if (is_movable && (dest_id == cat_id))
         {
-            is_movable = FALSE;
+            is_movable = false;
             tooltip_msg = LLTrans::getString("TooltipDragOntoSelf");
         }
         if (is_movable && (model->isObjectDescendentOf(dest_id, cat_id)))
         {
-            is_movable = FALSE;
+            is_movable = false;
             tooltip_msg = LLTrans::getString("TooltipDragOntoOwnChild");
         }
         if (is_movable && LLFolderType::lookupIsProtectedType(inv_cat->getPreferredType()))
         {
-            is_movable = FALSE;
+            is_movable = false;
             // tooltip?
         }
 
@@ -3731,7 +3807,7 @@ BOOL dragCategoryIntoFolder(LLUUID dest_id, LLInventoryCategory* inv_cat,
                     is_movable = false;
                 }
             }
-            else if(dest_cat && dest_cat->getPreferredType() == LLFolderType::FT_NONE)
+            else if (dest_cat && dest_cat->getPreferredType() == LLFolderType::FT_NONE)
             {
                 is_movable = ((inv_cat->getPreferredType() == LLFolderType::FT_NONE) || (inv_cat->getPreferredType() == LLFolderType::FT_OUTFIT));
             }
@@ -3740,38 +3816,38 @@ BOOL dragCategoryIntoFolder(LLUUID dest_id, LLInventoryCategory* inv_cat,
                 is_movable = false;
             }
         }
-        if(is_movable && move_is_into_current_outfit && is_link)
+        if (is_movable && move_is_into_current_outfit && is_link)
         {
-            is_movable = FALSE;
+            is_movable = false;
         }
         if (is_movable && move_is_into_lost_and_found)
         {
-            is_movable = FALSE;
+            is_movable = false;
         }
         if (is_movable && (dest_id == model->findCategoryUUIDForType(LLFolderType::FT_FAVORITE)))
         {
-            is_movable = FALSE;
+            is_movable = false;
             // tooltip?
         }
         if (is_movable && (dest_cat->getPreferredType() == LLFolderType::FT_MARKETPLACE_STOCK))
         {
             // One cannot move a folder into a stock folder
-            is_movable = FALSE;
+            is_movable = false;
             // tooltip?
         }
-        
+
         LLInventoryModel::cat_array_t descendent_categories;
         LLInventoryModel::item_array_t descendent_items;
         if (is_movable)
         {
-            model->collectDescendents(cat_id, descendent_categories, descendent_items, FALSE);
+            model->collectDescendents(cat_id, descendent_categories, descendent_items, false);
             for (S32 i=0; i < descendent_categories.size(); ++i)
             {
                 LLInventoryCategory* category = descendent_categories[i];
-                if(LLFolderType::lookupIsProtectedType(category->getPreferredType()))
+                if (LLFolderType::lookupIsProtectedType(category->getPreferredType()))
                 {
                     // Can't move "special folders" (e.g. Textures Folder).
-                    is_movable = FALSE;
+                    is_movable = false;
                     break;
                 }
             }
@@ -3792,7 +3868,7 @@ BOOL dragCategoryIntoFolder(LLUUID dest_id, LLInventoryCategory* inv_cat,
             if (items.size() > max_items_to_wear)
             {
                 // Can't move 'large' folders into current outfit: MAINT-4086
-                is_movable = FALSE;
+                is_movable = false;
                 LLStringUtil::format_map_t args;
                 args["AMOUNT"] = llformat("%d", max_items_to_wear);
                 tooltip_msg = LLTrans::getString("TooltipTooManyWearables",args);
@@ -3805,7 +3881,7 @@ BOOL dragCategoryIntoFolder(LLUUID dest_id, LLInventoryCategory* inv_cat,
                 LLInventoryItem* item = descendent_items[i];
                 if (get_is_item_worn(item->getUUID()))
                 {
-                    is_movable = FALSE;
+                    is_movable = false;
                     break; // It's generally movable, but not into the trash.
                 }
             }
@@ -3820,12 +3896,12 @@ BOOL dragCategoryIntoFolder(LLUUID dest_id, LLInventoryCategory* inv_cat,
                 // We use getType() instead of getActua;Type() to allow links to landmarks and folders.
                 if (LLAssetType::AT_LANDMARK != item->getType() && LLAssetType::AT_CATEGORY != item->getType())
                 {
-                    is_movable = FALSE;
+                    is_movable = false;
                     break; // It's generally movable, but not into Landmarks.
                 }
             }
         }
-        
+
         if (is_movable && move_is_into_marketplacelistings)
         {
             const LLViewerInventoryCategory * master_folder = model->getFirstDescendantOf(marketplacelistings_id, dest_id);
@@ -3845,7 +3921,7 @@ BOOL dragCategoryIntoFolder(LLUUID dest_id, LLInventoryCategory* inv_cat,
             if (user_confirm && (move_is_from_marketplacelistings || move_is_into_marketplacelistings))
             {
                 //disable dropping in or out of marketplace for now
-                return FALSE;
+                return false;
             }
             // Look for any gestures and deactivate them
             if (move_is_into_trash)
@@ -3873,7 +3949,7 @@ BOOL dragCategoryIntoFolder(LLUUID dest_id, LLInventoryCategory* inv_cat,
                 inv_cat->getPreferredType() == LLFolderType::FT_OUTFIT))
             {
                 // traverse category and add all contents to currently worn.
-                BOOL append = true;
+                bool append = true;
                 LLAppearanceMgr::instance().wearInventoryCategory(inv_cat, false, append);
             }
             else if (move_is_into_marketplacelistings)
@@ -3897,8 +3973,8 @@ BOOL dragCategoryIntoFolder(LLUUID dest_id, LLInventoryCategory* inv_cat,
             if (move_is_from_marketplacelistings)
             {
                 //disable dropping in or out of marketplace for now
-                return FALSE;
-                
+                return false;
+
                 // If we are moving a folder at the listing folder level (i.e. its parent is the marketplace listings folder)
                 /*if (from_folder_uuid == marketplacelistings_id)
                 {
@@ -3936,7 +4012,7 @@ BOOL dragCategoryIntoFolder(LLUUID dest_id, LLInventoryCategory* inv_cat,
         if (move_is_into_marketplacelistings)
         {
             tooltip_msg = LLTrans::getString("TooltipOutboxNotInInventory");
-            accept = FALSE;
+            accept = false;
         }
         else
         {
@@ -3948,7 +4024,7 @@ BOOL dragCategoryIntoFolder(LLUUID dest_id, LLInventoryCategory* inv_cat,
         if (move_is_into_marketplacelistings)
         {
             tooltip_msg = LLTrans::getString("TooltipOutboxNotInInventory");
-            accept = FALSE;
+            accept = false;
         }
         else
         {
@@ -3972,7 +4048,6 @@ void outfitFolderCreatedCallback(LLUUID cat_source_id, LLUUID cat_dest_id)
     gInventory.getDirectDescendentsOf(cat_source_id, categories, items);
 
     LLInventoryObject::const_object_list_t link_array;
-
 
     LLInventoryModel::item_array_t::iterator iter = items->begin();
     LLInventoryModel::item_array_t::iterator end = items->end();
@@ -4011,4 +4086,3 @@ void dropToMyOutfits(LLInventoryCategory* inv_cat)
     inventory_func_type func = boost::bind(&outfitFolderCreatedCallback, inv_cat->getUUID(), _1);
     gInventory.createNewCategory(dest_id, LLFolderType::FT_OUTFIT, inv_cat->getName(), func, inv_cat->getThumbnailUUID());
 }
-

@@ -30,7 +30,6 @@
 #include "llpanel.h"
 #include "llpointer.h"          // LLPointer<>
 #include "llmediactrl.h"    // LLMediaCtrlObserver
-#include <boost/scoped_ptr.hpp>
 
 class LLLineEditor;
 class LLUIImage;
@@ -49,7 +48,7 @@ public:
                 void *callback_data);
     ~LLPanelLogin();
 
-    virtual void setFocus( BOOL b );
+    virtual void setFocus( bool b );
 
     static void show(const LLRect &rect,
         void (*callback)(S32 option, void* user_data),
@@ -60,9 +59,9 @@ public:
     static void resetFields();
     static void getFields(LLPointer<LLCredential>& credential, bool& remember_user, bool& remember_psswrd);
 
-    static BOOL isCredentialSet() { return sCredentialSet; }
+    static bool isCredentialSet() { return sCredentialSet; }
 
-    static BOOL areCredentialFieldsDirty();
+    static bool areCredentialFieldsDirty();
     static void setLocation(const LLSLURL& slurl);
     static void autologinToLocation(const LLSLURL& slurl);
 
@@ -70,8 +69,6 @@ public:
     static void updateLocationSelectorsVisibility();
 
     static void closePanel();
-
-    void setSiteIsAlive( bool alive );
 
     static void loadLoginPage();
     static void giveFocus();
@@ -88,19 +85,17 @@ public:
     static bool getShowFavorites();
 
     // extract name from cred in a format apropriate for username field
-    static std::string getUserName(LLPointer<LLCredential> &cred);
+    static std::string getUserName(const LLPointer<LLCredential> &cred);
 
 private:
     friend class LLPanelLoginListener;
     void addFavoritesToStartLocation();
-    void addUsersWithFavoritesToUsername();
     void onSelectServer();
     void onLocationSLURL();
 
     static void setFields(LLPointer<LLCredential> credential);
 
     static void onClickConnect(bool commit_fields = true);
-    static void onClickNewAccount(void*);
     static void onClickVersion(void*);
     static void onClickForgotPassword(void*);
     static void onClickSignUp(void*);
@@ -109,7 +104,6 @@ private:
     static void onRememberUserCheck(void*);
     static void onRememberPasswordCheck(void*);
     static void onPassKey(LLLineEditor* caller, void* user_data);
-    static void updateServerCombo();
 
 private:
     std::unique_ptr<LLPanelLoginListener> mListener;
@@ -120,14 +114,14 @@ private:
     void            (*mCallback)(S32 option, void *userdata);
     void*           mCallbackData;
 
-    BOOL            mPasswordModified;
+    bool            mPasswordModified;
     bool            mShowFavorites;
 
     static LLPanelLogin* sInstance;
-    static BOOL     sCapslockDidNotification;
+    static bool     sCapslockDidNotification;
     bool            mFirstLoginThisInstall;
 
-    static BOOL sCredentialSet;
+    static bool sCredentialSet;
 
     unsigned int mUsernameLength;
     unsigned int mPasswordLength;

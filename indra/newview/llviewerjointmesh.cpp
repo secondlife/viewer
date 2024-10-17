@@ -108,7 +108,7 @@ void LLViewerJointMesh::uploadJointMatrices()
     S32 joint_num;
     LLPolyMesh *reference_mesh = mMesh->getReferenceMesh();
     LLDrawPool *poolp = mFace ? mFace->getPool() : NULL;
-    BOOL hardware_skinning = (poolp && poolp->getShaderLevel() > 0) ? TRUE : FALSE;
+    bool hardware_skinning = (poolp && poolp->getShaderLevel() > 0);
 
     //calculate joint matrices
     for (joint_num = 0; joint_num < reference_mesh->mJointRenderData.size(); joint_num++)
@@ -123,7 +123,7 @@ void LLViewerJointMesh::uploadJointMatrices()
         gJointRotUnaligned[joint_num] = joint_mat.getMat3();
     }
 
-    BOOL last_pivot_uploaded = FALSE;
+    bool last_pivot_uploaded{ false };
     S32 j = 0;
 
     //upload joint pivots
@@ -144,11 +144,11 @@ void LLViewerJointMesh::uploadJointMatrices()
 
             gJointPivot[j++] = child_pivot;
 
-            last_pivot_uploaded = TRUE;
+            last_pivot_uploaded = true;
         }
         else
         {
-            last_pivot_uploaded = FALSE;
+            last_pivot_uploaded = false;
         }
     }
 
@@ -216,7 +216,7 @@ int compare_int(const void *a, const void *b)
 //--------------------------------------------------------------------
 // LLViewerJointMesh::drawShape()
 //--------------------------------------------------------------------
-U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy)
+U32 LLViewerJointMesh::drawShape( F32 pixelArea, bool first_pass, bool is_dummy)
 {
     if (!mValid || !mMesh || !mFace || !mVisible ||
         !mFace->getVertexBuffer() ||
@@ -346,7 +346,7 @@ void LLViewerJointMesh::updateFaceSizes(U32 &num_vertices, U32& num_indices, F32
 // updateFaceData()
 //-----------------------------------------------------------------------------
 
-void LLViewerJointMesh::updateFaceData(LLFace *face, F32 pixel_area, BOOL damp_wind, bool terse_update)
+void LLViewerJointMesh::updateFaceData(LLFace *face, F32 pixel_area, bool damp_wind, bool terse_update)
 {
     //IF THIS FUNCTION BREAKS, SEE LLPOLYMESH CONSTRUCTOR AND CHECK ALIGNMENT OF INPUT ARRAYS
 
@@ -358,7 +358,7 @@ void LLViewerJointMesh::updateFaceData(LLFace *face, F32 pixel_area, BOOL damp_w
     }
 
     LLDrawPool *poolp = mFace->getPool();
-    BOOL hardware_skinning = (poolp && poolp->getShaderLevel() > 0) ? TRUE : FALSE;
+    bool hardware_skinning = (poolp && poolp->getShaderLevel() > 0);
 
     if (!hardware_skinning && terse_update)
     { //no need to do terse updates if we're doing software vertex skinning
@@ -407,10 +407,16 @@ void LLViewerJointMesh::updateFaceData(LLFace *face, F32 pixel_area, BOOL damp_w
                 F32* vw = (F32*) vertex_weightsp.get();
                 F32* cw = (F32*) clothing_weightsp.get();
 
-                S32 tc_size = (num_verts*2*sizeof(F32)+0xF) & ~0xF;
-                LLVector4a::memcpyNonAliased16(tc, (F32*) mMesh->getTexCoords(), tc_size);
-                S32 vw_size = (num_verts*sizeof(F32)+0xF) & ~0xF;
-                LLVector4a::memcpyNonAliased16(vw, (F32*) mMesh->getWeights(), vw_size);
+                //S32 tc_size = (num_verts*2*sizeof(F32)+0xF) & ~0xF;
+                //LLVector4a::memcpyNonAliased16(tc, (F32*) mMesh->getTexCoords(), tc_size);
+                //S32 vw_size = (num_verts*sizeof(F32)+0xF) & ~0xF;
+                //LLVector4a::memcpyNonAliased16(vw, (F32*) mMesh->getWeights(), vw_size);
+
+                // Both allocated in LLPolyMeshSharedData::allocateVertexData(unsigned int)
+
+                memcpy(tc, mMesh->getTexCoords(), num_verts*2*sizeof(F32) );
+                memcpy(vw, mMesh->getWeights(), num_verts*sizeof(F32) );
+
                 LLVector4a::memcpyNonAliased16(cw, (F32*) mMesh->getClothingWeights(), num_verts*4*sizeof(F32));
             }
 
@@ -423,7 +429,7 @@ void LLViewerJointMesh::updateFaceData(LLFace *face, F32 pixel_area, BOOL damp_w
 
             const S32 offset = (S32) mMesh->mFaceVertexOffset;
 
-            for (S32 i = 0; i < idx_count; ++i)
+            for (U32 i = 0; i < idx_count; ++i)
             {
                 *(idx++) = *(src_idx++)+offset;
             }
@@ -436,10 +442,10 @@ void LLViewerJointMesh::updateFaceData(LLFace *face, F32 pixel_area, BOOL damp_w
 //-----------------------------------------------------------------------------
 // updateLOD()
 //-----------------------------------------------------------------------------
-BOOL LLViewerJointMesh::updateLOD(F32 pixel_area, BOOL activate)
+bool LLViewerJointMesh::updateLOD(F32 pixel_area, bool activate)
 {
-    BOOL valid = mValid;
-    setValid(activate, TRUE);
+    bool valid = mValid;
+    setValid(activate, true);
     return (valid != activate);
 }
 

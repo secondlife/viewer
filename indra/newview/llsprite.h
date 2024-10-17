@@ -27,8 +27,6 @@
 #ifndef LL_LLSPRITE_H
 #define LL_LLSPRITE_H
 
-////#include "vmath.h"
-//#include "llmath.h"
 #include "v3math.h"
 #include "v4math.h"
 #include "v4color.h"
@@ -61,8 +59,8 @@ public:
     void setPitch(const F32 pitch);
     void setSize(const F32 width, const F32 height);
     void setYaw(const F32 yaw);
-    void setFollow(const BOOL follow);
-    void setUseCameraUp(const BOOL use_up);
+    void setFollow(const bool follow);
+    void setUseCameraUp(const bool use_up);
 
     void setTexMode(LLGLenum mode);
     void setColor(const LLColor4 &color);
@@ -85,8 +83,8 @@ private:
     F32 mPitch;
     F32 mYaw;
     LLVector3 mPosition;
-    BOOL mFollow;
-    BOOL mUseCameraUp;
+    bool mFollow;
+    bool mUseCameraUp;
 
     LLColor4 mColor;
     LLGLenum mTexMode;

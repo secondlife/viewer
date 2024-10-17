@@ -95,7 +95,7 @@ LLFloaterObjectWeights::~LLFloaterObjectWeights()
 }
 
 // virtual
-BOOL LLFloaterObjectWeights::postBuild()
+bool LLFloaterObjectWeights::postBuild()
 {
     mSelectedObjects = getChild<LLTextBox>("objects");
     mSelectedPrims = getChild<LLTextBox>("prims");
@@ -114,7 +114,7 @@ BOOL LLFloaterObjectWeights::postBuild()
     mTrianglesShown = getChild<LLTextBox>("triangles_shown");
     mPixelArea = getChild<LLTextBox>("pixel_area");
 
-    return TRUE;
+    return true;
 }
 
 // virtual
@@ -188,7 +188,7 @@ void LLFloaterObjectWeights::draw()
             if (object->isRootEdit())
             {
                 total_tris += object->recursiveGetTriangleCount();
-                pixel_area += object->getPixelArea();
+                pixel_area += static_cast<S32>(object->getPixelArea());
             }
         }
 

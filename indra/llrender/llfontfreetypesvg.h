@@ -29,7 +29,11 @@
 #include <ft2build.h>
 #include FT_TYPES_H
 #include FT_MODULE_H
-#include FT_OTSVG_H
+#ifdef FT_OTSVG_H
+    #include FT_OTSVG_H
+#else
+   #define LL_NO_OTSVG
+#endif
 
  // See https://freetype.org/freetype2/docs/reference/ft2-svg_fonts.html
 class LLFontFreeTypeSvgRenderer
@@ -46,7 +50,7 @@ public:
     //   - right before the svg module calls the render callback hook. (with cache == true)
     static FT_Error OnPresetGlypthSlot(FT_GlyphSlot glyph_slot, FT_Bool cache, FT_Pointer* state);
 
-    // Called to render an OT-SVG glyph (right after the preset hook OnPresetGlypthSlot was called with cache set to TRUE)
+    // Called to render an OT-SVG glyph (right after the preset hook OnPresetGlypthSlot was called with cache set to true)
     static FT_Error OnRender(FT_GlyphSlot glyph_slot, FT_Pointer* state);
 
     // Called to deallocate our per glyph slot data

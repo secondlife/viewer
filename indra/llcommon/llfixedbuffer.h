@@ -33,6 +33,7 @@
 #include "llstring.h"
 #include "llthread.h"
 #include "llerrorcontrol.h"
+#include "llcoros.h"
 
 //  fixed buffer implementation
 class LL_COMMON_API LLFixedBuffer : public LLLineBuffer
@@ -58,7 +59,7 @@ protected:
     void addWLine(const LLWString& line);
 
 protected:
-    LLMutex mMutex ;
+    LLCoros::Mutex mMutex ;
 };
 
 #endif //LL_FIXED_BUFFER_H

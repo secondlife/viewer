@@ -377,7 +377,7 @@ LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
     addChild(mParcelIcon[SEE_AVATARS_ICON]);
 
     // Register callbacks and load the location field context menu (NB: the order matters).
-    LLUICtrl::CommitCallbackRegistry::currentRegistrar().add("Navbar.Action", boost::bind(&LLLocationInputCtrl::onLocationContextMenuItemClicked, this, _2));
+    LLUICtrl::CommitCallbackRegistry::currentRegistrar().add("Navbar.Action", { boost::bind(&LLLocationInputCtrl::onLocationContextMenuItemClicked, this, _2) });
     LLUICtrl::EnableCallbackRegistry::currentRegistrar().add("Navbar.EnableMenuItem", boost::bind(&LLLocationInputCtrl::onLocationContextMenuItemEnabled, this, _2));
 
     setPrearrangeCallback(boost::bind(&LLLocationInputCtrl::onLocationPrearrange, this, _2));
@@ -454,7 +454,7 @@ LLLocationInputCtrl::~LLLocationInputCtrl()
     mLocationHistoryConnection.disconnect();
 }
 
-void LLLocationInputCtrl::setEnabled(BOOL enabled)
+void LLLocationInputCtrl::setEnabled(bool enabled)
 {
     LLComboBox::setEnabled(enabled);
     mAddLandmarkBtn->setEnabled(enabled);
@@ -467,7 +467,7 @@ void LLLocationInputCtrl::hideList()
         focusTextEntry();
 }
 
-BOOL LLLocationInputCtrl::handleToolTip(S32 x, S32 y, MASK mask)
+bool LLLocationInputCtrl::handleToolTip(S32 x, S32 y, MASK mask)
 {
 
     if(mAddLandmarkBtn->parentPointInView(x,y))
@@ -495,15 +495,15 @@ BOOL LLLocationInputCtrl::handleToolTip(S32 x, S32 y, MASK mask)
             }
         }
 
-        return TRUE;
+        return true;
     }
 
-    return FALSE;
+    return false;
 }
 
-BOOL LLLocationInputCtrl::handleKeyHere(KEY key, MASK mask)
+bool LLLocationInputCtrl::handleKeyHere(KEY key, MASK mask)
 {
-    BOOL result = LLComboBox::handleKeyHere(key, mask);
+    bool result = LLComboBox::handleKeyHere(key, mask);
 
     if (key == KEY_DOWN && hasFocus() && mList->getItemCount() != 0 && !mList->getVisible())
     {
@@ -516,7 +516,7 @@ BOOL LLLocationInputCtrl::handleKeyHere(KEY key, MASK mask)
 void LLLocationInputCtrl::onTextEntry(LLLineEditor* line_editor)
 {
     KEY key = gKeyboard->currentKey();
-    MASK mask = gKeyboard->currentMask(TRUE);
+    MASK mask = gKeyboard->currentMask(true);
 
     // Typing? (moving cursor should not affect showing the list)
     bool typing = mask != MASK_CONTROL && key != KEY_LEFT && key != KEY_RIGHT && key != KEY_HOME && key != KEY_END;
@@ -556,16 +556,16 @@ void LLLocationInputCtrl::setText(const LLStringExplicit& text)
     {
         mTextEntry->setText(text);
     }
-    mHasAutocompletedText = FALSE;
+    mHasAutocompletedText = false;
 }
 
-void LLLocationInputCtrl::setFocus(BOOL b)
+void LLLocationInputCtrl::setFocus(bool b)
 {
     LLComboBox::setFocus(b);
 
     if (mTextEntry && b && !mList->getVisible())
     {
-        mTextEntry->setFocus(TRUE);
+        mTextEntry->setFocus(true);
     }
 }
 
@@ -612,7 +612,7 @@ void LLLocationInputCtrl::draw()
     LLComboBox::draw();
 }
 
-void LLLocationInputCtrl::reshape(S32 width, S32 height, BOOL called_from_parent)
+void LLLocationInputCtrl::reshape(S32 width, S32 height, bool called_from_parent)
 {
     LLComboBox::reshape(width, height, called_from_parent);
 
@@ -698,7 +698,7 @@ void LLLocationInputCtrl::onLocationPrearrange(const LLSD& data)
     //Let's add landmarks to the top of the list if any
     if(!filter.empty() )
     {
-        LLInventoryModel::item_array_t landmark_items = LLLandmarkActions::fetchLandmarksByName(filter, TRUE);
+        LLInventoryModel::item_array_t landmark_items = LLLandmarkActions::fetchLandmarksByName(filter, true);
 
         for(U32 i=0; i < landmark_items.size(); i++)
         {
@@ -1026,7 +1026,7 @@ void LLLocationInputCtrl::rebuildLocationHistory(const std::string& filter)
 
 void LLLocationInputCtrl::focusTextEntry()
 {
-    // We can't use "mTextEntry->setFocus(TRUE)" instead because
+    // We can't use "mTextEntry->setFocus(true)" instead because
     // if the "select_on_focus" parameter is true it places the cursor
     // at the beginning (after selecting text), thus screwing up updateSelection().
     if (mTextEntry)
@@ -1114,7 +1114,7 @@ void LLLocationInputCtrl::changeLocationPresentation()
         mTextEntry->setText(LLURI::unescape(slurl.getSLURLString()));
         mTextEntry->selectAll();
 
-        mMaturityButton->setVisible(FALSE);
+        mMaturityButton->setVisible(false);
 
         isHumanReadableLocationVisible = false;
     }

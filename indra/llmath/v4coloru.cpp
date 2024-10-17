@@ -26,95 +26,52 @@
 
 #include "linden_common.h"
 
-//#include "v3coloru.h"
 #include "v4coloru.h"
-#include "v4color.h"
-//#include "vmath.h"
 #include "llmath.h"
 
 // LLColor4U
+// clang-format off
 LLColor4U LLColor4U::white(255, 255, 255, 255);
 LLColor4U LLColor4U::black(  0,   0,   0, 255);
 LLColor4U LLColor4U::red  (255,   0,   0, 255);
 LLColor4U LLColor4U::green(  0, 255,   0, 255);
 LLColor4U LLColor4U::blue (  0,   0, 255, 255);
+// clang-format on
 
-// conversion
-/* inlined to fix gcc compile link error
-LLColor4U::operator LLColor4()
+std::ostream& operator<<(std::ostream& s, const LLColor4U& a)
 {
-    return(LLColor4((F32)mV[VRED]/255.f,(F32)mV[VGREEN]/255.f,(F32)mV[VBLUE]/255.f,(F32)mV[VALPHA]/255.f));
-}
-*/
-
-// Constructors
-
-
-/*
-LLColor4U::LLColor4U(const LLColor3 &vec)
-{
-    mV[VX] = vec.mV[VX];
-    mV[VY] = vec.mV[VY];
-    mV[VZ] = vec.mV[VZ];
-    mV[VW] = 255;
-}
-*/
-
-
-// Clear and Assignment Functions
-
-
-
-// LLColor4U Operators
-
-/*
-LLColor4U LLColor4U::operator=(const LLColor3 &a)
-{
-    mV[VX] = a.mV[VX];
-    mV[VY] = a.mV[VY];
-    mV[VZ] = a.mV[VZ];
-
-// converting from an rgb sets a=1 (opaque)
-    mV[VW] = 255;
-    return (*this);
-}
-*/
-
-
-std::ostream& operator<<(std::ostream& s, const LLColor4U &a)
-{
-    s << "{ " << (S32)a.mV[VX] << ", " << (S32)a.mV[VY] << ", " << (S32)a.mV[VZ] << ", " << (S32)a.mV[VW] << " }";
+    s << "{ " << (S32)a.mV[VRED] << ", " << (S32)a.mV[VGREEN] << ", " << (S32)a.mV[VBLUE] << ", " << (S32)a.mV[VALPHA] << " }";
     return s;
 }
 
 // static
-BOOL LLColor4U::parseColor4U(const std::string& buf, LLColor4U* value)
+bool LLColor4U::parseColor4U(const std::string& buf, LLColor4U* value)
 {
-    if( buf.empty() || value == NULL)
+    if (buf.empty() || value == nullptr)
     {
-        return FALSE;
+        return false;
     }
 
-    U32 v[4];
-    S32 count = sscanf( buf.c_str(), "%u, %u, %u, %u", v + 0, v + 1, v + 2, v + 3 );
-    if (1 == count )
+    U32 v[4]{};
+    S32 count = sscanf(buf.c_str(), "%u, %u, %u, %u", v + 0, v + 1, v + 2, v + 3);
+    if (1 == count)
     {
         // try this format
-        count = sscanf( buf.c_str(), "%u %u %u %u", v + 0, v + 1, v + 2, v + 3 );
+        count = sscanf(buf.c_str(), "%u %u %u %u", v + 0, v + 1, v + 2, v + 3);
     }
-    if( 4 != count )
+    if (4 != count)
     {
-        return FALSE;
+        return false;
     }
 
-    for( S32 i = 0; i < 4; i++ )
+    for (S32 i = 0; i < 4; i++)
     {
-        if( v[i] > U8_MAX )
+        if (v[i] > U8_MAX)
         {
-            return FALSE;
+            return false;
         }
     }
 
-    value->set( U8(v[0]), U8(v[1]), U8(v[2]), U8(v[3]) );
-    return TRUE;
+    value->set(U8(v[0]), U8(v[1]), U8(v[2]), U8(v[3]));
+    return true;
 }

@@ -68,7 +68,7 @@ void LLScriptHandler::initChannel()
 //--------------------------------------------------------------------------
 void LLScriptHandler::addToastWithNotification(const LLNotificationPtr& notification)
 {
-    LL_PROFILE_ZONE_SCOPED
+    LL_PROFILE_ZONE_SCOPED;
     LLToastPanel* notify_box = LLToastPanel::buidPanelFromNotification(notification);
 
     LLToast::Params p;

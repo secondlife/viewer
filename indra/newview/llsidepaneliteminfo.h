@@ -54,7 +54,7 @@ public:
     LLSidepanelItemInfo(const LLPanel::Params& p = getDefaultParams());
     virtual ~LLSidepanelItemInfo();
 
-    /*virtual*/ BOOL postBuild() override;
+    /*virtual*/ bool postBuild() override;
     /*virtual*/ void reset();
 
     void setObjectID(const LLUUID& object_id);

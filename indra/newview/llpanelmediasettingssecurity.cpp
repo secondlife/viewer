@@ -49,8 +49,8 @@
 LLPanelMediaSettingsSecurity::LLPanelMediaSettingsSecurity() :
     mParent( NULL )
 {
-    mCommitCallbackRegistrar.add("Media.whitelistAdd",      boost::bind(&LLPanelMediaSettingsSecurity::onBtnAdd, this));
-    mCommitCallbackRegistrar.add("Media.whitelistDelete",   boost::bind(&LLPanelMediaSettingsSecurity::onBtnDel, this));
+    mCommitCallbackRegistrar.add("Media.whitelistAdd",      { boost::bind(&LLPanelMediaSettingsSecurity::onBtnAdd, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Media.whitelistDelete",   { boost::bind(&LLPanelMediaSettingsSecurity::onBtnDel, this), cb_info::UNTRUSTED_BLOCK });
 
     // build dialog from XML
     buildFromFile( "panel_media_settings_security.xml");
@@ -58,7 +58,7 @@ LLPanelMediaSettingsSecurity::LLPanelMediaSettingsSecurity() :
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-BOOL LLPanelMediaSettingsSecurity::postBuild()
+bool LLPanelMediaSettingsSecurity::postBuild()
 {
     mEnableWhiteList = getChild< LLCheckBoxCtrl >( LLMediaEntry::WHITELIST_ENABLE_KEY );
     mWhiteListList = getChild< LLScrollListCtrl >( LLMediaEntry::WHITELIST_KEY );

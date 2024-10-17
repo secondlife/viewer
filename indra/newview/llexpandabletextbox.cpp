@@ -41,10 +41,19 @@ public:
     :   LLTextSegment(start, end),
         mEditor(editor),
         mStyle(style),
-        mExpanderLabel(more_text)
-    {}
+        mExpanderLabel(utf8str_to_wstring(more_text))
+    {
+    }
 
-    /*virtual*/ bool    getDimensionsF32(S32 first_char, S32 num_chars, F32& width, S32& height) const
+    /*virtual*/ LLTextSegmentPtr clone(LLTextBase& target) const
+    {
+        LLStyleSP sp((&target == &mEditor) ? mStyle : mStyle->clone());
+        LLExpanderSegment* copy = new LLExpanderSegment(sp, mStart, mEnd, LLStringUtil::null, target);
+        copy->mExpanderLabel = mExpanderLabel;
+        return copy;
+    }
+
+    /*virtual*/ bool getDimensionsF32(S32 first_char, S32 num_chars, F32& width, S32& height) const
     {
         // more label always spans width of text box
         if (num_chars == 0)
@@ -54,16 +63,18 @@ public:
         }
         else
         {
-            width = mEditor.getDocumentView()->getRect().getWidth() - mEditor.getHPad();
+            width = (F32)(mEditor.getDocumentView()->getRect().getWidth() - mEditor.getHPad());
             height = mStyle->getFont()->getLineHeight();
         }
         return true;
     }
-    /*virtual*/ S32     getOffset(S32 segment_local_x_coord, S32 start_offset, S32 num_chars, bool round) const
+
+    /*virtual*/ S32 getOffset(S32 segment_local_x_coord, S32 start_offset, S32 num_chars, bool round) const
     {
         return start_offset;
     }
-    /*virtual*/ S32     getNumChars(S32 num_pixels, S32 segment_offset, S32 line_offset, S32 max_chars, S32 line_ind) const
+
+    /*virtual*/ S32 getNumChars(S32 num_pixels, S32 segment_offset, S32 line_offset, S32 max_chars, S32 line_ind) const
     {
         // require full line to ourselves
         if (line_offset == 0)
@@ -77,33 +88,36 @@ public:
             return 0;
         }
     }
-    /*virtual*/ F32     draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRectf& draw_rect)
+
+    /*virtual*/ F32 draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRectf& draw_rect)
     {
         F32 right_x;
-        mStyle->getFont()->renderUTF8(mExpanderLabel, start,
+        mStyle->getFont()->render(mExpanderLabel, start,
                                     draw_rect.mRight, draw_rect.mTop,
                                     mStyle->getColor(),
                                     LLFontGL::RIGHT, LLFontGL::TOP,
                                     0,
                                     mStyle->getShadowType(),
-                                    end - start, draw_rect.getWidth(),
+                                    end - start, (S32)draw_rect.getWidth(),
                                     &right_x,
                                     mEditor.getUseEllipses(), mEditor.getUseColor());
         return right_x;
     }
+
     /*virtual*/ bool    canEdit() const { return false; }
     // eat handleMouseDown event so we get the mouseup event
-    /*virtual*/ BOOL    handleMouseDown(S32 x, S32 y, MASK mask) { return TRUE; }
-    /*virtual*/ BOOL    handleMouseUp(S32 x, S32 y, MASK mask) { mEditor.onCommit(); return TRUE; }
-    /*virtual*/ BOOL    handleHover(S32 x, S32 y, MASK mask)
+    /*virtual*/ bool    handleMouseDown(S32 x, S32 y, MASK mask) { return true; }
+    /*virtual*/ bool    handleMouseUp(S32 x, S32 y, MASK mask) { mEditor.onCommit(); return true; }
+    /*virtual*/ bool    handleHover(S32 x, S32 y, MASK mask)
     {
         LLUI::getInstance()->getWindow()->setCursor(UI_CURSOR_HAND);
-        return TRUE;
+        return true;
     }
+
 private:
     LLTextBase& mEditor;
     LLStyleSP   mStyle;
-    std::string mExpanderLabel;
+    LLWString mExpanderLabel;
 };
 
 LLExpandableTextBox::LLTextBoxEx::Params::Params()
@@ -115,11 +129,11 @@ LLExpandableTextBox::LLTextBoxEx::LLTextBoxEx(const Params& p)
     mExpanderLabel(p.label.isProvided() ? p.label : LLTrans::getString("More")),
     mExpanderVisible(false)
 {
-    setIsChrome(TRUE);
+    setIsChrome(true);
     setMaxTextLength(p.max_text_length);
 }
 
-void LLExpandableTextBox::LLTextBoxEx::reshape(S32 width, S32 height, BOOL called_from_parent)
+void LLExpandableTextBox::LLTextBoxEx::reshape(S32 width, S32 height, bool called_from_parent)
 {
     LLTextEditor::reshape(width, height, called_from_parent);
 }
@@ -253,11 +267,11 @@ void LLExpandableTextBox::draw()
 {
     if(mBGVisible && !mExpanded)
     {
-        gl_rect_2d(getLocalRect(), mBGColor.get(), TRUE);
+        gl_rect_2d(getLocalRect(), mBGColor.get(), true);
     }
     if(mExpandedBGVisible && mExpanded)
     {
-        gl_rect_2d(getLocalRect(), mExpandedBGColor.get(), TRUE);
+        gl_rect_2d(getLocalRect(), mExpandedBGColor.get(), true);
     }
 
     collapseIfPosChanged();
@@ -389,10 +403,10 @@ void LLExpandableTextBox::expandTextBox()
 
     // expand text box
     localRectToOtherView(expanded_rect, &expanded_screen_rect, getParent());
-    reshape(expanded_screen_rect.getWidth(), expanded_screen_rect.getHeight(), FALSE);
+    reshape(expanded_screen_rect.getWidth(), expanded_screen_rect.getHeight(), false);
     setRect(expanded_screen_rect);
 
-    setFocus(TRUE);
+    setFocus(true);
     // this lets us receive top_lost event(needed to collapse text box)
     // it also draws text box above all other ui elements
     gViewerWindow->addPopup(this);
@@ -409,7 +423,7 @@ void LLExpandableTextBox::collapseTextBox()
 
     mExpanded = false;
 
-    reshape(mCollapsedRect.getWidth(), mCollapsedRect.getHeight(), FALSE);
+    reshape(mCollapsedRect.getWidth(), mCollapsedRect.getHeight(), false);
     setRect(mCollapsedRect);
 
     updateTextBoxRect();
@@ -436,7 +450,7 @@ void LLExpandableTextBox::updateTextShape()
     updateTextBoxRect();
 }
 
-void LLExpandableTextBox::reshape(S32 width, S32 height, BOOL called_from_parent)
+void LLExpandableTextBox::reshape(S32 width, S32 height, bool called_from_parent)
 {
     mExpanded = false;
     LLUICtrl::reshape(width, height, called_from_parent);

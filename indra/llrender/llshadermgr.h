@@ -56,7 +56,17 @@ public:
         TEXTURE_BASE_COLOR_TRANSFORM,         //  "texture_base_color_transform" (GLTF)
         TEXTURE_NORMAL_TRANSFORM,             //  "texture_normal_transform" (GLTF)
         TEXTURE_METALLIC_ROUGHNESS_TRANSFORM, //  "texture_metallic_roughness_transform" (GLTF)
+        TEXTURE_OCCLUSION_TRANSFORM,          //  "texture_occlusion_transform" (GLTF)
         TEXTURE_EMISSIVE_TRANSFORM,           //  "texture_emissive_transform" (GLTF)
+        BASE_COLOR_TEXCOORD,                  //  "base_color_texcoord" (GLTF)
+        EMISSIVE_TEXCOORD,                    //  "emissive_texcoord" (GLTF)
+        NORMAL_TEXCOORD,                      //  "normal_texcoord" (GLTF)
+        METALLIC_ROUGHNESS_TEXCOORD,          //  "metallic_roughness_texcoord" (GLTF)
+        OCCLUSION_TEXCOORD,                   //  "occlusion_texcoord" (GLTF)
+        GLTF_NODE_ID,                         //  "gltf_node_id" (GLTF)
+        GLTF_MATERIAL_ID,                     //  "gltf_material_id" (GLTF)
+
+        TERRAIN_TEXTURE_TRANSFORMS,           //  "terrain_texture_transforms" (GLTF)
 
         VIEWPORT,                           //  "viewport"
         LIGHT_POSITION,                     //  "light_position"
@@ -91,6 +101,9 @@ public:
         DIFFUSE_MAP,                        //  "diffuseMap"
         ALTERNATE_DIFFUSE_MAP,              //  "altDiffuseMap"
         SPECULAR_MAP,                       //  "specularMap"
+        METALLIC_ROUGHNESS_MAP,             //  "metallicRoughnessMap"
+        NORMAL_MAP,                         //  "normalMap"
+        OCCLUSION_MAP,                      //  "occlusionMap"
         EMISSIVE_MAP,                       //  "emissiveMap"
         BUMP_MAP,                           //  "bumpMap"
         BUMP_MAP2,                          //  "bumpMap2"
@@ -102,7 +115,6 @@ public:
         HERO_PROBE,                         //  "heroProbes"
         CLOUD_NOISE_MAP,                    //  "cloud_noise_texture"
         CLOUD_NOISE_MAP_NEXT,               //  "cloud_noise_texture_next"
-        FULLBRIGHT,                         //  "fullbright"
         LIGHTNORM,                          //  "lightnorm"
         SUNLIGHT_COLOR,                     //  "sunlight_color"
         AMBIENT,                            //  "ambient_color"
@@ -145,9 +157,6 @@ public:
         DEFERRED_SHADOW_MATRIX,             //  "shadow_matrix"
         DEFERRED_ENV_MAT,                   //  "env_mat"
         DEFERRED_SHADOW_CLIP,               //  "shadow_clip"
-        DEFERRED_SUN_WASH,                  //  "sun_wash"
-        DEFERRED_SHADOW_NOISE,              //  "shadow_noise"
-        DEFERRED_BLUR_SIZE,                 //  "blur_size"
         DEFERRED_SSAO_RADIUS,               //  "ssao_radius"
         DEFERRED_SSAO_MAX_RADIUS,           //  "ssao_max_radius"
         DEFERRED_SSAO_FACTOR,               //  "ssao_factor"
@@ -163,8 +172,6 @@ public:
         DEFERRED_MOON_DIR,                  //  "moon_dir"
         DEFERRED_SHADOW_RES,                //  "shadow_res"
         DEFERRED_PROJ_SHADOW_RES,           //  "proj_shadow_res"
-        DEFERRED_DEPTH_CUTOFF,              //  "depth_cutoff"
-        DEFERRED_NORM_CUTOFF,               //  "norm_cutoff"
         DEFERRED_SHADOW_TARGET_WIDTH,       //  "shadow_target_width"
 
         DEFERRED_SSR_ITR_COUNT,             //  "iterationCount"
@@ -200,7 +207,6 @@ public:
         DEFERRED_SHADOW3,                   //  "shadowMap3"
         DEFERRED_SHADOW4,                   //  "shadowMap4"
         DEFERRED_SHADOW5,                   //  "shadowMap5"
-        DEFERRED_NORMAL,                    //  "normalMap"
         DEFERRED_POSITION,                  //  "positionMap"
         DEFERRED_DIFFUSE,                   //  "diffuseRect"
         DEFERRED_SPECULAR,                  //  "specularRect"
@@ -210,10 +216,7 @@ public:
         DEFERRED_NOISE,                     //  "noiseMap"
         DEFERRED_LIGHTFUNC,                 //  "lightFunc"
         DEFERRED_LIGHT,                     //  "lightMap"
-        DEFERRED_BLOOM,                     //  "bloomMap"
         DEFERRED_PROJECTION,                //  "projectionMap"
-        DEFERRED_NORM_MATRIX,               //  "norm_mat"
-        TEXTURE_GAMMA,                      //  "texture_gamma"
         SPECULAR_COLOR,                     //  "specular_color"
         ENVIRONMENT_INTENSITY,              //  "env_intensity"
 
@@ -257,6 +260,7 @@ public:
         TERRAIN_DETAIL3,                    //  "detail_3"
 
         TERRAIN_ALPHARAMP,                  //  "alpha_ramp"
+        TERRAIN_PAINTMAP,                   //  "paint_map"
 
         TERRAIN_DETAIL0_BASE_COLOR,                //  "detail_0_base_color" (GLTF)
         TERRAIN_DETAIL1_BASE_COLOR,                //  "detail_1_base_color" (GLTF)
@@ -281,6 +285,8 @@ public:
         TERRAIN_EMISSIVE_COLORS,                   //  "emissiveColors" (GLTF)
         TERRAIN_MINIMUM_ALPHAS,                    //  "minimum_alphas" (GLTF)
 
+        REGION_SCALE,                              //  "region_scale" (GLTF)
+
         SHINY_ORIGIN,                       //  "origin"
         DISPLAY_GAMMA,                      //  "display_gamma"
 
@@ -288,13 +294,7 @@ public:
         SUN_SIZE,                           //  "sun_size"
         FOG_COLOR,                          //  "fog_color"
 
-        // precomputed textures
-        TRANSMITTANCE_TEX,                  //  "transmittance_texture"
-        SCATTER_TEX,                        //  "scattering_texture"
-        SINGLE_MIE_SCATTER_TEX,             //  "single_mie_scattering_texture"
-        ILLUMINANCE_TEX,                    //  "irradiance_texture"
         BLEND_FACTOR,                       //  "blend_factor"
-
         MOISTURE_LEVEL,                     //  "moisture_level"
         DROPLET_RADIUS,                     //  "droplet_radius"
         ICE_LEVEL,                          //  "ice_level"
@@ -319,6 +319,11 @@ public:
 
         DEBUG_NORMAL_DRAW_LENGTH,           //  "debug_normal_draw_length"
 
+        SMAA_EDGE_TEX,                      //  "edgesTex"
+        SMAA_AREA_TEX,                      //  "areaTex"
+        SMAA_SEARCH_TEX,                    //  "searchTex"
+        SMAA_BLEND_TEX,                     //  "blendTex"
+
         END_RESERVED_UNIFORMS
     } eGLSLReservedUniforms;
     // clang-format on
@@ -328,11 +333,11 @@ public:
 
     virtual void initAttribsAndUniforms(void);
 
-    BOOL attachShaderFeatures(LLGLSLShader * shader);
-    void dumpObjectLog(GLuint ret, BOOL warns = TRUE, const std::string& filename = "");
+    bool attachShaderFeatures(LLGLSLShader * shader);
+    void dumpObjectLog(GLuint ret, bool warns = true, const std::string& filename = "");
     void dumpShaderSource(U32 shader_code_count, GLchar** shader_code_text);
-    BOOL    linkProgramObject(GLuint obj, BOOL suppress_errors = FALSE);
-    BOOL    validateProgramObject(GLuint obj);
+    bool    linkProgramObject(GLuint obj, bool suppress_errors = false);
+    bool    validateProgramObject(GLuint obj);
     GLuint loadShaderFile(const std::string& filename, S32 & shader_level, GLenum type, std::map<std::string, std::string>* defines = NULL, S32 texture_index_channels = -1);
 
     // Implemented in the application to actually point to the shader directory.
@@ -368,7 +373,6 @@ public:
     bool mShaderCacheInitialized = false;
     bool mShaderCacheEnabled = false;
     std::string mShaderCacheDir;
-    static bool sMirrorsEnabled;
 
 protected:
 

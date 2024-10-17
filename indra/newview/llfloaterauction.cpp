@@ -43,7 +43,6 @@
 #include "llmimetypes.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
-#include "llsavedsettingsglue.h"
 #include "llviewertexturelist.h"
 #include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
@@ -76,10 +75,10 @@ LLFloaterAuction::LLFloaterAuction(const LLSD& key)
   : LLFloater(key),
     mParcelID(-1)
 {
-    mCommitCallbackRegistrar.add("ClickSnapshot",   boost::bind(&LLFloaterAuction::onClickSnapshot, this));
-    mCommitCallbackRegistrar.add("ClickSellToAnyone",       boost::bind(&LLFloaterAuction::onClickSellToAnyone, this));
-    mCommitCallbackRegistrar.add("ClickStartAuction",       boost::bind(&LLFloaterAuction::onClickStartAuction, this));
-    mCommitCallbackRegistrar.add("ClickResetParcel",        boost::bind(&LLFloaterAuction::onClickResetParcel, this));
+    mCommitCallbackRegistrar.add("ClickSnapshot",   { boost::bind(&LLFloaterAuction::onClickSnapshot, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("ClickSellToAnyone",       { boost::bind(&LLFloaterAuction::onClickSellToAnyone, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("ClickStartAuction",       { boost::bind(&LLFloaterAuction::onClickStartAuction, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("ClickResetParcel",        { boost::bind(&LLFloaterAuction::onClickResetParcel, this), cb_info::UNTRUSTED_BLOCK });
 }
 
 // Destroys the object
@@ -87,9 +86,9 @@ LLFloaterAuction::~LLFloaterAuction()
 {
 }
 
-BOOL LLFloaterAuction::postBuild()
+bool LLFloaterAuction::postBuild()
 {
-    return TRUE;
+    return true;
 }
 
 void LLFloaterAuction::onOpen(const LLSD& key)
@@ -111,9 +110,9 @@ void LLFloaterAuction::initialize()
         mParcelUpdateCapUrl = region->getCapability("ParcelPropertiesUpdate");
 
         getChild<LLUICtrl>("parcel_text")->setValue(parcelp->getName());
-        getChildView("snapshot_btn")->setEnabled(TRUE);
-        getChildView("reset_parcel_btn")->setEnabled(TRUE);
-        getChildView("start_auction_btn")->setEnabled(TRUE);
+        getChildView("snapshot_btn")->setEnabled(true);
+        getChildView("reset_parcel_btn")->setEnabled(true);
+        getChildView("start_auction_btn")->setEnabled(true);
 
         U32 estate_id = LLEstateInfoModel::instance().getID();
         // Only enable "Sell to Anyone" on Teen grid or if we don't know the ID yet
@@ -178,18 +177,20 @@ void LLFloaterAuction::onClickSnapshot(void* data)
     LLPointer<LLImageRaw> raw = new LLImageRaw;
 
     gForceRenderLandFence = self->getChild<LLUICtrl>("fence_check")->getValue().asBoolean();
-    BOOL success = gViewerWindow->rawSnapshot(raw,
+    bool success = gViewerWindow->rawSnapshot(raw,
                                               gViewerWindow->getWindowWidthScaled(),
                                               gViewerWindow->getWindowHeightScaled(),
-                                              TRUE,
-                                              FALSE,
-                                              FALSE, //UI
-                                              FALSE, //HUD
-                                              FALSE);
-    gForceRenderLandFence = FALSE;
+                                              true,
+                                              false,
+                                              false, //UI
+                                              false, //HUD
+                                              false);
+    gForceRenderLandFence = false;
 
     if (success)
     {
+        LLImageDataLock lock(raw);
+
         self->mTransactionID.generate();
         self->mImageID = self->mTransactionID.makeAssetID(gAgent.getSecureSessionID());
 
@@ -215,7 +216,7 @@ void LLFloaterAuction::onClickSnapshot(void* data)
         LLFileSystem j2c_file(self->mImageID, LLAssetType::AT_TEXTURE, LLFileSystem::WRITE);
         j2c_file.write(j2c->getData(), j2c->getDataSize());
 
-        self->mImage = LLViewerTextureManager::getLocalTexture((LLImageRaw*)raw, FALSE);
+        self->mImage = LLViewerTextureManager::getLocalTexture((LLImageRaw*)raw, false);
         gGL.getTexUnit(0)->bind(self->mImage);
         self->mImage->setAddressMode(LLTexUnit::TAM_CLAMP);
     }
@@ -239,14 +240,14 @@ void LLFloaterAuction::onClickStartAuction(void* data)
         gAssetStorage->storeAssetData(self->mTransactionID, LLAssetType::AT_IMAGE_TGA,
                                     &auction_tga_upload_done,
                                     (void*)name,
-                                    FALSE);
+                                    false);
         self->getWindow()->incBusyCount();
 
         std::string* j2c_name = new std::string(parcel_name.asString());
         gAssetStorage->storeAssetData(self->mTransactionID, LLAssetType::AT_TEXTURE,
                                    &auction_j2c_upload_done,
                                    (void*)j2c_name,
-                                   FALSE);
+                                   false);
         self->getWindow()->incBusyCount();
 
         LLNotificationsUtil::add("UploadingAuctionSnapshot");

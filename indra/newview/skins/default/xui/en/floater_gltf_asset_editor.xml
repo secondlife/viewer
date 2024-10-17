@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ can_resize="true"
+ default_tab_group="1"
+ height="530"
+ width="256"
+ min_height="400"
+ min_width="200"
+ layout="topleft"
+ name="gltf asset editor"
+ title="[OBJECT_NAME]">
+    <floater.string name="floater_title" value="GLTF Scene Editor"/>
+    <floater.string name="scene_title" value="Scene"/>
+    <floater.string name="node_title" value="Node"/>
+    <floater.string name="mesh_title" value="Mesh"/>
+    <floater.string name="skin_title" value="Skin"/>
+
+    <layout_stack
+     name="main_layout"
+     orientation="vertical"
+     follows="all"
+     bottom="-1"
+     top="16"
+     left="5"
+     right="-1"
+     border_size="0">
+
+        <layout_panel
+         name="top_lp"
+         border="true"
+         bevel_style="in"
+         auto_resize="false"
+         user_resize="true"
+         visible="true"
+         height="200">
+            <panel
+             follows="all"
+             layout="topleft"
+             name="item_list_panel"
+             visible="true"
+             bottom="-1"
+             top="1"
+             left="5"
+             right="-1"/>
+        </layout_panel>
+
+        <layout_panel
+         name="transforms_panel"
+         border="true"
+         bevel_style="in"
+         auto_resize="true"
+         user_resize="true"
+         visible="true"
+         height="150">
+            <menu_button
+             menu_filename="menu_copy_paste_pos.xml"
+             follows="top|left"
+             height="11"
+             image_disabled="ClipboardSmallMenu_Disabled"
+             image_selected="ClipboardSmallMenu_Press"
+             image_unselected="ClipboardSmallMenu_Off"
+             layout="topleft"
+             left="4"
+             top="10"
+             name="clipboard_pos_btn"
+             tool_tip="Paste options"
+             width="19"/>
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="10"
+             layout="topleft"
+             name="label position"
+             tool_tip="Position (meters)"
+             left_pad="8"
+             top_delta="0"
+             width="121">
+                Position (m)
+            </text>
+            <spinner
+             follows="left|top"
+             height="19"
+             increment="0.01"
+             initial_value="0"
+             label="X"
+             label_width="10"
+             layout="topleft"
+             left_delta="-27"
+             max_val="512"
+             min_val="-256"
+             name="Pos X"
+             text_enabled_color="1 0 0.3 .7"
+             top_pad="8"
+             width="87" />
+            <spinner
+             follows="left|top"
+             height="19"
+             increment="0.01"
+             initial_value="0"
+             label="Y"
+             label_width="10"
+             layout="topleft"
+             left_delta="0"
+             max_val="512"
+             min_val="-256"
+             name="Pos Y"
+             text_enabled_color="EmphasisColor"
+             top_pad="3"
+             width="87" />
+            <spinner
+             follows="left|top"
+             height="19"
+             increment="0.01"
+             initial_value="0"
+             label="Z"
+             label_width="10"
+             layout="topleft"
+             left_delta="0"
+             max_val="4096"
+             min_val="-32"
+             name="Pos Z"
+             text_enabled_color="0 0.8 1 .65"
+             top_pad="3"
+             width="87" />
+            <menu_button
+             menu_filename="menu_copy_paste_size.xml"
+             follows="top|left"
+             height="11"
+             image_disabled="ClipboardSmallMenu_Disabled"
+             image_selected="ClipboardSmallMenu_Press"
+             image_unselected="ClipboardSmallMenu_Off"
+             layout="topleft"
+             left_delta="0"
+             top_pad="13"
+             name="clipboard_size_btn"
+             tool_tip="Paste options"
+             width="19"/>
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="10"
+             layout="topleft"
+             left_pad="8"
+             top_delta="0"
+             name="label size"
+             tool_tip="Size (meters)"
+             width="121">
+                Size (m)
+            </text>
+            <spinner
+             follows="left|top"
+             height="19"
+             increment="0.01"
+             initial_value="0"
+             label="X"
+             label_width="10"
+             layout="topleft"
+             left_delta="-27"
+             max_val="64"
+             min_val="0.01"
+             name="Scale X"
+             text_enabled_color="1 1 1 1"
+             top_pad="8"
+             width="87" />
+            <spinner
+             follows="left|top"
+             height="19"
+             increment="0.01"
+             initial_value="0"
+             label="Y"
+             label_width="10"
+             layout="topleft"
+             left_delta="0"
+             max_val="64"
+             min_val="0.01"
+             name="Scale Y"
+             text_enabled_color="1 1 1 1"
+             top_pad="3"
+             width="87" />
+            <spinner
+             follows="left|top"
+             height="19"
+             increment="0.01"
+             initial_value="0"
+             label="Z"
+             label_width="10"
+             layout="topleft"
+             left_delta="0"
+             max_val="64"
+             min_val="0.01"
+             name="Scale Z"
+             text_enabled_color="1 1 1 1"
+             top_pad="3"
+             width="87" />
+            <menu_button
+             menu_filename="menu_copy_paste_rot.xml"
+             follows="top|left"
+             height="11"
+             image_disabled="ClipboardSmallMenu_Disabled"
+             image_selected="ClipboardSmallMenu_Press"
+             image_unselected="ClipboardSmallMenu_Off"
+             layout="topleft"
+             left_delta="0"
+             top_pad="13"
+             name="clipboard_rot_btn"
+             tool_tip="Paste options"
+             width="19"/>
+            <text
+             type="string"
+             length="1"
+             follows="left|top"
+             height="10"
+             layout="topleft"
+             left_pad="8"
+             top_delta="0"
+             name="label rotation"
+             tool_tip="Rotation (degrees)"
+             width="121">
+                Rotation (°)
+            </text>
+            <spinner
+             decimal_digits="2"
+             follows="left|top"
+             height="19"
+             increment="1"
+             initial_value="0"
+             label="X"
+             label_width="10"
+             layout="topleft"
+             left_delta="-27"
+             max_val="9999"
+             min_val="-9999"
+             name="Rot X"
+             text_enabled_color="1 1 1 1"
+             top_pad="8"
+             width="87" />
+            <spinner
+             decimal_digits="2"
+             follows="left|top"
+             height="19"
+             increment="1"
+             initial_value="0"
+             label="Y"
+             label_width="10"
+             layout="topleft"
+             left_delta="0"
+             max_val="9999"
+             min_val="-9999"
+             name="Rot Y"
+             text_enabled_color="1 1 1 1"
+             top_pad="3"
+             width="87" />
+            <spinner
+             decimal_digits="2"
+             follows="left|top"
+             height="19"
+             increment="1"
+             initial_value="0"
+             label="Z"
+             label_width="10"
+             layout="topleft"
+             left_delta="0"
+             max_val="9999"
+             min_val="-9999"
+             name="Rot Z"
+             text_enabled_color="1 1 1 1"
+             top_pad="3"
+             width="87" />
+        </layout_panel>
+
+        <layout_panel
+         name="blank_panel"
+         border="true"
+         bevel_style="in"
+         auto_resize="true"
+         user_resize="true"
+         visible="false"
+         height="150">
+        </layout_panel>
+    </layout_stack>
+</floater>

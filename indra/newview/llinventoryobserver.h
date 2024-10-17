@@ -81,7 +81,7 @@ public:
     void setFetchID(const LLUUID& id);
     void setFetchIDs(const uuid_vec_t& ids);
 
-    BOOL isFinished() const;
+    bool isFinished() const;
 
     virtual void startFetch() = 0;
     virtual void changed(U32 mask) = 0;
@@ -132,7 +132,7 @@ public:
     virtual void startFetch();
     /*virtual*/ void changed(U32 mask);
 protected:
-    BOOL isCategoryComplete(const LLViewerInventoryCategory* cat) const;
+    bool isCategoryComplete(const LLViewerInventoryCategory* cat) const;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

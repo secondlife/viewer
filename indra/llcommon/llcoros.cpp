@@ -3,25 +3,25 @@
  * @author Nat Goodspeed
  * @date   2009-06-03
  * @brief  Implementation for llcoros.
- * 
+ *
  * $LicenseInfo:firstyear=2009&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -51,18 +51,32 @@
 #endif
 // other Linden headers
 #include "llapp.h"
-#include "lltimer.h"
-#include "llevents.h"
 #include "llerror.h"
-#include "stringize.h"
+#include "llevents.h"
 #include "llexception.h"
+#include "llsdutil.h"
+#include "lltimer.h"
+#include "stringize.h"
 
 #if LL_WINDOWS
 #include <excpt.h>
 #endif
 
 // static
-LLCoros::CoroData& LLCoros::get_CoroData(const std::string& caller)
+bool LLCoros::on_main_coro()
+{
+    return (!LLCoros::instanceExists() ||
+            LLCoros::getName().empty());
+}
+
+// static
+bool LLCoros::on_main_thread_main_coro()
+{
+    return on_main_coro() && on_main_thread();
+}
+
+// static
+LLCoros::CoroData& LLCoros::get_CoroData(const std::string&)
 {
     CoroData* current{ nullptr };
     // be careful about attempted accesses in the final throes of app shutdown
@@ -94,7 +108,7 @@ LLCoros::coro::id LLCoros::get_self()
 //static
 void LLCoros::set_consuming(bool consuming)
 {
-    CoroData& data(get_CoroData("set_consuming()"));
+    auto& data(get_CoroData("set_consuming()"));
     // DO NOT call this on the main() coroutine.
     llassert_always(! data.mName.empty());
     data.mConsuming = consuming;
@@ -123,11 +137,20 @@ LLCoros::LLCoros():
     // Previously we used
     // boost::context::guarded_stack_allocator::default_stacksize();
     // empirically this is insufficient.
-    mStackSize(1024*1024),
+    mStackSize(512*1024),
     // mCurrent does NOT own the current CoroData instance -- it simply
     // points to it. So initialize it with a no-op deleter.
     mCurrent{ [](CoroData*){} }
 {
+    auto& llapp{ LLEventPumps::instance().obtain("LLApp") };
+    if (llapp.getListener("LLCoros") == LLBoundListener())
+    {
+        // chain our "LLCoros" pump onto "LLApp" pump: echo events posted to "LLApp"
+        mConn = llapp.listen(
+            "LLCoros",
+            [](const LLSD& event)
+            { return LLEventPumps::instance().obtain("LLCoros").post(event); });
+    }
 }
 
 LLCoros::~LLCoros()
@@ -155,7 +178,7 @@ void LLCoros::cleanupSingleton()
         // don't use llcoro::suspend() because that module depends
         // on this one
         // This will yield current(main) thread and will let active
-        // corutines run once
+        // coroutines run once
         boost::this_fiber::yield();
     }
     printActiveCoroutines("after pumping");
@@ -177,26 +200,26 @@ std::string LLCoros::generateDistinctName(const std::string& prefix) const
     // Until we find an unused name, append a numeric suffix for uniqueness.
     while (CoroData::getInstance(name))
     {
-        name = STRINGIZE(prefix << unique++);
+        name = stringize(prefix, unique++);
     }
     return name;
 }
 
-/*==========================================================================*|
-bool LLCoros::kill(const std::string& name)
+bool LLCoros::killreq(const std::string& name)
 {
-    CoroMap::iterator found = mCoros.find(name);
-    if (found == mCoros.end())
+    auto found = CoroData::getInstance(name);
+    if (! found)
     {
         return false;
     }
-    // Because this is a boost::ptr_map, erasing the map entry also destroys
-    // the referenced heap object, in this case the boost::coroutine object,
-    // which will terminate the coroutine.
-    mCoros.erase(found);
+    // Next time the subject coroutine calls checkStop(), make it terminate.
+    found->mKilledBy = getName();
+    // But if it's waiting for something, notify anyone in a position to poke
+    // it.
+    LLEventPumps::instance().obtain("LLCoros").post(
+        llsd::map("status", "killreq", "coro", name));
     return true;
 }
-|*==========================================================================*/
 
 //static
 std::string LLCoros::getName()
@@ -207,7 +230,7 @@ std::string LLCoros::getName()
 //static
 std::string LLCoros::logname()
 {
-    LLCoros::CoroData& data(get_CoroData("logname()"));
+    auto& data(get_CoroData("logname()"));
     return data.mName.empty()? data.getKey() : data.mName;
 }
 
@@ -260,7 +283,7 @@ std::string LLCoros::launch(const std::string& prefix, const callable_t& callabl
     // std::allocator_arg is a flag to indicate that the following argument is
     // a StackAllocator.
     // protected_fixedsize_stack sets a guard page past the end of the new
-    // stack so that stack underflow will result in an access violation
+    // stack so that stack overflow will result in an access violation
     // instead of weird, subtle, possibly undiagnosed memory stomps.
 
     try
@@ -286,55 +309,6 @@ std::string LLCoros::launch(const std::string& prefix, const callable_t& callabl
     return name;
 }
 
-namespace
-{
-
-#if LL_WINDOWS
-
-static const U32 STATUS_MSC_EXCEPTION = 0xE06D7363; // compiler specific
-
-U32 exception_filter(U32 code, struct _EXCEPTION_POINTERS *exception_infop)
-{
-    if (code == STATUS_MSC_EXCEPTION)
-    {
-        // C++ exception, go on
-        return EXCEPTION_CONTINUE_SEARCH;
-    }
-    else
-    {
-        // handle it
-        return EXCEPTION_EXECUTE_HANDLER;
-    }
-}
-
-void sehandle(const LLCoros::callable_t& callable)
-{
-    __try
-    {
-        callable();
-    }
-    __except (exception_filter(GetExceptionCode(), GetExceptionInformation()))
-    {
-        // convert to C++ styled exception
-        // Note: it might be better to use _se_set_translator
-        // if you want exception to inherit full callstack
-        char integer_string[512];
-        sprintf(integer_string, "SEH, code: %lu\n", GetExceptionCode());
-        throw std::exception(integer_string);
-    }
-}
-
-#else  // ! LL_WINDOWS
-
-inline void sehandle(const LLCoros::callable_t& callable)
-{
-    callable();
-}
-
-#endif // ! LL_WINDOWS
-
-} // anonymous namespace
-
 // Top-level wrapper around caller's coroutine callable.
 // Normally we like to pass strings and such by const reference -- but in this
 // case, we WANT to copy both the name and the callable to our local stack!
@@ -345,10 +319,11 @@ void LLCoros::toplevel(std::string name, callable_t callable)
     // set it as current
     mCurrent.reset(&corodata);
 
+    LL_DEBUGS("LLCoros") << "entering " << name << LL_ENDL;
     // run the code the caller actually wants in the coroutine
     try
     {
-        sehandle(callable);
+        LL::seh::catcher(callable);
     }
     catch (const Stop& exc)
     {
@@ -360,7 +335,7 @@ void LLCoros::toplevel(std::string name, callable_t callable)
         // Any uncaught exception derived from LLContinueError will be caught
         // here and logged. This coroutine will terminate but the rest of the
         // viewer will carry on.
-        LOG_UNHANDLED_EXCEPTION(STRINGIZE("coroutine " << name));
+        LOG_UNHANDLED_EXCEPTION("coroutine " + name);
     }
     catch (...)
     {
@@ -373,15 +348,24 @@ void LLCoros::toplevel(std::string name, callable_t callable)
 }
 
 //static
-void LLCoros::checkStop()
+void LLCoros::checkStop(callable_t cleanup)
 {
+    // don't replicate this 'if' test throughout the code below
+    if (! cleanup)
+    {
+        cleanup = {[](){}};         // hey, look, I'm coding in Haskell!
+    }
+
     if (wasDeleted())
     {
+        cleanup();
         LLTHROW(Shutdown("LLCoros was deleted"));
     }
-    // do this AFTER the check above, because getName() depends on
-    // get_CoroData(), which depends on the local_ptr in our instance().
-    if (getName().empty())
+
+    // do this AFTER the check above, because get_CoroData() depends on the
+    // local_ptr in our instance().
+    auto& data(get_CoroData("checkStop()"));
+    if (data.mName.empty())
     {
         // Our Stop exception and its subclasses are intended to stop loitering
         // coroutines. Don't throw it from the main coroutine.
@@ -389,19 +373,80 @@ void LLCoros::checkStop()
     }
     if (LLApp::isStopped())
     {
+        cleanup();
         LLTHROW(Stopped("viewer is stopped"));
     }
     if (! LLApp::isRunning())
     {
+        cleanup();
         LLTHROW(Stopping("viewer is stopping"));
     }
+    if (! data.mKilledBy.empty())
+    {
+        // Someone wants to kill this coroutine
+        cleanup();
+        LLTHROW(Killed(stringize("coroutine ", data.mName, " killed by ", data.mKilledBy)));
+    }
+}
+
+LLBoundListener LLCoros::getStopListener(const std::string& caller, LLVoidListener cleanup)
+{
+    if (! cleanup)
+        return {};
+
+    // This overload only responds to viewer shutdown.
+    return LLEventPumps::instance().obtain("LLCoros")
+        .listen(
+            LLEventPump::inventName(caller),
+            [cleanup](const LLSD& event)
+            {
+                auto status{ event["status"].asString() };
+                if (status != "running" && status != "killreq")
+                {
+                    cleanup(event);
+                }
+                return false;
+            });
+}
+
+LLBoundListener LLCoros::getStopListener(const std::string& caller,
+                                           const std::string& cnsmr,
+                                           LLVoidListener cleanup)
+{
+    if (! cleanup)
+        return {};
+
+    std::string consumer{cnsmr};
+    if (consumer.empty())
+    {
+        consumer = getName();
+    }
+
+    // This overload responds to viewer shutdown and to killreq(consumer).
+    return LLEventPumps::instance().obtain("LLCoros")
+        .listen(
+            LLEventPump::inventName(caller),
+            [consumer, cleanup](const LLSD& event)
+            {
+                auto status{ event["status"].asString() };
+                if (status == "killreq")
+                {
+                    if (event["coro"].asString() == consumer)
+                    {
+                        cleanup(event);
+                    }
+                }
+                else if (status != "running")
+                {
+                    cleanup(event);
+                }
+                return false;
+            });
 }
 
 LLCoros::CoroData::CoroData(const std::string& name):
     LLInstanceTracker<CoroData, std::string>(name),
     mName(name),
-    // don't consume events unless specifically directed
-    mConsuming(false),
     mCreationTime(LLTimer::getTotalSeconds())
 {
 }
@@ -414,7 +459,6 @@ LLCoros::CoroData::CoroData(int n):
     // empty string as its visible name because some consumers test for that.
     LLInstanceTracker<CoroData, std::string>("main" + stringize(n)),
     mName(),
-    mConsuming(false),
     mCreationTime(LLTimer::getTotalSeconds())
 {
 }

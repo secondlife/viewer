@@ -35,7 +35,7 @@ class LLFloaterInventorySettings
     friend class LLFloaterReg;
 
 public:
-    virtual BOOL postBuild();
+    bool postBuild() override;
 
 private:
     LLFloaterInventorySettings(const LLSD& key);

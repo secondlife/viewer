@@ -64,15 +64,15 @@ public:
     void initIMFloater();
 
     // LLView overrides
-    /*virtual*/ BOOL postBuild();
-    /*virtual*/ void setMinimized(BOOL b);
-    /*virtual*/ void setVisible(BOOL visible);
-    /*virtual*/ BOOL getVisible();
-    /*virtual*/ void setFocus(BOOL focus);
+    /*virtual*/ bool postBuild();
+    /*virtual*/ void setMinimized(bool b);
+    /*virtual*/ void setVisible(bool visible);
+    /*virtual*/ bool getVisible();
+    /*virtual*/ void setFocus(bool focus);
     // Check typing timeout timer.
 
     /*virtual*/ void draw();
-    /*virtual*/ BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+    /*virtual*/ bool handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
         EDragAndDropType cargo_type,
         void* cargo_data,
         EAcceptance* accept,
@@ -114,15 +114,14 @@ public:
 
     // Implements LLVoiceClientStatusObserver::onChange() to enable the call
     // button when voice is available
-    void onChange(EStatusType status, const std::string &channelURI,
-            bool proximal);
+    void onChange(EStatusType status, const LLSD& channelInfo, bool proximal);
 
     virtual LLTransientFloaterMgr::ETransientGroup getGroup() { return LLTransientFloaterMgr::IM; }
     virtual void onVoiceChannelStateChanged(
             const LLVoiceChannel::EState& old_state,
             const LLVoiceChannel::EState& new_state);
 
-    void processIMTyping(const LLUUID& from_id, BOOL typing);
+    void processIMTyping(const LLUUID& from_id, bool typing);
     void processAgentListUpdates(const LLSD& body);
     void processSessionUpdate(const LLSD& session_update);
 
@@ -148,8 +147,8 @@ private:
 
     bool dropPerson(LLUUID* person_id, bool drop);
 
-    BOOL isInviteAllowed() const;
-    BOOL inviteToSession(const uuid_vec_t& agent_ids);
+    bool isInviteAllowed() const;
+    bool inviteToSession(const uuid_vec_t& agent_ids);
     static void onInputEditorFocusReceived( LLFocusableElement* caller,void* userdata );
     static void onInputEditorFocusLost(LLFocusableElement* caller, void* userdata);
     static void onInputEditorKeystroke(LLTextEditor* caller, void* userdata);
@@ -160,7 +159,7 @@ private:
     void sendParticipantsAddedNotification(const uuid_vec_t& uuids);
     bool canAddSelectedToChat(const uuid_vec_t& uuids);
 
-    void onCallButtonClicked();
+    void onVoiceChannelChanged(const LLUUID &session_id);
 
     void boundVoiceChannel();
 
@@ -195,6 +194,9 @@ private:
 
     uuid_vec_t mInvitedParticipants;
     uuid_vec_t mPendingParticipants;
+
+    // notification when the voice channel is swapped out from beneath us.
+    boost::signals2::connection mVoiceChannelChanged;
 
     // connection to voice channel state change signal
     boost::signals2::connection mVoiceChannelStateChangeConnection;

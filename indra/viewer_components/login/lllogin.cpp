@@ -28,13 +28,6 @@
 #include "llsd.h"
 #include "llsdutil.h"
 
-/*==========================================================================*|
-#ifdef LL_WINDOWS
-    // non-virtual destructor warning, boost::statechart does this intentionally.
-    #pragma warning (disable : 4265)
-#endif
-|*==========================================================================*/
-
 #include "lllogin.h"
 
 #include <boost/bind.hpp>
@@ -53,7 +46,9 @@ class LLLogin::Impl
 {
 public:
     Impl():
-        mPump("login", true) // Create the module's event pump with a tweaked (unique) name.
+        // Create the module's event pump, and do not tweak the name. Multiple
+        // parties depend on this LLEventPump having exactly the name "login".
+        mPump("login", false)
     {
         mValidAuthResponse["status"]        = LLSD();
         mValidAuthResponse["errorcode"]     = LLSD();
@@ -66,6 +61,16 @@ public:
     LLEventPump& getEventPump() { return mPump; }
 
 private:
+    LLSD hidePasswd(const LLSD& data)
+    {
+        LLSD result(data);
+        if (result.has("params") && result["params"].has("passwd"))
+        {
+            result["params"]["passwd"] = "*******";
+        }
+        return result;
+    }
+
     LLSD getProgressEventLLSD(const std::string& state, const std::string& change,
                            const LLSD& data = LLSD())
     {
@@ -74,15 +79,16 @@ private:
         status_data["change"] = change;
         status_data["progress"] = 0.0f;
 
-        if(mAuthResponse.has("transfer_rate"))
+        if (mAuthResponse.has("transfer_rate"))
         {
             status_data["transfer_rate"] = mAuthResponse["transfer_rate"];
         }
 
-        if(data.isDefined())
+        if (data.isDefined())
         {
             status_data["data"] = data;
         }
+
         return status_data;
     }
 
@@ -119,17 +125,18 @@ private:
 
 void LLLogin::Impl::connect(const std::string& uri, const LLSD& login_params)
 {
-    LL_DEBUGS("LLLogin") << " connect with  uri '" << uri << "', login_params " << login_params << LL_ENDL;
+    LL_DEBUGS("LLLogin") << " connect with uri '" << uri << "', login_params " << login_params << LL_ENDL;
 
     // Launch a coroutine with our login_() method. Run the coroutine until
     // its first wait; at that point, return here.
     std::string coroname =
-        LLCoros::instance().launch("LLLogin::Impl::login_",
-                                   boost::bind(&Impl::loginCoro, this, uri, login_params));
-    LL_DEBUGS("LLLogin") << " connected with  uri '" << uri << "', login_params " << login_params << LL_ENDL;
+        LLCoros::instance().launch("LLLogin::Impl::login_", [=]() { loginCoro(uri, login_params); });
+
+    LL_DEBUGS("LLLogin") << " connected with uri '" << uri << "', login_params " << login_params << LL_ENDL;
 }
 
-namespace {
+namespace
+{
 // Instantiate this rendezvous point at namespace scope so it's already
 // present no matter how early the updater might post to it.
 // Use an LLEventMailDrop, which has future-like semantics: regardless of the
@@ -140,12 +147,8 @@ static LLEventMailDrop sSyncPoint("LoginSync");
 
 void LLLogin::Impl::loginCoro(std::string uri, LLSD login_params)
 {
-    LLSD printable_params = login_params;
-    if (printable_params.has("params")
-        && printable_params["params"].has("passwd"))
-    {
-        printable_params["params"]["passwd"] = "*******";
-    }
+    LLSD printable_params = hidePasswd(login_params);
+
     try
     {
         LL_DEBUGS("LLLogin") << "Entering coroutine " << LLCoros::getName()
@@ -171,12 +174,7 @@ void LLLogin::Impl::loginCoro(std::string uri, LLSD login_params)
             ++attempts;
             LLSD progress_data;
             progress_data["attempt"] = attempts;
-            progress_data["request"] = request;
-            if (progress_data["request"].has("params")
-                && progress_data["request"]["params"].has("passwd"))
-            {
-                progress_data["request"]["params"]["passwd"] = "*******";
-            }
+            progress_data["request"] = hidePasswd(request);
             sendProgressEvent("offline", "authenticating", progress_data);
 
             // We expect zero or more "Downloading" status events, followed by

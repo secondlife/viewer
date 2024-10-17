@@ -53,7 +53,7 @@ struct hud_object_further_away
 
 bool hud_object_further_away::operator()(const LLPointer<LLHUDObject>& lhs, const LLPointer<LLHUDObject>& rhs) const
 {
-    return (lhs->getDistance() > rhs->getDistance()) ? true : false;
+    return lhs->getDistance() > rhs->getDistance();
 }
 
 
@@ -62,9 +62,9 @@ LLHUDObject::LLHUDObject(const U8 type) :
     mSourceObject(NULL),
     mTargetObject(NULL)
 {
-    mVisible = TRUE;
+    mVisible = true;
     mType = type;
-    mDead = FALSE;
+    mDead = false;
 }
 
 LLHUDObject::~LLHUDObject()
@@ -73,8 +73,8 @@ LLHUDObject::~LLHUDObject()
 
 void LLHUDObject::markDead()
 {
-    mVisible = FALSE;
-    mDead = TRUE;
+    mVisible = false;
+    mDead = true;
     mSourceObject = NULL;
     mTargetObject = NULL;
 }

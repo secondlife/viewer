@@ -73,19 +73,19 @@ void LLFloaterTopObjects::show()
 */
 LLFloaterTopObjects::LLFloaterTopObjects(const LLSD& key)
 :   LLFloater(key),
-    mInitialized(FALSE),
+    mInitialized(false),
     mtotalScore(0.f)
 {
-    mCommitCallbackRegistrar.add("TopObjects.ShowBeacon",       boost::bind(&LLFloaterTopObjects::onClickShowBeacon, this));
-    mCommitCallbackRegistrar.add("TopObjects.ReturnSelected",   boost::bind(&LLFloaterTopObjects::onReturnSelected, this));
-    mCommitCallbackRegistrar.add("TopObjects.ReturnAll",        boost::bind(&LLFloaterTopObjects::onReturnAll, this));
-    mCommitCallbackRegistrar.add("TopObjects.Refresh",          boost::bind(&LLFloaterTopObjects::onRefresh, this));
-    mCommitCallbackRegistrar.add("TopObjects.GetByObjectName",  boost::bind(&LLFloaterTopObjects::onGetByObjectName, this));
-    mCommitCallbackRegistrar.add("TopObjects.GetByOwnerName",   boost::bind(&LLFloaterTopObjects::onGetByOwnerName, this));
-    mCommitCallbackRegistrar.add("TopObjects.GetByParcelName",  boost::bind(&LLFloaterTopObjects::onGetByParcelName, this));
-    mCommitCallbackRegistrar.add("TopObjects.CommitObjectsList",boost::bind(&LLFloaterTopObjects::onCommitObjectsList, this));
+    mCommitCallbackRegistrar.add("TopObjects.ShowBeacon",       { boost::bind(&LLFloaterTopObjects::onClickShowBeacon, this) });
+    mCommitCallbackRegistrar.add("TopObjects.ReturnSelected",   { boost::bind(&LLFloaterTopObjects::onReturnSelected, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("TopObjects.ReturnAll",        { boost::bind(&LLFloaterTopObjects::onReturnAll, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("TopObjects.Refresh",          { boost::bind(&LLFloaterTopObjects::onRefresh, this), cb_info::UNTRUSTED_THROTTLE });
+    mCommitCallbackRegistrar.add("TopObjects.GetByObjectName",  { boost::bind(&LLFloaterTopObjects::onGetByObjectName, this), cb_info::UNTRUSTED_THROTTLE });
+    mCommitCallbackRegistrar.add("TopObjects.GetByOwnerName",   { boost::bind(&LLFloaterTopObjects::onGetByOwnerName, this), cb_info::UNTRUSTED_THROTTLE });
+    mCommitCallbackRegistrar.add("TopObjects.GetByParcelName",  { boost::bind(&LLFloaterTopObjects::onGetByParcelName, this), cb_info::UNTRUSTED_THROTTLE });
+    mCommitCallbackRegistrar.add("TopObjects.CommitObjectsList",{ boost::bind(&LLFloaterTopObjects::onCommitObjectsList, this), cb_info::UNTRUSTED_THROTTLE });
 
-    mCommitCallbackRegistrar.add("TopObjects.TeleportToSelected",        boost::bind(&LLFloaterTopObjects::teleportToSelectedObject, this));
+    mCommitCallbackRegistrar.add("TopObjects.TeleportToSelected", { boost::bind(&LLFloaterTopObjects::teleportToSelectedObject, this), cb_info::UNTRUSTED_THROTTLE });
 }
 
 LLFloaterTopObjects::~LLFloaterTopObjects()
@@ -93,12 +93,12 @@ LLFloaterTopObjects::~LLFloaterTopObjects()
 }
 
 // virtual
-BOOL LLFloaterTopObjects::postBuild()
+bool LLFloaterTopObjects::postBuild()
 {
     mObjectsScrollList = getChild<LLScrollListCtrl>("objects_list");
-    mObjectsScrollList->setFocus(TRUE);
+    mObjectsScrollList->setFocus(true);
     mObjectsScrollList->setDoubleClickCallback(onDoubleClickObjectsList, this);
-    mObjectsScrollList->setCommitOnSelectionChange(TRUE);
+    mObjectsScrollList->setCommitOnSelectionChange(true);
     mObjectsScrollList->setCommitCallback(boost::bind(&LLFloaterTopObjects::onSelectionChanged, this));
 
     setDefaultBtn("show_beacon_btn");
@@ -107,7 +107,7 @@ BOOL LLFloaterTopObjects::postBuild()
     mFlags = 0;
     mFilter.clear();
 
-    return TRUE;
+    return true;
 }
 // static
 void LLFloaterTopObjects::setMode(U32 mode)
@@ -129,7 +129,7 @@ void LLFloaterTopObjects::handle_land_reply(LLMessageSystem* msg, void** data)
         if (!instance->mObjectListIDs.size() && !instance->mInitialized)
         {
             instance->onRefresh();
-            instance->mInitialized = TRUE;
+            instance->mInitialized = true;
         }
     }
     else
@@ -195,7 +195,7 @@ void LLFloaterTopObjects::handleReply(LLMessageSystem *msg, void** data)
             {
                 parcel_buf = parcel_name;
                 script_memory = script_size;
-                total_memory += script_size;
+                total_memory += (U64)script_size;
             }
         }
 
@@ -233,7 +233,7 @@ void LLFloaterTopObjects::handleReply(LLMessageSystem *msg, void** data)
 
         columns[column_num]["column"] = "time";
         columns[column_num]["type"] = "date";
-        columns[column_num]["value"] = LLDate((time_t)time_stamp);
+        columns[column_num]["value"] = LLDate((double)time_stamp);
         columns[column_num++]["font"] = "SANSSERIF";
 
         if (mCurrentMode == STAT_REPORT_TOP_SCRIPTS

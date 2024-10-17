@@ -38,6 +38,7 @@ class LLViewerFetchedTexture;
 class LLSpatialGroup;
 class LLDrawInfo;
 class LLVOAvatar;
+class LLGLSLShader;
 class LLMeshSkinInfo;
 
 class LLDrawPool
@@ -80,13 +81,13 @@ public:
     LLDrawPool(const U32 type);
     virtual ~LLDrawPool();
 
-    virtual BOOL isDead() = 0;
+    virtual bool isDead() = 0;
 
     S32 getId() const { return mId; }
     U32 getType() const { return mType; }
 
-    BOOL getSkipRenderFlag() const { return mSkipRender;}
-    void setSkipRenderFlag( BOOL flag ) { mSkipRender = flag; }
+    bool getSkipRenderFlag() const { return mSkipRender;}
+    void setSkipRenderFlag( bool flag ) { mSkipRender = flag; }
 
     virtual LLViewerTexture *getDebugTexture();
     virtual void beginRenderPass( S32 pass );
@@ -111,19 +112,19 @@ public:
     virtual void render(S32 pass = 0) {};
     virtual void prerender() {};
     virtual U32 getVertexDataMask() { return 0; } // DEPRECATED -- draw pool doesn't actually determine vertex data mask any more
-    virtual BOOL verify() const { return TRUE; }        // Verify that all data in the draw pool is correct!
+    virtual bool verify() const { return true; }        // Verify that all data in the draw pool is correct!
     virtual S32 getShaderLevel() const { return mShaderLevel; }
 
     static LLDrawPool* createPool(const U32 type, LLViewerTexture *tex0 = NULL);
     virtual LLViewerTexture* getTexture() = 0;
-    virtual BOOL isFacePool() { return FALSE; }
+    virtual bool isFacePool() { return false; }
     virtual void resetDrawOrders() = 0;
     virtual void pushFaceGeometry() {}
 
     S32 mShaderLevel;
     S32 mId;
     U32 mType;              // Type of draw pool
-    BOOL mSkipRender;
+    bool mSkipRender;
 };
 
 class LLRenderPass : public LLDrawPool
@@ -345,7 +346,7 @@ public:
     virtual ~LLRenderPass();
     /*virtual*/ LLViewerTexture* getDebugTexture() { return NULL; }
     LLViewerTexture* getTexture() { return NULL; }
-    BOOL isDead() { return FALSE; }
+    bool isDead() { return false; }
     void resetDrawOrders() { }
 
     static void applyModelMatrix(const LLDrawInfo& params);
@@ -375,9 +376,9 @@ public:
 
     // push a single GLTF draw call
     static void pushGLTFBatch(LLDrawInfo& params);
-    static void pushRiggedGLTFBatch(LLDrawInfo& params, LLVOAvatar*& lastAvatar, U64& lastMeshId);
+    static void pushRiggedGLTFBatch(LLDrawInfo& params, const LLVOAvatar*& lastAvatar, U64& lastMeshId, bool& skipLastSkin);
     static void pushUntexturedGLTFBatch(LLDrawInfo& params);
-    static void pushUntexturedRiggedGLTFBatch(LLDrawInfo& params, LLVOAvatar*& lastAvatar, U64& lastMeshId);
+    static void pushUntexturedRiggedGLTFBatch(LLDrawInfo& params, const LLVOAvatar*& lastAvatar, U64& lastMeshId, bool& skipLastSkin);
 
     void pushMaskBatches(U32 type, bool texture = true, bool batch_textures = false);
     void pushRiggedMaskBatches(U32 type, bool texture = true, bool batch_textures = false);
@@ -386,6 +387,8 @@ public:
     void pushBumpBatch(LLDrawInfo& params, bool texture, bool batch_textures = false);
     static bool uploadMatrixPalette(LLDrawInfo& params);
     static bool uploadMatrixPalette(LLVOAvatar* avatar, LLMeshSkinInfo* skinInfo);
+    static bool uploadMatrixPalette(LLVOAvatar* avatar, LLMeshSkinInfo* skinInfo, const LLVOAvatar*& lastAvatar, U64& lastMeshId, bool& skipLastSkin);
+    static bool uploadMatrixPalette(LLVOAvatar* avatar, LLMeshSkinInfo* skinInfo, const LLVOAvatar*& lastAvatar, U64& lastMeshId, const LLGLSLShader*& lastAvatarShader, bool& skipLastSkin);
     virtual void renderGroup(LLSpatialGroup* group, U32 type, bool texture = true);
     virtual void renderRiggedGroup(LLSpatialGroup* group, U32 type, bool texture = true);
 };
@@ -404,16 +407,16 @@ public:
     LLFacePool(const U32 type);
     virtual ~LLFacePool();
 
-    BOOL isDead() { return mReferences.empty(); }
+    bool isDead() { return mReferences.empty(); }
 
     virtual LLViewerTexture *getTexture();
     virtual void dirtyTextures(const std::set<LLViewerFetchedTexture*>& textures);
 
     virtual void enqueue(LLFace *face);
-    virtual BOOL addFace(LLFace *face);
-    virtual BOOL removeFace(LLFace *face);
+    virtual bool addFace(LLFace *face);
+    virtual bool removeFace(LLFace *face);
 
-    virtual BOOL verify() const;        // Verify that all data in the draw pool is correct!
+    virtual bool verify() const;        // Verify that all data in the draw pool is correct!
 
     virtual void resetDrawOrders();
     void resetAll();
@@ -427,7 +430,7 @@ public:
 
     void printDebugInfo() const;
 
-    BOOL isFacePool() { return TRUE; }
+    bool isFacePool() { return true; }
 
     // call drawIndexed on every draw face
     void pushFaceGeometry();
@@ -446,24 +449,24 @@ public:
         LLOverrideFaceColor(LLDrawPool* pool)
             : mOverride(sOverrideFaceColor), mPool(pool)
         {
-            sOverrideFaceColor = TRUE;
+            sOverrideFaceColor = true;
         }
         LLOverrideFaceColor(LLDrawPool* pool, const LLColor4& color)
             : mOverride(sOverrideFaceColor), mPool(pool)
         {
-            sOverrideFaceColor = TRUE;
+            sOverrideFaceColor = true;
             setColor(color);
         }
         LLOverrideFaceColor(LLDrawPool* pool, const LLColor4U& color)
             : mOverride(sOverrideFaceColor), mPool(pool)
         {
-            sOverrideFaceColor = TRUE;
+            sOverrideFaceColor = true;
             setColor(color);
         }
         LLOverrideFaceColor(LLDrawPool* pool, F32 r, F32 g, F32 b, F32 a)
             : mOverride(sOverrideFaceColor), mPool(pool)
         {
-            sOverrideFaceColor = TRUE;
+            sOverrideFaceColor = true;
             setColor(r, g, b, a);
         }
         ~LLOverrideFaceColor()
@@ -473,9 +476,9 @@ public:
         void setColor(const LLColor4& color);
         void setColor(const LLColor4U& color);
         void setColor(F32 r, F32 g, F32 b, F32 a);
-        BOOL mOverride;
+        bool mOverride;
         LLDrawPool* mPool;
-        static BOOL sOverrideFaceColor;
+        static bool sOverrideFaceColor;
     };
 };
 

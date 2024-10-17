@@ -114,7 +114,7 @@ public:
 
     //------------------------------------------------------------------------
 public:
-    LLLFSThread(bool threaded = TRUE);
+    LLLFSThread(bool threaded = true);
     ~LLLFSThread();
 
     // Return a Request handle
@@ -126,7 +126,7 @@ public:
                    Responder* responder);
 
     // static initializers
-    static void initClass(bool local_is_threaded = TRUE); // Setup sLocal
+    static void initClass(bool local_is_threaded = true); // Setup sLocal
     static S32 updateClass(U32 ms_elapsed);
     static void cleanupClass();     // Delete sLocal
 

@@ -289,6 +289,8 @@ public:
         LLEventAPI::add("teleport",
                         "Teleport to specified [\"regionname\"] at\n"
                         "specified region-relative [\"x\"], [\"y\"], [\"z\"].\n"
+                        "If [\"regionname\"] is \"home\", ignore [\"x\"], [\"y\"], [\"z\"]\n"
+                        "and teleport home.\n"
                         "If [\"regionname\"] omitted, teleport to GLOBAL\n"
                         "coordinates [\"x\"], [\"y\"], [\"z\"].",
                         &LLTeleportHandler::from_event);
@@ -306,9 +308,9 @@ public:
         LLVector3 coords(128, 128, 0);
         if (tokens.size() <= 4)
         {
-            coords = LLVector3(tokens[1].asReal(),
-                               tokens[2].asReal(),
-                               tokens[3].asReal());
+            coords = LLVector3((F32)tokens[1].asReal(),
+                               (F32)tokens[2].asReal(),
+                               (F32)tokens[3].asReal());
         }
 
         // Region names may be %20 escaped.
@@ -328,13 +330,18 @@ public:
     void from_event(const LLSD& params) const
     {
         Response response(LLSD(), params);
-        if (params.has("regionname"))
+        if (params["regionname"].asString() == "home")
+        {
+            gAgent.teleportHome();
+            response["message"] = "Teleporting home";
+        }
+        else if (params.has("regionname"))
         {
             // region specified, coordinates (if any) are region-local
             LLVector3 local_pos(
-                params.has("x")? params["x"].asReal() : 128,
-                params.has("y")? params["y"].asReal() : 128,
-                params.has("z")? params["z"].asReal() : 0);
+                params.has("x")? (F32)params["x"].asReal() : 128.f,
+                params.has("y")? (F32)params["y"].asReal() : 128.f,
+                params.has("z")? (F32)params["z"].asReal() : 0.f);
             std::string regionname(params["regionname"]);
             std::string destination(LLSLURL(regionname, local_pos).getSLURLString());
             // have to resolve region's global coordinates first

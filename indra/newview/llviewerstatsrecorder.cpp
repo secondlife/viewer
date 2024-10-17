@@ -27,16 +27,13 @@
 #include "llviewerprecompiledheaders.h"
 #include "llviewerstatsrecorder.h"
 
-
 #include "llcontrol.h"
 #include "llfile.h"
+#include "llviewercontrol.h"
 #include "llviewerregion.h"
 #include "llviewerobject.h"
 #include "llworld.h"
 
-extern LLControlGroup  gSavedSettings;
-
-LLViewerStatsRecorder* LLViewerStatsRecorder::sInstance = NULL;
 LLViewerStatsRecorder::LLViewerStatsRecorder() :
     mStatsFile(NULL),
     mTimer(),
@@ -48,11 +45,6 @@ LLViewerStatsRecorder::LLViewerStatsRecorder() :
     mMaxDuration(300.f),
     mSkipSaveIfZeros(false)
 {
-    if (NULL != sInstance)
-    {
-        LL_ERRS() << "Attempted to create multiple instances of LLViewerStatsRecorder!" << LL_ENDL;
-    }
-    sInstance = this;
     clearStats();
 }
 
@@ -317,5 +309,3 @@ F32 LLViewerStatsRecorder::getTimeSinceStart()
 {
     return (F32) (LLFrameTimer::getTotalSeconds() - mFileOpenTime);
 }
-
-

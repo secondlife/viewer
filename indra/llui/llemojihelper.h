@@ -51,16 +51,23 @@ public:
     // Eventing
     bool handleKey(const LLUICtrl* ctrl_p, KEY key, MASK mask);
     void onCommitEmoji(llwchar emoji);
+    void onCloseHelper(LLUICtrl* ctrl, const LLSD& param);
+
+    typedef boost::signals2::signal<void(LLUICtrl* ctrl, const LLSD& param)> commit_signal_t;
+    boost::signals2::connection setCloseCallback(const commit_signal_t::slot_type& cb);
 
 protected:
     LLUICtrl* getHostCtrl() const { return mHostHandle.get(); }
     void      setHostCtrl(LLUICtrl* hostctrl_p);
 
 private:
+    commit_signal_t mCloseSignal;
+
     LLHandle<LLUICtrl>  mHostHandle;
     LLHandle<LLFloater> mHelperHandle;
     boost::signals2::connection mHostCtrlFocusLostConn;
     boost::signals2::connection mHelperCommitConn;
+    boost::signals2::connection mHelperCloseConn;
     std::function<void(llwchar)> mEmojiCommitCb;
     bool mIsHideDisabled;
 };

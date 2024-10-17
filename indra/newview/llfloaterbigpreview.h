@@ -35,7 +35,7 @@ public:
     LLFloaterBigPreview(const LLSD& key);
     ~LLFloaterBigPreview();
 
-    BOOL postBuild();
+    bool postBuild();
     void draw();
     void onCancel();
 

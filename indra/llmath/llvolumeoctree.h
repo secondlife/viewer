@@ -48,12 +48,6 @@ public:
         *this = rhs;
     }
 
-    const LLVolumeTriangle& operator=(const LLVolumeTriangle& rhs)
-    {
-        LL_ERRS() << "Illegal operation!" << LL_ENDL;
-        return *this;
-    }
-
     ~LLVolumeTriangle()
     {
 
@@ -149,7 +143,7 @@ public:
     virtual void visit(const LLOctreeNode<LLVolumeTriangle, LLVolumeTriangle*>* branch)
     { //this is a depth first traversal, so it's safe to assum all children have complete
         //bounding data
-        LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
 
             LLVolumeOctreeListener* node = (LLVolumeOctreeListener*)branch->getListener(0);
 
@@ -192,7 +186,7 @@ public:
             llassert(!branch->isLeaf()); // Empty leaf
         }
 
-        for (S32 i = 0; i < branch->getChildCount(); ++i)
+        for (U32 i = 0; i < branch->getChildCount(); ++i)
         {  //stretch by child extents
             LLVolumeOctreeListener* child = (LLVolumeOctreeListener*)branch->getChild(i)->getListener(0);
             min.setMin(min, child->mExtents[0]);

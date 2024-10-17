@@ -72,7 +72,7 @@
 /*=======================================*/
 
 static const F32 LL_LOCAL_TIMER_HEARTBEAT   = 3.0;
-static const BOOL LL_LOCAL_USE_MIPMAPS      = true;
+static const bool LL_LOCAL_USE_MIPMAPS      = true;
 static const S32 LL_LOCAL_DISCARD_LEVEL     = 0;
 static const bool LL_LOCAL_SLAM_FOR_DEBUG   = true;
 static const bool LL_LOCAL_REPLACE_ON_DEL   = true;
@@ -215,7 +215,6 @@ bool LLLocalBitmap::updateSelf(EUpdateType optional_firstupdate)
                         ("file://"+mFilename, FTT_LOCAL_FILE, mWorldID, LL_LOCAL_USE_MIPMAPS);
 
                     texture->createGLTexture(LL_LOCAL_DISCARD_LEVEL, raw_image);
-                    texture->setCachedRawImage(LL_LOCAL_DISCARD_LEVEL, raw_image);
                     texture->ref();
 
                     gTextureList.addImage(texture, TEX_LIST_STANDARD);
@@ -438,7 +437,7 @@ std::vector<LLViewerObject*> LLLocalBitmap::prepUpdateObjects(LLUUID old_id, U32
     std::vector<LLViewerObject*> obj_list;
     LLViewerFetchedTexture* old_texture = gTextureList.findImage(old_id, TEX_LIST_STANDARD);
 
-    for(U32 face_iterator = 0; face_iterator < old_texture->getNumFaces(channel); face_iterator++)
+    for (S32 face_iterator = 0; face_iterator < old_texture->getNumFaces(channel); face_iterator++)
     {
         // getting an object from a face
         LLFace* face_to_object = (*old_texture->getFaceList(channel))[face_iterator];
@@ -554,7 +553,7 @@ void LLLocalBitmap::updateUserPrims(LLUUID old_id, LLUUID new_id, U32 channel)
 void LLLocalBitmap::updateUserVolumes(LLUUID old_id, LLUUID new_id, U32 channel)
 {
     LLViewerFetchedTexture* old_texture = gTextureList.findImage(old_id, TEX_LIST_STANDARD);
-    for (U32 volume_iter = 0; volume_iter < old_texture->getNumVolumes(channel); volume_iter++)
+    for (S32 volume_iter = 0; volume_iter < old_texture->getNumVolumes(channel); volume_iter++)
     {
         LLVOVolume* volobjp = (*old_texture->getVolumeList(channel))[volume_iter];
         switch (channel)
@@ -579,7 +578,7 @@ void LLLocalBitmap::updateUserVolumes(LLUUID old_id, LLUUID new_id, U32 channel)
                 LLSculptParams* old_params = (LLSculptParams*)object->getParameterEntry(LLNetworkData::PARAMS_SCULPT);
                 LLSculptParams new_params(*old_params);
                 new_params.setSculptTexture(new_id, (*old_params).getSculptType());
-                object->setParameterEntry(LLNetworkData::PARAMS_SCULPT, new_params, TRUE);
+                object->setParameterEntry(LLNetworkData::PARAMS_SCULPT, new_params, true);
             }
         }
     }
@@ -613,7 +612,7 @@ void LLLocalBitmap::updateUserLayers(LLUUID old_id, LLUUID new_id, LLWearableTyp
                         U32 index;
                         if (gAgentWearables.getWearableIndex(wearable,index))
                         {
-                            gAgentAvatarp->setLocalTexture(reg_texind, gTextureList.getImage(new_id), FALSE, index);
+                            gAgentAvatarp->setLocalTexture(reg_texind, gTextureList.getImage(new_id), false, index);
                             gAgentAvatarp->wearableUpdated(type);
                             /* telling the manager to rebake once update cycle is fully done */
                             LLLocalBitmapMgr::getInstance()->setNeedsRebake();
@@ -679,7 +678,7 @@ void LLLocalBitmap::updateGLTFMaterials(LLUUID old_id, LLUUID new_id)
                     }
                     else
                     {
-                        LL_WARNS_ONCE() << "Failed to apply local material override, render material not found" << LL_ENDL;                    
+                        LL_WARNS_ONCE() << "Failed to apply local material override, render material not found" << LL_ENDL;
                     }
                 }
             }
@@ -997,23 +996,18 @@ LLLocalBitmapTimer::~LLLocalBitmapTimer()
 
 void LLLocalBitmapTimer::startTimer()
 {
-    mEventTimer.start();
+    start();
 }
 
 void LLLocalBitmapTimer::stopTimer()
 {
-    mEventTimer.stop();
+    stop();
 }
 
-bool LLLocalBitmapTimer::isRunning()
-{
-    return mEventTimer.getStarted();
-}
-
-BOOL LLLocalBitmapTimer::tick()
+bool LLLocalBitmapTimer::tick()
 {
     LLLocalBitmapMgr::getInstance()->doUpdates();
-    return FALSE;
+    return false;
 }
 
 /*=======================================*/
@@ -1092,8 +1086,9 @@ bool LLLocalBitmapMgr::checkTextureDimensions(std::string filename)
         return false;
     }
 
-    S32 max_width = gSavedSettings.getS32("max_texture_dimension_X");
-    S32 max_height = gSavedSettings.getS32("max_texture_dimension_Y");
+    // allow loading up to 4x max rez but implicitly downrez to max rez before upload
+    S32 max_width = gSavedSettings.getS32("max_texture_dimension_X")*4;
+    S32 max_height = gSavedSettings.getS32("max_texture_dimension_Y")*4;
 
     if ((image_info.getWidth() > max_width) || (image_info.getHeight() > max_height))
     {
@@ -1136,6 +1131,20 @@ void LLLocalBitmapMgr::delUnit(LLUUID tracking_id)
             unit = NULL;
         }
     }
+}
+
+LLUUID LLLocalBitmapMgr::getTrackingID(const LLUUID& world_id) const
+{
+    for (local_list_citer iter = mBitmapList.begin(); iter != mBitmapList.end(); iter++)
+    {
+        LLLocalBitmap* unit = *iter;
+        if (unit->getWorldID() == world_id)
+        {
+            return unit->getTrackingID();
+        }
+    }
+
+    return LLUUID::null;
 }
 
 LLUUID LLLocalBitmapMgr::getWorldID(const LLUUID &tracking_id) const

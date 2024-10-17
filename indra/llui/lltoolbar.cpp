@@ -144,7 +144,7 @@ void LLToolBar::createContextMenu()
     {
         // Setup bindings specific to this instance for the context menu options
 
-        LLUICtrl::CommitCallbackRegistry::ScopedRegistrar commit_reg;
+        CommitRegistrarHelper commit_reg(LLUICtrl::CommitCallbackRegistry::currentRegistrar());
         commit_reg.add("Toolbars.EnableSetting", boost::bind(&LLToolBar::onSettingEnable, this, _2));
         commit_reg.add("Toolbars.RemoveSelectedCommand", boost::bind(&LLToolBar::onRemoveSelectedCommand, this));
 
@@ -398,18 +398,18 @@ bool LLToolBar::flashCommand(const LLCommandId& commandId, bool flash, bool forc
         if (it != mButtonMap.end())
         {
             command_button = it->second;
-            command_button->setFlashing((BOOL)(flash),(BOOL)(force_flashing));
+            command_button->setFlashing((bool)(flash),(bool)(force_flashing));
         }
     }
 
     return (command_button != NULL);
 }
 
-BOOL LLToolBar::handleRightMouseDown(S32 x, S32 y, MASK mask)
+bool LLToolBar::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
     LLRect button_panel_rect;
     mButtonPanel->localRectToOtherView(mButtonPanel->getLocalRect(), &button_panel_rect, this);
-    BOOL handle_it_here = !mReadOnly && button_panel_rect.pointInRect(x, y);
+    bool handle_it_here = !mReadOnly && button_panel_rect.pointInRect(x, y);
 
     if (handle_it_here)
     {
@@ -443,9 +443,9 @@ BOOL LLToolBar::handleRightMouseDown(S32 x, S32 y, MASK mask)
     return handle_it_here;
 }
 
-BOOL LLToolBar::isSettingChecked(const LLSD& userdata)
+bool LLToolBar::isSettingChecked(const LLSD& userdata)
 {
-    BOOL retval = FALSE;
+    bool retval = false;
 
     const std::string setting_name = userdata.asString();
 
@@ -784,8 +784,8 @@ void LLToolBar::updateLayoutAsNeeded()
 
     if (!mButtons.empty())
     {
-        mButtonPanel->setVisible(TRUE);
-        mButtonPanel->setMouseOpaque(TRUE);
+        mButtonPanel->setVisible(true);
+        mButtonPanel->setMouseOpaque(true);
     }
 
     // don't clear flag until after we've resized ourselves, to avoid laying out every frame
@@ -797,13 +797,13 @@ void LLToolBar::draw()
 {
     if (mButtons.empty())
     {
-        mButtonPanel->setVisible(FALSE);
-        mButtonPanel->setMouseOpaque(FALSE);
+        mButtonPanel->setVisible(false);
+        mButtonPanel->setMouseOpaque(false);
     }
     else
     {
-        mButtonPanel->setVisible(TRUE);
-        mButtonPanel->setMouseOpaque(TRUE);
+        mButtonPanel->setVisible(true);
+        mButtonPanel->setMouseOpaque(true);
     }
 
     // Update enable/disable state and highlight state for editable toolbars
@@ -841,7 +841,7 @@ void LLToolBar::draw()
     }
 
     LLIconCtrl* caret = mCaretIcon;
-    caret->setVisible(FALSE);
+    caret->setVisible(false);
     if (mDragAndDropTarget && !mButtonCommands.empty())
     {
         LLRect caret_rect = caret->getRect();
@@ -859,15 +859,15 @@ void LLToolBar::draw()
                                   mDragx+mDragGirth,
                                   mDragy-caret_rect.getHeight()/2));
         }
-        caret->setVisible(TRUE);
+        caret->setVisible(true);
     }
 
     LLUICtrl::draw();
-    caret->setVisible(FALSE);
+    caret->setVisible(false);
     mDragAndDropTarget = false;
 }
 
-void LLToolBar::reshape(S32 width, S32 height, BOOL called_from_parent)
+void LLToolBar::reshape(S32 width, S32 height, bool called_from_parent)
 {
     LLUICtrl::reshape(width, height, called_from_parent);
     mNeedsLayout = true;
@@ -1042,23 +1042,23 @@ boost::signals2::connection LLToolBar::setButtonRemoveCallback(const button_sign
     return connectSignal(mButtonRemoveSignal, cb);
 }
 
-BOOL LLToolBar::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+bool LLToolBar::handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
                                         EDragAndDropType cargo_type,
                                         void* cargo_data,
                                         EAcceptance* accept,
                                         std::string& tooltip_msg)
 {
     // If we have a drop callback, that means that we can handle the drop
-    BOOL handled = (mHandleDropCallback ? TRUE : FALSE);
+    bool handled = mHandleDropCallback != nullptr;
 
     // if drop is set, it's time to call the callback to get the operation done
     if (handled && drop)
     {
-        handled = mHandleDropCallback(cargo_data, x, y ,this);
+        handled = mHandleDropCallback(cargo_data, x, y, this);
     }
 
     // We accept only single tool drop on toolbars
-    *accept = (handled ? ACCEPT_YES_SINGLE : ACCEPT_NO);
+    *accept = handled ? ACCEPT_YES_SINGLE : ACCEPT_NO;
 
     // We'll use that flag to change the visual aspect of the toolbar target on draw()
     mDragAndDropTarget = false;
@@ -1073,7 +1073,7 @@ BOOL LLToolBar::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
             int orig_rank = getRankFromPosition(dragged_command);
             mDragRank = getRankFromPosition(x, y);
             // Don't DaD if we're dragging a command on itself
-            mDragAndDropTarget = ((orig_rank != RANK_NONE) && ((mDragRank == orig_rank) || ((mDragRank-1) == orig_rank)) ? false : true);
+            mDragAndDropTarget = (orig_rank == RANK_NONE) || ((mDragRank != orig_rank) && ((mDragRank - 1) != orig_rank));
             //LL_INFOS() << "Merov debug : DaD, rank = " << mDragRank << ", dragged uui = " << inv_item->getUUID() << LL_ENDL;
             /* Do the following if you want to animate the button itself
             LLCommandId dragged_command(inv_item->getUUID());
@@ -1083,7 +1083,7 @@ BOOL LLToolBar::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
         }
         else
         {
-            handled = FALSE;
+            handled = false;
         }
     }
 
@@ -1121,16 +1121,16 @@ LLToolBarButton::~LLToolBarButton()
     delete mIsStartingSignal;
 }
 
-BOOL LLToolBarButton::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLToolBarButton::handleMouseDown(S32 x, S32 y, MASK mask)
 {
     mMouseDownX = x;
     mMouseDownY = y;
     return LLButton::handleMouseDown(x, y, mask);
 }
 
-BOOL LLToolBarButton::handleHover(S32 x, S32 y, MASK mask)
+bool LLToolBarButton::handleHover(S32 x, S32 y, MASK mask)
 {
-    BOOL handled = FALSE;
+    bool handled = false;
 
     S32 mouse_distance_squared = (x - mMouseDownX) * (x - mMouseDownX) + (y - mMouseDownY) * (y - mMouseDownY);
     if (mouse_distance_squared > DRAG_N_DROP_DISTANCE_THRESHOLD * DRAG_N_DROP_DISTANCE_THRESHOLD
@@ -1141,7 +1141,7 @@ BOOL LLToolBarButton::handleHover(S32 x, S32 y, MASK mask)
         {
             mStartDragItemCallback(x, y, this);
             mIsDragged = true;
-            handled = TRUE;
+            handled = true;
         }
         else
         {
@@ -1163,7 +1163,7 @@ void LLToolBarButton::onMouseEnter(S32 x, S32 y, MASK mask)
     // Always highlight toolbar buttons, even if they are disabled
     if (!gFocusMgr.getMouseCapture() || gFocusMgr.getMouseCapture() == this)
     {
-        mNeedsHighlight = TRUE;
+        mNeedsHighlight = true;
     }
 
     LLToolBar* parent_toolbar = getParentByType<LLToolBar>();
@@ -1199,12 +1199,12 @@ void LLToolBarButton::onCommit()
     }
 }
 
-void LLToolBarButton::reshape(S32 width, S32 height, BOOL called_from_parent)
+void LLToolBarButton::reshape(S32 width, S32 height, bool called_from_parent)
 {
     LLButton::reshape(mWidthRange.clamp(width), height, called_from_parent);
 }
 
-void LLToolBarButton::setEnabled(BOOL enabled)
+void LLToolBarButton::setEnabled(bool enabled)
 {
     if (enabled)
     {

@@ -72,7 +72,7 @@ public:
 
     LLPanelCameraZoom() { onCreate(); }
 
-    /* virtual */ BOOL  postBuild();
+    /* virtual */ bool  postBuild();
     /* virtual */ void  draw();
 
 protected:
@@ -138,13 +138,13 @@ void set_view_visible(LLView* parent, const std::string& name, bool visible)
     parent->getChildView(name)->setVisible(visible);
 }
 
-BOOL LLPanelCameraItem::postBuild()
+bool LLPanelCameraItem::postBuild()
 {
     setMouseEnterCallback(boost::bind(set_view_visible, this, "hovered_icon", true));
     setMouseLeaveCallback(boost::bind(set_view_visible, this, "hovered_icon", false));
     setMouseDownCallback(boost::bind(&LLPanelCameraItem::onAnyMouseClick, this));
     setRightMouseDownCallback(boost::bind(&LLPanelCameraItem::onAnyMouseClick, this));
-    return TRUE;
+    return true;
 }
 
 void LLPanelCameraItem::onAnyMouseClick()
@@ -169,14 +169,14 @@ static LLPanelInjector<LLPanelCameraZoom> t_camera_zoom_panel("camera_zoom_panel
 
 void LLPanelCameraZoom::onCreate()
 {
-    mCommitCallbackRegistrar.add("Zoom.minus", boost::bind(&LLPanelCameraZoom::onZoomMinusHeldDown, this));
-    mCommitCallbackRegistrar.add("Zoom.plus", boost::bind(&LLPanelCameraZoom::onZoomPlusHeldDown, this));
-    mCommitCallbackRegistrar.add("Slider.value_changed", boost::bind(&LLPanelCameraZoom::onSliderValueChanged, this));
-    mCommitCallbackRegistrar.add("Camera.track", boost::bind(&LLPanelCameraZoom::onCameraTrack, this));
-    mCommitCallbackRegistrar.add("Camera.rotate", boost::bind(&LLPanelCameraZoom::onCameraRotate, this));
+    mCommitCallbackRegistrar.add("Zoom.minus", { boost::bind(&LLPanelCameraZoom::onZoomMinusHeldDown, this) });
+    mCommitCallbackRegistrar.add("Zoom.plus", { boost::bind(&LLPanelCameraZoom::onZoomPlusHeldDown, this) });
+    mCommitCallbackRegistrar.add("Slider.value_changed", { boost::bind(&LLPanelCameraZoom::onSliderValueChanged, this) });
+    mCommitCallbackRegistrar.add("Camera.track", { boost::bind(&LLPanelCameraZoom::onCameraTrack, this) });
+    mCommitCallbackRegistrar.add("Camera.rotate", { boost::bind(&LLPanelCameraZoom::onCameraRotate, this) });
 }
 
-BOOL LLPanelCameraZoom::postBuild()
+bool LLPanelCameraZoom::postBuild()
 {
     mPlusBtn  = getChild<LLButton>("zoom_plus_btn");
     mMinusBtn = getChild<LLButton>("zoom_minus_btn");
@@ -426,7 +426,7 @@ void LLFloaterCamera::onOpen(const LLSD& key)
         updateState();
     else
         toPrevMode();
-    mClosed = FALSE;
+    mClosed = false;
 
     populatePresetCombo();
 
@@ -449,25 +449,25 @@ void LLFloaterCamera::onClose(bool app_quitting)
         mPrevMode = CAMERA_CTRL_MODE_PAN;
 
     switchMode(CAMERA_CTRL_MODE_PAN);
-    mClosed = TRUE;
+    mClosed = true;
 
-    gAgent.setMovementLocked(FALSE);
+    gAgent.setMovementLocked(false);
 }
 
 LLFloaterCamera::LLFloaterCamera(const LLSD& val)
 :   LLFloater(val),
-    mClosed(FALSE),
+    mClosed(false),
     mCurrMode(CAMERA_CTRL_MODE_PAN),
     mPrevMode(CAMERA_CTRL_MODE_PAN)
 {
     LLHints::getInstance()->registerHintTarget("view_popup", getHandle());
-    mCommitCallbackRegistrar.add("CameraPresets.ChangeView", boost::bind(&LLFloaterCamera::onClickCameraItem, _2));
-    mCommitCallbackRegistrar.add("CameraPresets.Save", boost::bind(&LLFloaterCamera::onSavePreset, this));
-    mCommitCallbackRegistrar.add("CameraPresets.ShowPresetsList", boost::bind(&LLFloaterReg::showInstance, "camera_presets", LLSD(), FALSE));
+    mCommitCallbackRegistrar.add("CameraPresets.ChangeView", {boost::bind(&LLFloaterCamera::onClickCameraItem, _2)});
+    mCommitCallbackRegistrar.add("CameraPresets.Save", {boost::bind(&LLFloaterCamera::onSavePreset, this)});
+    mCommitCallbackRegistrar.add("CameraPresets.ShowPresetsList", {boost::bind(&LLFloaterReg::showInstance, "camera_presets", LLSD(), false)});
 }
 
 // virtual
-BOOL LLFloaterCamera::postBuild()
+bool LLFloaterCamera::postBuild()
 {
     updateTransparency(TT_ACTIVE); // force using active floater transparency (STORM-730)
 
@@ -482,7 +482,7 @@ BOOL LLFloaterCamera::postBuild()
 
     mPreciseCtrls->setShowCursorHand(false);
     mPreciseCtrls->setSoundFlags(LLView::MOUSE_UP);
-    mPreciseCtrls->setClickedCallback(boost::bind(&LLFloaterReg::showInstance, "prefs_view_advanced", LLSD(), FALSE));
+    mPreciseCtrls->setClickedCallback(boost::bind(&LLFloaterReg::showInstance, "prefs_view_advanced", LLSD(), false));
 
     mPresetCombo->setCommitCallback(boost::bind(&LLFloaterCamera::onCustomPresetSelected, this));
     LLPresetsManager::getInstance()->setPresetListChangeCameraCallback(boost::bind(&LLFloaterCamera::populatePresetCombo, this));
@@ -585,7 +585,7 @@ void LLFloaterCamera::switchMode(ECameraControlMode mode)
 
     default:
         //normally we won't occur here
-        llassert_always(FALSE);
+        llassert_always(false);
     }
 }
 

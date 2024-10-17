@@ -47,10 +47,10 @@ LLBlockList::LLBlockList(const Params& p)
 {
 
     LLMuteList::getInstance()->addObserver(this);
-    mMuteListSize = LLMuteList::getInstance()->getMutes().size();
+    mMuteListSize = static_cast<U32>(LLMuteList::getInstance()->getMutes().size());
 
     // Set up context menu.
-    LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+    ScopedRegistrarHelper registrar;
     LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
 
     registrar.add       ("Block.Action",    boost::bind(&LLBlockList::onCustomAction,   this, _2));
@@ -92,7 +92,7 @@ void LLBlockList::createList()
 BlockListActionType LLBlockList::getCurrentMuteListActionType()
 {
     BlockListActionType type = NONE;
-    U32 curSize = LLMuteList::getInstance()->getMutes().size();
+    U32 curSize = static_cast<U32>(LLMuteList::getInstance()->getMutes().size());
     if( curSize > mMuteListSize)
         type = ADD;
     else if(curSize < mMuteListSize)
@@ -113,9 +113,9 @@ void LLBlockList::onChangeDetailed(const LLMute &mute)
     refresh();
 }
 
-BOOL LLBlockList::handleRightMouseDown(S32 x, S32 y, MASK mask)
+bool LLBlockList::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
-    BOOL handled = LLUICtrl::handleRightMouseDown(x, y, mask);
+    bool handled = LLUICtrl::handleRightMouseDown(x, y, mask);
 
     LLToggleableMenu* context_menu = mContextMenu.get();
     if (context_menu && size())
@@ -266,7 +266,7 @@ void LLBlockList::refresh()
             selectItemPair(getItemPair(next_selected), true);
         }
     }
-    mMuteListSize = LLMuteList::getInstance()->getMutes().size();
+    mMuteListSize = static_cast<U32>(LLMuteList::getInstance()->getMutes().size());
 
     // Sort the list.
     sort();

@@ -5,7 +5,7 @@
 #
 # Platform variables:
 #
-#   DARWIN  - Mac OS X
+#   DARWIN  - macOS
 #   LINUX   - Linux
 #   WINDOWS - Windows
 
@@ -126,8 +126,6 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     set(CMAKE_LIBRARY_ARCHITECTURE ${DPKG_ARCH})
     set(CMAKE_SYSTEM_LIBRARY_PATH /usr/lib/${DPKG_ARCH} /usr/local/lib/${DPKG_ARCH} ${CMAKE_SYSTEM_LIBRARY_PATH})
   endif (DPKG_RESULT EQUAL 0)
-
-  include(ConfigurePkgConfig)
 
   if (INSTALL_PROPRIETARY)
     # Only turn on headless if we can find osmesa libraries.

@@ -161,6 +161,13 @@ public:
 
     //@}
 
+    /** @name Movable */
+    //@{
+        LLSD(LLSD&& other) noexcept;
+        void  assign(LLSD&& other);
+        LLSD& operator=(LLSD&& other) noexcept;
+    //@}
+
     void clear();   ///< resets to Undefined
 
 
@@ -188,6 +195,11 @@ public:
         LLSD(const Date&);
         LLSD(const URI&);
         LLSD(const Binary&);
+        LLSD(String&&);
+        LLSD(UUID&&);
+        LLSD(Date&&);
+        LLSD(URI&&);
+        LLSD(Binary&&);
     //@}
 
     /** @name Convenience Constructors */
@@ -215,6 +227,11 @@ public:
         void assign(const Date&);
         void assign(const URI&);
         void assign(const Binary&);
+        void assign(String&&);
+        void assign(UUID&&);
+        void assign(Date&&);
+        void assign(URI&&);
+        void assign(Binary&&);
 
         LLSD& operator=(Boolean v)          { assign(v); return *this; }
         LLSD& operator=(Integer v)          { assign(v); return *this; }
@@ -224,6 +241,11 @@ public:
         LLSD& operator=(const Date& v)      { assign(v); return *this; }
         LLSD& operator=(const URI& v)       { assign(v); return *this; }
         LLSD& operator=(const Binary& v)    { assign(v); return *this; }
+        LLSD& operator=(String&& v)         { assign(std::move(v)); return *this; }
+        LLSD& operator=(UUID&& v)               { assign(std::move(v)); return *this; }
+        LLSD& operator=(Date&& v)               { assign(std::move(v)); return *this; }
+        LLSD& operator=(URI&& v)                { assign(std::move(v)); return *this; }
+        LLSD& operator=(Binary&& v)         { assign(std::move(v)); return *this; }
     //@}
 
     /**
@@ -259,10 +281,14 @@ public:
         UUID    asUUID() const;
         Date    asDate() const;
         URI     asURI() const;
-        const Binary&   asBinary() const;
+        const Binary& asBinary() const;
 
         // asStringRef on any non-string type will return a ref to an empty string.
-        const String&   asStringRef() const;
+        const String& asStringRef() const;
+
+        // Return "<value><((type))>((scalar value or recursive calls))</((type))></value>"
+        // See http://xmlrpc.com/spec.md
+        String asXMLRPCValue() const;
 
         operator Boolean() const    { return asBoolean(); }
         operator Integer() const    { return asInteger(); }
@@ -275,7 +301,7 @@ public:
 
         // This is needed because most platforms do not automatically
         // convert the boolean negation as a bool in an if statement.
-        bool operator!() const {return !asBoolean();}
+        bool operator!() const { return !asBoolean(); }
     //@}
 
     /** @name Character Pointer Helpers
@@ -292,24 +318,22 @@ public:
     //@{
         static LLSD emptyMap();
 
-        bool has(const String&) const;
-        LLSD get(const String&) const;
+        bool has(const std::string_view) const;
+        LLSD get(const std::string_view) const;
         LLSD getKeys() const;               // Return an LLSD array with keys as strings
-        void insert(const String&, const LLSD&);
+        void insert(std::string_view, const LLSD&);
         void erase(const String&);
-        LLSD& with(const String&, const LLSD&);
+        LLSD& with(std::string_view, const LLSD&);
 
-        LLSD& operator[](const String&);
+        LLSD& operator[](const std::string_view);
         LLSD& operator[](const char* c)
         {
-            LL_PROFILE_ZONE_SCOPED_CATEGORY_LLSD;
-            return (*this)[String(c)];
+            return c ? (*this)[std::string_view(c)] : *this;
         }
-        const LLSD& operator[](const String&) const;
+        const LLSD& operator[](const std::string_view) const;
         const LLSD& operator[](const char* c) const
         {
-            LL_PROFILE_ZONE_SCOPED_CATEGORY_LLSD;
-            return (*this)[String(c)];
+            return c ? (*this)[std::string_view(c)] : *this;
         }
     //@}
 
@@ -396,6 +420,7 @@ public:
         bool isBinary() const       { return type() == TypeBinary; }
         bool isMap() const          { return type() == TypeMap; }
         bool isArray() const        { return type() == TypeArray; }
+        bool isEmpty() const;
     //@}
 
     /** @name Automatic Cast Protection

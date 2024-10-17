@@ -60,6 +60,7 @@ Disk cache: [DISK_CACHE_INFO]
 HiDPI display mode: [HIDPI]
 	</string>
 	<string name="AboutLibs">
+RestrainedLove API: [RLV_VERSION]
 J2C Decoder Version: [J2C_VERSION]
 Audio Driver Version: [AUDIO_DRIVER_VERSION]
 [LIBCEF_VERSION]
@@ -534,7 +535,9 @@ http://secondlife.com/support for help fixing this problem.
 	<string name="ChangeYourDefaultAnimations">Change your default animations</string>
 	<string name="ForceSitAvatar">Force your avatar to sit</string>
 	<string name="ChangeEnvSettings">Change your environment settings</string>
-	
+	<string name="ScriptBy" value="Script by "/>
+	<string name="ScriptStr" value="Script: "/>
+
 	<string name="NotConnected">Not Connected</string>
 	<string name="AgentNameSubst">(You)</string> <!-- Substitution for agent name -->
 	<string name="JoinAnExperience"/><!-- intentionally blank -->
@@ -594,7 +597,7 @@ http://secondlife.com/support for help fixing this problem.
     <string name="Validator_ShouldBeASCII">Invalid character [NR]: '[CH]' (should only be an ASCII character)</string>
     <string name="Validator_ShouldBeNewLineOrASCII">Invalid character [NR]: '[CH]' (should only be an ASCII character or a new line)</string>
 
-  <!-- LSL Usage Hover Tips -->
+    <!-- LSL Usage Hover Tips -->
   <!-- NOTE: For now these are set as translate="false", until DEV-40761 is implemented (to internationalize the rest of tooltips in the same window).
              This has no effect on viewer code, but prevents Linden Lab internal localization tool from scraping these strings.  -->
 	<string name="LSLTipSleepTime" translate="false">
@@ -2320,9 +2323,9 @@ For AI Character: Get the closest navigable point to the point provided.
 
 	<!-- inventory -->
 	<string name="InventoryNoMatchingItems">Didn't find what you're looking for? Try [secondlife:///app/search/all/[SEARCH_TERM] Search].</string>
-	<string name="InventoryNoMatchingRecentItems">Didn't find what you're looking for? Try [secondlife:///app/inventory/filters Show filters].</string>
+	<string name="InventoryNoMatchingRecentItems">Didn't find what you're looking for? Try [secondlife:///app/inventory/filters Show filters].</string>	
   <string name="InventoryNoMatchingFavorites">You haven't marked any items as favorites.</string>
-  <string name="PlacesNoMatchingItems">To add a place to your landmarks, click the star to the right of the location name.</string>
+	<string name="PlacesNoMatchingItems">To add a place to your landmarks, click the star to the right of the location name.</string>
 	<string name="FavoritesNoMatchingItems">To add a place to your favorites, click the star to the right of the location name, then save the landmark to "Favorites bar".</string>
 	<string name="MarketplaceNoListing">You have no listings yet.</string>
 	<string name="MarketplaceNoMatchingItems">No items found. Check the spelling of your search string and try again.</string>
@@ -3819,6 +3822,7 @@ Please reinstall viewer from  https://secondlife.com/support/downloads/ and cont
 
   <string name="voice_morphing_url">https://secondlife.com/destination/voice-island</string>
   <string name="premium_voice_morphing_url">https://secondlife.com/destination/voice-morphing-premium</string>
+  <string name="no_voice_morphing_faq_url">https://lindenlab.freshdesk.com/support/solutions/articles/31000173560-webrtc-update-for-voice-chat-faq/</string>
 
   <string name="lindenhomes_get_home_url">https://secondlife.com/land/lindenhomes/member.php</string>
   <string name="lindenhomes_my_home_url">https://land.secondlife.com/en-Us/lindenhomes/my-home.php</string>
@@ -4027,6 +4031,10 @@ Please check http://status.secondlifegrid.net to see if there is a known problem
   <string name="DeleteItem">Delete selected item?</string>
 
   <string name="EmptyOutfitText">There are no items in this outfit</string>
+  <string name="OutfitNotFound" value="Couldn't find outfit "/>
+  <string name="OutfitNotAdded" value="Can't add to COF outfit "/>
+  <string name="OutfitNotReplaced" value="Can't replace COF with outfit "/>
+  <string name="SystemFolderNotWorn" value="Can't wear system folder "/>
 
  <!-- External editor status codes -->
  <string name="ExternalEditorNotSet">Select an editor by setting the environment variable LL_SCRIPT_EDITOR or the ExternalEditor setting.
@@ -4374,5 +4382,32 @@ and report the problem.
 
 [https://community.secondlife.com/knowledgebase/english/error-messages-r520/#Section__3 Knowledge Base]
   </string>
+
+  <!-- RLVa -->
+  <string name="RlvConsoleDisable">RLVa is disabled</string>
+  <string name="RlvConsoleInvalidCmd">Invalid command</string>
+  <string name="RlvConsoleExecuted">INFO</string>
+  <string name="RlvConsoleFailed">ERR</string>
+  <string name="RlvConsoleRetained">RET</string>
+  <string name="RlvDebugExecuted">executed</string>
+  <string name="RlvDebugFailed">failed</string>
+  <string name="RlvDebugRetained">retained</string>
+  <string name="RlvReturnCodeUnset">unset</string>
+  <string name="RlvReturnCodeDuplicate">duplicate</string>
+  <string name="RlvReturnCodeDelayed">delayed</string>
+  <string name="RlvReturnCodeDeprecated">deprecated</string>
+  <string name="RlvReturnCodeSyntax">thingy error</string>
+  <string name="RlvReturnCodeOption">invalid option</string>
+  <string name="RlvReturnCodeParam">invalid param</string>
+  <string name="RlvReturnCodeLock">locked command</string>
+  <string name="RlvReturnCodeDisabled">disabled command</string>
+  <string name="RlvReturnCodeUnknown">unknown command</string>
+  <string name="RlvReturnCodeNoSharedRoot">missing #RLV</string>
+  <string name="RlvReturnCodeDeprecatedAndDisabled">deprecated and disabled</string>
+  <string name="RlvReturnCodeNoBehaviour">no active behaviours</string>
+  <string name="RlvReturnCodeUnheldBehaviour">base behaviour not held</string>
+  <string name="RlvReturnCodeBlocked">blocked object</string>
+  <string name="RlvReturnCodeThrottled">throttled</string>
+  <string name="RlvReturnCodeNoProcessor">no command processor found</string>
 
 </strings>

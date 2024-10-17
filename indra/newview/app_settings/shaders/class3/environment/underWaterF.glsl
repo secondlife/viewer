@@ -25,7 +25,6 @@
 
 out vec4 frag_color;
 
-uniform sampler2D diffuseMap;
 uniform sampler2D bumpMap;
 
 #ifdef TRANSPARENT_WATER

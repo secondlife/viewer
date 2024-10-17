@@ -44,15 +44,16 @@ public:
     LLPanelGroupBulkImpl(const LLUUID& group_id);
     ~LLPanelGroupBulkImpl();
 
-    static void callbackClickAdd(void* userdata);
+    void callbackClickAdd(LLPanelGroupBulk* panelp);
     static void callbackClickRemove(void* userdata);
 
     static void callbackClickCancel(void* userdata);
 
     static void callbackSelect(LLUICtrl* ctrl, void* userdata);
-    static void callbackAddUsers(const uuid_vec_t& agent_ids, void* user_data);
 
-    static void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name, void* user_data);
+    void addUsers(const uuid_vec_t& agent_ids);
+
+    void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name);
 
     void handleRemove();
     void handleSelection();
@@ -69,6 +70,7 @@ public:
 
     LLNameListCtrl*     mBulkAgentList;
     LLButton*           mOKButton;
+    LLButton*           mAddButton;
     LLButton*           mRemoveButton;
     LLTextBox*          mGroupName;
 

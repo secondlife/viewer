@@ -25,12 +25,10 @@
 
 #include "linden_common.h"
 
- // We can't use WIN32_LEAN_AND_MEAN here, needs lots of includes.
 #if LL_WINDOWS
 #include "llwin32headers.h"
-// ugh, this is ugly.  We need to straighten out our linking for this library
-#pragma comment(lib, "IPHLPAPI.lib")
 #include <iphlpapi.h>
+#include <nb30.h>
 #endif
 
 #include "llapp.h"
@@ -211,20 +209,20 @@ std::string LLUUID::asString() const
     return str;
 }
 
-BOOL LLUUID::set(const char* in_string, BOOL emit)
+bool LLUUID::set(const char* in_string, bool emit)
 {
     return set(ll_safe_string(in_string), emit);
 }
 
-BOOL LLUUID::set(const std::string& in_string, BOOL emit)
+bool LLUUID::set(const std::string& in_string, bool emit)
 {
-    BOOL broken_format = FALSE;
+    bool broken_format = false;
 
     // empty strings should make NULL uuid
     if (in_string.empty())
     {
         setNull();
-        return TRUE;
+        return true;
     }
 
     if (in_string.length() != (UUID_STR_LENGTH - 1))        /* Flawfinder: ignore */
@@ -237,7 +235,7 @@ BOOL LLUUID::set(const std::string& in_string, BOOL emit)
             {
                 LL_WARNS() << "Warning! Using broken UUID string format" << LL_ENDL;
             }
-            broken_format = TRUE;
+            broken_format = true;
         }
         else
         {
@@ -248,7 +246,7 @@ BOOL LLUUID::set(const std::string& in_string, BOOL emit)
                 LL_WARNS() << "Bad UUID string: " << in_string << LL_ENDL;
             }
             setNull();
-            return FALSE;
+            return false;
         }
     }
 
@@ -287,7 +285,7 @@ BOOL LLUUID::set(const std::string& in_string, BOOL emit)
                 LL_WARNS() << "Invalid UUID string character" << LL_ENDL;
             }
             setNull();
-            return FALSE;
+            return false;
         }
 
         mData[i] = mData[i] << 4;
@@ -312,27 +310,27 @@ BOOL LLUUID::set(const std::string& in_string, BOOL emit)
                 LL_WARNS() << "Invalid UUID string character" << LL_ENDL;
             }
             setNull();
-            return FALSE;
+            return false;
         }
         cur_pos++;
     }
 
-    return TRUE;
+    return true;
 }
 
-BOOL LLUUID::validate(const std::string& in_string)
+bool LLUUID::validate(const std::string& in_string)
 {
-    BOOL broken_format = FALSE;
+    bool broken_format = false;
     if (in_string.length() != (UUID_STR_LENGTH - 1))        /* Flawfinder: ignore */
     {
         // I'm a moron.  First implementation didn't have the right UUID format.
         if (in_string.length() == (UUID_STR_LENGTH - 2))        /* Flawfinder: ignore */
         {
-            broken_format = TRUE;
+            broken_format = true;
         }
         else
         {
-            return FALSE;
+            return false;
         }
     }
 
@@ -360,7 +358,7 @@ BOOL LLUUID::validate(const std::string& in_string)
         }
         else
         {
-            return FALSE;
+            return false;
         }
 
         cur_pos++;
@@ -376,11 +374,11 @@ BOOL LLUUID::validate(const std::string& in_string)
         }
         else
         {
-            return FALSE;
+            return false;
         }
         cur_pos++;
     }
-    return TRUE;
+    return true;
 }
 
 const LLUUID& LLUUID::operator^=(const LLUUID& rhs)
@@ -510,7 +508,7 @@ S32 LLUUID::getNodeID(unsigned char* node_id)
 }
 
 #elif LL_DARWIN
-// Mac OS X version of the UUID generation code...
+// macOS version of the UUID generation code...
 /*
  * Get an ethernet hardware address, if we can find it...
  */
@@ -736,12 +734,12 @@ void LLUUID::getCurrentTime(uuid_time_t* timestamp)
 
     static uuid_time_t time_last;
     static U32    uuids_this_tick;
-    static BOOL     init = FALSE;
+    static bool     init = false;
 
     if (!init) {
         getSystemTime(&time_last);
         uuids_this_tick = uuids_per_tick;
-        init = TRUE;
+        init = true;
         mMutex = new LLMutex();
     }
 
@@ -889,11 +887,11 @@ U32 LLUUID::getRandomSeed()
    return U32(seed64) ^ U32(seed64 >> 32);
 }
 
-BOOL LLUUID::parseUUID(const std::string& buf, LLUUID* value)
+bool LLUUID::parseUUID(const std::string& buf, LLUUID* value)
 {
     if (buf.empty() || value == NULL)
     {
-        return FALSE;
+        return false;
     }
 
     std::string temp(buf);
@@ -901,9 +899,9 @@ BOOL LLUUID::parseUUID(const std::string& buf, LLUUID* value)
     if (LLUUID::validate(temp))
     {
         value->set(temp);
-        return TRUE;
+        return true;
     }
-    return FALSE;
+    return false;
 }
 
 //static
@@ -989,7 +987,7 @@ bool LLUUID::operator!=(const LLUUID& rhs) const
 }
 */
 
-BOOL LLUUID::notNull() const
+bool LLUUID::notNull() const
 {
     U32* word = (U32*)mData;
     return (word[0] | word[1] | word[2] | word[3]) > 0;
@@ -997,10 +995,10 @@ BOOL LLUUID::notNull() const
 
 // Faster than == LLUUID::null because doesn't require
 // as much memory access.
-BOOL LLUUID::isNull() const
+bool LLUUID::isNull() const
 {
     U32* word = (U32*)mData;
-    // If all bits are zero, return !0 == TRUE
+    // If all bits are zero, return !0 == true
     return !(word[0] | word[1] | word[2] | word[3]);
 }
 

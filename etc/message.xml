@@ -506,6 +506,13 @@
 					<boolean>false</boolean>
 				</map>
 
+				<key>VoiceSignalingRequest</key>
+				<map>
+					<key>flavor</key>
+					<string>llsd</string>
+					<key>trusted-sender</key>
+					<boolean>false</boolean>
+				</map>
 				<!-- Server to client -->
 				<key>RequiredVoiceVersion</key>
 				<map>
@@ -687,6 +694,9 @@
 			<boolean>false</boolean>
 
 			<key>ProvisionVoiceAccountRequest</key>
+			<boolean>false</boolean>
+
+			<key>VoiceSignalingRequest</key>
 			<boolean>false</boolean>
 			
 			<key>RemoteParcelRequest</key>

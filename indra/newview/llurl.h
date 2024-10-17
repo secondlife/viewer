@@ -77,7 +77,7 @@ public:
 
     virtual const char *updateRelativePath(const LLURL &url);
 
-    virtual BOOL  isExtension(const char *compare) {return (!strcmp(mExtension,compare));};
+    virtual bool  isExtension(const char *compare) {return (!strcmp(mExtension,compare));};
 
 public:
 

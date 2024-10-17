@@ -35,20 +35,23 @@ class VolumeCatcherImpl;
 
 class VolumeCatcher
 {
- public:
+public:
     VolumeCatcher();
     ~VolumeCatcher();
 
-    void setVolume(F32 volume); // 0.0 - 1.0
-
-    // Set the left-right pan of audio sources
-    // where -1.0 = left, 0 = center, and 1.0 = right
+    void setVolume(F32 volume);
     void setPan(F32 pan);
 
-    void pump(); // call this at least a few times a second if you can - it affects how quickly we can 'catch' a new audio source and adjust its volume
+    void pump();
 
- private:
+#if LL_LINUX
+    void onEnablePipeWireVolumeCatcher(bool enable);
+#endif
+
+private:
+#if LL_LINUX || LL_WINDOWS
     VolumeCatcherImpl *pimpl;
+#endif
 };
 
 #endif // VOLUME_CATCHER_H

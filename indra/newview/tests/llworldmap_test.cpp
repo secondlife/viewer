@@ -28,6 +28,7 @@
 // Dependencies
 #include "linden_common.h"
 #include "llapr.h"
+#include "llcontrol.h"      // LLControlGroup
 #include "llsingleton.h"
 #include "lltrans.h"
 #include "lluistring.h"
@@ -49,7 +50,7 @@
 // Stub image calls
 void LLGLTexture::setBoostLevel(S32 ) { }
 void LLGLTexture::setAddressMode(LLTexUnit::eTextureAddressMode ) { }
-LLViewerFetchedTexture* LLViewerTextureManager::getFetchedTexture(const LLUUID&, FTType, BOOL, LLGLTexture::EBoostLevel, S8,
+LLViewerFetchedTexture* LLViewerTextureManager::getFetchedTexture(const LLUUID&, FTType, bool, LLGLTexture::EBoostLevel, S8,
                                                                   LLGLint, LLGLenum, LLHost ) { return NULL; }
 
 // Stub related map calls
@@ -66,10 +67,12 @@ void LLWorldMipmap::equalizeBoostLevels() { }
 LLPointer<LLViewerFetchedTexture> LLWorldMipmap::getObjectsTile(U32 grid_x, U32 grid_y, S32 level, bool load) { return NULL; }
 
 // Stub other stuff
-std::string LLTrans::getString(const std::string &, const LLStringUtil::format_map_t&, bool def_string) { return std::string("test_trans"); }
+std::string LLTrans::getString(std::string_view, const LLStringUtil::format_map_t&, bool def_string) { return std::string("test_trans"); }
 void LLUIString::updateResult() const { }
 void LLUIString::setArg(const std::string& , const std::string& ) { }
 void LLUIString::assign(const std::string& ) { }
+
+LLControlGroup gSavedSettings("Global");    // saved at end of session
 
 // End Stubbing
 // -------------------------------------------------------------------------------------------
@@ -131,6 +134,7 @@ namespace tut
         // Constructor and destructor of the test wrapper
         worldmap_test()
         {
+            gSavedSettings.declareBOOL("Use24HourClock", true, "", LLControlVariable::PERSIST_NO);
             mWorld = LLWorldMap::getInstance();
         }
         ~worldmap_test()

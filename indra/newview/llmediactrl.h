@@ -77,7 +77,7 @@ protected:
 public:
         virtual ~LLMediaCtrl();
 
-        void setBorderVisible( BOOL border_visible );
+        void setBorderVisible( bool border_visible );
 
         // For the tutorial window, we don't want to take focus on clicks,
         // as the examples include how to move around with the arrow
@@ -86,15 +86,15 @@ public:
         void setTakeFocusOnClick( bool take_focus );
 
         // handle mouse related methods
-        virtual BOOL handleHover( S32 x, S32 y, MASK mask );
-        virtual BOOL handleMouseUp( S32 x, S32 y, MASK mask );
-        virtual BOOL handleMouseDown( S32 x, S32 y, MASK mask );
-        virtual BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
-        virtual BOOL handleRightMouseUp(S32 x, S32 y, MASK mask);
-        virtual BOOL handleDoubleClick( S32 x, S32 y, MASK mask );
-        virtual BOOL handleScrollWheel( S32 x, S32 y, S32 clicks );
-        virtual BOOL handleScrollHWheel( S32 x, S32 y, S32 clicks );
-        virtual BOOL handleToolTip(S32 x, S32 y, MASK mask);
+        virtual bool handleHover( S32 x, S32 y, MASK mask );
+        virtual bool handleMouseUp( S32 x, S32 y, MASK mask );
+        virtual bool handleMouseDown( S32 x, S32 y, MASK mask );
+        virtual bool handleRightMouseDown(S32 x, S32 y, MASK mask);
+        virtual bool handleRightMouseUp(S32 x, S32 y, MASK mask);
+        virtual bool handleDoubleClick( S32 x, S32 y, MASK mask );
+        virtual bool handleScrollWheel( S32 x, S32 y, S32 clicks );
+        virtual bool handleScrollHWheel( S32 x, S32 y, S32 clicks );
+        virtual bool handleToolTip(S32 x, S32 y, MASK mask);
 
         // navigation
         void navigateTo( std::string url_in, std::string mime_type = "", bool clean_browser = false);
@@ -154,13 +154,13 @@ public:
         void setAllowFileDownload(bool allow) { mAllowFileDownload = allow; }
 
         // over-rides
-        virtual BOOL handleKeyHere( KEY key, MASK mask);
-        virtual BOOL handleKeyUpHere(KEY key, MASK mask);
-        virtual void onVisibilityChange ( BOOL new_visibility );
-        virtual BOOL handleUnicodeCharHere(llwchar uni_char);
-        virtual void reshape( S32 width, S32 height, BOOL called_from_parent = TRUE);
+        virtual bool handleKeyHere( KEY key, MASK mask);
+        virtual bool handleKeyUpHere(KEY key, MASK mask);
+        virtual void onVisibilityChange ( bool new_visibility );
+        virtual bool handleUnicodeCharHere(llwchar uni_char);
+        virtual void reshape( S32 width, S32 height, bool called_from_parent = true);
         virtual void draw();
-        virtual BOOL postBuild();
+        virtual bool postBuild();
 
         // focus overrides
         void onFocusLost();
@@ -178,7 +178,7 @@ public:
         virtual bool    wantsKeyUpKeyDown() const;
         virtual bool    wantsReturnKey() const;
 
-        virtual BOOL    acceptsTextInput() const {return TRUE;}
+        virtual bool    acceptsTextInput() const { return true; }
 
     protected:
         void convertInputCoords(S32& x, S32& y);

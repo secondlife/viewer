@@ -50,7 +50,6 @@ SOFTWARE.
 
 uniform sampler2D   normalMap;
 uniform sampler2D   depthMap;
-uniform sampler2D emissiveRect;
 uniform sampler2D projectionMap; // rgba
 uniform sampler2D brdfLut;
 
@@ -100,10 +99,13 @@ void calcHalfVectors(vec3 lv, vec3 n, vec3 v,
 {
     l  = normalize(lv);
     h  = normalize(l + v);
-    nh = clamp(dot(n, h), 0.0, 1.0);
-    nl = clamp(dot(n, l), 0.0, 1.0);
-    nv = clamp(dot(n, v), 0.0, 1.0);
-    vh = clamp(dot(v, h), 0.0, 1.0);
+
+    // lower bound to avoid divide by zero
+    float eps = 0.000001;
+    nh = clamp(dot(n, h), eps, 1.0);
+    nl = clamp(dot(n, l), eps, 1.0);
+    nv = clamp(dot(n, v), eps, 1.0);
+    vh = clamp(dot(v, h), eps, 1.0);
 
     lightDist = length(lv);
 }
@@ -485,6 +487,43 @@ vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor,
     vec3 color = NdotL * (diffuseContrib + specContrib);
 
     return clamp(color, vec3(0), vec3(10));
+}
+
+vec3 pbrCalcPointLightOrSpotLight(vec3 diffuseColor, vec3 specularColor,
+                    float perceptualRoughness,
+                    float metallic,
+                    vec3 n, // normal
+                    vec3 p, // pixel position
+                    vec3 v, // view vector (negative normalized pixel position)
+                    vec3 lp, // light position
+                    vec3 ld, // light direction (for spotlights)
+                    vec3 lightColor,
+                    float lightSize, float falloff, float is_pointlight, float ambiance)
+{
+    vec3 color = vec3(0,0,0);
+
+    vec3 lv = lp.xyz - p;
+
+    float lightDist = length(lv);
+
+    float dist = lightDist / lightSize;
+    if (dist <= 1.0)
+    {
+        lv /= lightDist;
+
+        float dist_atten = calcLegacyDistanceAttenuation(dist, falloff);
+
+        // spotlight coefficient.
+        float spot = max(dot(-ld, lv), is_pointlight);
+        // spot*spot => GL_SPOT_EXPONENT=2
+        float spot_atten = spot*spot;
+
+        vec3 intensity = spot_atten * dist_atten * lightColor * 3.0; //magic number to balance with legacy materials
+
+        color = intensity*pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, n.xyz, v, lv);
+    }
+
+    return color;
 }
 
 void calcDiffuseSpecular(vec3 baseColor, float metallic, inout vec3 diffuseColor, inout vec3 specularColor)

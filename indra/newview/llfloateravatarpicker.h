@@ -46,29 +46,29 @@ public:
     typedef boost::function<void (const uuid_vec_t&, const std::vector<LLAvatarName>&)> select_callback_t;
     // Call this to select an avatar.
     static LLFloaterAvatarPicker* show(select_callback_t callback,
-                                       BOOL allow_multiple = FALSE,
-                                       BOOL closeOnSelect = FALSE,
-                                       BOOL skip_agent = FALSE,
+                                       bool allow_multiple = false,
+                                       bool closeOnSelect = false,
+                                       bool skip_agent = false,
                                        const std::string& name = "",
                                        LLView * frustumOrigin = NULL);
 
     LLFloaterAvatarPicker(const LLSD& key);
     virtual ~LLFloaterAvatarPicker();
 
-    virtual BOOL postBuild();
+    virtual bool postBuild();
 
     void setOkBtnEnableCb(validate_callback_t cb);
 
     static void processAvatarPickerReply(class LLMessageSystem* msg, void**);
     void processResponse(const LLUUID& query_id, const LLSD& content);
 
-    BOOL handleDragAndDrop(S32 x, S32 y, MASK mask,
-                           BOOL drop, EDragAndDropType cargo_type,
+    bool handleDragAndDrop(S32 x, S32 y, MASK mask,
+                           bool drop, EDragAndDropType cargo_type,
                            void *cargo_data, EAcceptance *accept,
                            std::string& tooltip_msg);
 
     void openFriendsTab();
-    BOOL isExcludeAgentFromSearchResults() {return mExcludeAgentFromSearchResults;}
+    bool isExcludeAgentFromSearchResults() {return mExcludeAgentFromSearchResults;}
 
 private:
     void editKeystroke(class LLLineEditor* caller, void* user_data);
@@ -84,22 +84,22 @@ private:
 
     void populateNearMe();
     void populateFriend();
-    BOOL visibleItemsSelected() const; // Returns true if any items in the current tab are selected.
+    bool visibleItemsSelected() const; // Returns true if any items in the current tab are selected.
 
     static void findCoro(std::string url, LLUUID mQueryID, std::string mName);
     void find();
-    void setAllowMultiple(BOOL allow_multiple);
+    void setAllowMultiple(bool allow_multiple);
     LLScrollListCtrl* getActiveList();
 
     void drawFrustum();
     virtual void draw();
-    virtual BOOL handleKeyHere(KEY key, MASK mask);
+    virtual bool handleKeyHere(KEY key, MASK mask);
 
     LLUUID              mQueryID;
     int                 mNumResultsReturned;
-    BOOL                mNearMeListComplete;
-    BOOL                mCloseOnSelect;
-    BOOL                mExcludeAgentFromSearchResults;
+    bool                mNearMeListComplete;
+    bool                mCloseOnSelect;
+    bool                mExcludeAgentFromSearchResults;
     LLHandle <LLView>   mFrustumOrigin;
     F32                 mContextConeOpacity;
     F32                 mContextConeInAlpha;

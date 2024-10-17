@@ -54,19 +54,19 @@ public:
     void uploadJointMatrices();
 
     // overloaded from base class
-    /*virtual*/ U32 drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy );
+    U32 drawShape( F32 pixelArea, bool first_pass, bool is_dummy ) override;
 
     // necessary because MS's compiler warns on function inheritance via dominance in the diamond inheritance here.
     // warns even though LLViewerJoint holds the only non virtual implementation.
-    /*virtual*/ U32 render( F32 pixelArea, BOOL first_pass = TRUE, BOOL is_dummy = FALSE ) { return LLViewerJoint::render(pixelArea,first_pass,is_dummy);}
+    U32 render(F32 pixelArea, bool first_pass = true, bool is_dummy = false) override { return LLViewerJoint::render(pixelArea, first_pass, is_dummy); }
 
-    /*virtual*/ void updateFaceSizes(U32 &num_vertices, U32& num_indices, F32 pixel_area);
-    /*virtual*/ void updateFaceData(LLFace *face, F32 pixel_area, BOOL damp_wind = FALSE, bool terse_update = false);
-    /*virtual*/ BOOL updateLOD(F32 pixel_area, BOOL activate);
-    /*virtual*/ void updateJointGeometry();
-    /*virtual*/ void dump();
+    void updateFaceSizes(U32 &num_vertices, U32& num_indices, F32 pixel_area) override;
+    void updateFaceData(LLFace *face, F32 pixel_area, bool damp_wind = false, bool terse_update = false) override;
+    bool updateLOD(F32 pixel_area, bool activate) override;
+    void updateJointGeometry() override;
+    void dump() override;
 
-    /*virtual*/ BOOL isAnimatable() const { return FALSE; }
+    bool isAnimatable() const override { return false; }
 
 private:
 

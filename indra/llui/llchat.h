@@ -83,13 +83,14 @@ public:
         mSourceType(CHAT_SOURCE_AGENT),
         mChatType(CHAT_TYPE_NORMAL),
         mAudible(CHAT_AUDIBLE_FULLY),
-        mMuted(FALSE),
+        mMuted(false),
         mTime(0.0),
         mTimeStr(),
         mPosAgent(),
         mURL(),
         mChatStyle(CHAT_STYLE_NORMAL),
-        mSessionID()
+        mSessionID(),
+        mIsScript(false)
     { }
 
     std::string     mText;      // UTF-8 line of text
@@ -100,13 +101,29 @@ public:
     EChatSourceType mSourceType;
     EChatType       mChatType;
     EChatAudible    mAudible;
-    BOOL            mMuted;     // pass muted chat to maintain list of chatters
+    bool            mMuted;     // pass muted chat to maintain list of chatters
     F64             mTime;      // viewer only, seconds from viewer start
     std::string     mTimeStr;
     LLVector3       mPosAgent;
     std::string     mURL;
     EChatStyle      mChatStyle;
     LLUUID          mSessionID;
+
+    bool            mIsScript;
 };
+static const std::string LUA_PREFIX("[LUA]");
+
+inline
+std::string without_LUA_PREFIX(const std::string& string, bool is_lua)
+{
+    if (is_lua)
+    {
+        return string.substr(LUA_PREFIX.size());
+    }
+    else
+    {
+        return string;
+    }
+}
 
 #endif

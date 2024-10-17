@@ -44,12 +44,12 @@ public:
 
 //  static void show(void* ignored = NULL);
     void onOpen(const LLSD& key);
-    virtual BOOL postBuild();
+    virtual bool postBuild();
     void dirty();
     LLUUID getSelectedUUID();
     virtual void draw();
     virtual void refresh();
-//  static BOOL isVisible();
+//  static bool isVisible();
     virtual void onFocusReceived();
     void onClickCreatorProfile();
     void onClickOwnerProfile();
@@ -58,7 +58,7 @@ public:
     LLScrollListCtrl* mObjectList;
 protected:
     // protected members
-    void setDirty() { mDirty = TRUE; }
+    void setDirty() { mDirty = true; }
     bool mDirty;
 
 private:

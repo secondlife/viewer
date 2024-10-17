@@ -134,7 +134,7 @@ LLOutfitsList::~LLOutfitsList()
     mGearMenuConnection.disconnect();
 }
 
-BOOL LLOutfitsList::postBuild()
+bool LLOutfitsList::postBuild()
 {
     mAccordion = getChild<LLAccordionCtrl>("outfits_accordion");
     mAccordion->setComparator(&OUTFIT_TAB_NAME_COMPARATOR);
@@ -319,11 +319,11 @@ void LLOutfitListBase::performAction(std::string action)
 
     if ("replaceoutfit" == action)
     {
-        LLAppearanceMgr::instance().wearInventoryCategory( cat, FALSE, FALSE );
+        LLAppearanceMgr::instance().wearInventoryCategory( cat, false, false );
     }
     else if ("addtooutfit" == action)
     {
-        LLAppearanceMgr::instance().wearInventoryCategory( cat, FALSE, TRUE );
+        LLAppearanceMgr::instance().wearInventoryCategory( cat, false, true );
     }
     else if ("rename_outfit" == action)
     {
@@ -345,7 +345,7 @@ void LLOutfitsList::onSetSelectedOutfitByUUID(const LLUUID& outfit_uuid)
             LLWearableItemsList* list = dynamic_cast<LLWearableItemsList*>(tab->getAccordionView());
             if (!list) continue;
 
-            tab->setFocus(TRUE);
+            tab->setFocus(true);
             ChangeOutfitSelection(list, outfit_uuid);
 
             tab->changeOpenClose(false);
@@ -421,7 +421,7 @@ void LLOutfitsList::getSelectedItemsUUIDs(uuid_vec_t& selected_uuids) const
         uuid_vec_t uuids;
         (*iter).second->getSelectedUUIDs(uuids);
 
-        S32 prev_size = selected_uuids.size();
+        auto prev_size = selected_uuids.size();
         selected_uuids.resize(prev_size + uuids.size());
         std::copy(uuids.begin(), uuids.end(), selected_uuids.begin() + prev_size);
     }
@@ -489,7 +489,7 @@ void LLOutfitsList::resetItemSelection(LLWearableItemsList* list, const LLUUID& 
 
 void LLOutfitsList::onChangeOutfitSelection(LLWearableItemsList* list, const LLUUID& category_id)
 {
-    MASK mask = gKeyboard->currentMask(TRUE);
+    MASK mask = gKeyboard->currentMask(true);
 
     // Reset selection in all previously selected tabs except for the current
     // if new selection is started.
@@ -582,7 +582,7 @@ void LLOutfitsList::onFilterSubStringChanged(const std::string& new_string, cons
         }
         else
         {
-            tab->setVisible(TRUE);
+            tab->setVisible(true);
 
             // Restore tab title when filter is empty
             tab->setTitle(tab->getTitle());
@@ -775,7 +775,7 @@ void LLOutfitsList::onOutfitRightClick(LLUICtrl* ctrl, S32 x, S32 y, const LLUUI
         LLUICtrl* header = tab->findChild<LLUICtrl>("dd_header");
         if (header)
         {
-            header->setFocus(TRUE);
+            header->setFocus(true);
         }
 
         uuid_vec_t selected_uuids;
@@ -1149,9 +1149,9 @@ void LLOutfitListBase::ChangeOutfitSelection(LLWearableItemsList* list, const LL
     signalSelectionOutfitUUID(category_id);
 }
 
-BOOL LLOutfitListBase::postBuild()
+bool LLOutfitListBase::postBuild()
 {
-    return TRUE;
+    return true;
 }
 
 void LLOutfitListBase::collapseAllFolders()
@@ -1190,7 +1190,7 @@ void LLOutfitListBase::deselectOutfit(const LLUUID& category_id)
 
 LLContextMenu* LLOutfitContextMenu::createMenu()
 {
-    LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+    LLUICtrl::ScopedRegistrarHelper registrar;
     LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
     LLUUID selected_id = mUUIDs.front();
 
@@ -1201,8 +1201,8 @@ LLContextMenu* LLOutfitContextMenu::createMenu()
     registrar.add("Outfit.TakeOff",
         boost::bind(&LLAppearanceMgr::takeOffOutfit, &LLAppearanceMgr::instance(), selected_id));
     registrar.add("Outfit.Edit", boost::bind(editOutfit));
-    registrar.add("Outfit.Rename", boost::bind(renameOutfit, selected_id));
-    registrar.add("Outfit.Delete", boost::bind(&LLOutfitListBase::removeSelected, mOutfitList));
+    registrar.add("Outfit.Rename", boost::bind(renameOutfit, selected_id), LLUICtrl::cb_info::UNTRUSTED_BLOCK);
+    registrar.add("Outfit.Delete", boost::bind(&LLOutfitListBase::removeSelected, mOutfitList), LLUICtrl::cb_info::UNTRUSTED_BLOCK);
     registrar.add("Outfit.Thumbnail", boost::bind(&LLOutfitContextMenu::onThumbnail, this, selected_id));
     registrar.add("Outfit.Favorite", boost::bind(&LLOutfitContextMenu::onFavorite, this, selected_id));
     registrar.add("Outfit.Save", boost::bind(&LLOutfitContextMenu::onSave, this, selected_id));
@@ -1319,7 +1319,7 @@ LLOutfitListGearMenuBase::LLOutfitListGearMenuBase(LLOutfitListBase* olist)
 {
     llassert_always(mOutfitList);
 
-    LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+    LLUICtrl::ScopedRegistrarHelper registrar;
     LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
 
     registrar.add("Gear.Wear", boost::bind(&LLOutfitListGearMenuBase::onWear, this));
@@ -1387,7 +1387,7 @@ void LLOutfitListGearMenuBase::onWear()
     if (selected_outfit)
     {
         LLAppearanceMgr::instance().wearInventoryCategory(
-            selected_outfit, /*copy=*/ FALSE, /*append=*/ FALSE);
+            selected_outfit, /*copy=*/ false, /*append=*/ false);
     }
 }
 
@@ -1522,9 +1522,9 @@ LLOutfitListSortMenu::LLOutfitListSortMenu(LLOutfitListBase* parent_panel)
     LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
     LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
 
-    registrar.add("Sort.Collapse", boost::bind(&LLOutfitListBase::onCollapseAllFolders, parent_panel));
-    registrar.add("Sort.Expand", boost::bind(&LLOutfitListBase::onExpandAllFolders, parent_panel));
-    registrar.add("Sort.OnSort", boost::bind(&LLOutfitListBase::onChangeSortOrder, parent_panel, _2));
+    registrar.add("Sort.Collapse", { boost::bind(&LLOutfitListBase::onCollapseAllFolders, parent_panel) });
+    registrar.add("Sort.Expand", { boost::bind(&LLOutfitListBase::onExpandAllFolders, parent_panel) });
+    registrar.add("Sort.OnSort", { boost::bind(&LLOutfitListBase::onChangeSortOrder, parent_panel, _2) });
     enable_registrar.add("Sort.OnEnable", boost::bind(&LLOutfitListSortMenu::onEnable, this, _2));
 
     mMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>(
@@ -1580,7 +1580,7 @@ void LLOutfitAccordionCtrlTab::draw()
     drawFavoriteIcon();
 }
 
-BOOL LLOutfitAccordionCtrlTab::handleToolTip(S32 x, S32 y, MASK mask)
+bool LLOutfitAccordionCtrlTab::handleToolTip(S32 x, S32 y, MASK mask)
 {
     if (y >= getLocalRect().getHeight() - getHeaderHeight())
     {
@@ -1595,7 +1595,7 @@ BOOL LLOutfitAccordionCtrlTab::handleToolTip(S32 x, S32 y, MASK mask)
                                     .delay_time(LLView::getTooltipTimeout())
                                     .create_callback(boost::bind(&LLInspectTextureUtil::createInventoryToolTip, _1))
                                     .create_params(params));
-        return TRUE;
+        return true;
     }
 
     return LLAccordionCtrlTab::handleToolTip(x, y, mask);

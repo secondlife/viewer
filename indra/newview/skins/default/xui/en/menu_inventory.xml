@@ -934,7 +934,7 @@
          function="Inventory.EnvironmentEnabled" />
       </menu_item_call>
     </menu>
-  </menu>
+  </menu>  
   <menu_item_call
    label="Create folder from selected"
    layout="topleft"
@@ -1060,32 +1060,32 @@
      label="Sound uploads"
      layout="topleft"
      name="Sound uploads">
-      <menu_item_call.on_click
-       function="Inventory.FileUploadLocation"
+    <menu_item_call.on_click
+     function="Inventory.FileUploadLocation"
        parameter="def_sound" />
     </menu_item_call>
     <menu_item_call
      label="Animation uploads"
      layout="topleft"
      name="Animation uploads">
-      <menu_item_call.on_click
-       function="Inventory.FileUploadLocation"
+    <menu_item_call.on_click
+     function="Inventory.FileUploadLocation"
        parameter="def_animation" />
     </menu_item_call>
     <menu_item_call
      label="Model uploads"
      layout="topleft"
      name="Model uploads">
-      <menu_item_call.on_click
-       function="Inventory.FileUploadLocation"
+    <menu_item_call.on_click
+     function="Inventory.FileUploadLocation"
        parameter="def_model" />
     </menu_item_call>
     <menu_item_call
      label="PBR material uploads"
      layout="topleft"
      name="PBR uploads">
-      <menu_item_call.on_click
-       function="Inventory.FileUploadLocation"
+        <menu_item_call.on_click
+         function="Inventory.FileUploadLocation"
        parameter="def_pbr_material" />
     </menu_item_call>
   </menu>

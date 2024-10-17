@@ -55,48 +55,39 @@ LLPanelGroupBulkBan::LLPanelGroupBulkBan(const LLUUID& group_id) : LLPanelGroupB
     buildFromFile( "panel_group_bulk_ban.xml");
 }
 
-BOOL LLPanelGroupBulkBan::postBuild()
+bool LLPanelGroupBulkBan::postBuild()
 {
-    BOOL recurse = TRUE;
+    constexpr bool recurse = true;
 
     mImplementation->mLoadingText = getString("loading");
     mImplementation->mGroupName = getChild<LLTextBox>("group_name_text", recurse);
     mImplementation->mBulkAgentList = getChild<LLNameListCtrl>("banned_agent_list", recurse);
     if ( mImplementation->mBulkAgentList )
     {
-        mImplementation->mBulkAgentList->setCommitOnSelectionChange(TRUE);
+        mImplementation->mBulkAgentList->setCommitOnSelectionChange(true);
         mImplementation->mBulkAgentList->setCommitCallback(LLPanelGroupBulkImpl::callbackSelect, mImplementation);
     }
 
-    LLButton* button = getChild<LLButton>("add_button", recurse);
-    if ( button )
+    mImplementation->mAddButton = getChild<LLButton>("add_button", recurse);
+    // default to opening avatarpicker automatically
+    mImplementation->mAddButton->setClickedCallback(
+        [this](LLUICtrl* ctrl, const LLSD& param)
     {
-        // default to opening avatarpicker automatically
-        // (*impl::callbackClickAdd)((void*)this);
-        button->setClickedCallback(LLPanelGroupBulkImpl::callbackClickAdd, this);
-    }
+        mImplementation->callbackClickAdd(this);
+    });
 
     mImplementation->mRemoveButton =
         getChild<LLButton>("remove_button", recurse);
-    if ( mImplementation->mRemoveButton )
-    {
-        mImplementation->mRemoveButton->setClickedCallback(LLPanelGroupBulkImpl::callbackClickRemove, mImplementation);
-        mImplementation->mRemoveButton->setEnabled(FALSE);
-    }
+    mImplementation->mRemoveButton->setClickedCallback(LLPanelGroupBulkImpl::callbackClickRemove, mImplementation);
+    mImplementation->mRemoveButton->setEnabled(false);
 
     mImplementation->mOKButton =
         getChild<LLButton>("ban_button", recurse);
-    if ( mImplementation->mOKButton )
-    {
-        mImplementation->mOKButton->setClickedCallback(LLPanelGroupBulkBan::callbackClickSubmit, this);
-        mImplementation->mOKButton->setEnabled(FALSE);
-    }
+    mImplementation->mOKButton->setClickedCallback(LLPanelGroupBulkBan::callbackClickSubmit, this);
+    mImplementation->mOKButton->setEnabled(false);
 
-    button = getChild<LLButton>("cancel_button", recurse);
-    if ( button )
-    {
-        button->setClickedCallback(LLPanelGroupBulkImpl::callbackClickCancel, mImplementation);
-    }
+    LLButton* button = getChild<LLButton>("cancel_button", recurse);
+    button->setClickedCallback(LLPanelGroupBulkImpl::callbackClickCancel, mImplementation);
 
     mImplementation->mTooManySelected = getString("ban_selection_too_large");
     mImplementation->mBanNotPermitted = getString("ban_not_permitted");
@@ -104,7 +95,7 @@ BOOL LLPanelGroupBulkBan::postBuild()
     mImplementation->mCannotBanYourself = getString("cant_ban_yourself");
 
     update();
-    return TRUE;
+    return true;
 }
 
 // TODO: Refactor the shitty callback functions with void* -- just use boost::bind to call submit() instead.
@@ -161,12 +152,12 @@ void LLPanelGroupBulkBan::submit()
     // remove already banned users and yourself from request.
     std::vector<LLAvatarName> banned_avatar_names;
     std::vector<LLAvatarName> out_of_limit_names;
-    bool banning_self{ false };
-    std::vector<LLUUID>::iterator conflict = std::find(banned_agent_list.begin(), banned_agent_list.end(), gAgentID);
+    bool banning_self = false;
+    std::vector<LLUUID>::iterator conflict = std::find(banned_agent_list.begin(), banned_agent_list.end(), gAgent.getID());
     if (conflict != banned_agent_list.end())
     {
         banned_agent_list.erase(conflict);
-        banning_self = TRUE;
+        banning_self = true;
     }
     if (group_datap)
     {

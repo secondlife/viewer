@@ -95,6 +95,11 @@ const int LL_ERR_NOERR = 0;
 #define LL_STATIC_ASSERT(func, msg) static_assert(func, msg)
 #define LL_BAD_TEMPLATE_INSTANTIATION(type, msg) static_assert(false, msg)
 #else
+#if LL_LINUX
+// We need access to raise and SIGSEGV
+#include <signal.h>
+#endif
+
 #define LL_STATIC_ASSERT(func, msg) BOOST_STATIC_ASSERT(func)
 #define LL_BAD_TEMPLATE_INSTANTIATION(type, msg) BOOST_STATIC_ASSERT(sizeof(type) != 0 && false);
 #endif
@@ -408,10 +413,18 @@ typedef LLError::NoClassInfo _LL_CLASS_TO_LOG;
 #define LL_NEWLINE '\n'
 
 // Use this only in LL_ERRS or in a place that LL_ERRS may not be used
-#define LLERROR_CRASH                                   \
-{                                                       \
-    crashdriver([](int* ptr){ *ptr = 0; exit(*ptr); }); \
+
+#ifndef LL_LINUX
+#define LLERROR_CRASH                                \
+{                                                    \
+    int* make_me_crash = (int*)0xDEADBEEFDEADBEEFUL; \
+    *make_me_crash = 0;                              \
+    exit(*make_me_crash);                            \
 }
+#else
+// For Linux we just call raise and be done with it. No fighting the compiler to create a crashing code snippet.
+#define LLERROR_CRASH raise(SIGSEGV );
+#endif
 
 #define LL_ENDL                                         \
             LLError::End();                             \
@@ -511,8 +524,5 @@ LL_ENDL;
 LL_DEBUGS("SomeTag") performs the locking and map-searching ONCE, then caches
 the result in a static variable.
 */
-
-// used by LLERROR_CRASH
-void crashdriver(void (*)(int*));
 
 #endif // LL_LLERROR_H

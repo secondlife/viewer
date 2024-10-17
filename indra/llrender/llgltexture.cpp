@@ -27,13 +27,13 @@
 #include "llgltexture.h"
 
 
-LLGLTexture::LLGLTexture(BOOL usemipmaps)
+LLGLTexture::LLGLTexture(bool usemipmaps)
 {
     init();
     mUseMipMaps = usemipmaps;
 }
 
-LLGLTexture::LLGLTexture(const U32 width, const U32 height, const U8 components, BOOL usemipmaps)
+LLGLTexture::LLGLTexture(const U32 width, const U32 height, const U8 components, bool usemipmaps)
 {
     init();
     mFullWidth = width ;
@@ -43,14 +43,14 @@ LLGLTexture::LLGLTexture(const U32 width, const U32 height, const U8 components,
     setTexelsPerImage();
 }
 
-LLGLTexture::LLGLTexture(const LLImageRaw* raw, BOOL usemipmaps)
+LLGLTexture::LLGLTexture(const LLImageRaw* raw, bool usemipmaps)
 {
     init();
     mUseMipMaps = usemipmaps ;
     // Create an empty image of the specified size and width
     mGLTexturep = new LLImageGL(raw, usemipmaps) ;
-    mFullWidth = mGLTexturep->getCurrentWidth();
-    mFullHeight = mGLTexturep->getCurrentHeight();
+    mFullWidth = mGLTexturep->getWidth();
+    mFullHeight = mGLTexturep->getHeight();
     mComponents = mGLTexturep->getComponents();
     setTexelsPerImage();
 }
@@ -67,12 +67,12 @@ void LLGLTexture::init()
     mFullWidth = 0;
     mFullHeight = 0;
     mTexelsPerImage = 0 ;
-    mUseMipMaps = FALSE ;
+    mUseMipMaps = false ;
     mComponents = 0 ;
 
     mTextureState = NO_DELETE ;
-    mDontDiscard = FALSE;
-    mNeedsGLTexture = FALSE ;
+    mDontDiscard = false;
+    mNeedsGLTexture = false ;
 }
 
 void LLGLTexture::cleanup()
@@ -141,7 +141,7 @@ LLImageGL* LLGLTexture::getGLTexture() const
     return mGLTexturep ;
 }
 
-BOOL LLGLTexture::createGLTexture()
+bool LLGLTexture::createGLTexture()
 {
     if(mGLTexturep.isNull())
     {
@@ -151,11 +151,11 @@ BOOL LLGLTexture::createGLTexture()
     return mGLTexturep->createGLTexture() ;
 }
 
-BOOL LLGLTexture::createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S32 usename, BOOL to_create, S32 category, bool defer_copy, LLGLuint* tex_name)
+bool LLGLTexture::createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S32 usename, bool to_create, S32 category, bool defer_copy, LLGLuint* tex_name)
 {
     llassert(mGLTexturep.notNull());
 
-    BOOL ret = mGLTexturep->createGLTexture(discard_level, imageraw, usename, to_create, category, defer_copy, tex_name) ;
+    bool ret = mGLTexturep->createGLTexture(discard_level, imageraw, usename, to_create, category, defer_copy, tex_name) ;
 
     if(ret)
     {
@@ -168,7 +168,87 @@ BOOL LLGLTexture::createGLTexture(S32 discard_level, const LLImageRaw* imageraw,
     return ret ;
 }
 
-void LLGLTexture::setExplicitFormat(LLGLint internal_format, LLGLenum primary_format, LLGLenum type_format, BOOL swap_bytes)
+void LLGLTexture::getGLObjectLabel(std::string& label, bool& error) const
+{
+    // GL_VERSION_4_3
+    if (gGLManager.mGLVersion < 4.29f)
+    {
+        error = true;
+        label.clear();
+        return;
+    }
+    if (!mGLTexturep)
+    {
+        error = true;
+        label.clear();
+        return;
+    }
+    LLGLuint texname = mGLTexturep->getTexName();
+    if (!texname)
+    {
+        error = true;
+        label.clear();
+        return;
+    }
+
+#if LL_DARWIN
+    // apple doesn't support GL after 4.1 so should have hit the above early out, but make the compiler happy here
+    error = true;
+    label.clear();
+    return;
+#else
+    static GLsizei max_length = 0;
+    if (max_length == 0) { glGetIntegerv(GL_MAX_LABEL_LENGTH, &max_length); }
+    static char * clabel = new char[max_length+1];
+    GLsizei length;
+    glGetObjectLabel(GL_TEXTURE, texname, max_length+1, &length, clabel);
+    error = false;
+    label.assign(clabel, length);
+#endif
+}
+
+std::string LLGLTexture::setGLObjectLabel(const std::string& prefix, bool append_texname) const
+{
+#ifndef LL_DARWIN // apple doesn't support GL > 4.1
+    if (gGLManager.mGLVersion < 4.29f) { return ""; } // GL_VERSION_4_3
+    llassert(mGLTexturep);
+    if (mGLTexturep)
+    {
+        LLGLuint texname = mGLTexturep->getTexName();
+        llassert(texname);
+        if (texname)
+        {
+            static GLsizei max_length = 0;
+            if (max_length == 0) { glGetIntegerv(GL_MAX_LABEL_LENGTH, &max_length); }
+
+            if (append_texname)
+            {
+                std::string label_with_texname = prefix + "_" + std::to_string(texname);
+                label_with_texname.resize(std::min(size_t(max_length), label_with_texname.size()));
+                glObjectLabel(GL_TEXTURE, texname, (GLsizei)label_with_texname.size(), label_with_texname.c_str());
+                return label_with_texname;
+            }
+            else
+            {
+                if (prefix.size() <= max_length)
+                {
+                    glObjectLabel(GL_TEXTURE, texname, (GLsizei)prefix.size(), prefix.c_str());
+                    return prefix;
+                }
+                else
+                {
+                    const std::string label(prefix.c_str(), max_length);
+                    glObjectLabel(GL_TEXTURE, texname, (GLsizei)label.size(), label.c_str());
+                    return label;
+                }
+            }
+        }
+    }
+#endif
+    return "";
+}
+
+void LLGLTexture::setExplicitFormat(LLGLint internal_format, LLGLenum primary_format, LLGLenum type_format, bool swap_bytes)
 {
     llassert(mGLTexturep.notNull()) ;
 
@@ -223,22 +303,22 @@ LLGLuint LLGLTexture::getTexName() const
     return mGLTexturep->getTexName() ;
 }
 
-BOOL LLGLTexture::hasGLTexture() const
+bool LLGLTexture::hasGLTexture() const
 {
     if(mGLTexturep.notNull())
     {
         return mGLTexturep->getHasGLTexture() ;
     }
-    return FALSE ;
+    return false ;
 }
 
-BOOL LLGLTexture::getBoundRecently() const
+bool LLGLTexture::getBoundRecently() const
 {
     if(mGLTexturep.notNull())
     {
         return mGLTexturep->getBoundRecently() ;
     }
-    return FALSE ;
+    return false ;
 }
 
 LLTexUnit::eTextureType LLGLTexture::getTarget(void) const
@@ -247,7 +327,7 @@ LLTexUnit::eTextureType LLGLTexture::getTarget(void) const
     return mGLTexturep->getTarget() ;
 }
 
-BOOL LLGLTexture::setSubImage(const LLImageRaw* imageraw, S32 x_pos, S32 y_pos, S32 width, S32 height, LLGLuint use_name)
+bool LLGLTexture::setSubImage(const LLImageRaw* imageraw, S32 x_pos, S32 y_pos, S32 width, S32 height, LLGLuint use_name)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
     llassert(mGLTexturep.notNull()) ;
@@ -255,7 +335,7 @@ BOOL LLGLTexture::setSubImage(const LLImageRaw* imageraw, S32 x_pos, S32 y_pos, 
     return mGLTexturep->setSubImage(imageraw, x_pos, y_pos, width, height, 0, use_name) ;
 }
 
-BOOL LLGLTexture::setSubImage(const U8* datap, S32 data_width, S32 data_height, S32 x_pos, S32 y_pos, S32 width, S32 height, LLGLuint use_name)
+bool LLGLTexture::setSubImage(const U8* datap, S32 data_width, S32 data_height, S32 x_pos, S32 y_pos, S32 width, S32 height, LLGLuint use_name)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
     llassert(mGLTexturep.notNull()) ;
@@ -310,14 +390,14 @@ LLGLenum LLGLTexture::getPrimaryFormat() const
     return mGLTexturep->getPrimaryFormat() ;
 }
 
-BOOL LLGLTexture::getIsAlphaMask() const
+bool LLGLTexture::getIsAlphaMask() const
 {
     llassert(mGLTexturep.notNull()) ;
 
     return mGLTexturep->getIsAlphaMask() ;
 }
 
-BOOL LLGLTexture::getMask(const LLVector2 &tc)
+bool LLGLTexture::getMask(const LLVector2 &tc)
 {
     llassert(mGLTexturep.notNull()) ;
 
@@ -330,14 +410,14 @@ F32 LLGLTexture::getTimePassedSinceLastBound()
 
     return mGLTexturep->getTimePassedSinceLastBound() ;
 }
-BOOL LLGLTexture::getMissed() const
+bool LLGLTexture::getMissed() const
 {
     llassert(mGLTexturep.notNull()) ;
 
     return mGLTexturep->getMissed() ;
 }
 
-BOOL LLGLTexture::isJustBound() const
+bool LLGLTexture::isJustBound() const
 {
     llassert(mGLTexturep.notNull()) ;
 
@@ -351,32 +431,11 @@ void LLGLTexture::forceUpdateBindStats(void) const
     return mGLTexturep->forceUpdateBindStats() ;
 }
 
-U32 LLGLTexture::getTexelsInAtlas() const
-{
-    llassert(mGLTexturep.notNull()) ;
-
-    return mGLTexturep->getTexelsInAtlas() ;
-}
-
-U32 LLGLTexture::getTexelsInGLTexture() const
-{
-    llassert(mGLTexturep.notNull()) ;
-
-    return mGLTexturep->getTexelsInGLTexture() ;
-}
-
-BOOL LLGLTexture::isGLTextureCreated() const
+bool LLGLTexture::isGLTextureCreated() const
 {
     llassert(mGLTexturep.notNull()) ;
 
     return mGLTexturep->isGLTextureCreated() ;
-}
-
-S32  LLGLTexture::getDiscardLevelInAtlas() const
-{
-    llassert(mGLTexturep.notNull()) ;
-
-    return mGLTexturep->getDiscardLevelInAtlas() ;
 }
 
 void LLGLTexture::destroyGLTexture()

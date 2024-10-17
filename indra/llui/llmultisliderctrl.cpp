@@ -144,7 +144,7 @@ LLMultiSliderCtrl::LLMultiSliderCtrl(const LLMultiSliderCtrl::Params& p)
             mEditor->setFocusReceivedCallback( boost::bind(LLMultiSliderCtrl::onEditorGainFocus, _1, this) );
             // don't do this, as selecting the entire text is single clicking in some cases
             // and double clicking in others
-            //mEditor->setSelectAllonFocusReceived(TRUE);
+            //mEditor->setSelectAllonFocusReceived(true);
             addChild(mEditor);
         }
         else
@@ -219,7 +219,7 @@ void LLMultiSliderCtrl::setValue(const LLSD& value)
     updateText();
 }
 
-void LLMultiSliderCtrl::setSliderValue(const std::string& name, F32 v, BOOL from_event)
+void LLMultiSliderCtrl::setSliderValue(const std::string& name, F32 v, bool from_event)
 {
     mMultiSlider->setSliderValue(name, v, from_event );
     mCurValue = mMultiSlider->getCurSliderValue();
@@ -237,15 +237,15 @@ void LLMultiSliderCtrl::resetCurSlider()
     mMultiSlider->resetCurSlider();
 }
 
-BOOL LLMultiSliderCtrl::setLabelArg( const std::string& key, const LLStringExplicit& text )
+bool LLMultiSliderCtrl::setLabelArg( const std::string& key, const LLStringExplicit& text )
 {
-    BOOL res = FALSE;
+    bool res = false;
     if (mLabelBox)
     {
         res = mLabelBox->setTextArg(key, text);
         if (res && mLabelWidth == 0)
         {
-            S32 label_width = mFont->getWidth(mLabelBox->getText());
+            S32 label_width = mFont->getWidth(mLabelBox->getWText().c_str());
             LLRect rect = mLabelBox->getRect();
             S32 prev_right = rect.mRight;
             rect.mRight = rect.mLeft + label_width;
@@ -329,7 +329,7 @@ void LLMultiSliderCtrl::clear()
 
 }
 
-BOOL LLMultiSliderCtrl::isMouseHeldDown()
+bool LLMultiSliderCtrl::isMouseHeldDown()
 {
     return gFocusMgr.getMouseCapture() == mMultiSlider;
 }
@@ -368,7 +368,7 @@ void LLMultiSliderCtrl::onEditorCommit( LLUICtrl* ctrl, const LLSD& userdata)
     if (!self) // cast failed - wrong type! :O
         return;
 
-    BOOL success = FALSE;
+    bool success = false;
     F32 val = self->mCurValue;
     F32 saved_val = self->mCurValue;
 
@@ -382,7 +382,7 @@ void LLMultiSliderCtrl::onEditorCommit( LLUICtrl* ctrl, const LLSD& userdata)
             self->setCurSliderValue( val );  // set the value temporarily so that the callback can retrieve it.
             if( !self->mValidateSignal || (*(self->mValidateSignal))( self, val ) )
             {
-                success = TRUE;
+                success = true;
             }
         }
     }
@@ -409,14 +409,14 @@ void LLMultiSliderCtrl::onSliderCommit(LLUICtrl* ctrl, const LLSD& userdata)
     if (!self)
         return;
 
-    BOOL success = FALSE;
+    bool success = false;
     F32 saved_val = self->mCurValue;
     F32 new_val = self->mMultiSlider->getCurSliderValue();
 
     self->mCurValue = new_val;  // set the value temporarily so that the callback can retrieve it.
     if( !self->mValidateSignal || (*(self->mValidateSignal))( self, new_val ) )
     {
-        success = TRUE;
+        success = true;
     }
 
     if( success )
@@ -434,13 +434,13 @@ void LLMultiSliderCtrl::onSliderCommit(LLUICtrl* ctrl, const LLSD& userdata)
     self->updateText();
 }
 
-void LLMultiSliderCtrl::setEnabled(BOOL b)
+void LLMultiSliderCtrl::setEnabled(bool b)
 {
     LLF32UICtrl::setEnabled( b );
 
     if( mLabelBox )
     {
-        mLabelBox->setColor( b ? mTextEnabledColor.get() : mTextDisabledColor.get() );
+        mLabelBox->setColor( b ? mTextEnabledColor : mTextDisabledColor );
     }
 
     mMultiSlider->setEnabled( b );
@@ -452,12 +452,12 @@ void LLMultiSliderCtrl::setEnabled(BOOL b)
 
     if( mTextBox )
     {
-        mTextBox->setColor( b ? mTextEnabledColor.get() : mTextDisabledColor.get() );
+        mTextBox->setColor( b ? mTextEnabledColor : mTextDisabledColor );
     }
 }
 
 
-void LLMultiSliderCtrl::setTentative(BOOL b)
+void LLMultiSliderCtrl::setTentative(bool b)
 {
     if( mEditor )
     {
@@ -469,11 +469,11 @@ void LLMultiSliderCtrl::setTentative(BOOL b)
 
 void LLMultiSliderCtrl::onCommit()
 {
-    setTentative(FALSE);
+    setTentative(false);
 
     if( mEditor )
     {
-        mEditor->setTentative(FALSE);
+        mEditor->setTentative(false);
     }
 
     setControlValue(getValueF32());

@@ -114,7 +114,7 @@ void LLToastPanel::snapToMessageHeight(LLTextBase* message, S32 maxLineCount)
 LLToastPanel* LLToastPanel::buidPanelFromNotification(
         const LLNotificationPtr& notification)
 {
-    LL_PROFILE_ZONE_SCOPED
+    LL_PROFILE_ZONE_SCOPED;
     LLToastPanel* res = NULL;
 
     //process tip toast panels
@@ -216,10 +216,10 @@ bool LLCheckBoxToastPanel::setCheckBox(const std::string& check_title,
     S32 dialog_width = max_msg_width + 2 * h_pad;
 
     S32 dialog_height = LLToastPanel::getRect().getHeight();
-    dialog_height += LINE_HEIGHT * lines.size();
+    dialog_height += LINE_HEIGHT * static_cast<S32>(lines.size());
     dialog_height += LINE_HEIGHT / 2;
 
-    LLToastPanel::reshape(dialog_width, dialog_height, FALSE);
+    LLToastPanel::reshape(dialog_width, dialog_height, false);
 
     S32 msg_x = (LLToastPanel::getRect().getWidth() - max_msg_width) / 2;
 
@@ -227,7 +227,7 @@ bool LLCheckBoxToastPanel::setCheckBox(const std::string& check_title,
     LLRect check_rect;
     // if we are part of the toast, we need to leave space for buttons
     S32 msg_y = v_pad + (parent_view ? 0 : (BTN_HEIGHT + LINE_HEIGHT / 2));
-    mCheck->setRect(check_rect.setOriginAndSize(msg_x, msg_y, max_msg_width, LINE_HEIGHT*lines.size()));
+    mCheck->setRect(check_rect.setOriginAndSize(msg_x, msg_y, max_msg_width, LINE_HEIGHT * static_cast<S32>(lines.size())));
     mCheck->setLabel(check_title);
     mCheck->setCommitCallback(cb);
 
@@ -246,7 +246,7 @@ bool LLCheckBoxToastPanel::setCheckBox(const std::string& check_title,
 
 void LLCheckBoxToastPanel::onCommitCheckbox(LLUICtrl* ctrl)
 {
-    BOOL check = ctrl->getValue().asBoolean();
+    bool check = ctrl->getValue().asBoolean();
     if (mNotification->getForm()->getIgnoreType() == LLNotificationForm::IGNORE_SHOW_AGAIN)
     {
         // question was "show again" so invert value to get "ignore"

@@ -33,17 +33,18 @@
 #include "llui.h"
 
 LLStyle::Params::Params()
-:   visible("visible", true),
+    : visible("visible", true),
     drop_shadow("drop_shadow", LLFontGL::NO_SHADOW),
     color("color", LLColor4::black),
     readonly_color("readonly_color", LLColor4::black),
     selected_color("selected_color", LLColor4::black),
+    alpha("alpha", 1.f),
     font("font", LLFontGL::getFontMonospace()),
     image("image"),
     link_href("href"),
     is_link("is_link")
-{}
-
+{
+}
 
 LLStyle::LLStyle(const LLStyle::Params& p)
 :   mVisible(p.visible),
@@ -54,14 +55,32 @@ LLStyle::LLStyle(const LLStyle::Params& p)
     mLink(p.link_href),
     mIsLink(p.is_link.isProvided() ? p.is_link : !p.link_href().empty()),
     mDropShadow(p.drop_shadow),
-    mImagep(p.image())
-{}
+    mImagep(p.image()),
+    mAlpha(p.alpha)
+{
+}
+
+LLStyle* LLStyle::makeCopy() const
+{
+    LLStyle* copy = new LLStyle();
+    copy->mDropShadow = mDropShadow;
+    copy->mFontName = mFontName;
+    copy->mLink = mLink;
+    copy->mColor.set(mColor.get());
+    copy->mReadOnlyColor.set(mReadOnlyColor.get());
+    copy->mSelectedColor.set(mSelectedColor.get());
+    copy->mFont = mFont;
+    copy->mImagep = mImagep;
+    copy->mAlpha = mAlpha;
+    copy->mVisible = mVisible;
+    copy->mIsLink = mIsLink;
+    return copy;
+}
 
 void LLStyle::setFont(const LLFontGL* font)
 {
     mFont = font;
 }
-
 
 const LLFontGL* LLStyle::getFont() const
 {
@@ -73,17 +92,17 @@ void LLStyle::setLinkHREF(const std::string& href)
     mLink = href;
 }
 
-BOOL LLStyle::isLink() const
+bool LLStyle::isLink() const
 {
     return mIsLink;
 }
 
-BOOL LLStyle::isVisible() const
+bool LLStyle::isVisible() const
 {
     return mVisible;
 }
 
-void LLStyle::setVisible(BOOL is_visible)
+void LLStyle::setVisible(bool is_visible)
 {
     mVisible = is_visible;
 }

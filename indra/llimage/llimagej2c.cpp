@@ -31,7 +31,6 @@
 #include "llmath.h"
 #include "llmemory.h"
 #include "llsd.h"
-#include <boost/scoped_ptr.hpp>
 
 // Declare the prototype for this factory function here. It is implemented in
 // other files which define a LLImageJ2CImpl subclass, but only ONE static
@@ -107,6 +106,8 @@ bool LLImageJ2C::updateData()
     bool res = true;
     resetLastError();
 
+    LLImageDataLock lock(this);
+
     // Check to make sure that this instance has been initialized with data
     if (!getData() || (getDataSize() < 16))
     {
@@ -157,22 +158,25 @@ bool LLImageJ2C::decodeChannels(LLImageRaw *raw_imagep, F32 decode_time, S32 fir
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
     LLTimer elapsed;
 
-    bool res = true;
-
     resetLastError();
 
-    // Check to make sure that this instance has been initialized with data
-    if (!getData() || (getDataSize() < 16))
+    bool res;
     {
-        setLastError("LLImageJ2C uninitialized");
-        res = true; // done
-    }
-    else
-    {
-        // Update the raw discard level
-        updateRawDiscardLevel();
+        LLImageDataLock lock(this);
+
         mDecoding = true;
-        res = mImpl->decodeImpl(*this, *raw_imagep, decode_time, first_channel, max_channel_count);
+        // Check to make sure that this instance has been initialized with data
+        if (!getData() || (getDataSize() < 16))
+        {
+            setLastError("LLImageJ2C uninitialized");
+            res = true; // done
+        }
+        else
+        {
+            // Update the raw discard level
+            updateRawDiscardLevel();
+            res = mImpl->decodeImpl(*this, *raw_imagep, decode_time, first_channel, max_channel_count);
+        }
     }
 
     if (res)
@@ -181,9 +185,18 @@ bool LLImageJ2C::decodeChannels(LLImageRaw *raw_imagep, F32 decode_time, S32 fir
         {
             // Failed
             raw_imagep->deleteData();
+            res = false;
         }
         else
         {
+            mDecoding = false;
+        }
+    }
+    else
+    {
+        if (mDecoding)
+        {
+            LL_WARNS() << "decodeImpl failed but mDecoding is true" << LL_ENDL;
             mDecoding = false;
         }
     }
@@ -261,30 +274,28 @@ S32 LLImageJ2C::calcDataSizeJ2C(S32 w, S32 h, S32 comp, S32 discard_level, F32 r
     // For details about the equation used here, see https://wiki.lindenlab.com/wiki/THX1138_KDU_Improvements#Byte_Range_Study
 
     // Estimate the number of layers. This is consistent with what's done for j2c encoding in LLImageJ2CKDU::encodeImpl().
-    S32 nb_layers = 1;
-    S32 surface = w*h;
-    S32 s = 64*64;
-    while (surface > s)
+    constexpr S32 precision = 8; // assumed bitrate per component channel, might change in future for HDR support
+    constexpr S32 max_components = 4; // assumed the file has four components; three color and alpha
+    // Use MAX_IMAGE_SIZE_DEFAULT (currently 2048) if either dimension is unknown (zero)
+    S32 width  = (w > 0) ? w : 2048;
+    S32 height = (h > 0) ? h : 2048;
+    S32 max_dimension = llmax(width, height); // Find largest dimension
+    S32 block_area = MAX_BLOCK_SIZE * MAX_BLOCK_SIZE; // Calculated initial block area from established max block size (currently 64)
+    block_area *= llmax((max_dimension / MAX_BLOCK_SIZE / max_components), 1); // Adjust initial block area by ratio of largest dimension to block size per component
+    S32 totalbytes = (S32) (block_area * max_components * precision); // First block layer computed before loop without compression rate
+    S32 block_layers = 1; // Start at layer 1 since first block layer is computed outside loop
+    while (block_layers < 6) // Walk five layers for the five discards in JPEG2000
     {
-        nb_layers++;
-        s *= 4;
+        if (block_layers <= (5 - discard_level))  // Walk backwards from discard 5 to required discard layer.
+            totalbytes += (S32) (block_area * max_components * precision * rate); // Add each block layer reduced by assumed compression rate
+        block_layers++; // Move to next layer
+        block_area *= 4; // Increase block area by power of four
     }
-    F32 layer_factor =  3.0f * (7 - llclamp(nb_layers,1,6));
 
-    // Compute w/pow(2,discard_level) and h/pow(2,discard_level)
-    w >>= discard_level;
-    h >>= discard_level;
-    w = llmax(w, 1);
-    h = llmax(h, 1);
+    totalbytes /= 8; // to bytes
+    totalbytes += calcHeaderSizeJ2C();  // header
 
-    // Temporary: compute both new and old range and pick one according to the settings TextureNewByteRange
-    // *TODO: Take the old code out once we have enough tests done
-    S32 bytes;
-    S32 new_bytes = (S32) (sqrt((F32)(w*h))*(F32)(comp)*rate*1000.f/layer_factor);
-    S32 old_bytes = (S32)((F32)(w*h*comp)*rate);
-    bytes = (LLImage::useNewByteRange() && (new_bytes < old_bytes) ? new_bytes : old_bytes);
-    bytes = llmax(bytes, calcHeaderSizeJ2C());
-    return bytes;
+    return totalbytes;
 }
 
 S32 LLImageJ2C::calcHeaderSize()
@@ -406,8 +417,9 @@ bool LLImageJ2C::loadAndValidate(const std::string &filename)
 
 bool LLImageJ2C::validate(U8 *data, U32 file_size)
 {
-
     resetLastError();
+
+    LLImageDataLock lock(this);
 
     setData(data, file_size);
 

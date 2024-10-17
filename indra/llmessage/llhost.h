@@ -80,7 +80,7 @@ public:
     void    setAddress( const std::string& ipstr )      { mIP = ip_string_to_u32(ipstr.c_str()); }
     void    setAddress( U32 ip )                { mIP = ip; }
     void    setPort( U32 port )                 { mPort = port; }
-    BOOL    setHostByName(const std::string& hname);
+    bool    setHostByName(const std::string& hname);
 
     LLHost& operator=(const LLHost &rhs);
     void    invalidate()                        { mIP = INVALID_HOST_IP_ADDRESS; mPort = INVALID_PORT;};

@@ -81,7 +81,7 @@ public:
     // Multi-slider rounds values to nearest increments (bias towards rounding down)
     F32                 getNearestIncrement(F32 value) const;
 
-    void                setSliderValue(const std::string& name, F32 value, BOOL from_event = FALSE);
+    void                setSliderValue(const std::string& name, F32 value, bool from_event = false);
     F32                 getSliderValue(const std::string& name) const;
     F32                 getSliderValueFromPos(S32 xpos, S32 ypos) const;
     LLRect              getSliderThumbRect(const std::string& name) const;
@@ -94,7 +94,7 @@ public:
     F32                 getCurSliderValue() const               { return getSliderValue(mCurSlider); }
     void                setCurSlider(const std::string& name);
     void                resetCurSlider();
-    void                setCurSliderValue(F32 val, BOOL from_event = false) { setSliderValue(mCurSlider, val, from_event); }
+    void                setCurSliderValue(F32 val, bool from_event = false) { setSliderValue(mCurSlider, val, from_event); }
 
     /*virtual*/ void    setValue(const LLSD& value) override;
     /*virtual*/ LLSD    getValue() const override { return mValue; }
@@ -110,17 +110,17 @@ public:
     void                deleteCurSlider()           { deleteSlider(mCurSlider); }
     /*virtual*/ void    clear() override;
 
-    /*virtual*/ BOOL    handleHover(S32 x, S32 y, MASK mask) override;
-    /*virtual*/ BOOL    handleMouseUp(S32 x, S32 y, MASK mask) override;
-    /*virtual*/ BOOL    handleMouseDown(S32 x, S32 y, MASK mask) override;
-    /*virtual*/ BOOL    handleKeyHere(KEY key, MASK mask) override;
+    /*virtual*/ bool    handleHover(S32 x, S32 y, MASK mask) override;
+    /*virtual*/ bool    handleMouseUp(S32 x, S32 y, MASK mask) override;
+    /*virtual*/ bool    handleMouseDown(S32 x, S32 y, MASK mask) override;
+    /*virtual*/ bool    handleKeyHere(KEY key, MASK mask) override;
     /*virtual*/ void    onMouseLeave(S32 x, S32 y, MASK mask) override;
     /*virtual*/ void    draw() override;
 
-    S32             getMaxNumSliders() { return mMaxNumSliders; }
-    S32             getCurNumSliders() { return mValue.size(); }
-    F32             getOverlapThreshold() { return mOverlapThreshold; }
-    bool            canAddSliders() { return mValue.size() < mMaxNumSliders; }
+    S32             getMaxNumSliders() const { return mMaxNumSliders; }
+    S32             getCurNumSliders() const { return static_cast<S32>(mValue.size()); }
+    F32             getOverlapThreshold() const { return mOverlapThreshold; }
+    bool            canAddSliders() const { return mValue.size() < mMaxNumSliders; }
 
 
 protected:
@@ -130,11 +130,11 @@ protected:
     static S32      mNameCounter;
 
     S32             mMaxNumSliders;
-    BOOL            mAllowOverlap;
-    BOOL            mLoopOverlap;
+    bool            mAllowOverlap;
+    bool            mLoopOverlap;
     F32             mOverlapThreshold;
-    BOOL            mDrawTrack;
-    BOOL            mUseTriangle;           /// hacked in toggle to use a triangle
+    bool            mDrawTrack;
+    bool            mUseTriangle;           /// hacked in toggle to use a triangle
 
     S32             mMouseOffset;
     LLRect          mDragStartThumbRect;

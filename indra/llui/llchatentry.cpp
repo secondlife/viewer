@@ -45,7 +45,8 @@ LLChatEntry::LLChatEntry(const Params& p)
     mExpandLinesCount(p.expand_lines_count),
     mPrevLinesCount(0),
     mSingleLineMode(false),
-    mPrevExpandedLineCount(S32_MAX)
+    mPrevExpandedLineCount(S32_MAX),
+    mCurrentInput("")
 {
     // Initialize current history line iterator
     mCurrentHistoryLine = mLineHistory.begin();
@@ -176,9 +177,9 @@ void LLChatEntry::onFocusLost()
     LLUICtrl::onFocusLost();
 }
 
-BOOL LLChatEntry::handleSpecialKey(const KEY key, const MASK mask)
+bool LLChatEntry::handleSpecialKey(const KEY key, const MASK mask)
 {
-    BOOL handled = FALSE;
+    bool handled = false;
 
     LLTextEditor::handleSpecialKey(key, mask);
 
@@ -189,6 +190,7 @@ BOOL LLChatEntry::handleSpecialKey(const KEY key, const MASK mask)
         {
             needsReflow();
         }
+        mCurrentInput = "";
         break;
 
     case KEY_UP:
@@ -196,6 +198,11 @@ BOOL LLChatEntry::handleSpecialKey(const KEY key, const MASK mask)
         {
             if (!mLineHistory.empty() && mCurrentHistoryLine > mLineHistory.begin())
             {
+                if (mCurrentHistoryLine == mLineHistory.end())
+                {
+                    mCurrentInput = getText();
+                }
+
                 setText(*(--mCurrentHistoryLine));
                 endOfDoc();
             }
@@ -203,23 +210,22 @@ BOOL LLChatEntry::handleSpecialKey(const KEY key, const MASK mask)
             {
                 LLUI::getInstance()->reportBadKeystroke();
             }
-            handled = TRUE;
+            handled = true;
         }
         break;
 
     case KEY_DOWN:
         if (mHasHistory && MASK_CONTROL == mask)
         {
-            if (!mLineHistory.empty() && mCurrentHistoryLine < (mLineHistory.end() - 1) )
+            if (!mLineHistory.empty() && mCurrentHistoryLine < (mLineHistory.end() - 1))
             {
                 setText(*(++mCurrentHistoryLine));
                 endOfDoc();
             }
-            else if (!mLineHistory.empty() && mCurrentHistoryLine == (mLineHistory.end() - 1) )
+            else if (!mLineHistory.empty() && mCurrentHistoryLine == (mLineHistory.end() - 1))
             {
                 mCurrentHistoryLine++;
-                std::string empty("");
-                setText(empty);
+                setText(mCurrentInput);
                 needsReflow();
                 endOfDoc();
             }
@@ -227,7 +233,7 @@ BOOL LLChatEntry::handleSpecialKey(const KEY key, const MASK mask)
             {
                 LLUI::getInstance()->reportBadKeystroke();
             }
-            handled = TRUE;
+            handled = true;
         }
         break;
 

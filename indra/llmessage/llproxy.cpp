@@ -123,7 +123,7 @@ S32 LLProxy::proxyHandshake(LLHost proxy)
         // The server has requested a username/password combination
         std::string socks_username(getSocksUser());
         std::string socks_password(getSocksPwd());
-        U32 request_size = socks_username.size() + socks_password.size() + 3;
+        U32 request_size = static_cast<S32>(socks_username.size() + socks_password.size() + 3);
         char * password_auth = new char[request_size];
         password_auth[0] = 0x01;
         password_auth[1] = (char)(socks_username.size());
@@ -465,7 +465,7 @@ void LLProxy::applyProxySettings(CURL* handle)
 /**
  * @brief Send one TCP packet and receive one in return.
  *
- * This operation is done synchronously with a 1000ms timeout. Therefore, it should not be used when a blocking
+ * This operation is done synchronously with a 100ms timeout. Therefore, it should not be used when a blocking
  * operation would impact the operation of the viewer.
  *
  * @param handle_ptr    Pointer to a connected LLSocket of type STREAM_TCP.
@@ -482,7 +482,7 @@ static apr_status_t tcp_blocking_handshake(LLSocket::ptr_t handle, char * dataou
 
     apr_size_t expected_len = outlen;
 
-    handle->setBlocking(1000);
+    handle->setBlocking(100000); // 100ms, 100000us. Should be sufficient for localhost, nearby network
 
     rv = apr_socket_send(apr_socket, dataout, &outlen);
     if (APR_SUCCESS != rv)
@@ -497,8 +497,6 @@ static apr_status_t tcp_blocking_handshake(LLSocket::ptr_t handle, char * dataou
                 " Sent: " << outlen << LL_ENDL;
         rv = -1;
     }
-
-    ms_sleep(1);
 
     if (APR_SUCCESS == rv)
     {

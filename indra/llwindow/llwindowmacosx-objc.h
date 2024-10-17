@@ -30,6 +30,7 @@
 
 #include <map>
 #include <vector>
+#include <deque>
 
 //fir CGSize
 #include <CoreGraphics/CGGeometry.h>
@@ -37,7 +38,7 @@
 typedef std::vector<std::pair<int, bool> > segment_t;
 
 typedef std::vector<int> segment_lengths;
-typedef std::vector<int> segment_standouts;
+typedef std::deque<bool> segment_standouts;
 
 struct attributedStringInfo {
     segment_lengths seg_lengths;
@@ -176,6 +177,8 @@ int wstring_length(const std::basic_string<wchar_t> & wstr, const int woffset, c
 void setMarkedText(unsigned short *text, unsigned int *selectedRange, unsigned int *replacementRange, long text_len, attributedStringInfo segments);
 void getPreeditLocation(float *location, unsigned int length);
 void allowDirectMarkedTextInput(bool allow, GLViewRef glView);
+
+void openFolderWithFinder(const char *folder_path);
 
 NSWindowRef getMainAppWindow();
 GLViewRef getGLView();

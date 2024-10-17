@@ -58,7 +58,7 @@ public:
     LLFloaterObjectWeights(const LLSD& key);
     ~LLFloaterObjectWeights();
 
-     BOOL postBuild() override;
+    bool postBuild() override;
 
     void onOpen(const LLSD& key) override;
 

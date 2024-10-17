@@ -62,7 +62,7 @@ const std::string BLOCKED_PARAM_NAME = "blocked_to_select";
 LLPanelBlockedList::LLPanelBlockedList()
 :   LLPanel()
 {
-    mCommitCallbackRegistrar.add("Block.Action",    boost::bind(&LLPanelBlockedList::onCustomAction,  this, _2));
+    mCommitCallbackRegistrar.add("Block.Action",    { boost::bind(&LLPanelBlockedList::onCustomAction,  this, _2), cb_info::UNTRUSTED_BLOCK });
     mEnableCallbackRegistrar.add("Block.Check",     boost::bind(&LLPanelBlockedList::isActionChecked, this, _2));
 }
 
@@ -74,10 +74,10 @@ void LLPanelBlockedList::removePicker()
     }
 }
 
-BOOL LLPanelBlockedList::postBuild()
+bool LLPanelBlockedList::postBuild()
 {
     mBlockedList = getChild<LLBlockList>("blocked");
-    mBlockedList->setCommitOnSelectionChange(TRUE);
+    mBlockedList->setCommitOnSelectionChange(true);
     this->setVisibleCallback(boost::bind(&LLPanelBlockedList::removePicker, this));
 
     switch (gSavedSettings.getU32("BlockPeopleSortOrder"))
@@ -94,15 +94,20 @@ BOOL LLPanelBlockedList::postBuild()
         break;
     }
 
+    mBlockedGearBtn = getChild<LLMenuButton>("blocked_gear_btn");
+
     // Use the context menu of the Block list for the Block tab gear menu.
     LLToggleableMenu* blocked_gear_menu = mBlockedList->getContextMenu();
     if (blocked_gear_menu)
     {
-        getChild<LLMenuButton>("blocked_gear_btn")->setMenu(blocked_gear_menu, LLMenuButton::MP_BOTTOM_LEFT);
+        mBlockedGearBtn->setMenu(blocked_gear_menu, LLMenuButton::MP_BOTTOM_LEFT);
     }
+    mUnblockBtn = getChild<LLButton>("unblock_btn");
+    mUnblockBtn->setCommitCallback(boost::bind(&LLPanelBlockedList::unblockItem, this));
 
-    getChild<LLButton>("unblock_btn")->setCommitCallback(boost::bind(&LLPanelBlockedList::unblockItem, this));
     getChild<LLFilterEditor>("blocked_filter_input")->setCommitCallback(boost::bind(&LLPanelBlockedList::onFilterEdit, this, _2));
+
+    mBlockLimitText = getChild<LLUICtrl>("block_limit");
 
     return LLPanel::postBuild();
 }
@@ -140,11 +145,12 @@ void LLPanelBlockedList::showPanelAndSelect(const LLUUID& idToSelect)
 void LLPanelBlockedList::updateButtons()
 {
     bool hasSelected = NULL != mBlockedList->getSelectedItem();
-    getChildView("unblock_btn")->setEnabled(hasSelected);
-    getChildView("blocked_gear_btn")->setEnabled(hasSelected);
+    mUnblockBtn->setEnabled(hasSelected);
+    mBlockedGearBtn->setEnabled(hasSelected);
 
-    getChild<LLUICtrl>("block_limit")->setTextArg("[COUNT]", llformat("%d", mBlockedList->getMuteListSize()));
-    getChild<LLUICtrl>("block_limit")->setTextArg("[LIMIT]", llformat("%d", gSavedSettings.getS32("MuteListLimit")));
+    static LLCachedControl<S32> mute_list_limit(gSavedSettings, "MuteListLimit");
+    mBlockLimitText->setTextArg("[COUNT]", llformat("%d", mBlockedList->getMuteListSize()));
+    mBlockLimitText->setTextArg("[LIMIT]", llformat("%d", mute_list_limit()));
 }
 
 void LLPanelBlockedList::unblockItem()
@@ -181,7 +187,7 @@ void LLPanelBlockedList::onCustomAction(const LLSD& userdata)
     }
 }
 
-BOOL LLPanelBlockedList::isActionChecked(const LLSD& userdata)
+bool LLPanelBlockedList::isActionChecked(const LLSD& userdata)
 {
     std::string item = userdata.asString();
     U32 sort_order = gSavedSettings.getU32("BlockPeopleSortOrder");
@@ -200,13 +206,13 @@ BOOL LLPanelBlockedList::isActionChecked(const LLSD& userdata)
 
 void LLPanelBlockedList::blockResidentByName()
 {
-    const BOOL allow_multiple = FALSE;
-    const BOOL close_on_select = TRUE;
+    const bool allow_multiple = false;
+    const bool close_on_select = true;
 
-    LLView * button = findChild<LLButton>("plus_btn", TRUE);
+    LLView * button = findChild<LLButton>("plus_btn", true);
     LLFloater* root_floater = gFloaterView->getParentFloater(this);
     LLFloaterAvatarPicker * picker = LLFloaterAvatarPicker::show(boost::bind(&LLPanelBlockedList::callbackBlockPicked, this, _1, _2),
-                                                                                    allow_multiple, close_on_select, FALSE, root_floater->getName(), button);
+                                                                                    allow_multiple, close_on_select, false, root_floater->getName(), button);
 
     if (root_floater)
     {
@@ -243,7 +249,7 @@ void LLPanelBlockedList::callbackBlockByName(const std::string& text)
     if (text.empty()) return;
 
     LLMute mute(LLUUID::null, text, LLMute::BY_NAME);
-    BOOL success = LLMuteList::getInstance()->add(mute);
+    bool success = LLMuteList::getInstance()->add(mute);
     if (!success)
     {
         LLNotificationsUtil::add("MuteByNameFailed");
@@ -267,7 +273,7 @@ LLFloaterGetBlockedObjectName::~LLFloaterGetBlockedObjectName()
     gFocusMgr.releaseFocusIfNeeded( this );
 }
 
-BOOL LLFloaterGetBlockedObjectName::postBuild()
+bool LLFloaterGetBlockedObjectName::postBuild()
 {
     getChild<LLButton>("OK")->      setCommitCallback(boost::bind(&LLFloaterGetBlockedObjectName::applyBlocking, this));
     getChild<LLButton>("Cancel")->  setCommitCallback(boost::bind(&LLFloaterGetBlockedObjectName::cancelBlocking, this));
@@ -276,17 +282,17 @@ BOOL LLFloaterGetBlockedObjectName::postBuild()
     return LLFloater::postBuild();
 }
 
-BOOL LLFloaterGetBlockedObjectName::handleKeyHere(KEY key, MASK mask)
+bool LLFloaterGetBlockedObjectName::handleKeyHere(KEY key, MASK mask)
 {
     if (key == KEY_RETURN && mask == MASK_NONE)
     {
         applyBlocking();
-        return TRUE;
+        return true;
     }
     else if (key == KEY_ESCAPE && mask == MASK_NONE)
     {
         cancelBlocking();
-        return TRUE;
+        return true;
     }
 
     return LLFloater::handleKeyHere(key, mask);

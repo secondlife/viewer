@@ -59,24 +59,24 @@ public:
         Optional<LLUIColor>                 ghost_color;
         Optional<LLUIColor>                 area_color;
         Optional<LLUIColor>                 grid_color;
-        Optional<BOOL>                      logarithmic;
+        Optional<bool>                      logarithmic;
 
         Params();
     };
 
 
-    virtual ~LLXYVector();
-    /*virtual*/ BOOL postBuild();
+    ~LLXYVector() override;
+    bool postBuild() override;
 
-    virtual BOOL    handleHover(S32 x, S32 y, MASK mask);
-    virtual BOOL    handleMouseUp(S32 x, S32 y, MASK mask);
-    virtual BOOL    handleMouseDown(S32 x, S32 y, MASK mask);
+    bool handleHover(S32 x, S32 y, MASK mask) override;
+    bool handleMouseUp(S32 x, S32 y, MASK mask) override;
+    bool handleMouseDown(S32 x, S32 y, MASK mask) override;
 
-    virtual void    draw();
+    void draw() override;
 
-    virtual void    setValue(const LLSD& value);
-    void            setValue(F32 x, F32 y);
-    virtual LLSD    getValue() const;
+    void setValue(const LLSD& value) override;
+    void setValue(F32 x, F32 y);
+    LLSD getValue() const override;
 
 protected:
     friend class LLUICtrlFactory;
@@ -113,7 +113,7 @@ private:
     LLUIColor mAreaColor;
     LLUIColor mGridColor;
 
-    BOOL mLogarithmic;
+    bool mLogarithmic;
     F32 mLogScaleX;
     F32 mLogScaleY;
 };

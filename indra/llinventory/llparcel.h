@@ -37,98 +37,98 @@
 #include "llsettingsdaycycle.h"
 
 // Grid out of which parcels taken is stepped every 4 meters.
-const F32 PARCEL_GRID_STEP_METERS   = 4.f;
+constexpr F32 PARCEL_GRID_STEP_METERS   = 4.f;
 
 // Area of one "square" of parcel
-const S32 PARCEL_UNIT_AREA          = 16;
+constexpr S32 PARCEL_UNIT_AREA          = 16;
 
 // Height _above_ground_ that parcel boundary ends
-const F32 PARCEL_HEIGHT = 50.f;
+constexpr F32 PARCEL_HEIGHT = 50.f;
 
 //Height above ground which parcel boundries exist for explicitly banned avatars
-const F32 BAN_HEIGHT = 5000.f;
+constexpr F32 BAN_HEIGHT = 5000.f;
 
 // Maximum number of entries in an access list
-const S32 PARCEL_MAX_ACCESS_LIST = 300;
+constexpr S32 PARCEL_MAX_ACCESS_LIST = 300;
 //Maximum number of entires in an update packet
 //for access/ban lists.
-const F32 PARCEL_MAX_ENTRIES_PER_PACKET = 48.f;
+constexpr F32 PARCEL_MAX_ENTRIES_PER_PACKET = 48.f;
 
 // Maximum number of experiences
-const S32 PARCEL_MAX_EXPERIENCE_LIST = 24;
+constexpr S32 PARCEL_MAX_EXPERIENCE_LIST = 24;
 
 // Weekly charge for listing a parcel in the directory
-const S32 PARCEL_DIRECTORY_FEE = 30;
+constexpr S32 PARCEL_DIRECTORY_FEE = 30;
 
-const S32 PARCEL_PASS_PRICE_DEFAULT = 10;
-const F32 PARCEL_PASS_HOURS_DEFAULT = 1.f;
+constexpr S32 PARCEL_PASS_PRICE_DEFAULT = 10;
+constexpr F32 PARCEL_PASS_HOURS_DEFAULT = 1.f;
 
 // Number of "chunks" in which parcel overlay data is sent
 // Chunk 0 = southern rows, entire width
-const S32 PARCEL_OVERLAY_CHUNKS = 4;
+constexpr S32 PARCEL_OVERLAY_CHUNKS = 4;
 
 // Bottom three bits are a color index for the land overlay
-const U8 PARCEL_COLOR_MASK  = 0x07;
-const U8 PARCEL_PUBLIC      = 0x00;
-const U8 PARCEL_OWNED       = 0x01;
-const U8 PARCEL_GROUP       = 0x02;
-const U8 PARCEL_SELF        = 0x03;
-const U8 PARCEL_FOR_SALE    = 0x04;
-const U8 PARCEL_AUCTION     = 0x05;
+constexpr U8 PARCEL_COLOR_MASK  = 0x07;
+constexpr U8 PARCEL_PUBLIC      = 0x00;
+constexpr U8 PARCEL_OWNED       = 0x01;
+constexpr U8 PARCEL_GROUP       = 0x02;
+constexpr U8 PARCEL_SELF        = 0x03;
+constexpr U8 PARCEL_FOR_SALE    = 0x04;
+constexpr U8 PARCEL_AUCTION     = 0x05;
 // unused 0x06
 // unused 0x07
 // flag, unused 0x08
-const U8 PARCEL_HIDDENAVS   = 0x10; // avatars not visible outside of parcel.  Used for 'see avs' feature, but must be off for compatibility
-const U8 PARCEL_SOUND_LOCAL = 0x20;
-const U8 PARCEL_WEST_LINE   = 0x40; // flag, property line on west edge
-const U8 PARCEL_SOUTH_LINE  = 0x80; // flag, property line on south edge
+constexpr U8 PARCEL_HIDDENAVS   = 0x10; // avatars not visible outside of parcel.  Used for 'see avs' feature, but must be off for compatibility
+constexpr U8 PARCEL_SOUND_LOCAL = 0x20;
+constexpr U8 PARCEL_WEST_LINE   = 0x40; // flag, property line on west edge
+constexpr U8 PARCEL_SOUTH_LINE  = 0x80; // flag, property line on south edge
 
 // Transmission results for parcel properties
-const S32 PARCEL_RESULT_NO_DATA = -1;
-const S32 PARCEL_RESULT_SUCCESS = 0;    // got exactly one parcel
-const S32 PARCEL_RESULT_MULTIPLE = 1;   // got multiple parcels
+constexpr S32 PARCEL_RESULT_NO_DATA = -1;
+constexpr S32 PARCEL_RESULT_SUCCESS = 0;    // got exactly one parcel
+constexpr S32 PARCEL_RESULT_MULTIPLE = 1;   // got multiple parcels
 
-const S32 SELECTED_PARCEL_SEQ_ID = -10000;
-const S32 COLLISION_NOT_IN_GROUP_PARCEL_SEQ_ID =  -20000;
-const S32 COLLISION_BANNED_PARCEL_SEQ_ID = -30000;
-const S32 COLLISION_NOT_ON_LIST_PARCEL_SEQ_ID =  -40000;
-const S32 HOVERED_PARCEL_SEQ_ID =  -50000;
+constexpr S32 SELECTED_PARCEL_SEQ_ID = -10000;
+constexpr S32 COLLISION_NOT_IN_GROUP_PARCEL_SEQ_ID =  -20000;
+constexpr S32 COLLISION_BANNED_PARCEL_SEQ_ID = -30000;
+constexpr S32 COLLISION_NOT_ON_LIST_PARCEL_SEQ_ID =  -40000;
+constexpr S32 HOVERED_PARCEL_SEQ_ID =  -50000;
 
-const U32 RT_NONE   = 0x1 << 0;
-const U32 RT_OWNER  = 0x1 << 1;
-const U32 RT_GROUP  = 0x1 << 2;
-const U32 RT_OTHER  = 0x1 << 3;
-const U32 RT_LIST   = 0x1 << 4;
-const U32 RT_SELL   = 0x1 << 5;
+constexpr U32 RT_NONE   = 0x1 << 0;
+constexpr U32 RT_OWNER  = 0x1 << 1;
+constexpr U32 RT_GROUP  = 0x1 << 2;
+constexpr U32 RT_OTHER  = 0x1 << 3;
+constexpr U32 RT_LIST   = 0x1 << 4;
+constexpr U32 RT_SELL   = 0x1 << 5;
 
-const S32 INVALID_PARCEL_ID = -1;
+constexpr S32 INVALID_PARCEL_ID = -1;
 
-const S32 INVALID_PARCEL_ENVIRONMENT_VERSION = -2;
+constexpr S32 INVALID_PARCEL_ENVIRONMENT_VERSION = -2;
 // if Region settings are used, parcel env. version is -1
-const S32 UNSET_PARCEL_ENVIRONMENT_VERSION = -1;
+constexpr S32 UNSET_PARCEL_ENVIRONMENT_VERSION = -1;
 
 // Timeouts for parcels
 // default is 21 days * 24h/d * 60m/h * 60s/m *1000000 usec/s = 1814400000000
-const U64 DEFAULT_USEC_CONVERSION_TIMEOUT = U64L(1814400000000);
+constexpr U64 DEFAULT_USEC_CONVERSION_TIMEOUT = U64L(1814400000000);
 // ***** TESTING is 10 minutes
 //const U64 DEFAULT_USEC_CONVERSION_TIMEOUT = U64L(600000000);
 
 // group is 60 days * 24h/d * 60m/h * 60s/m *1000000 usec/s = 5184000000000
-const U64 GROUP_USEC_CONVERSION_TIMEOUT = U64L(5184000000000);
+constexpr U64 GROUP_USEC_CONVERSION_TIMEOUT = U64L(5184000000000);
 // ***** TESTING is 10 minutes
 //const U64 GROUP_USEC_CONVERSION_TIMEOUT = U64L(600000000);
 
 // default sale timeout is 2 days -> 172800000000
-const U64 DEFAULT_USEC_SALE_TIMEOUT = U64L(172800000000);
+constexpr U64 DEFAULT_USEC_SALE_TIMEOUT = U64L(172800000000);
 // ***** TESTING is 10 minutes
 //const U64 DEFAULT_USEC_SALE_TIMEOUT = U64L(600000000);
 
 // more grace period extensions.
-const U64 SEVEN_DAYS_IN_USEC = U64L(604800000000);
+constexpr U64 SEVEN_DAYS_IN_USEC = U64L(604800000000);
 
 // if more than 100,000s before sale revert, and no extra extension
 // has been given, go ahead and extend it more. That's about 1.2 days.
-const S32 EXTEND_GRACE_IF_MORE_THAN_SEC = 100000;
+constexpr S32 EXTEND_GRACE_IF_MORE_THAN_SEC = 100000;
 
 
 
@@ -209,37 +209,37 @@ public:
     LLParcel();
     LLParcel(
         const LLUUID &owner_id,
-        BOOL modify,
-        BOOL terraform,
-        BOOL damage,
+        bool modify,
+        bool terraform,
+        bool damage,
         time_t claim_date,
         S32 claim_price,
         S32 rent_price,
         S32 area,
         S32 sim_object_limit,
         F32 parcel_object_bonus,
-        BOOL is_group_owned = FALSE);
+        bool is_group_owned = false);
     virtual ~LLParcel();
 
     void init(
         const LLUUID &owner_id,
-        BOOL modify,
-        BOOL terraform,
-        BOOL damage,
+        bool modify,
+        bool terraform,
+        bool damage,
         time_t claim_date,
         S32 claim_price,
         S32 rent_price,
         S32 area,
         S32 sim_object_limit,
         F32 parcel_object_bonus,
-        BOOL is_group_owned = FALSE);
+        bool is_group_owned = false);
 
     // TODO: make an actual copy constructor for this
     void overrideParcelFlags(U32 flags);
     // if you specify an agent id here, the group id will be zeroed
     void overrideOwner(
         const LLUUID& owner_id,
-        BOOL is_group_owned = FALSE);
+        bool is_group_owned = false);
     void overrideSaleTimerExpires(F32 secs_left) { mSaleTimerExpires.setTimerExpirySec(secs_left); }
 
     // MANIPULATORS
@@ -250,9 +250,9 @@ public:
     void setMediaURL(const std::string& url);
     void setMediaType(const std::string& type);
     void setMediaDesc(const std::string& desc);
-    void    setMediaID(const LLUUID& id) { mMediaID = id; }
-    void    setMediaAutoScale ( U8 flagIn ) { mMediaAutoScale = flagIn; }
-    void    setMediaLoop (U8 loop) { mMediaLoop = loop; }
+    void setMediaID(const LLUUID& id) { mMediaID = id; }
+    void setMediaAutoScale ( U8 flagIn ) { mMediaAutoScale = flagIn; }
+    void setMediaLoop(U8 loop) { mMediaLoop = loop; }
     void setMediaWidth(S32 width);
     void setMediaHeight(S32 height);
     void setMediaCurrentURL(const std::string& url);
@@ -277,35 +277,35 @@ public:
     void setUserLocation(const LLVector3& pos)  { mUserLocation = pos; }
     void setUserLookAt(const LLVector3& rot)    { mUserLookAt = rot; }
     void setLandingType(const ELandingType type) { mLandingType = type; }
-    void setSeeAVs(BOOL see_avs)    { mSeeAVs = see_avs;    }
+    void setSeeAVs(bool see_avs)    { mSeeAVs = see_avs;    }
     void setHaveNewParcelLimitData(bool have_new_parcel_data)       { mHaveNewParcelLimitData = have_new_parcel_data;       }       // Remove this once hidden AV feature is fully available grid-wide
 
     void setAuctionID(U32 auction_id) { mAuctionID = auction_id;}
 
     void    setAllParcelFlags(U32 flags);
-    void    setParcelFlag(U32 flag, BOOL b);
+    void    setParcelFlag(U32 flag, bool b);
 
     virtual void setArea(S32 area, S32 sim_object_limit);
     void    setDiscountRate(F32 rate);
 
-    void    setAllowModify(BOOL b)  { setParcelFlag(PF_CREATE_OBJECTS, b); }
-    void    setAllowGroupModify(BOOL b) { setParcelFlag(PF_CREATE_GROUP_OBJECTS, b); }
-    void    setAllowAllObjectEntry(BOOL b)  { setParcelFlag(PF_ALLOW_ALL_OBJECT_ENTRY, b); }
-    void    setAllowGroupObjectEntry(BOOL b)    { setParcelFlag(PF_ALLOW_GROUP_OBJECT_ENTRY, b); }
-    void    setAllowTerraform(BOOL b){setParcelFlag(PF_ALLOW_TERRAFORM, b); }
-    void    setAllowDamage(BOOL b)  { setParcelFlag(PF_ALLOW_DAMAGE, b); }
-    void    setAllowFly(BOOL b)     { setParcelFlag(PF_ALLOW_FLY, b); }
-    void    setAllowGroupScripts(BOOL b)    { setParcelFlag(PF_ALLOW_GROUP_SCRIPTS, b); }
-    void    setAllowOtherScripts(BOOL b)    { setParcelFlag(PF_ALLOW_OTHER_SCRIPTS, b); }
-    void    setAllowDeedToGroup(BOOL b) { setParcelFlag(PF_ALLOW_DEED_TO_GROUP, b); }
-    void    setContributeWithDeed(BOOL b) { setParcelFlag(PF_CONTRIBUTE_WITH_DEED, b); }
-    void    setForSale(BOOL b)      { setParcelFlag(PF_FOR_SALE, b); }
-    void    setSoundOnly(BOOL b)    { setParcelFlag(PF_SOUND_LOCAL, b); }
-    void    setDenyAnonymous(BOOL b) { setParcelFlag(PF_DENY_ANONYMOUS, b); }
-    void    setDenyAgeUnverified(BOOL b) { setParcelFlag(PF_DENY_AGEUNVERIFIED, b); }
-    void    setRestrictPushObject(BOOL b) { setParcelFlag(PF_RESTRICT_PUSHOBJECT, b); }
-    void    setAllowGroupAVSounds(BOOL b)   { mAllowGroupAVSounds = b;      }
-    void    setAllowAnyAVSounds(BOOL b)     { mAllowAnyAVSounds = b;        }
+    void    setAllowModify(bool b)  { setParcelFlag(PF_CREATE_OBJECTS, b); }
+    void    setAllowGroupModify(bool b) { setParcelFlag(PF_CREATE_GROUP_OBJECTS, b); }
+    void    setAllowAllObjectEntry(bool b)  { setParcelFlag(PF_ALLOW_ALL_OBJECT_ENTRY, b); }
+    void    setAllowGroupObjectEntry(bool b)    { setParcelFlag(PF_ALLOW_GROUP_OBJECT_ENTRY, b); }
+    void    setAllowTerraform(bool b){setParcelFlag(PF_ALLOW_TERRAFORM, b); }
+    void    setAllowDamage(bool b)  { setParcelFlag(PF_ALLOW_DAMAGE, b); }
+    void    setAllowFly(bool b)     { setParcelFlag(PF_ALLOW_FLY, b); }
+    void    setAllowGroupScripts(bool b)    { setParcelFlag(PF_ALLOW_GROUP_SCRIPTS, b); }
+    void    setAllowOtherScripts(bool b)    { setParcelFlag(PF_ALLOW_OTHER_SCRIPTS, b); }
+    void    setAllowDeedToGroup(bool b) { setParcelFlag(PF_ALLOW_DEED_TO_GROUP, b); }
+    void    setContributeWithDeed(bool b) { setParcelFlag(PF_CONTRIBUTE_WITH_DEED, b); }
+    void    setForSale(bool b)      { setParcelFlag(PF_FOR_SALE, b); }
+    void    setSoundOnly(bool b)    { setParcelFlag(PF_SOUND_LOCAL, b); }
+    void    setDenyAnonymous(bool b) { setParcelFlag(PF_DENY_ANONYMOUS, b); }
+    void    setDenyAgeUnverified(bool b) { setParcelFlag(PF_DENY_AGEUNVERIFIED, b); }
+    void    setRestrictPushObject(bool b) { setParcelFlag(PF_RESTRICT_PUSHOBJECT, b); }
+    void    setAllowGroupAVSounds(bool b)   { mAllowGroupAVSounds = b;      }
+    void    setAllowAnyAVSounds(bool b)     { mAllowAnyAVSounds = b;        }
     void    setObscureMOAP(bool b)  { mObscureMOAP = b; }
 
     void    setDrawDistance(F32 dist)   { mDrawDistance = dist; }
@@ -315,9 +315,9 @@ public:
     void    setPassPrice(S32 price)             { mPassPrice = price; }
     void    setPassHours(F32 hours)             { mPassHours = hours; }
 
-//  BOOL    importStream(std::istream& input_stream);
-    BOOL    importAccessEntry(std::istream& input_stream, LLAccessEntry* entry);
-    // BOOL exportStream(std::ostream& output_stream);
+//  bool    importStream(std::istream& input_stream);
+    bool    importAccessEntry(std::istream& input_stream, LLAccessEntry* entry);
+    // bool exportStream(std::ostream& output_stream);
 
     void    packMessage(LLMessageSystem* msg);
     void    packMessage(LLSD& msg);
@@ -343,11 +343,11 @@ public:
     // time earlier than "now".
     void expirePasses(S32 now);
 
-    // Add to list, suppressing duplicates.  Returns TRUE if added.
-    BOOL addToAccessList(const LLUUID& agent_id, S32 time);
-    BOOL addToBanList(const LLUUID& agent_id, S32 time);
-    BOOL removeFromAccessList(const LLUUID& agent_id);
-    BOOL removeFromBanList(const LLUUID& agent_id);
+    // Add to list, suppressing duplicates.  Returns true if added.
+    bool addToAccessList(const LLUUID& agent_id, S32 time);
+    bool addToBanList(const LLUUID& agent_id, S32 time);
+    bool removeFromAccessList(const LLUUID& agent_id);
+    bool removeFromBanList(const LLUUID& agent_id);
 
     // ACCESSORS
     const LLUUID&   getID() const               { return mID; }
@@ -372,19 +372,19 @@ public:
     const LLUUID&   getGroupID() const          { return mGroupID; }
     S32             getPassPrice() const        { return mPassPrice; }
     F32             getPassHours() const        { return mPassHours; }
-    BOOL            getIsGroupOwned() const     { return mGroupOwned; }
+    bool            getIsGroupOwned() const     { return mGroupOwned; }
 
     U32 getAuctionID() const    { return mAuctionID; }
     bool isInEscrow() const     { return mInEscrow; }
 
-    BOOL isPublic() const;
+    bool isPublic() const;
 
     // Region-local user-specified position
     const LLVector3& getUserLocation() const    { return mUserLocation; }
     const LLVector3& getUserLookAt() const  { return mUserLookAt; }
     ELandingType getLandingType() const { return mLandingType; }
-    BOOL getSeeAVs() const          { return mSeeAVs;       }
-    BOOL getHaveNewParcelLimitData() const      { return mHaveNewParcelLimitData;   }
+    bool getSeeAVs() const          { return mSeeAVs;       }
+    bool getHaveNewParcelLimitData() const      { return mHaveNewParcelLimitData;   }
 
     // User-specified snapshot
     const LLUUID&   getSnapshotID() const       { return mSnapshotID; }
@@ -395,7 +395,7 @@ public:
     const LLUUID& getAuthorizedBuyerID() const { return mAuthBuyerID; }
 
     // helper function
-    BOOL isBuyerAuthorized(const LLUUID& buyer_id) const;
+    bool isBuyerAuthorized(const LLUUID& buyer_id) const;
 
     // The buyer of a plot is set when someone indicates they want to
     // buy the plot, and the system is simply waiting for tier-up
@@ -419,10 +419,10 @@ public:
 
     // dealing with sales and parcel conversion.
     //
-    // the isSaleTimerExpired will trivially return FALSE if there is
+    // the isSaleTimerExpired will trivially return false if there is
     // no sale going on. Pass in the current time in usec which will
     // be used for comparison.
-    BOOL isSaleTimerExpired(const U64& time);
+    bool isSaleTimerExpired(const U64& time);
 
     F32 getSaleTimerExpires() { return mSaleTimerExpires.getRemainingTimeF32(); }
 
@@ -431,7 +431,7 @@ public:
 
     // need to record a few things with the parcel when a sale
     // starts.
-    void startSale(const LLUUID& buyer_id, BOOL is_buyer_group);
+    void startSale(const LLUUID& buyer_id, bool is_buyer_group);
 
     // do the expiration logic, which needs to return values usable in
     // a L$ transaction.
@@ -440,86 +440,54 @@ public:
     void clearSale();
 
 
-    BOOL isMediaResetTimerExpired(const U64& time);
+    bool isMediaResetTimerExpired(const U64& time);
 
 
     // more accessors
-    U32     getParcelFlags() const          { return mParcelFlags; }
+    U32     getParcelFlags() const { return mParcelFlags; }
 
-    BOOL    getParcelFlag(U32 flag) const
-                    { return (mParcelFlags & flag) ? TRUE : FALSE; }
+    bool    getParcelFlag(U32 flag) const { return (mParcelFlags & flag) != 0; }
 
     // objects can be added or modified by anyone (only parcel owner if disabled)
-    BOOL    getAllowModify() const
-                    { return (mParcelFlags & PF_CREATE_OBJECTS) ? TRUE : FALSE; }
+    bool    getAllowModify() const                     { return getParcelFlag(PF_CREATE_OBJECTS); }
 
     // objects can be added or modified by group members
-    BOOL    getAllowGroupModify() const
-                    { return (mParcelFlags & PF_CREATE_GROUP_OBJECTS) ? TRUE : FALSE; }
+    bool    getAllowGroupModify() const                { return getParcelFlag(PF_CREATE_GROUP_OBJECTS); }
 
     // the parcel can be deeded to the group
-    BOOL    getAllowDeedToGroup() const
-                    { return (mParcelFlags & PF_ALLOW_DEED_TO_GROUP) ? TRUE : FALSE; }
+    bool    getAllowDeedToGroup() const                { return getParcelFlag(PF_ALLOW_DEED_TO_GROUP); }
 
     // Does the owner want to make a contribution along with the deed.
-    BOOL getContributeWithDeed() const
-    { return (mParcelFlags & PF_CONTRIBUTE_WITH_DEED) ? TRUE : FALSE; }
+    bool    getContributeWithDeed() const              { return getParcelFlag(PF_CONTRIBUTE_WITH_DEED); }
 
     // heightfield can be modified
-    BOOL    getAllowTerraform() const
-                    { return (mParcelFlags & PF_ALLOW_TERRAFORM) ? TRUE : FALSE; }
+    bool    getAllowTerraform() const                  { return getParcelFlag(PF_ALLOW_TERRAFORM); }
 
     // avatars can be hurt here
-    BOOL    getAllowDamage() const
-                    { return (mParcelFlags & PF_ALLOW_DAMAGE) ? TRUE : FALSE; }
+    bool    getAllowDamage() const                     { return getParcelFlag(PF_ALLOW_DAMAGE); }
 
-    BOOL    getAllowFly() const
-                    { return (mParcelFlags & PF_ALLOW_FLY) ? TRUE : FALSE; }
+    bool    getAllowFly() const                        { return getParcelFlag(PF_ALLOW_FLY); }
+    bool    getAllowGroupScripts() const               { return getParcelFlag(PF_ALLOW_GROUP_SCRIPTS); }
+    bool    getAllowOtherScripts() const               { return getParcelFlag(PF_ALLOW_OTHER_SCRIPTS); }
+    bool    getAllowAllObjectEntry() const             { return getParcelFlag(PF_ALLOW_ALL_OBJECT_ENTRY); }
+    bool    getAllowGroupObjectEntry() const           { return getParcelFlag(PF_ALLOW_GROUP_OBJECT_ENTRY); }
+    bool    getForSale() const                         { return getParcelFlag(PF_FOR_SALE); }
+    bool    getSoundLocal() const                      { return getParcelFlag(PF_SOUND_LOCAL); }
+    bool    getParcelFlagAllowVoice() const            { return getParcelFlag(PF_ALLOW_VOICE_CHAT); }
+    bool    getParcelFlagUseEstateVoiceChannel() const { return getParcelFlag(PF_USE_ESTATE_VOICE_CHAN); }
+    bool    getAllowPublish() const                    { return getParcelFlag(PF_ALLOW_PUBLISH); }
+    bool    getMaturePublish() const                   { return getParcelFlag(PF_MATURE_PUBLISH); }
+    bool    getRestrictPushObject() const              { return getParcelFlag(PF_RESTRICT_PUSHOBJECT); }
 
-    BOOL    getAllowGroupScripts() const
-                    { return (mParcelFlags & PF_ALLOW_GROUP_SCRIPTS) ? TRUE : FALSE; }
-
-    BOOL    getAllowOtherScripts() const
-                    { return (mParcelFlags & PF_ALLOW_OTHER_SCRIPTS) ? TRUE : FALSE; }
-
-    BOOL    getAllowAllObjectEntry() const
-                    { return (mParcelFlags & PF_ALLOW_ALL_OBJECT_ENTRY) ? TRUE : FALSE; }
-
-    BOOL    getAllowGroupObjectEntry() const
-                    { return (mParcelFlags & PF_ALLOW_GROUP_OBJECT_ENTRY) ? TRUE : FALSE; }
-
-    BOOL    getForSale() const
-                    { return (mParcelFlags & PF_FOR_SALE) ? TRUE : FALSE; }
-    BOOL    getSoundLocal() const
-                    { return (mParcelFlags & PF_SOUND_LOCAL) ? TRUE : FALSE; }
-    BOOL    getParcelFlagAllowVoice() const
-                    { return (mParcelFlags & PF_ALLOW_VOICE_CHAT) ? TRUE : FALSE; }
-    BOOL    getParcelFlagUseEstateVoiceChannel() const
-                    { return (mParcelFlags & PF_USE_ESTATE_VOICE_CHAN) ? TRUE : FALSE; }
-    BOOL    getAllowPublish() const
-                    { return (mParcelFlags & PF_ALLOW_PUBLISH) ? TRUE : FALSE; }
-    BOOL    getMaturePublish() const
-                    { return (mParcelFlags & PF_MATURE_PUBLISH) ? TRUE : FALSE; }
-    BOOL    getRestrictPushObject() const
-                    { return (mParcelFlags & PF_RESTRICT_PUSHOBJECT) ? TRUE : FALSE; }
-    BOOL    getRegionPushOverride() const
-                    { return mRegionPushOverride; }
-    BOOL    getRegionDenyAnonymousOverride() const
-                    { return mRegionDenyAnonymousOverride; }
-    BOOL    getRegionDenyAgeUnverifiedOverride() const
-                    { return mRegionDenyAgeUnverifiedOverride; }
-    BOOL    getRegionAllowAccessOverride() const
-                    { return mRegionAllowAccessoverride; }
-    BOOL    getRegionAllowEnvironmentOverride() const
-                    { return mRegionAllowEnvironmentOverride; }
-    S32     getParcelEnvironmentVersion() const
-                    { return mCurrentEnvironmentVersion; }
-
-
-    BOOL    getAllowGroupAVSounds() const   { return mAllowGroupAVSounds;   }
-    BOOL    getAllowAnyAVSounds()   const   { return mAllowAnyAVSounds;     }
-
-    bool    getObscureMOAP() const { return mObscureMOAP; }
+    bool    getRegionPushOverride() const              { return mRegionPushOverride; }
+    bool    getRegionDenyAnonymousOverride() const     { return mRegionDenyAnonymousOverride; }
+    bool    getRegionDenyAgeUnverifiedOverride() const { return mRegionDenyAgeUnverifiedOverride; }
+    bool    getRegionAllowAccessOverride() const       { return mRegionAllowAccessoverride; }
+    bool    getRegionAllowEnvironmentOverride() const  { return mRegionAllowEnvironmentOverride; }
+    S32     getParcelEnvironmentVersion() const        { return mCurrentEnvironmentVersion; }
+    bool    getAllowGroupAVSounds() const              { return mAllowGroupAVSounds; }
+    bool    getAllowAnyAVSounds() const                { return mAllowAnyAVSounds; }
+    bool    getObscureMOAP() const                     { return mObscureMOAP; }
 
     F32     getDrawDistance() const         { return mDrawDistance; }
     S32     getSalePrice() const            { return mSalePrice; }
@@ -537,10 +505,10 @@ public:
     S32     getClaimPrice() const           { return mClaimPricePerMeter * mArea; }
 
     // Can this agent create objects here?
-    BOOL    allowModifyBy(const LLUUID &agent_id, const LLUUID &group_id) const;
+    bool    allowModifyBy(const LLUUID &agent_id, const LLUUID &group_id) const;
 
     // Can this agent change the shape of the land?
-    BOOL    allowTerraformBy(const LLUUID &agent_id) const;
+    bool    allowTerraformBy(const LLUUID &agent_id) const;
 
     bool    operator==(const LLParcel &rhs) const;
 
@@ -582,30 +550,30 @@ public:
     void    setParcelPrimBonus(F32 bonus)   { mParcelPrimBonus = bonus; }
 
     void    setCleanOtherTime(S32 time)                 { mCleanOtherTime = time; }
-    void    setRegionPushOverride(BOOL override) {mRegionPushOverride = override; }
-    void    setRegionDenyAnonymousOverride(BOOL override)   { mRegionDenyAnonymousOverride = override; }
-    void    setRegionDenyAgeUnverifiedOverride(BOOL override)   { mRegionDenyAgeUnverifiedOverride = override; }
-    void    setRegionAllowAccessOverride(BOOL override) { mRegionAllowAccessoverride = override; }
-    void    setRegionAllowEnvironmentOverride(BOOL override) { mRegionAllowEnvironmentOverride = override; }
+    void    setRegionPushOverride(bool override) {mRegionPushOverride = override; }
+    void    setRegionDenyAnonymousOverride(bool override)   { mRegionDenyAnonymousOverride = override; }
+    void    setRegionDenyAgeUnverifiedOverride(bool override)   { mRegionDenyAgeUnverifiedOverride = override; }
+    void    setRegionAllowAccessOverride(bool override) { mRegionAllowAccessoverride = override; }
+    void    setRegionAllowEnvironmentOverride(bool override) { mRegionAllowEnvironmentOverride = override; }
 
     void    setParcelEnvironmentVersion(S32 version) { mCurrentEnvironmentVersion = version; }
 
     // Accessors for parcel sellWithObjects
     void    setPreviousOwnerID(LLUUID prev_owner)   { mPreviousOwnerID = prev_owner; }
-    void    setPreviouslyGroupOwned(BOOL b)         { mPreviouslyGroupOwned = b; }
-    void    setSellWithObjects(BOOL b)              { setParcelFlag(PF_SELL_PARCEL_OBJECTS, b); }
+    void    setPreviouslyGroupOwned(bool b)         { mPreviouslyGroupOwned = b; }
+    void    setSellWithObjects(bool b)              { setParcelFlag(PF_SELL_PARCEL_OBJECTS, b); }
 
     LLUUID  getPreviousOwnerID() const      { return mPreviousOwnerID; }
-    BOOL    getPreviouslyGroupOwned() const { return mPreviouslyGroupOwned; }
-    BOOL    getSellWithObjects() const      { return (mParcelFlags & PF_SELL_PARCEL_OBJECTS) ? TRUE : FALSE; }
+    bool    getPreviouslyGroupOwned() const { return mPreviouslyGroupOwned; }
+    bool    getSellWithObjects() const      { return getParcelFlag(PF_SELL_PARCEL_OBJECTS); }
 
 protected:
     LLUUID mID;
     LLUUID              mOwnerID;
     LLUUID              mGroupID;
-    BOOL                mGroupOwned; // TRUE if mOwnerID is a group_id
+    bool                mGroupOwned; // true if mOwnerID is a group_id
     LLUUID              mPreviousOwnerID;
-    BOOL                mPreviouslyGroupOwned;
+    bool                mPreviouslyGroupOwned;
 
     EOwnershipStatus mStatus;
     ECategory mCategory;
@@ -614,8 +582,8 @@ protected:
     LLVector3 mUserLocation;
     LLVector3 mUserLookAt;
     ELandingType mLandingType;
-    BOOL mSeeAVs;                           // Avatars on this parcel are visible from outside it
-    BOOL mHaveNewParcelLimitData;           // Remove once hidden AV feature is grid-wide
+    bool mSeeAVs;                           // Avatars on this parcel are visible from outside it
+    bool mHaveNewParcelLimitData;           // Remove once hidden AV feature is grid-wide
     LLTimer mSaleTimerExpires;
     LLTimer mMediaResetTimer;
 
@@ -666,13 +634,13 @@ protected:
     S32                 mTempPrimCount;
     F32                 mParcelPrimBonus;
     S32                 mCleanOtherTime;
-    BOOL                mRegionPushOverride;
-    BOOL                mRegionDenyAnonymousOverride;
-    BOOL                mRegionDenyAgeUnverifiedOverride;
-    BOOL                mRegionAllowAccessoverride;
-    BOOL                mRegionAllowEnvironmentOverride;
-    BOOL                mAllowGroupAVSounds;
-    BOOL                mAllowAnyAVSounds;
+    bool                mRegionPushOverride;
+    bool                mRegionDenyAnonymousOverride;
+    bool                mRegionDenyAgeUnverifiedOverride;
+    bool                mRegionAllowAccessoverride;
+    bool                mRegionAllowEnvironmentOverride;
+    bool                mAllowGroupAVSounds;
+    bool                mAllowAnyAVSounds;
     bool                mObscureMOAP;
     S32                 mCurrentEnvironmentVersion;
 
@@ -692,13 +660,11 @@ public:
 
     void setExperienceKeyType(const LLUUID& experience_key, U32 type);
     U32 countExperienceKeyType(U32 type);
-    U32 getExperienceKeyType(const LLUUID& experience_key)const;
     LLAccessEntry::map getExperienceKeysByType(U32 type)const;
     void clearExperienceKeysByType(U32 type);
 
 private:
     xp_type_map_t mExperienceKeys;
-
 };
 
 

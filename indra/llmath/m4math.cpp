@@ -26,7 +26,6 @@
 
 #include "linden_common.h"
 
-//#include "vmath.h"
 #include "v3math.h"
 #include "v4math.h"
 #include "m4math.h"
@@ -744,10 +743,10 @@ bool operator==(const LLMatrix4 &a, const LLMatrix4 &b)
         for (j = 0; j < NUM_VALUES_IN_MAT4; j++)
         {
             if (a.mMatrix[j][i] != b.mMatrix[j][i])
-                return FALSE;
+                return false;
         }
     }
-    return TRUE;
+    return true;
 }
 
 bool operator!=(const LLMatrix4 &a, const LLMatrix4 &b)
@@ -758,10 +757,10 @@ bool operator!=(const LLMatrix4 &a, const LLMatrix4 &b)
         for (j = 0; j < NUM_VALUES_IN_MAT4; j++)
         {
             if (a.mMatrix[j][i] != b.mMatrix[j][i])
-                return TRUE;
+                return true;
         }
     }
-    return FALSE;
+    return false;
 }
 
 bool operator<(const LLMatrix4& a, const LLMatrix4 &b)

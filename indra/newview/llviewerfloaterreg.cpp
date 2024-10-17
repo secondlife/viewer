@@ -47,6 +47,7 @@
 #include "llfloaterbeacons.h"
 #include "llfloaterbuildoptions.h"
 #include "llfloaterbulkpermission.h"
+#include "llfloaterbulkupload.h"
 #include "llfloaterbump.h"
 #include "llfloaterbuy.h"
 #include "llfloaterbuycontents.h"
@@ -76,6 +77,7 @@
 #include "llfloaterfonttest.h"
 #include "llfloaterforgetuser.h"
 #include "llfloatergesture.h"
+#include "llfloatergltfasseteditor.h"
 #include "llfloatergodtools.h"
 #include "llfloatergridstatus.h"
 #include "llfloatergroups.h"
@@ -94,6 +96,8 @@
 #include "llfloaterlandholdings.h"
 #include "llfloaterlinkreplace.h"
 #include "llfloaterloadprefpreset.h"
+#include "llfloaterluadebug.h"
+#include "llfloaterluascripts.h"
 #include "llfloatermap.h"
 #include "llfloatermarketplacelistings.h"
 #include "llfloatermediasettings.h"
@@ -114,7 +118,6 @@
 #include "llfloaterpay.h"
 #include "llfloaterperformance.h"
 #include "llfloaterperms.h"
-#include "llfloaterpostprocess.h"
 #include "llfloaterpreference.h"
 #include "llfloaterpreferencesgraphicsadvanced.h"
 #include "llfloaterpreferenceviewadvanced.h"
@@ -132,6 +135,7 @@
 #include "llfloaterscriptlimits.h"
 #include "llfloatersearch.h"
 #include "llfloatersellland.h"
+#include "llfloatersettingscolor.h"
 #include "llfloatersettingsdebug.h"
 #include "llfloatersidepanelcontainer.h"
 #include "llfloatersnapshot.h"
@@ -172,6 +176,7 @@
 #include "llpreviewtexture.h"
 #include "llscriptfloater.h"
 #include "llsyswellwindow.h"
+#include "rlvfloaters.h"
 
 // *NOTE: Please add files in alphabetical order to keep merges easy.
 
@@ -206,6 +211,7 @@ public:
                 "camera_presets",
                 "delete_pref_preset",
                 "forget_username",
+                "gltf_asset_editor",
                 "god_tools",
                 "group_picker",
                 "hud",
@@ -222,7 +228,8 @@ public:
                 "upload_image",
                 "upload_model",
                 "upload_script",
-                "upload_sound"
+                "upload_sound",
+                "bulk_upload"
             };
             return std::find(blacklist_clicked.begin(), blacklist_clicked.end(), fl_name) == blacklist_clicked.end();
         }
@@ -237,7 +244,7 @@ public:
                 "avatar_picker",
                 "camera",
                 "camera_presets",
-                "change_item_thumbnail"
+                "change_item_thumbnail",
                 "classified",
                 "add_landmark",
                 "delete_pref_preset",
@@ -246,6 +253,7 @@ public:
                 "env_edit_extdaycycle",
                 "font_test",
                 "forget_username",
+                "gltf_asset_editor",
                 "god_tools",
                 "group_picker",
                 "hud",
@@ -271,7 +279,8 @@ public:
                 "upload_image",
                 "upload_model",
                 "upload_script",
-                "upload_sound"
+                "upload_sound",
+                "bulk_upload"
             };
             return std::find(blacklist_untrusted.begin(), blacklist_untrusted.end(), fl_name) == blacklist_untrusted.end();
         }
@@ -336,6 +345,7 @@ void LLViewerFloaterReg::registerFloaters()
     LLFloaterReg::add("buy_object_contents", "floater_buy_contents.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterBuyContents>);
     LLFloaterReg::add("build", "floater_tools.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterTools>);
     LLFloaterReg::add("build_options", "floater_build_options.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterBuildOptions>);
+    LLFloaterReg::add("bulk_upload", "floater_bulk_upload.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterBulkUpload>);
     LLFloaterReg::add("bumps", "floater_bumps.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterBump>);
 
     LLFloaterReg::add("camera", "floater_camera.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterCamera>);
@@ -353,7 +363,6 @@ void LLViewerFloaterReg::registerFloaters()
 
     LLFloaterReg::add("emoji_picker", "floater_emoji_picker.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterEmojiPicker>);
     LLFloaterReg::add("emoji_complete", "floater_emoji_complete.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterEmojiComplete>);
-    LLFloaterReg::add("env_post_process", "floater_post_process.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterPostProcess>);
 
     LLFloaterReg::add("env_fixed_environmentent_water", "floater_fixedenvironment.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterFixedEnvironmentWater>);
     LLFloaterReg::add("env_fixed_environmentent_sky", "floater_fixedenvironment.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterFixedEnvironmentSky>);
@@ -372,6 +381,7 @@ void LLViewerFloaterReg::registerFloaters()
     LLFloaterReg::add("forget_username", "floater_forget_user.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterForgetUser>);
 
     LLFloaterReg::add("gestures", "floater_gesture.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterGesture>);
+    LLFloaterReg::add("gltf_asset_editor", "floater_gltf_asset_editor.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterGLTFAssetEditor>);
     LLFloaterReg::add("god_tools", "floater_god_tools.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterGodTools>);
     LLFloaterReg::add("grid_status", "floater_grid_status.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterGridStatus>);
     LLFloaterReg::add("group_picker", "floater_choose_group.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterGroupPicker>);
@@ -402,6 +412,9 @@ void LLViewerFloaterReg::registerFloaters()
     LLFloaterReg::add("land_holdings", "floater_land_holdings.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterLandHoldings>);
     LLFloaterReg::add("linkreplace", "floater_linkreplace.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterLinkReplace>);
     LLFloaterReg::add("load_pref_preset", "floater_load_pref_preset.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterLoadPrefPreset>);
+
+    LLFloaterReg::add("lua_debug", "floater_lua_debug.xml", (LLFloaterBuildFunc) &LLFloaterReg::build<LLFloaterLUADebug>);
+    LLFloaterReg::add("lua_scripts", "floater_lua_scripts.xml", (LLFloaterBuildFunc) &LLFloaterReg::build<LLFloaterLUAScripts>);
 
     LLFloaterReg::add("mem_leaking", "floater_mem_leaking.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterMemLeak>);
 
@@ -471,6 +484,7 @@ void LLViewerFloaterReg::registerFloaters()
     LLFloaterReg::add("region_debug_console", "floater_region_debug_console.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterRegionDebugConsole>);
     LLFloaterReg::add("region_info", "floater_region_info.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterRegionInfo>);
     LLFloaterReg::add("region_restarting", "floater_region_restarting.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterRegionRestarting>);
+    LLFloaterReg::add("rlv_console", "floater_rlv_console.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<Rlv::FloaterConsole>);
 
     LLFloaterReg::add("script_debug", "floater_script_debug.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterScriptDebug>);
     LLFloaterReg::add("script_debug_output", "floater_script_debug_panel.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterScriptDebugOutput>);
@@ -478,6 +492,7 @@ void LLViewerFloaterReg::registerFloaters()
     LLFloaterReg::add("script_limits", "floater_script_limits.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterScriptLimits>);
     LLFloaterReg::add("my_scripts", "floater_my_scripts.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterMyScripts>);
     LLFloaterReg::add("sell_land", "floater_sell_land.xml", &LLFloaterSellLand::buildFloater);
+    LLFloaterReg::add("settings_color", "floater_settings_color.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterSettingsColor>);
     LLFloaterReg::add("settings_debug", "floater_settings_debug.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterSettingsDebug>);
     LLFloaterReg::add("sound_devices", "floater_sound_devices.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterSoundDevices>);
     LLFloaterReg::add("stats", "floater_stats.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloater>);

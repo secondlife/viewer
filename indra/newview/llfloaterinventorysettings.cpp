@@ -34,21 +34,22 @@
 LLFloaterInventorySettings::LLFloaterInventorySettings(const LLSD& key)
   : LLFloater(key)
 {
-    mCommitCallbackRegistrar.add("ScriptPref.applyUIColor", boost::bind(&LLFloaterInventorySettings::applyUIColor, this, _1, _2));
-    mCommitCallbackRegistrar.add("ScriptPref.getUIColor", boost::bind(&LLFloaterInventorySettings::getUIColor, this, _1, _2));
+    mCommitCallbackRegistrar.add("ScriptPref.applyUIColor", { boost::bind(&LLFloaterInventorySettings::applyUIColor, this, _1, _2) });
+    mCommitCallbackRegistrar.add("ScriptPref.getUIColor", { boost::bind(&LLFloaterInventorySettings::getUIColor, this, _1, _2) });
 }
 
 LLFloaterInventorySettings::~LLFloaterInventorySettings()
 {}
 
-BOOL LLFloaterInventorySettings::postBuild()
+bool LLFloaterInventorySettings::postBuild()
 {
     getChild<LLUICtrl>("favorites_color")->setCommitCallback(boost::bind(&LLFloaterInventorySettings::updateColorSwatch, this));
+    getChild<LLButton>("ok_btn")->setCommitCallback(boost::bind(&LLFloater::closeFloater, this, false));
 
     bool enable_color = gSavedSettings.getBOOL("InventoryFavoritesColorText");
     getChild<LLUICtrl>("favorites_swatch")->setEnabled(enable_color);
 
-    return TRUE;
+    return true;
 }
 
 void LLFloaterInventorySettings::updateColorSwatch()

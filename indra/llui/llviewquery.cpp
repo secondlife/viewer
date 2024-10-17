@@ -34,12 +34,12 @@ void LLQuerySorter::sort(LLView * parent, viewList_t &children) const {}
 
 filterResult_t LLLeavesFilter::operator() (const LLView* const view, const viewList_t & children) const
 {
-    return filterResult_t(children.empty(), TRUE);
+    return filterResult_t(children.empty(), true);
 }
 
 filterResult_t LLRootsFilter::operator() (const LLView* const view, const viewList_t & children) const
 {
-    return filterResult_t(TRUE, FALSE);
+    return filterResult_t(true, false);
 }
 
 filterResult_t LLVisibleFilter::operator() (const LLView* const view, const viewList_t & children) const
@@ -58,7 +58,7 @@ filterResult_t LLTabStopFilter::operator() (const LLView* const view, const view
 
 filterResult_t LLCtrlFilter::operator() (const LLView* const view, const viewList_t & children) const
 {
-    return filterResult_t(view->isCtrl(),TRUE);
+    return filterResult_t(view->isCtrl(),true);
 }
 
 //
@@ -79,7 +79,7 @@ viewList_t LLViewQuery::run(LLView* view) const
     }
 
     viewList_t filtered_children;
-    filterResult_t post(TRUE, TRUE);
+    filterResult_t post(true, true);
     if(pre.second)
     {
         // run filters on children
@@ -123,7 +123,7 @@ void LLViewQuery::filterChildren(LLView* parent_view, viewList_t & filtered_chil
 
 filterResult_t LLViewQuery::runFilters(LLView * view, const viewList_t children, const filterList_t filters) const
 {
-    filterResult_t result = filterResult_t(TRUE, TRUE);
+    filterResult_t result = filterResult_t(true, true);
     for(filterList_const_iter_t iter = filters.begin();
         iter != filters.end();
         iter++)

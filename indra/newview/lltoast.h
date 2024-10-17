@@ -53,15 +53,11 @@ public:
     LLToastLifeTimer(LLToast* toast, F32 period);
 
     /*virtual*/
-    BOOL tick();
-    void stop();
-    void start();
+    bool tick() override;
     void restart();
-    BOOL getStarted();
+    bool getStarted();
     void setPeriod(F32 period);
-    F32 getRemainingTimeF32();
 
-    LLTimer&  getEventTimer() { return mEventTimer;}
 private :
     LLToast* mToast;
 };
@@ -109,16 +105,16 @@ public:
     static void updateClass();
     static void cleanupToasts();
 
-    static BOOL isAlertToastShown() { return sModalToastsList.size() > 0; }
+    static bool isAlertToastShown() { return sModalToastsList.size() > 0; }
 
     LLToast(const LLToast::Params& p);
     virtual ~LLToast();
-    BOOL postBuild();
+    bool postBuild();
 
-    /*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
+    /*virtual*/ void reshape(S32 width, S32 height, bool called_from_parent = true);
 
     // Toast handlers
-    virtual BOOL handleMouseDown(S32 x, S32 y, MASK mask);
+    virtual bool handleMouseDown(S32 x, S32 y, MASK mask);
 
     //Fading
 
@@ -147,13 +143,13 @@ public:
     //
     virtual void draw();
     //
-    virtual void setVisible(BOOL show);
+    virtual void setVisible(bool show);
 
-    /*virtual*/ void setBackgroundOpaque(BOOL b);
+    /*virtual*/ void setBackgroundOpaque(bool b);
     //
     virtual void hide();
 
-    /*virtual*/ void setFocus(BOOL b);
+    /*virtual*/ void setFocus(bool b);
 
     /*virtual*/ void onFocusLost();
 
@@ -236,7 +232,7 @@ private:
     bool        mCanBeStored;
     bool        mHideBtnEnabled;
     bool        mHideBtnPressed;
-    bool        mIsHidden;  // this flag is TRUE when a toast has faded or was hidden with (x) button (EXT-1849)
+    bool        mIsHidden;  // this flag is true when a toast has faded or was hidden with (x) button (EXT-1849)
     bool        mIsTip;
     bool        mIsFading;
     bool        mIsHovered;

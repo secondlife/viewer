@@ -155,7 +155,7 @@ LLSidepanelItemInfo::~LLSidepanelItemInfo()
 }
 
 // virtual
-BOOL LLSidepanelItemInfo::postBuild()
+bool LLSidepanelItemInfo::postBuild()
 {
     mChangeThumbnailBtn = getChild<LLUICtrl>("change_thumbnail_btn");
     mItemTypeIcon = getChild<LLIconCtrl>("item_type_icon");
@@ -186,7 +186,7 @@ BOOL LLSidepanelItemInfo::postBuild()
     // "Price" label for edit
     getChild<LLUICtrl>("Edit Cost")->setCommitCallback(boost::bind(&LLSidepanelItemInfo::onCommitSaleInfo, this, _1));
     refresh();
-    return TRUE;
+    return true;
 }
 
 void LLSidepanelItemInfo::setObjectID(const LLUUID& object_id)
@@ -296,16 +296,16 @@ void LLSidepanelItemInfo::refreshFromItem(LLViewerInventoryItem* item)
 
     // do not enable the UI for incomplete items.
     bool is_complete = item->isFinished();
-    const BOOL cannot_restrict_permissions = LLInventoryType::cannotRestrictPermissions(item->getInventoryType());
-    const BOOL is_calling_card = (item->getInventoryType() == LLInventoryType::IT_CALLINGCARD);
-    const BOOL is_settings = (item->getInventoryType() == LLInventoryType::IT_SETTINGS);
+    const bool cannot_restrict_permissions = LLInventoryType::cannotRestrictPermissions(item->getInventoryType());
+    const bool is_calling_card = (item->getInventoryType() == LLInventoryType::IT_CALLINGCARD);
+    const bool is_settings = (item->getInventoryType() == LLInventoryType::IT_SETTINGS);
     const LLPermissions& perm = item->getPermissions();
-    const BOOL can_agent_manipulate = gAgent.allowOperation(PERM_OWNER, perm,
+    const bool can_agent_manipulate = gAgent.allowOperation(PERM_OWNER, perm,
                                 GP_OBJECT_MANIPULATE);
-    const BOOL can_agent_sell = gAgent.allowOperation(PERM_OWNER, perm,
+    const bool can_agent_sell = gAgent.allowOperation(PERM_OWNER, perm,
                               GP_OBJECT_SET_SALE) &&
         !cannot_restrict_permissions;
-    const BOOL is_link = item->getIsLinkType();
+    const bool is_link = item->getIsLinkType();
 
     const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
     bool not_in_trash = (item->getUUID() != trash_id) && !gInventory.isObjectDescendentOf(item->getUUID(), trash_id);
@@ -314,7 +314,7 @@ void LLSidepanelItemInfo::refreshFromItem(LLViewerInventoryItem* item)
     // item in it.
     LLViewerObject* object = NULL;
     if(!mObjectID.isNull()) object = gObjectList.findObject(mObjectID);
-    BOOL is_obj_modify = TRUE;
+    bool is_obj_modify = true;
     if(object)
     {
         is_obj_modify = object->permOwnerModify();
@@ -322,10 +322,10 @@ void LLSidepanelItemInfo::refreshFromItem(LLViewerInventoryItem* item)
 
     if(item->getInventoryType() == LLInventoryType::IT_LSL)
     {
-        getChildView("LabelItemExperienceTitle")->setVisible(TRUE);
+        getChildView("LabelItemExperienceTitle")->setVisible(true);
         LLTextBox* tb = getChild<LLTextBox>("LabelItemExperience");
         tb->setText(getString("loading_experience"));
-        tb->setVisible(TRUE);
+        tb->setVisible(true);
         std::string url = std::string();
         if(object && object->getRegion())
         {
@@ -338,14 +338,14 @@ void LLSidepanelItemInfo::refreshFromItem(LLViewerInventoryItem* item)
     //////////////////////
     // ITEM NAME & DESC //
     //////////////////////
-    BOOL is_modifiable = gAgent.allowOperation(PERM_MODIFY, perm,
+    bool is_modifiable = gAgent.allowOperation(PERM_MODIFY, perm,
                                                GP_OBJECT_MANIPULATE)
         && is_obj_modify && is_complete && not_in_trash;
 
-    getChildView("LabelItemNameTitle")->setEnabled(TRUE);
+    getChildView("LabelItemNameTitle")->setEnabled(true);
     getChildView("LabelItemName")->setEnabled(is_modifiable && !is_calling_card); // for now, don't allow rename of calling cards
     getChild<LLUICtrl>("LabelItemName")->setValue(item->getName());
-    getChildView("LabelItemDescTitle")->setEnabled(TRUE);
+    getChildView("LabelItemDescTitle")->setEnabled(true);
     getChild<LLUICtrl>("item_thumbnail")->setValue(item->getThumbnailUUID());
 
     // Asset upload substitutes empty description with a (No Description) placeholder
@@ -354,12 +354,12 @@ void LLSidepanelItemInfo::refreshFromItem(LLViewerInventoryItem* item)
     mLabelItemDesc->setValue(desc);
     mLabelItemDesc->setEnabled(is_modifiable);
 
-    LLUIImagePtr icon_img = LLInventoryIcon::getIcon(item->getType(), item->getInventoryType(), item->getFlags(), FALSE);
+    LLUIImagePtr icon_img = LLInventoryIcon::getIcon(item->getType(), item->getInventoryType(), item->getFlags(), false);
     mItemTypeIcon->setImage(icon_img);
 
     // Style for creator and owner links
     LLStyle::Params style_params;
-    LLColor4 link_color = LLUIColorTable::instance().getColor("HTMLLinkColor");
+    LLUIColor link_color = LLUIColorTable::instance().getColor("HTMLLinkColor");
     style_params.color = link_color;
     style_params.readonly_color = link_color;
     style_params.is_link = true; // link will be added later
@@ -397,13 +397,13 @@ void LLSidepanelItemInfo::refreshFromItem(LLViewerInventoryItem* item)
             mCreatorCacheConnection = LLAvatarNameCache::get(creator_id, boost::bind(&LLSidepanelItemInfo::updateCreatorName, this, _1, _2, style_params));
         }
 
-        getChildView("LabelCreatorTitle")->setEnabled(TRUE);
-        mLabelCreatorName->setEnabled(TRUE);
+        getChildView("LabelCreatorTitle")->setEnabled(true);
+        mLabelCreatorName->setEnabled(true);
     }
     else
     {
-        getChildView("LabelCreatorTitle")->setEnabled(FALSE);
-        mLabelCreatorName->setEnabled(FALSE);
+        getChildView("LabelCreatorTitle")->setEnabled(false);
+        mLabelCreatorName->setEnabled(false);
         mLabelCreatorName->setValue(getString("unknown_multiple"));
     }
 
@@ -454,13 +454,13 @@ void LLSidepanelItemInfo::refreshFromItem(LLViewerInventoryItem* item)
                 mOwnerCacheConnection = LLAvatarNameCache::get(owner_id, boost::bind(&LLSidepanelItemInfo::updateOwnerName, this, _1, _2, style_params));
             }
         }
-        getChildView("LabelOwnerTitle")->setEnabled(TRUE);
-        mLabelOwnerName->setEnabled(TRUE);
+        getChildView("LabelOwnerTitle")->setEnabled(true);
+        mLabelOwnerName->setEnabled(true);
     }
     else
     {
-        getChildView("LabelOwnerTitle")->setEnabled(FALSE);
-        mLabelOwnerName->setEnabled(FALSE);
+        getChildView("LabelOwnerTitle")->setEnabled(false);
+        mLabelOwnerName->setEnabled(false);
         mLabelOwnerName->setValue(getString("public"));
     }
 
@@ -491,7 +491,8 @@ void LLSidepanelItemInfo::refreshFromItem(LLViewerInventoryItem* item)
     }
     else
     {
-        std::string timeStr = getString("acquiredDate");
+        static bool use_24h = gSavedSettings.getBOOL("Use24HourClock");
+        std::string timeStr = use_24h ? getString("acquiredDate") : getString("acquiredDateAMPM");
         LLSD substitution;
         substitution["datetime"] = (S32) time_utc;
         LLStringUtil::format (timeStr, substitution);
@@ -562,12 +563,12 @@ void LLSidepanelItemInfo::refreshFromItem(LLViewerInventoryItem* item)
     U32 everyone_mask   = perm.getMaskEveryone();
     U32 next_owner_mask = perm.getMaskNextOwner();
 
-    getChildView("CheckOwnerModify")->setEnabled(FALSE);
-    getChild<LLUICtrl>("CheckOwnerModify")->setValue(LLSD((BOOL)(owner_mask & PERM_MODIFY)));
-    getChildView("CheckOwnerCopy")->setEnabled(FALSE);
-    getChild<LLUICtrl>("CheckOwnerCopy")->setValue(LLSD((BOOL)(owner_mask & PERM_COPY)));
-    getChildView("CheckOwnerTransfer")->setEnabled(FALSE);
-    getChild<LLUICtrl>("CheckOwnerTransfer")->setValue(LLSD((BOOL)(owner_mask & PERM_TRANSFER)));
+    getChildView("CheckOwnerModify")->setEnabled(false);
+    getChild<LLUICtrl>("CheckOwnerModify")->setValue(LLSD((bool)(owner_mask & PERM_MODIFY)));
+    getChildView("CheckOwnerCopy")->setEnabled(false);
+    getChild<LLUICtrl>("CheckOwnerCopy")->setValue(LLSD((bool)(owner_mask & PERM_COPY)));
+    getChildView("CheckOwnerTransfer")->setEnabled(false);
+    getChild<LLUICtrl>("CheckOwnerTransfer")->setValue(LLSD((bool)(owner_mask & PERM_TRANSFER)));
 
     ///////////////////////
     // DEBUG PERMISSIONS //
@@ -577,9 +578,9 @@ void LLSidepanelItemInfo::refreshFromItem(LLViewerInventoryItem* item)
     {
         childSetVisible("layout_debug_permissions", true);
 
-        BOOL slam_perm          = FALSE;
-        BOOL overwrite_group    = FALSE;
-        BOOL overwrite_everyone = FALSE;
+        bool slam_perm          = false;
+        bool overwrite_group    = false;
+        bool overwrite_everyone = false;
 
         if (item->getType() == LLAssetType::AT_OBJECT)
         {
@@ -626,62 +627,58 @@ void LLSidepanelItemInfo::refreshFromItem(LLViewerInventoryItem* item)
     // Check for ability to change values.
     if (is_link || cannot_restrict_permissions)
     {
-        getChildView("CheckShareWithGroup")->setEnabled(FALSE);
-        getChildView("CheckEveryoneCopy")->setEnabled(FALSE);
+        getChildView("CheckShareWithGroup")->setEnabled(false);
+        getChildView("CheckEveryoneCopy")->setEnabled(false);
     }
     else if (is_obj_modify && can_agent_manipulate)
     {
-        getChildView("CheckShareWithGroup")->setEnabled(TRUE);
+        getChildView("CheckShareWithGroup")->setEnabled(true);
         getChildView("CheckEveryoneCopy")->setEnabled((owner_mask & PERM_COPY) && (owner_mask & PERM_TRANSFER));
     }
     else
     {
-        getChildView("CheckShareWithGroup")->setEnabled(FALSE);
-        getChildView("CheckEveryoneCopy")->setEnabled(FALSE);
+        getChildView("CheckShareWithGroup")->setEnabled(false);
+        getChildView("CheckEveryoneCopy")->setEnabled(false);
     }
 
     // Set values.
-    BOOL is_group_copy = (group_mask & PERM_COPY) ? TRUE : FALSE;
-    BOOL is_group_modify = (group_mask & PERM_MODIFY) ? TRUE : FALSE;
-    BOOL is_group_move = (group_mask & PERM_MOVE) ? TRUE : FALSE;
+    bool is_group_copy = group_mask & PERM_COPY;
+    bool is_group_modify = group_mask & PERM_MODIFY;
+    bool is_group_move = group_mask & PERM_MOVE;
 
     if (is_group_copy && is_group_modify && is_group_move)
     {
-        getChild<LLUICtrl>("CheckShareWithGroup")->setValue(LLSD((BOOL)TRUE));
-
-        LLCheckBoxCtrl* ctl = getChild<LLCheckBoxCtrl>("CheckShareWithGroup");
-        if(ctl)
+        getChild<LLUICtrl>("CheckShareWithGroup")->setValue(LLSD((bool)true));
+        if (LLCheckBoxCtrl* ctl = getChild<LLCheckBoxCtrl>("CheckShareWithGroup"))
         {
-            ctl->setTentative(FALSE);
+            ctl->setTentative(false);
         }
     }
     else if (!is_group_copy && !is_group_modify && !is_group_move)
     {
-        getChild<LLUICtrl>("CheckShareWithGroup")->setValue(LLSD((BOOL)FALSE));
-        LLCheckBoxCtrl* ctl = getChild<LLCheckBoxCtrl>("CheckShareWithGroup");
-        if(ctl)
+        getChild<LLUICtrl>("CheckShareWithGroup")->setValue(LLSD((bool)false));
+        if (LLCheckBoxCtrl* ctl = getChild<LLCheckBoxCtrl>("CheckShareWithGroup"))
         {
-            ctl->setTentative(FALSE);
+            ctl->setTentative(false);
         }
     }
     else
     {
-        LLCheckBoxCtrl* ctl = getChild<LLCheckBoxCtrl>("CheckShareWithGroup");
-        if(ctl)
+        if (LLCheckBoxCtrl* ctl = getChild<LLCheckBoxCtrl>("CheckShareWithGroup"))
         {
             ctl->setTentative(!ctl->getEnabled());
-            ctl->set(TRUE);
+            ctl->set(true);
         }
     }
 
-    getChild<LLUICtrl>("CheckEveryoneCopy")->setValue(LLSD((BOOL)(everyone_mask & PERM_COPY)));
+    getChild<LLUICtrl>("CheckEveryoneCopy")->setValue(LLSD((bool)(everyone_mask & PERM_COPY)));
 
     ///////////////
     // SALE INFO //
     ///////////////
 
     const LLSaleInfo& sale_info = item->getSaleInfo();
-    BOOL is_for_sale = sale_info.isForSale();
+    bool is_for_sale = sale_info.isForSale();
     LLComboBox* combo_sale_type = getChild<LLComboBox>("ComboBoxSaleType");
     LLUICtrl* edit_cost = getChild<LLUICtrl>("Edit Cost");
 
@@ -691,7 +688,7 @@ void LLSidepanelItemInfo::refreshFromItem(LLViewerInventoryItem* item)
     {
         getChildView("CheckPurchase")->setEnabled(is_complete);
 
-        getChildView("NextOwnerLabel")->setEnabled(TRUE);
+        getChildView("NextOwnerLabel")->setEnabled(true);
         getChildView("CheckNextOwnerModify")->setEnabled((base_mask & PERM_MODIFY) && !cannot_restrict_permissions);
         getChildView("CheckNextOwnerCopy")->setEnabled((base_mask & PERM_COPY) && !cannot_restrict_permissions && !is_settings);
         getChildView("CheckNextOwnerTransfer")->setEnabled((next_owner_mask & PERM_COPY) && !cannot_restrict_permissions);
@@ -701,15 +698,15 @@ void LLSidepanelItemInfo::refreshFromItem(LLViewerInventoryItem* item)
     }
     else
     {
-        getChildView("CheckPurchase")->setEnabled(FALSE);
+        getChildView("CheckPurchase")->setEnabled(false);
 
-        getChildView("NextOwnerLabel")->setEnabled(FALSE);
-        getChildView("CheckNextOwnerModify")->setEnabled(FALSE);
-        getChildView("CheckNextOwnerCopy")->setEnabled(FALSE);
-        getChildView("CheckNextOwnerTransfer")->setEnabled(FALSE);
+        getChildView("NextOwnerLabel")->setEnabled(false);
+        getChildView("CheckNextOwnerModify")->setEnabled(false);
+        getChildView("CheckNextOwnerCopy")->setEnabled(false);
+        getChildView("CheckNextOwnerTransfer")->setEnabled(false);
 
-        combo_sale_type->setEnabled(FALSE);
-        edit_cost->setEnabled(FALSE);
+        combo_sale_type->setEnabled(false);
+        edit_cost->setEnabled(false);
     }
 
     // Hide any properties that are not relevant to settings
@@ -733,9 +730,9 @@ void LLSidepanelItemInfo::refreshFromItem(LLViewerInventoryItem* item)
 
     // Set values.
     getChild<LLUICtrl>("CheckPurchase")->setValue(is_for_sale);
-    getChild<LLUICtrl>("CheckNextOwnerModify")->setValue(LLSD(BOOL(next_owner_mask & PERM_MODIFY)));
-    getChild<LLUICtrl>("CheckNextOwnerCopy")->setValue(LLSD(BOOL(next_owner_mask & PERM_COPY)));
-    getChild<LLUICtrl>("CheckNextOwnerTransfer")->setValue(LLSD(BOOL(next_owner_mask & PERM_TRANSFER)));
+    getChild<LLUICtrl>("CheckNextOwnerModify")->setValue(LLSD(bool(next_owner_mask & PERM_MODIFY)));
+    getChild<LLUICtrl>("CheckNextOwnerCopy")->setValue(LLSD(bool(next_owner_mask & PERM_COPY)));
+    getChild<LLUICtrl>("CheckNextOwnerTransfer")->setValue(LLSD(bool(next_owner_mask & PERM_TRANSFER)));
 
     if (is_for_sale)
     {
@@ -970,7 +967,7 @@ void LLSidepanelItemInfo::updatePermissions()
     LLViewerInventoryItem* item = findItem();
     if(!item) return;
 
-    BOOL is_group_owned;
+    bool is_group_owned;
     LLUUID owner_id;
     LLUUID group_id;
     LLPermissions perm(item->getPermissions());
@@ -1079,10 +1076,10 @@ void LLSidepanelItemInfo::updateSaleInfo()
     LLSaleInfo sale_info(item->getSaleInfo());
     if(!gAgent.allowOperation(PERM_TRANSFER, item->getPermissions(), GP_OBJECT_SET_SALE))
     {
-        getChild<LLUICtrl>("CheckPurchase")->setValue(LLSD((BOOL)FALSE));
+        getChild<LLUICtrl>("CheckPurchase")->setValue(LLSD((bool)false));
     }
 
-    if((BOOL)getChild<LLUICtrl>("CheckPurchase")->getValue())
+    if((bool)getChild<LLUICtrl>("CheckPurchase")->getValue())
     {
         // turn on sale info
         LLSaleInfo::EForSale sale_type = LLSaleInfo::FS_COPY;
@@ -1157,7 +1154,7 @@ void LLSidepanelItemInfo::onCommitChanges(LLPointer<LLViewerInventoryItem> item)
         mUpdatePendingId++;
         LLPointer<LLInventoryCallback> callback = new PropertiesChangedCallback(getHandle(), mItemID, mUpdatePendingId);
         update_inventory_item(item.get(), callback);
-        //item->updateServer(FALSE);
+        //item->updateServer(false);
         gInventory.updateItem(item);
         gInventory.notifyObservers();
     }

@@ -45,7 +45,7 @@ public:
 
     LLFloaterEmojiPicker(const LLSD& key);
 
-    virtual BOOL postBuild() override;
+    virtual bool postBuild() override;
     virtual void dirtyRect() override;
     virtual void goneFromFront() override;
 
@@ -60,7 +60,6 @@ public:
 private:
     void initialize();
     void fillGroups();
-    void fillCategoryRecentlyUsed(std::map<std::string, std::vector<LLEmojiSearchResult>>& cats);
     void fillCategoryFrequentlyUsed(std::map<std::string, std::vector<LLEmojiSearchResult>>& cats);
     void fillGroupEmojis(std::map<std::string, std::vector<LLEmojiSearchResult>>& cats, U32 index);
     void createGroupButton(LLButton::Params& params, const LLRect& rect, llwchar emoji);
@@ -95,7 +94,7 @@ private:
 
     void onOpen(const LLSD& key) override;
     void onClose(bool app_quitting) override;
-    virtual BOOL handleKey(KEY key, MASK mask, BOOL called_from_parent) override;
+    virtual bool handleKey(KEY key, MASK mask, bool called_from_parent) override;
 
     class LLPanel* mGroups { nullptr };
     class LLPanel* mBadge { nullptr };

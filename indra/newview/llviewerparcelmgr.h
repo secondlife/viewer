@@ -86,14 +86,14 @@ public:
 
     static void cleanupGlobals();
 
-    BOOL    selectionEmpty() const;
+    bool    selectionEmpty() const;
     F32     getSelectionWidth() const   { return F32(mEastNorth.mdV[VX] - mWestSouth.mdV[VX]); }
     F32     getSelectionHeight() const  { return F32(mEastNorth.mdV[VY] - mWestSouth.mdV[VY]); }
-    BOOL    getSelection(LLVector3d &min, LLVector3d &max) { min = mWestSouth; max = mEastNorth; return !selectionEmpty();}
+    bool    getSelection(LLVector3d &min, LLVector3d &max) { min = mWestSouth; max = mEastNorth; return !selectionEmpty();}
     LLViewerRegion* getSelectionRegion();
     F32     getDwelling() const { return mSelectedDwell;}
 
-    void    getDisplayInfo(S32* area, S32* claim, S32* rent, BOOL* for_sale, F32* dwell);
+    void    getDisplayInfo(S32* area, S32* claim, S32* rent, bool* for_sale, F32* dwell);
 
     // Returns selected area
     S32 getSelectedArea() const;
@@ -121,7 +121,7 @@ public:
 
     // Select a piece of land
     LLParcelSelectionHandle selectLand(const LLVector3d &corner1, const LLVector3d &corner2,
-                       BOOL snap_to_parcel);
+                       bool snap_to_parcel);
 
     // Clear the selection, and stop drawing the highlight.
     void    deselectLand();
@@ -131,14 +131,14 @@ public:
     void removeObserver(LLParcelObserver* observer);
     void notifyObservers();
 
-    void setSelectionVisible(BOOL visible) { mRenderSelection = visible; }
+    void setSelectionVisible(bool visible) { mRenderSelection = visible; }
 
-    BOOL    isOwnedAt(const LLVector3d& pos_global) const;
-    BOOL    isOwnedSelfAt(const LLVector3d& pos_global) const;
-    BOOL    isOwnedOtherAt(const LLVector3d& pos_global) const;
-    BOOL    isSoundLocal(const LLVector3d &pos_global) const;
+    bool    isOwnedAt(const LLVector3d& pos_global) const;
+    bool    isOwnedSelfAt(const LLVector3d& pos_global) const;
+    bool    isOwnedOtherAt(const LLVector3d& pos_global) const;
+    bool    isSoundLocal(const LLVector3d &pos_global) const;
 
-    BOOL    canHearSound(const LLVector3d &pos_global) const;
+    bool    canHearSound(const LLVector3d &pos_global) const;
 
     // Returns a reference counted pointer to current parcel selection.
     // Selection does not change to reflect new selections made by user
@@ -156,7 +156,7 @@ public:
     LLParcel *getAgentParcel() const;
     LLParcel *getAgentOrSelectedParcel() const;
 
-    BOOL    inAgentParcel(const LLVector3d &pos_global) const;
+    bool    inAgentParcel(const LLVector3d &pos_global) const;
 
     // Returns a pointer only when it has valid data.
     LLParcel*   getHoverParcel() const;
@@ -203,7 +203,7 @@ public:
                         const LLVector3d &east_north_top );
     void    renderOneSegment(F32 x1, F32 y1, F32 x2, F32 y2, F32 height, U8 direction, LLViewerRegion* regionp);
     void    renderHighlightSegments(const U8* segments, LLViewerRegion* regionp);
-    void    renderCollisionSegments(U8* segments, BOOL use_pass, LLViewerRegion* regionp);
+    void    renderCollisionSegments(U8* segments, bool use_pass, LLViewerRegion* regionp);
 
     static S32 PARCEL_BAN_LINES_HIDE;
     static S32 PARCEL_BAN_LINES_ON_COLLISION;
@@ -237,8 +237,8 @@ public:
 
     bool    canAgentBuyParcel(LLParcel*, bool forGroup) const;
 
-//  void    startClaimLand(BOOL is_for_group = FALSE);
-    void    startBuyLand(BOOL is_for_group = FALSE);
+//  void    startClaimLand(bool is_for_group = false);
+    void    startBuyLand(bool is_for_group = false);
     void    startSellLand();
     void    startReleaseLand();
     void    startDivideLand();
@@ -254,9 +254,9 @@ public:
     ParcelBuyInfo* setupParcelBuy(const LLUUID& agent_id,
                                   const LLUUID& session_id,
                                   const LLUUID& group_id,
-                                  BOOL is_group_owned,
-                                  BOOL is_claim,
-                                  BOOL remove_contribution);
+                                  bool is_group_owned,
+                                  bool is_claim,
+                                  bool remove_contribution);
         // callers responsibility to call deleteParcelBuy() on return value
     void sendParcelBuy(ParcelBuyInfo*);
     void deleteParcelBuy(ParcelBuyInfo* *info);
@@ -287,7 +287,7 @@ public:
 
     // Whether or not the collision border around the parcel is there because
     // the agent is banned or not in the allowed group
-    BOOL isCollisionBanned();
+    bool isCollisionBanned();
 
     boost::signals2::connection setTeleportFinishedCallback(teleport_finished_callback_t cb);
     boost::signals2::connection setTeleportFailedCallback(teleport_failed_callback_t cb);
@@ -295,8 +295,8 @@ public:
     void onTeleportFailed();
     bool getTeleportInProgress();
 
-    static BOOL isParcelOwnedByAgent(const LLParcel* parcelp, U64 group_proxy_power);
-    static BOOL isParcelModifiableByAgent(const LLParcel* parcelp, U64 group_proxy_power);
+    static bool isParcelOwnedByAgent(const LLParcel* parcelp, U64 group_proxy_power);
+    static bool isParcelModifiableByAgent(const LLParcel* parcelp, U64 group_proxy_power);
 
 private:
     static void sendParcelAccessListUpdate(U32 flags, const std::map<LLUUID, class LLAccessEntry>& entries, LLViewerRegion* region, S32 parcel_local_id);
@@ -319,12 +319,12 @@ private:
     static bool callbackDivideLand(const LLSD& notification, const LLSD& response);
     static bool callbackJoinLand(const LLSD& notification, const LLSD& response);
 
-    //void  finishClaim(BOOL user_to_user_sale, U32 join);
+    //void  finishClaim(bool user_to_user_sale, U32 join);
     LLViewerTexture* getBlockedImage() const;
     LLViewerTexture* getPassImage() const;
 
 private:
-    BOOL                        mSelected;
+    bool                        mSelected;
 
     LLParcel*                   mCurrentParcel;         // selected parcel info
     LLParcelSelectionHandle     mCurrentParcelSelection;
@@ -344,7 +344,7 @@ private:
 
     std::vector<LLParcelObserver*> mObservers;
 
-    BOOL                        mTeleportInProgress;
+    bool                        mTeleportInProgress;
     LLVector3d                  mTeleportInProgressPosition;
     teleport_finished_signal_t  mTeleportFinishedSignal;
     teleport_failed_signal_t    mTeleportFailedSignal;
@@ -367,7 +367,7 @@ private:
     LLParcel*                   mCollisionParcel;
     U8*                         mCollisionSegments;
     bool                        mRenderCollision;
-    BOOL                        mRenderSelection;
+    bool                        mRenderSelection;
     S32                         mCollisionBanned;
     LLFrameTimer                mCollisionTimer;
     LLViewerTexture*            mBlockedImage;

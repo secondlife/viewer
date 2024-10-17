@@ -192,13 +192,15 @@ public:
     LLCommand * getCommand(const LLCommandId& commandId);
     LLCommand * getCommand(const std::string& name);
 
+    LLSD getCommandNames();
+
     static bool load();
 
 protected:
     void addCommand(LLCommand * command);
 
 private:
-    typedef std::map<LLUUID, U32>       CommandIndexMap;
+    typedef std::map<LLUUID, size_t>    CommandIndexMap;
     typedef std::vector<LLCommand *>    CommandVector;
 
     CommandVector   mCommands;

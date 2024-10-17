@@ -28,16 +28,20 @@
 #define LL_LLSTRING_H
 
 #include <boost/call_traits.hpp>
-#include <boost/optional/optional.hpp>
+#include <optional>
 #include <string>
+#include <string_view>
 #include <cstdio>
 #include <cwchar>                   // std::wcslen()
 //#include <locale>
 #include <iomanip>
 #include <algorithm>
+#include <functional>
 #include <vector>
 #include <map>
+#include <type_traits>
 #include "llformat.h"
+#include "stdtypes.h"
 
 #if LL_LINUX
 #include <wctype.h>
@@ -45,7 +49,6 @@
 #endif
 
 #include <string.h>
-#include <boost/scoped_ptr.hpp>
 
 const char LL_UNKNOWN_CHAR = '?';
 class LLSD;
@@ -212,6 +215,9 @@ public:
 
     static std::string getDatetimeCode (std::string key);
 
+    static void splitString(const std::string& text, char delimiter,
+        std::function<void(const std::string&)> handler);
+
     // Express a value like 1234567 as "1.23M"
     static std::string getReadableNumber(F64 num);
 };
@@ -313,11 +319,19 @@ public:
     static void trim(string_type& string)   { trimHead(string); trimTail(string); }
     static void truncate(string_type& string, size_type count);
 
+    // if string startsWith prefix, remove it and return true
+    static bool removePrefix(string_type& string, const string_type& prefix);
+    // if string startsWith prefix, return (string without prefix, true), else (string, false)
+    static std::pair<string_type, bool> withoutPrefix(const string_type& string, const string_type& prefix);
+    // like removePrefix()
+    static bool removeSuffix(string_type& string, const string_type& suffix);
+    static std::pair<string_type, bool> withoutSuffix(const string_type& string, const string_type& suffix);
+
     static void toUpper(string_type& string);
     static void toLower(string_type& string);
 
     // True if this is the head of s.
-    static BOOL isHead( const string_type& string, const T* s );
+    static bool isHead( const string_type& string, const T* s );
 
     /**
      * @brief Returns true if string starts with substr
@@ -348,7 +362,7 @@ public:
      * (key is always UTF-8)
      * detect absence by (! return value)
      */
-    static boost::optional<string_type> getoptenv(const std::string& key);
+    static std::optional<string_type> getoptenv(const std::string& key);
 
     static void addCRLF(string_type& string);
     static void removeCRLF(string_type& string);
@@ -361,7 +375,7 @@ public:
     static string_type capitalize(const string_type& str);
     static void capitalize(string_type& str);
 
-    static BOOL containsNonprintable(const string_type& string);
+    static bool containsNonprintable(const string_type& string);
     static void stripNonprintable(string_type& string);
 
     /**
@@ -387,15 +401,15 @@ public:
     static void _makeASCII(string_type& string);
 
     // Conversion to other data types
-    static BOOL convertToBOOL(const string_type& string, BOOL& value);
-    static BOOL convertToU8(const string_type& string, U8& value);
-    static BOOL convertToS8(const string_type& string, S8& value);
-    static BOOL convertToS16(const string_type& string, S16& value);
-    static BOOL convertToU16(const string_type& string, U16& value);
-    static BOOL convertToU32(const string_type& string, U32& value);
-    static BOOL convertToS32(const string_type& string, S32& value);
-    static BOOL convertToF32(const string_type& string, F32& value);
-    static BOOL convertToF64(const string_type& string, F64& value);
+    static bool convertToBOOL(const string_type& string, bool& value);
+    static bool convertToU8(const string_type& string, U8& value);
+    static bool convertToS8(const string_type& string, S8& value);
+    static bool convertToS16(const string_type& string, S16& value);
+    static bool convertToU16(const string_type& string, U16& value);
+    static bool convertToU32(const string_type& string, U32& value);
+    static bool convertToS32(const string_type& string, S32& value);
+    static bool convertToF32(const string_type& string, F32& value);
+    static bool convertToF64(const string_type& string, F64& value);
 
     /////////////////////////////////////////////////////////////////////////////////////////
     // Utility functions for working with char*'s and strings
@@ -420,7 +434,7 @@ public:
     static S32      compareDictInsensitive(const string_type& a, const string_type& b);
 
     // Puts compareDict() in a form appropriate for LL container classes to use for sorting.
-    static BOOL     precedesDict( const string_type& a, const string_type& b );
+    static bool     precedesDict( const string_type& a, const string_type& b );
 
     // A replacement for strncpy.
     // If the dst buffer is dst_size bytes long or more, ensures that dst is null terminated and holds
@@ -432,6 +446,65 @@ public:
 
     static bool     isPartOfWord(T c) { return (c == (T)'_') || LLStringOps::isAlnum(c); }
 
+
+    // Join non-empty strings from values using value itself and delimiter
+    template<class C>
+    static std::string join(const C& values, T delimiter = ',')
+    {
+        std::string result;
+        for (const std::string& value : values)
+        {
+            if (!value.empty())
+            {
+                if (!result.empty())
+                {
+                    result += delimiter;
+                }
+                result += value;
+            }
+        }
+        return result;
+    }
+
+    // Join non-empty strings from values using stringify(value) and delimiter
+    template<class C, class V>
+    static std::string join(const C& values, std::function<std::string(const V&)> stringify, T delimiter = ',')
+    {
+        std::string result;
+        for (const V& value : values)
+        {
+            std::string string = stringify(value);
+            if (!string.empty())
+            {
+                if (!result.empty())
+                {
+                    result += delimiter;
+                }
+                result += string;
+            }
+        }
+        return result;
+    }
+
+    // Join non-empty strings from values using stringify(index, value) and delimiter
+    template<class C, class V>
+    static std::string join(const C& values, std::function<std::string(size_t index, const V&)> stringify, T delimiter = ',')
+    {
+        std::string result;
+        for (size_t i = 0; i < values.size(); ++i)
+        {
+            std::string string = stringify(i, values[i]);
+            if (!string.empty())
+            {
+                if (!result.empty())
+                {
+                    result += delimiter;
+                }
+                result += string;
+            }
+        }
+        return result;
+    }
 
 #ifdef _DEBUG
     LL_COMMON_API static void       testHarness();
@@ -447,6 +520,7 @@ template<class T> std::string LLStringUtilBase<T>::sLocale;
 typedef LLStringUtilBase<char> LLStringUtil;
 typedef LLStringUtilBase<llwchar> LLWStringUtil;
 typedef std::basic_string<llwchar> LLWString;
+typedef std::basic_string_view<llwchar> LLWStringView;
 
 //@ Use this where we want to disallow input in the form of "foo"
 //  This is used to catch places where english text is embedded in the code
@@ -464,7 +538,7 @@ struct LLDictionaryLess
 public:
     bool operator()(const std::string& a, const std::string& b) const
     {
-        return (LLStringUtil::precedesDict(a, b) ? true : false);
+        return (LLStringUtil::precedesDict(a, b));
     }
 };
 
@@ -520,11 +594,52 @@ struct ll_convert_impl
     TO operator()(const FROM& in) const;
 };
 
-// Use a function template to get the nice ll_convert<TO>(from_value) API.
-template<typename TO, typename FROM>
-TO ll_convert(const FROM& in)
+/**
+ * somefunction(ll_convert(data))
+ * target = ll_convert(data)
+ * totype otherfunc(const fromtype& data)
+ * {
+ *     // ...
+ *     return ll_convert(data);
+ * }
+ * all infer both the FROM type and the TO type.
+ */
+template <typename FROM>
+class ll_convert
 {
-    return ll_convert_impl<TO, FROM>()(in);
+private:
+    const FROM& mRef;
+
+public:
+    ll_convert(const FROM& ref): mRef(ref) {}
+
+    inline operator const FROM&() const
+    {
+        return mRef;
+    }
+
+    template <typename TO,
+              std::enable_if_t<! std::is_same_v<std::decay_t<TO>, std::decay_t<FROM>>, bool> =true>
+    inline operator TO() const
+    {
+        return ll_convert_impl<TO, std::decay_t<const FROM>>()(mRef);
+    }
+};
+
+// When the TO type must be explicit, use a function template to get
+// ll_convert_to<TO>(from_value) API.
+template<typename SAME>
+const SAME& ll_convert_to(const SAME& in)
+{
+    return in;
+}
+
+template<typename TO,
+         typename FROM,
+         std::enable_if_t<! std::is_same_v<std::decay_t<TO>, std::decay_t<FROM>>, bool> =true>
+TO ll_convert_to(const FROM& in)
+{
+    return ll_convert_impl<TO, std::decay_t<const FROM>>()(in);
 }
 
 // degenerate case
@@ -578,8 +693,8 @@ inline size_t ll_convert_length<char>   (const char*    zstr) { return std::strl
 // and longname(const string&, len) so calls written pre-ll_convert() will
 // work. Most of these overloads will be unified once we turn on C++17 and can
 // use std::string_view.
-// It also uses aliasmacro to ensure that both ll_convert<OUTSTR>(const char*)
-// and ll_convert<OUTSTR>(const string&) will work.
+// It also uses aliasmacro to ensure that both ll_convert(const char*)
+// and ll_convert(const string&) will work.
 #define ll_convert_forms(aliasmacro, OUTSTR, INSTR, longname)           \
 LL_COMMON_API OUTSTR longname(const INSTR::value_type* in, size_t len); \
 inline auto longname(const INSTR& in, size_t len)                       \
@@ -669,7 +784,11 @@ ll_convert_forms(ll_convert_alias,     LLWString,     std::string,   utf8str_to_
 // Same function, better name. JC
 inline LLWString utf8string_to_wstring(const std::string& utf8_string) { return utf8str_to_wstring(utf8_string); }
 
-LL_COMMON_API std::ptrdiff_t wchar_to_utf8chars(llwchar inchar, char* outchars);
+// return a UTF-8 string representation of a single llwchar, which we
+// occasionally require:
+// cheaper than ll_convert_to<std::string>(LLWString(1, inchar))
+LL_COMMON_API std::string wchar_to_utf8chars(llwchar inchar);
+ll_convert_alias(std::string, llwchar, wchar_to_utf8chars(in));
 
 ll_convert_forms(ll_convert_alias,     std::string, LLWString,     wstring_to_utf8str);
 ll_convert_forms(ll_convert_u16_alias, std::string, llutf16string, utf16str_to_utf8str);
@@ -694,7 +813,7 @@ LL_COMMON_API S32 utf16str_wstring_length(const llutf16string &utf16str, S32 len
 LL_COMMON_API S32 wstring_utf16_length(const LLWString & wstr, S32 woffset, S32 wlen);
 
 // Length in wstring (i.e., llwchar count) of a part of a wstring specified by utf16 length (i.e., utf16 units.)
-LL_COMMON_API S32 wstring_wstring_length_from_utf16_length(const LLWString & wstr, S32 woffset, S32 utf16_length, BOOL *unaligned = NULL);
+LL_COMMON_API S32 wstring_wstring_length_from_utf16_length(const LLWString & wstr, S32 woffset, S32 utf16_length, bool *unaligned = nullptr);
 
 /**
  * @brief Properly truncate a utf8 string to a maximum byte count.
@@ -748,7 +867,7 @@ LL_COMMON_API llwchar utf8str_to_wchar(const std::string& utf8str, size_t offset
 
 LL_COMMON_API std::string utf8str_showBytesUTF8(const std::string& utf8str);
 
-LL_COMMON_API bool wstring_has_emoji(const LLWString& wstr);
+LL_COMMON_API bool wstring_has_emoji(LLWStringView wstr);
 
 LL_COMMON_API bool wstring_remove_emojis(LLWString& wstr);
 
@@ -822,7 +941,7 @@ LL_COMMON_API std::string ll_convert_string_to_utf8_string(const std::string& in
 template<typename STRING>
 STRING windows_message(unsigned long error)
 {
-    return ll_convert<STRING>(windows_message<std::wstring>(error));
+    return ll_convert(windows_message<std::wstring>(error));
 }
 
 /// There's only one real implementation
@@ -830,16 +949,18 @@ template<>
 LL_COMMON_API std::wstring windows_message<std::wstring>(unsigned long error);
 
 /// Get Windows message string, implicitly calling GetLastError()
+LL_COMMON_API unsigned long windows_get_last_error();
+
 template<typename STRING>
-STRING windows_message() { return windows_message<STRING>(GetLastError()); }
+STRING windows_message() { return windows_message<STRING>(windows_get_last_error()); }
 
 //@}
 
-LL_COMMON_API boost::optional<std::wstring> llstring_getoptenv(const std::string& key);
+LL_COMMON_API std::optional<std::wstring> llstring_getoptenv(const std::string& key);
 
 #else // ! LL_WINDOWS
 
-LL_COMMON_API boost::optional<std::string>  llstring_getoptenv(const std::string& key);
+LL_COMMON_API std::optional<std::string>  llstring_getoptenv(const std::string& key);
 
 #endif // ! LL_WINDOWS
 
@@ -885,6 +1006,20 @@ namespace LLStringFn
      * Works with US ASCII and UTF-8 encoded strings.  JC
      */
     LL_COMMON_API std::string strip_invalid_xml(const std::string& input);
+
+
+    /**
+     * @brief Replace all characters that are not allowed in XML 1.0
+     * with corresponding literals: [ < > & ] => [ &lt; &gt; &amp; ]
+     */
+    LL_COMMON_API std::string xml_encode(const std::string& input, bool for_attribute = false);
+
+
+    /**
+     * @brief Replace some of XML literals that are defined in XML 1.0
+     * with corresponding characters: [ &lt; &gt; &amp; ] => [ < > & ]
+     */
+    LL_COMMON_API std::string xml_decode(const std::string& input, bool for_attribute = false);
 
 
     /**
@@ -1378,7 +1513,7 @@ S32 LLStringUtilBase<T>::compareDictInsensitive(const string_type& astr, const s
 // Puts compareDict() in a form appropriate for LL container classes to use for sorting.
 // static
 template<class T>
-BOOL LLStringUtilBase<T>::precedesDict( const string_type& a, const string_type& b )
+bool LLStringUtilBase<T>::precedesDict( const string_type& a, const string_type& b )
 {
     if( a.size() && b.size() )
     {
@@ -1450,6 +1585,60 @@ void LLStringUtilBase<T>::trimTail(string_type& string)
     }
 }
 
+// if string startsWith prefix, remove it and return true
+template<class T>
+bool LLStringUtilBase<T>::removePrefix(string_type& string, const string_type& prefix)
+{
+    bool found{ startsWith(string, prefix) };
+    if (found)
+    {
+        string.erase(0, prefix.length());
+    }
+    return found;
+}
+
+// if string startsWith prefix, return (string without prefix, true), else (string, false)
+template<class T>
+std::pair<typename LLStringUtilBase<T>::string_type, bool>
+LLStringUtilBase<T>::withoutPrefix(const string_type& string, const string_type& prefix)
+{
+    bool found{ startsWith(string, prefix) };
+    if (! found)
+    {
+        return { string, false };
+    }
+    else
+    {
+        return { string.substr(prefix.length()), true };
+    }
+}
+
+// like removePrefix()
+template<class T>
+bool LLStringUtilBase<T>::removeSuffix(string_type& string, const string_type& suffix)
+{
+    bool found{ endsWith(string, suffix) };
+    if (found)
+    {
+        string.erase(string.length() - suffix.length());
+    }
+    return found;
+}
+
+template<class T>
+std::pair<typename LLStringUtilBase<T>::string_type, bool>
+LLStringUtilBase<T>::withoutSuffix(const string_type& string, const string_type& suffix)
+{
+    bool found{ endsWith(string, suffix) };
+    if (! found)
+    {
+        return { string, false };
+    }
+    else
+    {
+        return { string.substr(0, string.length() - suffix.length()), true };
+    }
+}
 
 // Replace line feeds with carriage return-line feed pairs.
 //static
@@ -1634,15 +1823,15 @@ void LLStringUtilBase<T>::capitalize(string_type& str)
 
 //static
 template<class T>
-BOOL LLStringUtilBase<T>::containsNonprintable(const string_type& string)
+bool LLStringUtilBase<T>::containsNonprintable(const string_type& string)
 {
     const char MIN = 32;
-    BOOL rv = FALSE;
+    bool rv = false;
     for (size_type i = 0; i < string.size(); i++)
     {
         if(string[i] < MIN)
         {
-            rv = TRUE;
+            rv = true;
             break;
         }
     }
@@ -1771,12 +1960,12 @@ void LLStringUtilBase<T>::copyInto(string_type& dst, const string_type& src, siz
 // True if this is the head of s.
 //static
 template<class T>
-BOOL LLStringUtilBase<T>::isHead( const string_type& string, const T* s )
+bool LLStringUtilBase<T>::isHead( const string_type& string, const T* s )
 {
     if( string.empty() )
     {
         // Early exit
-        return FALSE;
+        return false;
     }
     else
     {
@@ -1812,17 +2001,17 @@ bool LLStringUtilBase<T>::endsWith(
 
 // static
 template<class T>
-auto LLStringUtilBase<T>::getoptenv(const std::string& key) -> boost::optional<string_type>
+auto LLStringUtilBase<T>::getoptenv(const std::string& key) -> std::optional<string_type>
 {
     auto found(llstring_getoptenv(key));
     if (found)
     {
-        // return populated boost::optional
-        return { ll_convert<string_type>(*found) };
+        // return populated std::optional
+        return { ll_convert_to<string_type>(*found) };
     }
     else
     {
-        // empty boost::optional
+        // empty std::optional
         return {};
     }
 }
@@ -1843,11 +2032,11 @@ auto LLStringUtilBase<T>::getenv(const std::string& key, const string_type& dflt
 }
 
 template<class T>
-BOOL LLStringUtilBase<T>::convertToBOOL(const string_type& string, BOOL& value)
+bool LLStringUtilBase<T>::convertToBOOL(const string_type& string, bool& value)
 {
     if( string.empty() )
     {
-        return FALSE;
+        return false;
     }
 
     string_type temp( string );
@@ -1860,8 +2049,8 @@ BOOL LLStringUtilBase<T>::convertToBOOL(const string_type& string, BOOL& value)
         (temp == "true") ||
         (temp == "True") )
     {
-        value = TRUE;
-        return TRUE;
+        value = true;
+        return true;
     }
     else
     if(
@@ -1872,71 +2061,71 @@ BOOL LLStringUtilBase<T>::convertToBOOL(const string_type& string, BOOL& value)
         (temp == "false") ||
         (temp == "False") )
     {
-        value = FALSE;
-        return TRUE;
+        value = false;
+        return true;
     }
 
-    return FALSE;
+    return false;
 }
 
 template<class T>
-BOOL LLStringUtilBase<T>::convertToU8(const string_type& string, U8& value)
+bool LLStringUtilBase<T>::convertToU8(const string_type& string, U8& value)
 {
     S32 value32 = 0;
-    BOOL success = convertToS32(string, value32);
+    bool success = convertToS32(string, value32);
     if( success && (U8_MIN <= value32) && (value32 <= U8_MAX) )
     {
         value = (U8) value32;
-        return TRUE;
+        return true;
     }
-    return FALSE;
+    return false;
 }
 
 template<class T>
-BOOL LLStringUtilBase<T>::convertToS8(const string_type& string, S8& value)
+bool LLStringUtilBase<T>::convertToS8(const string_type& string, S8& value)
 {
     S32 value32 = 0;
-    BOOL success = convertToS32(string, value32);
+    bool success = convertToS32(string, value32);
     if( success && (S8_MIN <= value32) && (value32 <= S8_MAX) )
     {
         value = (S8) value32;
-        return TRUE;
+        return true;
     }
-    return FALSE;
+    return false;
 }
 
 template<class T>
-BOOL LLStringUtilBase<T>::convertToS16(const string_type& string, S16& value)
+bool LLStringUtilBase<T>::convertToS16(const string_type& string, S16& value)
 {
     S32 value32 = 0;
-    BOOL success = convertToS32(string, value32);
+    bool success = convertToS32(string, value32);
     if( success && (S16_MIN <= value32) && (value32 <= S16_MAX) )
     {
         value = (S16) value32;
-        return TRUE;
+        return true;
     }
-    return FALSE;
+    return false;
 }
 
 template<class T>
-BOOL LLStringUtilBase<T>::convertToU16(const string_type& string, U16& value)
+bool LLStringUtilBase<T>::convertToU16(const string_type& string, U16& value)
 {
     S32 value32 = 0;
-    BOOL success = convertToS32(string, value32);
+    bool success = convertToS32(string, value32);
     if( success && (U16_MIN <= value32) && (value32 <= U16_MAX) )
     {
         value = (U16) value32;
-        return TRUE;
+        return true;
     }
-    return FALSE;
+    return false;
 }
 
 template<class T>
-BOOL LLStringUtilBase<T>::convertToU32(const string_type& string, U32& value)
+bool LLStringUtilBase<T>::convertToU32(const string_type& string, U32& value)
 {
     if( string.empty() )
     {
-        return FALSE;
+        return false;
     }
 
     string_type temp( string );
@@ -1946,17 +2135,17 @@ BOOL LLStringUtilBase<T>::convertToU32(const string_type& string, U32& value)
     if(i_stream >> v)
     {
         value = v;
-        return TRUE;
+        return true;
     }
-    return FALSE;
+    return false;
 }
 
 template<class T>
-BOOL LLStringUtilBase<T>::convertToS32(const string_type& string, S32& value)
+bool LLStringUtilBase<T>::convertToS32(const string_type& string, S32& value)
 {
     if( string.empty() )
     {
-        return FALSE;
+        return false;
     }
 
     string_type temp( string );
@@ -1969,34 +2158,34 @@ BOOL LLStringUtilBase<T>::convertToS32(const string_type& string, S32& value)
         //if((LONG_MAX == v) || (LONG_MIN == v))
         //{
         //  // Underflow or overflow
-        //  return FALSE;
+        //  return false;
         //}
 
         value = v;
-        return TRUE;
+        return true;
     }
-    return FALSE;
+    return false;
 }
 
 template<class T>
-BOOL LLStringUtilBase<T>::convertToF32(const string_type& string, F32& value)
+bool LLStringUtilBase<T>::convertToF32(const string_type& string, F32& value)
 {
     F64 value64 = 0.0;
-    BOOL success = convertToF64(string, value64);
+    bool success = convertToF64(string, value64);
     if( success && (-F32_MAX <= value64) && (value64 <= F32_MAX) )
     {
         value = (F32) value64;
-        return TRUE;
+        return true;
     }
-    return FALSE;
+    return false;
 }
 
 template<class T>
-BOOL LLStringUtilBase<T>::convertToF64(const string_type& string, F64& value)
+bool LLStringUtilBase<T>::convertToF64(const string_type& string, F64& value)
 {
     if( string.empty() )
     {
-        return FALSE;
+        return false;
     }
 
     string_type temp( string );
@@ -2009,13 +2198,13 @@ BOOL LLStringUtilBase<T>::convertToF64(const string_type& string, F64& value)
         //if( ((-HUGE_VAL == v) || (HUGE_VAL == v))) )
         //{
         //  // Underflow or overflow
-        //  return FALSE;
+        //  return false;
         //}
 
         value = v;
-        return TRUE;
+        return true;
     }
-    return FALSE;
+    return false;
 }
 
 template<class T>

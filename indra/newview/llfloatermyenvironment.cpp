@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llfloatergesture.cpp
  * @brief LLFloaterMyEnvironment class implementation
  *
  * $LicenseInfo:firstyear=2002&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2019, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -83,10 +83,10 @@ LLFloaterMyEnvironment::LLFloaterMyEnvironment(const LLSD& key) :
     mTypeFilter((0x01 << static_cast<U64>(LLSettingsType::ST_DAYCYCLE)) | (0x01 << static_cast<U64>(LLSettingsType::ST_SKY)) | (0x01 << static_cast<U64>(LLSettingsType::ST_WATER))),
     mSelectedAsset()
 {
-    mCommitCallbackRegistrar.add(ACTION_DOCREATE, [this](LLUICtrl *, const LLSD &userdata) { onDoCreate(userdata); });
-    mCommitCallbackRegistrar.add(ACTION_DOEDIT, [this](LLUICtrl *, const LLSD &userdata) { mInventoryList->openSelected(); });
-    mCommitCallbackRegistrar.add(ACTION_DOAPPLY, [this](LLUICtrl *, const LLSD &userdata) { onDoApply(userdata.asString()); });
-    mCommitCallbackRegistrar.add(ACTION_COPYPASTE, [this](LLUICtrl *, const LLSD &userdata) { mInventoryList->doToSelected(userdata.asString()); });
+    mCommitCallbackRegistrar.add(ACTION_DOCREATE, { [this](LLUICtrl *, const LLSD &userdata) { onDoCreate(userdata); } });
+    mCommitCallbackRegistrar.add(ACTION_DOEDIT, { [this](LLUICtrl *, const LLSD &userdata) { mInventoryList->openSelected(); } });
+    mCommitCallbackRegistrar.add(ACTION_DOAPPLY, { [this](LLUICtrl *, const LLSD &userdata) { onDoApply(userdata.asString()); } });
+    mCommitCallbackRegistrar.add(ACTION_COPYPASTE, { [this](LLUICtrl *, const LLSD &userdata) { mInventoryList->doToSelected(userdata.asString()); } });
 
     mEnableCallbackRegistrar.add(ENABLE_ACTION, [this](LLUICtrl *, const LLSD &userdata) { return canAction(userdata.asString()); });
     mEnableCallbackRegistrar.add(ENABLE_CANAPPLY, [this](LLUICtrl *, const LLSD &userdata) { return canApply(userdata.asString()); });
@@ -99,7 +99,7 @@ LLFloaterMyEnvironment::~LLFloaterMyEnvironment()
 }
 
 
-BOOL LLFloaterMyEnvironment::postBuild()
+bool LLFloaterMyEnvironment::postBuild()
 {
     mInventoryList = getChild<LLInventoryPanel>(PANEL_SETTINGS);
 
@@ -110,7 +110,7 @@ BOOL LLFloaterMyEnvironment::postBuild()
 
         mInventoryList->setFilterTypes(filter_types);
 
-        mInventoryList->setSelectCallback([this](const std::deque<LLFolderViewItem*>&, BOOL) { onSelectionChange(); });
+        mInventoryList->setSelectCallback([this](const std::deque<LLFolderViewItem*>&, bool) { onSelectionChange(); });
         mInventoryList->setShowFolderState(mShowFolders);
         mInventoryList->setFilterSettingsTypes(mTypeFilter);
     }
@@ -124,8 +124,8 @@ BOOL LLFloaterMyEnvironment::postBuild()
     mFilterEdit->setCommitCallback([this](LLUICtrl*, const LLSD& param){ onFilterEdit(param.asString()); });
 
     childSetCommitCallback(BUTTON_DELETE, [this](LLUICtrl *, void*) { onDeleteSelected(); }, nullptr);
-    mSavedFolderState.setApply(FALSE);
-    return TRUE;
+    mSavedFolderState.setApply(false);
+    return true;
 }
 
 void LLFloaterMyEnvironment::refresh()
@@ -207,7 +207,7 @@ void LLFloaterMyEnvironment::onFilterEdit(const std::string& search_string)
             return;
         }
 
-        mSavedFolderState.setApply(TRUE);
+        mSavedFolderState.setApply(true);
         mInventoryList->getRootFolder()->applyFunctorRecursively(mSavedFolderState);
         // add folder with current item to list of previously opened folders
         LLOpenFoldersWithSelection opener;
@@ -218,7 +218,7 @@ void LLFloaterMyEnvironment::onFilterEdit(const std::string& search_string)
     else if (mInventoryList->getFilterSubString().empty())
     {
         // first letter in search term, save existing folder open state
-        mSavedFolderState.setApply(FALSE);
+        mSavedFolderState.setApply(false);
         mInventoryList->getRootFolder()->applyFunctorRecursively(mSavedFolderState);
     }
 
@@ -246,7 +246,7 @@ void LLFloaterMyEnvironment::onItemsRemovalConfirmation(const LLSD& notification
 
                 LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(inv_item);
                 new_item->setParent(trash_id);
-                new_item->updateParentOnServer(FALSE);
+                new_item->updateParentOnServer(false);
                 gInventory.updateItem(new_item);
             }
         }
@@ -298,7 +298,7 @@ void LLFloaterMyEnvironment::onDoApply(const std::string &context)
         std::string name = itemp->getName();
 
         U32 flags(0);
-        
+
         if (!itemp->getPermissions().allowOperationBy(PERM_MODIFY, gAgent.getID()))
             flags |= LLSettingsBase::FLAG_NOMOD;
         if (!itemp->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID()))
@@ -337,7 +337,7 @@ bool LLFloaterMyEnvironment::canAction(const std::string &context)
         return false;
 
     if (context == PARAMETER_EDIT)
-    { 
+    {
         return (selected.size() == 1) && isSettingId(selected.front());
     }
     else if (context == PARAMETER_COPY)
@@ -354,6 +354,8 @@ bool LLFloaterMyEnvironment::canAction(const std::string &context)
     else if (context == PARAMETER_PASTE)
     {
         if (!LLClipboard::instance().hasContents())
+            return false;
+        if (gInventory.isObjectDescendentOf(selected.front(), gInventory.getLibraryRootFolderID()))
             return false;
 
         std::vector<LLUUID> ids;
@@ -384,11 +386,11 @@ bool LLFloaterMyEnvironment::canApply(const std::string &context)
         return false;
 
     if (context == PARAMETER_REGION)
-    { 
+    {
         return isSettingId(selected.front()) && LLEnvironment::instance().canAgentUpdateRegionEnvironment();
     }
     else if (context == PARAMETER_PARCEL)
-    { 
+    {
         return isSettingId(selected.front()) && LLEnvironment::instance().canAgentUpdateParcelEnvironment();
     }
     else if (context == PARAMETER_LOCAL)
@@ -415,7 +417,7 @@ bool can_delete(const LLUUID& id)
             return false;
         }
     }
-    else if (!get_is_item_removable(&gInventory, id, false))
+    else if (!get_is_item_removable(&gInventory, id, true))
     {
         return false;
     }

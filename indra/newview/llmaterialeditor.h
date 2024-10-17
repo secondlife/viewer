@@ -55,7 +55,7 @@ public:
     LLFloaterComboOptions();
 
     virtual ~LLFloaterComboOptions();
-    /*virtual*/ BOOL    postBuild();
+    /*virtual*/ bool    postBuild();
 
     static LLFloaterComboOptions* showUI(
         combo_callback callback,
@@ -165,7 +165,7 @@ class LLMaterialEditor : public LLPreview, public LLVOInventoryListener
     void setAuxItem(const LLInventoryItem* item) override;
 
     // llpanel
-    BOOL postBuild() override;
+    bool postBuild() override;
     void onClickCloseBtn(bool app_quitting = false) override;
 
     void onClose(bool app_quitting) override;

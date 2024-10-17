@@ -45,10 +45,9 @@
 #include "llworld.h"
 
 #include "tinygltf/tiny_gltf.h"
-#include <strstream>
 
-#include "json/reader.h"
-#include "json/value.h"
+#include <boost/iostreams/device/array.hpp>
+#include <boost/iostreams/stream.hpp>
 
 #include <unordered_set>
 
@@ -57,6 +56,8 @@ LLGLTFMaterialList gGLTFMaterialList;
 LLGLTFMaterialList::modify_queue_t LLGLTFMaterialList::sModifyQueue;
 LLGLTFMaterialList::apply_queue_t LLGLTFMaterialList::sApplyQueue;
 LLSD LLGLTFMaterialList::sUpdates;
+
+const size_t MAX_TASK_UPDATES = 255;
 
 #ifdef SHOW_ASSERT
 // return true if given data is (probably) valid update message for ModifyMaterialParams capability
@@ -76,7 +77,7 @@ static bool is_valid_update(const LLSD& data)
         ++count;
     }
     else
-    { 
+    {
         LL_WARNS() << "Missing required parameter: object_id" << LL_ENDL;
         return false;
     }
@@ -96,7 +97,7 @@ static bool is_valid_update(const LLSD& data)
         ++count;
     }
     else
-    { 
+    {
         LL_WARNS() << "Missing required parameter: side" << LL_ENDL;
         return false;
     }
@@ -122,7 +123,7 @@ static bool is_valid_update(const LLSD& data)
     }
 
     if (count < 3)
-    { 
+    {
         LL_WARNS() << "Only specified object_id and side, update won't actually change anything and is just noise" << LL_ENDL;
         return false;
     }
@@ -169,14 +170,14 @@ namespace
 
 void LLGLTFMaterialList::applyOverrideMessage(LLMessageSystem* msg, const std::string& data_in)
 {
-    std::istringstream str(data_in);
+    boost::iostreams::stream<boost::iostreams::array_source> str(data_in.data(), data_in.size());
 
     LLSD data;
 
     LLSDSerialize::fromNotation(data, str, data_in.length());
 
     const LLHost& host = msg->getSender();
-    
+
     LLViewerRegion* region = LLWorld::instance().getRegion(host);
     llassert(region);
 
@@ -202,14 +203,14 @@ void LLGLTFMaterialList::applyOverrideMessage(LLMessageSystem* msg, const std::s
         bool has_te[MAX_TES] = { false };
 
         if (tes.isArray()) // NOTE: if no "te" array exists, this is a malformed message (null out all overrides will come in as an empty te array)
-        { 
+        {
             LLGLTFOverrideCacheEntry cache;
             cache.mLocalId = local_id;
             cache.mObjectId = id;
             cache.mRegionHandle = region->getHandle();
 
-            U32 count = llmin(tes.size(), MAX_TES);
-            for (U32 i = 0; i < count; ++i)
+            auto count = llmin(tes.size(), MAX_TES);
+            for (size_t i = 0; i < count; ++i)
             {
                 LLGLTFMaterial* mat = new LLGLTFMaterial(); // setTEGLTFMaterialOverride and cache will take ownership
                 mat->applyOverrideLLSD(od[i]);
@@ -255,7 +256,7 @@ void LLGLTFMaterialList::queueOverrideUpdate(const LLUUID& id, S32 side, LLGLTFM
 {
 #if 0
     override_list_t& overrides = mQueuedOverrides[id];
-    
+
     if (overrides.size() < side + 1)
     {
         overrides.resize(side + 1);
@@ -365,6 +366,17 @@ void LLGLTFMaterialList::queueApply(const LLViewerObject* obj, S32 side, const L
         LLGLTFMaterial* material = new LLGLTFMaterial(*material_override);
         sApplyQueue.push_back({ obj->getID(), side, asset_id, material });
     }
+
+    if (sUpdates.size() >= MAX_TASK_UPDATES)
+    {
+        LLCoros::instance().launch("modifyMaterialCoro",
+            std::bind(&LLGLTFMaterialList::modifyMaterialCoro,
+                gAgent.getRegionCapability("ModifyMaterialParams"),
+                sUpdates,
+                std::shared_ptr<CallbackHolder>(nullptr)));
+
+        sUpdates = LLSD::emptyArray();
+    }
 }
 
 void LLGLTFMaterialList::queueUpdate(const LLSD& data)
@@ -375,18 +387,43 @@ void LLGLTFMaterialList::queueUpdate(const LLSD& data)
     {
         sUpdates = LLSD::emptyArray();
     }
-    
+
     sUpdates[sUpdates.size()] = data;
+
+    if (sUpdates.size() >= MAX_TASK_UPDATES)
+    {
+        LLCoros::instance().launch("modifyMaterialCoro",
+            std::bind(&LLGLTFMaterialList::modifyMaterialCoro,
+                gAgent.getRegionCapability("ModifyMaterialParams"),
+                sUpdates,
+                std::shared_ptr<CallbackHolder>(nullptr)));
+
+        sUpdates = LLSD::emptyArray();
+    }
 }
 
 void LLGLTFMaterialList::flushUpdates(void(*done_callback)(bool))
 {
+    std::shared_ptr<CallbackHolder> callback_holder;
+    if (done_callback)
+    {
+        callback_holder = std::make_shared<CallbackHolder>(done_callback);
+    }
+    while (!sModifyQueue.empty() || !sApplyQueue.empty())
+    {
+        flushUpdatesOnce(callback_holder);
+    }
+}
+
+void LLGLTFMaterialList::flushUpdatesOnce(std::shared_ptr<CallbackHolder> callback_holder)
+{
     LLSD& data = sUpdates;
 
-    S32 i = data.size();
+    size_t i = data.size();
 
-    for (ModifyMaterialData& e : sModifyQueue)
+    while (!sModifyQueue.empty() && i < MAX_TASK_UPDATES)
     {
+        ModifyMaterialData& e = sModifyQueue.front();
 #ifdef SHOW_ASSERT
         // validate object has a material id
         LLViewerObject* obj = gObjectList.findObject(e.object_id);
@@ -395,7 +432,7 @@ void LLGLTFMaterialList::flushUpdates(void(*done_callback)(bool))
 
         data[i]["object_id"] = e.object_id;
         data[i]["side"] = e.side;
-         
+
         if (e.has_override)
         {
             data[i]["gltf_json"] = e.override_data.asJSON();
@@ -408,11 +445,12 @@ void LLGLTFMaterialList::flushUpdates(void(*done_callback)(bool))
 
         llassert(is_valid_update(data[i]));
         ++i;
+        sModifyQueue.pop_front();
     }
-    sModifyQueue.clear();
 
-    for (ApplyMaterialAssetData& e : sApplyQueue)
+    while (!sApplyQueue.empty() && i < MAX_TASK_UPDATES)
     {
+        ApplyMaterialAssetData& e = sApplyQueue.front();
         data[i]["object_id"] = e.object_id;
         data[i]["side"] = e.side;
         data[i]["asset_id"] = e.asset_id;
@@ -428,8 +466,8 @@ void LLGLTFMaterialList::flushUpdates(void(*done_callback)(bool))
 
         llassert(is_valid_update(data[i]));
         ++i;
+        sApplyQueue.pop_front();
     }
-    sApplyQueue.clear();
 
 #if 0 // debug output of data being sent to capability
     std::stringstream str;
@@ -443,7 +481,7 @@ void LLGLTFMaterialList::flushUpdates(void(*done_callback)(bool))
             std::bind(&LLGLTFMaterialList::modifyMaterialCoro,
                 gAgent.getRegionCapability("ModifyMaterialParams"),
                 sUpdates,
-                done_callback));
+                callback_holder));
 
         sUpdates = LLSD::emptyArray();
     }
@@ -494,7 +532,7 @@ void LLGLTFMaterialList::onAssetLoadComplete(const LLUUID& id, LLAssetType::ETyp
                 }
 
                 buffer.resize(size);
-                file.read((U8*)&buffer[0], buffer.size());
+                file.read((U8*)&buffer[0], static_cast<S32>(buffer.size()));
             }
 
             {
@@ -503,8 +541,7 @@ void LLGLTFMaterialList::onAssetLoadComplete(const LLUUID& id, LLAssetType::ETyp
                 LLSD asset;
 
                 // read file into buffer
-                std::istrstream str(&buffer[0], buffer.size());
-
+                boost::iostreams::stream<boost::iostreams::array_source> str(buffer.data(), buffer.size());
                 if (LLSDSerialize::deserialize(asset, str, buffer.size()))
                 {
                     if (asset.has("version") && LLGLTFMaterial::isAcceptedVersion(asset["version"].asString()))
@@ -520,7 +557,7 @@ void LLGLTFMaterialList::onAssetLoadComplete(const LLUUID& id, LLAssetType::ETyp
                                 LL_PROFILE_ZONE_SCOPED;
                                 tinygltf::TinyGLTF gltf;
 
-                                if (!gltf.LoadASCIIFromString(&asset_data->mModelIn, &error_msg, &warn_msg, data.c_str(), data.length(), ""))
+                                if (!gltf.LoadASCIIFromString(&asset_data->mModelIn, &error_msg, &warn_msg, data.c_str(), static_cast<U32>(data.length()), ""))
                                 {
                                     LL_WARNS("GLTF") << "Failed to decode material asset: "
                                         << LL_NEWLINE
@@ -581,7 +618,7 @@ LLFetchedGLTFMaterial* LLGLTFMaterialList::getMaterial(const LLUUID& id)
 
             gAssetStorage->getAssetData(id, LLAssetType::AT_MATERIAL, onAssetLoadComplete, (void*)user_data);
         }
-        
+
         return mat;
     }
 
@@ -664,7 +701,7 @@ void LLGLTFMaterialList::flushMaterials()
 }
 
 // static
-void LLGLTFMaterialList::modifyMaterialCoro(std::string cap_url, LLSD overrides, void(*done_callback)(bool) )
+void LLGLTFMaterialList::modifyMaterialCoro(std::string cap_url, LLSD overrides, std::shared_ptr<CallbackHolder> callback_holder)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
@@ -694,9 +731,12 @@ void LLGLTFMaterialList::modifyMaterialCoro(std::string cap_url, LLSD overrides,
         success = false;
     }
 
-    if (done_callback)
+    if (callback_holder)
     {
-        done_callback(success);
+        // Set to false even if something went through
+        // since at the moment it get used to refresh UI
+        // if update failed
+        callback_holder->mSuccess &= success;
     }
 }
 

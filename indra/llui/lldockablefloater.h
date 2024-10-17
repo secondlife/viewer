@@ -81,7 +81,7 @@ public:
      *  If descendant class overrides postBuild() in order to perform specific
      *  construction then it must still invoke its superclass' implementation.
      */
-    /* virtula */BOOL postBuild();
+    /* virtula */bool postBuild();
     /* virtual */void setDocked(bool docked, bool pop_on_undock = true);
     /* virtual */void draw();
 
@@ -89,13 +89,13 @@ public:
      *  If descendant class overrides setVisible() then it must still invoke its
      *  superclass' implementation.
      */
-    /*virtual*/ void setVisible(BOOL visible);
+    /*virtual*/ void setVisible(bool visible);
 
     /**
      *  If descendant class overrides setMinimized() then it must still invoke its
      *  superclass' implementation.
      */
-    /*virtual*/ void setMinimized(BOOL minimize);
+    /*virtual*/ void setMinimized(bool minimize);
 
     LLView * getDockWidget();
 
@@ -112,8 +112,8 @@ public:
     virtual bool overlapsScreenChannel() { return mOverlapsScreenChannel && getVisible() && isDocked(); }
     virtual void setOverlapsScreenChannel(bool overlaps) { mOverlapsScreenChannel = overlaps; }
 
-    bool getUniqueDocking() { return mUniqueDocking;    }
-    bool getUseTongue() { return mUseTongue; }
+    bool getUniqueDocking() const { return mUniqueDocking;    }
+    bool getUseTongue() const { return mUseTongue; }
 
     void setUseTongue(bool use_tongue) { mUseTongue = use_tongue;}
 private:
@@ -129,7 +129,7 @@ protected:
 
     // Checks if docking should be forced.
     // It may be useful e.g. if floater created in mouselook mode (see EXT-5609)
-    boost::function<BOOL ()> mIsDockedStateForcedCallback;
+    boost::function<bool ()> mIsDockedStateForcedCallback;
 
 private:
     std::unique_ptr<LLDockControl> mDockControl;

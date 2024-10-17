@@ -26,7 +26,6 @@
 
 #include "linden_common.h"
 
-//#include "vmath.h"
 #include "v2math.h"
 #include "v3math.h"
 #include "v4math.h"
@@ -42,13 +41,13 @@ LLVector2 LLVector2::zero(0,0);
 // Non-member functions
 
 // Sets all values to absolute value of their original values
-// Returns TRUE if data changed
-BOOL LLVector2::abs()
+// Returns true if data changed
+bool LLVector2::abs()
 {
-    BOOL ret = FALSE;
+    bool ret{ false };
 
-    if (mV[0] < 0.f) { mV[0] = -mV[0]; ret = TRUE; }
-    if (mV[1] < 0.f) { mV[1] = -mV[1]; ret = TRUE; }
+    if (mV[VX] < 0.f) { mV[VX] = -mV[VX]; ret = true; }
+    if (mV[VY] < 0.f) { mV[VY] = -mV[VY]; ret = true; }
 
     return ret;
 }
@@ -74,7 +73,7 @@ F32 signed_angle_between(const LLVector2& a, const LLVector2& b)
     return rhombus_square < 0 ? -angle : angle;
 }
 
-BOOL are_parallel(const LLVector2 &a, const LLVector2 &b, F32 epsilon)
+bool are_parallel(const LLVector2 &a, const LLVector2 &b, F32 epsilon)
 {
     LLVector2 an = a;
     LLVector2 bn = b;
@@ -83,34 +82,34 @@ BOOL are_parallel(const LLVector2 &a, const LLVector2 &b, F32 epsilon)
     F32 dot = an * bn;
     if ( (1.0f - fabs(dot)) < epsilon)
     {
-        return TRUE;
+        return true;
     }
-    return FALSE;
+    return false;
 }
 
 
-F32 dist_vec(const LLVector2 &a, const LLVector2 &b)
+F32 dist_vec(const LLVector2& a, const LLVector2& b)
 {
-    F32 x = a.mV[0] - b.mV[0];
-    F32 y = a.mV[1] - b.mV[1];
+    F32 x = a.mV[VX] - b.mV[VX];
+    F32 y = a.mV[VY] - b.mV[VY];
     return (F32) sqrt( x*x + y*y );
 }
 
-F32 dist_vec_squared(const LLVector2 &a, const LLVector2 &b)
+F32 dist_vec_squared(const LLVector2& a, const LLVector2& b)
 {
-    F32 x = a.mV[0] - b.mV[0];
-    F32 y = a.mV[1] - b.mV[1];
+    F32 x = a.mV[VX] - b.mV[VX];
+    F32 y = a.mV[VY] - b.mV[VY];
     return x*x + y*y;
 }
 
-F32 dist_vec_squared2D(const LLVector2 &a, const LLVector2 &b)
+F32 dist_vec_squared2D(const LLVector2& a, const LLVector2& b)
 {
-    F32 x = a.mV[0] - b.mV[0];
-    F32 y = a.mV[1] - b.mV[1];
+    F32 x = a.mV[VX] - b.mV[VX];
+    F32 y = a.mV[VY] - b.mV[VY];
     return x*x + y*y;
 }
 
-LLVector2 lerp(const LLVector2 &a, const LLVector2 &b, F32 u)
+LLVector2 lerp(const LLVector2& a, const LLVector2& b, F32 u)
 {
     return LLVector2(
         a.mV[VX] + (b.mV[VX] - a.mV[VX]) * u,
@@ -120,14 +119,14 @@ LLVector2 lerp(const LLVector2 &a, const LLVector2 &b, F32 u)
 LLSD LLVector2::getValue() const
 {
     LLSD ret;
-    ret[0] = mV[0];
-    ret[1] = mV[1];
+    ret[0] = mV[VX];
+    ret[1] = mV[VY];
     return ret;
 }
 
 void LLVector2::setValue(const LLSD& sd)
 {
-    mV[0] = (F32) sd[0].asReal();
-    mV[1] = (F32) sd[1].asReal();
+    mV[VX] = (F32) sd[0].asReal();
+    mV[VY] = (F32) sd[1].asReal();
 }
 

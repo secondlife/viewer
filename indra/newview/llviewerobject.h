@@ -1,3 +1,4 @@
+
 /**
  * @file llviewerobject.h
  * @brief Description of LLViewerObject class, which is the base class for most objects in the viewer.
@@ -45,7 +46,14 @@
 #include "llbbox.h"
 #include "llrigginginfo.h"
 #include "llreflectionmap.h"
-#include "gltf/asset.h"
+
+namespace LL
+{
+    namespace GLTF
+    {
+        class Asset;
+    }
+}
 
 class LLAgent;          // TODO: Get rid of this.
 class LLAudioSource;
@@ -121,7 +129,7 @@ protected:
     // TomY: Provide for a list of extra parameter structures, mapped by structure name
     struct ExtraParameter
     {
-        BOOL in_use;
+        bool in_use;
         LLNetworkData *data;
     };
     std::unordered_map<U16, ExtraParameter*> mExtraParameterList;
@@ -132,12 +140,12 @@ public:
 
     typedef const child_list_t const_child_list_t;
 
-    LLViewerObject(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp, BOOL is_global = FALSE);
+    LLViewerObject(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp, bool is_global = false);
 
     virtual void markDead();                // Mark this object as dead, and clean up its references
-    BOOL isDead() const                                 {return mDead;}
-    BOOL isOrphaned() const                             { return mOrphaned; }
-    BOOL isParticleSource() const;
+    bool isDead() const                                 {return mDead;}
+    bool isOrphaned() const                             { return mOrphaned; }
+    bool isParticleSource() const;
 
     virtual LLVOAvatar* asAvatar();
 
@@ -147,7 +155,7 @@ public:
     static void cleanupVOClasses();
 
     void            addNVPair(const std::string& data);
-    BOOL            removeNVPair(const std::string& name);
+    bool            removeNVPair(const std::string& name);
     LLNameValue*    getNVPair(const std::string& name) const;           // null if no name value pair by that name
 
     // Object create and update functions
@@ -173,11 +181,11 @@ public:
                                         LLDataPacker *dp);
 
 
-    virtual BOOL    isActive() const; // Whether this object needs to do an idleUpdate.
-    BOOL            onActiveList() const                {return mOnActiveList;}
-    void            setOnActiveList(BOOL on_active)     { mOnActiveList = on_active; }
+    virtual bool    isActive() const; // Whether this object needs to do an idleUpdate.
+    bool            onActiveList() const                {return mOnActiveList;}
+    void            setOnActiveList(bool on_active)     { mOnActiveList = on_active; }
 
-    virtual BOOL    isAttachment() const { return FALSE; }
+    virtual bool    isAttachment() const { return false; }
     const std::string& getAttachmentItemName() const;
 
     virtual LLVOAvatar* getAvatar() const;  //get the avatar this object is attached to, or NULL if object is not an attachment
@@ -194,10 +202,10 @@ public:
     void setRenderMaterialID(S32 te, const LLUUID& id, bool update_server = true, bool local_origin = true);
     void setRenderMaterialIDs(const LLUUID& id);
 
-    virtual BOOL    isHUDAttachment() const { return FALSE; }
-    virtual BOOL    isTempAttachment() const;
+    virtual bool    isHUDAttachment() const { return false; }
+    virtual bool    isTempAttachment() const;
 
-    virtual BOOL isHiglightedOrBeacon() const;
+    virtual bool isHiglightedOrBeacon() const;
 
     virtual void    updateRadius() {};
     virtual F32     getVObjRadius() const; // default implemenation is mDrawable->getRadius()
@@ -216,14 +224,14 @@ public:
     // Graphical stuff for objects - maybe broken out into render class later?
     virtual void updateTextures();
     virtual void faceMappingChanged() {}
-    virtual void boostTexturePriority(BOOL boost_children = TRUE);  // When you just want to boost priority of this object
+    virtual void boostTexturePriority(bool boost_children = true);  // When you just want to boost priority of this object
 
     virtual LLDrawable* createDrawable(LLPipeline *pipeline);
-    virtual BOOL        updateGeometry(LLDrawable *drawable);
+    virtual bool        updateGeometry(LLDrawable *drawable);
     virtual void        updateGL();
     virtual void        updateFaceSize(S32 idx);
-    virtual BOOL        updateLOD();
-    virtual BOOL        setDrawableParent(LLDrawable* parentp);
+    virtual bool        updateLOD();
+    virtual bool        setDrawableParent(LLDrawable* parentp);
     F32                 getRotTime() { return mRotTime; }
 private:
     void                resetRotTime();
@@ -241,10 +249,10 @@ public:
     // Accessor functions
     LLViewerRegion* getRegion() const               { return mRegionp; }
 
-    BOOL isSelected() const                         { return mUserSelected; }
+    bool isSelected() const                         { return mUserSelected; }
     // Check whole linkset
-    BOOL isAnySelected() const;
-    virtual void setSelected(BOOL sel);
+    bool isAnySelected() const;
+    virtual void setSelected(bool sel);
 
     const LLUUID &getID() const                     { return mID; }
     U32 getLocalID() const                          { return mLocalID; }
@@ -252,13 +260,17 @@ public:
     S32 getListIndex() const                        { return mListIndex; }
     void setListIndex(S32 idx)                      { mListIndex = idx; }
 
-    virtual BOOL isFlexible() const                 { return FALSE; }
-    virtual BOOL isSculpted() const                 { return FALSE; }
-    virtual BOOL isMesh() const                     { return FALSE; }
-    virtual BOOL isRiggedMesh() const               { return FALSE; }
-    virtual BOOL hasLightTexture() const            { return FALSE; }
-    virtual BOOL isReflectionProbe() const          { return FALSE; }
-    virtual bool getReflectionProbeIsBox() const    { return false; };
+    virtual bool isFlexible() const                 { return false; }
+    virtual bool isSculpted() const                 { return false; }
+    virtual bool isMesh() const                     { return false; }
+    virtual bool isRiggedMesh() const               { return false; }
+    virtual bool hasLightTexture() const            { return false; }
+    virtual bool isReflectionProbe() const          { return false; }
+    virtual F32 getReflectionProbeAmbiance() const  { return 0.f; }
+    virtual F32 getReflectionProbeNearClip() const  { return 0.f; }
+    virtual bool getReflectionProbeIsBox() const    { return false; }
+    virtual bool getReflectionProbeIsDynamic() const { return false; };
+    virtual bool getReflectionProbeIsMirror() const { return false; };
 
     // This method returns true if the object is over land owned by
     // the agent, one of its groups, or it encroaches and
@@ -278,29 +290,29 @@ public:
     // ability to modify the object. Since this calls into the
     // selection manager, you should avoid calling this method from
     // there.
-    BOOL isProbablyModifiable() const;
+    bool isProbablyModifiable() const;
     */
 
-    virtual BOOL setParent(LLViewerObject* parent);
+    virtual bool setParent(LLViewerObject* parent);
     virtual void onReparent(LLViewerObject *old_parent, LLViewerObject *new_parent);
     virtual void afterReparent();
     virtual void addChild(LLViewerObject *childp);
     virtual void removeChild(LLViewerObject *childp);
     const_child_list_t& getChildren() const {   return mChildList; }
-    S32 numChildren() const { return mChildList.size(); }
+    S32 numChildren() const { return static_cast<S32>(mChildList.size()); }
     void addThisAndAllChildren(std::vector<LLViewerObject*>& objects);
     void addThisAndNonJointChildren(std::vector<LLViewerObject*>& objects);
-    BOOL isChild(LLViewerObject *childp) const;
-    BOOL isSeat() const;
+    bool isChild(LLViewerObject *childp) const;
+    bool isSeat() const;
 
 
     //detect if given line segment (in agent space) intersects with this viewer object.
-    //returns TRUE if intersection detected and returns information about intersection
-    virtual BOOL lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
+    //returns true if intersection detected and returns information about intersection
+    virtual bool lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
                                       S32 face = -1,                          // which face to check, -1 = ALL_SIDES
-                                      BOOL pick_transparent = FALSE,
-                                      BOOL pick_rigged = FALSE,
-                                      BOOL pick_unselectable = TRUE,
+                                      bool pick_transparent = false,
+                                      bool pick_rigged = false,
+                                      bool pick_unselectable = true,
                                       S32* face_hit = NULL,                   // which face was hit
                                       LLVector4a* intersection = NULL,         // return the intersection point
                                       LLVector2* tex_coord = NULL,            // return the texture coordinates of the intersection point
@@ -308,7 +320,7 @@ public:
                                       LLVector4a* tangent = NULL             // return the surface tangent at the intersection point
         );
 
-    virtual BOOL lineSegmentBoundingBox(const LLVector4a& start, const LLVector4a& end);
+    virtual bool lineSegmentBoundingBox(const LLVector4a& start, const LLVector4a& end);
 
     virtual const LLVector3d getPositionGlobal() const;
     virtual const LLVector3 &getPositionRegion() const;
@@ -337,18 +349,18 @@ public:
     const LLQuaternion getRenderRotation() const;
     virtual const LLMatrix4 getRenderMatrix() const;
 
-    void setPosition(const LLVector3 &pos, BOOL damped = FALSE);
-    void setPositionGlobal(const LLVector3d &position, BOOL damped = FALSE);
-    void setPositionRegion(const LLVector3 &position, BOOL damped = FALSE);
-    void setPositionEdit(const LLVector3 &position, BOOL damped = FALSE);
-    void setPositionAgent(const LLVector3 &pos_agent, BOOL damped = FALSE);
-    void setPositionParent(const LLVector3 &pos_parent, BOOL damped = FALSE);
-    void setPositionAbsoluteGlobal( const LLVector3d &pos_global, BOOL damped = FALSE );
+    void setPosition(const LLVector3 &pos, bool damped = false);
+    void setPositionGlobal(const LLVector3d &position, bool damped = false);
+    void setPositionRegion(const LLVector3 &position, bool damped = false);
+    void setPositionEdit(const LLVector3 &position, bool damped = false);
+    void setPositionAgent(const LLVector3 &pos_agent, bool damped = false);
+    void setPositionParent(const LLVector3 &pos_parent, bool damped = false);
+    void setPositionAbsoluteGlobal( const LLVector3d &pos_global, bool damped = false );
 
     virtual const LLMatrix4& getWorldMatrix(LLXformMatrix* xform) const     { return xform->getWorldMatrix(); }
 
-    inline void setRotation(const F32 x, const F32 y, const F32 z, BOOL damped = FALSE);
-    inline void setRotation(const LLQuaternion& quat, BOOL damped = FALSE);
+    inline void setRotation(const F32 x, const F32 y, const F32 z, bool damped = false);
+    inline void setRotation(const LLQuaternion& quat, bool damped = false);
 
     /*virtual*/ void    setNumTEs(const U8 num_tes);
     /*virtual*/ void    setTE(const U8 te, const LLTextureEntry &texture_entry);
@@ -384,7 +396,7 @@ public:
     //
     void refreshMaterials();
 
-    /*virtual*/ BOOL    setMaterial(const U8 material);
+    /*virtual*/ bool    setMaterial(const U8 material);
     virtual     void    setTEImage(const U8 te, LLViewerTexture *imagep); // Not derived from LLPrimitive
     virtual     void    changeTEImage(S32 index, LLViewerTexture* new_image)  ;
     virtual     void    changeTENormalMap(S32 index, LLViewerTexture* new_image)  ;
@@ -398,7 +410,7 @@ public:
     void fitFaceTexture(const U8 face);
     void sendTEUpdate() const;          // Sends packed representation of all texture entry information
 
-    virtual void setScale(const LLVector3 &scale, BOOL damped = FALSE);
+    virtual void setScale(const LLVector3 &scale, bool damped = false);
 
     S32 getAnimatedObjectMaxTris() const;
     F32 recursiveGetEstTrianglesMax() const;
@@ -443,7 +455,7 @@ public:
 
      // Create if necessary
     LLAudioSource *getAudioSource(const LLUUID& owner_id);
-    BOOL isAudioSource() const {return mAudioSourcep != NULL;}
+    bool isAudioSource() const {return mAudioSourcep != NULL;}
 
     U8 getMediaType() const;
     void setMediaType(U8 media_type);
@@ -451,8 +463,8 @@ public:
     std::string getMediaURL() const;
     void setMediaURL(const std::string& media_url);
 
-    BOOL getMediaPassedWhitelist() const;
-    void setMediaPassedWhitelist(BOOL passed);
+    bool getMediaPassedWhitelist() const;
+    void setMediaPassedWhitelist(bool passed);
 
     void sendMaterialUpdate() const;
 
@@ -473,13 +485,13 @@ public:
 
     void updatePositionCaches() const; // Update the global and region position caches from the object (and parent's) xform.
     void updateText(); // update text label position
-    virtual void updateDrawable(BOOL force_damped); // force updates on static objects
+    virtual void updateDrawable(bool force_damped); // force updates on static objects
 
     bool isOwnerInMuteList(LLUUID item_id = LLUUID());
 
-    void setDrawableState(U32 state, BOOL recursive = TRUE);
-    void clearDrawableState(U32 state, BOOL recursive = TRUE);
-    BOOL isDrawableState(U32 state, BOOL recursive = TRUE) const;
+    void setDrawableState(U32 state, bool recursive = true);
+    void clearDrawableState(U32 state, bool recursive = true);
+    bool isDrawableState(U32 state, bool recursive = true) const;
 
     // Called when the drawable shifts
     virtual void onShift(const LLVector4a &shift_vector)    { }
@@ -494,7 +506,7 @@ public:
     // viewer object has the inventory stored locally.
     void registerInventoryListener(LLVOInventoryListener* listener, void* user_data);
     void removeInventoryListener(LLVOInventoryListener* listener);
-    BOOL isInventoryPending();
+    bool isInventoryPending();
     void clearInventoryListeners();
     bool hasInventoryListeners();
     void requestInventory();
@@ -524,12 +536,12 @@ public:
 
     // This function will make sure that we refresh the inventory.
     void dirtyInventory();
-    BOOL isInventoryDirty() { return mInventoryDirty; }
+    bool isInventoryDirty() { return mInventoryDirty; }
 
     // save a script, which involves removing the old one, and rezzing
     // in the new one. This method should be called with the asset id
     // of the new and old script AFTER the bytecode has been saved.
-    void saveScript(const LLViewerInventoryItem* item, BOOL active, bool is_new);
+    void saveScript(const LLViewerInventoryItem* item, bool active, bool is_new);
 
     // move an inventory item out of the task and into agent
     // inventory. This operation is based on messaging. No permissions
@@ -539,37 +551,37 @@ public:
     // Find the number of instances of this object's inventory that are of the given type
     S32 countInventoryContents( LLAssetType::EType type );
 
-    BOOL            permAnyOwner() const;
-    BOOL            permYouOwner() const;
-    BOOL            permGroupOwner() const;
-    BOOL            permOwnerModify() const;
-    BOOL            permModify() const;
-    BOOL            permCopy() const;
-    BOOL            permMove() const;
-    BOOL            permTransfer() const;
-    inline BOOL     flagUsePhysics() const          { return ((mFlags & FLAGS_USE_PHYSICS) != 0); }
-    inline BOOL     flagObjectAnyOwner() const      { return ((mFlags & FLAGS_OBJECT_ANY_OWNER) != 0); }
-    inline BOOL     flagObjectYouOwner() const      { return ((mFlags & FLAGS_OBJECT_YOU_OWNER) != 0); }
-    inline BOOL     flagObjectGroupOwned() const    { return ((mFlags & FLAGS_OBJECT_GROUP_OWNED) != 0); }
-    inline BOOL     flagObjectOwnerModify() const   { return ((mFlags & FLAGS_OBJECT_OWNER_MODIFY) != 0); }
-    inline BOOL     flagObjectModify() const        { return ((mFlags & FLAGS_OBJECT_MODIFY) != 0); }
-    inline BOOL     flagObjectCopy() const          { return ((mFlags & FLAGS_OBJECT_COPY) != 0); }
-    inline BOOL     flagObjectMove() const          { return ((mFlags & FLAGS_OBJECT_MOVE) != 0); }
-    inline BOOL     flagObjectTransfer() const      { return ((mFlags & FLAGS_OBJECT_TRANSFER) != 0); }
-    inline BOOL     flagObjectPermanent() const     { return ((mFlags & FLAGS_AFFECTS_NAVMESH) != 0); }
-    inline BOOL     flagCharacter() const           { return ((mFlags & FLAGS_CHARACTER) != 0); }
-    inline BOOL     flagVolumeDetect() const        { return ((mFlags & FLAGS_VOLUME_DETECT) != 0); }
-    inline BOOL     flagIncludeInSearch() const     { return ((mFlags & FLAGS_INCLUDE_IN_SEARCH) != 0); }
-    inline BOOL     flagScripted() const            { return ((mFlags & FLAGS_SCRIPTED) != 0); }
-    inline BOOL     flagHandleTouch() const         { return ((mFlags & FLAGS_HANDLE_TOUCH) != 0); }
-    inline BOOL     flagTakesMoney() const          { return ((mFlags & FLAGS_TAKES_MONEY) != 0); }
-    inline BOOL     flagPhantom() const             { return ((mFlags & FLAGS_PHANTOM) != 0); }
-    inline BOOL     flagInventoryEmpty() const      { return ((mFlags & FLAGS_INVENTORY_EMPTY) != 0); }
-    inline BOOL     flagAllowInventoryAdd() const   { return ((mFlags & FLAGS_ALLOW_INVENTORY_DROP) != 0); }
-    inline BOOL     flagTemporaryOnRez() const      { return ((mFlags & FLAGS_TEMPORARY_ON_REZ) != 0); }
-    inline BOOL     flagAnimSource() const          { return ((mFlags & FLAGS_ANIM_SOURCE) != 0); }
-    inline BOOL     flagCameraSource() const        { return ((mFlags & FLAGS_CAMERA_SOURCE) != 0); }
-    inline BOOL     flagCameraDecoupled() const     { return ((mFlags & FLAGS_CAMERA_DECOUPLED) != 0); }
+    bool            permAnyOwner() const;
+    bool            permYouOwner() const;
+    bool            permGroupOwner() const;
+    bool            permOwnerModify() const;
+    bool            permModify() const;
+    bool            permCopy() const;
+    bool            permMove() const;
+    bool            permTransfer() const;
+    inline bool     flagUsePhysics() const          { return ((mFlags & FLAGS_USE_PHYSICS) != 0); }
+    inline bool     flagObjectAnyOwner() const      { return ((mFlags & FLAGS_OBJECT_ANY_OWNER) != 0); }
+    inline bool     flagObjectYouOwner() const      { return ((mFlags & FLAGS_OBJECT_YOU_OWNER) != 0); }
+    inline bool     flagObjectGroupOwned() const    { return ((mFlags & FLAGS_OBJECT_GROUP_OWNED) != 0); }
+    inline bool     flagObjectOwnerModify() const   { return ((mFlags & FLAGS_OBJECT_OWNER_MODIFY) != 0); }
+    inline bool     flagObjectModify() const        { return ((mFlags & FLAGS_OBJECT_MODIFY) != 0); }
+    inline bool     flagObjectCopy() const          { return ((mFlags & FLAGS_OBJECT_COPY) != 0); }
+    inline bool     flagObjectMove() const          { return ((mFlags & FLAGS_OBJECT_MOVE) != 0); }
+    inline bool     flagObjectTransfer() const      { return ((mFlags & FLAGS_OBJECT_TRANSFER) != 0); }
+    inline bool     flagObjectPermanent() const     { return ((mFlags & FLAGS_AFFECTS_NAVMESH) != 0); }
+    inline bool     flagCharacter() const           { return ((mFlags & FLAGS_CHARACTER) != 0); }
+    inline bool     flagVolumeDetect() const        { return ((mFlags & FLAGS_VOLUME_DETECT) != 0); }
+    inline bool     flagIncludeInSearch() const     { return ((mFlags & FLAGS_INCLUDE_IN_SEARCH) != 0); }
+    inline bool     flagScripted() const            { return ((mFlags & FLAGS_SCRIPTED) != 0); }
+    inline bool     flagHandleTouch() const         { return ((mFlags & FLAGS_HANDLE_TOUCH) != 0); }
+    inline bool     flagTakesMoney() const          { return ((mFlags & FLAGS_TAKES_MONEY) != 0); }
+    inline bool     flagPhantom() const             { return ((mFlags & FLAGS_PHANTOM) != 0); }
+    inline bool     flagInventoryEmpty() const      { return ((mFlags & FLAGS_INVENTORY_EMPTY) != 0); }
+    inline bool     flagAllowInventoryAdd() const   { return ((mFlags & FLAGS_ALLOW_INVENTORY_DROP) != 0); }
+    inline bool     flagTemporaryOnRez() const      { return ((mFlags & FLAGS_TEMPORARY_ON_REZ) != 0); }
+    inline bool     flagAnimSource() const          { return ((mFlags & FLAGS_ANIM_SOURCE) != 0); }
+    inline bool     flagCameraSource() const        { return ((mFlags & FLAGS_CAMERA_SOURCE) != 0); }
+    inline bool     flagCameraDecoupled() const     { return ((mFlags & FLAGS_CAMERA_DECOUPLED) != 0); }
 
     U8       getPhysicsShapeType() const;
     inline F32      getPhysicsGravity() const       { return mPhysicsGravity; }
@@ -583,7 +595,7 @@ public:
     void setIncludeInSearch(bool include_in_search);
 
     // Does "open" object menu item apply?
-    BOOL allowOpen() const;
+    bool allowOpen() const;
 
     void setClickAction(U8 action) { mClickAction = action; }
     U8 getClickAction() const { return mClickAction; }
@@ -592,10 +604,10 @@ public:
     void            setRegion(LLViewerRegion *regionp);
     virtual void    updateRegion(LLViewerRegion *regionp);
 
-    void updateFlags(BOOL physics_changed = FALSE);
+    void updateFlags(bool physics_changed = false);
     void loadFlags(U32 flags); //load flags from cache or from message
-    BOOL setFlags(U32 flag, BOOL state);
-    BOOL setFlagsWithoutUpdate(U32 flag, BOOL state);
+    bool setFlags(U32 flag, bool state);
+    bool setFlagsWithoutUpdate(U32 flag, bool state);
     void setPhysicsShapeType(U8 type);
     void setPhysicsGravity(F32 gravity);
     void setPhysicsFriction(F32 friction);
@@ -614,11 +626,11 @@ public:
 
     virtual LLNetworkData* getParameterEntry(U16 param_type) const;
     virtual bool setParameterEntry(U16 param_type, const LLNetworkData& new_value, bool local_origin);
-    virtual BOOL getParameterEntryInUse(U16 param_type) const;
-    virtual bool setParameterEntryInUse(U16 param_type, BOOL in_use, bool local_origin);
+    virtual bool getParameterEntryInUse(U16 param_type) const;
+    virtual bool setParameterEntryInUse(U16 param_type, bool in_use, bool local_origin);
     // Called when a parameter is changed
     virtual void parameterChanged(U16 param_type, bool local_origin);
-    virtual void parameterChanged(U16 param_type, LLNetworkData* data, BOOL in_use, bool local_origin);
+    virtual void parameterChanged(U16 param_type, LLNetworkData* data, bool in_use, bool local_origin);
 
     bool isShrinkWrapped() const { return mShouldShrinkWrap; }
 
@@ -644,7 +656,7 @@ public:
 
 public:
     //counter-translation
-    void resetChildrenPosition(const LLVector3& offset, BOOL simplified = FALSE,  BOOL skip_avatar_child = FALSE) ;
+    void resetChildrenPosition(const LLVector3& offset, bool simplified = false,  bool skip_avatar_child = false) ;
     //counter-rotation
     void resetChildrenRotationAndPosition(const std::vector<LLQuaternion>& rotations,
                                             const std::vector<LLVector3>& positions) ;
@@ -676,6 +688,7 @@ private:
     // forms task inventory request after some time passed, marks request as pending
     void fetchInventoryDelayed(const F64 &time_seconds);
     static void fetchInventoryDelayedCoro(const LLUUID task_inv, const F64 time_seconds);
+    static void fetchInventoryFromCapCoro(const LLUUID task_inv);
 
 public:
     //
@@ -721,7 +734,7 @@ public:
 
     // true if user can select this object by clicking under any circumstances (even if pick_unselectable is true)
     // can likely be factored out
-    BOOL            mbCanSelect;
+    bool            mbCanSelect;
 
 private:
     // Grabbed from UPDATE_FLAGS
@@ -736,17 +749,22 @@ public:
     F32             mPhysicsDensity;
     F32             mPhysicsRestitution;
 
+    // set the GLTF asset for this LLViewerObject  to the specified asset id
+    // id MUST be for a GLTF asset (LLAssetType::AT_GLTF)
+    // will relesae any currently held references to a GLTF asset on id change
+    void setGLTFAsset(const LLUUID& id);
+
     // Associated GLTF Asset
-    LLPointer<LL::GLTF::Asset> mGLTFAsset;
+    std::shared_ptr<LL::GLTF::Asset> mGLTFAsset;
 
     // Pipeline classes
     LLPointer<LLDrawable> mDrawable;
 
     // Band-aid to select object after all creation initialization is done
-    BOOL mCreateSelected;
+    bool mCreateSelected;
 
     // Replace textures with web pages on this object while drawing
-    BOOL mRenderMedia;
+    bool mRenderMedia;
 
     bool mRiggedAttachedWarned;
 
@@ -760,7 +778,7 @@ public:
     std::string mHudText;
     LLColor4 mHudTextColor;
 
-    static          BOOL        sUseSharedDrawables;
+    static          bool        sUseSharedDrawables;
 
 public:
     // Returns mControlAvatar for the edit root prim of this linkset
@@ -795,10 +813,8 @@ protected:
 
     static LLViewerObject *createObject(const LLUUID &id, LLPCode pcode, LLViewerRegion *regionp, S32 flags = 0);
 
-    BOOL setData(const U8 *datap, const U32 data_size);
-
     // Hide or show HUD, icon and particles
-    void    hideExtraDisplayItems( BOOL hidden );
+    void    hideExtraDisplayItems( bool hidden );
 
     //////////////////////////
     //
@@ -806,10 +822,11 @@ protected:
     //
 
     static void processTaskInvFile(void** user_data, S32 error_code, LLExtStat ext_status);
-    BOOL loadTaskInvFile(const std::string& filename);
+    bool loadTaskInvFile(const std::string& filename);
+    void loadTaskInvLLSD(const LLSD &inv_result);
     void doInventoryCallback();
 
-    BOOL isOnMap();
+    bool isOnMap();
 
     void unpackParticleSource(const S32 block_num, const LLUUID& owner_id);
     void unpackParticleSource(LLDataPacker &dp, const LLUUID& owner_id, bool legacy);
@@ -870,15 +887,15 @@ protected:
     };
     EInventoryRequestState  mInvRequestState;
     U64                     mInvRequestXFerId;
-    BOOL                    mInventoryDirty;
+    bool                    mInventoryDirty;
 
     LLViewerRegion  *mRegionp;                  // Region that this object belongs to.
-    BOOL            mDead;
-    BOOL            mOrphaned;                  // This is an orphaned child
-    BOOL            mUserSelected;              // Cached user select information
-    BOOL            mOnActiveList;
-    BOOL            mOnMap;                     // On the map.
-    BOOL            mStatic;                    // Object doesn't move.
+    bool            mDead;
+    bool            mOrphaned;                  // This is an orphaned child
+    bool            mUserSelected;              // Cached user select information
+    bool            mOnActiveList;
+    bool            mOnMap;                     // On the map.
+    bool            mStatic;                    // Object doesn't move.
     S32             mSeatCount;
     S32             mNumFaces;
 
@@ -902,11 +919,11 @@ protected:
 
     static          U32         sNumZombieObjects;          // Objects which are dead, but not deleted
 
-    static          BOOL        sMapDebug;                  // Map render mode
+    static          bool        sMapDebug;                  // Map render mode
     static          LLColor4    sEditSelectColor;
     static          LLColor4    sNoEditSelectColor;
     static          F32         sCurrentPulse;
-    static          BOOL        sPulseEnabled;
+    static          bool        sPulseEnabled;
 
     static          S32         sAxisArrowLength;
 
@@ -919,8 +936,8 @@ protected:
     static void setMaxUpdateInterpolationTime(F32 value)        { sMaxUpdateInterpolationTime = (F64Seconds) value; }
     static void setMaxRegionCrossingInterpolationTime(F32 value)        { sMaxRegionCrossingInterpolationTime = (F64Seconds) value; }
 
-    static void setVelocityInterpolate(BOOL value)      { sVelocityInterpolate = value; }
-    static void setPingInterpolate(BOOL value)          { sPingInterpolate = value; }
+    static void setVelocityInterpolate(bool value)      { sVelocityInterpolate = value; }
+    static void setPingInterpolate(bool value)          { sPingInterpolate = value; }
 
 private:
     static S32 sNumObjects;
@@ -929,8 +946,8 @@ private:
     static F64Seconds sMaxUpdateInterpolationTime;          // For motion interpolation
     static F64Seconds sMaxRegionCrossingInterpolationTime;          // For motion interpolation
 
-    static BOOL sVelocityInterpolate;
-    static BOOL sPingInterpolate;
+    static bool sVelocityInterpolate;
+    static bool sPingInterpolate;
 
     bool mCachedOwnerInMuteList;
     F64 mCachedMuteListUpdateTime;
@@ -944,8 +961,8 @@ public:
     const LLUUID &extractAttachmentItemID(); // find&set the inventory item ID of the attached object
     EObjectUpdateType getLastUpdateType() const;
     void setLastUpdateType(EObjectUpdateType last_update_type);
-    BOOL getLastUpdateCached() const;
-    void setLastUpdateCached(BOOL last_update_cached);
+    bool getLastUpdateCached() const;
+    void setLastUpdateCached(bool last_update_cached);
 
     virtual void updateRiggingInfo() {}
 
@@ -954,7 +971,7 @@ public:
 private:
     LLUUID mAttachmentItemID; // ItemID of the associated object is in user inventory.
     EObjectUpdateType   mLastUpdateType;
-    BOOL    mLastUpdateCached;
+    bool    mLastUpdateCached;
 
 public:
     // reflection probe state
@@ -973,14 +990,14 @@ public:
 //
 //
 
-inline void LLViewerObject::setRotation(const LLQuaternion& quat, BOOL damped)
+inline void LLViewerObject::setRotation(const LLQuaternion& quat, bool damped)
 {
     LLPrimitive::setRotation(quat);
     setChanged(ROTATED | SILHOUETTE);
     updateDrawable(damped);
 }
 
-inline void LLViewerObject::setRotation(const F32 x, const F32 y, const F32 z, BOOL damped)
+inline void LLViewerObject::setRotation(const F32 x, const F32 y, const F32 z, bool damped)
 {
     LLPrimitive::setRotation(x, y, z);
     setChanged(ROTATED | SILHOUETTE);
@@ -990,10 +1007,10 @@ inline void LLViewerObject::setRotation(const F32 x, const F32 y, const F32 z, B
 class LLViewerObjectMedia
 {
 public:
-    LLViewerObjectMedia() : mMediaURL(), mPassedWhitelist(FALSE), mMediaType(0) { }
+    LLViewerObjectMedia() : mMediaURL(), mPassedWhitelist(false), mMediaType(0) { }
 
     std::string mMediaURL;  // for web pages on surfaces, one per prim
-    BOOL mPassedWhitelist;  // user has OK'd display
+    bool mPassedWhitelist;  // user has OK'd display
     U8 mMediaType;          // see LLTextureEntry::WEB_PAGE, etc.
 };
 
@@ -1022,11 +1039,11 @@ public:
 class LLStaticViewerObject : public LLViewerObject
 {
 public:
-    LLStaticViewerObject(const LLUUID& id, const LLPCode pcode, LLViewerRegion* regionp, BOOL is_global = FALSE)
+    LLStaticViewerObject(const LLUUID& id, const LLPCode pcode, LLViewerRegion* regionp, bool is_global = false)
         : LLViewerObject(id,pcode,regionp, is_global)
     { }
 
-    virtual void updateDrawable(BOOL force_damped);
+    virtual void updateDrawable(bool force_damped);
 };
 
 

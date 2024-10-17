@@ -41,6 +41,7 @@
 #include "llagent.h"
 #include "llagentcamera.h"
 #include "llfocusmgr.h"
+#include "llgamecontrol.h"
 
 #if LL_WINDOWS && !LL_MESA_HEADLESS
 // Require DirectInput version 8
@@ -244,19 +245,19 @@ void LLViewerJoystick::updateEnabled(bool autoenable)
 {
     if (mDriverState == JDS_UNINITIALIZED)
     {
-        gSavedSettings.setBOOL("JoystickEnabled", FALSE );
+        gSavedSettings.setBOOL("JoystickEnabled", false);
     }
     else
     {
         // autoenable if user specifically chose this device
         if (autoenable && (isLikeSpaceNavigator() || isDeviceUUIDSet()))
         {
-            gSavedSettings.setBOOL("JoystickEnabled", TRUE );
+            gSavedSettings.setBOOL("JoystickEnabled", true );
         }
     }
     if (!gSavedSettings.getBOOL("JoystickEnabled"))
     {
-        mOverrideCamera = FALSE;
+        mOverrideCamera = false;
     }
 }
 
@@ -264,7 +265,7 @@ void LLViewerJoystick::setOverrideCamera(bool val)
 {
     if (!gSavedSettings.getBOOL("JoystickEnabled"))
     {
-        mOverrideCamera = FALSE;
+        mOverrideCamera = false;
     }
     else
     {
@@ -289,6 +290,7 @@ NDOF_HotPlugResult LLViewerJoystick::HotPlugAddCallback(NDOF_Device *dev)
         ndof_dump(stderr, dev);
         joystick->mNdofDev = dev;
         joystick->mDriverState = JDS_INITIALIZED;
+        joystick->mDeviceIs3DConnexion = is3DConnexionDevice(joystick->mNdofDev->product);
         res = NDOF_KEEP_HOTPLUGGED;
     }
     joystick->updateEnabled(true);
@@ -314,22 +316,15 @@ void LLViewerJoystick::HotPlugRemovalCallback(NDOF_Device *dev)
 
 // -----------------------------------------------------------------------------
 LLViewerJoystick::LLViewerJoystick()
-:   mDriverState(JDS_UNINITIALIZED),
-    mNdofDev(NULL),
-    mResetFlag(false),
-    mCameraUpdated(true),
-    mOverrideCamera(false),
-    mJoystickRun(0)
 {
     for (int i = 0; i < 6; i++)
     {
         mAxes[i] = sDelta[i] = sLastDelta[i] = 0.0f;
     }
-
     memset(mBtn, 0, sizeof(mBtn));
 
     // factor in bandwidth? bandwidth = gViewerStats->mKBitStat
-    mPerfScale = 4000.f / gSysCPU.getMHz(); // hmm.  why?
+    mPerfScale = 4000.f / (F32)gSysCPU.getMHz(); // hmm.  why?
 
     mLastDeviceUUID = LLSD::Integer(1);
 }
@@ -352,7 +347,7 @@ void LLViewerJoystick::init(bool autoenable)
 
     loadDeviceIdFromSettings();
 
-    if (libinit == false)
+    if (!libinit)
     {
         // Note: The HotPlug callbacks are not actually getting called on Windows
         if (ndof_libinit(HotPlugAddCallback,
@@ -404,6 +399,7 @@ void LLViewerJoystick::init(bool autoenable)
                 else
                 {
                     mDriverState = JDS_INITIALIZED;
+                    mDeviceIs3DConnexion = is3DConnexionDevice(mNdofDev->product);
                 }
             }
 #endif
@@ -434,7 +430,7 @@ void LLViewerJoystick::init(bool autoenable)
     // Autoenable the joystick for recognized devices if nothing was connected previously
     if (!autoenable)
     {
-        autoenable = gSavedSettings.getString("JoystickInitialized").empty() ? true : false;
+        autoenable = gSavedSettings.getString("JoystickInitialized").empty();
     }
     updateEnabled(autoenable);
 
@@ -500,6 +496,7 @@ void LLViewerJoystick::initDevice(LLSD &guid)
         else
         {
             mDriverState = JDS_INITIALIZED;
+            mDeviceIs3DConnexion = is3DConnexionDevice(mNdofDev->product);
         }
     }
 #endif
@@ -524,7 +521,7 @@ void LLViewerJoystick::initDevice(LLSD &guid)
 #endif
 }
 
-bool LLViewerJoystick::initDevice(void * preffered_device /*LPDIRECTINPUTDEVICE8*/, std::string &name, LLSD &guid)
+bool LLViewerJoystick::initDevice(void * preffered_device /*LPDIRECTINPUTDEVICE8*/, const std::string &name, const LLSD &guid)
 {
 #if LIB_NDOF
     mLastDeviceUUID = guid;
@@ -584,6 +581,7 @@ bool LLViewerJoystick::initDevice(void * preffered_device /* LPDIRECTINPUTDEVICE
     else
     {
         mDriverState = JDS_INITIALIZED;
+        mDeviceIs3DConnexion = is3DConnexionDevice(mNdofDev->product);
         return true;
     }
 #endif
@@ -599,6 +597,7 @@ void LLViewerJoystick::terminate()
         ndof_libcleanup(); // frees alocated memory in mNdofDev
         mDriverState = JDS_UNINITIALIZED;
         mNdofDev = NULL;
+        mDeviceIs3DConnexion = false;
         LL_INFOS("Joystick") << "Terminated connection with NDOF device." << LL_ENDL;
     }
 #endif
@@ -961,7 +960,7 @@ void LLViewerJoystick::moveAvatar(bool reset)
             else if (!button_held)
             {
                 button_held = true;
-                gAgent.setFlying(FALSE);
+                gAgent.setFlying(false);
             }
         }
         else if (!button_held)
@@ -1369,7 +1368,9 @@ bool LLViewerJoystick::toggleFlycam()
 
 void LLViewerJoystick::scanJoystick()
 {
-    if (mDriverState != JDS_INITIALIZED || !gSavedSettings.getBOOL("JoystickEnabled"))
+    if (mDriverState != JDS_INITIALIZED
+            || !gSavedSettings.getBOOL("JoystickEnabled")
+            || (!mDeviceIs3DConnexion && LLGameControl::isEnabled()))
     {
         return;
     }
@@ -1532,14 +1533,23 @@ std::string LLViewerJoystick::getDescription()
     return res;
 }
 
+// static
+bool LLViewerJoystick::is3DConnexionDevice(const std::string& device_name)
+{
+    bool answer = device_name.find("Space") == 0
+        && ( (device_name.find("SpaceNavigator") == 0)
+            || (device_name.find("SpaceExplorer") == 0)
+            || (device_name.find("SpaceTraveler") == 0)
+            || (device_name.find("SpacePilot") == 0)
+            || (device_name.find("SpaceMouse") == 0));
+    return answer;
+}
+
 bool LLViewerJoystick::isLikeSpaceNavigator() const
 {
 #if LIB_NDOF
     return (isJoystickInitialized()
-            && (strncmp(mNdofDev->product, "SpaceNavigator", 14) == 0
-                || strncmp(mNdofDev->product, "SpaceExplorer", 13) == 0
-                || strncmp(mNdofDev->product, "SpaceTraveler", 13) == 0
-                || strncmp(mNdofDev->product, "SpacePilot", 10) == 0));
+            && is3DConnexionDevice(mNdofDev->product));
 #else
     return false;
 #endif
@@ -1551,7 +1561,7 @@ void LLViewerJoystick::setSNDefaults()
 #if LL_DARWIN || LL_LINUX
     const float platformScale = 20.f;
     const float platformScaleAvXZ = 1.f;
-    // The SpaceNavigator doesn't act as a 3D cursor on OS X / Linux.
+    // The SpaceNavigator doesn't act as a 3D cursor on macOS / Linux.
     const bool is_3d_cursor = false;
 #else
     const float platformScale = 1.f;

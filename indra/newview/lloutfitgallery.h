@@ -73,10 +73,10 @@ public:
     LLOutfitGallery(const LLOutfitGallery::Params& params = getDefaultParams());
     virtual ~LLOutfitGallery();
 
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
     /*virtual*/ void onOpen(const LLSD& info);
     /*virtual*/ void draw();
-    /*virtual*/ BOOL handleKeyHere(KEY key, MASK mask);
+    /*virtual*/ bool handleKeyHere(KEY key, MASK mask);
     void moveUp();
     void moveDown();
     void moveLeft();
@@ -102,7 +102,7 @@ public:
     /*virtual*/ bool hasItemSelected();
     /*virtual*/ bool canWearSelected();
 
-    /*virtual*/ bool getHasExpandableFolders() { return FALSE; }
+    /*virtual*/ bool getHasExpandableFolders() { return false; }
 
     /*virtual*/ void onChangeSortOrder(const LLSD& userdata) {};
     void updateMessageVisibility();
@@ -140,7 +140,8 @@ private:
     void handleInvFavColorChange();
 
     LLOutfitGalleryItem* buildGalleryItem(std::string name, LLUUID outfit_id, bool is_favorite);
-    LLOutfitGalleryItem* getSelectedItem();
+    LLOutfitGalleryItem* getSelectedItem() const;
+    LLOutfitGalleryItem* getItem(const LLUUID& id) const;
 
     void onTextureSelectionChanged(LLInventoryItem* itemp);
 
@@ -232,12 +233,12 @@ public:
     LLOutfitGalleryItem(const Params& p);
     virtual ~LLOutfitGalleryItem();
 
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
     /*virtual*/ void draw();
-    /*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
-    /*virtual*/ BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
-    /*virtual*/ BOOL handleDoubleClick(S32 x, S32 y, MASK mask);
-    /*virtual*/ BOOL handleKeyHere(KEY key, MASK mask);
+    /*virtual*/ bool handleMouseDown(S32 x, S32 y, MASK mask);
+    /*virtual*/ bool handleRightMouseDown(S32 x, S32 y, MASK mask);
+    /*virtual*/ bool handleDoubleClick(S32 x, S32 y, MASK mask);
+    /*virtual*/ bool handleKeyHere(KEY key, MASK mask);
     /*virtual*/ void onFocusLost();
     /*virtual*/ void onFocusReceived();
 
@@ -269,6 +270,7 @@ private:
     LLTextBox* mOutfitNameText;
     LLTextBox* mOutfitWornText;
     LLPanel* mTextBgPanel;
+    LLIconCtrl* mPreviewIcon = nullptr;
     bool     mSelected;
     bool     mWorn;
     bool     mDefaultImage;
