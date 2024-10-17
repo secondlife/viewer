@@ -15,7 +15,7 @@
 	<floater.string name="searching">
 		検索しています…
 	</floater.string>
-	<string label="ＯＫ" label_selected="ＯＫ" name="Select">
+	<string name="Select">
 		選択
 	</string>
 	<string name="Close">

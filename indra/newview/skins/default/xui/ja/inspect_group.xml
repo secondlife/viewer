@@ -20,7 +20,7 @@
 ヘラジカを恐れてください！恐れよ！そしてマングースも！
 	</text>
 	<text name="group_cost">
-		L$123 to join
+		加入費用L$ 123
 	</text>
 	<button label="参加" name="join_btn"/>
 	<button label="脱退" name="leave_btn"/>

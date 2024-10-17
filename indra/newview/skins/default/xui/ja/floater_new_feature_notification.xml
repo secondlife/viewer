@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_new_feature_notification" title="新機能">
+	<floater.string name="title_txt_inventory">
+		インベントリの新機能
+	</floater.string>
+	<floater.string name="description_txt_inventory">
+		インベントリーアイテムにプレビュー画像を追加したり、フォルダを独自のウィンドウで表示できるようになりました。
+詳細については[https://community.secondlife.com/blogs/entry/13637-new-features-inventory-item-preview-and-single-folder-view/ ブログ記事]をご覧になってください。
+	</floater.string>
+	<floater.string name="title_txt_gltf">
+		ＧＬＴＦ　ＰＢＲマテリアルのサポート
+	</floater.string>
+	<floater.string name="description_txt_gltf">
+		ＧＬＴＦ物理基準レンダリング（ＰＢＲ）マテリアルをインポートおよび編集できるようになり、マテリアルのサポートが拡張されました。
+ＧＬＴＦフォーマットの追加をサポートするため、ビューアの一部の領域が通常より暗く表示される場合があります。
+
+詳細については[https://wiki.secondlife.com/wiki/PBR_Materials 物理基準マテリアル（ＰＢＲ）]をご覧になってください。
+	</floater.string>
+	<text name="title_txt">
+		新機能
+	</text>
+	<text name="description_txt">
+		機能の詳細
+	</text>
+	<button name="close_btn" label="了解！"/>
+</floater>

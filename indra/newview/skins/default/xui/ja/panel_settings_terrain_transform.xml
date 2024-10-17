@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="サンプリング" name="panel_settings_terrain_transform">
+	<text name="terrain0_label">
+		１
+	</text>
+	<text name="terrain1_label">
+		２
+	</text>
+	<text type="string" name="terrain2_label">
+		３
+	</text>
+	<text name="terrain3_label">
+		４
+	</text>
+	<text name="terrain0ScaleU_label">
+		スケールＵ
+	</text>
+	<spinner label="スケールＵ" name="terrain0ScaleU"/>
+	<spinner label="スケールＵ" name="terrain1ScaleU"/>
+	<spinner label="スケールＵ" name="terrain2ScaleU"/>
+	<spinner label="スケールＵ" name="terrain3ScaleU"/>
+	<view_border name="terrainScaleU_horizontal"/>
+	<text name="terrain0ScaleV_label">
+		スケールＶ
+	</text>
+	<spinner label="スケールＶ" name="terrain0ScaleV"/>
+	<spinner label="スケールＵ" name="terrain1ScaleV"/>
+	<spinner label="スケールＵ" name="terrain2ScaleV"/>
+	<spinner label="スケールＵ" name="terrain3ScaleV"/>
+	<view_border name="terrainScaleV_horizontal"/>
+	<text name="terrain0Rotation_label">
+		回転
+	</text>
+	<spinner label="回転" name="terrain0Rotation"/>
+	<spinner label="スケールＵ" name="terrain1Rotation"/>
+	<spinner label="スケールＵ" name="terrain2Rotation"/>
+	<spinner label="スケールＵ" name="terrain3Rotation"/>
+	<view_border name="terrainRotation_horizontal"/>
+	<text name="terrain0OffsetU_label">
+		オフセットＹ
+	</text>
+	<spinner label="オフセットＵ" name="terrain0OffsetU"/>
+	<spinner label="スケールＵ" name="terrain1OffsetU"/>
+	<spinner label="スケールＵ" name="terrain2OffsetU"/>
+	<spinner label="スケールＵ" name="terrain3OffsetU"/>
+	<view_border name="terrainOffsetU_horizontal"/>
+	<text name="terrain0OffsetV_label">
+		オフセットＶ
+	</text>
+	<spinner label="オフセットＶ" name="terrain0OffsetV"/>
+	<spinner label="スケールＵ" name="terrain1OffsetV"/>
+	<spinner label="スケールＵ" name="terrain2OffsetV"/>
+	<spinner label="スケールＵ" name="terrain3OffsetV"/>
+	<view_border name="terrainOffsetV_horizontal"/>
+</panel>

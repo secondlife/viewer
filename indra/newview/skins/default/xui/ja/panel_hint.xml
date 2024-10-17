@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel>
+	<text name="hint_title"/>
+	<text name="hint_text"/>
+	<button name="close"/>
+</panel>
