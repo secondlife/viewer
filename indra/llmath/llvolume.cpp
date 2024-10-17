@@ -2818,7 +2818,6 @@ void LLVolume::createVertexBuffer()
 
         bool large_indices = vert_count >= 65536;
 
-
         mVertexBuffer = new LLVertexBuffer(mask);
         if (large_indices)
         {
@@ -2861,7 +2860,6 @@ void LLVolume::createVertexBuffer()
 #if LL_DARWIN
         mVertexBuffer->unmapBuffer();
 #endif
-        mVertexBuffer->setupVAO();
     }
 }
 

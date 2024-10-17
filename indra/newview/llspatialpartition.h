@@ -753,23 +753,6 @@ class LLVolumeGeometryManager: public LLGeometryManager
     virtual void rebuildMesh(LLSpatialGroup* group);
     virtual void getGeometry(LLSpatialGroup* group);
     virtual void addGeometryCount(LLSpatialGroup* group, U32& vertex_count, U32& index_count);
-    U32 genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace** faces, U32 face_count, bool distance_sort = false, bool batch_textures = false, bool rigged = false);
-    void registerFace(LLSpatialGroup* group, LLFace* facep, U32 type);
-    void registerGLTFFace(LLSpatialGroup* group, LLFace* facep);
-
-private:
-    void allocateFaces(U32 pMaxFaceCount);
-    void freeFaces();
-
-    static int32_t sInstanceCount;
-    static LLFace** sFullbrightFaces[2];
-    static LLFace** sBumpFaces[2];
-    static LLFace** sSimpleFaces[2];
-    static LLFace** sNormFaces[2];
-    static LLFace** sSpecFaces[2];
-    static LLFace** sNormSpecFaces[2];
-    static LLFace** sPbrFaces[2];
-    static LLFace** sAlphaFaces[2];
 };
 
 //spatial partition that uses volume geometry manager (implemented in LLVOVolume.cpp)

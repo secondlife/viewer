@@ -739,7 +739,6 @@ U64 LLVertexBuffer::getBytesAllocated()
 //static
 U32 LLVertexBuffer::sGLRenderBuffer = 0;
 U32 LLVertexBuffer::sGLRenderIndices = 0;
-U32 LLVertexBuffer::sGLRenderVAO = 0;
 U32 LLVertexBuffer::sLastMask = 0;
 U32 LLVertexBuffer::sVertexCount = 0;
 
@@ -1031,27 +1030,11 @@ void LLVertexBuffer::initClass(LLWindow* window)
 void LLVertexBuffer::unbind()
 {
     STOP_GLERROR;
-    if (sGLRenderVAO != sDefaultVAO)
-    {
-        glBindVertexArray(sDefaultVAO);
-        sGLRenderVAO = sDefaultVAO;
-    }
-
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     STOP_GLERROR;
     sGLRenderBuffer = 0;
     sGLRenderIndices = 0;
-}
-
-void LLVertexBuffer::bindVAO(U32 vao)
-{
-    if (sGLRenderVAO != vao)
-    {
-        LL_PROFILE_ZONE_SCOPED_CATEGORY_VERTEX;
-        glBindVertexArray(vao);
-        sGLRenderVAO = vao;
-    }
 }
 
 //static
@@ -1762,8 +1745,6 @@ bool LLVertexBuffer::getClothWeightStrider(LLStrider<LLVector4>& strider, U32 in
 // Set for rendering
 void LLVertexBuffer::setBuffer()
 {
-    llassert(sGLRenderVAO == sDefaultVAO);
-
     if (mMapped)
     {
         LL_WARNS_ONCE() << "Missing call to unmapBuffer or flushBuffers" << LL_ENDL;
@@ -1987,34 +1968,6 @@ void LLVertexBuffer::bindVBO(U32 vbo, U32 ibo, U32 vcount)
         void* ptr = (void*)(base + offsets[TYPE_VERTEX]);
         glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_VERTEX], ptr);
     }
-}
-
-void LLVertexBuffer::setupVAO()
-{
-    llassert(sGLRenderVAO == sDefaultVAO); // no other VAO may be bound
-    llassert(mGLVAO == 0); // VAO should be set up exactly once for the lifetime of an LLVertexBuffer
-
-    mGLVAO = ll_gl_gen_arrays();
-
-    U32 lastMask = sLastMask;
-
-    bindVAO();
-    sLastMask = 0;
-
-    glBindBuffer(GL_ARRAY_BUFFER, mGLBuffer);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mGLIndices);
-
-    setupClientArrays(mTypeMask);
-    setupVertexBuffer(mTypeMask);
-
-    // restore default state
-    bindVAO(sDefaultVAO);
-    sLastMask = lastMask;
-}
-
-void LLVertexBuffer::bindVAO()
-{
-    bindVAO(mGLVAO);
 }
 
 void LLVertexBuffer::setPositionData(const LLVector4a* data)

@@ -124,9 +124,6 @@ public:
 
     static void unbind(); //unbind any bound vertex buffer
 
-    // bind specified VAO for rendering
-    static void bindVAO(U32 vao);
-
     // bind specified VBO (and IBO) for rendering
     static void bindVBO(U32 vbo, U32 ibo, U32 vertex_count);
 
@@ -237,17 +234,6 @@ public:
     // bind the buffer for setting data (not rendering)
     // does not set vertex attributes for rendering
     void bindBuffer();
-
-    // create and set up a VAO for this vertex buffer
-    // must be called no more than once for the lifetime of the buffer
-    // once called, bindVAO may be used in lieu of setBuffer to bind this buffer for
-    // rendering and may provide a performance improvement, but also may make
-    // performance worse if the number of VAOs becomes excessive
-    void setupVAO();
-
-    // bind the VAO for rendering
-    // MUST call LLVertexBuffer::unbind before calling setBuffer after calling bindVAO
-    void bindVAO();
 
     // Only call each getVertexPointer, etc, once before calling unmapBuffer()
     // call unmapBuffer() after calls to getXXXStrider() before any calls to setBuffer()
@@ -379,7 +365,6 @@ public:
     static const U32 sTypeSize[TYPE_MAX];
     static U32 sGLRenderBuffer;
     static U32 sGLRenderIndices;
-    static U32 sGLRenderVAO;
     static U32 sLastMask;
     static U32 sVertexCount;
 };
