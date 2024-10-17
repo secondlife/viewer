@@ -148,10 +148,12 @@ public:
 
     enum UniformBlock : GLuint
     {
-        UB_REFLECTION_PROBES,   // "ReflectionProbes"
-        UB_GLTF_JOINTS,         // "GLTFJoints"
-        UB_GLTF_NODES,          // "GLTFNodes"
-        UB_GLTF_MATERIALS,      // "GLTFMaterials"
+        UB_REFLECTION_PROBES,       // "ReflectionProbes"
+        UB_GLTF_JOINTS,             // "GLTFJoints"
+        UB_GLTF_NODES,              // "GLTFNodes"
+        UB_GLTF_NODE_INSTANCE_MAP,  // "GLTFNodeInstanceMap"
+        UB_GLTF_MATERIALS,          // "GLTFMaterials"
+        UB_TEXTURE_TRANSFORM,       // "TextureTransform"
         NUM_UNIFORM_BLOCKS
     };
 
@@ -228,6 +230,12 @@ public:
     void uniform4uiv(const LLStaticHashedString& uniform, U32 count, const GLuint* v);
     void uniformMatrix4fv(const LLStaticHashedString& uniform, U32 count, GLboolean transpose, const GLfloat* v);
 
+    // Unsafe but fast versions of uniform setters
+    //  Don't check dirty state or update dirty state
+    //  Don't check for valid uniform location
+    //  Don't check for valid index
+    void uniform1iFast(U32 index, GLint i);
+
     void setMinimumAlpha(F32 minimum);
 
     void vertexAttrib4f(U32 index, GLfloat x, GLfloat y, GLfloat z, GLfloat w);
@@ -268,6 +276,7 @@ public:
     S32 bindTextureImageGL(S32 uniform, LLImageGL* texture, LLTexUnit::eTextureType mode = LLTexUnit::TT_TEXTURE);
     S32 bindTexture(const std::string& uniform, LLRenderTarget* texture, bool depth = false, LLTexUnit::eTextureFilterOptions mode = LLTexUnit::TFO_BILINEAR);
     S32 bindTexture(S32 uniform, LLRenderTarget* texture, bool depth = false, LLTexUnit::eTextureFilterOptions mode = LLTexUnit::TFO_BILINEAR, U32 index = 0);
+    S32 bindTexName(S32 uniform, U32 texName, LLTexUnit::eTextureType mode = LLTexUnit::TT_TEXTURE);
     S32 unbindTexture(const std::string& uniform, LLTexUnit::eTextureType mode = LLTexUnit::TT_TEXTURE);
     S32 unbindTexture(S32 uniform, LLTexUnit::eTextureType mode = LLTexUnit::TT_TEXTURE);
 
@@ -353,6 +362,8 @@ public:
     constexpr static U8 NUM_GLTF_VARIANTS = 16;
 
     std::vector<LLGLSLShader> mGLTFVariants;
+
+
 
     //helper to bind GLTF variant
     void bind(U8 variant);

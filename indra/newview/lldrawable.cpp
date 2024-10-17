@@ -232,6 +232,14 @@ const LLMatrix4& LLDrawable::getRenderMatrix() const
     return isRoot() ? getWorldMatrix() : getParent()->getWorldMatrix();
 }
 
+const LLMatrix4& LLDrawable::getGLTFRenderMatrix()
+{
+    LLMatrix4 scale;
+    mGLTFRenderMatrix.initScale(mVObjp->getScale());
+    mGLTFRenderMatrix *= getWorldMatrix();
+    return mGLTFRenderMatrix;
+}
+
 bool LLDrawable::isLight() const
 {
     LLViewerObject* objectp = mVObjp;
@@ -701,7 +709,6 @@ F32 LLDrawable::updateXform(bool undamped)
             ((dist_vec_squared(old_pos, target_pos) > 0.f)
             || (1.f - dot(old_rot, target_rot)) > 0.f))
     { //fix for BUG-840, MAINT-2275, MAINT-1742, MAINT-2247
-        mVObjp->shrinkWrap();
         gPipeline.markRebuild(this, LLDrawable::REBUILD_POSITION);
     }
     else if (!getVOVolume() && !isAvatar())
@@ -717,6 +724,16 @@ F32 LLDrawable::updateXform(bool undamped)
     if (isRoot() && mVObjp->isAnimatedObject() && mVObjp->getControlAvatar())
     {
         mVObjp->getControlAvatar()->matchVolumeTransform();
+    }
+
+    // update GLTF render matrix
+    getGLTFRenderMatrix();
+
+    // TODO: update transform directly in UBO instead of rebuilding the whole spatial group
+    LLSpatialGroup* group = getSpatialGroup();
+    if (group)
+    {
+        group->updateTransform(this);
     }
 
     if (mSpatialBridge)
@@ -1132,6 +1149,8 @@ void LLDrawable::setGroup(LLViewerOctreeGroup *groupp)
 
     if (cur_groupp != groupp && getVOVolume())
     {
+        gPipeline.markTransformDirty(cur_groupp);
+        gPipeline.markTransformDirty((LLSpatialGroup*) groupp);
         //NULL out vertex buffer references for volumes on spatial group change to maintain
         //requirement that every face vertex buffer is either NULL or points to a vertex buffer
         //contained by its drawable's spatial group
@@ -1140,6 +1159,7 @@ void LLDrawable::setGroup(LLViewerOctreeGroup *groupp)
             if (LLFace* facep = getFace(i))
             {
                 facep->clearVertexBuffer();
+                facep->mGLTFDrawInfo.clear();
             }
         }
     }

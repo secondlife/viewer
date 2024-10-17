@@ -2458,6 +2458,7 @@ void LLGLState::dumpStates()
 
 void LLGLState::checkStates(GLboolean writeAlpha)
 {
+#if 0
     if (!gDebugGL)
     {
         return;
@@ -2490,6 +2491,7 @@ void LLGLState::checkStates(GLboolean writeAlpha)
             LL_GL_ERRS << llformat("LLGLState error. State: 0x%04x",state) << LL_ENDL;
         }
     }
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////

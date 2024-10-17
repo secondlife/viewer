@@ -31,7 +31,7 @@
 #include "llstring.h"
 #include "lltextureentry.h"
 #include "lluuid.h"
-
+#include "workqueue.h"
 #include <unordered_map>
 
 class LLImageRaw;
@@ -66,9 +66,6 @@ public:
     void beginBump();
     void renderBump(U32 pass = LLRenderPass::PASS_BUMP);
     void endBump(U32 pass = LLRenderPass::PASS_BUMP);
-
-    static void bindCubeMap(LLGLSLShader* shader, S32 shader_level, S32& diffuse_channel, S32& cube_channel);
-    static void unbindCubeMap(LLGLSLShader* shader, S32 shader_level, S32& diffuse_channel, S32& cube_channel);
 
     virtual S32 getNumDeferredPasses() override;
     /*virtual*/ void renderDeferred(S32 pass) override;
@@ -154,7 +151,6 @@ private:
     bump_image_map_t mDarknessEntries;
     static LL::WorkQueue::weak_t sMainQueue;
     static LL::WorkQueue::weak_t sTexUpdateQueue;
-    static LLRenderTarget sRenderTarget;
 };
 
 extern LLBumpImageList gBumpImageList;

@@ -31,6 +31,7 @@
 #include "v2math.h"
 #include "v3math.h"
 #include "llvertexbuffer.h"
+#include "llgltfmaterial.h"
 
 class LLFace;
 class LLViewerTexture;
@@ -40,6 +41,8 @@ class LLDrawInfo;
 class LLVOAvatar;
 class LLGLSLShader;
 class LLMeshSkinInfo;
+class LLGLTFDrawInfo;
+class LLSkinnedGLTFDrawInfo;
 
 class LLDrawPool
 {
@@ -359,26 +362,40 @@ public:
     void pushUntexturedRiggedBatches(U32 type);
 
     // push full GLTF batches
-    // assumes draw infos of given type have valid GLTF materials
-    void pushGLTFBatches(U32 type);
+    static void pushGLTFBatches(const std::vector<LLGLTFDrawInfo>& draw_info, bool planar = false, bool tex_anim = false);
 
-    // like pushGLTFBatches, but will not bind textures or set up texture transforms
-    void pushUntexturedGLTFBatches(U32 type);
+    // push full skinned GLTF batches
+    static void pushRiggedGLTFBatches(const std::vector<LLSkinnedGLTFDrawInfo>& draw_info, bool planar = false, bool tex_anim = false);
 
-    // helper function for dispatching to textured or untextured pass based on bool
-    void pushGLTFBatches(U32 type, bool textured);
+    // push shadow pass GLTF batches
+    static void pushShadowGLTFBatches(const std::vector<LLGLTFDrawInfo>& draw_info);
+
+    // push shadow pass skinned GLTF batches
+    static void pushRiggedShadowGLTFBatches(const std::vector<LLSkinnedGLTFDrawInfo>& draw_info);
+
+    static void pushGLTFBatch(const LLGLTFDrawInfo& params, bool planar = false, bool tex_anim = false);
+    static void pushShadowGLTFBatch(const LLGLTFDrawInfo& params);
+    static void pushRiggedGLTFBatch(const LLSkinnedGLTFDrawInfo& params, const LLVOAvatar*& lastAvatar, U64& lastMeshId, bool& skipLastSkin, bool planar = false, bool tex_anim = false);
+    static void pushRiggedShadowGLTFBatch(const LLSkinnedGLTFDrawInfo& params, const LLVOAvatar*& lastAvatar, U64& lastMeshId, bool& skipLastSkin);
 
 
-    // rigged variants of above
-    void pushRiggedGLTFBatches(U32 type);
-    void pushRiggedGLTFBatches(U32 type, bool textured);
-    void pushUntexturedRiggedGLTFBatches(U32 type);
+    // push full Blinn-Phong batches
+    static void pushBPBatches(const std::vector<LLGLTFDrawInfo>& draw_info, bool planar = false, bool tex_anim = false);
 
-    // push a single GLTF draw call
-    static void pushGLTFBatch(LLDrawInfo& params);
-    static void pushRiggedGLTFBatch(LLDrawInfo& params, const LLVOAvatar*& lastAvatar, U64& lastMeshId, bool& skipLastSkin);
-    static void pushUntexturedGLTFBatch(LLDrawInfo& params);
-    static void pushUntexturedRiggedGLTFBatch(LLDrawInfo& params, const LLVOAvatar*& lastAvatar, U64& lastMeshId, bool& skipLastSkin);
+    // push full skinned Blinn-Phong batches
+    static void pushRiggedBPBatches(const std::vector<LLSkinnedGLTFDrawInfo>& draw_info, bool planar = false, bool tex_anim = false);
+
+    // push shadow pass Blinn-Phong batches
+    static void pushShadowBPBatches(const std::vector<LLGLTFDrawInfo>& draw_info);
+
+    // push shadow pass skinned Blinn-Phong batches
+    static void pushRiggedShadowBPBatches(const std::vector<LLSkinnedGLTFDrawInfo>& draw_info);
+
+    static void pushBPBatch(const LLGLTFDrawInfo& params, bool planar = false, bool tex_anim = false);
+    static void pushShadowBPBatch(const LLGLTFDrawInfo& params);
+    static void pushRiggedBPBatch(const LLSkinnedGLTFDrawInfo& params, const LLVOAvatar*& lastAvatar, U64& lastMeshId, bool& skipLastSkin, bool planar = false, bool tex_anim = false);
+    static void pushRiggedShadowBPBatch(const LLSkinnedGLTFDrawInfo& params, const LLVOAvatar*& lastAvatar, U64& lastMeshId, bool& skipLastSkin);
+
 
     void pushMaskBatches(U32 type, bool texture = true, bool batch_textures = false);
     void pushRiggedMaskBatches(U32 type, bool texture = true, bool batch_textures = false);

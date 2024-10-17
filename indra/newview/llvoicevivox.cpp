@@ -6297,7 +6297,11 @@ void LLVivoxVoiceClient::notifyStatusObservers(LLVoiceClientStatusObserver::ESta
 
         if (voice_status)
         {
-            LLAppViewer::instance()->postToMainCoro([=]() { LLFirstUse::speak(true); });
+            LLAppViewer::instance()->postToMainCoro([=]()
+                {
+                    LL_PROFILE_ZONE_NAMED("Voice:LLFirstUse::speak");
+                    LLFirstUse::speak(true);
+                });
         }
     }
 }

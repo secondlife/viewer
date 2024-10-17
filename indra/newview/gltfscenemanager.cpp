@@ -352,6 +352,7 @@ void GLTFSceneManager::renderAlpha()
 
 void GLTFSceneManager::addGLTFObject(LLViewerObject* obj, LLUUID gltf_id)
 {
+#if 0
     LL_PROFILE_ZONE_SCOPED_CATEGORY_GLTF;
     llassert(obj->getVolume()->getParams().getSculptID() == gltf_id);
     llassert(obj->getVolume()->getParams().getSculptType() == LL_SCULPT_TYPE_GLTF);
@@ -366,6 +367,7 @@ void GLTFSceneManager::addGLTFObject(LLViewerObject* obj, LLUUID gltf_id)
 
     obj->ref();
     gAssetStorage->getAssetData(gltf_id, LLAssetType::AT_GLTF, onGLTFLoadComplete, obj);
+#endif
 }
 
 //static
@@ -373,6 +375,7 @@ void GLTFSceneManager::onGLTFBinLoadComplete(const LLUUID& id, LLAssetType::ETyp
 {
     LLAppViewer::instance()->postToMainCoro([=]()
         {
+            LL_PROFILE_ZONE_NAMED("GLTF Bin Load Complete");
             LLViewerObject* obj = (LLViewerObject*)user_data;
             llassert(asset_type == LLAssetType::AT_GLTF_BIN);
 
@@ -502,6 +505,7 @@ void GLTFSceneManager::update()
                 LLAppViewer::instance()->postToMainCoro(
                     [=]()
                     {
+                        LL_PROFILE_ZONE_NAMED("GLTF Json Upload Finish");
                         if (mUploadingAsset)
                         {
                             // HACK: save buffer to cache to emulate a successful upload

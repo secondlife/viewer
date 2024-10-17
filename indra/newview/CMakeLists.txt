@@ -322,6 +322,7 @@ set(viewer_SOURCE_FILES
     llgesturemgr.cpp
     llgiveinventory.cpp
     llglsandbox.cpp
+    llgltfdrawinfo.cpp
     llgltffolderitem.cpp
     llgltffoldermodel.cpp
     llgltfmateriallist.cpp
@@ -1001,6 +1002,7 @@ set(viewer_HEADER_FILES
     llgesturelistener.h
     llgesturemgr.h
     llgiveinventory.h
+    llgltfdrawinfo.h
     llgltffolderitem.h
     llgltffoldermodel.h
     llgltfmateriallist.h

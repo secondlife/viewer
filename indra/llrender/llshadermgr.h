@@ -65,6 +65,7 @@ public:
         OCCLUSION_TEXCOORD,                   //  "occlusion_texcoord" (GLTF)
         GLTF_NODE_ID,                         //  "gltf_node_id" (GLTF)
         GLTF_MATERIAL_ID,                     //  "gltf_material_id" (GLTF)
+        GLTF_BASE_INSTANCE,                   //  "gltf_base_instance" (GLTF)
 
         TERRAIN_TEXTURE_TRANSFORMS,           //  "terrain_texture_transforms" (GLTF)
         TERRAIN_STAMP_SCALE,                  //  "terrain_stamp_scale"
@@ -94,6 +95,7 @@ public:
         PROJECTOR_AMBIENT_LOD,              //  "proj_ambient_lod"
         DIFFUSE_COLOR,                      //  "color"
         EMISSIVE_COLOR,                     //  "emissiveColor"
+        BASE_COLOR_FACTOR,                  //  "baseColorFactor"
         METALLIC_FACTOR,                    //  "metallicFactor"
         ROUGHNESS_FACTOR,                   //  "roughnessFactor"
         MIRROR_FLAG,                        //  "mirror_flag"

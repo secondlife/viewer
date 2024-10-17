@@ -206,6 +206,7 @@ public:
     void        markRebuild(LLDrawable *drawablep, LLDrawable::EDrawableFlags flag = LLDrawable::REBUILD_ALL);
     void        markPartitionMove(LLDrawable* drawablep);
     void        markMeshDirty(LLSpatialGroup* group);
+    void        markTransformDirty(LLSpatialGroup* group);
 
     //get the object between start and end that's closest to start.
     LLViewerObject* lineSegmentIntersectInWorld(const LLVector4a& start, const LLVector4a& end,
@@ -288,7 +289,6 @@ public:
     void forAllVisibleDrawables(void (*func)(LLDrawable*));
 
     void renderObjects(U32 type, bool texture = true, bool batch_texture = false, bool rigged = false);
-    void renderGLTFObjects(U32 type, bool texture = true, bool rigged = false);
 
     void renderAlphaObjects(bool rigged = false);
     void renderMaskedObjects(U32 type, bool texture = true, bool batch_texture = false, bool rigged = false);
@@ -861,6 +861,7 @@ protected:
     //
     LLDrawable::drawable_list_t     mBuildQ1; // priority
     LLSpatialGroup::sg_vector_t     mGroupQ1; //priority
+    LLSpatialGroup::sg_vector_t     mGroupTransformQ; //transform updates
 
     LLSpatialGroup::sg_vector_t     mGroupSaveQ1; // a place to save mGroupQ1 until it is safe to unref
 

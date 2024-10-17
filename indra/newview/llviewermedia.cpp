@@ -1259,6 +1259,7 @@ void LLViewerMedia::getOpenIDCookieCoro(std::string url)
     {
         LLAppViewer::instance()->postToMainCoro([=]()
             {
+                LL_PROFILE_ZONE_NAMED("LLViewerMedia::getOpenIDCookieCoro::postToMainCoro");
                 LLMediaCtrl* media_instance = LLFloaterReg::getInstance("destinations")->getChild<LLMediaCtrl>("destination_guide_contents");
                 if (media_instance)
                 {
@@ -2682,6 +2683,7 @@ void LLViewerMediaImpl::mimeDiscoveryCoro(std::string url)
                 ref();
                 LLAppViewer::instance()->postToMainCoro([this]()
                     {
+                        LL_PROFILE_ZONE_NAMED("LLViewerMediaImpl::mimeDiscoveryCoro::loadURI");
                         loadURI();
                         unref();
                     });

@@ -28,6 +28,7 @@
 
 #include "llvertexbuffer.h"
 #include "llvolumeoctree.h"
+#include "llrender.h"
 #include "boost/json.hpp"
 
 // LL GLTF Implementation

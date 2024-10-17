@@ -173,8 +173,6 @@ public:
 
     bool getIsAlphaMask() const;
 
-    bool getIsResident(bool test_now = false); // not const
-
     void setTarget(const LLGLenum target, const LLTexUnit::eTextureType bind_target);
 
     LLTexUnit::eTextureType getTarget(void) const { return mBindTarget; }
@@ -221,6 +219,11 @@ public:
     // only works for GL_TEXTURE_2D target
     bool scaleDown(S32 desired_discard);
 
+    void notifyTexNameChanged(U32 old_texname) const;
+
+    // called when mTexName is changed
+    // parameters are calling LLImageGL and old texname
+    std::function<void(const LLImageGL*, U32)> mTexNameChangedCallback;
 public:
     // Various GL/Rendering options
     S64Bytes mTextureMemory;
@@ -259,8 +262,6 @@ protected:
     bool mHasMipMaps;
     S32 mMipLevels;
 
-    LLGLboolean mIsResident;
-
     S8 mComponents;
     S8 mMaxDiscardLevel;
 
@@ -282,6 +283,10 @@ public:
     static U32 sFrameCount;
     static F32 sLastFrameTime;
 
+    // Texture name reference checking callback.  Called just before a texture name is deleted so app can verify that the name
+    // is not referenced.
+    static std::function<void(U32)> sTexNameReferenceCheck;
+
     // Global memory statistics
     static U32 sBindCount;                  // Tracks number of texture binds for current frame
     static U32 sUniqueCount;                // Tracks number of unique texture binds for current frame
@@ -289,12 +294,6 @@ public:
     static LLImageGL* sDefaultGLTexture ;
     static bool sAutomatedTest;
     static bool sCompressTextures;          //use GL texture compression
-#if DEBUG_MISS
-    bool mMissed; // Missed on last bind?
-    bool getMissed() const { return mMissed; };
-#else
-    bool getMissed() const { return false; };
-#endif
 
 public:
     static void initClass(LLWindow* window, S32 num_catagories, bool skip_analyze_alpha = false, bool thread_texture_loads = false, bool thread_media_updates = false);
@@ -319,7 +318,7 @@ public:
     void setCategory(S32 category) {mCategory = category;}
     S32  getCategory()const {return mCategory;}
 
-    void setTexName(GLuint texName) { mTexName = texName; }
+    void setTexName(GLuint texName, bool delete_old = false);
 
     //similar to setTexName, but will call deleteTextures on mTexName if mTexName is not 0 or texname
     void syncTexName(LLGLuint texname);

@@ -182,15 +182,9 @@ void LLDrawPoolAlpha::renderPostDeferred(S32 pass)
 
     prepare_alpha_shader(simple_shader, true, water_sign); //prime simple shader (loads shadow relevant uniforms)
 
-    LLGLSLShader* materialShader = gDeferredMaterialProgram;
-    for (int i = 0; i < LLMaterial::SHADER_COUNT*2; ++i)
-    {
-        prepare_alpha_shader(&materialShader[i], true, water_sign);
-    }
-
     pbr_shader =
         (LLPipeline::sRenderingHUDs) ? &gHUDPBRAlphaProgram :
-        &gDeferredPBRAlphaProgram;
+        &gGLTFPBRShaderPack.mShader[LLGLTFMaterial::ALPHA_MODE_BLEND][1][0][0];
 
     prepare_alpha_shader(pbr_shader, true, water_sign);
 
@@ -708,10 +702,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
                     }
                     else if (mat)
                     {
-                        U32 mask = params.mShaderMask;
-
-                        llassert(mask < LLMaterial::SHADER_COUNT);
-                        target_shader = &(gDeferredMaterialProgram[mask]);
+                        continue;
                     }
                     else if (!params.mFullbright)
                     {

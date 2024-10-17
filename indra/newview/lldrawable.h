@@ -101,6 +101,7 @@ public:
 
     const LLMatrix4&      getWorldMatrix() const        { return mXform.getWorldMatrix(); }
     const LLMatrix4&      getRenderMatrix() const;
+    const LLMatrix4&      getGLTFRenderMatrix();
     void                  setPosition(LLVector3 v) const { }
     const LLVector3&      getPosition() const           { return mXform.getPosition(); }
     const LLVector3&      getWorldPosition() const      { return mXform.getPositionW(); }
@@ -287,10 +288,15 @@ public:
         ACTIVE_CHILD    = 0x02000000,
         FOR_UNLOAD      = 0x04000000, //should be unload from memory
         MIRROR          = 0x08000000, // Used as a mirror, needs a hero probe position to be calculated.
+        HAS_GLTF        = 0x10000000, // Has a GLTF material on at least 1 face
     } EDrawableFlags;
 
 public:
     LLXformMatrix       mXform;
+    LLMatrix4           mGLTFRenderMatrix;
+
+    U32         mTransformIndex = 0xFFFFFFFF;    // index of transform in LLSpatialGroup's transform UBO
+    U32         mPrimScaleIndex = 0xFFFFFFFF;  // index of prim scale in LLSpatialGroup's material UBO
 
     // vis data
     LLPointer<LLDrawable> mParent;

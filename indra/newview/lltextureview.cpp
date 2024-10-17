@@ -312,7 +312,7 @@ void LLTextureBar::draw()
         last_event = mImagep->getTimePassedSinceLastBound();
         if (last_event < 1.f)
         {
-            clr = mImagep->getMissed() ? LLColor4::red : LLColor4::magenta1;
+            clr = LLColor4::magenta1;
             clr.setAlpha(1.f - last_event);
             gGL.color4fv(clr.mV);
             gl_rect_2d(pip_x, top, pip_x + pip_width, bottom);

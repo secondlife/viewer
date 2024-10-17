@@ -55,6 +55,11 @@
 
 S32 LLDrawPool::sNumDrawPools = 0;
 
+#define USE_VAO 0
+
+static U32 gl_indices_type[] = { GL_UNSIGNED_SHORT, GL_UNSIGNED_INT };
+static U32 gl_indices_size[] = { sizeof(U16), sizeof(U32) };
+
 //=============================
 // Draw Pool Implementation
 //=============================
@@ -767,149 +772,422 @@ void teardown_texture_matrix(LLDrawInfo& params)
     }
 }
 
-void LLRenderPass::pushGLTFBatches(U32 type, bool textured)
+static glm::mat4 last_model_matrix;
+static U32 transform_ubo = 0;
+static size_t last_mat = 0;
+
+static S32 base_tu = -1;
+static S32 norm_tu = -1;
+static S32 orm_tu = -1;
+static S32 emis_tu = -1;
+static S32 diffuse_tu = -1;
+static S32 specular_tu = -1;
+static S32 cur_base_tex = 0;
+static S32 cur_norm_tex = 0;
+static S32 cur_orm_tex = 0;
+static S32 cur_emis_tex = 0;
+static S32 cur_diffuse_tex = 0;
+static S32 cur_specular_tex = 0;
+static S32 base_instance_index = 0;
+
+extern LLCullResult* sCull;
+
+static void pre_push_gltf_batches()
 {
-    if (textured)
+    STOP_GLERROR;
+    gGL.matrixMode(LLRender::MM_MODELVIEW);
+    gGL.loadMatrix(gGLModelView);
+    gGL.syncMatrices();
+    transform_ubo = 0;
+    last_mat = 0;
+
+    base_tu = LLGLSLShader::sCurBoundShaderPtr->getTextureChannel(LLShaderMgr::DIFFUSE_MAP);
+    norm_tu = LLGLSLShader::sCurBoundShaderPtr->getTextureChannel(LLShaderMgr::BUMP_MAP);
+    orm_tu = LLGLSLShader::sCurBoundShaderPtr->getTextureChannel(LLShaderMgr::SPECULAR_MAP);
+    emis_tu = LLGLSLShader::sCurBoundShaderPtr->getTextureChannel(LLShaderMgr::EMISSIVE_MAP);
+
+    base_instance_index = LLGLSLShader::sCurBoundShaderPtr->getUniformLocation(LLShaderMgr::GLTF_BASE_INSTANCE);
+
+    cur_emis_tex = cur_orm_tex = cur_norm_tex = cur_base_tex = 0;
+
+    S32 tex[] = { base_tu, norm_tu, orm_tu, emis_tu };
+
+    for (S32 tu : tex)
     {
-        pushGLTFBatches(type);
+        if (tu != -1)
+        {
+            gGL.getTexUnit(tu)->bindManual(LLTexUnit::TT_TEXTURE, 0, true);
+        }
     }
-    else
-    {
-        pushUntexturedGLTFBatches(type);
-    }
+    STOP_GLERROR;
 }
 
-void LLRenderPass::pushGLTFBatches(U32 type)
+void LLRenderPass::pushGLTFBatches(const std::vector<LLGLTFDrawInfo>& draw_info, bool planar, bool tex_anim)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
-    auto* begin = gPipeline.beginRenderMap(type);
-    auto* end = gPipeline.endRenderMap(type);
-    for (LLCullResult::drawinfo_iterator i = begin; i != end; )
-    {
-        LL_PROFILE_ZONE_NAMED_CATEGORY_DRAWPOOL("pushGLTFBatch");
-        LLDrawInfo& params = **i;
-        LLCullResult::increment_iterator(i, end);
+    pre_push_gltf_batches();
 
-        pushGLTFBatch(params);
+    for (auto& params : draw_info)
+    {
+        pushGLTFBatch(params, planar, tex_anim);
     }
+
+    LLVertexBuffer::unbind();
 }
 
-void LLRenderPass::pushUntexturedGLTFBatches(U32 type)
+void LLRenderPass::pushShadowGLTFBatches(const std::vector<LLGLTFDrawInfo>& draw_info)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
-    auto* begin = gPipeline.beginRenderMap(type);
-    auto* end = gPipeline.endRenderMap(type);
-    for (LLCullResult::drawinfo_iterator i = begin; i != end; )
-    {
-        LL_PROFILE_ZONE_NAMED_CATEGORY_DRAWPOOL("pushGLTFBatch");
-        LLDrawInfo& params = **i;
-        LLCullResult::increment_iterator(i, end);
+    pre_push_gltf_batches();
 
-        pushUntexturedGLTFBatch(params);
+    for (auto& params : draw_info)
+    {
+        pushShadowGLTFBatch(params);
     }
+
+    LLVertexBuffer::unbind();
 }
 
 // static
-void LLRenderPass::pushGLTFBatch(LLDrawInfo& params)
+void LLRenderPass::pushGLTFBatch(const LLGLTFDrawInfo& params, bool planar, bool tex_anim)
 {
-    auto& mat = params.mGLTFMaterial;
-
-    if (mat.notNull())
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
+    LL_PROFILE_ZONE_NUM(params.mInstanceCount);
+    llassert(params.mTransformUBO != 0);
+    STOP_GLERROR;
+    if (params.mTransformUBO != transform_ubo)
     {
-        mat->bind(params.mTexture);
+        glBindBufferBase(GL_UNIFORM_BUFFER, LLGLSLShader::UB_GLTF_NODES, params.mTransformUBO);
+        glBindBufferBase(GL_UNIFORM_BUFFER, LLGLSLShader::UB_GLTF_NODE_INSTANCE_MAP, params.mInstanceMapUBO);
+        glBindBufferBase(GL_UNIFORM_BUFFER, LLGLSLShader::UB_GLTF_MATERIALS, params.mMaterialUBO);
+        if (tex_anim)
+        {
+            glBindBufferBase(GL_UNIFORM_BUFFER, LLGLSLShader::UB_TEXTURE_TRANSFORM, params.mTextureTransformUBO);
+        }
+        transform_ubo = params.mTransformUBO;
     }
 
-    LLGLDisable cull_face(mat.notNull() && mat->mDoubleSided ? GL_CULL_FACE : 0);
+    if (!last_mat || params.mMaterialID != last_mat)
+    {
+        last_mat = params.mMaterialID;
+        if (base_tu != -1 && cur_base_tex != params.mBaseColorMap)
+        {
+            glActiveTexture(GL_TEXTURE0 + base_tu);
+            glBindTexture(GL_TEXTURE_2D, params.mBaseColorMap);
+            cur_base_tex = params.mBaseColorMap;
+        }
 
-    setup_texture_matrix(params);
+        if (!LLPipeline::sShadowRender)
+        {
+            if (norm_tu != -1 && cur_norm_tex != params.mNormalMap)
+            {
+                glActiveTexture(GL_TEXTURE0 + norm_tu);
+                glBindTexture(GL_TEXTURE_2D, params.mNormalMap);
+                cur_norm_tex = params.mNormalMap;
+            }
 
-    applyModelMatrix(params);
+            if (orm_tu != -1 && cur_orm_tex != params.mMetallicRoughnessMap)
+            {
+                glActiveTexture(GL_TEXTURE0 + orm_tu);
+                glBindTexture(GL_TEXTURE_2D, params.mMetallicRoughnessMap);
+                cur_orm_tex = params.mMetallicRoughnessMap;
+            }
 
-    params.mVertexBuffer->setBuffer();
-    params.mVertexBuffer->drawRange(LLRender::TRIANGLES, params.mStart, params.mEnd, params.mCount, params.mOffset);
+            if (emis_tu != -1 && cur_emis_tex != params.mEmissiveMap)
+            {
+                glActiveTexture(GL_TEXTURE0 + emis_tu);
+                glBindTexture(GL_TEXTURE_2D, params.mEmissiveMap);
+                cur_emis_tex = params.mEmissiveMap;
+            }
+        }
+    }
 
-    teardown_texture_matrix(params);
+    glUniform1i(base_instance_index, params.mBaseInstance);
+
+    STOP_GLERROR;
+#if USE_VAO
+    LLVertexBuffer::bindVAO(params.mVAO);
+#else
+    LLVertexBuffer::bindVBO(params.mVBO, params.mIBO, params.mVBOVertexCount);
+#endif
+    glDrawElementsInstanced(GL_TRIANGLES, params.mElementCount,
+        gl_indices_type[params.mIndicesSize], (GLvoid*)(size_t)(params.mElementOffset * gl_indices_size[params.mIndicesSize]),
+        params.mInstanceCount);
+    STOP_GLERROR;
 }
 
 // static
-void LLRenderPass::pushUntexturedGLTFBatch(LLDrawInfo& params)
-{
-    auto& mat = params.mGLTFMaterial;
-
-    LLGLDisable cull_face(mat->mDoubleSided ? GL_CULL_FACE : 0);
-
-    applyModelMatrix(params);
-
-    params.mVertexBuffer->setBuffer();
-    params.mVertexBuffer->drawRange(LLRender::TRIANGLES, params.mStart, params.mEnd, params.mCount, params.mOffset);
-}
-
-void LLRenderPass::pushRiggedGLTFBatches(U32 type, bool textured)
-{
-    if (textured)
-    {
-        pushRiggedGLTFBatches(type);
-    }
-    else
-    {
-        pushUntexturedRiggedGLTFBatches(type);
-    }
-}
-
-void LLRenderPass::pushRiggedGLTFBatches(U32 type)
+void LLRenderPass::pushShadowGLTFBatch(const LLGLTFDrawInfo& params)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
+    LL_PROFILE_ZONE_NUM(params.mInstanceCount);
+    llassert(params.mTransformUBO != 0);
+
+    if (params.mTransformUBO != transform_ubo)
+    {
+        glBindBufferBase(GL_UNIFORM_BUFFER, LLGLSLShader::UB_GLTF_NODES, params.mTransformUBO);
+        glBindBufferBase(GL_UNIFORM_BUFFER, LLGLSLShader::UB_GLTF_NODE_INSTANCE_MAP, params.mInstanceMapUBO);
+        // NOTE: don't bind the material UBO here, it's not used in shadow pass
+        transform_ubo = params.mTransformUBO;
+    }
+
+    glUniform1i(base_instance_index, params.mBaseInstance);
+
+#if USE_VAO
+    LLVertexBuffer::bindVAO(params.mVAO);
+#else
+    LLVertexBuffer::bindVBO(params.mVBO, params.mIBO, params.mVBOVertexCount);
+#endif
+    glDrawElementsInstanced(GL_TRIANGLES, params.mElementCount,
+        gl_indices_type[params.mIndicesSize], (GLvoid*)(size_t)(params.mElementOffset * gl_indices_size[params.mIndicesSize]),
+        params.mInstanceCount);
+}
+
+void LLRenderPass::pushRiggedGLTFBatches(const std::vector<LLSkinnedGLTFDrawInfo>& draw_info, bool planar, bool tex_anim)
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
+
+    pre_push_gltf_batches();
+
     const LLVOAvatar* lastAvatar = nullptr;
     U64 lastMeshId = 0;
     bool skipLastSkin = false;
 
-    auto* begin = gPipeline.beginRenderMap(type);
-    auto* end = gPipeline.endRenderMap(type);
-    for (LLCullResult::drawinfo_iterator i = begin; i != end; )
+    for (auto& params : draw_info)
     {
-        LL_PROFILE_ZONE_NAMED_CATEGORY_DRAWPOOL("pushRiggedGLTFBatch");
-        LLDrawInfo& params = **i;
-        LLCullResult::increment_iterator(i, end);
-
-        pushRiggedGLTFBatch(params, lastAvatar, lastMeshId, skipLastSkin);
+        pushRiggedGLTFBatch(params, lastAvatar, lastMeshId, skipLastSkin, planar, tex_anim);
     }
+
+    LLVertexBuffer::unbind();
 }
 
-void LLRenderPass::pushUntexturedRiggedGLTFBatches(U32 type)
+void LLRenderPass::pushRiggedShadowGLTFBatches(const std::vector<LLSkinnedGLTFDrawInfo>& draw_info)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
+
+    pre_push_gltf_batches();
+
     const LLVOAvatar* lastAvatar = nullptr;
     U64 lastMeshId = 0;
     bool skipLastSkin = false;
 
-    auto* begin = gPipeline.beginRenderMap(type);
-    auto* end = gPipeline.endRenderMap(type);
-    for (LLCullResult::drawinfo_iterator i = begin; i != end; )
+    for (auto& params : draw_info)
     {
-        LL_PROFILE_ZONE_NAMED_CATEGORY_DRAWPOOL("pushRiggedGLTFBatch");
-        LLDrawInfo& params = **i;
-        LLCullResult::increment_iterator(i, end);
-
-        pushUntexturedRiggedGLTFBatch(params, lastAvatar, lastMeshId, skipLastSkin);
+        pushRiggedShadowGLTFBatch(params, lastAvatar, lastMeshId, skipLastSkin);
     }
+
+    LLVertexBuffer::unbind();
 }
 
-
 // static
-void LLRenderPass::pushRiggedGLTFBatch(LLDrawInfo& params, const LLVOAvatar*& lastAvatar, U64& lastMeshId, bool& skipLastSkin)
+void LLRenderPass::pushRiggedGLTFBatch(const LLSkinnedGLTFDrawInfo& params, const LLVOAvatar*& lastAvatar, U64& lastMeshId, bool& skipLastSkin, bool planar, bool tex_anim)
 {
     if (uploadMatrixPalette(params.mAvatar, params.mSkinInfo, lastAvatar, lastMeshId, skipLastSkin))
     {
-        pushGLTFBatch(params);
+        pushGLTFBatch(params, planar, tex_anim);
     }
 }
 
 // static
-void LLRenderPass::pushUntexturedRiggedGLTFBatch(LLDrawInfo& params, const LLVOAvatar*& lastAvatar, U64& lastMeshId, bool& skipLastSkin)
+void LLRenderPass::pushRiggedShadowGLTFBatch(const LLSkinnedGLTFDrawInfo& params, const LLVOAvatar*& lastAvatar, U64& lastMeshId, bool& skipLastSkin)
 {
     if (uploadMatrixPalette(params.mAvatar, params.mSkinInfo, lastAvatar, lastMeshId, skipLastSkin))
     {
-        pushUntexturedGLTFBatch(params);
+        pushShadowGLTFBatch(params);
+    }
+}
+
+
+static void pre_push_bp_batches()
+{
+    gGL.matrixMode(LLRender::MM_MODELVIEW);
+    gGL.loadMatrix(gGLModelView);
+    gGL.syncMatrices();
+    transform_ubo = 0;
+    last_mat = 0;
+
+    diffuse_tu = LLGLSLShader::sCurBoundShaderPtr->getTextureChannel(LLShaderMgr::DIFFUSE_MAP);
+    norm_tu = LLGLSLShader::sCurBoundShaderPtr->getTextureChannel(LLShaderMgr::BUMP_MAP);
+    specular_tu = LLGLSLShader::sCurBoundShaderPtr->getTextureChannel(LLShaderMgr::SPECULAR_MAP);
+
+    base_instance_index = LLGLSLShader::sCurBoundShaderPtr->getUniformLocation(LLShaderMgr::GLTF_BASE_INSTANCE);
+
+     cur_specular_tex = cur_norm_tex = cur_diffuse_tex = 0;
+
+    S32 tex[] = { diffuse_tu, norm_tu, specular_tu };
+
+    for (S32 tu : tex)
+    {
+        if (tu != -1)
+        {
+            gGL.getTexUnit(tu)->bindManual(LLTexUnit::TT_TEXTURE, 0, true);
+        }
+    }
+}
+
+void LLRenderPass::pushBPBatches(const std::vector<LLGLTFDrawInfo>& draw_info, bool planar, bool tex_anim)
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
+    pre_push_bp_batches();
+
+    for (auto& params : draw_info)
+    {
+        pushBPBatch(params, planar, tex_anim);
+    }
+
+    LLVertexBuffer::unbind();
+}
+
+void LLRenderPass::pushShadowBPBatches(const std::vector<LLGLTFDrawInfo>& draw_info)
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
+    pre_push_bp_batches();
+
+    for (auto& params : draw_info)
+    {
+        pushShadowBPBatch(params);
+    }
+
+    LLVertexBuffer::unbind();
+}
+
+// static
+void LLRenderPass::pushBPBatch(const LLGLTFDrawInfo& params, bool planar, bool tex_anim)
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
+    LL_PROFILE_ZONE_NUM(params.mInstanceCount);
+    llassert(params.mTransformUBO != 0);
+
+    if (params.mTransformUBO != transform_ubo)
+    {
+        glBindBufferBase(GL_UNIFORM_BUFFER, LLGLSLShader::UB_GLTF_NODES, params.mTransformUBO);
+        glBindBufferBase(GL_UNIFORM_BUFFER, LLGLSLShader::UB_GLTF_NODE_INSTANCE_MAP, params.mInstanceMapUBO);
+        glBindBufferBase(GL_UNIFORM_BUFFER, LLGLSLShader::UB_GLTF_MATERIALS, params.mMaterialUBO);
+        if (tex_anim)
+        {
+            glBindBufferBase(GL_UNIFORM_BUFFER, LLGLSLShader::UB_TEXTURE_TRANSFORM, params.mTextureTransformUBO);
+        }
+        transform_ubo = params.mTransformUBO;
+    }
+
+    if (!last_mat || params.mMaterialID != last_mat)
+    {
+        last_mat = params.mMaterialID;
+        if (diffuse_tu != -1 && cur_diffuse_tex != params.mDiffuseMap)
+        {
+            glActiveTexture(GL_TEXTURE0 + diffuse_tu);
+            glBindTexture(GL_TEXTURE_2D, params.mDiffuseMap);
+            cur_diffuse_tex = params.mDiffuseMap;
+        }
+
+        if (!LLPipeline::sShadowRender)
+        {
+            if (norm_tu != -1 && cur_norm_tex != params.mNormalMap)
+            {
+                glActiveTexture(GL_TEXTURE0 + norm_tu);
+                glBindTexture(GL_TEXTURE_2D, params.mNormalMap);
+                cur_norm_tex = params.mNormalMap;
+            }
+
+            if (specular_tu != -1 && cur_specular_tex != params.mSpecularMap)
+            {
+                glActiveTexture(GL_TEXTURE0 + specular_tu);
+                glBindTexture(GL_TEXTURE_2D, params.mSpecularMap);
+                cur_specular_tex = params.mSpecularMap;
+            }
+        }
+    }
+
+    glUniform1i(base_instance_index, params.mBaseInstance);
+
+#if USE_VAO
+    LLVertexBuffer::bindVAO(params.mVAO);
+#else
+    LLVertexBuffer::bindVBO(params.mVBO, params.mIBO, params.mVBOVertexCount);
+#endif
+    glDrawElementsInstanced(GL_TRIANGLES, params.mElementCount,
+        gl_indices_type[params.mIndicesSize], (GLvoid*)(size_t)(params.mElementOffset * gl_indices_size[params.mIndicesSize]),
+        params.mInstanceCount);
+}
+
+// static
+void LLRenderPass::pushShadowBPBatch(const LLGLTFDrawInfo& params)
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
+    LL_PROFILE_ZONE_NUM(params.mInstanceCount);
+    llassert(params.mTransformUBO != 0);
+
+    if (params.mTransformUBO != transform_ubo)
+    {
+        glBindBufferBase(GL_UNIFORM_BUFFER, LLGLSLShader::UB_GLTF_NODES, params.mTransformUBO);
+        glBindBufferBase(GL_UNIFORM_BUFFER, LLGLSLShader::UB_GLTF_NODE_INSTANCE_MAP, params.mInstanceMapUBO);
+        // NOTE: don't bind the material UBO here, it's not used in shadow pass
+        transform_ubo = params.mTransformUBO;
+    }
+
+    glUniform1i(base_instance_index, params.mBaseInstance);
+
+#if USE_VAO
+    LLVertexBuffer::bindVAO(params.mVAO);
+#else
+    LLVertexBuffer::bindVBO(params.mVBO, params.mIBO, params.mVBOVertexCount);
+#endif
+    glDrawElementsInstanced(GL_TRIANGLES, params.mElementCount,
+        gl_indices_type[params.mIndicesSize], (GLvoid*)(size_t)(params.mElementOffset * gl_indices_size[params.mIndicesSize]),
+        params.mInstanceCount);
+}
+
+void LLRenderPass::pushRiggedBPBatches(const std::vector<LLSkinnedGLTFDrawInfo>& draw_info, bool planar, bool tex_anim)
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
+
+    pre_push_bp_batches();
+
+    const LLVOAvatar* lastAvatar = nullptr;
+    U64 lastMeshId = 0;
+    bool skipLastSkin = false;
+
+    for (auto& params : draw_info)
+    {
+        pushRiggedBPBatch(params, lastAvatar, lastMeshId, skipLastSkin, planar, tex_anim);
+    }
+
+    LLVertexBuffer::unbind();
+}
+
+void LLRenderPass::pushRiggedShadowBPBatches(const std::vector<LLSkinnedGLTFDrawInfo>& draw_info)
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
+
+    pre_push_bp_batches();
+
+    const LLVOAvatar* lastAvatar = nullptr;
+    U64 lastMeshId = 0;
+    bool skipLastSkin = false;
+
+    for (auto& params : draw_info)
+    {
+        pushRiggedShadowBPBatch(params, lastAvatar, lastMeshId, skipLastSkin);
+    }
+
+    LLVertexBuffer::unbind();
+}
+
+// static
+void LLRenderPass::pushRiggedBPBatch(const LLSkinnedGLTFDrawInfo& params, const LLVOAvatar*& lastAvatar, U64& lastMeshId, bool& skipLastSkin, bool planar, bool tex_anim)
+{
+    if (uploadMatrixPalette(params.mAvatar, params.mSkinInfo, lastAvatar, lastMeshId, skipLastSkin))
+    {
+        pushBPBatch(params, planar, tex_anim);
+    }
+}
+
+// static
+void LLRenderPass::pushRiggedShadowBPBatch(const LLSkinnedGLTFDrawInfo& params, const LLVOAvatar*& lastAvatar, U64& lastMeshId, bool& skipLastSkin)
+{
+    if (uploadMatrixPalette(params.mAvatar, params.mSkinInfo, lastAvatar, lastMeshId, skipLastSkin))
+    {
+        pushShadowBPBatch(params);
     }
 }
 

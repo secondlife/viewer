@@ -2452,6 +2452,7 @@ void LLViewerRegion::setSimulatorFeatures(const LLSD& sim_features)
 
     auto work = [=]()
         {
+            LL_PROFILE_ZONE_NAMED("SimulatorFeatures");
             // if region has MaxTextureResolution, set max_texture_dimension settings, otherwise use default
             if (features.has("MaxTextureResolution"))
             {

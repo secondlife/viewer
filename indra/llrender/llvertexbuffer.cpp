@@ -38,12 +38,16 @@
 #include "llmemory.h"
 #include <glm/gtc/type_ptr.hpp>
 
+U32 LLVertexBuffer::sDefaultVAO = 0;
+
+
 //Next Highest Power Of Two
 //helper function, returns first number > v that is a power of 2, or v if v is already a power of 2
 U32 nhpo2(U32 v)
 {
     U32 r = 1;
-    while (r < v) {
+    while (r < v)
+    {
         r *= 2;
     }
     return r;
@@ -258,7 +262,7 @@ static GLWorkQueue* sQueue = nullptr;
 // Pool of reusable VertexBuffer state
 
 // batch calls to glGenBuffers
-static GLuint gen_buffer()
+GLuint ll_gl_gen_buffer()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VERTEX;
 
@@ -289,7 +293,7 @@ static GLuint gen_buffer()
     return ret;
 }
 
-static void delete_buffers(S32 count, GLuint* buffers)
+void ll_gl_delete_buffers(S32 count, GLuint* buffers)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VERTEX;
     // wait a few frames before actually deleting the buffers to avoid
@@ -315,6 +319,64 @@ static void delete_buffers(S32 count, GLuint* buffers)
     }
 }
 
+
+// batch calls to glGenBuffers
+GLuint ll_gl_gen_arrays()
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VERTEX;
+
+    GLuint ret = 0;
+    constexpr U32 pool_size = 1024;
+
+    thread_local static GLuint sNamePool[pool_size];
+    thread_local static U32 sIndex = 0;
+
+    if (sIndex == 0)
+    {
+        LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("gen buffer");
+        sIndex = pool_size;
+        if (!gGLManager.mIsAMD)
+        {
+            glGenVertexArrays(pool_size, sNamePool);
+        }
+        else
+        { // work around for AMD driver bug
+            for (U32 i = 0; i < pool_size; ++i)
+            {
+                glGenVertexArrays(1, sNamePool + i);
+            }
+        }
+    }
+
+    ret = sNamePool[--sIndex];
+    return ret;
+}
+
+void ll_gl_delete_arrays(S32 count, GLuint* buffers)
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VERTEX;
+    // wait a few frames before actually deleting the buffers to avoid
+    // synchronization issues with the GPU
+    static std::vector<GLuint> sFreeList[4];
+
+    if (gGLManager.mInited)
+    {
+        U32 idx = LLImageGL::sFrameCount % 4;
+
+        for (S32 i = 0; i < count; ++i)
+        {
+            sFreeList[idx].push_back(buffers[i]);
+        }
+
+        idx = (LLImageGL::sFrameCount + 3) % 4;
+
+        if (!sFreeList[idx].empty())
+        {
+            glDeleteVertexArrays((GLsizei)sFreeList[idx].size(), sFreeList[idx].data());
+            sFreeList[idx].resize(0);
+        }
+    }
+}
 
 #define ANALYZE_VBO_POOL 0
 
@@ -375,7 +437,7 @@ public:
         STOP_GLERROR;
         if (name)
         {
-            delete_buffers(1, &name);
+            ll_gl_delete_buffers(1, &name);
         }
         STOP_GLERROR;
     }
@@ -448,7 +510,7 @@ public:
             LL_PROFILE_GPU_ZONE("vbo alloc");
 
             mMisses++;
-            name = gen_buffer();
+            name = ll_gl_gen_buffer();
             glBindBuffer(type, name);
             glBufferData(type, size, nullptr, GL_DYNAMIC_DRAW);
             if (type == GL_ELEMENT_ARRAY_BUFFER)
@@ -546,7 +608,7 @@ public:
                     LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("vbo cache timeout");
                     auto& entry = entries.back();
                     ll_aligned_free_16(entry.mData);
-                    delete_buffers(1, &entry.mGLName);
+                    ll_gl_delete_buffers(1, &entry.mGLName);
                     llassert(mReserved >= iter->first);
                     mReserved -= iter->first;
                     entries.pop_back();
@@ -582,7 +644,7 @@ public:
             for (auto& entry : entries.second)
             {
                 ll_aligned_free_16(entry.mData);
-                delete_buffers(1, &entry.mGLName);
+                ll_gl_delete_buffers(1, &entry.mGLName);
             }
         }
 
@@ -591,7 +653,7 @@ public:
             for (auto& entry : entries.second)
             {
                 ll_aligned_free_16(entry.mData);
-                delete_buffers(1, &entry.mGLName);
+                ll_gl_delete_buffers(1, &entry.mGLName);
             }
         }
 
@@ -720,7 +782,7 @@ static const std::string vb_type_name[] =
     "TYPE_INDEX",
 };
 
-const U32 LLVertexBuffer::sGLMode[LLRender::NUM_MODES] =
+static const GLenum sGLMode[LLRender::NUM_MODES] =
 {
     GL_TRIANGLES,
     GL_TRIANGLE_STRIP,
@@ -1010,9 +1072,34 @@ LLVertexBuffer::LLVertexBuffer(U32 typemask)
     }
 }
 
+
+void LLVertexBuffer::setIndicesType(U32 type)
+{
+    llassert(getNumVerts() == 0);
+    llassert(getNumIndices() == 0);
+    llassert(type == GL_UNSIGNED_SHORT || type == GL_UNSIGNED_INT);
+
+    mIndicesType = type;
+
+    if (mIndicesType == GL_UNSIGNED_SHORT)
+    {
+        mIndicesStride = 2;
+    }
+    else
+    {
+        mIndicesStride = 4;
+    }
+}
 // list of mapped buffers
 // NOTE: must not be LLPointer<LLVertexBuffer> to avoid breaking non-ref-counted LLVertexBuffer instances
 static std::vector<LLVertexBuffer*> sMappedBuffers;
+
+//static
+void LLVertexBuffer::updateClass()
+{
+    ll_gl_delete_arrays(0, nullptr);
+    ll_gl_delete_buffers(0, nullptr);
+}
 
 //static
 void LLVertexBuffer::flushBuffers()
@@ -1079,6 +1166,11 @@ LLVertexBuffer::~LLVertexBuffer()
 
     destroyGLBuffer();
     destroyGLIndices();
+
+    if (mGLVAO)
+    {
+        ll_gl_delete_arrays(1, &mGLVAO);
+    }
 
     if (mMappedData)
     {
@@ -1227,7 +1319,7 @@ bool LLVertexBuffer::updateNumIndices(U32 nindices)
 
     bool success = true;
 
-    U32 needed_size = sizeof(U16) * nindices;
+    U32 needed_size = (mIndicesType == GL_UNSIGNED_INT ? sizeof(U32) : sizeof(U16)) * nindices;
 
     if (needed_size != mIndicesSize)
     {
@@ -1430,9 +1522,9 @@ void LLVertexBuffer::_unmapBuffer()
         {
             if (mGLBuffer)
             {
-                delete_buffers(1, &mGLBuffer);
+                ll_gl_delete_buffers(1, &mGLBuffer);
             }
-            mGLBuffer = gen_buffer();
+            mGLBuffer = ll_gl_gen_buffer();
             glBindBuffer(GL_ARRAY_BUFFER, mGLBuffer);
             sGLRenderBuffer = mGLBuffer;
             glBufferData(GL_ARRAY_BUFFER, mSize, mMappedData, GL_STATIC_DRAW);
@@ -1448,10 +1540,10 @@ void LLVertexBuffer::_unmapBuffer()
         {
             if (mGLIndices)
             {
-                delete_buffers(1, &mGLIndices);
+                ll_gl_delete_buffers(1, &mGLIndices);
             }
 
-            mGLIndices = gen_buffer();
+            mGLIndices = ll_gl_gen_buffer();
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mGLIndices);
             sGLRenderIndices = mGLIndices;
 
@@ -1653,8 +1745,6 @@ bool LLVertexBuffer::getClothWeightStrider(LLStrider<LLVector4>& strider, U32 in
 // Set for rendering
 void LLVertexBuffer::setBuffer()
 {
-    STOP_GLERROR;
-
     if (mMapped)
     {
         LL_WARNS_ONCE() << "Missing call to unmapBuffer or flushBuffers" << LL_ENDL;
@@ -1697,15 +1787,34 @@ void LLVertexBuffer::setBuffer()
     STOP_GLERROR;
 }
 
+void LLVertexBuffer::bindBuffer()
+{
+    sLastMask = 0;
+    if (sGLRenderBuffer != mGLBuffer)
+    {
+        glBindBuffer(GL_ARRAY_BUFFER, mGLBuffer);
+        sGLRenderBuffer = mGLBuffer;
+    }
+
+    if (mGLIndices != sGLRenderIndices)
+    {
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mGLIndices);
+        sGLRenderIndices = mGLIndices;
+    }
+}
 
 // virtual (default)
 void LLVertexBuffer::setupVertexBuffer()
 {
     STOP_GLERROR;
-    U8* base = nullptr;
-
     U32 data_mask = LLGLSLShader::sCurBoundShaderPtr->mAttributeMask;
 
+    setupVertexBuffer(data_mask);
+}
+
+void LLVertexBuffer::setupVertexBuffer(U32 data_mask)
+{
+    U8* base = nullptr;
     if (data_mask & MAP_NORMAL)
     {
         AttributeType loc = TYPE_NORMAL;
@@ -1798,6 +1907,67 @@ void LLVertexBuffer::setupVertexBuffer()
         glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_VERTEX], ptr);
     }
     STOP_GLERROR;
+}
+
+//static
+void LLVertexBuffer::bindVBO(U32 vbo, U32 ibo, U32 vcount)
+{
+    if (sGLRenderBuffer == vbo)
+    {
+        return;
+    }
+
+    // NOTE: this only works for VertexBuffers allocated from inside LLVolume that all have the same attribute mask
+
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    sGLRenderBuffer = vbo;
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+    sGLRenderIndices = ibo;
+
+    U32 data_mask = LLGLSLShader::sCurBoundShaderPtr->mAttributeMask;
+
+    U8* base = nullptr;
+
+    U32 offsets[TYPE_MAX];
+
+    U32 offset = 0;
+    offsets[TYPE_VERTEX] = offset;  offset += sTypeSize[TYPE_VERTEX] * vcount;      offset = (offset + 0xF) & ~0xF;
+    offsets[TYPE_NORMAL] = offset;  offset += sTypeSize[TYPE_NORMAL] * vcount;      offset = (offset + 0xF) & ~0xF;
+    offsets[TYPE_TEXCOORD0] = offset; offset += sTypeSize[TYPE_TEXCOORD0] * vcount; offset = (offset + 0xF) & ~0xF;
+    offsets[TYPE_TANGENT] = offset; offset += sTypeSize[TYPE_TANGENT] * vcount;     offset = (offset + 0xF) & ~0xF;
+    offsets[TYPE_WEIGHT4] = offset; offset += sTypeSize[TYPE_WEIGHT4] * vcount;     offset = (offset + 0xF) & ~0xF;
+
+    if (data_mask & MAP_NORMAL)
+    {
+        AttributeType loc = TYPE_NORMAL;
+        void* ptr = (void*)(base + offsets[TYPE_NORMAL]);
+        glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_NORMAL], ptr);
+    }
+    if (data_mask & MAP_TANGENT)
+    {
+        AttributeType loc = TYPE_TANGENT;
+        void* ptr = (void*)(base + offsets[TYPE_TANGENT]);
+        glVertexAttribPointer(loc, 4, GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_TANGENT], ptr);
+    }
+    if (data_mask & MAP_TEXCOORD0)
+    {
+        AttributeType loc = TYPE_TEXCOORD0;
+        void* ptr = (void*)(base + offsets[TYPE_TEXCOORD0]);
+        glVertexAttribPointer(loc, 2, GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_TEXCOORD0], ptr);
+    }
+    if (data_mask & MAP_WEIGHT4)
+    {
+        AttributeType loc = TYPE_WEIGHT4;
+        void* ptr = (void*)(base + offsets[TYPE_WEIGHT4]);
+        glVertexAttribPointer(loc, 4, GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_WEIGHT4], ptr);
+    }
+
+    {
+        AttributeType loc = TYPE_VERTEX;
+        void* ptr = (void*)(base + offsets[TYPE_VERTEX]);
+        glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_VERTEX], ptr);
+    }
 }
 
 void LLVertexBuffer::setPositionData(const LLVector4a* data)
@@ -1898,17 +2068,26 @@ void LLVertexBuffer::setJointData(const U64* data, U32 offset, U32 count)
 
 void LLVertexBuffer::setIndexData(const U16* data, U32 offset, U32 count)
 {
-    flush_vbo(GL_ELEMENT_ARRAY_BUFFER, offset * sizeof(U16), (offset + count) * sizeof(U16) - 1, (U8*)data, mMappedIndexData);
+    if (mIndicesType == GL_UNSIGNED_INT)
+    { // implicitly convert input to 32-bit indices
+        U32* temp = new U32[count];
+        for (U32 i = 0; i < count; ++i)
+        {
+            temp[i] = data[i];
+        }
+        flush_vbo(GL_ELEMENT_ARRAY_BUFFER, offset * sizeof(U32), (offset + count) * sizeof(U32) - 1, (U8*)temp, mMappedIndexData);
+        delete[] temp;
+    }
+    else
+    {
+        flush_vbo(GL_ELEMENT_ARRAY_BUFFER, offset * sizeof(U16), (offset + count) * sizeof(U16) - 1, (U8*)data, mMappedIndexData);
+    }
 }
 
 void LLVertexBuffer::setIndexData(const U32* data, U32 offset, U32 count)
 {
-    if (mIndicesType != GL_UNSIGNED_INT)
-    { // HACK -- vertex buffers are initialized as 16-bit indices, but can be switched to 32-bit indices
-        mIndicesType = GL_UNSIGNED_INT;
-        mIndicesStride = 4;
-        mNumIndices /= 2;
-    }
+    llassert(mIndicesType == GL_UNSIGNED_INT);
+    llassert(mIndicesStride == 4);
     flush_vbo(GL_ELEMENT_ARRAY_BUFFER, offset * sizeof(U32), (offset + count) * sizeof(U32) - 1, (U8*)data, mMappedIndexData);
 }
 

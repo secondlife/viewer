@@ -144,6 +144,7 @@ void LLPBRTerrainFeatures::queryRegionCoro(std::string cap_url, LLUUID region_id
     {
         LLAppViewer::instance()->postToMainCoro([=]()
         {
+            LL_PROFILE_ZONE_NAMED("LLPBRTerrainFeatures::queryRegionCoro done_callback");
             done_callback(region_id, success, *composition);
             delete composition;
         });
@@ -191,6 +192,7 @@ void LLPBRTerrainFeatures::modifyRegionCoro(std::string cap_url, LLSD updates, v
     {
         LLAppViewer::instance()->postToMainCoro([=]()
         {
+            LL_PROFILE_ZONE_NAMED("LLPBRTerrainFeatures::modifyRegionCoro done_callback");
             done_callback(success);
         });
     }

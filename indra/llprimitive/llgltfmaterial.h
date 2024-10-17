@@ -74,6 +74,7 @@ public:
         using PackTight = F32[PACK_TIGHT_SIZE];
         void getPacked(Pack& packed) const;
         void getPackedTight(PackTight& packed) const;
+        void getPackedUBO(F32* packed) const;
 
         bool operator==(const TextureTransform& other) const;
         bool operator!=(const TextureTransform& other) const { return !(*this == other); }
@@ -117,6 +118,17 @@ public:
 
     // get a UUID based on a hash of this LLGLTFMaterial
     LLUUID getHash() const;
+
+    // calculate the batch hash and return it
+    // does not update mBatchHash
+    size_t calculateBatchHash() const;
+
+    // get the most recent batch hash for this LLGLTFMaterial
+    // may asserts that the cached hash is up to date
+    size_t getBatchHash() const;
+
+    // update mBatchHash to reflect the current state of this LLGLTFMaterial
+    void updateBatchHash();
 
     //setters for various members (will clamp to acceptable ranges)
     // for_override - set to true if this value is being set as part of an override (important for handling override to default value)
@@ -214,6 +226,10 @@ public:
     bool hasLocalTextures() { return !mTrackingIdToLocalTexture.empty(); }
     virtual bool replaceLocalTexture(const LLUUID& tracking_id, const LLUUID &old_id, const LLUUID& new_id);
     virtual void updateTextureTracking();
+
+    // pack onto the end of the given vector for use in a UBO (see pbropaqueV.glsl)
+    void packOnto(std::vector<LLVector4a>& data);
+
 protected:
     static LLVector2 vec2FromJson(const std::map<std::string, tinygltf::Value>& object, const char* key, const LLVector2& default_value);
     static F32 floatFromJson(const std::map<std::string, tinygltf::Value>& object, const char* key, const F32 default_value);
@@ -237,7 +253,9 @@ protected:
     void updateLocalTexDataDigest();
 
 public:
-    // *TODO: If/when we implement additional GLTF extensions, they may not be
+
+    size_t mBatchHash = 0;
+#// *TODO: If/when we implement additional GLTF extensions, they may not be
     // compatible with our GLTF terrain implementation. We may want to disallow
     // materials with some features from being set on terrain, if their
     // implementation on terrain is not compliant with the spec:
@@ -276,3 +294,12 @@ public:
     bool mOverrideDoubleSided = false;
     bool mOverrideAlphaMode = false;
 };
+
+
+inline size_t hash_value(const LLGLTFMaterial::TextureTransform& t) noexcept
+{
+    size_t hash = hash_value(t.mOffset);
+    boost::hash_combine(hash, t.mRotation);
+    boost::hash_combine(hash, t.mScale);
+    return hash;
+}
