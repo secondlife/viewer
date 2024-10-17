@@ -3011,7 +3011,35 @@ void LLVoiceWebRTCConnection::OnDataReceivedImpl(const std::string &data, bool b
                             if (value.is_string())
                             {
                                 std::string transcription_str = value.get_string().c_str();
-                                if (transcription_str.length() > 0)
+
+                                // remove double spaces.
+                                std::string::size_type pos = transcription_str.find("  ");
+
+                                while (pos != std::string::npos)
+                                {
+                                    transcription_str.replace(pos, 2, " ");
+                                    pos = transcription_str.find("  ", pos);
+                                }
+                                transcription_str.erase(0, transcription_str.find_first_not_of(" "));
+                                if (std::string::npos == transcription_str.find_last_of("?.!"))
+                                {
+                                    transcription_str.clear();
+                                }
+                                size_t found = transcription_str.find(participant->mLastTranscribedText);
+                                if (found != std::string::npos)
+                                {
+                                    std::string last_transcribed_text = transcription_str;
+                                    transcription_str.erase(0, found + participant->mLastTranscribedText.size());
+                                    transcription_str.erase(0, transcription_str.find_first_not_of(" "));
+                                    participant->mLastTranscribedText = last_transcribed_text;
+
+                                }
+                                else
+                                {
+                                    participant->mLastTranscribedText.clear();
+                                }
+
+                                if (!transcription_str.empty())
                                 {
                                     LLChat chat;
                                     chat.mFromID = agent_id;
@@ -3028,12 +3056,11 @@ void LLVoiceWebRTCConnection::OnDataReceivedImpl(const std::string &data, bool b
                                     {
                                         chat.mFromName = "Unknown";
                                     }
-                                    chat.mText     = transcription_str;
+                                    chat.mText      = "📣 " + transcription_str;
                                     chat.mChatStyle = CHAT_STYLE_NORMAL;
                                     chat.mMuted     = false;
                                     LLSD args;
                                     LLNotificationsUI::LLNotificationManager::instance().onChat(chat, args);
-
 
 
                                     LL_WARNS("Voice") << "Transcription: " << transcription_str << LL_ENDL;
