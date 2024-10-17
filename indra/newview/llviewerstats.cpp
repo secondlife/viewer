@@ -314,6 +314,11 @@ F32Milliseconds     gAvgSimPing(0.f);
 // rely on default initialization
 U32Bytes            gTotalTextureBytesPerBoostLevel[LLViewerTexture::MAX_GL_IMAGE_CATEGORY];
 
+// send_viewer_stats() does enough work that we cache the most recently
+// created stats packet for interested observers, instead of rebuilding it on
+// demand.
+LLSD latest_stats_packet;
+
 extern U32  gVisCompared;
 extern U32  gVisTested;
 
@@ -488,6 +493,11 @@ void update_statistics()
     }
 }
 
+LLSD get_viewer_stats()
+{
+    return latest_stats_packet;
+}
+
 /*
  * The sim-side LLSD is in newsim/llagentinfo.cpp:forwardViewerStats.
  *
@@ -510,7 +520,10 @@ void send_viewer_stats(bool include_preferences)
         return;
     }
 
-    LLSD body;
+    // Instead of building the stats packet locally within this function,
+    // build it in the cached value. Clear it first, though.
+    LLSD& body = latest_stats_packet;
+    body.clear();
     std::string url = gAgent.getRegion()->getCapability("ViewerStats");
 
     if (url.empty()) {
