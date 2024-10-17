@@ -3028,7 +3028,6 @@ void LLVoiceWebRTCConnection::OnDataReceivedImpl(const std::string &data, bool b
                                     {
                                         chat.mFromName = "Unknown";
                                     }
-                                    chat.mIsScript = false;
                                     chat.mText     = transcription_str;
                                     chat.mChatStyle = CHAT_STYLE_NORMAL;
                                     chat.mMuted     = false;
