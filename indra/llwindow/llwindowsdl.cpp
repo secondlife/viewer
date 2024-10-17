@@ -147,7 +147,7 @@ struct wl_proxy* (*ll_wl_proxy_marshal_flags)(struct wl_proxy *proxy, uint32_t o
 
 bool loadWaylandClient()
 {
-    auto *pSO = dlopen( "libwayland-client.so", RTLD_NOW);
+    auto *pSO = dlopen( "libwayland-client.so.0", RTLD_NOW);
     if( !pSO )
         return false;
 
@@ -506,6 +506,7 @@ bool LLWindowSDL::createContext(int x, int y, int width, int height, int bits, b
         /* Save the information for later use */
         if ( info.subsystem == SDL_SYSWM_X11 )
         {
+            SDL_SetHint(SDL_HINT_VIDEODRIVER, "x11");
             mX11Data.mDisplay = info.info.x11.display;
             mX11Data.mXWindowID = info.info.x11.window;
             mServerProtocol = X11;
@@ -514,8 +515,12 @@ bool LLWindowSDL::createContext(int x, int y, int width, int height, int bits, b
         else if ( info.subsystem == SDL_SYSWM_WAYLAND )
         {
 #ifdef LL_WAYLAND
-            if( !loadWaylandClient() )
+            if( !loadWaylandClient() ) {
+                SDL_SetHint(SDL_HINT_VIDEODRIVER, "x11");
                 LL_ERRS() << "Failed to load wayland-client.so or grab required functions" << LL_ENDL;
+            } else {
+                SDL_SetHint(SDL_HINT_VIDEODRIVER, "wayland");
+            }
 
             mWaylandData.mSurface = info.info.wl.surface;
             mServerProtocol = Wayland;
