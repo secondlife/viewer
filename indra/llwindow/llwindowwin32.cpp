@@ -403,6 +403,7 @@ struct LLWindowWin32::LLWindowWin32Thread : public LL::ThreadPool
     // until after some graphics setup. See SL-20177. -Cosmic,2023-09-18
     bool mGLReady = false;
     bool mGotGLBuffer = false;
+    bool mShuttingDown = false;
 };
 
 
@@ -4576,12 +4577,14 @@ inline LLWindowWin32::LLWindowWin32Thread::LLWindowWin32Thread()
 
 void LLWindowWin32::LLWindowWin32Thread::close()
 {
-    if (mWindowHandleThrd)
+    LL::ThreadPool::close();
+    if (!mShuttingDown)
     {
         LL_WARNS() << "Closing window thread without using destroy_window_handler" << LL_ENDL;
         // Workaround for SL-18721 in case window closes too early and abruptly
         LLSplashScreen::show();
         LLSplashScreen::update("..."); // will be updated later
+        mShuttingDown = true;
     }
 }
 
@@ -4792,6 +4795,8 @@ void LLWindowWin32::LLWindowWin32Thread::wakeAndDestroy()
         LL_WARNS() << "Tried to close Queue. Win32 thread Queue already closed." << LL_ENDL;
         return;
     }
+
+    mShuttingDown = true;
 
     // Make sure we don't leave a blank toolbar button.
     // Also hiding window now prevents user from suspending it
