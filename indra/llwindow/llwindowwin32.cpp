@@ -4576,11 +4576,9 @@ inline LLWindowWin32::LLWindowWin32Thread::LLWindowWin32Thread()
 
 void LLWindowWin32::LLWindowWin32Thread::close()
 {
-    if (!mQueue->isClosed())
+    if (mWindowHandleThrd)
     {
         LL_WARNS() << "Closing window thread without using destroy_window_handler" << LL_ENDL;
-        LL::ThreadPool::close();
-
         // Workaround for SL-18721 in case window closes too early and abruptly
         LLSplashScreen::show();
         LLSplashScreen::update("..."); // will be updated later
