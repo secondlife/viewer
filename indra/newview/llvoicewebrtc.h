@@ -30,6 +30,7 @@ class LLWebRTCProtocolParser;
 
 #include "lliopipe.h"
 #include "llpumpio.h"
+#include "llcallbacklist.h"
 #include "llchainio.h"
 #include "lliosocket.h"
 #include "v3math.h"
@@ -447,11 +448,14 @@ private:
 
     // Coroutine support methods
     //---
-    void voiceConnectionCoro();
+    void connectionTimer();
 
     //---
     /// Clean up objects created during a voice session.
     void cleanUp();
+
+    // stop state machine
+    void stopTimer();
 
     LL::WorkQueue::weak_t mMainQueue;
 
@@ -534,7 +538,8 @@ private:
 
     bool    mIsInTuningMode;
     bool    mIsProcessingChannels;
-    bool    mIsCoroutineActive;
+    bool    mIsTimerActive;
+    LL::Timers::handle_t mVoiceTimerHandle;
 
     // These variables can last longer than WebRTC in coroutines so we need them as static
     static bool sShuttingDown;
