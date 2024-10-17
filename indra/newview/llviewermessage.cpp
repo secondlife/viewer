@@ -3211,7 +3211,7 @@ void send_agent_update(bool force_send, bool send_reliable)
                         last_camera_at;
 
     // compute sec_since_last_send
-    constexpr F64 MAX_AGENT_UPDATES_PER_SECOND = 125.0; // Value derived experimentally to avoid Input Delays with latest PBR-Capable Viewers when viewer FPS is highly volatile.
+    constexpr F64 MAX_AGENT_UPDATES_PER_SECOND = 20.0; // Value derived experimentally to avoid Input Delays with latest PBR-Capable Viewers when viewer FPS is highly volatile.
     constexpr F64 MIN_AGENT_UPDATES_PER_SECOND = 1.0; // keep-alive rate
     constexpr F64 MIN_AGENT_UPDATE_PERIOD = 1.0 / MAX_AGENT_UPDATES_PER_SECOND;
     constexpr F64 MAX_AGENT_UPDATE_PERIOD = 1.0 / MIN_AGENT_UPDATES_PER_SECOND;
