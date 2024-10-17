@@ -1433,6 +1433,7 @@ void LLSpatialGroup::updateTransformUBOs()
 
 void LLSpatialGroup::updateTransform(LLDrawable* drawablep)
 {
+    LL_PROFILE_ZONE_SCOPED;
     if (!drawablep->isState(LLDrawable::RIGGED) &&
         getSpatialPartition()->mDrawableType == LLPipeline::RENDER_TYPE_VOLUME &&
         !hasState(LLSpatialGroup::IN_TRANSFORM_BUILD_Q))
@@ -1456,19 +1457,20 @@ void LLSpatialGroup::updateTransform(LLDrawable* drawablep)
             glBufferSubData(GL_UNIFORM_BUFFER, offset, sizeof(F32) * 12, mat);
             glBindBuffer(GL_UNIFORM_BUFFER, 0);
         }
+    }
 
-        // update child transforms as well
-        LLViewerObject* vobj = drawablep->getVObj();
-        for (auto& child : vobj->getChildren())
+    // update child transforms as well
+    LLViewerObject* vobj = drawablep->getVObj();
+    for (auto& child : vobj->getChildren())
+    {
+        LLDrawable* child_drawable = child->mDrawable;
+        if (child_drawable)
         {
-            LLDrawable* child_drawable = child->mDrawable;
-            if (child_drawable)
+            LLSpatialGroup* group = child_drawable->getSpatialGroup();
+            if (group)
             {
-                LLSpatialGroup* group = child_drawable->getSpatialGroup();
-                if (group)
-                {
-                    group->updateTransform(child_drawable);
-                }
+                child_drawable->mXform.updateMatrix();
+                group->updateTransform(child_drawable);
             }
         }
     }
