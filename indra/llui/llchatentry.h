@@ -101,6 +101,8 @@ private:
     S32                                 mExpandLinesCount;
     S32                                 mPrevLinesCount;
     S32                                 mPrevExpandedLineCount;
+
+    std::string                         mCurrentInput;
 };
 
 #endif /* LLCHATENTRY_H_ */

@@ -34,7 +34,7 @@
 //#include <memory>
 
 #if LL_WINDOWS
-#   include "llwin32headerslean.h"
+#   include "llwin32headers.h"
 #   define _interlockedbittestandset _renamed_interlockedbittestandset
 #   define _interlockedbittestandreset _renamed_interlockedbittestandreset
 #   include <intrin.h>
@@ -638,6 +638,14 @@ public:
     {
         getCPUIDInfo();
         uint64_t frequency = getSysctlInt64("hw.cpufrequency");
+        if (!frequency)
+        {
+            auto tbfrequency = getSysctlInt64("hw.tbfrequency");
+            struct clockinfo clockrate;
+            auto clockrate_len = sizeof(clockrate);
+            if (!sysctlbyname("kern.clockrate", &clockrate, &clockrate_len, NULL, 0))
+                frequency = tbfrequency * clockrate.hz;
+        }
         setInfo(eFrequency, (F64)frequency  / (F64)1000000);
     }
 
@@ -793,18 +801,54 @@ private:
 };
 
 #elif LL_LINUX
+
+// *NOTE:Mani - eww, macros! srry.
+#define LLPI_SET_INFO_STRING(llpi_id, cpuinfo_id) \
+        if (!cpuinfo[cpuinfo_id].empty()) \
+        { setInfo(llpi_id, cpuinfo[cpuinfo_id]);}
+
+#define LLPI_SET_INFO_INT(llpi_id, cpuinfo_id) \
+        {\
+            S32 result; \
+            if (!cpuinfo[cpuinfo_id].empty() \
+                && LLStringUtil::convertToS32(cpuinfo[cpuinfo_id], result)) \
+            { setInfo(llpi_id, result);} \
+        }
+
 const char CPUINFO_FILE[] = "/proc/cpuinfo";
 
-class LLProcessorInfoLinuxImpl : public LLProcessorInfoImpl
-{
+class LLProcessorInfoLinuxImpl : public LLProcessorInfoImpl {
 public:
-    LLProcessorInfoLinuxImpl()
-    {
+    LLProcessorInfoLinuxImpl() {
         get_proc_cpuinfo();
     }
 
     virtual ~LLProcessorInfoLinuxImpl() {}
+
 private:
+
+    F64 getCPUMaxMHZ()
+    {
+        // Nicky: We just look into cpu0. In theory we could iterate over all cores
+        // "/sys/devices/system/cpu/cpu*/cpufreq/cpuinfo_max_freq"
+        // But those should not fluctuate that much?
+        std::ifstream fIn { "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq" };
+
+        if( !fIn.is_open() )
+            return 0.0;
+
+        std::string strLine;
+        fIn >> strLine;
+        if( strLine.empty() )
+            return 0.0l;
+
+        F64 mhz {};
+        if( !LLStringUtil::convertToF64(strLine, mhz ) )
+            return 0.0;
+
+        mhz = mhz / 1000.0;
+        return mhz;
+    }
 
     void get_proc_cpuinfo()
     {
@@ -834,30 +878,23 @@ private:
                 std::string llinename(linename);
                 LLStringUtil::toLower(llinename);
                 std::string lineval( spacespot + 1, nlspot );
-                cpuinfo[ llinename ] = lineval;
+                    cpuinfo[ llinename ] = lineval;
             }
             fclose(cpuinfo_fp);
         }
 # if LL_X86
 
-// *NOTE:Mani - eww, macros! srry.
-#define LLPI_SET_INFO_STRING(llpi_id, cpuinfo_id) \
-        if (!cpuinfo[cpuinfo_id].empty()) \
-        { setInfo(llpi_id, cpuinfo[cpuinfo_id]);}
-
-#define LLPI_SET_INFO_INT(llpi_id, cpuinfo_id) \
-        {\
-            S32 result; \
-            if (!cpuinfo[cpuinfo_id].empty() \
-                && LLStringUtil::convertToS32(cpuinfo[cpuinfo_id], result)) \
-            { setInfo(llpi_id, result);} \
-        }
-
-        F64 mhz;
-        if (LLStringUtil::convertToF64(cpuinfo["cpu mhz"], mhz)
-            && 200.0 < mhz && mhz < 10000.0)
+        F64 mhzFromSys = getCPUMaxMHZ();
+        F64 mhzFromProc {};
+        if( !LLStringUtil::convertToF64(cpuinfo["cpu mhz"], mhzFromProc ) )
+            mhzFromProc = 0.0;
+        if (mhzFromSys > 1.0 && mhzFromSys > mhzFromProc )
         {
-            setInfo(eFrequency,(F64)(mhz));
+            setInfo( eFrequency, mhzFromSys );
+        }
+        else if (  200.0 < mhzFromProc && mhzFromProc < 10000.0)
+        {
+            setInfo(eFrequency,(F64)(mhzFromProc));
         }
 
         LLPI_SET_INFO_STRING(eBrandName, "model name");
@@ -867,7 +904,7 @@ private:
         LLPI_SET_INFO_INT(eModel, "model");
 
 
-        S32 family;
+        S32 family{};
         if (!cpuinfo["cpu family"].empty()
             && LLStringUtil::convertToS32(cpuinfo["cpu family"], family))
         {

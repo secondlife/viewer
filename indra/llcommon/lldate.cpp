@@ -41,7 +41,9 @@
 #include "llstring.h"
 #include "llfasttimer.h"
 
-static const F64 LL_APR_USEC_PER_SEC = 1000000.0;
+static const LLDate::timestamp DATE_EPOCH = 0.0;
+
+static const LLDate::timestamp LL_APR_USEC_PER_SEC = 1000000.0;
     // should be APR_USEC_PER_SEC, but that relies on INT64_C which
     // isn't defined in glib under our build set up for some reason
 
@@ -75,6 +77,15 @@ std::string LLDate::asString() const
 std::string LLDate::asRFC1123() const
 {
     return toHTTPDateString (std::string ("%A, %d %b %Y %H:%M:%S GMT"));
+}
+
+std::string LLDate::toLocalDateString (std::string fmt) const
+{
+    LL_PROFILE_ZONE_SCOPED;
+
+    time_t locSeconds = (time_t) mSecondsSinceEpoch;
+    struct tm * lt = localtime (&locSeconds);
+    return toHTTPDateString(lt, fmt);
 }
 
 std::string LLDate::toHTTPDateString (std::string fmt) const
@@ -224,13 +235,13 @@ bool LLDate::fromStream(std::istream& s)
         return false;
     }
 
-    F64 seconds_since_epoch = time / LL_APR_USEC_PER_SEC;
+    timestamp seconds_since_epoch = time / LL_APR_USEC_PER_SEC;
 
     // check for fractional
     c = s.peek();
     if(c == '.')
     {
-        F64 fractional = 0.0;
+        timestamp fractional = 0.0;
         s >> fractional;
         seconds_since_epoch += fractional;
     }
@@ -290,12 +301,12 @@ bool LLDate::fromYMDHMS(S32 year, S32 month, S32 day, S32 hour, S32 min, S32 sec
     return true;
 }
 
-F64 LLDate::secondsSinceEpoch() const
+LLDate::timestamp LLDate::secondsSinceEpoch() const
 {
     return mSecondsSinceEpoch;
 }
 
-void LLDate::secondsSinceEpoch(F64 seconds)
+void LLDate::secondsSinceEpoch(timestamp seconds)
 {
     mSecondsSinceEpoch = seconds;
 }

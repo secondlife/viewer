@@ -387,21 +387,21 @@ LLFloaterTools::LLFloaterTools(const LLSD& key)
     mFactoryMap["Contents"] = LLCallbackMap(createPanelContents, this);//LLPanelContents
     mFactoryMap["land info panel"] = LLCallbackMap(createPanelLandInfo, this);//LLPanelLandInfo
 
-    mCommitCallbackRegistrar.add("BuildTool.setTool",           boost::bind(&LLFloaterTools::setTool,this, _2));
-    mCommitCallbackRegistrar.add("BuildTool.commitZoom",        boost::bind(&commit_slider_zoom, _1));
-    mCommitCallbackRegistrar.add("BuildTool.commitRadioFocus",  boost::bind(&commit_radio_group_focus, _1));
-    mCommitCallbackRegistrar.add("BuildTool.commitRadioMove",   boost::bind(&commit_radio_group_move,_1));
-    mCommitCallbackRegistrar.add("BuildTool.commitRadioEdit",   boost::bind(&commit_radio_group_edit,_1));
+    mCommitCallbackRegistrar.add("BuildTool.setTool",           { boost::bind(&LLFloaterTools::setTool,this, _2) });
+    mCommitCallbackRegistrar.add("BuildTool.commitZoom",        { boost::bind(&commit_slider_zoom, _1), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("BuildTool.commitRadioFocus",  { boost::bind(&commit_radio_group_focus, _1), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("BuildTool.commitRadioMove",   { boost::bind(&commit_radio_group_move,_1), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("BuildTool.commitRadioEdit",   { boost::bind(&commit_radio_group_edit,_1), cb_info::UNTRUSTED_BLOCK });
 
-    mCommitCallbackRegistrar.add("BuildTool.gridMode",          boost::bind(&commit_grid_mode,_1));
-    mCommitCallbackRegistrar.add("BuildTool.selectComponent",   boost::bind(&commit_select_component, this));
-    mCommitCallbackRegistrar.add("BuildTool.gridOptions",       boost::bind(&LLFloaterTools::onClickGridOptions,this));
-    mCommitCallbackRegistrar.add("BuildTool.applyToSelection",  boost::bind(&click_apply_to_selection, this));
-    mCommitCallbackRegistrar.add("BuildTool.commitRadioLand",   boost::bind(&commit_radio_group_land,_1));
-    mCommitCallbackRegistrar.add("BuildTool.LandBrushForce",    boost::bind(&commit_slider_dozer_force,_1));
+    mCommitCallbackRegistrar.add("BuildTool.gridMode",          { boost::bind(&commit_grid_mode,_1), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("BuildTool.selectComponent",   { boost::bind(&commit_select_component, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("BuildTool.gridOptions",       { boost::bind(&LLFloaterTools::onClickGridOptions,this) });
+    mCommitCallbackRegistrar.add("BuildTool.applyToSelection",  { boost::bind(&click_apply_to_selection, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("BuildTool.commitRadioLand",   { boost::bind(&commit_radio_group_land,_1), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("BuildTool.LandBrushForce",    { boost::bind(&commit_slider_dozer_force,_1), cb_info::UNTRUSTED_BLOCK });
 
-    mCommitCallbackRegistrar.add("BuildTool.LinkObjects",       boost::bind(&LLSelectMgr::linkObjects, LLSelectMgr::getInstance()));
-    mCommitCallbackRegistrar.add("BuildTool.UnlinkObjects",     boost::bind(&LLSelectMgr::unlinkObjects, LLSelectMgr::getInstance()));
+    mCommitCallbackRegistrar.add("BuildTool.LinkObjects",       { boost::bind(&LLSelectMgr::linkObjects, LLSelectMgr::getInstance()) });
+    mCommitCallbackRegistrar.add("BuildTool.UnlinkObjects",     { boost::bind(&LLSelectMgr::unlinkObjects, LLSelectMgr::getInstance()) });
 
     mLandImpactsObserver = new LLLandImpactsObserver();
     LLViewerParcelMgr::getInstance()->addObserver(mLandImpactsObserver);

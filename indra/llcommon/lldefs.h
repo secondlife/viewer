@@ -28,6 +28,7 @@
 #define LL_LLDEFS_H
 
 #include "stdtypes.h"
+#include <cassert>
 #include <type_traits>
 
 // Often used array indices
@@ -169,37 +170,85 @@ constexpr U32   MAXADDRSTR      = 17;       // 123.567.901.345 = 15 chars + \0 +
 //   llclampb(a)     // clamps a to [0 .. 255]
 //
 
+// llless(d0, d1) safely compares d0 < d1 even if one is signed and the other
+// is unsigned. A simple (d0 < d1) expression converts the signed operand to
+// unsigned before comparing. If the signed operand is negative, that flips
+// the negative value to a huge positive value, producing the wrong answer!
+// llless() specifically addresses that case.
+template <typename T0, typename T1>
+constexpr bool llless(T0 d0, T1 d1)
+{
+    if constexpr (std::is_signed_v<T0> && ! std::is_signed_v<T1>)
+    {
+        // T0 signed, T1 unsigned: negative d0 is less than any unsigned d1
+        if (d0 < 0)
+            return true;
+        // both are non-negative: explicitly cast to avoid C4018
+        return std::make_unsigned_t<T0>(d0) < d1;
+    }
+    else if constexpr (! std::is_signed_v<T0> && std::is_signed_v<T1>)
+    {
+        // T0 unsigned, T1 signed: any unsigned d0 is greater than negative d1
+        if (d1 < 0)
+            return false;
+        // both are non-negative: explicitly cast to avoid C4018
+        return d0 < std::make_unsigned_t<T1>(d1);
+    }
+    else
+    {
+        // both T0 and T1 are signed, or both are unsigned:
+        // straightforward comparison works
+        return d0 < d1;
+    }
+}
+
 // recursion tail
 template <typename T>
-inline auto llmax(T data)
+constexpr auto llmax(T data)
 {
     return data;
 }
 
 template <typename T0, typename T1, typename... Ts>
-inline auto llmax(T0 d0, T1 d1, Ts... rest)
+constexpr auto llmax(T0 d0, T1 d1, Ts... rest)
 {
     auto maxrest = llmax(d1, rest...);
-    return (d0 > maxrest)? d0 : maxrest;
+    return llless(maxrest, d0)? d0 : maxrest;
 }
 
 // recursion tail
 template <typename T>
-inline auto llmin(T data)
+constexpr auto llmin(T data)
 {
     return data;
 }
 
 template <typename T0, typename T1, typename... Ts>
-inline auto llmin(T0 d0, T1 d1, Ts... rest)
+constexpr auto llmin(T0 d0, T1 d1, Ts... rest)
 {
     auto minrest = llmin(d1, rest...);
-    return (d0 < minrest) ? d0 : minrest;
+    return llless(d0, minrest) ? d0 : minrest;
 }
 
 template <typename A, typename MIN, typename MAX>
-inline A llclamp(A a, MIN minval, MAX maxval)
+constexpr A llclamp(A a, MIN minval, MAX maxval)
 {
+    // The only troublesome case is if A is unsigned and either minval or
+    // maxval is both signed and negative. Casting a negative number to
+    // unsigned flips it to a huge positive number, making this llclamp() call
+    // ineffective.
+    if constexpr (! std::is_signed_v<A>)
+    {
+        if constexpr (std::is_signed_v<MIN>)
+        {
+            assert(minval >= 0);
+        }
+        if constexpr (std::is_signed_v<MAX>)
+        {
+            assert(maxval >= 0);
+        }
+    }
+
     A aminval{ static_cast<A>(minval) }, amaxval{ static_cast<A>(maxval) };
     if ( a < aminval )
     {
@@ -213,13 +262,13 @@ inline A llclamp(A a, MIN minval, MAX maxval)
 }
 
 template <class LLDATATYPE>
-inline LLDATATYPE llclampf(LLDATATYPE a)
+constexpr LLDATATYPE llclampf(LLDATATYPE a)
 {
     return llmin(llmax(a, LLDATATYPE(0)), LLDATATYPE(1));
 }
 
 template <class LLDATATYPE>
-inline LLDATATYPE llclampb(LLDATATYPE a)
+constexpr LLDATATYPE llclampb(LLDATATYPE a)
 {
     return llmin(llmax(a, LLDATATYPE(0)), LLDATATYPE(255));
 }

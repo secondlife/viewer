@@ -119,7 +119,7 @@ void llcoro::suspendUntilTimeout(float seconds)
     // We used to call boost::this_fiber::sleep_for(). But some coroutines
     // (e.g. LLExperienceCache::idleCoro()) sit in a suspendUntilTimeout()
     // loop, in which case a sleep_for() call risks sleeping through shutdown.
-    // So instead, listen for "LLApp" state-changing events -- which
+    // So instead, listen for LLApp state-changing events -- which
     // fortunately is handled for us by suspendUntilEventOnWithTimeout().
     // Wait for an event on a bogus LLEventPump on which nobody ever posts
     // events. Don't make it static because that would force instantiation of
@@ -132,8 +132,8 @@ void llcoro::suspendUntilTimeout(float seconds)
     // Timeout is the NORMAL case for this call!
     static LLSD timedout;
     // Deliver, but ignore, timedout when (as usual) we did not receive any
-    // "LLApp" event. The point is that suspendUntilEventOnWithTimeout() will
-    // itself throw Stopping when "LLApp" starts broadcasting shutdown events.
+    // LLApp event. The point is that suspendUntilEventOnWithTimeout() will
+    // itself throw Stopping when LLApp starts broadcasting shutdown events.
     suspendUntilEventOnWithTimeout(bogus, seconds, timedout);
 }
 
@@ -167,33 +167,26 @@ postAndSuspendSetup(const std::string& callerName,
     // "LLApp" were an LLEventMailDrop. But if we ever go there, we'd want to
     // notice the pending LLApp status first.
     LLBoundListener stopper(
-        LLEventPumps::instance().obtain("LLApp").listen(
+        LLCoros::getStopListener(
             listenerName,
+            LLCoros::instance().getName(),
             [&promise, listenerName](const LLSD& status)
             {
-                // anything except "running" should wake up the waiting
-                // coroutine
-                auto& statsd = status["status"];
-                if (statsd.asString() != "running")
+                LL_DEBUGS("lleventcoro") << listenerName
+                                         << " spotted status " << status
+                                         << ", throwing Stopping" << LL_ENDL;
+                try
                 {
-                    LL_DEBUGS("lleventcoro") << listenerName
-                                             << " spotted status " << statsd
-                                             << ", throwing Stopping" << LL_ENDL;
-                    try
-                    {
-                        promise.set_exception(
-                            std::make_exception_ptr(
-                                LLCoros::Stopping("status " + statsd.asString())));
-                    }
-                    catch (const boost::fibers::promise_already_satisfied&)
-                    {
-                        LL_WARNS("lleventcoro") << listenerName
-                                                << " couldn't throw Stopping "
-                                                   "because promise already set" << LL_ENDL;
-                    }
+                    promise.set_exception(
+                        std::make_exception_ptr(
+                            LLCoros::Stopping("status " + stringize(status))));
                 }
-                // do not consume -- every listener must see status
-                return false;
+                catch (const boost::fibers::promise_already_satisfied&)
+                {
+                    LL_WARNS("lleventcoro") << listenerName
+                                            << " couldn't throw Stopping "
+                        "because promise already set" << LL_ENDL;
+                }
             }));
     LLBoundListener connection(
         replyPump.listen(

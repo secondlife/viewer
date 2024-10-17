@@ -46,6 +46,7 @@
 #include "llfocusmgr.h"
 #include "llcoord.h"
 #include "llwindow.h"
+#include "llemojihelper.h"
 #include "llcriticaldamp.h"
 #include "lluictrlfactory.h"
 
@@ -1411,6 +1412,7 @@ void LLMenuItemBranchDownGL::openMenu( void )
     }
     else
     {
+        LLEmojiHelper::instance().hideHelper(nullptr, true);
         if (branch->getTornOff())
         {
             LLFloater * branch_parent = dynamic_cast<LLFloater *>(branch->getParent());
@@ -2625,7 +2627,9 @@ void LLMenuGL::insert( S32 position, LLView * ctrl, bool arrange /*= true*/ )
 {
     LLMenuItemGL * item = dynamic_cast<LLMenuItemGL *>(ctrl);
 
-    if (NULL == item || position < 0 || position >= mItems.size())
+    // If position == size(), std::advance() will return end() -- which is
+    // okay, because insert(end()) is the same as append().
+    if (NULL == item || position < 0 || position > mItems.size())
     {
         return;
     }

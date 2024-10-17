@@ -178,6 +178,8 @@ void setMarkedText(unsigned short *text, unsigned int *selectedRange, unsigned i
 void getPreeditLocation(float *location, unsigned int length);
 void allowDirectMarkedTextInput(bool allow, GLViewRef glView);
 
+void openFolderWithFinder(const char *folder_path);
+
 NSWindowRef getMainAppWindow();
 GLViewRef getGLView();
 

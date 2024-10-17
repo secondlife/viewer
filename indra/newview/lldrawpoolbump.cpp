@@ -300,13 +300,6 @@ void LLDrawPoolBump::beginFullbrightShiny()
         shader = shader->mRiggedVariant;
     }
 
-    // bind exposure map so fullbright shader can cancel out exposure
-    S32 channel = shader->enableTexture(LLShaderMgr::EXPOSURE_MAP);
-    if (channel > -1)
-    {
-        gGL.getTexUnit(channel)->bind(&gPipeline.mExposureMap);
-    }
-
     LLCubeMap* cube_map = gSky.mVOSkyp ? gSky.mVOSkyp->getCubeMap() : NULL;
 
     if (cube_map && !LLPipeline::sReflectionProbesEnabled)
@@ -558,8 +551,9 @@ void LLDrawPoolBump::renderDeferred(S32 pass)
         LLCullResult::drawinfo_iterator begin = gPipeline.beginRenderMap(type);
         LLCullResult::drawinfo_iterator end = gPipeline.endRenderMap(type);
 
-        LLVOAvatar* avatar = nullptr;
-        U64 skin = 0;
+        const LLVOAvatar* lastAvatar = nullptr;
+        U64 lastMeshId = 0;
+        bool skipLastSkin = false;
 
         for (LLCullResult::drawinfo_iterator i = begin; i != end; )
         {
@@ -572,13 +566,10 @@ void LLDrawPoolBump::renderDeferred(S32 pass)
 
             if (rigged)
             {
-                if (avatar != params.mAvatar || skin != params.mSkinInfo->mHash)
+                if (uploadMatrixPalette(params.mAvatar, params.mSkinInfo, lastAvatar, lastMeshId, skipLastSkin))
                 {
-                    uploadMatrixPalette(params);
-                    avatar = params.mAvatar;
-                    skin = params.mSkinInfo->mHash;
+                    pushBumpBatch(params, true, false);
                 }
-                pushBumpBatch(params, true, false);
             }
             else
             {
@@ -974,8 +965,9 @@ void LLBumpImageList::onSourceUpdated(LLViewerTexture* src, EBumpEffect bump_cod
 
 void LLDrawPoolBump::pushBumpBatches(U32 type)
 {
-    LLVOAvatar* avatar = nullptr;
-    U64 skin = 0;
+    const LLVOAvatar* lastAvatar = nullptr;
+    U64 lastMeshId = 0;
+    bool skipLastSkin = false;
 
     if (mRigged)
     { // nudge type enum and include skinweights for rigged pass
@@ -993,17 +985,9 @@ void LLDrawPoolBump::pushBumpBatches(U32 type)
         {
             if (mRigged)
             {
-                if (avatar != params.mAvatar || skin != params.mSkinInfo->mHash)
+                if (!uploadMatrixPalette(params.mAvatar, params.mSkinInfo, lastAvatar, lastMeshId, skipLastSkin))
                 {
-                    if (uploadMatrixPalette(params))
-                    {
-                        avatar = params.mAvatar;
-                        skin = params.mSkinInfo->mHash;
-                    }
-                    else
-                    {
-                        continue;
-                    }
+                    continue;
                 }
             }
             pushBumpBatch(params, false);

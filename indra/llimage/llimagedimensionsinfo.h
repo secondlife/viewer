@@ -38,7 +38,7 @@ class LLImageDimensionsInfo
 {
 public:
     LLImageDimensionsInfo():
-        mData(NULL)
+        mData(nullptr)
         ,mHeight(0)
         ,mWidth(0)
     {}
@@ -67,7 +67,7 @@ protected:
     {
         mInfile.close();
         delete[] mData;
-        mData = NULL;
+        mData = nullptr;
         mWidth = 0;
         mHeight = 0;
     }

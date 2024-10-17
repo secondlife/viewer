@@ -120,8 +120,8 @@ const F32 MIN_FIDGET_TIME = 8.f; // seconds
 const F32 MAX_FIDGET_TIME = 20.f; // seconds
 
 const S32 UI_FEATURE_VERSION = 1;
-// For version 1: 1 - inventory, 2 - gltf
-const S32 UI_FEATURE_FLAGS = 3;
+// For version 1, flag holds: 1 - inventory thumbnails, 2 - gltf, 4 - inventory favorites
+const S32 UI_FEATURE_FLAGS = 7;
 
 // The agent instance.
 LLAgent gAgent;
@@ -221,7 +221,6 @@ protected:
 private:
     LLVector3d mPosGlobal;
 };
-
 
 class LLTeleportRequestViaLocationLookAt : public LLTeleportRequestViaLocation
 {
@@ -425,8 +424,6 @@ LLAgent::LLAgent() :
     mIsDoNotDisturb(false),
 
     mControlFlags(0x00000000),
-    mbFlagsDirty(false),
-    mbFlagsNeedReset(false),
 
     mAutoPilot(false),
     mAutoPilotFlyOnStop(false),
@@ -605,7 +602,7 @@ void LLAgent::getFeatureVersionAndFlags(S32& version, S32& flags)
     if (feature_version.isInteger())
     {
         version = feature_version.asInteger();
-        flags = 1; // inventory flag
+        flags = 3; // show 'favorites' notification
     }
     else if (feature_version.isMap())
     {
@@ -631,13 +628,8 @@ void LLAgent::showLatestFeatureNotification(const std::string key)
 
         if (key == "inventory")
         {
-            // Notify user about new thumbnail support
-            flag = 1;
-        }
-
-        if (key == "gltf")
-        {
-            flag = 2;
+            // Notify user about new favorites support
+            flag = 4;
         }
 
         if ((flags & flag) == 0)
@@ -844,7 +836,6 @@ void LLAgent::movePitch(F32 mag)
     }
 }
 
-
 // Does this parcel allow you to fly?
 bool LLAgent::canFly()
 {
@@ -922,10 +913,7 @@ void LLAgent::setFlying(bool fly, bool fail_sound)
 
     // Update Movement Controls according to Fly mode
     LLFloaterMove::setFlyingMode(fly);
-
-    mbFlagsDirty = true;
 }
-
 
 // UI based mechanism of setting fly state
 //-----------------------------------------------------------------------------
@@ -1005,7 +993,6 @@ void LLAgent::capabilityReceivedCallback(const LLUUID &region_id, LLViewerRegion
     }
 }
 
-
 //-----------------------------------------------------------------------------
 // setRegion()
 //-----------------------------------------------------------------------------
@@ -1054,7 +1041,6 @@ void LLAgent::setRegion(LLViewerRegion *regionp)
             {
                 regionp->setCapabilitiesReceivedCallback(LLAgent::capabilityReceivedCallback);
             }
-
         }
         else
         {
@@ -1112,7 +1098,6 @@ void LLAgent::setRegion(LLViewerRegion *regionp)
     mRegionChangedSignal();
 }
 
-
 //-----------------------------------------------------------------------------
 // getRegion()
 //-----------------------------------------------------------------------------
@@ -1120,7 +1105,6 @@ LLViewerRegion *LLAgent::getRegion() const
 {
     return mRegionp;
 }
-
 
 LLHost LLAgent::getRegionHost() const
 {
@@ -1152,7 +1136,6 @@ bool LLAgent::inPrelude()
     return mRegionp && mRegionp->isPrelude();
 }
 
-
 std::string LLAgent::getRegionCapability(const std::string &name)
 {
     if (!mRegionp)
@@ -1160,7 +1143,6 @@ std::string LLAgent::getRegionCapability(const std::string &name)
 
     return mRegionp->getCapability(name);
 }
-
 
 //-----------------------------------------------------------------------------
 // canManageEstate()
@@ -1188,7 +1170,6 @@ void LLAgent::sendMessage()
     }
     gMessageSystem->sendMessage(mRegionp->getHost());
 }
-
 
 //-----------------------------------------------------------------------------
 // sendReliableMessage()
@@ -1222,7 +1203,6 @@ LLVector3 LLAgent::getVelocity() const
         return LLVector3::zero;
     }
 }
-
 
 //-----------------------------------------------------------------------------
 // setPositionAgent()
@@ -1292,11 +1272,10 @@ const LLVector3 &LLAgent::getPositionAgent()
             mFrameAgent.setOrigin(gAgentAvatarp->getPositionAgent());
         }
         else
-    {
-        mFrameAgent.setOrigin(gAgentAvatarp->getRenderPosition());
+        {
+            mFrameAgent.setOrigin(gAgentAvatarp->getRenderPosition());
+        }
     }
-    }
-
 
     return mFrameAgent.getOrigin();
 }
@@ -1305,7 +1284,6 @@ boost::signals2::connection LLAgent::whenPositionChanged(position_signal_t::slot
 {
     return mOnPositionChanged.connect(fn);
 }
-
 
 //-----------------------------------------------------------------------------
 // getRegionsVisited()
@@ -1323,7 +1301,6 @@ F64 LLAgent::getDistanceTraveled() const
     return mDistanceTraveled;
 }
 
-
 //-----------------------------------------------------------------------------
 // getPosAgentFromGlobal()
 //-----------------------------------------------------------------------------
@@ -1333,7 +1310,6 @@ LLVector3 LLAgent::getPosAgentFromGlobal(const LLVector3d &pos_global) const
     pos_agent.setVec(pos_global - mAgentOriginGlobal);
     return pos_agent;
 }
-
 
 //-----------------------------------------------------------------------------
 // getPosGlobalFromAgent()
@@ -1350,7 +1326,6 @@ void LLAgent::sitDown()
     setControlFlags(AGENT_CONTROL_SIT_ON_GROUND);
 }
 
-
 //-----------------------------------------------------------------------------
 // resetAxes()
 //-----------------------------------------------------------------------------
@@ -1358,7 +1333,6 @@ void LLAgent::resetAxes()
 {
     mFrameAgent.resetAxes();
 }
-
 
 // Copied from LLCamera::setOriginAndLookAt
 // Look_at must be unit vector
@@ -1388,7 +1362,6 @@ void LLAgent::resetAxes(const LLVector3 &look_at)
     mFrameAgent.setAxes(look_at, left, up);
 }
 
-
 //-----------------------------------------------------------------------------
 // rotate()
 //-----------------------------------------------------------------------------
@@ -1396,7 +1369,6 @@ void LLAgent::rotate(F32 angle, const LLVector3 &axis)
 {
     mFrameAgent.rotate(angle, axis);
 }
-
 
 //-----------------------------------------------------------------------------
 // rotate()
@@ -1406,7 +1378,6 @@ void LLAgent::rotate(F32 angle, F32 x, F32 y, F32 z)
     mFrameAgent.rotate(angle, x, y, z);
 }
 
-
 //-----------------------------------------------------------------------------
 // rotate()
 //-----------------------------------------------------------------------------
@@ -1415,7 +1386,6 @@ void LLAgent::rotate(const LLMatrix3 &matrix)
     mFrameAgent.rotate(matrix);
 }
 
-
 //-----------------------------------------------------------------------------
 // rotate()
 //-----------------------------------------------------------------------------
@@ -1423,7 +1393,6 @@ void LLAgent::rotate(const LLQuaternion &quaternion)
 {
     mFrameAgent.rotate(quaternion);
 }
-
 
 //-----------------------------------------------------------------------------
 // getReferenceUpVector()
@@ -1453,50 +1422,70 @@ LLVector3 LLAgent::getReferenceUpVector()
     return up_vector;
 }
 
-
-// Radians, positive is forward into ground
+// Radians, positive is downward toward ground
 //-----------------------------------------------------------------------------
 // pitch()
 //-----------------------------------------------------------------------------
 void LLAgent::pitch(F32 angle)
 {
-    // don't let user pitch if pointed almost all the way down or up
-
-    // A dot B = mag(A) * mag(B) * cos(angle between A and B)
-    // so... cos(angle between A and B) = A dot B / mag(A) / mag(B)
-    //                                  = A dot B for unit vectors
-
-    LLVector3 skyward = getReferenceUpVector();
-
-    // clamp pitch to limits
-    if (angle >= 0.f)
+    if (gAgentCamera.getCameraMode() == CAMERA_MODE_THIRD_PERSON ||
+        gAgentCamera.getCameraMode() == CAMERA_MODE_MOUSELOOK)
     {
-        const F32 look_down_limit = 179.f * DEG_TO_RAD;
-        F32 angle_from_skyward = acos(mFrameAgent.getAtAxis() * skyward);
-        if (angle_from_skyward + angle > look_down_limit)
+        // Backup the current orientation
+        LLCoordFrame saved_frame_agent(mFrameAgent);
+
+        // Optimistic rotation up/down (vertical angle can reach and exceed 0 or 180)
+        mFrameAgent.pitch(angle);
+
+        // Cosine of the angle between current agent At and Up directions
+        F32 agent_at_to_up_now_cos = saved_frame_agent.mXAxis * gAgentCamera.getCameraUpVector();
+        bool pitch_away_from_horizont = (angle < 0) ^ (agent_at_to_up_now_cos < 0);
+        // We always allow to pitch in direction to horizont (from zenith or from nadir)
+        if (!pitch_away_from_horizont)
+            return;
+
+        // Current angle between agent At and Up directions
+        F32 agent_at_to_up_now = acos(agent_at_to_up_now_cos);
+        // Requested angle between agent At and Up directions
+        F32 agent_at_to_up_new = agent_at_to_up_now + angle;
+        F32 agent_at_to_up_new_sin = sin(agent_at_to_up_new);
+        // Overpitched? Then rollback
+        if (agent_at_to_up_new_sin < 1e-4)
         {
-            angle = look_down_limit - angle_from_skyward;
+            mFrameAgent = saved_frame_agent;
+            return;
+        }
+
+        if (gAgentCamera.getCameraMode() == CAMERA_MODE_THIRD_PERSON ||
+            (isAgentAvatarValid() && gAgentAvatarp->getParent()))
+        {
+            // Camera sight relative to agent frame (focus - offset)
+            LLVector3 camera_offset(gAgentCamera.getCameraOffsetInitial());
+            LLVector3 camera_focus(gAgentCamera.getFocusOffsetInitial());
+            LLVector3 camera_sight(camera_focus - camera_offset);
+            // 2D projection of the camera sight to the XZ plane
+            LLVector2 camera_sight_2d_vert(1, camera_sight[VZ]);
+            camera_sight_2d_vert.normalize();
+            // Cosine of the 2D angle between initial camera At and X axis (in the XZ plane)
+            F32 camera_sight_to_at_2d_vert_cos = camera_sight_2d_vert * LLVector2(LLVector3::x_axis);
+            F32 camera_sight_to_at_2d_vert = acos(camera_sight_to_at_2d_vert_cos);
+            // Requested angle between camera At and Up directions
+            F32 camera_at_to_up_new = agent_at_to_up_new - camera_sight_to_at_2d_vert;
+            F32 camera_at_to_up_new_sin = sin(camera_at_to_up_new);
+            // Overpitched? Then rollback
+            if (camera_at_to_up_new_sin < 1e-4)
+            {
+                mFrameAgent = saved_frame_agent;
+                return;
+            }
         }
     }
-    else if (angle < 0.f)
+    else
     {
-        const F32 look_up_limit = 5.f * DEG_TO_RAD;
-        const LLVector3& viewer_camera_pos = LLViewerCamera::getInstance()->getOrigin();
-        LLVector3 agent_focus_pos = getPosAgentFromGlobal(gAgentCamera.calcFocusPositionTargetGlobal());
-        LLVector3 look_dir = agent_focus_pos - viewer_camera_pos;
-        F32 angle_from_skyward = angle_between(look_dir, skyward);
-        if (angle_from_skyward + angle < look_up_limit)
-        {
-            angle = look_up_limit - angle_from_skyward;
-        }
-    }
-
-    if (fabs(angle) > 1e-4)
-    {
+        // No limitations in other modes
         mFrameAgent.pitch(angle);
     }
 }
-
 
 //-----------------------------------------------------------------------------
 // roll()
@@ -1505,7 +1494,6 @@ void LLAgent::roll(F32 angle)
 {
     mFrameAgent.roll(angle);
 }
-
 
 //-----------------------------------------------------------------------------
 // yaw()
@@ -1517,7 +1505,6 @@ void LLAgent::yaw(F32 angle)
         mFrameAgent.rotate(angle, getReferenceUpVector());
     }
 }
-
 
 // Returns a quat that represents the rotation of the agent in the absolute frame
 //-----------------------------------------------------------------------------
@@ -1542,37 +1529,14 @@ U32 LLAgent::getControlFlags()
 void LLAgent::setControlFlags(U32 mask)
 {
     mControlFlags |= mask;
-    mbFlagsDirty = true;
 }
-
 
 //-----------------------------------------------------------------------------
 // clearControlFlags()
 //-----------------------------------------------------------------------------
 void LLAgent::clearControlFlags(U32 mask)
 {
-    U32 old_flags = mControlFlags;
     mControlFlags &= ~mask;
-    if (old_flags != mControlFlags)
-    {
-        mbFlagsDirty = true;
-    }
-}
-
-//-----------------------------------------------------------------------------
-// controlFlagsDirty()
-//-----------------------------------------------------------------------------
-bool LLAgent::controlFlagsDirty() const
-{
-    return mbFlagsDirty;
-}
-
-//-----------------------------------------------------------------------------
-// enableControlFlagReset()
-//-----------------------------------------------------------------------------
-void LLAgent::enableControlFlagReset()
-{
-    mbFlagsNeedReset = true;
 }
 
 //-----------------------------------------------------------------------------
@@ -1580,14 +1544,9 @@ void LLAgent::enableControlFlagReset()
 //-----------------------------------------------------------------------------
 void LLAgent::resetControlFlags()
 {
-    if (mbFlagsNeedReset)
-    {
-        mbFlagsNeedReset = false;
-        mbFlagsDirty = false;
-        // reset all of the ephemeral flags
-        // some flags are managed elsewhere
-        mControlFlags &= AGENT_CONTROL_AWAY | AGENT_CONTROL_FLY | AGENT_CONTROL_MOUSELOOK;
-    }
+    // reset all of the ephemeral flags
+    // some flags are managed elsewhere
+    mControlFlags &= AGENT_CONTROL_AWAY | AGENT_CONTROL_FLY | AGENT_CONTROL_MOUSELOOK;
 }
 
 //-----------------------------------------------------------------------------
@@ -1658,7 +1617,6 @@ bool LLAgent::isDoNotDisturb() const
 {
     return mIsDoNotDisturb;
 }
-
 
 //-----------------------------------------------------------------------------
 // startAutoPilotGlobal()
@@ -1765,7 +1723,6 @@ void LLAgent::startAutoPilotGlobal(
     mAutoPilotNoProgressFrameCount = 0;
 }
 
-
 //-----------------------------------------------------------------------------
 // setAutoPilotTargetGlobal
 //-----------------------------------------------------------------------------
@@ -1819,7 +1776,6 @@ void LLAgent::startFollowPilot(const LLUUID &leader_id, bool allow_flying, F32 s
                          allow_flying);
 }
 
-
 //-----------------------------------------------------------------------------
 // stopAutoPilot()
 //-----------------------------------------------------------------------------
@@ -1860,7 +1816,6 @@ void LLAgent::stopAutoPilot(bool user_cancel)
         }
     }
 }
-
 
 // Returns necessary agent pitch and yaw changes, radians.
 //-----------------------------------------------------------------------------
@@ -2050,7 +2005,6 @@ void LLAgent::autoPilot(F32 *delta_yaw)
     }
 }
 
-
 //-----------------------------------------------------------------------------
 // propagate()
 //-----------------------------------------------------------------------------
@@ -2071,11 +2025,20 @@ void LLAgent::propagate(const F32 dt)
     }
 
     // handle rotation based on keyboard levels
-    const F32 YAW_RATE = 90.f * DEG_TO_RAD;             // radians per second
-    yaw(YAW_RATE * gAgentCamera.getYawKey() * dt);
+    if (fabs(dt) > 1e-6)
+    {
+        if (fabs(gAgentCamera.getYawKey()) > 1e-6)
+        {
+            static const F32 YAW_RATE = 90.f * DEG_TO_RAD;   // radians per second
+            yaw(YAW_RATE * gAgentCamera.getYawKey() * dt);
+        }
 
-    const F32 PITCH_RATE = 90.f * DEG_TO_RAD;           // radians per second
-    pitch(PITCH_RATE * gAgentCamera.getPitchKey() * dt);
+        if (fabs(gAgentCamera.getPitchKey()) > 1e-6)
+        {
+            static const F32 PITCH_RATE = 90.f * DEG_TO_RAD; // radians per second
+            pitch(PITCH_RATE * gAgentCamera.getPitchKey() * dt);
+        }
+    }
 
     // handle auto-land behavior
     if (isAgentAvatarValid())
@@ -2236,7 +2199,6 @@ void LLAgent::clearRenderState(U8 clearstate)
     mRenderState &= ~clearstate;
 }
 
-
 //-----------------------------------------------------------------------------
 // getRenderState()
 //-----------------------------------------------------------------------------
@@ -2278,6 +2240,7 @@ void LLAgent::endAnimationUpdateUI()
     {
         return;
     }
+
     if (gAgentCamera.getCameraMode() == gAgentCamera.getLastCameraMode())
     {
         // We're already done endAnimationUpdateUI for this transition.
@@ -2343,9 +2306,8 @@ void LLAgent::endAnimationUpdateUI()
             mViewsPushed = false;
         }
 
-
         gAgentCamera.setLookAt(LOOKAT_TARGET_CLEAR);
-        if( gMorphView )
+        if (gMorphView)
         {
             gMorphView->setVisible( false );
         }
@@ -2353,7 +2315,7 @@ void LLAgent::endAnimationUpdateUI()
         // Disable mouselook-specific animations
         if (isAgentAvatarValid())
         {
-            if( gAgentAvatarp->isAnyAnimationSignaled(AGENT_GUN_AIM_ANIMS, NUM_AGENT_GUN_AIM_ANIMS) )
+            if (gAgentAvatarp->isAnyAnimationSignaled(AGENT_GUN_AIM_ANIMS, NUM_AGENT_GUN_AIM_ANIMS))
             {
                 if (gAgentAvatarp->mSignaledAnimations.find(ANIM_AGENT_AIM_RIFLE_R) != gAgentAvatarp->mSignaledAnimations.end())
                 {
@@ -2972,7 +2934,6 @@ void LLAgent::sendMaturityPreferenceToServer(U8 pPreferredMaturity)
     }
 }
 
-
 void LLAgent::processMaturityPreferenceFromServer(const LLSD &result, U8 perferredMaturity)
 {
     U8 maturity = SIM_ACCESS_MIN;
@@ -3041,7 +3002,6 @@ void LLAgent::changeInterestListMode(const std::string &new_mode)
         LL_DEBUGS("360Capture") << "Agent interest list mode is already set to " << mInterestListMode << LL_ENDL;
     }
 }
-
 
 bool LLAgent::requestPostCapability(const std::string &capName, LLSD &postData, httpCallback_t cbSuccess, httpCallback_t cbFailure)
 {
@@ -3368,7 +3328,6 @@ void LLAgent::sendAnimationStateReset()
     msg->addBinaryDataFast(_PREHASH_TypeData, NULL, 0);
     sendReliableMessage();
 }
-
 
 // Send a message to the region to revoke sepecified permissions on ALL scripts in the region
 // If the target is an object in the region, permissions in scripts on that object are cleared.
@@ -4299,7 +4258,6 @@ void LLAgent::onCapabilitiesReceivedAfterTeleport()
     check_merchant_status();
 }
 
-
 void LLAgent::teleportRequest(
     const U64& region_handle,
     const LLVector3& pos_local,
@@ -4398,7 +4356,6 @@ void LLAgent::doTeleportViaLure(const LLUUID& lure_id, bool godlike)
         sendReliableMessage();
     }
 }
-
 
 // James Cook, July 28, 2005
 void LLAgent::teleportCancel()
@@ -4524,7 +4481,6 @@ LLAgent::ETeleportState LLAgent::getTeleportState() const
         TELEPORT_NONE : mTeleportState;
 }
 
-
 void LLAgent::setTeleportState(ETeleportState state)
 {
     if (mTeleportRequest && (state != TELEPORT_NONE) && (mTeleportRequest->getStatus() == LLTeleportRequest::kFailed))
@@ -4568,7 +4524,6 @@ void LLAgent::setTeleportState(ETeleportState state)
             break;
     }
 }
-
 
 void LLAgent::stopCurrentAnimations()
 {
@@ -4683,7 +4638,6 @@ void LLAgent::stopFidget()
 
     gAgent.sendAnimationRequests(anims, ANIM_REQUEST_STOP);
 }
-
 
 void LLAgent::requestEnterGodMode()
 {
@@ -4804,7 +4758,6 @@ void LLAgent::sendAgentUpdateUserInfo(const std::string& directory_visibility)
         sendAgentUpdateUserInfoMessage(directory_visibility);
     }
 }
-
 
 void LLAgent::updateAgentUserInfoCoro(std::string capurl, std::string directory_visibility)
 {
@@ -4994,6 +4947,218 @@ void LLAgent::renderAutoPilotTarget()
 
         gGL.popMatrix();
     }
+}
+
+static U64 g_lastUpdateTime { 0 };
+static F32 g_deltaTime { 0.0f };
+static S32 g_lastUpdateFrame { 0 };
+static S32 g_deltaFrame { 0 };
+
+void LLAgent::applyExternalActionFlags(U32 outer_flags)
+{
+    llassert(LLCoros::on_main_thread_main_coro());
+    assert(LLGameControl::isEnabled() && LLGameControl::willControlAvatar());
+    mExternalActionFlags = outer_flags;
+
+    // HACK: AGENT_CONTROL_NUDGE_AT_NEG is used to toggle Flycam
+    if ((mExternalActionFlags & AGENT_CONTROL_NUDGE_AT_NEG) > 0)
+    {
+        if (mToggleFlycam)
+        {
+            mUsingFlycam = !mUsingFlycam;
+            if (mUsingFlycam)
+            {
+                // copy main camera transform to flycam
+                LLViewerCamera* camera = LLViewerCamera::getInstance();
+                mFlycam.setTransform(camera->getOrigin(), camera->getQuaternion());
+                mFlycam.setView(camera->getView());
+                mLastFlycamUpdate = LLFrameTimer::getTotalTime();
+            }
+        }
+        mToggleFlycam = false;
+    }
+    else
+    {
+        mToggleFlycam = true;
+    }
+
+    // measure delta time and frame
+    // Note: it is possible for the deltas to be very large
+    // and it is the duty of the code that uses them to clamp as necessary
+    U64 now = LLFrameTimer::getTotalTime();
+    g_deltaTime = F32(now - g_lastUpdateTime) / (F32)(USEC_PER_SEC);
+    g_lastUpdateTime = now;
+
+    S32 frame_count = LLFrameTimer::getFrameCount();
+    g_deltaFrame = frame_count - g_lastUpdateFrame;
+    g_lastUpdateFrame = frame_count;
+
+    if (mUsingFlycam)
+    {
+        // Flycam will be updated later by exernal context
+        return;
+    }
+
+    S32 direction = (S32)(mExternalActionFlags & AGENT_CONTROL_AT_POS)
+        - (S32)((mExternalActionFlags & AGENT_CONTROL_AT_NEG) >> 1);
+    if (direction != 0)
+    {
+        moveAt(direction);
+    }
+
+    static U32 last_non_fly_frame = 0;
+    static U64 last_non_fly_time = 0;
+    direction = (S32)(mExternalActionFlags & AGENT_CONTROL_UP_POS)
+        - (S32)((mExternalActionFlags & AGENT_CONTROL_UP_NEG) >> 1);
+    if (direction != 0)
+    {
+        // HACK: this auto-fly logic based on original code still extant in llviewerinput.cpp::agent_jump()
+        // but has been cleaned up.
+        // TODO?: DRY this logic
+        if (direction > 0)
+        {
+            if (!getFlying()
+                && !upGrabbed()
+                && gSavedSettings.getBOOL("AutomaticFly"))
+            {
+                constexpr F32 FLY_TIME = 0.5f;
+                constexpr U32 FLY_FRAMES = 4;
+                F32 delta_time = (F32)(now - last_non_fly_time) / (F32)(USEC_PER_SEC);
+                U32 delta_frames = frame_count - last_non_fly_frame;
+                if( delta_time > FLY_TIME
+                    && delta_frames > FLY_FRAMES)
+                {
+                    setFlying(true);
+                }
+            }
+        }
+        else
+        {
+            last_non_fly_frame = frame_count;
+            last_non_fly_time = now;
+        }
+
+        moveUp(direction);
+    }
+    else if (!getFlying())
+    {
+        last_non_fly_frame = frame_count;
+        last_non_fly_time = now;
+    }
+
+    direction = (S32)(mExternalActionFlags & AGENT_CONTROL_LEFT_POS)
+        - (S32)((mExternalActionFlags & AGENT_CONTROL_LEFT_NEG) >> 1);
+    if (direction != 0)
+    {
+        moveLeft(direction);
+    }
+
+    direction = (S32)(mExternalActionFlags & AGENT_CONTROL_YAW_POS)
+        - (S32)((mExternalActionFlags & AGENT_CONTROL_YAW_NEG) >> 1);
+    if (direction != 0)
+    {
+        F32 sign = (direction < 0 ? -1.0f : 1.0f);
+        // HACK: hard-code 3.0 seconds for YawRate measure.  It is simpler,
+        // and the missing variable yaw rate is unnoticeable.
+        moveYaw(sign * LLFloaterMove::getYawRate(3.0f));
+    }
+
+    {
+        F32 pitch = ((mExternalActionFlags & AGENT_CONTROL_PITCH_POS) > 0 ? 1.0f : 0.0f)
+            - ((mExternalActionFlags & AGENT_CONTROL_PITCH_NEG) > 0 ? 1.0f : 0.0f);
+        movePitch(pitch);
+    }
+
+    if ((mExternalActionFlags & AGENT_CONTROL_FLY) > 0)
+    {
+        if (mToggleFly)
+        {
+            setFlying(!getFlying());
+        }
+        mToggleFly = false;
+    }
+    else
+    {
+        mToggleFly = true;
+    }
+
+    if (mExternalActionFlags & AGENT_CONTROL_STOP)
+    {
+        setControlFlags(AGENT_CONTROL_STOP);
+    }
+
+    // HACK: AGENT_CONTROL_NUDGE_AT_POS is used to toggle running
+    if ((mExternalActionFlags & AGENT_CONTROL_NUDGE_AT_POS) > 0)
+    {
+        if (mToggleRun)
+        {
+            if (getRunning())
+            {
+                clearRunning();
+                sendWalkRun(false);
+            }
+            else
+            {
+                setRunning();
+                sendWalkRun(true);
+            }
+        }
+        mToggleRun = false;
+    }
+    else
+    {
+        mToggleRun = true;
+    }
+}
+
+void LLAgent::pressGameControlButton(U8 button_index)
+{
+    mGameControlButtonsFromKeys |= (1U << button_index);
+}
+
+void LLAgent::releaseGameControlButton(U8 button_index)
+{
+    mGameControlButtonsFromKeys &= !(1U << button_index);
+}
+
+void LLAgent::updateFlycam()
+{
+    // Note: flycam_inputs arrive in range [-1,1]
+    std::vector<F32> flycam_inputs;
+    LLGameControl::getFlycamInputs(flycam_inputs);
+
+    // Note: no matter how flycam_inputs are mapped to the controller
+    // they arrive in the following order:
+    constexpr S32 FLYCAM_ADVANCE = 0;
+    constexpr S32 FLYCAM_PAN     = 1;
+    constexpr S32 FLYCAM_RISE    = 2;
+    constexpr S32 FLYCAM_PITCH   = 3;
+    constexpr S32 FLYCAM_YAW     = 4;
+    constexpr S32 FLYCAM_ZOOM    = 5;
+
+    LLVector3 linear_velocity(
+            flycam_inputs[FLYCAM_ADVANCE],
+            flycam_inputs[FLYCAM_PAN],
+            flycam_inputs[FLYCAM_RISE]);
+    constexpr F32 MAX_FLYCAM_SPEED = 10.0f;
+    mFlycam.setLinearVelocity(MAX_FLYCAM_SPEED * linear_velocity);
+
+    mFlycam.setPitchRate(flycam_inputs[FLYCAM_PITCH]);
+    mFlycam.setYawRate(flycam_inputs[FLYCAM_YAW]);
+    mFlycam.setZoomRate(flycam_inputs[FLYCAM_ZOOM]);
+
+    mFlycam.integrate(g_deltaTime);
+
+    LLVector3 pos;
+    LLQuaternion rot;
+    mFlycam.getTransform(pos, rot);
+    LLMatrix3 mat(rot);
+    LLViewerCamera::getInstance()->setOrigin(pos);
+    LLViewerCamera::getInstance()->mXAxis = LLVector3(mat.mMatrix[0]);
+    LLViewerCamera::getInstance()->mYAxis = LLVector3(mat.mMatrix[1]);
+    LLViewerCamera::getInstance()->mZAxis = LLVector3(mat.mMatrix[2]);
+
+    LLViewerCamera::getInstance()->setView(mFlycam.getView());
 }
 
 /********************************************************************************/

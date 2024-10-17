@@ -112,8 +112,8 @@ public:
     virtual bool overlapsScreenChannel() { return mOverlapsScreenChannel && getVisible() && isDocked(); }
     virtual void setOverlapsScreenChannel(bool overlaps) { mOverlapsScreenChannel = overlaps; }
 
-    bool getUniqueDocking() { return mUniqueDocking;    }
-    bool getUseTongue() { return mUseTongue; }
+    bool getUniqueDocking() const { return mUniqueDocking;    }
+    bool getUseTongue() const { return mUseTongue; }
 
     void setUseTongue(bool use_tongue) { mUseTongue = use_tongue;}
 private:

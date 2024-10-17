@@ -49,6 +49,7 @@ public:
 
     void onCommitSettings();
     void onClickDefault();
+    void onClickCopy();
 
     bool matchesSearchFilter(std::string setting_name);
     bool isSettingHidden(LLControlVariable* control);
@@ -77,7 +78,9 @@ protected:
     LLUICtrl*           mBooleanCombo = nullptr;
     LLUICtrl*           mValText = nullptr;
     LLUICtrl*           mDefaultButton = nullptr;
+    LLTextEditor*       mLLSDVal = nullptr;
     LLTextBox*          mSettingNameText = nullptr;
+    LLButton*           mCopyBtn = nullptr;
 
     LLColorSwatchCtrl* mColorSwatch = nullptr;
 

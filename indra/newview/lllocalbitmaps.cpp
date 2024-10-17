@@ -673,7 +673,7 @@ void LLLocalBitmap::updateGLTFMaterials(LLUUID old_id, LLUUID new_id)
                     LLFetchedGLTFMaterial* render_mat = dynamic_cast<LLFetchedGLTFMaterial*>(entry->getGLTFRenderMaterial());
                     if (render_mat)
                     {
-                            *render_mat = *fetched_mat;
+                        *render_mat = *fetched_mat;
                         render_mat->applyOverride(*override_mat);
                     }
                     else
@@ -996,17 +996,12 @@ LLLocalBitmapTimer::~LLLocalBitmapTimer()
 
 void LLLocalBitmapTimer::startTimer()
 {
-    mEventTimer.start();
+    start();
 }
 
 void LLLocalBitmapTimer::stopTimer()
 {
-    mEventTimer.stop();
-}
-
-bool LLLocalBitmapTimer::isRunning()
-{
-    return mEventTimer.getStarted();
+    stop();
 }
 
 bool LLLocalBitmapTimer::tick()

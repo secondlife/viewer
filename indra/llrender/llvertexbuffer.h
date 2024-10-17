@@ -38,6 +38,7 @@
 #include <set>
 #include <vector>
 #include <list>
+#include <glm/gtc/matrix_transform.hpp>
 
 #define LL_MAX_VERTEX_ATTRIB_LOCATION 64
 
@@ -53,6 +54,41 @@
 //============================================================================
 // base class
 class LLPrivateMemoryPool;
+class LLVertexBuffer;
+
+class LLVertexBufferData
+{
+public:
+    LLVertexBufferData()
+        : mVB(nullptr)
+        , mMode(0)
+        , mCount(0)
+        , mTexName(0)
+        , mProjection(glm::identity<glm::mat4>())
+        , mModelView(glm::identity<glm::mat4>())
+        , mTexture0(glm::identity<glm::mat4>())
+    {}
+    LLVertexBufferData(LLVertexBuffer* buffer, U8 mode, U32 count, U32 tex_name, const glm::mat4& model_view, const glm::mat4& projection, const glm::mat4& texture0)
+        : mVB(buffer)
+        , mMode(mode)
+        , mCount(count)
+        , mTexName(tex_name)
+        , mProjection(model_view)
+        , mModelView(projection)
+        , mTexture0(texture0)
+    {}
+    void drawWithMatrix();
+    void draw();
+    LLPointer<LLVertexBuffer> mVB;
+    U8 mMode;
+    U32 mCount;
+    U32 mTexName;
+    glm::mat4 mProjection;
+    glm::mat4 mModelView;
+    glm::mat4 mTexture0;
+};
+typedef std::list<LLVertexBufferData> buffer_data_list_t;
+
 class LLVertexBuffer final : public LLRefCount
 {
 public:
@@ -88,6 +124,9 @@ public:
     //fill offsets with the offset of each vertex component array into the buffer
     // indexed by the following enum
     static U32 calcOffsets(const U32& typemask, U32* offsets, U32 num_vertices);
+
+    // flush any pending mapped buffers
+    static void flushBuffers();
 
     //WARNING -- when updating these enums you MUST
     // 1 - update LLVertexBuffer::sTypeSize
@@ -159,6 +198,8 @@ public:
     // map for data access (see also getFooStrider below)
     U8*     mapVertexBuffer(AttributeType type, U32 index, S32 count = -1);
     U8*     mapIndexBuffer(U32 index, S32 count = -1);
+
+    // synonym for flushBuffers
     void    unmapBuffer();
 
     // set for rendering
@@ -280,6 +321,13 @@ private:
     {}
 
     bool    allocateBuffer(S32 nverts, S32 nindices, bool create) { return allocateBuffer(nverts, nindices); }
+
+    // actually unmap buffer
+    void _unmapBuffer();
+
+    // add to set of mapped buffers
+    void _mapBuffer();
+    bool mMapped = false;
 
 public:
 

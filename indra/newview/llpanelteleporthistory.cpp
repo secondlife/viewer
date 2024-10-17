@@ -42,6 +42,7 @@
 #include "llnotificationsutil.h"
 #include "lltextbox.h"
 #include "lltoggleablemenu.h"
+#include "llviewercontrol.h"
 #include "llviewermenu.h"
 #include "lllandmarkactions.h"
 #include "llclipboard.h"
@@ -215,8 +216,18 @@ std::string LLTeleportHistoryFlatItem::getTimestamp()
     // Only show timestamp for today and yesterday
     if(time_diff < seconds_today + seconds_in_day)
     {
-        timestamp = "[" + LLTrans::getString("TimeHour12")+"]:["
-                        + LLTrans::getString("TimeMin")+"] ["+ LLTrans::getString("TimeAMPM")+"]";
+        static bool use_24h = gSavedSettings.getBOOL("Use24HourClock");
+        if (use_24h)
+        {
+            timestamp = "[" + LLTrans::getString("TimeHour") + "]:["
+                + LLTrans::getString("TimeMin") + "]";
+        }
+        else
+        {
+            timestamp = "[" + LLTrans::getString("TimeHour12") + "]:["
+                + LLTrans::getString("TimeMin") + "] [" + LLTrans::getString("TimeAMPM") + "]";
+        }
+
         LLSD substitution;
         substitution["datetime"] = (S32) date.secondsSinceEpoch();
         LLStringUtil::format(timestamp, substitution);
@@ -402,7 +413,7 @@ LLTeleportHistoryPanel::~LLTeleportHistoryPanel()
 
 bool LLTeleportHistoryPanel::postBuild()
 {
-    mCommitCallbackRegistrar.add("TeleportHistory.GearMenu.Action", boost::bind(&LLTeleportHistoryPanel::onGearMenuAction, this, _2));
+    mCommitCallbackRegistrar.add("TeleportHistory.GearMenu.Action", { boost::bind(&LLTeleportHistoryPanel::onGearMenuAction, this, _2), cb_info::UNTRUSTED_THROTTLE });
     mEnableCallbackRegistrar.add("TeleportHistory.GearMenu.Enable", boost::bind(&LLTeleportHistoryPanel::isActionEnabled, this, _2));
 
     // init menus before list, since menus are passed to list
@@ -939,10 +950,9 @@ void LLTeleportHistoryPanel::onAccordionTabRightClick(LLView *view, S32 x, S32 y
 
     // set up the callbacks for all of the avatar menu items
     // (N.B. callbacks don't take const refs as mID is local scope)
-    LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
-
-    registrar.add("TeleportHistory.TabOpen",    boost::bind(&LLTeleportHistoryPanel::onAccordionTabOpen, this, tab));
-    registrar.add("TeleportHistory.TabClose",   boost::bind(&LLTeleportHistoryPanel::onAccordionTabClose, this, tab));
+    ScopedRegistrarHelper registrar;
+    registrar.add("TeleportHistory.TabOpen", boost::bind(&LLTeleportHistoryPanel::onAccordionTabOpen, this, tab));
+    registrar.add("TeleportHistory.TabClose", boost::bind(&LLTeleportHistoryPanel::onAccordionTabClose, this, tab));
 
     // create the context menu from the XUI
     llassert(LLMenuGL::sMenuContainer != NULL);

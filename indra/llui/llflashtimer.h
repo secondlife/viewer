@@ -46,13 +46,13 @@ public:
     LLFlashTimer(callback_t cb = NULL, S32 count = 0, F32 period = 0.0);
     ~LLFlashTimer() {};
 
-    /*virtual*/ bool tick();
+    bool tick() override;
 
     void startFlashing();
     void stopFlashing();
 
-    bool isFlashingInProgress();
-    bool isCurrentlyHighlighted();
+    bool isFlashingInProgress() const;
+    bool isCurrentlyHighlighted() const;
     /*
      * Use this instead of deleting this object.
      * The next call to tick() will return true and that will destroy this object.

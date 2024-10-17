@@ -51,7 +51,7 @@ class LLSessionTimeoutTimer : public LLEventTimer
 public:
     LLSessionTimeoutTimer(const LLUUID& session_id, F32 period) : LLEventTimer(period), mSessionId(session_id) {}
     virtual ~LLSessionTimeoutTimer() {};
-    /* virtual */ bool tick();
+    bool tick() override;
 
 private:
     LLUUID mSessionId;

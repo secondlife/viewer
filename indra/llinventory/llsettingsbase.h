@@ -109,72 +109,59 @@ public:
     virtual bool isDirty() const { return mDirty; }
     virtual bool isVeryDirty() const { return mReplaced; }
     inline void setDirtyFlag(bool dirty) { mDirty = dirty; clearAssetId(); }
+    inline void setReplaced() { mReplaced = true; }
 
-    size_t getHash() const; // Hash will not include Name, ID or a previously stored Hash
+    size_t getHash(); // Hash will not include Name, ID or a previously stored Hash
 
     inline LLUUID getId() const
     {
-        return getValue(SETTING_ID).asUUID();
+        return mSettingId;
     }
 
     inline std::string getName() const
     {
-        return getValue(SETTING_NAME).asString();
+        return mSettingName;
     }
 
     inline void setName(std::string val)
     {
-        setValue(SETTING_NAME, val);
+        mSettingName = val;
+        setDirtyFlag(true);
+        setLLSDDirty();
     }
 
     inline LLUUID getAssetId() const
     {
-        if (mSettings.has(SETTING_ASSETID))
-            return mSettings[SETTING_ASSETID].asUUID();
-        return LLUUID();
+        return mAssetId;
     }
 
     inline U32 getFlags() const
     {
-        if (mSettings.has(SETTING_FLAGS))
-            return static_cast<U32>(mSettings[SETTING_FLAGS].asInteger());
-        return 0;
+        return mSettingFlags;
     }
 
     inline void setFlags(U32 value)
     {
-        setLLSD(SETTING_FLAGS, LLSD::Integer(value));
+        mSettingFlags = value;
+        setDirtyFlag(true);
+        setLLSDDirty();
     }
 
     inline bool getFlag(U32 flag) const
     {
-        if (mSettings.has(SETTING_FLAGS))
-            return ((U32)mSettings[SETTING_FLAGS].asInteger() & flag) == flag;
-        return false;
+        return (mSettingFlags & flag) == flag;
     }
 
     inline void setFlag(U32 flag)
     {
-        U32 flags((mSettings.has(SETTING_FLAGS)) ? (U32)mSettings[SETTING_FLAGS].asInteger() : 0);
-
-        flags |= flag;
-
-        if (flags)
-            mSettings[SETTING_FLAGS] = LLSD::Integer(flags);
-        else
-            mSettings.erase(SETTING_FLAGS);
+        mSettingFlags |= flag;
+        setLLSDDirty();
     }
 
     inline void clearFlag(U32 flag)
     {
-        U32 flags((mSettings.has(SETTING_FLAGS)) ? (U32)mSettings[SETTING_FLAGS].asInteger() : 0);
-
-        flags &= ~flag;
-
-        if (flags)
-            mSettings[SETTING_FLAGS] = LLSD::Integer(flags);
-        else
-            mSettings.erase(SETTING_FLAGS);
+        mSettingFlags &= ~flag;
+        setLLSDDirty();
     }
 
     virtual void replaceSettings(LLSD settings)
@@ -183,14 +170,41 @@ public:
         setDirtyFlag(true);
         mReplaced = true;
         mSettings = settings;
+        loadValuesFromLLSD();
     }
 
-    virtual LLSD getSettings() const;
+    virtual void replaceSettings(const ptr_t& other)
+    {
+        mBlendedFactor = 0.0;
+        setDirtyFlag(true);
+        mReplaced = true;
+        mSettingFlags = other->getFlags();
+        mSettingName = other->getName();
+        mSettingId = other->getId();
+        mAssetId = other->getAssetId();
+        setLLSDDirty();
+    }
+
+    void setSettings(LLSD settings)
+    {
+        setDirtyFlag(true);
+        mSettings = settings;
+        loadValuesFromLLSD();
+    }
+
+    // if you are using getSettings to edit them, call setSettings(settings),
+    // replaceSettings(settings) or loadValuesFromLLSD() afterwards
+    virtual LLSD& getSettings();
+    virtual void setLLSDDirty()
+    {
+        mLLSDDirty = true;
+    }
 
     //---------------------------------------------------------------------
     //
     inline void setLLSD(const std::string &name, const LLSD &value)
     {
+        saveValuesIfNeeded();
         mSettings[name] = value;
         mDirty = true;
         if (name != SETTING_ASSETID)
@@ -202,8 +216,9 @@ public:
         setLLSD(name, value);
     }
 
-    inline LLSD getValue(const std::string &name, const LLSD &deflt = LLSD()) const
+    inline LLSD getValue(const std::string &name, const LLSD &deflt = LLSD())
     {
+        saveValuesIfNeeded();
         if (!mSettings.has(name))
             return deflt;
         return mSettings[name];
@@ -259,11 +274,11 @@ public:
         (const_cast<LLSettingsBase *>(this))->updateSettings();
     }
 
-    virtual void    blend(const ptr_t &end, BlendFactor blendf) = 0;
+    virtual void    blend(ptr_t &end, BlendFactor blendf) = 0;
 
     virtual bool    validate();
 
-    virtual ptr_t   buildDerivedClone() const = 0;
+    virtual ptr_t   buildDerivedClone() = 0;
 
     class Validator
     {
@@ -310,17 +325,24 @@ public:
 
     inline void setAssetId(LLUUID value)
     {   // note that this skips setLLSD
-        mSettings[SETTING_ASSETID] = value;
+        mAssetId = value;
+        mLLSDDirty = true;
     }
 
     inline void clearAssetId()
     {
-        if (mSettings.has(SETTING_ASSETID))
-            mSettings.erase(SETTING_ASSETID);
+        mAssetId.setNull();
+        mLLSDDirty = true;
     }
 
     // Calculate any custom settings that may need to be cached.
     virtual void updateSettings() { mDirty = false; mReplaced = false; }
+    LLSD         cloneSettings();
+
+    static void lerpVector2(LLVector2& a, const LLVector2& b, F32 mix);
+    static void lerpVector3(LLVector3& a, const LLVector3& b, F32 mix);
+    static void lerpColor(LLColor3& a, const LLColor3& b, F32 mix);
+
 protected:
 
     LLSettingsBase();
@@ -331,7 +353,7 @@ protected:
     typedef std::set<std::string>   stringset_t;
 
     // combining settings objects. Customize for specific setting types
-    virtual void lerpSettings(const LLSettingsBase &other, BlendFactor mix);
+    virtual void lerpSettings(LLSettingsBase &other, BlendFactor mix);
 
     // combining settings maps where it can based on mix rate
     // @settings initial value (mix==0)
@@ -339,8 +361,8 @@ protected:
     // @defaults list of default values for legacy fields and (re)setting shaders
     // @mix from 0 to 1, ratio or rate of transition from initial 'settings' to 'other'
     // return interpolated and combined LLSD map
-    LLSD    interpolateSDMap(const LLSD &settings, const LLSD &other, const parammapping_t& defaults, BlendFactor mix) const;
-    LLSD    interpolateSDValue(const std::string& name, const LLSD &value, const LLSD &other, const parammapping_t& defaults, BlendFactor mix, const stringset_t& slerps) const;
+    static LLSD interpolateSDMap(const LLSD &settings, const LLSD &other, const parammapping_t& defaults, BlendFactor mix, const stringset_t& skip, const stringset_t& slerps);
+    static LLSD interpolateSDValue(const std::string& name, const LLSD &value, const LLSD &other, const parammapping_t& defaults, BlendFactor mix, const stringset_t& skip, const stringset_t& slerps);
 
     /// when lerping between settings, some may require special handling.
     /// Get a list of these key to be skipped by the default settings lerp.
@@ -353,32 +375,40 @@ protected:
 
     virtual validation_list_t getValidationList() const = 0;
 
-    // Apply any settings that need special handling.
-    virtual void applySpecial(void *, bool force = false) { };
+    // Apply settings.
+    virtual void applyToUniforms(void *) { };
+    virtual void applySpecial(void*, bool force = false) { };
 
     virtual parammapping_t getParameterMap() const { return parammapping_t(); }
-
-    LLSD        mSettings;
-
-    LLSD        cloneSettings() const;
 
     inline void setBlendFactor(BlendFactor blendfactor)
     {
         mBlendedFactor = blendfactor;
     }
 
-    void replaceWith(LLSettingsBase::ptr_t other)
+    virtual void replaceWith(const LLSettingsBase::ptr_t other)
     {
-        replaceSettings(other->cloneSettings());
+        replaceSettings(other);
         setBlendFactor(other->getBlendFactor());
     }
 
+    virtual void loadValuesFromLLSD();
+    virtual void saveValuesToLLSD();
+    void saveValuesIfNeeded();
+
+    LLUUID mAssetId;
+    LLUUID mSettingId;
+    std::string mSettingName;
+    U32 mSettingFlags;
+
 private:
+    bool        mLLSDDirty;
     bool        mDirty;
     bool        mReplaced; // super dirty!
 
-    LLSD        combineSDMaps(const LLSD &first, const LLSD &other) const;
+    static LLSD combineSDMaps(const LLSD &first, const LLSD &other);
 
+    LLSD        mSettings;
     BlendFactor mBlendedFactor;
 };
 

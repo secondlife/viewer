@@ -54,7 +54,7 @@ protected:
     LLFlyoutButton(const Params&);
     friend class LLUICtrlFactory;
 public:
-    virtual void    draw();
+    void draw() override;
 
     void setToggleState(bool state);
 

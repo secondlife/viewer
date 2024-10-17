@@ -2145,7 +2145,7 @@ EAcceptance LLToolDragAndDrop::dad3dRezAttachmentFromInv(
     {
         if(mSource == SOURCE_LIBRARY)
         {
-            LLPointer<LLInventoryCallback> cb = new LLBoostFuncInventoryCallback(boost::bind(rez_attachment_cb, _1, (LLViewerJointAttachment*)0));
+            LLPointer<LLInventoryCallback> cb = new LLBoostFuncInventoryCallback(boost::bind(rez_attachment_cb, _1, (LLViewerJointAttachment*)0, false));
             copy_inventory_item(
                 gAgent.getID(),
                 item->getPermissions().getOwner(),
@@ -2156,7 +2156,7 @@ EAcceptance LLToolDragAndDrop::dad3dRezAttachmentFromInv(
         }
         else
         {
-            rez_attachment(item, 0);
+            rez_attachment(item, 0, false);
         }
     }
     return ACCEPT_YES_SINGLE;

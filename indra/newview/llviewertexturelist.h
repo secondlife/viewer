@@ -153,6 +153,9 @@ private:
     void updateImagesUpdateStats();
     F32  updateImagesLoadingFastCache(F32 max_time);
 
+    void updateImagesNameTextures();
+    void labelAll();
+
     void addImage(LLViewerFetchedTexture *image, ETexListType tex_type);
     void deleteImage(LLViewerFetchedTexture *image);
 
@@ -213,6 +216,14 @@ public:
 
     // images that have been loaded but are waiting to be uploaded to GL
     image_queue_t mCreateTextureList;
+
+    struct NameElement
+    {
+        NameElement(LLViewerFetchedTexture* tex, const std::string& prefix) : mTex(tex), mPrefix(prefix) {}
+        LLViewerFetchedTexture* mTex;
+        std::string mPrefix;
+    };
+    std::vector<NameElement> mNameTextureList;
 
     // images that must be downscaled quickly so we don't run out of memory
     image_queue_t mDownScaleQueue;

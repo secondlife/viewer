@@ -250,10 +250,12 @@ LLVOVolume::~LLVOVolume()
     delete mVolumeImpl;
     mVolumeImpl = NULL;
 
-    gMeshRepo.unregisterMesh(this);
+    unregisterOldMeshAndSkin();
 
     if(!mMediaImplList.empty())
     {
+        LL_PROFILE_ZONE_NAMED_CATEGORY_MEDIA("delete volume media list");
+
         for(U32 i = 0 ; i < mMediaImplList.size() ; i++)
         {
             if(mMediaImplList[i].notNull())
@@ -998,6 +1000,28 @@ LLDrawable *LLVOVolume::createDrawable(LLPipeline *pipeline)
     return mDrawable;
 }
 
+// Inverse of gMeshRepo.loadMesh and gMeshRepo.getSkinInfo, combined into one function
+// Assume a Collada mesh never changes after being set.
+void LLVOVolume::unregisterOldMeshAndSkin()
+{
+    if (mVolumep)
+    {
+        const LLVolumeParams& params = mVolumep->getParams();
+        if ((params.getSculptType() & LL_SCULPT_TYPE_MASK) == LL_SCULPT_TYPE_MESH)
+        {
+            // object is being deleted, so it will no longer need to request
+            // meshes.
+            for (S32 lod = 0; lod != LLVolumeLODGroup::NUM_LODS; ++lod)
+            {
+                gMeshRepo.unregisterMesh(this, params, lod);
+            }
+            // This volume may or may not have a skin
+            gMeshRepo.unregisterSkinInfo(params.getSculptID(), this);
+        }
+    }
+}
+
+
 bool LLVOVolume::setVolume(const LLVolumeParams &params_in, const S32 detail, bool unique_volume)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
@@ -1511,10 +1535,15 @@ bool LLVOVolume::calcLOD()
 
     mLODAdjustedDistance = distance;
 
+    static LLCachedControl<S32> debug_selection_lods(gSavedSettings, "DebugSelectionLODs", 0);
     if (isHUDAttachment())
     {
         // HUDs always show at highest detail
         cur_detail = 3;
+    }
+    else if (isSelected() && debug_selection_lods() >= 0)
+    {
+        cur_detail = llmin(debug_selection_lods(), 3);
     }
     else
     {
@@ -3210,6 +3239,7 @@ void LLVOVolume::updateSpotLightPriority()
     {
         return;
     }
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
 
     F32 r = getLightRadius();
     LLVector3 pos = mDrawable->getPositionAgent();
@@ -3656,7 +3686,7 @@ const LLMeshSkinInfo* LLVOVolume::getSkinInfo() const
 // virtual
 bool LLVOVolume::isRiggedMesh() const
 {
-    return isMesh() && getSkinInfo();
+    return getSkinInfo() != nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -3817,7 +3847,6 @@ void LLVOVolume::updateRiggingInfo()
         LLVolume *volume = getVolume();
         if (skin && avatar && volume)
         {
-            LL_DEBUGS("RigSpammish") << "starting, vovol " << this << " lod " << getLOD() << " last " << mLastRiggingInfoLOD << LL_ENDL;
             if (getLOD()>mLastRiggingInfoLOD || getLOD()==3)
             {
                 // Rigging info may need update
@@ -3833,9 +3862,6 @@ void LLVOVolume::updateRiggingInfo()
                 }
                 // Keep the highest LOD info available.
                 mLastRiggingInfoLOD = getLOD();
-                LL_DEBUGS("RigSpammish") << "updated rigging info for LLVOVolume "
-                                         << this << " lod " << mLastRiggingInfoLOD
-                                         << LL_ENDL;
             }
         }
     }
@@ -5782,8 +5808,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
                     {
                         type = LLDrawPool::POOL_GLTF_PBR;
                     }
-                    else
-                    if (type != LLDrawPool::POOL_ALPHA && force_simple)
+                    else if (type != LLDrawPool::POOL_ALPHA && force_simple)
                     {
                         type = LLDrawPool::POOL_SIMPLE;
                     }
@@ -6027,8 +6052,8 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 
             group->mBuilt = 1.f;
 
-            const U32 MAX_BUFFER_COUNT = 4096;
-            LLVertexBuffer* locked_buffer[MAX_BUFFER_COUNT];
+            static std::vector<LLVertexBuffer*> locked_buffer;
+            locked_buffer.resize(0);
 
             U32 buffer_count = 0;
 
@@ -6073,8 +6098,6 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
                                     group->dirtyGeom();
                                     gPipeline.markRebuild(group);
                                 }
-
-                                buff->unmapBuffer();
                             }
                         }
                     }
@@ -6090,17 +6113,7 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 
             {
                 LL_PROFILE_ZONE_NAMED("rebuildMesh - flush");
-                for (LLVertexBuffer** iter = locked_buffer, ** end_iter = locked_buffer+buffer_count; iter != end_iter; ++iter)
-                {
-                    (*iter)->unmapBuffer();
-                }
-
-                // don't forget alpha
-                if(group != NULL &&
-                   !group->mVertexBuffer.isNull())
-                {
-                    group->mVertexBuffer->unmapBuffer();
-                }
+                LLVertexBuffer::flushBuffers();
             }
 
             group->clearState(LLSpatialGroup::MESH_DIRTY | LLSpatialGroup::NEW_DRAWINFO);
@@ -6781,11 +6794,6 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
             }
 
             ++face_iter;
-        }
-
-        if (buffer)
-        {
-            buffer->unmapBuffer();
         }
     }
 

@@ -253,7 +253,7 @@ class LLFadeEventTimer : public LLEventTimer
 {
 public:
     LLFadeEventTimer(F32 refresh, LLGUIPreviewLiveFile* parent);
-    bool tick();
+    bool tick() override;
     LLGUIPreviewLiveFile* mParent;
 private:
     bool mFadingOut;            // fades in then out; this is toggled in between

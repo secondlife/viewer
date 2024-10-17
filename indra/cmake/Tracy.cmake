@@ -6,11 +6,16 @@ add_library( ll::tracy INTERFACE IMPORTED )
 
 # default Tracy profiling on for test builds, but off for all others
 string(TOLOWER ${VIEWER_CHANNEL} channel_lower)
-if(WINDOWS AND channel_lower MATCHES "^second life test")
+if(channel_lower MATCHES "^second life test")
   option(USE_TRACY "Use Tracy profiler." ON)
 else()
     option(USE_TRACY "Use Tracy profiler." OFF)
 endif()
+
+if (LINUX)
+  # tracy currently conflicts with llcommon/stdtypes.h on linux.  keep it disabled until we fix it
+  set(USE_TRACY OFF)
+endif(LINUX)
 
 if (USE_TRACY)
   option(USE_TRACY_ON_DEMAND "Use on-demand Tracy profiling." ON)
@@ -29,6 +34,11 @@ if (USE_TRACY)
 
   if (USE_TRACY_LOCAL_ONLY)
     target_compile_definitions(ll::tracy INTERFACE -DTRACY_NO_BROADCAST=1 -DTRACY_ONLY_LOCALHOST=1)
+  endif ()
+
+  # GHA runners don't always provide invariant TSC support, but always build with LL_TESTS enabled
+  if (DARWIN AND LL_TESTS)
+    target_compile_definitions(ll::tracy INTERFACE -DTRACY_TIMER_FALLBACK=1)
   endif ()
 
   # See: indra/llcommon/llprofiler.h

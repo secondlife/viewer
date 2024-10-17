@@ -44,8 +44,8 @@ public:
     bool empty() const { return isEmpty(); };
     void reset();
     LLKeyData& operator=(const LLKeyData& rhs);
-    bool operator==(const LLKeyData& rhs);
-    bool operator!=(const LLKeyData& rhs);
+    bool operator==(const LLKeyData& rhs) const;
+    bool operator!=(const LLKeyData& rhs) const;
 
     bool canHandle(const LLKeyData& data) const;
     bool canHandle(EMouseClickType mouse, KEY key, MASK mask) const;
@@ -64,8 +64,8 @@ public:
     LLKeyBind() {}
     LLKeyBind(const LLSD &key_bind);
 
-    bool operator==(const LLKeyBind& rhs);
-    bool operator!=(const LLKeyBind& rhs);
+    bool operator==(const LLKeyBind& rhs) const;
+    bool operator!=(const LLKeyBind& rhs) const;
     bool isEmpty() const;
     bool empty() const { return isEmpty(); };
 

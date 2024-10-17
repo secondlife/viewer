@@ -55,8 +55,8 @@ LLFloaterOpenObject::LLFloaterOpenObject(const LLSD& key)
     mPanelInventoryObject(NULL),
     mDirty(true)
 {
-    mCommitCallbackRegistrar.add("OpenObject.MoveToInventory",  boost::bind(&LLFloaterOpenObject::onClickMoveToInventory, this));
-    mCommitCallbackRegistrar.add("OpenObject.Cancel",           boost::bind(&LLFloaterOpenObject::onClickCancel, this));
+    mCommitCallbackRegistrar.add("OpenObject.MoveToInventory",  { boost::bind(&LLFloaterOpenObject::onClickMoveToInventory, this), cb_info::UNTRUSTED_THROTTLE });
+    mCommitCallbackRegistrar.add("OpenObject.Cancel",           { boost::bind(&LLFloaterOpenObject::onClickCancel, this) });
 }
 
 LLFloaterOpenObject::~LLFloaterOpenObject()

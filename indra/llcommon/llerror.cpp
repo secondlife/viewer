@@ -64,6 +64,8 @@
 #define BOOST_STACKTRACE_GNU_SOURCE_NOT_REQUIRED
 #include <boost/stacktrace.hpp>
 
+#include LLCOROS_RMUTEX_HEADER
+
 namespace {
 #if LL_WINDOWS
     void debugger_print(const std::string& s)
@@ -110,7 +112,7 @@ namespace {
         virtual void recordMessage(LLError::ELevel level,
                                     const std::string& message) override
         {
-            LL_PROFILE_ZONE_SCOPED_CATEGORY_LOGGING
+            LL_PROFILE_ZONE_SCOPED_CATEGORY_LOGGING;
             int syslogPriority = LOG_CRIT;
             switch (level) {
                 case LLError::LEVEL_DEBUG:  syslogPriority = LOG_DEBUG; break;
@@ -1431,6 +1433,7 @@ namespace LLError
 
         if (site.mLevel == LEVEL_ERROR)
         {
+            writeToRecorders(site, stringize(boost::stacktrace::stacktrace()));
             g->mFatalMessage = message;
             if (s->mCrashFunction)
             {

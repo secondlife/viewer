@@ -70,6 +70,7 @@ LLPointer<LLViewerTexture>        LLViewerTexture::sBlackImagep = nullptr;
 LLPointer<LLViewerTexture>        LLViewerTexture::sCheckerBoardImagep = nullptr;
 LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sMissingAssetImagep = nullptr;
 LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sWhiteImagep = nullptr;
+LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sDefaultParticleImagep = nullptr;
 LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sDefaultImagep = nullptr;
 LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sSmokeImagep = nullptr;
 LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sFlatNormalImagep = nullptr;
@@ -497,11 +498,10 @@ void LLViewerTexture::updateClass()
 
     F64 texture_bytes_alloc = LLImageGL::getTextureBytesAllocated() / 1024.0 / 512.0;
     F64 vertex_bytes_alloc = LLVertexBuffer::getBytesAllocated() / 1024.0 / 512.0;
-    F64 render_bytes_alloc = LLRenderTarget::sBytesAllocated / 1024.0 / 512.0;
 
     // get an estimate of how much video memory we're using
     // NOTE: our metrics miss about half the vram we use, so this biases high but turns out to typically be within 5% of the real number
-    F32 used = (F32)ll_round(texture_bytes_alloc + vertex_bytes_alloc + render_bytes_alloc);
+    F32 used = (F32)ll_round(texture_bytes_alloc + vertex_bytes_alloc);
 
     F32 budget = max_vram_budget == 0 ? (F32)gGLManager.mVRAM : (F32)max_vram_budget;
 
@@ -541,7 +541,7 @@ void LLViewerTexture::updateClass()
         if (sEvaluationTimer.getElapsedTimeF32() > MEMORY_CHECK_WAIT_TIME)
         {
             static LLCachedControl<F32> low_mem_min_discard_increment(gSavedSettings, "RenderLowMemMinDiscardIncrement", .1f);
-            sDesiredDiscardBias += (F32)low_mem_min_discard_increment * (F32)gFrameIntervalSeconds;
+            sDesiredDiscardBias += (F32) low_mem_min_discard_increment * (F32) gFrameIntervalSeconds;
             sEvaluationTimer.reset();
         }
     }
@@ -1070,6 +1070,7 @@ void LLViewerFetchedTexture::init(bool firstinit)
     mOrigHeight = 0;
     mHasAux = false;
     mNeedsAux = false;
+    mLastWorkerDiscardLevel = -1;
     mRequestedDiscardLevel = -1;
     mRequestedDownloadPriority = 0.f;
     mFullyLoaded = false;
@@ -1222,12 +1223,11 @@ void LLViewerFetchedTexture::loadFromFastCache()
 
             if (mBoostLevel == LLGLTexture::BOOST_THUMBNAIL)
             {
-                S32 expected_width = mKnownDrawWidth > 0 ? mKnownDrawWidth : DEFAULT_THUMBNAIL_DIMENSIONS;
-                S32 expected_height = mKnownDrawHeight > 0 ? mKnownDrawHeight : DEFAULT_THUMBNAIL_DIMENSIONS;
-                if (mRawImage && (mRawImage->getWidth() > expected_width || mRawImage->getHeight() > expected_height))
+                if (mRawImage && (mRawImage->getWidth() > DEFAULT_THUMBNAIL_DIMENSIONS || mRawImage->getHeight() > DEFAULT_THUMBNAIL_DIMENSIONS))
                 {
-                    // scale oversized icon, no need to give more work to gl
-                    mRawImage->scale(expected_width, expected_height);
+                    // Scale oversized thumbnail
+                    // thumbnails aren't supposed to go over DEFAULT_THUMBNAIL_DIMENSIONS
+                    mRawImage->scale(DEFAULT_THUMBNAIL_DIMENSIONS, DEFAULT_THUMBNAIL_DIMENSIONS);
                 }
             }
 
@@ -1361,51 +1361,6 @@ void LLViewerFetchedTexture::addToCreateTexture()
     }
     else
     {
-        LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
-#if 1
-        //
-        //if mRequestedDiscardLevel > mDesiredDiscardLevel, we assume the required image res keep going up,
-        //so do not scale down the over qualified image.
-        //Note: scaling down image is expensensive. Do it only when very necessary.
-        //
-        if(mRequestedDiscardLevel <= mDesiredDiscardLevel && !mForceToSaveRawImage)
-        {
-            U32 w = mFullWidth >> mRawDiscardLevel;
-            U32 h = mFullHeight >> mRawDiscardLevel;
-
-            //if big image, do not load extra data
-            //scale it down to size >= LLViewerTexture::sMinLargeImageSize
-            if(w * h > LLViewerTexture::sMinLargeImageSize)
-            {
-                S32 d_level = llmin(mRequestedDiscardLevel, (S32)mDesiredDiscardLevel) - mRawDiscardLevel;
-
-                if(d_level > 0)
-                {
-                    S32 i = 0;
-                    while((d_level > 0) && ((w >> i) * (h >> i) > LLViewerTexture::sMinLargeImageSize))
-                    {
-                        i++;
-                        d_level--;
-                    }
-                    if(i > 0)
-                    {
-                        mRawDiscardLevel += i;
-                        if(mRawDiscardLevel >= getDiscardLevel() && getDiscardLevel() > 0)
-                        {
-                            mNeedsCreateTexture = false;
-                            destroyRawImage();
-                            return;
-                        }
-
-                        {
-                            //make a duplicate in case somebody else is using this raw image
-                            mRawImage = mRawImage->scaled(w >> i, h >> i);
-                        }
-                    }
-                }
-            }
-        }
-#endif
         scheduleCreateTexture();
     }
     return;
@@ -1949,13 +1904,10 @@ bool LLViewerFetchedTexture::updateFetch()
 
                 if (mBoostLevel == LLGLTexture::BOOST_THUMBNAIL)
                 {
-                    S32 expected_width = mKnownDrawWidth > 0 ? mKnownDrawWidth : DEFAULT_THUMBNAIL_DIMENSIONS;
-                    S32 expected_height = mKnownDrawHeight > 0 ? mKnownDrawHeight : DEFAULT_THUMBNAIL_DIMENSIONS;
-                    if (mRawImage && (mRawImage->getWidth() > expected_width || mRawImage->getHeight() > expected_height))
+                    if (mRawImage && (mRawImage->getWidth() > DEFAULT_THUMBNAIL_DIMENSIONS || mRawImage->getHeight() > DEFAULT_THUMBNAIL_DIMENSIONS))
                     {
-                        // scale oversized icon, no need to give more work to gl
-                        // since we got mRawImage from thread worker and image may be in use (ex: writing cache), make a copy
-                        mRawImage = mRawImage->scaled(expected_width, expected_height);
+                        // Scale oversized thumbnail
+                        mRawImage = mRawImage->scaled(DEFAULT_THUMBNAIL_DIMENSIONS, DEFAULT_THUMBNAIL_DIMENSIONS);
                     }
                 }
 
@@ -2089,18 +2041,26 @@ bool LLViewerFetchedTexture::updateFetch()
         }
 
         // bypass texturefetch directly by pulling from LLTextureCache
-        S32 fetch_request_discard = -1;
-        fetch_request_discard = LLAppViewer::getTextureFetch()->createRequest(mFTType, mUrl, getID(), getTargetHost(), decode_priority,
-                                                                              w, h, c, desired_discard, needsAux(), mCanUseHTTP);
+        S32 worker_discard = -1;
+        S32 result = LLAppViewer::getTextureFetch()->createRequest(mFTType, mUrl, getID(), getTargetHost(), decode_priority,
+                                                                              w, h, c, desired_discard, needsAux(), mCanUseHTTP, worker_discard);
 
-        if (fetch_request_discard >= 0)
+
+        if ((result >= 0) // Worker created
+            // scaled and standard images share requests, they just process the result differently
+            // if mLastWorkerDiscardLevel doen't match worker, worker was requested by a different
+            // image and current one needs to schedule an update
+            || (result == LLTextureFetch::FETCH_REQUEST_EXISTS
+                && mLastWorkerDiscardLevel != worker_discard)
+            )
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_TEXTURE("vftuf - request created");
             mHasFetcher = true;
             mIsFetching = true;
+            mLastWorkerDiscardLevel = worker_discard;
             // in some cases createRequest can modify discard, as an example
             // bake textures are always at discard 0
-            mRequestedDiscardLevel = llmin(desired_discard, fetch_request_discard);
+            mRequestedDiscardLevel = llmin(desired_discard, worker_discard);
             mFetchState = LLAppViewer::getTextureFetch()->getFetchState(mID, mDownloadProgress, mRequestedDownloadPriority,
                                                        mFetchPriority, mFetchDeltaTime, mRequestDeltaTime, mCanUseHTTP);
         }
@@ -2540,6 +2500,11 @@ bool LLViewerFetchedTexture::doLoadedCallbacks()
         }
     }
 
+    if (need_readback)
+    {
+        readbackRawImage();
+    }
+
     //
     // Run raw/auxiliary data callbacks
     //
@@ -2707,11 +2672,9 @@ void LLViewerFetchedTexture::saveRawImage()
     }
     else if (mBoostLevel == LLGLTexture::BOOST_THUMBNAIL)
     {
-        S32 expected_width = mKnownDrawWidth > 0 ? mKnownDrawWidth : DEFAULT_THUMBNAIL_DIMENSIONS;
-        S32 expected_height = mKnownDrawHeight > 0 ? mKnownDrawHeight : DEFAULT_THUMBNAIL_DIMENSIONS;
-        if (mRawImage->getWidth() > expected_width || mRawImage->getHeight() > expected_height)
+        if (mRawImage->getWidth() > DEFAULT_THUMBNAIL_DIMENSIONS || mRawImage->getHeight() > DEFAULT_THUMBNAIL_DIMENSIONS)
         {
-            mSavedRawImage = new LLImageRaw(expected_width, expected_height, mRawImage->getComponents());
+            mSavedRawImage = new LLImageRaw(DEFAULT_THUMBNAIL_DIMENSIONS, DEFAULT_THUMBNAIL_DIMENSIONS, mRawImage->getComponents());
             mSavedRawImage->copyScaled(mRawImage);
         }
         else
@@ -2789,10 +2752,22 @@ void LLViewerFetchedTexture::readbackRawImage()
     if (mGLTexturep.notNull() && mGLTexturep->getTexName() != 0 &&
         (mRawImage.isNull() || mRawImage->getWidth() < mGLTexturep->getWidth() || mRawImage->getHeight() < mGLTexturep->getHeight() ))
     {
+        if (mRawImage.isNull())
+        {
+            sRawCount++;
+        }
         mRawImage = new LLImageRaw();
         if (!mGLTexturep->readBackRaw(-1, mRawImage, false))
         {
             mRawImage = nullptr;
+            mIsRawImageValid = false;
+            mRawDiscardLevel = INVALID_DISCARD_LEVEL;
+            sRawCount--;
+        }
+        else
+        {
+            mIsRawImageValid = true;
+            mRawDiscardLevel = mGLTexturep->getDiscardLevel();
         }
     }
 }

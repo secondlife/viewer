@@ -43,8 +43,8 @@ LLFloaterSettingsColor::LLFloaterSettingsColor(const LLSD& key)
 :   LLFloater(key),
     mSettingList(NULL)
 {
-    mCommitCallbackRegistrar.add("CommitSettings",  boost::bind(&LLFloaterSettingsColor::onCommitSettings, this));
-    mCommitCallbackRegistrar.add("ClickDefault",    boost::bind(&LLFloaterSettingsColor::onClickDefault, this));
+    mCommitCallbackRegistrar.add("CommitSettings",  { boost::bind(&LLFloaterSettingsColor::onCommitSettings, this) });
+    mCommitCallbackRegistrar.add("ClickDefault",    { boost::bind(&LLFloaterSettingsColor::onClickDefault, this) });
 }
 
 LLFloaterSettingsColor::~LLFloaterSettingsColor()

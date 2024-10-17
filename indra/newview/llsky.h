@@ -28,7 +28,6 @@
 #define LL_LLSKY_H
 
 #include "llmath.h"
-//#include "vmath.h"
 #include "v3math.h"
 #include "v4math.h"
 #include "v4color.h"

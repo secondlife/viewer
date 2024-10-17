@@ -629,6 +629,11 @@ void LLPanelPlaceProfile::updateCovenantText(const std::string &text)
     mCovenantText->setText(text);
 }
 
+void LLPanelPlaceProfile::updateCovenant(const LLTextBase* source)
+{
+    mCovenantText->copyContents(source);
+}
+
 void LLPanelPlaceProfile::onForSaleBannerClick()
 {
     LLViewerParcelMgr* mgr = LLViewerParcelMgr::getInstance();

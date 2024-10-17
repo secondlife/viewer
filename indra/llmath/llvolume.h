@@ -45,7 +45,6 @@ class LLVolumeOctree;
 
 #include "lluuid.h"
 #include "v4color.h"
-//#include "vmath.h"
 #include "v2math.h"
 #include "v3math.h"
 #include "v3dmath.h"
@@ -918,6 +917,15 @@ public:
     // Get a reference to the octree, which may be null
     const LLVolumeOctree* getOctree() const;
 
+    // Part of silhouette generation (used by selection outlines)
+    // Populates the provided edge array with numbers corresponding to
+    // *partial* logic of whether a particular index should be rendered
+    // as a silhouette edge. -1 indicates the index should be rendered as a
+    // silhouette edge. See generateSilhouetteVertices for the full logic.
+    // Silhouette edges can only be generated for some types of prims. If a
+    // silhouette edge cannot be generated, the edge array will be left empty.
+    void generateSilhouetteEdge(const LLVolume* volume, std::vector<S32>& edge) const;
+
     enum
     {
         SINGLE_MASK =   0x0001,
@@ -962,8 +970,6 @@ public:
     // are two triangles {0, 2, 3} and {1, 2, 4} with values being
     // indexes for mPositions/mNormals/mTexCoords
     U16* mIndices;
-
-    std::vector<S32>    mEdge;
 
     //list of skin weights for rigged volumes
     // format is mWeights[vertex_index].mV[influence] = <joint_index>.<weight>
@@ -1113,9 +1119,9 @@ private:
 
 public:
     virtual void setMeshAssetLoaded(bool loaded);
-    virtual bool isMeshAssetLoaded();
+    virtual bool isMeshAssetLoaded() const;
     virtual void setMeshAssetUnavaliable(bool unavaliable);
-    virtual bool isMeshAssetUnavaliable();
+    virtual bool isMeshAssetUnavaliable() const;
 
  protected:
     bool mUnique;

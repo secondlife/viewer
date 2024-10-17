@@ -6,6 +6,9 @@
 	<string name="MacLocale">
 		ja_JP.UTF-8
 	</string>
+	<string name="macOSLocale">
+		ja_JP.UTF-8
+	</string>
 	<string name="DarwinLocale">
 		ja_JP.UTF-8
 	</string>

@@ -1210,6 +1210,7 @@ PanteraPolnocy
 	SL-18937
 	SL-19207
 	SL-19681
+    secondlife/viewer#2483
 Parvati Silverweb
 Patric Mills
 	VWR-2645

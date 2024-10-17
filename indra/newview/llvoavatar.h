@@ -109,7 +109,6 @@ public:
     virtual void        initInstance(); // Called after construction to initialize the class.
 protected:
     virtual             ~LLVOAvatar();
-    static bool         handleVOAvatarPrefsChanged(const LLSD &newvalue);
 
 /**                    Initialization
  **                                                                            **
@@ -127,17 +126,18 @@ public:
     /*virtual*/ void            updateGL();
     /*virtual*/ LLVOAvatar*     asAvatar();
 
-    virtual U32             processUpdateMessage(LLMessageSystem *mesgsys,
+    virtual U32                 processUpdateMessage(LLMessageSystem *mesgsys,
                                                      void **user_data,
                                                      U32 block_num,
                                                      const EObjectUpdateType update_type,
                                                      LLDataPacker *dp);
-    virtual void            idleUpdate(LLAgent &agent, const F64 &time);
+    virtual void                idleUpdate(LLAgent &agent, const F64 &time);
     /*virtual*/ bool            updateLOD();
-    bool                    updateJointLODs();
-    void                    updateLODRiggedAttachments( void );
+    bool                        updateJointLODs();
+    void                        updateLODRiggedAttachments(void);
+    void                        setCorrectedPixelArea(F32 area);
     /*virtual*/ bool            isActive() const; // Whether this object needs to do an idleUpdate.
-    S32Bytes                totalTextureMemForUUIDS(std::set<LLUUID>& ids);
+    S32Bytes                    totalTextureMemForUUIDS(std::set<LLUUID>& ids);
     bool                        allTexturesCompletelyDownloaded(std::set<LLUUID>& ids) const;
     bool                        allLocalTexturesCompletelyDownloaded() const;
     bool                        allBakedTexturesCompletelyDownloaded() const;
@@ -226,12 +226,13 @@ public:
     // virtual
     void                    updateRiggingInfo();
     // This encodes mesh id and LOD, so we can see whether display is up-to-date.
-    std::map<LLUUID,S32>    mLastRiggingInfoKey;
+    size_t    mLastRiggingInfoKey;
 
     std::set<LLUUID>        mActiveOverrideMeshes;
     virtual void            onActiveOverrideMeshesChanged();
 
-    /*virtual*/ const LLUUID&   getID() const;
+/*virtual*/ const LLUUID&   getID() const;
+    /*virtual*/ std::string     getDebugName() const;
     /*virtual*/ void            addDebugText(const std::string& text);
     /*virtual*/ F32             getTimeDilation();
     /*virtual*/ void            getGround(const LLVector3 &inPos, LLVector3 &outPos, LLVector3 &outNorm);
@@ -329,16 +330,16 @@ public:
 
 
     // avatar render cost
-    U32             getVisualComplexity()           { return mVisualComplexity;             };
+    U32             getVisualComplexity()           { return mVisualComplexity; };
 
     // surface area calculation
-    F32             getAttachmentSurfaceArea()      { return mAttachmentSurfaceArea;        };
+    F32             getAttachmentSurfaceArea()      { return mAttachmentSurfaceArea; };
 
-    U32             getReportedVisualComplexity()                   { return mReportedVisualComplexity;             };  // Numbers as reported by the SL server
-    void            setReportedVisualComplexity(U32 value)          { mReportedVisualComplexity = value;            };
+    U32             getReportedVisualComplexity()                   { return mReportedVisualComplexity; };  // Numbers as reported by the SL server
+    void            setReportedVisualComplexity(U32 value)          { mReportedVisualComplexity = value; };
 
-    S32             getUpdatePeriod()               { return mUpdatePeriod;         };
-    const LLColor4 &  getMutedAVColor()             { return mMutedAVColor;         };
+    S32             getUpdatePeriod()               { return mUpdatePeriod; };
+    const LLColor4 &  getMutedAVColor()             { return mMutedAVColor; };
     static void     updateImpostorRendering(U32 newMaxNonImpostorsValue);
 
     void            idleUpdateBelowWater();
@@ -368,7 +369,6 @@ public:
     static F32      sLODFactor; // user-settable LOD factor
     static F32      sPhysicsLODFactor; // user-settable physics LOD factor
     static bool     sJointDebug; // output total number of joints being touched for each avatar
-    static bool     sLipSyncEnabled;
 
     static LLPointer<LLViewerTexture>  sCloudTexture;
 
@@ -402,7 +402,7 @@ public:
     virtual bool    getIsCloud() const;
     bool            isFullyTextured() const;
     bool            hasGray() const;
-    S32             getRezzedStatus() const; // 0 = cloud, 1 = gray, 2 = textured, 3 = textured and fully downloaded.
+    S32             getRezzedStatus() const; // 0 = cloud, 1 = gray, 2 = textured, 3 = waiting for attachments, 4 = full.
     void            updateRezzedStatusTimers(S32 status);
 
     S32             mLastRezzedStatus;
@@ -620,6 +620,7 @@ public:
 protected:
     void        updateVisibility();
 private:
+    F32         mVisibilityPreference;
     U32         mVisibilityRank;
     bool        mVisible;
 
@@ -740,7 +741,7 @@ protected:
     LLViewerTexLayerSet*  getTexLayerSet(const U32 index) const { return dynamic_cast<LLViewerTexLayerSet*>(mBakedTextureDatas[index].mTexLayerSet);    }
 
 
-    LLLoadedCallbackEntry::source_callback_list_t mCallbackTextureList ;
+    LLLoadedCallbackEntry::source_callback_list_t mCallbackTextureList;
     bool mLoadedCallbacksPaused;
     S32 mLoadedCallbackTextures; // count of 'loaded' baked textures, filled from mCallbackTextureList
     LLFrameTimer mLastTexCallbackAddedTime;

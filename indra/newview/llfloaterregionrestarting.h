@@ -42,10 +42,10 @@ public:
 private:
     LLFloaterRegionRestarting(const LLSD& key);
     virtual ~LLFloaterRegionRestarting();
-    virtual bool postBuild();
-    virtual bool tick();
-    virtual void refresh();
-    virtual void draw();
+    bool postBuild() override;
+    bool tick() override;
+    void refresh() override;
+    void draw() override;
     virtual void regionChange();
 
     std::string mName;

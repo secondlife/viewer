@@ -125,27 +125,25 @@ void LLCubeMapArray::allocate(U32 resolution, U32 components, U32 count, bool us
     mImage->setHasMipMaps(use_mips);
 
     bind(0);
-
-    U32 format = components == 4 ? GL_RGBA16F : GL_RGB16F;
-
-    U32 mip = 0;
-
     free_cur_tex_image();
 
-    while (resolution >= 1)
+    U32 format = components == 4 ? GL_RGBA16F : GL_RGB16F;
+    U32 mip = 0;
+    U32 mip_resolution = resolution;
+    while (mip_resolution >= 1)
     {
-        glTexImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, mip, format, resolution, resolution, count * 6, 0,
+        glTexImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, mip, format, mip_resolution, mip_resolution, count * 6, 0,
             GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 
         if (!use_mips)
         {
             break;
         }
-        resolution /= 2;
+        mip_resolution /= 2;
         ++mip;
     }
 
-    alloc_tex_image(resolution * 6, resolution, format);
+    alloc_tex_image(resolution, resolution, format, count * 6);
 
     mImage->setAddressMode(LLTexUnit::TAM_CLAMP);
 

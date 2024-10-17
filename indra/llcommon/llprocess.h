@@ -29,7 +29,6 @@
 
 #include "llinitparam.h"
 #include "llsdparam.h"
-#include "llwin32headerslean.h"
 #include "llexception.h"
 #include "apr_thread_proc.h"
 #include <boost/ptr_container/ptr_vector.hpp>
@@ -38,7 +37,7 @@
 #include <iosfwd>                   // std::ostream
 
 #if LL_WINDOWS
-#include "llwin32headerslean.h" // for HANDLE
+#include "llwin32headers.h" // for HANDLE
 #elif LL_LINUX
 #if defined(Status)
 #undef Status

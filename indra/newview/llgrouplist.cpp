@@ -141,7 +141,7 @@ void LLGroupList::enableForAgent(bool show_icons)
     gAgent.addListener(this, "new group");
 
     // Set up context menu.
-    LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+    ScopedRegistrarHelper registrar;
     LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
 
     registrar.add("People.Groups.Action",           boost::bind(&LLGroupList::onContextMenuItemClick,   this, _2));

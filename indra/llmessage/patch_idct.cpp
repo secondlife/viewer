@@ -27,7 +27,6 @@
 #include "linden_common.h"
 
 #include "llmath.h"
-//#include "vmath.h"
 #include "v3math.h"
 #include "patch_dct.h"
 

@@ -29,7 +29,6 @@ Distancia de dibujo: [DRAW_DISTANCE]m
 Ancho de banda: [NET_BANDWITH]kbit/s
 Factor LOD: [LOD_FACTOR]
 Calidad de renderización: [RENDER_QUALITY]
-Modelo de iluminación avanzado: [GPU_SHADERS]
 Memoria de textura: [TEXTURE_MEMORY]MB</string>
 	<string name="AboutOSXHiDPI">Modo de visualización HiDPi: [HIDPI]</string>
 	<string name="AboutLibs">Versión de descodificador J2C: [J2C_VERSION] 

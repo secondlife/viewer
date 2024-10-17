@@ -87,13 +87,15 @@ void modify_outfit(bool append, const LLUUID& cat_id, LLInventoryModel* model)
 
 LLContextMenu* LLInventoryGalleryContextMenu::createMenu()
 {
-    LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+    LLUICtrl::ScopedRegistrarHelper registrar;
     LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
 
-    registrar.add("Inventory.DoToSelected", boost::bind(&LLInventoryGalleryContextMenu::doToSelected, this, _2));
-    registrar.add("Inventory.FileUploadLocation", boost::bind(&LLInventoryGalleryContextMenu::fileUploadLocation, this, _2));
-    registrar.add("Inventory.EmptyTrash", boost::bind(&LLInventoryModel::emptyFolderType, &gInventory, "ConfirmEmptyTrash", LLFolderType::FT_TRASH));
-    registrar.add("Inventory.EmptyLostAndFound", boost::bind(&LLInventoryModel::emptyFolderType, &gInventory, "ConfirmEmptyLostAndFound", LLFolderType::FT_LOST_AND_FOUND));
+    registrar.add("Inventory.DoToSelected", boost::bind(&LLInventoryGalleryContextMenu::doToSelected, this, _2), LLUICtrl::cb_info::UNTRUSTED_BLOCK);
+    registrar.add("Inventory.FileUploadLocation", boost::bind(&LLInventoryGalleryContextMenu::fileUploadLocation, this, _2), LLUICtrl::cb_info::UNTRUSTED_BLOCK);
+    registrar.add("Inventory.EmptyTrash",
+        boost::bind(&LLInventoryModel::emptyFolderType, &gInventory, "ConfirmEmptyTrash", LLFolderType::FT_TRASH), LLUICtrl::cb_info::UNTRUSTED_BLOCK);
+    registrar.add("Inventory.EmptyLostAndFound",
+        boost::bind(&LLInventoryModel::emptyFolderType, &gInventory, "ConfirmEmptyLostAndFound", LLFolderType::FT_LOST_AND_FOUND), LLUICtrl::cb_info::UNTRUSTED_BLOCK);
     registrar.add("Inventory.DoCreate", [this](LLUICtrl*, const LLSD& data)
                           {
                               if (mRootFolder)
@@ -104,10 +106,11 @@ LLContextMenu* LLInventoryGalleryContextMenu::createMenu()
                               {
                                   mGallery->doCreate(mUUIDs.front(), data);
                               }
-                          });
+                          },
+        LLUICtrl::cb_info::UNTRUSTED_BLOCK);
 
     std::set<LLUUID> uuids(mUUIDs.begin(), mUUIDs.end());
-    registrar.add("Inventory.Share", boost::bind(&LLAvatarActions::shareWithAvatars, uuids, gFloaterView->getParentFloater(mGallery)));
+    registrar.add("Inventory.Share", boost::bind(&LLAvatarActions::shareWithAvatars, uuids, gFloaterView->getParentFloater(mGallery)), LLUICtrl::cb_info::UNTRUSTED_BLOCK);
 
     enable_registrar.add("Inventory.CanSetUploadLocation", boost::bind(&LLInventoryGalleryContextMenu::canSetUploadLocation, this, _2));
 
@@ -264,6 +267,20 @@ void LLInventoryGalleryContextMenu::doToSelected(const LLSD& userdata)
         if (cat)
         {
             LLAppearanceMgr::instance().takeOffOutfit(cat->getLinkedUUID());
+        }
+    }
+    else if ("add_to_favorites" == action)
+    {
+        for (const LLUUID& id : mUUIDs)
+        {
+            set_favorite(id, true);
+        }
+    }
+    else if ("remove_from_favorites" == action)
+    {
+        for (const LLUUID& id : mUUIDs)
+        {
+            set_favorite(id, false);
         }
     }
     else if ("take_off" == action || "detach" == action)
@@ -472,22 +489,7 @@ void LLInventoryGalleryContextMenu::onRename(const LLSD& notification, const LLS
 void LLInventoryGalleryContextMenu::fileUploadLocation(const LLSD& userdata)
 {
     const std::string param = userdata.asString();
-    if (param == "model")
-    {
-        gSavedPerAccountSettings.setString("ModelUploadFolder", mUUIDs.front().asString());
-    }
-    else if (param == "texture")
-    {
-        gSavedPerAccountSettings.setString("TextureUploadFolder", mUUIDs.front().asString());
-    }
-    else if (param == "sound")
-    {
-        gSavedPerAccountSettings.setString("SoundUploadFolder", mUUIDs.front().asString());
-    }
-    else if (param == "animation")
-    {
-        gSavedPerAccountSettings.setString("AnimationUploadFolder", mUUIDs.front().asString());
-    }
+    LLInventoryAction::fileUploadLocation(mUUIDs.front(), param);
 }
 
 bool LLInventoryGalleryContextMenu::canSetUploadLocation(const LLSD& userdata)
@@ -595,20 +597,23 @@ void LLInventoryGalleryContextMenu::updateMenuItemsVisibility(LLContextMenu* men
     bool has_children = false;
     bool is_full_perm_item = false;
     bool is_copyable = false;
-    LLViewerInventoryItem* selected_item = gInventory.getItem(selected_id);
+
+    LLViewerInventoryCategory* selected_category = nullptr;
+    LLViewerInventoryItem* selected_item = nullptr;
 
     if(is_folder)
     {
-        LLInventoryCategory* category = gInventory.getCategory(selected_id);
-        if (category)
+        selected_category = dynamic_cast<LLViewerInventoryCategory*>(obj);
+        if (selected_category)
         {
-            folder_type = category->getPreferredType();
+            folder_type = selected_category->getPreferredType();
             is_system_folder = LLFolderType::lookupIsProtectedType(folder_type);
             has_children = (gInventory.categoryHasChildren(selected_id) != LLInventoryModel::CHILDREN_NO);
         }
     }
     else
     {
+        selected_item = dynamic_cast<LLViewerInventoryItem*>(obj);
         if (selected_item)
         {
             is_full_perm_item = selected_item->getIsFullPerm();
@@ -727,8 +732,7 @@ void LLInventoryGalleryContextMenu::updateMenuItemsVisibility(LLContextMenu* men
     {
         if (is_agent_inventory && !is_inbox && !is_cof && !is_in_favorites && !is_outfits)
         {
-            LLViewerInventoryCategory* category = gInventory.getCategory(selected_id);
-            if (!category || !LLFriendCardsManager::instance().isCategoryInFriendFolder(category))
+            if (!selected_category || !LLFriendCardsManager::instance().isCategoryInFriendFolder(selected_category))
             {
                 items.push_back(std::string("New Folder"));
             }
@@ -756,6 +760,22 @@ void LLInventoryGalleryContextMenu::updateMenuItemsVisibility(LLContextMenu* men
             if (inventory_linking)
             {
                 items.push_back(std::string("Paste As Link"));
+
+                if (selected_item)
+                {
+                    if (!LLAssetType::lookupCanLink(selected_item->getActualType()))
+                    {
+                        disabled_items.push_back(std::string("Paste As Link"));
+                    }
+                    else if (gInventory.isObjectDescendentOf(selected_item->getUUID(), gInventory.getLibraryRootFolderID()))
+                    {
+                        disabled_items.push_back(std::string("Paste As Link"));
+                    }
+                }
+                else if (selected_category && LLFolderType::lookupIsProtectedType(selected_category->getPreferredType()))
+                {
+                    disabled_items.push_back(std::string("Paste As Link"));
+                }
             }
         }
         if (is_folder && is_agent_inventory)
@@ -766,12 +786,25 @@ void LLInventoryGalleryContextMenu::updateMenuItemsVisibility(LLContextMenu* men
                 {
                     items.push_back(std::string("New Folder"));
                 }
+                items.push_back(std::string("upload_options"));
                 items.push_back(std::string("upload_def"));
             }
 
             if(is_outfits && !isRootFolder())
             {
                 items.push_back(std::string("New Outfit"));
+            }
+
+            if (!is_trash && !is_in_trash && gInventory.getRootFolderID() != selected_id)
+            {
+                if (get_is_favorite(obj))
+                {
+                    items.push_back(std::string("Remove from Favorites"));
+                }
+                else
+                {
+                    items.push_back(std::string("Add to Favorites"));
+                }
             }
 
             items.push_back(std::string("Subfolder Separator"));
@@ -819,6 +852,17 @@ void LLInventoryGalleryContextMenu::updateMenuItemsVisibility(LLContextMenu* men
             if(is_agent_inventory)
             {
                 items.push_back(std::string("Cut"));
+                if (!is_in_trash)
+                {
+                    if (get_is_favorite(obj))
+                    {
+                        items.push_back(std::string("Remove from Favorites"));
+                    }
+                    else
+                    {
+                        items.push_back(std::string("Add to Favorites"));
+                    }
+                }
                 if (!is_link || !is_cof || !get_is_item_worn(selected_id))
                 {
                     items.push_back(std::string("Delete"));
@@ -955,6 +999,7 @@ void LLInventoryGalleryContextMenu::updateMenuItemsVisibility(LLContextMenu* men
             }
 
             disabled_items.push_back(std::string("New Folder"));
+            disabled_items.push_back(std::string("upload_options"));
             disabled_items.push_back(std::string("upload_def"));
             disabled_items.push_back(std::string("create_new"));
         }
@@ -976,9 +1021,8 @@ void LLInventoryGalleryContextMenu::updateMenuItemsVisibility(LLContextMenu* men
         {
             if (is_folder)
             {
-                LLViewerInventoryCategory* cat = gInventory.getCategory(selected_id);
-                if (cat
-                    && !LLFolderType::lookupIsProtectedType(cat->getPreferredType())
+                if (selected_category
+                    && !LLFolderType::lookupIsProtectedType(selected_category->getPreferredType())
                     && gInventory.isObjectDescendentOf(selected_id, gInventory.getRootFolderID()))
                 {
                     can_list = true;
@@ -1004,6 +1048,15 @@ void LLInventoryGalleryContextMenu::updateMenuItemsVisibility(LLContextMenu* men
                 disabled_items.push_back(std::string("Marketplace Copy"));
                 disabled_items.push_back(std::string("Marketplace Move"));
             }
+        }
+
+        if (get_is_favorite(obj))
+        {
+            items.push_back(std::string("Remove from Favorites"));
+        }
+        else if (is_agent_inventory)
+        {
+            items.push_back(std::string("Add to Favorites"));
         }
     }
 

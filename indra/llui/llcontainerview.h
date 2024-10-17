@@ -65,21 +65,21 @@ protected:
 public:
     ~LLContainerView();
 
-    /*virtual*/ bool postBuild();
-    /*virtual*/ bool addChild(LLView* view, S32 tab_group = 0);
+    bool postBuild() override;
+    bool addChild(LLView* view, S32 tab_group = 0) override;
 
-    /*virtual*/ bool handleDoubleClick(S32 x, S32 y, MASK mask);
-    /*virtual*/ bool handleMouseDown(S32 x, S32 y, MASK mask);
-    /*virtual*/ bool handleMouseUp(S32 x, S32 y, MASK mask);
+    bool handleDoubleClick(S32 x, S32 y, MASK mask) override;
+    bool handleMouseDown(S32 x, S32 y, MASK mask) override;
+    bool handleMouseUp(S32 x, S32 y, MASK mask) override;
 
-    /*virtual*/ void draw();
-    /*virtual*/ void reshape(S32 width, S32 height, bool called_from_parent = true);
-    /*virtual*/ LLRect getRequiredRect();   // Return the height of this object, given the set options.
+    void draw() override;
+    void reshape(S32 width, S32 height, bool called_from_parent = true) override;
+    LLRect getRequiredRect() override;   // Return the height of this object, given the set options.
 
     void setLabel(const std::string& label);
     void showLabel(bool show) { mShowLabel = show; }
     void setDisplayChildren(bool displayChildren);
-    bool getDisplayChildren() { return mDisplayChildren; }
+    bool getDisplayChildren() const { return mDisplayChildren; }
     void setScrollContainer(LLScrollContainer* scroll) {mScrollContainer = scroll;}
 
  private:

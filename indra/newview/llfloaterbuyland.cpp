@@ -163,6 +163,7 @@ public:
     void updateParcelInfo();
     void updateCovenantInfo();
     static void onChangeAgreeCovenant(LLUICtrl* ctrl, void* user_data);
+    void updateFloaterCovenant(const LLTextBase* source, const LLUUID &asset_id);
     void updateFloaterCovenantText(const std::string& string, const LLUUID &asset_id);
     void updateFloaterEstateName(const std::string& name);
     void updateFloaterLastModified(const std::string& text);
@@ -201,6 +202,8 @@ public:
 
     void onVisibilityChanged ( const LLSD& new_visibility );
 
+private:
+    void onCovenantTextUpdated(const LLUUID& asset_id);
 };
 
 // static
@@ -218,6 +221,15 @@ void LLFloaterBuyLand::buyLand(
     {
         ui->setForGroup(is_for_group);
         ui->setParcel(region, parcel);
+    }
+}
+
+// static
+void LLFloaterBuyLand::updateCovenant(const LLTextBase* source, const LLUUID& asset_id)
+{
+    if (LLFloaterBuyLandUI* floater = LLFloaterReg::findTypedInstance<LLFloaterBuyLandUI>("buy_land"))
+    {
+        floater->updateFloaterCovenant(source, asset_id);
     }
 }
 
@@ -560,11 +572,24 @@ void LLFloaterBuyLandUI::onChangeAgreeCovenant(LLUICtrl* ctrl, void* user_data)
     }
 }
 
+void LLFloaterBuyLandUI::updateFloaterCovenant(const LLTextBase* source, const LLUUID& asset_id)
+{
+    LLViewerTextEditor* editor = getChild<LLViewerTextEditor>("covenant_editor");
+    editor->copyContents(source);
+
+    onCovenantTextUpdated(asset_id);
+}
+
 void LLFloaterBuyLandUI::updateFloaterCovenantText(const std::string &string, const LLUUID& asset_id)
 {
     LLViewerTextEditor* editor = getChild<LLViewerTextEditor>("covenant_editor");
     editor->setText(string);
 
+    onCovenantTextUpdated(asset_id);
+}
+
+void LLFloaterBuyLandUI::onCovenantTextUpdated(const LLUUID& asset_id)
+{
     LLCheckBoxCtrl* check = getChild<LLCheckBoxCtrl>("agree_covenant");
     LLTextBox* box = getChild<LLTextBox>("covenant_text");
     if (asset_id.isNull())

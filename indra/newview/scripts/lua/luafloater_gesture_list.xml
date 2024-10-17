@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ height="150"
+ layout="topleft"
+ name="lua_gestures"
+ title="Gestures"
+ width="320">
+    <scroll_list
+     draw_heading="false"
+     left="5"
+     width="310"
+     height="115"
+     top_pad ="25"
+     follows="all"
+     name="gesture_list">
+        <scroll_list.columns
+          name="gesture_name"
+          label="Name"/>
+    </scroll_list>
+</floater>

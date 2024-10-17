@@ -213,6 +213,7 @@ void GLTFSceneManager::uploadSelection()
                         LLFloaterPerms::getGroupPerms("Uploads"),
                         LLFloaterPerms::getEveryonePerms("Uploads"),
                         expected_upload_cost,
+                        LLUUID::null,
                         false,
                         finish,
                         failure));
@@ -276,6 +277,7 @@ void GLTFSceneManager::uploadSelection()
                 LLFloaterPerms::getGroupPerms("Uploads"),
                 LLFloaterPerms::getEveryonePerms("Uploads"),
                 expected_upload_cost,
+                LLUUID::null,
                 false,
                 finish,
                 failure));
@@ -371,43 +373,46 @@ void GLTFSceneManager::addGLTFObject(LLViewerObject* obj, LLUUID gltf_id)
 //static
 void GLTFSceneManager::onGLTFBinLoadComplete(const LLUUID& id, LLAssetType::EType asset_type, void* user_data, S32 status, LLExtStat ext_status)
 {
-    LLViewerObject* obj = (LLViewerObject*)user_data;
-    llassert(asset_type == LLAssetType::AT_GLTF_BIN);
-
-    if (status == LL_ERR_NOERR)
-    {
-        if (obj)
+    LLAppViewer::instance()->postToMainCoro([=]()
         {
-            // find the Buffer with the given id in the asset
-            if (obj->mGLTFAsset)
+            LLViewerObject* obj = (LLViewerObject*)user_data;
+            llassert(asset_type == LLAssetType::AT_GLTF_BIN);
+
+            if (status == LL_ERR_NOERR)
             {
-                obj->mGLTFAsset->mPendingBuffers--;
-
-
-                if (obj->mGLTFAsset->mPendingBuffers == 0)
+                if (obj)
                 {
-                    if (obj->mGLTFAsset->prep())
+                    // find the Buffer with the given id in the asset
+                    if (obj->mGLTFAsset)
                     {
-                        GLTFSceneManager& mgr = GLTFSceneManager::instance();
-                        if (std::find(mgr.mObjects.begin(), mgr.mObjects.end(), obj) == mgr.mObjects.end())
+                        obj->mGLTFAsset->mPendingBuffers--;
+
+
+                        if (obj->mGLTFAsset->mPendingBuffers == 0)
                         {
-                            GLTFSceneManager::instance().mObjects.push_back(obj);
+                            if (obj->mGLTFAsset->prep())
+                            {
+                                GLTFSceneManager& mgr = GLTFSceneManager::instance();
+                                if (std::find(mgr.mObjects.begin(), mgr.mObjects.end(), obj) == mgr.mObjects.end())
+                                {
+                                    GLTFSceneManager::instance().mObjects.push_back(obj);
+                                }
+                            }
+                            else
+                            {
+                                LL_WARNS("GLTF") << "Failed to prepare GLTF asset: " << id << LL_ENDL;
+                                obj->mGLTFAsset = nullptr;
+                            }
                         }
-                    }
-                    else
-                    {
-                        LL_WARNS("GLTF") << "Failed to prepare GLTF asset: " << id << LL_ENDL;
-                        obj->mGLTFAsset = nullptr;
                     }
                 }
             }
-        }
-    }
-    else
-    {
-        LL_WARNS("GLTF") << "Failed to load GLTF asset: " << id << LL_ENDL;
-        obj->unref();
-    }
+            else
+            {
+                LL_WARNS("GLTF") << "Failed to load GLTF asset: " << id << LL_ENDL;
+                obj->unref();
+            }
+        });
 }
 
 //static
@@ -542,6 +547,7 @@ void GLTFSceneManager::update()
                 LLFloaterPerms::getGroupPerms("Uploads"),
                 LLFloaterPerms::getEveryonePerms("Uploads"),
                 expected_upload_cost,
+                LLUUID::null,
                 false,
                 finish,
                 failure));
@@ -807,10 +813,10 @@ void GLTFSceneManager::bind(Asset& asset, Material& material)
 
 LLMatrix4a inverse(const LLMatrix4a& mat)
 {
-    glh::matrix4f m((F32*)mat.mMatrix);
-    m = m.inverse();
+    glm::mat4 m = glm::make_mat4((F32*)mat.mMatrix);
+    m = glm::inverse(m);
     LLMatrix4a ret;
-    ret.loadu(m.m);
+    ret.loadu(glm::value_ptr(m));
     return ret;
 }
 

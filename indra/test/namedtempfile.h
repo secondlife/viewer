@@ -32,18 +32,18 @@ class NamedTempFile: public boost::noncopyable
 {
     LOG_CLASS(NamedTempFile);
 public:
-    NamedTempFile(const std::string_view& pfx,
-                  const std::string_view& content,
-                  const std::string_view& sfx=std::string_view(""))
+    NamedTempFile(std::string_view pfx,
+                  std::string_view content,
+                  std::string_view sfx=std::string_view(""))
     {
         createFile(pfx, [&content](std::ostream& out){ out << content; }, sfx);
     }
 
     // Disambiguate when passing string literal -- unclear why a string
     // literal should be ambiguous wrt std::string_view and Streamer
-    NamedTempFile(const std::string_view& pfx,
+    NamedTempFile(std::string_view pfx,
                   const char* content,
-                  const std::string_view& sfx=std::string_view(""))
+                  std::string_view sfx=std::string_view(""))
     {
         createFile(pfx, [&content](std::ostream& out){ out << content; }, sfx);
     }
@@ -53,9 +53,9 @@ public:
     // (boost::phoenix::placeholders::arg1 << "the value is " << 17 << '\n')
     typedef std::function<void(std::ostream&)> Streamer;
 
-    NamedTempFile(const std::string_view& pfx,
+    NamedTempFile(std::string_view pfx,
                   const Streamer& func,
-                  const std::string_view& sfx=std::string_view(""))
+                  std::string_view sfx=std::string_view(""))
     {
         createFile(pfx, func, sfx);
     }
@@ -94,8 +94,8 @@ public:
         return out;
     }
 
-    static boost::filesystem::path temp_path(const std::string_view& pfx="",
-                                             const std::string_view& sfx="")
+    static boost::filesystem::path temp_path(std::string_view pfx="",
+                                             std::string_view sfx="")
     {
         // This variable is set by GitHub actions and is the recommended place
         // to put temp files belonging to an actions job.
@@ -114,9 +114,9 @@ public:
     }
 
 protected:
-    void createFile(const std::string_view& pfx,
+    void createFile(std::string_view pfx,
                     const Streamer& func,
-                    const std::string_view& sfx)
+                    std::string_view sfx)
     {
         // Create file in a temporary place.
         mPath = temp_path(pfx, sfx);
@@ -137,7 +137,7 @@ class NamedExtTempFile: public NamedTempFile
 {
     LOG_CLASS(NamedExtTempFile);
 public:
-    NamedExtTempFile(const std::string& ext, const std::string_view& content):
+    NamedExtTempFile(const std::string& ext, std::string_view content):
         NamedTempFile(remove_dot(ext), content, ensure_dot(ext))
     {}
 

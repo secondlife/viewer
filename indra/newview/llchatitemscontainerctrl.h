@@ -48,7 +48,8 @@ protected:
         LLFloaterIMNearbyChatToastPanel()
         :
     mIsDirty(false),
-    mSourceType(CHAT_SOURCE_OBJECT)
+    mSourceType(CHAT_SOURCE_OBJECT),
+    mIsFromScript(false)
     {};
 public:
     ~LLFloaterIMNearbyChatToastPanel(){}
@@ -57,6 +58,8 @@ public:
 
     const LLUUID& getFromID() const { return mFromID;}
     const std::string& getFromName() const { return mFromName; }
+
+    bool isFromScript() { return mIsFromScript; }
 
     //void  addText     (const std::string& message ,  const LLStyle::Params& input_params = LLStyle::Params());
     //void  setMessage  (const LLChat& msg);
@@ -88,6 +91,7 @@ private:
     std::string     mFromName;
     EChatSourceType mSourceType;
     LLChatMsgBox*   mMsgText;
+    bool mIsFromScript;
 
 
 

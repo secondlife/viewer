@@ -839,7 +839,7 @@ void AISAPI::onUpdateReceived(const LLSD& update, COMMAND_TYPE type, const LLSD&
     if ( (type == UPDATECATEGORY || type == UPDATEITEM)
         && gSavedSettings.getBOOL("DebugAvatarAppearanceMessage"))
     {
-        dump_sequential_xml(gAgentAvatarp->getFullname() + "_ais_update", update);
+        dump_sequential_xml(gAgentAvatarp->getDebugName() + "_ais_update", update);
     }
 
     AISUpdate ais_update(update, type, request_body);
@@ -1385,8 +1385,6 @@ void AISUpdate::parseCategory(const LLSD& category_map, S32 depth)
                      && curr_cat->getVersion() > LLViewerInventoryCategory::VERSION_UNKNOWN
                      && version > curr_cat->getVersion())
             {
-                // Potentially should new_cat->setVersion(unknown) here,
-                // but might be waiting for a callback that would increment
                 LL_DEBUGS("Inventory") << "Category " << category_id
                     << " is stale. Known version: " << curr_cat->getVersion()
                     << " server version: " << version << LL_ENDL;

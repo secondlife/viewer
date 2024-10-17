@@ -36,8 +36,8 @@ LLFloaterScriptEdPrefs::LLFloaterScriptEdPrefs(const LLSD& key)
 :   LLFloater(key)
 ,   mEditor(NULL)
 {
-    mCommitCallbackRegistrar.add("ScriptPref.applyUIColor", boost::bind(&LLFloaterScriptEdPrefs::applyUIColor, this ,_1, _2));
-    mCommitCallbackRegistrar.add("ScriptPref.getUIColor",   boost::bind(&LLFloaterScriptEdPrefs::getUIColor, this ,_1, _2));
+    mCommitCallbackRegistrar.add("ScriptPref.applyUIColor", { boost::bind(&LLFloaterScriptEdPrefs::applyUIColor, this ,_1, _2) });
+    mCommitCallbackRegistrar.add("ScriptPref.getUIColor",   { boost::bind(&LLFloaterScriptEdPrefs::getUIColor, this ,_1, _2) });
 }
 
 bool LLFloaterScriptEdPrefs::postBuild()

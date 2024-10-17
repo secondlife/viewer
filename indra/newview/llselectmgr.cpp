@@ -103,20 +103,12 @@ LLViewerObject* getSelectedParentObject(LLViewerObject *object) ;
 // Consts
 //
 
-const F32 SILHOUETTE_UPDATE_THRESHOLD_SQUARED = 0.02f;
-const S32 MAX_SILS_PER_FRAME = 50;
-const S32 MAX_OBJECTS_PER_PACKET = 254;
+constexpr F32 SILHOUETTE_UPDATE_THRESHOLD_SQUARED = 0.02f;
+constexpr S32 MAX_SILS_PER_FRAME = 50;
+constexpr S32 MAX_OBJECTS_PER_PACKET = 254;
 // For linked sets
-const S32 MAX_CHILDREN_PER_TASK = 255;
+constexpr S32 MAX_CHILDREN_PER_TASK = 255;
 
-//
-// Globals
-//
-
-//bool gDebugSelectMgr = false;
-
-//bool gHideSelectedObjects = false;
-//bool gAllowSelectAvatar = false;
 
 bool LLSelectMgr::sRectSelectInclusive = true;
 bool LLSelectMgr::sRenderHiddenSelections = true;
@@ -251,6 +243,23 @@ LLSelectMgr::LLSelectMgr()
 
     mForceSelection = false;
     mShowSelection = false;
+
+    LLControlVariable* ctrl = gSavedSettings.getControl("DebugSelectionLODs").get();
+    if (ctrl)
+    {
+        mSlectionLodModChangedConnection = ctrl->getSignal()->connect([this](LLControlVariable*, const LLSD&, const LLSD&)
+        {
+            for (LLObjectSelection::iterator iter = mSelectedObjects->begin();
+                iter != mSelectedObjects->end(); ++iter)
+            {
+                LLViewerObject* object = (*iter)->getObject();
+                if (object)
+                {
+                    object->updateLOD();
+                }
+            }
+        });
+    }
 }
 
 
@@ -260,6 +269,7 @@ LLSelectMgr::LLSelectMgr()
 LLSelectMgr::~LLSelectMgr()
 {
     clearSelections();
+    mSlectionLodModChangedConnection.disconnect();
 }
 
 void LLSelectMgr::clearSelections()

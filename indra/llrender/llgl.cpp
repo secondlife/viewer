@@ -50,6 +50,10 @@
 #include "llglheaders.h"
 #include "llglslshader.h"
 
+#include "glm/glm.hpp"
+#include <glm/gtc/matrix_access.hpp>
+#include "glm/gtc/type_ptr.hpp"
+
 #if LL_WINDOWS
 #include "lldxhardware.h"
 #endif
@@ -61,6 +65,7 @@
 
 bool gDebugSession = false;
 bool gDebugGLSession = false;
+bool gDebugTextureLabelLocalFilesSession = false;
 bool gClothRipple = false;
 bool gHeadlessClient = false;
 bool gNonInteractive = false;
@@ -211,8 +216,6 @@ LLMatrix4 gGLObliqueProjectionInverse;
 
 std::list<LLGLUpdate*> LLGLUpdate::sGLQ;
 
-#if (LL_WINDOWS || LL_LINUX)  && !LL_MESA_HEADLESS
-
 #if LL_WINDOWS
 // WGL_ARB_create_context
 PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB = nullptr;
@@ -231,8 +234,6 @@ PFNWGLBLITCONTEXTFRAMEBUFFERAMDPROC             wglBlitContextFramebufferAMD = n
 // WGL_EXT_swap_control
 PFNWGLSWAPINTERVALEXTPROC    wglSwapIntervalEXT = nullptr;
 PFNWGLGETSWAPINTERVALEXTPROC wglGetSwapIntervalEXT = nullptr;
-
-#endif
 
 // GL_VERSION_1_2
 //PFNGLDRAWRANGEELEMENTSPROC  glDrawRangeElements = nullptr;
@@ -994,9 +995,6 @@ LLGLManager::LLGLManager() :
     mIsAMD(false),
     mIsNVIDIA(false),
     mIsIntel(false),
-#if LL_DARWIN
-    mIsMobileGF(false),
-#endif
     mHasRequirements(true),
     mDriverVersionMajor(1),
     mDriverVersionMinor(0),
@@ -1038,7 +1036,6 @@ void LLGLManager::initWGL()
         GLH_EXT_NAME(wglGetGPUIDsAMD) = (PFNWGLGETGPUIDSAMDPROC)GLH_EXT_GET_PROC_ADDRESS("wglGetGPUIDsAMD");
         GLH_EXT_NAME(wglGetGPUInfoAMD) = (PFNWGLGETGPUINFOAMDPROC)GLH_EXT_GET_PROC_ADDRESS("wglGetGPUInfoAMD");
     }
-    mHasNVXGpuMemoryInfo = ExtensionExists("GL_NVX_gpu_memory_info", gGLHExts.mSysExts);
 
     if (ExtensionExists("WGL_EXT_swap_control", gGLHExts.mSysExts))
     {
@@ -1144,7 +1141,11 @@ bool LLGLManager::initGL()
     // Trailing space necessary to keep "nVidia Corpor_ati_on" cards
     // from being recognized as ATI.
     // NOTE: AMD has been pretty good about not breaking this check, do not rename without good reason
-    if (mGLVendor.substr(0,4) == "ATI ")
+    if (mGLVendor.substr(0,4) == "ATI "
+#if LL_LINUX
+         || mGLVendor.find("AMD") != std::string::npos
+#endif //LL_LINUX
+         )
     {
         mGLVendorShort = "AMD";
         // *TODO: Fix this?
@@ -1165,6 +1166,11 @@ bool LLGLManager::initGL()
     {
         mGLVendorShort = "INTEL";
         mIsIntel = true;
+    }
+    else if (mGLVendor.find("APPLE") != std::string::npos)
+    {
+        mGLVendorShort = "APPLE";
+        mIsApple = true;
     }
     else
     {
@@ -1205,8 +1211,10 @@ bool LLGLManager::initGL()
         {
             LL_WARNS("RenderInit") << "VRAM Detected (AMDAssociations):" << mVRAM << LL_ENDL;
         }
-    }
-    else if (mHasNVXGpuMemoryInfo)
+    } else
+#endif
+#if LL_WINDOWS || LL_LINUX
+    if (mHasNVXGpuMemoryInfo)
     {
         GLint mem_kb = 0;
         glGetIntegerv(GL_GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX, &mem_kb);
@@ -1398,6 +1406,9 @@ void LLGLManager::shutdownGL()
 
 void LLGLManager::initExtensions()
 {
+#if LL_LINUX
+    glh_init_extensions("");
+#endif
 #if LL_DARWIN
     GLint num_extensions = 0;
     std::string all_extensions{""};
@@ -1421,6 +1432,13 @@ void LLGLManager::initExtensions()
     mHasTransformFeedback = mGLVersion >= 3.99f;
     mHasDebugOutput = mGLVersion >= 4.29f;
 
+#if LL_WINDOWS || LL_LINUX
+    if( gGLHExts.mSysExts )
+        mHasNVXGpuMemoryInfo = ExtensionExists("GL_NVX_gpu_memory_info", gGLHExts.mSysExts);
+    else
+        LL_WARNS() << "gGLHExts.mSysExts is not set.?" << LL_ENDL;
+#endif
+
     // Misc
     glGetIntegerv(GL_MAX_ELEMENTS_VERTICES, (GLint*) &mGLMaxVertexRange);
     glGetIntegerv(GL_MAX_ELEMENTS_INDICES, (GLint*) &mGLMaxIndexRange);
@@ -1428,10 +1446,9 @@ void LLGLManager::initExtensions()
 
     mInited = true;
 
-#if (LL_WINDOWS || LL_LINUX) && !LL_MESA_HEADLESS
+#if LL_WINDOWS
     LL_DEBUGS("RenderInit") << "GL Probe: Getting symbols" << LL_ENDL;
 
-#if LL_WINDOWS
     // WGL_AMD_gpu_association
     wglGetGPUIDsAMD = (PFNWGLGETGPUIDSAMDPROC)GLH_EXT_GET_PROC_ADDRESS("wglGetGPUIDsAMD");
     wglGetGPUInfoAMD = (PFNWGLGETGPUINFOAMDPROC)GLH_EXT_GET_PROC_ADDRESS("wglGetGPUInfoAMD");
@@ -1449,8 +1466,6 @@ void LLGLManager::initExtensions()
 
     // WGL_ARB_create_context
     wglCreateContextAttribsARB = (PFNWGLCREATECONTEXTATTRIBSARBPROC)GLH_EXT_GET_PROC_ADDRESS("wglCreateContextAttribsARB");
-#endif
-
 
     // Load entire OpenGL API through GetProcAddress, leaving sections beyond mGLVersion unloaded
 
@@ -2578,6 +2593,7 @@ void parse_gl_version( S32* major, S32* minor, S32* release, std::string* vendor
     {
         return;
     }
+    LL_INFOS() << "GL: "  << version << LL_ENDL;
 
     version_string->assign(version);
 
@@ -2694,7 +2710,7 @@ void parse_glsl_version(S32& major, S32& minor)
     LLStringUtil::convertToS32(minor_str, minor);
 }
 
-LLGLUserClipPlane::LLGLUserClipPlane(const LLPlane& p, const glh::matrix4f& modelview, const glh::matrix4f& projection, bool apply)
+LLGLUserClipPlane::LLGLUserClipPlane(const LLPlane& p, const glm::mat4& modelview, const glm::mat4& projection, bool apply)
 {
     mApply = apply;
 
@@ -2721,13 +2737,12 @@ void LLGLUserClipPlane::disable()
 
 void LLGLUserClipPlane::setPlane(F32 a, F32 b, F32 c, F32 d)
 {
-    glh::matrix4f& P = mProjection;
-    glh::matrix4f& M = mModelview;
+    const glm::mat4& P = mProjection;
+    const glm::mat4& M = mModelview;
 
-    glh::matrix4f invtrans_MVP = (P * M).inverse().transpose();
-    glh::vec4f oplane(a,b,c,d);
-    glh::vec4f cplane;
-    invtrans_MVP.mult_matrix_vec(oplane, cplane);
+    glm::mat4 invtrans_MVP = glm::transpose(glm::inverse(P*M));
+    glm::vec4 oplane(a,b,c,d);
+    glm::vec4 cplane = invtrans_MVP * oplane;
 
     cplane /= fabs(cplane[2]); // normalize such that depth is not scaled
     cplane[3] -= 1;
@@ -2735,13 +2750,13 @@ void LLGLUserClipPlane::setPlane(F32 a, F32 b, F32 c, F32 d)
     if(cplane[2] < 0)
         cplane *= -1;
 
-    glh::matrix4f suffix;
-    suffix.set_row(2, cplane);
-    glh::matrix4f newP = suffix * P;
+    glm::mat4 suffix;
+    suffix = glm::row(suffix, 2, cplane);
+    glm::mat4 newP = suffix * P;
     gGL.matrixMode(LLRender::MM_PROJECTION);
     gGL.pushMatrix();
-    gGL.loadMatrix(newP.m);
-    gGLObliqueProjectionInverse = LLMatrix4(newP.inverse().transpose().m);
+    gGL.loadMatrix(glm::value_ptr(newP));
+    gGLObliqueProjectionInverse = LLMatrix4(glm::value_ptr(glm::transpose(glm::inverse(newP))));
     gGL.matrixMode(LLRender::MM_MODELVIEW);
 }
 
@@ -2754,7 +2769,7 @@ LLGLDepthTest::LLGLDepthTest(GLboolean depth_enabled, GLboolean write_enabled, G
 : mPrevDepthEnabled(sDepthEnabled), mPrevDepthFunc(sDepthFunc), mPrevWriteEnabled(sWriteEnabled)
 {
     stop_glerror();
-
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
     checkState();
 
     if (!depth_enabled)
@@ -2787,6 +2802,7 @@ LLGLDepthTest::LLGLDepthTest(GLboolean depth_enabled, GLboolean write_enabled, G
 
 LLGLDepthTest::~LLGLDepthTest()
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
     checkState();
     if (sDepthEnabled != mPrevDepthEnabled )
     {
@@ -2837,31 +2853,27 @@ void LLGLDepthTest::checkState()
 
 LLGLSquashToFarClip::LLGLSquashToFarClip()
 {
-    glh::matrix4f proj = get_current_projection();
+    glm::mat4 proj = get_current_projection();
     setProjectionMatrix(proj, 0);
 }
 
-LLGLSquashToFarClip::LLGLSquashToFarClip(glh::matrix4f& P, U32 layer)
+LLGLSquashToFarClip::LLGLSquashToFarClip(const glm::mat4& P, U32 layer)
 {
     setProjectionMatrix(P, layer);
 }
 
-
-void LLGLSquashToFarClip::setProjectionMatrix(glh::matrix4f& projection, U32 layer)
+void LLGLSquashToFarClip::setProjectionMatrix(glm::mat4 projection, U32 layer)
 {
-
     F32 depth = 0.99999f - 0.0001f * layer;
 
-    for (U32 i = 0; i < 4; i++)
-    {
-        projection.element(2, i) = projection.element(3, i) * depth;
-    }
+    glm::vec4 P_row_3 = glm::row(projection, 3) * depth;
+    projection = glm::row(projection, 2, P_row_3);
 
     LLRender::eMatrixMode last_matrix_mode = gGL.getMatrixMode();
 
     gGL.matrixMode(LLRender::MM_PROJECTION);
     gGL.pushMatrix();
-    gGL.loadMatrix(projection.m);
+    gGL.loadMatrix(glm::value_ptr(projection));
 
     gGL.matrixMode(last_matrix_mode);
 }
@@ -2957,5 +2969,3 @@ extern "C"
     __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
 }
 #endif
-
-

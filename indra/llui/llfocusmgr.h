@@ -97,7 +97,7 @@ public:
     LLFocusableElement*     getLastKeyboardFocus() const { return mLastKeyboardFocus; }
     bool            childHasKeyboardFocus( const LLView* parent ) const;
     void            removeKeyboardFocusWithoutCallback( const LLFocusableElement* focus );
-    bool            getKeystrokesOnly() { return mKeystrokesOnly; }
+    bool            getKeystrokesOnly() const { return mKeystrokesOnly; }
     void            setKeystrokesOnly(bool keystrokes_only) { mKeystrokesOnly = keystrokes_only; }
 
     F32             getFocusFlashAmt() const;

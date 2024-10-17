@@ -144,6 +144,7 @@ public:
     bool            remove( S32 index );    // remove item by index, return true if found and removed
     void            removeall() { clearRows(); }
     bool            itemExists(const std::string& name);
+    std::vector<LLScrollListItem*> getAllData() const;
 
     void            sortByName(bool ascending = true); // Sort the entries in the combobox by name
 
@@ -163,8 +164,11 @@ public:
 
     bool            remove(const std::string& name);    // remove item "name", return true if found and removed
 
-    bool            setCurrentByIndex( S32 index );
+    bool            setCurrentByIndex(S32 index);
     S32             getCurrentIndex() const;
+
+    bool            selectNextItem();
+    bool            selectPrevItem();
 
     void            setEnabledByValue(const LLSD& value, bool enabled);
 

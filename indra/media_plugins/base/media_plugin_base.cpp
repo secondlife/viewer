@@ -167,6 +167,55 @@ void MediaPluginBase::sendStatus()
     sendMessage(message);
 }
 
+#if LL_LINUX
+
+#include <dlfcn.h>
+
+size_t SymbolGrabber::registerSymbol( SymbolToGrab aSymbol )
+{
+    gSymbolsToGrab.emplace_back(aSymbol);
+    return gSymbolsToGrab.size();
+}
+
+bool SymbolGrabber::grabSymbols(std::vector< std::string > const &aDSONames)
+{
+    if (sSymsGrabbed)
+        return true;
+
+    for( std::vector< std::string >::const_iterator itr = aDSONames.begin(); itr != aDSONames.end(); ++itr )
+    {
+        auto pDSO = dlopen( itr->c_str(), RTLD_NOW );
+
+        if( pDSO )
+        {
+            sLoadedLibraries.push_back(pDSO);
+
+            for (auto i = 0; i < gSymbolsToGrab.size(); ++i)
+            {
+                if (!*gSymbolsToGrab[i].mPPFunc)
+                    *gSymbolsToGrab[i].mPPFunc = dlsym(pDSO, gSymbolsToGrab[i].mName);
+            }
+        }
+    }
+
+    bool sym_error = false;
+
+    for( auto i = 0; i < gSymbolsToGrab.size(); ++i )
+    {
+        if( gSymbolsToGrab[ i ].mRequired && ! *gSymbolsToGrab[ i ].mPPFunc )
+            sym_error = true;
+    }
+
+    sSymsGrabbed = !sym_error;
+    return sSymsGrabbed;
+}
+
+void SymbolGrabber::ungrabSymbols()
+{
+
+}
+#endif
+
 
 #if LL_WINDOWS
 # define LLSYMEXPORT __declspec(dllexport)
@@ -202,5 +251,52 @@ LLPluginInitEntryPoint(LLPluginInstance::sendMessageFunction host_send_func, voi
 int WINAPI DllEntryPoint( HINSTANCE hInstance, unsigned long reason, void* params )
 {
     return 1;
+}
+#endif
+
+#if LL_LINUX
+pid_t getParentPid( pid_t aPid )
+{
+    std::stringstream strm;
+    strm << "/proc/" << aPid << "/status";
+    std::ifstream in{ strm.str() };
+
+    if( !in.is_open() )
+        return 0;
+
+    pid_t res {0};
+    while( !in.eof() && res == 0 )
+    {
+        std::string line;
+        line.resize( 1024, 0 );
+        in.getline( &line[0], line.length() );
+
+        auto i = line.find( "PPid:"  );
+
+        if( i == std::string::npos )
+            continue;
+
+        char const *pIn = line.c_str() + 5; // Skip over pid;
+        while( *pIn != 0 && isspace( *pIn ) )
+               ++pIn;
+
+        if( *pIn )
+            res = atoll( pIn );
+    }
+     return res;
+}
+
+bool isPluginPid( pid_t aPid )
+{
+    auto myPid = getpid();
+
+    do
+    {
+        if( aPid == myPid )
+            return true;
+        aPid = getParentPid( aPid );
+    } while( aPid > 1 );
+
+    return false;
 }
 #endif

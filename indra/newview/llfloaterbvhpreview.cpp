@@ -118,8 +118,8 @@ std::string STATUS[] =
 //-----------------------------------------------------------------------------
 // LLFloaterBvhPreview()
 //-----------------------------------------------------------------------------
-LLFloaterBvhPreview::LLFloaterBvhPreview(const std::string& filename) :
-    LLFloaterNameDesc(filename)
+LLFloaterBvhPreview::LLFloaterBvhPreview(const LLSD& args) :
+    LLFloaterNameDesc(args)
 {
     mLastMouseX = 0;
     mLastMouseY = 0;
@@ -406,12 +406,17 @@ void LLFloaterBvhPreview::draw()
 
         gGL.getTexUnit(0)->bind(mAnimPreview);
 
-        gGL.begin( LLRender::QUADS );
+        gGL.begin(LLRender::TRIANGLES);
         {
             gGL.texCoord2f(0.f, 1.f);
             gGL.vertex2i(PREVIEW_HPAD, PREVIEW_TEXTURE_HEIGHT + PREVIEW_VPAD);
             gGL.texCoord2f(0.f, 0.f);
             gGL.vertex2i(PREVIEW_HPAD, PREVIEW_HPAD + PREF_BUTTON_HEIGHT + PREVIEW_HPAD);
+            gGL.texCoord2f(1.f, 0.f);
+            gGL.vertex2i(r.getWidth() - PREVIEW_HPAD, PREVIEW_HPAD + PREF_BUTTON_HEIGHT + PREVIEW_HPAD);
+
+            gGL.texCoord2f(0.f, 1.f);
+            gGL.vertex2i(PREVIEW_HPAD, PREVIEW_TEXTURE_HEIGHT + PREVIEW_VPAD);
             gGL.texCoord2f(1.f, 0.f);
             gGL.vertex2i(r.getWidth() - PREVIEW_HPAD, PREVIEW_HPAD + PREF_BUTTON_HEIGHT + PREVIEW_HPAD);
             gGL.texCoord2f(1.f, 1.f);
@@ -1023,7 +1028,8 @@ void LLFloaterBvhPreview::onBtnOK(void* userdata)
                     LLFloaterPerms::getNextOwnerPerms("Uploads"),
                     LLFloaterPerms::getGroupPerms("Uploads"),
                     LLFloaterPerms::getEveryonePerms("Uploads"),
-                    expected_upload_cost));
+                    expected_upload_cost,
+                    floaterp->mDestinationFolderId));
 
                 upload_new_resource(assetUploadInfo);
             }
