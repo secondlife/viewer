@@ -31,6 +31,8 @@
 #include "openjpeg.h"
 #include "event.h"
 #include "cio.h"
+#include "owning_ptr.h"
+#include <string>
 
 #define MAX_ENCODED_DISCARD_LEVELS 5
 
@@ -231,33 +233,6 @@ public:
         parameters.cp_reduce = discardLevel;
     }
 
-    ~JPEG2KDecode()
-    {
-        if (decoder)
-        {
-            opj_destroy_codec(decoder);
-        }
-        decoder = nullptr;
-
-        if (image)
-        {
-            opj_image_destroy(image);
-        }
-        image = nullptr;
-
-        if (stream)
-        {
-            opj_stream_destroy(stream);
-        }
-        stream = nullptr;
-
-        if (codestream_info)
-        {
-            opj_destroy_cstr_info(&codestream_info);
-        }
-        codestream_info = nullptr;
-    }
-
     bool readHeader(
         U8* data,
         U32 dataSize,
@@ -273,11 +248,6 @@ public:
         if (!opj_setup_decoder(decoder, &parameters))
         {
             return false;
-        }
-
-        if (stream)
-        {
-            opj_stream_destroy(stream);
         }
 
         stream = opj_stream_create(dataSize, true);
@@ -301,13 +271,14 @@ public:
         opj_decoder_set_strict_mode(decoder, OPJ_FALSE);
 
         /* Read the main header of the codestream and if necessary the JP2 boxes*/
-        if (!opj_read_header((opj_stream_t*)stream, decoder, &image))
+        opj_image_t* img;
+        if (!opj_read_header(stream, decoder, &img))
         {
             return false;
         }
+        image = img;
 
         codestream_info = opj_get_cstr_info(decoder);
-
         if (!codestream_info)
         {
             return false;
@@ -344,11 +315,6 @@ public:
         opj_set_warning_handler(decoder, opj_warn, this);
         opj_set_error_handler(decoder, opj_error, this);
 
-        if (stream)
-        {
-            opj_stream_destroy(stream);
-        }
-
         stream = opj_stream_create(dataSize, true);
         if (!stream)
         {
@@ -366,11 +332,7 @@ public:
         size = dataSize;
         offset = 0;
 
-        if (image)
-        {
-            opj_image_destroy(image);
-            image = nullptr;
-        }
+        image = nullptr;
 
         // needs to happen before opj_read_header and opj_decode...
         opj_set_decoded_resolution_factor(decoder, discard_level);
@@ -378,10 +340,12 @@ public:
         // enable decoding partially loaded images
         opj_decoder_set_strict_mode(decoder, OPJ_FALSE);
 
-        if (!opj_read_header(stream, decoder, &image))
+        opj_image_t* img;
+        if (!opj_read_header(stream, decoder, &img))
         {
             return false;
         }
+        image = img;
 
         // needs to happen before decode which may fail
         if (channels)
@@ -393,15 +357,9 @@ public:
 
         // count was zero.  The latter is just a sanity check before we
         // dereference the array.
-        if (!decoded || !image || !image->numcomps)
-        {
-            opj_end_decompress(decoder, stream);
-            return false;
-        }
-
+        bool result = (decoded && image && image->numcomps);
         opj_end_decompress(decoder, stream);
-
-        return true;
+        return result;
     }
 
     opj_image_t* getImage() { return image; }
@@ -409,10 +367,18 @@ public:
 private:
     opj_dparameters_t         parameters;
     opj_event_mgr_t           event_mgr;
-    opj_image_t*              image = nullptr;
-    opj_codec_t*              decoder = nullptr;
-    opj_stream_t*             stream = nullptr;
-    opj_codestream_info_v2_t* codestream_info = nullptr;
+    owning_ptr<opj_codestream_info_v2_t> codestream_info{
+        nullptr,
+        // opj_destroy_cstr_info(opj_codestream_info_v2_t**) requires a
+        // pointer to pointer, which is too bad because otherwise we could
+        // directly pass that function as the owning_ptr's deleter.
+        [](opj_codestream_info_v2_t* doomed)
+        {
+            opj_destroy_cstr_info(&doomed);
+        }};
+    owning_ptr<opj_stream_t>  stream{ nullptr, opj_stream_destroy };
+    owning_ptr<opj_image_t>   image{ nullptr, opj_image_destroy };
+    owning_ptr<opj_codec_t>   decoder{ nullptr, opj_destroy_codec };
 };
 
 class JPEG2KEncode : public JPEG2KBase
@@ -447,41 +413,17 @@ public:
             parameters.irreversible = 1;
         }
 
-        if (comment_text)
-        {
-            free(comment_text);
-        }
-        comment_text = comment_text_in ? strdup(comment_text_in) : nullptr;
+        comment_text.assign(comment_text_in? comment_text_in : "no comment");
 
-        parameters.cp_comment = comment_text ? comment_text : (char*)"no comment";
+        // Because comment_text is a member declared before parameters,
+        // it will outlive parameters, so we can safely store in parameters a
+        // pointer into comment_text's data. Unfortunately cp_comment is
+        // declared as (non-const) char*. We just have to trust that this is
+        // legacy C style coding, rather than any intention to modify the
+        // comment string. (If there was actual modification, we could use a
+        // std::vector<char> instead, but let's only go there if we must.)
+        parameters.cp_comment = const_cast<char*>(comment_text.c_str());
         llassert(parameters.cp_comment);
-    }
-
-    ~JPEG2KEncode()
-    {
-        if (encoder)
-        {
-            opj_destroy_codec(encoder);
-        }
-        encoder = nullptr;
-
-        if (image)
-        {
-            opj_image_destroy(image);
-        }
-        image = nullptr;
-
-        if (stream)
-        {
-            opj_stream_destroy(stream);
-        }
-        stream = nullptr;
-
-        if (comment_text)
-        {
-            free(comment_text);
-        }
-        comment_text = nullptr;
     }
 
     bool encode(const LLImageRaw& rawImageIn, LLImageJ2C &compressedImageOut)
@@ -560,11 +502,6 @@ public:
         offset = 0;
 
         memset(buffer, 0, data_size_guess);
-
-        if (stream)
-        {
-            opj_stream_destroy(stream);
-        }
 
         stream = opj_stream_create(data_size_guess, false);
         if (!stream)
@@ -742,12 +679,12 @@ public:
     opj_image_t* getImage() { return image; }
 
 private:
-    opj_cparameters_t   parameters;
-    opj_event_mgr_t     event_mgr;
-    opj_image_t*        image = nullptr;
-    opj_codec_t*        encoder = nullptr;
-    opj_stream_t*       stream = nullptr;
-    char*               comment_text = nullptr;
+    std::string              comment_text;
+    opj_cparameters_t        parameters;
+    opj_event_mgr_t          event_mgr;
+    owning_ptr<opj_stream_t> stream{ nullptr,  opj_stream_destroy };
+    owning_ptr<opj_image_t>  image{ nullptr,   opj_image_destroy };
+    owning_ptr<opj_codec_t>  encoder{ nullptr, opj_destroy_codec };
 };
 
 

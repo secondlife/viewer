@@ -94,6 +94,7 @@
 #include "llinitparam.h"
 #include "llinstancetracker.h"
 #include "llmortician.h"
+#include "llmutex.h"
 #include "llnotificationptr.h"
 #include "llpointer.h"
 #include "llrefcount.h"
