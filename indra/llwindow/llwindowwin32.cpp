@@ -1702,18 +1702,16 @@ const   S32   max_format  = (S32)num_formats - 1;
 bool LLWindowWin32::createXRSession()
 {
     // Initialize the XR manager.
-    mXRManager = new LLXRManager();
+    LLXRManager::createInstance();
 
     XrGraphicsBindingOpenGLWin32KHR graphicsBinding = { XR_TYPE_GRAPHICS_BINDING_OPENGL_WIN32_KHR };
     graphicsBinding.hDC                             = mhDC;
     graphicsBinding.hGLRC                           = mhRC;
 
-    mXRManager->createSession(graphicsBinding);
-    mXRManager->setupPlaySpace();
+    LLXRManager::getInstance()->createSession(graphicsBinding);
+    LLXRManager::getInstance()->setupPlaySpace();
 
-    mXRManager->createSwapchains();
-
-    mCallbacks->handleXRManagerInit(mXRManager);
+    LLXRManager::getInstance()->createSwapchains();
 
     return true;
 }

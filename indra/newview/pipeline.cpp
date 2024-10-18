@@ -773,8 +773,8 @@ LLPipeline::eFBOStatus LLPipeline::doAllocateScreenBuffer(U32 resX, U32 resY)
         LL_WARNS() << "Unable to allocate screen buffer at any resolution!" << LL_ENDL;
     }
 
-    if (gXRManager)
-        gXRManager->createSwapchains();
+    if (LLXRManager::instanceExists())
+        LLXRManager::getInstance()->createSwapchains();
 
     return ret;
 }
@@ -7137,11 +7137,9 @@ void LLPipeline::gammaCorrect(LLRenderTarget* src, LLRenderTarget* dst)
 
 void LLPipeline::copyFrameBufferToXR(LLRenderTarget* src)
 {
-    if (gXRManager)
+    if (LLXRManager::instanceExists())
     {
-        LLRenderTarget& depth_src = mRT->deferredScreen;
-
-        gXRManager->bindSwapTarget(gXRManager->mCurrentEye);
+        LLXRManager::getInstance()->bindSwapTarget();
 
         gCopyProgram.bind();
         gGL.getTexUnit(0)->bind(src);
@@ -7149,8 +7147,8 @@ void LLPipeline::copyFrameBufferToXR(LLRenderTarget* src)
         mScreenTriangleVB->setBuffer();
         mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
 
-        gXRManager->updateFrame((LLXRManager::LLXREye)gXRManager->mCurrentEye);
-        gXRManager->flushSwapTarget(gXRManager->mCurrentEye);
+        LLXRManager::getInstance()->updateFrame();
+        LLXRManager::getInstance()->flushSwapTarget();
     }
 }
 
@@ -7895,8 +7893,6 @@ void LLPipeline::renderFinalize()
         finalBuffer = &mPostMap;
     }
 
-    copyFrameBufferToXR(finalBuffer);
-
     if (RenderBufferVisualization > -1)
     {
         switch (RenderBufferVisualization)
@@ -7948,6 +7944,8 @@ void LLPipeline::renderFinalize()
     }
 
     gDeferredPostNoDoFNoiseProgram.unbind();
+    
+    copyFrameBufferToXR(finalBuffer);
 
     gGL.setSceneBlendType(LLRender::BT_ALPHA);
 

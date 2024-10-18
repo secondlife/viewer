@@ -291,10 +291,10 @@ void LLViewerCamera::setPerspective(bool for_selection,
     }
     aspect = getAspect();
 
-    if (gXRManager)
+    if (LLXRManager::instanceExists() && LLXRManager::getInstance()->xrState() == LLXRManager::XR_STATE_RUNNING)
     {
-        gXRManager->mZFar = z_far;
-        gXRManager->mZNear = z_near;
+        LLXRManager::getInstance()->mZFar = z_far;
+        LLXRManager::getInstance()->mZNear = z_near;
     }
 
     // Load camera view matrix
@@ -356,9 +356,9 @@ void LLViewerCamera::setPerspective(bool for_selection,
 
     calcProjection(z_far); // Update the projection matrix cache
 
-    if (gXRManager && sCurCameraID == CAMERA_WORLD && !gCubeSnapshot)
+    if (LLXRManager::instanceExists() && sCurCameraID == CAMERA_WORLD && !gCubeSnapshot)
     {
-        proj_mat = gXRManager->getEyeProjections()[gXRManager->mCurrentEye];
+        proj_mat = LLXRManager::getInstance()->getEyeProjections()[LLXRManager::getInstance()->mCurrentEye];
     }
     else
     {

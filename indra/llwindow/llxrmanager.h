@@ -18,49 +18,16 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include "llrender.h"
+#include "llsingleton.h"
 
 glm::quat quatFromXrQuaternion(XrQuaternionf quat);
 glm::vec3    vec3FromXrVector3(XrVector3f vec);
 
 class LLRenderTarget;
+class LLSwapchainXR;
 
-class LLXRManager
+class LLXRManager : public LLSimpleton<LLXRManager>
 {
-
-    struct LLImageViewCreateInfo
-    {
-        void* image;
-        enum class Type
-        {
-            RTV,
-            DSV,
-            SRV,
-            UAV
-        } type;
-        enum class View
-        {
-            TYPE_1D,
-            TYPE_2D,
-            TYPE_3D,
-            TYPE_CUBE,
-            TYPE_1D_ARRAY,
-            TYPE_2D_ARRAY,
-            TYPE_CUBE_ARRAY,
-        } view;
-        U32 format;
-        enum class Aspect
-        {
-            COLOR_BIT   = 0x01,
-            DEPTH_BIT   = 0x02,
-            STENCIL_BIT = 0x04
-        } aspect;
-        U32 baseMipLevel;
-        U32 levelCount;
-        U32 baseArrayLayer;
-        U32 layerCount;
-        U32 width;
-        U32 height;
-    };
 
     XrInstance                                          mXRInstance = XR_NULL_HANDLE;
     XrSystemId                                          mSystemID = XR_NULL_SYSTEM_ID;
@@ -72,8 +39,8 @@ class LLXRManager
     // - Stage is akin to a "standing" or "roomscale" mode.
     // Should probably be set based upon the HMD's capabilities.
     XrReferenceSpaceType                                mAppSpace     = XR_REFERENCE_SPACE_TYPE_STAGE;
-    XrFrameState                                        mFrameState     = { XR_TYPE_FRAME_STATE };
-    XrViewState                                         mViewState      = { XR_TYPE_VIEW_STATE };
+    XrFrameState                                        mFrameState     = { XR_TYPE_FRAME_STATE, nullptr };
+    XrViewState                                         mViewState      = { XR_TYPE_VIEW_STATE, nullptr };
     XrSpace                                             mReferenceSpace = XR_NULL_HANDLE;
     XrSpace                                             mViewSpace      = XR_NULL_HANDLE;
     std::vector<XrViewConfigurationView>                mViewConfigViews;
@@ -94,10 +61,7 @@ class LLXRManager
         DEPTH
     };
 
-    std::vector<std::vector<LLRenderTarget*>>           mColorTextures;
-    std::vector<std::vector<LLImageGL*>>                mImages;
-    std::vector<std::vector<XrSwapchainImageOpenGLKHR>> mSwapchainImages;
-    std::vector<XrSwapchain>                            mSwapchains;
+    std::vector<LLSwapchainXR*> mSwapchains;
 
     std::vector<XrViewConfigurationType> mAppViewConfigurations = { XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO,
                                                                              XR_VIEW_CONFIGURATION_TYPE_PRIMARY_MONO };
@@ -112,13 +76,14 @@ class LLXRManager
 
     U32 mSwapchainLength = 1;
 
+    bool mSwapchainInitialized = false;
+
   public:
     typedef enum
     {
         XR_STATE_UNINITIALIZED = 0,
         XR_STATE_INSTANCE_CREATED,
         XR_STATE_SESSION_CREATED,
-        XR_STATE_SWAPCHAINS_CREATED,
         XR_STATE_RUNNING,
         XR_STATE_PAUSED,
         XR_STATE_DESTROYED = -1
@@ -134,12 +99,6 @@ class LLXRManager
     std::vector<glm::vec3>  mEyePositions;
     std::vector<glm::mat4>  mEyeProjections;
     std::vector<glm::mat4>  mEyeViews;
-
-    void* getSwapchainImage(U32 eye, U32 index)
-    { return (XrSwapchainImageBaseHeader*)&mSwapchainImages[eye][index];
-    }
-
-    GLuint createImageView(LLImageViewCreateInfo& info);
 
     U32 mCurSwapTarget = 0;
 
@@ -187,9 +146,9 @@ class LLXRManager
     // This is where we get pose data, etc.
     void updateXRSession();
 
-    void bindSwapTarget(U32 eye);
+    void bindSwapTarget();
 
-    void flushSwapTarget(U32 eye);
+    void flushSwapTarget();
 
     typedef enum
     {
@@ -198,9 +157,12 @@ class LLXRManager
     } LLXREye;
 
     // This will update the framebuffer for the given eye.
-    void updateFrame(LLXREye eye);
+    void updateFrame();
 
     void endFrame();
+
+    XrSession getXRSession() { return mSession; }
+    XrInstance getXRInstance() { return mXRInstance; }
 
     LLXRState xrState() { return mXRState; }
     glm::vec3 getHeadPosition() { return mHeadPosition; }

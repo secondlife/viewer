@@ -5,6 +5,7 @@
 #include "llrendertarget.h"
 #define GLM_ENABLE_EXPERIMENTAL 1
 #include <glm/gtx/quaternion.hpp>
+#include "llswapchainxr.h"
 
 LLMatrix4 OXR_TO_SFR = LLMatrix4(OGL_TO_CFR_ROTATION);
 
@@ -300,16 +301,11 @@ void LLXRManager::createSession(XrGraphicsRequirementsMetalKHR graphicsBinding)
     mXRState = XR_STATE_SESSION_CREATED;
 }
 
-GLuint LLXRManager::createImageView(LLImageViewCreateInfo& info)
-{
-    GLuint fbo;
-    glGenFramebuffers(1, &fbo);
-
-    return fbo;
-}
-
 void LLXRManager::createSwapchains()
 {
+    if (mSwapchainInitialized)
+        return;
+
     destroySwapchains();
 
     if (mSwapchains.empty())
@@ -317,117 +313,40 @@ void LLXRManager::createSwapchains()
         mSwapchains.resize(mViewConfigViews.size());
     }
 
-    if (mColorTextures.empty())
-    {
-        mColorTextures.resize(mViewConfigViews.size());
-    }
-
-    if (mSwapchainImages.empty())
-    {
-        mSwapchainImages.resize(mViewConfigViews.size());
-    }
-
-    if (mImages.empty())
-    {
-        mImages.resize(mViewConfigViews.size());
-    }
-
     // Per view, create a color and depth swapchain, and their associated image views.
     for (size_t i = 0; i < mViewConfigViews.size(); i++)
     {
-        XrSwapchain colorSwapchain;
-
-        XrSwapchainCreateInfo swapchainCI{ XR_TYPE_SWAPCHAIN_CREATE_INFO };
-        swapchainCI.createFlags = 0;
-        swapchainCI.usageFlags  = XR_SWAPCHAIN_USAGE_SAMPLED_BIT | XR_SWAPCHAIN_USAGE_COLOR_ATTACHMENT_BIT;
-        swapchainCI.format =
-            getSwapchainFormat(mXRInstance, mSession, GL_SRGB8_ALPHA8);
-        swapchainCI.sampleCount =
-            mViewConfigViews[i].recommendedSwapchainSampleCount; // Use the recommended values from the XrViewConfigurationView.
-        swapchainCI.width     = mViewConfigViews[i].recommendedImageRectWidth;
-        swapchainCI.height    = mViewConfigViews[i].recommendedImageRectHeight;
-        swapchainCI.faceCount = 1;
-        swapchainCI.arraySize = 1;
-        swapchainCI.mipCount  = 1;
-
-        if (XR_FAILED(xrCreateSwapchain(mSession, &swapchainCI, &colorSwapchain)))
-        {
-            LL_ERRS("XRManager") << "Failed to create Color Swapchain." << LL_ENDL;
-            return;
-        }
-
-        U32 colorSwapchainImageCount = 0;
-        if (XR_FAILED(xrEnumerateSwapchainImages(colorSwapchain, 0, &colorSwapchainImageCount, nullptr)))
-        {
-            LL_ERRS("XRManager") << "Failed to enumerate Color Swapchain Images." << LL_ENDL;
-            return;
-        }
-
-        mSwapchainImages[i].resize(colorSwapchainImageCount, { XR_TYPE_SWAPCHAIN_IMAGE_OPENGL_KHR, nullptr});
-
-        if (XR_FAILED(xrEnumerateSwapchainImages(colorSwapchain, colorSwapchainImageCount, &colorSwapchainImageCount,
-                                                 (XrSwapchainImageBaseHeader*)mSwapchainImages[i].data())))
-        {
-            LL_ERRS("XRManager") << "Failed to enumerate Color Swapchain Images." << LL_ENDL;
-            return;
-        }
-
-        for (U32 j = 0; j < colorSwapchainImageCount; j++)
-        {
-            LLRenderTarget* target = new LLRenderTarget();
-            target->allocate(swapchainCI.width, swapchainCI.height, 0);
-            LLImageGL* image = new LLImageGL(swapchainCI.width, swapchainCI.height, 4);
-            image->setTexName(mSwapchainImages[i][j].image);
-            image->setExplicitFormat(GL_SRGB8_ALPHA8, GL_SRGB_ALPHA);
-            image->setSize(swapchainCI.width, swapchainCI.height, 4);
-            target->setColorAttachment(image, mSwapchainImages[i][j].image);
-            mColorTextures[i].push_back(target);
-            mImages[i].push_back(image);
-        }
+        LLSwapchainXR* colorSwapchain = new LLSwapchainXR(GL_SRGB8_ALPHA8,
+                                                          mViewConfigViews[i].recommendedImageRectWidth,
+                                                          mViewConfigViews[i].recommendedImageRectHeight,
+                                                          mViewConfigViews[i]);
 
         mSwapchains[i] = colorSwapchain;
+        mProjectionViews[i].subImage.imageRect.offset.x = 0;
+        mProjectionViews[i].subImage.imageRect.offset.y = 0;
+        mProjectionViews[i].subImage.imageRect.extent.width = mViewConfigViews[i].recommendedImageRectWidth;
+        mProjectionViews[i].subImage.imageRect.extent.height = mViewConfigViews[i].recommendedImageRectHeight;
+        mProjectionViews[i].subImage.imageArrayIndex         = 0;
+        mProjectionViews[i].subImage.swapchain               = colorSwapchain->getSwapchain();
     }
+
+    mSwapchainInitialized = true;
 }
 
 void LLXRManager::destroySwapchains()
 {
-    if (!mColorTextures.empty())
-    {
-        for (auto& colorTexture : mColorTextures)
-        {
-            for (auto& texture : colorTexture)
-            {
-                texture->clear();
-                delete texture;
-            }
-
-            colorTexture.clear();
-        }
-    }
 
     if (!mSwapchains.empty())
     {
         for (auto& swapchain : mSwapchains)
         {
-            xrDestroySwapchain(swapchain);
+            delete swapchain;
         }
     }
 
-    if (!mImages.empty())
-    {
-        for (auto images : mImages)
-        {
-            for (auto img : images)
-            {
-                img->cleanup();
-            }
-        }
-    }
-
-    mSwapchainImages.clear();
-    mColorTextures.clear();
     mSwapchains.clear();
-    mImages.clear();
+
+    mSwapchainInitialized = false;
 }
 
 void LLXRManager::getInstanceProperties()
@@ -626,11 +545,6 @@ void LLXRManager::startFrame()
 
 void LLXRManager::handleSessionState()
 {
-    if (mXRState != XR_STATE_RUNNING && mXRState != XR_STATE_SESSION_CREATED && mXRState != XR_STATE_PAUSED)
-    {
-        return;
-    }
-
     XrEventDataBuffer runtime_event = { XR_TYPE_EVENT_DATA_BUFFER };
     XrResult          poll_result   = xrPollEvent(mXRInstance, &runtime_event);
     while (poll_result == XR_SUCCESS)
@@ -798,80 +712,46 @@ void LLXRManager::updateXRSession()
     }
 }
 
-void LLXRManager::bindSwapTarget(U32 eye)
+void LLXRManager::bindSwapTarget()
 {
-    if (mXRState < XR_STATE_RUNNING && mSwapchains.size() < 1)
+    if (mXRState < XR_STATE_RUNNING || !mSwapchainInitialized)
     {
         return;
     }
 
-    XrSwapchain chain         = mSwapchains[eye];
-    auto        chainImages   = mSwapchainImages[eye];
-    auto        colorTextures = mColorTextures[eye];
-
-
-    XrSwapchainImageAcquireInfo acquireInfo{ XR_TYPE_SWAPCHAIN_IMAGE_ACQUIRE_INFO };
-
-    if (XR_FAILED(xrAcquireSwapchainImage(chain, &acquireInfo, &mCurSwapTarget)))
-    {
-        LL_ERRS("XRManager") << "Failed to acquire swapchain image." << LL_ENDL;
-        return;
-    }
-
-    XrSwapchainImageWaitInfo waitInfo = { XR_TYPE_SWAPCHAIN_IMAGE_WAIT_INFO };
-    waitInfo.timeout                  = XR_INFINITE_DURATION;
-    if (XR_FAILED(xrWaitSwapchainImage(chain, &waitInfo)))
-    {
-        LL_ERRS("XRManager") << "Failed to wait for swapchain image." << LL_ENDL;
-        return;
-    }
-
-    colorTextures[mCurSwapTarget]->bindTarget();
+    mSwapchains[mCurrentEye]->bind();
 }
 
-void LLXRManager::updateFrame(LLXREye eye)
+void LLXRManager::updateFrame()
 {
-    if (mXRState < XR_STATE_RUNNING && mSwapchains.size() < 1)
+    if (mXRState < XR_STATE_RUNNING || !mSwapchainInitialized)
     {
         return;
     }
 
+    U32 viewWidth   = mViewConfigViews[mCurrentEye].recommendedImageRectWidth;
+    U32 viewHeight  = mViewConfigViews[mCurrentEye].recommendedImageRectHeight;
 
-    U32 viewWidth   = mViewConfigViews[eye].recommendedImageRectWidth;
-    U32 viewHeight  = mViewConfigViews[eye].recommendedImageRectHeight;
+    mProjectionViews[mCurrentEye].pose = mViews[mCurrentEye].pose;
+    mProjectionViews[mCurrentEye].fov  = mViews[mCurrentEye].fov;
 
-    mProjectionViews[eye].pose = mViews[eye].pose;
-    mProjectionViews[eye].fov  = mViews[eye].fov;
-    mProjectionViews[eye].subImage.imageRect.offset.x = 0;
-    mProjectionViews[eye].subImage.imageRect.offset.y = 0;
-    mProjectionViews[eye].subImage.imageRect.extent.width  = viewWidth;
-    mProjectionViews[eye].subImage.imageRect.extent.height = viewHeight;
-    mProjectionViews[eye].subImage.imageArrayIndex         = eye;
-
-    mColorTextures[eye][mCurSwapTarget]->clear();
+    glClearColor(0, 1, 0, 1);
+    glClear(GL_COLOR_BUFFER_BIT);
 }
 
-void LLXRManager::flushSwapTarget(U32 eye)
+void LLXRManager::flushSwapTarget()
 {
-    if (mXRState < XR_STATE_RUNNING && mSwapchains.size() < 1)
+    if (mXRState < XR_STATE_RUNNING || !mSwapchainInitialized)
     {
         return;
     }
 
-    mColorTextures[eye][mCurSwapTarget]->flush();
-
-    XrSwapchainImageReleaseInfo releaseInfo = { XR_TYPE_SWAPCHAIN_IMAGE_RELEASE_INFO };
-
-    if (XR_FAILED(xrReleaseSwapchainImage(mSwapchains[eye], &releaseInfo)))
-    {
-        LL_ERRS("XRManager") << "Failed to release swapchain image." << LL_ENDL;
-        return;
-    }
+    mSwapchains[mCurrentEye]->flush();
 }
 
 void LLXRManager::endFrame()
 {
-    if (mXRState < XR_STATE_RUNNING && mSwapchains.size() < 1)
+    if (mXRState < XR_STATE_RUNNING || !mSwapchainInitialized)
     {
         return;
     }
@@ -885,7 +765,7 @@ void LLXRManager::endFrame()
     S32                           submittedLayerCount = 0;
     XrCompositionLayerBaseHeader* submittedLayers[]   = { (XrCompositionLayerBaseHeader*)&layerProjection };
 
-    if (!mFrameState.shouldRender || (mViewState.viewStateFlags & XR_VIEW_STATE_ORIENTATION_VALID_BIT) == 0)
+    if ((mViewState.viewStateFlags & XR_VIEW_STATE_ORIENTATION_VALID_BIT) == 0)
     {
         submittedLayerCount = 0;
     }

@@ -478,13 +478,11 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
 
     gViewerWindow->checkSettings();
 
-    if (gXRManager)
+    if (LLXRManager::instanceExists())
     {
-        gXRManager->handleSessionState();
+        LLXRManager::getInstance()->handleSessionState();
 
-        gXRManager->updateXRSession();
-
-        gXRManager->startFrame();
+        LLXRManager::getInstance()->updateXRSession();
     }
 
     {
@@ -626,11 +624,11 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
     LLAppViewer::instance()->pingMainloopTimeout("Display:Camera");
     if (LLViewerCamera::instanceExists())
     {
-        if (gXRManager && gXRManager->xrState() == LLXRManager::XR_STATE_RUNNING)
+        if (LLXRManager::getInstance() && LLXRManager::getInstance()->xrState() == LLXRManager::XR_STATE_RUNNING)
         {
             LLVector3 agentPos = gAgent.getPositionAgent();
-            LLViewerCamera::getInstance()->mOrigin = agentPos + LLVector3(glm::value_ptr(gXRManager->getHeadPosition()));
-            LLViewerCamera::getInstance()->setAxes(LLQuaternion(glm::value_ptr(gXRManager->getHeadOrientation())));
+            LLViewerCamera::getInstance()->mOrigin = agentPos + LLVector3(glm::value_ptr(LLXRManager::getInstance()->getHeadPosition()));
+            LLViewerCamera::getInstance()->setAxes(LLQuaternion(glm::value_ptr(LLXRManager::getInstance()->getHeadOrientation())));
         }
         else
         {
@@ -691,6 +689,16 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
     gViewerWindow->setup3DViewport();
 
     gPipeline.resetFrameStats();    // Reset per-frame statistics.
+    U8 totalPasses = 1;
+
+    if (LLXRManager::instanceExists())
+    {
+        totalPasses = 2;
+        LLXRManager::getInstance()->startFrame();
+    }
+
+    for (U8 pass = 0; pass < totalPasses; pass++)
+    {
 
     if (!gDisconnected && !LLApp::isExiting())
     {
@@ -1040,13 +1048,31 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
         LLAppViewer::instance()->pingMainloopTimeout("Display:RenderUI");
         if (!for_snapshot)
         {
+            bool shouldSwap = true;
+            if (LLXRManager::instanceExists() && LLXRManager::getInstance()->mCurrentEye != 0)
+            {
+                shouldSwap = false;
+            }
             render_ui();
-            swap();
+
+            if (shouldSwap)
+                swap();
         }
 
 
         LLSpatialGroup::sNoDelete = false;
         gPipeline.clearReferences();
+        
+        if (LLXRManager::instanceExists())
+        {
+            LLXRManager::getInstance()->mCurrentEye = pass;
+        }
+    }
+    }
+    
+    if (LLXRManager::instanceExists())
+    {
+        LLXRManager::getInstance()->endFrame();
     }
 
     LLAppViewer::instance()->pingMainloopTimeout("Display:FrameStats");
