@@ -793,7 +793,7 @@ void LLPanelProfileSecondLife::onOpen(const LLSD& key)
 
     if (!own_profile)
     {
-        mVoiceStatus = LLAvatarActions::canCall() && (LLAvatarActions::isFriend(avatar_id) ? LLAvatarTracker::instance().isBuddyOnline(avatar_id) : true);
+        mVoiceStatus = LLAvatarActions::canCallTo(avatar_id) && (LLAvatarActions::isFriend(avatar_id) ? LLAvatarTracker::instance().isBuddyOnline(avatar_id) : true);
         updateOnlineStatus();
         fillRightsData();
     }

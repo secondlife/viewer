@@ -7808,14 +7808,28 @@ class LLAvatarSendIM : public view_listener_t
 
 class LLAvatarCall : public view_listener_t
 {
+    static LLVOAvatar* findAvatar()
+    {
+        return find_avatar_from_object(LLSelectMgr::getInstance()->getSelection()->getPrimaryObject());
+    }
+
     bool handleEvent(const LLSD& userdata)
     {
-        LLVOAvatar* avatar = find_avatar_from_object( LLSelectMgr::getInstance()->getSelection()->getPrimaryObject() );
-        if(avatar)
+        if (LLVOAvatar* avatar = findAvatar())
         {
             LLAvatarActions::startCall(avatar->getID());
         }
         return true;
+    }
+
+public:
+    static bool isAvailable()
+    {
+        if (LLVOAvatar* avatar = findAvatar())
+        {
+            return LLAvatarActions::canCallTo(avatar->getID());
+        }
+        return LLAvatarActions::canCall();
     }
 };
 
@@ -10075,7 +10089,7 @@ void initialize_menus()
     registrar.add("Avatar.ShowInspector", boost::bind(&handle_avatar_show_inspector));
     view_listener_t::addMenu(new LLAvatarSendIM(), "Avatar.SendIM");
     view_listener_t::addMenu(new LLAvatarCall(), "Avatar.Call", cb_info::UNTRUSTED_BLOCK);
-    enable.add("Avatar.EnableCall", boost::bind(&LLAvatarActions::canCall));
+    enable.add("Avatar.EnableCall", boost::bind(&LLAvatarCall::isAvailable));
     view_listener_t::addMenu(new LLAvatarReportAbuse(), "Avatar.ReportAbuse", cb_info::UNTRUSTED_THROTTLE);
     view_listener_t::addMenu(new LLAvatarToggleMyProfile(), "Avatar.ToggleMyProfile");
     view_listener_t::addMenu(new LLAvatarTogglePicks(), "Avatar.TogglePicks");

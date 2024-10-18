@@ -52,6 +52,7 @@ public:
 
     void startIM();
     void startCall();
+    bool canCall();
     void reportAbuse();
     void showProfile();
     void addFriend();
