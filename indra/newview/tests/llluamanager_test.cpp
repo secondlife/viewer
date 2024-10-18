@@ -55,14 +55,14 @@ namespace tut
             // indra/newview/tests/llluamanager_test.cpp =>
             // indra/newview
             auto newview{ fsyspath(__FILE__).parent_path().parent_path() };
-            auto settings{ newview / "app_settings" / "settings.xml" };
+            fsyspath settings{ newview / "app_settings" / "settings.xml" };
             // true suppresses implicit declare; implicit declare requires
             // that every variable in settings.xml has a Comment, which many don't.
-            gSavedSettings.loadFromFile(settings.u8string(), true);
+            gSavedSettings.loadFromFile(settings, true);
             // At test time, since we don't have the app bundle available,
             // extend LuaRequirePath to include the require directory in the
             // source tree.
-            auto require{ (newview / "scripts" / "lua" / "require").u8string() };
+            std::string require{ fsyspath(newview / "scripts" / "lua" / "require") };
             auto paths{ gSavedSettings.getLLSD("LuaRequirePath") };
             bool found = false;
             for (const auto& path : llsd::inArray(paths))
