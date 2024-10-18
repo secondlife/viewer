@@ -27,7 +27,9 @@
 #include "llvoicewebrtc.h"
 
 #include "llsdutil.h"
-
+#include "llnotifications.h"
+#include "llnotificationsutil.h"
+#include "llnotificationmanager.h"
 // Linden library includes
 #include "llavatarnamecache.h"
 #include "llvoavatarself.h"
@@ -3004,6 +3006,71 @@ void LLVoiceWebRTCConnection::OnDataReceivedImpl(const std::string &data, bool b
                     {
                         participant->mIsModeratorMuted = participant_obj["m"].as_bool();
                     }
+                    if (participant_obj.contains("tr") && participant_obj["tr"].is_array())
+                    {
+                        for (auto& value : participant_obj["tr"].as_array())
+                        {
+                            if (value.is_string())
+                            {
+                                std::string transcription_str = value.get_string().c_str();
+
+                                // remove double spaces.
+                                std::string::size_type pos = transcription_str.find("  ");
+
+                                while (pos != std::string::npos)
+                                {
+                                    transcription_str.replace(pos, 2, " ");
+                                    pos = transcription_str.find("  ", pos);
+                                }
+                                transcription_str.erase(0, transcription_str.find_first_not_of(" "));
+                                if (std::string::npos == transcription_str.find_last_of("?.!"))
+                                {
+                                    transcription_str.clear();
+                                }
+                                size_t found = transcription_str.find(participant->mLastTranscribedText);
+                                if (found != std::string::npos)
+                                {
+                                    std::string last_transcribed_text = transcription_str;
+                                    transcription_str.erase(0, found + participant->mLastTranscribedText.size());
+                                    transcription_str.erase(0, transcription_str.find_first_not_of(" "));
+                                    participant->mLastTranscribedText = last_transcribed_text;
+
+                                }
+                                else
+                                {
+                                    participant->mLastTranscribedText.clear();
+                                }
+
+                                if (!transcription_str.empty())
+                                {
+                                    LLChat chat;
+                                    chat.mFromID = agent_id;
+                                    chat.mSourceType = CHAT_SOURCE_AGENT;
+                                    chat.mChatType   = CHAT_TYPE_NORMAL;
+                                    chat.mAudible    = CHAT_AUDIBLE_FULLY;
+                                    chat.mTime       = LLFrameTimer::getElapsedSeconds();
+                                    LLAvatarName av_name;
+                                    if (LLAvatarNameCache::get(agent_id, &av_name))
+                                    {
+                                        chat.mFromName = av_name.getCompleteName();
+                                    }
+                                    else
+                                    {
+                                        chat.mFromName = "Unknown";
+                                    }
+                                    chat.mText      = "📣 " + transcription_str;
+                                    chat.mChatStyle = CHAT_STYLE_NORMAL;
+                                    chat.mMuted     = false;
+                                    LLSD args;
+                                    LLNotificationsUI::LLNotificationManager::instance().onChat(chat, args);
+
+
+                                    LL_WARNS("Voice") << "Transcription: " << transcription_str << LL_ENDL;
+                                    LL_WARNS("Voice") << "Transcription Data: " << data << LL_ENDL;
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -3045,7 +3112,7 @@ void LLVoiceWebRTCConnection::OnDataChannelReady(llwebrtc::LLWebRTCDataInterface
                 return;
             }
 
-            if (data_interface)
+            if (!mWebRTCDataInterface && data_interface)
             {
                 mWebRTCDataInterface = data_interface;
                 mWebRTCDataInterface->setDataObserver(this);

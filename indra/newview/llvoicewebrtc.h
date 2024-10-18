@@ -254,6 +254,7 @@ public:
         bool mIsSpeaking;
         bool mIsModeratorMuted;
         LLUUID mRegion;
+        std::string  mLastTranscribedText;
     };
     typedef std::shared_ptr<participantState> participantStatePtr_t;
 
