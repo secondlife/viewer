@@ -414,8 +414,10 @@ void LLInventoryPanel::setFilterTypes(U64 types, LLInventoryFilter::EFilterType 
     {
         getFilter().setFilterObjectTypes(types);
     }
-    if (filter_type == LLInventoryFilter::FILTERTYPE_CATEGORY)
+    else if (filter_type == LLInventoryFilter::FILTERTYPE_CATEGORY)
+    {
         getFilter().setFilterCategoryTypes(types);
+    }
 }
 
 void LLInventoryPanel::setFilterWorn()

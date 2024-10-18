@@ -133,12 +133,12 @@ void LLWebProfile::uploadImageCoro(LLPointer<LLImageFormatted> image, std::strin
 
     if (!status)
     {
+        LL_WARNS("Snapshots") << "Failed to get image upload config" << LL_ENDL;
+        LLWebProfile::reportImageUploadStatus(false);
         if (image->getDataSize() > MAX_WEB_DATASIZE)
         {
             LLNotificationsUtil::add("CannotUploadSnapshotWebTooBig");
         }
-        LL_WARNS("Snapshots") << "Failed to get image upload config" << LL_ENDL;
-        LLWebProfile::reportImageUploadStatus(false);
         return;
     }
 
@@ -166,6 +166,10 @@ void LLWebProfile::uploadImageCoro(LLPointer<LLImageFormatted> image, std::strin
     {
         LL_WARNS("Snapshots") << "Failed to upload image data." << LL_ENDL;
         LLWebProfile::reportImageUploadStatus(false);
+        if (image->getDataSize() > MAX_WEB_DATASIZE)
+        {
+            LLNotificationsUtil::add("CannotUploadSnapshotWebTooBig");
+        }
         return;
     }
 
@@ -193,6 +197,10 @@ void LLWebProfile::uploadImageCoro(LLPointer<LLImageFormatted> image, std::strin
     {
         LL_WARNS("Snapshots") << "Failed to upload image." << LL_ENDL;
         LLWebProfile::reportImageUploadStatus(false);
+        if (image->getDataSize() > MAX_WEB_DATASIZE)
+        {
+            LLNotificationsUtil::add("CannotUploadSnapshotWebTooBig");
+        }
         return;
     }
 
@@ -201,8 +209,6 @@ void LLWebProfile::uploadImageCoro(LLPointer<LLImageFormatted> image, std::strin
     LL_INFOS("Snapshots") << "Image uploaded." << LL_ENDL;
     //LL_DEBUGS("Snapshots") << "Uploading image succeeded. Response: [" << raw.asString() << "]" << LL_ENDL;
     LLWebProfile::reportImageUploadStatus(true);
-
-
 }
 
 /*static*/

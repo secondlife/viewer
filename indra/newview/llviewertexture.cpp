@@ -70,6 +70,7 @@ LLPointer<LLViewerTexture>        LLViewerTexture::sBlackImagep = nullptr;
 LLPointer<LLViewerTexture>        LLViewerTexture::sCheckerBoardImagep = nullptr;
 LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sMissingAssetImagep = nullptr;
 LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sWhiteImagep = nullptr;
+LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sDefaultParticleImagep = nullptr;
 LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sDefaultImagep = nullptr;
 LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sSmokeImagep = nullptr;
 LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sFlatNormalImagep = nullptr;
@@ -497,11 +498,10 @@ void LLViewerTexture::updateClass()
 
     F64 texture_bytes_alloc = LLImageGL::getTextureBytesAllocated() / 1024.0 / 512.0;
     F64 vertex_bytes_alloc = LLVertexBuffer::getBytesAllocated() / 1024.0 / 512.0;
-    F64 render_bytes_alloc = LLRenderTarget::sBytesAllocated / 1024.0 / 512.0;
 
     // get an estimate of how much video memory we're using
     // NOTE: our metrics miss about half the vram we use, so this biases high but turns out to typically be within 5% of the real number
-    F32 used = (F32)ll_round(texture_bytes_alloc + vertex_bytes_alloc + render_bytes_alloc);
+    F32 used = (F32)ll_round(texture_bytes_alloc + vertex_bytes_alloc);
 
     F32 budget = max_vram_budget == 0 ? (F32)gGLManager.mVRAM : (F32)max_vram_budget;
 
@@ -541,7 +541,7 @@ void LLViewerTexture::updateClass()
         if (sEvaluationTimer.getElapsedTimeF32() > MEMORY_CHECK_WAIT_TIME)
         {
             static LLCachedControl<F32> low_mem_min_discard_increment(gSavedSettings, "RenderLowMemMinDiscardIncrement", .1f);
-            sDesiredDiscardBias += (F32)low_mem_min_discard_increment * (F32)gFrameIntervalSeconds;
+            sDesiredDiscardBias += (F32) low_mem_min_discard_increment * (F32) gFrameIntervalSeconds;
             sEvaluationTimer.reset();
         }
     }
@@ -1361,51 +1361,6 @@ void LLViewerFetchedTexture::addToCreateTexture()
     }
     else
     {
-        LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
-#if 1
-        //
-        //if mRequestedDiscardLevel > mDesiredDiscardLevel, we assume the required image res keep going up,
-        //so do not scale down the over qualified image.
-        //Note: scaling down image is expensensive. Do it only when very necessary.
-        //
-        if(mRequestedDiscardLevel <= mDesiredDiscardLevel && !mForceToSaveRawImage)
-        {
-            U32 w = mFullWidth >> mRawDiscardLevel;
-            U32 h = mFullHeight >> mRawDiscardLevel;
-
-            //if big image, do not load extra data
-            //scale it down to size >= LLViewerTexture::sMinLargeImageSize
-            if(w * h > LLViewerTexture::sMinLargeImageSize)
-            {
-                S32 d_level = llmin(mRequestedDiscardLevel, (S32)mDesiredDiscardLevel) - mRawDiscardLevel;
-
-                if(d_level > 0)
-                {
-                    S32 i = 0;
-                    while((d_level > 0) && ((w >> i) * (h >> i) > LLViewerTexture::sMinLargeImageSize))
-                    {
-                        i++;
-                        d_level--;
-                    }
-                    if(i > 0)
-                    {
-                        mRawDiscardLevel += i;
-                        if(mRawDiscardLevel >= getDiscardLevel() && getDiscardLevel() > 0)
-                        {
-                            mNeedsCreateTexture = false;
-                            destroyRawImage();
-                            return;
-                        }
-
-                        {
-                            //make a duplicate in case somebody else is using this raw image
-                            mRawImage = mRawImage->scaled(w >> i, h >> i);
-                        }
-                    }
-                }
-            }
-        }
-#endif
         scheduleCreateTexture();
     }
     return;
@@ -2540,6 +2495,11 @@ bool LLViewerFetchedTexture::doLoadedCallbacks()
         }
     }
 
+    if (need_readback)
+    {
+        readbackRawImage();
+    }
+
     //
     // Run raw/auxiliary data callbacks
     //
@@ -2789,10 +2749,22 @@ void LLViewerFetchedTexture::readbackRawImage()
     if (mGLTexturep.notNull() && mGLTexturep->getTexName() != 0 &&
         (mRawImage.isNull() || mRawImage->getWidth() < mGLTexturep->getWidth() || mRawImage->getHeight() < mGLTexturep->getHeight() ))
     {
+        if (mRawImage.isNull())
+        {
+            sRawCount++;
+        }
         mRawImage = new LLImageRaw();
         if (!mGLTexturep->readBackRaw(-1, mRawImage, false))
         {
             mRawImage = nullptr;
+            mIsRawImageValid = false;
+            mRawDiscardLevel = INVALID_DISCARD_LEVEL;
+            sRawCount--;
+        }
+        else
+        {
+            mIsRawImageValid = true;
+            mRawDiscardLevel = mGLTexturep->getDiscardLevel();
         }
     }
 }

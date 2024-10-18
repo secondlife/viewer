@@ -140,8 +140,6 @@ void LLFloaterPreferenceGraphicsAdvanced::onAdvancedAtmosphericsEnable()
 
 void LLFloaterPreferenceGraphicsAdvanced::refresh()
 {
-    getChild<LLUICtrl>("fsaa")->setValue((LLSD::Integer)  gSavedSettings.getU32("RenderFSAASamples"));
-
     // sliders and their text boxes
     //  mPostProcess = gSavedSettings.getS32("RenderGlowResolutionPow");
     // slider text boxes

@@ -1017,7 +1017,7 @@ void LLPanelProfileSecondLife::fillCommonData(const LLAvatarData* avatar_data)
 
     setDescriptionText(avatar_data->about_text);
 
-        mSecondLifePic->setValue(avatar_data->image_id);
+    mSecondLifePic->setValue(avatar_data->image_id);
 
     if (getSelfProfile())
     {
@@ -1052,7 +1052,7 @@ void LLPanelProfileSecondLife::fillAccountStatus(const LLAvatarData* avatar_data
     std::string caption_text = getString("CaptionTextAcctInfo", args);
     getChild<LLUICtrl>("account_info")->setValue(caption_text);
 
-    const S32 LINDEN_EMPLOYEE_INDEX = 3;
+    constexpr S32 LINDEN_EMPLOYEE_INDEX = 3;
     LLDate sl_release;
     sl_release.fromYMDHMS(2003, 6, 23, 0, 0, 0);
     std::string customer_lower = avatar_data->customer_type;
@@ -1117,7 +1117,7 @@ void LLPanelProfileSecondLife::fillRightsData()
     // If true - we are viewing friend's profile, enable check boxes and set values.
     if (relation)
     {
-        S32 rights = relation->getRightsGrantedTo();
+        const S32 rights = relation->getRightsGrantedTo();
         bool can_see_online = LLRelationship::GRANT_ONLINE_STATUS & rights;
         bool can_see_on_map = LLRelationship::GRANT_MAP_LOCATION & rights;
         bool can_edit_objects = LLRelationship::GRANT_MODIFY_OBJECTS & rights;
@@ -1165,10 +1165,10 @@ void LLPanelProfileSecondLife::fillAgeData(const LLAvatarData* avatar_data)
     }
     else
     {
-    std::string register_date = getString("age_format");
-    LLSD args_age;
+        std::string register_date = getString("age_format");
+        LLSD args_age;
         args_age["[AGE]"] = LLDateUtil::ageFromDate(avatar_data->born_on, LLDate::now());
-    LLStringUtil::format(register_date, args_age);
+        LLStringUtil::format(register_date, args_age);
         userAgeCtrl->setValue(register_date);
     }
 
@@ -1247,7 +1247,7 @@ void LLPanelProfileSecondLife::setAvatarId(const LLUUID& avatar_id)
 void LLPanelProfileSecondLife::updateOnlineStatus()
 {
     const LLRelationship* relationship = LLAvatarTracker::instance().getBuddyInfo(getAvatarId());
-    if (relationship != NULL)
+    if (relationship)
     {
         // For friend let check if he allowed me to see his status
         bool online = relationship->isOnline();
@@ -1328,7 +1328,7 @@ void LLProfileImagePicker::notify(const std::vector<std::string>& filenames)
     // generate a temp texture file for coroutine
     std::string temp_file = gDirUtilp->getTempFilename();
     U32 codec = LLImageBase::getCodecFromExtension(gDirUtilp->getExtension(file_path));
-    const S32 MAX_DIM = 256;
+    constexpr S32 MAX_DIM = 256;
     if (!LLViewerTextureList::createUploadFile(file_path, temp_file, codec, MAX_DIM))
     {
         LLSD notif_args;
@@ -1611,12 +1611,12 @@ void LLPanelProfileSecondLife::onShowInSearchCallback()
     if (value == mAllowPublish)
         return;
 
-        mAllowPublish = value;
+    mAllowPublish = value;
     saveAgentUserInfoCoro("allow_publish", value);
-    }
+}
 
 void LLPanelProfileSecondLife::onHideAgeCallback()
-    {
+{
     bool value = mHideAgeCombo->getValue().asInteger();
     if (value == mHideAge)
         return;
@@ -1642,7 +1642,7 @@ void LLPanelProfileSecondLife::onDiscardDescriptionChanges()
 
 void LLPanelProfileSecondLife::onShowAgentPermissionsDialog()
 {
-    LLFloater *floater = mFloaterPermissionsHandle.get();
+    LLFloater* floater = mFloaterPermissionsHandle.get();
     if (!floater)
     {
         LLFloater* parent_floater = gFloaterView->getParentFloater(this);
@@ -1670,7 +1670,7 @@ void LLPanelProfileSecondLife::onShowAgentProfileTexture()
         return;
     }
 
-    LLFloater *floater = mFloaterProfileTextureHandle.get();
+    LLFloater* floater = mFloaterProfileTextureHandle.get();
     if (!floater)
     {
         LLFloater* parent_floater = gFloaterView->getParentFloater(this);
@@ -1765,43 +1765,47 @@ void LLPanelProfileSecondLife::onCommitProfileImage(const LLUUID& id)
     if (mSecondLifePic->getImageAssetId() == id)
         return;
 
-        std::function<void(bool)> callback = [id](bool result)
+    std::function<void(bool)> callback = [id](bool result)
+    {
+        if (result)
         {
-            if (result)
-            {
-                LLAvatarIconIDCache::getInstance()->add(gAgentID, id);
+            LLAvatarIconIDCache::getInstance()->add(gAgentID, id);
             // Should trigger callbacks in icon controls (or request Legacy)
-                LLAvatarPropertiesProcessor::getInstance()->sendAvatarPropertiesRequest(gAgentID);
-            }
-        };
+            LLAvatarPropertiesProcessor::getInstance()->sendAvatarPropertiesRequest(gAgentID);
+        }
+    };
 
     if (!saveAgentUserInfoCoro("sl_image_id", id, callback))
         return;
 
     mSecondLifePic->setValue(id);
 
-        LLFloater *floater = mFloaterProfileTextureHandle.get();
-        if (floater)
+    LLFloater* floater = mFloaterProfileTextureHandle.get();
+    if (floater)
+    {
+        LLFloaterProfileTexture* texture_view = dynamic_cast<LLFloaterProfileTexture*>(floater);
+        if (texture_view)
         {
-            LLFloaterProfileTexture * texture_view = dynamic_cast<LLFloaterProfileTexture*>(floater);
-        if (id == LLUUID::null)
+            if (id.isNull())
             {
                 texture_view->resetAsset();
             }
             else
             {
-            texture_view->loadAsset(id);
+                texture_view->loadAsset(id);
             }
         }
     }
+}
 
 //////////////////////////////////////////////////////////////////////////
 // LLPanelProfileWeb
 
 LLPanelProfileWeb::LLPanelProfileWeb()
  : LLPanelProfileTab()
- , mWebBrowser(NULL)
+ , mWebBrowser(nullptr)
  , mAvatarNameCacheConnection()
+ , mFirstNavigate(false)
 {
 }
 

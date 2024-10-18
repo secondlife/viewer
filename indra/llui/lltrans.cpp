@@ -28,12 +28,8 @@
 
 #include "lltrans.h"
 
-#include "llfasttimer.h"    // for call count statistics
 #include "llxuiparser.h"
 #include "llsd.h"
-#include "llxmlnode.h"
-
-#include <map>
 
 LLTrans::template_map_t LLTrans::sStringTemplates;
 LLTrans::template_map_t LLTrans::sDefaultStringTemplates;
@@ -59,7 +55,7 @@ struct StringTable : public LLInitParam::Block<StringTable>
 };
 
 //static
-bool LLTrans::parseStrings(LLXMLNodePtr &root, const std::set<std::string>& default_args)
+bool LLTrans::parseStrings(LLXMLNodePtr& root, const std::set<std::string>& default_args)
 {
     std::string xml_filename = "(strings file)";
     if (!root->hasName("strings"))
@@ -107,7 +103,7 @@ bool LLTrans::parseStrings(LLXMLNodePtr &root, const std::set<std::string>& defa
 
 
 //static
-bool LLTrans::parseLanguageStrings(LLXMLNodePtr &root)
+bool LLTrans::parseLanguageStrings(LLXMLNodePtr& root)
 {
     std::string xml_filename = "(language strings file)";
     if (!root->hasName("strings"))
@@ -137,10 +133,6 @@ bool LLTrans::parseLanguageStrings(LLXMLNodePtr &root)
 
     return true;
 }
-
-
-
-static LLTrace::BlockTimerStatHandle FTM_GET_TRANS("Translate string");
 
 //static
 std::string LLTrans::getString(std::string_view xml_desc, const LLStringUtil::format_map_t& msg_args, bool def_string)
@@ -235,7 +227,7 @@ std::string LLTrans::getDefString(std::string_view xml_desc, const LLSD& msg_arg
 }
 
 //static
-bool LLTrans::findString(std::string &result, std::string_view xml_desc, const LLStringUtil::format_map_t& msg_args)
+bool LLTrans::findString(std::string& result, std::string_view xml_desc, const LLStringUtil::format_map_t& msg_args)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
 
@@ -257,7 +249,7 @@ bool LLTrans::findString(std::string &result, std::string_view xml_desc, const L
 }
 
 //static
-bool LLTrans::findString(std::string &result, std::string_view xml_desc, const LLSD& msg_args)
+bool LLTrans::findString(std::string& result, std::string_view xml_desc, const LLSD& msg_args)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
 
@@ -277,7 +269,7 @@ bool LLTrans::findString(std::string &result, std::string_view xml_desc, const L
 }
 
 //static
-std::string LLTrans::getCountString(const std::string& language, const std::string& xml_desc, S32 count)
+std::string LLTrans::getCountString(std::string_view language, std::string_view xml_desc, S32 count)
 {
     // Compute which string identifier to use
     const char* form = "";
@@ -337,7 +329,7 @@ std::string LLTrans::getCountString(const std::string& language, const std::stri
     args["[COUNT]"] = llformat("%d", count);
 
     // Look up "AgeYearsB" or "AgeWeeksC" including the "form"
-    std::string key = llformat("%s%s", xml_desc.c_str(), form);
+    std::string key = llformat("%s%s", xml_desc.data(), form);
     return getString(key, args);
 }
 

@@ -483,7 +483,7 @@
        layout="topleft"
        name="Reset Skeleton">
         <menu_item_call.on_click
-         function="Avatar.ResetSkeleton" />
+         function="Avatar.ResetSelfSkeleton" />
       </menu_item_call>
       <menu_item_call 
        label="Reset skeleton and animations"
@@ -3416,6 +3416,16 @@ function="World.EnvPreset"
                 <menu_item_check.on_click
                  function="Advanced.HandleAttachedLightParticles"
                  parameter="RenderAttachedParticles" />
+            </menu_item_check>
+            <menu_item_check
+             label="Collect Font Vertex Buffers"
+             name="Collect Font Vertex Buffers">
+                <menu_item_check.on_check
+                 function="CheckControl"
+                 parameter="CollectFontVertexBuffers" />
+                <menu_item_check.on_click
+                 function="ToggleControl"
+                 parameter="CollectFontVertexBuffers" />
             </menu_item_check>
           <menu_item_separator />
           <menu_item_check

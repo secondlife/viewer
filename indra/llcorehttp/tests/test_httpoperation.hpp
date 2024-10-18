@@ -92,7 +92,7 @@ namespace tut
         op->setReplyPath(LLCore::HttpOperation::HttpReplyQueuePtr_t(), h1);
 
         // Check ref count
-        ensure(op.unique() == 1);
+        ensure(op.use_count() == 1);
 
         // release the reference, releasing the operation but
         // not the handlers.

@@ -276,16 +276,20 @@ S32 LLImageJ2C::calcDataSizeJ2C(S32 w, S32 h, S32 comp, S32 discard_level, F32 r
     // Estimate the number of layers. This is consistent with what's done for j2c encoding in LLImageJ2CKDU::encodeImpl().
     constexpr S32 precision = 8; // assumed bitrate per component channel, might change in future for HDR support
     constexpr S32 max_components = 4; // assumed the file has four components; three color and alpha
-    S32 nb_layers = 1;
-    const S32 surface = w*h;
-    S32 s = 64*64;
-    S32 totalbytes = (S32)(s * max_components * precision * rate); // first level computed before loop
-    while (surface > s)
+    // Use MAX_IMAGE_SIZE_DEFAULT (currently 2048) if either dimension is unknown (zero)
+    S32 width  = (w > 0) ? w : 2048;
+    S32 height = (h > 0) ? h : 2048;
+    S32 max_dimension = llmax(width, height); // Find largest dimension
+    S32 block_area = MAX_BLOCK_SIZE * MAX_BLOCK_SIZE; // Calculated initial block area from established max block size (currently 64)
+    block_area *= llmax((max_dimension / MAX_BLOCK_SIZE / max_components), 1); // Adjust initial block area by ratio of largest dimension to block size per component
+    S32 totalbytes = (S32) (block_area * max_components * precision); // First block layer computed before loop without compression rate
+    S32 block_layers = 1; // Start at layer 1 since first block layer is computed outside loop
+    while (block_layers < 6) // Walk five layers for the five discards in JPEG2000
     {
-        if (nb_layers <= (5 - discard_level))
-            totalbytes += (S32)(s * max_components * precision * rate);
-        nb_layers++;
-        s *= 4;
+        if (block_layers <= (5 - discard_level))  // Walk backwards from discard 5 to required discard layer.
+            totalbytes += (S32) (block_area * max_components * precision * rate); // Add each block layer reduced by assumed compression rate
+        block_layers++; // Move to next layer
+        block_area *= 4; // Increase block area by power of four
     }
 
     totalbytes /= 8; // to bytes

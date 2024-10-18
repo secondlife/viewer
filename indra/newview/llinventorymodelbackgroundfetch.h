@@ -54,7 +54,7 @@ public:
     void scheduleItemFetch(const LLUUID& item_id, bool forced = false);
 
     typedef boost::function<void()> nullary_func_t;
-    // AIS3 only, Fetches folder and everithing links inside the folder point to
+    // AIS3 only, Fetches folder and everything links inside the folder point to
     // Intended for outfits
     void fetchFolderAndLinks(const LLUUID& cat_id, nullary_func_t callback);
     // AIS3 only
@@ -81,8 +81,8 @@ public:
     typedef boost::function<void()> folders_fetched_callback_t;
     boost::signals2::connection setFetchCompletionCallback(folders_fetched_callback_t cb);
 
-    void addRequestAtFront(const LLUUID & id, bool recursive, bool is_category);
-    void addRequestAtBack(const LLUUID & id, bool recursive, bool is_category);
+    void addRequestAtFront(const LLUUID& id, bool recursive, bool is_category);
+    void addRequestAtBack(const LLUUID& id, bool recursive, bool is_category);
 
 protected:
     bool isFolderFetchProcessingComplete() const;
@@ -108,8 +108,8 @@ protected:
     };
     typedef std::deque<FetchQueueInfo> fetch_queue_t;
 
-    void onAISContentCalback(const LLUUID& request_id, const uuid_vec_t &content_ids, const LLUUID& response_id, EFetchType fetch_type);
-    void onAISFolderCalback(const LLUUID &request_id, const LLUUID &response_id, EFetchType fetch_type);
+    void onAISContentCalback(const LLUUID& request_id, const uuid_vec_t& content_ids, const LLUUID& response_id, EFetchType fetch_type);
+    void onAISFolderCalback(const LLUUID& request_id, const LLUUID& response_id, EFetchType fetch_type);
     void bulkFetchViaAis();
     void bulkFetchViaAis(const FetchQueueInfo& fetch_info);
     void bulkFetch();
