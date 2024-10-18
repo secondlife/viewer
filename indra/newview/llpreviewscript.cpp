@@ -503,7 +503,7 @@ bool LLScriptEdCore::postBuild()
     LLSyntaxIdLSL::getInstance()->initialize();
     processKeywords();
 
-    mCommitCallbackRegistrar.add("FontSize.Set", boost::bind(&LLScriptEdCore::onChangeFontSize, this, _2));
+    mCommitCallbackRegistrar.add("FontSize.Set", { boost::bind(&LLScriptEdCore::onChangeFontSize, this, _2) });
     mEnableCallbackRegistrar.add("FontSize.Check", boost::bind(&LLScriptEdCore::isFontSizeChecked, this, _2));
 
     LLToggleableMenu *context_menu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>(
@@ -703,9 +703,10 @@ void LLScriptEdCore::sync()
     }
 }
 
-bool LLScriptEdCore::hasChanged()
+bool LLScriptEdCore::hasChanged() const
 {
-    if (!mEditor) return false;
+    if (!mEditor)
+        return false;
 
     return ((!mEditor->isPristine() || mEnableSave) && mHasScriptData);
 }

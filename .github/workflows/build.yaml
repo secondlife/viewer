@@ -13,11 +13,15 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       release_run: ${{ steps.setvar.outputs.release_run }}
-      configurations: ${{ steps.setvar.outputs.configurations }}
+      config: ${{ steps.setvar.outputs.config }}
       bugsplat_db: ${{ steps.setvar.outputs.bugsplat_db }}
     env:
       # Build with a tag like "Second_Life#abcdef0" to generate a release page
       # (used for builds we are planning to deploy).
+      # Even though inputs.release_run is specified with type boolean, which
+      # correctly presents a checkbox, its *value* is a GH workflow string
+      # 'true' or 'false'. If you simply test github.event.inputs.release_run,
+      # it always evaluates as true because it's a non-empty string either way.
       # When you want to use a string variable as a workflow YAML boolean, it's
       # important to ensure it's the empty string when false. If you omit || '',
       # its value when false is "false", which is interpreted as true.
@@ -32,18 +36,22 @@ jobs:
 
           if [[ "$FROM_FORK" == "true" ]]; then
             # PR from fork; don't build with Bugsplat, proprietary libs
-            echo 'configurations=["ReleaseOS"]' >> $GITHUB_OUTPUT
+            echo 'config=ReleaseOS' >> $GITHUB_OUTPUT
             echo "bugsplat_db=" >> $GITHUB_OUTPUT
           else
-            echo 'configurations=["Release"]' >> $GITHUB_OUTPUT
+            echo 'config=Release' >> $GITHUB_OUTPUT
             echo "bugsplat_db=SecondLife_Viewer_2018" >> $GITHUB_OUTPUT
           fi
   build:
     needs: setup
+    continue-on-error: ${{ matrix.experimental }}
     strategy:
       matrix:
-        runner: [windows-large, macos-12-xl]
-        configuration: ${{ fromJSON(needs.setup.outputs.configurations) }}
+        runner: [windows-large, macos-14-xlarge]
+        experimental: [false]
+        include:
+        - runner: linux-large
+          experimental: true
     runs-on: ${{ matrix.runner }}
     outputs:
       viewer_channel: ${{ steps.build.outputs.viewer_channel }}
@@ -51,11 +59,11 @@ jobs:
       viewer_branch:  ${{ steps.which-branch.outputs.branch }}
       relnotes:       ${{ steps.which-branch.outputs.relnotes }}
       imagename:      ${{ steps.build.outputs.imagename }}
-      configuration:  ${{ matrix.configuration }}
+      config:         ${{ needs.setup.outputs.config }}
     env:
       AUTOBUILD_ADDRSIZE: 64
       AUTOBUILD_BUILD_ID: ${{ github.run_id }}
-      AUTOBUILD_CONFIGURATION: ${{ matrix.configuration }}
+      AUTOBUILD_CONFIGURATION: ${{ needs.setup.outputs.config }}
       # authorizes fetching private constituent packages
       AUTOBUILD_GITHUB_TOKEN: ${{ secrets.SHARED_AUTOBUILD_GITHUB_TOKEN }}
       AUTOBUILD_INSTALLABLE_CACHE: ${{ github.workspace }}/.autobuild-installables
@@ -64,7 +72,7 @@ jobs:
       # autobuild-package.xml.
       AUTOBUILD_VCS_INFO: "true"
       AUTOBUILD_VSVER: "170"
-      DEVELOPER_DIR: "/Applications/Xcode_14.0.1.app/Contents/Developer"
+      DEVELOPER_DIR: "/Applications/Xcode_14.3.1.app/Contents/Developer"
       # Ensure that Linden viewer builds engage Bugsplat.
       BUGSPLAT_DB: ${{ needs.setup.outputs.bugsplat_db }}
       build_coverity: false
@@ -82,7 +90,7 @@ jobs:
       master_message_template_checkout: ${{ github.workspace }}/.master-message-template
       # Only set variants to the one configuration: don't let build.sh loop
       # over variants, let GitHub distribute variants over multiple hosts.
-      variants: ${{ matrix.configuration }}
+      variants: ${{ needs.setup.outputs.config }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -115,10 +123,25 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .autobuild-installables
-          key: ${{ runner.os }}-64-${{ matrix.configuration }}-${{ hashFiles('autobuild.xml') }}
+          key: ${{ runner.os }}-64-${{ needs.setup.outputs.config }}-${{ hashFiles('autobuild.xml') }}
           restore-keys: |
-            ${{ runner.os }}-64-${{ matrix.configuration }}-
+            ${{ runner.os }}-64-${{ needs.setup.outputs.config }}-
             ${{ runner.os }}-64-
+
+      - name: Install Linux dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt update
+          sudo apt install -y \
+            libpulse-dev libunwind-dev \
+            libgl1-mesa-dev libglu1-mesa-dev libxinerama-dev \
+            libxcursor-dev libxfixes-dev libgstreamer1.0-dev \
+            libgstreamer-plugins-base1.0-dev ninja-build libxft-dev \
+            llvm mold libpipewire-0.3-dev
+
+      - name: Install windows dependencies
+        if: runner.os == 'Windows'
+        run: choco install nsis-unicode
 
       - name: Determine source branch
         id: which-branch
@@ -241,6 +264,13 @@ jobs:
           fi
           export PYTHON_COMMAND_NATIVE="$(native_path "$PYTHON_COMMAND")"
 
+          # Compile with clang, link with mold on linux.
+          if [[ "$RUNNER_OS" == "Linux" ]]; then
+            export CC=clang
+            export CXX=clang++
+            export CMAKE_OPTIONS='-DLINK_WITH_MOLD=ON'
+          fi
+
           ./build.sh
 
           # Each artifact is downloaded as a distinct .zip file. Multiple jobs
@@ -269,6 +299,7 @@ jobs:
           path: |
             ${{ steps.build.outputs.viewer_app }}
 
+
       # The other upload of nontrivial size is the symbol file. Use a distinct
       # artifact for that too.
       - name: Upload symbol file
@@ -289,7 +320,7 @@ jobs:
       - name: Upload physics package
         uses: actions/upload-artifact@v4
         # should only be set for viewer-private
-        if: matrix.configuration == 'Release' && steps.build.outputs.physicstpv
+        if: needs.setup.outputs.config == 'Release' && steps.build.outputs.physicstpv
         with:
           name: "${{ steps.build.outputs.artifact }}-physics"
           # emitted by build.sh, zero or one lines
@@ -363,7 +394,7 @@ jobs:
       BUGSPLAT_USER: ${{ secrets.BUGSPLAT_USER }}
       BUGSPLAT_PASS: ${{ secrets.BUGSPLAT_PASS }}
     needs: build
-    if: needs.build.outputs.configuration == 'Release'
+    if: needs.build.outputs.config == 'Release'
     runs-on: ubuntu-latest
     steps:
       - name: Download viewer exe
@@ -398,7 +429,7 @@ jobs:
       BUGSPLAT_USER: ${{ secrets.BUGSPLAT_USER }}
       BUGSPLAT_PASS: ${{ secrets.BUGSPLAT_PASS }}
     needs: build
-    if: needs.build.outputs.configuration == 'Release'
+    if: needs.build.outputs.config == 'Release'
     runs-on: ubuntu-latest
     steps:
       - name: Download Mac Symbols
@@ -431,6 +462,10 @@ jobs:
         with:
           pattern: "*-metadata"
 
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: "LinuxOS-app"
+
       - name: Rename metadata
         run: |
           cp Windows-metadata/autobuild-package.xml Windows-autobuild-package.xml
@@ -451,7 +486,7 @@ jobs:
             Build ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
             ${{ needs.build.outputs.viewer_channel }}
             ${{ needs.build.outputs.viewer_version }}
-            ${{ needs.build.outputs.relnotes }}
+            ${{ needs.setvar.outputs.relnotes }}
           prerelease: true
           generate_release_notes: true
           target_commitish: ${{ github.sha }}

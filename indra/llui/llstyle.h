@@ -33,6 +33,10 @@
 #include "lluiimage.h"
 
 class LLFontGL;
+class LLStyle;
+
+typedef LLPointer<LLStyle> LLStyleSP;
+typedef LLPointer<const LLStyle> LLStyleConstSP;
 
 class LLStyle : public LLRefCount
 {
@@ -52,6 +56,9 @@ public:
         Params();
     };
     LLStyle(const Params& p = Params());
+    LLStyleSP clone() const { return makeCopy(); }
+    LLStyleConstSP cloneConst() const { return makeCopy(); }
+
 public:
     const LLUIColor& getColor() const { return mColor; }
     void setColor(const LLUIColor &color) { mColor = color; }
@@ -104,6 +111,7 @@ public:
 
 protected:
     ~LLStyle() = default;
+    LLStyle* makeCopy() const;
 
 private:
     std::string         mFontName;
@@ -117,8 +125,5 @@ private:
     bool                mVisible;
     bool                mIsLink;
 };
-
-typedef LLPointer<LLStyle> LLStyleSP;
-typedef LLPointer<const LLStyle> LLStyleConstSP;
 
 #endif  // LL_LLSTYLE_H

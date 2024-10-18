@@ -55,6 +55,26 @@ LLEventAPI::~LLEventAPI()
 {
 }
 
+bool LLEventAPI::process(const LLSD& event) const
+{
+    // LLDispatchListener is documented to let DispatchError propagate if the
+    // incoming request has no "reply" key. That may be fine for internal-only
+    // use, but LLEventAPI opens the door for external requests. It should NOT
+    // be possible for any external requester to crash the viewer with an
+    // unhandled exception, especially not by something as simple as omitting
+    // the "reply" key.
+    try
+    {
+        return LLDispatchListener::process(event);
+    }
+    catch (const std::exception& err)
+    {
+        // log the exception, but otherwise ignore it
+        LL_WARNS("LLEventAPI") << LLError::Log::classname(err) << ": " << err.what() << LL_ENDL;
+        return false;
+    }
+}
+
 LLEventAPI::Response::Response(const LLSD& seed, const LLSD& request, const LLSD::String& replyKey):
     mResp(seed),
     mReq(request),

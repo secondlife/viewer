@@ -12,10 +12,16 @@
 #if ! defined(LL_LLEXCEPTION_H)
 #define LL_LLEXCEPTION_H
 
+#include "always_return.h"
+#include "stdtypes.h"
 #include <stdexcept>
+#include <utility>                  // std::forward
 #include <boost/exception/exception.hpp>
 #include <boost/throw_exception.hpp>
 #include <boost/current_function.hpp>
+#if LL_WINDOWS
+#include <excpt.h>
+#endif // LL_WINDOWS
 
 // "Found someone who can comfort me
 //  But there are always exceptions..."
@@ -102,14 +108,115 @@ void crash_on_unhandled_exception_(const char*, int, const char*, const std::str
      log_unhandled_exception_(__FILE__, __LINE__, BOOST_CURRENT_FUNCTION, CONTEXT)
 void log_unhandled_exception_(const char*, int, const char*, const std::string&);
 
+/*****************************************************************************
+*   Structured Exception Handling
+*****************************************************************************/
+// this is used in platform-generic code -- define outside #if LL_WINDOWS
+struct Windows_SEH_exception: public LLException
+{
+    Windows_SEH_exception(const std::string& what): LLException(what) {}
+};
 
-#if LL_WINDOWS
+namespace LL
+{
+namespace seh
+{
 
-// SEH exception filtering for use in __try __except
-// Separates C++ exceptions from C SEH exceptions
-// Todo: might be good idea to do some kind of seh_to_msc_wrapper(function, ARGS&&);
-U32 msc_exception_filter(U32 code, struct _EXCEPTION_POINTERS *exception_infop);
+#if LL_WINDOWS //-------------------------------------------------------------
 
-#endif //LL_WINDOWS
+void fill_stacktrace(std::string& stacktrace, U32 code);
+
+// wrapper around caller's U32 filter(U32 code, struct _EXCEPTION_POINTERS*)
+// filter function: capture a stacktrace, if possible, before forwarding the
+// call to the caller's filter() function
+template <typename FILTER>
+U32 filter_(std::string& stacktrace, FILTER&& filter,
+            U32 code, struct _EXCEPTION_POINTERS* exptrs)
+{
+    // By the time the handler gets control, the stack has been unwound,
+    // so report the stack trace now at filter() time.
+    fill_stacktrace(stacktrace, code);
+    return std::forward<FILTER>(filter)(code, exptrs);
+}
+
+template <typename TRYCODE, typename FILTER, typename HANDLER>
+auto catcher_inner(std::string& stacktrace,
+                   TRYCODE&& trycode, FILTER&& filter, HANDLER&& handler)
+{
+    __try
+    {
+        return std::forward<TRYCODE>(trycode)();
+    }
+    __except (filter_(stacktrace,
+                      std::forward<FILTER>(filter),
+                      GetExceptionCode(), GetExceptionInformation()))
+    {
+        return always_return<decltype(trycode())>(
+            std::forward<HANDLER>(handler), GetExceptionCode(), stacktrace);
+    }
+}
+
+// triadic variant specifies try(), filter(U32, struct _EXCEPTION_POINTERS*),
+// handler(U32, const std::string& stacktrace)
+// stacktrace may or may not be available
+template <typename TRYCODE, typename FILTER, typename HANDLER>
+auto catcher(TRYCODE&& trycode, FILTER&& filter, HANDLER&& handler)
+{
+    // Construct and destroy this stacktrace string in the outer function
+    // because we can't do either in the function with __try/__except.
+    std::string stacktrace;
+    return catcher_inner(stacktrace,
+                         std::forward<TRYCODE>(trycode),
+                         std::forward<FILTER>(filter),
+                         std::forward<HANDLER>(handler));
+}
+
+// common_filter() handles the typical case in which we want our handler
+// clause to handle only Structured Exceptions rather than explicitly-thrown
+// C++ exceptions
+U32 common_filter(U32 code, struct _EXCEPTION_POINTERS*);
+
+// dyadic variant specifies try(), handler(U32, stacktrace), assumes common_filter()
+template <typename TRYCODE, typename HANDLER>
+auto catcher(TRYCODE&& trycode, HANDLER&& handler)
+{
+    return catcher(std::forward<TRYCODE>(trycode),
+                   common_filter,
+                   std::forward<HANDLER>(handler));
+}
+
+[[noreturn]] void rethrow(U32 code, const std::string& stacktrace);
+
+// monadic variant specifies try(), assumes default filter and handler
+template <typename TRYCODE>
+auto catcher(TRYCODE&& trycode)
+{
+    return catcher(std::forward<TRYCODE>(trycode), rethrow);
+}
+
+#else  // not LL_WINDOWS -----------------------------------------------------
+
+template <typename TRYCODE, typename FILTER, typename HANDLER>
+auto catcher(TRYCODE&& trycode, FILTER&&, HANDLER&&)
+{
+    return std::forward<TRYCODE>(trycode)();
+}
+
+template <typename TRYCODE, typename HANDLER>
+auto catcher(TRYCODE&& trycode, HANDLER&&)
+{
+    return std::forward<TRYCODE>(trycode)();
+}
+
+template <typename TRYCODE>
+auto catcher(TRYCODE&& trycode)
+{
+    return std::forward<TRYCODE>(trycode)();
+}
+
+#endif // not LL_WINDOWS -----------------------------------------------------
+
+} // namespace LL::seh
+} // namespace LL
 
 #endif /* ! defined(LL_LLEXCEPTION_H) */

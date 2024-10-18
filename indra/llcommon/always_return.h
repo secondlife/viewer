@@ -14,6 +14,7 @@
 #define LL_ALWAYS_RETURN_H
 
 #include <type_traits>              // std::enable_if, std::is_convertible
+#include <utility>                  // std::forward
 
 namespace LL
 {
@@ -77,6 +78,22 @@ namespace LL
 
     private:
         DESIRED mDefault;
+    };
+
+    // specialize for AlwaysReturn<void>
+    template <>
+    struct AlwaysReturn<void>
+    {
+    public:
+        AlwaysReturn() {}
+
+        // callable returns a type not convertible to DESIRED, return default
+        template <typename CALLABLE, typename... ARGS>
+        void operator()(CALLABLE&& callable, ARGS&&... args)
+        {
+            // discard whatever callable(args) returns
+            std::forward<CALLABLE>(callable)(std::forward<ARGS>(args)...);
+        }
     };
 
     /**

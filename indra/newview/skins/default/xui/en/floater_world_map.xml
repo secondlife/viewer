@@ -37,7 +37,8 @@
    top="16"
    left="0"
    right="-1"
-   bottom="-1">
+   bottom="-1"
+   orientation="horizontal">
     <layout_panel
      name="map_lp"
      width="385"
@@ -108,7 +109,7 @@
     </panel>
     <panel
      follows="right|top"
-     height="126"
+     height="150"
      top_pad="4"
      width="238"
      left="1"
@@ -284,6 +285,29 @@
        by owner
     </text>
 
+    <check_box
+     name="grid_coords_chk"
+     control_name="MapShowGridCoords"
+     layout="topleft"
+     follows="top|right"
+     top_pad="2"
+     left="3"
+     height="16"
+     width="22"
+    />
+    <text
+     name="grid_coords_label"
+     type="string"
+     layout="topleft"
+     follows="top|right"
+     top_delta="2"
+     left_pad="3"
+     height="16"
+     width="220"
+     halign="left"
+     length="1"
+    >Show grid map coordinates</text>
+
     <button
      follows="top|right"
      height="22"
@@ -454,7 +478,7 @@
 
     <panel
      follows="right|top|bottom"
-	 height="330"
+     height="306"
 	 top_pad="0"
 	 width="238"
 	 name="layout_panel_4">
@@ -575,7 +599,7 @@
      draw_stripes="false"
      bg_writeable_color="MouseGray"
      follows="all"
-     height="145"
+     height="121"
      layout="topleft"
      left="28"
      name="search_results"

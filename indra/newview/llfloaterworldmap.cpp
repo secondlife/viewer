@@ -337,17 +337,17 @@ LLFloaterWorldMap::LLFloaterWorldMap(const LLSD& key)
 
     mFactoryMap["objects_mapview"] = LLCallbackMap(createWorldMapView, nullptr);
 
-    mCommitCallbackRegistrar.add("WMap.Coordinates",    boost::bind(&LLFloaterWorldMap::onCoordinatesCommit, this));
-    mCommitCallbackRegistrar.add("WMap.Location",       boost::bind(&LLFloaterWorldMap::onLocationCommit, this));
-    mCommitCallbackRegistrar.add("WMap.AvatarCombo",    boost::bind(&LLFloaterWorldMap::onAvatarComboCommit, this));
-    mCommitCallbackRegistrar.add("WMap.Landmark",       boost::bind(&LLFloaterWorldMap::onLandmarkComboCommit, this));
-    mCommitCallbackRegistrar.add("WMap.SearchResult",   boost::bind(&LLFloaterWorldMap::onCommitSearchResult, this));
-    mCommitCallbackRegistrar.add("WMap.GoHome",         boost::bind(&LLFloaterWorldMap::onGoHome, this));
-    mCommitCallbackRegistrar.add("WMap.Teleport",       boost::bind(&LLFloaterWorldMap::onClickTeleportBtn, this));
-    mCommitCallbackRegistrar.add("WMap.ShowTarget",     boost::bind(&LLFloaterWorldMap::onShowTargetBtn, this));
-    mCommitCallbackRegistrar.add("WMap.ShowAgent",      boost::bind(&LLFloaterWorldMap::onShowAgentBtn, this));
-    mCommitCallbackRegistrar.add("WMap.Clear",          boost::bind(&LLFloaterWorldMap::onClearBtn, this));
-    mCommitCallbackRegistrar.add("WMap.CopySLURL",      boost::bind(&LLFloaterWorldMap::onCopySLURL, this));
+    mCommitCallbackRegistrar.add("WMap.Coordinates",    { boost::bind(&LLFloaterWorldMap::onCoordinatesCommit, this) });
+    mCommitCallbackRegistrar.add("WMap.Location",       { boost::bind(&LLFloaterWorldMap::onLocationCommit, this) });
+    mCommitCallbackRegistrar.add("WMap.AvatarCombo",    { boost::bind(&LLFloaterWorldMap::onAvatarComboCommit, this) });
+    mCommitCallbackRegistrar.add("WMap.Landmark",       { boost::bind(&LLFloaterWorldMap::onLandmarkComboCommit, this) });
+    mCommitCallbackRegistrar.add("WMap.SearchResult",   { boost::bind(&LLFloaterWorldMap::onCommitSearchResult, this) });
+    mCommitCallbackRegistrar.add("WMap.GoHome",         { boost::bind(&LLFloaterWorldMap::onGoHome, this) });
+    mCommitCallbackRegistrar.add("WMap.Teleport",       { boost::bind(&LLFloaterWorldMap::onClickTeleportBtn, this) });
+    mCommitCallbackRegistrar.add("WMap.ShowTarget",     { boost::bind(&LLFloaterWorldMap::onShowTargetBtn, this) });
+    mCommitCallbackRegistrar.add("WMap.ShowAgent",      { boost::bind(&LLFloaterWorldMap::onShowAgentBtn, this) });
+    mCommitCallbackRegistrar.add("WMap.Clear",          { boost::bind(&LLFloaterWorldMap::onClearBtn, this) });
+    mCommitCallbackRegistrar.add("WMap.CopySLURL",      { boost::bind(&LLFloaterWorldMap::onCopySLURL, this) });
 
     gSavedSettings.getControl("PreferredMaturity")->getSignal()->connect(boost::bind(&LLFloaterWorldMap::onChangeMaturity, this));
 }
@@ -486,8 +486,11 @@ void LLFloaterWorldMap::onOpen(const LLSD& key)
         const LLUUID landmark_folder_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_LANDMARK);
         LLInventoryModelBackgroundFetch::instance().start(landmark_folder_id);
 
-        mLocationEditor->setFocus( true);
-        gFocusMgr.triggerFocusFlash();
+        if (hasFocus())
+        {
+            mLocationEditor->setFocus( true);
+            gFocusMgr.triggerFocusFlash();
+        }
 
         buildAvatarIDList();
         buildLandmarkIDLists();

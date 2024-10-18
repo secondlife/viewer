@@ -36,8 +36,8 @@
 // Constants
 //
 
-const bool  RADIO_STYLE = true;
-const bool  CHECK_STYLE = false;
+constexpr bool RADIO_STYLE = true;
+constexpr bool CHECK_STYLE = false;
 
 //
 // Classes
@@ -94,7 +94,7 @@ public:
     // LLUICtrl interface
     virtual void        setValue(const LLSD& value );
     virtual LLSD        getValue() const;
-            bool        get() { return (bool)getValue().asBoolean(); }
+            bool        get() const { return (bool)getValue().asBoolean(); }
             void        set(bool value) { setValue(value); }
 
     virtual void        setTentative(bool b);
@@ -106,7 +106,7 @@ public:
     virtual void        onCommit();
 
     // LLCheckBoxCtrl interface
-    virtual bool        toggle()                { return mButton->toggleState(); }      // returns new state
+    virtual bool        toggle() { return mButton->toggleState(); }      // returns new state
 
     void                setBtnFocus() { mButton->setFocus(true); }
 

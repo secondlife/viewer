@@ -20,8 +20,8 @@
 // other Linden headers
 #include "../test/lltut.h"
 #include "../test/sync.h"
+#include "llcallbacklist.h"
 #include "llthread.h"               // on_main_thread()
-#include "lleventtimer.h"
 #include "lockstatic.h"
 
 /*****************************************************************************
@@ -108,7 +108,7 @@ namespace tut
             lk.unlock();
             // run the task -- should unblock thread, which will immediately block
             // on mSync
-            LLEventTimer::updateClass();
+            LLCallbackList::instance().callFunctions();
             // 'lk', having unlocked, can no longer be used to access; relock with
             // a new LockStatic instance
             ensure("should now have run", LockStatic()->ran);

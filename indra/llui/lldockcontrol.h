@@ -61,19 +61,19 @@ public:
     void off();
     void forceRecalculatePosition();
     void setDock(LLView* dockWidget);
-    LLView* getDock()
+    LLView* getDock() const
     {
         return mDockWidgetHandle.get();
     }
     void repositionDockable();
     void drawToungue();
-    bool isDockVisible();
+    bool isDockVisible() const;
 
     // gets a rect that bounds possible positions for a dockable control (EXT-1111)
     void getAllowedRect(LLRect& rect);
 
-    S32 getTongueWidth() { return mDockTongue->getWidth(); }
-    S32 getTongueHeight() { return mDockTongue->getHeight(); }
+    S32 getTongueWidth() const { return mDockTongue->getWidth(); }
+    S32 getTongueHeight() const { return mDockTongue->getHeight(); }
 
 private:
     virtual void moveDockable();

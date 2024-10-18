@@ -377,7 +377,7 @@ namespace tut
     {
         F32 value;
         std::string str_val("2147483647"); //0x7FFFFFFF
-        ensure("1: convertToF32 failed", LLStringUtil::convertToF32(str_val, value) && value == 2147483647);
+        ensure("1: convertToF32 failed", LLStringUtil::convertToF32(str_val, value) && value == 2147483647.f);
 
         str_val = "0";
         ensure("2: convertToF32 failed", LLStringUtil::convertToF32(str_val, value) && value == 0);
@@ -399,7 +399,7 @@ namespace tut
     {
         F64 value;
         std::string str_val("9223372036854775807"); //0x7FFFFFFFFFFFFFFF
-        ensure("1: convertToF64 failed", LLStringUtil::convertToF64(str_val, value) && value == 9223372036854775807LL);
+        ensure("1: convertToF64 failed", LLStringUtil::convertToF64(str_val, value) && value == 9223372036854775807.);
 
         str_val = "0";
         ensure("2: convertToF64 failed", LLStringUtil::convertToF64(str_val, value) && value == 0.0F);

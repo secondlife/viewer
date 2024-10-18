@@ -143,14 +143,16 @@ LLPanelMainInventory::LLPanelMainInventory(const LLPanel::Params& p)
       mGalleryRootUpdatedConnection()
 {
     // Menu Callbacks (non contex menus)
-    mCommitCallbackRegistrar.add("Inventory.DoToSelected", boost::bind(&LLPanelMainInventory::doToSelected, this, _2));
-    mCommitCallbackRegistrar.add("Inventory.CloseAllFolders", boost::bind(&LLPanelMainInventory::closeAllFolders, this));
-    mCommitCallbackRegistrar.add("Inventory.EmptyTrash", boost::bind(&LLInventoryModel::emptyFolderType, &gInventory, "ConfirmEmptyTrash", LLFolderType::FT_TRASH));
-    mCommitCallbackRegistrar.add("Inventory.EmptyLostAndFound", boost::bind(&LLInventoryModel::emptyFolderType, &gInventory, "ConfirmEmptyLostAndFound", LLFolderType::FT_LOST_AND_FOUND));
-    mCommitCallbackRegistrar.add("Inventory.DoCreate", boost::bind(&LLPanelMainInventory::doCreate, this, _2));
-    mCommitCallbackRegistrar.add("Inventory.ShowFilters", boost::bind(&LLPanelMainInventory::toggleFindOptions, this));
-    mCommitCallbackRegistrar.add("Inventory.ResetFilters", boost::bind(&LLPanelMainInventory::resetFilters, this));
-    mCommitCallbackRegistrar.add("Inventory.SetSortBy", boost::bind(&LLPanelMainInventory::setSortBy, this, _2));
+    mCommitCallbackRegistrar.add("Inventory.DoToSelected", { boost::bind(&LLPanelMainInventory::doToSelected, this, _2), LLUICtrl::cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Inventory.CloseAllFolders", { boost::bind(&LLPanelMainInventory::closeAllFolders, this) });
+    mCommitCallbackRegistrar.add("Inventory.EmptyTrash", { boost::bind(&LLInventoryModel::emptyFolderType, &gInventory,
+                                "ConfirmEmptyTrash", LLFolderType::FT_TRASH), LLUICtrl::cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Inventory.EmptyLostAndFound", { boost::bind(&LLInventoryModel::emptyFolderType, &gInventory,
+                                "ConfirmEmptyLostAndFound", LLFolderType::FT_LOST_AND_FOUND), LLUICtrl::cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Inventory.DoCreate", { boost::bind(&LLPanelMainInventory::doCreate, this, _2) });
+    mCommitCallbackRegistrar.add("Inventory.ShowFilters", { boost::bind(&LLPanelMainInventory::toggleFindOptions, this) });
+    mCommitCallbackRegistrar.add("Inventory.ResetFilters", { boost::bind(&LLPanelMainInventory::resetFilters, this) });
+    mCommitCallbackRegistrar.add("Inventory.SetSortBy", { boost::bind(&LLPanelMainInventory::setSortBy, this, _2) });
 
     mEnableCallbackRegistrar.add("Inventory.EnvironmentEnabled", [](LLUICtrl *, const LLSD &) { return LLPanelMainInventory::hasSettingsInventory(); });
     mEnableCallbackRegistrar.add("Inventory.MaterialsEnabled", [](LLUICtrl *, const LLSD &) { return LLPanelMainInventory::hasMaterialsInventory(); });
@@ -1540,7 +1542,7 @@ void LLPanelMainInventory::initListCommandsHandlers()
     mBackBtn->setCommitCallback(boost::bind(&LLPanelMainInventory::onBackFolderClicked, this));
     mForwardBtn->setCommitCallback(boost::bind(&LLPanelMainInventory::onForwardFolderClicked, this));
 
-    mCommitCallbackRegistrar.add("Inventory.GearDefault.Custom.Action", boost::bind(&LLPanelMainInventory::onCustomAction, this, _2));
+    mCommitCallbackRegistrar.add("Inventory.GearDefault.Custom.Action", { boost::bind(&LLPanelMainInventory::onCustomAction, this, _2), cb_info::UNTRUSTED_BLOCK });
     mEnableCallbackRegistrar.add("Inventory.GearDefault.Check", boost::bind(&LLPanelMainInventory::isActionChecked, this, _2));
     mEnableCallbackRegistrar.add("Inventory.GearDefault.Enable", boost::bind(&LLPanelMainInventory::isActionEnabled, this, _2));
     mEnableCallbackRegistrar.add("Inventory.GearDefault.Visible", boost::bind(&LLPanelMainInventory::isActionVisible, this, _2));

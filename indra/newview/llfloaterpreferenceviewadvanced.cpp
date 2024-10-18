@@ -37,7 +37,7 @@
 LLFloaterPreferenceViewAdvanced::LLFloaterPreferenceViewAdvanced(const LLSD& key)
 :   LLFloater(key)
 {
-    mCommitCallbackRegistrar.add("CommitSettings",  boost::bind(&LLFloaterPreferenceViewAdvanced::onCommitSettings, this));
+    mCommitCallbackRegistrar.add("CommitSettings",  { boost::bind(&LLFloaterPreferenceViewAdvanced::onCommitSettings, this), cb_info::UNTRUSTED_BLOCK });
 }
 
 LLFloaterPreferenceViewAdvanced::~LLFloaterPreferenceViewAdvanced()

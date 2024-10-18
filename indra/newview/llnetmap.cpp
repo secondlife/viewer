@@ -128,7 +128,7 @@ LLNetMap::~LLNetMap()
 
 bool LLNetMap::postBuild()
 {
-    LLUICtrl::CommitCallbackRegistry::ScopedRegistrar commitRegistrar;
+    LLUICtrl::ScopedRegistrarHelper commitRegistrar;
     LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enableRegistrar;
 
     enableRegistrar.add("Minimap.Zoom.Check", boost::bind(&LLNetMap::isZoomChecked, this, _2));

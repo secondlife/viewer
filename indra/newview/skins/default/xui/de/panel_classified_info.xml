@@ -13,7 +13,7 @@
 		[TELEPORT] teleportieren, [MAP] Karte, [PROFILE] Profil
 	</panel.string>
 	<panel.string name="date_fmt">
-		[mthnum,datetime,slt]/[day,datetime,slt]/[year,datetime,slt]
+		[day,datetime,slt].[mthnum,datetime,slt].[year,datetime,slt]
 	</panel.string>
 	<panel.string name="auto_renew_on">
 		Aktiviert

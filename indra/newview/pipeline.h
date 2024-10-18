@@ -1001,7 +1001,6 @@ public:
     //cached settings
     static bool WindLightUseAtmosShaders;
     static bool RenderDeferred;
-    static F32 RenderDeferredSunWash;
     static U32 RenderFSAAType;
     static U32 RenderResolutionDivisor;
     static bool RenderUIBuffer;
@@ -1043,7 +1042,6 @@ public:
     static F32 CameraFNumber;
     static F32 CameraFocalLength;
     static F32 CameraFieldOfView;
-    static F32 RenderShadowNoise;
     static F32 RenderShadowBlurSize;
     static F32 RenderSSAOScale;
     static U32 RenderSSAOMaxScale;
@@ -1056,8 +1054,6 @@ public:
     static F32 RenderSpotShadowOffset;
     static F32 RenderSpotShadowBias;
     static LLDrawable* RenderSpotLight;
-    static F32 RenderEdgeDepthCutoff;
-    static F32 RenderEdgeNormCutoff;
     static LLVector3 RenderShadowGaussian;
     static F32 RenderShadowBlurDistFactor;
     static bool RenderDeferredAtmospheric;

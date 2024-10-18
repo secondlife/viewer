@@ -54,6 +54,7 @@ if(WINDOWS)
     set(release_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
     set(release_files
         openjp2.dll
+        SDL2.dll
         )
 
     if(LLCOMMON_LINK_SHARED)
@@ -106,7 +107,8 @@ if(WINDOWS)
         else(ADDRESS_SIZE EQUAL 32)
             set(redist_find_path "$ENV{VCTOOLSREDISTDIR}x64\\Microsoft.VC${MSVC_TOOLSET_VER}.CRT")
         endif(ADDRESS_SIZE EQUAL 32)
-        get_filename_component(redist_path "${redist_find_path}" ABSOLUTE)
+        get_filename_component(redist_path_component "${redist_find_path}" ABSOLUTE)
+        set(redist_path ${redist_path_component} CACHE INTERNAL "MSVC Redist Path" FORCE)
         MESSAGE(STATUS "VC Runtime redist path: ${redist_path}")
     endif (MSVC_TOOLSET_VER AND DEFINED ENV{VCTOOLSREDISTDIR})
 
@@ -132,12 +134,11 @@ if(WINDOWS)
             msvcp${MSVC_VER}_2.dll
             msvcp${MSVC_VER}_atomic_wait.dll
             msvcp${MSVC_VER}_codecvt_ids.dll
-            msvcr${MSVC_VER}.dll
             vcruntime${MSVC_VER}.dll
             vcruntime${MSVC_VER}_1.dll
             vcruntime${MSVC_VER}_threads.dll
             )
-        if(redist_path AND EXISTS "${redist_path}/${release_msvc_file}")
+        if(DEFINED redist_path AND EXISTS "${redist_path}/${release_msvc_file}")
             MESSAGE(STATUS "Copying redist file from ${redist_path}/${release_msvc_file}")
             to_staging_dirs(
                 ${redist_path}
@@ -169,6 +170,8 @@ elseif(DARWIN)
     set(release_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
     set(release_files
         libndofdev.dylib
+        libSDL2.dylib
+        libSDL2-2.0.dylib
        )
 
     if(LLCOMMON_LINK_SHARED)
@@ -197,6 +200,7 @@ elseif(LINUX)
         libortp.so
         libvivoxoal.so.1
         libvivoxsdk.so
+        libSDL2.so
         )
     set(slvoice_files SLVoice)
 
@@ -214,16 +218,8 @@ elseif(LINUX)
 
      if( USE_AUTOBUILD_3P )
          list( APPEND release_files
-                 libatk-1.0.so
-                 libfreetype.so.6.6.2
-                 libfreetype.so.6
-                 libopenjp2.so
-                 libuuid.so.16
-                 libuuid.so.16.0.22
-                 libfontconfig.so.1.8.0
-                 libfontconfig.so.1
-                 libgmodule-2.0.so
-                 libgobject-2.0.so
+                 libapr-1.so.0
+                 libaprutil-1.so.0
                  )
 
         if(LLCOMMON_LINK_SHARED)

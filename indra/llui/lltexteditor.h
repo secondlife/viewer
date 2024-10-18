@@ -34,6 +34,7 @@
 #include "llstyle.h"
 #include "lleditmenuhandler.h"
 #include "llviewborder.h" // for params
+#include "llstring.h"
 #include "lltextbase.h"
 #include "lltextvalidate.h"
 
@@ -200,13 +201,13 @@ public:
     const LLUUID&   getSourceID() const                     { return mSourceID; }
 
     const LLTextSegmentPtr  getPreviousSegment() const;
-    const LLTextSegmentPtr  getLastSegment() const;
     void            getSelectedSegments(segment_vec_t& segments) const;
 
     void            setShowContextMenu(bool show) { mShowContextMenu = show; }
     bool            getShowContextMenu() const { return mShowContextMenu; }
 
     void            showEmojiHelper();
+    void            hideEmojiHelper();
     void            setShowEmojiHelper(bool show);
     bool            getShowEmojiHelper() const { return mShowEmojiHelper; }
 
@@ -215,8 +216,6 @@ public:
 protected:
     void            showContextMenu(S32 x, S32 y);
     void            drawPreeditMarker();
-
-    void            assignEmbedded(const std::string &s);
 
     void            removeCharOrTab();
 
@@ -237,7 +236,6 @@ protected:
 
     void            autoIndent();
 
-    void            findEmbeddedItemSegments(S32 start, S32 end);
     void            getSegmentsInRange(segment_vec_t& segments, S32 start, S32 end, bool include_partial) const;
 
     virtual llwchar pasteEmbeddedItem(llwchar ext_char) { return ext_char; }
@@ -249,7 +247,9 @@ protected:
     // Undoable operations
     void            addChar(llwchar c); // at mCursorPos
     S32             addChar(S32 pos, llwchar wc);
+public:
     void            addLineBreakChar(bool group_together = false);
+protected:
     S32             overwriteChar(S32 pos, llwchar wc);
     void            removeChar();
     S32             removeChar(S32 pos);
@@ -304,9 +304,18 @@ private:
     // Methods
     //
     void            pasteHelper(bool is_primary);
-    void            cleanStringForPaste(LLWString & clean_string);
-    void            pasteTextWithLinebreaks(LLWString & clean_string);
+    void            cleanStringForPaste(LLWString& clean_string);
 
+public:
+    template <typename STRINGTYPE>
+    void            pasteTextWithLinebreaks(const STRINGTYPE& clean_string)
+    {
+        pasteTextWithLinebreaksImpl(ll_convert(clean_string));
+    }
+    void            pasteTextWithLinebreaksImpl(const LLWString& clean_string);
+
+private:
+    void            pasteTextWithLinebreaksInternal(const LLWString & clean_string);
     void            onKeyStroke();
 
     // Concrete TextCmd sub-classes used by the LLTextEditor base class

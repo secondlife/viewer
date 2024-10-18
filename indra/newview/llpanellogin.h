@@ -85,7 +85,7 @@ public:
     static bool getShowFavorites();
 
     // extract name from cred in a format apropriate for username field
-    static std::string getUserName(LLPointer<LLCredential> &cred);
+    static std::string getUserName(const LLPointer<LLCredential> &cred);
 
 private:
     friend class LLPanelLoginListener;

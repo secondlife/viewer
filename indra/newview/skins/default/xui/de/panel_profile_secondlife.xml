@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Profil" name="panel_profile">
+	<string
+	 name="date_format_full"
+	 value="SL-Geburtstag: [day,datetime,utc]. [mth,datetime,utc]. [year,datetime,utc]" />
+	<string
+	 name="date_format_short"
+	 value="SL-Geburtstag: [day,datetime,utc]. [mth,datetime,utc]." />
 	<string name="status_online">
 		Zurzeit online
 	</string>

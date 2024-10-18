@@ -38,7 +38,6 @@
 #include "llregionhandle.h"
 #include "llsurface.h"
 #include "message.h"
-//#include "vmath.h"
 #include "v3math.h"
 #include "v4math.h"
 
@@ -3156,7 +3155,7 @@ void LLViewerRegion::unpackRegionHandshake()
         std::string cap = getCapability("ModifyRegion"); // needed for queueQuery
         if (cap.empty())
         {
-            LLFloaterRegionInfo::sRefreshFromRegion(this);
+            LLFloaterRegionInfo::refreshFromRegion(this);
         }
         else
         {
@@ -3168,7 +3167,7 @@ void LLViewerRegion::unpackRegionHandshake()
                 LLVLComposition* compp = region->getComposition();
                 if (!compp) { return; }
                 compp->apply(composition_changes);
-                LLFloaterRegionInfo::sRefreshFromRegion(region);
+                LLFloaterRegionInfo::refreshFromRegion(region);
             });
         }
     }
@@ -3236,6 +3235,7 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
     capabilityNames.append("FetchInventory2");
     capabilityNames.append("FetchInventoryDescendents2");
     capabilityNames.append("IncrementCOFVersion");
+    capabilityNames.append("RequestTaskInventory");
     AISAPI::getCapNames(capabilityNames);
 
     capabilityNames.append("InterestList");

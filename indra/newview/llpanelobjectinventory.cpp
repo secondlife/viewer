@@ -1332,14 +1332,16 @@ LLPanelObjectInventory::LLPanelObjectInventory(const LLPanelObjectInventory::Par
     mShowRootFolder(p.show_root_folder)
 {
     // Setup context menu callbacks
-    mCommitCallbackRegistrar.add("Inventory.DoToSelected", boost::bind(&LLPanelObjectInventory::doToSelected, this, _2));
-    mCommitCallbackRegistrar.add("Inventory.EmptyTrash", boost::bind(&LLInventoryModel::emptyFolderType, &gInventory, "ConfirmEmptyTrash", LLFolderType::FT_TRASH));
-    mCommitCallbackRegistrar.add("Inventory.EmptyLostAndFound", boost::bind(&LLInventoryModel::emptyFolderType, &gInventory, "ConfirmEmptyLostAndFound", LLFolderType::FT_LOST_AND_FOUND));
-    mCommitCallbackRegistrar.add("Inventory.DoCreate", boost::bind(&do_nothing));
-    mCommitCallbackRegistrar.add("Inventory.AttachObject", boost::bind(&do_nothing));
-    mCommitCallbackRegistrar.add("Inventory.BeginIMSession", boost::bind(&do_nothing));
-    mCommitCallbackRegistrar.add("Inventory.Share",  boost::bind(&LLAvatarActions::shareWithAvatars, this));
-    mCommitCallbackRegistrar.add("Inventory.FileUploadLocation", boost::bind(&do_nothing));
+    mCommitCallbackRegistrar.add("Inventory.DoToSelected", { boost::bind(&LLPanelObjectInventory::doToSelected, this, _2), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Inventory.EmptyTrash",
+        { boost::bind(&LLInventoryModel::emptyFolderType, &gInventory, "ConfirmEmptyTrash", LLFolderType::FT_TRASH), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Inventory.EmptyLostAndFound",
+        { boost::bind(&LLInventoryModel::emptyFolderType, &gInventory, "ConfirmEmptyLostAndFound", LLFolderType::FT_LOST_AND_FOUND), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Inventory.DoCreate", { boost::bind(&do_nothing) });
+    mCommitCallbackRegistrar.add("Inventory.AttachObject", { boost::bind(&do_nothing) });
+    mCommitCallbackRegistrar.add("Inventory.BeginIMSession", { boost::bind(&do_nothing) });
+    mCommitCallbackRegistrar.add("Inventory.Share",  { boost::bind(&LLAvatarActions::shareWithAvatars, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Inventory.FileUploadLocation", { boost::bind(&do_nothing) });
 }
 
 // Destroys the object

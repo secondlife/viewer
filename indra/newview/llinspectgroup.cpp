@@ -97,11 +97,11 @@ LLInspectGroup::LLInspectGroup(const LLSD& sd)
     mGroupID()          // set in onOpen()
 {
     mCommitCallbackRegistrar.add("InspectGroup.ViewProfile",
-        boost::bind(&LLInspectGroup::onClickViewProfile, this));
+        { boost::bind(&LLInspectGroup::onClickViewProfile, this), cb_info::UNTRUSTED_THROTTLE });
     mCommitCallbackRegistrar.add("InspectGroup.Join",
-        boost::bind(&LLInspectGroup::onClickJoin, this));
+        { boost::bind(&LLInspectGroup::onClickJoin, this), cb_info::UNTRUSTED_THROTTLE });
     mCommitCallbackRegistrar.add("InspectGroup.Leave",
-        boost::bind(&LLInspectGroup::onClickLeave, this));
+        { boost::bind(&LLInspectGroup::onClickLeave, this), cb_info::UNTRUSTED_BLOCK });
 
     // can't make the properties request until the widgets are constructed
     // as it might return immediately, so do it in postBuild.

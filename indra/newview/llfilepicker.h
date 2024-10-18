@@ -54,19 +54,8 @@
 #include <commdlg.h>
 #endif
 
-extern "C" {
-// mostly for Linux, possible on others
-#if LL_GTK
-# include "gtk/gtk.h"
-#endif // LL_GTK
-}
-
 class LLFilePicker
 {
-#ifdef LL_GTK
-    friend class LLDirPicker;
-    friend void chooser_responder(GtkWidget *, gint, gpointer);
-#endif // LL_GTK
 public:
     // calling this before main() is undefined
     static LLFilePicker& instance( void ) { return sInstance; }
@@ -90,6 +79,7 @@ public:
         FFLOAD_MATERIAL = 15,
         FFLOAD_MATERIAL_TEXTURE = 16,
         FFLOAD_HDRI = 17,
+        FFLOAD_LUA = 18,
     };
 
     enum ESaveFilter
@@ -184,27 +174,11 @@ private:
                                  void *userdata);
 #endif
 
-#if LL_GTK
-    static void add_to_selectedfiles(gpointer data, gpointer user_data);
-    static void chooser_responder(GtkWidget *widget, gint response, gpointer user_data);
-    // we remember the last path that was accessed for a particular usage
-    std::map <std::string, std::string> mContextToPathMap;
-    std::string mCurContextName;
-    // we also remember the extension of the last added file.
-    std::string mCurrentExtension;
-#endif
-
     std::vector<std::string> mFiles;
     S32 mCurrentFile;
     bool mLocked;
 
     static LLFilePicker sInstance;
-
-protected:
-#if LL_GTK
-        GtkWindow* buildFilePicker(bool is_save, bool is_folder,
-                   std::string context = "generic");
-#endif
 
 public:
     // don't call these directly please.

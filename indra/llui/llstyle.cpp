@@ -43,8 +43,8 @@ LLStyle::Params::Params()
     image("image"),
     link_href("href"),
     is_link("is_link")
-{}
-
+{
+}
 
 LLStyle::LLStyle(const LLStyle::Params& p)
 :   mVisible(p.visible),
@@ -57,13 +57,30 @@ LLStyle::LLStyle(const LLStyle::Params& p)
     mDropShadow(p.drop_shadow),
     mImagep(p.image()),
     mAlpha(p.alpha)
-{}
+{
+}
+
+LLStyle* LLStyle::makeCopy() const
+{
+    LLStyle* copy = new LLStyle();
+    copy->mDropShadow = mDropShadow;
+    copy->mFontName = mFontName;
+    copy->mLink = mLink;
+    copy->mColor.set(mColor.get());
+    copy->mReadOnlyColor.set(mReadOnlyColor.get());
+    copy->mSelectedColor.set(mSelectedColor.get());
+    copy->mFont = mFont;
+    copy->mImagep = mImagep;
+    copy->mAlpha = mAlpha;
+    copy->mVisible = mVisible;
+    copy->mIsLink = mIsLink;
+    return copy;
+}
 
 void LLStyle::setFont(const LLFontGL* font)
 {
     mFont = font;
 }
-
 
 const LLFontGL* LLStyle::getFont() const
 {

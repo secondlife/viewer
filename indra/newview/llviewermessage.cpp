@@ -118,6 +118,8 @@
 #include "llpanelplaceprofile.h"
 #include "llviewerregion.h"
 #include "llfloaterregionrestarting.h"
+#include "rlvactions.h"
+#include "rlvhandler.h"
 
 #include "llnotificationmanager.h" //
 #include "llexperiencecache.h"
@@ -2382,15 +2384,16 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
     }
 
     bool is_audible = (CHAT_AUDIBLE_FULLY == chat.mAudible);
+    bool show_script_chat_particles = chat.mSourceType == CHAT_SOURCE_OBJECT
+        && chat.mChatType != CHAT_TYPE_DEBUG_MSG
+        && gSavedSettings.getBOOL("EffectScriptChatParticles");
     chatter = gObjectList.findObject(from_id);
     if (chatter)
     {
         chat.mPosAgent = chatter->getPositionAgent();
 
         // Make swirly things only for talking objects. (not script debug messages, though)
-        if (chat.mSourceType == CHAT_SOURCE_OBJECT
-            && chat.mChatType != CHAT_TYPE_DEBUG_MSG
-            && gSavedSettings.getBOOL("EffectScriptChatParticles") )
+        if (show_script_chat_particles && (!RlvActions::isRlvEnabled() || CHAT_TYPE_OWNER != chat.mChatType) )
         {
             LLPointer<LLViewerPartSourceChat> psc = new LLViewerPartSourceChat(chatter->getPositionAgent());
             psc->setSourceObject(chatter);
@@ -2422,8 +2425,11 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 
         bool ircstyle = false;
 
+        auto [message, is_script] = LLStringUtil::withoutPrefix(mesg, LUA_PREFIX);
+        chat.mIsScript = is_script;
+
         // Look for IRC-style emotes here so chatbubbles work
-        std::string prefix = mesg.substr(0, 4);
+        std::string prefix = message.substr(0, 4);
         if (prefix == "/me " || prefix == "/me'")
         {
             ircstyle = true;
@@ -2465,18 +2471,41 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
         else
         {
             chat.mText = "";
+            auto [msg_without_prefix, is_lua] = LLStringUtil::withoutPrefix(mesg, LUA_PREFIX);
+            std::string prefix;
+            if (is_lua)
+            {
+                prefix = LUA_PREFIX;
+            }
             switch(chat.mChatType)
             {
             case CHAT_TYPE_WHISPER:
-                chat.mText = LLTrans::getString("whisper") + " ";
-                break;
-            case CHAT_TYPE_DEBUG_MSG:
-            case CHAT_TYPE_OWNER:
-            case CHAT_TYPE_NORMAL:
-            case CHAT_TYPE_DIRECT:
+                prefix += LLTrans::getString("whisper") + " ";
                 break;
             case CHAT_TYPE_SHOUT:
-                chat.mText = LLTrans::getString("shout") + " ";
+                prefix += LLTrans::getString("shout") + " ";
+                break;
+            case CHAT_TYPE_OWNER:
+                if (RlvActions::isRlvEnabled())
+                {
+                    if (RlvHandler::instance().handleSimulatorChat(mesg, chat, chatter))
+                    {
+                        break;
+                    }
+                    else if (show_script_chat_particles)
+                    {
+                        LLPointer<LLViewerPartSourceChat> psc = new LLViewerPartSourceChat(chatter->getPositionAgent());
+                        psc->setSourceObject(chatter);
+                        psc->setColor(color);
+                        //We set the particles to be owned by the object's owner,
+                        //just in case they should be muted by the mute list
+                        psc->setOwnerUUID(owner_id);
+                        LLViewerPartSim::getInstance()->addPartSource(psc);
+                    }
+                }
+            case CHAT_TYPE_DEBUG_MSG:
+            case CHAT_TYPE_NORMAL:
+            case CHAT_TYPE_DIRECT:
                 break;
             case CHAT_TYPE_START:
             case CHAT_TYPE_STOP:
@@ -2487,7 +2516,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
                 break;
             }
 
-            chat.mText += mesg;
+            chat.mText = prefix + msg_without_prefix;
         }
 
         // We have a real utterance now, so can stop showing "..." and proceed.
@@ -2568,6 +2597,11 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
             msg_notify["from_id"] = chat.mFromID;
             msg_notify["source_type"] = chat.mSourceType;
             on_new_message(msg_notify);
+
+
+            msg_notify["chat_type"] = chat.mChatType;
+            msg_notify["message"] = mesg;
+            LLEventPumps::instance().obtain("LLNearbyChat").post(msg_notify);
         }
 
     }
@@ -2713,7 +2747,7 @@ public:
     virtual ~LLPostTeleportNotifiers();
 
     //function to be called at the supplied frequency
-    virtual bool tick();
+    bool tick() override;
 };
 
 LLPostTeleportNotifiers::LLPostTeleportNotifiers() : LLEventTimer( 2.0 )
@@ -3139,8 +3173,8 @@ void process_crossed_region(LLMessageSystem* msg, void**)
 }
 
 
-// sends an AgentUpdate message to the server... or not:
-// only when force_send is 'true' OR
+// sends an AgentUpdate message to the server... or not
+// e.g. only when force_send is 'true' OR
 // something changed AND the update is not being throttled
 void send_agent_update(bool force_send, bool send_reliable)
 {
@@ -3206,8 +3240,6 @@ void send_agent_update(bool force_send, bool send_reliable)
         return;
     }
 
-    bool send_update = force_send || sec_since_last_send > MAX_AGENT_UPDATE_PERIOD;
-
     LLVector3 camera_pos_agent = gAgentCamera.getCameraPositionAgent(); // local to avatar's region
     LLVector3 camera_at = LLViewerCamera::getInstance()->getAtAxis();
     LLQuaternion body_rotation = gAgent.getFrameAgent().getQuaternion();
@@ -3224,6 +3256,7 @@ void send_agent_update(bool force_send, bool send_reliable)
         flags |= AU_FLAGS_CLIENT_AUTOPILOT;
     }
 
+    bool send_update = force_send || sec_since_last_send > MAX_AGENT_UPDATE_PERIOD;
     if (!send_update)
     {
         // check to see if anything changed
@@ -6610,7 +6643,6 @@ void process_initiate_download(LLMessageSystem* msg, void**)
         (void**)new std::string(viewer_filename));
 }
 
-
 void process_script_teleport_request(LLMessageSystem* msg, void**)
 {
     if (!gSavedSettings.getBOOL("ScriptsCanShowUI")) return;
@@ -6624,6 +6656,11 @@ void process_script_teleport_request(LLMessageSystem* msg, void**)
     msg->getString("Data", "SimName", sim_name);
     msg->getVector3("Data", "SimPosition", pos);
     msg->getVector3("Data", "LookAt", look_at);
+    U32 flags = (BEACON_SHOW_MAP | BEACON_FOCUS_MAP);
+    if (msg->has("Options"))
+    {
+        msg->getU32("Options", "Flags", flags);
+    }
 
     LLFloaterWorldMap* instance = LLFloaterWorldMap::getInstance();
     if(instance)
@@ -6634,7 +6671,13 @@ void process_script_teleport_request(LLMessageSystem* msg, void**)
             << LL_ENDL;
 
         instance->trackURL(sim_name, (S32)pos.mV[VX], (S32)pos.mV[VY], (S32)pos.mV[VZ]);
-        LLFloaterReg::showInstance("world_map", "center");
+        if (flags & BEACON_SHOW_MAP)
+        {
+            bool old_auto_focus = instance->getAutoFocus();
+            instance->setAutoFocus(flags & BEACON_FOCUS_MAP);
+            instance->openFloater("center");
+            instance->setAutoFocus(old_auto_focus);
+        }
     }
 
     // remove above two lines and replace with below line
