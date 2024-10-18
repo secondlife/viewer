@@ -184,6 +184,8 @@ public:
      */
 
     static bool canCall();
+    static bool canCallTo(const LLUUID& id);
+
     /**
      * Invite avatar to a group.
      */

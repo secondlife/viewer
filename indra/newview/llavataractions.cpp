@@ -303,7 +303,21 @@ bool LLAvatarActions::isCalling(const LLUUID &id)
 //static
 bool LLAvatarActions::canCall()
 {
-    return LLVoiceClient::getInstance()->voiceEnabled() && LLVoiceClient::getInstance()->isVoiceWorking();
+    if (LLVoiceClient* voice_client = LLVoiceClient::getInstance())
+    {
+        return voice_client->voiceEnabled() && voice_client->isVoiceWorking();
+    }
+    return false;
+}
+
+//static
+bool LLAvatarActions::canCallTo(const LLUUID& id)
+{
+    if (LLVoiceClient* voice_client = LLVoiceClient::getInstance())
+    {
+        return voice_client->voiceEnabled() && voice_client->isVoiceWorking() && voice_client->getVoiceEnabled(id);
+    }
+    return false;
 }
 
 // static
