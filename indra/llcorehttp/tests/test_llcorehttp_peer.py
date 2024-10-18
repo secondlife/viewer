@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """\
-@file   test_llsdmessage_peer.py
+@file   test_llcorehttp_peer.py
 @author Nat Goodspeed
 @date   2008-10-09
 @brief  This script asynchronously runs the executable (with args) specified on
