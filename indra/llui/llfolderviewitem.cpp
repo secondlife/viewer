@@ -23,7 +23,7 @@
 * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 * $/LicenseInfo$
 */
-#include "../newview/llviewerprecompiledheaders.h"
+#include "linden_common.h"
 
 #include "llflashtimer.h"
 
