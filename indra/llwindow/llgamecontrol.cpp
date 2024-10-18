@@ -1530,6 +1530,9 @@ void LLGameControl::init(const std::string& gamecontrollerdb_path,
     llassert(saveObject);
     llassert(updateUI);
 
+#ifndef LL_DARWIN
+    // SDL2 is temporarily disabled on Mac, so this needs to be a no-op on that platform
+
     int result = SDL_InitSubSystem(SDL_INIT_GAMECONTROLLER | SDL_INIT_SENSOR);
     if (result < 0)
     {
@@ -1555,6 +1558,7 @@ void LLGameControl::init(const std::string& gamecontrollerdb_path,
             LL_INFOS("SDL2") << "Total " << count << " mappings added from " << gamecontrollerdb_path << LL_ENDL;
         }
     }
+#endif // LL_DARWIN
 
     g_gameControl = LLGameControl::getInstance();
 
@@ -1614,6 +1618,9 @@ void LLGameControl::clearAllStates()
 // static
 void LLGameControl::processEvents(bool app_has_focus)
 {
+#ifndef LL_DARWIN
+    // SDL2 is temporarily disabled on Mac, so this needs to be a no-op on that platform
+
     // This method used by non-linux platforms which only use SDL for GameController input
     SDL_Event event;
     if (!app_has_focus)
@@ -1631,6 +1638,7 @@ void LLGameControl::processEvents(bool app_has_focus)
     {
         handleEvent(event, app_has_focus);
     }
+#endif // LL_DARWIN
 }
 
 void LLGameControl::handleEvent(const SDL_Event& event, bool app_has_focus)
