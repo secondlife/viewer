@@ -302,6 +302,10 @@ void LLWebRTCVoiceClient::stopTimer()
 {
     if (mIsTimerActive)
     {
+        LLMuteList::instanceExists();
+        {
+            LLMuteList::getInstance()->removeObserver(this);
+        }
         mIsTimerActive = false;
         LL::Timers::instance().cancel(mVoiceTimerHandle);
     }
@@ -470,13 +474,6 @@ void LLWebRTCVoiceClient::connectionTimer()
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE;
     try
     {
-        // TODO: Doing some measurement and calculation here,
-        // we could reduce the timeout to take into account the
-        // time spent on the previous loop to have the loop
-        // cycle at exactly 100ms, instead of 100ms + loop
-        // execution time.
-        // Could help with voice updates making for smoother
-        // voice when we're busy.
         bool voiceEnabled = mVoiceEnabled;
 
         if (!isAgentAvatarValid())
@@ -1577,7 +1574,6 @@ void LLWebRTCVoiceClient::setVoiceEnabled(bool enabled)
                 LL_DEBUGS("Voice") << "Starting" << LL_ENDL;
                 mIsTimerActive = true;
                 LLMuteList::getInstance()->addObserver(this);
-                const F32 SECS_BETWEEN_REQUESTS = 0.5f;
                 mVoiceTimerHandle = LL::Timers::instance().scheduleEvery([this]() { connectionTimer(); return false; }, UPDATE_THROTTLE_SECONDS);
             }
             else
