@@ -314,6 +314,7 @@ set(viewer_SOURCE_FILES
     llfloaterwindowsize.cpp
     llfloaterworldmap.cpp
     llfolderviewmodelinventory.cpp
+    llfloaterviewercef.cpp
     llfollowcam.cpp
     llfriendcard.cpp
     llflyoutcombobtn.cpp
@@ -994,6 +995,7 @@ set(viewer_HEADER_FILES
     llfloaterwindowsize.h
     llfloaterworldmap.h
     llfolderviewmodelinventory.h
+    llfloaterviewercef.h
     llfollowcam.h
     llfriendcard.h
     llflyoutcombobtn.h

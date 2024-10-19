@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+  legacy_header_height="18"
+  can_resize="false"
+  height="600"
+  layout="topleft"
+  name="viewer_cef_experiment"
+  help_topic=""
+  title="Viewer CEF Experiment"
+  width="800">
+	<tab_container
+     bottom="600"
+     follows="left|right|top|bottom"
+     layout="topleft"
+     left="0"
+     name="viewer_cef_tabs"
+     tab_padding_right="3"
+     tab_position="left"
+     halign="left"
+     tab_width="110"
+     top="20"/>
+	<button		
+     follows="top|left|right"
+     height="20"
+     label="Bookmarks"
+     layout="topleft"
+     left="9"
+	 bottom="340"
+     name="bm_1_btn"
+	 tool_tip="https://sl-viewer-media-system.s3.amazonaws.com/bookmarks.html"
+     width="90"/>
+	<button
+     follows="top|left|right"
+     height="20"
+     label="Bookmark 2"
+     layout="topleft"
+     left="9"
+	 bottom="364"
+     name="bm_2_btn"
+	 tool_tip="https://www.google.com/search?q=2"
+     width="90"/>
+	<button
+     follows="top|left|right"
+     height="20"
+     label="Bookmark 3"
+     layout="topleft"
+     left="9"
+	 bottom="388"
+     name="bm_3_btn"
+	 tool_tip="https://www.google.com/search?q=3"
+     width="90"/>
+	<button
+     follows="top|left|right"
+     height="20"
+     label="Bookmark 4"
+     layout="topleft"
+     left="9"
+	 bottom="412"
+     name="bm_4_btn"
+	 tool_tip="https://www.google.com/search?q=4"
+     width="90"/>
+	<button
+     follows="top|left|right"
+     height="20"
+     label="Add Plugin Tab"
+     layout="topleft"
+     left="9"
+	 bottom="476"
+     name="add_plugin_tab_btn"
+     width="90"/>
+	<button
+     follows="top|left|right"
+     height="20"
+     label="Add Native Tab"
+     layout="topleft"
+     left="9"
+	 bottom="500"
+     name="add_native_tab_btn"
+     width="90"/>
+	<button
+     follows="top|left|right"
+     height="20"
+     label="Close Tab"
+     layout="topleft"
+     left="9"
+	 bottom="524"
+     name="close_tab_btn"
+     width="90"/>
+	<button
+     follows="top|left|right"
+     height="20"
+     label="Close"
+     layout="topleft"
+     left="9"
+	 bottom="590"
+     name="close_floater_btn"
+     width="90"/>
+</floater>
