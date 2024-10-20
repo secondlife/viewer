@@ -315,23 +315,18 @@ void LLSkinningUtil::initJointNums(LLMeshSkinInfo* skin, LLVOAvatar *avatar)
     }
 }
 
-static LLTrace::BlockTimerStatHandle FTM_FACE_RIGGING_INFO("Face Rigging Info");
-
 void LLSkinningUtil::updateRiggingInfo(const LLMeshSkinInfo* skin, LLVOAvatar *avatar, LLVolumeFace& vol_face)
 {
-    LL_RECORD_BLOCK_TIME(FTM_FACE_RIGGING_INFO);
-
     if (vol_face.mJointRiggingInfoTab.needsUpdate())
     {
         S32 num_verts = vol_face.mNumVertices;
         S32 num_joints = static_cast<S32>(skin->mJointNames.size());
         if (num_verts > 0 && vol_face.mWeights && num_joints > 0)
         {
+            LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
             initJointNums(const_cast<LLMeshSkinInfo*>(skin), avatar);
             if (vol_face.mJointRiggingInfoTab.size()==0)
             {
-                //std::set<S32> active_joints;
-                //S32 active_verts = 0;
                 vol_face.mJointRiggingInfoTab.resize(LL_CHARACTER_MAX_ANIMATED_JOINTS);
                 LLJointRiggingInfoTab &rig_info_tab = vol_face.mJointRiggingInfoTab;
                 for (S32 i=0; i<vol_face.mNumVertices; i++)
@@ -347,35 +342,22 @@ void LLSkinningUtil::updateRiggingInfo(const LLMeshSkinInfo* skin, LLVOAvatar *a
                         F32 w = weights[k];
                         idx[k] = llclamp((S32) floorf(w), (S32)0, (S32)LL_CHARACTER_MAX_ANIMATED_JOINTS-1);
                         wght[k] = w - idx[k];
-                        scale += wght[k];
                     }
-                    if (scale > 0.0f)
-                    {
-                        for (U32 k=0; k<4; ++k)
-                        {
-                            wght[k] /= scale;
-                        }
-                    }
+
                     for (U32 k=0; k<4; ++k)
                     {
                         S32 joint_index = idx[k];
-                        if (wght[k] > 0.0f && num_joints > joint_index)
+                        if (wght[k] > 0.2f && num_joints > joint_index)
                         {
                             S32 joint_num = skin->mJointNums[joint_index];
                             if (joint_num >= 0 && joint_num < LL_CHARACTER_MAX_ANIMATED_JOINTS)
                             {
                                 rig_info_tab[joint_num].setIsRiggedTo(true);
 
-                                // FIXME could precompute these matMuls.
-                                const LLMatrix4a& bind_shape = skin->mBindShapeMatrix;
-                                const LLMatrix4a& inv_bind = skin->mInvBindMatrix[joint_index];
-                                LLMatrix4a mat;
+                                const LLMatrix4a& mat = skin->mBindPoseMatrix[joint_index];
                                 LLVector4a pos_joint_space;
 
-                                matMul(bind_shape, inv_bind, mat);
-
                                 mat.affineTransform(pos, pos_joint_space);
-                                pos_joint_space.mul(wght[k]);
 
                                 LLVector4a *extents = rig_info_tab[joint_num].getRiggedExtents();
                                 update_min_max(extents[0], extents[1], pos_joint_space);
@@ -383,28 +365,9 @@ void LLSkinningUtil::updateRiggingInfo(const LLMeshSkinInfo* skin, LLVOAvatar *a
                         }
                     }
                 }
-                //LL_DEBUGS("RigSpammish") << "built rigging info for vf " << &vol_face
-                //                         << " num_verts " << vol_face.mNumVertices
-                //                         << " active joints " << active_joints.size()
-                //                         << " active verts " << active_verts
-                //                         << LL_ENDL;
                 vol_face.mJointRiggingInfoTab.setNeedsUpdate(false);
             }
         }
-
-#if DEBUG_SKINNING
-        if (vol_face.mJointRiggingInfoTab.size()!=0)
-        {
-            LL_DEBUGS("RigSpammish") << "we have rigging info for vf " << &vol_face
-                                     << " num_verts " << vol_face.mNumVertices << LL_ENDL;
-        }
-        else
-        {
-            LL_DEBUGS("RigSpammish") << "no rigging info for vf " << &vol_face
-                                     << " num_verts " << vol_face.mNumVertices << LL_ENDL;
-        }
-#endif
-
     }
 }
 

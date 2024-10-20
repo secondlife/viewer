@@ -1078,7 +1078,6 @@ void LLTerrainPartition::getGeometry(LLSpatialGroup* group)
         gen_terrain_tangents(index_offset, indices_index, vertices, normals, tangents, indices, region_width);
     }
 
-    buffer->unmapBuffer();
     mFaceList.clear();
 }
 

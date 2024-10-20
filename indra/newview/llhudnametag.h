@@ -37,6 +37,7 @@
 #include "llrect.h"
 //#include "llframetimer.h"
 #include "llfontgl.h"
+#include "llfontvertexbuffer.h"
 #include <set>
 #include <vector>
 
@@ -145,7 +146,7 @@ protected:
     LLHUDNameTag(const U8 type);
 
     /*virtual*/ void render();
-    void renderText(bool for_select);
+    void renderText();
     static void updateAll();
     void setLOD(S32 lod);
     S32 getMaxLines();

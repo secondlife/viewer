@@ -332,6 +332,11 @@ public:
 
         DEBUG_NORMAL_DRAW_LENGTH,           //  "debug_normal_draw_length"
 
+        SMAA_EDGE_TEX,                      //  "edgesTex"
+        SMAA_AREA_TEX,                      //  "areaTex"
+        SMAA_SEARCH_TEX,                    //  "searchTex"
+        SMAA_BLEND_TEX,                     //  "blendTex"
+
         END_RESERVED_UNIFORMS
     } eGLSLReservedUniforms;
     // clang-format on

@@ -618,43 +618,22 @@ void LLManipScale::renderFaces( const LLBBox& bbox )
     {
         gGL.color4fv( default_normal_color.mV );
         LLGLDepthTest gls_depth(GL_FALSE);
-        gGL.begin(LLRender::QUADS);
+        gGL.begin(LLRender::TRIANGLE_STRIP);
         {
-            // Face 0
-            gGL.vertex3f(min.mV[VX], max.mV[VY], max.mV[VZ]);
-            gGL.vertex3f(min.mV[VX], min.mV[VY], max.mV[VZ]);
-            gGL.vertex3f(max.mV[VX], min.mV[VY], max.mV[VZ]);
-            gGL.vertex3f(max.mV[VX], max.mV[VY], max.mV[VZ]);
-
-            // Face 1
-            gGL.vertex3f(max.mV[VX], min.mV[VY], max.mV[VZ]);
-            gGL.vertex3f(max.mV[VX], min.mV[VY], min.mV[VZ]);
-            gGL.vertex3f(max.mV[VX], max.mV[VY], min.mV[VZ]);
-            gGL.vertex3f(max.mV[VX], max.mV[VY], max.mV[VZ]);
-
-            // Face 2
             gGL.vertex3f(min.mV[VX], max.mV[VY], min.mV[VZ]);
-            gGL.vertex3f(min.mV[VX], max.mV[VY], max.mV[VZ]);
-            gGL.vertex3f(max.mV[VX], max.mV[VY], max.mV[VZ]);
             gGL.vertex3f(max.mV[VX], max.mV[VY], min.mV[VZ]);
-
-            // Face 3
-            gGL.vertex3f(min.mV[VX], max.mV[VY], max.mV[VZ]);
-            gGL.vertex3f(min.mV[VX], max.mV[VY], min.mV[VZ]);
-            gGL.vertex3f(min.mV[VX], min.mV[VY], min.mV[VZ]);
-            gGL.vertex3f(min.mV[VX], min.mV[VY], max.mV[VZ]);
-
-            // Face 4
-            gGL.vertex3f(min.mV[VX], min.mV[VY], max.mV[VZ]);
             gGL.vertex3f(min.mV[VX], min.mV[VY], min.mV[VZ]);
             gGL.vertex3f(max.mV[VX], min.mV[VY], min.mV[VZ]);
             gGL.vertex3f(max.mV[VX], min.mV[VY], max.mV[VZ]);
-
-            // Face 5
-            gGL.vertex3f(min.mV[VX], min.mV[VY], min.mV[VZ]);
-            gGL.vertex3f(min.mV[VX], max.mV[VY], min.mV[VZ]);
             gGL.vertex3f(max.mV[VX], max.mV[VY], min.mV[VZ]);
-            gGL.vertex3f(max.mV[VX], min.mV[VY], min.mV[VZ]);
+            gGL.vertex3f(max.mV[VX], max.mV[VY], max.mV[VZ]);
+            gGL.vertex3f(min.mV[VX], max.mV[VY], min.mV[VZ]);
+            gGL.vertex3f(min.mV[VX], max.mV[VY], max.mV[VZ]);
+            gGL.vertex3f(min.mV[VX], min.mV[VY], min.mV[VZ]);
+            gGL.vertex3f(min.mV[VX], min.mV[VY], max.mV[VZ]);
+            gGL.vertex3f(max.mV[VX], min.mV[VY], max.mV[VZ]);
+            gGL.vertex3f(min.mV[VX], max.mV[VY], max.mV[VZ]);
+            gGL.vertex3f(max.mV[VX], max.mV[VY], max.mV[VZ]);
         }
         gGL.end();
     }

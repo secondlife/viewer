@@ -110,7 +110,7 @@ namespace {
         virtual void recordMessage(LLError::ELevel level,
                                     const std::string& message) override
         {
-            LL_PROFILE_ZONE_SCOPED_CATEGORY_LOGGING
+            LL_PROFILE_ZONE_SCOPED_CATEGORY_LOGGING;
             int syslogPriority = LOG_CRIT;
             switch (level) {
                 case LLError::LEVEL_DEBUG:  syslogPriority = LOG_DEBUG; break;

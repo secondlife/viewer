@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="US-ASCII" standalone="yes"?>
+<?xml version="1.0" encoding="us-ascii" standalone="yes"?>
 <linden_avatar
   version="2.0" wearable_definition_version="22"> 
   <!-- The wearable_definition_version is checked during asset upload. -->
@@ -8923,8 +8923,8 @@
   <!-- =========================================================== -->
   <layer_set
     body_region="hair"
-    width="512"
-    height="512"
+    width="2048"
+    height="2048"
     clear_alpha="false">
     <layer
       name="base"
@@ -9013,8 +9013,8 @@
 
   <layer_set
     body_region="head"
-    width="512"
-    height="512">
+    width="2048"
+    height="2048">
     <layer
        name="head bump base"
        fixed_color = "128,128,128,255"
@@ -10149,8 +10149,8 @@ render_pass="bump">
   <!-- =========================================================== -->
   <layer_set
    body_region="upper_body"
-   width="512"
-   height="512">
+   width="2048"
+   height="2048">
     <layer
      name="base_upperbody bump"
      render_pass="bump"
@@ -11458,8 +11458,8 @@ render_pass="bump">
   <!-- =========================================================== -->
   <layer_set
    body_region="lower_body"
-   width="512"
-   height="512">
+   width="2048"
+   height="2048">
     <layer
        name="lower body bump base"
        fixed_color = "128,128,128,255"
@@ -12448,8 +12448,8 @@ render_pass="bump">
   <!-- =========================================================== -->
   <layer_set
    body_region="eyes"
-   width="128"
-   height="128">
+   width="512"
+   height="512">
     <layer
      name="whites">
       <texture
@@ -12535,8 +12535,8 @@ render_pass="bump">
   <!-- =========================================================== -->
   <layer_set
    body_region="skirt"
-   width="512"
-   height="512"
+   width="2048"
+   height="2048"
    clear_alpha="false">
     <layer
      name="skirt_fabric"
@@ -12774,8 +12774,8 @@ render_pass="bump">
   <!-- =========================================================== -->
   <layer_set
    body_region="leftarm"
-   width="512"
-   height="512"
+   width="2048"
+   height="2048"
    clear_alpha="false">
 	  <layer
      name="base"
@@ -12850,8 +12850,8 @@ render_pass="bump">
   <!-- =========================================================== -->
   <layer_set
    body_region="leftleg"
-   width="512"
-   height="512"
+   width="2048"
+   height="2048"
    clear_alpha="false">
 	  <layer
      name="base"
@@ -12925,8 +12925,8 @@ render_pass="bump">
   <!-- =========================================================== -->
   <layer_set
    body_region="aux1"
-   width="512"
-   height="512"
+   width="2048"
+   height="2048"
    clear_alpha="false">
 
 	  <layer
@@ -13002,8 +13002,8 @@ render_pass="bump">
   <!-- =========================================================== -->
   <layer_set
    body_region="aux2"
-   width="512"
-   height="512"
+   width="2048"
+   height="2048"
    clear_alpha="false">
 
 	  <layer
@@ -13079,8 +13079,8 @@ render_pass="bump">
   <!-- =========================================================== -->
   <layer_set
    body_region="aux3"
-   width="512"
-   height="512"
+   width="2048"
+   height="2048"
    clear_alpha="false">
 
 	  <layer

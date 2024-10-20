@@ -488,7 +488,7 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
         case IM_NOTHING_SPECIAL:    // p2p IM
             // Don't show dialog, just do IM
             if (!gAgent.isGodlike()
-                && gAgent.getRegion()->isPrelude()
+                && gAgent.inPrelude()
                 && to_id.isNull())
             {
                 // do nothing -- don't distract newbies in

@@ -28,15 +28,8 @@
 #define LL_LLWINDOWS_H
 
 #ifdef LL_WINDOWS
-#ifndef NOMINMAX
-#define NOMINMAX
-#endif
-#undef WIN32_LEAN_AND_MEAN
-#include <winsock2.h>
-#include <windows.h>
-// reset to default, which is lean
-#define WIN32_LEAN_AND_MEAN
-#undef NOMINMAX
+#include <windows.h> // Does not include winsock.h because WIN32_LEAN_AND_MEAN is defined
+#include <winsock2.h> // Requires windows.h
 #endif
 
 #endif
