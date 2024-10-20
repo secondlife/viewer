@@ -505,8 +505,12 @@ void LLViewerTexture::updateClass()
 
     F32 budget = max_vram_budget == 0 ? (F32)gGLManager.mVRAM : (F32)max_vram_budget;
 
-    // try to leave half a GB for everyone else, but keep at least 768MB for ourselves
-    F32 target = llmax(budget - 512.f, MIN_VRAM_BUDGET);
+    // Try to leave at least half a GB for everyone else and for bias,
+    // but keep at least 768MB for ourselves
+    // Viewer can 'overshoot' target when scene changes, if viewer goes over budget it
+    // can negatively impact performance, so leave 20% of a breathing room for
+    // 'bias' calculation to kick in.
+    F32 target = llmax(llmin(budget - 512.f, budget * 0.8f), MIN_VRAM_BUDGET);
     sFreeVRAMMegabytes = target - used;
 
     F32 over_pct = (used - target) / target;
@@ -522,7 +526,7 @@ void LLViewerTexture::updateClass()
         // slam to 1.5 bias the moment we hit low memory (discards off screen textures immediately)
         sDesiredDiscardBias = llmax(sDesiredDiscardBias, 1.5f);
 
-        if (is_sys_low)
+        if (is_sys_low || over_pct > 2.f)
         { // if we're low on system memory, emergency purge off screen textures to avoid a death spiral
             LL_WARNS() << "Low system memory detected, emergency downrezzing off screen textures" << LL_ENDL;
             for (auto& image : gTextureList)
