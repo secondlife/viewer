@@ -1169,6 +1169,11 @@ F32 LLViewerTextureList::updateImagesFetchTextures(F32 max_time)
 
     //update MIN_UPDATE_COUNT or 5% of other textures, whichever is greater
     update_count = llmax((U32) MIN_UPDATE_COUNT, (U32) mUUIDMap.size()/20);
+    if (LLViewerTexture::sDesiredDiscardBias > 1.f)
+    {
+        // we are over memory target, update more agresively
+        update_count = (S32)(update_count * LLViewerTexture::sDesiredDiscardBias);
+    }
     update_count = llmin(update_count, (U32) mUUIDMap.size());
 
     { // copy entries out of UUID map to avoid iterator invalidation from deletion inside updateImageDecodeProiroty or updateFetch below
