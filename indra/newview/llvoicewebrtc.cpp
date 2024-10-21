@@ -3014,10 +3014,10 @@ void LLVoiceWebRTCConnection::OnDataReceivedImpl(const std::string &data, bool b
                                 if (value_obj.contains("text"))
                                 {
                                     std::string transcription_str = value_obj["text"].as_string().c_str();
-                                    
+
                                     // remove double spaces.
                                     std::string::size_type pos = transcription_str.find("  ");
-                                    
+
                                     while (pos != std::string::npos)
                                     {
                                         transcription_str.replace(pos, 2, " ");
@@ -3026,7 +3026,6 @@ void LLVoiceWebRTCConnection::OnDataReceivedImpl(const std::string &data, bool b
                                     transcription_str.erase(0, transcription_str.find_first_not_of(" "));
                                     participant->mLastTranscribedText = transcription_str;
                                 }
-
                                 if (value_obj.contains("end") && !participant->mLastTranscribedText.empty())
                                 {
                                     LLChat chat;
