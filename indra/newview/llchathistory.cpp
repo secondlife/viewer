@@ -1283,8 +1283,10 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
         delimiter = LLStringUtil::null;
         body_message_params.font.style = "ITALIC";
     }
-
-    if (chat.mChatType == CHAT_TYPE_WHISPER)
+    if (chat.mChatType == CHAT_TYPE_VOICE_TRANSCRIPTION)
+    {
+    }
+    else if (chat.mChatType == CHAT_TYPE_WHISPER)
     {
         body_message_params.font.style = "ITALIC";
     }
@@ -1305,7 +1307,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
         name_params.readonly_color(txt_color);
     }
 
-    bool prependNewLineState = mEditor->getText().size() != 0;
+    bool prependNewLineState = mEditor->getText().size() != 0 && chat.mChatType == CHAT_TYPE_VOICE_TRANSCRIPTION;
 
     // compact mode: show a timestamp and name
     if (use_plain_text_chat_history)
