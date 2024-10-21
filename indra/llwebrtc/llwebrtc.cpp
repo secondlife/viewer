@@ -45,6 +45,10 @@ static int16_t PLAYOUT_DEVICE_BAD     = -2;
 static int16_t RECORD_DEVICE_DEFAULT  = -1;
 static int16_t RECORD_DEVICE_BAD      = -2;
 
+static const std::string DEFAULT_DEVICE_NAME = "Default";
+static const std::string NO_DEVICE_NAME = "No Device";
+static const std::string NO_DEVICE_GUID;
+
 LLAudioDeviceObserver::LLAudioDeviceObserver() : mSumVector {0}, mMicrophoneEnergy(0.0) {}
 
 float LLAudioDeviceObserver::getMicrophoneEnergy() { return mMicrophoneEnergy; }
@@ -438,7 +442,7 @@ void ll_set_device_module_capture_device(rtc::scoped_refptr<webrtc::AudioDeviceM
 void LLWebRTCImpl::setCaptureDevice(const std::string &id)
 {
     int16_t recordingDevice = RECORD_DEVICE_DEFAULT;
-    if (id != "Default")
+    if (id != DEFAULT_DEVICE_NAME)
     {
         for (int16_t i = 0; i < mRecordingDeviceList.size(); i++)
         {
@@ -502,7 +506,7 @@ void ll_set_device_module_render_device(rtc::scoped_refptr<webrtc::AudioDeviceMo
 void LLWebRTCImpl::setRenderDevice(const std::string &id)
 {
     int16_t playoutDevice = PLAYOUT_DEVICE_DEFAULT;
-    if (id != "Default")
+    if (id != DEFAULT_DEVICE_NAME)
     {
         for (int16_t i = 0; i < mPlayoutDeviceList.size(); i++)
         {
@@ -566,6 +570,7 @@ void LLWebRTCImpl::updateDevices()
         mTuningDeviceModule->PlayoutDeviceName(index, name, guid);
         mPlayoutDeviceList.emplace_back(name, guid);
     }
+    mPlayoutDeviceList.emplace_back(NO_DEVICE_NAME, NO_DEVICE_GUID);
 
     int16_t captureDeviceCount        = mTuningDeviceModule->RecordingDevices();
 
@@ -584,6 +589,7 @@ void LLWebRTCImpl::updateDevices()
         mTuningDeviceModule->RecordingDeviceName(index, name, guid);
         mRecordingDeviceList.emplace_back(name, guid);
     }
+    mRecordingDeviceList.emplace_back(NO_DEVICE_NAME, NO_DEVICE_GUID);
 
     for (auto &observer : mVoiceDevicesObserverList)
     {
