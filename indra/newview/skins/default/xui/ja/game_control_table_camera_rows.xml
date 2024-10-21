@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<contents>
+	<rows name="camera_actions">
+		<columns name="action" label="カメラ"/>
+	</rows>
+	<rows name="advance" value="前後">
+		<columns name="action" tool_tip="カメラの前後方向の位置を指定します。" value="前進／後退"/>
+	</rows>
+	<rows name="pan" value="パン">
+		<columns name="action" tool_tip="カメラのパンの左右を指定します。" value="左右"/>
+	</rows>
+	<rows name="rise" value="上下">
+		<columns name="action" tool_tip="カメラの上下方向の向きを指定します。" value="上向き／下向き"/>
+	</rows>
+	<rows name="pitch" value="ピッチ">
+		<columns name="action" tool_tip="カメラのピッチを指定します。" value="ピッチアップ／ダウン"/>
+	</rows>
+	<rows name="yaw" value="ヨー">
+		<columns name="action" tool_tip="カメラを左右に回転させます。" value="反時計回り／時計回り"/>
+	</rows>
+	<rows name="zoom" value="ズーム">
+		<columns name="action" tool_tip="カメラのズームイン／アウトを指定します。" value="ズームイン／アウト"/>
+	</rows>
+</contents>

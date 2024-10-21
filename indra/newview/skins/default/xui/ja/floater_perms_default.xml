@@ -17,28 +17,31 @@
 			グループで共同管理
 		</text>
 		<text name="label_6">
-			誰に対してもコピーを許可
+			誰でもコピー可能
 		</text>
-		<text name="label_7" tool_tip="オブジェクトを作成するときに、デフォルトの権限を設定する。">
+		<text name="label_7" tool_tip="オブジェクトを作成したときのデフォルトの権限を設定します。">
 			オブジェクト
 		</text>
-		<text name="label_8" tool_tip="アップロードしたアイテムに、デフォルトの権限を設定する。">
+		<text name="label_8" tool_tip="アップロードしたアイテムのデフォルトの権限を設定します。">
 			アップロード
 		</text>
-		<text name="label_9" tool_tip="スクリプトを作成するときに、デフォルトの権限を設定する。">
+		<text name="label_9" tool_tip="スクリプトを作成したときのデフォルトの権限を設定します。">
 			スクリプト
 		</text>
-		<text name="label_10" tool_tip="ノートカードを作成するときに、デフォルトの権限を設定する。">
+		<text name="label_10" tool_tip="ノートカードを作成したときのデフォルトの権限を設定します。">
 			ノートカード
 		</text>
-		<text name="label_11" tool_tip="ジェスチャーを作成するときに、デフォルトの権限を設定する。">
+		<text name="label_11" tool_tip="ジェスチャーを作成したときのデフォルトの権限を設定します。">
 			ジェスチャー
 		</text>
-		<text name="label_12" tool_tip="衣服装またはボディパーツを作成するときに、デフォルトの権限を設定する。">
-			装着するもの
+		<text name="label_12" tool_tip="衣服装またはボディパーツを作成したときのデフォルトの権限を設定します。">
+			装着物
 		</text>
-		<text name="label_13" tool_tip="自然環境の設定を作成するときに、デフォルトの権限を設定する。">
-			設定
+		<text name="label_13" tool_tip="自然環境の設定を作成したときのデフォルトの権限を設定します。">
+			自然環境の設定
+		</text>
+		<text name="label_14" tool_tip="マテリアルを作成したときのデフォルトの権限を設定します。">
+			マテリアル
 		</text>
 		<check_box name="env_settings_c" value="true"/>
 	</panel>

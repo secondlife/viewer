@@ -1,2 +1,63 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Test Floater" title="テスト用ウィンドウ"/>
+<floater name="Test Floater" title="テスト用ウィンドウ">
+	<text>
+	この
+何かの
+テキスト
+は
+上揃え
+に
+なって
+います。
+	</text>
+	<text>
+		この
+何かの
+テキスト
+は
+中央揃え
+に
+なって
+います。
+	</text>
+	<text>
+		この
+何かの
+テキスト
+は
+下揃え
+に
+なって
+います。
+	</text>
+	<text_editor>
+		この
+何かの
+テキスト
+は
+上揃え
+に
+なって
+います。
+	</text_editor>
+	<text_editor>
+		この
+何かの
+テキスト
+は
+中央揃え
+に
+なって
+います。
+	</text_editor>
+	<text_editor>
+		この
+何かの
+テキスト
+は
+下揃え
+に
+なって
+います。
+	</text_editor>
+</floater>
