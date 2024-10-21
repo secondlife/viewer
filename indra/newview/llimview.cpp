@@ -3142,7 +3142,7 @@ void LLIMMgr::addMessage(
     const LLUUID& region_id,
     const LLVector3& position,
     bool is_region_msg,
-    U32 timestamp)      // May be zero
+    U32 timestamp) // May be zero
 {
     LLUUID other_participant_id = target_id;
 
