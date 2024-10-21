@@ -1592,15 +1592,15 @@ bool LLFloaterIMContainer::enableContextMenuItem(const std::string& item, uuid_v
     }
     else if ("can_call" == item)
     {
+        if (is_single_select)
+        {
+            return LLAvatarActions::canCallTo(single_id);
+        }
         return LLAvatarActions::canCall();
     }
     else if ("can_open_voice_conversation" == item)
     {
-        return is_single_select && LLAvatarActions::canCall();
-    }
-    else if ("can_open_voice_conversation" == item)
-    {
-        return is_single_select && LLAvatarActions::canCall();
+        return is_single_select && LLAvatarActions::canCallTo(single_id);
     }
     else if ("can_zoom_in" == item)
     {

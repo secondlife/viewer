@@ -218,7 +218,7 @@ LLWebRTCVoiceClient::LLWebRTCVoiceClient() :
     mAvatarNameCacheConnection(),
     mIsInTuningMode(false),
     mIsProcessingChannels(false),
-    mIsCoroutineActive(false),
+    mIsTimerActive(false),
     mWebRTCPump("WebRTCClientPump"),
     mWebRTCDeviceInterface(nullptr)
 {
@@ -295,6 +295,20 @@ void LLWebRTCVoiceClient::cleanUp()
     mNeighboringRegions.clear();
     sessionState::for_each(boost::bind(predShutdownSession, _1));
     LL_DEBUGS("Voice") << "Exiting" << LL_ENDL;
+    stopTimer();
+}
+
+void LLWebRTCVoiceClient::stopTimer()
+{
+    if (mIsTimerActive)
+    {
+        LLMuteList::instanceExists();
+        {
+            LLMuteList::getInstance()->removeObserver(this);
+        }
+        mIsTimerActive = false;
+        LL::Timers::instance().cancel(mVoiceTimerHandle);
+    }
 }
 
 void LLWebRTCVoiceClient::LogMessage(llwebrtc::LLWebRTCLogCallback::LogLevel level, const std::string& message)
@@ -443,8 +457,7 @@ void LLWebRTCVoiceClient::removeObserver(LLFriendObserver *observer)
 
 //---------------------------------------------------
 // Primary voice loop.
-// This voice loop is called every 100ms plus the time it
-// takes to process the various functions called in the loop
+// This voice loop is called every 100ms
 // The loop does the following:
 // * gates whether we do channel processing depending on
 //   whether we're running a WebRTC voice channel or
@@ -456,118 +469,102 @@ void LLWebRTCVoiceClient::removeObserver(LLFriendObserver *observer)
 //   connection to various voice channels.
 // * Sends updates to the voice server when this agent's
 //   voice levels, or positions have changed.
-void LLWebRTCVoiceClient::voiceConnectionCoro()
+void LLWebRTCVoiceClient::connectionTimer()
 {
-    LL_DEBUGS("Voice") << "starting" << LL_ENDL;
-    mIsCoroutineActive = true;
-    LLCoros::set_consuming(true);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE;
     try
     {
-        LLMuteList::getInstance()->addObserver(this);
-        while (!sShuttingDown)
+        bool voiceEnabled = mVoiceEnabled;
+
+        if (!isAgentAvatarValid())
         {
-            LL_PROFILE_ZONE_NAMED_CATEGORY_VOICE("voiceConnectionCoroLoop")
-            // TODO: Doing some measurement and calculation here,
-            // we could reduce the timeout to take into account the
-            // time spent on the previous loop to have the loop
-            // cycle at exactly 100ms, instead of 100ms + loop
-            // execution time.
-            // Could help with voice updates making for smoother
-            // voice when we're busy.
-            llcoro::suspendUntilTimeout(UPDATE_THROTTLE_SECONDS);
-            if (sShuttingDown) return; // 'this' migh already be invalid
-            bool voiceEnabled = mVoiceEnabled;
-
-            if (!isAgentAvatarValid())
+            if (sShuttingDown)
             {
-                continue;
+                cleanUp();
             }
-
-            LLViewerRegion *regionp = gAgent.getRegion();
-            if (!regionp)
-            {
-                continue;
-            }
-
-            if (!mProcessChannels)
-            {
-                // we've switched away from webrtc voice, so shut all channels down.
-                // leave channel can be called again and again without adverse effects.
-                // it merely tells channels to shut down if they're not already doing so.
-                leaveChannel(false);
-            }
-            else if (inSpatialChannel())
-            {
-                bool useEstateVoice = true;
-                // add session for region or parcel voice.
-                if (!regionp || regionp->getRegionID().isNull())
-                {
-                    // no region, no voice.
-                    continue;
-                }
-
-                voiceEnabled = voiceEnabled && regionp->isVoiceEnabled();
-
-                if (voiceEnabled)
-                {
-                    LLParcel *parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
-                    // check to see if parcel changed.
-                    if (parcel && parcel->getLocalID() != INVALID_PARCEL_ID)
-                    {
-                        // parcel voice
-                        if (!parcel->getParcelFlagAllowVoice())
-                        {
-                            voiceEnabled = false;
-                        }
-                        else if (!parcel->getParcelFlagUseEstateVoiceChannel())
-                        {
-                            // use the parcel-specific voice channel.
-                            S32         parcel_local_id = parcel->getLocalID();
-                            std::string channelID       = regionp->getRegionID().asString() + "-" + std::to_string(parcel->getLocalID());
-
-                            useEstateVoice = false;
-                            if (!inOrJoiningChannel(channelID))
-                            {
-                                startParcelSession(channelID, parcel_local_id);
-                            }
-                        }
-                    }
-                    if (voiceEnabled && useEstateVoice && !inEstateChannel())
-                    {
-                        // estate voice
-                        startEstateSession();
-                    }
-                }
-                if (!voiceEnabled)
-                {
-                    // voice is disabled, so leave and disable PTT
-                    leaveChannel(true);
-                }
-                else
-                {
-                    // we're in spatial voice, and voice is enabled, so determine positions in order
-                    // to send position updates.
-                    updatePosition();
-                }
-            }
-            LL::WorkQueue::postMaybe(mMainQueue,
-                [=] {
-                    if  (sShuttingDown)
-                    {
-                        return;
-                    }
-                    sessionState::processSessionStates();
-                    if (mProcessChannels && voiceEnabled && !mHidden)
-                    {
-                        sendPositionUpdate(false);
-                        updateOwnVolume();
-                    }
-            });
+            return;
         }
-    }
-    catch (const LLCoros::Stop&)
-    {
-        LL_DEBUGS("LLWebRTCVoiceClient") << "Received a shutdown exception" << LL_ENDL;
+
+        LLViewerRegion* regionp = gAgent.getRegion();
+        if (!regionp)
+        {
+            if (sShuttingDown)
+            {
+                cleanUp();
+            }
+            return;
+        }
+
+        if (!mProcessChannels)
+        {
+            // we've switched away from webrtc voice, so shut all channels down.
+            // leave channel can be called again and again without adverse effects.
+            // it merely tells channels to shut down if they're not already doing so.
+            leaveChannel(false);
+        }
+        else if (inSpatialChannel())
+        {
+            bool useEstateVoice = true;
+            // add session for region or parcel voice.
+            if (!regionp || regionp->getRegionID().isNull())
+            {
+                // no region, no voice.
+                return;
+            }
+
+            voiceEnabled = voiceEnabled && regionp->isVoiceEnabled();
+
+            if (voiceEnabled)
+            {
+                LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
+                // check to see if parcel changed.
+                if (parcel && parcel->getLocalID() != INVALID_PARCEL_ID)
+                {
+                    // parcel voice
+                    if (!parcel->getParcelFlagAllowVoice())
+                    {
+                        voiceEnabled = false;
+                    }
+                    else if (!parcel->getParcelFlagUseEstateVoiceChannel())
+                    {
+                        // use the parcel-specific voice channel.
+                        S32         parcel_local_id = parcel->getLocalID();
+                        std::string channelID = regionp->getRegionID().asString() + "-" + std::to_string(parcel->getLocalID());
+
+                        useEstateVoice = false;
+                        if (!inOrJoiningChannel(channelID))
+                        {
+                            startParcelSession(channelID, parcel_local_id);
+                        }
+                    }
+                }
+                if (voiceEnabled && useEstateVoice && !inEstateChannel())
+                {
+                    // estate voice
+                    startEstateSession();
+                }
+            }
+            if (!voiceEnabled)
+            {
+                // voice is disabled, so leave and disable PTT
+                leaveChannel(true);
+            }
+            else
+            {
+                // we're in spatial voice, and voice is enabled, so determine positions in order
+                // to send position updates.
+                updatePosition();
+            }
+        }
+        if (!sShuttingDown)
+        {
+            sessionState::processSessionStates();
+            if (mProcessChannels && voiceEnabled && !mHidden)
+            {
+                sendPositionUpdate(false);
+                updateOwnVolume();
+            }
+        }
     }
     catch (const LLContinueError&)
     {
@@ -582,7 +579,10 @@ void LLWebRTCVoiceClient::voiceConnectionCoro()
         throw;
     }
 
-    cleanUp();
+    if (sShuttingDown)
+    {
+        cleanUp();
+    }
 }
 
 // For spatial, determine which neighboring regions to connect to
@@ -1340,7 +1340,7 @@ bool LLWebRTCVoiceClient::isVoiceWorking() const
     // webrtc is working if the coroutine is active in the case of
     // webrtc. WebRTC doesn't need to connect to a secondary process
     // or a login server to become active.
-    return mIsCoroutineActive;
+    return mIsTimerActive;
 }
 
 // Returns true if calling back the session URI after the session has closed is possible.
@@ -1552,7 +1552,7 @@ void LLWebRTCVoiceClient::setVoiceEnabled(bool enabled)
     LL_DEBUGS("Voice")
         << "( " << (enabled ? "enabled" : "disabled") << " )"
         << " was "<< (mVoiceEnabled ? "enabled" : "disabled")
-        << " coro "<< (mIsCoroutineActive ? "active" : "inactive")
+        << " coro "<< (mIsTimerActive ? "active" : "inactive")
         << LL_ENDL;
 
     if (enabled != mVoiceEnabled)
@@ -1569,10 +1569,12 @@ void LLWebRTCVoiceClient::setVoiceEnabled(bool enabled)
             status = LLVoiceClientStatusObserver::STATUS_VOICE_ENABLED;
             mSpatialCoordsDirty = true;
             updatePosition();
-            if (!mIsCoroutineActive)
+            if (!mIsTimerActive)
             {
-                LLCoros::instance().launch("LLWebRTCVoiceClient::voiceConnectionCoro",
-                    boost::bind(&LLWebRTCVoiceClient::voiceConnectionCoro, LLWebRTCVoiceClient::getInstance()));
+                LL_DEBUGS("Voice") << "Starting" << LL_ENDL;
+                mIsTimerActive = true;
+                LLMuteList::getInstance()->addObserver(this);
+                mVoiceTimerHandle = LL::Timers::instance().scheduleEvery([this]() { connectionTimer(); return false; }, UPDATE_THROTTLE_SECONDS);
             }
             else
             {
