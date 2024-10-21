@@ -151,6 +151,9 @@ class LLWebRTCDeviceInterface
     virtual void setCaptureDevice(const std::string& id) = 0;
     virtual void setRenderDevice(const std::string& id) = 0;
 
+    virtual bool isCaptureNoDevice() = 0;
+    virtual bool isRenderNoDevice() = 0;
+
     // Device observers for device change callbacks.
     virtual void setDevicesObserver(LLWebRTCDevicesObserver *observer) = 0;
     virtual void unsetDevicesObserver(LLWebRTCDevicesObserver *observer) = 0;

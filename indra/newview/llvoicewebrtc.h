@@ -114,7 +114,7 @@ public:
     /// @name Devices
     //@{
     // This returns true when it's safe to bring up the "device settings" dialog in the prefs.
-    bool deviceSettingsAvailable() override;
+    bool deviceSettingsAvailable() override { return mDeviceSettingsAvailable; }
     bool deviceSettingsUpdated() override;  //return if the list has been updated and never fetched,  only to be called from the voicepanel.
 
     // Requery the WebRTC daemon for the current list of input/output devices.
@@ -125,6 +125,9 @@ public:
 
     void setCaptureDevice(const std::string& name) override;
     void setRenderDevice(const std::string& name) override;
+
+    bool isCaptureNoDevice() override;
+    bool isRenderNoDevice() override;
 
     LLVoiceDeviceList& getCaptureDevices() override;
     LLVoiceDeviceList& getRenderDevices() override;
@@ -462,8 +465,9 @@ private:
     bool mTuningMode;
     F32 mTuningMicGain;
     int mTuningSpeakerVolume;
+    bool mDeviceSettingsAvailable;
     bool mDevicesListUpdated;            // set to true when the device list has been updated
-                                        // and false when the panelvoicedevicesettings has queried for an update status.
+                                         // and false when the panelvoicedevicesettings has queried for an update status.
     std::string mSpatialSessionCredentials;
 
     std::string mMainSessionGroupHandle; // handle of the "main" session group.
