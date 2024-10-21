@@ -59,13 +59,16 @@ U32 wpo2(U32 i);
 
 U32 LLImageGL::sFrameCount = 0;
 
+U32 LLImageGL::sTexNames[U16_MAX+1];
+std::stack<U16> LLImageGL::sFreeTexIDs;
+U16 LLImageGL::sNextTexID = 1; //start at 1... zero is reserved for "no texture"
+
 std::function<void(U32)> LLImageGL::sTexNameReferenceCheck = [](U32) {};
 
 // texture memory accounting (for macOS)
 static LLMutex sTexMemMutex;
 static std::unordered_map<U32, U64> sTextureAllocs;
 static U64 sTextureBytes = 0;
-
 
 
 // track a texture alloc on the currently bound texture.
@@ -251,6 +254,8 @@ void LLImageGL::initClass(LLWindow* window, S32 num_catagories, bool skip_analyz
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
     sSkipAnalyzeAlpha = skip_analyze_alpha;
+
+    sTexNames[0] = 0;
 
     if (sScratchPBO == 0)
     {
@@ -439,8 +444,31 @@ bool LLImageGL::create(LLPointer<LLImageGL>& dest, const LLImageRaw* imageraw, b
 
 //----------------------------------------------------------------------------
 
+// static
+U16 LLImageGL::allocTexID()
+{
+    if (sFreeTexIDs.empty())
+    {
+        llassert_always(sNextTexID < U16_MAX);
+        return sNextTexID++;
+    }
+    else
+    {
+        U16 id = sFreeTexIDs.top();
+        sFreeTexIDs.pop();
+        return id;
+    }
+}
+
+//static 
+void LLImageGL::freeTexID(U16 id)
+{
+    sFreeTexIDs.push(id);
+}
+
+
 LLImageGL::LLImageGL(bool usemipmaps/* = true*/, bool allow_compression/* = true*/)
-    : mSaveData(0), mExternalTexture(false)
+    : mSaveData(0), mExternalTexture(false), mTexID(allocTexID())
 {
     init(usemipmaps, allow_compression);
     setSize(0, 0, 0);
@@ -449,7 +477,7 @@ LLImageGL::LLImageGL(bool usemipmaps/* = true*/, bool allow_compression/* = true
 }
 
 LLImageGL::LLImageGL(U32 width, U32 height, U8 components, bool usemipmaps/* = true*/, bool allow_compression/* = true*/)
-    : mSaveData(0), mExternalTexture(false)
+    : mSaveData(0), mExternalTexture(false), mTexID(allocTexID())
 {
     llassert(components <= 4);
     init(usemipmaps, allow_compression);
@@ -459,7 +487,7 @@ LLImageGL::LLImageGL(U32 width, U32 height, U8 components, bool usemipmaps/* = t
 }
 
 LLImageGL::LLImageGL(const LLImageRaw* imageraw, bool usemipmaps/* = true*/, bool allow_compression/* = true*/)
-    : mSaveData(0), mExternalTexture(false)
+    : mSaveData(0), mExternalTexture(false), mTexID(allocTexID())
 {
     init(usemipmaps, allow_compression);
     setSize(0, 0, 0);
@@ -477,6 +505,7 @@ LLImageGL::LLImageGL(
     LLGLenum formatPrimary,
     LLGLenum formatType,
     LLTexUnit::eTextureAddressMode addressMode)
+    : mTexID(allocTexID())
 {
     init(false, true);
     llassert(!gDebugGL || glIsTexture(texName));
@@ -492,6 +521,7 @@ LLImageGL::LLImageGL(
 
 LLImageGL::~LLImageGL()
 {
+    freeTexID(mTexID);
     if (!mExternalTexture && gGLManager.mInited)
     {
         LLImageGL::cleanup();
@@ -1805,7 +1835,7 @@ void LLImageGL::setTexName(GLuint texName, bool delete_old)
     {
         U32 old_texname = mTexName;
         mTexName = texName;
-        notifyTexNameChanged(old_texname);
+        sTexNames[mTexID] = mTexName;
 
         //not on background thread, immediately set mTexName
         if (delete_old && old_texname)
@@ -2545,16 +2575,6 @@ bool LLImageGL::scaleDown(S32 desired_discard)
 
     return true;
 }
-
-void LLImageGL::notifyTexNameChanged(U32 old_texname) const
-{
-    if (mTexNameChangedCallback)
-    {
-        llassert(LLCoros::on_main_thread_main_coro());
-        mTexNameChangedCallback(this, old_texname);
-    }
-}
-
 
 //----------------------------------------------------------------------------
 #if LL_IMAGEGL_THREAD_CHECK

@@ -47,16 +47,16 @@ public:
     U32 mVBOVertexCount;
     union
     {
-        U32 mBaseColorMap;
-        U32 mDiffuseMap;
+        U16 mBaseColorMap;
+        U16 mDiffuseMap;
     };
-    U32 mNormalMap;
+    U16 mNormalMap;
     union
     {
-        U32 mMetallicRoughnessMap;
-        U32 mSpecularMap;
+        U16 mMetallicRoughnessMap;
+        U16 mSpecularMap;
     };
-    U32 mEmissiveMap;
+    U16 mEmissiveMap;
     U32 mElementCount;
     U32 mElementOffset;
     U32 mTransformUBO;
@@ -66,8 +66,6 @@ public:
     U16 mInstanceCount;
     U16 mBaseInstance;
     U8 mIndicesSize;  // 0 - 2 bytes, 1 - 4 bytes
-
-    void handleTexNameChanged(const LLImageGL* image, U32 old_texname);
 
     void texNameCheck(U32 texName);
 };

@@ -782,13 +782,13 @@ static S32 orm_tu = -1;
 static S32 emis_tu = -1;
 static S32 diffuse_tu = -1;
 static S32 specular_tu = -1;
-static S32 cur_base_tex = 0;
-static S32 cur_norm_tex = 0;
-static S32 cur_orm_tex = 0;
-static S32 cur_emis_tex = 0;
-static S32 cur_diffuse_tex = 0;
-static S32 cur_specular_tex = 0;
-static S32 base_instance_index = 0;
+static U16 cur_base_tex = 0;
+static U16 cur_norm_tex = 0;
+static U16 cur_orm_tex = 0;
+static U16 cur_emis_tex = 0;
+static U16 cur_diffuse_tex = 0;
+static U16 cur_specular_tex = 0;
+static U16 base_instance_index = 0;
 
 extern LLCullResult* sCull;
 
@@ -873,7 +873,7 @@ void LLRenderPass::pushGLTFBatch(const LLGLTFDrawInfo& params, bool planar, bool
         if (base_tu != -1 && cur_base_tex != params.mBaseColorMap)
         {
             glActiveTexture(GL_TEXTURE0 + base_tu);
-            glBindTexture(GL_TEXTURE_2D, params.mBaseColorMap);
+            glBindTexture(GL_TEXTURE_2D, LLImageGL::sTexNames[params.mBaseColorMap]);
             cur_base_tex = params.mBaseColorMap;
         }
 
@@ -882,21 +882,21 @@ void LLRenderPass::pushGLTFBatch(const LLGLTFDrawInfo& params, bool planar, bool
             if (norm_tu != -1 && cur_norm_tex != params.mNormalMap)
             {
                 glActiveTexture(GL_TEXTURE0 + norm_tu);
-                glBindTexture(GL_TEXTURE_2D, params.mNormalMap);
+                glBindTexture(GL_TEXTURE_2D, LLImageGL::sTexNames[params.mNormalMap]);
                 cur_norm_tex = params.mNormalMap;
             }
 
             if (orm_tu != -1 && cur_orm_tex != params.mMetallicRoughnessMap)
             {
                 glActiveTexture(GL_TEXTURE0 + orm_tu);
-                glBindTexture(GL_TEXTURE_2D, params.mMetallicRoughnessMap);
+                glBindTexture(GL_TEXTURE_2D, LLImageGL::sTexNames[params.mMetallicRoughnessMap]);
                 cur_orm_tex = params.mMetallicRoughnessMap;
             }
 
             if (emis_tu != -1 && cur_emis_tex != params.mEmissiveMap)
             {
                 glActiveTexture(GL_TEXTURE0 + emis_tu);
-                glBindTexture(GL_TEXTURE_2D, params.mEmissiveMap);
+                glBindTexture(GL_TEXTURE_2D, LLImageGL::sTexNames[params.mEmissiveMap]);
                 cur_emis_tex = params.mEmissiveMap;
             }
         }
@@ -1076,7 +1076,7 @@ void LLRenderPass::pushBPBatch(const LLGLTFDrawInfo& params, bool planar, bool t
         if (diffuse_tu != -1 && cur_diffuse_tex != params.mDiffuseMap)
         {
             glActiveTexture(GL_TEXTURE0 + diffuse_tu);
-            glBindTexture(GL_TEXTURE_2D, params.mDiffuseMap);
+            glBindTexture(GL_TEXTURE_2D, LLImageGL::sTexNames[params.mDiffuseMap]);
             cur_diffuse_tex = params.mDiffuseMap;
         }
 
@@ -1085,14 +1085,14 @@ void LLRenderPass::pushBPBatch(const LLGLTFDrawInfo& params, bool planar, bool t
             if (norm_tu != -1 && cur_norm_tex != params.mNormalMap)
             {
                 glActiveTexture(GL_TEXTURE0 + norm_tu);
-                glBindTexture(GL_TEXTURE_2D, params.mNormalMap);
+                glBindTexture(GL_TEXTURE_2D, LLImageGL::sTexNames[params.mNormalMap]);
                 cur_norm_tex = params.mNormalMap;
             }
 
             if (specular_tu != -1 && cur_specular_tex != params.mSpecularMap)
             {
                 glActiveTexture(GL_TEXTURE0 + specular_tu);
-                glBindTexture(GL_TEXTURE_2D, params.mSpecularMap);
+                glBindTexture(GL_TEXTURE_2D, LLImageGL::sTexNames[params.mSpecularMap]);
                 cur_specular_tex = params.mSpecularMap;
             }
         }

@@ -1203,18 +1203,12 @@ void LLSpatialGroup::updateTransformUBOs()
                         emissive = LLViewerFetchedTexture::sWhiteImagep.get();
                     }
 
-                    // ensure texname changed callbacks are installed
-                    basecolor->installTexNameChangedCallback();
-                    normal->installTexNameChangedCallback();
-                    metallic->installTexNameChangedCallback();
-                    emissive->installTexNameChangedCallback();
-
                     // set draw info values
                     current_info->mMaterialID = gltf_mat->getBatchHash();
-                    current_info->mBaseColorMap = basecolor->getTexName();
-                    current_info->mNormalMap = normal->getTexName();
-                    current_info->mMetallicRoughnessMap = metallic->getTexName();
-                    current_info->mEmissiveMap = emissive->getTexName();
+                    current_info->mBaseColorMap = basecolor->getGLTexture()->mTexID;
+                    current_info->mNormalMap = normal->getGLTexture()->mTexID;
+                    current_info->mMetallicRoughnessMap = metallic->getGLTexture()->mTexID;
+                    current_info->mEmissiveMap = emissive->getGLTexture()->mTexID;
 
                     current_info->mVBO = vf.mVertexBuffer->mGLBuffer;
                     current_info->mIBO = vf.mVertexBuffer->mGLIndices;
@@ -1233,10 +1227,10 @@ void LLSpatialGroup::updateTransformUBOs()
                 facep->mGLTFDrawInfo = current_handle;
                 llassert(facep->mGLTFDrawInfo.get() != nullptr);
 
-                llassert(!gDebugGL || !current_info->mBaseColorMap || glIsTexture(current_info->mBaseColorMap));
-                llassert(!gDebugGL || !current_info->mNormalMap || glIsTexture(current_info->mNormalMap));
-                llassert(!gDebugGL || !current_info->mMetallicRoughnessMap || glIsTexture(current_info->mMetallicRoughnessMap));
-                llassert(!gDebugGL || !current_info->mEmissiveMap || glIsTexture(current_info->mEmissiveMap));
+                llassert(!gDebugGL || !LLImageGL::sTexNames[current_info->mBaseColorMap] || glIsTexture(LLImageGL::sTexNames[current_info->mBaseColorMap]));
+                llassert(!gDebugGL || !LLImageGL::sTexNames[current_info->mNormalMap] || glIsTexture(LLImageGL::sTexNames[current_info->mNormalMap]));
+                llassert(!gDebugGL || !LLImageGL::sTexNames[current_info->mMetallicRoughnessMap] || glIsTexture(LLImageGL::sTexNames[current_info->mMetallicRoughnessMap]));
+                llassert(!gDebugGL || !LLImageGL::sTexNames[current_info->mEmissiveMap] || glIsTexture(LLImageGL::sTexNames[current_info->mEmissiveMap]));
             }
         }
 
@@ -1324,15 +1318,10 @@ void LLSpatialGroup::updateTransformUBOs()
                         specular = LLViewerFetchedTexture::sWhiteImagep.get();
                     }
 
-                    // ensure texname changed callbacks are installed
-                    diffuse->installTexNameChangedCallback();
-                    normal->installTexNameChangedCallback();
-                    specular->installTexNameChangedCallback();
-
                     current_info->mMaterialID = facep->mBatchHash;
-                    current_info->mDiffuseMap = diffuse->getTexName();
-                    current_info->mNormalMap = normal->getTexName();
-                    current_info->mSpecularMap = specular->getTexName();
+                    current_info->mDiffuseMap = diffuse->getGLTexture()->mTexID;
+                    current_info->mNormalMap = normal->getGLTexture()->mTexID;
+                    current_info->mSpecularMap = specular->getGLTexture()->mTexID;
                     current_info->mEmissiveMap = 0; // not strictly necessary but helps with debugging at minimal cost
 
                     current_info->mVBO = vf.mVertexBuffer->mGLBuffer;
@@ -1352,9 +1341,9 @@ void LLSpatialGroup::updateTransformUBOs()
                 facep->mGLTFDrawInfo = current_handle;
                 llassert(facep->mGLTFDrawInfo.get() != nullptr);
 
-                llassert(!gDebugGL || !current_info->mDiffuseMap || glIsTexture(current_info->mDiffuseMap));
-                llassert(!gDebugGL || !current_info->mNormalMap || glIsTexture(current_info->mNormalMap));
-                llassert(!gDebugGL || !current_info->mSpecularMap || glIsTexture(current_info->mSpecularMap));
+                llassert(!gDebugGL || !LLImageGL::sTexNames[current_info->mDiffuseMap] || glIsTexture(LLImageGL::sTexNames[current_info->mDiffuseMap]));
+                llassert(!gDebugGL || !LLImageGL::sTexNames[current_info->mNormalMap] || glIsTexture(LLImageGL::sTexNames[current_info->mNormalMap]));
+                llassert(!gDebugGL || !LLImageGL::sTexNames[current_info->mSpecularMap] || glIsTexture(LLImageGL::sTexNames[current_info->mSpecularMap]));
             }
         }
 

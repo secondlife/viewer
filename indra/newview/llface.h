@@ -207,8 +207,6 @@ public:
     void        setMediaAllowed(bool is_media_allowed)  { mIsMediaAllowed = is_media_allowed; }
     bool        isMediaAllowed() const { return mIsMediaAllowed; }
 
-    void        handleTexNameChanged(const LLImageGL* image, U32 old_texname);
-
     //vertex buffer tracking
     void setVertexBuffer(LLVertexBuffer* buffer);
     void clearVertexBuffer(); //sets mVertexBuffer to NULL

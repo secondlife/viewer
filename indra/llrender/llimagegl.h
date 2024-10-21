@@ -40,6 +40,7 @@
 #include "threadpool.h"
 #include "workqueue.h"
 #include <unordered_set>
+#include <stack>
 
 #define LL_IMAGEGL_THREAD_CHECK 0 //set to 1 to enable thread debugging for ImageGL
 
@@ -55,6 +56,7 @@ namespace LLImageGLMemory
     void free_tex_images(U32 count, const U32* texNames);
     void free_cur_tex_image();
 }
+
 
 //============================================================================
 class LLImageGL : public LLRefCount
@@ -99,6 +101,23 @@ public:
     static bool create(LLPointer<LLImageGL>& dest, bool usemipmaps = true);
     static bool create(LLPointer<LLImageGL>& dest, U32 width, U32 height, U8 components, bool usemipmaps = true);
     static bool create(LLPointer<LLImageGL>& dest, const LLImageRaw* imageraw, bool usemipmaps = true);
+
+    // map of mTexID to GL texture names (allows for 16-bit tex names in draw infos)
+    // Assumes we will never have more than 64k textures resident in memory at a time
+    // In practice, this should result in fewer cache misses than storing the names in the draw infos,
+    // especially if care is taken to keep the tex IDs low
+    static U32 sTexNames[U16_MAX+1];
+
+    // stack of free'd tex IDs to be reused
+    static std::stack<U16> sFreeTexIDs;
+
+    // next tex ID to use when creating a new texture
+    // WARNING: if sNextTexID is U16_MAX, allocating an LLImageGL will trigger a crash
+    static U16 sNextTexID;
+
+    // allocate a new tex ID
+    static U16 allocTexID();
+    static void freeTexID(U16 texID);
 
 public:
     LLImageGL(bool usemipmaps = true, bool allow_compression = true);
@@ -219,16 +238,12 @@ public:
     // only works for GL_TEXTURE_2D target
     bool scaleDown(S32 desired_discard);
 
-    void notifyTexNameChanged(U32 old_texname) const;
-
-    // called when mTexName is changed
-    // parameters are calling LLImageGL and old texname
-    std::function<void(const LLImageGL*, U32)> mTexNameChangedCallback;
 public:
     // Various GL/Rendering options
     S64Bytes mTextureMemory;
     mutable F32  mLastBindTime; // last time this was bound, by discard level
 
+    const U16 mTexID; // 16-bit texture ID for use in draw infos, will remain constant for the lifetime of this class
 private:
     U32 createPickMask(S32 pWidth, S32 pHeight);
     void freePickMask();

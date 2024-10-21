@@ -51,35 +51,27 @@ void LLGLTFBatches::clear()
     }
 }
 
-void LLGLTFDrawInfo::handleTexNameChanged(const LLImageGL* image, U32 old_texname)
-{
-    if (mBaseColorMap == old_texname)
-    {
-        mBaseColorMap = image->getTexName();
-    }
-
-    if (mMetallicRoughnessMap == old_texname)
-    {
-        mMetallicRoughnessMap = image->getTexName();
-    }
-
-    if (mNormalMap == old_texname)
-    {
-        mNormalMap = image->getTexName();
-    }
-
-    if (mEmissiveMap == old_texname)
-    {
-        mEmissiveMap = image->getTexName();
-    }
-}
-
 void LLGLTFDrawInfo::texNameCheck(U32 texName)
 {
-    llassert(mBaseColorMap != texName);
-    llassert(mMetallicRoughnessMap != texName);
-    llassert(mNormalMap != texName);
-    llassert(mEmissiveMap != texName);
+    if (LLImageGL::sTexNames[mBaseColorMap] == texName)
+    {
+        LL_WARNS_ONCE("GLTF") << "Base color map (or diffuse map) dangling reference: " << mBaseColorMap << LL_ENDL;
+    }
+
+    if (LLImageGL::sTexNames[mMetallicRoughnessMap] == texName)
+    {
+        LL_WARNS_ONCE("GLTF") << "Metallic roughness map (or specular map) dangling reference: " << mMetallicRoughnessMap << LL_ENDL;
+    }
+
+    if (LLImageGL::sTexNames[mNormalMap] == texName)
+    {
+        LL_WARNS_ONCE("GLTF") << "Normal map dangling reference: " << mNormalMap << LL_ENDL;
+    }
+
+    if (LLImageGL::sTexNames[mEmissiveMap] == texName)
+    {
+        LL_WARNS_ONCE("GLTF") << "Emissive map dangling reference: " << mEmissiveMap << LL_ENDL;
+    }
 }
 
 LLGLTFDrawInfo* LLGLTFBatches::create(LLGLTFMaterial::AlphaMode alpha_mode, bool double_sided, bool planar, bool tex_anim, LLGLTFDrawInfoHandle &handle)
