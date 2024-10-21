@@ -3045,7 +3045,9 @@ void LLVoiceWebRTCConnection::OnDataChannelReady(llwebrtc::LLWebRTCDataInterface
                 return;
             }
 
-            if (data_interface)
+            // OnDataChannelReady may be called multiple times in a single connection attempt
+            // so don't double-set the observer.
+            if (!mWebRTCDataInterface && data_interface)
             {
                 mWebRTCDataInterface = data_interface;
                 mWebRTCDataInterface->setDataObserver(this);
