@@ -67,6 +67,7 @@
 #include "lluiusage.h"
 #include "lltranslate.h"
 #include "llluamanager.h"
+#include "scope_exit.h"
 
 // "Minimal Vulkan" to get max API Version
 
@@ -314,11 +315,6 @@ F32Milliseconds     gAvgSimPing(0.f);
 // rely on default initialization
 U32Bytes            gTotalTextureBytesPerBoostLevel[LLViewerTexture::MAX_GL_IMAGE_CATEGORY];
 
-// send_viewer_stats() does enough work that we cache the most recently
-// created stats packet for interested observers, instead of rebuilding it on
-// demand.
-LLSD latest_stats_packet;
-
 extern U32  gVisCompared;
 extern U32  gVisTested;
 
@@ -493,11 +489,6 @@ void update_statistics()
     }
 }
 
-LLSD get_viewer_stats()
-{
-    return latest_stats_packet;
-}
-
 /*
  * The sim-side LLSD is in newsim/llagentinfo.cpp:forwardViewerStats.
  *
@@ -520,10 +511,6 @@ void send_viewer_stats(bool include_preferences)
         return;
     }
 
-    // Instead of building the stats packet locally within this function,
-    // build it in the cached value. Clear it first, though.
-    LLSD& body = latest_stats_packet;
-    body.clear();
     std::string url = gAgent.getRegion()->getCapability("ViewerStats");
 
     if (url.empty()) {
@@ -531,8 +518,18 @@ void send_viewer_stats(bool include_preferences)
         return;
     }
 
-    LLViewerStats::instance().getRecording().pause();
+    LLSD body = capture_viewer_stats(include_preferences);
+    LLCoreHttpUtil::HttpCoroutineAdapter::messageHttpPost(url, body,
+        "Statistics posted to sim", "Failed to post statistics to sim");
+}
 
+LLSD capture_viewer_stats(bool include_preferences)
+{
+    LLViewerStats& vstats{ LLViewerStats::instance() };
+    vstats.getRecording().pause();
+    LL::scope_exit cleanup([&vstats]{ vstats.getRecording().resume(); });
+
+    LLSD body;
     LLSD &agent = body["agent"];
 
     time_t ltime;
@@ -804,10 +801,7 @@ void send_viewer_stats(bool include_preferences)
     body["session_id"] = gAgentSessionID;
 
     LLViewerStats::getInstance()->addToMessage(body);
-
-    LLCoreHttpUtil::HttpCoroutineAdapter::messageHttpPost(url, body,
-        "Statistics posted to sim", "Failed to post statistics to sim");
-    LLViewerStats::instance().getRecording().resume();
+    return body;
 }
 
 LLTimer& LLViewerStats::PhaseMap::getPhaseTimer(const std::string& phase_name)

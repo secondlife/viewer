@@ -1088,7 +1088,7 @@ void getProfileStatsContext(boost::json::object& stats)
     context.emplace("time", LLDate::now().toHTTPDateString("%Y-%m-%dT%H:%M:%S"));
 
     // supplement with stats packet
-    stats.emplace("stats", LlsdToJson(get_viewer_stats()));
+    stats.emplace("stats", LlsdToJson(capture_viewer_stats(true)));
 }
 
 std::string getProfileStatsFilename()
