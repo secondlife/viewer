@@ -146,6 +146,7 @@ protected:
     void sendColor();              // applies and sends color
     void sendAlpha();              // applies and sends transparency
     void sendBump(U32 bumpiness);  // applies and sends bump map
+    void sendAlphaGamma();         // applies and sends bump map
     void sendTexGen();             // applies and sends bump map
     void sendShiny(U32 shininess); // applies and sends shininess
     void sendFullbright();         // applies and sends full bright
@@ -234,6 +235,7 @@ protected:
     void onClickBtnDeleteMedia();
     void onClickBtnAddMedia();
     void onCommitBump();
+    void onCommitAlphaGamma();
     void onCommitTexGen();
     void onCommitShiny();
     void onCommitAlphaMode();
@@ -303,6 +305,9 @@ private:
 
     LLTextBox* mLabelTexGen { nullptr };
     LLComboBox* mComboTexGen { nullptr };
+
+    LLTextBox* mLabelAlphaGamma{ nullptr };
+    LLComboBox *mComboAlphaGamma {nullptr};
 
     LLRadioGroup* mRadioMaterialType { nullptr };
     LLRadioGroup* mRadioPbrType { nullptr };
@@ -700,7 +705,8 @@ public:
         DEF_GET_TE_STATE(F32,F32,getScaleT,1.0f, true, 0.001f)
         DEF_GET_TE_STATE(F32,F32,getGlow,0.0f, true, 0.001f)
         DEF_GET_TE_STATE(LLTextureEntry::e_texgen,LLTextureEntry::e_texgen,getTexGen,LLTextureEntry::TEX_GEN_DEFAULT, false, LLTextureEntry::TEX_GEN_DEFAULT)
-        DEF_GET_TE_STATE(LLColor4,const LLColor4&,getColor,LLColor4::white, false, LLColor4::black);
+        DEF_GET_TE_STATE(LLColor4,const LLColor4&,getColor,LLColor4::white, false, LLColor4::black)
+        DEF_GET_TE_STATE(U8, U8, getAlphaGamma, 100, false, 0);
     };
 
     friend struct LLPanelFaceSetTEFunctor;

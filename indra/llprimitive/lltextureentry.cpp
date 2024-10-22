@@ -34,6 +34,7 @@
 #include "v4color.h"
 
 const U8 DEFAULT_BUMP_CODE = 0;  // no bump or shininess
+const U8 DEFAULT_ALPHA_GAMMA = 100;  // Gamma 1 (linear) for alpha blending
 
 const LLTextureEntry LLTextureEntry::null;
 
@@ -64,7 +65,7 @@ LLTextureEntry::LLTextureEntry()
   , mSelected(false)
   , mMaterialUpdatePending(false)
 {
-    init(LLUUID::null,1.f,1.f,0.f,0.f,0.f,DEFAULT_BUMP_CODE);
+    init(LLUUID::null, 1.f, 1.f, 0.f, 0.f, 0.f, DEFAULT_BUMP_CODE, DEFAULT_ALPHA_GAMMA);
 }
 
 LLTextureEntry::LLTextureEntry(const LLUUID& tex_id)
@@ -72,7 +73,7 @@ LLTextureEntry::LLTextureEntry(const LLUUID& tex_id)
   , mSelected(false)
   , mMaterialUpdatePending(false)
 {
-    init(tex_id,1.f,1.f,0.f,0.f,0.f,DEFAULT_BUMP_CODE);
+    init(tex_id, 1.f, 1.f, 0.f, 0.f, 0.f, DEFAULT_BUMP_CODE, DEFAULT_ALPHA_GAMMA);
 }
 
 LLTextureEntry::LLTextureEntry(const LLTextureEntry &rhs)
@@ -95,6 +96,7 @@ LLTextureEntry &LLTextureEntry::operator=(const LLTextureEntry &rhs)
         mRotation = rhs.mRotation;
         mColor = rhs.mColor;
         mBump = rhs.mBump;
+        mAlphaGamma = rhs.mAlphaGamma;
         mMediaFlags = rhs.mMediaFlags;
         mGlow = rhs.mGlow;
         mMaterialID = rhs.mMaterialID;
@@ -135,9 +137,9 @@ LLTextureEntry &LLTextureEntry::operator=(const LLTextureEntry &rhs)
     return *this;
 }
 
-void LLTextureEntry::init(const LLUUID& tex_id, F32 scale_s, F32 scale_t, F32 offset_s, F32 offset_t, F32 rotation, U8 bump)
+void LLTextureEntry::init(const LLUUID& tex_id, F32 scale_s, F32 scale_t, F32 offset_s, F32 offset_t, F32 rotation, U8 bump, U8 alphagamma)
 {
-    setID(tex_id);
+    mID = tex_id;
 
     mScaleS = scale_s;
     mScaleT = scale_t;
@@ -145,6 +147,7 @@ void LLTextureEntry::init(const LLUUID& tex_id, F32 scale_s, F32 scale_t, F32 of
     mOffsetT = offset_t;
     mRotation = rotation;
     mBump = bump;
+    mAlphaGamma = alphagamma;
     mMediaFlags = 0x0;
     mGlow = 0;
     mMaterialID.clear();
@@ -181,6 +184,7 @@ bool LLTextureEntry::operator!=(const LLTextureEntry &rhs) const
     if (mRotation != rhs.mRotation) return(true);
     if (mColor != rhs.mColor) return (true);
     if (mBump != rhs.mBump) return (true);
+    if (mAlphaGamma != rhs.mAlphaGamma) return (true);
     if (mMediaFlags != rhs.mMediaFlags) return (true);
     if (mGlow != rhs.mGlow) return (true);
     if (mMaterialID != rhs.mMaterialID) return (true);
@@ -197,6 +201,7 @@ bool LLTextureEntry::operator==(const LLTextureEntry &rhs) const
     if (mRotation != rhs.mRotation) return(false);
     if (mColor != rhs.mColor) return (false);
     if (mBump != rhs.mBump) return (false);
+    if (mAlphaGamma != rhs.mAlphaGamma) return (false);
     if (mMediaFlags != rhs.mMediaFlags) return false;
     if (mGlow != rhs.mGlow) return false;
     if (mMaterialID != rhs.mMaterialID) return (false);
@@ -221,6 +226,7 @@ void LLTextureEntry::asLLSD(LLSD& sd) const
     sd["offsett"] = mOffsetT;
     sd["imagerot"] = mRotation;
     sd["bump"] = getBumpShiny();
+    sd["alphagamma"]  = getAlphaGamma();
     sd["fullbright"] = getFullbright();
     sd["media_flags"] = mMediaFlags;
     if (hasMedia()) {
@@ -274,6 +280,11 @@ bool LLTextureEntry::fromLLSD(const LLSD& sd)
     {
         setBumpShiny( sd[w].asInteger() );
     } else goto fail;
+    w = "alphagamma";
+    if (sd.has(w))
+    {
+        setAlphaGamma(sd[w].asInteger());
+    } // else goto fail;
     w = "fullbright";
     if (sd.has(w))
     {
@@ -468,6 +479,16 @@ S32 LLTextureEntry::setBumpShinyFullbright(U8 bump)
     {
         mBump = bump;
         return TEM_CHANGE_TEXTURE;
+    }
+    return TEM_CHANGE_NONE;
+}
+
+S32 LLTextureEntry::setAlphaGamma(U8 alpha_gamma)
+{
+    if (mAlphaGamma != alpha_gamma)
+    {
+        mAlphaGamma = alpha_gamma;
+        return TEM_CHANGE_COLOR;
     }
     return TEM_CHANGE_NONE;
 }
