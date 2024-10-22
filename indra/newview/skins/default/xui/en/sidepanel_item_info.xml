@@ -32,6 +32,10 @@
     Owner can:
   </panel.string>
   <panel.string
+    name="acquiredDateAMPM">
+    [wkday,datetime,slt] [mth,datetime,slt] [day,datetime,slt] [hour12,datetime,slt]:[min,datetime,slt]:[second,datetime,slt] [ampm,datetime,slt] [year,datetime,slt]
+  </panel.string>
+  <panel.string
     name="acquiredDate">
     [wkday,datetime,slt] [mth,datetime,slt] [day,datetime,slt] [hour,datetime,slt]:[min,datetime,slt]:[second,datetime,slt] [year,datetime,slt]
   </panel.string>

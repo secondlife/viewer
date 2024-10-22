@@ -3767,6 +3767,7 @@ LLVector3 LLVOAvatar::idleCalcNameTagPosition(const LLVector3 &root_pos_last)
     // Avoid of crossing the name tag by the water surface
     if (mNameText)
     {
+        bool hidden = false;
         F32 water_height = getRegion()->getWaterHeight();
         static const F32 WATER_HEIGHT_ABOVE_DELTA = 0.25;
         if (name_position[VZ] < water_height + WATER_HEIGHT_ABOVE_DELTA)
@@ -3780,7 +3781,18 @@ LLVector3 LLVOAvatar::idleCalcNameTagPosition(const LLVector3 &root_pos_last)
                 {
                     name_position[VZ] = water_height + WATER_HEIGHT_ABOVE_DELTA;
                 }
+                else
+                {
+                    // Hide the name tag when the camera is above the water
+                    // but the avatar is deep enough under the water surface
+                    hidden = true;
+                }
             }
+        }
+
+        if (mNameText->getHidden() != hidden)
+        {
+            mNameText->setHidden(hidden);
         }
     }
 

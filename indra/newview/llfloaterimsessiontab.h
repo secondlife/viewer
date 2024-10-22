@@ -227,6 +227,8 @@ private:
 
     void onEmojiRecentPanelToggleBtnClicked();
     void onEmojiPickerShowBtnClicked();
+    void onEmojiPickerShowBtnDown();
+    void onEmojiPickerClosed();
     void initEmojiRecentPanel();
     void onEmojiRecentPanelFocusReceived();
     void onEmojiRecentPanelFocusLost();
@@ -241,6 +243,9 @@ private:
     S32 mInputEditorPad;
     S32 mChatLayoutPanelHeight;
     S32 mFloaterHeight;
+
+    boost::signals2::connection mEmojiCloseConn;
+    U32 mEmojiHelperLastCallbackFrame = { 0 };
 };
 
 

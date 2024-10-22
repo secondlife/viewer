@@ -1662,7 +1662,7 @@ The new skin will appear after you restart [APP_NAME].
    icon="alertmodal.tga"
    name="ChangeLanguage"
    type="alertmodal">
-Changing language will take effect after you restart [APP_NAME].
+Changing language or time format will take effect after you restart [APP_NAME].
   </notification>
 
   <notification
@@ -6528,6 +6528,22 @@ Do you want to replace it with the selected object?
    name="TooManyWearables"
    type="alertmodal">
     You can't wear a folder containing more than [AMOUNT] items.  You can change this limit in Advanced > Show Debug Settings > WearFolderLimit.
+    <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantLinkNotecard"
+   type="alertmodal">
+    You must save the notecard before creating a link to it.
+    <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantLinkMaterial"
+   type="alertmodal">
+    You must save the material before creating a link to it.
     <tag>fail</tag>
   </notification>
 
