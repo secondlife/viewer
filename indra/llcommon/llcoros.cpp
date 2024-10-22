@@ -57,6 +57,7 @@
 #include "llsdutil.h"
 #include "lltimer.h"
 #include "stringize.h"
+#include "scope_exit.h"
 
 #if LL_WINDOWS
 #include <excpt.h>
@@ -342,6 +343,33 @@ void LLCoros::toplevel(std::string name, callable_t callable)
     // run the code the caller actually wants in the coroutine
     try
     {
+        LL::scope_exit report{
+            [&corodata]
+            {
+                bool allzero = true;
+                for (const auto& [threshold, occurs] : corodata.mHistogram)
+                {
+                    if (occurs)
+                    {
+                        allzero = false;
+                        break;
+                    }
+                }
+                if (! allzero)
+                {
+                    LL_WARNS("LLCoros") << "coroutine " << corodata.mName;
+                    const char* sep = " exceeded ";
+                    for (const auto& [threshold, occurs] : corodata.mHistogram)
+                    {
+                        if (occurs)
+                        {
+                            LL_CONT << sep << threshold << " " << occurs << " times";
+                            sep = ", ";
+                        }
+                    }
+                    LL_ENDL;
+                }
+            }};
         LL::seh::catcher(callable);
     }
     catch (const Stop& exc)
@@ -466,7 +494,14 @@ LLBoundListener LLCoros::getStopListener(const std::string& caller,
 LLCoros::CoroData::CoroData(const std::string& name):
     super(boost::this_fiber::get_id()),
     mName(name),
-    mCreationTime(LLTimer::getTotalSeconds())
+    mCreationTime(LLTimer::getTotalSeconds()),
+    // Preset threshold times in mHistogram
+    mHistogram{
+        {0.004, 0},
+        {0.040, 0},
+        {0.400, 0},
+        {1.000, 0}
+    }
 {
     // we expect the empty string for the main coroutine
     if (name.empty())

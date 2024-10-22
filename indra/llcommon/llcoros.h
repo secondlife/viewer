@@ -37,6 +37,7 @@
 #include <boost/fiber/fss.hpp>
 #include <exception>
 #include <functional>
+#include <map>
 #include <queue>
 #include <string>
 #include <unordered_map>
@@ -367,6 +368,13 @@ private:
         // setStatus() state
         std::string mStatus;
         F64 mCreationTime; // since epoch
+        // Histogram of how many times this coroutine's timeslice exceeds
+        // certain thresholds. mHistogram is pre-populated with those
+        // thresholds as keys. If k0 is one threshold key and k1 is the next,
+        // mHistogram[k0] is the number of times a coroutine timeslice tn ran
+        // (k0 <= tn < k1). A timeslice less than mHistogram.begin()->first is
+        // fine; we don't need to record those.
+        std::map<F64, U32> mHistogram;
     };
 
     // Identify the current coroutine's CoroData. This local_ptr isn't static
