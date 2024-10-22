@@ -6,13 +6,13 @@
 	<text name="joystick_lbl" width="112">
 		デバイス：
 	</text>
-	<spinner label="Ｘ軸マッピング" name="Axis1"/>
-	<spinner label="Ｙ軸マッピング" name="Axis2"/>
-	<spinner label="Ｚ軸マッピング" name="Axis0"/>
-	<spinner label="ピッチ・マッピング" name="Axis4"/>
-	<spinner label="ヨー・マッピング" name="Axis5"/>
-	<spinner label="ロール・マッピング" name="Axis3"/>
-	<spinner label="ズーム・マッピング" name="Axis6"/>
+	<spinner label="Ｘ軸マッピング" name="JoystickAxis1"/>
+	<spinner label="Ｙ軸マッピング" name="JoystickAxis2"/>
+	<spinner label="Ｚ軸マッピング" name="JoystickAxis0"/>
+	<spinner label="ピッチ・マッピング" name="JoystickAxis4"/>
+	<spinner label="ヨー・マッピング" name="JoystickAxis5"/>
+	<spinner label="ロール・マッピング" name="JoystickAxis3"/>
+	<spinner label="ズーム・マッピング" name="JoystickAxis6"/>
 	<check_box label="直接ズーム" name="ZoomDirect"/>
 	<check_box label="３Ｄカーソル" name="Cursor3D"/>
 	<check_box label="自動レベル" name="AutoLeveling"/>

@@ -202,8 +202,7 @@ LibVLCバージョン：[LIBVLC_VERSION]
 	<string name="Quit">
 		終了
 	</string>
-	<string name="create_account_url">
-		https://join.secondlife.com/?lang=ja&amp;sourceid=[sourceid]
+	<string name="create_account_url"> https://join.secondlife.com/?lang=ja&amp;sourceid=[sourceid]
 	</string>
 	<string name="AgniGridLabel">
 		Second Lifeメイングリッド（Agni）
@@ -241,13 +240,11 @@ https://secondlife.com/viewer-access-faq
 ・２段階認証（使用している場合）
 また、Caps Lockが入っていないこともご確認ください。
 	</string>
-	<string name="LoginFailedPasswordChanged">
-		セキュリティ上の理由により、あなたのパスワードは変更されました。アカウントページ（https://secondlife.com/my/account/request.php?lang=ja-JP）へ移動し、
+	<string name="LoginFailedPasswordChanged"> セキュリティ上の理由により、あなたのパスワードは変更されました。アカウントページ（https://secondlife.com/my/account/request.php?lang=ja-JP）へ移動し、
 秘密の質問に答えて、パスワードをリセットしてください。
 ご迷惑をおかけして申し訳ございません。
 	</string>
-	<string name="LoginFailedPasswordReset">
-		弊社はシステムを若干変更しました。お手数ですが、パスワードのリセットをお願いします。アカウントページ（https://secondlife.com/my/account/request.php?lang=ja-JP ）に移動し、
+	<string name="LoginFailedPasswordReset"> 弊社はシステムを若干変更しました。お手数ですが、パスワードのリセットをお願いします。アカウントページ（https://secondlife.com/my/account/request.php?lang=ja-JP ）に移動し、
 秘密の質問に答えて、パスワードをリセットしてください。
 ご迷惑をおかけして申し訳ございません。
 	</string>
@@ -3172,20 +3169,16 @@ For AI Character: Get the closest navigable point to the point provided.
 	<string name="InventoryInboxNoItems">
 		マーケットプレイスで購入した商品はここに表示されます。その後、アイテムをインベントリにドラッグすれば、それらのアイテムを使用できます。
 	</string>
-	<string name="MarketplaceURL">
-		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/?lang=ja-JP
+	<string name="MarketplaceURL"> https://marketplace.[MARKETPLACE_DOMAIN_NAME]/?lang=ja-JP
 	</string>
 	<string name="MarketplaceURL_CreateStore">
 		https://community.secondlife.com/knowledgebase/%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%83%8A%E3%83%AC%E3%83%83%E3%82%B8%E3%83%99%E3%83%BC%E3%82%B9/%E3%83%9E%E3%83%BC%E3%82%B1%E3%83%83%E3%83%88%E3%83%97%E3%83%AC%E3%82%A4%E3%82%B9%E3%81%A7%E8%B2%A9%E5%A3%B2%E3%81%99%E3%82%8B-r769/
 	</string>
-	<string name="MarketplaceURL_Dashboard">
-		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/merchants/store/dashboard?lang=ja-JP
+	<string name="MarketplaceURL_Dashboard"> https://marketplace.[MARKETPLACE_DOMAIN_NAME]/merchants/store/dashboard?lang=ja-JP
 	</string>
-	<string name="MarketplaceURL_Imports">
-		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/merchants/store/imports?lang=ja-JP
+	<string name="MarketplaceURL_Imports"> https://marketplace.[MARKETPLACE_DOMAIN_NAME]/merchants/store/imports?lang=ja-JP
 	</string>
-	<string name="MarketplaceURL_LearnMore">
-		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/learn_more?lang=ja-JP
+	<string name="MarketplaceURL_LearnMore"> https://marketplace.[MARKETPLACE_DOMAIN_NAME]/learn_more?lang=ja-JP
 	</string>
 	<string name="InventoryPlayAnimationTooltip">
 		「再生」オプションでウィンドウを開きます。
@@ -3328,8 +3321,7 @@ https://support.secondlife.com よりSecond Lifeのサポートまでお問い�
 	<string name="MarketplaceUpdating">
 		アップデート中…
 	</string>
-	<string name="UploadFeeInfo">
-		料金はサブスクリプションのレベルにより異なります。レベルが高いほど、料金が下がります。[https://accounts.secondlife.com/change_membership/?lang=ja-JP 詳細]
+	<string name="UploadFeeInfo"> 料金はサブスクリプションのレベルにより異なります。レベルが高いほど、料金が下がります。[https://accounts.secondlife.com/change_membership/?lang=ja-JP 詳細]
 	</string>
 	<string name="Open landmarks">
 		ランドマークを開く
@@ -4584,8 +4576,7 @@ https://support.secondlife.com よりSecond Lifeのサポートまでお問い�
 	<string name="IntelDriverPage">
 		https://www.intel.co.jp/content/www/jp/ja/support/detect.html
 	</string>
-	<string name="NvidiaDriverPage">
-		https://www.nvidia.com/Download/index.aspx?lang=ja-jp
+	<string name="NvidiaDriverPage"> https://www.nvidia.com/Download/index.aspx?lang=ja-jp
 	</string>
 	<string name="AMDDriverPage">
 		https://www.amd.com/ja/support
@@ -6373,14 +6364,12 @@ https://secondlife.com/support/downloads/ からビューアを再インスト�
 	<string name="no_voice_morphing_faq_url">
 		https://lindenlab.freshdesk.com/support/solutions/articles/31000173560-webrtc-update-for-voice-chat-faq/
 	</string>
-	<string name="lindenhomes_get_home_url">
-		https://secondlife.com/land/lindenhomes/member.php?lang=ja-JP
+	<string name="lindenhomes_get_home_url"> https://secondlife.com/land/lindenhomes/member.php?lang=ja-JP
 	</string>
 	<string name="lindenhomes_my_home_url">
 		https://land.secondlife.com/ja-JP/lindenhomes/my-home.php
 	</string>
-	<string name="membership_url">
-		https://accounts.secondlife.com/change_membership/?lang=ja-JP
+	<string name="membership_url"> https://accounts.secondlife.com/change_membership/?lang=ja-JP
 	</string>
 	<string name="paid_you_ldollars">
 		[NAME]は、[REASON]費用のL$ [AMOUNT]を支払いました。
@@ -6773,8 +6762,7 @@ https://secondlife.com/support/downloads/ からビューアを再インスト�
 	</string>
 	<string name="sentences_separator" value="　"/>
 	<string name="words_separator" value="、"/>
-	<string name="server_is_down">
-		大変申し訳ございませんが、予期しない問題が発生しました。サービスに関する既知の問題については、https://status.secondlifegrid.net/?lang=ja-JP をご覧ください。
+	<string name="server_is_down"> 大変申し訳ございませんが、予期しない問題が発生しました。サービスに関する既知の問題については、https://status.secondlifegrid.net/?lang=ja-JP をご覧ください。
 問題が引き続き発生する場合は、お使いのネットワークやファイアウォールの設定を調べてください。
 	</string>
 	<string name="dateTimeWeekdaysNames">
@@ -7088,8 +7076,7 @@ https://secondlife.com/support/downloads/ からビューアを再インスト�
 	<string name="-">
 		-
 	</string>
-	<string name="=">
-		=
+	<string name="="> =
 	</string>
 	<string name="`">
 		`
@@ -7670,5 +7657,80 @@ www.secondlife.com のウェブサイトに接続できるかご確認くださ�
 また、お使いのネットワークとファイアウォールが正しく設定されている事もお確かめください。
 このエラーが継続的に起こる場合は、Secondlife.com のサポートセクションから問題を報告してください。
 [https://community.secondlife.com/knowledgebase/%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%83%8A%E3%83%AC%E3%83%83%E3%82%B8%E3%83%99%E3%83%BC%E3%82%B9/%E3%83%AD%E3%82%B0%E3%82%A4%E3%83%B3%E3%82%A8%E3%83%A9%E3%83%BC-r1283/ ナレッジベース]
+	</string>
+	<string name="RlvConsoleDisable">
+		ＲＬＶａは無効です。
+	</string>
+	<string name="RlvConsoleInvalidCmd">
+		無効なコマンドです。
+	</string>
+	<string name="RlvConsoleExecuted">
+		情報
+	</string>
+	<string name="RlvConsoleFailed">
+		エラー
+	</string>
+	<string name="RlvConsoleRetained">
+		戻り値
+	</string>
+	<string name="RlvDebugExecuted">
+		執行された
+	</string>
+	<string name="RlvDebugFailed">
+		失敗した
+	</string>
+	<string name="RlvDebugRetained">
+		拘束された
+	</string>
+	<string name="RlvReturnCodeUnset">
+		設定解除した
+	</string>
+	<string name="RlvReturnCodeDuplicate">
+		重複した
+	</string>
+	<string name="RlvReturnCodeDelayed">
+		遅延した
+	</string>
+	<string name="RlvReturnCodeDeprecated">
+		非推奨
+	</string>
+	<string name="RlvReturnCodeSyntax">
+		とんでもないエラー
+	</string>
+	<string name="RlvReturnCodeOption">
+		無効なオプション
+	</string>
+	<string name="RlvReturnCodeParam">
+		無効なパラメータ
+	</string>
+	<string name="RlvReturnCodeLock">
+		ロックされたコマンド
+	</string>
+	<string name="RlvReturnCodeDisabled">
+		無効なコマンド
+	</string>
+	<string name="RlvReturnCodeUnknown">
+		不明なコマンド
+	</string>
+	<string name="RlvReturnCodeNoSharedRoot">
+		#RLVが見つかりません
+	</string>
+	<string name="RlvReturnCodeDeprecatedAndDisabled">
+		非推奨であるか無効化されています
+	</string>
+	<string name="RlvReturnCodeNoBehaviour">
+		有効な行動がありません
+	</string>
+	<string name="RlvReturnCodeUnheldBehaviour">
+		基準となる行動が保持されていません
+	</string>
+	<string name="RlvReturnCodeBlocked">
+		ブロックされたオブジェクト
+	</string>
+	<string name="RlvReturnCodeThrottled">
+		抑制された
+	</string>
+	<string name="RlvReturnCodeNoProcessor">
+		コマンドプロセッサが見つかりません
 	</string>
 </strings>

@@ -6,12 +6,20 @@
 	<text left_delta="70" name="region_text">
 		未知
 	</text>
+	<text name="estate_id_lbl">
+		不動産ＩＤ：
+	</text>
 	<text name="version_channel_text_lbl">
 		バージョン：
 	</text>
 	<text left_delta="70" name="version_channel_text">
 		不明
 	</text>
+	<text name="grid_position_lbl">
+		グリッド座標：
+	</text>
+	<line_editor name="grid_position_x" default_text="なし"/>
+	<line_editor name="grid_position_y" default_text="なし"/>
 	<text name="region_type_lbl">
 		種類：
 	</text>

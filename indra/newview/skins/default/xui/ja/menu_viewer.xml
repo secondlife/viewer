@@ -76,8 +76,6 @@
 		<menu_item_check label="近くのチャット…" name="Nearby Chat"/>
 		<menu_item_check label="ボイスチャット" name="Speak"/>
 		<menu_item_check label="会話ログ…" name="Conversation Log..."/>
-		<menu_item_check label="アバターからのメディアとサウンドを聞く" name="Hear Media and Sound from Avatar"/>
-		<menu_item_check label="アバターからのボイスを聞く" name="Hear Voice from Avatar"/>
 		<menu_item_check label="ジェスチャー…" name="Gestures"/>
 		<menu_item_separator/>
 		<menu_item_check label="喋る" name="Speak"/>
@@ -248,6 +246,18 @@
 		<menu_item_check label="ＰＢＲ" name="Rendering Type PBR"/>
 		<menu_item_call label="[APP_NAME]について" name="About Second Life"/>
 	</menu>
+	<menu label="ＲＬＶａ" name="RLVa Main">
+		<menu label="デバッグ" name="Debug">
+			<menu_item_check label="トップレベルのＲＬＶａメニューを表示" name="Show Top-level RLVa Menu"/>
+			<menu_item_separator/>
+			<menu_item_check label="デバッグメッセージを表示" name="Show Debug Messages"/>
+			<menu_item_check label="未設定または重複メッセージを隠す" name="Hide Unset or Duplicate Messages"/>
+		</menu>
+		<menu_item_separator/>
+		<menu_item_check label="一時的な装着物を許可" name="Allow Temporary Attachments"/>
+		<menu_item_separator/>
+		<menu_item_check label="コンソール…" name="Console"/>
+	</menu>
 	<menu label="高度な操作" name="Advanced">
 		<menu_item_call label="テクスチャをリベークする" name="Rebake Texture"/>
 		<menu_item_call label="ＵＩサイズをデフォルトにする" name="Set UI Size to Default"/>
@@ -302,6 +312,7 @@
 			<menu_item_check label="FRInfoのテスト" name="Test FRInfo"/>
 			<menu_item_check label="フレキシブルオブジェクト" name="Flexible Objects"/>
 		</menu>
+		<menu label="ＲＬＶａ" name="RLVa Embedded"/>
 		<menu_item_check label="プラグイン読み取りスレッドの使用" name="Use Plugin Read Thread"/>
 		<menu_item_call label="グループキャッシュのクリア" name="ClearGroupCache"/>
 		<menu_item_check label="マウスの平滑化" name="Mouse Smoothing"/>
@@ -498,6 +509,7 @@
 			<menu_item_call label="地形を再構築" name="Rebuild Terrain"/>
 			<menu_item_separator/>
 			<menu_item_call label="ローカルのペイントマップを作成" name="Create Local Paintmap"/>
+			<menu_item_call label="ローカルのペイントマップを編集" name="Edit Local Paintmap"/>
 			<menu_item_call label="ローカルのペイントマップを削除" name="Delete Local Paintmap"/>
 		</menu>
 		<menu label="ＵＩ" name="UI">

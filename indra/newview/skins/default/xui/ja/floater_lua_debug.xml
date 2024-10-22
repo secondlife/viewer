@@ -3,6 +3,7 @@
 	<text name="editor_path_label">
 		ＬＵＡ文字列：
 	</text>
+	<check_box label="ソースの情報を表示" tool_tip="Ｌｕａデバッグコンソール出力にソース情報を表示します。" name="show_script_name"/>
 	<line_editor name="lua_cmd"/>
 	<button label="実行" name="execute_btn"/>
 	<text_editor name="result_text"/>
@@ -11,5 +12,5 @@
 	</text>
 	<line_editor name="script_path"/>
 	<button label="参照…" label_selected="参照…" name="browse_btn"/>
-	<button label="走らせる" label_selected="走らせる" name="run_btn"/>
+	<button label="実行" label_selected="実行" name="run_btn"/>
 </floater>

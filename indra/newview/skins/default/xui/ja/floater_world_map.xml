@@ -46,6 +46,10 @@
 				<text name="by_owner_label">
 					所有者で
 				</text>
+				<check_box name="grid_coords_chk"/>
+				<text name="grid_coords_label">
+					グリッドのマップ座標を表示する
+				</text>
 				<button name="Go Home" tool_tip="自分のホームの場所にテレポートします。"/>
 				<text name="Home_label">
 					ホーム

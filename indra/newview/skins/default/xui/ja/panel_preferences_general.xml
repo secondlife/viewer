@@ -15,6 +15,13 @@
 		<combo_box.item label="日本語‐ベータ" name="(Japanese)"/>
 		<combo_box.item label="正體中文（簡体字中国語）‐ベータ版" name="Traditional Chinese"/>
 	</combo_box>
+	<text name="time_format_textbox">
+		時刻表記：
+	</text>
+	<combo_box name="time_format_combobox">
+		<combo_box.item label="午後　1：00" name="12H"/>
+		<combo_box.item label="13：00" name="24H"/>
+	</combo_box>
 	<text name="language_textbox2">
 		（再起動後に反映）
 	</text>

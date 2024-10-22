@@ -1128,7 +1128,7 @@ L$が不足しているので、このグループに参加することができ
 お手数ですがもう一度やり直してください。
 		<tag>fail</tag>
 	</notification>
-	<notification  name="CannotUploadReason">
+	<notification name="CannotUploadReason">
 		以下の理由で[FILE]をアップロードできませんでした：[REASON]
 お手数ですがもう一度やり直してください。
 		<tag>fail</tag>
@@ -1970,20 +1970,13 @@ https://wiki.secondlife.com/wiki/Adding_Spelling_Dictionaries
 		リージョンテクスチャを設定できませんでした：
 地形テクスチャ[TEXTURE_NUM]は完全には読み込まれていませんが、ビット深度が[TEXTURE_BIT_DEPTH]であるため透明度が含まれていると想定されます。現在、地形テクスチャでは透明度はサポートされていません。
 
-テクスチャ[TEXTURE_NUM] が不透明な場合は、テクスチャが完全に読み込まれるまで待ってから、もう一度「適用」をクリックしてください。
-
-透明度は、地形マテリアル（ＰＢＲメタリック粗さ）でalphaMode="MASK"かつdoubleSided=falseの場合のみサポートされます。
+テクスチャ[TEXTURE_NUM] が不透明な場合は、テクスチャが完全に読み込まれるまで待ってから、もう一度「適用」をクリックしてください。 透明度は、地形マテリアル（ＰＢＲメタリック粗さ）でalphaMode="MASK"かつdoubleSided=falseの場合のみサポートされます。
 		<tag>fail</tag>
 	</notification>
 	<notification name="InvalidTerrainAlpha">
 		<unique combine="cancel_old" />
-		リージョンテクスチャを設定できませんでした：
-地形テクスチャ[TEXTURE_NUM]には透明度が含まれています。現在、地形テクスチャでは透明度はサポートされていません。
-
-テクスチャ[TEXTURE_NUM]を不透明なＲＧＢ画像に置き換えてから、もう一度「適用」をクリックしてください。
-
-透明度は、地形マテリアル（ＰＢＲメタリック粗さ）でalphaMode="MASK"かつdoubleSided=falseの場合のみサポートされます。
-	<tag>fail</tag>
+ リージョンテクスチャを設定できませんでした： 地形テクスチャ[TEXTURE_NUM]には透明度が含まれています。現在、地形テクスチャでは透明度はサポートされていません。 テクスチャ[TEXTURE_NUM]を不透明なＲＧＢ画像に置き換えてから、もう一度「適用」をクリックしてください。 透明度は、地形マテリアル（ＰＢＲメタリック粗さ）でalphaMode="MASK"かつdoubleSided=falseの場合のみサポートされます。
+		<tag>fail</tag>
 	</notification>
 	<notification name="InvalidTerrainSize">
 		リージョンの地形テクスチャを設定できませんでした：
@@ -2007,17 +2000,11 @@ https://wiki.secondlife.com/wiki/Adding_Spelling_Dictionaries
 	</notification>
 	<notification name="InvalidTerrainMaterialDoubleSided">
 		<unique combine="cancel_old" />
-		リージョンマテリアルを設定できませんでした:
-地形マテリアル[MATERIAL_NUM]は両面です。両面マテリアルは現在ＰＢＲ地形ではサポートされていません。
-
-マテリアル[MATERIAL_NUM]をdoubleSided=falseのマテリアルに置き換えてください。
+ リージョンマテリアルを設定できませんでした: 地形マテリアル[MATERIAL_NUM]は両面です。両面マテリアルは現在ＰＢＲ地形ではサポートされていません。 マテリアル[MATERIAL_NUM]をdoubleSided=falseのマテリアルに置き換えてください。
 	</notification>
 	<notification name="InvalidTerrainMaterialAlphaMode">
 		<unique combine="cancel_old" />
-		リージョンマテリアルを設定できませんでした:
-地形マテリアル[MATERIAL_NUM]はサポートされていないalphaMode="[MATERIAL_ALPHA_MODE]を使用しています。
-
-マテリアル[MATERIAL_NUM]をalphaMode="OPAQUE"またはalphaMode="MASK"のマテリアルに置き換えてください。
+ リージョンマテリアルを設定できませんでした: 地形マテリアル[MATERIAL_NUM]はサポートされていないalphaMode="[MATERIAL_ALPHA_MODE]を使用しています。 マテリアル[MATERIAL_NUM]をalphaMode="OPAQUE"またはalphaMode="MASK"のマテリアルに置き換えてください。
 	</notification>
 	<notification name="RawUploadStarted">
 		アップロードを開始しました。接続速度によっては、最大２分程度かかります。
@@ -2146,8 +2133,7 @@ OKをクリックして、ダウンロードとインストールを開始しま
 		<tag>confirm</tag>
 		<usetemplate ignoretext="ブラウザを起動して、Webページを閲覧するとき" name="okcancelignore" notext="キャンセル" yestext="ＯＫ"/>
 	</notification>
-	<notification name="WebLaunchJoinNow">
-		[https://secondlife.com/my/account/?lang=ja-JP マイアカウント]ページに移動してアカウントを管理しますか？
+	<notification name="WebLaunchJoinNow"> [https://secondlife.com/my/account/?lang=ja-JP マイアカウント]ページに移動してアカウントを管理しますか？
 		<tag>confirm</tag>
 		<usetemplate ignoretext="ブラウザを起動して、アカウントを管理するとき" name="okcancelignore" notext="キャンセル" yestext="ＯＫ"/>
 	</notification>
@@ -2265,14 +2251,12 @@ OKをクリックして、ダウンロードとインストールを開始しま
 		<tag>fail</tag>
 		<usetemplate name="okbutton" yestext="ＯＫ"/>
 	</notification>
-	<notification name="GroupLimitInfo">
-		ベーシック会員の住民は、最大[MAX_BASIC]個のグループまで参加することができます。プレミアム会員は最大[MAX_PREMIUM]個まで参加可能です。[https://accounts.secondlife.com/change_membership/?lang=ja-JP 詳細またはアップグレード]
+	<notification name="GroupLimitInfo"> ベーシック会員の住民は、最大[MAX_BASIC]個のグループまで参加することができます。プレミアム会員は最大[MAX_PREMIUM]個まで参加可能です。[https://accounts.secondlife.com/change_membership/?lang=ja-JP 詳細またはアップグレード]
 		<tag>group</tag>
 		<tag>fail</tag>
 		<usetemplate name="okbutton" yestext="閉じる"/>
 	</notification>
-	<notification name="GroupLimitInfoPlus">
-		ベーシック会員の住人は、最大[MAX_BASIC]個までグループに参加できます。プレミアム会員は最大[MAX_PREMIUM]個まで参加可能です。プレミアム・プラス会員は最大[MAX_PREMIUM_PLUS]個です。[https://accounts.secondlife.com/change_membership/?lang=ja-JP 詳細またはアップグレード]
+	<notification name="GroupLimitInfoPlus"> ベーシック会員の住人は、最大[MAX_BASIC]個までグループに参加できます。プレミアム会員は最大[MAX_PREMIUM]個まで参加可能です。プレミアム・プラス会員は最大[MAX_PREMIUM_PLUS]個です。[https://accounts.secondlife.com/change_membership/?lang=ja-JP 詳細またはアップグレード]
 		<tag>group</tag>
 		<tag>fail</tag>
 		<usetemplate name="okbutton" yestext="閉じる"/>
@@ -2943,8 +2927,7 @@ https://community.secondlife.com/knowledgebase/%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%83
 		このオブジェクトには、あなたがコピーできるアイテムはありません。
 		<tag>fail</tag>
 	</notification>
-	<notification name="WebLaunchAccountHistory">
-		[https://secondlife.com/my/account/?lang=ja-JP マイアカウント]
+	<notification name="WebLaunchAccountHistory"> [https://secondlife.com/my/account/?lang=ja-JP マイアカウント]
 ページに移動してアカウント履歴を確認しますか？
 		<tag>confirm</tag>
 		<usetemplate ignoretext="ブラウザを起動してアカウント履歴を見るとき" name="okcancelignore" notext="キャンセル" yestext="ページに移動"/>
@@ -3082,7 +3065,15 @@ Linden Lab
 		</form>
 	</notification>
 	<notification name="TooManyWearables">
-		[AMOUNT]個以上のアイテムを含むフォルダを装着できません。「詳細設定」＞「デバッグ設定を表示」＞「WearFolderLimit」でこの制限を変更できます。
+		[AMOUNT]個以上のアイテムを含むフォルダを装着できません。「高度な操作」＞「デバッグ設定を表示」＞「WearFolderLimit」でこの制限を変更できます。
+		<tag>fail</tag>
+	</notification>
+	<notification name="CantLinkNotecard">
+		リンクを作成する前に、ノートカードを保存する必要があります。
+		<tag>fail</tag>
+	</notification>
+	<notification name="CantLinkMaterial">
+		リンクを作成する前に、マテリアルを保存する必要があります。
 		<tag>fail</tag>
 	</notification>
 	<notification label="「取り込み中」モードの警告" name="DoNotDisturbModePay">
@@ -5918,13 +5909,13 @@ Intelドライバーのウェブサイトを確認しますか？
 	</notification>
 	<notification name="GLTFLoadFailed">
 		ＧＬＴＦファイルを読み込めませんでした。詳細についてはログを参照してください。
-    <tag>fail</tag>
-    <usetemplate name="okbutton" yestext="ＯＫ"/>
+		<tag>fail</tag>
+		<usetemplate name="okbutton" yestext="ＯＫ"/>
 	</notification>
 	<notification name="GLTFSaveFailed">
 		ＧＬＴＦファイルを保存できませんでした。詳細についてはログを参照してください。
-	<tag>fail</tag>
-	<usetemplate name="okbutton" yestext="ＯＫ"/>
+		<tag>fail</tag>
+		<usetemplate name="okbutton" yestext="ＯＫ"/>
 	</notification>
 	<notification name="GLTFSaveSelection">
 		ＧＬＴＦアセットが関連付けられているオブジェクトを選択する必要があります。
