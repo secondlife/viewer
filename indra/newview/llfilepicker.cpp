@@ -41,6 +41,13 @@
 #include "llhttpconstants.h"    // file picker uses some of thes constants on Linux
 #endif
 
+#if LL_NFD
+#include "nfd.hpp"
+#if LL_USE_SDL_WINDOW
+#include "nfd_sdl2.h"
+#endif
+#endif
+
 //
 // Globals
 //
@@ -165,7 +172,484 @@ void LLFilePicker::reset()
     mCurrentFile = 0;
 }
 
+#if LL_NFD
+std::vector<nfdfilteritem_t> LLFilePicker::setupFilter(ELoadFilter filter)
+{
+    std::vector<nfdfilteritem_t> filter_vec;
+    switch (filter)
+    {
+    case FFLOAD_EXE:
 #if LL_WINDOWS
+        filter_vec.emplace_back(nfdfilteritem_t{"Executables", "exe"});
+#endif
+        break;
+    case FFLOAD_ALL:
+        filter_vec.emplace_back(nfdfilteritem_t{"Executables", "exe"});
+        filter_vec.emplace_back(nfdfilteritem_t{"Sounds", "wav"});
+        filter_vec.emplace_back(nfdfilteritem_t{"Animations", "bvh,anim"});
+        filter_vec.emplace_back(nfdfilteritem_t{"Model files", "dae"});
+        filter_vec.emplace_back(nfdfilteritem_t{"RAW files", "raw"});
+        filter_vec.emplace_back(nfdfilteritem_t{"Script files (lsl)", "lsl"});
+        filter_vec.emplace_back(nfdfilteritem_t{"Dictionary files", "dic,xcu"});
+        filter_vec.emplace_back(nfdfilteritem_t{"GLTF Files", "gltf,glb"});
+        filter_vec.emplace_back(nfdfilteritem_t{"Script files (lua)", "lua"});
+        break;
+    case FFLOAD_WAV:
+        filter_vec.emplace_back(nfdfilteritem_t{"Sounds", "wav"});
+        break;
+    case FFLOAD_IMAGE:
+        filter_vec.emplace_back(nfdfilteritem_t{"Images", "tga,bmp,jpg,jpeg,png"});
+        break;
+    case FFLOAD_ANIM:
+        filter_vec.emplace_back(nfdfilteritem_t{"Animations", "bvh,anim"});
+        break;
+    case FFLOAD_GLTF:
+    case FFLOAD_MATERIAL:
+        filter_vec.emplace_back(nfdfilteritem_t{"GLTF Files", "gltf,glb"});
+        break;
+    case FFLOAD_COLLADA:
+        filter_vec.emplace_back(nfdfilteritem_t{"Scene", "dae"});
+        break;
+    case FFLOAD_XML:
+        filter_vec.emplace_back(nfdfilteritem_t{"XML files", "xml"});
+        break;
+    case FFLOAD_SLOBJECT:
+        filter_vec.emplace_back(nfdfilteritem_t{"Objects", "slobject"});
+        break;
+    case FFLOAD_RAW:
+        filter_vec.emplace_back(nfdfilteritem_t{"RAW files", "raw"});
+        break;
+    case FFLOAD_MODEL:
+        filter_vec.emplace_back(nfdfilteritem_t{"Model files", "dae"});
+        break;
+    case FFLOAD_HDRI:
+        filter_vec.emplace_back(nfdfilteritem_t{"EXR files", "exr"});
+    case FFLOAD_MATERIAL_TEXTURE:
+        filter_vec.emplace_back(nfdfilteritem_t{"GLTF Import", "gltf,glb,tga,bmp,jpg,jpeg,png"});
+        filter_vec.emplace_back(nfdfilteritem_t{"GLTF Files", "gltf,glb"});
+        filter_vec.emplace_back(nfdfilteritem_t{"Images", "tga,bmp,jpg,jpeg,png"});
+        break;
+    case FFLOAD_SCRIPT:
+        filter_vec.emplace_back(nfdfilteritem_t{"Script files", "lsl"});
+        break;
+    case FFLOAD_DICTIONARY:
+        filter_vec.emplace_back(nfdfilteritem_t{"Dictionary files", "dic,xcu"});
+        break;
+    case FFLOAD_LUA:
+        filter_vec.emplace_back(nfdfilteritem_t{"Script files", "lua"});
+        break;
+    default:
+        break;
+    }
+    return filter_vec;
+}
+
+bool LLFilePicker::getOpenFile(ELoadFilter filter, bool blocking)
+{
+    if( mLocked )
+    {
+        return false;
+    }
+    bool success = false;
+
+    // if local file browsing is turned off, return without opening dialog
+    if ( check_local_file_access_enabled() == false )
+    {
+        return false;
+    }
+
+    // initialize NFD
+    NFD::Guard nfdGuard;
+
+    // auto-freeing memory
+    NFD::UniquePath outPath;
+
+    // prepare filters for the dialog
+    auto filterItem = setupFilter(filter);
+    
+    nfdwindowhandle_t windowHandle = nfdwindowhandle_t();
+#if LL_USE_SDL_WINDOW
+    if(!NFD_GetNativeWindowFromSDLWindow((SDL_Window*)gViewerWindow->getPlatformWindow(), &windowHandle))
+    {
+        windowHandle = nfdwindowhandle_t();
+    }
+#endif
+
+    if (blocking)
+    {
+        // Modal, so pause agent
+        send_agent_pause();
+    }
+
+    reset();
+
+    // show the dialog
+    nfdresult_t result = NFD::OpenDialog(outPath, filterItem.data(), filterItem.size(), nullptr, windowHandle);
+    if (result == NFD_OKAY)
+    {
+        mFiles.push_back(outPath.get());
+        success = true;
+    }
+
+    if (blocking)
+    {
+        send_agent_resume();
+        // Account for the fact that the app has been stalled.
+        LLFrameTimer::updateFrameTime();
+    }
+
+    return success;
+}
+
+bool LLFilePicker::getOpenFileModeless(ELoadFilter filter,
+                                       void (*callback)(bool, std::vector<std::string> &, void*),
+                                       void *userdata)
+{
+    if( mLocked )
+        return false;
+
+    // if local file browsing is turned off, return without opening dialog
+    if ( check_local_file_access_enabled() == false )
+    {
+        return false;
+    }
+
+    reset();
+    LL_WARNS() << "NOT IMPLEMENTED" << LL_ENDL;
+    return false;
+}
+
+bool LLFilePicker::getMultipleOpenFiles(ELoadFilter filter, bool blocking)
+{
+    if( mLocked )
+    {
+        return false;
+    }
+    bool success = false;
+
+    // if local file browsing is turned off, return without opening dialog
+    if ( check_local_file_access_enabled() == false )
+    {
+        return false;
+    }
+
+    // initialize NFD
+    NFD::Guard nfdGuard;
+
+    auto filterItem = setupFilter(filter);
+
+    reset();
+
+    if (blocking)
+    {
+        // Modal, so pause agent
+        send_agent_pause();
+    }
+
+    nfdwindowhandle_t windowHandle = nfdwindowhandle_t();
+#if LL_USE_SDL_WINDOW
+    if(!NFD_GetNativeWindowFromSDLWindow((SDL_Window*)gViewerWindow->getPlatformWindow(), &windowHandle))
+    {
+        windowHandle = nfdwindowhandle_t();
+    }
+#endif
+
+    // auto-freeing memory
+    NFD::UniquePathSet outPaths;
+
+    // show the dialog
+    nfdresult_t result = NFD::OpenDialogMultiple(outPaths, filterItem.data(), filterItem.size(), nullptr, windowHandle);
+    if (result == NFD_OKAY)
+    {
+        LL_INFOS() << "Success!" << LL_ENDL;
+
+        nfdpathsetsize_t numPaths;
+        NFD::PathSet::Count(outPaths, numPaths);
+
+        nfdpathsetsize_t i;
+        for (i = 0; i < numPaths; ++i)
+        {
+            NFD::UniquePathSetPath path;
+            NFD::PathSet::GetPath(outPaths, i, path);
+            mFiles.push_back(path.get());
+            LL_INFOS() << "Path " << i << ": " << path.get() << LL_ENDL;
+        }
+        success = true;
+    }
+    else if (result == NFD_CANCEL)
+    {
+        LL_INFOS() << "User pressed cancel." << LL_ENDL;
+    }
+    else
+    {
+        LL_INFOS() << "Error: " << NFD::GetError() << LL_ENDL;
+    }
+
+    if (blocking)
+    {
+        send_agent_resume();
+
+        // Account for the fact that the app has been stalled.
+        LLFrameTimer::updateFrameTime();
+    }
+
+    return success;
+}
+
+bool LLFilePicker::getMultipleOpenFilesModeless(ELoadFilter filter,
+                                                void (*callback)(bool, std::vector<std::string> &, void*),
+                                                void *userdata )
+{
+    if( mLocked )
+        return false;
+
+    // if local file browsing is turned off, return without opening dialog
+    if ( check_local_file_access_enabled() == false )
+    {
+        return false;
+    }
+
+    reset();
+
+    LL_WARNS() << "NOT IMPLEMENTED" << LL_ENDL;
+    return false;
+}
+
+bool LLFilePicker::getSaveFile(ESaveFilter filter, const std::string& filename, bool blocking)
+{
+    if( mLocked )
+    {
+        return false;
+    }
+    bool success = false;
+
+    // if local file browsing is turned off, return without opening dialog
+    if ( check_local_file_access_enabled() == false )
+    {
+        return false;
+    }
+
+    // initialize NFD
+    NFD::Guard nfdGuard;
+
+    std::vector<nfdfilteritem_t> filter_vec;
+    std::string saved_filename = filename;
+    switch( filter )
+    {
+    case FFSAVE_ALL:
+        filter_vec.emplace_back(nfdfilteritem_t{"WAV Sounds", "wav"});
+        filter_vec.emplace_back(nfdfilteritem_t{"Targa, Bitmap Images", "tga,bmp"});
+        break;
+    case FFSAVE_WAV:
+        if (filename.empty())
+        {
+            saved_filename = "untitled.wav";
+        }
+        else
+        {
+            saved_filename += ".wav";
+        }
+        filter_vec.emplace_back(nfdfilteritem_t{"WAV Sounds", "wav"});
+        break;
+    case FFSAVE_TGA:
+        if (filename.empty())
+        {
+            saved_filename = "untitled.tga";
+        }
+        else
+        {
+            saved_filename += ".tga";
+        }
+        filter_vec.emplace_back(nfdfilteritem_t{"Targa Images", "tga"});
+        break;
+    case FFSAVE_BMP:
+        if (filename.empty())
+        {
+            saved_filename = "untitled.bmp";
+        }
+        else
+        {
+            saved_filename += ".bmp";
+        }
+        filter_vec.emplace_back(nfdfilteritem_t{"Bitmap Images", "bmp"});
+        break;
+    case FFSAVE_PNG:
+        if (filename.empty())
+        {
+            saved_filename = "untitled.png";
+        }
+        else
+        {
+            saved_filename += ".png";
+        }
+        filter_vec.emplace_back(nfdfilteritem_t{"PNG Images", "png"});
+        break;
+    case FFSAVE_TGAPNG:
+        if (filename.empty())
+        {
+            saved_filename = "untitled.png";
+        }
+        else
+        {
+            saved_filename += ".png";
+        }
+
+        filter_vec.emplace_back(nfdfilteritem_t{"PNG Images", "png"});
+        filter_vec.emplace_back(nfdfilteritem_t{"Targa Images", "tga"});
+        filter_vec.emplace_back(nfdfilteritem_t{"Jpeg Images", "jpg,jpeg"});
+        filter_vec.emplace_back(nfdfilteritem_t{"Jpeg2000 Images", "j2c"});
+        filter_vec.emplace_back(nfdfilteritem_t{"Bitmap Images", "bmp"});
+        break;
+    case FFSAVE_JPEG:
+        if (filename.empty())
+        {
+            saved_filename = "untitled.jpeg";
+        }
+        else
+        {
+            saved_filename += ".jpeg";
+        }
+        filter_vec.emplace_back(nfdfilteritem_t{"Jpeg Images", "jpg,jpeg"});
+        break;
+    case FFSAVE_AVI:
+        if (filename.empty())
+        {
+            saved_filename = "untitled.avi";
+        }
+        else
+        {
+            saved_filename += ".avi";
+        }
+        filter_vec.emplace_back(nfdfilteritem_t{"AVI Movie File", "avi"});
+        break;
+    case FFSAVE_ANIM:
+        if (filename.empty())
+        {
+            saved_filename = "untitled.xaf";
+        }
+        else
+        {
+            saved_filename += ".xaf";
+        }
+        filter_vec.emplace_back(nfdfilteritem_t{"XAF Anim File", "xaf"});
+        break;
+    case FFSAVE_XML:
+        if (filename.empty())
+        {
+            saved_filename = "untitled.xml";
+        }
+        else
+        {
+            saved_filename += ".xml";
+        }
+        filter_vec.emplace_back(nfdfilteritem_t{"XML File", "xml"});
+        break;
+    case FFSAVE_COLLADA:
+        if (filename.empty())
+        {
+            saved_filename = "untitled.collada";
+        }
+        else
+        {
+            saved_filename += ".collada";
+        }
+        filter_vec.emplace_back(nfdfilteritem_t{"COLLADA File", "collada"});
+        break;
+    case FFSAVE_RAW:
+        if (filename.empty())
+        {
+            saved_filename = "untitled.raw";
+        }
+        else
+        {
+            saved_filename += ".raw";
+        }
+        filter_vec.emplace_back(nfdfilteritem_t{"RAW files", "raw"});
+        break;
+    case FFSAVE_J2C:
+        if (filename.empty())
+        {
+            saved_filename = "untitled.j2c";
+        }
+        else
+        {
+            saved_filename += ".j2c";
+        }
+        filter_vec.emplace_back(nfdfilteritem_t{"Compressed Images", "j2c"});
+        break;
+    case FFSAVE_SCRIPT:
+        if (filename.empty())
+        {
+            saved_filename = "untitled.lsl";
+        }
+        else
+        {
+            saved_filename += ".lsl";
+        }
+        filter_vec.emplace_back(nfdfilteritem_t{"LSL Files", "lsl"});
+        break;
+    default:
+        return false;
+    }
+
+    nfdwindowhandle_t windowHandle = nfdwindowhandle_t();
+#if LL_USE_SDL_WINDOW
+    if(!NFD_GetNativeWindowFromSDLWindow((SDL_Window*)gViewerWindow->getPlatformWindow(), &windowHandle))
+    {
+        windowHandle = nfdwindowhandle_t();
+    }
+#endif
+
+    reset();
+
+    if (blocking)
+    {
+        // Modal, so pause agent
+        send_agent_pause();
+    }
+
+    {
+        NFD::UniquePath savePath;
+
+        // show the dialog
+        nfdresult_t result = NFD::SaveDialog(savePath, filter_vec.data(), filter_vec.size(), nullptr, saved_filename.c_str(), windowHandle);
+        if (result == NFD_OKAY) {
+            mFiles.push_back(savePath.get());
+            success = true;
+        }
+        gKeyboard->resetKeys();
+    }
+
+    if (blocking)
+    {
+        send_agent_resume();
+
+        // Account for the fact that the app has been stalled.
+        LLFrameTimer::updateFrameTime();
+    }
+
+    return success;
+}
+
+bool LLFilePicker::getSaveFileModeless(ESaveFilter filter,
+                                       const std::string& filename,
+                                       void (*callback)(bool, std::string&, void*),
+                                       void *userdata)
+{
+    if( mLocked )
+        return false;
+
+    // if local file browsing is turned off, return without opening dialog
+    if ( check_local_file_access_enabled() == false )
+    {
+        return false;
+    }
+
+    reset();
+    LL_WARNS() << "NOT IMPLEMENTED" << LL_ENDL;
+    return false;
+}
+#elif LL_WINDOWS
 
 bool LLFilePicker::setupFilter(ELoadFilter filter)
 {

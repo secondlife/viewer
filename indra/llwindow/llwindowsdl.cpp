@@ -1949,9 +1949,9 @@ void LLWindowSDL::spawnWebBrowser(const std::string& escaped_url, bool async)
     LL_INFOS() << "spawn_web_browser returning." << LL_ENDL;
 }
 
-void *LLWindowSDL::getPlatformWindow()
+void* LLWindowSDL::getPlatformWindow()
 {
-    return nullptr;
+    return (void*)mWindow;
 }
 
 void LLWindowSDL::bringToFront()
