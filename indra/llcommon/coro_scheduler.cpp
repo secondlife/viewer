@@ -97,7 +97,7 @@ boost::fibers::context* scheduler::pick_next() noexcept
                 // much time, consider also binding and reporting
                 // boost::stacktrace::stacktrace().
                 queue->post(
-                    [name=std::move(data.getName()), elapsed]
+                    [name=data.getName(), elapsed]
                     {
                         LL_WARNS_ONCE("LLCoros.scheduler")
                             << "Coroutine " << name << " ran for "
