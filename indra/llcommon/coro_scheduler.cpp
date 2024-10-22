@@ -102,7 +102,6 @@ boost::fibers::context* scheduler::pick_next() noexcept
                         LL_WARNS_ONCE("LLCoros.scheduler")
                             << "Coroutine " << name << " ran for "
                             << elapsed << " seconds" << LL_ENDL;
-                        
                     });
             }
         }
