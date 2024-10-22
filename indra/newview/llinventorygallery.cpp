@@ -2105,6 +2105,30 @@ void LLInventoryGallery::pasteAsLink()
     std::vector<LLUUID> objects;
     LLClipboard::instance().pasteFromClipboard(objects);
 
+    if (objects.size() == 0)
+    {
+        LLClipboard::instance().setCutMode(false);
+        return;
+    }
+
+    LLUUID& first_id = objects[0];
+    LLInventoryItem* item = gInventory.getItem(first_id);
+    if (item && item->getAssetUUID().isNull())
+    {
+        if (item->getActualType() == LLAssetType::AT_NOTECARD)
+        {
+            LLNotificationsUtil::add("CantLinkNotecard");
+            LLClipboard::instance().setCutMode(false);
+            return;
+        }
+        else if (item->getActualType() == LLAssetType::AT_MATERIAL)
+        {
+            LLNotificationsUtil::add("CantLinkMaterial");
+            LLClipboard::instance().setCutMode(false);
+            return;
+        }
+    }
+
     bool paste_into_root = mSelectedItemIDs.empty();
     for (LLUUID& dest : mSelectedItemIDs)
     {

@@ -72,9 +72,10 @@ std::string lua_print_msg(lua_State* L, std::string_view level)
     lluau_checkstack(L, 2);
     luaL_where(L, 1);
     // start with the 'where' info at the top of the stack
-    std::ostringstream out;
-    out << lua_tostring(L, -1);
+    std::string source_info{ lua_tostring(L, -1) };
     lua_pop(L, 1);
+
+    std::ostringstream out;
     const char* sep = "";           // 'where' info ends with ": "
     // now iterate over arbitrary args, calling Lua tostring() on each and
     // concatenating with separators
@@ -101,10 +102,10 @@ std::string lua_print_msg(lua_State* L, std::string_view level)
     // capture message string
     std::string msg{ out.str() };
     // put message out there for any interested party (*koff* LLFloaterLUADebug *koff*)
-    LLEventPumps::instance().obtain("lua output").post(stringize(level, ": ", msg));
+    LLEventPumps::instance().obtain("lua output").post(llsd::map("msg", msg, "level", stringize(level, ": "), "source_info", source_info));
 
     llcoro::suspend();
-    return msg;
+    return source_info + msg;
 }
 
 lua_function(print_debug, "print_debug(args...): DEBUG level logging")

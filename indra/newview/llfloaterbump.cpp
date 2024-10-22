@@ -56,7 +56,7 @@ LLFloaterBump::LLFloaterBump(const LLSD& key)
     mCommitCallbackRegistrar.add("ShowAgentProfile", { boost::bind(&LLFloaterBump::showProfile, this), cb_info::UNTRUSTED_THROTTLE });
     mCommitCallbackRegistrar.add("Avatar.InviteToGroup", { boost::bind(&LLFloaterBump::inviteToGroup, this), cb_info::UNTRUSTED_THROTTLE });
     mCommitCallbackRegistrar.add("Avatar.Call", { boost::bind(&LLFloaterBump::startCall, this), cb_info::UNTRUSTED_BLOCK });
-    mEnableCallbackRegistrar.add("Avatar.EnableCall", boost::bind(&LLAvatarActions::canCall));
+    mEnableCallbackRegistrar.add("Avatar.EnableCall", { boost::bind(&LLFloaterBump::canCall, this), cb_info::UNTRUSTED_BLOCK });
     mCommitCallbackRegistrar.add("Avatar.AddFriend", { boost::bind(&LLFloaterBump::addFriend, this), cb_info::UNTRUSTED_THROTTLE });
     mEnableCallbackRegistrar.add("Avatar.EnableAddFriend", boost::bind(&LLFloaterBump::enableAddFriend, this));
     mCommitCallbackRegistrar.add("Avatar.Mute", { boost::bind(&LLFloaterBump::muteAvatar, this), cb_info::UNTRUSTED_BLOCK });
@@ -212,6 +212,11 @@ void LLFloaterBump::startIM()
 void LLFloaterBump::startCall()
 {
     LLAvatarActions::startCall(mItemUUID);
+}
+
+bool LLFloaterBump::canCall()
+{
+    return LLAvatarActions::canCallTo(mItemUUID);
 }
 
 void LLFloaterBump::reportAbuse()

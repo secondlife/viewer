@@ -1433,7 +1433,10 @@ void LLGLManager::initExtensions()
     mHasDebugOutput = mGLVersion >= 4.29f;
 
 #if LL_WINDOWS || LL_LINUX
-    mHasNVXGpuMemoryInfo = ExtensionExists("GL_NVX_gpu_memory_info", gGLHExts.mSysExts);
+    if( gGLHExts.mSysExts )
+        mHasNVXGpuMemoryInfo = ExtensionExists("GL_NVX_gpu_memory_info", gGLHExts.mSysExts);
+    else
+        LL_WARNS() << "gGLHExts.mSysExts is not set.?" << LL_ENDL;
 #endif
 
     // Misc
