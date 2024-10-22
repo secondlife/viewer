@@ -73,8 +73,12 @@ vec4[2] texture_emissive_transform;
 out vec2 emissive_texcoord;
 #endif
 
-#ifdef MIRROR_CLIP
+#ifdef FRAG_POSITION
 out vec3 vary_position;
+#endif
+
+#ifdef ALPHA_BLEND
+out vec3 vary_fragcoord;
 #endif
 
 layout (std140) uniform GLTFNodes
@@ -227,7 +231,12 @@ void main()
 
     mat = modelview_matrix * mat;
     vec3 pos = (mat*vec4(position.xyz,1.0)).xyz;
-    gl_Position = projection_matrix*vec4(pos,1.0);
+    vec4 vert = projection_matrix*vec4(pos,1.0);
+    gl_Position = vert;
+
+#ifdef ALPHA_BLEND
+    vary_fragcoord = vert.xyz;
+#endif
 
 #ifdef SAMPLE_BASE_COLOR_MAP
 
@@ -252,7 +261,7 @@ void main()
     base_color_texcoord = texture_transform(tc0, texture_base_color_transform, tex_mat);
 #endif
 
-#ifdef MIRROR_CLIP
+#ifdef FRAG_POSITION
     vary_position = pos;
 #endif
 

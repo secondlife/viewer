@@ -4533,45 +4533,12 @@ U32 nhpo2(U32 v);
 F32 LLVOVolume::getBinRadius()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
-    F32 radius;
-
+    
     static LLCachedControl<S32> octree_size_factor(gSavedSettings, "OctreeStaticObjectSizeFactor", 3);
-    static LLCachedControl<S32> octree_attachment_size_factor(gSavedSettings, "OctreeAttachmentSizeFactor", 4);
-    static LLCachedControl<LLVector3> octree_distance_factor(gSavedSettings, "OctreeDistanceFactor", LLVector3(0.01f, 0.f, 0.f));
-    static LLCachedControl<LLVector3> octree_alpha_distance_factor(gSavedSettings, "OctreeAlphaDistanceFactor", LLVector3(0.1f, 0.f, 0.f));
+    
+    S32 size_factor = llmax(octree_size_factor, 1);
 
-    S32 size_factor = llmax((S32)octree_size_factor, 1);
-    LLVector3 alpha_distance_factor = octree_alpha_distance_factor;
-
-    bool alpha_wrap = false;
-
-    if (!isHUDAttachment() && mDrawable->mDistanceWRTCamera < alpha_distance_factor[2])
-    {
-        for (S32 i = 0; i < mDrawable->getNumFaces(); i++)
-        {
-            LLFace* face = mDrawable->getFace(i);
-            if (!face) continue;
-            if (face->isInAlphaPool() &&
-                !face->canRenderAsMask())
-            {
-                alpha_wrap = true;
-                break;
-            }
-        }
-    }
-
-    if (alpha_wrap)
-    {
-        LLVector3 bounds = getScale();
-        radius = llmin(bounds.mV[1], bounds.mV[2]);
-        radius = llmin(radius, bounds.mV[0]);
-        radius *= 0.5f;
-    }
-    else
-    {
-        F32 szf = (F32)size_factor;
-        radius = (F32) nhpo2(llmax((S32)mDrawable->getRadius(), 8));
-    }
+    F32 radius = (F32) nhpo2(llmax((S32)mDrawable->getRadius(), size_factor));
 
     return llclamp(radius, 0.5f, 256.f);
 }

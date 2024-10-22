@@ -1641,11 +1641,13 @@ void LLFace::updateBatchHash()
         mBatchHash = 0;
 
         boost::hash_combine(mBatchHash, te->getColor());
+        boost::hash_combine(mBatchHash, te->getAlpha());
         boost::hash_combine(mBatchHash, te->getScaleS());
         boost::hash_combine(mBatchHash, te->getScaleT());
         boost::hash_combine(mBatchHash, te->getRotation());
         boost::hash_combine(mBatchHash, te->getOffsetS());
         boost::hash_combine(mBatchHash, te->getOffsetT());
+        boost::hash_combine(mBatchHash, te->getFullbright());
 
         boost::hash_combine(mBatchHash, te->getID());
         const auto& mat = te->getMaterialParams();
@@ -1682,8 +1684,6 @@ void LLFace::updateBatchHash()
                 mAlphaMode = LLGLTFMaterial::ALPHA_MODE_OPAQUE;
             }
         }
-
-        boost::hash_combine(mBatchHash, te->getFullbright());
     }
 }
 
@@ -1707,7 +1707,7 @@ void LLFace::packMaterialOnto(std::vector<LLVector4a>& dst)
         dst.resize(dst.size()+7);
         LLVector4a* data = &dst[dst.size()-7];
 
-        F32 min_alpha = 0.f;
+        F32 min_alpha = 1.f;
         F32 glossiness = 0.f;
         F32 emissive = 0.f;
         F32 emissive_mask = 0.f;
@@ -1726,7 +1726,7 @@ void LLFace::packMaterialOnto(std::vector<LLVector4a>& dst)
             {
                 min_alpha = mat->getAlphaMaskCutoff()/255.f;
             }
-
+            
             data[2].set(mat->getNormalRepeatX(), mat->getNormalRepeatY(), mat->getNormalRotation(), mat->getNormalOffsetX());
             data[3].set(mat->getNormalOffsetY(), col.mV[3], min_alpha, env_intensity);
 

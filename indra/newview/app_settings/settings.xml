@@ -7268,9 +7268,9 @@
   <key>OctreeStaticObjectSizeFactor</key>
   <map>
     <key>Comment</key>
-    <string>Multiplier on static object size for determining octree node size </string>
+    <string>Minimum size of octree nodes</string>
     <key>Persist</key>
-    <integer>1</integer>
+    <integer>0</integer>
     <key>Type</key>
     <string>S32</string>
     <key>Value</key>

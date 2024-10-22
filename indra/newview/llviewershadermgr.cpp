@@ -1261,8 +1261,8 @@ bool LLViewerShaderMgr::loadShadersDeferred()
 
                             shader.mShaderFiles.clear();
 
-                            shader.mShaderFiles.push_back(make_pair("deferred/pbropaqueV.glsl", GL_VERTEX_SHADER));
-                            shader.mShaderFiles.push_back(make_pair("deferred/pbropaqueF.glsl", GL_FRAGMENT_SHADER));
+                            shader.mShaderFiles.push_back(make_pair("deferred/gltfpbrV.glsl", GL_VERTEX_SHADER));
+                            shader.mShaderFiles.push_back(make_pair("deferred/gltfpbrF.glsl", GL_FRAGMENT_SHADER));
                             shader.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
                             shader.clearPermutations();
 
@@ -1276,9 +1276,33 @@ bool LLViewerShaderMgr::loadShadersDeferred()
                             shader.addPermutation("SAMPLE_EMISSIVE_MAP", "1");
                             shader.addPermutation("SAMPLE_MATERIALS_UBO", "1");
 
+                            bool frag_position = false;
+
                             if (alpha_mode == LLGLTFMaterial::ALPHA_MODE_MASK)
                             {
                                 shader.addPermutation("ALPHA_MASK", "1");
+                            }
+                            else if (alpha_mode == LLGLTFMaterial::ALPHA_MODE_BLEND)
+                            {
+                                shader.mFeatures.calculatesLighting = false;
+                                shader.mFeatures.hasLighting = false;
+                                shader.mFeatures.isAlphaLighting = true;
+                                shader.mFeatures.hasSrgb = true;
+                                shader.mFeatures.calculatesAtmospherics = true;
+                                shader.mFeatures.hasAtmospherics = true;
+                                shader.mFeatures.hasGamma = true;
+                                shader.mFeatures.hasShadows = use_sun_shadow;
+                                shader.mFeatures.isDeferred = true; // include deferredUtils
+                                shader.mFeatures.hasReflectionProbes = mShaderLevel[SHADER_DEFERRED];
+
+                                shader.addPermutation("ALPHA_BLEND", "1");
+                                shader.addPermutation("OUTPUT_BASE_COLOR_ONLY", "1");
+                                frag_position = true;
+
+                                if (use_sun_shadow)
+                                {
+                                    shader.addPermutation("HAS_SUN_SHADOW", "1");
+                                }
                             }
 
                             if (double_sided)
@@ -1299,8 +1323,13 @@ bool LLViewerShaderMgr::loadShadersDeferred()
                             if (gSavedSettings.getBOOL("RenderMirrors"))
                             {
                                 shader.addPermutation("MIRROR_CLIP", "1");
+                                frag_position = true;
                             }
 
+                            if (frag_position)
+                            {
+                                shader.addPermutation("FRAG_POSITION", "1");
+                            }
                             success = make_rigged_variant(shader, skinned_shader);
                             if (success)
                             {
@@ -1321,8 +1350,8 @@ bool LLViewerShaderMgr::loadShadersDeferred()
 
                             shader.mShaderFiles.clear();
 
-                            shader.mShaderFiles.push_back(make_pair("deferred/pbropaqueV.glsl", GL_VERTEX_SHADER));
-                            shader.mShaderFiles.push_back(make_pair("deferred/pbropaqueF.glsl", GL_FRAGMENT_SHADER));
+                            shader.mShaderFiles.push_back(make_pair("deferred/gltfpbrV.glsl", GL_VERTEX_SHADER));
+                            shader.mShaderFiles.push_back(make_pair("deferred/gltfpbrF.glsl", GL_FRAGMENT_SHADER));
                             shader.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
                             shader.clearPermutations();
 
@@ -1409,9 +1438,33 @@ bool LLViewerShaderMgr::loadShadersDeferred()
                         shader.addPermutation("SAMPLE_NORMAL_MAP", "1");
                         shader.addPermutation("SAMPLE_MATERIALS_UBO", "1");
 
+                        bool frag_position = false;
+
                         if (alpha_mode == LLGLTFMaterial::ALPHA_MODE_MASK)
                         {
                             shader.addPermutation("ALPHA_MASK", "1");
+                        }
+                        else if (alpha_mode == LLGLTFMaterial::ALPHA_MODE_BLEND)
+                        {
+                            shader.mFeatures.calculatesLighting = false;
+                            shader.mFeatures.hasLighting = false;
+                            shader.mFeatures.isAlphaLighting = true;
+                            shader.mFeatures.hasSrgb = true;
+                            shader.mFeatures.calculatesAtmospherics = true;
+                            shader.mFeatures.hasAtmospherics = true;
+                            shader.mFeatures.hasGamma = true;
+                            shader.mFeatures.hasShadows = use_sun_shadow;
+                            shader.mFeatures.isDeferred = true; // include deferredUtils
+                            shader.mFeatures.hasReflectionProbes = mShaderLevel[SHADER_DEFERRED];
+
+                            shader.addPermutation("ALPHA_BLEND", "1");
+                            shader.addPermutation("OUTPUT_DIFFUSE_ONLY", "1");
+                            frag_position = true;
+
+                            if (use_sun_shadow)
+                            {
+                                shader.addPermutation("HAS_SUN_SHADOW", "1");
+                            }
                         }
 
                         if (planar_projection)
@@ -1427,6 +1480,12 @@ bool LLViewerShaderMgr::loadShadersDeferred()
                         if (gSavedSettings.getBOOL("RenderMirrors"))
                         {
                             shader.addPermutation("MIRROR_CLIP", "1");
+                            frag_position = true;
+                        }
+
+                        if (frag_position)
+                        {
+                            shader.addPermutation("FRAG_POSITION", "1");
                         }
 
                         success = make_rigged_variant(shader, skinned_shader);
@@ -1537,8 +1596,8 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         gHUDPBROpaqueProgram.mName = "HUD PBR Opaque Shader";
         gHUDPBROpaqueProgram.mFeatures.hasSrgb = true;
         gHUDPBROpaqueProgram.mShaderFiles.clear();
-        gHUDPBROpaqueProgram.mShaderFiles.push_back(make_pair("deferred/pbropaqueV.glsl", GL_VERTEX_SHADER));
-        gHUDPBROpaqueProgram.mShaderFiles.push_back(make_pair("deferred/pbropaqueF.glsl", GL_FRAGMENT_SHADER));
+        gHUDPBROpaqueProgram.mShaderFiles.push_back(make_pair("deferred/gltfpbrV.glsl", GL_VERTEX_SHADER));
+        gHUDPBROpaqueProgram.mShaderFiles.push_back(make_pair("deferred/gltfpbrF.glsl", GL_FRAGMENT_SHADER));
         gHUDPBROpaqueProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
         gHUDPBROpaqueProgram.clearPermutations();
 
@@ -1616,8 +1675,8 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         shader->mFeatures.hasSrgb = true;
 
         shader->mShaderFiles.clear();
-        shader->mShaderFiles.push_back(make_pair("deferred/pbropaqueV.glsl", GL_VERTEX_SHADER));
-        shader->mShaderFiles.push_back(make_pair("deferred/pbropaqueF.glsl", GL_FRAGMENT_SHADER));
+        shader->mShaderFiles.push_back(make_pair("deferred/gltfpbrV.glsl", GL_VERTEX_SHADER));
+        shader->mShaderFiles.push_back(make_pair("deferred/gltfpbrF.glsl", GL_FRAGMENT_SHADER));
 
         shader->clearPermutations();
         shader->addPermutation("MAX_NODES_PER_GLTF_OBJECT", std::to_string(max_nodes));

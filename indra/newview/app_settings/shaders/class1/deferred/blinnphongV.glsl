@@ -67,8 +67,12 @@ vec4[2] texture_specular_transform;
 out vec2 specular_texcoord;
 #endif
 
-#ifdef MIRROR_CLIP
+#ifdef FRAG_POSITION
 out vec3 vary_position;
+#endif
+
+#ifdef ALPHA_BLEND
+out vec3 vary_fragcoord;
 #endif
 
 layout (std140) uniform GLTFNodes
@@ -214,7 +218,16 @@ void main()
 
     mat = modelview_matrix * mat;
     vec3 pos = (mat*vec4(position.xyz,1.0)).xyz;
-    gl_Position = projection_matrix*vec4(pos,1.0);
+    vec4 vert = projection_matrix*vec4(pos,1.0);
+    gl_Position = vert;
+
+#ifdef FRAG_POSITION
+    vary_position = pos;
+#endif
+
+#ifdef ALPHA_BLEND
+    vary_fragcoord = vert.xyz;
+#endif
 
 #ifdef SAMPLE_DIFFUSE_MAP
 
@@ -237,10 +250,6 @@ void main()
     planarProjection(tc0);
 #endif
     diffuse_texcoord = texture_transform(tc0, texture_diffuse_transform, tex_mat);
-#endif
-
-#ifdef MIRROR_CLIP
-    vary_position = pos;
 #endif
 
 #ifdef SAMPLE_NORMAL_MAP

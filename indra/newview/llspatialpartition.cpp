@@ -891,7 +891,10 @@ void LLSpatialGroup::updateTransformUBOs()
     }
 
     // only valid for volume partitions
-    llassert(getSpatialPartition()->mDrawableType == LLPipeline::RENDER_TYPE_VOLUME);
+    if (getSpatialPartition()->mDrawableType != LLPipeline::RENDER_TYPE_VOLUME)
+    {
+        return;
+    }
 
     STOP_GLERROR;
     // build transform UBO and transform intance map UBO

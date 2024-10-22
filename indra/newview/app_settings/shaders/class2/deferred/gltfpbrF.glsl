@@ -62,8 +62,11 @@ out vec4 frag_color;
 out vec4 frag_data[4];
 #endif
 
-#ifdef MIRROR_CLIP
+#ifdef FRAG_POSITION
 in vec3 vary_position;
+#endif
+
+#ifdef MIRROR_CLIP
 void mirrorClip(vec3 pos);
 #endif
 
@@ -118,6 +121,68 @@ void unpackMaterial()
 void unpackMaterial()
 {
 }
+#endif
+
+#ifdef ALPHA_BLEND
+in vec3 vary_fragcoord;
+
+// Lights
+// See: LLRender::syncLightState()
+
+uniform int sun_up_factor;
+uniform vec3 sun_dir;
+uniform vec3 moon_dir;
+
+uniform vec4 light_position[8];
+uniform vec3 light_direction[8]; // spot direction
+uniform vec4 light_attenuation[8]; // linear, quadratic, is omni, unused, See: LLPipeline::setupHWLights() and syncLightState()
+uniform vec3 light_diffuse[8];
+uniform vec2 light_deferred_attenuation[8]; // light size and falloff
+
+void calcAtmosphericVarsLinear(vec3 inPositionEye, vec3 norm, vec3 light_dir, out vec3 sunlit, out vec3 amblit, out vec3 atten, out vec3 additive);
+vec4 applySkyAndWaterFog(vec3 pos, vec3 additive, vec3 atten, vec4 color);
+
+void calcHalfVectors(vec3 lv, vec3 n, vec3 v, out vec3 h, out vec3 l, out float nh, out float nl, out float nv, out float vh, out float lightDist);
+float calcLegacyDistanceAttenuation(float distance, float falloff);
+float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen);
+void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv,
+        vec2 tc, vec3 pos, vec3 norm, float glossiness, bool transparent, vec3 amblit_linear);
+
+void calcDiffuseSpecular(vec3 baseColor, float metallic, inout vec3 diffuseColor, inout vec3 specularColor);
+
+vec3 pbrBaseLight(vec3 diffuseColor,
+                  vec3 specularColor,
+                  float metallic,
+                  vec3 pos,
+                  vec3 norm,
+                  float perceptualRoughness,
+                  vec3 light_dir,
+                  vec3 sunlit,
+                  float scol,
+                  vec3 radiance,
+                  vec3 irradiance,
+                  vec3 colorEmissive,
+                  float ao,
+                  vec3 additive,
+                  vec3 atten);
+
+vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor,
+                    float perceptualRoughness,
+                    float metallic,
+                    vec3 n, // normal
+                    vec3 v, // surface point to camera
+                    vec3 l); //surface point to light
+
+vec3 pbrCalcPointLightOrSpotLight(vec3 diffuseColor, vec3 specularColor,
+                    float perceptualRoughness,
+                    float metallic,
+                    vec3 n, // normal
+                    vec3 p, // pixel position
+                    vec3 v, // view vector (negative normalized pixel position)
+                    vec3 lp, // light position
+                    vec3 ld, // light direction (for spotlights)
+                    vec3 lightColor,
+                    float lightSize, float falloff, float is_pointlight, float ambiance);
 #endif
 
 void main()
@@ -177,9 +242,69 @@ void main()
 #endif
 
 #ifdef OUTPUT_BASE_COLOR_ONLY
+#ifdef ALPHA_BLEND
+
+    vec3 pos = vary_position;
+    float ao = spec.r;
+    float perceptualRoughness = spec.g;
+    float metallic = spec.b;
+
+    vec3  light_dir   = (sun_up_factor == 1) ? sun_dir : moon_dir;
+
+    vec2 frag = vary_fragcoord.xy/vary_fragcoord.z*0.5+0.5;
+
+    float scol = 1.0;
+#ifdef HAS_SUN_SHADOW
+    scol = sampleDirectionalShadow(pos.xyz, tnorm.xyz, frag);
+#endif
+
+    vec3 sunlit;
+    vec3 amblit;
+    vec3 additive;
+    vec3 atten;
+    calcAtmosphericVarsLinear(pos.xyz, tnorm, light_dir, sunlit, amblit, additive, atten);
+
+    vec3 sunlit_linear = srgb_to_linear(sunlit);
+
+    // PBR IBL
+    float gloss      = 1.0 - perceptualRoughness;
+    vec3  irradiance = vec3(0);
+    vec3  radiance  = vec3(0);
+    sampleReflectionProbes(irradiance, radiance, vary_position.xy*0.5+0.5, pos.xyz, tnorm.xyz, gloss, true, amblit);
+
+    vec3 diffuseColor;
+    vec3 specularColor;
+    calcDiffuseSpecular(basecolor.rgb, metallic, diffuseColor, specularColor);
+
+    vec3 v = -normalize(pos.xyz);
+
+    vec3 color = pbrBaseLight(diffuseColor, specularColor, metallic, v, tnorm.xyz, perceptualRoughness, light_dir, sunlit_linear, scol, radiance, irradiance, emissive, ao, additive, atten);
+
+    vec3 light = vec3(0);
+
+    // Punctual lights
+#define LIGHT_LOOP(i) light += pbrCalcPointLightOrSpotLight(diffuseColor, specularColor, perceptualRoughness, metallic, tnorm.xyz, pos.xyz, v, light_position[i].xyz, light_direction[i].xyz, light_diffuse[i].rgb, light_deferred_attenuation[i].x, light_deferred_attenuation[i].y, light_attenuation[i].z, light_attenuation[i].w);
+
+    LIGHT_LOOP(1)
+    LIGHT_LOOP(2)
+    LIGHT_LOOP(3)
+    LIGHT_LOOP(4)
+    LIGHT_LOOP(5)
+    LIGHT_LOOP(6)
+    LIGHT_LOOP(7)
+
+    color.rgb += light.rgb;
+
+    color.rgb = applySkyAndWaterFog(pos.xyz, additive, atten, vec4(color, 1.0)).rgb;
+
+    basecolor.rgb = color.rgb;
+
+#else // ALPHA_BLEND
 #ifdef SAMPLE_EMISSIVE_MAP
     basecolor.rgb += emissive;
 #endif
+#endif
+
 #ifdef OUTPUT_SRGB
     basecolor.rgb = linear_to_srgb(basecolor.rgb);
 #endif

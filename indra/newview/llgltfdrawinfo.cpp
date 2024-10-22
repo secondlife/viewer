@@ -108,6 +108,7 @@ LLSkinnedGLTFDrawInfo* LLGLTFBatches::createSkinned(LLGLTFMaterial::AlphaMode al
 
 void LLGLTFBatches::add(const LLGLTFBatches& other)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
     for (auto& batch : other.mBatchList)
     {
         auto& draw_info = mDrawInfo[batch.alpha_mode][batch.double_sided][batch.planar][batch.tex_anim];

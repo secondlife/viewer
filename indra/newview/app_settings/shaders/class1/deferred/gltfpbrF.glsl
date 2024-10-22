@@ -1,7 +1,7 @@
 /**
- * @file blinnphongF.glsl
+ * @file pbropaqueF.glsl
  *
- * $LicenseInfo:firstyear=2024&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2022&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2022, Linden Research, Inc.
  *
@@ -26,8 +26,8 @@
 /*[EXTRA_CODE_HERE]*/
 
 
-// blinn-phong debug stub
-#ifdef OUTPUT_DIFFUSE_ONLY
+// pbr debug stub
+#ifdef OUTPUT_BASE_COLOR_ONLY
 out vec4 frag_color;
 #else
 out vec4 frag_data[4];
@@ -36,7 +36,7 @@ out vec4 frag_data[4];
 void main()
 {
 
-#ifdef OUTPUT_DIFFUSE_ONLY
+#ifdef OUTPUT_BASE_COLOR_ONLY
     frag_color = vec4(1,0,1,1);
 #else
     // See: C++: addDeferredAttachments(), GLSL: softenLightF
