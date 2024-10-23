@@ -1935,6 +1935,11 @@ LLViewerWindow::LLViewerWindow(const Params& p)
     }
 
     LLFontManager::initClass();
+
+    // fonts use an GL_UNSIGNED_BYTE image format,
+    // so they need convertion, init buffers if needed
+    LLImageGL::allocateConversionBuffer();
+
     // Init font system, load default fonts and generate basic glyphs
     // currently it takes aprox. 0.5 sec and we would load these fonts anyway
     // before login screen.
