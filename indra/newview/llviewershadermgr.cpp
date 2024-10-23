@@ -1234,6 +1234,33 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         std::string planar_names[2] = { "Non-Planar", "Planar" };
         std::string tex_anim_names[2] = { "No Tex Anim", "Tex Anim" };
 
+        { // debug shader
+            LLGLSLShader& shader = gGLTFPBRShaderPack.mDebugShader;
+            LLGLSLShader& skinned_shader = gGLTFPBRShaderPack.mSkinnedDebugShader;
+
+            shader.mName = "GLTF PBR Debug Shader";
+
+            shader.mShaderFiles.clear();
+
+            shader.mShaderFiles.push_back(make_pair("deferred/gltfpbrV.glsl", GL_VERTEX_SHADER));
+            shader.mShaderFiles.push_back(make_pair("deferred/gltfpbrF.glsl", GL_FRAGMENT_SHADER));
+            shader.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+            shader.clearPermutations();
+
+            shader.addPermutation("MAX_NODES_PER_GLTF_OBJECT", std::to_string(max_nodes));
+            shader.addPermutation("MAX_INSTANCES_PER_GLTF_OBJECT", std::to_string(max_instances));
+            shader.addPermutation("MAX_UBO_VEC4S", std::to_string(max_vec4s));
+            shader.addPermutation("OUTPUT_BASE_COLOR_ONLY", "1");
+            shader.addPermutation("DEBUG", "1");
+
+            success = make_rigged_variant(shader, skinned_shader);
+            if (success)
+            {
+                success = shader.createShader();
+            }
+            llassert(success);
+        }
+
         for (U32 i = 0; i < 3; ++i)
         {
             LLGLTFMaterial::AlphaMode alpha_mode = (LLGLTFMaterial::AlphaMode)i;
@@ -1397,6 +1424,33 @@ bool LLViewerShaderMgr::loadShadersDeferred()
 
     if (success)
     {
+        { // debug shader
+            LLGLSLShader& shader = gBPShaderPack.mDebugShader;
+            LLGLSLShader& skinned_shader = gBPShaderPack.mSkinnedDebugShader;
+
+            shader.mName = "Blinn-Phong Debug Shader";
+
+            shader.mShaderFiles.clear();
+
+            shader.mShaderFiles.push_back(make_pair("deferred/blinnphongV.glsl", GL_VERTEX_SHADER));
+            shader.mShaderFiles.push_back(make_pair("deferred/blinnphongF.glsl", GL_FRAGMENT_SHADER));
+            shader.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+            shader.clearPermutations();
+
+            shader.addPermutation("MAX_NODES_PER_GLTF_OBJECT", std::to_string(max_nodes));
+            shader.addPermutation("MAX_INSTANCES_PER_GLTF_OBJECT", std::to_string(max_instances));
+            shader.addPermutation("MAX_UBO_VEC4S", std::to_string(max_vec4s));
+            shader.addPermutation("OUTPUT_DIFFUSE_ONLY", "1");
+            shader.addPermutation("DEBUG", "1");
+
+            success = make_rigged_variant(shader, skinned_shader);
+            if (success)
+            {
+                success = shader.createShader();
+            }
+            llassert(success);
+        }
+
         std::string alpha_mode_names[3] = { "Opaque", "Alpha Blend", "Alpha Mask" };
         std::string planar_names[2] = { "Non-Planar", "Planar" };
         std::string tex_anim_names[2] = { "No Tex Anim", "Tex Anim" };
@@ -1614,59 +1668,6 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         llassert(success);
     }
 
-
-#if 0 //TODO: move to gGLTFPBRShaderPack
-    if (success)
-    {
-        LLGLSLShader* shader = &gDeferredPBRAlphaProgram;
-        shader->mName = "Deferred PBR Alpha Shader";
-
-        shader->mFeatures.calculatesLighting = false;
-        shader->mFeatures.hasLighting = false;
-        shader->mFeatures.isAlphaLighting = true;
-        shader->mFeatures.hasSrgb = true;
-        shader->mFeatures.calculatesAtmospherics = true;
-        shader->mFeatures.hasAtmospherics = true;
-        shader->mFeatures.hasGamma = true;
-        shader->mFeatures.hasShadows = use_sun_shadow;
-        shader->mFeatures.isDeferred = true; // include deferredUtils
-        shader->mFeatures.hasReflectionProbes = mShaderLevel[SHADER_DEFERRED];
-
-        shader->mShaderFiles.clear();
-        shader->mShaderFiles.push_back(make_pair("deferred/pbralphaV.glsl", GL_VERTEX_SHADER));
-        shader->mShaderFiles.push_back(make_pair("deferred/pbralphaF.glsl", GL_FRAGMENT_SHADER));
-
-        shader->clearPermutations();
-
-        U32 alpha_mode = LLMaterial::DIFFUSE_ALPHA_MODE_BLEND;
-        shader->addPermutation("DIFFUSE_ALPHA_MODE", llformat("%d", alpha_mode));
-        shader->addPermutation("HAS_NORMAL_MAP", "1");
-        shader->addPermutation("HAS_SPECULAR_MAP", "1"); // PBR: Packed: Occlusion, Metal, Roughness
-        shader->addPermutation("HAS_EMISSIVE_MAP", "1");
-        shader->addPermutation("USE_VERTEX_COLOR", "1");
-
-        if (use_sun_shadow)
-        {
-            shader->addPermutation("HAS_SUN_SHADOW", "1");
-        }
-
-        shader->mShaderLevel = mShaderLevel[SHADER_DEFERRED];
-        success = make_rigged_variant(*shader, gDeferredSkinnedPBRAlphaProgram);
-        if (success)
-        {
-            success = shader->createShader();
-        }
-        llassert(success);
-
-        // Alpha Shader Hack
-        // See: LLRender::syncMatrices()
-        shader->mFeatures.calculatesLighting = true;
-        shader->mFeatures.hasLighting = true;
-
-        shader->mRiggedVariant->mFeatures.calculatesLighting = true;
-        shader->mRiggedVariant->mFeatures.hasLighting = true;
-    }
-#endif
     if (success)
     {
         LLGLSLShader* shader = &gHUDPBRAlphaProgram;
@@ -3526,6 +3527,9 @@ void LLGLTFShaderPack::unload()
             }
         }
     }
+
+    mDebugShader.unload();
+    mSkinnedDebugShader.unload();
 }
 
 
@@ -3558,6 +3562,9 @@ void LLBPShaderPack::unload()
             }
         }
     }
+
+    mDebugShader.unload();
+    mSkinnedDebugShader.unload();
 }
 
 void LLBPShaderPack::registerWLShaders(std::vector<LLGLSLShader*>& shader_list)

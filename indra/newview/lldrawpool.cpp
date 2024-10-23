@@ -1191,3 +1191,78 @@ void LLRenderPass::pushRiggedShadowBPBatch(const LLSkinnedGLTFDrawInfo& params, 
     }
 }
 
+// static
+void LLRenderPass::pushDebugBatches(const std::vector<LLGLTFDrawInfo>& draw_info)
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
+    pre_push_gltf_batches();
+
+    for (auto& params : draw_info)
+    {
+        pushDebugBatch(params);
+    }
+
+    LLVertexBuffer::unbind();
+}
+
+//static 
+void LLRenderPass::pushRiggedDebugBatches(const std::vector<LLSkinnedGLTFDrawInfo>& draw_info)
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
+
+    pre_push_gltf_batches();
+
+    const LLVOAvatar* lastAvatar = nullptr;
+    U64 lastMeshId = 0;
+    bool skipLastSkin = false;
+
+    for (auto& params : draw_info)
+    {
+        pushRiggedDebugBatch(params, lastAvatar, lastMeshId, skipLastSkin);
+    }
+
+    LLVertexBuffer::unbind();
+}
+
+// static
+void LLRenderPass::pushDebugBatch(const LLGLTFDrawInfo& params)
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
+    LL_PROFILE_ZONE_NUM(params.mInstanceCount);
+    llassert(params.mTransformUBO != 0);
+    STOP_GLERROR;
+    if (params.mTransformUBO != transform_ubo)
+    {
+        glBindBufferBase(GL_UNIFORM_BUFFER, LLGLSLShader::UB_GLTF_NODES, params.mTransformUBO);
+        glBindBufferBase(GL_UNIFORM_BUFFER, LLGLSLShader::UB_GLTF_NODE_INSTANCE_MAP, params.mInstanceMapUBO);
+        glBindBufferBase(GL_UNIFORM_BUFFER, LLGLSLShader::UB_GLTF_MATERIALS, params.mMaterialUBO);
+        transform_ubo = params.mTransformUBO;
+    }
+
+    glUniform1i(base_instance_index, params.mBaseInstance);
+
+    // use memory address of draw call as a color
+    size_t index = (size_t)&params / sizeof(LLGLTFDrawInfo);
+    index *= 32;
+    U8* col = ((U8*)&index);
+
+    LLGLSLShader::sCurBoundShaderPtr->uniform4f(LLShaderMgr::DEBUG_COLOR, col[0] / 255.0f, col[1] / 255.0f, col[2] / 255.0f, 1.f);
+
+    STOP_GLERROR;
+    LLVertexBuffer::bindVBO(params.mVBO, params.mIBO, params.mVBOVertexCount);
+    glDrawElementsInstanced(GL_TRIANGLES, params.mElementCount,
+        gl_indices_type[params.mIndicesSize], (GLvoid*)(size_t)(params.mElementOffset * gl_indices_size[params.mIndicesSize]),
+        params.mInstanceCount);
+    STOP_GLERROR;
+}
+
+// static
+void LLRenderPass::pushRiggedDebugBatch(const LLSkinnedGLTFDrawInfo& params, const LLVOAvatar*& lastAvatar, U64& lastMeshId, bool& skipLastSkin)
+{
+    if (uploadMatrixPalette(params.mAvatar, params.mSkinInfo, lastAvatar, lastMeshId, skipLastSkin))
+    {
+        pushDebugBatch(params);
+    }
+}
+
+

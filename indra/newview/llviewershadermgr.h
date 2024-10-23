@@ -159,6 +159,9 @@ public:
     LLGLSLShader mShadowShader[3][2][2][2];
     LLGLSLShader mSkinnedShadowShader[3][2][2][2];
 
+    LLGLSLShader mDebugShader;
+    LLGLSLShader mSkinnedDebugShader;
+
     // unload all shaders in this pack
     void unload();
 
@@ -176,6 +179,9 @@ public:
 
     LLGLSLShader mShadowShader[3][2][2];
     LLGLSLShader mSkinnedShadowShader[3][2][2];
+
+    LLGLSLShader mDebugShader;
+    LLGLSLShader mSkinnedDebugShader;
 
     // unload all shaders in this pack
     void unload();

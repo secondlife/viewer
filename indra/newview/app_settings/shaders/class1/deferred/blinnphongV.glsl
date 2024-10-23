@@ -28,6 +28,9 @@ uniform mat4 projection_matrix;
 
 in vec3 position;
 
+
+vec2 bp_texture_transform(vec2 vertex_texcoord, vec4[2] transform, mat4 sl_animation_transform);
+
 #ifdef HAS_SKIN
 mat4 getObjectSkinnedTransform();
 #else
@@ -36,7 +39,6 @@ mat4 getObjectSkinnedTransform();
 #ifdef SAMPLE_DIFFUSE_MAP
 mat4 tex_mat;
 vec4[2] texture_diffuse_transform;
-vec2 texture_transform(vec2 vertex_texcoord, vec4[2] khr_gltf_transform, mat4 sl_animation_transform);
 in vec2 texcoord0;
 out vec2 diffuse_texcoord;
 #endif
@@ -249,11 +251,11 @@ void main()
 #ifdef PLANAR_PROJECTION
     planarProjection(tc0);
 #endif
-    diffuse_texcoord = texture_transform(tc0, texture_diffuse_transform, tex_mat);
+    diffuse_texcoord = bp_texture_transform(tc0, texture_diffuse_transform, tex_mat);
 #endif
 
 #ifdef SAMPLE_NORMAL_MAP
-    normal_texcoord = texture_transform(tc0, texture_normal_transform, tex_mat);
+    normal_texcoord = bp_texture_transform(tc0, texture_normal_transform, tex_mat);
     vec3 n = (mat*vec4(normal.xyz+position.xyz,1.0)).xyz-pos.xyz;
     vec3 t = (mat*vec4(tangent.xyz+position.xyz,1.0)).xyz-pos.xyz;
 
@@ -266,6 +268,6 @@ void main()
 #endif
 
 #ifdef SAMPLE_SPECULAR_MAP
-    specular_texcoord = texture_transform(tc0, texture_specular_transform, tex_mat);
+    specular_texcoord = bp_texture_transform(tc0, texture_specular_transform, tex_mat);
 #endif
 }

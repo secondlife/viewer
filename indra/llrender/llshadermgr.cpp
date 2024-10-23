@@ -1227,6 +1227,7 @@ void LLShaderMgr::initAttribsAndUniforms()
     llassert(mReservedUniforms.size() == LLShaderMgr::PROJECTOR_AMBIENT_LOD+1);
 
     mReservedUniforms.push_back("color");
+    mReservedUniforms.push_back("debug_color");
     mReservedUniforms.push_back("emissiveColor");
     mReservedUniforms.push_back("baseColorFactor");
     mReservedUniforms.push_back("metallicFactor");

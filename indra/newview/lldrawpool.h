@@ -373,10 +373,19 @@ public:
     // push shadow pass skinned GLTF batches
     static void pushRiggedShadowGLTFBatches(const std::vector<LLSkinnedGLTFDrawInfo>& draw_info);
 
+    // push debug batches
+    static void pushDebugBatches(const std::vector<LLGLTFDrawInfo>& draw_info);
+
+    // push debug skinned batches
+    static void pushRiggedDebugBatches(const std::vector<LLSkinnedGLTFDrawInfo>& draw_info);
+
+
     static void pushGLTFBatch(const LLGLTFDrawInfo& params, bool planar = false, bool tex_anim = false);
     static void pushShadowGLTFBatch(const LLGLTFDrawInfo& params);
     static void pushRiggedGLTFBatch(const LLSkinnedGLTFDrawInfo& params, const LLVOAvatar*& lastAvatar, U64& lastMeshId, bool& skipLastSkin, bool planar = false, bool tex_anim = false);
     static void pushRiggedShadowGLTFBatch(const LLSkinnedGLTFDrawInfo& params, const LLVOAvatar*& lastAvatar, U64& lastMeshId, bool& skipLastSkin);
+    static void pushDebugBatch(const LLGLTFDrawInfo& params);
+    static void pushRiggedDebugBatch(const LLSkinnedGLTFDrawInfo& params, const LLVOAvatar*& lastAvatar, U64& lastMeshId, bool& skipLastSkin);
 
 
     // push full Blinn-Phong batches

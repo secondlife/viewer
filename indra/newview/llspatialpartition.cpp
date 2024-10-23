@@ -1126,9 +1126,11 @@ void LLSpatialGroup::updateTransformUBOs()
             LLVOAvatar* avatar = nullptr;
             U64 skin_hash = 0;
             bool planar = false;
+            bool cur_tex_anim = false;
 
             LLGLTFDrawInfo* current_info = nullptr;
             LLGLTFDrawInfoHandle current_handle;
+            
             current_handle.mSpatialGroup = this;
 
             for (U32 i = 0; i < faces.size(); ++i)
@@ -1156,7 +1158,7 @@ void LLSpatialGroup::updateTransformUBOs()
                     current_avatar == avatar &&
                     current_skin_hash == skin_hash &&
                     planar == face_planar &&
-                    !tex_anim)
+                    tex_anim == cur_tex_anim)
                 { // another instance of the same LLVolumeFace and material
                     current_info->mInstanceCount++;
                 }
@@ -1166,6 +1168,7 @@ void LLSpatialGroup::updateTransformUBOs()
                     llassert(gltf_mat->mAlphaMode >= 0 && gltf_mat->mAlphaMode <= 2);
 
                     planar = face_planar;
+                    cur_tex_anim = tex_anim;
 
                     if (current_skin_hash)
                     {
@@ -1246,6 +1249,7 @@ void LLSpatialGroup::updateTransformUBOs()
             LLVOAvatar* avatar = nullptr;
             U64 skin_hash = 0;
             bool planar = false;
+            bool cur_tex_anim = false;
 
             LLGLTFDrawInfo* current_info = nullptr;
             LLGLTFDrawInfoHandle current_handle;
@@ -1275,7 +1279,7 @@ void LLSpatialGroup::updateTransformUBOs()
                     current_avatar == avatar &&
                     current_skin_hash == skin_hash &&
                     planar == face_planar &&
-                    !tex_anim)
+                    tex_anim == cur_tex_anim)
                 { // another instance of the same LLVolumeFace and material
                     current_info->mInstanceCount++;
                 }
@@ -1285,6 +1289,7 @@ void LLSpatialGroup::updateTransformUBOs()
                     llassert(facep->mAlphaMode >= 0 && facep->mAlphaMode <= 2);
 
                     planar = face_planar;
+                    cur_tex_anim = tex_anim;
 
                     if (current_skin_hash)
                     {
@@ -1378,7 +1383,7 @@ void LLSpatialGroup::updateTransformUBOs()
                         {
                             old_size = new_size;
                             llassert(data_size <= old_size);
-                            glBufferData(GL_UNIFORM_BUFFER, data_size, glmp.data(), GL_STREAM_DRAW);
+                            glBufferData(GL_UNIFORM_BUFFER, data_size, glmp.data(), GL_DYNAMIC_DRAW);
                         }
                         else
                         {
@@ -1403,7 +1408,7 @@ void LLSpatialGroup::updateTransformUBOs()
                     {
                         old_size = new_size;
                         llassert(data_size <= old_size);
-                        glBufferData(GL_UNIFORM_BUFFER, data_size, data, GL_STREAM_DRAW);
+                        glBufferData(GL_UNIFORM_BUFFER, data_size, data, GL_DYNAMIC_DRAW);
                     }
                     else
                     {

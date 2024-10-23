@@ -28,6 +28,10 @@
 
 // deferred opaque implementation
 
+#ifdef DEBUG
+uniform vec4 debug_color;
+#endif
+
 #ifdef SAMPLE_BASE_COLOR_MAP
 uniform sampler2D diffuseMap;  //always in sRGB space
 vec4 baseColorFactor;
@@ -308,6 +312,11 @@ void main()
 #ifdef OUTPUT_SRGB
     basecolor.rgb = linear_to_srgb(basecolor.rgb);
 #endif
+
+#ifdef DEBUG
+    basecolor = debug_color;
+#endif
+
     frag_color = basecolor;
 #else
     // See: C++: addDeferredAttachments(), GLSL: softenLightF

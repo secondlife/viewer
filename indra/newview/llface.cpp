@@ -1675,7 +1675,7 @@ void LLFace::updateBatchHash()
         }
         else
         {
-            if (te->getAlpha() < 1.f)
+            if (te->getAlpha() < 1.f || getTexture()->getComponents() == 4)
             {
                 mAlphaMode = LLGLTFMaterial::ALPHA_MODE_BLEND;
             }

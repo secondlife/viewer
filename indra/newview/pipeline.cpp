@@ -4763,6 +4763,55 @@ void LLPipeline::renderDebug()
                 gGL.popMatrix();
             }
         }
+
+        if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_BATCH_SIZE))
+        {
+            LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
+
+            for (U32 rigged = 0; rigged < 2; ++rigged)
+            {
+                gGLTFPBRShaderPack.mDebugShader.bind((bool)rigged);
+                for (U32 double_sided = 0; double_sided < 2; ++double_sided)
+                {
+                    for (U32 planar = 0; planar < 2; ++planar)
+                    {
+                        for (U32 tex_anim = 0; tex_anim < 2; ++tex_anim)
+                        {
+                            for (U32 alpha_mode = 0; alpha_mode < 3; ++alpha_mode)
+                            {
+                                if (rigged)
+                                {
+                                    LLRenderPass::pushRiggedDebugBatches(sCull->mGLTFBatches.mSkinnedDrawInfo[alpha_mode][double_sided][planar][tex_anim]);
+                                }
+                                else
+                                {
+                                    LLRenderPass::pushDebugBatches(sCull->mGLTFBatches.mDrawInfo[alpha_mode][double_sided][planar][tex_anim]);
+                                }
+
+                                if (!double_sided)
+                                {
+                                    if (rigged)
+                                    {
+                                        LLRenderPass::pushRiggedDebugBatches(sCull->mBPBatches.mSkinnedDrawInfo[alpha_mode][0][planar][tex_anim]);
+                                    }
+                                    else
+                                    {
+                                        LLRenderPass::pushDebugBatches(sCull->mBPBatches.mDrawInfo[alpha_mode][0][planar][tex_anim]);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (shader)
+            {
+                shader->bind();
+            }
+        }
+
+
     }
 
     LL::GLTFSceneManager::instance().renderDebug();

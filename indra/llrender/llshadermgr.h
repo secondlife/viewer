@@ -94,6 +94,7 @@ public:
         PROJECTOR_LOD,                      //  "proj_lod"
         PROJECTOR_AMBIENT_LOD,              //  "proj_ambient_lod"
         DIFFUSE_COLOR,                      //  "color"
+        DEBUG_COLOR,                        //  "debug_color"
         EMISSIVE_COLOR,                     //  "emissiveColor"
         BASE_COLOR_FACTOR,                  //  "baseColorFactor"
         METALLIC_FACTOR,                    //  "metallicFactor"

@@ -182,3 +182,57 @@ vec4 terrain_tangent_space_transform(vec4 vertex_tangent, vec3 vertex_normal, ve
     float sign_flip = khr_scale_sign.x * khr_scale_sign.y;
     return vec4((weights.x * vertex_tangent.xyz) + (weights.y * vertex_binormal.xyz), vertex_tangent.w * sign_flip);
 }
+
+
+// port of "xform" from LLFace.cpp
+void sl_bp_tc_xform(inout vec2 tex_coord, float cosAng, float sinAng, float offS, float offT, float magS, float magT)
+{
+    // New, good way
+    float s = tex_coord.x;
+    float t = tex_coord.y;
+
+    // Texture transforms are done about the center of the face.
+    s -= 0.5;
+    t -= 0.5;
+
+    // Handle rotation
+    float temp = s;
+    s  = s     * cosAng + t * sinAng;
+    t  = -temp * sinAng + t * cosAng;
+
+    // Then scale
+    s *= magS;
+    t *= magT;
+
+    // Then offset
+    s += offS + 0.5f;
+    t += offT + 0.5f;
+
+    tex_coord.x = s;
+    tex_coord.y = t;
+}
+
+
+vec2 sl_bp_texture_transform(vec2 texcoord, vec2 scale, float rotation, vec2 offset)
+{
+    sl_bp_tc_xform(texcoord, cos(rotation), sin(rotation), offset.x, offset.y, scale.x, scale.y);
+    return texcoord;
+}
+
+// blinn-phong texture transform
+vec2 bp_texture_transform(vec2 vertex_texcoord, vec4[2] transform, mat4 sl_animation_transform)
+{
+    vec2 texcoord = vertex_texcoord;
+
+    // Apply texture animation first to avoid shearing and other artifacts
+    texcoord = (sl_animation_transform * vec4(texcoord, 0, 1)).xy;
+
+    texcoord = sl_bp_texture_transform(texcoord, transform[0].xy, transform[0].z, transform[1].xy);
+    
+    // To make things more confusing, all SL image assets are upside-down
+    // We may need an additional sign flip here when we implement a Vulkan backend
+
+    return texcoord;
+
+}
+

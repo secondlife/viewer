@@ -1248,7 +1248,10 @@ void LLVOVolume::updateVisualComplexity()
 void LLVOVolume::notifyMeshLoaded()
 {
     mSculptChanged = true;
-    gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_GEOMETRY);
+    if (mDrawable)
+    {
+        gPipeline.markTransformDirty(mDrawable->getSpatialGroup());
+    }
 
     if (!mSkinInfo && !mSkinInfoUnavaliable)
     {
@@ -1272,7 +1275,6 @@ void LLVOVolume::notifyMeshLoaded()
         cav->addAttachmentOverridesForObject(this);
         cav->notifyAttachmentMeshLoaded();
     }
-    updateVisualComplexity();
 }
 
 void LLVOVolume::notifySkinInfoLoaded(const LLMeshSkinInfo* skin)
@@ -4510,6 +4512,26 @@ void LLVOVolume::setSelected(bool sel)
 {
     LLViewerObject::setSelected(sel);
     getBinRadius();
+
+    if (gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_BATCH_SIZE))
+    {
+        std::ostringstream str;
+
+        for (S32 i = 0; i < mDrawable->getNumFaces(); ++i)
+        {
+            LLFace* face = mDrawable->getFace(i);
+            LLGLTFDrawInfo* info = face->mGLTFDrawInfo.get();
+
+            if (info)
+            {
+                str << info->mInstanceCount << " ";
+            }
+        }
+
+        setDebugText(str.str());
+    }
+
+
     if (isAnimatedObject())
     {
         getRootEdit()->recursiveMarkForUpdate();

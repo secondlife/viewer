@@ -28,6 +28,10 @@
 
 // deferred opaque implementation
 
+#ifdef DEBUG
+uniform vec4 debug_color;
+#endif
+
 #ifdef SAMPLE_DIFFUSE_MAP
 uniform sampler2D diffuseMap;  //always in sRGB space
 vec4 diffuseColor;
@@ -401,6 +405,11 @@ void main()
 #ifdef OUTPUT_SRGB
     diffuse.rgb = linear_to_srgb(diffuse.rgb);
 #endif
+
+#ifdef DEBUG
+    diffuse = debug_color;
+#endif
+
     frag_color = diffuse;
 #else
     //diffuse.rgb = vec3(0.85);
