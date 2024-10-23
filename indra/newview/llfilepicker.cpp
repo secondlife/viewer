@@ -261,7 +261,7 @@ bool LLFilePicker::getOpenFile(ELoadFilter filter, bool blocking)
 
     // prepare filters for the dialog
     auto filterItem = setupFilter(filter);
-    
+
     nfdwindowhandle_t windowHandle = nfdwindowhandle_t();
 #if LL_USE_SDL_WINDOW
     if(!NFD_GetNativeWindowFromSDLWindow((SDL_Window*)gViewerWindow->getPlatformWindow(), &windowHandle))
