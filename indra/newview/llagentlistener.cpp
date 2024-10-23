@@ -824,7 +824,7 @@ void LLAgentListener::getAgentScreenPos(LLSD const& event_data)
 {
     Response response(LLSD(), event_data);
     LLVector3 render_pos;
-    if (event_data.has("avatar_id") && (event_data["avatar_id"] != gAgentID))
+    if (event_data.has("avatar_id") && (event_data["avatar_id"].asUUID() != gAgentID))
     {
         LLUUID avatar_id(event_data["avatar_id"]);
         for (LLCharacter* character : LLCharacter::sInstances)
