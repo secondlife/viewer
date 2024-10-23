@@ -35,7 +35,7 @@ if(USE_NFDE)
             target_link_libraries(ll::nfde INTERFACE ${DBUS_LINK_LIBRARIES})
         endif()
     endif()
-  
+
     target_include_directories( ll::nfde SYSTEM INTERFACE
             ${LIBS_PREBUILT_DIR}/include/nfde
             )
