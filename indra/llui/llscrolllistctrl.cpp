@@ -423,6 +423,19 @@ std::vector<LLScrollListItem*> LLScrollListCtrl::getAllSelected() const
     return ret;
 }
 
+std::vector<LLSD> LLScrollListCtrl::getAllSelectedValues() const
+{
+    std::vector<LLSD> ret;
+    for (LLScrollListItem* item : mItemList)
+    {
+        if (item->getSelected())
+        {
+            ret.push_back(item->getValue());
+        }
+    }
+    return ret;
+}
+
 S32 LLScrollListCtrl::getNumSelected() const
 {
     S32 numSelected = 0;
@@ -1105,37 +1118,31 @@ S32 LLScrollListCtrl::getItemIndex( const LLUUID& target_id ) const
 
 void LLScrollListCtrl::selectPrevItem( bool extend_selection)
 {
+    updateSort();
+
     LLScrollListItem* prev_item = NULL;
 
-    if (!getFirstSelected())
+    for (LLScrollListItem* item : mItemList)
     {
-        // select last item
-        selectNthItem(getItemCount() - 1);
-    }
-    else
-    {
-        updateSort();
-
-        item_list::iterator iter;
-        for (LLScrollListItem* cur_item : mItemList)
+        if (item->getSelected())
         {
-            if (cur_item->getSelected())
-            {
-                if (prev_item)
-                {
-                    selectItem(prev_item, cur_item->getSelectedCell(), !extend_selection);
-                }
-                else
-                {
-                    reportInvalidInput();
-                }
-                break;
-            }
+            break;
+        }
 
-            // don't allow navigation to disabled elements
-            prev_item = cur_item->getEnabled() ? cur_item : prev_item;
+        // don't allow navigation to disabled elements
+        if (item->getEnabled())
+        {
+            prev_item = item;
         }
     }
+
+    if (!prev_item)
+    {
+        reportInvalidInput();
+        return;
+    }
+
+    selectItem(prev_item, prev_item->getSelectedCell(), !extend_selection);
 
     if ((mCommitOnSelectionChange || mCommitOnKeyboardMovement))
     {
@@ -1147,35 +1154,40 @@ void LLScrollListCtrl::selectPrevItem( bool extend_selection)
 
 void LLScrollListCtrl::selectNextItem( bool extend_selection)
 {
+    updateSort();
+
+    LLScrollListItem* current_item = NULL;
     LLScrollListItem* next_item = NULL;
 
-    if (!getFirstSelected())
+    for (LLScrollListItem* item : mItemList)
     {
-        selectFirstItem();
-    }
-    else
-    {
-        updateSort();
-
-        for (LLScrollListItem* cur_item : mItemList)
+        if (current_item)
         {
-            if (cur_item->getSelected())
+            if (item->getEnabled())
             {
-                if (next_item)
-                {
-                    selectItem(next_item, cur_item->getSelectedCell(), !extend_selection);
-                }
-                else
-                {
-                    reportInvalidInput();
-                }
+                next_item = item;
                 break;
             }
-
-            // don't allow navigation to disabled items
-            next_item = cur_item->getEnabled() ? cur_item : next_item;
+        }
+        else if (item->getSelected())
+        {
+            current_item = item;
+            next_item = NULL;
+            continue;
+        }
+        else if (!next_item && item->getEnabled())
+        {
+            next_item = item;
         }
     }
+
+    if (!next_item)
+    {
+        reportInvalidInput();
+        return;
+    }
+
+    selectItem(next_item, next_item->getSelectedCell(), !extend_selection);
 
     if (mCommitOnKeyboardMovement)
     {
@@ -1511,7 +1523,7 @@ bool LLScrollListCtrl::setSelectedByValue(const LLSD& value, bool selected)
             {
                 if (selected)
                 {
-                    selectItem(item, -1);
+                    selectItem(item, -1, !mAllowMultipleSelection);
                 }
                 else
                 {

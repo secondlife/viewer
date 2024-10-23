@@ -25,7 +25,8 @@
 			<panel.string name="none_text">(keiner)</panel.string>
 			<panel.string name="sale_pending_text">(Wird verkauft)</panel.string>
 			<panel.string name="no_selection_text">Keine Parzelle ausgewählt.</panel.string>
-			<panel.string name="time_stamp_template">[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]</panel.string>
+			<panel.string name="time_stamp_template_ampm">[wkday,datetime,local]. [day,datetime,local]. [mth,datetime,local]. [year,datetime,local] [hour12,datetime,local]:[min,datetime,local]:[second,datetime,local] [ampm,datetime,slt]</panel.string>
+			<panel.string name="time_stamp_template">[wkday,datetime,local]. [day,datetime,local]. [mth,datetime,local]. [year,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local]</panel.string>
 			<text name="Name:">Name:</text>
 			<text name="Description:">Beschreibung:</text>
 			<text name="LandType">Typ:</text>

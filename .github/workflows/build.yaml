@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       release_run: ${{ steps.setvar.outputs.release_run }}
-      configurations: ${{ steps.setvar.outputs.configurations }}
+      config: ${{ steps.setvar.outputs.config }}
       bugsplat_db: ${{ steps.setvar.outputs.bugsplat_db }}
     env:
       # Build with a tag like "Second_Life#abcdef0" to generate a release page
@@ -36,10 +36,10 @@ jobs:
 
           if [[ "$FROM_FORK" == "true" ]]; then
             # PR from fork; don't build with Bugsplat, proprietary libs
-            echo 'configurations=["ReleaseOS"]' >> $GITHUB_OUTPUT
+            echo 'config=ReleaseOS' >> $GITHUB_OUTPUT
             echo "bugsplat_db=" >> $GITHUB_OUTPUT
           else
-            echo 'configurations=["Release"]' >> $GITHUB_OUTPUT
+            echo 'config=Release' >> $GITHUB_OUTPUT
             echo "bugsplat_db=SecondLife_Viewer_2018" >> $GITHUB_OUTPUT
           fi
   build:
@@ -48,7 +48,6 @@ jobs:
     strategy:
       matrix:
         runner: [windows-large, macos-14-xlarge]
-        configuration: ${{ fromJSON(needs.setup.outputs.configurations) }}
         experimental: [false]
         include:
         - runner: linux-large
@@ -60,11 +59,11 @@ jobs:
       viewer_branch:  ${{ steps.which-branch.outputs.branch }}
       relnotes:       ${{ steps.which-branch.outputs.relnotes }}
       imagename:      ${{ steps.build.outputs.imagename }}
-      configuration:  ${{ matrix.configuration }}
+      config:         ${{ needs.setup.outputs.config }}
     env:
       AUTOBUILD_ADDRSIZE: 64
       AUTOBUILD_BUILD_ID: ${{ github.run_id }}
-      AUTOBUILD_CONFIGURATION: ${{ matrix.configuration }}
+      AUTOBUILD_CONFIGURATION: ${{ needs.setup.outputs.config }}
       # authorizes fetching private constituent packages
       AUTOBUILD_GITHUB_TOKEN: ${{ secrets.SHARED_AUTOBUILD_GITHUB_TOKEN }}
       AUTOBUILD_INSTALLABLE_CACHE: ${{ github.workspace }}/.autobuild-installables
@@ -91,7 +90,7 @@ jobs:
       master_message_template_checkout: ${{ github.workspace }}/.master-message-template
       # Only set variants to the one configuration: don't let build.sh loop
       # over variants, let GitHub distribute variants over multiple hosts.
-      variants: ${{ matrix.configuration }}
+      variants: ${{ needs.setup.outputs.config }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -124,9 +123,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .autobuild-installables
-          key: ${{ runner.os }}-64-${{ matrix.configuration }}-${{ hashFiles('autobuild.xml') }}
+          key: ${{ runner.os }}-64-${{ needs.setup.outputs.config }}-${{ hashFiles('autobuild.xml') }}
           restore-keys: |
-            ${{ runner.os }}-64-${{ matrix.configuration }}-
+            ${{ runner.os }}-64-${{ needs.setup.outputs.config }}-
             ${{ runner.os }}-64-
 
       - name: Install Linux dependencies
@@ -321,7 +320,7 @@ jobs:
       - name: Upload physics package
         uses: actions/upload-artifact@v4
         # should only be set for viewer-private
-        if: matrix.configuration == 'Release' && steps.build.outputs.physicstpv
+        if: needs.setup.outputs.config == 'Release' && steps.build.outputs.physicstpv
         with:
           name: "${{ steps.build.outputs.artifact }}-physics"
           # emitted by build.sh, zero or one lines
@@ -395,7 +394,7 @@ jobs:
       BUGSPLAT_USER: ${{ secrets.BUGSPLAT_USER }}
       BUGSPLAT_PASS: ${{ secrets.BUGSPLAT_PASS }}
     needs: build
-    if: needs.build.outputs.configuration == 'Release'
+    if: needs.build.outputs.config == 'Release'
     runs-on: ubuntu-latest
     steps:
       - name: Download viewer exe
@@ -430,7 +429,7 @@ jobs:
       BUGSPLAT_USER: ${{ secrets.BUGSPLAT_USER }}
       BUGSPLAT_PASS: ${{ secrets.BUGSPLAT_PASS }}
     needs: build
-    if: needs.build.outputs.configuration == 'Release'
+    if: needs.build.outputs.config == 'Release'
     runs-on: ubuntu-latest
     steps:
       - name: Download Mac Symbols
