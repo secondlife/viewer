@@ -453,7 +453,7 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
         LLMuteList::isLinden(name);
 
     /***
-    * The simulator has flagged this sender as a bot, if the viewer would like to display
+    * The simulator may have flagged this sender as a bot, if the viewer would like to display
     * the chat text in a different color or font, the below code is how the viewer can
     * tell if the sender is a bot.
     *-----------------------------------------------------
@@ -465,14 +465,12 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
     *-----------------------------------------------------
     */
 
-    bool is_system_notice = false;
-    std::string notice_id;
+    std::string notice_name;
     LLSD notice_args;
     if (metadata.has("notice"))
     {   // The server has injected a notice into the IM conversation.
         // These will be things like bot notifications, etc.
-        is_system_notice = true;
-        notice_id = metadata["notice"]["id"].asString();
+        notice_name = metadata["notice"]["id"].asString();
         notice_args = metadata["notice"]["data"];
     }
 
@@ -605,10 +603,10 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
                         }
                     }
 
-                    if (is_system_notice)
+                    if (!notice_name.empty())
                     {   // The simulator has injected some sort of notice into the conversation.
                         // findString will only replace the contents of buffer if the notice_id is found.
-                        LLTrans::findString(buffer, notice_id, notice_args);
+                        LLTrans::findString(buffer, notice_name, notice_args);
                         name   = SYSTEM_FROM;
                         from_id = LLUUID::null;
                     }
