@@ -3155,7 +3155,7 @@ void LLViewerRegion::unpackRegionHandshake()
         std::string cap = getCapability("ModifyRegion"); // needed for queueQuery
         if (cap.empty())
         {
-            LLFloaterRegionInfo::sRefreshFromRegion(this);
+            LLFloaterRegionInfo::refreshFromRegion(this);
         }
         else
         {
@@ -3167,7 +3167,7 @@ void LLViewerRegion::unpackRegionHandshake()
                 LLVLComposition* compp = region->getComposition();
                 if (!compp) { return; }
                 compp->apply(composition_changes);
-                LLFloaterRegionInfo::sRefreshFromRegion(region);
+                LLFloaterRegionInfo::refreshFromRegion(region);
             });
         }
     }

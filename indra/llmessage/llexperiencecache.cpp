@@ -110,9 +110,8 @@ void LLExperienceCache::initSingleton()
 
     LLCoprocedureManager::instance().initializePool("ExpCache");
 
-    LLCoros::instance().launch("LLExperienceCache::idleCoro",
-        boost::bind(&LLExperienceCache::idleCoro, this));
-
+    const F32 SECS_BETWEEN_REQUESTS = 0.5f;
+    mExpirationTimerHandle = LL::Timers::instance().scheduleEvery([this]() { expirationTimer(); return false; }, SECS_BETWEEN_REQUESTS);
 }
 
 void LLExperienceCache::cleanup()
@@ -125,6 +124,8 @@ void LLExperienceCache::cleanup()
         cache_stream << (*this);
     }
     sShutdown = true;
+
+    LL::Timers::instance().cancel(mExpirationTimerHandle);
 }
 
 //-------------------------------------------------------------------------
@@ -392,30 +393,20 @@ void LLExperienceCache::setCapabilityQuery(LLExperienceCache::CapabilityQuery_t 
 }
 
 
-void LLExperienceCache::idleCoro()
+void LLExperienceCache::expirationTimer()
 {
-    const F32 SECS_BETWEEN_REQUESTS = 0.5f;
+    LL_PROFILE_ZONE_SCOPED;
     const F32 ERASE_EXPIRED_TIMEOUT = 60.f; // seconds
 
-    LL_INFOS("ExperienceCache") << "Launching Experience cache idle coro." << LL_ENDL;
-    do
+    if (mEraseExpiredTimer.checkExpirationAndReset(ERASE_EXPIRED_TIMEOUT))
     {
-        if (mEraseExpiredTimer.checkExpirationAndReset(ERASE_EXPIRED_TIMEOUT))
-        {
-            eraseExpired();
-        }
+        eraseExpired();
+    }
 
-        if (!mRequestQueue.empty())
-        {
-            requestExperiences();
-        }
-
-        llcoro::suspendUntilTimeout(SECS_BETWEEN_REQUESTS);
-
-    } while (!sShutdown);
-
-    // The coroutine system will likely be shut down by the time we get to this point
-    // (or at least no further cycling will occur on it since the user has decided to quit.)
+    if (!mRequestQueue.empty())
+    {
+        requestExperiences();
+    }
 }
 
 void LLExperienceCache::erase(const LLUUID& key)

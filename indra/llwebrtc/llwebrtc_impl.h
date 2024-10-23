@@ -210,6 +210,9 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface, public webrtc::AudioDeviceS
     void setCaptureDevice(const std::string& id) override;
     void setRenderDevice(const std::string& id) override;
 
+    bool isCaptureNoDevice() override;
+    bool isRenderNoDevice() override;
+
     void setTuningMode(bool enable) override;
     float getTuningAudioLevel() override;
     float getPeerConnectionAudioLevel() override;
@@ -306,9 +309,11 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface, public webrtc::AudioDeviceS
     // accessors in native webrtc for devices aren't apparently implemented yet.
     bool                                                       mTuningMode;
     int32_t                                                    mRecordingDevice;
+    int32_t                                                    mRecordingNoDevice;
     LLWebRTCVoiceDeviceList                                    mRecordingDeviceList;
 
     int32_t                                                    mPlayoutDevice;
+    int32_t                                                    mPlayoutNoDevice;
     LLWebRTCVoiceDeviceList                                    mPlayoutDeviceList;
 
     bool                                                       mMute;

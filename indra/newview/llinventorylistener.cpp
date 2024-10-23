@@ -116,7 +116,8 @@ struct CatResultSet: public LL::ResultSet
     LLSD getSingle(int index) const override
     {
         auto cat = mCategories[index];
-        return llsd::map("name", cat->getName(),
+        return llsd::map("id", cat->getUUID(),
+                         "name", cat->getName(),
                          "parent_id", cat->getParentUUID(),
                          "type", LLFolderType::lookup(cat->getPreferredType()));
     }
@@ -133,7 +134,8 @@ struct ItemResultSet: public LL::ResultSet
     LLSD getSingle(int index) const override
     {
         auto item = mItems[index];
-        return llsd::map("name", item->getName(),
+        return llsd::map("id", item->getUUID(),
+                         "name", item->getName(),
                          "parent_id", item->getParentUUID(),
                          "desc", item->getDescription(),
                          "inv_type", LLInventoryType::lookup(item->getInventoryType()),

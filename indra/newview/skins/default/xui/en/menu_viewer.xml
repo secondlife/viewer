@@ -562,25 +562,6 @@
         </menu_item_check>
         <menu_item_separator/>
         <menu_item_check
-          label="Hear Media and Sound from Avatar"
-          name="Hear Media and Sound from Avatar">
-            <menu_item_check.on_check
-             control="MediaSoundsEarLocation" />
-            <menu_item_check.on_click
-             function="Agent.ToggleHearMediaSoundFromAvatar" />
-        </menu_item_check>
-        <menu_item_check
-          label="Hear Voice from Avatar"
-          name="Hear Voice from Avatar">
-            <menu_item_check.on_check
-             control="VoiceEarLocation" />
-            <menu_item_check.on_click
-             function="Agent.ToggleHearVoiceFromAvatar" />
-            <menu_item_call.on_enable
-             control="EnableVoiceChat" />
-        </menu_item_check>
-        <menu_item_separator/>
-        <menu_item_check
          label="Gestures..."
          name="Gestures"
          shortcut="control|G">
@@ -3823,6 +3804,13 @@ function="World.EnvPreset"
                function="EnableTerrainLocalPaintMap"/>
               <menu_item_call.on_click
                function="Advanced.TerrainCreateLocalPaintMap" />
+            </menu_item_call>
+            <menu_item_call
+              enabled="true"
+              label="Edit Local Paintmap"
+              name="Edit Local Paintmap">
+              <menu_item_call.on_click
+               function="Advanced.TerrainEditLocalPaintMap" />
             </menu_item_call>
             <menu_item_call
               enabled="true"

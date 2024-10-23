@@ -202,6 +202,7 @@ public:
     void            setLabel(const LLStringExplicit &new_label) { mLabel = new_label; }
     const std::string&  getLabel()  { return mLabel.getString(); }
 
+    void            setDefaultText() { setText(mDefaultText); }
     void            setText(const LLStringExplicit &new_text);
 
     const std::string& getText() const override { return mText.getString(); }
@@ -347,6 +348,7 @@ protected:
     LLFontVertexBuffer mFontBufferSelection;
     LLFontVertexBuffer mFontBufferPostSelection;
     LLFontVertexBuffer mFontBufferLabel;
+    std::string mDefaultText;
     S32         mMaxLengthBytes;            // Max length of the UTF8 string in bytes
     S32         mMaxLengthChars;            // Maximum number of characters in the string
     S32         mCursorPos;                 // I-beam is just after the mCursorPos-th character.
