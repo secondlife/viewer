@@ -1772,7 +1772,7 @@ void LLImageGL::syncToMainThread(LLGLuint new_tex_name)
     ref();
     LL::WorkQueue::postMaybe(
         mMainQueue,
-        [=]()
+        [=, this]()
         {
             LL_PROFILE_ZONE_NAMED("cglt - delete callback");
             syncTexName(new_tex_name);
