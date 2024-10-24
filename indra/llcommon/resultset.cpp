@@ -61,20 +61,6 @@ LLSD ResultSet::getSlice(int index, int count) const
     return getSliceStart(index, count).first;
 }
 
-/*==========================================================================*|
-LLSD ResultSet::getSingle(int index) const
-{
-    if (0 <= index && index < getLength())
-    {
-        return getSingle_(index);
-    }
-    else
-    {
-        return {};
-    }
-}
-|*==========================================================================*/
-
 ResultSet::ResultSet(const std::string& name):
     mName(name)
 {
