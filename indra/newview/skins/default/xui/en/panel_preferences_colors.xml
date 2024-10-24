@@ -123,26 +123,117 @@
    name="objects"
    top_pad="-15"
    width="44">
-    <color_swatch.init_callback
-		 function="Pref.getUIColor"
-		 parameter="ObjectChatColor" />
-    <color_swatch.commit_callback
-		 function="Pref.applyUIColor"
-		 parameter="ObjectChatColor" />
+   <color_swatch.init_callback
+       function="Pref.getUIColor"
+       parameter="ObjectChatColor" />
+   <color_swatch.commit_callback
+       function="Pref.applyUIColor"
+       parameter="ObjectChatColor" />
   </color_swatch>
   <text
-     type="string"
-     length="1"
-     follows="left|top"
-     height="10"
-     layout="topleft"
-     left_pad="5"
-     mouse_opaque="false"
-     name="text_box3"
-     top_delta="5"
-     width="95">
-    Objects
-  </text>
+   type="string"
+   length="1"
+   follows="left|top"
+   height="10"
+   layout="topleft"
+   left_pad="5"
+   mouse_opaque="false"
+   name="text_box3"
+   top_delta="5"
+   width="95">
+  Objects
+</text>
+<color_swatch
+ can_apply_immediately="true"
+ follows="left|top"
+ height="24"
+ label_height="0"
+ layout="topleft"
+ left="40"
+ name="user_transcribed"
+ top_pad="22"
+ width="44" >
+  <color_swatch.init_callback
+       function="Pref.getUIColor"
+       parameter="UserTranscribedChatColor" />
+  <color_swatch.commit_callback
+       function="Pref.applyUIColor"
+       parameter="UserTranscribedChatColor" />
+</color_swatch>
+<text
+ type="string"
+ length="1"
+ follows="left|top"
+ height="10"
+ layout="topleft"
+ left_pad="5"
+ mouse_opaque="false"
+ name="text_box4"
+top_delta="5"
+ width="95">
+  Me (Voice)
+</text>
+<color_swatch
+ can_apply_immediately="true"
+ follows="left|top"
+ height="24"
+ label_height="0"
+ layout="topleft"
+ left="190"
+ name="agent_transcribed"
+ top_pad="-15"
+ width="44" >
+  <color_swatch.init_callback
+       function="Pref.getUIColor"
+       parameter="AgentTranscribedChatColor" />
+  <color_swatch.commit_callback
+       function="Pref.applyUIColor"
+       parameter="AgentTranscribedChatColor" />
+</color_swatch>
+<text
+ type="string"
+ length="1"
+ follows="left|top"
+ height="10"
+ layout="topleft"
+ left_pad="5"
+ mouse_opaque="false"
+ name="text_box1"
+ top_delta="5"
+ width="95">
+  Others (Voice)
+</text>
+<color_swatch
+ can_apply_immediately="true"
+ color="LtOrange"
+ follows="left|top"
+ height="24"
+ label_height="0"
+ layout="topleft"
+ left="360"
+ name="direct"
+ top_pad="-15"
+ width="44" >
+  <color_swatch.init_callback
+       function="Pref.getUIColor"
+       parameter="DirectChatColor" />
+  <color_swatch.commit_callback
+       function="Pref.applyUIColor"
+       parameter="DirectChatColor" />
+</color_swatch>
+<text
+ type="string"
+ length="1"
+ follows="left|top"
+ height="10"
+ layout="topleft"
+ left_pad="5"
+ mouse_opaque="false"
+ name="text_box10"
+ top_delta="5"
+ width="95">
+  Direct
+</text>
   <color_swatch
    can_apply_immediately="true"
    color="LtGray"
@@ -208,45 +299,14 @@
   </text>
   <color_swatch
    can_apply_immediately="true"
-   color="LtOrange"
-   follows="left|top"
-   height="24"
-   label_height="0"
-   layout="topleft"
-   left="360"
-   name="direct"
-   top_pad="-15"
-   width="44" >
-    <color_swatch.init_callback
-		 function="Pref.getUIColor"
-		 parameter="DirectChatColor" />
-    <color_swatch.commit_callback
-		 function="Pref.applyUIColor"
-		 parameter="DirectChatColor" />
-  </color_swatch>
-  <text
-   type="string"
-   length="1"
-   follows="left|top"
-   height="10"
-   layout="topleft"
-   left_pad="5"
-   mouse_opaque="false"
-   name="text_box10"
-   top_delta="5"
-   width="95">
-    Direct
-  </text>
-  <color_swatch
-   can_apply_immediately="true"
    color="LtYellow"
    follows="left|top"
    height="24"
    label_height="0"
    layout="topleft"
-   left="40"
+   left="360"
    name="owner"
-   top_pad="22"
+   top_pad="-15"
    width="44" >
     <color_swatch.init_callback
 		 function="Pref.getUIColor"
@@ -275,9 +335,9 @@
    height="24"
    label_height="0"
    layout="topleft"
-   left="190"
+   left="40"
    name="links"
-   top_pad="-15"
+   top_pad="22"
    width="44" >
     <color_swatch.init_callback
 		 function="Pref.getUIColor"

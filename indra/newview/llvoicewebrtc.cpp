@@ -27,7 +27,9 @@
 #include "llvoicewebrtc.h"
 
 #include "llsdutil.h"
-
+#include "llnotifications.h"
+#include "llnotificationsutil.h"
+#include "llnotificationmanager.h"
 // Linden library includes
 #include "llavatarnamecache.h"
 #include "llvoavatarself.h"
@@ -2171,6 +2173,7 @@ LLVoiceWebRTCConnection::LLVoiceWebRTCConnection(const LLUUID &regionID, const s
     mWebRTCDataInterface(nullptr),
     mVoiceConnectionState(VOICE_STATE_START_SESSION),
     mCurrentStatus(LLVoiceClientStatusObserver::STATUS_VOICE_ENABLED),
+    mTranscribeVoice(false),
     mMuted(true),
     mShutDown(false),
     mIceCompleted(false),
@@ -2681,6 +2684,7 @@ static llwebrtc::LLWebRTCPeerConnectionInterface::InitOptions getConnectionOptio
 bool LLVoiceWebRTCConnection::connectionStateMachine()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE;
+    static LLCachedControl<bool> sTranscribeVoice(gSavedSettings, "TranscribeVoice");
 
     if (!mShutDown)
     {
@@ -2766,7 +2770,7 @@ bool LLVoiceWebRTCConnection::connectionStateMachine()
             }
             if (mWebRTCDataInterface) // the interface will be set when the session is negotiated.
             {
-                sendJoin();  // tell the Secondlife WebRTC server that we're here via the data channel.
+                sendJoin(sTranscribeVoice);  // tell the Secondlife WebRTC server that we're here via the data channel.
                 setVoiceConnectionState(VOICE_STATE_SESSION_UP);
                 if (isSpatial())
                 {
@@ -2795,8 +2799,12 @@ bool LLVoiceWebRTCConnection::connectionStateMachine()
                     if (primary != mPrimary)
                     {
                         mPrimary = primary;
-                        sendJoin();
+                        sendJoin(sTranscribeVoice);
                     }
+                }
+                if (sTranscribeVoice != mTranscribeVoice)
+                {
+                    sendJoin(sTranscribeVoice);
                 }
             }
             break;
@@ -2905,6 +2913,8 @@ void LLVoiceWebRTCConnection::OnDataReceivedImpl(const std::string &data, bool b
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE;
 
+    static LLCachedControl<bool> sTranscribeVoice(gSavedSettings, "TranscribeVoice");
+
     if (mShutDown)
     {
         return;
@@ -2958,6 +2968,7 @@ void LLVoiceWebRTCConnection::OnDataReceivedImpl(const std::string &data, bool b
             if (participant_obj.contains("j") &&
                 participant_obj["j"].is_object())
             {
+                LL_WARNS("Voice") << "Transcription Data: " << data << LL_ENDL;
                 // a new participant has announced that they're joining.
                 joined  = true;
                 if (participant_elem.value().as_object()["j"].as_object().contains("p") &&
@@ -3014,6 +3025,66 @@ void LLVoiceWebRTCConnection::OnDataReceivedImpl(const std::string &data, bool b
                     {
                         participant->mIsModeratorMuted = participant_obj["m"].as_bool();
                     }
+
+                    if (sTranscribeVoice && participant_obj.contains("transcription") && participant_obj["transcription"].is_array())
+                    {
+                        for (auto& value : participant_obj["transcription"].as_array())
+                        {
+                            if (value.is_object())
+                            {
+                                boost::json::object value_obj = value.as_object();
+                                if (value_obj.contains("text"))
+                                {
+                                    std::string transcription_str = value_obj["text"].as_string().c_str();
+
+                                    // remove double spaces.
+                                    std::string::size_type pos = transcription_str.find("  ");
+
+                                    while (pos != std::string::npos)
+                                    {
+                                        transcription_str.replace(pos, 2, " ");
+                                        pos = transcription_str.find("  ", pos);
+                                    }
+                                    transcription_str.erase(0, transcription_str.find_first_not_of(" "));
+                                    participant->mLastTranscribedText = transcription_str;
+                                }
+
+                                if (!participant->mLastTranscribedText.empty())
+                                {
+                                    LLChat chat;
+                                    chat.mFromID = agent_id;
+                                    chat.mSourceType = CHAT_SOURCE_AGENT;
+                                    chat.mChatType   = CHAT_TYPE_VOICE_TRANSCRIPTION;
+                                    chat.mAudible    = CHAT_AUDIBLE_FULLY;
+                                    chat.mTime       = LLFrameTimer::getElapsedSeconds();
+                                    LLAvatarName av_name;
+                                    if (LLAvatarNameCache::get(agent_id, &av_name))
+                                    {
+                                        chat.mFromName = av_name.getCompleteName();
+                                    }
+                                    else
+                                    {
+                                        chat.mFromName = "Unknown";
+                                    }
+                                    chat.mText      = participant->mLastTranscribedText;
+                                    chat.mChatStyle = CHAT_STYLE_NORMAL;
+                                    chat.mMuted     = false;
+                                    LLSD args;
+                                    args["partial"] = !value_obj.contains("end");
+                                    LLNotificationsUI::LLNotificationManager::instance().onChat(chat, args);
+
+
+                                    LL_WARNS("Voice") << "Transcription: " << participant->mLastTranscribedText << LL_ENDL;
+                                    if (!args["partial"].asBoolean())
+                                    {
+                                        LL_WARNS("Voice") << "Non Partial: Transcription Data: " << data << LL_ENDL;
+                                        participant->mLastTranscribedText.clear();
+                                    }
+                                }
+                                LL_WARNS("Voice") << "Transcription Data: " << data << LL_ENDL;
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -3055,7 +3126,7 @@ void LLVoiceWebRTCConnection::OnDataChannelReady(llwebrtc::LLWebRTCDataInterface
                 return;
             }
 
-            if (data_interface)
+            if (!mWebRTCDataInterface && data_interface)
             {
                 mWebRTCDataInterface = data_interface;
                 mWebRTCDataInterface->setDataObserver(this);
@@ -3069,7 +3140,7 @@ void LLVoiceWebRTCConnection::OnDataChannelReady(llwebrtc::LLWebRTCDataInterface
 // the region we currently occupy or not (primary)
 // The WebRTC voice server will pass this info
 // to peers.
-void LLVoiceWebRTCConnection::sendJoin()
+void LLVoiceWebRTCConnection::sendJoin(bool transcribe)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE;
 
@@ -3080,9 +3151,11 @@ void LLVoiceWebRTCConnection::sendJoin()
     {
         join_obj["p"] = true;
     }
-    root["j"]             = join_obj;
+    root["j"] = join_obj;
+    root["transcribe"] = transcribe;
     std::string json_data = boost::json::serialize(root);
     mWebRTCDataInterface->sendData(json_data, false);
+    mTranscribeVoice = transcribe;
 }
 
 /////////////////////////////

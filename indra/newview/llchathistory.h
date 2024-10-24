@@ -124,6 +124,7 @@ class LLChatHistory : public LLUICtrl
     private:
         std::string mLastFromName;
         LLUUID mLastFromID;
+        EChatType mLastChatType;
         LLDate mLastMessageTime;
         bool mIsLastMessageFromLog;
         bool mNotifyAboutUnreadMsg;
@@ -132,6 +133,13 @@ class LLChatHistory : public LLUICtrl
 
         std::string mMessageHeaderFilename;
         std::string mMessageSeparatorFilename;
+
+        struct ParitalSpeechTranscriptions
+        {
+            S32 last_transcribed_text_begin;
+            S32 last_transcribed_text_length;
+        };
+        std::map<LLUUID, ParitalSpeechTranscriptions> mPartialSpeechTranscriptions;
 
         S32 mLeftTextPad;
         S32 mRightTextPad;

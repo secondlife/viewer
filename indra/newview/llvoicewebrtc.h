@@ -257,6 +257,7 @@ public:
         bool mIsSpeaking;
         bool mIsModeratorMuted;
         LLUUID mRegion;
+        std::string  mLastTranscribedText;
     };
     typedef std::shared_ptr<participantState> participantStatePtr_t;
 
@@ -616,7 +617,7 @@ class LLVoiceWebRTCConnection :
 
     void OnDataReceivedImpl(const std::string &data, bool binary);
 
-    void sendJoin();
+    void sendJoin(bool transcribe);
     void sendData(const std::string &data);
 
     void processIceUpdates();
@@ -709,6 +710,8 @@ class LLVoiceWebRTCConnection :
 
     bool mMuted;
     F32  mSpeakerVolume;
+
+    bool mTranscribeVoice;
 
     bool mShutDown;
     S32  mOutstandingRequests;
