@@ -67,9 +67,10 @@ std::string lua_print_msg(lua_State* L, std::string_view level)
     lluau_checkstack(L, 2);
     luaL_where(L, 1);
     // start with the 'where' info at the top of the stack
-    std::ostringstream out;
-    out << lua_tostring(L, -1);
+    std::string source_info{ lua_tostring(L, -1) };
     lua_pop(L, 1);
+
+    std::ostringstream out;
     const char* sep = "";           // 'where' info ends with ": "
     // now iterate over arbitrary args, calling Lua tostring() on each and
     // concatenating with separators
@@ -96,10 +97,10 @@ std::string lua_print_msg(lua_State* L, std::string_view level)
     // capture message string
     std::string msg{ out.str() };
     // put message out there for any interested party (*koff* LLFloaterLUADebug *koff*)
-    LLEventPumps::instance().obtain("lua output").post(stringize(level, ": ", msg));
+    LLEventPumps::instance().obtain("lua output").post(llsd::map("msg", msg, "level", stringize(level, ": "), "source_info", source_info));
 
     llcoro::suspend();
-    return msg;
+    return source_info + msg;
 }
 
 lua_function(print_debug, "print_debug(args...): DEBUG level logging")
@@ -312,7 +313,7 @@ LLRequireResolver::LLRequireResolver(lua_State *L, const std::string& path) :
 void LLRequireResolver::findModule()
 {
     // If mPathToResolve is absolute, this replaces mSourceDir.
-    auto absolutePath = (mSourceDir / mPathToResolve).u8string();
+    fsyspath absolutePath(mSourceDir / mPathToResolve);
 
     // Push _MODULES table on stack for checking and saving to the cache
     luaL_findtable(L, LUA_REGISTRYINDEX, "_MODULES", 1);
@@ -328,7 +329,7 @@ void LLRequireResolver::findModule()
 
     // not already cached - prep error message just in case
     auto fail{
-        [L=L, path=mPathToResolve.u8string()]()
+        [L=L, path=mPathToResolve.string()]()
         { luaL_error(L, "could not find require('%s')", path.data()); }};
 
     if (mPathToResolve.is_absolute())
@@ -343,10 +344,10 @@ void LLRequireResolver::findModule()
     {
         // if path is already absolute, operator/() preserves it
         auto abspath(fsyspath(gDirUtilp->getAppRODataDir()) / path.asString());
-        std::string absolutePathOpt = (abspath / mPathToResolve).u8string();
+        fsyspath absolutePathOpt = (abspath / mPathToResolve);
 
         if (absolutePathOpt.empty())
-            luaL_error(L, "error requiring module '%s'", mPathToResolve.u8string().data());
+            luaL_error(L, "error requiring module '%s'", mPathToResolve.string().data());
 
         if (findModuleImpl(absolutePathOpt))
             return;

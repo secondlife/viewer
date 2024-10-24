@@ -285,25 +285,18 @@ void LLAvatarActions::startAdhocCall(const uuid_vec_t& ids, const LLUUID& floate
     make_ui_sound("UISndStartIM");
 }
 
-/* AD *TODO: Is this function needed any more?
-    I fixed it a bit(added check for canCall), but it appears that it is not used
-    anywhere. Maybe it should be removed?
 // static
-bool LLAvatarActions::isCalling(const LLUUID &id)
-{
-    if (id.isNull() || !canCall())
-    {
-        return false;
-    }
-
-    LLUUID session_id = gIMMgr->computeSessionID(IM_NOTHING_SPECIAL, id);
-    return (LLIMModel::getInstance()->findIMSession(session_id) != NULL);
-}*/
-
-//static
 bool LLAvatarActions::canCall()
 {
-    return LLVoiceClient::getInstance()->voiceEnabled() && LLVoiceClient::getInstance()->isVoiceWorking();
+    LLVoiceClient* voice_client = LLVoiceClient::getInstance();
+    return voice_client->voiceEnabled() && voice_client->isVoiceWorking();
+}
+
+// static
+bool LLAvatarActions::canCallTo(const LLUUID& id)
+{
+    LLVoiceClient* voice_client = LLVoiceClient::getInstance();
+    return voice_client->voiceEnabled() && voice_client->isVoiceWorking() && voice_client->getVoiceEnabled(id);
 }
 
 // static

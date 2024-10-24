@@ -52,6 +52,7 @@
 #include "llagentui.h"
 #include "llagentwearables.h"
 #include "llagentpilot.h"
+#include "llavataractions.h"
 #include "llcompilequeue.h"
 #include "llconsole.h"
 #include "lldebugview.h"
@@ -71,6 +72,7 @@
 #include "llfloaterpathfindingcharacters.h"
 #include "llfloaterpathfindinglinksets.h"
 #include "llfloaterpay.h"
+#include "llfloaterpreference.h"
 #include "llfloaterreporter.h"
 #include "llfloatersearch.h"
 #include "llfloaterscriptdebug.h"
@@ -78,9 +80,10 @@
 #include "llfloatertools.h"
 #include "llfloaterworldmap.h"
 #include "llfloaterbuildoptions.h"
-#include "llavataractions.h"
-#include "lllandmarkactions.h"
+#include "fsyspath.h"
+#include "llgamecontrol.h"
 #include "llgroupmgr.h"
+#include "lllandmarkactions.h"
 #include "lltooltip.h"
 #include "lltoolface.h"
 #include "llhints.h"
@@ -90,6 +93,7 @@
 #include "llinventorybridge.h"
 #include "llinventorydefines.h"
 #include "llinventoryfunctions.h"
+#include "llluamanager.h"
 #include "llpanellogin.h"
 #include "llpanelblockedlist.h"
 #include "llpanelmaininventory.h"
@@ -113,6 +117,7 @@
 #include "lltoolmgr.h"
 #include "lltoolpie.h"
 #include "lltoolselectland.h"
+#include "llterrainpaintmap.h"
 #include "lltrans.h"
 #include "llviewerdisplay.h" //for gWindowResized
 #include "llviewergenericmessage.h"
@@ -147,6 +152,7 @@
 #include "llviewershadermgr.h"
 #include "gltfscenemanager.h"
 #include "gltf/asset.h"
+#include "rlvcommon.h"
 
 using namespace LLAvatarAppearanceDefines;
 
@@ -941,17 +947,46 @@ class LLAdvancedToggleFeature : public view_listener_t
 class LLAdvancedCheckFeature : public view_listener_t
 {
     bool handleEvent(const LLSD& userdata)
-{
-    U32 feature = feature_from_string( userdata.asString() );
-    bool new_value = false;
-
-    if ( feature != 0 )
     {
-        new_value = LLPipeline::toggleRenderDebugFeatureControl( feature );
-    }
+        U32 feature = feature_from_string( userdata.asString() );
+        bool new_value = false;
 
-    return new_value;
-}
+        if ( feature != 0 )
+        {
+            new_value = LLPipeline::toggleRenderDebugFeatureControl( feature );
+        }
+
+        return new_value;
+    }
+};
+
+class LLAdvancedToggleExperiment : public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata)
+    {
+        std::string feature = userdata.asString();
+        if (feature == "GameControl")
+        {
+            LLGameControl::setEnabled(! LLGameControl::isEnabled());
+            LLFloaterPreference::refreshInstance();
+            return true;
+        }
+        return false;
+    }
+};
+
+class LLAdvancedCheckExperiment : public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata)
+    {
+        bool value = false;
+        std::string feature = userdata.asString();
+        if (feature == "GameControl")
+        {
+            value = LLGameControl::isEnabled();
+        }
+        return value;
+    }
 };
 
 class LLAdvancedCheckDisplayTextureDensity : public view_listener_t
@@ -1395,20 +1430,111 @@ class LLAdvancedTerrainCreateLocalPaintMap : public view_listener_t
             return false;
         }
 
+        // This calls gLocalTerrainMaterials.setPaintType
+        // It also ensures the terrain bake shader is compiled (handleSetShaderChanged), so call this first
+        // *TODO: Fix compile errors in shader so it can be used for all platforms. Then we can unhide the shader from behind this setting and remove the hook to handleSetShaderChanged. This advanced setting is intended to be used as a local setting for testing terrain, not a feature flag, but it is currently used like a feature flag as a temporary hack.
+        // *TODO: Ideally we would call setPaintType *after* the paint map is well-defined. The terrain draw pool should be able to handle an undefined paint map in the meantime.
+        gSavedSettings.setBOOL("LocalTerrainPaintEnabled", true);
+
         U16 dim = (U16)gSavedSettings.getU32("TerrainPaintResolution");
         // Ensure a reasonable image size of power two
         const U32 max_resolution = gSavedSettings.getU32("RenderMaxTextureResolution");
         dim = llclamp(dim, 16, max_resolution);
         dim = 1 << U32(std::ceil(std::log2(dim)));
+        // TODO: Could probably get away with not using image raw here, now that we aren't writing bits via the CPU (see load_exr for example)
         LLPointer<LLImageRaw> image_raw = new LLImageRaw(dim,dim,3);
         LLPointer<LLViewerTexture> tex = LLViewerTextureManager::getLocalTexture(image_raw.get(), true);
         const bool success = LLTerrainPaintMap::bakeHeightNoiseIntoPBRPaintMapRGB(*region, *tex);
-        // This calls gLocalTerrainMaterials.setPaintType
-        gSavedSettings.setBOOL("LocalTerrainPaintEnabled", true);
         // If baking the paintmap failed, set the paintmap to nullptr. This
         // causes LLDrawPoolTerrain to use a blank paintmap instead.
         if (!success) { tex = nullptr; }
         gLocalTerrainMaterials.setPaintMap(tex);
+
+        return true;
+    }
+};
+
+class LLAdvancedTerrainEditLocalPaintMap : public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata)
+    {
+        LLViewerTexture* tex = gLocalTerrainMaterials.getPaintMap();
+        if (!tex)
+        {
+            LL_WARNS() << "No local paint map available to edit" << LL_ENDL;
+            return false;
+        }
+
+        LLTerrainBrushQueue& brush_queue = gLocalTerrainMaterials.getBrushQueue();
+        LLTerrainPaintQueue& paint_request_queue = gLocalTerrainMaterials.getPaintRequestQueue();
+
+        const LLViewerRegion* region = gAgent.getRegion();
+        if (!region)
+        {
+            LL_WARNS() << "No current region for calculating paint operations" << LL_ENDL;
+            return false;
+        }
+        // TODO: Create the brush
+        // Just a dab for now
+        LLTerrainBrush::ptr_t brush = std::make_shared<LLTerrainBrush>();
+        brush->mBrushSize = 16.0f;
+        brush->mPath.emplace_back(17.0f, 17.0f);
+        brush->mPathOffset = 0;
+        brush->mPathEnd = true;
+        brush_queue.enqueue(brush);
+        LLTerrainPaintQueue brush_as_paint_queue = LLTerrainPaintMap::convertBrushQueueToPaintRGB(*region, *tex, brush_queue);
+        //paint_send_queue.enqueue(brush_as_paint_queue); // TODO: What was this line for? (it might also be a leftover line from an unfinished edit)
+
+        // TODO: Keep this around for later testing (i.e. when reducing framebuffer size and the offsets that requires)
+#if 0
+        // Enqueue a paint
+        // Modifies a subsection of the region paintmap with the material in
+        // the last slot.
+        // It is currently the responsibility of the paint queue to convert
+        // incoming bits to the right bit depth for the paintmap (this could
+        // change in the future).
+        LLTerrainPaint::ptr_t paint = std::make_shared<LLTerrainPaint>();
+        const U16 width = 33;
+        paint->mStartX = 1;
+        paint->mStartY = 1;
+        paint->mWidthX = width;
+        paint->mWidthY = width;
+        constexpr U8 bit_depth = 5;
+        paint->mBitDepth = bit_depth;
+        constexpr U8 max_value = (1 << bit_depth) - 1;
+        const size_t pixel_count = width * width;
+        const U8 components = LLTerrainPaint::RGBA;
+        paint->mComponents = components;
+        paint->mData.resize(components * pixel_count);
+        for (size_t h = 0; h < paint->mWidthY; ++h)
+        {
+            for (size_t w = 0; w < paint->mWidthX; ++w)
+            {
+                const size_t pixel = (h * paint->mWidthX) + w;
+                // Solid blue color
+                paint->mData[(components*pixel) + components - 2] = max_value; // blue
+                //// Alpha grid: 1.0 if odd for either dimension, 0.0 otherwise
+                //const U8 alpha = U8(F32(max_value) * F32(bool(w % 2) || bool(h % 2)));
+                //paint->mData[(components*pixel) + components - 1] = alpha; // alpha
+                // Alpha "frame"
+                const bool edge = w == 0 || h == 0 || w == (paint->mWidthX - 1) || h == (paint->mWidthY - 1);
+                const bool near_edge_frill = ((w == 1 || w == (paint->mWidthX - 2)) && (h % 2 == 0)) ||
+                                             ((h == 1 || h == (paint->mWidthY - 2)) && (w % 2 == 0));
+                const U8 alpha = U8(F32(max_value) * F32(edge || near_edge_frill));
+                paint->mData[(components*pixel) + components - 1] = alpha; // alpha
+            }
+        }
+        paint_request_queue.enqueue(paint);
+#endif
+
+        // Apply the paint queues ad-hoc right here for now.
+        // *TODO: Eventually the paint queue(s) should be applied at a
+        // predictable time in the viewer frame loop.
+        // TODO: In hindsight... maybe we *should* bind the paintmap to the render buffer. That makes a lot more sense, and we wouldn't have to reduce its resolution by settling for the bake buffer. If we do that, make a comment above convertPaintQueueRGBAToRGB that the texture is modified!
+        LLTerrainPaintQueue paint_send_queue = LLTerrainPaintMap::convertPaintQueueRGBAToRGB(*tex, paint_request_queue);
+        LLTerrainPaintQueue& paint_map_queue = gLocalTerrainMaterials.getPaintMapQueue();
+        paint_map_queue.enqueue(paint_send_queue);
+        LLTerrainPaintMap::applyPaintQueueRGB(*tex, paint_map_queue);
 
         return true;
     }
@@ -6247,6 +6373,8 @@ void show_debug_menus()
         gMenuBarView->setItemVisible("Advanced", debug);
 //      gMenuBarView->setItemEnabled("Advanced", debug); // Don't disable Advanced keyboard shortcuts when hidden
 
+        Rlv::Util::menuToggleVisible();
+
         gMenuBarView->setItemVisible("Debug", qamode);
         gMenuBarView->setItemEnabled("Debug", qamode);
 
@@ -7680,14 +7808,28 @@ class LLAvatarSendIM : public view_listener_t
 
 class LLAvatarCall : public view_listener_t
 {
+    static LLVOAvatar* findAvatar()
+    {
+        return find_avatar_from_object(LLSelectMgr::getInstance()->getSelection()->getPrimaryObject());
+    }
+
     bool handleEvent(const LLSD& userdata)
     {
-        LLVOAvatar* avatar = find_avatar_from_object( LLSelectMgr::getInstance()->getSelection()->getPrimaryObject() );
-        if(avatar)
+        if (LLVOAvatar* avatar = findAvatar())
         {
             LLAvatarActions::startCall(avatar->getID());
         }
         return true;
+    }
+
+public:
+    static bool isAvailable()
+    {
+        if (LLVOAvatar* avatar = findAvatar())
+        {
+            return LLAvatarActions::canCallTo(avatar->getID());
+        }
+        return LLAvatarActions::canCall();
     }
 };
 
@@ -9461,6 +9603,18 @@ void LLUploadCostCalculator::calculateCost(const std::string& asset_type_str)
     mCostStr = std::to_string(upload_cost);
 }
 
+void lua_run_script(const LLSD& userdata)
+{
+    std::string script_path = userdata.asString();
+    if (script_path.empty())
+    {
+        LL_WARNS() << "Script name is not specified" << LL_ENDL;
+        return;
+    }
+
+    LLLUAmanager::runScriptFile(script_path);
+}
+
 void show_navbar_context_menu(LLView* ctrl, S32 x, S32 y)
 {
     static LLMenuGL*    show_navbar_context_menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_hide_navbar.xml",
@@ -9579,8 +9733,6 @@ void initialize_menus()
     registrar.add("Agent.ToggleMicrophone", boost::bind(&LLAgent::toggleMicrophone, _2), cb_info::UNTRUSTED_BLOCK);
     enable.add("Agent.IsMicrophoneOn", boost::bind(&LLAgent::isMicrophoneOn, _2));
     enable.add("Agent.IsActionAllowed", boost::bind(&LLAgent::isActionAllowed, _2));
-    registrar.add("Agent.ToggleHearMediaSoundFromAvatar", boost::bind(&LLAgent::toggleHearMediaSoundFromAvatar), cb_info::UNTRUSTED_BLOCK);
-    registrar.add("Agent.ToggleHearVoiceFromAvatar", boost::bind(&LLAgent::toggleHearVoiceFromAvatar), cb_info::UNTRUSTED_BLOCK);
 
     // File menu
     init_menu_file();
@@ -9715,6 +9867,9 @@ void initialize_menus()
     view_listener_t::addMenu(new LLAdvancedToggleFeature(), "Advanced.ToggleFeature");
     view_listener_t::addMenu(new LLAdvancedCheckFeature(), "Advanced.CheckFeature");
 
+    view_listener_t::addMenu(new LLAdvancedToggleExperiment(), "Advanced.ToggleExperiment");
+    view_listener_t::addMenu(new LLAdvancedCheckExperiment(), "Advanced.CheckExperiment");
+
     view_listener_t::addMenu(new LLAdvancedCheckDisplayTextureDensity(), "Advanced.CheckDisplayTextureDensity");
     view_listener_t::addMenu(new LLAdvancedSetDisplayTextureDensity(), "Advanced.SetDisplayTextureDensity");
 
@@ -9762,6 +9917,7 @@ void initialize_menus()
     // Develop > Terrain
     view_listener_t::addMenu(new LLAdvancedRebuildTerrain(), "Advanced.RebuildTerrain");
     view_listener_t::addMenu(new LLAdvancedTerrainCreateLocalPaintMap(), "Advanced.TerrainCreateLocalPaintMap");
+    view_listener_t::addMenu(new LLAdvancedTerrainEditLocalPaintMap(), "Advanced.TerrainEditLocalPaintMap");
     view_listener_t::addMenu(new LLAdvancedTerrainDeleteLocalPaintMap(), "Advanced.TerrainDeleteLocalPaintMap");
 
     // Advanced > UI
@@ -9933,7 +10089,7 @@ void initialize_menus()
     registrar.add("Avatar.ShowInspector", boost::bind(&handle_avatar_show_inspector));
     view_listener_t::addMenu(new LLAvatarSendIM(), "Avatar.SendIM");
     view_listener_t::addMenu(new LLAvatarCall(), "Avatar.Call", cb_info::UNTRUSTED_BLOCK);
-    enable.add("Avatar.EnableCall", boost::bind(&LLAvatarActions::canCall));
+    enable.add("Avatar.EnableCall", boost::bind(&LLAvatarCall::isAvailable));
     view_listener_t::addMenu(new LLAvatarReportAbuse(), "Avatar.ReportAbuse", cb_info::UNTRUSTED_THROTTLE);
     view_listener_t::addMenu(new LLAvatarToggleMyProfile(), "Avatar.ToggleMyProfile");
     view_listener_t::addMenu(new LLAvatarTogglePicks(), "Avatar.TogglePicks");
@@ -10062,4 +10218,6 @@ void initialize_menus()
     view_listener_t::addMenu(new LLEditableSelected(), "EditableSelected");
     view_listener_t::addMenu(new LLEditableSelectedMono(), "EditableSelectedMono");
     view_listener_t::addMenu(new LLToggleUIHints(), "ToggleUIHints");
+
+    registrar.add("Lua.RunScript", boost::bind(&lua_run_script, _2), cb_info::UNTRUSTED_BLOCK);
 }

@@ -85,12 +85,12 @@ void LLFlashTimer::stopFlashing()
     mCurrentTickCount = 0;
 }
 
-bool LLFlashTimer::isFlashingInProgress()
+bool LLFlashTimer::isFlashingInProgress() const
 {
     return mIsFlashingInProgress;
 }
 
-bool LLFlashTimer::isCurrentlyHighlighted()
+bool LLFlashTimer::isCurrentlyHighlighted() const
 {
     return mIsCurrentlyHighlighted;
 }

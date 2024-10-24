@@ -2452,6 +2452,10 @@ Si eres un miembro Premium [[PREMIUM_URL] pulsa aquí] para recibir tu beneficio
 [[URL] Pulsa aquí] para renovar la suscripción. 
 
 Si eres un miembro Premium [[PREMIUM_URL] pulsa aquí] para recibir tu beneficio de transformación de voz.</notification>
+	<notification name="VoiceEffectsWillExpire">Una o más de tus transformaciones de voz caducarán en menos de [INTERVAL] días. 
+[[URL] Pulsa aquí] para renovar la suscripción 
+
+Si eres un miembro Premium [[PREMIUM_URL] pulsa aquí] para recibir tu beneficio de transformación de voz.</notification>
 	<notification name="VoiceEffectsNew">Están disponibles nuevas transformaciones de voz.</notification>
 	<notification name="Cannot enter parcel: not a group member">Sólo los miembros de un grupo determinado pueden visitar esta zona.</notification>
 	<notification name="Cannot enter parcel: banned">No puedes entrar en esta parcela, se te ha prohibido el acceso.</notification>

@@ -54,17 +54,17 @@ class LLVector3d
 
         void setValue(const LLSD& sd)
         {
-            mdV[0] = sd[0].asReal();
-            mdV[1] = sd[1].asReal();
-            mdV[2] = sd[2].asReal();
+            mdV[VX] = sd[0].asReal();
+            mdV[VY] = sd[1].asReal();
+            mdV[VZ] = sd[2].asReal();
         }
 
         LLSD getValue() const
         {
             LLSD ret;
-            ret[0] = mdV[0];
-            ret[1] = mdV[1];
-            ret[2] = mdV[2];
+            ret[0] = mdV[VX];
+            ret[1] = mdV[VY];
+            ret[2] = mdV[VZ];
             return ret;
         }
 
@@ -134,26 +134,26 @@ typedef LLVector3d LLGlobalVec;
 
 inline const LLVector3d &LLVector3d::set(const LLVector3 &vec)
 {
-    mdV[0] = vec.mV[0];
-    mdV[1] = vec.mV[1];
-    mdV[2] = vec.mV[2];
+    mdV[VX] = vec.mV[VX];
+    mdV[VY] = vec.mV[VY];
+    mdV[VZ] = vec.mV[VZ];
     return *this;
 }
 
 inline const LLVector3d &LLVector3d::setVec(const LLVector3 &vec)
 {
-    mdV[0] = vec.mV[0];
-    mdV[1] = vec.mV[1];
-    mdV[2] = vec.mV[2];
+    mdV[VX] = vec.mV[VX];
+    mdV[VY] = vec.mV[VY];
+    mdV[VZ] = vec.mV[VZ];
     return *this;
 }
 
 
 inline LLVector3d::LLVector3d(void)
 {
-    mdV[0] = 0.f;
-    mdV[1] = 0.f;
-    mdV[2] = 0.f;
+    mdV[VX] = 0.f;
+    mdV[VY] = 0.f;
+    mdV[VZ] = 0.f;
 }
 
 inline LLVector3d::LLVector3d(const F64 x, const F64 y, const F64 z)
@@ -199,33 +199,33 @@ inline bool LLVector3d::isFinite() const
 
 inline const LLVector3d&    LLVector3d::clear(void)
 {
-    mdV[0] = 0.f;
-    mdV[1] = 0.f;
-    mdV[2]= 0.f;
+    mdV[VX] = 0.f;
+    mdV[VY] = 0.f;
+    mdV[VZ] = 0.f;
     return (*this);
 }
 
 inline const LLVector3d&    LLVector3d::clearVec(void)
 {
-    mdV[0] = 0.f;
-    mdV[1] = 0.f;
-    mdV[2]= 0.f;
+    mdV[VX] = 0.f;
+    mdV[VY] = 0.f;
+    mdV[VZ] = 0.f;
     return (*this);
 }
 
 inline const LLVector3d&    LLVector3d::setZero(void)
 {
-    mdV[0] = 0.f;
-    mdV[1] = 0.f;
-    mdV[2] = 0.f;
+    mdV[VX] = 0.f;
+    mdV[VY] = 0.f;
+    mdV[VZ] = 0.f;
     return (*this);
 }
 
 inline const LLVector3d&    LLVector3d::zeroVec(void)
 {
-    mdV[0] = 0.f;
-    mdV[1] = 0.f;
-    mdV[2] = 0.f;
+    mdV[VX] = 0.f;
+    mdV[VY] = 0.f;
+    mdV[VZ] = 0.f;
     return (*this);
 }
 
@@ -239,17 +239,17 @@ inline const LLVector3d&    LLVector3d::set(const F64 x, const F64 y, const F64 
 
 inline const LLVector3d&    LLVector3d::set(const LLVector3d &vec)
 {
-    mdV[0] = vec.mdV[0];
-    mdV[1] = vec.mdV[1];
-    mdV[2] = vec.mdV[2];
+    mdV[VX] = vec.mdV[VX];
+    mdV[VY] = vec.mdV[VY];
+    mdV[VZ] = vec.mdV[VZ];
     return (*this);
 }
 
 inline const LLVector3d&    LLVector3d::set(const F64 *vec)
 {
-    mdV[0] = vec[0];
-    mdV[1] = vec[1];
-    mdV[2] = vec[2];
+    mdV[VX] = vec[0];
+    mdV[VY] = vec[1];
+    mdV[VZ] = vec[2];
     return (*this);
 }
 
@@ -261,61 +261,61 @@ inline const LLVector3d&    LLVector3d::setVec(const F64 x, const F64 y, const F
     return (*this);
 }
 
-inline const LLVector3d&    LLVector3d::setVec(const LLVector3d &vec)
+inline const LLVector3d&    LLVector3d::setVec(const LLVector3d& vec)
 {
-    mdV[0] = vec.mdV[0];
-    mdV[1] = vec.mdV[1];
-    mdV[2] = vec.mdV[2];
+    mdV[VX] = vec.mdV[VX];
+    mdV[VY] = vec.mdV[VY];
+    mdV[VZ] = vec.mdV[VZ];
     return (*this);
 }
 
-inline const LLVector3d&    LLVector3d::setVec(const F64 *vec)
+inline const LLVector3d&    LLVector3d::setVec(const F64* vec)
 {
-    mdV[0] = vec[0];
-    mdV[1] = vec[1];
-    mdV[2] = vec[2];
+    mdV[VX] = vec[VX];
+    mdV[VY] = vec[VY];
+    mdV[VZ] = vec[VZ];
     return (*this);
 }
 
-inline F64 LLVector3d::normVec(void)
+inline F64 LLVector3d::normVec()
 {
-    F64 mag = (F32) sqrt(mdV[0]*mdV[0] + mdV[1]*mdV[1] + mdV[2]*mdV[2]);
+    F64 mag = sqrt(mdV[VX]*mdV[VX] + mdV[VY]*mdV[VY] + mdV[VZ]*mdV[VZ]);
     F64 oomag;
 
     if (mag > FP_MAG_THRESHOLD)
     {
         oomag = 1.f/mag;
-        mdV[0] *= oomag;
-        mdV[1] *= oomag;
-        mdV[2] *= oomag;
+        mdV[VX] *= oomag;
+        mdV[VY] *= oomag;
+        mdV[VZ] *= oomag;
     }
     else
     {
-        mdV[0] = 0.f;
-        mdV[1] = 0.f;
-        mdV[2] = 0.f;
+        mdV[VX] = 0.f;
+        mdV[VY] = 0.f;
+        mdV[VZ] = 0.f;
         mag = 0;
     }
     return (mag);
 }
 
-inline F64 LLVector3d::normalize(void)
+inline F64 LLVector3d::normalize()
 {
-    F64 mag = (F32) sqrt(mdV[0]*mdV[0] + mdV[1]*mdV[1] + mdV[2]*mdV[2]);
+    F64 mag = sqrt(mdV[VX]*mdV[VX] + mdV[VY]*mdV[VY] + mdV[VZ]*mdV[VZ]);
     F64 oomag;
 
     if (mag > FP_MAG_THRESHOLD)
     {
         oomag = 1.f/mag;
-        mdV[0] *= oomag;
-        mdV[1] *= oomag;
-        mdV[2] *= oomag;
+        mdV[VX] *= oomag;
+        mdV[VY] *= oomag;
+        mdV[VZ] *= oomag;
     }
     else
     {
-        mdV[0] = 0.f;
-        mdV[1] = 0.f;
-        mdV[2] = 0.f;
+        mdV[VX] = 0.f;
+        mdV[VY] = 0.f;
+        mdV[VZ] = 0.f;
         mag = 0;
     }
     return (mag);
@@ -323,24 +323,24 @@ inline F64 LLVector3d::normalize(void)
 
 // LLVector3d Magnitude and Normalization Functions
 
-inline F64  LLVector3d::magVec(void) const
+inline F64  LLVector3d::magVec() const
 {
-    return (F32) sqrt(mdV[0]*mdV[0] + mdV[1]*mdV[1] + mdV[2]*mdV[2]);
+    return sqrt(mdV[VX]*mdV[VX] + mdV[VY]*mdV[VY] + mdV[VZ]*mdV[VZ]);
 }
 
-inline F64  LLVector3d::magVecSquared(void) const
+inline F64  LLVector3d::magVecSquared() const
 {
-    return mdV[0]*mdV[0] + mdV[1]*mdV[1] + mdV[2]*mdV[2];
+    return mdV[VX]*mdV[VX] + mdV[VY]*mdV[VY] + mdV[VZ]*mdV[VZ];
 }
 
-inline F64  LLVector3d::length(void) const
+inline F64  LLVector3d::length() const
 {
-    return (F32) sqrt(mdV[0]*mdV[0] + mdV[1]*mdV[1] + mdV[2]*mdV[2]);
+    return sqrt(mdV[VX]*mdV[VX] + mdV[VY]*mdV[VY] + mdV[VZ]*mdV[VZ]);
 }
 
-inline F64  LLVector3d::lengthSquared(void) const
+inline F64  LLVector3d::lengthSquared() const
 {
-    return mdV[0]*mdV[0] + mdV[1]*mdV[1] + mdV[2]*mdV[2];
+    return mdV[VX]*mdV[VX] + mdV[VY]*mdV[VY] + mdV[VZ]*mdV[VZ];
 }
 
 inline LLVector3d operator+(const LLVector3d& a, const LLVector3d& b)
@@ -357,109 +357,109 @@ inline LLVector3d operator-(const LLVector3d& a, const LLVector3d& b)
 
 inline F64  operator*(const LLVector3d& a, const LLVector3d& b)
 {
-    return (a.mdV[0]*b.mdV[0] + a.mdV[1]*b.mdV[1] + a.mdV[2]*b.mdV[2]);
+    return (a.mdV[VX]*b.mdV[VX] + a.mdV[VY]*b.mdV[VY] + a.mdV[VZ]*b.mdV[VZ]);
 }
 
 inline LLVector3d operator%(const LLVector3d& a, const LLVector3d& b)
 {
-    return LLVector3d( a.mdV[1]*b.mdV[2] - b.mdV[1]*a.mdV[2], a.mdV[2]*b.mdV[0] - b.mdV[2]*a.mdV[0], a.mdV[0]*b.mdV[1] - b.mdV[0]*a.mdV[1] );
+    return LLVector3d( a.mdV[VY]*b.mdV[VZ] - b.mdV[VY]*a.mdV[VZ], a.mdV[VZ]*b.mdV[VX] - b.mdV[VZ]*a.mdV[VX], a.mdV[VX]*b.mdV[VY] - b.mdV[VX]*a.mdV[VY] );
 }
 
 inline LLVector3d operator/(const LLVector3d& a, const F64 k)
 {
     F64 t = 1.f / k;
-    return LLVector3d( a.mdV[0] * t, a.mdV[1] * t, a.mdV[2] * t );
+    return LLVector3d( a.mdV[VX] * t, a.mdV[VY] * t, a.mdV[VZ] * t );
 }
 
 inline LLVector3d operator*(const LLVector3d& a, const F64 k)
 {
-    return LLVector3d( a.mdV[0] * k, a.mdV[1] * k, a.mdV[2] * k );
+    return LLVector3d( a.mdV[VX] * k, a.mdV[VY] * k, a.mdV[VZ] * k );
 }
 
 inline LLVector3d operator*(F64 k, const LLVector3d& a)
 {
-    return LLVector3d( a.mdV[0] * k, a.mdV[1] * k, a.mdV[2] * k );
+    return LLVector3d( a.mdV[VX] * k, a.mdV[VY] * k, a.mdV[VZ] * k );
 }
 
 inline bool operator==(const LLVector3d& a, const LLVector3d& b)
 {
-    return (  (a.mdV[0] == b.mdV[0])
-            &&(a.mdV[1] == b.mdV[1])
-            &&(a.mdV[2] == b.mdV[2]));
+    return (  (a.mdV[VX] == b.mdV[VX])
+            &&(a.mdV[VY] == b.mdV[VY])
+            &&(a.mdV[VZ] == b.mdV[VZ]));
 }
 
 inline bool operator!=(const LLVector3d& a, const LLVector3d& b)
 {
-    return (  (a.mdV[0] != b.mdV[0])
-            ||(a.mdV[1] != b.mdV[1])
-            ||(a.mdV[2] != b.mdV[2]));
+    return (  (a.mdV[VX] != b.mdV[VX])
+            ||(a.mdV[VY] != b.mdV[VY])
+            ||(a.mdV[VZ] != b.mdV[VZ]));
 }
 
 inline const LLVector3d& operator+=(LLVector3d& a, const LLVector3d& b)
 {
-    a.mdV[0] += b.mdV[0];
-    a.mdV[1] += b.mdV[1];
-    a.mdV[2] += b.mdV[2];
+    a.mdV[VX] += b.mdV[VX];
+    a.mdV[VY] += b.mdV[VY];
+    a.mdV[VZ] += b.mdV[VZ];
     return a;
 }
 
 inline const LLVector3d& operator-=(LLVector3d& a, const LLVector3d& b)
 {
-    a.mdV[0] -= b.mdV[0];
-    a.mdV[1] -= b.mdV[1];
-    a.mdV[2] -= b.mdV[2];
+    a.mdV[VX] -= b.mdV[VX];
+    a.mdV[VY] -= b.mdV[VY];
+    a.mdV[VZ] -= b.mdV[VZ];
     return a;
 }
 
 inline const LLVector3d& operator%=(LLVector3d& a, const LLVector3d& b)
 {
-    LLVector3d ret( a.mdV[1]*b.mdV[2] - b.mdV[1]*a.mdV[2], a.mdV[2]*b.mdV[0] - b.mdV[2]*a.mdV[0], a.mdV[0]*b.mdV[1] - b.mdV[0]*a.mdV[1]);
+    LLVector3d ret( a.mdV[VY]*b.mdV[VZ] - b.mdV[VY]*a.mdV[VZ], a.mdV[VZ]*b.mdV[VX] - b.mdV[VZ]*a.mdV[VX], a.mdV[VX]*b.mdV[VY] - b.mdV[VX]*a.mdV[VY]);
     a = ret;
     return a;
 }
 
 inline const LLVector3d& operator*=(LLVector3d& a, const F64 k)
 {
-    a.mdV[0] *= k;
-    a.mdV[1] *= k;
-    a.mdV[2] *= k;
+    a.mdV[VX] *= k;
+    a.mdV[VY] *= k;
+    a.mdV[VZ] *= k;
     return a;
 }
 
 inline const LLVector3d& operator/=(LLVector3d& a, const F64 k)
 {
     F64 t = 1.f / k;
-    a.mdV[0] *= t;
-    a.mdV[1] *= t;
-    a.mdV[2] *= t;
+    a.mdV[VX] *= t;
+    a.mdV[VY] *= t;
+    a.mdV[VZ] *= t;
     return a;
 }
 
 inline LLVector3d operator-(const LLVector3d& a)
 {
-    return LLVector3d( -a.mdV[0], -a.mdV[1], -a.mdV[2] );
+    return LLVector3d( -a.mdV[VX], -a.mdV[VY], -a.mdV[VZ] );
 }
 
 inline F64  dist_vec(const LLVector3d& a, const LLVector3d& b)
 {
-    F64 x = a.mdV[0] - b.mdV[0];
-    F64 y = a.mdV[1] - b.mdV[1];
-    F64 z = a.mdV[2] - b.mdV[2];
+    F64 x = a.mdV[VX] - b.mdV[VX];
+    F64 y = a.mdV[VY] - b.mdV[VY];
+    F64 z = a.mdV[VZ] - b.mdV[VZ];
     return (F32) sqrt( x*x + y*y + z*z );
 }
 
 inline F64  dist_vec_squared(const LLVector3d& a, const LLVector3d& b)
 {
-    F64 x = a.mdV[0] - b.mdV[0];
-    F64 y = a.mdV[1] - b.mdV[1];
-    F64 z = a.mdV[2] - b.mdV[2];
+    F64 x = a.mdV[VX] - b.mdV[VX];
+    F64 y = a.mdV[VY] - b.mdV[VY];
+    F64 z = a.mdV[VZ] - b.mdV[VZ];
     return x*x + y*y + z*z;
 }
 
 inline F64  dist_vec_squared2D(const LLVector3d& a, const LLVector3d& b)
 {
-    F64 x = a.mdV[0] - b.mdV[0];
-    F64 y = a.mdV[1] - b.mdV[1];
+    F64 x = a.mdV[VX] - b.mdV[VX];
+    F64 y = a.mdV[VY] - b.mdV[VY];
     return x*x + y*y;
 }
 

@@ -22,6 +22,7 @@
       follows="all"
       layout="topleft"
       sort_column="script_name"
+      multi_select="true"
       name="scripts_list"
       top_pad="10"
       width="535">
