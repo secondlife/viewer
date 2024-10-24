@@ -28,6 +28,7 @@
 #define LL_V3COLORUTIL_H
 
 #include "v3color.h"
+#include "v4color.h"
 
 inline LLColor3 componentDiv(const LLColor3& left, const LLColor3& right)
 {
