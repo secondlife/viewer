@@ -441,6 +441,16 @@ void LLPreviewTexture::onFileLoadedForSave(bool success,
             self->getWindow()->decBusyCount();
             self->mLoadingFullImage = false;
         }
+        if (!success)
+        {
+            LL_WARNS("FileSaveAs") << "Failed to download file " << *item_uuid << " for saving."
+                << " Is missing: " << (src_vi->isMissingAsset() ? "true" : "false")
+                << " Discard: " << src_vi->getDiscardLevel()
+                << " Raw discard: " << discard_level
+                << " Size: " << src_vi->getWidth() << "x" << src_vi->getHeight()
+                << " Has GL texture: " << (src_vi->hasGLTexture() ? "true" : "false")
+                << " Has saved raw image: " << (src_vi->hasSavedRawImage() ? "true" : "false") << LL_ENDL;
+        }
     }
 
     if( self && final && success )
