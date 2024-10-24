@@ -55,6 +55,7 @@
 #include "llfloaterimnearbychatlistener.h"
 #include "llagent.h" // gAgent
 #include "llgesturemgr.h"
+#include "llluamanager.h"
 #include "llmultigesture.h"
 #include "llkeyboard.h"
 #include "llanimationstates.h"
@@ -69,6 +70,7 @@
 #include "lltranslate.h"
 #include "llautoreplace.h"
 #include "lluiusage.h"
+#include <boost/regex.hpp>
 
 S32 LLFloaterIMNearbyChat::sLastSpecialChatChannel = 0;
 
@@ -606,6 +608,13 @@ void LLFloaterIMNearbyChat::sendChat( EChatType type )
                 if(!LLGestureMgr::instance().triggerAndReviseString(utf8text, &utf8_revised_text))
                 {
                     utf8_revised_text = utf8text;
+                    // check if the message is /filename.lua and execute the Lua script
+                    static const boost::regex is_lua_script("^/.*\\.luau?$");
+                    if (boost::regex_match(utf8text, is_lua_script))
+                    {
+                        LLLUAmanager::runScriptFile(utf8text.substr(1));
+                        utf8_revised_text.clear();
+                    }
                 }
             }
             else
