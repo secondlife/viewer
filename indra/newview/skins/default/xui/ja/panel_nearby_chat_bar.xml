@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="nearby_chat">
 	<line_editor label="ここをクリックしてチャットを開始します。" name="chat_box" tool_tip="Enterキーで発言し、Ctrl＋Enterキーでシャウトします。"/>
-	<button name="show_nearby_chat" tool_tip="近隣チャットログを表示／非表示"/>
+	<button name="show_nearby_chat" tool_tip="近くのチャットログを表示／非表示します。"/>
 </panel>

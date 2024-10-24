@@ -27,7 +27,7 @@
 			<check_box label="パスワードを記録" name="remember_password"/>
 			<combo_box label="Select grid" name="server_combo"/>
 			<text name="forgot_password_text">
-				パスワードに関するヘルプ
+				パスワードヘルプ
 			</text>
 		</layout_panel>
 		<layout_panel name="ui_elastic_pad_right"/>

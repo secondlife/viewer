@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="ゲーム操作" name="game_control_panel">
+	<check_box name="game_control_to_server" label="ゲーム操作のデータをサーバーに送信する"/>
+	<check_box name="game_control_to_agent" label="ゲーム操作でアバターとフライカムを移動する"/>
+	<check_box name="agent_to_game_control" label="アバターアクションをゲーム操作として解釈する"/>
+	<tab_container name="game_control_tabs">
+		<panel name="tab_channel_mappings" label="チャンネル割り当て">
+			<scroll_list name="action_table">
+				<scroll_list.columns name="action" label="アクション"/>
+				<scroll_list.columns name="channel" label="チャンネル"/>
+			</scroll_list>
+		</panel>
+		<panel name="tab_device_settings" label="デバイス設定">
+			<text name="nodevice_message">
+				デバイスなし
+			</text>
+			<panel name="device_selection_panel">
+				<text name="device_prompt">
+					カスタマイズするデバイス：
+				</text>
+				<text name="single_device"/>
+				<combo_box name="device_list"/>
+			</panel>
+			<check_box name="show_all_known_devices" label="すべての既知のデバイスを表示"/>
+			<panel name="device_settings">
+				<tab_container name="device_settings_tabs">
+					<panel name="tab_axis_options" label="軸オプション">
+						<scroll_list name="axis_options">
+							<scroll_list.columns name="axis" label="軸"/>
+							<scroll_list.columns name="invert" label="反転"/>
+							<scroll_list.columns name="dead_zone" label="デッドゾーン"/>
+							<scroll_list.columns name="offset" label="オフセット"/>
+						</scroll_list>
+					</panel>
+					<panel name="tab_axis_mappings" label="軸の割り当て">
+						<scroll_list name="axis_mappings"/>
+					</panel>
+					<panel name="tab_button_mappings" label="ボタンの割り当て">
+						<scroll_list name="button_mappings"/>
+					</panel>
+				</tab_container>
+			</panel>
+		</panel>
+	</tab_container>
+	<panel name="reset_to_defaults_panel">
+		<button name="reset_to_defaults" label="デフォルトにリセット"/>
+	</panel>
+	<spinner name="numeric_value_editor"/>
+	<combo_box name="axis_selector">
+		<combo_box.item name="axis_0" label="AXIS_0（左スティック：左右に傾ける）"/>
+		<combo_box.item name="axis_1" label="AXIS_1（左スティック：前後に傾ける）"/>
+		<combo_box.item name="axis_2" label="AXIS_2（右スティック：左右に傾ける）"/>
+		<combo_box.item name="axis_3" label="AXIS_3（右スティック：前後に傾ける）"/>
+		<combo_box.item name="axis_4" label="AXIS_4（左トリガー：押す／離す）"/>
+		<combo_box.item name="axis_5" label="AXIS_5（右トリガー：押す／離す）"/>
+		<combo_box.item name="axis_none" label="なし（マッピングなし）"/>
+	</combo_box>
+	<combo_box name="analog_channel_selector">
+		<combo_box.item label="AXIS_0-（左スティック：右に傾ける）" name="AXIS_0-"/>
+		<combo_box.item label="AXIS_0+（左スティック：左に傾ける）" name="AXIS_0+"/>
+		<combo_box.item label="AXIS_1-（左スティック：後ろに傾ける）" name="AXIS_1-"/>
+		<combo_box.item label="AXIS_1+（左スティック：手前に傾ける）" name="AXIS_1+"/>
+		<combo_box.item label="AXIS_2-（右スティック：右に傾ける）" name="AXIS_2-"/>
+		<combo_box.item label="AXIS_2+（右スティック：左に傾ける）" name="AXIS_2+"/>
+		<combo_box.item label="AXIS_3-（右スティック：後ろに傾ける）" name="AXIS_3-"/>
+		<combo_box.item label="AXIS_3+（右スティック：手前に傾ける）" name="AXIS_3+"/>
+		<combo_box.item label="AXIS_4-（右トリガー：離す）" name="AXIS_4-"/>
+		<combo_box.item label="AXIS_4+（左トリガー：押す）" name="AXIS_4+"/>
+		<combo_box.item label="AXIS_5-（右トリガー：離す）" name="AXIS_5-"/>
+		<combo_box.item label="AXIS_5+（右トリガー：押す）" name="AXIS_5+"/>
+		<combo_box.item label="なし（マッピングなし）" name="NONE"/>
+	</combo_box>
+	<combo_box name="binary_channel_selector">
+		<combo_box.item label="BUTTON_0（Ａボタン）" name="BUTTON_0"/>
+		<combo_box.item label="BUTTON_1（Ｂボタン）" name="BUTTON_1"/>
+		<combo_box.item label="BUTTON_2（Ｘボタン）" name="BUTTON_2"/>
+		<combo_box.item label="BUTTON_3（Ｙボタン）" name="BUTTON_3"/>
+		<combo_box.item label="BUTTON_4（Backボタン）" name="BUTTON_4"/>
+		<combo_box.item label="BUTTON_5（ガイドボタン）" name="BUTTON_5"/>
+		<combo_box.item label="BUTTON_6（Homeボタン）" name="BUTTON_6"/>
+		<combo_box.item label="BUTTON_7（右スティック）" name="BUTTON_7"/>
+		<combo_box.item label="BUTTON_8（左スティック）" name="BUTTON_8"/>
+		<combo_box.item label="BUTTON_9（左ショルダーボタン）" name="BUTTON_9"/>
+		<combo_box.item label="BUTTON_10（右ショルダーボタン）" name="BUTTON_10"/>
+		<combo_box.item label="BUTTON_11（Ｄパッド上）" name="BUTTON_11"/>
+		<combo_box.item label="BUTTON_12（Ｄパッド下）" name="BUTTON_12"/>
+		<combo_box.item label="BUTTON_13（Ｄパッド左）" name="BUTTON_13"/>
+		<combo_box.item label="BUTTON_14（Ｄパッド右）" name="BUTTON_14"/>
+		<combo_box.item label="BUTTON_15（その他１）" name="BUTTON_15"/>
+		<combo_box.item label="BUTTON_16（パドル１）" name="BUTTON_16"/>
+		<combo_box.item label="BUTTON_17（パドル２）" name="BUTTON_17"/>
+		<combo_box.item label="BUTTON_18（パドル３）" name="BUTTON_18"/>
+		<combo_box.item label="BUTTON_19（パドル４）" name="BUTTON_19"/>
+		<combo_box.item label="BUTTON_20（タッチパッド）" name="BUTTON_20"/>
+		<combo_box.item label="BUTTON_21" name="BUTTON_21"/>
+		<combo_box.item label="BUTTON_22" name="BUTTON_22"/>
+		<combo_box.item label="BUTTON_23" name="BUTTON_23"/>
+		<combo_box.item label="BUTTON_24" name="BUTTON_24"/>
+		<combo_box.item label="BUTTON_25" name="BUTTON_25"/>
+		<combo_box.item label="BUTTON_26" name="BUTTON_26"/>
+		<combo_box.item label="BUTTON_27" name="BUTTON_27"/>
+		<combo_box.item label="BUTTON_28" name="BUTTON_28"/>
+		<combo_box.item label="BUTTON_29" name="BUTTON_29"/>
+		<combo_box.item label="BUTTON_30" name="BUTTON_30"/>
+		<combo_box.item label="BUTTON_31" name="BUTTON_31"/>
+		<combo_box.item label="なし" name="NONE"/>
+	</combo_box>
+</panel>
