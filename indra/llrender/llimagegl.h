@@ -50,7 +50,7 @@ class LLWindow;
 
 namespace LLImageGLMemory
 {
-    void alloc_tex_image(U32 width, U32 height, U32 pixformat);
+    void alloc_tex_image(U32 width, U32 height, U32 intformat, U32 count);
     void free_tex_image(U32 texName);
     void free_tex_images(U32 count, const U32* texNames);
     void free_cur_tex_image();
@@ -101,9 +101,9 @@ public:
     static bool create(LLPointer<LLImageGL>& dest, const LLImageRaw* imageraw, bool usemipmaps = true);
 
 public:
-    LLImageGL(bool usemipmaps = true);
-    LLImageGL(U32 width, U32 height, U8 components, bool usemipmaps = true);
-    LLImageGL(const LLImageRaw* imageraw, bool usemipmaps = true);
+    LLImageGL(bool usemipmaps = true, bool allow_compression = true);
+    LLImageGL(U32 width, U32 height, U8 components, bool usemipmaps = true, bool allow_compression = true);
+    LLImageGL(const LLImageRaw* imageraw, bool usemipmaps = true, bool allow_compression = true);
 
     // For wrapping textures created via GL elsewhere with our API only. Use with caution.
     LLImageGL(LLGLuint mTexName, U32 components, LLGLenum target, LLGLint  formatInternal, LLGLenum formatPrimary, LLGLenum formatType, LLTexUnit::eTextureAddressMode addressMode);
@@ -203,7 +203,7 @@ public:
 
     LLGLenum getTexTarget()const { return mTarget; }
 
-    void init(bool usemipmaps);
+    void init(bool usemipmaps, bool allow_compression);
     virtual void cleanup(); // Clean up the LLImageGL so it can be reinitialized.  Be careful when using this in derived class destructors
 
     void setNeedsAlphaAndPickMask(bool need_mask);
@@ -298,6 +298,7 @@ public:
 
 public:
     static void initClass(LLWindow* window, S32 num_catagories, bool skip_analyze_alpha = false, bool thread_texture_loads = false, bool thread_media_updates = false);
+    static void allocateConversionBuffer();
     static void cleanupClass() ;
 
 private:
@@ -305,6 +306,7 @@ private:
     static bool sSkipAnalyzeAlpha;
     static U32 sScratchPBO;
     static U32 sScratchPBOSize;
+    static U32* sManualScratch;
 
     //the flag to allow to call readBackRaw(...).
     //can be removed if we do not use that function at all.

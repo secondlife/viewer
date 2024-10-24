@@ -1983,6 +1983,9 @@ void LLFloater::onClickCloseBtn(bool app_quitting)
 // virtual
 void LLFloater::draw()
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
+    LL_PROFILE_ZONE_TEXT(getTitle().c_str(), getTitle().length());
+
     const F32 alpha = getCurrentTransparency();
 
     // draw background
@@ -2039,21 +2042,6 @@ void LLFloater::draw()
 
     LLPanel::updateDefaultBtn();
 
-    if( getDefaultButton() )
-    {
-        if (hasFocus() && getDefaultButton()->getEnabled())
-        {
-            LLFocusableElement* focus_ctrl = gFocusMgr.getKeyboardFocus();
-            // is this button a direct descendent and not a nested widget (e.g. checkbox)?
-            bool focus_is_child_button = dynamic_cast<LLButton*>(focus_ctrl) != NULL && dynamic_cast<LLButton*>(focus_ctrl)->getParent() == this;
-            // only enable default button when current focus is not a button
-            getDefaultButton()->setBorderEnabled(!focus_is_child_button);
-        }
-        else
-        {
-            getDefaultButton()->setBorderEnabled(false);
-        }
-    }
     if (isMinimized())
     {
         for (S32 i = 0; i < BUTTON_COUNT; i++)
@@ -2287,36 +2275,28 @@ void LLFloater::drawConeToOwner(F32 &context_cone_opacity,
 
         gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
         LLGLEnable(GL_CULL_FACE);
-        gGL.begin(LLRender::QUADS);
+        gGL.begin(LLRender::TRIANGLE_STRIP);
         {
             gGL.color4f(0.f, 0.f, 0.f, contex_cone_in_alpha * context_cone_opacity);
             gGL.vertex2i(owner_rect.mLeft, owner_rect.mTop);
+            gGL.color4f(0.f, 0.f, 0.f, contex_cone_out_alpha * context_cone_opacity);
+            gGL.vertex2i(local_rect.mLeft, local_rect.mTop);
+            gGL.color4f(0.f, 0.f, 0.f, contex_cone_in_alpha * context_cone_opacity);
             gGL.vertex2i(owner_rect.mRight, owner_rect.mTop);
             gGL.color4f(0.f, 0.f, 0.f, contex_cone_out_alpha * context_cone_opacity);
             gGL.vertex2i(local_rect.mRight, local_rect.mTop);
-            gGL.vertex2i(local_rect.mLeft, local_rect.mTop);
-
+            gGL.color4f(0.f, 0.f, 0.f, contex_cone_in_alpha * context_cone_opacity);
+            gGL.vertex2i(owner_rect.mRight, owner_rect.mBottom);
             gGL.color4f(0.f, 0.f, 0.f, contex_cone_out_alpha * context_cone_opacity);
-            gGL.vertex2i(local_rect.mLeft, local_rect.mTop);
-            gGL.vertex2i(local_rect.mLeft, local_rect.mBottom);
+            gGL.vertex2i(local_rect.mRight, local_rect.mBottom);
             gGL.color4f(0.f, 0.f, 0.f, contex_cone_in_alpha * context_cone_opacity);
             gGL.vertex2i(owner_rect.mLeft, owner_rect.mBottom);
+            gGL.color4f(0.f, 0.f, 0.f, contex_cone_out_alpha * context_cone_opacity);
+            gGL.vertex2i(local_rect.mLeft, local_rect.mBottom);
+            gGL.color4f(0.f, 0.f, 0.f, contex_cone_in_alpha * context_cone_opacity);
             gGL.vertex2i(owner_rect.mLeft, owner_rect.mTop);
-
             gGL.color4f(0.f, 0.f, 0.f, contex_cone_out_alpha * context_cone_opacity);
-            gGL.vertex2i(local_rect.mRight, local_rect.mBottom);
-            gGL.vertex2i(local_rect.mRight, local_rect.mTop);
-            gGL.color4f(0.f, 0.f, 0.f, contex_cone_in_alpha * context_cone_opacity);
-            gGL.vertex2i(owner_rect.mRight, owner_rect.mTop);
-            gGL.vertex2i(owner_rect.mRight, owner_rect.mBottom);
-
-
-            gGL.color4f(0.f, 0.f, 0.f, contex_cone_out_alpha * context_cone_opacity);
-            gGL.vertex2i(local_rect.mLeft, local_rect.mBottom);
-            gGL.vertex2i(local_rect.mRight, local_rect.mBottom);
-            gGL.color4f(0.f, 0.f, 0.f, contex_cone_in_alpha * context_cone_opacity);
-            gGL.vertex2i(owner_rect.mRight, owner_rect.mBottom);
-            gGL.vertex2i(owner_rect.mLeft, owner_rect.mBottom);
+            gGL.vertex2i(local_rect.mLeft, local_rect.mTop);
         }
         gGL.end();
     }

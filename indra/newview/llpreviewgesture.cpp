@@ -517,6 +517,7 @@ void LLPreviewGesture::addKeys()
 void LLPreviewGesture::addAnimations()
 {
     LLComboBox* combo = mAnimationCombo;
+    LLUUID old_value = combo->getCurrentID();
 
     combo->removeall();
 
@@ -565,6 +566,8 @@ void LLPreviewGesture::addAnimations()
 
         combo->add(item->getName(), item->getAssetUUID(), ADD_BOTTOM);
     }
+
+    combo->setCurrentByID(old_value);
 }
 
 
@@ -1410,7 +1413,7 @@ void LLPreviewGesture::onCommitAnimation(LLUICtrl* ctrl, void* data)
         {
             // Assign the animation name
             LLGestureStepAnimation* anim_step = (LLGestureStepAnimation*)step;
-            if (self->mAnimationCombo->getCurrentIndex() == 0)
+            if (self->mAnimationCombo->getCurrentIndex() <= 0)
             {
                 anim_step->mAnimName.clear();
                 anim_step->mAnimAssetID.setNull();

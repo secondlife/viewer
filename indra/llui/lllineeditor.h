@@ -40,6 +40,7 @@
 #include "llframetimer.h"
 
 #include "lleditmenuhandler.h"
+#include "llfontvertexbuffer.h"
 #include "llspellcheckmenuhandler.h"
 #include "lluictrl.h"
 #include "lluiimage.h"
@@ -344,6 +345,10 @@ protected:
 
     LLViewBorder* mBorder;
     const LLFontGL* mGLFont;
+    LLFontVertexBuffer mFontBufferPreSelection;
+    LLFontVertexBuffer mFontBufferSelection;
+    LLFontVertexBuffer mFontBufferPostSelection;
+    LLFontVertexBuffer mFontBufferLabel;
     S32         mMaxLengthBytes;            // Max length of the UTF8 string in bytes
     S32         mMaxLengthChars;            // Maximum number of characters in the string
     S32         mCursorPos;                 // I-beam is just after the mCursorPos-th character.

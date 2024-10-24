@@ -26,6 +26,7 @@ set(cmake_SOURCE_FILES
         FreeType.cmake
         GLEXT.cmake
         GLH.cmake
+        GLM.cmake
         Havok.cmake
         Hunspell.cmake
         LLAddBuildTest.cmake
