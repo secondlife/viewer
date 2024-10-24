@@ -56,6 +56,7 @@ std::map<std::string, std::string> LLLUAmanager::sScriptNames;
 lua_function(yield, "yield(): allow other processing to run.")
 {
     LuaState::getParent(L).yield();
+    return 0;
 }
 
 // This function consumes ALL Lua stack arguments and returns concatenated
