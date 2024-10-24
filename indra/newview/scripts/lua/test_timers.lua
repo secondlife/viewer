@@ -37,7 +37,7 @@ end
 -- then the t1 callback message before the Timer(5) completion message.
 print('Timer(5) waiting')
 start = os.clock()
-timers.Timer(5, 'wait')
+timers.sleep(5)
 print(string.format('Timer(5) waited %f seconds', os.clock() - start))
 
 -- This test demonstrates a repeating timer. It also shows that you can (but

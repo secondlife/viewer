@@ -8,29 +8,27 @@ local timers = {}
 local function dbg(...) end
 -- local dbg = require 'printf'
 
+function timers.sleep(delay)
+    dbg('scheduleAfter(%d):', delay)
+    sequence = leap.generate('Timers', {op='scheduleAfter', after=delay})
+    -- ignore the immediate return
+    dbg('scheduleAfter(%d) -> %s', delay,
+        sequence.next())
+    -- this call is where we wait for real
+    dbg('next():')
+    dbg('next() -> %s',
+        sequence.next())
+    sequence.done()
+end
+
 timers.Timer = {}
 
 -- delay:    time in seconds until callback
--- callback: 'wait', or function to call when timer fires (self:tick if nil)
+-- callback: function to call when timer fires (self:tick if nil)
 -- iterate:  if non-nil, call callback repeatedly until it returns non-nil
---           (ignored if 'wait')
 function timers.Timer:new(delay, callback, iterate)
     local obj = setmetatable({}, self)
     self.__index = self
-
-    if callback == 'wait' then
-        dbg('scheduleAfter(%d):', delay)
-        sequence = leap.generate('Timers', {op='scheduleAfter', after=delay})
-        -- ignore the immediate return
-        dbg('scheduleAfter(%d) -> %s', delay,
-        sequence.next())
-        -- this call is where we wait for real
-        dbg('next():')
-        dbg('next() -> %s',
-        sequence.next())
-        sequence.done()
-        return
-    end
 
     callback = callback or function() obj:tick() end
 
