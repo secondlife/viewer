@@ -48,6 +48,7 @@
 
 #include "llappviewer.h"
 #include "llcallbacklist.h"
+#include "llviewercontrol.h"
 #include "llviewerparcelmgr.h"
 
 #include "llinventorymodel.h"
@@ -939,19 +940,29 @@ void LLPanelEnvironmentInfo::udpateApparentTimeOfDay()
     S32Hours    hourofday(secondofday);
     S32Seconds  secondofhour(secondofday - hourofday);
     S32Minutes  minutesofhour(secondofhour);
+    static bool use_24h = gSavedSettings.getBOOL("Use24HourClock");
     bool        am_pm(hourofday.value() >= 12);
 
-    if (hourofday.value() < 1)
-        hourofday = S32Hours(12);
-    if (hourofday.value() > 12)
-        hourofday -= S32Hours(12);
+    if (!use_24h)
+    {
+        if (hourofday.value() < 1)
+            hourofday = S32Hours(12);
+        if (hourofday.value() > 12)
+            hourofday -= S32Hours(12);
+    }
 
     std::string lblminute(((minutesofhour.value() < 10) ? "0" : "") + LLSD(minutesofhour.value()).asString());
 
-
     mLabelApparentTime->setTextArg("[HH]", LLSD(hourofday.value()).asString());
     mLabelApparentTime->setTextArg("[MM]", lblminute);
-    mLabelApparentTime->setTextArg("[AP]", std::string(am_pm ? "PM" : "AM"));
+    if (use_24h)
+    {
+        mLabelApparentTime->setTextArg("[AP]", std::string());
+    }
+    else
+    {
+        mLabelApparentTime->setTextArg("[AP]", std::string(am_pm ? "PM" : "AM"));
+    }
     mLabelApparentTime->setTextArg("[PRC]", LLSD((S32)(100 * perc)).asString());
 
 }
