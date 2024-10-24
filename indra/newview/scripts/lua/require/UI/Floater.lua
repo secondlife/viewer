@@ -52,22 +52,18 @@ function Floater:show()
     -- leap.eventstream() returns the first response, and launches a
     -- background fiber to call the passed callback with all subsequent
     -- responses.
+    -- handleEvents() returns false when done.
+    -- eventstream() expects a true return when done.
+    local invertHandleEvents = function(event)
+        return not self:handleEvents(event)
+    end
+    -- Pass both the initial 'post_build' event and all subsequent events to
+    -- our handleEvents() wrapper.
     local event = leap.eventstream(
-        'LLFloaterReg',
-        self._command,
-        -- handleEvents() returns false when done.
-        -- eventstream() expects a true return when done.
-        function(event) return not self:handleEvents(event) end)
+        'LLFloaterReg', self._command, invertHandleEvents, invertHandleEvents)
     self._pump = event.command_name
     -- we might need the returned reqid to cancel the eventstream() fiber
     self.reqid = event.reqid
-
-    -- The response to 'showLuaFloater' *is* the 'post_build' event. Check if
-    -- subclass has a post_build() method. Honor the convention that if
-    -- handleEvents() returns false, we're done.
-    if not self:handleEvents(event) then
-        return
-    end
 end
 
 function Floater:post(action)
