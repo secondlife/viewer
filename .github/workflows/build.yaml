@@ -138,7 +138,7 @@ jobs:
             libgl1-mesa-dev libglu1-mesa-dev libxinerama-dev \
             libxcursor-dev libxfixes-dev libgstreamer1.0-dev \
             libgstreamer-plugins-base1.0-dev ninja-build libxft-dev \
-            llvm mold libpipewire-0.3-dev \
+            llvm mold libpipewire-0.3-dev libdbus-1-dev \
             libwayland-client0 libdecor-0-dev
 
       - name: Install windows dependencies

@@ -30,6 +30,7 @@ include(LLPrimitive)
 include(LLWindow)
 include(SDL2)
 include(NDOF)
+include(NFDE)
 include(NVAPI)
 include(OPENAL)
 include(OpenGL)
@@ -1944,6 +1945,7 @@ target_link_libraries(${VIEWER_BINARY_NAME}
         ll::ndof
         ll::tracy
         ll::openxr
+        ll::nfde
         )
 
 if( TARGET ll::intel_memops )

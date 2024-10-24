@@ -54,6 +54,10 @@
 #include <commdlg.h>
 #endif
 
+#if LL_NFD
+#include "nfd.hpp"
+#endif
+
 class LLFilePicker
 {
 public:
@@ -150,6 +154,10 @@ private:
     // utility function to check if access to local file system via file browser
     // is enabled and if not, tidy up and indicate we're not allowed to do this.
     bool check_local_file_access_enabled();
+
+#if LL_NFD
+    std::vector<nfdfilteritem_t> setupFilter(ELoadFilter filter);
+#endif
 
 #if LL_WINDOWS
     OPENFILENAMEW mOFN;             // for open and save dialogs
