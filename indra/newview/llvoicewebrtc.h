@@ -30,6 +30,7 @@ class LLWebRTCProtocolParser;
 
 #include "lliopipe.h"
 #include "llpumpio.h"
+#include "llcallbacklist.h"
 #include "llchainio.h"
 #include "lliosocket.h"
 #include "v3math.h"
@@ -113,7 +114,7 @@ public:
     /// @name Devices
     //@{
     // This returns true when it's safe to bring up the "device settings" dialog in the prefs.
-    bool deviceSettingsAvailable() override;
+    bool deviceSettingsAvailable() override { return mDeviceSettingsAvailable; }
     bool deviceSettingsUpdated() override;  //return if the list has been updated and never fetched,  only to be called from the voicepanel.
 
     // Requery the WebRTC daemon for the current list of input/output devices.
@@ -124,6 +125,9 @@ public:
 
     void setCaptureDevice(const std::string& name) override;
     void setRenderDevice(const std::string& name) override;
+
+    bool isCaptureNoDevice() override;
+    bool isRenderNoDevice() override;
 
     LLVoiceDeviceList& getCaptureDevices() override;
     LLVoiceDeviceList& getRenderDevices() override;
@@ -447,19 +451,23 @@ private:
 
     // Coroutine support methods
     //---
-    void voiceConnectionCoro();
+    void connectionTimer();
 
     //---
     /// Clean up objects created during a voice session.
     void cleanUp();
+
+    // stop state machine
+    void stopTimer();
 
     LL::WorkQueue::weak_t mMainQueue;
 
     bool mTuningMode;
     F32 mTuningMicGain;
     int mTuningSpeakerVolume;
+    bool mDeviceSettingsAvailable;
     bool mDevicesListUpdated;            // set to true when the device list has been updated
-                                        // and false when the panelvoicedevicesettings has queried for an update status.
+                                         // and false when the panelvoicedevicesettings has queried for an update status.
     std::string mSpatialSessionCredentials;
 
     std::string mMainSessionGroupHandle; // handle of the "main" session group.
@@ -534,7 +542,8 @@ private:
 
     bool    mIsInTuningMode;
     bool    mIsProcessingChannels;
-    bool    mIsCoroutineActive;
+    bool    mIsTimerActive;
+    LL::Timers::handle_t mVoiceTimerHandle;
 
     // These variables can last longer than WebRTC in coroutines so we need them as static
     static bool sShuttingDown;

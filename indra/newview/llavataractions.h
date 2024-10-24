@@ -172,18 +172,15 @@ public:
     static bool canBlock(const LLUUID& id);
 
     /**
-     * Return true if the avatar is in a P2P voice call with a given user
+     * @return true if voice calls are available
      */
-    /* AD *TODO: Is this function needed any more?
-        I fixed it a bit(added check for canCall), but it appears that it is not used
-        anywhere. Maybe it should be removed?
-    static bool isCalling(const LLUUID &id);*/
+    static bool canCall();
 
     /**
      * @return true if call to the resident can be made
      */
+    static bool canCallTo(const LLUUID& id);
 
-    static bool canCall();
     /**
      * Invite avatar to a group.
      */
