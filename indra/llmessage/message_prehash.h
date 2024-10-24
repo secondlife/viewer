@@ -1405,5 +1405,6 @@ extern char const* const _PREHASH_ExperienceID;
 extern char const* const _PREHASH_LargeGenericMessage;
 extern char const* const _PREHASH_GameControlInput;
 extern char const* const _PREHASH_AxisData;
+extern char const* const _PREHASH_MetaData;
 
 #endif
