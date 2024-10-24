@@ -1211,6 +1211,37 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 {
     LL_RECORD_BLOCK_TIME(FTM_APPEND_MESSAGE);
     bool use_plain_text_chat_history = args["use_plain_text_chat_history"].asBoolean();
+    S32 insert_at = -1;
+    S32 insert_length = 0;
+
+    bool partial = args["partial"].asBoolean();
+    if (chat.mChatType == CHAT_TYPE_VOICE_TRANSCRIPTION)
+    {
+        auto partial_speech_transcriptions_iter = mPartialSpeechTranscriptions.find(chat.mFromID);
+        if (partial_speech_transcriptions_iter != mPartialSpeechTranscriptions.end())
+        {
+            /* remove existing partial transcription with current text */
+            insert_at = partial_speech_transcriptions_iter->second.last_transcribed_text_begin;
+            insert_length = partial_speech_transcriptions_iter->second.last_transcribed_text_length;
+            mEditor->removeStringNoUndo(insert_at, insert_length);
+            for (auto& it : mPartialSpeechTranscriptions)
+            {
+                if (it.second.last_transcribed_text_begin > insert_at)
+                {
+                    it.second.last_transcribed_text_begin -= insert_length;
+                }
+            }
+            if (!partial)
+            {
+                mPartialSpeechTranscriptions.erase(partial_speech_transcriptions_iter);
+            }
+            else
+            {
+                mPartialSpeechTranscriptions[chat.mFromID].last_transcribed_text_length = (S32)chat.mText.size();
+            }
+        }
+    }
+
     bool square_brackets = false; // square brackets necessary for a system messages
 
     llassert(mEditor);
@@ -1285,6 +1316,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
     }
     if (chat.mChatType == CHAT_TYPE_VOICE_TRANSCRIPTION)
     {
+        body_message_params.font.style = "ITALIC";
     }
     else if (chat.mChatType == CHAT_TYPE_WHISPER)
     {
@@ -1307,140 +1339,145 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
         name_params.readonly_color(txt_color);
     }
 
-    bool prependNewLineState = mEditor->getText().size() != 0 && chat.mChatType == CHAT_TYPE_VOICE_TRANSCRIPTION;
+    bool prependNewLineState = mEditor->getText().size() != 0;
 
-    // compact mode: show a timestamp and name
-    if (use_plain_text_chat_history)
+    if (insert_at == -1)
     {
-        square_brackets = chat.mSourceType == CHAT_SOURCE_SYSTEM;
-
-        LLStyle::Params timestamp_style(body_message_params);
-
-        // out of the timestamp
-        if (args["show_time"].asBoolean() && !teleport_separator)
+        // compact mode: show a timestamp and name
+        if (use_plain_text_chat_history)
         {
-            if (!message_from_log)
+            square_brackets = chat.mSourceType == CHAT_SOURCE_SYSTEM;
+
+            LLStyle::Params timestamp_style(body_message_params);
+
+            // out of the timestamp
+            if (args["show_time"].asBoolean() && !teleport_separator)
             {
-                LLUIColor timestamp_color = LLUIColorTable::instance().getColor("ChatTimestampColor");
-                timestamp_style.color(timestamp_color);
-                timestamp_style.readonly_color(timestamp_color);
-            }
-            mEditor->appendText("[" + chat.mTimeStr + "] ", prependNewLineState, timestamp_style);
-            prependNewLineState = false;
-        }
-
-        // out the opening square bracket (if need)
-        if (square_brackets)
-        {
-            mEditor->appendText("[", prependNewLineState, body_message_params);
-            prependNewLineState = false;
-        }
-
-        // names showing
-        if (args["show_names_for_p2p_conv"].asBoolean() && utf8str_trim(chat.mFromName).size())
-        {
-            // Don't hotlink any messages from the system (e.g. "Second Life:"), so just add those in plain text.
-            if (chat.mSourceType == CHAT_SOURCE_OBJECT && chat.mFromID.notNull())
-            {
-                // for object IMs, create a secondlife:///app/objectim SLapp
-                std::string url = LLViewerChat::getSenderSLURL(chat, args);
-
-                // set the link for the object name to be the objectim SLapp
-                // (don't let object names with hyperlinks override our objectim Url)
-                LLStyle::Params link_params(body_message_params);
-                LLUIColor link_color = LLUIColorTable::instance().getColor("HTMLLinkColor");
-                link_params.color = link_color;
-                link_params.readonly_color = link_color;
-                link_params.is_link = true;
-                link_params.link_href = url;
-
-                mEditor->appendText(chat.mFromName + delimiter, prependNewLineState, link_params);
+                if (!message_from_log)
+                {
+                    LLUIColor timestamp_color = LLUIColorTable::instance().getColor("ChatTimestampColor");
+                    timestamp_style.color(timestamp_color);
+                    timestamp_style.readonly_color(timestamp_color);
+                }
+                mEditor->appendText("[" + chat.mTimeStr + "] ", prependNewLineState, timestamp_style);
                 prependNewLineState = false;
             }
-            else if ( chat.mFromName != SYSTEM_FROM && chat.mFromID.notNull() && !message_from_log && chat.mSourceType != CHAT_SOURCE_REGION)
-            {
-                LLStyle::Params link_params(body_message_params);
-                link_params.overwriteFrom(LLStyleMap::instance().lookupAgent(chat.mFromID));
 
-                // Add link to avatar's inspector and delimiter to message.
-                mEditor->appendText(std::string(link_params.link_href) + delimiter,
-                    prependNewLineState, link_params);
+            // out the opening square bracket (if need)
+            if (square_brackets)
+            {
+                mEditor->appendText("[", prependNewLineState, body_message_params);
                 prependNewLineState = false;
             }
-            else if (teleport_separator)
+
+            // names showing
+            if (args["show_names_for_p2p_conv"].asBoolean() && utf8str_trim(chat.mFromName).size())
             {
-                std::string tp_text = LLTrans::getString("teleport_preamble_compact_chat");
-                mEditor->appendText(tp_text + " <nolink>" + chat.mFromName + "</nolink>",
-                    prependNewLineState, body_message_params);
-                                prependNewLineState = false;
+                // Don't hotlink any messages from the system (e.g. "Second Life:"), so just add those in plain text.
+                if (chat.mSourceType == CHAT_SOURCE_OBJECT && chat.mFromID.notNull())
+                {
+                    // for object IMs, create a secondlife:///app/objectim SLapp
+                    std::string url = LLViewerChat::getSenderSLURL(chat, args);
+
+                    // set the link for the object name to be the objectim SLapp
+                    // (don't let object names with hyperlinks override our objectim Url)
+                    LLStyle::Params link_params(body_message_params);
+                    LLUIColor link_color = LLUIColorTable::instance().getColor("HTMLLinkColor");
+                    link_params.color = link_color;
+                    link_params.readonly_color = link_color;
+                    link_params.is_link = true;
+                    link_params.link_href = url;
+
+                    mEditor->appendText(chat.mFromName + delimiter, prependNewLineState, link_params);
+                    prependNewLineState = false;
+                }
+                else if ( chat.mFromName != SYSTEM_FROM && chat.mFromID.notNull() && !message_from_log && chat.mSourceType != CHAT_SOURCE_REGION)
+                {
+                    LLStyle::Params link_params(body_message_params);
+                    link_params.overwriteFrom(LLStyleMap::instance().lookupAgent(chat.mFromID));
+
+                    // Add link to avatar's inspector and delimiter to message.
+                    mEditor->appendText(std::string(link_params.link_href) + delimiter,
+                                        prependNewLineState, link_params);
+                    prependNewLineState = false;
+                }
+                else if (teleport_separator)
+                {
+                    std::string tp_text = LLTrans::getString("teleport_preamble_compact_chat");
+                    mEditor->appendText(tp_text + " <nolink>" + chat.mFromName + "</nolink>",
+                                        prependNewLineState, body_message_params);
+                    prependNewLineState = false;
+                }
+                else
+                {
+                    mEditor->appendText("<nolink>" + chat.mFromName + "</nolink>" + delimiter,
+                                        prependNewLineState, body_message_params);
+                    prependNewLineState = false;
+                }
+            }
+        }
+        else // showing timestamp and name in the expanded mode
+        {
+            prependNewLineState = false;
+            LLView* view = NULL;
+            LLInlineViewSegment::Params p;
+            p.force_newline = true;
+            p.left_pad = mLeftWidgetPad;
+            p.right_pad = mRightWidgetPad;
+
+            LLDate new_message_time = LLDate::now();
+            if (!teleport_separator
+                && mLastChatType == chat.mChatType
+                && mLastFromName == chat.mFromName
+                && mLastFromID == chat.mFromID
+                && mLastMessageTime.notNull()
+                && (new_message_time.secondsSinceEpoch() - mLastMessageTime.secondsSinceEpoch()) < 60.0
+                && mIsLastMessageFromLog == message_from_log)  //distinguish between current and previous chat session's histories
+            {
+                view = getSeparator();
+                if (!view)
+                {
+                    // Might be wiser to make this LL_ERRS, getSeparator() should work in case of correct instalation.
+                    LL_WARNS() << "Failed to create separator from " << mMessageSeparatorFilename << ": can't append to history" << LL_ENDL;
+                    return;
+                }
+
+                p.top_pad = mTopSeparatorPad;
+                p.bottom_pad = mBottomSeparatorPad;
             }
             else
             {
-                mEditor->appendText("<nolink>" + chat.mFromName + "</nolink>" + delimiter,
-                        prependNewLineState, body_message_params);
-                prependNewLineState = false;
+                view = getHeader(chat, name_params, args);
+                if (!view)
+                {
+                    LL_WARNS() << "Failed to create header from " << mMessageHeaderFilename << ": can't append to history" << LL_ENDL;
+                    return;
+                }
+
+                p.top_pad = mEditor->getLength() ? mTopHeaderPad : 0;
+                p.bottom_pad = teleport_separator ? mBottomSeparatorPad : mBottomHeaderPad;
             }
+            p.view = view;
+
+            //Prepare the rect for the view
+            LLRect target_rect = mEditor->getDocumentView()->getRect();
+            // squeeze down the widget by subtracting padding off left and right
+            target_rect.mLeft += mLeftWidgetPad + mEditor->getHPad();
+            target_rect.mRight -= mRightWidgetPad;
+            view->reshape(target_rect.getWidth(), view->getRect().getHeight());
+            view->setOrigin(target_rect.mLeft, view->getRect().mBottom);
+
+            std::string widget_associated_text = "\n[" + chat.mTimeStr + "] ";
+            if (utf8str_trim(chat.mFromName).size() != 0 && chat.mFromName != SYSTEM_FROM)
+                widget_associated_text += chat.mFromName + delimiter;
+
+            mEditor->appendWidget(p, widget_associated_text, false);
+            mLastFromName = chat.mFromName;
+            mLastFromID = chat.mFromID;
+            mLastMessageTime = new_message_time;
+            mLastChatType = chat.mChatType;
+            mIsLastMessageFromLog = message_from_log;
         }
-    }
-    else // showing timestamp and name in the expanded mode
-    {
-        prependNewLineState = false;
-        LLView* view = NULL;
-        LLInlineViewSegment::Params p;
-        p.force_newline = true;
-        p.left_pad = mLeftWidgetPad;
-        p.right_pad = mRightWidgetPad;
-
-        LLDate new_message_time = LLDate::now();
-        if (!teleport_separator
-            && mLastFromName == chat.mFromName
-            && mLastFromID == chat.mFromID
-            && mLastMessageTime.notNull()
-            && (new_message_time.secondsSinceEpoch() - mLastMessageTime.secondsSinceEpoch()) < 60.0
-            && mIsLastMessageFromLog == message_from_log)  //distinguish between current and previous chat session's histories
-        {
-            view = getSeparator();
-            if (!view)
-            {
-                // Might be wiser to make this LL_ERRS, getSeparator() should work in case of correct instalation.
-                LL_WARNS() << "Failed to create separator from " << mMessageSeparatorFilename << ": can't append to history" << LL_ENDL;
-                return;
-            }
-
-            p.top_pad = mTopSeparatorPad;
-            p.bottom_pad = mBottomSeparatorPad;
-        }
-        else
-        {
-            view = getHeader(chat, name_params, args);
-            if (!view)
-            {
-                LL_WARNS() << "Failed to create header from " << mMessageHeaderFilename << ": can't append to history" << LL_ENDL;
-                return;
-            }
-
-            p.top_pad = mEditor->getLength() ? mTopHeaderPad : 0;
-            p.bottom_pad = teleport_separator ? mBottomSeparatorPad : mBottomHeaderPad;
-        }
-        p.view = view;
-
-        //Prepare the rect for the view
-        LLRect target_rect = mEditor->getDocumentView()->getRect();
-        // squeeze down the widget by subtracting padding off left and right
-        target_rect.mLeft += mLeftWidgetPad + mEditor->getHPad();
-        target_rect.mRight -= mRightWidgetPad;
-        view->reshape(target_rect.getWidth(), view->getRect().getHeight());
-        view->setOrigin(target_rect.mLeft, view->getRect().mBottom);
-
-        std::string widget_associated_text = "\n[" + chat.mTimeStr + "] ";
-        if (utf8str_trim(chat.mFromName).size() != 0 && chat.mFromName != SYSTEM_FROM)
-            widget_associated_text += chat.mFromName + delimiter;
-
-        mEditor->appendWidget(p, widget_associated_text, false);
-        mLastFromName = chat.mFromName;
-        mLastFromID = chat.mFromID;
-        mLastMessageTime = new_message_time;
-        mIsLastMessageFromLog = message_from_log;
     }
 
     // body of the message processing
@@ -1527,14 +1564,32 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
             message += "]";
         }
 
-        mEditor->appendText(message, prependNewLineState, body_message_params);
+        if (insert_at == -1)
+        {
+            if (chat.mChatType == CHAT_TYPE_VOICE_TRANSCRIPTION && partial)
+            {
+                mPartialSpeechTranscriptions[chat.mFromID] = {mEditor->getCursorPos(), (S32)chat.mText.size()};
+            }
+            mEditor->appendText(message, prependNewLineState, body_message_params);
+        }
+        else
+        {
+            LLTextBox::segment_vec_t segments;
+            LLStyleConstSP sp(new LLStyle(body_message_params));
+            segments.push_back(new LLNormalTextSegment(sp, insert_at, insert_at + (S32)chat.mText.size(), *mEditor));
+            mEditor->setCursorPos(insert_at);
+            LLWString wide_text;
+            wide_text = utf8str_to_wstring(chat.mText);
+            mEditor->insertStringNoUndo(insert_at, wide_text, &segments);
+            mEditor->setCursorPos(mEditor->getLength());
+        }
         prependNewLineState = false;
     }
 
     mEditor->blockUndo();
 
     // automatically scroll to end when receiving chat from myself
-    if (from_me)
+    if (!partial && from_me)
     {
         mEditor->setCursorAndScrollToEnd();
     }

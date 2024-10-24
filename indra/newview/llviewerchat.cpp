@@ -61,13 +61,27 @@ void LLViewerChat::getChatColor(const LLChat& chat, LLUIColor& r_color, F32& r_c
                 }
                 else
                 {
-                    if(gAgentID == chat.mFromID)
+                    if (chat.mChatType == CHAT_TYPE_VOICE_TRANSCRIPTION)
                     {
-                        r_color = LLUIColorTable::instance().getColor("UserChatColor");
+                        if(gAgentID == chat.mFromID)
+                        {
+                            r_color = LLUIColorTable::instance().getColor("UserTranscribedChatColor");
+                        }
+                        else
+                        {
+                            r_color = LLUIColorTable::instance().getColor("AgentTranscribedChatColor");
+                        }
                     }
                     else
                     {
-                        r_color = LLUIColorTable::instance().getColor("AgentChatColor");
+                        if(gAgentID == chat.mFromID)
+                        {
+                            r_color = LLUIColorTable::instance().getColor("UserChatColor");
+                        }
+                        else
+                        {
+                            r_color = LLUIColorTable::instance().getColor("AgentChatColor");
+                        }
                     }
                 }
                 break;
@@ -134,13 +148,27 @@ void LLViewerChat::getChatColor(const LLChat& chat, std::string& r_color_name, F
                 }
                 else
                 {
-                    if(gAgentID == chat.mFromID)
+                    if (chat.mChatType == CHAT_TYPE_VOICE_TRANSCRIPTION)
                     {
-                        r_color_name = "UserChatColor";
+                        if(gAgentID == chat.mFromID)
+                        {
+                            r_color_name = "UserTranscribedChatColor";
+                        }
+                        else
+                        {
+                            r_color_name = "AgentTranscribedChatColor";
+                        }
                     }
                     else
                     {
-                        r_color_name = "AgentChatColor";
+                        if(gAgentID == chat.mFromID)
+                        {
+                            r_color_name = "UserChatColor";
+                        }
+                        else
+                        {
+                            r_color_name = "AgentChatColor";
+                        }
                     }
                 }
                 break;

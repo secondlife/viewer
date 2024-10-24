@@ -512,6 +512,7 @@ public:
     // cursor manipulation
     bool                    setCursor(S32 row, S32 column);
     bool                    setCursorPos(S32 cursor_pos, bool keep_cursor_offset = false);
+    S32                     getCursorPos() { return mCursorPos; }
     void                    startOfLine();
     void                    endOfLine();
     void                    startOfDoc();
@@ -534,6 +535,13 @@ public:
 
     void                    setWordWrap(bool wrap);
     LLScrollContainer*      getScrollContainer() const { return mScroller; }
+
+    // modify contents
+    typedef std::vector<LLTextSegmentPtr> segment_vec_t;
+    S32                             insertStringNoUndo(S32 pos, const LLWString &wstr, segment_vec_t* segments = NULL); // returns num of chars actually inserted
+    S32                             removeStringNoUndo(S32 pos, S32 length);
+    S32                             overwriteCharNoUndo(S32 pos, llwchar wc);
+    void                            appendAndHighlightText(const std::string &new_text, S32 highlight_part, const LLStyle::Params& stylep, bool underline_on_hover_only = false);
 
 protected:
     // protected member variables
@@ -562,7 +570,6 @@ protected:
         bool operator()(const line_info& a, const line_info& b) const;
     };
     struct line_end_compare;
-    typedef std::vector<LLTextSegmentPtr> segment_vec_t;
 
     // Abstract inner base class representing an undoable editor command.
     // Concrete sub-classes can be defined for operations such as insert, remove, etc.
@@ -620,12 +627,6 @@ protected:
     virtual void                    drawSelectionBackground(); // draws the black box behind the selected text
     void                            drawCursor();
     void                            drawText();
-
-    // modify contents
-    S32                             insertStringNoUndo(S32 pos, const LLWString &wstr, segment_vec_t* segments = NULL); // returns num of chars actually inserted
-    S32                             removeStringNoUndo(S32 pos, S32 length);
-    S32                             overwriteCharNoUndo(S32 pos, llwchar wc);
-    void                            appendAndHighlightText(const std::string &new_text, S32 highlight_part, const LLStyle::Params& stylep, bool underline_on_hover_only = false);
 
 
     // manage segments

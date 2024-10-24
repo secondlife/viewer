@@ -11693,6 +11693,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>TranscribeVoice</key>
+    <map>
+      <key>Comment</key>
+      <string>Transcribe Voice</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <string>1</string>
+    </map>
     <key>TranslateLanguage</key>
     <map>
       <key>Comment</key>
