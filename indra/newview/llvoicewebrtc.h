@@ -691,7 +691,7 @@ class LLVoiceWebRTCConnection :
     virtual void requestVoiceConnection() = 0;
     static void requestVoiceConnectionCoro(connectionPtr_t connection) { connection->requestVoiceConnection(); }
 
-    static void breakVoiceConnectionCoro(connectionPtr_t connection);
+    static void breakVoiceConnection(connectionPtr_t connection);
 
     LLVoiceClientStatusObserver::EStatusType mCurrentStatus;
 
