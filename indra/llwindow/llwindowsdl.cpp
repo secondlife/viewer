@@ -513,6 +513,8 @@ bool LLWindowSDL::createContext(int x, int y, int width, int height, int bits, b
             {
                 SDL_SetHint(SDL_HINT_VIDEODRIVER, "x11");
                 LL_WARNS() << "Failed to load wayland-client.so or grab required functions" << LL_ENDL;
+            } else {
+                SDL_SetHint(SDL_HINT_VIDEODRIVER, "wayland");
             }
 #endif
 
