@@ -257,6 +257,7 @@ void LLWebRTCVoiceClient::cleanupSingleton()
         mNextSession->shutdownAllConnections();
     }
     cleanUp();
+    stopTimer();
     sessionState::clearSessions();
 }
 
@@ -295,7 +296,6 @@ void LLWebRTCVoiceClient::cleanUp()
     mNeighboringRegions.clear();
     sessionState::for_each(boost::bind(predShutdownSession, _1));
     LL_DEBUGS("Voice") << "Exiting" << LL_ENDL;
-    stopTimer();
 }
 
 void LLWebRTCVoiceClient::stopTimer()
@@ -2478,7 +2478,7 @@ void LLVoiceWebRTCConnection::sendData(const std::string &data)
 
 // Tell the simulator that we're shutting down a voice connection.
 // The simulator will pass this on to the Secondlife WebRTC server.
-void LLVoiceWebRTCConnection::breakVoiceConnection(connectionPtr_t connection)
+void LLVoiceWebRTCConnection::breakVoiceConnectionCoro(connectionPtr_t connection)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE;
 
@@ -2518,7 +2518,7 @@ void LLVoiceWebRTCConnection::breakVoiceConnection(connectionPtr_t connection)
     body["voice_server_type"] = WEBRTC_VOICE_SERVER_TYPE;
 
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter(
-        new LLCoreHttpUtil::HttpCoroutineAdapter("LLVoiceWebRTCAdHocConnection::breakVoiceConnection",
+        new LLCoreHttpUtil::HttpCoroutineAdapter("LLVoiceWebRTCAdHocConnection::breakVoiceConnectionCoro",
                                                  LLCore::HttpRequest::DEFAULT_POLICY_ID));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
     LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
@@ -2820,7 +2820,9 @@ bool LLVoiceWebRTCConnection::connectionStateMachine()
             if (!LLWebRTCVoiceClient::isShuttingDown())
             {
                 mOutstandingRequests++;
-                breakVoiceConnection(this->shared_from_this());
+                setVoiceConnectionState(VOICE_STATE_WAIT_FOR_EXIT);
+                LLCoros::getInstance()->launch("LLVoiceWebRTCConnection::breakVoiceConnectionCoro",
+                                               boost::bind(&LLVoiceWebRTCConnection::breakVoiceConnectionCoro, this->shared_from_this()));
             }
             else
             {
