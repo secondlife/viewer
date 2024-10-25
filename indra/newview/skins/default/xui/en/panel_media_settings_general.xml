@@ -108,8 +108,8 @@
    width="150" />
   <check_box 
    bottom_delta="-25" 
-   visible="false" 
-   enabled="false" 
+   visible="true"
+   enabled="true"
    follows="left|top" 
    font="SansSerifSmall"
    height="16" 
@@ -122,7 +122,7 @@
    width="150" />
 
   <check_box 
-   bottom_delta="0" 
+   bottom_delta="-25"
    enabled="true" 
    follows="left|top"
    font="SansSerifSmall"

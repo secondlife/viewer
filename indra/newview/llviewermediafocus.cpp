@@ -83,6 +83,7 @@ void LLViewerMediaFocus::setFocusFace(LLPointer<LLViewerObject> objectp, S32 fac
     if (media_impl.notNull() && objectp.notNull())
     {
         bool face_auto_zoom = false;
+        bool first_click_interact = false;
         mPrevFocusedImplID = LLUUID::null;
         mFocusedImplID = media_impl->getMediaTextureID();
         mFocusedObjectID = objectp->getID();
@@ -100,6 +101,7 @@ void LLViewerMediaFocus::setFocusFace(LLPointer<LLViewerObject> objectp, S32 fac
         {
             LLMediaEntry* mep = tep->getMediaData();
             face_auto_zoom = mep->getAutoZoom();
+            first_click_interact = mep->getFirstClickInteract();
             if(!media_impl->hasMedia())
             {
                 std::string url = mep->getCurrentURL().empty() ? mep->getHomeURL() : mep->getCurrentURL();
@@ -110,6 +112,7 @@ void LLViewerMediaFocus::setFocusFace(LLPointer<LLViewerObject> objectp, S32 fac
         {
             // This should never happen.
             LL_WARNS() << "Can't find media entry for focused face" << LL_ENDL;
+            llassert(tep->hasMedia());
         }
 
         media_impl->focus(true);
@@ -118,6 +121,11 @@ void LLViewerMediaFocus::setFocusFace(LLPointer<LLViewerObject> objectp, S32 fac
         if (impl)
         {
             LLEditMenuHandler::gEditMenuHandler = impl;
+        }
+
+        if (first_click_interact)
+        {
+            LL_ERRS() << "unimplemented" << LL_ENDL;
         }
 
         // We must do this before  processing the media HUD zoom, or it may zoom to the wrong face.
