@@ -37,6 +37,7 @@
 #include "llfloatersidepanelcontainer.h"
 #include "llfocusmgr.h"
 #include "lllogchat.h"
+#include "llregex.h"
 #include "llresizebar.h"
 #include "llresizehandle.h"
 #include "lldraghandle.h"
@@ -70,7 +71,6 @@
 #include "lltranslate.h"
 #include "llautoreplace.h"
 #include "lluiusage.h"
-#include <boost/regex.hpp>
 
 S32 LLFloaterIMNearbyChat::sLastSpecialChatChannel = 0;
 
@@ -609,8 +609,8 @@ void LLFloaterIMNearbyChat::sendChat( EChatType type )
                 {
                     utf8_revised_text = utf8text;
                     // check if the message is /filename.lua and execute the Lua script
-                    static const boost::regex is_lua_script("^/.*\\.luau?$");
-                    if (boost::regex_match(utf8text, is_lua_script))
+                    static const boost::regex is_lua_script("^/.*\\.luau?(?:\\s+\\S+)*$");
+                    if (ll_regex_match(utf8text, is_lua_script))
                     {
                         LLLUAmanager::runScriptFile(utf8text.substr(1));
                         utf8_revised_text.clear();
