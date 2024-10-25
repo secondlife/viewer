@@ -666,8 +666,10 @@ void LLFloaterIMNearbyChat::addMessage(const LLChat& chat,bool archive,const LLS
                 from_name = av_name.getCompleteName();
             }
         }
-
-        LLLogChat::saveHistory("chat", from_name, chat.mFromID, chat.mText);
+        if (!args["partial"].asBoolean())
+        {
+            LLLogChat::saveHistory("chat", from_name, chat.mFromID, chat.mText);
+        }
     }
 }
 

@@ -21,6 +21,17 @@
       width="330">
   </check_box>
 
+  <check_box
+      control_name="TranscribeVoice"
+      height="16"
+      label="Transcribe Voice"
+      layout="topleft"
+      top="17"
+      left="353"
+      name="transcribe_voice"
+      width="200">
+  </check_box>
+
   <panel
       border="false"
       height="60"
@@ -67,7 +78,7 @@
 
     <text
         layout="topleft"
-        left="389"
+        left="344"
         height="12"
         name="font_size"
         width="120"
@@ -79,7 +90,7 @@
         control_name="ChatFontSize"
         height="23"
         layout="topleft"
-        left="385"
+        left="340"
         name="chat_font_size"
         top_pad="5"
         width="100">
