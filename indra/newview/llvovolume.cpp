@@ -844,18 +844,6 @@ void LLVOVolume::updateTextureVirtualSize(bool forced)
 
         mPixelArea = llmax(mPixelArea, face->getPixelArea());
 
-        // if the face has gotten small enough to turn off texture animation and texture
-        // animation is running, rebuild the render batch for this face to turn off
-        // texture animation
-        if (face->mTextureMatrix != NULL)
-        {
-            if ((vsize < MIN_TEX_ANIM_SIZE && old_size > MIN_TEX_ANIM_SIZE) ||
-                (vsize > MIN_TEX_ANIM_SIZE && old_size < MIN_TEX_ANIM_SIZE))
-            {
-                gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_TCOORD);
-            }
-        }
-
         if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TEXTURE_PRIORITY))
         {
             LLViewerFetchedTexture* img = LLViewerTextureManager::staticCastToFetchedTexture(imagep) ;
@@ -972,10 +960,6 @@ void LLVOVolume::setScale(const LLVector3 &scale, bool damped)
         }
 
         updateRadius();
-
-        //since drawable transforms do not include scale, changing volume scale
-        //requires an immediate rebuild of volume verts.
-        gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_POSITION);
 
         if (mDrawable)
         {
@@ -1651,6 +1635,7 @@ bool LLVOVolume::updateLOD()
     if (lod_changed)
     {
         gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_VOLUME);
+        gPipeline.markTransformDirty(mDrawable->getSpatialGroup());
         mLODChanged = true;
     }
     else
@@ -1680,7 +1665,7 @@ bool LLVOVolume::setDrawableParent(LLDrawable* parentp)
     {
         // rebuild vertices in parent relative space
         gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_VOLUME);
-
+        gPipeline.markTransformDirty(mDrawable->getSpatialGroup());
         if (mDrawable->isActive() && !parentp->isActive())
         {
             parentp->makeActive();
@@ -1732,6 +1717,7 @@ bool LLVOVolume::setParent(LLViewerObject* parent)
         {
             gPipeline.markMoved(mDrawable);
             gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_VOLUME);
+            gPipeline.markTransformDirty(mDrawable->getSpatialGroup());
         }
         onReparent(old_parent, parent);
     }
@@ -4513,7 +4499,7 @@ void LLVOVolume::setSelected(bool sel)
     LLViewerObject::setSelected(sel);
     getBinRadius();
 
-    if (gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_BATCH_SIZE))
+    /*if (gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_BATCH_SIZE))
     {
         std::ostringstream str;
 
@@ -4529,7 +4515,7 @@ void LLVOVolume::setSelected(bool sel)
         }
 
         setDebugText(str.str());
-    }
+    }*/
 
 
     if (isAnimatedObject())

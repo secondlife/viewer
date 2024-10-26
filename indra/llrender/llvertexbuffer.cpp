@@ -40,6 +40,7 @@
 
 U32 LLVertexBuffer::sDefaultVAO = 0;
 
+static bool sVBOPooling = true;
 
 //Next Highest Power Of Two
 //helper function, returns first number > v that is a power of 2, or v if v is already a power of 2
@@ -1004,7 +1005,8 @@ void LLVertexBuffer::drawArrays(U32 mode, U32 first, U32 count) const
 void LLVertexBuffer::initClass(LLWindow* window)
 {
     llassert(sVBOPool == nullptr);
-    if (gGLManager.mIsApple)
+    sVBOPooling = !gGLManager.mIsApple;
+    if (!sVBOPooling)
     {
         LL_INFOS() << "VBO Pooling Disabled" << LL_ENDL;
         sVBOPool = new LLAppleVBOPool();
@@ -1377,7 +1379,7 @@ U8* LLVertexBuffer::mapVertexBuffer(LLVertexBuffer::AttributeType type, U32 inde
         count = mNumVerts - index;
     }
 
-    if (!gGLManager.mIsApple)
+    if (sVBOPooling)
     {
         U32 start = mOffsets[type] + sTypeSize[type] * index;
         U32 end = start + sTypeSize[type] * count-1;
@@ -1414,7 +1416,7 @@ U8* LLVertexBuffer::mapIndexBuffer(U32 index, S32 count)
         count = mNumIndices-index;
     }
 
-    if (!gGLManager.mIsApple)
+    if (sVBOPooling)
     {
         U32 start = sizeof(U16) * index;
         U32 end = start + sizeof(U16) * count-1;
@@ -1449,7 +1451,7 @@ U8* LLVertexBuffer::mapIndexBuffer(U32 index, S32 count)
 //  dst -- mMappedData or mMappedIndexData
 void LLVertexBuffer::flush_vbo(GLenum target, U32 start, U32 end, void* data, U8* dst)
 {
-    if (gGLManager.mIsApple)
+    if (!sVBOPooling)
     {
         // on OS X, flush_vbo doesn't actually write to the GL buffer, so be sure to call
         // _mapBuffer to tag the buffer for flushing to GL
@@ -1515,7 +1517,7 @@ void LLVertexBuffer::_unmapBuffer()
         }
     };
 
-    if (gGLManager.mIsApple)
+    if (!sVBOPooling)
     {
         STOP_GLERROR;
         if (mMappedData)

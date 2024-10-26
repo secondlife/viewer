@@ -232,11 +232,21 @@ const LLMatrix4& LLDrawable::getRenderMatrix() const
     return isRoot() ? getWorldMatrix() : getParent()->getWorldMatrix();
 }
 
-const LLMatrix4& LLDrawable::getGLTFRenderMatrix()
+const LLMatrix4& LLDrawable::getGLTFRenderMatrix(bool local_frame)
 {
-    LLMatrix4 scale;
-    mGLTFRenderMatrix.initScale(mVObjp->getScale());
-    mGLTFRenderMatrix *= getWorldMatrix();
+    if (local_frame)
+    {
+        // inside an altered coordinate frame, return parent relative transform
+        mGLTFRenderMatrix.initAll(getScale(), mXform.getRotation(), mXform.getPosition());
+    }
+    else
+    {
+        // inside an unaltered coordinate frame, return world relative transform
+        mXform.updateMatrix();
+        mGLTFRenderMatrix.initScale(mVObjp->getScale());
+        mGLTFRenderMatrix *= getWorldMatrix();
+    }
+
     return mGLTFRenderMatrix;
 }
 

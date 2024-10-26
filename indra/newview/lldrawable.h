@@ -101,7 +101,7 @@ public:
 
     const LLMatrix4&      getWorldMatrix() const        { return mXform.getWorldMatrix(); }
     const LLMatrix4&      getRenderMatrix() const;
-    const LLMatrix4&      getGLTFRenderMatrix();
+    const LLMatrix4&      getGLTFRenderMatrix(bool local_frame = false);
     void                  setPosition(LLVector3 v) const { }
     const LLVector3&      getPosition() const           { return mXform.getPosition(); }
     const LLVector3&      getWorldPosition() const      { return mXform.getPositionW(); }

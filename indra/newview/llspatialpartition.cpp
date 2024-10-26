@@ -914,7 +914,26 @@ void LLSpatialGroup::updateTransformUBOs()
 
     LL_PROFILE_ZONE_SCOPED;
     static std::vector<const LLMatrix4*> transforms;
-    transforms.resize(0);
+    transforms.resize(1);
+
+    LLMatrix4 identity;
+    LLMatrix4 rootMat;
+    LLMatrix4 rootObjMat;
+    LLDrawable* root = nullptr;
+    
+    // add root transform
+    if (getSpatialPartition()->asBridge())
+    {
+        root = getSpatialPartition()->asBridge()->mDrawable;
+        rootObjMat.initScale(root->getScale());
+        rootMat = root->getRenderMatrix();
+        transforms[0] = &rootMat;
+    }
+    else
+    {
+        // TODO: set this transform to the coordinate frame of the region that owns this partition
+        transforms[0] = &identity;
+    }
 
     static std::vector<const LLMatrix4*> texture_transforms;
     texture_transforms.resize(0);
@@ -950,7 +969,14 @@ void LLSpatialGroup::updateTransformUBOs()
             // TODO: split transform UBOs when we blow past the UBO size limit
             llassert(transforms.size() < max_transforms);
             U32 transform_index = (U32)transforms.size();
-            transforms.push_back(&drawable->getGLTFRenderMatrix());
+            if (root != drawable)
+            {
+                transforms.push_back(&drawable->getGLTFRenderMatrix(root != nullptr));
+            }
+            else
+            {
+                transforms.push_back(&rootObjMat);
+            }
 
             U32 prim_scale_index = (U32)material_data.size();
             const LLVector3& scale = drawable->getScale();
@@ -966,6 +992,12 @@ void LLSpatialGroup::updateTransformUBOs()
             {
                 LLFace* facep = drawable->getFace(i);
                 facep->mGLTFDrawInfo.clear();
+
+                if (!volume || volume->getNumVolumeFaces() != drawable->getNumFaces())
+                { // volume is not yet loaded
+                    continue;
+                }
+
                 LLVolumeFace& vf = volume->getVolumeFace(i);
 
                 if (vf.mVertexBuffer.isNull())
@@ -1048,6 +1080,8 @@ void LLSpatialGroup::updateTransformUBOs()
     auto alloc_ubo = [&](U32& ubo, bool& new_ubo, U32& new_size, U32& old_size)
     {
         new_ubo = new_size > old_size || new_size < old_size / 2;
+
+        llassert((S32) new_size <= gGLManager.mMaxUniformBlockSize);
 
         if (new_ubo)
         {
@@ -1446,28 +1480,48 @@ void LLSpatialGroup::updateTransform(LLDrawable* drawablep)
         else
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("updateTransform -- pack ubo");
-            // ?fast? path, just update the transform for this drawable
+
+            // fast path, just update the transform for this drawable
             F32 mat[12];
-            pack_transform(drawablep->getGLTFRenderMatrix(), mat);
+            
+            if (getSpatialPartition()->asBridge())
+            { 
+                if (getSpatialPartition()->asBridge()->mDrawable == drawablep)
+                {
+                    pack_transform(drawablep->getRenderMatrix(), mat);
+                    // root transform has updated, update root transform for all spatial groups in this partition
+                    class UpdateTransform : public OctreeTraveler
+                    {
+                    public:
+                        LLDrawable* mDrawable;
+                        F32* mMat;
+                        UpdateTransform(LLDrawable* drawable, F32* mat) : mDrawable(drawable), mMat(mat) {}
 
-            glBindBuffer(GL_UNIFORM_BUFFER, mTransformUBO);
-            glBufferSubData(GL_UNIFORM_BUFFER, offset, sizeof(F32) * 12, mat);
-            glBindBuffer(GL_UNIFORM_BUFFER, 0);
-        }
-    }
+                        virtual void visit(const OctreeNode* branch)
+                        {
+                            LLSpatialGroup* group = (LLSpatialGroup*)branch->getListener(0);
+                            if (group && group->mTransformUBO && group->mTransformUBOSize > 12 * sizeof(F32))
+                            {
+                                glBindBuffer(GL_UNIFORM_BUFFER, group->mTransformUBO);
+                                glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(F32) * 12, mMat);
+                            }
+                        }
+                    };
 
-    // update child transforms as well
-    LLViewerObject* vobj = drawablep->getVObj();
-    for (auto& child : vobj->getChildren())
-    {
-        LLDrawable* child_drawable = child->mDrawable;
-        if (child_drawable)
-        {
-            LLSpatialGroup* group = child_drawable->getSpatialGroup();
-            if (group)
+                    UpdateTransform ut(drawablep, mat);
+
+                    ut.traverse(getSpatialPartition()->mOctree);
+
+                    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+                }
+            }
+            else
             {
-                child_drawable->mXform.updateMatrix();
-                group->updateTransform(child_drawable);
+                pack_transform(drawablep->getGLTFRenderMatrix(), mat);
+                // just update the transform for this drawable
+                glBindBuffer(GL_UNIFORM_BUFFER, mTransformUBO);
+                glBufferSubData(GL_UNIFORM_BUFFER, offset, sizeof(F32) * 12, mat);
+                glBindBuffer(GL_UNIFORM_BUFFER, 0);
             }
         }
     }

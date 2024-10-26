@@ -215,6 +215,17 @@ mat4 getGLTFTransform()
 
     ret[3] = vec4(src[0].w, src[1].w, src[2].w, 1);
 
+#ifndef HAS_SKIN
+    mat3x4 root = gltf_nodes[0];
+    mat4 root4;
+    root4[0] = vec4(root[0].xyz, 0);
+    root4[1] = vec4(root[1].xyz, 0);
+    root4[2] = vec4(root[2].xyz, 0);
+    root4[3] = vec4(root[0].w, root[1].w, root[2].w, 1);
+
+    ret = root4 * ret;
+#endif
+
 #ifdef PLANAR_PROJECTION
     prim_scale = gltf_material_data[gltf_node_instance_map[gl_InstanceID+gltf_base_instance].w].xyz;
 #endif
