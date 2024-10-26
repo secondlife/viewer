@@ -66,7 +66,7 @@ LLViewerMediaFocus::~LLViewerMediaFocus()
     gFocusMgr.removeKeyboardFocusWithoutCallback(this);
 }
 
-void LLViewerMediaFocus::setFocusFace(LLPointer<LLViewerObject> objectp, S32 face, viewer_media_t media_impl, LLVector3 pick_normal)
+void LLViewerMediaFocus::setFocusFace(LLPointer<LLViewerObject> objectp, S32 face, viewer_media_t media_impl, LLVector3 pick_normal, LLVector2 pick_uv)
 {
     LLParcel *parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
 
@@ -125,7 +125,8 @@ void LLViewerMediaFocus::setFocusFace(LLPointer<LLViewerObject> objectp, S32 fac
 
         if (first_click_interact)
         {
-            LL_ERRS() << "unimplemented" << LL_ENDL;
+            media_impl->mouseDown(pick_uv, gKeyboard->currentMask(true));
+            media_impl->mouseUp(pick_uv, gKeyboard->currentMask(true));
         }
 
         // We must do this before  processing the media HUD zoom, or it may zoom to the wrong face.

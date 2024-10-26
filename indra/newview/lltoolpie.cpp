@@ -1534,7 +1534,7 @@ bool LLToolPie::handleMediaClick(const LLPickInfo& pick)
         if (!LLViewerMediaFocus::getInstance()->isFocusedOnFace(pick.getObject(), pick.mObjectFace) || media_impl.isNull())
         {
             // It's okay to give this a null impl
-            LLViewerMediaFocus::getInstance()->setFocusFace(pick.getObject(), pick.mObjectFace, media_impl, pick.mNormal);
+            LLViewerMediaFocus::getInstance()->setFocusFace(pick.getObject(), pick.mObjectFace, media_impl, pick.mNormal, pick.mUVCoords);
         }
         else
         {
