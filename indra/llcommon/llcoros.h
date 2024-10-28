@@ -37,41 +37,38 @@
 #include <boost/fiber/fss.hpp>
 #include <exception>
 #include <functional>
+#include <map>
 #include <queue>
 #include <string>
+#include <unordered_map>
+
+namespace llcoro
+{
+class scheduler;
+}
 
 /**
- * Registry of named Boost.Coroutine instances
+ * Registry of named Boost.Fiber instances
  *
- * The Boost.Coroutine library supports the general case of a coroutine
- * accepting arbitrary parameters and yielding multiple (sets of) results. For
- * such use cases, it's natural for the invoking code to retain the coroutine
- * instance: the consumer repeatedly calls into the coroutine, perhaps passing
- * new parameter values, prompting it to yield its next result.
+ * When the viewer first introduced the semi-independent execution agents now
+ * called fibers, the term "fiber" had not yet become current, and the only
+ * available libraries used the term "coroutine" instead. Within the viewer we
+ * continue to use the term "coroutines," though at present they are actually
+ * boost::fibers::fiber instances.
  *
- * Our typical coroutine usage is different, though. For us, coroutines
- * provide an alternative to the @c Responder pattern. Our typical coroutine
- * has @c void return, invoked in fire-and-forget mode: the handler for some
- * user gesture launches the coroutine and promptly returns to the main loop.
- * The coroutine initiates some action that will take multiple frames (e.g. a
- * capability request), waits for its result, processes it and silently steals
- * away.
- *
- * This usage poses two (related) problems:
- *
- * # Who should own the coroutine instance? If it's simply local to the
- *   handler code that launches it, return from the handler will destroy the
- *   coroutine object, terminating the coroutine.
- * # Once the coroutine terminates, in whatever way, who's responsible for
- *   cleaning up the coroutine object?
+ * Coroutines provide an alternative to the @c Responder pattern. Our typical
+ * coroutine has @c void return, invoked in fire-and-forget mode: the handler
+ * for some user gesture launches the coroutine and promptly returns to the
+ * main loop. The coroutine initiates some action that will take multiple
+ * frames (e.g. a capability request), waits for its result, processes it and
+ * silently steals away.
  *
  * LLCoros is a Singleton collection of currently-active coroutine instances.
  * Each has a name. You ask LLCoros to launch a new coroutine with a suggested
  * name prefix; from your prefix it generates a distinct name, registers the
  * new coroutine and returns the actual name.
  *
- * The name
- * can provide diagnostic info: we can look up the name of the
+ * The name can provide diagnostic info: we can look up the name of the
  * currently-running coroutine.
  */
 class LL_COMMON_API LLCoros: public LLSingleton<LLCoros>
@@ -91,12 +88,8 @@ public:
     // llassert(LLCoros::on_main_thread_main_coro())
     static bool on_main_thread_main_coro();
 
-    /// The viewer's use of the term "coroutine" became deeply embedded before
-    /// the industry term "fiber" emerged to distinguish userland threads from
-    /// simpler, more transient kinds of coroutines. Semantically they've
-    /// always been fibers. But at this point in history, we're pretty much
-    /// stuck with the term "coroutine."
     typedef boost::fibers::fiber coro;
+    typedef coro::id id;
     /// Canonical callable type
     typedef std::function<void()> callable_t;
 
@@ -150,11 +143,14 @@ public:
 
     /**
      * From within a coroutine, look up the (tweaked) name string by which
-     * this coroutine is registered. Returns the empty string if not found
-     * (e.g. if the coroutine was launched by hand rather than using
-     * LLCoros::launch()).
+     * this coroutine is registered.
      */
     static std::string getName();
+
+    /**
+     * Given an id, return the name of that coroutine.
+     */
+    static std::string getName(id);
 
     /**
      * rethrow() is called by the thread's main fiber to propagate an
@@ -170,13 +166,6 @@ public:
     void rethrow();
 
     /**
-     * This variation returns a name suitable for log messages: the explicit
-     * name for an explicitly-launched coroutine, or "mainN" for the default
-     * coroutine on a thread.
-     */
-    static std::string logname();
-
-    /**
      * For delayed initialization. To be clear, this will only affect
      * coroutines launched @em after this point. The underlying facility
      * provides no way to alter the stack size of any running coroutine.
@@ -187,7 +176,7 @@ public:
     void printActiveCoroutines(const std::string& when=std::string());
 
     /// get the current coro::id for those who really really care
-    static coro::id get_self();
+    static id get_self();
 
     /**
      * Most coroutines, most of the time, don't "consume" the events for which
@@ -236,6 +225,7 @@ public:
             setStatus(status);
         }
         TempStatus(const TempStatus&) = delete;
+        TempStatus& operator=(const TempStatus&) = delete;
         ~TempStatus()
         {
             setStatus(mOldStatus);
@@ -331,10 +321,14 @@ public:
     using local_ptr = boost::fibers::fiber_specific_ptr<T>;
 
 private:
+    friend class llcoro::scheduler;
+
     std::string generateDistinctName(const std::string& prefix) const;
     void toplevel(std::string name, callable_t callable);
     struct CoroData;
-    static CoroData& get_CoroData(const std::string& caller);
+    static CoroData& get_CoroData();
+    static CoroData& get_CoroData(id);
+    static CoroData& main_CoroData();
     void saveException(const std::string& name, std::exception_ptr exc);
 
     LLTempBoundListener mConn;
@@ -355,13 +349,18 @@ private:
     S32 mStackSize;
 
     // coroutine-local storage, as it were: one per coro we track
-    struct CoroData: public LLInstanceTracker<CoroData, std::string>
+    struct CoroData: public LLInstanceTracker<CoroData, id>
     {
-        CoroData(const std::string& name);
-        CoroData(int n);
+        using super = LLInstanceTracker<CoroData, id>;
 
+        CoroData(const std::string& name);
+        ~CoroData();
+
+        std::string getName() const;
+
+        bool isMain{ false };
         // tweaked name of the current coroutine
-        const std::string mName;
+        std::string mName;
         // set_consuming() state -- don't consume events unless specifically directed
         bool mConsuming{ false };
         // killed by which coroutine
@@ -369,20 +368,24 @@ private:
         // setStatus() state
         std::string mStatus;
         F64 mCreationTime; // since epoch
+        // Histogram of how many times this coroutine's timeslice exceeds
+        // certain thresholds. mHistogram is pre-populated with those
+        // thresholds as keys. If k0 is one threshold key and k1 is the next,
+        // mHistogram[k0] is the number of times a coroutine timeslice tn ran
+        // (k0 <= tn < k1). A timeslice less than mHistogram.begin()->first is
+        // fine; we don't need to record those.
+        std::map<F64, U32> mHistogram;
     };
 
     // Identify the current coroutine's CoroData. This local_ptr isn't static
     // because it's a member of an LLSingleton, and we rely on it being
     // cleaned up in proper dependency order.
     local_ptr<CoroData> mCurrent;
+
+    // ensure name uniqueness
+    static thread_local std::unordered_map<std::string, int> mPrefixMap;
+    // lookup by name
+    static thread_local std::unordered_map<std::string, id> mNameMap;
 };
-
-namespace llcoro
-{
-
-inline
-std::string logname() { return LLCoros::logname(); }
-
-} // llcoro
 
 #endif /* ! defined(LL_LLCOROS_H) */

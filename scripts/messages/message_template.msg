@@ -4370,14 +4370,18 @@ version 2.0
 // ScriptTeleportRequest
 // reliable
 {
-	ScriptTeleportRequest Low 195 Trusted Unencoded
-	{
-		Data	Single
-		{	ObjectName		Variable	1	}
-		{	SimName			Variable	1	}
-		{	SimPosition		LLVector3		}
-		{	LookAt			LLVector3		}
-	}
+    ScriptTeleportRequest Low 195 Trusted Unencoded
+    {
+        Data	Single
+        {   ObjectName      Variable	1	}
+        {   SimName         Variable	1	}
+        {   SimPosition     LLVector3		}
+        {   LookAt          LLVector3		}
+    }
+    {
+        Options Variable
+        {   Flags           U32 }
+    }
 }
 
 
@@ -5663,6 +5667,14 @@ version 2.0
 		{	FromAgentName	Variable	1	}
 		{	Message			Variable	2	}
 		{	BinaryBucket	Variable	2	}
+	}
+	{
+		EstateBlock			Single
+		{	EstateID		U32	}
+	}
+	{
+		MetaData			Variable
+		{	Data			Variable	2	}
 	}
 }
 

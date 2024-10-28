@@ -26,8 +26,9 @@
 #ifndef LLPOINTER_H
 #define LLPOINTER_H
 
-#include "llerror.h"    // *TODO: consider eliminating this
-#include "llmutex.h"
+#include <boost/functional/hash.hpp>
+#include <string_view>
+#include <utility>                  // std::swap()
 
 //----------------------------------------------------------------------------
 // RefCount objects should generally only be accessed by way of LLPointer<>'s
@@ -42,8 +43,18 @@
 
 //----------------------------------------------------------------------------
 
+class LLPointerBase
+{
+protected:
+    // alert the coder that a referenced type's destructor did something very
+    // strange -- this is in a non-template base class so we can hide the
+    // implementation in llpointer.cpp
+    static void wild_dtor(std::string_view msg);
+};
+
 // Note: relies on Type having ref() and unref() methods
-template <class Type> class LLPointer
+template <class Type>
+class LLPointer: public LLPointerBase
 {
 public:
     template<typename Subclass>
@@ -60,6 +71,13 @@ public:
         ref();
     }
 
+    // Even though the template constructors below accepting
+    // (const LLPointer<Subclass>&) and (LLPointer<Subclass>&&) appear to
+    // subsume these specific (const LLPointer<Type>&) and (LLPointer<Type>&&)
+    // constructors, the compiler recognizes these as The Copy Constructor and
+    // The Move Constructor, respectively. In other words, even in the
+    // presence of the LLPointer<Subclass> constructors, we still must specify
+    // the LLPointer<Type> constructors.
     LLPointer(const LLPointer<Type>& ptr) :
         mPointer(ptr.mPointer)
     {
@@ -98,39 +116,52 @@ public:
     const Type& operator*() const               { return *mPointer; }
     Type&   operator*()                         { return *mPointer; }
 
-    operator BOOL() const                       { return (mPointer != nullptr); }
     operator bool() const                       { return (mPointer != nullptr); }
     bool operator!() const                      { return (mPointer == nullptr); }
     bool isNull() const                         { return (mPointer == nullptr); }
     bool notNull() const                        { return (mPointer != nullptr); }
 
     operator Type*() const                      { return mPointer; }
-    bool operator !=(Type* ptr) const           { return (mPointer != ptr); }
-    bool operator ==(Type* ptr) const           { return (mPointer == ptr); }
-    bool operator ==(const LLPointer<Type>& ptr) const { return (mPointer == ptr.mPointer); }
-    bool operator < (const LLPointer<Type>& ptr) const { return (mPointer < ptr.mPointer); }
-    bool operator > (const LLPointer<Type>& ptr) const { return (mPointer > ptr.mPointer); }
+    template <typename Type1>
+    bool operator !=(Type1* ptr) const          { return (mPointer != ptr); }
+    template <typename Type1>
+    bool operator ==(Type1* ptr) const          { return (mPointer == ptr); }
+    template <typename Type1>
+    bool operator !=(const LLPointer<Type1>& ptr) const { return (mPointer != ptr.mPointer); }
+    template <typename Type1>
+    bool operator ==(const LLPointer<Type1>& ptr) const { return (mPointer == ptr.mPointer); }
+    bool operator < (const LLPointer<Type>& ptr)  const { return (mPointer < ptr.mPointer); }
+    bool operator > (const LLPointer<Type>& ptr)  const { return (mPointer > ptr.mPointer); }
 
     LLPointer<Type>& operator =(Type* ptr)
     {
-        assign(ptr);
+        // copy-and-swap idiom, see http://gotw.ca/gotw/059.htm
+        LLPointer temp(ptr);
+        using std::swap;            // per Swappable convention
+        swap(*this, temp);
         return *this;
     }
 
+    // Even though the template assignment operators below accepting
+    // (const LLPointer<Subclass>&) and (LLPointer<Subclass>&&) appear to
+    // subsume these specific (const LLPointer<Type>&) and (LLPointer<Type>&&)
+    // assignment operators, the compiler recognizes these as Copy Assignment
+    // and Move Assignment, respectively. In other words, even in the presence
+    // of the LLPointer<Subclass> assignment operators, we still must specify
+    // the LLPointer<Type> operators.
     LLPointer<Type>& operator =(const LLPointer<Type>& ptr)
     {
-        assign(ptr);
+        LLPointer temp(ptr);
+        using std::swap;            // per Swappable convention
+        swap(*this, temp);
         return *this;
     }
 
     LLPointer<Type>& operator =(LLPointer<Type>&& ptr)
     {
-        if (mPointer != ptr.mPointer)
-        {
-            unref();
-            mPointer = ptr.mPointer;
-            ptr.mPointer = nullptr;
-        }
+        LLPointer temp(std::move(ptr));
+        using std::swap;            // per Swappable convention
+        swap(*this, temp);
         return *this;
     }
 
@@ -138,35 +169,35 @@ public:
     template<typename Subclass>
     LLPointer<Type>& operator =(const LLPointer<Subclass>& ptr)
     {
-        assign(ptr.get());
+        LLPointer temp(ptr);
+        using std::swap;            // per Swappable convention
+        swap(*this, temp);
         return *this;
     }
 
     template<typename Subclass>
     LLPointer<Type>& operator =(LLPointer<Subclass>&& ptr)
     {
-        if (mPointer != ptr.mPointer)
-        {
-            unref();
-            mPointer = ptr.mPointer;
-            ptr.mPointer = nullptr;
-        }
+        LLPointer temp(std::move(ptr));
+        using std::swap;            // per Swappable convention
+        swap(*this, temp);
         return *this;
     }
 
     // Just exchange the pointers, which will not change the reference counts.
     static void swap(LLPointer<Type>& a, LLPointer<Type>& b)
     {
-        Type* temp = a.mPointer;
-        a.mPointer = b.mPointer;
-        b.mPointer = temp;
+        using std::swap;            // per Swappable convention
+        swap(a.mPointer, b.mPointer);
+    }
+
+    // Put swap() overload in the global namespace, per Swappable convention
+    friend void swap(LLPointer<Type>& a, LLPointer<Type>& b)
+    {
+        LLPointer<Type>::swap(a, b);
     }
 
 protected:
-#ifdef LL_LIBRARY_INCLUDE
-    void ref();
-    void unref();
-#else
     void ref()
     {
         if (mPointer)
@@ -184,20 +215,9 @@ protected:
             temp->unref();
             if (mPointer != nullptr)
             {
-                LL_WARNS() << "Unreference did assignment to non-NULL because of destructor" << LL_ENDL;
+                wild_dtor("Unreference did assignment to non-NULL because of destructor");
                 unref();
             }
-        }
-    }
-#endif // LL_LIBRARY_INCLUDE
-
-    void assign(const LLPointer<Type>& ptr)
-    {
-        if (mPointer != ptr.mPointer)
-        {
-            unref();
-            mPointer = ptr.mPointer;
-            ref();
         }
     }
 
@@ -205,170 +225,8 @@ protected:
     Type*   mPointer;
 };
 
-template <class Type> class LLConstPointer
-{
-    template<typename Subclass>
-    friend class LLConstPointer;
-public:
-    LLConstPointer() :
-        mPointer(nullptr)
-    {
-    }
-
-    LLConstPointer(const Type* ptr) :
-        mPointer(ptr)
-    {
-        ref();
-    }
-
-    LLConstPointer(const LLConstPointer<Type>& ptr) :
-        mPointer(ptr.mPointer)
-    {
-        ref();
-    }
-
-    LLConstPointer(LLConstPointer<Type>&& ptr) noexcept
-    {
-        mPointer = ptr.mPointer;
-        ptr.mPointer = nullptr;
-    }
-
-    // support conversion up the type hierarchy.  See Item 45 in Effective C++, 3rd Ed.
-    template<typename Subclass>
-    LLConstPointer(const LLConstPointer<Subclass>& ptr) :
-        mPointer(ptr.get())
-    {
-        ref();
-    }
-
-    template<typename Subclass>
-    LLConstPointer(LLConstPointer<Subclass>&& ptr) noexcept :
-        mPointer(ptr.get())
-    {
-        ptr.mPointer = nullptr;
-    }
-
-    ~LLConstPointer()
-    {
-        unref();
-    }
-
-    const Type* get() const                     { return mPointer; }
-    const Type* operator->() const              { return mPointer; }
-    const Type& operator*() const               { return *mPointer; }
-
-    operator BOOL() const                       { return (mPointer != nullptr); }
-    operator bool() const                       { return (mPointer != nullptr); }
-    bool operator!() const                      { return (mPointer == nullptr); }
-    bool isNull() const                         { return (mPointer == nullptr); }
-    bool notNull() const                        { return (mPointer != nullptr); }
-
-    operator const Type*() const                { return mPointer; }
-    bool operator !=(const Type* ptr) const     { return (mPointer != ptr); }
-    bool operator ==(const Type* ptr) const     { return (mPointer == ptr); }
-    bool operator ==(const LLConstPointer<Type>& ptr) const { return (mPointer == ptr.mPointer); }
-    bool operator < (const LLConstPointer<Type>& ptr) const { return (mPointer < ptr.mPointer); }
-    bool operator > (const LLConstPointer<Type>& ptr) const { return (mPointer > ptr.mPointer); }
-
-    LLConstPointer<Type>& operator =(const Type* ptr)
-    {
-        if( mPointer != ptr )
-        {
-            unref();
-            mPointer = ptr;
-            ref();
-        }
-
-        return *this;
-    }
-
-    LLConstPointer<Type>& operator =(const LLConstPointer<Type>& ptr)
-    {
-        if( mPointer != ptr.mPointer )
-        {
-            unref();
-            mPointer = ptr.mPointer;
-            ref();
-        }
-        return *this;
-    }
-
-    LLConstPointer<Type>& operator =(LLConstPointer<Type>&& ptr)
-    {
-        if (mPointer != ptr.mPointer)
-        {
-            unref();
-            mPointer = ptr.mPointer;
-            ptr.mPointer = nullptr;
-        }
-        return *this;
-    }
-
-    // support assignment up the type hierarchy. See Item 45 in Effective C++, 3rd Ed.
-    template<typename Subclass>
-    LLConstPointer<Type>& operator =(const LLConstPointer<Subclass>& ptr)
-    {
-        if( mPointer != ptr.get() )
-        {
-            unref();
-            mPointer = ptr.get();
-            ref();
-        }
-        return *this;
-    }
-
-    template<typename Subclass>
-    LLConstPointer<Type>& operator =(LLConstPointer<Subclass>&& ptr)
-    {
-        if (mPointer != ptr.mPointer)
-        {
-            unref();
-            mPointer = ptr.mPointer;
-            ptr.mPointer = nullptr;
-        }
-        return *this;
-    }
-
-    // Just exchange the pointers, which will not change the reference counts.
-    static void swap(LLConstPointer<Type>& a, LLConstPointer<Type>& b)
-    {
-        const Type* temp = a.mPointer;
-        a.mPointer = b.mPointer;
-        b.mPointer = temp;
-    }
-
-protected:
-#ifdef LL_LIBRARY_INCLUDE
-    void ref();
-    void unref();
-#else // LL_LIBRARY_INCLUDE
-    void ref()
-    {
-        if (mPointer)
-        {
-            mPointer->ref();
-        }
-    }
-
-    void unref()
-    {
-        if (mPointer)
-        {
-            const Type *temp = mPointer;
-            mPointer = nullptr;
-            temp->unref();
-            if (mPointer != nullptr)
-            {
-                LL_WARNS() << "Unreference did assignment to non-NULL because of destructor" << LL_ENDL;
-                unref();
-            }
-        }
-    }
-#endif // LL_LIBRARY_INCLUDE
-
-protected:
-    const Type* mPointer;
-};
+template <typename Type>
+using LLConstPointer = LLPointer<const Type>;
 
 template<typename Type>
 class LLCopyOnWritePointer : public LLPointer<Type>
@@ -418,14 +276,14 @@ private:
     bool mStayUnique;
 };
 
-template<typename Type>
-bool operator!=(Type* lhs, const LLPointer<Type>& rhs)
+template<typename Type0, typename Type1>
+bool operator!=(Type0* lhs, const LLPointer<Type1>& rhs)
 {
     return (lhs != rhs.get());
 }
 
-template<typename Type>
-bool operator==(Type* lhs, const LLPointer<Type>& rhs)
+template<typename Type0, typename Type1>
+bool operator==(Type0* lhs, const LLPointer<Type1>& rhs)
 {
     return (lhs == rhs.get());
 }

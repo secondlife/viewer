@@ -30,10 +30,13 @@
 #define LL_LLEXPERIENCECACHE_H
 
 #include "linden_common.h"
-#include "llsingleton.h"
-#include "llframetimer.h"
-#include "llsd.h"
+
+#include "llcallbacklist.h" // LL::Timers::handle_t
 #include "llcorehttputil.h"
+#include "llframetimer.h"
+#include "llsingleton.h"
+#include "llsd.h"
+
 #include <boost/signals2.hpp>
 #include <boost/function.hpp>
 
@@ -144,7 +147,9 @@ private:
     std::string     mCacheFileName;
     static bool     sShutdown; // control for coroutines, they exist out of LLExperienceCache's scope, so they need a static control
 
-    void idleCoro();
+    LL::Timers::handle_t mExpirationTimerHandle;
+    void expirationTimer();
+
     void eraseExpired();
     void requestExperiencesCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &, std::string, RequestQueue_t);
     void requestExperiences();

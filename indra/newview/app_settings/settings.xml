@@ -2480,6 +2480,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>UseGroupMemberPagination</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable pagination of group memeber list 50 members at a time.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>DisplayTimecode</key>
     <map>
       <key>Comment</key>
@@ -4133,6 +4144,17 @@
       <key>Value</key>
       <array />
     </map>
+    <key>LuaDebugShowSource</key>
+    <map>
+      <key>Comment</key>
+      <string>Show source info in Lua Debug Console output</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>GridStatusRSS</key>
     <map>
       <key>Comment</key>
@@ -4640,6 +4662,17 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
+    </map>
+    <key>MapShowGridCoords</key>
+    <map>
+      <key>Comment</key>
+      <string>Shows/hides the grid coordinates of each region on the world map.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
     </map>
     <key>MiniMapAutoCenter</key>
     <map>
@@ -9267,7 +9300,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>1</real>
+    <real>1.5</real>
   </map>
   
   <key>RenderReflectionProbeDrawDistance</key>
@@ -10078,7 +10111,7 @@
         <key>Type</key>
         <string>F32</string>
         <key>Value</key>
-        <real>1.0</real>
+        <real>0.7</real>
     </map>
     <key>RenderTonemapType</key>
     <map>
@@ -10089,7 +10122,7 @@
         <key>Type</key>
         <string>U32</string>
         <key>Value</key>
-        <integer>0</integer>
+        <integer>1</integer>
     </map>
     <key>ReplaySession</key>
     <map>
@@ -13734,7 +13767,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
     <key>WarningsAsChat</key>
     <map>
@@ -15400,7 +15433,7 @@
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
-      <integer>5</integer>
+      <integer>8</integer>
     </map>
     <key>TerrainPaintResolution</key>
     <map>

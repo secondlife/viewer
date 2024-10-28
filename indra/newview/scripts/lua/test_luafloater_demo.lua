@@ -14,7 +14,7 @@ function flt:handleEvents(event_data)
 end
 
 function flt:commit_disable_ctrl(event_data)
-    self:post({action="set_enabled", ctrl_name="open_btn", value = (1 - event_data.value)})
+    self:post({action="set_enabled", ctrl_name="open_btn", value = not event_data.value})
 end
 
 function flt:commit_title_cmb(event_data)

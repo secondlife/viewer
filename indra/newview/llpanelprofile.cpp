@@ -754,8 +754,6 @@ void LLPanelProfileSecondLife::onOpen(const LLSD& key)
 
     resetData();
 
-    LLUUID avatar_id = getAvatarId();
-
     bool own_profile = getSelfProfile();
 
     mGroupList->setShowNone(!own_profile);
@@ -793,7 +791,6 @@ void LLPanelProfileSecondLife::onOpen(const LLSD& key)
 
     if (!own_profile)
     {
-        mVoiceStatus = LLAvatarActions::canCall() && (LLAvatarActions::isFriend(avatar_id) ? LLAvatarTracker::instance().isBuddyOnline(avatar_id) : true);
         updateOnlineStatus();
         fillRightsData();
     }
@@ -1214,17 +1211,6 @@ void LLPanelProfileSecondLife::changed(U32 mask)
     }
 }
 
-// virtual, called by LLVoiceClient
-void LLPanelProfileSecondLife::onChange(EStatusType status, const LLSD& channelInfo, bool proximal)
-{
-    if(status == STATUS_JOINING || status == STATUS_LEFT_CHANNEL)
-    {
-        return;
-    }
-
-    mVoiceStatus = LLAvatarActions::canCall() && (LLAvatarActions::isFriend(getAvatarId()) ? LLAvatarTracker::instance().isBuddyOnline(getAvatarId()) : true);
-}
-
 void LLPanelProfileSecondLife::setAvatarId(const LLUUID& avatar_id)
 {
     if (avatar_id.notNull())
@@ -1502,7 +1488,7 @@ bool LLPanelProfileSecondLife::onEnableMenu(const LLSD& userdata)
     }
     else if (item_name == "voice_call")
     {
-        return mVoiceStatus;
+        return LLAvatarActions::canCallTo(agent_id);
     }
     else if (item_name == "chat_history")
     {

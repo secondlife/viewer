@@ -79,6 +79,7 @@
 #include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
 #include "llviewershadermgr.h"
+#include "llviewerstats.h"
 #include "llviewertexturelist.h"
 #include "llviewerwindow.h"
 #include "llvoavatarself.h"
@@ -1085,6 +1086,9 @@ void getProfileStatsContext(boost::json::object& stats)
         context.emplace("parcelid", parcel->getLocalID());
     }
     context.emplace("time", LLDate::now().toHTTPDateString("%Y-%m-%dT%H:%M:%S"));
+
+    // supplement with stats packet
+    stats.emplace("stats", LlsdToJson(capture_viewer_stats(true)));
 }
 
 std::string getProfileStatsFilename()
