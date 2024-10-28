@@ -1,4 +1,4 @@
-version 29
+version 30
 // The version number above should be incremented IF AND ONLY IF some
 // change has been made that is sufficiently important to justify
 // resetting the graphics preferences of all users to the recommended
@@ -103,7 +103,9 @@ RenderHeroProbeResolution	1	256
 RenderHeroProbeDistance		1	4
 RenderHeroProbeUpdateRate	1   6
 RenderHeroProbeConservativeUpdateMultiplier 1 16
-
+RenderExposure				1   4
+RenderTonemapType			1   1
+RenderTonemapMix			1   1
 
 //
 // Low Graphics Settings
@@ -139,6 +141,9 @@ RenderHeroProbeResolution	1	256
 RenderHeroProbeDistance		1	4
 RenderHeroProbeUpdateRate	1   6
 RenderHeroProbeConservativeUpdateMultiplier 1 16
+RenderExposure				1   1
+RenderTonemapType			1   1
+RenderTonemapMix			1   0.7
 
 //
 // Medium Low Graphics Settings
@@ -173,6 +178,9 @@ RenderHeroProbeResolution	1	256
 RenderHeroProbeDistance		1	6
 RenderHeroProbeUpdateRate	1	3
 RenderHeroProbeConservativeUpdateMultiplier 1 16
+RenderExposure				1   1
+RenderTonemapType			1   1
+RenderTonemapMix			1   0.7
 
 //
 // Medium Graphics Settings (standard)
@@ -207,6 +215,9 @@ RenderHeroProbeResolution	1	512
 RenderHeroProbeDistance		1	6
 RenderHeroProbeUpdateRate	1	3
 RenderHeroProbeConservativeUpdateMultiplier 1 16
+RenderExposure				1   1
+RenderTonemapType			1   1
+RenderTonemapMix			1   0.7
 
 //
 // Medium High Graphics Settings (deferred enabled)
@@ -241,6 +252,9 @@ RenderHeroProbeResolution	1	512
 RenderHeroProbeDistance		1	6
 RenderHeroProbeUpdateRate	1	2
 RenderHeroProbeConservativeUpdateMultiplier 1 8
+RenderExposure				1   1
+RenderTonemapType			1   1
+RenderTonemapMix			1   0.7
 
 //
 // High Graphics Settings (deferred + SSAO)
@@ -275,6 +289,9 @@ RenderHeroProbeResolution	1	512
 RenderHeroProbeDistance		1	8
 RenderHeroProbeUpdateRate	1	2
 RenderHeroProbeConservativeUpdateMultiplier 1 8
+RenderExposure				1   1
+RenderTonemapType			1   1
+RenderTonemapMix			1   0.7
 
 //
 // High Ultra Graphics Settings (deferred + SSAO + shadows)
@@ -309,6 +326,9 @@ RenderHeroProbeResolution	1	512
 RenderHeroProbeDistance		1	16
 RenderHeroProbeUpdateRate	1	1
 RenderHeroProbeConservativeUpdateMultiplier 1 4
+RenderExposure				1   1
+RenderTonemapType			1   1
+RenderTonemapMix			1   0.7
 
 //
 // Ultra graphics (REALLY PURTY!)
@@ -342,6 +362,9 @@ RenderHeroProbeResolution	1	1024
 RenderHeroProbeDistance		1	16
 RenderHeroProbeUpdateRate	1	1
 RenderHeroProbeConservativeUpdateMultiplier 1 4
+RenderExposure				1   1
+RenderTonemapType			1   1
+RenderTonemapMix			1   0.7
 
 //
 // Class Unknown Hardware (unknown)

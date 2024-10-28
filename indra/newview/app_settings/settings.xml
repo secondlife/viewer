@@ -9063,7 +9063,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>1.5</real>
+    <real>1.0</real>
   </map>
   
   <key>RenderReflectionProbeDrawDistance</key>
