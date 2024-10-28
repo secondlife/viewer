@@ -26,11 +26,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>fd6368b53609b078b4ed8816bad1d1de2756f4f2</string>
+              <string>3f2f65cb135cd9d4704371eaf6d973517c372161</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-sdl2/releases/download/v2.28.0/SDL2-2.28.0-darwin64-5991c8f.tar.zst</string>
+              <string>https://github.com/secondlife/3p-sdl2/releases/download/v2.30.8-r1/SDL2-2.30.8-darwin64-11540565100.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -40,11 +40,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>24c50d30f15345441ea8cb553847fd00112c258b</string>
+              <string>27a431140f6f3f12f00b6a38f741fab43caa7708</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/AiraYumi/3p-sdl2/releases/download/v2.30.8-with-libdecor/SDL2-2.30.8-linux64-11179302145.tar.zst</string>
+              <string>https://github.com/secondlife/3p-sdl2/releases/download/v2.30.8-r1/SDL2-2.30.8-linux64-11540565100.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -54,16 +54,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>48e8d971dfa8025353293ead7d41a2a77b004faa</string>
+              <string>f3485e4a02a7e8ba899e17cdc9ff0aaad661fcc1</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-sdl2/releases/download/v2.28.0/SDL2-2.28.0-windows64-5991c8f.tar.zst</string>
+              <string>https://github.com/secondlife/3p-sdl2/releases/download/v2.30.8-r1/SDL2-2.30.8-windows64-11540565100.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
+        <key>version</key>
+        <string>2.30.8</string>
       </map>
       <key>apr_suite</key>
       <map>
@@ -2138,11 +2140,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>35a49c60d47c357ae6dbbcd95bf1c279062f248f</string>
+              <string>cbbcf3c5341e4ff4f956c0de960dc238faf20d54</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/AiraYumi/3p-open-libndofdev/releases/download/v1.14-with-libdecor-r2/open_libndofdev-0.14.11179408873-linux64-11179408873.tar.zst</string>
+              <string>https://github.com/secondlife/3p-open-libndofdev/releases/download/v1.14-r4/open_libndofdev-0.14.11545940352-linux64-11545940352.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -2155,7 +2157,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>copyright</key>
         <string>Copyright (c) 2008, Jan Ciger (jan.ciger (at) gmail.com)</string>
         <key>version</key>
-        <string>0.14.8730039102</string>
+        <string>0.14.11545940352</string>
         <key>name</key>
         <string>open-libndofdev</string>
         <key>description</key>

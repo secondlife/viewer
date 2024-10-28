@@ -306,7 +306,7 @@ public:
         if (tokens.size() < 1) return false;
 
         LLVector3 coords(128, 128, 0);
-        if (tokens.size() <= 4)
+        if (tokens.size() >= 3) // Require at least [1] and [2]
         {
             coords = LLVector3((F32)tokens[1].asReal(),
                                (F32)tokens[2].asReal(),
