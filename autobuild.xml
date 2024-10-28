@@ -1036,11 +1036,11 @@
               <key>creds</key>
               <string>github</string>
               <key>hash</key>
-              <string>ad72fa1d103df777906f0d98f3e882b9916aeada</string>
+              <string>243709fbbb58a91dca81d16df650e9c6ff910d0d</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/3p-kdu/releases/assets/136774118</string>
+              <string>https://api.github.com/repos/secondlife/3p-kdu/releases/assets/202118207</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1052,11 +1052,11 @@
               <key>creds</key>
               <string>github</string>
               <key>hash</key>
-              <string>e46e4ac93a237b5c4a14183766f76ba5d58935a2</string>
+              <string>7fd0a7ee71a4e76b49e31b75f8622852324d58a4</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/3p-kdu/releases/assets/136774125</string>
+              <string>https://api.github.com/repos/secondlife/3p-kdu/releases/assets/202118208</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -1068,11 +1068,11 @@
               <key>creds</key>
               <string>github</string>
               <key>hash</key>
-              <string>bb37557f78c72b26580a521f8b8dabfa1b34e6e6</string>
+              <string>8c475dd9616c7e0e3029cc38aefc1e0ab34d2e73</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/3p-kdu/releases/assets/136774126</string>
+              <string>https://api.github.com/repos/secondlife/3p-kdu/releases/assets/202118209</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -1101,7 +1101,7 @@
         <key>copyright</key>
         <string>Kakadu software</string>
         <key>version</key>
-        <string>7.10.4.4b9ec5f</string>
+        <string>8.4.1.11540433907</string>
         <key>name</key>
         <string>kdu</string>
         <key>description</key>
