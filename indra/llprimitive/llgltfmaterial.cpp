@@ -980,7 +980,7 @@ void LLGLTFMaterial::updateTextureTracking()
     // for material overrides editor will set it
 }
 
-void LLGLTFMaterial::packOnto(std::vector<LLVector4a>& data)
+void LLGLTFMaterial::packOnto(std::vector<LLVector4a>& data, F32 glow)
 {
     size_t idx = data.size();
     data.resize(data.size() + 8);
@@ -1004,11 +1004,12 @@ void LLGLTFMaterial::packOnto(std::vector<LLVector4a>& data)
 
     normal[5] = mBaseColor.mV[3];
     normal[6] = mAlphaCutoff;
+    normal[7] = glow;
 
     emissive[5] = mEmissiveColor.mV[0];
     emissive[6] = mEmissiveColor.mV[1];
     emissive[7] = mEmissiveColor.mV[2];
-
+    
     metallic_roughness[5] = mRoughnessFactor;
     metallic_roughness[6] = mMetallicFactor;
 }

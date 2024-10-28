@@ -1027,34 +1027,23 @@ void LLSpatialGroup::updateTransformUBOs()
 
                 U32 mat_idx = U32(material_data.size());
 
+                const auto& iter = materials.find(facep->mBatchHash);
+                if (iter == materials.end())
+                {
+                    materials[facep->mBatchHash] = mat_idx;
+                    facep->packMaterialOnto(material_data);
+                }
+                else
+                {
+                    mat_idx = iter->second;
+                }
+
                 if (gltf_mat)
                 {
-                    const auto& iter = materials.find(facep->mBatchHash);
-                    if (iter == materials.end())
-                    {
-                        materials[facep->mBatchHash] = mat_idx;
-                        gltf_mat->packOnto(material_data);
-                    }
-                    else
-                    {
-                        mat_idx = iter->second;
-                    }
-
                     faces.push_back(facep);
                 }
                 else
                 {
-                    const auto& iter = materials.find(facep->mBatchHash);
-                    if (iter == materials.end())
-                    {
-                        materials[facep->mBatchHash] = mat_idx;
-                        facep->packMaterialOnto(material_data);
-                    }
-                    else
-                    {
-                        mat_idx = iter->second;
-                    }
-
                     bp_faces.push_back(facep);
                 }
 

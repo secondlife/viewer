@@ -35,6 +35,7 @@ uniform vec4 debug_color;
 #ifdef SAMPLE_BASE_COLOR_MAP
 uniform sampler2D diffuseMap;  //always in sRGB space
 vec4 baseColorFactor;
+float bp_glow;
 in vec2 base_color_texcoord;
 float minimum_alpha; // PBR alphaMode: MASK, See: mAlphaCutoff, setAlphaCutoff()
 #endif
@@ -93,7 +94,7 @@ layout (std140) uniform GLTFMaterials
 
     // packed[1].yzw varies:
     //   base color transform -- base color factor
-    //   normal transform -- .y - alpha factor, .z - minimum alpha
+    //   normal transform -- .y - alpha factor, .z - minimum alpha, .w - glow
     //   metallic roughness transform -- .y - roughness factor, .z - metallic factor
     //   emissive transform -- emissive factor
 
@@ -110,6 +111,7 @@ void unpackMaterial()
     baseColorFactor.rgb = gltf_material_data[idx+1].yzw;
     baseColorFactor.a = gltf_material_data[idx+3].y;
     minimum_alpha = gltf_material_data[idx+3].z;
+    bp_glow = gltf_material_data[idx+3].w;
 #endif
 
 #ifdef SAMPLE_ORM_MAP
@@ -320,7 +322,7 @@ void main()
     frag_color = basecolor;
 #else
     // See: C++: addDeferredAttachments(), GLSL: softenLightF
-    frag_data[0] = max(vec4(basecolor.rgb, 0.0), vec4(0));
+    frag_data[0] = max(vec4(basecolor.rgb, bp_glow), vec4(0));
     frag_data[1] = max(vec4(spec.rgb,0.0), vec4(0));
     frag_data[2] = vec4(tnorm, GBUFFER_FLAG_HAS_PBR);
     frag_data[3] = max(vec4(emissive,0), vec4(0));

@@ -35,6 +35,7 @@ uniform vec4 debug_color;
 #ifdef SAMPLE_DIFFUSE_MAP
 uniform sampler2D diffuseMap;  //always in sRGB space
 vec4 diffuseColor;
+float bp_glow;
 in vec2 diffuse_texcoord;
 float minimum_alpha; // PBR alphaMode: MASK, See: mAlphaCutoff, setAlphaCutoff()
 float emissive;
@@ -82,7 +83,7 @@ layout (std140) uniform GLTFMaterials
     // [gltf_material_id + [0-1]] -  diffuse transform
     // [gltf_material_id + [2-3]] -  normal transform
     // [gltf_material_id + [4-5]] -  specular transform
-    // [gltf_material_id + 6] - .x - emissive factor, .y - emissive mask, .z - glossiness, .w - unused
+    // [gltf_material_id + 6] - .x - emissive factor, .y - emissive mask, .z - glossiness, .w - glow
     // Transforms are packed as follows
     // packed[0] = vec4(scale.x, scale.y, rotation, offset.x)
     // packed[1] = vec4(offset.y, *, *, *)
@@ -108,6 +109,7 @@ void unpackMaterial()
     minimum_alpha = gltf_material_data[idx+3].z;
     emissive = gltf_material_data[idx+6].x;
     emissive_mask = gltf_material_data[idx+6].y;
+    bp_glow = gltf_material_data[idx+6].w;
 #endif
 
 #ifdef SAMPLE_NORMAL_MAP
@@ -267,9 +269,10 @@ void main()
 #ifdef SAMPLE_DIFFUSE_MAP
     diffuse = texture(diffuseMap, diffuse_texcoord.xy).rgba;
     diffuse.rgb *= diffuseColor.rgb;
-    diffuse.rgb = srgb_to_linear(diffuse.rgb);
 
     emissive = max(emissive, emissive_mask * diffuse.a);
+    bp_glow *= diffuse.a;
+
 #ifdef ALPHA_MASK
     if (diffuse.a * diffuseColor.a < minimum_alpha)
     {
@@ -301,6 +304,8 @@ void main()
 #endif
 
 #ifdef ALPHA_BLEND
+
+    diffuse.rgb = srgb_to_linear(diffuse.rgb);
     //forward rendering, output lit linear color
     spec.a = glossiness; // pack glossiness into spec alpha for lighting functions
 
@@ -416,10 +421,10 @@ void main()
     //spec.rgb = vec3(0);
     //env_intensity = 0;
     // See: C++: addDeferredAttachments(), GLSL: softenLightF
-    frag_data[0] = max(vec4(diffuse.rgb, emissive), vec4(0));
+    frag_data[0] = max(vec4(diffuse.rgb, bp_glow), vec4(0));
     frag_data[1] = max(vec4(spec.rgb,glossiness), vec4(0));
     frag_data[2] = vec4(tnorm, GBUFFER_FLAG_HAS_ATMOS);
-    frag_data[3] = max(vec4(env_intensity, 0, 0, 0), vec4(0));
+    frag_data[3] = max(vec4(env_intensity, emissive, 0, 0), vec4(0));
 #endif
 }
 

@@ -228,7 +228,7 @@ public:
     virtual void updateTextureTracking();
 
     // pack onto the end of the given vector for use in a UBO (see pbropaqueV.glsl)
-    void packOnto(std::vector<LLVector4a>& data);
+    void packOnto(std::vector<LLVector4a>& data, F32 glow = 0.f);
 
 protected:
     static LLVector2 vec2FromJson(const std::map<std::string, tinygltf::Value>& object, const char* key, const LLVector2& default_value);

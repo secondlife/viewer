@@ -1626,7 +1626,8 @@ U64 LLFace::getSkinHash()
 
 void LLFace::updateBatchHash()
 {
-    auto* gltf_mat = getTextureEntry()->getGLTFRenderMaterial();
+    const LLTextureEntry* te = getTextureEntry();
+    auto* gltf_mat = te->getGLTFRenderMaterial();
     if (gltf_mat)
     {
         gltf_mat->updateBatchHash();
@@ -1635,8 +1636,8 @@ void LLFace::updateBatchHash()
     }
     else
     {
-        // WIP - calculate blinn-phong batch hash and alpha mode
-        const LLTextureEntry* te = getTextureEntry();
+        // calculate blinn-phong batch hash and alpha mode
+        
 
         mBatchHash = 0;
 
@@ -1685,20 +1686,22 @@ void LLFace::updateBatchHash()
             }
         }
     }
+
+    boost::hash_combine(mBatchHash, te->getGlow());
 }
 
 void LLFace::packMaterialOnto(std::vector<LLVector4a>& dst)
 {
     auto* gltf_mat = getTextureEntry()->getGLTFRenderMaterial();
+
+    const LLTextureEntry* te = getTextureEntry();
+    F32 glow = te->getGlow();
     if (gltf_mat)
     {
-        gltf_mat->packOnto(dst);
+        gltf_mat->packOnto(dst, glow);
     }
     {
-        // WIP -- pack blinn-phong material
-
-        const LLTextureEntry* te = getTextureEntry();
-
+        // pack blinn-phong material
         F32 env_intensity = 0.f;
         LLColor3 spec = LLColor3::black;
 
@@ -1758,7 +1761,7 @@ void LLFace::packMaterialOnto(std::vector<LLVector4a>& dst)
             emissive = 1.f;
         }
 
-        data[6].set(emissive, emissive_mask, glossiness, 0.f);
+        data[6].set(emissive, emissive_mask, glossiness, glow);
     }
 }
 

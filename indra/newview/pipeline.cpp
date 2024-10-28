@@ -8529,6 +8529,8 @@ void LLPipeline::renderDeferredLighting()
             unbindDeferredShader(gDeferredSoftenProgram);
         }
 
+        gGL.setColorMask(true, false);
+
         static LLCachedControl<S32> local_light_count(gSavedSettings, "RenderLocalLightCount", 256);
 
         if (local_light_count > 0)
