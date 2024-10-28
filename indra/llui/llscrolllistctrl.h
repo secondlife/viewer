@@ -284,6 +284,7 @@ public:
     LLScrollListItem*   getFirstSelected() const;
     virtual S32         getFirstSelectedIndex() const;
     std::vector<LLScrollListItem*> getAllSelected() const;
+    std::vector<LLSD> getAllSelectedValues() const;
     S32                 getNumSelected() const;
     LLScrollListItem*   getLastSelectedItem() const { return mLastSelected; }
 

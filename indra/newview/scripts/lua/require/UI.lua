@@ -222,8 +222,10 @@ function UI.hideFloater(floater_name)
     leap.send("LLFloaterReg", {op = "hideInstance", name = floater_name})
 end
 
-function UI.toggleFloater(floater_name)
-    leap.send("LLFloaterReg", {op = "toggleInstance", name = floater_name})
+function UI.toggleFloater(...)
+    local args = mapargs('name,key', ...)
+    args.op = 'toggleInstance'
+    leap.send("LLFloaterReg", args)
 end
 
 function UI.isFloaterVisible(floater_name)

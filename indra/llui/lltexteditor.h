@@ -310,14 +310,13 @@ private:
 
 public:
     template <typename STRINGTYPE>
-    void            pasteTextWithLinebreaks(const STRINGTYPE& clean_string)
+    void            pasteTextWithLinebreaks(const STRINGTYPE& clean_string, bool reset_cursor = false)
     {
-        pasteTextWithLinebreaksImpl(ll_convert(clean_string));
+        pasteTextWithLinebreaksImpl(ll_convert(clean_string), reset_cursor);
     }
-    void            pasteTextWithLinebreaksImpl(const LLWString& clean_string);
+    void            pasteTextWithLinebreaksImpl(const LLWString& clean_string, bool reset_cursor = false);
 
 private:
-    void            pasteTextWithLinebreaksInternal(const LLWString & clean_string);
     void            onKeyStroke();
 
     // Concrete TextCmd sub-classes used by the LLTextEditor base class

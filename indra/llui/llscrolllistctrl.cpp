@@ -423,6 +423,19 @@ std::vector<LLScrollListItem*> LLScrollListCtrl::getAllSelected() const
     return ret;
 }
 
+std::vector<LLSD> LLScrollListCtrl::getAllSelectedValues() const
+{
+    std::vector<LLSD> ret;
+    for (LLScrollListItem* item : mItemList)
+    {
+        if (item->getSelected())
+        {
+            ret.push_back(item->getValue());
+        }
+    }
+    return ret;
+}
+
 S32 LLScrollListCtrl::getNumSelected() const
 {
     S32 numSelected = 0;
@@ -1510,7 +1523,7 @@ bool LLScrollListCtrl::setSelectedByValue(const LLSD& value, bool selected)
             {
                 if (selected)
                 {
-                    selectItem(item, -1);
+                    selectItem(item, -1, !mAllowMultipleSelection);
                 }
                 else
                 {

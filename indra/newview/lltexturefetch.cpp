@@ -2090,7 +2090,7 @@ bool LLTextureFetchWorker::deleteOK()
     // Allow any pending reads or writes to complete
     if (mCacheReadHandle != LLTextureCache::nullHandle())
     {
-        if (mFetcher->mTextureCache->readComplete(mCacheReadHandle, true))
+        if (!mFetcher->mTextureCache || mFetcher->mTextureCache->readComplete(mCacheReadHandle, true))
         {
             mCacheReadHandle = LLTextureCache::nullHandle();
         }
@@ -2101,7 +2101,7 @@ bool LLTextureFetchWorker::deleteOK()
     }
     if (mCacheWriteHandle != LLTextureCache::nullHandle())
     {
-        if (mFetcher->mTextureCache->writeComplete(mCacheWriteHandle))
+        if (!mFetcher->mTextureCache || mFetcher->mTextureCache->writeComplete(mCacheWriteHandle))
         {
             mCacheWriteHandle = LLTextureCache::nullHandle();
         }
@@ -2835,7 +2835,7 @@ bool LLTextureFetch::getRequestFinished(const LLUUID& id, S32& discard_level,
 bool LLTextureFetch::updateRequestPriority(const LLUUID& id, F32 priority)
 {
     LL_PROFILE_ZONE_SCOPED;
-    mRequestQueue.tryPost([=]()
+    mRequestQueue.tryPost([=, this]()
         {
             LLTextureFetchWorker* worker = getWorker(id);
             if (worker)
@@ -3526,8 +3526,8 @@ TFReqSendMetrics::doWork(LLTextureFetch * fetcher)
     //if (! gViewerAssetStatsThread1)
     //  return true;
 
-    static volatile bool reporting_started(false);
-    static volatile S32 report_sequence(0);
+    static std::atomic<bool> reporting_started(false);
+    static std::atomic<S32> report_sequence(0);
 
     // In mStatsSD, we have a copy we own of the LLSD representation
     // of the asset stats. Add some additional fields and ship it off.

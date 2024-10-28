@@ -3865,6 +3865,13 @@ function="World.EnvPreset"
             </menu_item_call>
             <menu_item_call
               enabled="true"
+              label="Edit Local Paintmap"
+              name="Edit Local Paintmap">
+              <menu_item_call.on_click
+               function="Advanced.TerrainEditLocalPaintMap" />
+            </menu_item_call>
+            <menu_item_call
+              enabled="true"
               label="Delete Local Paintmap"
               name="Delete Local Paintmap">
               <menu_item_call.on_click
