@@ -259,15 +259,16 @@ extern LLViewerObjectList gObjectList;
  */
 inline LLViewerObject *LLViewerObjectList::findObject(const LLUUID &id)
 {
+    if (id.isNull())
+        return NULL;
+
     auto iter = mUUIDObjectMap.find(id);
-    if(iter != mUUIDObjectMap.end())
+    if (iter != mUUIDObjectMap.end())
     {
         return iter->second;
     }
-    else
-    {
-        return NULL;
-    }
+
+    return NULL;
 }
 
 inline LLViewerObject *LLViewerObjectList::getObject(const S32 index)

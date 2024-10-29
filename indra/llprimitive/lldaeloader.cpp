@@ -51,7 +51,8 @@
 #include "llsdserialize.h"
 #include "lljoint.h"
 
-#include "glh/glh_linear.h"
+#include "glm/mat4x4.hpp"
+#include "glm/gtc/type_ptr.hpp"
 #include "llmatrix4a.h"
 
 #include <boost/regex.hpp>
@@ -1114,19 +1115,17 @@ bool LLDAELoader::OpenFile(const std::string& filename)
 
         if (skin)
         {
-            domGeometry* geom = daeSafeCast<domGeometry>(skin->getSource().getElement());
-
-            if (geom)
+            if (domGeometry* geom = daeSafeCast<domGeometry>(skin->getSource().getElement()))
             {
-                domMesh* mesh = geom->getMesh();
-                if (mesh)
+                if (domMesh* mesh = geom->getMesh())
                 {
-                    std::vector< LLPointer< LLModel > >::iterator i = mModelsMap[mesh].begin();
-                    while (i != mModelsMap[mesh].end())
+                    dae_model_map::const_iterator it = mModelsMap.find(mesh);
+                    if (it != mModelsMap.end())
                     {
-                        LLPointer<LLModel> mdl = *i;
-                        LLDAELoader::processDomModel(mdl, &dae, root, mesh, skin);
-                        i++;
+                        for (const LLPointer<LLModel>& model : it->second)
+                        {
+                            LLDAELoader::processDomModel(model, &dae, root, mesh, skin);
+                        }
                     }
                 }
             }
@@ -1218,9 +1217,9 @@ void LLDAELoader::processDomModel(LLModel* model, DAE* dae, daeElement* root, do
         mesh_scale *= normalized_transformation;
         normalized_transformation = mesh_scale;
 
-        glh::matrix4f inv_mat((F32*) normalized_transformation.mMatrix);
-        inv_mat = inv_mat.inverse();
-        LLMatrix4 inverse_normalized_transformation(inv_mat.m);
+        glm::mat4 inv_mat = glm::make_mat4((F32*)normalized_transformation.mMatrix);
+        inv_mat = glm::inverse(inv_mat);
+        LLMatrix4 inverse_normalized_transformation(glm::value_ptr(inv_mat));
 
         domSkin::domBind_shape_matrix* bind_mat = skin->getBind_shape_matrix();
 
@@ -1296,6 +1295,7 @@ void LLDAELoader::processDomModel(LLModel* model, DAE* dae, daeElement* root, do
             }
         }
         else
+        {
             //Has one or more skeletons
             for (std::vector<domInstance_controller::domSkeleton*>::iterator skel_it = skeletons.begin();
                  skel_it != skeletons.end(); ++skel_it)
@@ -1380,6 +1380,7 @@ void LLDAELoader::processDomModel(LLModel* model, DAE* dae, daeElement* root, do
                     }
                 }//got skeleton?
             }
+        }
 
 
         domSkin::domJoints* joints = skin->getJoints();
@@ -1680,7 +1681,7 @@ void LLDAELoader::processDomModel(LLModel* model, DAE* dae, daeElement* root, do
             materials[model->mMaterialList[i]] = LLImportMaterial();
         }
         mScene[transformation].push_back(LLModelInstance(model, model->mLabel, transformation, materials));
-        stretch_extents(model, transformation, mExtents[0], mExtents[1], mFirstTransform);
+        stretch_extents(model, transformation);
     }
 }
 
@@ -2073,21 +2074,14 @@ void LLDAELoader::processElement( daeElement* element, bool& badElement, DAE* da
         mTransform.condition();
     }
 
-    domInstance_geometry* instance_geo = daeSafeCast<domInstance_geometry>(element);
-    if (instance_geo)
+    if (domInstance_geometry* instance_geo = daeSafeCast<domInstance_geometry>(element))
     {
-        domGeometry* geo = daeSafeCast<domGeometry>(instance_geo->getUrl().getElement());
-        if (geo)
+        if (domGeometry* geo = daeSafeCast<domGeometry>(instance_geo->getUrl().getElement()))
         {
-            domMesh* mesh = daeSafeCast<domMesh>(geo->getDescendant(daeElement::matchType(domMesh::ID())));
-            if (mesh)
+            if (domMesh* mesh = daeSafeCast<domMesh>(geo->getDescendant(daeElement::matchType(domMesh::ID()))))
             {
-
-                std::vector< LLPointer< LLModel > >::iterator i = mModelsMap[mesh].begin();
-                while (i != mModelsMap[mesh].end())
+                for (LLModel* model : mModelsMap.find(mesh)->second)
                 {
-                    LLModel* model = *i;
-
                     LLMatrix4 transformation = mTransform;
 
                     if (mTransform.determinant() < 0)
@@ -2158,8 +2152,7 @@ void LLDAELoader::processElement( daeElement* element, bool& badElement, DAE* da
                     }
 
                     mScene[transformation].push_back(LLModelInstance(model, label, transformation, materials));
-                    stretch_extents(model, transformation, mExtents[0], mExtents[1], mFirstTransform);
-                    i++;
+                    stretch_extents(model, transformation);
                 }
             }
         }

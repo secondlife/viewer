@@ -34,6 +34,8 @@
 #include "llerror.h"
 
 #include "llglheaders.h"
+#include "llvertexbuffer.h"
+#include "llglslshader.h"
 
 LLRenderSphere gSphere;
 
@@ -53,12 +55,20 @@ inline LLVector3 polar_to_cart(F32 latitude, F32 longitude)
 
 void LLRenderSphere::renderGGL()
 {
+    LL_PROFILE_ZONE_SCOPED;
     S32 const LATITUDE_SLICES = 20;
     S32 const LONGITUDE_SLICES = 30;
 
-    if (mSpherePoints.empty())
+    if (mVertexBuffer.isNull())
     {
         mSpherePoints.resize(LATITUDE_SLICES + 1);
+        mVertexBuffer = new LLVertexBuffer(LLVertexBuffer::MAP_VERTEX);
+
+        mVertexBuffer->allocateBuffer((U32)(LATITUDE_SLICES + 1) * (LONGITUDE_SLICES + 1), LATITUDE_SLICES * LONGITUDE_SLICES * 6);
+
+        LLStrider<LLVector3> v;
+        mVertexBuffer->getVertexStrider(v);
+
         for (S32 lat_i = 0; lat_i < LATITUDE_SLICES + 1; lat_i++)
         {
             mSpherePoints[lat_i].resize(LONGITUDE_SLICES + 1);
@@ -68,24 +78,52 @@ void LLRenderSphere::renderGGL()
                 F32 lon = (F32)lon_i / LONGITUDE_SLICES;
 
                 mSpherePoints[lat_i][lon_i] = polar_to_cart(lat, lon);
+                v[lat_i * (LONGITUDE_SLICES + 1) + lon_i] = mSpherePoints[lat_i][lon_i];
             }
         }
-    }
 
-    gGL.begin(LLRender::TRIANGLES);
+        LLStrider<U16> i;
+        mVertexBuffer->getIndexStrider(i);
 
-    for (S32 lat_i = 0; lat_i < LATITUDE_SLICES; lat_i++)
-    {
-        for (S32 lon_i = 0; lon_i < LONGITUDE_SLICES; lon_i++)
+        for (S32 lat_i = 0; lat_i < LATITUDE_SLICES; lat_i++)
         {
-            gGL.vertex3fv(mSpherePoints[lat_i][lon_i].mV);
-            gGL.vertex3fv(mSpherePoints[lat_i][lon_i+1].mV);
-            gGL.vertex3fv(mSpherePoints[lat_i+1][lon_i].mV);
+            for (S32 lon_i = 0; lon_i < LONGITUDE_SLICES; lon_i++)
+            {
+                i[(lat_i * LONGITUDE_SLICES + lon_i) * 6 + 0] = lat_i * (LONGITUDE_SLICES + 1) + lon_i;
+                i[(lat_i * LONGITUDE_SLICES + lon_i) * 6 + 1] = lat_i * (LONGITUDE_SLICES + 1) + lon_i + 1;
+                i[(lat_i * LONGITUDE_SLICES + lon_i) * 6 + 2] = (lat_i + 1) * (LONGITUDE_SLICES + 1) + lon_i;
 
-            gGL.vertex3fv(mSpherePoints[lat_i+1][lon_i].mV);
-            gGL.vertex3fv(mSpherePoints[lat_i][lon_i+1].mV);
-            gGL.vertex3fv(mSpherePoints[lat_i+1][lon_i+1].mV);
+                i[(lat_i * LONGITUDE_SLICES + lon_i) * 6 + 3] = (lat_i + 1) * (LONGITUDE_SLICES + 1) + lon_i;
+                i[(lat_i * LONGITUDE_SLICES + lon_i) * 6 + 4] = lat_i * (LONGITUDE_SLICES + 1) + lon_i + 1;
+                i[(lat_i * LONGITUDE_SLICES + lon_i) * 6 + 5] = (lat_i + 1) * (LONGITUDE_SLICES + 1) + lon_i + 1;
+            }
         }
+
+        mVertexBuffer->unmapBuffer();
     }
-    gGL.end();
+
+
+    if (LLGLSLShader::sCurBoundShaderPtr->mAttributeMask == LLVertexBuffer::MAP_VERTEX)
+    { // shader expects only vertex positions in vertex buffer, use fast path
+        mVertexBuffer->setBuffer();
+        mVertexBuffer->drawRange(LLRender::TRIANGLES, 0, mVertexBuffer->getNumVerts(), mVertexBuffer->getNumIndices(), 0);
+    }
+    else
+    { //shader wants colors in the vertex stream, use slow path
+        gGL.begin(LLRender::TRIANGLES);
+        for (S32 lat_i = 0; lat_i < LATITUDE_SLICES; lat_i++)
+        {
+            for (S32 lon_i = 0; lon_i < LONGITUDE_SLICES; lon_i++)
+            {
+                gGL.vertex3fv(mSpherePoints[lat_i][lon_i].mV);
+                gGL.vertex3fv(mSpherePoints[lat_i][lon_i + 1].mV);
+                gGL.vertex3fv(mSpherePoints[lat_i + 1][lon_i].mV);
+
+                gGL.vertex3fv(mSpherePoints[lat_i + 1][lon_i].mV);
+                gGL.vertex3fv(mSpherePoints[lat_i][lon_i + 1].mV);
+                gGL.vertex3fv(mSpherePoints[lat_i + 1][lon_i + 1].mV);
+            }
+        }
+        gGL.end();
+    }
 }

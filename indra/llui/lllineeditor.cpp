@@ -436,6 +436,9 @@ void LLLineEditor::setText(const LLStringExplicit &new_text, bool use_size_limit
     {
         mText.assign(utf8str_symbol_truncate(truncated_utf8, mMaxLengthChars));
     }
+    mFontBufferPreSelection.reset();
+    mFontBufferSelection.reset();
+    mFontBufferPostSelection.reset();
 
     if (all_selected)
     {
@@ -616,6 +619,10 @@ void LLLineEditor::replaceWithSuggestion(U32 index)
             // Insert the suggestion in its place
             mText.insert(it->first, suggestion);
             setCursor(it->first + (S32)suggestion.length());
+
+            mFontBufferPreSelection.reset();
+            mFontBufferSelection.reset();
+            mFontBufferPostSelection.reset();
 
             break;
         }
@@ -969,6 +976,10 @@ void LLLineEditor::removeChar()
         mText.erase(getCursor() - 1, 1);
 
         setCursor(getCursor() - 1);
+
+        mFontBufferPreSelection.reset();
+        mFontBufferSelection.reset();
+        mFontBufferPostSelection.reset();
     }
     else
     {
@@ -992,6 +1003,10 @@ void LLLineEditor::addChar(const llwchar uni_char)
             return;
 
         mText.erase(getCursor(), 1);
+
+        mFontBufferPreSelection.reset();
+        mFontBufferSelection.reset();
+        mFontBufferPostSelection.reset();
     }
 
     S32 cur_bytes = static_cast<S32>(mText.getString().size());
@@ -1022,6 +1037,10 @@ void LLLineEditor::addChar(const llwchar uni_char)
 
         mText.insert(getCursor(), w_buf);
         setCursor(getCursor() + 1);
+
+        mFontBufferPreSelection.reset();
+        mFontBufferSelection.reset();
+        mFontBufferPostSelection.reset();
     }
     else
     {
@@ -1186,6 +1205,10 @@ void LLLineEditor::deleteSelection()
         mText.erase(left_pos, selection_length);
         deselect();
         setCursor(left_pos);
+
+        mFontBufferPreSelection.reset();
+        mFontBufferSelection.reset();
+        mFontBufferPostSelection.reset();
     }
 }
 
@@ -1345,6 +1368,10 @@ void LLLineEditor::pasteHelper(bool is_primary)
             mText.insert(getCursor(), clean_string);
             setCursor( getCursor() + (S32)clean_string.length() );
             deselect();
+
+            mFontBufferPreSelection.reset();
+            mFontBufferSelection.reset();
+            mFontBufferPostSelection.reset();
 
             // Validate new string and rollback the if needed.
             bool need_to_rollback = mPrevalidator && !mPrevalidator.validate(mText.getWString());
@@ -1506,6 +1533,10 @@ bool LLLineEditor::handleSpecialKey(KEY key, MASK mask)
             {
                 mText.assign(*(--mCurrentHistoryLine));
                 setCursorToEnd();
+
+                mFontBufferPreSelection.reset();
+                mFontBufferSelection.reset();
+                mFontBufferPostSelection.reset();
             }
             else
             {
@@ -1523,6 +1554,10 @@ bool LLLineEditor::handleSpecialKey(KEY key, MASK mask)
             {
                 mText.assign( *(++mCurrentHistoryLine) );
                 setCursorToEnd();
+
+                mFontBufferPreSelection.reset();
+                mFontBufferSelection.reset();
+                mFontBufferPostSelection.reset();
             }
             else
             {
@@ -1897,7 +1932,8 @@ void LLLineEditor::draw()
         if( select_left > mScrollHPos )
         {
             // unselected, left side
-            rendered_text = mGLFont->render(
+            rendered_text = mFontBufferPreSelection.render(
+                mGLFont,
                 mText, mScrollHPos,
                 rendered_pixels_right, text_bottom,
                 text_color,
@@ -1919,7 +1955,8 @@ void LLLineEditor::draw()
             gl_rect_2d(ll_round(rendered_pixels_right), cursor_top, ll_round(rendered_pixels_right)+width, cursor_bottom, color);
 
             LLColor4 tmp_color( 1.f - text_color.mV[0], 1.f - text_color.mV[1], 1.f - text_color.mV[2], alpha );
-            rendered_text += mGLFont->render(
+            rendered_text += mFontBufferSelection.render(
+                mGLFont,
                 mText, mScrollHPos + rendered_text,
                 rendered_pixels_right, text_bottom,
                 tmp_color,
@@ -1934,7 +1971,8 @@ void LLLineEditor::draw()
         if( (rendered_pixels_right < (F32)mTextRightEdge) && (rendered_text < text_len) )
         {
             // unselected, right side
-            rendered_text += mGLFont->render(
+            rendered_text += mFontBufferPostSelection.render(
+                mGLFont,
                 mText, mScrollHPos + rendered_text,
                 rendered_pixels_right, text_bottom,
                 text_color,
@@ -1948,7 +1986,8 @@ void LLLineEditor::draw()
     }
     else
     {
-        rendered_text = mGLFont->render(
+        rendered_text = mFontBufferPreSelection.render(
+            mGLFont,
             mText, mScrollHPos,
             rendered_pixels_right, text_bottom,
             text_color,
@@ -2108,7 +2147,8 @@ void LLLineEditor::draw()
         //to give indication that it is not text you typed in
         if (0 == mText.length() && (mReadOnly || mShowLabelFocused))
         {
-            mGLFont->render(mLabel.getWString(), 0,
+            mFontBufferLabel.render(mGLFont,
+                            mLabel.getWString(), 0,
                             (F32)mTextLeftEdge, (F32)text_bottom,
                             label_color,
                             LLFontGL::LEFT,
@@ -2133,7 +2173,8 @@ void LLLineEditor::draw()
         // draw label if no text provided
         if (0 == mText.length())
         {
-            mGLFont->render(mLabel.getWString(), 0,
+            mFontBufferLabel.render(mGLFont,
+                            mLabel.getWString(), 0,
                             (F32)mTextLeftEdge, (F32)text_bottom,
                             label_color,
                             LLFontGL::LEFT,
@@ -2404,12 +2445,16 @@ void LLLineEditor::setKeystrokeCallback(callback_t callback, void* user_data)
 bool LLLineEditor::setTextArg( const std::string& key, const LLStringExplicit& text )
 {
     mText.setArg(key, text);
+    mFontBufferPreSelection.reset();
+    mFontBufferSelection.reset();
+    mFontBufferPostSelection.reset();
     return true;
 }
 
 bool LLLineEditor::setLabelArg( const std::string& key, const LLStringExplicit& text )
 {
     mLabel.setArg(key, text);
+    mFontBufferLabel.reset();
     return true;
 }
 
@@ -2508,6 +2553,9 @@ void LLLineEditor::updatePreedit(const LLWString &preedit_string,
         mPreeditOverwrittenWString.clear();
     }
     mText.insert(insert_preedit_at, mPreeditWString);
+    mFontBufferPreSelection.reset();
+    mFontBufferSelection.reset();
+    mFontBufferPostSelection.reset();
 
     mPreeditStandouts = preedit_standouts;
 

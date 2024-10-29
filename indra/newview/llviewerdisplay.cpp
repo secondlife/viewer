@@ -28,58 +28,74 @@
 
 #include "llviewerdisplay.h"
 
-#include "llgl.h"
-#include "llrender.h"
-#include "llglheaders.h"
-#include "llgltfmateriallist.h"
+#include "fsyspath.h"
+#include "hexdump.h"
 #include "llagent.h"
 #include "llagentcamera.h"
-#include "llviewercontrol.h"
+#include "llappviewer.h"
 #include "llcoord.h"
 #include "llcriticaldamp.h"
+#include "llcubemap.h"
 #include "lldir.h"
-#include "lldynamictexture.h"
 #include "lldrawpoolalpha.h"
+#include "lldrawpoolbump.h"
+#include "lldrawpoolwater.h"
+#include "lldynamictexture.h"
+#include "llenvironment.h"
+#include "llfasttimer.h"
 #include "llfeaturemanager.h"
-//#include "llfirstuse.h"
+#include "llfloatertools.h"
+#include "llfocusmgr.h"
+#include "llgl.h"
+#include "llglheaders.h"
+#include "llgltfmateriallist.h"
 #include "llhudmanager.h"
 #include "llimagepng.h"
+#include "llmachineid.h"
 #include "llmemory.h"
+#include "llparcel.h"
+#include "llperfstats.h"
+#include "llpostprocess.h"
+#include "llrender.h"
+#include "llscenemonitor.h"
+#include "llsdjson.h"
 #include "llselectmgr.h"
 #include "llsky.h"
+#include "llspatialpartition.h"
 #include "llstartup.h"
+#include "llstartup.h"
+#include "lltooldraganddrop.h"
 #include "lltoolfocus.h"
 #include "lltoolmgr.h"
-#include "lltooldraganddrop.h"
 #include "lltoolpie.h"
 #include "lltracker.h"
 #include "lltrans.h"
 #include "llui.h"
+#include "lluuid.h"
+#include "llversioninfo.h"
 #include "llviewercamera.h"
+#include "llviewercontrol.h"
+#include "llviewernetwork.h"
 #include "llviewerobjectlist.h"
 #include "llviewerparcelmgr.h"
+#include "llviewerregion.h"
+#include "llviewershadermgr.h"
+#include "llviewertexturelist.h"
 #include "llviewerwindow.h"
 #include "llvoavatarself.h"
 #include "llvograss.h"
 #include "llworld.h"
 #include "pipeline.h"
-#include "llspatialpartition.h"
-#include "llappviewer.h"
-#include "llstartup.h"
-#include "llviewershadermgr.h"
-#include "llfasttimer.h"
-#include "llfloatertools.h"
-#include "llviewertexturelist.h"
-#include "llfocusmgr.h"
-#include "llcubemap.h"
-#include "llviewerregion.h"
-#include "lldrawpoolwater.h"
-#include "lldrawpoolbump.h"
-#include "llpostprocess.h"
-#include "llscenemonitor.h"
 
-#include "llenvironment.h"
-#include "llperfstats.h"
+#include <boost/json.hpp>
+
+#include <filesystem>
+#include <iomanip>
+#include <sstream>
+
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 extern LLPointer<LLViewerTexture> gStartTexture;
 extern bool gShiftFrame;
@@ -122,6 +138,9 @@ void render_hud_attachments();
 void render_ui_3d();
 void render_ui_2d();
 void render_disconnected_background();
+
+void getProfileStatsContext(boost::json::object& stats);
+std::string getProfileStatsFilename();
 
 void display_startup()
 {
@@ -789,8 +808,8 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
 
                 LLGLState::checkStates();
 
-                glh::matrix4f proj = get_current_projection();
-                glh::matrix4f mod = get_current_modelview();
+                glm::mat4 proj = get_current_projection();
+                glm::mat4 mod = get_current_modelview();
                 glViewport(0,0,512,512);
 
                 LLVOAvatar::updateImpostors();
@@ -798,9 +817,9 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
                 set_current_projection(proj);
                 set_current_modelview(mod);
                 gGL.matrixMode(LLRender::MM_PROJECTION);
-                gGL.loadMatrix(proj.m);
+                gGL.loadMatrix(glm::value_ptr(proj));
                 gGL.matrixMode(LLRender::MM_MODELVIEW);
-                gGL.loadMatrix(mod.m);
+                gGL.loadMatrix(glm::value_ptr(mod));
                 gViewerWindow->setup3DViewport();
 
                 LLGLState::checkStates();
@@ -1052,8 +1071,87 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
     if (gShaderProfileFrame)
     {
         gShaderProfileFrame = false;
-        LLGLSLShader::finishProfile();
+        boost::json::value stats{ boost::json::object_kind };
+        getProfileStatsContext(stats.as_object());
+        LLGLSLShader::finishProfile(stats);
+
+        auto report_name = getProfileStatsFilename();
+        std::ofstream outf(report_name);
+        if (! outf)
+        {
+            LL_WARNS() << "Couldn't write to " << std::quoted(report_name) << LL_ENDL;
+        }
+        else
+        {
+            outf << stats;
+            LL_INFOS() << "(also dumped to " << std::quoted(report_name) << ")" << LL_ENDL;
+        }
     }
+}
+
+void getProfileStatsContext(boost::json::object& stats)
+{
+    // populate the context with info from LLFloaterAbout
+    auto contextit = stats.emplace("context",
+                                   LlsdToJson(LLAppViewer::instance()->getViewerInfo())).first;
+    auto& context = contextit->value().as_object();
+
+    // then add a few more things
+    unsigned char unique_id[MAC_ADDRESS_BYTES]{};
+    LLMachineID::getUniqueID(unique_id, sizeof(unique_id));
+    context.emplace("machine", stringize(LL::hexdump(unique_id, sizeof(unique_id))));
+    context.emplace("grid", LLGridManager::instance().getGrid());
+    LLViewerRegion* region = gAgent.getRegion();
+    if (region)
+    {
+        context.emplace("regionid", stringize(region->getRegionID()));
+    }
+    LLParcel* parcel = LLViewerParcelMgr::instance().getAgentParcel();
+    if (parcel)
+    {
+        context.emplace("parcel", parcel->getName());
+        context.emplace("parcelid", parcel->getLocalID());
+    }
+    context.emplace("time", LLDate::now().toHTTPDateString("%Y-%m-%dT%H:%M:%S"));
+}
+
+std::string getProfileStatsFilename()
+{
+    std::ostringstream basebuff;
+    // viewer build
+    basebuff << "profile.v" << LLVersionInfo::instance().getBuild();
+    // machine ID: zero-initialize unique_id in case LLMachineID fails
+    unsigned char unique_id[MAC_ADDRESS_BYTES]{};
+    LLMachineID::getUniqueID(unique_id, sizeof(unique_id));
+    basebuff << ".m" << LL::hexdump(unique_id, sizeof(unique_id));
+    // region ID
+    LLViewerRegion *region = gAgent.getRegion();
+    basebuff << ".r" << (region? region->getRegionID() : LLUUID());
+    // local parcel ID
+    LLParcel* parcel = LLViewerParcelMgr::instance().getAgentParcel();
+    basebuff << ".p" << (parcel? parcel->getLocalID() : 0);
+    // date/time -- omit seconds for now
+    auto now = LLDate::now();
+    basebuff << ".t" << LLDate::now().toHTTPDateString("%Y-%m-%dT%H-%M-");
+    // put this candidate file in our logs directory
+    auto base = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, basebuff.str());
+    S32 sec;
+    now.split(nullptr, nullptr, nullptr, nullptr, nullptr, &sec);
+    // Loop over finished filename, incrementing sec until we find one that
+    // doesn't yet exist. Should rarely loop (only if successive calls within
+    // same second), may produce (e.g.) sec==61, but avoids collisions and
+    // preserves chronological filename sort order.
+    std::string name;
+    std::error_code ec;
+    do
+    {
+        // base + missing 2-digit seconds, append ".json"
+        // post-increment sec in case we have to try again
+        name = stringize(base, std::setw(2), std::setfill('0'), sec++, ".json");
+    } while (std::filesystem::exists(fsyspath(name), ec));
+    // Ignoring ec means we might potentially return a name that does already
+    // exist -- but if we can't check its existence, what more can we do?
+    return name;
 }
 
 // WIP simplified copy of display() that does minimal work
@@ -1177,8 +1275,8 @@ void render_hud_attachments()
     gGL.matrixMode(LLRender::MM_MODELVIEW);
     gGL.pushMatrix();
 
-    glh::matrix4f current_proj = get_current_projection();
-    glh::matrix4f current_mod = get_current_modelview();
+    glm::mat4 current_proj = get_current_projection();
+    glm::mat4 current_mod = get_current_modelview();
 
     // clamp target zoom level to reasonable values
     gAgentCamera.mHUDTargetZoom = llclamp(gAgentCamera.mHUDTargetZoom, 0.1f, 1.f);
@@ -1302,7 +1400,7 @@ LLRect get_whole_screen_region()
     return whole_screen;
 }
 
-bool get_hud_matrices(const LLRect& screen_region, glh::matrix4f &proj, glh::matrix4f &model)
+bool get_hud_matrices(const LLRect& screen_region, glm::mat4 &proj, glm::mat4&model)
 {
     if (isAgentAvatarValid() && gAgentAvatarp->hasHUDAttachment())
     {
@@ -1310,28 +1408,29 @@ bool get_hud_matrices(const LLRect& screen_region, glh::matrix4f &proj, glh::mat
         LLBBox hud_bbox = gAgentAvatarp->getHUDBBox();
 
         F32 hud_depth = llmax(1.f, hud_bbox.getExtentLocal().mV[VX] * 1.1f);
-        proj = gl_ortho(-0.5f * LLViewerCamera::getInstance()->getAspect(), 0.5f * LLViewerCamera::getInstance()->getAspect(), -0.5f, 0.5f, 0.f, hud_depth);
-        proj.element(2,2) = -0.01f;
+        proj = glm::ortho(-0.5f * LLViewerCamera::getInstance()->getAspect(), 0.5f * LLViewerCamera::getInstance()->getAspect(), -0.5f, 0.5f, 0.f, hud_depth);
+        proj[2][2] = -0.01f;
 
         F32 aspect_ratio = LLViewerCamera::getInstance()->getAspect();
 
-        glh::matrix4f mat;
         F32 scale_x = (F32)gViewerWindow->getWorldViewWidthScaled() / (F32)screen_region.getWidth();
         F32 scale_y = (F32)gViewerWindow->getWorldViewHeightScaled() / (F32)screen_region.getHeight();
-        mat.set_scale(glh::vec3f(scale_x, scale_y, 1.f));
-        mat.set_translate(
-            glh::vec3f(clamp_rescale((F32)(screen_region.getCenterX() - screen_region.mLeft), 0.f, (F32)gViewerWindow->getWorldViewWidthScaled(), 0.5f * scale_x * aspect_ratio, -0.5f * scale_x * aspect_ratio),
-                       clamp_rescale((F32)(screen_region.getCenterY() - screen_region.mBottom), 0.f, (F32)gViewerWindow->getWorldViewHeightScaled(), 0.5f * scale_y, -0.5f * scale_y),
-                       0.f));
+
+        glm::mat4 mat = glm::identity<glm::mat4>();
+        mat = glm::translate(mat,
+            glm::vec3(clamp_rescale((F32)(screen_region.getCenterX() - screen_region.mLeft), 0.f, (F32)gViewerWindow->getWorldViewWidthScaled(), 0.5f * scale_x * aspect_ratio, -0.5f * scale_x * aspect_ratio),
+                clamp_rescale((F32)(screen_region.getCenterY() - screen_region.mBottom), 0.f, (F32)gViewerWindow->getWorldViewHeightScaled(), 0.5f * scale_y, -0.5f * scale_y),
+                0.f));
+        mat = glm::scale(mat, glm::vec3(scale_x, scale_y, 1.f));
         proj *= mat;
 
-        glh::matrix4f tmp_model((GLfloat*) OGL_TO_CFR_ROTATION);
-
-        mat.set_scale(glh::vec3f(zoom_level, zoom_level, zoom_level));
-        mat.set_translate(glh::vec3f(-hud_bbox.getCenterLocal().mV[VX] + (hud_depth * 0.5f), 0.f, 0.f));
-
+        glm::mat4 tmp_model = glm::make_mat4(OGL_TO_CFR_ROTATION);
+        mat = glm::identity<glm::mat4>();
+        mat = glm::translate(mat, glm::vec3(-hud_bbox.getCenterLocal().mV[VX] + (hud_depth * 0.5f), 0.f, 0.f));
+        mat = glm::scale(mat, glm::vec3(zoom_level));
         tmp_model *= mat;
         model = tmp_model;
+
         return true;
     }
     else
@@ -1340,7 +1439,7 @@ bool get_hud_matrices(const LLRect& screen_region, glh::matrix4f &proj, glh::mat
     }
 }
 
-bool get_hud_matrices(glh::matrix4f &proj, glh::matrix4f &model)
+bool get_hud_matrices(glm::mat4 &proj, glm::mat4&model)
 {
     LLRect whole_screen = get_whole_screen_region();
     return get_hud_matrices(whole_screen, proj, model);
@@ -1354,17 +1453,17 @@ bool setup_hud_matrices()
 
 bool setup_hud_matrices(const LLRect& screen_region)
 {
-    glh::matrix4f proj, model;
+    glm::mat4 proj, model;
     bool result = get_hud_matrices(screen_region, proj, model);
     if (!result) return result;
 
     // set up transform to keep HUD objects in front of camera
     gGL.matrixMode(LLRender::MM_PROJECTION);
-    gGL.loadMatrix(proj.m);
+    gGL.loadMatrix(glm::value_ptr(proj));
     set_current_projection(proj);
 
     gGL.matrixMode(LLRender::MM_MODELVIEW);
-    gGL.loadMatrix(model.m);
+    gGL.loadMatrix(glm::value_ptr(model));
     set_current_modelview(model);
     return true;
 }
@@ -1376,13 +1475,13 @@ void render_ui(F32 zoom_factor, int subfield)
     LL_PROFILE_GPU_ZONE("ui");
     LLGLState::checkStates();
 
-    glh::matrix4f saved_view = get_current_modelview();
+    glm::mat4 saved_view = get_current_modelview();
 
     if (!gSnapshot)
     {
         gGL.pushMatrix();
         gGL.loadMatrix(gGLLastModelView);
-        set_current_modelview(copy_matrix(gGLLastModelView));
+        set_current_modelview(glm::make_mat4(gGLLastModelView));
     }
 
     if(LLSceneMonitor::getInstance()->needsUpdate())
@@ -1531,6 +1630,7 @@ void draw_axes()
 
 void render_ui_3d()
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
     LLGLSPipeline gls_pipeline;
 
     //////////////////////////////////////
@@ -1579,6 +1679,7 @@ void render_ui_3d()
 
 void render_ui_2d()
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
     LLGLSUIDefault gls_ui;
 
     /////////////////////////////////////////////////////////////

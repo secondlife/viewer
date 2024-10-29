@@ -1,4 +1,4 @@
-version 60
+version 62
 // The version number above should be incremented IF AND ONLY IF some
 // change has been made that is sufficiently important to justify
 // resetting the graphics preferences of all users to the recommended
@@ -63,11 +63,13 @@ RenderDeferred				1	1
 RenderDeferredSSAO			1	1
 RenderShadowDetail			1	2
 RenderUseStreamVBO			1	1
-RenderFSAASamples			1	16
+RenderFSAAType			    1	2
+RenderFSAASamples			1	3
 RenderMaxTextureIndex		1	16
 RenderGLContextCoreProfile         1   1
 RenderGLMultiThreadedTextures      1   0
-RenderGLMultiThreadedMedia         1   0
+RenderGLMultiThreadedMedia         1   1
+RenderAppleUseMultGL        1   1
 RenderReflectionsEnabled    1   1
 RenderReflectionProbeDetail	1	2
 RenderScreenSpaceReflections 1  1
@@ -75,8 +77,12 @@ RenderReflectionProbeLevel  1   3
 RenderMirrors				1	1
 RenderHeroProbeResolution	1	2048
 RenderHeroProbeDistance		1	16
-RenderHeroProbeUpdateRate	1	4
+RenderHeroProbeUpdateRate	1	6
 RenderHeroProbeConservativeUpdateMultiplier 1 16
+RenderCASSharpness          1   1
+RenderExposure				1   1
+RenderTonemapType			1   1
+RenderTonemapMix			1   1
 
 //
 // Low Graphics Settings
@@ -102,6 +108,7 @@ RenderVolumeLODFactor		1	1.125
 RenderDeferredSSAO			1	0
 RenderShadowDetail			1	0
 WLSkyDetail					1	96
+RenderFSAAType			    1	0
 RenderFSAASamples			1	0
 RenderReflectionsEnabled    1   1
 RenderReflectionProbeDetail	1	0
@@ -112,6 +119,10 @@ RenderHeroProbeResolution	1	256
 RenderHeroProbeDistance		1	4
 RenderHeroProbeUpdateRate	1   6
 RenderHeroProbeConservativeUpdateMultiplier 1 16
+RenderCASSharpness          1   0
+RenderExposure				1   1
+RenderTonemapType			1   1
+RenderTonemapMix			1   0.7
 
 //
 // Medium Low Graphics Settings
@@ -137,6 +148,7 @@ RenderVolumeLODFactor		1	1.125
 RenderDeferredSSAO			1	0
 RenderShadowDetail			1	0
 WLSkyDetail					1	96
+RenderFSAAType			    1	0
 RenderFSAASamples			1	0
 RenderReflectionsEnabled    1   1
 RenderReflectionProbeDetail	1	0
@@ -147,6 +159,10 @@ RenderHeroProbeResolution	1	256
 RenderHeroProbeDistance		1	6
 RenderHeroProbeUpdateRate	1	3
 RenderHeroProbeConservativeUpdateMultiplier 1 16
+RenderCASSharpness          1   0
+RenderExposure				1   1
+RenderTonemapType			1   1
+RenderTonemapMix			1   0.7
 
 //
 // Medium Graphics Settings (standard)
@@ -172,7 +188,8 @@ RenderVolumeLODFactor		1	1.25
 RenderDeferredSSAO			1	0
 RenderShadowDetail			1	0
 WLSkyDetail					1	96
-RenderFSAASamples			1	2
+RenderFSAAType			    1	1
+RenderFSAASamples			1	0
 RenderReflectionsEnabled    1   1
 RenderReflectionProbeDetail	1	0
 RenderScreenSpaceReflections 1  0
@@ -182,6 +199,10 @@ RenderHeroProbeResolution	1	512
 RenderHeroProbeDistance		1	6
 RenderHeroProbeUpdateRate	1	3
 RenderHeroProbeConservativeUpdateMultiplier 1 16
+RenderCASSharpness          1   0
+RenderExposure				1   1
+RenderTonemapType			1   1
+RenderTonemapMix			1   0.7
 
 //
 // Medium High Graphics Settings
@@ -207,7 +228,8 @@ RenderVolumeLODFactor		1	1.375
 RenderDeferredSSAO			1	0
 RenderShadowDetail			1	0
 WLSkyDetail					1	96
-RenderFSAASamples			1	2
+RenderFSAAType			    1	1
+RenderFSAASamples			1	1
 RenderReflectionsEnabled    1   1
 RenderReflectionProbeDetail	1	0
 RenderScreenSpaceReflections 1  0
@@ -217,6 +239,10 @@ RenderHeroProbeResolution	1	512
 RenderHeroProbeDistance		1	6
 RenderHeroProbeUpdateRate	1	2
 RenderHeroProbeConservativeUpdateMultiplier 1 8
+RenderCASSharpness          1   0
+RenderExposure				1   1
+RenderTonemapType			1   1
+RenderTonemapMix			1   0.7
 
 //
 // High Graphics Settings (SSAO + sun shadows)
@@ -242,6 +268,7 @@ RenderVolumeLODFactor		1	1.5
 RenderDeferredSSAO			1	1
 RenderShadowDetail			1	1
 WLSkyDetail					1	96
+RenderFSAAType			    1	1
 RenderFSAASamples			1	2
 RenderReflectionsEnabled    1   1
 RenderReflectionProbeDetail	1	1
@@ -252,6 +279,10 @@ RenderHeroProbeResolution	1	512
 RenderHeroProbeDistance		1	8
 RenderHeroProbeUpdateRate	1	2
 RenderHeroProbeConservativeUpdateMultiplier 1 8
+RenderCASSharpness          1   0
+RenderExposure				1   1
+RenderTonemapType			1   1
+RenderTonemapMix			1   0.7
 
 //
 // High Ultra Graphics Settings (SSAO + all shadows)
@@ -277,6 +308,7 @@ RenderVolumeLODFactor		1	1.75
 RenderDeferredSSAO			1	1
 RenderShadowDetail			1	2
 WLSkyDetail					1	96
+RenderFSAAType			    1	2
 RenderFSAASamples			1	2
 RenderReflectionsEnabled    1   1
 RenderReflectionProbeDetail	1	1
@@ -287,6 +319,10 @@ RenderHeroProbeResolution	1	512
 RenderHeroProbeDistance		1	16
 RenderHeroProbeUpdateRate	1	1
 RenderHeroProbeConservativeUpdateMultiplier 1 4
+RenderCASSharpness          1   0.4
+RenderExposure				1   1
+RenderTonemapType			1   1
+RenderTonemapMix			1   0.7
 
 //
 // Ultra graphics (REALLY PURTY!)
@@ -312,7 +348,8 @@ WindLightUseAtmosShaders	1	1
 WLSkyDetail					1	128
 RenderDeferredSSAO			1	1
 RenderShadowDetail			1	2
-RenderFSAASamples			1	2
+RenderFSAAType			    1	2
+RenderFSAASamples			1	3
 RenderReflectionsEnabled    1   1
 RenderReflectionProbeDetail	1	1
 RenderScreenSpaceReflections 1  0
@@ -322,6 +359,10 @@ RenderHeroProbeResolution	1	1024
 RenderHeroProbeDistance		1	16
 RenderHeroProbeUpdateRate	1	1
 RenderHeroProbeConservativeUpdateMultiplier 1 4
+RenderCASSharpness          1   0.4
+RenderExposure				1   1
+RenderTonemapType			1   1
+RenderTonemapMix			1   0.7
 
 //
 // Class Unknown Hardware (unknown)
@@ -364,6 +405,15 @@ RenderDeferredSSAO			1	0
 list Intel
 RenderAnisotropic			1	0
 RenderFSAASamples			1	0
+
+// AppleGPU and NonAppleGPU can be thought of as Apple silicon vs Intel Mac
+list AppleGPU
+RenderGLMultiThreadedMedia  1   1
+RenderAppleUseMultGL        1   1
+
+list NonAppleGPU
+RenderGLMultiThreadedMedia  1   0
+RenderAppleUseMultGL        1   0
 
 list GL3
 RenderFSAASamples           0   0

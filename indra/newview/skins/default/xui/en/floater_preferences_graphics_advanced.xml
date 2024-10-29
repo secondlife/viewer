@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
-  height="411"
+  height="430"
   layout="topleft"
   name="prefs_graphics_advanced"
   help_topic="Preferences_Graphics_Advanced"
@@ -359,7 +359,41 @@
     name="use HiDPI"
     tool_tip="Enable OpenGL for High-Resolution Drawing."
     width="315" />
-
+    <text
+      type="string"
+      length="1"
+      follows="left|top"
+      height="20"
+      layout="topleft"
+      left="30"
+      name="antialiasing label"
+      top_delta="20"
+      width="120">
+        Antialiasing:
+    </text>
+    <combo_box
+      control_name="RenderFSAAType"
+      height="20"
+      initial_value="false"
+      label="Antialiasing"
+      layout="topleft"
+      left_pad="40"
+      name="fsaa"
+      top_delta="0"
+      width="90">
+        <combo_box.item
+          label="Disabled"
+          name="FSAADisabled"
+          value="0" />
+        <combo_box.item
+          label="FXAA"
+          name="FXAA"
+          value="1" />
+        <combo_box.item
+          label="SMAA"
+          name="SMAA"
+          value="2" />
+    </combo_box>
   <text
     type="string"
     length="1"
@@ -367,10 +401,10 @@
     height="20"
     layout="topleft"
     left="30"
-    name="antialiasing label"
+    name="antialiasing quality label"
     top_delta="20"
-    width="100">
-      Antialiasing:
+    width="120">
+      Antialiasing Quality:
   </text>
   <combo_box
     control_name="RenderFSAASamples"
@@ -379,17 +413,25 @@
     label="Antialiasing"
     layout="topleft"
     left_pad="40"
-    name="fsaa"
+    name="fsaa quality"
     top_delta="0"
     width="90">
     <combo_box.item
-      label="Disabled"
-      name="FSAADisabled"
+      label="Low"
+      name="Low"
       value="0" />
     <combo_box.item
-      label="FXAA"
-      name="FXAA"
+      label="Medium"
+      name="Medium"
+      value="1" />
+    <combo_box.item
+      label="High"
+      name="High"
       value="2" />
+    <combo_box.item
+      label="Ultra"
+      name="Ultra"
+      value="3" />
   </combo_box>
   <text
     type="string"
@@ -545,7 +587,7 @@
   </text>
    <view_border
       bevel_style="in"
-      height="357"
+      height="377"
       layout="topleft"
       left="385"
       name="vert_border"
@@ -881,7 +923,77 @@
       value="1"/>
   </combo_box>
   <!-- End of mirror settings -->
-
+  <!-- Sharpening Settings -->
+  <slider
+    control_name="RenderCASSharpness"
+    decimal_digits="1"
+    follows="left|top"
+    height="16"
+    increment="0.1"
+    initial_value="160"
+    label="Sharpening:"
+    label_width="145"
+    layout="topleft"
+    left="420"
+    min_val="0.0"
+    max_val="1.0"
+    name="RenderSharpness"
+    show_text="true"
+    top_delta="24"
+    width="260">
+  </slider>
+  <!-- End of Sharpening Settings-->
+  <!-- Tone Mapping Settings -->
+  <text
+    type="string"
+    length="1"
+    follows="left|top"
+    height="16"
+    layout="topleft"
+    left="420"
+    name="TonemapTypeText"
+    text_readonly_color="LabelDisabledColor"
+    top_delta="25"
+    width="128">
+    Tone Mapper:
+  </text>
+  <combo_box
+    control_name="RenderTonemapType"
+    height="18"
+    layout="topleft"
+    left_delta="130"
+    top_delta="0"
+    name="TonemapType"
+    width="150">
+     <combo_box.item
+       label="Khronos Neutral"
+       name="0"
+       value="0"/>
+     <combo_box.item
+       label="ACES"
+       name="1"
+       value="1"/>
+  </combo_box>
+  <slider
+   control_name="RenderTonemapMix"
+   decimal_digits="1"
+   follows="left|top"
+   height="16"
+   increment="0.1"
+   initial_value="1"
+   label="Tone Mapping Mix:"
+   tool_tip="Mix between linear and tone mapped colors"
+   label_width="145"
+   layout="topleft"
+   left="420"
+   min_val="0.0"
+   max_val="1.0"
+   name="TonemapMix"
+   show_text="true"
+   top_delta="22"
+   width="260">
+  </slider>
+  <!-- End of Tone Mapping Settings-->
   <!-- End of Advanced Settings block -->
 	<view_border
       bevel_style="in"
@@ -889,7 +1001,7 @@
       layout="topleft"
       left="13"
       name="horiz_border"
-      top="373"
+      top="393"
       top_delta="5"
       width="774"/>
   <button

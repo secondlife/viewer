@@ -288,7 +288,7 @@
    left="10"
    top_pad="0"
    width="170">
-      Offset y
+      Offset u
   </text>
   <spinner
    follows="left|top"
