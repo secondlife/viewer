@@ -762,6 +762,8 @@ bool LLSpatialGroup::changeLOD()
 
     if (needsUpdate())
     {
+        // perturb hash to avoid clustering of updates
+        mLODHash = rand() % mSpatialPartition->mLODPeriod;
         return true;
     }
 

@@ -408,6 +408,13 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
 
     LLPerfStats::RecordSceneTime T (LLPerfStats::StatType_t::RENDER_DISPLAY); // render time capture - This is the main stat for overall rendering.
 
+    // execute idle callbacks
+    // some of these invoke OpenGL commands, so call from display() instead of idle()
+    {
+        LL_PROFILE_ZONE_NAMED("Idle Callbacks");
+        gIdleCallbacks.callFunctions();
+    }
+
     if (gWindowResized)
     { //skip render on frames where window has been resized
         LL_DEBUGS("Window") << "Resizing window" << LL_ENDL;
@@ -1521,8 +1528,32 @@ void render_ui(F32 zoom_factor, int subfield)
     }
 }
 
+
+extern LL::GLWorkQueue* sGLWorkQueue;
+
 void swap()
 {
+    std::condition_variable condition;
+    std::atomic<bool> done = false;
+    std::mutex mutex;
+
+    bool threaded = gSavedSettings.getBOOL("IdleThread") && (LLStartUp::getStartupState() == STATE_STARTED);
+    if (threaded)
+    {
+        done = false;
+        sGLWorkQueue->post([&]
+            {
+                {
+                    std::lock_guard<std::mutex> lock(mutex);
+                    LLAppViewer::instance()->idle();
+                    done = true;
+                }
+
+                condition.notify_one();
+            });
+    }
+
+
     LLPerfStats::RecordSceneTime T ( LLPerfStats::StatType_t::RENDER_SWAP ); // render time capture - Swap buffer time - can signify excessive data transfer to/from GPU
     LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("Swap");
     LL_PROFILE_GPU_ZONE("swap");
@@ -1531,6 +1562,13 @@ void swap()
         gViewerWindow->getWindow()->swapBuffers();
     }
     gDisplaySwapBuffers = true;
+
+    if (threaded)
+    { // wait for idle to complete
+        LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("idle wait");
+        std::unique_lock<std::mutex> lock(mutex);
+        condition.wait(lock, [&] { return done.load(); });
+    }
 }
 
 void renderCoordinateAxes()

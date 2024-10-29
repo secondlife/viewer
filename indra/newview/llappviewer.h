@@ -233,6 +233,7 @@ public:
     // Note: mQuitRequested can be aborted by user.
     void outOfMemorySoftQuit();
 
+    void idle();
 protected:
     virtual bool initWindow(); // Initialize the viewer's window.
     virtual void initLoggingAndGetLastDuration(); // Initialize log files, logging system
@@ -273,7 +274,6 @@ private:
     static void recordMarkerVersion(LLAPRFile& marker_file);
     bool markerIsSameVersion(const std::string& marker_name) const;
 
-    void idle();
     void idleShutdown();
     // update avatar SLID and display name caches
     void idleNameCache();

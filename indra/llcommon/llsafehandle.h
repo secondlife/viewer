@@ -170,6 +170,7 @@ protected:
         }
     }
 
+ public:
     // Define an LLSingleton whose sole purpose is to hold a "null instance"
     // of the subject Type: the canonical instance to dereference if this
     // LLSafeHandle actually holds a null pointer. We use LLSingleton
@@ -178,11 +179,10 @@ protected:
     // Of course, as with any LLSingleton, the "null instance" is only
     // instantiated on demand -- in this case, if you actually try to
     // dereference an LLSafeHandle containing null.
-    class NullInstanceHolder: public LLSingleton<NullInstanceHolder>
+    class NullInstanceHolder: public LLSimpleton<NullInstanceHolder>
     {
-        LLSINGLETON_EMPTY_CTOR(NullInstanceHolder);
-        ~NullInstanceHolder() {}
     public:
+        ~NullInstanceHolder() {}
         Type mNullInstance;
     };
 

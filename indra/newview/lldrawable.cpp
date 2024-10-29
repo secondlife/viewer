@@ -173,7 +173,7 @@ void LLDrawable::destroy()
     // Attempt to catch violations of this in debug,
     // knowing that some false alarms may result
     //
-    llassert(!LLSpatialGroup::sNoDelete);
+    //llassert(!LLSpatialGroup::sNoDelete);
 
     /* cannot be guaranteed and causes crashes on false alarms
     if (LLSpatialGroup::sNoDelete)
@@ -739,12 +739,7 @@ F32 LLDrawable::updateXform(bool undamped)
     // update GLTF render matrix
     getGLTFRenderMatrix();
 
-    // TODO: update transform directly in UBO instead of rebuilding the whole spatial group
-    LLSpatialGroup* group = getSpatialGroup();
-    if (group)
-    {
-        group->updateTransform(this);
-    }
+    gPipeline.markTransformDirty(this);
 
     if (mSpatialBridge)
     {

@@ -452,6 +452,7 @@ bool LLViewerMedia::textureHasMedia(const LLUUID& texture_id)
 //////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMedia::setVolume(F32 volume)
 {
+    LL_PROFILE_ZONE_SCOPED;
     if(volume != sGlobalVolume || sForceUpdate)
     {
         sGlobalVolume = volume;

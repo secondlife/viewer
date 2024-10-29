@@ -2764,10 +2764,10 @@ void LLPipeline::rebuildPriorityGroups()
 
 void LLPipeline::updateGeom(F32 max_dtime)
 {
-    LLTimer update_timer;
+    LL_PROFILE_ZONE_SCOPED;
     LLPointer<LLDrawable> drawablep;
 
-    LL_RECORD_BLOCK_TIME(FTM_GEO_UPDATE);
+    
     if (gCubeSnapshot)
     {
         return;
@@ -2806,6 +2806,18 @@ void LLPipeline::updateGeom(F32 max_dtime)
     }
 
     updateMovedList(mMovedBridge);
+
+    for (auto& drawable : mDrawableTransformQ)
+    {
+        LLSpatialGroup* group = drawable->getSpatialGroup();
+        if (group)
+        {
+            group->updateTransform(drawable);
+        }
+
+        drawable->clearState(LLDrawable::IN_TRANSFORM_Q);
+    }
+    mDrawableTransformQ.clear();
 }
 
 void LLPipeline::markVisible(LLDrawable *drawablep, LLCamera& camera)
@@ -3017,6 +3029,15 @@ void LLPipeline::markTransformDirty(LLSpatialGroup* group)
         group->setState(LLSpatialGroup::IN_TRANSFORM_BUILD_Q);
         group->mBPBatches.clear();
         group->mGLTFBatches.clear();
+    }
+}
+
+void LLPipeline::markTransformDirty(LLDrawable* drawablep)
+{
+    if (drawablep && !drawablep->isState(LLDrawable::IN_TRANSFORM_Q))
+    {
+        drawablep->setState(LLDrawable::IN_TRANSFORM_Q);
+        mDrawableTransformQ.push_back(drawablep);
     }
 }
 
@@ -6148,6 +6169,11 @@ void LLPipeline::findReferences(LLDrawable *drawablep)
     if (std::find(mBuildQ1.begin(), mBuildQ1.end(), drawablep) != mBuildQ1.end())
     {
         LL_INFOS() << "In mBuildQ1" << LL_ENDL;
+    }
+
+    if (std::find(mDrawableTransformQ.begin(), mDrawableTransformQ.end(), drawablep) != mDrawableTransformQ.end())
+    {
+        LL_INFOS() << "In mDrawableTransformQ" << LL_ENDL;
     }
 
     S32 count;

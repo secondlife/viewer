@@ -257,6 +257,7 @@ void LLViewerAudio::startFading()
 
 F32 LLViewerAudio::getFadeVolume()
 {
+    LL_PROFILE_ZONE_SCOPED;
     F32 fade_volume = 1.0f;
 
     if (stream_fade_timer.hasExpired())
@@ -397,6 +398,7 @@ void init_audio()
 
 void audio_update_volume(bool force_update)
 {
+    LL_PROFILE_ZONE_SCOPED;
     F32 master_volume = gSavedSettings.getF32("AudioLevelMaster");
     bool mute_audio = gSavedSettings.getBOOL("MuteAudio");
 
@@ -417,7 +419,7 @@ void audio_update_volume(bool force_update)
     if (gAudiop)
     {
         // Sound Effects
-
+        LL_PROFILE_ZONE_NAMED("Sound Effects");
         gAudiop->setMasterGain ( master_volume );
 
         const F32 AUDIO_LEVEL_DOPPLER = 1.f;
@@ -500,6 +502,7 @@ void audio_update_volume(bool force_update)
 
 void audio_update_listener()
 {
+    LL_PROFILE_ZONE_SCOPED;
     if (gAudiop)
     {
         // update listener position because agent has moved
@@ -531,6 +534,7 @@ void audio_update_listener()
 
 void audio_update_wind(bool force_update)
 {
+    LL_PROFILE_ZONE_SCOPED;
 #ifdef kAUDIO_ENABLE_WIND
 
     LLViewerRegion* region = gAgent.getRegion();

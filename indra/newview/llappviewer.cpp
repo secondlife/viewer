@@ -113,6 +113,12 @@
 #include "lllocalbitmaps.h"
 #include "llperfstats.h"
 #include "llgltfmateriallist.h"
+#include "llmaterialmgr.h"
+#include "lltoolselectland.h"
+#include "lltoolindividual.h"
+#include "lltoolcomp.h"
+#include "lltoolface.h"
+#include "lltoolpipette.h"
 
 // Linden library includes
 #include "fsyspath.h"
@@ -724,6 +730,64 @@ public:
     }
 };
 
+void create_simpletons()
+{
+    //LLSimpleton creations
+    LLEnvironment::createInstance();
+    LLWorld::createInstance();
+    LLViewerStatsRecorder::createInstance();
+    LLSelectMgr::createInstance();
+    LLViewerCamera::createInstance();
+    LL::GLTFSceneManager::createInstance();
+    LLDeferredSounds::createInstance();
+    LLSafeHandle<LLObjectSelection>::NullInstanceHolder::createInstance();
+    LLSafeHandle<LLParcelSelection>::NullInstanceHolder::createInstance();
+    LLMaterialMgr::createInstance();
+    LLSpeakerVolumeStorage::createInstance();
+    LLToolSelectLand::createInstance();
+    LLToolIndividual::createInstance();
+    LLToolCompInspect::createInstance();
+    LLToolCompTranslate::createInstance();
+    LLToolCompScale::createInstance();
+    LLToolCompRotate::createInstance();
+    LLToolCompCreate::createInstance();
+    LLToolCompGun::createInstance();
+    LLToolFace::createInstance();
+    LLToolPipette::createInstance();
+    LLToolMgr::createInstance();
+    LLWorldMap::createInstance();
+}
+
+void destroy_simpletons()
+{
+    // LLSimpleton deletions
+    LL::GLTFSceneManager::deleteSingleton();
+    LLEnvironment::deleteSingleton();
+    LLSelectMgr::deleteSingleton();
+    LLViewerStatsRecorder::deleteSingleton();
+    LLViewerEventRecorder::deleteSingleton();
+    LLWorld::deleteSingleton();
+    LLVoiceClient::deleteSingleton();
+    LLUI::deleteSingleton();
+    LLDeferredSounds::deleteSingleton();
+    LLSafeHandle<LLObjectSelection>::NullInstanceHolder::deleteSingleton();
+    LLSafeHandle<LLParcelSelection>::NullInstanceHolder::deleteSingleton();
+    LLMaterialMgr::deleteSingleton();
+    LLSpeakerVolumeStorage::deleteSingleton();
+    LLToolSelectLand::deleteSingleton();
+    LLToolIndividual::deleteSingleton();
+    LLToolCompInspect::deleteSingleton();
+    LLToolCompTranslate::deleteSingleton();
+    LLToolCompScale::deleteSingleton();
+    LLToolCompRotate::deleteSingleton();
+    LLToolCompCreate::deleteSingleton();
+    LLToolCompGun::deleteSingleton();
+    LLToolFace::deleteSingleton();
+    LLToolPipette::deleteSingleton();
+    LLToolMgr::deleteSingleton();
+    LLWorldMap::deleteSingleton();
+}
+
 
 bool LLAppViewer::init()
 {
@@ -887,8 +951,6 @@ bool LLAppViewer::init()
     LLUrlFloaterDispatchHandler::registerInDispatcher();
 
     /////////////////////////////////////////////////
-
-    LLToolMgr::getInstance(); // Initialize tool manager if not already instantiated
 
     LLViewerFloaterReg::registerFloaters();
 
@@ -1324,14 +1386,7 @@ bool LLAppViewer::init()
     // Load User's bindings
     loadKeyBindings();
 
-    //LLSimpleton creations
-    LLEnvironment::createInstance();
-    LLWorld::createInstance();
-    LLViewerStatsRecorder::createInstance();
-    LLSelectMgr::createInstance();
-    LLViewerCamera::createInstance();
-    LL::GLTFSceneManager::createInstance();
-
+    create_simpletons();
 
 #if LL_WINDOWS
     if (!mSecondInstance)
@@ -1478,6 +1533,8 @@ bool LLAppViewer::doFrame()
 {
     LL_RECORD_BLOCK_TIME(FTM_FRAME);
     {
+        LLVertexBuffer::updateClass();
+
     // and now adjust the visuals from previous frame.
     if(LLPerfStats::tunables.userAutoTuneEnabled && LLPerfStats::tunables.tuningFlag != LLPerfStats::Tunables::Nothing)
     {
@@ -1587,6 +1644,7 @@ bool LLAppViewer::doFrame()
             }
 
             // Update state based on messages, user input, object idle.
+            if (!gSavedSettings.getBOOL("IdleThread") || (LLStartUp::getStartupState() != STATE_STARTED))
             {
                 {
                     LL_PROFILE_ZONE_NAMED_CATEGORY_APP("df pauseMainloopTimeout");
@@ -1604,6 +1662,12 @@ bool LLAppViewer::doFrame()
                     resumeMainloopTimeout();
                 }
             }
+
+            //  Update statistics for this frame
+            update_statistics();
+
+            // update agent camera before display()
+            gAgentCamera.updateCamera();
 
             if (gDoDisconnect && (LLStartUp::getStartupState() == STATE_STARTED))
             {
@@ -2270,14 +2334,7 @@ bool LLAppViewer::cleanup()
     ll_close_fail_log();
 
     LLError::LLCallStacks::cleanup();
-    LL::GLTFSceneManager::deleteSingleton();
-    LLEnvironment::deleteSingleton();
-    LLSelectMgr::deleteSingleton();
-    LLViewerStatsRecorder::deleteSingleton();
-    LLViewerEventRecorder::deleteSingleton();
-    LLWorld::deleteSingleton();
-    LLVoiceClient::deleteSingleton();
-    LLUI::deleteSingleton();
+    destroy_simpletons();
 
     // It's not at first obvious where, in this long sequence, a generic cleanup
     // call OUGHT to go. So let's say this: as we migrate cleanup from
@@ -4741,7 +4798,6 @@ void LLAppViewer::idle()
     static LLCachedControl<U32> downscale_method(gSavedSettings, "RenderDownScaleMethod");
     gGLManager.mDownScaleMethod = downscale_method;
     LLImageGL::updateClass();
-    LLVertexBuffer::updateClass();
 
     // Service the WorkQueue we use for replies from worker threads.
     // Use function statics for the timeslice setting so we only have to fetch
@@ -4915,12 +4971,8 @@ void LLAppViewer::idle()
         idleNameCache();
         idleNetwork();
 
-
         // Check for away from keyboard, kick idle agents.
         idle_afk_check();
-
-        //  Update statistics for this frame
-        update_statistics();
     }
 
     ////////////////////////////////////////
@@ -4933,12 +4985,9 @@ void LLAppViewer::idle()
     if (!mQuitRequested)  //MAINT-4243
 #endif
     {
-//      LL_RECORD_BLOCK_TIME(FTM_IDLE_CB);
-
         // Do event notifications if necessary.  Yes, we may want to move this elsewhere.
         gEventNotifier.update();
 
-        gIdleCallbacks.callFunctions();
         gInventory.idleNotifyObservers();
         LLAvatarTracker::instance().idleNotifyObservers();
     }
@@ -5119,8 +5168,6 @@ void LLAppViewer::idle()
         {
             LLViewerJoystick::getInstance()->moveObjects();
         }
-
-        gAgentCamera.updateCamera();
     }
 
     // update media focus
@@ -5493,7 +5540,6 @@ void LLAppViewer::idleNetwork()
     // Retransmit unacknowledged packets.
     gXferManager->retransmitUnackedPackets();
     gAssetStorage->checkForTimeouts();
-    gViewerThrottle.updateDynamicThrottle();
 
     // Check that the circuit between the viewer and the agent's current
     // region is still alive

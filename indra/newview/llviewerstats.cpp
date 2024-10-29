@@ -321,6 +321,7 @@ void update_statistics()
 {
     LL_PROFILE_ZONE_SCOPED;
 
+    gViewerThrottle.updateDynamicThrottle();
     gTotalWorldData += gVLManager.getTotalBytes();
     gTotalObjectData += gObjectData;
 

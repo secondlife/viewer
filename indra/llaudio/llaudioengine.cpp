@@ -195,6 +195,7 @@ LLAudioEngine::LLAudioPlayState LLAudioEngine::isInternetStreamPlaying()
 // virtual
 void LLAudioEngine::setInternetStreamGain(F32 vol)
 {
+    LL_PROFILE_ZONE_SCOPED;
     if (mStreamingAudioImpl)
         mStreamingAudioImpl->setGain(vol);
 }
@@ -211,6 +212,7 @@ std::string LLAudioEngine::getInternetStreamURL()
 
 void LLAudioEngine::updateChannels()
 {
+    LL_PROFILE_ZONE_SCOPED;
     S32 i;
     for (i = 0; i < LL_MAX_AUDIO_CHANNELS; i++)
     {
@@ -225,6 +227,7 @@ void LLAudioEngine::updateChannels()
 
 void LLAudioEngine::idle()
 {
+    LL_PROFILE_ZONE_SCOPED;
     // "Update" all of our audio sources, clean up dead ones.
     // Primarily does position updating, cleanup of unused audio sources.
     // Also does regeneration of the current priority of each audio source.
@@ -666,6 +669,7 @@ bool LLAudioEngine::isWindEnabled()
 
 void LLAudioEngine::setMuted(bool muted)
 {
+    LL_PROFILE_ZONE_SCOPED;
     if (muted != mMuted)
     {
         mMuted = muted;
@@ -676,6 +680,7 @@ void LLAudioEngine::setMuted(bool muted)
 
 void LLAudioEngine::setMasterGain(const F32 gain)
 {
+    LL_PROFILE_ZONE_SCOPED;
     mMasterGain = gain;
     F32 internal_gain = getMuted() ? 0.f : gain;
     if (internal_gain != mInternalGain)
@@ -859,6 +864,7 @@ void LLAudioEngine::setListener(LLVector3 pos, LLVector3 vel, LLVector3 up, LLVe
 
 void LLAudioEngine::setDopplerFactor(F32 factor)
 {
+    LL_PROFILE_ZONE_SCOPED;
     if (mListenerp)
     {
         mListenerp->setDopplerFactor(factor);
@@ -881,6 +887,7 @@ F32 LLAudioEngine::getDopplerFactor()
 
 void LLAudioEngine::setRolloffFactor(F32 factor)
 {
+    LL_PROFILE_ZONE_SCOPED;
     if (mListenerp)
     {
         mListenerp->setRolloffFactor(factor);

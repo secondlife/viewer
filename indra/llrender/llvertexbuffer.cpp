@@ -37,10 +37,17 @@
 #include "llglslshader.h"
 #include "llmemory.h"
 #include <glm/gtc/type_ptr.hpp>
+#include "lltracethreadrecorder.h"
 
 U32 LLVertexBuffer::sDefaultVAO = 0;
 
 static bool sVBOPooling = true;
+
+#define THREAD_COUNT 1
+
+static LL::GLWorkerThread* sVBOThread[THREAD_COUNT];
+LL::GLWorkQueue* sGLWorkQueue = nullptr;
+
 
 //Next Highest Power Of Two
 //helper function, returns first number > v that is a power of 2, or v if v is already a power of 2
@@ -75,189 +82,6 @@ struct CompareMappedRegion
         return lhs.mStart < rhs.mStart;
     }
 };
-
-#define ENABLE_GL_WORK_QUEUE 0
-
-#if ENABLE_GL_WORK_QUEUE
-
-#define THREAD_COUNT 1
-
-//============================================================================
-
-// High performance WorkQueue for usage in real-time rendering work
-class GLWorkQueue
-{
-public:
-    using Work = std::function<void()>;
-
-    GLWorkQueue();
-
-    void post(const Work& value);
-
-    size_t size();
-
-    bool done();
-
-    // Get the next element from the queue
-    Work pop();
-
-    void runOne();
-
-    bool runPending();
-
-    void runUntilClose();
-
-    void close();
-
-    bool isClosed();
-
-    void syncGL();
-
-private:
-    std::mutex mMutex;
-    std::condition_variable mCondition;
-    std::queue<Work> mQueue;
-    bool mClosed = false;
-};
-
-GLWorkQueue::GLWorkQueue()
-{
-
-}
-
-void GLWorkQueue::syncGL()
-{
-    /*if (mSync)
-    {
-        std::lock_guard<std::mutex> lock(mMutex);
-        glWaitSync(mSync, 0, GL_TIMEOUT_IGNORED);
-        mSync = 0;
-    }*/
-}
-
-size_t GLWorkQueue::size()
-{
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
-    std::lock_guard<std::mutex> lock(mMutex);
-    return mQueue.size();
-}
-
-bool GLWorkQueue::done()
-{
-    return size() == 0 && isClosed();
-}
-
-void GLWorkQueue::post(const GLWorkQueue::Work& value)
-{
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
-    {
-        std::lock_guard<std::mutex> lock(mMutex);
-        mQueue.push(std::move(value));
-    }
-
-    mCondition.notify_one();
-}
-
-// Get the next element from the queue
-GLWorkQueue::Work GLWorkQueue::pop()
-{
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
-    // Lock the mutex
-    {
-        std::unique_lock<std::mutex> lock(mMutex);
-
-        // Wait for a new element to become available or for the queue to close
-        {
-            mCondition.wait(lock, [=] { return !mQueue.empty() || mClosed; });
-        }
-    }
-
-    Work ret;
-
-    {
-        std::lock_guard<std::mutex> lock(mMutex);
-
-        // Get the next element from the queue
-        if (mQueue.size() > 0)
-        {
-            ret = mQueue.front();
-            mQueue.pop();
-        }
-        else
-        {
-            ret = []() {};
-        }
-    }
-
-    return ret;
-}
-
-void GLWorkQueue::runOne()
-{
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
-    Work w = pop();
-    w();
-    //mSync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
-}
-
-void GLWorkQueue::runUntilClose()
-{
-    while (!isClosed())
-    {
-        runOne();
-    }
-}
-
-void GLWorkQueue::close()
-{
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
-    {
-        std::lock_guard<std::mutex> lock(mMutex);
-        mClosed = true;
-    }
-
-    mCondition.notify_all();
-}
-
-bool GLWorkQueue::isClosed()
-{
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
-    std::lock_guard<std::mutex> lock(mMutex);
-    return mClosed;
-}
-
-#include "llwindow.h"
-
-class LLGLWorkerThread : public LLThread
-{
-public:
-    LLGLWorkerThread(const std::string& name, GLWorkQueue* queue, LLWindow* window)
-        : LLThread(name)
-    {
-        mWindow = window;
-        mContext = mWindow->createSharedContext();
-        mQueue = queue;
-    }
-
-    void run() override
-    {
-        mWindow->makeContextCurrent(mContext);
-        gGL.init(false);
-        mQueue->runUntilClose();
-        gGL.shutdown();
-        mWindow->destroySharedContext(mContext);
-    }
-
-    GLWorkQueue* mQueue;
-    LLWindow* mWindow;
-    void* mContext = nullptr;
-};
-
-
-static LLGLWorkerThread* sVBOThread[THREAD_COUNT];
-static GLWorkQueue* sQueue = nullptr;
-
-#endif
 
 //============================================================================
 // Pool of reusable VertexBuffer state
@@ -982,12 +806,10 @@ void LLVertexBuffer::drawRangeFast(U32 mode, U32 start, U32 end, U32 count, U32 
         (GLvoid*)(indices_offset * (size_t)mIndicesStride));
 }
 
-
 void LLVertexBuffer::draw(U32 mode, U32 count, U32 indices_offset) const
 {
     drawRange(mode, 0, mNumVerts-1, count, indices_offset);
 }
-
 
 void LLVertexBuffer::drawArrays(U32 mode, U32 first, U32 count) const
 {
@@ -1017,15 +839,12 @@ void LLVertexBuffer::initClass(LLWindow* window)
         sVBOPool = new LLDefaultVBOPool();
     }
 
-#if ENABLE_GL_WORK_QUEUE
-    sQueue = new GLWorkQueue();
+    sGLWorkQueue = new LL::GLWorkQueue();
 
     for (int i = 0; i < THREAD_COUNT; ++i)
     {
-        sVBOThread[i] = new LLGLWorkerThread("VBO Worker", sQueue, window);
-        sVBOThread[i]->start();
+        sVBOThread[i] = new LL::GLWorkerThread("VBO Worker", sGLWorkQueue, window);
     }
-#endif
 }
 
 //static
@@ -1047,18 +866,17 @@ void LLVertexBuffer::cleanupClass()
     delete sVBOPool;
     sVBOPool = nullptr;
 
-#if ENABLE_GL_WORK_QUEUE
-    sQueue->close();
+
+    sGLWorkQueue->close();
     for (int i = 0; i < THREAD_COUNT; ++i)
     {
-        sVBOThread[i]->shutdown();
+        sVBOThread[i]->mThread.detach();
         delete sVBOThread[i];
         sVBOThread[i] = nullptr;
     }
 
-    delete sQueue;
-    sQueue = nullptr;
-#endif
+    delete sGLWorkQueue;
+    sGLWorkQueue = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -2093,6 +1911,125 @@ void LLVertexBuffer::setIndexData(const U32* data, U32 offset, U32 count)
     flush_vbo(GL_ELEMENT_ARRAY_BUFFER, offset * sizeof(U32), (offset + count) * sizeof(U32) - 1, (U8*)data, mMappedIndexData);
 }
 
+namespace LL
+{
+    GLWorkQueue::GLWorkQueue()
+    {
 
+    }
 
+    void GLWorkQueue::syncGL()
+    {
+        /*if (mSync)
+        {
+            std::lock_guard<std::mutex> lock(mMutex);
+            glWaitSync(mSync, 0, GL_TIMEOUT_IGNORED);
+            mSync = 0;
+        }*/
+    }
+
+    size_t GLWorkQueue::size()
+    {
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
+        std::lock_guard<std::mutex> lock(mMutex);
+        return mQueue.size();
+    }
+
+    bool GLWorkQueue::done()
+    {
+        return size() == 0 && isClosed();
+    }
+
+    void GLWorkQueue::post(const GLWorkQueue::Work& value)
+    {
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
+        {
+            std::lock_guard<std::mutex> lock(mMutex);
+            mQueue.push(std::move(value));
+        }
+
+        mCondition.notify_one();
+    }
+
+    // Get the next element from the queue
+    GLWorkQueue::Work GLWorkQueue::pop()
+    {
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
+        // Lock the mutex
+        {
+            std::unique_lock<std::mutex> lock(mMutex);
+
+            // Wait for a new element to become available or for the queue to close
+            {
+                mCondition.wait(lock, [=] { return !mQueue.empty() || mClosed; });
+            }
+        }
+
+        Work ret;
+
+        {
+            std::lock_guard<std::mutex> lock(mMutex);
+
+            // Get the next element from the queue
+            if (mQueue.size() > 0)
+            {
+                ret = mQueue.front();
+                mQueue.pop();
+            }
+            else
+            {
+                ret = []() {};
+            }
+        }
+
+        return ret;
+    }
+
+    void GLWorkQueue::runOne()
+    {
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
+        Work w = pop();
+        w();
+        //mSync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+    }
+
+    void GLWorkQueue::runUntilClose()
+    {
+        /*// init ThreadRecorder
+        static thread_local LLTrace::ThreadRecorder* sThreadRecorder = nullptr;
+        if (!sThreadRecorder)
+        {
+            sThreadRecorder = new LLTrace::ThreadRecorder();
+            LLTrace::set_thread_recorder(sThreadRecorder);
+        }*/
+
+        // run until the queue is closed
+        while (!isClosed())
+        {
+            runOne();
+        }
+
+        // destroy ThreadRecorder
+        //delete sThreadRecorder;
+        //sThreadRecorder = nullptr;
+    }
+
+    void GLWorkQueue::close()
+    {
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
+        {
+            std::lock_guard<std::mutex> lock(mMutex);
+            mClosed = true;
+        }
+
+        mCondition.notify_all();
+    }
+
+    bool GLWorkQueue::isClosed()
+    {
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
+        std::lock_guard<std::mutex> lock(mMutex);
+        return mClosed;
+    }
+};
 

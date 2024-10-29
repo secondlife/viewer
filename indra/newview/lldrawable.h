@@ -289,6 +289,7 @@ public:
         FOR_UNLOAD      = 0x04000000, //should be unload from memory
         MIRROR          = 0x08000000, // Used as a mirror, needs a hero probe position to be calculated.
         HAS_GLTF        = 0x10000000, // Has a GLTF material on at least 1 face
+        IN_TRANSFORM_Q  = 0x20000000, // in transform rebuild queue
     } EDrawableFlags;
 
 public:

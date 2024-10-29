@@ -30,9 +30,8 @@
 #include "llsingleton.h"
 #include "llaudioengine.h"
 
-class LLDeferredSounds : public LLSingleton<LLDeferredSounds>
+class LLDeferredSounds : public LLSimpleton<LLDeferredSounds>
 {
-    LLSINGLETON_EMPTY_CTOR(LLDeferredSounds);
     std::vector<SoundData> soundVector;
 public:
     //Add sounds to be played once progress bar is hidden (such as after teleport or loading screen)

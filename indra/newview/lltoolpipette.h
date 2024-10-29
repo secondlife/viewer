@@ -41,12 +41,12 @@ class LLViewerObject;
 class LLPickInfo;
 
 class LLToolPipette
-:   public LLTool, public LLSingleton<LLToolPipette>
+:   public LLTool, public LLSimpleton<LLToolPipette>
 {
-    LLSINGLETON(LLToolPipette);
+public:
+    LLToolPipette();
     virtual ~LLToolPipette();
 
-public:
     virtual bool    handleMouseDown(S32 x, S32 y, MASK mask) override;
     virtual bool    handleMouseUp(S32 x, S32 y, MASK mask) override;
     virtual bool    handleHover(S32 x, S32 y, MASK mask) override;

@@ -5224,11 +5224,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
         vobj = bridge->mDrawable->getVObj();
         vol_obj = dynamic_cast<LLVOVolume*>(vobj);
     }
-    if (vol_obj)
-    {
-        vol_obj->updateVisualComplexity();
-    }
-
+    
     group->mGeometryBytes = 0;
     group->mSurfaceArea = 0;
 

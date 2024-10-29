@@ -101,11 +101,11 @@ public:
 //-----------------------------------------------------------------------
 // LLToolCompTranslate
 
-class LLToolCompInspect : public LLToolComposite, public LLSingleton<LLToolCompInspect>
+class LLToolCompInspect : public LLToolComposite, public LLSimpleton<LLToolCompInspect>
 {
-    LLSINGLETON(LLToolCompInspect);
-    virtual ~LLToolCompInspect();
 public:
+    LLToolCompInspect();
+    virtual ~LLToolCompInspect();
 
     // Overridden from LLToolComposite
     virtual bool        handleMouseDown(S32 x, S32 y, MASK mask) override;
@@ -126,11 +126,11 @@ private:
 //-----------------------------------------------------------------------
 // LLToolCompTranslate
 
-class LLToolCompTranslate : public LLToolComposite, public LLSingleton<LLToolCompTranslate>
+class LLToolCompTranslate : public LLToolComposite, public LLSimpleton<LLToolCompTranslate>
 {
-    LLSINGLETON(LLToolCompTranslate);
-    virtual ~LLToolCompTranslate();
 public:
+    LLToolCompTranslate();
+    virtual ~LLToolCompTranslate();
 
     // Overridden from LLToolComposite
     virtual bool        handleMouseDown(S32 x, S32 y, MASK mask) override;
@@ -147,11 +147,11 @@ public:
 //-----------------------------------------------------------------------
 // LLToolCompScale
 
-class LLToolCompScale : public LLToolComposite, public LLSingleton<LLToolCompScale>
+class LLToolCompScale : public LLToolComposite, public LLSimpleton<LLToolCompScale>
 {
-    LLSINGLETON(LLToolCompScale);
-    virtual ~LLToolCompScale();
 public:
+    LLToolCompScale();
+    virtual ~LLToolCompScale();
 
     // Overridden from LLToolComposite
     virtual bool        handleMouseDown(S32 x, S32 y, MASK mask) override;
@@ -169,11 +169,12 @@ public:
 //-----------------------------------------------------------------------
 // LLToolCompRotate
 
-class LLToolCompRotate : public LLToolComposite, public LLSingleton<LLToolCompRotate>
+class LLToolCompRotate : public LLToolComposite, public LLSimpleton<LLToolCompRotate>
 {
-    LLSINGLETON(LLToolCompRotate);
-    virtual ~LLToolCompRotate();
 public:
+    LLToolCompRotate();
+    virtual ~LLToolCompRotate();
+
 
     // Overridden from LLToolComposite
     virtual bool        handleMouseDown(S32 x, S32 y, MASK mask) override;
@@ -192,11 +193,11 @@ protected:
 //-----------------------------------------------------------------------
 // LLToolCompCreate
 
-class LLToolCompCreate : public LLToolComposite, public LLSingleton<LLToolCompCreate>
+class LLToolCompCreate : public LLToolComposite, public LLSimpleton<LLToolCompCreate>
 {
-    LLSINGLETON(LLToolCompCreate);
-    virtual ~LLToolCompCreate();
 public:
+    LLToolCompCreate();
+    virtual ~LLToolCompCreate();
 
     // Overridden from LLToolComposite
     virtual bool        handleMouseDown(S32 x, S32 y, MASK mask) override;
@@ -217,11 +218,11 @@ class LLToolGun;
 class LLToolGrabBase;
 class LLToolSelect;
 
-class LLToolCompGun : public LLToolComposite, public LLSingleton<LLToolCompGun>
+class LLToolCompGun : public LLToolComposite, public LLSimpleton<LLToolCompGun>
 {
-    LLSINGLETON(LLToolCompGun);
-    virtual ~LLToolCompGun();
 public:
+    LLToolCompGun();
+    virtual ~LLToolCompGun();
 
     // Overridden from LLToolComposite
     virtual bool            handleHover(S32 x, S32 y, MASK mask) override;

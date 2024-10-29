@@ -2134,8 +2134,6 @@ void LLVOAvatar::buildCharacter()
     processAnimationStateChanges();
 
     mIsBuilt = true;
-    stop_glerror();
-
     mMeshValid = true;
 }
 
@@ -5692,19 +5690,9 @@ void LLVOAvatar::updateTextures()
     }
 
     std::vector<bool> layer_baked;
-    // GL NOT ACTIVE HERE - *TODO
     for (U32 i = 0; i < mBakedTextureDatas.size(); i++)
     {
         layer_baked.push_back(isTextureDefined(mBakedTextureDatas[i].mTextureIndex));
-        // bind the texture so that they'll be decoded slightly
-        // inefficient, we can short-circuit this if we have to
-        if (render_avatar && !gGLManager.mIsDisabled)
-        {
-            if (layer_baked[i] && !mBakedTextureDatas[i].mIsLoaded)
-            {
-                gGL.getTexUnit(0)->bind(getImage( mBakedTextureDatas[i].mTextureIndex, 0 ));
-            }
-        }
     }
 
     mMaxPixelArea = 0.f;
@@ -6076,8 +6064,6 @@ void LLVOAvatar::processAnimationStateChanges()
             }
         }
     }
-
-    stop_glerror();
 }
 
 

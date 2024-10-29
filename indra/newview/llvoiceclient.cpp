@@ -555,12 +555,14 @@ LLVoiceP2POutgoingCallInterface *LLVoiceClient::getOutgoingCallInterface(const L
 
 void LLVoiceClient::setVoiceVolume(F32 volume)
 {
+    LL_PROFILE_ZONE_SCOPED;
     LLWebRTCVoiceClient::getInstance()->setVoiceVolume(volume);
     LLVivoxVoiceClient::getInstance()->setVoiceVolume(volume);
 }
 
 void LLVoiceClient::setMicGain(F32 gain)
 {
+    LL_PROFILE_ZONE_SCOPED;
     LLWebRTCVoiceClient::getInstance()->setMicGain(gain);
     LLVivoxVoiceClient::getInstance()->setMicGain(gain);
 }
@@ -634,6 +636,7 @@ void LLVoiceClient::updateMicMuteLogic()
 
 void LLVoiceClient::setMuteMic(bool muted)
 {
+    LL_PROFILE_ZONE_SCOPED;
     if (mMuteMic != muted)
     {
         mMuteMic = muted;
@@ -977,11 +980,6 @@ LLSpeakerVolumeStorage::LLSpeakerVolumeStorage()
 }
 
 LLSpeakerVolumeStorage::~LLSpeakerVolumeStorage()
-{
-}
-
-//virtual
-void LLSpeakerVolumeStorage::cleanupSingleton()
 {
     save();
 }

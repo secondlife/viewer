@@ -539,16 +539,13 @@ protected:
 /**
  * Speaker volume storage helper class
  **/
-class LLSpeakerVolumeStorage : public LLSingleton<LLSpeakerVolumeStorage>
+class LLSpeakerVolumeStorage : public LLSimpleton<LLSpeakerVolumeStorage>
 {
-    LLSINGLETON(LLSpeakerVolumeStorage);
-    ~LLSpeakerVolumeStorage();
     LOG_CLASS(LLSpeakerVolumeStorage);
 
-protected:
-    virtual void cleanupSingleton() override;
-
 public:
+    LLSpeakerVolumeStorage();
+    ~LLSpeakerVolumeStorage();
 
     /**
      * Stores volume level for specified user.
