@@ -543,7 +543,6 @@ void LLViewerTexture::updateClass()
         {
             static LLCachedControl<F32> low_mem_min_discard_increment(gSavedSettings, "RenderLowMemMinDiscardIncrement", .1f);
             sDesiredDiscardBias += (F32)low_mem_min_discard_increment * (F32)gFrameIntervalSeconds;
-            sEvaluationTimer.reset();
         }
     }
     else
