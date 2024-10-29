@@ -313,6 +313,8 @@ bool LLXMLRPCTransaction::Impl::process()
     if (mHasResponse && !mResponseParsed)
     {
         LLXMLNodePtr root;
+        bool strip_escaped_strings = LLXMLNode::sStripEscapedStrings;
+        LLXMLNode::sStripEscapedStrings = false;
         if (!LLXMLNode::parseBuffer(mResponseText.data(), mResponseText.size(),
                                     root, nullptr))
         {
@@ -329,6 +331,7 @@ bool LLXMLRPCTransaction::Impl::process()
             LL_WARNS() << "XMLRPC response parsing failed; request URI: "
                        << mURI << LL_ENDL;
         }
+        LLXMLNode::sStripEscapedStrings = strip_escaped_strings;
         mResponseParsed = true;
     }
 
