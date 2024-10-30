@@ -724,7 +724,6 @@ LLViewerFetchedTexture *LLViewerTextureList::findImage(const LLUUID &image_id, E
 void LLViewerTextureList::addImageToList(LLViewerFetchedTexture *image)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
-    assert_main_thread();
     llassert_always(mInitialized) ;
     llassert(image);
     if (image->isInImageList())
@@ -744,7 +743,6 @@ void LLViewerTextureList::addImageToList(LLViewerFetchedTexture *image)
 void LLViewerTextureList::removeImageFromList(LLViewerFetchedTexture *image)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
-    assert_main_thread();
     llassert_always(mInitialized) ;
     llassert(image);
 
@@ -833,6 +831,29 @@ void LLViewerTextureList::deleteImage(LLViewerFetchedTexture *image)
 ///////////////////////////////////////////////////////////////////////////////
 
 
+void LLViewerTextureList::updateStats()
+{
+    LLAppViewer::getTextureFetch()->setTextureBandwidth((F32)LLTrace::get_frame_recording().getPeriodMeanPerSec(LLStatViewer::TEXTURE_NETWORK_DATA_RECEIVED).value());
+
+    {
+        using namespace LLStatViewer;
+        sample(NUM_IMAGES, sNumImages);
+        sample(NUM_RAW_IMAGES, LLImageRaw::sRawImageCount);
+        sample(FORMATTED_MEM, F64Bytes(LLImageFormatted::sGlobalFormattedMemory));
+    }
+}
+
+void LLViewerTextureList::updateGL()
+{
+    //handle results from decode threads
+    static LLCachedControl<F32> texture_gl_time(gSavedSettings, "TextureUpdateGLTime", 0.005f);
+    updateImagesCreateTextures(texture_gl_time);
+    
+    // Label all images (if enabled)
+    updateImagesNameTextures();
+    labelAll();
+}
+
 void LLViewerTextureList::updateImages(F32 max_time)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
@@ -849,15 +870,6 @@ void LLViewerTextureList::updateImages(F32 max_time)
     }
     cleared = false;
 
-    LLAppViewer::getTextureFetch()->setTextureBandwidth((F32)LLTrace::get_frame_recording().getPeriodMeanPerSec(LLStatViewer::TEXTURE_NETWORK_DATA_RECEIVED).value());
-
-    {
-        using namespace LLStatViewer;
-        sample(NUM_IMAGES, sNumImages);
-        sample(NUM_RAW_IMAGES, LLImageRaw::sRawImageCount);
-        sample(FORMATTED_MEM, F64Bytes(LLImageFormatted::sGlobalFormattedMemory));
-    }
-
     // make sure each call below gets at least its "fair share" of time
     F32 min_time = max_time * 0.33f;
     F32 remaining_time = max_time;
@@ -869,13 +881,6 @@ void LLViewerTextureList::updateImages(F32 max_time)
     //dispatch to texture fetch threads
     remaining_time -= updateImagesFetchTextures(remaining_time);
     remaining_time = llmax(remaining_time, min_time);
-
-    //handle results from decode threads
-    updateImagesCreateTextures(remaining_time);
-
-    // Label all images (if enabled)
-    updateImagesNameTextures();
-    labelAll();
 
     bool didone = false;
     for (image_list_t::iterator iter = mCallbackList.begin();

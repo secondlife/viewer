@@ -5227,6 +5227,7 @@ void LLViewerObject::setTE(const U8 te, const LLTextureEntry& texture_entry)
 
 void LLViewerObject::updateTEMaterialTextures(U8 te)
 {
+    LL_PROFILE_ZONE_SCOPED;
     if (getTE(te)->getMaterialParams().notNull())
     {
         const LLUUID& norm_id = getTE(te)->getMaterialParams()->getNormalID();
@@ -7164,8 +7165,11 @@ void LLViewerObject::dirtySpatialGroup() const
         {
             group->dirtyGeom();
             gPipeline.markRebuild(group);
+            gPipeline.markTransformDirty(group);
         }
     }
+
+    
 }
 
 void LLViewerObject::dirtyMesh()

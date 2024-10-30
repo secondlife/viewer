@@ -487,6 +487,45 @@ void update_statistics()
             perf_stats_timer.reset();
         }
     }
+
+    gTextureList.updateStats();
+
+    //////////////////////////////////////
+    //
+    // Manage statistics
+    //
+    //
+    {
+        /*! @brief      This class is an LLFrameTimer that can be created with
+                an elapsed time that starts counting up from the given value
+                rather than 0.0.
+
+                Otherwise it behaves the same way as LLFrameTimer.
+*/
+        class LLFrameStatsTimer : public LLFrameTimer
+        {
+        public:
+            LLFrameStatsTimer(F64 elapsed_already = 0.0)
+                : LLFrameTimer()
+            {
+                mStartTime -= elapsed_already;
+            }
+        };
+
+        // Initialize the viewer_stats_timer with an already elapsed time
+        // of SEND_STATS_PERIOD so that the initial stats report will
+        // be sent immediately.
+        static LLFrameStatsTimer viewer_stats_timer(SEND_STATS_PERIOD);
+
+        // Update session stats every large chunk of time
+        if (viewer_stats_timer.getElapsedTimeF32() >= SEND_STATS_PERIOD && !gDisconnected)
+        {
+            LL_INFOS() << "Transmitting sessions stats" << LL_ENDL;
+            bool include_preferences = false;
+            send_viewer_stats(include_preferences);
+            viewer_stats_timer.reset();
+        }
+    }
 }
 
 /*
@@ -500,6 +539,7 @@ void update_statistics()
  */
 void send_viewer_stats(bool include_preferences)
 {
+    LL_PROFILE_ZONE_SCOPED;
     // IW 9/23/02 I elected not to move this into LLViewerStats
     // because it depends on too many viewer.cpp globals.
     // Someday we may want to merge all our stats into a central place

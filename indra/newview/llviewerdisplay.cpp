@@ -85,6 +85,7 @@
 #include "llvograss.h"
 #include "llworld.h"
 #include "pipeline.h"
+#include "glworkqueue.h"
 
 #include <boost/json.hpp>
 
@@ -805,41 +806,12 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
             glClear(GL_DEPTH_BUFFER_BIT);
         }
 
-        //////////////////////////////////////
-        //
-        // Update images, using the image stats generated during object update/culling
-        //
-        // Can put objects onto the retextured list.
-        //
-        // Doing this here gives hardware occlusion queries extra time to complete
-        LLAppViewer::instance()->pingMainloopTimeout("Display:UpdateImages");
-
         {
-            LL_PROFILE_ZONE_NAMED("Update Images");
-
-            {
-                LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("Class");
-                LLViewerTexture::updateClass();
-            }
-
-            {
-                LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("Image Update Bump");
-                gBumpImageList.updateImages();  // must be called before gTextureList version so that it's textures are thrown out first.
-            }
-
-            {
-                LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("List");
-                F32 max_image_decode_time = 0.050f*gFrameIntervalSeconds.value(); // 50 ms/second decode time
-                max_image_decode_time = llclamp(max_image_decode_time, 0.002f, 0.005f ); // min 2ms/frame, max 5ms/frame)
-                gTextureList.updateImages(max_image_decode_time);
-            }
-
-            {
-                LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("GLTF Materials Cleanup");
-                //remove dead gltf materials
-                gGLTFMaterialList.flushMaterials();
-            }
+            LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("Image Update Bump");
+            gBumpImageList.updateImages();  // must be called before gTextureList version so that it's textures are thrown out first.
         }
+
+        gTextureList.updateGL();
 
         LLGLState::checkStates();
 
@@ -1529,45 +1501,37 @@ void render_ui(F32 zoom_factor, int subfield)
 }
 
 
-extern LL::GLWorkQueue* sGLWorkQueue;
 
 void swap()
 {
-    std::condition_variable condition;
-    std::atomic<bool> done = false;
-    std::mutex mutex;
+    static LL::GLThreadSync sync;
 
-    bool threaded = gSavedSettings.getBOOL("IdleThread") && (LLStartUp::getStartupState() == STATE_STARTED);
+    bool threaded = LL::GLThreadPool::instanceExists()  && (LLStartUp::getStartupState() == STATE_STARTED);
+
     if (threaded)
-    {
-        done = false;
-        sGLWorkQueue->post([&]
+    { // post idle to worker thread
+        sync.reset();
+        LL::GLThreadPool::getInstance()->post([&]
             {
-                {
-                    std::lock_guard<std::mutex> lock(mutex);
-                    LLAppViewer::instance()->idle();
-                    done = true;
-                }
-
-                condition.notify_one();
+                LL::GLThreadSync::Guard guard(sync);
+                LLAppViewer::instance()->idle();
             });
     }
 
-
-    LLPerfStats::RecordSceneTime T ( LLPerfStats::StatType_t::RENDER_SWAP ); // render time capture - Swap buffer time - can signify excessive data transfer to/from GPU
-    LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("Swap");
-    LL_PROFILE_GPU_ZONE("swap");
-    if (gDisplaySwapBuffers)
     {
-        gViewerWindow->getWindow()->swapBuffers();
+        LLPerfStats::RecordSceneTime T(LLPerfStats::StatType_t::RENDER_SWAP); // render time capture - Swap buffer time - can signify excessive data transfer to/from GPU
+        LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("Swap");
+        LL_PROFILE_GPU_ZONE("swap");
+        if (gDisplaySwapBuffers)
+        {
+            gViewerWindow->getWindow()->swapBuffers();
+        }
+        gDisplaySwapBuffers = true;
     }
-    gDisplaySwapBuffers = true;
 
     if (threaded)
     { // wait for idle to complete
-        LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("idle wait");
-        std::unique_lock<std::mutex> lock(mutex);
-        condition.wait(lock, [&] { return done.load(); });
+        sync.wait();
     }
 }
 

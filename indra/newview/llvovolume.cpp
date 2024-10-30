@@ -1042,6 +1042,7 @@ void LLVOVolume::unregisterOldMeshAndSkin()
 bool LLVOVolume::setVolume(const LLVolumeParams &params_in, const S32 detail, bool unique_volume)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
+
     LLVolumeParams volume_params = params_in;
 
     S32 last_lod = mVolumep.notNull() ? LLVolumeLODGroup::getVolumeDetailFromScale(mVolumep->getDetail()) : -1;
@@ -1114,7 +1115,6 @@ bool LLVOVolume::setVolume(const LLVolumeParams &params_in, const S32 detail, bo
 
         if (isSculpted())
         {
-            updateSculptTexture();
             // if it's a mesh
             if ((volume_params.getSculptType() & LL_SCULPT_TYPE_MASK) == LL_SCULPT_TYPE_MESH)
             {
@@ -1498,6 +1498,7 @@ bool LLVOVolume::calcLOD()
     }
     else
     {
+#if 0
         // EXPERIMENTAL -- use spatial partition node for LoD calculation to make all objects in a given octree node
         // switch LoD at the same time.
         glm::vec3 eye = glm::make_vec3(LLViewerCamera::getInstance()->getOrigin().mV);
@@ -1520,11 +1521,15 @@ bool LLVOVolume::calcLOD()
         }
 
         distance = llmax(glm::distance(eye, center) - radius, 0.1f);
-
+#else
+        distance = mDrawable->mDistanceWRTCamera;
+        radius = getVolume() ? getVolume()->mLODScaleBias.scaledVec(getScale()).length() : getScale().length();
+#endif
         if (distance <= 0.f || radius <= 0.f)
         {
             return false;
         }
+
     }
 
     //hold onto unmodified distance for debugging
@@ -5292,7 +5297,6 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
             vobj->updateControlAvatar();
 
             llassert_always(vobj);
-            vobj->updateTextureVirtualSize(true);
             vobj->preRebuild();
 
             drawablep->clearState(LLDrawable::HAS_ALPHA);
@@ -5340,8 +5344,6 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
                     continue;
                 }
 
-                gPipeline.markTransformDirty(group);
-
                 LLFetchedGLTFMaterial *gltf_mat = (LLFetchedGLTFMaterial*) facep->getTextureEntry()->getGLTFRenderMaterial();
                 bool is_pbr = gltf_mat != nullptr;
 
@@ -5363,9 +5365,6 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
                 //ALWAYS null out vertex buffer on rebuild -- if the face lands in a render
                 // batch, it will recover its vertex buffer reference from the spatial group
                 facep->setVertexBuffer(NULL);
-
-                //sum up face verts and indices
-                drawablep->updateFaceSize(i);
 
                 if (rigged)
                 {

@@ -43,11 +43,6 @@ U32 LLVertexBuffer::sDefaultVAO = 0;
 
 static bool sVBOPooling = true;
 
-#define THREAD_COUNT 1
-
-static LL::GLWorkerThread* sVBOThread[THREAD_COUNT];
-LL::GLWorkQueue* sGLWorkQueue = nullptr;
-
 
 //Next Highest Power Of Two
 //helper function, returns first number > v that is a power of 2, or v if v is already a power of 2
@@ -838,13 +833,6 @@ void LLVertexBuffer::initClass(LLWindow* window)
         LL_INFOS() << "VBO Pooling Enabled" << LL_ENDL;
         sVBOPool = new LLDefaultVBOPool();
     }
-
-    sGLWorkQueue = new LL::GLWorkQueue();
-
-    for (int i = 0; i < THREAD_COUNT; ++i)
-    {
-        sVBOThread[i] = new LL::GLWorkerThread("VBO Worker", sGLWorkQueue, window);
-    }
 }
 
 //static
@@ -865,18 +853,6 @@ void LLVertexBuffer::cleanupClass()
 
     delete sVBOPool;
     sVBOPool = nullptr;
-
-
-    sGLWorkQueue->close();
-    for (int i = 0; i < THREAD_COUNT; ++i)
-    {
-        sVBOThread[i]->mThread.detach();
-        delete sVBOThread[i];
-        sVBOThread[i] = nullptr;
-    }
-
-    delete sGLWorkQueue;
-    sGLWorkQueue = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -1910,126 +1886,4 @@ void LLVertexBuffer::setIndexData(const U32* data, U32 offset, U32 count)
     llassert(mIndicesStride == 4);
     flush_vbo(GL_ELEMENT_ARRAY_BUFFER, offset * sizeof(U32), (offset + count) * sizeof(U32) - 1, (U8*)data, mMappedIndexData);
 }
-
-namespace LL
-{
-    GLWorkQueue::GLWorkQueue()
-    {
-
-    }
-
-    void GLWorkQueue::syncGL()
-    {
-        /*if (mSync)
-        {
-            std::lock_guard<std::mutex> lock(mMutex);
-            glWaitSync(mSync, 0, GL_TIMEOUT_IGNORED);
-            mSync = 0;
-        }*/
-    }
-
-    size_t GLWorkQueue::size()
-    {
-        LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
-        std::lock_guard<std::mutex> lock(mMutex);
-        return mQueue.size();
-    }
-
-    bool GLWorkQueue::done()
-    {
-        return size() == 0 && isClosed();
-    }
-
-    void GLWorkQueue::post(const GLWorkQueue::Work& value)
-    {
-        LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
-        {
-            std::lock_guard<std::mutex> lock(mMutex);
-            mQueue.push(std::move(value));
-        }
-
-        mCondition.notify_one();
-    }
-
-    // Get the next element from the queue
-    GLWorkQueue::Work GLWorkQueue::pop()
-    {
-        LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
-        // Lock the mutex
-        {
-            std::unique_lock<std::mutex> lock(mMutex);
-
-            // Wait for a new element to become available or for the queue to close
-            {
-                mCondition.wait(lock, [=] { return !mQueue.empty() || mClosed; });
-            }
-        }
-
-        Work ret;
-
-        {
-            std::lock_guard<std::mutex> lock(mMutex);
-
-            // Get the next element from the queue
-            if (mQueue.size() > 0)
-            {
-                ret = mQueue.front();
-                mQueue.pop();
-            }
-            else
-            {
-                ret = []() {};
-            }
-        }
-
-        return ret;
-    }
-
-    void GLWorkQueue::runOne()
-    {
-        LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
-        Work w = pop();
-        w();
-        //mSync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
-    }
-
-    void GLWorkQueue::runUntilClose()
-    {
-        /*// init ThreadRecorder
-        static thread_local LLTrace::ThreadRecorder* sThreadRecorder = nullptr;
-        if (!sThreadRecorder)
-        {
-            sThreadRecorder = new LLTrace::ThreadRecorder();
-            LLTrace::set_thread_recorder(sThreadRecorder);
-        }*/
-
-        // run until the queue is closed
-        while (!isClosed())
-        {
-            runOne();
-        }
-
-        // destroy ThreadRecorder
-        //delete sThreadRecorder;
-        //sThreadRecorder = nullptr;
-    }
-
-    void GLWorkQueue::close()
-    {
-        LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
-        {
-            std::lock_guard<std::mutex> lock(mMutex);
-            mClosed = true;
-        }
-
-        mCondition.notify_all();
-    }
-
-    bool GLWorkQueue::isClosed()
-    {
-        LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
-        std::lock_guard<std::mutex> lock(mMutex);
-        return mClosed;
-    }
-};
 

@@ -4176,7 +4176,6 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera)
     // do water haze just before pre water alpha
     U32 water_haze_pass = LLDrawPool::POOL_ALPHA_PRE_WATER;
 
-    calcNearbyLights(camera);
     setupHWLights();
 
     gGL.setSceneBlendType(LLRender::BT_ALPHA);

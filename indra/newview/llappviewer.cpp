@@ -119,6 +119,7 @@
 #include "lltoolcomp.h"
 #include "lltoolface.h"
 #include "lltoolpipette.h"
+#include "glworkqueue.h"
 
 // Linden library includes
 #include "fsyspath.h"
@@ -756,6 +757,11 @@ void create_simpletons()
     LLToolPipette::createInstance();
     LLToolMgr::createInstance();
     LLWorldMap::createInstance();
+
+    if (gSavedSettings.getBOOL("IdleThread"))
+    {
+        LL::GLThreadPool::createInstance();
+    }
 }
 
 void destroy_simpletons()
@@ -786,6 +792,7 @@ void destroy_simpletons()
     LLToolPipette::deleteSingleton();
     LLToolMgr::deleteSingleton();
     LLWorldMap::deleteSingleton();
+    LL::GLThreadPool::deleteSingleton();
 }
 
 
@@ -1644,7 +1651,7 @@ bool LLAppViewer::doFrame()
             }
 
             // Update state based on messages, user input, object idle.
-            if (!gSavedSettings.getBOOL("IdleThread") || (LLStartUp::getStartupState() != STATE_STARTED))
+            if (!LL::GLThreadPool::instanceExists() || (LLStartUp::getStartupState() != STATE_STARTED))
             {
                 {
                     LL_PROFILE_ZONE_NAMED_CATEGORY_APP("df pauseMainloopTimeout");
@@ -4734,23 +4741,6 @@ void LLAppViewer::saveNameCache()
     }
 }
 
-
-/*! @brief      This class is an LLFrameTimer that can be created with
-                an elapsed time that starts counting up from the given value
-                rather than 0.0.
-
-                Otherwise it behaves the same way as LLFrameTimer.
-*/
-class LLFrameStatsTimer : public LLFrameTimer
-{
-public:
-    LLFrameStatsTimer(F64 elapsed_already = 0.0)
-        : LLFrameTimer()
-        {
-            mStartTime -= elapsed_already;
-        }
-};
-
 static LLTrace::BlockTimerStatHandle FTM_AUDIO_UPDATE("Update Audio");
 static LLTrace::BlockTimerStatHandle FTM_CLEANUP("Cleanup");
 static LLTrace::BlockTimerStatHandle FTM_CLEANUP_DRAWABLES("Drawables");
@@ -4917,43 +4907,20 @@ void LLAppViewer::idle()
         gAgent.resetControlFlags();
     }
 
-    //////////////////////////////////////
-    //
-    // Manage statistics
-    //
-    //
+    // Print the object debugging stats
+    static LLFrameTimer object_debug_timer;
+    if (object_debug_timer.getElapsedTimeF32() > 5.f)
     {
-        // Initialize the viewer_stats_timer with an already elapsed time
-        // of SEND_STATS_PERIOD so that the initial stats report will
-        // be sent immediately.
-        static LLFrameStatsTimer viewer_stats_timer(SEND_STATS_PERIOD);
-
-        // Update session stats every large chunk of time
-        // *FIX: (?) SAMANTHA
-        if (viewer_stats_timer.getElapsedTimeF32() >= SEND_STATS_PERIOD && !gDisconnected)
+        object_debug_timer.reset();
+        if (gObjectList.mNumDeadObjectUpdates)
         {
-            LL_INFOS() << "Transmitting sessions stats" << LL_ENDL;
-            bool include_preferences = false;
-            send_viewer_stats(include_preferences);
-            viewer_stats_timer.reset();
+            LL_INFOS() << "Dead object updates: " << gObjectList.mNumDeadObjectUpdates << LL_ENDL;
+            gObjectList.mNumDeadObjectUpdates = 0;
         }
-
-        // Print the object debugging stats
-        static LLFrameTimer object_debug_timer;
-        if (object_debug_timer.getElapsedTimeF32() > 5.f)
+        if (gObjectList.mNumUnknownUpdates)
         {
-            object_debug_timer.reset();
-            if (gObjectList.mNumDeadObjectUpdates)
-            {
-                LL_INFOS() << "Dead object updates: " << gObjectList.mNumDeadObjectUpdates << LL_ENDL;
-                gObjectList.mNumDeadObjectUpdates = 0;
-            }
-            if (gObjectList.mNumUnknownUpdates)
-            {
-                LL_INFOS() << "Unknown object updates: " << gObjectList.mNumUnknownUpdates << LL_ENDL;
-                gObjectList.mNumUnknownUpdates = 0;
-            }
-
+            LL_INFOS() << "Unknown object updates: " << gObjectList.mNumUnknownUpdates << LL_ENDL;
+            gObjectList.mNumUnknownUpdates = 0;
         }
     }
 
@@ -5169,6 +5136,40 @@ void LLAppViewer::idle()
             LLViewerJoystick::getInstance()->moveObjects();
         }
     }
+
+    //////////////////////////////////////
+    //
+    // Update images, using the image stats generated during object update/culling
+    //
+    // Can put objects onto the retextured list.
+    //
+    // Doing this here gives hardware occlusion queries extra time to complete
+    LLAppViewer::instance()->pingMainloopTimeout("Display:UpdateImages");
+
+    {
+        LL_PROFILE_ZONE_NAMED("Update Images");
+
+        {
+            LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("Class");
+            LLViewerTexture::updateClass();
+        }
+
+        {
+            LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("List");
+            F32 max_image_decode_time = 0.050f * gFrameIntervalSeconds.value(); // 50 ms/second decode time
+            max_image_decode_time = llclamp(max_image_decode_time, 0.002f, 0.005f); // min 2ms/frame, max 5ms/frame)
+            gTextureList.updateImages(max_image_decode_time);
+        }
+
+        {
+            LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("GLTF Materials Cleanup");
+            //remove dead gltf materials
+            gGLTFMaterialList.flushMaterials();
+        }
+    }
+
+    // update nearby lights to main camera
+    gPipeline.calcNearbyLights(LLViewerCamera::instance());
 
     // update media focus
     LLViewerMediaFocus::getInstance()->update();
