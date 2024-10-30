@@ -11468,6 +11468,28 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>TextureDiscardBackgroundedTime</key>
+    <map>
+        <key>Comment</key>
+        <string>Specify how long to wait before discarding texture data after viewer is backgrounded.  (zero or negative to disable)</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>F32</string>
+        <key>Value</key>
+        <real>60.0</real>
+    </map>
+    <key>TextureDiscardMinimizedTime</key>
+    <map>
+        <key>Comment</key>
+        <string>Specify how long to wait before discarding texture data after viewer is minimized.  (zero or negative to disable)</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>F32</string>
+        <key>Value</key>
+        <real>1.0</real>
+    </map>
     <key>TextureFetchConcurrency</key>
     <map>
       <key>Comment</key>

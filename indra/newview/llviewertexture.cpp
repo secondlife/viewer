@@ -43,6 +43,7 @@
 #include "message.h"
 #include "lltimer.h"
 #include "v4coloru.h"
+#include "llnotificationsutil.h"
 
 // viewer includes
 #include "llimagegl.h"
@@ -546,7 +547,6 @@ void LLViewerTexture::updateClass()
         {
             static LLCachedControl<F32> low_mem_min_discard_increment(gSavedSettings, "RenderLowMemMinDiscardIncrement", .1f);
             sDesiredDiscardBias += (F32) low_mem_min_discard_increment * (F32) gFrameIntervalSeconds;
-            sEvaluationTimer.reset();
         }
     }
     else
@@ -562,20 +562,49 @@ void LLViewerTexture::updateClass()
     }
 
     // set to max discard bias if the window has been backgrounded for a while
+    static F32 last_desired_discard_bias = 1.f;
     static bool was_backgrounded = false;
     static LLFrameTimer backgrounded_timer;
+    static LLCachedControl<F32> minimized_discard_time(gSavedSettings, "TextureDiscardMinimizedTime", 1.f);
+    static LLCachedControl<F32> backgrounded_discard_time(gSavedSettings, "TextureDiscardBackgroundedTime", 60.f);
 
     bool in_background = (gViewerWindow && !gViewerWindow->getWindow()->getVisible()) || !gFocusMgr.getAppHasFocus();
-
+    bool is_minimized  = gViewerWindow && gViewerWindow->getWindow()->getMinimized() && in_background;
     if (in_background)
     {
-        if (backgrounded_timer.getElapsedTimeF32() > 10.f)
+        F32 discard_time = is_minimized ? minimized_discard_time : backgrounded_discard_time;
+        if (discard_time > 0.f && backgrounded_timer.getElapsedTimeF32() > discard_time)
         {
             if (!was_backgrounded)
             {
-                LL_INFOS() << "Viewer is backgrounded, freeing up video memory." << LL_ENDL;
+                std::string notification_name;
+                std::string setting;
+                if (is_minimized)
+                {
+                    notification_name = "TextureDiscardMinimized";
+                    setting           = "TextureDiscardMinimizedTime";
+                }
+                else
+                {
+                    notification_name = "TextureDiscardBackgrounded";
+                    setting           = "TextureDiscardBackgroundedTime";
+                }
+
+                LL_INFOS() << "Viewer was " << (is_minimized ? "minimized" : "backgrounded") << " for " << discard_time
+                           << "s, freeing up video memory." << LL_ENDL;
+
+                LLNotificationsUtil::add(notification_name, llsd::map("DELAY", discard_time), LLSD(),
+                                         [=](const LLSD& notification, const LLSD& response)
+                                         {
+                                             if (response["Cancel_okcancelignore"].asBoolean())
+                                             {
+                                                 LL_INFOS() << "User chose to disable texture discard on " <<  (is_minimized ? "minimizing." : "backgrounding.") << LL_ENDL;
+                                                 gSavedSettings.setF32(setting, -1.f);
+                                             }
+                                         });
+                last_desired_discard_bias = sDesiredDiscardBias;
+                was_backgrounded = true;
             }
-            was_backgrounded = true;
             sDesiredDiscardBias = 4.f;
         }
     }
@@ -584,9 +613,9 @@ void LLViewerTexture::updateClass()
         backgrounded_timer.reset();
         if (was_backgrounded)
         { // if the viewer was backgrounded
-            LL_INFOS() << "Viewer is no longer backgrounded, resuming normal texture usage." << LL_ENDL;
+            LL_INFOS() << "Viewer is no longer backgrounded or minimized, resuming normal texture usage." << LL_ENDL;
             was_backgrounded = false;
-            sDesiredDiscardBias = 1.f;
+            sDesiredDiscardBias = last_desired_discard_bias;
         }
     }
 
