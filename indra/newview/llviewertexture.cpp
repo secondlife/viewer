@@ -1691,6 +1691,7 @@ void LLViewerFetchedTexture::processTextureStats()
         if(mDesiredDiscardLevel > mMinDesiredDiscardLevel)//need to load more
         {
             mDesiredDiscardLevel = llmin(mDesiredDiscardLevel, mMinDesiredDiscardLevel);
+            mDesiredDiscardLevel = llmin(mDesiredDiscardLevel, (S32)mLoadedCallbackDesiredDiscardLevel);
             mFullyLoaded = false;
         }
         //setDebugText("fully loaded");
@@ -1740,6 +1741,7 @@ void LLViewerFetchedTexture::processTextureStats()
                                                      log((F32)mFullHeight / mKnownDrawHeight) / log_2);
                 mDesiredDiscardLevel =  llclamp(mDesiredDiscardLevel, (S8)0, (S8)getMaxDiscardLevel());
                 mDesiredDiscardLevel = llmin(mDesiredDiscardLevel, mMinDesiredDiscardLevel);
+                mDesiredDiscardLevel = llmin(mDesiredDiscardLevel, (S32)mLoadedCallbackDesiredDiscardLevel);
             }
             mKnownDrawSizeChanged = false;
 
@@ -2464,6 +2466,7 @@ bool LLViewerFetchedTexture::doLoadedCallbacks()
     if (mIsRawImageValid)
     {
         // If we have an existing raw image, we have a baseline for the raw and auxiliary quality levels.
+        current_raw_discard = mRawDiscardLevel;
         best_raw_discard = llmin(best_raw_discard, mRawDiscardLevel);
         best_aux_discard = llmin(best_aux_discard, mRawDiscardLevel); // We always decode the aux when we decode the base raw
         current_aux_discard = llmin(current_aux_discard, best_aux_discard);
@@ -2922,10 +2925,12 @@ void LLViewerLODTexture::processTextureStats()
     {
         // If the image has not been significantly visible in a while, we don't want it
         mDesiredDiscardLevel = llmin(mMinDesiredDiscardLevel, (S8)(MAX_DISCARD_LEVEL + 1));
+        mDesiredDiscardLevel = llmin(mDesiredDiscardLevel, (S32)mLoadedCallbackDesiredDiscardLevel);
     }
     else if (!mFullWidth  || !mFullHeight)
     {
         mDesiredDiscardLevel =  getMaxDiscardLevel();
+        mDesiredDiscardLevel = llmin(mDesiredDiscardLevel, (S32)mLoadedCallbackDesiredDiscardLevel);
     }
     else
     {
@@ -2995,6 +3000,7 @@ void LLViewerLODTexture::processTextureStats()
             // stop requesting more
             mDesiredDiscardLevel = current_discard;
         }
+        mDesiredDiscardLevel = llmin(mDesiredDiscardLevel, (S32)mLoadedCallbackDesiredDiscardLevel);
     }
 
     if(mForceToSaveRawImage && mDesiredSavedRawDiscardLevel >= 0)
