@@ -85,15 +85,15 @@ public:
     inline F32 getStdDev() const
     {
         const F64 mean = getMean();
-		if (mCount < 2)
-		{
-			return 0.f;
-		}
-		else
-		{
-			F32 variance = F32 (mSumOfSquares / mCount - (mean * mean));
-			return sqrt(llmax(0.f, variance));
-		}
+        if (mCount < 2)
+        {
+            return 0.f;
+        }
+        else
+        {
+            F32 variance = F32 (mSumOfSquares / mCount - (mean * mean));
+            return sqrt(llmax(0.f, variance));
+        }
     }
 
     inline U32 getCount() const
@@ -113,9 +113,9 @@ public:
     inline LLSD asLLSD() const
     {
         LLSD data;
-		data["count"] = (S32) getCount();
-		data["sum"] = getSum();
-		data["sum_of_squares"] = getSumOfSquares();
+        data["count"] = (S32) getCount();
+        data["sum"] = getSum();
+        data["sum_of_squares"] = getSumOfSquares();
         data["mean"] = getMean();
         data["std_dev"] = getStdDev();
         data["min"] = getMinValue();
@@ -135,24 +135,24 @@ private:
 // Assumes the samples are frame times
 inline F32 fps(LLStatsAccumulator& accum)
 {
-	F32 mean = accum.getMean();
-	if (mean > 0.f)
-	{
-		return 1.0f/mean;
-	}
-	return 0.0f;
+    F32 mean = accum.getMean();
+    if (mean > 0.f)
+    {
+        return 1.0f/mean;
+    }
+    return 0.0f;
 }
 
 // Assumes the samples are frame times
 // ofr = observed frame rate, which has frame times weighted by length, since long frames count more toward user experience.
 inline F32 ofr(LLStatsAccumulator& accum)
 {
-	F32 sum = accum.getSum();
-	F32 sum_of_squares = accum.getSumOfSquares();
-	if (sum_of_squares > 0.0f)
-	{
-		return sum/sum_of_squares;
-	}
+    F32 sum = accum.getSum();
+    F32 sum_of_squares = accum.getSumOfSquares();
+    if (sum_of_squares > 0.0f)
+    {
+        return sum/sum_of_squares;
+    }
     return 0.0f;
 }
 
