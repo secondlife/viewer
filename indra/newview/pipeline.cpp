@@ -4153,6 +4153,14 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera)
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
     LL_PROFILE_GPU_ZONE("renderGeomPostDeferred");
 
+    static LLCachedControl<S32> reflection_detail(gSavedSettings, "RenderReflectionProbeLevel", 0);
+
+    if (gCubeSnapshot && reflection_detail == 0)
+    {
+        // skip alpha, etc. passes for cube snapshots when probes are disabled
+        return;
+    }
+
     if (gUseWireframe)
     {
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -8557,8 +8565,9 @@ void LLPipeline::renderDeferredLighting()
         gGL.setColorMask(true, false);
 
         static LLCachedControl<S32> local_light_count(gSavedSettings, "RenderLocalLightCount", 256);
+        static LLCachedControl<S32> reflection_detail(gSavedSettings, "RenderReflectionProbeLevel", -1);
 
-        if (local_light_count > 0)
+        if (local_light_count > 0 && (!gCubeSnapshot || reflection_detail > 0))
         {
             gGL.setSceneBlendType(LLRender::BT_ADD);
             std::list<LLVector4>        fullscreen_lights;

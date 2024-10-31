@@ -757,6 +757,7 @@ void create_simpletons()
     LLToolPipette::createInstance();
     LLToolMgr::createInstance();
     LLWorldMap::createInstance();
+    LLHUDRenderNotifier::createInstance();
 
     if (gSavedSettings.getBOOL("IdleThread"))
     {
@@ -792,6 +793,8 @@ void destroy_simpletons()
     LLToolPipette::deleteSingleton();
     LLToolMgr::deleteSingleton();
     LLWorldMap::deleteSingleton();
+    LLHUDRenderNotifier::deleteSingleton();
+
     LL::GLThreadPool::deleteSingleton();
 }
 

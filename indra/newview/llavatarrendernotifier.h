@@ -136,12 +136,12 @@ private:
 };
 
 // Class to notify user about heavy set of HUD
-class LLHUDRenderNotifier : public LLSingleton<LLHUDRenderNotifier>
+class LLHUDRenderNotifier : public LLSimpleton<LLHUDRenderNotifier>
 {
-    LLSINGLETON(LLHUDRenderNotifier);
+public:
+    LLHUDRenderNotifier();
     ~LLHUDRenderNotifier();
 
-public:
     void updateNotificationHUD(hud_complexity_list_t complexity);
     bool isNotificationVisible();
 
