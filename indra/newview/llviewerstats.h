@@ -271,8 +271,13 @@ public:
     LLTrace::Recording& getRecording() { return mRecording; }
     const LLTrace::Recording& getRecording() const { return mRecording; }
 
+public:
+    StatsAccumulator mForegroundFrameStats;
+    StatsAccumulator mBackgroundFrameStats;
+
 private:
     LLTrace::Recording              mRecording;
+
 
     F64Seconds mLastTimeDiff;  // used for time stat updates
 };

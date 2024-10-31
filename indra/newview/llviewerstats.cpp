@@ -273,6 +273,16 @@ void LLViewerStats::updateFrameStats(const F64Seconds time_diff)
         // old stats that were never really used
         F64Seconds jit = (F64Seconds)std::fabs((mLastTimeDiff - time_diff));
         sample(LLStatViewer::FRAMETIME_JITTER, jit);
+
+        if (gFocusMgr.getAppHasFocus())
+        {
+            mForegroundFrameStats.push(F32(F64(time_diff)));
+        }
+        else
+        {
+            mBackgroundFrameStats.push(F32(F64(time_diff)));
+        }
+
     }
 
     mLastTimeDiff = time_diff;
@@ -518,15 +528,14 @@ void send_viewer_stats(bool include_preferences)
         return;
     }
 
-    LLViewerStats::instance().getRecording().pause();
+    LLViewerStats& vs = LLViewerStats::instance();
+    vs.getRecording().pause();
 
     LLSD &agent = body["agent"];
 
     time_t ltime;
     time(&ltime);
     F32 run_time = F32(LLFrameTimer::getElapsedSeconds());
-
-    agent["start_time"] = S32(ltime - S32(run_time));
 
     // The first stat set must have a 0 run time if it doesn't actually
     // contain useful data in terms of FPS, etc.  We use half the
@@ -542,8 +551,19 @@ void send_viewer_stats(bool include_preferences)
         agent["run_time"] = run_time;
     }
 
+    agent["start_time"] = S32(ltime - S32(run_time));
+
+    agent["fg_frame_stats"] = vs.mForegroundFrameStats.asLLSD();
+    agent["fg_frame_stats"]["ofr"] = ofr(vs.mForegroundFrameStats);
+    agent["fg_frame_stats"]["fps"] = fps(vs.mForegroundFrameStats);
+
+    agent["bg_frame_stats"] = vs.mBackgroundFrameStats.asLLSD();
+    agent["bg_frame_stats"]["ofr"] = ofr(vs.mBackgroundFrameStats);
+    agent["bg_frame_stats"]["fps"] = fps(vs.mBackgroundFrameStats);
+
     // report time the viewer has spent in the foreground
     agent["foreground_time"] = gForegroundTime.getElapsedTimeF32();
+    agent["foreground_frame_count"] = (S32) gForegroundFrameCount;
 
     // send fps only for time app spends in foreground
     agent["fps"] = (F32)gForegroundFrameCount / gForegroundTime.getElapsedTimeF32();
