@@ -362,13 +362,13 @@ void LLWebRTCImpl::setAudioConfig(LLWebRTCDeviceInterface::AudioConfig config)
 {
     webrtc::AudioProcessing::Config apm_config;
     apm_config.echo_canceller.enabled         = config.mEchoCancellation;
-    apm_config.echo_canceller.mobile_mode     = false;
+    apm_config.echo_canceller.mobile_mode     = false;  // don't use mobile hardware echo cancellation.
     apm_config.gain_controller1.enabled       = config.mAGC;
     apm_config.gain_controller1.mode          = webrtc::AudioProcessing::Config::GainController1::kAdaptiveAnalog;
-    apm_config.gain_controller2.enabled       = false;
-    apm_config.high_pass_filter.enabled       = false;
-    apm_config.transient_suppression.enabled  = false;
-    apm_config.pipeline.multi_channel_render  = true;
+    apm_config.gain_controller2.enabled       = false;  // use the main gain controller.
+    apm_config.high_pass_filter.enabled       = false;  // don't filter, to improve quality for music and other pure sources.
+    apm_config.transient_suppression.enabled  = false;  // transient suppression may increase latency.
+    apm_config.pipeline.multi_channel_render  = true;   // stereo
     apm_config.pipeline.multi_channel_capture = true;
 
     switch (config.mNoiseSuppressionLevel)
