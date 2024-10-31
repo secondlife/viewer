@@ -312,6 +312,7 @@ public:
 
 public:
     static void initClass(LLWindow* window, S32 num_catagories, bool skip_analyze_alpha = false, bool thread_texture_loads = false, bool thread_media_updates = false);
+    static void allocateConversionBuffer();
     static void cleanupClass() ;
 
 private:
@@ -319,6 +320,7 @@ private:
     static bool sSkipAnalyzeAlpha;
     static U32 sScratchPBO;
     static U32 sScratchPBOSize;
+    static U32* sManualScratch;
 
     //the flag to allow to call readBackRaw(...).
     //can be removed if we do not use that function at all.

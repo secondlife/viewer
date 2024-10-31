@@ -403,6 +403,7 @@ void LLCoprocedurePool::coprocedureInvokerCoro(
     CoprocQueuePtr pendingCoprocs,
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter)
 {
+    std::string prevtask;
     for (;;)
     {
         // It is VERY IMPORTANT that we instantiate a new ptr_t just before
@@ -424,10 +425,25 @@ void LLCoprocedurePool::coprocedureInvokerCoro(
         // destroyed during pop_wait_for().
         QueuedCoproc::ptr_t coproc;
         boost::fibers::channel_op_status status;
+        // Each time control reaches our custom coroutine scheduler, we check
+        // how long the previous coroutine ran before yielding, and report
+        // coroutines longer than a certain cutoff. But these coprocedure pool
+        // coroutines are generic; the only way we know what work they're
+        // doing is the task 'status' set by LLCoros::setStatus(). But what if
+        // the coroutine runs the task to completion and returns to waiting?
+        // It does no good to report that "waiting" ran long. So each time we
+        // enter "waiting" status, also report the *previous* task name.
+        std::string waiting = "waiting", newstatus;
+        if (prevtask.empty())
         {
-            LLCoros::TempStatus st("waiting for work for 10s");
-            status = pendingCoprocs->pop_wait_for(coproc, std::chrono::seconds(10));
+            newstatus = waiting;
         }
+        else
+        {
+            newstatus = stringize("done ", prevtask, "; ", waiting);
+        }
+        LLCoros::setStatus(newstatus);
+        status = pendingCoprocs->pop_wait_for(coproc, std::chrono::seconds(10));
         if (status == boost::fibers::channel_op_status::closed)
         {
             break;
@@ -436,6 +452,7 @@ void LLCoprocedurePool::coprocedureInvokerCoro(
         if(status == boost::fibers::channel_op_status::timeout)
         {
             LL_DEBUGS_ONCE("CoProcMgr") << "pool '" << mPoolName << "' waiting." << LL_ENDL;
+            prevtask.clear();
             continue;
         }
         // we actually popped an item
@@ -446,6 +463,9 @@ void LLCoprocedurePool::coprocedureInvokerCoro(
 
         try
         {
+            // set "status" of pool coroutine to the name of the coproc task
+            prevtask = coproc->mName;
+            LLCoros::setStatus(prevtask);
             coproc->mProc(httpAdapter, coproc->mId);
         }
         catch (const LLCoros::Stop &e)

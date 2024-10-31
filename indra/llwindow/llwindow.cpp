@@ -416,7 +416,11 @@ LLWindow* LLWindowManager::createWindow(
 
     if (use_gl)
     {
+#ifndef LL_DARWIN
+        // SDL2 is temporarily disabled on Mac
         init_sdl();
+#endif
+
 #if LL_WINDOWS
         new_window = new LLWindowWin32(callbacks,
             title, name, x, y, width, height, flags,

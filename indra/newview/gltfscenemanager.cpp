@@ -503,7 +503,7 @@ void GLTFSceneManager::update()
             LLNewBufferedResourceUploadInfo::uploadFinish_f finish = [this, buffer](LLUUID assetId, LLSD response)
             {
                 LLAppViewer::instance()->postToMainCoro(
-                    [=]()
+                    [=, this]()
                     {
                         LL_PROFILE_ZONE_NAMED("GLTF Json Upload Finish");
                         if (mUploadingAsset)

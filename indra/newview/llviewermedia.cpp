@@ -2906,14 +2906,14 @@ void LLViewerMediaImpl::update()
             media_tex->ref();
             main_queue->postTo(
                 mTexUpdateQueue, // Worker thread queue
-                [=]() // work done on update worker thread
+                [=, this]() // work done on update worker thread
                 {
 #if LL_IMAGEGL_THREAD_CHECK
                     media_tex->getGLTexture()->mActiveThread = LLThread::currentID();
 #endif
                     doMediaTexUpdate(media_tex, data, data_width, data_height, x_pos, y_pos, width, height, true);
                 },
-                [=]() // callback to main thread
+                [=, this]() // callback to main thread
                 {
 #if LL_IMAGEGL_THREAD_CHECK
                     media_tex->getGLTexture()->mActiveThread = LLThread::currentID();

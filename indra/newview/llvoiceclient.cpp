@@ -391,11 +391,20 @@ void LLVoiceClient::setRenderDevice(const std::string& name)
     LLWebRTCVoiceClient::getInstance()->setRenderDevice(name);
 }
 
+bool LLVoiceClient::isCaptureNoDevice()
+{
+    return LLWebRTCVoiceClient::getInstance()->isCaptureNoDevice();
+}
+
+bool LLVoiceClient::isRenderNoDevice()
+{
+    return LLWebRTCVoiceClient::getInstance()->isRenderNoDevice();
+}
+
 const LLVoiceDeviceList& LLVoiceClient::getCaptureDevices()
 {
     return LLWebRTCVoiceClient::getInstance()->getCaptureDevices();
 }
-
 
 const LLVoiceDeviceList& LLVoiceClient::getRenderDevices()
 {
