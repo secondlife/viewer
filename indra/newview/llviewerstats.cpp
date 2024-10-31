@@ -535,9 +535,9 @@ void send_viewer_stats(bool include_preferences)
 
 LLSD capture_viewer_stats(bool include_preferences)
 {
-    LLViewerStats& vstats{ LLViewerStats& vs = LLViewerStats::instance() };
-    vstats;
-    vs.getRecording().pause();
+    LLViewerStats& vstats = LLViewerStats::instance();
+
+    vstats.getRecording().pause();
     LL::scope_exit cleanup([&vstats]{ vstats.getRecording().resume(); });
 
     LLSD body;
@@ -563,13 +563,13 @@ LLSD capture_viewer_stats(bool include_preferences)
 
     agent["start_time"] = S32(ltime - S32(run_time));
 
-    agent["fg_frame_stats"] = vs.mForegroundFrameStats.asLLSD();
-    agent["fg_frame_stats"]["ofr"] = ofr(vs.mForegroundFrameStats);
-    agent["fg_frame_stats"]["fps"] = fps(vs.mForegroundFrameStats);
+    agent["fg_frame_stats"] = vstats.mForegroundFrameStats.asLLSD();
+    agent["fg_frame_stats"]["ofr"] = ofr(vstats.mForegroundFrameStats);
+    agent["fg_frame_stats"]["fps"] = fps(vstats.mForegroundFrameStats);
 
-    agent["bg_frame_stats"] = vs.mBackgroundFrameStats.asLLSD();
-    agent["bg_frame_stats"]["ofr"] = ofr(vs.mBackgroundFrameStats);
-    agent["bg_frame_stats"]["fps"] = fps(vs.mBackgroundFrameStats);
+    agent["bg_frame_stats"] = vstats.mBackgroundFrameStats.asLLSD();
+    agent["bg_frame_stats"]["ofr"] = ofr(vstats.mBackgroundFrameStats);
+    agent["bg_frame_stats"]["fps"] = fps(vstats.mBackgroundFrameStats);
 
     // report time the viewer has spent in the foreground
     agent["foreground_time"] = gForegroundTime.getElapsedTimeF32();
