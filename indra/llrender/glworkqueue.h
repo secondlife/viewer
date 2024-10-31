@@ -77,7 +77,7 @@ namespace LL
         void run();
 
         void post(const GLWorkQueue::Work& value);
-    
+
     private:
         std::vector<std::thread> mThreads;
         GLWorkQueue mQueue;

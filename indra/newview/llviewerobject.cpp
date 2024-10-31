@@ -7169,7 +7169,7 @@ void LLViewerObject::dirtySpatialGroup() const
         }
     }
 
-    
+
 }
 
 void LLViewerObject::dirtyMesh()

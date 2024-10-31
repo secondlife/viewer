@@ -1009,7 +1009,7 @@ void LLGLTFMaterial::packOnto(std::vector<LLVector4a>& data, F32 glow)
     emissive[5] = mEmissiveColor.mV[0];
     emissive[6] = mEmissiveColor.mV[1];
     emissive[7] = mEmissiveColor.mV[2];
-    
+
     metallic_roughness[5] = mRoughnessFactor;
     metallic_roughness[6] = mMetallicFactor;
 }

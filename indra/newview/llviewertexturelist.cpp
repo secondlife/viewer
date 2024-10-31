@@ -848,7 +848,7 @@ void LLViewerTextureList::updateGL()
     //handle results from decode threads
     static LLCachedControl<F32> texture_gl_time(gSavedSettings, "TextureUpdateGLTime", 0.005f);
     updateImagesCreateTextures(texture_gl_time);
-    
+
     // Label all images (if enabled)
     updateImagesNameTextures();
     labelAll();

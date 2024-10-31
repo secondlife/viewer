@@ -922,7 +922,7 @@ void LLSpatialGroup::updateTransformUBOs()
     LLMatrix4 rootMat;
     LLMatrix4 rootObjMat;
     LLDrawable* root = nullptr;
-    
+
     // add root transform
     if (getSpatialPartition()->asBridge())
     {
@@ -1155,7 +1155,7 @@ void LLSpatialGroup::updateTransformUBOs()
 
             LLGLTFDrawInfo* current_info = nullptr;
             LLGLTFDrawInfoHandle current_handle;
-            
+
             current_handle.mSpatialGroup = this;
 
             for (U32 i = 0; i < faces.size(); ++i)
@@ -1474,9 +1474,9 @@ void LLSpatialGroup::updateTransform(LLDrawable* drawablep)
 
             // fast path, just update the transform for this drawable
             F32 mat[12];
-            
+
             if (getSpatialPartition()->asBridge())
-            { 
+            {
                 if (getSpatialPartition()->asBridge()->mDrawable == drawablep)
                 {
                     pack_transform(drawablep->getRenderMatrix(), mat);

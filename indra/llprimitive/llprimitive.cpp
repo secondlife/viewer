@@ -821,7 +821,7 @@ bool LLPrimitive::setVolume(const LLVolumeParams &volume_params, const S32 detai
 
     mVolumep = volumep;
     setNumTEs(mVolumep->getNumFaces());
-    
+
     return true;
 }
 

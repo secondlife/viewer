@@ -1637,7 +1637,7 @@ void LLFace::updateBatchHash()
     else
     {
         // calculate blinn-phong batch hash and alpha mode
-        
+
 
         mBatchHash = 0;
 
@@ -1729,7 +1729,7 @@ void LLFace::packMaterialOnto(std::vector<LLVector4a>& dst)
             {
                 min_alpha = mat->getAlphaMaskCutoff()/255.f;
             }
-            
+
             data[2].set(mat->getNormalRepeatX(), mat->getNormalRepeatY(), mat->getNormalRotation(), mat->getNormalOffsetX());
             data[3].set(mat->getNormalOffsetY(), col.mV[3], min_alpha, env_intensity);
 

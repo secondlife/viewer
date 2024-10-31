@@ -88,7 +88,7 @@ public:
     void processCompressedObjectUpdate(LLMessageSystem *mesgsys, void **user_data, EObjectUpdateType update_type);
     void processCachedObjectUpdate(LLMessageSystem *mesgsys, void **user_data, EObjectUpdateType update_type);
     void updateApparentAngles(LLAgent &agent);
-    
+
     // update called from idle thread
     void update(LLAgent &agent);
 

@@ -37,6 +37,7 @@
 #include "llrender.h"
 #include <vector>
 #include <glm/gtc/matrix_transform.hpp>
+#include "llrefcount.h"
 
 #define LL_MAX_VERTEX_ATTRIB_LOCATION 64
 

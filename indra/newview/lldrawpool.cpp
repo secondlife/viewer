@@ -1205,7 +1205,7 @@ void LLRenderPass::pushDebugBatches(const std::vector<LLGLTFDrawInfo>& draw_info
     LLVertexBuffer::unbind();
 }
 
-//static 
+//static
 void LLRenderPass::pushRiggedDebugBatches(const std::vector<LLSkinnedGLTFDrawInfo>& draw_info)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;

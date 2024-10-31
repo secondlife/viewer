@@ -2767,7 +2767,7 @@ void LLPipeline::updateGeom(F32 max_dtime)
     LL_PROFILE_ZONE_SCOPED;
     LLPointer<LLDrawable> drawablep;
 
-    
+
     if (gCubeSnapshot)
     {
         return;
@@ -9561,7 +9561,7 @@ void LLPipeline::renderShadow(const glm::mat4& view, const glm::mat4& proj, LLCa
                         {
                             LLRenderPass::pushGLTFBatches(sCull->mGLTFBatches.mDrawInfo[LLGLTFMaterial::ALPHA_MODE_MASK][double_sided][planar][tex_anim], planar);
                             LLRenderPass::pushGLTFBatches(sCull->mGLTFBatches.mDrawInfo[LLGLTFMaterial::ALPHA_MODE_BLEND][double_sided][planar][tex_anim], planar);
-                            
+
                         }
 
                         if (!double_sided)

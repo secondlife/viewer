@@ -228,7 +228,7 @@ vec2 bp_texture_transform(vec2 vertex_texcoord, vec4[2] transform, mat4 sl_anima
     texcoord = (sl_animation_transform * vec4(texcoord, 0, 1)).xy;
 
     texcoord = sl_bp_texture_transform(texcoord, transform[0].xy, transform[0].z, transform[1].xy);
-    
+
     // To make things more confusing, all SL image assets are upside-down
     // We may need an additional sign flip here when we implement a Vulkan backend
 

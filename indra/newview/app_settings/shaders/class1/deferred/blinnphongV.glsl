@@ -197,7 +197,7 @@ mat4 getGLTFTransform()
 
     mat4 ret;
     mat3x4 src = gltf_nodes[gltf_node_id];
-    
+
     ret[0] = vec4(src[0].xyz, 0);
     ret[1] = vec4(src[1].xyz, 0);
     ret[2] = vec4(src[2].xyz, 0);

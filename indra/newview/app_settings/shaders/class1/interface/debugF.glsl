@@ -31,4 +31,4 @@ void main()
 {
     frag_color = max(color, vec4(0));
 }
-  
+

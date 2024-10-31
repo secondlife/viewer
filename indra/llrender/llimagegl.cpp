@@ -480,7 +480,7 @@ U16 LLImageGL::allocTexID()
     }
 }
 
-//static 
+//static
 void LLImageGL::freeTexID(U16 id)
 {
     sFreeTexIDs.push(id);

@@ -4563,9 +4563,9 @@ U32 nhpo2(U32 v);
 F32 LLVOVolume::getBinRadius()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
-    
+
     static LLCachedControl<S32> octree_size_factor(gSavedSettings, "OctreeStaticObjectSizeFactor", 3);
-    
+
     S32 size_factor = llmax(octree_size_factor, 1);
 
     F32 radius = (F32) nhpo2(llmax((S32)mDrawable->getRadius(), size_factor));
@@ -5246,7 +5246,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
         vobj = bridge->mDrawable->getVObj();
         vol_obj = dynamic_cast<LLVOVolume*>(vobj);
     }
-    
+
     group->mGeometryBytes = 0;
     group->mSurfaceArea = 0;
 

@@ -163,7 +163,7 @@ void main()
 #if defined(HAS_SUN_SHADOW)
         scol = scol_ambocc.r;
 #endif
-        
+
         vec3 orm = spec.rgb;
         float perceptualRoughness = orm.g;
         float metallic = orm.b;
