@@ -159,14 +159,14 @@ private:
     std::vector<nfdfilteritem_t> setupFilter(ELoadFilter filter);
 #endif
 
-#if LL_WINDOWS
+#if LL_WINDOWS && !LL_NFD
     OPENFILENAMEW mOFN;             // for open and save dialogs
     WCHAR mFilesW[FILENAME_BUFFER_SIZE];
 
     bool setupFilter(ELoadFilter filter);
 #endif
 
-#if LL_DARWIN
+#if LL_DARWIN && !LL_NFD
     S32 mPickOptions;
     std::vector<std::string> mFileVector;
 

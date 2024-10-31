@@ -124,6 +124,8 @@ bool LLDirPicker::getDir(std::string* filename, bool blocking)
     {
         windowHandle = nfdwindowhandle_t();
     }
+#elif LL_WINDOWS
+    windowHandle = { NFD_WINDOW_HANDLE_TYPE_WINDOWS, gViewerWindow->getWindow()->getPlatformWindow() };
 #endif
 
     // show the dialog
@@ -379,7 +381,7 @@ std::queue<LLDirPickerThread*> LLDirPickerThread::sDeadQ;
 
 void LLDirPickerThread::getFile()
 {
-#if (LL_WINDOWS && !LL_NFD) || (LL_LINUX && LL_NFD)
+#if LL_WINDOWS || (LL_NFD && !LL_DARWIN)
     start();
 #else
     run();
@@ -389,7 +391,7 @@ void LLDirPickerThread::getFile()
 //virtual
 void LLDirPickerThread::run()
 {
-#if (LL_WINDOWS && !LL_NFD) || (LL_LINUX && LL_NFD)
+#if LL_WINDOWS || (LL_NFD && !LL_DARWIN)
     bool blocking = false;
 #else
     bool blocking = true; // modal

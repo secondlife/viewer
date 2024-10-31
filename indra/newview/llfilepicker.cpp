@@ -82,7 +82,7 @@ LLFilePicker::LLFilePicker()
 {
     reset();
 
-#if LL_WINDOWS
+#if LL_WINDOWS && !LL_NFD
     mOFN.lStructSize = sizeof(OPENFILENAMEW);
     mOFN.hwndOwner = NULL;  // Set later
     mOFN.hInstance = NULL;
@@ -179,15 +179,7 @@ std::vector<nfdfilteritem_t> LLFilePicker::setupFilter(ELoadFilter filter)
 #endif
         break;
     case FFLOAD_ALL:
-        filter_vec.emplace_back(nfdfilteritem_t{"Executables", "exe"});
-        filter_vec.emplace_back(nfdfilteritem_t{"Sounds", "wav"});
-        filter_vec.emplace_back(nfdfilteritem_t{"Animations", "bvh,anim"});
-        filter_vec.emplace_back(nfdfilteritem_t{"Model files", "dae"});
-        filter_vec.emplace_back(nfdfilteritem_t{"RAW files", "raw"});
-        filter_vec.emplace_back(nfdfilteritem_t{"Script files (lsl)", "lsl"});
-        filter_vec.emplace_back(nfdfilteritem_t{"Dictionary files", "dic,xcu"});
-        filter_vec.emplace_back(nfdfilteritem_t{"GLTF Files", "gltf,glb"});
-        filter_vec.emplace_back(nfdfilteritem_t{"Script files (lua)", "lua"});
+        // Empty to allow picking all files by default
         break;
     case FFLOAD_WAV:
         filter_vec.emplace_back(nfdfilteritem_t{"Sounds", "wav"});
@@ -219,19 +211,20 @@ std::vector<nfdfilteritem_t> LLFilePicker::setupFilter(ELoadFilter filter)
         break;
     case FFLOAD_HDRI:
         filter_vec.emplace_back(nfdfilteritem_t{"EXR files", "exr"});
+        break;
     case FFLOAD_MATERIAL_TEXTURE:
         filter_vec.emplace_back(nfdfilteritem_t{"GLTF Import", "gltf,glb,tga,bmp,jpg,jpeg,png"});
         filter_vec.emplace_back(nfdfilteritem_t{"GLTF Files", "gltf,glb"});
         filter_vec.emplace_back(nfdfilteritem_t{"Images", "tga,bmp,jpg,jpeg,png"});
         break;
     case FFLOAD_SCRIPT:
-        filter_vec.emplace_back(nfdfilteritem_t{"Script files", "lsl"});
+        filter_vec.emplace_back(nfdfilteritem_t{"Script files (*.lsl)", "lsl"});
         break;
     case FFLOAD_DICTIONARY:
         filter_vec.emplace_back(nfdfilteritem_t{"Dictionary files", "dic,xcu"});
         break;
     case FFLOAD_LUA:
-        filter_vec.emplace_back(nfdfilteritem_t{"Script files", "lua"});
+        filter_vec.emplace_back(nfdfilteritem_t{"Script files (*.lua)", "lua"});
         break;
     default:
         break;
@@ -268,6 +261,8 @@ bool LLFilePicker::getOpenFile(ELoadFilter filter, bool blocking)
     {
         windowHandle = nfdwindowhandle_t();
     }
+#elif LL_WINDOWS
+    windowHandle = { NFD_WINDOW_HANDLE_TYPE_WINDOWS, gViewerWindow->getWindow()->getPlatformWindow() };
 #endif
 
     if (blocking)
@@ -279,7 +274,7 @@ bool LLFilePicker::getOpenFile(ELoadFilter filter, bool blocking)
     reset();
 
     // show the dialog
-    nfdresult_t result = NFD::OpenDialog(outPath, filterItem.data(), filterItem.size(), nullptr, windowHandle);
+    nfdresult_t result = NFD::OpenDialog(outPath, filterItem.data(), narrow(filterItem.size()), nullptr, windowHandle);
     if (result == NFD_OKAY)
     {
         mFiles.push_back(outPath.get());
@@ -347,13 +342,15 @@ bool LLFilePicker::getMultipleOpenFiles(ELoadFilter filter, bool blocking)
     {
         windowHandle = nfdwindowhandle_t();
     }
+#elif LL_WINDOWS
+    windowHandle = { NFD_WINDOW_HANDLE_TYPE_WINDOWS, gViewerWindow->getWindow()->getPlatformWindow() };
 #endif
 
     // auto-freeing memory
     NFD::UniquePathSet outPaths;
 
     // show the dialog
-    nfdresult_t result = NFD::OpenDialogMultiple(outPaths, filterItem.data(), filterItem.size(), nullptr, windowHandle);
+    nfdresult_t result = NFD::OpenDialogMultiple(outPaths, filterItem.data(), narrow(filterItem.size()), nullptr, windowHandle);
     if (result == NFD_OKAY)
     {
         LL_INFOS() << "Success!" << LL_ENDL;
@@ -440,20 +437,12 @@ bool LLFilePicker::getSaveFile(ESaveFilter filter, const std::string& filename, 
         {
             saved_filename = "untitled.wav";
         }
-        else
-        {
-            saved_filename += ".wav";
-        }
         filter_vec.emplace_back(nfdfilteritem_t{"WAV Sounds", "wav"});
         break;
     case FFSAVE_TGA:
         if (filename.empty())
         {
             saved_filename = "untitled.tga";
-        }
-        else
-        {
-            saved_filename += ".tga";
         }
         filter_vec.emplace_back(nfdfilteritem_t{"Targa Images", "tga"});
         break;
@@ -462,20 +451,12 @@ bool LLFilePicker::getSaveFile(ESaveFilter filter, const std::string& filename, 
         {
             saved_filename = "untitled.bmp";
         }
-        else
-        {
-            saved_filename += ".bmp";
-        }
         filter_vec.emplace_back(nfdfilteritem_t{"Bitmap Images", "bmp"});
         break;
     case FFSAVE_PNG:
         if (filename.empty())
         {
             saved_filename = "untitled.png";
-        }
-        else
-        {
-            saved_filename += ".png";
         }
         filter_vec.emplace_back(nfdfilteritem_t{"PNG Images", "png"});
         break;
@@ -484,14 +465,10 @@ bool LLFilePicker::getSaveFile(ESaveFilter filter, const std::string& filename, 
         {
             saved_filename = "untitled.png";
         }
-        else
-        {
-            saved_filename += ".png";
-        }
 
         filter_vec.emplace_back(nfdfilteritem_t{"PNG Images", "png"});
         filter_vec.emplace_back(nfdfilteritem_t{"Targa Images", "tga"});
-        filter_vec.emplace_back(nfdfilteritem_t{"Jpeg Images", "jpg,jpeg"});
+        filter_vec.emplace_back(nfdfilteritem_t{"JPEG Images", "jpg,jpeg"});
         filter_vec.emplace_back(nfdfilteritem_t{"Jpeg2000 Images", "j2c"});
         filter_vec.emplace_back(nfdfilteritem_t{"Bitmap Images", "bmp"});
         break;
@@ -500,20 +477,12 @@ bool LLFilePicker::getSaveFile(ESaveFilter filter, const std::string& filename, 
         {
             saved_filename = "untitled.jpeg";
         }
-        else
-        {
-            saved_filename += ".jpeg";
-        }
-        filter_vec.emplace_back(nfdfilteritem_t{"Jpeg Images", "jpg,jpeg"});
+        filter_vec.emplace_back(nfdfilteritem_t{"JPEG Images", "jpg,jpeg"});
         break;
     case FFSAVE_AVI:
         if (filename.empty())
         {
             saved_filename = "untitled.avi";
-        }
-        else
-        {
-            saved_filename += ".avi";
         }
         filter_vec.emplace_back(nfdfilteritem_t{"AVI Movie File", "avi"});
         break;
@@ -522,20 +491,12 @@ bool LLFilePicker::getSaveFile(ESaveFilter filter, const std::string& filename, 
         {
             saved_filename = "untitled.xaf";
         }
-        else
-        {
-            saved_filename += ".xaf";
-        }
         filter_vec.emplace_back(nfdfilteritem_t{"XAF Anim File", "xaf"});
         break;
     case FFSAVE_XML:
         if (filename.empty())
         {
             saved_filename = "untitled.xml";
-        }
-        else
-        {
-            saved_filename += ".xml";
         }
         filter_vec.emplace_back(nfdfilteritem_t{"XML File", "xml"});
         break;
@@ -544,20 +505,12 @@ bool LLFilePicker::getSaveFile(ESaveFilter filter, const std::string& filename, 
         {
             saved_filename = "untitled.collada";
         }
-        else
-        {
-            saved_filename += ".collada";
-        }
         filter_vec.emplace_back(nfdfilteritem_t{"COLLADA File", "collada"});
         break;
     case FFSAVE_RAW:
         if (filename.empty())
         {
             saved_filename = "untitled.raw";
-        }
-        else
-        {
-            saved_filename += ".raw";
         }
         filter_vec.emplace_back(nfdfilteritem_t{"RAW files", "raw"});
         break;
@@ -566,20 +519,12 @@ bool LLFilePicker::getSaveFile(ESaveFilter filter, const std::string& filename, 
         {
             saved_filename = "untitled.j2c";
         }
-        else
-        {
-            saved_filename += ".j2c";
-        }
         filter_vec.emplace_back(nfdfilteritem_t{"Compressed Images", "j2c"});
         break;
     case FFSAVE_SCRIPT:
         if (filename.empty())
         {
             saved_filename = "untitled.lsl";
-        }
-        else
-        {
-            saved_filename += ".lsl";
         }
         filter_vec.emplace_back(nfdfilteritem_t{"LSL Files", "lsl"});
         break;
@@ -593,6 +538,8 @@ bool LLFilePicker::getSaveFile(ESaveFilter filter, const std::string& filename, 
     {
         windowHandle = nfdwindowhandle_t();
     }
+#elif LL_WINDOWS
+    windowHandle = { NFD_WINDOW_HANDLE_TYPE_WINDOWS, gViewerWindow->getWindow()->getPlatformWindow() };
 #endif
 
     reset();
@@ -607,7 +554,7 @@ bool LLFilePicker::getSaveFile(ESaveFilter filter, const std::string& filename, 
         NFD::UniquePath savePath;
 
         // show the dialog
-        nfdresult_t result = NFD::SaveDialog(savePath, filter_vec.data(), filter_vec.size(), nullptr, saved_filename.c_str(), windowHandle);
+        nfdresult_t result = NFD::SaveDialog(savePath, filter_vec.data(), narrow(filter_vec.size()), nullptr, saved_filename.c_str(), windowHandle);
         if (result == NFD_OKAY) {
             mFiles.push_back(savePath.get());
             success = true;
