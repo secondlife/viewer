@@ -5668,6 +5668,14 @@ version 2.0
 		{	Message			Variable	2	}
 		{	BinaryBucket	Variable	2	}
 	}
+	{
+		EstateBlock			Single
+		{	EstateID		U32	}
+	}
+	{
+		MetaData			Variable
+		{	Data			Variable	2	}
+	}
 }
 
 // RetrieveInstantMessages - used to get instant messages that

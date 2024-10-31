@@ -29,6 +29,9 @@ else()
   set( USE_AUTOBUILD_3P ON )
 endif()
 
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 include(Variables)
 include(BuildVersion)
 

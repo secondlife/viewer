@@ -107,15 +107,11 @@ LLInventoryListener::LLInventoryListener()
 
 // This struct captures (possibly large) category results from
 // getDirectDescendants() and collectDescendantsIf().
-struct CatResultSet: public LL::ResultSet
+struct CatResultSet: public LL::VectorResultSet<LLInventoryModel::cat_array_t::value_type>
 {
-    CatResultSet(): LL::ResultSet("categories") {}
-    LLInventoryModel::cat_array_t mCategories;
-
-    int getLength() const override { return narrow(mCategories.size()); }
-    LLSD getSingle(int index) const override
+    CatResultSet(): super("categories") {}
+    LLSD getSingleFrom(const LLPointer<LLViewerInventoryCategory>& cat) const override
     {
-        auto cat = mCategories[index];
         return llsd::map("id", cat->getUUID(),
                          "name", cat->getName(),
                          "parent_id", cat->getParentUUID(),
@@ -125,15 +121,11 @@ struct CatResultSet: public LL::ResultSet
 
 // This struct captures (possibly large) item results from
 // getDirectDescendants() and collectDescendantsIf().
-struct ItemResultSet: public LL::ResultSet
+struct ItemResultSet: public LL::VectorResultSet<LLInventoryModel::item_array_t::value_type>
 {
-    ItemResultSet(): LL::ResultSet("items") {}
-    LLInventoryModel::item_array_t mItems;
-
-    int getLength() const override { return narrow(mItems.size()); }
-    LLSD getSingle(int index) const override
+    ItemResultSet(): super("items") {}
+    LLSD getSingleFrom(const LLPointer<LLViewerInventoryItem>& item) const override
     {
-        auto item = mItems[index];
         return llsd::map("id", item->getUUID(),
                          "name", item->getName(),
                          "parent_id", item->getParentUUID(),
@@ -160,14 +152,14 @@ void LLInventoryListener::getItemsInfo(LLSD const &data)
         LLViewerInventoryItem* item = gInventory.getItem(it);
         if (item)
         {
-            itemresult->mItems.push_back(item);
+            itemresult->mVector.push_back(item);
         }
         else
         {
             LLViewerInventoryCategory *cat = gInventory.getCategory(it);
             if (cat)
             {
-                catresult->mCategories.push_back(cat);
+                catresult->mVector.push_back(cat);
             }
         }
     }
@@ -202,8 +194,8 @@ void LLInventoryListener::getDirectDescendants(LLSD const &data)
     auto catresult = new CatResultSet;
     auto itemresult = new ItemResultSet;
 
-    catresult->mCategories = *cats;
-    itemresult->mItems = *items;
+    catresult->mVector = *cats;
+    itemresult->mVector = *items;
 
     response["categories"] = catresult->getKeyLength();
     response["items"] = itemresult->getKeyLength();
@@ -260,22 +252,14 @@ void LLInventoryListener::collectDescendantsIf(LLSD const &data)
     // collectDescendentsIf() method so it doesn't steal too many cycles.
     gInventory.collectDescendentsIf(
         folder_id,
-        catresult->mCategories,
-        itemresult->mItems,
+        catresult->mVector,
+        itemresult->mVector,
         LLInventoryModel::EXCLUDE_TRASH,
         collector);
 
     response["categories"] = catresult->getKeyLength();
     response["items"] = itemresult->getKeyLength();
 }
-
-/*==========================================================================*|
-void LLInventoryListener::getSingle(LLSD const& data)
-{
-    auto result = LL::ResultSet::getInstance(data["result"]);
-    sendReply(llsd::map("single", result->getSingle(data["index"])), data);
-}
-|*==========================================================================*/
 
 void LLInventoryListener::getSlice(LLSD const& data)
 {

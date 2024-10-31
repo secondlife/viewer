@@ -115,6 +115,8 @@ private:
     // LLFontGL's statics
     F32 mLastScaleX = 1.f;
     F32 mLastScaleY = 1.f;
+    F32 mLastVertDPI = 0.f;
+    F32 mLastHorizDPI = 0.f;
     LLCoordGL mLastOrigin;
 
     static bool sEnableBufferCollection;
