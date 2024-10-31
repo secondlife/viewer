@@ -63,7 +63,7 @@ GLWorkQueue::Work GLWorkQueue::pop()
 
         // Wait for a new element to become available or for the queue to close
         {
-            mCondition.wait(lock, [=] { return !mQueue.empty() || mClosed; });
+            mCondition.wait(lock, [this] { return !mQueue.empty() || mClosed; });
         }
     }
 
