@@ -45,6 +45,7 @@ class LLPanelEmojiComplete;
 
 class LLFloaterIMSessionTab
     : public LLTransientDockableFloater
+    , public LLIMSessionObserver
 {
     using super = LLTransientDockableFloater;
 
@@ -76,13 +77,13 @@ public:
     bool isNearbyChat() {return mIsNearbyChat;}
 
     // LLFloater overrides
-    /*virtual*/ void onOpen(const LLSD& key);
-    /*virtual*/ bool postBuild();
-    /*virtual*/ void draw();
-    /*virtual*/ void setVisible(bool visible);
-    /*virtual*/ void setFocus(bool focus);
-    /*virtual*/ void closeFloater(bool app_quitting = false);
-    /*virtual*/ void deleteAllChildren();
+    void onOpen(const LLSD& key) override;
+    bool postBuild() override;
+    void draw() override;
+    void setVisible(bool visible) override;
+    void setFocus(bool focus) override;
+    void closeFloater(bool app_quitting = false) override;
+    void deleteAllChildren() override;
 
     // Handle the left hand participant list widgets
     void addConversationViewParticipant(LLConversationItem* item, bool update_view = true);
@@ -98,7 +99,7 @@ public:
     virtual void updateMessages() {}
     LLConversationItem* getCurSelectedViewModelItem();
     void forceReshape();
-    virtual bool handleKeyHere( KEY key, MASK mask );
+    virtual bool handleKeyHere( KEY key, MASK mask ) override;
     bool isMessagePaneExpanded(){return mMessagePaneExpanded;}
     void setMessagePaneExpanded(bool expanded){mMessagePaneExpanded = expanded;}
     void restoreFloater();
@@ -107,6 +108,13 @@ public:
     void updateChatIcon(const LLUUID& id);
 
     LLView* getChatHistory();
+
+    // LLIMSessionObserver triggers
+    virtual void sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id, bool has_offline_msg) override {}; // Stub
+    virtual void sessionActivated(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id) override {}; // Stub
+    virtual void sessionRemoved(const LLUUID& session_id) override;
+    virtual void sessionVoiceOrIMStarted(const LLUUID& session_id) override {};                              // Stub
+    virtual void sessionIDUpdated(const LLUUID& old_session_id, const LLUUID& new_session_id) override {};   // Stub
 
 protected:
 
@@ -139,8 +147,8 @@ protected:
     virtual void enableDisableCallBtn();
 
     // process focus events to set a currently active session
-    /* virtual */ void onFocusReceived();
-    /* virtual */ void onFocusLost();
+    void onFocusReceived() override;
+    void onFocusLost() override;
 
     // prepare chat's params and out one message to chatHistory
     void appendMessage(const LLChat& chat, const LLSD& args = LLSD());
@@ -212,7 +220,7 @@ private:
     void getSelectedUUIDs(uuid_vec_t& selected_uuids);
 
     /// Refreshes the floater at a constant rate.
-    virtual void refresh() = 0;
+    virtual void refresh() override = 0;
 
     /**
      * Adjusts chat history height to fit vertically with input chat field

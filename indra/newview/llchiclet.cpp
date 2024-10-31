@@ -511,7 +511,7 @@ bool LLChicletPanel::postBuild()
     LLScriptFloaterManager::getInstance()->addNewObjectCallback(boost::bind(&LLChicletPanel::objectChicletCallback, this, _1));
     LLScriptFloaterManager::getInstance()->addToggleObjectFloaterCallback(boost::bind(&LLChicletPanel::objectChicletCallback, this, _1));
     LLIMChiclet::sFindChicletsSignal.connect(boost::bind(&LLChicletPanel::findChiclet<LLChiclet>, this, _1));
-    LLVoiceChannel::setCurrentVoiceChannelChangedCallback(boost::bind(&LLChicletPanel::onCurrentVoiceChannelChanged, this, _1));
+    mVoiceChannelChanged = LLVoiceChannel::setCurrentVoiceChannelChangedCallback(boost::bind(&LLChicletPanel::onCurrentVoiceChannelChanged, this, _1));
 
     mLeftScrollButton=getChild<LLButton>("chicklet_left_scroll_button");
     LLTransientFloaterMgr::getInstance()->addControlView(mLeftScrollButton);

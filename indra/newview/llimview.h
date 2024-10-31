@@ -548,6 +548,8 @@ protected:
     std::string mCurrentSessionlName;
     LLIMModel::LLIMSession* mSession;
     LLVoiceChannel::EState mOldState;
+
+    boost::signals2::connection mVoiceChannelChanged;
 };
 
 class LLCallDialog : public LLDockableFloater
