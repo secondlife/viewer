@@ -3365,7 +3365,7 @@ bool LLModelPreview::render()
         mFMP->childSetEnabled("upload_joints", upload_skin);
     }
 
-    F32 explode = (F32)mFMP->childGetValue("physics_explode").asReal();
+    F32 physics_explode = (F32)mFMP->childGetValue("physics_explode").asReal();
 
     LLGLDepthTest gls_depth(GL_TRUE); // SL-12781 re-enable z-buffer for 3D model preview
 
@@ -3590,12 +3590,12 @@ bool LLModelPreview::render()
 
                                     for (U32 i = 0; i < physics.mMesh.size(); ++i)
                                     {
-                                        if (explode > 0.f)
+                                        if (physics_explode > 0.f)
                                         {
                                             gGL.pushMatrix();
 
                                             LLVector3 offset = model->mHullCenter[i] - model->mCenterOfHullCenters;
-                                            offset *= explode;
+                                            offset *= physics_explode;
 
                                             gGL.translatef(offset.mV[0], offset.mV[1], offset.mV[2]);
                                         }
@@ -3610,7 +3610,7 @@ bool LLModelPreview::render()
                                         gGL.diffuseColor4ubv(hull_colors[i].mV);
                                         LLVertexBuffer::drawArrays(LLRender::TRIANGLES, physics.mMesh[i].mPositions);
 
-                                        if (explode > 0.f)
+                                        if (physics_explode > 0.f)
                                         {
                                             gGL.popMatrix();
                                         }
@@ -3625,7 +3625,8 @@ bool LLModelPreview::render()
                         if (render_mesh)
                         {
                             auto num_models = mVertexBuffer[LLModel::LOD_PHYSICS][model].size();
-                            if (pass > 0){
+                            if (pass > 0)
+                            {
                                 for (size_t i = 0; i < num_models; ++i)
                                 {
                                     gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
@@ -3805,7 +3806,8 @@ bool LLModelPreview::render()
                             }
                         }
 
-                        for (U32 i = 0, e = static_cast<U32>(mVertexBuffer[mPreviewLOD][model].size()); i < e; ++i)
+                        std::size_t size = mVertexBuffer[mPreviewLOD][model].size();
+                        for (U32 i = 0; i < size; ++i)
                         {
                             model->mSkinInfo.updateHash();
                             LLRenderPass::uploadMatrixPalette(mPreviewAvatar, &model->mSkinInfo);

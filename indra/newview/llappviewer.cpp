@@ -47,6 +47,7 @@
 #include "llagentwearables.h"
 #include "lldirpicker.h"
 #include "llfloaterimcontainer.h"
+#include "llfloaterpreference.h"
 #include "llimprocessing.h"
 #include "llwindow.h"
 #include "llviewerstats.h"
@@ -64,6 +65,7 @@
 #include "llluamanager.h"
 #include "llurlfloaterdispatchhandler.h"
 #include "llviewerjoystick.h"
+#include "llgamecontrol.h"
 #include "llcalc.h"
 #include "llconversationlog.h"
 #if LL_WINDOWS
@@ -135,8 +137,8 @@
 #include "stringize.h"
 #include "llcoros.h"
 #include "llexception.h"
-#if !LL_LINUX
 #include "cef/dullahan_version.h"
+#if !LL_LINUX
 #include "vlc/libvlc_version.h"
 #endif // LL_LINUX
 
@@ -184,7 +186,6 @@
 #include "lltracker.h"
 #include "llviewerparcelmgr.h"
 #include "llworldmapview.h"
-#include "llpostprocess.h"
 
 #include "lldebugview.h"
 #include "llconsole.h"
@@ -215,12 +216,12 @@
 #include "llvosurfacepatch.h"
 #include "llviewerfloaterreg.h"
 #include "llcommandlineparser.h"
+#include "llfloaterpreference.h"
 #include "llfloatermemleak.h"
 #include "llfloaterreg.h"
 #include "llfloatersimplesnapshot.h"
 #include "llfloatersnapshot.h"
 #include "llsidepanelinventory.h"
-#include "llatmosphere.h"
 
 // includes for idle() idleShutdown()
 #include "llviewercontrol.h"
@@ -253,6 +254,10 @@ using namespace LL;
 
 #include "llcoproceduremanager.h"
 #include "llviewereventrecorder.h"
+
+#include "rlvactions.h"
+#include "rlvcommon.h"
+#include "rlvhandler.h"
 
 // *FIX: These extern globals should be cleaned up.
 // The globals either represent state/config/resource-storage of either
@@ -1135,6 +1140,15 @@ bool LLAppViewer::init()
         LLViewerJoystick::getInstance()->init(false);
     }
 
+    LLGameControl::init(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "gamecontrollerdb.txt"),
+        [&](const std::string& name) -> bool { return gSavedSettings.getBOOL(name); },
+        [&](const std::string& name, bool value) { gSavedSettings.setBOOL(name, value); },
+        [&](const std::string& name) -> std::string { return gSavedSettings.getString(name); },
+        [&](const std::string& name, const std::string& value) { gSavedSettings.setString(name, value); },
+        [&](const std::string& name) -> LLSD { return gSavedSettings.getLLSD(name); },
+        [&](const std::string& name, const LLSD& value) { gSavedSettings.setLLSD(name, value); },
+        [&]() { LLPanelPreferenceGameControl::updateDeviceList(); });
+
     try
     {
         initializeSecHandler();
@@ -1418,6 +1432,48 @@ bool LLAppViewer::frame()
     return ret;
 }
 
+void sendGameControlInput()
+{
+    LLMessageSystem* msg = gMessageSystem;
+    const LLGameControl::State& state = LLGameControl::getState();
+
+    msg->newMessageFast(_PREHASH_GameControlInput);
+    msg->nextBlock("AgentData");
+    msg->addUUID("AgentID", gAgentID);
+    msg->addUUID("SessionID", gAgentSessionID);
+
+    size_t num_indices = state.mAxes.size();
+    for (U8 i = 0; i < num_indices; ++i)
+    {
+        if (state.mAxes[i] != state.mPrevAxes[i])
+        {
+            // only pack an axis if it differs from previously packed value
+            msg->nextBlockFast(_PREHASH_AxisData);
+            msg->addU8Fast(_PREHASH_Index, i);
+            msg->addS16Fast(_PREHASH_Value, state.mAxes[i]);
+        }
+    }
+
+    U32 button_flags = state.mButtons;
+    if (button_flags > 0)
+    {
+        std::vector<U8> buttons;
+        for (U8 i = 0; i < 32; i++)
+        {
+            if (button_flags & (0x1 << i))
+            {
+                buttons.push_back(i);
+            }
+        }
+        msg->nextBlockFast(_PREHASH_ButtonData);
+        msg->addBinaryDataFast(_PREHASH_Data, (void*)(buttons.data()), (S32)(buttons.size()));
+    }
+
+    LLGameControl::updateResendPeriod();
+    gAgent.sendMessage();
+}
+
+
 bool LLAppViewer::doFrame()
 {
     LL_RECORD_BLOCK_TIME(FTM_FRAME);
@@ -1479,7 +1535,7 @@ bool LLAppViewer::doFrame()
                     LL_WARNS() << " Someone took over my signal/exception handler (post messagehandling)!" << LL_ENDL;
                 }
 
-                gViewerWindow->getWindow()->gatherInput();
+                gViewerWindow->getWindow()->gatherInput(gFocusMgr.getAppHasFocus());
             }
 
             //memory leaking simulation
@@ -1763,10 +1819,11 @@ void LLAppViewer::flushLFSIO()
 
 bool LLAppViewer::cleanup()
 {
-    LLAtmosphere::cleanupClass();
-
     //ditch LLVOAvatarSelf instance
     gAgentAvatarp = NULL;
+
+    // Sanity check to catch cases where someone forgot to do an RlvActions::isRlvEnabled() check
+    LL_ERRS_IF(!RlvHandler::isEnabled() && RlvHandler::instanceExists()) << "RLV handler instance exists even though RLVa is disabled" << LL_ENDL;
 
     LLNotifications::instance().clear();
 
@@ -1965,14 +2022,13 @@ bool LLAppViewer::cleanup()
         // Turn off Space Navigator and similar devices
         LLViewerJoystick::getInstance()->terminate();
     }
+    LLGameControl::terminate();
 
     LL_INFOS() << "Cleaning up Objects" << LL_ENDL;
 
     LLViewerObject::cleanupVOClasses();
 
     SUBSYSTEM_CLEANUP(LLAvatarAppearance);
-
-    SUBSYSTEM_CLEANUP(LLPostProcess);
 
     LLTracker::cleanupInstance();
 
@@ -2863,6 +2919,14 @@ bool LLAppViewer::initConfiguration()
         gSavedSettings.setBOOL("RenderDebugGLSession", false);
     }
 
+    if (gSavedSettings.getBOOL("RenderDebugTextureLabelLocalFilesSession"))
+    {
+        gDebugTextureLabelLocalFilesSession = true;
+        // Texture label accounting for local files takes up memory in the
+        // background, so don't persist.
+        gSavedSettings.setBOOL("RenderDebugTextureLabelLocalFilesSession", false);
+    }
+
     const LLControlVariable* skinfolder = gSavedSettings.getControl("SkinCurrent");
     if (skinfolder && LLStringUtil::null != skinfolder->getValue().asString())
     {
@@ -3399,6 +3463,7 @@ LLSD LLAppViewer::getViewerInfo() const
     }
 #endif
 
+    info["RLV_VERSION"] = RlvActions::isRlvEnabled() ? Rlv::Strings::getVersionAbout() : "(disabled)";
     info["OPENGL_VERSION"] = ll_safe_string((const char*)(glGetString(GL_VERSION)));
 
     // Settings
@@ -3444,7 +3509,6 @@ LLSD LLAppViewer::getViewerInfo() const
         info["VOICE_VERSION"] = LLTrans::getString("NotConnected");
     }
 
-#if !LL_LINUX
     std::ostringstream cef_ver_codec;
     cef_ver_codec << "Dullahan: ";
     cef_ver_codec << DULLAHAN_VERSION_MAJOR;
@@ -3470,9 +3534,6 @@ LLSD LLAppViewer::getViewerInfo() const
     cef_ver_codec << CHROME_VERSION_PATCH;
 
     info["LIBCEF_VERSION"] = cef_ver_codec.str();
-#else
-    info["LIBCEF_VERSION"] = "Undefined";
-#endif
 
 #if !LL_LINUX
     std::ostringstream vlc_ver_codec;
@@ -4766,6 +4827,30 @@ void LLAppViewer::idle()
             gAgent.autoPilot(&yaw);
         }
 
+        // get control flags from each side
+        U32 control_flags = gAgent.getControlFlags();
+        U32 game_control_action_flags = LLGameControl::computeInternalActionFlags();
+
+        // apply to GameControl
+        LLGameControl::setExternalInput(control_flags, gAgent.getGameControlButtonsFromKeys());
+        bool should_send_game_control = LLGameControl::computeFinalStateAndCheckForChanges();
+        if (LLPanelPreferenceGameControl::isWaitingForInputChannel())
+        {
+            LLPanelPreferenceGameControl::applyGameControlInput();
+            // skip this send because input is being used to set preferences
+            should_send_game_control = false;
+        }
+        if (should_send_game_control)
+        {
+            sendGameControlInput();
+        }
+
+        // apply to AvatarControl
+        if (LLGameControl::isEnabled() && LLGameControl::willControlAvatar())
+        {
+            gAgent.applyExternalActionFlags(game_control_action_flags);
+        }
+
         send_agent_update(false);
 
         // After calling send_agent_update() in the mainloop we always clear
@@ -5022,6 +5107,10 @@ void LLAppViewer::idle()
     else if (LLViewerJoystick::getInstance()->getOverrideCamera())
     {
         LLViewerJoystick::getInstance()->moveFlycam();
+    }
+    else if (gAgent.isUsingFlycam())
+    {
+        gAgent.updateFlycam();
     }
     else
     {

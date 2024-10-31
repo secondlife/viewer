@@ -1360,7 +1360,8 @@ void LLPanelGroupMembersSubTab::activate()
     {
         if (!gdatap || !gdatap->isMemberDataComplete())
         {
-            const U32 page_size = 50;
+            static LLCachedControl<bool> enable_pagination(gSavedSettings, "UseGroupMemberPagination", false);
+            const U32 page_size = enable_pagination() ? 50 : 0;
             std::string sort_column_name = mMembersList->getSortColumnName();
             bool sort_descending = !mMembersList->getSortAscending();
             LLGroupMgr::getInstance()->sendCapGroupMembersRequest(mGroupID, page_size, 0, sort_column_name, sort_descending);

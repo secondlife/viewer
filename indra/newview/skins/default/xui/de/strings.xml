@@ -31,7 +31,6 @@ Sichtweite: [DRAW_DISTANCE] m
 Bandbreite: [NET_BANDWITH] kbit/s
 LOD-Faktor: [LOD_FACTOR]
 Darstellungsqualität: [RENDER_QUALITY]
-Erweitertes Beleuchtungsmodell: [GPU_SHADERS]
 Texturspeicher: [TEXTURE_MEMORY] MB</string>
 	<string name="AboutOSXHiDPI">HiDPI-Anzeigemodus: [HIDPI]</string>
 	<string name="AboutLibs">J2C-Decoderversion: [J2C_VERSION]
@@ -40,7 +39,7 @@ Audiotreiberversion: [AUDIO_DRIVER_VERSION]
 LibVLC-Version: [LIBVLC_VERSION]
 Voice-Server-Version: [VOICE_VERSION]</string>
 	<string name="AboutTraffic">Paketverlust: [PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number,1] %)</string>
-	<string name="AboutTime">[month, datetime, slt] [day, datetime, slt] [year, datetime, slt] [hour, datetime, slt]:[min, datetime, slt]:[second,datetime,slt]</string>
+	<string name="AboutTime">[day, datetime, slt]. [month, datetime, slt] [year, datetime, slt] [hour, datetime, slt]:[min, datetime, slt]:[second,datetime,slt]</string>
 	<string name="ErrorFetchingServerReleaseNotesURL">Fehler beim Abrufen der URL für die Server-Versionshinweise.</string>
 	<string name="BuildConfiguration">Build-Konfiguration</string>
 	<string name="ProgressRestoring">Wird wiederhergestellt...</string>
@@ -813,7 +812,7 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich unter http://suppo
 	<string name="Unknown">(unbekannt)</string>
 	<string name="SummaryForTheWeek" value="Zusammenfassung für diese Woche, beginnend am "/>
 	<string name="NextStipendDay" value=". Der nächste Stipendium-Tag ist "/>
-	<string name="GroupPlanningDate">[mthnum,datetime,utc]/[day,datetime,utc]/[year,datetime,utc]</string>
+	<string name="GroupPlanningDate">[day,datetime,utc].[mthnum,datetime,utc].[year,datetime,utc]</string>
 	<string name="GroupIndividualShare" value="                      Gruppenanteil       Einzelanteil"/>
 	<string name="GroupColumn" value="Gruppe"/>
 	<string name="Balance">Kontostand</string>
@@ -962,7 +961,7 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich unter http://suppo
 	<string name="GroupMoneyBalance">Kontostand</string>
 	<string name="GroupMoneyCredits">Danksagung</string>
 	<string name="GroupMoneyDebits">Soll</string>
-	<string name="GroupMoneyDate">[weekday,datetime,utc] [mth,datetime,utc] [day,datetime,utc], [year,datetime,utc]</string>
+	<string name="GroupMoneyDate">[weekday,datetime,utc] [day,datetime,utc]. [mth,datetime,utc]. [year,datetime,utc]</string>
 	<string name="AcquiredItems">Erworbene Artikel</string>
 	<string name="Cancel">Abbrechen</string>
 	<string name="UploadingCosts">Das Hochladen von [NAME] kostet [AMOUNT] L$</string>
@@ -1614,6 +1613,10 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	<string name="conference-title-incoming">Konferenz mit [AGENT_NAME]</string>
 	<string name="inventory_item_offered-im">Inventarobjekt „[ITEM_NAME]“ angeboten</string>
 	<string name="inventory_folder_offered-im">Inventarordner „[ITEM_NAME]“ angeboten</string>
+	<string name="bot_warning">
+	Sie chatten mit einem Bot, [NAME]. Geben Sie keine persönlichen Informationen weiter.
+Erfahren Sie mehr unter https://second.life/scripted-agents.
+	</string>
 	<string name="share_alert">Objekte aus dem Inventar hier her ziehen</string>
 	<string name="facebook_post_success">Sie haben auf Facebook gepostet.</string>
 	<string name="flickr_post_success">Sie haben auf Flickr gepostet.</string>
@@ -1766,7 +1769,7 @@ Missbrauchsbericht</string>
 	<string name="dance6">Tanzen6</string>
 	<string name="dance7">Tanzen7</string>
 	<string name="dance8">Tanzen8</string>
-	<string name="AvatarBirthDateFormat">[mthnum,datetime,slt]/[day,datetime,slt]/[year,datetime,slt]</string>
+	<string name="AvatarBirthDateFormat">[day,datetime,slt].[mthnum,datetime,slt].[year,datetime,slt]</string>
 	<string name="DefaultMimeType">Keine/Keiner</string>
 	<string name="texture_load_dimensions_error">Bilder, die größer sind als [WIDTH]*[HEIGHT] können nicht geladen werden</string>
 	<string name="outfit_photo_load_dimensions_error">Max. Fotogröße für Outfit ist [WIDTH]*[HEIGHT]. Bitte verkleinern Sie das Bild oder verwenden Sie ein anderes.</string>

@@ -99,9 +99,7 @@ public:
     void setMin(const F32 min);
     void setMax(const F32 max);
 
-    virtual void draw();
-
-    /*virtual*/ void setValue(const LLSD& value);
+    void draw() override;
 
 private:
     LLTrace::StatType<LLTrace::CountAccumulator>*   mNewStatFloatp;
@@ -133,9 +131,6 @@ private:
     };
     typedef std::vector<Threshold> threshold_vec_t;
     threshold_vec_t mThresholds;
-    //S32 mNumThresholds;
-    //F32 mThresholds[4];
-    //LLColor4 mThresholdColors[4];
 };
 
 #endif  // LL_LLSTATGRAPH_H

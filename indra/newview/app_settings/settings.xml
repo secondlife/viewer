@@ -82,10 +82,10 @@
     <key>AFKTimeout</key>
     <map>
       <key>Comment</key>
-            <string>
-                Time before automatically setting AFK (away from keyboard) mode (seconds, 0=never).
-                Valid values are: 0, 120, 300, 600, 1800
-</string>
+      <string>
+        Time before automatically setting AFK (away from keyboard) mode (seconds, 0=never).
+        Valid values are: 0, 120, 300, 600, 1800
+      </string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -379,7 +379,7 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-  <key>AutoAcceptNewInventory</key>
+    <key>AutoAcceptNewInventory</key>
     <map>
       <key>Comment</key>
       <string>Automatically accept new notecards/textures/landmarks</string>
@@ -2469,6 +2469,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>UseGroupMemberPagination</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable pagination of group memeber list 50 members at a time.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>DisplayTimecode</key>
     <map>
       <key>Comment</key>
@@ -2611,6 +2622,94 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
+    </map>
+    <key>EnableGameControl</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable GameControl feature</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>GameControlToServer</key>
+    <map>
+      <key>Comment</key>
+      <string>Transmit game controller data to server</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>GameControlToAgent</key>
+    <map>
+      <key>Comment</key>
+      <string>GameControl data moves avatar/flycam</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>AgentToGameControl</key>
+    <map>
+      <key>Comment</key>
+      <string>Avatar/flycam movement produces GameControl data</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>AnalogChannelMappings</key>
+    <map>
+        <key>Comment</key>
+        <string>GameControl analog button to channel mappings</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>String</string>
+        <key>Value</key>
+        <string>push:AXIS_1+,slide:AXIS_0+,jump:AXIS_4+,turn:AXIS_2+,look:AXIS_3+</string>
+    </map>
+    <key>BinaryChannelMappings</key>
+    <map>
+        <key>Comment</key>
+        <string>GameControl binary button to channel mappings</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>String</string>
+        <key>Value</key>
+        <string>toggle_run:BUTTON_9,toggle_fly:BUTTON_11,toggle_flycam:BUTTON_10,stop:BUTTON_7</string>
+    </map>
+    <key>FlycamChannelMappings</key>
+    <map>
+        <key>Comment</key>
+        <string>GameControl flycam button to channel mappings</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>String</string>
+        <key>Value</key>
+        <string>advance:AXIS_1+,pan:AXIS_0+,rise:AXIS_5+,pitch:AXIS_3-,yaw:AXIS_2+</string>
+    </map>
+    <key>KnownGameControllers</key>
+    <map>
+        <key>Comment</key>
+        <string>Map of controller device-specific options.</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>LLSD</string>
+        <key>Value</key>
+        <map/>
     </map>
     <key>EnableGestureSounds</key>
     <map>
@@ -4034,6 +4133,17 @@
       <key>Value</key>
       <array />
     </map>
+    <key>LuaDebugShowSource</key>
+    <map>
+      <key>Comment</key>
+      <string>Show source info in Lua Debug Console output</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>GridStatusRSS</key>
     <map>
       <key>Comment</key>
@@ -4541,6 +4651,17 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
+    </map>
+    <key>MapShowGridCoords</key>
+    <map>
+      <key>Comment</key>
+      <string>Shows/hides the grid coordinates of each region on the world map.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
     </map>
     <key>MiniMapAutoCenter</key>
     <map>
@@ -7413,6 +7534,17 @@
     <key>Value</key>
     <integer>-1</integer>
   </map>
+  <key>RenderBufferClearOnInvalidate</key>
+  <map>
+    <key>Comment</key>
+    <string>Whether to call glClear on render buffers that will be fully overwritten with new contents</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
   <key>RenderCompressTextures</key>
   <map>
     <key>Comment</key>
@@ -7914,6 +8046,28 @@
     <map>
       <key>Comment</key>
       <string>Enable texture bind performance test.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>RenderDebugTextureLabel</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable texture labels via glObjectLabel.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>RenderDebugTextureLabelLocalFilesSession</key>
+    <map>
+      <key>Comment</key>
+      <string>Enumerate textures with local file names. Doesn't do anything until RenderDebugTextureLabel is set to true. Requires restart AND applies on the next session only.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -9135,7 +9289,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>1</real>
+    <real>1.5</real>
   </map>
   
   <key>RenderReflectionProbeDrawDistance</key>
@@ -9702,6 +9856,17 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
+  <key>CollectFontVertexBuffers</key>
+  <map>
+    <key>Comment</key>
+    <string>When enabled some UI elements with cache buffers generated by fonts and reuse them. When disabled general cahce will be used with a significant overhead for hash, but it regenerates vertices each frame so it's always up to date.</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <real>1</real>
+  </map>
   <key>ShowMyComplexityChanges</key>
   <map>
     <key>Comment</key>
@@ -9990,7 +10155,7 @@
         <key>Type</key>
         <string>F32</string>
         <key>Value</key>
-        <real>1.0</real>
+        <real>0.7</real>
     </map>
     <key>RenderTonemapType</key>
     <map>
@@ -10001,7 +10166,7 @@
         <key>Type</key>
         <string>U32</string>
         <key>Value</key>
-        <integer>0</integer>
+        <integer>1</integer>
     </map>
     <key>ReplaySession</key>
     <map>
@@ -10025,6 +10190,83 @@
             <key>Value</key>
             <string>https://feedback.secondlife.com/</string>
         </map>
+    <key>RestrainedLove</key>
+    <map>
+      <key>Comment</key>
+      <string>Toggles RLVa features (requires restart)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <boolean>0</boolean>
+    </map>
+    <key>RestrainedLoveDebug</key>
+    <map>
+      <key>Comment</key>
+      <string>Toggles RLVa debug mode (displays the commands when in debug mode)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <boolean>0</boolean>
+    </map>
+    <key>RLVaBlockedExperiences</key>
+    <map>
+      <key>Comment</key>
+      <string>List of experiences blocked from interacting with RLVa</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>bfe25fb4-222c-11e5-85a2-fa4c4ccaa202</string>
+    </map>
+    <key>RLVaDebugHideUnsetDuplicate</key>
+    <map>
+      <key>Comment</key>
+      <string>Suppresses reporting "unset" or "duplicate" command restrictions when RestrainedLoveDebug is TRUE</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <boolean>0</boolean>
+    </map>
+    <key>RLVaEnableTemporaryAttachments</key>
+    <map>
+      <key>Comment</key>
+      <string>Allows temporary attachments (regardless of origin) to issue RLV commands</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <boolean>1</boolean>
+    </map>
+    <key>RLVaExperimentalCommands</key>
+    <map>
+      <key>Comment</key>
+      <string>Enables the experimental command set</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <boolean>1</boolean>
+    </map>
+    <key>RLVaTopLevelMenu</key>
+    <map>
+      <key>Comment</key>
+      <string>Show the RLVa specific menu as a top level menu</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <boolean>1</boolean>
+    </map>
     <key>RevokePermsOnStopAnimation</key>
     <map>
       <key>Comment</key>
@@ -12912,9 +13154,9 @@
     <key>Use24HourClock</key>
     <map>
         <key>Comment</key>
-        <string>12 vs 24. At the moment only for region restart schedule floater</string>
+        <string>12 vs 24. At the moment coverage is partial</string>
         <key>Persist</key>
-        <integer>0</integer>
+        <integer>1</integer>
         <key>Type</key>
         <string>Boolean</string>
         <key>Value</key>
@@ -13569,7 +13811,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
     <key>WarningsAsChat</key>
     <map>
@@ -15213,7 +15455,7 @@
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
-      <integer>5</integer>
+      <integer>8</integer>
     </map>
     <key>TerrainPaintResolution</key>
     <map>

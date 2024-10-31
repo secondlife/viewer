@@ -170,7 +170,7 @@ fsyspath source_path(lua_State* L)
     {
         lua_getinfo(L, i, "s", &ar);
     }
-    return ar.source;
+    return { ar.source };
 }
 
 } // namespace lluau
@@ -1108,7 +1108,7 @@ lua_function(source_path, "source_path(): return the source path of the running 
 {
     lua_checkdelta(L, 1);
     lluau_checkstack(L, 1);
-    lua_pushstdstring(L, lluau::source_path(L).u8string());
+    lua_pushstdstring(L, lluau::source_path(L));
     return 1;
 }
 
@@ -1119,7 +1119,7 @@ lua_function(source_dir, "source_dir(): return the source directory of the runni
 {
     lua_checkdelta(L, 1);
     lluau_checkstack(L, 1);
-    lua_pushstdstring(L, lluau::source_path(L).parent_path().u8string());
+    lua_pushstdstring(L, fsyspath(lluau::source_path(L).parent_path()));
     return 1;
 }
 
@@ -1132,7 +1132,7 @@ lua_function(abspath, "abspath(path): "
     lua_checkdelta(L);
     auto path{ lua_tostdstring(L, 1) };
     lua_pop(L, 1);
-    lua_pushstdstring(L, (lluau::source_path(L).parent_path() / path).u8string());
+    lua_pushstdstring(L, fsyspath(lluau::source_path(L).parent_path() / path));
     return 1;
 }
 
@@ -1150,7 +1150,7 @@ lua_function(check_stop, "check_stop(): ensure that a Lua script responds to vie
 *   help()
 *****************************************************************************/
 lua_function(help,
-             "LL.help(): list viewer's Lua functions\n"
+             "help(): list viewer's Lua functions\n"
              "LL.help(function): show help string for specific function")
 {
     auto& luapump{ LLEventPumps::instance().obtain("lua output") };
@@ -1210,7 +1210,7 @@ lua_function(help,
 *****************************************************************************/
 lua_function(
     leaphelp,
-    "LL.leaphelp(): list viewer's LEAP APIs\n"
+    "leaphelp(): list viewer's LEAP APIs\n"
     "LL.leaphelp(api): show help for specific api string name")
 {
     LLSD request;

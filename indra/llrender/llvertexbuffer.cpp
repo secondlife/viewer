@@ -604,7 +604,7 @@ public:
 
 static LLVBOPool* sVBOPool = nullptr;
 
-void LLVertexBufferData::draw()
+void LLVertexBufferData::drawWithMatrix()
 {
     if (!mVB)
     {
@@ -640,6 +640,28 @@ void LLVertexBufferData::draw()
     gGL.popMatrix();
     gGL.matrixMode(LLRender::MM_MODELVIEW);
     gGL.popMatrix();
+}
+
+void LLVertexBufferData::draw()
+{
+    if (!mVB)
+    {
+        llassert(false);
+        // Not supposed to happen, check buffer generation
+        return;
+    }
+
+    if (mTexName)
+    {
+        gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, mTexName);
+    }
+    else
+    {
+        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+    }
+
+    mVB->setBuffer();
+    mVB->drawArrays(mMode, 0, mCount);
 }
 
 //============================================================================

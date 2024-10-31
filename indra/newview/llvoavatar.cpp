@@ -1940,10 +1940,10 @@ bool LLVOAvatar::lineSegmentIntersect(const LLVector4a& start, const LLVector4a&
 
             if (linesegment_sphere(LLVector3(glm::value_ptr(p1)), LLVector3(glm::value_ptr(p2)), LLVector3(0,0,0), 1.f, position, norm))
             {
-                glm::vec3 res_pos(glm::make_vec3(position.mV));
+                glm::vec3 res_pos(glm::make_vec3(LLVector4(position).mV));
                 res_pos = mul_mat4_vec3(mat, res_pos);
 
-                 glm::vec3 res_norm(glm::make_vec3(norm.mV));
+                 glm::vec3 res_norm(glm::make_vec3(LLVector4(norm).mV));
                 res_norm = glm::normalize(res_norm);
                 res_norm = glm::mat3(norm_mat) * res_norm;
 
@@ -3767,6 +3767,7 @@ LLVector3 LLVOAvatar::idleCalcNameTagPosition(const LLVector3 &root_pos_last)
     // Avoid of crossing the name tag by the water surface
     if (mNameText)
     {
+        bool hidden = false;
         F32 water_height = getRegion()->getWaterHeight();
         static const F32 WATER_HEIGHT_ABOVE_DELTA = 0.25;
         if (name_position[VZ] < water_height + WATER_HEIGHT_ABOVE_DELTA)
@@ -3780,7 +3781,18 @@ LLVector3 LLVOAvatar::idleCalcNameTagPosition(const LLVector3 &root_pos_last)
                 {
                     name_position[VZ] = water_height + WATER_HEIGHT_ABOVE_DELTA;
                 }
+                else
+                {
+                    // Hide the name tag when the camera is above the water
+                    // but the avatar is deep enough under the water surface
+                    hidden = true;
+                }
             }
+        }
+
+        if (mNameText->getHidden() != hidden)
+        {
+            mNameText->setHidden(hidden);
         }
     }
 

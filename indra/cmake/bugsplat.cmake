@@ -1,13 +1,13 @@
-if (INSTALL_PROPRIETARY)
+if (INSTALL_PROPRIETARY AND NOT LINUX)
     # Note that viewer_manifest.py makes decision based on BUGSPLAT_DB and not USE_BUGSPLAT
     if (BUGSPLAT_DB)
         set(USE_BUGSPLAT ON  CACHE BOOL "Use the BugSplat crash reporting system")
     else (BUGSPLAT_DB)
         set(USE_BUGSPLAT OFF CACHE BOOL "Use the BugSplat crash reporting system")
     endif (BUGSPLAT_DB)
-else (INSTALL_PROPRIETARY)
+else (INSTALL_PROPRIETARY AND NOT LINUX)
     set(USE_BUGSPLAT OFF CACHE BOOL "Use the BugSplat crash reporting system")
-endif (INSTALL_PROPRIETARY)
+endif (INSTALL_PROPRIETARY AND NOT LINUX)
 
 include_guard()
 add_library( ll::bugsplat INTERFACE IMPORTED )
@@ -36,6 +36,6 @@ if (USE_BUGSPLAT)
 
     set_property( TARGET ll::bugsplat APPEND PROPERTY INTERFACE_COMPILE_DEFINITIONS LL_BUGSPLAT)
 else()
-    set(BUGSPLAT_DB "" CACHE STRING "BugSplat crash database name")
+    set(BUGSPLAT_DB "" CACHE STRING "BugSplat crash database name" FORCE)
 endif (USE_BUGSPLAT)
 

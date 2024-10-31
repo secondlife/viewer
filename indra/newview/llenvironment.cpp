@@ -54,7 +54,6 @@
 
 #include "llregioninfomodel.h"
 
-#include "llatmosphere.h"
 #include "llagent.h"
 #include "roles_constants.h"
 #include "llestateinfomodel.h"
@@ -963,54 +962,6 @@ LLSettingsWater::ptr_t LLEnvironment::getCurrentWater() const
         }
     }
     return pwater;
-}
-
-void LayerConfigToDensityLayer(const LLSD& layerConfig, DensityLayer& layerOut)
-{
-    layerOut.constant_term  = (F32)layerConfig[LLSettingsSky::SETTING_DENSITY_PROFILE_CONSTANT_TERM].asReal();
-    layerOut.exp_scale      = (F32)layerConfig[LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR].asReal();
-    layerOut.exp_term       = (F32)layerConfig[LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_TERM].asReal();
-    layerOut.linear_term    = (F32)layerConfig[LLSettingsSky::SETTING_DENSITY_PROFILE_LINEAR_TERM].asReal();
-    layerOut.width          = (F32)layerConfig[LLSettingsSky::SETTING_DENSITY_PROFILE_WIDTH].asReal();
-}
-
-void LLEnvironment::getAtmosphericModelSettings(AtmosphericModelSettings& settingsOut, const LLSettingsSky::ptr_t &psky)
-{
-    settingsOut.m_skyBottomRadius   = psky->getSkyBottomRadius();
-    settingsOut.m_skyTopRadius      = psky->getSkyTopRadius();
-    settingsOut.m_sunArcRadians     = psky->getSunArcRadians();
-    settingsOut.m_mieAnisotropy     = psky->getMieAnisotropy();
-
-    LLSD rayleigh = psky->getRayleighConfigs();
-    settingsOut.m_rayleighProfile.clear();
-    for (LLSD::array_iterator itf = rayleigh.beginArray(); itf != rayleigh.endArray(); ++itf)
-    {
-        DensityLayer layer;
-        LLSD& layerConfig = (*itf);
-        LayerConfigToDensityLayer(layerConfig, layer);
-        settingsOut.m_rayleighProfile.push_back(layer);
-    }
-
-    LLSD mie = psky->getMieConfigs();
-    settingsOut.m_mieProfile.clear();
-    for (LLSD::array_iterator itf = mie.beginArray(); itf != mie.endArray(); ++itf)
-    {
-        DensityLayer layer;
-        LLSD& layerConfig = (*itf);
-        LayerConfigToDensityLayer(layerConfig, layer);
-        settingsOut.m_mieProfile.push_back(layer);
-    }
-    settingsOut.m_mieAnisotropy = psky->getMieAnisotropy();
-
-    LLSD absorption = psky->getAbsorptionConfigs();
-    settingsOut.m_absorptionProfile.clear();
-    for (LLSD::array_iterator itf = absorption.beginArray(); itf != absorption.endArray(); ++itf)
-    {
-        DensityLayer layer;
-        LLSD& layerConfig = (*itf);
-        LayerConfigToDensityLayer(layerConfig, layer);
-        settingsOut.m_absorptionProfile.push_back(layer);
-    }
 }
 
 bool LLEnvironment::canAgentUpdateParcelEnvironment() const
@@ -2743,13 +2694,6 @@ bool LLEnvironment::DayInstance::setSky(const LLSettingsSky::ptr_t &psky)
     mSky->mReplaced |= different_sky;
     mSky->update();
     mBlenderSky.reset();
-
-    if (gAtmosphere)
-    {
-        AtmosphericModelSettings settings;
-        LLEnvironment::getAtmosphericModelSettings(settings, psky);
-        gAtmosphere->configureAtmosphericModel(settings);
-    }
 
     return changed;
 }

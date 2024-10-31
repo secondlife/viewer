@@ -127,9 +127,7 @@ void LL::WorkQueueBase::error(const std::string& msg)
 
 void LL::WorkQueueBase::checkCoroutine(const std::string& method)
 {
-    // By convention, the default coroutine on each thread has an empty name
-    // string. See also LLCoros::logname().
-    if (LLCoros::getName().empty())
+    if (LLCoros::on_main_coro())
     {
         LLTHROW(Error("Do not call " + method + " from a thread's default coroutine"));
     }

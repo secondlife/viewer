@@ -1138,6 +1138,28 @@ S32 LLGLSLShader::bindTexture(S32 uniform, LLTexture* texture, LLTexUnit::eTextu
     return uniform;
 }
 
+// For LLImageGL-wrapped textures created via GL elsewhere with our API only. Use with caution.
+S32 LLGLSLShader::bindTextureImageGL(S32 uniform, LLImageGL* texture, LLTexUnit::eTextureType mode)
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
+
+    if (uniform < 0 || uniform >= (S32)mTexture.size())
+    {
+        LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << uniform << LL_ENDL;
+        llassert(false);
+        return -1;
+    }
+
+    uniform = mTexture[uniform];
+
+    if (uniform > -1)
+    {
+        gGL.getTexUnit(uniform)->bind(texture);
+    }
+
+    return uniform;
+}
+
 S32 LLGLSLShader::bindTexture(S32 uniform, LLRenderTarget* texture, bool depth, LLTexUnit::eTextureFilterOptions mode, U32 index)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;

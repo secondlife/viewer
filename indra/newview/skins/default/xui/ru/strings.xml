@@ -69,7 +69,6 @@ SLURL: &lt;nolink&gt;[SLURL]&lt;/nolink&gt;
 Ширина канала: [NET_BANDWITH] кбит/с
 Коэффициент детализации: [LOD_FACTOR]
 Качество визуализации: [RENDER_QUALITY]
-Расширенная модель освещения: [GPU_SHADERS]
 Память текстур: [TEXTURE_MEMORY] МБ
 	</string>
 	<string name="AboutOSXHiDPI">
@@ -4576,6 +4575,10 @@ support@secondlife.com.
 	</string>
 	<string name="inventory_folder_offered-im">
 		Предложена папка инвентаря «[ITEM_NAME]»
+	</string>
+	<string name="bot_warning">
+Вы общаетесь с ботом [NAME]. Не передавайте личные данные.
+Подробнее на https://second.life/scripted-agents.
 	</string>
 	<string name="share_alert">
 		Перетаскивайте вещи из инвентаря сюда

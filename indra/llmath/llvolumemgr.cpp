@@ -25,6 +25,7 @@
 
 #include "linden_common.h"
 
+#include "llmutex.h"
 #include "llvolumemgr.h"
 #include "llvolume.h"
 

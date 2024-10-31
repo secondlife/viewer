@@ -49,7 +49,6 @@ Pole widzenia (Draw Distance): [DRAW_DISTANCE]m
 Przepustowość (Bandwidth): [NET_BANDWITH]kbit/s
 Mnożnik poziomu detali (LOD Factor): [LOD_FACTOR]
 Jakość wyświetlania (Render quality): [RENDER_QUALITY]
-Zaawansowane oświetlenie (Advanced Lighting Model): [GPU_SHADERS]
 Pamięć tekstur (Texture memory): [TEXTURE_MEMORY]MB
 Pamięć podręczna dysku (Disk cache): [DISK_CACHE_INFO]
 	</string>
@@ -4412,6 +4411,10 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 	</string>
 	<string name="inventory_folder_offered-im">
 		Zaoferowano folder: '[ITEM_NAME]'
+	</string>
+	<string name="bot_warning">
+Rozmawiasz z botem [NAME]. Nie udostępniaj żadnych danych osobowych.
+Dowiedz się więcej na https://second.life/scripted-agents.
 	</string>
 	<string name="share_alert">
 		Przeciągaj tutaj rzeczy z Szafy

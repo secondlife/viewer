@@ -29,7 +29,10 @@
 
 #include "../llversioninfo.h"
 
- #include <iostream>
+#include <iostream>
+
+//#include "llgamecontrol_stub.cpp"
+
 
 // LL_VIEWER_CHANNEL is a macro defined on the compiler command line. The
 // macro expands to the string name of the channel, but without quotes. We

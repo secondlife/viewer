@@ -124,11 +124,11 @@ public:
     void setSelectCallback(const signal_t::slot_type& cb) { mSelectSignal.connect(cb); }
     void setReshapeCallback(const signal_t::slot_type& cb) { mReshapeSignal.connect(cb); }
 
-    bool getAllowMultiSelect() { return mAllowMultiSelect; }
-    bool getAllowDrag() { return mAllowDrag; }
+    bool getAllowMultiSelect() const { return mAllowMultiSelect; }
+    bool getAllowDrag() const { return mAllowDrag; }
 
     void setSingleFolderMode(bool is_single_mode) { mSingleFolderMode = is_single_mode; }
-    bool isSingleFolderMode() { return mSingleFolderMode; }
+    bool isSingleFolderMode() const { return mSingleFolderMode; }
 
     // Close all folders in the view
     void closeAllFolders();
@@ -142,7 +142,7 @@ public:
     virtual S32 getItemHeight() const;
 
     void arrangeAll() { mArrangeGeneration++; }
-    S32 getArrangeGeneration() { return mArrangeGeneration; }
+    S32 getArrangeGeneration() const { return mArrangeGeneration; }
 
     // applies filters to control visibility of items
     virtual void filter( LLFolderViewFilter& filter);
@@ -227,27 +227,27 @@ public:
     void setShowSelectionContext(bool show) { mShowSelectionContext = show; }
     bool getShowSelectionContext();
     void setShowSingleSelection(bool show);
-    bool getShowSingleSelection() { return mShowSingleSelection; }
-    F32  getSelectionFadeElapsedTime() { return mMultiSelectionFadeTimer.getElapsedTimeF32(); }
-    bool getUseEllipses() { return mUseEllipses; }
-    S32 getSelectedCount() { return (S32)mSelectedItems.size(); }
+    bool getShowSingleSelection() const { return mShowSingleSelection; }
+    F32  getSelectionFadeElapsedTime() const { return mMultiSelectionFadeTimer.getElapsedTimeF32(); }
+    bool getUseEllipses() const { return mUseEllipses; }
+    S32 getSelectedCount() const { return (S32)mSelectedItems.size(); }
 
-    void    update();                       // needs to be called periodically (e.g. once per frame)
+    void update(); // needs to be called periodically (e.g. once per frame)
 
-    bool needsAutoSelect() { return mNeedsAutoSelect && !mAutoSelectOverride; }
-    bool needsAutoRename() { return mNeedsAutoRename; }
+    bool needsAutoSelect() const { return mNeedsAutoSelect && !mAutoSelectOverride; }
+    bool needsAutoRename() const { return mNeedsAutoRename; }
     void setNeedsAutoRename(bool val) { mNeedsAutoRename = val; }
     void setPinningSelectedItem(bool val) { mPinningSelectedItem = val; }
     void setAutoSelectOverride(bool val) { mAutoSelectOverride = val; }
 
-    bool showItemLinkOverlays() { return mShowItemLinkOverlays; }
+    bool showItemLinkOverlays() const { return mShowItemLinkOverlays; }
 
     void setCallbackRegistrar(LLUICtrl::CommitCallbackRegistry::ScopedRegistrar* registrar) { mCallbackRegistrar = registrar; }
     void setEnableRegistrar(LLUICtrl::EnableCallbackRegistry::ScopedRegistrar* registrar) { mEnableRegistrar = registrar; }
 
     void setForceArrange(bool force) { mForceArrange = force; }
 
-    LLPanel* getParentPanel() { return mParentPanel.get(); }
+    LLPanel* getParentPanel() const { return mParentPanel.get(); }
     // DEBUG only
     void dumpSelectionInformation();
 
@@ -255,7 +255,7 @@ public:
 
     void setShowEmptyMessage(bool show_msg) { mShowEmptyMessage = show_msg; }
 
-    bool useLabelSuffix() { return mUseLabelSuffix; }
+    bool useLabelSuffix() const { return mUseLabelSuffix; }
     virtual void updateMenu();
 
     void finishRenamingItem( void );
@@ -390,7 +390,7 @@ public:
     virtual ~LLSelectFirstFilteredItem() {}
     virtual void doFolder(LLFolderViewFolder* folder);
     virtual void doItem(LLFolderViewItem* item);
-    bool wasItemSelected() { return mItemSelected || mFolderSelected; }
+    bool wasItemSelected() const { return mItemSelected || mFolderSelected; }
 protected:
     bool mItemSelected;
     bool mFolderSelected;

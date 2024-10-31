@@ -63,8 +63,9 @@
 
 #include "tinygltf/tiny_gltf.h"
 #include "lltinygltfhelper.h"
-#include <strstream>
 
+#include <boost/iostreams/device/array.hpp>
+#include <boost/iostreams/stream.hpp>
 
 const std::string MATERIAL_BASE_COLOR_DEFAULT_NAME = "Base Color";
 const std::string MATERIAL_NORMAL_DEFAULT_NAME = "Normal";
@@ -1245,7 +1246,7 @@ bool LLMaterialEditor::decodeAsset(const std::vector<char>& buffer)
 {
     LLSD asset;
 
-    std::istrstream str(&buffer[0], buffer.size());
+    boost::iostreams::stream<boost::iostreams::array_source> str(buffer.data(), buffer.size());
     if (LLSDSerialize::deserialize(asset, str, buffer.size()))
     {
         if (asset.has("version") && LLGLTFMaterial::isAcceptedVersion(asset["version"].asString()))
@@ -3176,14 +3177,7 @@ void LLMaterialEditor::applyToSelection()
     {
         LL_WARNS("MaterialEditor") << "Not connected to materials capable region, missing ModifyMaterialParams cap" << LL_ENDL;
 
-        // Fallback local preview. Will be removed once override systems is finished and new cap is deployed everywhere.
-        LLPointer<LLFetchedGLTFMaterial> mat = new LLFetchedGLTFMaterial();
-        getGLTFMaterial(mat);
-        static const LLUUID placeholder("984e183e-7811-4b05-a502-d79c6f978a98");
-        gGLTFMaterialList.addMaterial(placeholder, mat);
-        LLRenderMaterialFunctor mat_func(placeholder);
-        LLObjectSelectionHandle selected_objects = LLSelectMgr::getInstance()->getSelection();
-        selected_objects->applyToTEs(&mat_func);
+        LLNotificationsUtil::add("MissingMaterialCaps");
     }
 }
 

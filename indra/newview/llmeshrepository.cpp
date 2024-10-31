@@ -548,8 +548,8 @@ LLViewerFetchedTexture* LLMeshUploadThread::FindViewerTexture(const LLImportMate
     return ppTex ? (*ppTex).get() : NULL;
 }
 
-volatile S32 LLMeshRepoThread::sActiveHeaderRequests = 0;
-volatile S32 LLMeshRepoThread::sActiveLODRequests = 0;
+std::atomic<S32> LLMeshRepoThread::sActiveHeaderRequests = 0;
+std::atomic<S32> LLMeshRepoThread::sActiveLODRequests = 0;
 U32 LLMeshRepoThread::sMaxConcurrentRequests = 1;
 S32 LLMeshRepoThread::sRequestLowWater = REQUEST2_LOW_WATER_MIN;
 S32 LLMeshRepoThread::sRequestHighWater = REQUEST2_HIGH_WATER_MIN;
@@ -864,7 +864,7 @@ LLMeshRepoThread::~LLMeshRepoThread()
 
     while (!mSkinInfoQ.empty())
     {
-        delete mSkinInfoQ.front();
+        llassert(mSkinInfoQ.front()->getNumRefs() == 1);
         mSkinInfoQ.pop_front();
     }
 
@@ -2058,13 +2058,15 @@ bool LLMeshRepoThread::skinInfoReceived(const LLUUID& mesh_id, U8* data, S32 dat
             LLSkinningUtil::initJointNums(info, gAgentAvatarp);
         }
 
-        // remember the skin info in the background thread so we can use it
+        // copy the skin info for the background thread so we can use it
         // to calculate per-joint bounding boxes when volumes are loaded
-        mSkinMap[mesh_id] = info;
+        mSkinMap[mesh_id] = new LLMeshSkinInfo(*info);
 
         {
+            // Move the LLPointer in to the skin info queue to avoid reference
+            // count modification after we leave the lock
             LLMutexLock lock(mMutex);
-            mSkinInfoQ.push_back(info);
+            mSkinInfoQ.emplace_back(std::move(info));
         }
     }
 
@@ -3957,7 +3959,7 @@ void LLMeshRepository::notifyLoadedMeshes()
             }
 
             // erase from background thread
-            mThread->mWorkQueue.post([=]()
+            mThread->mWorkQueue.post([=, this]()
                 {
                     mThread->mSkinMap.erase(id);
                 });

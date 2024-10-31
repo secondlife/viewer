@@ -121,6 +121,9 @@ public:
     void setCaptureDevice(const std::string& name) override;
     void setRenderDevice(const std::string& name) override;
 
+    bool isCaptureNoDevice() override { return false; };
+    bool isRenderNoDevice() override { return false; };
+
     LLVoiceDeviceList& getCaptureDevices() override;
     LLVoiceDeviceList& getRenderDevices() override;
     //@}

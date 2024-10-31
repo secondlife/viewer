@@ -27,8 +27,6 @@
 #ifndef LL_LLVIEWERDISPLAY_H
 #define LL_LLVIEWERDISPLAY_H
 
-class LLPostProcess;
-
 void display_startup();
 void display_cleanup();
 

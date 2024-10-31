@@ -29,7 +29,6 @@ Estabelecer a distância: [DRAW_DISTANCE]m
 Largura da banda: [NET_BANDWITH]kbit/s
 LOD fator: [LOD_FACTOR]
 Qualidade de renderização: [RENDER_QUALITY]
-Modelo avançado de luzes: [GPU_SHADERS]
 Memória de textura: [TEXTURE_MEMORY]MB</string>
 	<string name="AboutOSXHiDPI">HiDPI modo de exibição: [HIDPI]</string>
 	<string name="AboutLibs">Versão do J2C Decoder: [J2C_VERSION] 
@@ -1550,6 +1549,10 @@ If you continue to receive this message, contact the [SUPPORT_SITE].</string>
 	<string name="conference-title-incoming">Conversa com [AGENT_NAME]</string>
 	<string name="inventory_item_offered-im">Item do inventário '[ITEM_NAME]' oferecido</string>
 	<string name="inventory_folder_offered-im">Pasta do inventário '[ITEM_NAME]' oferecida</string>
+	<string name="bot_warning">
+Você está conversando com um bot, [NAME]. Não compartilhe informações pessoais.
+Saiba mais em https://second.life/scripted-agents.
+	</string>
 	<string name="facebook_post_success">Você publicou no Facebook.</string>
 	<string name="flickr_post_success">Você publicou no Flickr.</string>
 	<string name="twitter_post_success">Você publicou no Twitter.</string>
