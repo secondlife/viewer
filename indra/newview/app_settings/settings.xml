@@ -16322,7 +16322,7 @@
   <key>IdleThread</key>
   <map>
     <key>Comment</key>
-    <string>Run "idle" on a background thread</string>
+    <string>Run "idle" on a background thread.  Must be set from command line.</string>
     <key>Persist</key>
     <integer>0</integer>
     <key>Type</key>

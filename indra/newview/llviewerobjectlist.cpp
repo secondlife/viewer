@@ -942,12 +942,6 @@ void LLViewerObjectList::update(LLAgent &agent)
 
         //update flexible objects
         LLVolumeImplFlexible::updateClass();
-
-        //update animated textures
-        if (gAnimateTextures)
-        {
-            LLViewerTextureAnim::updateClass();
-        }
     }
 
 
@@ -1016,6 +1010,16 @@ void LLViewerObjectList::update(LLAgent &agent)
 
     sample(LLStatViewer::NUM_OBJECTS, mObjects.size());
     sample(LLStatViewer::NUM_ACTIVE_OBJECTS, idle_count);
+}
+
+void LLViewerObjectList::updateGL()
+{
+    LL_PROFILE_ZONE_SCOPED;
+    //update animated textures
+    if (gAnimateTextures)
+    {
+        LLViewerTextureAnim::updateClass();
+    }
 }
 
 void LLViewerObjectList::fetchObjectCosts()

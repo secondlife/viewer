@@ -3238,7 +3238,7 @@ void LLVOAvatar::idleUpdateLoadingEffect()
             }
 
             deleteParticleSource();
-            updateLOD();
+            //updateLOD();
         }
         else
         {

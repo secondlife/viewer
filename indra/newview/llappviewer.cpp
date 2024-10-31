@@ -1673,8 +1673,23 @@ bool LLAppViewer::doFrame()
             //  Update statistics for this frame
             update_statistics();
 
+            // Metrics logging (LLViewerAssetStats, etc.)
+            {
+                static LLTimer report_interval;
+
+                // *TODO:  Add configuration controls for this
+                F32 seconds = report_interval.getElapsedTimeF32();
+                if (seconds >= app_metrics_interval)
+                {
+                    metricsSend(!gDisconnected);
+                    report_interval.reset();
+                }
+            }
+
             // update agent camera before display()
             gAgentCamera.updateCamera();
+
+            gObjectList.updateGL();
 
             if (gDoDisconnect && (LLStartUp::getStartupState() == STATE_STARTED))
             {
@@ -1704,7 +1719,6 @@ bool LLAppViewer::doFrame()
                     LLPerfStats::RecordSceneTime T(LLPerfStats::StatType_t::RENDER_IDLE);
                     LL_PROFILE_ZONE_NAMED_CATEGORY_APP("df Snapshot");
                     pingMainloopTimeout("Main:Snapshot");
-                    gPipeline.mReflectionMapManager.update();
                     LLFloaterSnapshot::update(); // take snapshots
                     LLFloaterSimpleSnapshot::update();
                     gGLActive = false;
@@ -4958,20 +4972,6 @@ void LLAppViewer::idle()
         gInventory.idleNotifyObservers();
         LLAvatarTracker::instance().idleNotifyObservers();
     }
-
-    // Metrics logging (LLViewerAssetStats, etc.)
-    {
-        static LLTimer report_interval;
-
-        // *TODO:  Add configuration controls for this
-        F32 seconds = report_interval.getElapsedTimeF32();
-        if (seconds >= app_metrics_interval)
-        {
-            metricsSend(! gDisconnected);
-            report_interval.reset();
-        }
-    }
-
 
     // Update layonts, handle mouse events, tooltips, e t c
     // updateUI() needs to be called even in case viewer disconected

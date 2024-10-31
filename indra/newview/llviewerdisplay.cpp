@@ -533,7 +533,7 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
         LLGLSLShader::initProfile();
     }
 
-    //LLGLState::verify(false);
+    
 
     /////////////////////////////////////////////////
     //
@@ -685,6 +685,9 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
     {
         // Render mirrors and associated hero probes before we render the rest of the scene.
         // This ensures the scene state in the hero probes are exactly the same as the rest of the scene before we render it.
+
+        gPipeline.mReflectionMapManager.update();
+
         if (gPipeline.RenderMirrors && !gSnapshot)
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("Update hero probes");
