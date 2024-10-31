@@ -29,11 +29,14 @@ using Lock  = LLCoros::LockType;
 /*****************************************************************************
 *   WorkQueueBase
 *****************************************************************************/
-LL::WorkQueueBase::WorkQueueBase(const std::string& name):
-    super(makeName(name))
+LL::WorkQueueBase::WorkQueueBase(const std::string& name, bool auto_shutdown)
+  : super(makeName(name))
+{
+    if (auto_shutdown)
 {
     // TODO: register for "LLApp" events so we can implicitly close() on
     // viewer shutdown.
+}
 }
 
 void LL::WorkQueueBase::runUntilClose()
@@ -135,8 +138,8 @@ void LL::WorkQueueBase::checkCoroutine(const std::string& method)
 /*****************************************************************************
 *   WorkQueue
 *****************************************************************************/
-LL::WorkQueue::WorkQueue(const std::string& name, size_t capacity):
-    super(name),
+LL::WorkQueue::WorkQueue(const std::string& name, size_t capacity, bool auto_shutdown):
+    super(name, auto_shutdown),
     mQueue(capacity)
 {
 }
@@ -184,8 +187,8 @@ bool LL::WorkQueue::tryPop_(Work& work)
 /*****************************************************************************
 *   WorkSchedule
 *****************************************************************************/
-LL::WorkSchedule::WorkSchedule(const std::string& name, size_t capacity):
-    super(name),
+LL::WorkSchedule::WorkSchedule(const std::string& name, size_t capacity, bool auto_shutdown):
+    super(name, auto_shutdown),
     mQueue(capacity)
 {
 }

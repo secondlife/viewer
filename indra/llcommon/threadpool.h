@@ -122,7 +122,7 @@ namespace LL
                         size_t threads=1,
                         size_t capacity=1024*1024,
                         bool auto_shutdown = true):
-            ThreadPoolBase(name, threads, new queue_t(name, capacity), auto_shutdown)
+            ThreadPoolBase(name, threads, new queue_t(name, capacity, false), auto_shutdown)
         {}
         ~ThreadPoolUsing() override {}
 
