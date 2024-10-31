@@ -123,6 +123,8 @@
 #include "SMAASearchTex.h"
 
 #include "llxrmanager.h"
+#include "llswapchain.h"
+#include "llswapchainxr.h"
 
 #ifndef LL_WINDOWS
 #define A_GCC 1
@@ -745,6 +747,16 @@ LLPipeline::eFBOStatus LLPipeline::doAllocateScreenBuffer(U32 resX, U32 resY)
     refreshCachedSettings();
 
     eFBOStatus ret = FBO_SUCCESS_FULLRES;
+    
+    if (LLXRManager::instanceExists())
+    {
+        LLXRManager::getInstance()->createSwapchains();
+
+        // Use the XR swapchain resolution for the main render targets
+        resX = LLXRManager::getInstance()->getSwapchain(0).getWidth();
+        resY = LLXRManager::getInstance()->getSwapchain(0).getHeight();
+    }
+
     if (!allocateScreenBufferInternal(resX, resY))
     {
         //failed to allocate at requested specification, return false
@@ -772,9 +784,6 @@ LLPipeline::eFBOStatus LLPipeline::doAllocateScreenBuffer(U32 resX, U32 resY)
 
         LL_WARNS() << "Unable to allocate screen buffer at any resolution!" << LL_ENDL;
     }
-
-    if (LLXRManager::instanceExists())
-        LLXRManager::getInstance()->createSwapchains();
 
     return ret;
 }
@@ -895,6 +904,15 @@ bool LLPipeline::allocateScreenBufferInternal(U32 resX, U32 resY)
     }
 
     gGL.getTexUnit(0)->disable();
+
+    // Setup a dummy swapchain that we blit from.
+
+    if (mMainSwapchain)
+        delete mMainSwapchain;
+
+    mMainSwapchain = new LLSwapchain(GL_SRGB8_ALPHA8, resX, resY);
+    mMainSwapchain->create(1);
+    mMainSwapchain->addColorAttachment(0);
 
     stop_glerror();
 
@@ -7929,6 +7947,17 @@ void LLPipeline::renderFinalize()
 
     // Present the screen target.
 
+    if (LLXRManager::instanceExists() && LLXRManager::getInstance()->xrState() >= LLXRManager::XR_STATE_RUNNING)
+    {
+        mTargetSwapchain = &LLXRManager::getInstance()->getSwapchain(LLXRManager::getInstance()->mCurrentEye);
+    }
+    else 
+    {
+        mTargetSwapchain = mMainSwapchain;
+    }
+
+    mTargetSwapchain->bind();
+
     gDeferredPostNoDoFNoiseProgram.bind(); // Add noise as part of final render to screen pass to avoid damaging other post effects
 
     // Whatever is last in the above post processing chain should _always_ be rendered directly here.  If not, expect problems.
@@ -7944,8 +7973,6 @@ void LLPipeline::renderFinalize()
     }
 
     gDeferredPostNoDoFNoiseProgram.unbind();
-    
-    copyFrameBufferToXR(finalBuffer);
 
     gGL.setSceneBlendType(LLRender::BT_ALPHA);
 
@@ -7953,6 +7980,19 @@ void LLPipeline::renderFinalize()
     {
         renderPhysicsDisplay();
     }
+    
+    mTargetSwapchain->flush();
+
+    if (LLXRManager::instanceExists() && LLXRManager::getInstance()->xrState() >= LLXRManager::XR_STATE_RUNNING)
+    {
+        if (LLXRManager::getInstance()->mCurrentEye == 0)
+            mTargetSwapchain->blitToBuffer(0, gViewerWindow->getWindowWidthRaw(), gViewerWindow->getWindowHeightRaw());
+    }
+    else
+    {
+        mTargetSwapchain->blitToBuffer(0, mTargetSwapchain->getWidth(), mTargetSwapchain->getHeight());
+    }
+    
 
     /*if (LLRenderTarget::sUseFBO && !gCubeSnapshot)
     { // copy depth buffer from mRT->screen to framebuffer

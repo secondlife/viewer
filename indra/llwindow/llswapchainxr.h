@@ -1,7 +1,7 @@
 #pragma once
 #include "llswapchain.h"
 
-class LLSwapchainXR : LLSwapchain
+class LLSwapchainXR : public LLSwapchain
 {
     XrSwapchain mSwapchain;
     std::vector<XrSwapchainImageOpenGLKHR> mImages;

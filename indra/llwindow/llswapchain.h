@@ -19,7 +19,6 @@
 #include <glm/gtc/quaternion.hpp>
 #include "llrender.h"
 
-
 class LLSwapchain
 {
 protected:
@@ -30,6 +29,9 @@ protected:
     std::vector<U32> mFBO;
     std::vector<U32> mColorAttachment;
 
+    // For regular OpenGL this should always be 0.
+    // For OpenXR this will increment every time we acquire a new image.
+    // On OpenXR this will wrap around to 0 when it reaches the swapchain count.
     U32 mCurrentImageIndex = 0;
 
 public:
@@ -37,8 +39,11 @@ public:
     ~LLSwapchain();
 
     virtual void create(U32 count);
+    virtual void addColorAttachment(U32 index);
     virtual void bind();
     virtual void flush();
+
+    void blitToBuffer(U32 buffer, U32 width, U32 height, bool swap = false);
 
     U32 getWidth() { return mWidth; }
     U32 getHeight() { return mHeight; }

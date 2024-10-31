@@ -40,6 +40,7 @@
 #include "llrendertarget.h"
 #include "llreflectionmapmanager.h"
 #include "llheroprobemanager.h"
+#include "llswapchain.h"
 
 #include <stack>
 
@@ -740,6 +741,13 @@ public:
 
     // 2k bom scratch target
     LLRenderTarget          mBakeMap;
+
+    // The target swapchain we want.
+    // For VR this will be an LLSwapchainXR.
+    // For non-VR this is just a single framebuffer we output to and blit from to the window.
+    LLSwapchain*            mTargetSwapchain;
+
+    LLSwapchain*            mMainSwapchain;
 
     LLCullResult            mSky;
     LLCullResult            mReflectedObjects;

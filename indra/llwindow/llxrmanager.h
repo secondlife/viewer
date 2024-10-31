@@ -172,6 +172,7 @@ class LLXRManager : public LLSimpleton<LLXRManager>
     std::vector<glm::mat4>    getEyeProjections() { return mEyeProjections; }
     std::vector<glm::mat4>    getEyeViews() { return mEyeViews; }
     U32                       getSwapchainLength() { return mSwapchainLength; }
+    LLSwapchainXR&            getSwapchain(U32 index) { return *mSwapchains[index]; }
 
     U32 mCurrentEye = 0;
     F32 mZNear      = 0.1f;

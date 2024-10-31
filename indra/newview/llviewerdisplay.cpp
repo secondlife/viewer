@@ -481,8 +481,6 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
     if (LLXRManager::instanceExists())
     {
         LLXRManager::getInstance()->handleSessionState();
-
-        LLXRManager::getInstance()->updateXRSession();
     }
 
     {
@@ -694,6 +692,7 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
     if (LLXRManager::instanceExists())
     {
         totalPasses = 2;
+        LLXRManager::getInstance()->updateXRSession();
         LLXRManager::getInstance()->startFrame();
     }
 
