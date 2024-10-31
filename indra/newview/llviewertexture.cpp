@@ -43,6 +43,7 @@
 #include "message.h"
 #include "lltimer.h"
 #include "v4coloru.h"
+#include "llnotificationsutil.h"
 
 // viewer includes
 #include "llimagegl.h"
@@ -505,8 +506,12 @@ void LLViewerTexture::updateClass()
 
     F32 budget = max_vram_budget == 0 ? (F32)gGLManager.mVRAM : (F32)max_vram_budget;
 
-    // try to leave half a GB for everyone else, but keep at least 768MB for ourselves
-    F32 target = llmax(budget - 512.f, MIN_VRAM_BUDGET);
+    // Try to leave at least half a GB for everyone else and for bias,
+    // but keep at least 768MB for ourselves
+    // Viewer can 'overshoot' target when scene changes, if viewer goes over budget it
+    // can negatively impact performance, so leave 20% of a breathing room for
+    // 'bias' calculation to kick in.
+    F32 target = llmax(llmin(budget - 512.f, budget * 0.8f), MIN_VRAM_BUDGET);
     sFreeVRAMMegabytes = target - used;
 
     F32 over_pct = (used - target) / target;
@@ -522,7 +527,7 @@ void LLViewerTexture::updateClass()
         // slam to 1.5 bias the moment we hit low memory (discards off screen textures immediately)
         sDesiredDiscardBias = llmax(sDesiredDiscardBias, 1.5f);
 
-        if (is_sys_low)
+        if (is_sys_low || over_pct > 2.f)
         { // if we're low on system memory, emergency purge off screen textures to avoid a death spiral
             LL_WARNS() << "Low system memory detected, emergency downrezzing off screen textures" << LL_ENDL;
             for (auto& image : gTextureList)
@@ -542,7 +547,6 @@ void LLViewerTexture::updateClass()
         {
             static LLCachedControl<F32> low_mem_min_discard_increment(gSavedSettings, "RenderLowMemMinDiscardIncrement", .1f);
             sDesiredDiscardBias += (F32) low_mem_min_discard_increment * (F32) gFrameIntervalSeconds;
-            sEvaluationTimer.reset();
         }
     }
     else
@@ -558,20 +562,49 @@ void LLViewerTexture::updateClass()
     }
 
     // set to max discard bias if the window has been backgrounded for a while
+    static F32 last_desired_discard_bias = 1.f;
     static bool was_backgrounded = false;
     static LLFrameTimer backgrounded_timer;
+    static LLCachedControl<F32> minimized_discard_time(gSavedSettings, "TextureDiscardMinimizedTime", 1.f);
+    static LLCachedControl<F32> backgrounded_discard_time(gSavedSettings, "TextureDiscardBackgroundedTime", 60.f);
 
     bool in_background = (gViewerWindow && !gViewerWindow->getWindow()->getVisible()) || !gFocusMgr.getAppHasFocus();
-
+    bool is_minimized  = gViewerWindow && gViewerWindow->getWindow()->getMinimized() && in_background;
     if (in_background)
     {
-        if (backgrounded_timer.getElapsedTimeF32() > 10.f)
+        F32 discard_time = is_minimized ? minimized_discard_time : backgrounded_discard_time;
+        if (discard_time > 0.f && backgrounded_timer.getElapsedTimeF32() > discard_time)
         {
             if (!was_backgrounded)
             {
-                LL_INFOS() << "Viewer is backgrounded, freeing up video memory." << LL_ENDL;
+                std::string notification_name;
+                std::string setting;
+                if (is_minimized)
+                {
+                    notification_name = "TextureDiscardMinimized";
+                    setting           = "TextureDiscardMinimizedTime";
+                }
+                else
+                {
+                    notification_name = "TextureDiscardBackgrounded";
+                    setting           = "TextureDiscardBackgroundedTime";
+                }
+
+                LL_INFOS() << "Viewer was " << (is_minimized ? "minimized" : "backgrounded") << " for " << discard_time
+                           << "s, freeing up video memory." << LL_ENDL;
+
+                LLNotificationsUtil::add(notification_name, llsd::map("DELAY", discard_time), LLSD(),
+                                         [=](const LLSD& notification, const LLSD& response)
+                                         {
+                                             if (response["Cancel_okcancelignore"].asBoolean())
+                                             {
+                                                 LL_INFOS() << "User chose to disable texture discard on " <<  (is_minimized ? "minimizing." : "backgrounding.") << LL_ENDL;
+                                                 gSavedSettings.setF32(setting, -1.f);
+                                             }
+                                         });
+                last_desired_discard_bias = sDesiredDiscardBias;
+                was_backgrounded = true;
             }
-            was_backgrounded = true;
             sDesiredDiscardBias = 4.f;
         }
     }
@@ -580,9 +613,9 @@ void LLViewerTexture::updateClass()
         backgrounded_timer.reset();
         if (was_backgrounded)
         { // if the viewer was backgrounded
-            LL_INFOS() << "Viewer is no longer backgrounded, resuming normal texture usage." << LL_ENDL;
+            LL_INFOS() << "Viewer is no longer backgrounded or minimized, resuming normal texture usage." << LL_ENDL;
             was_backgrounded = false;
-            sDesiredDiscardBias = 1.f;
+            sDesiredDiscardBias = last_desired_discard_bias;
         }
     }
 
@@ -1657,6 +1690,7 @@ void LLViewerFetchedTexture::processTextureStats()
         if(mDesiredDiscardLevel > mMinDesiredDiscardLevel)//need to load more
         {
             mDesiredDiscardLevel = llmin(mDesiredDiscardLevel, mMinDesiredDiscardLevel);
+            mDesiredDiscardLevel = llmin(mDesiredDiscardLevel, (S32)mLoadedCallbackDesiredDiscardLevel);
             mFullyLoaded = false;
         }
         //setDebugText("fully loaded");
@@ -1706,6 +1740,7 @@ void LLViewerFetchedTexture::processTextureStats()
                                                      log((F32)mFullHeight / mKnownDrawHeight) / log_2);
                 mDesiredDiscardLevel =  llclamp(mDesiredDiscardLevel, (S8)0, (S8)getMaxDiscardLevel());
                 mDesiredDiscardLevel = llmin(mDesiredDiscardLevel, mMinDesiredDiscardLevel);
+                mDesiredDiscardLevel = llmin(mDesiredDiscardLevel, (S32)mLoadedCallbackDesiredDiscardLevel);
             }
             mKnownDrawSizeChanged = false;
 
@@ -2430,6 +2465,7 @@ bool LLViewerFetchedTexture::doLoadedCallbacks()
     if (mIsRawImageValid)
     {
         // If we have an existing raw image, we have a baseline for the raw and auxiliary quality levels.
+        current_raw_discard = mRawDiscardLevel;
         best_raw_discard = llmin(best_raw_discard, mRawDiscardLevel);
         best_aux_discard = llmin(best_aux_discard, mRawDiscardLevel); // We always decode the aux when we decode the base raw
         current_aux_discard = llmin(current_aux_discard, best_aux_discard);
@@ -2888,10 +2924,12 @@ void LLViewerLODTexture::processTextureStats()
     {
         // If the image has not been significantly visible in a while, we don't want it
         mDesiredDiscardLevel = llmin(mMinDesiredDiscardLevel, (S8)(MAX_DISCARD_LEVEL + 1));
+        mDesiredDiscardLevel = llmin(mDesiredDiscardLevel, (S32)mLoadedCallbackDesiredDiscardLevel);
     }
     else if (!mFullWidth  || !mFullHeight)
     {
         mDesiredDiscardLevel =  getMaxDiscardLevel();
+        mDesiredDiscardLevel = llmin(mDesiredDiscardLevel, (S32)mLoadedCallbackDesiredDiscardLevel);
     }
     else
     {
@@ -2961,6 +2999,7 @@ void LLViewerLODTexture::processTextureStats()
             // stop requesting more
             mDesiredDiscardLevel = current_discard;
         }
+        mDesiredDiscardLevel = llmin(mDesiredDiscardLevel, (S32)mLoadedCallbackDesiredDiscardLevel);
     }
 
     if(mForceToSaveRawImage && mDesiredSavedRawDiscardLevel >= 0)

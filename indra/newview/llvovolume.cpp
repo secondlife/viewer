@@ -819,7 +819,24 @@ void LLVOVolume::updateTextureVirtualSize(bool forced)
         LLFace* face = mDrawable->getFace(i);
         if (!face) continue;
         const LLTextureEntry *te = face->getTextureEntry();
-        LLViewerTexture *imagep = face->getTexture();
+        LLViewerTexture *imagep = nullptr;
+        U32 ch_min;
+        U32 ch_max;
+        if (!te->getGLTFRenderMaterial())
+        {
+            ch_min = LLRender::DIFFUSE_MAP;
+            ch_max = LLRender::SPECULAR_MAP;
+        }
+        else
+        {
+            ch_min = LLRender::BASECOLOR_MAP;
+            ch_max = LLRender::EMISSIVE_MAP;
+        }
+        for (U32 ch = ch_min; (!imagep && ch <= ch_max); ++ch)
+        {
+            // Get _a_ non-null texture if possible (usually diffuse/basecolor, but could be something else)
+            imagep = face->getTexture(ch);
+        }
         if (!imagep || !te ||
             face->mExtents[0].equals3(face->mExtents[1]))
         {
