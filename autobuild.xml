@@ -1914,6 +1914,68 @@
         <key>description</key>
         <string>NanoSVG is a simple single-header-file SVG parser and rasterizer</string>
       </map>
+      <key>nfde</key>
+      <map>
+        <key>platforms</key>
+        <map>
+          <key>linux64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>4d23e53790c8e82c737a3f5df8cddc40b864257d</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://github.com/secondlife/3p-nfde/releases/download/v1.2.1-r1/nfde-1.2.1-r1-linux64-11465721541.tar.zst</string>
+            </map>
+            <key>name</key>
+            <string>linux64</string>
+          </map>
+          <key>darwin64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>9ec692bdc93c4f2aa1f2951b71ee4a5737e43bc9</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://github.com/secondlife/3p-nfde/releases/download/v1.2.1-r1/nfde-1.2.1-r1-darwin64-11465721541.tar.zst</string>
+            </map>
+            <key>name</key>
+            <string>darwin64</string>
+          </map>
+          <key>windows64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>65c88f9e849a4a460f0b051f884f9df0608dd389</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://github.com/secondlife/3p-nfde/releases/download/v1.2.1-r1/nfde-1.2.1-r1-windows64-11465721541.tar.zst</string>
+            </map>
+            <key>name</key>
+            <string>windows64</string>
+          </map>
+        </map>
+        <key>license</key>
+        <string>zlib</string>
+        <key>license_file</key>
+        <string>LICENSES/nfde.txt</string>
+        <key>copyright</key>
+        <string>Copyright (C) The nativefiledialog-extended authors</string>
+        <key>version</key>
+        <string>1.2.1-r1</string>
+        <key>name</key>
+        <string>nfde</string>
+        <key>canonical_repo</key>
+        <string>https://github.com/secondlife/3p-nfde</string>
+        <key>description</key>
+        <string>Cross platform (Windows, Mac, Linux) native file dialog library with C and C++ bindings, based on mlabbe/nativefiledialog.</string>
+      </map>
       <key>nghttp2</key>
       <map>
         <key>platforms</key>
