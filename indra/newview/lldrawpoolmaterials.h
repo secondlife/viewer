@@ -40,7 +40,6 @@ class LLGLSLShader;
 
 class LLDrawPoolMaterials : public LLRenderPass
 {
-    LLGLSLShader *mShader;
 public:
     LLDrawPoolMaterials();
 
