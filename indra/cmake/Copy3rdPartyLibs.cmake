@@ -200,7 +200,6 @@ elseif(LINUX)
         libortp.so
         libvivoxoal.so.1
         libvivoxsdk.so
-        libSDL2.so
         )
     set(slvoice_files SLVoice)
 
@@ -214,7 +213,8 @@ elseif(LINUX)
     set(release_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
     # *FIX - figure out what to do with duplicate libalut.so here -brad
     set(release_files
-       )
+        libSDL2-2.0.so.0
+        )
 
      if( USE_AUTOBUILD_3P )
          list( APPEND release_files
