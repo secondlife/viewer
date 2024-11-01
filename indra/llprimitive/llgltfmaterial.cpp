@@ -897,6 +897,11 @@ size_t LLGLTFMaterial::calculateBatchHash() const
     size_t hash = 0;
     char* begin = (char*)&mTextureId;
     char* end = (char*)&mDoubleSided+1;
+
+    if (mAlphaMode == ALPHA_MODE_BLEND && mBaseColor.mV[3] == 0.f)
+    { // fully transparent materials should not be rendered
+        return 0;
+    }
 #if 1
     // boost::hash_range
     hash = boost::hash_range(begin, end - 1);

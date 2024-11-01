@@ -1637,25 +1637,11 @@ void LLFace::updateBatchHash()
     else
     {
         // calculate blinn-phong batch hash and alpha mode
-
-
         mBatchHash = 0;
 
-        boost::hash_combine(mBatchHash, te->getColor());
-        boost::hash_combine(mBatchHash, te->getAlpha());
-        boost::hash_combine(mBatchHash, te->getScaleS());
-        boost::hash_combine(mBatchHash, te->getScaleT());
-        boost::hash_combine(mBatchHash, te->getRotation());
-        boost::hash_combine(mBatchHash, te->getOffsetS());
-        boost::hash_combine(mBatchHash, te->getOffsetT());
-        boost::hash_combine(mBatchHash, te->getFullbright());
-
-        boost::hash_combine(mBatchHash, te->getID());
         const auto& mat = te->getMaterialParams();
         if (mat.notNull())
         {
-            boost::hash_combine(mBatchHash, mat->getBatchHash());
-
             if (mat->getDiffuseAlphaMode() == LLMaterial::DIFFUSE_ALPHA_MODE_MASK)
             {
                 boost::hash_combine(mBatchHash, mat->getAlphaMaskCutoff());
@@ -1673,9 +1659,16 @@ void LLFace::updateBatchHash()
                 mAlphaMode = LLGLTFMaterial::ALPHA_MODE_OPAQUE;
                 break;
             };
+
+            boost::hash_combine(mBatchHash, mat->getBatchHash());
         }
         else
         {
+            if (te->getAlpha() == 0.f && te->getGlow() == 0.f)
+            { // don't render fully transparent faces
+                mBatchHash = 0;
+                return;
+            }
             if (te->getAlpha() < 1.f || getTexture()->getComponents() == 4)
             {
                 mAlphaMode = LLGLTFMaterial::ALPHA_MODE_BLEND;
@@ -1685,6 +1678,17 @@ void LLFace::updateBatchHash()
                 mAlphaMode = LLGLTFMaterial::ALPHA_MODE_OPAQUE;
             }
         }
+
+        boost::hash_combine(mBatchHash, te->getID());
+        boost::hash_combine(mBatchHash, te->getColor());
+        boost::hash_combine(mBatchHash, te->getAlpha());
+        boost::hash_combine(mBatchHash, te->getScaleS());
+        boost::hash_combine(mBatchHash, te->getScaleT());
+        boost::hash_combine(mBatchHash, te->getRotation());
+        boost::hash_combine(mBatchHash, te->getOffsetS());
+        boost::hash_combine(mBatchHash, te->getOffsetT());
+        boost::hash_combine(mBatchHash, te->getFullbright());
+
     }
 
     boost::hash_combine(mBatchHash, te->getGlow());

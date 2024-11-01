@@ -1007,6 +1007,13 @@ void LLSpatialGroup::updateTransformUBOs()
                     continue;
                 }
 
+                facep->updateBatchHash();
+
+                if (facep->mBatchHash == 0)
+                { // don't render faces that are completely transparent (or otherwise irrelevant)
+                    continue;
+                }
+
                 if (facep->isState(LLFace::RIGGED) && facep->getSkinHash() != 0)
                 {
                     transforms[transforms.size() - 1] = &facep->mSkinInfo->mBindShapeMatrix.mMatrix4;
@@ -1022,8 +1029,6 @@ void LLSpatialGroup::updateTransformUBOs()
                 {
                     facep->mTextureTransformIndex = 0xFFFFFFFF;
                 }
-
-                facep->updateBatchHash();
 
                 LLGLTFMaterial* gltf_mat = facep->getTextureEntry()->getGLTFRenderMaterial();
 
