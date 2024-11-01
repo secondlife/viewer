@@ -57,7 +57,6 @@ void init_sdl()
             {
                     {SDL_HINT_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR,"0"},
                     {SDL_HINT_VIDEO_WAYLAND_PREFER_LIBDECOR,"1"},
-                    {SDL_HINT_VIDEODRIVER,"wayland,x11"},
                     {SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH,"1"},
                     {SDL_HINT_IME_INTERNAL_EDITING,"1"}
             };

@@ -318,7 +318,7 @@ LLRequireResolver::LLRequireResolver(lua_State *L, const std::string& path) :
 void LLRequireResolver::findModule()
 {
     // If mPathToResolve is absolute, this replaces mSourceDir.
-    auto absolutePath = (mSourceDir / mPathToResolve).u8string();
+    fsyspath absolutePath(mSourceDir / mPathToResolve);
 
     // Push _MODULES table on stack for checking and saving to the cache
     luaL_findtable(L, LUA_REGISTRYINDEX, "_MODULES", 1);
@@ -334,7 +334,7 @@ void LLRequireResolver::findModule()
 
     // not already cached - prep error message just in case
     auto fail{
-        [L=L, path=mPathToResolve.u8string()]()
+        [L=L, path=mPathToResolve.string()]()
         { luaL_error(L, "could not find require('%s')", path.data()); }};
 
     if (mPathToResolve.is_absolute())
@@ -349,10 +349,10 @@ void LLRequireResolver::findModule()
     {
         // if path is already absolute, operator/() preserves it
         auto abspath(fsyspath(gDirUtilp->getAppRODataDir()) / path.asString());
-        std::string absolutePathOpt = (abspath / mPathToResolve).u8string();
+        fsyspath absolutePathOpt = (abspath / mPathToResolve);
 
         if (absolutePathOpt.empty())
-            luaL_error(L, "error requiring module '%s'", mPathToResolve.u8string().data());
+            luaL_error(L, "error requiring module '%s'", mPathToResolve.string().data());
 
         if (findModuleImpl(absolutePathOpt))
             return;
