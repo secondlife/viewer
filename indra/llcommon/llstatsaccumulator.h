@@ -59,12 +59,12 @@ public:
 
     inline F32 getSum() const
     {
-        return (F32) mSum;
+        return F32(mSum);
     }
 
     inline F32 getSumOfSquares() const
     {
-        return (F32) mSumOfSquares;
+        return F32(mSumOfSquares);
     }
 
     inline F32 getMean() const
@@ -113,7 +113,7 @@ public:
     inline LLSD asLLSD() const
     {
         LLSD data;
-        data["count"] = (S32) getCount();
+        data["count"] = S32(getCount());
         data["sum"] = getSum();
         data["sum_of_squares"] = getSumOfSquares();
         data["mean"] = getMean();

@@ -277,11 +277,11 @@ void LLViewerStats::updateFrameStats(const F64Seconds time_diff)
 
         if (gFocusMgr.getAppHasFocus())
         {
-            mForegroundFrameStats.push(F32(F64(time_diff)));
+            mForegroundFrameStats.push(F32(time_diff));
         }
         else
         {
-            mBackgroundFrameStats.push(F32(F64(time_diff)));
+            mBackgroundFrameStats.push(F32(time_diff));
         }
 
     }
