@@ -52,6 +52,8 @@ jobs:
         include:
         - runner: linux-large
           experimental: true
+        - runner: ubuntu-latest
+          experimental: true
     runs-on: ${{ matrix.runner }}
     outputs:
       viewer_channel: ${{ steps.build.outputs.viewer_channel }}
