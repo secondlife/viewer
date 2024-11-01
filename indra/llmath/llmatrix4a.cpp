@@ -24,6 +24,8 @@
 * $/LicenseInfo$
 */
 
+#include "linden_common.h"
+
 #include "llmath.h"
 #include "llmatrix4a.h"
 
