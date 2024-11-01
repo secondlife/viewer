@@ -2231,8 +2231,8 @@ if (LL_TESTS)
 #    llremoteparcelrequest.cpp
     llviewerhelputil.cpp
     llversioninfo.cpp
-#    llvocache.cpp  
-    llworldmap.cpp
+#    llvocache.cpp
+#    llworldmap.cpp
     llworldmipmap.cpp
   )
 
