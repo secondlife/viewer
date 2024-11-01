@@ -267,13 +267,6 @@ jobs:
           fi
           export PYTHON_COMMAND_NATIVE="$(native_path "$PYTHON_COMMAND")"
 
-          # Compile with clang, link with mold on linux.
-          if [[ "$RUNNER_OS" == "Linux" ]]; then
-            export CC=clang
-            export CXX=clang++
-            export CMAKE_OPTIONS='-DLINK_WITH_MOLD=ON'
-          fi
-
           ./build.sh
 
           # Each artifact is downloaded as a distinct .zip file. Multiple jobs
