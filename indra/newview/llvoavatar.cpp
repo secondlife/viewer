@@ -687,7 +687,6 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
     mVisualComplexity(VISUAL_COMPLEXITY_UNKNOWN),
     mLoadedCallbacksPaused(false),
     mLoadedCallbackTextures(0),
-    mRenderUnloadedAvatar(LLCachedControl<bool>(gSavedSettings, "RenderUnloadedAvatar", false)),
     mLastRezzedStatus(-1),
     mIsEditingAppearance(false),
     mUseLocalAppearance(false),
@@ -8523,7 +8522,8 @@ bool LLVOAvatar::processFullyLoadedChange(bool loading)
 
 bool LLVOAvatar::isFullyLoaded() const
 {
-    return (mRenderUnloadedAvatar || mFullyLoaded);
+    static LLCachedControl<bool> render_unloaded_avatars(gSavedSettings, "RenderUnloadedAvatar", false);
+    return (render_unloaded_avatars || mFullyLoaded);
 }
 
 bool LLVOAvatar::isTooComplex() const
