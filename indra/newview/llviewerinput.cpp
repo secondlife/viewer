@@ -158,6 +158,9 @@ static void agent_handle_doubletap_run(EKeystate s, LLAgent::EDoubleTapRunMode m
 
 static void agent_push_forwardbackward( EKeystate s, S32 direction, LLAgent::EDoubleTapRunMode mode )
 {
+    agent_handle_doubletap_run(s, mode);
+    if (KEYSTATE_UP == s) return;
+
     F32 time = gKeyboard->getCurKeyElapsedTime();
     S32 frame_count = ll_round(gKeyboard->getCurKeyElapsedFrameCount());
 
