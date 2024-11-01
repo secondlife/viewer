@@ -10080,6 +10080,17 @@
       <key>Value</key>
       <string>00000000-0000-0000-0000-000000000000</string>
     </map>
+    <key>RenderCAS</key>
+    <map>
+        <key>Comment</key>
+        <string>Use Contrast Adaptive Sharpening post process effect</string>
+        <key>Persist</key>
+        <integer>0</integer>
+        <key>Type</key>
+        <string>Boolean</string>
+        <key>Value</key>
+        <integer>1</integer>
+    </map>
     <key>RenderCASSharpness</key>
     <map>
         <key>Comment</key>

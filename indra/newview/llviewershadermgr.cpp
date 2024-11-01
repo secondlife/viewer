@@ -198,6 +198,7 @@ LLGLSLShader            gDeferredPostTonemapProgram;
 LLGLSLShader            gNoPostTonemapProgram;
 LLGLSLShader            gDeferredPostGammaCorrectProgram;
 LLGLSLShader            gLegacyPostGammaCorrectProgram;
+LLGLSLShader            gNoPostGammaCorrectProgram;
 LLGLSLShader            gExposureProgram;
 LLGLSLShader            gExposureProgramNoFade;
 LLGLSLShader            gLuminanceProgram;
@@ -206,6 +207,7 @@ LLGLSLShader            gSMAAEdgeDetectProgram[4];
 LLGLSLShader            gSMAABlendWeightsProgram[4];
 LLGLSLShader            gSMAANeighborhoodBlendProgram[4];
 LLGLSLShader            gCASProgram;
+LLGLSLShader            gCASLegacyGammaProgram;
 LLGLSLShader            gDeferredPostNoDoFProgram;
 LLGLSLShader            gDeferredPostNoDoFNoiseProgram;
 LLGLSLShader            gDeferredWLSkyProgram;
@@ -434,8 +436,8 @@ void LLViewerShaderMgr::finalizeShaderList()
     mShaderList.push_back(&gHUDPBRAlphaProgram);
     mShaderList.push_back(&gDeferredPostTonemapProgram);
     mShaderList.push_back(&gNoPostTonemapProgram);
-    mShaderList.push_back(&gDeferredPostGammaCorrectProgram); // for gamma
-    mShaderList.push_back(&gLegacyPostGammaCorrectProgram);
+    mShaderList.push_back(&gLegacyPostGammaCorrectProgram); // for gamma
+    mShaderList.push_back(&gCASLegacyGammaProgram); // for gamma
     mShaderList.push_back(&gDeferredDiffuseProgram);
     mShaderList.push_back(&gDeferredBumpProgram);
     mShaderList.push_back(&gDeferredPBROpaqueProgram);
@@ -2326,8 +2328,10 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         gDeferredPostGammaCorrectProgram.mFeatures.isDeferred = true;
         gDeferredPostGammaCorrectProgram.mShaderFiles.clear();
         gDeferredPostGammaCorrectProgram.clearPermutations();
+        gDeferredPostGammaCorrectProgram.addPermutation("TONEMAP", "1");
+        gDeferredPostGammaCorrectProgram.addPermutation("GAMMA_CORRECT", "1");
         gDeferredPostGammaCorrectProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredNoTCV.glsl", GL_VERTEX_SHADER));
-        gDeferredPostGammaCorrectProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredGammaCorrect.glsl", GL_FRAGMENT_SHADER));
+        gDeferredPostGammaCorrectProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredTonemap.glsl", GL_FRAGMENT_SHADER));
         gDeferredPostGammaCorrectProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
         success = gDeferredPostGammaCorrectProgram.createShader();
         llassert(success);
@@ -2340,11 +2344,27 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         gLegacyPostGammaCorrectProgram.mFeatures.isDeferred = true;
         gLegacyPostGammaCorrectProgram.mShaderFiles.clear();
         gLegacyPostGammaCorrectProgram.clearPermutations();
+        gLegacyPostGammaCorrectProgram.addPermutation("GAMMA_CORRECT", "1");
         gLegacyPostGammaCorrectProgram.addPermutation("LEGACY_GAMMA", "1");
         gLegacyPostGammaCorrectProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredNoTCV.glsl", GL_VERTEX_SHADER));
-        gLegacyPostGammaCorrectProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredGammaCorrect.glsl", GL_FRAGMENT_SHADER));
+        gLegacyPostGammaCorrectProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredTonemap.glsl", GL_FRAGMENT_SHADER));
         gLegacyPostGammaCorrectProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
         success = gLegacyPostGammaCorrectProgram.createShader();
+        llassert(success);
+    }
+
+    if (success)
+    {
+        gNoPostGammaCorrectProgram.mName = "No Post Gamma Correction Post Process";
+        gNoPostGammaCorrectProgram.mFeatures.hasSrgb = true;
+        gNoPostGammaCorrectProgram.mFeatures.isDeferred = true;
+        gNoPostGammaCorrectProgram.mShaderFiles.clear();
+        gNoPostGammaCorrectProgram.clearPermutations();
+        gNoPostGammaCorrectProgram.addPermutation("GAMMA_CORRECT", "1");
+        gNoPostGammaCorrectProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredNoTCV.glsl", GL_VERTEX_SHADER));
+        gNoPostGammaCorrectProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredTonemap.glsl", GL_FRAGMENT_SHADER));
+        gNoPostGammaCorrectProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+        success = gNoPostGammaCorrectProgram.createShader();
         llassert(success);
     }
 
@@ -2355,6 +2375,7 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         gDeferredPostTonemapProgram.mFeatures.isDeferred = true;
         gDeferredPostTonemapProgram.mShaderFiles.clear();
         gDeferredPostTonemapProgram.clearPermutations();
+        gDeferredPostTonemapProgram.addPermutation("TONEMAP", "1");
         gDeferredPostTonemapProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredNoTCV.glsl", GL_VERTEX_SHADER));
         gDeferredPostTonemapProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredTonemap.glsl", GL_FRAGMENT_SHADER));
         gDeferredPostTonemapProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
@@ -2369,6 +2390,7 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         gNoPostTonemapProgram.mFeatures.isDeferred = true;
         gNoPostTonemapProgram.mShaderFiles.clear();
         gNoPostTonemapProgram.clearPermutations();
+        gNoPostTonemapProgram.addPermutation("TONEMAP", "1");
         gNoPostTonemapProgram.addPermutation("NO_POST", "1");
         gNoPostTonemapProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredNoTCV.glsl", GL_VERTEX_SHADER));
         gNoPostTonemapProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredTonemap.glsl", GL_FRAGMENT_SHADER));
@@ -2500,6 +2522,19 @@ bool LLViewerShaderMgr::loadShadersDeferred()
 
     if (success)
     {
+        gCASLegacyGammaProgram.mName = "Contrast Adaptive Sharpening Legacy Gamma Shader";
+        gCASLegacyGammaProgram.mFeatures.hasSrgb = true;
+        gCASLegacyGammaProgram.clearPermutations();
+        gCASLegacyGammaProgram.addPermutation("LEGACY_GAMMA", "1");
+        gCASLegacyGammaProgram.mShaderFiles.clear();
+        gCASLegacyGammaProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredNoTCV.glsl", GL_VERTEX_SHADER));
+        gCASLegacyGammaProgram.mShaderFiles.push_back(make_pair("deferred/CASF.glsl", GL_FRAGMENT_SHADER));
+        gCASLegacyGammaProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+        gCASLegacyGammaProgram.createShader();
+    }
+
+    if (success)
+    {
         gDeferredPostProgram.mName = "Deferred Post Shader";
         gDeferredPostProgram.mFeatures.isDeferred = true;
         gDeferredPostProgram.mShaderFiles.clear();
@@ -2543,22 +2578,6 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         gDeferredPostNoDoFProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredNoDoFF.glsl", GL_FRAGMENT_SHADER));
         gDeferredPostNoDoFProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
         success = gDeferredPostNoDoFProgram.createShader();
-        llassert(success);
-    }
-
-    if (success)
-    {
-        gDeferredPostNoDoFNoiseProgram.mName = "Deferred Post NoDoF Noise Shader";
-        gDeferredPostNoDoFNoiseProgram.mFeatures.isDeferred = true;
-        gDeferredPostNoDoFNoiseProgram.mShaderFiles.clear();
-        gDeferredPostNoDoFNoiseProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredNoTCV.glsl", GL_VERTEX_SHADER));
-        gDeferredPostNoDoFNoiseProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredNoDoFF.glsl", GL_FRAGMENT_SHADER));
-
-        gDeferredPostNoDoFNoiseProgram.clearPermutations();
-        gDeferredPostNoDoFNoiseProgram.addPermutation("HAS_NOISE", "1");
-
-        gDeferredPostNoDoFNoiseProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
-        success = gDeferredPostNoDoFNoiseProgram.createShader();
         llassert(success);
     }
 
