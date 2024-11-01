@@ -52,7 +52,7 @@ jobs:
         include:
         - runner: linux-large
           experimental: true
-        - runner: ubuntu-latest
+        - runner: ubuntu-24.04
           experimental: true
     runs-on: ${{ matrix.runner }}
     outputs:
