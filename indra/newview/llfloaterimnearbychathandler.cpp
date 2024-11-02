@@ -495,6 +495,7 @@ void LLFloaterIMNearbyChatHandler::processChat(const LLChat& chat_msg,
     LLFloaterReg::getInstance("im_container");
     LLFloaterIMNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLFloaterIMNearbyChat>("nearby_chat");
 
+    bool partial = args["partial"].asBoolean();
     // Build notification data
     LLSD chat;
     chat["message"] = chat_msg.mText;
@@ -615,6 +616,11 @@ void LLFloaterIMNearbyChatHandler::processChat(const LLChat& chat_msg,
             toast_msg = msg_text;
         }
 
+        // Don't show nearby toast if chat message is partial (as in partial voice transcription)
+        if (partial)
+        {
+            return;
+        }
         bool chat_overlaps = false;
         if(nearby_chat->getChatHistory())
         {

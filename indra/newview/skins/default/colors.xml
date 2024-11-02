@@ -83,6 +83,9 @@
 	<color
 	 name="Green"
 	 value="0 1 0 1" />
+    <color
+     name="LtGreen"
+     value=".20 .8 .20 1" />
 	<color
 	 name="Transparent"
 	 value="0 0 0 0" />
@@ -101,6 +104,9 @@
 	<color
 	name="LtOrange"
 	value="1 .85 .73 1" />
+    <color
+    name="Lavender"
+    value=".65 .65 1 1" />
 	<color
 	name="MdBlue"
 	value=".07 .38 .51 1" />
@@ -144,6 +150,9 @@
     <color
      name="AgentChatColor"
      reference="White" />
+    <color
+     name="AgentTranscribedChatColor"
+     reference="Lavender" />
     <color
      name="AlertBoxColor"
      value="0.24 0.24 0.24 1" />
@@ -836,6 +845,9 @@
     <color
      name="UserChatColor"
      reference="Yellow" />
+    <color
+     name="UserTranscribedChatColor"
+     reference="LtGreen" />
     <color
      name="llOwnerSayChatColor"
      reference="LtYellow" />
