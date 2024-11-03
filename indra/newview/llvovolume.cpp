@@ -791,8 +791,10 @@ void LLVOVolume::updateTextureVirtualSize(bool forced)
     for (S32 i = 0; i < num_faces; i++)
     {
         LLFace* face = mDrawable->getFace(i);
-        if (!face) continue;
+        if (!face || face->mExtents[0].equals3(face->mExtents[1])) continue;
         const LLTextureEntry *te = face->getTextureEntry();
+        if (!te) continue;
+
         LLViewerTexture *imagep = nullptr;
         U32 ch_min;
         U32 ch_max;
@@ -811,8 +813,7 @@ void LLVOVolume::updateTextureVirtualSize(bool forced)
             // Get _a_ non-null texture if possible (usually diffuse/basecolor, but could be something else)
             imagep = face->getTexture(ch);
         }
-        if (!imagep || !te ||
-            face->mExtents[0].equals3(face->mExtents[1]))
+        if (!imagep)
         {
             continue;
         }
