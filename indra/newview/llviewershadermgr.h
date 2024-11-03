@@ -160,6 +160,7 @@ extern LLGLSLShader         gRadianceGenProgram;
 extern LLGLSLShader         gHeroRadianceGenProgram;
 extern LLGLSLShader         gIrradianceGenProgram;
 extern LLGLSLShader         gGlowCombineFXAAProgram;
+extern LLGLSLShader         gFXAALumaGenProgram;
 extern LLGLSLShader         gDebugProgram;
 enum NormalDebugShaderVariant : S32
 {
@@ -250,6 +251,7 @@ extern LLGLSLShader         gFXAAProgram[4];
 extern LLGLSLShader         gSMAAEdgeDetectProgram[4];
 extern LLGLSLShader         gSMAABlendWeightsProgram[4];
 extern LLGLSLShader         gSMAANeighborhoodBlendProgram[4];
+extern LLGLSLShader         gSMAANeighborhoodBlendGlowCombineProgram[4];
 extern LLGLSLShader         gCASProgram;
 extern LLGLSLShader         gCASLegacyGammaProgram;
 extern LLGLSLShader         gDeferredPostNoDoFProgram;

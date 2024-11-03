@@ -6903,7 +6903,10 @@ static LLTrace::BlockTimerStatHandle FTM_RENDER_BLOOM("Bloom");
 
 void LLPipeline::visualizeBuffers(LLRenderTarget* src, LLRenderTarget* dst, U32 bufferIndex)
 {
-    dst->bindTarget();
+    if (dst)
+    {
+        dst->bindTarget();
+    }
     gDeferredBufferVisualProgram.bind();
     gDeferredBufferVisualProgram.bindTexture(LLShaderMgr::DEFERRED_DIFFUSE, src, false, LLTexUnit::TFO_BILINEAR, bufferIndex);
 
@@ -6916,7 +6919,10 @@ void LLPipeline::visualizeBuffers(LLRenderTarget* src, LLRenderTarget* dst, U32 
     mScreenTriangleVB->setBuffer();
     mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
     gDeferredBufferVisualProgram.unbind();
-    dst->flush();
+    if (dst)
+    {
+        dst->flush();
+    }
 }
 
 void LLPipeline::generateLuminance(LLRenderTarget* src, LLRenderTarget* dst)
@@ -7297,20 +7303,20 @@ void LLPipeline::applyCAS(LLRenderTarget* src, LLRenderTarget* dst)
     dst->flush();
 }
 
-void LLPipeline::applyFXAA(LLRenderTarget* src, LLRenderTarget* dst)
+void LLPipeline::applyFXAA(LLRenderTarget* src, LLRenderTarget* dst, bool combine_glow)
 {
     llassert(!gCubeSnapshot);
     LLGLSLShader* shader = &gGlowCombineProgram;
 
     LL_PROFILE_GPU_ZONE("aa");
-    S32 width = dst->getWidth();
-    S32 height = dst->getHeight();
+    S32 width = src->getWidth();
+    S32 height = src->getHeight();
 
     // bake out texture2D with RGBL for FXAA shader
     mFXAAMap.bindTarget();
     mFXAAMap.invalidate(GL_COLOR_BUFFER_BIT);
 
-    shader = &gGlowCombineFXAAProgram;
+    shader = combine_glow ? &gGlowCombineFXAAProgram : &gFXAALumaGenProgram;
     shader->bind();
 
     S32 channel = shader->enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, src->getUsage());
@@ -7318,6 +7324,7 @@ void LLPipeline::applyFXAA(LLRenderTarget* src, LLRenderTarget* dst)
     {
         src->bindTexture(0, channel, LLTexUnit::TFO_BILINEAR);
     }
+    shader->bindTexture(LLShaderMgr::DEFERRED_EMISSIVE, &mGlow[1]);
 
     {
         LLGLDepthTest depth_test(GL_TRUE, GL_TRUE, GL_ALWAYS);
@@ -7330,7 +7337,10 @@ void LLPipeline::applyFXAA(LLRenderTarget* src, LLRenderTarget* dst)
 
     mFXAAMap.flush();
 
-    dst->bindTarget();
+    if (dst)
+    {
+        dst->bindTarget();
+    }
 
     static LLCachedControl<U32> aa_quality(gSavedSettings, "RenderFSAASamples", 0U);
     U32 fsaa_quality = std::clamp(aa_quality(), 0U, 3U);
@@ -7362,15 +7372,17 @@ void LLPipeline::applyFXAA(LLRenderTarget* src, LLRenderTarget* dst)
 
     {
         LLGLDepthTest depth_test(GL_TRUE, GL_TRUE, GL_ALWAYS);
-        S32 depth_channel = shader->getTextureChannel(LLShaderMgr::DEFERRED_DEPTH);
-        gGL.getTexUnit(depth_channel)->bind(&mRT->deferredScreen, true);
+        shader->bindTexture(LLShaderMgr::DEFERRED_DEPTH, &mRT->deferredScreen, true);
 
         mScreenTriangleVB->setBuffer();
         mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
     }
 
     shader->unbind();
-    dst->flush();
+    if (dst)
+    {
+        dst->flush();
+    }
 }
 
 void LLPipeline::generateSMAABuffers(LLRenderTarget* src)
@@ -7492,7 +7504,7 @@ void LLPipeline::generateSMAABuffers(LLRenderTarget* src)
     }
 }
 
-void LLPipeline::applySMAA(LLRenderTarget* src, LLRenderTarget* dst)
+void LLPipeline::applySMAA(LLRenderTarget* src, LLRenderTarget* dst, bool combine_glow)
 {
     llassert(!gCubeSnapshot);
 
@@ -7514,11 +7526,14 @@ void LLPipeline::applySMAA(LLRenderTarget* src, LLRenderTarget* dst)
         //LLGLDisable stencil(GL_STENCIL_TEST);
 
         // Bind setup:
-        LLRenderTarget* bound_target = dst;
-        LLGLSLShader& blend_shader = gSMAANeighborhoodBlendProgram[fsaa_quality];
+        LLGLSLShader& blend_shader = combine_glow ? gSMAANeighborhoodBlendGlowCombineProgram[fsaa_quality]
+            : gSMAANeighborhoodBlendProgram[fsaa_quality];
 
-        bound_target->bindTarget();
-        bound_target->invalidate(GL_COLOR_BUFFER_BIT);
+        if(dst)
+        {
+            dst->bindTarget();
+            dst->invalidate(GL_COLOR_BUFFER_BIT);
+        }
 
         blend_shader.bind();
         blend_shader.uniform4fv(sSmaaRTMetrics, 1, rt_metrics);
@@ -7536,13 +7551,21 @@ void LLPipeline::applySMAA(LLRenderTarget* src, LLRenderTarget* dst)
             mSMAABlendBuffer.bindTexture(0, blend_channel, LLTexUnit::TFO_BILINEAR);
         }
 
+        blend_shader.bindTexture(LLShaderMgr::DEFERRED_EMISSIVE, &mGlow[1]);
+
+        blend_shader.bindTexture(LLShaderMgr::DEFERRED_DEPTH, &mRT->deferredScreen, true);
+
         mScreenTriangleVB->setBuffer();
         mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
 
-        bound_target->flush();
         blend_shader.unbind();
         gGL.getTexUnit(diffuse_channel)->unbindFast(LLTexUnit::TT_TEXTURE);
         gGL.getTexUnit(blend_channel)->unbindFast(LLTexUnit::TT_TEXTURE);
+
+        if (dst)
+        {
+            dst->flush();
+        }
     }
 }
 
@@ -7571,20 +7594,25 @@ void LLPipeline::combineGlow(LLRenderTarget* src, LLRenderTarget* dst)
 {
     // Go ahead and do our glow combine here in our destination.  We blit this later into the front buffer.
 
-    dst->bindTarget();
+    if (dst)
+    {
+        dst->bindTarget();
+    }
 
     {
-
         gGlowCombineProgram.bind();
 
         gGlowCombineProgram.bindTexture(LLShaderMgr::DEFERRED_DIFFUSE, src);
         gGlowCombineProgram.bindTexture(LLShaderMgr::DEFERRED_EMISSIVE, &mGlow[1]);
+        gGlowCombineProgram.bindTexture(LLShaderMgr::DEFERRED_DEPTH, &mRT->deferredScreen, true);
 
         mScreenTriangleVB->setBuffer();
         mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
     }
-
-    dst->flush();
+    if (dst)
+    {
+        dst->flush();
+    }
 }
 
 void LLPipeline::renderDoF(LLRenderTarget* src, LLRenderTarget* dst)
@@ -7702,13 +7730,14 @@ void LLPipeline::renderDoF(LLRenderTarget* src, LLRenderTarget* dst)
         gDeferredCoFProgram.bindTexture(LLShaderMgr::DEFERRED_DIFFUSE, src, LLTexUnit::TFO_POINT);
         gDeferredCoFProgram.bindTexture(LLShaderMgr::DEFERRED_DEPTH, &mRT->deferredScreen, true);
 
-        gDeferredCoFProgram.uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, (GLfloat)dst->getWidth(), (GLfloat)dst->getHeight());
+        gDeferredCoFProgram.uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, (GLfloat)mFXAAMap.getWidth(), (GLfloat)mFXAAMap.getHeight());
         gDeferredCoFProgram.uniform1f(LLShaderMgr::DOF_FOCAL_DISTANCE, -subject_distance / 1000.f);
         gDeferredCoFProgram.uniform1f(LLShaderMgr::DOF_BLUR_CONSTANT, blur_constant);
         gDeferredCoFProgram.uniform1f(LLShaderMgr::DOF_TAN_PIXEL_ANGLE, tanf(1.f / LLDrawable::sCurPixelAngle));
         gDeferredCoFProgram.uniform1f(LLShaderMgr::DOF_MAGNIFICATION, magnification);
         gDeferredCoFProgram.uniform1f(LLShaderMgr::DOF_MAX_COF, CameraMaxCoF);
         gDeferredCoFProgram.uniform1f(LLShaderMgr::DOF_RES_SCALE, CameraDoFResScale);
+        gDeferredCoFProgram.bindTexture(LLShaderMgr::DEFERRED_EMISSIVE, &mGlow[1]);
 
         mScreenTriangleVB->setBuffer();
         mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
@@ -7728,7 +7757,7 @@ void LLPipeline::renderDoF(LLRenderTarget* src, LLRenderTarget* dst)
         gDeferredPostProgram.bind();
         gDeferredPostProgram.bindTexture(LLShaderMgr::DEFERRED_DIFFUSE, &mFXAAMap, LLTexUnit::TFO_POINT);
 
-        gDeferredPostProgram.uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, (GLfloat)dst->getWidth(), (GLfloat)dst->getHeight());
+        gDeferredPostProgram.uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, (GLfloat)src->getWidth(), (GLfloat)src->getHeight());
         gDeferredPostProgram.uniform1f(LLShaderMgr::DOF_MAX_COF, CameraMaxCoF);
         gDeferredPostProgram.uniform1f(LLShaderMgr::DOF_RES_SCALE, CameraDoFResScale);
 
@@ -7743,14 +7772,18 @@ void LLPipeline::renderDoF(LLRenderTarget* src, LLRenderTarget* dst)
 
     { // combine result based on alpha
 
-        dst->bindTarget();
-        glViewport(0, 0, dst->getWidth(), dst->getHeight());
+        if(dst)
+        {
+            dst->bindTarget();
+        }
+        glViewport(0, 0, mFXAAMap.getWidth(), mFXAAMap.getHeight());
 
         gDeferredDoFCombineProgram.bind();
         gDeferredDoFCombineProgram.bindTexture(LLShaderMgr::DEFERRED_DIFFUSE, src, LLTexUnit::TFO_POINT);
         gDeferredDoFCombineProgram.bindTexture(LLShaderMgr::DEFERRED_LIGHT, &mFXAAMap, LLTexUnit::TFO_POINT);
+        gDeferredDoFCombineProgram.bindTexture(LLShaderMgr::DEFERRED_DEPTH, &mRT->deferredScreen, true);
 
-        gDeferredDoFCombineProgram.uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, (GLfloat)dst->getWidth(), (GLfloat)dst->getHeight());
+        gDeferredDoFCombineProgram.uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, (GLfloat)src->getWidth(), (GLfloat)src->getHeight());
         gDeferredDoFCombineProgram.uniform1f(LLShaderMgr::DOF_MAX_COF, CameraMaxCoF);
         gDeferredDoFCombineProgram.uniform1f(LLShaderMgr::DOF_RES_SCALE, CameraDoFResScale);
         gDeferredDoFCombineProgram.uniform1f(LLShaderMgr::DOF_WIDTH, (dof_width - 1) / (F32)src->getWidth());
@@ -7761,7 +7794,10 @@ void LLPipeline::renderDoF(LLRenderTarget* src, LLRenderTarget* dst)
 
         gDeferredDoFCombineProgram.unbind();
 
-        dst->flush();
+        if (dst)
+        {
+            dst->flush();
+        }
     }
 }
 
@@ -7815,36 +7851,36 @@ void LLPipeline::renderFinalize()
 
     generateGlow(src);
 
-    combineGlow(src, dest);
-    std::swap(src, dest);
-
     gGLViewport[0] = gViewerWindow->getWorldViewRectRaw().mLeft;
     gGLViewport[1] = gViewerWindow->getWorldViewRectRaw().mBottom;
     gGLViewport[2] = gViewerWindow->getWorldViewRectRaw().getWidth();
     gGLViewport[3] = gViewerWindow->getWorldViewRectRaw().getHeight();
     glViewport(gGLViewport[0], gGLViewport[1], gGLViewport[2], gGLViewport[3]);
 
-    bool dof_enabled =
-        (RenderDepthOfFieldInEditMode || !LLToolMgr::getInstance()->inBuildMode()) &&
-        RenderDepthOfField &&
-        !gCubeSnapshot;
-    if(dof_enabled)
+    bool smaa_enabled = RenderFSAAType == 2 && mFXAAMap.isComplete() && mSMAABlendBuffer.isComplete();
+    bool fxaa_enabled = RenderFSAAType == 1 && mFXAAMap.isComplete();
+    bool dof_enabled = RenderDepthOfField &&
+        (RenderDepthOfFieldInEditMode || !LLToolMgr::getInstance()->inBuildMode());
+    if(dof_enabled) // DoF Combines Glow
     {
-        renderDoF(src, dest);
-        std::swap(src, dest);
+        LLRenderTarget* dof_dest = (smaa_enabled || fxaa_enabled) ? dest : nullptr; // render to screen if no AA enabled
+        renderDoF(src, dof_dest);
+        std::swap(src, dof_dest);
     }
 
-    if (RenderFSAAType == 2 && mFXAAMap.isComplete() && mSMAABlendBuffer.isComplete())
+    // Render to screen
+    if (smaa_enabled)
     {
         generateSMAABuffers(src);
-        applySMAA(src, dest);
-        std::swap(src, dest);
+        applySMAA(src, nullptr, !dof_enabled);
     }
-
-    if (RenderFSAAType == 1 && mFXAAMap.isComplete())
+    else if (fxaa_enabled)
     {
-        applyFXAA(src, dest);
-        std::swap(src, dest);
+        applyFXAA(src, nullptr, !dof_enabled);
+    }
+    else if (!dof_enabled)
+    {
+        combineGlow(src, nullptr);
     }
 
     if (RenderBufferVisualization > -1)
@@ -7855,16 +7891,16 @@ void LLPipeline::renderFinalize()
         case 1:
         case 2:
         case 3:
-            visualizeBuffers(&mRT->deferredScreen, src, RenderBufferVisualization);
+            visualizeBuffers(&mRT->deferredScreen, nullptr, RenderBufferVisualization);
             break;
         case 4:
-            visualizeBuffers(&mLuminanceMap, src, 0);
+            visualizeBuffers(&mLuminanceMap, nullptr, 0);
             break;
         case 5:
         {
             if (RenderFSAAType > 0)
             {
-                visualizeBuffers(&mFXAAMap, src, 0);
+                visualizeBuffers(&mFXAAMap, nullptr, 0);
             }
             break;
         }
@@ -7872,7 +7908,7 @@ void LLPipeline::renderFinalize()
         {
             if (RenderFSAAType == 2)
             {
-                visualizeBuffers(&mSMAABlendBuffer, src, 0);
+                visualizeBuffers(&mSMAABlendBuffer, nullptr, 0);
             }
             break;
         }
@@ -7880,23 +7916,6 @@ void LLPipeline::renderFinalize()
             break;
         }
     }
-
-    // Present the screen target.
-    gDeferredPostNoDoFProgram.bind(); // Add noise as part of final render to screen pass to avoid damaging other post effects
-
-    // Whatever is last in the above post processing chain should _always_ be rendered directly here.  If not, expect problems.
-    gDeferredPostNoDoFProgram.bindTexture(LLShaderMgr::DEFERRED_DIFFUSE, src);
-    gDeferredPostNoDoFProgram.bindTexture(LLShaderMgr::DEFERRED_DEPTH, &mRT->deferredScreen, true);
-
-    gDeferredPostNoDoFProgram.uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, (GLfloat)src->getWidth(), (GLfloat)src->getHeight());
-
-    {
-        LLGLDepthTest depth_test(GL_TRUE, GL_TRUE, GL_ALWAYS);
-        mScreenTriangleVB->setBuffer();
-        mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
-    }
-
-    gDeferredPostNoDoFProgram.unbind();
 
     gGL.setSceneBlendType(LLRender::BT_ALPHA);
 

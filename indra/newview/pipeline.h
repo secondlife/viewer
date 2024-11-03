@@ -158,9 +158,9 @@ public:
     void tonemap(LLRenderTarget* src, LLRenderTarget* dst, bool gamma_correct = true);
     void generateGlow(LLRenderTarget* src);
     void applyCAS(LLRenderTarget* src, LLRenderTarget* dst);
-    void applyFXAA(LLRenderTarget* src, LLRenderTarget* dst);
+    void applyFXAA(LLRenderTarget* src, LLRenderTarget* dst, bool combine_glow);
     void generateSMAABuffers(LLRenderTarget* src);
-    void applySMAA(LLRenderTarget* src, LLRenderTarget* dst);
+    void applySMAA(LLRenderTarget* src, LLRenderTarget* dst, bool combine_glow);
     void renderDoF(LLRenderTarget* src, LLRenderTarget* dst);
     void copyRenderTarget(LLRenderTarget* src, LLRenderTarget* dst);
     void combineGlow(LLRenderTarget* src, LLRenderTarget* dst);

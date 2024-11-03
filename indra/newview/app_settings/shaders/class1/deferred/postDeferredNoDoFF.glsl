@@ -30,7 +30,6 @@ out vec4 frag_color;
 uniform sampler2D diffuseRect;
 uniform sampler2D depthMap;
 
-uniform vec2 screen_res;
 in vec2 vary_fragcoord;
 
 void main()

@@ -529,31 +529,13 @@ bool LLGLTFPreviewTexture::render()
     gPipeline.tonemap(&screen, dst);
     std::swap(src, dst);
 
+    // Final render
     LLVertexBuffer::unbind();
     gPipeline.generateGlow(src);
-    gPipeline.combineGlow(src, dst);
-    std::swap(src, dst);
+    gPipeline.combineGlow(src, nullptr);
 
     // *HACK: Restore mExposureMap (it will be consumed by generateExposure next frame)
     gPipeline.mExposureMap.swapFBORefs(gPipeline.mLastExposure);
-
-    // Final render
-
-    gDeferredPostNoDoFProgram.bind();
-
-    // From LLPipeline::renderFinalize: "Whatever is last in the above post processing chain should _always_ be rendered directly here.  If not, expect problems."
-    gDeferredPostNoDoFProgram.bindTexture(LLShaderMgr::DEFERRED_DIFFUSE, src);
-    gDeferredPostNoDoFProgram.bindTexture(LLShaderMgr::DEFERRED_DEPTH, mBoundTarget, true);
-
-    gDeferredPostNoDoFProgram.uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, (GLfloat)src->getWidth(), (GLfloat)src->getHeight());
-
-    {
-        LLGLDepthTest depth_test(GL_TRUE, GL_TRUE, GL_ALWAYS);
-        gPipeline.mScreenTriangleVB->setBuffer();
-        gPipeline.mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
-    }
-
-    gDeferredPostNoDoFProgram.unbind();
 
     // Clean up
     gPipeline.setupHWLights();

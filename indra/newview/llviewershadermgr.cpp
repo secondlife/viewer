@@ -87,6 +87,7 @@ LLGLSLShader    gRadianceGenProgram;
 LLGLSLShader    gHeroRadianceGenProgram;
 LLGLSLShader    gIrradianceGenProgram;
 LLGLSLShader    gGlowCombineFXAAProgram;
+LLGLSLShader    gFXAALumaGenProgram;
 LLGLSLShader    gTwoTextureCompareProgram;
 LLGLSLShader    gOneTextureFilterProgram;
 LLGLSLShader    gDebugProgram;
@@ -206,6 +207,7 @@ LLGLSLShader            gFXAAProgram[4];
 LLGLSLShader            gSMAAEdgeDetectProgram[4];
 LLGLSLShader            gSMAABlendWeightsProgram[4];
 LLGLSLShader            gSMAANeighborhoodBlendProgram[4];
+LLGLSLShader            gSMAANeighborhoodBlendGlowCombineProgram[4];
 LLGLSLShader            gCASProgram;
 LLGLSLShader            gCASLegacyGammaProgram;
 LLGLSLShader            gDeferredPostNoDoFProgram;
@@ -2496,6 +2498,7 @@ bool LLViewerShaderMgr::loadShadersDeferred()
 
                 gSMAANeighborhoodBlendProgram[i].clearPermutations();
                 gSMAANeighborhoodBlendProgram[i].addPermutations(defines);
+                gSMAANeighborhoodBlendProgram[i].addPermutation("NO_GLOW", "1");
 
                 gSMAANeighborhoodBlendProgram[i].mShaderFiles.clear();
                 gSMAANeighborhoodBlendProgram[i].mShaderFiles.push_back(make_pair("deferred/SMAANeighborhoodBlendF.glsl", GL_FRAGMENT_SHADER_ARB));
@@ -2503,7 +2506,26 @@ bool LLViewerShaderMgr::loadShadersDeferred()
                 gSMAANeighborhoodBlendProgram[i].mShaderFiles.push_back(make_pair("deferred/SMAA.glsl", GL_FRAGMENT_SHADER_ARB));
                 gSMAANeighborhoodBlendProgram[i].mShaderFiles.push_back(make_pair("deferred/SMAA.glsl", GL_VERTEX_SHADER_ARB));
                 gSMAANeighborhoodBlendProgram[i].mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+
                 success = gSMAANeighborhoodBlendProgram[i].createShader();
+            }
+
+            if (success)
+            {
+                gSMAANeighborhoodBlendGlowCombineProgram[i].mName = llformat("SMAA Neighborhood Blending Glow Combine (%s)", smaa_pair.second.c_str());
+                gSMAANeighborhoodBlendGlowCombineProgram[i].mFeatures.isDeferred = true;
+
+                gSMAANeighborhoodBlendGlowCombineProgram[i].clearPermutations();
+                gSMAANeighborhoodBlendGlowCombineProgram[i].addPermutations(defines);
+
+                gSMAANeighborhoodBlendGlowCombineProgram[i].mShaderFiles.clear();
+                gSMAANeighborhoodBlendGlowCombineProgram[i].mShaderFiles.push_back(make_pair("deferred/SMAANeighborhoodBlendF.glsl", GL_FRAGMENT_SHADER_ARB));
+                gSMAANeighborhoodBlendGlowCombineProgram[i].mShaderFiles.push_back(make_pair("deferred/SMAANeighborhoodBlendV.glsl", GL_VERTEX_SHADER_ARB));
+                gSMAANeighborhoodBlendGlowCombineProgram[i].mShaderFiles.push_back(make_pair("deferred/SMAA.glsl", GL_FRAGMENT_SHADER_ARB));
+                gSMAANeighborhoodBlendGlowCombineProgram[i].mShaderFiles.push_back(make_pair("deferred/SMAA.glsl", GL_VERTEX_SHADER_ARB));
+                gSMAANeighborhoodBlendGlowCombineProgram[i].mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+
+                success = gSMAANeighborhoodBlendGlowCombineProgram[i].createShader();
             }
             ++i;
         }
@@ -2970,7 +2992,7 @@ bool LLViewerShaderMgr::loadShadersInterface()
 
     if (success)
     {
-        gGlowCombineFXAAProgram.mName = "Glow CombineFXAA Shader";
+        gGlowCombineFXAAProgram.mName = "Glow Combine FXAA Luma Gen Shader";
         gGlowCombineFXAAProgram.mShaderFiles.clear();
         gGlowCombineFXAAProgram.mShaderFiles.push_back(make_pair("interface/glowcombineFXAAV.glsl", GL_VERTEX_SHADER));
         gGlowCombineFXAAProgram.mShaderFiles.push_back(make_pair("interface/glowcombineFXAAF.glsl", GL_FRAGMENT_SHADER));
@@ -2982,6 +3004,25 @@ bool LLViewerShaderMgr::loadShadersInterface()
             gGlowCombineFXAAProgram.uniform1i(sGlowMap, 0);
             gGlowCombineFXAAProgram.uniform1i(sScreenMap, 1);
             gGlowCombineFXAAProgram.unbind();
+        }
+    }
+
+    if (success)
+    {
+        gFXAALumaGenProgram.mName = "FXAA Luma Gen Shader";
+        gFXAALumaGenProgram.mShaderFiles.clear();
+        gFXAALumaGenProgram.mShaderFiles.push_back(make_pair("interface/glowcombineFXAAV.glsl", GL_VERTEX_SHADER));
+        gFXAALumaGenProgram.mShaderFiles.push_back(make_pair("interface/glowcombineFXAAF.glsl", GL_FRAGMENT_SHADER));
+        gFXAALumaGenProgram.mShaderLevel = mShaderLevel[SHADER_INTERFACE];
+        gFXAALumaGenProgram.clearPermutations();
+        gFXAALumaGenProgram.addPermutation("NO_GLOW", "1");
+        success = gFXAALumaGenProgram.createShader();
+        if (success)
+        {
+            gFXAALumaGenProgram.bind();
+            gFXAALumaGenProgram.uniform1i(sGlowMap, 0);
+            gFXAALumaGenProgram.uniform1i(sScreenMap, 1);
+            gFXAALumaGenProgram.unbind();
         }
     }
 
