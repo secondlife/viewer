@@ -2024,23 +2024,48 @@ bool LLVivoxVoiceClient::waitForChannel()
                     llcoro::suspend();
                     break;
                 }
-                sessionStatePtr_t joinSession = mNextAudioSession;
-                mNextAudioSession.reset();
-                mIsProcessingChannels = true;
-                if (!runSession(joinSession)) //suspends
+
+                try
                 {
-                    mIsProcessingChannels = false;
-                    LL_DEBUGS("Voice") << "runSession returned false; leaving inner loop" << LL_ENDL;
-                    break;
+                    sessionStatePtr_t joinSession = mNextAudioSession;
+                    mNextAudioSession.reset();
+                    mIsProcessingChannels = true;
+                    if (!runSession(joinSession)) //suspends
+                    {
+                        mIsProcessingChannels = false;
+                        LL_DEBUGS("Voice") << "runSession returned false; leaving inner loop" << LL_ENDL;
+                        break;
+                    }
+                    else
+                    {
+                        mIsProcessingChannels = false;
+                        LL_DEBUGS("Voice")
+                            << "runSession returned true to inner loop"
+                            << " RelogRequested=" << mRelogRequested
+                            << " VoiceEnabled=" << mVoiceEnabled
+                            << LL_ENDL;
+                    }
                 }
-                else
+                catch (const LLCoros::Stop&)
                 {
-                    mIsProcessingChannels = false;
-                    LL_DEBUGS("Voice")
-                        << "runSession returned true to inner loop"
-                        << " RelogRequested=" << mRelogRequested
-                        << " VoiceEnabled=" << mVoiceEnabled
+                    LL_DEBUGS("LLVivoxVoiceClient") << "Received a shutdown exception" << LL_ENDL;
+                }
+                catch (const LLContinueError&)
+                {
+                    LOG_UNHANDLED_EXCEPTION("LLVivoxVoiceClient");
+                }
+                catch (...)
+                {
+                    // Ideally for Windows need to log SEH exception instead or to set SEH
+                    // handlers but bugsplat shows local variables for windows, which should
+                    // be enough
+                    LL_WARNS("Voice") << "voiceControlStateMachine crashed in state VOICE_CHANNEL_STATE_PROCESS_CHANNEL"
+                        << " mRelogRequested " << mRelogRequested
+                        << " mVoiceEnabled " << mVoiceEnabled
+                        << " mIsProcessingChannels " << mIsProcessingChannels
+                        << " mProcessChannels " << mProcessChannels
                         << LL_ENDL;
+                    throw;
                 }
             }
 
