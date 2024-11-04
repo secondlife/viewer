@@ -258,6 +258,7 @@ void LLWebRTCVoiceClient::cleanupSingleton()
         mNextSession->shutdownAllConnections();
     }
     cleanUp();
+    stopTimer();
     sessionState::clearSessions();
 }
 
@@ -296,7 +297,6 @@ void LLWebRTCVoiceClient::cleanUp()
     mNeighboringRegions.clear();
     sessionState::for_each(boost::bind(predShutdownSession, _1));
     LL_DEBUGS("Voice") << "Exiting" << LL_ENDL;
-    stopTimer();
 }
 
 void LLWebRTCVoiceClient::stopTimer()
@@ -2507,7 +2507,9 @@ void LLVoiceWebRTCConnection::breakVoiceConnectionCoro(connectionPtr_t connectio
     if (!regionp || !regionp->capabilitiesReceived())
     {
         LL_DEBUGS("Voice") << "no capabilities for voice provisioning; waiting " << LL_ENDL;
-        connection->setVoiceConnectionState(VOICE_STATE_SESSION_RETRY);
+        // fine, don't be polite and ask the janus server to break the connection.
+        // just fall through and drop the connection.
+        connection->setVoiceConnectionState(VOICE_STATE_SESSION_EXIT);
         connection->mOutstandingRequests--;
         return;
     }
@@ -2515,7 +2517,8 @@ void LLVoiceWebRTCConnection::breakVoiceConnectionCoro(connectionPtr_t connectio
     std::string url = regionp->getCapability("ProvisionVoiceAccountRequest");
     if (url.empty())
     {
-        connection->setVoiceConnectionState(VOICE_STATE_SESSION_RETRY);
+        // and go on to drop the connection here, too.
+        connection->setVoiceConnectionState(VOICE_STATE_SESSION_EXIT);
         connection->mOutstandingRequests--;
         return;
     }
@@ -2529,7 +2532,7 @@ void LLVoiceWebRTCConnection::breakVoiceConnectionCoro(connectionPtr_t connectio
     body["voice_server_type"] = WEBRTC_VOICE_SERVER_TYPE;
 
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter(
-        new LLCoreHttpUtil::HttpCoroutineAdapter("LLVoiceWebRTCAdHocConnection::breakVoiceConnection",
+        new LLCoreHttpUtil::HttpCoroutineAdapter("LLVoiceWebRTCAdHocConnection::breakVoiceConnectionCoro",
                                                  LLCore::HttpRequest::DEFAULT_POLICY_ID));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
     LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
@@ -2543,8 +2546,11 @@ void LLVoiceWebRTCConnection::breakVoiceConnectionCoro(connectionPtr_t connectio
 
     connection->mOutstandingRequests--;
 
-    if (connection->getVoiceConnectionState() == VOICE_STATE_WAIT_FOR_EXIT)
+    if (connection->getVoiceConnectionState() == VOICE_STATE_WAIT_FOR_EXIT ||
+        !(connection->getVoiceConnectionState() & VOICE_STATE_SESSION_STOPPING))
     {
+        // drop the connection if we either somehow got set back to a running/starting state
+        // or we completed the call in the wait-for-exit state
         connection->setVoiceConnectionState(VOICE_STATE_SESSION_EXIT);
     }
 }
@@ -2829,8 +2835,8 @@ bool LLVoiceWebRTCConnection::connectionStateMachine()
             {
                 mOutstandingRequests++;
                 setVoiceConnectionState(VOICE_STATE_WAIT_FOR_EXIT);
-                LLCoros::instance().launch("LLVoiceWebRTCConnection::breakVoiceConnectionCoro",
-                                           boost::bind(&LLVoiceWebRTCConnection::breakVoiceConnectionCoro, this->shared_from_this()));
+                LLCoros::getInstance()->launch("LLVoiceWebRTCConnection::breakVoiceConnectionCoro",
+                                               boost::bind(&LLVoiceWebRTCConnection::breakVoiceConnectionCoro, this->shared_from_this()));
             }
             else
             {
@@ -2843,17 +2849,18 @@ bool LLVoiceWebRTCConnection::connectionStateMachine()
             break;
 
         case VOICE_STATE_SESSION_EXIT:
+        setVoiceConnectionState(VOICE_STATE_WAIT_FOR_CLOSE);
+        mOutstandingRequests++;
+        if (!LLWebRTCVoiceClient::isShuttingDown())
         {
-            setVoiceConnectionState(VOICE_STATE_WAIT_FOR_CLOSE);
-            mOutstandingRequests++;
-            if (!LLWebRTCVoiceClient::isShuttingDown())
-            {
-                mWebRTCPeerConnectionInterface->shutdownConnection();
-            }
-            // else was already posted by llwebrtc::terminate().
-            break;
+            mWebRTCPeerConnectionInterface->shutdownConnection();
+        }
+        // else was already posted by llwebrtc::terminate().
+        break;
+
         case VOICE_STATE_WAIT_FOR_CLOSE:
             break;
+
         case VOICE_STATE_CLOSED:
             if (!mShutDown)
             {
@@ -2870,7 +2877,6 @@ bool LLVoiceWebRTCConnection::connectionStateMachine()
                 }
             }
             break;
-        }
 
         default:
         {
@@ -3059,7 +3065,9 @@ void LLVoiceWebRTCConnection::OnDataChannelReady(llwebrtc::LLWebRTCDataInterface
                 return;
             }
 
-            if (data_interface)
+            // OnDataChannelReady may be called multiple times in a single connection attempt
+            // so don't double-set the observer.
+            if (!mWebRTCDataInterface && data_interface)
             {
                 mWebRTCDataInterface = data_interface;
                 mWebRTCDataInterface->setDataObserver(this);
