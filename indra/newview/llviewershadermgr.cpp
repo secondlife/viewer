@@ -1298,6 +1298,7 @@ bool LLViewerShaderMgr::loadShadersDeferred()
                             shader.addPermutation("MAX_UBO_VEC4S", std::to_string(max_vec4s));
 
                             shader.addPermutation("SAMPLE_BASE_COLOR_MAP", "1");
+                            shader.addPermutation("GAMMA_CORRECT_BASE_COLOR", "1");
                             shader.addPermutation("SAMPLE_ORM_MAP", "1");
                             shader.addPermutation("SAMPLE_NORMAL_MAP", "1");
                             shader.addPermutation("SAMPLE_EMISSIVE_MAP", "1");
@@ -1392,7 +1393,7 @@ bool LLViewerShaderMgr::loadShadersDeferred()
                             {
                                 shader.addPermutation("ALPHA_MASK", "1");
                                 shader.addPermutation("SAMPLE_MATERIALS_UBO", "1");
-
+                                shader.addPermutation("SAMPLE_BASE_COLOR_MAP", "1");
                                 if (planar_projection)
                                 {
                                     shader.addPermutation("PLANAR_PROJECTION", "1");
@@ -1578,6 +1579,7 @@ bool LLViewerShaderMgr::loadShadersDeferred()
                         {
                             shader.addPermutation("ALPHA_MASK", "1");
                             shader.addPermutation("SAMPLE_MATERIALS_UBO", "1");
+                            shader.addPermutation("SAMPLE_DIFFUSE_MAP", "1");
 
                             if (planar_projection)
                             {

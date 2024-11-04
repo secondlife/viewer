@@ -1078,7 +1078,11 @@ void LLAgent::setRegion(LLViewerRegion *regionp)
         }
 
         // Pass new region along to metrics components that care about this level of detail.
-        LLAppViewer::metricsUpdateRegion(regionp->getHandle());
+        U64 handle = regionp->getHandle();
+        LLAppViewer::instance()->postToMainCoro([handle]()
+            {
+                LLAppViewer::metricsUpdateRegion(handle);
+            });
     }
 
     mRegionp = regionp;

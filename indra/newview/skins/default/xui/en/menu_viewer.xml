@@ -3159,6 +3159,16 @@ function="World.EnvPreset"
            parameter="render batches" />
         </menu_item_check>
         <menu_item_check
+         label="Shadow Batches"
+         name="Shadow Batches">
+          <menu_item_check.on_check
+           function="Advanced.CheckInfoDisplay"
+           parameter="shadow batches" />
+          <menu_item_check.on_click
+           function="Advanced.ToggleInfoDisplay"
+           parameter="shadow batches" />
+        </menu_item_check>
+        <menu_item_check
          label="Update Type"
          name="Update Type">
           <menu_item_check.on_check

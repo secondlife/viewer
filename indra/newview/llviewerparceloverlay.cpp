@@ -81,12 +81,7 @@ LLViewerParcelOverlay::LLViewerParcelOverlay(LLViewerRegion* region, F32 region_
     }
 
     // Create a texture to hold color information.
-    // 4 components
-    // Use mipmaps = false, clamped, NEAREST filter, for sharp edges
     mImageRaw = new LLImageRaw(mParcelGridsPerEdge, mParcelGridsPerEdge, OVERLAY_IMG_COMPONENTS);
-    mTexture = LLViewerTextureManager::getLocalTexture(mImageRaw.get(), false);
-    mTexture->setAddressMode(LLTexUnit::TAM_CLAMP);
-    mTexture->setFilteringOption(LLTexUnit::TFO_POINT);
 
     //
     // Initialize the GL texture with empty data.
@@ -98,7 +93,6 @@ LLViewerParcelOverlay::LLViewerParcelOverlay(LLViewerRegion* region, F32 region_
     {
         raw[i] = 0;
     }
-    //mTexture->setSubImage(mImageRaw, 0, 0, mParcelGridsPerEdge, mParcelGridsPerEdge);
 
     // Create storage for ownership information from simulator
     // and initialize it.
@@ -655,6 +649,15 @@ void LLViewerParcelOverlay::setDirty()
 void LLViewerParcelOverlay::updateGL()
 {
     LL_PROFILE_ZONE_SCOPED;
+
+    if (mTexture.isNull())
+    {
+        mTexture = LLViewerTextureManager::getLocalTexture(mImageRaw.get(), false);
+        // Use mipmaps = false, clamped, NEAREST filter, for sharp edges
+        mTexture->setAddressMode(LLTexUnit::TAM_CLAMP);
+        mTexture->setFilteringOption(LLTexUnit::TFO_POINT);
+    }
+
     updateOverlayTexture();
 }
 

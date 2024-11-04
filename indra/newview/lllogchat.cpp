@@ -131,11 +131,11 @@ const char* remove_utf8_bom(const char* buf)
     return start;
 }
 
-class LLLogChatTimeScanner: public LLSingleton<LLLogChatTimeScanner>
+class LLLogChatTimeScanner: public LLSimpleton<LLLogChatTimeScanner>
 {
-    LLSINGLETON(LLLogChatTimeScanner);
-
 public:
+    LLLogChatTimeScanner();
+
     date getTodayPacificDate()
     {
         typedef boost::date_time::local_adjustor<ptime, -8, no_dst> pst;
@@ -979,6 +979,10 @@ bool LLChatLogParser::parse(std::string& raw, LLSD& im, const LLSD& parse_params
 
         if (cut_off_todays_date)
         {
+            if (!LLLogChatTimeScanner::instanceExists())
+            {
+                LLLogChatTimeScanner::createInstance();
+            }
             LLLogChatTimeScanner::instance().checkAndCutOffDate(timestamp);
         }
 

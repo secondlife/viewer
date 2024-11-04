@@ -3029,6 +3029,9 @@ void LLPipeline::markTransformDirty(LLSpatialGroup* group)
         group->setState(LLSpatialGroup::IN_TRANSFORM_BUILD_Q);
         group->mBPBatches.clear();
         group->mGLTFBatches.clear();
+        group->mShadowBatches.clear();
+
+        // NOTE: don't clear mVertexBuffers or delete UBOs here as VBOs/UBOs may still be referenced by a CullResult
     }
 }
 
@@ -3672,6 +3675,7 @@ void LLPipeline::postSort(LLCamera &camera)
             // add group->mGLTFBatches to sCull->mGLTFBatches
             sCull->mGLTFBatches.add(group->mGLTFBatches);
             sCull->mBPBatches.add(group->mBPBatches);
+            sCull->mShadowBatches.add(group->mShadowBatches);
         }
     }
 
@@ -3703,6 +3707,14 @@ void LLPipeline::postSort(LLCamera &camera)
             }
         };
 
+        struct CompareVBO
+        {
+            bool operator()(const LLGLTFDrawInfo& lhs, const LLGLTFDrawInfo& rhs)
+            {
+                return lhs.mVBO < rhs.mVBO;
+            }
+        };
+
         struct CompareSkinnedMaterialVBO
         {
             bool operator()(const LLSkinnedGLTFDrawInfo& lhs, const LLSkinnedGLTFDrawInfo& rhs)
@@ -3718,6 +3730,26 @@ void LLPipeline::postSort(LLCamera &camera)
                 else if (rhs.mMaterialID != lhs.mMaterialID)
                 {
                     return lhs.mMaterialID < rhs.mMaterialID;
+                }
+                else
+                {
+                    return lhs.mVBO < rhs.mVBO;
+                }
+            }
+        };
+
+
+        struct CompareSkinnedVBO
+        {
+            bool operator()(const LLSkinnedGLTFDrawInfo& lhs, const LLSkinnedGLTFDrawInfo& rhs)
+            {
+                if (rhs.mAvatar != lhs.mAvatar)
+                {
+                    return lhs.mAvatar < rhs.mAvatar;
+                }
+                else if (rhs.mSkinInfo->mHash != lhs.mSkinInfo->mHash)
+                {
+                    return lhs.mSkinInfo->mHash < rhs.mSkinInfo->mHash;
                 }
                 else
                 {
@@ -3744,6 +3776,12 @@ void LLPipeline::postSort(LLCamera &camera)
             sCull->mBPBatches.sortSkinned(LLGLTFMaterial::ALPHA_MODE_OPAQUE, CompareSkinnedMaterialVBO());
             sCull->mBPBatches.sortSkinned(LLGLTFMaterial::ALPHA_MODE_MASK, CompareSkinnedMaterialVBO());
             sCull->mBPBatches.sortSkinned(LLGLTFMaterial::ALPHA_MODE_BLEND, CompareSkinnedMaterialVBO());
+        }
+
+        {
+            LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("postSort - shadow sort");
+            sCull->mShadowBatches.sort(LLGLTFMaterial::ALPHA_MODE_OPAQUE, CompareVBO());
+            sCull->mShadowBatches.sortSkinned(LLGLTFMaterial::ALPHA_MODE_OPAQUE, CompareSkinnedVBO());
         }
     }
 
@@ -4791,56 +4829,83 @@ void LLPipeline::renderDebug()
                 gGL.popMatrix();
             }
         }
+    }
 
-        if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_BATCH_SIZE))
+    if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_BATCH_SIZE))
+    {
+        LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
+
+        for (U32 rigged = 0; rigged < 2; ++rigged)
         {
-            LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
-
-            for (U32 rigged = 0; rigged < 2; ++rigged)
+            gGLTFPBRShaderPack.mDebugShader.bind((bool)rigged);
+            for (U32 double_sided = 0; double_sided < 2; ++double_sided)
             {
-                gGLTFPBRShaderPack.mDebugShader.bind((bool)rigged);
-                for (U32 double_sided = 0; double_sided < 2; ++double_sided)
+                for (U32 planar = 0; planar < 2; ++planar)
                 {
-                    for (U32 planar = 0; planar < 2; ++planar)
+                    for (U32 tex_anim = 0; tex_anim < 2; ++tex_anim)
                     {
-                        for (U32 tex_anim = 0; tex_anim < 2; ++tex_anim)
+                        for (U32 alpha_mode = 0; alpha_mode < 3; ++alpha_mode)
                         {
-                            for (U32 alpha_mode = 0; alpha_mode < 3; ++alpha_mode)
+                            if (rigged)
+                            {
+                                LLRenderPass::pushRiggedDebugBatches(sCull->mGLTFBatches.mSkinnedDrawInfo[alpha_mode][double_sided][planar][tex_anim]);
+                            }
+                            else
+                            {
+                                LLRenderPass::pushDebugBatches(sCull->mGLTFBatches.mDrawInfo[alpha_mode][double_sided][planar][tex_anim]);
+                            }
+
+                            if (!double_sided)
                             {
                                 if (rigged)
                                 {
-                                    LLRenderPass::pushRiggedDebugBatches(sCull->mGLTFBatches.mSkinnedDrawInfo[alpha_mode][double_sided][planar][tex_anim]);
+                                    LLRenderPass::pushRiggedDebugBatches(sCull->mBPBatches.mSkinnedDrawInfo[alpha_mode][0][planar][tex_anim]);
                                 }
                                 else
                                 {
-                                    LLRenderPass::pushDebugBatches(sCull->mGLTFBatches.mDrawInfo[alpha_mode][double_sided][planar][tex_anim]);
-                                }
-
-                                if (!double_sided)
-                                {
-                                    if (rigged)
-                                    {
-                                        LLRenderPass::pushRiggedDebugBatches(sCull->mBPBatches.mSkinnedDrawInfo[alpha_mode][0][planar][tex_anim]);
-                                    }
-                                    else
-                                    {
-                                        LLRenderPass::pushDebugBatches(sCull->mBPBatches.mDrawInfo[alpha_mode][0][planar][tex_anim]);
-                                    }
+                                    LLRenderPass::pushDebugBatches(sCull->mBPBatches.mDrawInfo[alpha_mode][0][planar][tex_anim]);
                                 }
                             }
                         }
                     }
                 }
             }
+        }
 
-            if (shader)
+        if (shader)
+        {
+            shader->bind();
+        }
+    }
+
+    if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_SHADOW_BATCH_SIZE))
+    {
+        LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
+
+        bool planar = false;
+        U32 alpha_mode = LLGLTFMaterial::ALPHA_MODE_OPAQUE;
+        bool double_sided = false;
+        bool tex_anim = false;
+
+        for (U32 rigged = 0; rigged < 2; ++rigged)
+        {
+            gGLTFPBRShaderPack.mDebugShader.bind((bool)rigged);
+            if (rigged)
             {
-                shader->bind();
+                LLRenderPass::pushRiggedDebugBatches(sCull->mShadowBatches.mSkinnedDrawInfo[alpha_mode][double_sided][planar][tex_anim]);
+            }
+            else
+            {
+                LLRenderPass::pushDebugBatches(sCull->mShadowBatches.mDrawInfo[alpha_mode][double_sided][planar][tex_anim]);
             }
         }
 
-
+        if (shader)
+        {
+            shader->bind();
+        }
     }
+
 
     LL::GLTFSceneManager::instance().renderDebug();
 
@@ -9445,37 +9510,21 @@ void LLPipeline::renderShadow(const glm::mat4& view, const glm::mat4& proj, LLCa
             renderObjects(type, false, false, rigged);
         }
 
+        bool planar = false;
+        bool tex_anim = false;
+
         for (U32 double_sided = 0; double_sided < 2; ++double_sided)
         {
             LLGLDisable cull(double_sided ? GL_CULL_FACE : 0);
 
-            for (U32 planar = 0; planar < 2; ++planar)
+            gGLTFPBRShaderPack.mShadowShader[LLGLTFMaterial::ALPHA_MODE_OPAQUE][double_sided][planar][tex_anim].bind(rigged);
+            if (rigged)
             {
-                for (U32 tex_anim = 0; tex_anim < 2; ++tex_anim)
-                {
-                    gGLTFPBRShaderPack.mShadowShader[LLGLTFMaterial::ALPHA_MODE_OPAQUE][double_sided][planar][tex_anim].bind(rigged);
-                    if (rigged)
-                    {
-                        LLRenderPass::pushRiggedShadowGLTFBatches(sCull->mGLTFBatches.mSkinnedDrawInfo[LLGLTFMaterial::ALPHA_MODE_OPAQUE][double_sided][planar][tex_anim]);
-                    }
-                    else
-                    {
-                        LLRenderPass::pushShadowGLTFBatches(sCull->mGLTFBatches.mDrawInfo[LLGLTFMaterial::ALPHA_MODE_OPAQUE][double_sided][planar][tex_anim]);
-                    }
-
-                    if (!double_sided)
-                    { // push BP batches
-                        gBPShaderPack.mShadowShader[LLGLTFMaterial::ALPHA_MODE_OPAQUE][planar][tex_anim].bind(rigged);
-                        if (rigged)
-                        {
-                            LLRenderPass::pushRiggedShadowBPBatches(sCull->mBPBatches.mSkinnedDrawInfo[LLGLTFMaterial::ALPHA_MODE_OPAQUE][double_sided][planar][tex_anim]);
-                        }
-                        else
-                        {
-                            LLRenderPass::pushShadowBPBatches(sCull->mBPBatches.mDrawInfo[LLGLTFMaterial::ALPHA_MODE_OPAQUE][double_sided][planar][tex_anim]);
-                        }
-                    }
-                }
+                //LLRenderPass::pushRiggedShadowBatches(sCull->mShadowBatches.mSkinnedDrawInfo[LLGLTFMaterial::ALPHA_MODE_OPAQUE][double_sided][planar][tex_anim]);
+            }
+            else
+            {
+                //LLRenderPass::pushShadowBatches(sCull->mShadowBatches.mDrawInfo[LLGLTFMaterial::ALPHA_MODE_OPAQUE][double_sided][planar][tex_anim]);
             }
         }
 

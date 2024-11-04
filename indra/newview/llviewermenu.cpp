@@ -1106,6 +1106,10 @@ U64 info_display_from_string(std::string_view info_display)
     {
         return LLPipeline::RENDER_DEBUG_BATCH_SIZE;
     }
+    else if ("shadow batches" == info_display)
+    {
+        return LLPipeline::RENDER_DEBUG_SHADOW_BATCH_SIZE;
+    }
     else if ("update type" == info_display)
     {
         return LLPipeline::RENDER_DEBUG_UPDATE_TYPE;

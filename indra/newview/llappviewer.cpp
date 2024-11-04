@@ -120,6 +120,7 @@
 #include "lltoolface.h"
 #include "lltoolpipette.h"
 #include "glworkqueue.h"
+#include "llremoteparcelrequest.h"
 
 // Linden library includes
 #include "fsyspath.h"
@@ -758,6 +759,7 @@ void create_simpletons()
     LLToolMgr::createInstance();
     LLWorldMap::createInstance();
     LLHUDRenderNotifier::createInstance();
+    LLRemoteParcelInfoProcessor::createInstance();
 
     if (gSavedSettings.getBOOL("IdleThread"))
     {
@@ -794,6 +796,7 @@ void destroy_simpletons()
     LLToolMgr::deleteSingleton();
     LLWorldMap::deleteSingleton();
     LLHUDRenderNotifier::deleteSingleton();
+    LLRemoteParcelInfoProcessor::deleteSingleton();
 
     LL::GLThreadPool::deleteSingleton();
 }

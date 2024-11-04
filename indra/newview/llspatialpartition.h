@@ -386,6 +386,11 @@ public:
 
     LLGLTFBatches mGLTFBatches;
     LLGLTFBatches mBPBatches;
+    LLGLTFBatches mShadowBatches;
+
+    // references to vertex buffers that are in use (avoid deletion while in use)
+    std::vector<LLPointer<LLVertexBuffer>> mVertexBuffers;
+
 
     bridge_list_t mBridgeList;
     buffer_map_t mBufferMap; //used by volume buffers to attempt to reuse vertex buffers
@@ -424,6 +429,10 @@ public:
     // UBO for blinn-phong instance map
     U32 mBPInstanceMapUBO = 0;
     U32 mBPInstanceMapUBOSize = 0;
+
+    // UBO for shadow instance map
+    U32 mShadowInstanceMapUBO = 0;
+    U32 mShadowInstanceMapUBOSize = 0;
 
     // UBO for prim scales
     //  Used for planar projection, indexed by gltf_node_id
@@ -629,6 +638,9 @@ public:
 
     // list of blinn-phong draw infos
     LLGLTFBatches mBPBatches;
+
+    // list of shadow draw infos
+    LLGLTFBatches mShadowBatches;
 
 private:
 

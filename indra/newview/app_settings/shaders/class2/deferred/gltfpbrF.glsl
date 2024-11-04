@@ -201,8 +201,10 @@ void main()
     vec4 basecolor = vec4(1);
 #ifdef SAMPLE_BASE_COLOR_MAP
     basecolor = texture(diffuseMap, base_color_texcoord.xy).rgba;
-    basecolor.rgb = srgb_to_linear(basecolor.rgb);
 
+#ifdef GAMMA_CORRECT_BASE_COLOR
+    basecolor.rgb = srgb_to_linear(basecolor.rgb);
+#endif
     basecolor *= baseColorFactor;
 
 #ifdef ALPHA_MASK
