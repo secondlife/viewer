@@ -546,7 +546,9 @@ void LLViewerTexture::updateClass()
         if (sEvaluationTimer.getElapsedTimeF32() > MEMORY_CHECK_WAIT_TIME)
         {
             static LLCachedControl<F32> low_mem_min_discard_increment(gSavedSettings, "RenderLowMemMinDiscardIncrement", .1f);
-            sDesiredDiscardBias += (F32) low_mem_min_discard_increment * (F32) gFrameIntervalSeconds;
+
+            F32 increment = low_mem_min_discard_increment + llmax(over_pct, 0.f);
+            sDesiredDiscardBias += increment * gFrameIntervalSeconds;
         }
     }
     else

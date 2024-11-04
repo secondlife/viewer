@@ -1054,6 +1054,9 @@ F32 LLViewerTextureList::updateImagesCreateTextures(F32 max_time)
 
     if (!mDownScaleQueue.empty() && gPipeline.mDownResMap.isComplete())
     {
+        LLGLDisable blend(GL_BLEND);
+        gGL.setColorMask(true, true);
+
         // just in case we downres textures, bind downresmap and copy program
         gPipeline.mDownResMap.bindTarget();
         gCopyProgram.bind();
@@ -1094,7 +1097,9 @@ F32 LLViewerTextureList::updateImagesCreateTextures(F32 max_time)
     // do at least 5 and make sure we don't get too far behind even if it violates
     // the time limit.  Textures pending creation have a copy of their texture data
     // in system memory, so we don't want to let them pile up.
-    S32 min_count = (S32) mCreateTextureList.size() / 20 + 5;
+    //S32 min_count = (S32) mCreateTextureList.size() / 20 + 5;
+
+    create_timer.reset();
 
     while (!mCreateTextureList.empty())
     {
@@ -1105,7 +1110,7 @@ F32 LLViewerTextureList::updateImagesCreateTextures(F32 max_time)
         imagep->mCreatePending = false;
         mCreateTextureList.pop();
 
-        if (create_timer.getElapsedTimeF32() > max_time && --min_count <= 0)
+        if (create_timer.getElapsedTimeF32() > max_time) // && --min_count <= 0)
         {
             break;
         }

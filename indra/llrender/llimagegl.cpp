@@ -2453,41 +2453,32 @@ bool LLImageGL::scaleDown(S32 desired_discard)
 
     if (gGLManager.mDownScaleMethod == 0)
     { // use an FBO to downscale the texture
-        // allocate new texture
-        U32 temp_texname = 0;
-        generateTextures(1, &temp_texname);
-        gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, temp_texname, true);
-        {
-            LL_PROFILE_ZONE_NAMED_CATEGORY_TEXTURE("scaleDown - glTexImage2D");
-            glTexImage2D(mTarget, 0, mFormatInternal, desired_width, desired_height, 0, mFormatPrimary, mFormatType, NULL);
-        }
-
-        // account for new texture getting created
-        alloc_tex_image(desired_width, desired_height, mFormatInternal, 1);
-
-        // Use render-to-texture to scale down the texture
-        {
-            LL_PROFILE_ZONE_NAMED_CATEGORY_TEXTURE("scaleDown - glFramebufferTexture2D");
-            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, mTarget, temp_texname, 0);
-        }
-
         glViewport(0, 0, desired_width, desired_height);
 
         // draw a full screen triangle
-        gGL.getTexUnit(0)->bind(this);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
-        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+        if (gGL.getTexUnit(0)->bind(this, true, true))
+        {
+            glDrawArrays(GL_TRIANGLES, 0, 3);
 
-        // delete old texture and assign new texture name
-        deleteTextures(1, &mTexName);
-        mTexName = temp_texname;
+            free_tex_image(mTexName);
+            glTexImage2D(mTarget, 0, mFormatInternal, desired_width, desired_height, 0, mFormatPrimary, mFormatType, nullptr);
+            glCopyTexSubImage2D(mTarget, 0, 0, 0, 0, 0, desired_width, desired_height);
+            alloc_tex_image(desired_width, desired_height, mFormatInternal, 1);
 
-        if (mHasMipMaps)
-        { // generate mipmaps if needed
-            LL_PROFILE_ZONE_NAMED_CATEGORY_TEXTURE("scaleDown - glGenerateMipmap");
-            gGL.getTexUnit(0)->bind(this);
-            glGenerateMipmap(mTarget);
-            gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+            mTexOptionsDirty = true;
+
+            if (mHasMipMaps)
+            { // generate mipmaps if needed
+                LL_PROFILE_ZONE_NAMED_CATEGORY_TEXTURE("scaleDown - glGenerateMipmap");
+                gGL.getTexUnit(0)->bind(this);
+                glGenerateMipmap(mTarget);
+                gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+            }
+        }
+        else
+        {
+            LL_WARNS_ONCE("LLImageGL") << "Failed to bind texture for downscaling." << LL_ENDL;
+            return false;
         }
     }
     else

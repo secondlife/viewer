@@ -40,6 +40,8 @@ in vec2 vary_texcoord0;
 in vec3 vary_position;
 
 void mirrorClip(vec3 pos);
+vec4 encodeNormal(vec3 norm, float gbuffer_flag);
+
 void main()
 {
     mirrorClip(vary_position);
@@ -62,6 +64,6 @@ void main()
         frag_data[1] = vertex_color.aaaa; // spec
         //frag_data[1] = vec4(vec3(vertex_color.a), vertex_color.a+(1.0-vertex_color.a)*vertex_color.a); // spec - from former class3 - maybe better, but not so well tested
         vec3 nvn = normalize(tnorm);
-        frag_data[2] = vec4(nvn, GBUFFER_FLAG_HAS_ATMOS);
+        frag_data[2] = encodeNormal(nvn, GBUFFER_FLAG_HAS_ATMOS);
         frag_data[3] = vec4(vertex_color.a, 0, 0, 0);
 }
