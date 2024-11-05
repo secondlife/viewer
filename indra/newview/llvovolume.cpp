@@ -5431,7 +5431,7 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
         info->mEnd - draw_vec[idx]->mStart + facep->getGeomCount() <= (U32) gGLManager.mGLMaxVertexRange &&
         info->mCount + facep->getIndicesCount() <= (U32) gGLManager.mGLMaxIndexRange &&
 #endif
-        info->mMaterialID == mat_id &&
+        info->mMaterialHash == mat_id &&
         info->mFullbright == fullbright &&
         info->mBump == bump &&
         (!mat || (info->mShiny == shiny)) && // need to break batches when a material is shared, but legacy settings are different
@@ -5490,11 +5490,11 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
         if (gltf_mat)
         {
             // just remember the material ID, render pools will reference the GLTF material
-            draw_info->mMaterialID = mat_id;
+            draw_info->mMaterialHash = mat_id;
         }
         else if (mat)
         {
-            draw_info->mMaterialID = mat_id;
+            draw_info->mMaterialHash = mat_id;
 
             // We have a material.  Update our draw info accordingly.
 
@@ -5526,10 +5526,10 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
             }
         }
 
-        // if (type == LLRenderPass::PASS_ALPHA) // always populate the draw_info ptr
-        { //for alpha sorting
-            facep->setDrawInfo(draw_info);
-        }
+        // This backpointer is used by alpha sorting and avatar attachment
+        // accounting.
+        // To be safe, always populate the draw_info ptr.
+        facep->setDrawInfo(draw_info);
 
         if (index < FACE_DO_NOT_BATCH_TEXTURES)
         { //initialize texture list for texture batching
@@ -6151,7 +6151,7 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
                 LLVertexBuffer::flushBuffers();
             }
 
-            group->clearState(LLSpatialGroup::MESH_DIRTY | LLSpatialGroup::NEW_DRAWINFO);
+            group->clearState(LLSpatialGroup::MESH_DIRTY);
         }
     }
 }
