@@ -641,6 +641,15 @@ void LLVOVolume::animateTextures()
                 if (!facep->mTextureMatrix)
                 {
                     facep->mTextureMatrix = new LLMatrix4();
+                    if (facep->getVirtualSize() > MIN_TEX_ANIM_SIZE)
+                    {
+                        // Fix the one edge case missed in
+                        // LLVOVolume::updateTextureVirtualSize when the
+                        // mTextureMatrix is not yet present
+                        gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_TCOORD);
+                        mDrawable->getSpatialGroup()->dirtyGeom();
+                        gPipeline.markRebuild(mDrawable->getSpatialGroup());
+                    }
                 }
 
                 LLMatrix4& tex_mat = *facep->mTextureMatrix;
@@ -832,12 +841,25 @@ void LLVOVolume::updateTextureVirtualSize(bool forced)
         // if the face has gotten small enough to turn off texture animation and texture
         // animation is running, rebuild the render batch for this face to turn off
         // texture animation
+        // Do the opposite when the face gets big enough.
+        // If a face is animatable, it will always have non-null mTextureMatrix
+        // pointer defined after the first call to LLVOVolume::animateTextures,
+        // although the animation is not always turned on.
         if (face->mTextureMatrix != NULL)
         {
-            if ((vsize < MIN_TEX_ANIM_SIZE && old_size > MIN_TEX_ANIM_SIZE) ||
-                (vsize > MIN_TEX_ANIM_SIZE && old_size < MIN_TEX_ANIM_SIZE))
+            if ((vsize > MIN_TEX_ANIM_SIZE) != (old_size > MIN_TEX_ANIM_SIZE))
             {
                 gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_TCOORD);
+                // dirtyGeom+markRebuild tells the engine to call
+                // LLVolumeGeometryManager::rebuildGeom, which rebuilds the
+                // LLDrawInfo for the spatial group containing this LLFace,
+                // safely copying the mTextureMatrix from the LLFace the the
+                // LLDrawInfo. While it's not ideal to call it here, prims with
+                // animated faces get moved to a smaller partition to reduce
+                // side-effects of their updates (see shrinkWrap in
+                // LLVOVolume::animateTextures).
+                mDrawable->getSpatialGroup()->dirtyGeom();
+                gPipeline.markRebuild(mDrawable->getSpatialGroup());
             }
         }
 
