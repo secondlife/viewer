@@ -975,29 +975,6 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
             LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("display - 5")
             LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_WORLD;
 
-            static LLCachedControl<bool> render_depth_pre_pass(gSavedSettings, "RenderDepthPrePass", false);
-            if (render_depth_pre_pass)
-            {
-                gGL.setColorMask(false, false);
-
-                constexpr U32 types[] = {
-                    LLRenderPass::PASS_SIMPLE,
-                    LLRenderPass::PASS_FULLBRIGHT,
-                    LLRenderPass::PASS_SHINY
-                };
-
-                U32 num_types = LL_ARRAY_SIZE(types);
-                gOcclusionProgram.bind();
-                for (U32 i = 0; i < num_types; i++)
-                {
-                    gPipeline.renderObjects(types[i], LLVertexBuffer::MAP_VERTEX, false);
-                }
-
-                gOcclusionProgram.unbind();
-
-            }
-
-            gGL.setColorMask(true, true);
             gPipeline.renderGeomDeferred(*LLViewerCamera::getInstance(), true);
         }
 

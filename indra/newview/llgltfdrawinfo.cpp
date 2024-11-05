@@ -122,6 +122,28 @@ void LLGLTFBatches::add(const LLGLTFBatches& other)
     }
 }
 
+void LLGLTFBatches::addShadow(const LLGLTFBatches& other)
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
+    for (auto& batch : other.mBatchList)
+    {
+        if (batch.alpha_mode != LLGLTFMaterial::ALPHA_MODE_OPAQUE)
+        {
+            auto& draw_info = mDrawInfo[batch.alpha_mode][batch.double_sided][batch.planar][batch.tex_anim];
+            draw_info.insert(draw_info.end(), batch.draw_info->begin(), batch.draw_info->end());
+        }
+    }
+
+    for (auto& batch : other.mSkinnedBatchList)
+    {
+        if (batch.alpha_mode != LLGLTFMaterial::ALPHA_MODE_OPAQUE)
+        {
+            auto& draw_info = mSkinnedDrawInfo[batch.alpha_mode][batch.double_sided][batch.planar][batch.tex_anim];
+            draw_info.insert(draw_info.end(), batch.draw_info->begin(), batch.draw_info->end());
+        }
+    }
+}
+
 void LLGLTFBatches::texNameCheck(U32 texName)
 {
     for (auto& batch : mBatchList)

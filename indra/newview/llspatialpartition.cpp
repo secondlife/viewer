@@ -994,7 +994,8 @@ void LLSpatialGroup::updateTransformUBOs()
     static std::vector<LLFace*> shadow_faces;
     shadow_faces.clear();
 
-    bool shadows = LLPipeline::RenderShadowDetail > 0;
+    static LLCachedControl<bool> depth_pre_pass(gSavedSettings, "RenderDepthPrePass");
+    bool shadows = LLPipeline::RenderShadowDetail > 0 || depth_pre_pass;
 
     {
         LL_PROFILE_ZONE_NAMED("utubo - collect transforms");

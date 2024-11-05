@@ -126,6 +126,9 @@ public:
     // add the given LLGLTFBatches to these LLGLTFBatches
     void add(const LLGLTFBatches& other);
 
+    // add the alpha blend and alpha mask draw infos to the given list
+    void addShadow(const LLGLTFBatches& other);
+
     template <typename T>
     void sort(LLGLTFMaterial::AlphaMode i, T comparator)
     {

@@ -3644,6 +3644,8 @@ void LLPipeline::postSort(LLCamera &camera)
         }
     }
 
+    static LLCachedControl<bool> depth_pre_pass(gSavedSettings, "RenderDepthPrePass");
+
     // build render map
     {
         LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("postSort - build GLTF/BP render map");
@@ -3672,10 +3674,25 @@ void LLPipeline::postSort(LLCamera &camera)
                 group->clearState(LLSpatialGroup::IN_TRANSFORM_BUILD_Q);
             }
 
-            // add group->mGLTFBatches to sCull->mGLTFBatches
-            sCull->mGLTFBatches.add(group->mGLTFBatches);
-            sCull->mBPBatches.add(group->mBPBatches);
-            sCull->mShadowBatches.add(group->mShadowBatches);
+
+            // add group->mGLTFBatches to sCull->mGLTFBatches, etc
+            if (sShadowRender)
+            {
+                sCull->mGLTFBatches.addShadow(group->mGLTFBatches);
+                sCull->mBPBatches.addShadow(group->mBPBatches);
+                sCull->mShadowBatches.add(group->mShadowBatches);
+            }
+            else
+            {
+                // add group->mGLTFBatches to sCull->mGLTFBatches
+                sCull->mGLTFBatches.add(group->mGLTFBatches);
+                sCull->mBPBatches.add(group->mBPBatches);
+
+                if (depth_pre_pass)
+                {
+                    sCull->mShadowBatches.add(group->mShadowBatches);
+                }
+            }
         }
     }
 
@@ -4061,6 +4078,29 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera, bool do_occlusion)
     {
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     }
+
+
+    static LLCachedControl<bool> render_depth_pre_pass(gSavedSettings, "RenderDepthPrePass", false);
+    if (render_depth_pre_pass)
+    {
+        LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("depth pre-pass");
+        LL_PROFILE_GPU_ZONE("depth pre-pass");
+        gGL.setColorMask(false, false);
+
+        bool planar = false;
+        bool tex_anim = false;
+
+        for (U32 double_sided = 0; double_sided < 2; ++double_sided)
+        {
+            LLGLDisable cull(double_sided ? GL_CULL_FACE : 0);
+
+            gGLTFPBRShaderPack.mShadowShader[LLGLTFMaterial::ALPHA_MODE_OPAQUE][double_sided][planar][tex_anim].bind();
+            LLRenderPass::pushShadowBatches(sCull->mShadowBatches.mDrawInfo[LLGLTFMaterial::ALPHA_MODE_OPAQUE][double_sided][planar][tex_anim]);
+        }
+    }
+
+    gGL.setColorMask(true, true);
+
 
     if (&camera == LLViewerCamera::getInstance())
     {   // a bit hacky, this is the start of the main render frame, figure out delta between last modelview matrix and
@@ -9441,24 +9481,6 @@ void LLPipeline::renderShadow(const glm::mat4& view, const glm::mat4& proj, LLCa
     U32 saved_occlusion = sUseOcclusion;
     sUseOcclusion = 0;
 
-    // List of render pass types that use the prim volume as the shadow,
-    // ignoring textures.
-    static const U32 types[] = {
-        LLRenderPass::PASS_SIMPLE,
-        LLRenderPass::PASS_FULLBRIGHT,
-        LLRenderPass::PASS_SHINY,
-        LLRenderPass::PASS_BUMP,
-        LLRenderPass::PASS_FULLBRIGHT_SHINY,
-        LLRenderPass::PASS_MATERIAL,
-        LLRenderPass::PASS_MATERIAL_ALPHA_EMISSIVE,
-        LLRenderPass::PASS_SPECMAP,
-        LLRenderPass::PASS_SPECMAP_EMISSIVE,
-        LLRenderPass::PASS_NORMMAP,
-        LLRenderPass::PASS_NORMMAP_EMISSIVE,
-        LLRenderPass::PASS_NORMSPEC,
-        LLRenderPass::PASS_NORMSPEC_EMISSIVE
-    };
-
     LLGLEnable cull(GL_CULL_FACE);
 
     //enable depth clamping if available
@@ -9489,9 +9511,6 @@ void LLPipeline::renderShadow(const glm::mat4& view, const glm::mat4& proj, LLCa
     for (int j = 0; j < 2; ++j) // 0 -- static, 1 -- rigged
     {
         bool rigged = j == 1;
-        gDeferredShadowProgram.bind(rigged);
-
-        gGL.diffuseColor4f(1, 1, 1, 1);
 
         S32 shadow_detail = RenderShadowDetail;
 
@@ -9503,12 +9522,6 @@ void LLPipeline::renderShadow(const glm::mat4& view, const glm::mat4& proj, LLCa
 
         LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("shadow simple"); //LL_RECORD_BLOCK_TIME(FTM_SHADOW_SIMPLE);
         LL_PROFILE_GPU_ZONE("shadow simple");
-        gGL.getTexUnit(0)->disable();
-
-        for (U32 type : types)
-        {
-            renderObjects(type, false, false, rigged);
-        }
 
         bool planar = false;
         bool tex_anim = false;
@@ -9520,15 +9533,13 @@ void LLPipeline::renderShadow(const glm::mat4& view, const glm::mat4& proj, LLCa
             gGLTFPBRShaderPack.mShadowShader[LLGLTFMaterial::ALPHA_MODE_OPAQUE][double_sided][planar][tex_anim].bind(rigged);
             if (rigged)
             {
-                //LLRenderPass::pushRiggedShadowBatches(sCull->mShadowBatches.mSkinnedDrawInfo[LLGLTFMaterial::ALPHA_MODE_OPAQUE][double_sided][planar][tex_anim]);
+                LLRenderPass::pushRiggedShadowBatches(sCull->mShadowBatches.mSkinnedDrawInfo[LLGLTFMaterial::ALPHA_MODE_OPAQUE][double_sided][planar][tex_anim]);
             }
             else
             {
-                //LLRenderPass::pushShadowBatches(sCull->mShadowBatches.mDrawInfo[LLGLTFMaterial::ALPHA_MODE_OPAQUE][double_sided][planar][tex_anim]);
+                LLRenderPass::pushShadowBatches(sCull->mShadowBatches.mDrawInfo[LLGLTFMaterial::ALPHA_MODE_OPAQUE][double_sided][planar][tex_anim]);
             }
         }
-
-        gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
     }
 
     if (LLPipeline::sUseOcclusion > 1)
@@ -9547,54 +9558,13 @@ void LLPipeline::renderShadow(const glm::mat4& view, const glm::mat4& proj, LLCa
         const S32 sun_up = LLEnvironment::instance().getIsSunUp() ? 1 : 0;
         U32 target_width = LLRenderTarget::sCurResX;
 
-        for (int i = 0; i < 2; ++i)
         {
-            bool rigged = i == 1;
+            LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("shadow alpha grass");
+            LL_PROFILE_GPU_ZONE("shadow alpha grass");
+            gDeferredTreeShadowProgram.bind();
+            LLGLSLShader::sCurBoundShaderPtr->setMinimumAlpha(ALPHA_BLEND_CUTOFF);
 
-            {
-                LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("shadow alpha masked");
-                LL_PROFILE_GPU_ZONE("shadow alpha masked");
-                gDeferredShadowAlphaMaskProgram.bind(rigged);
-                LLGLSLShader::sCurBoundShaderPtr->uniform1i(LLShaderMgr::SUN_UP_FACTOR, sun_up);
-                LLGLSLShader::sCurBoundShaderPtr->uniform1f(LLShaderMgr::DEFERRED_SHADOW_TARGET_WIDTH, (float)target_width);
-                renderMaskedObjects(LLRenderPass::PASS_ALPHA_MASK, true, true, rigged);
-            }
-
-            {
-                LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("shadow alpha blend");
-                LL_PROFILE_GPU_ZONE("shadow alpha blend");
-                renderAlphaObjects(rigged);
-            }
-
-            {
-                LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("shadow fullbright alpha masked");
-                LL_PROFILE_GPU_ZONE("shadow alpha masked");
-                gDeferredShadowFullbrightAlphaMaskProgram.bind(rigged);
-                LLGLSLShader::sCurBoundShaderPtr->uniform1i(LLShaderMgr::SUN_UP_FACTOR, sun_up);
-                LLGLSLShader::sCurBoundShaderPtr->uniform1f(LLShaderMgr::DEFERRED_SHADOW_TARGET_WIDTH, (float)target_width);
-                renderFullbrightMaskedObjects(LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK, true, true, rigged);
-            }
-
-            {
-                LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("shadow alpha grass");
-                LL_PROFILE_GPU_ZONE("shadow alpha grass");
-                gDeferredTreeShadowProgram.bind(rigged);
-                LLGLSLShader::sCurBoundShaderPtr->setMinimumAlpha(ALPHA_BLEND_CUTOFF);
-
-                if (i == 0)
-                {
-                    renderObjects(LLRenderPass::PASS_GRASS, true);
-                }
-
-                {
-                    LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("shadow alpha material");
-                    LL_PROFILE_GPU_ZONE("shadow alpha material");
-                    renderMaskedObjects(LLRenderPass::PASS_NORMSPEC_MASK, true, false, rigged);
-                    renderMaskedObjects(LLRenderPass::PASS_MATERIAL_ALPHA_MASK, true, false, rigged);
-                    renderMaskedObjects(LLRenderPass::PASS_SPECMAP_MASK, true, false, rigged);
-                    renderMaskedObjects(LLRenderPass::PASS_NORMMAP_MASK, true, false, rigged);
-                }
-            }
+            renderObjects(LLRenderPass::PASS_GRASS, true);
         }
 
         // alpha mask GLTF
