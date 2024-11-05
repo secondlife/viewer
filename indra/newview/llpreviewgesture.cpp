@@ -1096,6 +1096,9 @@ void LLPreviewGesture::saveIfNeeded()
         if (!region)
         {
             LL_WARNS() << "Not connected to a region, cannot save gesture." << LL_ENDL;
+            // we're done with this gesture
+            delete gesture;
+            gesture = NULL;
             return;
         }
         std::string agent_url = region->getCapability("UpdateGestureAgentInventory");

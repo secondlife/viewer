@@ -770,6 +770,7 @@ void settings_setup_listeners()
     setting_setup_signal_listener(gSavedSettings, "OctreeAttachmentSizeFactor", handleRepartition);
     setting_setup_signal_listener(gSavedSettings, "RenderMaxTextureIndex", handleSetShaderChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderUIBuffer", handleWindowResized);
+    setting_setup_signal_listener(gSavedSettings, "RenderCAS", handleReleaseGLBufferChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderDepthOfField", handleReleaseGLBufferChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderFSAAType", handleReleaseGLBufferChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderSpecularResX", handleLUTBufferChanged);

@@ -247,6 +247,7 @@ LLFloater::LLFloater(const LLSD& key, const LLFloater::Params& p)
     mTitle(p.title),
     mShortTitle(p.short_title),
     mSingleInstance(p.single_instance),
+    mIsReuseInitialized(p.reuse_instance.isProvided()),
     mReuseInstance(p.reuse_instance.isProvided() ? p.reuse_instance : p.single_instance), // reuse single-instance floaters by default
     mKey(key),
     mCanTearOff(p.can_tear_off),
@@ -3350,6 +3351,7 @@ void LLFloater::initFromParams(const LLFloater::Params& p)
     mHeaderHeight = p.header_height;
     mLegacyHeaderHeight = p.legacy_header_height;
     mSingleInstance = p.single_instance;
+    mIsReuseInitialized = p.reuse_instance.isProvided();
     mReuseInstance = p.reuse_instance.isProvided() ? p.reuse_instance : p.single_instance;
 
     mDefaultRelativeX = p.rel_x;

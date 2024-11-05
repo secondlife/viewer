@@ -155,13 +155,12 @@ public:
     void copyScreenSpaceReflections(LLRenderTarget* src, LLRenderTarget* dst);
     void generateLuminance(LLRenderTarget* src, LLRenderTarget* dst);
     void generateExposure(LLRenderTarget* src, LLRenderTarget* dst, bool use_history = true);
-    void tonemap(LLRenderTarget* src, LLRenderTarget* dst);
-    void gammaCorrect(LLRenderTarget* src, LLRenderTarget* dst);
+    void tonemap(LLRenderTarget* src, LLRenderTarget* dst, bool gamma_correct = true);
     void generateGlow(LLRenderTarget* src);
     void applyCAS(LLRenderTarget* src, LLRenderTarget* dst);
-    void applyFXAA(LLRenderTarget* src, LLRenderTarget* dst);
+    void applyFXAA(LLRenderTarget* src, LLRenderTarget* dst, bool combine_glow);
     void generateSMAABuffers(LLRenderTarget* src);
-    void applySMAA(LLRenderTarget* src, LLRenderTarget* dst);
+    void applySMAA(LLRenderTarget* src, LLRenderTarget* dst, bool combine_glow);
     void renderDoF(LLRenderTarget* src, LLRenderTarget* dst);
     void copyRenderTarget(LLRenderTarget* src, LLRenderTarget* dst);
     void combineGlow(LLRenderTarget* src, LLRenderTarget* dst);
@@ -338,8 +337,6 @@ public:
     // apply water haze based on contents of color and depth buffer
     // should be called just before rendering pre-water alpha objects
     void doWaterHaze();
-
-    void postDeferredGammaCorrect(LLRenderTarget* screen_target);
 
     void generateSunShadow(LLCamera& camera);
     LLRenderTarget* getSunShadowTarget(U32 i);
@@ -727,7 +724,8 @@ public:
     LLRenderTarget          mLastExposure;
 
     // tonemapped and gamma corrected render ready for post
-    LLRenderTarget          mPostMap;
+    LLRenderTarget          mPostPingMap;
+    LLRenderTarget          mPostPongMap;
 
     // FXAA helper target
     LLRenderTarget          mFXAAMap;

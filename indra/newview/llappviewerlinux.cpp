@@ -39,8 +39,9 @@
 #include "llfindlocale.h"
 
 #include <exception>
-
+#ifdef LL_GLIB
 #include <gio/gio.h>
+#endif
 #include <resolv.h>
 
 #if (__GLIBC__*1000 + __GLIBC_MINOR__) >= 2034

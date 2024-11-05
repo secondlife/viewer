@@ -43,6 +43,7 @@ set(cmake_SOURCE_FILES
         Lualibs.cmake
         Meshoptimizer.cmake
         NDOF.cmake
+        NFDE.cmake
         OPENAL.cmake
         OpenGL.cmake
         OpenJPEG.cmake
