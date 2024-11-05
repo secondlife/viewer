@@ -82,12 +82,15 @@ void LLDrawPoolGLTFPBR::renderDeferred(S32 pass)
 
                 if (!double_sided && gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_MATERIALS))
                 {
-                    LLGLSLShader& shader = gBPShaderPack.mShader[alpha_mode][planar][tex_anim];
-                    shader.bind();
-                    pushBPBatches(sCull->mBPBatches.mDrawInfo[alpha_mode][0][planar][tex_anim], planar, tex_anim);
+                    for (U32 norm_map = 0; norm_map < 2; ++norm_map)
+                    {
+                        LLGLSLShader& shader = gBPShaderPack.mShader[alpha_mode][norm_map][planar][tex_anim];
+                        shader.bind();
+                        pushBPBatches(sCull->mBPBatches.mDrawInfo[alpha_mode][norm_map][planar][tex_anim], planar, tex_anim);
 
-                    shader.bind(true);
-                    pushRiggedBPBatches(sCull->mBPBatches.mSkinnedDrawInfo[alpha_mode][0][planar][tex_anim], planar, tex_anim);
+                        shader.bind(true);
+                        pushRiggedBPBatches(sCull->mBPBatches.mSkinnedDrawInfo[alpha_mode][norm_map][planar][tex_anim], planar, tex_anim);
+                    }
                 }
             }
         }

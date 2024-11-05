@@ -557,14 +557,6 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
         return;
     }
 
-
-    if (gShaderProfileFrame)
-    {
-        LLGLSLShader::initProfile();
-    }
-
-
-
     /////////////////////////////////////////////////
     //
     // Update GL Texture statistics (used for discard logic?)
@@ -1029,7 +1021,7 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
 
     gShiftFrame = false;
 
-    if (gShaderProfileFrame)
+    if (LLGLSLShader::sProfileEnabled)
     {
         gShaderProfileFrame = false;
         boost::json::value stats{ boost::json::object_kind };

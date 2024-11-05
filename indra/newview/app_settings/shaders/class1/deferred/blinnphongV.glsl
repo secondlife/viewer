@@ -28,6 +28,13 @@ uniform mat4 projection_matrix;
 
 in vec3 position;
 
+#ifdef HAS_NORMAL
+in vec3 normal;
+#endif
+
+#ifdef HAS_FRAGMENT_NORMAL
+out vec3 vary_normal;
+#endif
 
 vec2 bp_texture_transform(vec2 vertex_texcoord, vec4[2] transform, mat4 sl_animation_transform);
 
@@ -44,28 +51,16 @@ out vec2 diffuse_texcoord;
 #endif
 
 #ifdef SAMPLE_NORMAL_MAP
-in vec3 normal;
 in vec4 tangent;
-
 vec4[2] texture_normal_transform;
-
 out vec2 normal_texcoord;
-
 out vec3 vary_tangent;
 flat out float vary_sign;
-out vec3 vary_normal;
-
 vec4 tangent_space_transform(vec4 vertex_tangent, vec3 vertex_normal, vec4[2] khr_gltf_transform, mat4 sl_animation_transform);
-#else
-#ifdef PLANAR_PROJECTION
-// still need normal for planar projection
-in vec3 normal;
-#endif
 #endif
 
 #ifdef SAMPLE_SPECULAR_MAP
 vec4[2] texture_specular_transform;
-
 out vec2 specular_texcoord;
 #endif
 
@@ -264,9 +259,13 @@ void main()
     diffuse_texcoord = bp_texture_transform(tc0, texture_diffuse_transform, tex_mat);
 #endif
 
+#ifdef HAS_NORMAL
+    vec3 n = (mat*vec4(normal.xyz+position.xyz,1.0)).xyz-pos.xyz;
+#endif
+
 #ifdef SAMPLE_NORMAL_MAP
     normal_texcoord = bp_texture_transform(tc0, texture_normal_transform, tex_mat);
-    vec3 n = (mat*vec4(normal.xyz+position.xyz,1.0)).xyz-pos.xyz;
+
     vec3 t = (mat*vec4(tangent.xyz+position.xyz,1.0)).xyz-pos.xyz;
 
     n = normalize(n);
@@ -274,6 +273,8 @@ void main()
     vec4 transformed_tangent = tangent_space_transform(vec4(t, tangent.w), n, texture_normal_transform, tex_mat);
     vary_tangent = normalize(transformed_tangent.xyz);
     vary_sign = transformed_tangent.w;
+#endif
+#ifdef HAS_FRAGMENT_NORMAL
     vary_normal = n;
 #endif
 

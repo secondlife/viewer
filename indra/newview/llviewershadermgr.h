@@ -173,10 +173,11 @@ public:
 class LLBPShaderPack
 {
 public:
-    // variants are indexed by [Alpha Mode][Planar Projection][Texture Animation]
-    LLGLSLShader mShader[3][2][2];
-    LLGLSLShader mSkinnedShader[3][2][2];
+    // variants are indexed by [Alpha Mode][Normal Map][Planar Projection][Texture Animation]
+    LLGLSLShader mShader[3][2][2][2];
+    LLGLSLShader mSkinnedShader[3][2][2][2];
 
+    // variants are indexed by [Alpha Mode][Planar Projection][Texture Animation]
     LLGLSLShader mShadowShader[3][2][2];
     LLGLSLShader mSkinnedShadowShader[3][2][2];
 

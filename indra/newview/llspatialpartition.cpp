@@ -1351,7 +1351,7 @@ void LLSpatialGroup::updateTransformUBOs()
             U64 skin_hash = 0;
             bool planar = false;
             bool cur_tex_anim = false;
-
+            bool cur_normal_map = false;
             LLGLTFDrawInfo* current_info = nullptr;
             LLGLTFDrawInfoHandle current_handle;
             current_handle.mSpatialGroup = this;
@@ -1367,6 +1367,9 @@ void LLSpatialGroup::updateTransformUBOs()
 
                 bool tex_anim = facep->mTextureMatrix != nullptr;
 
+                static LLCachedControl<bool> norm_map_enabled(gSavedSettings, "RenderNormalMapsEnabled");
+                bool normal_map = norm_map_enabled && facep->getTexture(LLRender::NORMAL_MAP) != nullptr;
+
                 bp_instance_map[i].transform_index = facep->getDrawable()->mTransformIndex;
                 bp_instance_map[i].material_index = facep->mMaterialIndex;
                 bp_instance_map[i].texture_transform_index = facep->mTextureTransformIndex;
@@ -1380,7 +1383,8 @@ void LLSpatialGroup::updateTransformUBOs()
                     current_avatar == avatar &&
                     current_skin_hash == skin_hash &&
                     planar == face_planar &&
-                    tex_anim == cur_tex_anim)
+                    tex_anim == cur_tex_anim &&
+                    normal_map == cur_normal_map)
                 { // another instance of the same LLVolumeFace and material
                     current_info->mInstanceCount++;
                 }
@@ -1391,10 +1395,11 @@ void LLSpatialGroup::updateTransformUBOs()
 
                     planar = face_planar;
                     cur_tex_anim = tex_anim;
+                    cur_normal_map = normal_map;
 
                     if (current_skin_hash)
                     {
-                        auto* info = mBPBatches.createSkinned(facep->mAlphaMode, false, planar, tex_anim, current_handle);
+                        auto* info = mBPBatches.createSkinned(facep->mAlphaMode, normal_map, planar, tex_anim, current_handle);
                         current_info = info;
 
                         info->mAvatar = current_avatar;
@@ -1402,7 +1407,7 @@ void LLSpatialGroup::updateTransformUBOs()
                     }
                     else
                     {
-                        current_info = mBPBatches.create(facep->mAlphaMode, false, planar, tex_anim, current_handle);
+                        current_info = mBPBatches.create(facep->mAlphaMode, normal_map, planar, tex_anim, current_handle);
                     }
 
                     avatar = current_avatar;
@@ -1429,7 +1434,7 @@ void LLSpatialGroup::updateTransformUBOs()
 
                     current_info->mMaterialID = facep->mBatchHash;
                     current_info->mDiffuseMap = diffuse->getGLTexture()->mTexID;
-                    current_info->mNormalMap = normal->getGLTexture()->mTexID;
+                    current_info->mNormalMap = normal_map ? normal->getGLTexture()->mTexID : 0;
                     current_info->mSpecularMap = specular->getGLTexture()->mTexID;
                     current_info->mEmissiveMap = 0; // not strictly necessary but helps with debugging at minimal cost
 

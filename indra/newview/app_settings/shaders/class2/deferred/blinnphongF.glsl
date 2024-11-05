@@ -32,6 +32,10 @@
 uniform vec4 debug_color;
 #endif
 
+#ifdef HAS_FRAGMENT_NORMAL
+in vec3 vary_normal;
+#endif
+
 #ifdef SAMPLE_DIFFUSE_MAP
 uniform sampler2D diffuseMap;  //always in sRGB space
 vec4 diffuseColor;
@@ -46,16 +50,16 @@ float emissive_mask;
 vec3 specularColor;
 uniform sampler2D specularMap; // Packed: Occlusion, Metal, Roughness
 in vec2 specular_texcoord;
-float glossiness;
 #endif
+
+float env_intensity;
+float glossiness;
 
 #ifdef SAMPLE_NORMAL_MAP
 uniform sampler2D bumpMap;
-in vec3 vary_normal;
 in vec3 vary_tangent;
 flat in float vary_sign;
 in vec2 normal_texcoord;
-float env_intensity;
 #endif
 
 #ifdef OUTPUT_DIFFUSE_ONLY
@@ -112,10 +116,8 @@ void unpackMaterial()
     bp_glow = gltf_material_data[idx+6].w;
 #endif
 
-#ifdef SAMPLE_NORMAL_MAP
     env_intensity = gltf_material_data[idx+3].w;
     glossiness = gltf_material_data[idx+6].z;
-#endif
 
 #ifdef SAMPLE_SPECULAR_MAP
     specularColor = gltf_material_data[idx+5].yzw;
@@ -291,16 +293,21 @@ void main()
 
     vec3 vB = sign * cross(vN, vT);
     vec3 tnorm = normalize( vNt.x * vT + vNt.y * vB + vNt.z * vN );
+#else
+#ifdef HAS_FRAGMENT_NORMAL
+    vec3 tnorm = normalize(vary_normal);
+#endif
 #endif
 
     vec4 spec = vec4(0);
 #ifdef SAMPLE_SPECULAR_MAP
-
     spec = texture(specularMap, specular_texcoord.xy);
     spec.a *= env_intensity;
     env_intensity = spec.a;
     spec.rgb *= specularColor;
     spec.rgb = srgb_to_linear(spec.rgb);
+#else
+    spec = vec4(0, 0, 0, env_intensity);
 #endif
 
 #ifdef ALPHA_BLEND
@@ -404,7 +411,6 @@ void main()
     diffuse.rgb = color.rgb;
     diffuse.a = al;
 #endif
-
 
 #ifdef OUTPUT_DIFFUSE_ONLY
 #ifdef OUTPUT_SRGB
