@@ -168,7 +168,7 @@ postAndSuspendSetup(const std::string& callerName,
     // notice the pending LLApp status first.
     LLBoundListener stopper(
         LLCoros::getStopListener(
-            listenerName,
+            LLEventPump::ANONYMOUS,
             LLCoros::instance().getName(),
             [&promise, listenerName](const LLSD& status)
             {
