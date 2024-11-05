@@ -303,7 +303,7 @@ void LLWebRTCVoiceClient::stopTimer()
 {
     if (mIsTimerActive)
     {
-        LLMuteList::instanceExists();
+        if (LLMuteList::instanceExists())
         {
             LLMuteList::getInstance()->removeObserver(this);
         }
