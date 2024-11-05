@@ -31,10 +31,12 @@ in vec2 vary_texcoord0;
 in vec4 vary_offset;
 
 uniform sampler2D diffuseRect;
+uniform sampler2D emissiveRect;
 uniform sampler2D blendTex;
 #if SMAA_REPROJECTION
 uniform sampler2D velocityTex;
 #endif
+uniform sampler2D depthMap;
 
 #define float4 vec4
 #define float2 vec2
@@ -51,7 +53,7 @@ float4 SMAANeighborhoodBlendingPS(float2 texcoord,
 
 void main()
 {
-    frag_color = SMAANeighborhoodBlendingPS(vary_texcoord0,
+    vec4 diff = SMAANeighborhoodBlendingPS(vary_texcoord0,
                                             vary_offset,
                                             diffuseRect,
                                             blendTex
@@ -59,5 +61,11 @@ void main()
                                             , velocityTex
                                             #endif
                                             );
+#ifndef NO_GLOW
+    diff.rgb += texture2D(emissiveRect, vary_texcoord0).rgb;
+#endif
+    frag_color = diff;
+
+    gl_FragDepth = texture(depthMap, vary_texcoord0.xy).r;
 }
 
