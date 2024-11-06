@@ -680,6 +680,8 @@ public:
     static S32              sVisibleLightCount;
     static bool             sRenderingHUDs;
     static F32              sDistortionWaterClipPlaneMargin;
+    static F32              sTonemapAmount;
+    static F32              sHDRAmount;
 
     static LLTrace::EventStatHandle<S64> sStatBatchSize;
 

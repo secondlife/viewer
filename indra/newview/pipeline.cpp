@@ -328,6 +328,8 @@ bool    LLPipeline::sReflectionProbesEnabled = false;
 S32     LLPipeline::sVisibleLightCount = 0;
 bool    LLPipeline::sRenderingHUDs;
 F32     LLPipeline::sDistortionWaterClipPlaneMargin = 1.0125f;
+F32     LLPipeline::sTonemapAmount = 1.f;
+F32     LLPipeline::sHDRAmount = 1.f;
 
 // EventHost API LLPipeline listener.
 static LLPipelineListener sPipelineListener;
@@ -7012,30 +7014,25 @@ void LLPipeline::generateExposure(LLRenderTarget* src, LLRenderTarget* dst, bool
         static LLStaticHashedString dynamic_exposure_params("dynamic_exposure_params");
         static LLStaticHashedString dynamic_exposure_params2("dynamic_exposure_params2");
         static LLStaticHashedString dynamic_exposure_e("dynamic_exposure_enabled");
-        static LLCachedControl<bool> should_auto_adjust(gSavedSettings, "RenderSkyAutoAdjustLegacy", true);
+        static LLCachedControl<bool> should_auto_adjust(gSavedSettings, "RenderSkyAutoAdjustLegacy", false);
         static LLCachedControl<bool> dynamic_exposure_enabled(gSavedSettings, "RenderDynamicExposureEnabled", true);
         static LLCachedControl<F32> dynamic_exposure_coefficient(gSavedSettings, "RenderDynamicExposureCoefficient", 0.175f);
-        static LLCachedControl<F32> dynamic_exposure_ev_offset(gSavedSettings, "RenderDynamicExposureEVOffset", 1.f);
-        static LLCachedControl<F32> dynamic_exposure_ev_min(gSavedSettings, "RenderDynamicExposureEVMinimum", 0.5f);
-        static LLCachedControl<F32> dynamic_exposure_ev_max(gSavedSettings, "RenderDynamicExposureEVMaximum", 2.f);
         static LLCachedControl<F32> dynamic_exposure_speed_error(gSavedSettings, "RenderDynamicExposureSpeedError", 0.1f);
         static LLCachedControl<F32> dynamic_exposure_speed_target(gSavedSettings, "RenderDynamicExposureSpeedTarget", 2.f);
 
         LLSettingsSky::ptr_t sky = LLEnvironment::instance().getCurrentSky();
 
         F32 probe_ambiance = LLEnvironment::instance().getCurrentSky()->getReflectionProbeAmbiance(should_auto_adjust);
-        F32 exp_min = 1.f;
-        F32 exp_max = 1.f;
+        F32 exp_min = sky->getHDRMin();
+        F32 exp_max = sky->getHDRMax();
 
-        if (probe_ambiance > 0.f)
-        {
-            exp_min = dynamic_exposure_ev_offset - dynamic_exposure_ev_min;
-            exp_max = dynamic_exposure_ev_offset + dynamic_exposure_ev_max;
-        }
+        exp_min = sky->getHDROffset() - exp_min;
+        exp_max = sky->getHDROffset() + exp_max;
+
         shader->uniform1f(dt, gFrameIntervalSeconds);
         shader->uniform2f(noiseVec, ll_frand() * 2.0f - 1.0f, ll_frand() * 2.0f - 1.0f);
         shader->uniform4f(dynamic_exposure_params, dynamic_exposure_coefficient, exp_min, exp_max, dynamic_exposure_speed_error);
-        shader->uniform4f(dynamic_exposure_params2, dynamic_exposure_ev_offset, dynamic_exposure_ev_min, dynamic_exposure_ev_max, dynamic_exposure_speed_target);
+        shader->uniform4f(dynamic_exposure_params2, sky->getHDROffset(), exp_min, exp_max, dynamic_exposure_speed_target);
         shader->uniform1f(dynamic_exposure_e, dynamic_exposure_enabled ? 1.f : 0.f);
 
         mScreenTriangleVB->setBuffer();
@@ -7065,11 +7062,11 @@ void LLPipeline::tonemap(LLRenderTarget* src, LLRenderTarget* dst)
 
         // Apply gamma correction to the frame here.
 
-        static LLCachedControl<bool> should_auto_adjust(gSavedSettings, "RenderSkyAutoAdjustLegacy", true);
+        static LLCachedControl<bool> should_auto_adjust(gSavedSettings, "RenderSkyAutoAdjustLegacy", false);
 
         LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
 
-        bool no_post = gSnapshotNoPost || psky->getReflectionProbeAmbiance(should_auto_adjust) == 0.f || (buildNoPost && gFloaterTools->isAvailable());
+        bool no_post = gSnapshotNoPost || (buildNoPost && gFloaterTools->isAvailable()) || psky->getTonemapMix() == 0.f;
         LLGLSLShader& shader = no_post ? gNoPostTonemapProgram : gDeferredPostTonemapProgram;
 
         shader.bind();
@@ -7106,7 +7103,7 @@ void LLPipeline::tonemap(LLRenderTarget* src, LLRenderTarget* dst)
         shader.uniform1i(tonemap_type, tonemap_type_setting);
 
         static LLCachedControl<F32> tonemap_mix_setting(gSavedSettings, "RenderTonemapMix", 1.f);
-        shader.uniform1f(tonemap_mix, tonemap_mix_setting);
+        shader.uniform1f(tonemap_mix, psky->getTonemapMix());
 
         mScreenTriangleVB->setBuffer();
         mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
@@ -7127,7 +7124,7 @@ void LLPipeline::gammaCorrect(LLRenderTarget* src, LLRenderTarget* dst)
         LLGLDepthTest depth(GL_FALSE, GL_FALSE);
 
         static LLCachedControl<bool> buildNoPost(gSavedSettings, "RenderDisablePostProcessing", false);
-        static LLCachedControl<bool> should_auto_adjust(gSavedSettings, "RenderSkyAutoAdjustLegacy", true);
+        static LLCachedControl<bool> should_auto_adjust(gSavedSettings, "RenderSkyAutoAdjustLegacy", false);
 
         LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
         LLGLSLShader& shader = psky->getReflectionProbeAmbiance(should_auto_adjust) == 0.f ? gLegacyPostGammaCorrectProgram :
@@ -8177,7 +8174,7 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_
     shader.uniform1i(LLShaderMgr::CUBE_SNAPSHOT, gCubeSnapshot ? 1 : 0);
 
     // auto adjust legacy sun color if needed
-    static LLCachedControl<bool> should_auto_adjust(gSavedSettings, "RenderSkyAutoAdjustLegacy", true);
+    static LLCachedControl<bool> should_auto_adjust(gSavedSettings, "RenderSkyAutoAdjustLegacy", false);
     static LLCachedControl<F32> auto_adjust_sun_color_scale(gSavedSettings, "RenderSkyAutoAdjustSunColorScale", 1.f);
     LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
     LLColor3 sun_diffuse(mSunDiffuse.mV);
