@@ -38,7 +38,7 @@ void main()
 {
     vec3 col = texture(diffuseRect, vary_tc).rgb;
 #ifndef NO_GLOW
-    col += texture2D(emissiveRect, vary_tc).rgb;
+    col += texture(emissiveRect, vary_tc).rgb;
 #endif
     frag_color = vec4(col, dot(col, vec3(0.299, 0.587, 0.144)));
 }
