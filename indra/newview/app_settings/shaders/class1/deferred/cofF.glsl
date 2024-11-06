@@ -73,7 +73,7 @@ void main()
     sc = min(sc, max_cof);
     sc = max(sc, -max_cof);
 
-    vec4 bloom = texture2D(emissiveRect, tc);
+    vec4 bloom = texture(emissiveRect, tc);
     frag_color.rgb = diff.rgb + bloom.rgb;
     frag_color.a = sc/max_cof*0.5+0.5;
 }
