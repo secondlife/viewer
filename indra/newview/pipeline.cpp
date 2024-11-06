@@ -309,7 +309,6 @@ bool    LLPipeline::sForceOldBakedUpload = false;
 S32     LLPipeline::sUseOcclusion = 0;
 bool    LLPipeline::sAutoMaskAlphaDeferred = true;
 bool    LLPipeline::sAutoMaskAlphaNonDeferred = false;
-bool    LLPipeline::sRenderTransparentWater = true;
 bool    LLPipeline::sBakeSunlight = false;
 bool    LLPipeline::sNoAlpha = false;
 bool    LLPipeline::sUseFarClip = true;
@@ -1019,11 +1018,6 @@ bool LLPipeline::allocateShadowBuffer(U32 resX, U32 resY)
     return true;
 }
 
-//static
-void LLPipeline::updateRenderTransparentWater()
-{
-    sRenderTransparentWater = gSavedSettings.getBOOL("RenderTransparentWater");
-}
 
 // static
 void LLPipeline::refreshCachedSettings()
@@ -2408,8 +2402,9 @@ static LLTrace::BlockTimerStatHandle FTM_CULL("Object Culling");
 // static
 bool LLPipeline::isWaterClip()
 {
+    static LLCachedControl<bool> render_transparent_water(gSavedSettings, "RenderTransparentWater", false);
     // We always pretend that we're not clipping water when rendering mirrors.
-    return (gPipeline.mHeroProbeManager.isMirrorPass()) ? false : (!sRenderTransparentWater || gCubeSnapshot) && !sRenderingHUDs;
+    return (gPipeline.mHeroProbeManager.isMirrorPass()) ? false : (render_transparent_water || gCubeSnapshot) && !sRenderingHUDs;
 }
 
 void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result)
@@ -4097,13 +4092,13 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera, bool do_occlusion)
 
         bool planar = false;
         bool tex_anim = false;
-
+        U8 tex_mask = 0;
         for (U32 double_sided = 0; double_sided < 2; ++double_sided)
         {
             LLGLDisable cull(double_sided ? GL_CULL_FACE : 0);
 
             gGLTFPBRShaderPack.mShadowShader[LLGLTFMaterial::ALPHA_MODE_OPAQUE][double_sided][planar][tex_anim].bind();
-            LLRenderPass::pushShadowBatches(sCull->mShadowBatches.mDrawInfo[LLGLTFMaterial::ALPHA_MODE_OPAQUE][double_sided][planar][tex_anim]);
+            LLRenderPass::pushShadowBatches(sCull->mShadowBatches.mDrawInfo[LLGLTFMaterial::ALPHA_MODE_OPAQUE][tex_mask][double_sided][planar][tex_anim]);
         }
     }
 
@@ -4894,24 +4889,30 @@ void LLPipeline::renderDebug()
                     {
                         for (U32 alpha_mode = 0; alpha_mode < 3; ++alpha_mode)
                         {
-                            if (rigged)
+                            for (U32 tex_mask = 0; tex_mask < LLGLTFBatches::MAX_PBR_TEX_MASK; ++tex_mask)
                             {
-                                LLRenderPass::pushRiggedDebugBatches(sCull->mGLTFBatches.mSkinnedDrawInfo[alpha_mode][double_sided][planar][tex_anim]);
-                            }
-                            else
-                            {
-                                LLRenderPass::pushDebugBatches(sCull->mGLTFBatches.mDrawInfo[alpha_mode][double_sided][planar][tex_anim]);
+                                if (rigged)
+                                {
+                                    LLRenderPass::pushRiggedDebugBatches(sCull->mGLTFBatches.mSkinnedDrawInfo[alpha_mode][tex_mask][double_sided][planar][tex_anim]);
+                                }
+                                else
+                                {
+                                    LLRenderPass::pushDebugBatches(sCull->mGLTFBatches.mDrawInfo[alpha_mode][tex_mask][double_sided][planar][tex_anim]);
+                                }
                             }
 
                             if (!double_sided)
                             {
-                                if (rigged)
+                                for (U32 tex_mask = 0; tex_mask < LLGLTFBatches::MAX_PBR_TEX_MASK; ++tex_mask)
                                 {
-                                    LLRenderPass::pushRiggedDebugBatches(sCull->mBPBatches.mSkinnedDrawInfo[alpha_mode][0][planar][tex_anim]);
-                                }
-                                else
-                                {
-                                    LLRenderPass::pushDebugBatches(sCull->mBPBatches.mDrawInfo[alpha_mode][0][planar][tex_anim]);
+                                    if (rigged)
+                                    {
+                                        LLRenderPass::pushRiggedDebugBatches(sCull->mBPBatches.mSkinnedDrawInfo[alpha_mode][tex_mask][double_sided][planar][tex_anim]);
+                                    }
+                                    else
+                                    {
+                                        LLRenderPass::pushDebugBatches(sCull->mBPBatches.mDrawInfo[alpha_mode][tex_mask][double_sided][planar][tex_anim]);
+                                    }
                                 }
                             }
                         }
@@ -4934,17 +4935,18 @@ void LLPipeline::renderDebug()
         U32 alpha_mode = LLGLTFMaterial::ALPHA_MODE_OPAQUE;
         bool double_sided = false;
         bool tex_anim = false;
+        U8 tex_mask = 0;
 
         for (U32 rigged = 0; rigged < 2; ++rigged)
         {
             gGLTFPBRShaderPack.mDebugShader.bind((bool)rigged);
             if (rigged)
             {
-                LLRenderPass::pushRiggedDebugBatches(sCull->mShadowBatches.mSkinnedDrawInfo[alpha_mode][double_sided][planar][tex_anim]);
+                LLRenderPass::pushRiggedDebugBatches(sCull->mShadowBatches.mSkinnedDrawInfo[alpha_mode][tex_mask][double_sided][planar][tex_anim]);
             }
             else
             {
-                LLRenderPass::pushDebugBatches(sCull->mShadowBatches.mDrawInfo[alpha_mode][double_sided][planar][tex_anim]);
+                LLRenderPass::pushDebugBatches(sCull->mShadowBatches.mDrawInfo[alpha_mode][tex_mask][double_sided][planar][tex_anim]);
             }
         }
 
@@ -9519,7 +9521,7 @@ void LLPipeline::renderShadow(const glm::mat4& view, const glm::mat4& proj, LLCa
 
         bool planar = false;
         bool tex_anim = false;
-
+        U8 tex_mask = 0;
         for (U32 double_sided = 0; double_sided < 2; ++double_sided)
         {
             LLGLDisable cull(double_sided ? GL_CULL_FACE : 0);
@@ -9527,11 +9529,11 @@ void LLPipeline::renderShadow(const glm::mat4& view, const glm::mat4& proj, LLCa
             gGLTFPBRShaderPack.mShadowShader[LLGLTFMaterial::ALPHA_MODE_OPAQUE][double_sided][planar][tex_anim].bind(rigged);
             if (rigged)
             {
-                LLRenderPass::pushRiggedShadowBatches(sCull->mShadowBatches.mSkinnedDrawInfo[LLGLTFMaterial::ALPHA_MODE_OPAQUE][double_sided][planar][tex_anim]);
+                LLRenderPass::pushRiggedShadowBatches(sCull->mShadowBatches.mSkinnedDrawInfo[LLGLTFMaterial::ALPHA_MODE_OPAQUE][tex_mask][double_sided][planar][tex_anim]);
             }
             else
             {
-                LLRenderPass::pushShadowBatches(sCull->mShadowBatches.mDrawInfo[LLGLTFMaterial::ALPHA_MODE_OPAQUE][double_sided][planar][tex_anim]);
+                LLRenderPass::pushShadowBatches(sCull->mShadowBatches.mDrawInfo[LLGLTFMaterial::ALPHA_MODE_OPAQUE][tex_mask][double_sided][planar][tex_anim]);
             }
         }
     }
@@ -9573,31 +9575,25 @@ void LLPipeline::renderShadow(const glm::mat4& view, const glm::mat4& proj, LLCa
                 {
                     for (U32 tex_anim = 0; tex_anim < 2; ++tex_anim)
                     {
-                        gGLTFPBRShaderPack.mShadowShader[LLGLTFMaterial::ALPHA_MODE_MASK][double_sided][planar][tex_anim].bind((bool) rigged);
-                        if (rigged)
+                        bool bound = false;
+                        auto& shader = gGLTFPBRShaderPack.mShadowShader[LLGLTFMaterial::ALPHA_MODE_MASK][double_sided][planar][tex_anim];
+                        for (U8 tex_mask = 0; tex_mask < LLGLTFBatches::MAX_PBR_TEX_MASK; ++tex_mask)
                         {
-                            LLRenderPass::pushRiggedGLTFBatches(sCull->mGLTFBatches.mSkinnedDrawInfo[LLGLTFMaterial::ALPHA_MODE_MASK][double_sided][planar][tex_anim], planar);
-                            LLRenderPass::pushRiggedGLTFBatches(sCull->mGLTFBatches.mSkinnedDrawInfo[LLGLTFMaterial::ALPHA_MODE_BLEND][double_sided][planar][tex_anim], planar);
-                        }
-                        else
-                        {
-                            LLRenderPass::pushGLTFBatches(sCull->mGLTFBatches.mDrawInfo[LLGLTFMaterial::ALPHA_MODE_MASK][double_sided][planar][tex_anim], planar);
-                            LLRenderPass::pushGLTFBatches(sCull->mGLTFBatches.mDrawInfo[LLGLTFMaterial::ALPHA_MODE_BLEND][double_sided][planar][tex_anim], planar);
-
+                            for (U32 alpha_mode = 1; alpha_mode < 3; ++alpha_mode) // skip opaque
+                            {
+                                LLRenderPass::pushGLTFBatches(shader, rigged, alpha_mode, tex_mask, double_sided, planar, tex_anim);
+                            }
                         }
 
                         if (!double_sided)
                         { // push alpha mask BP batches
-                            gBPShaderPack.mShadowShader[LLGLTFMaterial::ALPHA_MODE_MASK][planar][tex_anim].bind((bool)rigged);
-                            if (rigged)
+                            auto& shader = gBPShaderPack.mShadowShader[LLGLTFMaterial::ALPHA_MODE_MASK][planar][tex_anim];
+                            for (U8 tex_mask = 0; tex_mask < LLGLTFBatches::MAX_PBR_TEX_MASK; ++tex_mask)
                             {
-                                LLRenderPass::pushRiggedBPBatches(sCull->mBPBatches.mSkinnedDrawInfo[LLGLTFMaterial::ALPHA_MODE_MASK][double_sided][planar][tex_anim], planar);
-                                LLRenderPass::pushRiggedBPBatches(sCull->mBPBatches.mSkinnedDrawInfo[LLGLTFMaterial::ALPHA_MODE_BLEND][double_sided][planar][tex_anim], planar);
-                            }
-                            else
-                            {
-                                LLRenderPass::pushBPBatches(sCull->mBPBatches.mDrawInfo[LLGLTFMaterial::ALPHA_MODE_MASK][double_sided][planar][tex_anim], planar);
-                                LLRenderPass::pushBPBatches(sCull->mBPBatches.mDrawInfo[LLGLTFMaterial::ALPHA_MODE_BLEND][double_sided][planar][tex_anim], planar);
+                                for (U32 alpha_mode = 1; alpha_mode < 3; ++alpha_mode) // skip opaque
+                                {
+                                    LLRenderPass::pushBPBatches(shader, rigged, alpha_mode, tex_mask, planar, tex_anim);
+                                }
                             }
                         }
                     }

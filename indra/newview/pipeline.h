@@ -454,7 +454,6 @@ public:
     static bool getRenderHighlights();
     static void setRenderHighlightTextureChannel(LLRender::eTexIndex channel); // sets which UV setup to display in highlight overlay
 
-    static void updateRenderTransparentWater();
     static void refreshCachedSettings();
 
     void addDebugBlip(const LLVector3& position, const LLColor4& color);
@@ -658,7 +657,6 @@ public:
     static S32              sUseOcclusion;  // 0 = no occlusion, 1 = read only, 2 = read/write
     static bool             sAutoMaskAlphaDeferred;
     static bool             sAutoMaskAlphaNonDeferred;
-    static bool             sRenderTransparentWater;
     static bool             sBakeSunlight;
     static bool             sNoAlpha;
     static bool             sUseFarClip;

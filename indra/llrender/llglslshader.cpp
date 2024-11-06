@@ -159,6 +159,7 @@ void LLGLSLShader::finishProfile(boost::json::value& statsv)
         totals.emplace("triangles", sTotalTrianglesDrawn);
 
         auto unusedit = stats.emplace("unused", boost::json::array_kind).first;
+#if 0
         auto& unused = unusedit->value().as_array();
         if (unbound)
         {
@@ -172,6 +173,7 @@ void LLGLSLShader::finishProfile(boost::json::value& statsv)
                 }
             }
         }
+#endif
     }
 }
 

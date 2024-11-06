@@ -878,6 +878,8 @@ bool LLViewerShaderMgr::loadShadersWater()
     bool success = true;
     bool terrainWaterSuccess = true;
 
+    static LLCachedControl<bool> render_transparent_water(gSavedSettings, "RenderTransparentWater");
+
     bool use_sun_shadow = mShaderLevel[SHADER_DEFERRED] > 1 &&
         gSavedSettings.getS32("RenderShadowDetail") > 0;
 
@@ -903,7 +905,7 @@ bool LLViewerShaderMgr::loadShadersWater()
         gWaterProgram.mShaderFiles.push_back(make_pair("environment/waterV.glsl", GL_VERTEX_SHADER));
         gWaterProgram.mShaderFiles.push_back(make_pair("environment/waterF.glsl", GL_FRAGMENT_SHADER));
         gWaterProgram.clearPermutations();
-        if (LLPipeline::sRenderTransparentWater)
+        if (render_transparent_water)
         {
             gWaterProgram.addPermutation("TRANSPARENT_WATER", "1");
         }
@@ -934,7 +936,7 @@ bool LLViewerShaderMgr::loadShadersWater()
         gWaterEdgeProgram.mShaderFiles.push_back(make_pair("environment/waterF.glsl", GL_FRAGMENT_SHADER));
         gWaterEdgeProgram.clearPermutations();
         gWaterEdgeProgram.addPermutation("WATER_EDGE", "1");
-        if (LLPipeline::sRenderTransparentWater)
+        if (render_transparent_water)
         {
             gWaterEdgeProgram.addPermutation("TRANSPARENT_WATER", "1");
         }
@@ -961,7 +963,7 @@ bool LLViewerShaderMgr::loadShadersWater()
         gUnderWaterProgram.mShaderLevel = mShaderLevel[SHADER_WATER];
         gUnderWaterProgram.mShaderGroup = LLGLSLShader::SG_WATER;
         gUnderWaterProgram.clearPermutations();
-        if (LLPipeline::sRenderTransparentWater)
+        if (render_transparent_water)
         {
             gUnderWaterProgram.addPermutation("TRANSPARENT_WATER", "1");
         }
@@ -1240,6 +1242,7 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         std::string double_sided_names[2] = { "Single Sided", "Double Sided" };
         std::string planar_names[2] = { "Non-Planar", "Planar" };
         std::string tex_anim_names[2] = { "No Tex Anim", "Tex Anim" };
+        std::string tex_mask_names[4] = { "Base Color", "Normal", "Metallic-Roughness", "Emissive" };
 
         { // debug shader
             LLGLSLShader& shader = gGLTFPBRShaderPack.mDebugShader;
@@ -1283,95 +1286,129 @@ bool LLViewerShaderMgr::loadShadersDeferred()
                     for (U32 l = 0; l < 2; ++l)
                     {
                         bool tex_anim = l == 1;
-                        if (success)
-                        { // main view shader
-                            std::string name = llformat("GLTF PBR %s %s %s %s Shader", alpha_mode_names[i].c_str(), double_sided_names[j].c_str(), planar_names[k].c_str(), tex_anim_names[l].c_str());
 
-                            LLGLSLShader& shader = gGLTFPBRShaderPack.mShader[i][j][k][l];
-                            LLGLSLShader& skinned_shader = gGLTFPBRShaderPack.mSkinnedShader[i][j][k][l];
-
-                            shader.mName = name;
-                            shader.mFeatures.hasSrgb = true;
-
-                            shader.mShaderFiles.clear();
-
-                            shader.mShaderFiles.push_back(make_pair("deferred/gltfpbrV.glsl", GL_VERTEX_SHADER));
-                            shader.mShaderFiles.push_back(make_pair("deferred/gltfpbrF.glsl", GL_FRAGMENT_SHADER));
-                            shader.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
-                            shader.clearPermutations();
-
-                            shader.addPermutation("MAX_NODES_PER_GLTF_OBJECT", std::to_string(max_nodes));
-                            shader.addPermutation("MAX_INSTANCES_PER_GLTF_OBJECT", std::to_string(max_instances));
-                            shader.addPermutation("MAX_UBO_VEC4S", std::to_string(max_vec4s));
-
-                            shader.addPermutation("SAMPLE_BASE_COLOR_MAP", "1");
-                            shader.addPermutation("GAMMA_CORRECT_BASE_COLOR", "1");
-                            shader.addPermutation("SAMPLE_ORM_MAP", "1");
-                            shader.addPermutation("SAMPLE_NORMAL_MAP", "1");
-                            shader.addPermutation("SAMPLE_EMISSIVE_MAP", "1");
-                            shader.addPermutation("SAMPLE_MATERIALS_UBO", "1");
-
-                            bool frag_position = false;
-
-                            if (alpha_mode == LLGLTFMaterial::ALPHA_MODE_MASK)
-                            {
-                                shader.addPermutation("ALPHA_MASK", "1");
-                            }
-                            else if (alpha_mode == LLGLTFMaterial::ALPHA_MODE_BLEND)
-                            {
-                                shader.mFeatures.calculatesLighting = false;
-                                shader.mFeatures.hasLighting = false;
-                                shader.mFeatures.isAlphaLighting = true;
-                                shader.mFeatures.hasSrgb = true;
-                                shader.mFeatures.calculatesAtmospherics = true;
-                                shader.mFeatures.hasAtmospherics = true;
-                                shader.mFeatures.hasGamma = true;
-                                shader.mFeatures.hasShadows = use_sun_shadow;
-                                shader.mFeatures.isDeferred = true; // include deferredUtils
-                                shader.mFeatures.hasReflectionProbes = mShaderLevel[SHADER_DEFERRED];
-
-                                shader.addPermutation("ALPHA_BLEND", "1");
-                                shader.addPermutation("OUTPUT_BASE_COLOR_ONLY", "1");
-                                frag_position = true;
-
-                                if (use_sun_shadow)
-                                {
-                                    shader.addPermutation("HAS_SUN_SHADOW", "1");
-                                }
-                            }
-
-                            if (double_sided)
-                            {
-                                shader.addPermutation("DOUBLE_SIDED", "1");
-                            }
-
-                            if (planar_projection)
-                            {
-                                shader.addPermutation("PLANAR_PROJECTION", "1");
-                            }
-
-                            if (tex_anim)
-                            {
-                                shader.addPermutation("TEX_ANIM", "1");
-                            }
-
-                            if (gSavedSettings.getBOOL("RenderMirrors"))
-                            {
-                                shader.addPermutation("MIRROR_CLIP", "1");
-                                frag_position = true;
-                            }
-
-                            if (frag_position)
-                            {
-                                shader.addPermutation("FRAG_POSITION", "1");
-                            }
-                            success = make_rigged_variant(shader, skinned_shader);
+                        for (U32 tex_mask = 0; tex_mask < LLGLTFBatches::MAX_PBR_TEX_MASK; ++tex_mask)
+                        {
                             if (success)
-                            {
-                                success = shader.createShader();
-                            }
-                            llassert(success);
+                            { // main view shader
 
+                                std::string textures = " ";
+                                for (U8 t = 0; t < 4; ++t)
+                                {
+                                    if (tex_mask & (1 << t))
+                                    {
+                                        textures += tex_mask_names[t] + " ";
+                                    }
+                                }
+                                std::string name = llformat("GLTF PBR %s %s %s %s %s Shader", alpha_mode_names[i].c_str(), textures.c_str(), double_sided_names[j].c_str(), planar_names[k].c_str(), tex_anim_names[l].c_str());
+
+                                LLGLSLShader& shader = gGLTFPBRShaderPack.mShader[i][tex_mask][j][k][l];
+                                LLGLSLShader& skinned_shader = gGLTFPBRShaderPack.mSkinnedShader[i][tex_mask][j][k][l];
+
+                                shader.mName = name;
+                                shader.mFeatures.hasSrgb = true;
+
+                                shader.mShaderFiles.clear();
+
+                                shader.mShaderFiles.push_back(make_pair("deferred/gltfpbrV.glsl", GL_VERTEX_SHADER));
+                                shader.mShaderFiles.push_back(make_pair("deferred/gltfpbrF.glsl", GL_FRAGMENT_SHADER));
+                                shader.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+                                shader.clearPermutations();
+
+                                shader.addPermutation("MAX_NODES_PER_GLTF_OBJECT", std::to_string(max_nodes));
+                                shader.addPermutation("MAX_INSTANCES_PER_GLTF_OBJECT", std::to_string(max_instances));
+                                shader.addPermutation("MAX_UBO_VEC4S", std::to_string(max_vec4s));
+
+                                if (tex_mask != 0)
+                                {
+                                    shader.addPermutation("HAS_TEXTURE", "1");
+                                }
+
+                                if (tex_mask & LLGLTFBatches::BASE_COLOR_MAP)
+                                {
+                                    shader.addPermutation("SAMPLE_BASE_COLOR_MAP", "1");
+                                    shader.addPermutation("GAMMA_CORRECT_BASE_COLOR", "1");
+                                }
+
+                                if (tex_mask & LLGLTFBatches::NORMAL_MAP)
+                                {
+                                    shader.addPermutation("SAMPLE_NORMAL_MAP", "1");
+                                }
+
+                                if (tex_mask & LLGLTFBatches::METALLIC_ROUGHNESS_MAP)
+                                {
+                                    shader.addPermutation("SAMPLE_ORM_MAP", "1");
+                                }
+
+                                if (tex_mask & LLGLTFBatches::EMISSIVE_MAP)
+                                {
+                                    shader.addPermutation("SAMPLE_EMISSIVE_MAP", "1");
+                                }
+
+                                shader.addPermutation("SAMPLE_MATERIALS_UBO", "1");
+
+                                bool frag_position = false;
+
+                                if (alpha_mode == LLGLTFMaterial::ALPHA_MODE_MASK)
+                                {
+                                    shader.addPermutation("ALPHA_MASK", "1");
+                                }
+                                else if (alpha_mode == LLGLTFMaterial::ALPHA_MODE_BLEND)
+                                {
+                                    shader.mFeatures.calculatesLighting = false;
+                                    shader.mFeatures.hasLighting = false;
+                                    shader.mFeatures.isAlphaLighting = true;
+                                    shader.mFeatures.hasSrgb = true;
+                                    shader.mFeatures.calculatesAtmospherics = true;
+                                    shader.mFeatures.hasAtmospherics = true;
+                                    shader.mFeatures.hasGamma = true;
+                                    shader.mFeatures.hasShadows = use_sun_shadow;
+                                    shader.mFeatures.isDeferred = true; // include deferredUtils
+                                    shader.mFeatures.hasReflectionProbes = mShaderLevel[SHADER_DEFERRED];
+
+                                    shader.addPermutation("ALPHA_BLEND", "1");
+                                    shader.addPermutation("OUTPUT_BASE_COLOR_ONLY", "1");
+                                    frag_position = true;
+
+                                    if (use_sun_shadow)
+                                    {
+                                        shader.addPermutation("HAS_SUN_SHADOW", "1");
+                                    }
+                                }
+
+                                if (double_sided)
+                                {
+                                    shader.addPermutation("DOUBLE_SIDED", "1");
+                                }
+
+                                if (planar_projection)
+                                {
+                                    shader.addPermutation("PLANAR_PROJECTION", "1");
+                                }
+
+                                if (tex_anim)
+                                {
+                                    shader.addPermutation("TEX_ANIM", "1");
+                                }
+
+                                if (gSavedSettings.getBOOL("RenderMirrors"))
+                                {
+                                    shader.addPermutation("MIRROR_CLIP", "1");
+                                    frag_position = true;
+                                }
+
+                                if (frag_position)
+                                {
+                                    shader.addPermutation("FRAG_POSITION", "1");
+                                }
+                                success = make_rigged_variant(shader, skinned_shader);
+                                if (success)
+                                {
+                                    success = shader.createShader();
+                                }
+                                llassert(success);
+
+                            }
                         }
 
                         if (success)
@@ -1398,6 +1435,7 @@ bool LLViewerShaderMgr::loadShadersDeferred()
 
                             if (alpha_mode != LLGLTFMaterial::ALPHA_MODE_OPAQUE)
                             {
+                                shader.addPermutation("HAS_TEXTURE", "1");
                                 shader.addPermutation("ALPHA_MASK", "1");
                                 shader.addPermutation("SAMPLE_MATERIALS_UBO", "1");
                                 shader.addPermutation("SAMPLE_BASE_COLOR_MAP", "1");
@@ -1462,7 +1500,7 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         std::string alpha_mode_names[3] = { "Opaque", "Alpha Blend", "Alpha Mask" };
         std::string planar_names[2] = { "Non-Planar", "Planar" };
         std::string tex_anim_names[2] = { "No Tex Anim", "Tex Anim" };
-        std::string norm_map_names[2]   = { "No Norm Map", "Norm Map" };
+        std::string tex_mask_names[3]   = { "Diffuse", "Normal", "Specular"};
         for (U32 i = 0; i < 3; ++i)
         {
             LLGLTFMaterial::AlphaMode alpha_mode = (LLGLTFMaterial::AlphaMode)i;
@@ -1474,14 +1512,24 @@ bool LLViewerShaderMgr::loadShadersDeferred()
                 for (U32 l = 0; l < 2; ++l)
                 {
                     bool tex_anim = l == 1;
-                    for (U32 norm_map = 0; norm_map < 2; ++norm_map)
+                    for (U32 tex_mask = 0; tex_mask < LLGLTFBatches::MAX_BP_TEX_MASK; ++tex_mask)
                     {
                         if (success)
                         { // main view shader
-                            std::string name = llformat("Blinn-Phong %s %s %s %s Shader", alpha_mode_names[i].c_str(), norm_map_names[norm_map], planar_names[k].c_str(), tex_anim_names[l].c_str());
+                            std::string textures = " ";
+                            for (U32 t = 0; t < 3; ++t)
+                            {
+                                U8 bit = 1 << t;
+                                if (tex_mask & bit)
+                                {
+                                    textures += tex_mask_names[t];
+                                    textures += " ";
+                                }
+                            }
+                            std::string name = llformat("Blinn-Phong %s %s %s %s Shader", alpha_mode_names[i].c_str(), textures.c_str(), planar_names[k].c_str(), tex_anim_names[l].c_str());
 
-                            LLGLSLShader& shader = gBPShaderPack.mShader[i][norm_map][k][l];
-                            LLGLSLShader& skinned_shader = gBPShaderPack.mSkinnedShader[i][norm_map][k][l];
+                            LLGLSLShader& shader = gBPShaderPack.mShader[i][tex_mask][k][l];
+                            LLGLSLShader& skinned_shader = gBPShaderPack.mSkinnedShader[i][tex_mask][k][l];
 
                             shader.mName = name;
                             shader.mFeatures.hasSrgb = true;
@@ -1497,17 +1545,30 @@ bool LLViewerShaderMgr::loadShadersDeferred()
                             shader.addPermutation("MAX_INSTANCES_PER_GLTF_OBJECT", std::to_string(max_instances));
                             shader.addPermutation("MAX_UBO_VEC4S", std::to_string(max_vec4s));
 
-                            shader.addPermutation("SAMPLE_DIFFUSE_MAP", "1");
-                            shader.addPermutation("SAMPLE_SPECULAR_MAP", "1");
+                            if (tex_mask != 0)
+                            {
+                                shader.addPermutation("HAS_TEXTURE", "1");
+                            }
+
+                            if (tex_mask & LLGLTFBatches::DIFFUSE_MAP)
+                            {
+                                shader.addPermutation("SAMPLE_DIFFUSE_MAP", "1");
+                            }
+
+                            if (tex_mask & LLGLTFBatches::NORMAL_MAP)
+                            {
+                                shader.addPermutation("SAMPLE_NORMAL_MAP", "1");
+                            }
+
+                            if (tex_mask & LLGLTFBatches::SPECULAR_MAP)
+                            {
+                                shader.addPermutation("SAMPLE_SPECULAR_MAP", "1");
+                            }
+
                             shader.addPermutation("SAMPLE_MATERIALS_UBO", "1");
 
                             shader.addPermutation("HAS_NORMAL", "1");
                             shader.addPermutation("HAS_FRAGMENT_NORMAL", "1");
-
-                            if (norm_map)
-                            {
-                                shader.addPermutation("SAMPLE_NORMAL_MAP", "1");
-                            }
 
                             bool frag_position = false;
 
@@ -1594,6 +1655,7 @@ bool LLViewerShaderMgr::loadShadersDeferred()
 
                         if (alpha_mode != LLGLTFMaterial::ALPHA_MODE_OPAQUE)
                         {
+                            shader.addPermutation("HAS_TEXTURE", "1");
                             shader.addPermutation("ALPHA_MASK", "1");
                             shader.addPermutation("SAMPLE_MATERIALS_UBO", "1");
                             shader.addPermutation("SAMPLE_DIFFUSE_MAP", "1");
@@ -1679,6 +1741,7 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         gHUDPBROpaqueProgram.addPermutation("MAX_INSTANCES_PER_GLTF_OBJECT", std::to_string(max_instances));
         gHUDPBROpaqueProgram.addPermutation("MAX_UBO_VEC4S", std::to_string(max_vec4s));
         gHUDPBROpaqueProgram.addPermutation("OUTPUT_BASE_COLOR_ONLY", "1");
+        gHUDPBROpaqueProgram.addPermutation("HAS_TEXTURE", "1");
         gHUDPBROpaqueProgram.addPermutation("SAMPLE_BASE_COLOR_MAP", "1");
         gHUDPBROpaqueProgram.addPermutation("SAMPLE_EMISSIVE_MAP", "1");
         gHUDPBROpaqueProgram.addPermutation("OUTPUT_SRGB", "1");
@@ -1704,6 +1767,7 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         shader->addPermutation("MAX_INSTANCES_PER_GLTF_OBJECT", std::to_string(max_instances));
         shader->addPermutation("MAX_UBO_VEC4S", std::to_string(max_vec4s));
 
+        shader->addPermutation("HAS_TEXTURE", "1");
         shader->addPermutation("OUTPUT_BASE_COLOR_ONLY", "1");
         shader->addPermutation("SAMPLE_BASE_COLOR_MAP", "1");
         shader->addPermutation("SAMPLE_EMISSIVE_MAP", "1");
@@ -3595,8 +3659,11 @@ void LLGLTFShaderPack::unload()
             {
                 for (U32 l = 0; l < 2; ++l)
                 {
-                    mShader[i][j][k][l].unload();
-                    mSkinnedShader[i][j][k][l].unload();
+                    for (U32 tex_mask = 0; tex_mask < LLGLTFBatches::MAX_TEX_MASK; ++tex_mask)
+                    {
+                        mShader[i][tex_mask][j][k][l].unload();
+                        mSkinnedShader[i][tex_mask][j][k][l].unload();
+                    }
                     mShadowShader[i][j][k][l].unload();
                     mSkinnedShadowShader[i][j][k][l].unload();
                 }
@@ -3611,13 +3678,16 @@ void LLGLTFShaderPack::unload()
 
 void LLGLTFShaderPack::registerWLShaders(std::vector<LLGLSLShader*>& shader_list)
 {
-    for (U32 double_sided = 0; double_sided < 2; ++double_sided)
+    for (U32 tex_mask = 0; tex_mask < LLGLTFBatches::MAX_TEX_MASK; ++tex_mask)
     {
-        for (U32 planar = 0; planar < 2; ++planar)
+        for (U32 double_sided = 0; double_sided < 2; ++double_sided)
         {
-            for (U32 tex_anim = 0; tex_anim < 2; ++tex_anim)
+            for (U32 planar = 0; planar < 2; ++planar)
             {
-                shader_list.push_back(&mShader[LLGLTFMaterial::ALPHA_MODE_BLEND][double_sided][planar][tex_anim]);
+                for (U32 tex_anim = 0; tex_anim < 2; ++tex_anim)
+                {
+                    shader_list.push_back(&mShader[LLGLTFMaterial::ALPHA_MODE_BLEND][tex_mask][double_sided][planar][tex_anim]);
+                }
             }
         }
     }
@@ -3625,20 +3695,20 @@ void LLGLTFShaderPack::registerWLShaders(std::vector<LLGLSLShader*>& shader_list
 
 void LLBPShaderPack::unload()
 {
-    for (U32 i = 0; i < 3; i++)
+    for (U32 alpha_mode = 0; alpha_mode < 3; ++alpha_mode)
     {
-        for (U32 j = 0; j < 2; j++)
+        for (U32 planar = 0; planar < 2; ++planar)
         {
-            for (U32 k = 0; k < 2; ++k)
+            for (U32 tex_anim = 0; tex_anim < 2; ++tex_anim)
             {
-                for (U32 l = 0; l < 2; ++l)
+                for (U32 tex_mask = 0; tex_mask < LLGLTFBatches::MAX_BP_TEX_MASK; ++tex_mask)
                 {
-                    mShader[i][j][k][l].unload();
-                    mSkinnedShader[i][j][k][l].unload();
+                    mShader[alpha_mode][tex_mask][planar][tex_anim].unload();
+                    mSkinnedShader[alpha_mode][tex_mask][planar][tex_anim].unload();
                 }
 
-                mShadowShader[i][j][k].unload();
-                mSkinnedShadowShader[i][j][k].unload();
+                mShadowShader[alpha_mode][planar][tex_anim].unload();
+                mSkinnedShadowShader[alpha_mode][planar][tex_anim].unload();
             }
         }
     }
@@ -3649,13 +3719,14 @@ void LLBPShaderPack::unload()
 
 void LLBPShaderPack::registerWLShaders(std::vector<LLGLSLShader*>& shader_list)
 {
-    for (U32 normal_map = 0; normal_map < 2; ++normal_map)
+    for (U32 tex_mask = 0; tex_mask < LLGLTFBatches::MAX_BP_TEX_MASK; ++tex_mask)
     {
         for (U32 planar = 0; planar < 2; ++planar)
         {
             for (U32 tex_anim = 0; tex_anim < 2; ++tex_anim)
             {
-                shader_list.push_back(&mShader[LLGLTFMaterial::ALPHA_MODE_BLEND][normal_map][planar][tex_anim]);
+
+                shader_list.push_back(&mShader[LLGLTFMaterial::ALPHA_MODE_BLEND][tex_mask][planar][tex_anim]);
             }
         }
     }

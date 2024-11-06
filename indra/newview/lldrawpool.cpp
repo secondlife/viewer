@@ -822,6 +822,50 @@ static void pre_push_gltf_batches()
     STOP_GLERROR;
 }
 
+void LLRenderPass::pushGLTFBatches(LLGLSLShader& shader, bool rigged, U32 alpha_mode, U8 tex_mask, bool double_sided, bool planar, bool tex_anim)
+{
+    if (rigged)
+    {
+        auto& draw_info = sCull->mGLTFBatches.mSkinnedDrawInfo[alpha_mode][tex_mask][double_sided][planar][tex_anim];
+        if (!draw_info.empty())
+        {
+            shader.bind(rigged);
+            pushRiggedGLTFBatches(draw_info, planar, tex_anim);
+        }
+    }
+    else
+    {
+        auto& draw_info = sCull->mGLTFBatches.mDrawInfo[alpha_mode][tex_mask][double_sided][planar][tex_anim];
+        if (!draw_info.empty())
+        {
+            shader.bind(rigged);
+            pushGLTFBatches(draw_info, planar, tex_anim);
+        }
+    }
+}
+
+void LLRenderPass::pushBPBatches(LLGLSLShader& shader, bool rigged, U32 alpha_mode, U8 tex_mask, bool planar, bool tex_anim)
+{
+    if (rigged)
+    {
+        auto& draw_info = sCull->mBPBatches.mSkinnedDrawInfo[alpha_mode][tex_mask][0][planar][tex_anim];
+        if (!draw_info.empty())
+        {
+            shader.bind(rigged);
+            pushRiggedGLTFBatches(draw_info, planar, tex_anim);
+        }
+    }
+    else
+    {
+        auto& draw_info = sCull->mBPBatches.mDrawInfo[alpha_mode][tex_mask][0][planar][tex_anim];
+        if (!draw_info.empty())
+        {
+            shader.bind(rigged);
+            pushGLTFBatches(draw_info, planar, tex_anim);
+        }
+    }
+}
+
 void LLRenderPass::pushGLTFBatches(const std::vector<LLGLTFDrawInfo>& draw_info, bool planar, bool tex_anim)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;

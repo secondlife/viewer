@@ -577,7 +577,6 @@ static void settings_to_globals()
 
 static void settings_modify()
 {
-    LLPipeline::sRenderTransparentWater = gSavedSettings.getBOOL("RenderTransparentWater");
     LLPipeline::sRenderDeferred = true; // false is deprecated
     LLRenderTarget::sUseFBO             = LLPipeline::sRenderDeferred;
     LLVOSurfacePatch::sLODFactor        = gSavedSettings.getF32("RenderTerrainLODFactor");
@@ -1537,10 +1536,17 @@ void sendGameControlInput()
     gAgent.sendMessage();
 }
 
+extern bool gShaderProfileFrame;
 
 bool LLAppViewer::doFrame()
 {
     LL_RECORD_BLOCK_TIME(FTM_FRAME);
+
+    if (gShaderProfileFrame)
+    {
+        LLGLSLShader::initProfile();
+    }
+
     {
         LLVertexBuffer::updateClass();
 

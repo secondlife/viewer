@@ -28,6 +28,11 @@ uniform mat4 projection_matrix;
 
 in vec3 position;
 
+#ifdef HAS_TEXTURE
+mat4 tex_mat;
+in vec2 texcoord0;
+#endif
+
 #ifdef HAS_NORMAL
 in vec3 normal;
 #endif
@@ -44,9 +49,7 @@ mat4 getObjectSkinnedTransform();
 #endif
 
 #ifdef SAMPLE_DIFFUSE_MAP
-mat4 tex_mat;
 vec4[2] texture_diffuse_transform;
-in vec2 texcoord0;
 out vec2 diffuse_texcoord;
 #endif
 
@@ -236,8 +239,8 @@ void main()
     vary_fragcoord = vert.xyz;
 #endif
 
-#ifdef SAMPLE_DIFFUSE_MAP
-
+#ifdef HAS_TEXTURE
+    vec2 tc0 = texcoord0;
 #ifdef TEX_ANIM
     mat3x4 src = texture_matrix[gltf_node_instance_map[gl_InstanceID+gltf_base_instance].z];
 
@@ -252,10 +255,13 @@ void main()
     tex_mat[3] = vec4(0,0,0,1);
 #endif
 
-    vec2 tc0 = texcoord0;
 #ifdef PLANAR_PROJECTION
     planarProjection(tc0);
 #endif
+
+#endif
+
+#ifdef SAMPLE_DIFFUSE_MAP
     diffuse_texcoord = bp_texture_transform(tc0, texture_diffuse_transform, tex_mat);
 #endif
 

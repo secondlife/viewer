@@ -82,19 +82,35 @@ class LLGLTFDrawInfoHandle;
 class LLGLTFBatches
 {
 public:
+
+    enum TexMask
+    {
+        BASE_COLOR_MAP          = 1,
+        DIFFUSE_MAP             = 1,
+        NORMAL_MAP              = 2,
+        SPECULAR_MAP            = 4,
+        METALLIC_ROUGHNESS_MAP  = 4,
+        EMISSIVE_MAP            = 8
+    };
+
+    static constexpr U8 MAX_TEX_MASK = 16;
+    static constexpr U8 MAX_PBR_TEX_MASK = 16;
+    static constexpr U8 MAX_BP_TEX_MASK = 8;
+
     typedef std::vector<LLGLTFDrawInfo> gltf_draw_info_list_t;
     typedef std::vector<LLSkinnedGLTFDrawInfo> skinned_gltf_draw_info_list_t;
-    typedef gltf_draw_info_list_t gltf_draw_info_map_t[3][2][2][2];
-    typedef skinned_gltf_draw_info_list_t skinned_gltf_draw_info_map_t[3][2][2][2];
+    typedef gltf_draw_info_list_t gltf_draw_info_map_t[3][MAX_TEX_MASK][2][2][2];
+    typedef skinned_gltf_draw_info_list_t skinned_gltf_draw_info_map_t[3][MAX_TEX_MASK][2][2][2];
 
     // collections of GLTFDrawInfo
-    // indexed by [LLGLTFMaterial::mAlphaMode][Double Sided][Planar Projection][Texture Animation]
+    // indexed by [LLGLTFMaterial::mAlphaMode][texture mask][Double Sided][Planar Projection][Texture Animation]
     gltf_draw_info_map_t mDrawInfo;
     skinned_gltf_draw_info_map_t mSkinnedDrawInfo;
 
     struct BatchList
     {
         LLGLTFMaterial::AlphaMode alpha_mode;
+        U8 tex_mask;
         bool double_sided;
         bool planar;
         bool tex_anim;
@@ -104,6 +120,7 @@ public:
     struct SkinnedBatchList
     {
         LLGLTFMaterial::AlphaMode alpha_mode;
+        U8 tex_mask;
         bool double_sided;
         bool planar;
         bool tex_anim;
@@ -118,10 +135,10 @@ public:
     void clear();
 
     // add a draw info to the appropriate list
-    LLGLTFDrawInfo* create(LLGLTFMaterial::AlphaMode alpha_mode, bool double_sided, bool planar, bool tex_anim, LLGLTFDrawInfoHandle& handle);
+    LLGLTFDrawInfo* create(LLGLTFMaterial::AlphaMode alpha_mode, U8 tex_mask, bool double_sided, bool planar, bool tex_anim, LLGLTFDrawInfoHandle& handle);
 
     // add a sikinned draw info to the appropriate list
-    LLSkinnedGLTFDrawInfo* createSkinned(LLGLTFMaterial::AlphaMode alpha_mode, bool double_sided, bool planar, bool tex_anim, LLGLTFDrawInfoHandle& handle);
+    LLSkinnedGLTFDrawInfo* createSkinned(LLGLTFMaterial::AlphaMode alpha_mode, U8 tex_mask, bool double_sided, bool planar, bool tex_anim, LLGLTFDrawInfoHandle& handle);
 
     // add the given LLGLTFBatches to these LLGLTFBatches
     void add(const LLGLTFBatches& other);
@@ -130,30 +147,36 @@ public:
     void addShadow(const LLGLTFBatches& other);
 
     template <typename T>
-    void sort(LLGLTFMaterial::AlphaMode i, T comparator)
+    void sort(LLGLTFMaterial::AlphaMode alpha_mode, T comparator)
     {
-        for (U32 j = 0; j < 2; ++j)
+        for (U32 tex_mask = 0; tex_mask < MAX_TEX_MASK; ++tex_mask)
         {
-            for (U32 k = 0; k < 2; ++k)
+            for (U32 double_sided = 0; double_sided < 2; ++double_sided)
             {
-                for (U32 l = 0; l < 2; ++l)
+                for (U32 planar = 0; planar < 2; ++planar)
                 {
-                    std::sort(mDrawInfo[i][j][k][l].begin(), mDrawInfo[i][j][k][l].end(), comparator);
+                    for (U32 tex_anim = 0; tex_anim < 2; ++tex_anim)
+                    {
+                        std::sort(mDrawInfo[alpha_mode][tex_mask][double_sided][planar][tex_anim].begin(), mDrawInfo[alpha_mode][tex_mask][double_sided][planar][tex_anim].end(), comparator);
+                    }
                 }
             }
         }
     }
 
     template <typename T>
-    void sortSkinned(LLGLTFMaterial::AlphaMode i, T comparator)
+    void sortSkinned(LLGLTFMaterial::AlphaMode alpha_mode, T comparator)
     {
-        for (U32 j = 0; j < 2; ++j)
+        for (U32 tex_mask = 0; tex_mask < MAX_TEX_MASK; ++tex_mask)
         {
-            for (U32 k = 0; k < 2; ++k)
+            for (U32 double_sided = 0; double_sided < 2; ++double_sided)
             {
-                for (U32 l = 0; l < 2; ++l)
+                for (U32 planar = 0; planar < 2; ++planar)
                 {
-                    std::sort(mSkinnedDrawInfo[i][j][k][l].begin(), mSkinnedDrawInfo[i][j][k][l].end(), comparator);
+                    for (U32 tex_anim = 0; tex_anim < 2; ++tex_anim)
+                    {
+                        std::sort(mSkinnedDrawInfo[alpha_mode][tex_mask][double_sided][planar][tex_anim].begin(), mSkinnedDrawInfo[alpha_mode][tex_mask][double_sided][planar][tex_anim].end(), comparator);
+                    }
                 }
             }
         }

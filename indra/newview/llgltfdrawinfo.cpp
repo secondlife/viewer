@@ -35,16 +35,19 @@ void LLGLTFBatches::clear()
     mBatchList.clear();
     mSkinnedBatchList.clear();
 
-    for (U32 i = 0; i < 3; i++)
+    for (U32 alpha_mode = 0; alpha_mode < 3; ++alpha_mode)
     {
-        for (U32 j = 0; j < 2; j++)
+        for (U32 tex_mask = 0; tex_mask < MAX_TEX_MASK; ++tex_mask)
         {
-            for (U32 k = 0; k < 2; ++k)
+            for (U32 double_sided = 0; double_sided < 2; ++double_sided)
             {
-                for (U32 l = 0; l < 2; ++l)
+                for (U32 planar = 0; planar < 2; ++planar)
                 {
-                    mDrawInfo[i][j][k][l].clear();
-                    mSkinnedDrawInfo[i][j][k][l].clear();
+                    for (U32 tex_anim = 0; tex_anim < 2; ++tex_anim)
+                    {
+                        mDrawInfo[alpha_mode][tex_mask][double_sided][planar][tex_anim].clear();
+                        mSkinnedDrawInfo[alpha_mode][tex_mask][double_sided][planar][tex_anim].clear();
+                    }
                 }
             }
         }
@@ -74,13 +77,13 @@ void LLGLTFDrawInfo::texNameCheck(U32 texName)
     }
 }
 
-LLGLTFDrawInfo* LLGLTFBatches::create(LLGLTFMaterial::AlphaMode alpha_mode, bool double_sided, bool planar, bool tex_anim, LLGLTFDrawInfoHandle &handle)
+LLGLTFDrawInfo* LLGLTFBatches::create(LLGLTFMaterial::AlphaMode alpha_mode, U8 tex_mask,  bool double_sided, bool planar, bool tex_anim, LLGLTFDrawInfoHandle &handle)
 {
-    auto& draw_info = mDrawInfo[alpha_mode][double_sided][planar][tex_anim];
+    auto& draw_info = mDrawInfo[alpha_mode][tex_mask][double_sided][planar][tex_anim];
 
     if (draw_info.empty())
     {
-        mBatchList.push_back({ alpha_mode, double_sided, planar, tex_anim, &draw_info });
+        mBatchList.push_back({ alpha_mode, tex_mask, double_sided, planar, tex_anim, &draw_info });
     }
 
     handle.mSkinned = false;
@@ -90,13 +93,13 @@ LLGLTFDrawInfo* LLGLTFBatches::create(LLGLTFMaterial::AlphaMode alpha_mode, bool
     return &draw_info.emplace_back();
 }
 
-LLSkinnedGLTFDrawInfo* LLGLTFBatches::createSkinned(LLGLTFMaterial::AlphaMode alpha_mode, bool double_sided, bool planar, bool tex_anim, LLGLTFDrawInfoHandle& handle)
+LLSkinnedGLTFDrawInfo* LLGLTFBatches::createSkinned(LLGLTFMaterial::AlphaMode alpha_mode, U8 tex_mask, bool double_sided, bool planar, bool tex_anim, LLGLTFDrawInfoHandle& handle)
 {
-    auto& draw_info = mSkinnedDrawInfo[alpha_mode][double_sided][planar][tex_anim];
+    auto& draw_info = mSkinnedDrawInfo[alpha_mode][tex_mask][double_sided][planar][tex_anim];
 
     if (draw_info.empty())
     {
-        mSkinnedBatchList.push_back({ alpha_mode, double_sided, planar, tex_anim, &draw_info });
+        mSkinnedBatchList.push_back({ alpha_mode, tex_mask, double_sided, planar, tex_anim, &draw_info });
     }
 
     handle.mSkinned = true;
@@ -111,13 +114,13 @@ void LLGLTFBatches::add(const LLGLTFBatches& other)
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
     for (auto& batch : other.mBatchList)
     {
-        auto& draw_info = mDrawInfo[batch.alpha_mode][batch.double_sided][batch.planar][batch.tex_anim];
+        auto& draw_info = mDrawInfo[batch.alpha_mode][batch.tex_mask][batch.double_sided][batch.planar][batch.tex_anim];
         draw_info.insert(draw_info.end(), batch.draw_info->begin(), batch.draw_info->end());
     }
 
     for (auto& batch : other.mSkinnedBatchList)
     {
-        auto& draw_info = mSkinnedDrawInfo[batch.alpha_mode][batch.double_sided][batch.planar][batch.tex_anim];
+        auto& draw_info = mSkinnedDrawInfo[batch.alpha_mode][batch.tex_mask][batch.double_sided][batch.planar][batch.tex_anim];
         draw_info.insert(draw_info.end(), batch.draw_info->begin(), batch.draw_info->end());
     }
 }
@@ -129,7 +132,7 @@ void LLGLTFBatches::addShadow(const LLGLTFBatches& other)
     {
         if (batch.alpha_mode != LLGLTFMaterial::ALPHA_MODE_OPAQUE)
         {
-            auto& draw_info = mDrawInfo[batch.alpha_mode][batch.double_sided][batch.planar][batch.tex_anim];
+            auto& draw_info = mDrawInfo[batch.alpha_mode][batch.tex_mask][batch.double_sided][batch.planar][batch.tex_anim];
             draw_info.insert(draw_info.end(), batch.draw_info->begin(), batch.draw_info->end());
         }
     }
@@ -138,7 +141,7 @@ void LLGLTFBatches::addShadow(const LLGLTFBatches& other)
     {
         if (batch.alpha_mode != LLGLTFMaterial::ALPHA_MODE_OPAQUE)
         {
-            auto& draw_info = mSkinnedDrawInfo[batch.alpha_mode][batch.double_sided][batch.planar][batch.tex_anim];
+            auto& draw_info = mSkinnedDrawInfo[batch.alpha_mode][batch.tex_mask][batch.double_sided][batch.planar][batch.tex_anim];
             draw_info.insert(draw_info.end(), batch.draw_info->begin(), batch.draw_info->end());
         }
     }

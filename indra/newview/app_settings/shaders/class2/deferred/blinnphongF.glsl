@@ -23,9 +23,6 @@
  * $/LicenseInfo$
  */
 
-/*[EXTRA_CODE_HERE]*/
-
-
 // deferred opaque implementation
 
 #ifdef DEBUG
@@ -36,24 +33,28 @@ uniform vec4 debug_color;
 in vec3 vary_normal;
 #endif
 
-#ifdef SAMPLE_DIFFUSE_MAP
-uniform sampler2D diffuseMap;  //always in sRGB space
 vec4 diffuseColor;
 float bp_glow;
-in vec2 diffuse_texcoord;
-float minimum_alpha; // PBR alphaMode: MASK, See: mAlphaCutoff, setAlphaCutoff()
 float emissive;
 float emissive_mask;
+float env_intensity;
+float glossiness;
+vec3 specularColor;
+
+#ifdef ALPHA_MASK
+float minimum_alpha;
+#endif
+
+#ifdef SAMPLE_DIFFUSE_MAP
+uniform sampler2D diffuseMap; //always in sRGB space
+in vec2 diffuse_texcoord;
 #endif
 
 #ifdef SAMPLE_SPECULAR_MAP
-vec3 specularColor;
 uniform sampler2D specularMap; // Packed: Occlusion, Metal, Roughness
 in vec2 specular_texcoord;
 #endif
 
-float env_intensity;
-float glossiness;
 
 #ifdef SAMPLE_NORMAL_MAP
 uniform sampler2D bumpMap;
@@ -107,21 +108,19 @@ void unpackMaterial()
 {
     int idx = gltf_material_id;
 
-#ifdef SAMPLE_DIFFUSE_MAP
     diffuseColor.rgb = gltf_material_data[idx+1].yzw;
     diffuseColor.a = gltf_material_data[idx+3].y;
-    minimum_alpha = gltf_material_data[idx+3].z;
     emissive = gltf_material_data[idx+6].x;
     emissive_mask = gltf_material_data[idx+6].y;
     bp_glow = gltf_material_data[idx+6].w;
-#endif
-
     env_intensity = gltf_material_data[idx+3].w;
     glossiness = gltf_material_data[idx+6].z;
-
-#ifdef SAMPLE_SPECULAR_MAP
     specularColor = gltf_material_data[idx+5].yzw;
+
+#ifdef ALPHA_MASK
+    minimum_alpha = gltf_material_data[idx+3].z;
 #endif
+
 }
 #else // SAMPLE_MATERIALS_UBO
 void unpackMaterial()
@@ -270,8 +269,6 @@ void main()
     vec4 diffuse = vec4(1);
 #ifdef SAMPLE_DIFFUSE_MAP
     diffuse = texture(diffuseMap, diffuse_texcoord.xy).rgba;
-    diffuse.rgb *= diffuseColor.rgb;
-
     emissive = max(emissive, emissive_mask * diffuse.a);
     bp_glow *= diffuse.a;
 
@@ -281,8 +278,9 @@ void main()
         discard;
     }
 #endif
-
 #endif
+
+    diffuse.rgb *= diffuseColor.rgb;
 
 #ifdef SAMPLE_NORMAL_MAP
     // from mikktspace.com
@@ -307,11 +305,10 @@ void main()
     spec.rgb *= specularColor;
     spec.rgb = srgb_to_linear(spec.rgb);
 #else
-    spec = vec4(0, 0, 0, env_intensity);
+    spec = vec4(specularColor, env_intensity);
 #endif
 
 #ifdef ALPHA_BLEND
-
     diffuse.rgb = srgb_to_linear(diffuse.rgb);
     //forward rendering, output lit linear color
     spec.a = glossiness; // pack glossiness into spec alpha for lighting functions

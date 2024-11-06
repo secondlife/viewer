@@ -73,29 +73,31 @@ void LLDrawPoolGLTFPBR::renderDeferred(S32 pass)
         {
             for (U32 tex_anim = 0; tex_anim < 2; ++tex_anim)
             {
-                LLGLSLShader& shader = gGLTFPBRShaderPack.mShader[alpha_mode][double_sided][planar][tex_anim];
-                shader.bind();
-                pushGLTFBatches(sCull->mGLTFBatches.mDrawInfo[alpha_mode][double_sided][planar][tex_anim], planar, tex_anim);
+                for (U32 tex_mask = 0; tex_mask < LLGLTFBatches::MAX_PBR_TEX_MASK; ++tex_mask)
+                {
+                    LLGLSLShader& shader = gGLTFPBRShaderPack.mShader[alpha_mode][tex_mask][double_sided][planar][tex_anim];
+                    for (U32 rigged = 0; rigged < 2; ++rigged)
+                    {
+                        pushGLTFBatches(shader, rigged, alpha_mode, tex_mask, double_sided, planar, tex_anim);
+                    }
 
-                shader.bind(true);
-                pushRiggedGLTFBatches(sCull->mGLTFBatches.mSkinnedDrawInfo[alpha_mode][double_sided][planar][tex_anim], planar, tex_anim);
-
+                }
                 if (!double_sided && gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_MATERIALS))
                 {
-                    for (U32 norm_map = 0; norm_map < 2; ++norm_map)
+                    for (U32 tex_mask = 0; tex_mask < LLGLTFBatches::MAX_BP_TEX_MASK; ++tex_mask)
                     {
-                        LLGLSLShader& shader = gBPShaderPack.mShader[alpha_mode][norm_map][planar][tex_anim];
-                        shader.bind();
-                        pushBPBatches(sCull->mBPBatches.mDrawInfo[alpha_mode][norm_map][planar][tex_anim], planar, tex_anim);
-
-                        shader.bind(true);
-                        pushRiggedBPBatches(sCull->mBPBatches.mSkinnedDrawInfo[alpha_mode][norm_map][planar][tex_anim], planar, tex_anim);
+                        LLGLSLShader& shader = gBPShaderPack.mShader[alpha_mode][tex_mask][planar][tex_anim];
+                        for (U32 rigged = 0; rigged < 2; ++rigged)
+                        {
+                            pushBPBatches(shader, rigged, alpha_mode, tex_mask, planar, tex_anim);
+                        }
                     }
                 }
             }
         }
     }
 }
+
 
 S32 LLDrawPoolGLTFPBR::getNumPostDeferredPasses()
 {

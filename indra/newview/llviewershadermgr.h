@@ -29,6 +29,7 @@
 
 #include "llshadermgr.h"
 #include "llmaterial.h"
+#include "llgltfdrawinfo.h"
 
 #define LL_DEFERRED_MULTI_LIGHT_COUNT 16
 
@@ -152,10 +153,11 @@ inline bool operator != (LLViewerShaderMgr::shader_iter const & a, LLViewerShade
 class LLGLTFShaderPack
 {
 public:
-    // variants are indexed by [Alpha Mode][Double Sided][Planar Projection][Texture Animation]
-    LLGLSLShader mShader[3][2][2][2];
-    LLGLSLShader mSkinnedShader[3][2][2][2];
+    // variants are indexed by [Alpha Mode][tex_mask][Double Sided][Planar Projection][Texture Animation]
+    LLGLSLShader mShader[3][LLGLTFBatches::MAX_TEX_MASK][2][2][2];
+    LLGLSLShader mSkinnedShader[3][LLGLTFBatches::MAX_TEX_MASK][2][2][2];
 
+    // shadow variantes are indexed by [Alpha Mode][Double Sided][Planar Projection][Texture Animation]
     LLGLSLShader mShadowShader[3][2][2][2];
     LLGLSLShader mSkinnedShadowShader[3][2][2][2];
 
@@ -173,11 +175,11 @@ public:
 class LLBPShaderPack
 {
 public:
-    // variants are indexed by [Alpha Mode][Normal Map][Planar Projection][Texture Animation]
-    LLGLSLShader mShader[3][2][2][2];
-    LLGLSLShader mSkinnedShader[3][2][2][2];
+    // variants are indexed by [Alpha Mode][tex_mask][Planar Projection][Texture Animation]
+    LLGLSLShader mShader[3][LLGLTFBatches::MAX_BP_TEX_MASK][2][2];
+    LLGLSLShader mSkinnedShader[3][LLGLTFBatches::MAX_BP_TEX_MASK][2][2];
 
-    // variants are indexed by [Alpha Mode][Planar Projection][Texture Animation]
+    // shadow variants are indexed by [Alpha Mode][Planar Projection][Texture Animation]
     LLGLSLShader mShadowShader[3][2][2];
     LLGLSLShader mSkinnedShadowShader[3][2][2];
 

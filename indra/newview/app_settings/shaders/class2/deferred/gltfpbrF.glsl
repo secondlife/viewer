@@ -1,5 +1,5 @@
 /**
- * @file pbropaqueF.glsl
+ * @file gltfpbrF.glsl
  *
  * $LicenseInfo:firstyear=2022&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -23,40 +23,43 @@
  * $/LicenseInfo$
  */
 
-/*[EXTRA_CODE_HERE]*/
-
-
 // deferred opaque implementation
 
 #ifdef DEBUG
 uniform vec4 debug_color;
 #endif
 
-#ifdef SAMPLE_BASE_COLOR_MAP
-uniform sampler2D diffuseMap;  //always in sRGB space
 vec4 baseColorFactor;
 float bp_glow;
-in vec2 base_color_texcoord;
+float metallicFactor;
+float roughnessFactor;
+vec3 emissiveColor;
+
+#ifdef ALPHA_MASK
 float minimum_alpha; // PBR alphaMode: MASK, See: mAlphaCutoff, setAlphaCutoff()
 #endif
 
+#ifdef SAMPLE_BASE_COLOR_MAP
+uniform sampler2D diffuseMap;  //always in sRGB space
+in vec2 base_color_texcoord;
+#endif
+
+
 #ifdef SAMPLE_ORM_MAP
-float metallicFactor;
-float roughnessFactor;
 uniform sampler2D specularMap; // Packed: Occlusion, Metal, Roughness
 in vec2 metallic_roughness_texcoord;
 #endif
 
+in vec3 vary_normal;
+
 #ifdef SAMPLE_NORMAL_MAP
 uniform sampler2D bumpMap;
-in vec3 vary_normal;
 in vec3 vary_tangent;
 flat in float vary_sign;
 in vec2 normal_texcoord;
 #endif
 
 #ifdef SAMPLE_EMISSIVE_MAP
-vec3 emissiveColor;
 uniform sampler2D emissiveMap;
 in vec2 emissive_texcoord;
 #endif
@@ -107,20 +110,16 @@ flat in int gltf_material_id;
 void unpackMaterial()
 {
     int idx = gltf_material_id;
-#ifdef SAMPLE_BASE_COLOR_MAP
+
     baseColorFactor.rgb = gltf_material_data[idx+1].yzw;
     baseColorFactor.a = gltf_material_data[idx+3].y;
-    minimum_alpha = gltf_material_data[idx+3].z;
     bp_glow = gltf_material_data[idx+3].w;
-#endif
-
-#ifdef SAMPLE_ORM_MAP
     roughnessFactor = gltf_material_data[idx+5].y;
     metallicFactor = gltf_material_data[idx+5].z;
-#endif
-
-#ifdef SAMPLE_EMISSIVE_MAP
     emissiveColor = gltf_material_data[idx+7].yzw;
+
+#ifdef ALPHA_MASK
+    minimum_alpha = gltf_material_data[idx+3].z;
 #endif
 }
 #else // SAMPLE_MATERIALS_UBO
@@ -216,6 +215,7 @@ void main()
 
 #endif
 
+
 #ifdef SAMPLE_NORMAL_MAP
     // from mikktspace.com
     vec3 vNt = texture(bumpMap, normal_texcoord.xy).xyz*2.0-1.0;
@@ -225,27 +225,28 @@ void main()
 
     vec3 vB = sign * cross(vN, vT);
     vec3 tnorm = normalize( vNt.x * vT + vNt.y * vB + vNt.z * vN );
+#else
+    vec3 tnorm = normalize(vary_normal);
+#endif
 
 #ifdef DOUBLE_SIDED
     tnorm *= gl_FrontFacing ? 1.0 : -1.0;
 #endif
 
-#endif
-
-#ifdef SAMPLE_ORM_MAP
     // RGB = Occlusion, Roughness, Metal
     // default values, see LLViewerTexture::sDefaultPBRORMImagep
     //   occlusion 1.0
     //   roughness 0.0
     //   metal     0.0
-    vec3 spec = texture(specularMap, metallic_roughness_texcoord.xy).rgb;
+    vec3 spec = vec3(1, roughnessFactor, metallicFactor);
 
-    spec.g *= roughnessFactor;
-    spec.b *= metallicFactor;
+#ifdef SAMPLE_ORM_MAP
+    spec *= texture(specularMap, metallic_roughness_texcoord.xy).rgb;
 #endif
 
-#ifdef SAMPLE_EMISSIVE_MAP
     vec3 emissive = emissiveColor;
+
+#ifdef SAMPLE_EMISSIVE_MAP
     emissive *= srgb_to_linear(texture(emissiveMap, emissive_texcoord.xy).rgb);
 #endif
 

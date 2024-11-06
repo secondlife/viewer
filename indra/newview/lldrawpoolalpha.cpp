@@ -182,12 +182,6 @@ void LLDrawPoolAlpha::renderPostDeferred(S32 pass)
 
     prepare_alpha_shader(simple_shader, true, water_sign); //prime simple shader (loads shadow relevant uniforms)
 
-    pbr_shader =
-        (LLPipeline::sRenderingHUDs) ? &gHUDPBRAlphaProgram :
-        &gGLTFPBRShaderPack.mShader[LLGLTFMaterial::ALPHA_MODE_BLEND][1][0][0];
-
-    prepare_alpha_shader(pbr_shader, true, water_sign);
-
     // explicitly unbind here so render loop doesn't make assumptions about the last shader
     // already being setup for rendering
     LLGLSLShader::unbind();
@@ -270,23 +264,26 @@ void LLDrawPoolAlpha::forwardRender(bool rigged)
                     {
                         //if (gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_GLTF_PBR))
                         {
-                            auto& info = sCull->mGLTFBatches.mSkinnedDrawInfo[alpha_mode][double_sided][planar][tex_anim];
-                            if (!info.empty())
+                            for (U32 tex_mask = 0; tex_mask < LLGLTFBatches::MAX_PBR_TEX_MASK; ++tex_mask)
                             {
-                                LLGLSLShader& shader = gGLTFPBRShaderPack.mShader[alpha_mode][double_sided][planar][tex_anim];
-                                gPipeline.bindDeferredShader(*shader.mRiggedVariant);
-                                pushRiggedGLTFBatches(info, planar, tex_anim);
+                                auto& info = sCull->mGLTFBatches.mSkinnedDrawInfo[alpha_mode][tex_mask][double_sided][planar][tex_anim];
+                                if (!info.empty())
+                                {
+                                    LLGLSLShader& shader = gGLTFPBRShaderPack.mShader[alpha_mode][tex_mask][double_sided][planar][tex_anim];
+                                    gPipeline.bindDeferredShader(*shader.mRiggedVariant);
+                                    pushRiggedGLTFBatches(info, planar, tex_anim);
+                                }
                             }
                         }
 
                         if (!double_sided) // && gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_MATERIALS))
                         {
-                            for (U32 norm_map = 0; norm_map < 2; ++norm_map)
+                            for (U32 tex_mask = 0; tex_mask < LLGLTFBatches::MAX_BP_TEX_MASK; ++tex_mask)
                             {
-                                auto& info = sCull->mBPBatches.mSkinnedDrawInfo[alpha_mode][norm_map][planar][tex_anim];
+                                auto& info = sCull->mBPBatches.mSkinnedDrawInfo[alpha_mode][tex_mask][double_sided][planar][tex_anim];
                                 if (!info.empty())
                                 {
-                                    LLGLSLShader& shader = gBPShaderPack.mShader[alpha_mode][norm_map][planar][tex_anim];
+                                    LLGLSLShader& shader = gBPShaderPack.mShader[alpha_mode][tex_mask][planar][tex_anim];
                                     gPipeline.bindDeferredShader(*shader.mRiggedVariant);
                                     pushRiggedBPBatches(info, planar, tex_anim);
                                 }
@@ -311,23 +308,26 @@ void LLDrawPoolAlpha::forwardRender(bool rigged)
                 {
                     //if (gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_GLTF_PBR))
                     {
-                        auto& info = sCull->mGLTFBatches.mDrawInfo[alpha_mode][double_sided][planar][tex_anim];
-                        if (!info.empty())
+                        for (U32 tex_mask = 0; tex_mask < LLGLTFBatches::MAX_PBR_TEX_MASK; ++tex_mask)
                         {
-                            LLGLSLShader& shader = gGLTFPBRShaderPack.mShader[alpha_mode][double_sided][planar][tex_anim];
-                            gPipeline.bindDeferredShader(shader);
-                            pushGLTFBatches(info, planar, tex_anim);
+                            auto& info = sCull->mGLTFBatches.mDrawInfo[alpha_mode][tex_mask][double_sided][planar][tex_anim];
+                            if (!info.empty())
+                            {
+                                LLGLSLShader& shader = gGLTFPBRShaderPack.mShader[alpha_mode][tex_mask][double_sided][planar][tex_anim];
+                                gPipeline.bindDeferredShader(shader);
+                                pushGLTFBatches(info, planar, tex_anim);
+                            }
                         }
                     }
 
                     if (!double_sided) // && gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_MATERIALS))
                     {
-                        for (U32 norm_map = 0; norm_map < 2; ++norm_map)
+                        for (U32 tex_mask = 0; tex_mask < LLGLTFBatches::MAX_BP_TEX_MASK; ++tex_mask)
                         {
-                            auto& info = sCull->mBPBatches.mDrawInfo[alpha_mode][norm_map][planar][tex_anim];
+                            auto& info = sCull->mBPBatches.mDrawInfo[alpha_mode][tex_mask][double_sided][planar][tex_anim];
                             if (!info.empty())
                             {
-                                LLGLSLShader& shader = gBPShaderPack.mShader[alpha_mode][norm_map][planar][tex_anim];
+                                LLGLSLShader& shader = gBPShaderPack.mShader[alpha_mode][tex_mask][planar][tex_anim];
                                 gPipeline.bindDeferredShader(shader);
                                 pushBPBatches(info, planar, tex_anim);
                             }

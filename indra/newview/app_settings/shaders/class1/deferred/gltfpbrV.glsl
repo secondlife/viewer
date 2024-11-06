@@ -1,5 +1,5 @@
 /**
- * @file pbropaqueV.glsl
+ * @file gltfpbrV.glsl
  *
  * $LicenseInfo:firstyear=2022&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -33,11 +33,14 @@ mat4 getObjectSkinnedTransform();
 #else
 #endif
 
-#ifdef SAMPLE_BASE_COLOR_MAP
-mat4 tex_mat;
-vec4[2] texture_base_color_transform;
-vec2 texture_transform(vec2 vertex_texcoord, vec4[2] khr_gltf_transform, mat4 sl_animation_transform);
+#ifdef HAS_TEXTURE
 in vec2 texcoord0;
+vec2 texture_transform(vec2 vertex_texcoord, vec4[2] khr_gltf_transform, mat4 sl_animation_transform);
+mat4 tex_mat;
+#endif
+
+#ifdef SAMPLE_BASE_COLOR_MAP
+vec4[2] texture_base_color_transform;
 out vec2 base_color_texcoord;
 #endif
 
@@ -249,7 +252,7 @@ void main()
     vary_fragcoord = vert.xyz;
 #endif
 
-#ifdef SAMPLE_BASE_COLOR_MAP
+#ifdef HAS_TEXTURE
 
 #ifdef TEX_ANIM
     mat3x4 src = texture_matrix[gltf_node_instance_map[gl_InstanceID+gltf_base_instance].z];
@@ -269,6 +272,10 @@ void main()
 #ifdef PLANAR_PROJECTION
     planarProjection(tc0);
 #endif
+
+#endif
+
+#ifdef SAMPLE_BASE_COLOR_MAP
     base_color_texcoord = texture_transform(tc0, texture_base_color_transform, tex_mat);
 #endif
 

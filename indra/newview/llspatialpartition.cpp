@@ -1243,7 +1243,6 @@ void LLSpatialGroup::updateTransformUBOs()
                 LLVolumeFace& vf = facep->getDrawable()->getVOVolume()->getVolume()->getVolumeFace(facep->getTEOffset());
                 U64 current_skin_hash = facep->getSkinHash();
                 LLVOAvatar* current_avatar = current_skin_hash ? facep->getDrawable()->getVObj()->getAvatar() : nullptr;
-
                 bool tex_anim = facep->mTextureMatrix != nullptr;
 
                 instance_map[i].transform_index = facep->getDrawable()->mTransformIndex;
@@ -1268,12 +1267,36 @@ void LLSpatialGroup::updateTransformUBOs()
                     // a new instance
                     llassert(gltf_mat->mAlphaMode >= 0 && gltf_mat->mAlphaMode <= 2);
 
+                    LLFetchedGLTFMaterial* mat = (LLFetchedGLTFMaterial*)gltf_mat;
+                    U8 tex_mask = 0;
+
+                    auto* basecolor = mat->mBaseColorTexture.get();
+                    if (basecolor)
+                    {
+                        tex_mask |= LLGLTFBatches::BASE_COLOR_MAP;
+                    }
+                    auto* normal = mat->mNormalTexture.get();
+                    if (normal)
+                    {
+                        tex_mask |= LLGLTFBatches::NORMAL_MAP;
+                    }
+                    auto* metallic = mat->mMetallicRoughnessTexture.get();
+                    if (metallic)
+                    {
+                        tex_mask |= LLGLTFBatches::METALLIC_ROUGHNESS_MAP;
+                    }
+                    auto* emissive = mat->mEmissiveTexture.get();
+                    if (emissive)
+                    {
+                        tex_mask |= LLGLTFBatches::EMISSIVE_MAP;
+                    }
+
                     planar = face_planar;
                     cur_tex_anim = tex_anim;
 
                     if (current_skin_hash)
                     {
-                        auto* info = mGLTFBatches.createSkinned(gltf_mat->mAlphaMode, gltf_mat->mDoubleSided, planar, tex_anim, current_handle);
+                        auto* info = mGLTFBatches.createSkinned(gltf_mat->mAlphaMode, tex_mask, gltf_mat->mDoubleSided, planar, tex_anim, current_handle);
                         current_info = info;
 
                         info->mAvatar = current_avatar;
@@ -1281,41 +1304,19 @@ void LLSpatialGroup::updateTransformUBOs()
                     }
                     else
                     {
-                        current_info = mGLTFBatches.create(gltf_mat->mAlphaMode, gltf_mat->mDoubleSided, planar, tex_anim, current_handle);
+                        current_info = mGLTFBatches.create(gltf_mat->mAlphaMode, tex_mask, gltf_mat->mDoubleSided, planar, tex_anim, current_handle);
                     }
 
                     avatar = current_avatar;
                     skin_hash = current_skin_hash;
 
-                    LLFetchedGLTFMaterial* mat = (LLFetchedGLTFMaterial*)gltf_mat;
-
-                    auto* basecolor = mat->mBaseColorTexture.get();
-                    if (!basecolor)
-                    {
-                        basecolor = LLViewerFetchedTexture::sWhiteImagep.get();
-                    }
-                    auto* normal = mat->mNormalTexture.get();
-                    if (!normal)
-                    {
-                        normal = LLViewerFetchedTexture::sFlatNormalImagep.get();
-                    }
-                    auto* metallic = mat->mMetallicRoughnessTexture.get();
-                    if (!metallic)
-                    {
-                        metallic = LLViewerFetchedTexture::sWhiteImagep.get();
-                    }
-                    auto* emissive = mat->mEmissiveTexture.get();
-                    if (!emissive)
-                    {
-                        emissive = LLViewerFetchedTexture::sWhiteImagep.get();
-                    }
 
                     // set draw info values
                     current_info->mMaterialID = gltf_mat->getBatchHash();
-                    current_info->mBaseColorMap = basecolor->getGLTexture()->mTexID;
-                    current_info->mNormalMap = normal->getGLTexture()->mTexID;
-                    current_info->mMetallicRoughnessMap = metallic->getGLTexture()->mTexID;
-                    current_info->mEmissiveMap = emissive->getGLTexture()->mTexID;
+                    current_info->mBaseColorMap = basecolor ? basecolor->getGLTexture()->mTexID : 0;
+                    current_info->mNormalMap = normal ? normal->getGLTexture()->mTexID : 0;
+                    current_info->mMetallicRoughnessMap = metallic ? metallic->getGLTexture()->mTexID : 0;
+                    current_info->mEmissiveMap = emissive ? emissive->getGLTexture()->mTexID : 0;
 
                     current_info->mVBO = vf.mVertexBuffer->mGLBuffer;
                     current_info->mIBO = vf.mVertexBuffer->mGLIndices;
@@ -1392,6 +1393,26 @@ void LLSpatialGroup::updateTransformUBOs()
                 {
                     // a new instance
                     llassert(facep->mAlphaMode >= 0 && facep->mAlphaMode <= 2);
+                    U8 tex_mask = 0;
+
+                    const LLTextureEntry* te = facep->getTextureEntry();
+
+                    LLViewerTexture* diffuse = facep->getTexture();
+                    if (diffuse)
+                    {
+                        tex_mask |= LLGLTFBatches::DIFFUSE_MAP;
+                    }
+                    LLViewerTexture* normal = facep->getTexture(LLRender::NORMAL_MAP);
+                    if (normal && (te->getMaterialParams() && te->getMaterialParams()->getNormalID().isNull()))
+                    {
+                        tex_mask |= LLGLTFBatches::NORMAL_MAP;
+                    }
+
+                    LLViewerTexture* specular = facep->getTexture(LLRender::SPECULAR_MAP);
+                    if (specular)
+                    {
+                        tex_mask |= LLGLTFBatches::SPECULAR_MAP;
+                    }
 
                     planar = face_planar;
                     cur_tex_anim = tex_anim;
@@ -1399,7 +1420,7 @@ void LLSpatialGroup::updateTransformUBOs()
 
                     if (current_skin_hash)
                     {
-                        auto* info = mBPBatches.createSkinned(facep->mAlphaMode, normal_map, planar, tex_anim, current_handle);
+                        auto* info = mBPBatches.createSkinned(facep->mAlphaMode, tex_mask, false, planar, tex_anim, current_handle);
                         current_info = info;
 
                         info->mAvatar = current_avatar;
@@ -1407,35 +1428,16 @@ void LLSpatialGroup::updateTransformUBOs()
                     }
                     else
                     {
-                        current_info = mBPBatches.create(facep->mAlphaMode, normal_map, planar, tex_anim, current_handle);
+                        current_info = mBPBatches.create(facep->mAlphaMode, tex_mask, false, planar, tex_anim, current_handle);
                     }
 
                     avatar = current_avatar;
                     skin_hash = current_skin_hash;
 
-                    const LLTextureEntry* te = facep->getTextureEntry();
-                    // TODO: get actual diffuse/normal/specular
-                    LLViewerTexture* diffuse = facep->getTexture();
-                    if (!diffuse)
-                    {
-                        diffuse = LLViewerFetchedTexture::sWhiteImagep.get();
-                    }
-                    LLViewerTexture* normal = facep->getTexture(LLRender::NORMAL_MAP);
-                    if (!normal || (te->getMaterialParams() && te->getMaterialParams()->getNormalID().isNull()))
-                    {
-                        normal = LLViewerFetchedTexture::sFlatNormalImagep.get();
-                    }
-
-                    LLViewerTexture* specular = facep->getTexture(LLRender::SPECULAR_MAP);
-                    if (!specular)
-                    {
-                        specular = LLViewerFetchedTexture::sWhiteImagep.get();
-                    }
-
                     current_info->mMaterialID = facep->mBatchHash;
-                    current_info->mDiffuseMap = diffuse->getGLTexture()->mTexID;
-                    current_info->mNormalMap = normal_map ? normal->getGLTexture()->mTexID : 0;
-                    current_info->mSpecularMap = specular->getGLTexture()->mTexID;
+                    current_info->mDiffuseMap = diffuse ? diffuse->getGLTexture()->mTexID : 0;
+                    current_info->mNormalMap = normal ? normal->getGLTexture()->mTexID : 0;
+                    current_info->mSpecularMap = specular ? specular->getGLTexture()->mTexID : 0;
                     current_info->mEmissiveMap = 0; // not strictly necessary but helps with debugging at minimal cost
 
                     current_info->mVBO = vf.mVertexBuffer->mGLBuffer;
@@ -1504,7 +1506,7 @@ void LLSpatialGroup::updateTransformUBOs()
 
                     if (current_skin_hash)
                     {
-                        auto* info = mShadowBatches.createSkinned(facep->mAlphaMode, false, 0, 0, current_handle);
+                        auto* info = mShadowBatches.createSkinned(facep->mAlphaMode, 0, false, 0, 0, current_handle);
                         current_info = info;
 
                         info->mAvatar = current_avatar;
@@ -1512,7 +1514,7 @@ void LLSpatialGroup::updateTransformUBOs()
                     }
                     else
                     {
-                        current_info = mShadowBatches.create(facep->mAlphaMode, false, 0, 0, current_handle);
+                        current_info = mShadowBatches.create(facep->mAlphaMode, 0, false, 0, 0, current_handle);
                     }
 
                     avatar = current_avatar;

@@ -361,6 +361,11 @@ public:
     void pushRiggedBatches(U32 type, bool texture = true, bool batch_textures = false);
     void pushUntexturedRiggedBatches(U32 type);
 
+    // push described batches off of sCull using given shader
+    // short ciruits without binding the shader if there are no batches
+    static void pushGLTFBatches(LLGLSLShader& shader, bool rigged, U32 alpha_mode, U8 tex_mask, bool double_sided, bool planar, bool tex_anim);
+    static void pushBPBatches(LLGLSLShader& shader, bool rigged, U32 alpha_mode, U8 tex_mask, bool planar, bool tex_anim);
+
     // push full GLTF batches
     static void pushGLTFBatches(const std::vector<LLGLTFDrawInfo>& draw_info, bool planar = false, bool tex_anim = false);
 
