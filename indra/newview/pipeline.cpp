@@ -3520,11 +3520,6 @@ void LLPipeline::postSort(LLCamera &camera)
             continue;
         }
 
-        if (group->hasState(LLSpatialGroup::NEW_DRAWINFO) && group->hasState(LLSpatialGroup::GEOM_DIRTY) && !gCubeSnapshot)
-        {  // no way this group is going to be drawable without a rebuild
-            group->rebuildGeom();
-        }
-
         for (LLSpatialGroup::draw_map_t::iterator j = group->mDrawMap.begin(); j != group->mDrawMap.end(); ++j)
         {
             LLSpatialGroup::drawmap_elem_t &src_vec = j->second;
