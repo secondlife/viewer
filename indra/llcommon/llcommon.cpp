@@ -33,7 +33,7 @@
 #include "lltracethreadrecorder.h"
 #include "llcleanup.h"
 
-#if LL_PROFILER_CONFIGURATION > 1 && TRACY_ENABLE && !LL_PROFILER_ENABLE_TRACY_OPENGL
+#if LL_PROFILER_CONFIGURATION > 1 && TRACY_ENABLE
 // Override new/delete for tracy memory profiling
 
 void* ll_tracy_new(size_t size)

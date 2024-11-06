@@ -78,11 +78,8 @@
     #if LL_PROFILER_CONFIGURATION == LL_PROFILER_CONFIG_TRACY || LL_PROFILER_CONFIGURATION == LL_PROFILER_CONFIG_TRACY_FAST_TIMER
         #include "tracy/Tracy.hpp"
 
-        // Enable OpenGL profiling
-        #define LL_PROFILER_ENABLE_TRACY_OPENGL 0
-
         // Enable RenderDoc labeling
-        #define LL_PROFILER_ENABLE_RENDER_DOC 0
+        //#define LL_PROFILER_ENABLE_RENDER_DOC 0
 
     #endif
 
@@ -156,21 +153,18 @@
 #endif // LL_PROFILER
 
 #if LL_PROFILER_ENABLE_TRACY_OPENGL
-#define LL_PROFILE_GPU_ZONE(name)        TracyGpuZone(name)
-#define LL_PROFILE_GPU_ZONEC(name,color) TracyGpuZoneC(name,color)
+#define LL_PROFILE_GPU_ZONE(name)         TracyGpuZone(name)
+#define LL_PROFILE_GPU_ZONEC(name,color)  TracyGpuZoneC(name,color)
 #define LL_PROFILER_GPU_COLLECT           TracyGpuCollect
 #define LL_PROFILER_GPU_CONTEXT           TracyGpuContext
-
-// disable memory tracking (incompatible with GPU tracing)
-#define LL_PROFILE_ALLOC(ptr, size)             (void)(ptr); (void)(size);
-#define LL_PROFILE_FREE(ptr)                    (void)(ptr);
+#define LL_PROFILER_GPU_CONTEXT_NAMED     TracyGpuContextName
 #else
-#define LL_PROFILE_GPU_ZONE(name)        (void)name;
-#define LL_PROFILE_GPU_ZONEC(name,color) (void)name;(void)color;
+#define LL_PROFILE_GPU_ZONE(name)           (void)name;
+#define LL_PROFILE_GPU_ZONEC(name,color)    (void)name;(void)color;
 #define LL_PROFILER_GPU_COLLECT
 #define LL_PROFILER_GPU_CONTEXT
-
-#define LL_LABEL_OBJECT_GL(type, name, length, label)
+#define LL_PROFILER_GPU_CONTEXT_NAMED(name) (void)name;
+#endif // LL_PROFILER_ENABLE_TRACY_OPENGL
 
 #if LL_PROFILER_CONFIGURATION > 1
 #define LL_PROFILE_ALLOC(ptr, size)             TracyAlloc(ptr, size)
@@ -180,9 +174,7 @@
 #define LL_PROFILE_FREE(ptr)                    (void)(ptr);
 #endif
 
-#endif // LL_PROFILER_ENABLE_TRACY_OPENGL
-
-#if LL_PROFILER_ENABLE_RENDER_DOC
+#ifdef LL_PROFILER_ENABLE_RENDER_DOC
 #define LL_LABEL_OBJECT_GL(type, name, length, label) glObjectLabel(type, name, length, label)
 #else
 #define LL_LABEL_OBJECT_GL(type, name, length, label)

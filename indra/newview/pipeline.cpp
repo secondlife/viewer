@@ -7063,10 +7063,11 @@ extern LLPointer<LLImageGL> gEXRImage;
 
 void LLPipeline::tonemap(LLRenderTarget* src, LLRenderTarget* dst, bool gamma_correct/* = true*/)
 {
-    dst->bindTarget();
     // gamma correct lighting
     {
         LL_PROFILE_GPU_ZONE("tonemap");
+
+        dst->bindTarget();
 
         static LLCachedControl<bool> buildNoPost(gSavedSettings, "RenderDisablePostProcessing", false);
 
@@ -7120,13 +7121,13 @@ void LLPipeline::tonemap(LLRenderTarget* src, LLRenderTarget* dst, bool gamma_co
 
         gGL.getTexUnit(channel)->unbind(src->getUsage());
         shader->unbind();
+
+        dst->flush();
     }
-    dst->flush();
 }
 
 void LLPipeline::copyScreenSpaceReflections(LLRenderTarget* src, LLRenderTarget* dst)
 {
-
     if (RenderScreenSpaceReflections && !gCubeSnapshot)
     {
         LL_PROFILE_GPU_ZONE("ssr copy");
@@ -7153,9 +7154,9 @@ void LLPipeline::copyScreenSpaceReflections(LLRenderTarget* src, LLRenderTarget*
 
 void LLPipeline::generateGlow(LLRenderTarget* src)
 {
+    LL_PROFILE_GPU_ZONE("glow generate");
     if (sRenderGlow)
     {
-        LL_PROFILE_GPU_ZONE("glow");
         mGlow[2].bindTarget();
         mGlow[2].clear();
 
@@ -7266,6 +7267,8 @@ void LLPipeline::applyCAS(LLRenderTarget* src, LLRenderTarget* dst)
     static LLCachedControl<F32> cas_sharpness(gSavedSettings, "RenderCASSharpness", 0.4f);
     static LLCachedControl<bool> should_auto_adjust(gSavedSettings, "RenderSkyAutoAdjustLegacy", true);
 
+    LL_PROFILE_GPU_ZONE("cas");
+
     LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
     LLGLSLShader* sharpen_shader = psky->getReflectionProbeAmbiance(should_auto_adjust) == 0.f ? &gCASLegacyGammaProgram : &gCASProgram;
 
@@ -7308,7 +7311,7 @@ void LLPipeline::applyFXAA(LLRenderTarget* src, LLRenderTarget* dst, bool combin
     llassert(!gCubeSnapshot);
     LLGLSLShader* shader = &gGlowCombineProgram;
 
-    LL_PROFILE_GPU_ZONE("aa");
+    LL_PROFILE_GPU_ZONE("FXAA");
     S32 width = src->getWidth();
     S32 height = src->getHeight();
 
@@ -7393,7 +7396,7 @@ void LLPipeline::generateSMAABuffers(LLRenderTarget* src)
     // Present everything.
     if (multisample)
     {
-        LL_PROFILE_GPU_ZONE("aa");
+        LL_PROFILE_GPU_ZONE("SMAA Edge");
         static LLCachedControl<U32> aa_quality(gSavedSettings, "RenderFSAASamples", 0U);
         U32 fsaa_quality = std::clamp(aa_quality(), 0U, 3U);
 
@@ -7508,7 +7511,7 @@ void LLPipeline::applySMAA(LLRenderTarget* src, LLRenderTarget* dst, bool combin
 {
     llassert(!gCubeSnapshot);
 
-    LL_PROFILE_GPU_ZONE("aa");
+    LL_PROFILE_GPU_ZONE("SMAA");
     static LLCachedControl<U32> aa_quality(gSavedSettings, "RenderFSAASamples", 0U);
     U32 fsaa_quality = std::clamp(aa_quality(), 0U, 3U);
 
@@ -7571,7 +7574,6 @@ void LLPipeline::applySMAA(LLRenderTarget* src, LLRenderTarget* dst, bool combin
 
 void LLPipeline::copyRenderTarget(LLRenderTarget* src, LLRenderTarget* dst)
 {
-
     LL_PROFILE_GPU_ZONE("copyRenderTarget");
     dst->bindTarget();
 
@@ -7592,8 +7594,9 @@ void LLPipeline::copyRenderTarget(LLRenderTarget* src, LLRenderTarget* dst)
 
 void LLPipeline::combineGlow(LLRenderTarget* src, LLRenderTarget* dst)
 {
-    // Go ahead and do our glow combine here in our destination.  We blit this later into the front buffer.
+    LL_PROFILE_GPU_ZONE("glow combine");
 
+    // Go ahead and do our glow combine here in our destination.  We blit this later into the front buffer.
     if (dst)
     {
         dst->bindTarget();
@@ -7609,6 +7612,7 @@ void LLPipeline::combineGlow(LLRenderTarget* src, LLRenderTarget* dst)
         mScreenTriangleVB->setBuffer();
         mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
     }
+
     if (dst)
     {
         dst->flush();
@@ -7617,9 +7621,9 @@ void LLPipeline::combineGlow(LLRenderTarget* src, LLRenderTarget* dst)
 
 void LLPipeline::renderDoF(LLRenderTarget* src, LLRenderTarget* dst)
 {
+    LL_PROFILE_GPU_ZONE("dof");
     gViewerWindow->setup3DViewport();
 
-    LL_PROFILE_GPU_ZONE("dof");
     LLGLDisable blend(GL_BLEND);
 
     // depth of field focal plane calculations
