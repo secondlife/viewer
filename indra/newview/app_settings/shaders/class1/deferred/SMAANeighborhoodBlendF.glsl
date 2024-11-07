@@ -62,7 +62,7 @@ void main()
                                             #endif
                                             );
 #ifndef NO_GLOW
-    diff.rgb += texture2D(emissiveRect, vary_texcoord0).rgb;
+    diff.rgb += texture(emissiveRect, vary_texcoord0).rgb;
 #endif
     frag_color = diff;
 

@@ -407,6 +407,7 @@ static void update_tp_display(bool minimized)
 void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
 {
     LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("Render");
+    LL_PROFILE_GPU_ZONE("Render");
 
     LLPerfStats::RecordSceneTime T (LLPerfStats::StatType_t::RENDER_DISPLAY); // render time capture - This is the main stat for overall rendering.
 
@@ -713,6 +714,7 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
         if (gPipeline.RenderMirrors && !gSnapshot)
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("Update hero probes");
+            LL_PROFILE_GPU_ZONE("hero manager")
             gPipeline.mHeroProbeManager.update();
             gPipeline.mHeroProbeManager.renderProbes();
         }

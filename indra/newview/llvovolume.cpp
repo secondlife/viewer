@@ -642,6 +642,15 @@ void LLVOVolume::animateTextures()
                 if (!facep->mTextureMatrix)
                 {
                     facep->mTextureMatrix = new LLMatrix4();
+                    if (facep->getVirtualSize() > MIN_TEX_ANIM_SIZE)
+                    {
+                        // Fix the one edge case missed in
+                        // LLVOVolume::updateTextureVirtualSize when the
+                        // mTextureMatrix is not yet present
+                        gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_TCOORD);
+                        mDrawable->getSpatialGroup()->dirtyGeom();
+                        gPipeline.markRebuild(mDrawable->getSpatialGroup());
+                    }
                 }
 
                 LLMatrix4& tex_mat = *facep->mTextureMatrix;
@@ -5514,10 +5523,6 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
     group->mLastUpdateTime = gFrameTimeSeconds;
     group->mBuilt = 1.f;
     group->clearState(LLSpatialGroup::GEOM_DIRTY | LLSpatialGroup::ALPHA_DIRTY);
-}
-
-void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
-{
 }
 
 void LLVolumeGeometryManager::addGeometryCount(LLSpatialGroup* group, U32& vertex_count, U32& index_count)

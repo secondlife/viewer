@@ -553,8 +553,7 @@ void LLViewerParcelOverlay::addPropertyLine(F32 start_x, F32 start_y, F32 dx, F3
         {
             F32 new_x = start[VX] + (x - start[VX]) * part;
             F32 new_y = start[VY] + (y - start[VY]) * part;
-            F32 new_z = start[VZ] + (z - start[VZ]) * part;
-            edge.pushVertex(lod, new_x, new_y, new_z, water_z);
+            edge.pushVertex(lod, new_x, new_y, water_z, 0);
         };
 
     auto checkForSplit = [&](U32 lod)
@@ -618,7 +617,6 @@ void LLViewerParcelOverlay::addPropertyLine(F32 start_x, F32 start_y, F32 dx, F3
 
     // Point G simplified (last two vertices)
     move(LINE_WIDTH);
-    checkForSplit(1);
     pushTwoVertices(1);
 
     // Point G detailized (only one vertex)
