@@ -58,58 +58,57 @@ static const struct
     U32                         mMin;
     U32                         mMax;
     U32                         mRate;
-    bool                        mPipelined;
     std::string                 mKey;
     const char *                mUsage;
 } init_data[LLAppCoreHttp::AP_COUNT] =
 {
     { // AP_DEFAULT
-        8,      8,      8,      0,      false,
+        8,      8,      8,      0,
         "",
         "other"
     },
     { // AP_TEXTURE
-        8,      1,      12,     0,      true,
+        8,      1,      12,     0,
         "TextureFetchConcurrency",
         "texture fetch"
     },
     { // AP_MESH1
-        32,     1,      128,    0,      false,
+        32,     1,      128,    0,
         "MeshMaxConcurrentRequests",
         "mesh fetch"
     },
     { // AP_MESH2
-        8,      1,      32,     0,      true,
+        8,      1,      32,     0,
         "Mesh2MaxConcurrentRequests",
         "mesh2 fetch"
     },
     { // AP_LARGE_MESH
-        2,      1,      8,      0,      false,
+        2,      1,      8,      0,
         "",
         "large mesh fetch"
     },
     { // AP_UPLOADS
-        2,      1,      8,      0,      false,
+        2,      1,      8,      0,
         "",
         "asset upload"
     },
     { // AP_LONG_POLL
-        32,     32,     32,     0,      false,
+        32,     32,     32,     0,
         "",
         "long poll"
     },
     { // AP_INVENTORY
-        4,      1,      4,      0,      false,
+        4,      1,      4,      0,
         "",
         "inventory"
     },
     { // AP_MATERIALS
-        2,      1,      8,      0,      false,
+        2,      1,      8,      0,
         "RenderMaterials",
         "material manager requests"
     },
     { // AP_AGENT
-        2,      1,      32,     0,      false,
+        2,      1,      32,     0,
         "Agent",
         "Agent requests"
     }
@@ -121,8 +120,7 @@ static void ssl_verification_changed();
 
 LLAppCoreHttp::HttpClass::HttpClass()
     : mPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID),
-      mConnLimit(0U),
-      mPipelined(false)
+      mConnLimit(0U)
 {}
 
 
@@ -130,8 +128,7 @@ LLAppCoreHttp::LLAppCoreHttp()
     : mRequest(NULL),
       mStopHandle(LLCORE_HTTP_HANDLE_INVALID),
       mStopRequested(0.0),
-      mStopped(false),
-      mPipelined(true)
+      mStopped(false)
 {}
 
 
@@ -272,15 +269,6 @@ void LLAppCoreHttp::init()
                         << LL_ENDL;
     }
 
-    // Global pipelining setting
-    static const std::string http_pipelining("HttpPipelining");
-    if (gSavedSettings.controlExists(http_pipelining))
-    {
-        // Default to true (in ctor) if absent.
-        mPipelined = gSavedSettings.getBOOL(http_pipelining);
-        LL_INFOS("Init") << "HTTP Pipelining " << (mPipelined ? "enabled" : "disabled") << "!" << LL_ENDL;
-    }
-
     // Register signals for settings and state changes
     for (int i(0); i < LL_ARRAY_SIZE(init_data); ++i)
     {
@@ -373,7 +361,6 @@ void LLAppCoreHttp::cleanup()
         mHttpClasses[i].mSettingsSignal.disconnect();
     }
     mSSLNoVerifySignal.disconnect();
-    mPipelinedSignal.disconnect();
 
     delete mRequest;
     mRequest = NULL;
@@ -419,38 +406,6 @@ void LLAppCoreHttp::refreshSettings(bool initial)
 
         // Init- or run-time settings.  Must use the queued request API.
 
-        // Pipelining changes
-        if (initial)
-        {
-            const bool to_pipeline(mPipelined && init_data[i].mPipelined);
-            if (to_pipeline != mHttpClasses[app_policy].mPipelined)
-            {
-                // Pipeline election changing, set dynamic option via request
-
-                LLCore::HttpHandle handle;
-                const long new_depth(to_pipeline ? PIPELINING_DEPTH : 0);
-
-                handle = mRequest->setPolicyOption(LLCore::HttpRequest::PO_PIPELINING_DEPTH,
-                                                   mHttpClasses[app_policy].mPolicy,
-                                                   new_depth,
-                                                   LLCore::HttpHandler::ptr_t());
-                if (LLCORE_HTTP_HANDLE_INVALID == handle)
-                {
-                    status = mRequest->getStatus();
-                    LL_WARNS("Init") << "Unable to set " << init_data[i].mUsage
-                                     << " pipelining.  Reason:  " << status.toString()
-                                     << LL_ENDL;
-                }
-                else
-                {
-                    LL_DEBUGS("Init") << "Changed " << init_data[i].mUsage
-                                      << " pipelining.  New value:  " << new_depth
-                                      << LL_ENDL;
-                    mHttpClasses[app_policy].mPipelined = to_pipeline;
-                }
-            }
-        }
-
         // Get target connection concurrency value
         U32 setting(init_data[i].mDefault);
         if (! init_data[i].mKey.empty() && gSavedSettings.controlExists(init_data[i].mKey))
@@ -482,7 +437,7 @@ void LLAppCoreHttp::refreshSettings(bool initial)
             LLCore::HttpHandle handle;
             handle = mRequest->setPolicyOption(LLCore::HttpRequest::PO_CONNECTION_LIMIT,
                                                mHttpClasses[app_policy].mPolicy,
-                                               (mHttpClasses[app_policy].mPipelined ? 2 * setting : setting),
+                                               setting,
                                                LLCore::HttpHandler::ptr_t());
             if (LLCORE_HTTP_HANDLE_INVALID == handle)
             {

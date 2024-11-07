@@ -3848,9 +3848,7 @@ void LLMeshRepository::notifyLoadedMeshes()
     // we'll increase this.  See llappcorehttp and llcorehttp for
     // discussion on connection strategies.
     LLAppCoreHttp & app_core_http(LLAppViewer::instance()->getAppCoreHttp());
-    S32 scale(app_core_http.isPipelined(LLAppCoreHttp::AP_MESH2)
-              ? (2 * LLAppCoreHttp::PIPELINING_DEPTH)
-              : 5);
+    S32 scale(5);
 
     static LLCachedControl<U32> mesh2_max_req(gSavedSettings, "Mesh2MaxConcurrentRequests");
     LLMeshRepoThread::sMaxConcurrentRequests = mesh2_max_req;

@@ -222,12 +222,6 @@ public:
             return mHttpClasses[policy].mPolicy;
         }
 
-    // Return whether a policy is using pipelined operations.
-    bool isPipelined(EAppPolicy policy) const
-        {
-            return mHttpClasses[policy].mPipelined;
-        }
-
     // Apply initial or new settings from the environment.
     void refreshSettings(bool initial);
 
@@ -245,7 +239,6 @@ private:
     public:
         policy_t                    mPolicy;            // Policy class id for the class
         U32                         mConnLimit;
-        bool                        mPipelined;
         boost::signals2::connection mSettingsSignal;    // Signal to global setting that affect this class (if any)
     };
 
@@ -254,8 +247,6 @@ private:
     F64                         mStopRequested;
     bool                        mStopped;
     HttpClass                   mHttpClasses[AP_COUNT];
-    bool                        mPipelined;             // Global setting
-    boost::signals2::connection mPipelinedSignal;       // Signal for 'HttpPipelining' setting
     boost::signals2::connection mSSLNoVerifySignal;     // Signal for 'NoVerifySSLCert' setting
 
     static LLCore::HttpStatus   sslVerify(const std::string &uri, const LLCore::HttpHandler::ptr_t &handler, void *appdata);

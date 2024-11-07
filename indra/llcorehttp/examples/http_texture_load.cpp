@@ -282,13 +282,6 @@ int main(int argc, char** argv)
                                                LLCore::HttpRequest::DEFAULT_POLICY_ID,
                                                concurrency_limit,
                                                NULL);
-    if (pipeline_depth)
-    {
-        LLCore::HttpRequest::setStaticPolicyOption(LLCore::HttpRequest::PO_PIPELINING_DEPTH,
-                                                   LLCore::HttpRequest::DEFAULT_POLICY_ID,
-                                                   pipeline_depth,
-                                                   NULL);
-    }
     if (tracing)
     {
         LLCore::HttpRequest::setStaticPolicyOption(LLCore::HttpRequest::PO_TRACE,
@@ -392,8 +385,6 @@ void usage(std::ostream & out)
         "                       Default:  " << concurrency_limit << "\n"
         " -H <limit>            HTTP request highwater (requests fed to llcorehttp).\n"
         "                       Range:  [1..200]  Default:  " << highwater << "\n"
-        " -p <depth>            If <depth> is positive, enables and sets pipelineing\n"
-        "                       depth on HTTP requests.  Default:  " << pipeline_depth << "\n"
         " -t <level>            If <level> is positive ([1..3]), enables and sets HTTP\n"
         "                       tracing on HTTP requests.  Default:  " << tracing << "\n"
         " -v                    Verbose mode.  Issue some chatter while running\n"

@@ -2906,16 +2906,8 @@ void LLTextureFetch::commonUpdate()
     // Update low/high water levels based on pipelining.  We pick
     // up setting eventually, so the semaphore/request level can
     // fall outside the [0..HIGH_WATER] range.  Expect that.
-    if (LLAppViewer::instance()->getAppCoreHttp().isPipelined(LLAppCoreHttp::AP_TEXTURE))
-    {
-        mHttpHighWater = HTTP_PIPE_REQUESTS_HIGH_WATER;
-        mHttpLowWater = HTTP_PIPE_REQUESTS_LOW_WATER;
-    }
-    else
-    {
-        mHttpHighWater = HTTP_NONPIPE_REQUESTS_HIGH_WATER;
-        mHttpLowWater = HTTP_NONPIPE_REQUESTS_LOW_WATER;
-    }
+    mHttpHighWater = HTTP_NONPIPE_REQUESTS_HIGH_WATER;
+    mHttpLowWater = HTTP_NONPIPE_REQUESTS_LOW_WATER;
 
     // Release waiters
     releaseHttpWaiters();
