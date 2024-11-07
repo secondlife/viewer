@@ -402,7 +402,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 
     LLViewerObject *objectp;
     S32         num_objects;
-    U32         local_id;
+    U32         local_id = 0;
     LLPCode     pcode = 0;
     LLUUID      fullid;
     S32         i;
