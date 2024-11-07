@@ -85,7 +85,7 @@ void LLDrawPoolAlpha::prerender()
 
 S32 LLDrawPoolAlpha::getNumPostDeferredPasses()
 {
-    return 1;
+    return gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_ALPHA) ? 1: 0;
 }
 
 // set some common parameters on the given shader to prepare for alpha rendering

@@ -1229,6 +1229,9 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         llassert(success);
     }
 
+    // there are over a thousand variants of the PBR/Blinn-Phong shaders, defer creation until needed
+    LLGLSLShader::sDeferCreation = true;
+
     U32 node_size = 16 * 3;
     U32 max_nodes = gGLManager.mMaxUniformBlockSize / node_size;
 
@@ -1683,6 +1686,8 @@ bool LLViewerShaderMgr::loadShadersDeferred()
             }
         }
     }
+
+    LLGLSLShader::sDeferCreation = false;
 
     if (gSavedSettings.getBOOL("GLTFEnabled"))
     {

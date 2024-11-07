@@ -66,7 +66,6 @@ class LLGLSLShader;
 class LLShaderUniforms
 {
 public:
-
     template<typename T>
     struct UniformSetting
     {
@@ -160,6 +159,9 @@ public:
 
     static std::set<LLGLSLShader*> sInstances;
     static bool sProfileEnabled;
+
+    // if true, createShader() will defer shader creation until the first bind()
+    static bool sDeferCreation;
 
     LLGLSLShader();
     ~LLGLSLShader();

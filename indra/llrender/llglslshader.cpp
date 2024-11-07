@@ -57,6 +57,8 @@ S32 LLGLSLShader::sIndexedTextureChannels = 0;
 U32 LLGLSLShader::sMaxGLTFMaterials = 0;
 U32 LLGLSLShader::sMaxGLTFNodes = 0;
 bool LLGLSLShader::sProfileEnabled = false;
+bool LLGLSLShader::sDeferCreation = false;
+
 std::set<LLGLSLShader*> LLGLSLShader::sInstances;
 LLGLSLShader::defines_map_t LLGLSLShader::sGlobalDefines;
 U64 LLGLSLShader::sTotalTimeElapsed = 0;
@@ -127,6 +129,9 @@ void LLGLSLShader::finishProfile(boost::json::value& statsv)
         std::vector<LLGLSLShader*> sorted(sInstances.begin(), sInstances.end());
         std::sort(sorted.begin(), sorted.end(), LLGLSLShaderCompareTimeElapsed());
 
+        // map of total time by shader source files
+        std::map< std::vector< std::pair< std::string, GLenum > >, U64> source_time;
+
         auto& stats = statsv.as_object();
         auto shadersit = stats.emplace("shaders", boost::json::array_kind).first;
         auto& shaders = shadersit->value().as_array();
@@ -141,7 +146,46 @@ void LLGLSLShader::finishProfile(boost::json::value& statsv)
             {
                 auto& shaderit = shaders.emplace_back(boost::json::object_kind);
                 ptr->dumpStats(shaderit.as_object());
+
+                source_time[ptr->mShaderFiles] = 0;
             }
+        }
+
+        for (auto ptr : sorted)
+        {
+            if (ptr->mBinds != 0)
+            {
+                source_time[ptr->mShaderFiles] += ptr->mTimeElapsed;
+            }
+        }
+
+        // output to LL_INFOS the time spent in each shader source file as percent of total time, sorted by time
+
+        // copy the map to a vector for sorting
+        std::vector<std::pair<std::vector<std::pair<std::string, GLenum>>, U64>> source_time_vec;
+        for (auto& it : source_time)
+        {
+            source_time_vec.emplace_back(it);
+        }
+
+        std::sort(source_time_vec.begin(), source_time_vec.end(), [](const auto& lhs, const auto& rhs) { return lhs.second < rhs.second; });
+
+        for (auto& it : source_time_vec)
+        {
+            auto& files = it.first;
+            U64   time = it.second;
+            // pct of total time
+            float pct = (float)time / (float)sTotalTimeElapsed * 100.f;
+            // time in ms
+            float ms = (float)time / 1'000'000.f;
+            LL_INFOS() << "-----------------------------------" << LL_ENDL;
+            LL_INFOS() << "Shader source files: " << LL_ENDL;
+            for (auto& file : files)
+            {
+                LL_INFOS() << file.first << LL_ENDL;
+            }
+
+            LL_INFOS() << llformat("Time: %.4f ms (%.2f pct of total)", ms, pct) << LL_ENDL;
         }
 
         constexpr float mega = 1'000'000.f;
@@ -412,8 +456,12 @@ void LLGLSLShader::unloadInternal()
 
 bool LLGLSLShader::createShader()
 {
+    if (sDeferCreation)
+    {
+        return true;
+    }
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
-
+    LL_INFOS() << "Compiling: " << mName << LL_ENDL;
     unloadInternal();
 
     sInstances.insert(this);
@@ -458,6 +506,7 @@ bool LLGLSLShader::createShader()
         vector< pair<string, GLenum> >::iterator fileIter = mShaderFiles.begin();
         for (; fileIter != mShaderFiles.end(); fileIter++)
         {
+            LL_INFOS() << fileIter->first << LL_ENDL;
             GLuint shaderhandle = LLShaderMgr::instance()->loadShaderFile((*fileIter).first, mShaderLevel, (*fileIter).second, &mDefines, mFeatures.mIndexedTextureChannels);
             LL_DEBUGS("ShaderLoading") << "SHADER FILE: " << (*fileIter).first << " mShaderLevel=" << mShaderLevel << LL_ENDL;
             if (shaderhandle)
@@ -580,6 +629,8 @@ void dumpAttachObject(const char* func_name, GLuint program_object, const std::s
 
 bool LLGLSLShader::attachVertexObject(std::string object_path)
 {
+    LL_INFOS() << object_path << LL_ENDL;
+
     if (LLShaderMgr::instance()->mVertexShaderObjects.count(object_path) > 0)
     {
         stop_glerror();
@@ -599,6 +650,7 @@ bool LLGLSLShader::attachVertexObject(std::string object_path)
 
 bool LLGLSLShader::attachFragmentObject(std::string object_path)
 {
+    LL_INFOS() << object_path << LL_ENDL;
     if(mUsingBinaryProgram)
         return true;
 
@@ -1035,7 +1087,7 @@ bool LLGLSLShader::mapUniforms()
 bool LLGLSLShader::link(bool suppress_errors)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
-
+    LL_INFOS() << "Linking " << mName << LL_ENDL;
     bool success = LLShaderMgr::instance()->linkProgramObject(mProgramObject, suppress_errors);
 
     if (!success && !suppress_errors)
@@ -1055,7 +1107,15 @@ void LLGLSLShader::bind()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
 
-    llassert(mProgramObject != 0);
+    if (mProgramObject == 0)
+    {
+        LL_INFOS() << "JIT Shader creation: " << mName << LL_ENDL;
+        bool old_defer = sDeferCreation;
+        sDeferCreation = false;
+        unbind();
+        createShader();
+        sDeferCreation = old_defer;
+    }
 
     gGL.flush();
 

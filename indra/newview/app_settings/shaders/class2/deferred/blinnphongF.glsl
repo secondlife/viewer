@@ -259,19 +259,13 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spe
 
 #endif
 
-void main()
+vec4 getDiffuse()
 {
-    unpackMaterial();
-#ifdef MIRROR_CLIP
-    mirrorClip(vary_position);
-#endif
-
     vec4 diffuse = vec4(1);
 #ifdef SAMPLE_DIFFUSE_MAP
     diffuse = texture(diffuseMap, diffuse_texcoord.xy).rgba;
     emissive = max(emissive, emissive_mask * diffuse.a);
     bp_glow *= diffuse.a;
-
 #ifdef ALPHA_MASK
     if (diffuse.a * diffuseColor.a < minimum_alpha)
     {
@@ -279,24 +273,11 @@ void main()
     }
 #endif
 #endif
+    return diffuse;
+}
 
-    diffuse.rgb *= diffuseColor.rgb;
-
-#ifdef SAMPLE_NORMAL_MAP
-    // from mikktspace.com
-    vec3 vNt = texture(bumpMap, normal_texcoord.xy).xyz*2.0-1.0;
-    float sign = vary_sign;
-    vec3 vN = vary_normal;
-    vec3 vT = vary_tangent.xyz;
-
-    vec3 vB = sign * cross(vN, vT);
-    vec3 tnorm = normalize( vNt.x * vT + vNt.y * vB + vNt.z * vN );
-#else
-#ifdef HAS_FRAGMENT_NORMAL
-    vec3 tnorm = normalize(vary_normal);
-#endif
-#endif
-
+vec4 getSpec()
+{
     vec4 spec = vec4(0);
 #ifdef SAMPLE_SPECULAR_MAP
     spec = texture(specularMap, specular_texcoord.xy);
@@ -307,6 +288,44 @@ void main()
 #else
     spec = vec4(specularColor, env_intensity);
 #endif
+    return spec;
+}
+
+#ifdef HAS_FRAGMENT_NORMAL
+vec3 getNorm()
+{
+#ifdef SAMPLE_NORMAL_MAP
+    // from mikktspace.com
+    vec3 vNt = texture(bumpMap, normal_texcoord.xy).xyz*2.0-1.0;
+    float sign = vary_sign;
+    vec3 vN = vary_normal;
+    vec3 vT = vary_tangent.xyz;
+
+    vec3 vB = sign * cross(vN, vT);
+    vec3 tnorm = normalize( vNt.x * vT + vNt.y * vB + vNt.z * vN );
+#else
+    vec3 tnorm = normalize(vary_normal);
+#endif
+    return tnorm;
+}
+#endif
+
+void main()
+{
+    unpackMaterial();
+#ifdef MIRROR_CLIP
+    mirrorClip(vary_position);
+#endif
+
+    vec4 diffuse = getDiffuse();
+
+    diffuse.rgb *= diffuseColor.rgb;
+
+#ifdef HAS_FRAGMENT_NORMAL
+    vec3 tnorm = getNorm();
+#endif
+
+    vec4 spec = getSpec();
 
 #ifdef ALPHA_BLEND
     diffuse.rgb = srgb_to_linear(diffuse.rgb);
