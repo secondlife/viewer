@@ -5525,6 +5525,10 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
     group->clearState(LLSpatialGroup::GEOM_DIRTY | LLSpatialGroup::ALPHA_DIRTY);
 }
 
+void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
+{
+}
+
 void LLVolumeGeometryManager::addGeometryCount(LLSpatialGroup* group, U32& vertex_count, U32& index_count)
 {
     //for each drawable
