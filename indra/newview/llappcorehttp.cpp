@@ -69,7 +69,7 @@ static const struct
         "other"
     },
     { // AP_TEXTURE
-        8,      1,      12,     0,      true,
+        8,      1,      12,     0,      false,
         "TextureFetchConcurrency",
         "texture fetch"
     },
@@ -79,7 +79,7 @@ static const struct
         "mesh fetch"
     },
     { // AP_MESH2
-        8,      1,      32,     0,      true,
+        8,      1,      32,     0,      false,
         "Mesh2MaxConcurrentRequests",
         "mesh2 fetch"
     },
