@@ -102,14 +102,6 @@ namespace
     }
 };
 
-LLTerrainMaterials::LLTerrainMaterials()
-{
-    for (S32 i = 0; i < ASSET_COUNT; ++i)
-    {
-        mMaterialTexturesSet[i] = false;
-    }
-}
-
 LLTerrainMaterials::~LLTerrainMaterials()
 {
     unboost();
@@ -199,7 +191,6 @@ void LLTerrainMaterials::setDetailAssetID(S32 asset, const LLUUID& id)
     LLPointer<LLFetchedGLTFMaterial>& mat = mDetailMaterials[asset];
     mat = id.isNull() ? nullptr : gGLTFMaterialList.getMaterial(id);
     mDetailRenderMaterials[asset] = nullptr;
-    mMaterialTexturesSet[asset] = false;
 }
 
 const LLGLTFMaterial* LLTerrainMaterials::getMaterialOverride(S32 asset) const
@@ -262,11 +253,17 @@ bool LLTerrainMaterials::makeMaterialsReady(bool boost, bool strict)
         if (!material_asset_ready(mat)) { continue; }
 
         LLPointer<LLFetchedGLTFMaterial>& render_mat = mDetailRenderMaterials[i];
+        // This will be mutated by materialTexturesReady, due to the way that
+        // function is implemented.
+        bool render_material_textures_set = bool(render_mat);
         if (!render_mat)
         {
             render_mat = new LLFetchedGLTFMaterial();
             *render_mat = *mat;
             // This render_mat is effectively already loaded, because it gets its data from mat.
+            // However, its textures may not be loaded yet.
+            render_mat->materialBegin();
+            render_mat->materialComplete(true);
 
             LLPointer<LLGLTFMaterial>& override_mat = mDetailMaterialOverrides[i];
             if (override_mat)
@@ -275,7 +272,8 @@ bool LLTerrainMaterials::makeMaterialsReady(bool boost, bool strict)
             }
         }
 
-        ready[i] = materialTexturesReady(render_mat, mMaterialTexturesSet[i], boost, strict);
+        ready[i] = materialTexturesReady(render_mat, render_material_textures_set, boost, strict);
+        llassert(render_material_textures_set);
     }
 
 #if 1
@@ -412,16 +410,6 @@ bool LLTerrainMaterials::materialTexturesReady(LLPointer<LLFetchedGLTFMaterial>&
     }
 
     return true;
-}
-
-// Boost the loading priority of every known texture in the material
-// Return true when ready to use
-// static
-bool LLTerrainMaterials::makeMaterialReady(LLPointer<LLFetchedGLTFMaterial> &mat, bool &textures_set, bool boost, bool strict)
-{
-    if (!material_asset_ready(mat)) { return false; }
-
-    return materialTexturesReady(mat, textures_set, boost, strict);
 }
 
 // static
