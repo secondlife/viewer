@@ -607,7 +607,7 @@ void LLViewerTexture::updateClass()
                 last_desired_discard_bias = sDesiredDiscardBias;
                 was_backgrounded = true;
             }
-            sDesiredDiscardBias = 4.f;
+            sDesiredDiscardBias = 5.f;
         }
     }
     else
@@ -621,7 +621,7 @@ void LLViewerTexture::updateClass()
         }
     }
 
-    sDesiredDiscardBias = llclamp(sDesiredDiscardBias, 1.f, 4.f);
+    sDesiredDiscardBias = llclamp(sDesiredDiscardBias, 1.f, 5.f);
 
     LLViewerTexture::sFreezeImageUpdates = false;
 }

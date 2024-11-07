@@ -410,6 +410,8 @@ public:
 
     /*virtual*/bool  isActiveFetching() override; //is actively in fetching by the fetching pipeline.
 
+    virtual bool scaleDown() { return false; };
+
     bool mCreatePending = false;    // if true, this is in gTextureList.mCreateTextureList
     mutable bool mDownScalePending = false; // if true, this is in gTextureList.mDownScaleQueue
 
@@ -532,7 +534,7 @@ public:
     /*virtual*/ void processTextureStats();
     bool isUpdateFrozen() ;
 
-    bool scaleDown();
+    bool scaleDown() override;
 
 private:
     void init(bool firstinit) ;
