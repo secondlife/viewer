@@ -930,6 +930,55 @@ void LLMeshRepoThread::run()
         // in relatively similar manners, remake code to simplify/unify the process,
         // like processRequests(&requestQ, fetchFunction); which does same thing for each element
 
+
+        // Temporary workaround: avatars one by one get lods, but skins are holding avatars as clouds.
+        // Skins are much rarer than meshes (out of a hundred mesh attachments on a single avatar
+        // only a dozen has skins), so should be safe to prioritize.
+        // Skins loading after lods also causes T-poses.
+        if (mHttpRequestSet.size() < sRequestHighWater
+            && !mSkinRequests.empty())
+        {
+            if (!mSkinRequests.empty())
+            {
+                std::list<UUIDBasedRequest> incomplete;
+                while (!mSkinRequests.empty() && mHttpRequestSet.size() < sRequestHighWater)
+                {
+
+                    mMutex->lock();
+                    auto req = mSkinRequests.front();
+                    mSkinRequests.pop_front();
+                    mMutex->unlock();
+                    if (req.isDelayed())
+                    {
+                        incomplete.emplace_back(req);
+                    }
+                    else if (!fetchMeshSkinInfo(req.mId, req.canRetry()))
+                    {
+                        if (req.canRetry())
+                        {
+                            req.updateTime();
+                            incomplete.emplace_back(req);
+                        }
+                        else
+                        {
+                            LLMutexLock locker(mMutex);
+                            mSkinUnavailableQ.push_back(req);
+                            LL_DEBUGS() << "mSkinReqQ failed: " << req.mId << LL_ENDL;
+                        }
+                    }
+                }
+
+                if (!incomplete.empty())
+                {
+                    LLMutexLock locker(mMutex);
+                    for (const auto& req : incomplete)
+                    {
+                        mSkinRequests.push_back(req);
+                    }
+                }
+            }
+        }
+
         if (!mLODReqQ.empty() && mHttpRequestSet.size() < sRequestHighWater)
         {
             std::list<LODRequest> incomplete;
@@ -1028,53 +1077,12 @@ void LLMeshRepoThread::run()
         // performing long-duration actions.
 
         if (mHttpRequestSet.size() < sRequestHighWater
-            && (!mSkinRequests.empty()
-            || !mDecompositionRequests.empty()
+            && (!mDecompositionRequests.empty()
             || !mPhysicsShapeRequests.empty()))
         {
             // Something to do probably, lock and double-check.  We don't want
             // to hold the lock long here.  That will stall main thread activities
             // so we bounce it.
-
-            if (!mSkinRequests.empty())
-            {
-                std::list<UUIDBasedRequest> incomplete;
-                while (!mSkinRequests.empty() && mHttpRequestSet.size() < sRequestHighWater)
-                {
-
-                    mMutex->lock();
-                    auto req = mSkinRequests.front();
-                    mSkinRequests.pop_front();
-                    mMutex->unlock();
-                    if (req.isDelayed())
-                    {
-                        incomplete.emplace_back(req);
-                    }
-                    else if (!fetchMeshSkinInfo(req.mId, req.canRetry()))
-                    {
-                        if (req.canRetry())
-                        {
-                            req.updateTime();
-                            incomplete.emplace_back(req);
-                        }
-                        else
-                        {
-                            LLMutexLock locker(mMutex);
-                            mSkinUnavailableQ.push_back(req);
-                            LL_DEBUGS() << "mSkinReqQ failed: " << req.mId << LL_ENDL;
-                        }
-                    }
-                }
-
-                if (!incomplete.empty())
-                {
-                    LLMutexLock locker(mMutex);
-                    for (const auto& req : incomplete)
-                    {
-                        mSkinRequests.push_back(req);
-                    }
-                }
-            }
 
             // holding lock, try next list
             // *TODO:  For UI/debug-oriented lists, we might drop the fine-
