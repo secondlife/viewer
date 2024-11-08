@@ -529,9 +529,9 @@ public:
     LLViewerLODTexture(const LLUUID& id, FTType f_type, const LLHost& host = LLHost(), bool usemipmaps = true);
     LLViewerLODTexture(const std::string& url, FTType f_type, const LLUUID& id, bool usemipmaps = true);
 
-    /*virtual*/ S8 getType() const;
+    S8 getType() const override;
     // Process image stats to determine priority/quality requirements.
-    /*virtual*/ void processTextureStats();
+    void processTextureStats() override;
     bool isUpdateFrozen() ;
 
     bool scaleDown() override;
