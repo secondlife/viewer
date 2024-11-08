@@ -2179,15 +2179,15 @@ void LLImageGL::analyzeAlpha(const void* data_in, U32 w, U32 h)
     // this will mid-skew the data (and thus increase the chances of not
     // being used as a mask) from high-frequency alpha maps which
     // suffer the worst from aliasing when used as alpha masks.
-    if (w >= 4 && h >= 4)
+    if (w >= 2 && h >= 2)
     {
-        llassert(w%4 == 0);
-        llassert(h%4 == 0);
+        llassert(w % 2 == 0);
+        llassert(h % 2 == 0);
         const GLubyte* rowstart = ((const GLubyte*) data_in) + mAlphaOffset;
-        for (U32 y = 0; y < h; y+=4)
+        for (U32 y = 0; y < h; y += 2)
         {
             const GLubyte* current = rowstart;
-            for (U32 x = 0; x < w; x+=4)
+            for (U32 x = 0; x < w; x += 2)
             {
                 const U32 s1 = current[0];
                 alphatotal += s1;
@@ -2210,8 +2210,7 @@ void LLImageGL::analyzeAlpha(const void* data_in, U32 w, U32 h)
                 sample[asum/(16*4)] += 4;
             }
 
-
-            rowstart += 4 * w * mAlphaStride;
+            rowstart += 2 * w * mAlphaStride;
         }
         length *= 2; // we sampled everything twice, essentially
     }
