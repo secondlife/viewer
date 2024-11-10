@@ -8699,7 +8699,7 @@ void LLPipeline::renderDeferredLighting()
 
                     sVisibleLightCount++;
 
-                    glm::vec3 tc(glm::make_vec3(LLVector4(center).mV));
+                    glm::vec3 tc(center.mV[VX], center.mV[VY], center.mV[VZ]);
                     tc = mul_mat4_vec3(mat, tc);
 
                     setupSpotLight(gDeferredMultiSpotLightProgram, drawablep);
@@ -9832,7 +9832,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
     LLVector3 lightDir = -caster_dir;
     lightDir.normVec();
 
-    glm::vec3 light_dir(glm::make_vec3(lightDir.mV));
+    glm::vec3 light_dir(lightDir.mV[VX], lightDir.mV[VY], lightDir.mV[VZ]);
 
     //create light space camera matrix
 
@@ -9887,7 +9887,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
         //get good split distances for frustum
         for (U32 i = 0; i < fp.size(); ++i)
         {
-            glm::vec3 v(glm::make_vec3(fp[i].mV));
+            glm::vec3 v(fp[i].mV[VX], fp[i].mV[VY], fp[i].mV[VZ]);
             v = mul_mat4_vec3(saved_view, v);
             fp[i].setVec(glm::value_ptr(v));
         }
@@ -10038,7 +10038,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 
             for (U32 i = 0; i < fp.size(); i++)
             {
-                glm::vec3 p = glm::make_vec3(fp[i].mV);
+                glm::vec3 p(fp[i].mV[VX], fp[i].mV[VY], fp[i].mV[VZ]);
                 p = mul_mat4_vec3(view[j], p);
                 wpf.push_back(LLVector3(glm::value_ptr(p)));
             }
@@ -10241,7 +10241,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
                         view[j] = glm::inverse(view[j]);
                         //llassert(origin.isFinite());
 
-                        glm::vec3 origin_agent(glm::make_vec3(LLVector4(origin).mV));
+                        glm::vec3 origin_agent(origin.mV[VX], origin.mV[VY], origin.mV[VZ]);
 
                         //translate view to origin
                         origin_agent = mul_mat4_vec3(view[j], origin_agent);

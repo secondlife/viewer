@@ -45,6 +45,7 @@
 #include "glm/mat4x4.hpp"
 
 #include <array>
+#include <chrono>
 #include <list>
 #include <vector>
 
@@ -228,13 +229,9 @@ protected:
     S32                 mIndex;
     U32                 mCurrTexture;
     eTextureType        mCurrTexType;
-    S32                 mCurrColorScale;
-    S32                 mCurrAlphaScale;
     bool                mHasMipMaps;
 
     void debugTextureUnit(void);
-    void setColorScale(S32 scale);
-    void setAlphaScale(S32 scale);
     GLint getTextureSource(eTextureBlendSrc src);
     GLint getTextureSourceType(eTextureBlendSrc src, bool isAlpha = false);
 };
@@ -535,6 +532,15 @@ private:
 
     std::vector<LLVector4a> mUIOffset;
     std::vector<LLVector4a> mUIScale;
+
+    struct LLVBCache
+    {
+        LLPointer<LLVertexBuffer> vb;
+        std::chrono::steady_clock::time_point touched;
+    };
+
+    std::unordered_map<U64, LLVBCache> mVBCache;
+    std::list<LLVertexBufferData>* mBufferDataList = nullptr;
 };
 
 extern F32 gGLModelView[16];

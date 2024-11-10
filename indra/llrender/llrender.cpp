@@ -71,15 +71,6 @@ bool LLRender::sGLCoreProfile = false;
 bool LLRender::sNsightDebugSupport = false;
 LLVector2 LLRender::sUIGLScaleFactor = LLVector2(1.f, 1.f);
 
-struct LLVBCache
-{
-    LLPointer<LLVertexBuffer> vb;
-    std::chrono::steady_clock::time_point touched;
-};
-
-static std::unordered_map<U64, LLVBCache> sVBCache;
-static thread_local std::list<LLVertexBufferData> *sBufferDataList = nullptr;
-
 static const GLenum sGLTextureType[] =
 {
     GL_TEXTURE_2D,
@@ -117,7 +108,7 @@ static const GLenum sGLBlendFactor[] =
 
 LLTexUnit::LLTexUnit(S32 index)
     : mCurrTexType(TT_NONE),
-    mCurrColorScale(1), mCurrAlphaScale(1), mCurrTexture(0),
+    mCurrTexture(0),
     mHasMipMaps(false),
     mIndex(index)
 {
@@ -615,26 +606,6 @@ GLint LLTexUnit::getTextureSourceType(eTextureBlendSrc src, bool isAlpha)
     }
 }
 
-void LLTexUnit::setColorScale(S32 scale)
-{
-    if (mCurrColorScale != scale || gGL.mDirty)
-    {
-        mCurrColorScale = scale;
-        gGL.flush();
-        glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE, scale);
-    }
-}
-
-void LLTexUnit::setAlphaScale(S32 scale)
-{
-    if (mCurrAlphaScale != scale || gGL.mDirty)
-    {
-        mCurrAlphaScale = scale;
-        gGL.flush();
-        glTexEnvi(GL_TEXTURE_ENV, GL_ALPHA_SCALE, scale);
-    }
-}
-
 // Useful for debugging that you've manually assigned a texture operation to the correct
 // texture unit based on the currently set active texture in opengl.
 void LLTexUnit::debugTextureUnit(void)
@@ -810,7 +781,7 @@ void LLLightState::setSpotDirection(const LLVector3& direction)
     ++gGL.mLightHash;
 
     //transform direction by current modelview matrix
-    glm::vec3 dir(glm::make_vec3(direction.mV));
+    glm::vec3 dir(direction.mV[VX], direction.mV[VY], direction.mV[VZ]);
     const glm::mat3 mat(gGL.getModelviewMatrix());
     dir = mat * dir;
 
@@ -921,7 +892,9 @@ void LLRender::initVertexBuffer()
 
 void LLRender::resetVertexBuffer()
 {
-    mBuffer = NULL;
+    mBuffer = nullptr;
+    mBufferDataList = nullptr;
+    mVBCache.clear();
 }
 
 void LLRender::shutdown()
@@ -1504,22 +1477,22 @@ void LLRender::clearErrors()
 
 void LLRender::beginList(std::list<LLVertexBufferData> *list)
 {
-    if (sBufferDataList)
+    if (mBufferDataList)
     {
         LL_ERRS() << "beginList called while another list is open." << LL_ENDL;
     }
 
     llassert(LLGLSLShader::sCurBoundShaderPtr == &gUIProgram);
     flush();
-    sBufferDataList = list;
+    mBufferDataList = list;
 }
 
 void LLRender::endList()
 {
-    if (sBufferDataList)
+    if (mBufferDataList)
     {
         flush();
-        sBufferDataList = nullptr;
+        mBufferDataList = nullptr;
     }
     else
     {
@@ -1606,10 +1579,10 @@ void LLRender::flush()
 
             U32 attribute_mask = LLGLSLShader::sCurBoundShaderPtr->mAttributeMask;
 
-            if (sBufferDataList)
+            if (mBufferDataList)
             {
                 vb = genBuffer(attribute_mask, count);
-                sBufferDataList->emplace_back(
+                mBufferDataList->emplace_back(
                     vb,
                     mMode,
                     count,
@@ -1669,9 +1642,9 @@ LLVertexBuffer* LLRender::bufferfromCache(U32 attribute_mask, U32 count)
     // To leverage this, we maintain a running hash of the vertex stream being
     // built up before a flush, and then check that hash against a VB
     // cache just before creating a vertex buffer in VRAM
-    std::unordered_map<U64, LLVBCache>::iterator cache = sVBCache.find(vhash);
+    std::unordered_map<U64, LLVBCache>::iterator cache = mVBCache.find(vhash);
 
-    if (cache != sVBCache.end())
+    if (cache != mVBCache.end())
     {
         LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("vb cache hit");
         // cache hit, just use the cached buffer
@@ -1683,7 +1656,7 @@ LLVertexBuffer* LLRender::bufferfromCache(U32 attribute_mask, U32 count)
         LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("vb cache miss");
         vb = genBuffer(attribute_mask, count);
 
-        sVBCache[vhash] = { vb , std::chrono::steady_clock::now() };
+        mVBCache[vhash] = { vb , std::chrono::steady_clock::now() };
 
         static U32 miss_count = 0;
         miss_count++;
@@ -1695,11 +1668,11 @@ LLVertexBuffer* LLRender::bufferfromCache(U32 attribute_mask, U32 count)
 
             using namespace std::chrono_literals;
             // every 1024 misses, clean the cache of any VBs that haven't been touched in the last second
-            for (std::unordered_map<U64, LLVBCache>::iterator iter = sVBCache.begin(); iter != sVBCache.end(); )
+            for (std::unordered_map<U64, LLVBCache>::iterator iter = mVBCache.begin(); iter != mVBCache.end(); )
             {
                 if (now - iter->second.touched > 1s)
                 {
-                    iter = sVBCache.erase(iter);
+                    iter = mVBCache.erase(iter);
                 }
                 else
                 {
