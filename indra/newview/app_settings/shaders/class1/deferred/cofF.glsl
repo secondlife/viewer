@@ -29,6 +29,7 @@ out vec4 frag_color;
 
 uniform sampler2D diffuseRect;
 uniform sampler2D depthMap;
+uniform sampler2D emissiveRect;
 
 uniform float focal_distance;
 uniform float blur_constant;
@@ -66,12 +67,13 @@ void main()
     vec4 p = inv_proj*ndc;
     float depth = p.z/p.w;
 
-    vec4 diff = texture(diffuseRect, vary_fragcoord.xy);
+    vec4 diff = texture(diffuseRect, tc);
 
     float sc = calc_cof(depth);
     sc = min(sc, max_cof);
     sc = max(sc, -max_cof);
 
-    frag_color.rgb = diff.rgb;
+    vec4 bloom = texture(emissiveRect, tc);
+    frag_color.rgb = diff.rgb + bloom.rgb;
     frag_color.a = sc/max_cof*0.5+0.5;
 }

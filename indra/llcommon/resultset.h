@@ -17,6 +17,7 @@
 #include "llsd.h"
 #include <iosfwd>                   // std::ostream
 #include <utility>                  // std::pair
+#include <vector>
 
 namespace LL
 {
@@ -41,17 +42,27 @@ struct ResultSet: public LLIntTracker<ResultSet>
     LLSD getSlice(int index, int count) const;
     // Like getSlice(), but also return adjusted start position.
     std::pair<LLSD, int> getSliceStart(int index, int count) const;
-/*==========================================================================*|
-    // Retrieve LLSD corresponding to a single entry from the result set,
-    // with index validation.
-    LLSD getSingle(int index) const;
-|*==========================================================================*/
 
     /*---------------- the rest is solely for debug logging ----------------*/
     std::string mName;
 
     ResultSet(const std::string& name);
     virtual ~ResultSet();
+};
+
+// VectorResultSet is for the simple case of a ResultSet managing a single
+// std::vector<T>.
+template <typename T>
+struct VectorResultSet: public ResultSet
+{
+    using super = VectorResultSet<T>;
+
+    VectorResultSet(const std::string& name): ResultSet(name) {}
+    int getLength() const override { return narrow(mVector.size()); }
+    LLSD getSingle(int index) const override { return getSingleFrom(mVector[index]); }
+    virtual LLSD getSingleFrom(const T&) const = 0;
+
+    std::vector<T> mVector;
 };
 
 } // namespace LL

@@ -269,9 +269,6 @@ static const F32 MIN_DISPLAY_SCALE = 0.75f;
 
 static const char KEY_MOUSELOOK = 'M';
 
-static LLCachedControl<std::string> sSnapshotBaseName(LLCachedControl<std::string>(gSavedPerAccountSettings, "SnapshotBaseName", "Snapshot"));
-static LLCachedControl<std::string> sSnapshotDir(LLCachedControl<std::string>(gSavedPerAccountSettings, "SnapshotBaseDir", ""));
-
 LLTrace::SampleStatHandle<> LLViewerWindow::sMouseVelocityStat("Mouse Velocity");
 
 
@@ -2023,6 +2020,7 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 
 std::string LLViewerWindow::getLastSnapshotDir()
 {
+    static LLCachedControl<std::string> sSnapshotDir(gSavedPerAccountSettings, "SnapshotBaseDir", "");
     return sSnapshotDir;
 }
 
@@ -3793,7 +3791,7 @@ void LLViewerWindow::updateLayout()
 {
     LLToolMgr* tool_mgr = LLToolMgr::getInstance();
     LLTool* tool = tool_mgr->getCurrentTool();
-    LLCachedControl<bool> freeze_time(gSavedSettings, "FreezeTime");
+    static LLCachedControl<bool> freeze_time(gSavedSettings, "FreezeTime");
     if (gFloaterTools != NULL
         && tool != NULL
         && tool != gToolNull
@@ -4722,6 +4720,7 @@ void LLViewerWindow::saveImageNumbered(LLImageFormatted *image, bool force_picke
     // Get a base file location if needed.
     if (force_picker || !isSnapshotLocSet())
     {
+        static LLCachedControl<std::string> sSnapshotBaseName(gSavedPerAccountSettings, "SnapshotBaseName", "Snapshot");
         std::string proposed_name(sSnapshotBaseName);
 
         // getSaveFile will append an appropriate extension to the proposed name, based on the ESaveFilter constant passed in.
@@ -4767,6 +4766,9 @@ void LLViewerWindow::onSelectionFailure(const snapshot_saved_signal_t::slot_type
 
 void LLViewerWindow::saveImageLocal(LLImageFormatted *image, const snapshot_saved_signal_t::slot_type& success_cb, const snapshot_saved_signal_t::slot_type& failure_cb)
 {
+    static LLCachedControl<std::string> sSnapshotBaseName(gSavedPerAccountSettings, "SnapshotBaseName", "Snapshot");
+    static LLCachedControl<std::string> sSnapshotDir(gSavedPerAccountSettings, "SnapshotBaseDir", "");
+
     std::string lastSnapshotDir = LLViewerWindow::getLastSnapshotDir();
     if (lastSnapshotDir.empty())
     {
@@ -4915,8 +4917,8 @@ void LLViewerWindow::playSnapshotAnimAndSound()
 
 bool LLViewerWindow::isSnapshotLocSet() const
 {
-    std::string snapshot_dir = sSnapshotDir;
-    return !snapshot_dir.empty();
+    static LLCachedControl<std::string> sSnapshotDir(gSavedPerAccountSettings, "SnapshotBaseDir", "");
+    return !sSnapshotDir().empty();
 }
 
 void LLViewerWindow::resetSnapshotLoc() const

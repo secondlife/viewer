@@ -144,6 +144,8 @@ S32 LLFontVertexBuffer::render(
              || mLastShadow != shadow // ex: buttons change shadow state
              || mLastScaleX != LLFontGL::sScaleX
              || mLastScaleY != LLFontGL::sScaleY
+             || mLastVertDPI != LLFontGL::sVertDPI
+             || mLastHorizDPI != LLFontGL::sHorizDPI
              || mLastOrigin != LLFontGL::sCurOrigin)
     {
         genBuffers(fontp, text, begin_offset, x, y, color, halign, valign,
@@ -196,6 +198,8 @@ void LLFontVertexBuffer::genBuffers(
 
     mLastScaleX = LLFontGL::sScaleX;
     mLastScaleY = LLFontGL::sScaleY;
+    mLastVertDPI = LLFontGL::sVertDPI;
+    mLastHorizDPI = LLFontGL::sHorizDPI;
     mLastOrigin = LLFontGL::sCurOrigin;
 
     if (right_x)

@@ -9623,6 +9623,22 @@ Are you sure you want to leave this call?
 
   <notification
    icon="alertmodal.tga"
+   name="ConfirmLeaveAdhoc"
+   type="alertmodal">
+Are you sure you want to leave this conference chat?
+    <tag>confirm</tag>
+    <tag>voice</tag>
+    <usetemplate
+     ignoretext="Confirm before I leave conference chat"
+     name="okcancelignore"
+     notext="No"
+     yestext="Yes">
+      <unique/>
+    </usetemplate>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="ConfirmMuteAll"
    type="alert">
 You have selected to mute all participants in a group call.
@@ -10373,6 +10389,14 @@ You are now the owner of object [OBJECT_NAME]
   </notification>
 
   <notification
+   icon="alertmodal.tga"
+   name="NowOwnObjectInv"
+   type="notify">
+   <tag>fail</tag>
+You are now the owner of object [OBJECT_NAME] and it has been placed in your inventory.
+  </notification>
+
+    <notification
    icon="alertmodal.tga"
    name="CantRezOnLand"
    type="notify">
@@ -12629,4 +12653,34 @@ are wearing now.
        yestext="OK"/>
   </notification>
 
+  <notification
+   icon="notify.tga"
+   name="TextureDiscardBackgrounded"
+   type="notify">
+      <unique>
+          <context>DELAY</context>
+      </unique>
+      To improve system performance, [SECOND_LIFE] has reduced texture memory usage after being in the background for [DELAY] seconds.  It may take some time for texture image quality to return to normal.
+     <usetemplate
+       ignoretext="Ask me about background texture memory usage and recovery"
+       name="okcancelignore"
+       yestext="OK"
+       notext="Disable"/>
+  </notification>
+
+  <notification
+   icon="notify.tga"
+   name="TextureDiscardMinimized"
+   type="notify">
+      <unique>
+          <context>DELAY</context>
+      </unique>
+      To improve system performance, [SECOND_LIFE] has reduced texture memory usage after being minimized for [DELAY] seconds.  It may take some time for texture image quality to return to normal.
+     <usetemplate
+       ignoretext="Ask me about minimized texture memory usage and recovery"
+       name="okcancelignore"
+       yestext="OK"
+       notext="Disable"/>
+  </notification>
+    
 </notifications>

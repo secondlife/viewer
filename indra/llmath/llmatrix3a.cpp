@@ -24,6 +24,8 @@
  * $/LicenseInfo$
  */
 
+#include "linden_common.h"
+
 #include "llmath.h"
 
 static LL_ALIGN_16(const F32 M_IDENT_3A[12]) =
