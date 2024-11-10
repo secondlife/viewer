@@ -1988,7 +1988,9 @@ void LLFloaterPreference::setPanelVisibility(const LLSD& name, bool visible)
     LLPanel * panel = tab_containerp->getPanelByName(name.asStringRef());
     if (NULL != panel)
     {
+        auto current_tab = tab_containerp->getCurrentPanel();
         tab_containerp->setTabVisibility(panel, visible);
+        tab_containerp->selectTabPanel(current_tab);
     }
 }
 
