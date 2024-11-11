@@ -201,7 +201,6 @@ public:
                 mStretchToFill,
                 mMaintainAspectRatio,
                 mHideLoading,
-                mHidingInitialLoad,
                 mClearCache,
                 mHoverTextChanged,
                 mDecoupleTextureSize,

@@ -669,8 +669,6 @@ private:
     LLVector3   mLastAnimExtents[2];
     LLVector3   mLastAnimBasePos;
 
-    LLCachedControl<bool> mRenderUnloadedAvatar;
-
     //--------------------------------------------------------------------
     // Wind rippling in clothes
     //--------------------------------------------------------------------
@@ -1015,7 +1013,7 @@ public:
     void            startTyping() { mTyping = true; mTypingTimer.reset(); }
     void            stopTyping() { mTyping = false; }
 private:
-    bool            mVisibleChat;
+    bool            mVisibleChat = false;
 
     //--------------------------------------------------------------------
     // Lip synch morphs
@@ -1197,7 +1195,7 @@ public:
     static F32          sGreyUpdateTime; // Last time stats were updated (to prevent multiple updates per frame)
 protected:
     S32                 getUnbakedPixelAreaRank();
-    bool                mHasGrey;
+    bool                mHasGrey = false;
 private:
     F32                 mMinPixelArea;
     F32                 mMaxPixelArea;

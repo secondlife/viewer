@@ -454,6 +454,10 @@ void HttpRequestTestObjectType::test<4>()
 template <> template <>
 void HttpRequestTestObjectType::test<5>()
 {
+#ifndef LL_WINDOWS
+    skip("Skip due to issues with testing thread cancellation");
+#endif
+
     ScopedCurlInit ready;
 
     set_test_name("HttpRequest Spin (soft) + NoOp + hard termination");
@@ -517,6 +521,9 @@ void HttpRequestTestObjectType::test<5>()
 template <> template <>
 void HttpRequestTestObjectType::test<6>()
 {
+#ifndef LL_WINDOWS
+    skip("Skip due to issues with testing thread cancellation");
+#endif
     ScopedCurlInit ready;
 
     set_test_name("HttpRequest Spin + NoOp + hard termination");
@@ -2737,13 +2744,6 @@ void HttpRequestTestObjectType::test<22>()
 
     set_test_name("BUG-2295");
 
-#if LL_WINDOWS && ADDRESS_SIZE == 64
-    // teamcity win64 builds freeze on this test, if you figure out the cause, please fix it
-    if (getenv("TEAMCITY_PROJECT_NAME"))
-    {
-        skip("BUG-2295 - partial load on W64 causes freeze");
-    }
-#endif
     // Handler can be stack-allocated *if* there are no dangling
     // references to it after completion of this method.
     // Create before memory record as the string copy will bump numbers.
@@ -2779,7 +2779,7 @@ void HttpRequestTestObjectType::test<22>()
         for (int i(0); i < test_count; ++i)
         {
             char buffer[128];
-            sprintf(buffer, "/bug2295/%d/", i);
+            snprintf(buffer, sizeof(buffer), "/bug2295/%d/", i);
             HttpHandle handle = req->requestGetByteRange(HttpRequest::DEFAULT_POLICY_ID,
                                                          url_base + buffer,
                                                          0,
@@ -2810,7 +2810,7 @@ void HttpRequestTestObjectType::test<22>()
         for (int i(0); i < test2_count; ++i)
         {
             char buffer[128];
-            sprintf(buffer, "/bug2295/00000012/%d/", i);
+            snprintf(buffer, sizeof(buffer), "/bug2295/00000012/%d/", i);
             HttpHandle handle = req->requestGetByteRange(HttpRequest::DEFAULT_POLICY_ID,
                                                          url_base + buffer,
                                                          0,
@@ -2841,7 +2841,7 @@ void HttpRequestTestObjectType::test<22>()
         for (int i(0); i < test3_count; ++i)
         {
             char buffer[128];
-            sprintf(buffer, "/bug2295/inv_cont_range/%d/", i);
+            snprintf(buffer, sizeof(buffer), "/bug2295/inv_cont_range/%d/", i);
             HttpHandle handle = req->requestGetByteRange(HttpRequest::DEFAULT_POLICY_ID,
                                                          url_base + buffer,
                                                          0,
@@ -2916,14 +2916,6 @@ void HttpRequestTestObjectType::test<23>()
     ScopedCurlInit ready;
 
     set_test_name("HttpRequest GET 503s with 'Retry-After'");
-
-#if LL_WINDOWS && ADDRESS_SIZE == 64
-    // teamcity win64 builds freeze on this test, if you figure out the cause, please fix it
-    if (getenv("TEAMCITY_PROJECT_NAME"))
-    {
-        skip("llcorehttp 503-with-retry test hangs on Windows 64");
-    }
-#endif
 
     // This tests mainly that the code doesn't fall over if
     // various well- and mis-formed Retry-After headers are

@@ -472,7 +472,7 @@ LLBoundListener LLCoros::getStopListener(const std::string& caller,
     // This overload responds to viewer shutdown and to killreq(consumer).
     return LLEventPumps::instance().obtain("LLCoros")
         .listen(
-            LLEventPump::inventName(caller),
+            caller,
             [consumer, cleanup](const LLSD& event)
             {
                 auto status{ event["status"].asString() };

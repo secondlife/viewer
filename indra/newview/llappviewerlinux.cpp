@@ -39,8 +39,9 @@
 #include "llfindlocale.h"
 
 #include <exception>
-
+#ifdef LL_GLIB
 #include <gio/gio.h>
+#endif
 #include <resolv.h>
 
 #if (__GLIBC__*1000 + __GLIBC_MINOR__) >= 2034
@@ -112,6 +113,11 @@ static void exceptionTerminateHandler()
 
 int main( int argc, char **argv )
 {
+    // Call Tracy first thing to have it allocate memory
+    // https://github.com/wolfpld/tracy/issues/196
+    LL_PROFILER_FRAME_END;
+    LL_PROFILER_SET_THREAD_NAME("App");
+
     gArgC = argc;
     gArgV = argv;
 

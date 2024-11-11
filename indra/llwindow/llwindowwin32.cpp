@@ -1673,6 +1673,11 @@ const   S32   max_format  = (S32)num_formats - 1;
         return false;
     }
 
+    // Setup Tracy gpu context
+    {
+        LL_PROFILER_GPU_CONTEXT;
+    }
+
     // Disable vertical sync for swap
     toggleVSync(enable_vsync);
 
@@ -1703,8 +1708,6 @@ const   S32   max_format  = (S32)num_formats - 1;
         glClear(GL_COLOR_BUFFER_BIT);
         swapBuffers();
     }
-
-    LL_PROFILER_GPU_CONTEXT;
 
     return true;
 }

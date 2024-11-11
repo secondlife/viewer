@@ -67,7 +67,6 @@ protected:
         LLColor4                mColor;
         LLFontGL::StyleFlags    mStyle;
         const LLFontGL*         mFont;
-        LLFontVertexBuffer      mFontBuffer;
         LLFontVertexBuffer      mFontBufferText;
     private:
         LLWString               mText;
