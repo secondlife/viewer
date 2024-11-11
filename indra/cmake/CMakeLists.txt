@@ -34,7 +34,6 @@ set(cmake_SOURCE_FILES
         JPEG.cmake
         JPEGEncoderBasic.cmake
         LibVLCPlugin.cmake
-        Linker.cmake
         Linking.cmake
         LLAddBuildTest.cmake
         LLAppearance.cmake

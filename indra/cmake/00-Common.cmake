@@ -15,7 +15,6 @@
 include_guard()
 
 include(Variables)
-include(Linker)
 
 # We go to some trouble to set LL_BUILD to the set of relevant compiler flags.
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} $ENV{LL_BUILD}")
@@ -70,9 +69,12 @@ if (WINDOWS)
   # http://www.cmake.org/pipermail/cmake/2009-September/032143.html
   string(REPLACE "/Zm1000" " " CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
 
-  add_link_options(/LARGEADDRESSAWARE
-          /NODEFAULTLIB:LIBCMT
-          /IGNORE:4099)
+  add_link_options(
+       /LARGEADDRESSAWARE
+       /NODEFAULTLIB:LIBCMT
+       /IGNORE:4099
+       /MANIFEST:NO
+  )
 
   add_compile_definitions(
       WIN32_LEAN_AND_MEAN
@@ -120,7 +122,6 @@ endif (WINDOWS)
 if (LINUX)
   set( CMAKE_BUILD_WITH_INSTALL_RPATH TRUE )
   set( CMAKE_INSTALL_RPATH $ORIGIN $ORIGIN/../lib )
-  set(CMAKE_EXE_LINKER_FLAGS "-Wl,--exclude-libs,ALL")
 
   find_program(CCACHE_EXE ccache)
   if(CCACHE_EXE AND NOT DISABLE_CCACHE)
@@ -139,43 +140,60 @@ if (LINUX)
           LL_IGNORE_SIGCHLD
   )
 
-  if( ENABLE_ASAN )
-      add_compile_options(-U_FORTIFY_SOURCE
-        -fsanitize=address
-        --param asan-stack=0
-      )
-      add_link_options(-fsanitize=address)
-  else()
-   add_compile_definitions( _FORTIFY_SOURCE=2 )
-  endif()
+  if (USE_ASAN)
+    add_compile_options(-fsanitize=address -fsanitize-recover=address)
+    add_link_options(-fsanitize=address -fsanitize-recover=address)
+  elseif (USE_LEAKSAN)
+    add_compile_options(-fsanitize=leak)
+    add_link_options(-fsanitize=leak)
+  elseif (USE_UBSAN)
+    add_compile_options(-fsanitize=undefined -fno-sanitize=vptr)
+    add_link_options(-fsanitize=undefined -fno-sanitize=vptr)
+  elseif (USE_THREAD_SAN)
+    add_compile_options(-fsanitize=thread)
+    add_link_options(-fsanitize=thread)
+  else ()
+    add_compile_definitions(_FORTIFY_SOURCE=2)
+  endif ()
 
   add_compile_options(
       -fexceptions
       -fno-math-errno
       -fno-strict-aliasing
+      -fno-omit-frame-pointer
       -fsigned-char
       -msse2
       -mfpmath=sse
       -pthread
       -fvisibility=hidden
+      -fstack-protector
   )
 
   add_link_options(
-          -Wl,--no-keep-memory
-          -Wl,--build-id
-          -Wl,--no-undefined
+      "LINKER:--build-id" 
+      "LINKER:--as-needed"
+      "LINKER:-z,relro"
+      "LINKER:-z,now"
   )
 
-  # this stops us requiring a really recent glibc at runtime
-  add_compile_options(-fno-stack-protector)
-
-  if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    # ND: clang is a bit more picky than GCC, the latter seems to auto include -lstdc++ and -lm. The former not so and thus fails to link
-    add_link_options(
-            -lstdc++
-            -lm
-    )
+  if(LINK_WITH_MOLD)
+    find_program(MOLD_BIN mold)
+    if(MOLD_BIN)
+      message(STATUS "Mold linker found: ${MOLD_BIN}. Enabling mold as active linker.")
+      add_link_options(-fuse-ld=mold)
+    else()
+      set(LINK_WITH_MOLD OFF)
+      message(STATUS "Mold linker not found. Using default linker.")
+    endif()
   endif()
+
+  if(NOT LINK_WITH_MOLD)
+    # Use LLD for proper clang support under Linux
+    if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+      add_link_options(-fuse-ld=lld) # Use LLD for proper clang support
+    endif()
+  endif()
+
 endif (LINUX)
 
 if (DARWIN)
@@ -183,32 +201,31 @@ if (DARWIN)
   set(CLANG_DISABLE_FATAL_WARNINGS OFF)
   set(CMAKE_CXX_LINK_FLAGS "-Wl,-headerpad_max_install_names,-search_paths_first")
   set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_CXX_LINK_FLAGS}")
-  set(DARWIN_extra_cstar_flags "-Wno-deprecated-declarations")
   # Ensure that CMAKE_CXX_FLAGS has the correct -g debug information format --
   # see Variables.cmake.
   string(REPLACE "-gdwarf-2" "-g${CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT}"
     CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${DARWIN_extra_cstar_flags}")
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  ${DARWIN_extra_cstar_flags}")
   # NOTE: it's critical that the optimization flag is put in front.
   # NOTE: it's critical to have both CXX_FLAGS and C_FLAGS covered.
   ## Really?? On developer machines too?
   ##set(ENABLE_SIGNING TRUE)
   ##set(SIGNING_IDENTITY "Developer ID Application: Linden Research, Inc.")
-
-  # required for clang-15/xcode-15 since our boost package still uses deprecated std::unary_function/binary_function
-  # see https://developer.apple.com/documentation/xcode-release-notes/xcode-15-release-notes#C++-Standard-Library
-  add_compile_definitions(_LIBCPP_ENABLE_CXX17_REMOVED_UNARY_BINARY_FUNCTION)
 endif(DARWIN)
 
 if(LINUX OR DARWIN)
-  add_compile_options(-Wall -Wno-sign-compare -Wno-trigraphs -Wno-reorder -Wno-unused-but-set-variable -Wno-unused-variable -Wno-unused-local-typedef)
+  add_compile_options(-Wall -Wno-sign-compare -Wno-trigraphs -Wno-reorder -Wno-unused-but-set-variable -Wno-unused-variable)
 
-  if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    add_compile_options(-Wno-stringop-truncation -Wno-parentheses -Wno-c++20-compat)
+  if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+    # libstdc++ headers contain deprecated declarations that fail on clang
+    # macOS currently has many deprecated calls
+    add_compile_options(-Wno-unused-local-typedef -Wno-deprecated-declarations)
   endif()
 
-  if (NOT GCC_DISABLE_FATAL_WARNINGS)
+  if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    add_compile_options(-Wno-stringop-truncation -Wno-parentheses)
+  endif()
+
+  if (NOT GCC_DISABLE_FATAL_WARNINGS AND NOT CLANG_DISABLE_FATAL_WARNINGS)
     add_compile_options(-Werror)
   endif ()
 

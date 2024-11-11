@@ -81,6 +81,6 @@ if (LL_TESTS)
       llgltfmaterial.cpp
       )
 
-    set_property(SOURCE llprimitive.cpp PROPERTY LL_TEST_ADDITIONAL_LIBRARIES llmessage)
+    set_property(SOURCE llprimitive.cpp PROPERTY LL_TEST_ADDITIONAL_LIBRARIES llmessage llfilesystem)
     LL_ADD_PROJECT_UNIT_TESTS(llprimitive "${llprimitive_TEST_SOURCE_FILES}")
 endif (LL_TESTS)

@@ -1407,6 +1407,7 @@ class LinuxManifest(ViewerManifest):
                  '!', '-name', '*.crt',
                  '!', '-name', '*.dll',
                  '!', '-name', '*.lib',
+                 '!', '-name', '*.json',
                  '!', '-name', 'update_install', '-exec', 'strip', '-S', '{}', ';'])
 
 class Linux_x86_64_Manifest(LinuxManifest):
