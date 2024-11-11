@@ -97,10 +97,10 @@ if (WINDOWS)
           /permissive-
       )
 
-  # Nicky: x64 implies SSE2
-  if( ADDRESS_SIZE EQUAL 32 )
-    add_compile_options( /arch:SSE2 )
-  endif()
+  # We want aggressive inlining on MSVC to better match clang/gcc at O3
+  string(REPLACE "/Ob2" "/Ob3" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+  string(REPLACE "/Ob2" "/Ob3" CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
+  string(REPLACE "/Ob2" "/Ob3" CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE}")
 
   # Are we using the crummy Visual Studio KDU build workaround?
   if (NOT VS_DISABLE_FATAL_WARNINGS)
