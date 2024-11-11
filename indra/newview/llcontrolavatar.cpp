@@ -232,7 +232,7 @@ void LLControlAvatar::matchVolumeTransform()
             if (skin_info)
             {
                 LL_DEBUGS("BindShape") << getFullname() << " bind shape " << skin_info->mBindShapeMatrix << LL_ENDL;
-                bind_rot = LLSkinningUtil::getUnscaledQuaternion(LLMatrix4(skin_info->mBindShapeMatrix));
+                bind_rot = LLSkinningUtil::getUnscaledQuaternion(LLMatrix4(skin_info->mBindShapeMatrix.getF32ptr()));
             }
 #endif
             setRotation(bind_rot*obj_rot);

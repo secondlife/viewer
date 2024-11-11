@@ -34,7 +34,7 @@ class LLMatrix4;
 class LLBBoxLocal
 {
 public:
-    LLBBoxLocal() {}
+    LLBBoxLocal() = default;
     LLBBoxLocal( const LLVector3& min, const LLVector3& max ) : mMin( min ), mMax( max ) {}
     // Default copy constructor is OK.
 
@@ -61,5 +61,8 @@ private:
 
 LLBBoxLocal operator*(const LLBBoxLocal &a, const LLMatrix4 &b);
 
+static_assert(std::is_trivially_copyable<LLBBoxLocal>::value, "LLBBoxLocal must be trivial copy");
+static_assert(std::is_trivially_move_assignable<LLBBoxLocal>::value, "LLBBoxLocal must be trivial move");
+static_assert(std::is_standard_layout<LLBBoxLocal>::value, "LLBBoxLocal must be a standard layout type");
 
 #endif  // LL_BBOXLOCAL_H

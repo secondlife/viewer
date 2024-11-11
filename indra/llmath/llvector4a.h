@@ -92,10 +92,7 @@ public:
     ////////////////////////////////////
 
     //LLVector4a is plain data which should never have a default constructor or destructor(malloc&free won't trigger it)
-    LLVector4a()
-    { //DO NOT INITIALIZE -- The overhead is completely unnecessary
-        ll_assert_aligned(this,16);
-    }
+    LLVector4a() = default;
 
     LLVector4a(F32 x, F32 y, F32 z, F32 w = 0.f)
     {
@@ -358,15 +355,13 @@ public:
     ////////////////////////////////////
 
     // Do NOT add aditional operators without consulting someone with SSE experience
-    inline const LLVector4a& operator= ( const LLVector4a& rhs );
-
-    inline const LLVector4a& operator= ( const LLQuad& rhs );
-
     inline operator LLQuad() const;
 
 private:
-    LLQuad mQ{};
+    LLQuad mQ;
 };
+
+static_assert(std::is_trivial<LLVector4a>::value, "LLVector4a must be a trivial type");
 
 inline void update_min_max(LLVector4a& min, LLVector4a& max, const LLVector4a& p)
 {

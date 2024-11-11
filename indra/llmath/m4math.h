@@ -105,7 +105,6 @@ public:
     explicit LLMatrix4(const F32 *mat);                             // Initializes Matrix to values in mat
     explicit LLMatrix4(const LLMatrix3 &mat);                       // Initializes Matrix to values in mat and sets position to (0,0,0)
     explicit LLMatrix4(const LLQuaternion &q);                      // Initializes Matrix with rotation q and sets position to (0,0,0)
-    explicit LLMatrix4(const LLMatrix4a& mat);
 
     LLMatrix4(const LLMatrix3 &mat, const LLVector4 &pos);  // Initializes Matrix to values in mat and pos
 
@@ -118,8 +117,6 @@ public:
     LLMatrix4(const F32 roll, const F32 pitch, const F32 yaw,
               const LLVector4 &pos);                        // Initializes Matrix with Euler angles
     LLMatrix4(const F32 roll, const F32 pitch, const F32 yaw);              // Initializes Matrix with Euler angles
-
-    ~LLMatrix4(void);                                       // Destructor
 
     LLSD getValue() const;
     void setValue(const LLSD&);
@@ -241,6 +238,10 @@ public:
 
     friend std::ostream&     operator<<(std::ostream& s, const LLMatrix4 &a);   // Stream a
 };
+
+static_assert(std::is_trivially_copyable<LLMatrix4>::value, "LLMatrix4 must be trivial copy");
+static_assert(std::is_trivially_move_assignable<LLMatrix4>::value, "LLMatrix4 must be trivial move");
+static_assert(std::is_standard_layout<LLMatrix4>::value, "LLMatrix4 must be a standard layout type");
 
 inline const LLMatrix4& LLMatrix4::setIdentity()
 {
