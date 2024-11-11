@@ -3783,7 +3783,7 @@ S32 LLMeshRepository::loadMesh(LLVOVolume* vobj, const LLVolumeParams& mesh_para
         {
             //first request for this mesh
             mLoadingMeshes[detail][mesh_id].push_back(vobj);
-            mPendingRequests.push_back(PendingRequestLOD(mesh_params, detail));
+            mPendingRequests.emplace_back(new PendingRequestLOD(mesh_params, detail));
             LLMeshRepository::sLODPending++;
         }
     }
@@ -3840,6 +3840,44 @@ S32 LLMeshRepository::loadMesh(LLVOVolume* vobj, const LLVolumeParams& mesh_para
     }
 
     return detail;
+}
+
+F32 calculate_score(LLVOVolume* object)
+{
+    if (!object)
+    {
+        return -1.f;
+    }
+    LLDrawable* drawable = object->mDrawable;
+    if (!drawable)
+    {
+        return -1;
+    }
+    if (drawable->isState(LLDrawable::RIGGED) || object->isAttachment())
+    {
+        LLVOAvatar* avatar = object->getAvatar();
+        LLDrawable* av_drawable = avatar ? avatar->mDrawable : nullptr;
+        if (avatar && av_drawable)
+        {
+            // See LLVOVolume::calcLOD()
+            F32 radius;
+            if (avatar->isControlAvatar())
+            {
+                const LLVector3* box = avatar->getLastAnimExtents();
+                LLVector3 diag = box[1] - box[0];
+                radius = diag.magVec() * 0.5f;
+            }
+            else
+            {
+                // Volume in a rigged mesh attached to a regular avatar.
+                const LLVector3* box = avatar->getLastAnimExtents();
+                LLVector3 diag = box[1] - box[0];
+                radius = diag.magVec();
+            }
+            return radius / llmax(av_drawable->mDistanceWRTCamera, 1.f);
+        }
+    }
+    return drawable->getRadius() / llmax(drawable->mDistanceWRTCamera, 1.f);
 }
 
 void LLMeshRepository::notifyLoadedMeshes()
@@ -4041,15 +4079,10 @@ void LLMeshRepository::notifyLoadedMeshes()
                         F32 max_score = 0.f;
                         for (auto obj_iter = iter->second.begin(); obj_iter != iter->second.end(); ++obj_iter)
                         {
-                            LLVOVolume* object = *obj_iter;
-                            if (object)
+                            F32 cur_score = calculate_score(*obj_iter);
+                            if (cur_score >= 0.f)
                             {
-                                LLDrawable* drawable = object->mDrawable;
-                                if (drawable)
-                                {
-                                    F32 cur_score = drawable->getRadius()/llmax(drawable->mDistanceWRTCamera, 1.f);
-                                    max_score = llmax(max_score, cur_score);
-                                }
+                                max_score = llmax(max_score, cur_score);
                             }
                         }
 
@@ -4061,15 +4094,10 @@ void LLMeshRepository::notifyLoadedMeshes()
                     F32 max_score = 0.f;
                     for (auto obj_iter = iter->second.begin(); obj_iter != iter->second.end(); ++obj_iter)
                     {
-                        LLVOVolume* object = *obj_iter;
-                        if (object)
+                        F32 cur_score = calculate_score(*obj_iter);
+                        if (cur_score >= 0.f)
                         {
-                            LLDrawable* drawable = object->mDrawable;
-                            if (drawable)
-                            {
-                                F32 cur_score = drawable->getRadius() / llmax(drawable->mDistanceWRTCamera, 1.f);
-                                max_score = llmax(max_score, cur_score);
-                            }
+                            max_score = llmax(max_score, cur_score);
                         }
                     }
 
@@ -4077,9 +4105,9 @@ void LLMeshRepository::notifyLoadedMeshes()
                 }
 
                 //set "score" for pending requests
-                for (std::vector<PendingRequestBase>::iterator iter = mPendingRequests.begin(); iter != mPendingRequests.end(); ++iter)
+                for (std::unique_ptr<PendingRequestBase>& req_p : mPendingRequests)
                 {
-                    iter->setScore(score_map[iter->getId()]);
+                    req_p->setScore(score_map[req_p->getId()]);
                 }
 
                 //sort by "score"
@@ -4089,24 +4117,25 @@ void LLMeshRepository::notifyLoadedMeshes()
 
             while (!mPendingRequests.empty() && push_count > 0)
             {
-                PendingRequestBase& request = mPendingRequests.front();
-                switch (request.getRequestType())
+                std::unique_ptr<PendingRequestBase>& req_p = mPendingRequests.front();
+                switch (req_p->getRequestType())
                 {
                 case MESH_REQUEST_LOD:
                     {
-                        PendingRequestLOD& lod = (PendingRequestLOD&)request;
-                        mThread->loadMeshLOD(lod.mMeshParams, lod.mLOD);
+                        PendingRequestLOD* lod = (PendingRequestLOD*)req_p.get();
+                        mThread->loadMeshLOD(lod->mMeshParams, lod->mLOD);
                         LLMeshRepository::sLODPending--;
                         break;
                     }
                 case MESH_REQUEST_SKIN:
                     {
-                        PendingRequestUUID& skin = (PendingRequestUUID&)request;
-                        mThread->loadMeshSkinInfo(skin.getId());
+                        PendingRequestUUID* skin = (PendingRequestUUID*)req_p.get();
+                        mThread->loadMeshSkinInfo(skin->getId());
                         break;
                     }
 
                 default:
+                    LL_ERRS() << "Unknown request type in LLMeshRepository::notifyLoadedMeshes" << LL_ENDL;
                     break;
                 }
                 mPendingRequests.erase(mPendingRequests.begin());
@@ -4305,7 +4334,7 @@ const LLMeshSkinInfo* LLMeshRepository::getSkinInfo(const LLUUID& mesh_id, LLVOV
             {
                 //first request for this mesh
                 mLoadingSkins[mesh_id].push_back(requesting_obj);
-                mPendingRequests.push_back(PendingRequestUUID(mesh_id, MESH_REQUEST_SKIN));
+                mPendingRequests.emplace_back(new PendingRequestUUID(mesh_id, MESH_REQUEST_SKIN));
             }
         }
     }
