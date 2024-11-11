@@ -63,6 +63,16 @@ typedef enum e_mesh_processing_result_enum
     MESH_UNKNOWN
 } EMeshProcessingResult;
 
+typedef enum e_mesh_request_type_enum
+{
+    MESH_REQUEST_HEADER,
+    MESH_REQUEST_LOD,
+    MESH_REQUEST_SKIN,
+    MESH_REQUEST_DECOMPOSITION,
+    MESH_REQUEST_PHYSICS,
+    MESH_REQUEST_UKNOWN
+} EMeshRequestType;
+
 class LLMeshUploadData
 {
 public:
@@ -183,7 +193,8 @@ public:
 class RequestStats
 {
 public:
-    RequestStats() : mRetries(0) {};
+
+    RequestStats() :mRetries(0) {};
 
     void updateTime();
     bool canRetry() const;
@@ -193,6 +204,67 @@ public:
 private:
     U32 mRetries;
     LLFrameTimer mTimer;
+};
+
+
+class PendingRequestBase
+{
+public:
+    struct CompareScoreGreater
+    {
+        bool operator()(const PendingRequestBase& lhs, const PendingRequestBase& rhs)
+        {
+            return lhs.mScore > rhs.mScore; // greatest = first
+        }
+    };
+
+    PendingRequestBase() : mScore(0.f) {};
+    virtual ~PendingRequestBase() {}
+
+    bool operator<(const PendingRequestBase& rhs) const
+    {
+        return mId < rhs.mId;
+    }
+
+    void setScore(F32 score) { mScore = score; }
+    F32 getScore() const { return mScore; }
+    LLUUID getId() const { return mId; }
+    virtual EMeshRequestType getRequestType() const { return MESH_REQUEST_UKNOWN; }
+
+protected:
+    F32 mScore;
+    LLUUID mId;
+};
+
+class PendingRequestLOD : public PendingRequestBase
+{
+public:
+    LLVolumeParams  mMeshParams;
+    S32 mLOD;
+
+    PendingRequestLOD(const LLVolumeParams& mesh_params, S32 lod)
+        : PendingRequestBase(), mMeshParams(mesh_params), mLOD(lod)
+    {
+        mId = mMeshParams.getSculptID();
+    }
+
+    EMeshRequestType getRequestType() const override { return MESH_REQUEST_LOD; }
+};
+
+class PendingRequestUUID : public PendingRequestBase
+{
+public:
+
+    PendingRequestUUID(const LLUUID& id, EMeshRequestType type)
+        : PendingRequestBase(), mRequestType(type)
+    {
+        mId = id;
+    }
+
+    EMeshRequestType getRequestType() const override { return mRequestType; }
+
+private:
+    EMeshRequestType mRequestType;
 };
 
 class LLMeshHeader
@@ -292,19 +364,10 @@ public:
     public:
         LLVolumeParams  mMeshParams;
         S32 mLOD;
-        F32 mScore;
 
         LODRequest(const LLVolumeParams&  mesh_params, S32 lod)
-            : RequestStats(), mMeshParams(mesh_params), mLOD(lod), mScore(0.f)
+            : RequestStats(), mMeshParams(mesh_params), mLOD(lod)
         {
-        }
-    };
-
-    struct CompareScoreGreater
-    {
-        bool operator()(const LODRequest& lhs, const LODRequest& rhs)
-        {
-            return lhs.mScore > rhs.mScore; // greatest = first
         }
     };
 
@@ -695,14 +758,11 @@ public:
 
     LLMutex*                    mMeshMutex;
 
-    std::vector<LLMeshRepoThread::LODRequest> mPendingRequests;
+    std::vector<PendingRequestBase> mPendingRequests;
 
     //list of mesh ids awaiting skin info
     typedef boost::unordered_map<LLUUID, std::vector<LLVOVolume*> > skin_load_map;
     skin_load_map mLoadingSkins;
-
-    //list of mesh ids that need to send skin info fetch requests
-    std::queue<LLUUID> mPendingSkinRequests;
 
     //list of mesh ids awaiting decompositions
     std::unordered_set<LLUUID> mLoadingDecompositions;
