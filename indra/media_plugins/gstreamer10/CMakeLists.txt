@@ -22,7 +22,6 @@ set(media_plugin_gstreamer10_SOURCE_FILES
 
 set(media_plugin_gstreamer10_HEADER_FILES
     llmediaimplgstreamer_syms.h
-    llmediaimplgstreamertriviallogging.h
     )
 
 add_library(media_plugin_gstreamer10

@@ -1254,12 +1254,11 @@ class LinuxManifest(ViewerManifest):
         # plugins
         with self.prefix(src=os.path.join(self.args['build'], os.pardir, 'media_plugins'), dst="bin/llplugin"):
             self.path("gstreamer10/libmedia_plugin_gstreamer10.so", "libmedia_plugin_gstreamer.so")
-
-        with self.prefix(src=os.path.join(self.args['build'], os.pardir, 'media_plugins'), dst="bin/llplugin"):
+            self.path("libvlc/libmedia_plugin_libvlc.so", "libmedia_plugin_libvlc.so")
             self.path("cef/libmedia_plugin_cef.so", "libmedia_plugin_cef.so" )
+
         with self.prefix(src=os.path.join(pkgdir, 'lib', 'release'), dst="lib"):
             self.path( "libcef.so" )
-
             self.path( "libEGL*" )
             self.path( "libvulkan*" )
             self.path( "libvk_swiftshader*" )
