@@ -3,16 +3,15 @@ include(Prebuilt)
 include(FreeType)
 include(GLIB)
 
+include_guard()
 add_library( ll::uilibraries INTERFACE IMPORTED )
 
 if (LINUX)
-  target_compile_definitions(ll::uilibraries INTERFACE LL_X11=1 )
-
   if( USE_CONAN )
     return()
   endif()
 
-  include(FindPkgConfig)
+  find_package(PkgConfig REQUIRED)
   pkg_check_modules(WAYLAND_CLIENT wayland-client)
 
   if( WAYLAND_CLIENT_FOUND )
@@ -22,13 +21,6 @@ if (LINUX)
   endif()
 
   target_link_libraries( ll::uilibraries INTERFACE
-          Xrender
-          Xcursor
-          Xfixes
-          Xext
-          Xft
-          Xinerama
-          X11
           ll::fontconfig
           ll::freetype
           ll::SDL2

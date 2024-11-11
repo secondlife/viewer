@@ -38,12 +38,6 @@
 // get X11-specific headers for use in low-level stuff like copy-and-paste support
 #include "SDL2/SDL_syswm.h"
 
-// AssertMacros.h does bad things.
-#include "fix_macros.h"
-#undef verify
-#undef require
-
-
 class LLWindowSDL : public LLWindow {
 public:
     void show() override;
@@ -162,12 +156,6 @@ public:
 
     static std::vector<std::string> getDynamicFallbackFontList();
 
-    void (*Lock_Display)(void) = nullptr;
-    void (*Unlock_Display)(void) = nullptr;
-
-    static Window get_SDL_XWindowID(void);
-    static Display *get_SDL_Display(void);
-
     void *createSharedContext() override;
     void makeContextCurrent(void *context) override;
     void destroySharedContext(void *context) override;
@@ -190,14 +178,6 @@ protected:
 
     void moveWindow(const LLCoordScreen &position, const LLCoordScreen &size);
 
-    // Changes display resolution. Returns true if successful
-    bool setDisplayResolution(S32 width, S32 height, S32 bits, S32 refresh);
-
-    // Go back to last fullscreen display resolution.
-    bool setFullscreenResolution();
-
-    bool shouldPostQuit() { return mPostQuit; }
-
 protected:
     //
     // Platform specific methods
@@ -219,19 +199,14 @@ protected:
     U32 mGrabbyKeyFlags = 0;
 
     SDL_Window *mWindow = nullptr;
-    SDL_Surface *mSurface;
     SDL_GLContext mContext;
     SDL_Cursor *mSDLCursors[UI_CURSOR_COUNT];
 
     std::string mWindowTitle;
     double mOriginalAspectRatio = 1.0f;
-    bool mNeedsResize = false;        // Constructor figured out the window is too big, it needs a resize.
-    LLCoordScreen mNeedsResizeSize;
     F32 mOverrideAspectRatio = 0.0f;
     F32 mGamma = 0.0f;
     U32 mFSAASamples = 0;
-
-    int mHaveInputFocus = -1; /* 0=no, 1=yes, else unknown */
 
     friend class LLWindowManager;
 
@@ -244,11 +219,7 @@ private:
     enum EServerProtocol{ X11, Wayland, Unknown };
     EServerProtocol mServerProtocol = Unknown;
 
-    struct {
-        Window mXWindowID = None;
-        Display *mDisplay = nullptr;
-    } mX11Data;
-
+#if LL_WAYLAND
     // Wayland
     struct {
         wl_surface *mSurface = nullptr;
@@ -261,7 +232,7 @@ private:
 
     void setupWaylandFrameCallback();
     static void waylandFrameDoneCB(void *data, struct wl_callback *cb, uint32_t time);
-    //
+#endif
 
 private:
     void tryFindFullscreenSize(int &aWidth, int &aHeight);

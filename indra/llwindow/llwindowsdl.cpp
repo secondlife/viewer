@@ -64,40 +64,11 @@ const S32 MAX_NUM_RESOLUTIONS = 200;
 // LLWindowSDL
 //
 
-#include <X11/Xutil.h>
-
 // TOFU HACK -- (*exactly* the same hack as LLWindowMacOSX for a similar
 // set of reasons): Stash a pointer to the LLWindowSDL object here and
 // maintain in the constructor and destructor.  This assumes that there will
 // be only one object of this class at any time.  Currently this is true.
 static LLWindowSDL *gWindowImplementation = nullptr;
-
-void maybe_lock_display(void)
-{
-    if (gWindowImplementation && gWindowImplementation->Lock_Display)
-        gWindowImplementation->Lock_Display();
-}
-
-void maybe_unlock_display(void)
-{
-    if (gWindowImplementation && gWindowImplementation->Unlock_Display)
-        gWindowImplementation->Unlock_Display();
-}
-
-
-Window LLWindowSDL::get_SDL_XWindowID(void)
-{
-    if (gWindowImplementation)
-        return gWindowImplementation->mX11Data.mXWindowID;
-    return None;
-}
-
-Display* LLWindowSDL::get_SDL_Display(void)
-{
-    if (gWindowImplementation)
-        return gWindowImplementation->mX11Data.mDisplay;
-    return nullptr;
-}
 
 /*
  * In wayland a window does not have a state of "minimized" or gets messages that it got minimized [1]
@@ -238,8 +209,7 @@ LLWindowSDL::LLWindowSDL(LLWindowCallbacks* callbacks,
                          bool enable_vsync, bool use_gl,
                          bool ignore_pixel_depth, U32 fsaa_samples)
         : LLWindow(callbacks, fullscreen, flags),
-        Lock_Display(nullptr),
-        Unlock_Display(nullptr), mGamma(1.0f)
+        mGamma(1.0f)
 {
     // Initialize the keyboard
     gKeyboard = new LLKeyboardSDL();
@@ -377,6 +347,14 @@ bool LLWindowSDL::createContext(int x, int y, int width, int height, int bits, b
 
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
+    if(LLRender::sGLCoreProfile)
+    {
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
+
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+    }
+
     U32 context_flags = 0;
     if (gDebugGL)
     {
@@ -416,36 +394,18 @@ bool LLWindowSDL::createContext(int x, int y, int width, int height, int bits, b
         setupFailure("GL Context failed to set current failure", "Error", OSMB_OK);
     }
 
-    mSurface = SDL_GetWindowSurface(mWindow);
     if(mFullscreen)
     {
-        if (mSurface)
-        {
-            mFullscreen = true;
-            mFullscreenWidth = mSurface->w;
-            mFullscreenHeight = mSurface->h;
-            mFullscreenBits    = mSurface->format->BitsPerPixel;
-            mFullscreenRefresh = -1;
+        mFullscreen = true;
+        SDL_GetWindowSize(mWindow, &mFullscreenWidth, &mFullscreenHeight);
+        mFullscreenBits    = 32;
+        mFullscreenRefresh = -1;
 
-            LL_INFOS() << "Running at " << mFullscreenWidth
-                       << "x"   << mFullscreenHeight
-                       << "x"   << mFullscreenBits
-                       << " @ " << mFullscreenRefresh
-                       << LL_ENDL;
-        }
-        else
-        {
-            LL_WARNS() << "createContext: fullscreen creation failure. SDL: " << SDL_GetError() << LL_ENDL;
-
-            mFullscreen = false;
-            mFullscreenWidth   = -1;
-            mFullscreenHeight  = -1;
-            mFullscreenBits    = -1;
-            mFullscreenRefresh = -1;
-
-            std::string error = llformat("Unable to run fullscreen at %d x %d.\nRunning in window.", width, height);
-            setupFailure( error, "Error", OSMB_OK );
-        }
+        LL_INFOS() << "Running at " << mFullscreenWidth
+                    << "x"   << mFullscreenHeight
+                    << "x"   << mFullscreenBits
+                    << " @ " << mFullscreenRefresh
+                    << LL_ENDL;
     }
 
     SDL_GL_GetAttribute(SDL_GL_RED_SIZE, &redBits);
@@ -499,25 +459,23 @@ bool LLWindowSDL::createContext(int x, int y, int width, int height, int bits, b
         /* Save the information for later use */
         if (info.subsystem == SDL_SYSWM_X11)
         {
-            mX11Data.mDisplay = info.info.x11.display;
-            mX11Data.mXWindowID = info.info.x11.window;
             mServerProtocol = X11;
             LL_INFOS() << "Running under X11" << LL_ENDL;
         }
         else if (info.subsystem == SDL_SYSWM_WAYLAND)
         {
+            mServerProtocol = Wayland;
+
 #ifdef LL_WAYLAND
+            mWaylandData.mSurface = info.info.wl.surface;
             mWaylandLoaded = loadWaylandClient();
             if(!mWaylandLoaded)
             {
                 LL_WARNS() << "Failed to load wayland-client.so or grab required functions" << LL_ENDL;
             }
-#endif
-
-            mWaylandData.mSurface = info.info.wl.surface;
-            mServerProtocol = Wayland;
 
             setupWaylandFrameCallback();
+#endif
 
             // If set (XWayland) remove DISPLAY, this will prompt dullahan to also use Wayland
             if( getenv("DISPLAY") )
@@ -537,8 +495,6 @@ bool LLWindowSDL::createContext(int x, int y, int width, int height, int bits, b
     }
 
     SDL_StartTextInput();
-    //make sure multisampling is disabled by default
-    glDisable(GL_MULTISAMPLE_ARB);
 
     // Don't need to get the current gamma, since there's a call that restores it to the system defaults.
     return true;
@@ -620,10 +576,9 @@ void LLWindowSDL::destroyContext()
     LL_INFOS() << "shutdownGL begins" << LL_ENDL;
     gGLManager.shutdownGL();
 
-    mX11Data.mDisplay = nullptr;
-    mX11Data.mXWindowID = None;
-    Lock_Display = nullptr;
-    Unlock_Display = nullptr;
+#ifdef LL_WAYLAND
+    mWaylandData.mSurface = nullptr;
+#endif
     mServerProtocol = Unknown;
 
     LL_INFOS() << "Destroying SDL cursors" << LL_ENDL;
@@ -651,9 +606,6 @@ void LLWindowSDL::destroyContext()
         LL_INFOS() << "SDL Window already destroyed" << LL_ENDL;
     }
     LL_INFOS() << "destroyContext end" << LL_ENDL;
-
-    LL_INFOS() << "SDL_QuitSS/VID begins" << LL_ENDL;
-    SDL_QuitSubSystem(SDL_INIT_VIDEO);  // *FIX: this might be risky...
 }
 
 LLWindowSDL::~LLWindowSDL()
@@ -730,8 +682,10 @@ bool LLWindowSDL::getVisible() const
 
 bool LLWindowSDL::getMinimized() const
 {
+#if LL_WAYLAND
     if( isWaylandWindowNotDrawing() )
         return true;
+#endif
 
     bool result = false;
     if (mWindow)
@@ -782,10 +736,9 @@ bool LLWindowSDL::getPosition(LLCoordScreen *position) const
 
 bool LLWindowSDL::getSize(LLCoordScreen *size) const
 {
-    if (mSurface)
+    if (mWindow)
     {
-        size->mX = mSurface->w;
-        size->mY = mSurface->h;
+        SDL_GetWindowSize(mWindow, &size->mX, &size->mY);
         return true;
     }
 
@@ -794,10 +747,9 @@ bool LLWindowSDL::getSize(LLCoordScreen *size) const
 
 bool LLWindowSDL::getSize(LLCoordWindow *size) const
 {
-    if (mSurface)
+    if (mWindow)
     {
-        size->mX = mSurface->w;
-        size->mY = mSurface->h;
+        SDL_GetWindowSize(mWindow, &size->mX, &size->mY);
         return true;
     }
 
@@ -1001,24 +953,11 @@ void LLWindowSDL::beforeDialog()
         if (mFullscreen && mWindow )
             SDL_SetWindowFullscreen( mWindow, 0 );
     }
-
-    if (mServerProtocol == X11 && mX11Data.mDisplay)
-    {
-        // Everything that we/SDL asked for should happen before we
-        // potentially hand control over to GTK.
-        maybe_lock_display();
-        XSync(mX11Data.mDisplay, False);
-        maybe_unlock_display();
-    }
-
-    maybe_lock_display();
 }
 
 void LLWindowSDL::afterDialog()
 {
     LL_INFOS() << "LLWindowSDL::afterDialog()" << LL_ENDL;
-
-    maybe_unlock_display();
 
     if (mFullscreen && mWindow )
         SDL_SetWindowFullscreen( mWindow, 0 );
@@ -1106,7 +1045,6 @@ LLWindow::LLWindowResolution* LLWindowSDL::getSupportedResolutions(S32 &num_reso
         mSupportedResolutions = new LLWindowResolution[MAX_NUM_RESOLUTIONS];
         mNumSupportedResolutions = 0;
 
-        // <FS:ND> Use display no from mWindow/mSurface here?
         int max = SDL_GetNumDisplayModes(0);
         max = llclamp( max, 0, MAX_NUM_RESOLUTIONS );
 
@@ -1142,8 +1080,13 @@ bool LLWindowSDL::convertCoords(LLCoordGL from, LLCoordWindow *to) const
     if (!to)
         return false;
 
+    if (!mWindow)
+        return false;
+    S32 height;
+    SDL_GetWindowSize(mWindow, nullptr, &height);
+
     to->mX = from.mX;
-    to->mY = mSurface->h - from.mY - 1;
+    to->mY = height - from.mY - 1;
 
     return true;
 }
@@ -1153,8 +1096,13 @@ bool LLWindowSDL::convertCoords(LLCoordWindow from, LLCoordGL* to) const
     if (!to)
         return false;
 
+    if (!mWindow)
+        return false;
+    S32 height;
+    SDL_GetWindowSize(mWindow, nullptr, &height);
+
     to->mX = from.mX;
-    to->mY = mSurface->h - from.mY - 1;
+    to->mY = height - from.mY - 1;
 
     return true;
 }
@@ -1520,7 +1468,6 @@ void LLWindowSDL::gatherInput(bool app_has_focus)
                         S32 width = llmax(event.window.data1, (S32)mMinWindowWidth);
                         S32 height = llmax(event.window.data2, (S32)mMinWindowHeight);
 
-                        mSurface = SDL_GetWindowSurface(mWindow);
                         mCallbacks->handleResize(this, width, height);
                         break;
                     }
