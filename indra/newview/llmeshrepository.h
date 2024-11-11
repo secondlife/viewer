@@ -212,9 +212,9 @@ class PendingRequestBase
 public:
     struct CompareScoreGreater
     {
-        bool operator()(const PendingRequestBase& lhs, const PendingRequestBase& rhs)
+        bool operator()(const std::unique_ptr<PendingRequestBase>& lhs, const std::unique_ptr<PendingRequestBase>& rhs)
         {
-            return lhs.mScore > rhs.mScore; // greatest = first
+            return lhs->mScore > rhs->mScore; // greatest = first
         }
     };
 
@@ -229,7 +229,7 @@ public:
     void setScore(F32 score) { mScore = score; }
     F32 getScore() const { return mScore; }
     LLUUID getId() const { return mId; }
-    virtual EMeshRequestType getRequestType() const { return MESH_REQUEST_UKNOWN; }
+    virtual EMeshRequestType getRequestType() const = 0;
 
 protected:
     F32 mScore;
@@ -758,7 +758,8 @@ public:
 
     LLMutex*                    mMeshMutex;
 
-    std::vector<PendingRequestBase> mPendingRequests;
+    typedef std::vector <std::unique_ptr<PendingRequestBase> > pending_requests_vec;
+    pending_requests_vec mPendingRequests;
 
     //list of mesh ids awaiting skin info
     typedef boost::unordered_map<LLUUID, std::vector<LLVOVolume*> > skin_load_map;
