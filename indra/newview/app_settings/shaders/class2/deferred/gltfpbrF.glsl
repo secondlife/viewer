@@ -50,7 +50,9 @@ uniform sampler2D specularMap; // Packed: Occlusion, Metal, Roughness
 in vec2 metallic_roughness_texcoord;
 #endif
 
+#ifdef HAS_FRAGMENT_NORMAL
 in vec3 vary_normal;
+#endif
 
 #ifdef SAMPLE_NORMAL_MAP
 uniform sampler2D bumpMap;
@@ -215,7 +217,7 @@ void main()
 
 #endif
 
-
+#ifdef HAS_FRAGMENT_NORMAL
 #ifdef SAMPLE_NORMAL_MAP
     // from mikktspace.com
     vec3 vNt = texture(bumpMap, normal_texcoord.xy).xyz*2.0-1.0;
@@ -231,6 +233,7 @@ void main()
 
 #ifdef DOUBLE_SIDED
     tnorm *= gl_FrontFacing ? 1.0 : -1.0;
+#endif
 #endif
 
     // RGB = Occlusion, Roughness, Metal

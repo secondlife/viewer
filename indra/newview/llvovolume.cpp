@@ -1261,6 +1261,7 @@ void LLVOVolume::notifyMeshLoaded()
     mSculptChanged = true;
     if (mDrawable)
     {
+        markForUpdate();
         gPipeline.markTransformDirty(mDrawable->getSpatialGroup());
     }
 

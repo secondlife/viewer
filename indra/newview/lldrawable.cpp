@@ -232,7 +232,7 @@ const LLMatrix4& LLDrawable::getRenderMatrix() const
     return isRoot() ? getWorldMatrix() : getParent()->getWorldMatrix();
 }
 
-const LLMatrix4& LLDrawable::getGLTFRenderMatrix(bool local_frame)
+const LLMatrix4& LLDrawable::getGLTFRenderMatrix(bool local_frame, LLMatrix4* aux_mat)
 {
     if (local_frame)
     {
@@ -245,6 +245,11 @@ const LLMatrix4& LLDrawable::getGLTFRenderMatrix(bool local_frame)
         mXform.updateMatrix();
         mGLTFRenderMatrix.initScale(mVObjp->getScale());
         mGLTFRenderMatrix *= getWorldMatrix();
+    }
+
+    if (aux_mat != nullptr)
+    {
+        mGLTFRenderMatrix *= *aux_mat;
     }
 
     return mGLTFRenderMatrix;

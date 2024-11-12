@@ -1349,6 +1349,8 @@ bool LLViewerShaderMgr::loadShadersDeferred()
                                 }
 
                                 shader.addPermutation("SAMPLE_MATERIALS_UBO", "1");
+                                shader.addPermutation("HAS_NORMAL", "1");
+                                shader.addPermutation("HAS_FRAGMENT_NORMAL", "1");
 
                                 bool frag_position = false;
 
@@ -1444,6 +1446,7 @@ bool LLViewerShaderMgr::loadShadersDeferred()
                                 shader.addPermutation("SAMPLE_BASE_COLOR_MAP", "1");
                                 if (planar_projection)
                                 {
+                                    shader.addPermutation("HAS_NORMAL", "1");
                                     shader.addPermutation("PLANAR_PROJECTION", "1");
                                 }
                             }

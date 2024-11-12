@@ -69,8 +69,6 @@ static F32 sCurMaxTexPriority = 1.f;
 // enable expensive sanity checks around redundant drawable and group insertion to LLCullResult
 #define LL_DEBUG_CULL_RESULT 0
 
-//static counter for frame to switch LOD on
-
 void sg_assert(bool expr)
 {
 #if LL_OCTREE_PARANOIA_CHECK
@@ -79,6 +77,26 @@ void sg_assert(bool expr)
         LL_ERRS() << "Octree invalid!" << LL_ENDL;
     }
 #endif
+}
+
+// pack a given LLMatrix4 into a mat4x3 for GLSL
+static void pack_transform(const LLMatrix4& mat, F32* mp)
+{
+    const F32* m = &mat.mMatrix[0][0];
+    mp[0] = m[0];
+    mp[1] = m[1];
+    mp[2] = m[2];
+    mp[3] = m[12];
+
+    mp[4] = m[4];
+    mp[5] = m[5];
+    mp[6] = m[6];
+    mp[7] = m[13];
+
+    mp[8] = m[8];
+    mp[9] = m[9];
+    mp[10] = m[10];
+    mp[11] = m[14];
 }
 
 //returns:
@@ -496,6 +514,27 @@ void LLSpatialGroup::shift(const LLVector4a &offset)
     mObjectExtents[0].add(offset);
     mObjectExtents[1].add(offset);
 
+    if (getSpatialPartition()->mPartitionType == LLViewerRegion::PARTITION_VOLUME)
+    {
+        // add root transform
+        if (!getSpatialPartition()->asBridge())
+        {
+            LLViewerRegion* regionp = getSpatialPartition()->mRegionp;
+            LLMatrix4 rootMat;
+            if (regionp)
+            {
+                rootMat.setTranslation(regionp->getOriginAgent());
+            }
+
+            F32 mat[12];
+
+            pack_transform(rootMat, mat);
+
+            glBindBuffer(GL_UNIFORM_BUFFER, mTransformUBO);
+            glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(F32) * 12, mat);
+            glBindBuffer(GL_UNIFORM_BUFFER, 0);
+        }
+    }
     if (!getSpatialPartition()->mRenderByGroup &&
         getSpatialPartition()->mPartitionType != LLViewerRegion::PARTITION_TREE &&
         getSpatialPartition()->mPartitionType != LLViewerRegion::PARTITION_TERRAIN &&
@@ -900,26 +939,6 @@ void LLSpatialGroup::rebound()
     }
 }
 
-// pack a given LLMatrix4 into a mat4x3 for GLSL
-static void pack_transform(const LLMatrix4& mat, F32* mp)
-{
-    const F32* m = &mat.mMatrix[0][0];
-    mp[0] = m[0];
-    mp[1] = m[1];
-    mp[2] = m[2];
-    mp[3] = m[12];
-
-    mp[4] = m[4];
-    mp[5] = m[5];
-    mp[6] = m[6];
-    mp[7] = m[13];
-
-    mp[8] = m[8];
-    mp[9] = m[9];
-    mp[10] = m[10];
-    mp[11] = m[14];
-}
-
 void LLSpatialGroup::updateTransformUBOs()
 {
     if (mOctreeNode == nullptr)
@@ -953,9 +972,10 @@ void LLSpatialGroup::updateTransformUBOs()
     static std::vector<const LLMatrix4*> transforms;
     transforms.resize(1);
 
-    LLMatrix4 identity;
     LLMatrix4 rootMat;
     LLMatrix4 rootObjMat;
+    LLMatrix4 invRootMat;
+
     LLDrawable* root = nullptr;
 
     // add root transform
@@ -964,13 +984,18 @@ void LLSpatialGroup::updateTransformUBOs()
         root = getSpatialPartition()->asBridge()->mDrawable;
         rootObjMat.initScale(root->getScale());
         rootMat = root->getRenderMatrix();
-        transforms[0] = &rootMat;
     }
     else
     {
-        // TODO: set this transform to the coordinate frame of the region that owns this partition
-        transforms[0] = &identity;
+        LLViewerRegion* regionp = getSpatialPartition()->mRegionp;
+        if (regionp)
+        {
+            rootMat.setTranslation(regionp->getOriginAgent());
+            invRootMat.setTranslation(-regionp->getOriginAgent());
+        }
     }
+
+    transforms[0] = &rootMat;
 
     static std::vector<const LLMatrix4*> texture_transforms;
     texture_transforms.resize(0);
@@ -1016,7 +1041,7 @@ void LLSpatialGroup::updateTransformUBOs()
             U32 transform_index = (U32)transforms.size();
             if (root != drawable)
             {
-                transforms.push_back(&drawable->getGLTFRenderMatrix(root != nullptr));
+                transforms.push_back(&drawable->getGLTFRenderMatrix(root != nullptr, &invRootMat));
             }
             else
             {

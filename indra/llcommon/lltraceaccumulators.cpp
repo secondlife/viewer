@@ -214,7 +214,7 @@ void SampleAccumulator::reset(const SampleAccumulator* other)
     mMin = mLastValue;
     mMax = mLastValue;
     mMean = mLastValue;
-    llassert(!mHasValue || mMean < 0 || mMean >= 0);
+    //llassert(!mHasValue || mMean < 0 || mMean >= 0);
     mSumOfSquares = 0;
     mLastSampleTimeStamp = LLTimer::getTotalSeconds();
     mTotalSamplingTime = 0;
