@@ -38,6 +38,8 @@ in vec2 vary_texcoord0;
 
 vec3 linear_to_srgb(vec3 c);
 
+vec4 encodeNormal(vec3 norm, float gbuffer_flag);
+
 void main()
 {
     vec4 col = texture(diffuseMap, vary_texcoord0.xy);

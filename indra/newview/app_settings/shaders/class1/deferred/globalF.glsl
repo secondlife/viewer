@@ -43,3 +43,15 @@ void mirrorClip(vec3 pos)
     }
 }
 
+vec4 encodeNormal(vec3 norm, float gbuffer_flag)
+{
+    return vec4(norm * 0.5 + 0.5, gbuffer_flag);
+}
+
+vec4 decodeNormal(vec4 norm)
+{
+    norm.xyz = norm.xyz * 2.0 - 1.0;
+    return norm;
+}
+
+

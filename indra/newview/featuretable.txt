@@ -79,7 +79,7 @@ RenderHeroProbeResolution	1	2048
 RenderHeroProbeDistance		1	16
 RenderHeroProbeUpdateRate	1	6
 RenderHeroProbeConservativeUpdateMultiplier 1 16
-RenderDownScaleMethod       1   1
+RenderDownScaleMethod       1   0
 RenderCASSharpness          1   1
 RenderExposure				1   4
 RenderTonemapType			1   1

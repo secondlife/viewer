@@ -463,6 +463,11 @@ void LLReflectionMapManager::update()
 
 LLReflectionMap* LLReflectionMapManager::addProbe(LLSpatialGroup* group)
 {
+    if (gGLManager.mGLVersion < 4.05f)
+    {
+        return nullptr;
+    }
+
     LLReflectionMap* probe = new LLReflectionMap();
     probe->mGroup = group;
 
