@@ -2777,6 +2777,7 @@ static LLDefaultChildRegistry::Register<LLInventoryGalleryItem> r("inventory_gal
 LLInventoryGalleryItem::LLInventoryGalleryItem(const Params& p)
     : LLPanel(p),
     mSelected(false),
+    mWorn(false),
     mDefaultImage(true),
     mItemName(""),
     mWornSuffix(""),

@@ -76,13 +76,15 @@ public:
     bool isNearbyChat() {return mIsNearbyChat;}
 
     // LLFloater overrides
-    /*virtual*/ void onOpen(const LLSD& key);
-    /*virtual*/ bool postBuild();
-    /*virtual*/ void draw();
-    /*virtual*/ void setVisible(bool visible);
-    /*virtual*/ void setFocus(bool focus);
-    /*virtual*/ void closeFloater(bool app_quitting = false);
-    /*virtual*/ void deleteAllChildren();
+    /*virtual*/ void onOpen(const LLSD& key) override;
+    /*virtual*/ bool postBuild() override;
+    /*virtual*/ void draw() override;
+    /*virtual*/ void setVisible(bool visible) override;
+    /*virtual*/ void setFocus(bool focus) override;
+    /*virtual*/ void closeFloater(bool app_quitting = false) override;
+    /*virtual*/ void deleteAllChildren() override;
+
+    virtual void onClickCloseBtn(bool app_quitting = false) override;
 
     // Handle the left hand participant list widgets
     void addConversationViewParticipant(LLConversationItem* item, bool update_view = true);
@@ -98,7 +100,7 @@ public:
     virtual void updateMessages() {}
     LLConversationItem* getCurSelectedViewModelItem();
     void forceReshape();
-    virtual bool handleKeyHere( KEY key, MASK mask );
+    virtual bool handleKeyHere( KEY key, MASK mask ) override;
     bool isMessagePaneExpanded(){return mMessagePaneExpanded;}
     void setMessagePaneExpanded(bool expanded){mMessagePaneExpanded = expanded;}
     void restoreFloater();
@@ -139,8 +141,8 @@ protected:
     virtual void enableDisableCallBtn();
 
     // process focus events to set a currently active session
-    /* virtual */ void onFocusReceived();
-    /* virtual */ void onFocusLost();
+    /* virtual */ void onFocusReceived() override;
+    /* virtual */ void onFocusLost() override;
 
     // prepare chat's params and out one message to chatHistory
     void appendMessage(const LLChat& chat, const LLSD& args = LLSD());
@@ -212,7 +214,7 @@ private:
     void getSelectedUUIDs(uuid_vec_t& selected_uuids);
 
     /// Refreshes the floater at a constant rate.
-    virtual void refresh() = 0;
+    virtual void refresh() override = 0;
 
     /**
      * Adjusts chat history height to fit vertically with input chat field

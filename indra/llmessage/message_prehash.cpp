@@ -1406,3 +1406,4 @@ char const* const _PREHASH_ObjectBypassModUpdate      = LLMessageStringTable::ge
 char const* const _PREHASH_PropertyID                      = LLMessageStringTable::getInstance()->getString("PropertyID");
 char const* const _PREHASH_GameControlInput = LLMessageStringTable::getInstance()->getString("GameControlInput");
 char const* const _PREHASH_AxisData = LLMessageStringTable::getInstance()->getString("AxisData");
+char const* const _PREHASH_MetaData = LLMessageStringTable::getInstance()->getString("MetaData");

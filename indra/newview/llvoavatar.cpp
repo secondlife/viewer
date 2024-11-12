@@ -684,11 +684,10 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
     mFullyLoaded(false),
     mPreviousFullyLoaded(false),
     mFullyLoadedInitialized(false),
-    mLastCloudAttachmentCount(0),
+    mLastCloudAttachmentCount(-1),
     mVisualComplexity(VISUAL_COMPLEXITY_UNKNOWN),
     mLoadedCallbacksPaused(false),
     mLoadedCallbackTextures(0),
-    mRenderUnloadedAvatar(LLCachedControl<bool>(gSavedSettings, "RenderUnloadedAvatar", false)),
     mLastRezzedStatus(-1),
     mIsEditingAppearance(false),
     mUseLocalAppearance(false),
@@ -7724,6 +7723,64 @@ void LLVOAvatar::cleanupAttachedMesh( LLViewerObject* pVO )
     }
 }
 
+bool check_object_for_mesh_loading(LLViewerObject* objectp)
+{
+    if (!objectp || !objectp->getVolume())
+    {
+        return false;
+    }
+    LLVolume* volp = objectp->getVolume();
+    const LLUUID& mesh_id = volp->getParams().getSculptID();
+    if (mesh_id.isNull())
+    {
+        // No mesh nor skin info needed
+        return false;
+    }
+
+    if (volp->isMeshAssetUnavaliable())
+    {
+        // Mesh failed to load, do not expect it
+        return false;
+    }
+
+    if (!objectp->mDrawable)
+    {
+        return false;
+    }
+
+    LLVOVolume* pvobj = objectp->mDrawable->getVOVolume();
+    if (pvobj)
+    {
+        if (!pvobj->isMesh())
+        {
+            // Not a mesh
+            return false;
+        }
+
+        if (!volp->isMeshAssetLoaded())
+        {
+            // Waiting for mesh
+            return true;
+        }
+
+        const LLMeshSkinInfo* skin_data = pvobj->getSkinInfo();
+        if (skin_data)
+        {
+            // Skin info present, done
+            return false;
+        }
+
+        if (pvobj->isSkinInfoUnavaliable())
+        {
+            // Load failed or info not present, don't expect it
+            return false;
+        }
+    }
+
+    // object is not ready
+    return true;
+}
+
 bool LLVOAvatar::hasPendingAttachedMeshes()
 {
     for (attachment_map_t::iterator iter = mAttachmentPoints.begin();
@@ -7738,62 +7795,20 @@ bool LLVOAvatar::hasPendingAttachedMeshes()
                  ++attachment_iter)
             {
                 LLViewerObject* objectp = attachment_iter->get();
-                if (objectp)
+                if (objectp && !objectp->isDead())
                 {
+                    if (check_object_for_mesh_loading(objectp))
+                    {
+                        return true;
+                    }
                     LLViewerObject::const_child_list_t& child_list = objectp->getChildren();
                     for (LLViewerObject::child_list_t::const_iterator iter1 = child_list.begin();
                          iter1 != child_list.end(); ++iter1)
                     {
                         LLViewerObject* objectchild = *iter1;
-                        if (objectchild && objectchild->getVolume())
+                        if (check_object_for_mesh_loading(objectchild))
                         {
-                            const LLUUID& mesh_id = objectchild->getVolume()->getParams().getSculptID();
-                            if (mesh_id.isNull())
-                            {
-                                // No mesh nor skin info needed
-                                continue;
-                            }
-
-                            if (objectchild->getVolume()->isMeshAssetUnavaliable())
-                            {
-                                // Mesh failed to load, do not expect it
-                                continue;
-                            }
-
-                            if (objectchild->mDrawable)
-                            {
-                                LLVOVolume* pvobj = objectchild->mDrawable->getVOVolume();
-                                if (pvobj)
-                                {
-                                    if (!pvobj->isMesh())
-                                    {
-                                        // Not a mesh
-                                        continue;
-                                    }
-
-                                    if (!objectchild->getVolume()->isMeshAssetLoaded())
-                                    {
-                                        // Waiting for mesh
-                                        return true;
-                                    }
-
-                                    const LLMeshSkinInfo* skin_data = pvobj->getSkinInfo();
-                                    if (skin_data)
-                                    {
-                                        // Skin info present, done
-                                        continue;
-                                    }
-
-                                    if (pvobj->isSkinInfoUnavaliable())
-                                    {
-                                        // Load failed or info not present, don't expect it
-                                        continue;
-                                    }
-                                }
-
-                                // objectchild is not ready
-                                return true;
-                            }
+                            return true;
                         }
                     }
                 }
@@ -8524,7 +8539,8 @@ bool LLVOAvatar::processFullyLoadedChange(bool loading)
 
 bool LLVOAvatar::isFullyLoaded() const
 {
-    return (mRenderUnloadedAvatar || mFullyLoaded);
+    static LLCachedControl<bool> render_unloaded_avatars(gSavedSettings, "RenderUnloadedAvatar", false);
+    return (render_unloaded_avatars || mFullyLoaded);
 }
 
 bool LLVOAvatar::isTooComplex() const

@@ -123,7 +123,7 @@ public:
 
     std::vector<LLPointer<LLViewerTexture> > mTextureList;
 
-    LLUUID mMaterialID; // id of LLGLTFMaterial or LLMaterial applied to this draw info
+    LLUUID mMaterialHash; // hash of LLGLTFMaterial or LLMaterial applied to this draw info
 
     U32 mShaderMask = 0;
     F32  mEnvIntensity = 0.f;
@@ -273,8 +273,7 @@ public:
         IN_IMAGE_QUEUE          = (ALPHA_DIRTY << 1),
         IMAGE_DIRTY             = (IN_IMAGE_QUEUE << 1),
         MESH_DIRTY              = (IMAGE_DIRTY << 1),
-        NEW_DRAWINFO            = (MESH_DIRTY << 1),
-        IN_BUILD_Q1             = (NEW_DRAWINFO << 1),
+        IN_BUILD_Q1             = (MESH_DIRTY << 1),
         IN_BUILD_Q2             = (IN_BUILD_Q1 << 1),
         STATE_MASK              = 0x0000FFFF,
     } eSpatialState;

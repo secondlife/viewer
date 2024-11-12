@@ -34,7 +34,6 @@
      mouse_opaque="true"
      name="chat_zone_indicator"
      top="6"
-     visible="true"
      width="20" />
     <button
      follows="right"

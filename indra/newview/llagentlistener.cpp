@@ -32,11 +32,14 @@
 
 #include "llagent.h"
 #include "llagentcamera.h"
+#include "llavatarname.h"
+#include "llavatarnamecache.h"
 #include "llvoavatar.h"
 #include "llcommandhandler.h"
 #include "llinventorymodel.h"
 #include "llslurl.h"
 #include "llurldispatcher.h"
+#include "llviewercontrol.h"
 #include "llviewernetwork.h"
 #include "llviewerobject.h"
 #include "llviewerobjectlist.h"
@@ -46,7 +49,8 @@
 #include "llsdutil_math.h"
 #include "lltoolgrab.h"
 #include "llhudeffectlookat.h"
-#include "llagentcamera.h"
+#include "llviewercamera.h"
+#include "resultset.h"
 #include <functional>
 
 static const F64 PLAY_ANIM_THROTTLE_PERIOD = 1.f;
@@ -176,6 +180,32 @@ LLAgentListener::LLAgentListener(LLAgent &agent)
         "Return information about [\"item_id\"] animation",
         &LLAgentListener::getAnimationInfo,
         llsd::map("item_id", LLSD(), "reply", LLSD()));
+
+    add("getID",
+        "Return your own avatar ID",
+        &LLAgentListener::getID,
+        llsd::map("reply", LLSD()));
+
+    add("getNearbyAvatarsList",
+        "Return result set key [\"result\"] for nearby avatars in a range of [\"dist\"]\n"
+        "if [\"dist\"] is not specified, 'RenderFarClip' setting is used\n"
+        "reply contains \"result\" table with \"id\", \"name\", \"global_pos\", \"region_pos\", \"region_id\" fields",
+        &LLAgentListener::getNearbyAvatarsList,
+        llsd::map("reply", LLSD()));
+
+    add("getNearbyObjectsList",
+        "Return result set key [\"result\"] for nearby objects in a range of [\"dist\"]\n"
+        "if [\"dist\"] is not specified, 'RenderFarClip' setting is used\n"
+        "reply contains \"result\" table with \"id\", \"global_pos\", \"region_pos\", \"region_id\" fields",
+        &LLAgentListener::getNearbyObjectsList,
+        llsd::map("reply", LLSD()));
+
+    add("getAgentScreenPos",
+        "Return screen position of the [\"avatar_id\"] avatar or own avatar if not specified\n"
+        "reply contains \"x\", \"y\" coordinates and \"onscreen\" flag to indicate if it's actually in within the current window\n"
+        "avatar render position is used as the point",
+        &LLAgentListener::getAgentScreenPos,
+        llsd::map("reply", LLSD()));
 }
 
 void LLAgentListener::requestTeleport(LLSD const & event_data) const
@@ -692,4 +722,119 @@ void LLAgentListener::getAnimationInfo(LLSD const &event_data)
                                                "asset_id", item->getAssetUUID(),
                                                "priority", motion->getPriority());
     }
+}
+
+void LLAgentListener::getID(LLSD const& event_data)
+{
+    Response response(llsd::map("id", gAgentID), event_data);
+}
+
+struct AvResultSet : public LL::VectorResultSet<LLVOAvatar*>
+{
+    AvResultSet() : super("nearby_avatars") {}
+    LLSD getSingleFrom(LLVOAvatar* const& av) const override
+    {
+        LLAvatarName av_name;
+        LLAvatarNameCache::get(av->getID(), &av_name);
+        LLVector3 region_pos = av->getCharacterPosition();
+        return llsd::map("id", av->getID(),
+                         "global_pos", ll_sd_from_vector3d(av->getPosGlobalFromAgent(region_pos)),
+                         "region_pos", ll_sd_from_vector3(region_pos),
+                         "name", av_name.getUserName(),
+                         "region_id", av->getRegion()->getRegionID());
+    }
+};
+
+struct ObjResultSet : public LL::VectorResultSet<LLViewerObject*>
+{
+    ObjResultSet() : super("nearby_objects") {}
+    LLSD getSingleFrom(LLViewerObject* const& obj) const override
+    {
+        return llsd::map("id", obj->getID(),
+                         "global_pos", ll_sd_from_vector3d(obj->getPositionGlobal()),
+                         "region_pos", ll_sd_from_vector3(obj->getPositionRegion()),
+                         "region_id", obj->getRegion()->getRegionID());
+    }
+};
+
+
+F32 get_search_radius(LLSD const& event_data)
+{
+    static LLCachedControl<F32> render_far_clip(gSavedSettings, "RenderFarClip", 64);
+    F32 dist = render_far_clip;
+    if (event_data.has("dist"))
+    {
+        dist = llclamp((F32)event_data["dist"].asReal(), 1, 512);
+    }
+   return dist * dist;
+}
+
+void LLAgentListener::getNearbyAvatarsList(LLSD const& event_data)
+{
+    Response response(LLSD(), event_data);
+    auto avresult = new AvResultSet;
+
+    F32 radius = get_search_radius(event_data);
+    LLVector3d agent_pos = gAgent.getPositionGlobal();
+    for (LLCharacter* character : LLCharacter::sInstances)
+    {
+        LLVOAvatar* avatar = (LLVOAvatar*)character;
+        if (!avatar->isDead() && !avatar->isControlAvatar() && !avatar->isSelf())
+        {
+            if ((dist_vec_squared(avatar->getPositionGlobal(), agent_pos) <= radius))
+            {
+                avresult->mVector.push_back(avatar);
+            }
+        }
+    }
+    response["result"] = avresult->getKeyLength();
+}
+
+void LLAgentListener::getNearbyObjectsList(LLSD const& event_data)
+{
+    Response response(LLSD(), event_data);
+    auto objresult = new ObjResultSet;
+
+    F32 radius = get_search_radius(event_data);
+    S32 num_objects = gObjectList.getNumObjects();
+    LLVector3d agent_pos = gAgent.getPositionGlobal();
+    for (S32 i = 0; i < num_objects; ++i)
+    {
+        LLViewerObject* object = gObjectList.getObject(i);
+        if (object && object->getVolume() && !object->isAttachment())
+        {
+            if ((dist_vec_squared(object->getPositionGlobal(), agent_pos) <= radius))
+            {
+                objresult->mVector.push_back(object);
+            }
+        }
+    }
+    response["result"] = objresult->getKeyLength();
+}
+
+void LLAgentListener::getAgentScreenPos(LLSD const& event_data)
+{
+    Response response(LLSD(), event_data);
+    LLVector3 render_pos;
+    if (event_data.has("avatar_id") && (event_data["avatar_id"].asUUID() != gAgentID))
+    {
+        LLUUID avatar_id(event_data["avatar_id"]);
+        for (LLCharacter* character : LLCharacter::sInstances)
+        {
+            LLVOAvatar* avatar = (LLVOAvatar*)character;
+            if (!avatar->isDead() && (avatar->getID() == avatar_id))
+            {
+                render_pos = avatar->getRenderPosition();
+                break;
+            }
+        }
+    }
+    else if (gAgentAvatarp.notNull() && gAgentAvatarp->isValid())
+    {
+        render_pos = gAgentAvatarp->getRenderPosition();
+    }
+    LLCoordGL screen_pos;
+    response["onscreen"] = LLViewerCamera::getInstance()->projectPosAgentToScreen(render_pos, screen_pos, false);
+    response["x"] = screen_pos.mX;
+    response["y"] = screen_pos.mY;
 }

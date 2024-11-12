@@ -1032,6 +1032,12 @@ class Darwin_x86_64_Manifest(ViewerManifest):
                                 ):
                         dylibs += path_optional(os.path.join(relpkgdir, libfile), libfile)
 
+                # SDL2
+                for libfile in (
+                            'libSDL2-2.0.dylib',
+                            ):
+                    dylibs += path_optional(os.path.join(relpkgdir, libfile), libfile)
+
                 # our apps
                 executable_path = {}
                 embedded_apps = [ (os.path.join("llplugin", "slplugin"), "SLPlugin.app") ]

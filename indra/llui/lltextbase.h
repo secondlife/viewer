@@ -202,6 +202,8 @@ public:
     LLEmojiTextSegment(const LLUIColor& color, S32 start, S32 end, LLTextBase& editor, bool is_visible = true);
     /*virtual*/ LLTextSegmentPtr clone(LLTextBase& target) const override;
 
+    F32 draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRectf& draw_rect) override;
+
     bool canEdit() const override { return false; }
     bool handleToolTip(S32 x, S32 y, MASK mask) override;
 };

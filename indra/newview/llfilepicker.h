@@ -54,6 +54,10 @@
 #include <commdlg.h>
 #endif
 
+#if LL_NFD
+#include "nfd.hpp"
+#endif
+
 class LLFilePicker
 {
 public:
@@ -151,14 +155,18 @@ private:
     // is enabled and if not, tidy up and indicate we're not allowed to do this.
     bool check_local_file_access_enabled();
 
-#if LL_WINDOWS
+#if LL_NFD
+    std::vector<nfdfilteritem_t> setupFilter(ELoadFilter filter);
+#endif
+
+#if LL_WINDOWS && !LL_NFD
     OPENFILENAMEW mOFN;             // for open and save dialogs
     WCHAR mFilesW[FILENAME_BUFFER_SIZE];
 
     bool setupFilter(ELoadFilter filter);
 #endif
 
-#if LL_DARWIN
+#if LL_DARWIN && !LL_NFD
     S32 mPickOptions;
     std::vector<std::string> mFileVector;
 

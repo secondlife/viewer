@@ -641,6 +641,15 @@ void LLVOVolume::animateTextures()
                 if (!facep->mTextureMatrix)
                 {
                     facep->mTextureMatrix = new LLMatrix4();
+                    if (facep->getVirtualSize() > MIN_TEX_ANIM_SIZE)
+                    {
+                        // Fix the one edge case missed in
+                        // LLVOVolume::updateTextureVirtualSize when the
+                        // mTextureMatrix is not yet present
+                        gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_TCOORD);
+                        mDrawable->getSpatialGroup()->dirtyGeom();
+                        gPipeline.markRebuild(mDrawable->getSpatialGroup());
+                    }
                 }
 
                 LLMatrix4& tex_mat = *facep->mTextureMatrix;
@@ -784,11 +793,29 @@ void LLVOVolume::updateTextureVirtualSize(bool forced)
     for (S32 i = 0; i < num_faces; i++)
     {
         LLFace* face = mDrawable->getFace(i);
-        if (!face) continue;
+        if (!face || face->mExtents[0].equals3(face->mExtents[1])) continue;
         const LLTextureEntry *te = face->getTextureEntry();
-        LLViewerTexture *imagep = face->getTexture();
-        if (!imagep || !te ||
-            face->mExtents[0].equals3(face->mExtents[1]))
+        if (!te) continue;
+
+        LLViewerTexture *imagep = nullptr;
+        U32 ch_min;
+        U32 ch_max;
+        if (!te->getGLTFRenderMaterial())
+        {
+            ch_min = LLRender::DIFFUSE_MAP;
+            ch_max = LLRender::SPECULAR_MAP;
+        }
+        else
+        {
+            ch_min = LLRender::BASECOLOR_MAP;
+            ch_max = LLRender::EMISSIVE_MAP;
+        }
+        for (U32 ch = ch_min; (!imagep && ch <= ch_max); ++ch)
+        {
+            // Get _a_ non-null texture if possible (usually diffuse/basecolor, but could be something else)
+            imagep = face->getTexture(ch);
+        }
+        if (!imagep)
         {
             continue;
         }
@@ -814,12 +841,25 @@ void LLVOVolume::updateTextureVirtualSize(bool forced)
         // if the face has gotten small enough to turn off texture animation and texture
         // animation is running, rebuild the render batch for this face to turn off
         // texture animation
+        // Do the opposite when the face gets big enough.
+        // If a face is animatable, it will always have non-null mTextureMatrix
+        // pointer defined after the first call to LLVOVolume::animateTextures,
+        // although the animation is not always turned on.
         if (face->mTextureMatrix != NULL)
         {
-            if ((vsize < MIN_TEX_ANIM_SIZE && old_size > MIN_TEX_ANIM_SIZE) ||
-                (vsize > MIN_TEX_ANIM_SIZE && old_size < MIN_TEX_ANIM_SIZE))
+            if ((vsize > MIN_TEX_ANIM_SIZE) != (old_size > MIN_TEX_ANIM_SIZE))
             {
                 gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_TCOORD);
+                // dirtyGeom+markRebuild tells the engine to call
+                // LLVolumeGeometryManager::rebuildGeom, which rebuilds the
+                // LLDrawInfo for the spatial group containing this LLFace,
+                // safely copying the mTextureMatrix from the LLFace the the
+                // LLDrawInfo. While it's not ideal to call it here, prims with
+                // animated faces get moved to a smaller partition to reduce
+                // side-effects of their updates (see shrinkWrap in
+                // LLVOVolume::animateTextures).
+                mDrawable->getSpatialGroup()->dirtyGeom();
+                gPipeline.markRebuild(mDrawable->getSpatialGroup());
             }
         }
 
@@ -5403,7 +5443,7 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
         info->mEnd - draw_vec[idx]->mStart + facep->getGeomCount() <= (U32) gGLManager.mGLMaxVertexRange &&
         info->mCount + facep->getIndicesCount() <= (U32) gGLManager.mGLMaxIndexRange &&
 #endif
-        info->mMaterialID == mat_id &&
+        info->mMaterialHash == mat_id &&
         info->mFullbright == fullbright &&
         info->mBump == bump &&
         info->mAlphaGamma == alpha_gamma &&
@@ -5464,11 +5504,11 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
         if (gltf_mat)
         {
             // just remember the material ID, render pools will reference the GLTF material
-            draw_info->mMaterialID = mat_id;
+            draw_info->mMaterialHash = mat_id;
         }
         else if (mat)
         {
-            draw_info->mMaterialID = mat_id;
+            draw_info->mMaterialHash = mat_id;
 
             // We have a material.  Update our draw info accordingly.
 
@@ -5500,10 +5540,10 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
             }
         }
 
-        // if (type == LLRenderPass::PASS_ALPHA) // always populate the draw_info ptr
-        { //for alpha sorting
-            facep->setDrawInfo(draw_info);
-        }
+        // This backpointer is used by alpha sorting and avatar attachment
+        // accounting.
+        // To be safe, always populate the draw_info ptr.
+        facep->setDrawInfo(draw_info);
 
         if (index < FACE_DO_NOT_BATCH_TEXTURES)
         { //initialize texture list for texture batching
@@ -6125,7 +6165,7 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
                 LLVertexBuffer::flushBuffers();
             }
 
-            group->clearState(LLSpatialGroup::MESH_DIRTY | LLSpatialGroup::NEW_DRAWINFO);
+            group->clearState(LLSpatialGroup::MESH_DIRTY);
         }
     }
 }
