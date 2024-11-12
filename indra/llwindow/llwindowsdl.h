@@ -80,6 +80,7 @@ public:
 
     bool getCursorPosition(LLCoordWindow *position) override;
 
+    bool isWrapMouse() const override { return true; }
     void showCursor() override;
     void hideCursor() override;
     bool isCursorHidden() override;
