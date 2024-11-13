@@ -796,7 +796,6 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id,
 
 void LLIMModel::LLIMSession::initVoiceChannel(const LLSD& voiceChannelInfo)
 {
-
     if (mVoiceChannel)
     {
         if (mVoiceChannel->isThisVoiceChannel(voiceChannelInfo))
@@ -2344,7 +2343,7 @@ LLCallDialogManager::~LLCallDialogManager()
 
 void LLCallDialogManager::initSingleton()
 {
-    LLVoiceChannel::setCurrentVoiceChannelChangedCallback(LLCallDialogManager::onVoiceChannelChanged);
+    mVoiceChannelChanged = LLVoiceChannel::setCurrentVoiceChannelChangedCallback(LLCallDialogManager::onVoiceChannelChanged);
 }
 
 // static

@@ -166,13 +166,7 @@ public:
 
 private:
 
-    virtual ~LLConversationLog()
-    {
-        if (mAvatarNameCacheConnection.connected())
-        {
-            mAvatarNameCacheConnection.disconnect();
-        }
-    }
+    virtual ~LLConversationLog();
 
     void enableLogging(S32 log_mode);
 

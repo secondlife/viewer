@@ -82,6 +82,7 @@ LLFloaterIMSessionTab::LLFloaterIMSessionTab(const LLSD& session_id)
 {
     setAutoFocus(false);
     mSession = LLIMModel::getInstance()->findIMSession(mSessionID);
+    LLIMMgr::instance().addSessionObserver(this);
 
     mCommitCallbackRegistrar.add("IMSession.Menu.Action",
             { boost::bind(&LLFloaterIMSessionTab::onIMSessionMenuItemClicked,  this, _2) });
@@ -104,6 +105,7 @@ LLFloaterIMSessionTab::LLFloaterIMSessionTab(const LLSD& session_id)
 LLFloaterIMSessionTab::~LLFloaterIMSessionTab()
 {
     delete mRefreshTimer;
+    LLIMMgr::instance().removeSessionObserver(this);
 
     LLFloaterIMContainer* im_container = LLFloaterIMContainer::findInstance();
     if (im_container)
@@ -444,7 +446,10 @@ void LLFloaterIMSessionTab::enableDisableCallBtn()
 
     bool enable = false;
 
-    if (mSessionID.notNull() && mSession && mSession->mSessionInitialized && mSession->mCallBackEnabled)
+    if (mSessionID.notNull()
+        && mSession
+        && mSession->mSessionInitialized
+        && mSession->mCallBackEnabled)
     {
         if (mVoiceButtonHangUpMode)
         {
@@ -454,9 +459,10 @@ void LLFloaterIMSessionTab::enableDisableCallBtn()
         else
         {
             // We allow to start call from this state only
-            if (mSession->mVoiceChannel  &&
-                !mSession->mVoiceChannel->callStarted() &&
-                LLVoiceClient::instanceExists())
+            if (LLVoiceClient::instanceExists() &&
+                mSession->mVoiceChannel  &&
+                !mSession->mVoiceChannel->callStarted()
+                )
             {
                 LLVoiceClient* client = LLVoiceClient::getInstance();
                 if (client->voiceEnabled() && client->isVoiceWorking())
@@ -1414,6 +1420,14 @@ void LLFloaterIMSessionTab::saveCollapsedState()
 LLView* LLFloaterIMSessionTab::getChatHistory()
 {
     return mChatHistory;
+}
+
+void LLFloaterIMSessionTab::sessionRemoved(const LLUUID& session_id)
+{
+    if (session_id == mSessionID)
+    {
+        mSession = nullptr;
+    }
 }
 
 bool LLFloaterIMSessionTab::handleKeyHere(KEY key, MASK mask )
