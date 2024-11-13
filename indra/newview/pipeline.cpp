@@ -7871,42 +7871,42 @@ void LLPipeline::renderFinalize()
             tonemap(&mRT->screen, dest);
             std::swap(src, dest);
         }
-    }
 
-    LLVertexBuffer::unbind();
+        LLVertexBuffer::unbind();
 
-    generateGlow(src);
+        generateGlow(src);
 
-    gGLViewport[0] = gViewerWindow->getWorldViewRectRaw().mLeft;
-    gGLViewport[1] = gViewerWindow->getWorldViewRectRaw().mBottom;
-    gGLViewport[2] = gViewerWindow->getWorldViewRectRaw().getWidth();
-    gGLViewport[3] = gViewerWindow->getWorldViewRectRaw().getHeight();
-    glViewport(gGLViewport[0], gGLViewport[1], gGLViewport[2], gGLViewport[3]);
+        gGLViewport[0] = gViewerWindow->getWorldViewRectRaw().mLeft;
+        gGLViewport[1] = gViewerWindow->getWorldViewRectRaw().mBottom;
+        gGLViewport[2] = gViewerWindow->getWorldViewRectRaw().getWidth();
+        gGLViewport[3] = gViewerWindow->getWorldViewRectRaw().getHeight();
+        glViewport(gGLViewport[0], gGLViewport[1], gGLViewport[2], gGLViewport[3]);
 
-    bool smaa_enabled = RenderFSAAType == 2 && mFXAAMap.isComplete() && mSMAABlendBuffer.isComplete();
-    bool fxaa_enabled = RenderFSAAType == 1 && mFXAAMap.isComplete();
-    bool dof_enabled = RenderDepthOfField &&
-        (RenderDepthOfFieldInEditMode || !LLToolMgr::getInstance()->inBuildMode());
-    if(dof_enabled) // DoF Combines Glow
-    {
-        LLRenderTarget* dof_dest = (smaa_enabled || fxaa_enabled) ? dest : nullptr; // render to screen if no AA enabled
-        renderDoF(src, dof_dest);
-        std::swap(src, dof_dest);
-    }
+        bool smaa_enabled = RenderFSAAType == 2 && mFXAAMap.isComplete() && mSMAABlendBuffer.isComplete();
+        bool fxaa_enabled = RenderFSAAType == 1 && mFXAAMap.isComplete();
+        bool dof_enabled = RenderDepthOfField &&
+            (RenderDepthOfFieldInEditMode || !LLToolMgr::getInstance()->inBuildMode());
+        if(dof_enabled) // DoF Combines Glow
+        {
+            LLRenderTarget* dof_dest = (smaa_enabled || fxaa_enabled) ? dest : nullptr; // render to screen if no AA enabled
+            renderDoF(src, dof_dest);
+            std::swap(src, dof_dest);
+        }
 
-    // Render to screen
-    if (smaa_enabled)
-    {
-        generateSMAABuffers(src);
-        applySMAA(src, nullptr, !dof_enabled);
-    }
-    else if (fxaa_enabled)
-    {
-        applyFXAA(src, nullptr, !dof_enabled);
-    }
-    else if (!dof_enabled)
-    {
-        combineGlow(src, nullptr);
+        // Render to screen
+        if (smaa_enabled)
+        {
+            generateSMAABuffers(src);
+            applySMAA(src, nullptr, !dof_enabled);
+        }
+        else if (fxaa_enabled)
+        {
+            applyFXAA(src, nullptr, !dof_enabled);
+        }
+        else if (!dof_enabled)
+        {
+            combineGlow(src, nullptr);
+        }
     }
 
     if (RenderBufferVisualization > -1)
