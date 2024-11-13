@@ -147,7 +147,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
 
-    if(!sDisplayFont) //do not display texts
+    if (!sDisplayFont) //do not display texts
     {
         return static_cast<S32>(wstr.length());
     }
@@ -181,23 +181,27 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 
     gGL.loadUIIdentity();
 
-    LLVector2 origin(floorf(sCurOrigin.mX*sScaleX), floorf(sCurOrigin.mY*sScaleY));
+    LLVector2 origin(floorf(sCurOrigin.mX * sScaleX), floorf(sCurOrigin.mY * sScaleY));
 
     // Depth translation, so that floating text appears 'in-world'
     // and is correctly occluded.
-    gGL.translatef(0.f,0.f,sCurDepth);
+    gGL.translatef(0.f, 0.f, sCurDepth);
 
     S32 chars_drawn = 0;
-    S32 i;
-    S32 length;
+    S32 length = (S32)wstr.length() - begin_offset;
 
-    if (-1 == max_chars)
+    if (max_chars < 0)
     {
-        max_chars = length = (S32)wstr.length() - begin_offset;
+        max_chars = length;
     }
-    else
+    else if (max_chars < length)
     {
-        length = llmin((S32)wstr.length() - begin_offset, max_chars );
+        length = max_chars;
+    }
+
+    if (length < 1)
+    {
+        return 0;
     }
 
     F32 cur_x, cur_y, cur_render_x, cur_render_y;
@@ -270,7 +274,9 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 
     const LLFontGlyphInfo* next_glyph = NULL;
 
+    // Maximum number of queued glyphs
     static constexpr U32 GLYPH_BATCH_SIZE = 30;
+    // Each glyph uses 2 triangles == 6 vertices/uvs/colors
     static thread_local LLVector4a vertices[GLYPH_BATCH_SIZE * 6];
     static thread_local LLVector2 uvs[GLYPH_BATCH_SIZE * 6];
     static thread_local LLColor4U colors[GLYPH_BATCH_SIZE * 6];
@@ -280,11 +286,10 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
     // for the chat console)... HB
     LLColor4U emoji_color(255, 255, 255, text_color.mV[VALPHA]);
 
-    std::pair<EFontGlyphType, S32> bitmap_entry = std::make_pair(EFontGlyphType::Grayscale, -1);
     U32 glyph_count = 0;
-    auto draw_queued_glyphs = [&]()
+    auto render_queued_glyphs = [&](U32 max_glyph_count = 0)
         {
-            if (glyph_count)
+            if (glyph_count > max_glyph_count)
             {
                 gGL.begin(LLRender::TRIANGLES);
                 {
@@ -295,30 +300,33 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
             }
         };
 
-    for (i = begin_offset; i < begin_offset + length; i++)
+    llwchar last_wch = 0;
+    U32 glyph_per_char = 0; // This value can be 1, 2 or 6 depending on shadow
+                            // It will be set after the first call of drawGlyph
+    for (S32 i = 0; i < length; i++)
     {
-        llwchar wch = wstr[i];
+        llwchar wch = wstr[begin_offset + i];
 
         const LLFontGlyphInfo* fgi = next_glyph;
         next_glyph = NULL;
         if (!fgi)
         {
-            fgi = mFontFreetype->getGlyphInfo(wch, (!use_color) ? EFontGlyphType::Grayscale : EFontGlyphType::Color);
+            fgi = mFontFreetype->getGlyphInfo(wch, use_color ? EFontGlyphType::Color : EFontGlyphType::Grayscale);
         }
         if (!fgi)
         {
             LL_ERRS() << "Missing Glyph Info" << LL_ENDL;
             break;
         }
+
         // Per-glyph bitmap texture.
-        std::pair<EFontGlyphType, S32> next_bitmap_entry = fgi->mBitmapEntry;
-        if (next_bitmap_entry != bitmap_entry)
+        const std::pair<EFontGlyphType, S32>& bitmap_entry = fgi->mBitmapEntry;
+        if (wch != last_wch || i == 0)
         {
             // Actually draw the queued glyphs before switching their texture;
             // otherwise the queued glyphs will be taken from wrong textures.
-            draw_queued_glyphs();
+            render_queued_glyphs();
 
-            bitmap_entry = next_bitmap_entry;
             LLImageGL* font_image = font_bitmap_cache->getImageGL(bitmap_entry.first, bitmap_entry.second);
             gGL.getTexUnit(0)->bind(font_image);
         }
@@ -341,24 +349,35 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
                     (F32)ll_round(cur_render_x + (F32)fgi->mXBearing) + (F32)fgi->mWidth,
                     (F32)ll_round(cur_render_y + (F32)fgi->mYBearing) - (F32)fgi->mHeight);
 
-        draw_queued_glyphs();
+        // Prevent the buffer overflow
+        render_queued_glyphs(GLYPH_BATCH_SIZE - glyph_per_char);
 
         const LLColor4U& col =
             bitmap_entry.first == EFontGlyphType::Grayscale ? text_color
                                                             : emoji_color;
+        // This function emplaces data to arrays vertices, uvs, colors
+        // and increases glyph_count on 1, 2 or 6 depending on shadow
         drawGlyph(glyph_count, vertices, uvs, colors, screen_rect, uv_rect,
                   col, style_to_add, shadow, drop_shadow_strength);
+        llassert(glyph_count <= GLYPH_BATCH_SIZE);
+        if (!glyph_per_char)
+        {
+            glyph_per_char = glyph_count;
+        }
 
         chars_drawn++;
         cur_x += fgi->mXAdvance;
         cur_y += fgi->mYAdvance;
 
-        llwchar next_char = wstr[i+1];
-        if (next_char && (next_char < LAST_CHARACTER))
+        if (i + 1 < length)
         {
-            // Kern this puppy.
-            next_glyph = mFontFreetype->getGlyphInfo(next_char, (!use_color) ? EFontGlyphType::Grayscale : EFontGlyphType::Color);
-            cur_x += mFontFreetype->getXKerning(fgi, next_glyph);
+            llwchar next_char = wstr[begin_offset + i + 1];
+            if (next_char && (next_char < LAST_CHARACTER))
+            {
+                // Kern this puppy.
+                next_glyph = mFontFreetype->getGlyphInfo(next_char, use_color ? EFontGlyphType::Color : EFontGlyphType::Grayscale);
+                cur_x += mFontFreetype->getXKerning(fgi, next_glyph);
+            }
         }
 
         // Round after kerning.
@@ -372,7 +391,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
         cur_render_y = cur_y;
     }
 
-    draw_queued_glyphs();
+    render_queued_glyphs();
 
     if (right_x)
     {
