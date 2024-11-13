@@ -1302,12 +1302,15 @@ void LLViewerRegion::updateReflectionProbes(bool full_update)
                 mReflectionMaps[idx] = gPipeline.mReflectionMapManager.addProbe();
             }
 
-            LLVector3 probe_origin = LLVector3(x, y, llmax(water_height, mImpl->mLandp->resolveHeightRegion(x, y)));
-            probe_origin.mV[2] += hover_height;
-            probe_origin += origin;
+            if (mReflectionMaps[idx])
+            {
+                LLVector3 probe_origin = LLVector3(x, y, llmax(water_height, mImpl->mLandp->resolveHeightRegion(x, y)));
+                probe_origin.mV[2] += hover_height;
+                probe_origin += origin;
 
-            mReflectionMaps[idx]->mOrigin.load3(probe_origin.mV);
-            mReflectionMaps[idx]->mRadius = probe_radius;
+                mReflectionMaps[idx]->mOrigin.load3(probe_origin.mV);
+                mReflectionMaps[idx]->mRadius = probe_radius;
+            }
         }
     }
 }

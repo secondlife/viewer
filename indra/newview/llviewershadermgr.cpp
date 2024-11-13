@@ -622,6 +622,7 @@ void LLViewerShaderMgr::setShaders()
         LLError::setDefaultLevel(LLError::LEVEL_DEBUG);
         loadBasicShaders();
         LLError::setDefaultLevel(lvl);
+        gGLManager.printGLInfoString();
         LL_ERRS() << "Unable to load basic shader " << shader_name << ", verify graphics driver installed and current." << LL_ENDL;
         reentrance = false; // For hygiene only, re-try probably helps nothing
         return;
@@ -2825,7 +2826,7 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         }
     }
 
-    if (success)
+    if (success && gGLManager.mGLVersion > 4.05f)
     {
         gCASProgram.mName = "Contrast Adaptive Sharpening Shader";
         gCASProgram.mFeatures.hasSrgb = true;

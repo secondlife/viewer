@@ -96,11 +96,13 @@ GLuint ll_gl_gen_buffer()
     {
         LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("gen buffer");
         sIndex = pool_size;
+#if !LL_DARWIN
         if (!gGLManager.mIsAMD)
         {
             glGenBuffers(pool_size, sNamePool);
         }
         else
+#endif
         { // work around for AMD driver bug
             for (U32 i = 0; i < pool_size; ++i)
             {

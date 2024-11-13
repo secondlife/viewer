@@ -3197,7 +3197,8 @@ void send_agent_update(bool force_send, bool send_reliable)
     LL_PROFILE_ZONE_SCOPED;
     llassert(!gCubeSnapshot);
 
-    if (gAgent.getTeleportState() != LLAgent::TELEPORT_NONE)
+    if (gAgent.getTeleportState() != LLAgent::TELEPORT_NONE
+        && gAgent.getTeleportState() != LLAgent::TELEPORT_ARRIVING)
     {
         // We don't care if they want to send an agent update, they're not allowed
         // until the target simulator is ready to receive them

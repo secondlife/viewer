@@ -443,7 +443,7 @@ public:
     bool getUserPTTState();
     void toggleUserPTTState(void);
     void inputUserControlState(bool down);  // interpret any sort of up-down mic-open control input according to ptt-toggle prefs
-    void setVoiceEnabled(bool enabled);
+    static void setVoiceEnabled(bool enabled);
 
     void setUsePTT(bool usePTT);
     void setPTTIsToggle(bool PTTIsToggle);
@@ -524,6 +524,7 @@ protected:
     LLPumpIO *m_servicePump;
 
     boost::signals2::connection  mSimulatorFeaturesReceivedSlot;
+    boost::signals2::connection  mRegionChangedCallbackSlot;
 
     LLCachedControl<bool> mVoiceEffectEnabled;
     LLCachedControl<std::string> mVoiceEffectDefault;

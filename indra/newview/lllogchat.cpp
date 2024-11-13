@@ -894,6 +894,11 @@ bool LLLogChat::isTranscriptFileFound(std::string fullname)
     return result;
 }
 
+std::string LLLogChat::getGroupChatSuffix()
+{
+    return GROUP_CHAT_SUFFIX;
+}
+
 //*TODO mark object's names in a special way so that they will be distinguishable form avatar name
 //which are more strict by its nature (only firstname and secondname)
 //Example, an object's name can be written like "Object <actual_object's_name>"

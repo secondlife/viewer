@@ -2,7 +2,7 @@
 
 ## Introduction/Disclaimer
 
-As of 2024-08-06, PBR terrain painting is **WIP**. Currently, there is only a client-side terrain paintmap, with no way to directly edit it. This document will explain how to informally explore this feature and compare it to the existing heightmap with noise. In the future, a testing document will be added for PBR terrain painting.
+As of 2024-10-17, PBR terrain painting is **on hold**. Currently, there is only a client-side terrain paintmap, with no way to directly edit it. This document will explain how to informally explore this feature and compare it to the existing heightmap with noise. Should the project resume, a testing document will be added for PBR terrain painting.
 
 ## Background
 
