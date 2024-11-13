@@ -7847,7 +7847,11 @@ void LLPipeline::renderFinalize()
     gGL.setColorMask(true, true);
     glClearColor(0, 0, 0, 0);
 
-    bool hdr = gGLManager.mGLVersion > 4.05f && gSavedSettings.getBOOL("RenderHDREnabled");
+    LLRenderTarget* src = &mPostPingMap;
+    LLRenderTarget* dest = &mPostPongMap;
+
+    static LLCachedControl<bool> render_hdr(gSavedSettings, "RenderHDREnabled", true);
+    bool hdr = gGLManager.mGLVersion > 4.05f && render_hdr;
 
     if (hdr)
     {
@@ -7856,9 +7860,6 @@ void LLPipeline::renderFinalize()
         generateLuminance(&mRT->screen, &mLuminanceMap);
 
         generateExposure(&mLuminanceMap, &mExposureMap);
-
-        LLRenderTarget* src = &mPostPingMap;
-        LLRenderTarget* dest = &mPostPongMap;
 
         static LLCachedControl<bool> render_cas(gSavedSettings, "RenderCAS", true);
         if (render_cas && gCASProgram.isComplete())
