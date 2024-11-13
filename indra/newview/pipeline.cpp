@@ -7102,9 +7102,9 @@ void LLPipeline::tonemap(LLRenderTarget* src, LLRenderTarget* dst, bool gamma_co
         LLGLSLShader* shader = nullptr;
         if (gamma_correct)
         {
-            shader = no_post ? &gNoPostGammaCorrectProgram : // no post (no gamma, no exposure, no tonemapping)
+            shader = no_post ? &gDeferredPostGammaCorrectProgram : // no post (no legacy gamma adjustment, no exposure, no tonemapping, still srgb corrected)
                 psky->getReflectionProbeAmbiance(should_auto_adjust) == 0.f ? &gLegacyPostGammaCorrectProgram :
-                &gDeferredPostGammaCorrectProgram;
+                &gDeferredPostTonemapGammaCorrectProgram;
         }
         else
         {
@@ -7143,6 +7143,34 @@ void LLPipeline::tonemap(LLRenderTarget* src, LLRenderTarget* dst, bool gamma_co
 
         dst->flush();
     }
+}
+
+void LLPipeline::gammaCorrect(LLRenderTarget* src, LLRenderTarget* dst)
+{
+    LL_PROFILE_GPU_ZONE("gamma correct");
+    dst->bindTarget();
+    // gamma correct lighting
+    {
+        LLGLDepthTest depth(GL_FALSE, GL_FALSE);
+
+        static LLCachedControl<bool> buildNoPost(gSavedSettings, "RenderDisablePostProcessing", false);
+        static LLCachedControl<bool> should_auto_adjust(gSavedSettings, "RenderSkyAutoAdjustLegacy", true);
+
+        bool no_post = gSnapshotNoPost || (buildNoPost && gFloaterTools->isAvailable());
+        LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
+        LLGLSLShader& shader = psky->getReflectionProbeAmbiance(should_auto_adjust) == 0.f && !no_post ? gLegacyPostGammaCorrectProgram :
+            gDeferredPostGammaCorrectProgram;
+
+        shader.bind();
+        shader.bindTexture(LLShaderMgr::DEFERRED_DIFFUSE, src, false, LLTexUnit::TFO_POINT);
+        shader.uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, (GLfloat)src->getWidth(), (GLfloat)src->getHeight());
+
+        mScreenTriangleVB->setBuffer();
+        mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
+
+        shader.unbind();
+    }
+    dst->flush();
 }
 
 void LLPipeline::copyScreenSpaceReflections(LLRenderTarget* src, LLRenderTarget* dst)
@@ -7285,11 +7313,13 @@ void LLPipeline::applyCAS(LLRenderTarget* src, LLRenderTarget* dst)
 {
     static LLCachedControl<F32> cas_sharpness(gSavedSettings, "RenderCASSharpness", 0.4f);
     static LLCachedControl<bool> should_auto_adjust(gSavedSettings, "RenderSkyAutoAdjustLegacy", true);
+    static LLCachedControl<bool> buildNoPost(gSavedSettings, "RenderDisablePostProcessing", false);
 
     LL_PROFILE_GPU_ZONE("cas");
 
+    bool no_post = gSnapshotNoPost || (buildNoPost && gFloaterTools->isAvailable());
     LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
-    LLGLSLShader* sharpen_shader = psky->getReflectionProbeAmbiance(should_auto_adjust) == 0.f ? &gCASLegacyGammaProgram : &gCASProgram;
+    LLGLSLShader* sharpen_shader = psky->getReflectionProbeAmbiance(should_auto_adjust) == 0.f && !no_post ? &gCASLegacyGammaProgram : &gCASProgram;
 
     // Bind setup:
     dst->bindTarget();
@@ -7847,12 +7877,8 @@ void LLPipeline::renderFinalize()
     gGL.setColorMask(true, true);
     glClearColor(0, 0, 0, 0);
 
-    LLRenderTarget* src = &mPostPingMap;
-    LLRenderTarget* dest = &mPostPongMap;
-
     static LLCachedControl<bool> render_hdr(gSavedSettings, "RenderHDREnabled", true);
     bool hdr = gGLManager.mGLVersion > 4.05f && render_hdr;
-
     if (hdr)
     {
         copyScreenSpaceReflections(&mRT->screen, &mSceneMap);
@@ -7866,15 +7892,20 @@ void LLPipeline::renderFinalize()
         {
             tonemap(&mRT->screen, &mRT->deferredLight, false); // Must output to 16F buffer when passing to CAS or banding occurs
 
-            applyCAS(&mRT->deferredLight, dest); // Gamma corrects after sharpening
-            std::swap(src, dest);
+            applyCAS(&mRT->deferredLight, &mPostPingMap); // Gamma corrects after sharpening
         }
         else
         {
-            tonemap(&mRT->screen, dest);
-            std::swap(src, dest);
+            tonemap(&mRT->screen, &mPostPingMap);
         }
+        }
+    else
+    {
+        gammaCorrect(&mRT->screen, &mPostPingMap);
     }
+
+    LLRenderTarget* src = &mPostPingMap;
+    LLRenderTarget* dest = &mPostPongMap;
 
     LLVertexBuffer::unbind();
 
