@@ -282,13 +282,26 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 
     std::pair<EFontGlyphType, S32> bitmap_entry = std::make_pair(EFontGlyphType::Grayscale, -1);
     U32 glyph_count = 0;
+    auto draw_queued_glyphs = [&]()
+        {
+            if (glyph_count)
+            {
+                gGL.begin(LLRender::TRIANGLES);
+                {
+                    gGL.vertexBatchPreTransformed(vertices, uvs, colors, glyph_count * 6);
+                }
+                gGL.end();
+                glyph_count = 0;
+            }
+        };
+
     for (i = begin_offset; i < begin_offset + length; i++)
     {
         llwchar wch = wstr[i];
 
         const LLFontGlyphInfo* fgi = next_glyph;
         next_glyph = NULL;
-        if(!fgi)
+        if (!fgi)
         {
             fgi = mFontFreetype->getGlyphInfo(wch, (!use_color) ? EFontGlyphType::Grayscale : EFontGlyphType::Color);
         }
@@ -303,15 +316,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
         {
             // Actually draw the queued glyphs before switching their texture;
             // otherwise the queued glyphs will be taken from wrong textures.
-            if (glyph_count > 0)
-            {
-                gGL.begin(LLRender::TRIANGLES);
-                {
-                    gGL.vertexBatchPreTransformed(vertices, uvs, colors, glyph_count * 6);
-                }
-                gGL.end();
-                glyph_count = 0;
-            }
+            draw_queued_glyphs();
 
             bitmap_entry = next_bitmap_entry;
             LLImageGL* font_image = font_bitmap_cache->getImageGL(bitmap_entry.first, bitmap_entry.second);
@@ -336,16 +341,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
                     (F32)ll_round(cur_render_x + (F32)fgi->mXBearing) + (F32)fgi->mWidth,
                     (F32)ll_round(cur_render_y + (F32)fgi->mYBearing) - (F32)fgi->mHeight);
 
-        if (glyph_count >= GLYPH_BATCH_SIZE)
-        {
-            gGL.begin(LLRender::TRIANGLES);
-            {
-                gGL.vertexBatchPreTransformed(vertices, uvs, colors, glyph_count * 6);
-            }
-            gGL.end();
-
-            glyph_count = 0;
-        }
+        draw_queued_glyphs();
 
         const LLColor4U& col =
             bitmap_entry.first == EFontGlyphType::Grayscale ? text_color
@@ -376,12 +372,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
         cur_render_y = cur_y;
     }
 
-    gGL.begin(LLRender::TRIANGLES);
-    {
-        gGL.vertexBatchPreTransformed(vertices, uvs, colors, glyph_count * 6);
-    }
-    gGL.end();
-
+    draw_queued_glyphs();
 
     if (right_x)
     {
