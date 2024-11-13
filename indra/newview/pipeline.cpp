@@ -846,7 +846,7 @@ bool LLPipeline::allocateScreenBufferInternal(U32 resX, U32 resY)
     static LLCachedControl<bool> render_cas(gSavedSettings, "RenderCAS", true);
     if (shadow_detail > 0 || ssao || render_cas)
     { //only need mRT->deferredLight for shadows OR ssao
-        if (!mRT->deferredLight.allocate(resX, resY, GL_RGBA16F)) return false;
+        if (!mRT->deferredLight.allocate(resX, resY, screenFormat)) return false;
     }
     else
     {
