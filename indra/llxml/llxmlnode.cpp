@@ -3256,6 +3256,27 @@ std::string LLXMLNode::getTextContents() const
     return msg;
 }
 
+std::string LLXMLNode::getXMLRPCTextContents() const
+{
+    std::string msg;
+    std::string::size_type start = mValue.find_first_not_of(" \t\n");
+    if (start != mValue.npos)
+    {
+        std::string::size_type end = mValue.find_last_not_of(" \t\n");
+        if (end != mValue.npos)
+        {
+            msg = mValue.substr(start, end + 1 - start);
+        }
+        else
+        {
+            msg = mValue.substr(start);
+        }
+    }
+    // Convert any internal CR to LF
+    msg = utf8str_removeCRLF(msg);
+    return msg;
+}
+
 void LLXMLNode::setLineNumber(S32 line_number)
 {
     mLineNumber = line_number;
@@ -3365,7 +3386,7 @@ bool LLXMLNode::fromXMLRPCValue(LLSD& target)
 
     if (childp->hasName("string"))
     {
-        target.assign(LLStringFn::xml_decode(childp->getTextContents()));
+        target.assign(LLStringFn::xml_decode(childp->getXMLRPCTextContents()));
         return true;
     }
 

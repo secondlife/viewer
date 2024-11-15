@@ -1914,6 +1914,68 @@
         <key>description</key>
         <string>NanoSVG is a simple single-header-file SVG parser and rasterizer</string>
       </map>
+      <key>nfde</key>
+      <map>
+        <key>platforms</key>
+        <map>
+          <key>linux64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>4d23e53790c8e82c737a3f5df8cddc40b864257d</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://github.com/secondlife/3p-nfde/releases/download/v1.2.1-r1/nfde-1.2.1-r1-linux64-11465721541.tar.zst</string>
+            </map>
+            <key>name</key>
+            <string>linux64</string>
+          </map>
+          <key>darwin64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>9ec692bdc93c4f2aa1f2951b71ee4a5737e43bc9</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://github.com/secondlife/3p-nfde/releases/download/v1.2.1-r1/nfde-1.2.1-r1-darwin64-11465721541.tar.zst</string>
+            </map>
+            <key>name</key>
+            <string>darwin64</string>
+          </map>
+          <key>windows64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>65c88f9e849a4a460f0b051f884f9df0608dd389</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://github.com/secondlife/3p-nfde/releases/download/v1.2.1-r1/nfde-1.2.1-r1-windows64-11465721541.tar.zst</string>
+            </map>
+            <key>name</key>
+            <string>windows64</string>
+          </map>
+        </map>
+        <key>license</key>
+        <string>zlib</string>
+        <key>license_file</key>
+        <string>LICENSES/nfde.txt</string>
+        <key>copyright</key>
+        <string>Copyright (C) The nativefiledialog-extended authors</string>
+        <key>version</key>
+        <string>1.2.1-r1</string>
+        <key>name</key>
+        <string>nfde</string>
+        <key>canonical_repo</key>
+        <string>https://github.com/secondlife/3p-nfde</string>
+        <key>description</key>
+        <string>Cross platform (Windows, Mac, Linux) native file dialog library with C and C++ bindings, based on mlabbe/nativefiledialog.</string>
+      </map>
       <key>nghttp2</key>
       <map>
         <key>platforms</key>
@@ -2506,11 +2568,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>226225ec049826c35adc5e897e0398ed64d4bedb</string>
+              <string>0c3d01b7e9e39c23f0f40c56a1a04d1fba08ead0</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-tracy/releases/download/v0.11.0%2Br1/tracy-v0.11.0.10376230034-darwin64-10376230034.tar.zst</string>
+              <string>https://github.com/secondlife/3p-tracy/releases/download/v0.11.1-r1/tracy-v0.11.1.11706699176-darwin64-11706699176.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2520,11 +2582,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>8c5429d1a1486f40cf7e5e88a232222d1fa4f78e</string>
+              <string>b46cef5646a8d0471ab6256fe5119220fa238772</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-tracy/releases/download/v0.11.0%2Br1/tracy-v0.11.0.10376230034-windows64-10376230034.tar.zst</string>
+              <string>https://github.com/secondlife/3p-tracy/releases/download/v0.11.1-r1/tracy-v0.11.1.11706699176-windows64-11706699176.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -2534,11 +2596,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ed0664a009aba1dcf1246d845839f524e857162e</string>
+              <string>beab04c9ea6036b1851a485b65c66cf6a38f0be4</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-tracy/releases/download/v0.11.0%2Br1/tracy-v0.11.0.10376230034-linux64-10376230034.tar.zst</string>
+              <string>https://github.com/secondlife/3p-tracy/releases/download/v0.11.1-r1/tracy-v0.11.1.11706699176-linux64-11706699176.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -2551,7 +2613,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>copyright</key>
         <string>Copyright (c) 2017-2024, Bartosz Taudul (wolf@nereid.pl)</string>
         <key>version</key>
-        <string>v0.11.0.10376230034</string>
+        <string>v0.11.1.11706699176</string>
         <key>name</key>
         <string>tracy</string>
         <key>canonical_repo</key>
@@ -3085,14 +3147,15 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
               <key>build</key>
               <map>
                 <key>command</key>
-                <string>xcodebuild</string>
+                <string>cmake</string>
                 <key>options</key>
                 <array>
-                  <string>-configuration</string>
+                  <string>--build</string>
+                  <string>.</string>
+                  <string>--config</string>
                   <string>RelWithDebInfo</string>
-                  <string>-project</string>
-                  <string>SecondLife.xcodeproj</string>
-                  <string>-parallelizeTargets</string>
+                  <string>--parallel</string>
+                  <string>$AUTOBUILD_CPU_COUNT</string>
                 </array>
               </map>
               <key>default</key>
@@ -3113,14 +3176,15 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
               <key>build</key>
               <map>
                 <key>command</key>
-                <string>xcodebuild</string>
+                <string>cmake</string>
                 <key>options</key>
                 <array>
-                  <string>-configuration</string>
+                  <string>--build</string>
+                  <string>.</string>
+                  <string>--config</string>
                   <string>RelWithDebInfo</string>
-                  <string>-project</string>
-                  <string>SecondLife.xcodeproj</string>
-                  <string>-parallelizeTargets</string>
+                  <string>--parallel</string>
+                  <string>$AUTOBUILD_CPU_COUNT</string>
                 </array>
               </map>
               <key>name</key>
@@ -3143,14 +3207,15 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
               <key>build</key>
               <map>
                 <key>command</key>
-                <string>xcodebuild</string>
+                <string>cmake</string>
                 <key>options</key>
                 <array>
-                  <string>-configuration</string>
+                  <string>--build</string>
+                  <string>.</string>
+                  <string>--config</string>
                   <string>Release</string>
-                  <string>-project</string>
-                  <string>SecondLife.xcodeproj</string>
-                  <string>-parallelizeTargets</string>
+                  <string>--parallel</string>
+                  <string>$AUTOBUILD_CPU_COUNT</string>
                 </array>
               </map>
               <key>name</key>
@@ -3169,14 +3234,15 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
               <key>build</key>
               <map>
                 <key>command</key>
-                <string>xcodebuild</string>
+                <string>cmake</string>
                 <key>options</key>
                 <array>
-                  <string>-configuration</string>
+                  <string>--build</string>
+                  <string>.</string>
+                  <string>--config</string>
                   <string>Release</string>
-                  <string>-project</string>
-                  <string>SecondLife.xcodeproj</string>
-                  <string>-parallelizeTargets</string>
+                  <string>--parallel</string>
+                  <string>$AUTOBUILD_CPU_COUNT</string>
                 </array>
               </map>
               <key>name</key>

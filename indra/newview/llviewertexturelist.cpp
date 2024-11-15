@@ -30,6 +30,7 @@
 
 #include "llviewertexturelist.h"
 
+#include "llagent.h"
 #include "llgl.h" // fot gathering stats from GL
 #include "llimagegl.h"
 #include "llimagebmp.h"
@@ -844,10 +845,19 @@ void LLViewerTextureList::updateImages(F32 max_time)
             clearFetchingRequests();
             gPipeline.clearRebuildGroups();
             cleared = true;
+            return;
         }
-        return;
+        // ARRIVING is a delay to let things decode, cache and process,
+        // so process textures like normal despite gTeleportDisplay
+        if (gAgent.getTeleportState() != LLAgent::TELEPORT_ARRIVING)
+        {
+            return;
+        }
     }
-    cleared = false;
+    else
+    {
+        cleared = false;
+    }
 
     LLAppViewer::getTextureFetch()->setTextureBandwidth((F32)LLTrace::get_frame_recording().getPeriodMeanPerSec(LLStatViewer::TEXTURE_NETWORK_DATA_RECEIVED).value());
 
@@ -1269,6 +1279,11 @@ F32 LLViewerTextureList::updateImagesFetchTextures(F32 max_time)
 
     //update MIN_UPDATE_COUNT or 5% of other textures, whichever is greater
     update_count = llmax((U32) MIN_UPDATE_COUNT, (U32) mUUIDMap.size()/20);
+    if (LLViewerTexture::sDesiredDiscardBias > 1.f)
+    {
+        // we are over memory target, update more agresively
+        update_count = (S32)(update_count * LLViewerTexture::sDesiredDiscardBias);
+    }
     update_count = llmin(update_count, (U32) mUUIDMap.size());
 
     { // copy entries out of UUID map to avoid iterator invalidation from deletion inside updateImageDecodeProiroty or updateFetch below
@@ -1422,6 +1437,11 @@ bool LLViewerTextureList::createUploadFile(LLPointer<LLImageRaw> raw_image,
         raw_image->getComponents());
 
     LLPointer<LLImageJ2C> compressedImage = LLViewerTextureList::convertToUploadFile(scale_image, max_image_dimentions);
+    if (compressedImage.isNull())
+    {
+        LL_INFOS() << "Couldn't convert to j2c, file : " << out_filename << LL_ENDL;
+        return false;
+    }
     if (compressedImage->getWidth() < min_image_dimentions || compressedImage->getHeight() < min_image_dimentions)
     {
         std::string reason = llformat("Images below %d x %d pixels are not allowed. Actual size: %d x %dpx",
@@ -1430,12 +1450,6 @@ bool LLViewerTextureList::createUploadFile(LLPointer<LLImageRaw> raw_image,
                                       compressedImage->getWidth(),
                                       compressedImage->getHeight());
         compressedImage->setLastError(reason);
-        return false;
-    }
-    if (compressedImage.isNull())
-    {
-        compressedImage->setLastError("Couldn't convert the image to jpeg2000.");
-        LL_INFOS() << "Couldn't convert to j2c, file : " << out_filename << LL_ENDL;
         return false;
     }
     if (!compressedImage->save(out_filename))

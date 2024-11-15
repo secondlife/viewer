@@ -31,6 +31,7 @@
 // Viewer includes
 #include "llagent.h"
 #include "llagentpicksinfo.h"
+#include "llappviewer.h"
 #include "lldateutil.h"
 #include "llviewergenericmessage.h"
 #include "llstartup.h"
@@ -41,7 +42,6 @@
 #include "lltrans.h"
 #include "llui.h"               // LLUI::getLanguage()
 #include "message.h"
-#include "llappviewer.h"
 
 LLAvatarPropertiesProcessor::LLAvatarPropertiesProcessor()
 {
@@ -368,16 +368,11 @@ void LLAvatarPropertiesProcessor::requestAvatarPropertiesCoro(std::string cap_ur
         avatar_data.picks_list.emplace_back(pick_data["id"].asUUID(), pick_data["name"].asString());
     }
 
-
-    // Why do this instead of just straight up notifyObservers?
-    // Due to how our coroutines work, we kind of need this to always happen in the main coroutine as this does have some dependencies on updating images in the render pipe.
-    // Further down stream from this, there will be a mutex that gets locked inside of the coroutine in order to update the user's profile image.
-    // This ensures that this will always happen on the main work queue on the main thread with zero exceptions.
-
-    LLAppViewer::instance()->postToMainCoro([=, &inst] () mutable // Needed for avatar_data - it will be captured as const otherwise.
-    {
-            inst.notifyObservers(avatar_id, &avatar_data, type);
-    });
+    LLAppViewer::instance()->postToMainCoro([=]()
+        {
+            LLAvatarData av_data = avatar_data;
+            instance().notifyObservers(avatar_id, &av_data, type);
+        });
 }
 
 void LLAvatarPropertiesProcessor::processAvatarLegacyPropertiesReply(LLMessageSystem* msg, void**)

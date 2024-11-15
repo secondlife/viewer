@@ -9289,7 +9289,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>1.5</real>
+    <real>1.0</real>
   </map>
   
   <key>RenderReflectionProbeDrawDistance</key>
@@ -10134,6 +10134,17 @@
       <string>String</string>
       <key>Value</key>
       <string>00000000-0000-0000-0000-000000000000</string>
+    </map>
+    <key>RenderCAS</key>
+    <map>
+        <key>Comment</key>
+        <string>Use Contrast Adaptive Sharpening post process effect</string>
+        <key>Persist</key>
+        <integer>0</integer>
+        <key>Type</key>
+        <string>Boolean</string>
+        <key>Value</key>
+        <integer>1</integer>
     </map>
     <key>RenderCASSharpness</key>
     <map>
@@ -11825,6 +11836,28 @@
       <string>U32</string>
       <key>Value</key>
       <integer>0</integer>
+    </map>
+    <key>TextureDiscardBackgroundedTime</key>
+    <map>
+        <key>Comment</key>
+        <string>Specify how long to wait before discarding texture data after viewer is backgrounded.  (zero or negative to disable)</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>F32</string>
+        <key>Value</key>
+        <real>60.0</real>
+    </map>
+    <key>TextureDiscardMinimizedTime</key>
+    <map>
+        <key>Comment</key>
+        <string>Specify how long to wait before discarding texture data after viewer is minimized.  (zero or negative to disable)</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>F32</string>
+        <key>Value</key>
+        <real>1.0</real>
     </map>
     <key>TextureFetchConcurrency</key>
     <map>
