@@ -7035,14 +7035,21 @@ void LLPipeline::generateExposure(LLRenderTarget* src, LLRenderTarget* dst, bool
         F32 exp_min = sky->getHDRMin();
         F32 exp_max = sky->getHDRMax();
 
-        exp_min = sky->getHDROffset() - exp_min;
-        exp_max = sky->getHDROffset() + exp_max;
+        if (dynamic_exposure_enabled)
+        {
+            exp_min = sky->getHDROffset() - exp_min;
+            exp_max = sky->getHDROffset() + exp_max;
+        }
+        else
+        {
+            exp_min = sky->getHDROffset();
+            exp_max = sky->getHDROffset();
+        }
 
         shader->uniform1f(dt, gFrameIntervalSeconds);
         shader->uniform2f(noiseVec, ll_frand() * 2.0f - 1.0f, ll_frand() * 2.0f - 1.0f);
         shader->uniform4f(dynamic_exposure_params, dynamic_exposure_coefficient, exp_min, exp_max, dynamic_exposure_speed_error);
         shader->uniform4f(dynamic_exposure_params2, sky->getHDROffset(), exp_min, exp_max, dynamic_exposure_speed_target);
-        shader->uniform1f(dynamic_exposure_e, dynamic_exposure_enabled ? 1.f : 0.f);
 
         mScreenTriangleVB->setBuffer();
         mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
@@ -7105,7 +7112,7 @@ void LLPipeline::tonemap(LLRenderTarget* src, LLRenderTarget* dst, bool gamma_co
         static LLCachedControl<F32> dynamic_exposure_coefficient(gSavedSettings, "RenderDynamicExposureCoefficient", 0.175f);
         static LLCachedControl<bool> dynamic_exposure_enabled(gSavedSettings, "RenderDynamicExposureEnabled", true);
         static LLCachedControl<F32> dynamic_exposure_speed(gSavedSettings, "RenderDynamicExposureSpeed", 3);
-        shader.uniform1f(dynamic_exposure_e, dynamic_exposure_enabled ? 1.f : 0.f);
+        shader->uniform1f(dynamic_exposure_e, dynamic_exposure_enabled ? 1.f : 0.f);
 
         static LLCachedControl<F32> exposure(gSavedSettings, "RenderExposure", 1.f);
 
