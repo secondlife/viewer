@@ -3286,7 +3286,7 @@ void LLViewerWindow::moveCursorToCenter()
         // MacOS
         // If 'decoupled', CGAssociateMouseAndMouseCursorPosition can make mouse stay in
         // one place and not move, do not move it (needs testing).
-        mouse_warp = mWindow->isWrapMouse();
+        mouse_warp = mWindow->isWarpMouse();
         break;
     case 1:
         mouse_warp = true;

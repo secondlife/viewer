@@ -69,7 +69,7 @@ public:
     bool setCursorPosition(LLCoordWindow position) override;
     bool getCursorPosition(LLCoordWindow *position) override;
     bool getCursorDelta(LLCoordCommon* delta) const override;
-    bool isWrapMouse() const override { return !mAbsoluteCursorPosition; };
+    bool isWarpMouse() const override { return !mAbsoluteCursorPosition; };
     void showCursor() override;
     void hideCursor() override;
     void showCursorFromMouseMove() override;
