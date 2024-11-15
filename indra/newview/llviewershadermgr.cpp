@@ -2501,7 +2501,15 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         gCASProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredNoTCV.glsl", GL_VERTEX_SHADER));
         gCASProgram.mShaderFiles.push_back(make_pair("deferred/CASF.glsl", GL_FRAGMENT_SHADER));
         gCASProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
-        gCASProgram.createShader();
+        success = gCASProgram.createShader();
+        // llassert(success);
+        if (!success)
+        {
+            LL_WARNS() << "Failed to create shader '" << gCASProgram.mName << "', disabling!" << LL_ENDL;
+            gSavedSettings.setBOOL("RenderCanUseCASShaders", false);
+            // continue as if this shader never happened
+            success = true;
+        }
     }
 
     if (success)
@@ -2513,7 +2521,14 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         gDeferredPostProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredF.glsl", GL_FRAGMENT_SHADER));
         gDeferredPostProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
         success = gDeferredPostProgram.createShader();
-        llassert(success);
+        // llassert(success);
+        if (!success)
+        {
+            LL_WARNS() << "Failed to create shader '" << gDeferredPostProgram.mName << "', disabling!" << LL_ENDL;
+            gSavedSettings.setBOOL("RenderCanUsePostShaders", false);
+            // continue as if this shader never happened
+            success = true;
+        }
     }
 
     if (success)
