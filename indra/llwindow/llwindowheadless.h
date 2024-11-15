@@ -58,7 +58,7 @@ public:
 #if LL_WINDOWS
     bool getCursorDelta(LLCoordCommon* delta) const override { return false; }
 #endif
-    bool isWrapMouse() const override { return true; }
+    bool isWarpMouse() const override { return true; }
     void showCursor() override {}
     void hideCursor() override {}
     void showCursorFromMouseMove() override {}
