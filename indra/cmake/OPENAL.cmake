@@ -30,8 +30,8 @@ if (USE_OPENAL)
             )
   else()
     target_link_libraries( ll::openal INTERFACE
-            openal
-            alut
+            ${ARCH_PREBUILT_DIRS_RELEASE}/libopenal.dylib
+            ${ARCH_PREBUILT_DIRS_RELEASE}/libalut.dylib
             )
   endif()
 endif ()

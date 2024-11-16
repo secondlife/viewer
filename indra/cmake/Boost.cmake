@@ -25,31 +25,29 @@ if (WINDOWS)
           libboost_regex-mt${addrsfx}
           libboost_system-mt${addrsfx}
           libboost_thread-mt${addrsfx}
-          libboost_url-mt${addrsfx})
-elseif (LINUX)
-  target_link_libraries( ll::boost INTERFACE
-          boost_fiber-mt${addrsfx}
-          boost_context-mt${addrsfx}
-          boost_filesystem-mt${addrsfx}
-          boost_program_options-mt${addrsfx}
-          boost_regex-mt${addrsfx}
-          boost_system-mt${addrsfx}
-          boost_thread-mt${addrsfx}
-          boost_url-mt${addrsfx})
+          libboost_url-mt${addrsfx}
+          )
 elseif (DARWIN)
   target_link_libraries( ll::boost INTERFACE
-          boost_context-mt${addrsfx}
-          boost_fiber-mt${addrsfx}
-          boost_filesystem-mt${addrsfx}
-          boost_program_options-mt${addrsfx}
-          boost_regex-mt${addrsfx}
-          boost_system-mt${addrsfx}
-          boost_thread-mt${addrsfx}
-          boost_url-mt${addrsfx})
-endif (WINDOWS)
-
-if (LINUX)
-    set(BOOST_SYSTEM_LIBRARY ${BOOST_SYSTEM_LIBRARY} rt)
-    set(BOOST_THREAD_LIBRARY ${BOOST_THREAD_LIBRARY} rt)
-endif (LINUX)
+          ${ARCH_PREBUILT_DIRS_RELEASE}/libboost_context-mt.a
+          ${ARCH_PREBUILT_DIRS_RELEASE}/libboost_fiber-mt.a
+          ${ARCH_PREBUILT_DIRS_RELEASE}/libboost_filesystem-mt.a
+          ${ARCH_PREBUILT_DIRS_RELEASE}/libboost_program_options-mt.a
+          ${ARCH_PREBUILT_DIRS_RELEASE}/libboost_regex-mt.a
+          ${ARCH_PREBUILT_DIRS_RELEASE}/libboost_system-mt.a
+          ${ARCH_PREBUILT_DIRS_RELEASE}/libboost_thread-mt.a
+          ${ARCH_PREBUILT_DIRS_RELEASE}/libboost_url-mt.a
+          )
+else ()
+  target_link_libraries( ll::boost INTERFACE
+          ${ARCH_PREBUILT_DIRS_RELEASE}/libboost_context-mt${addrsfx}.a
+          ${ARCH_PREBUILT_DIRS_RELEASE}/libboost_fiber-mt${addrsfx}.a
+          ${ARCH_PREBUILT_DIRS_RELEASE}/libboost_filesystem-mt${addrsfx}.a
+          ${ARCH_PREBUILT_DIRS_RELEASE}/libboost_program_options-mt${addrsfx}.a
+          ${ARCH_PREBUILT_DIRS_RELEASE}/libboost_regex-mt${addrsfx}.a
+          ${ARCH_PREBUILT_DIRS_RELEASE}/libboost_system-mt${addrsfx}.a
+          ${ARCH_PREBUILT_DIRS_RELEASE}/libboost_thread-mt${addrsfx}.a
+          ${ARCH_PREBUILT_DIRS_RELEASE}/libboost_url-mt${addrsfx}.a
+          )
+endif ()
 

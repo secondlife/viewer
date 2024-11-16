@@ -170,7 +170,7 @@ if (LINUX)
   )
 
   add_link_options(
-      "LINKER:--build-id" 
+      "LINKER:--build-id"
       "LINKER:--as-needed"
       "LINKER:-z,relro"
       "LINKER:-z,now"
@@ -201,15 +201,9 @@ if (DARWIN)
   set(CLANG_DISABLE_FATAL_WARNINGS OFF)
   set(CMAKE_CXX_LINK_FLAGS "-Wl,-headerpad_max_install_names,-search_paths_first")
   set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_CXX_LINK_FLAGS}")
-  # Ensure that CMAKE_CXX_FLAGS has the correct -g debug information format --
-  # see Variables.cmake.
-  string(REPLACE "-gdwarf-2" "-g${CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT}"
-    CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-  # NOTE: it's critical that the optimization flag is put in front.
-  # NOTE: it's critical to have both CXX_FLAGS and C_FLAGS covered.
-  ## Really?? On developer machines too?
-  ##set(ENABLE_SIGNING TRUE)
-  ##set(SIGNING_IDENTITY "Developer ID Application: Linden Research, Inc.")
+
+  # Ensure debug symbols are always generated
+  add_compile_options(-g --debug) # --debug is a clang synonym for -g that bypasses cmake behaviors
 endif(DARWIN)
 
 if(LINUX OR DARWIN)

@@ -24,13 +24,7 @@ if (WINDOWS)
     )
 elseif (DARWIN)
     target_link_libraries( ll::libvlc INTERFACE
-            libvlc.dylib
-            libvlccore.dylib
-    )
-elseif (LINUX)
-    # Specify a full path to make sure we get a static link
-    target_link_libraries( ll::libvlc INTERFACE
-        ${LIBS_PREBUILT_DIR}/lib/libvlc.a
-        ${LIBS_PREBUILT_DIR}/lib/libvlccore.a
+    ${ARCH_PREBUILT_DIRS_RELEASE}/libvlc.dylib
+    ${ARCH_PREBUILT_DIRS_RELEASE}/libvlccore.dylib
     )
 endif (WINDOWS)
