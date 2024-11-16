@@ -1574,6 +1574,10 @@ Klik på Acceptér for at deltage eller Afvis for at afvise invitationen. Klik p
 		Den aktive stemme &quot;morph&quot; er udløbet og din normale stemme opsætning er genaktiveret.
 [[URL] Click here] for at forny dit abbonnement.
 	</notification>
+	<notification name="VoiceEffectsWillExpire">
+		En eller flere af dine stemme &quot;morphs&quot; vil udløbe om mindre end [INTERVAL] dage.
+[[URL] Click here] for at forny dit abbonnement.
+	</notification>
 	<notification name="VoiceEffectsNew">
 		Nye stemme &quot;morphs&quot; er tilgængelige!
 	</notification>

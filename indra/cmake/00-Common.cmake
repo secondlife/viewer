@@ -35,7 +35,7 @@ add_compile_definitions(BOOST_BIND_GLOBAL_PLACEHOLDERS)
 
 # Force enable SSE2 instructions in GLM per the manual
 # https://github.com/g-truc/glm/blob/master/manual.md#section2_10
-add_compile_definitions(GLM_FORCE_DEFAULT_ALIGNED_GENTYPES=1 GLM_FORCE_SSE2=1)
+add_compile_definitions(GLM_FORCE_DEFAULT_ALIGNED_GENTYPES=1 GLM_FORCE_SSE2=1 GLM_ENABLE_EXPERIMENTAL=1)
 
 # Configure crash reporting
 set(RELEASE_CRASH_REPORTING OFF CACHE BOOL "Enable use of crash reporting in release builds")
@@ -47,6 +47,11 @@ endif()
 
 if(NON_RELEASE_CRASH_REPORTING)
   add_compile_definitions( LL_SEND_CRASH_REPORTS=1)
+endif()
+
+set(USE_LTO OFF CACHE BOOL "Enable Link Time Optimization")
+if(USE_LTO)
+  set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
 endif()
 
 # Don't bother with a MinSizeRel or Debug builds.
@@ -102,7 +107,7 @@ if (WINDOWS)
 
   #ND: When using something like buildcache (https://github.com/mbitsnbites/buildcache)
   # to make those wrappers work /Zi must be changed to /Z7, as /Zi due to it's nature is not compatible with caching
-  if( ${CMAKE_CXX_COMPILER_LAUNCHER} MATCHES ".*cache.*")
+  if(${CMAKE_CXX_COMPILER_LAUNCHER} MATCHES ".*cache.*")
     add_compile_options( /Z7 )
     string(REPLACE "/Zi" "/Z7" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
     string(REPLACE "/Zi" "/Z7" CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
@@ -155,30 +160,11 @@ if (LINUX)
       -fvisibility=hidden
   )
 
-  set(GCC_CLANG_COMPATIBLE_WARNINGS
-      -Wno-parentheses
-      -Wno-deprecated
-      -Wno-c++20-compat
-      -Wno-pessimizing-move
-  )
-
-  set(CLANG_WARNINGS
-      ${GCC_CLANG_COMPATIBLE_WARNINGS}
-      # Put clang specific warning configuration here
-  )
-
-  set(GCC_WARNINGS
-      ${GCC_CLANG_COMPATIBLE_WARNINGS}
-  )
-
   add_link_options(
           -Wl,--no-keep-memory
           -Wl,--build-id
           -Wl,--no-undefined
   )
-  if (NOT GCC_DISABLE_FATAL_WARNINGS)
-    add_compile_options( -Werror )
-  endif (NOT GCC_DISABLE_FATAL_WARNINGS)
 
   # this stops us requiring a really recent glibc at runtime
   add_compile_options(-fno-stack-protector)
@@ -189,9 +175,6 @@ if (LINUX)
             -lstdc++
             -lm
     )
-    add_compile_options(${CLANG_WARNINGS})
-  else()
-    add_compile_options(${GCC_WARNINGS})
   endif()
 endif (LINUX)
 
@@ -200,7 +183,7 @@ if (DARWIN)
   set(CLANG_DISABLE_FATAL_WARNINGS OFF)
   set(CMAKE_CXX_LINK_FLAGS "-Wl,-headerpad_max_install_names,-search_paths_first")
   set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_CXX_LINK_FLAGS}")
-  set(DARWIN_extra_cstar_flags "-Wno-unused-local-typedef -Wno-deprecated-declarations")
+  set(DARWIN_extra_cstar_flags "-Wno-deprecated-declarations")
   # Ensure that CMAKE_CXX_FLAGS has the correct -g debug information format --
   # see Variables.cmake.
   string(REPLACE "-gdwarf-2" "-g${CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT}"
@@ -209,22 +192,26 @@ if (DARWIN)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  ${DARWIN_extra_cstar_flags}")
   # NOTE: it's critical that the optimization flag is put in front.
   # NOTE: it's critical to have both CXX_FLAGS and C_FLAGS covered.
-## Really?? On developer machines too?
-##set(ENABLE_SIGNING TRUE)
-##set(SIGNING_IDENTITY "Developer ID Application: Linden Research, Inc.")
+  ## Really?? On developer machines too?
+  ##set(ENABLE_SIGNING TRUE)
+  ##set(SIGNING_IDENTITY "Developer ID Application: Linden Research, Inc.")
 
   # required for clang-15/xcode-15 since our boost package still uses deprecated std::unary_function/binary_function
   # see https://developer.apple.com/documentation/xcode-release-notes/xcode-15-release-notes#C++-Standard-Library
   add_compile_definitions(_LIBCPP_ENABLE_CXX17_REMOVED_UNARY_BINARY_FUNCTION)
+endif(DARWIN)
 
-  set(GCC_WARNINGS -Wall -Wno-sign-compare -Wno-trigraphs)
+if(LINUX OR DARWIN)
+  add_compile_options(-Wall -Wno-sign-compare -Wno-trigraphs -Wno-reorder -Wno-unused-but-set-variable -Wno-unused-variable -Wno-unused-local-typedef)
 
-  list(APPEND GCC_WARNINGS -Wno-reorder -Wno-non-virtual-dtor )
-
-  if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 13)
-    list(APPEND GCC_WARNINGS -Wno-unused-but-set-variable -Wno-unused-variable )
+  if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    add_compile_options(-Wno-stringop-truncation -Wno-parentheses -Wno-c++20-compat)
   endif()
+
+  if (NOT GCC_DISABLE_FATAL_WARNINGS)
+    add_compile_options(-Werror)
+  endif ()
 
   add_compile_options(${GCC_WARNINGS})
   add_compile_options(-m${ADDRESS_SIZE})
-endif ()
+endif (LINUX OR DARWIN)

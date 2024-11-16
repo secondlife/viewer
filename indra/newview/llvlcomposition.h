@@ -27,18 +27,17 @@
 #ifndef LL_LLVLCOMPOSITION_H
 #define LL_LLVLCOMPOSITION_H
 
+#include "llfetchedgltfmaterial.h"
+#include "llimage.h"
+#include "llpointer.h"
+#include "llterrainpaintmap.h"
 #include "llviewerlayer.h"
 #include "llviewershadermgr.h"
 #include "llviewertexture.h"
-#include "llpointer.h"
-
-#include "llimage.h"
 
 class LLSurface;
 
 class LLViewerFetchedTexture;
-class LLGLTFMaterial;
-class LLFetchedGLTFMaterial;
 
 class LLModifyRegion
 {
@@ -52,7 +51,7 @@ class LLTerrainMaterials : public LLModifyRegion
 public:
     friend class LLDrawPoolTerrain;
 
-    LLTerrainMaterials();
+    LLTerrainMaterials() {}
     virtual ~LLTerrainMaterials();
 
     void apply(const LLModifyRegion& other);
@@ -87,24 +86,39 @@ public:
     void setPaintType(U32 paint_type) { mPaintType = paint_type; }
     LLViewerTexture* getPaintMap();
     void setPaintMap(LLViewerTexture* paint_map);
+    // Queue of client-triggered brush operations that need to be converted
+    // into a form that can be sent to the server.
+    // TODO: Consider getting rid of mPaintRequestQueue, as it's not really needed (brushes go directly to RGB queue)
+    LLTerrainBrushQueue& getBrushQueue() { return mBrushQueue; }
+    // Queue of client-triggered paint operations that need to be converted
+    // into a form that can be sent to the server.
+    // Paints in this queue are in RGBA format.
+    LLTerrainPaintQueue& getPaintRequestQueue() { return mPaintRequestQueue; }
+    // Paint queue for current paint map - this queue gets applied directly to
+    // the paint map. Paints within are assumed to have already been sent to
+    // the server.  Paints in this queue are in RGB format.
+    LLTerrainPaintQueue& getPaintMapQueue() { return mPaintMapQueue; }
 
 protected:
     void unboost();
     static bool makeTextureReady(LLPointer<LLViewerFetchedTexture>& tex, bool boost);
     // strict = true -> all materials must be sufficiently loaded
     // strict = false -> at least one material must be loaded
-    static bool makeMaterialReady(LLPointer<LLFetchedGLTFMaterial>& mat, bool& textures_set, bool boost, bool strict);
-    // *NOTE: Prefer calling makeMaterialReady if mat is known to be LLFetchedGLTFMaterial
     static bool materialTexturesReady(LLPointer<LLFetchedGLTFMaterial>& mat, bool& textures_set, bool boost, bool strict);
 
     LLPointer<LLViewerFetchedTexture> mDetailTextures[ASSET_COUNT];
+    // *NOTE: Unlike mDetailRenderMaterials, the textures in this are not
+    // guaranteed to be set or loaded after a true return from
+    // makeMaterialsReady.
     LLPointer<LLFetchedGLTFMaterial> mDetailMaterials[ASSET_COUNT];
     LLPointer<LLGLTFMaterial> mDetailMaterialOverrides[ASSET_COUNT];
     LLPointer<LLFetchedGLTFMaterial> mDetailRenderMaterials[ASSET_COUNT];
-    bool mMaterialTexturesSet[ASSET_COUNT];
 
     U32 mPaintType = TERRAIN_PAINT_TYPE_HEIGHTMAP_WITH_NOISE;
     LLPointer<LLViewerTexture> mPaintMap;
+    LLTerrainBrushQueue mBrushQueue;
+    LLTerrainPaintQueue mPaintRequestQueue{U8(4)};
+    LLTerrainPaintQueue mPaintMapQueue{U8(3)};
 };
 
 // Local materials to override all regions

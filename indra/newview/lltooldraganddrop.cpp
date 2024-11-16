@@ -574,12 +574,13 @@ bool LLToolDragAndDrop::handleKey(KEY key, MASK mask)
 
 bool LLToolDragAndDrop::handleToolTip(S32 x, S32 y, MASK mask)
 {
+    const F32 DRAG_N_DROP_TOOLTIP_DELAY = 0.1f;
     if (!mToolTipMsg.empty())
     {
         LLToolTipMgr::instance().unblockToolTips();
         LLToolTipMgr::instance().show(LLToolTip::Params()
             .message(mToolTipMsg)
-            .delay_time(gSavedSettings.getF32( "DragAndDropToolTipDelay" )));
+            .delay_time(DRAG_N_DROP_TOOLTIP_DELAY));
         return true;
     }
     return false;

@@ -19,7 +19,7 @@
          label="Inventory..."
          name="Inventory"
          shortcut="control|I"
-		     visible="true">
+         visible="true">
         <menu_item_check.on_check
          function="Floater.Visible"
          parameter="inventory" />
@@ -465,24 +465,6 @@
           <menu_item_check.on_click
            function="World.AlwaysRun" />
         </menu_item_check>
-        <menu_item_check
-          label="Hear Media and Sound from Avatar"
-          name="Hear Media and Sound from Avatar">
-          <menu_item_check.on_check
-           control="MediaSoundsEarLocation" />
-          <menu_item_check.on_click
-           function="Agent.ToggleHearMediaSoundFromAvatar" />
-        </menu_item_check>
-        <menu_item_check
-          label="Hear Voice from Avatar"
-          name="Hear Voice from Avatar">
-          <menu_item_check.on_check
-           control="VoiceEarLocation" />
-          <menu_item_check.on_click
-           function="Agent.ToggleHearVoiceFromAvatar" />
-          <menu_item_call.on_enable
-           control="EnableVoiceChat" />
-        </menu_item_check>
       <menu_item_separator/>
       <menu_item_check
        label="Gestures..."
@@ -733,8 +715,7 @@
              function="Floater.Show"
              parameter="snapshot" />
         </menu_item_call>
-        
-<menu_item_call
+        <menu_item_call
          label="360 snapshot"
          name="Capture 360"
          shortcut="control|alt|shift|s">
@@ -1838,6 +1819,71 @@ function="World.EnvPreset"
     </menu>
     <menu
      create_jump_keys="true"
+     label="RLVa"
+     name="RLVa Main"
+     tear_off="true"
+     visible="true">
+      <menu
+       label="Debug"
+       name="Debug"
+       tear_off="true">
+        <menu_item_check
+         label="Show Top-level RLVa Menu"
+         name="Show Top-level RLVa Menu">
+          <menu_item_check.on_check
+           function="CheckControl"
+           parameter="RLVaTopLevelMenu" />
+          <menu_item_check.on_click
+           function="ToggleControl"
+           parameter="RLVaTopLevelMenu" />
+        </menu_item_check>
+      	<menu_item_separator/>
+      	<menu_item_check
+      	 label="Show Debug Messages"
+      	 name="Show Debug Messages">
+          <menu_item_check.on_check
+           function="CheckControl"
+           parameter="RestrainedLoveDebug" />
+          <menu_item_check.on_click
+           function="ToggleControl"
+           parameter="RestrainedLoveDebug" />
+      	</menu_item_check>
+      	<menu_item_check
+      	 label="Hide Unset or Duplicate Messages"
+      	 name="Hide Unset or Duplicate Messages">
+          <menu_item_check.on_check
+           function="CheckControl"
+           parameter="RLVaDebugHideUnsetDuplicate" />
+          <menu_item_check.on_click
+           function="ToggleControl"
+           parameter="RLVaDebugHideUnsetDuplicate" />
+      	</menu_item_check>
+      </menu>
+      <menu_item_separator/>
+      <menu_item_check
+       label="Allow Temporary Attachments"
+       name="Allow Temporary Attachments">
+      	<menu_item_check.on_check
+      	 function="CheckControl"
+      	 parameter="RLVaEnableTemporaryAttachments" />
+      	<menu_item_check.on_click
+      	 function="ToggleControl"
+      	 parameter="RLVaEnableTemporaryAttachments" />
+      </menu_item_check>
+      <menu_item_separator />
+      <menu_item_check
+       label="Console..."
+       name="Console">
+        <menu_item_check.on_check
+      	 function="Floater.Visible"
+      	 parameter="rlv_console" />
+        <menu_item_check.on_click
+      	 function="Floater.Toggle"
+      	 parameter="rlv_console" />
+      </menu_item_check>
+    </menu>
+    <menu
+     create_jump_keys="true"
      label="Advanced"
      name="Advanced"
      tear_off="true"
@@ -2344,6 +2390,11 @@ function="World.EnvPreset"
                  parameter="flexible" />
             </menu_item_check>
         </menu>        
+        <menu
+         label="RLVa"
+         name="RLVa Embedded"
+         tear_off="true"
+         visible="true" />
         <menu_item_check
          label="Use Plugin Read Thread"
          name="Use Plugin Read Thread">
@@ -2489,6 +2540,22 @@ function="World.EnvPreset"
      name="Develop"
      tear_off="true"
      visible="false">
+        <menu
+         create_jump_keys="true"
+         label="Experimental Features"
+         name="Experimental Features"
+         tear_off="true">
+            <menu_item_check
+             label="GameControl"
+             name="ToggleGameControl">
+             <menu_item_check.on_check
+                 function="Advanced.CheckExperiment"
+                 parameter="GameControl" />
+             <menu_item_check.on_click
+                 function="Advanced.ToggleExperiment"
+                 parameter="GameControl" />
+            </menu_item_check>
+        </menu>
         <menu
          create_jump_keys="true"
          label="Consoles"
@@ -3466,6 +3533,16 @@ function="World.EnvPreset"
                  function="Advanced.HandleAttachedLightParticles"
                  parameter="RenderAttachedParticles" />
             </menu_item_check>
+            <menu_item_check
+             label="Collect Font Vertex Buffers"
+             name="Collect Font Vertex Buffers">
+                <menu_item_check.on_check
+                 function="CheckControl"
+                 parameter="CollectFontVertexBuffers" />
+                <menu_item_check.on_click
+                 function="ToggleControl"
+                 parameter="CollectFontVertexBuffers" />
+            </menu_item_check>
           <menu_item_separator />
           <menu_item_check
              label="Enable Shader Cache"
@@ -3727,6 +3804,13 @@ function="World.EnvPreset"
                function="EnableTerrainLocalPaintMap"/>
               <menu_item_call.on_click
                function="Advanced.TerrainCreateLocalPaintMap" />
+            </menu_item_call>
+            <menu_item_call
+              enabled="true"
+              label="Edit Local Paintmap"
+              name="Edit Local Paintmap">
+              <menu_item_call.on_click
+               function="Advanced.TerrainEditLocalPaintMap" />
             </menu_item_call>
             <menu_item_call
               enabled="true"

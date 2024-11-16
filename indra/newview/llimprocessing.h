@@ -48,6 +48,7 @@ public:
         U8 *binary_bucket,
         S32 binary_bucket_size,
         LLHost &sender,
+        LLSD metadata,
         LLUUID aux_id = LLUUID::null);
 
     // Either receives list of offline messages from 'ReadOfflineMsgs' capability

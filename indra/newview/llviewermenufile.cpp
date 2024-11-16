@@ -137,10 +137,10 @@ std::queue<LLFilePickerThread*> LLFilePickerThread::sDeadQ;
 
 void LLFilePickerThread::getFile()
 {
-#if LL_WINDOWS
+#if LL_WINDOWS || (LL_NFD && !LL_DARWIN)
     // Todo: get rid of LLFilePickerThread and make this modeless
     start();
-#elif LL_DARWIN
+#elif LL_DARWIN && !LL_NFD
     runModeless();
 #else
     run();
@@ -150,7 +150,7 @@ void LLFilePickerThread::getFile()
 //virtual
 void LLFilePickerThread::run()
 {
-#if LL_WINDOWS
+#if LL_WINDOWS || (LL_NFD && !LL_DARWIN)
     bool blocking = false;
 #else
     bool blocking = true; // modal

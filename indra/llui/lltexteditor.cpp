@@ -1211,6 +1211,14 @@ void LLTextEditor::showEmojiHelper()
     LLEmojiHelper::instance().showHelper(this, cursorRect.mLeft, cursorRect.mTop, LLStringUtil::null, cb);
 }
 
+void LLTextEditor::hideEmojiHelper()
+{
+    if (mShowEmojiHelper)
+    {
+        LLEmojiHelper::instance().hideHelper(this);
+    }
+}
+
 void LLTextEditor::tryToShowEmojiHelper()
 {
     if (mReadOnly || !mShowEmojiHelper)
@@ -1594,10 +1602,14 @@ void LLTextEditor::cleanStringForPaste(LLWString & clean_string)
     }
 }
 
-
-template <>
-void LLTextEditor::pasteTextWithLinebreaks<LLWString>(const LLWString & clean_string)
+void LLTextEditor::pasteTextWithLinebreaksImpl(const LLWString & clean_string, bool reset_cursor)
 {
+    if (reset_cursor)
+    {
+        deselect();
+        setCursorPos(getLength());
+    }
+
     std::basic_string<llwchar>::size_type start = 0;
     std::basic_string<llwchar>::size_type pos = clean_string.find('\n',start);
 

@@ -1,5 +1,6 @@
-local LLChatListener = require 'LLChatListener'
+local LLAgent = require 'LLAgent'
 local LLChat = require 'LLChat'
+local LLListener = require 'LLListener'
 local UI = require 'UI'
 
 -- Chat listener script allows to use the following commands in Nearby chat:
@@ -22,10 +23,14 @@ function openOrEcho(message)
     end
 end
 
-local listener = LLChatListener()
+local listener = LLListener(LLChat.nearbyChatPump)
+local agent_id = LLAgent.getID()
 
 function listener:handleMessages(event_data)
-    if string.find(event_data.message, '[LUA]') then
+    -- ignore messages and commands from other avatars
+    if event_data.from_id ~= agent_id then
+      return true
+    elseif string.find(event_data.message, '[LUA]') then
       return true
     elseif event_data.message == 'stop' then
       LLChat.sendNearby('Closing echo script.')

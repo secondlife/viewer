@@ -35,6 +35,7 @@
 // std headers
 // external library headers
 // other Linden headers
+#include "llcallbacklist.h"
 #include "llviewerwindow.h"
 
 LLViewerWindowListener::LLViewerWindowListener(LLViewerWindow* llviewerwindow):
@@ -46,8 +47,7 @@ LLViewerWindowListener::LLViewerWindowListener(LLViewerWindow* llviewerwindow):
     add("saveSnapshot",
         "Save screenshot: [\"filename\"] (extension may be specified: bmp, jpeg, png)\n"
         "[\"width\"], [\"height\"], [\"showui\"], [\"showhud\"], [\"rebuild\"], [\"type\"]\n"
-        "type: \"COLOR\", \"DEPTH\"\n"
-        "Post on [\"reply\"] an event containing [\"result\"]",
+        "type: \"COLOR\", \"DEPTH\"\n",
         &LLViewerWindowListener::saveSnapshot,
         llsd::map("filename", LLSD::String(), "reply", LLSD()));
     add("requestReshape",
@@ -57,8 +57,6 @@ LLViewerWindowListener::LLViewerWindowListener(LLViewerWindow* llviewerwindow):
 
 void LLViewerWindowListener::saveSnapshot(const LLSD& event) const
 {
-    Response response(LLSD(), event);
-
     typedef std::map<LLSD::String, LLSnapshotModel::ESnapshotLayerType> TypeMap;
     TypeMap types;
 #define tp(name) types[#name] = LLSnapshotModel::SNAPSHOT_TYPE_##name
@@ -88,7 +86,8 @@ void LLViewerWindowListener::saveSnapshot(const LLSD& event) const
         TypeMap::const_iterator found = types.find(event["type"]);
         if (found == types.end())
         {
-            return response.error(stringize("Unrecognized type ", std::quoted(event["type"].asString()), " [\"COLOR\"] or [\"DEPTH\"] is expected."));
+            sendReply(llsd::map("error", stringize("Unrecognized type ", std::quoted(event["type"].asString()), " [\"COLOR\"] or [\"DEPTH\"] is expected.")), event);
+            return;
         }
         type = found->second;
     }
@@ -96,7 +95,8 @@ void LLViewerWindowListener::saveSnapshot(const LLSD& event) const
     std::string filename(event["filename"]);
     if (filename.empty())
     {
-        return response.error(stringize("File path is empty."));
+        sendReply(llsd::map("error", stringize("File path is empty.")), event);
+        return;
     }
 
     LLSnapshotModel::ESnapshotFormat format(LLSnapshotModel::SNAPSHOT_FORMAT_BMP);
@@ -115,9 +115,13 @@ void LLViewerWindowListener::saveSnapshot(const LLSD& event) const
     }
     else if (ext != "bmp")
     {
-        return response.error(stringize("Unrecognized format. [\"png\"], [\"jpeg\"] or [\"bmp\"] is expected."));
+        sendReply(llsd::map("error", stringize("Unrecognized format. [\"png\"], [\"jpeg\"] or [\"bmp\"] is expected.")), event);
+        return;
     }
-    response["result"] = mViewerWindow->saveSnapshot(filename, width, height, showui, showhud, rebuild, type, format);
+    // take snapshot on the main coro
+    doOnIdleOneTime([this, event, filename, width, height, showui, showhud, rebuild, type, format]()
+                    { sendReply(llsd::map("result", mViewerWindow->saveSnapshot(filename, width, height, showui, showhud, rebuild, type, format)), event); });
+
 }
 
 void LLViewerWindowListener::requestReshape(LLSD const & event_data) const

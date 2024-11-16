@@ -27,18 +27,19 @@
 #include "linden_common.h"
 #include "llwindowheadless.h"
 
-#if LL_MESA_HEADLESS
-#include "llwindowmesaheadless.h"
-#elif LL_SDL
-#include "llwindowsdl.h"
-#elif LL_WINDOWS
+#if LL_WINDOWS
 #include "llwindowwin32.h"
 #elif LL_DARWIN
 #include "llwindowmacosx.h"
+#elif LL_MESA_HEADLESS
+#include "llwindowmesaheadless.h"
+#elif LL_LINUX
+#include "llwindowsdl.h"
 #endif
 
 #include "llerror.h"
 #include "llkeyboard.h"
+#include "llsdl.h"
 #include "llwindowcallbacks.h"
 
 
@@ -72,13 +73,13 @@ S32 OSMessageBox(const std::string& text, const std::string& caption, U32 type)
 
     S32 result = 0;
     LL_WARNS() << "OSMessageBox: " << text << LL_ENDL;
-#if LL_MESA_HEADLESS // !!! *FIX: (?)
-    return OSBTN_OK;
-#elif LL_WINDOWS
+#if LL_WINDOWS
     result = OSMessageBoxWin32(text, caption, type);
 #elif LL_DARWIN
     result = OSMessageBoxMacOSX(text, caption, type);
-#elif LL_SDL
+#elif LL_MESA_HEADLESS // !!! *FIX: (?)
+    return OSBTN_OK;
+#elif LL_LINUX
     result = OSMessageBoxSDL(text, caption, type);
 #else
 #error("OSMessageBox not implemented for this platform!")
@@ -263,7 +264,7 @@ std::vector<std::string> LLWindow::getDynamicFallbackFontList()
     return LLWindowWin32::getDynamicFallbackFontList();
 #elif LL_DARWIN
     return LLWindowMacOSX::getDynamicFallbackFontList();
-#elif LL_SDL
+#elif LL_LINUX
     return LLWindowSDL::getDynamicFallbackFontList();
 #else
     return std::vector<std::string>();
@@ -342,12 +343,12 @@ bool LLSplashScreen::isVisible()
 // static
 LLSplashScreen *LLSplashScreen::create()
 {
-#if LL_MESA_HEADLESS || LL_SDL  // !!! *FIX: (?)
-    return 0;
-#elif LL_WINDOWS
+#if LL_WINDOWS
     return new LLSplashScreenWin32;
 #elif LL_DARWIN
     return new LLSplashScreenMacOSX;
+#elif LL_MESA_HEADLESS || LL_LINUX  // !!! *FIX: (?)
+    return 0;
 #else
 #error("LLSplashScreen not implemented on this platform!")
 #endif
@@ -415,20 +416,25 @@ LLWindow* LLWindowManager::createWindow(
 
     if (use_gl)
     {
-#if LL_MESA_HEADLESS
-        new_window = new LLWindowMesaHeadless(callbacks,
-            title, name, x, y, width, height, flags,
-            fullscreen, clearBg, enable_vsync, use_gl, ignore_pixel_depth);
-#elif LL_SDL
-        new_window = new LLWindowSDL(callbacks,
-            title, x, y, width, height, flags,
-            fullscreen, clearBg, enable_vsync, use_gl, ignore_pixel_depth, fsaa_samples);
-#elif LL_WINDOWS
+#ifndef LL_DARWIN
+        // SDL2 is temporarily disabled on Mac
+        init_sdl();
+#endif
+
+#if LL_WINDOWS
         new_window = new LLWindowWin32(callbacks,
             title, name, x, y, width, height, flags,
             fullscreen, clearBg, enable_vsync, use_gl, ignore_pixel_depth, fsaa_samples, max_cores, max_gl_version);
 #elif LL_DARWIN
         new_window = new LLWindowMacOSX(callbacks,
+            title, name, x, y, width, height, flags,
+            fullscreen, clearBg, enable_vsync, use_gl, ignore_pixel_depth, fsaa_samples);
+#elif LL_MESA_HEADLESS
+        new_window = new LLWindowMesaHeadless(callbacks,
+            title, name, x, y, width, height, flags,
+            fullscreen, clearBg, enable_vsync, use_gl, ignore_pixel_depth);
+#elif LL_LINUX
+        new_window = new LLWindowSDL(callbacks,
             title, name, x, y, width, height, flags,
             fullscreen, clearBg, enable_vsync, use_gl, ignore_pixel_depth, fsaa_samples);
 #endif
@@ -462,6 +468,7 @@ bool LLWindowManager::destroyWindow(LLWindow* window)
     window->close();
 
     sWindowList.erase(window);
+    quit_sdl();
 
     delete window;
 

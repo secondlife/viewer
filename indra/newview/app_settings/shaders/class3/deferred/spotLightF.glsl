@@ -47,7 +47,6 @@ uniform float near_clip;
 uniform float far_clip;
 
 uniform vec3 proj_origin; //origin of projection to be used for angular attenuation
-uniform float sun_wash;
 uniform int proj_shadow_idx;
 uniform float shadow_fade;
 

@@ -111,7 +111,6 @@
       right="-3"
       mouse_opaque="true"
       name="speaking_indicator"
-      visible="false"
       width="20" />
  </person_view>
 

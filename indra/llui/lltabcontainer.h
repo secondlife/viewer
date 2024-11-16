@@ -182,15 +182,15 @@ public:
     void        removeTabPanel( LLPanel* child );
     void        lockTabs(S32 num_tabs = 0);
     void        unlockTabs();
-    S32         getNumLockedTabs() { return mLockedTabCount; }
+    S32         getNumLockedTabs() const { return mLockedTabCount; }
     void        enableTabButton(S32 which, bool enable);
     void        deleteAllTabs();
     LLPanel*    getCurrentPanel();
-    S32         getCurrentPanelIndex();
-    S32         getTabCount();
-    LLPanel*    getPanelByIndex(S32 index);
-    S32         getIndexForPanel(LLPanel* panel);
-    S32         getPanelIndexByTitle(std::string_view title);
+    S32         getCurrentPanelIndex() const;
+    S32         getTabCount() const;
+    LLPanel*    getPanelByIndex(S32 index) const;
+    S32         getIndexForPanel(LLPanel* panel) const;
+    S32         getPanelIndexByTitle(std::string_view title) const;
     LLPanel*    getPanelByName(std::string_view name);
     S32         getTotalTabWidth() const;
     void        setCurrentTabName(const std::string& name);

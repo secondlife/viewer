@@ -71,6 +71,13 @@ class LLPanelRegionEnvironment;
 
 class LLEventTimer;
 
+enum class ERefreshFromRegionPhase
+{
+    NotFromFloaterOpening,
+    BeforeRequestRegionInfo,
+    AfterRequestRegionInfo
+};
+
 class LLFloaterRegionInfo : public LLFloater
 {
     friend class LLFloaterReg;
@@ -85,7 +92,7 @@ public:
 
     // get and process region info if necessary.
     static void processRegionInfo(LLMessageSystem* msg);
-    static void sRefreshFromRegion(LLViewerRegion* region);
+    static void refreshFromRegion(LLViewerRegion* region);
 
     static const LLUUID& getLastInvoice() { return sRequestInvoice; }
     static void nextInvoice() { sRequestInvoice.generate(); }
@@ -104,7 +111,7 @@ public:
     void refresh() override;
 
     void onRegionChanged();
-    void requestRegionInfo();
+    void requestRegionInfo(bool is_opening);
     void enableTopButtons();
     void disableTopButtons();
 
@@ -116,7 +123,7 @@ private:
 protected:
     void onTabSelected(const LLSD& param);
     void disableTabCtrls();
-    void refreshFromRegion(LLViewerRegion* region);
+    void refreshFromRegion(LLViewerRegion* region, ERefreshFromRegionPhase phase);
     void onGodLevelChange(U8 god_level);
 
     // member data
@@ -124,6 +131,7 @@ protected:
     typedef std::vector<LLPanelRegionInfo*> info_panels_t;
     info_panels_t mInfoPanels;
     LLPanelRegionEnvironment *mEnvironmentPanel;
+    bool mIsRegionInfoRequestedFromOpening { false };
     //static S32 sRequestSerial;    // serial # of last EstateOwnerRequest
     static LLUUID sRequestInvoice;
 
@@ -144,7 +152,7 @@ public:
     void onChangeAnything();
     static void onChangeText(LLLineEditor* caller, void* user_data);
 
-    virtual bool refreshFromRegion(LLViewerRegion* region);
+    virtual bool refreshFromRegion(LLViewerRegion* region, ERefreshFromRegionPhase phase);
     virtual bool estateUpdate(LLMessageSystem* msg) { return true; }
 
     bool postBuild() override;
@@ -190,7 +198,7 @@ public:
         :   LLPanelRegionInfo() {}
     ~LLPanelRegionGeneralInfo() {}
 
-    bool refreshFromRegion(LLViewerRegion* region) override;
+    bool refreshFromRegion(LLViewerRegion* region, ERefreshFromRegionPhase phase) override;
 
     bool postBuild() override;
 
@@ -222,7 +230,7 @@ public:
 
     bool postBuild() override;
 
-    bool refreshFromRegion(LLViewerRegion* region) override;
+    bool refreshFromRegion(LLViewerRegion* region, ERefreshFromRegionPhase phase) override;
 
 protected:
     bool sendUpdate() override;
@@ -254,8 +262,8 @@ public:
 
     bool postBuild() override;
 
-    bool refreshFromRegion(LLViewerRegion* region) override;                // refresh local settings from region update from simulator
-    void setEnvControls(bool available);                                    // Whether environment settings are available for this region
+    bool refreshFromRegion(LLViewerRegion* region, ERefreshFromRegionPhase phase) override; // refresh local settings from region update from simulator
+    void setEnvControls(bool available);                                      // Whether environment settings are available for this region
 
     bool validateTextureSizes();
     bool validateMaterials();
@@ -327,7 +335,7 @@ public:
     static void updateEstateName(const std::string& name);
     static void updateEstateOwnerName(const std::string& name);
 
-    bool refreshFromRegion(LLViewerRegion* region) override;
+    bool refreshFromRegion(LLViewerRegion* region, ERefreshFromRegionPhase phase) override;
     bool estateUpdate(LLMessageSystem* msg) override;
 
     bool postBuild() override;
@@ -364,7 +372,7 @@ public:
 
     bool postBuild() override;
     void updateChild(LLUICtrl* child_ctrl) override;
-    bool refreshFromRegion(LLViewerRegion* region) override;
+    bool refreshFromRegion(LLViewerRegion* region, ERefreshFromRegionPhase phase) override;
     bool estateUpdate(LLMessageSystem* msg) override;
 
     // LLView overrides
@@ -430,7 +438,7 @@ public:
     static void sendEstateExperienceDelta(U32 flags, const LLUUID& agent_id);
 
     static void infoCallback(LLHandle<LLPanelRegionExperiences> handle, const LLSD& content);
-    bool refreshFromRegion(LLViewerRegion* region) override;
+    bool refreshFromRegion(LLViewerRegion* region, ERefreshFromRegionPhase phase) override;
     void sendPurchaseRequest()const;
     void processResponse( const LLSD& content );
 
@@ -470,7 +478,7 @@ public:
     void setPendingUpdate(bool pending) { mPendingUpdate = pending; }
     bool getPendingUpdate() { return mPendingUpdate; }
 
-    bool refreshFromRegion(LLViewerRegion* region) override;
+    bool refreshFromRegion(LLViewerRegion* region, ERefreshFromRegionPhase phase) override;
 
 private:
     void onClickAddAllowedAgent();

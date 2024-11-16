@@ -33,7 +33,6 @@
 #include "llpanel.h"
 #include "llpanelavatar.h"
 #include "llmediactrl.h"
-#include "llvoiceclient.h"
 
 // class LLPanelProfileClassifieds;
 // class LLTabContainer;
@@ -70,7 +69,6 @@ class LLViewerFetchedTexture;
 class LLPanelProfileSecondLife
     : public LLPanelProfilePropertiesProcessorTab
     , public LLFriendObserver
-    , public LLVoiceClientStatusObserver
 {
 public:
     LLPanelProfileSecondLife();
@@ -88,10 +86,6 @@ public:
      * LLFriendObserver trigger
      */
     void changed(U32 mask) override;
-
-    // Implements LLVoiceClientStatusObserver::onChange() to enable the call
-    // button when voice is available
-    void onChange(EStatusType status, const LLSD& channelInfo, bool proximal) override;
 
     void setAvatarId(const LLUUID& avatar_id) override;
 
@@ -203,7 +197,6 @@ private:
     LLHandle<LLFloater> mFloaterTexturePickerHandle;
 
     bool                mHasUnsavedDescriptionChanges;
-    bool                mVoiceStatus;
     bool                mWaitingForImageUpload;
     bool                mAllowPublish;
     bool                mHideAge;

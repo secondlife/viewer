@@ -47,17 +47,20 @@ public:
     static void use();
 
 private:
-    // This is the fiber::id of the main fiber. We use this to discover
-    // whether the fiber passed to awakened() is in fact the main fiber.
+    LL::WorkQueue::ptr_t getWorkQueue();
+
+    // This is the fiber::id of the main fiber.
     boost::fibers::fiber::id mMainID;
-    // This context* is nullptr until awakened() notices that the main fiber
-    // has become ready, at which point it contains the main fiber's context*.
+    // This context* is nullptr while the main fiber is running or suspended,
+    // but is set to the main fiber's context each time the main fiber is ready.
     boost::fibers::context* mMainCtx{};
-    // Set when pick_next() returns the main fiber.
-    bool mMainRunning{ false };
+    // Remember the context returned by the previous pick_next() call.
+    boost::fibers::context* mPrevCtx{};
     // If it's been at least this long since the last time the main fiber got
     // control, jump it to the head of the queue.
     F64 mTimeslice{ DEFAULT_TIMESLICE };
+    // Time when we resumed the most recently running fiber
+    F64 mResumeTime{ 0 };
     // Timestamp as of the last time we suspended the main fiber.
     F64 mMainLast{ 0 };
     // Timestamp of start time

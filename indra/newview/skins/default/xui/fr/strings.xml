@@ -32,7 +32,6 @@ Distance de dessin : [DRAW_DISTANCE]m
 Bande passante : [NET_BANDWITH] kbit/s
 Facteur LOD (niveau de détail) : [LOD_FACTOR]
 Qualité de rendu : [RENDER_QUALITY]
-Modèle d’éclairage avancé : [GPU_SHADERS]
 Mémoire textures : [TEXTURE_MEMORY] Mo</string>
 	<string name="AboutOSXHiDPI">Mode d'affichage HiDPI : [HIDPI]</string>
 	<string name="AboutLibs">J2C Decoder Version: [J2C_VERSION] 
@@ -1615,6 +1614,10 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].</string>
 	<string name="conference-title-incoming">Conférence avec [AGENT_NAME]</string>
 	<string name="inventory_item_offered-im">Objet de l’inventaire [ITEM_NAME] offert</string>
 	<string name="inventory_folder_offered-im">Dossier de l’inventaire [ITEM_NAME] offert</string>
+	<string name="bot_warning">
+Vous discutez avec un bot, [NAME]. Ne partagez pas d’informations personnelles.
+En savoir plus sur https://second.life/scripted-agents.
+	</string>
 	<string name="share_alert">Faire glisser les objets de l'inventaire ici</string>
 	<string name="facebook_post_success">Vous avez publié sur Facebook.</string>
 	<string name="flickr_post_success">Vous avez publié sur Flickr.</string>

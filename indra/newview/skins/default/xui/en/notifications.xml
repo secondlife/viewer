@@ -1662,7 +1662,7 @@ The new skin will appear after you restart [APP_NAME].
    icon="alertmodal.tga"
    name="ChangeLanguage"
    type="alertmodal">
-Changing language will take effect after you restart [APP_NAME].
+Changing language or time format will take effect after you restart [APP_NAME].
   </notification>
 
   <notification
@@ -6532,6 +6532,22 @@ Do you want to replace it with the selected object?
   </notification>
 
   <notification
+   icon="alertmodal.tga"
+   name="CantLinkNotecard"
+   type="alertmodal">
+    You must save the notecard before creating a link to it.
+    <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantLinkMaterial"
+   type="alertmodal">
+    You must save the material before creating a link to it.
+    <tag>fail</tag>
+  </notification>
+
+  <notification
    icon="alert.tga"
    label="Do Not Disturb Mode Warning"
    name="DoNotDisturbModePay"
@@ -7556,7 +7572,7 @@ Message from [NAME]:
    type="notify">
     <unique/>
 This land has damage enabled.
-You can be hurt here. If you die, you will be teleported to your home location.
+You can be hurt here. If you die, you might be teleported to your home location or to the spawn point.
   </notification>
 
   <notification
@@ -8860,6 +8876,25 @@ If you are a Premium Member, [[PREMIUM_URL] click here] to receive your voice mo
 
   <notification
    icon="notify.tga"
+   name="VoiceEffectsWillExpire"
+   sound="UISndAlert"
+   persist="true"
+   type="notify">
+    <unique/>    
+One or more of your Voice Morphs will expire in less than [INTERVAL] days.
+[[URL] Click here] to renew your subscription.
+
+If you are a Premium Member, [[PREMIUM_URL] click here] to receive your voice morphing perk.
+  <tag>fail</tag>
+  <tag>voice</tag>
+  <usetemplate
+      ignoretext="Warn me about voice morph expiring"
+      name="okignore"
+      yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="notify.tga"
    name="VoiceEffectsNew"
    sound="UISndAlert"
    persist="true"
@@ -9553,6 +9588,22 @@ Are you sure you want to leave this call?
     <tag>voice</tag>
     <usetemplate
      ignoretext="Confirm before I leave call"
+     name="okcancelignore"
+     notext="No"
+     yestext="Yes">
+      <unique/>
+    </usetemplate>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="ConfirmLeaveAdhoc"
+   type="alertmodal">
+Are you sure you want to leave this conference chat?
+    <tag>confirm</tag>
+    <tag>voice</tag>
+    <usetemplate
+     ignoretext="Confirm before I leave conference chat"
      name="okcancelignore"
      notext="No"
      yestext="Yes">
@@ -10312,6 +10363,14 @@ You are now the owner of object [OBJECT_NAME]
   </notification>
 
   <notification
+   icon="alertmodal.tga"
+   name="NowOwnObjectInv"
+   type="notify">
+   <tag>fail</tag>
+You are now the owner of object [OBJECT_NAME] and it has been placed in your inventory.
+  </notification>
+
+    <notification
    icon="alertmodal.tga"
    name="CantRezOnLand"
    type="notify">
@@ -12568,4 +12627,34 @@ are wearing now.
        yestext="OK"/>
   </notification>
 
+  <notification
+   icon="notify.tga"
+   name="TextureDiscardBackgrounded"
+   type="notify">
+      <unique>
+          <context>DELAY</context>
+      </unique>
+      To improve system performance, [SECOND_LIFE] has reduced texture memory usage after being in the background for [DELAY] seconds.  It may take some time for texture image quality to return to normal.
+     <usetemplate
+       ignoretext="Ask me about background texture memory usage and recovery"
+       name="okcancelignore"
+       yestext="OK"
+       notext="Disable"/>
+  </notification>
+
+  <notification
+   icon="notify.tga"
+   name="TextureDiscardMinimized"
+   type="notify">
+      <unique>
+          <context>DELAY</context>
+      </unique>
+      To improve system performance, [SECOND_LIFE] has reduced texture memory usage after being minimized for [DELAY] seconds.  It may take some time for texture image quality to return to normal.
+     <usetemplate
+       ignoretext="Ask me about minimized texture memory usage and recovery"
+       name="okcancelignore"
+       yestext="OK"
+       notext="Disable"/>
+  </notification>
+    
 </notifications>

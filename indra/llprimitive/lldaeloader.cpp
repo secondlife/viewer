@@ -1073,7 +1073,9 @@ bool LLDAELoader::OpenFile(const std::string& filename)
                 LLModel* mdl = *i;
                 if(mdl->getStatus() != LLModel::NO_ERRORS)
                 {
-                    setLoadState(ERROR_MODEL + mdl->getStatus()) ;
+                    // setLoadState() values >= ERROR_MODEL are reserved to
+                    // report errors with the model itself.
+                    setLoadState(ERROR_MODEL + eLoadState(mdl->getStatus())) ;
                     return false; //abort
                 }
 

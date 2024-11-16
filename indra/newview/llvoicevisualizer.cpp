@@ -337,7 +337,7 @@ void LLVoiceVisualizer::lipSyncOohAah( F32& ooh, F32& aah )
 //---------------------------------------------------
 void LLVoiceVisualizer::render()
 {
-    static LLCachedControl<bool> show_visualizer(gSavedSettings, "VoiceVisualizerEnabled", false);
+    static LLCachedControl<bool> show_visualizer(gSavedSettings, "VoiceVisualizerEnabled", true);
     if (!mVoiceEnabled || !show_visualizer)
     {
         return;

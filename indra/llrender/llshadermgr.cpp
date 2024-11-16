@@ -1190,8 +1190,9 @@ void LLShaderMgr::initAttribsAndUniforms()
     mReservedUniforms.push_back("gltf_material_id"); // (GLTF)
 
     mReservedUniforms.push_back("terrain_texture_transforms"); // (GLTF)
+    mReservedUniforms.push_back("terrain_stamp_scale");
 
-    llassert(mReservedUniforms.size() == LLShaderMgr::TERRAIN_TEXTURE_TRANSFORMS +1);
+    llassert(mReservedUniforms.size() == LLShaderMgr::TERRAIN_STAMP_SCALE +1);
 
     mReservedUniforms.push_back("viewport");
 
@@ -1300,9 +1301,6 @@ void LLShaderMgr::initAttribsAndUniforms()
     mReservedUniforms.push_back("shadow_matrix");
     mReservedUniforms.push_back("env_mat");
     mReservedUniforms.push_back("shadow_clip");
-    mReservedUniforms.push_back("sun_wash");
-    mReservedUniforms.push_back("shadow_noise");
-    mReservedUniforms.push_back("blur_size");
     mReservedUniforms.push_back("ssao_radius");
     mReservedUniforms.push_back("ssao_max_radius");
     mReservedUniforms.push_back("ssao_factor");
@@ -1318,8 +1316,6 @@ void LLShaderMgr::initAttribsAndUniforms()
     mReservedUniforms.push_back("moon_dir");
     mReservedUniforms.push_back("shadow_res");
     mReservedUniforms.push_back("proj_shadow_res");
-    mReservedUniforms.push_back("depth_cutoff");
-    mReservedUniforms.push_back("norm_cutoff");
     mReservedUniforms.push_back("shadow_target_width");
 
     llassert(mReservedUniforms.size() == LLShaderMgr::DEFERRED_SHADOW_TARGET_WIDTH + 1);
@@ -1369,9 +1365,7 @@ void LLShaderMgr::initAttribsAndUniforms()
     mReservedUniforms.push_back("noiseMap");
     mReservedUniforms.push_back("lightFunc");
     mReservedUniforms.push_back("lightMap");
-    mReservedUniforms.push_back("bloomMap");
     mReservedUniforms.push_back("projectionMap");
-    mReservedUniforms.push_back("norm_mat");
 
     mReservedUniforms.push_back("specular_color");
     mReservedUniforms.push_back("env_intensity");
@@ -1450,10 +1444,6 @@ void LLShaderMgr::initAttribsAndUniforms()
     mReservedUniforms.push_back("sun_size");
     mReservedUniforms.push_back("fog_color");
 
-    mReservedUniforms.push_back("transmittance_texture");
-    mReservedUniforms.push_back("scattering_texture");
-    mReservedUniforms.push_back("single_mie_scattering_texture");
-    mReservedUniforms.push_back("irradiance_texture");
     mReservedUniforms.push_back("blend_factor");
     mReservedUniforms.push_back("moisture_level");
     mReservedUniforms.push_back("droplet_radius");

@@ -117,10 +117,10 @@ public:
     /*virtual*/ void    onMouseLeave(S32 x, S32 y, MASK mask) override;
     /*virtual*/ void    draw() override;
 
-    S32             getMaxNumSliders() { return mMaxNumSliders; }
-    S32             getCurNumSliders() { return static_cast<S32>(mValue.size()); }
-    F32             getOverlapThreshold() { return mOverlapThreshold; }
-    bool            canAddSliders() { return mValue.size() < mMaxNumSliders; }
+    S32             getMaxNumSliders() const { return mMaxNumSliders; }
+    S32             getCurNumSliders() const { return static_cast<S32>(mValue.size()); }
+    F32             getOverlapThreshold() const { return mOverlapThreshold; }
+    bool            canAddSliders() const { return mValue.size() < mMaxNumSliders; }
 
 
 protected:

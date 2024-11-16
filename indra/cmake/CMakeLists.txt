@@ -43,6 +43,7 @@ set(cmake_SOURCE_FILES
         Lualibs.cmake
         Meshoptimizer.cmake
         NDOF.cmake
+        NFDE.cmake
         OPENAL.cmake
         OpenGL.cmake
         OpenJPEG.cmake
@@ -52,9 +53,11 @@ set(cmake_SOURCE_FILES
         Prebuilt.cmake
         PulseAudio.cmake
         Python.cmake
+        SDL2.cmake
         TemplateCheck.cmake
         TinyEXR.cmake
         TinyGLTF.cmake
+        Tracy.cmake
         Tut.cmake
         UI.cmake
         UnixInstall.cmake

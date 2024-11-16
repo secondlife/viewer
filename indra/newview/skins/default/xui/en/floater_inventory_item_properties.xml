@@ -28,6 +28,10 @@
      name="acquiredDate">
         [wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
     </floater.string>
+    <floater.string
+     name="acquiredDateAMPM">
+        [wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour12,datetime,local]:[min,datetime,local]:[second,datetime,local] [ampm,datetime,local] [year,datetime,local]
+    </floater.string>
     <icon
      follows="top|right"
      height="18"

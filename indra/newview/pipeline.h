@@ -155,13 +155,12 @@ public:
     void copyScreenSpaceReflections(LLRenderTarget* src, LLRenderTarget* dst);
     void generateLuminance(LLRenderTarget* src, LLRenderTarget* dst);
     void generateExposure(LLRenderTarget* src, LLRenderTarget* dst, bool use_history = true);
-    void tonemap(LLRenderTarget* src, LLRenderTarget* dst);
-    void gammaCorrect(LLRenderTarget* src, LLRenderTarget* dst);
+    void tonemap(LLRenderTarget* src, LLRenderTarget* dst, bool gamma_correct = true);
     void generateGlow(LLRenderTarget* src);
     void applyCAS(LLRenderTarget* src, LLRenderTarget* dst);
-    void applyFXAA(LLRenderTarget* src, LLRenderTarget* dst);
+    void applyFXAA(LLRenderTarget* src, LLRenderTarget* dst, bool combine_glow);
     void generateSMAABuffers(LLRenderTarget* src);
-    void applySMAA(LLRenderTarget* src, LLRenderTarget* dst);
+    void applySMAA(LLRenderTarget* src, LLRenderTarget* dst, bool combine_glow);
     void renderDoF(LLRenderTarget* src, LLRenderTarget* dst);
     void copyRenderTarget(LLRenderTarget* src, LLRenderTarget* dst);
     void combineGlow(LLRenderTarget* src, LLRenderTarget* dst);
@@ -336,8 +335,6 @@ public:
     // apply water haze based on contents of color and depth buffer
     // should be called just before rendering pre-water alpha objects
     void doWaterHaze();
-
-    void postDeferredGammaCorrect(LLRenderTarget* screen_target);
 
     void generateSunShadow(LLCamera& camera);
     LLRenderTarget* getSunShadowTarget(U32 i);
@@ -680,6 +677,8 @@ public:
     static S32              sVisibleLightCount;
     static bool             sRenderingHUDs;
     static F32              sDistortionWaterClipPlaneMargin;
+    static F32              sTonemapAmount;
+    static F32              sHDRAmount;
 
     static LLTrace::EventStatHandle<S64> sStatBatchSize;
 
@@ -725,7 +724,8 @@ public:
     LLRenderTarget          mLastExposure;
 
     // tonemapped and gamma corrected render ready for post
-    LLRenderTarget          mPostMap;
+    LLRenderTarget          mPostPingMap;
+    LLRenderTarget          mPostPongMap;
 
     // FXAA helper target
     LLRenderTarget          mFXAAMap;
@@ -1000,7 +1000,6 @@ public:
     //cached settings
     static bool WindLightUseAtmosShaders;
     static bool RenderDeferred;
-    static F32 RenderDeferredSunWash;
     static U32 RenderFSAAType;
     static U32 RenderResolutionDivisor;
     static bool RenderUIBuffer;
@@ -1042,7 +1041,6 @@ public:
     static F32 CameraFNumber;
     static F32 CameraFocalLength;
     static F32 CameraFieldOfView;
-    static F32 RenderShadowNoise;
     static F32 RenderShadowBlurSize;
     static F32 RenderSSAOScale;
     static U32 RenderSSAOMaxScale;
@@ -1055,8 +1053,6 @@ public:
     static F32 RenderSpotShadowOffset;
     static F32 RenderSpotShadowBias;
     static LLDrawable* RenderSpotLight;
-    static F32 RenderEdgeDepthCutoff;
-    static F32 RenderEdgeNormCutoff;
     static LLVector3 RenderShadowGaussian;
     static F32 RenderShadowBlurDistFactor;
     static bool RenderDeferredAtmospheric;

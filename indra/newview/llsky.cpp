@@ -39,7 +39,7 @@
 // linden library includes
 #include "llerror.h"
 #include "llmath.h"
-#include "math.h"
+#include <cmath>
 #include "v4color.h"
 
 #include "llviewerobjectlist.h"

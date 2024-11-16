@@ -58,7 +58,9 @@ bool LLFloaterLUADebug::postBuild()
         .listen("LLFloaterLUADebug",
                 [mResultOutput=mResultOutput](const LLSD& data)
                 {
-                    mResultOutput->pasteTextWithLinebreaks(data.asString());
+                    LLCachedControl<bool> show_source_info(gSavedSettings, "LuaDebugShowSource", false);
+                    std::string source_info = show_source_info ? data["source_info"].asString() : "";
+                    mResultOutput->pasteTextWithLinebreaks(stringize(data["level"].asString(), source_info, data["msg"].asString()), true);
                     mResultOutput->addLineBreakChar(true);
                     return false;
                 });

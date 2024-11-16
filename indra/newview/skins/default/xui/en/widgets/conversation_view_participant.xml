@@ -37,6 +37,5 @@
 	right="-3"
 	mouse_opaque="true"
 	name="speaking_indicator"
-	visible="true"
-	width="20" />	 
+	width="20" />
 </conversation_view_participant>

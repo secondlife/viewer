@@ -69,7 +69,7 @@ public:
         // misleading, as it will be emitted after waiting threads have
         // already awakened. But emitting the log message within the lock
         // would seem to hold the lock longer than we really ought.
-        LL_DEBUGS() << llcoro::logname() << " bump(" << n << ") -> " << updated << LL_ENDL;
+        LL_DEBUGS() << LLCoros::getName() << " bump(" << n << ") -> " << updated << LL_ENDL;
     }
 
     /**
@@ -82,7 +82,7 @@ public:
      */
     void set(int n)
     {
-        LL_DEBUGS() << llcoro::logname() << " set(" << n << ")" << LL_ENDL;
+        LL_DEBUGS() << LLCoros::getName() << " set(" << n << ")" << LL_ENDL;
         mCond.set_all(n);
     }
 
@@ -101,7 +101,7 @@ public:
 private:
     void yield_until(const char* func, int arg, int until)
     {
-        std::string name(llcoro::logname());
+        std::string name(LLCoros::getName());
         LL_DEBUGS() << name << " yield_until(" << until << ") suspending" << LL_ENDL;
         if (! mCond.wait_for_equal(mTimeout, until))
         {

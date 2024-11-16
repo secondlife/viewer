@@ -156,6 +156,5 @@
      mouse_opaque="true"
      name="speaking_indicator"
      tool_tip="Voice volume"
-     visible="true"
      width="20" />
 </panel>

@@ -41,13 +41,15 @@
 # include "llfilepicker.h"
 #endif
 
-#ifdef LL_FLTK
-  #include "FL/Fl.H"
-  #include "FL/Fl_Native_File_Chooser.H"
-#endif
-
 #if LL_WINDOWS
 #include <shlobj.h>
+#endif
+
+#if LL_NFD
+#include "nfd.hpp"
+#if LL_USE_SDL_WINDOW
+#include "nfd_sdl2.h"
+#endif
 #endif
 
 //
@@ -70,7 +72,95 @@ bool LLDirPicker::check_local_file_access_enabled()
     return true;
 }
 
-#if LL_WINDOWS
+#if LL_NFD
+
+LLDirPicker::LLDirPicker() :
+    mFileName(nullptr),
+    mLocked(false)
+{
+    reset();
+}
+
+LLDirPicker::~LLDirPicker()
+{
+}
+
+
+void LLDirPicker::reset()
+{
+    mDir.clear();
+}
+
+bool LLDirPicker::getDir(std::string* filename, bool blocking)
+{
+    if( mLocked )
+    {
+        return false;
+    }
+
+    // if local file browsing is turned off, return without opening dialog
+    if ( check_local_file_access_enabled() == false )
+    {
+        return false;
+    }
+
+    bool success = false;
+
+    if (blocking)
+    {
+        // Modal, so pause agent
+        send_agent_pause();
+    }
+
+    // initialize NFD
+    NFD::Guard nfdGuard;
+
+    // auto-freeing memory
+    NFD::UniquePath outPath;
+
+    nfdwindowhandle_t windowHandle = nfdwindowhandle_t();
+#if LL_USE_SDL_WINDOW
+    if(!NFD_GetNativeWindowFromSDLWindow((SDL_Window*)gViewerWindow->getPlatformWindow(), &windowHandle))
+    {
+        windowHandle = nfdwindowhandle_t();
+    }
+#elif LL_WINDOWS
+    windowHandle = { NFD_WINDOW_HANDLE_TYPE_WINDOWS, gViewerWindow->getWindow()->getPlatformWindow() };
+#endif
+
+    // show the dialog
+    nfdresult_t result = NFD::PickFolder(outPath, nullptr, windowHandle);
+    if (result == NFD_OKAY)
+    {
+        mDir = std::string(outPath.get());
+        success = true;
+    }
+    else if (result == NFD_CANCEL)
+    {
+        LL_INFOS() << "User pressed cancel." << LL_ENDL;
+    }
+    else
+    {
+        LL_INFOS() << "DirPicker Error: " << NFD::GetError() << LL_ENDL;
+    }
+
+    if (blocking)
+    {
+        send_agent_resume();
+
+        // Account for the fact that the app has been stalled.
+        LLFrameTimer::updateFrameTime();
+    }
+
+    return success;
+}
+
+std::string LLDirPicker::getDirName()
+{
+    return mDir;
+}
+
+#elif LL_WINDOWS
 
 LLDirPicker::LLDirPicker() :
     mFileName(NULL),
@@ -219,28 +309,20 @@ LLDirPicker::LLDirPicker() :
     mFileName(NULL),
     mLocked(false)
 {
-#ifndef LL_FLTK
     mFilePicker = new LLFilePicker();
-#endif
     reset();
 }
 
 LLDirPicker::~LLDirPicker()
 {
-#ifndef LL_FLTK
     delete mFilePicker;
-#endif
 }
 
 
 void LLDirPicker::reset()
 {
-#ifndef LL_FLTK
     if (mFilePicker)
         mFilePicker->reset();
-#else
-    mDir = "";
-#endif
 }
 
 bool LLDirPicker::getDir(std::string* filename, bool blocking)
@@ -253,39 +335,16 @@ bool LLDirPicker::getDir(std::string* filename, bool blocking)
         return false;
     }
 
-#ifdef LL_FLTK
-    gViewerWindow->getWindow()->beforeDialog();
-    Fl_Native_File_Chooser flDlg;
-    flDlg.title(LLTrans::getString("choose_the_directory").c_str());
-    flDlg.type(Fl_Native_File_Chooser::BROWSE_DIRECTORY );
-    int res = flDlg.show();
-    gViewerWindow->getWindow()->afterDialog();
-    if( res == 0 )
-    {
-        char const *pDir = flDlg.filename(0);
-        if( pDir )
-            mDir = pDir;
-    }
-    else if( res == -1 )
-    {
-        LL_WARNS() << "FLTK failed: " <<  flDlg.errmsg() << LL_ENDL;
-    }
-    return !mDir.empty();
-#endif
     return false;
 }
 
 std::string LLDirPicker::getDirName()
 {
-#ifndef LL_FLTK
     if (mFilePicker)
     {
         return mFilePicker->getFirstFile();
     }
     return "";
-#else
-    return mDir;
-#endif
 }
 
 #else // not implemented
@@ -322,7 +381,7 @@ std::queue<LLDirPickerThread*> LLDirPickerThread::sDeadQ;
 
 void LLDirPickerThread::getFile()
 {
-#if LL_WINDOWS
+#if LL_WINDOWS || (LL_NFD && !LL_DARWIN)
     start();
 #else
     run();
@@ -332,7 +391,7 @@ void LLDirPickerThread::getFile()
 //virtual
 void LLDirPickerThread::run()
 {
-#if LL_WINDOWS
+#if LL_WINDOWS || (LL_NFD && !LL_DARWIN)
     bool blocking = false;
 #else
     bool blocking = true; // modal

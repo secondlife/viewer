@@ -37,18 +37,19 @@ class LLKeyboardWin32 : public LLKeyboard
 {
 public:
     LLKeyboardWin32();
-    /*virtual*/ ~LLKeyboardWin32() {};
+    ~LLKeyboardWin32() {};
 
-    /*virtual*/ bool    handleKeyUp(const U16 key, MASK mask);
-    /*virtual*/ bool    handleKeyDown(const U16 key, MASK mask);
-    /*virtual*/ void    resetMaskKeys();
-    /*virtual*/ MASK    currentMask(bool for_mouse_event);
-    /*virtual*/ void    scanKeyboard();
-    bool                translateExtendedKey(const U16 os_key, const MASK mask, KEY *translated_key);
-    U16                 inverseTranslateExtendedKey(const KEY translated_key);
+    bool    handleKeyUp(const U16 key, MASK mask) override;
+    bool    handleKeyDown(const U16 key, MASK mask) override;
+    void    resetMaskKeys() override;
+    MASK    currentMask(bool for_mouse_event) override;
+    void    scanKeyboard() override;
+
+    bool    translateExtendedKey(const U16 os_key, const MASK mask, KEY *translated_key);
+    U16     inverseTranslateExtendedKey(const KEY translated_key);
 
 protected:
-    MASK    updateModifiers();
+    MASK    updateModifiers(const MASK mask) override;
     //void  setModifierKeyLevel( KEY key, bool new_state );
 private:
     std::map<U16, KEY> mTranslateNumpadMap;

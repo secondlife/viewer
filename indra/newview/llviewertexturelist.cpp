@@ -30,6 +30,7 @@
 
 #include "llviewertexturelist.h"
 
+#include "llagent.h"
 #include "llgl.h" // fot gathering stats from GL
 #include "llimagegl.h"
 #include "llimagebmp.h"
@@ -364,10 +365,31 @@ void LLViewerTextureList::shutdown()
     mInitialized = false ; //prevent loading textures again.
 }
 
+namespace
+{
+
+std::string tex_name_as_string(const LLViewerFetchedTexture* image)
+{
+    if (!image->getGLTexture()) { return std::string("N/A"); }
+    return std::to_string(image->getGLTexture()->getTexName());
+}
+
+const std::string& tex_label_as_string(const LLViewerFetchedTexture* image, std::string& label)
+{
+    bool error;
+    image->getGLObjectLabel(label, error);
+    if (error) { label.assign("N/A"); }
+    return label;
+}
+
+};
+
 void LLViewerTextureList::dump()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
-    LL_INFOS() << "LLViewerTextureList::dump()" << LL_ENDL;
+    LL_INFOS() << __FUNCTION__ << "()" << LL_ENDL;
+
+    std::string label;
     for (image_list_t::iterator it = mImageList.begin(); it != mImageList.end(); ++it)
     {
         LLViewerFetchedTexture* image = *it;
@@ -378,6 +400,9 @@ void LLViewerTextureList::dump()
         << " discard " << image->getDiscardLevel()
         << " desired " << image->getDesiredDiscardLevel()
         << " http://asset.siva.lindenlab.com/" << image->getID() << ".texture"
+        << " faces " << image->getTotalNumFaces()
+        << " texname " << tex_name_as_string(image)
+        << " label \"" << tex_label_as_string(image, label) << "\""
         << LL_ENDL;
     }
 }
@@ -422,7 +447,12 @@ LLViewerFetchedTexture* LLViewerTextureList::getImageFromFile(const std::string&
 
     std::string url = "file://" + full_path;
 
-    return getImageFromUrl(url, f_type, usemipmaps, boost_priority, texture_type, internal_format, primary_format, force_id);
+    LLViewerFetchedTexture* tex = getImageFromUrl(url, f_type, usemipmaps, boost_priority, texture_type, internal_format, primary_format, force_id);
+    if (gDebugTextureLabelLocalFilesSession)
+    {
+        gTextureList.mNameTextureList.push_back(LLViewerTextureList::NameElement(tex, filename));
+    }
+    return tex;
 }
 
 LLViewerFetchedTexture* LLViewerTextureList::getImageFromUrl(const std::string& url,
@@ -815,10 +845,19 @@ void LLViewerTextureList::updateImages(F32 max_time)
             clearFetchingRequests();
             gPipeline.clearRebuildGroups();
             cleared = true;
+            return;
         }
-        return;
+        // ARRIVING is a delay to let things decode, cache and process,
+        // so process textures like normal despite gTeleportDisplay
+        if (gAgent.getTeleportState() != LLAgent::TELEPORT_ARRIVING)
+        {
+            return;
+        }
     }
-    cleared = false;
+    else
+    {
+        cleared = false;
+    }
 
     LLAppViewer::getTextureFetch()->setTextureBandwidth((F32)LLTrace::get_frame_recording().getPeriodMeanPerSec(LLStatViewer::TEXTURE_NETWORK_DATA_RECEIVED).value());
 
@@ -843,6 +882,10 @@ void LLViewerTextureList::updateImages(F32 max_time)
 
     //handle results from decode threads
     updateImagesCreateTextures(remaining_time);
+
+    // Label all images (if enabled)
+    updateImagesNameTextures();
+    labelAll();
 
     bool didone = false;
     for (image_list_t::iterator iter = mCallbackList.begin();
@@ -1113,6 +1156,73 @@ F32 LLViewerTextureList::updateImagesCreateTextures(F32 max_time)
     return create_timer.getElapsedTimeF32();
 }
 
+void LLViewerTextureList::updateImagesNameTextures()
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
+    if (gGLManager.mIsDisabled) { return; }
+    static LLCachedControl<bool> debug_texture_label(gSavedSettings, "RenderDebugTextureLabel", false);
+    if (!debug_texture_label()) { return; }
+
+    static GLsizei max_length = 0;
+    if (max_length == 0) { glGetIntegerv(GL_MAX_LABEL_LENGTH, &max_length); }
+
+    auto it = mNameTextureList.begin();
+    while (it != mNameTextureList.end()) // For ALL textures needing names
+    {
+        LLViewerFetchedTexture* tex = it->mTex;
+        // Check that the texture is in the list first (otherwise it may be a dead pointer)
+        // A raw pointer ensures textures are cleaned up when this code isn't running.
+        const bool alive = mImageList.find(tex) != mImageList.end();
+
+        if (alive)
+        {
+            if (tex->hasGLTexture())
+            {
+                if(tex->getTexName())
+                {
+                    tex->setGLObjectLabel(it->mPrefix, true);
+                    it = mNameTextureList.erase(it); // Assume no rename needed
+                }
+                else
+                {
+                    ++it; // Not ready
+                }
+            }
+            else
+            {
+                ++it; // Not ready
+            }
+        }
+        else
+        {
+            it = mNameTextureList.erase(it); // Remove dead pointer
+        }
+    }
+}
+
+void LLViewerTextureList::labelAll()
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
+    static LLCachedControl<bool> debug_texture_label(gSavedSettings, "RenderDebugTextureLabel", false);
+    if (!debug_texture_label()) { return; }
+
+    static const std::string local_prefix = "lltexlocal";
+    static const std::string other_prefix = "lltexother";
+
+    std::string label;
+    bool error;
+    for (LLViewerFetchedTexture* image : mImageList)
+    {
+        image->getGLObjectLabel(label, error);
+        if (!error && label.empty())
+        {
+            const S32 category = image->getGLTexture()->getCategory();
+            const std::string& new_prefix = category == LLGLTexture::LOCAL ? local_prefix : other_prefix;
+            image->setGLObjectLabel(new_prefix, true);
+        }
+    }
+}
+
 F32 LLViewerTextureList::updateImagesLoadingFastCache(F32 max_time)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
@@ -1169,6 +1279,11 @@ F32 LLViewerTextureList::updateImagesFetchTextures(F32 max_time)
 
     //update MIN_UPDATE_COUNT or 5% of other textures, whichever is greater
     update_count = llmax((U32) MIN_UPDATE_COUNT, (U32) mUUIDMap.size()/20);
+    if (LLViewerTexture::sDesiredDiscardBias > 1.f)
+    {
+        // we are over memory target, update more agresively
+        update_count = (S32)(update_count * LLViewerTexture::sDesiredDiscardBias);
+    }
     update_count = llmin(update_count, (U32) mUUIDMap.size());
 
     { // copy entries out of UUID map to avoid iterator invalidation from deletion inside updateImageDecodeProiroty or updateFetch below
@@ -1295,6 +1410,10 @@ void LLViewerTextureList::decodeAllImages(F32 max_time)
     max_time = llmax(max_time, .001f);
     F32 create_time = updateImagesCreateTextures(max_time);
 
+    // Label all images (if enabled)
+    updateImagesNameTextures();
+    labelAll();
+
     LL_DEBUGS("ViewerImages") << "decodeAllImages() took " << timer.getElapsedTimeF32() << " seconds. "
     << " fetch_pending " << fetch_pending
     << " create_time " << create_time
@@ -1318,6 +1437,11 @@ bool LLViewerTextureList::createUploadFile(LLPointer<LLImageRaw> raw_image,
         raw_image->getComponents());
 
     LLPointer<LLImageJ2C> compressedImage = LLViewerTextureList::convertToUploadFile(scale_image, max_image_dimentions);
+    if (compressedImage.isNull())
+    {
+        LL_INFOS() << "Couldn't convert to j2c, file : " << out_filename << LL_ENDL;
+        return false;
+    }
     if (compressedImage->getWidth() < min_image_dimentions || compressedImage->getHeight() < min_image_dimentions)
     {
         std::string reason = llformat("Images below %d x %d pixels are not allowed. Actual size: %d x %dpx",
@@ -1326,12 +1450,6 @@ bool LLViewerTextureList::createUploadFile(LLPointer<LLImageRaw> raw_image,
                                       compressedImage->getWidth(),
                                       compressedImage->getHeight());
         compressedImage->setLastError(reason);
-        return false;
-    }
-    if (compressedImage.isNull())
-    {
-        compressedImage->setLastError("Couldn't convert the image to jpeg2000.");
-        LL_INFOS() << "Couldn't convert to j2c, file : " << out_filename << LL_ENDL;
         return false;
     }
     if (!compressedImage->save(out_filename))

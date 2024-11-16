@@ -5,6 +5,7 @@ local LLChat = {}
 -- ***************************************************************************
 --  Nearby chat
 -- ***************************************************************************
+LLChat.nearbyChatPump = "LLNearbyChat"
 
 -- 0 is public nearby channel, other channels are used to communicate with LSL scripts
 function LLChat.sendNearby(msg, channel)

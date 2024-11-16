@@ -155,7 +155,7 @@ bool LLGLTFLoader::parseMeshes()
         }
         else
         {
-            setLoadState(ERROR_MODEL + pModel->getStatus());
+            setLoadState(ERROR_MODEL + eLoadState(pModel->getStatus()));
             delete(pModel);
             return false;
         }

@@ -28,7 +28,9 @@ include(LLKDU)
 include(LLPhysicsExtensions)
 include(LLPrimitive)
 include(LLWindow)
+include(SDL2)
 include(NDOF)
+include(NFDE)
 include(NVAPI)
 include(OPENAL)
 include(OpenGL)
@@ -271,7 +273,6 @@ set(viewer_SOURCE_FILES
     llfloaterpay.cpp
     llfloaterperformance.cpp
     llfloaterperms.cpp
-    llfloaterpostprocess.cpp
     llfloaterprofile.cpp
     llfloaterpreference.cpp
     llfloaterpreferencesgraphicsadvanced.cpp
@@ -317,6 +318,7 @@ set(viewer_SOURCE_FILES
     llfollowcam.cpp
     llfriendcard.cpp
     llflyoutcombobtn.cpp
+    llflycam.cpp
     llgesturelistener.cpp
     llgesturemgr.cpp
     llgiveinventory.cpp
@@ -733,6 +735,11 @@ set(viewer_SOURCE_FILES
     llxmlrpctransaction.cpp
     noise.cpp
     pipeline.cpp
+    rlvactions.cpp
+    rlvcommon.cpp
+    rlvfloaters.cpp
+    rlvhelper.cpp
+    rlvhandler.cpp
     )
 
 set(VIEWER_BINARY_NAME "secondlife-bin" CACHE STRING
@@ -946,7 +953,6 @@ set(viewer_HEADER_FILES
     llfloaterpay.h
     llfloaterperformance.h
     llfloaterperms.h
-    llfloaterpostprocess.h
     llfloaterprofile.h
     llfloaterpreference.h
     llfloaterpreferencesgraphicsadvanced.h
@@ -992,6 +998,7 @@ set(viewer_HEADER_FILES
     llfollowcam.h
     llfriendcard.h
     llflyoutcombobtn.h
+    llflycam.h
     llgesturelistener.h
     llgesturemgr.h
     llgiveinventory.h
@@ -1398,6 +1405,12 @@ set(viewer_HEADER_FILES
     llxmlrpctransaction.h
     noise.h
     pipeline.h
+    rlvdefines.h
+    rlvactions.h
+    rlvcommon.h
+    rlvfloaters.h
+    rlvhelper.h
+    rlvhandler.h
     roles_constants.h
     VertexCache.h
     VorbisFramework.h
@@ -1426,11 +1439,24 @@ if (DARWIN)
   LIST(APPEND viewer_SOURCE_FILES llfilepicker_mac.mm)
   LIST(APPEND viewer_HEADER_FILES llfilepicker_mac.h)
 
+  set_source_files_properties(
+    llappviewermacosx-objc.mm
+    PROPERTIES
+    SKIP_PRECOMPILE_HEADERS TRUE
+  )
+
+  set_source_files_properties(
+    llfilepicker_mac.mm
+    PROPERTIES
+    SKIP_PRECOMPILE_HEADERS TRUE
+  )
+
   # This should be compiled with the viewer.
   LIST(APPEND viewer_SOURCE_FILES llappdelegate-objc.mm)
   set_source_files_properties(
     llappdelegate-objc.mm
     PROPERTIES
+    SKIP_PRECOMPILE_HEADERS TRUE
     COMPILE_DEFINITIONS "${VIEWER_CHANNEL_VERSION_DEFINES}"
     # BugsplatMac is a module, imported with @import. That language feature
     # demands these -f switches.
@@ -1626,6 +1652,13 @@ set_source_files_properties(${viewer_SHADER_FILES}
                             PROPERTIES HEADER_FILE_ONLY TRUE)
 list(APPEND viewer_SOURCE_FILES ${viewer_SHADER_FILES})
 
+# Add lua script sources
+file(GLOB_RECURSE viewer_LUA_SCRIPT_FILES LIST_DIRECTORIES FALSE
+    ${CMAKE_CURRENT_SOURCE_DIR}/scripts/lua/*.lua)
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/scripts/lua PREFIX "LUA Scripts" FILES ${viewer_LUA_SCRIPT_FILES})
+set_source_files_properties(${viewer_LUA_SCRIPT_FILES} 
+                            PROPERTIES HEADER_FILE_ONLY TRUE)
+list(APPEND viewer_SOURCE_FILES ${viewer_LUA_SCRIPT_FILES})
 
 set(viewer_APPSETTINGS_FILES
     app_settings/anim.ini
@@ -1647,11 +1680,13 @@ set(viewer_APPSETTINGS_FILES
     app_settings/toolbars.xml
     app_settings/trees.xml
     app_settings/viewerart.xml
+    app_settings/gamecontrollerdb.txt
     ${CMAKE_SOURCE_DIR}/../etc/message.xml
     ${CMAKE_SOURCE_DIR}/../scripts/messages/message_template.msg
     packages-info.txt
     featuretable.txt
     featuretable_mac.txt
+    featuretable_linux.txt
     )
 
 source_group("App Settings" FILES ${viewer_APPSETTINGS_FILES})
@@ -1713,6 +1748,10 @@ list(APPEND EVENT_HOST_SCRIPTS ${EVENT_HOST_SCRIPT_GLOB_LIST})
 set(PACKAGE ON CACHE BOOL
     "Add a package target that builds an installer package.")
 
+if(USE_PRECOMPILED_HEADERS)
+  target_precompile_headers( ${VIEWER_BINARY_NAME} PRIVATE llviewerprecompiledheaders.h )
+endif(USE_PRECOMPILED_HEADERS)
+
 if (WINDOWS)
     set_target_properties(${VIEWER_BINARY_NAME}
         PROPERTIES
@@ -1722,10 +1761,6 @@ if (WINDOWS)
         LINK_FLAGS_RELEASE "/FORCE:MULTIPLE /MAP\"secondlife-bin.MAP\" /OPT:REF /LARGEADDRESSAWARE"
         )
     target_compile_options(${VIEWER_BINARY_NAME} PRIVATE /bigobj)
-
-    if(USE_PRECOMPILED_HEADERS)
-       target_precompile_headers( ${VIEWER_BINARY_NAME} PRIVATE llviewerprecompiledheaders.h )
-    endif(USE_PRECOMPILED_HEADERS)
 
     # If adding a file to viewer_manifest.py in the WindowsManifest.construct() method, be sure to add the dependency
     # here.
@@ -1740,7 +1775,7 @@ if (WINDOWS)
     # And of course it's straightforward to read a text file in Python.
 
     set(COPY_INPUT_DEPENDENCIES
-      # The following commented dependencies are determined at variably at build time. Can't do this here.
+      # The following commented dependencies are determined variably at build time. Can't do this here.
       ${CMAKE_SOURCE_DIR}/../etc/message.xml
       ${CMAKE_SOURCE_DIR}/../scripts/messages/message_template.msg
       ${SHARED_LIB_STAGING_DIR}/openjp2.dll
@@ -1865,7 +1900,7 @@ else (WINDOWS)
         # Linux
     set_target_properties(${VIEWER_BINARY_NAME}
         PROPERTIES
-        LINK_FLAGS_RELEASE "${LINK_FLAGS_RELEASE} -Wl,--Map=${VIEWER_BINARY_NAME}.MAP"
+        LINK_FLAGS_RELEASE "${LINK_FLAGS_RELEASE} -no-pie -Wl,--Map=${VIEWER_BINARY_NAME}.MAP"
         )
 endif (WINDOWS)
 
@@ -1924,6 +1959,7 @@ target_link_libraries(${VIEWER_BINARY_NAME}
         ll::ndof
         ll::tracy
         ll::openxr
+        ll::nfde
         )
 
 if( TARGET ll::intel_memops )
@@ -2240,6 +2276,7 @@ if (LL_TESTS)
           lllogin
           llplugin
           llappearance
+          ll::SDL2
     )
 
   set_source_files_properties(
@@ -2291,6 +2328,7 @@ if (LL_TESTS)
           lllogin
           llprimitive
           lllogin
+          ll::SDL2
           )
 
   LL_ADD_INTEGRATION_TEST(cppfeatures

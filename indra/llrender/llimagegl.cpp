@@ -51,6 +51,7 @@ extern LL_COMMON_API bool on_main_thread();
 
 //----------------------------------------------------------------------------
 const F32 MIN_TEXTURE_LIFETIME = 10.f;
+const F32 CONVERSION_SCRATCH_BUFFER_GL_VERSION = 3.29f;
 
 //which power of 2 is i?
 //assumes i is a power of 2 > 0
@@ -160,6 +161,7 @@ S32 LLImageGL::sMaxCategories = 1 ;
 bool LLImageGL::sSkipAnalyzeAlpha;
 U32  LLImageGL::sScratchPBO = 0;
 U32  LLImageGL::sScratchPBOSize = 0;
+U32* LLImageGL::sManualScratch = nullptr;
 
 
 //------------------------
@@ -262,6 +264,22 @@ void LLImageGL::initClass(LLWindow* window, S32 num_catagories, bool skip_analyz
     }
 }
 
+void LLImageGL::allocateConversionBuffer()
+{
+    if (gGLManager.mGLVersion < CONVERSION_SCRATCH_BUFFER_GL_VERSION)
+    {
+        try
+        {
+            sManualScratch = new U32[MAX_IMAGE_AREA];
+        }
+        catch (std::bad_alloc&)
+        {
+            LLError::LLUserWarningMsg::showOutOfMemory();
+            LL_ERRS() << "Failed to allocate sManualScratch" << LL_ENDL;
+        }
+    }
+}
+
 //static
 void LLImageGL::cleanupClass()
 {
@@ -273,6 +291,8 @@ void LLImageGL::cleanupClass()
         sScratchPBO = 0;
         sScratchPBOSize = 0;
     }
+
+    delete[] sManualScratch;
 }
 
 
@@ -1287,11 +1307,10 @@ void LLImageGL::deleteTextures(S32 numTextures, const U32 *textures)
 void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 width, S32 height, U32 pixformat, U32 pixtype, const void* pixels, bool allow_compression)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
-    std::unique_ptr<U32[]> scratch;
     if (LLRender::sGLCoreProfile)
     {
         LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
-        if (gGLManager.mGLVersion >= 3.29f)
+        if (gGLManager.mGLVersion >= CONVERSION_SCRATCH_BUFFER_GL_VERSION)
         {
             if (pixformat == GL_ALPHA)
             { //GL_ALPHA is deprecated, convert to RGBA
@@ -1323,23 +1342,15 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
             { //GL_ALPHA is deprecated, convert to RGBA
                 if (pixels != nullptr)
                 {
-                    scratch.reset(new(std::nothrow) U32[width * height]);
-                    if (!scratch)
-                    {
-                        LLError::LLUserWarningMsg::showOutOfMemory();
-                        LL_ERRS() << "Failed to allocate " << (U32)(width * height * sizeof(U32))
-                            << " bytes for a manual image W" << width << " H" << height << LL_ENDL;
-                    }
-
                     U32 pixel_count = (U32)(width * height);
                     for (U32 i = 0; i < pixel_count; i++)
                     {
-                        U8* pix = (U8*)&scratch[i];
+                        U8* pix = (U8*)&sManualScratch[i];
                         pix[0] = pix[1] = pix[2] = 0;
                         pix[3] = ((U8*)pixels)[i];
                     }
 
-                    pixels = scratch.get();
+                    pixels = sManualScratch;
                 }
 
                 pixformat = GL_RGBA;
@@ -1350,26 +1361,18 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
             { //GL_LUMINANCE_ALPHA is deprecated, convert to RGBA
                 if (pixels != nullptr)
                 {
-                    scratch.reset(new(std::nothrow) U32[width * height]);
-                    if (!scratch)
-                    {
-                        LLError::LLUserWarningMsg::showOutOfMemory();
-                        LL_ERRS() << "Failed to allocate " << (U32)(width * height * sizeof(U32))
-                            << " bytes for a manual image W" << width << " H" << height << LL_ENDL;
-                    }
-
                     U32 pixel_count = (U32)(width * height);
                     for (U32 i = 0; i < pixel_count; i++)
                     {
                         U8 lum = ((U8*)pixels)[i * 2 + 0];
                         U8 alpha = ((U8*)pixels)[i * 2 + 1];
 
-                        U8* pix = (U8*)&scratch[i];
+                        U8* pix = (U8*)&sManualScratch[i];
                         pix[0] = pix[1] = pix[2] = lum;
                         pix[3] = alpha;
                     }
 
-                    pixels = scratch.get();
+                    pixels = sManualScratch;
                 }
 
                 pixformat = GL_RGBA;
@@ -1380,25 +1383,17 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
             { //GL_LUMINANCE_ALPHA is deprecated, convert to RGB
                 if (pixels != nullptr)
                 {
-                    scratch.reset(new(std::nothrow) U32[width * height]);
-                    if (!scratch)
-                    {
-                        LLError::LLUserWarningMsg::showOutOfMemory();
-                        LL_ERRS() << "Failed to allocate " << (U32)(width * height * sizeof(U32))
-                            << " bytes for a manual image W" << width << " H" << height << LL_ENDL;
-                    }
-
                     U32 pixel_count = (U32)(width * height);
                     for (U32 i = 0; i < pixel_count; i++)
                     {
                         U8 lum = ((U8*)pixels)[i];
 
-                        U8* pix = (U8*)&scratch[i];
+                        U8* pix = (U8*)&sManualScratch[i];
                         pix[0] = pix[1] = pix[2] = lum;
                         pix[3] = 255;
                     }
 
-                    pixels = scratch.get();
+                    pixels = sManualScratch;
                 }
                 pixformat = GL_RGBA;
                 intformat = GL_RGB8;
@@ -1777,7 +1772,7 @@ void LLImageGL::syncToMainThread(LLGLuint new_tex_name)
     ref();
     LL::WorkQueue::postMaybe(
         mMainQueue,
-        [=]()
+        [=, this]()
         {
             LL_PROFILE_ZONE_NAMED("cglt - delete callback");
             syncTexName(new_tex_name);

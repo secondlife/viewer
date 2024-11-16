@@ -75,7 +75,7 @@ bool LLImageDimensionsInfo::load(const std::string& src_filename,U32 codec)
 bool LLImageDimensionsInfo::getImageDimensionsBmp()
 {
     // Make sure the file is long enough.
-    const S32 DATA_LEN = 26; // BMP header (14) + DIB header size (4) + width (4) + height (4)
+    constexpr S32 DATA_LEN = 26; // BMP header (14) + DIB header size (4) + width (4) + height (4)
     if (!checkFileLength(DATA_LEN))
     {
         LL_WARNS() << "Premature end of file" << LL_ENDL;
@@ -105,7 +105,7 @@ bool LLImageDimensionsInfo::getImageDimensionsBmp()
 
 bool LLImageDimensionsInfo::getImageDimensionsTga()
 {
-    const S32 TGA_FILE_HEADER_SIZE = 12;
+    constexpr S32 TGA_FILE_HEADER_SIZE = 12;
 
     // Make sure the file is long enough.
     if (!checkFileLength(TGA_FILE_HEADER_SIZE + 1 /* width */ + 1 /* height */))
@@ -124,7 +124,7 @@ bool LLImageDimensionsInfo::getImageDimensionsTga()
 
 bool LLImageDimensionsInfo::getImageDimensionsPng()
 {
-    const S32 PNG_MAGIC_SIZE = 8;
+    constexpr S32 PNG_MAGIC_SIZE = 8;
 
     // Make sure the file is long enough.
     if (!checkFileLength(PNG_MAGIC_SIZE + 8 + sizeof(S32) * 2 /* width, height */))
@@ -134,7 +134,7 @@ bool LLImageDimensionsInfo::getImageDimensionsPng()
     }
 
     // Read PNG signature.
-    const U8 png_magic[PNG_MAGIC_SIZE] = {0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A};
+    constexpr U8 png_magic[PNG_MAGIC_SIZE] = {0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A};
     U8 signature[PNG_MAGIC_SIZE];
     mInfile.read((void*)signature, PNG_MAGIC_SIZE);
 
@@ -166,34 +166,36 @@ bool LLImageDimensionsInfo::getImageDimensionsJpeg()
 {
     sJpegErrorEncountered = false;
     clean();
-    FILE *fp = LLFile::fopen(mSrcFilename, "rb");
-    if (fp == NULL)
+    FILE* fp = LLFile::fopen(mSrcFilename, "rb");
+    if (!fp)
     {
         setLastError("Unable to open file for reading", mSrcFilename);
         return false;
     }
 
     /* Make sure this is a JPEG file. */
-    const size_t JPEG_MAGIC_SIZE = 2;
-    const U8 jpeg_magic[JPEG_MAGIC_SIZE] = {0xFF, 0xD8};
+    constexpr size_t JPEG_MAGIC_SIZE = 2;
+    constexpr U8 jpeg_magic[JPEG_MAGIC_SIZE] = {0xFF, 0xD8};
     U8 signature[JPEG_MAGIC_SIZE];
 
     if (fread(signature, sizeof(signature), 1, fp) != 1)
     {
         LL_WARNS() << "Premature end of file" << LL_ENDL;
+        fclose(fp);
         return false;
     }
     if (memcmp(signature, jpeg_magic, JPEG_MAGIC_SIZE) != 0)
     {
         LL_WARNS() << "Not a JPEG" << LL_ENDL;
         mWarning = "texture_load_format_error";
+        fclose(fp);
         return false;
     }
     fseek(fp, 0, SEEK_SET); // go back to start of the file
 
     /* Init jpeg */
     jpeg_error_mgr jerr;
-    jpeg_decompress_struct cinfo;
+    jpeg_decompress_struct cinfo{};
     cinfo.err = jpeg_std_error(&jerr);
     // Call our function instead of exit() if Libjpeg encounters an error.
     // This is done to avoid crash in this case (STORM-472).

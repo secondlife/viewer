@@ -57,16 +57,16 @@ const U32   FLAGS_CAMERA_SOURCE        = (1U << 22);
 
 //const U32 FLAGS_UNUSED_001           = (1U << 23); // was FLAGS_CAST_SHADOWS
 
-//const U32 FLAGS_UNUSED_002           = (1U << 24);
-//const U32 FLAGS_UNUSED_003           = (1U << 25);
-//const U32 FLAGS_UNUSED_004           = (1U << 26);
-//const U32 FLAGS_UNUSED_005           = (1U << 27);
+const U32   FLAGS_SERVER_AUTOPILOT     = (1U << 24); // Update was for an agent AND that agent is being autopiloted from the server
+//const U32 FLAGS_UNUSED_002           = (1U << 25);
+//const U32 FLAGS_UNUSED_003           = (1U << 26);
+//const U32 FLAGS_UNUSED_004           = (1U << 27);
 
 const U32   FLAGS_OBJECT_OWNER_MODIFY  = (1U << 28);
 
 const U32   FLAGS_TEMPORARY_ON_REZ     = (1U << 29);
-//const U32 FLAGS_UNUSED_006           = (1U << 30); // was FLAGS_TEMPORARY
-//const U32 FLAGS_UNUSED_007           = (1U << 31); // was FLAGS_ZLIB_COMPRESSED
+//const U32 FLAGS_UNUSED_005           = (1U << 30); // was FLAGS_TEMPORARY
+//const U32 FLAGS_UNUSED_006           = (1U << 31); // was FLAGS_ZLIB_COMPRESSED
 
 const U32   FLAGS_LOCAL                = FLAGS_ANIM_SOURCE | FLAGS_CAMERA_SOURCE;
 const U32   FLAGS_WORLD                = FLAGS_USE_PHYSICS | FLAGS_PHANTOM | FLAGS_TEMPORARY_ON_REZ;

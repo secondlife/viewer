@@ -31,10 +31,14 @@
 #include "llviewertexture.h"
 
 class LLGLSLShader;
+class LLGLTFMaterialList;
+class LLTerrainMaterials;
 
 class LLFetchedGLTFMaterial: public LLGLTFMaterial
 {
-    friend class LLGLTFMaterialList; // for lifetime management
+    // for lifetime management
+    friend class LLGLTFMaterialList;
+    friend class LLTerrainMaterials;
 public:
     LLFetchedGLTFMaterial();
     virtual ~LLFetchedGLTFMaterial();

@@ -10,7 +10,6 @@ include(LLImage)
 include(LLWindow)
 
 set(llrender_SOURCE_FILES
-    llatmosphere.cpp
     llcubemap.cpp
     llcubemaparray.cpp
     llfontbitmapcache.cpp
@@ -23,7 +22,6 @@ set(llrender_SOURCE_FILES
     llglslshader.cpp
     llgltexture.cpp
     llimagegl.cpp
-    llpostprocess.cpp
     llrender.cpp
     llrender2dutils.cpp
     llrendernavprim.cpp
@@ -40,7 +38,6 @@ set(llrender_SOURCE_FILES
 set(llrender_HEADER_FILES
     CMakeLists.txt
 
-    llatmosphere.h
     llcubemap.h
     llcubemaparray.h
     llfontgl.h
@@ -56,7 +53,6 @@ set(llrender_HEADER_FILES
     llgltexture.h
     llgltypes.h
     llimagegl.h
-    llpostprocess.h
     llrender.h
     llrender2dutils.h
     llrendernavprim.h

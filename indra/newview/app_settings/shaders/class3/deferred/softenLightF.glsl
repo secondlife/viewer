@@ -39,9 +39,6 @@ uniform sampler2D lightMap;
 
 uniform sampler2D     lightFunc;
 
-uniform float blur_size;
-uniform float blur_fidelity;
-
 #if defined(HAS_SSAO)
 uniform float ssao_irradiance_scale;
 uniform float ssao_irradiance_max;
@@ -159,7 +156,7 @@ void main()
 
     calcAtmosphericVarsLinear(pos.xyz, norm.xyz, light_dir, sunlit, amblit, additive, atten);
 
-    vec3 sunlit_linear = srgb_to_linear(sunlit);
+    vec3 sunlit_linear = sunlit;
     vec3 amblit_linear = amblit;
 
     vec3  irradiance = vec3(0);

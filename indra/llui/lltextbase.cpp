@@ -2110,7 +2110,7 @@ void LLTextBase::createUrlContextMenu(S32 x, S32 y, const std::string &in_url)
 
     // set up the callbacks for all of the potential menu items, N.B. we
     // don't use const ref strings in callbacks in case url goes out of scope
-    CommitRegistrarHelper registrar(LLUICtrl::CommitCallbackRegistry::currentRegistrar());
+    ScopedRegistrarHelper registrar;
     registrar.add("Url.Open", boost::bind(&LLUrlAction::openURL, url));
     registrar.add("Url.OpenInternal", boost::bind(&LLUrlAction::openURLInternal, url));
     registrar.add("Url.OpenExternal", boost::bind(&LLUrlAction::openURLExternal, url));
@@ -3799,6 +3799,21 @@ LLEmojiTextSegment::LLEmojiTextSegment(LLStyleConstSP style, S32 start, S32 end,
 LLEmojiTextSegment::LLEmojiTextSegment(const LLUIColor& color, S32 start, S32 end, LLTextBase& editor, bool is_visible)
     : LLNormalTextSegment(color, start, end, editor, is_visible)
 {
+}
+
+
+F32 LLEmojiTextSegment::draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRectf& draw_rect)
+{
+    bool reset_font_buffers = (mLastGeneration != mEditor.getTextGeneration()) && (mLastGeneration != -1);
+
+    F32 result = LLNormalTextSegment::draw(start, end, selection_start, selection_end, draw_rect);
+
+    //reset font buffers one more time next iteration, after all other segments are actually drawn
+    if (reset_font_buffers)
+    {
+        mLastGeneration = -1;
+    }
+    return result;
 }
 
 // virtual

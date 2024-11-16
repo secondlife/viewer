@@ -371,7 +371,7 @@
     layout="topleft"
     left="30"
     min_val="0.5"
-    max_val="1.5"
+    max_val="4.0"
     name="RenderExposure"
     show_text="true"
     top_pad="14"

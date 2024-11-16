@@ -176,7 +176,7 @@ constexpr U32   MAXADDRSTR      = 17;       // 123.567.901.345 = 15 chars + \0 +
 // the negative value to a huge positive value, producing the wrong answer!
 // llless() specifically addresses that case.
 template <typename T0, typename T1>
-inline bool llless(T0 d0, T1 d1)
+constexpr bool llless(T0 d0, T1 d1)
 {
     if constexpr (std::is_signed_v<T0> && ! std::is_signed_v<T1>)
     {
@@ -204,13 +204,13 @@ inline bool llless(T0 d0, T1 d1)
 
 // recursion tail
 template <typename T>
-inline auto llmax(T data)
+constexpr auto llmax(T data)
 {
     return data;
 }
 
 template <typename T0, typename T1, typename... Ts>
-inline auto llmax(T0 d0, T1 d1, Ts... rest)
+constexpr auto llmax(T0 d0, T1 d1, Ts... rest)
 {
     auto maxrest = llmax(d1, rest...);
     return llless(maxrest, d0)? d0 : maxrest;
@@ -218,20 +218,20 @@ inline auto llmax(T0 d0, T1 d1, Ts... rest)
 
 // recursion tail
 template <typename T>
-inline auto llmin(T data)
+constexpr auto llmin(T data)
 {
     return data;
 }
 
 template <typename T0, typename T1, typename... Ts>
-inline auto llmin(T0 d0, T1 d1, Ts... rest)
+constexpr auto llmin(T0 d0, T1 d1, Ts... rest)
 {
     auto minrest = llmin(d1, rest...);
     return llless(d0, minrest) ? d0 : minrest;
 }
 
 template <typename A, typename MIN, typename MAX>
-inline A llclamp(A a, MIN minval, MAX maxval)
+constexpr A llclamp(A a, MIN minval, MAX maxval)
 {
     // The only troublesome case is if A is unsigned and either minval or
     // maxval is both signed and negative. Casting a negative number to
@@ -262,13 +262,13 @@ inline A llclamp(A a, MIN minval, MAX maxval)
 }
 
 template <class LLDATATYPE>
-inline LLDATATYPE llclampf(LLDATATYPE a)
+constexpr LLDATATYPE llclampf(LLDATATYPE a)
 {
     return llmin(llmax(a, LLDATATYPE(0)), LLDATATYPE(1));
 }
 
 template <class LLDATATYPE>
-inline LLDATATYPE llclampb(LLDATATYPE a)
+constexpr LLDATATYPE llclampb(LLDATATYPE a)
 {
     return llmin(llmax(a, LLDATATYPE(0)), LLDATATYPE(255));
 }

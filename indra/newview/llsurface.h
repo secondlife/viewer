@@ -27,7 +27,6 @@
 #ifndef LL_LLSURFACE_H
 #define LL_LLSURFACE_H
 
-//#include "vmath.h"
 #include "v3math.h"
 #include "v3dmath.h"
 #include "v4math.h"

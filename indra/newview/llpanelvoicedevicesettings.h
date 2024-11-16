@@ -63,7 +63,6 @@ protected:
     class LLComboBox        *mCtrlInputDevices;
     class LLComboBox        *mCtrlOutputDevices;
     class LLButton          *mUnmuteBtn;
-    bool mDevicesUpdated;
     bool mUseTuningMode;
     std::map<std::string, std::string> mLocalizedDeviceNames;
 };

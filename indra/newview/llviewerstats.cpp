@@ -67,6 +67,7 @@
 #include "lluiusage.h"
 #include "lltranslate.h"
 #include "llluamanager.h"
+#include "scope_exit.h"
 
 // "Minimal Vulkan" to get max API Version
 
@@ -510,7 +511,6 @@ void send_viewer_stats(bool include_preferences)
         return;
     }
 
-    LLSD body;
     std::string url = gAgent.getRegion()->getCapability("ViewerStats");
 
     if (url.empty()) {
@@ -518,8 +518,18 @@ void send_viewer_stats(bool include_preferences)
         return;
     }
 
-    LLViewerStats::instance().getRecording().pause();
+    LLSD body = capture_viewer_stats(include_preferences);
+    LLCoreHttpUtil::HttpCoroutineAdapter::messageHttpPost(url, body,
+        "Statistics posted to sim", "Failed to post statistics to sim");
+}
 
+LLSD capture_viewer_stats(bool include_preferences)
+{
+    LLViewerStats& vstats{ LLViewerStats::instance() };
+    vstats.getRecording().pause();
+    LL::scope_exit cleanup([&vstats]{ vstats.getRecording().resume(); });
+
+    LLSD body;
     LLSD &agent = body["agent"];
 
     time_t ltime;
@@ -781,7 +791,7 @@ void send_viewer_stats(bool include_preferences)
     LL_INFOS("LogViewerStatsPacket") << "Sending viewer statistics: " << body << LL_ENDL;
 
     // <ND> Do those lines even do anything sane in regard of debug logging?
-    LL_DEBUGS("LogViewerStatsPacket");
+    LL_DEBUGS("LogViewerStatsPacket") << " ";
     std::string filename("viewer_stats_packet.xml");
     llofstream of(filename.c_str());
     LLSDSerialize::toPrettyXML(body,of);
@@ -791,10 +801,7 @@ void send_viewer_stats(bool include_preferences)
     body["session_id"] = gAgentSessionID;
 
     LLViewerStats::getInstance()->addToMessage(body);
-
-    LLCoreHttpUtil::HttpCoroutineAdapter::messageHttpPost(url, body,
-        "Statistics posted to sim", "Failed to post statistics to sim");
-    LLViewerStats::instance().getRecording().resume();
+    return body;
 }
 
 LLTimer& LLViewerStats::PhaseMap::getPhaseTimer(const std::string& phase_name)

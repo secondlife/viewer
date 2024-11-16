@@ -10,4 +10,5 @@
   image_level_3="VoicePTT_Lvl3"
   mouse_opaque="false"
   name="output_monitor"
+  visible="false"
   />

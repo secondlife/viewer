@@ -40,6 +40,10 @@
         Information about this location is unavailable due to access restrictions.  Please check your permissions with the parcel owner.
     </string>
     <string
+     name="acquired_date_ampm">
+        [wkday,datetime,slt] [mth,datetime,slt] [day,datetime,slt] [hour12,datetime,slt]:[min,datetime,slt]:[second,datetime,slt] [ampm,datetime,slt] [year,datetime,slt]
+    </string>
+    <string
      name="acquired_date">
         [wkday,datetime,slt] [mth,datetime,slt] [day,datetime,slt] [hour,datetime,slt]:[min,datetime,slt]:[second,datetime,slt] [year,datetime,slt]
     </string>

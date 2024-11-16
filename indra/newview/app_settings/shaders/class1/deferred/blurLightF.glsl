@@ -30,7 +30,6 @@ out vec4 frag_color;
 uniform sampler2D lightMap;
 
 uniform float dist_factor;
-uniform float blur_size;
 uniform vec2 delta;
 uniform vec2 screen_res;
 uniform vec3 kern[4];

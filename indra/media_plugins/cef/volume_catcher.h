@@ -49,7 +49,9 @@ public:
 #endif
 
 private:
+#if LL_LINUX || LL_WINDOWS
     VolumeCatcherImpl *pimpl;
+#endif
 };
 
 #endif // VOLUME_CATCHER_H

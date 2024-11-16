@@ -44,7 +44,7 @@ public:
     LLKeyData getKeyData(U32 index) { return mKeyBind.getKeyData(index); }
     void setPrimaryKeyData(const LLKeyData& data) { mKeyBind.replaceKeyData(data, 0); }
     void setKeyData(const LLKeyData& data, U32 index) { mKeyBind.replaceKeyData(data, index); }
-    bool canHandle(EMouseClickType mouse, KEY key, MASK mask) { return mKeyBind.canHandle(mouse, key, mask); }
+    bool canHandle(EMouseClickType mouse, KEY key, MASK mask) const { return mKeyBind.canHandle(mouse, key, mask); }
 
     LLKeyBind mKeyBind;
     bool mAssignable; // whether user can change key or key simply acts as placeholder
@@ -76,11 +76,11 @@ public:
     LLKeyConflictHandler(ESourceMode mode);
     ~LLKeyConflictHandler();
 
-    bool canHandleControl(const std::string &control_name, EMouseClickType mouse_ind, KEY key, MASK mask);
-    bool canHandleKey(const std::string &control_name, KEY key, MASK mask);
-    bool canHandleMouse(const std::string &control_name, EMouseClickType mouse_ind, MASK mask);
-    bool canHandleMouse(const std::string &control_name, S32 mouse_ind, MASK mask); //Just for convinience
-    bool canAssignControl(const std::string &control_name);
+    bool canHandleControl(const std::string &control_name, EMouseClickType mouse_ind, KEY key, MASK mask) const;
+    bool canHandleKey(const std::string &control_name, KEY key, MASK mask) const;
+    bool canHandleMouse(const std::string &control_name, EMouseClickType mouse_ind, MASK mask) const;
+    bool canHandleMouse(const std::string &control_name, S32 mouse_ind, MASK mask) const; //Just for convenience
+    bool canAssignControl(const std::string &control_name) const;
     static bool isReservedByMenu(const KEY &key, const MASK &mask);
     static bool isReservedByMenu(const LLKeyData &data);
 

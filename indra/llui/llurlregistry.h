@@ -34,7 +34,6 @@
 #include "llstring.h"
 
 #include <string>
-#include <vector>
 
 class LLKeyBindingToStringHandler;
 

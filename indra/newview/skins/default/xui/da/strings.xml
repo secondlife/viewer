@@ -3723,6 +3723,10 @@ Hvis du bliver ved med at modtage denne besked, kontakt venligst [SUPPORT_SITE].
 	<string name="conference-title-incoming">
 		Konference med [AGENT_NAME]
 	</string>
+	<string name="bot_warning">
+Du chatter med en bot, [NAME]. Del ikke personlige oplysninger.
+Læs mere på https://second.life/scripted-agents.
+	</string>
 	<string name="no_session_message">
 		(IM session eksisterer ikke)
 	</string>

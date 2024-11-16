@@ -1557,7 +1557,7 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
             }
 
             U8 texgen = getTextureEntry()->getTexGen();
-            if (rebuild_tcoord && texgen != LLTextureEntry::TEX_GEN_DEFAULT)
+            if (texgen != LLTextureEntry::TEX_GEN_DEFAULT)
             { //planar texgen needs binormals
                 mVObjp->getVolume()->genTangents(face_index);
             }

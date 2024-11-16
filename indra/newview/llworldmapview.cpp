@@ -517,26 +517,38 @@ void LLWorldMapView::draw()
         // Draw the region name in the lower left corner
         if (mMapScale >= DRAW_TEXT_THRESHOLD)
         {
-            std::string mesg;
+            static LLCachedControl<bool> print_coords(gSavedSettings, "MapShowGridCoords");
+            static LLFontGL* font = LLFontGL::getFontSansSerifSmallBold();
+
+            auto print = [&](std::string text, F32 x, F32 y, bool use_ellipses)
+                {
+                    font->renderUTF8(text, 0,
+                        (F32)llfloor(left + x), (F32)llfloor(bottom + y),
+                        LLColor4::white,
+                        LLFontGL::LEFT, LLFontGL::BASELINE, LLFontGL::NORMAL, LLFontGL::DROP_SHADOW,
+                        S32_MAX, //max_chars
+                        (S32)mMapScale, //max_pixels
+                        NULL,
+                        use_ellipses);
+                };
+
+            std::string grid_name = info->getName();
             if (info->isDown())
             {
-                mesg = llformat( "%s (%s)", info->getName().c_str(), sStringsMap["offline"].c_str());
+                grid_name += " (" + sStringsMap["offline"] + ")";
+            }
+
+            if (print_coords)
+            {
+                print(grid_name, 3, 14, true);
+                // Obtain and print the grid map coordinates
+                LLVector3d region_pos = info->getGlobalOrigin();
+                std::string grid_coords = llformat("[%.0f, %.0f]", region_pos[VX] / 256, region_pos[VY] / 256);
+                print(grid_coords, 3, 2, false);
             }
             else
             {
-                mesg = info->getName();
-            }
-            if (!mesg.empty())
-            {
-                LLFontGL::getFontSansSerifSmallBold()->renderUTF8(
-                    mesg, 0,
-                    (F32)llfloor(left + 3), (F32)llfloor(bottom + 2),
-                    LLColor4::white,
-                    LLFontGL::LEFT, LLFontGL::BASELINE, LLFontGL::NORMAL, LLFontGL::DROP_SHADOW,
-                    S32_MAX, //max_chars
-                    (S32)mMapScale, //max_pixels
-                    NULL,
-                    /*use_ellipses*/true);
+                print(grid_name, 3, 2, true);
             }
         }
     }

@@ -38,8 +38,11 @@
 	<string name="server_forbidden_text">
 		Die Informationen über diesen Standort sind zugriffsbeschränkt.  Bitte wenden Sie sich bezüglich Ihrer Berechtigungen an den Eigentümer der Parzelle.
 	</string>
+	<string name="acquired_date_ampm">
+		[wkday,datetime,local]. [day,datetime,local]. [mth,datetime,local]. [year,datetime,local] [hour12,datetime,local]:[min,datetime,local]:[second,datetime,local] [ampm,datetime,local]
+	</string>
 	<string name="acquired_date">
-		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
+		[wkday,datetime,local]. [day,datetime,local]. [mth,datetime,local]. [year,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local]
 	</string>
 	<button name="back_btn" tool_tip="Hinten"/>
 	<text name="title" value="Ortsprofil"/>

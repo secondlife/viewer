@@ -32,6 +32,7 @@
 #include "message.h"
 #include "lltracker.h"
 #include "lluistring.h"
+#include "llviewercontrol.h"
 #include "llviewertexturelist.h"
 #include "lltrans.h"
 #include "llgltexture.h"
@@ -117,6 +118,7 @@ LLVector3d LLSimInfo::getGlobalOrigin() const
 {
     return from_region_handle(mHandle);
 }
+
 LLVector3 LLSimInfo::getLocalPos(LLVector3d global_pos) const
 {
     LLVector3d sim_origin = from_region_handle(mHandle);
@@ -492,9 +494,20 @@ bool LLWorldMap::insertItem(U32 x_world, U32 y_world, std::string& name, LLUUID&
         case MAP_ITEM_MATURE_EVENT:
         case MAP_ITEM_ADULT_EVENT:
         {
-            std::string timeStr = "["+ LLTrans::getString ("TimeHour")+"]:["
-                                       +LLTrans::getString ("TimeMin")+"] ["
-                                       +LLTrans::getString ("TimeAMPM")+"]";
+            std::string timeStr;
+
+            static bool use_24h = gSavedSettings.getBOOL("Use24HourClock");
+            if (use_24h)
+            {
+                std::string timeStr = "[" + LLTrans::getString("TimeHour") + "]:["
+                    + LLTrans::getString("TimeMin") + "]";
+            }
+            else
+            {
+                std::string timeStr = "[" + LLTrans::getString("TimeHour12") + "]:["
+                    + LLTrans::getString("TimeMin") + "] ["
+                    + LLTrans::getString("TimeAMPM") + "]";
+            }
             LLSD substitution;
             substitution["datetime"] = (S32) extra;
             LLStringUtil::format (timeStr, substitution);

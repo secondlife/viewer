@@ -182,7 +182,6 @@ private:
 
     LLCalc::calc_map_t* mConstants;
     LLCalc::calc_map_t* mVariables;
-//  LLCalc::calc_map_t* mUserVariables;
 
     F32&        mResult;
 };

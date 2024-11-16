@@ -92,10 +92,18 @@ void LLHandlerUtil::logToIM(const EInstantMessage& session_type,
             from = SYSTEM_FROM;
         }
 
-        // Build a new format username or firstname_lastname for legacy names
-        // to use it for a history log filename.
-        std::string user_name = LLCacheName::buildUsername(session_name);
-        LLIMModel::instance().logToFile(user_name, from, from_id, message);
+        std::string file_name;
+        if (session_type == IM_SESSION_GROUP_START)
+        {
+            file_name = session_name + LLLogChat::getGroupChatSuffix();
+        }
+        else
+        {
+            // Build a new format username or firstname_lastname for legacy names
+            // to use it for a history log filename.
+            file_name = LLCacheName::buildUsername(session_name);
+        }
+        LLIMModel::instance().logToFile(file_name, from, from_id, message);
     }
     else
     {

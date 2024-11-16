@@ -31,8 +31,6 @@
 #include "llrect.h"
 #include "llcoord.h"
 #include "llcontrol.h"
-#include "llcoord.h"
-#include "llcontrol.h"
 #include "llinitparam.h"
 #include "llregistry.h"
 #include "llrender2dutils.h"
@@ -156,7 +154,7 @@ public:
             sanitizeRange();
         }
 
-        S32 clamp(S32 input)
+        S32 clamp(S32 input) const
         {
             if (input < mMin) return mMin;
             if (input > mMax) return mMax;
@@ -170,8 +168,8 @@ public:
             sanitizeRange();
         }
 
-        S32 getMin() { return mMin; }
-        S32 getMax() { return mMax; }
+        S32 getMin() const { return mMin; }
+        S32 getMax() const { return mMax; }
 
         bool operator==(const RangeS32& other) const
         {
@@ -225,7 +223,7 @@ public:
             mValue = clamp(value);
         }
 
-        S32 get()
+        S32 get() const
         {
             return mValue;
         }
@@ -255,7 +253,7 @@ public:
     static std::string getLanguage(); // static for lldateutil_test compatibility
 
     //helper functions (should probably move free standing rendering helper functions here)
-    LLView* getRootView() { return mRootView; }
+    LLView* getRootView() const { return mRootView; }
     void setRootView(LLView* view) { mRootView = view; }
     /**
      * Walk the LLView tree to resolve a path
@@ -298,7 +296,7 @@ public:
     LLControlGroup& getControlControlGroup (std::string_view controlname);
     F32 getMouseIdleTime() { return mMouseIdleTimer.getElapsedTimeF32(); }
     void resetMouseIdleTimer() { mMouseIdleTimer.reset(); }
-    LLWindow* getWindow() { return mWindow; }
+    LLWindow* getWindow() const { return mWindow; }
 
     void addPopup(LLView*);
     void removePopup(LLView*);

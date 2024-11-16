@@ -3118,6 +3118,11 @@ Jeśli jesteś użytkownikiem premium, to [[PREMIUM_URL] kliknij tutaj] aby otrz
 [[URL] Kliknij tutaj] aby odnowić subskrypcję.
 Jeśli jesteś użytkownikiem premium, to [[PREMIUM_URL] kliknij tutaj] aby otrzymać swój perk Przekształceń Głosu.
 	</notification>
+	<notification name="VoiceEffectsWillExpire">
+		Jedno lub więcej z Twoich Przekształceń Głosu wygaśnie za mniej niż [INTERVAL] dni.
+[[URL] Kliknij tutaj] aby odnowić subskrypcję.
+Jeśli jesteś użytkownikiem premium, to [[PREMIUM_URL] kliknij tutaj] aby otrzymać swój perk Przekształceń Głosu.
+	</notification>
 	<notification name="VoiceEffectsNew">
 		Nowe Przekształcenia Głosu są dostępne!
 	</notification>

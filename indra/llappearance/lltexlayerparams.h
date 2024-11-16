@@ -30,6 +30,7 @@
 #include "llpointer.h"
 #include "v4color.h"
 #include "llviewervisualparam.h"
+#include <atomic>
 
 class LLAvatarAppearance;
 class LLImageRaw;

@@ -20,7 +20,7 @@ if response == 'OK' then
         UI.removeToolbarBtn(BUTTONS[i])
       end
     end
-    popup:tip('Toolbars were reshuffled')
+    UI.popup:tip('Toolbars were reshuffled')
 else
-    popup:tip('Canceled')
+    UI.popup:tip('Canceled')
 end

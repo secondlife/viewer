@@ -48,6 +48,7 @@
 extern bool gDebugGL;
 extern bool gDebugSession;
 extern bool gDebugGLSession;
+extern bool gDebugTextureLabelLocalFilesSession;
 extern llofstream gFailLog;
 
 #define LL_GL_ERRS LL_ERRS("RenderState")
@@ -106,11 +107,6 @@ public:
 
     // hints to the render pipe
     U32 mDownScaleMethod = 0; // see settings.xml RenderDownScaleMethod
-
-#if LL_DARWIN
-    // Needed to distinguish problem cards on older Macs that break with Materials
-    bool mIsMobileGF;
-#endif
 
     // Whether this version of GL is good enough for SL to use
     bool mHasRequirements;

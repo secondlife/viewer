@@ -12,7 +12,7 @@ repos:
       - id: indent-with-spaces
         files: \.(cpp|c|h|inl|py|glsl|cmake)$
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
+    rev: v5.0.0
     hooks:
       - id: check-xml
       - id: mixed-line-ending

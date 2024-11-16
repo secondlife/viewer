@@ -439,8 +439,6 @@ protected:
 public:
     virtual ~LLMenuGL( void );
 
-    void parseChildXML(LLXMLNodePtr child, LLView* parent);
-
     // LLView Functionality
     /*virtual*/ bool handleUnicodeCharHere( llwchar uni_char );
     /*virtual*/ bool handleHover( S32 x, S32 y, MASK mask );

@@ -35,6 +35,7 @@
 #include "llagentcamera.h"
 #include "llfloaterimnearbychat.h"
 #include "llfocusmgr.h"
+#include "llgamecontrol.h"
 #include "llkeybind.h" // LLKeyData
 #include "llmorphview.h"
 #include "llmoveview.h"
@@ -913,6 +914,20 @@ bool agent_control_lbutton_handle(EKeystate s)
     return true;
 }
 
+template <U8 N>
+bool game_control_button(EKeystate s)
+{
+    if (s == KEYSTATE_DOWN)
+    {
+        gAgent.pressGameControlButton(N);
+    }
+    else if ( s == KEYSTATE_UP)
+    {
+        gAgent.releaseGameControlButton(N);
+    }
+    return true;
+}
+
 // In-world keybindings, like walking or camera
 #define REGISTER_KEYBOARD_ACTION(KEY, ACTION) LLREGISTER_STATIC(LLKeyboardActionRegistry, KEY, LLKeybindFunctionData(ACTION, false));
 // Global keybindings that should work even with floaters focused, like voice
@@ -970,6 +985,38 @@ REGISTER_KEYBOARD_ACTION("walk_to", walk_to);
 REGISTER_KEYBOARD_GLOBAL_ACTION("toggle_voice", toggle_voice);
 REGISTER_KEYBOARD_GLOBAL_ACTION("voice_follow_key", voice_follow_key);
 REGISTER_KEYBOARD_ACTION(script_mouse_handler_name, script_trigger_lbutton);
+REGISTER_KEYBOARD_ACTION("game_control_button_0", game_control_button<0>);
+REGISTER_KEYBOARD_ACTION("game_control_button_1", game_control_button<1>);
+REGISTER_KEYBOARD_ACTION("game_control_button_2", game_control_button<2>);
+REGISTER_KEYBOARD_ACTION("game_control_button_3", game_control_button<3>);
+REGISTER_KEYBOARD_ACTION("game_control_button_4", game_control_button<4>);
+REGISTER_KEYBOARD_ACTION("game_control_button_5", game_control_button<5>);
+REGISTER_KEYBOARD_ACTION("game_control_button_6", game_control_button<6>);
+REGISTER_KEYBOARD_ACTION("game_control_button_7", game_control_button<7>);
+REGISTER_KEYBOARD_ACTION("game_control_button_8", game_control_button<8>);
+REGISTER_KEYBOARD_ACTION("game_control_button_9", game_control_button<9>);
+REGISTER_KEYBOARD_ACTION("game_control_button_10", game_control_button<10>);
+REGISTER_KEYBOARD_ACTION("game_control_button_11", game_control_button<11>);
+REGISTER_KEYBOARD_ACTION("game_control_button_12", game_control_button<12>);
+REGISTER_KEYBOARD_ACTION("game_control_button_13", game_control_button<13>);
+REGISTER_KEYBOARD_ACTION("game_control_button_14", game_control_button<14>);
+REGISTER_KEYBOARD_ACTION("game_control_button_15", game_control_button<15>);
+REGISTER_KEYBOARD_ACTION("game_control_button_16", game_control_button<16>);
+REGISTER_KEYBOARD_ACTION("game_control_button_17", game_control_button<17>);
+REGISTER_KEYBOARD_ACTION("game_control_button_18", game_control_button<18>);
+REGISTER_KEYBOARD_ACTION("game_control_button_19", game_control_button<19>);
+REGISTER_KEYBOARD_ACTION("game_control_button_20", game_control_button<20>);
+REGISTER_KEYBOARD_ACTION("game_control_button_21", game_control_button<21>);
+REGISTER_KEYBOARD_ACTION("game_control_button_22", game_control_button<22>);
+REGISTER_KEYBOARD_ACTION("game_control_button_23", game_control_button<23>);
+REGISTER_KEYBOARD_ACTION("game_control_button_24", game_control_button<24>);
+REGISTER_KEYBOARD_ACTION("game_control_button_25", game_control_button<25>);
+REGISTER_KEYBOARD_ACTION("game_control_button_26", game_control_button<26>);
+REGISTER_KEYBOARD_ACTION("game_control_button_27", game_control_button<27>);
+REGISTER_KEYBOARD_ACTION("game_control_button_28", game_control_button<28>);
+REGISTER_KEYBOARD_ACTION("game_control_button_29", game_control_button<29>);
+REGISTER_KEYBOARD_ACTION("game_control_button_30", game_control_button<30>);
+REGISTER_KEYBOARD_ACTION("game_control_button_31", game_control_button<31>);
 #undef REGISTER_KEYBOARD_ACTION
 
 LLViewerInput::LLViewerInput()

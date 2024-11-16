@@ -37,7 +37,6 @@ uniform vec2 noiseVec;
 
 uniform vec4 dynamic_exposure_params;
 uniform vec4 dynamic_exposure_params2;
-uniform float dynamic_exposure_enabled;
 
 float lum(vec3 col)
 {

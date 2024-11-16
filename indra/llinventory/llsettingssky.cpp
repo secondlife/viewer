@@ -601,7 +601,7 @@ void LLSettingsSky::blend(LLSettingsBase::ptr_t &end, F64 blendf)
 
         mSettingFlags |= other->mSettingFlags;
 
-        mCanAutoAdjust = false; // no point?
+        mCanAutoAdjust = other->mCanAutoAdjust;
 
         mSunRotation = slerp((F32)blendf, mSunRotation, other->mSunRotation);
         mMoonRotation = slerp((F32)blendf, mMoonRotation, other->mMoonRotation);
@@ -1176,6 +1176,11 @@ void LLSettingsSky::loadValuesFromLLSD()
     {
         mReflectionProbeAmbiance = (F32)settings[SETTING_REFLECTION_PROBE_AMBIANCE].asReal();
     }
+
+    mHDRMax = 2.0f;
+    mHDRMin = 0.5f;
+    mHDROffset = 1.0f;
+    mTonemapMix = 1.0f;
 
     mSunTextureId = settings[SETTING_SUN_TEXTUREID].asUUID();
     mMoonTextureId = settings[SETTING_MOON_TEXTUREID].asUUID();
@@ -1995,6 +2000,7 @@ F32 LLSettingsSky::getCloudShadow() const
 void LLSettingsSky::setCloudShadow(F32 val)
 {
     mCloudShadow = val;
+    setDirtyFlag(true);
     setLLSDDirty();
 }
 
@@ -2026,6 +2032,38 @@ F32 LLSettingsSky::getGamma() const
     return mGamma;
 }
 
+F32 LLSettingsSky::getHDRMin() const
+{
+    if (mCanAutoAdjust)
+        return 0.f;
+
+    return mHDRMin;
+}
+
+F32 LLSettingsSky::getHDRMax() const
+{
+    if (mCanAutoAdjust)
+        return 0.f;
+
+    return mHDRMax;
+}
+
+F32 LLSettingsSky::getHDROffset() const
+{
+    if (mCanAutoAdjust)
+        return 1.0f;
+
+    return mHDROffset;
+}
+
+F32 LLSettingsSky::getTonemapMix() const
+{
+    if (mCanAutoAdjust)
+        return 0.0f;
+
+    return mTonemapMix;
+}
+
 void LLSettingsSky::setGamma(F32 val)
 {
     mGamma = val;
@@ -2051,6 +2089,7 @@ F32 LLSettingsSky::getMaxY() const
 void LLSettingsSky::setMaxY(F32 val)
 {
     mMaxY = val;
+    setDirtyFlag(true);
     setLLSDDirty();
 }
 
@@ -2062,6 +2101,7 @@ LLQuaternion LLSettingsSky::getMoonRotation() const
 void LLSettingsSky::setMoonRotation(const LLQuaternion &val)
 {
     mMoonRotation = val;
+    setDirtyFlag(true);
     setLLSDDirty();
 }
 
@@ -2073,6 +2113,7 @@ F32 LLSettingsSky::getMoonScale() const
 void LLSettingsSky::setMoonScale(F32 val)
 {
     mMoonScale = val;
+    setDirtyFlag(true);
     setLLSDDirty();
 }
 
@@ -2095,6 +2136,7 @@ F32 LLSettingsSky::getMoonBrightness() const
 void LLSettingsSky::setMoonBrightness(F32 brightness_factor)
 {
     mMoonBrightness = brightness_factor;
+    setDirtyFlag(true);
     setLLSDDirty();
 }
 
@@ -2131,6 +2173,7 @@ LLColor3 LLSettingsSky::getSunlightColorClamped() const
 void LLSettingsSky::setSunlightColor(const LLColor3 &val)
 {
     mSunlightColor = val;
+    setDirtyFlag(true);
     setLLSDDirty();
 }
 
@@ -2142,6 +2185,7 @@ LLQuaternion LLSettingsSky::getSunRotation() const
 void LLSettingsSky::setSunRotation(const LLQuaternion &val)
 {
     mSunRotation = val;
+    setDirtyFlag(true);
     setLLSDDirty();
 }
 
@@ -2153,6 +2197,7 @@ F32 LLSettingsSky::getSunScale() const
 void LLSettingsSky::setSunScale(F32 val)
 {
     mSunScale = val;
+    setDirtyFlag(true);
     setLLSDDirty();
 }
 

@@ -33,7 +33,6 @@ uniform sampler2D emissiveRect; // PBR linear packed Occlusion, Roughness, Metal
 uniform sampler2D     lightFunc;
 
 uniform vec3  env_mat[3];
-uniform float sun_wash;
 uniform int   light_count;
 uniform vec4  light[LIGHT_COUNT];     // .w = size; see C++ fullscreen_lights.push_back()
 uniform vec4  light_col[LIGHT_COUNT]; // .a = falloff
