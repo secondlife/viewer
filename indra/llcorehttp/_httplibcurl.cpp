@@ -487,12 +487,12 @@ void HttpLibcurl::policyUpdated(unsigned int policy_class)
         policy.stallPolicy(policy_class, false);
         mDirtyPolicy[policy_class] = false;
 
-        if (options.mPipelining > 1)
+        if (options.mPipelining)
         {
             // We'll try to do pipelining on this multihandle
             check_curl_multi_setopt(multi_handle,
                                      CURLMOPT_PIPELINING,
-                                     1L);
+                                     CURLPIPE_MULTIPLEX | CURLPIPE_HTTP1);
             check_curl_multi_setopt(multi_handle,
                                      CURLMOPT_MAX_PIPELINE_LENGTH,
                                      long(options.mPipelining));
@@ -507,7 +507,7 @@ void HttpLibcurl::policyUpdated(unsigned int policy_class)
         {
             check_curl_multi_setopt(multi_handle,
                                      CURLMOPT_PIPELINING,
-                                     0L);
+                                     CURLPIPE_NOTHING);
             check_curl_multi_setopt(multi_handle,
                                      CURLMOPT_MAX_HOST_CONNECTIONS,
                                      0L);
