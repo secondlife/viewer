@@ -231,16 +231,13 @@ attributedStringInfo getSegments(NSAttributedString *str)
     [self registerForDraggedTypes:[NSArray arrayWithObject:NSPasteboardTypeURL]];
 	[self initWithFrame:frame];
 	
-	// Initialize with a default "safe" pixel format that will work with versions dating back to OS X 10.6.
-	// Any specialized pixel formats, i.e. a core profile pixel format, should be initialized through rebuildContextWithFormat.
-	// 10.7 and 10.8 don't really care if we're defining a profile or not.  If we don't explicitly request a core or legacy profile, it'll always assume a legacy profile (for compatibility reasons).
 	NSOpenGLPixelFormatAttribute attrs[] = {
         NSOpenGLPFANoRecovery,
 		NSOpenGLPFADoubleBuffer,
 		NSOpenGLPFAClosestPolicy,
 		NSOpenGLPFAAccelerated,
-		NSOpenGLPFASampleBuffers, static_cast<NSOpenGLPixelFormatAttribute>(samples > 0 ? 1 : 0),
-		NSOpenGLPFASamples, static_cast<NSOpenGLPixelFormatAttribute>(samples),
+		NSOpenGLPFASampleBuffers, 0,
+		NSOpenGLPFASamples, 0,
 		NSOpenGLPFAStencilSize, 8,
 		NSOpenGLPFADepthSize, 24,
 		NSOpenGLPFAAlphaSize, 8,
