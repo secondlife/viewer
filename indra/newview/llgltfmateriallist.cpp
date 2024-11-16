@@ -409,7 +409,7 @@ void LLGLTFMaterialList::flushUpdates(void(*done_callback)(bool))
     {
         callback_holder = std::make_shared<CallbackHolder>(done_callback);
     }
-    while (!sModifyQueue.empty() || !sApplyQueue.empty())
+    while (!sModifyQueue.empty() || !sApplyQueue.empty() || !sUpdates.isEmpty())
     {
         flushUpdatesOnce(callback_holder);
     }
