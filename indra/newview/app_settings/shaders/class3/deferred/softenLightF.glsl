@@ -156,8 +156,8 @@ void main()
 
     calcAtmosphericVarsLinear(pos.xyz, norm.xyz, light_dir, sunlit, amblit, additive, atten);
 
-    vec3 sunlit_linear = srgb_to_linear(sunlit);
-    vec3 amblit_linear = srgb_to_linear(amblit);
+    vec3 sunlit_linear = sunlit;
+    vec3 amblit_linear = amblit;
 
     vec3  irradiance = vec3(0);
     vec3  radiance  = vec3(0);
