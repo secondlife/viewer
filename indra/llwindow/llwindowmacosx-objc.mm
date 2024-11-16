@@ -213,7 +213,7 @@ OSErr setImageCursor(CursorRef ref)
 NSWindowRef createNSWindow(int x, int y, int width, int height)
 {
 	LLNSWindow *window = [[LLNSWindow alloc]initWithContentRect:NSMakeRect(x, y, width, height)
-													  styleMask:NSTitledWindowMask | NSResizableWindowMask | NSClosableWindowMask | NSMiniaturizableWindowMask | NSTexturedBackgroundWindowMask backing:NSBackingStoreBuffered defer:NO];
+                                                      styleMask:NSWindowStyleMaskTitled | NSWindowStyleMaskResizable | NSWindowStyleMaskClosable | NSWindowStyleMaskMiniaturizable backing:NSBackingStoreBuffered defer:NO];
 	[window makeKeyAndOrderFront:nil];
 	[window setAcceptsMouseMovedEvents:TRUE];
     [window setRestorable:FALSE]; // Viewer manages state from own settings
@@ -225,11 +225,6 @@ GLViewRef createOpenGLView(NSWindowRef window, unsigned int samples, bool vsync)
 	LLOpenGLView *glview = [[LLOpenGLView alloc]initWithFrame:[(LLNSWindow*)window frame] withSamples:samples andVsync:vsync];
 	[(LLNSWindow*)window setContentView:glview];
 	return glview;
-}
-
-void setResizeMode(bool oldresize, void* glview)
-{
-    [(LLOpenGLView *)glview setOldResize:oldresize];
 }
 
 void glSwapBuffers(void* context)

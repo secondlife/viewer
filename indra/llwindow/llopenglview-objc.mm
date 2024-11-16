@@ -123,16 +123,6 @@ attributedStringInfo getSegments(NSAttributedString *str)
 
 @implementation LLOpenGLView
 
-// Force a high quality update after live resizing
-- (void) viewDidEndLiveResize
-{
-    if (mOldResize)  //Maint-3135
-    {
-        NSSize size = [self frame].size;
-        callResize(size.width, size.height);
-    }
-}
-
 - (unsigned long)getVramSize
 {
     CGLRendererInfoObj info = 0;
@@ -187,14 +177,8 @@ attributedStringInfo getSegments(NSAttributedString *str)
     }
 }
 
-- (void)setOldResize:(bool)oldresize
-{
-    mOldResize = oldresize;
-}
-
 - (void)windowResized:(NSNotification *)notification;
 {
-    if (!mOldResize)  //Maint-3288
     {
         NSSize dev_sz = gHiDPISupport ? [self convertSizeToBacking:[self frame].size] : [self frame].size;
         callResize(dev_sz.width, dev_sz.height);
@@ -244,7 +228,7 @@ attributedStringInfo getSegments(NSAttributedString *str)
 
 - (id) initWithFrame:(NSRect)frame withSamples:(NSUInteger)samples andVsync:(BOOL)vsync
 {
-	[self registerForDraggedTypes:[NSArray arrayWithObject:NSURLPboardType]];
+    [self registerForDraggedTypes:[NSArray arrayWithObject:NSPasteboardTypeURL]];
 	[self initWithFrame:frame];
 	
 	// Initialize with a default "safe" pixel format that will work with versions dating back to OS X 10.6.
@@ -295,16 +279,14 @@ attributedStringInfo getSegments(NSAttributedString *str)
 	if (vsync)
 	{
 		GLint value = 1;
-		[glContext setValues:&value forParameter:NSOpenGLCPSwapInterval];
+        [glContext setValues:&value forParameter:NSOpenGLContextParameterSwapInterval];
 	} else {
 		// supress this error after move to Xcode 7:
 		// error: null passed to a callee that requires a non-null argument [-Werror,-Wnonnull]
 		// Tried using ObjC 'nonnull' keyword as per SO article but didn't build
 		GLint swapInterval=0;
-		[glContext setValues:&swapInterval forParameter:NSOpenGLCPSwapInterval];
+        [glContext setValues:&swapInterval forParameter:NSOpenGLContextParameterSwapInterval];
 	}
-	
-    mOldResize = false;
     
 	return self;
 }
@@ -355,13 +337,13 @@ attributedStringInfo getSegments(NSAttributedString *str)
     mMousePos[1] = mPoint.y;
 
     // Apparently people still use this?
-    if ([theEvent modifierFlags] & NSCommandKeyMask &&
-        !([theEvent modifierFlags] & NSControlKeyMask) &&
-        !([theEvent modifierFlags] & NSShiftKeyMask) &&
-        !([theEvent modifierFlags] & NSAlternateKeyMask) &&
-        !([theEvent modifierFlags] & NSAlphaShiftKeyMask) &&
-        !([theEvent modifierFlags] & NSFunctionKeyMask) &&
-        !([theEvent modifierFlags] & NSHelpKeyMask))
+    if ([theEvent modifierFlags] & NSEventModifierFlagCommand &&
+        !([theEvent modifierFlags] & NSEventModifierFlagControl) &&
+        !([theEvent modifierFlags] & NSEventModifierFlagShift) &&
+        !([theEvent modifierFlags] & NSEventModifierFlagOption) &&
+        !([theEvent modifierFlags] & NSEventModifierFlagCapsLock) &&
+        !([theEvent modifierFlags] & NSEventModifierFlagFunction) &&
+        !([theEvent modifierFlags] & NSEventModifierFlagHelp))
     {
         callRightMouseDown(mMousePos, [theEvent modifierFlags]);
         mSimulatedRightClick = true;
@@ -511,7 +493,7 @@ attributedStringInfo getSegments(NSAttributedString *str)
 
     if (acceptsText &&
         !mMarkedTextAllowed &&
-        !(mModifiers & (NSControlKeyMask | NSCommandKeyMask)) &&  // commands don't invoke InputWindow
+        !(mModifiers & (NSEventModifierFlagControl | NSEventModifierFlagCommand)) &&  // commands don't invoke InputWindow
         ![(LLAppDelegate*)[NSApp delegate] romanScript] &&
         ch > ' ' &&
         ch != NSDeleteCharacter &&
@@ -535,13 +517,13 @@ attributedStringInfo getSegments(NSAttributedString *str)
     switch([theEvent keyCode])
     {        
         case 56:
-            mask = NSShiftKeyMask;
+            mask = NSEventModifierFlagShift;
             break;
         case 58:
-            mask = NSAlternateKeyMask;
+            mask = NSEventModifierFlagOption;
             break;
         case 59:
-            mask = NSControlKeyMask;
+            mask = NSEventModifierFlagControl;
             break;
         default:
             return;            
@@ -582,7 +564,7 @@ attributedStringInfo getSegments(NSAttributedString *str)
 	
 	pboard = [sender draggingPasteboard];
 	
-	if ([[pboard types] containsObject:NSURLPboardType])
+    if ([[pboard types] containsObject:NSPasteboardTypeURL])
 	{
 		if (sourceDragMask & NSDragOperationLink) {
 			NSURL *fileUrl = [[pboard readObjectsForClasses:[NSArray arrayWithObject:[NSURL class]] options:[NSDictionary dictionary]] objectAtIndex:0];
@@ -783,9 +765,9 @@ attributedStringInfo getSegments(NSAttributedString *str)
 
 - (void) insertNewline:(id)sender
 {
-	if (!(mModifiers & NSCommandKeyMask) &&
-		!(mModifiers & NSShiftKeyMask) &&
-		!(mModifiers & NSAlternateKeyMask))
+    if (!(mModifiers & NSEventModifierFlagCommand) &&
+        !(mModifiers & NSEventModifierFlagShift) &&
+        !(mModifiers & NSEventModifierFlagOption))
 	{
 		callUnicodeCallback(13, 0);
 	} else {

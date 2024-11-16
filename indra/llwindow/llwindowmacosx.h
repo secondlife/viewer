@@ -172,9 +172,6 @@ protected:
 
     bool    shouldPostQuit() { return mPostQuit; }
 
-    //Satisfy MAINT-3135 and MAINT-3288 with a flag.
-    /*virtual */ void setOldResize(bool oldresize) override {setResizeMode(oldresize, mGLView); }
-
 private:
     void restoreGLContext();
 
