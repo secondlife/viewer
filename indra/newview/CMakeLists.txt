@@ -1470,7 +1470,7 @@ if (DARWIN)
   set(viewer_RESOURCE_FILES
     secondlife.icns
     Info-SecondLife.plist
-    SecondLife.xib/
+    SecondLife.xib
     # CMake doesn't seem to support Xcode language variants well just yet
     English.lproj/InfoPlist.strings
     English.lproj/language.txt
@@ -1941,6 +1941,7 @@ if (WINDOWS)
 elseif (DARWIN)
     set_target_properties(${VIEWER_BINARY_NAME}
         PROPERTIES
+        RESOURCE SecondLife.xib
         XCODE_ATTRIBUTE_LD_GENERATE_MAP_FILE YES
         LINK_FLAGS_RELEASE "${LINK_FLAGS_RELEASE} -Xlinker -dead_strip" # -Xlinker -map -Xlinker ${CMAKE_CURRENT_BINARY_DIR}/${VIEWER_BINARY_NAME}.MAP"
         )
