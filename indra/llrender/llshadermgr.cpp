@@ -723,6 +723,9 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
         }
     }
 
+    // reset preprocessor line number for ease of interpreting shader compiler errors
+    extra_code_text[extra_code_count++] = strdup("#line 1\n");
+
     //copy file into memory
     enum {
           flag_write_to_out_of_extra_block_area = 0x01
