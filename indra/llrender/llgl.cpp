@@ -1266,7 +1266,7 @@ bool LLGLManager::initGL()
     // there's some implementation that reports a crazy value
     mMaxUniformBlockSize = llmin(mMaxUniformBlockSize, 65536);
 
-    if (mGLVersion >= 4.59f)
+    if (mHasAnisotropic)
     {
         glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &mMaxAnisotropy);
     }
@@ -1430,6 +1430,11 @@ void LLGLManager::initExtensions()
     mHasCubeMapArray = mGLVersion >= 3.99f;
     mHasTransformFeedback = mGLVersion >= 3.99f;
     mHasDebugOutput = mGLVersion >= 4.29f;
+    mHasAnisotropic = mGLVersion >= 4.59f;
+    if(!mHasAnisotropic && gGLHExts.mSysExts)
+    {
+        mHasAnisotropic = ExtensionExists("GL_EXT_texture_filter_anisotropic", gGLHExts.mSysExts);
+    }
 
     // Misc
     glGetIntegerv(GL_MAX_ELEMENTS_VERTICES, (GLint*) &mGLMaxVertexRange);
