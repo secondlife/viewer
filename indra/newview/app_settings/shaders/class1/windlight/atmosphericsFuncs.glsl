@@ -153,8 +153,7 @@ void calcAtmosphericVarsLinear(vec3 inPositionEye, vec3 norm, vec3 light_dir, ou
     // (allows for mixing of light sources other than sunlight e.g. reflection probes)
     sunlit = srgb_to_linear(sunlit);
     sunlit *= sky_sunlight_scale;
-    amblit *= sky_ambient_scale;
-
     amblit *= ambientLighting(norm, light_dir);
     amblit = srgb_to_linear(amblit);
+    amblit *= sky_ambient_scale;
 }
