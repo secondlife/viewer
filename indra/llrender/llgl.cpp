@@ -1116,17 +1116,6 @@ bool LLGLManager::initGL()
     if (mGLVersion >= 2.f)
     {
         parse_glsl_version(mGLSLVersionMajor, mGLSLVersionMinor);
-
-#if 0 && LL_DARWIN
-        // TODO maybe switch to using a core profile for GL 3.2?
-        // https://stackoverflow.com/a/19868861
-        //never use GLSL greater than 1.20 on OSX
-        if (mGLSLVersionMajor > 1 || mGLSLVersionMinor > 30)
-        {
-            mGLSLVersionMajor = 1;
-            mGLSLVersionMinor = 30;
-        }
-#endif
     }
 
     if (mGLVersion >= 2.1f && LLImageGL::sCompressTextures)

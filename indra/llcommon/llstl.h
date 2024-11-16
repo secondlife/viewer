@@ -522,18 +522,8 @@ llbind2nd(const _Operation& __oper, const _Tp& __x)
 inline
 bool before(const std::type_info* lhs, const std::type_info* rhs)
 {
-#if LL_LINUX && defined(__GNUC__) && ((__GNUC__ < 4) || (__GNUC__ == 4 && __GNUC_MINOR__ < 4))
-    // If we're building on Linux with gcc, and it's either gcc 3.x or
-    // 4.{0,1,2,3}, then we have to use a workaround. Note that we use gcc on
-    // Mac too, and some people build with gcc on Windows (cygwin or mingw).
-    // On Linux, different load modules may produce different type_info*
-    // pointers for the same type. Have to compare name strings to get good
-    // results.
-    return strcmp(lhs->name(), rhs->name()) < 0;
-#else  // not Linux, or gcc 4.4+
     // Just use before(), as we normally would
     return lhs->before(*rhs);
-#endif
 }
 
 /**
