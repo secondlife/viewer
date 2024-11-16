@@ -339,7 +339,7 @@ public:
         }
     }
     #else
-    static inline const char* lookupPass(U32 pass) { return ""; }
+    static inline const char* lookupPassName(U32 pass) { return ""; }
     #endif
 
     LLRenderPass(const U32 type);

@@ -95,6 +95,7 @@ public:
 #if LL_WINDOWS
     virtual bool getCursorDelta(LLCoordCommon* delta) const = 0;
 #endif
+    virtual bool isWrapMouse() const = 0;
     virtual void showCursor() = 0;
     virtual void hideCursor() = 0;
     virtual bool isCursorHidden() = 0;

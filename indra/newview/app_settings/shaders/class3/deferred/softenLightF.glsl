@@ -27,6 +27,8 @@
 
 out vec4 frag_color;
 
+vec4 decodeNormal(vec4 norm);
+
 uniform sampler2D diffuseRect;
 uniform sampler2D specularRect;
 uniform sampler2D emissiveRect; // PBR linear packed Occlusion, Roughness, Metal. See: pbropaqueF.glsl

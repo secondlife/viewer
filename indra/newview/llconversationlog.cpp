@@ -200,6 +200,22 @@ LLConversationLog::LLConversationLog() :
 {
 }
 
+LLConversationLog::~LLConversationLog()
+{
+    if (mLoggingEnabled)
+    {
+        if (LLIMMgr::instanceExists())
+        {
+            LLIMMgr::instance().removeSessionObserver(this);
+        }
+        LLAvatarTracker::instance().removeObserver(mFriendObserver);
+    }
+    if (mAvatarNameCacheConnection.connected())
+    {
+        mAvatarNameCacheConnection.disconnect();
+    }
+}
+
 void LLConversationLog::enableLogging(S32 log_mode)
 {
     mLoggingEnabled = log_mode > 0;

@@ -418,6 +418,7 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
                              F32 max_gl_version)
     :
     LLWindow(callbacks, fullscreen, flags),
+    mAbsoluteCursorPosition(false),
     mMaxGLVersion(max_gl_version),
     mMaxCores(max_cores)
 {
@@ -1661,6 +1662,11 @@ const   S32   max_format  = (S32)num_formats - 1;
         return false;
     }
 
+    // Setup Tracy gpu context
+    {
+        LL_PROFILER_GPU_CONTEXT;
+    }
+
     // Disable vertical sync for swap
     toggleVSync(enable_vsync);
 
@@ -1691,8 +1697,6 @@ const   S32   max_format  = (S32)num_formats - 1;
         glClear(GL_COLOR_BUFFER_BIT);
         swapBuffers();
     }
-
-    LL_PROFILER_GPU_CONTEXT;
 
     return true;
 }
@@ -3057,6 +3061,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 
                         prev_absolute_x = absolute_x;
                         prev_absolute_y = absolute_y;
+                        window_imp->mAbsoluteCursorPosition = true;
                     }
                     else
                     {
@@ -3073,6 +3078,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
                             window_imp->mRawMouseDelta.mX += (S32)round((F32)raw->data.mouse.lLastX * (F32)speed / DEFAULT_SPEED);
                             window_imp->mRawMouseDelta.mY -= (S32)round((F32)raw->data.mouse.lLastY * (F32)speed / DEFAULT_SPEED);
                         }
+                        window_imp->mAbsoluteCursorPosition = false;
                     }
                 }
             }

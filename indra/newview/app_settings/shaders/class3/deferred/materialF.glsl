@@ -51,6 +51,7 @@ uniform mat3 normal_matrix;
 in vec3 vary_position;
 
 void mirrorClip(vec3 pos);
+vec4 encodeNormal(vec3 norm, float gbuffer_flag);
 
 #if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
 
@@ -414,7 +415,7 @@ void main()
 
     frag_data[0] = max(vec4(diffcol.rgb, emissive), vec4(0));        // gbuffer is sRGB for legacy materials
     frag_data[1] = max(vec4(spec.rgb, glossiness), vec4(0));           // XYZ = Specular color. W = Specular exponent.
-    frag_data[2] = vec4(norm, flag);   // XY = Normal.  Z = Env. intensity. W = 1 skip atmos (mask off fog)
+    frag_data[2] = encodeNormal(norm, flag);   // XY = Normal.  Z = Env. intensity. W = 1 skip atmos (mask off fog)
     frag_data[3] = vec4(env, 0, 0, 0);
 
 #endif

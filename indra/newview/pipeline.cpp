@@ -340,10 +340,22 @@ void validate_framebuffer_object();
 // target -- RenderTarget to add attachments to
 bool addDeferredAttachments(LLRenderTarget& target, bool for_impostor = false)
 {
+    U32 orm = GL_RGBA;
+    U32 norm = GL_RGBA16F;
+    U32 emissive = GL_RGB16F;
+
+    bool hdr = gSavedSettings.getBOOL("RenderHDREnabled") && gGLManager.mGLVersion > 4.05f;
+
+    if (!hdr)
+    {
+        norm = GL_RGBA;
+        emissive = GL_RGB;
+    }
+
     bool valid = true
-        && target.addColorAttachment(GL_RGBA) // frag-data[1] specular OR PBR ORM
-        && target.addColorAttachment(GL_RGBA16F)                              // frag_data[2] normal+fogmask, See: class1\deferred\materialF.glsl & softenlight
-        && target.addColorAttachment(GL_RGB16F);                  // frag_data[3] PBR emissive OR material env intensity
+        && target.addColorAttachment(orm)       // frag-data[1] specular OR PBR ORM
+        && target.addColorAttachment(norm)      // frag_data[2] normal+fogmask, See: class1\deferred\materialF.glsl & softenlight
+        && target.addColorAttachment(emissive); // frag_data[3] PBR emissive OR material env intensity
     return valid;
 }
 
@@ -777,6 +789,10 @@ LLPipeline::eFBOStatus LLPipeline::doAllocateScreenBuffer(U32 resX, U32 resY)
 bool LLPipeline::allocateScreenBufferInternal(U32 resX, U32 resY)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
+
+    static LLCachedControl<bool> render_hdr(gSavedSettings, "RenderHDREnabled", true);
+    bool hdr = gGLManager.mGLVersion > 4.05f && render_hdr;
+
     if (mRT == &mMainRT)
     { // hacky -- allocate auxillary buffer
 
@@ -822,7 +838,7 @@ bool LLPipeline::allocateScreenBufferInternal(U32 resX, U32 resY)
     if (!mRT->deferredScreen.allocate(resX, resY, GL_RGBA, true)) return false;
     if (!addDeferredAttachments(mRT->deferredScreen)) return false;
 
-    GLuint screenFormat = GL_RGBA16F;
+    GLuint screenFormat = hdr ? GL_RGBA16F : GL_RGBA;
 
     if (!mRT->screen.allocate(resX, resY, screenFormat)) return false;
 
@@ -831,7 +847,7 @@ bool LLPipeline::allocateScreenBufferInternal(U32 resX, U32 resY)
     static LLCachedControl<bool> render_cas(gSavedSettings, "RenderCAS", true);
     if (shadow_detail > 0 || ssao || render_cas)
     { //only need mRT->deferredLight for shadows OR ssao
-        if (!mRT->deferredLight.allocate(resX, resY, GL_RGBA16F)) return false;
+        if (!mRT->deferredLight.allocate(resX, resY, screenFormat)) return false;
     }
     else
     {
@@ -870,28 +886,29 @@ bool LLPipeline::allocateScreenBufferInternal(U32 resX, U32 resY)
         }
 
         //water reflection texture (always needed as scratch space whether or not transparent water is enabled)
-        mWaterDis.allocate(resX, resY, GL_RGBA16F, true);
+        mWaterDis.allocate(resX, resY, screenFormat, true);
 
         if(RenderScreenSpaceReflections)
         {
-            mSceneMap.allocate(resX, resY, GL_RGBA16F, true);
+            mSceneMap.allocate(resX, resY, screenFormat, true);
         }
         else
         {
             mSceneMap.release();
         }
 
-        mPostPingMap.allocate(resX, resY, GL_RGBA);
-        mPostPongMap.allocate(resX, resY, GL_RGBA);
+        mPostPingMap.allocate(resX, resY, screenFormat);
+        mPostPongMap.allocate(resX, resY, screenFormat);
 
         // used to scale down textures
         // See LLViwerTextureList::updateImagesCreateTextures and LLImageGL::scaleDown
-        mDownResMap.allocate(4, 4, GL_RGBA);
+        mDownResMap.allocate(1024, 1024, GL_RGBA);
 
         mBakeMap.allocate(LLAvatarAppearanceDefines::SCRATCH_TEX_WIDTH, LLAvatarAppearanceDefines::SCRATCH_TEX_HEIGHT, GL_RGBA);
     }
     //HACK make screenbuffer allocations start failing after 30 seconds
-    if (gSavedSettings.getBOOL("SimulateFBOFailure"))
+    static LLCachedControl<bool> simulate_fbo_failure(gSavedSettings, "SimulateFBOFailure", false);
+    if (simulate_fbo_failure)
     {
         return false;
     }
@@ -4058,6 +4075,13 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera)
         LLGLState::checkStates(GL_FALSE);
     }
 
+    // turn off atmospherics and water haze for low detail reflection probe
+    static LLCachedControl<S32> probe_level(gSavedSettings, "RenderReflectionProbeLevel", 0);
+    bool low_detail_probe = probe_level == 0 && gCubeSnapshot;
+    done_atmospherics = done_atmospherics || low_detail_probe;
+    done_water_haze   = done_water_haze || low_detail_probe;
+
+
     while ( iter1 != mPools.end() )
     {
         LLDrawPool *poolp = *iter1;
@@ -7058,10 +7082,11 @@ extern LLPointer<LLImageGL> gEXRImage;
 
 void LLPipeline::tonemap(LLRenderTarget* src, LLRenderTarget* dst, bool gamma_correct/* = true*/)
 {
-    dst->bindTarget();
     // gamma correct lighting
     {
         LL_PROFILE_GPU_ZONE("tonemap");
+
+        dst->bindTarget();
 
         static LLCachedControl<bool> buildNoPost(gSavedSettings, "RenderDisablePostProcessing", false);
 
@@ -7077,9 +7102,9 @@ void LLPipeline::tonemap(LLRenderTarget* src, LLRenderTarget* dst, bool gamma_co
         LLGLSLShader* shader = nullptr;
         if (gamma_correct)
         {
-            shader = no_post ? &gNoPostGammaCorrectProgram : // no post (no gamma, no exposure, no tonemapping)
+            shader = no_post ? &gDeferredPostGammaCorrectProgram : // no post (no legacy gamma adjustment, no exposure, no tonemapping, still srgb corrected)
                 psky->getReflectionProbeAmbiance(should_auto_adjust) == 0.f ? &gLegacyPostGammaCorrectProgram :
-                &gDeferredPostGammaCorrectProgram;
+                &gDeferredPostTonemapGammaCorrectProgram;
         }
         else
         {
@@ -7115,13 +7140,41 @@ void LLPipeline::tonemap(LLRenderTarget* src, LLRenderTarget* dst, bool gamma_co
 
         gGL.getTexUnit(channel)->unbind(src->getUsage());
         shader->unbind();
+
+        dst->flush();
+    }
+}
+
+void LLPipeline::gammaCorrect(LLRenderTarget* src, LLRenderTarget* dst)
+{
+    LL_PROFILE_GPU_ZONE("gamma correct");
+    dst->bindTarget();
+    // gamma correct lighting
+    {
+        LLGLDepthTest depth(GL_FALSE, GL_FALSE);
+
+        static LLCachedControl<bool> buildNoPost(gSavedSettings, "RenderDisablePostProcessing", false);
+        static LLCachedControl<bool> should_auto_adjust(gSavedSettings, "RenderSkyAutoAdjustLegacy", true);
+
+        bool no_post = gSnapshotNoPost || (buildNoPost && gFloaterTools->isAvailable());
+        LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
+        LLGLSLShader& shader = psky->getReflectionProbeAmbiance(should_auto_adjust) == 0.f && !no_post ? gLegacyPostGammaCorrectProgram :
+            gDeferredPostGammaCorrectProgram;
+
+        shader.bind();
+        shader.bindTexture(LLShaderMgr::DEFERRED_DIFFUSE, src, false, LLTexUnit::TFO_POINT);
+        shader.uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, (GLfloat)src->getWidth(), (GLfloat)src->getHeight());
+
+        mScreenTriangleVB->setBuffer();
+        mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
+
+        shader.unbind();
     }
     dst->flush();
 }
 
 void LLPipeline::copyScreenSpaceReflections(LLRenderTarget* src, LLRenderTarget* dst)
 {
-
     if (RenderScreenSpaceReflections && !gCubeSnapshot)
     {
         LL_PROFILE_GPU_ZONE("ssr copy");
@@ -7148,9 +7201,9 @@ void LLPipeline::copyScreenSpaceReflections(LLRenderTarget* src, LLRenderTarget*
 
 void LLPipeline::generateGlow(LLRenderTarget* src)
 {
+    LL_PROFILE_GPU_ZONE("glow generate");
     if (sRenderGlow)
     {
-        LL_PROFILE_GPU_ZONE("glow");
         mGlow[2].bindTarget();
         mGlow[2].clear();
 
@@ -7260,9 +7313,13 @@ void LLPipeline::applyCAS(LLRenderTarget* src, LLRenderTarget* dst)
 {
     static LLCachedControl<F32> cas_sharpness(gSavedSettings, "RenderCASSharpness", 0.4f);
     static LLCachedControl<bool> should_auto_adjust(gSavedSettings, "RenderSkyAutoAdjustLegacy", true);
+    static LLCachedControl<bool> buildNoPost(gSavedSettings, "RenderDisablePostProcessing", false);
 
+    LL_PROFILE_GPU_ZONE("cas");
+
+    bool no_post = gSnapshotNoPost || (buildNoPost && gFloaterTools->isAvailable());
     LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
-    LLGLSLShader* sharpen_shader = psky->getReflectionProbeAmbiance(should_auto_adjust) == 0.f ? &gCASLegacyGammaProgram : &gCASProgram;
+    LLGLSLShader* sharpen_shader = psky->getReflectionProbeAmbiance(should_auto_adjust) == 0.f && !no_post ? &gCASLegacyGammaProgram : &gCASProgram;
 
     // Bind setup:
     dst->bindTarget();
@@ -7303,7 +7360,7 @@ void LLPipeline::applyFXAA(LLRenderTarget* src, LLRenderTarget* dst, bool combin
     llassert(!gCubeSnapshot);
     LLGLSLShader* shader = &gGlowCombineProgram;
 
-    LL_PROFILE_GPU_ZONE("aa");
+    LL_PROFILE_GPU_ZONE("FXAA");
     S32 width = src->getWidth();
     S32 height = src->getHeight();
 
@@ -7388,7 +7445,7 @@ void LLPipeline::generateSMAABuffers(LLRenderTarget* src)
     // Present everything.
     if (multisample)
     {
-        LL_PROFILE_GPU_ZONE("aa");
+        LL_PROFILE_GPU_ZONE("SMAA Edge");
         static LLCachedControl<U32> aa_quality(gSavedSettings, "RenderFSAASamples", 0U);
         U32 fsaa_quality = std::clamp(aa_quality(), 0U, 3U);
 
@@ -7503,7 +7560,7 @@ void LLPipeline::applySMAA(LLRenderTarget* src, LLRenderTarget* dst, bool combin
 {
     llassert(!gCubeSnapshot);
 
-    LL_PROFILE_GPU_ZONE("aa");
+    LL_PROFILE_GPU_ZONE("SMAA");
     static LLCachedControl<U32> aa_quality(gSavedSettings, "RenderFSAASamples", 0U);
     U32 fsaa_quality = std::clamp(aa_quality(), 0U, 3U);
 
@@ -7566,7 +7623,6 @@ void LLPipeline::applySMAA(LLRenderTarget* src, LLRenderTarget* dst, bool combin
 
 void LLPipeline::copyRenderTarget(LLRenderTarget* src, LLRenderTarget* dst)
 {
-
     LL_PROFILE_GPU_ZONE("copyRenderTarget");
     dst->bindTarget();
 
@@ -7587,8 +7643,9 @@ void LLPipeline::copyRenderTarget(LLRenderTarget* src, LLRenderTarget* dst)
 
 void LLPipeline::combineGlow(LLRenderTarget* src, LLRenderTarget* dst)
 {
-    // Go ahead and do our glow combine here in our destination.  We blit this later into the front buffer.
+    LL_PROFILE_GPU_ZONE("glow combine");
 
+    // Go ahead and do our glow combine here in our destination.  We blit this later into the front buffer.
     if (dst)
     {
         dst->bindTarget();
@@ -7604,6 +7661,7 @@ void LLPipeline::combineGlow(LLRenderTarget* src, LLRenderTarget* dst)
         mScreenTriangleVB->setBuffer();
         mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
     }
+
     if (dst)
     {
         dst->flush();
@@ -7612,9 +7670,9 @@ void LLPipeline::combineGlow(LLRenderTarget* src, LLRenderTarget* dst)
 
 void LLPipeline::renderDoF(LLRenderTarget* src, LLRenderTarget* dst)
 {
+    LL_PROFILE_GPU_ZONE("dof");
     gViewerWindow->setup3DViewport();
 
-    LL_PROFILE_GPU_ZONE("dof");
     LLGLDisable blend(GL_BLEND);
 
     // depth of field focal plane calculations
@@ -7819,28 +7877,35 @@ void LLPipeline::renderFinalize()
     gGL.setColorMask(true, true);
     glClearColor(0, 0, 0, 0);
 
-    copyScreenSpaceReflections(&mRT->screen, &mSceneMap);
+    static LLCachedControl<bool> render_hdr(gSavedSettings, "RenderHDREnabled", true);
+    bool hdr = gGLManager.mGLVersion > 4.05f && render_hdr;
+    if (hdr)
+    {
+        copyScreenSpaceReflections(&mRT->screen, &mSceneMap);
 
-    generateLuminance(&mRT->screen, &mLuminanceMap);
+        generateLuminance(&mRT->screen, &mLuminanceMap);
 
-    generateExposure(&mLuminanceMap, &mExposureMap);
+        generateExposure(&mLuminanceMap, &mExposureMap);
+
+        static LLCachedControl<bool> render_cas(gSavedSettings, "RenderCAS", true);
+        if (render_cas && gCASProgram.isComplete())
+        {
+            tonemap(&mRT->screen, &mRT->deferredLight, false); // Must output to 16F buffer when passing to CAS or banding occurs
+
+            applyCAS(&mRT->deferredLight, &mPostPingMap); // Gamma corrects after sharpening
+        }
+        else
+        {
+            tonemap(&mRT->screen, &mPostPingMap);
+        }
+        }
+    else
+    {
+        gammaCorrect(&mRT->screen, &mPostPingMap);
+    }
 
     LLRenderTarget* src = &mPostPingMap;
     LLRenderTarget* dest = &mPostPongMap;
-
-    static LLCachedControl<bool> render_cas(gSavedSettings, "RenderCAS", true);
-    if (render_cas && gCASProgram.isComplete())
-    {
-        tonemap(&mRT->screen, &mRT->deferredLight, false); // Must output to 16F buffer when passing to CAS or banding occurs
-
-        applyCAS(&mRT->deferredLight, dest); // Gamma corrects after sharpening
-        std::swap(src, dest);
-    }
-    else
-    {
-        tonemap(&mRT->screen, dest);
-        std::swap(src, dest);
-    }
 
     LLVertexBuffer::unbind();
 
@@ -8383,8 +8448,9 @@ void LLPipeline::renderDeferredLighting()
         }
 
         static LLCachedControl<S32> local_light_count(gSavedSettings, "RenderLocalLightCount", 256);
+        static LLCachedControl<S32> probe_level(gSavedSettings, "RenderReflectionProbeLevel", 0);
 
-        if (local_light_count > 0)
+        if (local_light_count > 0 && (!gCubeSnapshot || probe_level > 0))
         {
             gGL.setSceneBlendType(LLRender::BT_ADD);
             std::list<LLVector4>        fullscreen_lights;

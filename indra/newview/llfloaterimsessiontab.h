@@ -45,6 +45,7 @@ class LLPanelEmojiComplete;
 
 class LLFloaterIMSessionTab
     : public LLTransientDockableFloater
+    , public LLIMSessionObserver
 {
     using super = LLTransientDockableFloater;
 
@@ -76,13 +77,13 @@ public:
     bool isNearbyChat() {return mIsNearbyChat;}
 
     // LLFloater overrides
-    /*virtual*/ void onOpen(const LLSD& key) override;
-    /*virtual*/ bool postBuild() override;
-    /*virtual*/ void draw() override;
-    /*virtual*/ void setVisible(bool visible) override;
-    /*virtual*/ void setFocus(bool focus) override;
-    /*virtual*/ void closeFloater(bool app_quitting = false) override;
-    /*virtual*/ void deleteAllChildren() override;
+    void onOpen(const LLSD& key) override;
+    bool postBuild() override;
+    void draw() override;
+    void setVisible(bool visible) override;
+    void setFocus(bool focus) override;
+    void closeFloater(bool app_quitting = false) override;
+    void deleteAllChildren() override;
 
     virtual void onClickCloseBtn(bool app_quitting = false) override;
 
@@ -109,6 +110,13 @@ public:
     void updateChatIcon(const LLUUID& id);
 
     LLView* getChatHistory();
+
+    // LLIMSessionObserver triggers
+    virtual void sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id, bool has_offline_msg) override {}; // Stub
+    virtual void sessionActivated(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id) override {}; // Stub
+    virtual void sessionRemoved(const LLUUID& session_id) override;
+    virtual void sessionVoiceOrIMStarted(const LLUUID& session_id) override {};                              // Stub
+    virtual void sessionIDUpdated(const LLUUID& old_session_id, const LLUUID& new_session_id) override {};   // Stub
 
 protected:
 
@@ -141,8 +149,8 @@ protected:
     virtual void enableDisableCallBtn();
 
     // process focus events to set a currently active session
-    /* virtual */ void onFocusReceived() override;
-    /* virtual */ void onFocusLost() override;
+    void onFocusReceived() override;
+    void onFocusLost() override;
 
     // prepare chat's params and out one message to chatHistory
     void appendMessage(const LLChat& chat, const LLSD& args = LLSD());

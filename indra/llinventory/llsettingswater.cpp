@@ -133,8 +133,8 @@ void LLSettingsWater::loadValuesFromLLSD()
     mWave1Dir = LLVector2(settings[SETTING_WAVE1_DIR]);
     mWave2Dir = LLVector2(settings[SETTING_WAVE2_DIR]);
 
-    mNormalMapID = getNormalMapID();
-    mTransparentTextureID = getTransparentTextureID();
+    mNormalMapID = settings[SETTING_NORMAL_MAP].asUUID();
+    mTransparentTextureID = settings[SETTING_TRANSPARENT_TEXTURE].asUUID();
 }
 
 void LLSettingsWater::saveValuesToLLSD()

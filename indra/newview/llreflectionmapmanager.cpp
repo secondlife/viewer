@@ -210,6 +210,7 @@ void LLReflectionMapManager::update()
     }
 
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
+    LL_PROFILE_GPU_ZONE("reflection manager update");
     llassert(!gCubeSnapshot); // assert a snapshot is not in progress
     if (LLAppViewer::instance()->logoutRequestSent())
     {
@@ -463,6 +464,11 @@ void LLReflectionMapManager::update()
 
 LLReflectionMap* LLReflectionMapManager::addProbe(LLSpatialGroup* group)
 {
+    if (gGLManager.mGLVersion < 4.05f)
+    {
+        return nullptr;
+    }
+
     LLReflectionMap* probe = new LLReflectionMap();
     probe->mGroup = group;
 
@@ -677,6 +683,8 @@ void LLReflectionMapManager::doProbeUpdate()
 // In effect this simulates single-bounce lighting.
 void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
+    LL_PROFILE_GPU_ZONE("probe update");
     // hacky hot-swap of camera specific render targets
     gPipeline.mRT = &gPipeline.mAuxillaryRT;
 
@@ -991,6 +999,7 @@ void LLReflectionMapManager::updateUniforms()
     }
 
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
+    LL_PROFILE_GPU_ZONE("rmmu - uniforms")
 
     // structure for packing uniform buffer object
     // see class3/deferred/reflectionProbeF.glsl
