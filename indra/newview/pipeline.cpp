@@ -350,6 +350,7 @@ bool addDeferredAttachments(LLRenderTarget& target, bool for_impostor = false)
     U32 emissive = GL_RGB16F;
 
     bool hdr = gSavedSettings.getBOOL("RenderHDREnabled") && gGLManager.mGLVersion > 4.05f;
+    LLCachedControl<bool> no_emissive(gSavedSettings, "RenderDisableEmissiveBuffer", false);
 
     if (!hdr)
     {
@@ -360,7 +361,7 @@ bool addDeferredAttachments(LLRenderTarget& target, bool for_impostor = false)
     bool valid = true
         && target.addColorAttachment(orm)       // frag-data[1] specular OR PBR ORM
         && target.addColorAttachment(norm)      // frag_data[2] normal+fogmask, See: class1\deferred\materialF.glsl & softenlight
-        && target.addColorAttachment(emissive); // frag_data[3] PBR emissive OR material env intensity
+        && (no_emissive) ? true : target.addColorAttachment(emissive); // frag_data[3] PBR emissive OR material env intensity
     return valid;
 }
 
