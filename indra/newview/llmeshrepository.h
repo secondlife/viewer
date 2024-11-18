@@ -328,8 +328,9 @@ class LLMeshRepoThread : public LLThread
 {
 public:
 
-    volatile static S32 sActiveHeaderRequests;
-    volatile static S32 sActiveLODRequests;
+    static std::atomic<S32> sActiveHeaderRequests;
+    static std::atomic<S32> sActiveLODRequests;
+    static std::atomic<S32> sActiveSkinRequests;
     static U32 sMaxConcurrentRequests;
     static S32 sRequestLowWater;
     static S32 sRequestHighWater;
@@ -499,6 +500,8 @@ public:
     static void decActiveLODRequests();
     static void incActiveHeaderRequests();
     static void decActiveHeaderRequests();
+    static void incActiveSkinRequests();
+    static void decActiveSkinRequests();
 
     // Set the caps strings and preferred version for constructing
     // mesh fetch URLs.
