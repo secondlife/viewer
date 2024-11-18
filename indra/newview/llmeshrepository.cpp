@@ -550,6 +550,7 @@ LLViewerFetchedTexture* LLMeshUploadThread::FindViewerTexture(const LLImportMate
 
 std::atomic<S32> LLMeshRepoThread::sActiveHeaderRequests = 0;
 std::atomic<S32> LLMeshRepoThread::sActiveLODRequests = 0;
+std::atomic<S32> LLMeshRepoThread::sActiveSkinRequests = 0;
 U32 LLMeshRepoThread::sMaxConcurrentRequests = 1;
 S32 LLMeshRepoThread::sRequestLowWater = REQUEST2_LOW_WATER_MIN;
 S32 LLMeshRepoThread::sRequestHighWater = REQUEST2_HIGH_WATER_MIN;
@@ -674,7 +675,9 @@ public:
     LLMeshSkinInfoHandler(const LLUUID& id, U32 offset, U32 requested_bytes)
         : LLMeshHandlerBase(offset, requested_bytes),
           mMeshID(id)
-    {}
+    {
+        LLMeshRepoThread::incActiveSkinRequests();
+    }
     virtual ~LLMeshSkinInfoHandler();
 
 protected:
@@ -1699,6 +1702,20 @@ void LLMeshRepoThread::decActiveHeaderRequests()
 {
     LLMutexLock lock(gMeshRepo.mThread->mMutex);
     --LLMeshRepoThread::sActiveHeaderRequests;
+}
+
+//static
+void LLMeshRepoThread::incActiveSkinRequests()
+{
+    LLMutexLock lock(gMeshRepo.mThread->mMutex);
+    ++LLMeshRepoThread::sActiveSkinRequests;
+}
+
+//static
+void LLMeshRepoThread::decActiveSkinRequests()
+{
+    LLMutexLock lock(gMeshRepo.mThread->mMutex);
+    --LLMeshRepoThread::sActiveSkinRequests;
 }
 
 //return false if failed to get header
@@ -3448,6 +3465,7 @@ LLMeshSkinInfoHandler::~LLMeshSkinInfoHandler()
     {
         LL_WARNS(LOG_MESH) << "deleting unprocessed request handler (may be ok on exit)" << LL_ENDL;
     }
+    LLMeshRepoThread::decActiveSkinRequests();
 }
 
 void LLMeshSkinInfoHandler::processFailure(LLCore::HttpStatus status)
@@ -4057,7 +4075,7 @@ void LLMeshRepository::notifyLoadedMeshes()
             mUploadErrorQ.pop();
         }
 
-        S32 active_count = LLMeshRepoThread::sActiveHeaderRequests + LLMeshRepoThread::sActiveLODRequests;
+        S32 active_count = LLMeshRepoThread::sActiveHeaderRequests + LLMeshRepoThread::sActiveLODRequests + LLMeshRepoThread::sActiveSkinRequests;
         if (active_count < LLMeshRepoThread::sRequestLowWater)
         {
             S32 push_count = LLMeshRepoThread::sRequestHighWater - active_count;
