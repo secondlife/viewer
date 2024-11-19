@@ -243,6 +243,11 @@ static bool handleReleaseGLBufferChanged(const LLSD& newvalue)
     return true;
 }
 
+static bool handleDisableEmissiveChanged(const LLSD& newvalue)
+{
+    return handleReleaseGLBufferChanged(newvalue) && handleSetShaderChanged(newvalue);
+}
+
 static bool handleLUTBufferChanged(const LLSD& newvalue)
 {
     if (gPipeline.isInit())
@@ -780,6 +785,7 @@ void settings_setup_listeners()
     setting_setup_signal_listener(gSavedSettings, "RenderGlow", handleSetShaderChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderGlowResolutionPow", handleReleaseGLBufferChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderGlowHDR", handleReleaseGLBufferChanged);
+    setting_setup_signal_listener(gSavedSettings, "RenderDisableEmissiveBuffer", handleDisableEmissiveChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderGlowNoise", handleSetShaderChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderGammaFull", handleSetShaderChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderVolumeLODFactor", handleVolumeLODChanged);

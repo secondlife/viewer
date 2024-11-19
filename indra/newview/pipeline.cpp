@@ -358,10 +358,14 @@ bool addDeferredAttachments(LLRenderTarget& target, bool for_impostor = false)
         emissive = GL_RGB;
     }
 
-    bool valid = true
-        && target.addColorAttachment(orm)       // frag-data[1] specular OR PBR ORM
-        && target.addColorAttachment(norm)      // frag_data[2] normal+fogmask, See: class1\deferred\materialF.glsl & softenlight
-        && (no_emissive) ? true : target.addColorAttachment(emissive); // frag_data[3] PBR emissive OR material env intensity
+    bool valid = true;
+    valid      = valid && target.addColorAttachment(orm);    // frag-data[1] specular OR PBR ORM
+    valid      = valid && target.addColorAttachment(norm);
+    if (!no_emissive)
+    {
+        valid = valid && target.addColorAttachment(emissive); // frag_data[3] PBR emissive OR material env intensity
+    }
+
     return valid;
 }
 
