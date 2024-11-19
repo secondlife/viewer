@@ -657,7 +657,7 @@ void LLFeatureManager::applyBaseMasks()
         maskFeatures("Intel");
         if (gGLManager.mGLVersion < 4.59f)
         {
-            // if we don't have OpenGL 4.6 on intel, set it to just under 4.
+            // if we don't have OpenGL 4.6 on intel, set it to OpenGL 3.3
             // we also want to trigger the GL3 fallbacks on these chipsets
             // this is expected to be mainly pre-Haswell Intel HD Graphics 4X00 and 5X00.
             // A lot of these chips claim 4.3 or 4.4 support, but don't seem to work.
