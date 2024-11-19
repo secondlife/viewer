@@ -466,6 +466,9 @@ public:
     void lockAndLoadMeshLOD(const LLVolumeParams& mesh_params, S32 lod);
     void loadMeshLOD(const LLVolumeParams& mesh_params, S32 lod);
 
+    typedef std::vector<std::pair<const LLVolumeParams&, S32> > lod_list_t;
+    void loadMeshLODs(const lod_list_t& mesh_vect);
+
     bool fetchMeshHeader(const LLVolumeParams& mesh_params, bool can_retry = true);
     bool fetchMeshLOD(const LLVolumeParams& mesh_params, S32 lod, bool can_retry = true);
     EMeshProcessingResult headerReceived(const LLVolumeParams& mesh_params, U8* data, S32 data_size);
