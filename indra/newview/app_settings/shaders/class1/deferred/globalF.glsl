@@ -45,8 +45,8 @@ void mirrorClip(vec3 pos)
 
 vec4 encodeNormal(vec3 n, float env, float gbuffer_flag)
 {
-	float f = sqrt(8 * n.z + 8);
-	return vec4(n.xy / f + 0.5, env, gbuffer_flag);
+    float f = sqrt(8 * n.z + 8);
+    return vec4(n.xy / f + 0.5, env, gbuffer_flag);
 }
 
 vec4 decodeNormal(vec4 norm)
@@ -59,5 +59,3 @@ vec4 decodeNormal(vec4 norm)
     n.z = 1-f/2;
     return n;
 }
-
-
