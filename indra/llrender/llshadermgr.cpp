@@ -567,17 +567,11 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
         }
         else if (major_version == 3)
         {
-            if (minor_version < 10)
+            if (minor_version <= 29)
             {
-                shader_code_text[shader_code_count++] = strdup("#version 300\n");
-            }
-            else if (minor_version <= 19)
-            {
-                shader_code_text[shader_code_count++] = strdup("#version 310\n");
-            }
-            else if (minor_version <= 29)
-            {
-                shader_code_text[shader_code_count++] = strdup("#version 320\n");
+                // OpenGL 3.2 had GLSL version 1.50.  anything after that the version numbers match.
+                // https://www.khronos.org/opengl/wiki/Core_Language_(GLSL)#OpenGL_and_GLSL_versions
+                shader_code_text[shader_code_count++] = strdup("#version 150\n");
             }
             else
             {

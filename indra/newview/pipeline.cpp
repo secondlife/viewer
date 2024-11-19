@@ -1437,15 +1437,24 @@ void LLPipeline::createLUTBuffers()
 
     mPbrBrdfLut.allocate(512, 512, GL_RG16F);
     mPbrBrdfLut.bindTarget();
-    gDeferredGenBrdfLutProgram.bind();
 
-    gGL.begin(LLRender::TRIANGLE_STRIP);
-    gGL.vertex2f(-1, -1);
-    gGL.vertex2f(-1, 1);
-    gGL.vertex2f(1, -1);
-    gGL.vertex2f(1, 1);
-    gGL.end();
-    gGL.flush();
+    if (gDeferredGenBrdfLutProgram.isComplete())
+    {
+        gDeferredGenBrdfLutProgram.bind();
+        llassert_always(LLGLSLShader::sCurBoundShaderPtr != nullptr);
+
+        gGL.begin(LLRender::TRIANGLE_STRIP);
+        gGL.vertex2f(-1, -1);
+        gGL.vertex2f(-1, 1);
+        gGL.vertex2f(1, -1);
+        gGL.vertex2f(1, 1);
+        gGL.end();
+        gGL.flush();
+    }
+    else
+    {
+        LL_WARNS("Brad") << gDeferredGenBrdfLutProgram.mName << " failed to load, cannot be used!" << LL_ENDL;
+    }
 
     gDeferredGenBrdfLutProgram.unbind();
     mPbrBrdfLut.flush();
