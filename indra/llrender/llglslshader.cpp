@@ -1046,7 +1046,7 @@ void LLGLSLShader::bind()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
 
-    llassert(mProgramObject != 0);
+    llassert_always(mProgramObject != 0);
 
     gGL.flush();
 
@@ -1069,6 +1069,9 @@ void LLGLSLShader::bind()
         LLShaderMgr::instance()->updateShaderUniforms(this);
         mUniformsDirty = false;
     }
+
+    llassert_always(sCurBoundShaderPtr != nullptr);
+    llassert_always(sCurBoundShader == mProgramObject);
 }
 
 void LLGLSLShader::bind(U8 variant)
