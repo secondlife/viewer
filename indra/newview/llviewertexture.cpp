@@ -2917,7 +2917,7 @@ void LLViewerLODTexture::processTextureStats()
         mDesiredDiscardLevel = 0;
     }
     // Generate the request priority and render priority
-    else if (mDontDiscard || !mUseMipMaps)
+    else if (mDontDiscard || !mUseMipMaps || (getFTType() == FTT_MAP_TILE))
     {
         mDesiredDiscardLevel = 0;
         if (mFullWidth > MAX_IMAGE_SIZE_DEFAULT || mFullHeight > MAX_IMAGE_SIZE_DEFAULT)
