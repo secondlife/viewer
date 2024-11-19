@@ -7727,6 +7727,7 @@
     <string>Boolean</string>
     <key>Value</key>
     <integer>0</integer>
+  </map>
   <key>RenderHDRIExposure</key>
   <map>
     <key>Comment</key>

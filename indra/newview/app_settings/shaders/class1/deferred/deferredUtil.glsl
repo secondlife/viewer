@@ -48,8 +48,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-uniform sampler2D   normalMap;
-uniform sampler2D   depthMap;
+uniform sampler2D normalMap;
+uniform sampler2D depthMap;
 uniform sampler2D projectionMap; // rgba
 uniform sampler2D brdfLut;
 
@@ -76,7 +76,6 @@ vec3 srgb_to_linear(vec3 cs);
 vec3 atmosFragLightingLinear(vec3 light, vec3 additive, vec3 atten);
 
 vec4 decodeNormal(vec4 norm);
-
 
 float calcLegacyDistanceAttenuation(float distance, float falloff)
 {
@@ -149,6 +148,12 @@ vec2 getScreenCoordinate(vec2 screenpos)
 vec4 getNorm(vec2 screenpos)
 {
     vec4 norm = decodeNormal(texture(normalMap, screenpos.xy));
+    return norm;
+}
+
+vec4 getNormRaw(vec2 screenpos)
+{
+    vec4 norm = texture(normalMap, screenpos.xy);
     return norm;
 }
 

@@ -27,9 +27,6 @@
 
 out vec4 frag_color;
 
-uniform sampler2D diffuseRect;
-uniform sampler2D specularRect;
-uniform sampler2D emissiveRect; // PBR linear packed Occlusion, Roughness, Metal. See: pbropaqueF.glsl
 uniform sampler2D lightFunc;
 
 uniform vec3 env_mat[3];
@@ -64,17 +61,19 @@ vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor,
                     vec3 v, // surface point to camera
                     vec3 l); //surface point to light
 
+GBufferInfo getGBuffer(vec2 screenpos);
+
 void main()
 {
     vec3 final_color = vec3(0);
     vec2 tc          = getScreenCoord(vary_fragcoord);
     vec3 pos         = getPosition(tc).xyz;
+    GBufferInfo gb = getGBuffer(tc);
 
-    vec4 norm = getNorm(tc); // need `norm.w` for GET_GBUFFER_FLAG()
-    vec3 n = norm.xyz;
+    vec3 n = gb.normal;
 
-    vec3 diffuse = texture(diffuseRect, tc).rgb;
-    vec4 spec    = texture(specularRect, tc);
+    vec3 diffuse = gb.albedo.rgb;
+    vec4 spec    = gb.specular;
 
     // Common half vectors calcs
     vec3  lv = trans_center.xyz-pos;
@@ -89,9 +88,9 @@ void main()
     float dist = lightDist / size;
     float dist_atten = calcLegacyDistanceAttenuation(dist, falloff);
 
-    if (GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_PBR))
+    if (GET_GBUFFER_FLAG(gb.gbufferFlag, GBUFFER_FLAG_HAS_PBR))
     {
-        vec3 colorEmissive = texture(emissiveRect, tc).rgb;
+        vec3 colorEmissive = gb.emissive.rgb;
         vec3 orm = spec.rgb;
         float perceptualRoughness = orm.g;
         float metallic = orm.b;

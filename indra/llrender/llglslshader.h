@@ -52,6 +52,7 @@ public:
     bool hasAmbientOcclusion = false;
     bool hasSrgb = false;
     bool isDeferred = false;
+    bool hasFullGBuffer = false;
     bool hasScreenSpaceReflections = false;
     bool hasAlphaMask = false;
     bool hasReflectionProbes = false;
