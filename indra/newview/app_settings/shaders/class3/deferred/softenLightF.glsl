@@ -129,7 +129,7 @@ void main()
     GBufferInfo gb = getGBuffer(tc);
 
     vec3 colorEmissive = gb.emissive.rgb;
-    float envIntensity = colorEmissive.r;
+    float envIntensity = gb.envIntensity;
     vec3  light_dir   = (sun_up_factor == 1) ? sun_dir : moon_dir;
 
     vec4 baseColor     = gb.albedo;

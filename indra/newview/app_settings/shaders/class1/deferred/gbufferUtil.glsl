@@ -42,16 +42,16 @@ GBufferInfo getGBuffer(vec2 screenpos)
 
     diffInfo = texture(diffuseRect, screenpos.xy);
     specInfo = texture(specularRect, screenpos.xy);
+    vec4 normInfo = getNormRaw(screenpos);
 
 #if defined(HAS_EMISSIVE)
     emissInfo = texture(emissiveRect, screenpos.xy);
 #endif
 
-    vec4 normInfo = getNormRaw(screenpos);
-
     ret.albedo = diffInfo;
     ret.normal = decodeNormal(normInfo).xyz;
     ret.specular = specInfo;
+    ret.envIntensity = normInfo.b;
     ret.gbufferFlag = normInfo.w;
     ret.emissive = emissInfo;
 

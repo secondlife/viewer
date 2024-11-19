@@ -177,7 +177,7 @@ void main()
     }
     else
     {
-        float envIntensity = gb.emissive.r;
+        float envIntensity = gb.envIntensity;
 
         diffuse = srgb_to_linear(diffuse);
         spec.rgb = srgb_to_linear(spec.rgb);
