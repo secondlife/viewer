@@ -107,7 +107,7 @@ vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor,
                     vec3 n, // normal
                     vec3 v, // surface point to camera
                     vec3 l); //surface point to light
-                    
+
 GBufferInfo getGBuffer(vec2 screenpos);
 
 void adjustIrradiance(inout vec3 irradiance, float ambocc)
