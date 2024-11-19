@@ -2701,6 +2701,7 @@ bool LLViewerShaderMgr::loadShadersDeferred()
 
         gEnvironmentMapProgram.clearPermutations();
         gEnvironmentMapProgram.addPermutation("HAS_HDRI", "1");
+        add_common_permutations(&gEnvironmentMapProgram);
         gEnvironmentMapProgram.mShaderFiles.push_back(make_pair("deferred/skyV.glsl", GL_VERTEX_SHADER));
         gEnvironmentMapProgram.mShaderFiles.push_back(make_pair("deferred/skyF.glsl", GL_FRAGMENT_SHADER));
         gEnvironmentMapProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];

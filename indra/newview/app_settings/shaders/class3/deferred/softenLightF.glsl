@@ -196,7 +196,11 @@ void main()
     else if (GET_GBUFFER_FLAG(gb.gbufferFlag, GBUFFER_FLAG_SKIP_ATMOS))
     {
         //should only be true of WL sky, port over base color value and scale for fake HDR
+#if defined(HAS_EMISSIVE)
         color = colorEmissive.rgb;
+#else
+        color = baseColor.rgb;
+#endif
         color = srgb_to_linear(color);
         color *= sky_hdr_scale;
     }
