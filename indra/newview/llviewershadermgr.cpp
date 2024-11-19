@@ -256,7 +256,16 @@ static bool make_rigged_variant(LLGLSLShader& shader, LLGLSLShader& riggedShader
     return riggedShader.createShader();
 }
 
+static void add_common_permutations(LLGLSLShader* shader)
+{
+    LLCachedControl<bool> no_emissive(gSavedSettings, "RenderDisableEmissiveBuffer", false);
+
+    if (!no_emissive)
+    {
+        shader->addPermutation("HAS_EMISSIVE", "1");
     }
+}
+
 
 static bool make_gltf_variant(LLGLSLShader& shader, LLGLSLShader& variant, bool alpha_blend, bool rigged, bool unlit, bool multi_uv, bool use_sun_shadow)
 {
