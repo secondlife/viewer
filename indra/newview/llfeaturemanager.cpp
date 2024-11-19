@@ -665,7 +665,7 @@ void LLFeatureManager::applyBaseMasks()
             // https://docs.blender.org/manual/en/latest/troubleshooting/gpu/windows/intel.html#legacy-intel-hd-4000-5000
             // https://www.intel.com/content/www/us/en/support/articles/000005524/graphics.html
             // this will disable things like reflection probes, HDR, FXAA and SMAA
-            gGLManager.mGLVersion = llmax(gGLManager.mGLVersion, 3.33f);
+            gGLManager.mGLVersion = llmin(gGLManager.mGLVersion, 3.33f);
             // and select GLSL version for OpenGL 3.3
             gGLManager.mGLSLVersionMajor = 3;
             gGLManager.mGLSLVersionMinor = 30;
