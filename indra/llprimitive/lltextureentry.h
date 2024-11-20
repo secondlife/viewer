@@ -103,7 +103,7 @@ public:
     virtual LLTextureEntry* newBlank() const;
     virtual LLTextureEntry* newCopy() const;
 
-    void init(const LLUUID& tex_id, F32 scale_s, F32 scale_t, F32 offset_s, F32 offset_t, F32 rotation, U8 bump);
+    void init(const LLUUID& tex_id, F32 scale_s, F32 scale_t, F32 offset_s, F32 offset_t, F32 rotation, U8 bump, U8 alphagamma);
 
     bool hasPendingMaterialUpdate() const { return mMaterialUpdatePending; }
     bool isSelected() const { return mSelected; }
@@ -127,6 +127,8 @@ public:
     S32  setShiny(U8 bump);
     S32  setBumpShiny(U8 bump);
     S32  setBumpShinyFullbright(U8 bump);
+
+    S32  setAlphaGamma(U8 alpha_gamma);
 
     S32  setMediaFlags(U8 media_flags);
     S32  setTexGen(U8 texGen);
@@ -155,6 +157,8 @@ public:
     U8   getShiny() const { return (mBump>>TEM_SHINY_SHIFT) & TEM_SHINY_MASK; }
     U8   getBumpShiny() const { return mBump & TEM_BUMP_SHINY_MASK; }
     U8   getBumpShinyFullbright() const { return mBump; }
+
+    U8   getAlphaGamma() const { return mAlphaGamma; }
 
     U8   getMediaFlags() const { return mMediaFlags & TEM_MEDIA_MASK; }
     LLTextureEntry::e_texgen     getTexGen() const  { return LLTextureEntry::e_texgen(mMediaFlags & TEM_TEX_GEN_MASK); }
@@ -233,6 +237,7 @@ protected:
     LLColor4            mColor;
     U8                  mBump;                  // Bump map, shiny, and fullbright
     U8                  mMediaFlags;            // replace with web page, movie, etc.
+    U8                  mAlphaGamma;            // Fixed point gamma correction for alpha blending.
     F32                 mGlow;
     bool                mMaterialUpdatePending;
     LLMaterialID        mMaterialID;

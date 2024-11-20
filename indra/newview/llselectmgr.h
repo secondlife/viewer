@@ -662,6 +662,7 @@ public:
     bool selectionRevertTextures();
     void selectionRevertGLTFMaterials();
     void selectionSetBumpmap( U8 bumpmap, const LLUUID &image_id );
+    void selectionSetAlphaGamma( U8 gamma );
     void selectionSetTexGen( U8 texgen );
     void selectionSetShiny( U8 shiny, const LLUUID &image_id );
     void selectionSetFullbright( U8 fullbright );
@@ -907,6 +908,8 @@ private:
     void getFirst(LLSelectGetFirstTest* test);
 
 public:
+    static void packAlphaGammaBypass(LLViewerObject* object);
+
     // Observer/callback support for when object selection changes or
     // properties are received/updated
     typedef boost::signals2::signal< void ()> update_signal_t;

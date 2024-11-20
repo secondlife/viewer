@@ -721,7 +721,7 @@ void LLGrassPartition::getGeometry(LLSpatialGroup* group)
             U32 count = facep->getIndicesCount();
             LLDrawInfo* info = new LLDrawInfo(start,end,count,offset,facep->getTexture(),
                 //facep->getTexture(),
-                buffer, object->isSelected(), fullbright);
+                buffer, object->isSelected(), fullbright, 100);
 
             draw_vec.push_back(info);
             //for alpha sorting

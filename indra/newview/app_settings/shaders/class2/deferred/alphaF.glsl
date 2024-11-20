@@ -36,6 +36,7 @@ out vec4 frag_color;
 uniform mat3 env_mat;
 uniform vec3 sun_dir;
 uniform vec3 moon_dir;
+uniform float alpha_gamma;
 
 #ifdef USE_DIFFUSE_TEX
 uniform sampler2D diffuseMap;
@@ -258,7 +259,7 @@ void main()
 
     vec4 color = vec4(0.0);
 
-    color.a   = final_alpha;
+    color.a   = pow(final_alpha, alpha_gamma);
 
     vec3 sun_contrib = min(final_da, shadow) * sunlit_linear;
 

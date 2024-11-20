@@ -134,7 +134,7 @@ S32 LLPrimTextureList::copyTexture(const U8 index, const LLTextureEntry& te)
         return TEM_CHANGE_NONE;
     }
 
-        // we're changing an existing entry
+    // we're changing an existing entry
     llassert(mEntryList[index]);
     delete (mEntryList[index]);
     mEntryList[index] = te.newCopy();
@@ -294,6 +294,15 @@ S32 LLPrimTextureList::setBumpMap(const U8 index, const U8 bump)
     if (index < mEntryList.size())
     {
         return mEntryList[index]->setBumpmap(bump);
+    }
+    return TEM_CHANGE_NONE;
+}
+
+S32 LLPrimTextureList::setAlphaGamma(const U8 index, const U8 gamma)
+{
+    if (index < mEntryList.size())
+    {
+        return mEntryList[index]->setAlphaGamma(gamma);
     }
     return TEM_CHANGE_NONE;
 }

@@ -3203,8 +3203,8 @@ struct LLFilenameAndTask
         LL_DEBUGS() << "Destroying LLFilenameAndTask: " << sCount << LL_ENDL;
     }
 private:
-    LLFilenameAndTask(const LLFilenameAndTask& rhs);
-    const LLFilenameAndTask& operator=(const LLFilenameAndTask& rhs) const;
+    LLFilenameAndTask(const LLFilenameAndTask& rhs) = delete;
+    const LLFilenameAndTask& operator=(const LLFilenameAndTask& rhs) = delete;
 #endif
 };
 
@@ -5487,6 +5487,22 @@ S32 LLViewerObject::setTEBumpmap(const U8 te, const U8 bump)
             gPipeline.markTextured(mDrawable);
             gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_GEOMETRY);
         }
+    }
+    return retval;
+}
+
+S32 LLViewerObject::setTEAlphaGamma(const U8 te, const U8 gamma)
+{
+    S32 retval = 0;
+    const LLTextureEntry* tep = getTE(te);
+    if (!tep)
+    {
+        LL_WARNS() << "No texture entry for te " << (S32)te << ", object " << mID << LL_ENDL;
+    }
+    else if (gamma != tep->getAlphaGamma())
+    {
+        retval = LLPrimitive::setTEAlphaGamma(te, gamma);
+        setChanged(TEXTURE);
     }
     return retval;
 }

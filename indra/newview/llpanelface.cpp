@@ -93,6 +93,7 @@
 #include "llsdutil.h"
 #include "llsdserialize.h"
 #include "llinventorymodel.h"
+#include "roles_constants.h"
 
 using namespace std::literals;
 
@@ -421,6 +422,10 @@ bool LLPanelFace::postBuild()
 
     getChildSetCommitCallback(mCheckFullbright, "checkbox fullbright", [&](LLUICtrl*, const LLSD&) { onCommitFullbright(); });
 
+    mLabelAlphaGamma = getChild<LLTextBox>("alpha gamma");
+    getChildSetCommitCallback(mComboAlphaGamma, "combobox alpha gamma", [&](LLUICtrl *, const LLSD &) { onCommitAlphaGamma(); });
+    mComboAlphaGamma->setFollows(FOLLOWS_LEFT | FOLLOWS_TOP);
+
     mLabelTexGen = getChild<LLTextBox>("tex gen");
     getChildSetCommitCallback(mComboTexGen, "combobox texgen", [&](LLUICtrl*, const LLSD&) { onCommitTexGen(); });
     mComboTexGen->setFollows(FOLLOWS_LEFT | FOLLOWS_TOP);
@@ -551,6 +556,13 @@ void LLPanelFace::sendBump(U32 bumpiness)
     LLSelectedTEMaterial::setNormalID(this, current_normal_map);
 
     LLSelectMgr::getInstance()->selectionSetBumpmap( bump, mBumpyTextureCtrl->getImageItemID() );
+}
+
+void LLPanelFace::sendAlphaGamma()
+{
+    U8 alpha_gamma = (U8) mComboAlphaGamma->getValue().asInteger();
+
+    LLSelectMgr::getInstance()->selectionSetAlphaGamma(alpha_gamma);
 }
 
 void LLPanelFace::sendTexGen()
@@ -1313,6 +1325,7 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
             }
         }
 
+
         // planar align
         bool align_planar = mPlanarAlign->get();
         bool identical_planar_aligned = false;
@@ -1798,6 +1811,38 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
         calcp->clearVar(LLCalc::TEX_ROTATION);
         calcp->clearVar(LLCalc::TEX_TRANSPARENCY);
         calcp->clearVar(LLCalc::TEX_GLOW);
+    }
+
+    bool agent_group_mod = false;
+    if (objectp && objectp->permGroupOwner())
+    {
+        LLUUID owner_id;
+        std::string owner_name;
+        LLSelectMgr::getInstance()->selectGetOwner(owner_id, owner_name);
+        agent_group_mod = gAgent.hasPowerInGroup(owner_id, GP_OBJECT_MANIPULATE);
+    }
+
+    if (objectp && (objectp->permModify()
+                || objectp->permYouOwner()
+                || agent_group_mod))
+    {
+        // AlphaGamma should enabled when modable or owned
+        U8   alpha_gamma           = 100;
+        bool identical_alpha_gamma = false;
+        LLSelectedTE::getAlphaGamma(alpha_gamma, identical_alpha_gamma);
+        mComboAlphaGamma->getSelectionInterface()->selectByValue(alpha_gamma);
+        mComboAlphaGamma->setEnabled(true);
+        mComboAlphaGamma->setTentative(!identical_alpha_gamma);
+        mComboAlphaGamma->setVisible(true);
+        mLabelAlphaGamma->setEnabled(true);
+        mLabelAlphaGamma->setVisible(true);
+    }
+    else
+    {
+        mLabelAlphaGamma->setEnabled(false);
+        mLabelAlphaGamma->setVisible(false);
+        mComboAlphaGamma->setEnabled(false);
+        mComboAlphaGamma->setVisible(false);
     }
 }
 
@@ -2912,6 +2957,11 @@ void LLPanelFace::onCommitPbrType()
 void LLPanelFace::onCommitBump()
 {
     sendBump(mComboBumpiness->getCurrentIndex());
+}
+
+void LLPanelFace::onCommitAlphaGamma()
+{
+    sendAlphaGamma();
 }
 
 void LLPanelFace::onCommitTexGen()

@@ -6,7 +6,7 @@ version 2.0
 // numbers. Each message must be numbered relative to the
 // other messages of that type. The current highest number 
 // for each type is listed below:
-// Low: 430
+// Low: 431
 // Medium: 18
 // High: 32
 // PLEASE UPDATE THIS WHEN YOU ADD A NEW MESSAGE!
@@ -9145,6 +9145,24 @@ version 2.0
 	}
 }
 
+//  ObjectBypassedUpdate
+//  Viewer -> Simulator
+//  Allows the owner of an object to bypass mod protections for 
+//  Predefined fields.
+{
+    ObjectBypassModUpdate Low 431 NotTrusted Zerocoded
+    {
+        AgentData       Single
+        {   AgentID     LLUUID  }
+        {   SessionID   LLUUID  }
+    }
+    {
+        ObjectData      Variable
+        {   ObjectLocalID   U32         }
+        {   PropertyID      U8          }
+        {   Value           Variable 2  }
+    }
+}
 // viewer->sim
 // GameControlInput - input from game controller
 // This message is split into two Variable chunks:

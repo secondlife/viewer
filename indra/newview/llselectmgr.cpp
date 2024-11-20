@@ -97,6 +97,7 @@
 #include "llpanelface.h"
 #include "llglheaders.h"
 #include "llinventoryobserver.h"
+#include "roles_constants.h"
 
 LLViewerObject* getSelectedParentObject(LLViewerObject *object) ;
 //
@@ -1728,6 +1729,26 @@ struct LLSelectMgrSendFunctor : public LLSelectedObjectFunctor
     }
 };
 
+struct LLSelectMgrAlphaGammaBypassFunctor : public LLSelectedObjectFunctor
+{
+    LLSelectMgrAlphaGammaBypassFunctor(bool agent_mod_group_obj) : mAgentModGroupObj(agent_mod_group_obj) {}
+
+    virtual bool apply(LLViewerObject* object)
+    {
+        if (object->permModify())
+        {
+            object->sendTEUpdate();
+        }
+        else if (object->permYouOwner() || (object->permGroupOwner() && mAgentModGroupObj))
+        {
+            LLSelectMgr::packAlphaGammaBypass(object);
+        }
+        return true;
+    }
+
+    bool mAgentModGroupObj { false };
+};
+
 void LLObjectSelection::applyNoCopyTextureToTEs(LLViewerInventoryItem* item)
 {
     if (!item)
@@ -2319,6 +2340,35 @@ void LLSelectMgr::selectionSetBumpmap(U8 bumpmap, const LLUUID &image_id)
     getSelection()->applyToTEs(&setfunc);
 
     LLSelectMgrSendFunctor sendfunc;
+    getSelection()->applyToObjects(&sendfunc);
+}
+
+void LLSelectMgr::selectionSetAlphaGamma(U8 gamma)
+{
+    LLUUID owner_id;
+    std::string owner_name;
+    LLSelectMgr::getInstance()->selectGetOwner(owner_id, owner_name);
+    bool agent_mod_group_obj = gAgent.hasPowerInGroup(owner_id, GP_OBJECT_MANIPULATE);
+
+    struct f : public LLSelectedTEFunctor
+    {
+        U8 mAlphaGamma;
+        f(const U8 &t, bool agent_mod_group_obj) : mAlphaGamma(t), mAgentModGroupObj(agent_mod_group_obj) {}
+        bool apply(LLViewerObject *object, S32 te)
+        {
+            bool can_modify = object->permModify();
+            if (can_modify || object->permYouOwner() || (object->permGroupOwner() && mAgentModGroupObj))
+            {
+                // update viewer side color in anticipation of update from simulator
+                object->setTEAlphaGamma(te, mAlphaGamma);
+            }
+            return true;
+        }
+        bool mAgentModGroupObj { false };
+    } setfunc(gamma, agent_mod_group_obj);
+    getSelection()->applyToTEs(&setfunc);
+
+    LLSelectMgrAlphaGammaBypassFunctor sendfunc(agent_mod_group_obj);
     getSelection()->applyToObjects(&sendfunc);
 }
 
@@ -5789,6 +5839,41 @@ void LLSelectMgr::sendListToRegions(LLObjectSelectionHandle selected_handle,
     // LL_INFOS() << "sendListToRegions " << message_name << " obj " << objects_sent << " pkt " << packets_sent << LL_ENDL;
 }
 
+// static
+void LLSelectMgr::packAlphaGammaBypass(LLViewerObject* object)
+{
+    gMessageSystem->newMessageFast(_PREHASH_ObjectBypassModUpdate);
+    gMessageSystem->nextBlockFast(_PREHASH_AgentData);
+    gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+    gMessageSystem->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+    gMessageSystem->nextBlockFast(_PREHASH_ObjectData);
+    gMessageSystem->addU32Fast(_PREHASH_ObjectLocalID, object->getLocalID());
+    gMessageSystem->addU8Fast(_PREHASH_PropertyID, 0x01);
+
+    U8 alpha_gamma[LLTEContents::MAX_TES];
+
+    U8  packed_buffer[LLTEContents::MAX_TE_BUFFER];
+    U8*       cur_ptr = packed_buffer;
+
+    S32 last_face_index = (S32)llmin(object->getNumTEs(), (U8)LLTEContents::MAX_TES) - 1;
+
+    if (last_face_index > -1)
+    {
+        // ...if we hit the front, send one image id
+        S8        face_index;
+        for (face_index = 0; face_index <= last_face_index; face_index++)
+        {
+            const LLTextureEntry* te = object->getTE(face_index);
+            alpha_gamma[face_index]  = te->getAlphaGamma();
+        }
+
+        cur_ptr += object->packTEField(cur_ptr, (U8*) alpha_gamma, 1, last_face_index, MVT_U8);
+    }
+
+    gMessageSystem->addBinaryDataFast(_PREHASH_Value, packed_buffer, (S32)(cur_ptr - packed_buffer));
+
+    gMessageSystem->sendMessage(gAgent.getRegion()->getHost());
+}
 
 //
 // Network communications
