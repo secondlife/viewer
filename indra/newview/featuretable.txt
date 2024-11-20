@@ -1,4 +1,4 @@
-version 64
+version 66
 // The version number above should be incremented IF AND ONLY IF some
 // change has been made that is sufficiently important to justify
 // resetting the graphics preferences of all users to the recommended
@@ -424,6 +424,8 @@ RenderReflectionsEnabled    0   0
 RenderReflectionProbeDetail	0	0
 RenderMirrors				0	0
 RenderDisableEmissiveBuffer 1   1
+RenderGLMultiThreadedTextures 0 0
+RenderGLMultiThreadedMedia 0 0
 
 list TexUnit16orLess
 RenderTerrainPBRDetail      1   -1

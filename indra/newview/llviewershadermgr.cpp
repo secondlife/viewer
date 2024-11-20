@@ -2541,7 +2541,7 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         }
     }
 
-    if (success)
+    if (gGLManager.mGLVersion > 3.15f && success)
     {
         std::vector<std::pair<std::string, std::string>> quality_levels = { {"SMAA_PRESET_LOW", "Low"},
                                                                              {"SMAA_PRESET_MEDIUM", "Medium"},
