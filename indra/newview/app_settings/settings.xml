@@ -7717,16 +7717,16 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
-  <key>RenderDisableEmissiveBuffer</key>
+  <key>RenderEnableEmissiveBuffer</key>
   <map>
     <key>Comment</key>
-    <string>Disable emissive buffer rendering</string>
+    <string>Enable emissive buffer in gbuffer.  Should only be disabled in GL3 mode.</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
     <string>Boolean</string>
     <key>Value</key>
-    <integer>0</integer>
+    <integer>1</integer>
   </map>
   <key>RenderHDRIExposure</key>
   <map>
@@ -7775,7 +7775,7 @@
   <key>RenderMaxOpenGLVersion</key>
   <map>
     <key>Comment</key>
-    <string>Maximum OpenGL version to attempt use (minimum 3.2 maximum 4.6).  Requires restart.</string>
+    <string>Maximum OpenGL version to attempt use (minimum 3.1 maximum 4.6).  Requires restart.</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
