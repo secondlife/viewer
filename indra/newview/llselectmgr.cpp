@@ -97,6 +97,7 @@
 #include "llpanelface.h"
 #include "llglheaders.h"
 #include "llinventoryobserver.h"
+#include "roles_constants.h"
 
 LLViewerObject* getSelectedParentObject(LLViewerObject *object) ;
 //
@@ -1730,18 +1731,22 @@ struct LLSelectMgrSendFunctor : public LLSelectedObjectFunctor
 
 struct LLSelectMgrAlphaGammaBypassFunctor : public LLSelectedObjectFunctor
 {
+    LLSelectMgrAlphaGammaBypassFunctor(bool agent_mod_group_obj) : mAgentModGroupObj(agent_mod_group_obj) {}
+
     virtual bool apply(LLViewerObject* object)
     {
         if (object->permModify())
         {
             object->sendTEUpdate();
         }
-        else if (object->permYouOwner())
+        else if (object->permYouOwner() || (object->permGroupOwner() && mAgentModGroupObj))
         {
             LLSelectMgr::packAlphaGammaBypass(object);
         }
         return true;
     }
+
+    bool mAgentModGroupObj { false };
 };
 
 void LLObjectSelection::applyNoCopyTextureToTEs(LLViewerInventoryItem* item)
@@ -2340,24 +2345,30 @@ void LLSelectMgr::selectionSetBumpmap(U8 bumpmap, const LLUUID &image_id)
 
 void LLSelectMgr::selectionSetAlphaGamma(U8 gamma)
 {
+    LLUUID owner_id;
+    std::string owner_name;
+    LLSelectMgr::getInstance()->selectGetOwner(owner_id, owner_name);
+    bool agent_mod_group_obj = gAgent.hasPowerInGroup(owner_id, GP_OBJECT_MANIPULATE);
+
     struct f : public LLSelectedTEFunctor
     {
         U8 mAlphaGamma;
-        f(const U8 &t) : mAlphaGamma(t) {}
+        f(const U8 &t, bool agent_mod_group_obj) : mAlphaGamma(t), mAgentModGroupObj(agent_mod_group_obj) {}
         bool apply(LLViewerObject *object, S32 te)
         {
             bool can_modify = object->permModify();
-            if (can_modify || object->permYouOwner())
+            if (can_modify || object->permYouOwner() || (object->permGroupOwner() && mAgentModGroupObj))
             {
                 // update viewer side color in anticipation of update from simulator
                 object->setTEAlphaGamma(te, mAlphaGamma);
             }
             return true;
         }
-    } setfunc(gamma);
+        bool mAgentModGroupObj { false };
+    } setfunc(gamma, agent_mod_group_obj);
     getSelection()->applyToTEs(&setfunc);
 
-    LLSelectMgrAlphaGammaBypassFunctor sendfunc;
+    LLSelectMgrAlphaGammaBypassFunctor sendfunc(agent_mod_group_obj);
     getSelection()->applyToObjects(&sendfunc);
 }
 

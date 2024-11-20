@@ -93,6 +93,7 @@
 #include "llsdutil.h"
 #include "llsdserialize.h"
 #include "llinventorymodel.h"
+#include "roles_constants.h"
 
 using namespace std::literals;
 
@@ -1811,7 +1812,19 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
         calcp->clearVar(LLCalc::TEX_TRANSPARENCY);
         calcp->clearVar(LLCalc::TEX_GLOW);
     }
-    if (objectp && (objectp->permModify() || objectp->permYouOwner()))
+
+    bool agent_group_mod = false;
+    if (objectp && objectp->permGroupOwner())
+    {
+        LLUUID owner_id;
+        std::string owner_name;
+        LLSelectMgr::getInstance()->selectGetOwner(owner_id, owner_name);
+        agent_group_mod = gAgent.hasPowerInGroup(owner_id, GP_OBJECT_MANIPULATE);
+    }
+
+    if (objectp && (objectp->permModify()
+                || objectp->permYouOwner()
+                || agent_group_mod))
     {
         // AlphaGamma should enabled when modable or owned
         U8   alpha_gamma           = 100;
