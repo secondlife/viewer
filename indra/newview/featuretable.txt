@@ -1,4 +1,4 @@
-version 68
+version 69
 // The version number above should be incremented IF AND ONLY IF some
 // change has been made that is sufficiently important to justify
 // resetting the graphics preferences of all users to the recommended
@@ -168,7 +168,8 @@ RenderCASSharpness          1   0
 RenderExposure				1   1
 RenderTonemapType			1   1
 RenderTonemapMix			1   0.7
-RenderEnsableEmissiveBuffer 1   1
+RenderEnableEmissiveBuffer  1   1
+RenderHDREnabled            1   1
 
 //
 // Medium Graphics Settings (standard)
@@ -210,6 +211,7 @@ RenderExposure				1   1
 RenderTonemapType			1   1
 RenderTonemapMix			1   0.7
 RenderEnableEmissiveBuffer  1   1
+RenderHDREnabled            1   1
 
 //
 // Medium High Graphics Settings
@@ -251,6 +253,7 @@ RenderExposure				1   1
 RenderTonemapType			1   1
 RenderTonemapMix			1   0.7
 RenderEnableEmissiveBuffer  1   1
+RenderHDREnabled            1   1
 
 //
 // High Graphics Settings (SSAO + sun shadows)
@@ -292,6 +295,7 @@ RenderExposure				1   1
 RenderTonemapType			1   1
 RenderTonemapMix			1   0.7
 RenderEnableEmissiveBuffer  1   1
+RenderHDREnabled            1   1
 
 //
 // High Ultra Graphics Settings (deferred + SSAO + all shadows)
@@ -333,6 +337,7 @@ RenderExposure				1   1
 RenderTonemapType			1   1
 RenderTonemapMix			1   0.7
 RenderEnableEmissiveBuffer  1   1
+RenderHDREnabled            1   1
 
 //
 // Ultra graphics (REALLY PURTY!)
@@ -374,6 +379,7 @@ RenderExposure				1   1
 RenderTonemapType			1   1
 RenderTonemapMix			1   0.7
 RenderEnableEmissiveBuffer  1   1
+RenderHDREnabled            1   1
 
 //
 // Class Unknown Hardware (unknown)
@@ -389,7 +395,6 @@ RenderEnableEmissiveBuffer  1   0
 //
 list VRAMGT512
 RenderCompressTextures		1	0
-RenderEnableEmissiveBuffer  1   0
 
 //
 // "Default" setups for safe, low, medium, high
