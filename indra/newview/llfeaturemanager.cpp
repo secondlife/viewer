@@ -655,6 +655,7 @@ void LLFeatureManager::applyBaseMasks()
     if (gGLManager.mIsIntel)
     {
         maskFeatures("Intel");
+        LL_INFOS("RenderInit") << "checking Intel GL version for fallbacks: GL version: " << gGLManager.mGLVersion << " " << gGLManager.mGLVersionString << LL_ENDL;
         if (gGLManager.mGLVersion < 4.59f)
         {
             // if we don't have OpenGL 4.6 on intel, set it to OpenGL 3.3
@@ -665,7 +666,9 @@ void LLFeatureManager::applyBaseMasks()
             // https://docs.blender.org/manual/en/latest/troubleshooting/gpu/windows/intel.html#legacy-intel-hd-4000-5000
             // https://www.intel.com/content/www/us/en/support/articles/000005524/graphics.html
             // this will disable things like reflection probes, HDR, FXAA and SMAA
+            LL_INFOS("RenderInit") << "Applying Intel integrated pre-Haswell fallback.  Downgrading feature usage to OpenGL 3.3" << LL_ENDL;
             gGLManager.mGLVersion = llmin(gGLManager.mGLVersion, 3.33f);
+            gGLManager.mGLVersionString += " 3.3 fallback";  // for ViewerStats reporting
             // and select GLSL version for OpenGL 3.3
             gGLManager.mGLSLVersionMajor = 3;
             gGLManager.mGLSLVersionMinor = 30;
