@@ -463,7 +463,7 @@ void LLReflectionMapManager::update()
 
 LLReflectionMap* LLReflectionMapManager::addProbe(LLSpatialGroup* group)
 {
-    if (gGLManager.mGLVersion < 4.05f)
+    if (gGLManager.mGLVersion < 4.05f || !LLPipeline::sReflectionProbesEnabled)
     {
         return nullptr;
     }
@@ -579,6 +579,11 @@ LLReflectionMap* LLReflectionMapManager::registerSpatialGroup(LLSpatialGroup* gr
 
 LLReflectionMap* LLReflectionMapManager::registerViewerObject(LLViewerObject* vobj)
 {
+    if (!LLPipeline::sReflectionProbesEnabled)
+    {
+        return nullptr;
+    }
+
     llassert(vobj != nullptr);
 
     LLReflectionMap* probe = new LLReflectionMap();
