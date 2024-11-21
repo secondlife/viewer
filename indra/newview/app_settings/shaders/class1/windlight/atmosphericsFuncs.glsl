@@ -121,7 +121,7 @@ void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, ou
     // brightness of surface both sunlight and ambient
 
     sunlit = sunlight.rgb;
-    amblit = tmpAmbient;
+    amblit = tmpAmbient.rgb * 0.5;
 
     additive *= vec3(1.0 - combined_haze);
 
