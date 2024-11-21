@@ -148,8 +148,6 @@ public:
 
     LLFrameTimer* getLastReferencedTimer() { return &mLastReferencedTimer; }
 
-    S32 getFullWidth() const { return mFullWidth; }
-    S32 getFullHeight() const { return mFullHeight; }
     /*virtual*/ void setKnownDrawSize(S32 width, S32 height);
 
     virtual void addFace(U32 channel, LLFace* facep) ;
