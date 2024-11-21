@@ -163,7 +163,7 @@ void main()
     vec3 sunlit_linear = sunlit;
     vec3 amblit_linear = amblit;
 
-    vec3  irradiance = vec3(0);
+    vec3  irradiance = amblit;
     vec3  radiance  = vec3(0);
 
     if (GET_GBUFFER_FLAG(gb.gbufferFlag, GBUFFER_FLAG_HAS_PBR))
@@ -213,7 +213,7 @@ void main()
 
         float da          = clamp(dot(gb.normal, light_dir.xyz), 0.0, 1.0);
 
-        vec3 irradiance = vec3(0);
+        vec3 irradiance = amblit;
         vec3 glossenv = vec3(0);
         vec3 legacyenv = vec3(0);
 
