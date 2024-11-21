@@ -95,7 +95,7 @@ void LLViewerDynamicTexture::generateGLTexture(LLGLint internal_format, LLGLenum
         LL_ERRS() << "Bad number of components in dynamic texture: " << mComponents << LL_ENDL;
     }
 
-    LLPointer<LLImageRaw> raw_image = new LLImageRaw(mFullWidth, mFullHeight, mComponents);
+    LLPointer<LLImageRaw> raw_image = new LLImageRaw(getFullWidth(), getFullHeight(), mComponents);
     if (internal_format >= 0)
     {
         setExplicitFormat(internal_format, primary_format, type_format, swap_bytes);
@@ -132,7 +132,7 @@ void LLViewerDynamicTexture::preRender(bool clear_depth)
     mCamera.setView(camera->getView());
     mCamera.setNear(camera->getNear());
 
-    glViewport(mOrigin.mX, mOrigin.mY, mFullWidth, mFullHeight);
+    glViewport(mOrigin.mX, mOrigin.mY, getFullWidth(), getFullHeight());
     if (clear_depth)
     {
         glClear(GL_DEPTH_BUFFER_BIT);
@@ -160,7 +160,7 @@ void LLViewerDynamicTexture::postRender(bool success)
                 generateGLTexture() ;
             }
 
-            success = mGLTexturep->setSubImageFromFrameBuffer(0, 0, mOrigin.mX, mOrigin.mY, mFullWidth, mFullHeight);
+            success = mGLTexturep->setSubImageFromFrameBuffer(0, 0, mOrigin.mX, mOrigin.mY, getFullWidth(), getFullHeight());
         }
     }
 
