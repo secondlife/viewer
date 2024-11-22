@@ -1327,7 +1327,7 @@ const S32 LLViewerParcelMgr::getAgentParcelId() const
     return INVALID_PARCEL_ID;
 }
 
-void LLViewerParcelMgr::sendParcelPropertiesUpdate(LLParcel* parcel, bool use_agent_region)
+void LLViewerParcelMgr::sendParcelPropertiesUpdate(LLParcel* parcel)
 {
     if(!parcel)
         return;
