@@ -52,6 +52,8 @@ uniform mat3  ssao_effect_mat;
 uniform vec3 sun_dir;
 uniform vec3 moon_dir;
 uniform int  sun_up_factor;
+uniform int classic_mode;
+
 in vec2 vary_fragcoord;
 
 uniform mat4 inv_proj;
@@ -226,8 +228,16 @@ void main()
 
         vec3 sun_contrib = min(da, scol) * sunlit_linear;
         color.rgb += sun_contrib;
+
+        if (classic_mode > 0)
+        {
+            color.rgb = srgb_to_linear(color.rgb);
+            sunlit_linear = srgb_to_linear(sunlit_linear.rgb);
+        }
+
         color.rgb *= baseColor.rgb;
 
+        
         vec3 refnormpersp = reflect(pos.xyz, gb.normal);
 
         if (spec.a > 0.0)
@@ -264,6 +274,7 @@ void main()
         }
    }
 
+    //color.r = classic_mode > 0 ? 1.0 : 0.0;
     frag_color.rgb = max(color.rgb, vec3(0)); //output linear since local lights will be added to this shader's results
     frag_color.a = 0.0;
 }

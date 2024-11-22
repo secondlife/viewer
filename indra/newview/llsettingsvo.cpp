@@ -805,8 +805,12 @@ void LLSettingsVOSky::applySpecial(void *ptarget, bool force)
     static LLCachedControl<F32> sunlight_hdr_scale(gSavedSettings, "RenderHDRSkySunlightScale", 1.5f);
     static LLCachedControl<F32> ambient_scale(gSavedSettings, "RenderSkyAmbientScale", 1.5f);
 
+    // sky is a "classic" sky following pre SL 7.0 shading
+    bool classic_mode = psky->canAutoAdjust();
+
     shader->uniform1f(LLShaderMgr::SKY_SUNLIGHT_SCALE, hdr ? sunlight_hdr_scale : sunlight_scale);
     shader->uniform1f(LLShaderMgr::SKY_AMBIENT_SCALE, ambient_scale);
+    shader->uniform1i(LLShaderMgr::CLASSIC_MODE, classic_mode);
 
     F32 probe_ambiance = getReflectionProbeAmbiance();
 

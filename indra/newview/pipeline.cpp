@@ -354,7 +354,7 @@ bool addDeferredAttachments(LLRenderTarget& target, bool for_impostor = false)
 
     if (!hdr)
     {
-        norm = GL_RGBA;
+        norm = GL_RGB10_A2;
         emissive = GL_RGB;
     }
 
@@ -8493,6 +8493,7 @@ void LLPipeline::renderDeferredLighting()
             soften_shader.uniform1f(ssao_max_str, ssao_max);
 
             LLEnvironment &environment = LLEnvironment::instance();
+
             soften_shader.uniform1i(LLShaderMgr::SUN_UP_FACTOR, environment.getIsSunUp() ? 1 : 0);
             soften_shader.uniform3fv(LLShaderMgr::LIGHTNORM, 1, environment.getClampedLightNorm().mV);
 
