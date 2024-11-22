@@ -45,6 +45,7 @@ uniform float sky_ambient_scale;
 float getAmbientClamp() { return 1.0f; }
 
 vec3 srgb_to_linear(vec3 col);
+vec3 linear_to_srgb(vec3 col);
 
 // return colors in sRGB space
 void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive,
@@ -121,7 +122,7 @@ void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, ou
     // brightness of surface both sunlight and ambient
 
     sunlit = sunlight.rgb;
-    amblit = tmpAmbient.rgb * 0.5;
+    amblit = pow(tmpAmbient.rgb, vec3(0.9)) * 0.57;
 
     additive *= vec3(1.0 - combined_haze);
 
