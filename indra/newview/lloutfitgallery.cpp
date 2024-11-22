@@ -55,8 +55,15 @@
 
 static LLPanelInjector<LLOutfitGallery> t_outfit_gallery("outfit_gallery");
 
-#define MAX_OUTFIT_PHOTO_WIDTH 256
-#define MAX_OUTFIT_PHOTO_HEIGHT 256
+// The maximum resolution at which to load the outfit photo. If the given
+// texture has a higher resolution, tell the texture streaming system to
+// only load the resolution needed. An in-world object may request to load
+// the texture at a higher resolution, but that won't affect textures
+// loaded with LLViewerTexture::FETCHED_TEXTURE. (see
+// LLOutfitGalleryItem::setImageAssetId and also
+// LLViewerTexture::LOD_TEXTURE)
+#define MAX_OUTFIT_PHOTO_LOAD_WIDTH 256
+#define MAX_OUTFIT_PHOTO_LOAD_HEIGHT 256
 
 const S32 GALLERY_ITEMS_PER_ROW_MIN = 2;
 
@@ -979,28 +986,18 @@ void LLOutfitGalleryItem::draw()
     border.mRight = border.mRight + 1;
     gl_rect_2d(border, border_color, false);
 
-    // If the floater is focused, don't apply its alpha to the texture (STORM-677).
-    const F32 alpha = getTransparencyType() == TT_ACTIVE ? 1.0f : getCurrentTransparency();
     if (mTexturep)
     {
-        if (mImageUpdatePending && mTexturep->getDiscardLevel() >= 0)
-        {
-            mImageUpdatePending = false;
-            if (mTexturep->getOriginalWidth() > MAX_OUTFIT_PHOTO_WIDTH || mTexturep->getOriginalHeight() > MAX_OUTFIT_PHOTO_HEIGHT)
-            {
-                setDefaultImage();
-            }
-        }
-        else
-        {
-            LLRect interior = border;
-            interior.stretch(-1);
+        LLRect interior = border;
+        interior.stretch(-1);
 
-            gl_draw_scaled_image(interior.mLeft - 1, interior.mBottom, interior.getWidth(), interior.getHeight(), mTexturep, UI_VERTEX_COLOR % alpha);
+        // Pump the priority
+        const F32 stats = (F32)llmin(interior.getWidth() * interior.getHeight(), MAX_OUTFIT_PHOTO_LOAD_WIDTH * MAX_OUTFIT_PHOTO_LOAD_HEIGHT);
+        mTexturep->addTextureStats(stats);
 
-            // Pump the priority
-            mTexturep->addTextureStats((F32)(interior.getWidth() * interior.getHeight()));
-        }
+        // If the floater is focused, don't apply its alpha to the texture (STORM-677).
+        const F32 alpha = getTransparencyType() == TT_ACTIVE ? 1.0f : getCurrentTransparency();
+        gl_draw_scaled_image(interior.mLeft - 1, interior.mBottom, interior.getWidth(), interior.getHeight(), mTexturep, UI_VERTEX_COLOR % alpha);
     }
 
 }
@@ -1128,14 +1125,18 @@ bool LLOutfitGalleryItem::openOutfitsContent()
 
 bool LLOutfitGalleryItem::setImageAssetId(LLUUID image_asset_id)
 {
-    LLPointer<LLViewerFetchedTexture> texture = LLViewerTextureManager::getFetchedTexture(image_asset_id, FTT_DEFAULT, MIPMAP_YES, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
-    if (texture && texture->getOriginalWidth() <= MAX_OUTFIT_PHOTO_WIDTH && texture->getOriginalHeight() <= MAX_OUTFIT_PHOTO_HEIGHT)
+    LLPointer<LLViewerFetchedTexture> texture = LLViewerTextureManager::getFetchedTexture(image_asset_id, FTT_DEFAULT, MIPMAP_YES, LLGLTexture::BOOST_NONE, LLViewerTexture::FETCHED_TEXTURE);
+    if (texture)
     {
         mImageAssetId = image_asset_id;
         mTexturep = texture;
+        // *TODO: There was previously logic which attempted to toggle
+        // visibility of the preview icon based on certain conditions,
+        // however these conditions either did not make sense or were not
+        // applicable due to texture streaming. Maybe we should only hide
+        // the preview icon if the texture has at least one mip loaded.
         mPreviewIcon->setVisible(false);
         mDefaultImage = false;
-        mImageUpdatePending = (texture->getDiscardLevel() == -1);
         return true;
     }
     return false;
@@ -1152,7 +1153,6 @@ void LLOutfitGalleryItem::setDefaultImage()
     mImageAssetId.setNull();
     mPreviewIcon->setVisible(true);
     mDefaultImage = true;
-    mImageUpdatePending = false;
 }
 
 LLContextMenu* LLOutfitGalleryContextMenu::createMenu()
