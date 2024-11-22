@@ -59,7 +59,6 @@ void main()
 
     float speed = -log(dynamic_exposure_params.w) / dynamic_exposure_params2.w;
     s = mix(prev, s, 1 - exp(-speed * dt));
-    
 #endif
 
     frag_color = max(vec4(s, s, s, dt), vec4(0.0));
