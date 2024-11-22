@@ -54,7 +54,6 @@ void main()
     L /= max_L;
     L = pow(L, 2.0);
     float s = mix(dynamic_exposure_params.z, dynamic_exposure_params.y, L);
-
 #ifdef USE_LAST_EXPOSURE
     float prev = texture(exposureMap, vec2(0.5,0.5)).r;
 
