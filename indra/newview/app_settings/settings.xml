@@ -9245,14 +9245,25 @@
   <key>RenderSkySunlightScale</key>
   <map>
     <key>Comment</key>
-    <string>Sunlight scale fudge factor for matching with pre-PBR viewer</string>
+    <string>Sunlight scale fudge factor for matching with pre-PBR viewer when HDR is disabled</string>
     <key>Persist</key>
-    <integer>1</integer>
+    <integer>0</integer>
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>1.0</real>
+    <real>1.05</real>
   </map>
+    <key>RenderHDRSkySunlightScale</key>
+    <map>
+        <key>Comment</key>
+        <string>Sunlight scale fudge factor for matching with pre-PBR viewer when HDR is enabled</string>
+        <key>Persist</key>
+        <integer>0</integer>
+        <key>Type</key>
+        <string>F32</string>
+        <key>Value</key>
+        <real>1.0</real>
+    </map>
   <key>RenderSkyAmbientScale</key>
   <map>
     <key>Comment</key>
