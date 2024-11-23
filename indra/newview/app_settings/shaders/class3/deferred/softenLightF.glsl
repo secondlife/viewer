@@ -165,7 +165,6 @@ void main()
     vec3 sunlit_linear = sunlit;
     vec3 amblit_linear = amblit;
 
-    vec3  irradiance = amblit;
     vec3  radiance  = vec3(0);
 
     if (GET_GBUFFER_FLAG(gb.gbufferFlag, GBUFFER_FLAG_HAS_PBR))
@@ -175,6 +174,13 @@ void main()
         float metallic = orm.b;
         float ao = orm.r;
 
+        if (classic_mode > 0)
+        {
+           amblit_linear = srgb_to_linear(amblit_linear.rgb);
+           sunlit_linear = srgb_to_linear(sunlit_linear.rgb);
+        }
+
+        vec3  irradiance = amblit_linear;
 
         // PBR IBL
         float gloss      = 1.0 - perceptualRoughness;
@@ -226,18 +232,22 @@ void main()
         // apply lambertian IBL only (see pbrIbl)
         color.rgb = irradiance;
 
-        vec3 sun_contrib = min(da, scol) * sunlit_linear;
-        color.rgb += sun_contrib;
-
         if (classic_mode > 0)
         {
-            color.rgb = srgb_to_linear(color.rgb);
-            sunlit_linear = srgb_to_linear(sunlit_linear.rgb);
+            da = pow(da,1.2);
+            vec3 sun_contrib = min(da, scol) * sunlit_linear;
+
+            color.rgb = srgb_to_linear(color.rgb*0.9+linear_to_srgb(sun_contrib)*0.7);
+            sunlit_linear = srgb_to_linear(sunlit_linear);
+        }
+        else
+        {
+            vec3 sun_contrib = min(da, scol) * sunlit_linear;
+            color.rgb += sun_contrib;
         }
 
         color.rgb *= baseColor.rgb;
 
-        
         vec3 refnormpersp = reflect(pos.xyz, gb.normal);
 
         if (spec.a > 0.0)
