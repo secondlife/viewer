@@ -16071,5 +16071,16 @@
     <key>Value</key>
     <integer>1</integer>
   </map>
+    <key>RenderVintageMode</key>
+    <map>
+        <key>Comment</key>
+        <string>Disable different rendering pipeline features to improve performance on older machines that makes the world look closer to how it used to prior to V7.</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>Boolean</string>
+        <key>Value</key>
+        <integer>0</integer>
+    </map>
 </map>
 </llsd>

@@ -1,4 +1,4 @@
-version 69
+version 70
 // The version number above should be incremented IF AND ONLY IF some
 // change has been made that is sufficiently important to justify
 // resetting the graphics preferences of all users to the recommended
@@ -86,6 +86,7 @@ RenderTonemapType			1   1
 RenderTonemapMix			1   1
 RenderEnableEmissiveBuffer  1   1
 RenderHDREnabled            1   1
+RenderVintageMode           1   1
 
 //
 // Low Graphics Settings
@@ -128,6 +129,7 @@ RenderTonemapType			1   1
 RenderTonemapMix			1   0.7
 RenderEnableEmissiveBuffer  1   0
 RenderHDREnabled            1   0
+RenderVintageMode           1   1
 
 //
 // Medium Low Graphics Settings
@@ -170,6 +172,7 @@ RenderTonemapType			1   1
 RenderTonemapMix			1   0.7
 RenderEnableEmissiveBuffer  1   1
 RenderHDREnabled            1   1
+RenderVintageMode           1   0
 
 //
 // Medium Graphics Settings (standard)
@@ -212,6 +215,7 @@ RenderTonemapType			1   1
 RenderTonemapMix			1   0.7
 RenderEnableEmissiveBuffer  1   1
 RenderHDREnabled            1   1
+RenderVintageMode           1   0
 
 //
 // Medium High Graphics Settings
@@ -254,6 +258,7 @@ RenderTonemapType			1   1
 RenderTonemapMix			1   0.7
 RenderEnableEmissiveBuffer  1   1
 RenderHDREnabled            1   1
+RenderVintageMode           1   0
 
 //
 // High Graphics Settings (SSAO + sun shadows)
@@ -296,6 +301,7 @@ RenderTonemapType			1   1
 RenderTonemapMix			1   0.7
 RenderEnableEmissiveBuffer  1   1
 RenderHDREnabled            1   1
+RenderVintageMode           1   0
 
 //
 // High Ultra Graphics Settings (deferred + SSAO + all shadows)
@@ -338,6 +344,7 @@ RenderTonemapType			1   1
 RenderTonemapMix			1   0.7
 RenderEnableEmissiveBuffer  1   1
 RenderHDREnabled            1   1
+RenderVintageMode           1   0
 
 //
 // Ultra graphics (REALLY PURTY!)
@@ -380,6 +387,7 @@ RenderTonemapType			1   1
 RenderTonemapMix			1   0.7
 RenderEnableEmissiveBuffer  1   1
 RenderHDREnabled            1   1
+RenderVintageMode           1   0
 
 //
 // Class Unknown Hardware (unknown)
@@ -389,12 +397,14 @@ RenderShadowDetail			1	0
 RenderDeferredSSAO			1	0
 RenderMirrors				1	0
 RenderEnableEmissiveBuffer  1   0
+RenderVintageMode           1   1
 
 //
 // VRAM > 512MB
 //
 list VRAMGT512
 RenderCompressTextures		1	0
+RenderVintageMode           1   1
 
 //
 // "Default" setups for safe, low, medium, high
@@ -411,6 +421,7 @@ RenderDeferredSSAO			0	0
 RenderShadowDetail			0	0
 RenderReflectionProbeDetail	0	-1
 RenderMirrors				0	0
+RenderVintageMode           1   1
 
 list Intel
 RenderAnisotropic			1	0
@@ -433,6 +444,7 @@ RenderEnableEmissiveBuffer  1   0
 RenderGLMultiThreadedTextures 0 0
 RenderGLMultiThreadedMedia 0 0
 RenderHDREnabled            1   0
+RenderVintageMode           1   1
 
 list TexUnit16orLess
 RenderTerrainPBRDetail      1   -1
