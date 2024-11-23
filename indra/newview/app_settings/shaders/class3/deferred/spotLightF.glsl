@@ -77,12 +77,15 @@ vec4 getPosition(vec2 pos_screen);
 
 const float M_PI = 3.14159265;
 
-vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor,
+void pbrPunctual(vec3 diffuseColor, vec3 specularColor,
                     float perceptualRoughness,
                     float metallic,
                     vec3 n, // normal
                     vec3 v, // surface point to camera
-                    vec3 l); //surface point to light
+                    vec3 l, // surface point to light
+                    out float nl,
+                    out vec3 diff,
+                    out vec3 spec);
 
 GBufferInfo getGBuffer(vec2 screenpos);
 
@@ -151,6 +154,10 @@ void main()
         diffuseColor *= 1.0 - metallic;
 
         vec3 specularColor = mix(f0, baseColor.rgb, metallic);
+        
+        float nl = 0;
+        vec3 diffPunc = vec3(0);
+        vec3 specPunc = vec3(0);
 
         // We need this additional test inside a light's frustum since a spotlight's ambiance can be applied
         if (proj_tc.x > 0.0 && proj_tc.x < 1.0
@@ -168,11 +175,17 @@ void main()
                 dlit = getProjectedLightDiffuseColor( l_dist, proj_tc.xy );
 
                 vec3 intensity = dist_atten * dlit * 3.25 * shadow; // Legacy attenuation, magic number to balance with legacy materials
-                final_color += intensity*pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, n.xyz, v, lv);
+
+                pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, n.xyz, v, normalize(lv), nl, diffPunc, specPunc);
+
+                final_color += intensity * clamp(nl * (diffPunc + specPunc), vec3(0), vec3(10));
             }
 
             amb_rgb = getProjectedLightAmbiance( amb_da, dist_atten, lit, nl, 1.0, proj_tc.xy ) * 3.25; //magic number to balance with legacy ambiance
-            final_color += amb_rgb * pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, n.xyz, v, -lv);
+            
+            pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, n.xyz, v, normalize(lv), nl, diffPunc, specPunc);
+
+            final_color += amb_rgb * clamp(nl * (diffPunc + specPunc), vec3(0), vec3(10));
         }
     }
     else

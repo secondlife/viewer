@@ -103,13 +103,6 @@ vec3 pbrBaseLight(vec3 diffuseColor,
                   vec3 additive,
                   vec3 atten);
 
-vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor,
-                    float perceptualRoughness,
-                    float metallic,
-                    vec3 n, // normal
-                    vec3 v, // surface point to camera
-                    vec3 l); //surface point to light
-
 GBufferInfo getGBuffer(vec2 screenpos);
 
 void adjustIrradiance(inout vec3 irradiance, float ambocc)
@@ -174,12 +167,6 @@ void main()
         float metallic = orm.b;
         float ao = orm.r;
 
-        if (classic_mode > 0)
-        {
-           amblit_linear = srgb_to_linear(amblit_linear.rgb);
-           sunlit_linear = srgb_to_linear(sunlit_linear.rgb);
-        }
-
         vec3  irradiance = amblit_linear;
 
         // PBR IBL
@@ -235,9 +222,9 @@ void main()
         if (classic_mode > 0)
         {
             da = pow(da,1.2);
-            vec3 sun_contrib = min(da, scol) * sunlit_linear;
+            vec3 sun_contrib = vec3(min(da, scol));
 
-            color.rgb = srgb_to_linear(color.rgb*0.9+linear_to_srgb(sun_contrib)*0.7);
+            color.rgb = srgb_to_linear(color.rgb * 0.9 + linear_to_srgb(sun_contrib) * sunlit_linear * 0.7);
             sunlit_linear = srgb_to_linear(sunlit_linear);
         }
         else

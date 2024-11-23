@@ -52,12 +52,15 @@ vec3 srgb_to_linear(vec3 c);
 // Util
 vec3 hue_to_rgb(float hue);
 
-vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor,
+void pbrPunctual(vec3 diffuseColor, vec3 specularColor,
                     float perceptualRoughness,
                     float metallic,
                     vec3 n, // normal
                     vec3 v, // surface point to camera
-                    vec3 l); //surface point to light
+                    vec3 l, // surface point to light
+                    out float nl,
+                    out vec3 diff,
+                    out vec3 spec);
 
 GBufferInfo getGBuffer(vec2 screenpos);
 
@@ -112,8 +115,11 @@ void main()
                 float dist_atten = calcLegacyDistanceAttenuation(dist, falloff);
 
                 vec3 intensity = dist_atten * lightColor * 3.25;
-
-                final_color += intensity*pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, n.xyz, v, lv);
+                float nl = 0;
+                vec3 diff = vec3(0);
+                vec3 specPunc = vec3(0);
+                pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, n.xyz, v, lv, nl, diff, specPunc);
+                final_color += intensity * clamp(nl * (diff + specPunc), vec3(0), vec3(10));
             }
         }
     }
