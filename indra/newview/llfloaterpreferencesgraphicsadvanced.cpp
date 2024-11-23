@@ -324,10 +324,12 @@ void LLFloaterPreferenceGraphicsAdvanced::disableUnavailableSettings()
     LLSliderCtrl*         tonemapMix    = getChild<LLSliderCtrl>("TonemapMix");
     LLComboBox*           tonemapSelect = getChild<LLComboBox>("TonemapType");
     LLTextBox*            tonemapLabel  = getChild<LLTextBox>("TonemapTypeText");
+    LLSliderCtrl*         exposureSlider = getChild<LLSliderCtrl>("RenderExposure");
 
     tonemapSelect->setEnabled(!is_vintage);
     tonemapLabel->setEnabled(!is_vintage);
     tonemapMix->setEnabled(!is_vintage);
+    exposureSlider->setEnabled(!is_vintage);
 }
 
 void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()
