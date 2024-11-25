@@ -253,7 +253,7 @@ MediaPluginCEF::~MediaPluginCEF()
     // Wait for CEF to actually exit.
     std::string marker_file = mInstanceCacheDir + RUNNING_MARKER;
     U32 max_loops = 20;    // 20 * 250ms = 5s
-    while (--max_loops && LLFile::exist(marker_file))
+    while (--max_loops && LLFile::exists(marker_file))
     {
         ms_sleep(250);
     }
