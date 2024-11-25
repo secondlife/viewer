@@ -407,9 +407,6 @@ struct PBRInfo
 // See also [1], Equation 1
 vec3 diffuse(PBRInfo pbrInputs)
 {
-    if (classic_mode > 0)
-        return pbrInputs.diffuseColor;
-
     return pbrInputs.diffuseColor / M_PI;
 }
 
@@ -502,10 +499,9 @@ void pbrPunctual(vec3 diffuseColor, vec3 specularColor,
     // Calculation of analytical lighting contribution
     vec3 diffuseContrib = (1.0 - F) * diffuse(pbrInputs);
     vec3 specContrib = F * G * D / (4.0 * NdotL * NdotV);
-    // Obtain final intensity as reflectance (BRDF) scaled by the energy of the light (cosine law)
-    vec3 color = NdotL * (diffuseContrib + specContrib);
 
     nl = NdotL;
+
     diff = diffuseContrib;
     spec = specContrib;
 }
@@ -582,12 +578,21 @@ vec3 pbrBaseLight(vec3 diffuseColor, vec3 specularColor, float metallic, vec3 v,
     if (classic_mode > 0)
     {
         // Reconstruct the diffuse lighting that we do for blinn-phong materials here.
-        float da = pow(nl, 1.2);
+        // A special note about why we do some really janky stuff for classic mode.
+        // Since adding classic mode, we've moved the lambertian diffuse multiply out from pbrPunctual and instead handle it in the different light type calcs.
+        // For classic mode, this baiscally introduces a double multiplication that we need to somehow avoid
+        // Using one of the old mobile gamma correction tricks (val * val to "linearize", sqrt(val) to bring back into sRGB), we can _mostly_ avert this
+        // This will never be 100% correct, but at the very least we can make it look mostly correct with legacy skies and classic mode.
+
+        float da = pow(sqrt(nl), 1.2);
 
         vec3 sun_contrib = vec3(min(da, scol));
-        sun_contrib = srgb_to_linear(color.rgb * 0.9 + linear_to_srgb(sun_contrib) * sunlit * 0.7);
 
-        color.rgb = clamp((sun_contrib * diffPunc.rgb) + (srgb_to_linear(sunlit) * specPunc.rgb), vec3(0), vec3(10));
+        // Multiply by PI to account for lambertian diffuse colors.  Otherwise things will be too dark when lit by the sun on legacy skies.
+        sun_contrib = srgb_to_linear(color.rgb * 0.9 + linear_to_srgb(sun_contrib) * sunlit * 0.7) * M_PI;
+
+        // Manually recombine everything here.  We have to separate the shading to ensure that lighting is able to more closely match blinn-phong.
+        color.rgb = srgb_to_linear(iblDiff) + clamp(sun_contrib * (da * (diffPunc.rgb + specPunc.rgb) * scol), vec3(0), vec3(10));
     }
     else
     {
