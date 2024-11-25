@@ -518,11 +518,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4124c79d8b0e319877ffa4c12581d5c1318b4d93</string>
+              <string>f8cb1640c4f607eb7083967ed31a2a66615cde5a</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/dullahan/releases/download/v1.14.0-r3/dullahan-1.14.0.202408091639_118.4.1_g3dd6078_chromium-118.0.5993.54-windows64-10322607516.tar.zst</string>
+              <string>https://github.com/secondlife/dullahan/releases/download/v1.15.0-CEF_131.2.3/dullahan-1.15.0.202411191656_131.2.4_gb7543e4_chromium-131.0.6778.70-windows64-11917847734.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -1266,6 +1266,66 @@
         <string>libpng</string>
         <key>description</key>
         <string>PNG Reference library</string>
+      </map>
+      <key>libsqlite3</key>
+      <map>
+        <key>platforms</key>
+        <map>
+          <key>darwin64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>9028291522269a1449bb2a0a677499f976173f5d</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>http://sldev.free.fr/libraries/libsqlite3-3.47.0-darwin64-20241112.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>darwin64</string>
+          </map>
+          <key>linux64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>b91bd334427b788ba369212cc47172cfd322deb2</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>http://sldev.free.fr/libraries/libsqlite3-3.47.0-linux64-20241112.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>linux64</string>
+          </map>
+          <key>windows64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>0c8851c3f7a3c636bf8e63bc44dadff39bd147a7</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>http://sldev.free.fr/libraries/libsqlite3-3.47.0-windows64-20241112.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows64</string>
+          </map>
+        </map>
+        <key>license</key>
+        <string>NONE</string>
+        <key>license_file</key>
+        <string>include/sqlite3.h</string>
+        <key>copyright</key>
+        <string>Public domain</string>
+        <key>version</key>
+        <string>3.47.0</string>
+        <key>name</key>
+        <string>libsqlite3</string>
+        <key>description</key>
+        <string>Public domain SQL library</string>
       </map>
       <key>libuuid</key>
       <map>

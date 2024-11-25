@@ -53,6 +53,7 @@
 #include "llpluginclassmedia.h"
 #include "llurldispatcher.h"
 #include "lluuid.h"
+#include "llstartup.h"              // for LLStartUp::getStartupState()
 #include "llversioninfo.h"
 #include "llviewermediafocus.h"
 #include "llviewercontrol.h"
@@ -1727,9 +1728,6 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
         std::string launcher_name = gDirUtilp->getLLPluginLauncher();
         std::string plugin_name = gDirUtilp->getLLPluginFilename(plugin_basename);
 
-        std::string user_data_path_cache = gDirUtilp->getCacheDir(false);
-        user_data_path_cache += gDirUtilp->getDirDelimiter();
-
         // See if the plugin executable exists
         llstat s;
         if(LLFile::stat(launcher_name, &s))
@@ -1742,10 +1740,28 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
         }
         else
         {
+            // The CEF cache contains cookies, that should be considered per-
+            // account settings since they store per-user preferences for web
+            // sites. Also, starting with CEF 120, the cache is actually only
+            // a temporary, per-CEF instance one and gets wiped out at that
+            // instance's exit, so it is best kept in the per-account settings
+            // directory instead of in the viewer cache directory (that can be
+            // wiped out at any time and would make *all accounts* loose their
+            // cookies). HB
+            std::string user_data_path = gDirUtilp->getOSUserAppDir();
+    		const std::string& linden_user_dir = gDirUtilp->getLindenUserDir();
+            // Before login, the cache is "anonymous", while after login it
+            // must be kept in the per-account settings directory. HB
+    		if (!linden_user_dir.empty() &&
+                LLStartUp::getStartupState() == STATE_STARTED)
+	    	{
+    			user_data_path = linden_user_dir;
+	    	}
+            user_data_path += gDirUtilp->getDirDelimiter();
             media_source = new LLPluginClassMedia(owner);
             media_source->setSize(default_width, default_height);
             std::string user_data_path_cef_log = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "cef.log");
-            media_source->setUserDataPath(user_data_path_cache, gDirUtilp->getUserName(), user_data_path_cef_log);
+            media_source->setUserDataPath(user_data_path, gDirUtilp->getUserName(), user_data_path_cef_log);
             media_source->setLanguageCode(LLUI::getLanguage());
             media_source->setZoomFactor(zoom_factor);
 
