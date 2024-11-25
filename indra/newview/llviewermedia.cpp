@@ -1749,14 +1749,14 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
             // wiped out at any time and would make *all accounts* loose their
             // cookies). HB
             std::string user_data_path = gDirUtilp->getOSUserAppDir();
-    		const std::string& linden_user_dir = gDirUtilp->getLindenUserDir();
+            const std::string& linden_user_dir = gDirUtilp->getLindenUserDir();
             // Before login, the cache is "anonymous", while after login it
             // must be kept in the per-account settings directory. HB
-    		if (!linden_user_dir.empty() &&
+            if (!linden_user_dir.empty() &&
                 LLStartUp::getStartupState() == STATE_STARTED)
-	    	{
-    			user_data_path = linden_user_dir;
-	    	}
+            {
+                user_data_path = linden_user_dir;
+            }
             user_data_path += gDirUtilp->getDirDelimiter();
             media_source = new LLPluginClassMedia(owner);
             media_source->setSize(default_width, default_height);
