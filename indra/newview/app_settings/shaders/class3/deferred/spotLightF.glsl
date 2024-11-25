@@ -154,7 +154,6 @@ void main()
         diffuseColor *= 1.0 - metallic;
 
         vec3 specularColor = mix(f0, baseColor.rgb, metallic);
-        
         float nl = 0;
         vec3 diffPunc = vec3(0);
         vec3 specPunc = vec3(0);
@@ -182,7 +181,6 @@ void main()
             }
 
             amb_rgb = getProjectedLightAmbiance( amb_da, dist_atten, lit, nl, 1.0, proj_tc.xy ) * 3.25; //magic number to balance with legacy ambiance
-            
             pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, n.xyz, v, normalize(lv), nl, diffPunc, specPunc);
 
             final_color += amb_rgb * clamp(nl * (diffPunc + specPunc), vec3(0), vec3(10));

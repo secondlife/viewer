@@ -571,7 +571,6 @@ vec3 pbrBaseLight(vec3 diffuseColor, vec3 specularColor, float metallic, vec3 v,
     float nl = 0;
     vec3 diffPunc = vec3(0);
     vec3 specPunc = vec3(0);
-    
     pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, norm, v, normalize(light_dir), nl, diffPunc, specPunc);
 
     // Depending on the sky, we combine these differently.
