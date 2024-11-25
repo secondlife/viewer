@@ -58,6 +58,7 @@ HBCookiesMerger::~HBCookiesMerger()
     if (mLogStream)
     {
         delete mLogStream;
+        mLogStream = nullptr;
     }
     close();
 }
