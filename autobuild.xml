@@ -1276,11 +1276,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>9028291522269a1449bb2a0a677499f976173f5d</string>
+              <string>1461f427a6015d1d50958c55ff26895d990ba094</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>http://sldev.free.fr/libraries/libsqlite3-3.47.0-darwin64-20241112.tar.bz2</string>
+              <string>http://sldev.free.fr/misc/libsqlite3-3.47.0-darwin64-20241112.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1290,11 +1290,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b91bd334427b788ba369212cc47172cfd322deb2</string>
+              <string>d71ab3ca5183671b206e4474d49e061c9b285cd6</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>http://sldev.free.fr/libraries/libsqlite3-3.47.0-linux64-20241112.tar.bz2</string>
+              <string>http://sldev.free.fr/misc/libsqlite3-3.47.0-linux64-20241112.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -1304,20 +1304,20 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>0c8851c3f7a3c636bf8e63bc44dadff39bd147a7</string>
+              <string>f1ffb165dfc3a50b340a98db3bc85aca52b6973c</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>http://sldev.free.fr/libraries/libsqlite3-3.47.0-windows64-20241112.tar.bz2</string>
+              <string>http://sldev.free.fr/misc/libsqlite3-3.47.0-windows64-20241112.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>license</key>
-        <string>NONE</string>
+        <string>internal</string>
         <key>license_file</key>
-        <string>include/sqlite3.h</string>
+        <string>LICENSES/sqlite3.txt</string>
         <key>copyright</key>
         <string>Public domain</string>
         <key>version</key>
