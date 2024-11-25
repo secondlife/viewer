@@ -1,4 +1,4 @@
-version 70
+version 71
 // The version number above should be incremented IF AND ONLY IF some
 // change has been made that is sufficiently important to justify
 // resetting the graphics preferences of all users to the recommended
@@ -404,7 +404,6 @@ RenderVintageMode           1   1
 //
 list VRAMGT512
 RenderCompressTextures		1	0
-RenderVintageMode           1   1
 
 //
 // "Default" setups for safe, low, medium, high
