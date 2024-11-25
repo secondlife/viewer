@@ -1228,6 +1228,15 @@ void LLPluginClassMedia::receivePluginMessage(const LLPluginMessage &message)
             mDebugMessageText = message.getValue("message_text");
             mDebugMessageLevel = message.getValue("message_level");
             mediaEvent(LLPluginClassMediaOwner::MEDIA_EVENT_DEBUG_MESSAGE);
+            if (mDebugMessageLevel == "info")
+            {
+                LL_INFOS("Plugin") << mDebugMessageText << LL_ENDL;
+            }
+            else if (mDebugMessageLevel == "warn" ||
+                     mDebugMessageLevel == "warning")
+            {
+                LL_WARNS("Plugin") << mDebugMessageText << LL_ENDL;
+            }
         }
         else if (message_name == "tooltip_text")
         {

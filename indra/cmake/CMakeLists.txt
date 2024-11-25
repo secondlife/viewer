@@ -54,6 +54,7 @@ set(cmake_SOURCE_FILES
         PulseAudio.cmake
         Python.cmake
         SDL2.cmake
+        SQLite3.cmake
         TemplateCheck.cmake
         TinyEXR.cmake
         TinyGLTF.cmake

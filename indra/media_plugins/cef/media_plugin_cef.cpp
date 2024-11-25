@@ -27,18 +27,88 @@
 */
 
 #include "linden_common.h"
-#include "indra_constants.h" // for indra keyboard codes
 
-#include "llglheaders.h" // for GL_* constants
+#if LL_WINDOWS
+# include <process.h>           // For _getpid()
+#else
+# include <unistd.h>            // For getpid()
+#endif
+
+#include "dullahan.h"
+#include "dullahan_version.h"   // for CHROME_VERSION_MAJOR
+// We still support CEF118 (for macOS, mainly), for now... Since we got CEF131
+// for both Linux and Windows, let's require it otherwise. HB
+#if CHROME_VERSION_MAJOR != 118 && CHROME_VERSION_MAJOR < 131
+# error Only CEF 118 and CEF 131 or newer are supported by this plugin
+#endif
+
+#if CHROME_VERSION_MAJOR >= 120
+# include "hbcookiesmerger.h"
+#endif
+
+#include "indra_constants.h"    // for indra keyboard codes
+#include "lldir.h"              // for LLDir::deleteDirAndContents
+#include "llglheaders.h"        // for GL_* constants
 #include "llsdutil.h"
 #include "llplugininstance.h"
 #include "llpluginmessage.h"
 #include "llpluginmessageclasses.h"
 #include "llstring.h"
+#include "lltimer.h"			// for ms_sleep()
 #include "volume_catcher.h"
 #include "media_plugin_base.h"
 
-#include "dullahan.h"
+///////////////////////////////////////////////////////////////////////////////
+// Defines
+
+// Defines used as shortcuts for placeholders
+#define PH1 std::placeholders::_1
+#define PH2 std::placeholders::_2
+#define PH3 std::placeholders::_3
+#define PH4 std::placeholders::_4
+#define PH5 std::placeholders::_5
+
+// This is known at compile time: no need for getDirDelimiter() !  HB
+#if LL_WINDOWS
+# define DIR_DELIM_STR "\\"
+#else
+# define DIR_DELIM_STR "/"
+#endif
+
+#if CHROME_VERSION_MAJOR >= 120
+// Cookies merging debug log filename
+# define COOKIES_DEBUG_LOG DIR_DELIM_STR "debug_log.txt"
+// Cookies store filename and location in the CEF cache directory.
+# define COOKIES DIR_DELIM_STR "Cookies"
+# define DEFAULT_SUB_DIR DIR_DELIM_STR "Default"
+// Under Windows, a different sub-directory is used by CEF for its cookies...
+// Go figure as to why !  Beside, still under Windows, there is also a crypto
+// key stored in "Local State", which is used to encrypt the cookies value and
+// is therefore needed to be able reuse the cookies; so we must also save this
+// file under Windows (under Linux, and while the cookies value is encrypted as
+// well, the key is not stored anywhere in the CEF cache and likely derived
+// from a machine Id or something: it is anyone's guess as to why the same
+// principle is not used under Windows *sighs*). HB
+// Note: for SAVED_LOCAL_STATE, we use a name starting with "Cookies", so that
+// when the viewer removes all but Cookies* files in cef_cache, all the files
+// making up the central cookies store stay untouched. HB
+// *TODO: check for what would happen with macOS too.
+# if LL_WINDOWS
+#  define NETWORK_SUB_DIR DIR_DELIM_STR "Network"
+#  define LOCAL_STATE DIR_DELIM_STR "Local State"
+#  define SAVED_LOCAL_STATE DIR_DELIM_STR "CookiesLocalState"
+# endif
+// This is the file that exists in the CEF cache while the instance is running
+// and which gets removed at instance exit. When not defined, no check is done.
+// *TODO: determine what file we should look for with macOS.
+# if LL_LINUX
+#  define RUNNING_MARKER DIR_DELIM_STR "SingletonLock"
+# elif LL_WINDOWS
+#  define RUNNING_MARKER DIR_DELIM_STR "lockfile"
+# elif LL_DARWIN
+#  warning You must check for macOS CEF 120+ cache structure and edit the corresponding #defines here
+# endif
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -54,6 +124,13 @@ public:
 
 private:
     bool init();
+
+    bool initCEF();
+
+    void primeCache();
+#if CHROME_VERSION_MAJOR >= 120
+    void saveCookies();
+#endif
 
     void onPageChangedCallback(const unsigned char* pixels, int x, int y, const int width, const int height);
     void onCustomSchemeURLCallback(std::string url, bool user_gesture, bool is_redirect);
@@ -82,8 +159,11 @@ private:
     void checkEditState();
     void setVolume();
 
-    bool mEnableMediaPluginDebugging;
+private:
+    std::string mPluginPidStr;
     std::string mHostLanguage;
+    bool mInitialized;
+    bool mEnableMediaPluginDebugging;
     bool mCookiesEnabled;
     bool mPluginsEnabled;
     bool mJavascriptEnabled;
@@ -102,9 +182,12 @@ private:
     bool mCanCut;
     bool mCanCopy;
     bool mCanPaste;
-    std::string mRootCachePath;
-    std::string mCachePath;
-    std::string mContextCachePath;
+    std::string mRootCacheDir;
+    std::string mInstanceCacheDir;
+#if CHROME_VERSION_MAJOR >= 120
+    std::string mInstanceCookiesDir;
+    std::string mCookiesLogFile;
+#endif
     std::string mCefLogFile;
     bool mCefLogVerbose;
     std::vector<std::string> mPickedFiles;
@@ -118,6 +201,13 @@ private:
 MediaPluginCEF::MediaPluginCEF(LLPluginInstance::sendMessageFunction host_send_func, void *host_user_data) :
 MediaPluginBase(host_send_func, host_user_data)
 {
+# if LL_WINDOWS
+    mPluginPidStr = std::to_string(_getpid());
+# else
+    mPluginPidStr = std::to_string(getpid());
+# endif
+
+    mInitialized = false;
     mWidth = 0;
     mHeight = 0;
     mDepth = 4;
@@ -142,7 +232,6 @@ MediaPluginBase(host_send_func, host_user_data)
     mCanCut = false;
     mCanCopy = false;
     mCanPaste = false;
-    mCachePath = "";
     mCefLogFile = "";
     mCefLogVerbose = false;
     mPickedFiles.clear();
@@ -158,7 +247,298 @@ MediaPluginBase(host_send_func, host_user_data)
 MediaPluginCEF::~MediaPluginCEF()
 {
     mCEFLib->shutdown();
+
+#if CHROME_VERSION_MAJOR >= 120
+# if defined(RUNNING_MARKER)
+    // Wait for CEF to actually exit.
+    std::string marker_file = mInstanceCacheDir + RUNNING_MARKER;
+    U32 max_loops = 20;    // 20 * 250ms = 5s
+    while (--max_loops && LLFile::exist(marker_file))
+    {
+        ms_sleep(250);
+    }
+# endif
+
+    saveCookies();
+
+    // With CEF 120+, delete the per-CEF instance cache sub-directory. Note:
+    // sadly, under Windows, CEF will write more files at exit (which happens
+    // only *after* this destructor returns), so there will be leftovers in
+    // the per-session CEF caches directories... HB
+    LLDir::deleteDirAndContents(mInstanceCacheDir);
+#endif
 }
+
+////////////////////////////////////////////////////////////////////////////////
+//
+bool MediaPluginCEF::initCEF()
+{
+    if (mInitialized)
+    {
+        return true;
+    }
+
+    // Setup Dullahan callbacks
+    mCEFLib->setOnPageChangedCallback(
+        std::bind(&MediaPluginCEF::onPageChangedCallback, this,
+                  PH1, PH2, PH3, PH4, PH5));
+    mCEFLib->setOnCustomSchemeURLCallback(
+        std::bind(&MediaPluginCEF::onCustomSchemeURLCallback, this,
+                  PH1, PH2, PH3));
+    mCEFLib->setOnConsoleMessageCallback(
+        std::bind(&MediaPluginCEF::onConsoleMessageCallback, this,
+                  PH1, PH2, PH3));
+    mCEFLib->setOnStatusMessageCallback(
+        std::bind(&MediaPluginCEF::onStatusMessageCallback, this, PH1));
+    mCEFLib->setOnTitleChangeCallback(
+        std::bind(&MediaPluginCEF::onTitleChangeCallback, this, PH1));
+    mCEFLib->setOnTooltipCallback(
+        std::bind(&MediaPluginCEF::onTooltipCallback, this, PH1));
+    mCEFLib->setOnLoadStartCallback(
+        std::bind(&MediaPluginCEF::onLoadStartCallback, this));
+    mCEFLib->setOnLoadEndCallback(
+        std::bind(&MediaPluginCEF::onLoadEndCallback, this, PH1, PH2));
+    mCEFLib->setOnLoadErrorCallback(
+        std::bind(&MediaPluginCEF::onLoadError, this, PH1, PH2));
+    mCEFLib->setOnAddressChangeCallback(
+        std::bind(&MediaPluginCEF::onAddressChangeCallback, this, PH1));
+    mCEFLib->setOnOpenPopupCallback(
+        std::bind(&MediaPluginCEF::onOpenPopupCallback, this, PH1, PH2));
+    mCEFLib->setOnHTTPAuthCallback(
+        std::bind(&MediaPluginCEF::onHTTPAuthCallback, this,
+                  PH1, PH2, PH3, PH4));
+    mCEFLib->setOnFileDialogCallback(
+        std::bind(&MediaPluginCEF::onFileDialog, this,
+                  PH1, PH2, PH3, PH4, PH5));
+    mCEFLib->setOnCursorChangedCallback(
+        std::bind(&MediaPluginCEF::onCursorChangedCallback, this, PH1));
+    mCEFLib->setOnRequestExitCallback(
+        std::bind(&MediaPluginCEF::onRequestExitCallback, this));
+    mCEFLib->setOnJSDialogCallback(
+        std::bind(&MediaPluginCEF::onJSDialogCallback, this, PH1, PH2, PH3));
+    mCEFLib->setOnJSBeforeUnloadCallback(
+        std::bind(&MediaPluginCEF::onJSBeforeUnloadCallback, this));
+
+    // Prepare CEF settings
+    dullahan::dullahan_settings settings;
+#if LL_WINDOWS
+    // As of CEF version 83+, for Windows versions, we need to tell CEF
+    // where the host helper process is since this DLL is not in the same
+    // dir as the executable that loaded it (SLPlugin.exe). The code in
+    // Dullahan that tried to figure out the location automatically uses
+    // the location of the exe which isn't helpful so we tell it explicitly.
+    std::vector<wchar_t> buffer(MAX_PATH + 1);
+    GetCurrentDirectoryW(MAX_PATH, &buffer[0]);
+    settings.host_process_path = ll_convert_wide_to_string(&buffer[0]);
+#endif
+    settings.accept_language_list = mHostLanguage;
+
+    // SL-15560: Product team overruled my change to set the default
+    // embedded background color to match the floater background
+    // and set it to white
+    settings.background_color = 0xffffffff; // white
+
+    settings.cache_enabled = true;
+    settings.root_cache_path = mInstanceCacheDir;
+    settings.cache_path = mInstanceCacheDir;
+    settings.context_cache_path = "";    // Disabled
+    settings.cookies_enabled = mCookiesEnabled;
+
+    // configure proxy argument if enabled and valid
+    if (mProxyEnabled && mProxyHost.length())
+    {
+        std::ostringstream proxy_url;
+        proxy_url << mProxyHost << ":" << mProxyPort;
+        settings.proxy_host_port = proxy_url.str();
+    }
+    settings.disable_gpu = mDisableGPU;
+#if LL_DARWIN
+    settings.disable_network_service = mDisableNetworkService;
+    settings.use_mock_keychain = mUseMockKeyChain;
+#endif
+    // these were added to facilitate loading images directly into a local
+    // web page for the prototype 360 project in 2017 - something that is
+    // disallowed normally by the browser security model. Now the the source
+    // (cubemap) images are stores as JavaScript, we can avoid opening up
+    // this security hole (it was only set for the 360 floater but still
+    // a concern). Leaving them here, explicitly turn off vs removing
+    // entirely from this source file so that others are aware of them
+    // in the future.
+    settings.disable_web_security = false;
+    settings.file_access_from_file_urls = false;
+
+    settings.flash_enabled = mPluginsEnabled;
+
+    // This setting applies to all plugins, not just Flash
+    // Regarding, SL-15559 PDF files do not load in CEF v91,
+    // it turns out that on Windows, PDF support is treated
+    // as a plugin on Windows only so turning all plugins
+    // off, disabled built in PDF support.  (Works okay in
+    // macOS surprisingly). To mitigrate this, we set the global
+    // media enabled flag to whatever the consumer wants and
+    // explicitly disable Flash with a different setting (below)
+    settings.plugins_enabled = mPluginsEnabled;
+
+    // SL-14897 Disable Flash support in the embedded browser
+    settings.flash_enabled = false;
+
+    settings.flip_mouse_y = false;
+    settings.flip_pixels_y = true;
+    settings.frame_rate = 60;
+    settings.force_wave_audio = true;
+    settings.initial_height = 1024;
+    settings.initial_width = 1024;
+    settings.java_enabled = false;
+    settings.javascript_enabled = mJavascriptEnabled;
+    // MAINT-6060 - WebRTC media removed until we can add granularity/query UI
+    settings.media_stream_enabled = false;
+
+    settings.user_agent_substring =
+        mCEFLib->makeCompatibleUserAgentString(mUserAgentSubtring);
+    settings.webgl_enabled = true;
+    settings.log_file = mCefLogFile;
+    settings.log_verbose = mCefLogVerbose;
+    settings.autoplay_without_gesture = true;
+
+    std::vector<std::string> custom_schemes(1, "secondlife");
+    mCEFLib->setCustomSchemes(custom_schemes);
+
+    // Launch Dullahan
+    mInitialized = mCEFLib->init(settings);
+    return mInitialized;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+void MediaPluginCEF::primeCache()
+{
+#if CHROME_VERSION_MAJOR < 120
+    // Before CEF 120, we can share the cache and Cookies store between
+    // instances.
+    mInstanceCacheDir = mRootCacheDir;
+#else
+    // Starting with CEF 120, we *must* use a different cache directory for
+    // each new CEF instance. Let's make it so we can still share cookies,
+    // by copying the files of a central cookie store into the instance cache
+    // and updating the central store on instance exit. HB
+    LLFile::mkdir(mRootCacheDir);
+    mInstanceCacheDir = mRootCacheDir + DIR_DELIM_STR + mPluginPidStr;
+    // Create a private cache directory for this CEF instance. HB
+    bool success = LLFile::mkdir(mInstanceCacheDir) == 0;
+    // We also need to pre-create the sub-directory in which the cookies files
+    // will be copied into. HB
+    mInstanceCookiesDir = mInstanceCacheDir + DEFAULT_SUB_DIR;
+    success = LLFile::mkdir(mInstanceCookiesDir) == 0;
+# if defined(NETWORK_SUB_DIR)
+    mInstanceCookiesDir += NETWORK_SUB_DIR;
+    if (success)
+    {
+        success = LLFile::mkdir(mInstanceCookiesDir) == 0;
+    }
+# endif
+    if (!success)
+    {
+        postDebugMessage("Failed to create CEF cache directory tree in: " +
+                         mInstanceCacheDir);
+        return;
+    }
+
+    // Copy our cookies central store file(s) into this CEF instance cache. HB
+    success = LLFile::copy(mRootCacheDir + COOKIES,
+                           mInstanceCookiesDir + COOKIES);
+# if defined(LOCAL_STATE)
+    if (success)
+    {
+        success = LLFile::copy(mRootCacheDir + SAVED_LOCAL_STATE,
+                               mInstanceCacheDir + LOCAL_STATE);
+    }
+# endif
+    if (!success)
+    {
+        postDebugMessage("Failed to restore the cookies store");
+    }
+#endif
+    postDebugMessage("Using cache directory: " + mInstanceCacheDir);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+#if CHROME_VERSION_MAJOR >= 120
+void MediaPluginCEF::saveCookies()
+{
+    if (!mCookiesEnabled)
+    {
+        // Nothing to do.
+        return;
+    }
+
+    std::string cookies_db = mInstanceCookiesDir + COOKIES;
+# if defined(LOCAL_STATE)
+    std::string local_state = mInstanceCacheDir + LOCAL_STATE;
+    if (!LLFile::exists(cookies_db) || !LLFile::exists(local_state))
+# else
+    if (!LLFile::exists(cookies_db))
+# endif
+    {
+        // Do not touch our central cookies store in these cases...
+        if (!mCookiesLogFile.empty())
+        {
+            llofstream log(mCookiesLogFile, std::ios::out | std::ios::app);
+            log << "No valid cookies store in closed CEF instance."
+                << std::endl;
+        }
+        return;
+    }
+
+    std::string saved_cookies_db = mRootCacheDir + COOKIES;
+# if defined(LOCAL_STATE)
+    std::string saved_local_state = mRootCacheDir + SAVED_LOCAL_STATE;
+    if (!LLFile::exists(saved_cookies_db) ||
+        !LLFile::exists(saved_local_state))
+# else
+    if (!LLFile::exists(saved_cookies_db))
+# endif
+    {
+        // If the cookies store has not yet been saved or one of the necessary
+        // files is missing, just use the cookies from this closed CEF session.
+        LLFile::copy(cookies_db, saved_cookies_db);
+# if defined(LOCAL_STATE)
+        LLFile::copy(local_state, saved_local_state);
+# endif
+        if (!mCookiesLogFile.empty())
+        {
+            llofstream log(mCookiesLogFile, std::ios::out | std::ios::app);
+            log << "Cookies master files primed." << std::endl;
+        }
+        return;
+    }
+
+    HBCookiesMerger cm(cookies_db, saved_cookies_db, mCookiesLogFile);
+    // Allow 3 attempts, in case the database is being merged by another CEF
+    // plugin instance. HB
+    U32 attempts = 3;
+    while (--attempts)
+    {
+        if (cm.merge())
+        {
+            return;    // Success.
+        }
+        // Wait 500ms between attempts.
+        ms_sleep(500);
+    }
+
+    // Failed to merge cookies: overwrite.
+    LLFile::copy(cookies_db, saved_cookies_db);
+# if defined(LOCAL_STATE)
+    LLFile::copy(local_state, saved_local_state);
+# endif
+    if (!mCookiesLogFile.empty())
+    {
+        llofstream log(mCookiesLogFile, std::ios::out | std::ios::app);
+        log << "Cookies master store overwritten." << std::endl;
+    }
+}
+#endif    // CHROME_VERSION_MAJOR >= 120
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -166,11 +546,11 @@ void MediaPluginCEF::postDebugMessage(const std::string& msg)
 {
     if (mEnableMediaPluginDebugging)
     {
-        std::stringstream str;
-        str << "@Media Msg> " << msg;
-
-        LLPluginMessage debug_message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "debug_message");
-        debug_message.setValue("message_text", str.str());
+        LLPluginMessage debug_message(LLPLUGIN_MESSAGE_CLASS_MEDIA,
+                                      "debug_message");
+        debug_message.setValue("message_text",
+                               "CEF plugin (pid " + mPluginPidStr + "): " +
+                               msg);
         debug_message.setValue("message_level", "info");
         sendMessage(debug_message);
     }
@@ -598,110 +978,10 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
         {
             if (message_name == "init")
             {
-                // event callbacks from Dullahan
-                mCEFLib->setOnPageChangedCallback(std::bind(&MediaPluginCEF::onPageChangedCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5));
-                mCEFLib->setOnCustomSchemeURLCallback(std::bind(&MediaPluginCEF::onCustomSchemeURLCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
-                mCEFLib->setOnConsoleMessageCallback(std::bind(&MediaPluginCEF::onConsoleMessageCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
-                mCEFLib->setOnStatusMessageCallback(std::bind(&MediaPluginCEF::onStatusMessageCallback, this, std::placeholders::_1));
-                mCEFLib->setOnTitleChangeCallback(std::bind(&MediaPluginCEF::onTitleChangeCallback, this, std::placeholders::_1));
-                mCEFLib->setOnTooltipCallback(std::bind(&MediaPluginCEF::onTooltipCallback, this, std::placeholders::_1));
-                mCEFLib->setOnLoadStartCallback(std::bind(&MediaPluginCEF::onLoadStartCallback, this));
-                mCEFLib->setOnLoadEndCallback(std::bind(&MediaPluginCEF::onLoadEndCallback, this, std::placeholders::_1, std::placeholders::_2));
-                mCEFLib->setOnLoadErrorCallback(std::bind(&MediaPluginCEF::onLoadError, this, std::placeholders::_1, std::placeholders::_2));
-                mCEFLib->setOnAddressChangeCallback(std::bind(&MediaPluginCEF::onAddressChangeCallback, this, std::placeholders::_1));
-                mCEFLib->setOnOpenPopupCallback(std::bind(&MediaPluginCEF::onOpenPopupCallback, this, std::placeholders::_1, std::placeholders::_2));
-                mCEFLib->setOnHTTPAuthCallback(std::bind(&MediaPluginCEF::onHTTPAuthCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
-                mCEFLib->setOnFileDialogCallback(std::bind(&MediaPluginCEF::onFileDialog, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5));
-                mCEFLib->setOnCursorChangedCallback(std::bind(&MediaPluginCEF::onCursorChangedCallback, this, std::placeholders::_1));
-                mCEFLib->setOnRequestExitCallback(std::bind(&MediaPluginCEF::onRequestExitCallback, this));
-                mCEFLib->setOnJSDialogCallback(std::bind(&MediaPluginCEF::onJSDialogCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
-                mCEFLib->setOnJSBeforeUnloadCallback(std::bind(&MediaPluginCEF::onJSBeforeUnloadCallback, this));
-
-                dullahan::dullahan_settings settings;
-#if LL_WINDOWS
-                // As of CEF version 83+, for Windows versions, we need to tell CEF
-                // where the host helper process is since this DLL is not in the same
-                // dir as the executable that loaded it (SLPlugin.exe). The code in
-                // Dullahan that tried to figure out the location automatically uses
-                // the location of the exe which isn't helpful so we tell it explicitly.
-                std::vector<wchar_t> buffer(MAX_PATH + 1);
-                GetCurrentDirectoryW(MAX_PATH, &buffer[0]);
-                settings.host_process_path = ll_convert_wide_to_string(&buffer[0]);
-#endif
-                settings.accept_language_list = mHostLanguage;
-
-                // SL-15560: Product team overruled my change to set the default
-                // embedded background color to match the floater background
-                // and set it to white
-                settings.background_color = 0xffffffff; // white
-
-                settings.cache_enabled = true;
-                settings.root_cache_path = mRootCachePath;
-                settings.cache_path = mCachePath;
-                settings.context_cache_path = mContextCachePath;
-                settings.cookies_enabled = mCookiesEnabled;
-
-                // configure proxy argument if enabled and valid
-                if (mProxyEnabled && mProxyHost.length())
-                {
-                    std::ostringstream proxy_url;
-                    proxy_url << mProxyHost << ":" << mProxyPort;
-                    settings.proxy_host_port = proxy_url.str();
-                }
-                settings.disable_gpu = mDisableGPU;
-#if LL_DARWIN
-                settings.disable_network_service = mDisableNetworkService;
-                settings.use_mock_keychain = mUseMockKeyChain;
-#endif
-                // these were added to facilitate loading images directly into a local
-                // web page for the prototype 360 project in 2017 - something that is
-                // disallowed normally by the browser security model. Now the the source
-                // (cubemap) images are stores as JavaScript, we can avoid opening up
-                // this security hole (it was only set for the 360 floater but still
-                // a concern). Leaving them here, explicitly turn off vs removing
-                // entirely from this source file so that others are aware of them
-                // in the future.
-                settings.disable_web_security = false;
-                settings.file_access_from_file_urls = false;
-
-                settings.flash_enabled = mPluginsEnabled;
-
-                // This setting applies to all plugins, not just Flash
-                // Regarding, SL-15559 PDF files do not load in CEF v91,
-                // it turns out that on Windows, PDF support is treated
-                // as a plugin on Windows only so turning all plugins
-                // off, disabled built in PDF support.  (Works okay in
-                // macOS surprisingly). To mitigrate this, we set the global
-                // media enabled flag to whatever the consumer wants and
-                // explicitly disable Flash with a different setting (below)
-                settings.plugins_enabled = mPluginsEnabled;
-
-                // SL-14897 Disable Flash support in the embedded browser
-                settings.flash_enabled = false;
-
-                settings.flip_mouse_y = false;
-                settings.flip_pixels_y = true;
-                settings.frame_rate = 60;
-                settings.force_wave_audio = true;
-                settings.initial_height = 1024;
-                settings.initial_width = 1024;
-                settings.java_enabled = false;
-                settings.javascript_enabled = mJavascriptEnabled;
-                settings.media_stream_enabled = false; // MAINT-6060 - WebRTC media removed until we can add granularity/query UI
-
-                settings.user_agent_substring = mCEFLib->makeCompatibleUserAgentString(mUserAgentSubtring);
-                settings.webgl_enabled = true;
-                settings.log_file = mCefLogFile;
-                settings.log_verbose = mCefLogVerbose;
-                settings.autoplay_without_gesture = true;
-
-                std::vector<std::string> custom_schemes(1, "secondlife");
-                mCEFLib->setCustomSchemes(custom_schemes);
-
-                bool result = mCEFLib->init(settings);
+                bool result = initCEF();
                 if (!result)
                 {
-                    // if this fails, the media system in viewer will put up a message
+                    postDebugMessage("Dullahan initialization failed");
                 }
 
                 // now we can set page zoom factor
@@ -726,28 +1006,19 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
             }
             else if (message_name == "set_user_data_path")
             {
-                std::string user_data_path_cache = message_in.getValue("cache_path");
-                std::string subfolder = message_in.getValue("username");
-
-                mRootCachePath = user_data_path_cache + "cef_cache";
-                if (!subfolder.empty())
-                {
-                    std::string delim;
-#if LL_WINDOWS
-                    // media plugin doesn't have access to gDirUtilp
-                    delim = "\\";
-#else
-                    delim = "/";
-#endif
-                    mCachePath = mRootCachePath + delim + subfolder;
-                }
-                else
-                {
-                    mCachePath = mRootCachePath;
-                }
-                mContextCachePath = ""; // disabled by ""
+                // Provide each user with their own cef_cache sub-directory,
+                // in their per-account settings directory. This cef_cache
+                // directory contains the central Cookies store for this user
+                // and (in CEF 120+ case) the temporary cache sub-directories
+                // for each CEF session. HB
+                mRootCacheDir = message_in.getValue("cache_path") +
+                                "cef_cache";
                 mCefLogFile = message_in.getValue("cef_log_file");
                 mCefLogVerbose = message_in.getValueBoolean("cef_verbose_log");
+                // Now (and for CEF 120+), create the per-CEF session temporary
+                // cache sub-directory and prime it with the central Cookies
+                // store. HB
+                primeCache();
             }
             else if (message_name == "size_change")
             {
@@ -907,6 +1178,18 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
             else if (message_name == "enable_media_plugin_debugging")
             {
                 mEnableMediaPluginDebugging = message_in.getValueBoolean("enable");
+#if CHROME_VERSION_MAJOR >= 120
+                if (!mEnableMediaPluginDebugging)
+                {
+                    mCookiesLogFile.clear();
+                }
+                else if (!mRootCacheDir.empty())
+                {
+                    mCookiesLogFile = mRootCacheDir + COOKIES_DEBUG_LOG;
+                    postDebugMessage("Using cookies debug log: " +
+                                     mCookiesLogFile);
+                }
+#endif
             }
 #if LL_LINUX
             else if (message_name == "enable_pipewire_volume_catcher")
