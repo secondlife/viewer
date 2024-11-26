@@ -161,7 +161,7 @@ void main()
     vec3 atten;
     calcAtmosphericVarsLinear(pos.xyz, norm, light_dir, sunlit, amblit, additive, atten);
 
-    vec3 sunlit_linear = srgb_to_linear(sunlit);
+    vec3 sunlit_linear = sunlit;
 
     vec2 frag = vary_fragcoord.xy/vary_fragcoord.z*0.5+0.5;
 
@@ -182,7 +182,7 @@ void main()
 
     // PBR IBL
     float gloss      = 1.0 - perceptualRoughness;
-    vec3  irradiance = vec3(0);
+    vec3  irradiance = amblit;
     vec3  radiance  = vec3(0);
     sampleReflectionProbes(irradiance, radiance, vary_position.xy*0.5+0.5, pos.xyz, norm.xyz, gloss, true, amblit);
 
