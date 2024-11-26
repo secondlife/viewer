@@ -274,7 +274,6 @@ private:
     bool     mSelected;
     bool     mWorn;
     bool     mDefaultImage;
-    bool     mImageUpdatePending;
     bool     mHidden;
     bool     mFavorite;
     std::string mOutfitName;

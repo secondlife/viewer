@@ -167,6 +167,7 @@ public:
 protected:
     void initCtrl(const std::string& name);
     template<typename CTRL> void initAndSetCtrl(CTRL*& ctrl, const std::string& name);
+    void initAndSetTexCtrl(LLTextureCtrl*& ctrl, const std::string& name);
 
     // Returns true if update sent and apply button should be
     // disabled.

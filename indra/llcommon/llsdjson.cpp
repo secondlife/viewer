@@ -63,15 +63,16 @@ LLSD LlsdFromJson(const boost::json::value& val)
     case boost::json::kind::array:
     {
         result = LLSD::emptyArray();
-        auto& array = val.as_array();
+        const boost::json::array& array = val.as_array();
+        size_t size = array.size();
         // allocate elements 0 .. (size() - 1) to avoid incremental allocation
         if (! array.empty())
         {
-            result[array.size() - 1] = LLSD();
+            result[size - 1] = LLSD();
         }
-        for (const auto &element : array)
+        for (size_t i = 0; i < size; i++)
         {
-            result.append(LlsdFromJson(element));
+            result[i] = (LlsdFromJson(array[i]));
         }
         break;
     }

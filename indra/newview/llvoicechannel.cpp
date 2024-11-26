@@ -80,9 +80,8 @@ LLVoiceChannel::~LLVoiceChannel()
     if (sCurrentVoiceChannel == this)
     {
         sCurrentVoiceChannel = NULL;
-        // Must check instance exists here, the singleton MAY have already been destroyed.
-        LLVoiceClient::removeObserver(this);
     }
+    LLVoiceClient::removeObserver(this);
 
     sVoiceChannelMap.erase(mSessionID);
 }

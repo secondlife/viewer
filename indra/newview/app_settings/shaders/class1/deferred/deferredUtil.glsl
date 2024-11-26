@@ -75,6 +75,9 @@ const float ONE_OVER_PI = 0.3183098861;
 vec3 srgb_to_linear(vec3 cs);
 vec3 atmosFragLightingLinear(vec3 light, vec3 additive, vec3 atten);
 
+vec4 decodeNormal(vec4 norm);
+
+
 float calcLegacyDistanceAttenuation(float distance, float falloff)
 {
     float dist_atten = 1.0 - clamp((distance + falloff)/(1.0 + falloff), 0.0, 1.0);
@@ -145,8 +148,7 @@ vec2 getScreenCoordinate(vec2 screenpos)
 
 vec4 getNorm(vec2 screenpos)
 {
-    vec4 norm = texture(normalMap, screenpos.xy);
-    norm.xyz = normalize(norm.xyz);
+    vec4 norm = decodeNormal(texture(normalMap, screenpos.xy));
     return norm;
 }
 

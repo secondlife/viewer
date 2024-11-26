@@ -36,6 +36,7 @@ in vec4 vertex_color;
 in vec2 vary_texcoord0;
 
 void mirrorClip(vec3 pos);
+vec4 encodeNormal(vec3 norm, float gbuffer_flag);
 
 void main()
 {
@@ -51,6 +52,6 @@ void main()
     frag_data[0] = vec4(col.rgb, 0.0);
     frag_data[1] = vec4(0,0,0,0);
     vec3 nvn = normalize(vary_normal);
-    frag_data[2] = vec4(nvn.xyz, GBUFFER_FLAG_HAS_ATMOS);
+    frag_data[2] = encodeNormal(nvn.xyz, GBUFFER_FLAG_HAS_ATMOS);
     frag_data[3] = vec4(0);
 }

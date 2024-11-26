@@ -80,6 +80,7 @@ public:
 
     bool getCursorPosition(LLCoordWindow *position) override;
 
+    bool isWarpMouse() const override { return true; }
     void showCursor() override;
     void hideCursor() override;
     bool isCursorHidden() override;
