@@ -262,7 +262,6 @@ void main()
     color.a   = final_alpha;
 
     color.rgb = irradiance;
-    
     if (classic_mode > 0)
     {
         final_da = pow(final_da,1.2);

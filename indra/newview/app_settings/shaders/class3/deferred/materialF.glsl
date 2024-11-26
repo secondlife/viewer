@@ -341,7 +341,6 @@ void main()
     color = ambenv;
 
     float da          = clamp(dot(norm.xyz, light_dir.xyz), 0.0, 1.0);
-    
     if (classic_mode > 0)
     {
         da = pow(da,1.2);
