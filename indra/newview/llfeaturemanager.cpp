@@ -655,8 +655,16 @@ void LLFeatureManager::applyBaseMasks()
     if (gGLManager.mIsIntel)
     {
         maskFeatures("Intel");
+
+        static constexpr F32 TARGET_GL_VERSION =
+#if LL_DARWIN
+            4.09f;
+#else
+            4.59f;
+#endif
+
         // check against 3.33 to avoid applying this fallback twice
-        if (gGLManager.mGLVersion < 4.59f && gGLManager.mGLVersion > 3.33f)
+        if (gGLManager.mGLVersion < TARGET_GL_VERSION && gGLManager.mGLVersion > 3.33f)
         {
             // if we don't have OpenGL 4.6 on intel, set it to OpenGL 3.3
             // we also want to trigger the GL3 fallbacks on these chipsets
