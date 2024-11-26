@@ -58,9 +58,14 @@ void main()
     col.a = (col.a * factor) * 32.0f;
     col.a *= twinkle();
 
-    frag_data[0] = vec4(0);
     frag_data[1] = vec4(0.0f);
     frag_data[2] = vec4(0.0, 1.0, 0.0, GBUFFER_FLAG_SKIP_ATMOS);
+
+#if defined(HAS_EMISSIVE)
+    frag_data[0] = vec4(0);
     frag_data[3] = col;
+#else
+    frag_data[0] = col;
+#endif
 }
 

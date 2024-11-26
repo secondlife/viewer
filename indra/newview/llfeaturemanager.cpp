@@ -705,6 +705,10 @@ void LLFeatureManager::applyBaseMasks()
     if (gGLManager.mGLVersion < 3.99f)
     {
         maskFeatures("GL3");
+
+        // make sure to disable background context activity in GL3 mode
+        LLImageGLThread::sEnabledMedia = false;
+        LLImageGLThread::sEnabledTextures = false;
     }
 
     // now mask by gpu string

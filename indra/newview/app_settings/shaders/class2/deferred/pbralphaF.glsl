@@ -111,13 +111,6 @@ vec3 pbrBaseLight(vec3 diffuseColor,
                   vec3 additive,
                   vec3 atten);
 
-vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor,
-                    float perceptualRoughness,
-                    float metallic,
-                    vec3 n, // normal
-                    vec3 v, // surface point to camera
-                    vec3 l); //surface point to light
-
 vec3 pbrCalcPointLightOrSpotLight(vec3 diffuseColor, vec3 specularColor,
                     float perceptualRoughness,
                     float metallic,

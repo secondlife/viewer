@@ -318,6 +318,18 @@ void LLFloaterPreferenceGraphicsAdvanced::disableUnavailableSettings()
         ctrl_shadows->setValue(0);
         shadows_text->setEnabled(false);
     }
+
+    // Vintage mode
+    LLCachedControl<bool> is_vintage(gSavedSettings, "RenderVintageMode");
+    LLSliderCtrl*         tonemapMix    = getChild<LLSliderCtrl>("TonemapMix");
+    LLComboBox*           tonemapSelect = getChild<LLComboBox>("TonemapType");
+    LLTextBox*            tonemapLabel  = getChild<LLTextBox>("TonemapTypeText");
+    LLSliderCtrl*         exposureSlider = getChild<LLSliderCtrl>("RenderExposure");
+
+    tonemapSelect->setEnabled(!is_vintage);
+    tonemapLabel->setEnabled(!is_vintage);
+    tonemapMix->setEnabled(!is_vintage);
+    exposureSlider->setEnabled(!is_vintage);
 }
 
 void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()

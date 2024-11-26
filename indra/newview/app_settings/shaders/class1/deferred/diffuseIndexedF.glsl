@@ -33,7 +33,7 @@ in vec2 vary_texcoord0;
 in vec3 vary_position;
 
 void mirrorClip(vec3 pos);
-vec4 encodeNormal(vec3 norm, float gbuffer_flag);
+vec4 encodeNormal(vec3 n, float env, float gbuffer_flag);
 
 vec3 linear_to_srgb(vec3 c);
 
@@ -48,6 +48,9 @@ void main()
     frag_data[0] = vec4(col, 0.0);
     frag_data[1] = vec4(spec, vertex_color.a); // spec
     vec3 nvn = normalize(vary_normal);
-    frag_data[2] = encodeNormal(nvn.xyz, GBUFFER_FLAG_HAS_ATMOS);
-    frag_data[3] = vec4(vertex_color.a, 0, 0, 0);
+    frag_data[2] = encodeNormal(nvn.xyz, vertex_color.a, GBUFFER_FLAG_HAS_ATMOS);
+
+#if defined(HAS_EMISSIVE)
+    frag_data[3] = vec4(0, 0, 0, 0);
+#endif
 }

@@ -957,30 +957,17 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
 
         gGL.setColorMask(true, true);
 
-        if (LLPipeline::sRenderDeferred)
+        gPipeline.mRT->deferredScreen.bindTarget();
+        if (gUseWireframe)
         {
-            gPipeline.mRT->deferredScreen.bindTarget();
-            if (gUseWireframe)
-            {
-                F32 g = 0.5f;
-                glClearColor(g, g, g, 1.f);
-            }
-            else
-            {
-                glClearColor(1, 0, 1, 1);
-            }
-            gPipeline.mRT->deferredScreen.clear();
+            F32 g = 0.5f;
+            glClearColor(g, g, g, 1.f);
         }
         else
         {
-            gPipeline.mRT->screen.bindTarget();
-            if (LLPipeline::sUnderWaterRender && !gPipeline.canUseWindLightShaders())
-            {
-                const LLColor4 &col = LLEnvironment::instance().getCurrentWater()->getWaterFogColor();
-                glClearColor(col.mV[0], col.mV[1], col.mV[2], 0.f);
-            }
-            gPipeline.mRT->screen.clear();
+            glClearColor(1, 0, 1, 1);
         }
+        gPipeline.mRT->deferredScreen.clear();
 
         gGL.setColorMask(true, false);
 

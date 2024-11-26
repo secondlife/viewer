@@ -259,8 +259,8 @@ void LLImageGL::initClass(LLWindow* window, S32 num_catagories, bool skip_analyz
     if (thread_texture_loads || thread_media_updates)
     {
         LLImageGLThread::createInstance(window);
-        LLImageGLThread::sEnabledTextures = thread_texture_loads;
-        LLImageGLThread::sEnabledMedia = thread_media_updates;
+        LLImageGLThread::sEnabledTextures = gGLManager.mGLVersion > 3.95f ? thread_texture_loads : false;
+        LLImageGLThread::sEnabledMedia = gGLManager.mGLVersion > 3.95f ? thread_media_updates : false;
     }
 }
 
@@ -332,6 +332,7 @@ S32 LLImageGL::dataFormatBits(S32 dataformat)
     case GL_RGB8:                                   return 24;
     case GL_RGBA:                                   return 32;
     case GL_RGBA8:                                  return 32;
+    case GL_RGB10_A2:                               return 32;
     case GL_SRGB_ALPHA:                             return 32;
     case GL_BGRA:                                   return 32;      // Used for QuickTime media textures on the Mac
     case GL_DEPTH_COMPONENT:                        return 24;
