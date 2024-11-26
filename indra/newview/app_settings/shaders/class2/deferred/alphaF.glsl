@@ -245,7 +245,7 @@ void main()
     vec3 sunlit_linear = sunlit;
     vec3 amblit_linear = amblit;
 
-    vec3 irradiance = srgb_to_linear(amblit);
+    vec3 irradiance = amblit;
     vec3 glossenv;
     vec3 legacyenv;
     sampleReflectionProbesLegacy(irradiance, glossenv, legacyenv, frag, pos.xyz, norm.xyz, 0.0, 0.0, true, amblit_linear);
