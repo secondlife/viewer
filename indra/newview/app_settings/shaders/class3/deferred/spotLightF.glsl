@@ -154,7 +154,6 @@ void main()
         diffuseColor *= 1.0 - metallic;
 
         vec3 specularColor = mix(f0, baseColor.rgb, metallic);
-        float nl = 0;
         vec3 diffPunc = vec3(0);
         vec3 specPunc = vec3(0);
 
