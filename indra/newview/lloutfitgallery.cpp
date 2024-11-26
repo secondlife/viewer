@@ -1027,6 +1027,8 @@ void LLOutfitGalleryItem::draw()
     border.mRight = border.mRight + 1;
     gl_rect_2d(border, border_color, false);
 
+    // If the floater is focused, don't apply its alpha to the texture (STORM-677).
+    const F32 alpha = getTransparencyType() == TT_ACTIVE ? 1.0f : getCurrentTransparency();
     if (mTexturep)
     {
         LLRect interior = border;
@@ -1036,8 +1038,6 @@ void LLOutfitGalleryItem::draw()
         const F32 stats = (F32)llmin(interior.getWidth() * interior.getHeight(), MAX_OUTFIT_PHOTO_LOAD_WIDTH * MAX_OUTFIT_PHOTO_LOAD_HEIGHT);
         mTexturep->addTextureStats(stats);
 
-        // If the floater is focused, don't apply its alpha to the texture (STORM-677).
-        const F32 alpha = getTransparencyType() == TT_ACTIVE ? 1.0f : getCurrentTransparency();
         gl_draw_scaled_image(interior.mLeft - 1, interior.mBottom, interior.getWidth(), interior.getHeight(), mTexturep, UI_VERTEX_COLOR % alpha);
     }
 
