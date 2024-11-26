@@ -36,11 +36,9 @@ LLGLTexture::LLGLTexture(bool usemipmaps)
 LLGLTexture::LLGLTexture(const U32 width, const U32 height, const U8 components, bool usemipmaps)
 {
     init();
-    mFullWidth = width ;
-    mFullHeight = height ;
+    setDimensions(width, height);
     mUseMipMaps = usemipmaps;
-    mComponents = components ;
-    setTexelsPerImage();
+    mComponents = components;
 }
 
 LLGLTexture::LLGLTexture(const LLImageRaw* raw, bool usemipmaps)
@@ -49,10 +47,8 @@ LLGLTexture::LLGLTexture(const LLImageRaw* raw, bool usemipmaps)
     mUseMipMaps = usemipmaps ;
     // Create an empty image of the specified size and width
     mGLTexturep = new LLImageGL(raw, usemipmaps) ;
-    mFullWidth = mGLTexturep->getWidth();
-    mFullHeight = mGLTexturep->getHeight();
+    setDimensions(mGLTexturep->getWidth(), mGLTexturep->getHeight());
     mComponents = mGLTexturep->getComponents();
-    setTexelsPerImage();
 }
 
 LLGLTexture::~LLGLTexture()
@@ -130,7 +126,7 @@ void LLGLTexture::generateGLTexture()
 {
     if(mGLTexturep.isNull())
     {
-        mGLTexturep = new LLImageGL(mFullWidth, mFullHeight, mComponents, mUseMipMaps) ;
+        mGLTexturep = new LLImageGL(getFullWidth(), getFullHeight(), mComponents, mUseMipMaps) ;
     }
 }
 
@@ -159,10 +155,8 @@ bool LLGLTexture::createGLTexture(S32 discard_level, const LLImageRaw* imageraw,
 
     if(ret)
     {
-        mFullWidth = mGLTexturep->getCurrentWidth() ;
-        mFullHeight = mGLTexturep->getCurrentHeight() ;
-        mComponents = mGLTexturep->getComponents() ;
-        setTexelsPerImage();
+        setDimensions(mGLTexturep->getCurrentWidth(), mGLTexturep->getCurrentHeight());
+        mComponents = mGLTexturep->getComponents();
     }
 
     return ret ;
@@ -447,11 +441,11 @@ void LLGLTexture::destroyGLTexture()
     }
 }
 
-void LLGLTexture::setTexelsPerImage()
+void LLGLTexture::setDimensions(U32 width, U32 height)
 {
-    U32 fullwidth = llmin(mFullWidth,U32(MAX_IMAGE_SIZE_DEFAULT));
-    U32 fullheight = llmin(mFullHeight,U32(MAX_IMAGE_SIZE_DEFAULT));
-    mTexelsPerImage = (U32)fullwidth * fullheight;
+    mFullWidth = width;
+    mFullHeight = height;
+    mTexelsPerImage = llmin(width, MAX_IMAGE_SIZE_DEFAULT) * llmin(height, MAX_IMAGE_SIZE_DEFAULT);
 }
 
 static LLUUID sStubUUID;

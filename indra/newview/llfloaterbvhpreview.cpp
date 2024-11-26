@@ -1102,7 +1102,7 @@ bool    LLPreviewAnimation::render()
     gGL.matrixMode(LLRender::MM_PROJECTION);
     gGL.pushMatrix();
     gGL.loadIdentity();
-    gGL.ortho(0.0f, (F32)mFullWidth, 0.0f, (F32)mFullHeight, -1.0f, 1.0f);
+    gGL.ortho(0.0f, (F32)getFullWidth(), 0.0f, (F32)getFullHeight(), -1.0f, 1.0f);
 
     gGL.matrixMode(LLRender::MM_MODELVIEW);
     gGL.pushMatrix();
@@ -1114,7 +1114,7 @@ bool    LLPreviewAnimation::render()
     gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
     gGL.color4f(0.15f, 0.2f, 0.3f, 1.f);
 
-    gl_rect_2d_simple( mFullWidth, mFullHeight );
+    gl_rect_2d_simple(getFullWidth(), getFullHeight());
 
     gGL.matrixMode(LLRender::MM_PROJECTION);
     gGL.popMatrix();
@@ -1138,8 +1138,8 @@ bool    LLPreviewAnimation::render()
         target_pos + (mCameraOffset  * av_rot) );                                           // point of interest
 
     camera->setViewNoBroadcast(LLViewerCamera::getInstance()->getDefaultFOV() / mCameraZoom);
-    camera->setAspect((F32) mFullWidth / (F32) mFullHeight);
-    camera->setPerspective(false, mOrigin.mX, mOrigin.mY, mFullWidth, mFullHeight, false);
+    camera->setAspect((F32)getFullWidth() / (F32)getFullHeight());
+    camera->setPerspective(false, mOrigin.mX, mOrigin.mY, getFullWidth(), getFullHeight(), false);
 
     //SJB: Animation is updated in LLVOAvatar::updateCharacter
 

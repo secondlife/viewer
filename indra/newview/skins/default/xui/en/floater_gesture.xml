@@ -12,7 +12,7 @@
  label="Places"
  layout="topleft"
  min_height="350"
- min_width="240"
+ min_width="313"
  width="313">
     <floater.string
      name="loading">
@@ -144,4 +144,11 @@
      name="stop_btn"
      top_delta="0"
      width="83" />
+    <check_box
+     name="play_all_infinitely"
+     label="Play all infinitely"
+     follows="bottom|right"
+     left_pad="5"
+     height="15"
+     width="100"/>
 </floater>

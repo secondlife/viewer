@@ -81,7 +81,7 @@ void main()
 
     vec4 collectedColor = vec4(0);
 
-    float w = tapScreenSpaceReflection(4, tc, pos, norm.xyz, collectedColor, diffuseMap, 0);
+    float w = tapScreenSpaceReflection(4, tc, pos, norm.xyz, collectedColor, diffuseMap, 0.f);
 
     collectedColor.rgb *= specCol.rgb;
 

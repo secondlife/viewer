@@ -3801,6 +3801,21 @@ LLEmojiTextSegment::LLEmojiTextSegment(const LLUIColor& color, S32 start, S32 en
 {
 }
 
+
+F32 LLEmojiTextSegment::draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRectf& draw_rect)
+{
+    bool reset_font_buffers = (mLastGeneration != mEditor.getTextGeneration()) && (mLastGeneration != -1);
+
+    F32 result = LLNormalTextSegment::draw(start, end, selection_start, selection_end, draw_rect);
+
+    //reset font buffers one more time next iteration, after all other segments are actually drawn
+    if (reset_font_buffers)
+    {
+        mLastGeneration = -1;
+    }
+    return result;
+}
+
 // virtual
 LLTextSegmentPtr LLEmojiTextSegment::clone(LLTextBase& target) const
 {

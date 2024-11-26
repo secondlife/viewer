@@ -189,7 +189,7 @@ bool LLVisualParamHint::render()
     gGL.matrixMode(LLRender::MM_PROJECTION);
     gGL.pushMatrix();
     gGL.loadIdentity();
-    gGL.ortho(0.0f, (F32)mFullWidth, 0.0f, (F32)mFullHeight, -1.0f, 1.0f);
+    gGL.ortho(0.0f, (F32)getFullWidth(), 0.0f, (F32)getFullHeight(), -1.0f, 1.0f);
 
     gGL.matrixMode(LLRender::MM_MODELVIEW);
     gGL.pushMatrix();
@@ -199,7 +199,7 @@ bool LLVisualParamHint::render()
 
     LLGLSUIDefault gls_ui;
     //LLGLState::verify(true);
-    mBackgroundp->draw(0, 0, mFullWidth, mFullHeight);
+    mBackgroundp->draw(0, 0, getFullWidth(), getFullHeight());
 
     gGL.matrixMode(LLRender::MM_PROJECTION);
     gGL.popMatrix();
@@ -238,13 +238,13 @@ bool LLVisualParamHint::render()
 
     gGL.flush();
 
-    LLViewerCamera::getInstance()->setAspect((F32)mFullWidth / (F32)mFullHeight);
+    LLViewerCamera::getInstance()->setAspect((F32)getFullWidth() / (F32)getFullHeight());
     LLViewerCamera::getInstance()->setOriginAndLookAt(
         camera_pos,         // camera
         LLVector3::z_axis,  // up
         target_pos );       // point of interest
 
-    LLViewerCamera::getInstance()->setPerspective(false, mOrigin.mX, mOrigin.mY, mFullWidth, mFullHeight, false);
+    LLViewerCamera::getInstance()->setPerspective(false, mOrigin.mX, mOrigin.mY, getFullWidth(), getFullHeight(), false);
 
     if (gAgentAvatarp->mDrawable.notNull())
     {
@@ -288,18 +288,18 @@ void LLVisualParamHint::draw(F32 alpha)
     gGL.begin(LLRender::TRIANGLES);
     {
         gGL.texCoord2i(0, 1);
-        gGL.vertex2i(0, mFullHeight);
+        gGL.vertex2i(0, getFullHeight());
         gGL.texCoord2i(0, 0);
         gGL.vertex2i(0, 0);
         gGL.texCoord2i(1, 0);
-        gGL.vertex2i(mFullWidth, 0);
+        gGL.vertex2i(getFullWidth(), 0);
 
         gGL.texCoord2i(0, 1);
-        gGL.vertex2i(0, mFullHeight);
+        gGL.vertex2i(0, getFullHeight());
         gGL.texCoord2i(1, 0);
-        gGL.vertex2i(mFullWidth, 0);
+        gGL.vertex2i(getFullWidth(), 0);
         gGL.texCoord2i(1, 1);
-        gGL.vertex2i(mFullWidth, mFullHeight);
+        gGL.vertex2i(getFullWidth(), getFullHeight());
     }
     gGL.end();
 

@@ -202,9 +202,43 @@
    height="10"
    layout="topleft"
    left="86"
-   name="single_click_action_lbl"
+   name="mouse_warp_lbl"
    width="150"
    top_pad="20">
+    Mouse Warp:
+  </text>
+  <combo_box
+   control_name="MouseWarpMode"
+   height="23"
+   layout="topleft"
+   left_pad="10"
+   top_delta="-6"
+   name="mouse_warp_combo"
+   tooltip="Controls warping of the mouse to the center of the screen during alt-zoom and mouse look."
+   width="200">
+    <combo_box.item
+     label="Automatic"
+     name="0"
+     value="0"/>
+    <combo_box.item
+     label="On"
+     name="1"
+     value="1"/>
+    <combo_box.item
+     label="Off"
+     name="2"
+     value="2"/>
+  </combo_box>
+  <text
+   follows="left|top"
+   type="string"
+   length="1"
+   height="10"
+   layout="topleft"
+   left="86"
+   name="single_click_action_lbl"
+   width="150"
+   top_pad="12">
     Single click on land:
   </text>
   <combo_box

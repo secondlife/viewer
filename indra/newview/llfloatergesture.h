@@ -40,6 +40,7 @@ class LLView;
 class LLButton;
 class LLLineEditor;
 class LLComboBox;
+class LLCheckBoxCtrl;
 class LLViewerGesture;
 class LLGestureOptions;
 class LLScrollListCtrl;
@@ -57,20 +58,22 @@ public:
     virtual ~LLFloaterGesture();
 
     virtual bool postBuild();
-    virtual void done ();
+    virtual void draw();
+    virtual void done();
     void refreshAll();
     /**
      * @brief Add new scrolllistitem into gesture_list.
      * @param  item_id inventory id of gesture
      * @param  gesture can be NULL , if item was not loaded yet
      */
-    void addGesture(const LLUUID& item_id, LLMultiGesture* gesture, LLCtrlListInterface * list);
+    void addGesture(const LLUUID& item_id, LLMultiGesture* gesture, LLCtrlListInterface* list);
 
 protected:
     // Reads from the gesture manager's list of active gestures
     // and puts them in this list.
     void buildGestureList();
     void playGesture(LLUUID item_id);
+
 private:
     void addToCurrentOutFit();
     /**
@@ -102,7 +105,7 @@ private:
     LLUUID mSelectedID;
     LLUUID mGestureFolderID;
     LLScrollListCtrl* mGestureList;
-
+    LLCheckBoxCtrl* mPlayAllInfinitely;
     LLFloaterGestureObserver* mObserver;
 };
 
