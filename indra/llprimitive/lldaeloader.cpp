@@ -2082,79 +2082,83 @@ void LLDAELoader::processElement( daeElement* element, bool& badElement, DAE* da
         {
             if (domMesh* mesh = daeSafeCast<domMesh>(geo->getDescendant(daeElement::matchType(domMesh::ID()))))
             {
-                for (LLModel* model : mModelsMap.find(mesh)->second)
+                dae_model_map::iterator it = mModelsMap.find(mesh);
+                if (it != mModelsMap.end())
                 {
-                    LLMatrix4 transformation = mTransform;
-
-                    if (mTransform.determinant() < 0)
-                    { //negative scales are not supported
-                        LL_INFOS() << "Negative scale detected, unsupported transform.  domInstance_geometry: " << getElementLabel(instance_geo) << LL_ENDL;
-                        LLSD args;
-                        args["Message"] = "NegativeScaleTrans";
-                        args["LABEL"] = getElementLabel(instance_geo);
-                        mWarningsArray.append(args);
-
-                        badElement = true;
-                    }
-
-                    LLModelLoader::material_map materials = getMaterials(model, instance_geo, dae);
-
-                    // adjust the transformation to compensate for mesh normalization
-                    LLVector3 mesh_scale_vector;
-                    LLVector3 mesh_translation_vector;
-                    model->getNormalizedScaleTranslation(mesh_scale_vector, mesh_translation_vector);
-
-                    LLMatrix4 mesh_translation;
-                    mesh_translation.setTranslation(mesh_translation_vector);
-                    mesh_translation *= transformation;
-                    transformation = mesh_translation;
-
-                    LLMatrix4 mesh_scale;
-                    mesh_scale.initScale(mesh_scale_vector);
-                    mesh_scale *= transformation;
-                    transformation = mesh_scale;
-
-                    if (transformation.determinant() < 0)
-                    { //negative scales are not supported
-                        LL_INFOS() << "Negative scale detected, unsupported post-normalization transform.  domInstance_geometry: " << getElementLabel(instance_geo) << LL_ENDL;
-                        LLSD args;
-                        args["Message"] = "NegativeScaleNormTrans";
-                        args["LABEL"] = getElementLabel(instance_geo);
-                        mWarningsArray.append(args);
-                        badElement = true;
-                    }
-
-                    std::string label;
-
-                    if (model->mLabel.empty())
+                    for (LLModel* model : it->second)
                     {
-                        label = getLodlessLabel(instance_geo);
+                        LLMatrix4 transformation = mTransform;
 
-                        llassert(!label.empty());
+                        if (mTransform.determinant() < 0)
+                        { //negative scales are not supported
+                            LL_INFOS() << "Negative scale detected, unsupported transform.  domInstance_geometry: " << getElementLabel(instance_geo) << LL_ENDL;
+                            LLSD args;
+                            args["Message"] = "NegativeScaleTrans";
+                            args["LABEL"] = getElementLabel(instance_geo);
+                            mWarningsArray.append(args);
 
-                        if (model->mSubmodelID)
-                        {
-                            label += (char)((int)'a' + model->mSubmodelID);
+                            badElement = true;
                         }
 
-                        model->mLabel = label + lod_suffix[mLod];
-                    }
-                    else
-                    {
-                        // Don't change model's name if possible, it will play havoc with scenes that already use said model.
-                        size_t ext_pos = getSuffixPosition(model->mLabel);
-                        if (ext_pos != -1)
+                        LLModelLoader::material_map materials = getMaterials(model, instance_geo, dae);
+
+                        // adjust the transformation to compensate for mesh normalization
+                        LLVector3 mesh_scale_vector;
+                        LLVector3 mesh_translation_vector;
+                        model->getNormalizedScaleTranslation(mesh_scale_vector, mesh_translation_vector);
+
+                        LLMatrix4 mesh_translation;
+                        mesh_translation.setTranslation(mesh_translation_vector);
+                        mesh_translation *= transformation;
+                        transformation = mesh_translation;
+
+                        LLMatrix4 mesh_scale;
+                        mesh_scale.initScale(mesh_scale_vector);
+                        mesh_scale *= transformation;
+                        transformation = mesh_scale;
+
+                        if (transformation.determinant() < 0)
+                        { //negative scales are not supported
+                            LL_INFOS() << "Negative scale detected, unsupported post-normalization transform.  domInstance_geometry: " << getElementLabel(instance_geo) << LL_ENDL;
+                            LLSD args;
+                            args["Message"] = "NegativeScaleNormTrans";
+                            args["LABEL"] = getElementLabel(instance_geo);
+                            mWarningsArray.append(args);
+                            badElement = true;
+                        }
+
+                        std::string label;
+
+                        if (model->mLabel.empty())
                         {
-                            label = model->mLabel.substr(0, ext_pos);
+                            label = getLodlessLabel(instance_geo);
+
+                            llassert(!label.empty());
+
+                            if (model->mSubmodelID)
+                            {
+                                label += (char)((int)'a' + model->mSubmodelID);
+                            }
+
+                            model->mLabel = label + lod_suffix[mLod];
                         }
                         else
                         {
-                            label = model->mLabel;
+                            // Don't change model's name if possible, it will play havoc with scenes that already use said model.
+                            size_t ext_pos = getSuffixPosition(model->mLabel);
+                            if (ext_pos != -1)
+                            {
+                                label = model->mLabel.substr(0, ext_pos);
+                            }
+                            else
+                            {
+                                label = model->mLabel;
+                            }
                         }
-                    }
 
-                    mScene[transformation].push_back(LLModelInstance(model, label, transformation, materials));
-                    stretch_extents(model, transformation);
+                        mScene[transformation].push_back(LLModelInstance(model, label, transformation, materials));
+                        stretch_extents(model, transformation);
+                    }
                 }
             }
         }

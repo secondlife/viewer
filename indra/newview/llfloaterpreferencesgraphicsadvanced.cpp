@@ -271,6 +271,7 @@ void LLFloaterPreferenceGraphicsAdvanced::disableUnavailableSettings()
     LLCheckBoxCtrl* ctrl_dof = getChild<LLCheckBoxCtrl>("UseDoF");
     LLSliderCtrl* sky = getChild<LLSliderCtrl>("SkyMeshDetail");
     LLTextBox* sky_text = getChild<LLTextBox>("SkyMeshDetailText");
+    LLSliderCtrl* cas_slider = getChild<LLSliderCtrl>("RenderSharpness");
 
     // disabled windlight
     if (!LLFeatureManager::getInstance()->isFeatureAvailable("WindLightUseAtmosShaders"))
@@ -318,6 +319,19 @@ void LLFloaterPreferenceGraphicsAdvanced::disableUnavailableSettings()
         ctrl_shadows->setValue(0);
         shadows_text->setEnabled(false);
     }
+
+    // Vintage mode
+    LLCachedControl<bool> is_vintage(gSavedSettings, "RenderVintageMode");
+    LLSliderCtrl*         tonemapMix    = getChild<LLSliderCtrl>("TonemapMix");
+    LLComboBox*           tonemapSelect = getChild<LLComboBox>("TonemapType");
+    LLTextBox*            tonemapLabel  = getChild<LLTextBox>("TonemapTypeText");
+    LLSliderCtrl*         exposureSlider = getChild<LLSliderCtrl>("RenderExposure");
+
+    tonemapSelect->setEnabled(!is_vintage);
+    tonemapLabel->setEnabled(!is_vintage);
+    tonemapMix->setEnabled(!is_vintage);
+    exposureSlider->setEnabled(!is_vintage);
+    cas_slider->setEnabled(!is_vintage);
 }
 
 void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()

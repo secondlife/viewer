@@ -1844,6 +1844,47 @@ if (WINDOWS)
 
     add_dependencies(${VIEWER_BINARY_NAME} stage_third_party_libs llcommon llwebrtc copy_w_viewer_manifest)
 
+    # Useful for remote debugging or profiling if set to target a shared drive. for example, brad sets it to "dist/secondlife" to deploy under
+    # the build tree (and then I share that directory) or "f:/dist/secondlife" to deploy to a network mounted drive (although this can be slow).
+    # this will also create an "unpacked" tarball at build-<platform>/newview/unpacked_<platform>_7_1_11_<build num>.tar
+    set(LOCAL_DIST_DIR "" CACHE PATH "Path for 'local' unpacked copy of viewer distribution to be deployed to.")
+    set(product SecondLife-${ARCH}-${VIEWER_SHORT_VERSION}.${VIEWER_VERSION_REVISION})
+    if(IS_DIRECTORY ${LOCAL_DIST_DIR})
+        add_custom_command(
+            OUTPUT  ${LOCAL_DIST_DIR}/.${product}.copy_touched
+            COMMAND ${PYTHON_EXECUTABLE}
+            ARGS
+            ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
+            "--actions=\"copy package unpacked\""
+            --arch=${ARCH}
+            --artwork=${ARTWORK_DIR}
+            "--bugsplat=${BUGSPLAT_DB}"
+            "--openal=${USE_OPENAL}"
+            "--tracy=${USE_TRACY}"
+            --build=${CMAKE_CURRENT_BINARY_DIR}
+            --buildtype=$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,${CMAKE_BUILD_TYPE}>
+            "--channel=${VIEWER_CHANNEL}"
+            --configuration=$<CONFIG>
+            --dest=${LOCAL_DIST_DIR}
+            --grid=${GRID}
+            --source=${CMAKE_CURRENT_SOURCE_DIR}
+            --versionfile=${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
+            --touch=${LOCAL_DIST_DIR}/.${product}.copy_touched
+            DEPENDS
+            ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
+            stage_third_party_libs
+            llwebrtc
+            ${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
+            ${COPY_INPUT_DEPENDENCIES}
+            ${VIEWER_BINARY_NAME}
+            COMMENT "Performing viewer_manifest local dist copy"
+            )
+
+        add_custom_target(copy_local_dist_viewer_manifest ALL DEPENDS ${LOCAL_DIST_DIR}/.${product}.copy_touched)
+    elseif (NOT LOCAL_DIST_DIR STREQUAL "")
+        message(FATAL_ERROR "LOCAL_DIST_DIR ${LOCAL_DIST_DIR} specified but is not valid target directory to copy viewer distribution into.  Please create the directory and try again")
+    endif ()  # IS_DIRECTORY ${LOCAL_DIST_DIR}
+
     if (EXISTS ${CMAKE_SOURCE_DIR}/copy_win_scripts)
       add_dependencies(${VIEWER_BINARY_NAME} copy_win_scripts)
     endif (EXISTS ${CMAKE_SOURCE_DIR}/copy_win_scripts)
