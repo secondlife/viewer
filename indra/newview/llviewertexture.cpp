@@ -1872,7 +1872,7 @@ bool LLViewerFetchedTexture::updateFetch()
         if (mRawImage.notNull()) sRawCount--;
         if (mAuxRawImage.notNull()) sAuxCount--;
         // keep in mind that fetcher still might need raw image, don't modify original
-        bool finished = LLAppViewer::getTextureFetch()->getRequestFinished(getID(), fetch_discard, mRawImage, mAuxRawImage,
+        bool finished = LLAppViewer::getTextureFetch()->getRequestFinished(getID(), fetch_discard, mFetchState, mRawImage, mAuxRawImage,
                                                                            mLastHttpGetStatus);
         if (mRawImage.notNull()) sRawCount++;
         if (mAuxRawImage.notNull())
@@ -1979,6 +1979,7 @@ bool LLViewerFetchedTexture::updateFetch()
                                 << " mRawDiscardLevel " << mRawDiscardLevel
                                 << " current_discard " << current_discard
                                 << " stats " << mLastHttpGetStatus.toHex()
+                                << " worker state " << mFetchState
                                 << LL_ENDL;
                     }
                     setIsMissingAsset();
