@@ -1,4 +1,4 @@
-version 65
+version 66
 // The version number above should be incremented IF AND ONLY IF some
 // change has been made that is sufficiently important to justify
 // resetting the graphics preferences of all users to the recommended
@@ -165,7 +165,7 @@ RenderCASSharpness          1   0
 RenderExposure				1   1
 RenderTonemapType			1   1
 RenderTonemapMix			1   0.7
-RenderVintageMode           1   0
+RenderVintageMode           1   1
 
 //
 // Medium Graphics Settings (standard)
@@ -206,7 +206,6 @@ RenderCASSharpness          1   0
 RenderExposure				1   1
 RenderTonemapType			1   1
 RenderTonemapMix			1   0.7
-RenderVintageMode           1   0
 
 //
 // Medium High Graphics Settings
@@ -247,7 +246,6 @@ RenderCASSharpness          1   0
 RenderExposure				1   1
 RenderTonemapType			1   1
 RenderTonemapMix			1   0.7
-RenderVintageMode           1   0
 
 //
 // High Graphics Settings (SSAO + sun shadows)
@@ -288,7 +286,6 @@ RenderCASSharpness          1   0
 RenderExposure				1   1
 RenderTonemapType			1   1
 RenderTonemapMix			1   0.7
-RenderVintageMode           1   0
 
 //
 // High Ultra Graphics Settings (SSAO + all shadows)
@@ -329,7 +326,6 @@ RenderCASSharpness          1   0.4
 RenderExposure				1   1
 RenderTonemapType			1   1
 RenderTonemapMix			1   0.7
-RenderVintageMode           1   0
 
 //
 // Ultra graphics (REALLY PURTY!)
@@ -370,7 +366,6 @@ RenderCASSharpness          1   0.4
 RenderExposure				1   1
 RenderTonemapType			1   1
 RenderTonemapMix			1   0.7
-RenderVintageMode           1   0
 
 //
 // Class Unknown Hardware (unknown)

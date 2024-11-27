@@ -1,4 +1,4 @@
-version 71
+version 72
 // The version number above should be incremented IF AND ONLY IF some
 // change has been made that is sufficiently important to justify
 // resetting the graphics preferences of all users to the recommended
@@ -127,6 +127,7 @@ RenderCASSharpness          1   0
 RenderExposure				1   1
 RenderTonemapType			1   1
 RenderTonemapMix			1   0.7
+RenderVintageMode           1   1
 
 //
 // Medium Low Graphics Settings
@@ -167,6 +168,7 @@ RenderCASSharpness          1   0
 RenderExposure				1   1
 RenderTonemapType			1   1
 RenderTonemapMix			1   0.7
+RenderVintageMode           1   1
 
 //
 // Medium Graphics Settings (standard)
