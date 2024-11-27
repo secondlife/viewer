@@ -717,6 +717,9 @@ void LLFeatureManager::applyBaseMasks()
         // make sure to disable background context activity in GL3 mode
         LLImageGLThread::sEnabledMedia = false;
         LLImageGLThread::sEnabledTextures = false;
+
+        // Make extra sure that vintage mode also gets enabled.
+        gSavedSettings.setBOOL("RenderVintageMode", true);
     }
 
     // now mask by gpu string
