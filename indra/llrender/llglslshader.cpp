@@ -1888,6 +1888,23 @@ void LLGLSLShader::uniform3f(const LLStaticHashedString& uniform, GLfloat x, GLf
     }
 }
 
+void LLGLSLShader::uniform4f(const LLStaticHashedString& uniform, GLfloat x, GLfloat y, GLfloat z, GLfloat w)
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
+    GLint location = getUniformLocation(uniform);
+
+    if (location >= 0)
+    {
+        const auto& iter = mValue.find(location);
+        LLVector4 vec(x, y, z, w);
+        if (iter == mValue.end() || shouldChange(iter->second, vec))
+        {
+            glUniform4f(location, x, y, z, w);
+            mValue[location] = vec;
+        }
+    }
+}
+
 void LLGLSLShader::uniform1fv(const LLStaticHashedString& uniform, U32 count, const GLfloat* v)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;

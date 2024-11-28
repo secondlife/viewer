@@ -1,4 +1,4 @@
-version 63
+version 66
 // The version number above should be incremented IF AND ONLY IF some
 // change has been made that is sufficiently important to justify
 // resetting the graphics preferences of all users to the recommended
@@ -84,6 +84,7 @@ RenderCASSharpness          1   1
 RenderExposure				1   1
 RenderTonemapType			1   1
 RenderTonemapMix			1   1
+RenderVintageMode           1   1
 
 //
 // Low Graphics Settings
@@ -125,6 +126,7 @@ RenderCASSharpness          1   0
 RenderExposure				1   1
 RenderTonemapType			1   1
 RenderTonemapMix			1   0.7
+RenderVintageMode           1   1
 
 //
 // Medium Low Graphics Settings
@@ -166,6 +168,7 @@ RenderCASSharpness          1   0
 RenderExposure				1   1
 RenderTonemapType			1   1
 RenderTonemapMix			1   0.7
+RenderVintageMode           1   1
 
 //
 // Medium Graphics Settings (standard)
@@ -379,6 +382,7 @@ list Unknown
 RenderShadowDetail			1	0
 RenderDeferredSSAO			1	0
 RenderMirrors				1	0
+RenderVintageMode           1   1
 
 
 //
@@ -400,6 +404,7 @@ RenderTerrainDetail 		1	0
 RenderDeferredSSAO			0	0
 RenderShadowDetail			0	0
 RenderMirrors				0	0
+RenderVintageMode           1   1
 
 list TexUnit8orLess
 RenderDeferredSSAO			0	0
@@ -428,3 +433,4 @@ RenderFSAASamples           0   0
 RenderReflectionProbeDetail	0	0
 RenderReflectionsEnabled    0   0
 RenderMirrors				0	0
+RenderVintageMode           1   1
