@@ -1180,6 +1180,7 @@ void LLSettingsSky::loadValuesFromLLSD()
     mHDRMax = 2.0f;
     mHDRMin = 0.5f;
     mHDROffset = 1.0f;
+    mTonemapMix = 1.0f;
 
     mSunTextureId = settings[SETTING_SUN_TEXTUREID].asUUID();
     mMoonTextureId = settings[SETTING_MOON_TEXTUREID].asUUID();
@@ -2053,6 +2054,22 @@ F32 LLSettingsSky::getHDROffset() const
         return 1.0f;
 
     return mHDROffset;
+}
+
+F32 LLSettingsSky::getTonemapMix() const
+{
+    if (mCanAutoAdjust)
+        return 0.0f;
+
+    return mTonemapMix;
+}
+
+void LLSettingsSky::setTonemapMix(F32 mix)
+{
+    if (mCanAutoAdjust)
+        return;
+
+    mTonemapMix = mix;
 }
 
 void LLSettingsSky::setGamma(F32 val)

@@ -7150,17 +7150,7 @@ void LLPipeline::tonemap(LLRenderTarget* src, LLRenderTarget* dst)
 
         static LLCachedControl<U32> tonemap_type_setting(gSavedSettings, "RenderTonemapType", 0U);
         shader.uniform1i(tonemap_type, tonemap_type_setting);
-
-        static LLCachedControl<F32> tonemap_mix_setting(gSavedSettings, "RenderTonemapMix", 1.f);
-        if (psky->canAutoAdjust())
-        {
-            // Legacy skies
-            shader.uniform1f(tonemap_mix, 0.f);
-        }
-        else
-        {
-            shader.uniform1f(tonemap_mix, tonemap_mix_setting());
-        }
+        shader.uniform1f(tonemap_mix, psky->getTonemapMix());
 
         mScreenTriangleVB->setBuffer();
         mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
