@@ -7150,7 +7150,6 @@ void LLPipeline::tonemap(LLRenderTarget* src, LLRenderTarget* dst)
 
         static LLCachedControl<U32> tonemap_type_setting(gSavedSettings, "RenderTonemapType", 0U);
         shader.uniform1i(tonemap_type, tonemap_type_setting);
-
         shader.uniform1f(tonemap_mix, psky->getTonemapMix());
 
         mScreenTriangleVB->setBuffer();
