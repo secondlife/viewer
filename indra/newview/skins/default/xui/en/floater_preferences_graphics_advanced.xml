@@ -684,6 +684,20 @@
       function="Pref.RenderOptionUpdate" />
   </check_box>
 
+    <check_box
+      control_name="RenderVintageMode"
+      height="16"
+      initial_value="false"
+      label="Vintage Mode"
+      layout="topleft"
+      left="420"
+      name="VintageMode"
+      top_delta="20"
+      width="240">
+        <check_box.commit_callback
+          function="Pref.RenderOptionUpdate" />
+    </check_box>
+    
   <text
     type="string"
     length="1"

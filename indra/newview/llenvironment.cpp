@@ -815,7 +815,7 @@ const F64Seconds LLEnvironment::TRANSITION_ALTITUDE(5.0f);
 
 const LLUUID LLEnvironment::KNOWN_SKY_SUNRISE("01e41537-ff51-2f1f-8ef7-17e4df760bfb");
 const LLUUID LLEnvironment::KNOWN_SKY_MIDDAY("c46226b4-0e43-5a56-9708-d27ca1df3292");
-const LLUUID LLEnvironment::KNOWN_SKY_LEGACY_MIDDAY("cef49723-0292-af49-9b14-9598a616b8a3");
+const LLUUID LLEnvironment::KNOWN_SKY_LEGACY_MIDDAY("6c83e853-e7f8-cad7-8ee6-5f31c453721c");
 const LLUUID LLEnvironment::KNOWN_SKY_SUNSET("084e26cd-a900-28e8-08d0-64a9de5c15e2");
 const LLUUID LLEnvironment::KNOWN_SKY_MIDNIGHT("8a01b97a-cb20-c1ea-ac63-f7ea84ad0090");
 
