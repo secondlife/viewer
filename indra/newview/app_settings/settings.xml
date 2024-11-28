@@ -7921,6 +7921,17 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
+  <key>RenderEnableEmissiveBuffer</key>
+  <map>
+    <key>Comment</key>
+    <string>Enable emissive buffer in gbuffer.  Should only be disabled in GL3 mode.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
   <key>RenderHDRIExposure</key>
   <map>
     <key>Comment</key>
@@ -7968,7 +7979,7 @@
   <key>RenderMaxOpenGLVersion</key>
   <map>
     <key>Comment</key>
-    <string>Maximum OpenGL version to attempt use (minimum 3.2 maximum 4.6).  Requires restart.</string>
+    <string>Maximum OpenGL version to attempt use (minimum 3.1 maximum 4.6).  Requires restart.</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
@@ -9460,14 +9471,25 @@
   <key>RenderSkySunlightScale</key>
   <map>
     <key>Comment</key>
-    <string>Sunlight scale fudge factor for matching with pre-PBR viewer</string>
+    <string>Sunlight scale fudge factor for matching with pre-PBR viewer when HDR is disabled</string>
     <key>Persist</key>
-    <integer>1</integer>
+    <integer>0</integer>
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
     <real>1.0</real>
   </map>
+    <key>RenderHDRSkySunlightScale</key>
+    <map>
+        <key>Comment</key>
+        <string>Sunlight scale fudge factor for matching with pre-PBR viewer when HDR is enabled</string>
+        <key>Persist</key>
+        <integer>0</integer>
+        <key>Type</key>
+        <string>F32</string>
+        <key>Value</key>
+        <real>1.0</real>
+    </map>
   <key>RenderSkyAmbientScale</key>
   <map>
     <key>Comment</key>
@@ -9477,7 +9499,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>0.7</real>
+    <real>1.0</real>
   </map>
   
   <key>RenderReflectionProbeMaxLocalLightAmbiance</key>
@@ -16363,5 +16385,16 @@
     <key>Value</key>
     <integer>1</integer>
   </map>
+    <key>RenderVintageMode</key>
+    <map>
+        <key>Comment</key>
+        <string>Disable different rendering pipeline features to improve performance on older machines that makes the world look closer to how it used to prior to V7.</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>Boolean</string>
+        <key>Value</key>
+        <integer>0</integer>
+    </map>
 </map>
 </llsd>

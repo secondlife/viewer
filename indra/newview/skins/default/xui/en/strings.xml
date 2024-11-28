@@ -4323,6 +4323,9 @@ name="Command_360_Capture_Tooltip">Capture a 360 equirectangular image</string>
 
   <!-- PBR Materials -->
   <string name="Material Texture Name Header">Textures present this material: </string>
+  <string name="material_selection_title">Material selection</string>
+  <string name="material_selection_text">Select material:</string>
+  <string name="material_batch_import_text">--- Bulk Upload All ---</string>
   
   <!-- Conversation log messages -->
   <string name="logging_calls_disabled_log_empty">

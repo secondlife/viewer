@@ -58,9 +58,17 @@ bool LLFloaterLUADebug::postBuild()
         .listen("LLFloaterLUADebug",
                 [mResultOutput=mResultOutput](const LLSD& data)
                 {
-                    LLCachedControl<bool> show_source_info(gSavedSettings, "LuaDebugShowSource", false);
-                    std::string source_info = show_source_info ? data["source_info"].asString() : "";
-                    mResultOutput->pasteTextWithLinebreaks(stringize(data["level"].asString(), source_info, data["msg"].asString()), true);
+                    if(data.has("msg"))
+                    {
+                        LLCachedControl<bool> show_source_info(gSavedSettings, "LuaDebugShowSource", false);
+                        std::string source_info = show_source_info ? data["source_info"].asString() : "";
+                        mResultOutput->pasteTextWithLinebreaks(stringize(data["level"].asString(), source_info, data["msg"].asString()), true);
+                    }
+                    else
+                    {
+                        //LL.leaphelp(), LL.help()
+                        mResultOutput->pasteTextWithLinebreaks(data.asString(), true);
+                    }
                     mResultOutput->addLineBreakChar(true);
                     return false;
                 });

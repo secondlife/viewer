@@ -1167,9 +1167,15 @@ void LLVOTree::updateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
     pos.load3(center.mV);
     mDrawable->setPositionGroup(pos);
 
-    LLFace* facep = mDrawable->getFace(0);
-    facep->mExtents[0] = newMin;
-    facep->mExtents[1] = newMax;
+    if (mDrawable->getNumFaces() > 0)
+    {
+        LLFace* facep = mDrawable->getFace(0);
+        if (facep)
+        {
+            facep->mExtents[0] = newMin;
+            facep->mExtents[1] = newMax;
+        }
+    }
 }
 
 bool LLVOTree::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end, S32 face, bool pick_transparent, bool pick_rigged, bool pick_unselectable, S32 *face_hitp,
