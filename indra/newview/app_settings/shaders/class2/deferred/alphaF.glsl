@@ -36,6 +36,7 @@ out vec4 frag_color;
 uniform mat3 env_mat;
 uniform vec3 sun_dir;
 uniform vec3 moon_dir;
+uniform int classic_mode;
 
 #ifdef USE_DIFFUSE_TEX
 uniform sampler2D diffuseMap;
@@ -241,10 +242,10 @@ void main()
 
     calcAtmosphericVarsLinear(pos.xyz, norm, light_dir, sunlit, amblit, additive, atten);
 
-    vec3 sunlit_linear = srgb_to_linear(sunlit);
+    vec3 sunlit_linear = sunlit;
     vec3 amblit_linear = amblit;
 
-    vec3 irradiance;
+    vec3 irradiance = amblit;
     vec3 glossenv;
     vec3 legacyenv;
     sampleReflectionProbesLegacy(irradiance, glossenv, legacyenv, frag, pos.xyz, norm.xyz, 0.0, 0.0, true, amblit_linear);
@@ -260,11 +261,20 @@ void main()
 
     color.a   = final_alpha;
 
-    vec3 sun_contrib = min(final_da, shadow) * sunlit_linear;
-
     color.rgb = irradiance;
+    if (classic_mode > 0)
+    {
+        final_da = pow(final_da,1.2);
+        vec3 sun_contrib = vec3(min(final_da, shadow));
 
-    color.rgb += sun_contrib;
+        color.rgb = srgb_to_linear(color.rgb * 0.9 + linear_to_srgb(sun_contrib) * sunlit_linear * 0.7);
+        sunlit_linear = srgb_to_linear(sunlit_linear);
+    }
+    else
+    {
+        vec3 sun_contrib = min(final_da, shadow) * sunlit_linear;
+        color.rgb += sun_contrib;
+    }
 
     color.rgb *= diffuse_linear.rgb;
 

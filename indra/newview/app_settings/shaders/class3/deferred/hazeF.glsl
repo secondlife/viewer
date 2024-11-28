@@ -64,8 +64,6 @@ void main()
 
     calcAtmosphericVarsLinear(pos.xyz, norm.xyz, light_dir, sunlit, amblit, additive, atten);
 
-    vec3 sunlit_linear = srgb_to_linear(sunlit);
-
     // mask off atmospherics below water (when camera is under water)
     bool do_atmospherics = false;
 

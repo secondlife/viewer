@@ -316,6 +316,7 @@ protected:
 
     LLMeshUploadThread::instance_list mUploadData;
     std::set<LLViewerFetchedTexture * > mTextureSet;
+    LLLoadedCallbackEntry::source_callback_list_t mCallbackTextureList;
 
     //map of vertex buffers to models (one vertex buffer in vector per face in model
     std::map<LLModel*, std::vector<LLPointer<LLVertexBuffer> > > mVertexBuffer[LLModel::NUM_LODS + 1];

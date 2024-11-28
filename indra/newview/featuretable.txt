@@ -1,4 +1,4 @@
-version 65
+version 73
 // The version number above should be incremented IF AND ONLY IF some
 // change has been made that is sufficiently important to justify
 // resetting the graphics preferences of all users to the recommended
@@ -85,6 +85,9 @@ RenderCASSharpness          1   1
 RenderExposure				1   4
 RenderTonemapType			1   1
 RenderTonemapMix			1   1
+RenderEnableEmissiveBuffer  1   1
+RenderHDREnabled            1   1
+RenderVintageMode           1   1
 
 //
 // Low Graphics Settings
@@ -101,7 +104,7 @@ RenderGlowResolutionPow		1	8
 RenderLocalLightCount		1	8
 RenderMaxPartCount			1	0
 RenderTransparentWater      1   0
-RenderReflectionsEnabled    1   1
+RenderReflectionsEnabled    1   0
 RenderReflectionProbeDetail	1	0
 RenderTerrainDetail			1	0
 RenderTerrainLODFactor		1	1
@@ -126,6 +129,7 @@ RenderCASSharpness          1   0
 RenderExposure				1   1
 RenderTonemapType			1   1
 RenderTonemapMix			1   0.7
+RenderVintageMode           1   1
 
 //
 // Medium Low Graphics Settings
@@ -167,6 +171,7 @@ RenderCASSharpness          1   0
 RenderExposure				1   1
 RenderTonemapType			1   1
 RenderTonemapMix			1   0.7
+RenderVintageMode           1   1
 
 //
 // Medium Graphics Settings (standard)
@@ -380,6 +385,8 @@ list Unknown
 RenderShadowDetail			1	0
 RenderDeferredSSAO			1	0
 RenderMirrors				1	0
+RenderEnableEmissiveBuffer  1   0
+RenderVintageMode           1   1
 
 //
 // VRAM > 512MB
@@ -402,6 +409,7 @@ RenderDeferredSSAO			0	0
 RenderShadowDetail			0	0
 RenderReflectionProbeDetail	0	-1
 RenderMirrors				0	0
+RenderVintageMode           1   1
 
 list Intel
 RenderAnisotropic			1	0
@@ -420,6 +428,11 @@ RenderFSAASamples           0   0
 RenderReflectionsEnabled    0   0
 RenderReflectionProbeDetail	0	0
 RenderMirrors				0	0
+RenderEnableEmissiveBuffer  1   0
+RenderGLMultiThreadedTextures 0 0
+RenderGLMultiThreadedMedia 0 0
+RenderHDREnabled            1   0
+RenderVintageMode           1   1
 
 list TexUnit16orLess
 RenderTerrainPBRDetail      1   -1

@@ -27,9 +27,6 @@
 
 out vec4 frag_color;
 
-uniform sampler2D diffuseRect;
-uniform sampler2D specularRect;
-uniform sampler2D emissiveRect; // PBR linear packed Occlusion, Roughness, Metal. See: pbropaqueF.glsl
 uniform sampler2D lightFunc;
 
 uniform vec3 env_mat[3];
@@ -55,24 +52,29 @@ vec2 getScreenCoord(vec4 clip);
 vec3 srgb_to_linear(vec3 c);
 float getDepth(vec2 tc);
 
-vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor,
+void pbrPunctual(vec3 diffuseColor, vec3 specularColor,
                     float perceptualRoughness,
                     float metallic,
                     vec3 n, // normal
                     vec3 v, // surface point to camera
-                    vec3 l); //surface point to light
+                    vec3 l, // surface point to light
+                    out float nl,
+                    out vec3 diff,
+                    out vec3 spec);
+
+GBufferInfo getGBuffer(vec2 screenpos);
 
 void main()
 {
     vec3 final_color = vec3(0);
     vec2 tc          = getScreenCoord(vary_fragcoord);
     vec3 pos         = getPosition(tc).xyz;
+    GBufferInfo gb = getGBuffer(tc);
 
-    vec4 norm = getNorm(tc); // need `norm.w` for GET_GBUFFER_FLAG()
-    vec3 n = norm.xyz;
+    vec3 n = gb.normal;
 
-    vec3 diffuse = texture(diffuseRect, tc).rgb;
-    vec4 spec    = texture(specularRect, tc);
+    vec3 diffuse = gb.albedo.rgb;
+    vec4 spec    = gb.specular;
 
     // Common half vectors calcs
     vec3  lv = trans_center.xyz-pos;
@@ -87,9 +89,9 @@ void main()
     float dist = lightDist / size;
     float dist_atten = calcLegacyDistanceAttenuation(dist, falloff);
 
-    if (GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_PBR))
+    if (GET_GBUFFER_FLAG(gb.gbufferFlag, GBUFFER_FLAG_HAS_PBR))
     {
-        vec3 colorEmissive = texture(emissiveRect, tc).rgb;
+        vec3 colorEmissive = gb.emissive.rgb;
         vec3 orm = spec.rgb;
         float perceptualRoughness = orm.g;
         float metallic = orm.b;
@@ -102,7 +104,14 @@ void main()
         vec3 specularColor = mix(f0, baseColor.rgb, metallic);
 
         vec3 intensity = dist_atten * color * 3.25; // Legacy attenuation, magic number to balance with legacy materials
-        final_color += intensity*pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, n.xyz, v, normalize(lv));
+
+        float nl = 0;
+        vec3 diffPunc = vec3(0);
+        vec3 specPunc = vec3(0);
+
+        pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, n.xyz, v, normalize(lv), nl, diffPunc, specPunc);
+
+        final_color += intensity* clamp(nl * (diffPunc + specPunc), vec3(0), vec3(10));
     }
     else
     {

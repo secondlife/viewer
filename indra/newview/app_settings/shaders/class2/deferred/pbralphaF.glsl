@@ -111,13 +111,6 @@ vec3 pbrBaseLight(vec3 diffuseColor,
                   vec3 additive,
                   vec3 atten);
 
-vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor,
-                    float perceptualRoughness,
-                    float metallic,
-                    vec3 n, // normal
-                    vec3 v, // surface point to camera
-                    vec3 l); //surface point to light
-
 vec3 pbrCalcPointLightOrSpotLight(vec3 diffuseColor, vec3 specularColor,
                     float perceptualRoughness,
                     float metallic,
@@ -168,7 +161,7 @@ void main()
     vec3 atten;
     calcAtmosphericVarsLinear(pos.xyz, norm, light_dir, sunlit, amblit, additive, atten);
 
-    vec3 sunlit_linear = srgb_to_linear(sunlit);
+    vec3 sunlit_linear = sunlit;
 
     vec2 frag = vary_fragcoord.xy/vary_fragcoord.z*0.5+0.5;
 
@@ -189,7 +182,7 @@ void main()
 
     // PBR IBL
     float gloss      = 1.0 - perceptualRoughness;
-    vec3  irradiance = vec3(0);
+    vec3  irradiance = amblit;
     vec3  radiance  = vec3(0);
     sampleReflectionProbes(irradiance, radiance, vary_position.xy*0.5+0.5, pos.xyz, norm.xyz, gloss, true, amblit);
 

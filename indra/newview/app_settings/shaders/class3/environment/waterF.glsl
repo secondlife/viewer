@@ -42,20 +42,25 @@ vec2 BRDF(float NoV, float roughness);
 
 void calcDiffuseSpecular(vec3 baseColor, float metallic, inout vec3 diffuseColor, inout vec3 specularColor);
 
-vec3 pbrIbl(vec3 diffuseColor,
+void pbrIbl(vec3 diffuseColor,
     vec3 specularColor,
     vec3 radiance, // radiance map sample
     vec3 irradiance, // irradiance map sample
     float ao,       // ambient occlusion factor
     float nv,       // normal dot view vector
-    float perceptualRoughness);
-
-vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor,
     float perceptualRoughness,
-    float metallic,
-    vec3 n, // normal
-    vec3 v, // surface point to camera
-    vec3 l); //surface point to light
+    out vec3 diffuse,
+    out vec3 specular);
+
+void pbrPunctual(vec3 diffuseColor, vec3 specularColor,
+                    float perceptualRoughness,
+                    float metallic,
+                    vec3 n, // normal
+                    vec3 v, // surface point to camera
+                    vec3 l, // surface point to light
+                    out float nl,
+                    out vec3 diff,
+                    out vec3 spec);
 
 vec3 pbrBaseLight(vec3 diffuseColor,
                   vec3 specularColor,
@@ -257,13 +262,20 @@ void main()
 
     float NdotV = clamp(abs(dot(norm, v)), 0.001, 1.0);
 
-    vec3 punctual = pbrPunctual(vec3(0), specularColor, 0.1, metallic, normalize(wavef+up*max(dist, 32.0)/32.0*(1.0-vdu)), v, normalize(light_dir));
+    float nl = 0;
+    vec3 diffPunc = vec3(0);
+    vec3 specPunc = vec3(0);
+
+    pbrPunctual(vec3(0), specularColor, 0.1, metallic, normalize(wavef+up*max(dist, 32.0)/32.0*(1.0-vdu)), v, normalize(light_dir), nl, diffPunc, specPunc);
+
+    vec3 punctual = clamp(nl * (diffPunc + specPunc), vec3(0), vec3(10));
 
     vec3 color = punctual * sunlit_linear * 2.75 * shadow;
+    vec3 iblDiff;
+    vec3 iblSpec;
+    pbrIbl(vec3(0), vec3(1), radiance, vec3(0), ao, NdotV, 0.0, iblDiff, iblSpec);
 
-    vec3 ibl = pbrIbl(vec3(0), vec3(1), radiance, vec3(0), ao, NdotV, 0.0);
-
-    color += ibl;
+    color += iblDiff + iblSpec;
 
     float nv = clamp(abs(dot(norm.xyz, v)), 0.001, 1.0);
     vec2 brdf = BRDF(clamp(nv, 0, 1), 1.0);
