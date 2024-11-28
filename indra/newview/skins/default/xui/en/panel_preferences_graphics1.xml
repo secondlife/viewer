@@ -327,6 +327,7 @@
 
   <slider
     control_name="RenderExposure"
+    disabled_control="RenderVintageMode"
     decimal_digits="1"
     follows="left|top"
     height="16"
