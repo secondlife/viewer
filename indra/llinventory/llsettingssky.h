@@ -212,7 +212,6 @@ public:
     F32 getHDRMin() const;
     F32 getHDRMax() const;
     F32 getHDROffset() const;
-    F32 getTonemapMix() const;
 
     void setGamma(F32 val);
 
@@ -385,7 +384,6 @@ protected:
     F32 mCloudVariance;
     F32 mCloudShadow;
     F32 mCloudScale;
-    F32 mTonemapMix;
     F32 mHDROffset;
     F32 mHDRMax;
     F32 mHDRMin;
