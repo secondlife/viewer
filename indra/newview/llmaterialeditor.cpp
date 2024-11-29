@@ -1982,17 +1982,18 @@ void LLMaterialEditor::loadMaterialFromFile(const std::string& filename, S32 ind
         return;
     }
 
-    LLMaterialEditor* me = (LLMaterialEditor*)LLFloaterReg::getInstance("material_editor");
-    me->mUploadFolder = dest_folder;
-
     if (index >= 0)
     {
         // Prespecified material
+        LLMaterialEditor* me = LLFloaterReg::getTypedInstance<LLMaterialEditor>("material_editor");
+        me->mUploadFolder = dest_folder;
         me->loadMaterial(model_in, filename, index);
     }
     else if (model_in.materials.size() == 1)
     {
         // Only one material, just load it
+        LLMaterialEditor* me = LLFloaterReg::getTypedInstance<LLMaterialEditor>("material_editor");
+        me->mUploadFolder = dest_folder;
         me->loadMaterial(model_in, filename, 0);
     }
     else
@@ -2018,10 +2019,12 @@ void LLMaterialEditor::loadMaterialFromFile(const std::string& filename, S32 ind
         material_list.push_back(LLTrans::getString("material_batch_import_text"));
 
         LLFloaterComboOptions::showUI(
-            [me, model_in, filename](const std::string& option, S32 index)
+            [model_in, filename, dest_folder](const std::string& option, S32 index)
             {
                 if (index >= 0) // -1 on cancel
                 {
+                    LLMaterialEditor* me = LLFloaterReg::getTypedInstance<LLMaterialEditor>("material_editor");
+                    me->mUploadFolder = dest_folder;
                     me->loadMaterial(model_in, filename, index);
                 }
             },
