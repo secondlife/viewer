@@ -50,7 +50,7 @@ jobs:
         runner: [windows-large, macos-15-xlarge]
         experimental: [false]
         include:
-        - runner: linux-large
+        - runner: ubuntu-24.04
           experimental: true
     runs-on: ${{ matrix.runner }}
     outputs:

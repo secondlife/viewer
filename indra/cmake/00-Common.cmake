@@ -158,6 +158,7 @@ if (LINUX)
       -mfpmath=sse
       -pthread
       -fvisibility=hidden
+      -static-libstdc++ -static-libgcc # libstdc++ and glibc, static links
   )
 
   add_link_options(
@@ -205,7 +206,7 @@ if(LINUX OR DARWIN)
   add_compile_options(-Wall -Wno-sign-compare -Wno-trigraphs -Wno-reorder -Wno-unused-but-set-variable -Wno-unused-variable -Wno-unused-local-typedef)
 
   if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    add_compile_options(-Wno-stringop-truncation -Wno-parentheses -Wno-c++20-compat)
+    add_compile_options(-Wno-stringop-truncation -Wno-parentheses -Wno-c++20-compat -Wno-dangling-pointer -Wno-maybe-uninitialized -Wno-uninitialized)
   endif()
 
   if (NOT GCC_DISABLE_FATAL_WARNINGS)
