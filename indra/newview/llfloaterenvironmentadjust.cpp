@@ -178,7 +178,7 @@ void LLFloaterEnvironmentAdjust::refresh()
     getChild<LLTextureCtrl>(FIELD_SKY_CLOUD_MAP)->setValue(mLiveSky->getCloudNoiseTextureId());
     getChild<LLTextureCtrl>(FIELD_WATER_NORMAL_MAP)->setValue(mLiveWater->getNormalMapID());
 
-    static LLCachedControl<bool> should_auto_adjust(gSavedSettings, "RenderSkyAutoAdjustLegacy", true);
+    static LLCachedControl<bool> should_auto_adjust(gSavedSettings, "RenderSkyAutoAdjustLegacy", false);
     getChild<LLUICtrl>(FIELD_REFLECTION_PROBE_AMBIANCE)->setValue(mLiveSky->getReflectionProbeAmbiance(should_auto_adjust));
 
     LLColor3 glow(mLiveSky->getGlow());
@@ -494,7 +494,7 @@ void LLFloaterEnvironmentAdjust::updateGammaLabel()
 {
     if (!mLiveSky) return;
 
-    static LLCachedControl<bool> should_auto_adjust(gSavedSettings, "RenderSkyAutoAdjustLegacy", true);
+    static LLCachedControl<bool> should_auto_adjust(gSavedSettings, "RenderSkyAutoAdjustLegacy", false);
     F32 ambiance = mLiveSky->getReflectionProbeAmbiance(should_auto_adjust);
     if (ambiance != 0.f)
     {

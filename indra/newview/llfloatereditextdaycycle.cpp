@@ -1712,6 +1712,7 @@ void LLFloaterEditExtDayCycle::onPickerCommitSetting(LLUUID item_id, S32 track)
 
 void LLFloaterEditExtDayCycle::showHDRNotification(const LLSettingsDay::ptr_t &pday)
 {
+    static LLCachedControl<bool> should_auto_adjust(gSavedSettings, "RenderSkyAutoAdjustLegacy", false);
     for (U32 i = LLSettingsDay::TRACK_GROUND_LEVEL; i <= LLSettingsDay::TRACK_MAX; i++)
     {
         LLSettingsDay::CycleTrack_t &day_track = pday->getCycleTrack(i);
@@ -1722,7 +1723,8 @@ void LLFloaterEditExtDayCycle::showHDRNotification(const LLSettingsDay::ptr_t &p
         while (iter != end)
         {
             LLSettingsSky::ptr_t sky = std::static_pointer_cast<LLSettingsSky>(iter->second);
-            if (sky
+            if (should_auto_adjust()
+                && sky
                 && sky->canAutoAdjust()
                 && sky->getReflectionProbeAmbiance(true) != 0.f)
             {
