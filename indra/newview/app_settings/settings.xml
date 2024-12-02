@@ -16074,7 +16074,7 @@
     <key>RenderDisableVintageMode</key>
     <map>
         <key>Comment</key>
-        <string>Disable different rendering pipeline features to improve performance on older machines that makes the world look closer to how it used to prior to V7.</string>
+        <string>Enables additional rendering pipeline features on newer machines such as HDR and emissive textures on PBR content.</string>
         <key>Persist</key>
         <integer>1</integer>
         <key>Type</key>
