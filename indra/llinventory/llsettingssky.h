@@ -213,6 +213,7 @@ public:
     F32 getHDRMax() const;
     F32 getHDROffset() const;
     F32 getTonemapMix() const;
+    void setTonemapMix(F32 mix);
 
     void setGamma(F32 val);
 
