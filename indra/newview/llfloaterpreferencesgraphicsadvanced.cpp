@@ -321,17 +321,17 @@ void LLFloaterPreferenceGraphicsAdvanced::disableUnavailableSettings()
     }
 
     // Vintage mode
-    LLCachedControl<bool> is_vintage(gSavedSettings, "RenderVintageMode");
+    LLCachedControl<bool> is_not_vintage(gSavedSettings, "RenderDisableVintageMode");
     LLSliderCtrl*         tonemapMix    = getChild<LLSliderCtrl>("TonemapMix");
     LLComboBox*           tonemapSelect = getChild<LLComboBox>("TonemapType");
     LLTextBox*            tonemapLabel  = getChild<LLTextBox>("TonemapTypeText");
     LLSliderCtrl*         exposureSlider = getChild<LLSliderCtrl>("RenderExposure");
 
-    tonemapSelect->setEnabled(!is_vintage);
-    tonemapLabel->setEnabled(!is_vintage);
-    tonemapMix->setEnabled(!is_vintage);
-    exposureSlider->setEnabled(!is_vintage);
-    cas_slider->setEnabled(!is_vintage);
+    tonemapSelect->setEnabled(is_not_vintage);
+    tonemapLabel->setEnabled(is_not_vintage);
+    tonemapMix->setEnabled(is_not_vintage);
+    exposureSlider->setEnabled(is_not_vintage);
+    cas_slider->setEnabled(is_not_vintage);
 }
 
 void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()
