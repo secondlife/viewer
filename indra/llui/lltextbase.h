@@ -96,6 +96,7 @@ public:
     virtual void                setToken( LLKeywordToken* token );
     virtual LLKeywordToken*     getToken() const;
     virtual void                setToolTip(const std::string& tooltip);
+    virtual std::string         getToolTip() const;
     virtual void                dump() const;
 
     // LLMouseHandler interface
@@ -147,6 +148,7 @@ public:
     /*virtual*/ void                setToken( LLKeywordToken* token )   { mToken = token; }
     /*virtual*/ LLKeywordToken*     getToken() const                    { return mToken; }
     /*virtual*/ void                setToolTip(const std::string& tooltip);
+    /*virtual*/ std::string         getToolTip() const { return mTooltip; }
     /*virtual*/ void                dump() const;
 
     /*virtual*/ bool                handleHover(S32 x, S32 y, MASK mask);
