@@ -1,4 +1,4 @@
-version 66
+version 67
 // The version number above should be incremented IF AND ONLY IF some
 // change has been made that is sufficiently important to justify
 // resetting the graphics preferences of all users to the recommended
@@ -426,3 +426,7 @@ RenderReflectionProbeDetail	0	0
 RenderReflectionsEnabled    0   0
 RenderMirrors				0	0
 RenderVintageMode           1   1
+
+list VaryingVectors16orLess
+RenderTerrainPBRPlanarSampleCount 1   1
+
