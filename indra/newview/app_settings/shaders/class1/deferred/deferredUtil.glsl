@@ -544,8 +544,13 @@ vec3 pbrCalcPointLightOrSpotLight(vec3 diffuseColor, vec3 specularColor,
         pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, n.xyz, v, lv, nl, diffPunc, specPunc);
         color = intensity * clamp(nl * (diffPunc + specPunc), vec3(0), vec3(10));
     }
+    
+    float final_scale = 1.0;
 
-    return color;
+    if (classic_mode > 0)
+        final_scale = 0.9;
+    
+    return color * final_scale;
 }
 
 void calcDiffuseSpecular(vec3 baseColor, float metallic, inout vec3 diffuseColor, inout vec3 specularColor)
@@ -581,8 +586,6 @@ vec3 pbrBaseLight(vec3 diffuseColor, vec3 specularColor, float metallic, vec3 v,
         // Reconstruct the diffuse lighting that we do for blinn-phong materials here.
         // A special note about why we do some really janky stuff for classic mode.
         // Since adding classic mode, we've moved the lambertian diffuse multiply out from pbrPunctual and instead handle it in the different light type calcs.
-        // For classic mode, this baiscally introduces a double multiplication that we need to somehow avoid
-        // Using one of the old mobile gamma correction tricks (val * val to "linearize", sqrt(val) to bring back into sRGB), we can _mostly_ avert this
         // This will never be 100% correct, but at the very least we can make it look mostly correct with legacy skies and classic mode.
 
         float da = pow(nl, 1.2);

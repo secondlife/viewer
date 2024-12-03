@@ -47,6 +47,7 @@ uniform vec3 proj_origin; //origin of projection to be used for angular attenuat
 uniform float sun_wash;
 uniform int proj_shadow_idx;
 uniform float shadow_fade;
+uniform int classic_mode;
 
 // Light params
 #if defined(MULTI_SPOTLIGHT)
@@ -267,8 +268,13 @@ void main()
 
     //not sure why, but this line prevents MATBUG-194
     final_color = max(final_color, vec3(0.0));
+    
+    float final_scale = 1.0;
 
+    if (classic_mode > 0)
+        final_scale = 0.9;
+    
     //output linear
-    frag_color.rgb = final_color;
+    frag_color.rgb = final_color * final_scale;
     frag_color.a = 0.0;
 }
