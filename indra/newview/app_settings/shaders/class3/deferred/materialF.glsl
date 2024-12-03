@@ -426,11 +426,9 @@ void main()
     glare *= 1.0-emissive;
     glare = min(glare, 1.0);
     float al = max(diffcol.a, glare) * vertex_color.a;
-    
     float final_scale = 1;
     if (classic_mode > 0)
         final_scale = 1.1;
-    
     frag_color = max(vec4(color * final_scale, al), vec4(0));
 
 #else // mode is not DIFFUSE_ALPHA_MODE_BLEND, encode to gbuffer

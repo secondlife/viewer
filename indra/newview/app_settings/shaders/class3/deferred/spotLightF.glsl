@@ -268,12 +268,9 @@ void main()
 
     //not sure why, but this line prevents MATBUG-194
     final_color = max(final_color, vec3(0.0));
-    
     float final_scale = 1.0;
-    
     if (classic_mode > 0)
         final_scale = 0.9;
-    
     //output linear
     frag_color.rgb = final_color * final_scale;
     frag_color.a = 0.0;

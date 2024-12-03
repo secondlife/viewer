@@ -278,7 +278,6 @@ void main()
     float final_scale = 1;
     if (classic_mode > 0)
         final_scale = 1.1;
-
     frag_color.rgb = max(color.rgb * final_scale, vec3(0)); //output linear since local lights will be added to this shader's results
     frag_color.a = 0.0;
 }

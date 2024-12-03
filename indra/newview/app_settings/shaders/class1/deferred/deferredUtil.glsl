@@ -544,12 +544,9 @@ vec3 pbrCalcPointLightOrSpotLight(vec3 diffuseColor, vec3 specularColor,
         pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, n.xyz, v, lv, nl, diffPunc, specPunc);
         color = intensity * clamp(nl * (diffPunc + specPunc), vec3(0), vec3(10));
     }
-    
     float final_scale = 1.0;
-
     if (classic_mode > 0)
         final_scale = 0.9;
-    
     return color * final_scale;
 }
 
