@@ -923,19 +923,30 @@ S32 LLTextBase::insertStringNoUndo(S32 pos, const LLWString &wstr, LLTextBase::s
                 S32 new_seg_start = pos + (S32)i;
                 segment_set_t::iterator cur_seg_iter = getSegIterContaining(new_seg_start);
                 LLStyleSP new_style;
+                std::string tooltip;
                 if (cur_seg_iter != mSegments.end()) // Should be 100%
                 {
-                    // Use font EmojiLarge but preserve the target font style
+                    // Use font EmojiLarge but preserve the target font style and tooltip if present
                     new_style = (*cur_seg_iter)->getStyle()->clone();
                     U8 font_style = new_style->getFont()->getFontDesc().getStyle();
                     new_style->setFont(LLFontGL::getFont(LLFontDescriptor("Emoji", "Large", font_style)));
+                    if (!(*cur_seg_iter)->getToken())
+                    {
+                        tooltip = (*cur_seg_iter)->getToolTip();
+                    }
                 }
                 else // Very unlikely
                 {
                     new_style = new LLStyle(getStyleParams());
                     new_style->setFont(LLFontGL::getFontEmojiLarge());
                 }
-                insertSegment(new LLEmojiTextSegment(new_style, new_seg_start, new_seg_start + 1, *this));
+                LLTextSegmentPtr new_seg = new LLEmojiTextSegment(new_style, new_seg_start, new_seg_start + 1, *this);
+
+                if (!tooltip.empty())
+                {
+                    new_seg->setToolTip(tooltip);
+                }
+                insertSegment(new_seg);
             }
         }
     }
@@ -1066,18 +1077,19 @@ void LLTextBase::insertSegment(LLTextSegmentPtr segment_to_insert)
             S32 old_segment_end = cur_segmentp->getEnd();
             // split old at start point for new segment
             cur_segmentp->setEnd(segment_to_insert->getStart());
-            // insert new segment before remainder of old segment
-            mSegments.insert(cur_seg_iter, segment_to_insert);
             // advance to next segment
             // insert remainder of old segment
-            if (segment_to_insert->getEnd() < old_segment_end)
+            LLStyleConstSP sp = cur_segmentp->getStyle();
+            LLTextSegmentPtr remainder_segment = new LLNormalTextSegment(sp, segment_to_insert->getStart(), old_segment_end, *this);
+            mSegments.insert(cur_seg_iter, remainder_segment);
+            std::string tooltip = segment_to_insert->getToolTip();
+            if (!tooltip.empty())
             {
-                LLTextSegmentPtr remainder_segment = cur_segmentp->clone(*this);
-                remainder_segment->setStart(segment_to_insert->getEnd());
-                remainder_segment->setEnd(old_segment_end);
-                mSegments.insert(cur_seg_iter, remainder_segment);
-                remainder_segment->linkToDocument(this);
+                remainder_segment->setToolTip(tooltip);
             }
+            remainder_segment->linkToDocument(this);
+            // insert new segment before remainder of old segment
+            mSegments.insert(cur_seg_iter, segment_to_insert);
 
             segment_to_insert->linkToDocument(this);
             // at this point, there will be two overlapping segments owning the text
@@ -3310,6 +3322,7 @@ void LLTextSegment::setStyle(LLStyleConstSP style) {}
 void LLTextSegment::setToken( LLKeywordToken* token ) {}
 LLKeywordToken* LLTextSegment::getToken() const { return NULL; }
 void LLTextSegment::setToolTip( const std::string &msg ) {}
+std::string LLTextSegment::getToolTip() const { return std::string(); }
 void LLTextSegment::dump() const {}
 bool LLTextSegment::handleMouseDown(S32 x, S32 y, MASK mask) { return false; }
 bool LLTextSegment::handleMouseUp(S32 x, S32 y, MASK mask) { return false; }
