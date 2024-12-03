@@ -178,8 +178,10 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spe
             }
         }
     }
-
-    return max(col, vec3(0.0, 0.0, 0.0));
+    float final_scale = 1.0;
+    if (classic_mode > 0)
+        final_scale = 0.9;
+    return max(col * final_scale, vec3(0.0, 0.0, 0.0));
 }
 
 #else
@@ -329,7 +331,8 @@ void main()
     vec3 additive;
     vec3 atten;
     calcAtmosphericVarsLinear(pos.xyz, norm.xyz, light_dir, sunlit, amblit, additive, atten);
-
+    if (classic_mode > 0)
+        sunlit *= 1.35;
     vec3 sunlit_linear = sunlit;
     vec3 amblit_linear = amblit;
 
@@ -418,8 +421,10 @@ void main()
     glare *= 1.0-emissive;
     glare = min(glare, 1.0);
     float al = max(diffcol.a, glare) * vertex_color.a;
-
-    frag_color = max(vec4(color, al), vec4(0));
+    float final_scale = 1;
+    if (classic_mode > 0)
+        final_scale = 1.1;
+    frag_color = max(vec4(color * final_scale, al), vec4(0));
 
 #else // mode is not DIFFUSE_ALPHA_MODE_BLEND, encode to gbuffer
     // deferred path               // See: C++: addDeferredAttachment(), shader: softenLightF.glsl

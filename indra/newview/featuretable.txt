@@ -428,3 +428,7 @@ RenderDisableVintageMode           1   0
 
 list TexUnit16orLess
 RenderTerrainPBRDetail      1   -1
+
+list VaryingVectors16orLess
+RenderTerrainPBRPlanarSampleCount 1   1
+

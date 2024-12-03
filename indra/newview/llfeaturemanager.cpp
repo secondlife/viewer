@@ -721,6 +721,10 @@ void LLFeatureManager::applyBaseMasks()
         // Make extra sure that vintage mode also gets enabled.
         gSavedSettings.setBOOL("RenderDisableVintageMode", false);
     }
+    if (gGLManager.mMaxVaryingVectors <= 16)
+    {
+        maskFeatures("VaryingVectors16orLess");
+    }
 
     // now mask by gpu string
     // Replaces ' ' with '_' in mGPUString to deal with inability for parser to handle spaces
