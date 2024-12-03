@@ -250,8 +250,8 @@ static bool handleEnableEmissiveChanged(const LLSD& newvalue)
 
 static bool handleDisableVintageMode(const LLSD& newvalue)
 {
-    gSavedSettings.setBOOL("RenderEnableEmissiveBuffer", !newvalue.asBoolean());
-    gSavedSettings.setBOOL("RenderHDREnabled", !newvalue.asBoolean());
+    gSavedSettings.setBOOL("RenderEnableEmissiveBuffer", newvalue.asBoolean());
+    gSavedSettings.setBOOL("RenderHDREnabled", newvalue.asBoolean());
     return true;
 }
 
