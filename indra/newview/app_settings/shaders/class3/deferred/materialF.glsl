@@ -178,12 +178,9 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spe
             }
         }
     }
-    
     float final_scale = 1.0;
-    
     if (classic_mode > 0)
         final_scale = 0.9;
-    
     return max(col * final_scale, vec3(0.0, 0.0, 0.0));
 }
 
@@ -334,10 +331,8 @@ void main()
     vec3 additive;
     vec3 atten;
     calcAtmosphericVarsLinear(pos.xyz, norm.xyz, light_dir, sunlit, amblit, additive, atten);
-    
     if (classic_mode > 0)
         sunlit *= 1.35;
-    
     vec3 sunlit_linear = sunlit;
     vec3 amblit_linear = amblit;
 
