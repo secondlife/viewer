@@ -822,34 +822,34 @@ LuaState::~LuaState()
                          << len << " entries" << LL_ENDL;
 
         // TODO: 'debug' global shouldn't be overwritten and should be accessible at this stage
-        if (push_debug_traceback())
+        bool debug_traceback = push_debug_traceback();
+        // if debug_traceback is true, stack now contains atexit, /debug.traceback()/
+        // otherwise just atexit
+        for (int i(len); i >= 1; --i)
         {
-            // stack now contains atexit, debug.traceback()
-            for (int i(len); i >= 1; --i)
+            lua_pushinteger(mState, i);
+            // stack contains Registry.atexit, /debug.traceback()/, i
+            lua_gettable(mState, debug_traceback ? -3 : -2);
+            // stack contains Registry.atexit, /debug.traceback()/, atexit[i]
+            // Call atexit[i](), no args, no return values.
+            // Use lua_pcall() because errors in any one atexit() function
+            // shouldn't cancel the rest of them. Pass debug.traceback() as
+            // the error handler function.
+            LL_DEBUGS("Lua") << LLCoros::getName() << ": calling atexit(" << i << ")" << LL_ENDL;
+            if (lua_pcall(mState, 0, 0, debug_traceback ? -2 : 0) != LUA_OK)
             {
-                lua_pushinteger(mState, i);
-                // stack contains Registry.atexit, debug.traceback(), i
-                lua_gettable(mState, -3);
-                // stack contains Registry.atexit, debug.traceback(), atexit[i]
-                // Call atexit[i](), no args, no return values.
-                // Use lua_pcall() because errors in any one atexit() function
-                // shouldn't cancel the rest of them. Pass debug.traceback() as
-                // the error handler function.
-                LL_DEBUGS("Lua") << LLCoros::getName() << ": calling atexit(" << i << ")" << LL_ENDL;
-                if (lua_pcall(mState, 0, 0, -2) != LUA_OK)
-                {
-                    auto error{ lua_tostdstring(mState, -1) };
-                    LL_WARNS("Lua") << LLCoros::getName() << ": atexit(" << i << ") error: " << error << LL_ENDL;
-                    // pop error message
-                    lua_pop(mState, 1);
-                }
-                LL_DEBUGS("Lua") << LLCoros::getName() << ": atexit(" << i << ") done" << LL_ENDL;
-                // lua_pcall() has already popped atexit[i]:
-                // stack contains atexit, debug.traceback()
+                auto error{ lua_tostdstring(mState, -1) };
+                LL_WARNS("Lua") << LLCoros::getName() << ": atexit(" << i << ") error: " << error << LL_ENDL;
+                // pop error message
+                lua_pop(mState, 1);
             }
-            // pop debug.traceback()
-            lua_pop(mState, 1);
+            LL_DEBUGS("Lua") << LLCoros::getName() << ": atexit(" << i << ") done" << LL_ENDL;
+            // lua_pcall() has already popped atexit[i]:
+            // stack contains atexit, debug.traceback()
         }
+        // pop debug.traceback()
+        if(debug_traceback)
+            lua_pop(mState, 1);
     }
     // pop Registry.atexit (either table or nil)
     lua_pop(mState, 1);
