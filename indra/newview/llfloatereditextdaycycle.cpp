@@ -1712,7 +1712,7 @@ void LLFloaterEditExtDayCycle::onPickerCommitSetting(LLUUID item_id, S32 track)
 
 void LLFloaterEditExtDayCycle::showHDRNotification(const LLSettingsDay::ptr_t &pday)
 {
-    static LLCachedControl<bool> should_auto_adjust(gSavedSettings, "SkyAutoAdjustLegacy", false);
+    static LLCachedControl<bool> should_auto_adjust(gSavedSettings, "RenderSkyAutoAdjustLegacy", false);
     for (U32 i = LLSettingsDay::TRACK_GROUND_LEVEL; i <= LLSettingsDay::TRACK_MAX; i++)
     {
         LLSettingsDay::CycleTrack_t &day_track = pday->getCycleTrack(i);

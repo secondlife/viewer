@@ -9400,7 +9400,7 @@
     <key>Type</key>
     <string>Boolean</string>
     <key>Value</key>
-    <integer>1</integer>
+    <integer>0</integer>
   </map>
   <key>RenderSkyAutoAdjustAmbientScale</key>
   <map>
@@ -11459,17 +11459,6 @@
       <string>String</string>
       <key>Value</key>
       <string />
-    </map>
-    <key>SkyAutoAdjustLegacy</key>
-    <map>
-        <key>Comment</key>
-        <string>If true, environment edition floater will auto adjust to use HDR. This is the "opt-out" button for HDR and tonemapping when coupled with a sky setting that predates PBR.</string>
-        <key>Persist</key>
-        <integer>1</integer>
-        <key>Type</key>
-        <string>Boolean</string>
-        <key>Value</key>
-        <integer>0</integer>
     </map>
     <key>SkyAmbientScale</key>
     <map>
