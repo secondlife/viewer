@@ -270,7 +270,7 @@ void main()
     final_color = max(final_color, vec3(0.0));
     
     float final_scale = 1.0;
-
+    
     if (classic_mode > 0)
         final_scale = 0.9;
     

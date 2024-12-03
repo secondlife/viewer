@@ -163,12 +163,12 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 diffuse, vec3 v, vec3 n, vec
 
         // no spec for alpha shader...
     }
-
+    
     float final_scale = 1.0;
-
+    
     if (classic_mode > 0)
         final_scale = 0.9;
-
+    
     col = max(col * final_scale, vec3(0));
     return col;
 }

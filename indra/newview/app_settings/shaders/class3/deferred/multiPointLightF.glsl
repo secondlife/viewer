@@ -170,12 +170,12 @@ void main()
             }
         }
     }
-
+    
     float final_scale = 1.0;
-
+    
     if (classic_mode > 0)
         final_scale = 0.9;
-
+    
     frag_color.rgb = max(final_color * final_scale, vec3(0));
     frag_color.a   = 0.0;
 

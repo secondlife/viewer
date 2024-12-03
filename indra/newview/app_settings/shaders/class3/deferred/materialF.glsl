@@ -180,7 +180,7 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spe
     }
     
     float final_scale = 1.0;
-
+    
     if (classic_mode > 0)
         final_scale = 0.9;
     
@@ -337,7 +337,7 @@ void main()
     
     if (classic_mode > 0)
         sunlit *= 1.35;
-
+    
     vec3 sunlit_linear = sunlit;
     vec3 amblit_linear = amblit;
 
@@ -430,7 +430,7 @@ void main()
     float final_scale = 1;
     if (classic_mode > 0)
         final_scale = 1.1;
-
+    
     frag_color = max(vec4(color * final_scale, al), vec4(0));
 
 #else // mode is not DIFFUSE_ALPHA_MODE_BLEND, encode to gbuffer

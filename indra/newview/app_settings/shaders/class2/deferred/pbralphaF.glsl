@@ -164,7 +164,7 @@ void main()
     
     if (classic_mode > 0)
         sunlit *= 1.35;
-
+    
     vec3 sunlit_linear = sunlit;
 
     vec2 frag = vary_fragcoord.xy/vary_fragcoord.z*0.5+0.5;
@@ -216,11 +216,11 @@ void main()
     color.rgb = applySkyAndWaterFog(pos.xyz, additive, atten, vec4(color, 1.0)).rgb;
 
     float a = basecolor.a*vertex_color.a;
-
+    
     float final_scale = 1;
     if (classic_mode > 0)
         final_scale = 1.1;
-
+    
     frag_color = max(vec4(color.rgb * final_scale,a), vec4(0));
 }
 
