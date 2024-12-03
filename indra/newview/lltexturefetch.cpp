@@ -2481,7 +2481,7 @@ S32 LLTextureFetch::createRequest(FTType f_type, const std::string& url, const L
     LL_PROFILE_ZONE_SCOPED;
     if (mDebugPause)
     {
-        return -1;
+        return CREATE_REQUEST_ERROR_DEFAULT;
     }
 
     if (f_type == FTT_SERVER_BAKE)
@@ -2497,7 +2497,7 @@ S32 LLTextureFetch::createRequest(FTType f_type, const std::string& url, const L
                               << host << " != " << worker->mHost << LL_ENDL;
             removeRequest(worker, true);
             worker = NULL;
-            return -1;
+            return CREATE_REQUEST_ERROR_MHOSTS;
         }
     }
 
@@ -2550,13 +2550,13 @@ S32 LLTextureFetch::createRequest(FTType f_type, const std::string& url, const L
     {
         if (worker->wasAborted())
         {
-            return -1; // need to wait for previous aborted request to complete
+            return CREATE_REQUEST_ERROR_ABORTED; // need to wait for previous aborted request to complete
         }
         worker->lockWorkMutex();                                        // +Mw
         if (worker->mState == LLTextureFetchWorker::DONE && worker->mDesiredSize == llmax(desired_size, TEXTURE_CACHE_ENTRY_SIZE) && worker->mDesiredDiscard == desired_discard) {
             worker->unlockWorkMutex();                                  // -Mw
 
-            return -1; // similar request has failed or is in a transitional state
+            return CREATE_REQUEST_ERROR_TRANSITION; // similar request has finished, failed or is in a transitional state
         }
         worker->mActiveCount++;
         worker->mNeedsAux = needs_aux;
@@ -3147,6 +3147,43 @@ S32 LLTextureFetch::getFetchState(const LLUUID& id, F32& data_progress_p, F32& r
     fetch_dtime_p = fetch_dtime;
     request_dtime_p = request_dtime;
     return state;
+}
+
+// Threads:  T*
+S32 LLTextureFetch::getLastFetchState(const LLUUID& id, S32& requested_discard, S32& decoded_discard, bool& decoded)
+{
+    LL_PROFILE_ZONE_SCOPED;
+    S32 state = LLTextureFetchWorker::INVALID;
+
+    LLTextureFetchWorker* worker = getWorker(id);
+    if (worker) // Don't check haveWork, intent is to get whatever is in the worker
+    {
+        worker->lockWorkMutex();                                        // +Mw
+        state = worker->mState;
+        requested_discard = worker->mDesiredDiscard;
+        decoded_discard = worker->mDecodedDiscard;
+        decoded = worker->mDecoded;
+        worker->unlockWorkMutex();                                      // -Mw
+    }
+    return state;
+}
+
+// Threads:  T*
+S32 LLTextureFetch::getLastRawImage(const LLUUID& id,
+    LLPointer<LLImageRaw>& raw, LLPointer<LLImageRaw>& aux)
+{
+    LL_PROFILE_ZONE_SCOPED;
+    S32 decoded_discard = -1;
+    LLTextureFetchWorker* worker = getWorker(id);
+    if (worker && !worker->haveWork() && worker->mDecodedDiscard >= 0)
+    {
+            worker->lockWorkMutex();                                    // +Mw
+            raw = worker->mRawImage;
+            aux = worker->mAuxImage;
+            decoded_discard = worker->mDecodedDiscard;
+            worker->unlockWorkMutex();                                  // -Mw
+    }
+    return decoded_discard;
 }
 
 void LLTextureFetch::dump()
