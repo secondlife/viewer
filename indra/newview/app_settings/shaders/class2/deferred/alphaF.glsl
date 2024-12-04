@@ -163,7 +163,10 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 diffuse, vec3 v, vec3 n, vec
 
         // no spec for alpha shader...
     }
-    col = max(col, vec3(0));
+    float final_scale = 1.0;
+    if (classic_mode > 0)
+        final_scale = 0.9;
+    col = max(col * final_scale, vec3(0));
     return col;
 }
 
@@ -241,7 +244,8 @@ void main()
     vec3 atten;
 
     calcAtmosphericVarsLinear(pos.xyz, norm, light_dir, sunlit, amblit, additive, atten);
-
+    if (classic_mode > 0)
+        sunlit *= 1.35;
     vec3 sunlit_linear = sunlit;
     vec3 amblit_linear = amblit;
 
@@ -296,11 +300,14 @@ void main()
     color.rgb = applySkyAndWaterFog(pos.xyz, additive, atten, color).rgb;
 
 #endif // #else // FOR_IMPOSTOR
-
+    float final_scale = 1;
+    if (classic_mode > 0)
+        final_scale = 1.1;
 #ifdef IS_HUD
     color.rgb = linear_to_srgb(color.rgb);
+    final_scale = 1;
 #endif
 
-    frag_color = max(color, vec4(0));
+    frag_color = max(color * final_scale, vec4(0));
 }
 
