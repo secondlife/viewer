@@ -258,7 +258,7 @@ static bool make_rigged_variant(LLGLSLShader& shader, LLGLSLShader& riggedShader
 
 static void add_common_permutations(LLGLSLShader* shader)
 {
-    LLCachedControl<bool> emissive(gSavedSettings, "RenderEnableEmissiveBuffer", false);
+    static LLCachedControl<bool> emissive(gSavedSettings, "RenderEnableEmissiveBuffer", false);
 
     if (emissive)
     {
@@ -782,7 +782,7 @@ std::string LLViewerShaderMgr::loadBasicShaders()
     attribs["MAX_JOINTS_PER_MESH_OBJECT"] =
         std::to_string(LLSkinningUtil::getMaxJointCount());
 
-    LLCachedControl<bool> emissive(gSavedSettings, "RenderEnableEmissiveBuffer", false);
+    static LLCachedControl<bool> emissive(gSavedSettings, "RenderEnableEmissiveBuffer", false);
 
     if (emissive)
     {
