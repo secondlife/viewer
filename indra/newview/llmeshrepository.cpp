@@ -1109,7 +1109,7 @@ void LLMeshRepoThread::run()
                         }
                         else
                         {
-                            LL_DEBUGS() << "mDecompositionRequests failed: " << req.mId << LL_ENDL;
+                            LL_DEBUGS(LOG_MESH) << "mDecompositionRequests failed: " << req.mId << LL_ENDL;
                         }
                     }
                 }
@@ -1145,7 +1145,7 @@ void LLMeshRepoThread::run()
                         }
                         else
                         {
-                            LL_DEBUGS() << "mPhysicsShapeRequests failed: " << req.mId << LL_ENDL;
+                            LL_DEBUGS(LOG_MESH) << "mPhysicsShapeRequests failed: " << req.mId << LL_ENDL;
                         }
                     }
                 }
@@ -1206,6 +1206,25 @@ void LLMeshRepoThread::loadMeshLOD(const LLVolumeParams& mesh_params, S32 lod)
     const LLUUID& mesh_id = mesh_params.getSculptID();
     LLMutexLock lock(mMutex);
     LLMutexLock header_lock(mHeaderMutex);
+    loadMeshLOD(mesh_id, mesh_params, lod);
+}
+
+void LLMeshRepoThread::loadMeshLODs(const lod_list_t& list)
+{ //could be called from any thread
+    LLMutexLock lock(mMutex);
+    LLMutexLock header_lock(mHeaderMutex);
+    for (auto lod_pair : list)
+    {
+        const LLVolumeParams& mesh_params = lod_pair.first;
+        const LLUUID& mesh_id = mesh_params.getSculptID();
+        S32 lod = lod_pair.second;
+        loadMeshLOD(mesh_id, mesh_params, lod);
+    }
+}
+
+void LLMeshRepoThread::loadMeshLOD(const LLUUID& mesh_id, const LLVolumeParams& mesh_params, S32 lod)
+{
+    // must be mutex locked by caller
     mesh_header_map::iterator iter = mMeshHeader.find(mesh_id);
     if (iter != mMeshHeader.end())
     { //if we have the header, request LOD byte range
@@ -1222,50 +1241,25 @@ void LLMeshRepoThread::loadMeshLOD(const LLVolumeParams& mesh_params, S32 lod)
         pending_lod_map::iterator pending = mPendingLOD.find(mesh_id);
 
         if (pending != mPendingLOD.end())
-        { //append this lod request to existing header request
-            pending->second.push_back(lod);
-            llassert(pending->second.size() <= LLModel::NUM_LODS);
-        }
-        else
-        { //if no header request is pending, fetch header
-            mHeaderReqQ.push(req);
-            mPendingLOD[mesh_id].push_back(lod);
-        }
-    }
-}
-
-void LLMeshRepoThread::loadMeshLODs(const lod_list_t& list)
-{ //could be called from any thread
-    LLMutexLock lock(mMutex);
-    LLMutexLock header_lock(mHeaderMutex);
-    for (auto lod_pair : list)
-    {
-        const LLVolumeParams&     mesh_params = lod_pair.first;
-        const LLUUID& mesh_id = mesh_params.getSculptID();
-        S32                       lod         = lod_pair.second;
-        mesh_header_map::iterator iter        = mMeshHeader.find(mesh_id);
-        if (iter != mMeshHeader.end())
-        { // if we have the header, request LOD byte range
-            LODRequest req(mesh_params, lod);
+        {
+            //append this lod request to existing header request
+            if (lod < LLModel::NUM_LODS && lod >= 0)
             {
-                mLODReqQ.push(req);
-                LLMeshRepository::sLODProcessing++;
+                pending->second[lod]++;
             }
+            else
+            {
+                LL_WARNS(LOG_MESH) << "Invalid LOD request: " << lod << "for mesh" << mesh_id << LL_ENDL;
+            }
+            llassert_msg(lod < LLModel::NUM_LODS, "Requested lod is out of bounds");
         }
         else
         {
-            HeaderRequest             req(mesh_params);
-            pending_lod_map::iterator pending = mPendingLOD.find(mesh_id);
-            if (pending != mPendingLOD.end())
-            { // append this lod request to existing header request
-                pending->second.push_back(lod);
-                llassert(pending->second.size() <= LLModel::NUM_LODS);
-            }
-            else
-            { // if no header request is pending, fetch header
-                mHeaderReqQ.push(req);
-                mPendingLOD[mesh_id].push_back(lod);
-            }
+            //if no header request is pending, fetch header
+            mHeaderReqQ.push(req);
+            auto& array = mPendingLOD[mesh_id];
+            std::fill(array.begin(), array.end(), 0);
+            array[lod]++;
         }
     }
 }
@@ -2024,11 +2018,27 @@ EMeshProcessingResult LLMeshRepoThread::headerReceived(const LLVolumeParams& mes
         pending_lod_map::iterator iter = mPendingLOD.find(mesh_id);
         if (iter != mPendingLOD.end())
         {
-            for (U32 i = 0; i < iter->second.size(); ++i)
+            for (S32 i = 0; i < iter->second.size(); ++i)
             {
-                LODRequest req(mesh_params, iter->second[i]);
-                mLODReqQ.push(req);
-                LLMeshRepository::sLODProcessing++;
+                if (iter->second[i] > 1)
+                {
+                    // mLoadingMeshes should be protecting from dupplciates, but looks
+                    // like this is possible if object rezzes, unregisterMesh, then
+                    // rezzes again before first request completes.
+                    // mLoadingMeshes might need to change a bit to not rerequest if
+                    // mesh is already pending.
+                    //
+                    // Todo: Improve mLoadingMeshes and once done turn this into an assert.
+                    // Low priority since such situation should be relatively rare
+                    LL_INFOS(LOG_MESH) << "Multiple dupplicate requests for mesd ID:  " << mesh_id << " LOD: " << i
+                        << LL_ENDL;
+                }
+                if (iter->second[i] > 0)
+                {
+                    LODRequest req(mesh_params, i);
+                    mLODReqQ.push(req);
+                    LLMeshRepository::sLODProcessing++;
+                }
             }
             mPendingLOD.erase(iter);
         }
