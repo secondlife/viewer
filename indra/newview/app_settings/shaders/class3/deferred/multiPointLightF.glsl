@@ -37,6 +37,7 @@ uniform vec4  light_col[LIGHT_COUNT]; // .a = falloff
 uniform vec2  screen_res;
 uniform float far_z;
 uniform mat4  inv_proj;
+uniform int classic_mode;
 
 in vec4 vary_fragcoord;
 
@@ -168,8 +169,10 @@ void main()
             }
         }
     }
-
-    frag_color.rgb = max(final_color, vec3(0));
+    float final_scale = 1.0;
+    if (classic_mode > 0)
+        final_scale = 0.9;
+    frag_color.rgb = max(final_color * final_scale, vec3(0));
     frag_color.a   = 0.0;
 
 #ifdef IS_AMD_CARD

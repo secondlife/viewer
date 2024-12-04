@@ -249,10 +249,10 @@ static bool handleEnableEmissiveChanged(const LLSD& newvalue)
     return handleReleaseGLBufferChanged(newvalue) && handleSetShaderChanged(newvalue);
 }
 
-static bool handleEnableClassicMode(const LLSD& newvalue)
+static bool handleDisableVintageMode(const LLSD& newvalue)
 {
-    gSavedSettings.setBOOL("RenderEnableEmissiveBuffer", !newvalue.asBoolean());
-    gSavedSettings.setBOOL("RenderHDREnabled", !newvalue.asBoolean());
+    gSavedSettings.setBOOL("RenderEnableEmissiveBuffer", newvalue.asBoolean());
+    gSavedSettings.setBOOL("RenderHDREnabled", newvalue.asBoolean());
     return true;
 }
 
@@ -800,7 +800,7 @@ void settings_setup_listeners()
     setting_setup_signal_listener(gSavedSettings, "RenderGlowResolutionPow", handleReleaseGLBufferChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderGlowHDR", handleReleaseGLBufferChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderEnableEmissiveBuffer", handleEnableEmissiveChanged);
-    setting_setup_signal_listener(gSavedSettings, "RenderVintageMode", handleEnableClassicMode);
+    setting_setup_signal_listener(gSavedSettings, "RenderDisableVintageMode", handleDisableVintageMode);
     setting_setup_signal_listener(gSavedSettings, "RenderHDREnabled", handleEnableHDR);
     setting_setup_signal_listener(gSavedSettings, "RenderGlowNoise", handleSetShaderChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderGammaFull", handleSetShaderChanged);
