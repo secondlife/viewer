@@ -64,6 +64,8 @@ in vec2 base_color_uv;
 in vec2 emissive_uv;
 
 void mirrorClip(vec3 pos);
+vec4 encodeNormal(vec3 n, float env, float gbuffer_flag);
+
 vec3 linear_to_srgb(vec3 c);
 vec3 srgb_to_linear(vec3 c);
 // ==================================
@@ -241,8 +243,11 @@ void main()
 #else
     frag_data[0] = max(vec4(basecolor.rgb, 0.0), vec4(0));
     frag_data[1] = max(vec4(orm.rgb,0.0), vec4(0));
-    frag_data[2] = vec4(norm, GBUFFER_FLAG_HAS_PBR);
+    frag_data[2] = encodeNormal(norm, 0, GBUFFER_FLAG_HAS_PBR);
+
+//#if defined(HAS_EMISSIVE)
     frag_data[3] = max(vec4(emissive,0), vec4(0));
+//#endif
 #endif
 #endif
 

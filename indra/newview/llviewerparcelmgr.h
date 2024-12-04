@@ -219,7 +219,7 @@ public:
     // containing the southwest corner of the selection.
     // If want_reply_to_update, simulator will send back a ParcelProperties
     // message.
-    void    sendParcelPropertiesUpdate(LLParcel* parcel, bool use_agent_region = false);
+    void    sendParcelPropertiesUpdate(LLParcel* parcel);
 
     // Takes an Access List flag, like AL_ACCESS or AL_BAN
     void    sendParcelAccessListUpdate(U32 which);
@@ -295,6 +295,8 @@ public:
     void onTeleportFailed();
     bool getTeleportInProgress();
 
+    void postTeleportFinished(bool local);
+
     static bool isParcelOwnedByAgent(const LLParcel* parcelp, U64 group_proxy_power);
     static bool isParcelModifiableByAgent(const LLParcel* parcelp, U64 group_proxy_power);
 
@@ -344,8 +346,11 @@ private:
 
     std::vector<LLParcelObserver*> mObservers;
 
+    // Used to communicate between onTeleportFinished() and processParcelProperties()
     bool                        mTeleportInProgress;
+    bool                        mTeleportWithinRegion{ false };
     LLVector3d                  mTeleportInProgressPosition;
+
     teleport_finished_signal_t  mTeleportFinishedSignal;
     teleport_failed_signal_t    mTeleportFailedSignal;
 

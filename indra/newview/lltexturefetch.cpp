@@ -537,7 +537,6 @@ private:
     F32 mImagePriority; // should map to max virtual size
     F32 mRequestedPriority;
     S32 mDesiredDiscard;
-    S32 mSimRequestedDiscard;
     S32 mRequestedDiscard;
     S32 mLoadedDiscard;
     S32 mDecodedDiscard;
@@ -870,7 +869,6 @@ LLTextureFetchWorker::LLTextureFetchWorker(LLTextureFetch* fetcher,
       mImagePriority(priority),
       mRequestedPriority(0.f),
       mDesiredDiscard(-1),
-      mSimRequestedDiscard(-1),
       mRequestedDiscard(-1),
       mLoadedDiscard(-1),
       mDecodedDiscard(-1),
@@ -1505,18 +1503,13 @@ bool LLTextureFetchWorker::doWork(S32 param)
             {
                 if (http_not_found == mGetStatus)
                 {
-                    if (mFTType != FTT_MAP_TILE)
-                    {
-                        LL_WARNS(LOG_TXT) << "Texture missing from server (404): " << mUrl << LL_ENDL;
-                    }
-
                     if(mWriteToCacheState == NOT_WRITE) //map tiles or server bakes
                     {
                         setState(DONE);
                         releaseHttpSemaphore();
                         if (mFTType != FTT_MAP_TILE)
                         {
-                            LL_WARNS(LOG_TXT) << mID << " abort: WAIT_HTTP_REQ not found" << LL_ENDL;
+                            LL_WARNS(LOG_TXT) << mID << "NOT_WRITE texture missing from server (404), abort: " << mUrl << LL_ENDL;
                         }
                         return true;
                     }
@@ -1526,6 +1519,10 @@ bool LLTextureFetchWorker::doWork(S32 param)
                         LLViewerRegion* region = getRegion();
                         if (!region || mLastRegionId != region->getRegionID())
                         {
+                            if (mFTType != FTT_MAP_TILE)
+                            {
+                                LL_INFOS(LOG_TXT) << "Texture missing from server (404), retrying: " << mUrl << " mRetryAttempt " << mRetryAttempt << LL_ENDL;
+                            }
                             // cap failure? try on new region.
                             mUrl.clear();
                             ++mRetryAttempt;
@@ -1533,6 +1530,11 @@ bool LLTextureFetchWorker::doWork(S32 param)
                             setState(INIT);
                             return false;
                         }
+                    }
+
+                    if (mFTType != FTT_MAP_TILE)
+                    {
+                        LL_WARNS(LOG_TXT) << "Texture missing from server (404): " << mUrl << LL_ENDL;
                     }
                 }
                 else if (http_service_unavail == mGetStatus)
@@ -2479,7 +2481,7 @@ S32 LLTextureFetch::createRequest(FTType f_type, const std::string& url, const L
     LL_PROFILE_ZONE_SCOPED;
     if (mDebugPause)
     {
-        return -1;
+        return CREATE_REQUEST_ERROR_DEFAULT;
     }
 
     if (f_type == FTT_SERVER_BAKE)
@@ -2495,7 +2497,7 @@ S32 LLTextureFetch::createRequest(FTType f_type, const std::string& url, const L
                               << host << " != " << worker->mHost << LL_ENDL;
             removeRequest(worker, true);
             worker = NULL;
-            return -1;
+            return CREATE_REQUEST_ERROR_MHOSTS;
         }
     }
 
@@ -2548,13 +2550,13 @@ S32 LLTextureFetch::createRequest(FTType f_type, const std::string& url, const L
     {
         if (worker->wasAborted())
         {
-            return -1; // need to wait for previous aborted request to complete
+            return CREATE_REQUEST_ERROR_ABORTED; // need to wait for previous aborted request to complete
         }
         worker->lockWorkMutex();                                        // +Mw
         if (worker->mState == LLTextureFetchWorker::DONE && worker->mDesiredSize == llmax(desired_size, TEXTURE_CACHE_ENTRY_SIZE) && worker->mDesiredDiscard == desired_discard) {
             worker->unlockWorkMutex();                                  // -Mw
 
-            return -1; // similar request has failed or is in a transitional state
+            return CREATE_REQUEST_ERROR_TRANSITION; // similar request has finished, failed or is in a transitional state
         }
         worker->mActiveCount++;
         worker->mNeedsAux = needs_aux;
@@ -2736,7 +2738,7 @@ LLTextureFetchWorker* LLTextureFetch::getWorker(const LLUUID& id)
 
 
 // Threads:  T*
-bool LLTextureFetch::getRequestFinished(const LLUUID& id, S32& discard_level,
+bool LLTextureFetch::getRequestFinished(const LLUUID& id, S32& discard_level, S32& worker_state,
                                         LLPointer<LLImageRaw>& raw, LLPointer<LLImageRaw>& aux,
                                         LLCore::HttpStatus& last_http_get_status)
 {
@@ -2745,6 +2747,7 @@ bool LLTextureFetch::getRequestFinished(const LLUUID& id, S32& discard_level,
     LLTextureFetchWorker* worker = getWorker(id);
     if (worker)
     {
+        worker_state = worker->mState;
         if (worker->wasAborted())
         {
             res = true;
@@ -2823,6 +2826,7 @@ bool LLTextureFetch::getRequestFinished(const LLUUID& id, S32& discard_level,
     }
     else
     {
+        worker_state = 0;
         res = true;
     }
     return res;
@@ -3143,6 +3147,43 @@ S32 LLTextureFetch::getFetchState(const LLUUID& id, F32& data_progress_p, F32& r
     fetch_dtime_p = fetch_dtime;
     request_dtime_p = request_dtime;
     return state;
+}
+
+// Threads:  T*
+S32 LLTextureFetch::getLastFetchState(const LLUUID& id, S32& requested_discard, S32& decoded_discard, bool& decoded)
+{
+    LL_PROFILE_ZONE_SCOPED;
+    S32 state = LLTextureFetchWorker::INVALID;
+
+    LLTextureFetchWorker* worker = getWorker(id);
+    if (worker) // Don't check haveWork, intent is to get whatever is in the worker
+    {
+        worker->lockWorkMutex();                                        // +Mw
+        state = worker->mState;
+        requested_discard = worker->mDesiredDiscard;
+        decoded_discard = worker->mDecodedDiscard;
+        decoded = worker->mDecoded;
+        worker->unlockWorkMutex();                                      // -Mw
+    }
+    return state;
+}
+
+// Threads:  T*
+S32 LLTextureFetch::getLastRawImage(const LLUUID& id,
+    LLPointer<LLImageRaw>& raw, LLPointer<LLImageRaw>& aux)
+{
+    LL_PROFILE_ZONE_SCOPED;
+    S32 decoded_discard = -1;
+    LLTextureFetchWorker* worker = getWorker(id);
+    if (worker && !worker->haveWork() && worker->mDecodedDiscard >= 0)
+    {
+            worker->lockWorkMutex();                                    // +Mw
+            raw = worker->mRawImage;
+            aux = worker->mAuxImage;
+            decoded_discard = worker->mDecodedDiscard;
+            worker->unlockWorkMutex();                                  // -Mw
+    }
+    return decoded_discard;
 }
 
 void LLTextureFetch::dump()

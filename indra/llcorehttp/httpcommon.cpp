@@ -289,7 +289,13 @@ CURL *getCurlTemplateHandle()
             check_curl_code(result, CURLOPT_NOSIGNAL);
             result = curl_easy_setopt(curlpTemplateHandle, CURLOPT_NOPROGRESS, 1);
             check_curl_code(result, CURLOPT_NOPROGRESS);
+
+#if LIBCURL_VERSION_MAJOR > 7
+            result = curl_easy_setopt(curlpTemplateHandle, CURLOPT_ENCODING, nullptr);
+#else
             result = curl_easy_setopt(curlpTemplateHandle, CURLOPT_ENCODING, "");
+#endif
+
             check_curl_code(result, CURLOPT_ENCODING);
             result = curl_easy_setopt(curlpTemplateHandle, CURLOPT_AUTOREFERER, 1);
             check_curl_code(result, CURLOPT_AUTOREFERER);

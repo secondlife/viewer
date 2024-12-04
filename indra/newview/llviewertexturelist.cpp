@@ -30,6 +30,7 @@
 
 #include "llviewertexturelist.h"
 
+#include "llagent.h"
 #include "llgl.h" // fot gathering stats from GL
 #include "llimagegl.h"
 #include "llimagebmp.h"
@@ -844,10 +845,19 @@ void LLViewerTextureList::updateImages(F32 max_time)
             clearFetchingRequests();
             gPipeline.clearRebuildGroups();
             cleared = true;
+            return;
         }
-        return;
+        // ARRIVING is a delay to let things decode, cache and process,
+        // so process textures like normal despite gTeleportDisplay
+        if (gAgent.getTeleportState() != LLAgent::TELEPORT_ARRIVING)
+        {
+            return;
+        }
     }
-    cleared = false;
+    else
+    {
+        cleared = false;
+    }
 
     LLAppViewer::getTextureFetch()->setTextureBandwidth((F32)LLTrace::get_frame_recording().getPeriodMeanPerSec(LLStatViewer::TEXTURE_NETWORK_DATA_RECEIVED).value());
 
@@ -1085,8 +1095,32 @@ F32 LLViewerTextureList::updateImagesCreateTextures(F32 max_time)
 
     LLTimer create_timer;
 
+    while (!mCreateTextureList.empty())
+    {
+        LLViewerFetchedTexture* imagep = mCreateTextureList.front();
+        llassert(imagep->mCreatePending);
+        imagep->createTexture();
+        imagep->postCreateTexture();
+        imagep->mCreatePending = false;
+        mCreateTextureList.pop();
+
+        if (imagep->hasGLTexture() && imagep->getDiscardLevel() < imagep->getDesiredDiscardLevel())
+        {
+            LL_WARNS_ONCE("Texture") << "Texture will be downscaled immediately after loading." << LL_ENDL;
+            imagep->scaleDown();
+        }
+
+        if (create_timer.getElapsedTimeF32() > max_time)
+        {
+            break;
+        }
+    }
+
     if (!mDownScaleQueue.empty() && gPipeline.mDownResMap.isComplete())
     {
+        LLGLDisable blend(GL_BLEND);
+        gGL.setColorMask(true, true);
+
         // just in case we downres textures, bind downresmap and copy program
         gPipeline.mDownResMap.bindTarget();
         gCopyProgram.bind();
@@ -1100,6 +1134,7 @@ F32 LLViewerTextureList::updateImagesCreateTextures(F32 max_time)
         // freeze.
         S32 min_count = (S32)mCreateTextureList.size() / 20 + 5;
 
+        create_timer.reset();
         while (!mDownScaleQueue.empty())
         {
             LLViewerFetchedTexture* image = mDownScaleQueue.front();
@@ -1124,25 +1159,6 @@ F32 LLViewerTextureList::updateImagesCreateTextures(F32 max_time)
         gPipeline.mDownResMap.flush();
     }
 
-    // do at least 5 and make sure we don't get too far behind even if it violates
-    // the time limit.  Textures pending creation have a copy of their texture data
-    // in system memory, so we don't want to let them pile up.
-    S32 min_count = (S32) mCreateTextureList.size() / 20 + 5;
-
-    while (!mCreateTextureList.empty())
-    {
-        LLViewerFetchedTexture *imagep =  mCreateTextureList.front();
-        llassert(imagep->mCreatePending);
-        imagep->createTexture();
-        imagep->postCreateTexture();
-        imagep->mCreatePending = false;
-        mCreateTextureList.pop();
-
-        if (create_timer.getElapsedTimeF32() > max_time && --min_count <= 0)
-        {
-            break;
-        }
-    }
     return create_timer.getElapsedTimeF32();
 }
 
@@ -1269,6 +1285,11 @@ F32 LLViewerTextureList::updateImagesFetchTextures(F32 max_time)
 
     //update MIN_UPDATE_COUNT or 5% of other textures, whichever is greater
     update_count = llmax((U32) MIN_UPDATE_COUNT, (U32) mUUIDMap.size()/20);
+    if (LLViewerTexture::sDesiredDiscardBias > 1.f)
+    {
+        // we are over memory target, update more agresively
+        update_count = (S32)(update_count * LLViewerTexture::sDesiredDiscardBias);
+    }
     update_count = llmin(update_count, (U32) mUUIDMap.size());
 
     { // copy entries out of UUID map to avoid iterator invalidation from deletion inside updateImageDecodeProiroty or updateFetch below
@@ -1422,6 +1443,11 @@ bool LLViewerTextureList::createUploadFile(LLPointer<LLImageRaw> raw_image,
         raw_image->getComponents());
 
     LLPointer<LLImageJ2C> compressedImage = LLViewerTextureList::convertToUploadFile(scale_image, max_image_dimentions);
+    if (compressedImage.isNull())
+    {
+        LL_INFOS() << "Couldn't convert to j2c, file : " << out_filename << LL_ENDL;
+        return false;
+    }
     if (compressedImage->getWidth() < min_image_dimentions || compressedImage->getHeight() < min_image_dimentions)
     {
         std::string reason = llformat("Images below %d x %d pixels are not allowed. Actual size: %d x %dpx",
@@ -1430,12 +1456,6 @@ bool LLViewerTextureList::createUploadFile(LLPointer<LLImageRaw> raw_image,
                                       compressedImage->getWidth(),
                                       compressedImage->getHeight());
         compressedImage->setLastError(reason);
-        return false;
-    }
-    if (compressedImage.isNull())
-    {
-        compressedImage->setLastError("Couldn't convert the image to jpeg2000.");
-        LL_INFOS() << "Couldn't convert to j2c, file : " << out_filename << LL_ENDL;
         return false;
     }
     if (!compressedImage->save(out_filename))

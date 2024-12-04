@@ -49,12 +49,12 @@ namespace Rlv
         enum EBehaviourFlags : uint32_t
         {
             // General behaviour flags
-            Strict = 0x0001,				// Behaviour has a "_sec" version
-            Synonym = 0x0002,				// Behaviour is a synonym of another
-            Extended = 0x0004,				// Behaviour is part of the RLVa extended command set
-            Experimental = 0x0008,			// Behaviour is part of the RLVa experimental command set
-            Blocked = 0x0010,				// Behaviour is blocked
-            Deprecated = 0x0020,			// Behaviour is deprecated
+            Strict = 0x0001,                // Behaviour has a "_sec" version
+            Synonym = 0x0002,               // Behaviour is a synonym of another
+            Extended = 0x0004,              // Behaviour is part of the RLVa extended command set
+            Experimental = 0x0008,          // Behaviour is part of the RLVa experimental command set
+            Blocked = 0x0010,               // Behaviour is blocked
+            Deprecated = 0x0020,            // Behaviour is deprecated
             MaskGeneral = 0x0FFF,
 
             // Force-wear specific flags
@@ -175,7 +175,7 @@ namespace Rlv
     template<EBehaviour templBhvr> using ReplyHandler = CommandHandler<EParamType::Reply, templBhvr>;
 
     // List of shared handlers
-    using VersionReplyHandler = ReplyHandler<EBehaviour::Version>;				// Shared between @version and @versionnew
+    using VersionReplyHandler = ReplyHandler<EBehaviour::Version>;              // Shared between @version and @versionnew
 
     //
     // CommandProcessor - Templated glue class that brings BehaviourInfo, CommandHandlerBaseImpl and CommandHandler together

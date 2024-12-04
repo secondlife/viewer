@@ -67,7 +67,7 @@ public:
     S32         getOriginX() const  { return mOrigin.mX; }
     S32         getOriginY() const  { return mOrigin.mY; }
 
-    S32         getSize()       { return mFullWidth * mFullHeight * mComponents; }
+    S32         getSize()       { return getFullWidth() * getFullHeight() * mComponents; }
 
     virtual bool needsRender() { return true; }
     virtual void preRender(bool clear_depth = true);

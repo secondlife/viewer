@@ -123,6 +123,8 @@ public:
     void check_interrupts_counter();
     void yield();
 
+    int push_debug_traceback();
+
 private:
     /*---------------------------- feature flag ----------------------------*/
     bool mFeature{ false };

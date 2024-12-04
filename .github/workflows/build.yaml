@@ -47,7 +47,7 @@ jobs:
     continue-on-error: ${{ matrix.experimental }}
     strategy:
       matrix:
-        runner: [windows-large, macos-14-xlarge]
+        runner: [windows-large, macos-15-xlarge]
         experimental: [false]
         include:
         - runner: linux-large
@@ -137,7 +137,10 @@ jobs:
             libgl1-mesa-dev libglu1-mesa-dev libxinerama-dev \
             libxcursor-dev libxfixes-dev libgstreamer1.0-dev \
             libgstreamer-plugins-base1.0-dev ninja-build libxft-dev \
-            llvm mold libpipewire-0.3-dev
+            llvm mold libpipewire-0.3-dev libdbus-1-dev
+          sudo locale-gen en_US.UTF-8
+          sudo locale-gen en_GB.UTF-8
+          sudo locale-gen fr_FR.UTF-8
 
       - name: Install windows dependencies
         if: runner.os == 'Windows'
@@ -263,13 +266,6 @@ jobs:
             export PYTHON_COMMAND="python3"
           fi
           export PYTHON_COMMAND_NATIVE="$(native_path "$PYTHON_COMMAND")"
-
-          # Compile with clang, link with mold on linux.
-          if [[ "$RUNNER_OS" == "Linux" ]]; then
-            export CC=clang
-            export CXX=clang++
-            export CMAKE_OPTIONS='-DLINK_WITH_MOLD=ON'
-          fi
 
           ./build.sh
 
@@ -464,7 +460,7 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
-          pattern: "LinuxOS-app"
+          pattern: "Linux-app"
 
       - name: Rename metadata
         run: |
@@ -472,6 +468,8 @@ jobs:
           cp Windows-metadata/newview/viewer_version.txt Windows-viewer_version.txt
           cp macOS-metadata/autobuild-package.xml macOS-autobuild-package.xml
           cp macOS-metadata/newview/viewer_version.txt macOS-viewer_version.txt
+          cp Linux-metadata/autobuild-package.xml Linux-autobuild-package.xml
+          cp Linux-metadata/newview/viewer_version.txt Linux-viewer_version.txt
 
       # forked from softprops/action-gh-release
       - name: Create GitHub release
@@ -496,6 +494,7 @@ jobs:
           files: |
             macOS-installer/*.dmg
             Windows-installer/*.exe
+            Linux-app/*.tar.gz
             *-autobuild-package.xml
             *-viewer_version.txt
 

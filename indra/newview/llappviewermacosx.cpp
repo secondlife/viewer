@@ -231,6 +231,11 @@ void infos(const std::string& message)
 
 int main( int argc, char **argv )
 {
+    // Call Tracy first thing to have it allocate memory
+    // https://github.com/wolfpld/tracy/issues/196
+    LL_PROFILER_FRAME_END;
+    LL_PROFILER_SET_THREAD_NAME("App");
+
     // Store off the command line args for use later.
     gArgC = argc;
     gArgV = argv;

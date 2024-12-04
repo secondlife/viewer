@@ -221,6 +221,14 @@ void LLFetchedGLTFMaterial::updateTextureTracking()
     }
 }
 
+void LLFetchedGLTFMaterial::clearFetchedTextures()
+{
+    mBaseColorTexture = nullptr;
+    mNormalTexture = nullptr;
+    mMetallicRoughnessTexture = nullptr;
+    mEmissiveTexture = nullptr;
+}
+
 void LLFetchedGLTFMaterial::materialBegin()
 {
     llassert(!mFetching);

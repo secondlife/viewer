@@ -1258,6 +1258,7 @@ bool LLGLManager::initGL()
     glGetIntegerv(GL_MAX_INTEGER_SAMPLES, &mMaxIntegerSamples);
     glGetIntegerv(GL_MAX_SAMPLE_MASK_WORDS, &mMaxSampleMaskWords);
     glGetIntegerv(GL_MAX_SAMPLES, &mMaxSamples);
+    glGetIntegerv(GL_MAX_VARYING_VECTORS, &mMaxVaryingVectors);
     glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &mMaxUniformBlockSize);
 
     // sanity clamp max uniform block size to 64k just in case
@@ -2750,7 +2751,7 @@ void LLGLUserClipPlane::setPlane(F32 a, F32 b, F32 c, F32 d)
     if(cplane[2] < 0)
         cplane *= -1;
 
-    glm::mat4 suffix;
+    glm::mat4 suffix = glm::identity<glm::mat4>();
     suffix = glm::row(suffix, 2, cplane);
     glm::mat4 newP = suffix * P;
     gGL.matrixMode(LLRender::MM_PROJECTION);

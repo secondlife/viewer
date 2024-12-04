@@ -1557,7 +1557,7 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
             }
 
             U8 texgen = getTextureEntry()->getTexGen();
-            if (rebuild_tcoord && texgen != LLTextureEntry::TEX_GEN_DEFAULT)
+            if (texgen != LLTextureEntry::TEX_GEN_DEFAULT)
             { //planar texgen needs binormals
                 mVObjp->getVolume()->genTangents(face_index);
             }
@@ -2211,9 +2211,11 @@ bool LLFace::calcPixelArea(F32& cos_angle_to_view_dir, F32& radius)
                 if (rigInfo.needsUpdate())
                 {
                     LLVOVolume* vo_volume = (LLVOVolume*)mVObjp.get();
-                    LLVOAvatar* avatar = mVObjp->getAvatar();
                     const LLMeshSkinInfo* skin = vo_volume->getSkinInfo();
-                    LLSkinningUtil::updateRiggingInfo(skin, avatar, face);
+                    if (skin)
+                    {
+                        LLSkinningUtil::updateRiggingInfo(skin, avatar, face);
+                    }
                 }
 
                 // calculate the world space bounding box of the face by combining the bounding boxes of all the joints

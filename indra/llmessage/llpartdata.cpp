@@ -331,7 +331,7 @@ bool LLPartSysData::isNullPS(const S32 block_num)
 
     S32 size;
     // Check size of block
-    size = gMessageSystem->getSize("ObjectData", block_num, "PSBlock");
+    size = gMessageSystem->getSizeFast(_PREHASH_ObjectData, block_num, _PREHASH_PSBlock);
 
     if (!size)
     {
@@ -344,7 +344,7 @@ bool LLPartSysData::isNullPS(const S32 block_num)
         return true;
     }
 
-    gMessageSystem->getBinaryData("ObjectData", "PSBlock", ps_data_block, size, block_num, PS_MAX_DATA_BLOCK_SIZE);
+    gMessageSystem->getBinaryDataFast(_PREHASH_ObjectData, _PREHASH_PSBlock, ps_data_block, size, block_num, PS_MAX_DATA_BLOCK_SIZE);
 
     LLDataPackerBinaryBuffer dp(ps_data_block, size);
     if (size > PS_LEGACY_DATA_BLOCK_SIZE)
@@ -373,7 +373,7 @@ bool LLPartSysData::unpackBlock(const S32 block_num)
     U8 ps_data_block[PS_MAX_DATA_BLOCK_SIZE];
 
     // Check size of block
-    S32 size = gMessageSystem->getSize("ObjectData", block_num, "PSBlock");
+    S32 size = gMessageSystem->getSizeFast(_PREHASH_ObjectData, block_num, _PREHASH_PSBlock);
 
     if (size > PS_MAX_DATA_BLOCK_SIZE)
     {
@@ -382,7 +382,7 @@ bool LLPartSysData::unpackBlock(const S32 block_num)
     }
 
     // Get from message
-    gMessageSystem->getBinaryData("ObjectData", "PSBlock", ps_data_block, size, block_num, PS_MAX_DATA_BLOCK_SIZE);
+    gMessageSystem->getBinaryDataFast(_PREHASH_ObjectData, _PREHASH_PSBlock, ps_data_block, size, block_num, PS_MAX_DATA_BLOCK_SIZE);
 
     LLDataPackerBinaryBuffer dp(ps_data_block, size);
 

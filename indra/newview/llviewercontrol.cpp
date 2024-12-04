@@ -244,6 +244,23 @@ static bool handleReleaseGLBufferChanged(const LLSD& newvalue)
     return true;
 }
 
+static bool handleEnableEmissiveChanged(const LLSD& newvalue)
+{
+    return handleReleaseGLBufferChanged(newvalue) && handleSetShaderChanged(newvalue);
+}
+
+static bool handleDisableVintageMode(const LLSD& newvalue)
+{
+    gSavedSettings.setBOOL("RenderEnableEmissiveBuffer", newvalue.asBoolean());
+    gSavedSettings.setBOOL("RenderHDREnabled", newvalue.asBoolean());
+    return true;
+}
+
+static bool handleEnableHDR(const LLSD& newvalue)
+{
+    return handleReleaseGLBufferChanged(newvalue) && handleSetShaderChanged(newvalue);
+}
+
 static bool handleLUTBufferChanged(const LLSD& newvalue)
 {
     if (gPipeline.isInit())
@@ -770,6 +787,7 @@ void settings_setup_listeners()
     setting_setup_signal_listener(gSavedSettings, "OctreeAttachmentSizeFactor", handleRepartition);
     setting_setup_signal_listener(gSavedSettings, "RenderMaxTextureIndex", handleSetShaderChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderUIBuffer", handleWindowResized);
+    setting_setup_signal_listener(gSavedSettings, "RenderCAS", handleReleaseGLBufferChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderDepthOfField", handleReleaseGLBufferChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderFSAAType", handleReleaseGLBufferChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderSpecularResX", handleLUTBufferChanged);
@@ -781,6 +799,9 @@ void settings_setup_listeners()
     setting_setup_signal_listener(gSavedSettings, "RenderGlow", handleSetShaderChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderGlowResolutionPow", handleReleaseGLBufferChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderGlowHDR", handleReleaseGLBufferChanged);
+    setting_setup_signal_listener(gSavedSettings, "RenderEnableEmissiveBuffer", handleEnableEmissiveChanged);
+    setting_setup_signal_listener(gSavedSettings, "RenderDisableVintageMode", handleDisableVintageMode);
+    setting_setup_signal_listener(gSavedSettings, "RenderHDREnabled", handleEnableHDR);
     setting_setup_signal_listener(gSavedSettings, "RenderGlowNoise", handleSetShaderChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderGammaFull", handleSetShaderChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderVolumeLODFactor", handleVolumeLODChanged);

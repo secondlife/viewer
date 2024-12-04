@@ -69,6 +69,7 @@ public:
     bool setCursorPosition(LLCoordWindow position) override;
     bool getCursorPosition(LLCoordWindow *position) override;
     bool getCursorDelta(LLCoordCommon* delta) const override;
+    bool isWarpMouse() const override { return !mAbsoluteCursorPosition; };
     void showCursor() override;
     void hideCursor() override;
     void showCursorFromMouseMove() override;
@@ -195,6 +196,7 @@ protected:
 
     HCURSOR     mCursor[ UI_CURSOR_COUNT ];  // Array of all mouse cursors
     LLCoordWindow mCursorPosition;  // mouse cursor position, should only be mutated on main thread
+    bool        mAbsoluteCursorPosition; // true if last position was received in absolute coordinates.
     LLMutex mRawMouseMutex;
     RAWINPUTDEVICE mRawMouse;
     LLCoordWindow mLastCursorPosition; // mouse cursor position from previous frame

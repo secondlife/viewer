@@ -246,10 +246,10 @@ void LLWebRTCImpl::init()
     apm_config.gain_controller1.enabled       = false;
     apm_config.gain_controller1.mode          = webrtc::AudioProcessing::Config::GainController1::kAdaptiveAnalog;
     apm_config.gain_controller2.enabled       = false;
-    apm_config.high_pass_filter.enabled       = true;
+    apm_config.high_pass_filter.enabled       = false;
     apm_config.noise_suppression.enabled      = true;
     apm_config.noise_suppression.level        = webrtc::AudioProcessing::Config::NoiseSuppression::kVeryHigh;
-    apm_config.transient_suppression.enabled  = true;
+    apm_config.transient_suppression.enabled  = false;
     apm_config.pipeline.multi_channel_render  = true;
     apm_config.pipeline.multi_channel_capture = false;
 
@@ -362,14 +362,13 @@ void LLWebRTCImpl::setAudioConfig(LLWebRTCDeviceInterface::AudioConfig config)
 {
     webrtc::AudioProcessing::Config apm_config;
     apm_config.echo_canceller.enabled         = config.mEchoCancellation;
-    apm_config.echo_canceller.mobile_mode     = false;
+    apm_config.echo_canceller.mobile_mode     = false;  // don't use mobile hardware echo cancellation.
     apm_config.gain_controller1.enabled       = config.mAGC;
     apm_config.gain_controller1.mode          = webrtc::AudioProcessing::Config::GainController1::kAdaptiveAnalog;
-    apm_config.gain_controller2.enabled       = false;
-    apm_config.high_pass_filter.enabled       = true;
-    apm_config.transient_suppression.enabled  = true;
-    apm_config.pipeline.multi_channel_render  = true;
-    apm_config.pipeline.multi_channel_capture = true;
+    apm_config.gain_controller2.enabled       = false;  // use the main gain controller.
+    apm_config.high_pass_filter.enabled       = false;  // don't filter, to improve quality for music and other pure sources.
+    apm_config.transient_suppression.enabled  = false;  // transient suppression may increase latency.
+    apm_config.pipeline.multi_channel_render  = true;   // stereo
     apm_config.pipeline.multi_channel_capture = true;
 
     switch (config.mNoiseSuppressionLevel)
@@ -750,7 +749,7 @@ void LLWebRTCPeerConnectionImpl::init(LLWebRTCImpl * webrtc_impl)
 }
 void LLWebRTCPeerConnectionImpl::terminate()
 {
-    mWebRTCImpl->SignalingBlockingCall(
+    mWebRTCImpl->PostSignalingTask(
         [this]()
         {
             if (mPeerConnection)
@@ -875,6 +874,13 @@ bool LLWebRTCPeerConnectionImpl::initializeConnection(const LLWebRTCPeerConnecti
                 codecparam.parameters["stereo"]       = "1";
                 codecparam.parameters["sprop-stereo"] = "1";
                 params.codecs.push_back(codecparam);
+
+                // Fixed bitrates result in lower CPU cost
+                for (auto&& encoding : params.encodings)
+                {
+                    encoding.max_bitrate_bps = 64000;
+                    encoding.min_bitrate_bps = 64000;
+                }
                 sender->SetParameters(params);
             }
 
@@ -959,7 +965,7 @@ void LLWebRTCPeerConnectionImpl::setMute(bool mute)
     mMute = mute;
     mute |= mWebRTCImpl->isCaptureNoDevice();
     mWebRTCImpl->PostSignalingTask(
-        [&]()
+        [this, mute]()
         {
         if (mPeerConnection)
         {
@@ -1231,7 +1237,7 @@ void LLWebRTCPeerConnectionImpl::OnSuccess(webrtc::SessionDescriptionInterface *
         else if (sdp_line.find("a=fmtp:" + opus_payload) == 0)
         {
             sdp_mangled_stream << sdp_line << "a=fmtp:" << opus_payload
-            << " minptime=10;useinbandfec=1;stereo=1;sprop-stereo=1;maxplaybackrate=48000;sprop-maxplaybackrate=48000;sprop-maxcapturerate=48000\n";
+            << " minptime=10;useinbandfec=1;stereo=1;sprop-stereo=1;maxplaybackrate=48000;sprop-maxplaybackrate=48000;sprop-maxcapturerate=48000;complexity=4\n";
         }
         else
         {

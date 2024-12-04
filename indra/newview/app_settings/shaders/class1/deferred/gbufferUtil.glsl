@@ -1,7 +1,7 @@
 /**
- * @file postDeferredGammaCorrect.glsl
+ * @file class1/deferred/gbufferUtil.glsl
  *
- * $LicenseInfo:firstyear=2007&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2024&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2007, Linden Research, Inc.
  *
@@ -23,36 +23,37 @@
  * $/LicenseInfo$
  */
 
-/*[EXTRA_CODE_HERE]*/
-
-out vec4 frag_color;
-
 uniform sampler2D diffuseRect;
+uniform sampler2D specularRect;
 
-uniform float gamma;
-uniform vec2 screen_res;
-in vec2 vary_fragcoord;
-
-vec3 linear_to_srgb(vec3 cl);
-
-vec3 legacyGamma(vec3 color)
-{
-    vec3 c = 1. - clamp(color, vec3(0.), vec3(1.));
-    c = 1. - pow(c, vec3(gamma)); // s/b inverted already CPU-side
-
-    return c;
-}
-
-void main()
-{
-    //this is the one of the rare spots where diffuseRect contains linear color values (not sRGB)
-    vec4 diff = texture(diffuseRect, vary_fragcoord);
-    diff.rgb = linear_to_srgb(diff.rgb);
-
-#ifdef LEGACY_GAMMA
-    diff.rgb = legacyGamma(diff.rgb);
+#if defined(HAS_EMISSIVE)
+uniform sampler2D emissiveRect;
 #endif
 
-    frag_color = max(diff, vec4(0));
-}
+vec4 getNormRaw(vec2 screenpos);
+vec4 decodeNormal(vec4 norm);
 
+GBufferInfo getGBuffer(vec2 screenpos)
+{
+    GBufferInfo ret;
+    vec4 diffInfo = vec4(0);
+    vec4 specInfo = vec4(0);
+    vec4 emissInfo = vec4(0);
+
+    diffInfo = texture(diffuseRect, screenpos.xy);
+    specInfo = texture(specularRect, screenpos.xy);
+    vec4 normInfo = getNormRaw(screenpos);
+
+#if defined(HAS_EMISSIVE)
+    emissInfo = texture(emissiveRect, screenpos.xy);
+#endif
+
+    ret.albedo = diffInfo;
+    ret.normal = decodeNormal(normInfo).xyz;
+    ret.specular = specInfo;
+    ret.envIntensity = normInfo.b;
+    ret.gbufferFlag = normInfo.w;
+    ret.emissive = emissInfo;
+
+    return ret;
+}

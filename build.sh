@@ -201,17 +201,9 @@ pre_build()
     # honor autobuild_configure_parameters same as sling-buildscripts
     eval_autobuild_configure_parameters=$(eval $(echo echo $autobuild_configure_parameters))
 
-    # We build the viewer on Linux, but we haven't committed to support the
-    # Linux viewer. As of 2024-05-30, Linux build-time test infrastructure is
-    # not in place, so don't even bother running tests on Linux.
-    if [[ "$RUNNER_OS" == "Linux" ]]
-    then LL_TESTS=OFF
-    else LL_TESTS=ON
-    fi
-
     "$autobuild" configure --quiet -c $variant \
      ${eval_autobuild_configure_parameters:---} \
-     -DLL_TESTS:BOOL=$LL_TESTS \
+     -DLL_TESTS:BOOL=ON \
      -DPACKAGE:BOOL=ON \
      -DHAVOK:BOOL="$HAVOK" \
      -DRELEASE_CRASH_REPORTING:BOOL="$RELEASE_CRASH_REPORTING" \
