@@ -621,7 +621,7 @@ void LLViewerTexture::updateClass()
         }
     }
 
-    sDesiredDiscardBias = llclamp(sDesiredDiscardBias, 1.f, 5.f);
+    sDesiredDiscardBias = llclamp(sDesiredDiscardBias, 1.f, 4.f);
 
     LLViewerTexture::sFreezeImageUpdates = false;
 }
