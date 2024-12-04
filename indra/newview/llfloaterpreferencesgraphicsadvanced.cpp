@@ -321,7 +321,7 @@ void LLFloaterPreferenceGraphicsAdvanced::disableUnavailableSettings()
     }
 
     // Vintage mode
-    LLCachedControl<bool> is_not_vintage(gSavedSettings, "RenderDisableVintageMode");
+    static LLCachedControl<bool> is_not_vintage(gSavedSettings, "RenderDisableVintageMode");
     LLSliderCtrl*         tonemapMix    = getChild<LLSliderCtrl>("TonemapMix");
     LLComboBox*           tonemapSelect = getChild<LLComboBox>("TonemapType");
     LLTextBox*            tonemapLabel  = getChild<LLTextBox>("TonemapTypeText");

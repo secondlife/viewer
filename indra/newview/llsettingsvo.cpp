@@ -671,7 +671,7 @@ void LLSettingsVOSky::updateSettings()
     // After some A/B comparison of relesae vs EEP, tweak to allow strength to fall below 2
     // at night, for better match. (mSceneLightStrength is a divisor, so lower value means brighter
     // local lights)
-    LLCachedControl<F32> sdr(gSavedSettings, "RenderSunDynamicRange", 1.f);
+    static LLCachedControl<F32> sdr(gSavedSettings, "RenderSunDynamicRange", 1.f);
     F32 sun_dynamic_range = llmax(sdr(), 0.0001f);
     mSceneLightStrength = 2.0f * (0.75f + sun_dynamic_range * dp);
 

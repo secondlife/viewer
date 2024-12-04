@@ -349,8 +349,9 @@ bool addDeferredAttachments(LLRenderTarget& target, bool for_impostor = false)
     U32 norm = GL_RGBA16F;
     U32 emissive = GL_RGB16F;
 
-    bool hdr = gSavedSettings.getBOOL("RenderHDREnabled") && gGLManager.mGLVersion > 4.05f;
-    LLCachedControl<bool> has_emissive(gSavedSettings, "RenderEnableEmissiveBuffer", false);
+    static LLCachedControl<bool> has_emissive(gSavedSettings, "RenderEnableEmissiveBuffer", false);
+    static LLCachedControl<bool> has_hdr(gSavedSettings, "RenderHDREnabled", true);
+    bool hdr = has_hdr() && gGLManager.mGLVersion > 4.05f;
 
     if (!hdr)
     {
@@ -803,7 +804,8 @@ bool LLPipeline::allocateScreenBufferInternal(U32 resX, U32 resY)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
 
-    bool hdr = gGLManager.mGLVersion > 4.05f && gSavedSettings.getBOOL("RenderHDREnabled");
+    static LLCachedControl<bool> has_hdr(gSavedSettings, "RenderHDREnabled", true);
+    bool hdr = gGLManager.mGLVersion > 4.05f && has_hdr();
 
     if (mRT == &mMainRT)
     { // hacky -- allocate auxillary buffer
@@ -7894,7 +7896,8 @@ void LLPipeline::renderFinalize()
     gGL.setColorMask(true, true);
     glClearColor(0, 0, 0, 0);
 
-    bool hdr = gGLManager.mGLVersion > 4.05f && gSavedSettings.getBOOL("RenderHDREnabled");
+    static LLCachedControl<bool> has_hdr(gSavedSettings, "RenderHDREnabled", true);
+    bool hdr = gGLManager.mGLVersion > 4.05f && has_hdr();
 
     if (hdr)
     {
