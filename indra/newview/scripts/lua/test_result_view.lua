@@ -27,6 +27,9 @@ end
 print('result_view()')
 -- for test purposes, key is irrelevant, so just 'key'
 view = result_view({'key', #alphabits}, fetch)
+-- uncomment this to verify that the operations below work even when we've
+-- wrapped the result_view in a setdtor() proxy
+-- view = LL.setdtor('view', view, function() print('destroying view') end)
 
 print('function check_iter()')
 function check_iter(...)
