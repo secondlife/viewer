@@ -30,7 +30,7 @@ function listener:handleMessages(event_data)
     -- ignore messages and commands from other avatars
     if event_data.from_id ~= agent_id then
       return true
-    elseif string.find(event_data.message, '[LUA]') then
+    elseif string.sub(event_data.message, 1, 5) == '[LUA]' then
       return true
     elseif event_data.message == 'stop' then
       LLChat.sendNearby('Closing echo script.')
