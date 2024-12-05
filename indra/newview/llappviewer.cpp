@@ -2554,6 +2554,7 @@ bool LLAppViewer::initConfiguration()
         OSMessageBox(
             "Unable to load default settings file. The installation may be corrupted.",
             LLStringUtil::null,OSMB_OK);
+        LLAppViewer::instance()->createErrorMarker(LAST_EXEC_MISSING_FILES);
         return false;
     }
 
