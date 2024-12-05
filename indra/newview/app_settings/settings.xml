@@ -7808,7 +7808,18 @@
   <key>RenderLowMemMinDiscardIncrement</key>
   <map>
     <key>Comment</key>
-    <string>Minimum increment of discard level if system memory gets low</string>
+    <string>Minimum increment of discard bias if available texture memory gets low</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0.1</real>
+  </map>
+  <key>RenderHighMemMinDiscardDecrement</key>
+  <map>
+    <key>Comment</key>
+    <string>Minimum decrement of discard bias if excess texture memory is available</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>

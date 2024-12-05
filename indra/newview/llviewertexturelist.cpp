@@ -1066,13 +1066,26 @@ F32 LLViewerTextureList::updateImagesCreateTextures(F32 max_time)
     {
         LLViewerFetchedTexture* imagep = mCreateTextureList.front();
         llassert(imagep->mCreatePending);
-        imagep->createTexture();
+
+        // desired discard may change while an image is being decoded. If the texture in VRAM is sufficient
+        // for the current desired discard level, skip the texture creation.  This happens more often than it probably
+        // should
+        bool redundant_load = imagep->hasGLTexture() && imagep->getDiscardLevel() <= imagep->getDesiredDiscardLevel();
+
+        if (!redundant_load)
+        {
+           imagep->createTexture();
+        }
+
         imagep->postCreateTexture();
         imagep->mCreatePending = false;
         mCreateTextureList.pop();
 
         if (imagep->hasGLTexture() && imagep->getDiscardLevel() < imagep->getDesiredDiscardLevel())
         {
+            // NOTE: this may happen if the desired discard reduces while a decode is in progress and does not
+            // necessarily indicate a problem, but if log occurrences excede that of dsiplay_stats: FPS,
+            // something has probably gone wrong.
             LL_WARNS_ONCE("Texture") << "Texture will be downscaled immediately after loading." << LL_ENDL;
             imagep->scaleDown();
         }
