@@ -4,8 +4,6 @@ local leap = require 'leap'
 local util = require 'util'
 
 local LLListener = {}
-local waitfor = {}
-local listener_name = {}
 
 function LLListener:new(pump_name)
     local obj = setmetatable({}, self)
@@ -23,28 +21,39 @@ function LLListener:handleMessages(event_data)
     return true
 end
 
+function LLListener:debugHandleMessages(event_data)
+    local ret = self:handleMessages(event_data)
+    print(`LLListener({self.name}): got {ret} from {inspect(event_data)}`)
+    return ret
+end
+
 function LLListener:start()
-    _pump = self._pump
-    waitfor = leap.WaitFor(-1, self.name)
-    function waitfor:filter(pump, data)
+    local _pump = self._pump
+    self.waitfor = leap.WaitFor(-1, self.name)
+    function self.waitfor:filter(pump, data)
         if _pump == pump then
           return data
         end
     end
 
     fiber.launch(self.name, function()
-        event = waitfor:wait()
+        local event = self.waitfor:wait()
         while event and self:handleMessages(event) do
-          event = waitfor:wait()
+          event = self.waitfor:wait()
         end
     end)
 
-    listener_name = leap.request(leap.cmdpump(), {op='listen', source=_pump, listener="LLListener", tweak=true}).listener
+    self.listener_name = leap.request(
+        leap.cmdpump(),
+        {op='listen', source=_pump, listener="LLListener", tweak=true}).listener
 end
 
 function LLListener:stop()
-    leap.send(leap.cmdpump(), {op='stoplistening', source=self._pump, listener=listener_name})
-    waitfor:close()
+    if self.listener_name then
+        leap.send(leap.cmdpump(),
+                  {op='stoplistening', source=self._pump, listener=self.listener_name})
+    end
+    self.waitfor:close()
 end
 
 return LLListener
