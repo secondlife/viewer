@@ -818,6 +818,8 @@ void LLSettingsVOSky::applySpecial(void *ptarget, bool force)
     shader->uniform1f(LLShaderMgr::SKY_AMBIENT_SCALE, ambient_scale);
     shader->uniform1i(LLShaderMgr::CLASSIC_MODE, classic_mode);
 
+    LLRender::sClassicMode = classic_mode;
+
     F32 probe_ambiance = getReflectionProbeAmbiance();
 
     if (irradiance_pass)
