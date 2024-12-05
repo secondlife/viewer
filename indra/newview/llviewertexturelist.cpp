@@ -1076,7 +1076,7 @@ F32 LLViewerTextureList::updateImagesCreateTextures(F32 max_time)
         {
            imagep->createTexture();
         }
-        
+
         imagep->postCreateTexture();
         imagep->mCreatePending = false;
         mCreateTextureList.pop();
