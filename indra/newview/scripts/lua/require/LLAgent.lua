@@ -3,16 +3,9 @@ local mapargs = require 'mapargs'
 local result_view = require 'result_view'
 
 local function result(keys)
-    local result_table = {
-        result=result_view(keys.result),
-        -- call result_table:close() to release result sets before garbage
-        -- collection or script completion
-        close = function(self)
-            result_view.close(keys.result[1])
-        end
-    }
-    -- When the result_table is destroyed, close its result_views.
-    return LL.setdtor('LLAgent result', result_table, result_table.close)
+    local result = result_view(keys.result)
+    -- When our return value is destroyed, close its result_view.
+    return LL.setdtor('LLAgent result', result, result.close)
 end
 
 local LLAgent = {}
@@ -115,7 +108,7 @@ end
 
 -- Get the nearby avatars in a range of provided "dist",
 -- if "dist" is not specified, "RenderFarClip" setting is used
--- reply will contain "result" table with following fields:
+-- returns table with following fields:
 -- "id", "global_pos", "region_pos",  "name", "region_id"
 function LLAgent.getNearbyAvatarsList(...)
     local args = mapargs('dist', ...)
@@ -123,7 +116,7 @@ function LLAgent.getNearbyAvatarsList(...)
     return result(leap.request('LLAgent', args))
 end
 
--- reply will contain "result" table with following fields:
+-- returns table with following fields:
 -- "id", "global_pos", "region_pos", "region_id"
 function LLAgent.getNearbyObjectsList(...)
     local args = mapargs('dist', ...)
