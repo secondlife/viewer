@@ -62,7 +62,7 @@ std::string HttpStatus::toHex() const
 
 std::string HttpStatus::toString() const
 {
-    static const char * llcore_errors[] =
+    static const std::vector<std::string> llcore_errors =
         {
             "",
             "HTTP error reply status",
@@ -76,16 +76,9 @@ std::string HttpStatus::toString() const
             "Invalid HTTP status code received from server",
             "Could not allocate required resource"
         };
-    static const int llcore_errors_count(sizeof(llcore_errors) / sizeof(llcore_errors[0]));
 
-    static const struct
-    {
-        type_enum_t     mCode;
-        const char *    mText;
-    }
-    http_errors[] =
+    static const std::map<type_enum_t, std::string> http_errors =
         {
-            // Keep sorted by mCode, we binary search this list.
             { 100, "Continue" },
             { 101, "Switching Protocols" },
             { 200, "OK" },
@@ -128,12 +121,12 @@ std::string HttpStatus::toString() const
             { 504, "Gateway Time-out" },
             { 505, "HTTP Version not supported" }
         };
-    static const int http_errors_count(sizeof(http_errors) / sizeof(http_errors[0]));
 
     if (*this)
     {
-        return std::string("");
+        return LLStringUtil::null;
     }
+
     switch (getType())
     {
     case EXT_CURL_EASY:
@@ -143,9 +136,9 @@ std::string HttpStatus::toString() const
         return std::string(curl_multi_strerror(CURLMcode(getStatus())));
 
     case LLCORE:
-        if (getStatus() >= 0 && getStatus() < llcore_errors_count)
+        if (getStatus() >= 0 && std::size_t(getStatus()) < llcore_errors.size())
         {
-            return std::string(llcore_errors[getStatus()]);
+            return llcore_errors[getStatus()];
         }
         break;
 
@@ -156,32 +149,16 @@ std::string HttpStatus::toString() const
             if ((getType() == 499) && (!getMessage().empty()))
                 return getMessage();
 
-            // Binary search for the error code and string
-            int bottom(0), top(http_errors_count);
-            while (true)
+            auto it = http_errors.find(getType());
+            if (it != http_errors.end())
             {
-                int at((bottom + top) / 2);
-                if (getType() == http_errors[at].mCode)
-                {
-                    return std::string(http_errors[at].mText);
-                }
-                if (at == bottom)
-                {
-                    break;
-                }
-                else if (getType() < http_errors[at].mCode)
-                {
-                    top = at;
-                }
-                else
-                {
-                    bottom = at;
-                }
+                return it->second;
             }
         }
         break;
     }
-    return std::string("Unknown error");
+
+    return "Unknown error";
 }
 
 
