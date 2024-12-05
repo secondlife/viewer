@@ -42,7 +42,7 @@ local fiber = require('fiber')
 local ErrorQueue = require('ErrorQueue')
 local inspect = require('inspect')
 local function dbg(...) end 
-local dbg = require('printf')
+-- local dbg = require('printf')
 local util = require('util')
 
 local leap = {}
@@ -216,21 +216,11 @@ end
 
 -- Send the specified request LLSD, expecting an immediate reply followed by
 -- an arbitrary number of subsequent replies with the same reqid. Block the
--- calling coroutine until we call 'callback1' with the first (immediate)
--- reply, but launch a separate fiber on which to call the passed 'callback2'
--- with later replies.
+-- calling coroutine until the first (immediate) reply, but launch a separate
+-- fiber on which to call the passed callback with later replies.
 --
--- If not nil, 'callback1' is called with the immediate (success or failure)
--- reply. If 'callback1' returns true, eventstream() is done.
---
--- Otherwise, if 'callback2' is not nil, eventstream() launches a background
--- fiber that calls 'callback2' with every subsequent viewer response with the
--- same reqid. Once 'callback2' returns true, the background fiber terminates.
--- Any further events with that reqid are discarded.
---
--- Either way, eventstream returns the initial reply, the same reply passed to
--- 'callback1'.
-function leap.eventstream(pump, data, callback1, callback2)
+-- Once the callback returns true, the background fiber terminates.
+function leap.eventstream(pump, data, callback)
     local reqid, waitfor = requestSetup(pump, data)
     local response = waitfor:wait()
     if response.error then
@@ -239,51 +229,47 @@ function leap.eventstream(pump, data, callback1, callback2)
         error(response.error)
     end
     -- No error, so far so good:
-    -- call callback1 with the first response just in case
-    if callback1 then
-        dbg('leap.eventstream(%s): callback1', reqid)
-        local ok, done = pcall(callback1, response)
-        dbg('leap.eventstream(%s) got %s, %s', reqid, ok, done)
-        if not ok then
-            -- clean up our WaitForReqid
-            waitfor:close()
-            error(done)
-        end
-        if done then
-            return response
-        end
+    -- call the callback with the first response just in case
+    dbg('leap.eventstream(%s): first callback', reqid)
+    local ok, done = pcall(callback, response)
+    dbg('leap.eventstream(%s) got %s, %s', reqid, ok, done)
+    if not ok then
+        -- clean up our WaitForReqid
+        waitfor:close()
+        error(done)
     end
-    -- callback1 didn't throw an error, and didn't say stop,
+    if done then
+        return response
+    end
+    -- callback didn't throw an error, and didn't say stop,
     -- so set up to handle subsequent events
     -- TODO: distinguish "daemon" fibers that can be terminated even if waiting
-    if callback2 then
-        fiber.launch(
-            pump,
-            function ()
-                local ok, done
-                local nth = 0
-                repeat
-                    event = waitfor:wait()
-                    if not event then
-                        -- wait() returns nil once the queue is closed (e.g. cancelreq())
-                        ok, done = true, true
-                    else
-                        nth += 1
-                        dbg('leap.eventstream(%s): callback2 %d', reqid, nth)
-                        ok, done = pcall(callback2, event)
-                        dbg('leap.eventstream(%s) got %s, %s', reqid, ok, done)
-                    end
-                    -- not ok means callback2 threw an error (caught as 'done')
-                    -- done means callback2 succeeded but wants to stop
-                until (not ok) or done
-                -- once we break this loop, clean up our WaitForReqid
-                waitfor:close()
-                if not ok then
-                    -- can't reflect the error back to our caller
-                    LL.print_warning(fiber.get_name() .. ': ' .. done)
+    fiber.launch(
+        pump,
+        function ()
+            local ok, done
+            local nth = 1
+            repeat
+                event = waitfor:wait()
+                if not event then
+                    -- wait() returns nil once the queue is closed (e.g. cancelreq())
+                    ok, done = true, true
+                else
+                    nth += 1
+                    dbg('leap.eventstream(%s): callback %d', reqid, nth)
+                    ok, done = pcall(callback, event)
+                    dbg('leap.eventstream(%s) got %s, %s', reqid, ok, done)
                 end
+                -- not ok means callback threw an error (caught as 'done')
+                -- done means callback succeeded but wants to stop
+            until (not ok) or done
+            -- once we break this loop, clean up our WaitForReqid
+            waitfor:close()
+            if not ok then
+                -- can't reflect the error back to our caller
+                LL.print_warning(fiber.get_name() .. ': ' .. done)
+            end
         end)
-    end
     return response
 end
 
