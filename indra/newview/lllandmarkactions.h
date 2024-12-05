@@ -84,6 +84,17 @@ public:
         const std::string& name,
         const std::string& desc,
         const LLUUID& folder_id);
+
+    /**
+     * @brief Shows floater to create landmark for specified URL.
+     */
+    static void showFloaterCreateLandmarkForUrl(const std::string& url, const std::string& title);
+
+    /**
+     * @brief Checks possibility to create landmark for specified URL.
+     */
+    static bool canCreateLandmarkForUrl(const std::string& url);
+
     /**
      * @brief Creates SLURL for given global position.
      */

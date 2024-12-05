@@ -72,6 +72,12 @@ public:
     /// copy a Url to the clipboard
     static void copyURLToClipboard(std::string url);
 
+    /// open the "add_landmark" floater
+    static void showFloaterCreateLandmark(std::string url, std::string title);
+
+    /// make the "Create Landmark" menu item visible
+    static bool canCreateLandmark(std::string url);
+
     /// if the Url specifies an SL command in the form like 'app/{cmd}/{id}/*', show its profile
     static void showProfile(std::string url);
     static std::string getUserID(std::string url);
@@ -85,12 +91,16 @@ public:
     static void unblockObject(std::string url);
 
     /// specify the callbacks to enable this class's functionality
-    typedef boost::function<void (const std::string&)> url_callback_t;
+    typedef boost::function<void(const std::string&)> url_callback_t;
+    typedef boost::function<void(const std::string&, const std::string&)> url_title_callback_t;
+    typedef boost::function<bool(const std::string&)> check_url_callback_t;
     typedef boost::function<bool(const std::string& url, bool trusted_content)> execute_url_callback_t;
 
     static void setOpenURLCallback(url_callback_t cb);
     static void setOpenURLInternalCallback(url_callback_t cb);
     static void setOpenURLExternalCallback(url_callback_t cb);
+    static void setCreateLandmarkCallback(url_title_callback_t cb);
+    static void setCanCreateLandmarkCallback(check_url_callback_t cb);
     static void setExecuteSLURLCallback(execute_url_callback_t cb);
 
 private:
@@ -98,6 +108,8 @@ private:
     static url_callback_t sOpenURLCallback;
     static url_callback_t sOpenURLInternalCallback;
     static url_callback_t sOpenURLExternalCallback;
+    static url_title_callback_t sCreateLandmarkCallback;
+    static check_url_callback_t sCanCreateLandmarkCallback;
 
     static execute_url_callback_t sExecuteSLURLCallback;
 };

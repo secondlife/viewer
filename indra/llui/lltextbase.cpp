@@ -2104,7 +2104,7 @@ LLTextSegmentPtr LLTextBase::getSegmentAtLocalPos(S32 x, S32 y, bool hit_past_en
     return LLTextSegmentPtr();
 }
 
-void LLTextBase::createUrlContextMenu(S32 x, S32 y, const std::string &in_url)
+void LLTextBase::createUrlContextMenu(S32 x, S32 y, const std::string &in_url, const std::string &text)
 {
     // work out the XUI menu file to use for this url
     LLUrlMatch match;
@@ -2123,6 +2123,8 @@ void LLTextBase::createUrlContextMenu(S32 x, S32 y, const std::string &in_url)
     // set up the callbacks for all of the potential menu items, N.B. we
     // don't use const ref strings in callbacks in case url goes out of scope
     ScopedRegistrarHelper registrar;
+    LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
+
     registrar.add("Url.Open", boost::bind(&LLUrlAction::openURL, url));
     registrar.add("Url.OpenInternal", boost::bind(&LLUrlAction::openURLInternal, url));
     registrar.add("Url.OpenExternal", boost::bind(&LLUrlAction::openURLExternal, url));
@@ -2138,6 +2140,8 @@ void LLTextBase::createUrlContextMenu(S32 x, S32 y, const std::string &in_url)
     registrar.add("Url.ShowOnMap", boost::bind(&LLUrlAction::showLocationOnMap, url));
     registrar.add("Url.CopyLabel", boost::bind(&LLUrlAction::copyLabelToClipboard, url));
     registrar.add("Url.CopyUrl", boost::bind(&LLUrlAction::copyURLToClipboard, url));
+    registrar.add("Url.CreateLandmark", boost::bind(&LLUrlAction::showFloaterCreateLandmark, in_url, text));
+    enable_registrar.add("Url.CanCreateLandmark", boost::bind(&LLUrlAction::canCreateLandmark, in_url));
 
     // create and return the context menu from the XUI file
 
@@ -3563,9 +3567,11 @@ bool LLNormalTextSegment::handleRightMouseDown(S32 x, S32 y, MASK mask)
     if (getStyle() && getStyle()->isLink())
     {
         // Only process the click if it's actually in this segment, not to the right of the end-of-line.
-        if(mEditor.getSegmentAtLocalPos(x, y, false) == this)
+        if (mEditor.getSegmentAtLocalPos(x, y, false) == this)
         {
-            mEditor.createUrlContextMenu(x, y, getStyle()->getLinkHREF());
+            const std::string url = getStyle()->getLinkHREF();
+            const std::string text = wstring_to_utf8str(mEditor.getWText().substr((U64)llmax(0, mStart), (U64)llmax(0, mEnd - mStart)));
+            mEditor.createUrlContextMenu(x, y, url, text);
             return true;
         }
     }
