@@ -63,6 +63,9 @@ function timers.Timer:new(delay, callback, iterate)
                         in_callback = true
                         local ret = callback(event)
                         in_callback = false
+                        if ret then
+                            obj:cancel()
+                        end
                         return ret
                     end
                 end
