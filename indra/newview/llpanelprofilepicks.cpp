@@ -772,23 +772,8 @@ bool LLPanelProfilePick::isDirty() const
 
 void LLPanelProfilePick::onClickCreateLandmark()
 {
-    if (gAgent.getRegion() &&
-        !gAgent.getRegion()->getCapability("CreateLandmarkForPosition").empty())
-    {
-        U64 handle = to_region_handle(mPosGlobal);
-        if (LLSimInfo* info = LLWorldMap::getInstance()->simInfoFromHandle(handle))
-        {
-            std::string region_name = info->getName();
-            S32 x = llclamp(ll_round((F32)mPosGlobal.mdV[VX]), 0, REGION_WIDTH_UNITS);
-            S32 y = llclamp(ll_round((F32)mPosGlobal.mdV[VY]), 0, REGION_WIDTH_UNITS);
-            S32 z = ll_round(llclamp((F32)mPosGlobal.mdV[VZ], MIN_OBJECT_Z, MAX_OBJECT_Z));
-            std::string title = getChild<LLUICtrl>("pick_location")->getValue().asString();
-            LLLandmarkActions::showFloaterCreateLandmarkForCoords(region_name, x, y, z, title);
-            return;
-        }
-    }
-
-    LLNotificationsUtil::add("CantCreateLandmark");
+    std::string title = getChild<LLUICtrl>("pick_location")->getValue().asString();
+    LLLandmarkActions::showFloaterCreateLandmarkForPos(mPosGlobal, title);
 }
 
 void LLPanelProfilePick::onClickSetLocation()
@@ -926,34 +911,27 @@ std::string LLPanelProfilePick::createLocationText(const std::string& owner_name
 {
     std::string location_text(owner_name);
 
-    if (!original_name.empty())
-    {
-        if (!location_text.empty())
+    auto append = [&](const std::string& text, const std::string& delimiter)
         {
-            location_text.append(", ");
-        }
-        location_text.append(original_name);
-    }
+            if (!text.empty())
+            {
+                if (!location_text.empty())
+                {
+                    location_text.append(delimiter);
+                }
+                location_text.append(text);
+            }
+        };
 
-    if (!sim_name.empty())
-    {
-        if (!location_text.empty())
-        {
-            location_text.append(", ");
-        }
-        location_text.append(sim_name);
-    }
+    append(original_name, ", ");
+    append(sim_name, ", ");
 
     if (!pos_global.isNull())
     {
-        if (!location_text.empty())
-        {
-            location_text.append(" ");
-        }
         S32 region_x = ll_round((F32)pos_global.mdV[VX]) % REGION_WIDTH_UNITS;
         S32 region_y = ll_round((F32)pos_global.mdV[VY]) % REGION_WIDTH_UNITS;
         S32 region_z = ll_round((F32)pos_global.mdV[VZ]);
-        location_text.append(llformat("(%d, %d, %d)", region_x, region_y, region_z));
+        append(llformat("(%d, %d, %d)", region_x, region_y, region_z), " ");
     }
 
     return location_text;

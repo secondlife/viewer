@@ -11986,10 +11986,20 @@ Cannot create landmark.
 
   <notification
    icon="alertmodal.tga"
+   name="CantCreateLandmarkTryAgain"
+   type="notify">
+   <tag>fail</tag>
+Cannot create landmark right now.
+Try again in a few seconds.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="CantCreateOutfit"
    type="notify">
    <tag>fail</tag>
-Cannot create outfit right now. Try again in a minute.
+Cannot create outfit right now.
+Try again in a minute.
   </notification>
 
   <notification
