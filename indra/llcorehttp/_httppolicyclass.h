@@ -63,6 +63,7 @@ public:
     long                        mConnectionLimit;
     long                        mPerHostConnectionLimit;
     long                        mPipelining;
+    long                        mMultiplexing;
     long                        mThrottleRate;
 };  // end class HttpPolicyClass
 

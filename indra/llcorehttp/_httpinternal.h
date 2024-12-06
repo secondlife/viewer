@@ -153,6 +153,9 @@ constexpr int HTTP_CONNECTION_LIMIT_MAX = 256;
 constexpr long HTTP_PIPELINING_DEFAULT = 0L;
 constexpr long HTTP_PIPELINING_MAX = 20L;
 
+// Multiplexing limits
+constexpr long HTTP_MULTIPLEXING_DEFAULT = 0L;
+
 // Miscellaneous defaults
 constexpr bool HTTP_USE_RETRY_AFTER_DEFAULT = true;
 constexpr long HTTP_THROTTLE_RATE_DEFAULT = 0L;
