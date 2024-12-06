@@ -93,12 +93,13 @@ print(`Got {#nearby} near objects`)
 -- Find MYCHAIR within that list
 for _, obj in nearby do
     if obj.id == MYCHAIR then
-        dest = obj.global_pos
-        print(`Found my chair at {inspect(dest)}`)
+        gchair = obj.global_pos
+        lchair = obj.region_pos
+        print(`Found my chair at {inspect(gchair)}`)
         break
     end
 end
-if not dest then
+if not gchair then
     print("Can't find my chair, sorry")
     -- TODO: we should have an LL.exit() to terminate a script early
 else
@@ -116,9 +117,9 @@ else
         return false
     end
 
-    print(`Going to {inspect(dest)}`)
+    print(`Going to {inspect(gchair)}`)
     animateCamera(8)
-    LLAgent.startAutoPilot{target_global=dest, allow_flying=false}
+    LLAgent.startAutoPilot{target_global=gchair, allow_flying=false, stop_distance=1}
     walk_listener:start()
     -- wait for walk_listener:handleMessages()
     arrived:Dequeue()
@@ -134,8 +135,12 @@ else
             timers.sleep(1)
         until not LLGesture.isGesturePlaying(dance2)
     end
+    timers.sleep(1)
     -- LLAgent.requestSit{obj_uuid=MYCHAIR} -- doesn't work?
-    LLAgent.requestSit() -- on the ground, then
+    -- LLAgent.requestSit() -- on the ground, then
+    -- has to be region-local position, not global position!
+    -- LLAgent.requestSit{position=lchair}
+    LLAgent.requestSit{position=LLAgent.getRegionPosition()}
     agent_id = LLAgent.getID()
 
     done_talking = WaitQueue()
@@ -153,7 +158,8 @@ else
                 return true
             end
         else
-            print(`Nat: {event_data.message}`)
+            -- TODO: LLAgent query to get agent name
+            print(`Me: {event_data.message}`)
             answer = Eliza(event_data.message)
             print(`Liz: {answer}`)
             LLChat.sendNearby(answer)
