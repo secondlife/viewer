@@ -37,6 +37,7 @@ HttpPolicyClass::HttpPolicyClass()
     : mConnectionLimit(HTTP_CONNECTION_LIMIT_DEFAULT),
       mPerHostConnectionLimit(HTTP_CONNECTION_LIMIT_DEFAULT),
       mPipelining(HTTP_PIPELINING_DEFAULT),
+      mMultiplexing(HTTP_MULTIPLEXING_DEFAULT),
       mThrottleRate(HTTP_THROTTLE_RATE_DEFAULT)
 {}
 
@@ -52,6 +53,7 @@ HttpPolicyClass & HttpPolicyClass::operator=(const HttpPolicyClass & other)
         mConnectionLimit = other.mConnectionLimit;
         mPerHostConnectionLimit = other.mPerHostConnectionLimit;
         mPipelining = other.mPipelining;
+        mMultiplexing = other.mMultiplexing;
         mThrottleRate = other.mThrottleRate;
     }
     return *this;
@@ -62,6 +64,7 @@ HttpPolicyClass::HttpPolicyClass(const HttpPolicyClass & other)
     : mConnectionLimit(other.mConnectionLimit),
       mPerHostConnectionLimit(other.mPerHostConnectionLimit),
       mPipelining(other.mPipelining),
+      mMultiplexing(other.mMultiplexing),
       mThrottleRate(other.mThrottleRate)
 {}
 
@@ -80,6 +83,10 @@ HttpStatus HttpPolicyClass::set(HttpRequest::EPolicyOption opt, long value)
 
     case HttpRequest::PO_PIPELINING_DEPTH:
         mPipelining = llclamp(value, 0L, HTTP_PIPELINING_MAX);
+        break;
+
+    case HttpRequest::PO_MULTIPLEXING_MODE:
+        mMultiplexing = llclamp(value, 0L, 1L);
         break;
 
     case HttpRequest::PO_THROTTLE_RATE:
@@ -108,6 +115,10 @@ HttpStatus HttpPolicyClass::get(HttpRequest::EPolicyOption opt, long * value) co
 
     case HttpRequest::PO_PIPELINING_DEPTH:
         *value = mPipelining;
+        break;
+
+    case HttpRequest::PO_MULTIPLEXING_MODE:
+        *value = mMultiplexing;
         break;
 
     case HttpRequest::PO_THROTTLE_RATE:

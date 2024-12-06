@@ -122,7 +122,8 @@ static void ssl_verification_changed();
 LLAppCoreHttp::HttpClass::HttpClass()
     : mPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID),
       mConnLimit(0U),
-      mPipelined(false)
+      mPipelined(false),
+      mMultiplexing(false)
 {}
 
 
@@ -131,7 +132,8 @@ LLAppCoreHttp::LLAppCoreHttp()
       mStopHandle(LLCORE_HTTP_HANDLE_INVALID),
       mStopRequested(0.0),
       mStopped(false),
-      mPipelined(true)
+      mPipelined(true),
+      mMultiplexing(false)
 {}
 
 
@@ -279,6 +281,15 @@ void LLAppCoreHttp::init()
         // Default to true (in ctor) if absent.
         mPipelined = gSavedSettings.getBOOL(http_pipelining);
         LL_INFOS("Init") << "HTTP Pipelining " << (mPipelined ? "enabled" : "disabled") << "!" << LL_ENDL;
+    }
+
+    // Global multiplexing setting
+    static const std::string http_multiplexing("UseHTTP2Multiplexing");
+    if (gSavedSettings.controlExists(http_multiplexing))
+    {
+        // Default to true (in ctor) if absent.
+        mMultiplexing = gSavedSettings.getBOOL(http_multiplexing);
+        LL_INFOS("Init") << "HTTP Multiplexing " << (mMultiplexing ? "enabled" : "disabled") << "!" << LL_ENDL;
     }
 
     // Register signals for settings and state changes
@@ -447,6 +458,38 @@ void LLAppCoreHttp::refreshSettings(bool initial)
                                       << " pipelining.  New value:  " << new_depth
                                       << LL_ENDL;
                     mHttpClasses[app_policy].mPipelined = to_pipeline;
+                }
+            }
+        }
+
+        // Multiplexing changes
+        if (initial)
+        {
+            const bool to_multiplex(mMultiplexing);
+            if (to_multiplex != mHttpClasses[app_policy].mMultiplexing)
+            {
+                // Pipeline election changing, set dynamic option via request
+
+                LLCore::HttpHandle handle;
+                const long new_mode(to_multiplex ? 1 : 0);
+
+                handle = mRequest->setPolicyOption(LLCore::HttpRequest::PO_MULTIPLEXING_MODE,
+                                                   mHttpClasses[app_policy].mPolicy,
+                                                   new_mode,
+                                                   LLCore::HttpHandler::ptr_t());
+                if (LLCORE_HTTP_HANDLE_INVALID == handle)
+                {
+                    status = mRequest->getStatus();
+                    LL_WARNS("Init") << "Unable to set " << init_data[i].mUsage
+                                     << " pipelining.  Reason:  " << status.toString()
+                                     << LL_ENDL;
+                }
+                else
+                {
+                    LL_DEBUGS("Init") << "Changed " << init_data[i].mUsage
+                                      << " multiplexing.  New mode:  " << (new_mode ? "enable" : "disable")
+                                      << LL_ENDL;
+                    mHttpClasses[app_policy].mMultiplexing = to_multiplex;
                 }
             }
         }

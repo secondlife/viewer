@@ -246,6 +246,7 @@ private:
         policy_t                    mPolicy;            // Policy class id for the class
         U32                         mConnLimit;
         bool                        mPipelined;
+        bool                        mMultiplexing;
         boost::signals2::connection mSettingsSignal;    // Signal to global setting that affect this class (if any)
     };
 
@@ -255,6 +256,7 @@ private:
     bool                        mStopped;
     HttpClass                   mHttpClasses[AP_COUNT];
     bool                        mPipelined;             // Global setting
+    bool                        mMultiplexing;          // Global setting
     boost::signals2::connection mPipelinedSignal;       // Signal for 'HttpPipelining' setting
     boost::signals2::connection mSSLNoVerifySignal;     // Signal for 'NoVerifySSLCert' setting
 

@@ -217,6 +217,10 @@ public:
         /// Per-class only
         PO_PIPELINING_DEPTH,
 
+        /// If it is 1, enable HTTP Multiplexing.
+        /// Per-class only
+        PO_MULTIPLEXING_MODE,
+
         /// Controls whether client-side throttling should be
         /// performed on this policy class.  Positive values
         /// enable throttling and specify the request rate
