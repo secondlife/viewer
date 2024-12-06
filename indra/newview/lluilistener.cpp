@@ -430,7 +430,7 @@ void LLUIListener::closeAllFloaters(const LLSD &event) const
 void LLUIListener::uploadLocalTexture(const LLSD& event) const
 {
     // upload on the main coro
-    doOnIdleOneTime([this, event]()
+    doOnIdleOneTime([event]()
     {
         LLUUID tracking_id = LLLocalBitmapMgr::getInstance()->addUnit(event["filename"]);
         sendReply(llsd::map("uuid", tracking_id.notNull() ? LLLocalBitmapMgr::getInstance()->getWorldID(tracking_id) : LLUUID()), event);
