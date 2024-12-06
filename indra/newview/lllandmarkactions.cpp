@@ -274,6 +274,7 @@ void LLLandmarkActions::showFloaterCreateLandmarkForUrl(const std::string& url, 
         (slurl.getType() != LLSLURL::APP || slurl.getAppCmd() != LLSLURL::SLURL_REGION_PATH))
     {
         LL_INFOS() << "Unsupported URL: '" << url << "'" << LL_ENDL;
+        LLNotificationsUtil::add("CantCreateLandmark");
         return;
     }
 
@@ -284,7 +285,29 @@ void LLLandmarkActions::showFloaterCreateLandmarkForUrl(const std::string& url, 
     showFloaterCreateLandmarkForCoords(slurl.getRegion(), x, y, z, title == url ? LLStringUtil::null : title);
 }
 
-void LLLandmarkActions::showFloaterCreateLandmarkForCoords(const std::string& region_name, S32 x, S32 y, S32 z, const std::string& title)
+void LLLandmarkActions::showFloaterCreateLandmarkForPos(const LLVector3d& global_pos, const std::string& title)
+{
+    if (LLSimInfo* info = LLWorldMap::getInstance()->simInfoFromPosGlobal(global_pos))
+    {
+        std::string region_name = info->getName();
+        LLVector3 local_pos = info->getLocalPos(global_pos);
+        S32 x = ll_round(local_pos.mV[VX]);
+        S32 y = ll_round(local_pos.mV[VY]);
+        S32 z = ll_round(local_pos.mV[VZ]);
+        showFloaterCreateLandmarkForCoords(region_name, x, y, z, title);
+        return;
+    }
+
+    LL_WARNS() << "No region found for global pos " << global_pos << LL_ENDL;
+    LLNotificationsUtil::add("CantCreateLandmarkTryAgain");
+
+    S32 x = S32(global_pos.mdV[0] / REGION_WIDTH_UNITS);
+    S32 y = S32(global_pos.mdV[1] / REGION_WIDTH_UNITS);
+    LLWorldMapMessage::getInstance()->sendMapBlockRequest(x, y, x, y, true);
+}
+
+void LLLandmarkActions::showFloaterCreateLandmarkForCoords(const std::string& region_name,
+    S32 x, S32 y, S32 z, const std::string& title)
 {
     LLSD data;
     data["region"] = region_name;
