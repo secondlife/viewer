@@ -1595,11 +1595,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e48f291e2eeb1dbab39f26db5ac9b4c2b2d1c57d</string>
+              <string>422b988f8d543a90b9b16f88c7bc2a367e19cdc6</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-luau/releases/download/v0.638-r2/luau-0.638.0-r2-darwin64-10356321602.tar.zst</string>
+              <string>https://github.com/secondlife/3p-luau/releases/download/v0.654/luau-0.654.0-darwin64-12204676273.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1609,11 +1609,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>3a797d8dae685b25ca787111a370b99d9e57d77c</string>
+              <string>2db068085eeefb3c91b28b769a39fa901c4e796a</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-luau/releases/download/v0.638-r2/luau-0.638.0-r2-linux64-10356321602.tar.zst</string>
+              <string>https://github.com/secondlife/3p-luau/releases/download/v0.654/luau-0.654.0-linux64-12204676273.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -1623,11 +1623,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a8857313496622134b00899141bbe6542f754164</string>
+              <string>f62eb31ac1a2407033100e424c4b361382c7bc12</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-luau/releases/download/v0.638-r2/luau-0.638.0-r2-windows64-10356321602.tar.zst</string>
+              <string>https://github.com/secondlife/3p-luau/releases/download/v0.654/luau-0.654.0-windows64-12204676273.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
