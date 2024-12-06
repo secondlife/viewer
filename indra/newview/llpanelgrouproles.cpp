@@ -1938,9 +1938,11 @@ LLPanelGroupRolesSubTab::LLPanelGroupRolesSubTab()
     mRolesList(NULL),
     mAssignedMembersList(NULL),
     mAllowedActionsList(NULL),
+    mActionDescription(NULL),
     mRoleName(NULL),
     mRoleTitle(NULL),
     mRoleDescription(NULL),
+    mMembersNotLoadedLbl(NULL),
     mMemberVisibleCheck(NULL),
     mDeleteRoleButton(NULL),
     mCopyRoleButton(NULL),
@@ -1969,6 +1971,7 @@ bool LLPanelGroupRolesSubTab::postBuildSubTab(LLView* root)
     mAssignedMembersList = parent->getChild<LLNameListCtrl>("role_assigned_members");
     mAllowedActionsList = parent->getChild<LLScrollListCtrl>("role_allowed_actions");
     mActionDescription  = parent->getChild<LLTextEditor>("role_action_description");
+    mMembersNotLoadedLbl = parent->getChild<LLUICtrl>("members_not_loaded");
 
     mRoleName = parent->getChild<LLLineEditor>("role_name");
     mRoleTitle = parent->getChild<LLLineEditor>("role_title");
@@ -2199,12 +2202,18 @@ void LLPanelGroupRolesSubTab::update(LLGroupChange gc)
         }
     }
 
-    if ((GC_ROLE_MEMBER_DATA == gc || GC_MEMBER_DATA == gc)
-        && gdatap
-        && gdatap->isMemberDataComplete()
-        && gdatap->isRoleMemberDataComplete())
+    if (gdatap && gdatap->isMemberDataComplete())
     {
-        buildMembersList();
+        if ((GC_ROLE_MEMBER_DATA == gc || GC_MEMBER_DATA == gc)
+            && gdatap->isRoleMemberDataComplete())
+        {
+            buildMembersList();
+        }
+        mMembersNotLoadedLbl->setVisible(false);
+    }
+    else
+    {
+        mMembersNotLoadedLbl->setVisible(true);
     }
 }
 
