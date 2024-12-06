@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ height="340"
+ layout="topleft"
+ name="lua_snapshot_preview"
+ title="Snapshot"
+ can_minimize="false"
+ width="450">
+   <button
+    follows="left|bottom"
+    height="25"
+    width="25"
+    image_overlay="Command_Snapshot_Icon"
+    layout="topleft"
+    name="snapshot_btn"
+    left="5"
+    top="25"/>
+   <button
+    follows="right|bottom"
+    height="25"
+    width="25"
+    image_overlay="Arrow_Right"
+    layout="topleft"
+    name="next_btn"
+    right="-5"
+    top="25"/>
+   <button
+    follows="right|bottom"
+    height="25"
+    width="25"
+    image_overlay="Arrow_Left"
+    layout="topleft"
+    name="prev_btn"
+    right="-35"
+    top="25"/>
+   <icon
+    left="5"
+    top_pad="5"
+    layout="topleft"
+    name="preview_icon"
+    height="280"
+    width="440"
+    follows="left|top"/>
+</floater>

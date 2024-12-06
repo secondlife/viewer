@@ -3223,6 +3223,7 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
     capabilityNames.append("ChatSessionRequest");
     capabilityNames.append("CopyInventoryFromNotecard");
     capabilityNames.append("CreateInventoryCategory");
+    capabilityNames.append("CreateLandmarkForPosition");
     capabilityNames.append("DeclineFriendship");
     capabilityNames.append("DeclineGroupInvite"); // ReadOfflineMsgs recieved messages only!!!
     capabilityNames.append("DispatchRegionInfo");

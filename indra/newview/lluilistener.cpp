@@ -34,6 +34,7 @@
 // std headers
 // external library headers
 // other Linden headers
+#include "lllocalbitmaps.h"
 #include "llmenugl.h"
 #include "lltoolbarview.h"
 #include "llui.h" // getRootView(), resolvePath()
@@ -138,6 +139,12 @@ LLUIListener::LLUIListener():
     add("closeAllFloaters",
         "Close all the floaters",
         &LLUIListener::closeAllFloaters);
+
+    add("uploadLocalTexture",
+        "Add [\"filename\"] to the local bitmap texture list,\n"
+        "Return [\"uuid\"] if upload was successful",
+        &LLUIListener::uploadLocalTexture,
+        llsd::map("filename", LLSD::String(), "reply", LLSD()));
 }
 
 typedef LLUICtrl::CommitCallbackInfo cb_info;
@@ -418,4 +425,14 @@ void LLUIListener::getToolbarBtnNames(const LLSD &event) const
 void LLUIListener::closeAllFloaters(const LLSD &event) const
 {
     close_all_windows();
+}
+
+void LLUIListener::uploadLocalTexture(const LLSD& event) const
+{
+    // upload on the main coro
+    doOnIdleOneTime([event]()
+    {
+        LLUUID tracking_id = LLLocalBitmapMgr::getInstance()->addUnit(event["filename"]);
+        sendReply(llsd::map("uuid", tracking_id.notNull() ? LLLocalBitmapMgr::getInstance()->getWorldID(tracking_id) : LLUUID()), event);
+    });
 }

@@ -276,6 +276,24 @@ LLSLURL::LLSLURL(const std::string& slurl)
             mAppCmd = path_array[0].asString();
             path_array.erase(0);
 
+            if ((mAppCmd == LLSLURL::SLURL_REGION_PATH) && (path_array.size() >= 1))
+            {
+                // grab the region name and (if provided) the position ([x,y,z] oe [x,y] coordinates)
+                mRegion = path_array[0].asString();
+                if (path_array.size() >= 4)
+                {
+                    mPosition = LLVector3((F32)path_array[1].asReal(), (F32)path_array[2].asReal(), (F32)path_array[3].asReal());
+                }
+                else if (path_array.size() == 3)
+                {
+                    mPosition = LLVector3((F32)path_array[1].asReal(), (F32)path_array[2].asReal(), 0);
+                }
+                else
+                {
+                    mPosition = LLVector3(128, 128, 0);
+                }
+            }
+
             // Grab the parameters
             mAppPath = path_array;
             // and the query
