@@ -277,12 +277,21 @@ void LLLandmarkActions::showFloaterCreateLandmarkForUrl(const std::string& url, 
         return;
     }
 
+    S32 x = (S32)std::round(slurl.getPosition()[VX]);
+    S32 y = (S32)std::round(slurl.getPosition()[VY]);
+    S32 z = (S32)std::round(slurl.getPosition()[VZ]);
+    // When title == url we provide an empty string to create a human-readable title
+    showFloaterCreateLandmarkForCoords(slurl.getRegion(), x, y, z, title == url ? LLStringUtil::null : title);
+}
+
+void LLLandmarkActions::showFloaterCreateLandmarkForCoords(const std::string& region_name, S32 x, S32 y, S32 z, const std::string& title)
+{
     LLSD data;
-    data["region"] = slurl.getRegion();
-    data["x"] = (S32)std::round(slurl.getPosition()[VX]);
-    data["y"] = (S32)std::round(slurl.getPosition()[VY]);
-    data["z"] = (S32)std::round(slurl.getPosition()[VZ]);
-    data["title"] = title.empty() ? slurl.getRegion() : title;
+    data["region"] = region_name;
+    data["x"] = x;
+    data["y"] = y;
+    data["z"] = z;
+    data["title"] = title.empty() ? llformat("%s (%d, %d, %d)", region_name.c_str(), x, y, z) : title;
 
     LLFloaterReg::showInstance("add_landmark", data);
 }
