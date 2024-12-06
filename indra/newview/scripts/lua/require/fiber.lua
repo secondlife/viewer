@@ -16,9 +16,10 @@
 -- fiber.run() runs all current fibers until all have terminated (successfully
 -- or with an error).
 
-local printf = require 'printf'
 local function dbg(...) end
--- local dbg = printf
+-- WARNING! If you uncomment this, you must comment out the "require 'fiber'"
+-- in inspect.lua, otherwise you run into require circularity.
+-- local dbg = require 'printf'
 local util = require 'util'
 
 local fiber = {}

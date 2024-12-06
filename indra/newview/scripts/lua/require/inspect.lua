@@ -6,6 +6,9 @@ local inspect = {Options = {}, }
 
 
 
+local function yield() end
+-- Comment out this require if you uncomment dbg() in fiber.lua, to avoid circularity
+local yield = (require 'fiber').yield
 
 
 
@@ -212,12 +215,14 @@ local function processRecursive(process,
       local processedKey
 
       for k, v in rawpairs(processed) do
+         yield()
          processedKey = processRecursive(process, k, makePath(path, k, inspect.KEY), visited)
          if processedKey ~= nil then
             processedCopy[processedKey] = processRecursive(process, v, makePath(path, processedKey), visited)
          end
       end
 
+      yield()
       local mt = processRecursive(process, getmetatable(processed), makePath(path, inspect.METATABLE), visited)
       if type(mt) ~= 'table' then mt = nil end
       setmetatable(processedCopy, mt)
