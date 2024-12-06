@@ -242,4 +242,8 @@ function UI.getFloaterNames()
     return LL.setdtor('registered floater names', view, view.close)
 end
 
+function UI.uploadLocalTexture(filename)
+    return leap.request("UI", {op = "uploadLocalTexture", filename = filename}).uuid
+end
+
 return UI
