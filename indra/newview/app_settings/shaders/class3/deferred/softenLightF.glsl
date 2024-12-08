@@ -152,6 +152,9 @@ void main()
 
     calcAtmosphericVarsLinear(pos.xyz, gb.normal, light_dir, sunlit, amblit, additive, atten);
 
+    if (classic_mode > 0)
+        sunlit *= 1.35;
+
     vec3 sunlit_linear = sunlit;
     vec3 amblit_linear = amblit;
 
@@ -221,7 +224,7 @@ void main()
             da = pow(da,1.2);
             vec3 sun_contrib = vec3(min(da, scol));
 
-            color.rgb = srgb_to_linear(color.rgb * 0.9 + linear_to_srgb(sun_contrib) * sunlit_linear * 0.7);
+            color.rgb = srgb_to_linear(color.rgb * 0.9 + (linear_to_srgb(sun_contrib) * sunlit_linear * 0.7));
             sunlit_linear = srgb_to_linear(sunlit_linear);
         }
         else
@@ -269,6 +272,9 @@ void main()
    }
 
     //color.r = classic_mode > 0 ? 1.0 : 0.0;
-    frag_color.rgb = max(color.rgb, vec3(0)); //output linear since local lights will be added to this shader's results
+    float final_scale = 1;
+    if (classic_mode > 0)
+        final_scale = 1.1;
+    frag_color.rgb = max(color.rgb * final_scale, vec3(0)); //output linear since local lights will be added to this shader's results
     frag_color.a = 0.0;
 }

@@ -685,10 +685,10 @@
   </check_box>
 
     <check_box
-      control_name="RenderVintageMode"
+      control_name="RenderDisableVintageMode"
       height="16"
       initial_value="false"
-      label="Vintage Mode"
+      label="HDR and Emissive"
       layout="topleft"
       left="420"
       name="VintageMode"

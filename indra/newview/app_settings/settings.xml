@@ -9400,7 +9400,7 @@
     <key>Type</key>
     <string>Boolean</string>
     <key>Value</key>
-    <integer>1</integer>
+    <integer>0</integer>
   </map>
   <key>RenderSkyAutoAdjustAmbientScale</key>
   <map>
@@ -16385,16 +16385,16 @@
     <key>Value</key>
     <integer>1</integer>
   </map>
-    <key>RenderVintageMode</key>
+    <key>RenderDisableVintageMode</key>
     <map>
         <key>Comment</key>
-        <string>Disable different rendering pipeline features to improve performance on older machines that makes the world look closer to how it used to prior to V7.</string>
+        <string>Enables additional rendering pipeline features on newer machines such as HDR and emissive textures on PBR content.</string>
         <key>Persist</key>
         <integer>1</integer>
         <key>Type</key>
         <string>Boolean</string>
         <key>Value</key>
-        <integer>0</integer>
+        <integer>1</integer>
     </map>
 </map>
 </llsd>

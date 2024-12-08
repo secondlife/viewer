@@ -53,6 +53,7 @@
 #include "llviewerstats.h"
 #include "llviewerstatsrecorder.h"
 #include "llkeyconflict.h" // for legacy keybinding support, remove later
+#include "lllandmarkactions.h"
 #include "llmarketplacefunctions.h"
 #include "llmarketplacenotifications.h"
 #include "llmd5.h"
@@ -871,6 +872,8 @@ bool LLAppViewer::init()
     LLUrlAction::setOpenURLCallback(boost::bind(&LLWeb::loadURL, _1, LLStringUtil::null, LLStringUtil::null));
     LLUrlAction::setOpenURLInternalCallback(boost::bind(&LLWeb::loadURLInternal, _1, LLStringUtil::null, LLStringUtil::null, false));
     LLUrlAction::setOpenURLExternalCallback(boost::bind(&LLWeb::loadURLExternal, _1, true, LLStringUtil::null));
+    LLUrlAction::setCreateLandmarkCallback(&LLLandmarkActions::showFloaterCreateLandmarkForUrl);
+    LLUrlAction::setCanCreateLandmarkCallback(&LLLandmarkActions::canCreateLandmarkForUrl);
     LLUrlAction::setExecuteSLURLCallback(&LLURLDispatcher::dispatchFromTextEditor);
 
     // Let code in llui access the viewer help floater

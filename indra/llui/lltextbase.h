@@ -96,6 +96,7 @@ public:
     virtual void                setToken( LLKeywordToken* token );
     virtual LLKeywordToken*     getToken() const;
     virtual void                setToolTip(const std::string& tooltip);
+    virtual std::string         getToolTip() const;
     virtual void                dump() const;
 
     // LLMouseHandler interface
@@ -147,6 +148,7 @@ public:
     /*virtual*/ void                setToken( LLKeywordToken* token )   { mToken = token; }
     /*virtual*/ LLKeywordToken*     getToken() const                    { return mToken; }
     /*virtual*/ void                setToolTip(const std::string& tooltip);
+    /*virtual*/ std::string         getToolTip() const { return mTooltip; }
     /*virtual*/ void                dump() const;
 
     /*virtual*/ bool                handleHover(S32 x, S32 y, MASK mask);
@@ -445,7 +447,7 @@ public:
     void                    setContentTrusted(bool trusted_content) { mTrustedContent = trusted_content; }
 
     // TODO: move into LLTextSegment?
-    void                    createUrlContextMenu(S32 x, S32 y, const std::string &url); // create a popup context menu for the given Url
+    void                    createUrlContextMenu(S32 x, S32 y, const std::string &url, const std::string& text); // create a popup context menu for the given Url
 
     // Text accessors
     // TODO: add optional style parameter

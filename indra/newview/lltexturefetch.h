@@ -76,6 +76,14 @@ public:
     // Threads:  Tmain
     void shutDownImageDecodeThread();
 
+    enum e_crete_request_errors
+    {
+        CREATE_REQUEST_ERROR_DEFAULT = -1,
+        CREATE_REQUEST_ERROR_MHOSTS = -2,
+        CREATE_REQUEST_ERROR_ABORTED = -3,
+        CREATE_REQUEST_ERROR_TRANSITION = -4,
+    };
+
     // Threads:  T* (but Tmain mostly)
     S32 createRequest(FTType f_type, const std::string& url, const LLUUID& id, const LLHost& host, F32 priority,
                        S32 w, S32 h, S32 c, S32 discard, bool needs_aux, bool can_use_http);
@@ -114,11 +122,19 @@ public:
     // get the current fetch state, if any, from the given UUID
     S32 getFetchState(const LLUUID& id);
 
-    // @return  Fetch state of given image and associates statistics
+    // @return  Fetch state of an active given image and associates statistics
     //          See also getStateString
     // Threads:  T*
     S32 getFetchState(const LLUUID& id, F32& decode_progress_p, F32& requested_priority_p,
                       U32& fetch_priority_p, F32& fetch_dtime_p, F32& request_dtime_p, bool& can_use_http);
+
+    // @return  Fetch last state of given image
+    // Threads:  T*
+    S32 getLastFetchState(const LLUUID& id, S32& requested_discard, S32 &decoded_discard, bool &decoded);
+
+    // @return  Fetch last raw image
+    // Threads:  T*
+    S32 getLastRawImage(const LLUUID& id, LLPointer<LLImageRaw>& raw, LLPointer<LLImageRaw>& aux);
 
     // Debug utility - generally not safe
     void dump();
