@@ -138,15 +138,4 @@
          function="Inventory.GearDefault.Visible"
          parameter="multi_folder_view" />
     </menu_item_call>
-    <menu_item_separator/>
-    <menu_item_check
-     label="Inventory settings..."
-     name="inv_settings">
-      <menu_item_check.on_check
-       function="Floater.Visible"
-       parameter="inventory_settings" />
-      <menu_item_check.on_click
-       function="Floater.Toggle"
-       parameter="inventory_settings" />
-    </menu_item_check>
 </toggleable_menu>

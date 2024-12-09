@@ -81,16 +81,18 @@ LLViewerCamera::~LLViewerCamera()
     mCameraAngleChangedSignal.disconnect();
 }
 
-bool LLViewerCamera::updateCameraLocation(const LLVector3 &center, const LLVector3 &up_direction, const LLVector3 &point_of_interest)
+void LLViewerCamera::updateCameraLocation(const LLVector3 &center, const LLVector3 &up_direction, const LLVector3 &point_of_interest)
 {
     // do not update if avatar didn't move
     if (!LLViewerJoystick::getInstance()->getCameraNeedsUpdate())
     {
-        return true;
+        return;
     }
 
-    LLVector3 last_position = getOrigin();
-    LLVector3 last_axis = getAtAxis();
+    LLVector3 last_position;
+    LLVector3 last_axis;
+    last_position = getOrigin();
+    last_axis     = getAtAxis();
 
     mLastPointOfInterest = point_of_interest;
 
@@ -100,49 +102,30 @@ bool LLViewerCamera::updateCameraLocation(const LLVector3 &center, const LLVecto
         regp = gAgent.getRegion();
     }
 
-    F32 water_height = regp ? regp->getWaterHeight() : 0.f;
+    F32 water_height = (NULL != regp) ? regp->getWaterHeight() : 0.f;
 
     LLVector3 origin = center;
 
-    // Move origin[VZ] far enough (up or down) from the water surface
-    static const F32 MIN_DIST_TO_WATER = 0.2f;
-    F32& zpos = origin.mV[VZ];
-    if (zpos < water_height + MIN_DIST_TO_WATER)
     {
-        if (zpos >= water_height)
+        if (origin.mV[2] > water_height)
         {
-            zpos = water_height + MIN_DIST_TO_WATER;
+            origin.mV[2] = llmax(origin.mV[2], water_height + 0.20f);
         }
-        else if (zpos > water_height - MIN_DIST_TO_WATER)
+        else
         {
-            zpos = water_height - MIN_DIST_TO_WATER;
+            origin.mV[2] = llmin(origin.mV[2], water_height - 0.20f);
         }
     }
 
-    LLVector3 at(point_of_interest - origin);
-    at.normalize();
-    if (at.isNull() || !at.isFinite())
-        return false;
+    setOriginAndLookAt(origin, up_direction, point_of_interest);
 
-    LLVector3 left(up_direction % at);
-    left.normalize();
-    if (left.isNull() || !left.isFinite())
-        return false;
-
-    LLVector3 up = at % left;
-    up.normalize();
-    if (up.isNull() || !up.isFinite())
-        return false;
-
-    setOrigin(origin);
-    setAxes(at, left, up);
-
-    mVelocityDir = origin - last_position;
-    F32 dpos = mVelocityDir.normVec();
+    mVelocityDir = origin - last_position ;
+    F32 dpos = mVelocityDir.normVec() ;
     LLQuaternion rotation;
     rotation.shortestArc(last_axis, getAtAxis());
 
-    F32 drot, x, y, z;
+    F32 x, y, z;
+    F32 drot;
     rotation.getAngleAxis(&drot, &x, &y, &z);
 
     add(sVelocityStat, dpos);
@@ -155,15 +138,14 @@ bool LLViewerCamera::updateCameraLocation(const LLVector3 &center, const LLVecto
     // update pixel meter ratio using default fov, not modified one
     mPixelMeterRatio = (F32)(getViewHeightInPixels()/ (2.f*tanf(mCameraFOVDefault*0.5f)));
     // update screen pixel area
-    mScreenPixelArea = (S32)((F32)getViewHeightInPixels() * ((F32)getViewHeightInPixels() * getAspect()));
-
-    return true;
+    mScreenPixelArea =(S32)((F32)getViewHeightInPixels() * ((F32)getViewHeightInPixels() * getAspect()));
 }
 
 const LLMatrix4 &LLViewerCamera::getProjection() const
 {
     calcProjection(getFar());
     return mProjectionMatrix;
+
 }
 
 const LLMatrix4 &LLViewerCamera::getModelview() const
@@ -176,18 +158,19 @@ const LLMatrix4 &LLViewerCamera::getModelview() const
 
 void LLViewerCamera::calcProjection(const F32 far_distance) const
 {
-    F32 fov_y = getView();
-    F32 z_far = far_distance;
-    F32 z_near = getNear();
-    F32 aspect = getAspect();
+    F32 fov_y, z_far, z_near, aspect, f;
+    fov_y = getView();
+    z_far = far_distance;
+    z_near = getNear();
+    aspect = getAspect();
 
-    F32 f = 1 / tan(fov_y * 0.5f);
+    f = 1/tan(fov_y*0.5f);
 
     mProjectionMatrix.setZero();
-    mProjectionMatrix.mMatrix[0][0] = f / aspect;
+    mProjectionMatrix.mMatrix[0][0] = f/aspect;
     mProjectionMatrix.mMatrix[1][1] = f;
-    mProjectionMatrix.mMatrix[2][2] = (z_far + z_near) / (z_near - z_far);
-    mProjectionMatrix.mMatrix[3][2] = (2 * z_far * z_near) / (z_near - z_far);
+    mProjectionMatrix.mMatrix[2][2] = (z_far + z_near)/(z_near - z_far);
+    mProjectionMatrix.mMatrix[3][2] = (2*z_far*z_near)/(z_near - z_far);
     mProjectionMatrix.mMatrix[2][3] = -1;
 }
 
@@ -248,9 +231,9 @@ void LLViewerCamera::updateFrustumPlanes(LLCamera& camera, bool ortho, bool zfli
 
         for (U32 i = 0; i < 4; i++)
         {
-            frust[i + 4] = frust[i + 4] - frust[i];
-            frust[i + 4].normVec();
-            frust[i + 4] = frust[i] + frust[i + 4] * camera.getFar();
+            frust[i+4] = frust[i+4]-frust[i];
+            frust[i+4].normVec();
+            frust[i+4] = frust[i] + frust[i+4]*camera.getFar();
         }
     }
     else
@@ -266,7 +249,7 @@ void LLViewerCamera::updateFrustumPlanes(LLCamera& camera, bool ortho, bool zfli
 
         if (ortho)
         {
-            LLVector3 far_shift = camera.getAtAxis() * camera.getFar() * 2.f;
+            LLVector3 far_shift = camera.getAtAxis()*camera.getFar()*2.f;
             for (U32 i = 0; i < 4; i++)
             {
                 frust[i+4] = frust[i] + far_shift;
@@ -278,7 +261,7 @@ void LLViewerCamera::updateFrustumPlanes(LLCamera& camera, bool ortho, bool zfli
             {
                 LLVector3 vec = frust[i] - camera.getOrigin();
                 vec.normVec();
-                frust[i + 4] = camera.getOrigin() + vec * camera.getFar();
+                frust[i+4] = camera.getOrigin() + vec*camera.getFar();
             }
         }
     }
@@ -374,7 +357,7 @@ void LLViewerCamera::setPerspective(bool for_selection,
 
     glm::mat4 modelview(glm::make_mat4((GLfloat*) OGL_TO_CFR_ROTATION));
 
-    GLfloat ogl_matrix[16];
+    GLfloat         ogl_matrix[16];
 
     getOpenGLTransform(ogl_matrix);
 

@@ -148,22 +148,34 @@ LLVector4 lerp(const LLVector4 &a, const LLVector4 &b, F32 u); // Returns a vect
 
 inline LLVector4::LLVector4(void)
 {
-    clear();
+    mV[VX] = 0.f;
+    mV[VY] = 0.f;
+    mV[VZ] = 0.f;
+    mV[VW] = 1.f;
 }
 
 inline LLVector4::LLVector4(F32 x, F32 y, F32 z)
 {
-    set(x, y, z, 1.f);
+    mV[VX] = x;
+    mV[VY] = y;
+    mV[VZ] = z;
+    mV[VW] = 1.f;
 }
 
 inline LLVector4::LLVector4(F32 x, F32 y, F32 z, F32 w)
 {
-    set(x, y, z, w);
+    mV[VX] = x;
+    mV[VY] = y;
+    mV[VZ] = z;
+    mV[VW] = w;
 }
 
 inline LLVector4::LLVector4(const F32 *vec)
 {
-    set(vec);
+    mV[VX] = vec[VX];
+    mV[VY] = vec[VY];
+    mV[VZ] = vec[VZ];
+    mV[VW] = vec[VW];
 }
 
 inline LLVector4::LLVector4(const F64 *vec)
@@ -192,12 +204,18 @@ inline LLVector4::LLVector4(const LLVector2 &vec, F32 z, F32 w)
 
 inline LLVector4::LLVector4(const LLVector3 &vec)
 {
-    set(vec, 1.f);
+    mV[VX] = vec.mV[VX];
+    mV[VY] = vec.mV[VY];
+    mV[VZ] = vec.mV[VZ];
+    mV[VW] = 1.f;
 }
 
 inline LLVector4::LLVector4(const LLVector3 &vec, F32 w)
 {
-    set(vec, w);
+    mV[VX] = vec.mV[VX];
+    mV[VY] = vec.mV[VY];
+    mV[VZ] = vec.mV[VZ];
+    mV[VW] = w;
 }
 
 inline LLVector4::LLVector4(const LLSD &sd)
@@ -208,31 +226,43 @@ inline LLVector4::LLVector4(const LLSD &sd)
 
 inline bool LLVector4::isFinite() const
 {
-    return llfinite(mV[VX]) && llfinite(mV[VY]) && llfinite(mV[VZ]) && llfinite(mV[VW]);
+    return (llfinite(mV[VX]) && llfinite(mV[VY]) && llfinite(mV[VZ]) && llfinite(mV[VW]));
 }
 
 // Clear and Assignment Functions
 
 inline void LLVector4::clear()
 {
-    set(0.f, 0.f, 0.f, 1.f);
+    mV[VX] = 0.f;
+    mV[VY] = 0.f;
+    mV[VZ] = 0.f;
+    mV[VW] = 1.f;
 }
 
 // deprecated
 inline void LLVector4::clearVec()
 {
-    clear();
+    mV[VX] = 0.f;
+    mV[VY] = 0.f;
+    mV[VZ] = 0.f;
+    mV[VW] = 1.f;
 }
 
 // deprecated
 inline void LLVector4::zeroVec()
 {
-    set(0.f, 0.f, 0.f, 0.f);
+    mV[VX] = 0.f;
+    mV[VY] = 0.f;
+    mV[VZ] = 0.f;
+    mV[VW] = 0.f;
 }
 
 inline void LLVector4::set(F32 x, F32 y, F32 z)
 {
-    set(x, y, z, 1.f);
+    mV[VX] = x;
+    mV[VY] = y;
+    mV[VZ] = z;
+    mV[VW] = 1.f;
 }
 
 inline void LLVector4::set(F32 x, F32 y, F32 z, F32 w)
@@ -245,7 +275,10 @@ inline void LLVector4::set(F32 x, F32 y, F32 z, F32 w)
 
 inline void LLVector4::set(const LLVector4& vec)
 {
-    set(vec.mV);
+    mV[VX] = vec.mV[VX];
+    mV[VY] = vec.mV[VY];
+    mV[VZ] = vec.mV[VZ];
+    mV[VW] = vec.mV[VW];
 }
 
 inline void LLVector4::set(const LLVector3& vec, F32 w)
@@ -264,41 +297,57 @@ inline void LLVector4::set(const F32* vec)
     mV[VW] = vec[VW];
 }
 
+
 // deprecated
 inline void LLVector4::setVec(F32 x, F32 y, F32 z)
 {
-    set(x, y, z);
+    mV[VX] = x;
+    mV[VY] = y;
+    mV[VZ] = z;
+    mV[VW] = 1.f;
 }
 
 // deprecated
 inline void LLVector4::setVec(F32 x, F32 y, F32 z, F32 w)
 {
-    set(x, y, z, w);
+    mV[VX] = x;
+    mV[VY] = y;
+    mV[VZ] = z;
+    mV[VW] = w;
 }
 
 // deprecated
 inline void LLVector4::setVec(const LLVector4& vec)
 {
-    set(vec);
+    mV[VX] = vec.mV[VX];
+    mV[VY] = vec.mV[VY];
+    mV[VZ] = vec.mV[VZ];
+    mV[VW] = vec.mV[VW];
 }
 
 // deprecated
 inline void LLVector4::setVec(const LLVector3& vec, F32 w)
 {
-    set(vec, w);
+    mV[VX] = vec.mV[VX];
+    mV[VY] = vec.mV[VY];
+    mV[VZ] = vec.mV[VZ];
+    mV[VW] = w;
 }
 
 // deprecated
 inline void LLVector4::setVec(const F32* vec)
 {
-    set(vec);
+    mV[VX] = vec[VX];
+    mV[VY] = vec[VY];
+    mV[VZ] = vec[VZ];
+    mV[VW] = vec[VW];
 }
 
 // LLVector4 Magnitude and Normalization Functions
 
 inline F32      LLVector4::length() const
 {
-    return sqrt(lengthSquared());
+    return sqrt(mV[VX]*mV[VX] + mV[VY]*mV[VY] + mV[VZ]*mV[VZ]);
 }
 
 inline F32      LLVector4::lengthSquared() const
@@ -308,12 +357,12 @@ inline F32      LLVector4::lengthSquared() const
 
 inline F32      LLVector4::magVec() const
 {
-    return length();
+    return sqrt(mV[VX]*mV[VX] + mV[VY]*mV[VY] + mV[VZ]*mV[VZ]);
 }
 
 inline F32      LLVector4::magVecSquared() const
 {
-    return lengthSquared();
+    return mV[VX]*mV[VX] + mV[VY]*mV[VY] + mV[VZ]*mV[VZ];
 }
 
 // LLVector4 Operators
@@ -332,7 +381,7 @@ inline LLVector4 operator-(const LLVector4& a, const LLVector4& b)
 
 inline F32  operator*(const LLVector4& a, const LLVector4& b)
 {
-    return a.mV[VX]*b.mV[VX] + a.mV[VY]*b.mV[VY] + a.mV[VZ]*b.mV[VZ];
+    return (a.mV[VX]*b.mV[VX] + a.mV[VY]*b.mV[VY] + a.mV[VZ]*b.mV[VZ]);
 }
 
 inline LLVector4 operator%(const LLVector4& a, const LLVector4& b)
@@ -405,7 +454,11 @@ inline const LLVector4& operator*=(LLVector4& a, F32 k)
 
 inline const LLVector4& operator/=(LLVector4& a, F32 k)
 {
-    return a *= 1.f / k;
+    F32 t = 1.f / k;
+    a.mV[VX] *= t;
+    a.mV[VY] *= t;
+    a.mV[VZ] *= t;
+    return a;
 }
 
 inline LLVector4 operator-(const LLVector4& a)
@@ -416,13 +469,13 @@ inline LLVector4 operator-(const LLVector4& a)
 inline F32  dist_vec(const LLVector4& a, const LLVector4& b)
 {
     LLVector4 vec = a - b;
-    return vec.length();
+    return (vec.length());
 }
 
 inline F32  dist_vec_squared(const LLVector4& a, const LLVector4& b)
 {
     LLVector4 vec = a - b;
-    return vec.lengthSquared();
+    return (vec.lengthSquared());
 }
 
 inline LLVector4 lerp(const LLVector4& a, const LLVector4& b, F32 u)
@@ -437,10 +490,14 @@ inline LLVector4 lerp(const LLVector4& a, const LLVector4& b, F32 u)
 inline F32      LLVector4::normalize()
 {
     F32 mag = sqrt(mV[VX]*mV[VX] + mV[VY]*mV[VY] + mV[VZ]*mV[VZ]);
+    F32 oomag;
 
     if (mag > FP_MAG_THRESHOLD)
     {
-        *this /= mag;
+        oomag = 1.f/mag;
+        mV[VX] *= oomag;
+        mV[VY] *= oomag;
+        mV[VZ] *= oomag;
     }
     else
     {
@@ -449,13 +506,30 @@ inline F32      LLVector4::normalize()
         mV[VZ] = 0.f;
         mag = 0.f;
     }
-    return mag;
+    return (mag);
 }
 
 // deprecated
 inline F32      LLVector4::normVec()
 {
-    return normalize();
+    F32 mag = sqrt(mV[VX]*mV[VX] + mV[VY]*mV[VY] + mV[VZ]*mV[VZ]);
+    F32 oomag;
+
+    if (mag > FP_MAG_THRESHOLD)
+    {
+        oomag = 1.f/mag;
+        mV[VX] *= oomag;
+        mV[VY] *= oomag;
+        mV[VZ] *= oomag;
+    }
+    else
+    {
+        mV[VX] = 0.f;
+        mV[VY] = 0.f;
+        mV[VZ] = 0.f;
+        mag = 0.f;
+    }
+    return (mag);
 }
 
 // Because apparently some parts of the viewer use this for color info.

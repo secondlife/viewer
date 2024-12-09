@@ -1689,8 +1689,6 @@ bool LLIMModel::logToFile(const std::string& file_name, const std::string& from,
     }
     else
     {
-        // will check KeepConversationLogTranscripts on its own
-        LLConversationLog::instance().cache();
         return false;
     }
 }

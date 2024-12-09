@@ -39,7 +39,7 @@ class LLRadioGroup;
 class LLFloaterNameDesc : public LLFloater
 {
 public:
-    LLFloaterNameDesc(const LLSD& args);
+    LLFloaterNameDesc(const LLSD& filename);
     virtual ~LLFloaterNameDesc();
     bool postBuild() override;
 
@@ -58,27 +58,26 @@ protected:
 
     std::string     mFilenameAndPath;
     std::string     mFilename;
-    LLUUID          mDestinationFolderId;
 };
 
 class LLFloaterSoundPreview : public LLFloaterNameDesc
 {
 public:
-    LLFloaterSoundPreview(const LLSD& args );
+    LLFloaterSoundPreview(const LLSD& filename );
     bool postBuild() override;
 };
 
 class LLFloaterAnimPreview : public LLFloaterNameDesc
 {
 public:
-    LLFloaterAnimPreview(const LLSD& args );
+    LLFloaterAnimPreview(const LLSD& filename );
     bool postBuild() override;
 };
 
 class LLFloaterScriptPreview : public LLFloaterNameDesc
 {
 public:
-    LLFloaterScriptPreview(const LLSD& args );
+    LLFloaterScriptPreview(const LLSD& filename );
     bool postBuild() override;
 };
 

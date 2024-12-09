@@ -56,8 +56,6 @@
 #include "llviewerregion.h"
 
 
-const char* const DEFAULT_DESC = "(No Description)";
-
 class PropertiesChangedCallback : public LLInventoryCallback
 {
 public:
@@ -130,7 +128,6 @@ LLSidepanelItemInfo::LLSidepanelItemInfo(const LLPanel::Params& p)
     , mUpdatePendingId(-1)
     , mIsDirty(false) /*Not ready*/
     , mParentFloater(NULL)
-    , mLabelItemDesc(NULL)
 {
     gInventory.addObserver(this);
     gIdleCallbacks.addFunction(&LLSidepanelItemInfo::onIdle, (void*)this);
@@ -161,11 +158,10 @@ bool LLSidepanelItemInfo::postBuild()
     mItemTypeIcon = getChild<LLIconCtrl>("item_type_icon");
     mLabelOwnerName = getChild<LLTextBox>("LabelOwnerName");
     mLabelCreatorName = getChild<LLTextBox>("LabelCreatorName");
-    mLabelItemDesc = getChild<LLTextEditor>("LabelItemDesc");
 
     getChild<LLLineEditor>("LabelItemName")->setPrevalidate(&LLTextValidate::validateASCIIPrintableNoPipe);
     getChild<LLUICtrl>("LabelItemName")->setCommitCallback(boost::bind(&LLSidepanelItemInfo::onCommitName,this));
-    mLabelItemDesc->setCommitCallback(boost::bind(&LLSidepanelItemInfo:: onCommitDescription, this));
+    getChild<LLUICtrl>("LabelItemDesc")->setCommitCallback(boost::bind(&LLSidepanelItemInfo:: onCommitDescription, this));
     // Thumnail edition
     mChangeThumbnailBtn->setCommitCallback(boost::bind(&LLSidepanelItemInfo::onEditThumbnail, this));
     // acquired date
@@ -346,13 +342,9 @@ void LLSidepanelItemInfo::refreshFromItem(LLViewerInventoryItem* item)
     getChildView("LabelItemName")->setEnabled(is_modifiable && !is_calling_card); // for now, don't allow rename of calling cards
     getChild<LLUICtrl>("LabelItemName")->setValue(item->getName());
     getChildView("LabelItemDescTitle")->setEnabled(true);
+    getChildView("LabelItemDesc")->setEnabled(is_modifiable);
+    getChild<LLUICtrl>("LabelItemDesc")->setValue(item->getDescription());
     getChild<LLUICtrl>("item_thumbnail")->setValue(item->getThumbnailUUID());
-
-    // Asset upload substitutes empty description with a (No Description) placeholder
-    std::string desc = item->getDescription();
-    mLabelItemDesc->setSelectAllOnFocusReceived(desc == DEFAULT_DESC);
-    mLabelItemDesc->setValue(desc);
-    mLabelItemDesc->setEnabled(is_modifiable);
 
     LLUIImagePtr icon_img = LLInventoryIcon::getIcon(item->getType(), item->getInventoryType(), item->getFlags(), false);
     mItemTypeIcon->setImage(icon_img);
@@ -932,22 +924,17 @@ void LLSidepanelItemInfo::onCommitDescription()
     LLViewerInventoryItem* item = findItem();
     if(!item) return;
 
-    if(!mLabelItemDesc)
+    LLTextEditor* labelItemDesc = getChild<LLTextEditor>("LabelItemDesc");
+    if(!labelItemDesc)
     {
         return;
     }
-    if (!gAgent.allowOperation(PERM_MODIFY, item->getPermissions(), GP_OBJECT_MANIPULATE))
+    if((item->getDescription() != labelItemDesc->getText()) &&
+       (gAgent.allowOperation(PERM_MODIFY, item->getPermissions(), GP_OBJECT_MANIPULATE)))
     {
-        return;
-    }
-    std::string old_desc = item->getDescription();
-    std::string new_desc = mLabelItemDesc->getText();
-    if(old_desc != new_desc)
-    {
-        mLabelItemDesc->setSelectAllOnFocusReceived(false);
         LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);
 
-        new_item->setDescription(new_desc);
+        new_item->setDescription(labelItemDesc->getText());
         onCommitChanges(new_item);
     }
 }

@@ -73,8 +73,7 @@ public:
     /*virtual*/ void reshape(S32 width, S32 height, bool called_from_parent = true);
 
     void initModelPreview();
-    void setUploadDestination(const LLUUID& dest_folder) { mDestinationFolderId = dest_folder; }
-    static void showModelPreview(const LLUUID& dest_folder = LLUUID::null);
+    static bool showModelPreview();
 
     bool handleMouseDown(S32 x, S32 y, MASK mask);
     bool handleMouseUp(S32 x, S32 y, MASK mask);
@@ -165,6 +164,9 @@ protected:
 
     static void onPhysicsBrowse(LLUICtrl* ctrl, void* userdata);
     static void onPhysicsUseLOD(LLUICtrl* ctrl, void* userdata);
+    static void onPhysicsOptimize(LLUICtrl* ctrl, void* userdata);
+    static void onPhysicsDecomposeBack(LLUICtrl* ctrl, void* userdata);
+    static void onPhysicsSimplifyBack(LLUICtrl* ctrl, void* userdata);
 
     void            draw();
 
@@ -223,7 +225,6 @@ private:
 
     void createSmoothComboBox(LLComboBox* combo_box, float min, float max);
 
-    LLUUID mDestinationFolderId;
     LLButton* mUploadBtn;
     LLButton* mCalculateBtn;
     LLViewerTextEditor* mUploadLogText;

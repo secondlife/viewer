@@ -41,7 +41,6 @@
 class LLAccordionCtrlTab;
 class LLInventoryCategoriesObserver;
 class LLOutfitListGearMenuBase;
-class LLOutfitListSortMenuBase;
 class LLWearableItemsList;
 class LLListContextMenu;
 
@@ -58,17 +57,6 @@ class LLOutfitTabNameComparator : public LLAccordionCtrl::LLTabComparator
 public:
     LLOutfitTabNameComparator() {};
     virtual ~LLOutfitTabNameComparator() {};
-
-    /*virtual*/ bool compare(const LLAccordionCtrlTab* tab1, const LLAccordionCtrlTab* tab2) const;
-};
-
-class LLOutfitTabFavComparator : public LLAccordionCtrl::LLTabComparator
-{
-    LOG_CLASS(LLOutfitTabFavComparator);
-
-public:
-    LLOutfitTabFavComparator() {};
-    virtual ~LLOutfitTabFavComparator() {};
 
     /*virtual*/ bool compare(const LLAccordionCtrlTab* tab1, const LLAccordionCtrlTab* tab2) const;
 };
@@ -104,7 +92,6 @@ public:
     boost::signals2::connection setSelectionChangeCallback(selection_change_callback_t cb);
     void outfitRightClickCallBack(LLUICtrl* ctrl, S32 x, S32 y, const LLUUID& cat_id);
 
-    void onAction(const LLSD& userdata);
     virtual bool isActionEnabled(const LLSD& userdata);
     virtual void performAction(std::string action);
     virtual bool hasItemSelected() = 0;
@@ -121,12 +108,6 @@ public:
     virtual void onExpandAllFolders() = 0;
 
     virtual bool getHasExpandableFolders() = 0;
-
-    virtual void onChangeSortOrder(const LLSD& userdata) = 0;
-
-    virtual void updateMenuItemsVisibility();
-    virtual LLToggleableMenu* getGearMenu();
-    virtual bool getTrashMenuVisible() { return true; };
 
 protected:
     void observerCallback(const LLUUID& category_id);
@@ -158,7 +139,6 @@ protected:
     selection_change_signal_t       mSelectionChangeSignal;
     LLListContextMenu*              mOutfitMenu;
     LLOutfitListGearMenuBase*       mGearMenu;
-    boost::signals2::connection     mGearMenuConnection;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -175,6 +155,7 @@ protected:
     /* virtual */ LLContextMenu* createMenu();
 
     bool onEnable(LLSD::String param);
+
     bool onVisible(LLSD::String param);
 
     static void editOutfit();
@@ -182,7 +163,6 @@ protected:
     static void renameOutfit(const LLUUID& outfit_cat_id);
 
     void onThumbnail(const LLUUID &outfit_cat_id);
-    void onFavorite(const LLUUID& outfit_cat_id);
     void onSave(const LLUUID &outfit_cat_id);
 
 private:
@@ -202,7 +182,6 @@ public:
 protected:
     virtual void onUpdateItemsVisibility();
     virtual void onThumbnail();
-    virtual void onFavorite();
     virtual void onChangeSortOrder();
 
     const LLUUID& getSelectedOutfitID();
@@ -223,23 +202,6 @@ private:
     bool onVisible(LLSD::String param);
 };
 
-class LLOutfitListSortMenu
-{
-public:
-    LLOutfitListSortMenu(LLOutfitListBase* parent_panel);
-
-    LLToggleableMenu* getMenu();
-    void updateItemsVisibility();
-
-private:
-    void onUpdateItemsVisibility();
-    bool onEnable(LLSD::String param);
-
-    LLToggleableMenu* mMenu;
-    LLHandle<LLPanel> mPanelHandle;
-};
-
-
 class LLOutfitListGearMenu : public LLOutfitListGearMenuBase
 {
 public:
@@ -259,15 +221,7 @@ public:
         Params() : cat_id("cat_id") {}
     };
 
-    virtual void draw();
     virtual bool handleToolTip(S32 x, S32 y, MASK mask);
-
-    void setFavorite(bool is_favorite);
-    bool getFavorite() const { return mIsFavorite; }
-    void setOutfitSelected(bool val);
-
-    static LLUIImage* sFavoriteIcon;
-    static LLUIColor sFgColor;
 
  protected:
     LLOutfitAccordionCtrlTab(const LLOutfitAccordionCtrlTab::Params &p)
@@ -276,11 +230,7 @@ public:
     {}
     friend class LLUICtrlFactory;
 
-    void drawFavoriteIcon();
-
     LLUUID mFolderID;
-    bool mIsFavorite = false;
-    bool mIsSelected = false;
 };
   /**
  * @class LLOutfitsList
@@ -299,7 +249,6 @@ public:
     virtual ~LLOutfitsList();
 
     /*virtual*/ bool postBuild();
-    void initComparator();
 
     /*virtual*/ void onOpen(const LLSD& info);
 
@@ -337,10 +286,6 @@ public:
     void onExpandAllFolders();
 
     /*virtual*/ bool getHasExpandableFolders() { return true; }
-
-    /*virtual*/ void onChangeSortOrder(const LLSD& userdata);
-    virtual LLToggleableMenu* getSortMenu();
-    void updateMenuItemsVisibility();
 
 protected:
     LLOutfitListGearMenuBase* createGearMenu();
@@ -412,8 +357,6 @@ private:
 
     static void onOutfitRename(const LLSD& notification, const LLSD& response);
 
-    void handleInvFavColorChange();
-
     //LLInventoryCategoriesObserver*    mCategoriesObserver;
 
     LLAccordionCtrl*                mAccordion;
@@ -431,15 +374,13 @@ private:
     // Used to monitor COF changes for updating items worn state. See EXT-8636.
     uuid_vec_t                      mCOFLinkedItems;
 
-    LLOutfitListSortMenu*         mSortMenu;
+    //LLOutfitListGearMenu*         mGearMenu;
 
     //bool                          mIsInitialized;
     /**
      * True if there is a selection inside currently selected outfit
      */
     bool                            mItemSelected;
-
-    boost::signals2::connection                   mSavedSettingInvFavColor;
 };
 
 #endif //LL_LLOUTFITSLIST_H

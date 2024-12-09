@@ -119,8 +119,6 @@ public:
 
     virtual void addDebugText( const std::string& text ) = 0;
 
-    virtual std::string getDebugName() const { return getID().asString(); }
-
     virtual const LLUUID&   getID() const = 0;
     //-------------------------------------------------------------------------
     // End Interface

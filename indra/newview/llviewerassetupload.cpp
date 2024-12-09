@@ -62,8 +62,7 @@ LLResourceUploadInfo::LLResourceUploadInfo(LLTransactionID transactId,
         LLAssetType::EType assetType, std::string name, std::string description,
         S32 compressionInfo, LLFolderType::EType destinationType,
         LLInventoryType::EType inventoryType, U32 nextOWnerPerms,
-        U32 groupPerms, U32 everyonePerms, S32 expectedCost,
-        const LLUUID& destFolderId, bool showInventory) :
+        U32 groupPerms, U32 everyonePerms, S32 expectedCost, bool showInventory) :
     mTransactionId(transactId),
     mAssetType(assetType),
     mName(name),
@@ -76,7 +75,7 @@ LLResourceUploadInfo::LLResourceUploadInfo(LLTransactionID transactId,
     mEveryonePerms(everyonePerms),
     mExpectedUploadCost(expectedCost),
     mShowInventory(showInventory),
-    mFolderId(destFolderId),
+    mFolderId(LLUUID::null),
     mItemId(LLUUID::null),
     mAssetId(LLAssetID::null)
 { }
@@ -85,8 +84,7 @@ LLResourceUploadInfo::LLResourceUploadInfo(LLTransactionID transactId,
 LLResourceUploadInfo::LLResourceUploadInfo(std::string name,
         std::string description, S32 compressionInfo,
         LLFolderType::EType destinationType, LLInventoryType::EType inventoryType,
-        U32 nextOWnerPerms, U32 groupPerms, U32 everyonePerms, S32 expectedCost,
-        const LLUUID& destFolderId, bool showInventory) :
+        U32 nextOWnerPerms, U32 groupPerms, U32 everyonePerms, S32 expectedCost, bool showInventory) :
     mName(name),
     mDescription(description),
     mCompressionInfo(compressionInfo),
@@ -99,7 +97,7 @@ LLResourceUploadInfo::LLResourceUploadInfo(std::string name,
     mShowInventory(showInventory),
     mTransactionId(),
     mAssetType(LLAssetType::AT_NONE),
-    mFolderId(destFolderId),
+    mFolderId(LLUUID::null),
     mItemId(LLUUID::null),
     mAssetId(LLAssetID::null)
 {
@@ -301,20 +299,17 @@ void LLResourceUploadInfo::assignDefaults()
         mDescription = "(No Description)";
     }
 
-    if (mFolderId.isNull())
+    if (mAssetType == LLAssetType::AT_GLTF ||
+        mAssetType == LLAssetType::AT_GLTF_BIN)
     {
-        if (mAssetType == LLAssetType::AT_GLTF ||
-            mAssetType == LLAssetType::AT_GLTF_BIN)
-        {
-            mFolderId = LLUUID::null;
-        }
-        else
-        {
-            mFolderId = gInventory.findUserDefinedCategoryUUIDForType(
-                (mDestinationFolderType == LLFolderType::FT_NONE) ?
-                (LLFolderType::EType)mAssetType : mDestinationFolderType);
-        }
+        mFolderId = LLUUID::null;
     }
+    else
+    {
+    mFolderId = gInventory.findUserDefinedCategoryUUIDForType(
+        (mDestinationFolderType == LLFolderType::FT_NONE) ?
+        (LLFolderType::EType)mAssetType : mDestinationFolderType);
+}
 }
 
 std::string LLResourceUploadInfo::getDisplayName() const
@@ -371,12 +366,10 @@ LLNewFileResourceUploadInfo::LLNewFileResourceUploadInfo(
     U32 groupPerms,
     U32 everyonePerms,
     S32 expectedCost,
-    const LLUUID& destFolderId,
     bool show_inventory) :
     LLResourceUploadInfo(name, description, compressionInfo,
     destinationType, inventoryType,
-    nextOWnerPerms, groupPerms, everyonePerms, expectedCost,
-    destFolderId, show_inventory),
+    nextOWnerPerms, groupPerms, everyonePerms, expectedCost, show_inventory),
     mFileName(fileName),
     mMaxImageSize(LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT)
 {
@@ -587,13 +580,12 @@ LLNewBufferedResourceUploadInfo::LLNewBufferedResourceUploadInfo(
     U32 groupPerms,
     U32 everyonePerms,
     S32 expectedCost,
-    const LLUUID& destFolderId,
     bool show_inventory,
     uploadFinish_f finish,
     uploadFailure_f failure)
     : LLResourceUploadInfo(name, description, compressionInfo,
         destinationType, inventoryType,
-        nextOWnerPerms, groupPerms, everyonePerms, expectedCost, destFolderId, show_inventory)
+        nextOWnerPerms, groupPerms, everyonePerms, expectedCost, show_inventory)
     , mBuffer(buffer)
     , mFinishFn(finish)
     , mFailureFn(failure)

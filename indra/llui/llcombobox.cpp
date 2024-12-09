@@ -519,7 +519,7 @@ bool LLComboBox::setCurrentByIndex(S32 index)
         if (item->getEnabled())
         {
             mList->selectItem(item, -1, true);
-            LLSD::String label = getSelectedItemLabel();
+            LLSD::String label = item->getColumn(0)->getValue().asString();
             if (mTextEntry)
             {
                 mTextEntry->setText(label);

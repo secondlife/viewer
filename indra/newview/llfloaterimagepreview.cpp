@@ -72,8 +72,8 @@ const S32 PREVIEW_TEXTURE_HEIGHT = 320;
 //-----------------------------------------------------------------------------
 // LLFloaterImagePreview()
 //-----------------------------------------------------------------------------
-LLFloaterImagePreview::LLFloaterImagePreview(const LLSD& args) :
-    LLFloaterNameDesc(args),
+LLFloaterImagePreview::LLFloaterImagePreview(const std::string& filename) :
+    LLFloaterNameDesc(filename),
 
     mAvatarPreview(NULL),
     mSculptedPreview(NULL),
