@@ -61,10 +61,11 @@ public:
     LLUIString() : mArgs(NULL), mNeedsResult(false), mNeedsWResult(false) {}
     LLUIString(const std::string& instring, const LLStringUtil::format_map_t& args);
     LLUIString(const std::string& instring) : mArgs(NULL) { assign(instring); }
-    LLUIString(const LLWString& instring) : mArgs(NULL) { insert(0, instring); }
+    LLUIString(const LLWString& instring) : mArgs(NULL) { assign(instring); }
     ~LLUIString() { delete mArgs; }
 
     void assign(const std::string& instring);
+    void assign(const LLWString& instring);
     LLUIString& operator=(const std::string& s) { assign(s); return *this; }
 
     void setArgList(const LLStringUtil::format_map_t& args);
