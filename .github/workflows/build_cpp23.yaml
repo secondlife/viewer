@@ -1,0 +1,58 @@
+name: Linux build 
+on:
+  workflow_dispatch:
+  push:
+jobs:
+  build:
+    runs-on: linux-large
+    env:
+      AUTOBUILD_ADDRSIZE: 64
+      AUTOBUILD_VARIABLES_FILE: ${{ github.workspace }}/.build-variables/variables
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Setup python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Checkout build variables
+        uses: actions/checkout@v4
+        with:
+          repository: secondlife/build-variables
+          ref: viewer
+          path: .build-variables
+
+      - name: Checkout master-message-template
+        uses: actions/checkout@v4
+        with:
+          repository: secondlife/master-message-template
+          path: .master-message-template
+
+      - name: Install autobuild and python dependencies
+        run: pip3 install autobuild llsd
+
+      - name: Install Linux dependencies
+        if: runner.os == 'linux'
+        run: |
+          sudo apt update
+          sudo apt install -y \
+            gcc-13 cpp-13 g++-13 \
+            libpulse-dev libunwind-dev \
+            libgl1-mesa-dev libglu1-mesa-dev libxinerama-dev \
+            libxcursor-dev libxfixes-dev libgstreamer1.0-dev \
+            libgstreamer-plugins-base1.0-dev ninja-build libxft-dev \
+            llvm mold libpipewire-0.3-dev libdbus-1-dev
+          sudo locale-gen en_US.UTF-8
+          sudo locale-gen en_GB.UTF-8
+          sudo locale-gen fr_FR.UTF-8
+
+      - name: Build Linux
+        id: build
+        shell: bash
+        run: |
+          autobuild configure -c ReleaseOS -A 64
+          autobuild build -c ReleaseOS -A 64
