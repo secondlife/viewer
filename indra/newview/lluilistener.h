@@ -61,6 +61,8 @@ private:
 
     void uploadLocalTexture(const LLSD& event) const;
 
+    void setGraphicsQuality(LLSD const& event_data);
+
     F64 mLastUntrustedThrottle {0};
     F64 mLastMinThrottle {0};
 };

@@ -41,6 +41,7 @@
 #include "lluictrl.h"
 #include "llerror.h"
 #include "llviewermenufile.h" // close_all_windows()
+#include "llfloaterpreference.h"
 
 extern LLMenuBarGL* gMenuBarView;
 
@@ -145,6 +146,11 @@ LLUIListener::LLUIListener():
         "Return [\"uuid\"] if upload was successful",
         &LLUIListener::uploadLocalTexture,
         llsd::map("filename", LLSD::String(), "reply", LLSD()));
+
+    add("setGraphicsQuality",
+        "Set graphics quality level to [\"level\"]: from 0 (Low) to 6 (Ultra)",
+        &LLUIListener::setGraphicsQuality,
+        llsd::map("level", LLSD::Integer(), "reply", LLSD()));
 }
 
 typedef LLUICtrl::CommitCallbackInfo cb_info;
@@ -434,5 +440,17 @@ void LLUIListener::uploadLocalTexture(const LLSD& event) const
     {
         LLUUID tracking_id = LLLocalBitmapMgr::getInstance()->addUnit(event["filename"]);
         sendReply(llsd::map("uuid", tracking_id.notNull() ? LLLocalBitmapMgr::getInstance()->getWorldID(tracking_id) : LLUUID()), event);
+    });
+}
+
+void LLUIListener::setGraphicsQuality(LLSD const& request)
+{
+    // update on the main coro
+    doOnIdleOneTime([request]()
+    {
+        U32 level = llclamp((U32)request["level"].asReal(), 0 /*Low*/, 6 /*Ultra*/);
+        LLFloaterPreference::setGraphicsQuality(level);
+        gSavedSettings.setU32("RenderQualityPerformance", level);
+        sendReply(LLSD(), request);
     });
 }
