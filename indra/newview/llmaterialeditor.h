@@ -94,7 +94,7 @@ class LLMaterialEditor : public LLPreview, public LLVOInventoryListener
     void setFromGltfMetaData(const std::string& filename, const  tinygltf::Model& model, S32 index);
 
     // open a file dialog and select a gltf/glb file for import
-    static void importMaterial(const LLUUID dest_folder = LLUUID::null);
+    static void importMaterial();
 
     // for live preview, apply current material to currently selected object
     void applyToSelection();
@@ -105,11 +105,8 @@ class LLMaterialEditor : public LLPreview, public LLVOInventoryListener
     void loadAsset() override;
     // @index if -1 and file contains more than one material,
     // will promt to select specific one
-    static void uploadMaterialFromModel(const std::string& filename,
-                                        tinygltf::Model& model,
-                                        S32 index,
-                                        const LLUUID& dest_folder_id = LLUUID::null);
-    static void loadMaterialFromFile(const std::string& filename, S32 index = -1, const LLUUID& dest_folder = LLUUID::null);
+    static void uploadMaterialFromModel(const std::string& filename, tinygltf::Model& model, S32 index);
+    static void loadMaterialFromFile(const std::string& filename, S32 index = -1);
 
     void onSelectionChanged(); // live overrides selection changes
 
@@ -136,6 +133,8 @@ class LLMaterialEditor : public LLPreview, public LLVOInventoryListener
     void clearTextures();
 
     void onClickSave();
+
+    void getGLTFModel(tinygltf::Model& model);
 
     std::string getEncodedAsset();
 
@@ -240,7 +239,7 @@ private:
     static void saveObjectsMaterialAs(const LLGLTFMaterial *render_material, const LLLocalGLTFMaterial *local_material, const LLPermissions& permissions, const LLUUID& object_id /* = LLUUID::null */, const LLUUID& item /* = LLUUID::null */);
 
     static bool updateInventoryItem(const std::string &buffer, const LLUUID &item_id, const LLUUID &task_id);
-    static void createInventoryItem(const std::string &buffer, const std::string &name, const std::string &desc, const LLPermissions& permissions, const LLUUID& upload_folder);
+    static void createInventoryItem(const std::string &buffer, const std::string &name, const std::string &desc, const LLPermissions& permissions);
 
     void setFromGLTFMaterial(LLGLTFMaterial* mat);
     bool setFromSelection();
@@ -250,7 +249,6 @@ private:
     friend class LLMaterialFilePicker;
 
     LLUUID mAssetID;
-    LLUUID mUploadFolder;
 
     LLTextureCtrl* mBaseColorTextureCtrl;
     LLTextureCtrl* mMetallicTextureCtrl;

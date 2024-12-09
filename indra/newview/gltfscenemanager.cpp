@@ -213,7 +213,6 @@ void GLTFSceneManager::uploadSelection()
                         LLFloaterPerms::getGroupPerms("Uploads"),
                         LLFloaterPerms::getEveryonePerms("Uploads"),
                         expected_upload_cost,
-                        LLUUID::null,
                         false,
                         finish,
                         failure));
@@ -277,7 +276,6 @@ void GLTFSceneManager::uploadSelection()
                 LLFloaterPerms::getGroupPerms("Uploads"),
                 LLFloaterPerms::getEveryonePerms("Uploads"),
                 expected_upload_cost,
-                LLUUID::null,
                 false,
                 finish,
                 failure));
@@ -547,7 +545,6 @@ void GLTFSceneManager::update()
                 LLFloaterPerms::getGroupPerms("Uploads"),
                 LLFloaterPerms::getEveryonePerms("Uploads"),
                 expected_upload_cost,
-                LLUUID::null,
                 false,
                 finish,
                 failure));

@@ -404,9 +404,7 @@ LLPanelOutfitEdit::LLPanelOutfitEdit()
     mWearableListManager(NULL),
     mPlusBtn(NULL),
     mWearablesGearMenuBtn(NULL),
-    mGearMenuBtn(NULL),
-    mStatus(NULL),
-    mCurrentOutfitName(NULL)
+    mGearMenuBtn(NULL)
 {
     mSavedFolderState = new LLSaveFolderState();
     mSavedFolderState->setApply(false);

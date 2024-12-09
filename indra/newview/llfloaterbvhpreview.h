@@ -70,7 +70,7 @@ protected:
 class LLFloaterBvhPreview : public LLFloaterNameDesc
 {
 public:
-    LLFloaterBvhPreview(const LLSD& args);
+    LLFloaterBvhPreview(const std::string& filename);
     virtual ~LLFloaterBvhPreview();
 
     bool postBuild();

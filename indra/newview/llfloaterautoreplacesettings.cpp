@@ -422,13 +422,7 @@ bool LLFloaterAutoReplaceSettings::callbackNewListName(const LLSD& notification,
 
     LLSD newList = notification["payload"]["list"];
 
-    S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-    if (option != 1) // Must also match RenameAutoReplaceList
-    {
-        // user cancelled
-        return false;
-    }
-    else if (response.has("listname") && response["listname"].isString() )
+    if ( response.has("listname") && response["listname"].isString() )
     {
         std::string newName = response["listname"].asString();
         LLAutoReplaceSettings::setListName(newList, newName);
@@ -514,53 +508,12 @@ bool LLFloaterAutoReplaceSettings::callbackListNameConflict(const LLSD& notifica
     return false;
 }
 
-bool LLFloaterAutoReplaceSettings::callbackRemoveList(const LLSD& notification, const LLSD& response)
-{
-    std::string listName = notification["payload"]["list"];
-
-    S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-    switch (option)
-    {
-    case 1:
-        if (mSettings.removeReplacementList(listName))
-        {
-            LL_INFOS("AutoReplace") << "deleted list '" << listName << "'" << LL_ENDL;
-            mReplacementsList->deleteSelectedItems();   // remove from the scrolling list
-            mSelectedListName.clear();
-            updateListNames();
-            updateListNamesControls();
-            updateReplacementsList();
-        }
-        break;
-    case 0:
-        break;
-
-    default:
-        LL_ERRS("AutoReplace") << "invalid selected option " << option << LL_ENDL;
-    }
-
-    return false;
-}
-
 void LLFloaterAutoReplaceSettings::onDeleteList()
 {
     std::string listName = mListNames->getSelectedValue().asString();
     if ( ! listName.empty() )
     {
-        const LLSD* mappings = mSettings.getListEntries(mSelectedListName);
-        if (mappings->size() > 0)
-        {
-            LLSD payload;
-            payload["list"] = listName;
-
-            LLSD args;
-            args["MAP_SIZE"] = llformat("%d",mappings->size());
-            args["LIST_NAME"] = listName;
-
-            LLNotificationsUtil::add("RemoveAutoReplaceList", args, payload,
-                boost::bind(&LLFloaterAutoReplaceSettings::callbackRemoveList, this, _1, _2));
-        }
-        else if ( mSettings.removeReplacementList(listName) )
+        if ( mSettings.removeReplacementList(listName) )
         {
             LL_INFOS("AutoReplace")<<"deleted list '"<<listName<<"'"<<LL_ENDL;
             mReplacementsList->deleteSelectedItems();   // remove from the scrolling list

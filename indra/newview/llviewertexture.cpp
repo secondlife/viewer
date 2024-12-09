@@ -1105,7 +1105,6 @@ void LLViewerFetchedTexture::init(bool firstinit)
     mOrigHeight = 0;
     mHasAux = false;
     mNeedsAux = false;
-    mLastWorkerDiscardLevel = -1;
     mRequestedDiscardLevel = -1;
     mRequestedDownloadPriority = 0.f;
     mFullyLoaded = false;
@@ -1257,11 +1256,12 @@ void LLViewerFetchedTexture::loadFromFastCache()
 
             if (mBoostLevel == LLGLTexture::BOOST_THUMBNAIL)
             {
-                if (mRawImage && (mRawImage->getWidth() > DEFAULT_THUMBNAIL_DIMENSIONS || mRawImage->getHeight() > DEFAULT_THUMBNAIL_DIMENSIONS))
+                S32 expected_width = mKnownDrawWidth > 0 ? mKnownDrawWidth : DEFAULT_THUMBNAIL_DIMENSIONS;
+                S32 expected_height = mKnownDrawHeight > 0 ? mKnownDrawHeight : DEFAULT_THUMBNAIL_DIMENSIONS;
+                if (mRawImage && (mRawImage->getWidth() > expected_width || mRawImage->getHeight() > expected_height))
                 {
-                    // Scale oversized thumbnail
-                    // thumbnails aren't supposed to go over DEFAULT_THUMBNAIL_DIMENSIONS
-                    mRawImage->scale(DEFAULT_THUMBNAIL_DIMENSIONS, DEFAULT_THUMBNAIL_DIMENSIONS);
+                    // scale oversized icon, no need to give more work to gl
+                    mRawImage->scale(expected_width, expected_height);
                 }
             }
 
@@ -2103,23 +2103,16 @@ bool LLViewerFetchedTexture::updateFetch()
         S32 fetch_request_response = -1;
         S32 worker_discard = -1;
         fetch_request_response = LLAppViewer::getTextureFetch()->createRequest(mFTType, mUrl, getID(), getTargetHost(), decode_priority,
-                                                                              w, h, c, desired_discard, needsAux(), mCanUseHTTP, worker_discard);
+                                                                              w, h, c, desired_discard, needsAux(), mCanUseHTTP);
 
-        if ((fetch_request_response >= 0) // positive values and 0 are discard values;
-            // Worker created scaled and standard images share requests, they just process the result differently
-            // if mLastWorkerDiscardLevel doen't match worker, worker was requested by a different
-            // image and current one needs to schedule an update
-            || (fetch_request_response == LLTextureFetch::CREATE_REQUEST_ERROR_TRANSITION
-                && mLastWorkerDiscardLevel != worker_discard)
-            )
+        if (fetch_request_response >= 0) // positive values and 0 are discard values
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_TEXTURE("vftuf - request created");
             mHasFetcher = true;
             mIsFetching = true;
-            mLastWorkerDiscardLevel = worker_discard;
             // in some cases createRequest can modify discard, as an example
             // bake textures are always at discard 0
-            mRequestedDiscardLevel = llmin(desired_discard, worker_discard);
+            mRequestedDiscardLevel = llmin(desired_discard, fetch_request_response);
             mFetchState = LLAppViewer::getTextureFetch()->getFetchState(mID, mDownloadProgress, mRequestedDownloadPriority,
                                                        mFetchPriority, mFetchDeltaTime, mRequestDeltaTime, mCanUseHTTP);
         }
@@ -2759,9 +2752,11 @@ void LLViewerFetchedTexture::saveRawImage()
     }
     else if (mBoostLevel == LLGLTexture::BOOST_THUMBNAIL)
     {
-        if (mRawImage->getWidth() > DEFAULT_THUMBNAIL_DIMENSIONS || mRawImage->getHeight() > DEFAULT_THUMBNAIL_DIMENSIONS)
+        S32 expected_width = mKnownDrawWidth > 0 ? mKnownDrawWidth : DEFAULT_THUMBNAIL_DIMENSIONS;
+        S32 expected_height = mKnownDrawHeight > 0 ? mKnownDrawHeight : DEFAULT_THUMBNAIL_DIMENSIONS;
+        if (mRawImage->getWidth() > expected_width || mRawImage->getHeight() > expected_height)
         {
-            mSavedRawImage = new LLImageRaw(DEFAULT_THUMBNAIL_DIMENSIONS, DEFAULT_THUMBNAIL_DIMENSIONS, mRawImage->getComponents());
+            mSavedRawImage = new LLImageRaw(expected_width, expected_height, mRawImage->getComponents());
             mSavedRawImage->copyScaled(mRawImage);
         }
         else

@@ -185,7 +185,6 @@ LLFloaterTexturePicker::LLFloaterTexturePicker(
     mSetImageAssetIDCallback(NULL),
     mOnUpdateImageStatsCallback(NULL),
     mBakeTextureEnabled(false),
-    mLocalTextureEnabled(false),
     mInventoryPickType(pick_type),
     mSelectionSource(PICKER_UNKNOWN)
 {
@@ -530,8 +529,6 @@ bool LLFloaterTexturePicker::handleKeyHere(KEY key, MASK mask)
 void LLFloaterTexturePicker::onOpen(const LLSD& key)
 {
     if (sLastPickerMode != 0
-        && (mLocalTextureEnabled || sLastPickerMode != 1)
-        && (mBakeTextureEnabled || sLastPickerMode != 2)
         && mModeSelector->selectByValue(sLastPickerMode))
     {
         changeMode();
@@ -1510,13 +1507,7 @@ void LLFloaterTexturePicker::refreshInventoryFilter()
 
 void LLFloaterTexturePicker::setLocalTextureEnabled(bool enabled)
 {
-    mLocalTextureEnabled = enabled;
     mModeSelector->setEnabledByValue(1, enabled);
-    if (!enabled && (mModeSelector->getValue().asInteger() == 2))
-    {
-        mModeSelector->selectByValue(0);
-        onModeSelect(0, this);
-    }
 }
 
 void LLFloaterTexturePicker::setBakeTextureEnabled(bool enabled)
@@ -1904,9 +1895,11 @@ void LLTextureCtrl::showPicker(bool take_focus)
         if (texture_floaterp)
         {
             texture_floaterp->setOnFloaterCommitCallback(boost::bind(&LLTextureCtrl::onFloaterCommit, this, _1, _2, _3, _4, _5));
+        }
+        if (texture_floaterp)
+        {
             texture_floaterp->setSetImageAssetIDCallback(boost::bind(&LLTextureCtrl::setImageAssetID, this, _1));
 
-            texture_floaterp->setLocalTextureEnabled(mAllowLocalTexture);
             texture_floaterp->setBakeTextureEnabled(mBakeTextureEnabled && mInventoryPickType != PICK_MATERIAL);
         }
 
@@ -1914,6 +1907,12 @@ void LLTextureCtrl::showPicker(bool take_focus)
         if (root_floater)
             root_floater->addDependentFloater(floaterp);
         floaterp->openFloater();
+    }
+
+    LLFloaterTexturePicker* picker_floater = dynamic_cast<LLFloaterTexturePicker*>(floaterp);
+    if (picker_floater)
+    {
+        picker_floater->setLocalTextureEnabled(mAllowLocalTexture);
     }
 
     if (take_focus)
@@ -2092,16 +2091,6 @@ void LLTextureCtrl::setOnTextureSelectedCallback(texture_selected_callback cb)
     if (floaterp)
     {
         floaterp->setTextureSelectedCallback(cb);
-    }
-}
-
-void LLTextureCtrl::setAllowLocalTexture(bool b)
-{
-    mAllowLocalTexture = b;
-    LLFloaterTexturePicker* picker_floater = dynamic_cast<LLFloaterTexturePicker*>(mFloaterHandle.get());
-    if (picker_floater)
-    {
-        picker_floater->setLocalTextureEnabled(mAllowLocalTexture);
     }
 }
 

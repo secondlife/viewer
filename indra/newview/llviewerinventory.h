@@ -264,7 +264,7 @@ public:
 
 class LLViewerJointAttachment;
 
-void rez_attachment_cb(const LLUUID& inv_item, LLViewerJointAttachment *attachmentp, bool replace);
+void rez_attachment_cb(const LLUUID& inv_item, LLViewerJointAttachment *attachmentp);
 
 void activate_gesture_cb(const LLUUID& inv_item);
 

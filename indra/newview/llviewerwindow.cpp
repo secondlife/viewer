@@ -66,7 +66,6 @@
 #include "llchatentry.h"
 #include "indra_constants.h"
 #include "llassetstorage.h"
-#include "lldate.h"
 #include "llerrorcontrol.h"
 #include "llfontgl.h"
 #include "llmousehandler.h"
@@ -1422,16 +1421,10 @@ void LLViewerWindow::handleMouseMove(LLWindow *window,  LLCoordGL pos, MASK mask
 
     mWindow->showCursorFromMouseMove();
 
-    if (!gDisconnected)
+    if (gAwayTimer.getElapsedTimeF32() > LLAgent::MIN_AFK_TIME
+        && !gDisconnected)
     {
-        if (gAwayTimer.getElapsedTimeF32() > LLAgent::MIN_AFK_TIME)
-        {
-            gAgent.clearAFK();
-        }
-        else
-        {
-            gAwayTriggerTimer.reset();
-        }
+        gAgent.clearAFK();
     }
 }
 
@@ -1547,10 +1540,6 @@ bool LLViewerWindow::handleTranslatedKeyDown(KEY key,  MASK mask, bool repeated)
     if (gAwayTimer.getElapsedTimeF32() > LLAgent::MIN_AFK_TIME)
     {
         gAgent.clearAFK();
-    }
-    else
-    {
-        gAwayTriggerTimer.reset();
     }
 
     // *NOTE: We want to interpret KEY_RETURN later when it arrives as
@@ -3011,8 +3000,7 @@ bool LLViewerWindow::handleKey(KEY key, MASK mask)
     {
         if ((focusedFloaterName == "nearby_chat") || (focusedFloaterName == "im_container") || (focusedFloaterName == "impanel"))
         {
-            LLCachedControl<bool> key_move(gSavedSettings, "ArrowKeysAlwaysMove");
-            if (key_move())
+            if (gSavedSettings.getBOOL("ArrowKeysAlwaysMove"))
             {
                 // let Control-Up and Control-Down through for chat line history,
                 if (!(key == KEY_UP && mask == MASK_CONTROL)
@@ -3026,9 +3014,10 @@ bool LLViewerWindow::handleKey(KEY key, MASK mask)
                     case KEY_RIGHT:
                     case KEY_UP:
                     case KEY_DOWN:
-                    case KEY_PAGE_UP: //jump
-                    case KEY_PAGE_DOWN: // down
-                    case KEY_HOME: // toggle fly
+                    case KEY_PAGE_UP:
+                    case KEY_PAGE_DOWN:
+                    case KEY_HOME:
+                    case KEY_END:
                         // when chatbar is empty or ArrowKeysAlwaysMove set,
                         // pass arrow keys on to avatar...
                         return false;
@@ -4835,19 +4824,22 @@ void LLViewerWindow::saveImageLocal(LLImageFormatted *image, const snapshot_save
     }
 
     // Look for an unused file name
-    auto is_snapshot_name_loc_set = isSnapshotLocSet();
+    bool is_snapshot_name_loc_set = isSnapshotLocSet();
     std::string filepath;
-    auto i = 1;
-    auto err = 0;
-    auto extension("." + image->getExtension());
-    auto now = LLDate::now();
+    S32 i = 1;
+    S32 err = 0;
+    std::string extension("." + image->getExtension());
     do
     {
         filepath = sSnapshotDir;
         filepath += gDirUtilp->getDirDelimiter();
         filepath += sSnapshotBaseName;
-        filepath += now.toLocalDateString("_%Y-%m-%d_%H%M%S");
-        filepath += llformat("%.2d", i);
+
+        if (is_snapshot_name_loc_set)
+        {
+            filepath += llformat("_%.3d",i);
+        }
+
         filepath += extension;
 
         llstat stat_info;

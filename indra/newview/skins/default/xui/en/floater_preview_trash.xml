@@ -29,8 +29,6 @@
       bevel_style="none"
       scroll.reserve_scroll_corner="false">
     <folder folder_arrow_image="Folder_Arrow"
-            favorite_image="Inv_Favorite_Star_Full"
-            favorite_content_image="Inv_Favorite_Star_Content"
             folder_indentation="8"
             item_height="20"
             item_top_pad="4"

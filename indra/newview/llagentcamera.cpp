@@ -1231,7 +1231,7 @@ void LLAgentCamera::updateCamera()
     }
 
     //NOTE - this needs to be integrated into a general upVector system here within llAgent.
-    if (camera_mode == CAMERA_MODE_FOLLOW && mFocusOnAvatar)
+    if ( camera_mode == CAMERA_MODE_FOLLOW && mFocusOnAvatar )
     {
         mCameraUpVector = mFollowCam.getUpVector();
     }
@@ -1462,12 +1462,13 @@ void LLAgentCamera::updateCamera()
 //  LL_INFOS() << "Current FOV Zoom: " << mCameraCurrentFOVZoomFactor << " Target FOV Zoom: " << mCameraFOVZoomFactor << " Object penetration: " << mFocusObjectDist << LL_ENDL;
 
     LLVector3 focus_agent = gAgent.getPosAgentFromGlobal(mFocusGlobal);
-    LLVector3 position_agent = gAgent.getPosAgentFromGlobal(camera_pos_global);
 
-    // Try to move the camera
+    mCameraPositionAgent = gAgent.getPosAgentFromGlobal(camera_pos_global);
 
-    if (!LLViewerCamera::getInstance()->updateCameraLocation(position_agent, mCameraUpVector, focus_agent))
-        return;
+    // Move the camera
+
+    LLViewerCamera::getInstance()->updateCameraLocation(mCameraPositionAgent, mCameraUpVector, focus_agent);
+    //LLViewerCamera::getInstance()->updateCameraLocation(mCameraPositionAgent, camera_skyward, focus_agent);
 
     // Change FOV
     LLViewerCamera::getInstance()->setView(LLViewerCamera::getInstance()->getDefaultFOV() / (1.f + mCameraCurrentFOVZoomFactor));
@@ -1475,7 +1476,7 @@ void LLAgentCamera::updateCamera()
     // follow camera when in customize mode
     if (cameraCustomizeAvatar())
     {
-        setLookAt(LOOKAT_TARGET_FOCUS, NULL, position_agent);
+        setLookAt(LOOKAT_TARGET_FOCUS, NULL, mCameraPositionAgent);
     }
 
     // update the travel distance stat
@@ -1494,8 +1495,8 @@ void LLAgentCamera::updateCamera()
         LLVector3 head_pos = gAgentAvatarp->mHeadp->getWorldPosition() +
             LLVector3(0.08f, 0.f, 0.05f) * gAgentAvatarp->mHeadp->getWorldRotation() +
             LLVector3(0.1f, 0.f, 0.f) * gAgentAvatarp->mPelvisp->getWorldRotation();
-        LLVector3 diff = position_agent - head_pos;
-        diff *= ~gAgentAvatarp->mRoot->getWorldRotation();
+        LLVector3 diff = mCameraPositionAgent - head_pos;
+        diff = diff * ~gAgentAvatarp->mRoot->getWorldRotation();
 
         LLJoint* torso_joint = gAgentAvatarp->mTorsop;
         LLJoint* chest_joint = gAgentAvatarp->mChestp;
@@ -2255,8 +2256,7 @@ void LLAgentCamera::changeCameraToFollow(bool animate)
         mCameraMode = CAMERA_MODE_FOLLOW;
 
         // bang-in the current focus, position, and up vector of the follow cam
-        const LLViewerCamera& camera = LLViewerCamera::instance();
-        mFollowCam.reset(camera.getOrigin(), camera.getPointOfInterest(), LLVector3::z_axis);
+        mFollowCam.reset(mCameraPositionAgent, LLViewerCamera::getInstance()->getPointOfInterest(), LLVector3::z_axis);
 
         if (gBasicToolset)
         {

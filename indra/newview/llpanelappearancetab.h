@@ -29,8 +29,6 @@
 
 #include "llpanel.h"
 
-class LLToggleableMenu;
-
 class LLPanelAppearanceTab : public LLPanel
 {
 public:
@@ -48,11 +46,6 @@ public:
     virtual void getSelectedItemsUUIDs(uuid_vec_t& selected_uuids) const {}
 
     const std::string& getFilterSubString() { return mFilterSubString; }
-
-    virtual void updateMenuItemsVisibility() = 0;
-    virtual LLToggleableMenu* getGearMenu() = 0;
-    virtual LLToggleableMenu* getSortMenu() = 0;
-    virtual bool getTrashMenuVisible() = 0;
 
 protected:
 

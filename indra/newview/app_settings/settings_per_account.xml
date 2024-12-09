@@ -329,7 +329,7 @@
     <key>KeepConversationLogTranscripts</key>
     	<map>
       	<key>Comment</key>
-      		<string>Keep a conversation log and transcripts 2 - both, 1 - logs, 0 - none</string>
+      		<string>Keep a conversation log and transcripts</string>
       	<key>Persist</key>
       		<integer>1</integer>
       	<key>Type</key>

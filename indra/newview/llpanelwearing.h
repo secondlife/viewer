@@ -84,11 +84,6 @@ public:
     void onEditAttachment();
     void onRemoveAttachment();
 
-    void updateMenuItemsVisibility() {};
-    LLToggleableMenu* getGearMenu();
-    LLToggleableMenu* getSortMenu();
-    bool getTrashMenuVisible() { return false; }
-
 private:
     void onWearableItemsListRightClick(LLUICtrl* ctrl, S32 x, S32 y);
     void onTempAttachmentsListRightClick(LLUICtrl* ctrl, S32 x, S32 y);
@@ -98,7 +93,6 @@ private:
     LLWearableItemsList*            mCOFItemsList;
     LLScrollListCtrl*               mTempItemsList;
     LLWearingGearMenu*              mGearMenu;
-    boost::signals2::connection     mGearMenuConnection;
     LLListContextMenu*              mContextMenu;
     LLListContextMenu*              mAttachmentsMenu;
 

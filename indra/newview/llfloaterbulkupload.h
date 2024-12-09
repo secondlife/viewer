@@ -61,7 +61,6 @@ private:
     bool mHas2kTextures = false;
     S32 mUploadCost = 0;
     S32 mUploadCount = 0;
-    LLUUID mDest = LLUUID::null;
 };
 
 #endif

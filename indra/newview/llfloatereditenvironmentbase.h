@@ -133,8 +133,7 @@ protected:
     LLSettingsEditPanel() :
         LLPanel(),
         mIsDirty(false),
-        mOnDirtyChanged(),
-        mCanEdit(false)
+        mOnDirtyChanged()
     {}
 
 private:

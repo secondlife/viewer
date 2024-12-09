@@ -24,9 +24,6 @@
         <menu_item_call.on_click 
                 function="MyEnvironments.DoApply"
                 parameter="local" />
-      <menu_item_call.on_enable
-              function="MyEnvironments.CanApply"
-              parameter="local"/>
     </menu_item_call>
     <menu_item_call
             name="Settings Apply Parcel"

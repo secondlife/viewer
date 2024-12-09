@@ -54,7 +54,6 @@ public:
         U32 groupPerms,
         U32 everyonePerms,
         S32 expectedCost,
-        const LLUUID& destFolderId = LLUUID::null,
         bool showInventory = true);
 
     virtual ~LLResourceUploadInfo()
@@ -105,7 +104,6 @@ protected:
         U32 groupPerms,
         U32 everyonePerms,
         S32 expectedCost,
-        const LLUUID& destFolderId = LLUUID::null,
         bool showInventory = true);
 
     LLResourceUploadInfo(
@@ -157,7 +155,6 @@ public:
         U32 groupPerms,
         U32 everyonePerms,
         S32 expectedCost,
-        const LLUUID& destFolderId = LLUUID::null,
         bool show_inventory = true);
 
     virtual LLSD        prepareUpload();
@@ -196,7 +193,6 @@ public:
         U32 groupPerms,
         U32 everyonePerms,
         S32 expectedCost,
-        const LLUUID& destFolderId, // use null for default
         bool show_inventory,
         uploadFinish_f finish,
         uploadFailure_f failure);
@@ -223,7 +219,6 @@ public:
     typedef std::function<void(LLUUID itemId, LLUUID taskId, LLUUID newAssetId, LLSD response)> taskUploadFinish_f;
     typedef std::function<bool(LLUUID itemId, LLUUID taskId, LLSD response, std::string reason)> uploadFailed_f;
 
-    // destFolderId is the folder to put the new item in, leave null for default
     LLBufferedAssetUploadInfo(LLUUID itemId, LLAssetType::EType assetType, std::string buffer, invnUploadFinish_f finish, uploadFailed_f failed);
     LLBufferedAssetUploadInfo(LLUUID itemId, LLPointer<LLImageFormatted> image, invnUploadFinish_f finish);
     LLBufferedAssetUploadInfo(LLUUID taskId, LLUUID itemId, LLAssetType::EType assetType, std::string buffer, taskUploadFinish_f finish, uploadFailed_f failed);

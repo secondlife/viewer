@@ -107,14 +107,13 @@ class LLVector2
 
         friend LLVector2 operator-(const LLVector2 &a);                 // Return vector -a
 
-        friend std::ostream& operator<<(std::ostream& s, const LLVector2 &a);       // Stream a
+        friend std::ostream&     operator<<(std::ostream& s, const LLVector2 &a);       // Stream a
 };
 
 
 // Non-member functions
 
 F32 angle_between(const LLVector2& a, const LLVector2& b);  // Returns angle (radians) between a and b
-F32 signed_angle_between(const LLVector2& a, const LLVector2& b); // Returns signed angle (radians) between a and b
 bool are_parallel(const LLVector2& a, const LLVector2& b, F32 epsilon = F_APPROXIMATELY_ZERO);    // Returns true if a and b are very close to parallel
 F32 dist_vec(const LLVector2& a, const LLVector2& b);       // Returns distance between a and b
 F32 dist_vec_squared(const LLVector2& a, const LLVector2& b);// Returns distance squared between a and b
@@ -125,22 +124,26 @@ LLVector2 lerp(const LLVector2& a, const LLVector2& b, F32 u); // Returns a vect
 
 inline LLVector2::LLVector2()
 {
-    clear();
+    mV[VX] = 0.f;
+    mV[VY] = 0.f;
 }
 
 inline LLVector2::LLVector2(F32 x, F32 y)
 {
-    set(x, y);
+    mV[VX] = x;
+    mV[VY] = y;
 }
 
 inline LLVector2::LLVector2(const F32 *vec)
 {
-    set(vec);
+    mV[VX] = vec[VX];
+    mV[VY] = vec[VY];
 }
 
 inline LLVector2::LLVector2(const LLVector3 &vec)
 {
-    set(vec.mV);
+    mV[VX] = vec.mV[VX];
+    mV[VY] = vec.mV[VY];
 }
 
 inline LLVector2::LLVector2(const LLSD &sd)
@@ -152,24 +155,28 @@ inline LLVector2::LLVector2(const LLSD &sd)
 
 inline void LLVector2::clear()
 {
-    mV[VX] = mV[VY] = 0.f;
+    mV[VX] = 0.f;
+    mV[VY] = 0.f;
 }
 
 inline void LLVector2::setZero()
 {
-    clear();
+    mV[VX] = 0.f;
+    mV[VY] = 0.f;
 }
 
 // deprecated
 inline void LLVector2::clearVec()
 {
-    clear();
+    mV[VX] = 0.f;
+    mV[VY] = 0.f;
 }
 
 // deprecated
 inline void LLVector2::zeroVec()
 {
-    clear();
+    mV[VX] = 0.f;
+    mV[VY] = 0.f;
 }
 
 inline void LLVector2::set(F32 x, F32 y)
@@ -180,31 +187,36 @@ inline void LLVector2::set(F32 x, F32 y)
 
 inline void LLVector2::set(const LLVector2 &vec)
 {
-    set(vec.mV);
+    mV[VX] = vec.mV[VX];
+    mV[VY] = vec.mV[VY];
 }
 
 inline void LLVector2::set(const F32 *vec)
 {
-    set(vec[VX], vec[VY]);
+    mV[VX] = vec[VX];
+    mV[VY] = vec[VY];
 }
 
 
 // deprecated
 inline void LLVector2::setVec(F32 x, F32 y)
 {
-    set(x, y);
+    mV[VX] = x;
+    mV[VY] = y;
 }
 
 // deprecated
 inline void LLVector2::setVec(const LLVector2 &vec)
 {
-    set(vec);
+    mV[VX] = vec.mV[VX];
+    mV[VY] = vec.mV[VY];
 }
 
 // deprecated
 inline void LLVector2::setVec(const F32 *vec)
 {
-    set(vec);
+    mV[VX] = vec[VX];
+    mV[VY] = vec[VY];
 }
 
 
@@ -212,7 +224,7 @@ inline void LLVector2::setVec(const F32 *vec)
 
 inline F32 LLVector2::length() const
 {
-    return sqrt(lengthSquared());
+    return sqrt(mV[VX]*mV[VX] + mV[VY]*mV[VY]);
 }
 
 inline F32 LLVector2::lengthSquared() const
@@ -222,42 +234,61 @@ inline F32 LLVector2::lengthSquared() const
 
 inline F32 LLVector2::normalize()
 {
-    F32 mag = length();
+    F32 mag = sqrt(mV[VX]*mV[VX] + mV[VY]*mV[VY]);
+    F32 oomag;
 
     if (mag > FP_MAG_THRESHOLD)
     {
-        *this /= mag;
+        oomag = 1.f/mag;
+        mV[VX] *= oomag;
+        mV[VY] *= oomag;
     }
     else
     {
-        clear();
+        mV[VX] = 0.f;
+        mV[VY] = 0.f;
         mag = 0;
     }
-    return mag;
+    return (mag);
 }
 
 // checker
 inline bool LLVector2::isFinite() const
 {
-    return llfinite(mV[VX]) && llfinite(mV[VY]);
+    return (llfinite(mV[VX]) && llfinite(mV[VY]));
 }
 
 // deprecated
 inline F32 LLVector2::magVec() const
 {
-    return length();
+    return sqrt(mV[VX]*mV[VX] + mV[VY]*mV[VY]);
 }
 
 // deprecated
 inline F32 LLVector2::magVecSquared() const
 {
-    return lengthSquared();
+    return mV[VX]*mV[VX] + mV[VY]*mV[VY];
 }
 
 // deprecated
 inline F32 LLVector2::normVec()
 {
-    return normalize();
+    F32 mag = sqrt(mV[VX]*mV[VX] + mV[VY]*mV[VY]);
+    F32 oomag;
+
+    if (mag > FP_MAG_THRESHOLD)
+    {
+        oomag = 1.f/mag;
+        mV[VX] *= oomag;
+        mV[VY] *= oomag;
+    }
+    else
+    {
+        mV[VX] = 0.f;
+        mV[VY] = 0.f;
+        mag = 0;
+    }
+    return (mag);
 }
 
 inline const LLVector2& LLVector2::scaleVec(const LLVector2& vec)
@@ -270,7 +301,11 @@ inline const LLVector2& LLVector2::scaleVec(const LLVector2& vec)
 
 inline bool LLVector2::isNull() const
 {
-    return F_APPROXIMATELY_ZERO > mV[VX]*mV[VX] + mV[VY]*mV[VY];
+    if ( F_APPROXIMATELY_ZERO > mV[VX]*mV[VX] + mV[VY]*mV[VY] )
+    {
+        return true;
+    }
+    return false;
 }
 
 
@@ -304,7 +339,7 @@ inline LLVector2 operator-(const LLVector2& a, const LLVector2& b)
 
 inline F32 operator*(const LLVector2& a, const LLVector2& b)
 {
-    return a.mV[VX]*b.mV[VX] + a.mV[VY]*b.mV[VY];
+    return (a.mV[VX]*b.mV[VX] + a.mV[VY]*b.mV[VY]);
 }
 
 inline LLVector2 operator%(const LLVector2& a, const LLVector2& b)
@@ -370,7 +405,10 @@ inline const LLVector2& operator*=(LLVector2& a, F32 k)
 
 inline const LLVector2& operator/=(LLVector2& a, F32 k)
 {
-    return a *= 1.f / k;
+    F32 t = 1.f / k;
+    a.mV[VX] *= t;
+    a.mV[VY] *= t;
+    return a;
 }
 
 inline LLVector2 operator-(const LLVector2& a)

@@ -35,6 +35,8 @@
 			<check_box label="Pokaż emiter" name="sunbeacon" />
 		</layout_panel>
 		<layout_panel name="moon_layout">
+			<layout_stack name="moon_stack">
+				<layout_panel name="moon_layout">
 					<text name="moon_label">
 						Księżyc
 					</text>
@@ -57,6 +59,8 @@
 						Jasność:
 					</text>
 					<check_box label="Pokaż emiter" name="moonbeacon" />
+				</layout_panel>
+			</layout_stack>
 		</layout_panel>
 	</layout_stack>
 </panel>                
