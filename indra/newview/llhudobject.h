@@ -96,7 +96,8 @@ public:
         LL_HUD_EFFECT_POINTAT,
         LL_HUD_EFFECT_VOICE_VISUALIZER, // Ventrella
         LL_HUD_NAME_TAG,
-        LL_HUD_EFFECT_BLOB
+        LL_HUD_EFFECT_BLOB,
+        LL_HUD_EFFECT_RESET_SKELETON
     };
 protected:
     static void sortObjects();

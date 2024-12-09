@@ -2030,7 +2030,7 @@ bool LLAppearanceMgr::getCanReplaceCOF(const LLUUID& outfit_cat_id)
 }
 
 // Moved from LLWearableList::ContextMenu for wider utility.
-bool LLAppearanceMgr::canAddWearables(const uuid_vec_t& item_ids) const
+bool LLAppearanceMgr::canAddWearables(const uuid_vec_t& item_ids, bool warn_on_type_mismatch) const
 {
     // TODO: investigate wearables may not be loaded at this point EXT-8231
 
@@ -2060,7 +2060,10 @@ bool LLAppearanceMgr::canAddWearables(const uuid_vec_t& item_ids) const
         }
         else
         {
-            LL_WARNS() << "Unexpected wearable type" << LL_ENDL;
+            if (warn_on_type_mismatch)
+            {
+                LL_WARNS() << "Unexpected wearable type" << LL_ENDL;
+            }
             return false;
         }
     }
@@ -2251,7 +2254,7 @@ void LLAppearanceMgr::updateCOF(const LLUUID& category, bool append)
     }
     if (gSavedSettings.getBOOL("DebugAvatarAppearanceMessage"))
     {
-        dump_sequential_xml(gAgentAvatarp->getFullname() + "_slam_request", contents);
+        dump_sequential_xml(gAgentAvatarp->getDebugName() + "_slam_request", contents);
     }
     slam_inventory_folder(getCOF(), contents, link_waiter);
 
@@ -3977,7 +3980,7 @@ void LLAppearanceMgr::serverAppearanceUpdateCoro(LLCoreHttpUtil::HttpCoroutineAd
         LL_DEBUGS("Avatar") << "succeeded" << LL_ENDL;
         if (gSavedSettings.getBOOL("DebugAvatarAppearanceMessage"))
         {
-            dump_sequential_xml(gAgentAvatarp->getFullname() + "_appearance_request_ok", result);
+            dump_sequential_xml(gAgentAvatarp->getDebugName() + "_appearance_request_ok", result);
         }
 
     } while (bRetry);
@@ -3986,7 +3989,7 @@ void LLAppearanceMgr::serverAppearanceUpdateCoro(LLCoreHttpUtil::HttpCoroutineAd
 /*static*/
 void LLAppearanceMgr::debugAppearanceUpdateCOF(const LLSD& content)
 {
-    dump_sequential_xml(gAgentAvatarp->getFullname() + "_appearance_request_error", content);
+    dump_sequential_xml(gAgentAvatarp->getDebugName() + "_appearance_request_error", content);
 
     LL_INFOS("Avatar") << "AIS COF, version received: " << content["expected"].asInteger()
         << " ================================= " << LL_ENDL;

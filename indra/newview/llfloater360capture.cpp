@@ -33,6 +33,7 @@
 #include "llagentui.h"
 #include "llbase64.h"
 #include "llcallbacklist.h"
+#include "lldate.h"
 #include "llenvironment.h"
 #include "llimagejpeg.h"
 #include "llmediactrl.h"
@@ -863,15 +864,7 @@ const std::string LLFloater360Capture::generate_proposed_filename()
     filename << "_";
 
     // add in the current HH-MM-SS (with leading 0's) so users can easily save many shots in same folder
-    std::time_t cur_epoch = std::time(nullptr);
-    std::tm* tm_time = std::localtime(&cur_epoch);
-    filename << std::setfill('0') << std::setw(4) << (tm_time->tm_year + 1900);
-    filename << std::setfill('0') << std::setw(2) << (tm_time->tm_mon + 1);
-    filename << std::setfill('0') << std::setw(2) << tm_time->tm_mday;
-    filename << "_";
-    filename << std::setfill('0') << std::setw(2) << tm_time->tm_hour;
-    filename << std::setfill('0') << std::setw(2) << tm_time->tm_min;
-    filename << std::setfill('0') << std::setw(2) << tm_time->tm_sec;
+    filename << LLDate::now().toLocalDateString("%Y%m%d_%H%M%S");
 
     // the unusual way we save the output image (originates in the
     // embedded browser and not the C++ code) means that the system

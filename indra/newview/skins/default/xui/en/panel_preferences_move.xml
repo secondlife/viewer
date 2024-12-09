@@ -113,7 +113,7 @@
    control_name="ArrowKeysAlwaysMove"
    follows="left|top"
    height="20"
-   label="Arrow keys always move me"
+   label="Arrow keys always move me while in chat"
    layout="topleft"
    left_delta="5"
    name="arrow_keys_move_avatar_check"
