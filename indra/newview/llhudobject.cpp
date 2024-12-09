@@ -36,6 +36,7 @@
 #include "llhudeffecttrail.h"
 #include "llhudeffectlookat.h"
 #include "llhudeffectpointat.h"
+#include "llhudeffectresetskeleton.h"
 #include "llhudnametag.h"
 #include "llvoicevisualizer.h"
 
@@ -240,6 +241,9 @@ LLHUDEffect *LLHUDObject::addHUDEffect(const U8 type)
         break;
     case LL_HUD_EFFECT_BLOB:
         hud_objectp = new LLHUDEffectBlob(type);
+        break;
+    case LL_HUD_EFFECT_RESET_SKELETON:
+        hud_objectp = new LLHUDEffectResetSkeleton(type);
         break;
     default:
         LL_WARNS() << "Unknown type of hud effect:" << (U32) type << LL_ENDL;

@@ -19,7 +19,7 @@ background_visible="true"
    value="VISITED" />
   <string
    name="favorites_tab_title"
-   value="FAVORITES" />
+   value="FAVORITES BAR" />
   <string
    name="tooltip_trash_items"
    value="Remove selected landmark or folder" />

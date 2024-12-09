@@ -2476,9 +2476,10 @@ LLTextureFetch::~LLTextureFetch()
 }
 
 S32 LLTextureFetch::createRequest(FTType f_type, const std::string& url, const LLUUID& id, const LLHost& host, F32 priority,
-                                   S32 w, S32 h, S32 c, S32 desired_discard, bool needs_aux, bool can_use_http)
+                                   S32 w, S32 h, S32 c, S32 desired_discard, bool needs_aux, bool can_use_http, S32& worker_discard)
 {
     LL_PROFILE_ZONE_SCOPED;
+    worker_discard = -1;
     if (mDebugPause)
     {
         return CREATE_REQUEST_ERROR_DEFAULT;
@@ -2552,6 +2553,7 @@ S32 LLTextureFetch::createRequest(FTType f_type, const std::string& url, const L
         {
             return CREATE_REQUEST_ERROR_ABORTED; // need to wait for previous aborted request to complete
         }
+        worker_discard = desired_discard;
         worker->lockWorkMutex();                                        // +Mw
         if (worker->mState == LLTextureFetchWorker::DONE && worker->mDesiredSize == llmax(desired_size, TEXTURE_CACHE_ENTRY_SIZE) && worker->mDesiredDiscard == desired_discard) {
             worker->unlockWorkMutex();                                  // -Mw
@@ -2590,11 +2592,12 @@ S32 LLTextureFetch::createRequest(FTType f_type, const std::string& url, const L
         worker->mNeedsAux = needs_aux;
         worker->setCanUseHTTP(can_use_http) ;
         worker->unlockWorkMutex();                                      // -Mw
+        worker_discard = desired_discard;
     }
 
     LL_DEBUGS(LOG_TXT) << "REQUESTED: " << id << " f_type " << fttype_to_string(f_type)
                        << " Discard: " << desired_discard << " size " << desired_size << LL_ENDL;
-    return desired_discard;
+    return CREATE_REQUEST_ERROR_DEFAULT;
 }
 // Threads:  T*
 //

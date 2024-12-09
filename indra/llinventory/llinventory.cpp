@@ -46,6 +46,7 @@ static const std::string INV_ITEM_ID_LABEL("item_id");
 static const std::string INV_FOLDER_ID_LABEL("cat_id");
 static const std::string INV_PARENT_ID_LABEL("parent_id");
 static const std::string INV_THUMBNAIL_LABEL("thumbnail");
+static const std::string INV_FAVORITE_LABEL("favorite");
 static const std::string INV_THUMBNAIL_ID_LABEL("thumbnail_id");
 static const std::string INV_ASSET_TYPE_LABEL("type");
 static const std::string INV_PREFERRED_TYPE_LABEL("preferred_type");
@@ -59,6 +60,7 @@ static const std::string INV_LINKED_ID_LABEL("linked_id");
 static const std::string INV_SALE_INFO_LABEL("sale_info");
 static const std::string INV_FLAGS_LABEL("flags");
 static const std::string INV_CREATION_DATE_LABEL("created_at");
+static const std::string INV_TOGGLED_LABEL("toggled");
 
 // key used by agent-inventory-service
 static const std::string INV_ASSET_TYPE_LABEL_WS("type_default");
@@ -82,14 +84,16 @@ LLInventoryObject::LLInventoryObject(const LLUUID& uuid,
     mParentUUID(parent_uuid),
     mType(type),
     mName(name),
-    mCreationDate(0)
+    mCreationDate(0),
+    mFavorite(false)
 {
     correctInventoryName(mName);
 }
 
 LLInventoryObject::LLInventoryObject()
 :   mType(LLAssetType::AT_NONE),
-    mCreationDate(0)
+    mCreationDate(0),
+    mFavorite(false)
 {
 }
 
@@ -104,6 +108,7 @@ void LLInventoryObject::copyObject(const LLInventoryObject* other)
     mType = other->mType;
     mName = other->mName;
     mThumbnailUUID = other->mThumbnailUUID;
+    mFavorite = other->mFavorite;
 }
 
 const LLUUID& LLInventoryObject::getUUID() const
@@ -119,6 +124,11 @@ const LLUUID& LLInventoryObject::getParentUUID() const
 const LLUUID& LLInventoryObject::getThumbnailUUID() const
 {
     return mThumbnailUUID;
+}
+
+bool LLInventoryObject::getIsFavorite() const
+{
+    return mFavorite;
 }
 
 const std::string& LLInventoryObject::getName() const
@@ -173,6 +183,11 @@ void LLInventoryObject::setParent(const LLUUID& new_parent)
 void LLInventoryObject::setThumbnailUUID(const LLUUID& thumbnail_uuid)
 {
     mThumbnailUUID = thumbnail_uuid;
+}
+
+void LLInventoryObject::setFavorite(bool favorite)
+{
+    mFavorite = favorite;
 }
 
 void LLInventoryObject::setType(LLAssetType::EType type)
@@ -246,6 +261,23 @@ bool LLInventoryObject::importLegacyStream(std::istream& input_stream)
             else
             {
                 setThumbnailUUID(LLUUID::null);
+            }
+
+            if (metadata.has("favorite"))
+            {
+                const LLSD& favorite = metadata["favorite"];
+                if (favorite.has("toggled"))
+                {
+                    setFavorite(favorite["toggled"].asBoolean());
+                }
+                else
+                {
+                    setFavorite(false);
+                }
+            }
+            else
+            {
+                setFavorite(false);
             }
         }
         else if(0 == strcmp("name", keyword))
@@ -735,6 +767,23 @@ bool LLInventoryItem::importLegacyStream(std::istream& input_stream)
             {
                 setThumbnailUUID(LLUUID::null);
             }
+
+            if (metadata.has("favorite"))
+            {
+                const LLSD& favorite = metadata["favorite"];
+                if (favorite.has("toggled"))
+                {
+                    setFavorite(favorite["toggled"].asBoolean());
+                }
+                else
+                {
+                    setFavorite(false);
+                }
+            }
+            else
+            {
+                setFavorite(false);
+            }
         }
         else if(0 == strcmp("inv_type", keyword))
         {
@@ -895,6 +944,11 @@ void LLInventoryItem::asLLSD( LLSD& sd ) const
         sd[INV_THUMBNAIL_LABEL] = LLSD().with(INV_ASSET_ID_LABEL, mThumbnailUUID);
     }
 
+    if (mFavorite)
+    {
+        sd[INV_FAVORITE_LABEL] = LLSD().with(INV_TOGGLED_LABEL, mFavorite);
+    }
+
     U32 mask = mPermissions.getMaskBase();
     if(((mask & PERM_ITEM_UNRESTRICTED) == PERM_ITEM_UNRESTRICTED)
         || (mAssetUUID.isNull()))
@@ -937,6 +991,7 @@ bool LLInventoryItem::fromLLSD(const LLSD& sd, bool is_new)
 
     // TODO - figure out if this should be moved into the noclobber fields above
     mThumbnailUUID.setNull();
+    mFavorite = false;
 
     // iterate as map to avoid making unnecessary temp copies of everything
     LLSD::map_const_iterator i, end;
@@ -974,11 +1029,22 @@ bool LLInventoryItem::fromLLSD(const LLSD& sd, bool is_new)
                 <integer> 1 </key>
             */
           continue;
-      }
+        }
 
         if (i->first == INV_THUMBNAIL_ID_LABEL)
         {
             mThumbnailUUID = i->second.asUUID();
+            continue;
+        }
+
+        if (i->first == INV_FAVORITE_LABEL)
+        {
+            const LLSD& favorite_map = i->second;
+            const std::string w = INV_TOGGLED_LABEL;
+            if (favorite_map.has(w))
+            {
+                mFavorite = favorite_map[w].asBoolean();
+            }
             continue;
         }
 
@@ -1177,6 +1243,11 @@ LLSD LLInventoryCategory::asLLSD() const
         sd[INV_THUMBNAIL_LABEL] = LLSD().with(INV_ASSET_ID_LABEL, mThumbnailUUID);
     }
 
+    if (mFavorite)
+    {
+        sd[INV_FAVORITE_LABEL] = LLSD().with(INV_TOGGLED_LABEL, mFavorite);
+    }
+
     return sd;
 }
 
@@ -1188,9 +1259,15 @@ LLSD LLInventoryCategory::asAISCreateCatLLSD() const
     S8 type                 = static_cast<S8>(mPreferredType);
     sd[INV_ASSET_TYPE_LABEL_WS] = type;
     sd[INV_NAME_LABEL] = mName;
+
     if (mThumbnailUUID.notNull())
     {
         sd[INV_THUMBNAIL_LABEL] = LLSD().with(INV_ASSET_ID_LABEL, mThumbnailUUID);
+    }
+
+    if (mFavorite)
+    {
+        sd[INV_FAVORITE_LABEL] = LLSD().with(INV_TOGGLED_LABEL, mFavorite);
     }
 
     return sd;
@@ -1238,6 +1315,17 @@ bool LLInventoryCategory::fromLLSD(const LLSD& sd)
         if (sd.has(w))
         {
             mThumbnailUUID = sd[w];
+        }
+    }
+    mFavorite = false;
+    w = INV_FAVORITE_LABEL;
+    if (sd.has(w))
+    {
+        const LLSD& favorite_map = sd[w];
+        w = INV_TOGGLED_LABEL;
+        if (favorite_map.has(w))
+        {
+            mFavorite = favorite_map[w].asBoolean();
         }
     }
     w = INV_ASSET_TYPE_LABEL;
@@ -1362,6 +1450,23 @@ bool LLInventoryCategory::importLegacyStream(std::istream& input_stream)
             {
                 setThumbnailUUID(LLUUID::null);
             }
+
+            if (metadata.has("favorite"))
+            {
+                const LLSD& favorite = metadata["favorite"];
+                if (favorite.has("toggled"))
+                {
+                    setFavorite(favorite["toggled"].asBoolean());
+                }
+                else
+                {
+                    setFavorite(false);
+                }
+            }
+            else
+            {
+                setFavorite(false);
+            }
         }
         else
         {
@@ -1409,6 +1514,10 @@ LLSD LLInventoryCategory::exportLLSD() const
     {
         cat_data[INV_THUMBNAIL_LABEL] = LLSD().with(INV_ASSET_ID_LABEL, mThumbnailUUID);
     }
+    if (mFavorite)
+    {
+        cat_data[INV_FAVORITE_LABEL] = LLSD().with(INV_TOGGLED_LABEL, mFavorite);
+    }
 
     return cat_data;
 }
@@ -1440,6 +1549,16 @@ bool LLInventoryCategory::importLLSD(const LLSD& cat_data)
             thumbnail_uuid = thumbnail_data[INV_ASSET_ID_LABEL].asUUID();
         }
         setThumbnailUUID(thumbnail_uuid);
+    }
+    if (cat_data.has(INV_FAVORITE_LABEL))
+    {
+        bool favorite = false;
+        const LLSD& favorite_data = cat_data[INV_FAVORITE_LABEL];
+        if (favorite_data.has(INV_TOGGLED_LABEL))
+        {
+            favorite = favorite_data[INV_TOGGLED_LABEL].asBoolean();
+        }
+        setFavorite(favorite);
     }
     if (cat_data.has(INV_NAME_LABEL))
     {

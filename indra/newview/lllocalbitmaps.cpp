@@ -673,7 +673,7 @@ void LLLocalBitmap::updateGLTFMaterials(LLUUID old_id, LLUUID new_id)
                     LLFetchedGLTFMaterial* render_mat = dynamic_cast<LLFetchedGLTFMaterial*>(entry->getGLTFRenderMaterial());
                     if (render_mat)
                     {
-                            *render_mat = *fetched_mat;
+                        *render_mat = *fetched_mat;
                         render_mat->applyOverride(*override_mat);
                     }
                     else
