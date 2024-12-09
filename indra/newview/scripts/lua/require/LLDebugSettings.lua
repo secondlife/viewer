@@ -14,4 +14,9 @@ function LLDebugSettings.get(name)
     return leap.request('LLViewerControl', {op='get', group='Global', key=name})['value']
 end
 
+-- from 0 (Low) to 6 (Ultra)
+function LLDebugSettings.setGraphicsQuality(level)
+    return leap.request('LLViewerControl', {op='setGraphicsQuality', level=level})
+end
+
 return LLDebugSettings

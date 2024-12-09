@@ -45,6 +45,8 @@ private:
     static void get(LLSD const & event_data);
     static void groups(LLSD const & event_data);
     static void vars(LLSD const & event_data);
+
+    static void setGraphicsQuality(LLSD const& event_data);
 };
 
 #endif // LL_LLVIEWERCONTROLLISTENER_H

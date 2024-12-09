@@ -30,10 +30,11 @@
 
 #include "llviewercontrollistener.h"
 
-#include "llviewercontrol.h"
 #include "llcontrol.h"
 #include "llerror.h"
+#include "llfloaterpreference.h"
 #include "llsdutil.h"
+#include "llviewercontrol.h"
 #include "stringize.h"
 #include <sstream>
 
@@ -84,6 +85,11 @@ LLViewerControlListener::LLViewerControlListener()
                     "  [\"name\"], [\"type\"], [\"value\"], [\"comment\"]\n") + grouphelp,
         &LLViewerControlListener::vars,
         LLSDMap("group", LLSD())("reply", LLSD()));
+
+    add("setGraphicsQuality",
+        "Set graphics quality level to [\"level\"]: from 0 (Low) to 6 (Ultra)",
+        &LLViewerControlListener::setGraphicsQuality,
+        llsd::map("level", LLSD::Integer(), "reply", LLSD()));
 }
 
 struct Info
@@ -222,4 +228,16 @@ void LLViewerControlListener::vars(LLSD const & request)
     CollectVars collector(group);
     group->applyToAll(&collector);
     response["vars"] = collector.vars;
+}
+
+void LLViewerControlListener::setGraphicsQuality(LLSD const& request)
+{
+    // update on the main coro
+    doOnIdleOneTime([request]()
+    {
+        U32 level = llclamp((U32)request["level"].asReal(), 0 /*Low*/, 6 /*Ultra*/);
+        LLFloaterPreference::setGraphicsQuality(level);
+        gSavedSettings.setU32("RenderQualityPerformance", level);
+        sendReply(LLSD(), request);
+    });
 }

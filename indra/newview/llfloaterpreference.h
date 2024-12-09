@@ -106,6 +106,8 @@ public:
     // update Show Favorites checkbox
     static void updateShowFavoritesCheckbox(bool val);
 
+    static void setGraphicsQuality(U32 level);
+
     void processProperties( void* pData, EAvatarProcessorType type ) override;
     void saveAvatarProperties( void );
     static void saveAvatarPropertiesCoro(const std::string url, bool allow_publish);
