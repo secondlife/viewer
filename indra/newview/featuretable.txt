@@ -87,7 +87,7 @@ RenderTonemapType			1   1
 RenderTonemapMix			1   1
 RenderEnableEmissiveBuffer  1   1
 RenderHDREnabled            1   1
-RenderVintageMode           1   1
+RenderDisableVintageMode           1   1
 
 //
 // Low Graphics Settings
@@ -129,7 +129,7 @@ RenderCASSharpness          1   0
 RenderExposure				1   1
 RenderTonemapType			1   1
 RenderTonemapMix			1   0.7
-RenderVintageMode           1   1
+RenderDisableVintageMode           1   0
 
 //
 // Medium Low Graphics Settings
@@ -171,7 +171,7 @@ RenderCASSharpness          1   0
 RenderExposure				1   1
 RenderTonemapType			1   1
 RenderTonemapMix			1   0.7
-RenderVintageMode           1   1
+RenderDisableVintageMode           1   0
 
 //
 // Medium Graphics Settings (standard)
@@ -386,7 +386,7 @@ RenderShadowDetail			1	0
 RenderDeferredSSAO			1	0
 RenderMirrors				1	0
 RenderEnableEmissiveBuffer  1   0
-RenderVintageMode           1   1
+RenderDisableVintageMode           1   0
 
 //
 // VRAM > 512MB
@@ -409,7 +409,7 @@ RenderDeferredSSAO			0	0
 RenderShadowDetail			0	0
 RenderReflectionProbeDetail	0	-1
 RenderMirrors				0	0
-RenderVintageMode           1   1
+RenderDisableVintageMode           1   0
 
 list Intel
 RenderAnisotropic			1	0
@@ -432,7 +432,11 @@ RenderEnableEmissiveBuffer  1   0
 RenderGLMultiThreadedTextures 0 0
 RenderGLMultiThreadedMedia 0 0
 RenderHDREnabled            1   0
-RenderVintageMode           1   1
+RenderDisableVintageMode           1   0
 
 list TexUnit16orLess
 RenderTerrainPBRDetail      1   -1
+
+list VaryingVectors16orLess
+RenderTerrainPBRPlanarSampleCount 1   1
+

@@ -84,6 +84,29 @@ public:
         const std::string& name,
         const std::string& desc,
         const LLUUID& folder_id);
+
+    /**
+     * @brief Shows floater to create landmark for specified URL.
+     */
+    static void showFloaterCreateLandmarkForUrl(const std::string& url, const std::string& title);
+
+    /**
+     * @brief Shows floater to create landmark for specified global position.
+     */
+    static void showFloaterCreateLandmarkForPos(const LLVector3d& global_pos,
+        const std::string& title = LLStringUtil::null);
+
+    /**
+     * @brief Shows floater to create landmark for specified region coordinates.
+     */
+    static void showFloaterCreateLandmarkForCoords(const std::string& region_name, S32 x, S32 y, S32 z,
+        const std::string& title = LLStringUtil::null);
+
+    /**
+     * @brief Checks possibility to create landmark for specified URL.
+     */
+    static bool canCreateLandmarkForUrl(const std::string& url);
+
     /**
      * @brief Creates SLURL for given global position.
      */

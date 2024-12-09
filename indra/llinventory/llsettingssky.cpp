@@ -2064,6 +2064,14 @@ F32 LLSettingsSky::getTonemapMix() const
     return mTonemapMix;
 }
 
+void LLSettingsSky::setTonemapMix(F32 mix)
+{
+    if (mCanAutoAdjust)
+        return;
+
+    mTonemapMix = mix;
+}
+
 void LLSettingsSky::setGamma(F32 val)
 {
     mGamma = val;

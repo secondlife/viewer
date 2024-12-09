@@ -691,7 +691,11 @@ void LLFeatureManager::applyBaseMasks()
         LLImageGLThread::sEnabledTextures = false;
 
         // Make extra sure that vintage mode also gets enabled.
-        gSavedSettings.setBOOL("RenderVintageMode", true);
+        gSavedSettings.setBOOL("RenderDisableVintageMode", false);
+    }
+    if (gGLManager.mMaxVaryingVectors <= 16)
+    {
+        maskFeatures("VaryingVectors16orLess");
     }
 
     // now mask by gpu string

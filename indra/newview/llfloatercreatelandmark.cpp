@@ -106,8 +106,7 @@ private:
 };
 
 LLFloaterCreateLandmark::LLFloaterCreateLandmark(const LLSD& key)
-    :   LLFloater("add_landmark"),
-        mItem(NULL)
+    : LLFloater("add_landmark")
 {
     mInventoryObserver = new LLLandmarksInventoryObserver(this);
 }
@@ -137,21 +136,35 @@ bool LLFloaterCreateLandmark::postBuild()
 
 void LLFloaterCreateLandmark::removeObserver()
 {
-    if (gInventory.containsObserver(mInventoryObserver))
-        gInventory.removeObserver(mInventoryObserver);
+    gInventory.removeObserver(mInventoryObserver);
 }
 
 void LLFloaterCreateLandmark::onOpen(const LLSD& key)
 {
-    LLUUID dest_folder = LLUUID();
+    LLUUID dest_folder;
     if (key.has("dest_folder"))
     {
         dest_folder = key["dest_folder"].asUUID();
     }
     mItem = NULL;
     gInventory.addObserver(mInventoryObserver);
-    setLandmarkInfo(dest_folder);
+    if ((mHasCustomPosition = key.has("region")))
+    {
+        mLandmarkTitleEditor->setText(key["title"].asString());
+    }
+    else
+    {
+        // mLandmarkTitleEditor->setText() is called here
+        setLandmarkInfo(dest_folder);
+    }
     populateFoldersList(dest_folder);
+
+    mLandmarkTitleEditor->setCursorToEnd();
+}
+
+void LLFloaterCreateLandmark::onClose(bool app_quitting)
+{
+    removeObserver();
 }
 
 void LLFloaterCreateLandmark::setLandmarkInfo(const LLUUID &folder_id)
@@ -180,13 +193,10 @@ void LLFloaterCreateLandmark::setLandmarkInfo(const LLUUID &folder_id)
             region_name = desc;
         }
 
-        mLandmarkTitleEditor->setText(llformat("%s (%d, %d, %d)",
-            region_name.c_str(), region_x, region_y, region_z));
+        name = llformat("%s (%d, %d, %d)", region_name.c_str(), region_x, region_y, region_z);
     }
-    else
-    {
-        mLandmarkTitleEditor->setText(name);
-    }
+
+    mLandmarkTitleEditor->setText(name);
 
     LLLandmarkActions::createLandmarkHere(name, "", folder_id.notNull() ? folder_id : gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE));
 }
@@ -255,16 +265,21 @@ void LLFloaterCreateLandmark::onCommitTextChanges()
     {
         return;
     }
-    std::string current_title_value = mLandmarkTitleEditor->getText();
-    std::string item_title_value = mItem->getName();
-    std::string current_notes_value = mNotesEditor->getText();
-    std::string item_notes_value = mItem->getDescription();
 
+    std::string current_title_value = mLandmarkTitleEditor->getText();
     LLStringUtil::trim(current_title_value);
+    if (current_title_value.empty())
+    {
+        return;
+    }
+
+    std::string current_notes_value = mNotesEditor->getText();
     LLStringUtil::trim(current_notes_value);
 
-    if (!current_title_value.empty() &&
-        (item_title_value != current_title_value || item_notes_value != current_notes_value))
+    std::string item_title_value = mItem->getName();
+    std::string item_notes_value = mItem->getDescription();
+
+    if (item_title_value != current_title_value || item_notes_value != current_notes_value)
     {
         LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(mItem);
         new_item->rename(current_title_value);
@@ -305,28 +320,42 @@ void LLFloaterCreateLandmark::folderCreatedCallback(LLUUID folder_id)
 
 void LLFloaterCreateLandmark::onSaveClicked()
 {
-    if (mItem.isNull())
+    if (mItem.isNull() && !mHasCustomPosition)
     {
         closeFloater();
         return;
     }
 
-
     std::string current_title_value = mLandmarkTitleEditor->getText();
-    std::string item_title_value = mItem->getName();
-    std::string current_notes_value = mNotesEditor->getText();
-    std::string item_notes_value = mItem->getDescription();
-
     LLStringUtil::trim(current_title_value);
+    if (current_title_value.empty())
+    {
+        return;
+    }
+
+    std::string current_notes_value = mNotesEditor->getText();
     LLStringUtil::trim(current_notes_value);
 
     LLUUID folder_id = mFolderCombo->getValue().asUUID();
+
+    if (mItem.isNull() && mHasCustomPosition)
+    {
+        std::string region = mKey["region"];
+        S32 x = mKey["x"].asInteger();
+        S32 y = mKey["y"].asInteger();
+        S32 z = mKey["z"].asInteger();
+        create_inventory_landmark(folder_id, current_title_value, current_notes_value, region, x, y, z);
+        return;
+    }
+
+    std::string item_title_value = mItem->getName();
+    std::string item_notes_value = mItem->getDescription();
     bool change_parent = folder_id != mItem->getParentUUID();
 
     LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(mItem);
 
-    if (!current_title_value.empty() &&
-        (item_title_value != current_title_value || item_notes_value != current_notes_value))
+    if (item_title_value != current_title_value ||
+        item_notes_value != current_notes_value)
     {
         new_item->rename(current_title_value);
         new_item->setDescription(current_notes_value);
@@ -379,7 +408,7 @@ void LLFloaterCreateLandmark::setItem(const uuid_set_t& items)
         ++item_iter)
     {
         const LLUUID& item_id = (*item_iter);
-        if(!highlight_offered_object(item_id))
+        if (!highlight_offered_object(item_id))
         {
             continue;
         }
@@ -389,7 +418,7 @@ void LLFloaterCreateLandmark::setItem(const uuid_set_t& items)
         llassert(item);
         if (item && (LLAssetType::AT_LANDMARK == item->getType()) )
         {
-            if(!getItem())
+            if (!getItem())
             {
                 mItem = item;
                 mAssetID = mItem->getAssetUUID();
@@ -405,6 +434,12 @@ void LLFloaterCreateLandmark::updateItem(const uuid_set_t& items, U32 mask)
 {
     if (!getItem())
     {
+        return;
+    }
+
+    if (mHasCustomPosition)
+    {
+        closeFloater();
         return;
     }
 

@@ -387,6 +387,9 @@ void create_inventory_settings(const LLUUID& agent_id, const LLUUID& session_id,
 
 void create_inventory_callingcard(const LLUUID& avatar_id, const LLUUID& parent = LLUUID::null, LLPointer<LLInventoryCallback> cb=NULL);
 
+void create_inventory_landmark(const LLUUID& folder_id, const std::string& name, const std::string& desc,
+    const std::string& region_name, S32 x, S32 y, S32 z);
+
 /**
  * @brief Securely create a new inventory item by copying from another.
  */

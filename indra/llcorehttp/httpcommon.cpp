@@ -26,6 +26,7 @@
 
 #include "linden_common.h"      // Modifies curl/curl.h interfaces
 #include "httpcommon.h"
+#include "llhttpconstants.h"
 #include "llmutex.h"
 #include "llthread.h"
 #include <curl/curl.h>
@@ -62,7 +63,7 @@ std::string HttpStatus::toHex() const
 
 std::string HttpStatus::toString() const
 {
-    static const char * llcore_errors[] =
+    static const std::vector<std::string> llcore_errors =
         {
             "",
             "HTTP error reply status",
@@ -76,64 +77,57 @@ std::string HttpStatus::toString() const
             "Invalid HTTP status code received from server",
             "Could not allocate required resource"
         };
-    static const int llcore_errors_count(sizeof(llcore_errors) / sizeof(llcore_errors[0]));
 
-    static const struct
-    {
-        type_enum_t     mCode;
-        const char *    mText;
-    }
-    http_errors[] =
+    static const std::map<type_enum_t, std::string> http_errors =
         {
-            // Keep sorted by mCode, we binary search this list.
-            { 100, "Continue" },
-            { 101, "Switching Protocols" },
-            { 200, "OK" },
-            { 201, "Created" },
-            { 202, "Accepted" },
-            { 203, "Non-Authoritative Information" },
-            { 204, "No Content" },
-            { 205, "Reset Content" },
-            { 206, "Partial Content" },
-            { 300, "Multiple Choices" },
-            { 301, "Moved Permanently" },
-            { 302, "Found" },
-            { 303, "See Other" },
-            { 304, "Not Modified" },
-            { 305, "Use Proxy" },
-            { 307, "Temporary Redirect" },
-            { 400, "Bad Request" },
-            { 401, "Unauthorized" },
-            { 402, "Payment Required" },
-            { 403, "Forbidden" },
-            { 404, "Not Found" },
-            { 405, "Method Not Allowed" },
-            { 406, "Not Acceptable" },
-            { 407, "Proxy Authentication Required" },
-            { 408, "Request Time-out" },
-            { 409, "Conflict" },
-            { 410, "Gone" },
-            { 411, "Length Required" },
-            { 412, "Precondition Failed" },
-            { 413, "Request Entity Too Large" },
-            { 414, "Request-URI Too Large" },
-            { 415, "Unsupported Media Type" },
-            { 416, "Requested range not satisfiable" },
-            { 417, "Expectation Failed" },
-            { 499, "Linden Catch-All" },
-            { 500, "Internal Server Error" },
-            { 501, "Not Implemented" },
-            { 502, "Bad Gateway" },
-            { 503, "Service Unavailable" },
-            { 504, "Gateway Time-out" },
-            { 505, "HTTP Version not supported" }
+            { HTTP_CONTINUE,                        "Continue" },
+            { HTTP_SWITCHING_PROTOCOLS,             "Switching Protocols" },
+            { HTTP_OK,                              "OK" },
+            { HTTP_CREATED,                         "Created" },
+            { HTTP_ACCEPTED,                        "Accepted" },
+            { HTTP_NON_AUTHORITATIVE_INFORMATION,   "Non-Authoritative Information" },
+            { HTTP_NO_CONTENT,                      "No Content" },
+            { HTTP_RESET_CONTENT,                   "Reset Content" },
+            { HTTP_PARTIAL_CONTENT,                 "Partial Content" },
+            { HTTP_MULTIPLE_CHOICES,                "Multiple Choices" },
+            { HTTP_MOVED_PERMANENTLY,               "Moved Permanently" },
+            { HTTP_FOUND,                           "Found" },
+            { HTTP_SEE_OTHER,                       "See Other" },
+            { HTTP_NOT_MODIFIED,                    "Not Modified" },
+            { HTTP_USE_PROXY,                       "Use Proxy" },
+            { HTTP_TEMPORARY_REDIRECT,              "Temporary Redirect" },
+            { HTTP_BAD_REQUEST,                     "Bad Request" },
+            { HTTP_UNAUTHORIZED,                    "Unauthorized" },
+            { HTTP_PAYMENT_REQUIRED,                "Payment Required" },
+            { HTTP_FORBIDDEN,                       "Forbidden" },
+            { HTTP_NOT_FOUND,                       "Not Found" },
+            { HTTP_METHOD_NOT_ALLOWED,              "Method Not Allowed" },
+            { HTTP_NOT_ACCEPTABLE,                  "Not Acceptable" },
+            { HTTP_PROXY_AUTHENTICATION_REQUIRED,   "Proxy Authentication Required" },
+            { HTTP_REQUEST_TIME_OUT,                "Request Time-out" },
+            { HTTP_CONFLICT,                        "Conflict" },
+            { HTTP_GONE,                            "Gone" },
+            { HTTP_LENGTH_REQUIRED,                 "Length Required" },
+            { HTTP_PRECONDITION_FAILED,             "Precondition Failed" },
+            { HTTP_REQUEST_ENTITY_TOO_LARGE,        "Request Entity Too Large" },
+            { HTTP_REQUEST_URI_TOO_LARGE,           "Request-URI Too Large" },
+            { HTTP_UNSUPPORTED_MEDIA_TYPE,          "Unsupported Media Type" },
+            { HTTP_REQUESTED_RANGE_NOT_SATISFIABLE, "Requested range not satisfiable" },
+            { HTTP_EXPECTATION_FAILED,              "Expectation Failed" },
+            { 499,                                  "Linden Catch-All" },
+            { HTTP_INTERNAL_SERVER_ERROR,           "Internal Server Error" },
+            { HTTP_NOT_IMPLEMENTED,                 "Not Implemented" },
+            { HTTP_BAD_GATEWAY,                     "Bad Gateway" },
+            { HTTP_SERVICE_UNAVAILABLE,             "Service Unavailable" },
+            { HTTP_GATEWAY_TIME_OUT,                "Gateway Time-out" },
+            { HTTP_VERSION_NOT_SUPPORTED,           "HTTP Version not supported" }
         };
-    static const int http_errors_count(sizeof(http_errors) / sizeof(http_errors[0]));
 
     if (*this)
     {
-        return std::string("");
+        return LLStringUtil::null;
     }
+
     switch (getType())
     {
     case EXT_CURL_EASY:
@@ -143,9 +137,9 @@ std::string HttpStatus::toString() const
         return std::string(curl_multi_strerror(CURLMcode(getStatus())));
 
     case LLCORE:
-        if (getStatus() >= 0 && getStatus() < llcore_errors_count)
+        if (getStatus() >= 0 && std::size_t(getStatus()) < llcore_errors.size())
         {
-            return std::string(llcore_errors[getStatus()]);
+            return llcore_errors[getStatus()];
         }
         break;
 
@@ -156,32 +150,16 @@ std::string HttpStatus::toString() const
             if ((getType() == 499) && (!getMessage().empty()))
                 return getMessage();
 
-            // Binary search for the error code and string
-            int bottom(0), top(http_errors_count);
-            while (true)
+            auto it = http_errors.find(getType());
+            if (it != http_errors.end())
             {
-                int at((bottom + top) / 2);
-                if (getType() == http_errors[at].mCode)
-                {
-                    return std::string(http_errors[at].mText);
-                }
-                if (at == bottom)
-                {
-                    break;
-                }
-                else if (getType() < http_errors[at].mCode)
-                {
-                    top = at;
-                }
-                else
-                {
-                    bottom = at;
-                }
+                return it->second;
             }
         }
         break;
     }
-    return std::string("Unknown error");
+
+    return "Unknown error";
 }
 
 
