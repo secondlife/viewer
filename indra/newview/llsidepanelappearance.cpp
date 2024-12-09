@@ -40,7 +40,6 @@
 #include "llfloaterworldmap.h"
 #include "llfolderviewmodel.h"
 #include "llloadingindicator.h"
-#include "llmenubutton.h"
 #include "lloutfitobserver.h"
 #include "llpaneleditwearable.h"
 #include "llpaneloutfitsinventory.h"
@@ -145,14 +144,6 @@ bool LLSidepanelAppearance::postBuild()
     setVisibleCallback(boost::bind(&LLSidepanelAppearance::onVisibilityChanged,this,_2));
 
     setWearablesLoading(gAgentWearables.isCOFChangeInProgress());
-
-
-    LLMenuButton* menu_gear_btn = getChild<LLMenuButton>("options_gear_btn");
-    LLMenuButton* menu_sort_btn = getChild<LLMenuButton>("sorting_menu_btn");
-    LLButton* menu_trash_btn = getChild<LLButton>("trash_btn");
-    LLPanel* menu_sort_btn_panel = getChild<LLPanel>("options_sort_btn_panel");
-    LLPanel* menu_trash_btn_panel = getChild<LLPanel>("trash_btn_panel");
-    mPanelOutfitsInventory->setMenuButtons(menu_gear_btn, menu_sort_btn, menu_trash_btn, menu_sort_btn_panel, menu_trash_btn_panel);
 
     return true;
 }

@@ -71,7 +71,6 @@ public:
 
     void navigateToFolder(bool new_window = false, bool change_mode = false) override {}
 
-    bool isFavorite() const override { return false; }
     bool isItemWearable() const override { return false; }
 
     bool isItemRenameable() const override { return false; }
@@ -81,7 +80,6 @@ public:
     void move(LLFolderViewModelItem* parent_listener) override {}
 
     bool isItemRemovable(bool check_worn = true) const override { return false; }
-    bool isItemInTrash(void) const override { return false; }
     bool removeItem() override { return false; }
     void removeBatch(std::vector<LLFolderViewModelItem*>& batch) override {}
 
@@ -93,9 +91,6 @@ public:
     bool isClipboardPasteable() const override { return false; }
     void pasteFromClipboard() override {}
     void pasteLinkFromClipboard() override {}
-
-    bool isAgentInventory() const override { return false; }
-    bool isAgentInventoryRoot() const override { return false; }
 
     void buildContextMenu(LLMenuGL& menu, U32 flags) override {};
 

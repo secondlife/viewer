@@ -688,9 +688,7 @@ void LLViewerParcelOverlay::renderPropertyLines()
         return;
 
     LLSurface& land = mRegion->getLand();
-
-    bool render_water = gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_VOIDWATER);
-    F32 water_z = render_water ? land.getWaterHeight() + 0.01f : 0;
+    F32 water_z = land.getWaterHeight() + 0.01f;
 
     LLGLSUIDefault gls_ui; // called from pipeline
     gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);

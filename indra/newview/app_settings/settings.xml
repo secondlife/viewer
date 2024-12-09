@@ -91,7 +91,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <real>300</real>
+      <real>300.0</real>
     </map>
     <key>AckCollectTime</key>
     <map>
@@ -1853,17 +1853,6 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
-    <key>DebugSelectionLODs</key>
-    <map>
-        <key>Comment</key>
-        <string>Force selection to show specific LOD, -1 for off, 0 - lowest, 4 - high.</string>
-        <key>Persist</key>
-        <integer>0</integer>
-        <key>Type</key>
-        <string>S32</string>
-        <key>Value</key>
-        <integer>-1</integer>
-    </map>
   <key>AnimatedObjectsAllowLeftClick</key>
   <map>
     <key>Comment</key>
@@ -14435,32 +14424,10 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>OutfitGallerySortOrder</key>
+    <key>OutfitGallerySortByName</key>
     <map>
       <key>Comment</key>
-      <string>Gallery sorting: 0 - sort outfits by name, 1 - images frst, 2 - favorites first</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>OutfitListSortOrder</key>
-    <map>
-      <key>Comment</key>
-      <string>How outfit list in Avatar's floater is sorted. 0 - by name 1 - favorites to top</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>OutfitListFilterFullList</key>
-    <map>
-      <key>Comment</key>
-      <string> 0 - show only matches. 1 - show all items in outfit as long as outfit or item inside matches.</string>
+      <string>Always sort outfits by name in Outfit Gallery</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -16336,50 +16303,6 @@
     <string>Sets the action for 'Find original' and 'Show in Inventory' (0 - shows item in main Inventory, 1 - opens a new single-folder window)</string>
     <key>Persist</key>
     <integer>1</integer>
-    <key>Type</key>
-    <string>Boolean</string>
-    <key>Value</key>
-    <integer>0</integer>
-  </map>
-  <key>InventoryFavoritesUseStar</key>
-  <map>
-    <key>Comment</key>
-    <string>Show star near favorited items in inventory</string>
-    <key>Persist</key>
-    <integer>0</integer>
-    <key>Type</key>
-    <string>Boolean</string>
-    <key>Value</key>
-    <integer>1</integer>
-  </map>
-  <key>InventoryFavoritesUseHollowStar</key>
-  <map>
-    <key>Comment</key>
-    <string>Show star near folders that contain favorites</string>
-    <key>Persist</key>
-    <integer>0</integer>
-    <key>Type</key>
-    <string>Boolean</string>
-    <key>Value</key>
-    <integer>1</integer>
-  </map>
-  <key>InventoryFavoritesColorText</key>
-  <map>
-    <key>Comment</key>
-    <string>render favorite items using InventoryFavoriteText as color</string>
-    <key>Persist</key>
-    <integer>0</integer>
-    <key>Type</key>
-    <string>Boolean</string>
-    <key>Value</key>
-    <integer>1</integer>
-  </map>
-  <key>InventoryAddAttachmentBehavior</key>
-  <map>
-    <key>Comment</key>
-    <string>Defines behavior when hitting return on an inventory item</string>
-    <key>Persist</key>
-    <integer>0</integer>
     <key>Type</key>
     <string>Boolean</string>
     <key>Value</key>

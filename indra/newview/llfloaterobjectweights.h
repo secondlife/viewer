@@ -58,24 +58,21 @@ public:
     LLFloaterObjectWeights(const LLSD& key);
     ~LLFloaterObjectWeights();
 
-    bool postBuild() override;
+    /*virtual*/ bool postBuild();
 
-    void onOpen(const LLSD& key) override;
+    /*virtual*/ void onOpen(const LLSD& key);
 
-    void onWeightsUpdate(const SelectionCost& selection_cost) override;
-    void setErrorStatus(S32 status, const std::string& reason) override;
-
-    void draw() override;
+    /*virtual*/ void onWeightsUpdate(const SelectionCost& selection_cost);
+    /*virtual*/ void setErrorStatus(S32 status, const std::string& reason);
 
     void updateLandImpacts(const LLParcel* parcel);
-    void refresh() override;
+    void refresh();
 
 private:
-    void generateTransactionID() override;
+    /*virtual*/ void generateTransactionID();
 
     void toggleWeightsLoadingIndicators(bool visible);
     void toggleLandImpactsLoadingIndicators(bool visible);
-    void toggleRenderLoadingIndicators(bool visible);
 
     void updateIfNothingSelected();
 
@@ -91,10 +88,6 @@ private:
     LLTextBox       *mRezzedOnLand;
     LLTextBox       *mRemainingCapacity;
     LLTextBox       *mTotalCapacity;
-
-    LLTextBox       *mLodLevel;
-    LLTextBox       *mTrianglesShown;
-    LLTextBox       *mPixelArea;
 };
 
 #endif //LL_LLFLOATEROBJECTWEIGHTS_H

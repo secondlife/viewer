@@ -478,19 +478,13 @@ const bool check_file_extension(const std::string& filename, LLFilePicker::ELoad
     return true;
 }
 
-void upload_single_file(
-    const std::vector<std::string>& filenames,
-    LLFilePicker::ELoadFilter type,
-    const LLUUID& dest)
+const void upload_single_file(const std::vector<std::string>& filenames, LLFilePicker::ELoadFilter type)
 {
     std::string filename = filenames[0];
     if (!check_file_extension(filename, type)) return;
 
     if (!filename.empty())
     {
-        LLSD args;
-        args["filename"] = filename;
-        args["dest"] = dest;
         if (type == LLFilePicker::FFLOAD_WAV)
         {
             // pre-qualify wavs to make sure the format is acceptable
@@ -505,12 +499,12 @@ void upload_single_file(
             }
             else
             {
-                LLFloaterReg::showInstance("upload_sound", args);
+                LLFloaterReg::showInstance("upload_sound", LLSD(filename));
             }
         }
         if (type == LLFilePicker::FFLOAD_IMAGE)
         {
-            LLFloaterReg::showInstance("upload_image", args);
+            LLFloaterReg::showInstance("upload_image", LLSD(filename));
         }
         if (type == LLFilePicker::FFLOAD_ANIM)
         {
@@ -518,18 +512,18 @@ void upload_single_file(
             LLStringUtil::toLower(filename_lc);
             if (filename_lc.rfind(".anim") != std::string::npos)
             {
-                LLFloaterReg::showInstance("upload_anim_anim", args);
+                LLFloaterReg::showInstance("upload_anim_anim", LLSD(filename));
             }
             else
             {
-                LLFloaterReg::showInstance("upload_anim_bvh", args);
+                LLFloaterReg::showInstance("upload_anim_bvh", LLSD(filename));
             }
         }
     }
     return;
 }
 
-void do_bulk_upload(std::vector<std::string> filenames, bool allow_2k, const LLUUID& dest)
+void do_bulk_upload(std::vector<std::string> filenames, bool allow_2k)
 {
     for (std::vector<std::string>::const_iterator in_iter = filenames.begin(); in_iter != filenames.end(); ++in_iter)
     {
@@ -576,8 +570,7 @@ void do_bulk_upload(std::vector<std::string> filenames, bool allow_2k, const LLU
                     LLFloaterPerms::getNextOwnerPerms("Uploads"),
                     LLFloaterPerms::getGroupPerms("Uploads"),
                     LLFloaterPerms::getEveryonePerms("Uploads"),
-                    expected_upload_cost,
-                    dest);
+                    expected_upload_cost);
 
                 if (!allow_2k)
                 {
@@ -602,14 +595,14 @@ void do_bulk_upload(std::vector<std::string> filenames, bool allow_2k, const LLU
                     // Todo:
                     // 1. Decouple bulk upload from material editor
                     // 2. Take into account possiblity of identical textures
-                    LLMaterialEditor::uploadMaterialFromModel(filename, model, i, dest);
+                    LLMaterialEditor::uploadMaterialFromModel(filename, model, i);
                 }
             }
         }
     }
 }
 
-void do_bulk_upload(std::vector<std::string> filenames, bool allow_2k, const LLSD& notification, const LLSD& response, const LLUUID& dest)
+void do_bulk_upload(std::vector<std::string> filenames, bool allow_2k, const LLSD& notification, const LLSD& response)
 {
     S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
     if (option != 0)
@@ -618,7 +611,7 @@ void do_bulk_upload(std::vector<std::string> filenames, bool allow_2k, const LLS
         return;
     }
 
-    do_bulk_upload(filenames, allow_2k, dest);
+    do_bulk_upload(filenames, allow_2k);
 }
 
 bool get_bulk_upload_expected_cost(
@@ -716,7 +709,7 @@ bool get_bulk_upload_expected_cost(
     return file_count > 0;
 }
 
-const void upload_bulk(const std::vector<std::string>& filtered_filenames, bool allow_2k, const LLUUID& dest)
+const void upload_bulk(const std::vector<std::string>& filtered_filenames, bool allow_2k)
 {
     S32 expected_upload_cost;
     S32 expected_upload_count;
@@ -728,7 +721,6 @@ const void upload_bulk(const std::vector<std::string>& filtered_filenames, bool 
         key["upload_cost"] = expected_upload_cost;
         key["upload_count"] = expected_upload_count;
         key["has_2k_textures"] = (textures_2k_count > 0);
-        key["dest"] = dest;
 
         LLSD array;
         for (const std::string& str : filtered_filenames)
@@ -762,7 +754,7 @@ const void upload_bulk(const std::vector<std::string>& filtered_filenames, bool 
 
 }
 
-void upload_bulk(const std::vector<std::string>& filenames, LLFilePicker::ELoadFilter type, bool allow_2k, const LLUUID& dest)
+const void upload_bulk(const std::vector<std::string>& filenames, LLFilePicker::ELoadFilter type, bool allow_2k)
 {
     // TODO:
     // Check user balance for entire cost
@@ -784,7 +776,7 @@ void upload_bulk(const std::vector<std::string>& filenames, LLFilePicker::ELoadF
             filtered_filenames.push_back(filename);
         }
     }
-    upload_bulk(filtered_filenames, allow_2k, dest);
+    upload_bulk(filtered_filenames, allow_2k);
 }
 
 class LLFileUploadImage : public view_listener_t
@@ -795,7 +787,7 @@ class LLFileUploadImage : public view_listener_t
         {
             gAgentCamera.changeCameraToDefault();
         }
-        LLFilePickerReplyThread::startPicker(boost::bind(&upload_single_file, _1, _2, LLUUID::null), LLFilePicker::FFLOAD_IMAGE, false);
+        LLFilePickerReplyThread::startPicker(boost::bind(&upload_single_file, _1, _2), LLFilePicker::FFLOAD_IMAGE, false);
         return true;
     }
 };
@@ -826,7 +818,7 @@ class LLFileUploadSound : public view_listener_t
         {
             gAgentCamera.changeCameraToDefault();
         }
-        LLFilePickerReplyThread::startPicker(boost::bind(&upload_single_file, _1, _2, LLUUID::null), LLFilePicker::FFLOAD_WAV, false);
+        LLFilePickerReplyThread::startPicker(boost::bind(&upload_single_file, _1, _2), LLFilePicker::FFLOAD_WAV, false);
         return true;
     }
 };
@@ -839,7 +831,7 @@ class LLFileUploadAnim : public view_listener_t
         {
             gAgentCamera.changeCameraToDefault();
         }
-        LLFilePickerReplyThread::startPicker(boost::bind(&upload_single_file, _1, _2, LLUUID::null), LLFilePicker::FFLOAD_ANIM, false);
+        LLFilePickerReplyThread::startPicker(boost::bind(&upload_single_file, _1, _2), LLFilePicker::FFLOAD_ANIM, false);
         return true;
     }
 };
@@ -852,9 +844,7 @@ class LLFileUploadBulk : public view_listener_t
         {
             gAgentCamera.changeCameraToDefault();
         }
-
-        LLFilePickerReplyThread::startPicker(boost::bind(&upload_bulk, _1, _2, true, LLUUID::null), LLFilePicker::FFLOAD_ALL, true);
-
+        LLFilePickerReplyThread::startPicker(boost::bind(&upload_bulk, _1, _2, true), LLFilePicker::FFLOAD_ALL, true);
         return true;
     }
 };
@@ -1148,7 +1138,7 @@ LLUUID upload_new_resource(
         name, desc, compression_info,
         destination_folder_type, inv_type,
         next_owner_perms, group_perms, everyone_perms,
-        expected_upload_cost, LLUUID::null, show_inventory));
+        expected_upload_cost, show_inventory));
     upload_new_resource(uploadInfo, callback, userdata);
 
     return LLUUID::null;

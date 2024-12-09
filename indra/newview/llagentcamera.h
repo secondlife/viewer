@@ -112,7 +112,6 @@ private:
     //--------------------------------------------------------------------
 public:
     void switchCameraPreset(ECameraPreset preset);
-    ECameraPreset getCameraPreset() const { return mCameraPreset; }
     /** Determines default camera offset depending on the current camera preset */
     LLVector3 getCameraOffsetInitial();
     /** Determines default focus offset depending on the current camera preset */
@@ -139,14 +138,13 @@ private:
     //--------------------------------------------------------------------
 public:
     LLVector3d      getCameraPositionGlobal() const;
-    const LLVector3& getCameraPositionAgent() const;
+    const LLVector3 &getCameraPositionAgent() const;
     LLVector3d      calcCameraPositionTargetGlobal(bool *hit_limit = NULL); // Calculate the camera position target
     F32             getCameraMinOffGround();        // Minimum height off ground for this mode, meters
     void            setCameraCollidePlane(const LLVector4 &plane) { mCameraCollidePlane = plane; }
     bool            calcCameraMinDistance(F32 &obj_min_distance);
-    F32             getCurrentCameraBuildOffset() const { return (F32)mCameraFocusOffset.length(); }
+    F32             getCurrentCameraBuildOffset()   { return (F32)mCameraFocusOffset.length(); }
     void            clearCameraLag() { mCameraLag.clearVec(); }
-    const LLVector3& getCameraUpVector() const { return mCameraUpVector; }
 private:
     LLVector3       getAvatarRootPosition();
 
@@ -156,6 +154,7 @@ private:
     F32             mCameraCurrentFOVZoomFactor;    // Interpolated fov zoom
     LLVector4       mCameraCollidePlane;            // Colliding plane for camera
     F32             mCameraZoomFraction;            // Mousewheel driven fraction of zoom
+    LLVector3       mCameraPositionAgent;           // Camera position in agent coordinates
     LLVector3       mCameraVirtualPositionAgent;    // Camera virtual position (target) before performing FOV zoom
     LLVector3d      mCameraSmoothingLastPositionGlobal;
     LLVector3d      mCameraSmoothingLastPositionAgent;
@@ -279,7 +278,7 @@ public:
     F32             getAgentHUDTargetZoom();
 
     void            resetCameraZoomFraction();
-    F32             getCurrentCameraZoomFraction() const { return mCameraZoomFraction; }
+    F32             getCurrentCameraZoomFraction() { return mCameraZoomFraction; }
 
     //--------------------------------------------------------------------
     // Pan

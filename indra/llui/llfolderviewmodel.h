@@ -162,7 +162,6 @@ public:
 
     virtual void navigateToFolder(bool new_window = false, bool change_mode = false) = 0;
 
-    virtual bool isFavorite() const = 0;
     virtual bool isItemWearable() const { return false; }
 
     virtual bool isItemRenameable() const = 0;
@@ -172,7 +171,6 @@ public:
     virtual void move( LLFolderViewModelItem* parent_listener ) = 0;
 
     virtual bool isItemRemovable( bool check_worn = true ) const = 0;       // Can be destroyed
-    virtual bool isItemInTrash(void) const = 0;
     virtual bool removeItem() = 0;
     virtual void removeBatch(std::vector<LLFolderViewModelItem*>& batch) = 0;
 
@@ -184,9 +182,6 @@ public:
     virtual bool isClipboardPasteable() const = 0;
     virtual void pasteFromClipboard() = 0;
     virtual void pasteLinkFromClipboard() = 0;
-
-    virtual bool isAgentInventory() const = 0;
-    virtual bool isAgentInventoryRoot() const = 0;
 
     virtual void buildContextMenu(LLMenuGL& menu, U32 flags) = 0;
 

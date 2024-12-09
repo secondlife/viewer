@@ -31,12 +31,11 @@
 #include "llfolderviewitem.h"
 #include "llfolderview.h"
 #include "llfolderviewmodel.h"
+#include "llpanel.h"
 #include "llcallbacklist.h"
 #include "llcriticaldamp.h"
 #include "llclipboard.h"
 #include "llfocusmgr.h"     // gFocusMgr
-#include "llnotificationsutil.h"
-#include "llpanel.h"
 #include "lltrans.h"
 #include "llwindow.h"
 
@@ -58,12 +57,9 @@ LLUIColor LLFolderViewItem::sFilterBGColor;
 LLUIColor LLFolderViewItem::sFilterTextColor;
 LLUIColor LLFolderViewItem::sSuffixColor;
 LLUIColor LLFolderViewItem::sSearchStatusColor;
-LLUIColor LLFolderViewItem::sFavoriteColor;
 S32 LLFolderViewItem::sTopPad = 0;
 LLUIImagePtr LLFolderViewItem::sFolderArrowImg;
 LLUIImagePtr LLFolderViewItem::sSelectionImg;
-LLUIImagePtr LLFolderViewItem::sFavoriteImg;
-LLUIImagePtr LLFolderViewItem::sFavoriteContentImg;
 LLFontGL* LLFolderViewItem::sSuffixFont = nullptr;
 
 // only integers can be initialized in header
@@ -106,8 +102,6 @@ void LLFolderViewItem::initClass()
     sTopPad = default_params.item_top_pad;
     sFolderArrowImg = default_params.folder_arrow_image;
     sSelectionImg = default_params.selection_image;
-    sFavoriteImg = default_params.favorite_image;
-    sFavoriteContentImg = default_params.favorite_content_image;
     sSuffixFont = getLabelFontForStyle(LLFontGL::NORMAL);
 
     sFgColor = LLUIColorTable::instance().getColor("MenuItemEnabledColor", DEFAULT_WHITE);
@@ -119,7 +113,6 @@ void LLFolderViewItem::initClass()
     sFilterTextColor = LLUIColorTable::instance().getColor("FilterTextColor", DEFAULT_WHITE);
     sSuffixColor = LLUIColorTable::instance().getColor("InventoryItemLinkColor", DEFAULT_WHITE);
     sSearchStatusColor = LLUIColorTable::instance().getColor("InventorySearchStatusColor", DEFAULT_WHITE);
-    sFavoriteColor = LLUIColorTable::instance().getColor("InventoryFavoriteColor", DEFAULT_WHITE);
 }
 
 //static
@@ -128,8 +121,6 @@ void LLFolderViewItem::cleanupClass()
     sFonts.clear();
     sFolderArrowImg = nullptr;
     sSelectionImg = nullptr;
-    sFavoriteImg = nullptr;
-    sFavoriteContentImg = nullptr;
     sSuffixFont = nullptr;
 }
 
@@ -138,15 +129,13 @@ void LLFolderViewItem::cleanupClass()
 LLFolderViewItem::Params::Params()
 :   root(),
     listener(),
-    favorite_image("favorite_image"),
-    favorite_content_image("favorite_content_image"),
     folder_arrow_image("folder_arrow_image"),
     folder_indentation("folder_indentation"),
     selection_image("selection_image"),
     item_height("item_height"),
     item_top_pad("item_top_pad"),
     creation_date(),
-    marketplace_item("marketplace_item", false),
+    allow_wear("allow_wear", true),
     allow_drop("allow_drop", true),
     font_color("font_color"),
     font_highlight_color("font_highlight_color"),
@@ -166,8 +155,6 @@ LLFolderViewItem::LLFolderViewItem(const LLFolderViewItem::Params& p)
 :   LLView(p),
     mLabelWidth(0),
     mLabelWidthDirty(false),
-    mIsFavorite(false),
-    mHasFavorites(false),
     mSuffixNeedsRefresh(false),
     mLabelPaddingRight(DEFAULT_LABEL_PADDING_RIGHT),
     mParentFolder( NULL ),
@@ -188,7 +175,7 @@ LLFolderViewItem::LLFolderViewItem(const LLFolderViewItem::Params& p)
     mRoot(p.root),
     mViewModelItem(p.listener),
     mIsMouseOverTitle(false),
-    mMarketplaceItem(p.marketplace_item),
+    mAllowWear(p.allow_wear),
     mAllowDrop(p.allow_drop),
     mFontColor(p.font_color),
     mFontHighlightColor(p.font_highlight_color),
@@ -224,7 +211,6 @@ bool LLFolderViewItem::postBuild()
         // getDisplayName() is expensive (due to internal getLabelSuffix() and name building)
         // it also sets search strings so it requires a filter reset
         mLabel = utf8str_to_wstring(vmi->getDisplayName());
-        mIsFavorite = vmi->isFavorite() && !vmi->isItemInTrash();
         setToolTip(vmi->getName());
 
         // Dirty the filter flag of the model from the view (CHUI-849)
@@ -339,7 +325,6 @@ void LLFolderViewItem::refresh()
 
     mLabel = utf8str_to_wstring(vmi.getDisplayName());
     mLabelFontBuffer.reset();
-    mIsFavorite = vmi.isFavorite() && !vmi.isItemInTrash();
     setToolTip(vmi.getName());
     // icons are slightly expensive to get, can be optimized
     // see LLInventoryIcon::getIcon()
@@ -373,8 +358,6 @@ void LLFolderViewItem::refreshSuffix()
     mIcon = vmi->getIcon();
     mIconOpen = vmi->getIconOpen();
     mIconOverlay = vmi->getIconOverlay();
-
-    mIsFavorite = vmi->isFavorite() && !vmi->isItemInTrash();
 
     if (mRoot->useLabelSuffix())
     {
@@ -571,14 +554,9 @@ void LLFolderViewItem::buildContextMenu(LLMenuGL& menu, U32 flags)
 
 void LLFolderViewItem::openItem( void )
 {
-    if (!mMarketplaceItem || !getViewModelItem()->isItemWearable())
+    if (mAllowWear || !getViewModelItem()->isItemWearable())
     {
         getViewModelItem()->openItem();
-    }
-    else if (mMarketplaceItem)
-    {
-        // Wearing an object from any listing, active or not, is verbotten
-        LLNotificationsUtil::add("AlertMerchantListingCannotWear");
     }
 }
 
@@ -793,32 +771,6 @@ void LLFolderViewItem::drawOpenFolderArrow()
     }
 }
 
-void LLFolderViewItem::drawFavoriteIcon()
-{
-    static LLUICachedControl<bool> draw_star("InventoryFavoritesUseStar", true);
-    static LLUICachedControl<bool> draw_hollow_star("InventoryFavoritesUseHollowStar", true);
-
-    LLUIImage* favorite_image = nullptr;
-    if (draw_star && mIsFavorite)
-    {
-        favorite_image = sFavoriteImg;
-    }
-    else if (draw_hollow_star && mHasFavorites && !isOpen())
-    {
-        favorite_image = sFavoriteContentImg;
-    }
-
-    if (favorite_image)
-    {
-        constexpr S32 PAD = 3;
-        constexpr S32 image_size = 14;
-
-        gl_draw_scaled_image(
-            getRect().getWidth() - image_size - PAD, getRect().getHeight() - mItemHeight + PAD,
-            image_size, image_size, favorite_image->getImage(), sFgColor);
-    }
-}
-
 /*virtual*/ bool LLFolderViewItem::isHighlightAllowed()
 {
     return mIsSelected;
@@ -976,7 +928,6 @@ void LLFolderViewItem::draw()
     {
         drawOpenFolderArrow();
     }
-    drawFavoriteIcon();
 
     drawHighlight(show_context, filled, sHighlightBgColor, sFlashBgColor, sFocusOutlineColor, sMouseOverColor);
 
@@ -1048,20 +999,7 @@ void LLFolderViewItem::draw()
         }
     }
 
-    static LLUICachedControl<bool> highlight_color("InventoryFavoritesColorText", true);
-    LLColor4 color;
-    if (mIsSelected && filled)
-    {
-        color = mFontHighlightColor;
-    }
-    else if (mIsFavorite && highlight_color)
-    {
-        color = sFavoriteColor;
-    }
-    else
-    {
-        color = mFontColor;
-    }
+    LLColor4 color = (mIsSelected && filled) ? mFontHighlightColor : mFontColor;
 
     if (isFadeItem())
     {
@@ -1155,8 +1093,7 @@ LLFolderViewFolder::LLFolderViewFolder( const LLFolderViewItem::Params& p ):
     mIsFolderComplete(false), // folder might have children that are not loaded yet.
     mAreChildrenInited(false), // folder might have children that are not built yet.
     mLastArrangeGeneration( -1 ),
-    mLastCalculatedWidth(0),
-    mFavoritesDirtyFlags(0)
+    mLastCalculatedWidth(0)
 {
 }
 
@@ -1182,11 +1119,6 @@ LLFolderViewFolder::~LLFolderViewFolder( void )
     // The LLView base class takes care of object destruction. make sure that we
     // don't have mouse or keyboard focus
     gFocusMgr.releaseFocusIfNeeded( this ); // calls onCommit()
-
-    if (mFavoritesDirtyFlags)
-    {
-        gIdleCallbacks.deleteFunction(&LLFolderViewFolder::onIdleUpdateFavorites, this);
-    }
 }
 
 // addToFolder() returns true if it succeeds. false otherwise
@@ -1828,128 +1760,6 @@ bool LLFolderViewFolder::isMovable()
             }
         }
     return true;
-}
-
-void LLFolderViewFolder::updateHasFavorites(bool new_childs_value)
-{
-    if (mFavoritesDirtyFlags == 0)
-    {
-        gIdleCallbacks.addFunction(&LLFolderViewFolder::onIdleUpdateFavorites, this);
-    }
-    if (new_childs_value)
-    {
-        mFavoritesDirtyFlags |= FAVORITE_ADDED;
-    }
-    else
-    {
-        mFavoritesDirtyFlags |= FAVORITE_REMOVED;
-    }
-}
-
-void LLFolderViewFolder::onIdleUpdateFavorites(void* data)
-{
-    LLFolderViewFolder* self = reinterpret_cast<LLFolderViewFolder*>(data);
-    if (self->mFavoritesDirtyFlags == 0)
-    {
-        LL_WARNS() << "Called onIdleUpdateFavorites without dirty flags set" << LL_ENDL;
-        gIdleCallbacks.deleteFunction(&LLFolderViewFolder::onIdleUpdateFavorites, self);
-        return;
-    }
-
-    if (self->getViewModelItem()->isItemInTrash())
-    {
-        // do not display favorite-stars in trash
-        self->mFavoritesDirtyFlags = 0;
-        gIdleCallbacks.deleteFunction(&LLFolderViewFolder::onIdleUpdateFavorites, self);
-        return;
-    }
-
-    if (self->mFavoritesDirtyFlags == FAVORITE_ADDED)
-    {
-        if (!self->mHasFavorites)
-        {
-            // propagate up, exclude root
-            LLFolderViewFolder* parent = self;
-            while (parent
-                && (!parent->hasFavorites() || parent->mFavoritesDirtyFlags)
-                && !parent->getViewModelItem()->isAgentInventoryRoot())
-            {
-                parent->setHasFavorites(true);
-                if (parent->mFavoritesDirtyFlags)
-                {
-                    gIdleCallbacks.deleteFunction(&LLFolderViewFolder::onIdleUpdateFavorites, parent);
-                    parent->mFavoritesDirtyFlags = 0;
-                }
-                parent = parent->getParentFolder();
-            }
-        }
-    }
-    else if (self->mFavoritesDirtyFlags > FAVORITE_ADDED)
-    {
-        // full check
-        LLFolderViewFolder* parent = self;
-        while (parent && !parent->getViewModelItem()->isAgentInventoryRoot())
-        {
-            bool has_favorites = false;
-            for (items_t::iterator iter = parent->mItems.begin();
-                iter != parent->mItems.end();)
-            {
-                items_t::iterator iit = iter++;
-                if ((*iit)->isFavorite())
-                {
-                    has_favorites = true;
-                    break;
-                }
-            }
-
-            for (folders_t::iterator iter = parent->mFolders.begin();
-                iter != parent->mFolders.end() && !has_favorites;)
-            {
-                folders_t::iterator fit = iter++;
-                if ((*fit)->isFavorite() || (*fit)->hasFavorites())
-                {
-                    has_favorites = true;
-                    break;
-                }
-            }
-
-            if (!has_favorites)
-            {
-                if (parent->hasFavorites())
-                {
-                    parent->setHasFavorites(false);
-                }
-                else
-                {
-                    // Nothing changed
-                    break;
-                }
-            }
-            else
-            {
-                // propagate up, exclude root
-                while (parent
-                    && (!parent->hasFavorites() || parent->mFavoritesDirtyFlags)
-                    && !parent->getViewModelItem()->isAgentInventoryRoot())
-                {
-                    parent->setHasFavorites(true);
-                    if (parent->mFavoritesDirtyFlags)
-                    {
-                        gIdleCallbacks.deleteFunction(&LLFolderViewFolder::onIdleUpdateFavorites, parent);
-                        parent->mFavoritesDirtyFlags = 0;
-                    }
-                    parent = parent->getParentFolder();
-                }
-                break;
-            }
-            if (parent->mFavoritesDirtyFlags)
-            {
-                parent->mFavoritesDirtyFlags = 0;
-                gIdleCallbacks.deleteFunction(&LLFolderViewFolder::onIdleUpdateFavorites, parent);
-            }
-            parent = parent->getParentFolder();
-        }
-    }
 }
 
 

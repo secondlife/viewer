@@ -969,7 +969,7 @@ void LLInventoryCallbackManager::fire(U32 callback_id, const LLUUID& item_id)
     }
 }
 
-void rez_attachment_cb(const LLUUID& inv_item, LLViewerJointAttachment *attachmentp, bool replace)
+void rez_attachment_cb(const LLUUID& inv_item, LLViewerJointAttachment *attachmentp)
 {
     if (inv_item.isNull())
         return;
@@ -977,7 +977,7 @@ void rez_attachment_cb(const LLUUID& inv_item, LLViewerJointAttachment *attachme
     LLViewerInventoryItem *item = gInventory.getItem(inv_item);
     if (item)
     {
-        rez_attachment(item, attachmentp, replace);
+        rez_attachment(item, attachmentp);
     }
 }
 
@@ -1496,8 +1496,7 @@ void update_inventory_category(
     if(obj)
     {
         if (LLFolderType::lookupIsProtectedType(obj->getPreferredType())
-            && (updates.size() != 1
-                || !(updates.has("thumbnail") || updates.has("favorite"))))
+            && (updates.size() != 1 || !updates.has("thumbnail")))
         {
             LLNotificationsUtil::add("CannotModifyProtectedCategories");
             return;
