@@ -22,6 +22,11 @@ function LLAgent.getGlobalPosition()
     return leap.request('LLAgent', {op = 'getPosition'}).global
 end
 
+-- Euler angle (in radians), converted from rotation
+function LLAgent.getYaw()
+    return leap.request('LLAgent', {op = 'getPosition'}).euler.yaw
+end
+
 -- Return array information about the agent's groups
 -- id: group id\n"
 -- name: group name\n"
