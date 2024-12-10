@@ -2811,7 +2811,7 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         gDeferredStarProgram.mShaderGroup = LLGLSLShader::SG_SKY;
         gDeferredStarProgram.addConstant( LLGLSLShader::SHADER_CONST_STAR_DEPTH ); // SL-14113
 
-        add_common_permutations(&gDeferredWLSkyProgram);
+        add_common_permutations(&gDeferredStarProgram);
 
         success = gDeferredStarProgram.createShader();
         llassert(success);
