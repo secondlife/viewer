@@ -69,6 +69,22 @@ function util.callok(ok, err, ...)
     return err, ...
 end
 
+-- internal to util.class(), see usage below
+local function wrapnew(ctor)
+    -- Per https://www.lua.org/pil/16.1.html, ensure that a class constructor
+    -- function returns an object with the class table set as the new object's
+    -- metatable.
+    return function(self, ...)
+        -- Both new() and __call() expect initial 'self' argument, which in a
+        -- MyClass:new(...) or MyClass(...) call is the class table. It's
+        -- important to bind that 'self' parameter as the metatable for this
+        -- class, not the current class table. If a subclass inherits its
+        -- base-class constructor, calling the constructor on the subclass
+        -- should bind the subclass as the metatable, not the base class.
+        return setmetatable(ctor(self, ...), self)
+    end
+end
+
 -- Define a "class" table.
 -- Pass the class name, the class constructor (a function accepting whatever
 -- arguments are appropriate) and any additional class attributes, e.g.
@@ -161,22 +177,6 @@ function util.class(classname, new)
     -- itself, seek it in the class.
     args.__index = args
     return args
-end
-
--- internal to util.class(), see usage above
-local function wrapnew(ctor)
-    -- Per https://www.lua.org/pil/16.1.html, ensure that a class constructor
-    -- function returns an object with the class table set as the new object's
-    -- metatable.
-    return function(self, ...)
-        -- Both new() and __call() expect initial 'self' argument, which in a
-        -- MyClass:new(...) or MyClass(...) call is the class table. It's
-        -- important to bind that 'self' parameter as the metatable for this
-        -- class, not the current class table. If a subclass inherits its
-        -- base-class constructor, calling the constructor on the subclass
-        -- should bind the subclass as the metatable, not the base class.
-        return setmetatable(ctor(self, ...), self)
-    end
 end
 
 -- Allow MyClass(ctor args...) equivalent to MyClass:new(ctor args...)
