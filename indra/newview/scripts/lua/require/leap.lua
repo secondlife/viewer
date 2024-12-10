@@ -28,15 +28,15 @@
 --    requests, instantiate a leap.WaitFor object with a filter(pump, data)
 --    override method that returns non-nil for desired events. A coroutine may
 --    call wait() on any such WaitFor.
--- 3. Once the coroutines have been launched, call leap.process() on the main
---    coroutine. process() retrieves incoming events from the viewer and
+-- 3. Once the coroutines have been launched, call fiber.run() on the main
+--    coroutine. run() retrieves incoming events from the viewer and
 --    dispatches them to waiting request() or generate() calls, or to
---    appropriate WaitFor instances. process() returns when either
+--    appropriate WaitFor instances. run() returns when either
 --    get_event_next() raises an error or the viewer posts nil to the script's
 --    reply pump to indicate it's done.
 -- 4. Alternatively, a running coroutine may call leap.done() to break out of
---    leap.process(). process() won't notice until the next event from the
---    viewer, though.
+--    fiber.run(). run() won't notice until the next event from the viewer,
+--    though.
 
 local fiber = require('fiber')
 local ErrorQueue = require('ErrorQueue')
@@ -90,7 +90,7 @@ local waitfors = setmetatable({}, weak_values)
 -- ["reqid"] values is our very own reply pump, we can get away with
 -- an integer.
 leap._reqid = 0
--- break leap.process() loop
+-- break fiber.run() loop (by signaling our fiber.set_idle() callback)
 leap._done = false
 
 -- get the name of the reply pump
@@ -298,6 +298,32 @@ local function cleanup(message)
     end
 end
 
+-- consumeWaitFor() simply waits for events on the passed WaitFor instance,
+-- calling the specified handler with each, until the handler returns non-nil.
+-- At that point, consumeWaitFor() cleans up the WaitFor instance and returns
+-- the handler's return value to its caller.
+-- If the WaitFor is closed (wait() returns nil) while consumeWaitFor() is
+-- waiting, it returns nil instead. That's how the caller can distinguish.
+-- Any error thrown by the handler is propagated to the caller.
+function leap.consumeWaitFor(waitfor, handler)
+    -- Per https://stackoverflow.com/q/78164134, it doesn't work to use Luau's
+    -- generic 'for' loop over a coroutine suspension. Have to code two
+    -- different calls.
+    local ok, ret
+--    print(`leap.consumeWaitFor({waitfor}, handler) waiting for first event`)
+    local event = waitfor:wait()
+    while event do
+        ok, ret = pcall(handler, event)
+        if (not ok) or ret ~= nil then
+            break
+        end
+--        print(`leap.consumeWaitFor({waitfor}, handler) waiting for next event`)
+        event = waitfor:wait()
+    end
+    waitfor:close()
+    return util.callok(ok, ret)
+end
+
 -- Handle an incoming (pump, data) event with no recognizable ['reqid']
 local function unsolicited(pump, data)
     -- we maintain waitfors in descending priority order, so the first waitfor
@@ -415,35 +441,34 @@ end
 -- straightforward to designate one coroutine for each WaitFor object.
 
 -- --------------------------------- WaitFor ---------------------------------
-leap.WaitFor = { _id=0 }
+leap.WaitFor = util.class{
+    'WaitFor',
+    function(self, priority, name)
+        local obj = {priority=priority}
+        -- because we want to call a class method on this new object, we must
+        -- explicitly set its metatable __index
+        setmetatable(obj, {__index=self})
+        if name then
+            obj.name = name
+        else
+            self._id += 1
+            obj.name = self.classname .. self._id
+        end
+        obj._queue = ErrorQueue()
+        obj._registered = false
+        -- if no priority, then don't enable() - remember 0 is truthy
+        if priority then
+            obj:enable()
+        end
 
-function leap.WaitFor.tostring(self)
-    -- Lua (sub)classes have no name; can't prefix with that
-    return self.name
-end
-
-function leap.WaitFor:new(priority, name)
-    local obj = setmetatable({__tostring=leap.WaitFor.tostring}, self)
-    self.__index = self
-
-    obj.priority = priority
-    if name then
-        obj.name = name
-    else
-        self._id += 1
-        obj.name = 'WaitFor' .. self._id
-    end
-    obj._queue = ErrorQueue()
-    obj._registered = false
-    -- if no priority, then don't enable() - remember 0 is truthy
-    if priority then
-        obj:enable()
-    end
-
-    return obj
-end
-
-util.classctor(leap.WaitFor)
+--      print(`New {obj}: {inspect(obj)}`)
+        return obj
+    end,
+    -- class attribute distinguishes otherwise anonymous instances
+    _id=0,
+    __tostring=function(self)
+        return `{self.classname}({self.name})`
+    end}
 
 -- Re-enable a disable()d WaitFor object. New WaitFor objects are
 -- enable()d by default.
@@ -510,29 +535,57 @@ function leap.WaitFor:close()
     self._queue:close()
 end
 
--- called by leap.process() when get_event_next() raises an error
+-- called by our fiber.set_idle() callback when get_event_next() raises an error
 function leap.WaitFor:exception(message)
     LL.print_warning(self.name .. ' error: ' .. message)
     self._queue:Error(message)
 end
 
+-- ------------------------------- WaitForPump -------------------------------
+-- WaitForPump(pumpname) simply delivers every event received on the specified
+-- pumpname.
+-- WaitForPump(pumpname, priority) sorts it into the WaitFor list at the
+-- specified priority.
+leap.WaitForPump = util.class{
+    base = leap.WaitFor,
+    classname = 'WaitForPump',
+    new = function(self, pump, priority)
+        local obj = leap.WaitFor(priority or -1, pump)
+--      print(`New {obj}: {inspect(obj)}`)
+        return obj
+    end,
+    filter=function(self, pump, data)
+--      print(`{self}:filter({pump}, {inspect(data)})`)
+        if pump == self.name then
+            return data
+        end
+    end
+}
+
 -- ------------------------------ WaitForReqid -------------------------------
-leap.WaitForReqid = leap.WaitFor()
+leap.WaitForReqid = util.class{
+    base = leap.WaitFor,
+    classname = 'WaitForReqid',
+    new = function(self, reqid)
+        -- priority is meaningless, since this object won't be added to the
+        -- priority-sorted waitfors list. Use the reqid as the debugging name
+        -- string.
+--      print(`WaitForReqid:new({reqid})`)
+        local obj = leap.WaitFor(nil, `WaitForReqid({reqid})`)
+        obj.reqid = reqid
+        --    print(`New {obj}: {inspect(obj)}`)
+        return obj
+    end
+}
 
-function leap.WaitForReqid:new(reqid)
-    -- priority is meaningless, since this object won't be added to the
-    -- priority-sorted waitfors list. Use the reqid as the debugging name
-    -- string.
-    local obj = leap.WaitFor(nil, 'WaitForReqid(' .. reqid .. ')')
-    setmetatable(obj, self)
-    self.__index = self
-
-    obj.reqid = reqid
-
-    return obj
-end
-
-util.classctor(leap.WaitForReqid)
+-- Use a single inspect() call so we can tell which functions, identified only
+-- as (e.g.) "<function 1>", are the same and which are distinct. If we print
+-- the different classes using different inspect() calls, the IDs reset and we
+-- have no idea.
+-- print(inspect{
+--           'WaitFor:', leap.WaitFor,
+--           'WaitForPump:', leap.WaitForPump,
+--           'WaitForReqid:', leap.WaitForReqid})
 
 function leap.WaitForReqid:filter(pump, data)
     -- Because we expect to directly look up the WaitForReqid object of
