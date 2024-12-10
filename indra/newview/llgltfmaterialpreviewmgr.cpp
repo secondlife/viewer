@@ -379,6 +379,7 @@ PreviewSphere& get_preview_sphere(LLPointer<LLFetchedGLTFMaterial>& material, co
     return preview_sphere;
 }
 
+#if 0
 // Final, direct modifications to shader constants, just before render
 void fixup_shader_constants(LLGLSLShader& shader)
 {
@@ -397,6 +398,7 @@ void fixup_shader_constants(LLGLSLShader& shader)
         }
     }
 }
+#endif
 
 // Set a variable to a value temporarily, and restor the variable's old value
 // when this object leaves scope.
@@ -502,8 +504,8 @@ bool LLGLTFPreviewTexture::render()
         screen.bindTarget();
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+#if 0
         LLGLSLShader& shader = gDeferredPBRAlphaProgram;
-
         gPipeline.bindDeferredShader(shader);
         fixup_shader_constants(shader);
 
@@ -513,6 +515,7 @@ bool LLGLTFPreviewTexture::render()
         }
 
         gPipeline.unbindDeferredShader(shader);
+#endif
 
         screen.flush();
     }

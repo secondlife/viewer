@@ -59,6 +59,7 @@ class LLVolumeOctree;
 #include "llfile.h"
 #include "llalignedarray.h"
 #include "llrigginginfo.h"
+#include "../llrender/llvertexbuffer.h"
 
 //============================================================================
 
@@ -976,6 +977,13 @@ public:
     // mWeights.size() should be empty or match mVertices.size()
     LLVector4a* mWeights;
 
+    // vertex buffer that contains this face's geometry (may be null)
+    LLPointer<LLVertexBuffer> mVertexBuffer;
+    // offset into mVertexBuffer where this face's geometry starts
+    U32 mVBGeomOffset = 0;
+    // offset into mVertexBuffe where this face's indices start
+    U32 mVBIndexOffset = 0;
+
 #if USE_SEPARATE_JOINT_INDICES_AND_WEIGHTS
     LLVector4a* mJustWeights;
     U8* mJointIndices;
@@ -1102,6 +1110,8 @@ public:
     //  gen_tangents - if true, generate MikkTSpace tangents if needed before optimizing index buffer
     bool cacheOptimize(bool gen_tangents = false);
 
+    void createVertexBuffer();
+
 private:
     void sculptGenerateMapVertices(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components, const U8* sculpt_data, U8 sculpt_type);
     F32 sculptGetSurfaceArea();
@@ -1141,6 +1151,8 @@ public:
     face_list_t mVolumeFaces;
 
 public:
+    LLPointer<LLVertexBuffer> mVertexBuffer;
+
     LLVector4a* mHullPoints;
     U16* mHullIndices;
     S32 mNumHullPoints;

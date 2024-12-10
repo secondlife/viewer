@@ -125,6 +125,9 @@ public:
     U32         getShaderMask(U32 alpha_mode, bool is_alpha);
     LLUUID      getHash() const;
 
+    // get a boost::hash for the purposes of render batching
+    size_t      getBatchHash() const;
+
 protected:
     LLUUID      mNormalID;
     F32         mNormalOffsetX;

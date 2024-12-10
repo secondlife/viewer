@@ -127,23 +127,19 @@ void main()
     vec4 baseColor     = gb.albedo;
     vec4 spec        = gb.specular; // NOTE: PBR linear Emissive
 
+    float bp_glow         = baseColor.a;
+
 #if defined(HAS_SUN_SHADOW) || defined(HAS_SSAO)
     vec2 scol_ambocc = texture(lightMap, vary_fragcoord.xy).rg;
 #endif
 
-#if defined(HAS_SUN_SHADOW)
-    float scol       = max(scol_ambocc.r, baseColor.a);
-#else
-    float scol = 1.0;
-#endif
 #if defined(HAS_SSAO)
-    float ambocc     = scol_ambocc.g;
+    float ambocc = scol_ambocc.g;
 #else
     float ambocc = 1.0;
 #endif
 
     vec3  color = vec3(0);
-    float bloom = 0.0;
 
     vec3 sunlit;
     vec3 amblit;
@@ -162,6 +158,10 @@ void main()
 
     if (GET_GBUFFER_FLAG(gb.gbufferFlag, GBUFFER_FLAG_HAS_PBR))
     {
+#if defined(HAS_SUN_SHADOW)
+        scol = scol_ambocc.r;
+#endif
+
         vec3 orm = spec.rgb;
         float perceptualRoughness = orm.g;
         float metallic = orm.b;
@@ -181,7 +181,11 @@ void main()
         calcDiffuseSpecular(baseColor.rgb, metallic, diffuseColor, specularColor);
 
         vec3 v = -normalize(pos.xyz);
+
         color = pbrBaseLight(diffuseColor, specularColor, metallic, v, gb.normal, perceptualRoughness, light_dir, sunlit_linear, scol, radiance, irradiance, colorEmissive, ao, additive, atten);
+
+        float lum = max(max(colorEmissive.r, colorEmissive.g), colorEmissive.b);
+        bp_glow *= lum;
     }
     else if (GET_GBUFFER_FLAG(gb.gbufferFlag, GBUFFER_FLAG_HAS_HDRI))
     {
@@ -201,6 +205,13 @@ void main()
     }
     else
     {
+        float envIntensity = colorEmissive.r;
+        float bp_emissive = colorEmissive.g;
+
+#if defined(HAS_SUN_SHADOW)
+        scol = max(scol_ambocc.r, bp_emissive);
+#endif
+
         // legacy shaders are still writng sRGB to gbuffer
         baseColor.rgb = srgb_to_linear(baseColor.rgb);
 
@@ -260,21 +271,20 @@ void main()
 
             // add radiance map
             applyGlossEnv(color, glossenv, spec, pos.xyz, gb.normal);
-
         }
 
-        color.rgb = mix(color.rgb, baseColor.rgb, baseColor.a);
+        color.rgb = mix(color.rgb, baseColor.rgb, bp_emissive);
 
         if (envIntensity > 0.0)
         {  // add environment map
             applyLegacyEnv(color, legacyenv, spec, pos.xyz, gb.normal, envIntensity);
         }
-   }
+    }
 
     //color.r = classic_mode > 0 ? 1.0 : 0.0;
     float final_scale = 1;
     if (classic_mode > 0)
         final_scale = 1.1;
     frag_color.rgb = max(color.rgb * final_scale, vec3(0)); //output linear since local lights will be added to this shader's results
-    frag_color.a = 0.0;
+    frag_color.a = bp_glow;
 }

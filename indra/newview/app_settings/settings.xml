@@ -7268,13 +7268,13 @@
   <key>OctreeStaticObjectSizeFactor</key>
   <map>
     <key>Comment</key>
-    <string>Multiplier on static object size for determining octree node size </string>
+    <string>Minimum size of octree nodes</string>
     <key>Persist</key>
-    <integer>1</integer>
+    <integer>0</integer>
     <key>Type</key>
     <string>S32</string>
     <key>Value</key>
-    <integer>3</integer>
+    <integer>16</integer>
   </map>
 
   <key>OctreeAlphaDistanceFactor</key>
@@ -8781,7 +8781,7 @@
       <key>Comment</key>
       <string>Allow OpenGL to use multiple render contexts for loading textures (may reduce frame stutters, doesn't play nice with Intel drivers).</string>
       <key>Persist</key>
-      <integer>1</integer>
+      <integer>0</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
@@ -8792,7 +8792,7 @@
       <key>Comment</key>
       <string>Allow OpenGL to use multiple render contexts for playing media (may reduce frame stutters, doesn't play nice with Intel drivers)</string>
       <key>Persist</key>
-      <integer>1</integer>
+      <integer>0</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
@@ -9775,7 +9775,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>1</integer>
+      <integer>0</integer>
     </map>
     <key>RenderAvatarFriendsOnly</key>
     <map>
@@ -16373,6 +16373,28 @@
     <string>Boolean</string>
     <key>Value</key>
     <integer>0</integer>
+  </map>
+  <key>IdleThread</key>
+  <map>
+    <key>Comment</key>
+    <string>Run "idle" on a background thread.  Must be set from command line.</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>RenderNormalMapsEnabled</key>
+  <map>
+    <key>Comment</key>
+    <string>Enable normal maps on content that supports them.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
   </map>
   <key>RenderHDREnabled</key>
   <map>

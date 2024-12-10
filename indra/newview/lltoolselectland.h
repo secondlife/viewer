@@ -33,12 +33,12 @@
 class LLParcelSelection;
 
 class LLToolSelectLand
-:   public LLTool, public LLSingleton<LLToolSelectLand>
+:   public LLTool, public LLSimpleton<LLToolSelectLand>
 {
-    LLSINGLETON(LLToolSelectLand);
+public:
+    LLToolSelectLand();
     virtual ~LLToolSelectLand();
 
-public:
     /*virtual*/ bool        handleMouseDown(S32 x, S32 y, MASK mask) override;
     /*virtual*/ bool        handleDoubleClick(S32 x, S32 y, MASK mask) override;
     /*virtual*/ bool        handleMouseUp(S32 x, S32 y, MASK mask) override;

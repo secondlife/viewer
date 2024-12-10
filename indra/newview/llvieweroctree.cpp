@@ -1303,8 +1303,8 @@ LLViewerOctreePartition::LLViewerOctreePartition() :
     mRegionp(NULL),
     mOcclusionEnabled(true),
     mDrawableType(0),
-    mLODSeed(0),
-    mLODPeriod(1)
+    mLODSeed(rand()),
+    mLODPeriod(16)
 {
     LLVector4a center, size;
     center.splat(0.f);

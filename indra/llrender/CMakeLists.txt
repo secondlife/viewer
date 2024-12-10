@@ -10,6 +10,7 @@ include(LLImage)
 include(LLWindow)
 
 set(llrender_SOURCE_FILES
+    glworkqueue.cpp
     llcubemap.cpp
     llcubemaparray.cpp
     llfontbitmapcache.cpp
@@ -37,7 +38,7 @@ set(llrender_SOURCE_FILES
     
 set(llrender_HEADER_FILES
     CMakeLists.txt
-
+    glworkqueue.h
     llcubemap.h
     llcubemaparray.h
     llfontgl.h

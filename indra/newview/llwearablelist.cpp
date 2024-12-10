@@ -106,6 +106,7 @@ void LLWearableList::processGetAssetReply( const char* filename, const LLAssetID
 
         LLAppViewer::instance()->postToMainCoro([=]()
             {
+                LL_PROFILE_ZONE_NAMED("LLWearableList::processGetAssetReply (lambda)");
                 processGetAssetReply(filename_in.c_str(), uuid_in, userdata, status, ext_status);
             });
 

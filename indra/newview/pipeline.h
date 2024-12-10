@@ -206,6 +206,9 @@ public:
     void        markRebuild(LLDrawable *drawablep, LLDrawable::EDrawableFlags flag = LLDrawable::REBUILD_ALL);
     void        markPartitionMove(LLDrawable* drawablep);
     void        markMeshDirty(LLSpatialGroup* group);
+    void        markTransformDirty(LLSpatialGroup* group);
+    void        markTransformDirty(LLDrawable* drawablep);
+
 
     //get the object between start and end that's closest to start.
     LLViewerObject* lineSegmentIntersectInWorld(const LLVector4a& start, const LLVector4a& end,
@@ -288,7 +291,6 @@ public:
     void forAllVisibleDrawables(void (*func)(LLDrawable*));
 
     void renderObjects(U32 type, bool texture = true, bool batch_texture = false, bool rigged = false);
-    void renderGLTFObjects(U32 type, bool texture = true, bool rigged = false);
 
     void renderAlphaObjects(bool rigged = false);
     void renderMaskedObjects(U32 type, bool texture = true, bool batch_texture = false, bool rigged = false);
@@ -453,7 +455,6 @@ public:
     static bool getRenderHighlights();
     static void setRenderHighlightTextureChannel(LLRender::eTexIndex channel); // sets which UV setup to display in highlight overlay
 
-    static void updateRenderTransparentWater();
     static void refreshCachedSettings();
 
     void addDebugBlip(const LLVector3& position, const LLColor4& color);
@@ -608,7 +609,7 @@ public:
         RENDER_DEBUG_TEXTURE_ANIM       =  0x00001000,
         RENDER_DEBUG_LIGHTS             =  0x00002000,
         RENDER_DEBUG_BATCH_SIZE         =  0x00004000,
-        RENDER_DEBUG_ALPHA_BINS         =  0x00008000, // not used
+        RENDER_DEBUG_SHADOW_BATCH_SIZE  =  0x00008000, // not used
         RENDER_DEBUG_RAYCAST            =  0x00010000,
         RENDER_DEBUG_AVATAR_DRAW_INFO   =  0x00020000,
         RENDER_DEBUG_SHADOW_FRUSTA      =  0x00040000,
@@ -657,7 +658,6 @@ public:
     static S32              sUseOcclusion;  // 0 = no occlusion, 1 = read only, 2 = read/write
     static bool             sAutoMaskAlphaDeferred;
     static bool             sAutoMaskAlphaNonDeferred;
-    static bool             sRenderTransparentWater;
     static bool             sBakeSunlight;
     static bool             sNoAlpha;
     static bool             sUseFarClip;
@@ -859,7 +859,9 @@ protected:
     // Different queues of drawables being processed.
     //
     LLDrawable::drawable_list_t     mBuildQ1; // priority
+    LLDrawable::drawable_list_t     mDrawableTransformQ;  // transform rebuilds
     LLSpatialGroup::sg_vector_t     mGroupQ1; //priority
+    LLSpatialGroup::sg_vector_t     mGroupTransformQ; //transform updates
 
     LLSpatialGroup::sg_vector_t     mGroupSaveQ1; // a place to save mGroupQ1 until it is safe to unref
 

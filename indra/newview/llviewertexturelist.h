@@ -122,8 +122,14 @@ public:
     LLViewerFetchedTexture *findImage(const LLUUID &image_id, ETexListType tex_type);
     LLViewerFetchedTexture *findImage(const LLTextureKey &search_key);
 
+    void updateStats();
+
     // Using image stats, determine what images are necessary, and perform image updates.
     void updateImages(F32 max_time);
+
+    // update GL images (downscale via GPU, copy decoded textures to GPU)
+    void updateGL();
+
     void forceImmediateUpdate(LLViewerFetchedTexture* imagep) ;
 
     // Decode and create textures for all images currently in list.

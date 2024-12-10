@@ -42,6 +42,7 @@
 #include "llvector4a.h"
 #include "llvoavatar.h"
 #include "llfetchedgltfmaterial.h"
+#include "llgltfdrawinfo.h"
 
 #include <queue>
 #include <unordered_map>
@@ -82,7 +83,7 @@ public:
         return *this;
     }
 
-    // return a hash of this LLDrawInfo as a debug color
+    // return a hash of this LLDrawInfo address as a debug color
     LLColor4U getDebugColor() const;
 
     LLDrawInfo(U16 start, U16 end, U32 count, U32 offset,
@@ -100,6 +101,10 @@ public:
     U16 mEnd = 0;
     U32 mCount = 0;
     U32 mOffset = 0;
+
+    // UBO and index for transform data
+    U32 mTransformUBO = 0;
+    S32 mTransformIndex = -1;
 
     LLPointer<LLViewerTexture>     mTexture;
     LLPointer<LLViewerTexture> mSpecularMap;
@@ -123,7 +128,7 @@ public:
 
     std::vector<LLPointer<LLViewerTexture> > mTextureList;
 
-    LLUUID mMaterialHash; // hash of LLGLTFMaterial or LLMaterial applied to this draw info
+    size_t mMaterialID; // result of getBatchHash of LLGLTFMaterial or LLMaterial (plus diffuse texture id) applied to this draw info
 
     U32 mShaderMask = 0;
     F32  mEnvIntensity = 0.f;
@@ -196,7 +201,30 @@ public:
                         && (lhs.isNull() || (rhs.notNull() && lhs->mBump > rhs->mBump));
         }
     };
+
+    struct CompareMaterialID
+    {
+        bool operator()(const LLDrawInfo* lhs, const LLDrawInfo* rhs)
+        {
+            // sort by mMaterialID, lhs and rhs must never be null
+            // DO NOT ADD NULL CHECKS HERE, this is a performance critical path
+            // If you suspect a null dereference here, add assertions around insertions to the container
+            // that uses this comparator
+            return lhs->mMaterialID < rhs->mMaterialID;
+        }
+    };
+
+    struct InstanceSort
+    {
+        bool operator()(const LLDrawInfo* lhs, const LLDrawInfo* rhs)
+        {
+            // sort by mMaterialID first, vertex buffer second
+            return lhs->mMaterialID < rhs->mMaterialID ||
+                lhs->mVertexBuffer < rhs->mVertexBuffer;
+        }
+    };
 };
+
 
 LL_ALIGN_PREFIX(16)
 class LLSpatialGroup : public LLOcclusionCullingGroup
@@ -274,6 +302,8 @@ public:
         MESH_DIRTY              = (IMAGE_DIRTY << 1),
         IN_BUILD_Q1             = (MESH_DIRTY << 1),
         IN_BUILD_Q2             = (IN_BUILD_Q1 << 1),
+        HAS_GLTF                = (IN_BUILD_Q2 << 1),
+        IN_TRANSFORM_BUILD_Q    = (HAS_GLTF << 1),
         STATE_MASK              = 0x0000FFFF,
     } eSpatialState;
 
@@ -336,6 +366,12 @@ public:
     // LLViewerOctreeGroup
     virtual void rebound();
 
+    // Update UBOs
+    void updateTransformUBOs();
+
+    // update the transform UBO for a single drawable
+    void updateTransform(LLDrawable* drawablep);
+
 public:
     LL_ALIGN_16(LLVector4a mViewAngle);
     LL_ALIGN_16(LLVector4a mLastUpdateViewAngle);
@@ -346,6 +382,14 @@ protected:
 public:
     LLPointer<LLVertexBuffer> mVertexBuffer;
     draw_map_t mDrawMap;
+
+    LLGLTFBatches mGLTFBatches;
+    LLGLTFBatches mBPBatches;
+    LLGLTFBatches mShadowBatches;
+
+    // references to vertex buffers that are in use (avoid deletion while in use)
+    std::vector<LLPointer<LLVertexBuffer>> mVertexBuffers;
+
 
     bridge_list_t mBridgeList;
     buffer_map_t mBufferMap; //used by volume buffers to attempt to reuse vertex buffers
@@ -366,6 +410,38 @@ public:
     //used by LLVOAVatar to set render order in alpha draw pool to preserve legacy render order behavior
     LLVOAvatar* mAvatarp = nullptr;
     U32 mRenderOrder = 0;
+
+    // UBO for transform data
+    // One transform for each Drawable, indexed by gltf_node_id in the shader
+    U32 mTransformUBO = 0;
+    U32 mTransformUBOSize = 0;
+    // UBO for instance map
+    //  Indexed by instance id + base instance
+    //  stores gltf_node_id and material_id
+    U32 mInstanceMapUBO = 0;
+    U32 mInstanceMapUBOSize = 0;
+    // UBO for materials
+    //  Indexed by material_id
+    U32 mMaterialUBO = 0;
+    U32 mMaterialUBOSize = 0;
+
+    // UBO for blinn-phong instance map
+    U32 mBPInstanceMapUBO = 0;
+    U32 mBPInstanceMapUBOSize = 0;
+
+    // UBO for shadow instance map
+    U32 mShadowInstanceMapUBO = 0;
+    U32 mShadowInstanceMapUBOSize = 0;
+
+    // UBO for prim scales
+    //  Used for planar projection, indexed by gltf_node_id
+    U32 mPrimScaleUBO = 0;
+    U32 mPrimScaleUBOSize = 0;
+
+    // UBO used for texture animation transforms
+    U32 mTextureTransformUBO = 0;
+    U32 mTextureTransformUBOSize = 0;
+
     // Reflection Probe associated with this node (if any)
     LLPointer<LLReflectionMap> mReflectionProbe = nullptr;
 } LL_ALIGN_POSTFIX(16);
@@ -430,6 +506,7 @@ public:
 
     bool getVisibleExtents(LLCamera& camera, LLVector3& visMin, LLVector3& visMax);
 
+    void checkTexNameReferences(U32 texname);
 public:
     LLSpatialBridge* mBridge; // NULL for non-LLSpatialBridge instances, otherwise, mBridge == this
                             // use a pointer instead of making "isBridge" and "asBridge" virtual so it's safe
@@ -484,6 +561,8 @@ public:
     typedef std::vector<LLDrawable*> drawable_list_t;
     typedef std::vector<LLSpatialBridge*> bridge_list_t;
     typedef std::vector<LLDrawInfo*> drawinfo_list_t;
+    typedef std::vector<LLGLTFDrawInfo> gltf_drawinfo_list_t;
+    typedef std::vector<LLSkinnedGLTFDrawInfo> skinned_gltf_drawinfo_list_t;
 
     typedef LLSpatialGroup** sg_iterator;
     typedef LLSpatialBridge** bridge_iterator;
@@ -553,6 +632,15 @@ public:
 
     void assertDrawMapsEmpty();
 
+    // list of GLTF draw infos
+    LLGLTFBatches mGLTFBatches;
+
+    // list of blinn-phong draw infos
+    LLGLTFBatches mBPBatches;
+
+    // list of shadow draw infos
+    LLGLTFBatches mShadowBatches;
+
 private:
 
     template <class T, class V> void pushBack(T &head, U32& count, V* val);
@@ -592,7 +680,6 @@ private:
     drawinfo_list_t     mRenderMap[LLRenderPass::NUM_RENDER_TYPES];
     U32                 mRenderMapAllocated[LLRenderPass::NUM_RENDER_TYPES];
     drawinfo_iterator mRenderMapEnd[LLRenderPass::NUM_RENDER_TYPES];
-
 };
 
 
@@ -677,22 +764,6 @@ class LLVolumeGeometryManager: public LLGeometryManager
     virtual void rebuildMesh(LLSpatialGroup* group);
     virtual void getGeometry(LLSpatialGroup* group);
     virtual void addGeometryCount(LLSpatialGroup* group, U32& vertex_count, U32& index_count);
-    U32 genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace** faces, U32 face_count, bool distance_sort = false, bool batch_textures = false, bool rigged = false);
-    void registerFace(LLSpatialGroup* group, LLFace* facep, U32 type);
-
-private:
-    void allocateFaces(U32 pMaxFaceCount);
-    void freeFaces();
-
-    static int32_t sInstanceCount;
-    static LLFace** sFullbrightFaces[2];
-    static LLFace** sBumpFaces[2];
-    static LLFace** sSimpleFaces[2];
-    static LLFace** sNormFaces[2];
-    static LLFace** sSpecFaces[2];
-    static LLFace** sNormSpecFaces[2];
-    static LLFace** sPbrFaces[2];
-    static LLFace** sAlphaFaces[2];
 };
 
 //spatial partition that uses volume geometry manager (implemented in LLVOVolume.cpp)

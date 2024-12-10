@@ -79,6 +79,11 @@ LLGLTFMaterial::LLGLTFMaterial()
     mAlphaMode = ALPHA_MODE_OPAQUE;    // This is 0
     mOverrideDoubleSided = mOverrideAlphaMode = false;
 #endif
+
+    llassert(mAlphaMode == 0);
+    llassert(!mOverrideDoubleSided);
+    llassert(!mDoubleSided);
+    llassert(!mOverrideAlphaMode);
 }
 
 void LLGLTFMaterial::TextureTransform::getPacked(Pack& packed) const
@@ -101,12 +106,22 @@ void LLGLTFMaterial::TextureTransform::getPackedTight(PackTight& packed) const
     packed[4] = mOffset.mV[VY];
 }
 
+void LLGLTFMaterial::TextureTransform::getPackedUBO(F32* packed) const
+{
+    packed[0] = mScale.mV[VX];
+    packed[1] = mScale.mV[VY];
+    packed[2] = mRotation;
+    packed[3] = mOffset.mV[VX];
+    packed[4] = mOffset.mV[VY];
+}
+
 bool LLGLTFMaterial::TextureTransform::operator==(const TextureTransform& other) const
 {
     return mOffset == other.mOffset && mScale == other.mScale && mRotation == other.mRotation;
 }
 
 LLGLTFMaterial::LLGLTFMaterial(const LLGLTFMaterial& rhs)
+    : LLGLTFMaterial() // call default constructor to zero out padding bytes
 {
     *this = rhs;
 }
@@ -876,6 +891,52 @@ LLUUID LLGLTFMaterial::getHash() const
                             sizeof(*this) - offset);
 }
 
+size_t LLGLTFMaterial::calculateBatchHash() const
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
+    size_t hash = 0;
+    char* begin = (char*)&mTextureId;
+    char* end = (char*)&mDoubleSided+1;
+
+    if (mAlphaMode == ALPHA_MODE_BLEND && mBaseColor.mV[3] == 0.f)
+    { // fully transparent materials should not be rendered
+        return 0;
+    }
+#if 1
+    // boost::hash_range
+    hash = boost::hash_range(begin, end - 1);
+#elif 0
+    // boost::hash_combine
+    boost::hash_combine(hash, mTextureId);
+    boost::hash_combine(hash, mTextureTransform);
+    boost::hash_combine(hash, mBaseColor);
+    boost::hash_combine(hash, mEmissiveColor);
+    boost::hash_combine(hash, mMetallicFactor);
+    boost::hash_combine(hash, mRoughnessFactor);
+    boost::hash_combine(hash, mAlphaCutoff);
+    boost::hash_combine(hash, mDoubleSided);
+#else
+    // xxh64
+    HBXXH64 hasher;
+    hasher.update(begin, (U32)((char*)end - (char*)begin));
+    hasher.finalize();
+    hash = hasher.digest();
+#endif
+
+    return hash;
+}
+
+void LLGLTFMaterial::updateBatchHash()
+{
+    mBatchHash = calculateBatchHash();
+}
+
+size_t LLGLTFMaterial::getBatchHash() const
+{
+    llassert(mBatchHash == calculateBatchHash());
+    return mBatchHash;
+}
+
 void LLGLTFMaterial::addLocalTextureTracking(const LLUUID& tracking_id, const LLUUID& tex_id)
 {
     mTrackingIdToLocalTexture[tracking_id] = tex_id;
@@ -923,3 +984,39 @@ void LLGLTFMaterial::updateTextureTracking()
     // setTEGLTFMaterialOverride is responsible for tracking
     // for material overrides editor will set it
 }
+
+void LLGLTFMaterial::packOnto(std::vector<LLVector4a>& data, F32 glow)
+{
+    size_t idx = data.size();
+    data.resize(data.size() + 8);
+
+    F32* ptr = (F32*)&data[idx];
+
+    F32* base_color = ptr;
+    F32* normal = base_color + 8;
+    F32* metallic_roughness = normal + 8;
+    F32* emissive = metallic_roughness + 8;
+
+    for (U32 i = 0; i < GLTF_TEXTURE_INFO_COUNT; ++i)
+    {
+        mTextureTransform[i].getPackedUBO(ptr);
+        ptr += 8;
+    }
+
+    base_color[5] = mBaseColor.mV[0];
+    base_color[6] = mBaseColor.mV[1];
+    base_color[7] = mBaseColor.mV[2];
+
+    normal[5] = mBaseColor.mV[3];
+    normal[6] = mAlphaCutoff;
+    normal[7] = glow;
+
+    emissive[5] = mEmissiveColor.mV[0];
+    emissive[6] = mEmissiveColor.mV[1];
+    emissive[7] = mEmissiveColor.mV[2];
+
+    metallic_roughness[5] = mRoughnessFactor;
+    metallic_roughness[6] = mMetallicFactor;
+}
+
+

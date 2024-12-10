@@ -173,7 +173,7 @@ void LLDrawable::destroy()
     // Attempt to catch violations of this in debug,
     // knowing that some false alarms may result
     //
-    llassert(!LLSpatialGroup::sNoDelete);
+    //llassert(!LLSpatialGroup::sNoDelete);
 
     /* cannot be guaranteed and causes crashes on false alarms
     if (LLSpatialGroup::sNoDelete)
@@ -230,6 +230,29 @@ LLVOVolume* LLDrawable::getVOVolume() const
 const LLMatrix4& LLDrawable::getRenderMatrix() const
 {
     return isRoot() ? getWorldMatrix() : getParent()->getWorldMatrix();
+}
+
+const LLMatrix4& LLDrawable::getGLTFRenderMatrix(bool local_frame, LLMatrix4* aux_mat)
+{
+    if (local_frame)
+    {
+        // inside an altered coordinate frame, return parent relative transform
+        mGLTFRenderMatrix.initAll(getScale(), mXform.getRotation(), mXform.getPosition());
+    }
+    else
+    {
+        // inside an unaltered coordinate frame, return world relative transform
+        mXform.updateMatrix();
+        mGLTFRenderMatrix.initScale(mVObjp->getScale());
+        mGLTFRenderMatrix *= getWorldMatrix();
+    }
+
+    if (aux_mat != nullptr)
+    {
+        mGLTFRenderMatrix *= *aux_mat;
+    }
+
+    return mGLTFRenderMatrix;
 }
 
 bool LLDrawable::isLight() const
@@ -701,7 +724,6 @@ F32 LLDrawable::updateXform(bool undamped)
             ((dist_vec_squared(old_pos, target_pos) > 0.f)
             || (1.f - dot(old_rot, target_rot)) > 0.f))
     { //fix for BUG-840, MAINT-2275, MAINT-1742, MAINT-2247
-        mVObjp->shrinkWrap();
         gPipeline.markRebuild(this, LLDrawable::REBUILD_POSITION);
     }
     else if (!getVOVolume() && !isAvatar())
@@ -718,6 +740,11 @@ F32 LLDrawable::updateXform(bool undamped)
     {
         mVObjp->getControlAvatar()->matchVolumeTransform();
     }
+
+    // update GLTF render matrix
+    getGLTFRenderMatrix();
+
+    gPipeline.markTransformDirty(this);
 
     if (mSpatialBridge)
     {
@@ -1132,6 +1159,8 @@ void LLDrawable::setGroup(LLViewerOctreeGroup *groupp)
 
     if (cur_groupp != groupp && getVOVolume())
     {
+        gPipeline.markTransformDirty(cur_groupp);
+        gPipeline.markTransformDirty((LLSpatialGroup*) groupp);
         //NULL out vertex buffer references for volumes on spatial group change to maintain
         //requirement that every face vertex buffer is either NULL or points to a vertex buffer
         //contained by its drawable's spatial group
@@ -1140,6 +1169,7 @@ void LLDrawable::setGroup(LLViewerOctreeGroup *groupp)
             if (LLFace* facep = getFace(i))
             {
                 facep->clearVertexBuffer();
+                facep->mGLTFDrawInfo.clear();
             }
         }
     }

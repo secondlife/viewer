@@ -31,6 +31,7 @@
 #include "v2math.h"
 #include "v3math.h"
 #include "llvertexbuffer.h"
+#include "llgltfmaterial.h"
 
 class LLFace;
 class LLViewerTexture;
@@ -40,6 +41,8 @@ class LLDrawInfo;
 class LLVOAvatar;
 class LLGLSLShader;
 class LLMeshSkinInfo;
+class LLGLTFDrawInfo;
+class LLSkinnedGLTFDrawInfo;
 
 class LLDrawPool
 {
@@ -358,27 +361,45 @@ public:
     void pushRiggedBatches(U32 type, bool texture = true, bool batch_textures = false);
     void pushUntexturedRiggedBatches(U32 type);
 
+    // push described batches off of sCull using given shader
+    // short ciruits without binding the shader if there are no batches
+    static void pushGLTFBatches(LLGLSLShader& shader, bool rigged, U32 alpha_mode, U8 tex_mask, bool double_sided, bool planar, bool tex_anim);
+    static void pushBPBatches(LLGLSLShader& shader, bool rigged, U32 alpha_mode, U8 tex_mask, bool planar, bool tex_anim);
+
     // push full GLTF batches
-    // assumes draw infos of given type have valid GLTF materials
-    void pushGLTFBatches(U32 type);
+    static void pushGLTFBatches(const std::vector<LLGLTFDrawInfo>& draw_info, bool planar = false, bool tex_anim = false);
 
-    // like pushGLTFBatches, but will not bind textures or set up texture transforms
-    void pushUntexturedGLTFBatches(U32 type);
+    // push full skinned GLTF batches
+    static void pushRiggedGLTFBatches(const std::vector<LLSkinnedGLTFDrawInfo>& draw_info, bool planar = false, bool tex_anim = false);
 
-    // helper function for dispatching to textured or untextured pass based on bool
-    void pushGLTFBatches(U32 type, bool textured);
+    // push shadow pass batches
+    static void pushShadowBatches(const std::vector<LLGLTFDrawInfo>& draw_info);
+
+    // push shadow pass skinned batches
+    static void pushRiggedShadowBatches(const std::vector<LLSkinnedGLTFDrawInfo>& draw_info);
+
+    // push debug batches
+    static void pushDebugBatches(const std::vector<LLGLTFDrawInfo>& draw_info);
+
+    // push debug skinned batches
+    static void pushRiggedDebugBatches(const std::vector<LLSkinnedGLTFDrawInfo>& draw_info);
 
 
-    // rigged variants of above
-    void pushRiggedGLTFBatches(U32 type);
-    void pushRiggedGLTFBatches(U32 type, bool textured);
-    void pushUntexturedRiggedGLTFBatches(U32 type);
+    static void pushGLTFBatch(const LLGLTFDrawInfo& params, bool planar = false, bool tex_anim = false);
+    static void pushShadowBatch(const LLGLTFDrawInfo& params);
+    static void pushRiggedGLTFBatch(const LLSkinnedGLTFDrawInfo& params, const LLVOAvatar*& lastAvatar, U64& lastMeshId, bool& skipLastSkin, bool planar = false, bool tex_anim = false);
+    static void pushRiggedShadowBatch(const LLSkinnedGLTFDrawInfo& params, const LLVOAvatar*& lastAvatar, U64& lastMeshId, bool& skipLastSkin);
+    static void pushDebugBatch(const LLGLTFDrawInfo& params);
+    static void pushRiggedDebugBatch(const LLSkinnedGLTFDrawInfo& params, const LLVOAvatar*& lastAvatar, U64& lastMeshId, bool& skipLastSkin);
 
-    // push a single GLTF draw call
-    static void pushGLTFBatch(LLDrawInfo& params);
-    static void pushRiggedGLTFBatch(LLDrawInfo& params, const LLVOAvatar*& lastAvatar, U64& lastMeshId, bool& skipLastSkin);
-    static void pushUntexturedGLTFBatch(LLDrawInfo& params);
-    static void pushUntexturedRiggedGLTFBatch(LLDrawInfo& params, const LLVOAvatar*& lastAvatar, U64& lastMeshId, bool& skipLastSkin);
+    // push full Blinn-Phong batches
+    static void pushBPBatches(const std::vector<LLGLTFDrawInfo>& draw_info, bool planar = false, bool tex_anim = false);
+
+    // push full skinned Blinn-Phong batches
+    static void pushRiggedBPBatches(const std::vector<LLSkinnedGLTFDrawInfo>& draw_info, bool planar = false, bool tex_anim = false);
+
+    static void pushBPBatch(const LLGLTFDrawInfo& params, bool planar = false, bool tex_anim = false);
+    static void pushRiggedBPBatch(const LLSkinnedGLTFDrawInfo& params, const LLVOAvatar*& lastAvatar, U64& lastMeshId, bool& skipLastSkin, bool planar = false, bool tex_anim = false);
 
     void pushMaskBatches(U32 type, bool texture = true, bool batch_textures = false);
     void pushRiggedMaskBatches(U32 type, bool texture = true, bool batch_textures = false);

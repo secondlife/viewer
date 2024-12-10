@@ -849,6 +849,10 @@ U32 render_type_from_string(std::string_view render_type)
     {
         return LLPipeline::RENDER_TYPE_GLTF_PBR;
     }
+    else if ("pbr alpha mask" == render_type)
+    {
+        return LLPipeline::RENDER_TYPE_GLTF_PBR_ALPHA_MASK;
+    }
     else
     {
         return 0;
@@ -1101,6 +1105,10 @@ U64 info_display_from_string(std::string_view info_display)
     else if ("render batches" == info_display)
     {
         return LLPipeline::RENDER_DEBUG_BATCH_SIZE;
+    }
+    else if ("shadow batches" == info_display)
+    {
+        return LLPipeline::RENDER_DEBUG_SHADOW_BATCH_SIZE;
     }
     else if ("update type" == info_display)
     {

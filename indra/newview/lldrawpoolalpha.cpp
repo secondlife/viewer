@@ -85,7 +85,7 @@ void LLDrawPoolAlpha::prerender()
 
 S32 LLDrawPoolAlpha::getNumPostDeferredPasses()
 {
-    return 1;
+    return gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_ALPHA) ? 1: 0;
 }
 
 // set some common parameters on the given shader to prepare for alpha rendering
@@ -182,18 +182,6 @@ void LLDrawPoolAlpha::renderPostDeferred(S32 pass)
 
     prepare_alpha_shader(simple_shader, true, water_sign); //prime simple shader (loads shadow relevant uniforms)
 
-    LLGLSLShader* materialShader = gDeferredMaterialProgram;
-    for (int i = 0; i < LLMaterial::SHADER_COUNT*2; ++i)
-    {
-        prepare_alpha_shader(&materialShader[i], true, water_sign);
-    }
-
-    pbr_shader =
-        (LLPipeline::sRenderingHUDs) ? &gHUDPBRAlphaProgram :
-        &gDeferredPBRAlphaProgram;
-
-    prepare_alpha_shader(pbr_shader, true, water_sign);
-
     // explicitly unbind here so render loop doesn't make assumptions about the last shader
     // already being setup for rendering
     LLGLSLShader::unbind();
@@ -228,6 +216,8 @@ void LLDrawPoolAlpha::renderPostDeferred(S32 pass)
     }
 }
 
+extern LLCullResult* sCull;
+
 void LLDrawPoolAlpha::forwardRender(bool rigged)
 {
     gPipeline.enableLightsDynamic();
@@ -253,13 +243,101 @@ void LLDrawPoolAlpha::forwardRender(bool rigged)
     mAlphaDFactor = LLRender::BF_ONE_MINUS_SOURCE_ALPHA;       // }
     gGL.blendFunc(mColorSFactor, mColorDFactor, mAlphaSFactor, mAlphaDFactor);
 
-    if (rigged && mType == LLDrawPool::POOL_ALPHA_POST_WATER)
-    { // draw GLTF scene to depth buffer before rigged alpha
-        LL::GLTFSceneManager::instance().render(false, false);
-        LL::GLTFSceneManager::instance().render(false, true);
-        LL::GLTFSceneManager::instance().render(false, false, true);
-        LL::GLTFSceneManager::instance().render(false, true, true);
+    if (mType == LLDrawPool::POOL_ALPHA_POST_WATER)
+    {
+        if (rigged)
+        { // draw GLTF scene to depth buffer before rigged alpha
+            LL::GLTFSceneManager::instance().render(false, false);
+            LL::GLTFSceneManager::instance().render(false, true);
+            LL::GLTFSceneManager::instance().render(false, false, true);
+            LL::GLTFSceneManager::instance().render(false, true, true);
+
+            // draw rigged GPU instanced batches to depth buffer
+            LLGLTFMaterial::AlphaMode alpha_mode = LLGLTFMaterial::ALPHA_MODE_BLEND;
+
+            for (U32 double_sided = 0; double_sided < 2; ++double_sided)
+            {
+                LLGLDisable cull(double_sided ? GL_CULL_FACE : 0);
+                for (U32 planar = 0; planar < 2; ++planar)
+                {
+                    for (U32 tex_anim = 0; tex_anim < 2; ++tex_anim)
+                    {
+                        //if (gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_GLTF_PBR))
+                        {
+                            for (U32 tex_mask = 0; tex_mask < LLGLTFBatches::MAX_PBR_TEX_MASK; ++tex_mask)
+                            {
+                                auto& info = sCull->mGLTFBatches.mSkinnedDrawInfo[alpha_mode][tex_mask][double_sided][planar][tex_anim];
+                                if (!info.empty())
+                                {
+                                    LLGLSLShader& shader = gGLTFPBRShaderPack.mShader[alpha_mode][tex_mask][double_sided][planar][tex_anim];
+                                    gPipeline.bindDeferredShader(*shader.mRiggedVariant);
+                                    pushRiggedGLTFBatches(info, planar, tex_anim);
+                                }
+                            }
+                        }
+
+                        if (!double_sided) // && gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_MATERIALS))
+                        {
+                            for (U32 tex_mask = 0; tex_mask < LLGLTFBatches::MAX_BP_TEX_MASK; ++tex_mask)
+                            {
+                                auto& info = sCull->mBPBatches.mSkinnedDrawInfo[alpha_mode][tex_mask][double_sided][planar][tex_anim];
+                                if (!info.empty())
+                                {
+                                    LLGLSLShader& shader = gBPShaderPack.mShader[alpha_mode][tex_mask][planar][tex_anim];
+                                    gPipeline.bindDeferredShader(*shader.mRiggedVariant);
+                                    pushRiggedBPBatches(info, planar, tex_anim);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
+    else
+    {
+        // draw static GPU instanced batches
+        LLGLTFMaterial::AlphaMode alpha_mode = LLGLTFMaterial::ALPHA_MODE_BLEND;
+
+        for (U32 double_sided = 0; double_sided < 2; ++double_sided)
+        {
+            LLGLDisable cull(double_sided ? GL_CULL_FACE : 0);
+            for (U32 planar = 0; planar < 2; ++planar)
+            {
+                for (U32 tex_anim = 0; tex_anim < 2; ++tex_anim)
+                {
+                    //if (gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_GLTF_PBR))
+                    {
+                        for (U32 tex_mask = 0; tex_mask < LLGLTFBatches::MAX_PBR_TEX_MASK; ++tex_mask)
+                        {
+                            auto& info = sCull->mGLTFBatches.mDrawInfo[alpha_mode][tex_mask][double_sided][planar][tex_anim];
+                            if (!info.empty())
+                            {
+                                LLGLSLShader& shader = gGLTFPBRShaderPack.mShader[alpha_mode][tex_mask][double_sided][planar][tex_anim];
+                                gPipeline.bindDeferredShader(shader);
+                                pushGLTFBatches(info, planar, tex_anim);
+                            }
+                        }
+                    }
+
+                    if (!double_sided) // && gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_MATERIALS))
+                    {
+                        for (U32 tex_mask = 0; tex_mask < LLGLTFBatches::MAX_BP_TEX_MASK; ++tex_mask)
+                        {
+                            auto& info = sCull->mBPBatches.mDrawInfo[alpha_mode][tex_mask][double_sided][planar][tex_anim];
+                            if (!info.empty())
+                            {
+                                LLGLSLShader& shader = gBPShaderPack.mShader[alpha_mode][tex_mask][planar][tex_anim];
+                                gPipeline.bindDeferredShader(shader);
+                                pushBPBatches(info, planar, tex_anim);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 
     // If the face is more than 90% transparent, then don't update the Depth buffer for Dof
     // We don't want the nearly invisible objects to cause of DoF effects
@@ -708,10 +786,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
                     }
                     else if (mat)
                     {
-                        U32 mask = params.mShaderMask;
-
-                        llassert(mask < LLMaterial::SHADER_COUNT);
-                        target_shader = &(gDeferredMaterialProgram[mask]);
+                        continue;
                     }
                     else if (!params.mFullbright)
                     {

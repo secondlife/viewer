@@ -29,6 +29,7 @@
 
 #include "llshadermgr.h"
 #include "llmaterial.h"
+#include "llgltfdrawinfo.h"
 
 #define LL_DEFERRED_MULTI_LIGHT_COUNT 16
 
@@ -147,6 +148,51 @@ inline bool operator != (LLViewerShaderMgr::shader_iter const & a, LLViewerShade
 {
     return a.mIter != b.mIter;
 }
+
+// shader pack for use with GLTF materials
+class LLGLTFShaderPack
+{
+public:
+    // variants are indexed by [Alpha Mode][tex_mask][Double Sided][Planar Projection][Texture Animation]
+    LLGLSLShader mShader[3][LLGLTFBatches::MAX_TEX_MASK][2][2][2];
+    LLGLSLShader mSkinnedShader[3][LLGLTFBatches::MAX_TEX_MASK][2][2][2];
+
+    // shadow variantes are indexed by [Alpha Mode][Double Sided][Planar Projection][Texture Animation]
+    LLGLSLShader mShadowShader[3][2][2][2];
+    LLGLSLShader mSkinnedShadowShader[3][2][2][2];
+
+    LLGLSLShader mDebugShader;
+    LLGLSLShader mSkinnedDebugShader;
+
+    // unload all shaders in this pack
+    void unload();
+
+    // push shaders that need WL params into shader_list
+    void registerWLShaders(std::vector<LLGLSLShader*>& shader_list);
+};
+
+// Blinn-Phong Shader Pack
+class LLBPShaderPack
+{
+public:
+    // variants are indexed by [Alpha Mode][tex_mask][Planar Projection][Texture Animation]
+    LLGLSLShader mShader[3][LLGLTFBatches::MAX_BP_TEX_MASK][2][2];
+    LLGLSLShader mSkinnedShader[3][LLGLTFBatches::MAX_BP_TEX_MASK][2][2];
+
+    // shadow variants are indexed by [Alpha Mode][Planar Projection][Texture Animation]
+    LLGLSLShader mShadowShader[3][2][2];
+    LLGLSLShader mSkinnedShadowShader[3][2][2];
+
+    LLGLSLShader mDebugShader;
+    LLGLSLShader mSkinnedDebugShader;
+
+    // unload all shaders in this pack
+    void unload();
+
+    // push shaders that need WL params into shader_list
+    void registerWLShaders(std::vector<LLGLSLShader*>& shader_list);
+
+};
 
 extern LLVector4            gShinyOrigin;
 
@@ -290,14 +336,11 @@ extern LLGLSLShader         gNormalMapGenProgram;
 extern LLGLSLShader         gDeferredGenBrdfLutProgram;
 extern LLGLSLShader         gDeferredBufferVisualProgram;
 
-// Deferred materials shaders
-extern LLGLSLShader         gDeferredMaterialProgram[LLMaterial::SHADER_COUNT*2];
-
 extern LLGLSLShader         gHUDPBROpaqueProgram;
-extern LLGLSLShader         gPBRGlowProgram;
-extern LLGLSLShader         gDeferredPBROpaqueProgram;
-extern LLGLSLShader         gDeferredPBRAlphaProgram;
 extern LLGLSLShader         gHUDPBRAlphaProgram;
+extern LLGLSLShader         gPBRGlowProgram;
+extern LLGLTFShaderPack     gGLTFPBRShaderPack;
+extern LLBPShaderPack       gBPShaderPack;
 
 // GLTF shaders
 extern LLGLSLShader         gGLTFPBRMetallicRoughnessProgram;

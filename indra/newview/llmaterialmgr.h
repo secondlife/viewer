@@ -36,12 +36,11 @@
 
 class LLViewerRegion;
 
-class LLMaterialMgr : public LLSingleton<LLMaterialMgr>
+class LLMaterialMgr : public LLSimpleton<LLMaterialMgr>
 {
-    LLSINGLETON(LLMaterialMgr);
-    virtual ~LLMaterialMgr();
-
 public:
+    LLMaterialMgr();
+    virtual ~LLMaterialMgr();
     typedef std::map<LLMaterialID, LLMaterialPtr> material_map_t;
 
     typedef boost::signals2::signal<void (const LLMaterialID&, const LLMaterialPtr)> get_callback_t;

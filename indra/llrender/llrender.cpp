@@ -417,6 +417,12 @@ bool LLTexUnit::bindManual(eTextureType type, U32 texture, bool hasMips)
     return true;
 }
 
+void LLTexUnit::bindManualFast(LLTexUnit::eTextureType type, U32 texName)
+{
+    glActiveTexture(GL_TEXTURE0 + mIndex);
+    glBindTexture(sGLTextureType[type], mCurrTexture);
+}
+
 void LLTexUnit::unbind(eTextureType type)
 {
     stop_glerror();
@@ -897,6 +903,7 @@ bool LLRender::init(bool needs_vertex_buffer)
         U32 ret;
         glGenVertexArrays(1, &ret);
         glBindVertexArray(ret);
+        LLVertexBuffer::sDefaultVAO = ret;
     }
 
     if (needs_vertex_buffer)
@@ -1717,7 +1724,9 @@ LLVertexBuffer* LLRender::genBuffer(U32 attribute_mask, S32 count)
     LLVertexBuffer * vb = new LLVertexBuffer(attribute_mask);
     vb->allocateBuffer(count, 0);
 
+#if !LL_DARWIN
     vb->setBuffer();
+#endif
 
     vb->setPositionData(mVerticesp.get());
 

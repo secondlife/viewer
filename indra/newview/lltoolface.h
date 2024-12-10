@@ -33,11 +33,11 @@ class LLViewerObject;
 class LLPickInfo;
 
 class LLToolFace
-:   public LLTool, public LLSingleton<LLToolFace>
+:   public LLTool, public LLSimpleton<LLToolFace>
 {
-    LLSINGLETON(LLToolFace);
-    virtual ~LLToolFace();
 public:
+    LLToolFace();
+    virtual ~LLToolFace();
 
     virtual bool    handleMouseDown(S32 x, S32 y, MASK mask) override;
     virtual bool    handleDoubleClick(S32 x, S32 y, MASK mask) override;

@@ -150,7 +150,6 @@ public:
     LLTexUnit::eTextureType getTarget(void) const ;
     bool       getMask(const LLVector2 &tc);
     F32        getTimePassedSinceLastBound();
-    bool       getMissed() const ;
     bool       isJustBound()const ;
     void       forceUpdateBindStats(void) const;
 

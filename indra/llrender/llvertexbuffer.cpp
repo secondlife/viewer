@@ -37,13 +37,20 @@
 #include "llglslshader.h"
 #include "llmemory.h"
 #include <glm/gtc/type_ptr.hpp>
+#include "lltracethreadrecorder.h"
+
+U32 LLVertexBuffer::sDefaultVAO = 0;
+
+static bool sVBOPooling = true;
+
 
 //Next Highest Power Of Two
 //helper function, returns first number > v that is a power of 2, or v if v is already a power of 2
 U32 nhpo2(U32 v)
 {
     U32 r = 1;
-    while (r < v) {
+    while (r < v)
+    {
         r *= 2;
     }
     return r;
@@ -71,194 +78,11 @@ struct CompareMappedRegion
     }
 };
 
-#define ENABLE_GL_WORK_QUEUE 0
-
-#if ENABLE_GL_WORK_QUEUE
-
-#define THREAD_COUNT 1
-
-//============================================================================
-
-// High performance WorkQueue for usage in real-time rendering work
-class GLWorkQueue
-{
-public:
-    using Work = std::function<void()>;
-
-    GLWorkQueue();
-
-    void post(const Work& value);
-
-    size_t size();
-
-    bool done();
-
-    // Get the next element from the queue
-    Work pop();
-
-    void runOne();
-
-    bool runPending();
-
-    void runUntilClose();
-
-    void close();
-
-    bool isClosed();
-
-    void syncGL();
-
-private:
-    std::mutex mMutex;
-    std::condition_variable mCondition;
-    std::queue<Work> mQueue;
-    bool mClosed = false;
-};
-
-GLWorkQueue::GLWorkQueue()
-{
-
-}
-
-void GLWorkQueue::syncGL()
-{
-    /*if (mSync)
-    {
-        std::lock_guard<std::mutex> lock(mMutex);
-        glWaitSync(mSync, 0, GL_TIMEOUT_IGNORED);
-        mSync = 0;
-    }*/
-}
-
-size_t GLWorkQueue::size()
-{
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
-    std::lock_guard<std::mutex> lock(mMutex);
-    return mQueue.size();
-}
-
-bool GLWorkQueue::done()
-{
-    return size() == 0 && isClosed();
-}
-
-void GLWorkQueue::post(const GLWorkQueue::Work& value)
-{
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
-    {
-        std::lock_guard<std::mutex> lock(mMutex);
-        mQueue.push(std::move(value));
-    }
-
-    mCondition.notify_one();
-}
-
-// Get the next element from the queue
-GLWorkQueue::Work GLWorkQueue::pop()
-{
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
-    // Lock the mutex
-    {
-        std::unique_lock<std::mutex> lock(mMutex);
-
-        // Wait for a new element to become available or for the queue to close
-        {
-            mCondition.wait(lock, [=] { return !mQueue.empty() || mClosed; });
-        }
-    }
-
-    Work ret;
-
-    {
-        std::lock_guard<std::mutex> lock(mMutex);
-
-        // Get the next element from the queue
-        if (mQueue.size() > 0)
-        {
-            ret = mQueue.front();
-            mQueue.pop();
-        }
-        else
-        {
-            ret = []() {};
-        }
-    }
-
-    return ret;
-}
-
-void GLWorkQueue::runOne()
-{
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
-    Work w = pop();
-    w();
-    //mSync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
-}
-
-void GLWorkQueue::runUntilClose()
-{
-    while (!isClosed())
-    {
-        runOne();
-    }
-}
-
-void GLWorkQueue::close()
-{
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
-    {
-        std::lock_guard<std::mutex> lock(mMutex);
-        mClosed = true;
-    }
-
-    mCondition.notify_all();
-}
-
-bool GLWorkQueue::isClosed()
-{
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
-    std::lock_guard<std::mutex> lock(mMutex);
-    return mClosed;
-}
-
-#include "llwindow.h"
-
-class LLGLWorkerThread : public LLThread
-{
-public:
-    LLGLWorkerThread(const std::string& name, GLWorkQueue* queue, LLWindow* window)
-        : LLThread(name)
-    {
-        mWindow = window;
-        mContext = mWindow->createSharedContext();
-        mQueue = queue;
-    }
-
-    void run() override
-    {
-        mWindow->makeContextCurrent(mContext);
-        gGL.init(false);
-        mQueue->runUntilClose();
-        gGL.shutdown();
-        mWindow->destroySharedContext(mContext);
-    }
-
-    GLWorkQueue* mQueue;
-    LLWindow* mWindow;
-    void* mContext = nullptr;
-};
-
-
-static LLGLWorkerThread* sVBOThread[THREAD_COUNT];
-static GLWorkQueue* sQueue = nullptr;
-
-#endif
-
 //============================================================================
 // Pool of reusable VertexBuffer state
 
 // batch calls to glGenBuffers
-static GLuint gen_buffer()
+GLuint ll_gl_gen_buffer()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VERTEX;
 
@@ -291,7 +115,7 @@ static GLuint gen_buffer()
     return ret;
 }
 
-static void delete_buffers(S32 count, GLuint* buffers)
+void ll_gl_delete_buffers(S32 count, GLuint* buffers)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VERTEX;
     // wait a few frames before actually deleting the buffers to avoid
@@ -317,6 +141,64 @@ static void delete_buffers(S32 count, GLuint* buffers)
     }
 }
 
+
+// batch calls to glGenBuffers
+GLuint ll_gl_gen_arrays()
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VERTEX;
+
+    GLuint ret = 0;
+    constexpr U32 pool_size = 1024;
+
+    thread_local static GLuint sNamePool[pool_size];
+    thread_local static U32 sIndex = 0;
+
+    if (sIndex == 0)
+    {
+        LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("gen buffer");
+        sIndex = pool_size;
+        if (!gGLManager.mIsAMD)
+        {
+            glGenVertexArrays(pool_size, sNamePool);
+        }
+        else
+        { // work around for AMD driver bug
+            for (U32 i = 0; i < pool_size; ++i)
+            {
+                glGenVertexArrays(1, sNamePool + i);
+            }
+        }
+    }
+
+    ret = sNamePool[--sIndex];
+    return ret;
+}
+
+void ll_gl_delete_arrays(S32 count, GLuint* buffers)
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VERTEX;
+    // wait a few frames before actually deleting the buffers to avoid
+    // synchronization issues with the GPU
+    static std::vector<GLuint> sFreeList[4];
+
+    if (gGLManager.mInited)
+    {
+        U32 idx = LLImageGL::sFrameCount % 4;
+
+        for (S32 i = 0; i < count; ++i)
+        {
+            sFreeList[idx].push_back(buffers[i]);
+        }
+
+        idx = (LLImageGL::sFrameCount + 3) % 4;
+
+        if (!sFreeList[idx].empty())
+        {
+            glDeleteVertexArrays((GLsizei)sFreeList[idx].size(), sFreeList[idx].data());
+            sFreeList[idx].resize(0);
+        }
+    }
+}
 
 #define ANALYZE_VBO_POOL 0
 
@@ -377,7 +259,7 @@ public:
         STOP_GLERROR;
         if (name)
         {
-            delete_buffers(1, &name);
+            ll_gl_delete_buffers(1, &name);
         }
         STOP_GLERROR;
     }
@@ -450,7 +332,7 @@ public:
             LL_PROFILE_GPU_ZONE("vbo alloc");
 
             mMisses++;
-            name = gen_buffer();
+            name = ll_gl_gen_buffer();
             glBindBuffer(type, name);
             glBufferData(type, size, nullptr, GL_DYNAMIC_DRAW);
             if (type == GL_ELEMENT_ARRAY_BUFFER)
@@ -548,7 +430,7 @@ public:
                     LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("vbo cache timeout");
                     auto& entry = entries.back();
                     ll_aligned_free_16(entry.mData);
-                    delete_buffers(1, &entry.mGLName);
+                    ll_gl_delete_buffers(1, &entry.mGLName);
                     llassert(mReserved >= iter->first);
                     mReserved -= iter->first;
                     entries.pop_back();
@@ -584,7 +466,7 @@ public:
             for (auto& entry : entries.second)
             {
                 ll_aligned_free_16(entry.mData);
-                delete_buffers(1, &entry.mGLName);
+                ll_gl_delete_buffers(1, &entry.mGLName);
             }
         }
 
@@ -593,7 +475,7 @@ public:
             for (auto& entry : entries.second)
             {
                 ll_aligned_free_16(entry.mData);
-                delete_buffers(1, &entry.mGLName);
+                ll_gl_delete_buffers(1, &entry.mGLName);
             }
         }
 
@@ -722,7 +604,7 @@ static const std::string vb_type_name[] =
     "TYPE_INDEX",
 };
 
-const U32 LLVertexBuffer::sGLMode[LLRender::NUM_MODES] =
+static const GLenum sGLMode[LLRender::NUM_MODES] =
 {
     GL_TRIANGLES,
     GL_TRIANGLE_STRIP,
@@ -921,12 +803,10 @@ void LLVertexBuffer::drawRangeFast(U32 mode, U32 start, U32 end, U32 count, U32 
         (GLvoid*)(indices_offset * (size_t)mIndicesStride));
 }
 
-
 void LLVertexBuffer::draw(U32 mode, U32 count, U32 indices_offset) const
 {
     drawRange(mode, 0, mNumVerts-1, count, indices_offset);
 }
-
 
 void LLVertexBuffer::drawArrays(U32 mode, U32 first, U32 count) const
 {
@@ -944,8 +824,8 @@ void LLVertexBuffer::drawArrays(U32 mode, U32 first, U32 count) const
 void LLVertexBuffer::initClass(LLWindow* window)
 {
     llassert(sVBOPool == nullptr);
-
-    if (gGLManager.mIsApple)
+    sVBOPooling = !gGLManager.mIsApple;
+    if (!sVBOPooling)
     {
         LL_INFOS() << "VBO Pooling Disabled" << LL_ENDL;
         sVBOPool = new LLAppleVBOPool();
@@ -955,16 +835,6 @@ void LLVertexBuffer::initClass(LLWindow* window)
         LL_INFOS() << "VBO Pooling Enabled" << LL_ENDL;
         sVBOPool = new LLDefaultVBOPool();
     }
-
-#if ENABLE_GL_WORK_QUEUE
-    sQueue = new GLWorkQueue();
-
-    for (int i = 0; i < THREAD_COUNT; ++i)
-    {
-        sVBOThread[i] = new LLGLWorkerThread("VBO Worker", sQueue, window);
-        sVBOThread[i]->start();
-    }
-#endif
 }
 
 //static
@@ -985,19 +855,6 @@ void LLVertexBuffer::cleanupClass()
 
     delete sVBOPool;
     sVBOPool = nullptr;
-
-#if ENABLE_GL_WORK_QUEUE
-    sQueue->close();
-    for (int i = 0; i < THREAD_COUNT; ++i)
-    {
-        sVBOThread[i]->shutdown();
-        delete sVBOThread[i];
-        sVBOThread[i] = nullptr;
-    }
-
-    delete sQueue;
-    sQueue = nullptr;
-#endif
 }
 
 //----------------------------------------------------------------------------
@@ -1013,9 +870,34 @@ LLVertexBuffer::LLVertexBuffer(U32 typemask)
     }
 }
 
+
+void LLVertexBuffer::setIndicesType(U32 type)
+{
+    llassert(getNumVerts() == 0);
+    llassert(getNumIndices() == 0);
+    llassert(type == GL_UNSIGNED_SHORT || type == GL_UNSIGNED_INT);
+
+    mIndicesType = type;
+
+    if (mIndicesType == GL_UNSIGNED_SHORT)
+    {
+        mIndicesStride = 2;
+    }
+    else
+    {
+        mIndicesStride = 4;
+    }
+}
 // list of mapped buffers
 // NOTE: must not be LLPointer<LLVertexBuffer> to avoid breaking non-ref-counted LLVertexBuffer instances
 static std::vector<LLVertexBuffer*> sMappedBuffers;
+
+//static
+void LLVertexBuffer::updateClass()
+{
+    ll_gl_delete_arrays(0, nullptr);
+    ll_gl_delete_buffers(0, nullptr);
+}
 
 //static
 void LLVertexBuffer::flushBuffers()
@@ -1082,6 +964,11 @@ LLVertexBuffer::~LLVertexBuffer()
 
     destroyGLBuffer();
     destroyGLIndices();
+
+    if (mGLVAO)
+    {
+        ll_gl_delete_arrays(1, &mGLVAO);
+    }
 
     if (mMappedData)
     {
@@ -1230,7 +1117,7 @@ bool LLVertexBuffer::updateNumIndices(U32 nindices)
 
     bool success = true;
 
-    U32 needed_size = sizeof(U16) * nindices;
+    U32 needed_size = (mIndicesType == GL_UNSIGNED_INT ? sizeof(U32) : sizeof(U16)) * nindices;
 
     if (needed_size != mIndicesSize)
     {
@@ -1288,7 +1175,7 @@ U8* LLVertexBuffer::mapVertexBuffer(LLVertexBuffer::AttributeType type, U32 inde
         count = mNumVerts - index;
     }
 
-    if (!gGLManager.mIsApple)
+    if (sVBOPooling)
     {
         U32 start = mOffsets[type] + sTypeSize[type] * index;
         U32 end = start + sTypeSize[type] * count-1;
@@ -1325,7 +1212,7 @@ U8* LLVertexBuffer::mapIndexBuffer(U32 index, S32 count)
         count = mNumIndices-index;
     }
 
-    if (!gGLManager.mIsApple)
+    if (sVBOPooling)
     {
         U32 start = sizeof(U16) * index;
         U32 end = start + sizeof(U16) * count-1;
@@ -1360,7 +1247,7 @@ U8* LLVertexBuffer::mapIndexBuffer(U32 index, S32 count)
 //  dst -- mMappedData or mMappedIndexData
 void LLVertexBuffer::flush_vbo(GLenum target, U32 start, U32 end, void* data, U8* dst)
 {
-    if (gGLManager.mIsApple)
+    if (!sVBOPooling)
     {
         // on OS X, flush_vbo doesn't actually write to the GL buffer, so be sure to call
         // _mapBuffer to tag the buffer for flushing to GL
@@ -1426,16 +1313,16 @@ void LLVertexBuffer::_unmapBuffer()
         }
     };
 
-    if (gGLManager.mIsApple)
+    if (!sVBOPooling)
     {
         STOP_GLERROR;
         if (mMappedData)
         {
             if (mGLBuffer)
             {
-                delete_buffers(1, &mGLBuffer);
+                ll_gl_delete_buffers(1, &mGLBuffer);
             }
-            mGLBuffer = gen_buffer();
+            mGLBuffer = ll_gl_gen_buffer();
             glBindBuffer(GL_ARRAY_BUFFER, mGLBuffer);
             sGLRenderBuffer = mGLBuffer;
             glBufferData(GL_ARRAY_BUFFER, mSize, mMappedData, GL_STATIC_DRAW);
@@ -1451,10 +1338,10 @@ void LLVertexBuffer::_unmapBuffer()
         {
             if (mGLIndices)
             {
-                delete_buffers(1, &mGLIndices);
+                ll_gl_delete_buffers(1, &mGLIndices);
             }
 
-            mGLIndices = gen_buffer();
+            mGLIndices = ll_gl_gen_buffer();
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mGLIndices);
             sGLRenderIndices = mGLIndices;
 
@@ -1656,8 +1543,6 @@ bool LLVertexBuffer::getClothWeightStrider(LLStrider<LLVector4>& strider, U32 in
 // Set for rendering
 void LLVertexBuffer::setBuffer()
 {
-    STOP_GLERROR;
-
     if (mMapped)
     {
         LL_WARNS_ONCE() << "Missing call to unmapBuffer or flushBuffers" << LL_ENDL;
@@ -1700,15 +1585,34 @@ void LLVertexBuffer::setBuffer()
     STOP_GLERROR;
 }
 
+void LLVertexBuffer::bindBuffer()
+{
+    sLastMask = 0;
+    if (sGLRenderBuffer != mGLBuffer)
+    {
+        glBindBuffer(GL_ARRAY_BUFFER, mGLBuffer);
+        sGLRenderBuffer = mGLBuffer;
+    }
+
+    if (mGLIndices != sGLRenderIndices)
+    {
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mGLIndices);
+        sGLRenderIndices = mGLIndices;
+    }
+}
 
 // virtual (default)
 void LLVertexBuffer::setupVertexBuffer()
 {
     STOP_GLERROR;
-    U8* base = nullptr;
-
     U32 data_mask = LLGLSLShader::sCurBoundShaderPtr->mAttributeMask;
 
+    setupVertexBuffer(data_mask);
+}
+
+void LLVertexBuffer::setupVertexBuffer(U32 data_mask)
+{
+    U8* base = nullptr;
     if (data_mask & MAP_NORMAL)
     {
         AttributeType loc = TYPE_NORMAL;
@@ -1801,6 +1705,67 @@ void LLVertexBuffer::setupVertexBuffer()
         glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_VERTEX], ptr);
     }
     STOP_GLERROR;
+}
+
+//static
+void LLVertexBuffer::bindVBO(U32 vbo, U32 ibo, U32 vcount)
+{
+    if (sGLRenderBuffer == vbo)
+    {
+        return;
+    }
+
+    // NOTE: this only works for VertexBuffers allocated from inside LLVolume that all have the same attribute mask
+
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    sGLRenderBuffer = vbo;
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+    sGLRenderIndices = ibo;
+
+    U32 data_mask = LLGLSLShader::sCurBoundShaderPtr->mAttributeMask;
+
+    U8* base = nullptr;
+
+    U32 offsets[TYPE_MAX];
+
+    U32 offset = 0;
+    offsets[TYPE_VERTEX] = offset;  offset += sTypeSize[TYPE_VERTEX] * vcount;      offset = (offset + 0xF) & ~0xF;
+    offsets[TYPE_NORMAL] = offset;  offset += sTypeSize[TYPE_NORMAL] * vcount;      offset = (offset + 0xF) & ~0xF;
+    offsets[TYPE_TEXCOORD0] = offset; offset += sTypeSize[TYPE_TEXCOORD0] * vcount; offset = (offset + 0xF) & ~0xF;
+    offsets[TYPE_TANGENT] = offset; offset += sTypeSize[TYPE_TANGENT] * vcount;     offset = (offset + 0xF) & ~0xF;
+    offsets[TYPE_WEIGHT4] = offset; offset += sTypeSize[TYPE_WEIGHT4] * vcount;     offset = (offset + 0xF) & ~0xF;
+
+    if (data_mask & MAP_NORMAL)
+    {
+        AttributeType loc = TYPE_NORMAL;
+        void* ptr = (void*)(base + offsets[TYPE_NORMAL]);
+        glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_NORMAL], ptr);
+    }
+    if (data_mask & MAP_TANGENT)
+    {
+        AttributeType loc = TYPE_TANGENT;
+        void* ptr = (void*)(base + offsets[TYPE_TANGENT]);
+        glVertexAttribPointer(loc, 4, GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_TANGENT], ptr);
+    }
+    if (data_mask & MAP_TEXCOORD0)
+    {
+        AttributeType loc = TYPE_TEXCOORD0;
+        void* ptr = (void*)(base + offsets[TYPE_TEXCOORD0]);
+        glVertexAttribPointer(loc, 2, GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_TEXCOORD0], ptr);
+    }
+    if (data_mask & MAP_WEIGHT4)
+    {
+        AttributeType loc = TYPE_WEIGHT4;
+        void* ptr = (void*)(base + offsets[TYPE_WEIGHT4]);
+        glVertexAttribPointer(loc, 4, GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_WEIGHT4], ptr);
+    }
+
+    {
+        AttributeType loc = TYPE_VERTEX;
+        void* ptr = (void*)(base + offsets[TYPE_VERTEX]);
+        glVertexAttribPointer(loc, 3, GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_VERTEX], ptr);
+    }
 }
 
 void LLVertexBuffer::setPositionData(const LLVector4a* data)
@@ -1901,20 +1866,26 @@ void LLVertexBuffer::setJointData(const U64* data, U32 offset, U32 count)
 
 void LLVertexBuffer::setIndexData(const U16* data, U32 offset, U32 count)
 {
-    flush_vbo(GL_ELEMENT_ARRAY_BUFFER, offset * sizeof(U16), (offset + count) * sizeof(U16) - 1, (U8*)data, mMappedIndexData);
+    if (mIndicesType == GL_UNSIGNED_INT)
+    { // implicitly convert input to 32-bit indices
+        U32* temp = new U32[count];
+        for (U32 i = 0; i < count; ++i)
+        {
+            temp[i] = data[i];
+        }
+        flush_vbo(GL_ELEMENT_ARRAY_BUFFER, offset * sizeof(U32), (offset + count) * sizeof(U32) - 1, (U8*)temp, mMappedIndexData);
+        delete[] temp;
+    }
+    else
+    {
+        flush_vbo(GL_ELEMENT_ARRAY_BUFFER, offset * sizeof(U16), (offset + count) * sizeof(U16) - 1, (U8*)data, mMappedIndexData);
+    }
 }
 
 void LLVertexBuffer::setIndexData(const U32* data, U32 offset, U32 count)
 {
-    if (mIndicesType != GL_UNSIGNED_INT)
-    { // HACK -- vertex buffers are initialized as 16-bit indices, but can be switched to 32-bit indices
-        mIndicesType = GL_UNSIGNED_INT;
-        mIndicesStride = 4;
-        mNumIndices /= 2;
-    }
+    llassert(mIndicesType == GL_UNSIGNED_INT);
+    llassert(mIndicesStride == 4);
     flush_vbo(GL_ELEMENT_ARRAY_BUFFER, offset * sizeof(U32), (offset + count) * sizeof(U32) - 1, (U8*)data, mMappedIndexData);
 }
-
-
-
 

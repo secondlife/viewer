@@ -212,7 +212,6 @@ bool handleRenderTransparentWaterChanged(const LLSD& newvalue)
 {
     if (gPipeline.isInit())
     {
-        gPipeline.updateRenderTransparentWater();
         gPipeline.releaseGLBuffers();
         gPipeline.createGLBuffers();
         LLViewerShaderMgr::instance()->setShaders();

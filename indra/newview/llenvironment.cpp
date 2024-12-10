@@ -2010,6 +2010,7 @@ void LLEnvironment::coroRequestEnvironment(S32 parcel_id, LLEnvironment::environ
         {
             LLAppViewer::instance()->postToMainCoro([=]()
                 {
+                    LL_PROFILE_ZONE_NAMED("LLEnvironment::coroRequestEnvironment::apply");
                     EnvironmentInfo::ptr_t envinfo = LLEnvironment::EnvironmentInfo::extract(environment);
                     apply(parcel_id, envinfo);
                 });

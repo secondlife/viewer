@@ -134,8 +134,9 @@ bool LLVOWater::updateGeometry(LLDrawable *drawable)
     static const unsigned int vertices_per_quad = 4;
     static const unsigned int indices_per_quad = 6;
 
-    S32 size_x = LLPipeline::sRenderTransparentWater ? 8 : 1;
-    S32 size_y = LLPipeline::sRenderTransparentWater ? 8 : 1;
+    static LLCachedControl<bool> render_transparent_water(gSavedSettings, "RenderTransparentWater");
+    S32 size_x = render_transparent_water ? 8 : 1;
+    S32 size_y = render_transparent_water ? 8 : 1;
 
     const LLVector3& scale = getScale();
     size_x *= (S32)llmin(llround(scale.mV[0] / 256.f), 8);

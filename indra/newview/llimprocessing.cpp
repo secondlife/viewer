@@ -1668,6 +1668,7 @@ void LLIMProcessing::requestOfflineMessagesCoro(std::string url)
 
         LLAppViewer::instance()->postToMainCoro([=]()
             {
+                LL_PROFILE_ZONE_NAMED("LLIMProcessing::processNewMessage");
                 std::vector<U8> local_bin_bucket = bin_bucket;
                 LLHost local_sender = sender;
                 LLIMProcessing::processNewMessage(

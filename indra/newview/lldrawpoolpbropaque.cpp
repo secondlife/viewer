@@ -32,6 +32,8 @@
 #include "pipeline.h"
 #include "gltfscenemanager.h"
 
+extern LLCullResult* sCull;
+
 LLDrawPoolGLTFPBR::LLDrawPoolGLTFPBR(U32 type) :
     LLRenderPass(type)
 {
@@ -56,17 +58,46 @@ void LLDrawPoolGLTFPBR::renderDeferred(S32 pass)
 
     if (mRenderType == LLPipeline::RENDER_TYPE_PASS_GLTF_PBR_ALPHA_MASK)
     {
-        LL::GLTFSceneManager::instance().renderOpaque();
+        // opaque
+        LL::GLTFSceneManager::instance().render(true);
+        // opaque rigged
+        LL::GLTFSceneManager::instance().render(true, true);
     }
 
-    gDeferredPBROpaqueProgram.bind();
-    pushGLTFBatches(mRenderType);
+    LLGLTFMaterial::AlphaMode alpha_mode = mRenderType == LLPipeline::RENDER_TYPE_PASS_GLTF_PBR_ALPHA_MASK ? LLGLTFMaterial::ALPHA_MODE_MASK : LLGLTFMaterial::ALPHA_MODE_OPAQUE;
 
-    LL::GLTFSceneManager::instance().render(true, true);
+    for (U32 double_sided = 0; double_sided < 2; ++double_sided)
+    {
+        LLGLDisable cull(double_sided ? GL_CULL_FACE : 0);
+        for (U32 planar = 0; planar < 2; ++planar)
+        {
+            for (U32 tex_anim = 0; tex_anim < 2; ++tex_anim)
+            {
+                for (U32 tex_mask = 0; tex_mask < LLGLTFBatches::MAX_PBR_TEX_MASK; ++tex_mask)
+                {
+                    LLGLSLShader& shader = gGLTFPBRShaderPack.mShader[alpha_mode][tex_mask][double_sided][planar][tex_anim];
+                    for (U32 rigged = 0; rigged < 2; ++rigged)
+                    {
+                        pushGLTFBatches(shader, rigged, alpha_mode, tex_mask, double_sided, planar, tex_anim);
+                    }
 
-    gDeferredPBROpaqueProgram.bind(true);
-    pushRiggedGLTFBatches(mRenderType + 1);
+                }
+                if (!double_sided && gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_MATERIALS))
+                {
+                    for (U32 tex_mask = 0; tex_mask < LLGLTFBatches::MAX_BP_TEX_MASK; ++tex_mask)
+                    {
+                        LLGLSLShader& shader = gBPShaderPack.mShader[alpha_mode][tex_mask][planar][tex_anim];
+                        for (U32 rigged = 0; rigged < 2; ++rigged)
+                        {
+                            pushBPBatches(shader, rigged, alpha_mode, tex_mask, planar, tex_anim);
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
+
 
 S32 LLDrawPoolGLTFPBR::getNumPostDeferredPasses()
 {
@@ -77,19 +108,7 @@ void LLDrawPoolGLTFPBR::renderPostDeferred(S32 pass)
 {
     if (LLPipeline::sRenderingHUDs)
     {
-        gHUDPBROpaqueProgram.bind();
-        pushGLTFBatches(mRenderType);
-    }
-    else if (mRenderType == LLPipeline::RENDER_TYPE_PASS_GLTF_PBR) // HACK -- don't render glow except for the non-alpha masked implementation
-    {
-        gGL.setColorMask(false, true);
-        gPBRGlowProgram.bind();
-        pushGLTFBatches(LLRenderPass::PASS_GLTF_GLOW);
-
-        gPBRGlowProgram.bind(true);
-        pushRiggedGLTFBatches(LLRenderPass::PASS_GLTF_GLOW_RIGGED);
-
-        gGL.setColorMask(true, false);
+        // TODO -- render HUDs
     }
 }
 

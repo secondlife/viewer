@@ -114,6 +114,14 @@
 #include "lllocalbitmaps.h"
 #include "llperfstats.h"
 #include "llgltfmateriallist.h"
+#include "llmaterialmgr.h"
+#include "lltoolselectland.h"
+#include "lltoolindividual.h"
+#include "lltoolcomp.h"
+#include "lltoolface.h"
+#include "lltoolpipette.h"
+#include "glworkqueue.h"
+#include "llremoteparcelrequest.h"
 
 // Linden library includes
 #include "fsyspath.h"
@@ -570,7 +578,6 @@ static void settings_to_globals()
 
 static void settings_modify()
 {
-    LLPipeline::sRenderTransparentWater = gSavedSettings.getBOOL("RenderTransparentWater");
     LLPipeline::sRenderDeferred = true; // false is deprecated
     LLRenderTarget::sUseFBO             = LLPipeline::sRenderDeferred;
     LLVOSurfacePatch::sLODFactor        = gSavedSettings.getF32("RenderTerrainLODFactor");
@@ -720,6 +727,75 @@ public:
         return LLTrans::getString(xml_desc);
     }
 };
+
+void create_simpletons()
+{
+    //LLSimpleton creations
+    LLEnvironment::createInstance();
+    LLWorld::createInstance();
+    LLViewerStatsRecorder::createInstance();
+    LLSelectMgr::createInstance();
+    LLViewerCamera::createInstance();
+    LL::GLTFSceneManager::createInstance();
+    LLDeferredSounds::createInstance();
+    LLSafeHandle<LLObjectSelection>::NullInstanceHolder::createInstance();
+    LLSafeHandle<LLParcelSelection>::NullInstanceHolder::createInstance();
+    LLMaterialMgr::createInstance();
+    LLSpeakerVolumeStorage::createInstance();
+    LLToolSelectLand::createInstance();
+    LLToolIndividual::createInstance();
+    LLToolCompInspect::createInstance();
+    LLToolCompTranslate::createInstance();
+    LLToolCompScale::createInstance();
+    LLToolCompRotate::createInstance();
+    LLToolCompCreate::createInstance();
+    LLToolCompGun::createInstance();
+    LLToolFace::createInstance();
+    LLToolPipette::createInstance();
+    LLToolMgr::createInstance();
+    LLWorldMap::createInstance();
+    LLHUDRenderNotifier::createInstance();
+    LLRemoteParcelInfoProcessor::createInstance();
+
+    if (gSavedSettings.getBOOL("IdleThread"))
+    {
+        LL::GLThreadPool::createInstance();
+    }
+}
+
+void destroy_simpletons()
+{
+    // LLSimpleton deletions
+    LL::GLTFSceneManager::deleteSingleton();
+    LLEnvironment::deleteSingleton();
+    LLSelectMgr::deleteSingleton();
+    LLViewerStatsRecorder::deleteSingleton();
+    LLViewerEventRecorder::deleteSingleton();
+    LLWorld::deleteSingleton();
+    LLVoiceClient::deleteSingleton();
+    LLUI::deleteSingleton();
+    LLDeferredSounds::deleteSingleton();
+    LLSafeHandle<LLObjectSelection>::NullInstanceHolder::deleteSingleton();
+    LLSafeHandle<LLParcelSelection>::NullInstanceHolder::deleteSingleton();
+    LLMaterialMgr::deleteSingleton();
+    LLSpeakerVolumeStorage::deleteSingleton();
+    LLToolSelectLand::deleteSingleton();
+    LLToolIndividual::deleteSingleton();
+    LLToolCompInspect::deleteSingleton();
+    LLToolCompTranslate::deleteSingleton();
+    LLToolCompScale::deleteSingleton();
+    LLToolCompRotate::deleteSingleton();
+    LLToolCompCreate::deleteSingleton();
+    LLToolCompGun::deleteSingleton();
+    LLToolFace::deleteSingleton();
+    LLToolPipette::deleteSingleton();
+    LLToolMgr::deleteSingleton();
+    LLWorldMap::deleteSingleton();
+    LLHUDRenderNotifier::deleteSingleton();
+    LLRemoteParcelInfoProcessor::deleteSingleton();
+
+    LL::GLThreadPool::deleteSingleton();
+}
 
 
 bool LLAppViewer::init()
@@ -887,8 +963,6 @@ bool LLAppViewer::init()
 
     /////////////////////////////////////////////////
 
-    LLToolMgr::getInstance(); // Initialize tool manager if not already instantiated
-
     LLViewerFloaterReg::registerFloaters();
 
     /////////////////////////////////////////////////
@@ -1051,7 +1125,7 @@ bool LLAppViewer::init()
         }
     }
 
-#if LL_WINDOWS && ADDRESS_SIZE == 64
+#if 0 && LL_WINDOWS && ADDRESS_SIZE == 64
     if (gGLManager.mIsIntel)
     {
         // Check intel driver's version
@@ -1323,14 +1397,7 @@ bool LLAppViewer::init()
     // Load User's bindings
     loadKeyBindings();
 
-    //LLSimpleton creations
-    LLEnvironment::createInstance();
-    LLWorld::createInstance();
-    LLViewerStatsRecorder::createInstance();
-    LLSelectMgr::createInstance();
-    LLViewerCamera::createInstance();
-    LL::GLTFSceneManager::createInstance();
-
+    create_simpletons();
 
 #if LL_WINDOWS
     if (!mSecondInstance)
@@ -1472,12 +1539,21 @@ void sendGameControlInput()
     gAgent.sendMessage();
 }
 
+extern bool gShaderProfileFrame;
 
 bool LLAppViewer::doFrame()
 {
     LL_RECORD_BLOCK_TIME(FTM_FRAME);
     LL_PROFILE_GPU_ZONE("Frame");
+
+    if (gShaderProfileFrame)
     {
+        LLGLSLShader::initProfile();
+    }
+
+    {
+        LLVertexBuffer::updateClass();
+
     // and now adjust the visuals from previous frame.
     if(LLPerfStats::tunables.userAutoTuneEnabled && LLPerfStats::tunables.tuningFlag != LLPerfStats::Tunables::Nothing)
     {
@@ -1589,6 +1665,7 @@ bool LLAppViewer::doFrame()
             }
 
             // Update state based on messages, user input, object idle.
+            if (!LL::GLThreadPool::instanceExists() || (LLStartUp::getStartupState() != STATE_STARTED))
             {
                 {
                     LL_PROFILE_ZONE_NAMED_CATEGORY_APP("df pauseMainloopTimeout");
@@ -1606,6 +1683,27 @@ bool LLAppViewer::doFrame()
                     resumeMainloopTimeout();
                 }
             }
+
+            //  Update statistics for this frame
+            update_statistics();
+
+            // Metrics logging (LLViewerAssetStats, etc.)
+            {
+                static LLTimer report_interval;
+
+                // *TODO:  Add configuration controls for this
+                F32 seconds = report_interval.getElapsedTimeF32();
+                if (seconds >= app_metrics_interval)
+                {
+                    metricsSend(!gDisconnected);
+                    report_interval.reset();
+                }
+            }
+
+            // update agent camera before display()
+            gAgentCamera.updateCamera();
+
+            gObjectList.updateGL();
 
             if (gDoDisconnect && (LLStartUp::getStartupState() == STATE_STARTED))
             {
@@ -1635,7 +1733,6 @@ bool LLAppViewer::doFrame()
                     LLPerfStats::RecordSceneTime T(LLPerfStats::StatType_t::RENDER_IDLE);
                     LL_PROFILE_ZONE_NAMED_CATEGORY_APP("df Snapshot");
                     pingMainloopTimeout("Main:Snapshot");
-                    gPipeline.mReflectionMapManager.update();
                     LLFloaterSnapshot::update(); // take snapshots
                     LLFloaterSimpleSnapshot::update();
                     gGLActive = false;
@@ -2272,14 +2369,7 @@ bool LLAppViewer::cleanup()
     ll_close_fail_log();
 
     LLError::LLCallStacks::cleanup();
-    LL::GLTFSceneManager::deleteSingleton();
-    LLEnvironment::deleteSingleton();
-    LLSelectMgr::deleteSingleton();
-    LLViewerStatsRecorder::deleteSingleton();
-    LLViewerEventRecorder::deleteSingleton();
-    LLWorld::deleteSingleton();
-    LLVoiceClient::deleteSingleton();
-    LLUI::deleteSingleton();
+    destroy_simpletons();
 
     // It's not at first obvious where, in this long sequence, a generic cleanup
     // call OUGHT to go. So let's say this: as we migrate cleanup from
@@ -4679,23 +4769,6 @@ void LLAppViewer::saveNameCache()
     }
 }
 
-
-/*! @brief      This class is an LLFrameTimer that can be created with
-                an elapsed time that starts counting up from the given value
-                rather than 0.0.
-
-                Otherwise it behaves the same way as LLFrameTimer.
-*/
-class LLFrameStatsTimer : public LLFrameTimer
-{
-public:
-    LLFrameStatsTimer(F64 elapsed_already = 0.0)
-        : LLFrameTimer()
-        {
-            mStartTime -= elapsed_already;
-        }
-};
-
 static LLTrace::BlockTimerStatHandle FTM_AUDIO_UPDATE("Update Audio");
 static LLTrace::BlockTimerStatHandle FTM_CLEANUP("Cleanup");
 static LLTrace::BlockTimerStatHandle FTM_CLEANUP_DRAWABLES("Drawables");
@@ -4862,43 +4935,20 @@ void LLAppViewer::idle()
         gAgent.resetControlFlags();
     }
 
-    //////////////////////////////////////
-    //
-    // Manage statistics
-    //
-    //
+    // Print the object debugging stats
+    static LLFrameTimer object_debug_timer;
+    if (object_debug_timer.getElapsedTimeF32() > 5.f)
     {
-        // Initialize the viewer_stats_timer with an already elapsed time
-        // of SEND_STATS_PERIOD so that the initial stats report will
-        // be sent immediately.
-        static LLFrameStatsTimer viewer_stats_timer(SEND_STATS_PERIOD);
-
-        // Update session stats every large chunk of time
-        // *FIX: (?) SAMANTHA
-        if (viewer_stats_timer.getElapsedTimeF32() >= SEND_STATS_PERIOD && !gDisconnected)
+        object_debug_timer.reset();
+        if (gObjectList.mNumDeadObjectUpdates)
         {
-            LL_INFOS() << "Transmitting sessions stats" << LL_ENDL;
-            bool include_preferences = false;
-            send_viewer_stats(include_preferences);
-            viewer_stats_timer.reset();
+            LL_INFOS() << "Dead object updates: " << gObjectList.mNumDeadObjectUpdates << LL_ENDL;
+            gObjectList.mNumDeadObjectUpdates = 0;
         }
-
-        // Print the object debugging stats
-        static LLFrameTimer object_debug_timer;
-        if (object_debug_timer.getElapsedTimeF32() > 5.f)
+        if (gObjectList.mNumUnknownUpdates)
         {
-            object_debug_timer.reset();
-            if (gObjectList.mNumDeadObjectUpdates)
-            {
-                LL_INFOS() << "Dead object updates: " << gObjectList.mNumDeadObjectUpdates << LL_ENDL;
-                gObjectList.mNumDeadObjectUpdates = 0;
-            }
-            if (gObjectList.mNumUnknownUpdates)
-            {
-                LL_INFOS() << "Unknown object updates: " << gObjectList.mNumUnknownUpdates << LL_ENDL;
-                gObjectList.mNumUnknownUpdates = 0;
-            }
-
+            LL_INFOS() << "Unknown object updates: " << gObjectList.mNumUnknownUpdates << LL_ENDL;
+            gObjectList.mNumUnknownUpdates = 0;
         }
     }
 
@@ -4916,12 +4966,8 @@ void LLAppViewer::idle()
         idleNameCache();
         idleNetwork();
 
-
         // Check for away from keyboard, kick idle agents.
         idle_afk_check();
-
-        //  Update statistics for this frame
-        update_statistics();
     }
 
     ////////////////////////////////////////
@@ -4934,29 +4980,12 @@ void LLAppViewer::idle()
     if (!mQuitRequested)  //MAINT-4243
 #endif
     {
-//      LL_RECORD_BLOCK_TIME(FTM_IDLE_CB);
-
         // Do event notifications if necessary.  Yes, we may want to move this elsewhere.
         gEventNotifier.update();
 
-        gIdleCallbacks.callFunctions();
         gInventory.idleNotifyObservers();
         LLAvatarTracker::instance().idleNotifyObservers();
     }
-
-    // Metrics logging (LLViewerAssetStats, etc.)
-    {
-        static LLTimer report_interval;
-
-        // *TODO:  Add configuration controls for this
-        F32 seconds = report_interval.getElapsedTimeF32();
-        if (seconds >= app_metrics_interval)
-        {
-            metricsSend(! gDisconnected);
-            report_interval.reset();
-        }
-    }
-
 
     // Update layonts, handle mouse events, tooltips, e t c
     // updateUI() needs to be called even in case viewer disconected
@@ -5134,9 +5163,41 @@ void LLAppViewer::idle()
         {
             LLViewerJoystick::getInstance()->moveObjects();
         }
-
-        gAgentCamera.updateCamera();
     }
+
+    //////////////////////////////////////
+    //
+    // Update images, using the image stats generated during object update/culling
+    //
+    // Can put objects onto the retextured list.
+    //
+    // Doing this here gives hardware occlusion queries extra time to complete
+    LLAppViewer::instance()->pingMainloopTimeout("Display:UpdateImages");
+
+    {
+        LL_PROFILE_ZONE_NAMED("Update Images");
+
+        {
+            LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("Class");
+            LLViewerTexture::updateClass();
+        }
+
+        {
+            LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("List");
+            F32 max_image_decode_time = 0.050f * gFrameIntervalSeconds.value(); // 50 ms/second decode time
+            max_image_decode_time = llclamp(max_image_decode_time, 0.002f, 0.005f); // min 2ms/frame, max 5ms/frame)
+            gTextureList.updateImages(max_image_decode_time);
+        }
+
+        {
+            LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("GLTF Materials Cleanup");
+            //remove dead gltf materials
+            gGLTFMaterialList.flushMaterials();
+        }
+    }
+
+    // update nearby lights to main camera
+    gPipeline.calcNearbyLights(LLViewerCamera::instance());
 
     // update media focus
     LLViewerMediaFocus::getInstance()->update();
@@ -5505,7 +5566,6 @@ void LLAppViewer::idleNetwork()
     // Retransmit unacknowledged packets.
     gXferManager->retransmitUnackedPackets();
     gAssetStorage->checkForTimeouts();
-    gViewerThrottle.updateDynamicThrottle();
 
     // Check that the circuit between the viewer and the agent's current
     // region is still alive

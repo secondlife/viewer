@@ -39,6 +39,7 @@
 #include "llvertexbuffer.h"
 #include "llviewertexture.h"
 #include "lldrawable.h"
+#include "llgltfdrawinfo.h"
 
 class LLFacePool;
 class LLVolume;
@@ -149,20 +150,11 @@ public:
 
     void            setFaceColor(const LLColor4& color); // override material color
     void            unsetFaceColor(); // switch back to material color
-    const LLColor4& getFaceColor() const { return mFaceColor; }
 
 
     //for volumes
     void updateRebuildFlags();
     bool canRenderAsMask(); // logic helper
-    bool getGeometryVolume(const LLVolume& volume,
-                            S32 face_index,
-                            const LLMatrix4& mat_vert,
-                            const LLMatrix3& mat_normal,
-                            U16 index_offset,
-                            bool force_rebuild = false,
-                            bool no_debug_assert = false,
-                            bool rebuild_for_gltf = false);
 
     // For avatar
     U16          getGeometryAvatar(
@@ -188,10 +180,8 @@ public:
 
     void        init(LLDrawable* drawablep, LLViewerObject* objp);
     void        destroy();
-    void        update();
 
     void        updateCenterAgent(); // Update center when xform has changed.
-    void        renderSelectedUV();
 
     void        renderSelected(LLViewerTexture *image, const LLColor4 &color);
     void        renderOneWireframe(const LLColor4 &color, F32 fogCfx, bool wireframe_selection, bool bRenderHiddenSelections, bool shader);
@@ -216,8 +206,6 @@ public:
 
     void        setMediaAllowed(bool is_media_allowed)  { mIsMediaAllowed = is_media_allowed; }
     bool        isMediaAllowed() const { return mIsMediaAllowed; }
-
-    bool        switchTexture() ;
 
     //vertex buffer tracking
     void setVertexBuffer(LLVertexBuffer* buffer);
@@ -255,7 +243,6 @@ public:
     LLVector3       mCenterLocal;
     LLVector3       mCenterAgent;
 
-    LLVector2       mTexExtents[2];
     F32             mDistance;
     F32         mLastUpdateTime;
     F32         mLastSkinTime;
@@ -274,6 +261,20 @@ public:
     bool mInFrustum = false;
     // value of gFrameCount the last time the face was touched by LLViewerTextureList::updateImageDecodePriority
     U32 mLastTextureUpdate = 0;
+
+    U32         mMaterialIndex = 0xFFFFFFFF;     // index of material in LLSpatialGroup's material UBO
+    U32         mTextureTransformIndex = 0xFFFFFFFF; // index of texture transform in LLSpatialGroup's texture transform UBO
+
+    LLGLTFDrawInfoHandle mGLTFDrawInfo;   // handle to GLTF draw info for this face.
+
+    // hash of material for use in render batch sorting
+    size_t mBatchHash = 0;
+
+    // cached alpha mode that matches mBatchHash for use in render batch sorting
+    LLGLTFMaterial::AlphaMode mAlphaMode = LLGLTFMaterial::ALPHA_MODE_OPAQUE;
+
+    void updateBatchHash();
+    void packMaterialOnto(std::vector<LLVector4a>& dst);
 
 private:
     LLPointer<LLVertexBuffer> mVertexBuffer;

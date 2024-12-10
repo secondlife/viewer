@@ -797,9 +797,8 @@ void LLAvatarAppearance::buildCharacter()
     LLTimer timer;
 
     bool status = loadAvatar();
-    stop_glerror();
 
-//  gPrintMessagesThisFrame = true;
+    //  gPrintMessagesThisFrame = true;
     LL_DEBUGS() << "Avatar load took " << timer.getElapsedTimeF32() << " seconds." << LL_ENDL;
 
     if (!status)
@@ -870,8 +869,6 @@ void LLAvatarAppearance::buildCharacter()
     mPelvisp->setPosition( LLVector3(0.0f, 0.0f, 0.0f) );
 
     mIsBuilt = true;
-    stop_glerror();
-
 }
 
 bool LLAvatarAppearance::loadAvatar()

@@ -35,6 +35,7 @@ void LLDeferredSounds::deferSound(SoundData& sound)
 }
 void LLDeferredSounds::playdeferredSounds()
 {
+    LL_PROFILE_ZONE_SCOPED;
     while(soundVector.size())
     {
         if (gAudiop)
