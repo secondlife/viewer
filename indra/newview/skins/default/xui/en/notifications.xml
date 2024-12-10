@@ -10159,12 +10159,6 @@ Do you wish to continue?
      yestext="OK"/>
   </notification>
 
-  <global name="UnsupportedIntelDriver">
-The installed Intel graphics driver for [GPUNAME], version [VERSION], is significantly out of date and is known to cause excessive rates of program crashes. You are strongly advised to update to a current Intel driver
-
-Do you want to check the Intel driver website?
-  </global>
-
   <global name="UnsupportedCPUAmount">
 796
   </global>
