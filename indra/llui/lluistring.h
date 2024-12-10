@@ -110,8 +110,8 @@ private:
     LLStringUtil::format_map_t* mArgs;
 
     // controls lazy evaluation
-    mutable bool    mNeedsResult;
-    mutable bool    mNeedsWResult;
+    mutable bool    mNeedsResult { true };
+    mutable bool    mNeedsWResult { true };
 };
 
 #endif // LL_LLUISTRING_H
