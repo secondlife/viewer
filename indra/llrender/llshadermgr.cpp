@@ -79,7 +79,7 @@ bool LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
     //////////////////////////////////////
 
     // NOTE order of shader object attaching is VERY IMPORTANT!!!
-    if (features->calculatesAtmospherics)
+    if (features->calculatesAtmospherics || features->hasGamma || features->isDeferred)
     {
         if (!shader->attachVertexObject("windlight/atmosphericsVarsV.glsl"))
         {
