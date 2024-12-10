@@ -464,8 +464,8 @@ bool LLGLTFPreviewTexture::render()
     // Set up camera and viewport
     const LLVector3 origin(0.0, 0.0, 0.0);
     camera.lookAt(origin, object_position);
-    camera.setAspect((F32)(mFullHeight / mFullWidth));
-    const LLRect texture_rect(0, mFullHeight, mFullWidth, 0);
+    camera.setAspect((F32)getFullHeight() / getFullWidth());
+    const LLRect texture_rect(0, getFullHeight(), getFullWidth(), 0);
     camera.setPerspective(NOT_FOR_SELECTION, texture_rect.mLeft, texture_rect.mBottom, texture_rect.getWidth(), texture_rect.getHeight(), false, camera.getNear(), MAX_FAR_CLIP*2.f);
 
     // Generate sphere object on-the-fly. Discard afterwards. (Vertex buffer is

@@ -36,6 +36,8 @@
 LLUrlAction::url_callback_t         LLUrlAction::sOpenURLCallback;
 LLUrlAction::url_callback_t         LLUrlAction::sOpenURLInternalCallback;
 LLUrlAction::url_callback_t         LLUrlAction::sOpenURLExternalCallback;
+LLUrlAction::url_title_callback_t   LLUrlAction::sCreateLandmarkCallback;
+LLUrlAction::check_url_callback_t   LLUrlAction::sCanCreateLandmarkCallback;
 LLUrlAction::execute_url_callback_t LLUrlAction::sExecuteSLURLCallback;
 
 
@@ -52,6 +54,16 @@ void LLUrlAction::setOpenURLInternalCallback(url_callback_t cb)
 void LLUrlAction::setOpenURLExternalCallback(url_callback_t cb)
 {
     sOpenURLExternalCallback = cb;
+}
+
+void LLUrlAction::setCreateLandmarkCallback(url_title_callback_t cb)
+{
+    sCreateLandmarkCallback = cb;
+}
+
+void LLUrlAction::setCanCreateLandmarkCallback(check_url_callback_t cb)
+{
+    sCanCreateLandmarkCallback = cb;
 }
 
 void LLUrlAction::setExecuteSLURLCallback(execute_url_callback_t cb)
@@ -140,6 +152,24 @@ void LLUrlAction::copyLabelToClipboard(std::string url)
     {
         LLView::getWindow()->copyTextToClipboard(utf8str_to_wstring(match.getLabel()));
     }
+}
+
+void LLUrlAction::showFloaterCreateLandmark(std::string url, std::string title)
+{
+    if (sCreateLandmarkCallback)
+    {
+        sCreateLandmarkCallback(url, title);
+    }
+}
+
+bool LLUrlAction::canCreateLandmark(std::string url)
+{
+    if (sCanCreateLandmarkCallback)
+    {
+        return sCanCreateLandmarkCallback(url);
+    }
+
+    return false;
 }
 
 void LLUrlAction::showProfile(std::string url)

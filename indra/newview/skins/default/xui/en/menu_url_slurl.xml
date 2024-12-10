@@ -28,6 +28,15 @@
     <menu_item_separator
      layout="topleft" />
     <menu_item_call
+     label="Create Landmark for SLurl"
+     layout="topleft"
+     name="landmark">
+        <menu_item_call.on_click
+         function="Url.CreateLandmark" />
+        <menu_item_call.on_enable
+         function="Url.CanCreateLandmark" />
+    </menu_item_call>
+    <menu_item_call
      label="Copy SLurl to clipboard"
      layout="topleft"
      name="url_copy">

@@ -111,7 +111,7 @@ static const std::string lod_label_name[NUM_LOD + 1] =
     "I went off the end of the lod_label_name array.  Me so smart."
 };
 
-class LLModelPreview : public LLViewerDynamicTexture, public LLMutex
+class LLModelPreview : public LLViewerDynamicTexture, public LLMutex, public LLHandleProvider<LLModelPreview>
 {
     LOG_CLASS(LLModelPreview);
 
@@ -211,7 +211,7 @@ protected:
     static void         stateChangedCallback(U32 state, void* opaque);
 
     static LLJoint* lookupJointByName(const std::string&, void* opaque);
-    static U32          loadTextures(LLImportMaterial& material, void* opaque);
+    static U32          loadTextures(LLImportMaterial& material, LLHandle<LLModelPreview> handle);
 
     void lookupLODModelFiles(S32 lod);
 
@@ -316,6 +316,7 @@ protected:
 
     LLMeshUploadThread::instance_list mUploadData;
     std::set<LLViewerFetchedTexture * > mTextureSet;
+    LLLoadedCallbackEntry::source_callback_list_t mCallbackTextureList;
 
     //map of vertex buffers to models (one vertex buffer in vector per face in model
     std::map<LLModel*, std::vector<LLPointer<LLVertexBuffer> > > mVertexBuffer[LLModel::NUM_LODS + 1];

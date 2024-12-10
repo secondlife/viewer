@@ -148,8 +148,6 @@ public:
 
     LLFrameTimer* getLastReferencedTimer() { return &mLastReferencedTimer; }
 
-    S32 getFullWidth() const { return mFullWidth; }
-    S32 getFullHeight() const { return mFullHeight; }
     /*virtual*/ void setKnownDrawSize(S32 width, S32 height);
 
     virtual void addFace(U32 channel, LLFace* facep) ;
@@ -422,6 +420,8 @@ protected:
 private:
     void init(bool firstinit) ;
     void cleanup() ;
+
+    bool processFetchResults(S32& desired_discard, S32 current_discard, S32 fetch_discard, F32 decode_priority);
 
     void saveRawImage() ;
 

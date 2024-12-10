@@ -202,6 +202,11 @@ public:
     void resetDirty() override;
 
     /**
+     * Callback for "CreateLandmark" button click
+     */
+    void onClickCreateLandmark();
+
+    /**
      * Callback for "Set Location" button click
      */
     void onClickSetLocation();
@@ -228,6 +233,7 @@ protected:
     LLTextureCtrl*      mSnapshotCtrl;
     LLLineEditor*       mPickName;
     LLTextEditor*       mPickDescription;
+    LLButton*           mCreateLandmarkButton;
     LLButton*           mSetCurrentLocationButton;
     LLButton*           mSaveButton;
     LLButton*           mCreateButton;

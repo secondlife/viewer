@@ -43,6 +43,7 @@ uniform sampler2D lightMap;
 uniform int sun_up_factor;
 uniform vec3 sun_dir;
 uniform vec3 moon_dir;
+uniform int classic_mode;
 
 out vec4 frag_color;
 
@@ -111,13 +112,6 @@ vec3 pbrBaseLight(vec3 diffuseColor,
                   vec3 additive,
                   vec3 atten);
 
-vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor,
-                    float perceptualRoughness,
-                    float metallic,
-                    vec3 n, // normal
-                    vec3 v, // surface point to camera
-                    vec3 l); //surface point to light
-
 vec3 pbrCalcPointLightOrSpotLight(vec3 diffuseColor, vec3 specularColor,
                     float perceptualRoughness,
                     float metallic,
@@ -167,8 +161,9 @@ void main()
     vec3 additive;
     vec3 atten;
     calcAtmosphericVarsLinear(pos.xyz, norm, light_dir, sunlit, amblit, additive, atten);
-
-    vec3 sunlit_linear = srgb_to_linear(sunlit);
+    if (classic_mode > 0)
+        sunlit *= 1.35;
+    vec3 sunlit_linear = sunlit;
 
     vec2 frag = vary_fragcoord.xy/vary_fragcoord.z*0.5+0.5;
 
@@ -189,7 +184,7 @@ void main()
 
     // PBR IBL
     float gloss      = 1.0 - perceptualRoughness;
-    vec3  irradiance = vec3(0);
+    vec3  irradiance = amblit;
     vec3  radiance  = vec3(0);
     sampleReflectionProbes(irradiance, radiance, vary_position.xy*0.5+0.5, pos.xyz, norm.xyz, gloss, true, amblit);
 
@@ -219,8 +214,10 @@ void main()
     color.rgb = applySkyAndWaterFog(pos.xyz, additive, atten, vec4(color, 1.0)).rgb;
 
     float a = basecolor.a*vertex_color.a;
-
-    frag_color = max(vec4(color.rgb,a), vec4(0));
+    float final_scale = 1;
+    if (classic_mode > 0)
+        final_scale = 1.1;
+    frag_color = max(vec4(color.rgb * final_scale,a), vec4(0));
 }
 
 #else

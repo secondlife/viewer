@@ -1576,7 +1576,8 @@ void LLRender::flush()
     if (mCount > 0)
     {
         LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
-        llassert(LLGLSLShader::sCurBoundShaderPtr != nullptr);
+        llassert_always(LLGLSLShader::sCurBoundShaderPtr != nullptr);
+
         if (!mUIOffset.empty())
         {
             sUICalls++;

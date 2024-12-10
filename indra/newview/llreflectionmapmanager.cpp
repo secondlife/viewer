@@ -466,7 +466,7 @@ void LLReflectionMapManager::update()
 
 LLReflectionMap* LLReflectionMapManager::addProbe(LLSpatialGroup* group)
 {
-    if (gGLManager.mGLVersion < 4.05f)
+    if (gGLManager.mGLVersion < 4.05f || !LLPipeline::sReflectionProbesEnabled)
     {
         return nullptr;
     }
@@ -582,6 +582,11 @@ LLReflectionMap* LLReflectionMapManager::registerSpatialGroup(LLSpatialGroup* gr
 
 LLReflectionMap* LLReflectionMapManager::registerViewerObject(LLViewerObject* vobj)
 {
+    if (!LLPipeline::sReflectionProbesEnabled)
+    {
+        return nullptr;
+    }
+
     llassert(vobj != nullptr);
 
     LLReflectionMap* probe = new LLReflectionMap();
@@ -1071,7 +1076,7 @@ void LLReflectionMapManager::updateUniforms()
     LLEnvironment& environment = LLEnvironment::instance();
     LLSettingsSky::ptr_t psky = environment.getCurrentSky();
 
-    static LLCachedControl<bool> should_auto_adjust(gSavedSettings, "RenderSkyAutoAdjustLegacy", true);
+    static LLCachedControl<bool> should_auto_adjust(gSavedSettings, "RenderSkyAutoAdjustLegacy", false);
     F32 minimum_ambiance = psky->getReflectionProbeAmbiance(should_auto_adjust);
 
     bool is_ambiance_pass = gCubeSnapshot && !isRadiancePass();

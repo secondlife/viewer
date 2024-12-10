@@ -433,7 +433,7 @@ public:
     std::deque<LoadedMesh> mLoadedQ;
 
     //map of pending header requests and currently desired LODs
-    typedef std::unordered_map<LLUUID, std::vector<S32> > pending_lod_map;
+    typedef std::unordered_map<LLUUID, std::array<S32, LLModel::NUM_LODS> > pending_lod_map;
     pending_lod_map mPendingLOD;
 
     // map of mesh ID to skin info (mirrors LLMeshRepository::mSkinMap)
@@ -465,6 +465,9 @@ public:
 
     void lockAndLoadMeshLOD(const LLVolumeParams& mesh_params, S32 lod);
     void loadMeshLOD(const LLVolumeParams& mesh_params, S32 lod);
+
+    typedef std::vector<std::pair<const LLVolumeParams&, S32> > lod_list_t;
+    void loadMeshLODs(const lod_list_t& mesh_vect);
 
     bool fetchMeshHeader(const LLVolumeParams& mesh_params, bool can_retry = true);
     bool fetchMeshLOD(const LLVolumeParams& mesh_params, S32 lod, bool can_retry = true);
@@ -522,6 +525,9 @@ private:
     LLCore::HttpHandle getByteRange(const std::string & url,
                                     size_t offset, size_t len,
                                     const LLCore::HttpHandler::ptr_t &handler);
+
+    // Mutex:  mMutex must be alerady locked when calling
+    void loadMeshLOD(const LLUUID &mesh_id, const LLVolumeParams& mesh_params, S32 lod);
 };
 
 

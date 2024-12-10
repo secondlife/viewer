@@ -569,7 +569,7 @@ S32 LLTextEditor::indentLine( S32 pos, S32 spaces )
             LLWString wtext = getWText();
             if (wtext[pos] == ' ')
             {
-                delta_spaces += remove( pos, 1, false );
+                delta_spaces -= remove( pos, 1, false );
             }
         }
     }

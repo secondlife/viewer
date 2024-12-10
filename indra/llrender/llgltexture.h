@@ -40,11 +40,8 @@ class LLImageRaw;
 class LLGLTexture : public LLTexture
 {
 public:
-    enum
-    {
-        MAX_IMAGE_SIZE_DEFAULT = 2048,
-        INVALID_DISCARD_LEVEL = 0x7fff
-    };
+    static const U32 MAX_IMAGE_SIZE_DEFAULT = 2048;
+    static const U32 INVALID_DISCARD_LEVEL = 0x7fff;
 
     enum EBoostLevel
     {
@@ -104,6 +101,7 @@ public:
 
     S32 getFullWidth() const { return mFullWidth; }
     S32 getFullHeight() const { return mFullHeight; }
+    U32 getTexelsPerImage() const { return mTexelsPerImage; }
 
     void generateGLTexture() ;
     void destroyGLTexture() ;
@@ -175,28 +173,27 @@ private:
     void init();
 
 protected:
-    void setTexelsPerImage();
+    void setDimensions(U32 width, U32 height);
+    void setTexelsPerImage(U32 tpi) { mTexelsPerImage = tpi; }
 
 public:
     /*virtual*/ LLImageGL* getGLTexture() const ;
 
 protected:
     S32 mBoostLevel;                // enum describing priority level
-    U32 mFullWidth;
-    U32 mFullHeight;
     bool mUseMipMaps;
     S8  mComponents;
-    U32 mTexelsPerImage;            // Texels per image.
     mutable S8  mNeedsGLTexture;
 
     //GL texture
     LLPointer<LLImageGL> mGLTexturep ;
     S8 mDontDiscard;            // Keep full res version of this image (for UI, etc)
-
-protected:
     LLGLTextureState  mTextureState ;
 
-
+private:
+    U32 mFullWidth;
+    U32 mFullHeight;
+    U32 mTexelsPerImage;
 };
 
 #endif // LL_GL_TEXTURE_H
