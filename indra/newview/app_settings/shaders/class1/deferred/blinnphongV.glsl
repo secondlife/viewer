@@ -77,13 +77,13 @@ out vec3 vary_fragcoord;
 
 layout (std140) uniform GLTFNodes
 {
-    mat3x4 gltf_nodes[MAX_NODES_PER_GLTF_OBJECT];
+    vec4 gltf_nodes[MAX_UBO_VEC4S];
 };
 
 #ifdef TEX_ANIM
 layout (std140) uniform TextureTransform
 {
-    mat3x4 texture_matrix[MAX_NODES_PER_GLTF_OBJECT];
+    vec4 texture_matrix[MAX_UBO_VEC4S];
 };
 #endif
 
@@ -194,20 +194,27 @@ mat4 getGLTFTransform()
     int gltf_node_id = gltf_node_instance_map[gl_InstanceID+gltf_base_instance].x;
 
     mat4 ret;
-    mat3x4 src = gltf_nodes[gltf_node_id];
+    int idx = gltf_node_id*3;
+    vec4 src0 = gltf_nodes[idx+0];
+    vec4 src1 = gltf_nodes[idx+1];
+    vec4 src2 = gltf_nodes[idx+2];
 
-    ret[0] = vec4(src[0].xyz, 0);
-    ret[1] = vec4(src[1].xyz, 0);
-    ret[2] = vec4(src[2].xyz, 0);
-    ret[3] = vec4(src[0].w, src[1].w, src[2].w, 1);
+    ret[0] = vec4(src0.xyz, 0);
+    ret[1] = vec4(src1.xyz, 0);
+    ret[2] = vec4(src2.xyz, 0);
+
+    ret[3] = vec4(src0.w, src1.w, src2.w, 1);
 
 #ifndef HAS_SKIN
-    mat3x4 root = gltf_nodes[0];
+    vec4 root0 = gltf_nodes[0];
+    vec4 root1 = gltf_nodes[1];
+    vec4 root2 = gltf_nodes[2];
+
     mat4 root4;
-    root4[0] = vec4(root[0].xyz, 0);
-    root4[1] = vec4(root[1].xyz, 0);
-    root4[2] = vec4(root[2].xyz, 0);
-    root4[3] = vec4(root[0].w, root[1].w, root[2].w, 1);
+    root4[0] = vec4(root0.xyz, 0);
+    root4[1] = vec4(root1.xyz, 0);
+    root4[2] = vec4(root2.xyz, 0);
+    root4[3] = vec4(root0.w, root1.w, root2.w, 1);
 
     ret = root4 * ret;
 #endif
@@ -242,12 +249,15 @@ void main()
 #ifdef HAS_TEXTURE
     vec2 tc0 = texcoord0;
 #ifdef TEX_ANIM
-    mat3x4 src = texture_matrix[gltf_node_instance_map[gl_InstanceID+gltf_base_instance].z];
+    int idx = gltf_node_instance_map[gl_InstanceID+gltf_base_instance].z*3;
+    vec4 src0 = texture_matrix[idx+0];
+    vec4 src1 = texture_matrix[idx+1];
+    vec4 src2 = texture_matrix[idx+2];
 
-    tex_mat[0] = vec4(src[0].xyz, 0);
-    tex_mat[1] = vec4(src[1].xyz, 0);
-    tex_mat[2] = vec4(src[2].xyz, 0);
-    tex_mat[3] = vec4(src[0].w, src[1].w, src[2].w, 1);
+    tex_mat[0] = vec4(src0.xyz, 0);
+    tex_mat[1] = vec4(src1.xyz, 0);
+    tex_mat[2] = vec4(src2.xyz, 0);
+    tex_mat[3] = vec4(src0.w, src1.w, src2.w, 1);
 #else
     tex_mat[0] = vec4(1,0,0,0);
     tex_mat[1] = vec4(0,1,0,0);

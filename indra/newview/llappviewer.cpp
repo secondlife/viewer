@@ -1122,7 +1122,7 @@ bool LLAppViewer::init()
         }
     }
 
-#if LL_WINDOWS && ADDRESS_SIZE == 64
+#if 0 && LL_WINDOWS && ADDRESS_SIZE == 64
     if (gGLManager.mIsIntel)
     {
         // Check intel driver's version

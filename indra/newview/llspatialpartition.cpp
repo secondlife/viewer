@@ -514,7 +514,7 @@ void LLSpatialGroup::shift(const LLVector4a &offset)
     mObjectExtents[0].add(offset);
     mObjectExtents[1].add(offset);
 
-    if (getSpatialPartition()->mPartitionType == LLViewerRegion::PARTITION_VOLUME)
+    if (mTransformUBO) //getSpatialPartition()->mPartitionType == LLViewerRegion::PARTITION_VOLUME)
     {
         // add root transform
         if (!getSpatialPartition()->asBridge())
