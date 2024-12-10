@@ -41,6 +41,7 @@
 #include "lltrans.h"
 #include "llui.h"               // LLUI::getLanguage()
 #include "message.h"
+#include "llappviewer.h"
 
 LLAvatarPropertiesProcessor::LLAvatarPropertiesProcessor()
 {
@@ -367,7 +368,11 @@ void LLAvatarPropertiesProcessor::requestAvatarPropertiesCoro(std::string cap_ur
         avatar_data.picks_list.emplace_back(pick_data["id"].asUUID(), pick_data["name"].asString());
     }
 
-    inst.notifyObservers(avatar_id, &avatar_data, type);
+    LLAppViewer::instance()->postToMainCoro(
+        [avatar_id, avatar_data, type]()
+        {
+            LLAvatarPropertiesProcessor::instance().notifyObservers(avatar_id, (void*) &avatar_data, type);
+        });
 }
 
 void LLAvatarPropertiesProcessor::processAvatarLegacyPropertiesReply(LLMessageSystem* msg, void**)
