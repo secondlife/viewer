@@ -384,11 +384,19 @@ void LLCoros::toplevel(std::string name, callable_t callable)
         // viewer will carry on.
         LOG_UNHANDLED_EXCEPTION("coroutine " + name);
     }
-    catch (...)
+    catch (const std::exception& exc)
     {
         // Stash any OTHER kind of uncaught exception in the rethrow() queue
-        // to be rethrown by the main fiber.
+        // to be rethrown by the main fiber. Report the cause.
         LL_WARNS("LLCoros") << "Capturing uncaught exception in coroutine "
+                            << name << ": " << exc.what() << LL_ENDL;
+        LLCoros::instance().saveException(name, std::current_exception());
+    }
+    catch (...)
+    {
+        // We can't even tell what kind of exception this is. Stash it in the
+        // rethrow() queue to be rethrown by the main fiber.
+        LL_WARNS("LLCoros") << "Capturing unknown uncaught exception in coroutine "
                             << name << LL_ENDL;
         LLCoros::instance().saveException(name, std::current_exception());
     }
