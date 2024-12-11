@@ -7,9 +7,9 @@ local function dbg(...) end
 -- local dbg = require('printf')
 local util = require('util')
 
-local ErrorQueue = WaitQueue()
-
-util.classctor(ErrorQueue)
+local ErrorQueue = util.class{
+    'ErrorQueue',
+    base=WaitQueue}
 
 function ErrorQueue:Error(message)
     -- Setting Error() is a marker, like closing the queue. Once we reach the
