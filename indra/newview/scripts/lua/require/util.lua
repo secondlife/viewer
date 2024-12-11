@@ -86,9 +86,9 @@ local function wrapnew(ctor)
 end
 
 -- Define a "class" table.
--- Pass the class name, the class constructor (a function accepting whatever
--- arguments are appropriate) and any additional class attributes, e.g.
--- additional methods or __tostring(self).
+-- Pass the class name, the class constructor (a function accepting 'self',
+-- meaning the class, plus whatever arguments are appropriate) and any
+-- additional class attributes, e.g. additional methods or __tostring(self).
 -- Example: MyClass = util.class{
 --     'MyClass',
 --     function(self, _name)
@@ -116,6 +116,7 @@ function util.class(classname, new)
     local nm = classname
     local ctor = new
     local args = {}
+    local base
     if type(classname) == 'table' then
         assert(new == nil, 'Call util.class{...} or util.class(classname, new), not both')
         -- clone the passed table because we're going to modify it
@@ -128,17 +129,21 @@ function util.class(classname, new)
                'Call util.class{name, ctor, ...} or util.class{name, new=ctor, ...}, not both')
         ctor = args[2] or args.new
         args[2] = nil
-        assert((not args.base) or (type(args.base) == 'table'),
+        -- base= is a named parameter for us, not a class attribute.
+        -- Capture it and remove it from args.
+        base = args.base
+        args.base = nil
+        assert((not base) or (type(base) == 'table'),
             'util.class{base=} must be a class table')
     end
     assert(type(nm) == 'string' and #nm ~= 0, 'util.class(classname) must be non-empty string')
     if ctor then
         assert(util.callable(ctor), 'util.class() constructor must be callable')
         ctor = wrapnew(ctor)
-    else
-        if args.base and args.base.new then
+    else                        -- no ctor
+        if base and base.new then
             -- Omitting the constructor inherits the base-class constructor.
-            ctor = args.base.new
+            ctor = base.new
         else
             -- If there's no base-class constructor, just return empty table.
             ctor = wrapnew(function(self) return {} end)
@@ -149,7 +154,7 @@ function util.class(classname, new)
     args.classname = nm
     args.new = ctor
     -- Are we deriving this new class from an existing base class?
-    if args.base then
+    if base then
         -- The metatable __index assignment below takes care of inheriting
         -- most class attributes. But remembering that the class table is the
         -- metatable for each instance, our base class may have __metafunctions
@@ -158,9 +163,8 @@ function util.class(classname, new)
         -- the immediate metatable. Copy those to the new subclass, avoiding
         -- any explicitly set by our caller.
         -- This must happen *before* we set args's metatable's __index,
-        -- otherwise we think args already has every attribute set in
-        -- args.base!
-        for attribute, value in pairs(args.base) do
+        -- otherwise we think args already has every attribute that's in base!
+        for attribute, value in pairs(base) do
             if (string.sub(attribute, 1, 2) == '__' and #attribute > 2
                 and not args[attribute]) then
                 args[attribute] = value
@@ -171,7 +175,7 @@ function util.class(classname, new)
     -- Also, if we're creating a subclass, set its metatable's __index to the
     -- base class so any class attributes not found in this class will be
     -- looked up in the base class.
-    setmetatable(args, {__call=ctor, __index=args.base})
+    setmetatable(args, {__call=ctor, __index=base})
     -- Since 'args' is the metatable for each new instance, set its __index to
     -- the class table: if a referenced attribute isn't found on the object
     -- itself, seek it in the class.
@@ -191,6 +195,8 @@ end
 -- MyClass:construct():
 -- util.classctor(MyClass, MyClass.construct)
 -- return MyClass
+-- NOTE: This function is deprecated. Use util.class() to define your class
+-- instead, which implicitly supports this functionality.
 function util.classctor(class, ctor)
     -- set class's __call metamethod to the specified constructor function
     -- (class.new if not specified)

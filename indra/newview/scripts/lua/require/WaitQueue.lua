@@ -9,19 +9,15 @@ local util  = require('util')
 local function dbg(...) end
 -- local dbg = require('printf')
 
-local WaitQueue = Queue()
-
-function WaitQueue:new()
-    local obj = Queue()
-    setmetatable(obj, self)
-    self.__index = self
-
-    obj._waiters = {}
-    obj._closed = false
-    return obj
-end
-
-util.classctor(WaitQueue)
+local WaitQueue = util.class{
+    'WaitQueue',
+    base=Queue,
+    new=function(self)
+        local obj = Queue()
+        obj._waiters = {}
+        obj._closed = false
+        return obj
+    end}
 
 function WaitQueue:Enqueue(value)
     if self._closed then
