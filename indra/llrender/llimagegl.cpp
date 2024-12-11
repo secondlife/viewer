@@ -1052,7 +1052,7 @@ U32 type_width_from_pixtype(U32 pixtype)
 bool should_stagger_image_set(bool compressed)
 {
 #if LL_DARWIN
-    return false;
+    return gGLManager.mIsAMD;
 #else
     // glTexSubImage2D doesn't work with compressed textures on select tested Nvidia GPUs on Windows 10 -Cosmic,2023-03-08
     // Setting media textures off-thread seems faster when not using sub_image_lines (Nvidia/Windows 10) -Cosmic,2023-03-31
@@ -1467,7 +1467,32 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
             // break up calls to a manageable size for the GL command buffer
             {
                 LL_PROFILE_ZONE_NAMED("glTexImage2D alloc");
+#if LL_DARWIN
+                //llassert(glGetError() == GL_NO_ERROR);
+                if (intformat == GL_RGBA || intformat == GL_RGBA8)
+                {
+                    LL_PROFILE_ZONE_NAMED("glTexImage2D alloc - RGBA");
+                    LL_PROFILE_ZONE_NUM(intformat);
+                    glTexImage2D(target, miplevel, GL_RGBA, width, height, 0, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, nullptr);
+                    //llassert(glGetError() == GL_NO_ERROR);
+                }
+                else if (intformat == GL_RGB || intformat == GL_RGB8)
+                {
+                    LL_PROFILE_ZONE_NAMED("glTexImage2D alloc - RGB");
+                    LL_PROFILE_ZONE_NUM(intformat);
+                    glTexImage2D(target, miplevel, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+                    //llassert(glGetError() == GL_NO_ERROR);
+                }
+                else
+                {
+                    LL_PROFILE_ZONE_NAMED("glTexImage2D alloc - other");
+                    LL_PROFILE_ZONE_NUM(intformat);
+                    glTexImage2D(target, miplevel, intformat, width, height, 0, pixformat, pixtype, nullptr);
+                    //llassert(glGetError() == GL_NO_ERROR);
+                }
+#else
                 glTexImage2D(target, miplevel, intformat, width, height, 0, pixformat, pixtype, nullptr);
+#endif
             }
 
             U8* src = (U8*)(pixels);

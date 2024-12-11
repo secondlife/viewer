@@ -54,7 +54,7 @@ void* ll_tracy_new(size_t size)
     {
         throw std::bad_alloc();
     }
-    TracyAlloc(ptr, size);
+    LL_PROFILE_ALLOC(ptr, size);
     return ptr;
 }
 
@@ -70,7 +70,7 @@ void* operator new[](std::size_t count)
 
 void ll_tracy_delete(void* ptr)
 {
-    TracyFree(ptr);
+    LL_PROFILE_FREE(ptr);
     if (gProfilerEnabled)
     {
         //LL_PROFILE_ZONE_SCOPED_CATEGORY_MEMORY;
@@ -102,13 +102,13 @@ void operator delete[](void* ptr) noexcept
 void *tracy_aligned_malloc(size_t size, size_t alignment)
 {
     auto ptr = ll_aligned_malloc_fallback(size, alignment);
-    if (ptr) TracyAlloc(ptr, size);
+    if (ptr) LL_PROFILE_ALLOC(ptr, size);
     return ptr;
 }
 
 void tracy_aligned_free(void *memblock)
 {
-    TracyFree(memblock);
+    LL_PROFILE_FREE(memblock);
     ll_aligned_free_fallback(memblock);
 }
 

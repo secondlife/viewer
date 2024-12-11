@@ -2171,7 +2171,12 @@ bool LLAppViewer::initThreads()
 
     // get the number of concurrent threads that can run
     S32 cores = std::thread::hardware_concurrency();
-
+#if LL_DARWIN
+    if (!gGLManager.mIsApple)
+    {
+        cores /= 2;
+    }
+#endif
     U32 max_cores = gSavedSettings.getU32("EmulateCoreCount");
     if (max_cores != 0)
     {

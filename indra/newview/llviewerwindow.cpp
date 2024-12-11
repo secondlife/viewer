@@ -5391,6 +5391,8 @@ bool LLViewerWindow::cubeSnapshot(const LLVector3& origin, LLCubeMapArray* cubea
         camera->setUserClipPlane(clipPlane);
     }
 
+    gPipeline.pushRenderTypeMask();
+
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT); // stencil buffer is deprecated | GL_STENCIL_BUFFER_BIT);
 
     U32 dynamic_render_types[] = {
@@ -5412,6 +5414,24 @@ bool LLViewerWindow::cubeSnapshot(const LLVector3& origin, LLCubeMapArray* cubea
                 gPipeline.toggleRenderType(dynamic_render_types[i]);
             }
         }
+    }
+
+    U32 low_detail_render_types[] = {
+        LLPipeline::RENDER_TYPE_WATER,
+        LLPipeline::RENDER_TYPE_TERRAIN,
+        LLPipeline::RENDER_TYPE_SKY,
+        LLPipeline::RENDER_TYPE_CLOUDS
+    };
+
+    static LLCachedControl<S32> probe_level(gSavedSettings, "RenderReflectionProbeLevel");
+
+    if (probe_level == 0)
+    {
+        gPipeline.andRenderTypeMask(LLPipeline::RENDER_TYPE_WATER,
+                                    LLPipeline::RENDER_TYPE_TERRAIN,
+                                    LLPipeline::RENDER_TYPE_SKY,
+                                    LLPipeline::RENDER_TYPE_CLOUDS,
+                                    LLPipeline::END_RENDER_TYPES);
     }
 
     bool prev_draw_ui = gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI);
@@ -5479,16 +5499,7 @@ bool LLViewerWindow::cubeSnapshot(const LLVector3& origin, LLCubeMapArray* cubea
         }
     }
 
-    if (!dynamic_render)
-    {
-        for (int i = 0; i < dynamic_render_type_count; ++i)
-        {
-            if (prev_dynamic_render_type[i])
-            {
-                gPipeline.toggleRenderType(dynamic_render_types[i]);
-            }
-        }
-    }
+    gPipeline.popRenderTypeMask();
 
     if (hide_hud)
     {
