@@ -86,9 +86,9 @@ local function wrapnew(ctor)
 end
 
 -- Define a "class" table.
--- Pass the class name, the class constructor (a function accepting whatever
--- arguments are appropriate) and any additional class attributes, e.g.
--- additional methods or __tostring(self).
+-- Pass the class name, the class constructor (a function accepting 'self',
+-- meaning the class, plus whatever arguments are appropriate) and any
+-- additional class attributes, e.g. additional methods or __tostring(self).
 -- Example: MyClass = util.class{
 --     'MyClass',
 --     function(self, _name)
@@ -195,6 +195,8 @@ end
 -- MyClass:construct():
 -- util.classctor(MyClass, MyClass.construct)
 -- return MyClass
+-- NOTE: This function is deprecated. Use util.class() to define your class
+-- instead, which implicitly supports this functionality.
 function util.classctor(class, ctor)
     -- set class's __call metamethod to the specified constructor function
     -- (class.new if not specified)
