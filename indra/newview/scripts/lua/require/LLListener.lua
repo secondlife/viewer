@@ -81,4 +81,25 @@ function LLListener:inline(handler, kickoff, ...)
     return util.callok(ok, ret)
 end
 
+-- helper callback for next_event(); see next_event() below for usage
+local function one_shot(event)
+    -- WaitFor:wait() can return nil when the queue is closed.
+    -- inline(), that is, consumeWaitFor(), continues looping until
+    -- this callback returns non-nil. Don't return nil even when the
+    -- queue is closed. (Test specifically for nil, instead of (event
+    -- or true), because if the event is (false), we want to return
+    -- false to our caller.)
+    if event == nil then
+        return true
+    else
+        return event
+    end
+end
+
+-- next_event(kickoff, args...) is like inline(), except that it only waits
+-- for one event. It returns that event.
+function LLListener:next_event(kickoff, ...)
+    return self:inline(one_shot, kickoff, ...)
+end
+
 return LLListener
