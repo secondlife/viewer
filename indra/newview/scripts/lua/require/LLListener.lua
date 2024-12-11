@@ -3,17 +3,14 @@ local inspect = require 'inspect'
 local leap = require 'leap'
 local util = require 'util'
 
-local LLListener = {}
-
-function LLListener:new(pump_name)
-    local obj = setmetatable({}, self)
-    self.__index = self
-    obj.name = 'Listener:' .. pump_name
-    obj._pump = pump_name
-
-    return obj
-end
-util.classctor(LLListener)
+local LLListener = util.class(
+    'LLListener',
+    function(self, pump_name)
+        return {
+            name = 'Listener:' .. pump_name,
+            _pump = pump_name
+        }
+    end)
 
 function LLListener:handleMessages(event_data)
     print(inspect(event_data))
