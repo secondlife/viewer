@@ -147,6 +147,11 @@ LLUIListener::LLUIListener():
         &LLUIListener::uploadLocalTexture,
         llsd::map("filename", LLSD::String(), "reply", LLSD()));
 
+    add("getGraphicsQuality",
+        "Return graphics quality \"level\": from 0 (Low) to 6 (Ultra)",
+        &LLUIListener::getGraphicsQuality,
+        llsd::map("reply", LLSD::String()));
+
     add("setGraphicsQuality",
         "Set graphics quality level to [\"level\"]: from 0 (Low) to 6 (Ultra)",
         &LLUIListener::setGraphicsQuality,
@@ -441,6 +446,11 @@ void LLUIListener::uploadLocalTexture(const LLSD& event) const
         LLUUID tracking_id = LLLocalBitmapMgr::getInstance()->addUnit(event["filename"]);
         sendReply(llsd::map("uuid", tracking_id.notNull() ? LLLocalBitmapMgr::getInstance()->getWorldID(tracking_id) : LLUUID()), event);
     });
+}
+
+LLSD LLUIListener::getGraphicsQuality(LLSD const& request)
+{
+    return llsd::map("level", LLSD::Integer(gSavedSettings.getU32("RenderQualityPerformance")));
 }
 
 void LLUIListener::setGraphicsQuality(LLSD const& request)

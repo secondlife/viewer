@@ -30,9 +30,8 @@
 #define LL_LLUILISTENER_H
 
 #include "lleventapi.h"
+#include "llsd.h"
 #include <string>
-
-class LLSD;
 
 class LLUIListener: public LLEventAPI
 {
@@ -61,6 +60,7 @@ private:
 
     void uploadLocalTexture(const LLSD& event) const;
 
+    LLSD getGraphicsQuality(LLSD const& event_data);
     void setGraphicsQuality(LLSD const& event_data);
 
     F64 mLastUntrustedThrottle {0};
