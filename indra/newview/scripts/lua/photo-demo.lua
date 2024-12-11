@@ -14,10 +14,18 @@ REGION = {regionname='TextureTest', x=137, y=112, z=23}
 -- TODO: This should be a temp directory, not the directory in which this
 -- script lives.
 SNAPDIR = LL.source_dir()
-floater = UI.Floater("luafloater_preview.xml")
+
 -- save the user's initial graphics quality
 quality = LLDebugSettings.getGraphicsQuality()
 print(`Original graphics quality: {quality}`)
+
+STOPFLAG = false
+
+floater = UI.Floater("luafloater_preview.xml")
+function floater:floater_close(event)
+    STOPFLAG = true
+    return false                -- terminate the floater's listen loop
+end
 
 -- A few interesting things in TextureTest region.
 -- 'lookat' is the point, 'from' is the offset from which to regard it.
@@ -60,6 +68,10 @@ for _, view in lookats do
         focus_locked=true}
     -- cycle through various levels of graphics quality
     for q = 0, 6 do
+        if STOPFLAG then
+            print('Aborting snapshot sequence')
+            break
+        end
         print(`    quality {q}`)
         -- set the quality level
         LLDebugSettings.setGraphicsQuality(q)
@@ -72,6 +84,9 @@ for _, view in lookats do
             tex_id = UI.uploadLocalTexture(fullname)
             floater:post({action="set_value", ctrl_name="preview_icon", value=tex_id})
         end
+    end
+    if STOPFLAG then
+        break
     end
 end
 
