@@ -580,7 +580,8 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
         }
         else
         {
-            if (type == GL_GEOMETRY_SHADER)
+            // OpenGL 3.2 had GLSL version 1.50.  anything after that the version numbers match.
+            if (type == GL_GEOMETRY_SHADER || minor_version >= 50)
             {
                 //set version to 1.50
                 shader_code_text[shader_code_count++] = strdup("#version 150\n");

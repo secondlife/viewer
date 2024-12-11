@@ -7396,8 +7396,7 @@ void LLPipeline::applyFXAA(LLRenderTarget* src, LLRenderTarget* dst)
 {
     {
         llassert(!gCubeSnapshot);
-        bool multisample = RenderFSAAType == 1 && mFXAAMap.isComplete();
-        LLGLSLShader* shader = &gGlowCombineProgram;
+        bool multisample = RenderFSAAType == 1 && gFXAAProgram[0].isComplete() && mFXAAMap.isComplete();
 
         // Present everything.
         if (multisample)
@@ -7410,7 +7409,7 @@ void LLPipeline::applyFXAA(LLRenderTarget* src, LLRenderTarget* dst)
             mFXAAMap.bindTarget();
             mFXAAMap.clear(GL_COLOR_BUFFER_BIT);
 
-            shader = &gGlowCombineFXAAProgram;
+            LLGLSLShader* shader = &gGlowCombineFXAAProgram;
             shader->bind();
 
             S32 channel = shader->enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, src->getUsage());
@@ -7481,7 +7480,7 @@ void LLPipeline::applyFXAA(LLRenderTarget* src, LLRenderTarget* dst)
 void LLPipeline::generateSMAABuffers(LLRenderTarget* src)
 {
     llassert(!gCubeSnapshot);
-    bool multisample = RenderFSAAType == 2 && mFXAAMap.isComplete() && mSMAABlendBuffer.isComplete();
+    bool multisample = RenderFSAAType == 2 && gSMAAEdgeDetectProgram[0].isComplete() && mFXAAMap.isComplete() && mSMAABlendBuffer.isComplete();
 
     // Present everything.
     if (multisample)
@@ -7599,7 +7598,7 @@ void LLPipeline::generateSMAABuffers(LLRenderTarget* src)
 void LLPipeline::applySMAA(LLRenderTarget* src, LLRenderTarget* dst)
 {
     llassert(!gCubeSnapshot);
-    bool multisample = RenderFSAAType == 2 && mFXAAMap.isComplete() && mSMAABlendBuffer.isComplete();
+    bool multisample = RenderFSAAType == 2 && gSMAAEdgeDetectProgram[0].isComplete() && mFXAAMap.isComplete() && mSMAABlendBuffer.isComplete();
 
     // Present everything.
     if (multisample)
