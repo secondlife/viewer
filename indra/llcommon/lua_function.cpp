@@ -796,6 +796,11 @@ LuaState::~LuaState()
 {
     // If we're unwinding the stack due to an exception, don't bother trying
     // to call any callbacks -- either Lua or C++.
+    // TODO: It's a problem that we don't call LL.atexit() functions when the
+    // script is canceled. We use atexit() internally to clean up the
+    // LuaListener, if any, also any ResultSet objects created by the script.
+    // Canceling and then rerunning a script can potentially crash the viewer
+    // due to a dangling LuaListener.
     if (std::uncaught_exceptions() != 0)
         return;
 

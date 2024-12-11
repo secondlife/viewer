@@ -18,7 +18,6 @@ teleport_util = require 'teleport_util'
 timers = require 'timers'
 UI = require 'UI'
 util = require 'util'
-WaitQueue = require 'WaitQueue'
 
 MYCHAIR = '0d92143d-f045-db11-3f06-695ca08f4893'
 
@@ -101,75 +100,77 @@ for _, obj in nearby do
 end
 if not gchair then
     print("Can't find my chair, sorry")
-    -- TODO: we should have an LL.exit() to terminate a script early
-else
-    local arrived = WaitQueue()
-    local walk_listener = LLListener(LLAgent.autoPilotPump)
-
-    function walk_listener:handleMessages(event_data)
-        if event_data.success then
-          print('Destination is reached')
-        else
-          print('Failed to reach destination')
-        end
-        -- wake up arrived:Dequeue()
-        arrived:close()
-        return false
-    end
-
-    print(`Going to {inspect(gchair)}`)
-    animateCamera(8)
-    LLAgent.startAutoPilot{target_global=gchair, allow_flying=false, stop_distance=1}
-    walk_listener:start()
-    -- wait for walk_listener:handleMessages()
-    arrived:Dequeue()
-    gestures = {}
-    for uuid, info in LLGesture.getActiveGestures() do
-        gestures[info.name] = uuid
-    end
-    if not gestures.dance2 then
-        print("Can't find dance2 gesture")
-    else
-        LLGesture.startGesture(gestures.dance2)
-        repeat
-            timers.sleep(1)
-        until not LLGesture.isGesturePlaying(dance2)
-    end
-    timers.sleep(1)
-    -- LLAgent.requestSit{obj_uuid=MYCHAIR} -- doesn't work?
-    -- LLAgent.requestSit() -- on the ground, then
-    -- has to be region-local position, not global position!
-    -- LLAgent.requestSit{position=lchair}
-    LLAgent.requestSit{position=LLAgent.getRegionPosition()}
-    agent_id = LLAgent.getID()
-
-    done_talking = WaitQueue()
-    chat_listener = LLListener(LLChat.nearbyChatPump)
-    function chat_listener:handleMessages(event_data)
-        -- ignore messages and commands from other avatars
-        if event_data.from_id ~= agent_id then
-            return true
-        elseif string.sub(event_data.message, 1, 5) == '[LUA]' then
-            -- Keep returning true until Eliza says "bye...", then return false
-            if string.lower(string.sub(event_data.message, 6, 8)) == 'bye' then
-                done_talking:close()
-                return false
-            else
-                return true
-            end
-        else
-            -- TODO: LLAgent query to get agent name
-            print(`Me: {event_data.message}`)
-            answer = Eliza(event_data.message)
-            print(`Liz: {answer}`)
-            LLChat.sendNearby(answer)
-            return true
-        end
-    end
-
-    chat_listener:start()
-    LLChat.sendNearby('Hello, I am the doctor. What is your problem?')
-    done_talking:Dequeue()
-    LLAgent.requestStand()
-    LLGesture.startGesture(gestures.afk)
+    return "Couldn't find chair"
 end
+
+local function pilotDone(event_data)
+    local msg
+    if event_data.success then
+      msg = 'Destination is reached'
+    else
+      msg = 'Failed to reach destination'
+    end
+    return msg
+end
+
+print(`Going to {inspect(gchair)}`)
+animateCamera(8)
+
+local msg = LLListener(LLAgent.autoPilotPump):inline(
+    pilotDone,
+    LLAgent.startAutoPilot,
+    {target_global=gchair, allow_flying=false, stop_distance=1})
+print('Got:', msg)
+gestures = {}
+for uuid, info in LLGesture.getActiveGestures() do
+    gestures[info.name] = uuid
+end
+if not gestures.dance2 then
+    print("Can't find dance2 gesture")
+else
+    LLGesture.startGesture(gestures.dance2)
+    repeat
+        timers.sleep(1)
+    until not LLGesture.isGesturePlaying(dance2)
+end
+timers.sleep(1)
+-- LLAgent.requestSit{obj_uuid=MYCHAIR} -- doesn't work?
+-- LLAgent.requestSit() -- on the ground, then
+-- has to be region-local position, not global position!
+-- LLAgent.requestSit{position=lchair}
+LLAgent.requestSit{position=LLAgent.getRegionPosition()}
+agent_id = LLAgent.getID()
+
+LLChat.sendNearby('Hello, I am the doctor. What is your problem?')
+LLListener(LLChat.nearbyChatPump):inline(function(event_data)
+    -- ignore messages and commands from other avatars
+    if event_data.from_id ~= agent_id then
+        return nil              -- keep going
+    elseif string.sub(event_data.message, 1, 5) == '[LUA]' then
+        -- Keep returning nil until Eliza says "bye...", then return nil
+        if string.lower(string.sub(event_data.message, 6, 8)) == 'bye' then
+            return true         -- exit inline()
+        else
+            return nil
+        end
+    else
+        -- TODO: LLAgent query to get agent name
+        print(`Me: {event_data.message}`)
+        answer = Eliza(event_data.message)
+        print(`Liz: {answer}`)
+        LLChat.sendNearby(answer)
+        return nil              -- keep going
+    end
+end)
+
+LLAgent.requestStand()
+-- In which direction did we walk to reach the chair?
+vchair = util.tovector(gchair)
+stroll = vchair - util.tovector(where)
+-- Walk a little farther in the same direction
+beyond = util.fromvector(vchair + stroll)
+print(LLListener(LLAgent.autoPilotPump):inline(
+          pilotDone,
+          LLAgent.startAutoPilot,
+          {target_global=beyond, allow_flying=false}))
+LLGesture.startGesture(gestures.afk)

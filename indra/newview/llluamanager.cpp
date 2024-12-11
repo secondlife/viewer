@@ -340,7 +340,7 @@ void LLRequireResolver::findModule()
     }
 
     LLSD lib_paths(gSavedSettings.getLLSD("LuaRequirePath"));
-    LL_DEBUGS("Lua") << "LuaRequirePath = " << lib_paths << LL_ENDL;
+    LL_DEBUGS_ONCE("Lua") << "LuaRequirePath = " << lib_paths << LL_ENDL;
     for (const auto& path : llsd::inArray(lib_paths))
     {
         // if path is already absolute, operator/() preserves it
