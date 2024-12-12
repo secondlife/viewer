@@ -48,8 +48,8 @@ end
 lookats = {
     {lookat={123, 110, 23}, from={0,  0, 4.5}},
     {lookat={112, 108, 24}, from={0,  0, 4}},
-    {lookat={242,  25, 38}, from={2, 10, 0}},
-    {lookat={162,  10, 23}, from={0,  4, 0}},
+--  {lookat={242,  25, 38}, from={2, 10, 0}},
+--  {lookat={162,  10, 23}, from={0,  4, 0}},
 }
 
 -- Teleport to the target region
