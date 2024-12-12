@@ -14,7 +14,7 @@ Dokular
 Dokular
 			</text>
 			<button label="Kimlikleri Konsole Yığ" label_selected="Yığ" name="Dump"/>
-			<panel name="scroll_content_panel">
+			<panel name="scroll_content_panel2">
 				<texture_picker label="Saç" name="hair-baked"/>
 				<texture_picker label="Saç" name="hair_grain"/>
 				<texture_picker label="Saç Alfası" name="hair_alpha"/>
