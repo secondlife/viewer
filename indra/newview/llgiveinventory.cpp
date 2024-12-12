@@ -414,7 +414,11 @@ void LLGiveInventory::commitGiveInventoryItem(const LLUUID& to_agent,
     effectp->setTargetObject(gObjectList.findObject(to_agent));
     effectp->setDuration(LL_HUD_DUR_SHORT);
     effectp->setColor(LLColor4U(gAgent.getEffectColor()));
-    gFloaterTools->dirty();
+
+    if (gFloaterTools)
+    {
+        gFloaterTools->dirty();
+    }
 
     LLMuteList::getInstance()->autoRemove(to_agent, LLMuteList::AR_INVENTORY);
 
@@ -572,7 +576,11 @@ bool LLGiveInventory::commitGiveInventoryCategory(const LLUUID& to_agent,
         effectp->setTargetObject(gObjectList.findObject(to_agent));
         effectp->setDuration(LL_HUD_DUR_SHORT);
         effectp->setColor(LLColor4U(gAgent.getEffectColor()));
-        gFloaterTools->dirty();
+
+        if (gFloaterTools)
+        {
+            gFloaterTools->dirty();
+        }
 
         LLMuteList::getInstance()->autoRemove(to_agent, LLMuteList::AR_INVENTORY);
 
