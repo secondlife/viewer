@@ -796,6 +796,11 @@ LuaState::~LuaState()
 {
     // If we're unwinding the stack due to an exception, don't bother trying
     // to call any callbacks -- either Lua or C++.
+    // TODO: It's a problem that we don't call LL.atexit() functions when the
+    // script is canceled. We use atexit() internally to clean up the
+    // LuaListener, if any, also any ResultSet objects created by the script.
+    // Canceling and then rerunning a script can potentially crash the viewer
+    // due to a dangling LuaListener.
     if (std::uncaught_exceptions() != 0)
         return;
 
@@ -1027,6 +1032,20 @@ void LuaState::check_interrupts_counter()
         LL_DEBUGS("Lua.suspend") << LLCoros::getName() << " suspending at "
                                  << mInterrupts << " interrupts" << LL_ENDL;
         llcoro::suspend();
+    }
+}
+
+void LuaState::yield()
+{
+    // We want Lua scripts to call fiber.yield() often to avoid being killed
+    // by our infinite loop detection (above). But calling llcoro::suspend()
+    // every time would be a disincentive, since that actually pauses the C++
+    // coroutine running the Lua script for a frame. This yield() method
+    // judiciously calls llcoro::suspend() when it seems warranted.
+    if (mInterrupts >= INTERRUPTS_MAX_LIMIT/2)
+    {
+        llcoro::suspend();
+        mInterrupts = 0;
     }
 }
 

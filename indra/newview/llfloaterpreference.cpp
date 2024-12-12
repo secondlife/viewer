@@ -1099,6 +1099,12 @@ void LLFloaterPreference::refreshEnabledGraphics()
     }
 }
 
+void LLFloaterPreference::setGraphicsQuality(U32 level)
+{
+    LLFeatureManager::getInstance()->setGraphicsLevel(level, true);
+    refreshEnabledGraphics();
+}
+
 void LLFloaterPreference::onClickClearCache()
 {
     LLNotificationsUtil::add("ConfirmClearCache", LLSD(), LLSD(), callback_clear_cache);
@@ -1362,10 +1368,7 @@ void LLFloaterPreference::onCommitWindowedMode()
 
 void LLFloaterPreference::onChangeQuality(const LLSD& data)
 {
-    U32 level = (U32)data.asReal();
-    LLFeatureManager::getInstance()->setGraphicsLevel(level, true);
-    refreshEnabledGraphics();
-    refresh();
+    setGraphicsQuality((U32)data.asReal());
 }
 
 void LLFloaterPreference::onClickSetSounds()

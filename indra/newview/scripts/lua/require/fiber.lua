@@ -16,10 +16,11 @@
 -- fiber.run() runs all current fibers until all have terminated (successfully
 -- or with an error).
 
-local printf = require 'printf'
 local function dbg(...) end
--- local dbg = printf
-local coro = require 'coro'
+-- WARNING! If you uncomment this, you must comment out the "require 'fiber'"
+-- in inspect.lua, otherwise you run into require circularity.
+-- local dbg = require 'printf'
+local util = require 'util'
 
 local fiber = {}
 
@@ -258,8 +259,8 @@ local function scheduler()
                 return others or next(waiting)
             end
             -- not main, but some other ready coroutine:
-            -- use coro.resume() so we'll propagate any error encountered
-            coro.resume(co)
+            -- use util.callok() so we'll propagate any error encountered
+            util.callok(coroutine.resume(co))
             prune_waiting()
         end
         -- Here there are no ready fibers. Are there any waiting fibers?
@@ -301,8 +302,10 @@ function fiber.yield()
         -- actually ready. Don't return normally.
         error('fiber.set_idle() interrupted yield() with: ' .. tostring(idle_done))
     end
-    -- We're ready! Just return to caller. In this situation we don't care
-    -- whether there are other ready fibers.
+    -- We're ready! Make sure the viewer knows we're still doing real work.
+    LL.yield()
+    -- Return to caller. In this situation we don't care whether there are
+    -- other ready fibers.
     dbg('fiber.yield() returning to %s (%sothers are ready)',
         fiber.get_name(), ((not others) and "no " or ""))
 end

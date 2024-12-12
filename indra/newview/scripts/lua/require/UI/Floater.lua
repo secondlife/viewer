@@ -19,34 +19,31 @@ local function _event(event_name)
 end
 
 -- ---------------------------------------------------------------------------
-local Floater = {}
+local Floater = util.class(
+    'Floater',
+    -- Pass:
+    -- relative file path to floater's XUI definition file
+    -- optional: sign up for additional events for defined control
+    -- {<control_name>={action1, action2, ...}}
+    function(self, path, extra)
+        local obj = {}
 
--- Pass:
--- relative file path to floater's XUI definition file
--- optional: sign up for additional events for defined control
--- {<control_name>={action1, action2, ...}}
-function Floater:new(path, extra)
-    local obj = setmetatable({}, self)
-    self.__index = self
+        local path_parts = string.split(path, '/')
+        obj.name = 'Floater ' .. path_parts[#path_parts]
 
-    local path_parts = string.split(path, '/')
-    obj.name = 'Floater ' .. path_parts[#path_parts]
-
-    obj._command = {op="showLuaFloater", xml_path=LL.abspath(path)}
-    if extra then
-        -- validate each of the actions for each specified control
-        for control, actions in pairs(extra) do
-            for _, action in pairs(actions) do
-                _event(action)
+        obj._command = {op="showLuaFloater", xml_path=LL.abspath(path)}
+        if extra then
+            -- validate each of the actions for each specified control
+            for control, actions in pairs(extra) do
+                for _, action in pairs(actions) do
+                    _event(action)
+                end
             end
+            obj._command.extra_events = extra
         end
-        obj._command.extra_events = extra
-    end
 
-    return obj
-end
-
-util.classctor(Floater)
+        return obj
+    end)
 
 function Floater:show()
     -- leap.eventstream() returns the first response, and launches a
@@ -76,6 +73,14 @@ end
 
 function Floater:request(action)
     return leap.request(self._pump, action)
+end
+
+function Floater:child_set_value(name, value)
+    self:post({action="set_value", ctrl_name=name, value=value})
+end
+
+function Floater:child_get_value(name)
+    return self:request({action="get_value", ctrl_name=name}).value
 end
 
 -- local inspect = require 'inspect'

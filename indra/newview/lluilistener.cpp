@@ -34,12 +34,14 @@
 // std headers
 // external library headers
 // other Linden headers
+#include "lllocalbitmaps.h"
 #include "llmenugl.h"
 #include "lltoolbarview.h"
 #include "llui.h" // getRootView(), resolvePath()
 #include "lluictrl.h"
 #include "llerror.h"
 #include "llviewermenufile.h" // close_all_windows()
+#include "llfloaterpreference.h"
 
 extern LLMenuBarGL* gMenuBarView;
 
@@ -138,6 +140,22 @@ LLUIListener::LLUIListener():
     add("closeAllFloaters",
         "Close all the floaters",
         &LLUIListener::closeAllFloaters);
+
+    add("uploadLocalTexture",
+        "Add [\"filename\"] to the local bitmap texture list,\n"
+        "Return [\"uuid\"] if upload was successful",
+        &LLUIListener::uploadLocalTexture,
+        llsd::map("filename", LLSD::String(), "reply", LLSD()));
+
+    add("setGraphicsQuality",
+        "Set graphics quality level to [\"level\"]: from 0 (Low) to 6 (Ultra)",
+        &LLUIListener::setGraphicsQuality,
+        llsd::map("level", LLSD::Integer(), "reply", LLSD()));
+
+     add("getTempDir",
+        "Return path to system temporary directory",
+        &LLUIListener::getTempDir,
+        llsd::map("reply", LLSD()));
 }
 
 typedef LLUICtrl::CommitCallbackInfo cb_info;
@@ -418,4 +436,31 @@ void LLUIListener::getToolbarBtnNames(const LLSD &event) const
 void LLUIListener::closeAllFloaters(const LLSD &event) const
 {
     close_all_windows();
+}
+
+void LLUIListener::uploadLocalTexture(const LLSD& event) const
+{
+    // upload on the main coro
+    doOnIdleOneTime([event]()
+    {
+        LLUUID tracking_id = LLLocalBitmapMgr::getInstance()->addUnit(event["filename"]);
+        sendReply(llsd::map("uuid", tracking_id.notNull() ? LLLocalBitmapMgr::getInstance()->getWorldID(tracking_id) : LLUUID()), event);
+    });
+}
+
+void LLUIListener::setGraphicsQuality(LLSD const& request)
+{
+    // update on the main coro
+    doOnIdleOneTime([request]()
+    {
+        U32 level = llclamp((U32)request["level"].asReal(), 0 /*Low*/, 6 /*Ultra*/);
+        LLFloaterPreference::setGraphicsQuality(level);
+        gSavedSettings.setU32("RenderQualityPerformance", level);
+        sendReply(LLSD(), request);
+    });
+}
+
+void LLUIListener::getTempDir(LLSD const& request)
+{
+    Response response(llsd::map("tmpdir", LLFile::tmpdir()), request);
 }

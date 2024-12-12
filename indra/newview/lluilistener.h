@@ -59,6 +59,11 @@ private:
 
     void closeAllFloaters(const LLSD &event) const;
 
+    void uploadLocalTexture(const LLSD& event) const;
+
+    void setGraphicsQuality(LLSD const& event_data);
+    void getTempDir(LLSD const& event_data);
+
     F64 mLastUntrustedThrottle {0};
     F64 mLastMinThrottle {0};
 };

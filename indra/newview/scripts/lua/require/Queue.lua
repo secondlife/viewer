@@ -9,20 +9,15 @@
 
 local util = require 'util'
 
-local Queue = {}
-
-function Queue:new()
-    local obj = setmetatable({}, self)
-    self.__index = self
-
-    obj._first = 0
-    obj._last = -1
-    obj._queue = {}
-
-    return obj
-end
-
-util.classctor(Queue)
+local Queue = util.class(
+    'Queue',
+    function(self)
+        return {
+            _first = 0,
+            _last = -1,
+            _queue = {}
+        }
+    end)
 
 -- Check if the queue is empty
 function Queue:IsEmpty()

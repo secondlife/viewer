@@ -1,18 +1,12 @@
 local leap = require 'leap'
 local mapargs = require 'mapargs'
 local result_view = require 'result_view'
+local util = require 'util'
 
 local function result(keys)
-    local result_table = {
-        result=result_view(keys.result),
-        -- call result_table:close() to release result sets before garbage
-        -- collection or script completion
-        close = function(self)
-            result_view.close(keys.result[1])
-        end
-    }
-    -- When the result_table is destroyed, close its result_views.
-    return LL.setdtor('LLAgent result', result_table, result_table.close)
+    local result = result_view(keys.result)
+    -- When our return value is destroyed, close its result_view.
+    return LL.setdtor('LLAgent result', result, result.close)
 end
 
 local LLAgent = {}
@@ -21,12 +15,42 @@ function LLAgent.getID()
     return leap.request('LLAgent', {op = 'getID'}).id
 end
 
+local function getPosition()
+    return leap.request('LLAgent', {op = 'getPosition'})
+end
+
 function LLAgent.getRegionPosition()
-    return leap.request('LLAgent', {op = 'getPosition'}).region
+    return getPosition().region
 end
 
 function LLAgent.getGlobalPosition()
-    return leap.request('LLAgent', {op = 'getPosition'}).global
+    return getPosition().global
+end
+
+local function getRegionCornerVector()
+    local pos = getPosition()
+    return util.tovector(pos.global) - util.tovector(pos.region)
+end
+
+function LLAgent.localToGlobalVector(v)
+    return util.tovector(v) + getRegionCornerVector()
+end
+
+function LLAgent.localToGlobal(v)
+    return util.fromvector(LLAgent.localToGlobalVector(v))
+end
+
+function LLAgent.globalToLocalVector(v)
+    return util.tovector(v) - getRegionCornerVector()
+end
+
+function LLAgent.globalToLocal(v)
+    return util.fromvector(LLAgent.globalToLocalVector(v))
+end
+
+-- Euler angle (in radians), converted from rotation
+function LLAgent.getYaw()
+    return leap.request('LLAgent', {op = 'getPosition'}).euler.yaw
 end
 
 -- Return array information about the agent's groups
@@ -115,7 +139,7 @@ end
 
 -- Get the nearby avatars in a range of provided "dist",
 -- if "dist" is not specified, "RenderFarClip" setting is used
--- reply will contain "result" table with following fields:
+-- returns table with following fields:
 -- "id", "global_pos", "region_pos",  "name", "region_id"
 function LLAgent.getNearbyAvatarsList(...)
     local args = mapargs('dist', ...)
@@ -123,7 +147,7 @@ function LLAgent.getNearbyAvatarsList(...)
     return result(leap.request('LLAgent', args))
 end
 
--- reply will contain "result" table with following fields:
+-- returns table with following fields:
 -- "id", "global_pos", "region_pos", "region_id"
 function LLAgent.getNearbyObjectsList(...)
     local args = mapargs('dist', ...)

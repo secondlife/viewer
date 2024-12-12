@@ -2,7 +2,7 @@
 
 LLGesture = require 'LLGesture'
 inspect = require 'inspect'
-
+sleep = (require 'timers').sleep
 
 -- getActiveGestures() returns {<UUID>: {name, playing, trigger}}
 gestures_uuid = LLGesture.getActiveGestures()
@@ -20,7 +20,7 @@ for name, uuid in pairs(gestures) do
     print(name)
     LLGesture.startGesture(uuid)
     repeat
-        LL.sleep(1)
+        sleep(1)
     until not LLGesture.isGesturePlaying(uuid)
 end
 print('Done.')

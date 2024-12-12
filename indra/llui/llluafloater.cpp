@@ -134,6 +134,23 @@ LLLuaFloater::LLLuaFloater(const LLSD &key) :
         setTitle(event["value"].asString());
     }, llsd::map("value", LLSD()));
 
+    mDispatchListener.add("add_item", "", [this](const LLSD &event)
+    {
+        LLComboBox *ctrl = getChild<LLComboBox>(event["ctrl_name"].asString());
+        if(ctrl)
+        {
+            ctrl->add(event["name"].asString(), event["value"]);
+        }
+    }, requiredParams);
+    mDispatchListener.add("select_by_value", "", [this](const LLSD &event)
+    {
+        LLComboBox *ctrl = getChild<LLComboBox>(event["ctrl_name"].asString());
+        if(ctrl)
+        {
+            ctrl->setSelectedByValue(event["value"], true);
+        }
+    }, requiredParams);
+
     mDispatchListener.add("get_value", "", [ctrl_lookup](const LLSD &event)
     {
         return ctrl_lookup(event, [](LLUICtrl *ctrl, const LLSD &event) { return llsd::map("value", ctrl->getValue()); });

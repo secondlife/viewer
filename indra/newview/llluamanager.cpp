@@ -53,15 +53,11 @@ S32 LLLUAmanager::sAutorunScriptCount = 0;
 S32 LLLUAmanager::sScriptCount = 0;
 std::map<std::string, std::string> LLLUAmanager::sScriptNames;
 
-lua_function(sleep, "sleep(seconds): pause the running coroutine")
+lua_function(yield, "yield(): allow other processing to run.")
 {
-    lua_checkdelta(L, -1);
-    lua_Number seconds = lua_tonumber(L, -1);
-    lua_pop(L, 1);
-    llcoro::suspendUntilTimeout(narrow(seconds));
-    LuaState::getParent(L).set_interrupts_counter(0);
+    LuaState::getParent(L).yield();
     return 0;
-};
+}
 
 // This function consumes ALL Lua stack arguments and returns concatenated
 // message string
@@ -344,7 +340,7 @@ void LLRequireResolver::findModule()
     }
 
     LLSD lib_paths(gSavedSettings.getLLSD("LuaRequirePath"));
-    LL_DEBUGS("Lua") << "LuaRequirePath = " << lib_paths << LL_ENDL;
+    LL_DEBUGS_ONCE("Lua") << "LuaRequirePath = " << lib_paths << LL_ENDL;
     for (const auto& path : llsd::inArray(lib_paths))
     {
         // if path is already absolute, operator/() preserves it

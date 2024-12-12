@@ -3,7 +3,7 @@
 local leap = require 'leap'
 local mapargs = require 'mapargs'
 local result_view = require 'result_view'
-local Timer = (require 'timers').Timer
+local sleep = (require 'timers').sleep
 local util = require 'util'
 
 -- Allow lazily accessing UI submodules on demand, e.g. a reference to
@@ -67,7 +67,7 @@ function UI.click(...)
     local hold = args.hold or 1.0
     wreq('mouseMove', args)
     wreq('mouseDown', args)
-    Timer(hold, 'wait')
+    sleep(hold)
     wreq('mouseUp', args)
 end
 
@@ -240,6 +240,18 @@ function UI.getFloaterNames()
     local key_length = leap.request("LLFloaterReg", {op = "getFloaterNames"}).floaters
     local view = result_view(key_length)
     return LL.setdtor('registered floater names', view, view.close)
+end
+
+function UI.uploadLocalTexture(filename)
+    return leap.request("UI", {op = "uploadLocalTexture", filename = filename}).uuid
+end
+
+-- ***************************************************************************
+--  util
+-- ***************************************************************************
+
+function UI.getTempDir()
+    return leap.request('UI', {op='getTempDir'}).tmpdir
 end
 
 return UI
