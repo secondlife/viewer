@@ -75,6 +75,14 @@ function Floater:request(action)
     return leap.request(self._pump, action)
 end
 
+function Floater:child_set_value(name, value)
+    self:post({action="set_value", ctrl_name=name, value=value})
+end
+
+function Floater:child_get_value(name)
+    return self:request({action="get_value", ctrl_name=name}).value
+end
+
 -- local inspect = require 'inspect'
 
 function Floater:handleEvents(event_data)

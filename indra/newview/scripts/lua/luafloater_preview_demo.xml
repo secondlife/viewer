@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ height="665"
+ layout="topleft"
+ name="lua_snapshot_preview"
+ show_title="false"
+ bg_opaque_image="Window_NoTitle_Foreground"
+ bg_alpha_image="Window_NoTitle_Background"
+ can_minimize="false"
+ width="450">
+   <combo_box
+    follows="top|left"
+    height="23"
+    name="location_cmb"
+    top="1"
+    left="5"
+    width="160"/>
+   <combo_box
+    follows="top|left"
+    height="23"
+    name="quality_cmb1"
+    top_pad="12"
+    left="5"
+    width="60">
+    <combo_box.item
+     label="Low"
+     value="0" />
+    <combo_box.item
+     label="Low+"
+     value="1" />
+    <combo_box.item
+     label="Mid"
+     value="2" />
+    <combo_box.item
+     label="Mid+"
+     value="3" />
+    <combo_box.item
+     label="High"
+     value="4" />
+    <combo_box.item
+     label="High+"
+     value="5" />
+    <combo_box.item
+     label="Ultra"
+     value="6" />
+    </combo_box>
+   <icon
+    left="5"
+    top_pad="5"
+    layout="topleft"
+    name="preview_icon"
+    height="280"
+    width="440"
+    follows="left|top"/>
+   <combo_box
+    follows="top|left"
+    height="23"
+    name="quality_cmb2"
+    top_pad="7"
+    left="5"
+    width="60">
+    <combo_box.item
+     label="Low"
+     value="0" />
+    <combo_box.item
+     label="Low+"
+     value="1" />
+    <combo_box.item
+     label="Mid"
+     value="2" />
+    <combo_box.item
+     label="Mid+"
+     value="3" />
+    <combo_box.item
+     label="High"
+     value="4" />
+    <combo_box.item
+     label="High+"
+     value="5" />
+    <combo_box.item
+     label="Ultra"
+     value="6" />
+    </combo_box>
+   <icon
+    left="5"
+    top_pad="5"
+    layout="topleft"
+    name="preview_icon2"
+    height="280"
+    width="440"
+    follows="left|top"/>
+</floater>
