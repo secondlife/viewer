@@ -1052,7 +1052,7 @@ U32 type_width_from_pixtype(U32 pixtype)
 bool should_stagger_image_set(bool compressed)
 {
 #if LL_DARWIN
-    return gGLManager.mIsAMD;
+    return !compressed && on_main_thread() && gGLManager.mIsAMD;
 #else
     // glTexSubImage2D doesn't work with compressed textures on select tested Nvidia GPUs on Windows 10 -Cosmic,2023-03-08
     // Setting media textures off-thread seems faster when not using sub_image_lines (Nvidia/Windows 10) -Cosmic,2023-03-31
@@ -1270,36 +1270,36 @@ void LLImageGL::generateTextures(S32 numTextures, U32 *textures)
     }
 }
 
+constexpr int DELETE_DELAY = 3; // number of frames to wait before deleting textures
+static std::vector<U32> sFreeList[DELETE_DELAY+1];
+
 // static
 void LLImageGL::updateClass()
 {
     sFrameCount++;
+
+    // wait a few frames before actually deleting the textures to avoid
+    // synchronization issues with the GPU
+    U32 idx = (sFrameCount+DELETE_DELAY) % (DELETE_DELAY+1);
+
+    if (!sFreeList[idx].empty())
+    {
+        free_tex_images((GLsizei) sFreeList[idx].size(), sFreeList[idx].data());
+        glDeleteTextures((GLsizei)sFreeList[idx].size(), sFreeList[idx].data());
+        sFreeList[idx].resize(0);
+    }
 }
 
 // static
 void LLImageGL::deleteTextures(S32 numTextures, const U32 *textures)
 {
-    // wait a few frames before actually deleting the textures to avoid
-    // synchronization issues with the GPU
-    static std::vector<U32> sFreeList[4];
-
     if (gGLManager.mInited)
     {
         LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
-        U32 idx = sFrameCount % 4;
-
+        U32 idx = sFrameCount % (DELETE_DELAY+1);
         for (S32 i = 0; i < numTextures; ++i)
         {
             sFreeList[idx].push_back(textures[i]);
-        }
-
-        idx = (sFrameCount + 3) % 4;
-
-        if (!sFreeList[idx].empty())
-        {
-            free_tex_images((GLsizei) sFreeList[idx].size(), sFreeList[idx].data());
-            glDeleteTextures((GLsizei)sFreeList[idx].size(), sFreeList[idx].data());
-            sFreeList[idx].resize(0);
         }
     }
 }
@@ -1467,32 +1467,7 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
             // break up calls to a manageable size for the GL command buffer
             {
                 LL_PROFILE_ZONE_NAMED("glTexImage2D alloc");
-#if LL_DARWIN
-                //llassert(glGetError() == GL_NO_ERROR);
-                if (intformat == GL_RGBA || intformat == GL_RGBA8)
-                {
-                    LL_PROFILE_ZONE_NAMED("glTexImage2D alloc - RGBA");
-                    LL_PROFILE_ZONE_NUM(intformat);
-                    glTexImage2D(target, miplevel, GL_RGBA, width, height, 0, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, nullptr);
-                    //llassert(glGetError() == GL_NO_ERROR);
-                }
-                else if (intformat == GL_RGB || intformat == GL_RGB8)
-                {
-                    LL_PROFILE_ZONE_NAMED("glTexImage2D alloc - RGB");
-                    LL_PROFILE_ZONE_NUM(intformat);
-                    glTexImage2D(target, miplevel, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
-                    //llassert(glGetError() == GL_NO_ERROR);
-                }
-                else
-                {
-                    LL_PROFILE_ZONE_NAMED("glTexImage2D alloc - other");
-                    LL_PROFILE_ZONE_NUM(intformat);
-                    glTexImage2D(target, miplevel, intformat, width, height, 0, pixformat, pixtype, nullptr);
-                    //llassert(glGetError() == GL_NO_ERROR);
-                }
-#else
                 glTexImage2D(target, miplevel, intformat, width, height, 0, pixformat, pixtype, nullptr);
-#endif
             }
 
             U8* src = (U8*)(pixels);
