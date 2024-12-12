@@ -54,9 +54,9 @@ end
 
 -- put up the empty preview floater
 floater:show()
-floater:post({action="set_visible", ctrl_name="snapshot_btn", value=false})
-floater:post({action="set_visible", ctrl_name="next_btn", value=false})
-floater:post({action="set_visible", ctrl_name="prev_btn", value=false})
+for _, ctrl in {'snapshot_btn', 'next_btn', 'prev_btn'} do
+    floater:post({action="set_visible", ctrl_name=ctrl, value=false})
+end
 
 -- base filename for the snapshots we'll take this run
 local testbase = `{REGION.regionname}_{os.date('%Y-%m-%d_%H-%M-%S')}_`
@@ -75,8 +75,8 @@ for _, view in lookats do
             print('Aborting snapshot sequence')
             break
         end
-        quality_txt=`    quality {q}`
-        print(quality_txt)
+        quality_txt=`quality {q}`
+        print('    '..quality_txt)
         -- set the quality level
         LLDebugSettings.setGraphicsQuality(q)
         timers.sleep(3)
@@ -87,7 +87,8 @@ for _, view in lookats do
             -- display it in our floater
             tex_id = UI.uploadLocalTexture(fullname)
             floater:post({action="set_value", ctrl_name="preview_icon", value=tex_id})
-            floater:post({action="set_value", ctrl_name="info_lbl", value=lookat_txt .. quality_txt})
+            floater:post({action="set_value", ctrl_name="info_lbl",
+                          value=`{lookat_txt}, {quality_txt}`})
         end
     end
     if STOPFLAG then
