@@ -27,6 +27,16 @@
 #ifndef LL_LLKDUMEM_H
 #define LL_LLKDUMEM_H
 
+#if defined(_M_ARM64) || defined(__arm64__) || defined(__aarch64__)
+#ifndef KDU_NEON_INTRINSICS
+#define KDU_NEON_INTRINSICS 1
+#endif
+#else
+#ifndef KDU_X86_INTRINSICS
+#define KDU_X86_INTRINSICS 1
+#endif
+#endif
+
 // Support classes for reading and writing from memory buffers in KDU
 #define kdu_xxxx "kdu_image.h"
 #include "include_kdu_xxxx.h"

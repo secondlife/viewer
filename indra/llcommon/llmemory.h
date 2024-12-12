@@ -27,6 +27,7 @@
 #define LLMEMORY_H
 
 #include "linden_common.h"
+#include "llprocessor.h"
 #include "llunits.h"
 #include "stdtypes.h"
 #if !LL_WINDOWS
@@ -71,7 +72,11 @@ LL_COMMON_API void ll_assert_aligned_func(uintptr_t ptr,U32 alignment);
 #define ll_assert_aligned(ptr,alignment)
 #endif
 
+#if LL_ARM64
+#include "sse2neon.h"
+#else
 #include <xmmintrin.h>
+#endif
 
 template <typename T> T* LL_NEXT_ALIGNED_ADDRESS(T* address)
 {
@@ -345,7 +350,9 @@ inline void ll_memcpy_nonaliased_aligned_16(char* __restrict dst, const char* __
     assert((bytes % sizeof(F32))== 0);
     ll_assert_aligned(src,16);
     ll_assert_aligned(dst,16);
-
+#if defined(LL_ARM64)
+    memcpy(dst, src, bytes);
+#else
     assert((src < dst) ? ((src + bytes) <= dst) : ((dst + bytes) <= src));
     assert(bytes%16==0);
 
@@ -404,6 +411,7 @@ inline void ll_memcpy_nonaliased_aligned_16(char* __restrict dst, const char* __
         dst += 16;
         src += 16;
     }
+#endif
 }
 
 #ifndef __DEBUG_PRIVATE_MEM__

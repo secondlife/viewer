@@ -66,6 +66,7 @@ set(cmake_SOURCE_FILES
         Prebuilt.cmake
         Python.cmake
         SDL2.cmake
+        SSE2NEON.cmake
         TemplateCheck.cmake
         ThreeJS.cmake
         TinyEXR.cmake

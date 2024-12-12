@@ -33,20 +33,20 @@ if (LINUX)
       message( "Looking for ${PULSE_FILE} ... found")
     endif()
   endforeach()
-  
+
   include(FindPipeWire)
   include_directories(SYSTEM ${PIPEWIRE_INCLUDE_DIRS} ${SPA_INCLUDE_DIRS})
-  
+
   message( "Building with Linux volume catcher for PipeWire and PulseAudio" )
 
   list(APPEND media_plugin_cef_HEADER_FILES
     linux/volume_catcher_linux.h
   )
 
-  set(LINUX_VOLUME_CATCHER 
-    linux/volume_catcher_linux.cpp 
+  set(LINUX_VOLUME_CATCHER
+    linux/volume_catcher_linux.cpp
     linux/volume_catcher_pulseaudio.cpp
-    linux/volume_catcher_pipewire.cpp 
+    linux/volume_catcher_pipewire.cpp
   )
 
   list(APPEND media_plugin_cef_SOURCE_FILES ${LINUX_VOLUME_CATCHER})
@@ -76,7 +76,7 @@ target_link_libraries(media_plugin_cef
 if (DARWIN)
     find_library(CORESERVICES_LIBRARY CoreServices)
     find_library(AUDIOUNIT_LIBRARY AudioUnit)
-  
+
     target_link_libraries(media_plugin_cef
     ${CORESERVICES_LIBRARY}     # for Component Manager calls
     ${AUDIOUNIT_LIBRARY}        # for AudioUnit calls
@@ -87,6 +87,7 @@ if (DARWIN)
     media_plugin_cef
     PROPERTIES
     PREFIX ""
+    OSX_ARCHITECTURES "x86_64"
     BUILD_WITH_INSTALL_RPATH 1
     INSTALL_NAME_DIR "@executable_path"
     LINK_FLAGS "-exported_symbols_list ${CMAKE_CURRENT_SOURCE_DIR}/../base/media_plugin_base.exp"
