@@ -111,7 +111,7 @@ RenderShadowDetail			1	0
 WLSkyDetail					1	96
 RenderFSAAType			    1	0
 RenderFSAASamples			1	0
-RenderReflectionsEnabled    1   1
+RenderReflectionsEnabled    1   0
 RenderReflectionProbeDetail	1	0
 RenderScreenSpaceReflections 1  0
 RenderReflectionProbeLevel  1   0
