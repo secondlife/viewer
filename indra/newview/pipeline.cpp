@@ -9273,7 +9273,7 @@ void LLPipeline::bindReflectionProbes(LLGLSLShader& shader)
 
 void LLPipeline::unbindReflectionProbes(LLGLSLShader& shader)
 {
-    S32 channel = shader.disableTexture(LLShaderMgr::REFLECTION_PROBES, LLTexUnit::TT_CUBE_MAP);
+    S32 channel = shader.disableTexture(LLShaderMgr::REFLECTION_PROBES, LLTexUnit::TT_CUBE_MAP_ARRAY);
     if (channel > -1 && mReflectionMapManager.mTexture.notNull())
     {
         mReflectionMapManager.mTexture->unbind();
