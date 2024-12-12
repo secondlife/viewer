@@ -5416,24 +5416,6 @@ bool LLViewerWindow::cubeSnapshot(const LLVector3& origin, LLCubeMapArray* cubea
         }
     }
 
-    U32 low_detail_render_types[] = {
-        LLPipeline::RENDER_TYPE_WATER,
-        LLPipeline::RENDER_TYPE_TERRAIN,
-        LLPipeline::RENDER_TYPE_SKY,
-        LLPipeline::RENDER_TYPE_CLOUDS
-    };
-
-    static LLCachedControl<S32> probe_level(gSavedSettings, "RenderReflectionProbeLevel");
-
-    if (probe_level == 0)
-    {
-        gPipeline.andRenderTypeMask(LLPipeline::RENDER_TYPE_WATER,
-                                    LLPipeline::RENDER_TYPE_TERRAIN,
-                                    LLPipeline::RENDER_TYPE_SKY,
-                                    LLPipeline::RENDER_TYPE_CLOUDS,
-                                    LLPipeline::END_RENDER_TYPES);
-    }
-
     bool prev_draw_ui = gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI);
     if (prev_draw_ui)
     {
