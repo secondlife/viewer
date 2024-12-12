@@ -48,8 +48,8 @@ end
 lookats = {
     {lookat={123, 110, 23}, from={0,  0, 4.5}},
     {lookat={112, 108, 24}, from={0,  0, 4}},
-    {lookat={242,  25, 38}, from={2, 10, 0}},
-    {lookat={162,  10, 23}, from={0,  4, 0}},
+--  {lookat={242,  25, 38}, from={2, 10, 0}},
+--  {lookat={162,  10, 23}, from={0,  4, 0}},
 }
 
 -- Teleport to the target region
@@ -100,7 +100,11 @@ for _, view in lookats do
         print('    '..quality_txt)
         -- set the quality level
         LLDebugSettings.setGraphicsQuality(q)
-        timers.sleep(3)
+        -- workaround for weird bug (?) in which the new RenderFarClip setting
+        -- changed by the graphics quality affects camera zoom
+        LLDebugSettings.set('RenderFarClip', 128)
+        -- let the rendering settle
+        timers.sleep(2)
         -- take a snapshot
         basename = `{testbase}{view.lookat[1]}-{view.lookat[2]}-{view.lookat[3]}-q{q}.png`
         fullname = `{SNAPDIR}/{basename}`
