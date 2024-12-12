@@ -1254,6 +1254,7 @@ void LLToolDragAndDrop::dropMaterial(LLViewerObject* hit_obj,
         // If user dropped a material onto face it implies
         // applying texture now without cancel, save to selection
         if (nodep
+            && gFloaterTools
             && gFloaterTools->getVisible()
             && nodep->mSavedGLTFMaterialIds.size() > hit_face)
         {
@@ -1429,10 +1430,10 @@ void LLToolDragAndDrop::dropTexture(LLViewerObject* hit_obj,
 
         // If user dropped a texture onto face it implies
         // applying texture now without cancel, save to selection
-        LLPanelFace* panel_face = gFloaterTools->getPanelFace();
+        LLPanelFace* panel_face = gFloaterTools ? gFloaterTools->getPanelFace() : nullptr;
         if (nodep
-            && gFloaterTools->getVisible()
             && panel_face
+            && gFloaterTools->getVisible()
             && panel_face->getTextureDropChannel() == 0 /*texture*/
             && nodep->mSavedTextures.size() > hit_face)
         {
@@ -1486,8 +1487,8 @@ void LLToolDragAndDrop::dropTextureOneFace(LLViewerObject* hit_obj,
         if (allow_adding_to_override)
         {
             LLGLTFMaterial::TextureInfo drop_channel = LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR;
-            LLPanelFace* panel_face = gFloaterTools->getPanelFace();
-            if (gFloaterTools->getVisible() && panel_face)
+            LLPanelFace* panel_face = gFloaterTools ? gFloaterTools->getPanelFace() : nullptr;
+            if (panel_face && gFloaterTools->getVisible())
             {
                 drop_channel = panel_face->getPBRDropChannel();
             }
@@ -1512,9 +1513,9 @@ void LLToolDragAndDrop::dropTextureOneFace(LLViewerObject* hit_obj,
 
     LLTextureEntry* tep = hit_obj->getTE(hit_face);
 
-    LLPanelFace* panel_face = gFloaterTools->getPanelFace();
+    LLPanelFace* panel_face = gFloaterTools ? gFloaterTools->getPanelFace() : nullptr;
 
-    if (gFloaterTools->getVisible() && panel_face)
+    if (panel_face && gFloaterTools->getVisible())
     {
         tex_channel = (tex_channel > -1) ? tex_channel : panel_face->getTextureDropChannel();
         switch (tex_channel)
@@ -1609,7 +1610,10 @@ void LLToolDragAndDrop::dropScript(LLViewerObject* hit_obj,
             }
         }
         hit_obj->saveScript(new_script, active, true);
-        gFloaterTools->dirty();
+        if (gFloaterTools)
+        {
+            gFloaterTools->dirty();
+        }
 
         // VEFFECT: SetScript
         LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BEAM, true);
@@ -1842,7 +1846,10 @@ void LLToolDragAndDrop::dropInventory(LLViewerObject* hit_obj,
     effectp->setTargetObject(hit_obj);
     effectp->setDuration(LL_HUD_DUR_SHORT);
     effectp->setColor(LLColor4U(gAgent.getEffectColor()));
-    gFloaterTools->dirty();
+    if (gFloaterTools)
+    {
+        gFloaterTools->dirty();
+    }
 }
 
 // accessor that looks at permissions, copyability, and names of
