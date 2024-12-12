@@ -494,7 +494,9 @@ jobs:
           files: |
             macOS-installer/*.dmg
             Windows-installer/*.exe
-            Linux-app/*.tar.gz
+#### Linux fails, blocking access to Windows and Mac installers:
+#### https://github.com/secondlife/viewer/actions/runs/12288789547/job/34294487689
+####        Linux-app/*.tar.gz
             *-autobuild-package.xml
             *-viewer_version.txt
 
