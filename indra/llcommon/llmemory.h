@@ -222,7 +222,7 @@ inline void* ll_aligned_realloc_16(void* ptr, size_t size, size_t old_size) // r
         ll_aligned_free_16(ptr);
     }
 #endif
-    LL_PROFILE_ALLOC(ptr, size);
+    LL_PROFILE_ALLOC(ret, size);
     return ret;
 }
 
