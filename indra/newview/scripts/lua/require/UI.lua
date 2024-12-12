@@ -246,4 +246,12 @@ function UI.uploadLocalTexture(filename)
     return leap.request("UI", {op = "uploadLocalTexture", filename = filename}).uuid
 end
 
+-- ***************************************************************************
+--  util
+-- ***************************************************************************
+
+function UI.getTempDir()
+    return leap.request('UI', {op='getTempDir'}).tmpdir
+end
+
 return UI

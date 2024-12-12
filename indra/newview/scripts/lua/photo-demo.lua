@@ -11,9 +11,8 @@ util = require 'util'
 
 -- 'http://maps.secondlife.com/secondlife/TextureTest/137/112/23'
 REGION = {regionname='TextureTest', x=137, y=112, z=23}
--- TODO: This should be a temp directory, not the directory in which this
--- script lives.
-SNAPDIR = LL.source_dir()
+
+SNAPDIR = UI.getTempDir()
 
 -- save the user's initial graphics quality
 quality = LLDebugSettings.getGraphicsQuality()
@@ -55,12 +54,16 @@ end
 
 -- put up the empty preview floater
 floater:show()
+floater:post({action="set_visible", ctrl_name="snapshot_btn", value=false})
+floater:post({action="set_visible", ctrl_name="next_btn", value=false})
+floater:post({action="set_visible", ctrl_name="prev_btn", value=false})
 
 -- base filename for the snapshots we'll take this run
 local testbase = `{REGION.regionname}_{os.date('%Y-%m-%d_%H-%M-%S')}_`
 for _, view in lookats do
     -- Hop the camera to the next interesting lookat point
-    print(`Looking at \{{view.lookat[1]}, {view.lookat[2]}, {view.lookat[3]}}`)
+    lookat_txt=`Looking at \{{view.lookat[1]}, {view.lookat[2]}, {view.lookat[3]}}`
+    print(lookat_txt)
     LLAgent.setCamera{
         camera_pos=util.fromvector(util.tovector(view.lookat) + util.tovector(view.from)),
         focus_pos=view.lookat,
@@ -72,7 +75,8 @@ for _, view in lookats do
             print('Aborting snapshot sequence')
             break
         end
-        print(`    quality {q}`)
+        quality_txt=`    quality {q}`
+        print(quality_txt)
         -- set the quality level
         LLDebugSettings.setGraphicsQuality(q)
         timers.sleep(3)
@@ -83,6 +87,7 @@ for _, view in lookats do
             -- display it in our floater
             tex_id = UI.uploadLocalTexture(fullname)
             floater:post({action="set_value", ctrl_name="preview_icon", value=tex_id})
+            floater:post({action="set_value", ctrl_name="info_lbl", value=lookat_txt .. quality_txt})
         end
     end
     if STOPFLAG then

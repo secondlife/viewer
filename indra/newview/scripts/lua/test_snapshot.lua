@@ -1,6 +1,7 @@
 local UI = require 'UI'
 
-PATH = 'E:\\'
+PATH = UI.getTempDir()
+print('Saving snapshots to' .. PATH)
 -- 'png', 'jpeg' or 'bmp'
 EXT = '.png'
 
