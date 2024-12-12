@@ -118,11 +118,9 @@ print(`Going to {inspect(gchair)}`)
 done_flycam = WaitQueue()
 animateCamera(6, done_flycam)
 
-local msg = LLListener(LLAgent.autoPilotPump):inline(
-    pilotDone,
+print(pilotDone(LLListener(LLAgent.autoPilotPump):next_event(
     LLAgent.startAutoPilot,
-    {target_global=gchair, allow_flying=false, stop_distance=1})
-print('Got:', msg)
+    {target_global=gchair, allow_flying=false, stop_distance=1})))
 gestures = {}
 for uuid, info in LLGesture.getActiveGestures() do
     gestures[info.name] = uuid
@@ -191,8 +189,7 @@ vchair = util.tovector(gchair)
 stroll = vchair - util.tovector(arrived_at)
 -- Walk a little farther in the same direction
 beyond = util.fromvector(vchair + stroll)
-print(LLListener(LLAgent.autoPilotPump):inline(
-          pilotDone,
+print(pilotDone(LLListener(LLAgent.autoPilotPump):next_event(
           LLAgent.startAutoPilot,
-          {target_global=beyond, allow_flying=false}))
+          {target_global=beyond, allow_flying=false})))
 LLGesture.startGesture(gestures.afk)

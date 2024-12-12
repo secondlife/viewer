@@ -1,6 +1,7 @@
 local leap = require 'leap'
 local mapargs = require 'mapargs'
 local result_view = require 'result_view'
+local util = require 'util'
 
 local function result(keys)
     local result = result_view(keys.result)
@@ -14,12 +15,37 @@ function LLAgent.getID()
     return leap.request('LLAgent', {op = 'getID'}).id
 end
 
+local function getPosition()
+    return leap.request('LLAgent', {op = 'getPosition'})
+end
+
 function LLAgent.getRegionPosition()
-    return leap.request('LLAgent', {op = 'getPosition'}).region
+    return getPosition().region
 end
 
 function LLAgent.getGlobalPosition()
-    return leap.request('LLAgent', {op = 'getPosition'}).global
+    return getPosition().global
+end
+
+local function getRegionCornerVector()
+    local pos = getPosition()
+    return util.tovector(pos.global) - util.tovector(pos.region)
+end
+
+function LLAgent.localToGlobalVector(v)
+    return util.tovector(v) + getRegionCornerVector()
+end
+
+function LLAgent.localToGlobal(v)
+    return util.fromvector(LLAgent.localToGlobalVector(v))
+end
+
+function LLAgent.globalToLocalVector(v)
+    return util.tovector(v) - getRegionCornerVector()
+end
+
+function LLAgent.globalToLocal(v)
+    return util.fromvector(LLAgent.globalToLocalVector(v))
 end
 
 -- Euler angle (in radians), converted from rotation
