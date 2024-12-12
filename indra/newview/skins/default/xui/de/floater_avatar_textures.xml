@@ -8,7 +8,7 @@ Texturen</text>
 			<text name="composite_label">Zusammengesetzte
 Texturen</text>
 			<button label="IDs an Konsole ausgeben" label_selected="Abladen" name="Dump"/>
-			<panel name="scroll_content_panel">
+			<panel name="scroll_content_panel2">
 				<texture_picker label="Haare" name="hair-baked"/>
 				<texture_picker label="Haare" name="hair_grain"/>
 				<texture_picker label="Alpha: Haare" name="hair_alpha"/>
