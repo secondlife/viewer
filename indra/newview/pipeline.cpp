@@ -3713,7 +3713,7 @@ void LLPipeline::postSort(LLCamera &camera)
         mSelectedFaces.clear();
 
         bool tex_index_changed = false;
-        if (!gNonInteractive)
+        if (!gNonInteractive && gFloaterTools)
         {
             LLRender::eTexIndex tex_index = sRenderHighlightTextureChannel;
             setRenderHighlightTextureChannel(gFloaterTools->getPanelFace()->getTextureChannelToEdit());
@@ -7119,7 +7119,7 @@ void LLPipeline::tonemap(LLRenderTarget* src, LLRenderTarget* dst, bool gamma_co
 
         LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
 
-        bool no_post = gSnapshotNoPost || (buildNoPost && gFloaterTools->isAvailable());
+        bool no_post = gSnapshotNoPost || (buildNoPost && gFloaterTools && gFloaterTools->isAvailable());
         LLGLSLShader* shader = nullptr;
         if (gamma_correct)
         {
@@ -7175,7 +7175,7 @@ void LLPipeline::gammaCorrect(LLRenderTarget* src, LLRenderTarget* dst)
         static LLCachedControl<bool> buildNoPost(gSavedSettings, "RenderDisablePostProcessing", false);
         static LLCachedControl<bool> should_auto_adjust(gSavedSettings, "RenderSkyAutoAdjustLegacy", false);
 
-        bool no_post = gSnapshotNoPost || (buildNoPost && gFloaterTools->isAvailable());
+        bool no_post = gSnapshotNoPost || (buildNoPost && gFloaterTools && gFloaterTools->isAvailable());
         LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
         LLGLSLShader& shader = psky->getReflectionProbeAmbiance(should_auto_adjust) == 0.f && !no_post ? gLegacyPostGammaCorrectProgram :
             gDeferredPostGammaCorrectProgram;
@@ -7336,7 +7336,7 @@ void LLPipeline::applyCAS(LLRenderTarget* src, LLRenderTarget* dst)
 
     LL_PROFILE_GPU_ZONE("cas");
 
-    bool no_post = gSnapshotNoPost || (buildNoPost && gFloaterTools->isAvailable());
+    bool no_post = gSnapshotNoPost || (buildNoPost && gFloaterTools && gFloaterTools->isAvailable());
     LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
     LLGLSLShader* sharpen_shader = psky->getReflectionProbeAmbiance(should_auto_adjust) == 0.f && !no_post ? &gCASLegacyGammaProgram : &gCASProgram;
 
