@@ -7,7 +7,15 @@
  title="Snapshot"
  can_minimize="false"
  width="450">
-   <button
+    <text
+    type="string"
+    follows="left|bottom"
+    height="10"
+    layout="topleft"
+    top="30"
+    left="5"
+    name="info_lbl"/>
+    <button
     follows="left|bottom"
     height="25"
     width="25"

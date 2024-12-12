@@ -151,6 +151,11 @@ LLUIListener::LLUIListener():
         "Set graphics quality level to [\"level\"]: from 0 (Low) to 6 (Ultra)",
         &LLUIListener::setGraphicsQuality,
         llsd::map("level", LLSD::Integer(), "reply", LLSD()));
+
+     add("getTempDir",
+        "Return path to system temporary directory",
+        &LLUIListener::getTempDir,
+        llsd::map("reply", LLSD()));
 }
 
 typedef LLUICtrl::CommitCallbackInfo cb_info;
@@ -453,4 +458,9 @@ void LLUIListener::setGraphicsQuality(LLSD const& request)
         gSavedSettings.setU32("RenderQualityPerformance", level);
         sendReply(LLSD(), request);
     });
+}
+
+void LLUIListener::getTempDir(LLSD const& request)
+{
+    Response response(llsd::map("tmpdir", LLFile::tmpdir()), request);
 }

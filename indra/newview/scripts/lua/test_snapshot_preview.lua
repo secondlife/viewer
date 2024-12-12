@@ -1,7 +1,7 @@
 local UI = require 'UI'
 local flt = UI.Floater("luafloater_preview.xml")
 
-local PATH = 'E:\\'
+local PATH = UI.getTempDir()
 local EXT = '.png'
 
 
