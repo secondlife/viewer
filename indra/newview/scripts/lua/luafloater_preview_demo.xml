@@ -22,7 +22,7 @@
     name="quality_cmb1"
     top_pad="12"
     left="5"
-    width="60">
+    width="70">
     <combo_box.item
      label="Low"
      value="0" />
@@ -59,7 +59,7 @@
     name="quality_cmb2"
     top_pad="7"
     left="5"
-    width="60">
+    width="70">
     <combo_box.item
      label="Low"
      value="0" />
