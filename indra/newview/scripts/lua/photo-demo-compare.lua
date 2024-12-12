@@ -100,7 +100,11 @@ for _, view in lookats do
         print('    '..quality_txt)
         -- set the quality level
         LLDebugSettings.setGraphicsQuality(q)
-        timers.sleep(3)
+        -- workaround for weird bug (?) in which the new RenderFarClip setting
+        -- changed by the graphics quality affects camera zoom
+        LLDebugSettings.set('RenderFarClip', 128)
+        -- let the rendering settle
+        timers.sleep(2)
         -- take a snapshot
         basename = `{testbase}{view.lookat[1]}-{view.lookat[2]}-{view.lookat[3]}-q{q}.png`
         fullname = `{SNAPDIR}/{basename}`
