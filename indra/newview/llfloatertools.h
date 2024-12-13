@@ -169,7 +169,7 @@ public:
 
     LLButton        *mBtnApplyToSelection;
 
-    std::vector<LLButton*>  mButtons;//[ 13 ];
+    std::vector<LLButton*>  mButtons;//[ 15 ];
 
     LLTabContainer  *mTab;
     LLPanelPermissions      *mPanelPermissions;

@@ -94,6 +94,8 @@
 	<button label="" label_selected="" name="ToolTorus" tool_tip="トーラス"/>
 	<button label="" label_selected="" name="ToolTube" tool_tip="チューブ"/>
 	<button label="" label_selected="" name="ToolRing" tool_tip="リング"/>
+	<button label="" label_selected="" name="ToolTree" tool_tip="樹木"/>
+	<button label="" label_selected="" name="ToolGrass" tool_tip="草地"/>
 	<check_box label="選択したツールを維持" name="checkbox sticky"/>
 	<check_box label="選択したものをコピー" name="checkbox copy selection"/>
 	<check_box label="中央に位置" name="checkbox copy centers"/>

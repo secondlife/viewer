@@ -93,6 +93,8 @@
 	<button name="ToolHemiSphere" tool_tip="Półkula" />
 	<button name="ToolTube" tool_tip="Rura" />
 	<button name="ToolRing" tool_tip="Pierścień" />
+	<button name="ToolTree" tool_tip="Drzewo" />
+	<button name="ToolGrass" tool_tip="Trawa" />
 	<check_box label="Trzymaj aktywne" name="checkbox sticky" />
 	<check_box label="Kopiuj zaznaczone" name="checkbox copy selection" />
 	<check_box label="Centruj kopię" name="checkbox copy centers" />
