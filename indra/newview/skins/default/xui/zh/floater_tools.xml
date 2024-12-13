@@ -95,8 +95,6 @@
 	<button name="ToolTorus" tool_tip="環面"/>
 	<button name="ToolTube" tool_tip="圓管"/>
 	<button name="ToolRing" tool_tip="圓環"/>
-	<button name="ToolTree" tool_tip="樹木"/>
-	<button name="ToolGrass" tool_tip="草地"/>
 	<check_box label="保持已選擇的工具" name="checkbox sticky"/>
 	<check_box label="複製選擇" name="checkbox copy selection"/>
 	<check_box initial_value="true" label="複製物置中" name="checkbox copy centers"/>

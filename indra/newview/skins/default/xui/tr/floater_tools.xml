@@ -95,8 +95,6 @@
 	<button name="ToolTorus" tool_tip="Torus"/>
 	<button name="ToolTube" tool_tip="Tüp"/>
 	<button name="ToolRing" tool_tip="Halka"/>
-	<button name="ToolTree" tool_tip="Ağaç"/>
-	<button name="ToolGrass" tool_tip="Çimen"/>
 	<check_box label="Seçili Aracı tut" name="checkbox sticky"/>
 	<check_box label="Seçimi kopyala" name="checkbox copy selection"/>
 	<check_box initial_value="true" label="Kopyayı Merkezle" name="checkbox copy centers"/>
