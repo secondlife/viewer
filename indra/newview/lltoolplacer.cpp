@@ -199,8 +199,22 @@ bool LLToolPlacer::rezNewObject(LLPCode pcode, LLViewerObject * hit_obj, S32 hit
     bool            create_selected = false;
     LLVolumeParams  volume_params;
 
+    U8 state = 0;
+
     switch (pcode)
     {
+    case LL_PCODE_LEGACY_GRASS:
+        //  Randomize size of grass patch
+        scale.setVec(10.f + ll_frand(20.f), 10.f + ll_frand(20.f),  1.f + ll_frand(2.f));
+        state = rand() % LLVOGrass::sMaxGrassSpecies;
+        break;
+
+
+    case LL_PCODE_LEGACY_TREE:
+    case LL_PCODE_TREE_NEW:
+        state = rand() % LLVOTree::sMaxTreeSpecies;
+        break;
+
     case LL_PCODE_SPHERE:
     case LL_PCODE_CONE:
     case LL_PCODE_CUBE:
@@ -394,7 +408,7 @@ bool LLToolPlacer::rezNewObject(LLPCode pcode, LLViewerObject * hit_obj, S32 hit
     gMessageSystem->addVector3Fast(_PREHASH_RayEnd,         ray_end_region );
     gMessageSystem->addU8Fast(_PREHASH_BypassRaycast,       (U8)b_hit_land );
     gMessageSystem->addU8Fast(_PREHASH_RayEndIsIntersection, (U8)false );
-    gMessageSystem->addU8Fast(_PREHASH_State, (U8)0 );
+    gMessageSystem->addU8Fast(_PREHASH_State, state);
 
     // Limit raycast to a single object.
     // Speeds up server raycast + avoid problems with server ray hitting objects

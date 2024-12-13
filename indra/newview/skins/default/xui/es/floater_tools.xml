@@ -52,6 +52,8 @@
 	<button label="" label_selected="" name="ToolTorus" tool_tip="Toroide"/>
 	<button label="" label_selected="" name="ToolTube" tool_tip="Tubo"/>
 	<button label="" label_selected="" name="ToolRing" tool_tip="Cono truncado"/>
+	<button label="" label_selected="" name="ToolTree" tool_tip="Árbol"/>
+	<button label="" label_selected="" name="ToolGrass" tool_tip="Hierba"/>
 	<check_box label="Mantener la herramienta elegida" name="checkbox sticky"/>
 	<check_box label="Copiar la selección" name="checkbox copy selection"/>
 	<check_box initial_value="true" label="Copia centrada" name="checkbox copy centers"/>

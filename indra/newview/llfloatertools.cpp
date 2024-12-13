@@ -197,7 +197,9 @@ static  const std::string   toolNames[]={
     "ToolHemiSphere",
     "ToolTorus",
     "ToolTube",
-    "ToolRing"};
+    "ToolRing",
+    "ToolTree",
+    "ToolGrass"};
 LLPCode toolData[]={
     LL_PCODE_CUBE,
     LL_PCODE_PRISM,
@@ -211,7 +213,9 @@ LLPCode toolData[]={
     LL_PCODE_SPHERE_HEMI,
     LL_PCODE_TORUS,
     LLViewerObject::LL_VO_SQUARE_TORUS,
-    LLViewerObject::LL_VO_TRIANGLE_TORUS};
+    LLViewerObject::LL_VO_TRIANGLE_TORUS,
+    LL_PCODE_LEGACY_TREE,
+    LL_PCODE_LEGACY_GRASS};
 
 bool    LLFloaterTools::postBuild()
 {

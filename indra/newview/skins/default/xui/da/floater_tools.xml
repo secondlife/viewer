@@ -94,6 +94,8 @@
 	<button label="" label_selected="" name="ToolTorus" tool_tip="Kuglering"/>
 	<button label="" label_selected="" name="ToolTube" tool_tip="Rør"/>
 	<button label="" label_selected="" name="ToolRing" tool_tip="Ring"/>
+	<button label="" label_selected="" name="ToolTree" tool_tip="Træ"/>
+	<button label="" label_selected="" name="ToolGrass" tool_tip="Græs"/>
 	<check_box label="Hold værktøjet valgt" name="checkbox sticky"/>
 	<check_box label="Kopier valgte" name="checkbox copy selection"/>
 	<check_box initial_value="true" label="Centreret kopi" name="checkbox copy centers"/>
