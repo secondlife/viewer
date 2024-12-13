@@ -81,6 +81,8 @@ if (WINDOWS)
       NOMINMAX
 #     DOM_DYNAMIC                     # For shared library colladadom
       _CRT_SECURE_NO_WARNINGS         # Allow use of sprintf etc
+      _CRT_NONSTDC_NO_DEPRECATE       # Allow use of sprintf etc
+      _CRT_OBSOLETE_NO_WARNINGS
       _WINSOCK_DEPRECATED_NO_WARNINGS # Disable deprecated WinSock API warnings
       )
   add_compile_options(
@@ -222,7 +224,7 @@ if(LINUX OR DARWIN)
   endif()
 
   if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    add_compile_options(-Wno-stringop-truncation -Wno-parentheses)
+    add_compile_options(-Wno-stringop-truncation -Wno-parentheses -Wno-maybe-uninitialized)
   endif()
 
   if (NOT GCC_DISABLE_FATAL_WARNINGS AND NOT CLANG_DISABLE_FATAL_WARNINGS)

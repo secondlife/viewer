@@ -21,7 +21,7 @@ if (WINDOWS)
         debug ${ARCH_PREBUILT_DIRS_DEBUG}/libvorbis.lib
     )
 else (WINDOWS)
-  target_link_libraries(ll::vorbis INTERFACE 
+  target_link_libraries(ll::vorbis INTERFACE
         ${ARCH_PREBUILT_DIRS_RELEASE}/libvorbisfile.a
         ${ARCH_PREBUILT_DIRS_RELEASE}/libvorbis.a
         ${ARCH_PREBUILT_DIRS_RELEASE}/libvorbisenc.a

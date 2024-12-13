@@ -18,14 +18,14 @@ set(addrsfx "-x${ADDRESS_SIZE}")
 
 if (WINDOWS)
   target_link_libraries( ll::boost INTERFACE
-          libboost_context-mt${addrsfx}
-          libboost_fiber-mt${addrsfx}
-          libboost_filesystem-mt${addrsfx}
-          libboost_program_options-mt${addrsfx}
-          libboost_regex-mt${addrsfx}
-          libboost_system-mt${addrsfx}
-          libboost_thread-mt${addrsfx}
-          libboost_url-mt${addrsfx}
+          ${ARCH_PREBUILT_DIRS_RELEASE}/libboost_context-mt${addrsfx}.lib
+          ${ARCH_PREBUILT_DIRS_RELEASE}/libboost_fiber-mt${addrsfx}.lib
+          ${ARCH_PREBUILT_DIRS_RELEASE}/libboost_filesystem-mt${addrsfx}.lib
+          ${ARCH_PREBUILT_DIRS_RELEASE}/libboost_program_options-mt${addrsfx}.lib
+          ${ARCH_PREBUILT_DIRS_RELEASE}/libboost_regex-mt${addrsfx}.lib
+          ${ARCH_PREBUILT_DIRS_RELEASE}/libboost_system-mt${addrsfx}.lib
+          ${ARCH_PREBUILT_DIRS_RELEASE}/libboost_thread-mt${addrsfx}.lib
+          ${ARCH_PREBUILT_DIRS_RELEASE}/libboost_url-mt${addrsfx}.lib
           )
 elseif (DARWIN)
   target_link_libraries( ll::boost INTERFACE

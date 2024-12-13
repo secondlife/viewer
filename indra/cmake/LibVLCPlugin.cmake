@@ -19,12 +19,12 @@ set(LIBVLCPLUGIN ON CACHE BOOL
 
 if (WINDOWS)
     target_link_libraries( ll::libvlc INTERFACE
-            libvlc.lib
-            libvlccore.lib
+            ${ARCH_PREBUILT_DIRS_RELEASE}/libvlc.lib
+            ${ARCH_PREBUILT_DIRS_RELEASE}/libvlccore.lib
     )
 elseif (DARWIN)
     target_link_libraries( ll::libvlc INTERFACE
-    ${ARCH_PREBUILT_DIRS_RELEASE}/libvlc.dylib
-    ${ARCH_PREBUILT_DIRS_RELEASE}/libvlccore.dylib
+            ${ARCH_PREBUILT_DIRS_RELEASE}/libvlc.dylib
+            ${ARCH_PREBUILT_DIRS_RELEASE}/libvlccore.dylib
     )
 endif (WINDOWS)

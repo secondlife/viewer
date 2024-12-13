@@ -1450,8 +1450,8 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
     }
 
     const LLMeshSkinInfo* skin = nullptr;
-    LLMatrix4a mat_vert;
-    LLMatrix4a mat_normal;
+    LLMatrix4a mat_vert = LLMatrix4a::identity();
+    LLMatrix4a mat_normal = LLMatrix4a::identity();
 
     // prepare mat_vert
     if (rebuild_pos)
@@ -1921,6 +1921,7 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
 
 
             LLVector4a res0; //,res1,res2,res3;
+            res0.clear();
 
             LLVector4a texIdx;
 

@@ -20,13 +20,13 @@ if (USE_OPENAL)
 
   if(WINDOWS)
     target_link_libraries( ll::openal INTERFACE
-            OpenAL32
-            alut
+            ${ARCH_PREBUILT_DIRS_RELEASE}/OpenAL32.lib
+            ${ARCH_PREBUILT_DIRS_RELEASE}/alut.lib
             )
   elseif(LINUX)
     target_link_libraries( ll::openal INTERFACE
-            openal
-            alut
+            ${ARCH_PREBUILT_DIRS_RELEASE}/libopenal.so
+            ${ARCH_PREBUILT_DIRS_RELEASE}/libalut.so
             )
   else()
     target_link_libraries( ll::openal INTERFACE
