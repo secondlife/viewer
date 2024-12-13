@@ -95,8 +95,6 @@
 	<button name="ToolTorus" tool_tip="Тор"/>
 	<button name="ToolTube" tool_tip="Труба"/>
 	<button name="ToolRing" tool_tip="Кольцо"/>
-	<button name="ToolTree" tool_tip="Дерево"/>
-	<button name="ToolGrass" tool_tip="Трава"/>
 	<check_box label="Держать инструмент" name="checkbox sticky"/>
 	<check_box label="Копировать выдел." name="checkbox copy selection"/>
 	<check_box initial_value="true" label="Центрир. копию" name="checkbox copy centers"/>

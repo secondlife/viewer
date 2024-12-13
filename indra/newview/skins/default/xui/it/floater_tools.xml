@@ -94,8 +94,6 @@
 	<button label="" label_selected="" name="ToolTorus" tool_tip="Toro"/>
 	<button label="" label_selected="" name="ToolTube" tool_tip="Tubo"/>
 	<button label="" label_selected="" name="ToolRing" tool_tip="Anello"/>
-	<button label="" label_selected="" name="ToolTree" tool_tip="Albero"/>
-	<button label="" label_selected="" name="ToolGrass" tool_tip="Erba"/>
 	<check_box label="Mantieni lo strumento selezionato" name="checkbox sticky"/>
 	<check_box label="Copia la selezione" name="checkbox copy selection"/>
 	<check_box initial_value="true" label="Centra la copia" name="checkbox copy centers"/>
