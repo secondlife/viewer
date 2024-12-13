@@ -2251,21 +2251,25 @@ void LLSelectMgr::selectionRevertGLTFMaterials()
 
                 // Update material locally
                 objectp->setRenderMaterialID(te, asset_id, false /*wait for LLGLTFMaterialList update*/);
-                LLGLTFMaterial* material = new LLGLTFMaterial(*nodep->mSavedGLTFOverrideMaterials[te]);
-                objectp->setTEGLTFMaterialOverride(te, material);
 
-                // Enqueue update to server
-                if (asset_id.notNull())
+                LLGLTFMaterial* override_mat = nodep->mSavedGLTFOverrideMaterials[te];
+                if (override_mat)
                 {
-                    // Restore overrides and base material
-                    LLGLTFMaterialList::queueApply(objectp, te, asset_id, material);
-                }
-                else
-                {
-                    //blank override out
-                    LLGLTFMaterialList::queueApply(objectp, te, asset_id);
-                }
+                    LLGLTFMaterial* material = new LLGLTFMaterial(*override_mat);
+                    objectp->setTEGLTFMaterialOverride(te, material);
 
+                    // Enqueue update to server
+                    if (asset_id.notNull())
+                    {
+                        // Restore overrides and base material
+                        LLGLTFMaterialList::queueApply(objectp, te, asset_id, material);
+                    }
+                    else
+                    {
+                        //blank override out
+                        LLGLTFMaterialList::queueApply(objectp, te, asset_id);
+                    }
+                }
             }
             return true;
         }
