@@ -2251,13 +2251,18 @@ void LLSelectMgr::selectionRevertGLTFMaterials()
 
                 // Update material locally
                 objectp->setRenderMaterialID(te, asset_id, false /*wait for LLGLTFMaterialList update*/);
-                objectp->setTEGLTFMaterialOverride(te, nodep->mSavedGLTFOverrideMaterials[te]);
+                LLGLTFMaterial* material = nodep->mSavedGLTFOverrideMaterials[te];
+                if (material)
+                {
+                    material = new LLGLTFMaterial(*material);
+                    objectp->setTEGLTFMaterialOverride(te, material);
+                }
 
                 // Enqueue update to server
-                if (asset_id.notNull())
+                if (asset_id.notNull() && material)
                 {
                     // Restore overrides and base material
-                    LLGLTFMaterialList::queueApply(objectp, te, asset_id, nodep->mSavedGLTFOverrideMaterials[te]);
+                    LLGLTFMaterialList::queueApply(objectp, te, asset_id, material);
                 }
                 else
                 {
@@ -3168,15 +3173,20 @@ void LLSelectMgr::adjustTexturesByScale(bool send_to_sim, bool stretch)
                         material->mTextureTransform[i].mOffset.set(offset_x, offset_y);
                     }
 
-                    LLFetchedGLTFMaterial* render_mat = (LLFetchedGLTFMaterial*)tep->getGLTFRenderMaterial();
-                    if (render_mat)
+                    const LLGLTFMaterial* base_material = tep->getGLTFMaterial();
+                    if (base_material)
                     {
-                        render_mat->applyOverride(*material);
+                        LLGLTFMaterial* render_material = new LLFetchedGLTFMaterial();
+                        *render_material = *base_material;
+                        render_material->applyOverride(*material);
+                        tep->setGLTFRenderMaterial(render_material);
                     }
 
                     if (send_to_sim)
                     {
-                        LLGLTFMaterialList::queueModify(object, te_num, material);
+                        LLGLTFMaterial new_override;
+                        new_override = *material;
+                        LLGLTFMaterialList::queueModify(object, te_num, &new_override);
                     }
                 }
                 send = send_to_sim;
@@ -5974,12 +5984,12 @@ void LLSelectMgr::processObjectProperties(LLMessageSystem* msg, void** user_data
                         LLGLTFMaterial* old_override = node->getObject()->getTE(i)->getGLTFMaterialOverride();
                         if (old_override)
                         {
-                            LLPointer<LLGLTFMaterial> mat = new LLGLTFMaterial(*old_override);
-                            override_materials.push_back(mat);
+                            // saveGLTFMaterials will make a copy
+                            override_materials.emplace_back(old_override);
                         }
                         else
                         {
-                            override_materials.push_back(nullptr);
+                            override_materials.emplace_back(nullptr);
                         }
                     }
                     // processObjectProperties does not include overrides so this
@@ -6887,16 +6897,22 @@ void LLSelectNode::saveGLTFMaterials(const uuid_vec_t& materials, const gltf_mat
         mSavedGLTFMaterialIds.clear();
         mSavedGLTFOverrideMaterials.clear();
 
-        for (uuid_vec_t::const_iterator materials_it = materials.begin();
-            materials_it != materials.end(); ++materials_it)
+        for (const LLUUID& id : materials)
         {
-            mSavedGLTFMaterialIds.push_back(*materials_it);
+            mSavedGLTFMaterialIds.push_back(id);
         }
 
-        for (gltf_materials_vec_t::const_iterator mat_it = override_materials.begin();
-            mat_it != override_materials.end(); ++mat_it)
+        for (const LLPointer<LLGLTFMaterial> &mat : override_materials)
         {
-            mSavedGLTFOverrideMaterials.push_back(*mat_it);
+            if (mat.notNull())
+            {
+                LLGLTFMaterial* copy = new LLGLTFMaterial(*mat);
+                mSavedGLTFOverrideMaterials.emplace_back(copy);
+            }
+            else
+            {
+                mSavedGLTFOverrideMaterials.emplace_back(nullptr);
+            }
         }
     }
 }
