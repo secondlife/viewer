@@ -11,14 +11,10 @@ target_include_directories( ll::vorbis SYSTEM INTERFACE ${LIBS_PREBUILT_DIR}/inc
 
 if (WINDOWS)
   target_link_libraries(ll::vorbis INTERFACE
-        optimized ${ARCH_PREBUILT_DIRS_RELEASE}/libogg.lib
-        debug ${ARCH_PREBUILT_DIRS_DEBUG}/libogg.lib
-        optimized ${ARCH_PREBUILT_DIRS_RELEASE}/libvorbisenc.lib
-        debug ${ARCH_PREBUILT_DIRS_DEBUG}/libvorbisenc.lib
-        optimized ${ARCH_PREBUILT_DIRS_RELEASE}/libvorbisfile.lib
-        debug ${ARCH_PREBUILT_DIRS_DEBUG}/libvorbisfile.lib
-        optimized ${ARCH_PREBUILT_DIRS_RELEASE}/libvorbis.lib
-        debug ${ARCH_PREBUILT_DIRS_DEBUG}/libvorbis.lib
+        ${ARCH_PREBUILT_DIRS_RELEASE}/libogg.lib
+        ${ARCH_PREBUILT_DIRS_RELEASE}/libvorbisenc.lib
+        ${ARCH_PREBUILT_DIRS_RELEASE}/libvorbisfile.lib
+        ${ARCH_PREBUILT_DIRS_RELEASE}/libvorbis.lib
     )
 else (WINDOWS)
   target_link_libraries(ll::vorbis INTERFACE vorbisfile vorbis ogg vorbisenc )

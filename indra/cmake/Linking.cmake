@@ -8,7 +8,7 @@ set(ARCH_PREBUILT_DIRS_PLUGINS ${AUTOBUILD_INSTALL_DIR}/plugins)
 set(ARCH_PREBUILT_DIRS_RELEASE ${AUTOBUILD_INSTALL_DIR}/lib/release)
 set(ARCH_PREBUILT_DIRS_DEBUG ${AUTOBUILD_INSTALL_DIR}/lib/debug)
 
-if (WINDOWS OR DARWIN )
+if (LL_GENERATOR_IS_MULTI_CONFIG)
   # Kludge for older cmake versions, 3.20+ is needed to use a genex in add_custom_command( OUTPUT <var> ... )
   # Using this will work okay-ish, as Debug is not supported anyway. But for property multi config and also
   # ninja support the genex version is preferred.
@@ -23,14 +23,15 @@ if (WINDOWS OR DARWIN )
     set(SYMBOLS_STAGING_DIR ${CMAKE_BINARY_DIR}/symbols/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>/${VIEWER_CHANNEL})
   endif()
 
-  if( DARWIN )
-    set( SHARED_LIB_STAGING_DIR ${SHARED_LIB_STAGING_DIR}/Resources)
-  endif()
   set(EXE_STAGING_DIR ${CMAKE_BINARY_DIR}/sharedlibs/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>)
-elseif (LINUX)
+else ()
   set(SHARED_LIB_STAGING_DIR ${CMAKE_BINARY_DIR}/sharedlibs/lib)
   set(EXE_STAGING_DIR ${CMAKE_BINARY_DIR}/sharedlibs/bin)
 endif ()
+
+if( DARWIN )
+  set( SHARED_LIB_STAGING_DIR ${SHARED_LIB_STAGING_DIR}/Resources)
+endif()
 
 # Autobuild packages must provide 'release' versions of libraries, but may provide versions for
 # specific build types.  AUTOBUILD_LIBS_INSTALL_DIRS lists first the build type directory and then

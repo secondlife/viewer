@@ -27,6 +27,10 @@ indra/tools/vstool/* -text
 *.dll binary
 *.exe binary
 
+# llapputil test data
+*.binary binary
+*.output binary
+
 # Files with Windows line endings
 VivoxAUP.txt text eol=crlf
 FILES_ARE_UNICODE_UTF-16LE.txt text eol=crlf
