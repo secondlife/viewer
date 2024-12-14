@@ -553,7 +553,7 @@ void LLFloaterRegionInfo::refreshFromRegion(LLViewerRegion* region)
     if (region != gAgent.getRegion())
         return;
 
-    if (LLFloaterRegionInfo* floater = LLFloaterReg::getTypedInstance<LLFloaterRegionInfo>("region_info"))
+    if (LLFloaterRegionInfo* floater = LLFloaterReg::findTypedInstance<LLFloaterRegionInfo>("region_info"))
     {
         if (floater->getVisible() && region == gAgent.getRegion())
         {
