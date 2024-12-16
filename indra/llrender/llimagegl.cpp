@@ -2434,7 +2434,9 @@ bool LLImageGL::scaleDown(S32 desired_discard)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 
-    if (mTarget != GL_TEXTURE_2D)
+    if (mTarget != GL_TEXTURE_2D
+        || mFormatInternal == -1 // not initialized
+        )
     {
         return false;
     }
