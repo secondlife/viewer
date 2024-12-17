@@ -1,4 +1,4 @@
-version 71
+version 72
 // The version number above should be incremented IF AND ONLY IF some
 // change has been made that is sufficiently important to justify
 // resetting the graphics preferences of all users to the recommended
@@ -85,6 +85,7 @@ RenderExposure				1   1
 RenderTonemapType			1   1
 RenderTonemapMix			1   1
 RenderDisableVintageMode           1   1
+RenderDownScaleMethod       1   0
 
 //
 // Low Graphics Settings
@@ -415,6 +416,7 @@ RenderTerrainPBRDetail      1   -1
 list AMD
 UseOcclusion                    1   0
 RenderGLMultiThreadedTextures   1   0
+RenderGLMultiThreadedMedia      1   0
 
 list NVIDIA
 RenderGLMultiThreadedTextures   1   0
