@@ -222,10 +222,7 @@ FUNCTION(LL_ADD_INTEGRATION_TEST
   # The following was copied to llcorehttp/CMakeLists.txt's texture_load target.
   # Any changes made here should be replicated there.
   if (WINDOWS)
-    set_target_properties(INTEGRATION_TEST_${testname}
-            PROPERTIES
-            LINK_FLAGS "/debug /NODEFAULTLIB:LIBCMT /SUBSYSTEM:CONSOLE"
-            )
+    target_link_options(INTEGRATION_TEST_${testname} PRIVATE /debug /NODEFAULTLIB:LIBCMT /SUBSYSTEM:CONSOLE)
   endif ()
 
   if (DARWIN)

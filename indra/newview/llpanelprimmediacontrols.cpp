@@ -660,7 +660,7 @@ void LLPanelPrimMediaControls::updateShape()
         for(; vert_it != vert_end; ++vert_it)
         {
             // project silhouette vertices into screen space
-            glm::vec3 screen_vert(glm::make_vec3(vert_it->mV));
+            glm::vec3 screen_vert(vert_it->mV[VX], vert_it->mV[VY], vert_it->mV[VZ]);
             screen_vert = mul_mat4_vec3(mat, screen_vert);
 
             // add to screenspace bounding box

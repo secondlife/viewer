@@ -139,9 +139,7 @@
 #include "llcoros.h"
 #include "llexception.h"
 #include "cef/dullahan_version.h"
-#if !LL_LINUX
 #include "vlc/libvlc_version.h"
-#endif // LL_LINUX
 
 #if LL_DARWIN
 #include "llwindowmacosx.h"
@@ -3495,7 +3493,6 @@ LLSD LLAppViewer::getViewerInfo() const
 
     info["LIBCEF_VERSION"] = cef_ver_codec.str();
 
-#if !LL_LINUX
     std::ostringstream vlc_ver_codec;
     vlc_ver_codec << LIBVLC_VERSION_MAJOR;
     vlc_ver_codec << ".";
@@ -3503,9 +3500,6 @@ LLSD LLAppViewer::getViewerInfo() const
     vlc_ver_codec << ".";
     vlc_ver_codec << LIBVLC_VERSION_REVISION;
     info["LIBVLC_VERSION"] = vlc_ver_codec.str();
-#else
-    info["LIBVLC_VERSION"] = "Undefined";
-#endif
 
     S32 packets_in = (S32)LLViewerStats::instance().getRecording().getSum(LLStatViewer::PACKETS_IN);
     if (packets_in > 0)

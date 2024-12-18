@@ -1036,12 +1036,6 @@ class Darwin_x86_64_Manifest(ViewerManifest):
                                 ):
                         dylibs += path_optional(os.path.join(relpkgdir, libfile), libfile)
 
-                # SDL2
-                for libfile in (
-                            'libSDL2-2.0.dylib',
-                            ):
-                    dylibs += path_optional(os.path.join(relpkgdir, libfile), libfile)
-
                 # our apps
                 executable_path = {}
                 embedded_apps = [ (os.path.join("llplugin", "slplugin"), "SLPlugin.app") ]
@@ -1254,12 +1248,11 @@ class LinuxManifest(ViewerManifest):
         # plugins
         with self.prefix(src=os.path.join(self.args['build'], os.pardir, 'media_plugins'), dst="bin/llplugin"):
             self.path("gstreamer10/libmedia_plugin_gstreamer10.so", "libmedia_plugin_gstreamer.so")
-
-        with self.prefix(src=os.path.join(self.args['build'], os.pardir, 'media_plugins'), dst="bin/llplugin"):
+            self.path("libvlc/libmedia_plugin_libvlc.so", "libmedia_plugin_libvlc.so")
             self.path("cef/libmedia_plugin_cef.so", "libmedia_plugin_cef.so" )
+
         with self.prefix(src=os.path.join(pkgdir, 'lib', 'release'), dst="lib"):
             self.path( "libcef.so" )
-
             self.path( "libEGL*" )
             self.path( "libvulkan*" )
             self.path( "libvk_swiftshader*" )
@@ -1408,6 +1401,7 @@ class LinuxManifest(ViewerManifest):
                  '!', '-name', '*.crt',
                  '!', '-name', '*.dll',
                  '!', '-name', '*.lib',
+                 '!', '-name', '*.json',
                  '!', '-name', 'update_install', '-exec', 'strip', '-S', '{}', ';'])
 
 class Linux_x86_64_Manifest(LinuxManifest):

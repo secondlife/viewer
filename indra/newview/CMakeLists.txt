@@ -13,7 +13,6 @@ include(BuildPackagesInfo)
 include(BuildVersion)
 include(CMakeCopyIfDifferent)
 include(CubemapToEquirectangularJS)
-include(DBusGlib)
 include(DragDrop)
 include(EXPAT)
 include(Hunspell)
@@ -1491,8 +1490,6 @@ if (LINUX)
       PROPERTIES
       COMPILE_DEFINITIONS "${VIEWER_CHANNEL_VERSION_DEFINES}"
       )
-    SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--as-needed")
-
 endif (LINUX)
 
 if (WINDOWS)
@@ -2043,8 +2040,9 @@ if (LINUX)
   set(COPY_INPUT_DEPENDENCIES
     ${VIEWER_BINARY_NAME}
     SLPlugin
-    #media_plugin_gstreamer010
-    llcommon
+    media_plugin_gstreamer10
+    media_plugin_libvlc
+    llwebrtc
     )
 
   #if (NOT USE_BUGSPLAT)

@@ -593,18 +593,6 @@ inline bool LLVector4a::equals3(const LLVector4a& rhs, F32 tolerance ) const
 ////////////////////////////////////
 
 // Do NOT add aditional operators without consulting someone with SSE experience
-inline const LLVector4a& LLVector4a::operator= ( const LLVector4a& rhs )
-{
-    mQ = rhs.mQ;
-    return *this;
-}
-
-inline const LLVector4a& LLVector4a::operator= ( const LLQuad& rhs )
-{
-    mQ = rhs;
-    return *this;
-}
-
 inline LLVector4a::operator LLQuad() const
 {
     return mQ;
