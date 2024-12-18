@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<toggleable_menu layout="topleft" name="Copy Paste Features Menu">
+<toggleable_menu name="Copy Paste Features Menu">
 	<menu_item_call label="コピー" name="params_copy"/>
 	<menu_item_call label="ペースト" name="params_paste"/>
 </toggleable_menu>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="Inventory Gallery">
+	<text name="empty_txt">
+		フォルダは空です。
+	</text>
+	<scroll_container name="gallery_scroll_panel"/>
+</panel>

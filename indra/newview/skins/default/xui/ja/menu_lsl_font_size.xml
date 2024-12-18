@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu name="menu_font_size">
+	<menu_item_check label="小" name="font_small"/>
+	<menu_item_check label="デフォルト" name="font_monospace"/>
+	<menu_item_check label="中" name="font_medium"/>
+	<menu_item_check label="大" name="font_large"/>
+	<menu_item_check label="最大" name="font_huge"/>
+</toggleable_menu>

@@ -4,7 +4,7 @@
 		一時停止
 	</string>
 	<string name="run">
-		走る
+		実行
 	</string>
 	<combo_box name="time_scale_combo">
 		<item label="平均の２倍" name="2x Average"/>

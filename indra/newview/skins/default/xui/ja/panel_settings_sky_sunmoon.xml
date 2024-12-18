@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel name="panel_settings_sky_hbodies">
+<panel label="太陽＆月" name="panel_settings_sky_hbodies">
 	<layout_stack name="main_ls">
 		<layout_panel name="sun_layout">
 			<text name="sun_stars_label">

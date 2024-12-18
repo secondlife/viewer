@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Import Collada" title="風景のインポート">
+<floater name="Import Collada" title="Colladaファイルのインポート">
 	<text name="mesh count">
-		メッシュ：[COUNT]
+		メッシュ：[COUNT]個
 	</text>
 	<text name="texture count">
-		テクスチャ：[COUNT]
+		テクスチャ：[COUNT]枚
 	</text>
 	<text name="status">
 		ステータス：[STATUS]
@@ -15,9 +15,9 @@
 		待機状態
 	</string>
 	<string name="status_uploading">
-		[NAME]をアップロード中
+		[NAME]をアップロードしています…
 	</string>
 	<string name="status_creating">
-		オブジェクト[NAME]を作成中
+		オブジェクト[NAME]を作成しています…
 	</string>
 </floater>

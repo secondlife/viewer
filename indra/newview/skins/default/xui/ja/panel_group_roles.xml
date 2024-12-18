@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="メンバーと役割" name="roles_tab">
 	<panel.string name="default_needs_apply_text">
-		保存していない変更があります。
+		保存されていない変更があります。
 	</panel.string>
 	<panel.string name="want_apply_text">
-		変更を保存しますか？
+		変更を保存してもよろしいですか？
 	</panel.string>
 	<tab_container name="roles_tab_container">
 		<panel label="メンバー" name="members_sub_tab" tool_tip="メンバー">
@@ -24,7 +24,7 @@ Ctrlキーを押しながら、メンバー名をクリックすることで複�
 			</name_list>
 			<button label="招待" name="member_invite"/>
 			<button label="追放" name="member_eject"/>
-			<button label="メンバーの立入禁止" name="member_ban"/>
+			<button label="バン" name="member_ban"/>
 		</panel>
 		<panel label="役割" name="roles_sub_tab">
 			<panel.string name="help_text">
@@ -35,6 +35,9 @@ Ctrlキーを押しながら、メンバー名をクリックすることで複�
 			<panel.string name="cant_delete_role">
 				「全員（Everyone）」と「所有者（Owner）」の役割は削除することができません。
 			</panel.string>
+			<panel.string name="donation_area">
+				[AREA]㎡
+			</panel.string>
 			<panel.string name="power_folder_icon">
 				Inv_FolderClosed
 			</panel.string>
@@ -44,12 +47,13 @@ Ctrlキーを押しながら、メンバー名をクリックすることで複�
 			<panel.string name="power_partial_icon">
 				Checkbox_Off
 			</panel.string>
-			<filter_editor label="役割をフィルタ" name="filter_input"/>
-			<scroll_list name="role_list">
-				<scroll_list.columns label="役割" name="name"/>
-				<scroll_list.columns label="タイトル" name="title"/>
-				<scroll_list.columns label="＃" name="members"/>
-			</scroll_list>
+			<filter_editor label="メンバーをフィルタ" name="filter_input"/>
+			<name_list name="member_list">
+				<name_list.columns label="メンバー" name="name"/>
+				<name_list.columns label="寄付" name="donated"/>
+				<name_list.columns label="ステータス" name="online"/>
+				<name_list.columns label="タイトル" name="title"/>
+			</name_list>
 			<button label="新しい役割" name="role_create"/>
 			<button label="役割をコピー" name="role_copy"/>
 			<button label="役割を削除" name="role_delete"/>
@@ -69,10 +73,10 @@ Ctrlキーを押しながら、メンバー名をクリックすることで複�
 				Checkbox_Off
 			</panel.string>
 			<filter_editor label="能力でフィルタ" name="filter_input"/>
-			<scroll_list name="action_list" tool_tip="詳細を見るには、能力を選んでください。">
+			<scroll_list name="action_list" tool_tip="能力を選択して詳細を表示します。">
 				<scroll_list.columns label="" name="icon"/>
 				<scroll_list.columns label="" name="checkbox"/>
-				<scroll_list.columns label="" name="action"/>
+				<scroll_list.columns label=""/>
 			</scroll_list>
 		</panel>
 		<panel label="バンされた住民" name="banlist_sub_tab" tool_tip="このグループからバンされた住人を表示します。">
@@ -80,7 +84,7 @@ Ctrlキーを押しながら、メンバー名をクリックすることで複�
 				バンリストに登録された住人は、グループに参加できません。
 			</panel.string>
 			<panel.string name="ban_count_template">
-				バンされた人数：[LIMIT]人中[COUNT]人
+				バンしている人数：全[LIMIT]人中[COUNT]人
 			</panel.string>
 			<name_list name="ban_list">
 				<name_list.columns label="住人" name="name"/>
@@ -88,7 +92,7 @@ Ctrlキーを押しながら、メンバー名をクリックすることで複�
 			</name_list>
 			<button label="住人をバンする" name="ban_create" tool_tip="グループから住人をバンします。"/>
 			<button label="バンの解除" name="ban_delete" tool_tip="選択した住人のバンを解除します。"/>
-			<button label="リフレッシュ" name="ban_refresh" tool_tip="バンリストをリフレッシュします。"/>
+			<button name="ban_refresh" tool_tip="バンリストをリフレッシュします。"/>
 			<text name="ban_count" width="100"/>
 		</panel>
 	</tab_container>
@@ -130,8 +134,9 @@ Ctrlキーを押しながら、メンバー名をクリックすることで複�
 		<text name="static4">
 			割当られたメンバー
 		</text>
-		<check_box label="Reveal members" name="role_visible_in_list" tool_tip="グループ外の人が一般タブを見たときに、この役割のメンバーが表示されるかどうかを設定します。"/>
-		<text name="static5" tool_tip="現在選択されている役割で実行できる能力のリスト">
+		<name_list name="role_assigned_members"/>
+		<check_box label="明らかなメンバー" name="role_visible_in_list" tool_tip="グループ外の人が一般タブを見たときに、この役割のメンバーが表示されるかどうかを設定します。"/>
+		<text name="static5">
 			許可された能力
 		</text>
 		<scroll_list name="role_allowed_actions" tool_tip="各能力の詳細は、能力のタブをご覧ください。">
