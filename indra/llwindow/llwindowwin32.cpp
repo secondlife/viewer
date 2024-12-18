@@ -1304,8 +1304,7 @@ bool LLWindowWin32::switchContext(bool fullscreen, const LLCoordScreen& size, bo
     catch (...)
     {
         LOG_UNHANDLED_EXCEPTION("ChoosePixelFormat");
-        OSMessageBox(mCallbacks->translateString("MBPixelFmtErr"),
-            mCallbacks->translateString("MBError"), OSMB_OK);
+        LLError::LLUserWarningMsg::show(mCallbacks->translateString("MBPixelFmtErr"), 8/*LAST_EXEC_GRAPHICS_INIT*/);
         close();
         return false;
     }
@@ -1316,8 +1315,7 @@ bool LLWindowWin32::switchContext(bool fullscreen, const LLCoordScreen& size, bo
     if (!DescribePixelFormat(mhDC, pixel_format, sizeof(PIXELFORMATDESCRIPTOR),
         &pfd))
     {
-        OSMessageBox(mCallbacks->translateString("MBPixelFmtDescErr"),
-            mCallbacks->translateString("MBError"), OSMB_OK);
+        LLError::LLUserWarningMsg::show(mCallbacks->translateString("MBPixelFmtDescErr"), 8/*LAST_EXEC_GRAPHICS_INIT*/);
         close();
         return false;
     }
@@ -1355,8 +1353,7 @@ bool LLWindowWin32::switchContext(bool fullscreen, const LLCoordScreen& size, bo
 
     if (!SetPixelFormat(mhDC, pixel_format, &pfd))
     {
-        OSMessageBox(mCallbacks->translateString("MBPixelFmtSetErr"),
-            mCallbacks->translateString("MBError"), OSMB_OK);
+        LLError::LLUserWarningMsg::show(mCallbacks->translateString("MBPixelFmtSetErr"), 8/*LAST_EXEC_GRAPHICS_INIT*/);
         close();
         return false;
     }
@@ -1364,16 +1361,14 @@ bool LLWindowWin32::switchContext(bool fullscreen, const LLCoordScreen& size, bo
 
     if (!(mhRC = SafeCreateContext(mhDC)))
     {
-        OSMessageBox(mCallbacks->translateString("MBGLContextErr"),
-            mCallbacks->translateString("MBError"), OSMB_OK);
+        LLError::LLUserWarningMsg::show(mCallbacks->translateString("MBGLContextErr"), 8/*LAST_EXEC_GRAPHICS_INIT*/);
         close();
         return false;
     }
 
     if (!wglMakeCurrent(mhDC, mhRC))
     {
-        OSMessageBox(mCallbacks->translateString("MBGLContextActErr"),
-            mCallbacks->translateString("MBError"), OSMB_OK);
+        LLError::LLUserWarningMsg::show(mCallbacks->translateString("MBGLContextActErr"), 8/*LAST_EXEC_GRAPHICS_INIT*/);
         close();
         return false;
     }
@@ -1579,15 +1574,14 @@ const   S32   max_format  = (S32)num_formats - 1;
 
         if (!mhDC)
         {
-            OSMessageBox(mCallbacks->translateString("MBDevContextErr"), mCallbacks->translateString("MBError"), OSMB_OK);
+            LLError::LLUserWarningMsg::show(mCallbacks->translateString("MBDevContextErr"), 8/*LAST_EXEC_GRAPHICS_INIT*/);
             close();
             return false;
         }
 
         if (!SetPixelFormat(mhDC, pixel_format, &pfd))
         {
-            OSMessageBox(mCallbacks->translateString("MBPixelFmtSetErr"),
-                mCallbacks->translateString("MBError"), OSMB_OK);
+            LLError::LLUserWarningMsg::show(mCallbacks->translateString("MBPixelFmtSetErr"), 8/*LAST_EXEC_GRAPHICS_INIT*/);
             close();
             return false;
         }
@@ -1619,7 +1613,7 @@ const   S32   max_format  = (S32)num_formats - 1;
     {
         LL_WARNS("Window") << "No wgl_ARB_pixel_format extension!" << LL_ENDL;
         // cannot proceed without wgl_ARB_pixel_format extension, shutdown same as any other gGLManager.initGL() failure
-        OSMessageBox(mCallbacks->translateString("MBVideoDrvErr"), mCallbacks->translateString("MBError"), OSMB_OK);
+        LLError::LLUserWarningMsg::show(mCallbacks->translateString("MBVideoDrvErr"), 8/*LAST_EXEC_GRAPHICS_INIT*/);
         close();
         return false;
     }
@@ -1628,7 +1622,7 @@ const   S32   max_format  = (S32)num_formats - 1;
     if (!DescribePixelFormat(mhDC, pixel_format, sizeof(PIXELFORMATDESCRIPTOR),
         &pfd))
     {
-        OSMessageBox(mCallbacks->translateString("MBPixelFmtDescErr"), mCallbacks->translateString("MBError"), OSMB_OK);
+        LLError::LLUserWarningMsg::show(mCallbacks->translateString("MBPixelFmtDescErr"), 8/*LAST_EXEC_GRAPHICS_INIT*/);
         close();
         return false;
     }
@@ -1650,14 +1644,14 @@ const   S32   max_format  = (S32)num_formats - 1;
 
     if (!wglMakeCurrent(mhDC, mhRC))
     {
-        OSMessageBox(mCallbacks->translateString("MBGLContextActErr"), mCallbacks->translateString("MBError"), OSMB_OK);
+        LLError::LLUserWarningMsg::show(mCallbacks->translateString("MBGLContextActErr"), 8/*LAST_EXEC_GRAPHICS_INIT*/);
         close();
         return false;
     }
 
     if (!gGLManager.initGL())
     {
-        OSMessageBox(mCallbacks->translateString("MBVideoDrvErr"), mCallbacks->translateString("MBError"), OSMB_OK);
+        LLError::LLUserWarningMsg::show(mCallbacks->translateString("MBVideoDrvErr"), 8/*LAST_EXEC_GRAPHICS_INIT*/);
         close();
         return false;
     }
@@ -1865,7 +1859,7 @@ void* LLWindowWin32::createSharedContext()
     if (!rc && !(rc = wglCreateContext(mhDC)))
     {
         close();
-        OSMessageBox(mCallbacks->translateString("MBGLContextErr"), mCallbacks->translateString("MBError"), OSMB_OK);
+        LLError::LLUserWarningMsg::show(mCallbacks->translateString("MBGLContextErr"), 8/*LAST_EXEC_GRAPHICS_INIT*/);
     }
 
     return rc;
