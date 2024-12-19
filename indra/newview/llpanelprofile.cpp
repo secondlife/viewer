@@ -2052,6 +2052,7 @@ void LLPanelProfileFirstLife::onChangePhoto()
                 }
             });
             texture_floaterp->setLocalTextureEnabled(false);
+            texture_floaterp->setBakeTextureEnabled(false);
             texture_floaterp->setCanApply(false, true, false);
 
             parent_floater->addDependentFloater(mFloaterTexturePickerHandle);

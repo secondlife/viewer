@@ -55,11 +55,13 @@
 #include "llviewerfoldertype.h"
 #include "llvoavatarself.h"
 
+class LLInventoryFavoritesItemsPanel;
 class LLInventoryRecentItemsPanel;
 class LLAssetFilteredInventoryPanel;
 
 static LLDefaultChildRegistry::Register<LLInventoryPanel> r("inventory_panel");
 static LLDefaultChildRegistry::Register<LLInventoryRecentItemsPanel> t_recent_inventory_panel("recent_inventory_panel");
+static LLDefaultChildRegistry::Register<LLInventoryFavoritesItemsPanel> t_favorites_inventory_panel("favorites_inventory_panel");
 static LLDefaultChildRegistry::Register<LLAssetFilteredInventoryPanel> t_asset_filtered_inv_panel("asset_filtered_inv_panel");
 
 const std::string LLInventoryPanel::DEFAULT_SORT_ORDER = std::string("InventorySortOrder");
@@ -622,6 +624,19 @@ void LLInventoryPanel::itemChanged(const LLUUID& item_id, U32 mask, const LLInve
         }
     }
 
+    if (mask & LLInventoryObserver::UPDATE_FAVORITE)
+    {
+        if (view_item)
+        {
+            view_item->refresh();
+            LLFolderViewFolder* parent = view_item->getParentFolder();
+            if (parent)
+            {
+                parent->updateHasFavorites(get_is_favorite(model_item));
+            }
+        }
+    }
+
     // We don't typically care which of these masks the item is actually flagged with, since the masks
     // may not be accurate (e.g. in the main inventory panel, I move an item from My Inventory into
     // Landmarks; this is a STRUCTURE change for that panel but is an ADD change for the Landmarks
@@ -650,6 +665,16 @@ void LLInventoryPanel::itemChanged(const LLUUID& item_id, U32 mask, const LLInve
                 setSelection(item_id, false);
             }
             updateFolderLabel(model_item->getParentUUID());
+
+            if (get_is_favorite(model_item))
+            {
+                LLFolderViewFolder* new_parent = (LLFolderViewFolder*)getItemByID(model_item->getParentUUID());
+                if (new_parent)
+                {
+                    new_parent->updateHasFavorites(true);
+                }
+            }
+
         }
 
         //////////////////////////////
@@ -700,6 +725,12 @@ void LLInventoryPanel::itemChanged(const LLUUID& item_id, U32 mask, const LLInve
                     {
                         old_parent_vmi->dirtyDescendantsFilter();
                     }
+
+                    if (view_item->isFavorite())
+                    {
+                        old_parent->updateHasFavorites(false); // favorite was removed
+                        new_parent->updateHasFavorites(true); // favorite was added
+                    }
                 }
             }
         }
@@ -724,6 +755,10 @@ void LLInventoryPanel::itemChanged(const LLUUID& item_id, U32 mask, const LLInve
                     {
                         updateFolderLabel(viewmodel_folder->getUUID());
                     }
+                }
+                if (view_item->isFavorite())
+                {
+                    parent->updateHasFavorites(false); // favorite was removed
                 }
             }
         }
@@ -842,7 +877,23 @@ void LLInventoryPanel::idle(void* user_data)
 
     bool in_visible_chain = panel->isInVisibleChain();
 
-    if (!panel->mBuildViewsQueue.empty())
+    if (!panel->mBuildRootQueue.empty())
+    {
+        const F64 max_time = in_visible_chain ? 0.006f : 0.001f; // 6 ms
+        F64 curent_time = LLTimer::getTotalSeconds();
+        panel->mBuildViewsEndTime = curent_time + max_time;
+
+        while (curent_time < panel->mBuildViewsEndTime
+            && !panel->mBuildRootQueue.empty())
+        {
+            LLUUID item_id = panel->mBuildRootQueue.back();
+            panel->mBuildRootQueue.pop_back();
+            panel->findAndInitRootContent(item_id);
+
+            curent_time = LLTimer::getTotalSeconds();
+        }
+    }
+    else if (!panel->mBuildViewsQueue.empty())
     {
         const F64 max_time = in_visible_chain ? 0.006f : 0.001f; // 6 ms
         F64 curent_time = LLTimer::getTotalSeconds();
@@ -924,20 +975,9 @@ void LLInventoryPanel::initializeViews(F64 max_time)
     mBuildViewsEndTime = curent_time + max_time;
 
     // init everything
-    LLUUID root_id = getRootFolderID();
-    if (root_id.notNull())
-    {
-        buildNewViews(getRootFolderID());
-    }
-    else
-    {
-        // Default case: always add "My Inventory" root first, "Library" root second
-        // If we run out of time, this still should create root folders
-        buildNewViews(gInventory.getRootFolderID());        // My Inventory
-        buildNewViews(gInventory.getLibraryRootFolderID()); // Library
-    }
+    initRootContent();
 
-    if (mBuildViewsQueue.empty())
+    if (mBuildViewsQueue.empty() && mBuildRootQueue.empty())
     {
         mViewsInitialized = VIEWS_INITIALIZED;
     }
@@ -968,6 +1008,21 @@ void LLInventoryPanel::initializeViews(F64 max_time)
     }
 }
 
+void LLInventoryPanel::initRootContent()
+{
+    LLUUID root_id = getRootFolderID();
+    if (root_id.notNull())
+    {
+        buildNewViews(getRootFolderID());
+    }
+    else
+    {
+        // Default case: always add "My Inventory" root first, "Library" root second
+        // If we run out of time, this still should create root folders
+        buildNewViews(gInventory.getRootFolderID());        // My Inventory
+        buildNewViews(gInventory.getLibraryRootFolderID()); // Library
+    }
+}
 
 LLFolderViewFolder * LLInventoryPanel::createFolderViewFolder(LLInvFVBridge * bridge, bool allow_drop)
 {
@@ -1737,26 +1792,8 @@ bool LLInventoryPanel::beginIMSession()
 void LLInventoryPanel::fileUploadLocation(const LLSD& userdata)
 {
     const std::string param = userdata.asString();
-    if (param == "model")
-    {
-        gSavedPerAccountSettings.setString("ModelUploadFolder", LLFolderBridge::sSelf.get()->getUUID().asString());
-    }
-    else if (param == "texture")
-    {
-        gSavedPerAccountSettings.setString("TextureUploadFolder", LLFolderBridge::sSelf.get()->getUUID().asString());
-    }
-    else if (param == "sound")
-    {
-        gSavedPerAccountSettings.setString("SoundUploadFolder", LLFolderBridge::sSelf.get()->getUUID().asString());
-    }
-    else if (param == "animation")
-    {
-        gSavedPerAccountSettings.setString("AnimationUploadFolder", LLFolderBridge::sSelf.get()->getUUID().asString());
-    }
-    else if (param == "pbr_material")
-    {
-        gSavedPerAccountSettings.setString("PBRUploadFolder", LLFolderBridge::sSelf.get()->getUUID().asString());
-    }
+    const LLUUID dest = LLFolderBridge::sSelf.get()->getUUID();
+    LLInventoryAction::fileUploadLocation(dest, param);
 }
 
 void LLInventoryPanel::openSingleViewInventory(LLUUID folder_id)
@@ -2203,6 +2240,249 @@ LLInventoryRecentItemsPanel::LLInventoryRecentItemsPanel( const Params& params)
     // replace bridge builder to have necessary View bridges.
     mInvFVBridgeBuilder = &RECENT_ITEMS_BUILDER;
 }
+
+/************************************************************************/
+/* Favorites Inventory Panel related class                              */
+/************************************************************************/
+static const LLFavoritesInventoryBridgeBuilder FAVORITES_BUILDER;
+class LLInventoryFavoritesItemsPanel : public LLInventoryPanel
+{
+public:
+    struct Params : public LLInitParam::Block<Params, LLInventoryPanel::Params>
+    {};
+
+    void initFromParams(const Params& p)
+    {
+        LLInventoryPanel::initFromParams(p);
+        // turn off trash
+        getFilter().setFilterCategoryTypes(getFilter().getFilterCategoryTypes() | (1ULL << LLFolderType::FT_TRASH));
+        getFilter().setFilterNoTrashFolder();
+        // turn off marketplace for favorites
+        getFilter().setFilterNoMarketplaceFolder();
+    }
+
+    void removeItemID(const LLUUID& id) override;
+
+protected:
+    LLInventoryFavoritesItemsPanel(const Params&);
+    friend class LLUICtrlFactory;
+
+    void findAndInitRootContent(const LLUUID& folder_id) override;
+    void initRootContent() override;
+
+    bool removeFavorite(const LLUUID& id, const LLInventoryObject* model_item);
+    void itemChanged(const LLUUID& item_id, U32 mask, const LLInventoryObject* model_item) override;
+
+    std::set<LLUUID> mRootContentIDs;
+};
+
+LLInventoryFavoritesItemsPanel::LLInventoryFavoritesItemsPanel(const Params& params)
+    : LLInventoryPanel(params)
+{
+    // replace bridge builder to have necessary View bridges.
+    mInvFVBridgeBuilder = &FAVORITES_BUILDER;
+}
+
+void LLInventoryFavoritesItemsPanel::removeItemID(const LLUUID& id)
+{
+    std::set<LLUUID>::iterator found = mRootContentIDs.find(id);
+    if (found != mRootContentIDs.end())
+    {
+        mRootContentIDs.erase(found);
+        // check content for favorites
+        mBuildRootQueue.emplace_back(id);
+    }
+
+    LLInventoryPanel::removeItemID(id);
+}
+
+void LLInventoryFavoritesItemsPanel::findAndInitRootContent(const LLUUID& id)
+{
+    F64 curent_time = LLTimer::getTotalSeconds();
+    if (mBuildViewsEndTime < curent_time)
+    {
+        mBuildRootQueue.emplace_back(id);
+        return;
+    }
+    LLViewerInventoryCategory::cat_array_t* categories;
+    LLViewerInventoryItem::item_array_t* items;
+    mInventory->lockDirectDescendentArrays(id, categories, items);
+
+    if (categories)
+    {
+        size_t count = categories->size();
+        for (size_t i = 0; i < count; ++i)
+        {
+            LLViewerInventoryCategory* cat = categories->at(i);
+            if (cat->getPreferredType() == LLFolderType::FT_TRASH)
+            {
+                continue;
+            }
+            else if (cat->getIsFavorite())
+            {
+                LLFolderViewItem* folder_view_item = getItemByID(cat->getUUID());
+                if (!folder_view_item)
+                {
+                    const LLUUID& parent_id = cat->getParentUUID();
+                    mRootContentIDs.emplace(cat->getUUID());
+
+                    buildViewsTree(cat->getUUID(), parent_id, cat, folder_view_item, mFolderRoot.get(), BUILD_TIMELIMIT);
+                }
+            }
+            else
+            {
+                findAndInitRootContent(cat->getUUID());
+            }
+        }
+    }
+
+    if (items)
+    {
+        size_t count = items->size();
+        for (size_t i = 0; i < count; ++i)
+        {
+            LLViewerInventoryItem* item = items->at(i);
+            const LLUUID item_id = item->getUUID();
+            if (item->getIsFavorite() && typedViewsFilter(item_id, item))
+            {
+                LLFolderViewItem* folder_view_item = getItemByID(id);
+                if (!folder_view_item)
+                {
+                    const LLUUID& parent_id = item->getParentUUID();
+                    mRootContentIDs.emplace(item_id);
+
+                    buildViewsTree(item_id, parent_id, item, folder_view_item, mFolderRoot.get(), BUILD_TIMELIMIT);
+                }
+            }
+        }
+    }
+
+    mInventory->unlockDirectDescendentArrays(id);
+}
+
+void LLInventoryFavoritesItemsPanel::initRootContent()
+{
+    findAndInitRootContent(gInventory.getRootFolderID()); // My Inventory
+}
+
+bool LLInventoryFavoritesItemsPanel::removeFavorite(const LLUUID& id, const LLInventoryObject* model_item)
+{
+    std::set<LLUUID>::iterator found = mRootContentIDs.find(id);
+    if (found == mRootContentIDs.end())
+    {
+        return false;
+    }
+
+    mRootContentIDs.erase(found);
+
+    // This item is in root's content, remove item's UI.
+    LLFolderViewItem* view_item = getItemByID(id);
+    if (view_item)
+    {
+        LLFolderViewFolder* parent = view_item->getParentFolder();
+        LLFolderViewModelItemInventory* viewmodel_item = static_cast<LLFolderViewModelItemInventory*>(view_item->getViewModelItem());
+        if (viewmodel_item)
+        {
+            removeItemID(viewmodel_item->getUUID());
+        }
+        view_item->destroyView();
+        if (parent)
+        {
+            parent->getViewModelItem()->dirtyDescendantsFilter();
+            LLFolderViewModelItemInventory* viewmodel_folder = static_cast<LLFolderViewModelItemInventory*>(parent->getViewModelItem());
+            if (viewmodel_folder)
+            {
+                updateFolderLabel(viewmodel_folder->getUUID());
+            }
+            if (view_item->isFavorite())
+            {
+                parent->updateHasFavorites(false); // favorite was removed
+            }
+        }
+    }
+
+    return true;
+}
+
+void LLInventoryFavoritesItemsPanel::itemChanged(const LLUUID& id, U32 mask, const LLInventoryObject* model_item)
+{
+    if (!model_item && !getItemByID(id))
+    {
+        // remove operation, but item is not in panel already
+        return;
+    }
+
+    bool handled = false;
+
+    if (mask & (LLInventoryObserver::UPDATE_FAVORITE |
+        LLInventoryObserver::STRUCTURE |
+        LLInventoryObserver::ADD |
+        LLInventoryObserver::REMOVE))
+    {
+        // specifically exlude links and not get_is_favorite(model_item)
+        if (model_item && model_item->getIsFavorite())
+        {
+            LLFolderViewItem* view_item = getItemByID(id);
+            if (!view_item)
+            {
+                const LLViewerInventoryCategory* cat = dynamic_cast<const LLViewerInventoryCategory*>(model_item);
+                if (cat)
+                {
+                    // New favorite folder
+                    if (cat->getPreferredType() != LLFolderType::FT_TRASH)
+                    {
+                        // If any descendants were in the list, remove them
+                        LLFavoritesCollector is_favorite;
+                        LLInventoryModel::cat_array_t cat_array;
+                        LLInventoryModel::item_array_t item_array;
+                        gInventory.collectDescendentsIf(id, cat_array, item_array, false, is_favorite);
+                        for (LLInventoryModel::cat_array_t::const_iterator it = cat_array.begin(); it != cat_array.end(); ++it)
+                        {
+                            removeFavorite((*it)->getUUID(), *it);
+                        }
+                        for (LLInventoryModel::item_array_t::const_iterator it = item_array.begin(); it != item_array.end(); ++it)
+                        {
+                            removeFavorite((*it)->getUUID(), *it);
+                        }
+
+                        LLFolderViewItem* folder_view_item = getItemByID(cat->getUUID());
+                        if (!folder_view_item)
+                        {
+                            const LLUUID& parent_id = cat->getParentUUID();
+                            mRootContentIDs.emplace(cat->getUUID());
+
+                            buildViewsTree(cat->getUUID(), parent_id, cat, folder_view_item, mFolderRoot.get(), BUILD_ONE_FOLDER);
+                        }
+                    }
+                }
+                else
+                {
+                    // New favorite item
+                    if (model_item->getIsFavorite() && typedViewsFilter(id, model_item))
+                    {
+                        const LLUUID& parent_id = model_item->getParentUUID();
+                        mRootContentIDs.emplace(id);
+
+                        buildViewsTree(id, parent_id, model_item, NULL, mFolderRoot.get(), BUILD_ONE_FOLDER);
+                    }
+                }
+                handled = true;
+            }
+        }
+        else
+        {
+            handled = removeFavorite(id, model_item);
+        }
+    }
+
+    if (!handled)
+    {
+        LLInventoryPanel::itemChanged(id, mask, model_item);
+    }
+}
+/************************************************************************/
+/* LLInventorySingleFolderPanel                                         */
+/************************************************************************/
 
 static LLDefaultChildRegistry::Register<LLInventorySingleFolderPanel> t_single_folder_inventory_panel("single_folder_inventory_panel");
 

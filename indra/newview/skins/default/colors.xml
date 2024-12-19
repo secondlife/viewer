@@ -454,6 +454,9 @@
      name="InventoryBackgroundColor"
      reference="DkGray2" />
     <color
+     name="InventoryFavoriteColor"
+     reference="Yellow" />
+    <color
      name="InventoryFocusOutlineColor"
      reference="White_25" />
     <color

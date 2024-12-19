@@ -2324,6 +2324,7 @@ For AI Character: Get the closest navigable point to the point provided.
 	<!-- inventory -->
 	<string name="InventoryNoMatchingItems">Didn't find what you're looking for? Try [secondlife:///app/search/all/[SEARCH_TERM] Search].</string>
 	<string name="InventoryNoMatchingRecentItems">Didn't find what you're looking for? Try [secondlife:///app/inventory/filters Show filters].</string>	
+  <string name="InventoryNoMatchingFavorites">You haven't marked any items as favorites.</string>
 	<string name="PlacesNoMatchingItems">To add a place to your landmarks, click the star to the right of the location name.</string>
 	<string name="FavoritesNoMatchingItems">To add a place to your favorites, click the star to the right of the location name, then save the landmark to "Favorites bar".</string>
 	<string name="MarketplaceNoListing">You have no listings yet.</string>
