@@ -10191,12 +10191,6 @@ Do you wish to continue?
      yestext="OK"/>
   </notification>
 
-  <global name="UnsupportedIntelDriver">
-The installed Intel graphics driver for [GPUNAME], version [VERSION], is significantly out of date and is known to cause excessive rates of program crashes. You are strongly advised to update to a current Intel driver
-
-Do you want to check the Intel driver website?
-  </global>
-
   <global name="UnsupportedCPUAmount">
 796
   </global>
@@ -12636,35 +12630,4 @@ are wearing now.
        name="okbutton"
        yestext="OK"/>
   </notification>
-
-  <notification
-   icon="notify.tga"
-   name="TextureDiscardBackgrounded"
-   type="notify">
-      <unique>
-          <context>DELAY</context>
-      </unique>
-      To improve system performance, [SECOND_LIFE] has reduced texture memory usage after being in the background for [DELAY] seconds.  It may take some time for texture image quality to return to normal.
-     <usetemplate
-       ignoretext="Ask me about background texture memory usage and recovery"
-       name="okcancelignore"
-       yestext="OK"
-       notext="Disable"/>
-  </notification>
-
-  <notification
-   icon="notify.tga"
-   name="TextureDiscardMinimized"
-   type="notify">
-      <unique>
-          <context>DELAY</context>
-      </unique>
-      To improve system performance, [SECOND_LIFE] has reduced texture memory usage after being minimized for [DELAY] seconds.  It may take some time for texture image quality to return to normal.
-     <usetemplate
-       ignoretext="Ask me about minimized texture memory usage and recovery"
-       name="okcancelignore"
-       yestext="OK"
-       notext="Disable"/>
-  </notification>
-    
 </notifications>

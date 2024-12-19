@@ -1412,6 +1412,7 @@ void LLToolDragAndDrop::dropTexture(LLViewerObject* hit_obj,
                 LLTextureEntry* te = hit_obj->getTE(hit_face);
                 if (te && !remove_pbr)
                 {
+                    // saveGLTFMaterials will make a copy
                     override_materials.push_back(te->getGLTFMaterialOverride());
                 }
                 else
@@ -1448,9 +1449,11 @@ void LLToolDragAndDrop::dropTexture(LLViewerObject* hit_obj,
             }
 
             LLTextureEntry* te = hit_obj->getTE(hit_face);
-            if (te && !remove_pbr)
+            LLGLTFMaterial * override_mat = nullptr;
+            if (te && !remove_pbr && (override_mat = te->getGLTFMaterialOverride()))
             {
-                nodep->mSavedGLTFOverrideMaterials[hit_face] = te->getGLTFMaterialOverride();
+                LLGLTFMaterial* copy = new LLGLTFMaterial(*override_mat);
+                nodep->mSavedGLTFOverrideMaterials[hit_face] = copy;
             }
             else
             {

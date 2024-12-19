@@ -344,8 +344,9 @@ bool addDeferredAttachments(LLRenderTarget& target, bool for_impostor = false)
     U32 norm = GL_RGBA16F;
     U32 emissive = GL_RGB16F;
 
-    bool hdr = gSavedSettings.getBOOL("RenderHDREnabled") && gGLManager.mGLVersion > 4.05f;
-    LLCachedControl<bool> has_emissive(gSavedSettings, "RenderEnableEmissiveBuffer", false);
+    static LLCachedControl<bool> has_emissive(gSavedSettings, "RenderEnableEmissiveBuffer", false);
+    static LLCachedControl<bool> has_hdr(gSavedSettings, "RenderHDREnabled", true);
+    bool hdr = has_hdr() && gGLManager.mGLVersion > 4.05f;
 
     if (!hdr)
     {
@@ -7068,18 +7069,37 @@ void LLPipeline::generateExposure(LLRenderTarget* src, LLRenderTarget* dst, bool
         LLSettingsSky::ptr_t sky = LLEnvironment::instance().getCurrentSky();
 
         F32 probe_ambiance = LLEnvironment::instance().getCurrentSky()->getReflectionProbeAmbiance(should_auto_adjust);
-        F32 exp_min = sky->getHDRMin();
-        F32 exp_max = sky->getHDRMax();
 
-        if (dynamic_exposure_enabled)
+        F32 exp_min = 1.f;
+        F32 exp_max = 1.f;
+
+        static LLCachedControl<bool> use_exposure_sky_settings(gSavedSettings, "RenderUseExposureSkySettings", false);
+
+        if (use_exposure_sky_settings)
         {
-            exp_min = sky->getHDROffset() - exp_min;
-            exp_max = sky->getHDROffset() + exp_max;
+            if (dynamic_exposure_enabled)
+            {
+                exp_min = sky->getHDROffset() - sky->getHDRMin();
+                exp_max = sky->getHDROffset() + sky->getHDRMax();
+            }
+            else
+            {
+                exp_min = sky->getHDROffset();
+                exp_max = sky->getHDROffset();
+            }
         }
-        else
+        else if (dynamic_exposure_enabled)
         {
-            exp_min = sky->getHDROffset();
-            exp_max = sky->getHDROffset();
+            if (probe_ambiance > 0.f)
+            {
+                F32 hdr_scale = sqrtf(LLEnvironment::instance().getCurrentSky()->getGamma()) * 2.f;
+
+                if (hdr_scale > 1.f)
+                {
+                    exp_min = 1.f / hdr_scale;
+                    exp_max = hdr_scale;
+                }
+            }
         }
 
         shader->uniform1f(dt, gFrameIntervalSeconds);
@@ -7459,7 +7479,7 @@ void LLPipeline::applyFXAA(LLRenderTarget* src, LLRenderTarget* dst, bool combin
 void LLPipeline::generateSMAABuffers(LLRenderTarget* src)
 {
     llassert(!gCubeSnapshot);
-    bool multisample = RenderFSAAType == 2 && mFXAAMap.isComplete() && mSMAABlendBuffer.isComplete();
+    bool multisample = RenderFSAAType == 2 && gSMAAEdgeDetectProgram[0].isComplete() && mFXAAMap.isComplete() && mSMAABlendBuffer.isComplete();
 
     // Present everything.
     if (multisample)
