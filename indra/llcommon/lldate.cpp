@@ -124,11 +124,7 @@ void LLDate::toStream(std::ostream& s) const
     }
 
     s << std::dec << std::setfill('0');
-#if( LL_WINDOWS || __GNUC__ > 2)
     s << std::right;
-#else
-    s.setf(ios::right);
-#endif
     s        << std::setw(4) << (exp_time.tm_year + 1900)
       << '-' << std::setw(2) << (exp_time.tm_mon + 1)
       << '-' << std::setw(2) << (exp_time.tm_mday)

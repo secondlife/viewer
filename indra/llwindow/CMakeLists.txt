@@ -12,6 +12,7 @@ project(llwindow)
 
 include(00-Common)
 include(DragDrop)
+include(Linking)
 include(LLCommon)
 include(LLImage)
 include(LLWindow)
@@ -141,15 +142,6 @@ if (WINDOWS)
        )
 endif (WINDOWS)
 
-if (SOLARIS)
-  list(APPEND llwindow_SOURCE_FILES
-       llwindowsolaris.cpp
-       )
-  list(APPEND llwindow_HEADER_FILES
-       llwindowsolaris.h
-       )
-endif (SOLARIS)
-
 if (BUILD_HEADLESS)
   set(llwindowheadless_SOURCE_FILES
        llwindowmesaheadless.cpp
@@ -190,7 +182,5 @@ endif (SDL2_FOUND)
   target_include_directories(llwindow INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 
 if (DARWIN)
-  include(CMakeFindFrameworks)
-  find_library(CARBON_LIBRARY Carbon)
   target_link_libraries(llwindow ${CARBON_LIBRARY})
 endif (DARWIN)

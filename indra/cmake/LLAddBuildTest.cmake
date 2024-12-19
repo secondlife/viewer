@@ -99,6 +99,13 @@ MACRO(LL_ADD_PROJECT_UNIT_TESTS project sources)
     target_include_directories (PROJECT_${project}_TEST_${name} PRIVATE ${LIBS_OPEN_DIR}/test )
 
     set_target_properties(PROJECT_${project}_TEST_${name} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${EXE_STAGING_DIR}")
+    if (DARWIN)
+      set_target_properties(PROJECT_${project}_TEST_${name}
+          PROPERTIES
+          BUILD_WITH_INSTALL_RPATH 1
+          INSTALL_RPATH "@executable_path/Resources"
+          )
+    endif(DARWIN)
 
     #
     # Per-codefile additional / external project dep and lib dep property extraction
@@ -222,18 +229,18 @@ FUNCTION(LL_ADD_INTEGRATION_TEST
   # The following was copied to llcorehttp/CMakeLists.txt's texture_load target.
   # Any changes made here should be replicated there.
   if (WINDOWS)
-    set_target_properties(INTEGRATION_TEST_${testname}
-            PROPERTIES
-            LINK_FLAGS "/debug /NODEFAULTLIB:LIBCMT /SUBSYSTEM:CONSOLE"
-            )
+    target_link_options(INTEGRATION_TEST_${testname} PRIVATE /debug /NODEFAULTLIB:LIBCMT /SUBSYSTEM:CONSOLE)
   endif ()
 
   if (DARWIN)
     # test binaries always need to be signed for local development
     set_target_properties(INTEGRATION_TEST_${testname}
             PROPERTIES
-            XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "-")
-  endif ()
+            XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "-"
+            BUILD_WITH_INSTALL_RPATH 1
+            INSTALL_RPATH "@executable_path/Resources"
+            )
+  endif(DARWIN)
 
   # Add link deps to the executable
   if(TEST_DEBUG)

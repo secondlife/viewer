@@ -11,7 +11,7 @@ include(LLSharedLibs)
 include(Copy3rdPartyLibs)
 include(ZLIBNG)
 include(Tracy)
-
+include(SSE2NEON)
 
 set(llcommon_SOURCE_FILES
     apply.cpp
@@ -75,7 +75,7 @@ set(llcommon_SOURCE_FILES
     llprocess.cpp
     llprocessor.cpp
     llprocinfo.cpp
-    llptrto.cpp 
+    llptrto.cpp
     llqueuedthread.cpp
     llrand.cpp
     llrefcount.cpp
@@ -116,7 +116,7 @@ set(llcommon_SOURCE_FILES
     workqueue.cpp
     StackWalker.cpp
     )
-    
+
 set(llcommon_HEADER_FILES
     CMakeLists.txt
 
@@ -272,7 +272,7 @@ set(llcommon_HEADER_FILES
     workqueue.h
     StackWalker.h
     )
-    
+
 if (DARWIN)
   list(APPEND llcommon_HEADER_FILES llsys_objc.h)
   list(APPEND llcommon_SOURCE_FILES llsys_objc.mm)
@@ -294,6 +294,7 @@ target_link_libraries(
         ll::boost
         ll::oslibraries
         ll::tracy
+        ll::sse2neon
     )
 
 target_include_directories(llcommon INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})

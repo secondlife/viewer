@@ -110,6 +110,9 @@ class LLVector2
         friend std::ostream&     operator<<(std::ostream& s, const LLVector2 &a);       // Stream a
 };
 
+static_assert(std::is_trivially_copyable<LLVector2>::value, "LLVector2 must be trivial copy");
+static_assert(std::is_trivially_move_assignable<LLVector2>::value, "LLVector2 must be trivial move");
+static_assert(std::is_standard_layout<LLVector2>::value, "LLVector2 must be a standard layout type");
 
 // Non-member functions
 

@@ -219,10 +219,8 @@ void SymbolGrabber::ungrabSymbols()
 
 #if LL_WINDOWS
 # define LLSYMEXPORT __declspec(dllexport)
-#elif LL_LINUX
-# define LLSYMEXPORT __attribute__ ((visibility("default")))
 #else
-# define LLSYMEXPORT /**/
+# define LLSYMEXPORT __attribute__ ((visibility("default")))
 #endif
 
 extern "C"

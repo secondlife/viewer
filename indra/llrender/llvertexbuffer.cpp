@@ -787,12 +787,6 @@ void LLVertexBuffer::drawElements(U32 mode, const LLVector4a* pos, const LLVecto
 
     gGL.syncMatrices();
 
-    U32 mask = LLVertexBuffer::MAP_VERTEX;
-    if (tc)
-    {
-        mask = mask | LLVertexBuffer::MAP_TEXCOORD0;
-    }
-
     unbind();
 
     gGL.begin(mode);

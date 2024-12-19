@@ -33,33 +33,25 @@ if (LINUX)
       message( "Looking for ${PULSE_FILE} ... found")
     endif()
   endforeach()
-  
+
   include(FindPipeWire)
   include_directories(SYSTEM ${PIPEWIRE_INCLUDE_DIRS} ${SPA_INCLUDE_DIRS})
-  
+
   message( "Building with Linux volume catcher for PipeWire and PulseAudio" )
 
   list(APPEND media_plugin_cef_HEADER_FILES
     linux/volume_catcher_linux.h
   )
 
-  set(LINUX_VOLUME_CATCHER 
-    linux/volume_catcher_linux.cpp 
+  set(LINUX_VOLUME_CATCHER
+    linux/volume_catcher_linux.cpp
     linux/volume_catcher_pulseaudio.cpp
-    linux/volume_catcher_pipewire.cpp 
+    linux/volume_catcher_pipewire.cpp
   )
 
   list(APPEND media_plugin_cef_SOURCE_FILES ${LINUX_VOLUME_CATCHER})
-  set(CMAKE_SHARED_LINKER_FLAGS  "-Wl,--build-id -Wl,-rpath,'$ORIGIN:$ORIGIN/../../lib'")
-  list(APPEND media_plugin_cef_LINK_LIBRARIES llwindow )
 elseif (DARWIN)
   list(APPEND media_plugin_cef_SOURCE_FILES volume_catcher_null.cpp)
-  find_library(CORESERVICES_LIBRARY CoreServices)
-  find_library(AUDIOUNIT_LIBRARY AudioUnit)
-  set( media_plugin_cef_LINK_LIBRARIES
-       ${CORESERVICES_LIBRARY}     # for Component Manager calls
-       ${AUDIOUNIT_LIBRARY}        # for AudioUnit calls
-       )
 elseif (WINDOWS)
   list(APPEND media_plugin_cef_SOURCE_FILES windows_volume_catcher.cpp)
 endif (LINUX)
@@ -81,20 +73,21 @@ target_link_libraries(media_plugin_cef
         ll::glib_headers
 )
 
-if (WINDOWS)
-  set_target_properties(
-    media_plugin_cef
-    PROPERTIES
-    LINK_FLAGS "/MANIFEST:NO /NODEFAULTLIB:LIBCMT /IGNORE:4099"
-    )
-endif (WINDOWS)
-
 if (DARWIN)
+    find_library(CORESERVICES_LIBRARY CoreServices)
+    find_library(AUDIOUNIT_LIBRARY AudioUnit)
+
+    target_link_libraries(media_plugin_cef
+    ${CORESERVICES_LIBRARY}     # for Component Manager calls
+    ${AUDIOUNIT_LIBRARY}        # for AudioUnit calls
+    )
+
   # Don't prepend 'lib' to the executable name, and don't embed a full path in the library's install name
   set_target_properties(
     media_plugin_cef
     PROPERTIES
     PREFIX ""
+    OSX_ARCHITECTURES "x86_64"
     BUILD_WITH_INSTALL_RPATH 1
     INSTALL_NAME_DIR "@executable_path"
     LINK_FLAGS "-exported_symbols_list ${CMAKE_CURRENT_SOURCE_DIR}/../base/media_plugin_base.exp"
@@ -107,5 +100,6 @@ if (DARWIN)
     VERBATIM
     COMMENT "Fixing path to CEF Framework"
   )
-
-endif (DARWIN)
+elseif (LINUX)
+  target_link_options(media_plugin_cef PRIVATE  "LINKER:--build-id" "LINKER:-rpath,'$ORIGIN:$ORIGIN/../../lib'")
+endif ()

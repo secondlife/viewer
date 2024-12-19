@@ -29,6 +29,16 @@
 
 #include "llimagej2c.h"
 
+#if defined(_M_ARM64) || defined(__arm64__) || defined(__aarch64__)
+#ifndef KDU_NEON_INTRINSICS
+#define KDU_NEON_INTRINSICS 1
+#endif
+#else
+#ifndef KDU_X86_INTRINSICS
+#define KDU_X86_INTRINSICS 1
+#endif
+#endif
+
 //
 // KDU core header files
 //

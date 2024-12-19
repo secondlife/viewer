@@ -10,9 +10,9 @@ target_include_directories( ll::cef SYSTEM INTERFACE  ${LIBS_PREBUILT_DIR}/inclu
 
 if (WINDOWS)
     target_link_libraries( ll::cef INTERFACE
-        libcef.lib
-        libcef_dll_wrapper.lib
-        dullahan.lib
+        ${ARCH_PREBUILT_DIRS_RELEASE}/libcef.lib
+        ${ARCH_PREBUILT_DIRS_RELEASE}/libcef_dll_wrapper.lib
+        ${ARCH_PREBUILT_DIRS_RELEASE}/dullahan.lib
     )
 elseif (DARWIN)
     FIND_LIBRARY(APPKIT_LIBRARY AppKit)
@@ -34,8 +34,8 @@ elseif (DARWIN)
 
 elseif (LINUX)
     target_link_libraries( ll::cef INTERFACE
-            libdullahan.a
-            cef
-            cef_dll_wrapper.a
+            ${ARCH_PREBUILT_DIRS_RELEASE}/libdullahan.a
+            ${ARCH_PREBUILT_DIRS_RELEASE}/libcef.so
+            ${ARCH_PREBUILT_DIRS_RELEASE}/libcef_dll_wrapper.a
     )
 endif (WINDOWS)

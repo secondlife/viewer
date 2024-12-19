@@ -160,6 +160,8 @@ pre_build()
         then
             SIGNING=("-DENABLE_SIGNING:BOOL=YES" \
                           "-DSIGNING_IDENTITY:STRING=Developer ID Application: Linden Research, Inc.")
+
+            HAVOK=OFF
         fi
     fi
 

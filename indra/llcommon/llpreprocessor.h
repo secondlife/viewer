@@ -63,7 +63,14 @@
 
 
 // Figure out differences between compilers
-#if defined(__GNUC__)
+#if defined(__clang__)
+    #define CLANG_VERSION (__clang_major__ * 10000 \
+                         + __clang_minor__ * 100 \
+                         + __clang_patchlevel__)
+    #ifndef LL_CLANG
+        #define LL_CLANG 1
+    #endif
+#elif defined(__GNUC__)
     #define GCC_VERSION (__GNUC__ * 10000 \
                         + __GNUC_MINOR__ * 100 \
                         + __GNUC_PATCHLEVEL__)
@@ -185,6 +192,12 @@
 #define LL_PRETTY_FUNCTION __FUNCSIG__
 #else
 #define LL_PRETTY_FUNCTION __PRETTY_FUNCTION__
+#endif
+
+#if defined(_M_ARM64) || defined(__arm64__) || defined(__aarch64__)
+#define GLM_FORCE_NEON 1
+#else
+#define GLM_FORCE_SSE2 1
 #endif
 
 #endif  //  not LL_LINDEN_PREPROCESSOR_H

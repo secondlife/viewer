@@ -24,20 +24,13 @@ add_library(media_plugin_example
 
 target_link_libraries(media_plugin_example media_plugin_base )
 
-if (WINDOWS)
-  set_target_properties(
-    media_plugin_example
-    PROPERTIES
-    LINK_FLAGS "/MANIFEST:NO /NODEFAULTLIB:LIBCMT"
-    )
-endif (WINDOWS)
-
 if (DARWIN)
   # Don't prepend 'lib' to the executable name, and don't embed a full path in the library's install name
   set_target_properties(
     media_plugin_example
     PROPERTIES
     PREFIX ""
+    OSX_ARCHITECTURES "x86_64"
     BUILD_WITH_INSTALL_RPATH 1
     INSTALL_NAME_DIR "@executable_path"
     LINK_FLAGS "-exported_symbols_list ${CMAKE_CURRENT_SOURCE_DIR}/../base/media_plugin_base.exp"

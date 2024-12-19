@@ -450,7 +450,7 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
 
 // endsure work-around for missing GLSL funcs gets propogated to feature shader files (e.g. srgbF.glsl)
 #if LL_DARWIN
-    if (defines)
+    if (defines && !gGLManager.mIsApple)
     {
         (*defines)["OLD_SELECT"] = "1";
     }

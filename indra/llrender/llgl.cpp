@@ -1116,17 +1116,6 @@ bool LLGLManager::initGL()
     if (mGLVersion >= 2.f)
     {
         parse_glsl_version(mGLSLVersionMajor, mGLSLVersionMinor);
-
-#if 0 && LL_DARWIN
-        // TODO maybe switch to using a core profile for GL 3.2?
-        // https://stackoverflow.com/a/19868861
-        //never use GLSL greater than 1.20 on OSX
-        if (mGLSLVersionMajor > 1 || mGLSLVersionMinor > 30)
-        {
-            mGLSLVersionMajor = 1;
-            mGLSLVersionMinor = 30;
-        }
-#endif
     }
 
     if (mGLVersion >= 2.1f && LLImageGL::sCompressTextures)
@@ -1265,7 +1254,7 @@ bool LLGLManager::initGL()
     // there's some implementation that reports a crazy value
     mMaxUniformBlockSize = llmin(mMaxUniformBlockSize, 65536);
 
-    if (mGLVersion >= 4.59f)
+    if (mHasAnisotropic)
     {
         glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &mMaxAnisotropy);
     }
@@ -1432,6 +1421,11 @@ void LLGLManager::initExtensions()
     mHasCubeMapArray = mGLVersion >= 3.99f;
     mHasTransformFeedback = mGLVersion >= 3.99f;
     mHasDebugOutput = mGLVersion >= 4.29f;
+    mHasAnisotropic = mGLVersion >= 4.59f;
+    if(!mHasAnisotropic && gGLHExts.mSysExts)
+    {
+        mHasAnisotropic = ExtensionExists("GL_EXT_texture_filter_anisotropic", gGLHExts.mSysExts);
+    }
 
 #if LL_WINDOWS || LL_LINUX
     if( gGLHExts.mSysExts )

@@ -14,14 +14,14 @@ if (USE_KDU)
   include(Prebuilt)
   use_prebuilt_binary(kdu)
   if (WINDOWS)
-    target_link_libraries( ll::kdu INTERFACE kdu.lib)
+    target_link_libraries( ll::kdu INTERFACE ${ARCH_PREBUILT_DIRS_RELEASE}/kdu.lib)
   else (WINDOWS)
-    target_link_libraries( ll::kdu INTERFACE libkdu.a)
+    target_link_libraries( ll::kdu INTERFACE ${ARCH_PREBUILT_DIRS_RELEASE}/libkdu.a)
   endif (WINDOWS)
 
   target_include_directories( ll::kdu SYSTEM INTERFACE
           ${AUTOBUILD_INSTALL_DIR}/include/kdu
           ${LIBS_OPEN_DIR}/llkdu
           )
-  target_compile_definitions(ll::kdu INTERFACE KDU_X86_INTRINSICS=1 KDU_NO_THREADS=1)
+  target_compile_definitions(ll::kdu INTERFACE KDU_NO_THREADS=1)
 endif (USE_KDU)

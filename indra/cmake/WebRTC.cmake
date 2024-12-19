@@ -9,7 +9,7 @@ target_include_directories( ll::webrtc SYSTEM INTERFACE "${LIBS_PREBUILT_DIR}/in
 use_prebuilt_binary(webrtc)
 
 if (WINDOWS)
-    target_link_libraries( ll::webrtc INTERFACE webrtc.lib )
+    target_link_libraries( ll::webrtc INTERFACE ${ARCH_PREBUILT_DIRS_RELEASE}/webrtc.lib )
 elseif (DARWIN)
     FIND_LIBRARY(COREAUDIO_LIBRARY CoreAudio)
     FIND_LIBRARY(COREGRAPHICS_LIBRARY CoreGraphics)
@@ -18,7 +18,7 @@ elseif (DARWIN)
     FIND_LIBRARY(COCOA_LIBRARY Cocoa)
 
     target_link_libraries( ll::webrtc INTERFACE
-        libwebrtc.a
+        ${ARCH_PREBUILT_DIRS_RELEASE}/libwebrtc.a
         ${COREAUDIO_LIBRARY}
         ${AUDIOTOOLBOX_LIBRARY}
         ${COREGRAPHICS_LIBRARY}
@@ -26,7 +26,7 @@ elseif (DARWIN)
         ${COCOA_LIBRARY}
     )
 elseif (LINUX)
-    target_link_libraries( ll::webrtc INTERFACE libwebrtc.a X11 )
+    target_link_libraries( ll::webrtc INTERFACE ${ARCH_PREBUILT_DIRS_RELEASE}/libwebrtc.a X11 )
 endif (WINDOWS)
 
 

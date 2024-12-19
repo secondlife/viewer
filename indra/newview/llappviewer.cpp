@@ -139,9 +139,7 @@
 #include "llcoros.h"
 #include "llexception.h"
 #include "cef/dullahan_version.h"
-#if !LL_LINUX
 #include "vlc/libvlc_version.h"
-#endif // LL_LINUX
 
 #if LL_DARWIN
 #include "llwindowmacosx.h"
@@ -985,6 +983,7 @@ bool LLAppViewer::init()
         return false;
     }
 
+#if defined(LL_X86) || defined(LL_X86_64)
     // Without SSE2 support we will crash almost immediately, warn here.
     if (!gSysCPU.hasSSE2())
     {
@@ -996,6 +995,7 @@ bool LLAppViewer::init()
         // quit immediately
         return false;
     }
+#endif
 
     // alert the user if they are using unsupported hardware
     if (!gSavedSettings.getBOOL("AlertedUnsupportedHardware"))
@@ -1331,7 +1331,7 @@ void LLAppViewer::initMaxHeapSize()
     //------------------------------------------------------------------------------------------
     //currently SL is built under 32-bit setting, we set its max heap size no more than 1.6 GB.
 
- #ifndef LL_X86_64
+ #if !defined(LL_X86_64) && !defined(LL_ARM64)
     F32Gigabytes max_heap_size_gb = (F32Gigabytes)gSavedSettings.getF32("MaxHeapSize") ;
 #else
     F32Gigabytes max_heap_size_gb = (F32Gigabytes)gSavedSettings.getF32("MaxHeapSize64");
@@ -3217,17 +3217,6 @@ bool LLAppViewer::initWindow()
 
     LLNotificationsUI::LLNotificationManager::getInstance();
 
-
-#ifdef LL_DARWIN
-    //Satisfy both MAINT-3135 (OSX 10.6 and earlier) MAINT-3288 (OSX 10.7 and later)
-    LLOSInfo& os_info = LLOSInfo::instance();
-    if (os_info.mMajorVer == 10 && os_info.mMinorVer < 7)
-    {
-        if ( os_info.mMinorVer == 6 && os_info.mBuild < 8 )
-            gViewerWindow->getWindow()->setOldResize(true);
-    }
-#endif
-
     if (gSavedSettings.getBOOL("WindowMaximized"))
     {
         gViewerWindow->getWindow()->maximize();
@@ -3341,7 +3330,11 @@ LLSD LLAppViewer::getViewerInfo() const
                                          versionInfo.getPatch(), stringize(versionInfo.getBuild()));
     info["VIEWER_VERSION_STR"] = versionInfo.getVersion();
     info["CHANNEL"] = versionInfo.getChannel();
+#if LL_ARM64
+    info["ADDRESS_SIZE"] = "ARM64";
+#else
     info["ADDRESS_SIZE"] = ADDRESS_SIZE;
+#endif
     std::string build_config = versionInfo.getBuildConfig();
     if (build_config != "Release")
     {
@@ -3495,7 +3488,6 @@ LLSD LLAppViewer::getViewerInfo() const
 
     info["LIBCEF_VERSION"] = cef_ver_codec.str();
 
-#if !LL_LINUX
     std::ostringstream vlc_ver_codec;
     vlc_ver_codec << LIBVLC_VERSION_MAJOR;
     vlc_ver_codec << ".";
@@ -3503,9 +3495,6 @@ LLSD LLAppViewer::getViewerInfo() const
     vlc_ver_codec << ".";
     vlc_ver_codec << LIBVLC_VERSION_REVISION;
     info["LIBVLC_VERSION"] = vlc_ver_codec.str();
-#else
-    info["LIBVLC_VERSION"] = "Undefined";
-#endif
 
     S32 packets_in = (S32)LLViewerStats::instance().getRecording().getSum(LLStatViewer::PACKETS_IN);
     if (packets_in > 0)
@@ -5580,7 +5569,9 @@ void LLAppViewer::forceErrorBreakpoint()
 #ifdef LL_WINDOWS
     DebugBreak();
 #else
+#if defined(LL_X86) || defined(LL_X86_64)
     asm ("int $3");
+#endif
 #endif
     return;
 }

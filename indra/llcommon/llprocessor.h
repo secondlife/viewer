@@ -28,19 +28,22 @@
 #ifndef LLPROCESSOR_H
 #define LLPROCESSOR_H
 #include "llunits.h"
+#include "llpreprocessor.h"
 
-#if LL_MSVC && _M_X64
+#if LL_MSVC && defined(_M_ARM64)
+#      define LL_ARM64 1
+#elif (LL_GNUC || LL_CLANG) && (defined(__arm64__) || defined(__aarch64__))
+#      define LL_ARM64 1
+#elif LL_MSVC && _M_X64
 #      define LL_X86_64 1
 #      define LL_X86 1
 #elif LL_MSVC && _M_IX86
 #      define LL_X86 1
-#elif LL_GNUC && ( defined(__amd64__) || defined(__x86_64__) )
+#elif (LL_GNUC || LL_CLANG) && ( defined(__amd64__) || defined(__x86_64__) )
 #      define LL_X86_64 1
 #      define LL_X86 1
-#elif LL_GNUC && ( defined(__i386__) )
+#elif (LL_GNUC || LL_CLANG) && ( defined(__i386__) )
 #      define LL_X86 1
-#elif LL_GNUC && ( defined(__powerpc__) || defined(__ppc__) )
-#      define LL_PPC 1
 #endif
 
 class LLProcessorInfoImpl;

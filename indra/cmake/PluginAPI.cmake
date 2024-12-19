@@ -13,4 +13,6 @@ if (WINDOWS)
       )
 endif (WINDOWS)
 
+target_include_directories( ll::pluginlibraries INTERFACE ${CMAKE_SOURCE_DIR}/llimage ${CMAKE_SOURCE_DIR}/llrender)
+
 

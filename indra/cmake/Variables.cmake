@@ -145,49 +145,35 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(CMAKE_OSX_DEPLOYMENT_TARGET "${CMAKE_MATCH_1}")
   message(STATUS "CMAKE_OSX_DEPLOYMENT_TARGET = '${CMAKE_OSX_DEPLOYMENT_TARGET}'")
 
-  string(REGEX MATCH "-stdlib=([^ ]+)" scratch "$ENV{LL_BUILD}")
-  set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY "${CMAKE_MATCH_1}")
-  message(STATUS "CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY = '${CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY}'")
-
-  string(REGEX MATCH " -g([^ ]*)" scratch "$ENV{LL_BUILD}")
-  set(CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT "${CMAKE_MATCH_1}")
-  # -gdwarf-2 is passed in LL_BUILD according to 00-COMPILE-LINK-RUN.txt.
-  # However, when CMake 3.9.2 sees -gdwarf-2, it silently deletes the whole -g
-  # switch, producing no symbols at all! The same thing happens if we specify
-  # plain -g ourselves, i.e. CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT is
-  # the empty string. Specifying -gdwarf-with-dsym or just -gdwarf drives a
-  # different CMake behavior: it substitutes plain -g. As of 2017-09-19,
-  # viewer-build-variables/variables still passes -gdwarf-2, which is the
-  # no-symbols case. Set -gdwarf, triggering CMake to substitute plain -g --
-  # at least that way we should get symbols, albeit mangled ones. It Would Be
-  # Nice if CMake's behavior could be predicted from a consistent mental
-  # model, instead of only observed experimentally.
-  string(REPLACE "dwarf-2" "dwarf"
-    CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT
-    "${CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT}")
-  message(STATUS "CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT = '${CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT}'")
-
   string(REGEX MATCH "-O([^ ]*)" scratch "$ENV{LL_BUILD}")
   set(CMAKE_XCODE_ATTRIBUTE_GCC_OPTIMIZATION_LEVEL "${CMAKE_MATCH_1}")
   message(STATUS "CMAKE_XCODE_ATTRIBUTE_GCC_OPTIMIZATION_LEVEL = '${CMAKE_XCODE_ATTRIBUTE_GCC_OPTIMIZATION_LEVEL}'")
 
   # allow disabling this check by setting LL_SKIP_REQUIRE_SYSROOT either ON as cmake cache var or non-empty as environment var
-  set(LL_SKIP_REQUIRE_SYSROOT OFF CACHE BOOL "Skip requirement to set toolchain sysroot ahead of time. Not skipped by default for consistency, but skipping can be useful for selecting alternative xcode versions side by side")
-  if("$ENV{LL_SKIP_REQUIRE_SYSROOT}" STREQUAL "" AND NOT ${LL_SKIP_REQUIRE_SYSROOT})
-    string(REGEX MATCHALL "[^ ]+" LL_BUILD_LIST "$ENV{LL_BUILD}")
-    list(FIND LL_BUILD_LIST "-iwithsysroot" sysroot_idx)
-    if ("${sysroot_idx}" LESS 0)
-      message(FATAL_ERROR "Environment variable LL_BUILD must contain '-iwithsysroot'")
-    endif ()
-    math(EXPR sysroot_idx "${sysroot_idx} + 1")
-    list(GET LL_BUILD_LIST "${sysroot_idx}" CMAKE_OSX_SYSROOT)
-  endif()
-  message(STATUS "CMAKE_OSX_SYSROOT = '${CMAKE_OSX_SYSROOT}'")
+  # set(LL_SKIP_REQUIRE_SYSROOT OFF CACHE BOOL "Skip requirement to set toolchain sysroot ahead of time. Not skipped by default for consistency, but skipping can be useful for selecting alternative xcode versions side by side")
+  # if("$ENV{LL_SKIP_REQUIRE_SYSROOT}" STREQUAL "" AND NOT ${LL_SKIP_REQUIRE_SYSROOT})
+  #   string(REGEX MATCHALL "[^ ]+" LL_BUILD_LIST "$ENV{LL_BUILD}")
+  #   list(FIND LL_BUILD_LIST "-iwithsysroot" sysroot_idx)
+  #   if ("${sysroot_idx}" LESS 0)
+  #     message(FATAL_ERROR "Environment variable LL_BUILD must contain '-iwithsysroot'")
+  #   endif ()
+  #   math(EXPR sysroot_idx "${sysroot_idx} + 1")
+  #   list(GET LL_BUILD_LIST "${sysroot_idx}" CMAKE_OSX_SYSROOT)
+  # endif()
+  # message(STATUS "CMAKE_OSX_SYSROOT = '${CMAKE_OSX_SYSROOT}'")
+
+  # Force debug symbol generation under xcode generator
+  set(CMAKE_XCODE_ATTRIBUTE_GCC_GENERATE_DEBUGGING_SYMBOLS YES)
+  set(CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT dwarf)
+  message(STATUS "CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT = '${CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT}'")
+
+  # Strip dead code
+  set(CMAKE_XCODE_ATTRIBUTE_DEAD_CODE_STRIPPING YES)
 
   set(CMAKE_XCODE_ATTRIBUTE_GCC_VERSION "com.apple.compilers.llvm.clang.1_0")
   set(CMAKE_XCODE_ATTRIBUTE_GCC_STRICT_ALIASING NO)
   set(CMAKE_XCODE_ATTRIBUTE_GCC_FAST_MATH NO)
-  set(CMAKE_XCODE_ATTRIBUTE_CLANG_X86_VECTOR_INSTRUCTIONS ssse3)
+  set(CMAKE_XCODE_ATTRIBUTE_CLANG_X86_VECTOR_INSTRUCTIONS sse4.2)
   # we must hard code this to off for now.  xcode's built in signing does not
   # handle embedded app bundles such as CEF and others. Any signing for local
   # development must be done after the build as we do in viewer_manifest.py for
@@ -200,11 +186,19 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   # "-" represents "Sign to Run Locally" and empty string represents "Do Not Sign"
   set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "")
   set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGN_ENTITLEMENTS "")
+  set(CMAKE_XCODE_ATTRIBUTE_LD_WARN_DUPLICATE_LIBRARIES NO)
   set(CMAKE_XCODE_ATTRIBUTE_DISABLE_MANUAL_TARGET_ORDER_BUILD_WARNING YES)
   set(CMAKE_XCODE_ATTRIBUTE_GCC_WARN_64_TO_32_BIT_CONVERSION NO)
-  set(CMAKE_OSX_ARCHITECTURES "${ARCH}")
-  string(REPLACE "i686"  "i386"   CMAKE_OSX_ARCHITECTURES "${CMAKE_OSX_ARCHITECTURES}")
-  string(REPLACE "AMD64" "x86_64" CMAKE_OSX_ARCHITECTURES "${CMAKE_OSX_ARCHITECTURES}")
+
+  option(BUILD_UNIVERSAL "Build macOS universal binaries" ON)
+  option(BUILD_ARM64 "Build for arm64 on macos" ON)
+  if(BUILD_UNIVERSAL)
+    set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64")
+  elseif(BUILD_ARM64)
+    set(CMAKE_OSX_ARCHITECTURES "arm64")
+  else()
+    set(CMAKE_OSX_ARCHITECTURES "x86_64")
+  endif()
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
 # Default deploy grid

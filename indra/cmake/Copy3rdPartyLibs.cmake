@@ -57,11 +57,6 @@ if(WINDOWS)
         SDL2.dll
         )
 
-    if(LLCOMMON_LINK_SHARED)
-        set(release_files ${release_files} libapr-1.dll)
-        set(release_files ${release_files} libaprutil-1.dll)
-    endif()
-
     # Filenames are different for 32/64 bit BugSplat file and we don't
     # have any control over them so need to branch.
     if (USE_BUGSPLAT)
@@ -171,17 +166,7 @@ elseif(DARWIN)
     set(release_files
         libndofdev.dylib
         libSDL2.dylib
-        libSDL2-2.0.dylib
        )
-
-    if(LLCOMMON_LINK_SHARED)
-        set(release_files ${release_files}
-            libapr-1.0.dylib
-            libapr-1.dylib
-            libaprutil-1.0.dylib
-            libaprutil-1.dylib
-            )
-    endif()
 
     if (TARGET ll::openal)
       list(APPEND release_files libalut.dylib libopenal.dylib)
@@ -215,20 +200,6 @@ elseif(LINUX)
     set(release_files
         libSDL2-2.0.so.0
         )
-
-     if( USE_AUTOBUILD_3P )
-         list( APPEND release_files
-                 libapr-1.so.0
-                 libaprutil-1.so.0
-                 )
-
-        if(LLCOMMON_LINK_SHARED)
-            set(release_files ${release_files}
-                libapr-1.so.0
-                libaprutil-1.so.0
-                )
-        endif()
-     endif()
 
 else(WINDOWS)
     message(STATUS "WARNING: unrecognized platform for staging 3rd party libs, skipping...")

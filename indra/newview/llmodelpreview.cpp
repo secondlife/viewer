@@ -520,7 +520,7 @@ void LLModelPreview::rebuildUploadData()
                 bool upload_skinweights = fmp && fmp->childGetValue("upload_skin").asBoolean();
                 if (upload_skinweights && high_lod_model->mSkinInfo.mJointNames.size() > 0)
                 {
-                    LLQuaternion bind_rot = LLSkinningUtil::getUnscaledQuaternion(LLMatrix4(high_lod_model->mSkinInfo.mBindShapeMatrix));
+                    LLQuaternion bind_rot = LLSkinningUtil::getUnscaledQuaternion(LLMatrix4(high_lod_model->mSkinInfo.mBindShapeMatrix.getF32ptr()));
                     LLQuaternion identity;
                     if (!bind_rot.isEqualEps(identity, 0.01))
                     {

@@ -1351,7 +1351,7 @@ bool LLVivoxVoiceClient::breakVoiceConnection(bool corowait)
             // At this point message system is already down so we can't wait for
             // the message, yet we need to receive "connector shutdown response".
             // Either wait a bit and emulate it or check gMessageSystem for specific message
-            _sleep(1000);
+            Sleep(1000);
             if (sConnected)
             {
                 sConnected = false;
