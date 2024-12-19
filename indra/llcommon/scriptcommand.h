@@ -56,7 +56,8 @@ public:
     std::string error() const;
 
 private:
-    bool search(const fsyspath& script, const LLSD& path, const fsyspath& base);
+    bool search(const fsyspath& base, const LLSD& paths, const fsyspath& script);
+    bool checkone(const fsyspath& base, const LLSD& path, const fsyspath& script);
 
     std::string mError;
 };

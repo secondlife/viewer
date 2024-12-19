@@ -35,7 +35,7 @@ ScriptCommand::ScriptCommand(const std::string& command, const LLSD& path,
                                    "\"'",     // either kind of quotes
                                    "\\");     // backslash escape
     // search for args[0] on paths
-    if (search(args[0], path, basepath))
+    if (search(basepath, path, args[0]))
     {
         // The first token is in fact the script filename. Now that we've
         // found the script file, we've consumed that token. The rest are
@@ -48,7 +48,7 @@ ScriptCommand::ScriptCommand(const std::string& command, const LLSD& path,
     // Maybe that's because there are spaces in the original pathname that
     // were neither quoted nor escaped? See if we can find the whole original
     // command line string.
-    if (search(command, path, basepath))
+    if (search(basepath, path, command))
     {
         // Here we found script, using the whole input command line as its
         // pathname. Discard any parts of it we mistook for command-line
@@ -83,32 +83,43 @@ ScriptCommand::ScriptCommand(const std::string& command, const LLSD& path,
     LL_WARNS("Lua") << mError << LL_ENDL;
 }
 
-bool ScriptCommand::search(const fsyspath& script, const LLSD& paths, const fsyspath& base)
+bool ScriptCommand::search(const fsyspath& base, const LLSD& paths, const fsyspath& script)
 {
+    if (! paths.size())
+    {
+        return checkone(base, "", script);
+    }
     for (const auto& path : llsd::inArray(paths))
     {
-        // If a path is already absolute, (otherpath / path) preserves it.
-        // Explicitly instantiate fsyspath for every string conversion to
-        // properly convert UTF-8 filename strings on Windows.
-        fsyspath absscript{ base / fsyspath(path.asString()) / script };
-        bool exists;
-        try
+        if (checkone(base, path, script))
         {
-            exists = std::filesystem::exists(absscript);
-        }
-        catch (const std::filesystem::filesystem_error& exc)
-        {
-            mError = stringize("Can't check existence: ", exc.what());
-            LL_WARNS("Lua") << mError << LL_ENDL;
-            return false;
-        }
-        if (exists)
-        {
-            this->script = absscript.string();
             return true;
         }
     }
     return false;
+}
+
+bool ScriptCommand::checkone(const fsyspath& base, const LLSD& path, const fsyspath& script)
+{
+    // If a path is already absolute, (otherpath / path) preserves it.
+    // Explicitly instantiate fsyspath for every string conversion to
+    // properly convert UTF-8 filename strings on Windows.
+    fsyspath absscript{ base / fsyspath(path.asString()) / script };
+    bool exists;
+    try
+    {
+        exists = std::filesystem::exists(absscript);
+    }
+    catch (const std::filesystem::filesystem_error& exc)
+    {
+        mError = stringize("Can't check existence: ", exc.what());
+        LL_WARNS("Lua") << mError << LL_ENDL;
+        return false;
+    }
+    if (! exists)
+        return false;
+    this->script = absscript.string();
+    return true;
 }
 
 std::string ScriptCommand::error() const
