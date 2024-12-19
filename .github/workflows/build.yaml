@@ -48,7 +48,7 @@ jobs:
     strategy:
       matrix:
         runner: [windows-large, macos-15-xlarge]
-        experimental: [false]
+        experimental: [true]
         include:
         - runner: linux-large
           experimental: true
@@ -132,7 +132,10 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt update
+          sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+          sudo apt update -y
           sudo apt install -y \
+            gcc-13 cpp-13 g++-13 \
             libpulse-dev libunwind-dev \
             libgl1-mesa-dev libglu1-mesa-dev libxinerama-dev \
             libxcursor-dev libxfixes-dev libgstreamer1.0-dev \
@@ -266,6 +269,12 @@ jobs:
             export PYTHON_COMMAND="python3"
           fi
           export PYTHON_COMMAND_NATIVE="$(native_path "$PYTHON_COMMAND")"
+
+          # Compile with gcc-13 test.
+          if [[ "$RUNNER_OS" == "Linux" ]]; then
+            export CC=gcc-13
+            export CXX=g++-13
+          fi
 
           ./build.sh
 
