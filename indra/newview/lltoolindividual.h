@@ -43,8 +43,8 @@ class LLToolIndividual : public LLTool, public LLSingleton<LLToolIndividual>
     virtual ~LLToolIndividual();
 public:
 
-    virtual BOOL handleMouseDown(S32 x, S32 y, MASK mask) override;
-    virtual BOOL handleDoubleClick(S32 x, S32 y, MASK mask) override;
+    virtual bool handleMouseDown(S32 x, S32 y, MASK mask) override;
+    virtual bool handleDoubleClick(S32 x, S32 y, MASK mask) override;
     virtual void handleSelect() override;
 
     static void pickCallback(const LLPickInfo& pick_info);

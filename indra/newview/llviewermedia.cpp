@@ -79,10 +79,10 @@
 #include <boost/bind.hpp>   // for SkinFolder listener
 #include <boost/signals2.hpp>
 
-extern BOOL gCubeSnapshot;
+extern bool gCubeSnapshot;
 
 // *TODO: Consider enabling mipmaps (they have been disabled for a long time). Likely has a significant performance impact for tiled/high texture repeat media. Mip generation in a shader may also be an option if necessary.
-constexpr BOOL USE_MIPMAPS = FALSE;
+constexpr bool USE_MIPMAPS = false;
 
 void init_threaded_picker_load_dialog(LLPluginClassMedia* plugin, LLFilePicker::ELoadFilter filter, bool get_multiple)
 {
@@ -688,10 +688,10 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 
     static LLCachedControl<bool> inworld_media_enabled(gSavedSettings, "AudioStreamingMedia", true);
     static LLCachedControl<bool> inworld_audio_enabled(gSavedSettings, "AudioStreamingMusic", true);
-    U32 max_instances = gSavedSettings.getU32("PluginInstancesTotal");
-    U32 max_normal = gSavedSettings.getU32("PluginInstancesNormal");
-    U32 max_low = gSavedSettings.getU32("PluginInstancesLow");
-    F32 max_cpu = gSavedSettings.getF32("PluginInstancesCPULimit");
+    static LLCachedControl<U32> max_instances(gSavedSettings, "PluginInstancesTotal", 8);
+    static LLCachedControl<U32> max_normal(gSavedSettings, "PluginInstancesNormal", 2);
+    static LLCachedControl<U32> max_low(gSavedSettings, "PluginInstancesLow", 4);
+    static LLCachedControl<F32> max_cpu(gSavedSettings, "PluginInstancesCPULimit", 0.9);
     // Setting max_cpu to 0.0 disables CPU usage checking.
     bool check_cpu_usage = (max_cpu != 0.0f);
 
@@ -829,7 +829,8 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
             }
             else
             {
-                if(gAudiop && LLViewerMedia::hasParcelAudio() && restore_parcel_audio && gSavedSettings.getBOOL("MediaTentativeAutoPlay"))
+                static LLCachedControl<bool> auto_play(gSavedSettings, "MediaTentativeAutoPlay", true);
+                if(gAudiop && LLViewerMedia::hasParcelAudio() && restore_parcel_audio && auto_play())
                 {
                     LLViewerAudio::getInstance()->startInternetStreamWithAutoFade(LLViewerMedia::getParcelAudioURL());
                     restore_parcel_audio = false;
@@ -880,7 +881,8 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
         }
     }
 
-    if(gSavedSettings.getBOOL("MediaPerformanceManagerDebug"))
+    static LLCachedControl<bool> perf_debug(gSavedSettings, "MediaPerformanceManagerDebug", false);
+    if(perf_debug())
     {
         // Give impls the same ordering as the priority list
         // they're already in the right order for this.
@@ -1253,40 +1255,45 @@ void LLViewerMedia::getOpenIDCookieCoro(std::string url)
         hostEnd = authority.size();
     }
 
-    LLViewerMedia* inst = getInstance();
     if (url.length())
     {
-        LLMediaCtrl* media_instance = LLFloaterReg::getInstance("destinations")->getChild<LLMediaCtrl>("destination_guide_contents");
-        if (media_instance)
-        {
-            std::string cookie_host = authority.substr(hostStart, hostEnd - hostStart);
-            std::string cookie_name = "";
-            std::string cookie_value = "";
-            std::string cookie_path = "";
-            bool httponly = true;
-            bool secure = true;
-            if (inst->parseRawCookie(inst->mOpenIDCookie, cookie_name, cookie_value, cookie_path, httponly, secure) &&
-                media_instance->getMediaPlugin())
+        LLAppViewer::instance()->postToMainCoro([=]()
             {
-                // MAINT-5711 - inexplicably, the CEF setCookie function will no longer set the cookie if the
-                // url and domain are not the same. This used to be my.sl.com and id.sl.com respectively and worked.
-                // For now, we use the URL for the OpenID POST request since it will have the same authority
-                // as the domain field.
-                // (Feels like there must be a less dirty way to construct a URL from component LLURL parts)
-                // MAINT-6392 - Rider: Do not change, however, the original URI requested, since it is used further
-                // down.
-                std::string cefUrl(std::string(inst->mOpenIDURL.mURI) + "://" + std::string(inst->mOpenIDURL.mAuthority));
+                LLMediaCtrl* media_instance = LLFloaterReg::getInstance("destinations")->getChild<LLMediaCtrl>("destination_guide_contents");
+                if (media_instance)
+                {
+                    LLViewerMedia* inst = getInstance();
+                    std::string cookie_host = authority.substr(hostStart, hostEnd - hostStart);
+                    std::string cookie_name = "";
+                    std::string cookie_value = "";
+                    std::string cookie_path = "";
+                    bool httponly = true;
+                    bool secure = true;
+                    if (inst->parseRawCookie(inst->mOpenIDCookie, cookie_name, cookie_value, cookie_path, httponly, secure) &&
+                        media_instance->getMediaPlugin())
+                    {
+                        // MAINT-5711 - inexplicably, the CEF setCookie function will no longer set the cookie if the
+                        // url and domain are not the same. This used to be my.sl.com and id.sl.com respectively and worked.
+                        // For now, we use the URL for the OpenID POST request since it will have the same authority
+                        // as the domain field.
+                        // (Feels like there must be a less dirty way to construct a URL from component LLURL parts)
+                        // MAINT-6392 - Rider: Do not change, however, the original URI requested, since it is used further
+                        // down.
+                        std::string cefUrl(std::string(inst->mOpenIDURL.mURI) + "://" + std::string(inst->mOpenIDURL.mAuthority));
 
-                media_instance->getMediaPlugin()->setCookie(cefUrl, cookie_name, cookie_value, cookie_host,
-                    cookie_path, httponly, secure);
+                        media_instance->getMediaPlugin()->setCookie(cefUrl, cookie_name, cookie_value, cookie_host,
+                            cookie_path, httponly, secure);
 
-                // Now that we have parsed the raw cookie, we must store it so that each new media instance
-                // can also get a copy and faciliate logging into internal SL sites.
-                media_instance->getMediaPlugin()->storeOpenIDCookie(cefUrl, cookie_name, cookie_value,
-                    cookie_host, cookie_path, httponly, secure);
-            }
-        }
+                        // Now that we have parsed the raw cookie, we must store it so that each new media instance
+                        // can also get a copy and faciliate logging into internal SL sites.
+                        media_instance->getMediaPlugin()->storeOpenIDCookie(cefUrl, cookie_name, cookie_value,
+                            cookie_host, cookie_path, httponly, secure);
+                    }
+                }
+            });
     }
+
+    LLViewerMedia* inst = getInstance();
 
     // Note: Rider: MAINT-6392 - Some viewer code requires access to the my.sl.com openid cookie for such
     // actions as posting snapshots to the feed.  This is handled through HTTPCore rather than CEF and so
@@ -1661,13 +1668,13 @@ void LLViewerMediaImpl::destroyMediaSource()
     LLViewerMediaTexture* oldImage = LLViewerTextureManager::findMediaTexture( mTextureId );
     if (oldImage)
     {
-        oldImage->setPlaying(FALSE) ;
+        oldImage->setPlaying(false) ;
     }
 
     cancelMimeTypeProbe();
 
     {
-        LLMutexLock lock(&mLock); // Delay tear-down while bg thread is updating
+        LLCoros::LockType lock(mLock); // Delay tear-down while bg thread is updating
         if(mMediaSource)
         {
             mMediaSource->setDeleteOK(true) ;
@@ -1753,9 +1760,7 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
             bool javascript_enabled = gSavedSettings.getBOOL("BrowserJavascriptEnabled");
             media_source->setJavascriptEnabled(javascript_enabled || clean_browser);
 
-            // collect 'web security disabled' (see Chrome --web-security-disabled) setting from prefs and send to embedded browser
-            bool web_security_disabled = gSavedSettings.getBOOL("BrowserWebSecurityDisabled");
-            media_source->setWebSecurityDisabled(web_security_disabled || clean_browser);
+            media_source->setWebSecurityDisabled(clean_browser);
 
             // collect setting indicates if local file access from file URLs is allowed from prefs and send to embedded browser
             bool file_access_from_file_urls = gSavedSettings.getBOOL("BrowserFileAccessFromFileUrls");
@@ -1901,7 +1906,7 @@ void LLViewerMediaImpl::loadURI()
         // or a seek happened before the media loaded.  In either case, seek to the saved time.
         if(mPreviousMediaTime != 0.0f)
         {
-            seek(mPreviousMediaTime);
+            seek((F32)mPreviousMediaTime);
         }
 
         if(mPreviousMediaState == MEDIA_PLAYING)
@@ -2036,7 +2041,7 @@ void LLViewerMediaImpl::skipBack(F32 step_scale)
             {
                 back_step = 0.0;
             }
-            mMediaSource->seek(back_step);
+            mMediaSource->seek((F32)back_step);
         }
     }
 }
@@ -2053,7 +2058,7 @@ void LLViewerMediaImpl::skipForward(F32 step_scale)
             {
                 forward_step = mMediaSource->getDuration();
             }
-            mMediaSource->seek(forward_step);
+            mMediaSource->seek((F32)forward_step);
         }
     }
 }
@@ -2102,7 +2107,7 @@ void LLViewerMediaImpl::updateVolume()
                 F64 attenuation = 1.0 + (gSavedSettings.getF32("MediaRollOffRate") * adjusted_distance);
                 attenuation = 1.0 / (attenuation * attenuation);
                 // the attenuation multiplier should never be more than one since that would increase volume
-                volume = volume * llmin(1.0, attenuation);
+                volume = volume * (F32)llmin(1.0, attenuation);
             }
         }
 
@@ -2232,11 +2237,11 @@ void LLViewerMediaImpl::scaleTextureCoords(const LLVector2& texture_coords, S32 
     // Deal with repeating textures by wrapping the coordinates into the range [0, 1.0)
     texture_x = fmodf(texture_x, 1.0f);
     if(texture_x < 0.0f)
-        texture_x = 1.0 + texture_x;
+        texture_x = 1.0f + texture_x;
 
     texture_y = fmodf(texture_y, 1.0f);
     if(texture_y < 0.0f)
-        texture_y = 1.0 + texture_y;
+        texture_y = 1.0f + texture_y;
 
     // scale x and y to texel units.
     *x = ll_round(texture_x * mMediaSource->getTextureWidth());
@@ -2337,7 +2342,7 @@ void LLViewerMediaImpl::onMouseCaptureLost()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-BOOL LLViewerMediaImpl::handleMouseUp(S32 x, S32 y, MASK mask)
+bool LLViewerMediaImpl::handleMouseUp(S32 x, S32 y, MASK mask)
 {
     // NOTE: this is called when the mouse is released when we have capture.
     // Due to the way mouse coordinates are mapped to the object, we can't use the x and y coordinates that come in with the event.
@@ -2345,10 +2350,10 @@ BOOL LLViewerMediaImpl::handleMouseUp(S32 x, S32 y, MASK mask)
     if(hasMouseCapture())
     {
         // Release the mouse -- this will also send a mouseup to the media
-        gFocusMgr.setMouseCapture( FALSE );
+        gFocusMgr.setMouseCapture( nullptr );
     }
 
-    return TRUE;
+    return true;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -2674,7 +2679,13 @@ void LLViewerMediaImpl::mimeDiscoveryCoro(std::string url)
         {
             if (initializeMedia(mimeType))
             {
-                loadURI();
+                ref();
+                LLAppViewer::instance()->postToMainCoro([this]()
+                    {
+                        loadURI();
+                        unref();
+                    });
+
             }
         }
 
@@ -2757,7 +2768,7 @@ bool LLViewerMediaImpl::handleUnicodeCharHere(llwchar uni_char)
         {
             LLSD native_key_data = gViewerWindow->getWindow()->getNativeKeyData();
 
-            mMediaSource->textInput(wstring_to_utf8str(LLWString(1, uni_char)), gKeyboard->currentMask(FALSE), native_key_data);
+            mMediaSource->textInput(wstring_to_utf8str(LLWString(1, uni_char)), gKeyboard->currentMask(false), native_key_data);
         }
     }
 
@@ -2767,7 +2778,7 @@ bool LLViewerMediaImpl::handleUnicodeCharHere(llwchar uni_char)
 //////////////////////////////////////////////////////////////////////////////////////////
 bool LLViewerMediaImpl::canNavigateForward()
 {
-    BOOL result = FALSE;
+    bool result = false;
     if (mMediaSource)
     {
         result = mMediaSource->getHistoryForwardAvailable();
@@ -2778,7 +2789,7 @@ bool LLViewerMediaImpl::canNavigateForward()
 //////////////////////////////////////////////////////////////////////////////////////////
 bool LLViewerMediaImpl::canNavigateBack()
 {
-    BOOL result = FALSE;
+    bool result = false;
     if (mMediaSource)
     {
         result = mMediaSource->getHistoryBackAvailable();
@@ -2933,7 +2944,7 @@ bool LLViewerMediaImpl::preMediaTexUpdate(LLViewerMediaTexture*& media_tex, U8*&
             //S32 media_depth = mMediaSource->getTextureDepth();
 
             // Since we're updating this texture, we know it's playing.  Tell the texture to do its replacement magic so it gets rendered.
-            media_tex->setPlaying(TRUE);
+            media_tex->setPlaying(true);
 
             if (mMediaSource->getDirty(&dirty_rect))
             {
@@ -2968,7 +2979,7 @@ bool LLViewerMediaImpl::preMediaTexUpdate(LLViewerMediaTexture*& media_tex, U8*&
 void LLViewerMediaImpl::doMediaTexUpdate(LLViewerMediaTexture* media_tex, U8* data, S32 data_width, S32 data_height, S32 x_pos, S32 y_pos, S32 width, S32 height, bool sync)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_MEDIA;
-    LLMutexLock lock(&mLock); // don't allow media source tear-down during update
+    LLCoros::LockType lock(mLock); // don't allow media source tear-down during update
 
     // wrap "data" in an LLImageRaw but do NOT make a copy
     LLPointer<LLImageRaw> raw = new LLImageRaw(data, media_tex->getWidth(), media_tex->getHeight(), media_tex->getComponents(), true);
@@ -2980,7 +2991,7 @@ void LLViewerMediaImpl::doMediaTexUpdate(LLViewerMediaTexture* media_tex, U8* da
     // -Cosmic,2023-04-04
     // Allocate GL texture based on LLImageRaw but do NOT copy to GL
     LLGLuint tex_name = 0;
-    media_tex->createGLTexture(0, raw, 0, TRUE, LLGLTexture::OTHER, true, &tex_name);
+    media_tex->createGLTexture(0, raw, 0, true, LLGLTexture::OTHER, true, &tex_name);
 
     // copy just the subimage covered by the image raw to GL
     media_tex->setSubImage(data, data_width, data_height, x_pos, y_pos, width, height, tex_name);
@@ -3498,13 +3509,13 @@ LLViewerMediaImpl::cut()
 
 ////////////////////////////////////////////////////////////////////////////////
 // virtual
-BOOL
+bool
 LLViewerMediaImpl::canCut() const
 {
     if (mMediaSource)
         return mMediaSource->canCut();
     else
-        return FALSE;
+        return false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -3518,13 +3529,13 @@ LLViewerMediaImpl::copy()
 
 ////////////////////////////////////////////////////////////////////////////////
 // virtual
-BOOL
+bool
 LLViewerMediaImpl::canCopy() const
 {
     if (mMediaSource)
         return mMediaSource->canCopy();
     else
-        return FALSE;
+        return false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -3538,21 +3549,21 @@ LLViewerMediaImpl::paste()
 
 ////////////////////////////////////////////////////////////////////////////////
 // virtual
-BOOL
+bool
 LLViewerMediaImpl::canPaste() const
 {
     if (mMediaSource)
         return mMediaSource->canPaste();
     else
-        return FALSE;
+        return false;
 }
 
-void LLViewerMediaImpl::setUpdated(BOOL updated)
+void LLViewerMediaImpl::setUpdated(bool updated)
 {
     mIsUpdated = updated ;
 }
 
-BOOL LLViewerMediaImpl::isUpdated()
+bool LLViewerMediaImpl::isUpdated()
 {
     return mIsUpdated ;
 }

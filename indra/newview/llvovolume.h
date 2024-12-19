@@ -85,11 +85,11 @@ public:
     virtual ~LLVolumeInterface() { }
     virtual LLVolumeInterfaceType getInterfaceType() const = 0;
     virtual void doIdleUpdate() = 0;
-    virtual BOOL doUpdateGeometry(LLDrawable *drawable) = 0;
+    virtual bool doUpdateGeometry(LLDrawable *drawable) = 0;
     virtual LLVector3 getPivotPosition() const = 0;
     virtual void onSetVolume(const LLVolumeParams &volume_params, const S32 detail) = 0;
-    virtual void onSetScale(const LLVector3 &scale, BOOL damped) = 0;
-    virtual void onParameterChanged(U16 param_type, LLNetworkData *data, BOOL in_use, bool local_origin) = 0;
+    virtual void onSetScale(const LLVector3 &scale, bool damped) = 0;
+    virtual void onParameterChanged(U16 param_type, LLNetworkData *data, bool in_use, bool local_origin) = 0;
     virtual void onShift(const LLVector4a &shift_vector) = 0;
     virtual bool isVolumeUnique() const = 0; // Do we need a unique LLVolume instance?
     virtual bool isVolumeGlobal() const = 0; // Are we in global space?
@@ -131,16 +131,16 @@ public:
 
                 void    animateTextures();
 
-                BOOL    isVisible() const ;
-    BOOL isActive() const override;
-    BOOL isAttachment() const override;
-    BOOL isRootEdit() const override; // overridden for sake of attachments treating themselves as a root object
-    BOOL isHUDAttachment() const override;
+                bool    isVisible() const ;
+    bool isActive() const override;
+    bool isAttachment() const override;
+    bool isRootEdit() const override; // overridden for sake of attachments treating themselves as a root object
+    bool isHUDAttachment() const override;
 
                 void    generateSilhouette(LLSelectNode* nodep, const LLVector3& view_point);
-    /*virtual*/ BOOL    setParent(LLViewerObject* parent) override;
+    /*virtual*/ bool    setParent(LLViewerObject* parent) override;
                 S32     getLOD() const override             { return mLOD; }
-                void    setNoLOD()                          { mLOD = NO_LOD; mLODChanged = TRUE; }
+                void    setNoLOD()                          { mLOD = NO_LOD; mLODChanged = true; }
                 bool    isNoLOD() const                     { return NO_LOD == mLOD; }
     const LLVector3     getPivotPositionAgent() const override;
     const LLMatrix4&    getRelativeXform() const                { return mRelativeXform; }
@@ -156,11 +156,11 @@ public:
 
     /*virtual*/ U32     getTriangleCount(S32* vcount = NULL) const override;
     /*virtual*/ U32     getHighLODTriangleCount() override;
-    /*virtual*/ BOOL lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
+    /*virtual*/ bool lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
                                           S32 face = -1,                        // which face to check, -1 = ALL_SIDES
-                                          BOOL pick_transparent = FALSE,
-                                          BOOL pick_rigged = FALSE,
-                                          BOOL pick_unselectable = TRUE,
+                                          bool pick_transparent = false,
+                                          bool pick_rigged = false,
+                                          bool pick_unselectable = true,
                                           S32* face_hit = NULL,                 // which face was hit
                                           LLVector4a* intersection = NULL,       // return the intersection point
                                           LLVector2* tex_coord = NULL,          // return the texture coordinates of the intersection point
@@ -174,18 +174,18 @@ public:
                 LLVector3 volumeDirectionToAgent(const LLVector3& dir) const;
 
 
-                BOOL    getVolumeChanged() const                { return mVolumeChanged; }
+                bool    getVolumeChanged() const                { return mVolumeChanged; }
 
     F32 getVObjRadius() const override              { return mVObjRadius; };
                 const LLMatrix4& getWorldMatrix(LLXformMatrix* xform) const override;
 
                 void    markForUpdate() override;
-                void    faceMappingChanged() override           { mFaceMappingChanged=TRUE; }
+                void    faceMappingChanged() override           { mFaceMappingChanged=true; }
 
     /*virtual*/ void    onShift(const LLVector4a &shift_vector) override; // Called when the drawable shifts
 
     /*virtual*/ void    parameterChanged(U16 param_type, bool local_origin) override;
-    /*virtual*/ void    parameterChanged(U16 param_type, LLNetworkData* data, BOOL in_use, bool local_origin) override;
+    /*virtual*/ void    parameterChanged(U16 param_type, LLNetworkData* data, bool in_use, bool local_origin) override;
 
     // update mReflectionProbe based on isReflectionProbe()
     void updateReflectionProbePtr();
@@ -195,10 +195,10 @@ public:
                                             U32 block_num, const EObjectUpdateType update_type,
                                             LLDataPacker *dp) override;
 
-    /*virtual*/ void    setSelected(BOOL sel) override;
-    /*virtual*/ BOOL    setDrawableParent(LLDrawable* parentp) override;
+    /*virtual*/ void    setSelected(bool sel) override;
+    /*virtual*/ bool    setDrawableParent(LLDrawable* parentp) override;
 
-    /*virtual*/ void    setScale(const LLVector3 &scale, BOOL damped) override;
+    /*virtual*/ void    setScale(const LLVector3 &scale, bool damped) override;
 
     /*virtual*/ void    changeTEImage(S32 index, LLViewerTexture* new_image) override;
     /*virtual*/ void    setNumTEs(const U8 num_tes) override;
@@ -223,11 +223,11 @@ public:
     /*virtual*/ S32     setTEScaleT(const U8 te, const F32 t) override;
     /*virtual*/ S32     setTETexGen(const U8 te, const U8 texgen) override;
     /*virtual*/ S32     setTEMediaTexGen(const U8 te, const U8 media) override;
-    /*virtual*/ BOOL    setMaterial(const U8 material) override;
+    /*virtual*/ bool    setMaterial(const U8 material) override;
 
                 void    setTexture(const S32 face);
                 S32     getIndexInTex(U32 ch) const {return mIndexInTex[ch];}
-    /*virtual*/ BOOL    setVolume(const LLVolumeParams &volume_params, const S32 detail, bool unique_volume = false) override;
+    /*virtual*/ bool    setVolume(const LLVolumeParams &volume_params, const S32 detail, bool unique_volume = false) override;
                 void    updateSculptTexture();
                 void    setIndexInTex(U32 ch, S32 index) { mIndexInTex[ch] = index ;}
                 void    sculpt();
@@ -236,16 +236,16 @@ public:
                                                  void* user_data, S32 status, LLExtStat ext_status);
 
                 void    updateRelativeXform(bool force_identity = false);
-    /*virtual*/ BOOL    updateGeometry(LLDrawable *drawable) override;
+    /*virtual*/ bool    updateGeometry(LLDrawable *drawable) override;
     /*virtual*/ void    updateFaceSize(S32 idx) override;
-    /*virtual*/ BOOL    updateLOD() override;
+    /*virtual*/ bool    updateLOD() override;
                 void    updateRadius() override;
     /*virtual*/ void    updateTextures() override;
                 void    updateTextureVirtualSize(bool forced = false);
 
                 void    updateFaceFlags();
                 void    regenFaces();
-                BOOL    genBBoxes(BOOL force_global, BOOL should_update_octree_bounds = TRUE);
+                bool    genBBoxes(bool force_global, bool should_update_octree_bounds = true);
                 void    preRebuild();
     virtual     void    updateSpatialExtents(LLVector4a& min, LLVector4a& max) override;
     virtual     F32     getBinRadius() override;
@@ -253,7 +253,7 @@ public:
     virtual U32 getPartitionType() const override;
 
     // For Lights
-    void setIsLight(BOOL is_light);
+    void setIsLight(bool is_light);
     //set the gamma-corrected (sRGB) color of this light
     void setLightSRGBColor(const LLColor3& color);
     //set the linear color of this light
@@ -266,7 +266,7 @@ public:
     void setLightTextureID(LLUUID id);
     void setSpotLightParams(LLVector3 params);
 
-    BOOL getIsLight() const;
+    bool getIsLight() const;
     bool getIsLightFast() const;
 
 
@@ -296,27 +296,27 @@ public:
     F32 getLightCutoff() const;
 
     // Reflection Probes
-    bool setIsReflectionProbe(BOOL is_probe);
+    bool setIsReflectionProbe(bool is_probe);
     bool setReflectionProbeAmbiance(F32 ambiance);
     bool setReflectionProbeNearClip(F32 near_clip);
     bool setReflectionProbeIsBox(bool is_box);
     bool setReflectionProbeIsDynamic(bool is_dynamic);
     bool setReflectionProbeIsMirror(bool is_mirror);
 
-    BOOL isReflectionProbe() const override;
-    F32 getReflectionProbeAmbiance() const;
-    F32 getReflectionProbeNearClip() const;
-    bool getReflectionProbeIsBox() const;
-    bool getReflectionProbeIsDynamic() const;
-    bool getReflectionProbeIsMirror() const;
+    bool isReflectionProbe() const override;
+    F32 getReflectionProbeAmbiance() const override;
+    F32 getReflectionProbeNearClip() const override;
+    bool getReflectionProbeIsBox() const override;
+    bool getReflectionProbeIsDynamic() const override;
+    bool getReflectionProbeIsMirror() const override;
 
     // Flexible Objects
     U32 getVolumeInterfaceID() const;
-    virtual BOOL isFlexible() const override;
-    virtual BOOL isSculpted() const override;
-    virtual BOOL isMesh() const override;
-    virtual BOOL isRiggedMesh() const override;
-    virtual BOOL hasLightTexture() const override;
+    virtual bool isFlexible() const override;
+    virtual bool isSculpted() const override;
+    virtual bool isMesh() const override;
+    virtual bool isRiggedMesh() const override;
+    virtual bool hasLightTexture() const override;
 
     // fast variants above that use state that is filled in later
     //  not reliable early in the life of an object, but should be used after
@@ -327,9 +327,9 @@ public:
     bool isRiggedMeshFast() const;
     bool isAnimatedObjectFast() const;
 
-    BOOL isVolumeGlobal() const;
-    BOOL canBeFlexible() const;
-    BOOL setIsFlexible(BOOL is_flexible);
+    bool isVolumeGlobal() const;
+    bool canBeFlexible() const;
+    bool setIsFlexible(bool is_flexible);
 
     const LLMeshSkinInfo* getSkinInfo() const;
     const bool isSkinInfoUnavaliable() const { return mSkinInfoUnavaliable; }
@@ -422,7 +422,7 @@ public:
 
 protected:
     S32 computeLODDetail(F32 distance, F32 radius, F32 lod_factor);
-    BOOL calcLOD();
+    bool calcLOD();
     LLFace* addFace(S32 face_index);
 
     // stats tracking for render complexity
@@ -436,7 +436,7 @@ protected:
     void removeMediaImpl(S32 texture_index) ;
 
 private:
-    bool lodOrSculptChanged(LLDrawable *drawable, BOOL &compiled, BOOL &shouldUpdateOctreeBounds);
+    bool lodOrSculptChanged(LLDrawable *drawable, bool &compiled, bool &shouldUpdateOctreeBounds);
 
 public:
 
@@ -451,17 +451,18 @@ public:
 private:
     friend class LLDrawable;
     friend class LLFace;
+    friend class LLViewerFetchedTexture;
 
-    BOOL        mFaceMappingChanged;
+    bool        mFaceMappingChanged;
     LLFrameTimer mTextureUpdateTimer;
     S32         mLOD;
-    BOOL        mLODChanged;
-    BOOL        mSculptChanged;
-    BOOL        mColorChanged;
+    bool        mLODChanged;
+    bool        mSculptChanged;
+    bool        mColorChanged;
     F32         mSpotLightPriority;
     LLMatrix4   mRelativeXform;
     LLMatrix3   mRelativeXformInvTrans;
-    BOOL        mVolumeChanged;
+    bool        mVolumeChanged;
     F32         mVObjRadius;
     LLVolumeInterface *mVolumeImpl;
     LLPointer<LLViewerFetchedTexture> mSculptTexture;

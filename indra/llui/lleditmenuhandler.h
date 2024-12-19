@@ -35,29 +35,29 @@ public:
     virtual ~LLEditMenuHandler();
 
     virtual void    undo() {};
-    virtual BOOL    canUndo() const { return FALSE; }
+    virtual bool    canUndo() const { return false; }
 
     virtual void    redo() {};
-    virtual BOOL    canRedo() const { return FALSE; }
+    virtual bool    canRedo() const { return false; }
 
     virtual void    cut() {};
-    virtual BOOL    canCut() const { return FALSE; }
+    virtual bool    canCut() const { return false; }
 
     virtual void    copy() {};
-    virtual BOOL    canCopy() const { return FALSE; }
+    virtual bool    canCopy() const { return false; }
 
     virtual void    paste() {};
-    virtual BOOL    canPaste() const { return FALSE; }
+    virtual bool    canPaste() const { return false; }
 
     // "delete" is a keyword
     virtual void    doDelete() {};
-    virtual BOOL    canDoDelete() const { return FALSE; }
+    virtual bool    canDoDelete() const { return false; }
 
     virtual void    selectAll() {};
-    virtual BOOL    canSelectAll() const { return FALSE; }
+    virtual bool    canSelectAll() const { return false; }
 
     virtual void    deselect() {};
-    virtual BOOL    canDeselect() const { return FALSE; }
+    virtual bool    canDeselect() const { return false; }
 
     // TODO: Instead of being a public data member, it would be better to hide it altogether
     // and have a "set" method and then a bunch of static versions of the cut, copy, paste

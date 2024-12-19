@@ -134,7 +134,7 @@ public:                                     \
     void ll_aligned_free_fallback( void* ptr );
 //------------------------------------------------------------------------------------------------
 #else
-    inline void* ll_aligned_malloc_fallback( size_t size, int align )
+    inline void* ll_aligned_malloc_fallback( size_t size, size_t align )
     {
         LL_PROFILE_ZONE_SCOPED_CATEGORY_MEMORY;
     #if defined(LL_WINDOWS)
@@ -222,7 +222,7 @@ inline void* ll_aligned_realloc_16(void* ptr, size_t size, size_t old_size) // r
         ll_aligned_free_16(ptr);
     }
 #endif
-    LL_PROFILE_ALLOC(ptr, size);
+    LL_PROFILE_ALLOC(ret, size);
     return ret;
 }
 
@@ -390,7 +390,7 @@ public:
     static void* tryToAlloc(void* address, U32 size);
     static void initMaxHeapSizeGB(F32Gigabytes max_heap_size);
     static void updateMemoryInfo() ;
-    static void logMemoryInfo(BOOL update = FALSE);
+    static void logMemoryInfo(bool update = false);
 
     static U32Kilobytes getAvailableMemKB() ;
     static U32Kilobytes getMaxMemKB() ;

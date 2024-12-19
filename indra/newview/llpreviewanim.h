@@ -38,7 +38,7 @@ class LLPreviewAnim : public LLPreview
 public:
 
     LLPreviewAnim(const LLSD& key);
-    BOOL postBuild() override;
+    bool postBuild() override;
     void onClose(bool app_quitting) override;
     void draw() override;
     void refreshFromItem() override;

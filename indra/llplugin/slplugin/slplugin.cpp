@@ -88,22 +88,6 @@ LONG WINAPI myWin32ExceptionHandler( struct _EXCEPTION_POINTERS* exception_infop
     return EXCEPTION_EXECUTE_HANDLER;
 }
 
-// Taken from : http://blog.kalmbachnet.de/?postid=75
-// The MSVC 2005 CRT forces the call of the default-debugger (normally Dr.Watson)
-// even with the other exception handling code. This (terrifying) piece of code
-// patches things so that doesn't happen.
-LPTOP_LEVEL_EXCEPTION_FILTER WINAPI MyDummySetUnhandledExceptionFilter(
-    LPTOP_LEVEL_EXCEPTION_FILTER lpTopLevelExceptionFilter )
-{
-    return NULL;
-}
-
-BOOL PreventSetUnhandledExceptionFilter()
-{
-    // remove the scary stuff that also isn't supported on 64 bit Windows
-    return TRUE;
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 //  Hook our exception handler and replace the system one
 void initExceptionHandler()
@@ -112,7 +96,6 @@ void initExceptionHandler()
 
     // save old exception handler in case we need to restore it at the end
     prev_filter = SetUnhandledExceptionFilter( myWin32ExceptionHandler );
-    PreventSetUnhandledExceptionFilter();
 }
 
 bool checkExceptionHandler()
@@ -121,18 +104,16 @@ bool checkExceptionHandler()
     LPTOP_LEVEL_EXCEPTION_FILTER prev_filter;
     prev_filter = SetUnhandledExceptionFilter(myWin32ExceptionHandler);
 
-    PreventSetUnhandledExceptionFilter();
-
     if (prev_filter != myWin32ExceptionHandler)
     {
         LL_WARNS("AppInit") << "Our exception handler (" << (void *)myWin32ExceptionHandler << ") replaced with " << prev_filter << "!" << LL_ENDL;
         ok = false;
     }
 
-    if (prev_filter == NULL)
+    if (prev_filter == nullptr)
     {
-        ok = FALSE;
-        if (NULL == myWin32ExceptionHandler)
+        ok = false;
+        if (nullptr == myWin32ExceptionHandler)
         {
             LL_WARNS("AppInit") << "Exception handler uninitialized." << LL_ENDL;
         }
@@ -245,7 +226,7 @@ int main(int argc, char **argv)
         F64 elapsed = timer.getElapsedTimeF64();
         F64 remaining = plugin->getSleepTime() - elapsed;
 
-        if(remaining <= 0.0f)
+        if(remaining <= 0.0)
         {
             // We've already used our full allotment.
 //          LL_INFOS("slplugin") << "elapsed = " << elapsed * 1000.0f << " ms, remaining = " << remaining * 1000.0f << " ms, not sleeping" << LL_ENDL;

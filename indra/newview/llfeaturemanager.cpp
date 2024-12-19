@@ -70,8 +70,8 @@ const char FEATURE_TABLE_FILENAME[] = "featuretable.txt";
 
 #if 0                               // consuming code in #if 0 below
 #endif
-LLFeatureInfo::LLFeatureInfo(const std::string& name, const BOOL available, const F32 level)
-    : mValid(TRUE), mName(name), mAvailable(available), mRecommendedLevel(level)
+LLFeatureInfo::LLFeatureInfo(const std::string& name, const bool available, const F32 level)
+    : mValid(true), mName(name), mAvailable(available), mRecommendedLevel(level)
 {
 }
 
@@ -84,7 +84,7 @@ LLFeatureList::~LLFeatureList()
 {
 }
 
-void LLFeatureList::addFeature(const std::string& name, const BOOL available, const F32 level)
+void LLFeatureList::addFeature(const std::string& name, const bool available, const F32 level)
 {
     if (mFeatures.count(name))
     {
@@ -99,7 +99,7 @@ void LLFeatureList::addFeature(const std::string& name, const BOOL available, co
     mFeatures[name] = fi;
 }
 
-BOOL LLFeatureList::isFeatureAvailable(const std::string& name)
+bool LLFeatureList::isFeatureAvailable(const std::string& name)
 {
     if (mFeatures.count(name))
     {
@@ -108,9 +108,9 @@ BOOL LLFeatureList::isFeatureAvailable(const std::string& name)
 
     LL_WARNS_ONCE("RenderInit") << "Feature " << name << " not on feature list!" << LL_ENDL;
 
-    // changing this to TRUE so you have to explicitly disable
+    // changing this to true so you have to explicitly disable
     // something for it to be disabled
-    return TRUE;
+    return true;
 }
 
 F32 LLFeatureList::getRecommendedValue(const std::string& name)
@@ -125,7 +125,7 @@ F32 LLFeatureList::getRecommendedValue(const std::string& name)
     return 0;
 }
 
-BOOL LLFeatureList::maskList(LLFeatureList &mask)
+bool LLFeatureList::maskList(LLFeatureList &mask)
 {
     LL_DEBUGS_ONCE() << "Masking with " << mask.mName << LL_ENDL;
     //
@@ -168,7 +168,7 @@ BOOL LLFeatureList::maskList(LLFeatureList &mask)
         dump();
     LL_CONT << LL_ENDL;
 
-    return TRUE;
+    return true;
 }
 
 void LLFeatureList::dump()
@@ -196,7 +196,7 @@ static const std::vector<std::string> sGraphicsLevelNames = boost::assign::list_
 
 U32 LLFeatureManager::getMaxGraphicsLevel() const
 {
-    return sGraphicsLevelNames.size() - 1;
+    return static_cast<U32>(sGraphicsLevelNames.size()) - 1;
 }
 
 bool LLFeatureManager::isValidGraphicsLevel(U32 level) const
@@ -243,13 +243,13 @@ LLFeatureList *LLFeatureManager::findMask(const std::string& name)
     return NULL;
 }
 
-BOOL LLFeatureManager::maskFeatures(const std::string& name)
+bool LLFeatureManager::maskFeatures(const std::string& name)
 {
     LLFeatureList *maskp = findMask(name);
     if (!maskp)
     {
         LL_DEBUGS("RenderInit") << "Unknown feature mask " << name << LL_ENDL;
-        return FALSE;
+        return false;
     }
     LL_INFOS("RenderInit") << "Applying GPU Feature list: " << name << LL_ENDL;
     return maskList(*maskp);
@@ -294,7 +294,7 @@ bool LLFeatureManager::parseFeatureTable(std::string filename)
     if (!file)
     {
         LL_WARNS("RenderInit") << "Unable to open feature table " << filename << LL_ENDL;
-        return FALSE;
+        return false;
     }
 
     // Check file version
@@ -393,7 +393,7 @@ F32 logExceptionBenchmark()
     __except (msc_exception_filter(GetExceptionCode(), GetExceptionInformation()))
     {
         // HACK - ensure that profiling is disabled
-        LLGLSLShader::finishProfile(false);
+        LLGLSLShader::finishProfile();
 
         // convert to C++ styled exception
         char integer_string[32];
@@ -486,7 +486,7 @@ bool LLFeatureManager::loadGPUClass()
 
     // defaults
     mGPUString = gGLManager.getRawGLString();
-    mGPUSupported = TRUE;
+    mGPUSupported = true;
 
     return true; // indicates that a gpu value was established
 }
@@ -568,7 +568,7 @@ void LLFeatureManager::applyFeatures(bool skipFeatures)
         // handle all the different types
         if(ctrl->isType(TYPE_BOOLEAN))
         {
-            gSavedSettings.setBOOL(mIt->first, (BOOL)getRecommendedValue(mIt->first));
+            gSavedSettings.setBOOL(mIt->first, (bool)getRecommendedValue(mIt->first));
         }
         else if (ctrl->isType(TYPE_S32))
         {
@@ -655,6 +655,40 @@ void LLFeatureManager::applyBaseMasks()
     if (gGLManager.mIsIntel)
     {
         maskFeatures("Intel");
+
+        static constexpr F32 TARGET_GL_VERSION =
+#if LL_DARWIN
+            4.09f;
+#else
+            4.59f;
+#endif
+
+        // check against 3.33 to avoid applying this fallback twice
+        if (gGLManager.mGLVersion < TARGET_GL_VERSION && gGLManager.mGLVersion > 3.33f)
+        {
+            // if we don't have OpenGL 4.6 on intel, set it to OpenGL 3.3
+            // we also want to trigger the GL3 fallbacks on these chipsets
+            // this is expected to be mainly pre-Haswell Intel HD Graphics 4X00 and 5X00.
+            // A lot of these chips claim 4.3 or 4.4 support, but don't seem to work.
+            // https://code.blender.org/2019/04/supported-gpus-in-blender-2-80/
+            // https://docs.blender.org/manual/en/latest/troubleshooting/gpu/windows/intel.html#legacy-intel-hd-4000-5000
+            // https://www.intel.com/content/www/us/en/support/articles/000005524/graphics.html
+            // this will disable things like reflection probes, HDR, FXAA and SMAA
+            LL_INFOS("RenderInit") << "Applying Intel integrated pre-Haswell fallback.  Downgrading feature usage to OpenGL 3.3" << LL_ENDL;
+            gGLManager.mGLVersion = llmin(gGLManager.mGLVersion, 3.33f);
+            gGLManager.mGLVersionString += " 3.3 fallback";  // for ViewerStats reporting
+            // and select GLSL version for OpenGL 3.2
+            gGLManager.mGLSLVersionMajor = 3;
+            gGLManager.mGLSLVersionMinor = 20;
+        }
+    }
+    if (gGLManager.mIsApple)
+    {
+        maskFeatures("AppleGPU");
+    }
+    else
+    {
+        maskFeatures("NonAppleGPU");
     }
     if (gGLManager.mGLVersion < 3.f)
     {
@@ -679,6 +713,17 @@ void LLFeatureManager::applyBaseMasks()
     if (gGLManager.mGLVersion < 3.99f)
     {
         maskFeatures("GL3");
+
+        // make sure to disable background context activity in GL3 mode
+        LLImageGLThread::sEnabledMedia = false;
+        LLImageGLThread::sEnabledTextures = false;
+
+        // Make extra sure that vintage mode also gets enabled.
+        gSavedSettings.setBOOL("RenderDisableVintageMode", false);
+    }
+    if (gGLManager.mMaxVaryingVectors <= 16)
+    {
+        maskFeatures("VaryingVectors16orLess");
     }
 
     // now mask by gpu string

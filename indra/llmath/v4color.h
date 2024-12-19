@@ -111,7 +111,7 @@ class LLColor4
         F32         lengthSquared() const;      // Returns magnitude squared of LLColor4
         F32         normalize();                // deprecated -- use normalize()
 
-        BOOL        isOpaque() { return mV[VALPHA] == 1.f; }
+        bool        isOpaque() { return mV[VALPHA] == 1.f; }
 
         F32 operator[](int idx) const { return mV[idx]; }
         F32 &operator[](int idx) { return mV[idx]; }
@@ -226,8 +226,8 @@ class LLColor4
         static LLColor4 cyan5;
         static LLColor4 cyan6;
 
-        static BOOL parseColor(const std::string& buf, LLColor4* color);
-        static BOOL parseColor4(const std::string& buf, LLColor4* color);
+        static bool parseColor(const std::string& buf, LLColor4* color);
+        static bool parseColor4(const std::string& buf, LLColor4* color);
 
         inline void clamp();
 };
@@ -242,10 +242,10 @@ LLColor4 lerp(const LLColor4 &a, const LLColor4 &b, F32 u);
 
 inline LLColor4::LLColor4(void)
 {
-    mV[VX] = 0.f;
-    mV[VY] = 0.f;
-    mV[VZ] = 0.f;
-    mV[VW] = 1.f;
+    mV[VRED] = 0.f;
+    mV[VGREEN] = 0.f;
+    mV[VBLUE] = 0.f;
+    mV[VALPHA] = 1.f;
 }
 
 inline LLColor4::LLColor4(const LLSD& sd)
@@ -255,113 +255,113 @@ inline LLColor4::LLColor4(const LLSD& sd)
 
 inline LLColor4::LLColor4(F32 r, F32 g, F32 b)
 {
-    mV[VX] = r;
-    mV[VY] = g;
-    mV[VZ] = b;
-    mV[VW] = 1.f;
+    mV[VRED] = r;
+    mV[VGREEN] = g;
+    mV[VBLUE] = b;
+    mV[VALPHA] = 1.f;
 }
 
 inline LLColor4::LLColor4(F32 r, F32 g, F32 b, F32 a)
 {
-    mV[VX] = r;
-    mV[VY] = g;
-    mV[VZ] = b;
-    mV[VW] = a;
+    mV[VRED] = r;
+    mV[VGREEN] = g;
+    mV[VBLUE] = b;
+    mV[VALPHA] = a;
 }
 
 inline LLColor4::LLColor4(U32 clr)
 {
-    mV[VX] = (clr&0xff) * (1.0f/255.0f);
-    mV[VY] = ((clr>>8)&0xff) * (1.0f/255.0f);
-    mV[VZ] = ((clr>>16)&0xff) * (1.0f/255.0f);
-    mV[VW] = (clr>>24) * (1.0f/255.0f);
+    mV[VRED] = (clr&0xff) * (1.0f/255.0f);
+    mV[VGREEN] = ((clr>>8)&0xff) * (1.0f/255.0f);
+    mV[VBLUE] = ((clr>>16)&0xff) * (1.0f/255.0f);
+    mV[VALPHA] = (clr>>24) * (1.0f/255.0f);
 }
 
 
 inline LLColor4::LLColor4(const F32 *vec)
 {
-    mV[VX] = vec[VX];
-    mV[VY] = vec[VY];
-    mV[VZ] = vec[VZ];
-    mV[VW] = vec[VW];
+    mV[VRED] = vec[VRED];
+    mV[VGREEN] = vec[VGREEN];
+    mV[VBLUE] = vec[VBLUE];
+    mV[VALPHA] = vec[VALPHA];
 }
 
 inline const LLColor4&  LLColor4::setToBlack(void)
 {
-    mV[VX] = 0.f;
-    mV[VY] = 0.f;
-    mV[VZ] = 0.f;
-    mV[VW] = 1.f;
+    mV[VRED] = 0.f;
+    mV[VGREEN] = 0.f;
+    mV[VBLUE] = 0.f;
+    mV[VALPHA] = 1.f;
     return (*this);
 }
 
 inline const LLColor4&  LLColor4::setToWhite(void)
 {
-    mV[VX] = 1.f;
-    mV[VY] = 1.f;
-    mV[VZ] = 1.f;
-    mV[VW] = 1.f;
+    mV[VRED] = 1.f;
+    mV[VGREEN] = 1.f;
+    mV[VBLUE] = 1.f;
+    mV[VALPHA] = 1.f;
     return (*this);
 }
 
 inline const LLColor4&  LLColor4::set(F32 x, F32 y, F32 z)
 {
-    mV[VX] = x;
-    mV[VY] = y;
-    mV[VZ] = z;
+    mV[VRED] = x;
+    mV[VGREEN] = y;
+    mV[VBLUE] = z;
 
 //  no change to alpha!
-//  mV[VW] = 1.f;
+//  mV[VALPHA] = 1.f;
 
     return (*this);
 }
 
 inline const LLColor4&  LLColor4::set(F32 x, F32 y, F32 z, F32 a)
 {
-    mV[VX] = x;
-    mV[VY] = y;
-    mV[VZ] = z;
-    mV[VW] = a;
+    mV[VRED] = x;
+    mV[VGREEN] = y;
+    mV[VBLUE] = z;
+    mV[VALPHA] = a;
     return (*this);
 }
 
 inline const LLColor4&  LLColor4::set(const LLColor4 &vec)
 {
-    mV[VX] = vec.mV[VX];
-    mV[VY] = vec.mV[VY];
-    mV[VZ] = vec.mV[VZ];
-    mV[VW] = vec.mV[VW];
+    mV[VRED] = vec.mV[VRED];
+    mV[VGREEN] = vec.mV[VGREEN];
+    mV[VBLUE] = vec.mV[VBLUE];
+    mV[VALPHA] = vec.mV[VALPHA];
     return (*this);
 }
 
 
 inline const LLColor4&  LLColor4::set(const F32 *vec)
 {
-    mV[VX] = vec[VX];
-    mV[VY] = vec[VY];
-    mV[VZ] = vec[VZ];
-    mV[VW] = vec[VW];
+    mV[VRED] = vec[VRED];
+    mV[VGREEN] = vec[VGREEN];
+    mV[VBLUE] = vec[VBLUE];
+    mV[VALPHA] = vec[VALPHA];
     return (*this);
 }
 
 inline const LLColor4&  LLColor4::set(const F64 *vec)
 {
-    mV[VX] = static_cast<F32>(vec[VX]);
-    mV[VY] = static_cast<F32>(vec[VY]);
-    mV[VZ] = static_cast<F32>(vec[VZ]);
-    mV[VW] = static_cast<F32>(vec[VW]);
+    mV[VRED] = static_cast<F32>(vec[VRED]);
+    mV[VGREEN] = static_cast<F32>(vec[VGREEN]);
+    mV[VBLUE] = static_cast<F32>(vec[VBLUE]);
+    mV[VALPHA] = static_cast<F32>(vec[VALPHA]);
     return (*this);
 }
 
 // deprecated
 inline const LLColor4&  LLColor4::setVec(F32 x, F32 y, F32 z)
 {
-    mV[VX] = x;
-    mV[VY] = y;
-    mV[VZ] = z;
+    mV[VRED] = x;
+    mV[VGREEN] = y;
+    mV[VBLUE] = z;
 
 //  no change to alpha!
-//  mV[VW] = 1.f;
+//  mV[VALPHA] = 1.f;
 
     return (*this);
 }
@@ -369,20 +369,20 @@ inline const LLColor4&  LLColor4::setVec(F32 x, F32 y, F32 z)
 // deprecated
 inline const LLColor4&  LLColor4::setVec(F32 x, F32 y, F32 z, F32 a)
 {
-    mV[VX] = x;
-    mV[VY] = y;
-    mV[VZ] = z;
-    mV[VW] = a;
+    mV[VRED] = x;
+    mV[VGREEN] = y;
+    mV[VBLUE] = z;
+    mV[VALPHA] = a;
     return (*this);
 }
 
 // deprecated
 inline const LLColor4&  LLColor4::setVec(const LLColor4 &vec)
 {
-    mV[VX] = vec.mV[VX];
-    mV[VY] = vec.mV[VY];
-    mV[VZ] = vec.mV[VZ];
-    mV[VW] = vec.mV[VW];
+    mV[VRED] = vec.mV[VRED];
+    mV[VGREEN] = vec.mV[VGREEN];
+    mV[VBLUE] = vec.mV[VBLUE];
+    mV[VALPHA] = vec.mV[VALPHA];
     return (*this);
 }
 
@@ -390,16 +390,16 @@ inline const LLColor4&  LLColor4::setVec(const LLColor4 &vec)
 // deprecated
 inline const LLColor4&  LLColor4::setVec(const F32 *vec)
 {
-    mV[VX] = vec[VX];
-    mV[VY] = vec[VY];
-    mV[VZ] = vec[VZ];
-    mV[VW] = vec[VW];
+    mV[VRED] = vec[VRED];
+    mV[VGREEN] = vec[VGREEN];
+    mV[VBLUE] = vec[VBLUE];
+    mV[VALPHA] = vec[VALPHA];
     return (*this);
 }
 
 inline const LLColor4&  LLColor4::setAlpha(F32 a)
 {
-    mV[VW] = a;
+    mV[VALPHA] = a;
     return (*this);
 }
 
@@ -407,25 +407,25 @@ inline const LLColor4&  LLColor4::setAlpha(F32 a)
 
 inline F32      LLColor4::length(void) const
 {
-    return (F32) sqrt(mV[VX]*mV[VX] + mV[VY]*mV[VY] + mV[VZ]*mV[VZ]);
+    return (F32) sqrt(mV[VRED]*mV[VRED] + mV[VGREEN]*mV[VGREEN] + mV[VBLUE]*mV[VBLUE]);
 }
 
 inline F32      LLColor4::lengthSquared(void) const
 {
-    return mV[VX]*mV[VX] + mV[VY]*mV[VY] + mV[VZ]*mV[VZ];
+    return mV[VRED]*mV[VRED] + mV[VGREEN]*mV[VGREEN] + mV[VBLUE]*mV[VBLUE];
 }
 
 inline F32      LLColor4::normalize(void)
 {
-    F32 mag = (F32) sqrt(mV[VX]*mV[VX] + mV[VY]*mV[VY] + mV[VZ]*mV[VZ]);
+    F32 mag = (F32) sqrt(mV[VRED]*mV[VRED] + mV[VGREEN]*mV[VGREEN] + mV[VBLUE]*mV[VBLUE]);
     F32 oomag;
 
     if (mag)
     {
         oomag = 1.f/mag;
-        mV[VX] *= oomag;
-        mV[VY] *= oomag;
-        mV[VZ] *= oomag;
+        mV[VRED] *= oomag;
+        mV[VGREEN] *= oomag;
+        mV[VBLUE] *= oomag;
     }
     return (mag);
 }
@@ -433,27 +433,27 @@ inline F32      LLColor4::normalize(void)
 // deprecated
 inline F32      LLColor4::magVec(void) const
 {
-    return (F32) sqrt(mV[VX]*mV[VX] + mV[VY]*mV[VY] + mV[VZ]*mV[VZ]);
+    return (F32) sqrt(mV[VRED]*mV[VRED] + mV[VGREEN]*mV[VGREEN] + mV[VBLUE]*mV[VBLUE]);
 }
 
 // deprecated
 inline F32      LLColor4::magVecSquared(void) const
 {
-    return mV[VX]*mV[VX] + mV[VY]*mV[VY] + mV[VZ]*mV[VZ];
+    return mV[VRED]*mV[VRED] + mV[VGREEN]*mV[VGREEN] + mV[VBLUE]*mV[VBLUE];
 }
 
 // deprecated
 inline F32      LLColor4::normVec(void)
 {
-    F32 mag = (F32) sqrt(mV[VX]*mV[VX] + mV[VY]*mV[VY] + mV[VZ]*mV[VZ]);
+    F32 mag = (F32) sqrt(mV[VRED]*mV[VRED] + mV[VGREEN]*mV[VGREEN] + mV[VBLUE]*mV[VBLUE]);
     F32 oomag;
 
     if (mag)
     {
         oomag = 1.f/mag;
-        mV[VX] *= oomag;
-        mV[VY] *= oomag;
-        mV[VZ] *= oomag;
+        mV[VRED] *= oomag;
+        mV[VGREEN] *= oomag;
+        mV[VBLUE] *= oomag;
     }
     return (mag);
 }
@@ -464,135 +464,135 @@ inline F32      LLColor4::normVec(void)
 inline LLColor4 operator+(const LLColor4 &a, const LLColor4 &b)
 {
     return LLColor4(
-        a.mV[VX] + b.mV[VX],
-        a.mV[VY] + b.mV[VY],
-        a.mV[VZ] + b.mV[VZ],
-        a.mV[VW] + b.mV[VW]);
+        a.mV[VRED] + b.mV[VRED],
+        a.mV[VGREEN] + b.mV[VGREEN],
+        a.mV[VBLUE] + b.mV[VBLUE],
+        a.mV[VALPHA] + b.mV[VALPHA]);
 }
 
 inline LLColor4 operator-(const LLColor4 &a, const LLColor4 &b)
 {
     return LLColor4(
-        a.mV[VX] - b.mV[VX],
-        a.mV[VY] - b.mV[VY],
-        a.mV[VZ] - b.mV[VZ],
-        a.mV[VW] - b.mV[VW]);
+        a.mV[VRED] - b.mV[VRED],
+        a.mV[VGREEN] - b.mV[VGREEN],
+        a.mV[VBLUE] - b.mV[VBLUE],
+        a.mV[VALPHA] - b.mV[VALPHA]);
 }
 
 inline LLColor4  operator*(const LLColor4 &a, const LLColor4 &b)
 {
     return LLColor4(
-        a.mV[VX] * b.mV[VX],
-        a.mV[VY] * b.mV[VY],
-        a.mV[VZ] * b.mV[VZ],
-        a.mV[VW] * b.mV[VW]);
+        a.mV[VRED] * b.mV[VRED],
+        a.mV[VGREEN] * b.mV[VGREEN],
+        a.mV[VBLUE] * b.mV[VBLUE],
+        a.mV[VALPHA] * b.mV[VALPHA]);
 }
 
 inline LLColor4 operator*(const LLColor4 &a, F32 k)
 {
     // only affects rgb (not a!)
     return LLColor4(
-        a.mV[VX] * k,
-        a.mV[VY] * k,
-        a.mV[VZ] * k,
-        a.mV[VW]);
+        a.mV[VRED] * k,
+        a.mV[VGREEN] * k,
+        a.mV[VBLUE] * k,
+        a.mV[VALPHA]);
 }
 
 inline LLColor4 operator/(const LLColor4 &a, F32 k)
 {
     return LLColor4(
-        a.mV[VX] / k,
-        a.mV[VY] / k,
-        a.mV[VZ] / k,
-        a.mV[VW]);
+        a.mV[VRED] / k,
+        a.mV[VGREEN] / k,
+        a.mV[VBLUE] / k,
+        a.mV[VALPHA]);
 }
 
 inline LLColor4 operator*(F32 k, const LLColor4 &a)
 {
     // only affects rgb (not a!)
     return LLColor4(
-        a.mV[VX] * k,
-        a.mV[VY] * k,
-        a.mV[VZ] * k,
-        a.mV[VW]);
+        a.mV[VRED] * k,
+        a.mV[VGREEN] * k,
+        a.mV[VBLUE] * k,
+        a.mV[VALPHA]);
 }
 
 inline LLColor4 operator%(F32 k, const LLColor4 &a)
 {
     // only affects alpha (not rgb!)
     return LLColor4(
-        a.mV[VX],
-        a.mV[VY],
-        a.mV[VZ],
-        a.mV[VW] * k);
+        a.mV[VRED],
+        a.mV[VGREEN],
+        a.mV[VBLUE],
+        a.mV[VALPHA] * k);
 }
 
 inline LLColor4 operator%(const LLColor4 &a, F32 k)
 {
     // only affects alpha (not rgb!)
     return LLColor4(
-        a.mV[VX],
-        a.mV[VY],
-        a.mV[VZ],
-        a.mV[VW] * k);
+        a.mV[VRED],
+        a.mV[VGREEN],
+        a.mV[VBLUE],
+        a.mV[VALPHA] * k);
 }
 
 inline bool operator==(const LLColor4 &a, const LLColor4 &b)
 {
-    return (  (a.mV[VX] == b.mV[VX])
-            &&(a.mV[VY] == b.mV[VY])
-            &&(a.mV[VZ] == b.mV[VZ])
-            &&(a.mV[VW] == b.mV[VW]));
+    return (  (a.mV[VRED] == b.mV[VRED])
+            &&(a.mV[VGREEN] == b.mV[VGREEN])
+            &&(a.mV[VBLUE] == b.mV[VBLUE])
+            &&(a.mV[VALPHA] == b.mV[VALPHA]));
 }
 
 inline bool operator!=(const LLColor4 &a, const LLColor4 &b)
 {
-    return (  (a.mV[VX] != b.mV[VX])
-            ||(a.mV[VY] != b.mV[VY])
-            ||(a.mV[VZ] != b.mV[VZ])
-            ||(a.mV[VW] != b.mV[VW]));
+    return (  (a.mV[VRED] != b.mV[VRED])
+            ||(a.mV[VGREEN] != b.mV[VGREEN])
+            ||(a.mV[VBLUE] != b.mV[VBLUE])
+            ||(a.mV[VALPHA] != b.mV[VALPHA]));
 }
 
 inline const LLColor4& operator+=(LLColor4 &a, const LLColor4 &b)
 {
-    a.mV[VX] += b.mV[VX];
-    a.mV[VY] += b.mV[VY];
-    a.mV[VZ] += b.mV[VZ];
-    a.mV[VW] += b.mV[VW];
+    a.mV[VRED] += b.mV[VRED];
+    a.mV[VGREEN] += b.mV[VGREEN];
+    a.mV[VBLUE] += b.mV[VBLUE];
+    a.mV[VALPHA] += b.mV[VALPHA];
     return a;
 }
 
 inline const LLColor4& operator-=(LLColor4 &a, const LLColor4 &b)
 {
-    a.mV[VX] -= b.mV[VX];
-    a.mV[VY] -= b.mV[VY];
-    a.mV[VZ] -= b.mV[VZ];
-    a.mV[VW] -= b.mV[VW];
+    a.mV[VRED] -= b.mV[VRED];
+    a.mV[VGREEN] -= b.mV[VGREEN];
+    a.mV[VBLUE] -= b.mV[VBLUE];
+    a.mV[VALPHA] -= b.mV[VALPHA];
     return a;
 }
 
 inline const LLColor4& operator*=(LLColor4 &a, F32 k)
 {
     // only affects rgb (not a!)
-    a.mV[VX] *= k;
-    a.mV[VY] *= k;
-    a.mV[VZ] *= k;
+    a.mV[VRED] *= k;
+    a.mV[VGREEN] *= k;
+    a.mV[VBLUE] *= k;
     return a;
 }
 
 inline const LLColor4& operator *=(LLColor4 &a, const LLColor4 &b)
 {
-    a.mV[VX] *= b.mV[VX];
-    a.mV[VY] *= b.mV[VY];
-    a.mV[VZ] *= b.mV[VZ];
-//  a.mV[VW] *= b.mV[VW];
+    a.mV[VRED] *= b.mV[VRED];
+    a.mV[VGREEN] *= b.mV[VGREEN];
+    a.mV[VBLUE] *= b.mV[VBLUE];
+//  a.mV[VALPHA] *= b.mV[VALPHA];
     return a;
 }
 
 inline const LLColor4& operator%=(LLColor4 &a, F32 k)
 {
     // only affects alpha (not rgb!)
-    a.mV[VW] *= k;
+    a.mV[VALPHA] *= k;
     return a;
 }
 
@@ -614,10 +614,10 @@ inline F32      distVec_squared(const LLColor4 &a, const LLColor4 &b)
 inline LLColor4 lerp(const LLColor4 &a, const LLColor4 &b, F32 u)
 {
     return LLColor4(
-        a.mV[VX] + (b.mV[VX] - a.mV[VX]) * u,
-        a.mV[VY] + (b.mV[VY] - a.mV[VY]) * u,
-        a.mV[VZ] + (b.mV[VZ] - a.mV[VZ]) * u,
-        a.mV[VW] + (b.mV[VW] - a.mV[VW]) * u);
+        a.mV[VRED] + (b.mV[VRED] - a.mV[VRED]) * u,
+        a.mV[VGREEN] + (b.mV[VGREEN] - a.mV[VGREEN]) * u,
+        a.mV[VBLUE] + (b.mV[VBLUE] - a.mV[VBLUE]) * u,
+        a.mV[VALPHA] + (b.mV[VALPHA] - a.mV[VALPHA]) * u);
 }
 
 inline bool LLColor4::operator<(const LLColor4& rhs) const
@@ -702,9 +702,9 @@ inline const LLColor4 linearColor4(const LLColor4 &a)
 template<typename T>
 const LLColor4& LLColor4::set(const std::vector<T>& v)
 {
-    for (S32 i = 0; i < llmin((S32)v.size(), 4); ++i)
+    for (size_t i = 0; i < llmin(v.size(), 4); ++i)
     {
-        mV[i] = v[i];
+        mV[i] = (F32)v[i];
     }
 
     return *this;
@@ -713,9 +713,9 @@ const LLColor4& LLColor4::set(const std::vector<T>& v)
 template<typename T>
 void LLColor4::write(std::vector<T>& v) const
 {
-    for (int i = 0; i < llmin((S32)v.size(), 4); ++i)
+    for (size_t i = 0; i < llmin(v.size(), 4); ++i)
     {
-        v[i] = mV[i];
+        v[i] = (T)mV[i];
     }
 }
 

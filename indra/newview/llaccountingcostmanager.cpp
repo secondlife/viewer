@@ -150,9 +150,9 @@ void LLAccountingCostManager::accountingCostCoro(std::string url,
                 F32 networkCost = 0.0f;
                 F32 simulationCost = 0.0f;
 
-                physicsCost = selected["physics"].asReal();
-                networkCost = selected["streaming"].asReal();
-                simulationCost = selected["simulation"].asReal();
+                physicsCost = (F32)selected["physics"].asReal();
+                networkCost = (F32)selected["streaming"].asReal();
+                simulationCost = (F32)selected["simulation"].asReal();
 
                 SelectionCost selectionCost( physicsCost, networkCost, simulationCost);
 

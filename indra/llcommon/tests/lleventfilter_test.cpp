@@ -81,13 +81,13 @@ class TestEventThrottle: public LLEventThrottleBase
 public:
     TestEventThrottle(F32 interval):
         LLEventThrottleBase(interval),
-        mAlarmRemaining(-1),
-        mTimerRemaining(-1)
+        mAlarmRemaining(-1.f),
+        mTimerRemaining(-1.f)
     {}
     TestEventThrottle(LLEventPump& source, F32 interval):
         LLEventThrottleBase(source, interval),
-        mAlarmRemaining(-1),
-        mTimerRemaining(-1)
+        mAlarmRemaining(-1.f),
+        mTimerRemaining(-1.f)
     {}
 
     /*----- implementation of LLEventThrottleBase timing functionality -----*/
@@ -100,12 +100,12 @@ public:
     virtual bool alarmRunning() const /*override*/
     {
         // decrementing to exactly 0 should mean the alarm fires
-        return mAlarmRemaining > 0;
+        return mAlarmRemaining > 0.f;
     }
 
     virtual void alarmCancel() /*override*/
     {
-        mAlarmRemaining = -1;
+        mAlarmRemaining = -1.f;
     }
 
     virtual void timerSet(F32 interval) /*override*/
@@ -116,7 +116,7 @@ public:
     virtual F32  timerGetRemaining() const /*override*/
     {
         // LLTimer.getRemainingTimeF32() never returns negative; 0.0 means expired
-        return (mTimerRemaining > 0.0)? mTimerRemaining : 0.0;
+        return (mTimerRemaining > 0.0f)? mTimerRemaining : 0.0f;
     }
 
     /*------------------- methods for manipulating time --------------------*/

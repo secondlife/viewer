@@ -55,12 +55,12 @@ LLRect LLScreenChannelBase::getChannelRect()
 
     if (mFloaterSnapRegion == NULL)
     {
-        mFloaterSnapRegion = gViewerWindow->getRootView()->getChildView("floater_snap_region");
+        mFloaterSnapRegion = gViewerWindow->getFloaterSnapRegion();
     }
 
     if (mChicletRegion == NULL)
     {
-        mChicletRegion = gViewerWindow->getRootView()->getChildView("chiclet_container");
+        mChicletRegion = gViewerWindow->getChicletContainer();
     }
 
     LLRect channel_rect;
@@ -96,25 +96,25 @@ LLScreenChannelBase::LLScreenChannelBase(const Params& p)
     mID = p.id;
 
     setMouseOpaque( false );
-    setVisible(FALSE);
+    setVisible(false);
 }
 
-BOOL LLScreenChannelBase::postBuild()
+bool LLScreenChannelBase::postBuild()
 {
     if (mFloaterSnapRegion == NULL)
     {
-        mFloaterSnapRegion = gViewerWindow->getRootView()->getChildView("floater_snap_region");
+        mFloaterSnapRegion = gViewerWindow->getFloaterSnapRegion();
     }
 
     if (mChicletRegion == NULL)
     {
-        mChicletRegion = gViewerWindow->getRootView()->getChildView("chiclet_container");
+        mChicletRegion = gViewerWindow->getChicletContainer();
     }
 
-    return TRUE;
+    return true;
 }
 
-void LLScreenChannelBase::reshape(S32 width, S32 height, BOOL called_from_parent)
+void LLScreenChannelBase::reshape(S32 width, S32 height, bool called_from_parent)
 {
     if (mChannelAlignment == CA_CENTRE)
     {
@@ -165,7 +165,7 @@ void LLScreenChannelBase::init(S32 channel_left, S32 channel_right)
     // top and bottom set by updateRect()
     setRect(LLRect(channel_left, 0, channel_right, 0));
     updateRect();
-    setVisible(TRUE);
+    setVisible(true);
 }
 
 void    LLScreenChannelBase::updateRect()
@@ -259,7 +259,7 @@ void LLScreenChannel::updatePositionAndSize(LLRect new_world_rect)
 //--------------------------------------------------------------------------
 void LLScreenChannel::addToast(const LLToast::Params& p)
 {
-    LL_PROFILE_ZONE_SCOPED
+    LL_PROFILE_ZONE_SCOPED;
     bool store_toast = false, show_toast = false;
 
     if (mDisplayToastsAlways)
@@ -691,7 +691,7 @@ void LLScreenChannel::showToastsBottom()
         {
             // HACK
             // EXT-2653: it is necessary to prevent overlapping for secondary showed toasts
-            toast->setVisible(TRUE);
+            toast->setVisible(true);
         }
         if(!toast->hasFocus())
         {
@@ -744,7 +744,7 @@ void LLScreenChannel::showToastsCentre()
         toast_rect.setLeftTopAndSize(getRect().mLeft - toast_rect.getWidth() / 2, bottom + toast_rect.getHeight() / 2 + gSavedSettings.getS32("ToastGap"), toast_rect.getWidth() ,toast_rect.getHeight());
         toast->setRect(toast_rect);
 
-        toast->setVisible(TRUE);
+        toast->setVisible(true);
     }
 }
 
@@ -838,7 +838,7 @@ void LLScreenChannel::showToastsTop()
         {
             // HACK
             // EXT-2653: it is necessary to prevent overlapping for secondary showed toasts
-            toast->setVisible(TRUE);
+            toast->setVisible(true);
         }
         if (!toast->hasFocus())
         {
@@ -898,7 +898,7 @@ void LLScreenChannel::createStartUpToast(S32 notif_num, F32 timer)
     mStartUpToastPanel->reshape(getRect().getWidth(), toast_rect.getHeight(), true);
 
     text_box->setValue(text);
-    text_box->setVisible(TRUE);
+    text_box->setVisible(true);
 
     text_box->reshapeToFitText();
     text_box->setOrigin(text_box->getRect().mLeft, (wrapper_panel->getRect().getHeight() - text_box->getRect().getHeight())/2);
@@ -908,7 +908,7 @@ void LLScreenChannel::createStartUpToast(S32 notif_num, F32 timer)
 
     addChild(mStartUpToastPanel);
 
-    mStartUpToastPanel->setVisible(TRUE);
+    mStartUpToastPanel->setVisible(true);
 }
 
 // static --------------------------------------------------------------------------
@@ -943,7 +943,7 @@ void LLScreenChannel::closeStartUpToast()
 {
     if(mStartUpToastPanel != NULL)
     {
-        mStartUpToastPanel->setVisible(FALSE);
+        mStartUpToastPanel->setVisible(false);
         mStartUpToastPanel = NULL;
     }
 }
@@ -975,7 +975,7 @@ void LLScreenChannel::hideToastsFromScreen()
         LLToast* toast = it->getToast();
         if (toast)
         {
-            toast->setVisible(FALSE);
+            toast->setVisible(false);
         }
         else
         {

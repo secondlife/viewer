@@ -201,15 +201,15 @@ U32 LLDir::deleteDirAndContents(const std::string& dir_name)
         boost::filesystem::path dir_path(dir_name);
 #endif
 
-       if (boost::filesystem::exists (dir_path))
+       if (boost::filesystem::exists(dir_path))
        {
-          if (!boost::filesystem::is_empty (dir_path))
+          if (!boost::filesystem::is_empty(dir_path))
           {   // Directory has content
-             num_deleted = boost::filesystem::remove_all (dir_path);
+             num_deleted = (U32)boost::filesystem::remove_all(dir_path);
           }
           else
           {   // Directory is empty
-             boost::filesystem::remove (dir_path);
+             boost::filesystem::remove(dir_path);
           }
        }
     }
@@ -638,7 +638,7 @@ std::string LLDir::getBaseFileName(const std::string& filepath, bool strip_exten
 std::string LLDir::getDirName(const std::string& filepath) const
 {
     std::size_t offset = filepath.find_last_of(getDirDelimiter());
-    S32 len = (offset == std::string::npos) ? 0 : offset;
+    auto len = (offset == std::string::npos) ? 0 : offset;
     std::string dirname = filepath.substr(0, len);
     return dirname;
 }
@@ -721,6 +721,8 @@ std::vector<std::string> LLDir::findSkinnedFilenames(const std::string& subdir,
                                                      const std::string& filename,
                                                      ESkinConstraint constraint) const
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
+
     // Recognize subdirs that have no localization.
     static const std::set<std::string> sUnlocalized = list_of
         ("")                        // top-level directory not localized
@@ -876,15 +878,15 @@ std::string LLDir::getTempFilename() const
 }
 
 // static
-std::string LLDir::getScrubbedFileName(const std::string uncleanFileName)
+std::string LLDir::getScrubbedFileName(std::string_view uncleanFileName)
 {
     std::string name(uncleanFileName);
     const std::string illegalChars(getForbiddenFileChars());
     // replace any illegal file chars with and underscore '_'
-    for( unsigned int i = 0; i < illegalChars.length(); i++ )
+    for (const char& ch : illegalChars)
     {
-        int j = -1;
-        while((j = name.find(illegalChars[i])) > -1)
+        std::string::size_type j{ 0 };
+        while ((j = name.find(ch, j)) != std::string::npos)
         {
             name[j] = '_';
         }

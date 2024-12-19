@@ -1,24 +1,24 @@
-/** 
+/**
  * @file pbropaqueF.glsl
  *
  * $LicenseInfo:firstyear=2022&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2022, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -28,7 +28,7 @@
 
 #ifndef IS_HUD
 
-// deferred opaque implementation 
+// deferred opaque implementation
 
 uniform sampler2D diffuseMap;  //always in sRGB space
 
@@ -61,6 +61,7 @@ uniform vec4 clipPlane;
 uniform float clipSign;
 
 void mirrorClip(vec3 pos);
+vec4 encodeNormal(vec3 n, float env, float gbuffer_flag);
 
 uniform mat3 normal_matrix;
 
@@ -85,7 +86,7 @@ void main()
     float sign = vary_sign;
     vec3 vN = vary_normal;
     vec3 vT = vary_tangent.xyz;
-    
+
     vec3 vB = sign * cross(vN, vT);
     vec3 tnorm = normalize( vNt.x * vT + vNt.y * vB + vNt.z * vN );
 
@@ -95,7 +96,7 @@ void main()
     //   roughness 0.0
     //   metal     0.0
     vec3 spec = texture(specularMap, metallic_roughness_texcoord.xy).rgb;
-    
+
     spec.g *= roughnessFactor;
     spec.b *= metallicFactor;
 
@@ -113,8 +114,11 @@ void main()
     // See: C++: addDeferredAttachments(), GLSL: softenLightF
     frag_data[0] = max(vec4(col, 0.0), vec4(0));                                                   // Diffuse
     frag_data[1] = max(vec4(spec.rgb,0.0), vec4(0));                                    // PBR linear packed Occlusion, Roughness, Metal.
-    frag_data[2] = vec4(tnorm, GBUFFER_FLAG_HAS_PBR); // normal, environment intensity, flags
+    frag_data[2] = encodeNormal(tnorm, 0, GBUFFER_FLAG_HAS_PBR); // normal, environment intensity, flags
+
+#if defined(HAS_EMISSIVE)
     frag_data[3] = max(vec4(emissive,0), vec4(0));                                                // PBR sRGB Emissive
+#endif
 }
 
 #else

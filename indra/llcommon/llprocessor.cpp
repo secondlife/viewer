@@ -34,7 +34,7 @@
 //#include <memory>
 
 #if LL_WINDOWS
-#   include "llwin32headerslean.h"
+#   include "llwin32headers.h"
 #   define _interlockedbittestandset _renamed_interlockedbittestandset
 #   define _interlockedbittestandreset _renamed_interlockedbittestandreset
 #   include <intrin.h>
@@ -692,7 +692,8 @@ private:
         memset(cpu_vendor, 0, len);
         sysctlbyname("machdep.cpu.vendor", (void*)cpu_vendor, &len, NULL, 0);
         cpu_vendor[0x1f] = 0;
-        setInfo(eVendor, cpu_vendor);
+        // M series CPUs don't provide this field so if empty, just fall back to Apple.
+        setInfo(eVendor, (cpu_vendor[0] != '\0') ? cpu_vendor : "Apple");
 
         setInfo(eStepping, getSysctlInt("machdep.cpu.stepping"));
         setInfo(eModel, getSysctlInt("machdep.cpu.model"));

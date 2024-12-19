@@ -52,7 +52,7 @@ LLFloaterTranslationSettings::LLFloaterTranslationSettings(const LLSD& key)
 }
 
 // virtual
-BOOL LLFloaterTranslationSettings::postBuild()
+bool LLFloaterTranslationSettings::postBuild()
 {
     mMachineTranslationCB = getChild<LLCheckBoxCtrl>("translate_chat_checkbox");
     mLanguageCombo = getChild<LLComboBox>("translate_language_combo");
@@ -106,15 +106,15 @@ BOOL LLFloaterTranslationSettings::postBuild()
                                                });
 
     center();
-    return TRUE;
+    return true;
 }
 
 // virtual
 void LLFloaterTranslationSettings::onOpen(const LLSD& key)
 {
     mMachineTranslationCB->setValue(gSavedSettings.getBOOL("TranslateChat"));
-    mLanguageCombo->setSelectedByValue(gSavedSettings.getString("TranslateLanguage"), TRUE);
-    mTranslationServiceRadioGroup->setSelectedByValue(gSavedSettings.getString("TranslationService"), TRUE);
+    mLanguageCombo->setSelectedByValue(gSavedSettings.getString("TranslateLanguage"), true);
+    mTranslationServiceRadioGroup->setSelectedByValue(gSavedSettings.getString("TranslationService"), true);
 
     LLSD azure_key = gSavedSettings.getLLSD("AzureTranslateAPIKey");
     if (azure_key.isMap() && !azure_key["id"].asString().empty())
@@ -135,22 +135,22 @@ void LLFloaterTranslationSettings::onOpen(const LLSD& key)
     }
     else
     {
-        mAzureAPIKeyEditor->setTentative(TRUE);
+        mAzureAPIKeyEditor->setTentative(true);
         mAzureAPIRegionEditor->setTentative(true);
-        mAzureKeyVerified = FALSE;
+        mAzureKeyVerified = false;
     }
 
     std::string google_key = gSavedSettings.getString("GoogleTranslateAPIKey");
     if (!google_key.empty())
     {
         mGoogleAPIKeyEditor->setText(google_key);
-        mGoogleAPIKeyEditor->setTentative(FALSE);
+        mGoogleAPIKeyEditor->setTentative(false);
         verifyKey(LLTranslate::SERVICE_GOOGLE, google_key, false);
     }
     else
     {
-        mGoogleAPIKeyEditor->setTentative(TRUE);
-        mGoogleKeyVerified = FALSE;
+        mGoogleAPIKeyEditor->setTentative(true);
+        mGoogleKeyVerified = false;
     }
 
     LLSD deepl_key = gSavedSettings.getLLSD("DeepLTranslateAPIKey");
@@ -163,8 +163,8 @@ void LLFloaterTranslationSettings::onOpen(const LLSD& key)
     }
     else
     {
-        mDeepLAPIKeyEditor->setTentative(TRUE);
-        mDeepLKeyVerified = FALSE;
+        mDeepLAPIKeyEditor->setTentative(true);
+        mDeepLKeyVerified = false;
     }
 
     updateControlsEnabledState();
@@ -340,7 +340,7 @@ void LLFloaterTranslationSettings::onEditorFocused(LLFocusableElement* control)
         if (editor->getTentative())
         {
             editor->setText(LLStringUtil::null);
-            editor->setTentative(FALSE);
+            editor->setTentative(false);
         }
     }
 }

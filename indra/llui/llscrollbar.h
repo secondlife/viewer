@@ -82,17 +82,17 @@ public:
     virtual void setValue(const LLSD& value);
 
     // Overrides from LLView
-    virtual BOOL    handleKeyHere(KEY key, MASK mask);
-    virtual BOOL    handleMouseDown(S32 x, S32 y, MASK mask);
-    virtual BOOL    handleMouseUp(S32 x, S32 y, MASK mask);
-    virtual BOOL    handleDoubleClick(S32 x, S32 y, MASK mask);
-    virtual BOOL    handleHover(S32 x, S32 y, MASK mask);
-    virtual BOOL    handleScrollWheel(S32 x, S32 y, S32 clicks);
-    virtual BOOL    handleScrollHWheel(S32 x, S32 y, S32 clicks);
-    virtual BOOL    handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+    virtual bool    handleKeyHere(KEY key, MASK mask);
+    virtual bool    handleMouseDown(S32 x, S32 y, MASK mask);
+    virtual bool    handleMouseUp(S32 x, S32 y, MASK mask);
+    virtual bool    handleDoubleClick(S32 x, S32 y, MASK mask);
+    virtual bool    handleHover(S32 x, S32 y, MASK mask);
+    virtual bool    handleScrollWheel(S32 x, S32 y, S32 clicks);
+    virtual bool    handleScrollHWheel(S32 x, S32 y, S32 clicks);
+    virtual bool    handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
         EDragAndDropType cargo_type, void *cargo_data, EAcceptance *accept, std::string &tooltip_msg);
 
-    virtual void    reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
+    virtual void    reshape(S32 width, S32 height, bool called_from_parent = true);
 
     virtual void    draw();
 
@@ -102,7 +102,7 @@ public:
 
     // How many "lines" the "document" has scrolled.
     // 0 <= DocPos <= DocSize - DocVisibile
-    bool                setDocPos( S32 pos, BOOL update_thumb = TRUE );
+    bool                setDocPos( S32 pos, bool update_thumb = true );
     S32                 getDocPos() const       { return mDocPos; }
 
     bool                isAtBeginning() const;
@@ -129,7 +129,7 @@ public:
 
 private:
     void                updateThumbRect();
-    bool                changeLine(S32 delta, BOOL update_thumb );
+    bool                changeLine(S32 delta, bool update_thumb );
 
     callback_t          mChangeCallback;
 
@@ -138,7 +138,7 @@ private:
     S32                 mDocPos;        // Position within the doc that the scrollbar is modeling, in "lines" (user size)
     S32                 mPageSize;      // Maximum number of lines that can be seen at one time.
     S32                 mStepSize;
-    BOOL                mDocChanged;
+    bool                mDocChanged;
 
     LLRect              mThumbRect;
     S32                 mDragStartX;
@@ -161,6 +161,9 @@ private:
     LLUIImagePtr        mTrackImageH;
 
     S32                 mThickness;
+
+    LLButton*           mLineUpBtn = nullptr;
+    LLButton*           mLineDownBtn = nullptr;
 };
 
 

@@ -2388,6 +2388,26 @@ Unable to upload [FILE] due to the following reason: [REASON]
 Please try again later.
   <tag>fail</tag>
   </notification>
+    
+  <notification
+   icon="alertmodal.tga"
+   name="CannotUploadSnapshotEmailTooBig"
+   type="alertmodal">
+Unable to upload snapshot [FILE] due to the following reason: [REASON]
+
+File might be too big, try reducing resolution, quality or try again later.
+  <tag>fail</tag>
+  </notification>
+    
+  <notification
+   icon="alertmodal.tga"
+   name="CannotUploadSnapshotWebTooBig"
+   type="alertmodal">
+Unable to upload snapshot.
+
+File might be too big, try reducing resolution or try again later.
+  <tag>fail</tag>
+  </notification>
 
   <notification
    icon="notifytip.tga"
@@ -3029,6 +3049,15 @@ Unable to save &apos;[NAME]&apos; to wearable file.  You will need to free up so
 Unable to save [NAME] to central asset store.
 This is usually a temporary failure. Please customize and save the wearable again in a few minutes.
   <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="notifytip.tga"
+   name="OutOfDiskSpace"
+   type="notifytip">
+The system is out of disk space. You will need to free up some space on your computer or clear the cache.
+<tag>fail</tag>
+    <unique/>
   </notification>
 
   <notification
@@ -4250,6 +4279,20 @@ Unable to add estate manager [AGENT] to banned list.
    name="CanNotChangeAppearanceUntilLoaded"
    type="alertmodal">
 Can&apos;t change appearance until clothing and shape are loaded.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="UsavedWearableChanges"
+   type="alertmodal">
+You have unsaved changes.
+      <tag>group</tag>
+    <tag>confirm</tag>
+    <usetemplate
+     ignoretext="Confirm before I discard unsaved wearable changes"
+     name="okcancelignore"
+     notext="Keep Editing"
+     yestext="Discard"/>
   </notification>
 
   <notification
@@ -6267,7 +6310,7 @@ Are you sure you want to delete them?
      notext="Cancel"
      yestext="OK"/>
   </notification>
-    
+
   <notification
    icon="alertmodal.tga"
    name="DeleteWornItems"
@@ -6341,6 +6384,17 @@ You must replace those layers before deleting them.
      name="okbutton"
      yestext="OK"/>
   </notification>
+
+    <notification
+     icon="alertmodal.tga"
+     name="ThumbnailSelectionTooLarge"
+     type="alertmodal">
+        <unique/>
+        You can only modify up to 50 thumbnails at a time.
+        <usetemplate
+         name="okbutton"
+         yestext="OK"/>
+    </notification>
 
   <notification
      icon="alertmodal.tga"
@@ -8816,7 +8870,11 @@ One or more of your Voice Morphs will expire in less than [INTERVAL] days.
 
 If you are a Premium Member, [[PREMIUM_URL] click here] to receive your voice morphing perk.
   <tag>fail</tag>
-    <tag>voice</tag>
+  <tag>voice</tag>
+  <usetemplate
+      ignoretext="Warn me about voice morph expiring"
+      name="okignore"
+      yestext="OK"/>
   </notification>
 
   <notification
@@ -8828,6 +8886,21 @@ If you are a Premium Member, [[PREMIUM_URL] click here] to receive your voice mo
     <unique/>    
 New Voice Morphs are available!
    <tag>voice</tag>
+  </notification>
+
+  <notification
+    icon="alertmodal.tga"
+    name="VoiceEffectsNotSupported"
+    sound="UISndAlert"
+    persist="true"
+    type="alertmodal">
+Voice Morphs are not supported by this viewer.
+For more information about other voice morph tools, see [[FAQ_URL] this article].
+    <usetemplate
+        ignoretext="Warn me about voice morph not being supported"
+        name="okignore"
+        yestext="OK"/>
+    <tag>voice</tag>
   </notification>
 
   <notification
@@ -9035,17 +9108,6 @@ Your voice has been muted by moderator.
           name="okbutton"
           yestext="OK"/>
     </notification>
-
-   <notification
-    icon="alertmodal.tga"
-    name="BulkUploadCostConfirmation"
-    type="alertmodal">
-This will upload [COUNT] items at a total cost of L$[COST]. Do you wish to continue with the upload?
-    <usetemplate
-     name="okcancelbuttons"
-     notext="Cancel"
-     yestext="Upload"/>
-   </notification>
   
    <notification
     icon="alertmodal.tga"
@@ -10096,12 +10158,6 @@ Do you wish to continue?
      notext="Cancel"
      yestext="OK"/>
   </notification>
-
-  <global name="UnsupportedIntelDriver">
-The installed Intel graphics driver for [GPUNAME], version [VERSION], is significantly out of date and is known to cause excessive rates of program crashes. You are strongly advised to update to a current Intel driver
-
-Do you want to check the Intel driver website?
-  </global>
 
   <global name="UnsupportedCPUAmount">
 796
@@ -12450,7 +12506,7 @@ are wearing now.
 
   <notification
    icon="alertmodal.tga"
-   name="GLTFPreviewSelection"
+   name="GLTFOpenSelection"
    type="alert">
     You must select an object to act as a handle to the GLTF asset you are previewing.
     <tag>fail</tag>
@@ -12459,4 +12515,69 @@ are wearing now.
       yestext="OK"/>
   </notification>
 
+  <notification
+   icon="alertmodal.tga"
+   name="GLTFLoadFailed"
+   type="alert">
+    Failed to load GLTF file.  See log for details.
+    <tag>fail</tag>
+    <usetemplate
+      name="okbutton"
+      yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="GLTFSaveFailed"
+   type="alert">
+    Failed to save GLTF file.  See log for details.
+    <tag>fail</tag>
+    <usetemplate
+      name="okbutton"
+      yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="GLTFSaveSelection"
+   type="alert">
+    You must select an object that has a GLTF asset associated with it.
+    <tag>fail</tag>
+    <usetemplate
+      name="okbutton"
+      yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="GLTFUploadSelection"
+   type="alert">
+    You must select an object that has local-only GLTF asset associated with it.
+    <tag>fail</tag>
+    <usetemplate
+      name="okbutton"
+      yestext="OK"/>
+  </notification>
+
+  <notification
+ icon="alertmodal.tga"
+ name="GLTFUploadInProgress"
+ type="alert">
+    Upload is currently in progress.  Please try again later.
+    <tag>fail</tag>
+    <usetemplate
+      name="okbutton"
+      yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="NoSupportGLTFShader"
+   type="notify">
+     GLTF scenes are not yet supported on your graphics hardware.
+     <tag>fail</tag>
+     <usetemplate
+       name="okbutton"
+       yestext="OK"/>
+  </notification>
 </notifications>

@@ -60,7 +60,7 @@ public:
     LLPanelObjectInventory(const Params&);
     virtual ~LLPanelObjectInventory();
 
-    virtual BOOL postBuild();
+    virtual bool postBuild();
 
     LLFolderViewModelInventory& getRootViewModel() { return mInventoryViewModel; }
 
@@ -73,10 +73,12 @@ public:
     void startRenamingSelectedItem();
 
     LLFolderView* getRootFolder() const { return mFolders; }
+    LLInventoryFilter& getFilter() { return mInventoryViewModel.getFilter(); }
+    const LLInventoryFilter& getFilter() const { return mInventoryViewModel.getFilter(); }
 
     virtual void draw();
     virtual void deleteAllChildren();
-    virtual BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop, EDragAndDropType cargo_type, void *cargo_data, EAcceptance *accept, std::string& tooltip_msg);
+    virtual bool handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop, EDragAndDropType cargo_type, void *cargo_data, EAcceptance *accept, std::string& tooltip_msg);
 
     /*virtual*/ void onFocusLost();
     /*virtual*/ void onFocusReceived();
@@ -101,8 +103,8 @@ protected:
     void removeItemID(const LLUUID& id);
     void clearItemIDs();
 
-    BOOL            handleKeyHere( KEY key, MASK mask );
-    BOOL            isSelectionRemovable();
+    bool            handleKeyHere( KEY key, MASK mask );
+    bool            isSelectionRemovable();
 
 private:
     std::map<LLUUID, LLFolderViewItem*> mItemMap;
@@ -112,9 +114,9 @@ private:
 
     LLUUID mTaskUUID;
     LLUUID mAttachmentUUID;
-    BOOL mHaveInventory; // 'Loading' label and used for initial request
-    BOOL mIsInventoryEmpty; // 'Empty' label
-    BOOL mInventoryNeedsUpdate; // for idle, set on changed callback
+    bool mHaveInventory; // 'Loading' label and used for initial request
+    bool mIsInventoryEmpty; // 'Empty' label
+    bool mInventoryNeedsUpdate; // for idle, set on changed callback
     LLFolderViewModelInventory  mInventoryViewModel;
     bool mShowRootFolder;
 };

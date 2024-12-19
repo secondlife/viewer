@@ -42,19 +42,7 @@
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/regex.hpp>
-
-#if LL_MSVC
-#pragma warning(push)
-// disable warning about boost::lexical_cast unreachable code
-// when it fails to parse the string
-#pragma warning (disable:4702)
-#endif
-
 #include <boost/date_time/gregorian/gregorian.hpp>
-#if LL_MSVC
-#pragma warning(pop)   // Restore all warnings to the previous state
-#endif
-
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/date_time/local_time_adjustor.hpp>
 
@@ -452,16 +440,16 @@ void LLLogChat::loadChatHistory(const std::string& file_name, std::list<LLSD>& m
         return;
     }
 
-    S32 save_num_messages = messages.size();
+    auto save_num_messages = messages.size();
 
     char buffer[LOG_RECALL_SIZE];       /*Flawfinder: ignore*/
     char *bptr;
-    S32 len;
-    bool firstline = TRUE;
+    size_t len;
+    bool firstline = true;
 
     if (load_all_history || fseek(fptr, (LOG_RECALL_SIZE - 1) * -1  , SEEK_END))
     {   //We need to load the whole historyFile or it's smaller than recall size, so get it all.
-        firstline = FALSE;
+        firstline = false;
         if (fseek(fptr, 0, SEEK_SET))
         {
             fclose(fptr);
@@ -476,7 +464,7 @@ void LLLogChat::loadChatHistory(const std::string& file_name, std::list<LLSD>& m
 
         if (firstline)
         {
-            firstline = FALSE;
+            firstline = false;
             continue;
         }
 
@@ -1142,7 +1130,7 @@ void LLLoadHistoryThread::run()
     if(mNewLoad)
     {
         loadHistory(mFileName, mMessages, mLoadParams);
-        int count = mMessages->size();
+        auto count = mMessages->size();
         LL_INFOS() << "mMessages->size(): " << count << LL_ENDL;
         setFinished();
     }
@@ -1189,12 +1177,12 @@ void LLLoadHistoryThread::loadHistory(const std::string& file_name, std::list<LL
     char buffer[LOG_RECALL_SIZE];       /*Flawfinder: ignore*/
 
     char *bptr;
-    S32 len;
-    bool firstline = TRUE;
+    size_t len;
+    bool firstline = true;
 
     if (load_all_history || fseek(fptr, (LOG_RECALL_SIZE - 1) * -1  , SEEK_END))
     {   //We need to load the whole historyFile or it's smaller than recall size, so get it all.
-        firstline = FALSE;
+        firstline = false;
         if (fseek(fptr, 0, SEEK_SET))
         {
             fclose(fptr);
@@ -1214,7 +1202,7 @@ void LLLoadHistoryThread::loadHistory(const std::string& file_name, std::list<LL
 
         if (firstline)
         {
-            firstline = FALSE;
+            firstline = false;
             continue;
         }
         std::string line(remove_utf8_bom(buffer));

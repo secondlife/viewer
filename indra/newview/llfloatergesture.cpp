@@ -51,7 +51,7 @@
 #include "llviewercontrol.h"
 #include "llfloaterperms.h"
 
-BOOL item_name_precedes( LLInventoryItem* a, LLInventoryItem* b )
+bool item_name_precedes( LLInventoryItem* a, LLInventoryItem* b )
 {
     return LLStringUtil::precedesDict( a->getName(), b->getName() );
 }
@@ -85,7 +85,7 @@ public:
             perm.setMaskEveryone(LLFloaterPerms::getEveryonePerms("Gestures"));
             perm.setMaskGroup(LLFloaterPerms::getGroupPerms("Gestures"));
             item->setPermissions(perm);
-            item->updateServer(FALSE);
+            item->updateServer(false);
         }
     }
 };
@@ -188,7 +188,7 @@ LLFloaterGesture::~LLFloaterGesture()
 }
 
 // virtual
-BOOL LLFloaterGesture::postBuild()
+bool LLFloaterGesture::postBuild()
 {
     std::string label;
 
@@ -224,9 +224,9 @@ BOOL LLFloaterGesture::postBuild()
     {
         buildGestureList();
 
-        mGestureList->setFocus(TRUE);
+        mGestureList->setFocus(true);
 
-        const BOOL ascending = TRUE;
+        constexpr bool ascending = true;
         mGestureList->sortByColumn(std::string("name"), ascending);
         mGestureList->selectFirstItem();
     }
@@ -234,7 +234,7 @@ BOOL LLFloaterGesture::postBuild()
     // Update button labels
     onCommitList();
 
-    return TRUE;
+    return true;
 }
 
 
@@ -457,8 +457,8 @@ void LLFloaterGesture::onClickPlay()
     if(!LLGestureMgr::instance().isGestureActive(item_id))
     {
         // we need to inform server about gesture activating to be consistent with LLPreviewGesture and  LLGestureComboList.
-        BOOL inform_server = TRUE;
-        BOOL deactivate_similar = FALSE;
+        bool inform_server = true;
+        bool deactivate_similar = false;
         LLGestureMgr::instance().setGestureLoadedCallback(item_id, boost::bind(&LLFloaterGesture::playGesture, this, item_id));
         LLViewerInventoryItem *item = gInventory.getItem(item_id);
         llassert(item);
@@ -499,13 +499,13 @@ void LLFloaterGesture::onActivateBtnClick()
 
     LLGestureMgr* gm = LLGestureMgr::getInstance();
     uuid_vec_t::const_iterator it = ids.begin();
-    BOOL first_gesture_state = gm->isGestureActive(*it);
-    BOOL is_mixed = FALSE;
+    bool first_gesture_state = gm->isGestureActive(*it);
+    bool is_mixed = false;
     while( ++it != ids.end() )
     {
         if(first_gesture_state != gm->isGestureActive(*it))
         {
-            is_mixed = TRUE;
+            is_mixed = true;
             break;
         }
     }
@@ -678,7 +678,7 @@ void LLFloaterGesture::onDeleteSelected()
             new_item->setParent(trash_id);
             // no need to restamp it though it's a move into trash because
             // it's a brand new item already.
-            new_item->updateParentOnServer(FALSE);
+            new_item->updateParentOnServer(false);
             gInventory.updateItem(new_item);
         }
     }

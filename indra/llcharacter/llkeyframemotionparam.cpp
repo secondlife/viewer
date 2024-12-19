@@ -133,7 +133,7 @@ LLMotion::LLMotionInitStatus LLKeyframeMotionParam::onInitialize(LLCharacter *ch
 //-----------------------------------------------------------------------------
 // LLKeyframeMotionParam::onActivate()
 //-----------------------------------------------------------------------------
-BOOL LLKeyframeMotionParam::onActivate()
+bool LLKeyframeMotionParam::onActivate()
 {
     for (motion_map_t::value_type& motion_pair : mParameterizedMotions)
     {
@@ -143,14 +143,14 @@ BOOL LLKeyframeMotionParam::onActivate()
             paramMotion.mMotion->activate(mActivationTimestamp);
         }
     }
-    return TRUE;
+    return true;
 }
 
 
 //-----------------------------------------------------------------------------
 // LLKeyframeMotionParam::onUpdate()
 //-----------------------------------------------------------------------------
-BOOL LLKeyframeMotionParam::onUpdate(F32 time, U8* joint_mask)
+bool LLKeyframeMotionParam::onUpdate(F32 time, U8* joint_mask)
 {
     LL_PROFILE_ZONE_SCOPED;
     F32 weightFactor = 1.f / (F32)mParameterizedMotions.size();
@@ -262,7 +262,7 @@ BOOL LLKeyframeMotionParam::onUpdate(F32 time, U8* joint_mask)
 
     LL_INFOS() << "Param Motion weight " << mPoseBlender.getBlendedPose()->getWeight() << LL_ENDL;
 
-    return TRUE;
+    return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -283,13 +283,13 @@ void LLKeyframeMotionParam::onDeactivate()
 //-----------------------------------------------------------------------------
 // LLKeyframeMotionParam::addKeyframeMotion()
 //-----------------------------------------------------------------------------
-BOOL LLKeyframeMotionParam::addKeyframeMotion(char *name, const LLUUID &id, char *param, F32 value)
+bool LLKeyframeMotionParam::addKeyframeMotion(char *name, const LLUUID &id, char *param, F32 value)
 {
     LLMotion *newMotion = mCharacter->createMotion( id );
 
     if (!newMotion)
     {
-        return FALSE;
+        return false;
     }
 
     newMotion->setName(name);
@@ -297,7 +297,7 @@ BOOL LLKeyframeMotionParam::addKeyframeMotion(char *name, const LLUUID &id, char
     // now add motion to this list
     mParameterizedMotions[param].insert(ParameterizedMotion(newMotion, value));
 
-    return TRUE;
+    return true;
 }
 
 
@@ -322,7 +322,7 @@ void LLKeyframeMotionParam::setDefaultKeyframeMotion(char *name)
 //-----------------------------------------------------------------------------
 // loadMotions()
 //-----------------------------------------------------------------------------
-BOOL LLKeyframeMotionParam::loadMotions()
+bool LLKeyframeMotionParam::loadMotions()
 {
     //-------------------------------------------------------------------------
     // Load named file by concatenating the character prefix with the motion name.
@@ -344,7 +344,7 @@ BOOL LLKeyframeMotionParam::loadMotions()
     if (!fp || fileSize == 0)
     {
         LL_INFOS() << "ERROR: can't open: " << path << LL_ENDL;
-        return FALSE;
+        return false;
     }
 
     // allocate a text buffer
@@ -383,7 +383,7 @@ BOOL LLKeyframeMotionParam::loadMotions()
     if ( error )
     {
         LL_INFOS() << "ERROR: error while reading from " << path << LL_ENDL;
-        return FALSE;
+        return false;
     }
 
     LL_INFOS() << "Loading parametric keyframe data for: " << getName() << LL_ENDL;
@@ -401,7 +401,7 @@ BOOL LLKeyframeMotionParam::loadMotions()
     //-------------------------------------------------------------------------
     // get priority
     //-------------------------------------------------------------------------
-    BOOL isFirstMotion = TRUE;
+    bool isFirstMotion = true;
     num = sscanf(p, "%79s %79s %f", strA, strB, &floatA);   /* Flawfinder: ignore */
 
     while(1)
@@ -410,13 +410,13 @@ BOOL LLKeyframeMotionParam::loadMotions()
         if ((num != 3))
         {
             LL_INFOS() << "WARNING: can't read parametric motion" << LL_ENDL;
-            return FALSE;
+            return false;
         }
 
         addKeyframeMotion(strA, gAnimLibrary.stringToAnimState(std::string(strA)), strB, floatA);
         if (isFirstMotion)
         {
-            isFirstMotion = FALSE;
+            isFirstMotion = false;
             setDefaultKeyframeMotion(strA);
         }
 
@@ -430,7 +430,7 @@ BOOL LLKeyframeMotionParam::loadMotions()
         num = sscanf(p, "%79s %79s %f", strA, strB, &floatA);   /* Flawfinder: ignore */
     }
 
-    return TRUE;
+    return true;
 }
 
 // End

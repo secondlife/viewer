@@ -111,7 +111,7 @@ static const std::string lod_label_name[NUM_LOD + 1] =
     "I went off the end of the lod_label_name array.  Me so smart."
 };
 
-class LLModelPreview : public LLViewerDynamicTexture, public LLMutex
+class LLModelPreview : public LLViewerDynamicTexture, public LLMutex, public LLHandleProvider<LLModelPreview>
 {
     LOG_CLASS(LLModelPreview);
 
@@ -147,7 +147,7 @@ public:
     void setTexture(U32 name) { mTextureName = name; }
 
     void setPhysicsFromLOD(S32 lod);
-    BOOL render();
+    bool render();
     void update();
     void genBuffers(S32 lod, bool skinned);
     void clearBuffers();
@@ -155,7 +155,7 @@ public:
     void rotate(F32 yaw_radians, F32 pitch_radians);
     void zoom(F32 zoom_amt);
     void pan(F32 right, F32 up);
-    virtual BOOL needsRender() { return mNeedsUpdate; }
+    virtual bool needsRender() { return mNeedsUpdate; }
     void setPreviewLOD(S32 lod);
     void clearModel(S32 lod);
     void getJointAliases(JointMap& joint_map);
@@ -190,7 +190,7 @@ public:
     U32 getLegacyRigFlags() const { return mLegacyRigFlags; }
     void setLegacyRigFlags(U32 rigFlags) { mLegacyRigFlags = rigFlags; }
 
-    static void textureLoadedCallback(BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* src_aux, S32 discard_level, BOOL final, void* userdata);
+    static void textureLoadedCallback(bool success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* src_aux, S32 discard_level, bool final, void* userdata);
     static bool lodQueryCallback();
 
     boost::signals2::connection setDetailsCallback(const details_signal_t::slot_type& cb){ return mDetailsSignal.connect(cb); }
@@ -211,7 +211,7 @@ protected:
     static void         stateChangedCallback(U32 state, void* opaque);
 
     static LLJoint* lookupJointByName(const std::string&, void* opaque);
-    static U32          loadTextures(LLImportMaterial& material, void* opaque);
+    static U32          loadTextures(LLImportMaterial& material, LLHandle<LLModelPreview> handle);
 
     void lookupLODModelFiles(S32 lod);
 
@@ -266,7 +266,7 @@ protected:
 
     LLFloater*  mFMP;
 
-    BOOL        mNeedsUpdate;
+    bool        mNeedsUpdate;
     bool        mDirty;
     bool        mGenLOD;
     U32         mTextureName;
@@ -316,6 +316,7 @@ protected:
 
     LLMeshUploadThread::instance_list mUploadData;
     std::set<LLViewerFetchedTexture * > mTextureSet;
+    LLLoadedCallbackEntry::source_callback_list_t mCallbackTextureList;
 
     //map of vertex buffers to models (one vertex buffer in vector per face in model
     std::map<LLModel*, std::vector<LLPointer<LLVertexBuffer> > > mVertexBuffer[LLModel::NUM_LODS + 1];

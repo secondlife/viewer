@@ -38,8 +38,7 @@
 #include "v4color.h"
 
 #if LL_WINDOWS
-#   define WIN32_LEAN_AND_MEAN
-#   include <winsock2.h>    // for htonl
+#   include "llwin32headers.h"    // for htonl
 #elif LL_LINUX
 #   include <netinet/in.h>
 #elif LL_DARWIN

@@ -73,10 +73,13 @@ public:
         {
             return LLVolumeParams::operator<(params);
         }
-        return (params.mForceConvex == false) && (mForceConvex == true);
+
+        return !params.mForceConvex && mForceConvex;
     }
 
     bool shouldForceConvex() const { return mForceConvex; }
+
+    bool hasDecomposition() const;
 
 private:
     bool mForceConvex;

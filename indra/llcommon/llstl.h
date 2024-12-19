@@ -226,11 +226,11 @@ void delete_and_clear_array(T*& ptr)
 //  foo[2] = "hello";
 //  const char* bar = get_ptr_in_map(foo, 2); // bar -> "hello"
 //  const char* baz = get_ptr_in_map(foo, 3); // baz == NULL
-template <typename K, typename T>
-inline T* get_ptr_in_map(const std::map<K,T*>& inmap, const K& key)
+template <typename T>
+inline typename T::mapped_type get_ptr_in_map(const T& inmap, typename T::key_type const& key)
 {
     // Typedef here avoids warnings because of new c++ naming rules.
-    typedef typename std::map<K,T*>::const_iterator map_iter;
+    typedef typename T::const_iterator map_iter;
     map_iter iter = inmap.find(key);
     if(iter == inmap.end())
     {
@@ -326,7 +326,7 @@ inline bool vector_replace_with_last(std::vector<T>& invec, const T& val)
 template <typename T>
 inline T* vector_append(std::vector<T>& invec, S32 N)
 {
-    U32 sz = invec.size();
+    auto sz = invec.size();
     invec.resize(sz+N);
     return &(invec[sz]);
 }
@@ -532,7 +532,7 @@ bool before(const std::type_info* lhs, const std::type_info* rhs)
     return strcmp(lhs->name(), rhs->name()) < 0;
 #else  // not Linux, or gcc 4.4+
     // Just use before(), as we normally would
-    return lhs->before(*rhs) ? true : false;
+    return lhs->before(*rhs);
 #endif
 }
 

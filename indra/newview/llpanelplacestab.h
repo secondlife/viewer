@@ -54,7 +54,7 @@ public:
     /**
     * Processes drag-n-drop of the Landmarks and folders into trash button.
     */
-    virtual bool handleDragAndDropToTrash(BOOL drop, EDragAndDropType cargo_type, void* cargo_data, EAcceptance* accept) = 0;
+    virtual bool handleDragAndDropToTrash(bool drop, EDragAndDropType cargo_type, void* cargo_data, EAcceptance* accept) = 0;
 
     bool isTabVisible(); // Check if parent TabContainer is visible.
 

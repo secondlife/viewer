@@ -80,7 +80,7 @@ void LLTextureInfo::addRequest(const LLUUID& id)
 
 U32 LLTextureInfo::getTextureInfoMapSize()
 {
-    return mTextures.size();
+    return static_cast<U32>(mTextures.size());
 }
 
 bool LLTextureInfo::has(const LLUUID& id)
@@ -214,7 +214,7 @@ void LLTextureInfo::setRequestCompleteTimeAndLog(const LLUUID& id, U64Microsecon
                 F64 region_vocache_hit_rate = 0;
                 if (region_hit_count > 0 || region_miss_count > 0)
                 {
-                    region_vocache_hit_rate = region_hit_count / (region_hit_count + region_miss_count);
+                    region_vocache_hit_rate = (F64)region_hit_count / (region_hit_count + region_miss_count);
                 }
                 object_cache["vo_region_hitcount"] = ll_sd_from_U64(region_hit_count);
                 object_cache["vo_region_misscount"] = ll_sd_from_U64(region_miss_count);

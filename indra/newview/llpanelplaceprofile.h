@@ -31,6 +31,7 @@
 
 class LLAccordionCtrl;
 class LLIconCtrl;
+class LLTextBase;
 class LLTextEditor;
 
 class LLPanelPlaceProfile : public LLPanelPlaceInfo
@@ -39,7 +40,7 @@ public:
     LLPanelPlaceProfile();
     /*virtual*/ ~LLPanelPlaceProfile();
 
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
 
     /*virtual*/ void resetLocation();
 
@@ -47,7 +48,7 @@ public:
 
     /*virtual*/ void processParcelInfo(const LLParcelData& parcel_data);
 
-    /*virtual*/ void onVisibilityChange(BOOL new_visibility);
+    /*virtual*/ void onVisibilityChange(bool new_visibility);
 
     // Displays information about the currently selected parcel
     // without sending a request to the server.
@@ -60,6 +61,7 @@ public:
     void updateEstateName(const std::string& name);
     void updateEstateOwnerName(const std::string& name);
     void updateCovenantText(const std::string &text);
+    void updateCovenant(const LLTextBase* source);
 
 private:
     void onForSaleBannerClick();

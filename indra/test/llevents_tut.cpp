@@ -44,7 +44,6 @@
 #include <typeinfo>
 // external library headers
 #include <boost/bind.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/assign/list_of.hpp>
 // other Linden headers
 #include "tests/listener.h"             // must PRECEDE lltut.h

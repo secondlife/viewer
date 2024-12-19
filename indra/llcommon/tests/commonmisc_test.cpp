@@ -46,12 +46,6 @@
 
 #include "../test/lltut.h"
 
-
-#if LL_WINDOWS
-// disable overflow warnings
-#pragma warning(disable: 4307)
-#endif
-
 namespace tut
 {
     struct sd_data
@@ -67,7 +61,7 @@ namespace tut
         std::ostringstream resp;
         resp << "{'connect':true,  'position':[r128,r128,r128], 'look_at':[r0,r1,r0], 'agent_access':'M', 'region_x':i8192, 'region_y':i8192}";
         std::string str = resp.str();
-        LLMemoryStream mstr((U8*)str.c_str(), str.size());
+        LLMemoryStream mstr((U8*)str.c_str(), static_cast<S32>(str.size()));
         LLSD response;
         S32 count = LLSDSerialize::fromNotation(response, mstr, str.size());
         ensure("stream parsed", response.isDefined());
@@ -252,7 +246,7 @@ namespace tut
         resp << "{'label':'short binary test', 'singlebinary':b(1)\"A\", 'singlerawstring':s(1)\"A\", 'endoftest':'end' }";
         std::string str = resp.str();
         LLSD sd;
-        LLMemoryStream mstr((U8*)str.c_str(), str.size());
+        LLMemoryStream mstr((U8*)str.c_str(), static_cast<S32>(str.size()));
         S32 count = LLSDSerialize::fromNotation(sd, mstr, str.size());
         ensure_equals("parse count", count, 5);
         ensure("sd created", sd.isDefined());
@@ -456,7 +450,7 @@ namespace tut
     void mem_object::test<1>()
     {
         const char HELLO_WORLD[] = "hello world";
-        LLMemoryStream mem((U8*)&HELLO_WORLD[0], strlen(HELLO_WORLD));      /* Flawfinder: ignore */
+        LLMemoryStream mem((U8*)&HELLO_WORLD[0], static_cast<S32>(strlen(HELLO_WORLD)));      /* Flawfinder: ignore */
         std::string hello;
         std::string world;
         mem >> hello >> world;

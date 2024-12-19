@@ -44,14 +44,14 @@ public:
 
     void onOpen(const LLSD& key) override;
 
-    BOOL handleKeyHere(KEY key, MASK mask) override;
+    bool handleKeyHere(KEY key, MASK mask) override;
 
     static LLFloaterHowTo* getInstance();
 
     bool matchesKey(const LLSD& key) override { return true; /*single instance*/ };
 
 private:
-    BOOL postBuild() override;
+    bool postBuild() override;
 };
 
 #endif  // LL_LLFLOATERHOWTO_H

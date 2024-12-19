@@ -33,7 +33,7 @@
 LLFilterEditor::LLFilterEditor(const LLFilterEditor::Params& p)
 :   LLSearchEditor(p)
 {
-    setCommitOnFocusLost(FALSE); // we'll commit on every keystroke, don't re-commit when we take focus away (i.e. we go to interact with the actual results!)
+    setCommitOnFocusLost(false); // we'll commit on every keystroke, don't re-commit when we take focus away (i.e. we go to interact with the actual results!)
 }
 
 

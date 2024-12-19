@@ -39,7 +39,7 @@
 
 namespace LLTrace
 {
-    const F64 NaN   = std::numeric_limits<double>::quiet_NaN();
+    constexpr F64 NaN = std::numeric_limits<double>::quiet_NaN();
 
     enum EBufferAppendType
     {
@@ -251,8 +251,8 @@ namespace LLTrace
 
         EventAccumulator()
         :   mSum(0),
-            mMin(F32(NaN)),
-            mMax(F32(NaN)),
+            mMin(NaN),
+            mMax(NaN),
             mMean(NaN),
             mSumOfSquares(0),
             mNumSamples(0),
@@ -288,11 +288,11 @@ namespace LLTrace
         void sync(F64SecondsImplicit) {}
 
         F64 getSum() const               { return mSum; }
-        F32 getMin() const               { return mMin; }
-        F32 getMax() const               { return mMax; }
+        F64 getMin() const               { return mMin; }
+        F64 getMax() const               { return mMax; }
         F64 getLastValue() const         { return mLastValue; }
         F64 getMean() const              { return mMean; }
-        F64 getStandardDeviation() const { return sqrtf(mSumOfSquares / mNumSamples); }
+        F64 getStandardDeviation() const { return sqrt(mSumOfSquares / mNumSamples); }
         F64 getSumOfSquares() const      { return mSumOfSquares; }
         S32 getSampleCount() const       { return mNumSamples; }
         bool hasValue() const            { return mNumSamples > 0; }
@@ -307,7 +307,7 @@ namespace LLTrace
         F64 mMean,
             mSumOfSquares;
 
-        F32 mMin,
+        F64 mMin,
             mMax;
 
         S32 mNumSamples;
@@ -322,8 +322,8 @@ namespace LLTrace
 
         SampleAccumulator()
         :   mSum(0),
-            mMin(F32(NaN)),
-            mMax(F32(NaN)),
+            mMin(NaN),
+            mMax(NaN),
             mMean(NaN),
             mSumOfSquares(0),
             mLastSampleTimeStamp(0),
@@ -378,11 +378,11 @@ namespace LLTrace
         }
 
         F64 getSum() const               { return mSum; }
-        F32 getMin() const               { return mMin; }
-        F32 getMax() const               { return mMax; }
+        F64 getMin() const               { return mMin; }
+        F64 getMax() const               { return mMax; }
         F64 getLastValue() const         { return mLastValue; }
         F64 getMean() const              { return mMean; }
-        F64 getStandardDeviation() const { return sqrtf(mSumOfSquares / mTotalSamplingTime); }
+        F64 getStandardDeviation() const { return sqrt(mSumOfSquares / mTotalSamplingTime); }
         F64 getSumOfSquares() const      { return mSumOfSquares; }
         F64SecondsImplicit getSamplingTime() const { return mTotalSamplingTime; }
         S32 getSampleCount() const       { return mNumSamples; }
@@ -402,7 +402,7 @@ namespace LLTrace
                 mLastSampleTimeStamp,
                 mTotalSamplingTime;
 
-        F32     mMin,
+        F64     mMin,
                 mMax;
 
         S32     mNumSamples;
@@ -522,9 +522,9 @@ namespace LLTrace
 
     struct BlockTimerStackRecord
     {
-        class BlockTimer*   mActiveTimer;
-        class BlockTimerStatHandle* mTimeBlock;
-        U64                 mChildTime;
+        class BlockTimer*   mActiveTimer{ nullptr };
+        class BlockTimerStatHandle* mTimeBlock{ nullptr };
+        U64                 mChildTime{ 0 };
     };
 
     struct AccumulatorBufferGroup : public LLRefCount

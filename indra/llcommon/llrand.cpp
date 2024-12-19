@@ -85,7 +85,7 @@ inline F32 ll_internal_random<F32>()
     // Per Monty, it's important to clamp using the correct fmodf() rather
     // than expanding to F64 for fmod() and then truncating back to F32. Prior
     // to this change, we were getting sporadic ll_frand() == 1.0 results.
-    F32 rv{ narrow<F32>(gRandomGenerator()) };
+    F32 rv{ narrow<F64>(gRandomGenerator()) };
     if(!((rv >= 0.0f) && (rv < 1.0f))) return fmodf(rv, 1.0f);
     return rv;
 }

@@ -44,7 +44,7 @@ F32 LLUICtrl::sInactiveControlTransparency = 1.0f;
 
 // Compiler optimization, generate extern template
 template class LLUICtrl* LLView::getChild<class LLUICtrl>(
-    const std::string& name, BOOL recurse) const;
+    std::string_view name, bool recurse) const;
 
 LLUICtrl::CallbackParam::CallbackParam()
 :   name("name"),
@@ -100,10 +100,10 @@ const LLUICtrl::Params& LLUICtrl::getDefaultParams()
 
 LLUICtrl::LLUICtrl(const LLUICtrl::Params& p, const LLViewModelPtr& viewmodel)
 :   LLView(p),
-    mIsChrome(FALSE),
+    mIsChrome(false),
     mRequestsFront(p.requests_front),
-    mTabStop(FALSE),
-    mTentative(FALSE),
+    mTabStop(false),
+    mTentative(false),
     mViewModel(viewmodel),
     mControlVariable(NULL),
     mEnabledControlVariable(NULL),
@@ -135,7 +135,7 @@ void LLUICtrl::initFromParams(const Params& p)
     {
         if (p.enabled_controls.enabled.isChosen())
         {
-            LLControlVariable* control = findControl(p.enabled_controls.enabled);
+            LLControlVariable* control = findControl(p.enabled_controls.enabled());
             if (control)
             {
                 setEnabledControlVariable(control);
@@ -149,7 +149,7 @@ void LLUICtrl::initFromParams(const Params& p)
         }
         else if(p.enabled_controls.disabled.isChosen())
         {
-            LLControlVariable* control = findControl(p.enabled_controls.disabled);
+            LLControlVariable* control = findControl(p.enabled_controls.disabled());
             if (control)
             {
                 setDisabledControlVariable(control);
@@ -166,7 +166,7 @@ void LLUICtrl::initFromParams(const Params& p)
     {
         if (p.controls_visibility.visible.isChosen())
         {
-            LLControlVariable* control = findControl(p.controls_visibility.visible);
+            LLControlVariable* control = findControl(p.controls_visibility.visible());
             if (control)
             {
                 setMakeVisibleControlVariable(control);
@@ -180,7 +180,7 @@ void LLUICtrl::initFromParams(const Params& p)
         }
         else if (p.controls_visibility.invisible.isChosen())
         {
-            LLControlVariable* control = findControl(p.controls_visibility.invisible);
+            LLControlVariable* control = findControl(p.controls_visibility.invisible());
             if (control)
             {
                 setMakeInvisibleControlVariable(control);
@@ -342,12 +342,12 @@ void LLUICtrl::onMouseLeave(S32 x, S32 y, MASK mask)
 }
 
 //virtual
-BOOL LLUICtrl::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLUICtrl::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 
     LL_DEBUGS() << "LLUICtrl::handleMouseDown calling   LLView)'s handleMouseUp (first initialized xui to: " << getPathname() << " )" << LL_ENDL;
 
-    BOOL handled  = LLView::handleMouseDown(x,y,mask);
+    bool handled  = LLView::handleMouseDown(x,y,mask);
 
     if (mMouseDownSignal)
     {
@@ -362,12 +362,12 @@ BOOL LLUICtrl::handleMouseDown(S32 x, S32 y, MASK mask)
 }
 
 //virtual
-BOOL LLUICtrl::handleMouseUp(S32 x, S32 y, MASK mask)
+bool LLUICtrl::handleMouseUp(S32 x, S32 y, MASK mask)
 {
 
     LL_DEBUGS() << "LLUICtrl::handleMouseUp calling LLView)'s handleMouseUp (first initialized xui to: " << getPathname() << " )" << LL_ENDL;
 
-    BOOL handled  = LLView::handleMouseUp(x,y,mask);
+    bool handled  = LLView::handleMouseUp(x,y,mask);
     if (handled) {
         LLViewerEventRecorder::instance().updateMouseEventInfo(x,y,-56,-56,getPathname());
     }
@@ -382,9 +382,9 @@ BOOL LLUICtrl::handleMouseUp(S32 x, S32 y, MASK mask)
 }
 
 //virtual
-BOOL LLUICtrl::handleRightMouseDown(S32 x, S32 y, MASK mask)
+bool LLUICtrl::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
-    BOOL handled  = LLView::handleRightMouseDown(x,y,mask);
+    bool handled  = LLView::handleRightMouseDown(x,y,mask);
     if (mRightMouseDownSignal)
     {
         (*mRightMouseDownSignal)(this,x,y,mask);
@@ -393,9 +393,9 @@ BOOL LLUICtrl::handleRightMouseDown(S32 x, S32 y, MASK mask)
 }
 
 //virtual
-BOOL LLUICtrl::handleRightMouseUp(S32 x, S32 y, MASK mask)
+bool LLUICtrl::handleRightMouseUp(S32 x, S32 y, MASK mask)
 {
-    BOOL handled  = LLView::handleRightMouseUp(x,y,mask);
+    bool handled  = LLView::handleRightMouseUp(x,y,mask);
     if(mRightMouseUpSignal)
     {
         (*mRightMouseUpSignal)(this,x,y,mask);
@@ -403,9 +403,9 @@ BOOL LLUICtrl::handleRightMouseUp(S32 x, S32 y, MASK mask)
     return handled;
 }
 
-BOOL LLUICtrl::handleDoubleClick(S32 x, S32 y, MASK mask)
+bool LLUICtrl::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
-    BOOL handled = LLView::handleDoubleClick(x, y, mask);
+    bool handled = LLView::handleDoubleClick(x, y, mask);
     if (mDoubleClickSignal)
     {
         (*mDoubleClickSignal)(this, x, y, mask);
@@ -414,7 +414,7 @@ BOOL LLUICtrl::handleDoubleClick(S32 x, S32 y, MASK mask)
 }
 
 // can't tab to children of a non-tab-stop widget
-BOOL LLUICtrl::canFocusChildren() const
+bool LLUICtrl::canFocusChildren() const
 {
     return hasTabStop();
 }
@@ -439,9 +439,9 @@ void LLUICtrl::onCommit()
 }
 
 //virtual
-BOOL LLUICtrl::isCtrl() const
+bool LLUICtrl::isCtrl() const
 {
-    return TRUE;
+    return true;
 }
 
 //virtual
@@ -473,7 +473,7 @@ LLViewModel* LLUICtrl::getViewModel() const
 }
 
 //virtual
-BOOL LLUICtrl::postBuild()
+bool LLUICtrl::postBuild()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
     //
@@ -662,15 +662,15 @@ bool LLUICtrl::controlListener(const LLSD& newvalue, LLHandle<LLUICtrl> handle, 
 }
 
 // virtual
-BOOL LLUICtrl::setTextArg( const std::string& key, const LLStringExplicit& text )
+bool LLUICtrl::setTextArg( const std::string& key, const LLStringExplicit& text )
 {
-    return FALSE;
+    return false;
 }
 
 // virtual
-BOOL LLUICtrl::setLabelArg( const std::string& key, const LLStringExplicit& text )
+bool LLUICtrl::setLabelArg( const std::string& key, const LLStringExplicit& text )
 {
-    return FALSE;
+    return false;
 }
 
 // virtual
@@ -691,12 +691,12 @@ LLCtrlScrollInterface* LLUICtrl::getScrollInterface()
     return NULL;
 }
 
-BOOL LLUICtrl::hasFocus() const
+bool LLUICtrl::hasFocus() const
 {
     return (gFocusMgr.childHasKeyboardFocus(this));
 }
 
-void LLUICtrl::setFocus(BOOL b)
+void LLUICtrl::setFocus(bool b)
 {
     // focus NEVER goes to ui ctrls that are disabled!
     if (!getEnabled())
@@ -720,25 +720,25 @@ void LLUICtrl::setFocus(BOOL b)
 }
 
 // virtual
-void LLUICtrl::setTabStop( BOOL b )
+void LLUICtrl::setTabStop( bool b )
 {
     mTabStop = b;
 }
 
 // virtual
-BOOL LLUICtrl::hasTabStop() const
+bool LLUICtrl::hasTabStop() const
 {
     return mTabStop;
 }
 
 // virtual
-BOOL LLUICtrl::acceptsTextInput() const
+bool LLUICtrl::acceptsTextInput() const
 {
-    return FALSE;
+    return false;
 }
 
 //virtual
-BOOL LLUICtrl::isDirty() const
+bool LLUICtrl::isDirty() const
 {
     return mViewModel->isDirty();
 };
@@ -761,16 +761,16 @@ void LLUICtrl::clear()
 }
 
 // virtual
-void LLUICtrl::setIsChrome(BOOL is_chrome)
+void LLUICtrl::setIsChrome(bool is_chrome)
 {
     mIsChrome = is_chrome;
 }
 
 // virtual
-BOOL LLUICtrl::getIsChrome() const
+bool LLUICtrl::getIsChrome() const
 {
     if (mIsChrome)
-        return TRUE;
+        return true;
 
     LLView* parent_ctrl = getParent();
     while (parent_ctrl)
@@ -781,11 +781,11 @@ BOOL LLUICtrl::getIsChrome() const
         parent_ctrl = parent_ctrl->getParent();
     }
 
-    return FALSE;
+    return false;
 }
 
 
-BOOL LLUICtrl::focusFirstItem(BOOL prefer_text_fields, BOOL focus_flash)
+bool LLUICtrl::focusFirstItem(bool prefer_text_fields, bool focus_flash)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
     // try to select default tab group child
@@ -796,14 +796,14 @@ BOOL LLUICtrl::focusFirstItem(BOOL prefer_text_fields, BOOL focus_flash)
         LLUICtrl * ctrl = static_cast<LLUICtrl*>(result.back());
         if(!ctrl->hasFocus())
         {
-            ctrl->setFocus(TRUE);
+            ctrl->setFocus(true);
             ctrl->onTabInto();
             if(focus_flash)
             {
                 gFocusMgr.triggerFocusFlash();
             }
         }
-        return TRUE;
+        return true;
     }
     // search for text field first
     if(prefer_text_fields)
@@ -816,14 +816,14 @@ BOOL LLUICtrl::focusFirstItem(BOOL prefer_text_fields, BOOL focus_flash)
             LLUICtrl * ctrl = static_cast<LLUICtrl*>(result.back());
             if(!ctrl->hasFocus())
             {
-                ctrl->setFocus(TRUE);
+                ctrl->setFocus(true);
                 ctrl->onTabInto();
                 if(focus_flash)
                 {
                     gFocusMgr.triggerFocusFlash();
                 }
             }
-            return TRUE;
+            return true;
         }
     }
     // no text field found, or we don't care about text fields
@@ -833,20 +833,20 @@ BOOL LLUICtrl::focusFirstItem(BOOL prefer_text_fields, BOOL focus_flash)
         LLUICtrl * ctrl = static_cast<LLUICtrl*>(result.back());
         if(!ctrl->hasFocus())
         {
-            ctrl->setFocus(TRUE);
+            ctrl->setFocus(true);
             ctrl->onTabInto();
             if(focus_flash)
             {
                 gFocusMgr.triggerFocusFlash();
             }
         }
-        return TRUE;
+        return true;
     }
-    return FALSE;
+    return false;
 }
 
 
-BOOL LLUICtrl::focusNextItem(BOOL text_fields_only)
+bool LLUICtrl::focusNextItem(bool text_fields_only)
 {
     // this assumes that this method is called on the focus root.
     LLViewQuery query = getTabOrderQuery();
@@ -859,7 +859,7 @@ BOOL LLUICtrl::focusNextItem(BOOL text_fields_only)
     return focusNext(result);
 }
 
-BOOL LLUICtrl::focusPrevItem(BOOL text_fields_only)
+bool LLUICtrl::focusPrevItem(bool text_fields_only)
 {
     // this assumes that this method is called on the focus root.
     LLViewQuery query = getTabOrderQuery();
@@ -1011,19 +1011,19 @@ boost::signals2::connection LLUICtrl::setValidateBeforeCommit( boost::function<b
 }
 
 // virtual
-void LLUICtrl::setTentative(BOOL b)
+void LLUICtrl::setTentative(bool b)
 {
     mTentative = b;
 }
 
 // virtual
-BOOL LLUICtrl::getTentative() const
+bool LLUICtrl::getTentative() const
 {
     return mTentative;
 }
 
 // virtual
-void LLUICtrl::setColor(const LLColor4& color)
+void LLUICtrl::setColor(const LLUIColor& color)
 { }
 
 F32 LLUICtrl::getCurrentTransparency()

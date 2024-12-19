@@ -157,14 +157,22 @@ canonise_fl(FL_Locale *l) {
   if (l->lang && 0 == strcmp(l->lang, "en")) {
     if (l->country && 0 == strcmp(l->country, "UK")) {
       free((void*)l->country);
+#ifdef LL_WINDOWS
+      l->country = _strdup("GB");
+#else
       l->country = strdup("GB");
+#endif
     }
   }
   /* ja_JA -> ja_JP */
   if (l->lang && 0 == strcmp(l->lang, "ja")) {
     if (l->country && 0 == strcmp(l->country, "JA")) {
       free((void*)l->country);
+#ifdef LL_WINDOWS
+      l->country = _strdup("JP");
+#else
       l->country = strdup("JP");
+#endif
     }
   }
 }
@@ -177,7 +185,7 @@ canonise_fl(FL_Locale *l) {
 #define RML(pn,sn) MAKELANGID(LANG_##pn, SUBLANG_##sn)
 struct IDToCode {
   LANGID id;
-  char*  code;
+  const char*  code;
 };
 static const IDToCode both_to_code[] = {
   {ML(ENGLISH,US),           "en_US.ISO_8859-1"},

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file llmaniptranslate.cpp
  * @brief LLManipTranslate class implementation
  *
@@ -111,8 +111,8 @@ LLManipTranslate::LLManipTranslate( LLToolComposite* composite )
 :   LLManip( std::string("Move"), composite ),
     mLastHoverMouseX(-1),
     mLastHoverMouseY(-1),
-    mMouseOutsideSlop(FALSE),
-    mCopyMadeThisDrag(FALSE),
+    mMouseOutsideSlop(false),
+    mCopyMadeThisDrag(false),
     mMouseDownX(-1),
     mMouseDownY(-1),
     mAxisArrowLength(50),
@@ -123,7 +123,7 @@ LLManipTranslate::LLManipTranslate( LLToolComposite* composite )
     mUpdateTimer(),
     mSnapOffsetMeters(0.f),
     mSubdivisions(10.f),
-    mInSnapRegime(FALSE),
+    mInSnapRegime(false),
     mArrowScales(1.f, 1.f, 1.f),
     mPlaneScales(1.f, 1.f, 1.f),
     mPlaneManipPositions(1.f, 1.f, 1.f, 1.f)
@@ -290,9 +290,9 @@ void LLManipTranslate::handleSelect()
     LLManip::handleSelect();
 }
 
-BOOL LLManipTranslate::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLManipTranslate::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-    BOOL    handled = FALSE;
+    bool    handled = false;
 
     // didn't click in any UI object, so must have clicked in the world
     if( (mHighlightedPart == LL_X_ARROW ||
@@ -309,12 +309,12 @@ BOOL LLManipTranslate::handleMouseDown(S32 x, S32 y, MASK mask)
 }
 
 // Assumes that one of the arrows on an object was hit.
-BOOL LLManipTranslate::handleMouseDownOnPart( S32 x, S32 y, MASK mask )
+bool LLManipTranslate::handleMouseDownOnPart( S32 x, S32 y, MASK mask )
 {
-    BOOL can_move = canAffectSelection();
+    bool can_move = canAffectSelection();
     if (!can_move)
     {
-        return FALSE;
+        return false;
     }
 
     highlightManipulators(x, y);
@@ -327,7 +327,7 @@ BOOL LLManipTranslate::handleMouseDownOnPart( S32 x, S32 y, MASK mask )
         (hit_part != LL_XZ_PLANE) &&
         (hit_part != LL_XY_PLANE) )
     {
-        return TRUE;
+        return true;
     }
 
     mHelpTextTimer.reset();
@@ -335,7 +335,7 @@ BOOL LLManipTranslate::handleMouseDownOnPart( S32 x, S32 y, MASK mask )
 
     LLSelectMgr::getInstance()->getGrid(mGridOrigin, mGridRotation, mGridScale);
 
-    LLSelectMgr::getInstance()->enableSilhouette(FALSE);
+    LLSelectMgr::getInstance()->enableSilhouette(false);
 
     // we just started a drag, so save initial object positions
     LLSelectMgr::getInstance()->saveSelectedObjectTransform(SELECT_ACTION_TYPE_MOVE);
@@ -343,17 +343,17 @@ BOOL LLManipTranslate::handleMouseDownOnPart( S32 x, S32 y, MASK mask )
     mManipPart = (EManipPart)hit_part;
     mMouseDownX = x;
     mMouseDownY = y;
-    mMouseOutsideSlop = FALSE;
+    mMouseOutsideSlop = false;
 
     LLVector3       axis;
 
-    LLSelectNode *selectNode = mObjectSelection->getFirstMoveableNode(TRUE);
+    LLSelectNode *selectNode = mObjectSelection->getFirstMoveableNode(true);
 
     if (!selectNode)
     {
         // didn't find the object in our selection...oh well
         LL_WARNS() << "Trying to translate an unselected object" << LL_ENDL;
-        return TRUE;
+        return true;
     }
 
     LLViewerObject *selected_object = selectNode->getObject();
@@ -362,11 +362,11 @@ BOOL LLManipTranslate::handleMouseDownOnPart( S32 x, S32 y, MASK mask )
         // somehow we lost the object!
         LL_WARNS() << "Translate manip lost the object, no selected object" << LL_ENDL;
         gViewerWindow->setCursor(UI_CURSOR_TOOLTRANSLATE);
-        return TRUE;
+        return true;
     }
 
     // Compute unit vectors for arrow hit and a plane through that vector
-    BOOL axis_exists = getManipAxis(selected_object, mManipPart, axis);
+    bool axis_exists = getManipAxis(selected_object, mManipPart, axis);
     getManipNormal(selected_object, mManipPart, mManipNormal);
 
     //LLVector3 select_center_agent = gAgent.getPosAgentFromGlobal(LLSelectMgr::getInstance()->getSelectionCenterGlobal());
@@ -395,15 +395,15 @@ BOOL LLManipTranslate::handleMouseDownOnPart( S32 x, S32 y, MASK mask )
     LLVector3d object_start_global = gAgent.getPosGlobalFromAgent(getPivotPoint());
     getMousePointOnPlaneGlobal(mDragCursorStartGlobal, x, y, object_start_global, mManipNormal);
     mDragSelectionStartGlobal = object_start_global;
-    mCopyMadeThisDrag = FALSE;
+    mCopyMadeThisDrag = false;
 
     // Route future Mouse messages here preemptively.  (Release on mouse up.)
-    setMouseCapture( TRUE );
+    setMouseCapture( true );
 
-    return TRUE;
+    return true;
 }
 
-BOOL LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
+bool LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
 {
     // Translation tool only works if mouse button is down.
     // Bail out if mouse not down.
@@ -415,7 +415,7 @@ BOOL LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
         gViewerWindow->setCursor(UI_CURSOR_TOOLTRANSLATE);
 
         highlightManipulators(x, y);
-        return TRUE;
+        return true;
     }
 
     // Handle auto-rotation if necessary.
@@ -423,7 +423,7 @@ BOOL LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
     const F32 ROTATE_ANGLE_PER_SECOND = 30.f * DEG_TO_RAD;
     const S32 ROTATE_H_MARGIN = world_rect.getWidth() / 20;
     const F32 rotate_angle = ROTATE_ANGLE_PER_SECOND / gFPSClamped;
-    BOOL rotated = FALSE;
+    bool rotated = false;
 
     // ...build mode moves camera about focus point
     if (mObjectSelection->getSelectType() != SELECT_TYPE_HUD)
@@ -431,12 +431,12 @@ BOOL LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
         if (x < ROTATE_H_MARGIN)
         {
             gAgentCamera.cameraOrbitAround(rotate_angle);
-            rotated = TRUE;
+            rotated = true;
         }
         else if (x > world_rect.getWidth() - ROTATE_H_MARGIN)
         {
             gAgentCamera.cameraOrbitAround(-rotate_angle);
-            rotated = TRUE;
+            rotated = true;
         }
     }
 
@@ -447,7 +447,7 @@ BOOL LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
     {
         LL_DEBUGS("UserInput") << "hover handled by LLManipTranslate (mouse unmoved)" << LL_ENDL;
         gViewerWindow->setCursor(UI_CURSOR_TOOLTRANSLATE);
-        return TRUE;
+        return true;
     }
     mLastHoverMouseX = x;
     mLastHoverMouseY = y;
@@ -460,18 +460,18 @@ BOOL LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
         {
             LL_DEBUGS("UserInput") << "hover handled by LLManipTranslate (mouse inside slop)" << LL_ENDL;
             gViewerWindow->setCursor(UI_CURSOR_TOOLTRANSLATE);
-            return TRUE;
+            return true;
         }
         else
         {
             // ...just went outside the slop region
-            mMouseOutsideSlop = TRUE;
+            mMouseOutsideSlop = true;
             // If holding down shift, leave behind a copy.
             if (mask == MASK_COPY)
             {
                 // ...we're trying to make a copy
-                LLSelectMgr::getInstance()->selectDuplicate(LLVector3::zero, FALSE);
-                mCopyMadeThisDrag = TRUE;
+                LLSelectMgr::getInstance()->selectDuplicate(LLVector3::zero, false);
+                mCopyMadeThisDrag = true;
 
                 // When we make the copy, we don't want to do any other processing.
                 // If so, the object will also be moved, and the copy will be offset.
@@ -488,13 +488,13 @@ BOOL LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
 
     // pick the first object to constrain to grid w/ common origin
     // this is so we don't screw up groups
-    LLSelectNode* selectNode = mObjectSelection->getFirstMoveableNode(TRUE);
+    LLSelectNode* selectNode = mObjectSelection->getFirstMoveableNode(true);
     if (!selectNode)
     {
         // somehow we lost the object!
         LL_WARNS() << "Translate manip lost the object, no selectNode" << LL_ENDL;
         gViewerWindow->setCursor(UI_CURSOR_TOOLTRANSLATE);
-        return TRUE;
+        return true;
     }
 
     LLViewerObject* object = selectNode->getObject();
@@ -503,11 +503,11 @@ BOOL LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
         // somehow we lost the object!
         LL_WARNS() << "Translate manip lost the object, no object in selectNode" << LL_ENDL;
         gViewerWindow->setCursor(UI_CURSOR_TOOLTRANSLATE);
-        return TRUE;
+        return true;
     }
 
     // Compute unit vectors for arrow hit and a plane through that vector
-    BOOL axis_exists = getManipAxis(object, mManipPart, axis_f);        // TODO: move this
+    bool axis_exists = getManipAxis(object, mManipPart, axis_f);        // TODO: move this
 
     axis_d.setVec(axis_f);
 
@@ -530,7 +530,7 @@ BOOL LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
         {
             LL_DEBUGS("UserInput") << "hover handled by LLManipTranslate (too far)" << LL_ENDL;
             gViewerWindow->setCursor(UI_CURSOR_NOLOCKED);
-            return TRUE;
+            return true;
         }
     }
 
@@ -546,7 +546,7 @@ BOOL LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
     {
         if (off_axis_magnitude > mSnapOffsetMeters)
         {
-            mInSnapRegime = TRUE;
+            mInSnapRegime = true;
             LLVector3 cursor_snap_agent = gAgent.getPosAgentFromGlobal(cursor_point_snap_line);
 
             F32 cursor_grid_dist = (cursor_snap_agent - mGridOrigin) * axis_f;
@@ -630,16 +630,16 @@ BOOL LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
             }
             cursor_point_agent = (cursor_point_grid * mGridRotation) + mGridOrigin;
             relative_move.setVec(cursor_point_agent - gAgent.getPosAgentFromGlobal(mDragSelectionStartGlobal));
-            mInSnapRegime = TRUE;
+            mInSnapRegime = true;
         }
         else
         {
-            mInSnapRegime = FALSE;
+            mInSnapRegime = false;
         }
     }
     else
     {
-        mInSnapRegime = FALSE;
+        mInSnapRegime = false;
     }
 
     // Clamp to arrow direction
@@ -712,7 +712,7 @@ BOOL LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
                     if (selectNode->mIndividualSelection)
                     {
                         // counter-translate child objects if we are moving the root as an individual
-                        object->resetChildrenPosition(old_position_local - new_position_local, TRUE);
+                        object->resetChildrenPosition(old_position_local - new_position_local, true);
                     }
                 }
                 else
@@ -759,14 +759,14 @@ BOOL LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
                         LLViewerObject* root_object = object->getRootEdit();
                         new_position_agent -= root_object->getPositionAgent();
                         new_position_agent = new_position_agent * ~root_object->getRotation();
-                        object->setPositionParent(new_position_agent, FALSE);
+                        object->setPositionParent(new_position_agent, false);
                         rebuild(object);
                     }
 
                     if (selectNode->mIndividualSelection)
                     {
                         // counter-translate child objects if we are moving the root as an individual
-                        object->resetChildrenPosition(old_position_agent - new_position_agent, TRUE);
+                        object->resetChildrenPosition(old_position_agent - new_position_agent, true);
                     }
                 }
                 selectNode->mLastPositionLocal = object->getPosition();
@@ -781,7 +781,7 @@ BOOL LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
 
     LL_DEBUGS("UserInput") << "hover handled by LLManipTranslate (active)" << LL_ENDL;
     gViewerWindow->setCursor(UI_CURSOR_TOOLTRANSLATE);
-    return TRUE;
+    return true;
 }
 
 void LLManipTranslate::highlightManipulators(S32 x, S32 y)
@@ -857,9 +857,9 @@ void LLManipTranslate::highlightManipulators(S32 x, S32 y)
     S32 num_arrow_manips = numManips;
 
     // planar manipulators
-    BOOL planar_manip_yz_visible = FALSE;
-    BOOL planar_manip_xz_visible = FALSE;
-    BOOL planar_manip_xy_visible = FALSE;
+    bool planar_manip_yz_visible = false;
+    bool planar_manip_xz_visible = false;
+    bool planar_manip_xy_visible = false;
 
     mManipulatorVertices[numManips] = LLVector4(0.f, mPlaneManipOffsetMeters * (1.f - PLANE_TICK_SIZE * 0.5f), mPlaneManipOffsetMeters * (1.f - PLANE_TICK_SIZE * 0.5f), 1.f);
     mManipulatorVertices[numManips++].scaleVec(mPlaneManipPositions);
@@ -867,7 +867,7 @@ void LLManipTranslate::highlightManipulators(S32 x, S32 y)
     mManipulatorVertices[numManips++].scaleVec(mPlaneManipPositions);
     if (llabs(relative_camera_dir.mV[VX]) > MIN_PLANE_MANIP_DOT_PRODUCT)
     {
-        planar_manip_yz_visible = TRUE;
+        planar_manip_yz_visible = true;
     }
 
     mManipulatorVertices[numManips] = LLVector4(mPlaneManipOffsetMeters * (1.f - PLANE_TICK_SIZE * 0.5f), 0.f, mPlaneManipOffsetMeters * (1.f - PLANE_TICK_SIZE * 0.5f), 1.f);
@@ -876,7 +876,7 @@ void LLManipTranslate::highlightManipulators(S32 x, S32 y)
     mManipulatorVertices[numManips++].scaleVec(mPlaneManipPositions);
     if (llabs(relative_camera_dir.mV[VY]) > MIN_PLANE_MANIP_DOT_PRODUCT)
     {
-        planar_manip_xz_visible = TRUE;
+        planar_manip_xz_visible = true;
     }
 
     mManipulatorVertices[numManips] = LLVector4(mPlaneManipOffsetMeters * (1.f - PLANE_TICK_SIZE * 0.5f), mPlaneManipOffsetMeters * (1.f - PLANE_TICK_SIZE * 0.5f), 0.f, 1.f);
@@ -885,7 +885,7 @@ void LLManipTranslate::highlightManipulators(S32 x, S32 y)
     mManipulatorVertices[numManips++].scaleVec(mPlaneManipPositions);
     if (llabs(relative_camera_dir.mV[VZ]) > MIN_PLANE_MANIP_DOT_PRODUCT)
     {
-        planar_manip_xy_visible = TRUE;
+        planar_manip_xy_visible = true;
     }
 
     // Project up to 9 manipulators to screen space 2*X, 2*Y, 2*Z, 3*planes
@@ -1033,7 +1033,7 @@ F32 LLManipTranslate::getMinGridScale()
 }
 
 
-BOOL LLManipTranslate::handleMouseUp(S32 x, S32 y, MASK mask)
+bool LLManipTranslate::handleMouseUp(S32 x, S32 y, MASK mask)
 {
     // first, perform normal processing in case this was a quick-click
     handleHover(x, y, mask);
@@ -1042,12 +1042,12 @@ BOOL LLManipTranslate::handleMouseUp(S32 x, S32 y, MASK mask)
     {
         // make sure arrow colors go back to normal
         mManipPart = LL_NO_PART;
-        LLSelectMgr::getInstance()->enableSilhouette(TRUE);
+        LLSelectMgr::getInstance()->enableSilhouette(true);
 
         // Might have missed last update due to UPDATE_DELAY timing.
         LLSelectMgr::getInstance()->sendMultipleUpdate( UPD_POSITION );
 
-        mInSnapRegime = FALSE;
+        mInSnapRegime = false;
         LLSelectMgr::getInstance()->saveSelectedObjectTransform(SELECT_ACTION_TYPE_PICK);
         //gAgent.setObjectTracking(gSavedSettings.getBOOL("TrackFocusObject"));
     }
@@ -1099,7 +1099,7 @@ void LLManipTranslate::renderSnapGuides()
         return;
     }
 
-    LLSelectNode *first_node = mObjectSelection->getFirstMoveableNode(TRUE);
+    LLSelectNode *first_node = mObjectSelection->getFirstMoveableNode(true);
     if (!first_node)
     {
         return;
@@ -1267,24 +1267,24 @@ void LLManipTranslate::renderSnapGuides()
                 LLVector3 line_end = selection_center + (mSnapOffsetMeters * mSnapOffsetAxis) - (translate_axis * (guide_size_meters * 0.5f + offset_nearest_grid_unit));
                 LLVector3 line_mid = (line_start + line_end) * 0.5f;
 
-                gGL.color4f(line_color.mV[VX], line_color.mV[VY], line_color.mV[VZ], line_color.mV[VW] * 0.2f);
+                gGL.color4f(line_color.mV[VRED], line_color.mV[VGREEN], line_color.mV[VBLUE], line_color.mV[VALPHA] * 0.2f);
                 gGL.vertex3fv(line_start.mV);
-                gGL.color4f(line_color.mV[VX], line_color.mV[VY], line_color.mV[VZ], line_color.mV[VW]);
+                gGL.color4f(line_color.mV[VRED], line_color.mV[VGREEN], line_color.mV[VBLUE], line_color.mV[VALPHA]);
                 gGL.vertex3fv(line_mid.mV);
                 gGL.vertex3fv(line_mid.mV);
-                gGL.color4f(line_color.mV[VX], line_color.mV[VY], line_color.mV[VZ], line_color.mV[VW] * 0.2f);
+                gGL.color4f(line_color.mV[VRED], line_color.mV[VGREEN], line_color.mV[VBLUE], line_color.mV[VALPHA] * 0.2f);
                 gGL.vertex3fv(line_end.mV);
 
                 line_start.setVec(selection_center + (mSnapOffsetAxis * -mSnapOffsetMeters) + (translate_axis * guide_size_meters * 0.5f));
                 line_end.setVec(selection_center + (mSnapOffsetAxis * -mSnapOffsetMeters) - (translate_axis * guide_size_meters * 0.5f));
                 line_mid = (line_start + line_end) * 0.5f;
 
-                gGL.color4f(line_color.mV[VX], line_color.mV[VY], line_color.mV[VZ], line_color.mV[VW] * 0.2f);
+                gGL.color4f(line_color.mV[VRED], line_color.mV[VGREEN], line_color.mV[VBLUE], line_color.mV[VALPHA] * 0.2f);
                 gGL.vertex3fv(line_start.mV);
-                gGL.color4f(line_color.mV[VX], line_color.mV[VY], line_color.mV[VZ], line_color.mV[VW]);
+                gGL.color4f(line_color.mV[VRED], line_color.mV[VGREEN], line_color.mV[VBLUE], line_color.mV[VALPHA]);
                 gGL.vertex3fv(line_mid.mV);
                 gGL.vertex3fv(line_mid.mV);
-                gGL.color4f(line_color.mV[VX], line_color.mV[VY], line_color.mV[VZ], line_color.mV[VW] * 0.2f);
+                gGL.color4f(line_color.mV[VRED], line_color.mV[VGREEN], line_color.mV[VBLUE], line_color.mV[VALPHA] * 0.2f);
                 gGL.vertex3fv(line_end.mV);
 
                 for (S32 i = -num_ticks_per_side; i <= num_ticks_per_side; i++)
@@ -1316,7 +1316,7 @@ void LLManipTranslate::renderSnapGuides()
 
                     tick_end = tick_start + (mSnapOffsetAxis * mSnapOffsetMeters * tick_scale);
 
-                    gGL.color4f(line_color.mV[VX], line_color.mV[VY], line_color.mV[VZ], line_color.mV[VW]);
+                    gGL.color4f(line_color.mV[VRED], line_color.mV[VGREEN], line_color.mV[VBLUE], line_color.mV[VALPHA]);
                     gGL.vertex3fv(tick_start.mV);
                     gGL.vertex3fv(tick_end.mV);
 
@@ -1337,7 +1337,7 @@ void LLManipTranslate::renderSnapGuides()
 
                 gGL.begin(LLRender::LINES);
                 {
-                    gGL.color4f(line_color.mV[VX], line_color.mV[VY], line_color.mV[VZ], line_color.mV[VW]);
+                    gGL.color4f(line_color.mV[VRED], line_color.mV[VGREEN], line_color.mV[VBLUE], line_color.mV[VALPHA]);
 
                     gGL.vertex3fv(line_start.mV);
                     gGL.vertex3fv(line_end.mV);
@@ -1347,7 +1347,7 @@ void LLManipTranslate::renderSnapGuides()
                 // draw snap guide arrow
                 gGL.begin(LLRender::TRIANGLES);
                 {
-                    gGL.color4f(line_color.mV[VX], line_color.mV[VY], line_color.mV[VZ], line_color.mV[VW]);
+                    gGL.color4f(line_color.mV[VRED], line_color.mV[VGREEN], line_color.mV[VBLUE], line_color.mV[VALPHA]);
 
                     LLVector3 arrow_dir;
                     LLVector3 arrow_span = translate_axis;
@@ -1573,13 +1573,13 @@ void LLManipTranslate::renderSnapGuides()
                     switch (mManipPart)
                     {
                       case LL_YZ_PLANE:
-                        renderGuidelines(FALSE, TRUE, TRUE);
+                        renderGuidelines(false, true, true);
                         break;
                       case LL_XZ_PLANE:
-                        renderGuidelines(TRUE, FALSE, TRUE);
+                        renderGuidelines(true, false, true);
                         break;
                       case LL_XY_PLANE:
-                        renderGuidelines(TRUE, TRUE, FALSE);
+                        renderGuidelines(true, true, false);
                         break;
                       default:
                         break;
@@ -1676,15 +1676,15 @@ void LLManipTranslate::highlightIntersection(LLVector3 normal,
             normal = -normal;
         }
         F32 d = -(selection_center * normal);
-        glh::vec4f plane(normal.mV[0], normal.mV[1], normal.mV[2], d );
+        glm::vec4 plane(normal.mV[0], normal.mV[1], normal.mV[2], d );
 
-        gGL.getModelviewMatrix().inverse().mult_vec_matrix(plane);
+        plane = glm::inverse(gGL.getModelviewMatrix()) * plane;
 
         static LLStaticHashedString sClipPlane("clip_plane");
         gClipProgram.uniform4fv(sClipPlane, 1, plane.v);
 
-        BOOL particles = gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_PARTICLES);
-        BOOL clouds = gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_CLOUDS);
+        bool particles = gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_PARTICLES);
+        bool clouds = gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_CLOUDS);
 
         if (particles)
         {
@@ -1700,14 +1700,14 @@ void LLManipTranslate::highlightIntersection(LLVector3 normal,
         glCullFace(GL_FRONT);
         for (U32 i = 0; i < num_types; i++)
         {
-            gPipeline.renderObjects(types[i], LLVertexBuffer::MAP_VERTEX, FALSE);
+            gPipeline.renderObjects(types[i], LLVertexBuffer::MAP_VERTEX, false);
         }
 
         //glStencilOp(GL_DECR, GL_DECR, GL_DECR);
         glCullFace(GL_BACK);
         for (U32 i = 0; i < num_types; i++)
         {
-            gPipeline.renderObjects(types[i], LLVertexBuffer::MAP_VERTEX, FALSE);
+            gPipeline.renderObjects(types[i], LLVertexBuffer::MAP_VERTEX, false);
         }
 
         if (particles)
@@ -1732,11 +1732,6 @@ void LLManipTranslate::highlightIntersection(LLVector3 normal,
 
     F32 sz = mGridSizeMeters;
     F32 tiles = sz;
-
-    if (shader)
-    {
-        shader->bind();
-    }
 
     if (shader)
     {
@@ -1770,7 +1765,7 @@ void LLManipTranslate::renderText()
     }
     else
     {
-        const BOOL children_ok = TRUE;
+        const bool children_ok = true;
         LLViewerObject* objectp = mObjectSelection->getFirstRootObject(children_ok);
         if (objectp)
         {
@@ -1824,7 +1819,7 @@ void LLManipTranslate::renderTranslationHandles()
         mPlaneManipPositions.mV[VZ] = -1.f;
     }
 
-    LLViewerObject *first_object = mObjectSelection->getFirstMoveableObject(TRUE);
+    LLViewerObject *first_object = mObjectSelection->getFirstMoveableObject(true);
     if (!first_object) return;
 
     LLVector3 selection_center = getPivotPoint();
@@ -2179,7 +2174,7 @@ void LLManipTranslate::renderTranslationHandles()
                             (face >= 3) ? -mConeSize : mConeSize,
                             (face >= 3) ? -mArrowLengthMeters : mArrowLengthMeters,
                             mConeSize,
-                            FALSE);
+                            false);
             }
         }
     }
@@ -2187,7 +2182,7 @@ void LLManipTranslate::renderTranslationHandles()
 }
 
 
-void LLManipTranslate::renderArrow(S32 which_arrow, S32 selected_arrow, F32 box_size, F32 arrow_size, F32 handle_size, BOOL reverse_direction)
+void LLManipTranslate::renderArrow(S32 which_arrow, S32 selected_arrow, F32 box_size, F32 arrow_size, F32 handle_size, bool reverse_direction)
 {
     gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
     LLGLEnable gls_blend(GL_BLEND);
@@ -2289,9 +2284,9 @@ void LLManipTranslate::renderGridVert(F32 x_trans, F32 y_trans, F32 r, F32 g, F3
 }
 
 // virtual
-BOOL LLManipTranslate::canAffectSelection()
+bool LLManipTranslate::canAffectSelection()
 {
-    BOOL can_move = mObjectSelection->getObjectCount() != 0;
+    bool can_move = mObjectSelection->getObjectCount() != 0;
     if (can_move)
     {
         struct f : public LLSelectedObjectFunctor

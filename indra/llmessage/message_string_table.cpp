@@ -47,7 +47,7 @@ LLMessageStringTable::LLMessageStringTable()
 {
     for (U32 i = 0; i < MESSAGE_NUMBER_OF_HASH_BUCKETS; i++)
     {
-        mEmpty[i] = TRUE;
+        mEmpty[i] = true;
         mString[i][0] = 0;
     }
 }
@@ -75,7 +75,7 @@ char* LLMessageStringTable::getString(const char *str)
     // not found, so add!
     strncpy(mString[hash_value], str, MESSAGE_MAX_STRINGS_LENGTH);  /* Flawfinder: ignore */
     mString[hash_value][MESSAGE_MAX_STRINGS_LENGTH - 1] = 0;
-    mEmpty[hash_value] = FALSE;
+    mEmpty[hash_value] = false;
     mUsed++;
     if (mUsed >= MESSAGE_NUMBER_OF_HASH_BUCKETS - 1)
     {
@@ -88,4 +88,3 @@ char* LLMessageStringTable::getString(const char *str)
     }
     return mString[hash_value];
 }
-

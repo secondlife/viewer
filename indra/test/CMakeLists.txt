@@ -9,7 +9,6 @@ include(Linking)
 include(Tut)
 include(LLAddBuildTest)
 include(bugsplat)
-include(GoogleMock)
 
 set(test_SOURCE_FILES
     io.cpp
@@ -65,7 +64,6 @@ target_link_libraries(lltest
         llxml
         llcommon
         llcorehttp
-        ll::googlemock
         )
 
 if (WINDOWS)
@@ -73,6 +71,7 @@ if (WINDOWS)
           PROPERTIES 
           LINK_FLAGS "/NODEFAULTLIB:LIBCMT"
           LINK_FLAGS_DEBUG "/NODEFAULTLIB:\"LIBCMT;LIBCMTD;MSVCRT\""
+          RUNTIME_OUTPUT_DIRECTORY "${EXE_STAGING_DIR}"
           )
 elseif (DARWIN)
   # Support our "@executable_path/../Resources" load path for our test

@@ -29,6 +29,7 @@
 #include "llflashtimer.h"
 #include "llview.h"
 #include "lluiimage.h"
+#include "llfontvertexbuffer.h"
 
 class LLFolderView;
 class LLFolderViewModelItem;
@@ -89,14 +90,14 @@ protected:
 
     LLFolderViewItem(const Params& p);
 
-    std::string                 mLabel;
+    LLWString                   mLabel;
     S32                         mLabelWidth;
     bool                        mLabelWidthDirty;
     S32                         mLabelPaddingRight;
     LLFolderViewFolder*         mParentFolder;
     LLPointer<LLFolderViewModelItem> mViewModelItem;
     LLFontGL::StyleFlags        mLabelStyle;
-    std::string                 mLabelSuffix;
+    LLWString                   mLabelSuffix;
     bool                        mSuffixNeedsRefresh; //suffix and icons
     LLUIImagePtr                mIcon,
                                 mIconOpen,
@@ -134,7 +135,6 @@ protected:
     LLUIColor                   mFontHighlightColor;
 
     // For now assuming all colors are the same in derived classes.
-    static bool                 sColorSetInitialized;
     static LLUIColor            sFgColor;
     static LLUIColor            sFgDisabledColor;
     static LLUIColor            sHighlightBgColor;
@@ -157,22 +157,23 @@ protected:
     virtual void setFlashState(bool) { }
 
     static LLFontGL* getLabelFontForStyle(U8 style);
+    const LLFontGL* getLabelFont();
 
-    BOOL                        mIsSelected;
+    bool                        mIsSelected;
 
 public:
     static void initClass();
     static void cleanupClass();
 
-    BOOL postBuild();
+    bool postBuild();
 
     virtual void openItem( void );
 
-    void arrangeAndSet(BOOL set_selection, BOOL take_keyboard_focus);
+    void arrangeAndSet(bool set_selection, bool take_keyboard_focus);
 
     virtual ~LLFolderViewItem( void );
 
-    // addToFolder() returns TRUE if it succeeds. FALSE otherwise
+    // addToFolder() returns true if it succeeds. false otherwise
     virtual void addToFolder(LLFolderViewFolder* folder);
 
     // Finds width and height of this object and it's children.  Also
@@ -184,13 +185,13 @@ public:
     S32 getTextPad();
 
     // If 'selection' is 'this' then note that otherwise ignore.
-    // Returns TRUE if this item ends up being selected.
-    virtual BOOL setSelection(LLFolderViewItem* selection, BOOL openitem, BOOL take_keyboard_focus);
+    // Returns true if this item ends up being selected.
+    virtual bool setSelection(LLFolderViewItem* selection, bool openitem, bool take_keyboard_focus);
 
     // This method is used to set the selection state of an item.
     // If 'selection' is 'this' then note selection.
-    // Returns TRUE if the selection state of this item was changed.
-    virtual BOOL changeSelection(LLFolderViewItem* selection, BOOL selected);
+    // Returns true if the selection state of this item was changed.
+    virtual bool changeSelection(LLFolderViewItem* selection, bool selected);
 
     // this method is used to deselect this element
     void deselectItem();
@@ -202,24 +203,24 @@ public:
     virtual std::set<LLFolderViewItem*> getSelectionList() const;
 
     // Returns true is this object and all of its children can be removed (deleted by user)
-    virtual BOOL isRemovable();
+    virtual bool isRemovable();
 
     // Returns true is this object and all of its children can be moved
-    virtual BOOL isMovable();
+    virtual bool isMovable();
 
     // destroys this item recursively
     virtual void destroyView();
 
-    BOOL isSelected() const { return mIsSelected; }
+    bool isSelected() const { return mIsSelected; }
     bool isInSelection() const;
 
-    void setUnselected() { mIsSelected = FALSE; }
+    void setUnselected() { mIsSelected = false; }
 
-    void setIsCurSelection(BOOL select) { mIsCurSelection = select; }
+    void setIsCurSelection(bool select) { mIsCurSelection = select; }
 
-    BOOL getIsCurSelection() const { return mIsCurSelection; }
+    bool getIsCurSelection() const { return mIsCurSelection; }
 
-    BOOL hasVisibleChildren() const { return mHasVisibleChildren; }
+    bool hasVisibleChildren() const { return mHasVisibleChildren; }
 
     // true if object can't have children
     virtual bool isFolderComplete() { return true; }
@@ -229,8 +230,8 @@ public:
 
     // Call through to the viewed object and return true if it can be
     // removed. Returns true if it's removed.
-    //virtual BOOL removeRecursively(BOOL single_item);
-    BOOL remove();
+    //virtual bool removeRecursively(bool single_item);
+    bool remove();
 
     // Build an appropriate context menu for the item.  Flags unused.
     void buildContextMenu(class LLMenuGL& menu, U32 flags);
@@ -242,15 +243,15 @@ public:
     // This method returns the label displayed on the view. This
     // method was primarily added to allow sorting on the folder
     // contents possible before the entire view has been constructed.
-    const std::string& getLabel() const { return mLabel; }
+    const LLWString& getLabel() const { return mLabel; }
 
     LLFolderViewFolder* getParentFolder( void ) { return mParentFolder; }
     const LLFolderViewFolder* getParentFolder( void ) const { return mParentFolder; }
 
     void setParentFolder(LLFolderViewFolder* parent) { mParentFolder = parent; }
 
-    LLFolderViewItem* getNextOpenNode( BOOL include_children = TRUE );
-    LLFolderViewItem* getPreviousOpenNode( BOOL include_children = TRUE );
+    LLFolderViewItem* getNextOpenNode( bool include_children = true );
+    LLFolderViewItem* getPreviousOpenNode( bool include_children = true );
 
     const LLFolderViewModelItem* getViewModelItem( void ) const { return mViewModelItem; }
     LLFolderViewModelItem* getViewModelItem( void ) { return mViewModelItem; }
@@ -262,16 +263,16 @@ public:
     void rename(const std::string& new_name);
 
     // Show children
-    virtual void setOpen(BOOL open = TRUE) {};
-    virtual BOOL isOpen() const { return FALSE; }
+    virtual void setOpen(bool open = true) {};
+    virtual bool isOpen() const { return false; }
 
     virtual LLFolderView*   getRoot();
     virtual const LLFolderView* getRoot() const;
-    BOOL            isDescendantOf( const LLFolderViewFolder* potential_ancestor );
+    bool            isDescendantOf( const LLFolderViewFolder* potential_ancestor );
     S32             getIndentation() const { return mIndentation; }
 
-    virtual BOOL    passedFilter(S32 filter_generation = -1);
-    virtual BOOL    isPotentiallyVisible(S32 filter_generation = -1);
+    virtual bool    passedFilter(S32 filter_generation = -1);
+    virtual bool    isPotentiallyVisible(S32 filter_generation = -1);
 
     // refresh information from the object being viewed.
     // refreshes label, suffixes and sets icons. Expensive!
@@ -284,22 +285,22 @@ public:
     bool isSingleFolderMode() { return mSingleFolderMode; }
 
     // LLView functionality
-    virtual BOOL handleRightMouseDown( S32 x, S32 y, MASK mask );
-    virtual BOOL handleMouseDown( S32 x, S32 y, MASK mask );
-    virtual BOOL handleHover( S32 x, S32 y, MASK mask );
-    virtual BOOL handleMouseUp( S32 x, S32 y, MASK mask );
-    virtual BOOL handleDoubleClick( S32 x, S32 y, MASK mask );
+    virtual bool handleRightMouseDown( S32 x, S32 y, MASK mask );
+    virtual bool handleMouseDown( S32 x, S32 y, MASK mask );
+    virtual bool handleHover( S32 x, S32 y, MASK mask );
+    virtual bool handleMouseUp( S32 x, S32 y, MASK mask );
+    virtual bool handleDoubleClick( S32 x, S32 y, MASK mask );
 
     virtual void onMouseLeave(S32 x, S32 y, MASK mask);
 
-    //virtual LLView* findChildView(const std::string& name, BOOL recurse) const { return LLView::findChildView(name, recurse); }
+    //virtual LLView* findChildView(const std::string& name, bool recurse) const { return LLView::findChildView(name, recurse); }
 
     //  virtual void handleDropped();
     virtual void draw();
-    void drawOpenFolderArrow(const Params& default_params, const LLUIColor& fg_color);
-    void drawHighlight(const BOOL showContent, const BOOL hasKeyboardFocus, const LLUIColor &selectColor, const LLUIColor &flashColor, const LLUIColor &outlineColor, const LLUIColor &mouseOverColor);
-    void drawLabel(const LLFontGL * font, const F32 x, const F32 y, const LLColor4& color, F32 &right_x);
-    virtual BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+    void drawOpenFolderArrow();
+    void drawHighlight(bool showContent, bool hasKeyboardFocus, const LLUIColor& selectColor, const LLUIColor& flashColor, const LLUIColor& outlineColor, const LLUIColor& mouseOverColor);
+    void drawLabel(const LLFontGL* font, const F32 x, const F32 y, const LLColor4& color, F32 &right_x);
+    virtual bool handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
                                     EDragAndDropType cargo_type,
                                     void* cargo_data,
                                     EAcceptance* accept,
@@ -307,6 +308,14 @@ public:
 
 private:
     static std::map<U8, LLFontGL*> sFonts; // map of styles to fonts
+    static S32 sTopPad;
+    static LLUIImagePtr sFolderArrowImg;
+    static LLUIImagePtr sSelectionImg;
+    static LLFontGL* sSuffixFont;
+
+    LLFontVertexBuffer mLabelFontBuffer;
+    LLFontVertexBuffer mSuffixFontBuffer;
+    LLFontGL* pLabelFont{nullptr};
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -324,7 +333,7 @@ protected:
     friend class LLUICtrlFactory;
 
     void updateLabelRotation();
-    virtual bool isCollapsed() { return FALSE; }
+    virtual bool isCollapsed() { return false; }
 
 public:
     typedef std::list<LLFolderViewItem*> items_t;
@@ -334,8 +343,8 @@ protected:
     items_t mItems;
     folders_t mFolders;
 
-    BOOL        mIsOpen;
-    BOOL        mExpanderHighlighted;
+    bool        mIsOpen;
+    bool        mExpanderHighlighted;
     F32         mCurHeight;
     F32         mTargetHeight;
     F32         mAutoOpenCountdown;
@@ -356,40 +365,40 @@ public:
 
     virtual ~LLFolderViewFolder( void );
 
-    LLFolderViewItem* getNextFromChild( LLFolderViewItem*, BOOL include_children = TRUE );
-    LLFolderViewItem* getPreviousFromChild( LLFolderViewItem*, BOOL include_children = TRUE  );
+    LLFolderViewItem* getNextFromChild( LLFolderViewItem*, bool include_children = true );
+    LLFolderViewItem* getPreviousFromChild( LLFolderViewItem*, bool include_children = true  );
 
-    // addToFolder() returns TRUE if it succeeds. FALSE otherwise
+    // addToFolder() returns true if it succeeds. false otherwise
     virtual void addToFolder(LLFolderViewFolder* folder);
 
     // Finds width and height of this object and it's children.  Also
     // makes sure that this view and it's children are the right size.
     virtual S32 arrange( S32* width, S32* height );
 
-    BOOL needsArrange();
+    bool needsArrange();
 
     bool descendantsPassedFilter(S32 filter_generation = -1);
 
     // Passes selection information on to children and record
     // selection information if necessary.
-    // Returns TRUE if this object (or a child) ends up being selected.
-    // If 'openitem' is TRUE then folders are opened up along the way to the selection.
-    virtual BOOL setSelection(LLFolderViewItem* selection, BOOL openitem, BOOL take_keyboard_focus = TRUE);
+    // Returns true if this object (or a child) ends up being selected.
+    // If 'openitem' is true then folders are opened up along the way to the selection.
+    virtual bool setSelection(LLFolderViewItem* selection, bool openitem, bool take_keyboard_focus = true);
 
     // This method is used to change the selection of an item.
     // Recursively traverse all children; if 'selection' is 'this' then change
     // the select status if necessary.
-    // Returns TRUE if the selection state of this folder, or of a child, was changed.
-    virtual BOOL changeSelection(LLFolderViewItem* selection, BOOL selected);
+    // Returns true if the selection state of this folder, or of a child, was changed.
+    virtual bool changeSelection(LLFolderViewItem* selection, bool selected);
 
     // this method is used to group select items
     void extendSelectionTo(LLFolderViewItem* selection);
 
     // Returns true is this object and all of its children can be removed.
-    virtual BOOL isRemovable();
+    virtual bool isRemovable();
 
     // Returns true is this object and all of its children can be moved
-    virtual BOOL isMovable();
+    virtual bool isMovable();
 
     // destroys this folder, and all children
     virtual void destroyView();
@@ -416,7 +425,7 @@ public:
     virtual void toggleOpen();
 
     // Force a folder open or closed
-    virtual void setOpen(BOOL openitem = TRUE);
+    virtual void setOpen(bool openitem = true);
 
     // Called when a child is refreshed.
     virtual void requestArrange();
@@ -425,14 +434,14 @@ public:
     // method was written because the list iterators destroy the state
     // of other iterations, thus, we can't arrange while iterating
     // through the children (such as when setting which is selected.
-    virtual void setOpenArrangeRecursively(BOOL openitem, ERecurseType recurse = RECURSE_NO);
+    virtual void setOpenArrangeRecursively(bool openitem, ERecurseType recurse = RECURSE_NO);
 
     // Get the current state of the folder.
-    virtual BOOL isOpen() const { return mIsOpen; }
+    virtual bool isOpen() const { return mIsOpen; }
 
     // special case if an object is dropped on the child.
-    BOOL handleDragAndDropFromChild(MASK mask,
-                                    BOOL drop,
+    bool handleDragAndDropFromChild(MASK mask,
+                                    bool drop,
                                     EDragAndDropType cargo_type,
                                     void* cargo_data,
                                     EAcceptance* accept,
@@ -447,18 +456,18 @@ public:
     virtual void openItem( void );
 
     // LLView functionality
-    virtual BOOL handleHover(S32 x, S32 y, MASK mask);
-    virtual BOOL handleRightMouseDown( S32 x, S32 y, MASK mask );
-    virtual BOOL handleMouseDown( S32 x, S32 y, MASK mask );
-    virtual BOOL handleDoubleClick( S32 x, S32 y, MASK mask );
-    virtual BOOL handleDragAndDrop(S32 x, S32 y, MASK mask,
-                                    BOOL drop,
+    virtual bool handleHover(S32 x, S32 y, MASK mask);
+    virtual bool handleRightMouseDown( S32 x, S32 y, MASK mask );
+    virtual bool handleMouseDown( S32 x, S32 y, MASK mask );
+    virtual bool handleDoubleClick( S32 x, S32 y, MASK mask );
+    virtual bool handleDragAndDrop(S32 x, S32 y, MASK mask,
+                                    bool drop,
                                     EDragAndDropType cargo_type,
                                     void* cargo_data,
                                     EAcceptance* accept,
                                     std::string& tooltip_msg);
-    BOOL handleDragAndDropToThisFolder(MASK mask,
-                                        BOOL drop,
+    bool handleDragAndDropToThisFolder(MASK mask,
+                                        bool drop,
                                        EDragAndDropType cargo_type,
                                        void* cargo_data,
                                        EAcceptance* accept,

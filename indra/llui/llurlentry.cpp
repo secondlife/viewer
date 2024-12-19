@@ -229,7 +229,7 @@ bool LLUrlEntryBase::isWikiLinkCorrect(const std::string &labeled_url) const
         label = "http://" + label;
     }
 
-    return (LLUrlRegistry::instance().hasUrl(label)) ? false : true;
+    return !LLUrlRegistry::instance().hasUrl(label);
 }
 
 std::string LLUrlEntryBase::urlToLabelWithGreyQuery(const std::string &url) const
@@ -239,7 +239,7 @@ std::string LLUrlEntryBase::urlToLabelWithGreyQuery(const std::string &url) cons
         return url;
     }
     LLUriParser up(escapeUrl(url));
-    if (up.normalize() == 0)
+    if (up.normalize())
     {
         std::string label;
         up.extractParts();
@@ -389,7 +389,7 @@ bool LLUrlEntryInvalidSLURL::isSLURLvalid(const std::string &url) const
 
     LLURI uri(url);
     LLSD path_array = uri.pathArray();
-    S32 path_parts = path_array.size();
+    auto path_parts = path_array.size();
     S32 x,y,z;
 
     if (path_parts == actual_parts)
@@ -401,7 +401,7 @@ bool LLUrlEntryInvalidSLURL::isSLURLvalid(const std::string &url) const
 
         if((x>= 0 && x<= 256) && (y>= 0 && y<= 256) && (z>= 0))
         {
-            return TRUE;
+            return true;
         }
     }
     else if (path_parts == (actual_parts-1))
@@ -413,7 +413,7 @@ bool LLUrlEntryInvalidSLURL::isSLURLvalid(const std::string &url) const
         ;
         if((x>= 0 && x<= 256) && (y>= 0 && y<= 256))
         {
-                return TRUE;
+                return true;
         }
     }
     else if (path_parts == (actual_parts-2))
@@ -422,11 +422,11 @@ bool LLUrlEntryInvalidSLURL::isSLURLvalid(const std::string &url) const
         LLStringUtil::convertToS32(path_array[path_parts-1],x);
         if(x>= 0 && x<= 256)
         {
-            return TRUE;
+            return true;
         }
     }
 
-    return FALSE;
+    return false;
 }
 
 //
@@ -454,7 +454,7 @@ std::string LLUrlEntrySLURL::getLabel(const std::string &url, const LLUrlLabelCa
 
     LLURI uri(url);
     LLSD path_array = uri.pathArray();
-    S32 path_parts = path_array.size();
+    auto path_parts = path_array.size();
     if (path_parts == 5)
     {
         // handle slurl with (X,Y,Z) coordinates
@@ -600,15 +600,15 @@ void LLUrlEntryAgent::callObservers(const std::string &id,
 void LLUrlEntryAgent::onAvatarNameCache(const LLUUID& id,
                                         const LLAvatarName& av_name)
 {
-    avatar_name_cache_connection_map_t::iterator it = mAvatarNameCacheConnections.find(id);
-    if (it != mAvatarNameCacheConnections.end())
+    auto range = mAvatarNameCacheConnections.equal_range(id);
+    for (avatar_name_cache_connection_map_t::iterator it = range.first; it != range.second; ++it)
     {
         if (it->second.connected())
         {
             it->second.disconnect();
         }
-        mAvatarNameCacheConnections.erase(it);
     }
+    mAvatarNameCacheConnections.erase(range.first, range.second);
 
     std::string label = av_name.getCompleteName();
 
@@ -695,16 +695,7 @@ std::string LLUrlEntryAgent::getLabel(const std::string &url, const LLUrlLabelCa
     }
     else
     {
-        avatar_name_cache_connection_map_t::iterator it = mAvatarNameCacheConnections.find(agent_id);
-        if (it != mAvatarNameCacheConnections.end())
-        {
-            if (it->second.connected())
-            {
-                it->second.disconnect();
-            }
-            mAvatarNameCacheConnections.erase(it);
-        }
-        mAvatarNameCacheConnections[agent_id] = LLAvatarNameCache::get(agent_id, boost::bind(&LLUrlEntryAgent::onAvatarNameCache, this, _1, _2));
+        mAvatarNameCacheConnections.emplace(agent_id, LLAvatarNameCache::get(agent_id, boost::bind(&LLUrlEntryAgent::onAvatarNameCache, this, _1, _2)));
 
         addObserver(agent_id_string, url, cb);
         return LLTrans::getString("LoadingData");
@@ -770,17 +761,17 @@ LLUrlEntryAgentName::LLUrlEntryAgentName()
 {}
 
 void LLUrlEntryAgentName::onAvatarNameCache(const LLUUID& id,
-                                        const LLAvatarName& av_name)
+                                            const LLAvatarName& av_name)
 {
-    avatar_name_cache_connection_map_t::iterator it = mAvatarNameCacheConnections.find(id);
-    if (it != mAvatarNameCacheConnections.end())
+    auto range = mAvatarNameCacheConnections.equal_range(id);
+    for (avatar_name_cache_connection_map_t::iterator it = range.first; it != range.second; ++it)
     {
         if (it->second.connected())
         {
             it->second.disconnect();
         }
-        mAvatarNameCacheConnections.erase(it);
     }
+    mAvatarNameCacheConnections.erase(range.first, range.second);
 
     std::string label = getName(av_name);
     // received the agent name from the server - tell our observers
@@ -815,16 +806,7 @@ std::string LLUrlEntryAgentName::getLabel(const std::string &url, const LLUrlLab
     }
     else
     {
-        avatar_name_cache_connection_map_t::iterator it = mAvatarNameCacheConnections.find(agent_id);
-        if (it != mAvatarNameCacheConnections.end())
-        {
-            if (it->second.connected())
-            {
-                it->second.disconnect();
-            }
-            mAvatarNameCacheConnections.erase(it);
-        }
-        mAvatarNameCacheConnections[agent_id] = LLAvatarNameCache::get(agent_id, boost::bind(&LLUrlEntryAgentName::onAvatarNameCache, this, _1, _2));
+        mAvatarNameCacheConnections.emplace(agent_id, LLAvatarNameCache::get(agent_id, boost::bind(&LLUrlEntryAgentName::onAvatarNameCache, this, _1, _2)));
 
         addObserver(agent_id_string, url, cb);
         return LLTrans::getString("LoadingData");
@@ -1074,7 +1056,7 @@ LLUrlEntryParcel::~LLUrlEntryParcel()
 std::string LLUrlEntryParcel::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
 {
     LLSD path_array = LLURI(url).pathArray();
-    S32 path_parts = path_array.size();
+    auto path_parts = path_array.size();
 
     if (path_parts < 3) // no parcel id
     {
@@ -1165,7 +1147,7 @@ std::string LLUrlEntryPlace::getLabel(const std::string &url, const LLUrlLabelCa
     LLURI uri(url);
     std::string location = unescapeUrl(uri.hostName());
     LLSD path_array = uri.pathArray();
-    S32 path_parts = path_array.size();
+    auto path_parts = path_array.size();
     if (path_parts == 3)
     {
         // handle slurl with (X,Y,Z) coordinates
@@ -1214,7 +1196,7 @@ std::string LLUrlEntryRegion::getLabel(const std::string &url, const LLUrlLabelC
     //
 
     LLSD path_array = LLURI(url).pathArray();
-    S32 path_parts = path_array.size();
+    auto path_parts = path_array.size();
 
     if (path_parts < 3) // no region name
     {
@@ -1278,7 +1260,7 @@ std::string LLUrlEntryTeleport::getLabel(const std::string &url, const LLUrlLabe
     //
     LLURI uri(url);
     LLSD path_array = uri.pathArray();
-    S32 path_parts = path_array.size();
+    auto path_parts = path_array.size();
     std::string host = uri.hostName();
     std::string label = LLTrans::getString("SLurlLabelTeleport");
     if (!host.empty())
@@ -1413,7 +1395,7 @@ std::string LLUrlEntryWorldMap::getLabel(const std::string &url, const LLUrlLabe
     //
     LLURI uri(url);
     LLSD path_array = uri.pathArray();
-    S32 path_parts = path_array.size();
+    auto path_parts = path_array.size();
     if (path_parts < 3)
     {
         return url;
@@ -1505,7 +1487,7 @@ LLUrlEntryEmail::LLUrlEntryEmail()
 
 std::string LLUrlEntryEmail::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
 {
-    int pos = url.find("mailto:");
+    auto pos = url.find("mailto:");
 
     if (pos == std::string::npos)
     {

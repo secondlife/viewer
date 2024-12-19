@@ -83,7 +83,7 @@ const LLUUID& get_folder_uuid(const LLUUID& parentFolderUUID, LLInventoryCollect
     gInventory.collectDescendentsIf(parentFolderUUID, cats, items,
         LLInventoryModel::EXCLUDE_TRASH, matchFunctor);
 
-    S32 cats_count = cats.size();
+    auto cats_count = cats.size();
 
     if (cats_count > 1)
     {
@@ -177,7 +177,7 @@ void LLFriendCardsManager::putAvatarData(const LLUUID& avatarID)
     LL_INFOS() << "Store avatar data, avatarID: " << avatarID << LL_ENDL;
     std::pair< avatar_uuid_set_t::iterator, bool > pr;
     pr = mBuddyIDSet.insert(avatarID);
-    if (pr.second == false)
+    if (!pr.second)
     {
         LL_WARNS() << "Trying to add avatar UUID for the stored avatar: "
             << avatarID
@@ -244,7 +244,7 @@ bool LLFriendCardsManager::isObjDirectDescendentOfCategory(const LLInventoryObje
             {
                 LLUUID creator_id = item->getCreatorUUID();
                 LLViewerInventoryItem* cur_item = NULL;
-                for ( S32 i = items->size() - 1; i >= 0; --i )
+                for (S32 i = static_cast<S32>(items->size()) - 1; i >= 0; --i)
                 {
                     cur_item = items->at(i);
                     if ( creator_id == cur_item->getCreatorUUID() )
@@ -261,7 +261,7 @@ bool LLFriendCardsManager::isObjDirectDescendentOfCategory(const LLInventoryObje
             // Note: UUID's of compared items also may be not equal.
             std::string obj_name = obj->getName();
             LLViewerInventoryItem* cur_item = NULL;
-            for ( S32 i = items->size() - 1; i >= 0; --i )
+            for (S32 i = static_cast<S32>(items->size()) - 1; i >= 0; --i)
             {
                 cur_item = items->at(i);
                 if ( obj->getType() != cur_item->getType() )
@@ -281,7 +281,7 @@ bool LLFriendCardsManager::isObjDirectDescendentOfCategory(const LLInventoryObje
         // then return true. Note: UUID's of compared items also may be not equal.
         std::string obj_name = obj->getName();
         LLViewerInventoryCategory* cur_cat = NULL;
-        for ( S32 i = cats->size() - 1; i >= 0; --i )
+        for (S32 i = static_cast<S32>(cats->size()) - 1; i >= 0; --i)
         {
             cur_cat = cats->at(i);
             if ( obj->getType() != cur_cat->getType() )
@@ -303,7 +303,7 @@ bool LLFriendCardsManager::isCategoryInFriendFolder(const LLViewerInventoryCateg
 {
     if (NULL == cat)
         return false;
-    return TRUE == gInventory.isObjectDescendentOf(cat->getUUID(), findFriendFolderUUIDImpl());
+    return true == gInventory.isObjectDescendentOf(cat->getUUID(), findFriendFolderUUIDImpl());
 }
 
 bool LLFriendCardsManager::isAnyFriendCategory(const LLUUID& catID) const
@@ -312,7 +312,7 @@ bool LLFriendCardsManager::isAnyFriendCategory(const LLUUID& catID) const
     if (catID == friendFolderID)
         return true;
 
-    return TRUE == gInventory.isObjectDescendentOf(catID, friendFolderID);
+    return true == gInventory.isObjectDescendentOf(catID, friendFolderID);
 }
 
 void LLFriendCardsManager::syncFriendCardsFolders()

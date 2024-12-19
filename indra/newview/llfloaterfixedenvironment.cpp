@@ -28,8 +28,6 @@
 
 #include "llfloaterfixedenvironment.h"
 
-#include <boost/make_shared.hpp>
-
 // libs
 #include "llbutton.h"
 #include "llnotifications.h"
@@ -94,12 +92,12 @@ LLFloaterFixedEnvironment::~LLFloaterFixedEnvironment()
     delete mFlyoutControl;
 }
 
-BOOL LLFloaterFixedEnvironment::postBuild()
+bool LLFloaterFixedEnvironment::postBuild()
 {
     mTab = getChild<LLTabContainer>(CONTROL_TAB_AREA);
     mTxtName = getChild<LLLineEditor>(FIELD_SETTINGS_NAME);
 
-    mTxtName->setCommitOnFocusLost(TRUE);
+    mTxtName->setCommitOnFocusLost(true);
     mTxtName->setCommitCallback([this](LLUICtrl *, const LLSD &) { onNameChanged(mTxtName->getValue().asString()); });
 
     getChild<LLButton>(BUTTON_NAME_IMPORT)->setClickedCallback([this](LLUICtrl *, const LLSD &) { onButtonImport(); });
@@ -110,7 +108,7 @@ BOOL LLFloaterFixedEnvironment::postBuild()
     mFlyoutControl->setAction([this](LLUICtrl *ctrl, const LLSD &data) { onButtonApply(ctrl, data); });
     mFlyoutControl->setMenuItemVisible(ACTION_COMMIT, false);
 
-    return TRUE;
+    return true;
 }
 
 void LLFloaterFixedEnvironment::onOpen(const LLSD& key)
@@ -184,8 +182,10 @@ void LLFloaterFixedEnvironment::setEditSettingsAndUpdate(const LLSettingsBase::p
     LLEnvironment::instance().updateEnvironment(LLEnvironment::TRANSITION_INSTANT);
 
     // teach user about HDR settings
+    static LLCachedControl<bool> should_auto_adjust(gSavedSettings, "RenderSkyAutoAdjustLegacy", false);
     if (mSettings
         && mSettings->getSettingsType() == "sky"
+        && should_auto_adjust()
         && ((LLSettingsSky*)mSettings.get())->canAutoAdjust()
         && ((LLSettingsSky*)mSettings.get())->getReflectionProbeAmbiance(true) != 0.f)
     {
@@ -367,7 +367,7 @@ void LLFloaterFixedEnvironment::onInventoryCreated(LLUUID asset_id, LLUUID inven
         }
     }
     clearDirtyFlag();
-    setFocus(TRUE);                 // Call back the focus...
+    setFocus(true);                 // Call back the focus...
     loadInventoryItem(inventory_id, can_trans);
 }
 
@@ -404,7 +404,7 @@ void LLFloaterFixedEnvironment::doSelectFromInventory()
 
     picker->setSettingsFilter(mSettings->getSettingsTypeValue());
     picker->openFloater();
-    picker->setFocus(TRUE);
+    picker->setFocus(true);
 }
 
 //=========================================================================
@@ -412,10 +412,10 @@ LLFloaterFixedEnvironmentWater::LLFloaterFixedEnvironmentWater(const LLSD &key):
     LLFloaterFixedEnvironment(key)
 {}
 
-BOOL LLFloaterFixedEnvironmentWater::postBuild()
+bool LLFloaterFixedEnvironmentWater::postBuild()
 {
     if (!LLFloaterFixedEnvironment::postBuild())
-        return FALSE;
+        return false;
 
     LLPanelSettingsWater * panel;
     panel = new LLPanelSettingsWaterMainTab;
@@ -424,7 +424,7 @@ BOOL LLFloaterFixedEnvironmentWater::postBuild()
     panel->setOnDirtyFlagChanged( [this] (LLPanel *, bool value) { onPanelDirtyFlagChanged(value); });
     mTab->addTabPanel(LLTabContainer::TabPanelParams().panel(panel).select_tab(true));
 
-    return TRUE;
+    return true;
 }
 
 void LLFloaterFixedEnvironmentWater::updateEditEnvironment(void)
@@ -479,10 +479,10 @@ LLFloaterFixedEnvironmentSky::LLFloaterFixedEnvironmentSky(const LLSD &key) :
     LLFloaterFixedEnvironment(key)
 {}
 
-BOOL LLFloaterFixedEnvironmentSky::postBuild()
+bool LLFloaterFixedEnvironmentSky::postBuild()
 {
     if (!LLFloaterFixedEnvironment::postBuild())
-        return FALSE;
+        return false;
 
     LLPanelSettingsSky * panel;
     panel = new LLPanelSettingsSkyAtmosTab;
@@ -503,7 +503,7 @@ BOOL LLFloaterFixedEnvironmentSky::postBuild()
     panel->setOnDirtyFlagChanged([this](LLPanel *, bool value) { onPanelDirtyFlagChanged(value); });
     mTab->addTabPanel(LLTabContainer::TabPanelParams().panel(panel).select_tab(false));
 
-    return TRUE;
+    return true;
 }
 
 void LLFloaterFixedEnvironmentSky::updateEditEnvironment(void)

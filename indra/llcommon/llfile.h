@@ -67,6 +67,8 @@ public:
 
     static  int     close(LLFILE * file);
 
+    static std::string getContents(const std::string& filename);
+
     // perms is a permissions mask like 0777 or 0700.  In most cases it will
     // be overridden by the user's umask.  It is ignored on Windows.
     // mkdir() considers "directory already exists" to be SUCCESS.
@@ -75,7 +77,7 @@ public:
     static  int     rmdir(const std::string& filename);
     static  int     remove(const std::string& filename, int supress_error = 0);
     static  int     rename(const std::string& filename,const std::string& newname, int supress_error = 0);
-    static  bool    copy(const std::string from, const std::string to);
+    static  bool    copy(const std::string& from, const std::string& to);
 
     static  int     stat(const std::string& filename,llstat*    file_status);
     static  bool    isdir(const std::string&    filename);
@@ -97,7 +99,7 @@ public:
     // no copy
     LLUniqueFile(const LLUniqueFile&) = delete;
     // move construction
-    LLUniqueFile(LLUniqueFile&& other)
+    LLUniqueFile(LLUniqueFile&& other) noexcept
     {
         mFileHandle = other.mFileHandle;
         other.mFileHandle = nullptr;
@@ -118,7 +120,7 @@ public:
     // copy assignment deleted
     LLUniqueFile& operator=(const LLUniqueFile&) = delete;
     // move assignment
-    LLUniqueFile& operator=(LLUniqueFile&& other)
+    LLUniqueFile& operator=(LLUniqueFile&& other) noexcept
     {
         close();
         std::swap(mFileHandle, other.mFileHandle);
@@ -158,7 +160,7 @@ private:
  *  Does The Right Thing when passed a non-ASCII pathname. Sadly, that isn't
  *  true of Microsoft's std::ifstream.
  */
-class LL_COMMON_API llifstream  :   public  std::ifstream
+class LL_COMMON_API llifstream : public std::ifstream
 {
     // input stream associated with a C stream
   public:
@@ -203,7 +205,7 @@ class LL_COMMON_API llifstream  :   public  std::ifstream
  *  Right Thing when passed a non-ASCII pathname. Sadly, that isn't true of
  *  Microsoft's std::ofstream.
 */
-class LL_COMMON_API llofstream  :   public  std::ofstream
+class LL_COMMON_API llofstream : public std::ofstream
 {
   public:
     // Constructors:
@@ -239,7 +241,7 @@ class LL_COMMON_API llofstream  :   public  std::ofstream
 
 
 /**
- * @breif filesize helpers.
+ * @brief filesize helpers.
  *
  * The file size helpers are not considered particularly efficient,
  * and should only be used for config files and the like -- not in a

@@ -44,11 +44,11 @@
 #include "llcontrol.h"
 #include "llviewerobject.h" // LLObjectSelection::getSelectedTEValue template
 #include "llmaterial.h"
+#include "lluicolor.h"
 
 #include <deque>
 #include <boost/iterator/filter_iterator.hpp>
 #include <boost/signals2.hpp>
-#include <boost/make_shared.hpp>    // boost::make_shared
 
 class LLMessageSystem;
 class LLViewerTexture;
@@ -87,7 +87,7 @@ const S32 SELECT_ALL_TES = -1;
 const S32 SELECT_MAX_TES = 32;
 
 // Do something to all objects in the selection manager.
-// The BOOL return value can be used to indicate if all
+// The bool return value can be used to indicate if all
 // objects are identical (gathering information) or if
 // the operation was successful.
 struct LLSelectedObjectFunctor
@@ -97,7 +97,7 @@ struct LLSelectedObjectFunctor
 };
 
 // Do something to all select nodes in the selection manager.
-// The BOOL return value can be used to indicate if all
+// The bool return value can be used to indicate if all
 // objects are identical (gathering information) or if
 // the operation was successful.
 struct LLSelectedNodeFunctor
@@ -169,21 +169,21 @@ const S32 TE_SELECT_MASK_ALL = 0xFFFFFFFF;
 class LLSelectNode
 {
 public:
-    LLSelectNode(LLViewerObject* object, BOOL do_glow);
+    LLSelectNode(LLViewerObject* object, bool do_glow);
     LLSelectNode(const LLSelectNode& nodep);
     ~LLSelectNode();
 
-    void selectAllTEs(BOOL b);
-    void selectTE(S32 te_index, BOOL selected);
+    void selectAllTEs(bool b);
+    void selectTE(S32 te_index, bool selected);
     void selectGLTFNode(S32 node_index, S32 primitive_index, bool selected);
-    BOOL isTESelected(S32 te_index) const;
+    bool isTESelected(S32 te_index) const;
     bool hasSelectedTE() const { return TE_SELECT_MASK_ALL & mTESelectMask; }
     S32 getLastSelectedTE() const;
     S32 getLastOperatedTE() const { return mLastTESelected; }
     S32 getTESelectMask() { return mTESelectMask; }
     void renderOneSilhouette(const LLColor4 &color);
-    void setTransient(BOOL transient) { mTransient = transient; }
-    BOOL isTransient() const { return mTransient; }
+    void setTransient(bool transient) { mTransient = transient; }
+    bool isTransient() const { return mTransient; }
     LLViewerObject* getObject();
     void setObject(LLViewerObject* object);
     // *NOTE: invalidate stored textures and colors when # faces change
@@ -198,15 +198,17 @@ public:
     // final gltf material that users see.
     // Ids get applied and restored by tools floater,
     // overrides get applied in live material editor
+    // @param override_materials' content will be copied to not
+    // affect originals
     void saveGLTFMaterials(const uuid_vec_t& materials, const gltf_materials_vec_t& override_materials);
 
-    BOOL allowOperationOnNode(PermissionBit op, U64 group_proxy_power) const;
+    bool allowOperationOnNode(PermissionBit op, U64 group_proxy_power) const;
 
 public:
-    BOOL            mIndividualSelection;       // For root objects and objects individually selected
+    bool            mIndividualSelection;       // For root objects and objects individually selected
 
-    BOOL            mTransient;
-    BOOL            mValid;             // is extra information valid?
+    bool            mTransient;
+    bool            mValid;             // is extra information valid?
     LLPermissions*  mPermissions;
     LLSaleInfo      mSaleInfo;
     LLAggregatePermissions mAggregatePerm;
@@ -224,7 +226,7 @@ public:
     LLVector3       mLastScale;
     LLQuaternion    mSavedRotation;         // for interactively modifying object rotation
     LLQuaternion    mLastRotation;
-    BOOL            mDuplicated;
+    bool            mDuplicated;
     LLVector3d      mDuplicatePos;
     LLQuaternion    mDuplicateRot;
     LLUUID          mItemID;
@@ -239,9 +241,10 @@ public:
     uuid_vec_t      mSavedGLTFMaterialIds;
     gltf_materials_vec_t mSavedGLTFOverrideMaterials;
     std::vector<LLVector3>  mTextureScaleRatios;
+    std::vector< std::vector<LLVector3> >  mGLTFScaleRatios;
     std::vector<LLVector3>  mSilhouetteVertices;    // array of vertices to render silhouette of object
     std::vector<LLVector3>  mSilhouetteNormals; // array of normals to render silhouette of object
-    BOOL                    mSilhouetteExists;  // need to generate silhouette?
+    bool                    mSilhouetteExists;  // need to generate silhouette?
     S32             mSelectedGLTFNode = -1;
     S32             mSelectedGLTFPrimitive = -1;
 
@@ -316,21 +319,21 @@ public:
 
     void updateEffects();
 
-    BOOL isEmpty() const;
+    bool isEmpty() const;
 
     LLSelectNode*   getFirstNode(LLSelectedNodeFunctor* func = NULL);
-    LLSelectNode*   getFirstRootNode(LLSelectedNodeFunctor* func = NULL, BOOL non_root_ok = FALSE);
-    LLViewerObject* getFirstSelectedObject(LLSelectedNodeFunctor* func, BOOL get_parent = FALSE);
+    LLSelectNode*   getFirstRootNode(LLSelectedNodeFunctor* func = NULL, bool non_root_ok = false);
+    LLViewerObject* getFirstSelectedObject(LLSelectedNodeFunctor* func, bool get_parent = false);
     LLViewerObject* getFirstObject();
-    LLViewerObject* getFirstRootObject(BOOL non_root_ok = FALSE);
+    LLViewerObject* getFirstRootObject(bool non_root_ok = false);
 
-    LLSelectNode*   getFirstMoveableNode(BOOL get_root_first = FALSE);
+    LLSelectNode*   getFirstMoveableNode(bool get_root_first = false);
 
-    LLViewerObject* getFirstEditableObject(BOOL get_parent = FALSE);
-    LLViewerObject* getFirstCopyableObject(BOOL get_parent = FALSE);
+    LLViewerObject* getFirstEditableObject(bool get_parent = false);
+    LLViewerObject* getFirstCopyableObject(bool get_parent = false);
     LLViewerObject* getFirstDeleteableObject();
-    LLViewerObject* getFirstMoveableObject(BOOL get_parent = FALSE);
-    LLViewerObject* getFirstUndoEnabledObject(BOOL get_parent = FALSE);
+    LLViewerObject* getFirstMoveableObject(bool get_parent = false);
+    LLViewerObject* getFirstUndoEnabledObject(bool get_parent = false);
 
     /// Return the object that lead to this selection, possible a child
     LLViewerObject* getPrimaryObject() { return mPrimaryObject; }
@@ -356,19 +359,19 @@ public:
     S32 getTECount();
     S32 getRootObjectCount();
 
-    BOOL isMultipleTESelected();
-    BOOL contains(LLViewerObject* object);
-    BOOL contains(LLViewerObject* object, S32 te);
+    bool isMultipleTESelected();
+    bool contains(LLViewerObject* object);
+    bool contains(LLViewerObject* object, S32 te);
 
-    // returns TRUE is any node is currenly worn as an attachment
-    BOOL isAttachment();
+    // returns true is any node is currenly worn as an attachment
+    bool isAttachment();
 
     bool checkAnimatedObjectEstTris();
     bool checkAnimatedObjectLinkable();
 
     // Apply functors to various subsets of the selected objects
-    // If firstonly is FALSE, returns the AND of all apply() calls.
-    // Else returns TRUE immediately if any apply() call succeeds (i.e. OR with early exit)
+    // If firstonly is false, returns the AND of all apply() calls.
+    // Else returns true immediately if any apply() call succeeds (i.e. OR with early exit)
     bool applyToRootObjects(LLSelectedObjectFunctor* func, bool firstonly = false);
     bool applyToObjects(LLSelectedObjectFunctor* func);
     bool applyToTEs(LLSelectedTEFunctor* func, bool firstonly = false);
@@ -438,9 +441,9 @@ private:
 class LLSelectMgr : public LLEditMenuHandler, public LLSimpleton<LLSelectMgr>
 {
 public:
-    static BOOL                 sRectSelectInclusive;   // do we need to surround an object to pick it?
-    static BOOL                 sRenderHiddenSelections;    // do we show selection silhouettes that are occluded?
-    static BOOL                 sRenderLightRadius; // do we show the radius of selected lights?
+    static bool                 sRectSelectInclusive;   // do we need to surround an object to pick it?
+    static bool                 sRenderHiddenSelections;    // do we show selection silhouettes that are occluded?
+    static bool                 sRenderLightRadius; // do we show the radius of selected lights?
 
     static F32                  sHighlightThickness;
     static F32                  sHighlightUScale;
@@ -449,12 +452,12 @@ public:
     static F32                  sHighlightAlphaTest;
     static F32                  sHighlightUAnim;
     static F32                  sHighlightVAnim;
-    static LLColor4             sSilhouetteParentColor;
-    static LLColor4             sSilhouetteChildColor;
-    static LLColor4             sHighlightParentColor;
-    static LLColor4             sHighlightChildColor;
-    static LLColor4             sHighlightInspectColor;
-    static LLColor4             sContextSilhouetteColor;
+    static LLUIColor            sSilhouetteParentColor;
+    static LLUIColor            sSilhouetteChildColor;
+    static LLUIColor            sHighlightParentColor;
+    static LLUIColor            sHighlightChildColor;
+    static LLUIColor            sHighlightInspectColor;
+    static LLUIColor            sContextSilhouetteColor;
 
     LLCachedControl<bool>                   mHideSelectedObjects;
     LLCachedControl<bool>                   mRenderHighlightSelections;
@@ -468,20 +471,20 @@ public:
     static void cleanupGlobals();
 
     // LLEditMenuHandler interface
-    virtual BOOL canUndo() const;
+    virtual bool canUndo() const;
     virtual void undo();
 
-    virtual BOOL canRedo() const;
+    virtual bool canRedo() const;
     virtual void redo();
 
-    virtual BOOL canDoDelete() const;
+    virtual bool canDoDelete() const;
     virtual void doDelete();
 
     virtual void deselect();
-    virtual BOOL canDeselect() const;
+    virtual bool canDeselect() const;
 
     virtual void duplicate();
-    virtual BOOL canDuplicate() const;
+    virtual bool canDuplicate() const;
 
     void clearSelections();
     void update();
@@ -520,7 +523,7 @@ public:
 
 
     // Returns the previous value of mForceSelection
-    BOOL setForceSelection(BOOL force);
+    bool setForceSelection(bool force);
 
     ////////////////////////////////////////////////////////////////
     // Selection methods
@@ -535,13 +538,13 @@ public:
     //
     // *NOTE: You must hold on to the object selection handle, otherwise
     // the objects will be automatically deselected in 1 frame.
-    LLObjectSelectionHandle selectObjectAndFamily(LLViewerObject* object, BOOL add_to_end = FALSE, BOOL ignore_select_owned = FALSE);
+    LLObjectSelectionHandle selectObjectAndFamily(LLViewerObject* object, bool add_to_end = false, bool ignore_select_owned = false);
 
     // For when you want just a child object.
     LLObjectSelectionHandle selectObjectOnly(LLViewerObject* object, S32 face = SELECT_ALL_TES, S32 gltf_node = -1, S32 gltf_primitive = -1);
 
     // Same as above, but takes a list of objects.  Used by rectangle select.
-    LLObjectSelectionHandle selectObjectAndFamily(const std::vector<LLViewerObject*>& object_list, BOOL send_to_sim = TRUE);
+    LLObjectSelectionHandle selectObjectAndFamily(const std::vector<LLViewerObject*>& object_list, bool send_to_sim = true);
 
     // converts all objects currently highlighted to a selection, and returns it
     LLObjectSelectionHandle selectHighlightedObjects();
@@ -558,8 +561,8 @@ public:
     // Remove
     ////////////////////////////////////////////////////////////////
 
-    void deselectObjectOnly(LLViewerObject* object, BOOL send_to_sim = TRUE);
-    void deselectObjectAndFamily(LLViewerObject* object, BOOL send_to_sim = TRUE, BOOL include_entire_object = FALSE);
+    void deselectObjectOnly(LLViewerObject* object, bool send_to_sim = true);
+    void deselectObjectAndFamily(LLViewerObject* object, bool send_to_sim = true, bool include_entire_object = false);
 
     // Send deselect messages to simulator, then clear the list
     void deselectAll();
@@ -578,7 +581,7 @@ public:
     void unhighlightObjectAndFamily(LLViewerObject *objectp);
     void unhighlightAll();
 
-    BOOL removeObjectFromSelections(const LLUUID &id);
+    bool removeObjectFromSelections(const LLUUID &id);
 
     ////////////////////////////////////////////////////////////////
     // Selection editing
@@ -610,10 +613,10 @@ public:
     EGridMode       getGridMode() { return mGridMode; }
     void            getGrid(LLVector3& origin, LLQuaternion& rotation, LLVector3 &scale, bool for_snap_guides = false);
 
-    BOOL getTEMode() const { return mTEMode; }
-    void setTEMode(BOOL b) { mTEMode = b; }
+    bool getTEMode() const { return mTEMode; }
+    void setTEMode(bool b) { mTEMode = b; }
 
-    BOOL shouldShowSelection() const { return mShowSelection; }
+    bool shouldShowSelection() const { return mShowSelection; }
 
     LLBBox getBBoxOfSelection() const;
     LLBBox getSavedBBoxOfSelection() const { return mSavedSelectionBBox; }
@@ -622,8 +625,8 @@ public:
     void cleanup();
 
     void updateSilhouettes();
-    void renderSilhouettes(BOOL for_hud);
-    void enableSilhouette(BOOL enable) { mRenderSilhouettes = enable; }
+    void renderSilhouettes(bool for_hud);
+    void enableSilhouette(bool enable) { mRenderSilhouettes = enable; }
 
     ////////////////////////////////////////////////////////////////
     // Utility functions that operate on the current selection
@@ -633,15 +636,15 @@ public:
     void saveSelectedShinyColors();
     void saveSelectedObjectTextures();
 
-    void selectionUpdatePhysics(BOOL use_physics);
-    void selectionUpdateTemporary(BOOL is_temporary);
-    void selectionUpdatePhantom(BOOL is_ghost);
+    void selectionUpdatePhysics(bool use_physics);
+    void selectionUpdateTemporary(bool is_temporary);
+    void selectionUpdatePhantom(bool is_ghost);
     void selectionDump();
 
-    BOOL selectionAllPCode(LLPCode code);       // all objects have this PCode
-    BOOL selectionGetClickAction(U8 *out_action);
+    bool selectionAllPCode(LLPCode code);       // all objects have this PCode
+    bool selectionGetClickAction(U8 *out_action);
     bool selectionGetIncludeInSearch(bool* include_in_search_out); // true if all selected objects have same
-    BOOL selectionGetGlow(F32 *glow);
+    bool selectionGetGlow(F32 *glow);
 
     void selectionSetPhysicsType(U8 type);
     void selectionSetGravity(F32 gravity);
@@ -656,7 +659,7 @@ public:
     void selectionSetAlphaOnly(const F32 alpha); // Set only the alpha channel
     void selectionRevertColors();
     void selectionRevertShinyColors();
-    BOOL selectionRevertTextures();
+    bool selectionRevertTextures();
     void selectionRevertGLTFMaterials();
     void selectionSetBumpmap( U8 bumpmap, const LLUUID &image_id );
     void selectionSetTexGen( U8 texgen );
@@ -669,14 +672,14 @@ public:
     void selectionSetMaterialParams(LLSelectedTEMaterialFunctor* material_func, int specific_te = -1);
     void selectionRemoveMaterial();
 
-    void selectionSetObjectPermissions(U8 perm_field, BOOL set, U32 perm_mask, BOOL override = FALSE);
+    void selectionSetObjectPermissions(U8 perm_field, bool set, U32 perm_mask, bool override = false);
     void selectionSetObjectName(const std::string& name);
     void selectionSetObjectDescription(const std::string& desc);
     void selectionSetObjectCategory(const LLCategory& category);
     void selectionSetObjectSaleInfo(const LLSaleInfo& sale_info);
 
     void selectionTexScaleAutofit(F32 repeats_per_meter);
-    void adjustTexturesByScale(BOOL send_to_sim, BOOL stretch);
+    void adjustTexturesByScale(bool send_to_sim, bool stretch);
 
     bool selectionMove(const LLVector3& displ, F32 rx, F32 ry, F32 rz,
                        U32 update_type);
@@ -688,116 +691,116 @@ public:
     // will make sure all selected object meet current criteria, or deselect them otherwise
     void validateSelection();
 
-    // returns TRUE if it is possible to select this object
-    BOOL canSelectObject(LLViewerObject* object, BOOL ignore_select_owned = FALSE);
+    // returns true if it is possible to select this object
+    bool canSelectObject(LLViewerObject* object, bool ignore_select_owned = false);
 
-    // Returns TRUE if the viewer has information on all selected objects
-    BOOL selectGetAllRootsValid();
-    BOOL selectGetAllValid();
-    BOOL selectGetAllValidAndObjectsFound();
+    // Returns true if the viewer has information on all selected objects
+    bool selectGetAllRootsValid();
+    bool selectGetAllValid();
+    bool selectGetAllValidAndObjectsFound();
 
-    // returns TRUE if you can modify all selected objects.
-    BOOL selectGetRootsModify();
-    BOOL selectGetModify();
+    // returns true if you can modify all selected objects.
+    bool selectGetRootsModify();
+    bool selectGetModify();
 
-    // returns TRUE if all objects are in same region
-    BOOL selectGetSameRegion();
+    // returns true if all objects are in same region
+    bool selectGetSameRegion();
 
-    // returns TRUE if is all objects are non-permanent-enforced
-    BOOL selectGetRootsNonPermanentEnforced();
-    BOOL selectGetNonPermanentEnforced();
+    // returns true if is all objects are non-permanent-enforced
+    bool selectGetRootsNonPermanentEnforced();
+    bool selectGetNonPermanentEnforced();
 
-    // returns TRUE if is all objects are permanent
-    BOOL selectGetRootsPermanent();
-    BOOL selectGetPermanent();
+    // returns true if is all objects are permanent
+    bool selectGetRootsPermanent();
+    bool selectGetPermanent();
 
-    // returns TRUE if is all objects are character
-    BOOL selectGetRootsCharacter();
-    BOOL selectGetCharacter();
+    // returns true if is all objects are character
+    bool selectGetRootsCharacter();
+    bool selectGetCharacter();
 
-    // returns TRUE if is all objects are not permanent
-    BOOL selectGetRootsNonPathfinding();
-    BOOL selectGetNonPathfinding();
+    // returns true if is all objects are not permanent
+    bool selectGetRootsNonPathfinding();
+    bool selectGetNonPathfinding();
 
-    // returns TRUE if is all objects are not permanent
-    BOOL selectGetRootsNonPermanent();
-    BOOL selectGetNonPermanent();
+    // returns true if is all objects are not permanent
+    bool selectGetRootsNonPermanent();
+    bool selectGetNonPermanent();
 
-    // returns TRUE if is all objects are not character
-    BOOL selectGetRootsNonCharacter();
-    BOOL selectGetNonCharacter();
+    // returns true if is all objects are not character
+    bool selectGetRootsNonCharacter();
+    bool selectGetNonCharacter();
 
-    BOOL selectGetEditableLinksets();
-    BOOL selectGetViewableCharacters();
+    bool selectGetEditableLinksets();
+    bool selectGetViewableCharacters();
 
-    // returns TRUE if selected objects can be transferred.
-    BOOL selectGetRootsTransfer();
+    // returns true if selected objects can be transferred.
+    bool selectGetRootsTransfer();
 
-    // returns TRUE if selected objects can be copied.
-    BOOL selectGetRootsCopy();
+    // returns true if selected objects can be copied.
+    bool selectGetRootsCopy();
 
-    BOOL selectGetCreator(LLUUID& id, std::string& name);                   // TRUE if all have same creator, returns id
-    BOOL selectGetOwner(LLUUID& id, std::string& name);                 // TRUE if all objects have same owner, returns id
-    BOOL selectGetLastOwner(LLUUID& id, std::string& name);             // TRUE if all objects have same owner, returns id
+    bool selectGetCreator(LLUUID& id, std::string& name);                   // true if all have same creator, returns id
+    bool selectGetOwner(LLUUID& id, std::string& name);                 // true if all objects have same owner, returns id
+    bool selectGetLastOwner(LLUUID& id, std::string& name);             // true if all objects have same owner, returns id
 
-    // returns TRUE if all are the same. id is stuffed with
+    // returns true if all are the same. id is stuffed with
     // the value found if available.
-    BOOL selectGetGroup(LLUUID& id);
-    BOOL selectGetPerm( U8 which_perm, U32* mask_on, U32* mask_off);    // TRUE if all have data, returns two masks, each indicating which bits are all on and all off
+    bool selectGetGroup(LLUUID& id);
+    bool selectGetPerm( U8 which_perm, U32* mask_on, U32* mask_off);    // true if all have data, returns two masks, each indicating which bits are all on and all off
 
-    BOOL selectIsGroupOwned();                                          // TRUE if all root objects have valid data and are group owned.
+    bool selectIsGroupOwned();                                          // true if all root objects have valid data and are group owned.
 
-    // returns TRUE if all the nodes are valid. Accumulates
+    // returns true if all the nodes are valid. Accumulates
     // permissions in the parameter.
-    BOOL selectGetPermissions(LLPermissions& perm);
+    bool selectGetPermissions(LLPermissions& perm);
 
-    // returns TRUE if all the nodes are valid. Depends onto "edit linked" state
+    // returns true if all the nodes are valid. Depends onto "edit linked" state
     // Children in linksets are a bit special - they require not only move permission
     // but also modify if "edit linked" is set, since you move them relative to parent
-    BOOL selectGetEditMoveLinksetPermissions(bool &move, bool &modify);
+    bool selectGetEditMoveLinksetPermissions(bool &move, bool &modify);
 
     // Get a bunch of useful sale information for the object(s) selected.
     // "_mixed" is true if not all objects have the same setting.
     void selectGetAggregateSaleInfo(U32 &num_for_sale,
-                                    BOOL &is_for_sale_mixed,
-                                    BOOL &is_sale_price_mixed,
+                                    bool &is_for_sale_mixed,
+                                    bool &is_sale_price_mixed,
                                     S32 &total_sale_price,
                                     S32 &individual_sale_price);
 
-    // returns TRUE if all nodes are valid.
-    BOOL selectGetCategory(LLCategory& category);
+    // returns true if all nodes are valid.
+    bool selectGetCategory(LLCategory& category);
 
-    // returns TRUE if all nodes are valid. method also stores an
+    // returns true if all nodes are valid. method also stores an
     // accumulated sale info.
-    BOOL selectGetSaleInfo(LLSaleInfo& sale_info);
+    bool selectGetSaleInfo(LLSaleInfo& sale_info);
 
-    // returns TRUE if all nodes are valid. fills passed in object
+    // returns true if all nodes are valid. fills passed in object
     // with the aggregate permissions of the selection.
-    BOOL selectGetAggregatePermissions(LLAggregatePermissions& ag_perm);
+    bool selectGetAggregatePermissions(LLAggregatePermissions& ag_perm);
 
-    // returns TRUE if all nodes are valid. fills passed in object
+    // returns true if all nodes are valid. fills passed in object
     // with the aggregate permissions for texture inventory items of the selection.
-    BOOL selectGetAggregateTexturePermissions(LLAggregatePermissions& ag_perm);
+    bool selectGetAggregateTexturePermissions(LLAggregatePermissions& ag_perm);
 
     LLPermissions* findObjectPermissions(const LLViewerObject* object);
 
-    BOOL isMovableAvatarSelected();
+    bool isMovableAvatarSelected();
 
     void selectDelete();                            // Delete on simulator
     void selectForceDelete();           // just delete, no into trash
-    void selectDuplicate(const LLVector3& offset, BOOL select_copy);    // Duplicate on simulator
+    void selectDuplicate(const LLVector3& offset, bool select_copy);    // Duplicate on simulator
     void repeatDuplicate();
     void selectDuplicateOnRay(const LLVector3 &ray_start_region,
                                 const LLVector3 &ray_end_region,
-                                BOOL bypass_raycast,
-                                BOOL ray_end_is_intersection,
+                                bool bypass_raycast,
+                                bool ray_end_is_intersection,
                                 const LLUUID &ray_target_id,
-                                BOOL copy_centers,
-                                BOOL copy_rotates,
-                                BOOL select_copy);
+                                bool copy_centers,
+                                bool copy_rotates,
+                                bool select_copy);
 
     void sendMultipleUpdate(U32 type);  // Position, rotation, scale all in one
-    void sendOwner(const LLUUID& owner_id, const LLUUID& group_id, BOOL override = FALSE);
+    void sendOwner(const LLUUID& owner_id, const LLUUID& group_id, bool override = false);
     void sendGroup(const LLUUID& group_id);
 
     // Category ID is the UUID of the folder you want to contain the purchase.
@@ -836,16 +839,16 @@ public:
 
     // Internal list maintenance functions. TODO: Make these private!
     void remove(std::vector<LLViewerObject*>& objects);
-    void remove(LLViewerObject* object, S32 te = SELECT_ALL_TES, BOOL undoable = TRUE);
+    void remove(LLViewerObject* object, S32 te = SELECT_ALL_TES, bool undoable = true);
     void removeAll();
-    void addAsIndividual(LLViewerObject* object, S32 te = SELECT_ALL_TES, BOOL undoable = TRUE, S32 gltf_node = -1, S32 gltf_primitive = -1);
+    void addAsIndividual(LLViewerObject* object, S32 te = SELECT_ALL_TES, bool undoable = true, S32 gltf_node = -1, S32 gltf_primitive = -1);
     void promoteSelectionToRoot();
     void demoteSelectionToIndividuals();
 
 private:
     void convertTransient(); // converts temporarily selected objects to full-fledged selections
     ESelectType getSelectTypeForObject(LLViewerObject* object);
-    void addAsFamily(std::vector<LLViewerObject*>& objects, BOOL add_to_end = FALSE);
+    void addAsFamily(std::vector<LLViewerObject*>& objects, bool add_to_end = false);
     void generateSilhouette(LLSelectNode *nodep, const LLVector3& view_point);
     void updateSelectionSilhouette(LLObjectSelectionHandle object_handle, S32& num_sils_genned, std::vector<LLViewerObject*>& changed_objects);
     // Send one message to each region containing an object on selection list.
@@ -922,19 +925,19 @@ private:
     LLVector3               mGridScale;
     EGridMode               mGridMode;
 
-    BOOL                    mTEMode;            // render te
+    bool                    mTEMode;            // render te
     LLRender::eTexIndex mTextureChannel; // diff, norm, or spec, depending on UI editing mode
     LLVector3d              mSelectionCenterGlobal;
     LLBBox                  mSelectionBBox;
 
     LLVector3d              mLastSentSelectionCenterGlobal;
-    BOOL                    mShowSelection; // do we send the selection center name value and do we animate this selection?
+    bool                    mShowSelection; // do we send the selection center name value and do we animate this selection?
     LLVector3d              mLastCameraPos;     // camera position from last generation of selection silhouette
-    BOOL                    mRenderSilhouettes; // do we render the silhouette
+    bool                    mRenderSilhouettes; // do we render the silhouette
     LLBBox                  mSavedSelectionBBox;
 
     LLFrameTimer            mEffectsTimer;
-    BOOL                    mForceSelection;
+    bool                    mForceSelection;
 
     std::vector<LLAnimPauseRequest> mPauseRequests;
 };
@@ -955,7 +958,7 @@ template <typename T> bool LLObjectSelection::getSelectedTEValue(LLSelectedTEGet
     T selected_value = T();
 
     // Now iterate through all TEs to test for sameness
-    bool identical = TRUE;
+    bool identical = true;
     for (iterator iter = begin(); iter != end(); iter++)
     {
         LLSelectNode* node = *iter;
@@ -1026,7 +1029,7 @@ template <typename T> bool LLObjectSelection::isMultipleTEValue(LLSelectedTEGetF
     T selected_value = T();
 
     // Now iterate through all TEs to test for sameness
-    bool unique = TRUE;
+    bool unique = true;
     for (iterator iter = begin(); iter != end(); iter++)
     {
         LLSelectNode* node = *iter;

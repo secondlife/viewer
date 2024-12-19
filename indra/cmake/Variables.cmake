@@ -5,7 +5,7 @@
 #
 # Platform variables:
 #
-#   DARWIN  - Mac OS X
+#   DARWIN  - macOS
 #   LINUX   - Linux
 #   WINDOWS - Windows
 

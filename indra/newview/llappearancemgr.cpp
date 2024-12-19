@@ -66,11 +66,6 @@
 
 #include "llavatarpropertiesprocessor.h"
 
-#if LL_MSVC
-// disable boost::lexical_cast warning
-#pragma warning (disable:4702)
-#endif
-
 namespace
 {
     const S32   BAKE_RETRY_MAX_COUNT = 5;
@@ -124,18 +119,18 @@ public:
     }
 
     /*virtual*/
-    BOOL tick()
+    bool tick()
     {
         if(mEventTimer.hasExpired())
         {
             LLAppearanceMgr::instance().setOutfitLocked(false);
         }
-        return FALSE;
+        return false;
     }
     void stop() { mEventTimer.stop(); }
     void start() { mEventTimer.start(); }
     void reset() { mEventTimer.reset(); }
-    BOOL getStarted() { return mEventTimer.getStarted(); }
+    bool getStarted() { return mEventTimer.getStarted(); }
 
     LLTimer&  getEventTimer() { return mEventTimer;}
 };
@@ -332,7 +327,7 @@ public:
 
     // virtual
     // Will be deleted after returning true - only safe to do this if all callbacks have fired.
-    BOOL tick()
+    bool tick()
     {
         // mPendingRequests will be zero if all requests have been
         // responded to.  mWaitTimes.empty() will be true if we have
@@ -719,7 +714,7 @@ public:
     bool isMostRecent();
     void handleLateArrivals();
     void resetTime(F32 timeout);
-    static S32 countActive() { return sActiveHoldingPatterns.size(); }
+    static S32 countActive() { return static_cast<S32>(sActiveHoldingPatterns.size()); }
     S32 index() { return mIndex; }
 
 private:
@@ -1335,7 +1330,7 @@ void LLWearableHoldingPattern::onWearableAssetFetch(LLViewerWearable *wearable)
                     wearable_item->setAssetUUID(new_wearable->getAssetID());
                     wearable_item->setTransactionID(new_wearable->getTransactionID());
                     gInventory.updateItem(wearable_item, LLInventoryObserver::INTERNAL);
-                    wearable_item->updateServer(FALSE);
+                    wearable_item->updateServer(false);
 
                     use_count++;
                 }
@@ -1374,7 +1369,7 @@ static void removeDuplicateItems(LLInventoryModel::item_array_t& items)
     // encountered, so we actually keep the *last* of each duplicate
     // item.  This is needed to give the right priority when adding
     // duplicate items to an existing outfit.
-    for (S32 i=items.size()-1; i>=0; i--)
+    for (S32 i = static_cast<S32>(items.size()) - 1; i >= 0; i--)
     {
         LLViewerInventoryItem *item = items.at(i);
         LLUUID item_id = item->getLinkedUUID();
@@ -1735,7 +1730,7 @@ void LLAppearanceMgr::takeOffOutfit(const LLUUID& cat_id)
     LLInventoryModel::item_array_t items;
     LLFindWearablesEx collector(/*is_worn=*/ true, /*include_body_parts=*/ false);
 
-    gInventory.collectDescendentsIf(cat_id, cats, items, FALSE, collector);
+    gInventory.collectDescendentsIf(cat_id, cats, items, false, collector);
 
     LLInventoryModel::item_array_t::const_iterator it = items.begin();
     const LLInventoryModel::item_array_t::const_iterator it_end = items.end();
@@ -1918,7 +1913,7 @@ void LLAppearanceMgr::shallowCopyCategoryContents(const LLUUID& src_id, const LL
     }
 }
 
-BOOL LLAppearanceMgr::getCanMakeFolderIntoOutfit(const LLUUID& folder_id)
+bool LLAppearanceMgr::getCanMakeFolderIntoOutfit(const LLUUID& folder_id)
 {
     // These are the wearable items that are required for considering this
     // folder as containing a complete outfit.
@@ -1945,7 +1940,7 @@ BOOL LLAppearanceMgr::getCanMakeFolderIntoOutfit(const LLUUID& folder_id)
         }
     }
 
-    // If the folder contains the required wearables, return TRUE.
+    // If the folder contains the required wearables, return true.
     return ((required_wearables & folder_wearables) == required_wearables);
 }
 
@@ -2133,7 +2128,7 @@ void LLAppearanceMgr::filterWearableItems(
         items.clear();
         for (S32 i=0; i<LLWearableType::WT_COUNT; i++)
         {
-            S32 size = items_by_type[i].size();
+            S32 size = (S32)items_by_type[i].size();
             if (size <= 0)
                 continue;
             S32 start_index = llmax(0,size-max_per_type);
@@ -2908,7 +2903,7 @@ void LLAppearanceMgr::wearInventoryCategoryOnAvatar( LLInventoryCategory* catego
         LLFloaterSidePanelContainer::showPanel("appearance", LLSD().with("type", "edit_outfit"));
     }
 
-    LLAppearanceMgr::changeOutfit(TRUE, category->getUUID(), append);
+    LLAppearanceMgr::changeOutfit(true, category->getUUID(), append);
 }
 
 // FIXME do we really want to search entire inventory for matching name?
@@ -3588,7 +3583,7 @@ struct WearablesOrderComparator
     LOG_CLASS(WearablesOrderComparator);
     WearablesOrderComparator(const LLWearableType::EType type)
     {
-        mControlSize = build_order_string(type, 0).size();
+        mControlSize = static_cast<U32>(build_order_string(type, 0).size());
     };
 
     bool operator()(const LLInventoryItem* item1, const LLInventoryItem* item2)
@@ -3623,7 +3618,7 @@ void LLAppearanceMgr::getWearableOrderingDescUpdates(LLInventoryModel::item_arra
 
     for (U32 type = LLWearableType::WT_SHIRT; type < LLWearableType::WT_COUNT; type++)
     {
-        U32 size = items_by_type[type].size();
+        U32 size = static_cast<U32>(items_by_type[type].size());
         if (!size) continue;
 
         //sinking down invalid items which need reordering
@@ -3934,7 +3929,7 @@ void LLAppearanceMgr::serverAppearanceUpdateCoro(LLCoreHttpUtil::HttpCoroutineAd
                     LL_WARNS("Avatar") << "Bake retry count exceeded!" << LL_ENDL;
                     break;
                 }
-                F32 timeout = pow(BAKE_RETRY_TIMEOUT, static_cast<float>(retryCount)) - 1.0;
+                F32 timeout = pow(BAKE_RETRY_TIMEOUT, static_cast<float>(retryCount)) - 1.0f;
 
                 LL_WARNS("Avatar") << "Bake retry #" << retryCount << " in " << timeout << " seconds." << LL_ENDL;
 
@@ -4243,12 +4238,12 @@ bool LLAppearanceMgr::moveWearable(LLViewerInventoryItem* item, bool closer_to_b
 
     // FIXME switch to use AISv3 where supported.
     //items need to be updated on a dataserver
-    item->setComplete(TRUE);
-    item->updateServer(FALSE);
+    item->setComplete(true);
+    item->updateServer(false);
     gInventory.updateItem(item);
 
-    swap_item->setComplete(TRUE);
-    swap_item->updateServer(FALSE);
+    swap_item->setComplete(true);
+    swap_item->updateServer(false);
     gInventory.updateItem(swap_item);
 
     //to cause appearance of the agent to be updated
@@ -4329,7 +4324,7 @@ LLAppearanceMgr::LLAppearanceMgr():
     outfit_observer.addCOFSavedCallback(boost::bind(
             &LLAppearanceMgr::setOutfitLocked, this, false));
 
-    mUnlockOutfitTimer.reset(new LLOutfitUnLockTimer(gSavedSettings.getS32(
+    mUnlockOutfitTimer.reset(new LLOutfitUnLockTimer((F32)gSavedSettings.getS32(
             "OutfitOperationsTimeout")));
 
     gIdleCallbacks.addFunction(&LLAttachmentsMgr::onIdle, NULL);
@@ -4402,15 +4397,15 @@ void LLAppearanceMgr::unregisterAttachment(const LLUUID& item_id)
     mAttachmentsChangeSignal();
 }
 
-BOOL LLAppearanceMgr::getIsInCOF(const LLUUID& obj_id) const
+bool LLAppearanceMgr::getIsInCOF(const LLUUID& obj_id) const
 {
     const LLUUID& cof = getCOF();
     if (obj_id == cof)
-        return TRUE;
+        return true;
     const LLInventoryObject* obj = gInventory.getObject(obj_id);
     if (obj && obj->getParentUUID() == cof)
-        return TRUE;
-    return FALSE;
+        return true;
+    return false;
 }
 
 bool LLAppearanceMgr::getIsInCOF(const LLInventoryObject* obj) const
@@ -4577,7 +4572,7 @@ public:
         LLInventoryModel::item_array_t* items;
         gInventory.getDirectDescendentsOf(mComplete.front(), cats, items);
 
-        S32 count = items->size();
+        auto count = items->size();
         if(!count)
         {
             LL_WARNS() << "Nothing fetched in category " << mComplete.front()
@@ -4593,7 +4588,7 @@ public:
         S32 version = cat ? cat->getVersion() : -2;
         LL_INFOS() << "stage1, category " << mComplete.front() << " got " << count << " items, version " << version << " passing to stage2 " << LL_ENDL;
         uuid_vec_t ids;
-        for(S32 i = 0; i < count; ++i)
+        for(size_t i = 0; i < count; ++i)
         {
             ids.push_back(items->at(i)->getUUID());
         }
@@ -4762,7 +4757,7 @@ public:
                 LLAppearanceMgr::getInstance()->wearInventoryCategory(category, true, false);
 
                 // *TODOw: This may not be necessary if initial outfit is chosen already -- josh
-                gAgent.setOutfitChosen(TRUE);
+                gAgent.setOutfitChosen(true);
             }
         }
 

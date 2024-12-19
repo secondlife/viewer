@@ -63,11 +63,10 @@
 #include "llfloatertools.h"  // to enable hide if build tools are up
 #include "llvector4a.h"
 
-// Functions pulled from pipeline.cpp
-glh::matrix4f get_current_modelview();
-glh::matrix4f get_current_projection();
+#include <glm/gtx/transform2.hpp>
+
 // Functions pulled from llviewerdisplay.cpp
-bool get_hud_matrices(glh::matrix4f &proj, glh::matrix4f &model);
+bool get_hud_matrices(glm::mat4 &proj, glm::mat4 &model);
 
 // Warning: make sure these two match!
 const LLPanelPrimMediaControls::EZoomLevel LLPanelPrimMediaControls::kZoomLevels[] = { ZOOM_NONE, ZOOM_MEDIUM };
@@ -141,7 +140,7 @@ LLPanelPrimMediaControls::~LLPanelPrimMediaControls()
 {
 }
 
-BOOL LLPanelPrimMediaControls::postBuild()
+bool LLPanelPrimMediaControls::postBuild()
 {
     mMediaRegion            = getChild<LLView>("media_region");
     mBackCtrl               = getChild<LLUICtrl>("back");
@@ -223,8 +222,8 @@ BOOL LLPanelPrimMediaControls::postBuild()
 
     mCurrentZoom = ZOOM_NONE;
     // clicks on buttons do not remove keyboard focus from media
-    setIsChrome(TRUE);
-    return TRUE;
+    setIsChrome(true);
+    return true;
 }
 
 void LLPanelPrimMediaControls::setMediaFace(LLPointer<LLViewerObject> objectp, S32 face, viewer_media_t media_impl, LLVector3 pick_normal)
@@ -297,7 +296,7 @@ void LLPanelPrimMediaControls::updateShape()
 
     if(!media_impl || gFloaterTools->getVisible())
     {
-        setVisible(FALSE);
+        setVisible(false);
         return;
     }
 
@@ -421,7 +420,7 @@ void LLPanelPrimMediaControls::updateShape()
             if(mUpdateSlider && mMovieDuration!= 0)
             {
                 F64 current_time =  media_plugin->getCurrentTime();
-                F32 percent = current_time / mMovieDuration;
+                F32 percent = (F32)(current_time / mMovieDuration);
                 mMediaPlaySliderCtrl->setValue(percent);
                 mMediaPlaySliderCtrl->setEnabled(true);
             }
@@ -443,17 +442,17 @@ void LLPanelPrimMediaControls::updateShape()
             switch(result)
             {
                 case LLPluginClassMediaOwner::MEDIA_PLAYING:
-                    mPlayCtrl->setEnabled(FALSE);
-                    mPlayCtrl->setVisible(FALSE);
-                    mPauseCtrl->setEnabled(TRUE);
+                    mPlayCtrl->setEnabled(false);
+                    mPlayCtrl->setVisible(false);
+                    mPauseCtrl->setEnabled(true);
                     mPauseCtrl->setVisible(has_focus);
 
                     break;
                 case LLPluginClassMediaOwner::MEDIA_PAUSED:
                 default:
-                    mPauseCtrl->setEnabled(FALSE);
-                    mPauseCtrl->setVisible(FALSE);
-                    mPlayCtrl->setEnabled(TRUE);
+                    mPauseCtrl->setEnabled(false);
+                    mPauseCtrl->setVisible(false);
+                    mPlayCtrl->setEnabled(true);
                     mPlayCtrl->setVisible(has_focus);
                     break;
             }
@@ -469,17 +468,17 @@ void LLPanelPrimMediaControls::updateShape()
                 mCurrentURL.clear();
             }
 
-            mPlayCtrl->setVisible(FALSE);
-            mPauseCtrl->setVisible(FALSE);
-            mMediaStopCtrl->setVisible(FALSE);
+            mPlayCtrl->setVisible(false);
+            mPauseCtrl->setVisible(false);
+            mMediaStopCtrl->setVisible(false);
             mMediaAddressCtrl->setVisible(has_focus && !mini_controls);
             mMediaAddressCtrl->setEnabled(has_focus && !mini_controls);
-            mMediaPlaySliderPanel->setVisible(FALSE);
-            mMediaPlaySliderPanel->setEnabled(FALSE);
-            mSkipFwdCtrl->setVisible(FALSE);
-            mSkipFwdCtrl->setEnabled(FALSE);
-            mSkipBackCtrl->setVisible(FALSE);
-            mSkipBackCtrl->setEnabled(FALSE);
+            mMediaPlaySliderPanel->setVisible(false);
+            mMediaPlaySliderPanel->setEnabled(false);
+            mSkipFwdCtrl->setVisible(false);
+            mSkipFwdCtrl->setEnabled(false);
+            mSkipBackCtrl->setVisible(false);
+            mSkipBackCtrl->setEnabled(false);
 
             if(media_impl->getVolume() <= 0.0)
             {
@@ -515,17 +514,17 @@ void LLPanelPrimMediaControls::updateShape()
 
             if(result == LLPluginClassMediaOwner::MEDIA_LOADING)
             {
-                mReloadCtrl->setEnabled(FALSE);
-                mReloadCtrl->setVisible(FALSE);
-                mStopCtrl->setEnabled(TRUE);
+                mReloadCtrl->setEnabled(false);
+                mReloadCtrl->setVisible(false);
+                mStopCtrl->setEnabled(true);
                 mStopCtrl->setVisible(has_focus);
             }
             else
             {
-                mReloadCtrl->setEnabled(TRUE);
+                mReloadCtrl->setEnabled(true);
                 mReloadCtrl->setVisible(has_focus);
-                mStopCtrl->setEnabled(FALSE);
-                mStopCtrl->setVisible(FALSE);
+                mStopCtrl->setEnabled(false);
+                mStopCtrl->setVisible(false);
             }
         }
 
@@ -646,13 +645,13 @@ void LLPanelPrimMediaControls::updateShape()
         vert_it = vect_face.begin();
         vert_end = vect_face.end();
 
-        glh::matrix4f mat;
+        glm::mat4 mat;
         if (!is_hud)
         {
             mat = get_current_projection() * get_current_modelview();
         }
         else {
-            glh::matrix4f proj, modelview;
+            glm::mat4 proj, modelview;
             if (get_hud_matrices(proj, modelview))
                 mat = proj * modelview;
         }
@@ -661,11 +660,11 @@ void LLPanelPrimMediaControls::updateShape()
         for(; vert_it != vert_end; ++vert_it)
         {
             // project silhouette vertices into screen space
-            glh::vec3f screen_vert = glh::vec3f(vert_it->mV);
-            mat.mult_matrix_vec(screen_vert);
+            glm::vec3 screen_vert(glm::make_vec3(vert_it->mV));
+            screen_vert = mul_mat4_vec3(mat, screen_vert);
 
             // add to screenspace bounding box
-            update_min_max(min, max, LLVector3(screen_vert.v));
+            update_min_max(min, max, LLVector3(glm::value_ptr(screen_vert)));
         }
 
         // convert screenspace bbox to pixels (in screen coords)
@@ -741,7 +740,7 @@ void LLPanelPrimMediaControls::updateShape()
         else
         {
             // I don't think this is correct anymore.  This is done in draw() after the fade has completed.
-            //          setVisible(FALSE);
+            //          setVisible(false);
         }
     }
 }
@@ -834,10 +833,10 @@ void LLPanelPrimMediaControls::draw()
     }
 }
 
-BOOL LLPanelPrimMediaControls::handleScrollWheel(S32 x, S32 y, S32 clicks)
+bool LLPanelPrimMediaControls::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
     mInactivityTimer.start();
-    BOOL res = FALSE;
+    bool res = false;
 
     // Unlike other mouse events, we need to handle scroll here otherwise
     // it will be intercepted by camera and won't reach toolpie
@@ -850,10 +849,10 @@ BOOL LLPanelPrimMediaControls::handleScrollWheel(S32 x, S32 y, S32 clicks)
     return res;
 }
 
-BOOL LLPanelPrimMediaControls::handleScrollHWheel(S32 x, S32 y, S32 clicks)
+bool LLPanelPrimMediaControls::handleScrollHWheel(S32 x, S32 y, S32 clicks)
 {
     mInactivityTimer.start();
-    BOOL res = FALSE;
+    bool res = false;
 
     if (LLViewerMediaFocus::getInstance()->isHoveringOverFocused())
     {
@@ -864,19 +863,19 @@ BOOL LLPanelPrimMediaControls::handleScrollHWheel(S32 x, S32 y, S32 clicks)
     return res;
 }
 
-BOOL LLPanelPrimMediaControls::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLPanelPrimMediaControls::handleMouseDown(S32 x, S32 y, MASK mask)
 {
     mInactivityTimer.start();
     return LLPanel::handleMouseDown(x, y, mask);
 }
 
-BOOL LLPanelPrimMediaControls::handleMouseUp(S32 x, S32 y, MASK mask)
+bool LLPanelPrimMediaControls::handleMouseUp(S32 x, S32 y, MASK mask)
 {
     mInactivityTimer.start();
     return LLPanel::handleMouseUp(x, y, mask);
 }
 
-BOOL LLPanelPrimMediaControls::handleKeyHere( KEY key, MASK mask )
+bool LLPanelPrimMediaControls::handleKeyHere( KEY key, MASK mask )
 {
     mInactivityTimer.start();
     return LLPanel::handleKeyHere(key, mask);
@@ -934,7 +933,7 @@ void LLPanelPrimMediaControls::close()
 {
     resetZoomLevel(true);
     LLViewerMediaFocus::getInstance()->clearFocus();
-    setVisible(FALSE);
+    setVisible(false);
 }
 
 
@@ -1120,7 +1119,7 @@ void LLPanelPrimMediaControls::updateZoom()
     {
     case ZOOM_NONE:
         {
-            gAgentCamera.setFocusOnAvatar(TRUE, ANIMATE);
+            gAgentCamera.setFocusOnAvatar(true, ANIMATE);
             break;
         }
     case ZOOM_FAR:
@@ -1140,7 +1139,7 @@ void LLPanelPrimMediaControls::updateZoom()
         }
     default:
         {
-            gAgentCamera.setFocusOnAvatar(TRUE, ANIMATE);
+            gAgentCamera.setFocusOnAvatar(true, ANIMATE);
             break;
         }
     }
@@ -1309,7 +1308,7 @@ void LLPanelPrimMediaControls::onMediaPlaySliderCtrlMouseUp()
             }
             else
             {
-                media_impl->seek(cur_value * mMovieDuration);
+                media_impl->seek((F32)(cur_value * mMovieDuration));
             }
         }
 
@@ -1420,7 +1419,7 @@ void LLPanelPrimMediaControls::clearFaceOnFade()
         // Hiding this object makes scroll events go missing after it fades out
         // (see DEV-41755 for a full description of the train wreck).
         // Only hide the controls when we're untargeting.
-        setVisible(FALSE);
+        setVisible(false);
 
         mClearFaceOnFade = false;
         mVolumeSliderVisible = 0;

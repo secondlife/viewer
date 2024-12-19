@@ -70,6 +70,8 @@ void LLStreamingAudio_MediaPlugins::start(const std::string& url)
         LL_INFOS() << "setting stream to NULL"<< LL_ENDL;
         mURL.clear();
         mMediaPlugin->stop();
+        delete mMediaPlugin;
+        mMediaPlugin = nullptr;
     }
 }
 
@@ -79,6 +81,8 @@ void LLStreamingAudio_MediaPlugins::stop()
     if(mMediaPlugin)
     {
         mMediaPlugin->stop();
+        delete mMediaPlugin;
+        mMediaPlugin = nullptr;
     }
 
     mURL.clear();

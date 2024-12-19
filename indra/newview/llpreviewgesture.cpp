@@ -137,12 +137,12 @@ void LLPreviewGesture::draw()
 }
 
 // virtual
-BOOL LLPreviewGesture::handleKeyHere(KEY key, MASK mask)
+bool LLPreviewGesture::handleKeyHere(KEY key, MASK mask)
 {
     if(('S' == key) && (MASK_CONTROL == (mask & MASK_CONTROL)))
     {
         saveIfNeeded();
-        return TRUE;
+        return true;
     }
 
     return LLPreview::handleKeyHere(key, mask);
@@ -150,13 +150,13 @@ BOOL LLPreviewGesture::handleKeyHere(KEY key, MASK mask)
 
 
 // virtual
-BOOL LLPreviewGesture::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+bool LLPreviewGesture::handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
                                          EDragAndDropType cargo_type,
                                          void* cargo_data,
                                          EAcceptance* accept,
                                          std::string& tooltip_msg)
 {
-    BOOL handled = TRUE;
+    bool handled = true;
     switch(cargo_type)
     {
     case DAD_ANIMATION:
@@ -199,7 +199,7 @@ BOOL LLPreviewGesture::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
                         sound->mSoundName = item->getName();
                     }
                     updateLabel(line);
-                    mDirty = TRUE;
+                    mDirty = true;
                     refresh();
                 }
                 *accept = ACCEPT_YES_COPY_MULTI;
@@ -225,23 +225,23 @@ BOOL LLPreviewGesture::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 
 
 // virtual
-BOOL LLPreviewGesture::canClose()
+bool LLPreviewGesture::canClose()
 {
 
     if(!mDirty || mForceClose)
     {
-        return TRUE;
+        return true;
     }
     else
     {
         if(!mSaveDialogShown)
         {
-            mSaveDialogShown = TRUE;
+            mSaveDialogShown = true;
             // Bring up view-modal dialog: Save changes? Yes, No, Cancel
             LLNotificationsUtil::add("SaveChanges", LLSD(), LLSD(),
                     boost::bind(&LLPreviewGesture::handleSaveChangesDialog, this, _1, _2) );
         }
-        return FALSE;
+        return false;
     }
 }
 
@@ -268,19 +268,19 @@ void LLPreviewGesture::onVisibilityChanged ( const LLSD& new_visibility )
 
 bool LLPreviewGesture::handleSaveChangesDialog(const LLSD& notification, const LLSD& response)
 {
-    mSaveDialogShown = FALSE;
+    mSaveDialogShown = false;
     S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
     switch(option)
     {
     case 0:  // "Yes"
         LLGestureMgr::instance().stopGesture(mPreviewGesture);
-        mCloseAfterSave = TRUE;
+        mCloseAfterSave = true;
         onClickSave(this);
         break;
 
     case 1:  // "No"
         LLGestureMgr::instance().stopGesture(mPreviewGesture);
-        mDirty = FALSE; // Force the dirty flag because user has clicked NO on confirm save dialog...
+        mDirty = false; // Force the dirty flag because user has clicked NO on confirm save dialog...
         closeFloater();
         break;
 
@@ -313,7 +313,7 @@ LLPreviewGesture::LLPreviewGesture(const LLSD& key)
     mSaveBtn(NULL),
     mPreviewBtn(NULL),
     mPreviewGesture(NULL),
-    mDirty(FALSE)
+    mDirty(false)
 {
     NONE_LABEL =  LLTrans::getString("---");
     SHIFT_LABEL = LLTrans::getString("KBShift");
@@ -336,7 +336,7 @@ LLPreviewGesture::~LLPreviewGesture()
 }
 
 
-BOOL LLPreviewGesture::postBuild()
+bool LLPreviewGesture::postBuild()
 {
     setVisibleCallback(boost::bind(&LLPreviewGesture::onVisibilityChanged, this, _2));
 
@@ -353,20 +353,20 @@ BOOL LLPreviewGesture::postBuild()
     edit = getChild<LLLineEditor>("trigger_editor");
     edit->setKeystrokeCallback(onKeystrokeCommit, this);
     edit->setCommitCallback(onCommitSetDirty, this);
-    edit->setCommitOnFocusLost(TRUE);
-    edit->setIgnoreTab(TRUE);
+    edit->setCommitOnFocusLost(true);
+    edit->setIgnoreTab(true);
     mTriggerEditor = edit;
 
     text = getChild<LLTextBox>("replace_text");
-    text->setEnabled(FALSE);
+    text->setEnabled(false);
     mReplaceText = text;
 
     edit = getChild<LLLineEditor>("replace_editor");
-    edit->setEnabled(FALSE);
+    edit->setEnabled(false);
     edit->setKeystrokeCallback(onKeystrokeCommit, this);
     edit->setCommitCallback(onCommitSetDirty, this);
-    edit->setCommitOnFocusLost(TRUE);
-    edit->setIgnoreTab(TRUE);
+    edit->setCommitOnFocusLost(true);
+    edit->setIgnoreTab(true);
     mReplaceEditor = edit;
 
     combo = getChild<LLComboBox>( "modifier_combo");
@@ -384,22 +384,22 @@ BOOL LLPreviewGesture::postBuild()
 
     btn = getChild<LLButton>( "add_btn");
     btn->setClickedCallback(onClickAdd, this);
-    btn->setEnabled(FALSE);
+    btn->setEnabled(false);
     mAddBtn = btn;
 
     btn = getChild<LLButton>( "up_btn");
     btn->setClickedCallback(onClickUp, this);
-    btn->setEnabled(FALSE);
+    btn->setEnabled(false);
     mUpBtn = btn;
 
     btn = getChild<LLButton>( "down_btn");
     btn->setClickedCallback(onClickDown, this);
-    btn->setEnabled(FALSE);
+    btn->setEnabled(false);
     mDownBtn = btn;
 
     btn = getChild<LLButton>( "delete_btn");
     btn->setClickedCallback(onClickDelete, this);
-    btn->setEnabled(FALSE);
+    btn->setEnabled(false);
     mDeleteBtn = btn;
 
     list = getChild<LLScrollListCtrl>("step_list");
@@ -410,52 +410,52 @@ BOOL LLPreviewGesture::postBuild()
     mOptionsText = getChild<LLTextBox>("options_text");
 
     combo = getChild<LLComboBox>( "animation_list");
-    combo->setVisible(FALSE);
+    combo->setVisible(false);
     combo->setCommitCallback(onCommitAnimation, this);
     mAnimationCombo = combo;
 
     LLRadioGroup* group;
     group = getChild<LLRadioGroup>("animation_trigger_type");
-    group->setVisible(FALSE);
+    group->setVisible(false);
     group->setCommitCallback(onCommitAnimationTrigger, this);
     mAnimationRadio = group;
 
     combo = getChild<LLComboBox>( "sound_list");
-    combo->setVisible(FALSE);
+    combo->setVisible(false);
     combo->setCommitCallback(onCommitSound, this);
     mSoundCombo = combo;
 
     edit = getChild<LLLineEditor>("chat_editor");
-    edit->setVisible(FALSE);
+    edit->setVisible(false);
     edit->setCommitCallback(onCommitChat, this);
     //edit->setKeystrokeCallback(onKeystrokeCommit, this);
-    edit->setCommitOnFocusLost(TRUE);
-    edit->setIgnoreTab(TRUE);
+    edit->setCommitOnFocusLost(true);
+    edit->setIgnoreTab(true);
     mChatEditor = edit;
 
     check = getChild<LLCheckBoxCtrl>( "wait_key_release_check");
-    check->setVisible(FALSE);
+    check->setVisible(false);
     check->setCommitCallback(onCommitWait, this);
     mWaitKeyReleaseCheck = check;
 
     check = getChild<LLCheckBoxCtrl>( "wait_anim_check");
-    check->setVisible(FALSE);
+    check->setVisible(false);
     check->setCommitCallback(onCommitWait, this);
     mWaitAnimCheck = check;
 
     check = getChild<LLCheckBoxCtrl>( "wait_time_check");
-    check->setVisible(FALSE);
+    check->setVisible(false);
     check->setCommitCallback(onCommitWait, this);
     mWaitTimeCheck = check;
 
     edit = getChild<LLLineEditor>("wait_time_editor");
-    edit->setEnabled(FALSE);
-    edit->setVisible(FALSE);
+    edit->setEnabled(false);
+    edit->setVisible(false);
     edit->setPrevalidate(LLTextValidate::validateFloat);
 //  edit->setKeystrokeCallback(onKeystrokeCommit, this);
-    edit->setCommitOnFocusLost(TRUE);
+    edit->setCommitOnFocusLost(true);
     edit->setCommitCallback(onCommitWaitTime, this);
-    edit->setIgnoreTab(TRUE);
+    edit->setIgnoreTab(true);
     mWaitTimeEditor = edit;
 
     // Buttons at the bottom
@@ -517,6 +517,7 @@ void LLPreviewGesture::addKeys()
 void LLPreviewGesture::addAnimations()
 {
     LLComboBox* combo = mAnimationCombo;
+    LLUUID old_value = combo->getCurrentID();
 
     combo->removeall();
 
@@ -549,11 +550,9 @@ void LLPreviewGesture::addAnimations()
 
     // Copy into something we can sort
     std::vector<LLInventoryItem*> animations;
-
-    S32 count = items.size();
-    for(i = 0; i < count; ++i)
+    for (auto& item : items)
     {
-        animations.push_back( items.at(i) );
+        animations.emplace_back(item);
     }
 
     // Do the sort
@@ -567,6 +566,8 @@ void LLPreviewGesture::addAnimations()
 
         combo->add(item->getName(), item->getAssetUUID(), ADD_BOTTOM);
     }
+
+    combo->setCurrentByID(old_value);
 }
 
 
@@ -594,12 +595,9 @@ void LLPreviewGesture::addSounds()
 
     // Copy sounds into something we can sort
     std::vector<LLInventoryItem*> sounds;
-
-    S32 i;
-    S32 count = items.size();
-    for(i = 0; i < count; ++i)
+    for (auto& item : items)
     {
-        sounds.push_back( items.at(i) );
+        sounds.emplace_back(item);
     }
 
     // Do the sort
@@ -621,44 +619,44 @@ void LLPreviewGesture::refresh()
     LLPreview::refresh();
     // If previewing or item is incomplete, all controls are disabled
     LLViewerInventoryItem* item = (LLViewerInventoryItem*)getItem();
-    bool is_complete = (item && item->isFinished()) ? true : false;
+    bool is_complete = item && item->isFinished();
     if (mPreviewGesture || !is_complete)
     {
 
-        getChildView("desc")->setEnabled(FALSE);
-        //mDescEditor->setEnabled(FALSE);
-        mTriggerEditor->setEnabled(FALSE);
-        mReplaceText->setEnabled(FALSE);
-        mReplaceEditor->setEnabled(FALSE);
-        mModifierCombo->setEnabled(FALSE);
-        mKeyCombo->setEnabled(FALSE);
-        mLibraryList->setEnabled(FALSE);
-        mAddBtn->setEnabled(FALSE);
-        mUpBtn->setEnabled(FALSE);
-        mDownBtn->setEnabled(FALSE);
-        mDeleteBtn->setEnabled(FALSE);
-        mStepList->setEnabled(FALSE);
-        mOptionsText->setEnabled(FALSE);
-        mAnimationCombo->setEnabled(FALSE);
-        mAnimationRadio->setEnabled(FALSE);
-        mSoundCombo->setEnabled(FALSE);
-        mChatEditor->setEnabled(FALSE);
-        mWaitKeyReleaseCheck->setEnabled(FALSE);
-        mWaitAnimCheck->setEnabled(FALSE);
-        mWaitTimeCheck->setEnabled(FALSE);
-        mWaitTimeEditor->setEnabled(FALSE);
-        mActiveCheck->setEnabled(FALSE);
-        mSaveBtn->setEnabled(FALSE);
+        getChildView("desc")->setEnabled(false);
+        //mDescEditor->setEnabled(false);
+        mTriggerEditor->setEnabled(false);
+        mReplaceText->setEnabled(false);
+        mReplaceEditor->setEnabled(false);
+        mModifierCombo->setEnabled(false);
+        mKeyCombo->setEnabled(false);
+        mLibraryList->setEnabled(false);
+        mAddBtn->setEnabled(false);
+        mUpBtn->setEnabled(false);
+        mDownBtn->setEnabled(false);
+        mDeleteBtn->setEnabled(false);
+        mStepList->setEnabled(false);
+        mOptionsText->setEnabled(false);
+        mAnimationCombo->setEnabled(false);
+        mAnimationRadio->setEnabled(false);
+        mSoundCombo->setEnabled(false);
+        mChatEditor->setEnabled(false);
+        mWaitKeyReleaseCheck->setEnabled(false);
+        mWaitAnimCheck->setEnabled(false);
+        mWaitTimeCheck->setEnabled(false);
+        mWaitTimeEditor->setEnabled(false);
+        mActiveCheck->setEnabled(false);
+        mSaveBtn->setEnabled(false);
 
         // Make sure preview button is enabled, so we can stop it
-        mPreviewBtn->setEnabled(TRUE);
+        mPreviewBtn->setEnabled(true);
         return;
     }
 
-    BOOL modifiable = item->getPermissions().allowModifyBy(gAgent.getID());
+    bool modifiable = item->getPermissions().allowModifyBy(gAgent.getID());
 
     getChildView("desc")->setEnabled(modifiable);
-    mTriggerEditor->setEnabled(TRUE);
+    mTriggerEditor->setEnabled(true);
     mLibraryList->setEnabled(modifiable);
     mStepList->setEnabled(modifiable);
     mOptionsText->setEnabled(modifiable);
@@ -670,27 +668,27 @@ void LLPreviewGesture::refresh()
     mWaitAnimCheck->setEnabled(modifiable);
     mWaitTimeCheck->setEnabled(modifiable);
     mWaitTimeEditor->setEnabled(modifiable);
-    mActiveCheck->setEnabled(TRUE);
+    mActiveCheck->setEnabled(true);
 
     const std::string& trigger = mTriggerEditor->getText();
-    BOOL have_trigger = !trigger.empty();
+    bool have_trigger = !trigger.empty();
 
     const std::string& replace = mReplaceEditor->getText();
-    BOOL have_replace = !replace.empty();
+    bool have_replace = !replace.empty();
 
     LLScrollListItem* library_item = mLibraryList->getFirstSelected();
-    BOOL have_library = (library_item != NULL);
+    bool have_library = (library_item != NULL);
 
     LLScrollListItem* step_item = mStepList->getFirstSelected();
     S32 step_index = mStepList->getFirstSelectedIndex();
     S32 step_count = mStepList->getItemCount();
-    BOOL have_step = (step_item != NULL);
+    bool have_step = (step_item != NULL);
 
     mReplaceText->setEnabled(have_trigger || have_replace);
     mReplaceEditor->setEnabled(have_trigger || have_replace);
 
-    mModifierCombo->setEnabled(TRUE);
-    mKeyCombo->setEnabled(TRUE);
+    mModifierCombo->setEnabled(true);
+    mKeyCombo->setEnabled(true);
 
     mAddBtn->setEnabled(modifiable && have_library);
     mUpBtn->setEnabled(modifiable && have_step && step_index > 0);
@@ -698,14 +696,14 @@ void LLPreviewGesture::refresh()
     mDeleteBtn->setEnabled(modifiable && have_step);
 
     // Assume all not visible
-    mAnimationCombo->setVisible(FALSE);
-    mAnimationRadio->setVisible(FALSE);
-    mSoundCombo->setVisible(FALSE);
-    mChatEditor->setVisible(FALSE);
-    mWaitKeyReleaseCheck->setVisible(FALSE);
-    mWaitAnimCheck->setVisible(FALSE);
-    mWaitTimeCheck->setVisible(FALSE);
-    mWaitTimeEditor->setVisible(FALSE);
+    mAnimationCombo->setVisible(false);
+    mAnimationRadio->setVisible(false);
+    mSoundCombo->setVisible(false);
+    mChatEditor->setVisible(false);
+    mWaitKeyReleaseCheck->setVisible(false);
+    mWaitAnimCheck->setVisible(false);
+    mWaitTimeCheck->setVisible(false);
+    mWaitTimeEditor->setVisible(false);
 
     std::string optionstext;
 
@@ -721,8 +719,8 @@ void LLPreviewGesture::refresh()
             {
                 LLGestureStepAnimation* anim_step = (LLGestureStepAnimation*)step;
                 optionstext = getString("step_anim");
-                mAnimationCombo->setVisible(TRUE);
-                mAnimationRadio->setVisible(TRUE);
+                mAnimationCombo->setVisible(true);
+                mAnimationRadio->setVisible(true);
                 mAnimationRadio->setSelectedIndex((anim_step->mFlags & ANIM_FLAG_STOP) ? 1 : 0);
                 mAnimationCombo->setCurrentByID(anim_step->mAnimAssetID);
                 break;
@@ -731,7 +729,7 @@ void LLPreviewGesture::refresh()
             {
                 LLGestureStepSound* sound_step = (LLGestureStepSound*)step;
                 optionstext = getString("step_sound");
-                mSoundCombo->setVisible(TRUE);
+                mSoundCombo->setVisible(true);
                 mSoundCombo->setCurrentByID(sound_step->mSoundAssetID);
                 break;
             }
@@ -739,7 +737,7 @@ void LLPreviewGesture::refresh()
             {
                 LLGestureStepChat* chat_step = (LLGestureStepChat*)step;
                 optionstext = getString("step_chat");
-                mChatEditor->setVisible(TRUE);
+                mChatEditor->setVisible(true);
                 mChatEditor->setText(chat_step->mChatText);
                 break;
             }
@@ -747,13 +745,13 @@ void LLPreviewGesture::refresh()
             {
                 LLGestureStepWait* wait_step = (LLGestureStepWait*)step;
                 optionstext = getString("step_wait");
-                mWaitKeyReleaseCheck->setVisible(TRUE);
+                mWaitKeyReleaseCheck->setVisible(true);
                 mWaitKeyReleaseCheck->set(wait_step->mFlags & WAIT_FLAG_KEY_RELEASE);
-                mWaitAnimCheck->setVisible(TRUE);
+                mWaitAnimCheck->setVisible(true);
                 mWaitAnimCheck->set(wait_step->mFlags & WAIT_FLAG_ALL_ANIM);
-                mWaitTimeCheck->setVisible(TRUE);
+                mWaitTimeCheck->setVisible(true);
                 mWaitTimeCheck->set(wait_step->mFlags & WAIT_FLAG_TIME);
-                mWaitTimeEditor->setVisible(TRUE);
+                mWaitTimeEditor->setVisible(true);
                 std::string buffer = llformat("%.1f", (double)wait_step->mWaitSeconds);
                 mWaitTimeEditor->setText(buffer);
                 break;
@@ -765,7 +763,7 @@ void LLPreviewGesture::refresh()
 
     mOptionsText->setText(optionstext);
 
-    BOOL active = LLGestureMgr::instance().isGestureActive(mItemUUID);
+    bool active = LLGestureMgr::instance().isGestureActive(mItemUUID);
     mActiveCheck->set(active);
 
     // Can only preview if there are steps
@@ -801,7 +799,7 @@ void LLPreviewGesture::initDefaultGesture()
     mStepList->selectFirstItem();
 
     // this is *new* content, so we are dirty
-    mDirty = TRUE;
+    mDirty = true;
 }
 
 
@@ -834,7 +832,7 @@ void LLPreviewGesture::loadAsset()
     // window if the download gets stalled.
     LLUUID* item_idp = new LLUUID(mItemUUID);
 
-    const BOOL high_priority = TRUE;
+    const bool high_priority = true;
     gAssetStorage->getAssetData(asset_id,
                                 LLAssetType::AT_GESTURE,
                                 onLoadComplete,
@@ -866,7 +864,7 @@ void LLPreviewGesture::onLoadComplete(const LLUUID& asset_uuid,
             LLMultiGesture* gesture = new LLMultiGesture();
 
             LLDataPackerAsciiBuffer dp(&buffer[0], size+1);
-            BOOL ok = gesture->deserialize(dp);
+            bool ok = gesture->deserialize(dp);
 
             if (ok)
             {
@@ -875,7 +873,7 @@ void LLPreviewGesture::onLoadComplete(const LLUUID& asset_uuid,
 
                 self->mStepList->selectFirstItem();
 
-                self->mDirty = FALSE;
+                self->mDirty = false;
                 self->refresh();
                 self->refreshFromItem(); // to update description and title
             }
@@ -951,8 +949,8 @@ void LLPreviewGesture::loadUIFromGesture(LLMultiGesture* gesture)
     mKeyCombo->setEnabledByValue(LLKeyboard::stringFromKey(KEY_F10), gesture->mMask != MASK_CONTROL);
 
     // Make UI steps for each gesture step
-    S32 i;
-    S32 count = gesture->mSteps.size();
+    size_t i;
+    size_t count = gesture->mSteps.size();
     for (i = 0; i < count; ++i)
     {
         LLGestureStep* step = gesture->mSteps[i];
@@ -1153,7 +1151,7 @@ void LLPreviewGesture::saveIfNeeded()
 
             LLLineEditor* descEditor = getChild<LLLineEditor>("desc");
             LLSaveInfo* info = new LLSaveInfo(mItemUUID, mObjectUUID, descEditor->getText(), tid);
-            gAssetStorage->storeAssetData(tid, LLAssetType::AT_GESTURE, onSaveComplete, info, FALSE);
+            gAssetStorage->storeAssetData(tid, LLAssetType::AT_GESTURE, onSaveComplete, info, false);
         }
 
     }
@@ -1206,7 +1204,7 @@ void LLPreviewGesture::onSaveComplete(const LLUUID& asset_uuid, void* user_data,
                 new_item->setDescription(info->mDesc);
                 new_item->setTransactionID(info->mTransactionID);
                 new_item->setAssetUUID(asset_uuid);
-                new_item->updateServer(FALSE);
+                new_item->updateServer(false);
                 gInventory.updateItem(new_item);
                 gInventory.notifyObservers();
             }
@@ -1352,7 +1350,7 @@ void LLPreviewGesture::onCommitKeyorModifier()
 
     mKeyCombo->setEnabledByValue(LLKeyboard::stringFromKey(KEY_F10), mModifierCombo->getSimple() != CTRL_LABEL);
     mModifierCombo->setEnabledByValue(CTRL_LABEL, mKeyCombo->getSimple() != LLKeyboard::stringFromKey(KEY_F10));
-    mDirty = TRUE;
+    mDirty = true;
     refresh();
 }
 
@@ -1371,7 +1369,7 @@ void LLPreviewGesture::updateLabel(LLScrollListItem* item)
 void LLPreviewGesture::onCommitSetDirty(LLUICtrl* ctrl, void* data)
 {
     LLPreviewGesture* self = (LLPreviewGesture*)data;
-    self->mDirty = TRUE;
+    self->mDirty = true;
     self->refresh();
 }
 
@@ -1415,7 +1413,7 @@ void LLPreviewGesture::onCommitAnimation(LLUICtrl* ctrl, void* data)
         {
             // Assign the animation name
             LLGestureStepAnimation* anim_step = (LLGestureStepAnimation*)step;
-            if (self->mAnimationCombo->getCurrentIndex() == 0)
+            if (self->mAnimationCombo->getCurrentIndex() <= 0)
             {
                 anim_step->mAnimName.clear();
                 anim_step->mAnimAssetID.setNull();
@@ -1430,7 +1428,7 @@ void LLPreviewGesture::onCommitAnimation(LLUICtrl* ctrl, void* data)
             // Update the UI label in the list
             updateLabel(step_item);
 
-            self->mDirty = TRUE;
+            self->mDirty = true;
             self->refresh();
         }
     }
@@ -1461,7 +1459,7 @@ void LLPreviewGesture::onCommitAnimationTrigger(LLUICtrl* ctrl, void *data)
             // Update the UI label in the list
             updateLabel(step_item);
 
-            self->mDirty = TRUE;
+            self->mDirty = true;
             self->refresh();
         }
     }
@@ -1487,7 +1485,7 @@ void LLPreviewGesture::onCommitSound(LLUICtrl* ctrl, void* data)
             // Update the UI label in the list
             updateLabel(step_item);
 
-            self->mDirty = TRUE;
+            self->mDirty = true;
             self->refresh();
         }
     }
@@ -1511,7 +1509,7 @@ void LLPreviewGesture::onCommitChat(LLUICtrl* ctrl, void* data)
     // Update the UI label in the list
     updateLabel(step_item);
 
-    self->mDirty = TRUE;
+    self->mDirty = true;
     self->refresh();
 }
 
@@ -1548,7 +1546,7 @@ void LLPreviewGesture::onCommitWait(LLUICtrl* ctrl, void* data)
     // Update the UI label in the list
     updateLabel(step_item);
 
-    self->mDirty = TRUE;
+    self->mDirty = true;
     self->refresh();
 }
 
@@ -1563,7 +1561,7 @@ void LLPreviewGesture::onCommitWaitTime(LLUICtrl* ctrl, void* data)
     LLGestureStep* step = (LLGestureStep*)step_item->getUserdata();
     if (step->getType() != STEP_WAIT) return;
 
-    self->mWaitTimeCheck->set(TRUE);
+    self->mWaitTimeCheck->set(true);
     onCommitWait(ctrl, data);
 }
 
@@ -1596,7 +1594,7 @@ void LLPreviewGesture::onClickAdd(void* data)
     }
 
     self->addStep( (EStepType)library_item_index );
-    self->mDirty = TRUE;
+    self->mDirty = true;
     self->refresh();
 }
 
@@ -1637,7 +1635,7 @@ LLScrollListItem* LLPreviewGesture::addStep( const EStepType step_type )
     mLibraryList->deselectAllItems();
     mStepList->deselectAllItems();
 
-    step_item->setSelected(TRUE);
+    step_item->setSelected(true);
 
     return step_item;
 }
@@ -1697,7 +1695,7 @@ void LLPreviewGesture::onClickUp(void* data)
     if (selected_index > 0)
     {
         self->mStepList->swapWithPrevious(selected_index);
-        self->mDirty = TRUE;
+        self->mDirty = true;
         self->refresh();
     }
 }
@@ -1714,7 +1712,7 @@ void LLPreviewGesture::onClickDown(void* data)
     if (selected_index < count-1)
     {
         self->mStepList->swapWithNext(selected_index);
-        self->mDirty = TRUE;
+        self->mDirty = true;
         self->refresh();
     }
 }
@@ -1734,7 +1732,7 @@ void LLPreviewGesture::onClickDelete(void* data)
 
         self->mStepList->deleteSingleItem(selected_index);
 
-        self->mDirty = TRUE;
+        self->mDirty = true;
         self->refresh();
     }
 }

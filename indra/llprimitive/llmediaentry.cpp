@@ -353,7 +353,7 @@ U32 LLMediaEntry::setWhiteList( const std::vector<std::string> &whitelist )
 {
     // *NOTE: This code is VERY similar to the setWhitelist below.
     // IF YOU CHANGE THIS IMPLEMENTATION, BE SURE TO CHANGE THE OTHER!
-    U32 size = 0;
+    size_t size = 0;
     U32 count = 0;
     // First count to make sure the size constraint is not violated
     std::vector<std::string>::const_iterator iter = whitelist.begin();
@@ -394,7 +394,7 @@ U32 LLMediaEntry::setWhiteList( const LLSD &whitelist )
     {
         // *NOTE: This code is VERY similar to the setWhitelist above.
         // IF YOU CHANGE THIS IMPLEMENTATION, BE SURE TO CHANGE THE OTHER!
-        U32 size = 0;
+        size_t size = 0;
         U32 count = 0;
         // First check to make sure the size and count constraints are not violated
         LLSD::array_const_iterator iter = whitelist.beginArray();

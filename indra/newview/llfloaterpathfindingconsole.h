@@ -55,40 +55,40 @@ class LLFloaterPathfindingConsole
     friend class LLFloaterReg;
 
 public:
-    virtual BOOL postBuild();
+    virtual bool postBuild();
     virtual void onOpen(const LLSD& pKey);
     virtual void onClose(bool pIsAppQuitting);
 
     static LLHandle<LLFloaterPathfindingConsole> getInstanceHandle();
 
-    BOOL isRenderNavMesh() const;
-    void setRenderNavMesh(BOOL pIsRenderNavMesh);
+    bool isRenderNavMesh() const;
+    void setRenderNavMesh(bool pIsRenderNavMesh);
 
-    BOOL isRenderWalkables() const;
-    void setRenderWalkables(BOOL pIsRenderWalkables);
+    bool isRenderWalkables() const;
+    void setRenderWalkables(bool pIsRenderWalkables);
 
-    BOOL isRenderStaticObstacles() const;
-    void setRenderStaticObstacles(BOOL pIsRenderStaticObstacles);
+    bool isRenderStaticObstacles() const;
+    void setRenderStaticObstacles(bool pIsRenderStaticObstacles);
 
-    BOOL isRenderMaterialVolumes() const;
-    void setRenderMaterialVolumes(BOOL pIsRenderMaterialVolumes);
+    bool isRenderMaterialVolumes() const;
+    void setRenderMaterialVolumes(bool pIsRenderMaterialVolumes);
 
-    BOOL isRenderExclusionVolumes() const;
-    void setRenderExclusionVolumes(BOOL pIsRenderExclusionVolumes);
+    bool isRenderExclusionVolumes() const;
+    void setRenderExclusionVolumes(bool pIsRenderExclusionVolumes);
 
-    BOOL isRenderWorld() const;
-    void setRenderWorld(BOOL pIsRenderWorld);
+    bool isRenderWorld() const;
+    void setRenderWorld(bool pIsRenderWorld);
 
-    BOOL isRenderWorldMovablesOnly() const;
-    void setRenderWorldMovablesOnly(BOOL pIsRenderWorldMovablesOnly);
+    bool isRenderWorldMovablesOnly() const;
+    void setRenderWorldMovablesOnly(bool pIsRenderWorldMovablesOnly);
 
-    BOOL isRenderWaterPlane() const;
-    void setRenderWaterPlane(BOOL pIsRenderWaterPlane);
+    bool isRenderWaterPlane() const;
+    void setRenderWaterPlane(bool pIsRenderWaterPlane);
 
-    BOOL isRenderXRay() const;
-    void setRenderXRay(BOOL pIsRenderXRay);
+    bool isRenderXRay() const;
+    void setRenderXRay(bool pIsRenderXRay);
 
-    BOOL isRenderAnyShapes() const;
+    bool isRenderAnyShapes() const;
     U32  getRenderShapeFlags();
 
     LLPathingLib::LLPLCharacterType getRenderHeatmapType() const;

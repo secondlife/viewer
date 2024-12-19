@@ -43,7 +43,6 @@
 #include "stringize.h"
 #include <typeinfo>
 #include <map>
-#include <boost/scoped_ptr.hpp>
 #include <boost/bind.hpp>
 
 LLWindowListener::LLWindowListener(LLViewerWindow *window, const KeyboardGetter& kbgetter)
@@ -330,7 +329,7 @@ void LLWindowListener::keyUp(LLSD const & evt)
 }
 
 // for WhichButton
-typedef BOOL (LLWindowCallbacks::*MouseMethod)(LLWindow *, LLCoordGL, MASK);
+typedef bool (LLWindowCallbacks::*MouseMethod)(LLWindow *, LLCoordGL, MASK);
 struct Actions
 {
     Actions(const MouseMethod& d, const MouseMethod& u): down(d), up(u), valid(true) {}

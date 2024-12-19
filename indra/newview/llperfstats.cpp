@@ -91,7 +91,7 @@ namespace LLPerfStats
         const auto newval = gSavedSettings.getF32("RenderAvatarMaxART");
         if(newval < log10(LLPerfStats::ART_UNLIMITED_NANOS/1000))
         {
-            LLPerfStats::renderAvatarMaxART_ns = pow(10,newval)*1000;
+            LLPerfStats::renderAvatarMaxART_ns = (U64)pow(10,newval)*1000;
         }
         else
         {
@@ -131,14 +131,14 @@ namespace LLPerfStats
 
         if(gSavedSettings.getBOOL("AutoTuneLock") && !gSavedSettings.getU32("KeepAutoTuneLock"))
         {
-            gSavedSettings.setBOOL("AutoTuneLock", FALSE);
+            gSavedSettings.setBOOL("AutoTuneLock", false);
         }
 
         LLPerfStats::tunables.userAutoTuneEnabled = LLPerfStats::tunables.userAutoTuneLock;
 
         if (LLPerfStats::tunables.userAutoTuneEnabled && !gSavedSettings.getBOOL("AutoTuneFPS"))
         {
-            gSavedSettings.setBOOL("AutoTuneFPS", TRUE);
+            gSavedSettings.setBOOL("AutoTuneFPS", true);
         }
 
         // Note: The Max ART slider is logarithmic and thus we have an intermediate proxy value
@@ -301,8 +301,8 @@ namespace LLPerfStats
 
         std::vector<LLVector3d> positions;
         uuid_vec_t avatar_ids;
-        LLWorld::getInstance()->getAvatars(&avatar_ids, &positions, our_pos, distance);
-        return positions.size();
+        LLWorld::getInstance()->getAvatars(&avatar_ids, &positions, our_pos, (F32)distance);
+        return static_cast<int>(positions.size());
     }
 
     const U32 NUM_PERIODS = 50;
@@ -375,10 +375,10 @@ namespace LLPerfStats
         {
             // if we have less than the user's "max Non-Impostors" avatars within the desired range then adjust the limit.
             // also adjusts back up again for nearby crowds.
-            auto count = countNearbyAvatars(std::min(LLPipeline::RenderFarClip, tunables.userImpostorDistance));
+            auto count = countNearbyAvatars((S32)std::min(LLPipeline::RenderFarClip, tunables.userImpostorDistance));
             if( count != tunables.nonImpostors )
             {
-                tunables.updateNonImposters( (count < LLVOAvatar::NON_IMPOSTORS_MAX_SLIDER)?count : 0 );
+                tunables.updateNonImposters(((U32)count < LLVOAvatar::NON_IMPOSTORS_MAX_SLIDER) ? count : 0);
                 LL_DEBUGS("AutoTune") << "There are " << count << "avatars within " << std::min(LLPipeline::RenderFarClip, tunables.userImpostorDistance) << "m of the camera" << LL_ENDL;
             }
         }
@@ -411,7 +411,7 @@ namespace LLPerfStats
                 return;
             }
 
-            if(belowTargetFPS == false)
+            if (!belowTargetFPS)
             {
                 // this is the first frame under. hold fire to add a little hysteresis
                 belowTargetFPS = true;
@@ -476,7 +476,7 @@ namespace LLPerfStats
                 // max render this frame may be higher than the last (cos new entrants and jitter) so make sure we are heading in the right direction
                 if( new_render_limit_ns > renderAvatarMaxART_ns )
                 {
-                    new_render_limit_ns = renderAvatarMaxART_ns;
+                    new_render_limit_ns = (double)renderAvatarMaxART_ns;
                 }
 
                 if (new_render_limit_ns > LLPerfStats::ART_MIN_ADJUST_DOWN_NANOS)
@@ -485,22 +485,22 @@ namespace LLPerfStats
                 }
 
                 // bounce at the bottom to prevent "no limit"
-                new_render_limit_ns = std::max((U64)new_render_limit_ns, (U64)LLPerfStats::ART_MINIMUM_NANOS);
+                new_render_limit_ns = (double)std::max((U64)new_render_limit_ns, (U64)LLPerfStats::ART_MINIMUM_NANOS);
 
                 // assign the new value
-                if(renderAvatarMaxART_ns != new_render_limit_ns)
+                if (renderAvatarMaxART_ns != new_render_limit_ns)
                 {
-                    renderAvatarMaxART_ns = new_render_limit_ns;
+                    renderAvatarMaxART_ns = (U64)new_render_limit_ns;
                     tunables.updateSettingsFromRenderCostLimit();
                 }
                 // LL_DEBUGS() << "AUTO_TUNE: avatar_budget adjusted to:" << new_render_limit_ns << LL_ENDL;
             }
             // LL_DEBUGS() << "AUTO_TUNE: Target frame time:"<< LLPerfStats::raw_to_us(target_frame_time_raw) << "usecs (non_avatar is " << LLPerfStats::raw_to_us(non_avatar_time_raw) << "usecs) Max cost limited=" << renderAvatarMaxART_ns << LL_ENDL;
         }
-        else if(( LLPerfStats::raw_to_ns(target_frame_time_raw) > (LLPerfStats::raw_to_ns(tot_frame_time_raw) + renderAvatarMaxART_ns) ) ||
+        else if ((LLPerfStats::raw_to_ns(target_frame_time_raw) > (LLPerfStats::raw_to_ns(tot_frame_time_raw) + renderAvatarMaxART_ns)) ||
                  (tunables.vsyncEnabled && (target_fps == LLPerfStats::vsync_max_fps) && (target_frame_time_raw > getMeanTotalFrameTime())))
         {
-            if(belowTargetFPS == true)
+            if (belowTargetFPS)
             {
                 // we reached target, force a pause
                 lastGlobalPrefChange = gFrameCount;
@@ -508,15 +508,17 @@ namespace LLPerfStats
             }
 
             // once we're over the FPS target we slow down further
-            if((gFrameCount - lastGlobalPrefChange) > settingsChangeFrequency*3)
+            if ((gFrameCount - lastGlobalPrefChange) > settingsChangeFrequency * 3)
             {
-                if(!tunables.userAutoTuneLock)
+                if (!tunables.userAutoTuneLock)
                 {
                     // we've reached the target and stayed long enough to consider stable.
                     // turn off if we are not locked.
                     tunables.updateUserAutoTuneEnabled(false);
                 }
-                if(renderAvatarMaxART_ns != 0 && LLPerfStats::tunedAvatars > 0 && (tunables.userFPSTuningStrategy != TUNE_SCENE_ONLY) )
+                if (renderAvatarMaxART_ns > 0 &&
+                    LLPerfStats::tunedAvatars > 0 &&
+                    tunables.userFPSTuningStrategy != TUNE_SCENE_ONLY)
                 {
                     // if we have more time to spare let's shift up little in the hope we'll restore an avatar.
                     U64 up_step = LLPerfStats::tunedAvatars > 2 ? LLPerfStats::ART_MIN_ADJUST_UP_NANOS : LLPerfStats::ART_MIN_ADJUST_UP_NANOS * 2;
@@ -524,15 +526,15 @@ namespace LLPerfStats
                     tunables.updateSettingsFromRenderCostLimit();
                     return;
                 }
-                if(tunables.userFPSTuningStrategy != TUNE_AVATARS_ONLY)
+                if (tunables.userFPSTuningStrategy != TUNE_AVATARS_ONLY)
                 {
-                    if( LLPipeline::RenderFarClip < tunables.userTargetDrawDistance )
+                    if (LLPipeline::RenderFarClip < tunables.userTargetDrawDistance)
                     {
                         LLPerfStats::tunables.updateFarClip( std::min(LLPipeline::RenderFarClip + DD_STEP, tunables.userTargetDrawDistance) );
                         LLPerfStats::lastGlobalPrefChange = gFrameCount;
                         return;
                     }
-                    if( (tot_frame_time_raw * 1.5) < target_frame_time_raw )
+                    if ((tot_frame_time_raw * 1.5) < target_frame_time_raw)
                     {
                         // if everything else is "max" and we have >50% headroom let's knock the water quality up a notch at a time.
 # if 0 // RenderReflectionDetail went away

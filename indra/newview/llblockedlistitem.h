@@ -49,7 +49,7 @@ class LLBlockedListItem : public LLPanel
 public:
 
     LLBlockedListItem(const LLMute* item);
-    virtual BOOL postBuild();
+    virtual bool postBuild();
 
     void onMouseEnter(S32 x, S32 y, MASK mask);
     void onMouseLeave(S32 x, S32 y, MASK mask);

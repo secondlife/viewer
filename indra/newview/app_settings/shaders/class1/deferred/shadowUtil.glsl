@@ -24,7 +24,6 @@
  */
 
 uniform sampler2D   normalMap;
-uniform sampler2D   depthMap;
 
 #if defined(SUN_SHADOW)
 uniform sampler2DShadow shadowMap0;

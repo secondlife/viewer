@@ -52,6 +52,7 @@ class LLFloater;
 class LLMaterialID;
 class LLMediaCtrl;
 class LLMenuButton;
+class LLRadioGroup;
 
 class PBRPickerAgentListener;
 class PBRPickerObjectListener;
@@ -100,7 +101,7 @@ public:
 class LLPanelFace : public LLPanel
 {
 public:
-    virtual BOOL    postBuild();
+    virtual bool    postBuild();
     LLPanelFace();
     virtual ~LLPanelFace();
 
@@ -110,7 +111,7 @@ public:
 
     static void onMaterialOverrideReceived(const LLUUID& object_id, S32 side);
 
-    /*virtual*/ void onVisibilityChange(BOOL new_visibility);
+    /*virtual*/ void onVisibilityChange(bool new_visibility);
     /*virtual*/ void draw();
 
     LLMaterialPtr createDefaultMaterial(LLMaterialPtr current_material)
@@ -124,59 +125,62 @@ public:
         return new_material;
     }
 
+    LLGLTFMaterial::TextureInfo getPBRTextureInfo();
     LLRender::eTexIndex getTextureChannelToEdit();
+    LLRender::eTexIndex getMatTextureChannel();
+    LLRender::eTexIndex getPBRTextureChannel();
     LLRender::eTexIndex getTextureDropChannel();
     LLGLTFMaterial::TextureInfo getPBRDropChannel();
 
 protected:
-    void            navigateToTitleMedia(const std::string url);
-    bool            selectedMediaEditable();
-    void            clearMediaSettings();
-    void            updateMediaSettings();
-    void            updateMediaTitle();
+    void navigateToTitleMedia(const std::string& url);
+    bool selectedMediaEditable();
+    void clearMediaSettings();
+    void updateMediaSettings();
+    void updateMediaTitle();
 
-    void            getState();
+    void getState();
 
-    void            sendTexture();          // applies and sends texture
-    void            sendTextureInfo();      // applies and sends texture scale, offset, etc.
-    void            sendColor();            // applies and sends color
-    void            sendAlpha();            // applies and sends transparency
-    void            sendBump(U32 bumpiness);                // applies and sends bump map
-    void            sendTexGen();               // applies and sends bump map
-    void            sendShiny(U32 shininess);           // applies and sends shininess
-    void            sendFullbright();       // applies and sends full bright
+    void sendTexture();            // applies and sends texture
+    void sendTextureInfo();        // applies and sends texture scale, offset, etc.
+    void sendColor();              // applies and sends color
+    void sendAlpha();              // applies and sends transparency
+    void sendBump(U32 bumpiness);  // applies and sends bump map
+    void sendTexGen();             // applies and sends bump map
+    void sendShiny(U32 shininess); // applies and sends shininess
+    void sendFullbright();         // applies and sends full bright
 
-    void            sendGlow();
-    void            alignTestureLayer();
+    void sendGlow();
+    void alignTextureLayer();
 
-    void            updateCopyTexButton();
+    void updateCopyTexButton();
 
-    void    onCommitPbr(const LLSD& data);
-    void    onCancelPbr(const LLSD& data);
-    void    onSelectPbr(const LLSD& data);
-    static BOOL onDragPbr(LLUICtrl* ctrl, LLInventoryItem* item);
+    void onCommitPbr();
+    void onCancelPbr();
+    void onSelectPbr();
 
-    // this function is to return TRUE if the drag should succeed.
-    static BOOL onDragTexture(LLUICtrl* ctrl, LLInventoryItem* item);
+    // These functions are to return true if the drag should succeed
+    bool onDragPbr(LLInventoryItem* item);
+    bool onDragTexture(LLInventoryItem* item);
 
-    void    onCommitTexture(const LLSD& data);
-    void    onCancelTexture(const LLSD& data);
-    void    onSelectTexture(const LLSD& data);
-    void    onCommitSpecularTexture(const LLSD& data);
-    void    onCancelSpecularTexture(const LLSD& data);
-    void    onSelectSpecularTexture(const LLSD& data);
-    void    onCommitNormalTexture(const LLSD& data);
-    void    onCancelNormalTexture(const LLSD& data);
-    void    onSelectNormalTexture(const LLSD& data);
-    void    onCommitColor(const LLSD& data);
-    void    onCommitShinyColor(const LLSD& data);
-    void    onCommitAlpha(const LLSD& data);
-    void    onCancelColor(const LLSD& data);
-    void    onCancelShinyColor(const LLSD& data);
-    void    onSelectColor(const LLSD& data);
-    void    onSelectShinyColor(const LLSD& data);
+    void onCommitTexture();
+    void onCancelTexture();
+    void onSelectTexture();
+    void onCommitSpecularTexture(const LLSD& data);
+    void onCancelSpecularTexture(const LLSD& data);
+    void onSelectSpecularTexture(const LLSD& data);
+    void onCommitNormalTexture(const LLSD& data);
+    void onCancelNormalTexture(const LLSD& data);
+    void onSelectNormalTexture(const LLSD& data);
+    void onCommitColor();
+    void onCommitShinyColor();
+    void onCommitAlpha();
+    void onCancelColor();
+    void onCancelShinyColor();
+    void onSelectColor();
+    void onSelectShinyColor();
 
-    void    onCloseTexturePicker(const LLSD& data);
+    void onCloseTexturePicker(const LLSD& data);
 
     static bool deleteMediaConfirm(const LLSD& notification, const LLSD& response);
     static bool multipleFacesSelectedConfirm(const LLSD& notification, const LLSD& response);
@@ -194,81 +198,78 @@ protected:
 
     // Callback funcs for individual controls
     //
-    static void     onCommitTextureInfo(LLUICtrl* ctrl, void* userdata);
-    static void     onCommitTextureScaleX(LLUICtrl* ctrl, void* userdata);
-    static void     onCommitTextureScaleY(LLUICtrl* ctrl, void* userdata);
-    static void     onCommitTextureRot(LLUICtrl* ctrl, void* userdata);
-    static void     onCommitTextureOffsetX(LLUICtrl* ctrl, void* userdata);
-    static void     onCommitTextureOffsetY(LLUICtrl* ctrl, void* userdata);
+    void onCommitTextureInfo();
+    void onCommitTextureScaleX();
+    void onCommitTextureScaleY();
+    void onCommitTextureRot();
+    void onCommitTextureOffsetX();
+    void onCommitTextureOffsetY();
 
-    static void     onCommitMaterialBumpyScaleX(    LLUICtrl* ctrl, void* userdata);
-    static void     onCommitMaterialBumpyScaleY(    LLUICtrl* ctrl, void* userdata);
-    static void     onCommitMaterialBumpyRot(       LLUICtrl* ctrl, void* userdata);
-    static void     onCommitMaterialBumpyOffsetX(   LLUICtrl* ctrl, void* userdata);
-    static void     onCommitMaterialBumpyOffsetY(   LLUICtrl* ctrl, void* userdata);
+    void onCommitMaterialBumpyScaleX();
+    void onCommitMaterialBumpyScaleY();
+    void onCommitMaterialBumpyRot();
+    void onCommitMaterialBumpyOffsetX();
+    void onCommitMaterialBumpyOffsetY();
 
-    static void     syncRepeatX(LLPanelFace* self, F32 scaleU);
-    static void     syncRepeatY(LLPanelFace* self, F32 scaleV);
-    static void     syncOffsetX(LLPanelFace* self, F32 offsetU);
-    static void     syncOffsetY(LLPanelFace* self, F32 offsetV);
-    static void     syncMaterialRot(LLPanelFace* self, F32 rot, int te = -1);
+    void syncRepeatX(F32 scaleU);
+    void syncRepeatY(F32 scaleV);
+    void syncOffsetX(F32 offsetU);
+    void syncOffsetY(F32 offsetV);
+    void syncMaterialRot(F32 rot, int te = -1);
 
-    static void     onCommitMaterialShinyScaleX(    LLUICtrl* ctrl, void* userdata);
-    static void     onCommitMaterialShinyScaleY(    LLUICtrl* ctrl, void* userdata);
-    static void     onCommitMaterialShinyRot(       LLUICtrl* ctrl, void* userdata);
-    static void     onCommitMaterialShinyOffsetX(   LLUICtrl* ctrl, void* userdata);
-    static void     onCommitMaterialShinyOffsetY(   LLUICtrl* ctrl, void* userdata);
+    void onCommitMaterialShinyScaleX();
+    void onCommitMaterialShinyScaleY();
+    void onCommitMaterialShinyRot();
+    void onCommitMaterialShinyOffsetX();
+    void onCommitMaterialShinyOffsetY();
 
-    static void     onCommitMaterialGloss(          LLUICtrl* ctrl, void* userdata);
-    static void     onCommitMaterialEnv(                LLUICtrl* ctrl, void* userdata);
-    static void     onCommitMaterialMaskCutoff( LLUICtrl* ctrl, void* userdata);
-    static void     onCommitMaterialID( LLUICtrl* ctrl, void* userdata);
+    void onCommitMaterialGloss();
+    void onCommitMaterialEnv();
+    void onCommitMaterialMaskCutoff();
 
-    static void     onCommitMaterialsMedia( LLUICtrl* ctrl, void* userdata);
-    static void     onCommitMaterialType(   LLUICtrl* ctrl, void* userdata);
-    static void     onCommitPbrType(LLUICtrl* ctrl, void* userdata);
-    static void     onClickBtnEditMedia(LLUICtrl* ctrl, void* userdata);
-    static void     onClickBtnDeleteMedia(LLUICtrl* ctrl, void* userdata);
-    static void     onClickBtnAddMedia(LLUICtrl* ctrl, void* userdata);
-    static void     onCommitBump(               LLUICtrl* ctrl, void* userdata);
-    static void     onCommitTexGen(         LLUICtrl* ctrl, void* userdata);
-    static void     onCommitShiny(              LLUICtrl* ctrl, void* userdata);
-    static void     onCommitAlphaMode(      LLUICtrl* ctrl, void* userdata);
-    static void     onCommitFullbright(     LLUICtrl* ctrl, void* userdata);
-    static void     onCommitGlow(               LLUICtrl* ctrl, void *userdata);
-    static void     onCommitPlanarAlign(        LLUICtrl* ctrl, void* userdata);
-    static void     onCommitRepeatsPerMeter(    LLUICtrl* ctrl, void* userinfo);
+    void onCommitMaterialsMedia();
+    void onCommitMaterialType();
+    void onCommitPbrType();
+    void onClickBtnEditMedia();
+    void onClickBtnDeleteMedia();
+    void onClickBtnAddMedia();
+    void onCommitBump();
+    void onCommitTexGen();
+    void onCommitShiny();
+    void onCommitAlphaMode();
+    void onCommitFullbright();
+    void onCommitGlow();
+    void onCommitPlanarAlign();
+    void onCommitRepeatsPerMeter();
 
-    void            onCommitGLTFTextureScaleU(LLUICtrl* ctrl);
-    void            onCommitGLTFTextureScaleV(LLUICtrl* ctrl);
-    void            onCommitGLTFRotation(LLUICtrl* ctrl);
-    void            onCommitGLTFTextureOffsetU(LLUICtrl* ctrl);
-    void            onCommitGLTFTextureOffsetV(LLUICtrl* ctrl);
+    void onCommitGLTFTextureScaleU();
+    void onCommitGLTFTextureScaleV();
+    void onCommitGLTFRotation();
+    void onCommitGLTFTextureOffsetU();
+    void onCommitGLTFTextureOffsetV();
 
-    static void     onClickAutoFix(void*);
-    static void     onAlignTexture(void*);
-    static void     onClickBtnLoadInvPBR(void* userdata);
-    static void     onClickBtnEditPBR(void* userdata);
-    static void     onClickBtnSavePBR(void* userdata);
+    void onClickAutoFix();
+    void onAlignTexture();
+    void onClickBtnLoadInvPBR();
+    void onClickBtnEditPBR();
+    void onClickBtnSavePBR();
 
 public: // needs to be accessible to selection manager
-    void            onCopyColor(); // records all selected faces
-    void            onPasteColor(); // to specific face
-    void            onPasteColor(LLViewerObject* objectp, S32 te); // to specific face
-    void            onCopyTexture();
-    void            onPasteTexture();
-    void            onPasteTexture(LLViewerObject* objectp, S32 te);
+    void onCopyColor(); // records all selected faces
+    void onPasteColor(); // to specific face
+    void onPasteColor(LLViewerObject* objectp, S32 te); // to specific face
+    void onCopyTexture();
+    void onPasteTexture();
+    void onPasteTexture(LLViewerObject* objectp, S32 te);
 
 protected:
-    void            menuDoToSelected(const LLSD& userdata);
-    bool            menuEnableItem(const LLSD& userdata);
+    void menuDoToSelected(const LLSD& userdata);
+    bool menuEnableItem(const LLSD& userdata);
 
-    static F32     valueGlow(LLViewerObject* object, S32 face);
-
-
+    static F32 valueGlow(LLViewerObject* object, S32 face);
 
 private:
-    bool        isAlpha() { return mIsAlpha; }
+    bool isAlpha() const { return mIsAlpha; }
 
     // Convenience funcs to keep the visual flack to a minimum
     //
@@ -291,9 +292,77 @@ private:
     F32     getCurrentShinyOffsetU();
     F32     getCurrentShinyOffsetV();
 
-    LLComboBox *mComboMatMedia;
-    LLMediaCtrl *mTitleMedia;
-    LLTextBox *mTitleMediaText;
+    LLTextureCtrl* mPBRTextureCtrl { nullptr };
+    LLTextureCtrl* mTextureCtrl { nullptr };
+    LLTextureCtrl* mShinyTextureCtrl { nullptr };
+    LLTextureCtrl* mBumpyTextureCtrl { nullptr };
+    LLTextBox* mLabelColor { nullptr };
+    LLColorSwatchCtrl* mColorSwatch { nullptr };
+    LLTextBox* mLabelShiniColor { nullptr };
+    LLColorSwatchCtrl* mShinyColorSwatch { nullptr };
+
+    LLTextBox* mLabelTexGen { nullptr };
+    LLComboBox* mComboTexGen { nullptr };
+
+    LLRadioGroup* mRadioMaterialType { nullptr };
+    LLRadioGroup* mRadioPbrType { nullptr };
+
+    LLCheckBoxCtrl* mCheckFullbright { nullptr };
+
+    LLTextBox* mLabelColorTransp { nullptr };
+    LLSpinCtrl* mCtrlColorTransp { nullptr }; // transparency = 1 - alpha
+
+    LLTextBox* mLabelGlow { nullptr };
+    LLSpinCtrl* mCtrlGlow { nullptr };
+    LLComboBox* mComboMatMedia { nullptr };
+    LLMediaCtrl* mTitleMedia { nullptr };
+    LLTextBox* mTitleMediaText { nullptr };
+
+    LLTextBox* mLabelMatPermLoading { nullptr };
+    LLCheckBoxCtrl* mCheckSyncSettings { nullptr };
+
+    LLTextBox* mLabelBumpiness { nullptr };
+    LLComboBox* mComboBumpiness { nullptr };
+    LLTextBox* mLabelShininess { nullptr };
+    LLComboBox* mComboShininess { nullptr };
+    LLTextBox* mLabelAlphaMode { nullptr };
+    LLComboBox* mComboAlphaMode { nullptr };
+    LLSpinCtrl* mTexScaleU { nullptr };
+    LLSpinCtrl* mTexScaleV { nullptr };
+    LLSpinCtrl* mTexRotate { nullptr };
+    LLSpinCtrl* mTexRepeat { nullptr };
+    LLSpinCtrl* mTexOffsetU { nullptr };
+    LLSpinCtrl* mTexOffsetV { nullptr };
+    LLCheckBoxCtrl* mPlanarAlign{ nullptr };
+    LLSpinCtrl* mBumpyScaleU { nullptr };
+    LLSpinCtrl* mBumpyScaleV { nullptr };
+    LLSpinCtrl* mBumpyRotate { nullptr };
+    LLSpinCtrl* mBumpyOffsetU { nullptr };
+    LLSpinCtrl* mBumpyOffsetV { nullptr };
+    LLSpinCtrl* mShinyScaleU { nullptr };
+    LLSpinCtrl* mShinyScaleV { nullptr };
+    LLSpinCtrl* mShinyRotate { nullptr };
+    LLSpinCtrl* mShinyOffsetU { nullptr };
+    LLSpinCtrl* mShinyOffsetV { nullptr };
+    LLTextBox* mLabelGlossiness { nullptr };
+    LLSpinCtrl* mGlossiness { nullptr };
+    LLTextBox* mLabelEnvironment { nullptr };
+    LLSpinCtrl* mEnvironment { nullptr };
+    LLTextBox* mLabelMaskCutoff { nullptr };
+    LLSpinCtrl* mMaskCutoff { nullptr };
+    LLButton* mAddMedia { nullptr };
+    LLButton* mDelMedia { nullptr };
+    LLSpinCtrl* mPBRScaleU { nullptr };
+    LLSpinCtrl* mPBRScaleV { nullptr };
+    LLSpinCtrl* mPBRRotate { nullptr };
+    LLSpinCtrl* mPBROffsetU { nullptr };
+    LLSpinCtrl* mPBROffsetV { nullptr };
+
+    LLButton* mBtnAlign { nullptr };
+    LLButton* mBtnAlignTex { nullptr };
+    LLButton* mBtnPbrFromInv { nullptr };
+    LLButton* mBtnEditBbr { nullptr };
+    LLButton* mBtnSaveBbr { nullptr };
 
     // Update visibility of controls to match current UI mode
     // (e.g. materials vs media editing)
@@ -304,6 +373,20 @@ private:
 
     // Hey look everyone, a type-safe alternative to copy and paste! :)
     //
+
+    template<class T>
+    void getChildSetCommitCallback(T*& ctrl, std::string_view name, std::function<void(LLUICtrl*, const LLSD&)> cb)
+    {
+        ctrl = this->getChild<T>(name);
+        ctrl->setCommitCallback(cb);
+    }
+
+    template<class T>
+    void getChildSetClickedCallback(T*& ctrl, std::string_view name, std::function<void(LLUICtrl*, const LLSD&)> cb)
+    {
+        ctrl = this->getChild<T>(name);
+        ctrl->setClickedCallback(cb);
+    }
 
     // Update material parameters by applying 'edit_func' to selected TEs
     //
@@ -464,7 +547,7 @@ private:
     void updateVisibilityGLTF(LLViewerObject* objectp = nullptr);
 
     void updateSelectedGLTFMaterials(std::function<void(LLGLTFMaterial*)> func);
-    void updateGLTFTextureTransform(float value, U32 pbr_type, std::function<void(LLGLTFMaterial::TextureTransform*)> edit);
+    void updateGLTFTextureTransform(std::function<void(LLGLTFMaterial::TextureTransform*)> edit);
 
     void setMaterialOverridesFromSelection();
 
@@ -559,48 +642,48 @@ public:
         static void getMaxNormalRepeats(F32& repeats, bool& identical);
         static void getCurrentDiffuseAlphaMode(U8& diffuse_alpha_mode, bool& identical, bool diffuse_texture_has_alpha);
 
-        DEF_GET_MAT_STATE(LLUUID,const LLUUID&,getNormalID,LLUUID::null, false, LLUUID::null)
-        DEF_GET_MAT_STATE(LLUUID,const LLUUID&,getSpecularID,LLUUID::null, false, LLUUID::null)
-        DEF_GET_MAT_STATE(F32,F32,getSpecularRepeatX,1.0f, true, 0.001f)
-        DEF_GET_MAT_STATE(F32,F32,getSpecularRepeatY,1.0f, true, 0.001f)
-        DEF_GET_MAT_STATE(F32,F32,getSpecularOffsetX,0.0f, true, 0.001f)
-        DEF_GET_MAT_STATE(F32,F32,getSpecularOffsetY,0.0f, true, 0.001f)
-        DEF_GET_MAT_STATE(F32,F32,getSpecularRotation,0.0f, true, 0.001f)
+        DEF_GET_MAT_STATE(LLUUID, const LLUUID&, getNormalID, LLUUID::null, false, LLUUID::null);
+        DEF_GET_MAT_STATE(LLUUID, const LLUUID&, getSpecularID, LLUUID::null, false, LLUUID::null);
+        DEF_GET_MAT_STATE(F32, F32, getSpecularRepeatX, 1.0f, true, 0.001f);
+        DEF_GET_MAT_STATE(F32, F32, getSpecularRepeatY, 1.0f, true, 0.001f);
+        DEF_GET_MAT_STATE(F32, F32, getSpecularOffsetX, 0.0f, true, 0.001f);
+        DEF_GET_MAT_STATE(F32, F32, getSpecularOffsetY, 0.0f, true, 0.001f);
+        DEF_GET_MAT_STATE(F32, F32, getSpecularRotation, 0.0f, true, 0.001f);
 
-        DEF_GET_MAT_STATE(F32,F32,getNormalRepeatX,1.0f, true, 0.001f)
-        DEF_GET_MAT_STATE(F32,F32,getNormalRepeatY,1.0f, true, 0.001f)
-        DEF_GET_MAT_STATE(F32,F32,getNormalOffsetX,0.0f, true, 0.001f)
-        DEF_GET_MAT_STATE(F32,F32,getNormalOffsetY,0.0f, true, 0.001f)
-        DEF_GET_MAT_STATE(F32,F32,getNormalRotation,0.0f, true, 0.001f)
+        DEF_GET_MAT_STATE(F32, F32, getNormalRepeatX, 1.0f, true, 0.001f);
+        DEF_GET_MAT_STATE(F32, F32, getNormalRepeatY, 1.0f, true, 0.001f);
+        DEF_GET_MAT_STATE(F32, F32, getNormalOffsetX, 0.0f, true, 0.001f);
+        DEF_GET_MAT_STATE(F32, F32, getNormalOffsetY, 0.0f, true, 0.001f);
+        DEF_GET_MAT_STATE(F32, F32, getNormalRotation, 0.0f, true, 0.001f);
 
-        DEF_EDIT_MAT_STATE(U8,U8,setDiffuseAlphaMode);
-        DEF_EDIT_MAT_STATE(U8,U8,setAlphaMaskCutoff);
+        DEF_EDIT_MAT_STATE(U8, U8, setDiffuseAlphaMode);
+        DEF_EDIT_MAT_STATE(U8, U8, setAlphaMaskCutoff);
 
-        DEF_EDIT_MAT_STATE(F32,F32,setNormalOffsetX);
-        DEF_EDIT_MAT_STATE(F32,F32,setNormalOffsetY);
-        DEF_EDIT_MAT_STATE(F32,F32,setNormalRepeatX);
-        DEF_EDIT_MAT_STATE(F32,F32,setNormalRepeatY);
-        DEF_EDIT_MAT_STATE(F32,F32,setNormalRotation);
+        DEF_EDIT_MAT_STATE(F32, F32, setNormalOffsetX);
+        DEF_EDIT_MAT_STATE(F32, F32, setNormalOffsetY);
+        DEF_EDIT_MAT_STATE(F32, F32, setNormalRepeatX);
+        DEF_EDIT_MAT_STATE(F32, F32, setNormalRepeatY);
+        DEF_EDIT_MAT_STATE(F32, F32, setNormalRotation);
 
-        DEF_EDIT_MAT_STATE(F32,F32,setSpecularOffsetX);
-        DEF_EDIT_MAT_STATE(F32,F32,setSpecularOffsetY);
-        DEF_EDIT_MAT_STATE(F32,F32,setSpecularRepeatX);
-        DEF_EDIT_MAT_STATE(F32,F32,setSpecularRepeatY);
-        DEF_EDIT_MAT_STATE(F32,F32,setSpecularRotation);
+        DEF_EDIT_MAT_STATE(F32, F32, setSpecularOffsetX);
+        DEF_EDIT_MAT_STATE(F32, F32, setSpecularOffsetY);
+        DEF_EDIT_MAT_STATE(F32, F32, setSpecularRepeatX);
+        DEF_EDIT_MAT_STATE(F32, F32, setSpecularRepeatY);
+        DEF_EDIT_MAT_STATE(F32, F32, setSpecularRotation);
 
-        DEF_EDIT_MAT_STATE(U8,U8,setEnvironmentIntensity);
-        DEF_EDIT_MAT_STATE(U8,U8,setSpecularLightExponent);
+        DEF_EDIT_MAT_STATE(U8, U8, setEnvironmentIntensity);
+        DEF_EDIT_MAT_STATE(U8, U8, setSpecularLightExponent);
 
-        DEF_EDIT_MAT_STATE(LLUUID,const LLUUID&,setNormalID);
-        DEF_EDIT_MAT_STATE(LLUUID,const LLUUID&,setSpecularID);
-        DEF_EDIT_MAT_STATE(LLColor4U,   const LLColor4U&,setSpecularLightColor);
+        DEF_EDIT_MAT_STATE(LLUUID, const LLUUID&,setNormalID);
+        DEF_EDIT_MAT_STATE(LLUUID, const LLUUID&,setSpecularID);
+        DEF_EDIT_MAT_STATE(LLColor4U, const LLColor4U&, setSpecularLightColor);
     };
 
     class LLSelectedTE
     {
     public:
         static void getFace(class LLFace*& face_to_return, bool& identical_face);
-        static void getImageFormat(LLGLenum& image_format_to_return, bool& identical_face);
+        static void getImageFormat(LLGLenum& image_format_to_return, bool& identical_face, bool& missing_asset);
         static void getTexId(LLUUID& id, bool& identical);
         static void getPbrMaterialId(LLUUID& id, bool& identical, bool& has_pbr, bool& has_faces_without_pbr);
         static void getObjectScaleS(F32& scale_s, bool& identical);
@@ -619,6 +702,8 @@ public:
         DEF_GET_TE_STATE(LLTextureEntry::e_texgen,LLTextureEntry::e_texgen,getTexGen,LLTextureEntry::TEX_GEN_DEFAULT, false, LLTextureEntry::TEX_GEN_DEFAULT)
         DEF_GET_TE_STATE(LLColor4,const LLColor4&,getColor,LLColor4::white, false, LLColor4::black);
     };
+
+    friend struct LLPanelFaceSetTEFunctor;
 };
 
 #endif

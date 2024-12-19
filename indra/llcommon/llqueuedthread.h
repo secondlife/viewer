@@ -144,7 +144,7 @@ public:
     void printQueueStats();
 
     virtual size_t getPending();
-    bool getThreaded() { return mThreaded ? true : false; }
+    bool getThreaded() { return mThreaded; }
 
     // Request accessors
     status_t getRequestStatus(handle_t handle);
@@ -159,8 +159,8 @@ public:
     bool check();
 
 protected:
-    BOOL mThreaded;  // if false, run on main thread and do updates during update()
-    BOOL mStarted;  // required when mThreaded is false to call startThread() from update()
+    bool mThreaded;  // if false, run on main thread and do updates during update()
+    bool mStarted;  // required when mThreaded is false to call startThread() from update()
     LLAtomicBool mIdleThread; // request queue is empty (or we are quitting) and the thread is idle
 
     //typedef std::set<QueuedRequest*, queued_request_less> request_queue_t;

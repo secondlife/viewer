@@ -126,17 +126,18 @@ public:
     /*virtual*/ void            updateGL();
     /*virtual*/ LLVOAvatar*     asAvatar();
 
-    virtual U32             processUpdateMessage(LLMessageSystem *mesgsys,
+    virtual U32                 processUpdateMessage(LLMessageSystem *mesgsys,
                                                      void **user_data,
                                                      U32 block_num,
                                                      const EObjectUpdateType update_type,
                                                      LLDataPacker *dp);
-    virtual void            idleUpdate(LLAgent &agent, const F64 &time);
-    /*virtual*/ BOOL            updateLOD();
-    BOOL                    updateJointLODs();
-    void                    updateLODRiggedAttachments( void );
-    /*virtual*/ BOOL            isActive() const; // Whether this object needs to do an idleUpdate.
-    S32Bytes                totalTextureMemForUUIDS(std::set<LLUUID>& ids);
+    virtual void                idleUpdate(LLAgent &agent, const F64 &time);
+    /*virtual*/ bool            updateLOD();
+    bool                        updateJointLODs();
+    void                        updateLODRiggedAttachments(void);
+    void                        setCorrectedPixelArea(F32 area);
+    /*virtual*/ bool            isActive() const; // Whether this object needs to do an idleUpdate.
+    S32Bytes                    totalTextureMemForUUIDS(std::set<LLUUID>& ids);
     bool                        allTexturesCompletelyDownloaded(std::set<LLUUID>& ids) const;
     bool                        allLocalTexturesCompletelyDownloaded() const;
     bool                        allBakedTexturesCompletelyDownloaded() const;
@@ -153,18 +154,18 @@ public:
     /*virtual*/ void            onShift(const LLVector4a& shift_vector);
     /*virtual*/ U32             getPartitionType() const;
     /*virtual*/ const           LLVector3 getRenderPosition() const;
-    /*virtual*/ void            updateDrawable(BOOL force_damped);
+    /*virtual*/ void            updateDrawable(bool force_damped);
     /*virtual*/ LLDrawable*     createDrawable(LLPipeline *pipeline);
-    /*virtual*/ BOOL            updateGeometry(LLDrawable *drawable);
+    /*virtual*/ bool            updateGeometry(LLDrawable *drawable);
     /*virtual*/ void            setPixelAreaAndAngle(LLAgent &agent);
     /*virtual*/ void            updateRegion(LLViewerRegion *regionp);
     /*virtual*/ void            updateSpatialExtents(LLVector4a& newMin, LLVector4a &newMax);
     void                        calculateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax);
-    /*virtual*/ BOOL            lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
+    /*virtual*/ bool            lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
                                                  S32 face = -1,                    // which face to check, -1 = ALL_SIDES
-                                                 BOOL pick_transparent = FALSE,
-                                                 BOOL pick_rigged = FALSE,
-                                                 BOOL pick_unselectable = TRUE,
+                                                 bool pick_transparent = false,
+                                                 bool pick_rigged = false,
+                                                 bool pick_unselectable = true,
                                                  S32* face_hit = NULL,             // which face was hit
                                                  LLVector4a* intersection = NULL,   // return the intersection point
                                                  LLVector2* tex_coord = NULL,      // return the texture coordinates of the intersection point
@@ -173,9 +174,9 @@ public:
     virtual LLViewerObject* lineSegmentIntersectRiggedAttachments(
                                                  const LLVector4a& start, const LLVector4a& end,
                                                  S32 face = -1,                    // which face to check, -1 = ALL_SIDES
-                                                 BOOL pick_transparent = FALSE,
-                                                 BOOL pick_rigged = FALSE,
-                                                 BOOL pick_unselectable = TRUE,
+                                                 bool pick_transparent = false,
+                                                 bool pick_rigged = false,
+                                                 bool pick_unselectable = true,
                                                  S32* face_hit = NULL,             // which face was hit
                                                  LLVector4a* intersection = NULL,   // return the intersection point
                                                  LLVector2* tex_coord = NULL,      // return the texture coordinates of the intersection point
@@ -192,8 +193,8 @@ public:
     /*virtual*/ LLVector3       getCharacterAngularVelocity();
 
     /*virtual*/ LLUUID          remapMotionID(const LLUUID& id);
-    /*virtual*/ BOOL            startMotion(const LLUUID& id, F32 time_offset = 0.f);
-    /*virtual*/ BOOL            stopMotion(const LLUUID& id, BOOL stop_immediate = FALSE);
+    /*virtual*/ bool            startMotion(const LLUUID& id, F32 time_offset = 0.f);
+    /*virtual*/ bool            stopMotion(const LLUUID& id, bool stop_immediate = false);
     virtual bool            hasMotionFromSource(const LLUUID& source_id);
     virtual void            stopMotionFromSource(const LLUUID& source_id);
     virtual void            requestStopMotion(LLMotion* motion);
@@ -225,7 +226,7 @@ public:
     // virtual
     void                    updateRiggingInfo();
     // This encodes mesh id and LOD, so we can see whether display is up-to-date.
-    std::map<LLUUID,S32>    mLastRiggingInfoKey;
+    size_t    mLastRiggingInfoKey;
 
     std::set<LLUUID>        mActiveOverrideMeshes;
     virtual void            onActiveOverrideMeshesChanged();
@@ -253,6 +254,7 @@ public:
 
     virtual bool    isControlAvatar() const { return mIsControlAvatar; } // True if this avatar is a control av (no associated user)
     virtual bool    isUIAvatar() const { return mIsUIAvatar; } // True if this avatar is a supplemental av used in some UI views (no associated user)
+    virtual bool    isBuddy() const;
 
     // If this is an attachment, return the avatar it is attached to. Otherwise NULL.
     virtual const LLVOAvatar *getAttachedAvatar() const { return NULL; }
@@ -350,22 +352,22 @@ public:
     //--------------------------------------------------------------------
 public:
     static S32      sRenderName;
-    static BOOL     sRenderGroupTitles;
+    static bool     sRenderGroupTitles;
     static const U32 NON_IMPOSTORS_MAX_SLIDER; /* Must equal the maximum allowed the RenderAvatarMaxNonImpostors
                                                 * slider in panel_preferences_graphics1.xml */
     static U32      sMaxNonImpostors; // affected by control "RenderAvatarMaxNonImpostors"
     static bool     sLimitNonImpostors; // use impostors for far away avatars
     static F32      sRenderDistance; // distance at which avatars will render.
-    static BOOL     sShowAnimationDebug; // show animation debug info
-    static BOOL     sShowCollisionVolumes;  // show skeletal collision volumes
-    static BOOL     sVisibleInFirstPerson;
+    static bool     sShowAnimationDebug; // show animation debug info
+    static bool     sShowCollisionVolumes;  // show skeletal collision volumes
+    static bool     sVisibleInFirstPerson;
     static S32      sNumLODChangesThisFrame;
     static S32      sNumVisibleChatBubbles;
-    static BOOL     sDebugInvisible;
-    static BOOL     sShowAttachmentPoints;
+    static bool     sDebugInvisible;
+    static bool     sShowAttachmentPoints;
     static F32      sLODFactor; // user-settable LOD factor
     static F32      sPhysicsLODFactor; // user-settable physics LOD factor
-    static BOOL     sJointDebug; // output total number of joints being touched for each avatar
+    static bool     sJointDebug; // output total number of joints being touched for each avatar
 
     static LLPointer<LLViewerTexture>  sCloudTexture;
 
@@ -382,7 +384,8 @@ public:
     // Loading state
     //--------------------------------------------------------------------
 public:
-    BOOL            isFullyLoaded() const;
+    bool            isFullyLoaded() const;
+    F32             getFirstDecloudTime() const {return mFirstDecloudTime;}
 
     // check and return current state relative to limits
     // default will test only the geometry (combined=false).
@@ -396,8 +399,8 @@ public:
     bool            isTooComplex() const;
     bool            visualParamWeightsAreDefault();
     virtual bool    getIsCloud() const;
-    BOOL            isFullyTextured() const;
-    BOOL            hasGray() const;
+    bool            isFullyTextured() const;
+    bool            hasGray() const;
     S32             getRezzedStatus() const; // 0 = cloud, 1 = gray, 2 = textured, 3 = textured and fully downloaded.
     void            updateRezzedStatusTimers(S32 status);
 
@@ -415,19 +418,19 @@ public:
 
 protected:
     LLViewerStats::PhaseMap& getPhases() { return mPhases; }
-    BOOL            updateIsFullyLoaded();
-    BOOL            processFullyLoadedChange(bool loading);
+    bool            updateIsFullyLoaded();
+    bool            processFullyLoadedChange(bool loading);
     void            updateRuthTimer(bool loading);
-    F32             calcMorphAmount();
+    F32             calcMorphAmount() const;
 
 private:
-    BOOL            mFirstFullyVisible;
-    F32             mFirstUseDelaySeconds;
+    bool            mFirstFullyVisible;
+    F32             mFirstDecloudTime;
     LLFrameTimer    mFirstAppearanceMessageTimer;
 
-    BOOL            mFullyLoaded;
-    BOOL            mPreviousFullyLoaded;
-    BOOL            mFullyLoadedInitialized;
+    bool            mFullyLoaded;
+    bool            mPreviousFullyLoaded;
+    bool            mFullyLoadedInitialized;
     S32             mFullyLoadedFrameCounter;
     LLColor4        mMutedAVColor;
     LLFrameTimer    mFullyLoadedTimer;
@@ -462,7 +465,7 @@ public:
     void                debugBodySize() const;
     void                postPelvisSetRecalc( void );
 
-    /*virtual*/ BOOL    loadSkeletonNode();
+    /*virtual*/ bool    loadSkeletonNode();
     void                initAttachmentPoints(bool ignore_hud_joints = false);
     /*virtual*/ void    buildCharacter();
     void                resetVisualParams();
@@ -488,7 +491,14 @@ public:
     U32         renderImpostor(LLColor4U color = LLColor4U(255,255,255,255), S32 diffuse_channel = 0);
     bool        isVisuallyMuted();
     bool        isInMuteList() const;
-    void        forceUpdateVisualMuteSettings();
+
+    // states for RenderAvatarComplexityMode
+    enum ERenderComplexityMode
+    {
+        AV_RENDER_LIMIT_BY_COMPLEXITY = 0,
+        AV_RENDER_ALWAYS_SHOW_FRIENDS = 1,
+        AV_RENDER_ONLY_SHOW_FRIENDS   = 2
+    };
 
     // Visual Mute Setting is an input. Does not necessarily determine
     // what the avatar looks like, because it interacts with other
@@ -533,7 +543,7 @@ public:
     U32         renderRigid();
     U32         renderSkinned();
     F32         getLastSkinTime() { return mLastSkinTime; }
-    U32         renderTransparent(BOOL first_pass);
+    U32         renderTransparent(bool first_pass);
     void        renderCollisionVolumes();
     void        renderBones(const std::string &selected_joint = std::string());
     void        renderJoints();
@@ -550,7 +560,7 @@ private:
     F32         mAttachmentEstTriangleCount;
     bool        shouldAlphaMask();
 
-    BOOL        mNeedsSkin; // avatar has been animated and verts have not been updated
+    bool        mNeedsSkin; // avatar has been animated and verts have not been updated
     F32         mLastSkinTime; //value of gFrameTimeSeconds at last skin update
 
     S32         mUpdatePeriod;
@@ -576,6 +586,8 @@ private:
 
     mutable bool        mCachedInMuteList;
     mutable F64         mCachedMuteListUpdateTime;
+    mutable bool        mCachedInBuddyList = false;
+    mutable F64         mCachedBuddyListUpdateTime = 0.0;
 
     VisualMuteSettings      mVisuallyMuteSetting;           // Always or never visually mute this AV
 
@@ -591,8 +603,8 @@ public:
     // Morph masks
     //--------------------------------------------------------------------
 public:
-    /*virtual*/ void    applyMorphMask(U8* tex_data, S32 width, S32 height, S32 num_components, LLAvatarAppearanceDefines::EBakedTextureIndex index = LLAvatarAppearanceDefines::BAKED_NUM_INDICES);
-    BOOL        morphMaskNeedsUpdate(LLAvatarAppearanceDefines::EBakedTextureIndex index = LLAvatarAppearanceDefines::BAKED_NUM_INDICES);
+    /*virtual*/ void    applyMorphMask(const U8* tex_data, S32 width, S32 height, S32 num_components, LLAvatarAppearanceDefines::EBakedTextureIndex index = LLAvatarAppearanceDefines::BAKED_NUM_INDICES);
+    bool        morphMaskNeedsUpdate(LLAvatarAppearanceDefines::EBakedTextureIndex index = LLAvatarAppearanceDefines::BAKED_NUM_INDICES);
 
 
     //--------------------------------------------------------------------
@@ -607,8 +619,9 @@ public:
 protected:
     void        updateVisibility();
 private:
+    F32         mVisibilityPreference;
     U32         mVisibilityRank;
-    BOOL        mVisible;
+    bool        mVisible;
 
     //--------------------------------------------------------------------
     // Shadowing
@@ -625,9 +638,9 @@ private:
     // Impostors
     //--------------------------------------------------------------------
 public:
-    virtual BOOL isImpostor();
-    BOOL        shouldImpostor(const F32 rank_factor = 1.0);
-    BOOL        needsImpostorUpdate() const;
+    virtual bool isImpostor();
+    bool        shouldImpostor(const F32 rank_factor = 1.0);
+    bool        needsImpostorUpdate() const;
     const LLVector3& getImpostorOffset() const;
     const LLVector2& getImpostorDim() const;
     void        getImpostorValues(LLVector4a* extents, LLVector3& angle, F32& distance) const;
@@ -636,7 +649,7 @@ public:
     static void resetImpostors();
     static void updateImpostors();
     LLRenderTarget mImpostor;
-    BOOL        mNeedsImpostorUpdate;
+    bool        mNeedsImpostorUpdate;
     S32         mLastImpostorUpdateReason;
     F32SecondsImplicit mLastImpostorUpdateFrameTime;
     const LLVector3*  getLastAnimExtents() const { return mLastAnimExtents; }
@@ -647,7 +660,7 @@ private:
     LLVector2   mImpostorDim;
     // This becomes true in the constructor and false after the first
     // idleUpdateMisc(). Not clear it serves any purpose.
-    BOOL        mNeedsAnimUpdate;
+    bool        mNeedsAnimUpdate;
     bool        mNeedsExtentUpdate;
     LLVector3   mImpostorAngle;
     F32         mImpostorDistance;
@@ -663,7 +676,7 @@ private:
 public:
     LLVector4   mWindVec;
     F32         mRipplePhase;
-    BOOL        mBelowWater;
+    bool        mBelowWater;
 private:
     F32         mWindFreq;
     LLFrameTimer mRippleTimer;
@@ -676,9 +689,9 @@ private:
     //--------------------------------------------------------------------
 public:
     static void cullAvatarsByPixelArea();
-    BOOL        isCulled() const { return mCulled; }
+    bool        isCulled() const { return mCulled; }
 private:
-    BOOL        mCulled;
+    bool        mCulled;
 
     //--------------------------------------------------------------------
     // Constants
@@ -702,13 +715,13 @@ public:
     // Loading status
     //--------------------------------------------------------------------
 public:
-    virtual BOOL    isTextureDefined(LLAvatarAppearanceDefines::ETextureIndex type, U32 index = 0) const;
-    virtual BOOL    isTextureVisible(LLAvatarAppearanceDefines::ETextureIndex type, U32 index = 0) const;
-    virtual BOOL    isTextureVisible(LLAvatarAppearanceDefines::ETextureIndex type, LLViewerWearable *wearable) const;
+    virtual bool    isTextureDefined(LLAvatarAppearanceDefines::ETextureIndex type, U32 index = 0) const;
+    virtual bool    isTextureVisible(LLAvatarAppearanceDefines::ETextureIndex type, U32 index = 0) const;
+    virtual bool    isTextureVisible(LLAvatarAppearanceDefines::ETextureIndex type, LLViewerWearable *wearable) const;
 
-    BOOL            isFullyBaked();
-    static BOOL     areAllNearbyInstancesBaked(S32& grey_avatars);
-    static void     getNearbyRezzedStats(std::vector<S32>& counts);
+    bool            isFullyBaked();
+    static bool     areAllNearbyInstancesBaked(S32& grey_avatars);
+    static void     getNearbyRezzedStats(std::vector<S32>& counts, F32& avg_cloud_time, S32& cloud_avatars);
     static std::string rezStatusToString(S32 status);
 
     //--------------------------------------------------------------------
@@ -719,16 +732,16 @@ public:
     void            releaseComponentTextures(); // ! BACKWARDS COMPATIBILITY !
 
 protected:
-    static void     onBakedTextureMasksLoaded(BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata);
-    static void     onInitialBakedTextureLoaded(BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata);
-    static void     onBakedTextureLoaded(BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata);
+    static void     onBakedTextureMasksLoaded(bool success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, bool final, void* userdata);
+    static void     onInitialBakedTextureLoaded(bool success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, bool final, void* userdata);
+    static void     onBakedTextureLoaded(bool success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, bool final, void* userdata);
     virtual void    removeMissingBakedTextures();
     void            useBakedTexture(const LLUUID& id);
     LLViewerTexLayerSet*  getTexLayerSet(const U32 index) const { return dynamic_cast<LLViewerTexLayerSet*>(mBakedTextureDatas[index].mTexLayerSet);    }
 
 
     LLLoadedCallbackEntry::source_callback_list_t mCallbackTextureList ;
-    BOOL mLoadedCallbacksPaused;
+    bool mLoadedCallbacksPaused;
     S32 mLoadedCallbackTextures; // count of 'loaded' baked textures, filled from mCallbackTextureList
     LLFrameTimer mLastTexCallbackAddedTime;
     std::set<LLUUID>    mTextureIDs;
@@ -736,10 +749,10 @@ protected:
     // Local Textures
     //--------------------------------------------------------------------
 protected:
-    virtual void    setLocalTexture(LLAvatarAppearanceDefines::ETextureIndex type, LLViewerTexture* tex, BOOL baked_version_exits, U32 index = 0);
-    virtual void    addLocalTextureStats(LLAvatarAppearanceDefines::ETextureIndex type, LLViewerFetchedTexture* imagep, F32 texel_area_ratio, BOOL rendered, BOOL covered_by_baked);
+    virtual void    setLocalTexture(LLAvatarAppearanceDefines::ETextureIndex type, LLViewerTexture* tex, bool baked_version_exits, U32 index = 0);
+    virtual void    addLocalTextureStats(LLAvatarAppearanceDefines::ETextureIndex type, LLViewerFetchedTexture* imagep, F32 texel_area_ratio, bool rendered, bool covered_by_baked);
     // MULTI-WEARABLE: make self-only?
-    virtual void    setBakedReady(LLAvatarAppearanceDefines::ETextureIndex type, BOOL baked_version_exists, U32 index = 0);
+    virtual void    setBakedReady(LLAvatarAppearanceDefines::ETextureIndex type, bool baked_version_exists, U32 index = 0);
 
     //--------------------------------------------------------------------
     // Texture accessors
@@ -774,8 +787,8 @@ public:
     // Static texture/mesh/baked dictionary
     //--------------------------------------------------------------------
 public:
-    static BOOL     isIndexLocalTexture(LLAvatarAppearanceDefines::ETextureIndex i);
-    static BOOL     isIndexBakedTexture(LLAvatarAppearanceDefines::ETextureIndex i);
+    static bool     isIndexLocalTexture(LLAvatarAppearanceDefines::ETextureIndex i);
+    static bool     isIndexBakedTexture(LLAvatarAppearanceDefines::ETextureIndex i);
 
     //--------------------------------------------------------------------
     // Messaging
@@ -783,8 +796,8 @@ public:
 public:
     void            onFirstTEMessageReceived();
 private:
-    BOOL            mFirstTEMessageReceived;
-    BOOL            mFirstAppearanceMessageReceived;
+    bool            mFirstTEMessageReceived;
+    bool            mFirstAppearanceMessageReceived;
 
 /**                    Textures
  **                                                                            **
@@ -839,13 +852,13 @@ private:
     virtual void    dirtyMesh(S32 priority); // Dirty the avatar mesh, with priority
     LLViewerJoint*  getViewerJoint(S32 idx);
     S32             mDirtyMesh; // 0 -- not dirty, 1 -- morphed, 2 -- LOD
-    BOOL            mMeshTexturesDirty;
+    bool            mMeshTexturesDirty;
 
     //--------------------------------------------------------------------
     // Destroy invisible mesh
     //--------------------------------------------------------------------
 protected:
-    BOOL            mMeshValid;
+    bool            mMeshValid;
     LLFrameTimer    mMeshInvisibleTime;
 
 /**                    Meshes
@@ -871,31 +884,31 @@ public:
     // Appearance morphing
     //--------------------------------------------------------------------
 public:
-    BOOL            getIsAppearanceAnimating() const { return mAppearanceAnimating; }
+    bool            getIsAppearanceAnimating() const { return mAppearanceAnimating; }
 
     // True if we are computing our appearance via local compositing
     // instead of baked textures, as for example during wearable
     // editing or when waiting for a subsequent server rebake.
-    /*virtual*/ BOOL    isUsingLocalAppearance() const { return mUseLocalAppearance; }
+    /*virtual*/ bool    isUsingLocalAppearance() const { return mUseLocalAppearance; }
 
     // True if we are currently in appearance editing mode. Often but
     // not always the same as isUsingLocalAppearance().
-    /*virtual*/ BOOL    isEditingAppearance() const { return mIsEditingAppearance; }
+    /*virtual*/ bool    isEditingAppearance() const { return mIsEditingAppearance; }
 
     // FIXME review isUsingLocalAppearance uses, some should be isEditing instead.
 
 private:
-    BOOL            mAppearanceAnimating;
+    bool            mAppearanceAnimating;
     LLFrameTimer    mAppearanceMorphTimer;
     F32             mLastAppearanceBlendTime;
-    BOOL            mIsEditingAppearance; // flag for if we're actively in appearance editing mode
-    BOOL            mUseLocalAppearance; // flag for if we're using a local composite
+    bool            mIsEditingAppearance; // flag for if we're actively in appearance editing mode
+    bool            mUseLocalAppearance; // flag for if we're using a local composite
 
     //--------------------------------------------------------------------
     // Visibility
     //--------------------------------------------------------------------
 public:
-    BOOL            isVisible() const;
+    bool            isVisible() const;
     virtual bool    shouldRenderRigged() const;
     void            setVisibilityRank(U32 rank);
     U32             getVisibilityRank() const { return mVisibilityRank; }
@@ -915,12 +928,12 @@ public:
 public:
     void                clampAttachmentPositions();
     virtual const LLViewerJointAttachment* attachObject(LLViewerObject *viewer_object);
-    virtual BOOL        detachObject(LLViewerObject *viewer_object);
+    virtual bool        detachObject(LLViewerObject *viewer_object);
     static bool         getRiggedMeshID( LLViewerObject* pVO, LLUUID& mesh_id );
     void                cleanupAttachedMesh( LLViewerObject* pVO );
     bool                hasPendingAttachedMeshes();
     static LLVOAvatar*  findAvatarFromAttachment(LLViewerObject* obj);
-    /*virtual*/ BOOL    isWearingWearableType(LLWearableType::EType type ) const;
+    /*virtual*/ bool    isWearingWearableType(LLWearableType::EType type ) const;
     LLViewerObject *    findAttachmentByID( const LLUUID & target_id ) const;
     LLViewerJointAttachment* getTargetAttachmentPoint(LLViewerObject* viewer_object);
 
@@ -932,22 +945,28 @@ protected:
     // Map of attachment points, by ID
     //--------------------------------------------------------------------
 public:
-    S32                 getAttachmentCount(); // Warning: order(N) not order(1) // currently used only by -self
+    S32                 getAttachmentCount() const; // Warning: order(N) not order(1)
     typedef std::map<S32, LLViewerJointAttachment*> attachment_map_t;
     attachment_map_t                                mAttachmentPoints;
     std::vector<LLPointer<LLViewerObject> >         mPendingAttachment;
+
+    // List of attachments' ids with attach points from simulator.
+    // we need this info to know when all attachments are present.
+    std::map<LLUUID, S32>                           mSimAttachments;
+    S32                                             mLastCloudAttachmentCount;
+    LLFrameTimer                                    mLastCloudAttachmentChangeTime;
 
     //--------------------------------------------------------------------
     // HUD functions
     //--------------------------------------------------------------------
 public:
-    BOOL                hasHUDAttachment() const;
+    bool                hasHUDAttachment() const;
     LLBBox              getHUDBBox() const;
     void                resetHUDAttachments();
     S32                 getMaxAttachments() const;
-    BOOL                canAttachMoreObjects(U32 n=1) const;
+    bool                canAttachMoreObjects(U32 n=1) const;
     S32                 getMaxAnimatedObjectAttachments() const;
-    BOOL                canAttachMoreAnimatedObjects(U32 n=1) const;
+    bool                canAttachMoreAnimatedObjects(U32 n=1) const;
 protected:
     U32                 getNumAttachments() const; // O(N), not O(1)
     U32                 getNumAnimatedObjectAttachments() const; // O(N), not O(1)
@@ -965,10 +984,10 @@ protected:
     // Animations
     //--------------------------------------------------------------------
 public:
-    BOOL            isAnyAnimationSignaled(const LLUUID *anim_array, const S32 num_anims) const;
+    bool            isAnyAnimationSignaled(const LLUUID *anim_array, const S32 num_anims) const;
     void            processAnimationStateChanges();
 protected:
-    BOOL            processSingleAnimationStateChange(const LLUUID &anim_id, BOOL start);
+    bool            processSingleAnimationStateChange(const LLUUID &anim_id, bool start);
     void            resetAnimations();
 private:
     LLTimer         mAnimTimer;
@@ -992,8 +1011,8 @@ public:
 public:
     void            addChat(const LLChat& chat);
     void            clearChat();
-    void            startTyping() { mTyping = TRUE; mTypingTimer.reset(); }
-    void            stopTyping() { mTyping = FALSE; }
+    void            startTyping() { mTyping = true; mTypingTimer.reset(); }
+    void            stopTyping() { mTyping = false; }
 private:
     bool            mVisibleChat;
 
@@ -1009,7 +1028,7 @@ private:
     // Flight
     //--------------------------------------------------------------------
 public:
-    BOOL            mInAir;
+    bool            mInAir;
     LLFrameTimer    mTimeInAir;
 
 /**                    Actions
@@ -1023,7 +1042,7 @@ public:
 
 private:
     F32         mSpeedAccum; // measures speed (for diagnostics mostly).
-    BOOL        mTurning; // controls hysteresis on avatar rotation
+    bool        mTurning; // controls hysteresis on avatar rotation
     F32         mSpeed; // misc. animation repeated state
 
     //--------------------------------------------------------------------
@@ -1041,7 +1060,7 @@ protected:
     // Material being stepped on
     //--------------------------------------------------------------------
 private:
-    BOOL        mStepOnLand;
+    bool        mStepOnLand;
     U8          mStepMaterial;
     LLVector3   mStepObjectVelocity;
 
@@ -1055,7 +1074,7 @@ private:
  **/
 
 public:
-    /*virtual*/ BOOL    setParent(LLViewerObject* parent);
+    /*virtual*/ bool    setParent(LLViewerObject* parent);
     /*virtual*/ void    addChild(LLViewerObject *childp);
     /*virtual*/ void    removeChild(LLViewerObject *childp);
 
@@ -1063,13 +1082,13 @@ public:
     // Sitting
     //--------------------------------------------------------------------
 public:
-    void            sitDown(BOOL bSitting);
-    BOOL            isSitting(){return mIsSitting;}
+    void            sitDown(bool bSitting);
+    bool            isSitting(){return mIsSitting;}
     void            sitOnObject(LLViewerObject *sit_object);
     void            getOffObject();
 private:
     // set this property only with LLVOAvatar::sitDown method
-    BOOL            mIsSitting;
+    bool            mIsSitting;
     // position backup in case of missing data
     LLVector3       mLastRootPos;
 
@@ -1098,7 +1117,7 @@ private:
     bool            mNameFriend;
     bool            mNameCloud;
     F32             mNameAlpha;
-    BOOL            mRenderGroupTitles;
+    bool            mRenderGroupTitles;
 
     //--------------------------------------------------------------------
     // Display the name (then optionally fade it out)
@@ -1109,7 +1128,7 @@ public:
 private:
     LLFrameTimer    mTimeVisible;
     std::deque<LLChat> mChats;
-    BOOL            mTyping;
+    bool            mTyping;
     LLFrameTimer    mTypingTimer;
 
 /**                    Name
@@ -1147,8 +1166,8 @@ public:
     void                setFootPlane(const LLVector4 &plane) { mFootPlane = plane; }
     LLVector4           mFootPlane;
 private:
-    BOOL                mWasOnGroundLeft;
-    BOOL                mWasOnGroundRight;
+    bool                mWasOnGroundLeft;
+    bool                mWasOnGroundRight;
 
 /**                    Sounds
  **                                                                            **
@@ -1177,7 +1196,7 @@ public:
     static F32          sGreyUpdateTime; // Last time stats were updated (to prevent multiple updates per frame)
 protected:
     S32                 getUnbakedPixelAreaRank();
-    BOOL                mHasGrey;
+    bool                mHasGrey;
 private:
     F32                 mMinPixelArea;
     F32                 mMaxPixelArea;

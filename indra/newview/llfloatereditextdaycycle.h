@@ -60,7 +60,6 @@ class LLFloaterEditExtDayCycle : public LLFloaterEditEnvironmentBase
 public:
     static const std::string    KEY_EDIT_CONTEXT;
     static const std::string    KEY_DAY_LENGTH;
-    static const std::string    KEY_CANMOD;
 
     static const std::string    VALUE_CONTEXT_INVENTORY;
     static const std::string    VALUE_CONTEXT_PARCEL;
@@ -79,12 +78,12 @@ public:
                                 LLFloaterEditExtDayCycle(const LLSD &key);
     virtual                     ~LLFloaterEditExtDayCycle();
 
-    virtual BOOL                postBuild() override;
+    virtual bool                postBuild() override;
     virtual void                onOpen(const LLSD& key) override;
     virtual void                onClose(bool app_quitting) override;
     //virtual void                onFocusReceived() override;
     //virtual void                onFocusLost() override;
-    virtual void                onVisibilityChange(BOOL new_visibility) override;
+    virtual void                onVisibilityChange(bool new_visibility) override;
 
     connection_t                setEditCommitSignal(edit_commit_signal_t::slot_type cb);
 
@@ -100,7 +99,7 @@ public:
     virtual LLSettingsBase::ptr_t getEditSettings()   const override { return mEditDay; }
 
 
-    BOOL                        handleKeyUp(KEY key, MASK mask, BOOL called_from_parent) override;
+    bool                        handleKeyUp(KEY key, MASK mask, bool called_from_parent) override;
 
 protected:
     virtual void                setEditSettingsAndUpdate(const LLSettingsBase::ptr_t &settings) override;
@@ -110,7 +109,7 @@ private:
     F32 getCurrentFrame() const;
 
     // flyout response/click
-    void                        onButtonApply(LLUICtrl *ctrl, const LLSD &data);
+    void                        onButtonApply(LLUICtrl *ctrl);
     //virtual void                onClickCloseBtn(bool app_quitting = false) override;
     //void                        onButtonImport();
     void                        onButtonLoadFrame();
@@ -119,7 +118,7 @@ private:
     void                        onCloneTrack();
     void                        onLoadTrack();
     void                        onClearTrack();
-    void                        onCommitName(class LLLineEditor* caller, void* user_data);
+    void                        onNameKeystroke();
     void                        onTrackSelectionCallback(const LLSD& user_data);
     void                        onPlayActionCallback(const LLSD& user_data);
     // time slider clicked
@@ -196,6 +195,8 @@ private:
     std::string                 mLastFrameSlider;
     bool                        mShiftCopyEnabled;
 
+    LLLineEditor*               mNameEditor;
+    LLButton*                   mCancelButton;
     LLButton*                   mAddFrameButton;
     LLButton*                   mDeleteFrameButton;
     LLButton*                   mImportButton;

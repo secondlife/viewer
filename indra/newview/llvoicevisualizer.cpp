@@ -77,7 +77,7 @@ const LLVector3 WORLD_UPWARD_DIRECTION = LLVector3( 0.0f, 0.0f, 1.0f ); // Z is 
 // Initialize the statics
 //------------------------------------------------------------------
 bool LLVoiceVisualizer::sPrefsInitialized   = false;
-BOOL LLVoiceVisualizer::sLipSyncEnabled     = FALSE;
+bool LLVoiceVisualizer::sLipSyncEnabled     = false;
 F32* LLVoiceVisualizer::sOoh                = NULL;
 F32* LLVoiceVisualizer::sAah                = NULL;
 U32  LLVoiceVisualizer::sOohs               = 0;
@@ -125,7 +125,7 @@ LLVoiceVisualizer::LLVoiceVisualizer( const U8 type )
     for (int i=0; i<NUM_VOICE_SYMBOL_WAVES; i++)
     {
         mSoundSymbol.mWaveFadeOutStartTime  [i] = mCurrentTime;
-        mSoundSymbol.mTexture               [i] = LLViewerTextureManager::getFetchedTextureFromFile(sound_level_img[i], FTT_LOCAL_FILE, FALSE, LLGLTexture::BOOST_UI);
+        mSoundSymbol.mTexture               [i] = LLViewerTextureManager::getFetchedTextureFromFile(sound_level_img[i], FTT_LOCAL_FILE, false, LLGLTexture::BOOST_UI);
         mSoundSymbol.mWaveActive            [i] = false;
         mSoundSymbol.mWaveOpacity           [i] = 1.0f;
         mSoundSymbol.mWaveExpansion         [i] = 1.0f;
@@ -248,7 +248,7 @@ void LLVoiceVisualizer::lipStringToF32s ( std::string& in_string, F32*& out_F32s
 {
     delete[] out_F32s;  // get rid of the current array
 
-    count_F32s = in_string.length();
+    count_F32s = static_cast<U32>(in_string.length());
     if (count_F32s == 0)
     {
         // we don't like zero length arrays
@@ -284,7 +284,7 @@ void LLVoiceVisualizer::lipStringToF32s ( std::string& in_string, F32*& out_F32s
 //--------------------------------------------------------------------------
 void LLVoiceVisualizer::lipSyncOohAah( F32& ooh, F32& aah )
 {
-    if( ( sLipSyncEnabled == TRUE ) && mCurrentlySpeaking )
+    if (sLipSyncEnabled && mCurrentlySpeaking)
     {
         U32 transfer_index = (U32) (sOohPowerTransfersf * mSpeakingAmplitude);
         if (transfer_index >= sOohPowerTransfers)
@@ -337,10 +337,13 @@ void LLVoiceVisualizer::lipSyncOohAah( F32& ooh, F32& aah )
 //---------------------------------------------------
 void LLVoiceVisualizer::render()
 {
-    if ( ! mVoiceEnabled )
+    static LLCachedControl<bool> show_visualizer(gSavedSettings, "VoiceVisualizerEnabled", true);
+    if (!mVoiceEnabled || !show_visualizer)
     {
         return;
     }
+
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
 
     if ( mSoundSymbol.mActive )
     {

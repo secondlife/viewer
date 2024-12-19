@@ -58,7 +58,7 @@
 typedef std::map<std::string, LLControlGroup*> settings_map_t;
 settings_map_t LLUI::sSettingGroups;
 
-BOOL LLControlGroup::getBOOL(const std::string& name)
+bool LLControlGroup::getBOOL(const std::string& name)
 {
     return false;
 }

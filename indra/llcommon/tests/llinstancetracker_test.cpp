@@ -37,8 +37,6 @@
 #include <algorithm>                // std::sort()
 #include <stdexcept>
 // std headers
-// external library headers
-#include <boost/scoped_ptr.hpp>
 // other Linden headers
 #include "../test/lltut.h"
 

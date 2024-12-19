@@ -85,7 +85,7 @@ LLInventoryFetchObserver::LLInventoryFetchObserver(const uuid_vec_t& ids)
     setFetchIDs(ids);
 }
 
-BOOL LLInventoryFetchObserver::isFinished() const
+bool LLInventoryFetchObserver::isFinished() const
 {
     return mIncomplete.empty();
 }
@@ -454,14 +454,14 @@ void LLInventoryFetchDescendentsObserver::startFetch()
     }
 }
 
-BOOL LLInventoryFetchDescendentsObserver::isCategoryComplete(const LLViewerInventoryCategory* cat) const
+bool LLInventoryFetchDescendentsObserver::isCategoryComplete(const LLViewerInventoryCategory* cat) const
 {
     const S32 version = cat->getVersion();
     const S32 expected_num_descendents = cat->getDescendentCount();
     if ((version == LLViewerInventoryCategory::VERSION_UNKNOWN) ||
         (expected_num_descendents == LLViewerInventoryCategory::DESCENDENT_COUNT_UNKNOWN))
     {
-        return FALSE;
+        return false;
     }
     // it might be complete - check known descendents against
     // currently available.
@@ -475,14 +475,14 @@ BOOL LLInventoryFetchDescendentsObserver::isCategoryComplete(const LLViewerInven
         // that the cat just doesn't have any items or subfolders).
         // Unrecoverable, so just return done so that this observer can be cleared
         // from memory.
-        return TRUE;
+        return true;
     }
-    const S32 current_num_known_descendents = cats->size() + items->size();
+    const S32 current_num_known_descendents = static_cast<S32>(cats->size() + items->size());
 
     // Got the number of descendents that we were expecting, so we're done.
     if (current_num_known_descendents == expected_num_descendents)
     {
-        return TRUE;
+        return true;
     }
 
     // Error condition, but recoverable.  This happens if something was added to the
@@ -492,9 +492,9 @@ BOOL LLInventoryFetchDescendentsObserver::isCategoryComplete(const LLViewerInven
     {
         LL_WARNS() << "Category '" << cat->getName() << "' expected descendentcount:" << expected_num_descendents << " descendents but got descendentcount:" << current_num_known_descendents << LL_ENDL;
         const_cast<LLViewerInventoryCategory *>(cat)->setDescendentCount(current_num_known_descendents);
-        return TRUE;
+        return true;
     }
-    return FALSE;
+    return false;
 }
 
 LLInventoryFetchComboObserver::LLInventoryFetchComboObserver(const uuid_vec_t& folder_ids,
@@ -715,7 +715,7 @@ void LLInventoryCategoriesObserver::changed(U32 mask)
             continue;
         }
 
-        const S32 current_num_known_descendents = cats->size() + items->size();
+        const S32 current_num_known_descendents = static_cast<S32>(cats->size() + items->size());
 
         bool cat_changed = false;
 
@@ -795,7 +795,7 @@ bool LLInventoryCategoriesObserver::addCategory(const LLUUID& cat_id, callback_t
         }
         else
         {
-            current_num_known_descendents = cats->size() + items->size();
+            current_num_known_descendents = static_cast<S32>(cats->size() + items->size());
         }
     }
 

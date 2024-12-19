@@ -54,7 +54,7 @@ bool LLCommunicationChannel::filterByDoNotDisturbStatus(LLNotificationPtr)
 
 S32 LLCommunicationChannel::getHistorySize() const
 {
-    return mHistory.size();
+    return static_cast<S32>(mHistory.size());
 }
 
 LLCommunicationChannel::history_list_t::const_iterator LLCommunicationChannel::beginHistory() const

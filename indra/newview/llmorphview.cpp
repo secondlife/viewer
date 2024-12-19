@@ -47,7 +47,7 @@
 
 LLMorphView *gMorphView = NULL;
 
-const F32 MORPH_NEAR_CLIP = 0.1f;
+constexpr F32 MORPH_NEAR_CLIP = 0.1f;
 
 //-----------------------------------------------------------------------------
 // LLMorphView()
@@ -60,7 +60,7 @@ LLMorphView::LLMorphView(const LLMorphView::Params& p)
     mOldCameraNearClip( 0.f ),
     mCameraPitch( 0.f ),
     mCameraYaw( 0.f ),
-    mCameraDrivenByKeys( FALSE )
+    mCameraDrivenByKeys( false )
 {}
 
 //-----------------------------------------------------------------------------
@@ -103,7 +103,7 @@ void    LLMorphView::shutdown()
 //-----------------------------------------------------------------------------
 // setVisible()
 //-----------------------------------------------------------------------------
-void LLMorphView::setVisible(BOOL visible)
+void LLMorphView::setVisible(bool visible)
 {
     if( visible != getVisible() )
     {
@@ -152,7 +152,7 @@ void LLMorphView::updateCamera()
     gAgentCamera.setCameraPosAndFocusGlobal( camera_pos, target_pos, gAgent.getID() );
 }
 
-void LLMorphView::setCameraDrivenByKeys(BOOL b)
+void LLMorphView::setCameraDrivenByKeys(bool b)
 {
     if( mCameraDrivenByKeys != b )
     {

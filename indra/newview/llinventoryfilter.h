@@ -45,7 +45,8 @@ public:
         SHOW_NO_FOLDERS
     };
 
-    enum EFilterType    {
+    enum EFilterType
+    {
         FILTERTYPE_NONE = 0,
         FILTERTYPE_OBJECT = 0x1 << 0,   // normal default search-by-object-type
         FILTERTYPE_CATEGORY = 0x1 << 1, // search by folder type
@@ -247,7 +248,7 @@ public:
     void                setSearchVisibilityTypes(const Params& params);
 
     void                setFilterSubString(const std::string& string);
-    const std::string&  getFilterSubString(BOOL trim = FALSE) const;
+    const std::string&  getFilterSubString(bool trim = false) const;
     const std::string&  getFilterSubStringOrig() const { return mFilterSubStringOrig; }
     bool                hasFilterString() const;
 
@@ -257,7 +258,7 @@ public:
     PermissionMask      getFilterPermissions() const;
 
     void                setDateRange(time_t min_date, time_t max_date);
-    void                setDateRangeLastLogoff(BOOL sl);
+    void                setDateRangeLastLogoff(bool sl);
     time_t              getMinDate() const;
     time_t              getMaxDate() const;
 
@@ -275,9 +276,9 @@ public:
     // +-------------------------------------------------------------------+
     // + Execution And Results
     // +-------------------------------------------------------------------+
-    bool                check(const LLFolderViewModelItem* listener);
+    bool                check(const LLFolderViewModelItem* item);
     bool                check(const LLInventoryItem* item);
-    bool                checkFolder(const LLFolderViewModelItem* listener) const;
+    bool                checkFolder(const LLFolderViewModelItem* item) const;
     bool                checkFolder(const LLUUID& folder_id) const;
 
     bool                showAllResults() const;
@@ -341,6 +342,7 @@ public:
 
 private:
     bool                areDateLimitsSet();
+    bool                checkAgainstFilterSubString(const std::string& desc) const;
     bool                checkAgainstFilterType(const class LLFolderViewModelItemInventory* listener) const;
     bool                checkAgainstFilterType(const LLInventoryItem* item) const;
     bool                checkAgainstPermissions(const class LLFolderViewModelItemInventory* listener) const;

@@ -59,7 +59,7 @@
 using namespace llsd;
 
 #if LL_WINDOWS
-#   include "llwin32headerslean.h"
+#   include "llwin32headers.h"
 #   include <psapi.h>               // GetPerformanceInfo() et al.
 #   include <VersionHelpers.h>
 #elif LL_DARWIN
@@ -74,6 +74,8 @@ using namespace llsd;
 #   include <mach/mach_host.h>
 #   include <mach/task.h>
 #   include <mach/task_info.h>
+#   include <sys/types.h>
+#   include <mach/mach_init.h>
 #elif LL_LINUX
 #   include <errno.h>
 #   include <sys/utsname.h>
@@ -85,6 +87,7 @@ const char MEMINFO_FILE[] = "/proc/meminfo";
 #endif
 
 LLCPUInfo gSysCPU;
+LLMemoryInfo gSysMemory;
 
 // Don't log memory info any more often than this. It also serves as our
 // framerate sample size.
@@ -213,7 +216,7 @@ LLOSInfo::LLOSInfo() :
         DWORD cbData(sizeof(DWORD));
         DWORD data(0);
         HKEY key;
-        BOOL ret_code = RegOpenKeyExW(HKEY_LOCAL_MACHINE, TEXT("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion"), 0, KEY_READ, &key);
+        LSTATUS ret_code = RegOpenKeyExW(HKEY_LOCAL_MACHINE, TEXT("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion"), 0, KEY_READ, &key);
         if (ERROR_SUCCESS == ret_code)
         {
             ret_code = RegQueryValueExW(key, L"UBR", 0, NULL, reinterpret_cast<LPBYTE>(&data), &cbData);
@@ -226,16 +229,8 @@ LLOSInfo::LLOSInfo() :
         if (mBuild >= 22000)
         {
             // At release Windows 11 version was 10.0.22000.194
-            // Windows 10 version was 10.0.19043.1266
-            // There is no warranty that Win10 build won't increase,
-            // so until better solution is found or Microsoft updates
-            // SDK with IsWindows11OrGreater(), indicate "10/11"
-            //
-            // Current alternatives:
-            // Query WMI's Win32_OperatingSystem for OS string. Slow
-            // and likely to return 'compatibility' string.
-            // Check presence of dlls/libs or may be their version.
-            mOSStringSimple = "Microsoft Windows 10/11 ";
+            // According to microsoft win 10 won't ever get that far.
+            mOSStringSimple = "Microsoft Windows 11 ";
         }
     }
 
@@ -268,9 +263,9 @@ LLOSInfo::LLOSInfo() :
 #elif LL_DARWIN
 
     // Initialize mOSStringSimple to something like:
-    // "Mac OS X 10.6.7"
+    // "macOS 10.13.1"
     {
-        const char * DARWIN_PRODUCT_NAME = "Mac OS X";
+        const char * DARWIN_PRODUCT_NAME = "macOS";
 
         int64_t major_version, minor_version, bugfix_version = 0;
 
@@ -293,7 +288,7 @@ LLOSInfo::LLOSInfo() :
     }
 
     // Initialize mOSString to something like:
-    // "Mac OS X 10.6.7 Darwin Kernel Version 10.7.0: Sat Jan 29 15:17:16 PST 2011; root:xnu-1504.9.37~1/RELEASE_I386 i386"
+    // "macOS 10.13.1 Darwin Kernel Version 10.7.0: Sat Jan 29 15:17:16 PST 2011; root:xnu-1504.9.37~1/RELEASE_I386 i386"
     struct utsname un;
     if(uname(&un) != -1)
     {
@@ -570,7 +565,7 @@ bool LLOSInfo::is64Bit()
     return true;
 #elif defined(_WIN32)
     // 32-bit viewer may be run on both 32-bit and 64-bit Windows, need to elaborate
-    BOOL f64 = FALSE;
+    bool f64 = false;
     return IsWow64Process(GetCurrentProcess(), &f64) && f64;
 #else
     return false;
@@ -805,33 +800,32 @@ U32Kilobytes LLMemoryInfo::getPhysicalMemoryKB() const
 }
 
 //static
-void LLMemoryInfo::getAvailableMemoryKB(U32Kilobytes& avail_physical_mem_kb, U32Kilobytes& avail_virtual_mem_kb)
+void LLMemoryInfo::getAvailableMemoryKB(U32Kilobytes& avail_mem_kb)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_MEMORY;
 #if LL_WINDOWS
     // Sigh, this shouldn't be a static method, then we wouldn't have to
     // reload this data separately from refresh()
     LLSD statsMap(loadStatsMap());
 
-    avail_physical_mem_kb = (U32Kilobytes)statsMap["Avail Physical KB"].asInteger();
-    avail_virtual_mem_kb  = (U32Kilobytes)statsMap["Avail Virtual KB"].asInteger();
+    avail_mem_kb = (U32Kilobytes)statsMap["Avail Physical KB"].asInteger();
 
 #elif LL_DARWIN
-    // mStatsMap is derived from vm_stat, look for (e.g.) "kb free":
-    // $ vm_stat
-    // Mach Virtual Memory Statistics: (page size of 4096 bytes)
-    // Pages free:                   462078.
-    // Pages active:                 142010.
-    // Pages inactive:               220007.
-    // Pages wired down:             159552.
-    // "Translation faults":      220825184.
-    // Pages copy-on-write:         2104153.
-    // Pages zero filled:         167034876.
-    // Pages reactivated:             65153.
-    // Pageins:                     2097212.
-    // Pageouts:                      41759.
-    // Object cache: 841598 hits of 7629869 lookups (11% hit rate)
-    avail_physical_mem_kb = (U32Kilobytes)-1 ;
-    avail_virtual_mem_kb = (U32Kilobytes)-1 ;
+    // use host_statistics64 to get memory info
+    vm_statistics64_data_t vmstat;
+    mach_msg_type_number_t count = HOST_VM_INFO64_COUNT;
+    mach_port_t host = mach_host_self();
+    vm_size_t page_size;
+    host_page_size(host, &page_size);
+    kern_return_t result = host_statistics64(host, HOST_VM_INFO64, reinterpret_cast<host_info_t>(&vmstat), &count);
+    if (result == KERN_SUCCESS)
+    {
+        avail_mem_kb = U64Bytes((vmstat.free_count + vmstat.inactive_count) * page_size);
+    }
+    else
+    {
+        avail_mem_kb = (U32Kilobytes)-1;
+    }
 
 #elif LL_LINUX
     // mStatsMap is derived from MEMINFO_FILE:
@@ -882,15 +876,14 @@ void LLMemoryInfo::getAvailableMemoryKB(U32Kilobytes& avail_physical_mem_kb, U32
     // DirectMap4k:      434168 kB
     // DirectMap2M:      477184 kB
     // (could also run 'free', but easier to read a file than run a program)
-    avail_physical_mem_kb = (U32Kilobytes)-1 ;
-    avail_virtual_mem_kb = (U32Kilobytes)-1 ;
+    LLSD statsMap(loadStatsMap());
 
+    avail_mem_kb = (U32Kilobytes)statsMap["MemFree"].asInteger();
 #else
     //do not know how to collect available memory info for other systems.
     //leave it blank here for now.
 
-    avail_physical_mem_kb = (U32Kilobytes)-1 ;
-    avail_virtual_mem_kb = (U32Kilobytes)-1 ;
+    avail_mem_kb = (U32Kilobytes)-1 ;
 #endif
 }
 
@@ -936,7 +929,7 @@ LLSD LLMemoryInfo::getStatsMap() const
 
 LLMemoryInfo& LLMemoryInfo::refresh()
 {
-    LL_PROFILE_ZONE_SCOPED
+    LL_PROFILE_ZONE_SCOPED;
     mStatsMap = loadStatsMap();
 
     LL_DEBUGS("LLMemoryInfo") << "Populated mStatsMap:\n";
@@ -985,7 +978,7 @@ LLSD LLMemoryInfo::loadStatsMap()
     // specifically accepts PROCESS_MEMORY_COUNTERS*, and since this is a
     // classic-C API, PROCESS_MEMORY_COUNTERS_EX isn't a subclass. Cast the
     // pointer.
-    GetProcessMemoryInfo(GetCurrentProcess(), PPROCESS_MEMORY_COUNTERS(&pmem), sizeof(pmem));
+    GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*) &pmem, sizeof(pmem));
 
     stats.add("Page Fault Count",              pmem.PageFaultCount);
     stats.add("PeakWorkingSetSize KB",         pmem.PeakWorkingSetSize/div);
@@ -1319,11 +1312,11 @@ private:
 // Need an instance of FrameWatcher before it does any good
 static FrameWatcher sFrameWatcher;
 
-BOOL gunzip_file(const std::string& srcfile, const std::string& dstfile)
+bool gunzip_file(const std::string& srcfile, const std::string& dstfile)
 {
     std::string tmpfile;
     const S32 UNCOMPRESS_BUFFER_SIZE = 32768;
-    BOOL retval = FALSE;
+    bool retval = false;
     gzFile src = NULL;
     U8 buffer[UNCOMPRESS_BUFFER_SIZE];
     LLFILE *dst = NULL;
@@ -1355,18 +1348,18 @@ BOOL gunzip_file(const std::string& srcfile, const std::string& dstfile)
     LLFile::remove(dstfile, ENOENT);
 #endif
     if (LLFile::rename(tmpfile, dstfile) == -1) goto err;       /* Flawfinder: ignore */
-    retval = TRUE;
+    retval = true;
 err:
     if (src != NULL) gzclose(src);
     if (dst != NULL) fclose(dst);
     return retval;
 }
 
-BOOL gzip_file(const std::string& srcfile, const std::string& dstfile)
+bool gzip_file(const std::string& srcfile, const std::string& dstfile)
 {
     const S32 COMPRESS_BUFFER_SIZE = 32768;
     std::string tmpfile;
-    BOOL retval = FALSE;
+    bool retval = false;
     U8 buffer[COMPRESS_BUFFER_SIZE];
     gzFile dst = NULL;
     LLFILE *src = NULL;
@@ -1406,7 +1399,7 @@ BOOL gzip_file(const std::string& srcfile, const std::string& dstfile)
     LLFile::remove(dstfile);
 #endif
     if (LLFile::rename(tmpfile, dstfile) == -1) goto err;       /* Flawfinder: ignore */
-    retval = TRUE;
+    retval = true;
  err:
     if (src != NULL) fclose(src);
     if (dst != NULL) gzclose(dst);

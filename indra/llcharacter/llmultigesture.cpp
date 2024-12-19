@@ -54,15 +54,15 @@ LLMultiGesture::~LLMultiGesture()
 
 void LLMultiGesture::reset()
 {
-    mPlaying = FALSE;
+    mPlaying = false;
     mCurrentStep = 0;
     mWaitTimer.reset();
-    mWaitingAnimations = FALSE;
-    mWaitingKeyRelease = FALSE;
-    mWaitingTimer = FALSE;
-    mTriggeredByKey = FALSE;
-    mKeyReleased = FALSE;
-    mWaitingAtEnd = FALSE;
+    mWaitingAnimations = false;
+    mWaitingKeyRelease = false;
+    mWaitingTimer = false;
+    mTriggeredByKey = false;
+    mKeyReleased = false;
+    mWaitingAtEnd = false;
     mRequestedAnimIDs.clear();
     mPlayingAnimIDs.clear();
 }
@@ -107,7 +107,7 @@ S32 LLMultiGesture::getMaxSerialSize() const
     return max_size;
 }
 
-BOOL LLMultiGesture::serialize(LLDataPacker& dp) const
+bool LLMultiGesture::serialize(LLDataPacker& dp) const
 {
     dp.packS32(GESTURE_VERSION, "version");
     dp.packU8(mKey, "key");
@@ -123,16 +123,16 @@ BOOL LLMultiGesture::serialize(LLDataPacker& dp) const
         LLGestureStep* step = mSteps[i];
 
         dp.packS32(step->getType(), "step_type");
-        BOOL ok = step->serialize(dp);
+        bool ok = step->serialize(dp);
         if (!ok)
         {
-            return FALSE;
+            return false;
         }
     }
-    return TRUE;
+    return true;
 }
 
-BOOL LLMultiGesture::deserialize(LLDataPacker& dp)
+bool LLMultiGesture::deserialize(LLDataPacker& dp)
 {
     S32 version;
     dp.unpackS32(version, "version");
@@ -141,7 +141,7 @@ BOOL LLMultiGesture::deserialize(LLDataPacker& dp)
         LL_WARNS() << "Bad LLMultiGesture version " << version
             << " should be " << GESTURE_VERSION
             << LL_ENDL;
-        return FALSE;
+        return false;
     }
 
     dp.unpackU8(mKey, "key");
@@ -157,7 +157,7 @@ BOOL LLMultiGesture::deserialize(LLDataPacker& dp)
     if (count < 0)
     {
         LL_WARNS() << "Bad LLMultiGesture step count " << count << LL_ENDL;
-        return FALSE;
+        return false;
     }
 
     S32 i;
@@ -172,43 +172,43 @@ BOOL LLMultiGesture::deserialize(LLDataPacker& dp)
         case STEP_ANIMATION:
             {
                 LLGestureStepAnimation* step = new LLGestureStepAnimation();
-                BOOL ok = step->deserialize(dp);
-                if (!ok) return FALSE;
+                bool ok = step->deserialize(dp);
+                if (!ok) return false;
                 mSteps.push_back(step);
                 break;
             }
         case STEP_SOUND:
             {
                 LLGestureStepSound* step = new LLGestureStepSound();
-                BOOL ok = step->deserialize(dp);
-                if (!ok) return FALSE;
+                bool ok = step->deserialize(dp);
+                if (!ok) return false;
                 mSteps.push_back(step);
                 break;
             }
         case STEP_CHAT:
             {
                 LLGestureStepChat* step = new LLGestureStepChat();
-                BOOL ok = step->deserialize(dp);
-                if (!ok) return FALSE;
+                bool ok = step->deserialize(dp);
+                if (!ok) return false;
                 mSteps.push_back(step);
                 break;
             }
         case STEP_WAIT:
             {
                 LLGestureStepWait* step = new LLGestureStepWait();
-                BOOL ok = step->deserialize(dp);
-                if (!ok) return FALSE;
+                bool ok = step->deserialize(dp);
+                if (!ok) return false;
                 mSteps.push_back(step);
                 break;
             }
         default:
             {
                 LL_WARNS() << "Bad LLMultiGesture step type " << type << LL_ENDL;
-                return FALSE;
+                return false;
             }
         }
     }
-    return TRUE;
+    return true;
 }
 
 void LLMultiGesture::dump()
@@ -255,15 +255,15 @@ S32 LLGestureStepAnimation::getMaxSerialSize() const
     return max_size;
 }
 
-BOOL LLGestureStepAnimation::serialize(LLDataPacker& dp) const
+bool LLGestureStepAnimation::serialize(LLDataPacker& dp) const
 {
     dp.packString(mAnimName, "anim_name");
     dp.packUUID(mAnimAssetID, "asset_id");
     dp.packU32(mFlags, "flags");
-    return TRUE;
+    return true;
 }
 
-BOOL LLGestureStepAnimation::deserialize(LLDataPacker& dp)
+bool LLGestureStepAnimation::deserialize(LLDataPacker& dp)
 {
     dp.unpackString(mAnimName, "anim_name");
 
@@ -277,7 +277,7 @@ BOOL LLGestureStepAnimation::deserialize(LLDataPacker& dp)
 
     dp.unpackUUID(mAnimAssetID, "asset_id");
     dp.unpackU32(mFlags, "flags");
-    return TRUE;
+    return true;
 }
 // *NOTE: result is translated in LLPreviewGesture::getLabel()
 std::vector<std::string> LLGestureStepAnimation::getLabel() const
@@ -337,21 +337,21 @@ S32 LLGestureStepSound::getMaxSerialSize() const
     return max_size;
 }
 
-BOOL LLGestureStepSound::serialize(LLDataPacker& dp) const
+bool LLGestureStepSound::serialize(LLDataPacker& dp) const
 {
     dp.packString(mSoundName, "sound_name");
     dp.packUUID(mSoundAssetID, "asset_id");
     dp.packU32(mFlags, "flags");
-    return TRUE;
+    return true;
 }
 
-BOOL LLGestureStepSound::deserialize(LLDataPacker& dp)
+bool LLGestureStepSound::deserialize(LLDataPacker& dp)
 {
     dp.unpackString(mSoundName, "sound_name");
 
     dp.unpackUUID(mSoundAssetID, "asset_id");
     dp.unpackU32(mFlags, "flags");
-    return TRUE;
+    return true;
 }
 // *NOTE: result is translated in LLPreviewGesture::getLabel()
 std::vector<std::string> LLGestureStepSound::getLabel() const
@@ -397,19 +397,19 @@ S32 LLGestureStepChat::getMaxSerialSize() const
     return max_size;
 }
 
-BOOL LLGestureStepChat::serialize(LLDataPacker& dp) const
+bool LLGestureStepChat::serialize(LLDataPacker& dp) const
 {
     dp.packString(mChatText, "chat_text");
     dp.packU32(mFlags, "flags");
-    return TRUE;
+    return true;
 }
 
-BOOL LLGestureStepChat::deserialize(LLDataPacker& dp)
+bool LLGestureStepChat::deserialize(LLDataPacker& dp)
 {
     dp.unpackString(mChatText, "chat_text");
 
     dp.unpackU32(mFlags, "flags");
-    return TRUE;
+    return true;
 }
 // *NOTE: result is translated in LLPreviewGesture::getLabel()
 std::vector<std::string> LLGestureStepChat::getLabel() const
@@ -452,18 +452,18 @@ S32 LLGestureStepWait::getMaxSerialSize() const
     return max_size;
 }
 
-BOOL LLGestureStepWait::serialize(LLDataPacker& dp) const
+bool LLGestureStepWait::serialize(LLDataPacker& dp) const
 {
     dp.packF32(mWaitSeconds, "wait_seconds");
     dp.packU32(mFlags, "flags");
-    return TRUE;
+    return true;
 }
 
-BOOL LLGestureStepWait::deserialize(LLDataPacker& dp)
+bool LLGestureStepWait::deserialize(LLDataPacker& dp)
 {
     dp.unpackF32(mWaitSeconds, "wait_seconds");
     dp.unpackU32(mFlags, "flags");
-    return TRUE;
+    return true;
 }
 // *NOTE: result is translated in LLPreviewGesture::getLabel()
 std::vector<std::string> LLGestureStepWait::getLabel() const

@@ -3818,6 +3818,7 @@ Please reinstall viewer from  https://secondlife.com/support/downloads/ and cont
 
   <string name="voice_morphing_url">https://secondlife.com/destination/voice-island</string>
   <string name="premium_voice_morphing_url">https://secondlife.com/destination/voice-morphing-premium</string>
+  <string name="no_voice_morphing_faq_url">https://lindenlab.freshdesk.com/support/solutions/articles/31000173560-webrtc-update-for-voice-chat-faq/</string>
 
   <string name="lindenhomes_get_home_url">https://secondlife.com/land/lindenhomes/member.php</string>
   <string name="lindenhomes_my_home_url">https://land.secondlife.com/en-Us/lindenhomes/my-home.php</string>
@@ -4311,6 +4312,9 @@ name="Command_360_Capture_Tooltip">Capture a 360 equirectangular image</string>
 
   <!-- PBR Materials -->
   <string name="Material Texture Name Header">Textures present this material: </string>
+  <string name="material_selection_title">Material selection</string>
+  <string name="material_selection_text">Select material:</string>
+  <string name="material_batch_import_text">--- Bulk Upload All ---</string>
   
   <!-- Conversation log messages -->
   <string name="logging_calls_disabled_log_empty">

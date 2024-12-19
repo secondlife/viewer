@@ -33,9 +33,6 @@
 #include "stringize.h"
 #include "llsdserialize.h"
 
-// llmessage (!)
-#include "llfiltersd2xmlrpc.h" // for xml_escape_string()
-
 // login
 #include "lllogin.h"
 
@@ -60,7 +57,6 @@
 #include "llsdserialize.h"
 #include "lltrans.h"
 
-#include <boost/scoped_ptr.hpp>
 #include <boost/regex.hpp>
 #include <sstream>
 
@@ -198,7 +194,7 @@ void LLLoginInstance::constructAuthParams(LLPointer<LLCredential> user_credentia
     requested_options.append("global-textures");
     if(gSavedSettings.getBOOL("ConnectAsGod"))
     {
-        gSavedSettings.setBOOL("UseDebugMenus", TRUE);
+        gSavedSettings.setBOOL("UseDebugMenus", true);
         requested_options.append("god-connect");
     }
 
@@ -345,7 +341,7 @@ void LLLoginInstance::handleLoginFailure(const LLSD& event)
         data["message"] = message_response;
         data["reply_pump"] = TOS_REPLY_PUMP;
         if (gViewerWindow)
-            gViewerWindow->setShowProgress(FALSE);
+            gViewerWindow->setShowProgress(false);
         LLFloaterReg::showInstance("message_tos", data);
         LLEventPumps::instance().obtain(TOS_REPLY_PUMP)
             .listen(TOS_LISTENER_NAME,
@@ -369,7 +365,7 @@ void LLLoginInstance::handleLoginFailure(const LLSD& event)
         }
 
         if (gViewerWindow)
-            gViewerWindow->setShowProgress(FALSE);
+            gViewerWindow->setShowProgress(false);
 
         LLFloaterReg::showInstance("message_critical", data);
         LLEventPumps::instance().obtain(TOS_REPLY_PUMP)
@@ -408,7 +404,7 @@ void LLLoginInstance::handleLoginFailure(const LLSD& event)
         }
 
         if (gViewerWindow)
-            gViewerWindow->setShowProgress(FALSE);
+            gViewerWindow->setShowProgress(false);
 
         LLSD args;
         args["VERSION"] = login_version;
@@ -447,10 +443,10 @@ void LLLoginInstance::handleLoginFailure(const LLSD& event)
 
         if (gViewerWindow)
         {
-            gViewerWindow->setShowProgress(FALSE);
+            gViewerWindow->setShowProgress(false);
         }
 
-        showMFAChallange(LLTrans::getString(response["message_id"]));
+        showMFAChallange(LLTrans::getString(response["message_id"].asString()));
     }
     else if(   reason_response == "key"
             || reason_response == "presence"
@@ -467,7 +463,7 @@ void LLLoginInstance::handleLoginFailure(const LLSD& event)
         LL_WARNS("LLLogin") << "Login failed for an unknown reason: " << LLSDOStreamer<LLSDNotationFormatter>(response) << LL_ENDL;
 
         if (gViewerWindow)
-            gViewerWindow->setShowProgress(FALSE);
+            gViewerWindow->setShowProgress(false);
 
         LLNotificationsUtil::add("LoginFailedUnknown", LLSD::emptyMap(), LLSD::emptyMap(), boost::bind(&LLLoginInstance::handleLoginDisallowed, this, _1, _2));
     }
@@ -606,13 +602,14 @@ std::string construct_start_string()
         {
             // a startup URL was specified
             LLVector3 position = start_slurl.getPosition();
-            std::string unescaped_start =
+            // NOTE - do not xml escape here, will get escaped properly later by LLSD::asXMLRPCValue()
+            // see secondlife/viewer#2395
+            start =
             STRINGIZE(  "uri:"
                       << start_slurl.getRegion() << "&"
                         << position[VX] << "&"
                         << position[VY] << "&"
                         << position[VZ]);
-            start = xml_escape_string(unescaped_start);
             break;
         }
         case LLSLURL::HOME_LOCATION:

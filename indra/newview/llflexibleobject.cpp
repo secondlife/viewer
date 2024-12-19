@@ -60,8 +60,8 @@ LLVolumeImplFlexible::LLVolumeImplFlexible(LLViewerObject* vo, LLFlexibleObjectD
 {
     static U32 seed = 0;
     mID = seed++;
-    mInitialized = FALSE;
-    mUpdated = FALSE;
+    mInitialized = false;
+    mUpdated = false;
     mInitializedRes = -1;
     mSimulateRes = 0;
     mCollisionSphereRadius = 0.f;
@@ -72,13 +72,13 @@ LLVolumeImplFlexible::LLVolumeImplFlexible(LLViewerObject* vo, LLFlexibleObjectD
         mVO->mDrawable->makeActive() ;
     }
 
-    mInstanceIndex = sInstanceList.size();
+    mInstanceIndex = static_cast<S32>(sInstanceList.size());
     sInstanceList.push_back(this);
 }//-----------------------------------------------
 
 LLVolumeImplFlexible::~LLVolumeImplFlexible()
 {
-    S32 end_idx = sInstanceList.size()-1;
+    S32 end_idx = static_cast<S32>(sInstanceList.size()) - 1;
 
     if (end_idx != mInstanceIndex)
     {
@@ -94,7 +94,7 @@ void LLVolumeImplFlexible::updateClass()
 {
     LL_PROFILE_ZONE_SCOPED;
 
-    U64 virtual_frame_num = LLTimer::getElapsedSeconds() / SEC_PER_FLEXI_FRAME;
+    U64 virtual_frame_num = (U64)(LLTimer::getElapsedSeconds() / SEC_PER_FLEXI_FRAME);
     for (std::vector<LLVolumeImplFlexible*>::iterator iter = sInstanceList.begin();
             iter != sInstanceList.end();
             ++iter)
@@ -119,7 +119,7 @@ LLQuaternion LLVolumeImplFlexible::getFrameRotation() const
     return mVO->getRenderRotation();
 }
 
-void LLVolumeImplFlexible::onParameterChanged(U16 param_type, LLNetworkData *data, BOOL in_use, bool local_origin)
+void LLVolumeImplFlexible::onParameterChanged(U16 param_type, LLNetworkData *data, bool in_use, bool local_origin)
 {
     if (param_type == LLNetworkData::PARAMS_FLEXIBLE)
     {
@@ -324,7 +324,7 @@ void LLVolumeImplFlexible::updateRenderRes()
     {
         mSimulateRes = new_res;
         setAttributesOfAllSections();
-        mInitialized = TRUE;
+        mInitialized = true;
     }
 }
 //---------------------------------------------------------------------------------
@@ -362,7 +362,7 @@ void LLVolumeImplFlexible::doIdleUpdate()
                 update_period = llclamp(update_period, 1U, 32U);
 
                 // We control how fast flexies update, buy splitting updates among frames
-                U64 virtual_frame_num = LLTimer::getElapsedSeconds() / SEC_PER_FLEXI_FRAME;
+                U64 virtual_frame_num = (U64)(LLTimer::getElapsedSeconds() / SEC_PER_FLEXI_FRAME);
 
                 if  (visible)
                 {
@@ -433,7 +433,7 @@ void LLVolumeImplFlexible::doFlexibleUpdate()
     LLPath *path = &volume->getPath();
     if ((mSimulateRes == 0 || !mInitialized) && mVO->mDrawable->isVisible())
     {
-        BOOL force_update = mSimulateRes == 0 ? TRUE : FALSE;
+        bool force_update = mSimulateRes == 0;
         doIdleUpdate();
 
         if (!force_update || !gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_FLEXIBLE))
@@ -442,10 +442,10 @@ void LLVolumeImplFlexible::doFlexibleUpdate()
         }
     }
 
-    if(!mInitialized || !mAttributes)
+    if (!mInitialized || !mAttributes)
     {
         //the object is not visible
-        return ;
+        return;
     }
 
     // Fix for MAINT-1894
@@ -668,7 +668,7 @@ void LLVolumeImplFlexible::doFlexibleUpdate()
     S32 num_render_sections = 1<<mRenderRes;
     if (path->getPathLength() != num_render_sections+1)
     {
-        ((LLVOVolume*) mVO)->mVolumeChanged = TRUE;
+        ((LLVOVolume*) mVO)->mVolumeChanged = true;
         volume->resizePath(num_render_sections+1);
     }
 
@@ -708,7 +708,7 @@ void LLVolumeImplFlexible::doFlexibleUpdate()
         if (!mUpdated || (np-pos).magVec()/mVO->mDrawable->mDistanceWRTCamera > 0.001f)
         {
             new_point->mPos.load3((newSection[i].mPosition * rel_xform).mV);
-            mUpdated = FALSE;
+            mUpdated = false;
         }
 
         new_point->mRot.loadu(LLMatrix3(rot));
@@ -741,17 +741,17 @@ void LLVolumeImplFlexible::doFlexibleRebuild(bool rebuild_volume)
         volume->regen();
     }
 
-    mUpdated = TRUE;
+    mUpdated = true;
 }
 
 //------------------------------------------------------------------
 
-void LLVolumeImplFlexible::onSetScale(const LLVector3& scale, BOOL damped)
+void LLVolumeImplFlexible::onSetScale(const LLVector3& scale, bool damped)
 {
     setAttributesOfAllSections((LLVector3*) &scale);
 }
 
-BOOL LLVolumeImplFlexible::doUpdateGeometry(LLDrawable *drawable)
+bool LLVolumeImplFlexible::doUpdateGeometry(LLDrawable *drawable)
 {
     LL_PROFILE_ZONE_SCOPED;
     LLVOVolume *volume = (LLVOVolume*)mVO;
@@ -770,21 +770,21 @@ BOOL LLVolumeImplFlexible::doUpdateGeometry(LLDrawable *drawable)
             LLVOAvatar* avatar = (LLVOAvatar*) parent;
             if (avatar->isImpostor() && !avatar->needsImpostorUpdate())
             {
-                return TRUE;
+                return true;
             }
         }
     }
 
-    if (volume->mDrawable.isNull())
+    if (volume->mDrawable.isNull() || volume->mDrawable->isDead())
     {
-        return TRUE; // No update to complete
+        return true; // No update to complete
     }
 
     if (volume->mLODChanged)
     {
         LLVolumeParams volume_params = volume->getVolume()->getParams();
         volume->setVolume(volume_params, 0);
-        mUpdated = FALSE;
+        mUpdated = false;
     }
 
     volume->updateRelativeXform();
@@ -792,12 +792,12 @@ BOOL LLVolumeImplFlexible::doUpdateGeometry(LLDrawable *drawable)
     doFlexibleUpdate();
 
     // Object may have been rotated, which means it needs a rebuild.  See SL-47220
-    BOOL    rotated = FALSE;
+    bool    rotated = false;
     LLQuaternion cur_rotation = getFrameRotation();
     if ( cur_rotation != mLastFrameRotation )
     {
         mLastFrameRotation = cur_rotation;
-        rotated = TRUE;
+        rotated = true;
     }
 
     if (volume->mLODChanged || volume->mFaceMappingChanged ||
@@ -822,14 +822,14 @@ BOOL LLVolumeImplFlexible::doUpdateGeometry(LLDrawable *drawable)
         volume->genBBoxes(isVolumeGlobal());
     }
 
-    volume->mVolumeChanged = FALSE;
-    volume->mLODChanged = FALSE;
-    volume->mFaceMappingChanged = FALSE;
+    volume->mVolumeChanged = false;
+    volume->mLODChanged = false;
+    volume->mFaceMappingChanged = false;
 
     // clear UV flag
     drawable->clearState(LLDrawable::UV);
 
-    return TRUE;
+    return true;
 }
 
 //----------------------------------------------------------------------------------

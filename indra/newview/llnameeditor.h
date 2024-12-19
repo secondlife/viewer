@@ -57,7 +57,7 @@ protected:
 public:
     virtual ~LLNameEditor();
 
-    void setNameID(const LLUUID& name_id, BOOL is_group);
+    void setNameID(const LLUUID& name_id, bool is_group);
 
     void refresh(const LLUUID& id, const std::string& full_name, bool is_group);
 

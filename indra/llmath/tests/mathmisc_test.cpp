@@ -454,7 +454,7 @@ namespace tut
     template<> template<>
     void line_object::test<1>()
     {
-        // this is a test for LLLine::intersects(point) which returns TRUE
+        // this is a test for LLLine::intersects(point) which returns true
         // if the line passes within some tolerance of point
 
         // these tests will have some floating point error,

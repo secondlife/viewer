@@ -89,13 +89,6 @@ private:
 
 class LL_COMMON_API LLThreadSafeRefCount
 {
-public:
-    static void initThreadSafeRefCount(); // creates sMutex
-    static void cleanupThreadSafeRefCount(); // destroys sMutex
-
-private:
-    static LLMutex* sMutex;
-
 protected:
     virtual ~LLThreadSafeRefCount(); // use unref()
 

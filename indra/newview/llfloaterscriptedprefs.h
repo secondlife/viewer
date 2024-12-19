@@ -37,7 +37,7 @@ class LLFloaterScriptEdPrefs : public LLFloater
 {
 public:
     LLFloaterScriptEdPrefs(const LLSD& key);
-    BOOL postBuild();
+    bool postBuild() override;
 
 private:
     ~LLFloaterScriptEdPrefs() {};
