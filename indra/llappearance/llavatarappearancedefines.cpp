@@ -300,7 +300,8 @@ EBakedTextureIndex LLAvatarAppearanceDictionary::findBakedByImageName(std::strin
 
 LLWearableType::EType LLAvatarAppearanceDictionary::getTEWearableType(ETextureIndex index ) const
 {
-    return getTexture(index)->mWearableType;
+    auto* tex = getTexture(index);
+    return tex ? tex->mWearableType : LLWearableType::WT_INVALID;
 }
 
 // static

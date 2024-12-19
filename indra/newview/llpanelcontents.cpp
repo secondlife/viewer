@@ -139,32 +139,47 @@ void LLPanelContents::getState(LLViewerObject *objectp )
 void LLPanelContents::onFilterEdit()
 {
     const std::string& filter_substring = mFilterEditor->getText();
-    if (filter_substring.empty())
+    if (!mPanelInventoryObject->hasInventory())
     {
-        if (mPanelInventoryObject->getFilter().getFilterSubString().empty())
-        {
-            // The current filter and the new filter are empty, nothing to do
-            return;
-        }
-
-        mSavedFolderState.setApply(true);
-        mPanelInventoryObject->getRootFolder()->applyFunctorRecursively(mSavedFolderState);
-
-        // Add a folder with the current item to the list of previously opened folders
-        LLOpenFoldersWithSelection opener;
-        mPanelInventoryObject->getRootFolder()->applyFunctorRecursively(opener);
-        mPanelInventoryObject->getRootFolder()->scrollToShowSelection();
+        mDirtyFilter = true;
     }
-    else if (mPanelInventoryObject->getFilter().getFilterSubString().empty())
+    else
     {
-        // The first letter in search term, save existing folder open state
-        if (!mPanelInventoryObject->getFilter().isNotDefault())
+        if (filter_substring.empty())
         {
-            mSavedFolderState.setApply(false);
-            mPanelInventoryObject->getRootFolder()->applyFunctorRecursively(mSavedFolderState);
+            if (mPanelInventoryObject->getFilter().getFilterSubString().empty())
+            {
+                // The current filter and the new filter are empty, nothing to do
+                return;
+            }
+
+            if (mDirtyFilter && !mSavedFolderState.hasOpenFolders())
+            {
+                mPanelInventoryObject->getRootFolder()->setOpenArrangeRecursively(true, LLFolderViewFolder::ERecurseType::RECURSE_DOWN);
+            }
+            else
+            {
+                mSavedFolderState.setApply(true);
+                mPanelInventoryObject->getRootFolder()->applyFunctorRecursively(mSavedFolderState);
+            }
+            mDirtyFilter = false;
+
+            // Add a folder with the current item to the list of previously opened folders
+            LLOpenFoldersWithSelection opener;
+            mPanelInventoryObject->getRootFolder()->applyFunctorRecursively(opener);
+            mPanelInventoryObject->getRootFolder()->scrollToShowSelection();
+        }
+        else if (mPanelInventoryObject->getFilter().getFilterSubString().empty())
+        {
+            // The first letter in search term, save existing folder open state
+            if (!mPanelInventoryObject->getFilter().isNotDefault())
+            {
+                mSavedFolderState.setApply(false);
+                mPanelInventoryObject->getRootFolder()->applyFunctorRecursively(mSavedFolderState);
+                mDirtyFilter = false;
+            }
         }
     }
-
     mPanelInventoryObject->getFilter().setFilterSubString(filter_substring);
 }
 
