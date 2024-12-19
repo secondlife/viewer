@@ -6,7 +6,7 @@
 			<text name="label">Texturas obtenidas mediante bake</text>
 			<text name="composite_label">Texturas compuestas</text>
 			<button label="Volcar IDs a la consola" label_selected="Volcado" name="Dump"/>
-			<panel name="scroll_content_panel">
+			<panel name="scroll_content_panel2">
 				<texture_picker label="Pelo" name="hair-baked"/>
 				<texture_picker label="Pelo" name="hair_grain"/>
 				<texture_picker label="Alfa del pelo" name="hair_alpha"/>

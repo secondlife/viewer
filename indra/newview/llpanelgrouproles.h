@@ -301,6 +301,7 @@ protected:
     LLButton*       mDeleteRoleButton;
     LLButton*       mCreateRoleButton;
     LLButton*       mCopyRoleButton;
+    LLUICtrl*       mMembersNotLoadedLbl;
 
     LLUUID  mSelectedRole;
     bool    mHasRoleChange;

@@ -359,12 +359,14 @@ void LLPanelEnvironmentInfo::refresh()
 
 void LLPanelEnvironmentInfo::refreshFromEstate()
 {
-    LLViewerRegion *pRegion = gAgent.getRegion();
-
-    bool oldAO = mAllowOverride;
-    mAllowOverride = (isRegion() && LLEstateInfoModel::instance().getAllowEnvironmentOverride()) || pRegion->getAllowEnvironmentOverride();
-    if (oldAO != mAllowOverride)
-        refresh();
+    LLViewerRegion* pRegion = gAgent.getRegion();
+    if (pRegion)
+    {
+        bool oldAO = mAllowOverride;
+        mAllowOverride = (isRegion() && LLEstateInfoModel::instance().getAllowEnvironmentOverride()) || pRegion->getAllowEnvironmentOverride();
+        if (oldAO != mAllowOverride)
+            refresh();
+    }
 }
 
 std::string LLPanelEnvironmentInfo::getNameForTrackIndex(U32 index)

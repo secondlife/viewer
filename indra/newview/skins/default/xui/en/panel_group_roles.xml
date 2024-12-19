@@ -565,6 +565,17 @@ things in this group. There&apos;s a broad variety of Abilities.
          right="-1"
          name="role_assigned_members"
          top_pad="0" />
+        <text
+         type="string"
+         height="125"
+         layout="topleft"
+         follows="left|top"
+         left="5"
+         name="members_not_loaded"
+         top_delta="3"
+         width="300">
+             Members are not loaded
+        </text>
         <check_box
          height="15"
          label="Reveal members"

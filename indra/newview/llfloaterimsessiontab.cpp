@@ -106,6 +106,7 @@ LLFloaterIMSessionTab::~LLFloaterIMSessionTab()
 {
     delete mRefreshTimer;
     LLIMMgr::instance().removeSessionObserver(this);
+    mEmojiCloseConn.disconnect(); // close callback before destroying children
 
     LLFloaterIMContainer* im_container = LLFloaterIMContainer::findInstance();
     if (im_container)

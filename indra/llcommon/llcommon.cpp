@@ -54,7 +54,7 @@ void* ll_tracy_aligned_new(size_t size, size_t alignment)
     {
         throw std::bad_alloc();
     }
-    TracyAlloc(ptr, size);
+    LL_PROFILE_ALLOC(ptr, size);
     return ptr;
 }
 

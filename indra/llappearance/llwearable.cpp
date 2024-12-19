@@ -653,7 +653,7 @@ void LLWearable::setVisualParamWeight(S32 param_index, F32 value)
     }
     else
     {
-        LL_ERRS() << "LLWearable::setVisualParam passed invalid parameter index: " << param_index << " for wearable type: " << this->getName() << LL_ENDL;
+        LL_WARNS() << "LLWearable::setVisualParam passed invalid parameter index: " << param_index << " for wearable type: " << this->getName() << LL_ENDL;
     }
 }
 
@@ -667,7 +667,7 @@ F32 LLWearable::getVisualParamWeight(S32 param_index) const
     }
     else
     {
-        LL_WARNS() << "LLWerable::getVisualParam passed invalid parameter index: "  << param_index << " for wearable type: " << this->getName() << LL_ENDL;
+        LL_WARNS() << "LLWearable::getVisualParam passed invalid parameter index: "  << param_index << " for wearable type: " << this->getName() << LL_ENDL;
     }
     return (F32)-1.0;
 }

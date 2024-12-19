@@ -5159,7 +5159,10 @@ bool LLVolumeFace::VertexMapData::ComparePosition::operator()(const LLVector3& a
 void LLVolumeFace::remap()
 {
     // Generate a remap buffer
-    std::vector<unsigned int> remap(mNumVertices);
+    // Documentation for meshopt_generateVertexRemapMulti claims that remap should use vertice count
+    // but all examples use indice count. There are out of bounds crashes when using vertice count.
+    // To be on the safe side use bigger of the two.
+    std::vector<unsigned int> remap(llmax(mNumIndices, mNumVertices));
     S32 remap_vertices_count = static_cast<S32>(LLMeshOptimizer::generateRemapMultiU16(&remap[0],
         mIndices,
         mNumIndices,

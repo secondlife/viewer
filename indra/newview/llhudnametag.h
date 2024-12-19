@@ -177,7 +177,6 @@ private:
     S32             mMaxLines;
     S32             mOffsetY;
     F32             mRadius;
-    LLVector3                     mLastRenderPosition;
     std::vector<LLHUDTextSegment> mTextSegments;
     std::vector<LLHUDTextSegment> mLabelSegments;
 //  LLFrameTimer    mResizeTimer;

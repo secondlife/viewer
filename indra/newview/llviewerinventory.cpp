@@ -1239,14 +1239,16 @@ void create_inventory_landmark(const LLUUID& folder_id, const std::string& name,
     LLViewerRegion* viewer_region = gAgent.getRegion();
     if (!viewer_region)
     {
-        LL_WARNS() << "No agent region" << LL_ENDL;
+        LL_WARNS("CreateLandmark") << "No agent region" << LL_ENDL;
+        LLNotificationsUtil::add("CantCreateLandmark");
         return;
     }
 
     std::string cap = viewer_region->getCapability("CreateLandmarkForPosition");
     if (cap.empty())
     {
-        LL_WARNS() << "Cap is not supported by the region '" << viewer_region->getName() << "'" << LL_ENDL;
+        LL_WARNS("CreateLandmark") << "Cap is not supported by the region '" << viewer_region->getName() << "'" << LL_ENDL;
+        LLNotificationsUtil::add("CantCreateLandmark");
         return;
     }
 
@@ -1276,12 +1278,12 @@ void create_inventory_landmark(const LLUUID& folder_id, const std::string& name,
 
             if (!status)
             {
-                LL_WARNS() << "Error " << status.getType() << ": '" << status.toString() << "'" << LL_ENDL;
-                LLNotificationsUtil::add("CantCreateLandmark");
+                LL_WARNS("CreateLandmark") << "Error " << status.getType() << ": '" << status.toString() << "'" << LL_ENDL;
+                LLNotificationsUtil::add(status.getType() == HTTP_PRECONDITION_FAILED ? "CantCreateLandmarkTryAgain" : "CantCreateLandmark");
             }
             else if (result.has("item_id"))
             {
-                LL_INFOS() << "Created item id: '" << result["item_id"] << "'" << LL_ENDL;
+                LL_INFOS("CreateLandmark") << "Created item id: '" << result["item_id"] << "'" << LL_ENDL;
             }
         });
 }

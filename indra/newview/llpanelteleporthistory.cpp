@@ -29,6 +29,7 @@
 #include "llfloaterreg.h"
 #include "llmenubutton.h"
 
+#include "llagent.h"
 #include "llfloaterworldmap.h"
 #include "llpanelteleporthistory.h"
 #include "llworldmap.h"
@@ -413,8 +414,8 @@ LLTeleportHistoryPanel::~LLTeleportHistoryPanel()
 
 bool LLTeleportHistoryPanel::postBuild()
 {
-    mCommitCallbackRegistrar.add("TeleportHistory.GearMenu.Action", { boost::bind(&LLTeleportHistoryPanel::onGearMenuAction, this, _2), cb_info::UNTRUSTED_THROTTLE });
-    mEnableCallbackRegistrar.add("TeleportHistory.GearMenu.Enable", boost::bind(&LLTeleportHistoryPanel::isActionEnabled, this, _2));
+    mCommitCallbackRegistrar.add("TeleportHistory.GearMenu.Action", { [&](LLUICtrl* ctrl, const LLSD& param) { onGearMenuAction(param); }, cb_info::UNTRUSTED_THROTTLE });
+    mEnableCallbackRegistrar.add("TeleportHistory.GearMenu.Enable", [&](LLUICtrl* ctrl, const LLSD& param) { return isActionEnabled(param); });
 
     // init menus before list, since menus are passed to list
     mGearItemMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_teleport_history_item.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
@@ -1063,6 +1064,10 @@ void LLTeleportHistoryPanel::onGearMenuAction(const LLSD& userdata)
     {
         confirmTeleport(index);
     }
+    else if ("landmark" == command_name)
+    {
+        createLandmark(index);
+    }
     else if ("view" == command_name)
     {
         LLTeleportHistoryFlatItem::showPlaceInfoPanel(index);
@@ -1135,6 +1140,7 @@ bool LLTeleportHistoryPanel::isActionEnabled(const LLSD& userdata) const
     }
 
     if ("teleport" == command_name
+        || "landmark" == command_name
         || "view" == command_name
         || "show_on_map" == command_name
         || "copy_slurl" == command_name
@@ -1188,7 +1194,17 @@ void LLTeleportHistoryPanel::confirmTeleport(S32 hist_idx)
     LLSD args;
     args["HISTORY_ENTRY"] = LLTeleportHistoryStorage::getInstance()->getItems()[hist_idx].mTitle;
     LLNotificationsUtil::add("TeleportToHistoryEntry", args, LLSD(),
-        boost::bind(&LLTeleportHistoryPanel::onTeleportConfirmation, _1, _2, hist_idx));
+        [&](const LLSD& notification, const LLSD& response)
+        {
+            onTeleportConfirmation(notification, response, hist_idx);
+        });
+}
+
+// static
+void LLTeleportHistoryPanel::createLandmark(S32 hist_idx)
+{
+    const LLTeleportHistoryPersistentItem& item = LLTeleportHistoryStorage::getInstance()->getItems()[hist_idx];
+    LLLandmarkActions::showFloaterCreateLandmarkForPos(item.mGlobalPos, item.mTitle);
 }
 
 // Called when user reacts upon teleport confirmation dialog.

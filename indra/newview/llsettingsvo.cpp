@@ -671,7 +671,7 @@ void LLSettingsVOSky::updateSettings()
     // After some A/B comparison of relesae vs EEP, tweak to allow strength to fall below 2
     // at night, for better match. (mSceneLightStrength is a divisor, so lower value means brighter
     // local lights)
-    LLCachedControl<F32> sdr(gSavedSettings, "RenderSunDynamicRange", 1.f);
+    static LLCachedControl<F32> sdr(gSavedSettings, "RenderSunDynamicRange", 1.f);
     F32 sun_dynamic_range = llmax(sdr(), 0.0001f);
     mSceneLightStrength = 2.0f * (0.75f + sun_dynamic_range * dp);
 
@@ -817,6 +817,8 @@ void LLSettingsVOSky::applySpecial(void *ptarget, bool force)
     shader->uniform1f(LLShaderMgr::SKY_SUNLIGHT_SCALE, hdr ? sunlight_hdr_scale : sunlight_scale);
     shader->uniform1f(LLShaderMgr::SKY_AMBIENT_SCALE, ambient_scale);
     shader->uniform1i(LLShaderMgr::CLASSIC_MODE, classic_mode);
+
+    LLRender::sClassicMode = classic_mode;
 
     F32 probe_ambiance = getReflectionProbeAmbiance();
 

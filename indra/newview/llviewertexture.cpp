@@ -559,7 +559,10 @@ void LLViewerTexture::updateClass()
         // lower discard bias over time when free memory is available
         if (sDesiredDiscardBias > 1.f && over_pct < 0.f)
         {
-            sDesiredDiscardBias -= gFrameIntervalSeconds * 0.01f;
+            static LLCachedControl<F32> high_mem_discard_decrement(gSavedSettings, "RenderHighMemMinDiscardDecrement", .1f);
+
+            F32 decrement = high_mem_discard_decrement - llmin(over_pct, 0.f);
+            sDesiredDiscardBias -= decrement * gFrameIntervalSeconds;
         }
     }
 
@@ -579,31 +582,9 @@ void LLViewerTexture::updateClass()
         {
             if (!was_backgrounded)
             {
-                std::string notification_name;
-                std::string setting;
-                if (is_minimized)
-                {
-                    notification_name = "TextureDiscardMinimized";
-                    setting           = "TextureDiscardMinimizedTime";
-                }
-                else
-                {
-                    notification_name = "TextureDiscardBackgrounded";
-                    setting           = "TextureDiscardBackgroundedTime";
-                }
-
                 LL_INFOS() << "Viewer was " << (is_minimized ? "minimized" : "backgrounded") << " for " << discard_time
                            << "s, freeing up video memory." << LL_ENDL;
 
-                LLNotificationsUtil::add(notification_name, llsd::map("DELAY", discard_time), LLSD(),
-                                         [=](const LLSD& notification, const LLSD& response)
-                                         {
-                                             if (response["Cancel_okcancelignore"].asBoolean())
-                                             {
-                                                 LL_INFOS() << "User chose to disable texture discard on " <<  (is_minimized ? "minimizing." : "backgrounding.") << LL_ENDL;
-                                                 gSavedSettings.setF32(setting, -1.f);
-                                             }
-                                         });
                 last_desired_discard_bias = sDesiredDiscardBias;
                 was_backgrounded = true;
             }
@@ -621,7 +602,7 @@ void LLViewerTexture::updateClass()
         }
     }
 
-    sDesiredDiscardBias = llclamp(sDesiredDiscardBias, 1.f, 5.f);
+    sDesiredDiscardBias = llclamp(sDesiredDiscardBias, 1.f, 4.f);
 
     LLViewerTexture::sFreezeImageUpdates = false;
 }

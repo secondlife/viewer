@@ -308,6 +308,7 @@ void main()
     final_scale = 1;
 #endif
 
-    frag_color = max(color * final_scale, vec4(0));
+    color.rgb *= final_scale;
+    frag_color = max(color, vec4(0));
 }
 

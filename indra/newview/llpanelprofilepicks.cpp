@@ -36,11 +36,13 @@
 #include "lldispatcher.h"
 #include "llfloaterreg.h"
 #include "llfloaterworldmap.h"
+#include "lllandmarkactions.h"
 #include "lllineeditor.h"
 #include "llnotificationsutil.h"
 #include "llpanelavatar.h"
 #include "llpanelprofile.h"
 #include "llparcel.h"
+#include "llregionhandle.h"
 #include "llstartup.h"
 #include "lltabcontainer.h"
 #include "lltextbox.h"
@@ -51,6 +53,7 @@
 #include "llviewergenericmessage.h" // send_generic_message
 #include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
+#include "llworldmap.h"
 
 static LLPanelInjector<LLPanelProfilePicks> t_panel_profile_picks("panel_profile_picks");
 static LLPanelInjector<LLPanelProfilePick> t_panel_profile_pick("panel_profile_pick");
@@ -589,26 +592,28 @@ bool LLPanelProfilePick::postBuild()
     mSaveButton = getChild<LLButton>("save_changes_btn");
     mCreateButton = getChild<LLButton>("create_changes_btn");
     mCancelButton = getChild<LLButton>("cancel_changes_btn");
+    mCreateLandmarkButton = getChild<LLButton>("create_landmark_btn");
     mSetCurrentLocationButton = getChild<LLButton>("set_to_curr_location_btn");
 
     mSnapshotCtrl = getChild<LLTextureCtrl>("pick_snapshot");
-    mSnapshotCtrl->setCommitCallback(boost::bind(&LLPanelProfilePick::onSnapshotChanged, this));
+    mSnapshotCtrl->setCommitCallback([&](LLUICtrl*, const LLSD&) { onSnapshotChanged(); });
     mSnapshotCtrl->setAllowLocalTexture(false);
     mSnapshotCtrl->setBakeTextureEnabled(false);
 
-    childSetAction("teleport_btn", boost::bind(&LLPanelProfilePick::onClickTeleport, this));
-    childSetAction("show_on_map_btn", boost::bind(&LLPanelProfilePick::onClickMap, this));
+    childSetAction("teleport_btn", [&](LLUICtrl*, const LLSD&) { onClickTeleport(); });
+    childSetAction("show_on_map_btn", [&](LLUICtrl*, const LLSD&) { onClickMap(); });
 
-    mSaveButton->setCommitCallback(boost::bind(&LLPanelProfilePick::onClickSave, this));
-    mCreateButton->setCommitCallback(boost::bind(&LLPanelProfilePick::onClickSave, this));
-    mCancelButton->setCommitCallback(boost::bind(&LLPanelProfilePick::onClickCancel, this));
-    mSetCurrentLocationButton->setCommitCallback(boost::bind(&LLPanelProfilePick::onClickSetLocation, this));
+    mSaveButton->setCommitCallback([&](LLUICtrl*, const LLSD&) { onClickSave(); });
+    mCreateButton->setCommitCallback([&](LLUICtrl*, const LLSD&) { onClickSave(); });
+    mCancelButton->setCommitCallback([&](LLUICtrl*, const LLSD&) { onClickCancel(); });
+    mCreateLandmarkButton->setCommitCallback([&](LLUICtrl*, const LLSD&) { onClickCreateLandmark(); });
+    mSetCurrentLocationButton->setCommitCallback([&](LLUICtrl*, const LLSD&) { onClickSetLocation(); });
 
-    mPickName->setKeystrokeCallback(boost::bind(&LLPanelProfilePick::onPickChanged, this, _1), NULL);
+    mPickName->setKeystrokeCallback([&](LLLineEditor* ctrl, void*) { onPickChanged(ctrl); }, NULL);
     mPickName->setEnabled(false);
 
-    mPickDescription->setKeystrokeCallback(boost::bind(&LLPanelProfilePick::onPickChanged, this, _1));
-    mPickDescription->setFocusReceivedCallback(boost::bind(&LLPanelProfilePick::onDescriptionFocusReceived, this));
+    mPickDescription->setKeystrokeCallback([&](LLTextEditor* ctrl) { onPickChanged(ctrl); });
+    mPickDescription->setFocusReceivedCallback([&](LLFocusableElement*) { onDescriptionFocusReceived(); });
 
     getChild<LLUICtrl>("pick_location")->setEnabled(false);
 
@@ -765,6 +770,12 @@ bool LLPanelProfilePick::isDirty() const
     return false;
 }
 
+void LLPanelProfilePick::onClickCreateLandmark()
+{
+    std::string title = getChild<LLUICtrl>("pick_location")->getValue().asString();
+    LLLandmarkActions::showFloaterCreateLandmarkForPos(mPosGlobal, title);
+}
+
 void LLPanelProfilePick::onClickSetLocation()
 {
     // Save location for later use.
@@ -899,37 +910,30 @@ void LLPanelProfilePick::sendUpdate()
 std::string LLPanelProfilePick::createLocationText(const std::string& owner_name, const std::string& original_name, const std::string& sim_name, const LLVector3d& pos_global)
 {
     std::string location_text(owner_name);
-    if (!original_name.empty())
-    {
-        if (!location_text.empty())
+
+    auto append = [&](const std::string& text, const std::string& delimiter)
         {
-            location_text.append(", ");
-        }
-        location_text.append(original_name);
+            if (!text.empty())
+            {
+                if (!location_text.empty())
+                {
+                    location_text.append(delimiter);
+                }
+                location_text.append(text);
+            }
+        };
 
-    }
-
-    if (!sim_name.empty())
-    {
-        if (!location_text.empty())
-        {
-            location_text.append(", ");
-        }
-        location_text.append(sim_name);
-    }
-
-    if (!location_text.empty())
-    {
-        location_text.append(" ");
-    }
+    append(original_name, ", ");
+    append(sim_name, ", ");
 
     if (!pos_global.isNull())
     {
         S32 region_x = ll_round((F32)pos_global.mdV[VX]) % REGION_WIDTH_UNITS;
         S32 region_y = ll_round((F32)pos_global.mdV[VY]) % REGION_WIDTH_UNITS;
         S32 region_z = ll_round((F32)pos_global.mdV[VZ]);
-        location_text.append(llformat(" (%d, %d, %d)", region_x, region_y, region_z));
+        append(llformat("(%d, %d, %d)", region_x, region_y, region_z), " ");
     }
+
     return location_text;
 }
 

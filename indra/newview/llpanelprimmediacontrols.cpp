@@ -294,7 +294,7 @@ void LLPanelPrimMediaControls::updateShape()
     LLViewerMediaImpl* media_impl = getTargetMediaImpl();
     LLViewerObject* objectp = getTargetObject();
 
-    if(!media_impl || gFloaterTools->getVisible())
+    if(!media_impl || (gFloaterTools && gFloaterTools->getVisible()))
     {
         setVisible(false);
         return;

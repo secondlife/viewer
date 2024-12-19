@@ -1761,7 +1761,10 @@ bool LLTextureFetchWorker::doWork(S32 param)
         mRawImage = NULL;
         mAuxImage = NULL;
         llassert_always(mFormattedImage.notNull());
-        S32 discard = mHaveAllData ? 0 : mLoadedDiscard;
+
+        // if we have the entire image data (and the image is not J2C), decode the full res image
+        // DO NOT decode a higher res j2c than was requested.  This is a waste of time and memory.
+        S32 discard = mHaveAllData && mFormattedImage->getCodec() != IMG_CODEC_J2C ? 0 : mLoadedDiscard;
         mDecoded  = false;
         setState(DECODE_IMAGE_UPDATE);
         LL_DEBUGS(LOG_TXT) << mID << ": Decoding. Bytes: " << mFormattedImage->getDataSize() << " Discard: " << discard
@@ -2318,6 +2321,10 @@ void LLTextureFetchWorker::callbackDecoded(bool success, const std::string &erro
         mRawImage = raw;
         mAuxImage = aux;
         mDecodedDiscard = mFormattedImage->getDiscardLevel();
+        if (mDecodedDiscard < mDesiredDiscard)
+        {
+            LL_WARNS_ONCE(LOG_TXT) << "Decoded higher resolution than requested" << LL_ENDL;
+        }
         LL_DEBUGS(LOG_TXT) << mID << ": Decode Finished. Discard: " << mDecodedDiscard
                            << " Raw Image: " << llformat("%dx%d",mRawImage->getWidth(),mRawImage->getHeight()) << LL_ENDL;
     }

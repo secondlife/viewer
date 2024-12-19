@@ -494,6 +494,7 @@ jobs:
           files: |
             macOS-installer/*.dmg
             Windows-installer/*.exe
+            Linux-app/*.tar.xz
             *-autobuild-package.xml
             *-viewer_version.txt
 

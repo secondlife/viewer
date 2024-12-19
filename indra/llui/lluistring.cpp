@@ -47,6 +47,12 @@ void LLUIString::assign(const std::string& s)
     dirty();
 }
 
+void LLUIString::assign(const LLWString& instring)
+{
+    mOrig = wstring_to_utf8str(instring);
+    dirty();
+}
+
 void LLUIString::setArgList(const LLStringUtil::format_map_t& args)
 
 {
