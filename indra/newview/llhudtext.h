@@ -153,7 +153,6 @@ private:
     const LLFontGL* mBoldFontp;
     LLRectf         mSoftScreenRect;
     LLVector3       mPositionAgent;
-    LLVector3       mLastRenderPosition;
     LLVector2       mPositionOffset;
     LLVector2       mTargetPositionOffset;
     F32             mMass;

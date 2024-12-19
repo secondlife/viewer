@@ -14,7 +14,7 @@ prerenderowane
 kompozytowe
 			</text>
 			<button label="Zrzuć ID do Konsoli" label_selected="Zrzuć" name="Dump" />
-			<panel name="scroll_content_panel">
+			<panel name="scroll_content_panel2">
 				<texture_picker label="Włosy" name="hair-baked" />
 				<texture_picker label="Włosy" name="hair_grain" />
 				<texture_picker label="Alpha włosów" name="hair_alpha" />

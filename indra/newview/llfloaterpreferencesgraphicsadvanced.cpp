@@ -63,17 +63,24 @@ LLFloaterPreferenceGraphicsAdvanced::~LLFloaterPreferenceGraphicsAdvanced()
 
 bool LLFloaterPreferenceGraphicsAdvanced::postBuild()
 {
-    // Don't do this on Mac as their braindead GL versioning
-    // sets this when 8x and 16x are indeed available
+    // Disable FSAA combo when shaders are not loaded
     //
-#if !LL_DARWIN
-    if (gGLManager.mIsIntel || gGLManager.mGLVersion < 3.f)
-    { //remove FSAA settings above "4x"
+    {
         LLComboBox* combo = getChild<LLComboBox>("fsaa");
-        combo->remove("8x");
-        combo->remove("16x");
+        if (!gFXAAProgram[0].isComplete())
+            combo->remove("FXAA");
+
+        if (!gSMAAEdgeDetectProgram[0].isComplete())
+            combo->remove("SMAA");
+
+        if (!gFXAAProgram[0].isComplete() && !gSMAAEdgeDetectProgram[0].isComplete())
+        {
+            combo->setEnabled(false);
+            getChild<LLComboBox>("fsaa quality")->setEnabled(false);
+        }
     }
 
+#if !LL_DARWIN
     LLCheckBoxCtrl *use_HiDPI = getChild<LLCheckBoxCtrl>("use HiDPI");
     use_HiDPI->setVisible(false);
 #endif
@@ -321,7 +328,7 @@ void LLFloaterPreferenceGraphicsAdvanced::disableUnavailableSettings()
     }
 
     // Vintage mode
-    LLCachedControl<bool> is_not_vintage(gSavedSettings, "RenderDisableVintageMode");
+    static LLCachedControl<bool> is_not_vintage(gSavedSettings, "RenderDisableVintageMode");
     LLSliderCtrl*         tonemapMix    = getChild<LLSliderCtrl>("TonemapMix");
     LLComboBox*           tonemapSelect = getChild<LLComboBox>("TonemapType");
     LLTextBox*            tonemapLabel  = getChild<LLTextBox>("TonemapTypeText");
