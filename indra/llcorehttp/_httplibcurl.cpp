@@ -487,12 +487,27 @@ void HttpLibcurl::policyUpdated(unsigned int policy_class)
         policy.stallPolicy(policy_class, false);
         mDirtyPolicy[policy_class] = false;
 
-        if (options.mPipelining > 1)
+        if (options.mMultiplexing)
         {
-            // We'll try to do pipelining on this multihandle
+            // Enable HTTP/2 Multiplexing
+            LL_INFOS(LOG_CORE) << "HTTP/2 Multiplexing Enable." << LL_ENDL;
             check_curl_multi_setopt(multi_handle,
                                      CURLMOPT_PIPELINING,
-                                     1L);
+                                     CURLPIPE_MULTIPLEX);
+            check_curl_multi_setopt(multi_handle,
+                                     CURLMOPT_MAX_HOST_CONNECTIONS,
+                                     long(options.mPerHostConnectionLimit));
+            check_curl_multi_setopt(multi_handle,
+                                     CURLMOPT_MAX_TOTAL_CONNECTIONS,
+                                     long(options.mConnectionLimit));
+        }
+        else if (options.mPipelining > 1)
+        {
+            // We'll try to do pipelining on this multihandle
+            LL_INFOS(LOG_CORE) << "HTTP Pipelining Enable." << LL_ENDL;
+            check_curl_multi_setopt(multi_handle,
+                                     CURLMOPT_PIPELINING,
+                                     CURLPIPE_HTTP1);
             check_curl_multi_setopt(multi_handle,
                                      CURLMOPT_MAX_PIPELINE_LENGTH,
                                      long(options.mPipelining));
@@ -505,9 +520,10 @@ void HttpLibcurl::policyUpdated(unsigned int policy_class)
         }
         else
         {
+            LL_INFOS(LOG_CORE) << "HTTP Pipelining Disable." << LL_ENDL;
             check_curl_multi_setopt(multi_handle,
                                      CURLMOPT_PIPELINING,
-                                     0L);
+                                     CURLPIPE_NOTHING);
             check_curl_multi_setopt(multi_handle,
                                      CURLMOPT_MAX_HOST_CONNECTIONS,
                                      0L);
