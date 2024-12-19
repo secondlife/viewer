@@ -68,7 +68,7 @@ class LLDir
         const std::string& app_read_only_data_dir = "") = 0;
 
     virtual S32 deleteFilesInDir(const std::string &dirname, const std::string &mask);
-    U32 deleteDirAndContents(const std::string& dir_name);
+    static U32 deleteDirAndContents(const std::string& dir_name);
     std::vector<std::string> getFilesInDir(const std::string &dirname);
 // pure virtual functions
     virtual std::string getCurPath() = 0;

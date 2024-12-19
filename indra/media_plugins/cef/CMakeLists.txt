@@ -11,15 +11,18 @@ include(PluginAPI)
 
 include(CEFPlugin)
 include(GLIB)
+include(SQLite3)
 
 ### media_plugin_cef
 
 set(media_plugin_cef_SOURCE_FILES
     media_plugin_cef.cpp
+    hbcookiesmerger.cpp
     )
 
 set(media_plugin_cef_HEADER_FILES
     volume_catcher.h
+    hbcookiesmerger.h
     )
 
 # Select which VolumeCatcher implementation to use
@@ -76,6 +79,7 @@ add_library(media_plugin_cef
 #)
 
 target_link_libraries(media_plugin_cef
+        ${SQLite3_LIBRARIES}
         media_plugin_base
         ll::cef
         ll::glib_headers

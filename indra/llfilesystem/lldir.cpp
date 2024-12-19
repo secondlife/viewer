@@ -187,6 +187,7 @@ S32 LLDir::deleteFilesInDir(const std::string &dirname, const std::string &mask)
     return count;
 }
 
+//static
 U32 LLDir::deleteDirAndContents(const std::string& dir_name)
 {
     //Removes the directory and its contents.  Returns number of files deleted.

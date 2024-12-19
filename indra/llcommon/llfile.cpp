@@ -338,6 +338,12 @@ int LLFile::stat(const std::string& filename, llstat* filestatus)
     return warnif("stat", filename, rc, ENOENT);
 }
 
+bool LLFile::exists(const std::string& filename)
+{
+    llstat st;
+    return stat(filename, &st) == 0;
+}
+
 bool LLFile::isdir(const std::string& filename)
 {
     llstat st;

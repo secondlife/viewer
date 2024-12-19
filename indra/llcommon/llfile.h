@@ -80,6 +80,7 @@ public:
     static  bool    copy(const std::string& from, const std::string& to);
 
     static  int     stat(const std::string& filename,llstat*    file_status);
+    static  bool    exists(const std::string& filename);
     static  bool    isdir(const std::string&    filename);
     static  bool    isfile(const std::string&   filename);
     static  LLFILE *    _Fiopen(const std::string& filename,
