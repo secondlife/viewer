@@ -8023,7 +8023,18 @@
   <key>RenderLowMemMinDiscardIncrement</key>
   <map>
     <key>Comment</key>
-    <string>Minimum increment of discard level if system memory gets low</string>
+    <string>Minimum increment of discard bias if available texture memory gets low</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0.1</real>
+  </map>
+  <key>RenderHighMemMinDiscardDecrement</key>
+  <map>
+    <key>Comment</key>
+    <string>Minimum decrement of discard bias if excess texture memory is available</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
@@ -9523,6 +9534,17 @@
     <string>F32</string>
     <key>Value</key>
     <real>4.0</real>
+  </map>
+  <key>RenderUseExposureSkySettings</key>
+  <map>
+    <key>Comment</key>
+    <string>Use exposure sky settings instead of deriving from HDR scale.</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
   </map>
   <key>RenderDynamicExposureCoefficient</key>
   <map>
@@ -11758,29 +11780,16 @@
       <key>Value</key>
       <real>20.0</real>
     </map>
-    <key>TextureBiasDistanceScale</key>
+    <key>TextureCameraBoost</key>
     <map>
       <key>Comment</key>
-      <string>When biasing textures to lower resolution due to lack of vram, weight to put on distance factor.</string>
+      <string>Amount to boost resolution of textures that are important to the camera.</string>
       <key>Persist</key>
-      <integer>1</integer>
+      <integer>0</integer>
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
       <real>8.0</real>
-    </map>
-    <key>TextureBiasUnimportantFactor</key>
-    <map>
-      <key>Comment</key>
-      <string>When biasing textures to lower resolution due to lack of vram, the importance threshold below which is considered unimportant and getting an extra bias.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>0.25</real>
-      <key>Backup</key>
-      <integer>0</integer>
     </map>
     <key>TextureDecodeDisabled</key>
     <map>

@@ -553,7 +553,7 @@ void LLFloaterRegionInfo::refreshFromRegion(LLViewerRegion* region)
     if (region != gAgent.getRegion())
         return;
 
-    if (LLFloaterRegionInfo* floater = LLFloaterReg::getTypedInstance<LLFloaterRegionInfo>("region_info"))
+    if (LLFloaterRegionInfo* floater = LLFloaterReg::findTypedInstance<LLFloaterRegionInfo>("region_info"))
     {
         if (floater->getVisible() && region == gAgent.getRegion())
         {
@@ -2091,8 +2091,14 @@ LLPanelEstateInfo::LLPanelEstateInfo()
     mEstateID(0)    // invalid
 {
     LLEstateInfoModel& estate_info = LLEstateInfoModel::instance();
-    estate_info.setCommitCallback(boost::bind(&LLPanelEstateInfo::refreshFromEstate, this));
-    estate_info.setUpdateCallback(boost::bind(&LLPanelEstateInfo::refreshFromEstate, this));
+    mEstateInfoCommitConnection = estate_info.setCommitCallback(boost::bind(&LLPanelEstateInfo::refreshFromEstate, this));
+    mEstateInfoUpdateConnection = estate_info.setUpdateCallback(boost::bind(&LLPanelEstateInfo::refreshFromEstate, this));
+}
+
+LLPanelEstateInfo::~LLPanelEstateInfo()
+{
+    mEstateInfoCommitConnection.disconnect();
+    mEstateInfoUpdateConnection.disconnect();
 }
 
 // static

@@ -198,6 +198,8 @@ public:
     // final gltf material that users see.
     // Ids get applied and restored by tools floater,
     // overrides get applied in live material editor
+    // @param override_materials' content will be copied to not
+    // affect originals
     void saveGLTFMaterials(const uuid_vec_t& materials, const gltf_materials_vec_t& override_materials);
 
     bool allowOperationOnNode(PermissionBit op, U64 group_proxy_power) const;
