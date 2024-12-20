@@ -164,6 +164,25 @@
          follows="all"
          layout="bottomleft"
          left_pad="2"
+         name="tp_btn_lp"
+         auto_resize="false"
+         width="80">
+          <button
+           name="teleport_btn"
+           label="Teleport"
+           left="0"
+           top="0"
+           height="23"
+           width="80"
+           follows="left|top"
+           layout="topleft"
+          />
+        </layout_panel>
+
+        <layout_panel
+         follows="all"
+         layout="bottomleft"
+         left_pad="2"
          name="map_btn_lp"
          auto_resize="false"
          width="100">
@@ -176,23 +195,23 @@
            width="100"
            follows="left|top"
            layout="topleft"
-      />
+          />
         </layout_panel>
 
         <layout_panel
          follows="all"
          layout="bottomleft"
          left_pad="2"
-         name="tp_btn_lp"
+         name="cl_btn_lp"
          auto_resize="false"
-         width="100">
+         width="120">
           <button
-           name="teleport_btn"
-           label="Teleport"
+           name="create_landmark_btn"
+           label="Create Landmark"
            left="0"
            top="0"
            height="23"
-           width="100"
+           width="120"
            follows="left|top"
            layout="topleft"
           />

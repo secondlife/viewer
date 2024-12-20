@@ -3283,7 +3283,11 @@ void handle_object_edit()
     LLFloaterReg::showInstance("build");
 
     LLToolMgr::getInstance()->setCurrentToolset(gBasicToolset);
-    gFloaterTools->setEditTool( LLToolCompTranslate::getInstance() );
+
+    if (gFloaterTools)
+    {
+        gFloaterTools->setEditTool( LLToolCompTranslate::getInstance() );
+    }
 
     LLViewerJoystick::getInstance()->moveObjects(true);
     LLViewerJoystick::getInstance()->setNeedsReset(true);
