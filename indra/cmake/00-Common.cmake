@@ -157,6 +157,14 @@ if (LINUX)
   # linking can be very memory-hungry, especially the final viewer link
   set(CMAKE_CXX_LINK_FLAGS "-Wl,--no-keep-memory")
 
+  if (CMAKE_BUILD_TYPE MATCHES "^RelWithDebInfo(OS)?$")
+    if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+      add_compile_options(--analyze)
+    elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+      add_compile_options(-fanalyzer)
+    endif ()
+  endif ()
+
   set(CMAKE_CXX_FLAGS_DEBUG "-fno-inline ${CMAKE_CXX_FLAGS_DEBUG}")
 endif (LINUX)
 
@@ -182,7 +190,10 @@ if (DARWIN)
   # required for clang-15/xcode-15 since our boost package still uses deprecated std::unary_function/binary_function
   # see https://developer.apple.com/documentation/xcode-release-notes/xcode-15-release-notes#C++-Standard-Library
   add_compile_definitions(_LIBCPP_ENABLE_CXX17_REMOVED_UNARY_BINARY_FUNCTION)
-endif (DARWIN)
+  if (CMAKE_BUILD_TYPE MATCHES "^RelWithDebInfo(OS)?$")
+    add_compile_options(--analyze)
+  endif ()
+endif(DARWIN)
 
 if (LINUX OR DARWIN)
   set(GCC_WARNINGS -Wall -Wno-sign-compare -Wno-trigraphs)
@@ -199,6 +210,10 @@ if (LINUX OR DARWIN)
 
   add_compile_options(${GCC_WARNINGS})
   add_compile_options(-m${ADDRESS_SIZE})
+
+  if (CMAKE_BUILD_TYPE MATCHES "^RelWithDebInfo(OS)?$")
+    add_compile_options(-fno-omit-frame-pointer -fsanitize=undefined -fsanitize=bounds)
+  endif ()
 endif (LINUX OR DARWIN)
 
 
