@@ -2032,43 +2032,43 @@ F32 LLSettingsSky::getGamma() const
     return mGamma;
 }
 
-F32 LLSettingsSky::getHDRMin() const
+F32 LLSettingsSky::getHDRMin(bool auto_adjust) const
 {
-    if (mCanAutoAdjust)
+    if (mCanAutoAdjust && !auto_adjust)
         return 0.f;
 
     return mHDRMin;
 }
 
-F32 LLSettingsSky::getHDRMax() const
+F32 LLSettingsSky::getHDRMax(bool auto_adjust) const
 {
-    if (mCanAutoAdjust)
+    if (mCanAutoAdjust && !auto_adjust)
         return 0.f;
 
     return mHDRMax;
 }
 
-F32 LLSettingsSky::getHDROffset() const
+F32 LLSettingsSky::getHDROffset(bool auto_adjust) const
 {
-    if (mCanAutoAdjust)
+    if (mCanAutoAdjust && !auto_adjust)
         return 1.0f;
 
     return mHDROffset;
 }
 
-F32 LLSettingsSky::getTonemapMix() const
+F32 LLSettingsSky::getTonemapMix(bool auto_adjust) const
 {
-    if (mCanAutoAdjust)
+    if (mCanAutoAdjust && !auto_adjust)
+    {
+        // legacy settings do not support tonemaping
         return 0.0f;
+    }
 
     return mTonemapMix;
 }
 
 void LLSettingsSky::setTonemapMix(F32 mix)
 {
-    if (mCanAutoAdjust)
-        return;
-
     mTonemapMix = mix;
 }
 

@@ -209,10 +209,10 @@ public:
 
     F32 getGamma() const;
 
-    F32 getHDRMin() const;
-    F32 getHDRMax() const;
-    F32 getHDROffset() const;
-    F32 getTonemapMix() const;
+    F32 getHDRMin(bool auto_adjust = false) const;
+    F32 getHDRMax(bool auto_adjust = false) const;
+    F32 getHDROffset(bool auto_adjust = false) const;
+    F32 getTonemapMix(bool auto_adjust = false) const;
     void setTonemapMix(F32 mix);
 
     void setGamma(F32 val);
