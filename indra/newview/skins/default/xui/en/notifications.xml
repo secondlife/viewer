@@ -12030,6 +12030,14 @@ Money transfers to objects are currently disabled in this region.
 
   <notification
    icon="alertmodal.tga"
+   name="CantTransferMoneyAgentIsBlocked"
+   type="notify">
+   <tag>fail</tag>
+Unable to make payment due to the agent being blocked by the recipient.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="DroppedMoneyTransferRequest"
    type="notify">
    <tag>fail</tag>
