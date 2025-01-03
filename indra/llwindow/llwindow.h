@@ -226,7 +226,6 @@ protected:
     bool        mFullscreen;
     S32         mFullscreenWidth;
     S32         mFullscreenHeight;
-    S32         mFullscreenBits;
     S32         mFullscreenRefresh;
     LLWindowResolution* mSupportedResolutions;
     S32         mNumSupportedResolutions;

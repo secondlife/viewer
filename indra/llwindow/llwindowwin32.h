@@ -151,7 +151,7 @@ protected:
     LLSD    getNativeKeyData() const override;
 
     // Changes display resolution. Returns true if successful
-    bool    setDisplayResolution(S32 width, S32 height, S32 bits, S32 refresh);
+    bool    setDisplayResolution(S32 width, S32 height, S32 refresh);
 
     // Go back to last fullscreen display resolution.
     bool    setFullscreenResolution();
