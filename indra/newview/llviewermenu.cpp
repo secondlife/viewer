@@ -766,95 +766,51 @@ class LLAdvancedClearGroupCache : public view_listener_t
 };
 
 
+LLSD keys_to_llsd(std::map<std::string_view, U32> map)
+{
+    LLSD event_data;
+    for (auto& it : map)
+    {
+        event_data.append(std::string(it.first));
+    }
+    return event_data;
+}
 
 
 /////////////////
 // RENDER TYPE //
 /////////////////
+static std::map<std::string_view, U32> render_types = {
+    { "simple", LLPipeline::RENDER_TYPE_SIMPLE },
+    { "materials", LLPipeline::RENDER_TYPE_MATERIALS },
+    { "alpha", LLPipeline::RENDER_TYPE_ALPHA },
+    { "alpha_mask", LLPipeline::RENDER_TYPE_ALPHA_MASK },
+    { "fullbright_alpha_mask", LLPipeline::RENDER_TYPE_FULLBRIGHT_ALPHA_MASK },
+    { "fullbright", LLPipeline::RENDER_TYPE_FULLBRIGHT },
+    { "glow", LLPipeline::RENDER_TYPE_GLOW },
+    { "tree", LLPipeline::RENDER_TYPE_TREE },
+    { "character", LLPipeline::RENDER_TYPE_AVATAR },
+    { "controlAV", LLPipeline::RENDER_TYPE_CONTROL_AV }, // Animesh
+    { "surfacePatch", LLPipeline::RENDER_TYPE_TERRAIN },
+    { "sky", LLPipeline::RENDER_TYPE_SKY },
+    { "water", LLPipeline::RENDER_TYPE_WATER },
+    { "volume", LLPipeline::RENDER_TYPE_VOLUME },
+    { "grass", LLPipeline::RENDER_TYPE_GRASS },
+    { "clouds", LLPipeline::RENDER_TYPE_CLOUDS },
+    { "particles", LLPipeline::RENDER_TYPE_PARTICLES },
+    { "bump", LLPipeline::RENDER_TYPE_BUMP },
+    { "pbr", LLPipeline::RENDER_TYPE_GLTF_PBR }
+};
+
 U32 render_type_from_string(std::string_view render_type)
 {
-    if ("simple" == render_type)
-    {
-        return LLPipeline::RENDER_TYPE_SIMPLE;
-    }
-    if ("materials" == render_type)
-    {
-        return LLPipeline::RENDER_TYPE_MATERIALS;
-    }
-    else if ("alpha" == render_type)
-    {
-        return LLPipeline::RENDER_TYPE_ALPHA;
-    }
-    else if ("alpha_mask" == render_type)
-    {
-        return LLPipeline::RENDER_TYPE_ALPHA_MASK;
-    }
-    else if ("fullbright_alpha_mask" == render_type)
-    {
-        return LLPipeline::RENDER_TYPE_FULLBRIGHT_ALPHA_MASK;
-    }
-    else if ("fullbright" == render_type)
-    {
-        return LLPipeline::RENDER_TYPE_FULLBRIGHT;
-    }
-    else if ("glow" == render_type)
-    {
-        return LLPipeline::RENDER_TYPE_GLOW;
-    }
-    else if ("tree" == render_type)
-    {
-        return LLPipeline::RENDER_TYPE_TREE;
-    }
-    else if ("character" == render_type)
-    {
-        return LLPipeline::RENDER_TYPE_AVATAR;
-    }
-    else if ("controlAV" == render_type) // Animesh
-    {
-        return LLPipeline::RENDER_TYPE_CONTROL_AV;
-    }
-    else if ("surfacePatch" == render_type)
-    {
-        return LLPipeline::RENDER_TYPE_TERRAIN;
-    }
-    else if ("sky" == render_type)
-    {
-        return LLPipeline::RENDER_TYPE_SKY;
-    }
-    else if ("water" == render_type)
-    {
-        return LLPipeline::RENDER_TYPE_WATER;
-    }
-    else if ("volume" == render_type)
-    {
-        return LLPipeline::RENDER_TYPE_VOLUME;
-    }
-    else if ("grass" == render_type)
-    {
-        return LLPipeline::RENDER_TYPE_GRASS;
-    }
-    else if ("clouds" == render_type)
-    {
-        return LLPipeline::RENDER_TYPE_CLOUDS;
-    }
-    else if ("particles" == render_type)
-    {
-        return LLPipeline::RENDER_TYPE_PARTICLES;
-    }
-    else if ("bump" == render_type)
-    {
-        return LLPipeline::RENDER_TYPE_BUMP;
-    }
-    else if ("pbr" == render_type)
-    {
-        return LLPipeline::RENDER_TYPE_GLTF_PBR;
-    }
-    else
-    {
-        return 0;
-    }
+    return (render_types.find(render_type) != render_types.end()) ? render_types[render_type] : 0;
 }
 
+LLSD get_render_types_list()
+{
+    return keys_to_llsd(render_types);
+}
 
 class LLAdvancedToggleRenderType : public view_listener_t
 {
@@ -890,46 +846,26 @@ class LLAdvancedCheckRenderType : public view_listener_t
 /////////////
 // FEATURE //
 /////////////
-U32 feature_from_string(std::string_view feature)
-{
-    if ("ui" == feature)
-    {
-        return LLPipeline::RENDER_DEBUG_FEATURE_UI;
-    }
-    else if ("selected" == feature)
-    {
-        return LLPipeline::RENDER_DEBUG_FEATURE_SELECTED;
-    }
-    else if ("highlighted" == feature)
-    {
-        return LLPipeline::RENDER_DEBUG_FEATURE_HIGHLIGHTED;
-    }
-    else if ("dynamic textures" == feature)
-    {
-        return LLPipeline::RENDER_DEBUG_FEATURE_DYNAMIC_TEXTURES;
-    }
-    else if ("foot shadows" == feature)
-    {
-        return LLPipeline::RENDER_DEBUG_FEATURE_FOOT_SHADOWS;
-    }
-    else if ("fog" == feature)
-    {
-        return LLPipeline::RENDER_DEBUG_FEATURE_FOG;
-    }
-    else if ("fr info" == feature)
-    {
-        return LLPipeline::RENDER_DEBUG_FEATURE_FR_INFO;
-    }
-    else if ("flexible" == feature)
-    {
-        return LLPipeline::RENDER_DEBUG_FEATURE_FLEXIBLE;
-    }
-    else
-    {
-        return 0;
-    }
+static std::map<std::string_view, U32> render_debug_features = {
+    { "ui", LLPipeline::RENDER_DEBUG_FEATURE_UI },
+    { "selected", LLPipeline::RENDER_DEBUG_FEATURE_SELECTED },
+    { "highlighted", LLPipeline::RENDER_DEBUG_FEATURE_HIGHLIGHTED },
+    { "dynamic textures", LLPipeline::RENDER_DEBUG_FEATURE_DYNAMIC_TEXTURES },
+    { "foot shadows", LLPipeline::RENDER_DEBUG_FEATURE_FOOT_SHADOWS },
+    { "fog", LLPipeline::RENDER_DEBUG_FEATURE_FOG },
+    { "fr info", LLPipeline::RENDER_DEBUG_FEATURE_FR_INFO },
+    { "flexible", LLPipeline::RENDER_DEBUG_FEATURE_FLEXIBLE }
 };
 
+U32 feature_from_string(std::string_view feature)
+{
+    return (render_debug_features.find(feature) != render_debug_features.end()) ? render_debug_features[feature] : 0;
+};
+
+LLSD get_render_features_list()
+{
+    return keys_to_llsd(render_debug_features);
+}
 
 class LLAdvancedToggleFeature : public view_listener_t
 {
@@ -1060,142 +996,50 @@ class LLAdvancedSetDisplayTextureDensity : public view_listener_t
 //////////////////
 // INFO DISPLAY //
 //////////////////
+static std::map<std::string_view, U32> render_info_display = {
+    { "verify", LLPipeline::RENDER_DEBUG_VERIFY },
+    { "bboxes", LLPipeline::RENDER_DEBUG_BBOXES },
+    { "normals", LLPipeline::RENDER_DEBUG_NORMALS },
+    { "points", LLPipeline::RENDER_DEBUG_POINTS },
+    { "octree", LLPipeline::RENDER_DEBUG_OCTREE },
+    { "nodes", LLPipeline::RENDER_DEBUG_NODES },
+    { "shadow frusta", LLPipeline::RENDER_DEBUG_SHADOW_FRUSTA },
+    { "physics shapes", LLPipeline::RENDER_DEBUG_PHYSICS_SHAPES },
+    { "occlusion", LLPipeline::RENDER_DEBUG_OCCLUSION },
+    { "render batches", LLPipeline::RENDER_DEBUG_BATCH_SIZE },
+    { "update type", LLPipeline::RENDER_DEBUG_UPDATE_TYPE },
+    { "texture anim", LLPipeline::RENDER_DEBUG_TEXTURE_ANIM },
+    { "texture priority", LLPipeline::RENDER_DEBUG_TEXTURE_PRIORITY },
+    { "texture area", LLPipeline::RENDER_DEBUG_TEXTURE_AREA },
+    { "face area", LLPipeline::RENDER_DEBUG_FACE_AREA },
+    { "lod info", LLPipeline::RENDER_DEBUG_LOD_INFO },
+    { "lights", LLPipeline::RENDER_DEBUG_LIGHTS },
+    { "particles", LLPipeline::RENDER_DEBUG_PARTICLES },
+    { "composition", LLPipeline::RENDER_DEBUG_COMPOSITION },
+    { "avatardrawinfo", LLPipeline::RENDER_DEBUG_AVATAR_DRAW_INFO },
+    { "glow", LLPipeline::RENDER_DEBUG_GLOW },
+    { "collision skeleton", LLPipeline::RENDER_DEBUG_AVATAR_VOLUME },
+    { "joints", LLPipeline::RENDER_DEBUG_AVATAR_JOINTS },
+    { "raycast", LLPipeline::RENDER_DEBUG_RAYCAST },
+    { "agent target", LLPipeline::RENDER_DEBUG_AGENT_TARGET },
+    { "sculpt", LLPipeline::RENDER_DEBUG_SCULPTED },
+    { "wind vectors", LLPipeline::RENDER_DEBUG_WIND_VECTORS },
+    { "texel density", LLPipeline::RENDER_DEBUG_TEXEL_DENSITY },
+    { "triangle count", LLPipeline::RENDER_DEBUG_TRIANGLE_COUNT },
+    { "impostors", LLPipeline::RENDER_DEBUG_IMPOSTORS },
+    { "reflection probes", LLPipeline::RENDER_DEBUG_REFLECTION_PROBES },
+    { "probe updates", LLPipeline::RENDER_DEBUG_PROBE_UPDATES }
+};
+
 U64 info_display_from_string(std::string_view info_display)
 {
-    if ("verify" == info_display)
-    {
-        return LLPipeline::RENDER_DEBUG_VERIFY;
-    }
-    else if ("bboxes" == info_display)
-    {
-        return LLPipeline::RENDER_DEBUG_BBOXES;
-    }
-    else if ("normals" == info_display)
-    {
-        return LLPipeline::RENDER_DEBUG_NORMALS;
-    }
-    else if ("points" == info_display)
-    {
-        return LLPipeline::RENDER_DEBUG_POINTS;
-    }
-    else if ("octree" == info_display)
-    {
-        return LLPipeline::RENDER_DEBUG_OCTREE;
-    }
-    else if ("nodes" == info_display)
-    {
-        return LLPipeline::RENDER_DEBUG_NODES;
-    }
-    else if ("shadow frusta" == info_display)
-    {
-        return LLPipeline::RENDER_DEBUG_SHADOW_FRUSTA;
-    }
-    else if ("physics shapes" == info_display)
-    {
-        return LLPipeline::RENDER_DEBUG_PHYSICS_SHAPES;
-    }
-    else if ("occlusion" == info_display)
-    {
-        return LLPipeline::RENDER_DEBUG_OCCLUSION;
-    }
-    else if ("render batches" == info_display)
-    {
-        return LLPipeline::RENDER_DEBUG_BATCH_SIZE;
-    }
-    else if ("update type" == info_display)
-    {
-        return LLPipeline::RENDER_DEBUG_UPDATE_TYPE;
-    }
-    else if ("texture anim" == info_display)
-    {
-        return LLPipeline::RENDER_DEBUG_TEXTURE_ANIM;
-    }
-    else if ("texture priority" == info_display)
-    {
-        return LLPipeline::RENDER_DEBUG_TEXTURE_PRIORITY;
-    }
-    else if ("texture area" == info_display)
-    {
-        return LLPipeline::RENDER_DEBUG_TEXTURE_AREA;
-    }
-    else if ("face area" == info_display)
-    {
-        return LLPipeline::RENDER_DEBUG_FACE_AREA;
-    }
-    else if ("lod info" == info_display)
-    {
-        return LLPipeline::RENDER_DEBUG_LOD_INFO;
-    }
-    else if ("lights" == info_display)
-    {
-        return LLPipeline::RENDER_DEBUG_LIGHTS;
-    }
-    else if ("particles" == info_display)
-    {
-        return LLPipeline::RENDER_DEBUG_PARTICLES;
-    }
-    else if ("composition" == info_display)
-    {
-        return LLPipeline::RENDER_DEBUG_COMPOSITION;
-    }
-    else if ("avatardrawinfo" == info_display)
-    {
-        return (LLPipeline::RENDER_DEBUG_AVATAR_DRAW_INFO);
-    }
-    else if ("glow" == info_display)
-    {
-        return LLPipeline::RENDER_DEBUG_GLOW;
-    }
-    else if ("collision skeleton" == info_display)
-    {
-        return LLPipeline::RENDER_DEBUG_AVATAR_VOLUME;
-    }
-    else if ("joints" == info_display)
-    {
-        return LLPipeline::RENDER_DEBUG_AVATAR_JOINTS;
-    }
-    else if ("raycast" == info_display)
-    {
-        return LLPipeline::RENDER_DEBUG_RAYCAST;
-    }
-    else if ("agent target" == info_display)
-    {
-        return LLPipeline::RENDER_DEBUG_AGENT_TARGET;
-    }
-    else if ("sculpt" == info_display)
-    {
-        return LLPipeline::RENDER_DEBUG_SCULPTED;
-    }
-    else if ("wind vectors" == info_display)
-    {
-        return LLPipeline::RENDER_DEBUG_WIND_VECTORS;
-    }
-    else if ("texel density" == info_display)
-    {
-        return LLPipeline::RENDER_DEBUG_TEXEL_DENSITY;
-    }
-    else if ("triangle count" == info_display)
-    {
-        return LLPipeline::RENDER_DEBUG_TRIANGLE_COUNT;
-    }
-    else if ("impostors" == info_display)
-    {
-        return LLPipeline::RENDER_DEBUG_IMPOSTORS;
-    }
-    else if ("reflection probes" == info_display)
-    {
-        return LLPipeline::RENDER_DEBUG_REFLECTION_PROBES;
-    }
-    else if ("probe updates" == info_display)
-    {
-        return LLPipeline::RENDER_DEBUG_PROBE_UPDATES;
-    }
-    else
-    {
-        LL_WARNS() << "unrecognized feature name '" << info_display << "'" << LL_ENDL;
-        return 0;
-    }
+    return (render_info_display.find(info_display) != render_info_display.end()) ? render_info_display[info_display] : 0;
 };
+
+LLSD get_info_display_list()
+{
+    return keys_to_llsd(render_info_display);
+}
 
 class LLAdvancedToggleInfoDisplay : public view_listener_t
 {

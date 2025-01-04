@@ -113,8 +113,11 @@ bool handle_env_setting_event(std::string event_name);
 
 // Convert strings to internal types
 U32 render_type_from_string(std::string_view render_type);
+LLSD get_render_types_list();
 U32 feature_from_string(std::string_view feature);
+LLSD get_render_features_list();
 U64 info_display_from_string(std::string_view info_display);
+LLSD get_info_display_list();
 
 class LLViewerMenuHolderGL : public LLMenuHolderGL
 {
