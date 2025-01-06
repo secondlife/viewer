@@ -176,14 +176,6 @@ if (LINUX)
             -lm
     )
   endif()
-
-  if (CMAKE_BUILD_TYPE MATCHES "RelWithDebInfo")
-    if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-      add_compile_options(--analyze)
-    elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-      add_compile_options(-fanalyzer)
-    endif ()
-  endif ()
 endif (LINUX)
 
 if (DARWIN)
@@ -207,10 +199,6 @@ if (DARWIN)
   # required for clang-15/xcode-15 since our boost package still uses deprecated std::unary_function/binary_function
   # see https://developer.apple.com/documentation/xcode-release-notes/xcode-15-release-notes#C++-Standard-Library
   add_compile_definitions(_LIBCPP_ENABLE_CXX17_REMOVED_UNARY_BINARY_FUNCTION)
-
-  if (CMAKE_BUILD_TYPE MATCHES "RelWithDebInfo")
-    add_compile_options(--analyze)
-  endif ()
 endif(DARWIN)
 
 if(LINUX OR DARWIN)
@@ -226,8 +214,4 @@ if(LINUX OR DARWIN)
 
   add_compile_options(${GCC_WARNINGS})
   add_compile_options(-m${ADDRESS_SIZE})
-
-  if (CMAKE_BUILD_TYPE MATCHES "RelWithDebInfo")
-    add_compile_options(-fno-omit-frame-pointer -fsanitize=undefined -fsanitize=bounds)
-  endif ()
 endif (LINUX OR DARWIN)
