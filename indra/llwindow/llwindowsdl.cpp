@@ -424,12 +424,10 @@ bool LLWindowSDL::createContext(int x, int y, int width, int height, int bits, b
             mFullscreen = true;
             mFullscreenWidth = mSurface->w;
             mFullscreenHeight = mSurface->h;
-            mFullscreenBits    = mSurface->format->BitsPerPixel;
             mFullscreenRefresh = -1;
 
             LL_INFOS() << "Running at " << mFullscreenWidth
                        << "x"   << mFullscreenHeight
-                       << "x"   << mFullscreenBits
                        << " @ " << mFullscreenRefresh
                        << LL_ENDL;
         }
@@ -440,7 +438,6 @@ bool LLWindowSDL::createContext(int x, int y, int width, int height, int bits, b
             mFullscreen = false;
             mFullscreenWidth   = -1;
             mFullscreenHeight  = -1;
-            mFullscreenBits    = -1;
             mFullscreenRefresh = -1;
 
             std::string error = llformat("Unable to run fullscreen at %d x %d.\nRunning in window.", width, height);
