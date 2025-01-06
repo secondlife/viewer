@@ -7068,7 +7068,7 @@ void LLPipeline::generateExposure(LLRenderTarget* src, LLRenderTarget* dst, bool
 
         LLSettingsSky::ptr_t sky = LLEnvironment::instance().getCurrentSky();
 
-        F32 probe_ambiance = LLEnvironment::instance().getCurrentSky()->getReflectionProbeAmbiance(should_auto_adjust);
+        F32 probe_ambiance = LLEnvironment::instance().getCurrentSky()->getReflectionProbeAmbiance(should_auto_adjust());
 
         F32 exp_min = 1.f;
         F32 exp_max = 1.f;
@@ -7079,13 +7079,13 @@ void LLPipeline::generateExposure(LLRenderTarget* src, LLRenderTarget* dst, bool
         {
             if (dynamic_exposure_enabled)
             {
-                exp_min = sky->getHDROffset() - sky->getHDRMin();
-                exp_max = sky->getHDROffset() + sky->getHDRMax();
+                exp_min = sky->getHDROffset(should_auto_adjust()) - sky->getHDRMin(should_auto_adjust());
+                exp_max = sky->getHDROffset(should_auto_adjust()) + sky->getHDRMax(should_auto_adjust());
             }
             else
             {
-                exp_min = sky->getHDROffset();
-                exp_max = sky->getHDROffset();
+                exp_min = sky->getHDROffset(should_auto_adjust());
+                exp_max = sky->getHDROffset(should_auto_adjust());
             }
         }
         else if (dynamic_exposure_enabled)
@@ -7105,7 +7105,7 @@ void LLPipeline::generateExposure(LLRenderTarget* src, LLRenderTarget* dst, bool
         shader->uniform1f(dt, gFrameIntervalSeconds);
         shader->uniform2f(noiseVec, ll_frand() * 2.0f - 1.0f, ll_frand() * 2.0f - 1.0f);
         shader->uniform4f(dynamic_exposure_params, dynamic_exposure_coefficient, exp_min, exp_max, dynamic_exposure_speed_error);
-        shader->uniform4f(dynamic_exposure_params2, sky->getHDROffset(), exp_min, exp_max, dynamic_exposure_speed_target);
+        shader->uniform4f(dynamic_exposure_params2, sky->getHDROffset(should_auto_adjust()), exp_min, exp_max, dynamic_exposure_speed_target);
 
         mScreenTriangleVB->setBuffer();
         mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
@@ -7172,7 +7172,7 @@ void LLPipeline::tonemap(LLRenderTarget* src, LLRenderTarget* dst, bool gamma_co
 
         static LLCachedControl<U32> tonemap_type_setting(gSavedSettings, "RenderTonemapType", 0U);
         shader->uniform1i(tonemap_type, tonemap_type_setting);
-        shader->uniform1f(tonemap_mix, psky->getTonemapMix());
+        shader->uniform1f(tonemap_mix, psky->getTonemapMix(should_auto_adjust()));
 
         mScreenTriangleVB->setBuffer();
         mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);

@@ -807,7 +807,7 @@ void LLSettingsVOSky::applySpecial(void *ptarget, bool force)
     static LLCachedControl<F32> tonemap_mix_setting(gSavedSettings, "RenderTonemapMix", 1.f);
 
     // sky is a "classic" sky following pre SL 7.0 shading
-    bool classic_mode = psky->canAutoAdjust();
+    bool classic_mode = psky->canAutoAdjust() && !should_auto_adjust();
 
     if (!classic_mode)
     {

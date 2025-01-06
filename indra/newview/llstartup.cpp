@@ -1505,7 +1505,7 @@ bool idle_startup()
         // create a container's instance for start a controlling conversation windows
         // by the voice's events
         LLFloaterIMContainer *im_inst = LLFloaterIMContainer::getInstance();
-        if(gAgent.isFirstLogin())
+        if(gAgent.isFirstLogin() && im_inst)
         {
             im_inst->openFloater(im_inst->getKey());
         }

@@ -647,8 +647,12 @@ void LLVOVolume::animateTextures()
                         // LLVOVolume::updateTextureVirtualSize when the
                         // mTextureMatrix is not yet present
                         gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_TCOORD);
-                        mDrawable->getSpatialGroup()->dirtyGeom();
-                        gPipeline.markRebuild(mDrawable->getSpatialGroup());
+                        LLSpatialGroup* group = mDrawable->getSpatialGroup();
+                        if (group)
+                        {
+                            group->dirtyGeom();
+                            gPipeline.markRebuild(group);
+                        }
                     }
                 }
 
