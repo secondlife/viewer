@@ -815,13 +815,13 @@ LLTerrainPaintQueue LLTerrainPaintMap::convertBrushQueueToPaintRGB(const LLViewe
 }
 
 template<typename T>
-LLTerrainQueue<T>::LLTerrainQueue(LLTerrainQueue<T>& other)
+LLTerrainQueue<T>::LLTerrainQueue(const LLTerrainQueue<T>& other)
 {
     *this = other;
 }
 
 template<typename T>
-LLTerrainQueue<T>& LLTerrainQueue<T>::operator=(LLTerrainQueue<T>& other)
+LLTerrainQueue<T>& LLTerrainQueue<T>::operator=(const LLTerrainQueue<T>& other)
 {
     mList = other.mList;
     return *this;
@@ -890,14 +890,14 @@ LLTerrainPaintQueue::LLTerrainPaintQueue(U8 components)
     llassert(mComponents == LLTerrainPaint::RGB || mComponents == LLTerrainPaint::RGBA);
 }
 
-LLTerrainPaintQueue::LLTerrainPaintQueue(LLTerrainPaintQueue& other)
+LLTerrainPaintQueue::LLTerrainPaintQueue(const LLTerrainPaintQueue& other)
 : LLTerrainQueue<LLTerrainPaint>(other)
 , mComponents(other.mComponents)
 {
     llassert(mComponents == LLTerrainPaint::RGB || mComponents == LLTerrainPaint::RGBA);
 }
 
-LLTerrainPaintQueue& LLTerrainPaintQueue::operator=(LLTerrainPaintQueue& other)
+LLTerrainPaintQueue& LLTerrainPaintQueue::operator=(const LLTerrainPaintQueue& other)
 {
     LLTerrainQueue<LLTerrainPaint>::operator=(other);
     mComponents = other.mComponents;
