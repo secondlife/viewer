@@ -1290,6 +1290,8 @@ void send_agent_resume()
         gMessageSystem->sendReliable(regionp->getHost());
     }
 
+    // Resume updating stats in LLViewerStats::updateFrameStats
+    gObjectList.mWasPaused = false;
     // Resume data collection to ignore invalid rates
     LLViewerStats::instance().getRecording().resume();
 

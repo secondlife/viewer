@@ -35,6 +35,7 @@
 // external library headers
 // other Linden headers
 #include "llappviewer.h"
+#include "llviewerstats.h"
 #include "workqueue.h"
 
 LLAppViewerListener::LLAppViewerListener(const LLAppViewerGetter& getter):
@@ -52,6 +53,10 @@ LLAppViewerListener::LLAppViewerListener(const LLAppViewerGetter& getter):
     add("forceQuit",
         "Quit abruptly",
         &LLAppViewerListener::forceQuit);
+
+    add("resetFrameStats",
+        "Reset frame related stats",
+        &LLAppViewerListener::resetFrameStats);
 }
 
 void LLAppViewerListener::userQuit(const LLSD& event)
@@ -76,4 +81,9 @@ void LLAppViewerListener::forceQuit(const LLSD& event)
     LL_INFOS() << "Listener requested force quit" << LL_ENDL;
     LL::WorkQueue::getInstance("mainloop")->post(
         [appviewer=mAppViewerGetter()]{ appviewer->forceQuit(); });
+}
+
+void LLAppViewerListener::resetFrameStats(const LLSD& event)
+{
+    LLViewerStats::instance().resetFrameStats();
 }

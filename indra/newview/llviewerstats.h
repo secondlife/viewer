@@ -271,6 +271,8 @@ public:
     LLTrace::Recording& getRecording() { return mRecording; }
     const LLTrace::Recording& getRecording() const { return mRecording; }
 
+    void resetFrameStats();
+
 public:
     StatsAccumulator mForegroundFrameStats;
     StatsAccumulator mBackgroundFrameStats;

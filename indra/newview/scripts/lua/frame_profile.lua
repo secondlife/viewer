@@ -5,6 +5,7 @@ startup = require 'startup'
 sleep = (require 'timers').sleep
 UI = require 'UI'
 teleport_util = require('teleport_util')
+--stats = require 'stats'
 
 startup.wait('STATE_STARTED')
 
@@ -12,6 +13,7 @@ startup.wait('STATE_STARTED')
 print(LLAgent.teleport{regionname='Bug Island', x=220, y=224, z=27})
 --teleport_util.wait()
 sleep(10)
+--stats.resetFrameStats()
 LLAgent.setCamera{camera_pos={220, 224, 26}, camera_locked=true,
                   focus_pos ={228, 232, 26}, focus_locked=true}
 sleep(1)

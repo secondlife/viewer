@@ -47,6 +47,7 @@ private:
     void userQuit(const LLSD& event);
     void requestQuit(const LLSD& event);
     void forceQuit(const LLSD& event);
+    void resetFrameStats(const LLSD& event);
 
     LLAppViewerGetter mAppViewerGetter;
 };

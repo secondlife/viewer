@@ -266,6 +266,16 @@ void LLViewerStats::resetStats()
     getRecording().reset();
 }
 
+void LLViewerStats::resetFrameStats()
+{
+    mForegroundFrameStats.reset();
+    mBackgroundFrameStats.reset();
+    gForegroundTime.reset();
+    gForegroundFrameCount = 0;
+    LLStatViewer::FRAMETIME.getCurrentAccumulator().reset(NULL);
+    LLStatViewer::FRAMETIME_JITTER.getCurrentAccumulator().reset(NULL);
+}
+
 void LLViewerStats::updateFrameStats(const F64Seconds time_diff)
 {
     if (gFrameCount && mLastTimeDiff > (F64Seconds)0.0)
@@ -562,7 +572,8 @@ LLSD capture_viewer_stats(bool include_preferences)
     }
 
     agent["start_time"] = S32(ltime - S32(run_time));
-
+    if (gAgentAvatarp.notNull())
+        agent["decloud_time"] = gAgentAvatarp->getFirstDecloudTime();
     agent["fg_frame_stats"] = vstats.mForegroundFrameStats.asLLSD();
     agent["fg_frame_stats"]["ofr"] = ofr(vstats.mForegroundFrameStats);
     agent["fg_frame_stats"]["fps"] = fps(vstats.mForegroundFrameStats);
