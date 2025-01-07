@@ -502,7 +502,7 @@ void LLFloaterPay::onGive(give_money_ptr info)
         amount = atoi(text_field->getValue().asString().c_str());
     }
 
-    if (amount > PAY_AMOUNT_NOTIFICATION && gStatusBar && gStatusBar->getBalance() > amount)
+    if (amount > PAY_AMOUNT_NOTIFICATION)
     {
         LLUUID payee_id = LLUUID::null;
         bool is_group = false;

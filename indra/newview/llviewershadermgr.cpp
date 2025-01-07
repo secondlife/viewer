@@ -262,7 +262,7 @@ static bool make_rigged_variant(LLGLSLShader& shader, LLGLSLShader& riggedShader
 
 static void add_common_permutations(LLGLSLShader* shader)
 {
-    LLCachedControl<bool> emissive(gSavedSettings, "RenderEnableEmissiveBuffer", false);
+    static LLCachedControl<bool> emissive(gSavedSettings, "RenderEnableEmissiveBuffer", false);
 
     if (emissive)
     {
@@ -778,7 +778,7 @@ std::string LLViewerShaderMgr::loadBasicShaders()
     attribs["MAX_JOINTS_PER_MESH_OBJECT"] =
         std::to_string(LLSkinningUtil::getMaxJointCount());
 
-    LLCachedControl<bool> emissive(gSavedSettings, "RenderEnableEmissiveBuffer", false);
+    static LLCachedControl<bool> emissive(gSavedSettings, "RenderEnableEmissiveBuffer", false);
 
     if (emissive)
     {
@@ -2817,6 +2817,7 @@ bool LLViewerShaderMgr::loadShadersDeferred()
                                                                              {"28", "High"},
                                                                              {"39", "Ultra"} };
         int i = 0;
+        bool failed = false;
         for (const auto& quality_pair : quality_levels)
         {
             if (success)
@@ -2840,9 +2841,25 @@ bool LLViewerShaderMgr::loadShadersDeferred()
 
                 gFXAAProgram[i].mShaderLevel = mShaderLevel[SHADER_DEFERRED];
                 success = gFXAAProgram[i].createShader();
-                llassert(success);
+                // llassert(success);
+                if (!success)
+                {
+                    LL_WARNS() << "Failed to create shader '" << gFXAAProgram[i].mName << "', disabling!" << LL_ENDL;
+                    // continue as if this shader never happened
+                    failed = true;
+                    success = true;
+                    break;
+                }
             }
             ++i;
+        }
+
+        if (failed)
+        {
+            for (auto i = 0; i < 4; ++i)
+            {
+                gFXAAProgram[i].unload();
+            }
         }
     }
 
@@ -2851,8 +2868,9 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         std::vector<std::pair<std::string, std::string>> quality_levels = { {"SMAA_PRESET_LOW", "Low"},
                                                                              {"SMAA_PRESET_MEDIUM", "Medium"},
                                                                              {"SMAA_PRESET_HIGH", "High"},
-                                                                             {"SMAA_PRESET_ULTRA", "Ultra"} };
+                                                                          {"SMAA_PRESET_ULTRA", "Ultra"} };
         int i = 0;
+        bool failed = false;
         for (const auto& smaa_pair : quality_levels)
         {
             std::map<std::string, std::string> defines;
@@ -2881,6 +2899,15 @@ bool LLViewerShaderMgr::loadShadersDeferred()
                 gSMAAEdgeDetectProgram[i].mShaderFiles.push_back(make_pair("deferred/SMAA.glsl", GL_VERTEX_SHADER_ARB));
                 gSMAAEdgeDetectProgram[i].mShaderLevel = mShaderLevel[SHADER_DEFERRED];
                 success = gSMAAEdgeDetectProgram[i].createShader();
+                // llassert(success);
+                if (!success)
+                {
+                    LL_WARNS() << "Failed to create shader '" << gSMAAEdgeDetectProgram[i].mName << "', disabling!" << LL_ENDL;
+                    // continue as if this shader never happened
+                    failed = true;
+                    success = true;
+                    break;
+                }
             }
 
             if (success)
@@ -2898,6 +2925,15 @@ bool LLViewerShaderMgr::loadShadersDeferred()
                 gSMAABlendWeightsProgram[i].mShaderFiles.push_back(make_pair("deferred/SMAA.glsl", GL_VERTEX_SHADER_ARB));
                 gSMAABlendWeightsProgram[i].mShaderLevel = mShaderLevel[SHADER_DEFERRED];
                 success = gSMAABlendWeightsProgram[i].createShader();
+                // llassert(success);
+                if (!success)
+                {
+                    LL_WARNS() << "Failed to create shader '" << gSMAABlendWeightsProgram[i].mName << "', disabling!" << LL_ENDL;
+                    // continue as if this shader never happened
+                    failed = true;
+                    success = true;
+                    break;
+                }
             }
 
             if (success)
@@ -2917,6 +2953,15 @@ bool LLViewerShaderMgr::loadShadersDeferred()
                 gSMAANeighborhoodBlendProgram[i].mShaderLevel = mShaderLevel[SHADER_DEFERRED];
 
                 success = gSMAANeighborhoodBlendProgram[i].createShader();
+                // llassert(success);
+                if (!success)
+                {
+                    LL_WARNS() << "Failed to create shader '" << gSMAANeighborhoodBlendProgram[i].mName << "', disabling!" << LL_ENDL;
+                    // continue as if this shader never happened
+                    failed = true;
+                    success = true;
+                    break;
+                }
             }
 
             if (success)
@@ -2937,6 +2982,16 @@ bool LLViewerShaderMgr::loadShadersDeferred()
                 success = gSMAANeighborhoodBlendGlowCombineProgram[i].createShader();
             }
             ++i;
+        }
+
+        if (failed)
+        {
+            for (auto i = 0; i < 4; ++i)
+            {
+                gSMAAEdgeDetectProgram[i].unload();
+                gSMAABlendWeightsProgram[i].unload();
+                gSMAANeighborhoodBlendProgram[i].unload();
+            }
         }
     }
 
@@ -3133,7 +3188,7 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         gDeferredStarProgram.mShaderGroup = LLGLSLShader::SG_SKY;
         gDeferredStarProgram.addConstant( LLGLSLShader::SHADER_CONST_STAR_DEPTH ); // SL-14113
 
-        add_common_permutations(&gDeferredWLSkyProgram);
+        add_common_permutations(&gDeferredStarProgram);
 
         success = gDeferredStarProgram.createShader();
         llassert(success);

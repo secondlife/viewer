@@ -2500,7 +2500,10 @@ void LLAgent::endAnimationUpdateUI()
         gAgentAvatarp->updateAttachmentVisibility(gAgentCamera.getCameraMode());
     }
 
-    gFloaterTools->dirty();
+    if (gFloaterTools)
+    {
+        gFloaterTools->dirty();
+    }
 
     // Don't let this be called more than once if the camera
     // mode hasn't changed.  --JC

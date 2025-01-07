@@ -85,8 +85,6 @@ RenderCASSharpness          1   1
 RenderExposure				1   4
 RenderTonemapType			1   1
 RenderTonemapMix			1   1
-RenderEnableEmissiveBuffer  1   1
-RenderHDREnabled            1   1
 RenderDisableVintageMode           1   1
 
 //
@@ -385,7 +383,6 @@ list Unknown
 RenderShadowDetail			1	0
 RenderDeferredSSAO			1	0
 RenderMirrors				1	0
-RenderEnableEmissiveBuffer  1   0
 RenderDisableVintageMode           1   0
 
 //
@@ -428,10 +425,8 @@ RenderFSAASamples           0   0
 RenderReflectionsEnabled    0   0
 RenderReflectionProbeDetail	0	0
 RenderMirrors				0	0
-RenderEnableEmissiveBuffer  1   0
 RenderGLMultiThreadedTextures 0 0
 RenderGLMultiThreadedMedia 0 0
-RenderHDREnabled            1   0
 RenderDisableVintageMode           1   0
 
 list TexUnit16orLess

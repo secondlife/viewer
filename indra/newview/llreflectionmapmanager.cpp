@@ -407,6 +407,13 @@ void LLReflectionMapManager::update()
         {
             closestDynamic = probe;
         }
+
+        if (sLevel == 0)
+        {
+            // only update default probe when coverage is set to none
+            llassert(probe == mDefaultProbe);
+            break;
+        }
     }
 
     if (realtime && closestDynamic != nullptr)
@@ -718,6 +725,7 @@ void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face)
     }
     else
     {
+        llassert(gSavedSettings.getS32("RenderReflectionProbeLevel") > 0); // should never update a probe that's not the default probe if reflection coverage is none
         probe->update(mRenderTarget.getWidth(), face);
     }
 

@@ -1083,7 +1083,7 @@ U32 type_width_from_pixtype(U32 pixtype)
 bool should_stagger_image_set(bool compressed)
 {
 #if LL_DARWIN
-    return false;
+    return !compressed && on_main_thread() && gGLManager.mIsAMD;
 #else
     // glTexSubImage2D doesn't work with compressed textures on select tested Nvidia GPUs on Windows 10 -Cosmic,2023-03-08
     // Setting media textures off-thread seems faster when not using sub_image_lines (Nvidia/Windows 10) -Cosmic,2023-03-31
@@ -1301,24 +1301,33 @@ void LLImageGL::generateTextures(S32 numTextures, U32* textures)
     }
 }
 
+constexpr int DELETE_DELAY = 3; // number of frames to wait before deleting textures
+static std::vector<U32> sFreeList[DELETE_DELAY+1];
+
 // static
 void LLImageGL::updateClass()
 {
     sFrameCount++;
+
+    // wait a few frames before actually deleting the textures to avoid
+    // synchronization issues with the GPU
+    U32 idx = (sFrameCount+DELETE_DELAY) % (DELETE_DELAY+1);
+
+    if (!sFreeList[idx].empty())
+    {
+        free_tex_images((GLsizei) sFreeList[idx].size(), sFreeList[idx].data());
+        glDeleteTextures((GLsizei)sFreeList[idx].size(), sFreeList[idx].data());
+        sFreeList[idx].resize(0);
+    }
 }
 
 // static
 void LLImageGL::deleteTextures(S32 numTextures, const U32* textures)
 {
-    // wait a few frames before actually deleting the textures to avoid
-    // synchronization issues with the GPU
-    static std::vector<U32> sFreeList[4];
-
     if (gGLManager.mInited)
     {
         LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
-        U32 idx = sFrameCount % 4;
-
+        U32 idx = sFrameCount % (DELETE_DELAY+1);
         for (S32 i = 0; i < numTextures; ++i)
         {
             sFreeList[idx].push_back(textures[i]);
@@ -1329,15 +1338,6 @@ void LLImageGL::deleteTextures(S32 numTextures, const U32* textures)
                 sTexNameReferenceCheck(textures[i]);
             }
 #endif
-        }
-
-        idx = (sFrameCount + 3) % 4;
-
-        if (!sFreeList[idx].empty())
-        {
-            free_tex_images((GLsizei)sFreeList[idx].size(), sFreeList[idx].data());
-            glDeleteTextures((GLsizei)sFreeList[idx].size(), sFreeList[idx].data());
-            sFreeList[idx].resize(0);
         }
     }
 }
@@ -2458,7 +2458,9 @@ bool LLImageGL::scaleDown(S32 desired_discard)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 
-    if (mTarget != GL_TEXTURE_2D)
+    if (mTarget != GL_TEXTURE_2D
+        || mFormatInternal == -1 // not initialized
+        )
     {
         return false;
     }
