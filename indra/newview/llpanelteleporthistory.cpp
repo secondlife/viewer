@@ -1194,7 +1194,7 @@ void LLTeleportHistoryPanel::confirmTeleport(S32 hist_idx)
     LLSD args;
     args["HISTORY_ENTRY"] = LLTeleportHistoryStorage::getInstance()->getItems()[hist_idx].mTitle;
     LLNotificationsUtil::add("TeleportToHistoryEntry", args, LLSD(),
-        [&](const LLSD& notification, const LLSD& response)
+        [hist_idx](const LLSD& notification, const LLSD& response)
         {
             onTeleportConfirmation(notification, response, hist_idx);
         });
