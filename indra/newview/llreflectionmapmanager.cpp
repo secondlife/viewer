@@ -306,7 +306,7 @@ void LLReflectionMapManager::update()
         LLReflectionMap* probe = mProbes[i];
         llassert(probe != nullptr);
 
-        if (probe->mCubeIndex != -1 && mUpdatingProbe != probe)
+        if (probe && probe->mCubeIndex != -1 && mUpdatingProbe != probe)
         { // free this index
             mCubeFree.push_back(probe->mCubeIndex);
 
