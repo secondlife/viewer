@@ -2273,6 +2273,7 @@ protected:
     void findAndInitRootContent(const LLUUID& folder_id) override;
     void initRootContent() override;
 
+    // removeFavorite removes item from root, does not readd favorited children if present
     bool removeFavorite(const LLUUID& id, const LLInventoryObject* model_item);
     void itemChanged(const LLUUID& item_id, U32 mask, const LLInventoryObject* model_item) override;
 
@@ -2435,6 +2436,7 @@ void LLInventoryFavoritesItemsPanel::itemChanged(const LLUUID& id, U32 mask, con
                     if (cat->getPreferredType() != LLFolderType::FT_TRASH)
                     {
                         // If any descendants were in the list, remove them
+                        // Todo: Consider implementing and checking hasFavorites to save on search
                         LLFavoritesCollector is_favorite;
                         LLInventoryModel::cat_array_t cat_array;
                         LLInventoryModel::item_array_t item_array;
@@ -2475,6 +2477,16 @@ void LLInventoryFavoritesItemsPanel::itemChanged(const LLUUID& id, U32 mask, con
         else
         {
             handled = removeFavorite(id, model_item);
+            if (handled)
+            {
+                const LLViewerInventoryCategory* cat = dynamic_cast<const LLViewerInventoryCategory*>(model_item);
+                // Todo: Consider implementing and checking hasFavorites to save on search
+                if (cat)
+                {
+                    // re-add any favorited children
+                    mBuildRootQueue.emplace_back(id);
+                }
+            }
         }
     }
 
