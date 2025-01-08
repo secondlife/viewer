@@ -647,8 +647,12 @@ void LLVOVolume::animateTextures()
                         // LLVOVolume::updateTextureVirtualSize when the
                         // mTextureMatrix is not yet present
                         gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_TCOORD);
-                        mDrawable->getSpatialGroup()->dirtyGeom();
-                        gPipeline.markRebuild(mDrawable->getSpatialGroup());
+                        LLSpatialGroup* group = mDrawable->getSpatialGroup();
+                        if (group)
+                        {
+                            group->dirtyGeom();
+                            gPipeline.markRebuild(group);
+                        }
                     }
                 }
 
@@ -5925,7 +5929,24 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
                             {
                                 if (gltf_mat != nullptr)
                                 {
-                                    add_face(sPbrFaces, pbr_count, facep);
+                                    // In theory, we should never actually get here with alpha blending.
+                                    // How this is supposed to work is we check if the surface is alpha blended, and we assign it to the alpha draw pool.
+                                    // For rigged meshes, this apparently may not happen consistently.
+                                    // For now, just discard it here if the alpha is 0 (fully transparent) to achieve parity with blinn-phong materials in function.
+
+                                    bool should_render = true;
+                                    if (gltf_mat->mAlphaMode == LLGLTFMaterial::ALPHA_MODE_BLEND)
+                                    {
+                                        if (gltf_mat->mBaseColor.mV[3] == 0.0f)
+                                        {
+                                            should_render = false;
+                                        }
+                                    }
+
+                                    if (should_render)
+                                    {
+                                        add_face(sPbrFaces, pbr_count, facep);
+                                    }
                                 }
                                 else
                                 {
@@ -6547,6 +6568,7 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
                     if (gltf_mat->mAlphaMode == LLGLTFMaterial::ALPHA_MODE_BLEND)
                     {
                         registerFace(group, facep, LLRenderPass::PASS_ALPHA);
+                        is_alpha = true;
                     }
                     else if (gltf_mat->mAlphaMode == LLGLTFMaterial::ALPHA_MODE_MASK)
                     {

@@ -405,6 +405,13 @@ void LLReflectionMapManager::update()
         {
             closestDynamic = probe;
         }
+
+        if (sLevel == 0)
+        {
+            // only update default probe when coverage is set to none
+            llassert(probe == mDefaultProbe);
+            break;
+        }
     }
 
     if (realtime && closestDynamic != nullptr)
@@ -464,6 +471,11 @@ void LLReflectionMapManager::update()
 
 LLReflectionMap* LLReflectionMapManager::addProbe(LLSpatialGroup* group)
 {
+    if (gGLManager.mGLVersion < 4.05f || !LLPipeline::sReflectionProbesEnabled)
+    {
+        return nullptr;
+    }
+
     LLReflectionMap* probe = new LLReflectionMap();
     probe->mGroup = group;
 
@@ -575,6 +587,11 @@ LLReflectionMap* LLReflectionMapManager::registerSpatialGroup(LLSpatialGroup* gr
 
 LLReflectionMap* LLReflectionMapManager::registerViewerObject(LLViewerObject* vobj)
 {
+    if (!LLPipeline::sReflectionProbesEnabled)
+    {
+        return nullptr;
+    }
+
     llassert(vobj != nullptr);
 
     LLReflectionMap* probe = new LLReflectionMap();
@@ -706,6 +723,7 @@ void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face)
     }
     else
     {
+        llassert(gSavedSettings.getS32("RenderReflectionProbeLevel") > 0); // should never update a probe that's not the default probe if reflection coverage is none
         probe->update(mRenderTarget.getWidth(), face);
     }
 
@@ -1064,7 +1082,7 @@ void LLReflectionMapManager::updateUniforms()
     LLEnvironment& environment = LLEnvironment::instance();
     LLSettingsSky::ptr_t psky = environment.getCurrentSky();
 
-    static LLCachedControl<bool> should_auto_adjust(gSavedSettings, "RenderSkyAutoAdjustLegacy", true);
+    static LLCachedControl<bool> should_auto_adjust(gSavedSettings, "RenderSkyAutoAdjustLegacy", false);
     F32 minimum_ambiance = psky->getReflectionProbeAmbiance(should_auto_adjust);
 
     bool is_ambiance_pass = gCubeSnapshot && !isRadiancePass();

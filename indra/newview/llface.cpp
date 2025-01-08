@@ -2211,9 +2211,11 @@ bool LLFace::calcPixelArea(F32& cos_angle_to_view_dir, F32& radius)
                 if (rigInfo.needsUpdate())
                 {
                     LLVOVolume* vo_volume = (LLVOVolume*)mVObjp.get();
-                    LLVOAvatar* avatar = mVObjp->getAvatar();
                     const LLMeshSkinInfo* skin = vo_volume->getSkinInfo();
-                    LLSkinningUtil::updateRiggingInfo(skin, avatar, face);
+                    if (skin)
+                    {
+                        LLSkinningUtil::updateRiggingInfo(skin, avatar, face);
+                    }
                 }
 
                 // calculate the world space bounding box of the face by combining the bounding boxes of all the joints

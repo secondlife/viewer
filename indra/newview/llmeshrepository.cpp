@@ -550,6 +550,7 @@ LLViewerFetchedTexture* LLMeshUploadThread::FindViewerTexture(const LLImportMate
 
 std::atomic<S32> LLMeshRepoThread::sActiveHeaderRequests = 0;
 std::atomic<S32> LLMeshRepoThread::sActiveLODRequests = 0;
+std::atomic<S32> LLMeshRepoThread::sActiveSkinRequests = 0;
 U32 LLMeshRepoThread::sMaxConcurrentRequests = 1;
 S32 LLMeshRepoThread::sRequestLowWater = REQUEST2_LOW_WATER_MIN;
 S32 LLMeshRepoThread::sRequestHighWater = REQUEST2_HIGH_WATER_MIN;
@@ -674,7 +675,9 @@ public:
     LLMeshSkinInfoHandler(const LLUUID& id, U32 offset, U32 requested_bytes)
         : LLMeshHandlerBase(offset, requested_bytes),
           mMeshID(id)
-    {}
+    {
+        LLMeshRepoThread::incActiveSkinRequests();
+    }
     virtual ~LLMeshSkinInfoHandler();
 
 protected:
@@ -925,10 +928,54 @@ void LLMeshRepoThread::run()
         }
         sRequestWaterLevel = static_cast<S32>(mHttpRequestSet.size());            // Stats data update
 
-        // NOTE: order of queue processing intentionally favors LOD requests over header requests
+        // NOTE: order of queue processing intentionally favors LOD and Skin requests over header requests
         // Todo: we are processing mLODReqQ, mHeaderReqQ, mSkinRequests, mDecompositionRequests and mPhysicsShapeRequests
         // in relatively similar manners, remake code to simplify/unify the process,
         // like processRequests(&requestQ, fetchFunction); which does same thing for each element
+
+        if (mHttpRequestSet.size() < sRequestHighWater
+            && !mSkinRequests.empty())
+        {
+            if (!mSkinRequests.empty())
+            {
+                std::list<UUIDBasedRequest> incomplete;
+                while (!mSkinRequests.empty() && mHttpRequestSet.size() < sRequestHighWater)
+                {
+
+                    mMutex->lock();
+                    auto req = mSkinRequests.front();
+                    mSkinRequests.pop_front();
+                    mMutex->unlock();
+                    if (req.isDelayed())
+                    {
+                        incomplete.emplace_back(req);
+                    }
+                    else if (!fetchMeshSkinInfo(req.mId, req.canRetry()))
+                    {
+                        if (req.canRetry())
+                        {
+                            req.updateTime();
+                            incomplete.emplace_back(req);
+                        }
+                        else
+                        {
+                            LLMutexLock locker(mMutex);
+                            mSkinUnavailableQ.push_back(req);
+                            LL_DEBUGS() << "mSkinReqQ failed: " << req.mId << LL_ENDL;
+                        }
+                    }
+                }
+
+                if (!incomplete.empty())
+                {
+                    LLMutexLock locker(mMutex);
+                    for (const auto& req : incomplete)
+                    {
+                        mSkinRequests.push_back(req);
+                    }
+                }
+            }
+        }
 
         if (!mLODReqQ.empty() && mHttpRequestSet.size() < sRequestHighWater)
         {
@@ -1028,53 +1075,12 @@ void LLMeshRepoThread::run()
         // performing long-duration actions.
 
         if (mHttpRequestSet.size() < sRequestHighWater
-            && (!mSkinRequests.empty()
-            || !mDecompositionRequests.empty()
+            && (!mDecompositionRequests.empty()
             || !mPhysicsShapeRequests.empty()))
         {
             // Something to do probably, lock and double-check.  We don't want
             // to hold the lock long here.  That will stall main thread activities
             // so we bounce it.
-
-            if (!mSkinRequests.empty())
-            {
-                std::list<UUIDBasedRequest> incomplete;
-                while (!mSkinRequests.empty() && mHttpRequestSet.size() < sRequestHighWater)
-                {
-
-                    mMutex->lock();
-                    auto req = mSkinRequests.front();
-                    mSkinRequests.pop_front();
-                    mMutex->unlock();
-                    if (req.isDelayed())
-                    {
-                        incomplete.emplace_back(req);
-                    }
-                    else if (!fetchMeshSkinInfo(req.mId, req.canRetry()))
-                    {
-                        if (req.canRetry())
-                        {
-                            req.updateTime();
-                            incomplete.emplace_back(req);
-                        }
-                        else
-                        {
-                            LLMutexLock locker(mMutex);
-                            mSkinUnavailableQ.push_back(req);
-                            LL_DEBUGS() << "mSkinReqQ failed: " << req.mId << LL_ENDL;
-                        }
-                    }
-                }
-
-                if (!incomplete.empty())
-                {
-                    LLMutexLock locker(mMutex);
-                    for (const auto& req : incomplete)
-                    {
-                        mSkinRequests.push_back(req);
-                    }
-                }
-            }
 
             // holding lock, try next list
             // *TODO:  For UI/debug-oriented lists, we might drop the fine-
@@ -1103,7 +1109,7 @@ void LLMeshRepoThread::run()
                         }
                         else
                         {
-                            LL_DEBUGS() << "mDecompositionRequests failed: " << req.mId << LL_ENDL;
+                            LL_DEBUGS(LOG_MESH) << "mDecompositionRequests failed: " << req.mId << LL_ENDL;
                         }
                     }
                 }
@@ -1139,7 +1145,7 @@ void LLMeshRepoThread::run()
                         }
                         else
                         {
-                            LL_DEBUGS() << "mPhysicsShapeRequests failed: " << req.mId << LL_ENDL;
+                            LL_DEBUGS(LOG_MESH) << "mPhysicsShapeRequests failed: " << req.mId << LL_ENDL;
                         }
                     }
                 }
@@ -1195,12 +1201,30 @@ void LLMeshRepoThread::lockAndLoadMeshLOD(const LLVolumeParams& mesh_params, S32
     }
 }
 
-
 void LLMeshRepoThread::loadMeshLOD(const LLVolumeParams& mesh_params, S32 lod)
 { //could be called from any thread
     const LLUUID& mesh_id = mesh_params.getSculptID();
     LLMutexLock lock(mMutex);
     LLMutexLock header_lock(mHeaderMutex);
+    loadMeshLOD(mesh_id, mesh_params, lod);
+}
+
+void LLMeshRepoThread::loadMeshLODs(const lod_list_t& list)
+{ //could be called from any thread
+    LLMutexLock lock(mMutex);
+    LLMutexLock header_lock(mHeaderMutex);
+    for (auto lod_pair : list)
+    {
+        const LLVolumeParams& mesh_params = lod_pair.first;
+        const LLUUID& mesh_id = mesh_params.getSculptID();
+        S32 lod = lod_pair.second;
+        loadMeshLOD(mesh_id, mesh_params, lod);
+    }
+}
+
+void LLMeshRepoThread::loadMeshLOD(const LLUUID& mesh_id, const LLVolumeParams& mesh_params, S32 lod)
+{
+    // must be mutex locked by caller
     mesh_header_map::iterator iter = mMeshHeader.find(mesh_id);
     if (iter != mMeshHeader.end())
     { //if we have the header, request LOD byte range
@@ -1217,14 +1241,25 @@ void LLMeshRepoThread::loadMeshLOD(const LLVolumeParams& mesh_params, S32 lod)
         pending_lod_map::iterator pending = mPendingLOD.find(mesh_id);
 
         if (pending != mPendingLOD.end())
-        { //append this lod request to existing header request
-            pending->second.push_back(lod);
-            llassert(pending->second.size() <= LLModel::NUM_LODS);
+        {
+            //append this lod request to existing header request
+            if (lod < LLModel::NUM_LODS && lod >= 0)
+            {
+                pending->second[lod]++;
+            }
+            else
+            {
+                LL_WARNS(LOG_MESH) << "Invalid LOD request: " << lod << "for mesh" << mesh_id << LL_ENDL;
+            }
+            llassert_msg(lod < LLModel::NUM_LODS, "Requested lod is out of bounds");
         }
         else
-        { //if no header request is pending, fetch header
+        {
+            //if no header request is pending, fetch header
             mHeaderReqQ.push(req);
-            mPendingLOD[mesh_id].push_back(lod);
+            auto& array = mPendingLOD[mesh_id];
+            std::fill(array.begin(), array.end(), 0);
+            array[lod]++;
         }
     }
 }
@@ -1699,6 +1734,20 @@ void LLMeshRepoThread::decActiveHeaderRequests()
     --LLMeshRepoThread::sActiveHeaderRequests;
 }
 
+//static
+void LLMeshRepoThread::incActiveSkinRequests()
+{
+    LLMutexLock lock(gMeshRepo.mThread->mMutex);
+    ++LLMeshRepoThread::sActiveSkinRequests;
+}
+
+//static
+void LLMeshRepoThread::decActiveSkinRequests()
+{
+    LLMutexLock lock(gMeshRepo.mThread->mMutex);
+    --LLMeshRepoThread::sActiveSkinRequests;
+}
+
 //return false if failed to get header
 bool LLMeshRepoThread::fetchMeshHeader(const LLVolumeParams& mesh_params, bool can_retry)
 {
@@ -1969,11 +2018,27 @@ EMeshProcessingResult LLMeshRepoThread::headerReceived(const LLVolumeParams& mes
         pending_lod_map::iterator iter = mPendingLOD.find(mesh_id);
         if (iter != mPendingLOD.end())
         {
-            for (U32 i = 0; i < iter->second.size(); ++i)
+            for (S32 i = 0; i < iter->second.size(); ++i)
             {
-                LODRequest req(mesh_params, iter->second[i]);
-                mLODReqQ.push(req);
-                LLMeshRepository::sLODProcessing++;
+                if (iter->second[i] > 1)
+                {
+                    // mLoadingMeshes should be protecting from dupplciates, but looks
+                    // like this is possible if object rezzes, unregisterMesh, then
+                    // rezzes again before first request completes.
+                    // mLoadingMeshes might need to change a bit to not rerequest if
+                    // mesh is already pending.
+                    //
+                    // Todo: Improve mLoadingMeshes and once done turn this into an assert.
+                    // Low priority since such situation should be relatively rare
+                    LL_INFOS(LOG_MESH) << "Multiple dupplicate requests for mesd ID:  " << mesh_id << " LOD: " << i
+                        << LL_ENDL;
+                }
+                if (iter->second[i] > 0)
+                {
+                    LODRequest req(mesh_params, i);
+                    mLODReqQ.push(req);
+                    LLMeshRepository::sLODProcessing++;
+                }
             }
             mPendingLOD.erase(iter);
         }
@@ -3446,6 +3511,7 @@ LLMeshSkinInfoHandler::~LLMeshSkinInfoHandler()
     {
         LL_WARNS(LOG_MESH) << "deleting unprocessed request handler (may be ok on exit)" << LL_ENDL;
     }
+    LLMeshRepoThread::decActiveSkinRequests();
 }
 
 void LLMeshSkinInfoHandler::processFailure(LLCore::HttpStatus status)
@@ -3781,7 +3847,7 @@ S32 LLMeshRepository::loadMesh(LLVOVolume* vobj, const LLVolumeParams& mesh_para
         {
             //first request for this mesh
             mLoadingMeshes[detail][mesh_id].push_back(vobj);
-            mPendingRequests.push_back(LLMeshRepoThread::LODRequest(mesh_params, detail));
+            mPendingRequests.emplace_back(new PendingRequestLOD(mesh_params, detail));
             LLMeshRepository::sLODPending++;
         }
     }
@@ -3838,6 +3904,44 @@ S32 LLMeshRepository::loadMesh(LLVOVolume* vobj, const LLVolumeParams& mesh_para
     }
 
     return detail;
+}
+
+F32 calculate_score(LLVOVolume* object)
+{
+    if (!object)
+    {
+        return -1.f;
+    }
+    LLDrawable* drawable = object->mDrawable;
+    if (!drawable)
+    {
+        return -1;
+    }
+    if (drawable->isState(LLDrawable::RIGGED) || object->isAttachment())
+    {
+        LLVOAvatar* avatar = object->getAvatar();
+        LLDrawable* av_drawable = avatar ? avatar->mDrawable : nullptr;
+        if (avatar && av_drawable)
+        {
+            // See LLVOVolume::calcLOD()
+            F32 radius;
+            if (avatar->isControlAvatar())
+            {
+                const LLVector3* box = avatar->getLastAnimExtents();
+                LLVector3 diag = box[1] - box[0];
+                radius = diag.magVec() * 0.5f;
+            }
+            else
+            {
+                // Volume in a rigged mesh attached to a regular avatar.
+                const LLVector3* box = avatar->getLastAnimExtents();
+                LLVector3 diag = box[1] - box[0];
+                radius = diag.magVec();
+            }
+            return radius / llmax(av_drawable->mDistanceWRTCamera, 1.f);
+        }
+    }
+    return drawable->getRadius() / llmax(drawable->mDistanceWRTCamera, 1.f);
 }
 
 void LLMeshRepository::notifyLoadedMeshes()
@@ -4017,8 +4121,12 @@ void LLMeshRepository::notifyLoadedMeshes()
             mUploadErrorQ.pop();
         }
 
-        S32 active_count = LLMeshRepoThread::sActiveHeaderRequests + LLMeshRepoThread::sActiveLODRequests;
-        if (active_count < LLMeshRepoThread::sRequestLowWater)
+        // mPendingRequests go into queues, queues go into active http requests.
+        // Checking sRequestHighWater to keep queues at least somewhat populated
+        // for faster transition into http
+        S32 active_count = LLMeshRepoThread::sActiveHeaderRequests + LLMeshRepoThread::sActiveLODRequests + LLMeshRepoThread::sActiveSkinRequests;
+        active_count += (S32)(mThread->mLODReqQ.size() + mThread->mHeaderReqQ.size() + mThread->mSkinInfoQ.size());
+        if (active_count < LLMeshRepoThread::sRequestHighWater)
         {
             S32 push_count = LLMeshRepoThread::sRequestHighWater - active_count;
 
@@ -4039,48 +4147,73 @@ void LLMeshRepository::notifyLoadedMeshes()
                         F32 max_score = 0.f;
                         for (auto obj_iter = iter->second.begin(); obj_iter != iter->second.end(); ++obj_iter)
                         {
-                            LLVOVolume* object = *obj_iter;
-                            if (object)
+                            F32 cur_score = calculate_score(*obj_iter);
+                            if (cur_score >= 0.f)
                             {
-                                LLDrawable* drawable = object->mDrawable;
-                                if (drawable)
-                                {
-                                    F32 cur_score = drawable->getRadius()/llmax(drawable->mDistanceWRTCamera, 1.f);
-                                    max_score = llmax(max_score, cur_score);
-                                }
+                                max_score = llmax(max_score, cur_score);
                             }
                         }
 
                         score_map[iter->first] = max_score;
                     }
                 }
+                for (mesh_load_map::iterator iter = mLoadingSkins.begin(); iter != mLoadingSkins.end(); ++iter)
+                {
+                    F32 max_score = 0.f;
+                    for (auto obj_iter = iter->second.begin(); obj_iter != iter->second.end(); ++obj_iter)
+                    {
+                        F32 cur_score = calculate_score(*obj_iter);
+                        if (cur_score >= 0.f)
+                        {
+                            max_score = llmax(max_score, cur_score);
+                        }
+                    }
+
+                    score_map[iter->first] = max_score;
+                }
 
                 //set "score" for pending requests
-                for (std::vector<LLMeshRepoThread::LODRequest>::iterator iter = mPendingRequests.begin(); iter != mPendingRequests.end(); ++iter)
+                for (std::unique_ptr<PendingRequestBase>& req_p : mPendingRequests)
                 {
-                    iter->mScore = score_map[iter->mMeshParams.getSculptID()];
+                    req_p->setScore(score_map[req_p->getId()]);
                 }
 
                 //sort by "score"
                 std::partial_sort(mPendingRequests.begin(), mPendingRequests.begin() + push_count,
-                                  mPendingRequests.end(), LLMeshRepoThread::CompareScoreGreater());
+                                  mPendingRequests.end(), PendingRequestBase::CompareScoreGreater());
             }
-
+            LLMeshRepoThread::lod_list_t pending_lods; // to avoid locking on each operation, make a list beforehand
+            pending_lods.reserve(push_count);
             while (!mPendingRequests.empty() && push_count > 0)
             {
-                LLMeshRepoThread::LODRequest& request = mPendingRequests.front();
-                mThread->loadMeshLOD(request.mMeshParams, request.mLOD);
+                std::unique_ptr<PendingRequestBase>& req_p = mPendingRequests.front();
+                switch (req_p->getRequestType())
+                {
+                case MESH_REQUEST_LOD:
+                    {
+                        PendingRequestLOD* lod = (PendingRequestLOD*)req_p.get();
+                        pending_lods.emplace_back(lod->mMeshParams, lod->mLOD);
+                        LLMeshRepository::sLODPending--;
+                        break;
+                    }
+                case MESH_REQUEST_SKIN:
+                    {
+                        PendingRequestUUID* skin = (PendingRequestUUID*)req_p.get();
+                        mThread->loadMeshSkinInfo(skin->getId());
+                        break;
+                    }
+
+                default:
+                    LL_ERRS() << "Unknown request type in LLMeshRepository::notifyLoadedMeshes" << LL_ENDL;
+                    break;
+                }
                 mPendingRequests.erase(mPendingRequests.begin());
-                LLMeshRepository::sLODPending--;
                 push_count--;
             }
-        }
-
-        //send skin info requests
-        while (!mPendingSkinRequests.empty())
-        {
-            mThread->loadMeshSkinInfo(mPendingSkinRequests.front());
-            mPendingSkinRequests.pop();
+            if (!pending_lods.empty())
+            {
+                mThread->loadMeshLODs(pending_lods);
+            }
         }
 
         //send decomposition requests
@@ -4274,7 +4407,7 @@ const LLMeshSkinInfo* LLMeshRepository::getSkinInfo(const LLUUID& mesh_id, LLVOV
             {
                 //first request for this mesh
                 mLoadingSkins[mesh_id].push_back(requesting_obj);
-                mPendingSkinRequests.push(mesh_id);
+                mPendingRequests.emplace_back(new PendingRequestUUID(mesh_id, MESH_REQUEST_SKIN));
             }
         }
     }

@@ -308,7 +308,15 @@ namespace LLError
     class LLUserWarningMsg
     {
     public:
-        typedef std::function<void(const std::string&, const std::string&)> Handler;
+        typedef enum
+        {
+            ERROR_OTHER = 0,
+            ERROR_BAD_ALLOC = 1,
+            ERROR_MISSING_FILES = 2,
+        } eLastExecEvent;
+
+        // tittle, message and error code to include in error marker file
+        typedef std::function<void(const std::string&, const std::string&, S32 error_code)> Handler;
         static void setHandler(const Handler&);
         static void setOutOfMemoryStrings(const std::string& title, const std::string& message);
 
@@ -316,7 +324,7 @@ namespace LLError
         static void showOutOfMemory();
         static void showMissingFiles();
         // Genering error
-        static void show(const std::string&);
+        static void show(const std::string&, S32 error_code = -1);
 
     private:
         // needs to be preallocated before viewer runs out of memory

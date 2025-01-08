@@ -31,5 +31,8 @@ void main()
     frag_data[0] = vec4(0, 0, 0, 0);
     frag_data[1] = vec4(0, 0, 0, 0);
     frag_data[2] = vec4(1, 0, 0, GBUFFER_FLAG_HAS_PBR);
+
+#if defined(HAS_EMISSIVE)
     frag_data[3] = vec4(1, 0, 0, 0);
+#endif
 }

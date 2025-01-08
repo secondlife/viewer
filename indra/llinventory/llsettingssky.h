@@ -209,6 +209,12 @@ public:
 
     F32 getGamma() const;
 
+    F32 getHDRMin(bool auto_adjust = false) const;
+    F32 getHDRMax(bool auto_adjust = false) const;
+    F32 getHDROffset(bool auto_adjust = false) const;
+    F32 getTonemapMix(bool auto_adjust = false) const;
+    void setTonemapMix(F32 mix);
+
     void setGamma(F32 val);
 
     LLColor3 getGlow() const;
@@ -380,6 +386,10 @@ protected:
     F32 mCloudVariance;
     F32 mCloudShadow;
     F32 mCloudScale;
+    F32 mTonemapMix;
+    F32 mHDROffset;
+    F32 mHDRMax;
+    F32 mHDRMin;
     LLVector2 mScrollRate;
     LLColor3 mCloudPosDensity1;
     LLColor3 mCloudPosDensity2;

@@ -38,6 +38,8 @@ in vec2 vary_texcoord0;
 
 vec3 linear_to_srgb(vec3 c);
 
+vec4 encodeNormal(vec3 n, float env, float gbuffer_flag);
+
 void main()
 {
     vec4 col = texture(diffuseMap, vary_texcoord0.xy);
@@ -53,5 +55,8 @@ void main()
     frag_data[0] = vec4(col.rgb, 0.0);
     frag_data[1] = spec;
     frag_data[2] = vec4(norm.xyz, GBUFFER_FLAG_HAS_ATMOS);
+
+#if defined(HAS_EMISSIVE)
     frag_data[3] = vec4(0);
+#endif
 }

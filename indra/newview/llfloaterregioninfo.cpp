@@ -553,7 +553,7 @@ void LLFloaterRegionInfo::refreshFromRegion(LLViewerRegion* region)
     if (region != gAgent.getRegion())
         return;
 
-    if (LLFloaterRegionInfo* floater = LLFloaterReg::getTypedInstance<LLFloaterRegionInfo>("region_info"))
+    if (LLFloaterRegionInfo* floater = LLFloaterReg::findTypedInstance<LLFloaterRegionInfo>("region_info"))
     {
         if (floater->getVisible() && region == gAgent.getRegion())
         {
@@ -830,6 +830,13 @@ void LLPanelRegionInfo::disableButton(const std::string& btn_name)
 void LLPanelRegionInfo::initCtrl(const std::string& name)
 {
     getChild<LLUICtrl>(name)->setCommitCallback(boost::bind(&LLPanelRegionInfo::onChangeAnything, this));
+}
+
+void LLPanelRegionInfo::initAndSetTexCtrl(LLTextureCtrl*& ctrl, const std::string& name)
+{
+    ctrl = findChild<LLTextureCtrl>(name);
+    if (ctrl)
+        ctrl->setOnSelectCallback([this](LLUICtrl* ctrl, const LLSD& param){ onChangeAnything(); });
 }
 
 template<typename CTRL>
@@ -1564,7 +1571,7 @@ bool LLPanelRegionTerrainInfo::postBuild()
 
     for(S32 i = 0; i < LLTerrainMaterials::ASSET_COUNT; ++i)
     {
-        initAndSetCtrl(mTextureDetailCtrl[i], llformat("texture_detail_%d", i));
+        initAndSetTexCtrl(mTextureDetailCtrl[i], llformat("texture_detail_%d", i));
         if (mTextureDetailCtrl[i])
         {
             mTextureDetailCtrl[i]->setBakeTextureEnabled(false);
@@ -2084,8 +2091,14 @@ LLPanelEstateInfo::LLPanelEstateInfo()
     mEstateID(0)    // invalid
 {
     LLEstateInfoModel& estate_info = LLEstateInfoModel::instance();
-    estate_info.setCommitCallback(boost::bind(&LLPanelEstateInfo::refreshFromEstate, this));
-    estate_info.setUpdateCallback(boost::bind(&LLPanelEstateInfo::refreshFromEstate, this));
+    mEstateInfoCommitConnection = estate_info.setCommitCallback(boost::bind(&LLPanelEstateInfo::refreshFromEstate, this));
+    mEstateInfoUpdateConnection = estate_info.setUpdateCallback(boost::bind(&LLPanelEstateInfo::refreshFromEstate, this));
+}
+
+LLPanelEstateInfo::~LLPanelEstateInfo()
+{
+    mEstateInfoCommitConnection.disconnect();
+    mEstateInfoUpdateConnection.disconnect();
 }
 
 // static

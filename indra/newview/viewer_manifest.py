@@ -507,30 +507,34 @@ class Windows_x86_64_Manifest(ViewerManifest):
         if self.is_packaging_viewer():
             # Find secondlife-bin.exe in the 'configuration' dir, then rename it to the result of final_exe.
             self.path(src='%s/secondlife-bin.exe' % self.args['configuration'], dst=self.final_exe())
-            # Emit the whole app image as one of the GitHub step outputs. We
-            # want the whole app -- but NOT the extraneous build products that
-            # get tossed into the same directory, such as the installer and
-            # the symbols tarball, so add exclusions. When we feed
-            # upload-artifact multiple absolute pathnames, even just for
-            # exclusion, it ends up creating several extraneous directory
-            # levels within the artifact -- so try using only relative paths.
-            # One problem: as of right now, our current directory os.getcwd()
-            # is not the same as the initial working directory for this job
-            # step, meaning paths relative to our os.getcwd() won't work for
-            # the subsequent upload-artifact step. We're a couple directory
-            # levels down. Try adjusting for those when specifying the base
-            # for self.relpath().
-            appbase = self.relpath(
-                self.get_dst_prefix(),
-                base=os.path.join(os.getcwd(), os.pardir, os.pardir))
-            self.set_github_output('viewer_app', appbase,
-                                   # except for this stuff
-                                   *(('!' + os.path.join(appbase, pattern))
-                                     for pattern in (
-                                             'secondlife-bin.*',
-                                             '*_Setup.exe',
-                                             '*.bat',
-                                             '*.tar.xz')))
+
+            GITHUB_OUTPUT = os.getenv('GITHUB_OUTPUT')
+            if GITHUB_OUTPUT:
+                # Emit the whole app image as one of the GitHub step outputs. We
+                # want the whole app -- but NOT the extraneous build products that
+                # get tossed into the same directory, such as the installer and
+                # the symbols tarball, so add exclusions. When we feed
+                # upload-artifact multiple absolute pathnames, even just for
+                # exclusion, it ends up creating several extraneous directory
+                # levels within the artifact -- so try using only relative paths.
+                # One problem: as of right now, our current directory os.getcwd()
+                # is not the same as the initial working directory for this job
+                # step, meaning paths relative to our os.getcwd() won't work for
+                # the subsequent upload-artifact step. We're a couple directory
+                # levels down. Try adjusting for those when specifying the base
+                # for self.relpath().
+                appbase = self.relpath(
+                    self.get_dst_prefix(),
+                    base=os.path.join(os.getcwd(), os.pardir, os.pardir),
+                    symlink=True)
+                self.set_github_output('viewer_app', appbase,
+                                    # except for this stuff
+                                    *(('!' + os.path.join(appbase, pattern))
+                                        for pattern in (
+                                                'secondlife-bin.*',
+                                                '*_Setup.exe',
+                                                '*.bat',
+                                                '*.tar.xz')))
 
             with self.prefix(src=os.path.join(pkgdir, "VMP")):
                 # include the compiled launcher scripts so that it gets included in the file_list

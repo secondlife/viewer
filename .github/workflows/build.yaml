@@ -460,7 +460,7 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
-          pattern: "LinuxOS-app"
+          pattern: "Linux-app"
 
       - name: Rename metadata
         run: |
@@ -468,6 +468,8 @@ jobs:
           cp Windows-metadata/newview/viewer_version.txt Windows-viewer_version.txt
           cp macOS-metadata/autobuild-package.xml macOS-autobuild-package.xml
           cp macOS-metadata/newview/viewer_version.txt macOS-viewer_version.txt
+          cp Linux-metadata/autobuild-package.xml Linux-autobuild-package.xml
+          cp Linux-metadata/newview/viewer_version.txt Linux-viewer_version.txt
 
       # forked from softprops/action-gh-release
       - name: Create GitHub release
@@ -492,6 +494,7 @@ jobs:
           files: |
             macOS-installer/*.dmg
             Windows-installer/*.exe
+            Linux-app/*.tar.xz
             *-autobuild-package.xml
             *-viewer_version.txt
 

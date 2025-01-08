@@ -260,6 +260,8 @@ void LLWebRTCVoiceClient::cleanupSingleton()
     cleanUp();
     stopTimer();
     sessionState::clearSessions();
+
+    mStatusObservers.clear();
 }
 
 //---------------------------------------------------
@@ -418,8 +420,9 @@ void LLWebRTCVoiceClient::notifyStatusObservers(LLVoiceClientStatusObserver::ESt
     LL_DEBUGS("Voice") << "( " << LLVoiceClientStatusObserver::status2string(status) << " )"
                        << " mSession=" << mSession << LL_ENDL;
 
+    bool in_spatial_channel = inSpatialChannel();
     LL_DEBUGS("Voice") << " " << LLVoiceClientStatusObserver::status2string(status) << ", session channelInfo "
-                       << getAudioSessionChannelInfo() << ", proximal is " << inSpatialChannel() << LL_ENDL;
+                       << getAudioSessionChannelInfo() << ", proximal is " << in_spatial_channel << LL_ENDL;
 
     mIsProcessingChannels = status == LLVoiceClientStatusObserver::STATUS_JOINED;
 
@@ -427,7 +430,7 @@ void LLWebRTCVoiceClient::notifyStatusObservers(LLVoiceClientStatusObserver::ESt
     for (status_observer_set_t::iterator it = mStatusObservers.begin(); it != mStatusObservers.end();)
     {
         LLVoiceClientStatusObserver *observer = *it;
-        observer->onChange(status, channelInfo, inSpatialChannel());
+        observer->onChange(status, channelInfo, in_spatial_channel);
         // In case onError() deleted an entry.
         it = mStatusObservers.upper_bound(observer);
     }

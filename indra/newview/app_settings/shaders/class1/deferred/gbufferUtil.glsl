@@ -1,9 +1,9 @@
 /**
- * @file class1/deferred/globalF.glsl
+ * @file class1/deferred/gbufferUtil.glsl
  *
  * $LicenseInfo:firstyear=2024&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2024, Linden Research, Inc.
+ * Copyright (C) 2007, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -23,39 +23,37 @@
  * $/LicenseInfo$
  */
 
+uniform sampler2D diffuseRect;
+uniform sampler2D specularRect;
 
- // Global helper functions included in every fragment shader
- // DO NOT declare sampler uniforms here as OS X doesn't compile
- // them out
+#if defined(HAS_EMISSIVE)
+uniform sampler2D emissiveRect;
+#endif
 
-uniform float mirror_flag;
-uniform vec4 clipPlane;
-uniform float clipSign;
+vec4 getNormRaw(vec2 screenpos);
+vec4 decodeNormal(vec4 norm);
 
-void mirrorClip(vec3 pos)
+GBufferInfo getGBuffer(vec2 screenpos)
 {
-    if (mirror_flag > 0)
-    {
-        if ((dot(pos.xyz, clipPlane.xyz) + clipPlane.w) < 0.0)
-        {
-                discard;
-        }
-    }
-}
+    GBufferInfo ret;
+    vec4 diffInfo = vec4(0);
+    vec4 specInfo = vec4(0);
+    vec4 emissInfo = vec4(0);
 
-vec4 encodeNormal(vec3 n, float env, float gbuffer_flag)
-{
-    float f = sqrt(8 * n.z + 8);
-    return vec4(n.xy / f + 0.5, env, gbuffer_flag);
-}
+    diffInfo = texture(diffuseRect, screenpos.xy);
+    specInfo = texture(specularRect, screenpos.xy);
+    vec4 normInfo = getNormRaw(screenpos);
 
-vec4 decodeNormal(vec4 norm)
-{
-    vec2 fenc = norm.xy*4-2;
-    float f = dot(fenc,fenc);
-    float g = sqrt(1-f/4);
-    vec4 n;
-    n.xy = fenc*g;
-    n.z = 1-f/2;
-    return n;
+#if defined(HAS_EMISSIVE)
+    emissInfo = texture(emissiveRect, screenpos.xy);
+#endif
+
+    ret.albedo = diffInfo;
+    ret.normal = decodeNormal(normInfo).xyz;
+    ret.specular = specInfo;
+    ret.envIntensity = normInfo.b;
+    ret.gbufferFlag = normInfo.w;
+    ret.emissive = emissInfo;
+
+    return ret;
 }

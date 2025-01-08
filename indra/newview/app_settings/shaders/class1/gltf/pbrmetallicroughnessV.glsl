@@ -197,7 +197,7 @@ out vec3 vary_fragcoord;
 
 layout (std140) uniform GLTFJoints
 {
-    mat3x4 gltf_joints[MAX_NODES_PER_GLTF_OBJECT];
+    vec4 gltf_joints[MAX_NODES_PER_GLTF_OBJECT];
 };
 
 
@@ -210,27 +210,22 @@ mat4 getGLTFTransform()
 
     vec4 w = weight4;
 
-    uint i1 = joint.x;
-    uint i2 = joint.y;
-    uint i3 = joint.z;
-    uint i4 = joint.w;
+    uint i1 = joint.x*3u;
+    uint i2 = joint.y*3u;
+    uint i3 = joint.z*3u;
+    uint i4 = joint.w*3u;
 
-    mat3 mat = mat3(gltf_joints[i1])*w.x;
-         mat += mat3(gltf_joints[i2])*w.y;
-         mat += mat3(gltf_joints[i3])*w.z;
-         mat += mat3(gltf_joints[i4])*w.w;
+    // lerp the joints
+    vec4 v0 = gltf_joints[i1+0u] * w.x + gltf_joints[i2+0u] * w.y + gltf_joints[i3+0u] * w.z + gltf_joints[i4+0u] * w.w;
+    vec4 v1 = gltf_joints[i1+1u] * w.x + gltf_joints[i2+1u] * w.y + gltf_joints[i3+1u] * w.z + gltf_joints[i4+1u] * w.w;
+    vec4 v2 = gltf_joints[i1+2u] * w.x + gltf_joints[i2+2u] * w.y + gltf_joints[i3+2u] * w.z + gltf_joints[i4+2u] * w.w;
 
-    vec3 trans = vec3(gltf_joints[i1][0].w,gltf_joints[i1][1].w,gltf_joints[i1][2].w)*w.x;
-         trans += vec3(gltf_joints[i2][0].w,gltf_joints[i2][1].w,gltf_joints[i2][2].w)*w.y;
-         trans += vec3(gltf_joints[i3][0].w,gltf_joints[i3][1].w,gltf_joints[i3][2].w)*w.z;
-         trans += vec3(gltf_joints[i4][0].w,gltf_joints[i4][1].w,gltf_joints[i4][2].w)*w.w;
-
+    //unpack into return matrix
     mat4 ret;
-
-    ret[0] = vec4(mat[0], 0);
-    ret[1] = vec4(mat[1], 0);
-    ret[2] = vec4(mat[2], 0);
-    ret[3] = vec4(trans, 1.0);
+    ret[0] = vec4(v0.xyz, 0);
+    ret[1] = vec4(v1.xyz, 0);
+    ret[2] = vec4(v2.xyz, 0);
+    ret[3] = vec4(v0.w, v1.w, v2.w, 1.0);
 
     return ret;
 }
@@ -239,7 +234,7 @@ mat4 getGLTFTransform()
 
 layout (std140) uniform GLTFNodes
 {
-    mat3x4 gltf_nodes[MAX_NODES_PER_GLTF_OBJECT];
+    vec4 gltf_nodes[MAX_NODES_PER_GLTF_OBJECT];
 };
 
 uniform int gltf_node_id = 0;
@@ -247,13 +242,17 @@ uniform int gltf_node_id = 0;
 mat4 getGLTFTransform()
 {
     mat4 ret;
-    mat3x4 src = gltf_nodes[gltf_node_id];
+    int idx = gltf_node_id*3;
 
-    ret[0] = vec4(src[0].xyz, 0);
-    ret[1] = vec4(src[1].xyz, 0);
-    ret[2] = vec4(src[2].xyz, 0);
+    vec4 src0 = gltf_nodes[idx+0];
+    vec4 src1 = gltf_nodes[idx+1];
+    vec4 src2 = gltf_nodes[idx+2];
 
-    ret[3] = vec4(src[0].w, src[1].w, src[2].w, 1);
+    ret[0] = vec4(src0.xyz, 0);
+    ret[1] = vec4(src1.xyz, 0);
+    ret[2] = vec4(src2.xyz, 0);
+
+    ret[3] = vec4(src0.w, src1.w, src2.w, 1);
 
     return ret;
 }

@@ -42,6 +42,7 @@
 #include "lltrans.h"
 #include "llui.h"               // LLUI::getLanguage()
 #include "message.h"
+#include "llappviewer.h"
 
 LLAvatarPropertiesProcessor::LLAvatarPropertiesProcessor()
 {

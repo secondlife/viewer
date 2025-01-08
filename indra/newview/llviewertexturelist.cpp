@@ -934,7 +934,6 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
 
     if (imagep->getBoostLevel() < LLViewerFetchedTexture::BOOST_HIGH)  // don't bother checking face list for boosted textures
     {
-        static LLCachedControl<F32> bias_distance_scale(gSavedSettings, "TextureBiasDistanceScale", 1.f);
         static LLCachedControl<F32> texture_scale_min(gSavedSettings, "TextureScaleMinAreaFactor", 0.04f);
         static LLCachedControl<F32> texture_scale_max(gSavedSettings, "TextureScaleMaxAreaFactor", 25.f);
 
@@ -943,7 +942,12 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
 
         U32 face_count = 0;
 
-        F32 bias = (F32) llroundf(powf(4, LLViewerTexture::sDesiredDiscardBias - 1.f));
+        // get adjusted bias based on image resolution
+        F32 max_discard = F32(imagep->getMaxDiscardLevel());
+        F32 bias = llclamp(max_discard - 2.f, 1.f, LLViewerTexture::sDesiredDiscardBias);
+
+        // convert bias into a vsize scaler
+        bias = (F32) llroundf(powf(4, bias - 1.f));
 
         LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
         for (U32 i = 0; i < LLRender::NUM_TEXTURE_CHANNELS; ++i)
@@ -957,7 +961,6 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
                     ++face_count;
                     F32 radius;
                     F32 cos_angle_to_view_dir;
-                    static LLCachedControl<F32> bias_unimportant_threshold(gSavedSettings, "TextureBiasUnimportantFactor", 0.25f);
 
                     if ((gFrameCount - face->mLastTextureUpdate) > 10)
                     { // only call calcPixelArea at most once every 10 frames for a given face
@@ -989,6 +992,13 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
                     if (!face->mInFrustum || LLViewerTexture::sDesiredDiscardBias > 2.f)
                     {
                         vsize /= bias;
+                    }
+
+                    // boost resolution of textures that are important to the camera
+                    if (face->mInFrustum)
+                    {
+                        static LLCachedControl<F32> texture_camera_boost(gSavedSettings, "TextureCameraBoost", 8.f);
+                        vsize *= llmax(face->mImportanceToCamera*texture_camera_boost, 1.f);
                     }
 
                     max_vsize = llmax(max_vsize, vsize);
@@ -1095,8 +1105,45 @@ F32 LLViewerTextureList::updateImagesCreateTextures(F32 max_time)
 
     LLTimer create_timer;
 
+    while (!mCreateTextureList.empty())
+    {
+        LLViewerFetchedTexture* imagep = mCreateTextureList.front();
+        llassert(imagep->mCreatePending);
+
+        // desired discard may change while an image is being decoded. If the texture in VRAM is sufficient
+        // for the current desired discard level, skip the texture creation.  This happens more often than it probably
+        // should
+        bool redundant_load = imagep->hasGLTexture() && imagep->getDiscardLevel() <= imagep->getDesiredDiscardLevel();
+
+        if (!redundant_load)
+        {
+           imagep->createTexture();
+        }
+
+        imagep->postCreateTexture();
+        imagep->mCreatePending = false;
+        mCreateTextureList.pop();
+
+        if (imagep->hasGLTexture() && imagep->getDiscardLevel() < imagep->getDesiredDiscardLevel())
+        {
+            // NOTE: this may happen if the desired discard reduces while a decode is in progress and does not
+            // necessarily indicate a problem, but if log occurrences excede that of dsiplay_stats: FPS,
+            // something has probably gone wrong.
+            LL_WARNS_ONCE("Texture") << "Texture will be downscaled immediately after loading." << LL_ENDL;
+            imagep->scaleDown();
+        }
+
+        if (create_timer.getElapsedTimeF32() > max_time)
+        {
+            break;
+        }
+    }
+
     if (!mDownScaleQueue.empty() && gPipeline.mDownResMap.isComplete())
     {
+        LLGLDisable blend(GL_BLEND);
+        gGL.setColorMask(true, true);
+
         // just in case we downres textures, bind downresmap and copy program
         gPipeline.mDownResMap.bindTarget();
         gCopyProgram.bind();
@@ -1110,6 +1157,7 @@ F32 LLViewerTextureList::updateImagesCreateTextures(F32 max_time)
         // freeze.
         S32 min_count = (S32)mCreateTextureList.size() / 20 + 5;
 
+        create_timer.reset();
         while (!mDownScaleQueue.empty())
         {
             LLViewerFetchedTexture* image = mDownScaleQueue.front();
@@ -1134,25 +1182,6 @@ F32 LLViewerTextureList::updateImagesCreateTextures(F32 max_time)
         gPipeline.mDownResMap.flush();
     }
 
-    // do at least 5 and make sure we don't get too far behind even if it violates
-    // the time limit.  Textures pending creation have a copy of their texture data
-    // in system memory, so we don't want to let them pile up.
-    S32 min_count = (S32) mCreateTextureList.size() / 20 + 5;
-
-    while (!mCreateTextureList.empty())
-    {
-        LLViewerFetchedTexture *imagep =  mCreateTextureList.front();
-        llassert(imagep->mCreatePending);
-        imagep->createTexture();
-        imagep->postCreateTexture();
-        imagep->mCreatePending = false;
-        mCreateTextureList.pop();
-
-        if (create_timer.getElapsedTimeF32() > max_time && --min_count <= 0)
-        {
-            break;
-        }
-    }
     return create_timer.getElapsedTimeF32();
 }
 

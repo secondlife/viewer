@@ -38,6 +38,8 @@ uniform float max_probe_lod;
 
 uniform bool transparent_surface;
 
+uniform int classic_mode;
+
 #define MAX_REFMAP_COUNT 256  // must match LL_MAX_REFLECTION_PROBE_COUNT
 
 layout (std140) uniform ReflectionProbes
@@ -739,7 +741,10 @@ void doProbeSample(inout vec3 ambenv, inout vec3 glossenv,
 
     vec3 refnormpersp = reflect(pos.xyz, norm.xyz);
 
-    ambenv = sampleProbeAmbient(pos, norm, amblit);
+    ambenv = amblit;
+
+    if (classic_mode == 0)
+        ambenv = sampleProbeAmbient(pos, norm, amblit);
 
     float lod = (1.0-glossiness)*reflection_lods;
     glossenv = sampleProbes(pos, normalize(refnormpersp), lod);
@@ -845,7 +850,10 @@ void sampleReflectionProbesLegacy(out vec3 ambenv, out vec3 glossenv, out vec3 l
 
     vec3 refnormpersp = reflect(pos.xyz, norm.xyz);
 
-    ambenv = sampleProbeAmbient(pos, norm, amblit);
+    ambenv = amblit;
+
+    if (classic_mode == 0)
+        ambenv = sampleProbeAmbient(pos, norm, amblit);
 
     if (glossiness > 0.0)
     {

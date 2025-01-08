@@ -48,8 +48,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-uniform sampler2D   normalMap;
-uniform sampler2D   depthMap;
+uniform sampler2D normalMap;
+uniform sampler2D depthMap;
 uniform sampler2D projectionMap; // rgba
 uniform sampler2D brdfLut;
 
@@ -62,6 +62,8 @@ uniform float proj_lod  ; // (number of mips in proj map)
 uniform float proj_range; // range between near clip and far clip plane of projection
 uniform float proj_ambiance;
 
+uniform int classic_mode;
+
 // light params
 uniform vec3 color; // light_color
 uniform float size; // light_size
@@ -73,7 +75,10 @@ const float M_PI = 3.14159265;
 const float ONE_OVER_PI = 0.3183098861;
 
 vec3 srgb_to_linear(vec3 cs);
+vec3 linear_to_srgb(vec3 cs);
 vec3 atmosFragLightingLinear(vec3 light, vec3 additive, vec3 atten);
+
+vec4 decodeNormal(vec4 norm);
 
 float calcLegacyDistanceAttenuation(float distance, float falloff)
 {
@@ -145,8 +150,13 @@ vec2 getScreenCoordinate(vec2 screenpos)
 
 vec4 getNorm(vec2 screenpos)
 {
+    vec4 norm = decodeNormal(texture(normalMap, screenpos.xy));
+    return norm;
+}
+
+vec4 getNormRaw(vec2 screenpos)
+{
     vec4 norm = texture(normalMap, screenpos.xy);
-    norm.xyz = normalize(norm.xyz);
     return norm;
 }
 
@@ -350,13 +360,15 @@ vec2 BRDF(float NoV, float roughness)
 }
 
 // set colorDiffuse and colorSpec to the results of GLTF PBR style IBL
-vec3 pbrIbl(vec3 diffuseColor,
+void pbrIbl(vec3 diffuseColor,
             vec3 specularColor,
             vec3 radiance, // radiance map sample
             vec3 irradiance, // irradiance map sample
             float ao,       // ambient occlusion factor
             float nv,       // normal dot view vector
-            float perceptualRough)
+            float perceptualRough,
+            out vec3 diffuseOut,
+            out vec3 specularOut)
 {
     // retrieve a scale and bias to F0. See [1], Figure 3
     vec2 brdf = BRDF(clamp(nv, 0, 1), 1.0-perceptualRough);
@@ -366,7 +378,8 @@ vec3 pbrIbl(vec3 diffuseColor,
     vec3 diffuse = diffuseLight * diffuseColor;
     vec3 specular = specularLight * (specularColor * brdf.x + brdf.y);
 
-    return (diffuse + specular) * ao;
+    diffuseOut = diffuse * ao;
+    specularOut = specular * ao;
 }
 
 
@@ -429,12 +442,15 @@ float microfacetDistribution(PBRInfo pbrInputs)
     return roughnessSq / (M_PI * f * f);
 }
 
-vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor,
+void pbrPunctual(vec3 diffuseColor, vec3 specularColor,
                     float perceptualRoughness,
                     float metallic,
                     vec3 n, // normal
                     vec3 v, // surface point to camera
-                    vec3 l) //surface point to light
+                    vec3 l,
+                    out float nl,
+                    out vec3 diff,
+                    out vec3 spec) //surface point to light
 {
     // make sure specular highlights from punctual lights don't fall off of polished surfaces
     perceptualRoughness = max(perceptualRoughness, 8.0/255.0);
@@ -483,10 +499,11 @@ vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor,
     // Calculation of analytical lighting contribution
     vec3 diffuseContrib = (1.0 - F) * diffuse(pbrInputs);
     vec3 specContrib = F * G * D / (4.0 * NdotL * NdotV);
-    // Obtain final intensity as reflectance (BRDF) scaled by the energy of the light (cosine law)
-    vec3 color = NdotL * (diffuseContrib + specContrib);
 
-    return clamp(color, vec3(0), vec3(10));
+    nl = NdotL;
+
+    diff = diffuseContrib;
+    spec = specContrib;
 }
 
 vec3 pbrCalcPointLightOrSpotLight(vec3 diffuseColor, vec3 specularColor,
@@ -520,10 +537,17 @@ vec3 pbrCalcPointLightOrSpotLight(vec3 diffuseColor, vec3 specularColor,
 
         vec3 intensity = spot_atten * dist_atten * lightColor * 3.0; //magic number to balance with legacy materials
 
-        color = intensity*pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, n.xyz, v, lv);
-    }
+        float nl = 0;
+        vec3 diffPunc = vec3(0);
+        vec3 specPunc = vec3(0);
 
-    return color;
+        pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, n.xyz, v, lv, nl, diffPunc, specPunc);
+        color = intensity * clamp(nl * (diffPunc + specPunc), vec3(0), vec3(10));
+    }
+    float final_scale = 1.0;
+    if (classic_mode > 0)
+        final_scale = 0.9;
+    return color * final_scale;
 }
 
 void calcDiffuseSpecular(vec3 baseColor, float metallic, inout vec3 diffuseColor, inout vec3 specularColor)
@@ -539,10 +563,47 @@ vec3 pbrBaseLight(vec3 diffuseColor, vec3 specularColor, float metallic, vec3 v,
     vec3 color = vec3(0);
 
     float NdotV = clamp(abs(dot(norm, v)), 0.001, 1.0);
+    vec3 iblDiff = vec3(0);
+    vec3 iblSpec = vec3(0);
+    pbrIbl(diffuseColor, specularColor, radiance, irradiance, ao, NdotV, perceptualRoughness, iblDiff, iblSpec);
 
-    color += pbrIbl(diffuseColor, specularColor, radiance, irradiance, ao, NdotV, perceptualRoughness);
+    color += iblDiff;
 
-    color += pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, norm, v, normalize(light_dir)) * sunlit * 3.0 * scol; //magic number to balance with legacy materials
+    // For classic mode, we use a special version of pbrPunctual that basically gives us a deconstructed form of the lighting.
+    float nl = 0;
+    vec3 diffPunc = vec3(0);
+    vec3 specPunc = vec3(0);
+    pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, norm, v, normalize(light_dir), nl, diffPunc, specPunc);
+
+    // Depending on the sky, we combine these differently.
+    if (classic_mode > 0)
+    {
+        irradiance.rgb = srgb_to_linear(irradiance * 0.9); // BINGO
+
+        // Reconstruct the diffuse lighting that we do for blinn-phong materials here.
+        // A special note about why we do some really janky stuff for classic mode.
+        // Since adding classic mode, we've moved the lambertian diffuse multiply out from pbrPunctual and instead handle it in the different light type calcs.
+        // This will never be 100% correct, but at the very least we can make it look mostly correct with legacy skies and classic mode.
+
+        float da = pow(nl, 1.2);
+
+        vec3 sun_contrib = vec3(min(da, scol));
+
+        // Multiply by PI to account for lambertian diffuse colors.  Otherwise things will be too dark when lit by the sun on legacy skies.
+        sun_contrib = srgb_to_linear(linear_to_srgb(sun_contrib) * sunlit * 0.7) * M_PI;
+
+        // Manually recombine everything here.  We have to separate the shading to ensure that lighting is able to more closely match blinn-phong.
+        vec3 finalAmbient = irradiance.rgb * diffuseColor.rgb; // BINGO
+        vec3 finalSun = clamp(sun_contrib * ((diffPunc.rgb + specPunc.rgb) * scol), vec3(0), vec3(10)); // QUESTIONABLE BINGO?
+        color.rgb = srgb_to_linear(linear_to_srgb(finalAmbient) + (linear_to_srgb(finalSun) * 1.1));
+        //color.rgb = sun_contrib * diffuseColor.rgb;
+    }
+    else
+    {
+        color += clamp(nl * (diffPunc + specPunc), vec3(0), vec3(10)) * sunlit * 3.0 * scol;
+    }
+
+    color.rgb += iblSpec.rgb;
 
     color += colorEmissive;
 

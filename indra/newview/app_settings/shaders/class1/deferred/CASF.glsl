@@ -1151,7 +1151,7 @@ vec3 linear_to_srgb(vec3 cl);
  AF3 ASignedF3(AF3 m){return ASatF3(m*AF3_(A_INFN_F));}
  AF4 ASignedF4(AF4 m){return ASatF4(m*AF4_(A_INFN_F));}
 //------------------------------------------------------------------------------------------------------------------------------
- AF1 AGtZeroF1(AF1 m){return ASatF1(m*AF1_(A_INFP_F));}
+// #2744 avoid constant overflow  AF1 AGtZeroF1(AF1 m){return ASatF1(m*AF1_(A_INFP_F));}
  AF2 AGtZeroF2(AF2 m){return ASatF2(m*AF2_(A_INFP_F));}
  AF3 AGtZeroF3(AF3 m){return ASatF3(m*AF3_(A_INFP_F));}
  AF4 AGtZeroF4(AF4 m){return ASatF4(m*AF4_(A_INFP_F));}

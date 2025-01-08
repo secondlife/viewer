@@ -171,7 +171,11 @@ void LLVoiceClient::init(LLPumpIO *pump)
 
 void LLVoiceClient::userAuthorized(const std::string& user_id, const LLUUID &agentID)
 {
-    gAgent.addRegionChangedCallback(boost::bind(&LLVoiceClient::onRegionChanged, this));
+    if (mRegionChangedCallbackSlot.connected())
+    {
+        mRegionChangedCallbackSlot.disconnect();
+    }
+    mRegionChangedCallbackSlot = gAgent.addRegionChangedCallback(boost::bind(&LLVoiceClient::onRegionChanged, this));
     LLWebRTCVoiceClient::getInstance()->userAuthorized(user_id, agentID);
     LLVivoxVoiceClient::getInstance()->userAuthorized(user_id, agentID);
 }
@@ -617,8 +621,14 @@ bool LLVoiceClient::voiceEnabled()
 
 void LLVoiceClient::setVoiceEnabled(bool enabled)
 {
-    LLWebRTCVoiceClient::getInstance()->setVoiceEnabled(enabled);
-    LLVivoxVoiceClient::getInstance()->setVoiceEnabled(enabled);
+    if (LLWebRTCVoiceClient::instanceExists())
+    {
+        LLWebRTCVoiceClient::getInstance()->setVoiceEnabled(enabled);
+    }
+    if (LLVivoxVoiceClient::instanceExists())
+    {
+        LLVivoxVoiceClient::getInstance()->setVoiceEnabled(enabled);
+    }
 }
 
 void LLVoiceClient::updateMicMuteLogic()

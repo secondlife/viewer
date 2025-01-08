@@ -69,6 +69,7 @@ public:
     bool setCursorPosition(LLCoordWindow position) override;
     bool getCursorPosition(LLCoordWindow *position) override;
     bool getCursorDelta(LLCoordCommon* delta) const override;
+    bool isWarpMouse() const override { return !mAbsoluteCursorPosition; };
     void showCursor() override;
     void hideCursor() override;
     void showCursorFromMouseMove() override;
@@ -150,7 +151,7 @@ protected:
     LLSD    getNativeKeyData() const override;
 
     // Changes display resolution. Returns true if successful
-    bool    setDisplayResolution(S32 width, S32 height, S32 bits, S32 refresh);
+    bool    setDisplayResolution(S32 width, S32 height, S32 refresh);
 
     // Go back to last fullscreen display resolution.
     bool    setFullscreenResolution();
@@ -195,6 +196,7 @@ protected:
 
     HCURSOR     mCursor[ UI_CURSOR_COUNT ];  // Array of all mouse cursors
     LLCoordWindow mCursorPosition;  // mouse cursor position, should only be mutated on main thread
+    bool        mAbsoluteCursorPosition; // true if last position was received in absolute coordinates.
     LLMutex mRawMouseMutex;
     RAWINPUTDEVICE mRawMouse;
     LLCoordWindow mLastCursorPosition; // mouse cursor position from previous frame

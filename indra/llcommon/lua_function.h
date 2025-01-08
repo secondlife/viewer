@@ -122,6 +122,8 @@ public:
     void set_interrupts_counter(S32 counter);
     void check_interrupts_counter();
 
+    int push_debug_traceback();
+
 private:
     /*---------------------------- feature flag ----------------------------*/
     bool mFeature{ false };
