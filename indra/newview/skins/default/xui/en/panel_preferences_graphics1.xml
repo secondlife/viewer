@@ -313,6 +313,41 @@
        0
   </text>
 
+  <slider
+    control_name="IndirectMaxNonImpostors"
+    name="IndirectMaxNonImpostors"
+    decimal_digits="0"
+    increment="1"
+    initial_value="12"
+    show_text="false"
+    min_val="1"
+    max_val="66"
+    label="Maximum number of animated avatars:"
+    follows="left|top"
+    layout="topleft"
+    height="16"
+    label_width="240"
+    left="30"
+    top_delta="20"
+    width="393">
+      <slider.commit_callback
+        function="Pref.UpdateIndirectMaxNonImpostors"
+        parameter="IndirectNonImpostorsText" />
+  </slider>
+  <text
+    type="string"
+    length="1"
+    follows="left|top"
+    height="16"
+    layout="topleft"
+    top_delta="0"
+    left_delta="397"
+    text_readonly_color="LabelDisabledColor"
+    name="IndirectMaxNonImpostorsText"
+    width="65">
+      0
+  </text> 
+    
   <button
     height="23"
     label="Exceptions..."
