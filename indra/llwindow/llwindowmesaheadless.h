@@ -54,6 +54,7 @@ public:
     bool switchContext(bool fullscreen, const LLCoordScreen &size, bool disable_vsync, const LLCoordScreen * const posp = NULL) override {return false;};
     bool setCursorPosition(LLCoordWindow position) override {return false;};
     bool getCursorPosition(LLCoordWindow *position) override {return false;};
+    bool isWarpMouse() const override {return true;};
     void showCursor() override {};
     void hideCursor() override {};
     void showCursorFromMouseMove() override {};
