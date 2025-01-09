@@ -5,6 +5,10 @@ on:
   push:
     branches: ["main", "release/*", "project/*"]
     tags: ["Second_Life*"]
+  workflow_run:
+    workflows: ["Tag a Build"]
+    types:
+      - completed
 
 jobs:
   # The whole point of the setup job is that we want to set variables once
@@ -25,7 +29,7 @@ jobs:
       # When you want to use a string variable as a workflow YAML boolean, it's
       # important to ensure it's the empty string when false. If you omit || '',
       # its value when false is "false", which is interpreted as true.
-      RELEASE_RUN: ${{ (github.event.inputs.release_run || github.ref_type == 'tag' && startsWith(github.ref_name, 'Second_Life')) && 'Y' || '' }}
+      RELEASE_RUN: ${{ (github.event.inputs.release_run || github.event_name == 'workflow_run' || github.ref_type == 'tag' && startsWith(github.ref_name, 'Second_Life')) && 'Y' || '' }}
       FROM_FORK: ${{ github.event.pull_request.head.repo.fork }}
     steps:
       - name: Set Variables
