@@ -688,9 +688,11 @@ void LLInventoryPanel::itemChanged(const LLUUID& item_id, U32 mask, const LLInve
             {
                 LLFolderViewModelItem* old_parent_vmi = old_parent->getViewModelItem();
                 LLFolderViewModelItemInventory* viewmodel_folder = static_cast<LLFolderViewModelItemInventory*>(old_parent_vmi);
-                LLFolderViewFolder* new_parent =   (LLFolderViewFolder*)getItemByID(model_item->getParentUUID());
-                // Item has been moved.
-                if (old_parent != new_parent)
+                LLFolderViewFolder* new_parent = getFolderByID(model_item->getParentUUID());
+
+                if (old_parent != new_parent // Item has been moved.
+                    && (new_parent != NULL || !isInRootContent(item_id, view_item)) // item is not or shouldn't be in root content
+                    )
                 {
                     if (new_parent != NULL)
                     {
@@ -2268,6 +2270,7 @@ public:
     }
 
     void removeItemID(const LLUUID& id) override;
+    bool isInRootContent(const LLUUID& id, LLFolderViewItem* view_item) override;
 
 protected:
     LLInventoryFavoritesItemsPanel(const Params&);
@@ -2301,6 +2304,17 @@ void LLInventoryFavoritesItemsPanel::removeItemID(const LLUUID& id)
     }
 
     LLInventoryPanel::removeItemID(id);
+}
+
+bool LLInventoryFavoritesItemsPanel::isInRootContent(const LLUUID& id, LLFolderViewItem* view_item)
+{
+    if (!view_item->isFavorite())
+    {
+        return false;
+    }
+
+    std::set<LLUUID>::iterator found = mRootContentIDs.find(id);
+    return found != mRootContentIDs.end();
 }
 
 void LLInventoryFavoritesItemsPanel::findAndInitRootContent(const LLUUID& id)
