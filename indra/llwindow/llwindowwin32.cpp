@@ -44,6 +44,7 @@
 #include "llstring.h"
 #include "lldir.h"
 #include "llsdutil.h"
+#include "llsys.h"
 #include "llglslshader.h"
 #include "llthreadsafequeue.h"
 #include "stringize.h"
@@ -4681,6 +4682,23 @@ void LLWindowWin32::LLWindowWin32Thread::checkDXMem()
 
                     // Alternatively use GetDesc from below to get adapter's memory
                     UINT64 budget_mb = info.Budget / (1024 * 1024);
+                    if (gGLManager.mIsIntel)
+                    {
+                        U32Megabytes phys_mb = gSysMemory.getPhysicalMemoryKB();
+                        LL_WARNS() << "Physical memory: " << phys_mb << " MB" << LL_ENDL;
+
+                        if (phys_mb > 0)
+                        {
+                            // Intel uses 'shared' vram, cap it to 25% of total memory
+                            // Todo: consider caping all adapters at least to 50% ram
+                            budget_mb = llmin(budget_mb, (UINT64)(phys_mb * 0.25));
+                        }
+                        else
+                        {
+                            // if no data available, cap to 2Gb
+                            budget_mb = llmin(budget_mb, (UINT64)2048);
+                        }
+                    }
                     if (gGLManager.mVRAM < (S32)budget_mb)
                     {
                         gGLManager.mVRAM = (S32)budget_mb;
