@@ -2488,13 +2488,13 @@ If you continue to receive this message, please contact Second Life support for 
 	<string name="InvFolder Uncompressed Sounds">Uncompressed Sounds</string>
 	<string name="InvFolder Animations">Animations</string>
 	<string name="InvFolder Gestures">Gestures</string>
-	<string name="InvFolder Favorite">My Favorites</string>
+	<string name="InvFolder Favorite">Favorites Bar</string>
   <!-- historically default name of the Favorites folder can start from either "f" or "F" letter.
       Also, it can be written as "Favorite" or "Favorites".
   We should localize all variants of them with the same value -->
-	<string name="InvFolder favorite">My Favorites</string>
-	<string name="InvFolder Favorites">My Favorites</string>
-	<string name="InvFolder favorites">My Favorites</string>
+	<string name="InvFolder favorite">Favorites Bar</string>
+	<string name="InvFolder Favorites">Favorites Bar</string>
+	<string name="InvFolder favorites">Favorites Bar</string>
 	<string name="InvFolder Current Outfit">Current Outfit</string>
 	<string name="InvFolder Initial Outfits">Initial Outfits</string>
 	<string name="InvFolder My Outfits">My Outfits</string>
