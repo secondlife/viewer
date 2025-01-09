@@ -66,7 +66,7 @@ in vec2 normal_texcoord;
 #ifdef OUTPUT_DIFFUSE_ONLY
 out vec4 frag_color;
 #else
-vec4 encodeNormal(vec3 tnorm, float flag);
+vec4 encodeNormal(vec3 tnorm, float env, float flag);
 out vec4 frag_data[4];
 #endif
 
@@ -446,8 +446,10 @@ void main()
     // See: C++: addDeferredAttachments(), GLSL: softenLightF
     frag_data[0] = max(vec4(diffuse.rgb, bp_glow), vec4(0));
     frag_data[1] = max(vec4(spec.rgb,glossiness), vec4(0));
-    frag_data[2] = encodeNormal(tnorm, GBUFFER_FLAG_HAS_ATMOS);
+    frag_data[2] = encodeNormal(tnorm, env_intensity, GBUFFER_FLAG_HAS_ATMOS);
+#ifdef HAS_EMISSIVE
     frag_data[3] = max(vec4(env_intensity, emissive, 0, 0), vec4(0));
+#endif
 #endif
 }
 

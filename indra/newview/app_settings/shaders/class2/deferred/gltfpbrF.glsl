@@ -69,7 +69,7 @@ in vec2 emissive_texcoord;
 #ifdef OUTPUT_BASE_COLOR_ONLY
 out vec4 frag_color;
 #else
-vec4 encodeNormal(vec3 tnrom, float flag);
+vec4 encodeNormal(vec3 n, float env, float flag);
 out vec4 frag_data[4];
 #endif
 
@@ -331,8 +331,10 @@ void main()
     // See: C++: addDeferredAttachments(), GLSL: softenLightF
     frag_data[0] = max(vec4(basecolor.rgb, bp_glow), vec4(0));
     frag_data[1] = max(vec4(spec.rgb,0.0), vec4(0));
-    frag_data[2] = encodeNormal(tnorm, GBUFFER_FLAG_HAS_PBR);
+    frag_data[2] = encodeNormal(tnorm, 0, GBUFFER_FLAG_HAS_PBR);
+#if defined(HAS_EMISSIVE)
     frag_data[3] = max(vec4(emissive,0), vec4(0));
+#endif
 #endif
 }
 

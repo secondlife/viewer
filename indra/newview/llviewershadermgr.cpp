@@ -1284,6 +1284,8 @@ bool LLViewerShaderMgr::loadShadersDeferred()
             shader.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
             shader.clearPermutations();
 
+            add_common_permutations(&shader);
+
             shader.addPermutation("MAX_NODES_PER_GLTF_OBJECT", std::to_string(max_nodes));
             shader.addPermutation("MAX_INSTANCES_PER_GLTF_OBJECT", std::to_string(max_instances));
             shader.addPermutation("MAX_UBO_VEC4S", std::to_string(max_vec4s));
@@ -1341,6 +1343,8 @@ bool LLViewerShaderMgr::loadShadersDeferred()
                                 shader.mShaderFiles.push_back(make_pair("deferred/gltfpbrF.glsl", GL_FRAGMENT_SHADER));
                                 shader.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
                                 shader.clearPermutations();
+
+                                add_common_permutations(&shader);
 
                                 shader.addPermutation("MAX_NODES_PER_GLTF_OBJECT", std::to_string(max_nodes));
                                 shader.addPermutation("MAX_INSTANCES_PER_GLTF_OBJECT", std::to_string(max_instances));
@@ -1456,6 +1460,8 @@ bool LLViewerShaderMgr::loadShadersDeferred()
                             shader.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
                             shader.clearPermutations();
 
+                            add_common_permutations(&shader);
+
                             shader.addPermutation("MAX_NODES_PER_GLTF_OBJECT", std::to_string(max_nodes));
                             shader.addPermutation("MAX_INSTANCES_PER_GLTF_OBJECT", std::to_string(max_instances));
                             shader.addPermutation("MAX_UBO_VEC4S", std::to_string(max_vec4s));
@@ -1512,6 +1518,8 @@ bool LLViewerShaderMgr::loadShadersDeferred()
             shader.mShaderFiles.push_back(make_pair("deferred/blinnphongF.glsl", GL_FRAGMENT_SHADER));
             shader.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
             shader.clearPermutations();
+
+            add_common_permutations(&shader);
 
             shader.addPermutation("MAX_NODES_PER_GLTF_OBJECT", std::to_string(max_nodes));
             shader.addPermutation("MAX_INSTANCES_PER_GLTF_OBJECT", std::to_string(max_instances));
@@ -1570,6 +1578,8 @@ bool LLViewerShaderMgr::loadShadersDeferred()
                             shader.mShaderFiles.push_back(make_pair("deferred/blinnphongF.glsl", GL_FRAGMENT_SHADER));
                             shader.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
                             shader.clearPermutations();
+
+                            add_common_permutations(&shader);
 
                             shader.addPermutation("MAX_NODES_PER_GLTF_OBJECT", std::to_string(max_nodes));
                             shader.addPermutation("MAX_INSTANCES_PER_GLTF_OBJECT", std::to_string(max_instances));
@@ -1676,6 +1686,8 @@ bool LLViewerShaderMgr::loadShadersDeferred()
                         shader.mShaderFiles.push_back(make_pair("deferred/blinnphongF.glsl", GL_FRAGMENT_SHADER));
                         shader.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
                         shader.clearPermutations();
+
+                        add_common_permutations(&shader);
 
                         shader.addPermutation("MAX_NODES_PER_GLTF_OBJECT", std::to_string(max_nodes));
                         shader.addPermutation("MAX_INSTANCES_PER_GLTF_OBJECT", std::to_string(max_instances));

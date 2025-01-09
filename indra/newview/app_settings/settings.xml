@@ -7246,11 +7246,11 @@
     <key>Comment</key>
     <string>Maximum number of elements to store in a single octree node</string>
     <key>Persist</key>
-    <integer>1</integer>
+    <integer>0</integer>
     <key>Type</key>
     <string>U32</string>
     <key>Value</key>
-    <integer>128</integer>
+    <integer>64</integer>
   </map>
 
   <key>OctreeMinimumNodeSize</key>

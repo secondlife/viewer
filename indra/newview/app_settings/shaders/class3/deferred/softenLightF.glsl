@@ -156,6 +156,8 @@ void main()
 
     vec3  radiance  = vec3(0);
 
+    float scol = 1.0;
+
     if (GET_GBUFFER_FLAG(gb.gbufferFlag, GBUFFER_FLAG_HAS_PBR))
     {
 #if defined(HAS_SUN_SHADOW)

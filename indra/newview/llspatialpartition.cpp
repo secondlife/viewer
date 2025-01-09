@@ -1428,7 +1428,7 @@ void LLSpatialGroup::updateTransformUBOs()
                         tex_mask |= LLGLTFBatches::DIFFUSE_MAP;
                     }
                     LLViewerTexture* normal = facep->getTexture(LLRender::NORMAL_MAP);
-                    if (normal && (te->getMaterialParams() && te->getMaterialParams()->getNormalID().isNull()))
+                    if (normal && (te->getMaterialParams() && te->getMaterialParams()->getNormalID().notNull()))
                     {
                         tex_mask |= LLGLTFBatches::NORMAL_MAP;
                     }
