@@ -222,7 +222,7 @@ void LLHeroProbeManager::renderProbes()
     static LLCachedControl<S32> sUpdateRate(gSavedSettings, "RenderHeroProbeUpdateRate", 0);
 
     F32 near_clip = 0.01f;
-    if (mNearestHero != nullptr &&
+    if (mNearestHero != nullptr && !mNearestHero->isDead() &&
         !gTeleportDisplay && !gDisconnected && !LLAppViewer::instance()->logoutRequestSent())
     {
         LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("hpmu - realtime");
@@ -251,12 +251,13 @@ void LLHeroProbeManager::renderProbes()
             LL_PROFILE_ZONE_NUM(gFrameCount % rate);
             LL_PROFILE_ZONE_NUM(rate);
 
+            bool dynamic = mNearestHero->getReflectionProbeIsDynamic() && sDetail() > 0;
             for (U32 i = 0; i < 6; ++i)
             {
                 if ((gFrameCount % rate) == (i % rate))
                 { // update 6/rate faces per frame
                     LL_PROFILE_ZONE_NUM(i);
-                    updateProbeFace(mProbes[0], i, mNearestHero->getReflectionProbeIsDynamic() && sDetail > 0, near_clip);
+                    updateProbeFace(mProbes[0], i, dynamic, near_clip);
                 }
             }
             generateRadiance(mProbes[0]);
