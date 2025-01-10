@@ -7607,6 +7607,15 @@ https://secondlife.com/support/downloads/ からビューアを再インスト�
 	<string name="Material Texture Name Header">
 		テクスチャはこのマテリアルを表しています：
 	</string>
+	<string name="material_selection_title">
+		マテリアルの選択
+	</string>
+	<string name="material_selection_text">
+		マテリアルを選択：
+	</string>
+	<string name="material_batch_import_text">
+		‐一括アップロード‐
+	</string>
 	<string name="logging_calls_disabled_log_empty">
 		会話はログに記録されていません。ログの記録を開始するには、「初期設定」＞「チャット」で「保存：ログのみ」または「保存：ログと会話のテキスト」を選択します。
 	</string>

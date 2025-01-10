@@ -6,15 +6,6 @@
 	<string name="upload_fee_string">
 		アップロード費用L$ [FEE]
 	</string>
-	<string name="material_selection_title">
-		マテリアル選択
-	</string>
-	<string name="material_selection_text">
-		マテリアルを選択：
-	</string>
-	<string name="material_batch_import_text">
-		‐一括アップロード‐
-	</string>
 	<string name="material_override_title">
 		マテリアルの編集
 	</string>

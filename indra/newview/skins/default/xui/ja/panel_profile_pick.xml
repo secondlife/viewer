@@ -24,11 +24,14 @@
 		<layout_panel name="util_buttons_lp">
 			<layout_stack name="util_buttons_stack">
 				<layout_panel name="util_resizer_left"/>
+				<layout_panel name="tp_btn_lp">
+					<button name="teleport_btn" label="テレポート"/>
+				</layout_panel>
 				<layout_panel name="map_btn_lp">
 					<button name="show_on_map_btn" label="マップ上に表示"/>
 				</layout_panel>
-				<layout_panel name="tp_btn_lp">
-					<button name="teleport_btn" label="テレポート"/>
+				<layout_panel name="cl_btn_lp">
+					<button name="create_landmark_btn" label="ランドマークを作成" />
 				</layout_panel>
 				<layout_panel name="set_to_curr_location_btn_lp">
 					<button name="set_to_curr_location_btn" label="場所を設定" tool_tip="現在の場所を設定します。"/>

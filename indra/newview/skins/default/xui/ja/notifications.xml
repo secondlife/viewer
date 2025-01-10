@@ -4457,6 +4457,14 @@ UDP：3478, 3479, 5060, 5062, 6250, 12000-32000
 		<tag>voice</tag>
 		<usetemplate ignoretext="コールから抜ける前の確認" name="okcancelignore" notext="いいえ" yestext="はい"/>
 	</notification>
+	<notification name="ConfirmLeaveAdhoc">
+		この会話チャットから抜けてもよろしいですか？
+		<tag>confirm</tag>
+		<tag>voice</tag>
+		<usetemplate ignoretext="会話チャットから抜ける前の確認" name="okcancelignore" notext="いいえ" yestext="はい">
+			<unique/>
+		</usetemplate>
+	</notification>
 	<notification name="ConfirmMuteAll">
 		グループコールの参加者全員をミュートしました。
 あとからこのコールに参加する住人もミュートされます。
@@ -4748,11 +4756,6 @@ UDP：3478, 3479, 5060, 5062, 6250, 12000-32000
 		<tag>confirm</tag>
 		<usetemplate ignoretext="選択したオブジェクトをフレキシブルパスに変更する際にナビメッシュから削除されることの確認" name="okcancelignore" notext="キャンセル" yestext="ＯＫ"/>
 	</notification>
-	<global name="UnsupportedIntelDriver">
-		インストールされているIntelグラフィックスドライバ[GPUNAME]（バージョン[VERSION]）は古いため、プログラムのクラッシュの原因になりえます。最新のIntelドライバーに更新することを強くお勧めします。
-
-Intelドライバーのウェブサイトを確認しますか？
-	</global>
 	<global name="UnsupportedCPUAmount">
 		796
 	</global>

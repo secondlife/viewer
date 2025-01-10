@@ -96,6 +96,7 @@
 	</text>
 	<check_box label="アンビエントオクルージョン" name="UseSSAO"/>
 	<check_box label="被写界深度（ＤｏＦ）" name="UseDoF"/>
+	<check_box label="ＨＤＲと発光（エミッシヴ）" name="VintageMode"/>
 	<text name="RenderShadowDetailText">
 		影：
 	</text>
@@ -142,7 +143,8 @@
 		<combo_box.item label="高" name="1" value="2"/>
 		<combo_box.item label="ウルトラ" name="0" value="1"/>
 	</combo_box>
-	<slider label="画像の先鋭化量：" name="RenderSharpness"/>
+	<check_box label="画像の先鋭化" name="Sharpening"/>
+	<slider label="画像の先鋭化強度：" name="RenderSharpness"/>
 	<text name="TonemapTypeText">
 		トーンマッパ：
 	</text>

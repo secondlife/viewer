@@ -24,4 +24,5 @@
 	<button label="編集" name="edit_btn" tool_tip="選択したジェスチャーの編集ウィンドウを開きます。"/>
 	<button label="再生" name="play_btn" tool_tip="インワールドで選択したジェスチャーを実行します。"/>
 	<button label="停止" name="stop_btn"/>
+	<check_box name="play_all_infinitely" label="全て無限再生"/>
 </floater>

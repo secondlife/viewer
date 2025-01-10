@@ -23,6 +23,9 @@
 		一人称視点時のマウスの感度：
 	</text>
 	<check_box label="切り替え" name="invert_mouse"/>
+	<text name="mouse_warp_lbl">
+		マウスで覆ったとき：
+	</text>
 	<text name="single_click_action_lbl">
 		土地をシングルクリック：
 	</text>

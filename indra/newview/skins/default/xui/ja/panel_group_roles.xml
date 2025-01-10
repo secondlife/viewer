@@ -135,6 +135,9 @@ Ctrlキーを押しながら、メンバー名をクリックすることで複�
 			割当られたメンバー
 		</text>
 		<name_list name="role_assigned_members"/>
+		<text name="members_not_loaded">
+			メンバーが読み込まれていません。
+		</text>
 		<check_box label="明らかなメンバー" name="role_visible_in_list" tool_tip="グループ外の人が一般タブを見たときに、この役割のメンバーが表示されるかどうかを設定します。"/>
 		<text name="static5">
 			許可された能力
