@@ -592,7 +592,8 @@ void LLPanelMainInventory::doCreate(const LLSD& userdata)
     }
     else
     {
-        menu_create_inventory_item(getPanel(), NULL, userdata);
+        selectAllItemsPanel();
+        menu_create_inventory_item(mAllItemsPanel, NULL, userdata);
     }
 }
 
